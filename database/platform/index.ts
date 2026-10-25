@@ -10,6 +10,7 @@ import { migration as createSchoolConsents } from './migrations/0022_create_scho
 import { migration as createOperatorTotp } from './migrations/0080_create_operator_totp.js';
 import { migration as createOperatorRecoveryCodes } from './migrations/0081_create_operator_recovery_codes.js';
 import { migration as createKeyRotations } from './migrations/0030_create_key_rotations.js';
+import { migration as createPlans } from './migrations/0040_create_plans.js';
 import { migration as addDatabaseLoginName } from './migrations/0100_add_database_login_name.js';
 
 // Khối số giữ sẵn của phần S1a: 0001 đến 0009; S2: 0020 đến 0029 (tài liệu 32 mục 14.3)
@@ -28,6 +29,8 @@ export const platformMigrations: Record<string, Migration> = {
   // Khối 0080 đến 0089 của phần S8b
   '0080_create_operator_totp': createOperatorTotp,
   '0081_create_operator_recovery_codes': createOperatorRecoveryCodes,
+  // Gói dịch vụ và giới hạn (S5a): 0040 đến 0049
+  '0040_create_plans': createPlans,
   // Khối 0100 đến 0109 của phần S9
   '0100_add_database_login_name': addDatabaseLoginName,
 };

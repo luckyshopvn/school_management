@@ -15,6 +15,7 @@ import { CurrentSchoolYearResolver } from '../common/current-school-year.js';
 import { Databases } from '../common/databases.js';
 import type { RequestBody } from '../common/request-fields.js';
 import { SchoolLevelResolver } from '../common/school-levels.js';
+import { assertSchoolLevelCapacity } from '../common/plan-limits.js';
 
 // Cấp học của trường ở 1.4 Cấu hình trường (DT-19 phần 19a, YCTD-151): bật, tắt, thứ tự, tên hiển thị, thuật ngữ gọi
 // người học, nhãn ô ngữ cảnh của bốn cấp cố định. Mọi người đã đăng nhập đọc được; Hiệu trưởng (P01.school-level.manage)
@@ -137,6 +138,8 @@ export class SchoolLevelsService {
   }
 
   async update(currentUser: CurrentUser, input: SchoolLevelInput[], origin: ChangeOrigin) {
+    // Gói dịch vụ giới hạn số cấp học bật (DT-SaaS phần S5a)
+    assertSchoolLevelCapacity(input.filter((level) => level.is_enabled).length);
     const before = await this.resolver.all();
     await this.databases.system.transaction().execute(async (transaction) => {
       for (const level of input) {

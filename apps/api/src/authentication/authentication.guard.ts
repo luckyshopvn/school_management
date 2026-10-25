@@ -16,6 +16,7 @@ import {
   readBearerToken,
   unauthenticatedError,
 } from '@school-management/server';
+import { isPermissionInPlan } from '@school-management/shared';
 import type { Request } from 'express';
 import { API_CONFIGURATION, type ApiConfiguration } from '../common/configuration.js';
 import { CurrentUser } from './current-user.js';
@@ -81,6 +82,18 @@ export class AuthenticationGuard implements CanActivate {
     if (requiredPermissions && !requiredPermissions.some((code) => currentUser.hasPermission(code))) {
       throw new ApplicationError('ERR_FORBIDDEN', 'Bạn không có quyền thực hiện thao tác này', [
         { field: 'permission', message: requiredPermissions.join(', ') },
+      ]);
+    }
+    // Gói dịch vụ của trường (DT-SaaS phần S5a): quyền đủ nhưng mọi quyền đáp ứng đều thuộc phân hệ ngoài gói thì 403
+    // MODULE_NOT_IN_PLAN; dữ liệu của phân hệ bị tắt được giữ nguyên
+    const plan = currentTenant()?.plan;
+    if (
+      plan &&
+      requiredPermissions &&
+      !requiredPermissions.some((code) => currentUser.hasPermission(code) && isPermissionInPlan(code, plan.modules))
+    ) {
+      throw new ApplicationError('MODULE_NOT_IN_PLAN', 'Phân hệ này không có trong gói dịch vụ của trường', [
+        { field: 'plan', message: plan.code },
       ]);
     }
     return true;

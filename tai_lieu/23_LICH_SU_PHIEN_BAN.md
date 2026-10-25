@@ -1,7 +1,7 @@
 # 23. LỊCH SỬ PHIÊN BẢN
 
 - Mô tả: Mã phiên bản, ngày phát hành, danh sách thay đổi, chức năng mới, lỗi đã sửa, thay đổi dữ liệu, thay đổi API, rủi ro, khả năng tương thích, phương án quay lui.
-- Phiên bản: 0.58
+- Phiên bản: 0.59
 - Ngày cập nhật: 2026-10-25
 - Trạng thái: Đang cập nhật
 - Đã rà duyệt: Eric, ngày 2026-10-09
@@ -16,17 +16,29 @@
 
 ## 2. Danh sách phiên bản
 
-### Phiên bản 0.134.0 – 2026-10-25
+### Phiên bản 0.135.0 – 2026-10-25
 
 - Phạm vi thay đổi: DT-SaaS phần S8b, bảo mật mã (YCTD-201).
-- Chức năng mới: xác thực hai lớp TOTP (bắt buộc cho tài khoản vận hành nền tảng, tuỳ chọn theo trường cho người dùng trường; P01-65, P01-66, MH-323, MH-324); chính sách mật khẩu và khóa tạm theo trường (P01-67, MH-325); tiêu đề bảo mật, cookie `__Secure-`, xoay khóa ký hai pha, quét bí mật và thành phần phụ thuộc ở CI (P01-68); đổi khóa dữ liệu trẻ nay gồm cơ sở dữ liệu định danh.
+- Chức năng mới: xác thực hai lớp TOTP (bắt buộc cho tài khoản vận hành nền tảng, tuỳ chọn theo trường cho người dùng trường; P01-68, P01-69, MH-325, MH-326); chính sách mật khẩu và khóa tạm theo trường (P01-70, MH-327); tiêu đề bảo mật, cookie `__Secure-`, xoay khóa ký hai pha, quét bí mật và thành phần phụ thuộc ở CI (P01-71); đổi khóa dữ liệu trẻ nay gồm cơ sở dữ liệu định danh.
 - Lỗi đã sửa: không có.
 - Thay đổi dữ liệu: `platform_operator_totp`, `platform_operator_recovery_codes` (nền tảng `0080`, `0081`); `user_totp`, `user_recovery_codes` (định danh `0101`, `0102`); xem `16_CO_SO_DU_LIEU.md` mục 18C.
 - Thay đổi API: `/auth/totp` (5 điểm cuối); `otp_code` ở đăng nhập; `totp_enabled`, ba mục chính sách mật khẩu mới; biến môi trường `TOTP_ENCRYPTION_KEY` (chế độ một trường), `TOKEN_PREVIOUS_PUBLIC_KEY`; lệnh `reset-operator-totp`; `create-platform-operator` cần `PLATFORM_MASTER_KEY` và in khóa TOTP, mã khôi phục (xem `17_DAC_TA_API.md`).
-- Kiểm thử: kịch bản CT-1027 đến CT-1032. Kết quả ngày 25/10/2026: packages/server 10 ca mới (TOTP 5, tiêu đề bảo mật 3, xoay khóa ký 2); database 4 ca đổi khóa và bọc lại khóa gốc (gồm cơ sở dữ liệu định danh); apps/identity 97 ca đạt (xác thực hai lớp trường 8 ca mới, vận hành nền tảng 6 ca mới); apps/api 1138 ca đạt (2 ca mới); kiểm tĩnh và quét bí mật 8 ca; e2e nhiều trường 18 ca (spec 130 đến 140, spec 138 có 4 ca) đạt ở cả hai bố cục; e2e một trường các spec 01 đến 07 (23 ca) đạt; e2e toàn bộ do CI chạy.
+- Kiểm thử: kịch bản CT-1035 đến CT-1040. Kết quả ngày 25/10/2026: packages/server 10 ca mới (TOTP 5, tiêu đề bảo mật 3, xoay khóa ký 2); database 4 ca đổi khóa và bọc lại khóa gốc (gồm cơ sở dữ liệu định danh); apps/identity 97 ca đạt (xác thực hai lớp trường 8 ca mới, vận hành nền tảng 6 ca mới); apps/api 1138 ca đạt (2 ca mới); kiểm tĩnh và quét bí mật 8 ca; e2e nhiều trường 18 ca (spec 130 đến 140, spec 138 có 4 ca) đạt ở cả hai bố cục; e2e một trường các spec 01 đến 07 (23 ca) đạt; e2e toàn bộ do CI chạy.
 - Rủi ro: tài khoản vận hành tạo trước phần này không đăng nhập được cho tới khi chạy `reset-operator-totp` (cố ý, vì bắt buộc); ứng dụng phụ huynh không dùng xác thực hai lớp (đăng nhập bằng mã một lần qua tin nhắn); đổi cookie sang `__Secure-` làm mọi người dùng phải đăng nhập lại một lần sau khi nâng cấp; chưa có kiểm thử xâm nhập bên ngoài.
 - Khả năng tương thích: chế độ một trường và đăng nhập hiện có giữ nguyên khi trường chưa bật xác thực hai lớp; `GET /auth/settings/password-policy` trả thêm ba trường.
 - Phương án quay lui: hoàn lại commit gộp của nhánh S8b; bốn bảng mới chỉ phần này dùng.
+
+### Phiên bản 0.134.0 – 2026-10-25
+
+- Phạm vi thay đổi: DT-SaaS phần S5a, gói dịch vụ và giới hạn (YCTD-194).
+- Chức năng mới: gói dịch vụ, phân hệ bật theo gói, giới hạn số học sinh, dung lượng, số cấp học (P01-65); trạng thái trường và chế độ chỉ đọc khi hết hạn (P01-66); trang Gói dịch vụ ở cổng nền tảng, dải báo và lọc menu ở cổng (P01-67, MH-323, MH-324).
+- Lỗi đã sửa: không có.
+- Thay đổi dữ liệu: cơ sở dữ liệu nền tảng thêm `plans`, `school_plans`, ba cột của `schools` (tệp nền tảng `0040`, `16_CO_SO_DU_LIEU.md` mục 18A).
+- Thay đổi API: `GET /school-plan`, nhóm gói ở `/auth/platform`; mã lỗi `MODULE_NOT_IN_PLAN`, `SCHOOL_READ_ONLY`, `PLAN_LIMIT_EXCEEDED` (xem `17_DAC_TA_API.md`).
+- Kiểm thử: kịch bản CT-1027 đến CT-1034 (CT-S5a-1 đến CT-S5a-8 trong mã kiểm thử). Kết quả ngày 25/10/2026: `database` 1 ca, `packages/server` 1 ca, `apps/identity` 1 ca, `apps/api` 4 ca mới đạt, ca cũ của các gói này đạt không sửa; e2e spec 134 và 130 ở dự án nhiều trường, spec 58 và các spec menu ở dự án một trường đạt; e2e toàn bộ do CI chạy.
+- Rủi ro: gói nằm trong bản đệm ngữ cảnh trường nên đổi gói, đổi trạng thái có hiệu lực sau `TENANT_CACHE_SECONDS` (mặc định 30 giây); chuyển trạng thái tự động chờ bộ lập lịch của S1b (trước đó chạy bằng lệnh hoặc nút ở cổng nền tảng); dung lượng tính trên tệp đính kèm và học liệu của năm học hiện hành.
+- Khả năng tương thích: chế độ một trường và trường chưa gán gói không đổi hành vi.
+- Phương án quay lui: hoàn lại commit gộp của nhánh S5a; gỡ gán gói (`school_plans`) và đặt trạng thái trường về `active` là bỏ giới hạn mà không cần quay lui mã.
 
 ### Phiên bản 0.133.0 – 2026-10-25
 

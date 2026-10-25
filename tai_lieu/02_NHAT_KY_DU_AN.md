@@ -1,7 +1,7 @@
 # 02. NHẬT KÝ DỰ ÁN
 
 - Mô tả: Ghi nhận công việc, quyết định, thay đổi và vấn đề tồn đọng theo ngày, ngày mới nhất ở trên cùng.
-- Phiên bản: 0.68
+- Phiên bản: 0.69
 - Ngày cập nhật: 2026-10-25
 - Trạng thái: Đang cập nhật
 
@@ -20,7 +20,7 @@
 
 - Đọc mục 14.3, 14.5 (S8b), 14.9, 14.11 (GD-97) của `32_KE_HOACH_THEO_HE_THONG_SO.md`; rà đăng nhập của dịch vụ định danh, cơ chế hết hạn mật khẩu (DT-15), đăng nhập vận hành nền tảng (S1a), công cụ đổi khóa (S3), tiêu đề ở Caddy, quy trình CI.
 - Thêm xác thực hai lớp, chính sách theo trường, tiêu đề bảo mật, cookie `__Secure-`, khóa ký hai pha, quét bí mật và thành phần phụ thuộc, danh sách kiểm ASVS.
-- Thêm quy tắc BR-214 đến BR-216, chức năng P01-65 đến P01-68, màn hình MH-323 đến MH-325, kịch bản CT-1027 đến CT-1032, tiêu chí AC-842 đến AC-845, bảo mật BM-83 đến BM-86, QĐ-30.
+- Thêm quy tắc BR-217 đến BR-219, chức năng P01-68 đến P01-71, màn hình MH-325 đến MH-327, kịch bản CT-1035 đến CT-1040, tiêu chí AC-845 đến AC-848, bảo mật BM-83 đến BM-86, QĐ-30.
 
 #### Quyết định
 
@@ -32,11 +32,35 @@
 
 #### Thay đổi
 
-- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-201, `07_QUY_TAC_NGHIEP_VU.md` BR-214 đến BR-216, `10_YEU_CAU_CHUC_NANG.md` P01-65 đến P01-68, `11_TIEU_CHI_NGHIEM_THU.md` AC-842 đến AC-845
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-201, `07_QUY_TAC_NGHIEP_VU.md` BR-217 đến BR-219, `10_YEU_CAU_CHUC_NANG.md` P01-68 đến P01-71, `11_TIEU_CHI_NGHIEM_THU.md` AC-845 đến AC-848
 
 #### Vấn đề tồn đọng
 
 - Kiểm thử xâm nhập bên ngoài chờ Eric thuê; xác thực hai lớp cho ứng dụng phụ huynh và bắt buộc cho quản trị trường chưa làm; e2e toàn bộ do CI chạy
+
+### 2026-10-25 — DT-SaaS phần S5a: gói dịch vụ và giới hạn
+
+#### Công việc đã thực hiện
+
+- Đọc mục 14.3, 14.5 (S5a), 14.9 của `32_KE_HOACH_THEO_HE_THONG_SO.md`; rà menu cổng (`PORTAL_WORKSPACES`, `MENU_PERMISSION_RULES`), `AuthenticationGuard`, các chỗ thêm trẻ (duyệt hồ sơ, nhập Excel, nhập CSDL của Bộ), cấp học, tải tệp, ngữ cảnh trường của S1a.
+- Thêm gói dịch vụ (tệp nền tảng 0040), phân hệ theo gói, giới hạn, trạng thái trường và chế độ chỉ đọc, hàm chuyển trạng thái theo hạn cùng lệnh `platform plan-lifecycle`, `GET /school-plan`, trang Gói dịch vụ ở cổng nền tảng, dải báo và lọc menu ở cổng, e2e spec 134.
+- Thêm quy tắc BR-214 đến BR-216, chức năng P01-65 đến P01-67, màn hình MH-323, MH-324, kịch bản CT-1027 đến CT-1034, tiêu chí AC-842 đến AC-844, bảng nền tảng ở `16` mục 18A, giao kèo ở `17`; phiên bản 0.134.0.
+
+#### Quyết định
+
+- Phân hệ của gói là phân hệ của menu cổng, `system` luôn bật; quyền gắn phân hệ suy từ luật menu (một nơi), không thêm bảng ánh xạ.
+- Gộp phân hệ và giới hạn vào `plans`, gán gói ở `school_plans` có ngày hiệu lực (kế hoạch dự kiến `plan_modules`, `plan_limits`, `school_subscriptions`); cột tính phí (`pricing_mode` mặc định `per_student`, đơn giá, mức tối thiểu, giá theo phân hệ, kỳ thu) chừa sẵn cho S5b.
+- Trường chưa gán gói không bị giới hạn; trường đã chỉ đọc hoặc tạm ngưng không tự mở lại khi gia hạn, người vận hành mở ở cổng nền tảng.
+- Ở chế độ chỉ đọc vẫn cho đăng nhập, xuất dữ liệu, xem gói và nhóm `/billing` của S5b.
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-194, `07_QUY_TAC_NGHIEP_VU.md` BR-214 đến BR-216, `10_YEU_CAU_CHUC_NANG.md` P01-65 đến P01-67, `11_TIEU_CHI_NGHIEM_THU.md` AC-842 đến AC-844, `14_DAC_TA_GIAO_DIEN.md` MH-323, MH-324, `16_CO_SO_DU_LIEU.md` mục 18A, `17_DAC_TA_API.md`, `21_KICH_BAN_KIEM_THU.md` CT-1027 đến CT-1034; phiên bản phần mềm 0.134.0.
+
+#### Vấn đề tồn đọng
+
+- Chưa nối `applyPlanLifecycle` vào bộ lập lịch của S1b (bộ lập lịch chạy việc theo từng trường, còn chuyển trạng thái chạy cho cả nền tảng): trước mắt chạy bằng lệnh `platform plan-lifecycle` hoặc nút ở cổng nền tảng; nhắc hạn hiện ở cổng của trường (S4 thêm ở bảng điều khiển); thu tiền, gia hạn tự động ở S5b.
+- Khi gộp với S2: trường khởi tạo ở trạng thái dùng thử được đặt `trial_ends_on` theo `plan_lifecycle.default_trial_days` (mặc định 30 ngày) ở bước kích hoạt, nếu chưa đặt. Ở `24` dòng số giữ sẵn của YCTD-190 ghi S3 194, S5a 195, khác bảng ở `32` mục 14.10 (S5a 194, S3 195); phần này theo bảng ở `32` và lời giao việc.
 
 ### 2026-10-25 — DT-SaaS phần S3: cấu hình riêng từng trường
 

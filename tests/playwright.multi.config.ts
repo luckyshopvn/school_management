@@ -64,6 +64,8 @@ export default defineConfig({
       env: {
         ...platformEnvironment,
         IDENTITY_PORT: String(E2E_MULTI_IDENTITY_PORT),
+        // Spec 134 (S5a) đổi gói, trạng thái trường ở cơ sở dữ liệu nền tảng giữa chừng: nạp lại ngữ cảnh trường sau 2 giây
+        TENANT_CACHE_SECONDS: '2',
         API_BASE_URL: apiBaseUrl,
         LOGIN_REQUESTS_PER_MINUTE: '60',
         PLATFORM_CONSOLE_HOST: E2E_CONSOLE_HOST,
@@ -77,6 +79,7 @@ export default defineConfig({
       env: {
         ...platformEnvironment,
         API_PORT: String(E2E_MULTI_API_PORT),
+        TENANT_CACHE_SECONDS: '2',
         // Phần S1b: tên miền gốc cho trang chọn trường; việc nền do spec gọi điểm tick (tắt hẹn giờ trong tiến trình) để chạy xác định
         PLATFORM_ROOT_DOMAIN: E2E_ROOT_DOMAIN,
         INTERNAL_JOB_TOKEN: E2E_SCHEDULER_SECRET,

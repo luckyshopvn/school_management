@@ -1,7 +1,7 @@
 # 01. KẾ HOẠCH TỔNG THỂ
 
 - Mô tả: Tài liệu điều phối cấp cao nhất của dự án: mười hai giai đoạn kèm cổng kiểm soát, các mốc phát hành, kế hoạch thực thi theo đợt, đường găng, tổ chức thực hiện, quản lý thay đổi và rủi ro.
-- Phiên bản: 1.64
+- Phiên bản: 1.65
 - Ngày cập nhật: 2026-10-25
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -255,7 +255,8 @@ Sản phẩm: School Management, hệ thống quản lý trường mầm non cho
 | 0.131.0 | DT-SaaS phần S2: khởi tạo và vòng đời trường (bước setup ở cổng nền tảng, tiến trình khởi tạo chạy tiếp được hoặc hoàn tác, tên miền mặc định hoặc tên miền riêng qua bộ nối `DomainProvider`, hồ sơ đồng ý dữ liệu thật, kích hoạt quản trị viên đầu tiên, tạm dừng, mở lại, xóa có thời gian chờ, xuất dữ liệu, migrate cuốn chiếu) | YCTD-193 |
 | 0.132.0 | DT-SaaS phần S9: triển khai thử nghiệm miễn phí (hồ sơ `deploy/profiles/trial/`: cổng biên Cloudflare Worker, container gộp, Render hoặc Koyeb, Neon hoặc Supabase, R2 hoặc Supabase Storage, Vercel; bộ nối tên miền Cloudflare for SaaS, Vercel Domains; chính sách dữ liệu; công cụ chuyển sang VPS trong nước) | YCTD-203 |
 | 0.133.0 | DT-SaaS phần S3: cấu hình riêng từng trường (khóa kết nối ngoài mã hóa theo trường, đổi khóa dữ liệu trẻ và khóa gốc, thương hiệu) | YCTD-195 |
-| 0.134.0 | DT-SaaS phần S8b: bảo mật mã (xác thực hai lớp TOTP, chính sách mật khẩu và khóa tạm theo trường, tiêu đề bảo mật, cookie `__Secure-`, xoay khóa ký, quét bí mật và thành phần phụ thuộc ở CI, danh sách kiểm ASVS) | YCTD-201 |
+| 0.134.0 | DT-SaaS phần S5a: gói dịch vụ và giới hạn (phân hệ theo gói, giới hạn học sinh, dung lượng, cấp học, trạng thái trường, chế độ chỉ đọc khi hết hạn, trang gói ở cổng nền tảng) | YCTD-194 |
+| 0.135.0 | DT-SaaS phần S8b: bảo mật mã (xác thực hai lớp TOTP, chính sách mật khẩu và khóa tạm theo trường, tiêu đề bảo mật, cookie `__Secure-`, xoay khóa ký, quét bí mật và thành phần phụ thuộc ở CI, danh sách kiểm ASVS) | YCTD-201 |
 | 1.0.0 | Giai đoạn 1 chạy thật: nền tảng, trẻ, điểm danh, học phí, thanh toán mã QR, phiếu thu, phiếu chi, quỹ tiền mặt, nhân sự, lương cơ bản, hai ứng dụng, báo cáo cơ bản, nhập dữ liệu từ Excel, nhập mã định danh của Bộ, API đối tác | 09 đến 11 | Eric nghiệm thu ngày 13/10/2026, thẻ `v1.0.0` (tài liệu 0.31.0, YCTD-92); chờ triển khai ở việc T6 |
 | 1.1.0 | Giai đoạn 2: giảng dạy, y tế, bếp, kho, hoạt động, tương tác, công việc, tài khoản ngân hàng và công nợ phải trả, báo cáo hợp nhất | 09 đến 11 | Eric nghiệm thu ngày 13/10/2026, thẻ `v1.1.0` (tài liệu 0.42.0, YCTD-92) |
 | 1.2.0 | Giai đoạn 3: tuyển sinh, tuyển dụng, kết nối Facebook và Zalo, đối soát thanh toán, sổ kế toán kép | 09 đến 11 | Eric nghiệm thu ngày 13/10/2026, thẻ `v1.2.0` (tài liệu 0.48.0, YCTD-92) |

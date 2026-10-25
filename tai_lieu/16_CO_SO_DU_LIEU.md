@@ -1,7 +1,7 @@
 # 16. CƠ SỞ DỮ LIỆU
 
 - Mô tả: Thực thể, trường, kiểu dữ liệu, khóa chính, khóa ngoại, quan hệ, ràng buộc, chỉ mục, trạng thái, lịch sử thay đổi, chính sách xóa dữ liệu.
-- Phiên bản: 1.122
+- Phiên bản: 1.123
 - Ngày cập nhật: 2026-10-25
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -741,17 +741,20 @@ Từ YCTD-203 (tệp nền tảng `0100_add_database_login_name`), bảng `schoo
 | integration_secrets (từ YCTD-195) | Cấu hình kết nối ngoài của trường, ở cơ sở dữ liệu hệ thống của trường (BR-211; hệ thống `0051_create_integration_secrets`) | connector (khóa chính: `payos`, `sepay`, `casso`, `vnpay`, `vietqr`, `esms`, `zalo`, `facebook`, `storage`), id, enabled, values_encrypted (JSON mã hóa bằng khóa của trường), hints, updated_at, updated_by |
 | school_branding (từ YCTD-195) | Thương hiệu của trường, một dòng (BR-213; hệ thống `0052_create_school_branding`) | id (luôn 1), display_name, primary_color (`#RRGGBB`), updated_at, updated_by_name |
 | school_key_rotations (từ YCTD-195) | Nhật ký đổi khóa mã hóa dữ liệu trẻ ở cơ sở dữ liệu nền tảng (BR-212; nền tảng `0030_create_key_rotations`, khối 0030 đến 0039 của S3) | school_id, status (`running`, `completed`, `failed`), new_encryption_key_encrypted, new_hash_key_encrypted (bọc bằng khóa gốc), progress (JSON), rows_done, started_by, started_at, finished_at, error; mỗi trường chỉ một lần `running` |
+| plans (từ YCTD-194) | Gói dịch vụ (BR-214, BR-215; tệp nền tảng `0040_create_plans`) | code (duy nhất), name, description, modules (JSON danh sách phân hệ, trống là mọi phân hệ), max_active_students, max_storage_mb, max_school_levels (trống là không giới hạn), trial_days, pricing_mode (`per_student` mặc định, `per_school`, `per_module`), unit_price, minimum_fee, module_prices (JSON), billing_cycle (`monthly`, `term`, `yearly`), status (`active`, `archived`); gói mặc định `full` |
+| school_plans (từ YCTD-194) | Gán gói cho trường có ngày hiệu lực, giữ lịch sử (BR-214) | school_id, plan_id, effective_from, effective_to (trống là còn hiệu lực), assigned_by, note |
+| schools (thêm từ YCTD-194) | Hạn của trường (BR-216) | trial_ends_on, paid_until, status_changed_at; `platform_settings` thêm khóa `plan_lifecycle` (remind_days, read_only_after_days, suspend_after_days, default_trial_days) |
 
 ## 18C. Xác thực hai lớp (DT-SaaS phần S8b, YCTD-201)
 
 | Bảng | Mục đích | Cột chính |
 |---|---|---|
-| platform_operator_totp (từ YCTD-201) | Khóa TOTP của tài khoản vận hành nền tảng, ở cơ sở dữ liệu nền tảng (BR-214; nền tảng `0080_create_operator_totp`, khối 0080 đến 0089 của S8b) | operator_id (khóa chính, xóa theo), secret_encrypted (mã hóa bằng khóa gốc, được bọc lại khi đổi khóa gốc), last_step, created_at |
+| platform_operator_totp (từ YCTD-201) | Khóa TOTP của tài khoản vận hành nền tảng, ở cơ sở dữ liệu nền tảng (BR-217; nền tảng `0080_create_operator_totp`, khối 0080 đến 0089 của S8b) | operator_id (khóa chính, xóa theo), secret_encrypted (mã hóa bằng khóa gốc, được bọc lại khi đổi khóa gốc), last_step, created_at |
 | platform_operator_recovery_codes (từ YCTD-201) | Mã khôi phục dùng một lần của tài khoản vận hành (nền tảng `0081`) | id, operator_id, code_hash (băm), used_at; duy nhất (operator_id, code_hash) |
-| user_totp (từ YCTD-201) | Khóa TOTP của người dùng trường, ở cơ sở dữ liệu định danh của trường (BR-214; định danh `0101_create_user_totp`) | user_id (duy nhất, xóa theo), secret_encrypted (mã hóa bằng khóa mã hóa của trường, được mã hóa lại khi đổi khóa dữ liệu trẻ), confirmed_at (null là đăng ký dở), last_step |
+| user_totp (từ YCTD-201) | Khóa TOTP của người dùng trường, ở cơ sở dữ liệu định danh của trường (BR-217; định danh `0101_create_user_totp`) | user_id (duy nhất, xóa theo), secret_encrypted (mã hóa bằng khóa mã hóa của trường, được mã hóa lại khi đổi khóa dữ liệu trẻ), confirmed_at (null là đăng ký dở), last_step |
 | user_recovery_codes (từ YCTD-201) | Mã khôi phục dùng một lần của người dùng trường (định danh `0102`) | id, user_id, code_hash (băm), used_at |
 
-Chính sách theo trường không có bảng riêng: ba mục mới (`password_min_length`, `login_max_failed_attempts`, `login_lock_minutes`) và `totp_enabled` nằm ở `identity_settings` của cơ sở dữ liệu định danh của trường cùng các mục chính sách mật khẩu đã có (BR-215); hệ thống 0054 giữ trống vì dịch vụ định danh là nơi dùng.
+Chính sách theo trường không có bảng riêng: ba mục mới (`password_min_length`, `login_max_failed_attempts`, `login_lock_minutes`) và `totp_enabled` nằm ở `identity_settings` của cơ sở dữ liệu định danh của trường cùng các mục chính sách mật khẩu đã có (BR-218); hệ thống 0054 giữ trống vì dịch vụ định danh là nơi dùng.
 
 ## 19. Quan hệ chính giữa các bảng
 
