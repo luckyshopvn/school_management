@@ -2,6 +2,7 @@
 export * from './facilities.js';
 export * from './portal-menu.js';
 export * from './menu-permissions.js';
+export * from './plan-modules.js';
 export * from './staff-profile.js';
 export * from './staff-catalogs.js';
 export * from './classes.js';

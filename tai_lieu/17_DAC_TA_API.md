@@ -277,7 +277,11 @@ Giao kèo hồ sơ thử nghiệm (DT-SaaS phần S9, YCTD-203, BR-209, BR-210):
 2. Bước setup và `POST /auth/platform/schools/{mã}/data-class` trả 400 hoặc 422 có lỗi ở `data_class` khi loại dữ liệu trái `PLATFORM_DATA_POLICY`; `GET /auth/platform/schools/settings` thêm `data_policy`; chi tiết trường trả `provider` của từng tên miền.
 3. Biến của nền tảng: `DB_HOST_ADAPTER` (`plain`, `neon`, `supabase`), `DB_POOLER_HOST`, `DB_POOLER_PORT`, `SUPABASE_PROJECT_REF`, `PLATFORM_DATA_POLICY`, `DOMAIN_PROVIDER` (`dns-check`, `cloudflare-saas`, `vercel-domains`) kèm `CLOUDFLARE_API_TOKEN`, `CLOUDFLARE_ZONE_ID` hoặc `VERCEL_TOKEN`, `VERCEL_PROJECT_ID`, `VERCEL_TEAM_ID`, `MIGRATE_ON_START`, `MIGRATE_SCHOOLS_ON_START`, `SMS_ALLOW_LOG`, `REDIS_URL=memory://` (dịch vụ định danh), `APP_BASE_PATH` (lúc dựng giao diện).
 4. Lệnh `platform relayout --school <mã> --to database|schema` đọc nền tảng nguồn từ biến của nền tảng và nền tảng đích từ `TARGET_PLATFORM_DATABASE_URL`, `TARGET_PLATFORM_MASTER_KEY`, `TARGET_PLATFORM_ADMIN_DATABASE_URL`, `TARGET_PLATFORM_SHARED_DATABASE`; in mỗi cơ sở dữ liệu đã chép và số bảng khớp.
-Giao kèo sao lưu theo trường (DT-SaaS phần S7b, YCTD-199, BR-214, BR-215):
+
+Giao kèo gói dịch vụ (DT-SaaS phần S5a, YCTD-194, BR-214 đến BR-216):
+
+1. Khi trường có gói, quyền thuộc phân hệ ngoài gói trả 403 `MODULE_NOT_IN_PLAN`; vượt giới hạn khi thêm học sinh, bật cấp học, tải tệp trả 422 `PLAN_LIMIT_EXCEEDED`; trường ở trạng thái `read_only` trả 403 `SCHOOL_READ_ONLY` cho mọi yêu cầu ghi tới máy chủ API và dịch vụ định danh, trừ `/api/v1/auth/*` (ngoài `/auth/settings`), đường dẫn xuất, `/api/v1/export-jobs`, `/api/v1/school-plan`, `/api/v1/billing`. Trường chưa gán gói và chế độ một trường không bị ảnh hưởng.
+Giao kèo sao lưu theo trường (DT-SaaS phần S7b, YCTD-199, BR-217, BR-218):
 
 1. `GET /api/v1/auth/platform/schools/{mã}` trả thêm `backups`: 20 dòng `backup_runs` gần nhất của trường (`id`, `kind`, `status`, `file_name`, `file_bytes`, `tables`, `rows`, `details`, `error`, `started_at`, `finished_at`); không có điểm cuối chạy sao lưu từ trình duyệt.
 2. Lệnh `platform` (biến `BACKUP_ENCRYPTION_PASSPHRASE` ít nhất 16 ký tự, `BACKUP_DIR`): `backup-school (--school <mã> | --all) [--scope all|active] [--keep-days n]` (đọc ở máy chủ khác khi có `BACKUP_SOURCE_HOST`, `BACKUP_SOURCE_PORT`), `verify-backup --file`, `restore-school --file (--in-place | --as <mã mới>)`, `restore-drill (--file | --school | --all)`, `move-school --school [--drop-source]` với `TARGET_CLUSTER_ADMIN_URL`, `TARGET_CLUSTER_LAYOUT`, `TARGET_CLUSTER_SHARED_DATABASE`. Lỗi một trường khi chạy `--all` thì báo dòng LỖI, chạy tiếp trường khác, mã thoát 1.
@@ -1540,6 +1544,13 @@ Giao kèo văn thư lưu trữ (YCTD-118):
 | GET | /api/v1/auth/impersonations, /api/v1/impersonation-actions | Nhật ký đăng nhập thay (định danh), thao tác trong từng lần (máy chủ API) (P01-32, YCTD-145) |
 | POST | /api/v1/auth/platform/login | Đăng nhập vận hành nền tảng (YCTD-191, PQ-105): chỉ ở tên miền cổng nền tảng (PLATFORM_CONSOLE_HOST), tên miền khác 404; đúng thì trả mã phiên vận hành (đối tượng riêng, hạn 8 giờ); sai 5 lần khóa 15 phút; không cần trường |
 | GET | /api/v1/auth/platform/me | Thông tin tài khoản vận hành đang đăng nhập kèm số trường (YCTD-191); mã phiên của trường không dùng được ở đây |
+| GET | /api/v1/auth/platform/plan-modules | Danh sách phân hệ chọn được cho gói (YCTD-194); mã phiên vận hành |
+| GET, POST | /api/v1/auth/platform/plans | Danh sách, tạo gói (YCTD-194): mã, tên, phân hệ, giới hạn, số ngày dùng thử, cách tính phí, đơn giá, mức tối thiểu, giá theo phân hệ, kỳ thu |
+| PUT | /api/v1/auth/platform/plans/{id} | Sửa gói (YCTD-194) |
+| GET | /api/v1/auth/platform/plan-schools | Danh sách trường kèm trạng thái, gói hiện hành, hạn (YCTD-194) |
+| PUT | /api/v1/auth/platform/plan-schools/{id} | Gán gói (ngày hiệu lực), đặt hạn dùng thử, hạn đã trả phí, trạng thái trường (YCTD-194); ghi nhật ký nền tảng |
+| POST | /api/v1/auth/platform/plan-lifecycle | Chạy chuyển trạng thái theo hạn, trả danh sách trường đổi và trường cần nhắc (YCTD-194, BR-216) |
+| GET | /api/v1/school-plan | Gói của trường đang dùng: `restricted`, trạng thái, gói, phân hệ, giới hạn, số đang dùng (học sinh, dung lượng, cấp học), hạn, số ngày còn lại, `read_only` (YCTD-194); mọi người dùng đã đăng nhập |
 | POST | /api/v1/internal/jobs/tick | Điểm gọi của bộ hẹn giờ bên ngoài (YCTD-192, BR-204): tiêu đề `x-internal-job-token` bằng `INTERNAL_JOB_TOKEN` (so sánh thời gian hằng, sai 401, chưa đặt 404, có giới hạn tần suất); chạy việc nền đến hạn của mọi trường rồi trả `{ jobs, schools, failed }`; không cần trường (gọi bằng địa chỉ nội bộ) |
 | GET | /api/v1/public/schools/picker | Trang chọn trường ở tên miền gốc (YCTD-192, BR-205, MH-315): trang HTML tĩnh, 404 khi chưa đặt `PLATFORM_ROOT_DOMAIN`; không cần trường |
 | GET | /api/v1/public/schools/resolve?code=<mã> | Đổi mã trường thành `{ url }` của trường đang phục vụ (YCTD-192, BR-205); mã lạ, trường tạm dừng, đang khởi tạo hoặc đã xóa 404; có giới hạn tần suất theo địa chỉ mạng; không liệt kê trường |

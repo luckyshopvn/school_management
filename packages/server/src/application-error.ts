@@ -7,7 +7,11 @@ export type ErrorCode =
   | 'ERR_CONFLICT'
   | 'ERR_RULE_VIOLATION'
   | 'ERR_RATE_LIMIT'
-  | 'ERR_INTERNAL';
+  | 'ERR_INTERNAL'
+  // Gói dịch vụ của trường (DT-SaaS phần S5a, YCTD-194): phân hệ ngoài gói, trường chỉ đọc, vượt giới hạn của gói
+  | 'MODULE_NOT_IN_PLAN'
+  | 'SCHOOL_READ_ONLY'
+  | 'PLAN_LIMIT_EXCEEDED';
 
 export const STATUS_BY_ERROR_CODE: Record<ErrorCode, number> = {
   ERR_VALIDATION: 400,
@@ -18,6 +22,9 @@ export const STATUS_BY_ERROR_CODE: Record<ErrorCode, number> = {
   ERR_RULE_VIOLATION: 422,
   ERR_RATE_LIMIT: 429,
   ERR_INTERNAL: 500,
+  MODULE_NOT_IN_PLAN: 403,
+  SCHOOL_READ_ONLY: 403,
+  PLAN_LIMIT_EXCEEDED: 422,
 };
 
 export interface FieldError {

@@ -7,6 +7,7 @@ import { randomUUID } from 'node:crypto';
 import { IdentityClient } from '../authentication/identity-client.js';
 import type { CurrentUser } from '../authentication/current-user.js';
 import { writeAuditLog, type ChangeOrigin } from '../common/audit-log.js';
+import { assertStudentCapacity } from '../common/plan-limits.js';
 import { ChildDataProtection } from '../common/child-data-protection.js';
 import { CurrentSchoolYearResolver } from '../common/current-school-year.js';
 import { queueNotification } from '../common/notification-queue.js';
@@ -772,6 +773,8 @@ export class ImportsService {
       return this.readJob(database, jobId);
     }
     if (type === 'children') {
+      // Gói dịch vụ giới hạn số học sinh đang học (DT-SaaS phần S5a): trẻ nhập vào thẳng trạng thái đang học
+      await assertStudentCapacity(database, validated.children.length);
       for (const row of validated.children) {
         for (const guardian of row.guardians) {
           if (guardian.phone && !accounts.has(guardian.phone)) {

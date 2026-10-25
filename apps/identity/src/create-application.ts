@@ -9,7 +9,14 @@ import type { OrganizationDirectory } from './accounts/organization-directory.js
 import type { IdentityConfiguration } from './common/configuration.js';
 import type { SmsSender } from './messaging/sms-sender.js';
 import type { TenancyRuntime } from '@school-management/database';
-import { Clock, createTenantMiddleware, ErrorFilter, SystemClock } from '@school-management/server';
+import {
+  Clock,
+  createSchoolReadOnlyMiddleware,
+  createTenantMiddleware,
+  ErrorFilter,
+  isIdentityWriteAllowedWhenReadOnly,
+  SystemClock,
+} from '@school-management/server';
 
 export async function createApplication(
   configuration: IdentityConfiguration,
@@ -36,6 +43,8 @@ export async function createApplication(
         resolveByToken: tenancy.tokenTenantResolver(configuration.tokenPublicKeyPem, () => clock.now()),
       }),
     );
+    // Trường quá hạn ở chế độ chỉ đọc: chặn quản trị tài khoản, vẫn đăng nhập, đổi mật khẩu được (DT-SaaS phần S5a)
+    application.use(createSchoolReadOnlyMiddleware({ isAllowedWrite: isIdentityWriteAllowedWhenReadOnly }));
   }
   application.setGlobalPrefix(API_VERSION_PREFIX.slice(1));
   application.useGlobalFilters(new ErrorFilter());

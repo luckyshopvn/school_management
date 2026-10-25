@@ -8,4 +8,6 @@ export interface PlatformMenuItem {
 export const PLATFORM_MENU: readonly PlatformMenuItem[] = [
   { key: 'overview', label: 'Tổng quan' },
   { key: 'schools', label: 'Trường' },
+  // Gói dịch vụ và giới hạn (S5a)
+  { key: 'plans', label: 'Gói dịch vụ' },
 ];
