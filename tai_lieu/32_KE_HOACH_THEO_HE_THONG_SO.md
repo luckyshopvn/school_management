@@ -1485,7 +1485,7 @@ Các lớp kiểm thử:
 
 | Phần | Đợt | Tiến độ |
 |---|---|---|
-| S1a | 1 | Đã làm, YCTD-191, phiên bản 0.128.0, PR @@PR@@: cơ sở dữ liệu nền tảng (tệp 0001 đến 0004, loại `platform`), nhận diện trường theo tên miền (nguồn `host`, `x-forwarded-host`, `header:<tên>` kèm bí mật cổng biên), `Databases` và `Infrastructure` theo ngữ cảnh trường, bố cục `database` và `schema` (vai trò riêng, `search_path` mức vai trò), nhóm kết nối có giới hạn, mã phiên mang `tid` (không dùng `sid` vì đã là mã phiên), cookie, khóa Redis, khóa tệp có tiền tố, khóa dữ liệu trẻ riêng, `platform adopt-existing`, đăng nhập vận hành nền tảng dưới `/auth/platform`, khung `apps/platform`, kiểm tĩnh, ma trận cách ly mọi tuyến, quét chuỗi mồi, e2e nhiều trường (spec 130); việc nền theo trường để S1b |
+| S1a | 1 | Đã làm, YCTD-191, phiên bản 0.128.0, PR 164: cơ sở dữ liệu nền tảng (tệp 0001 đến 0004, loại `platform`), nhận diện trường theo tên miền (nguồn `host`, `x-forwarded-host`, `header:<tên>` kèm bí mật cổng biên), `Databases` và `Infrastructure` theo ngữ cảnh trường, bố cục `database` và `schema` (vai trò riêng, `search_path` mức vai trò), nhóm kết nối có giới hạn, mã phiên mang `tid` (không dùng `sid` vì đã là mã phiên), cookie, khóa Redis, khóa tệp có tiền tố, khóa dữ liệu trẻ riêng, `platform adopt-existing`, đăng nhập vận hành nền tảng dưới `/auth/platform`, khung `apps/platform`, kiểm tĩnh, ma trận cách ly mọi tuyến, quét chuỗi mồi, e2e nhiều trường (spec 130); việc nền theo trường để S1b |
 | S7a | 1 | Chưa làm, YCTD-198 |
 | S8a | 1 | Đã làm, YCTD-200, PR 162: bộ mẫu `33_HO_SO_PHAP_LY/` (PL-00 đến PL-15, S8a-1.0, bản nháp chờ luật sư rà); không tăng phiên bản phần mềm |
 | S1b | 2 | Chưa làm, YCTD-192; bắt đầu khi S1a gộp |

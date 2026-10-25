@@ -29,7 +29,7 @@ Các thay đổi trước phiên bản 0.4.0 chưa có sổ này; xem `23_LICH_S
 - Quyền bị ảnh hưởng: thêm tài khoản vận hành nền tảng ở cơ sở dữ liệu nền tảng (PQ-105); không đổi quyền, vai trò của trường.
 - Ảnh hưởng chức năng cũ: không ở chế độ một trường (mặc định; mọi kiểm thử đơn vị và e2e hiện có chạy không sửa kỳ vọng). Ở chế độ nhiều trường (chưa bật ở môi trường chạy thật): việc nền theo trường làm ở S1b; chức năng bản trình diễn (18h), biểu EMIS gửi cấp trên chưa hỗ trợ; tích hợp ngoài dùng khóa của cả bản triển khai nên chỉ trường số 1 được dùng cho tới S3. Không bật nhiều trường ở môi trường chạy thật trước khi S1b gộp và kiểm thử cách ly đạt.
 - Kiểm thử cần thực hiện: kiểm thử đơn vị `packages/server`, `database`, `apps/identity`, `apps/api` (hai bố cục); kiểm tĩnh; ma trận cách ly; e2e dự án một trường các spec bị ảnh hưởng và spec 130 ở dự án nhiều trường; CI chạy toàn bộ e2e.
-- Trạng thái: Đã triển khai (PR @@PR@@)
+- Trạng thái: Đã triển khai (PR 164)
 
 ### YCTD-200: DT-SaaS phần S8a: pháp lý và hồ sơ tuân thủ (tài liệu) – 2026-10-25
 
