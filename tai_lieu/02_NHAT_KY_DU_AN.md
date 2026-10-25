@@ -1,7 +1,7 @@
 # 02. NHẬT KÝ DỰ ÁN
 
 - Mô tả: Ghi nhận công việc, quyết định, thay đổi và vấn đề tồn đọng theo ngày, ngày mới nhất ở trên cùng.
-- Phiên bản: 0.58
+- Phiên bản: 0.61
 - Ngày cập nhật: 2026-10-25
 - Trạng thái: Đang cập nhật
 
@@ -35,6 +35,30 @@
 #### Vấn đề tồn đọng
 
 - Khảo sát hệ thống của Sở cấp THCS, THPT để sửa biểu khung cho khớp (tài liệu 31); thêm biểu mới từ giao diện.
+
+### 2026-10-25 — Kế hoạch DT-SaaS: Enterprise SaaS nhiều trường
+
+#### Công việc đã thực hiện
+
+- Đọc bản nháp kế hoạch SaaS ngày 2026-10-19 (mục 4 chia phần S1 đến S8, mục 4b quyết định của Eric), mục 12, 13 của `32_KE_HOACH_THEO_HE_THONG_SO.md` làm khuôn, và mã trên nhánh chính: `Databases` (`apps/api/src/common/databases.ts`), cấu hình máy chủ API và dịch vụ định danh, `cacheKey`, `storageKey`, `database/src/migrate.ts`, Caddy `on_demand_tls` của 18f, `backup.sh`, `docker-compose.production.yml`, cấu hình e2e và CI.
+- Thêm mục 14 vào `32_KE_HOACH_THEO_HE_THONG_SO.md` (phiên bản 1.61): kế hoạch DT-SaaS gồm mười ba phần S1a, S1b, S2, S3, S4, S5a, S5b, S6, S7a, S7b, S8a, S8b, S9 chạy năm đợt; kiến trúc đích; phạm vi chi tiết; quyết định thiết kế; chiến lược kiểm thử cách ly; rủi ro; tiến độ; giả định chưa chốt.
+- Ghi YCTD-190 (chỉ đổi tài liệu); thêm đợt DT-SaaS, RR-16 đến RR-18, GD-93 đến GD-101 vào `01_KE_HOACH_TONG_THE.md`.
+
+#### Quyết định
+
+- Eric chốt ngày 2026-10-25: đường dẫn trường mặc định là tên miền con `<mã trường>.<tên miền hệ thống>` (tên miền hệ thống là cấu hình), quản trị nền tảng cấu hình tay được tên miền riêng cho từng trường ở bước setup (CNAME, HTTPS cấp theo yêu cầu cho tên miền có trong danh sách); hạ tầng là VPS trong nước, một hoặc vài máy, không giả định dịch vụ đám mây quản lý, máy chủ đặt tại Việt Nam.
+- Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11: tách S1 thành S1a (lõi) và S1b (chạy nền, công khai), S5 thành S5a (gói) và S5b (thu phí), S7 thành S7a (dựng sẵn, chỉ `deploy/`) và S7b (vận hành nhiều trường), S8 thành S8a (pháp lý, tài liệu) và S8b (bảo mật mã) để tối đa ba phiên song song không sửa chung tệp lõi; mỗi trường một vai trò PostgreSQL; mã phiên gắn mã trường, cặp khóa ký dùng chung; chế độ một trường là mặc định, bản triển khai hiện có thành trường số 1 không chuyển dữ liệu; ba ứng dụng chung một tên miền theo tiền tố đường dẫn; kiểm thử cách ly nhiều lớp (kiểm tĩnh, ma trận tuyến API, bản chụp cơ sở dữ liệu tìm chuỗi canary, e2e nhiều trường) với tên miền `*.localhost`, `*.test`.
+- Bổ sung của Eric ngày 2026-10-25: giai đoạn đầu là thử nghiệm nên kế hoạch có hai hồ sơ triển khai dùng chung một mã nguồn, chọn bằng cấu hình: (a) thử nghiệm miễn phí trên Cloudflare và nền tảng miễn phí khác, (b) vận hành trên VPS trong nước. Claude tự chọn: thêm phần S9 triển khai thử nghiệm giao đầu đợt 3; bố cục cơ sở dữ liệu `schema` (mỗi lược đồ một vai trò, `search_path` mức vai trò) cho thử nghiệm vì gói miễn phí giới hạn số cơ sở dữ liệu; cổng biên bằng Cloudflare Worker kèm tài sản tĩnh (Vercel Hobby phi thương mại, Pages không có tên miền ký tự đại diện); một container gộp, không Redis (`BLPOP` của máy xếp tiêu hết hạn mức Upstash); việc định kỳ do Cron Triggers gọi và có việc bù; Render là lựa chọn đầu, Koyeb thứ hai, Fly.io loại; dữ liệu giả, hoặc dữ liệu thật chỉ khi có văn bản đồng ý và đủ biện pháp tuân thủ (Eric chốt ngày 2026-10-25, xem dòng sau) ở máy chủ ngoài nước.
+- Eric chốt các giả định ngày 2026-10-25: GD-100 dùng cả ba phương án hồ sơ thử nghiệm viết theo kiểu bộ nối (Cloudflare Worker hoặc Vercel; Neon hoặc Supabase, R2 hoặc Supabase Storage; Render, dự phòng Koyeb) kèm ràng buộc Vercel và hai cách kết hợp với Cloudflare DNS; GD-101 trường thật dùng thử với dữ liệu thật khi có văn bản đồng ý, thay ràng buộc "chỉ dữ liệu giả" bằng biện pháp tuân thủ (hồ sơ đồng ý ở `platform`, vùng Singapore, mã hóa trường dữ liệu trẻ em theo khóa trường, đánh giá tác động Nghị định 13/2023/NĐ-CP, Eric chấp nhận rủi ro Nghị định 53/2022/NĐ-CP, lộ trình chuyển về VPS trong nước), cập nhật S8a; GD-98 S6 làm ở đợt 5 đủ ba cấp Bộ, Sở, Phòng Văn hóa – Xã hội với cây đơn vị hành chính cấu hình được; GD-94 thu phí cấu hình được, mặc định theo số học sinh.
+- Phần chưa chốt (tên sản phẩm, cách tính phí, cổng thanh toán, hóa đơn điện tử, nhà cung cấp VPS) làm cấu hình được và ghi là giả định GD-93 đến GD-99.
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-190, `32_KE_HOACH_THEO_HE_THONG_SO.md` mục 14, `01_KE_HOACH_TONG_THE.md` mục 5, 10, 15. Không đổi mã nguồn, không đổi phiên bản phần mềm.
+
+#### Vấn đề tồn đọng
+
+- Eric chốt các giả định ở 14.11 (đặc biệt cách tính phí, tên sản phẩm, nhà cung cấp VPS, xác thực hai lớp so với YCTD-31); S6 chờ xác nhận có khách cấp trên; tài liệu pháp lý của S8a là bản nháp cần luật sư rà; đọc văn bản gốc trước khi làm từng phần; không bật nhiều trường ở môi trường chạy thật trước khi S1a, S1b gộp và kiểm thử cách ly đạt; e2e toàn bộ do CI chạy.
 
 ### 2026-10-25 — DT-22 phần 22h2: kho học liệu số, câu hỏi và chia sẻ
 

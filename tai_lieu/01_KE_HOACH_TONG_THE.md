@@ -1,7 +1,7 @@
 # 01. KẾ HOẠCH TỔNG THỂ
 
 - Mô tả: Tài liệu điều phối cấp cao nhất của dự án: mười hai giai đoạn kèm cổng kiểm soát, các mốc phát hành, kế hoạch thực thi theo đợt, đường găng, tổ chức thực hiện, quản lý thay đổi và rủi ro.
-- Phiên bản: 1.55
+- Phiên bản: 1.58
 - Ngày cập nhật: 2026-10-25
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -414,6 +414,7 @@ Quy tắc bắt buộc: không thực hiện thay đổi trực tiếp trên h�
 | DT-10 | Giai đoạn 2: giảng dạy, công việc, y tế, bếp, kho, hoạt động, tương tác, tài khoản ngân hàng và công nợ phải trả, báo cáo hợp nhất | P03, P06, P09, P10, P12 đến P15, P17 | `M03`, `M09`, `M10`, `M12` đến `M15` | 1.0.0 (làm song song khi 1.0.0 chờ nghiệm thu, YCTD-73) | Mười phần 10a đến 10j đã gộp vào `main` ngày 12/10/2026; báo cáo kiểm thử `29_BAO_CAO_KIEM_THU_G2.md`; bản ứng viên 1.1.0 là phiên bản tài liệu 0.42.0 (YCTD-84) |
 | DT-11 | Giai đoạn 3: tuyển sinh, tuyển dụng, kết nối Facebook và Zalo, đối soát thanh toán, sổ kế toán kép | P01, P06, P14, P16, P18 | `M16`, `M18`, `N3` đến `N5` | 1.1.0 (làm song song khi 1.0.0, 1.1.0 chờ nghiệm thu, YCTD-85) | Năm phần 11a đến 11e đã gộp vào `main` ngày 12/10/2026; báo cáo kiểm thử `30_BAO_CAO_KIEM_THU_G3.md`; bản ứng viên 1.2.0 là phiên bản tài liệu 0.48.0 (YCTD-91); G3-04, G3-09 chưa làm |
 | DT-12 | Nối nhà cung cấp thật và chuẩn bị triển khai: tin nhắn eSMS, cổng thanh toán PayOS, SePay, Casso, VNPay, Fanpage và Zalo Official Account, cấu hình triển khai Docker Compose, sao lưu và phục hồi | P01, P06, P14, P19 | `T1`, `T4`, `T5`, `T7`, chuẩn bị `T6` | 1.2.0 | Bốn phần 12a đến 12d (YCTD-92) |
+| DT-SaaS | Enterprise SaaS nhiều trường (làm sau DT-22, kế hoạch ở `32_KE_HOACH_THEO_HE_THONG_SO.md` mục 14, YCTD-190): nền đa thuê bao (mỗi trường một bộ cơ sở dữ liệu, tên miền con và tên miền riêng, mã phiên gắn mã trường), khởi tạo và vòng đời trường, cấu hình riêng từng trường, gói dịch vụ và thu phí tự động, bảng điều khiển nền tảng, hạ tầng VPS trong nước, sao lưu và khôi phục từng trường, pháp lý và bảo mật; mười ba phần S1a đến S9 (kèm hai hồ sơ triển khai: thử nghiệm miễn phí trên Cloudflare và nền tảng miễn phí, vận hành trên VPS trong nước) chạy năm đợt (S6 ở đợt 5 đã được Eric duyệt ngày 2026-10-25) | Toàn dự án | `T6` (hạ tầng chạy thật), `T7` | DT-22 (22a, 22e, 22h1, 22h2 đã gộp); DT-21 (đã gộp) | Bộ kiểm thử cách ly dữ liệu giữa các trường đạt; hai trường chạy trên một nền tảng ở môi trường thử; chu kỳ gia hạn chạy hết một vòng bằng dữ liệu giả; khôi phục một trường diễn tập đạt RPO, RTO đã ghi |
 
 Thứ tự trong bảng là thứ tự đề xuất, không phải thứ tự cứng. Đổi thứ tự phải qua quản lý thay đổi và phải giữ nguyên các phụ thuộc ở cột thứ sáu.
 
@@ -541,6 +542,9 @@ Mã rủi ro dùng tiền tố `RR-nn`. Mức đánh giá theo ba bậc: cao, tr
 | RR-13 | Mỗi năm học một cơ sở dữ liệu (QĐ-15) | Cao | Chuyển dữ liệu khi mở năm học có thể sai hoặc thiếu; báo cáo nhiều năm phức tạp; thay đổi cấu trúc dữ liệu phải chạy trên mọi cơ sở dữ liệu năm học | Kiểm thử chuyển năm học với dữ liệu một năm học đầy đủ (`DL-11`, `CT-150`); công cụ thay đổi cấu trúc chạy lần lượt mọi cơ sở dữ liệu; báo cáo nhiều năm đi qua lớp tổng hợp riêng |
 | RR-14 | Mật khẩu mặc định chung cho mọi tài khoản phụ huynh (GD-21) | Trung bình | Người biết mật khẩu chung và số điện thoại có thể vào tài khoản chưa đổi mật khẩu | Bắt buộc đổi mật khẩu lần đầu; phiên đăng nhập bằng mật khẩu mặc định chỉ vào được màn hình đổi mật khẩu; mã một lần gửi tới đúng số điện thoại của phụ huynh nên vẫn dùng được (Q-147); theo dõi đăng nhập sai (BM-69) |
 | RR-15 | Không dùng xác thực hai lớp cho Hiệu trưởng, Phó Hiệu trưởng, kế toán trưởng, quản trị nền tảng (YCTD-31) | Trung bình | Lộ mật khẩu của vai trò phê duyệt có thể dẫn tới phê duyệt chứng từ trái phép | Mật khẩu đủ độ dài và độ phức tạp (BM-03), khóa khi sai nhiều lần (BM-04), theo dõi đăng nhập sai (BM-36), thu hồi phiên khi đăng nhập bất thường (BM-56), nhật ký phê duyệt (BR-80) |
+| RR-16 | Lộ dữ liệu giữa các trường khi chạy nhiều trường trên một nền tảng (DT-SaaS) | Cao | Lộ dữ liệu trẻ em của trường này cho trường khác, vi phạm Nghị định 13/2023/NĐ-CP | Mô hình A (mỗi trường một bộ cơ sở dữ liệu, một vai trò PostgreSQL), đóng chặt khi thiếu ngữ cảnh trường, kiểm thử cách ly nhiều lớp ở `32` mục 14.7; không bật nhiều trường ở môi trường chạy thật trước khi S1a, S1b gộp và kiểm thử đạt |
+| RR-17 | VPS trong nước là điểm lỗi duy nhất ở cách đặt một máy; chưa chọn nhà cung cấp, chưa đo năng lực (DT-SaaS) | Trung bình | Mất dịch vụ nhiều trường cùng lúc, mất dữ liệu nếu sao lưu ngoài máy không dùng được | Ba cách đặt máy T1 đến T3, sao lưu ngoài máy và lưu nhật ký giao dịch, diễn tập khôi phục hằng tháng, đo RPO và RTO ở S7b trước khi cam kết |
+| RR-18 | Phần chưa chốt của SaaS (cách tính phí, cổng thanh toán, hóa đơn điện tử, tên sản phẩm) và tài liệu pháp lý do Claude soạn (DT-SaaS) | Trung bình | Làm lại phần thu phí, hóa đơn; điều khoản sai hoặc lỗi thời | Cấu hình được, bộ giả lập thay nhà cung cấp chưa chốt, giả định GD-93 đến GD-101, luật sư của Eric rà tài liệu pháp lý trước khi dùng |
 
 ## 11. Định nghĩa hoàn thành
 
@@ -628,6 +632,15 @@ Không còn mục chưa xác minh. Các mục trước đây đã được trả
 |---|---|---|
 | GD-82 | Đã xác nhận ngày 09/10/2026 (theo Q-07): Kế hoạch tổng thể này là đề xuất của Minh; thứ tự đợt và cách xếp giai đoạn có thể đổi sau khi Eric xác nhận | Eric |
 | GD-83 | Đã xác nhận ngày 09/10/2026 (theo Q-128): Kế hoạch dùng thứ tự và điều kiện vào, điều kiện ra thay cho hạn ngày, cho tới khi Eric xác nhận nguồn lực và ngày bắt đầu | Eric |
+| GD-93 | Giả định (kế hoạch DT-SaaS, ngày 2026-10-25): tên sản phẩm lấy từ cấu hình, mặc định "School Management"; tên miền hệ thống là cấu hình của nền tảng, không ghi cứng, kiểm thử dùng `e2e.localhost` | Eric |
+| GD-94 | Eric đã chốt ngày 2026-10-25 (DT-SaaS): thu phí cấu hình được cả ba cách (theo học sinh, theo trường, theo phân hệ), mặc định theo số học sinh đang học; quản trị nền tảng chọn cách tính cho từng gói; số tiền, bậc thang là dữ liệu cấu hình | Eric (đã chốt) |
+| GD-95 | Giả định (DT-SaaS): dùng lại bộ nối PayOS, SePay, Casso, VNPay cho tiền nền tảng thu của trường (tài khoản nhận tiền của nền tảng chưa có); hóa đơn điện tử qua bộ nối có bộ giả lập, nhà cung cấp chưa chọn | Eric |
+| GD-96 | Giả định (DT-SaaS): chưa chọn nhà cung cấp VPS trong nước; bộ Compose không phụ thuộc nhà cung cấp, ba cách đặt máy T1 đến T3, quy mô gợi ý chỉ là giả định đến khi S7b đo | Eric |
+| GD-97 | Giả định (DT-SaaS): xác thực hai lớp bắt buộc cho tài khoản vận hành nền tảng, tuỳ chọn theo trường cho quản trị trường; chưa đổi quyết định YCTD-31, RR-15 (không dùng xác thực hai lớp cho Hiệu trưởng, Phó Hiệu trưởng, kế toán trưởng) | Eric |
+| GD-98 | Eric đã chốt ngày 2026-10-25 (DT-SaaS): S6 làm ở đợt 5, đủ ba cấp Bộ, Sở, Phòng Văn hóa – Xã hội (cấp xã), cây đơn vị hành chính cấu hình được, mỗi cấp xem số liệu tổng hợp của trường đã đồng ý | Eric (đã chốt) |
+| GD-99 | Giả định (DT-SaaS): dùng thử 30 ngày; nhắc gia hạn trước hạn 15, 7, 1 ngày; chỉ đọc sau hạn 7 ngày; tạm ngưng sau 30 ngày; chờ xóa 30 ngày; sao lưu giữ tối thiểu 30 ngày (SL-01); không xóa dữ liệu tự động khi hết hạn | Eric |
+| GD-100 | Eric đã chốt ngày 2026-10-25 (DT-SaaS): hồ sơ thử nghiệm dùng cả ba phương án viết theo kiểu bộ nối chọn bằng cấu hình: web tĩnh Cloudflare Worker hoặc Vercel, cơ sở dữ liệu Neon hoặc Supabase, tệp R2 hoặc Supabase Storage, máy chủ Render (dự phòng Koyeb); số giới hạn tra ngày 2026-10-25, kiểm lại khi làm | Eric (đã chốt) |
+| GD-101 | Eric đã chốt ngày 2026-10-25 (DT-SaaS): trường thật dùng thử với dữ liệu thật khi đã có văn bản đồng ý của trường (bỏ ràng buộc "chỉ dữ liệu giả" và tự xóa sau 30 ngày với trường thật); biện pháp tuân thủ: hợp đồng hoặc thỏa thuận xử lý dữ liệu và văn bản đồng ý lưu ở `platform`, vùng Singapore, mã hóa trường dữ liệu trẻ em bằng khóa riêng của trường, hồ sơ đánh giá tác động và chuyển dữ liệu ra nước ngoài (Nghị định 13/2023/NĐ-CP); rủi ro Nghị định 53/2022/NĐ-CP do Eric chấp nhận; lộ trình chuyển về VPS trong nước | Eric (đã chốt) |
 | Q-128 | Đã trả lời ngày 09/10/2026: giữ cách dùng điều kiện vào, điều kiện ra, không đặt mốc ngày | Eric |
 | Q-129 | Đã trả lời ngày 09/10/2026: Eric duyệt mọi cổng; Hiệu trưởng cùng nghiệm thu nghiệp vụ; kế toán trưởng cùng nghiệm thu phân hệ học phí, tài chính, lương | Eric |
 | Q-130 | Đã trả lời ngày 09/10/2026: dùng Git trên GitHub, kho riêng; dựng tích hợp và triển khai tự động ngay từ đợt DT-00 | Eric |

@@ -33,7 +33,7 @@
 | 21 | [21_KICH_BAN_KIEM_THU.md](21_KICH_BAN_KIEM_THU.md) | Kịch bản kiểm thử | CT-001 đến CT-985 | 10 Kiểm thử | Đã phê duyệt |
 | 22 | [22_BAO_MAT.md](22_BAO_MAT.md) | Bảo mật | BM-01 đến BM-72 | 10 Kiểm thử | Đã phê duyệt |
 | 23 | [23_LICH_SU_PHIEN_BAN.md](23_LICH_SU_PHIEN_BAN.md) | Lịch sử phiên bản | Các phiên bản từ 0.1.0 | 11 Nghiệm thu và phát hành | Đang cập nhật |
-| 24 | [24_YEU_CAU_THAY_DOI.md](24_YEU_CAU_THAY_DOI.md) | Yêu cầu thay đổi | YCTD-01 đến YCTD-184, đánh giá ảnh hưởng | 12 Vận hành và cải tiến | Đang cập nhật |
+| 24 | [24_YEU_CAU_THAY_DOI.md](24_YEU_CAU_THAY_DOI.md) | Yêu cầu thay đổi | YCTD-01 đến YCTD-190, đánh giá ảnh hưởng | 12 Vận hành và cải tiến | Đang cập nhật |
 | 25 | [25_QUY_TRINH_NGHIEP_VU/](25_QUY_TRINH_NGHIEP_VU/) | Quy trình nghiệp vụ | Mười đặc tả QT-01 đến QT-10 và phiếu yêu cầu trống | 03 Phân tích nghiệp vụ | Đã phê duyệt |
 | 26 | [26_SO_DO_CHUC_NANG/](26_SO_DO_CHUC_NANG/) | Sơ đồ chức năng gốc | Tám ảnh sơ đồ chức năng do Eric gửi, nguồn đầu vào của bộ tài liệu | 01 Xác định ý tưởng | Tài liệu nguồn |
 | 27 | [27_BO_CA_KIEM_THU_CHI_TIET/](27_BO_CA_KIEM_THU_CHI_TIET/) | Bộ ca kiểm thử chi tiết | Ca kiểm thử chi tiết theo việc N21, mã CTC-..., năm đợt, 453 ca, 6 ca không áp dụng | 10 Kiểm thử | Đã phê duyệt |
@@ -41,7 +41,7 @@
 | 29 | [29_BAO_CAO_KIEM_THU_G2.md](29_BAO_CAO_KIEM_THU_G2.md) | Báo cáo kiểm thử giai đoạn 2 | Kết quả chạy thật sau đợt DT-10, ca chưa chạy và quyết định xử lý, lỗi khi gộp các phần, giới hạn bản 1.1.0 (YCTD-84) | 10 Kiểm thử | Đã đánh giá |
 | 30 | [30_BAO_CAO_KIEM_THU_G3.md](30_BAO_CAO_KIEM_THU_G3.md) | Báo cáo kiểm thử giai đoạn 3 | Kết quả chạy thật sau đợt DT-11, ca chưa chạy và quyết định xử lý, lỗi khi gộp các phần, giới hạn bản 1.2.0 (YCTD-91) | 10 Kiểm thử | Đã đánh giá |
 | 31 | [31_KHAO_SAT_HE_THONG_SO.md](31_KHAO_SAT_HE_THONG_SO.md) | Khảo sát hệ thống của Sở | Chức năng và giao diện của Hệ thống thông tin quản lý giáo dục cấp Trường (Mầm non) của Sở GD&ĐT TP.HCM, đối chiếu và đề xuất bổ sung; nền tảng kỹ thuật trang công khai (REA); khảo sát bổ sung ngày 2026-10-19 (Tuyển sinh đầu cấp, mẫu hồ sơ kí, chỉ tiêu và mã số EMIS, 1.7) và đối chiếu với mã nguồn | 02 Phân tích | Đã khảo sát |
-| 32 | [32_KE_HOACH_THEO_HE_THONG_SO.md](32_KE_HOACH_THEO_HE_THONG_SO.md) | Kế hoạch theo hệ thống của Sở | Đồng bộ chức năng và giao diện theo tài liệu 31: DT-15, DT-16 (đã triển khai), DT-17 (khảo sát bổ sung, năm phần 17a đến 17e, đã triển khai); DT-18 điều hành nhà trường (18a đến 18h, 22b, 22d, 22f, 22i); DT-19 nền đa cấp học (19a đến 19f, kế hoạch); DT-20 Tiểu học kèm 22c thời khoá biểu (20a đến 20f, 22c1, 22c2, kế hoạch); DT-21 THCS và THPT kèm 22g kiểm tra, đánh giá (21a đến 21g, 22g1, 22g2, kế hoạch); DT-22 thư viện, bồi dưỡng, kho học liệu số (22a, 22e đã triển khai; 22h1, 22h2 kế hoạch) | 02 Phân tích | Đã duyệt hướng làm |
+| 32 | [32_KE_HOACH_THEO_HE_THONG_SO.md](32_KE_HOACH_THEO_HE_THONG_SO.md) | Kế hoạch theo hệ thống của Sở | Đồng bộ chức năng và giao diện theo tài liệu 31: DT-15, DT-16 (đã triển khai), DT-17 (khảo sát bổ sung, năm phần 17a đến 17e, đã triển khai); DT-18 điều hành nhà trường (18a đến 18h, 22b, 22d, 22f, 22i); DT-19 nền đa cấp học (19a đến 19f, kế hoạch); DT-20 Tiểu học kèm 22c thời khoá biểu (20a đến 20f, 22c1, 22c2, kế hoạch); DT-21 THCS và THPT kèm 22g kiểm tra, đánh giá (21a đến 21g, 22g1, 22g2, kế hoạch); DT-22 thư viện, bồi dưỡng, kho học liệu số (22a, 22e, 22h1, 22h2 đã triển khai); DT-SaaS Enterprise SaaS nhiều trường (S1a đến S9, hồ sơ thử nghiệm miễn phí và vận hành, kế hoạch) | 02 Phân tích | Đã duyệt hướng làm |
 
 ## Quy trình nghiệp vụ
 
@@ -89,7 +89,7 @@ Mã quy trình dạng `QT-nn`, đánh số tăng dần, không tái sử dụng 
 | Cổng kiểm soát chất lượng | 12 | Từ CG-01 đến CG-12, xem `01_KE_HOACH_TONG_THE.md` |
 | Đợt xây dựng | 12 | Từ DT-00 đến DT-11, xem `01_KE_HOACH_TONG_THE.md` |
 | Rủi ro đã ghi nhận | 14 | Từ RR-01 đến RR-14, xem `01_KE_HOACH_TONG_THE.md` |
-| Yêu cầu thay đổi | 175 | Từ YCTD-01 đến YCTD-184 (YCTD-180 chỉ đổi tài liệu, YCTD-183 đến YCTD-189 giữ sẵn cho DT-22; YCTD-166 chỉ đổi tài liệu, YCTD-161 đến YCTD-165 giữ sẵn cho DT-20; số giữ sẵn của DT-18 ghi khi phần gộp; YCTD-142 gộp sau YCTD-143, YCTD-144; YCTD-156 của 19f ghi khi gộp), xem `24_YEU_CAU_THAY_DOI.md` |
+| Yêu cầu thay đổi | 176 | Từ YCTD-01 đến YCTD-190 (YCTD-180, YCTD-190 chỉ đổi tài liệu, YCTD-191 đến YCTD-209 giữ sẵn cho DT-SaaS (S9 là YCTD-203), YCTD-183 đến YCTD-189 giữ sẵn cho DT-22; YCTD-166 chỉ đổi tài liệu, YCTD-161 đến YCTD-165 giữ sẵn cho DT-20; số giữ sẵn của DT-18 ghi khi phần gộp; YCTD-142 gộp sau YCTD-143, YCTD-144; YCTD-156 của 19f ghi khi gộp), xem `24_YEU_CAU_THAY_DOI.md` |
 
 ## Quyết định đã chốt
 
