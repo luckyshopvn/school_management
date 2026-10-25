@@ -1,7 +1,7 @@
 # 11. TIÊU CHÍ NGHIỆM THU
 
 - Mô tả: Tiêu chí nghiệm thu cho từng chức năng, viết dạng Cho, Khi, Thì.
-- Phiên bản: 1.74
+- Phiên bản: 1.75
 - Ngày cập nhật: 2026-10-25
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -895,6 +895,10 @@ Các mã từ AC-94 đến AC-134 được viết trực tiếp trong mục 12 c
 | AC-792 | Cho trường đã có dữ liệu nhân sự, chứng chỉ / Khi nâng cấp lên phiên bản có hồ sơ bồi dưỡng / Thì chứng chỉ cũ vẫn hiện đúng, là loại nhập tay; các phân hệ khác không đổi (CT-927, CT-931; YCTD-182) |
 | AC-793 | Cho khoá trường tổ chức có cấp chứng nhận / Khi giáo viên đăng ký, tổ trưởng, Ban Giám hiệu duyệt, ghi kết quả đạt, cấp chứng nhận / Thì quá hạn, hết chỉ tiêu, tổ khác bị từ chối; người đạt nhận chứng nhận có mã; trang công khai tra theo mã chỉ trả trường tối thiểu, thu hồi thì báo đã thu hồi (CT-929, CT-930, CT-933; YCTD-182) |
 | AC-794 | Cho giáo viên có khoá đạt, chứng chỉ, tự đánh giá năng lực số / Khi xem hồ sơ của tôi, tổ trưởng, Ban Giám hiệu xem hồ sơ, bản đồ năng lực / Thì tổng tiết so định mức, thiếu tiết, sắp hết hạn đúng; miền dưới ngưỡng có gợi ý chuyên đề; xác nhận đổi mức phải có lý do (CT-928, CT-931, CT-932, CT-933; YCTD-182) |
+| AC-823 | Cho nền tảng có hai trường alpha và beta, mỗi trường một tên miền con / Khi gọi dịch vụ định danh và máy chủ API bằng tên miền lạ, thiếu tên miền, tên miền của trường đang khởi tạo hoặc tạm dừng / Thì 404 chung (503 khi tạm dừng), kiểm tra sức khỏe vẫn 200 (CT-986, CT-987; YCTD-191) |
+| AC-824 | Cho tài khoản và mã phiên của trường A / Khi đăng nhập ở tên miền trường B, dùng mã phiên của A ở trường B, giả hoặc bỏ mã trường trong mã phiên, dùng cookie mã làm mới của A ở B / Thì bị từ chối ở mọi tuyến; mã phiên dùng được ở tên miền A và ở địa chỉ nội bộ; giới hạn đăng nhập và khóa Redis tính riêng từng trường (CT-988, CT-989; YCTD-191) |
+| AC-825 | Cho hai trường ở cả hai bố cục (database, schema) / Khi mở năm học, tạo đơn vị mồi, mở năm học kế tiếp rồi hủy, quét mọi bảng của từng trường / Thì chuỗi mồi của trường kia không có ở đâu; vai trò của trường A không kết nối hay đọc, ghi, tạo bảng ở phần của B; năm học cũ khóa ghi ở mức PostgreSQL, bản mã dữ liệu trẻ của A không giải được ở B (CT-990, CT-991; YCTD-191) |
+| AC-826 | Cho bản đang chạy một trường và nền tảng / Khi chạy adopt-existing hai lần, và khi tài khoản vận hành đăng nhập ở cổng nền tảng / Thì trường số 1 dùng lại cơ sở dữ liệu cũ, tiền tố khóa trống, không tạo thêm hàng; cổng nền tảng chỉ phục vụ ở tên miền riêng, khóa 15 phút sau 5 lần sai, mã phiên vận hành và mã phiên của trường không dùng chéo (CT-992, CT-993; YCTD-191) |
 
 ## 20. Chưa xác minh được
 

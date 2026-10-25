@@ -1,7 +1,7 @@
 # 16. CƠ SỞ DỮ LIỆU
 
 - Mô tả: Thực thể, trường, kiểu dữ liệu, khóa chính, khóa ngoại, quan hệ, ràng buộc, chỉ mục, trạng thái, lịch sử thay đổi, chính sách xóa dữ liệu.
-- Phiên bản: 1.117
+- Phiên bản: 1.118
 - Ngày cập nhật: 2026-10-25
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -707,6 +707,21 @@ Tệp `database/school-year/migrations/0059_create_emis_report_values.ts` của 
 Tệp `database/school-year/migrations/0060_add_emis_so_indicators.ts` của cơ sở dữ liệu năm học (DT-17 phần 17a, YCTD-132) thêm `children.policy_benefits`, `staff.concurrent_disability_support`, `staff.concurrent_shared_position`, `rooms.built_this_year`, tạo `emis_record_submissions`; xóa các dòng `emis_report_values` theo mã cũ không đổi được sang mã của Sở (`emis-start-of-year` thẻ `budget`, `emis-facilities` thẻ `facilities`, toàn bộ `emis-foreign-language`). Phần quay lui xóa bảng và bốn cột, không khôi phục số liệu đã xóa. Không có migration hệ thống, định danh.
 
 Chuyển dữ liệu đa cấp học (DT-19 phần 19f, YCTD-156): tệp năm học `0075_backfill_school_levels` (đơn vị thiếu dòng `org_unit_levels` nhận MN; `classes.school_level` lấy theo khối; chương trình mặc định Mầm non khi còn thiếu) và tệp hệ thống `0025_backfill_school_levels` (bật ở `school_levels` các cấp của `website_settings.school_levels`) chạy lặp được, không thêm bảng, cột. Lệnh kiểm `level-check` chỉ đọc các bảng `grade_levels`, `classes`, `children`, `staff`, `fee_schedules`, `receipts`, `attendance_records`, `health_check_results`, `final_year_records`, `org_units`, `org_unit_levels`, `curricula` của mọi cơ sở dữ liệu năm học và `school_levels`, `academic_terms`, `school_weeks` của cơ sở dữ liệu hệ thống.
+
+## 18A. Cơ sở dữ liệu nền tảng (DT-SaaS phần S1a, YCTD-191)
+
+Cơ sở dữ liệu `platform` dùng chung cho nền tảng nhiều trường, loại tệp thay đổi cấu trúc thứ tư (`database/platform/`, khối số 0001 đến 0009 của S1a). Mật khẩu kết nối và khóa chỉ lưu bản mã AES-256-GCM bằng khóa gốc của nền tảng (`PLATFORM_MASTER_KEY`). Chế độ một trường không dùng cơ sở dữ liệu này.
+
+| Bảng | Mục đích | Cột chính |
+|---|---|---|
+| school_clusters (từ YCTD-191) | Máy chủ cơ sở dữ liệu của các trường (BR-201; tệp nền tảng `0002_create_schools`) | name (duy nhất), host, port, role (`primary`, `replica`) |
+| schools (từ YCTD-191) | Danh sách trường (BR-200, BR-202) | code (duy nhất, mẫu tên miền con), name, status (`provisioning`, `trial`, `active`, `read_only`, `suspended`, `pending_deletion`, `deleted`), data_class (`synthetic`, `consented`, `production`), cluster_id, key_prefix (trống ở trường số 1, duy nhất), year_database_prefix (duy nhất), legacy, notes |
+| school_domains (từ YCTD-191) | Tên miền của trường (BR-200) | school_id, host (chữ thường, duy nhất), kind (`system`, `custom`), status (`pending`, `verified`, `active`, `disabled`), verified_at |
+| school_databases (từ YCTD-191) | Mô tả kết nối từng cơ sở dữ liệu hoặc lược đồ của trường (BR-201) | school_id, kind (`identity`, `system`, `school-year`), name (duy nhất theo trường và loại), layout (`database`, `schema`), host, port, database_name, schema_name (bắt buộc khi layout là schema), role_name, password_encrypted, status (`active`, `read_only`, `dropped`) |
+| school_keys (từ YCTD-191) | Khóa mã hóa và khóa băm số định danh của trẻ, riêng từng trường (BR-201) | school_id (khóa chính), child_encryption_key_encrypted, child_hash_key_encrypted, wrapped_with, rotated_at |
+| platform_settings (từ YCTD-191) | Cấu hình của nền tảng (tên miền hệ thống, tên sản phẩm, mã trường dành riêng; các phần sau thêm) | key (khóa chính), value (JSON) |
+| platform_operators (từ YCTD-191) | Tài khoản vận hành nền tảng, không thuộc trường nào (PQ-105) | login (chữ thường, duy nhất), full_name, password_hash (argon2id), status, failed_login_count, locked_until, last_login_at, must_change_password |
+| platform_audit_log (từ YCTD-191) | Nhật ký của nền tảng, không khóa ngoại tới trường để giữ lại sau khi xóa trường | at, actor_type (`operator`, `system`, `cli`), actor_id, action, school_id, details (JSON), ip_address |
 
 ## 19. Quan hệ chính giữa các bảng
 

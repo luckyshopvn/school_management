@@ -1,7 +1,7 @@
 # 24. YÊU CẦU THAY ĐỔI
 
 - Mô tả: Sổ quản lý yêu cầu thay đổi, ghi lý do, đánh giá ảnh hưởng và trạng thái của từng thay đổi trước khi triển khai.
-- Phiên bản: 0.60
+- Phiên bản: 0.61
 - Ngày cập nhật: 2026-10-25
 - Trạng thái: Đang cập nhật
 
@@ -10,6 +10,26 @@
 Mã yêu cầu thay đổi dạng `YCTD-nn`, đánh số tăng dần, không tái sử dụng. Mục mới nhất ở trên cùng. Trạng thái dùng bốn giá trị: Chờ phê duyệt, Đã phê duyệt, Từ chối, Đã triển khai.
 
 Các thay đổi trước phiên bản 0.4.0 chưa có sổ này; xem `23_LICH_SU_PHIEN_BAN.md` các phiên bản 0.1.0 đến 0.3.1.
+
+### YCTD-191: DT-SaaS phần S1a: nền đa thuê bao, phần lõi – 2026-10-25
+
+- Lý do: phần S1a của `32_KE_HOACH_THEO_HE_THONG_SO.md` mục 14.3, 14.4, 14.5 (kế hoạch DT-SaaS ở YCTD-190, PR 161); quyết định của Eric ngày 2026-10-19 (mô hình A, mỗi trường một bộ cơ sở dữ liệu) và ngày 2026-10-25 (tên miền con theo mã trường, hai hồ sơ triển khai thử nghiệm và vận hành). Cần nền để chạy nhiều trường trên một nền tảng mà dữ liệu từng trường tách hẳn nhau.
+- Nội dung thay đổi (Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11 ở những chỗ kế hoạch chưa chốt):
+  - **Cơ sở dữ liệu nền tảng** `platform` (tệp nền tảng `0001` đến `0004`): trường, cụm, tên miền, mô tả kết nối từng cơ sở dữ liệu hoặc lược đồ của trường, khóa dữ liệu trẻ của trường, cấu hình nền tảng, tài khoản vận hành, nhật ký nền tảng; loại tệp thay đổi cấu trúc thứ tư `platform` của `database/src/migrate.ts`. Mật khẩu kết nối và khóa lưu bản mã AES-256-GCM bằng khóa gốc `PLATFORM_MASTER_KEY`.
+  - **Ngữ cảnh trường:** `packages/server` thêm `tenant-context` (`AsyncLocalStorage`, chế độ nhiều trường, đóng chặt khi thiếu ngữ cảnh), `tenant-host` (nguồn tên miền `host`, `x-forwarded-host`, `header:<tên>` kèm `EDGE_SHARED_SECRET`), `tenant-middleware`, `school-code` (mã trường, danh sách dành riêng), `secret-encryption` (chuyển từ máy chủ API); `cacheKey`, `storageKey` thêm tiền tố của trường; đường dẫn con `@school-management/server/tenancy` không phụ thuộc NestJS.
+  - **Gói cơ sở dữ liệu:** `SchoolDatabaseLayout` với hai bộ nối `database` (vai trò `s_<mã>` sở hữu các cơ sở dữ liệu của trường, thu hồi quyền kết nối của public) và `schema` (mỗi lược đồ một vai trò, `search_path` mức vai trò, thu hồi quyền ở `public`; khóa ghi bằng `alter role ... set default_transaction_read_only`); `TenantRegistry` (tên miền → trường, khóa, mô tả kết nối, đệm có hạn); `TenantConnections` (nhóm kết nối có giới hạn, đóng khi rảnh, không bao giờ trả kết nối của trường khác); `TenancyRuntime` (cấu hình từ biến môi trường, tạo, khóa ghi, mở lại, xóa cơ sở dữ liệu năm học); `provisionSchool`, `dropSchool`, `purgeSchoolArtifacts` (dựng, gỡ trường cho kiểm thử); `adoptExistingSchool` và lệnh `platform adopt-existing`, `platform migrate`, `platform generate-master-key`; `setVietnamTimezone` đặt giờ ở mức vai trò khi tài khoản không sở hữu cơ sở dữ liệu.
+  - **Máy chủ API:** `Databases` giữ chữ signature, đọc theo ngữ cảnh trường (thêm `createSchoolYearDatabase`, `dropSchoolYearDatabase`, `setSchoolYearReadOnly` để mở, hủy mở, đóng năm học đi qua bố cục); `withTenantAccessors` đổi khóa dữ liệu trẻ, tiền tố năm học, địa chỉ cơ sở dữ liệu hệ thống thành giá trị đọc theo ngữ cảnh; `AuthenticationGuard` từ chối mã phiên khác trường; ba dịch vụ website, `ZaloTokenStore` đọc cơ sở dữ liệu và khóa theo từng lần dùng; sáu tiến trình nền và việc khởi động theo trường (thông báo, xuất nền, lưu trữ, hàng đợi máy xếp, công việc giao, biểu EMIS) không chạy ở chế độ nhiều trường cho tới S1b.
+  - **Dịch vụ định danh:** `Infrastructure.database` và `keyPrefix()` theo ngữ cảnh trường; mã phiên mang claim `tid` (không dùng `sid` như kế hoạch viết vì `sid` đã là mã phiên) và `verifyAccessToken` từ chối mã phiên khác trường; cookie mã làm mới đặt tên kèm mã trường; bốn chỗ khóa Redis dùng tiền tố của trường; gọi nội bộ giữa máy chủ API và dịch vụ định danh lấy trường theo `tid` khi tên miền không phân giải được; đăng nhập vận hành nền tảng `POST /auth/platform/login`, `GET /auth/platform/me` (chỉ ở `PLATFORM_CONSOLE_HOST`, mã phiên đối tượng riêng, khóa 15 phút sau 5 lần sai), lệnh `create-platform-operator`.
+  - **Khung cổng vận hành nền tảng:** ứng dụng `apps/platform` (đăng nhập, menu theo dữ liệu `platform-menu.ts`, trang Tổng quan); hai Dockerfile thêm `COPY apps/platform/package.json` cho khớp tệp khóa (chỉ một dòng mỗi tệp).
+  - **Kiểm thử cách ly** (tài liệu 32 mục 14.7): kiểm tĩnh mã nguồn kèm baseline chỉ được co lại (`tests/tenancy/static-guard.test.mjs`); ma trận cách ly tự liệt kê mọi tuyến API và danh sách tuyến công khai `tenancy-route-policy.ts`; quét mọi bảng tìm chuỗi mồi; kiểm thử hai bố cục; dự án Playwright nhiều trường `playwright.multi.config.ts` kèm `e2e:multi` (spec 130, tên miền `*.e2e.localhost`, bố cục chọn bằng `E2E_TENANT_LAYOUT`); việc CI `kiem-thu-nhieu-truong`.
+- Thành phần bị ảnh hưởng: `packages/server`, `database`, `apps/api`, `apps/identity`, `apps/platform` (mới), `tests`, `deploy/docker` (hai dòng), `.github/workflows/ci.yml`; tài liệu `01`, `02`, `03`, `07`, `08`, `10`, `11`, `12`, `14`, `16`, `17`, `21`, `22`, `23`, `24`, `32`, `index.md`.
+- Dữ liệu bị ảnh hưởng: cơ sở dữ liệu nền tảng mới (tệp nền tảng 0001 đến 0004); không đổi cơ sở dữ liệu định danh, hệ thống, năm học hiện có; `setVietnamTimezone` giữ hành vi cũ khi tài khoản sở hữu cơ sở dữ liệu.
+- API bị ảnh hưởng: thêm `POST /api/v1/auth/platform/login`, `GET /api/v1/auth/platform/me`; ở chế độ nhiều trường thêm mã lỗi 503 `ERR_SCHOOL_SUSPENDED`, claim `tid` của mã phiên; chế độ một trường không đổi.
+- Giao diện bị ảnh hưởng: ứng dụng mới `apps/platform` (MH-313, MH-314); ba giao diện hiện có không đổi.
+- Quyền bị ảnh hưởng: thêm tài khoản vận hành nền tảng ở cơ sở dữ liệu nền tảng (PQ-105); không đổi quyền, vai trò của trường.
+- Ảnh hưởng chức năng cũ: không ở chế độ một trường (mặc định; mọi kiểm thử đơn vị và e2e hiện có chạy không sửa kỳ vọng). Ở chế độ nhiều trường (chưa bật ở môi trường chạy thật): việc nền theo trường làm ở S1b; chức năng bản trình diễn (18h), biểu EMIS gửi cấp trên chưa hỗ trợ; tích hợp ngoài dùng khóa của cả bản triển khai nên chỉ trường số 1 được dùng cho tới S3. Không bật nhiều trường ở môi trường chạy thật trước khi S1b gộp và kiểm thử cách ly đạt.
+- Kiểm thử cần thực hiện: kiểm thử đơn vị `packages/server`, `database`, `apps/identity`, `apps/api` (hai bố cục); kiểm tĩnh; ma trận cách ly; e2e dự án một trường các spec bị ảnh hưởng và spec 130 ở dự án nhiều trường; CI chạy toàn bộ e2e.
+- Trạng thái: Đã triển khai (PR @@PR@@)
 
 ### YCTD-200: DT-SaaS phần S8a: pháp lý và hồ sơ tuân thủ (tài liệu) – 2026-10-25
 

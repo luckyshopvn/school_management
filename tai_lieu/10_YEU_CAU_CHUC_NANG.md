@@ -1,7 +1,7 @@
 # 10. YÊU CẦU CHỨC NĂNG
 
 - Mô tả: Mã chức năng, tên chức năng, mục đích, người sử dụng, điều kiện thực hiện, dữ liệu đầu vào, quy trình xử lý, kết quả đầu ra, quy tắc nghiệp vụ, trường hợp ngoại lệ, phân quyền, thông báo lỗi.
-- Phiên bản: 1.94
+- Phiên bản: 1.95
 - Ngày cập nhật: 2026-10-25
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -64,6 +64,10 @@
 | P01-44 | Tin tức theo cấp nhận, số người nhận (YCTD-155) | Người soạn tin tức của đơn vị (`P14.content.manage`) | Phạm vi công bố, cấp nhận (trống là mọi cấp) | Kiểm tra cấp đang bật; lưu cấp nhận; đếm tài khoản phụ huynh nhận tin; khi công bố gửi phụ huynh có con học cấp đó | Tin hiện với phụ huynh đúng cấp; số người nhận ở biểu mẫu | BR-163 |
 | P01-45 | Kiểm đối chiếu dữ liệu đa cấp học (YCTD-156) | Người vận hành (lệnh trên máy chủ) | `--out`, `--compare` | Đếm dữ liệu từng năm học, kiểm toàn vẹn cấp, so khớp hai lần kiểm | Bảng số đếm, danh sách lỗi, tệp JSON | BR-165 |
 | P01-46 | Bản trình diễn trường liên cấp (YCTD-156) | Lệnh trên máy chủ; người thử: mọi người | Lệnh reset của bản trình diễn | Bật Tiểu học, THCS; lớp 1A, 6A; phụ huynh có con ở hai cấp | Dữ liệu giả đa cấp | BR-164 |
+| P01-47 | Nhận diện trường theo tên miền (YCTD-191) | Hệ thống (dịch vụ định danh, máy chủ API) | Tên miền yêu cầu, nguồn tên miền, bí mật cổng biên | Tra tên miền ở cơ sở dữ liệu nền tảng; đặt ngữ cảnh trường; 404 chung hoặc 503 theo trạng thái | Ngữ cảnh trường của yêu cầu | BR-200 |
+| P01-48 | Cách ly dữ liệu giữa các trường (YCTD-191) | Hệ thống | Trường, bố cục cơ sở dữ liệu (database hoặc schema) | Cơ sở dữ liệu hoặc lược đồ và vai trò riêng, nhóm kết nối có giới hạn, mã phiên mang mã trường, tiền tố khóa, khóa dữ liệu trẻ riêng; tạo, khóa ghi, xóa cơ sở dữ liệu năm học theo bố cục | Kết nối đúng trường; từ chối chéo trường | BR-201 |
+| P01-49 | Cơ sở dữ liệu nền tảng và nhận bản đang chạy làm trường số 1 (YCTD-191) | Người vận hành (lệnh dòng lệnh platform) | Mã trường, tên, tên miền, biến môi trường hiện có | Chạy tệp thay đổi cấu trúc nền tảng; adopt-existing ghi trường, mô tả kết nối, khóa, tên miền; sinh khóa gốc | Trường số 1 ở cơ sở dữ liệu nền tảng | BR-202 |
+| P01-50 | Đăng nhập vận hành nền tảng và khung cổng vận hành nền tảng (YCTD-191) | Người vận hành nền tảng | Tên đăng nhập, mật khẩu | Đăng nhập ở tên miền cổng nền tảng; khóa sau 5 lần sai; thông tin tài khoản kèm số trường; menu theo dữ liệu | Mã phiên vận hành; trang tổng quan | PQ-105 |
 
 ## 3. Phân hệ P02 — Trẻ, phụ huynh và lớp học
 

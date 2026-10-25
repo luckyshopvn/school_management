@@ -1,7 +1,7 @@
 # 22. BẢO MẬT
 
 - Mô tả: Xác thực, phân quyền, phiên làm việc, kiểm tra dữ liệu đầu vào, bảo mật API, truy cập dữ liệu.
-- Phiên bản: 1.9
+- Phiên bản: 1.10
 - Ngày cập nhật: 2026-10-25
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -127,6 +127,9 @@ Các trường hợp trên phải đẩy cảnh báo cho quản trị nền tả
 | BM-51 | Khắc phục | Sửa lỗi gốc, khôi phục dữ liệu nếu cần |
 | BM-52 | Thông báo | Thông báo cho nhà trường và phụ huynh bị ảnh hưởng theo mức độ sự cố |
 | BM-53 | Rà soát | Ghi biên bản sự cố, xác định nguyên nhân gốc, bổ sung biện pháp phòng ngừa |
+| BM-73 | Nền đa thuê bao (YCTD-191, BR-201): dữ liệu mỗi trường nằm ở cơ sở dữ liệu hoặc lược đồ riêng với vai trò PostgreSQL chỉ có quyền trên phần của mình; mã phiên mang mã trường và bị từ chối ở tên miền trường khác; cookie mã làm mới, khóa Redis, khóa tệp có tiền tố của trường; khóa mã hóa và khóa băm số định danh của trẻ riêng từng trường; thiếu ngữ cảnh trường là lỗi; kiểm tra tĩnh mã nguồn và ma trận cách ly chạy ở mọi lần gộp |
+| BM-74 | Bí mật của nền tảng (YCTD-191): mật khẩu kết nối cơ sở dữ liệu của từng trường và khóa dữ liệu trẻ chỉ lưu bản mã AES-256-GCM bằng khóa gốc `PLATFORM_MASTER_KEY` (32 byte, đặt ở môi trường của máy chủ ứng dụng, không lưu cùng cơ sở dữ liệu); khóa gốc sai thì không đọc được; tên miền của cổng biên kèm bí mật chung `EDGE_SHARED_SECRET` so sánh thời gian hằng; không ghi bí mật vào kho mã nguồn |
+| BM-75 | Tài khoản vận hành nền tảng (YCTD-191, PQ-105): ở cơ sở dữ liệu nền tảng, mật khẩu argon2id theo chính sách BM-03, khóa 15 phút sau 5 lần sai, mã phiên đối tượng riêng hạn 8 giờ, chỉ phục vụ ở tên miền cổng nền tảng, mọi lần đăng nhập ghi nhật ký nền tảng; xác thực hai lớp bắt buộc làm ở phần S8b |
 
 Từ YCTD-200 (DT-SaaS phần S8a), quy trình xử lý sự cố và thông báo vi phạm dữ liệu cá nhân của nền tảng nhiều trường (thời hạn 72 giờ theo Điều 23 Luật Bảo vệ dữ liệu cá nhân số 91/2025/QH15, nội dung theo Điều 28 Nghị định 356/2025/NĐ-CP) ở `33_HO_SO_PHAP_LY/12_QUY_TRINH_SU_CO_VA_THONG_BAO.md` (bản nháp chờ luật sư rà).
 

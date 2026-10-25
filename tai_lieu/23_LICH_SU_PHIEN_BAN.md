@@ -1,7 +1,7 @@
 # 23. LỊCH SỬ PHIÊN BẢN
 
 - Mô tả: Mã phiên bản, ngày phát hành, danh sách thay đổi, chức năng mới, lỗi đã sửa, thay đổi dữ liệu, thay đổi API, rủi ro, khả năng tương thích, phương án quay lui.
-- Phiên bản: 0.52
+- Phiên bản: 0.53
 - Ngày cập nhật: 2026-10-25
 - Trạng thái: Đang cập nhật
 - Đã rà duyệt: Eric, ngày 2026-10-09
@@ -15,6 +15,18 @@
 5. Từ phiên bản 0.4.0, mỗi mục ghi theo mẫu của Vibecoding_Flow; các mục trước giữ nguyên dạng bảng và tên tệp cũ vì là ghi nhận lịch sử.
 
 ## 2. Danh sách phiên bản
+
+### Phiên bản 0.128.0 – 2026-10-25
+
+- Phạm vi thay đổi: DT-SaaS phần S1a, nền đa thuê bao, phần lõi (YCTD-191).
+- Chức năng mới: cơ sở dữ liệu nền tảng và nhận diện trường theo tên miền (P01-47 đến P01-50); cơ sở dữ liệu theo trường ở hai bố cục `database` và `schema`, mã phiên mang mã trường, khóa dữ liệu trẻ riêng, tiền tố khóa; nhận bản đang chạy làm trường số 1 (`platform adopt-existing`); đăng nhập vận hành nền tảng và khung cổng `apps/platform` (MH-313, MH-314); bộ kiểm thử cách ly (kiểm tĩnh, ma trận mọi tuyến, quét chuỗi mồi, e2e nhiều trường).
+- Lỗi đã sửa: không có.
+- Thay đổi dữ liệu: cơ sở dữ liệu nền tảng mới (tệp nền tảng `0001` đến `0004`, bảng ở `16_CO_SO_DU_LIEU.md` mục 18A); không đổi cơ sở dữ liệu định danh, hệ thống, năm học hiện có.
+- Thay đổi API: `POST /auth/platform/login`, `GET /auth/platform/me`; ở chế độ nhiều trường thêm mã lỗi 503 `ERR_SCHOOL_SUSPENDED` và claim `tid` của mã phiên (xem `17_DAC_TA_API.md`).
+- Kiểm thử: kịch bản CT-986 đến CT-994. Kết quả ngày 25/10/2026: `packages/server` 13 ca mới; `database` 37 ca ở ba tệp `tenancy`, `adopt-existing`, `migrate` (hai bố cục, bộ phân giải, nhóm kết nối, năm học); `apps/identity` 21 ca mới (nhiều trường 10, vận hành nền tảng 7, ma trận 4); `apps/api` 25 ca mới (hai bố cục 20, ma trận mọi tuyến 5) và 1109 ca cũ đạt không sửa; kiểm tĩnh 6 ca; e2e một trường các spec 01 đến 09 (27 ca) đạt, spec 130 nhiều trường (4 ca) đạt ở cả hai bố cục; e2e toàn bộ do CI chạy.
+- Rủi ro: chưa bật nhiều trường ở môi trường chạy thật vì việc nền theo trường để S1b và khóa tích hợp riêng từng trường để S3; mô tả kết nối được đệm ở từng bản máy chủ API và làm mới sau `TENANT_CACHE_SECONDS` (mặc định 30 giây), nên bản khác thấy cơ sở dữ liệu năm học mới chậm tối đa chừng đó (S1b, S7 thêm báo hiệu làm mới).
+- Khả năng tương thích: chế độ một trường (không có `PLATFORM_DATABASE_URL`) giữ nguyên hành vi, mọi kiểm thử đơn vị và e2e hiện có chạy không sửa kỳ vọng; `setVietnamTimezone` giữ hành vi cũ khi tài khoản sở hữu cơ sở dữ liệu.
+- Phương án quay lui: hoàn lại commit gộp của nhánh S1a; cơ sở dữ liệu nền tảng chỉ do chế độ nhiều trường dùng nên bỏ biến `PLATFORM_DATABASE_URL` là về chế độ một trường.
 
 ### Phiên bản 0.127.0 – 2026-10-25
 
