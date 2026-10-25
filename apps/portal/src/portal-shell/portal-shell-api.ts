@@ -130,3 +130,15 @@ export function confirmPasswordReset(body: {
 }): Promise<{ message: string }> {
   return publicJson('/api/v1/auth/password-reset/confirm', { method: 'POST', body: JSON.stringify(body) });
 }
+
+// Kích hoạt quản trị viên đầu tiên của trường mới (DT-SaaS phần S2): đường liên kết một lần do cổng nền tảng cấp
+export function readActivation(token: string): Promise<{ login: string; full_name: string; expires_at: string }> {
+  return publicJson(`/api/v1/auth/activate?token=${encodeURIComponent(token)}`);
+}
+
+export function activateAdministrator(body: {
+  token: string;
+  new_password: string;
+}): Promise<{ login: string; message: string }> {
+  return publicJson('/api/v1/auth/activate', { method: 'POST', body: JSON.stringify(body) });
+}

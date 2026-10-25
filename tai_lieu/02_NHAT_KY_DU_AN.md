@@ -20,7 +20,7 @@
 
 - Đọc mục 14.3, 14.5 (S5a), 14.9 của `32_KE_HOACH_THEO_HE_THONG_SO.md`; rà menu cổng (`PORTAL_WORKSPACES`, `MENU_PERMISSION_RULES`), `AuthenticationGuard`, các chỗ thêm trẻ (duyệt hồ sơ, nhập Excel, nhập CSDL của Bộ), cấp học, tải tệp, ngữ cảnh trường của S1a.
 - Thêm gói dịch vụ (tệp nền tảng 0040), phân hệ theo gói, giới hạn, trạng thái trường và chế độ chỉ đọc, hàm chuyển trạng thái theo hạn cùng lệnh `platform plan-lifecycle`, `GET /school-plan`, trang Gói dịch vụ ở cổng nền tảng, dải báo và lọc menu ở cổng, e2e spec 134.
-- Thêm quy tắc BR-206 đến BR-208, chức năng P01-54 đến P01-56, màn hình MH-316, MH-317, kịch bản CT-1004 đến CT-1011, tiêu chí AC-830 đến AC-832, bảng nền tảng ở `16` mục 18A, giao kèo ở `17`; phiên bản 0.131.0.
+- Thêm quy tắc BR-209 đến BR-211, chức năng P01-59 đến P01-61, màn hình MH-320, MH-321, kịch bản CT-1014 đến CT-1021, tiêu chí AC-835 đến AC-837, bảng nền tảng ở `16` mục 18A, giao kèo ở `17`; phiên bản 0.132.0.
 
 #### Quyết định
 
@@ -31,12 +31,37 @@
 
 #### Thay đổi
 
-- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-194, `07_QUY_TAC_NGHIEP_VU.md` BR-206 đến BR-208, `10_YEU_CAU_CHUC_NANG.md` P01-54 đến P01-56, `11_TIEU_CHI_NGHIEM_THU.md` AC-830 đến AC-832, `14_DAC_TA_GIAO_DIEN.md` MH-316, MH-317, `16_CO_SO_DU_LIEU.md` mục 18A, `17_DAC_TA_API.md`, `21_KICH_BAN_KIEM_THU.md` CT-1004 đến CT-1011; phiên bản phần mềm 0.131.0.
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-194, `07_QUY_TAC_NGHIEP_VU.md` BR-209 đến BR-211, `10_YEU_CAU_CHUC_NANG.md` P01-59 đến P01-61, `11_TIEU_CHI_NGHIEM_THU.md` AC-835 đến AC-837, `14_DAC_TA_GIAO_DIEN.md` MH-320, MH-321, `16_CO_SO_DU_LIEU.md` mục 18A, `17_DAC_TA_API.md`, `21_KICH_BAN_KIEM_THU.md` CT-1014 đến CT-1021; phiên bản phần mềm 0.132.0.
 
 #### Vấn đề tồn đọng
 
-- Bộ lập lịch theo trường của S1b gọi `applyPlanLifecycle` hằng ngày và gửi nhắc hạn (S4 hiện nhắc ở bảng điều khiển); thu tiền, gia hạn tự động ở S5b. Ở `24` dòng số giữ sẵn của YCTD-190 ghi S3 194, S5a 195, khác bảng ở `32` mục 14.10 (S5a 194, S3 195); phần này theo bảng ở `32` và lời giao việc.
+- Chưa nối `applyPlanLifecycle` vào bộ lập lịch của S1b (bộ lập lịch chạy việc theo từng trường, còn chuyển trạng thái chạy cho cả nền tảng): trước mắt chạy bằng lệnh `platform plan-lifecycle` hoặc nút ở cổng nền tảng; nhắc hạn hiện ở cổng của trường (S4 thêm ở bảng điều khiển); thu tiền, gia hạn tự động ở S5b.
+- Khi gộp với S2: trường khởi tạo ở trạng thái dùng thử được đặt `trial_ends_on` theo `plan_lifecycle.default_trial_days` (mặc định 30 ngày) ở bước kích hoạt, nếu chưa đặt. Ở `24` dòng số giữ sẵn của YCTD-190 ghi S3 194, S5a 195, khác bảng ở `32` mục 14.10 (S5a 194, S3 195); phần này theo bảng ở `32` và lời giao việc.
 
+### 2026-10-25 — DT-SaaS phần S2: khởi tạo và vòng đời trường
+
+#### Công việc đã thực hiện
+
+- Đọc mục 14.3, 14.4, 14.5 (phần S2), 14.7, 14.9 của `32_KE_HOACH_THEO_HE_THONG_SO.md` và PL-00 của `33_HO_SO_PHAP_LY/`; rà `provisionSchool`, `SchoolDatabaseLayout`, `TenantRegistry`, `migrateToLatest`, đăng nhập vận hành nền tảng, khung `apps/platform`, gói xuất dữ liệu của 18h, cấu hình e2e nhiều trường.
+- Thêm tệp nền tảng `0020_create_school_lifecycle`, `0021_add_domain_verification`, `0022_create_school_consents` và tệp hệ thống `0050_create_terms_acceptances`; thư viện `database/src/school-lifecycle.ts` (bước setup, tiến trình khởi tạo có bước, hoàn tác, tạm dừng, mở lại, yêu cầu xóa, hủy xóa, xóa vĩnh viễn, hồ sơ đồng ý, vùng máy chủ, đổi loại dữ liệu, lời mời kích hoạt, migrate cuốn chiếu), `domain-provider.ts` (`dns-check`), `lifecycle-environment.ts`; mười một lệnh mới của `platform`; điểm cuối `/api/v1/auth/platform/schools…` và `/api/v1/auth/activate` ở dịch vụ định danh; trang Trường ở cổng nền tảng; trang Kích hoạt ở cổng quản trị; lệnh `school-lifecycle-command` (xuất, xóa vĩnh viễn kèm tệp) và `FileStorage.deletePrefix` ở máy chủ API; spec e2e 132.
+- Thêm quy tắc BR-206 đến BR-208, quyền PQ-106, chức năng P01-54 đến P01-58, màn hình MH-316 đến MH-319, kịch bản CT-1004 đến CT-1013, tiêu chí AC-830 đến AC-834, bảo mật BM-77, BM-78, QĐ-27, bảng ở `16` mục 18A, giao kèo ở `17`, mục 12C của `12`; phiên bản 0.131.0.
+
+#### Quyết định
+
+- Tên miền mặc định của trường là `<mã trường>.<tên miền hệ thống>` (`PLATFORM_ROOT_DOMAIN`), dùng ngay; tên miền riêng do người vận hành cấu hình tay, chờ kiểm tra DNS (CNAME về `PLATFORM_INGRESS_HOST` và bản ghi TXT `_school-verify.<tên miền>`) qua bộ nối `DomainProvider` (`dns-check`; `cloudflare-saas`, `vercel-domains` là của S9) theo quyết định của Eric.
+- Điểm cuối quản lý trường đặt dưới `/api/v1/auth/platform/schools` của dịch vụ định danh (nhóm không cần trường, đã có xác thực vận hành và quyền tạo cơ sở dữ liệu), không thêm dịch vụ mới.
+- Quản trị viên đầu tiên (Hiệu trưởng, VT-02) tạo với mã băm của mật khẩu ngẫu nhiên đã bỏ; nhận đường liên kết kích hoạt một lần hạn 72 giờ, chỉ lưu mã băm SHA-256; không gửi mật khẩu qua kênh nào.
+- Bằng chứng đồng ý dùng dữ liệu thật ghi ở `school_consents` và `school_hosting` theo PL-00 của S8a; chỉ lưu mã băm SHA-256 và khóa tệp của bản quét.
+- Xóa vĩnh viễn giữ hàng của trường ở trạng thái `deleted` kèm bản ghi chứng minh đã xóa (mã băm tên, danh sách cơ sở dữ liệu, số tệp); thời gian chờ mặc định 30 ngày (`SCHOOL_DELETION_GRACE_DAYS`, giả định).
+- Không đụng mã việc nền theo trường của S1b và gói, giới hạn của S5a.
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-193, `07_QUY_TAC_NGHIEP_VU.md` BR-206 đến BR-208, `08_VAI_TRO_NGUOI_DUNG.md` PQ-106, `10_YEU_CAU_CHUC_NANG.md` P01-54 đến P01-58, `11_TIEU_CHI_NGHIEM_THU.md` AC-830 đến AC-834, `14_DAC_TA_GIAO_DIEN.md` MH-316 đến MH-319, `16_CO_SO_DU_LIEU.md` mục 18A, `17_DAC_TA_API.md`, `21_KICH_BAN_KIEM_THU.md` CT-1004 đến CT-1013, `22_BAO_MAT.md` BM-77, BM-78, `12_KIEN_TRUC_HE_THONG.md` mục 12C, QĐ-27; phiên bản phần mềm 0.131.0.
+
+#### Vấn đề tồn đọng
+
+- Xóa vĩnh viễn và migrate cuốn chiếu chạy bằng lệnh theo lịch, chưa có bộ lập lịch của nền tảng (S1b); bản sao lưu của trường xóa theo thời hạn lưu ở S7b; bộ nối tên miền `cloudflare-saas`, `vercel-domains` làm ở S9; máy chủ API khác thấy trạng thái trường mới đổi sau `TENANT_CACHE_SECONDS`; xác thực hai lớp của tài khoản vận hành làm ở S8b.
 ### 2026-10-25 — DT-SaaS phần S1b: nền đa thuê bao, phần chạy nền và công khai
 
 #### Công việc đã thực hiện

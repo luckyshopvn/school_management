@@ -1,5 +1,6 @@
 import { useEffect, useState, type FormEvent } from 'react';
 import { PLATFORM_MENU } from './platform-menu.js';
+import { SchoolsPage } from './SchoolsPage.js';
 import { PlansPage } from './PlansPage.js';
 import { fetchProfile, loginOperator, PlatformApiError, type OperatorProfile } from './platform-api.js';
 
@@ -97,6 +98,7 @@ function Shell({ accessToken, onLogout }: { accessToken: string; onLogout: () =>
             </p>
           </section>
         ) : null}
+        {active === 'schools' ? <SchoolsPage token={accessToken} /> : null}
         {active === 'plans' ? <PlansPage accessToken={accessToken} /> : null}
       </main>
     </div>

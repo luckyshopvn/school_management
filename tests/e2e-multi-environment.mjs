@@ -4,11 +4,15 @@
 export const E2E_MULTI_IDENTITY_PORT = 3211;
 export const E2E_MULTI_API_PORT = 3210;
 export const E2E_MULTI_PORTAL_PORT = 5383;
+// Cổng nền tảng (DT-SaaS phần S2, spec 132)
+export const E2E_MULTI_CONSOLE_PORT = 5384;
 export const E2E_ROOT_DOMAIN = 'e2e.localhost';
 // Bí mật dùng chung của điểm tick bộ lập lịch (phần S1b); chỉ cho môi trường kiểm thử cục bộ
 export const E2E_SCHEDULER_SECRET = 'e2e-scheduler-secret';
 export const E2E_CONSOLE_HOST = `platform.${E2E_ROOT_DOMAIN}`;
 export const E2E_SCHOOL_CODES = ['alpha', 'beta'];
+// Trường do spec 132 khởi tạo qua cổng nền tảng; bước dựng dọn sót của lần chạy trước
+export const E2E_LIFECYCLE_SCHOOL_CODES = ['gamma'];
 export const E2E_PLATFORM_DATABASE_NAME = 'school_platform_e2e';
 export const E2E_SHARED_DATABASE_NAME = 'school_shared_e2e';
 export const E2E_MULTI_STATE_FILE = new URL('./.e2e-multi.json', import.meta.url);

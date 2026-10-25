@@ -35,6 +35,15 @@ export interface SchoolsTable {
   year_database_prefix: string;
   legacy: Generated<boolean>;
   notes: string | null;
+  // Bước setup và vòng đời (DT-SaaS phần S2)
+  address: string | null;
+  school_levels: ColumnType<string[], string | undefined, string>;
+  first_academic_year: string | null;
+  suspended_at: Date | null;
+  deletion_requested_at: Date | null;
+  delete_after: Date | null;
+  deleted_at: Date | null;
+  deletion_record: ColumnType<unknown, string | null | undefined, string | null>;
   created_at: CreatedTimestamp;
   updated_at: UpdatedTimestamp;
   // Gói dịch vụ (S5a): hạn dùng thử, hạn đã trả phí, thời điểm đổi trạng thái
@@ -50,6 +59,11 @@ export interface SchoolDomainsTable {
   kind: Generated<SchoolDomainKind>;
   status: Generated<SchoolDomainStatus>;
   verified_at: Date | null;
+  provider: Generated<string>;
+  verification_token: string | null;
+  cname_target: string | null;
+  last_checked_at: Date | null;
+  check_error: string | null;
   created_at: CreatedTimestamp;
   updated_at: UpdatedTimestamp;
 }
@@ -147,6 +161,103 @@ export interface SchoolPlansTable {
   created_at: CreatedTimestamp;
 }
 
+// Khởi tạo, vòng đời, hồ sơ đồng ý (DT-SaaS phần S2, YCTD-193)
+export type ProvisioningJobKind = 'provision' | 'purge';
+export type ProvisioningJobStatus = 'pending' | 'running' | 'failed' | 'done' | 'rolled_back';
+export type SchoolConsentKind = 'dpa' | 'consent' | 'impact-assessment' | 'risk-acceptance';
+type JsonColumn<T> = ColumnType<T, string | undefined, string>;
+
+export interface ProvisioningJobsTable {
+  id: Generated<string>;
+  school_id: string | null;
+  school_code: string;
+  kind: ProvisioningJobKind;
+  status: Generated<ProvisioningJobStatus>;
+  current_step: string | null;
+  completed_steps: JsonColumn<string[]>;
+  input: JsonColumn<Record<string, unknown>>;
+  error: string | null;
+  actor_type: PlatformAuditActorType;
+  actor_id: string | null;
+  created_at: CreatedTimestamp;
+  updated_at: UpdatedTimestamp;
+  finished_at: Date | null;
+}
+
+export interface SchoolLifecycleEventsTable {
+  id: Generated<string>;
+  school_id: string;
+  event: string;
+  from_status: string | null;
+  to_status: string | null;
+  reason: string | null;
+  actor_type: PlatformAuditActorType;
+  actor_id: string | null;
+  at: ColumnType<Date, Date | undefined, never>;
+}
+
+export interface SchoolAdminInvitationsTable {
+  id: Generated<string>;
+  school_id: string;
+  user_id: string;
+  login: string;
+  full_name: string;
+  token_hash: string;
+  expires_at: Date;
+  used_at: Date | null;
+  created_at: CreatedTimestamp;
+}
+
+export interface SchoolMigrationsTable {
+  id: Generated<string>;
+  school_id: string;
+  wave_id: string;
+  database_kind: string;
+  database_name: string;
+  status: 'done' | 'failed' | 'skipped';
+  applied: JsonColumn<string[]>;
+  error: string | null;
+  canary: Generated<boolean>;
+  at: ColumnType<Date, Date | undefined, never>;
+}
+
+export interface SchoolConsentsTable {
+  id: Generated<string>;
+  school_id: string;
+  kind: SchoolConsentKind;
+  template_code: string;
+  template_version: string;
+  signer_name: string;
+  signer_title: string;
+  signed_on: ColumnType<string, string, string>;
+  valid_from: ColumnType<string, string, string>;
+  valid_until: ColumnType<string | null, string | null | undefined, string | null>;
+  data_scope: string;
+  hosting_snapshot: JsonColumn<unknown[]>;
+  file_sha256: string;
+  file_key: string | null;
+  file_name: string | null;
+  submitted_to_authority_on: ColumnType<string | null, string | null | undefined, string | null>;
+  authority_reference: string | null;
+  recorded_by: string | null;
+  recorded_by_name: string;
+  withdrawn_on: ColumnType<string | null, string | null | undefined, string | null>;
+  created_at: CreatedTimestamp;
+}
+
+export interface SchoolHostingTable {
+  id: Generated<string>;
+  school_id: string;
+  provider: string;
+  service: string;
+  region: string;
+  role: Generated<'subprocessor' | 'transit'>;
+  stores_personal_data: Generated<boolean>;
+  started_on: ColumnType<string, string, string>;
+  ended_on: ColumnType<string | null, string | null | undefined, string | null>;
+  created_at: CreatedTimestamp;
+}
+
 export interface SchedulerStateTable {
   school_id: string;
   job: string;
@@ -168,5 +279,11 @@ export interface PlatformDatabase {
   platform_audit_log: PlatformAuditLogTable;
   plans: PlansTable;
   school_plans: SchoolPlansTable;
+  provisioning_jobs: ProvisioningJobsTable;
+  school_lifecycle_events: SchoolLifecycleEventsTable;
+  school_admin_invitations: SchoolAdminInvitationsTable;
+  school_migrations: SchoolMigrationsTable;
+  school_consents: SchoolConsentsTable;
+  school_hosting: SchoolHostingTable;
   scheduler_state: SchedulerStateTable;
 }

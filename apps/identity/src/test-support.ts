@@ -19,6 +19,8 @@ import { Infrastructure } from './common/infrastructure.js';
 import { Redis } from 'ioredis';
 
 // Hỗ trợ kiểm thử tích hợp trên cơ sở dữ liệu định danh và Redis thật
+// Tạo tài khoản vận hành nền tảng cho kiểm thử giao diện cổng nền tảng (DT-SaaS phần S2, spec 132)
+export { createPlatformOperator } from './platform/platform-operators.js';
 
 export class AdjustableClock extends Clock {
   private offsetMilliseconds = 0;

@@ -1191,6 +1191,17 @@ export interface WebsiteEventsTable {
 }
 
 // Cấp học của trường (DT-19 phần 19a): bốn mã cố định, bật hay tắt, tên hiển thị, thuật ngữ gọi người học
+// Đồng ý điều khoản sử dụng của trường (DT-SaaS phần S2, YCTD-193)
+export interface TermsAcceptancesTable {
+  id: Generated<string>;
+  terms_version: string;
+  accepted_at: ColumnType<Date, Date | undefined, never>;
+  accepted_by_name: string;
+  accepted_by_title: string | null;
+  source: 'platform-setup' | 'school-user';
+  recorded_by: string;
+}
+
 export interface SchoolLevelsTable {
   code: string;
   is_enabled: Generated<boolean>;
@@ -1463,4 +1474,5 @@ export interface SystemDatabase {
   website_contact_messages: WebsiteContactMessagesTable;
   website_events: WebsiteEventsTable;
   school_levels: SchoolLevelsTable;
+  terms_acceptances: TermsAcceptancesTable;
 }

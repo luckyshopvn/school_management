@@ -4,6 +4,7 @@ import {
   DeleteObjectCommand,
   GetObjectCommand,
   HeadBucketCommand,
+  ListObjectsV2Command,
   PutObjectCommand,
   S3Client,
 } from '@aws-sdk/client-s3';
@@ -16,6 +17,8 @@ export abstract class FileStorage {
   // Xóa tệp khi bản ghi sở hữu bị xóa (tệp đính kèm hồ sơ văn thư) hoặc tệp xuất nền hết hạn (DT-16 phần 16a); tệp không
   // còn thì bỏ qua
   abstract delete(key: string): Promise<void>;
+  // Xóa mọi tệp có khóa bắt đầu bằng tiền tố (xóa vĩnh viễn một trường, DT-SaaS phần S2); trả số tệp đã xóa
+  abstract deletePrefix(prefix: string): Promise<number>;
 }
 
 export class S3FileStorage extends FileStorage {
@@ -47,6 +50,28 @@ export class S3FileStorage extends FileStorage {
 
   async delete(key: string): Promise<void> {
     await this.client.send(new DeleteObjectCommand({ Bucket: this.settings.bucket, Key: key }));
+  }
+
+  async deletePrefix(prefix: string): Promise<number> {
+    let deleted = 0;
+    let continuationToken: string | undefined;
+    do {
+      const page = await this.client.send(
+        new ListObjectsV2Command({
+          Bucket: this.settings.bucket,
+          Prefix: prefix,
+          ContinuationToken: continuationToken,
+        }),
+      );
+      for (const item of page.Contents ?? []) {
+        if (item.Key) {
+          await this.delete(item.Key);
+          deleted += 1;
+        }
+      }
+      continuationToken = page.IsTruncated ? page.NextContinuationToken : undefined;
+    } while (continuationToken);
+    return deleted;
   }
 
   // Tạo thùng chứa ở lần ghi đầu nếu chưa có
@@ -83,6 +108,14 @@ export class MemoryFileStorage extends FileStorage {
 
   async delete(key: string): Promise<void> {
     this.objects.delete(key);
+  }
+
+  async deletePrefix(prefix: string): Promise<number> {
+    const keys = [...this.objects.keys()].filter((key) => key.startsWith(prefix));
+    for (const key of keys) {
+      this.objects.delete(key);
+    }
+    return keys.length;
   }
 
   has(key: string): boolean {

@@ -16,18 +16,29 @@
 
 ## 2. Danh sách phiên bản
 
-### Phiên bản 0.131.0 – 2026-10-25
+### Phiên bản 0.132.0 – 2026-10-25
 
 - Phạm vi thay đổi: DT-SaaS phần S5a, gói dịch vụ và giới hạn (YCTD-194).
-- Chức năng mới: gói dịch vụ, phân hệ bật theo gói, giới hạn số học sinh, dung lượng, số cấp học (P01-54); trạng thái trường và chế độ chỉ đọc khi hết hạn (P01-55); trang Gói dịch vụ ở cổng nền tảng, dải báo và lọc menu ở cổng (P01-56, MH-316, MH-317).
+- Chức năng mới: gói dịch vụ, phân hệ bật theo gói, giới hạn số học sinh, dung lượng, số cấp học (P01-59); trạng thái trường và chế độ chỉ đọc khi hết hạn (P01-60); trang Gói dịch vụ ở cổng nền tảng, dải báo và lọc menu ở cổng (P01-61, MH-320, MH-321).
 - Lỗi đã sửa: không có.
 - Thay đổi dữ liệu: cơ sở dữ liệu nền tảng thêm `plans`, `school_plans`, ba cột của `schools` (tệp nền tảng `0040`, `16_CO_SO_DU_LIEU.md` mục 18A).
 - Thay đổi API: `GET /school-plan`, nhóm gói ở `/auth/platform`; mã lỗi `MODULE_NOT_IN_PLAN`, `SCHOOL_READ_ONLY`, `PLAN_LIMIT_EXCEEDED` (xem `17_DAC_TA_API.md`).
-- Kiểm thử: kịch bản CT-1004 đến CT-1011 (CT-S5a-1 đến CT-S5a-8 trong mã kiểm thử). Kết quả ngày 25/10/2026: `database` 1 ca, `packages/server` 1 ca, `apps/identity` 1 ca, `apps/api` 4 ca mới đạt, ca cũ của các gói này đạt không sửa; e2e spec 134 và 130 ở dự án nhiều trường, spec 58 và các spec menu ở dự án một trường đạt; e2e toàn bộ do CI chạy.
+- Kiểm thử: kịch bản CT-1014 đến CT-1021 (CT-S5a-1 đến CT-S5a-8 trong mã kiểm thử). Kết quả ngày 25/10/2026: `database` 1 ca, `packages/server` 1 ca, `apps/identity` 1 ca, `apps/api` 4 ca mới đạt, ca cũ của các gói này đạt không sửa; e2e spec 134 và 130 ở dự án nhiều trường, spec 58 và các spec menu ở dự án một trường đạt; e2e toàn bộ do CI chạy.
 - Rủi ro: gói nằm trong bản đệm ngữ cảnh trường nên đổi gói, đổi trạng thái có hiệu lực sau `TENANT_CACHE_SECONDS` (mặc định 30 giây); chuyển trạng thái tự động chờ bộ lập lịch của S1b (trước đó chạy bằng lệnh hoặc nút ở cổng nền tảng); dung lượng tính trên tệp đính kèm và học liệu của năm học hiện hành.
 - Khả năng tương thích: chế độ một trường và trường chưa gán gói không đổi hành vi.
 - Phương án quay lui: hoàn lại commit gộp của nhánh S5a; gỡ gán gói (`school_plans`) và đặt trạng thái trường về `active` là bỏ giới hạn mà không cần quay lui mã.
 
+### Phiên bản 0.131.0 – 2026-10-25
+
+- Phạm vi thay đổi: DT-SaaS phần S2, khởi tạo và vòng đời trường (YCTD-193).
+- Chức năng mới: khởi tạo trường theo bước setup ở cổng nền tảng và lệnh `platform provision` (P01-54), vòng đời trường: tạm dừng, mở lại, yêu cầu xóa, hủy, xóa vĩnh viễn, xuất dữ liệu (P01-55), tên miền riêng qua bộ nối `DomainProvider`, hồ sơ đồng ý dữ liệu thật (P01-56), kích hoạt quản trị viên đầu tiên (P01-57), migrate cuốn chiếu (P01-58); trang Trường ở cổng nền tảng (MH-316 đến MH-318) và trang Kích hoạt ở cổng quản trị (MH-319).
+- Lỗi đã sửa: không có.
+- Thay đổi dữ liệu: tệp nền tảng `0020` đến `0022` (sáu bảng mới, cột mới ở `schools`, `school_domains`), tệp hệ thống `0050_create_terms_acceptances` (xem `16_CO_SO_DU_LIEU.md` mục 18A); không đổi cơ sở dữ liệu định danh, năm học.
+- Thay đổi API: nhóm `/api/v1/auth/platform/schools…`, `GET, POST /api/v1/auth/activate` (xem `17_DAC_TA_API.md`); lệnh mới `platform provision`, `provision-resume`, `provision-rollback`, `suspend`, `resume`, `request-deletion`, `cancel-deletion`, `purge-due`, `reissue-invitation`, `verify-domain`, `migrate-schools` và `school-lifecycle-command.js export | purge-due` của máy chủ API.
+- Kiểm thử: kịch bản CT-1004 đến CT-1013. Kết quả ngày 25/10/2026: `database` 13 ca mới (`school-lifecycle.test.ts`); `apps/identity` 7 ca mới (`platform-schools.test.ts`), vận hành nền tảng 7 ca và ma trận cách ly 4 ca chạy lại đạt; `apps/api` 2 ca mới; e2e spec 132 và 130 ở dự án nhiều trường; e2e toàn bộ do CI chạy.
+- Rủi ro: xóa vĩnh viễn, migrate cuốn chiếu chạy bằng lệnh theo lịch cho tới khi có bộ lập lịch (S1b); máy chủ API khác thấy trạng thái trường đổi chậm tối đa `TENANT_CACHE_SECONDS`; khởi tạo chạy đồng bộ trong yêu cầu (vài chục giây), lỗi thì chạy tiếp hoặc hoàn tác.
+- Khả năng tương thích: chế độ một trường không đổi; tệp hệ thống `0050` chỉ thêm bảng.
+- Phương án quay lui: hoàn lại commit gộp của nhánh S2; bảng mới không được mã cũ đọc.
 ### Phiên bản 0.130.0 – 2026-10-25
 
 - Phạm vi thay đổi: DT-SaaS phần S1b, nền đa thuê bao, phần chạy nền và công khai (YCTD-192).
