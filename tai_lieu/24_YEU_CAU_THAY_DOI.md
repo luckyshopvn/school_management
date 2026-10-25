@@ -1,7 +1,7 @@
 # 24. YÊU CẦU THAY ĐỔI
 
 - Mô tả: Sổ quản lý yêu cầu thay đổi, ghi lý do, đánh giá ảnh hưởng và trạng thái của từng thay đổi trước khi triển khai.
-- Phiên bản: 0.60
+- Phiên bản: 0.61
 - Ngày cập nhật: 2026-10-25
 - Trạng thái: Đang cập nhật
 
@@ -30,6 +30,29 @@ Các thay đổi trước phiên bản 0.4.0 chưa có sổ này; xem `23_LICH_S
 - Chưa làm trong phần này, ghi để làm tiếp: sao lưu theo từng trường, khôi phục về một thời điểm, chuyển cụm, thử tải (S7b); danh sách xác thực PgBouncer sinh từ cơ sở dữ liệu nền tảng khi có vai trò riêng cho từng trường (S1a, S2); điểm cuối kiểm tra tên miền của nền tảng (S1b); thêm kiểm tra cấu hình hồ sơ này vào CI (tệp CI ngoài phạm vi phần này).
 - Kiểm thử cần thực hiện: CT-986 đến CT-989. Kết quả ngày 25/10/2026: `deploy/profiles/production/scripts/check-config.sh` đạt (Compose T1, T2 hai máy, T3 máy bản sao, staging cùng VPS; Caddyfile có và không có tệp `sites.d`; Prometheus, luật cảnh báo; Alertmanager đủ ba kênh và không kênh nào; Loki); dựng ảnh PgBouncer, chạy cùng PostgreSQL: kết nối `school_system` gom theo phiên giữ và mở khóa tư vấn trên cùng kết nối, `school_identity` gom theo giao dịch, sai mật khẩu bị từ chối, kiểm tra sức khỏe đạt; bản sao lấy bản sao cơ bản, máy chính báo `streaming`, bản sao đọc được dòng vừa ghi; cú pháp các script shell đạt; bản một máy cũ (`deploy/docker-compose.production.yml`) vẫn hợp lệ; kiểm tra định dạng đạt. Không có e2e (phần hạ tầng, không sửa mã nghiệp vụ); kiểm tay trên staging (CT-989) chờ dựng VPS thử.
 - Trạng thái: Đã triển khai phần dựng sẵn (PR #163); kiểm tay trên staging chờ VPS thử.
+
+### YCTD-200: DT-SaaS phần S8a: pháp lý và hồ sơ tuân thủ (tài liệu) – 2026-10-25
+
+- Lý do: phần S8a của `32_KE_HOACH_THEO_HE_THONG_SO.md` mục 14.3, 14.5 (kế hoạch DT-SaaS ở YCTD-190); quyết định của Eric ngày 2026-10-25 cho trường thật dùng thử dữ liệu thật trên máy chủ ngoài Việt Nam khi có văn bản đồng ý, Eric là người chấp nhận rủi ro. Chỉ viết tài liệu, không sửa mã, `deploy/`, `docker/`.
+- Văn bản căn cứ Claude đọc ngày 2026-10-25 trên `chinhphu.vn`, `congbao.chinhphu.vn`, `vbpl.vn`, `mps.gov.vn`, `bocongan.gov.vn`, `baochinhphu.vn`: Luật Bảo vệ dữ liệu cá nhân số 91/2025/QH15 (hiệu lực 01/01/2026) và Nghị định 356/2025/NĐ-CP (hiệu lực 01/01/2026; **Nghị định 13/2023/NĐ-CP hết hiệu lực từ 01/01/2026** theo khoản 2 Điều 42); Luật An ninh mạng số 116/2025/QH15 (hiệu lực 01/07/2026), Nghị định 331/2026/NĐ-CP (cấp độ hệ thống thông tin) và Nghị định 333/2026/NĐ-CP (quy định chi tiết Luật An ninh mạng, gồm lưu trữ dữ liệu tại Việt Nam), cùng hiệu lực 19/08/2026. Mức độ đã đọc từng văn bản và các điểm chưa xác minh ghi ở `33_HO_SO_PHAP_LY/00_MUC_LUC.md` mục 4.
+- Phát hiện khi đối chiếu với kế hoạch (ghi lại để các phần sau theo):
+  - Kế hoạch 14.2, 14.5 viết theo Nghị định 13/2023/NĐ-CP; văn bản này đã hết hiệu lực. Bộ mẫu theo Luật 91/2025 và Nghị định 356/2025: hồ sơ đánh giá tác động xử lý dữ liệu và hồ sơ đánh giá tác động chuyển dữ liệu xuyên biên giới gửi cơ quan chuyên trách **trong 60 ngày** kể từ ngày đầu tiên xử lý hoặc chuyển; cập nhật định kỳ 06 tháng hoặc trong 10 ngày; thông báo vi phạm trong 72 giờ; phạt tới 5% doanh thu năm trước với vi phạm chuyển dữ liệu xuyên biên giới. Lưu dữ liệu thu thập tại Việt Nam trên máy chủ hoặc điện toán đám mây ở nước ngoài là chuyển dữ liệu xuyên biên giới (điểm a khoản 1 Điều 17 Nghị định 356/2025).
+  - Kế hoạch ghi Nghị định 53/2022/NĐ-CP, Nghị định 85/2016/NĐ-CP, Thông tư 12/2022/TT-BTTTT; khung an ninh mạng đã đổi sang Luật 116/2025 và các nghị định 331/2026, 333/2026. Claude chưa đọc được toàn văn hai nghị định này (tệp gốc là ảnh quét), chưa xác định được văn bản cũ đã bị bãi bỏ chính thức hay chưa; luật sư kiểm.
+  - **Rủi ro mới, chưa có trong kế hoạch:** Điều 21 Nghị định 356/2025 xếp "cung cấp và vận hành hệ thống, phần mềm tự động để thay mặt bên kiểm soát xử lý dữ liệu cá nhân" và "phần mềm giáo dục có yếu tố giám sát như điểm danh, ghi hình" vào dịch vụ xử lý dữ liệu cá nhân; Điều 22 đến 27 đặt điều kiện (pháp nhân Việt Nam, tối thiểu 03 nhân sự đủ điều kiện, kết quả đạt của hồ sơ đánh giá tác động) và Giấy chứng nhận đủ điều kiện. Ghi ở mẫu PL-15; **luật sư kết luận trước khi nhận dữ liệu thật của trường đầu tiên**.
+  - Nghị định 331/2026 (theo bài của Bộ Công an): ngưỡng cấp độ 3 là từ 100.000 chủ thể dữ liệu cơ bản hoặc 10.000 chủ thể dữ liệu nhạy cảm; nền tảng nhiều trường tính tổng mọi trường, có dữ liệu sức khỏe trẻ em, nên dự kiến cấp độ 3 khi đủ quy mô (PL-11).
+- Nội dung thay đổi (Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11): tài liệu mới `33_HO_SO_PHAP_LY/`, bộ mẫu phiên bản S8a-1.0, **bản nháp cần luật sư của Eric rà trước khi dùng**, chỗ cần điền để dạng `[ ]`, không có tên, số liệu thật:
+  - PL-00 mục lục, thứ tự dùng cho trường dùng thử dữ liệu thật, **danh sách trường dữ liệu mà mẫu cần cho `school_consents`, `school_hosting`** (để S2, S9 khớp), bảng văn bản căn cứ đã đọc;
+  - PL-01 hợp đồng dịch vụ (phạm vi, gói, phí, hạn, chỉ đọc khi quá hạn, chấm dứt, trả dữ liệu); PL-02 thỏa thuận xử lý dữ liệu cá nhân (trường là bên kiểm soát, nền tảng là bên xử lý; nội dung theo Điều 37 Luật, Điều 7, Điều 12 Nghị định); PL-03 văn bản đồng ý dùng thử dữ liệu thật ở máy chủ ngoài Việt Nam và mẫu thông báo cho cha mẹ, người giám hộ; PL-04 điều khoản sử dụng; PL-05 chính sách bảo vệ dữ liệu cá nhân (có phiên bản, đồng ý ghi ở S2);
+  - PL-06 hồ sơ đánh giá tác động xử lý dữ liệu cá nhân (khoản 3 Điều 19 Nghị định); PL-07 hồ sơ đánh giá tác động chuyển dữ liệu cá nhân xuyên biên giới (khoản 3 Điều 18 Nghị định); chưa khớp từng ô Mẫu số 09, 10 của Phụ lục Nghị định (chưa đọc), luật sư chép vào mẫu chính thức;
+  - PL-08 bản ghi vùng máy chủ và bên xử lý phụ (mẫu của `school_hosting`); PL-09 phiếu chấp nhận rủi ro pháp lý do Eric ký (năm nhóm rủi ro, biện pháp, giới hạn số trường, thời hạn); PL-10 kế hoạch, lộ trình chuyển về máy chủ trong nước (sáu điều kiện kích hoạt, thời hạn mục tiêu 30 ngày, tám bước theo `platform relayout`, kiểm tra sẵn sàng);
+  - PL-11 hồ sơ đề xuất cấp độ hệ thống thông tin và phương án bảo vệ (khung theo Nghị định 331/2026); PL-12 quy trình xử lý sự cố và thông báo vi phạm dữ liệu (nền tảng báo trường trong 24 giờ, trường báo cơ quan chuyên trách trong 72 giờ, biên bản xác nhận); PL-13 chính sách lưu giữ và xóa (khác nhau cho `synthetic` có tự xóa và dữ liệu thật không tự xóa); PL-14 hướng dẫn mã hóa trường dữ liệu trẻ em bằng khóa riêng của trường và giới hạn; PL-15 danh mục kiểm tra điều kiện kinh doanh dịch vụ xử lý dữ liệu cá nhân.
+  - `22_BAO_MAT.md` mục 9, 10 tham chiếu PL-12, PL-02; `32_KE_HOACH_THEO_HE_THONG_SO.md` 14.5 "S8a" thêm ghi chú căn cứ pháp lý mới, 14.10 cập nhật tiến độ S8a; `index.md` đăng ký tài liệu 33.
+- Thành phần bị ảnh hưởng: chỉ tài liệu (`tai_lieu/33_HO_SO_PHAP_LY/`, `02`, `22`, `24`, `32`, `index.md`). Không đổi mã, cơ sở dữ liệu, API, giao diện, quyền.
+- Phiên bản phần mềm: **không tăng** (chỉ tài liệu, theo 14.8 "Cổng kiểm"); bộ mẫu có phiên bản riêng S8a-1.0.
+- Ảnh hưởng chức năng cũ: không.
+- Hạn chế: mẫu không phải tư vấn pháp lý; chưa đọc các Mẫu số ở Phụ lục Nghị định 356/2025, toàn văn Nghị định 331/2026, 333/2026; chưa tra quy định ngành giáo dục về thời hạn lưu hồ sơ học sinh; tên nhà cung cấp, vùng, thời hạn là giả định (GD-96, GD-99, GD-100, GD-101).
+- Kiểm thử cần thực hiện: kiểm tra định dạng tài liệu (prettier); không có kiểm thử mã.
+- Trạng thái: Đã triển khai (bản nháp chờ luật sư rà)
 
 ### YCTD-175: DT-21 phần 21g: báo cáo, thống kê và EMIS THCS, THPT – 2026-10-25
 

@@ -1,7 +1,7 @@
 # 32. KẾ HOẠCH ĐỒNG BỘ CHỨC NĂNG VÀ GIAO DIỆN THEO HỆ THỐNG CỦA SỞ (DT-15)
 
 - Mô tả: Kế hoạch điều chỉnh School Management theo kết quả khảo sát `31_KHAO_SAT_HE_THONG_SO.md`; từ mục 9 thêm kế hoạch DT-18 điều hành nhà trường, mục 10 thêm kế hoạch DT-19 nền đa cấp học, mục 11 thêm kế hoạch DT-20 Tiểu học (kèm 22c thời khoá biểu), mục 12 thêm kế hoạch DT-21 THCS và THPT (kèm 22g kiểm tra, đánh giá), mục 13 thêm kế hoạch DT-22 (22a thư viện, 22e hồ sơ bồi dưỡng, 22h kho học liệu số), mục 14 thêm kế hoạch DT-SaaS (Enterprise SaaS nhiều trường: S1a, S1b, S2, S3, S4, S5a, S5b, S6, S7a, S7b, S8a, S8b, S9; hai hồ sơ triển khai: thử nghiệm miễn phí và vận hành).
-- Phiên bản: 1.65
+- Phiên bản: 1.66
 - Ngày cập nhật: 2026-10-25
 - Trạng thái: Đã duyệt hướng làm
 - Căn cứ: yêu cầu của Eric ngày 2026-10-13 ("tính năng đã có thì ưu tiên phiên bản và giao diện của Sở; tính năng Sở không có thì giữ nguyên, chỉ đổi giao diện theo trang của Sở") và các lựa chọn của Eric cùng ngày ở mục 2.
@@ -1351,6 +1351,8 @@ Chỉ sửa `deploy/` và `docker/`, không sửa mã nghiệp vụ.
 - Mã lưu bằng chứng (`school_consents`, `school_hosting`) làm ở S2, S9; S8a chỉ soạn tài liệu và mẫu, ghi tên trường dữ liệu mà mẫu cần để hai bên khớp nhau.
 - Tệp tài liệu mới do S8a tự đặt số và đăng ký ở `index.md`; **bản nháp, cần luật sư của Eric rà trước khi dùng**; không ghi số liệu, tên pháp nhân hay thông tin thật của nhà cung cấp chưa chốt (để chỗ trống có chú thích).
 
+- **Ghi chú khi làm (YCTD-200, 2026-10-25):** đã soạn ở `33_HO_SO_PHAP_LY/`. Khi đối chiếu văn bản hiện hành: Nghị định 13/2023/NĐ-CP **hết hiệu lực từ 01/01/2026**, thay bằng Luật Bảo vệ dữ liệu cá nhân số 91/2025/QH15 và Nghị định 356/2025/NĐ-CP (hồ sơ đánh giá tác động, hồ sơ chuyển xuyên biên giới gửi trong 60 ngày; thông báo vi phạm 72 giờ); khung an ninh mạng đổi sang Luật An ninh mạng số 116/2025/QH15, Nghị định 331/2026/NĐ-CP (cấp độ hệ thống thông tin, thay vị trí của Nghị định 85/2016 ở phần này) và Nghị định 333/2026/NĐ-CP (lưu trữ dữ liệu tại Việt Nam). Các chỗ ở mục 14 còn ghi Nghị định 13/2023, 53/2022, 85/2016 đọc theo văn bản mới; S2, S9 dùng tên văn bản mới. Thêm rủi ro: nền tảng có thể thuộc diện kinh doanh dịch vụ xử lý dữ liệu cá nhân cần Giấy chứng nhận (Điều 21 đến 27 Nghị định 356/2025), mẫu PL-15, luật sư kết luận trước khi nhận dữ liệu thật.
+
 #### S8b. Bảo mật mã
 
 - **Xác thực hai lớp (TOTP) bắt buộc cho tài khoản vận hành nền tảng**; cho quản trị trường là **tuỳ chọn bật theo trường**. Quyết định hiện hành YCTD-31 (không dùng xác thực hai lớp cho Hiệu trưởng, Phó Hiệu trưởng, kế toán trưởng, quản trị nền tảng, RR-15) **chỉ đổi khi Eric xác nhận** (14.11).
@@ -1485,7 +1487,7 @@ Các lớp kiểm thử:
 |---|---|---|
 | S1a | 1 | Chưa làm, YCTD-191 |
 | S7a | 1 | Đã làm phần dựng sẵn (PR #163, YCTD-198, phiên bản 0.128.0); kiểm tay trên staging chờ VPS thử |
-| S8a | 1 | Chưa làm, YCTD-200 |
+| S8a | 1 | Đã làm, YCTD-200, PR 162: bộ mẫu `33_HO_SO_PHAP_LY/` (PL-00 đến PL-15, S8a-1.0, bản nháp chờ luật sư rà); không tăng phiên bản phần mềm |
 | S1b | 2 | Chưa làm, YCTD-192; bắt đầu khi S1a gộp |
 | S2 | 2 | Chưa làm, YCTD-193; bắt đầu khi S1a gộp, gộp sau S1b |
 | S9 | 3 | Chưa làm, YCTD-203; bắt đầu khi S1a, S1b, S2 gộp, giao đầu tiên của đợt 3 |

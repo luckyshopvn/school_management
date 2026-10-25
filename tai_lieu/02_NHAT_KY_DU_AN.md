@@ -1,7 +1,7 @@
 # 02. NHẬT KÝ DỰ ÁN
 
 - Mô tả: Ghi nhận công việc, quyết định, thay đổi và vấn đề tồn đọng theo ngày, ngày mới nhất ở trên cùng.
-- Phiên bản: 0.62
+- Phiên bản: 0.63
 - Ngày cập nhật: 2026-10-25
 - Trạng thái: Đang cập nhật
 
@@ -33,6 +33,27 @@
 #### Vấn đề tồn đọng
 
 - Kiểm tay trên staging khi có VPS thử (CT-989); S7b đo quy mô, sao lưu theo trường; thêm kiểm tra cấu hình hồ sơ vào CI.
+
+### 2026-10-25 — DT-SaaS phần S8a: pháp lý và hồ sơ tuân thủ (tài liệu)
+
+#### Công việc đã thực hiện
+
+- Đọc kế hoạch 14.3, 14.5 "S8a", "S9", 14.11; tra văn bản căn cứ trên cổng chính thống (`chinhphu.vn`, `congbao.chinhphu.vn`, `vbpl.vn`, `mps.gov.vn`, `bocongan.gov.vn`, `baochinhphu.vn`) ngày 2026-10-25: Luật Bảo vệ dữ liệu cá nhân số 91/2025/QH15 (hiệu lực 01/01/2026) và Nghị định 356/2025/NĐ-CP (hiệu lực 01/01/2026; **Nghị định 13/2023/NĐ-CP hết hiệu lực từ 01/01/2026** theo khoản 2 Điều 42); Luật An ninh mạng số 116/2025/QH15 (hiệu lực 01/07/2026), Nghị định 331/2026/NĐ-CP (cấp độ hệ thống thông tin) và Nghị định 333/2026/NĐ-CP (quy định chi tiết Luật An ninh mạng, gồm lưu trữ dữ liệu tại Việt Nam), cùng hiệu lực 19/08/2026.
+- Soạn bộ mẫu `33_HO_SO_PHAP_LY/` (PL-00 đến PL-15, phiên bản S8a-1.0), bản nháp cần luật sư rà.
+
+#### Quyết định
+
+- Bộ mẫu theo Luật 91/2025 và Nghị định 356/2025 thay cho Nghị định 13/2023 đã hết hiệu lực; rủi ro lưu trữ trong nước ghi theo Luật An ninh mạng 116/2025 và Nghị định 333/2026; cấp độ hệ thống theo Nghị định 331/2026. Thêm PL-15 (điều kiện kinh doanh dịch vụ xử lý dữ liệu cá nhân) vì Điều 21 Nghị định 356/2025 có thể áp dụng cho nền tảng. Không tăng phiên bản phần mềm. Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11.
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-200, `33_HO_SO_PHAP_LY/00_MUC_LUC.md`, `22_BAO_MAT.md` mục 9, 10, `32_KE_HOACH_THEO_HE_THONG_SO.md` 14.5, 14.10.
+
+#### Vấn đề tồn đọng
+
+- Luật sư của Eric rà bộ mẫu; kết luận PL-15; đọc các Mẫu số 01a đến 10 của Phụ lục Nghị định 356/2025 và toàn văn Nghị định 331/2026, 333/2026; xác định hiệu lực Nghị định 53/2022, 85/2016, Thông tư 12/2022; chưa nhận dữ liệu thật của trường nào khi chưa rà.
+- S2, S9 dùng danh sách trường dữ liệu ở PL-00 mục 3 cho `school_consents`, `school_hosting`.
+
 
 ### 2026-10-25 — DT-21 phần 21g: báo cáo, thống kê và EMIS THCS, THPT
 
