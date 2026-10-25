@@ -68,6 +68,13 @@ Nhóm điểm cuối dưới đây do dịch vụ định danh phục vụ.
 | POST | /api/v1/auth/verify-otp | Bỏ ngày 09/10/2026: không dùng xác thực hai lớp (YCTD-31) |
 | GET | /api/v1/auth/me | Lấy thông tin tài khoản, vai trò, đơn vị, danh sách quyền |
 | GET, PUT | /api/v1/auth/settings/password-policy | Đọc và sửa chính sách hết hạn mật khẩu; cần `P01.account.manage` (BR-110, YCTD-110) |
+| GET | /api/v1/auth/totp | Trạng thái xác thực hai lớp của chính mình: `feature_enabled`, `enrolled`, `pending_setup`, `recovery_codes_left` (YCTD-201, BR-219) |
+| POST | /api/v1/auth/totp/setup | Bắt đầu đăng ký: trả `secret` và `otpauth_uri`; 422 khi trường chưa bật hoặc đã bật xác thực hai lớp |
+| POST | /api/v1/auth/totp/confirm | Xác nhận mã đầu tiên `{ code }`: bật, trả `recovery_codes` (8 mã, chỉ một lần); mã sai 400 |
+| POST | /api/v1/auth/totp/disable | Tắt bằng mã hiện tại hoặc mã khôi phục `{ code }` |
+| POST | /api/v1/auth/totp/reset | Người có quyền quản lý mọi tài khoản đặt lại hộ `{ user_id }`; có nhật ký; người khác 403 |
+| (đổi) | POST /api/v1/auth/login, POST /api/v1/auth/platform/login | Thêm `otp_code` (mã TOTP hoặc mã khôi phục): tài khoản đã bật xác thực hai lớp (vận hành nền tảng: luôn) thiếu mã thì 401 kèm chi tiết `otp_code` và chưa tính nhập sai; mã sai 401 (tính nhập sai) |
+| (đổi) | GET, PUT /api/v1/auth/settings | Thêm `totp_enabled` (mặc định false); GET, PUT /api/v1/auth/settings/password-policy thêm `password_min_length` (8 đến 64), `login_max_failed_attempts` (3 đến 10), `login_lock_minutes` (1 đến 1440) (YCTD-201, BR-220) |
 | GET | /api/v1/auth/login-options | Công khai: đường dây nóng và có luôn hiện mã xác nhận của trang đăng nhập cổng quản trị (YCTD-123) |
 | POST | /api/v1/auth/captcha | Công khai: cấp ảnh mã xác nhận mới (YCTD-123) |
 | POST | /api/v1/auth/password-reset/request | Công khai: quên mật khẩu, yêu cầu mã đặt lại gửi qua tin nhắn; cần mã xác nhận (YCTD-123) |
@@ -288,7 +295,7 @@ Giao kèo sao lưu theo trường (DT-SaaS phần S7b, YCTD-199, BR-217, BR-218)
 3. `platform relayout` (S9) không còn cần quyền siêu người dùng ở nền tảng đích: dữ liệu nạp bằng vai trò của trường.
 
 
-Giao kèo bảng điều khiển nền tảng và phiên hỗ trợ (DT-SaaS phần S4, YCTD-197, BR-219 đến BR-221):
+Giao kèo bảng điều khiển nền tảng và phiên hỗ trợ (DT-SaaS phần S4, YCTD-197, BR-222 đến BR-224):
 
 1. Mã phiên của phiên hỗ trợ mang claim `spt` (`read` hoặc `full`); `GET /auth/me` trả thêm `support` (`id`, `scope`, `operator_name`, `expires_at`), phiên thường là `null`. Phiên hỗ trợ đã kết thúc, hết hạn hoặc trường đã rút cho phép thì mọi yêu cầu và làm mới phiên trả 401.
 2. Phiên chỉ đọc: mọi yêu cầu ghi tới máy chủ API và dịch vụ định danh trả 403 `ERR_FORBIDDEN` (mã quy tắc YCTD-197 ở máy chủ API), trừ đăng xuất; mọi phiên hỗ trợ bị 403 ở `/auth/impersonation*`, `/auth/change-password`, `/signing/*`, kí văn bản đi, `/school-data-exports`, `/support-access`.
@@ -1557,16 +1564,16 @@ Giao kèo văn thư lưu trữ (YCTD-118):
 | PUT | /api/v1/auth/platform/plan-schools/{id} | Gán gói (ngày hiệu lực), đặt hạn dùng thử, hạn đã trả phí, trạng thái trường (YCTD-194); ghi nhật ký nền tảng |
 | POST | /api/v1/auth/platform/plan-lifecycle | Chạy chuyển trạng thái theo hạn, trả danh sách trường đổi và trường cần nhắc (YCTD-194, BR-216) |
 | GET | /api/v1/school-plan | Gói của trường đang dùng: `restricted`, trạng thái, gói, phân hệ, giới hạn, số đang dùng (học sinh, dung lượng, cấp học), hạn, số ngày còn lại, `read_only` (YCTD-194); mọi người dùng đã đăng nhập |
-| GET | /api/v1/auth/platform/dashboard | Bảng điều khiển nền tảng (YCTD-197, BR-219): tổng hợp và danh sách trường kèm trạng thái, gói, số liệu mới nhất, lỗi 1 giờ và 24 giờ, việc định kỳ lỗi, phiên hỗ trợ đang mở, cảnh báo; mã phiên vận hành |
+| GET | /api/v1/auth/platform/dashboard | Bảng điều khiển nền tảng (YCTD-197, BR-222): tổng hợp và danh sách trường kèm trạng thái, gói, số liệu mới nhất, lỗi 1 giờ và 24 giờ, việc định kỳ lỗi, phiên hỗ trợ đang mở, cảnh báo; mã phiên vận hành |
 | GET | /api/v1/auth/platform/dashboard/errors?school=<mã>&hours=<1 đến 720> | Lỗi gom theo giờ (YCTD-197); `school=-` là lỗi không thuộc trường nào |
-| GET, POST | /api/v1/auth/platform/maintenance-notices | Danh sách, tạo thông báo bảo trì (YCTD-197, BR-220); dữ liệu sai 400; ghi nhật ký nền tảng |
+| GET, POST | /api/v1/auth/platform/maintenance-notices | Danh sách, tạo thông báo bảo trì (YCTD-197, BR-223); dữ liệu sai 400; ghi nhật ký nền tảng |
 | POST | /api/v1/auth/platform/maintenance-notices/{id}/cancel | Hủy thông báo bảo trì (YCTD-197) |
 | GET | /api/v1/auth/platform/schools/{mã}/support | Cho phép hỗ trợ của trường (đọc từ cơ sở dữ liệu hệ thống của trường) và 20 phiên hỗ trợ gần nhất (YCTD-197) |
-| POST | /api/v1/auth/platform/schools/{mã}/support-sessions | Mở phiên hỗ trợ `{ reason }` (YCTD-197, BR-221): trường không phục vụ hoặc chưa cho phép 422; trả `session_id`, `scope`, `expires_at`, `handoff` (`path` `/support-login?code=…`, `host`, `expires_in_seconds` 300) |
+| POST | /api/v1/auth/platform/schools/{mã}/support-sessions | Mở phiên hỗ trợ `{ reason }` (YCTD-197, BR-224): trường không phục vụ hoặc chưa cho phép 422; trả `session_id`, `scope`, `expires_at`, `handoff` (`path` `/support-login?code=…`, `host`, `expires_in_seconds` 300) |
 | POST | /api/v1/auth/platform/support-sessions/{id}/end | Kết thúc phiên hỗ trợ, thu hồi phiên đăng nhập ở trường, ghi nhật ký hai phía (YCTD-197) |
 | POST | /api/v1/auth/support/exchange | Đổi mã một lần `{ code }` lấy phiên đăng nhập kênh cổng của tài khoản hỗ trợ (YCTD-197): công khai theo tên miền của trường; mã sai, đã dùng, hết hạn, của trường khác hoặc trường đã rút cho phép 401; trả mã phiên kèm `support_scope`, đặt cookie mã làm mới |
 | GET | /api/v1/platform-notices | Thông báo bảo trì đang hiệu lực hoặc bắt đầu trong 72 giờ của trường và phiên hỗ trợ đang mở (chỉ trả cho quản trị tài khoản và chính phiên hỗ trợ) (YCTD-197); mọi người dùng đã đăng nhập |
-| GET, POST | /api/v1/support-access | Cho phép hỗ trợ của trường (YCTD-197, BR-221, P01.account.manage): đọc cho phép đang hiệu lực, lịch sử, phiên hỗ trợ kèm thao tác; bật `{ scope, hours, reason }` (thời hạn 1 đến 168 giờ, sai 400; phiên hỗ trợ không tự bật được) |
+| GET, POST | /api/v1/support-access | Cho phép hỗ trợ của trường (YCTD-197, BR-224, P01.account.manage): đọc cho phép đang hiệu lực, lịch sử, phiên hỗ trợ kèm thao tác; bật `{ scope, hours, reason }` (thời hạn 1 đến 168 giờ, sai 400; phiên hỗ trợ không tự bật được) |
 | POST | /api/v1/support-access/{id}/revoke | Rút cho phép (YCTD-197): kết thúc phiên hỗ trợ theo cho phép đó và thu hồi phiên đăng nhập của tài khoản hỗ trợ ngay, trả `ended_sessions` |
 | POST | /api/v1/internal/jobs/tick | Điểm gọi của bộ hẹn giờ bên ngoài (YCTD-192, BR-204): tiêu đề `x-internal-job-token` bằng `INTERNAL_JOB_TOKEN` (so sánh thời gian hằng, sai 401, chưa đặt 404, có giới hạn tần suất); chạy việc nền đến hạn của mọi trường rồi trả `{ jobs, schools, failed }`; không cần trường (gọi bằng địa chỉ nội bộ) |
 | GET | /api/v1/public/schools/picker | Trang chọn trường ở tên miền gốc (YCTD-192, BR-205, MH-315): trang HTML tĩnh, 404 khi chưa đặt `PLATFORM_ROOT_DOMAIN`; không cần trường |

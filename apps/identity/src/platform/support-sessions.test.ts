@@ -11,7 +11,8 @@ import {
 } from '@school-management/database';
 import type { Kysely } from 'kysely';
 import { startTenantTestApplication, TEST_PASSWORD, type TenantTestContext } from '../test-support.js';
-import { createPlatformOperator } from './platform-operators.js';
+import { OPERATOR_TEST_PASSWORD, operatorOtp } from './operator-test-helpers.js';
+import { createPlatformOperatorWithTotp } from './platform-operators.js';
 
 // Bảng điều khiển nền tảng, phiên hỗ trợ, thông báo bảo trì ở dịch vụ định danh (DT-SaaS phần S4, YCTD-197), kịch bản CT-S4-1 đến
 // CT-S4-4. Dữ liệu giả
@@ -78,15 +79,19 @@ describe('bảng điều khiển nền tảng và phiên hỗ trợ', () => {
     runtime = platform.createRuntime();
     context = await startTenantTestApplication(runtime);
     context.configuration.platformConsoleHost = CONSOLE_HOST;
-    await createPlatformOperator(platform.platform, {
+    const created = await createPlatformOperatorWithTotp(platform.platform, platform.masterKey, {
       login,
       fullName: 'Nhân viên hỗ trợ giả',
-      password: TEST_PASSWORD,
+      password: OPERATOR_TEST_PASSWORD,
     });
     const reply = await send(context, {
       path: '/auth/platform/login',
       host: CONSOLE_HOST,
-      body: { login, password: TEST_PASSWORD },
+      body: {
+        login,
+        password: OPERATOR_TEST_PASSWORD,
+        otp_code: await operatorOtp(platform.platform, created.id, created.secret, context.clock.now()),
+      },
     });
     token = (reply.body as { access_token: string }).access_token;
     const tenant = await runtime.registry.resolveHost(platform.school('alpha').host);

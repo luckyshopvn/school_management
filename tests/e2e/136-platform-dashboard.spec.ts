@@ -5,7 +5,12 @@ import {
   type SystemDatabase,
   type TenantContext,
 } from '@school-management/database';
-import { createPlatformOperator, createTestUser, type TestUser } from '@school-management/identity/testing';
+import {
+  createPlatformOperatorWithTotp,
+  createTestUser,
+  operatorOtp,
+  type TestUser,
+} from '@school-management/identity/testing';
 import {
   E2E_CONSOLE_HOST,
   E2E_MULTI_CONSOLE_PORT,
@@ -18,13 +23,14 @@ import { expect, test, type Page } from './fixtures.js';
 // đọc; người vận hành xem bảng điều khiển, mở phiên hỗ trợ ở trang chi tiết trường; đường liên kết một lần đưa vào cổng quản trị
 // của trường với biểu ngữ "phiên hỗ trợ"; quản trị rút cho phép thì phiên hỗ trợ hết hiệu lực. Chỉ chạy ở dự án nhiều trường.
 // Dữ liệu giả
-const PASSWORD = 'MatKhau2026';
+const PASSWORD = 'MatKhauVanHanh2026';
 const operatorLogin = `ho-tro-${Math.random().toString(36).slice(2, 8)}`;
 
 let runtime: TenancyRuntime;
 let admin: TestUser;
 let tenant: TenantContext;
 let noticeId = '';
+let operator: Awaited<ReturnType<typeof createPlatformOperatorWithTotp>>;
 
 test.beforeAll(async () => {
   const configuration = readTenancyConfiguration(process.env);
@@ -39,7 +45,7 @@ test.beforeAll(async () => {
   tenant = resolved;
   const identity = runtime.connections.database<IdentityDatabase>(tenant, 'identity', 'identity');
   admin = await createTestUser(identity, { roles: [{ roleCode: 'VT-02', orgUnitId: null }] });
-  await createPlatformOperator(runtime.platform, {
+  operator = await createPlatformOperatorWithTotp(runtime.platform, runtime.configuration.masterKey, {
     login: operatorLogin,
     fullName: 'Nhân viên hỗ trợ giả',
     password: PASSWORD,
@@ -106,6 +112,9 @@ test('CT-S4-9: bảo trì, cho phép hỗ trợ, phiên hỗ trợ chỉ đọc 
   await consolePage.goto('/');
   await consolePage.getByLabel('Tên đăng nhập').fill(operatorLogin);
   await consolePage.getByLabel('Mật khẩu').fill(PASSWORD);
+  await consolePage
+    .getByLabel('Mã xác thực hai lớp')
+    .fill(await operatorOtp(runtime.platform, operator.id, operator.secret));
   await consolePage.getByRole('button', { name: 'Đăng nhập' }).click();
   const menu = consolePage.getByRole('navigation', { name: 'Menu' });
   await menu.getByRole('button', { name: 'Bảng điều khiển' }).click();

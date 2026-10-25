@@ -15,6 +15,7 @@ import {
   createTenantMiddleware,
   ErrorFilter,
   currentTenant,
+  securityHeaders,
   isIdentityWriteAllowedWhenReadOnly,
   setServerErrorListener,
   SystemClock,
@@ -32,6 +33,8 @@ export async function createApplication(
     ApplicationModule.register(configuration, clock, organizationDirectory, smsSender, tenancy),
     { logger: ['error', 'warn'] },
   );
+  // Tiêu đề bảo mật (DT-SaaS phần S8b), đặt trước mọi lớp trung gian khác
+  application.use(securityHeaders());
   if (tenancy) {
     // Máy chủ API gọi dịch vụ định danh bằng địa chỉ nội bộ, không phải tên miền của trường: khi tên miền không phân giải được mà yêu
     // cầu mang mã phiên hợp lệ thì lấy trường theo mã trường trong mã phiên (đã ký)
@@ -42,7 +45,11 @@ export async function createApplication(
         // Đăng nhập vận hành nền tảng không thuộc trường nào; chỉ phục vụ ở tên miền của cổng nền tảng (kiểm ở bộ điều khiển)
         isTenantFreePath: (path) => path === '/api/v1/health' || path.startsWith(PLATFORM_OPERATOR_LOGIN_PATH),
         ...(tenancy.configuration.edgeSecret ? { edgeSecret: tenancy.configuration.edgeSecret } : {}),
-        resolveByToken: tenancy.tokenTenantResolver(configuration.tokenPublicKeyPem, () => clock.now()),
+        resolveByToken: tenancy.tokenTenantResolver(
+          configuration.tokenPublicKeyPem,
+          () => clock.now(),
+          configuration.tokenPreviousPublicKeyPem ?? null,
+        ),
       }),
     );
     // Trường quá hạn ở chế độ chỉ đọc: chặn quản trị tài khoản, vẫn đăng nhập, đổi mật khẩu được (DT-SaaS phần S5a)

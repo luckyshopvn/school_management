@@ -16,19 +16,31 @@
 
 ## 2. Danh sách phiên bản
 
-### Phiên bản 0.136.0 – 2026-10-25
+### Phiên bản 0.137.0 – 2026-10-25
 
 - Phạm vi thay đổi: DT-SaaS phần S4, bảng điều khiển nền tảng (YCTD-197).
-- Chức năng mới: bảng điều khiển nền tảng với số liệu, lỗi, cảnh báo theo trường (P01-71, MH-325); thông báo bảo trì (P01-72, MH-326); cho phép hỗ trợ của trường (P01-73, MH-327); phiên hỗ trợ của nhân viên nền tảng, đăng nhập bằng đường liên kết một lần, biểu ngữ (P01-74, MH-328).
+- Chức năng mới: bảng điều khiển nền tảng với số liệu, lỗi, cảnh báo theo trường (P01-75, MH-328); thông báo bảo trì (P01-76, MH-329); cho phép hỗ trợ của trường (P01-77, MH-330); phiên hỗ trợ của nhân viên nền tảng, đăng nhập bằng đường liên kết một lần, biểu ngữ (P01-78, MH-331).
 - Lỗi đã sửa: unit gói `database` ở bố cục `schema` có lúc hỏng "out of shared memory" (53200) khi nhiều trường tạo, gỡ năm học cùng lúc: chạy tệp thay đổi cấu trúc mỗi tệp một giao dịch thay vì mọi tệp một giao dịch, gỡ lược đồ theo lô 40 bảng; CI và hồ sơ vận hành đặt `max_locks_per_transaction` 256; ghi giới hạn của Neon, Supabase ở `deploy/profiles/trial/README.md`.
 - Thay đổi dữ liệu: cơ sở dữ liệu nền tảng thêm `school_metrics`, `school_error_counts`, `maintenance_notices`, `support_sessions`, `support_session_actions` (tệp nền tảng `0060`); cơ sở dữ liệu hệ thống của trường thêm `support_access_grants` (tệp hệ thống `0053`); xem `16_CO_SO_DU_LIEU.md` mục 18A.
 - Thay đổi API: nhóm `/auth/platform/dashboard`, `/maintenance-notices`, `/schools/{mã}/support`, `/support-sessions`; `POST /auth/support/exchange`; `GET /platform-notices`, `/support-access`; claim `spt`, trường `support` của `/auth/me`; biến `PLATFORM_ERROR_ALERT_PER_HOUR`, `SCHOOL_METRICS_INTERVAL_SECONDS` (xem `17_DAC_TA_API.md`).
-- Kiểm thử: kịch bản CT-1043 đến CT-1051 (CT-S4-1 đến CT-S4-9 trong mã kiểm thử). Kết quả ngày 25/10/2026: `apps/identity` 4 ca mới và ma trận cách ly đạt (8/8); `database` 4/4; `apps/api` 17/17 (S4, gói dịch vụ, bộ lập lịch) và menu 17/17; kiểm tra tĩnh nền đa thuê bao và `pnpm lint` đạt; e2e dự án nhiều trường 16/16 (spec 136 đạt sau khi sửa trang Cho phép hỗ trợ thiếu khung cổng quản trị); e2e toàn bộ do CI chạy.
+- Kiểm thử: kịch bản CT-1049 đến CT-1057 (CT-S4-1 đến CT-S4-9 trong mã kiểm thử). Kết quả ngày 25/10/2026: `apps/identity` 4 ca mới và ma trận cách ly đạt (8/8); `database` 4/4; `apps/api` 17/17 (S4, gói dịch vụ, bộ lập lịch) và menu 17/17; kiểm tra tĩnh nền đa thuê bao và `pnpm lint` đạt; e2e dự án nhiều trường 16/16 (spec 136 đạt sau khi sửa trang Cho phép hỗ trợ thiếu khung cổng quản trị); e2e toàn bộ do CI chạy.
 - Rủi ro: số liệu có độ trễ đến một giờ; bộ gom lỗi ở bộ nhớ nên lỗi trong phút cuối trước khi tiến trình dừng đột ngột có thể mất; tài khoản hỗ trợ hiện trong danh sách tài khoản của trường (cố ý để trường thấy).
 - Khả năng tương thích: chế độ một trường không có bảng điều khiển, cho phép hỗ trợ trả `available: false`, thông báo bảo trì rỗng; không đổi hành vi của phiên thường.
 - Phương án quay lui: hoàn lại commit gộp của nhánh S4; rút mọi cho phép hỗ trợ là chặn ngay mọi phiên hỗ trợ mà không cần quay lui mã.
 
 ### Phiên bản 0.136.0 – 2026-10-25
+
+- Phạm vi thay đổi: DT-SaaS phần S8b, bảo mật mã (YCTD-201).
+- Chức năng mới: xác thực hai lớp TOTP (bắt buộc cho tài khoản vận hành nền tảng, tuỳ chọn theo trường cho người dùng trường; P01-71, P01-72, MH-325, MH-326); chính sách mật khẩu và khóa tạm theo trường (P01-73, MH-327); tiêu đề bảo mật, cookie `__Secure-`, xoay khóa ký hai pha, quét bí mật và thành phần phụ thuộc ở CI (P01-74); đổi khóa dữ liệu trẻ nay gồm cơ sở dữ liệu định danh.
+- Lỗi đã sửa: không có.
+- Thay đổi dữ liệu: `platform_operator_totp`, `platform_operator_recovery_codes` (nền tảng `0080`, `0081`); `user_totp`, `user_recovery_codes` (định danh `0101`, `0102`); xem `16_CO_SO_DU_LIEU.md` mục 18C.
+- Thay đổi API: `/auth/totp` (5 điểm cuối); `otp_code` ở đăng nhập; `totp_enabled`, ba mục chính sách mật khẩu mới; biến môi trường `TOTP_ENCRYPTION_KEY` (chế độ một trường), `TOKEN_PREVIOUS_PUBLIC_KEY`; lệnh `reset-operator-totp`; `create-platform-operator` cần `PLATFORM_MASTER_KEY` và in khóa TOTP, mã khôi phục (xem `17_DAC_TA_API.md`).
+- Kiểm thử: kịch bản CT-1043 đến CT-1048. Kết quả ngày 25/10/2026: packages/server 10 ca mới (TOTP 5, tiêu đề bảo mật 3, xoay khóa ký 2); database 4 ca đổi khóa và bọc lại khóa gốc (gồm cơ sở dữ liệu định danh); apps/identity 97 ca đạt (xác thực hai lớp trường 8 ca mới, vận hành nền tảng 6 ca mới); apps/api 1142 ca đạt (2 ca mới); kiểm tĩnh và quét bí mật 8 ca; e2e nhiều trường 18 ca (spec 130 đến 140, spec 138 có 4 ca) đạt ở cả hai bố cục; e2e một trường các spec 01 đến 07 (23 ca) đạt; e2e toàn bộ do CI chạy.
+- Rủi ro: tài khoản vận hành tạo trước phần này không đăng nhập được cho tới khi chạy `reset-operator-totp` (cố ý, vì bắt buộc); ứng dụng phụ huynh không dùng xác thực hai lớp (đăng nhập bằng mã một lần qua tin nhắn); đổi cookie sang `__Secure-` làm mọi người dùng phải đăng nhập lại một lần sau khi nâng cấp; chưa có kiểm thử xâm nhập bên ngoài.
+- Khả năng tương thích: chế độ một trường và đăng nhập hiện có giữ nguyên khi trường chưa bật xác thực hai lớp; `GET /auth/settings/password-policy` trả thêm ba trường.
+- Phương án quay lui: hoàn lại commit gộp của nhánh S8b; bốn bảng mới chỉ phần này dùng.
+
+### Phiên bản 0.135.0 – 2026-10-25
 
 - Phạm vi thay đổi: DT-SaaS phần S7b, vận hành nhiều trường (YCTD-199).
 - Chức năng mới: sao lưu logic theo từng trường ở cả hai bố cục (P01-68); khôi phục vào chính trường hoặc thành trường mới, diễn tập khôi phục tự động (P01-69); chuyển trường sang cụm cơ sở dữ liệu khác (P01-70); khôi phục về một thời điểm của cả cụm bằng WAL-G và lấy riêng một trường; bảng "Sao lưu và khôi phục" ở chi tiết trường (MH-318).
@@ -39,6 +51,7 @@
 - Rủi ro: khôi phục không nằm trong một giao dịch cho mọi bảng (để không vượt giới hạn khóa của máy chủ), lỗi giữa chừng phải chạy lại; tệp sao lưu chứa khóa dữ liệu trẻ, lộ khóa sao lưu là lộ dữ liệu; WAL-G và lấy riêng một trường về một thời điểm chưa diễn tập trên máy thật; thử tải nhiều trường chưa làm nên giới hạn T1 đến T3 vẫn là giả định.
 - Khả năng tương thích: chế độ một trường và `backup.sh` cũ không đổi khi không có `PLATFORM_DATABASE_URL`; lớp phủ WAL-G là tùy chọn.
 - Phương án quay lui: hoàn lại commit gộp của nhánh S7b; bảng `backup_runs` chỉ do phần này dùng; tắt lớp phủ `compose.pitr.yml` để PostgreSQL chạy như trước.
+
 ### Phiên bản 0.134.0 – 2026-10-25
 
 - Phạm vi thay đổi: DT-SaaS phần S5a, gói dịch vụ và giới hạn (YCTD-194).

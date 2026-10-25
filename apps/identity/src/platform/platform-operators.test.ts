@@ -8,7 +8,9 @@ import {
   type TenantTestPlatform,
 } from '@school-management/database';
 import { createTestUser, startTenantTestApplication, TEST_PASSWORD, type TenantTestContext } from '../test-support.js';
-import { createPlatformOperator } from './platform-operators.js';
+import { generateRecoveryCodes, totpCode } from '@school-management/server';
+import { OPERATOR_TEST_PASSWORD, operatorOtp } from './operator-test-helpers.js';
+import { createPlatformOperator, createPlatformOperatorWithTotp } from './platform-operators.js';
 
 // Đăng nhập vận hành nền tảng (DT-SaaS phần S1a): chỉ ở tên miền của cổng nền tảng, tách hẳn đăng nhập của trường
 
@@ -60,12 +62,22 @@ describe('đăng nhập vận hành nền tảng', () => {
   let runtime: TenancyRuntime;
   let context: TenantTestContext;
   const login = `van-hanh-${Math.random().toString(36).slice(2, 8)}`;
+  let operatorId: string;
+  let totpSecret: string;
+  let recoveryCodes: string[];
 
   before(async () => {
     platform = await startTenantTestPlatform({ schools: ['alpha'], label: 'op' });
     runtime = platform.createRuntime();
     context = await startTenantTestApplication(runtime);
-    await createPlatformOperator(platform.platform, { login, fullName: 'Người vận hành giả', password: TEST_PASSWORD });
+    const created = await createPlatformOperatorWithTotp(platform.platform, platform.masterKey, {
+      login,
+      fullName: 'Người vận hành giả',
+      password: OPERATOR_TEST_PASSWORD,
+    });
+    operatorId = created.id;
+    totpSecret = created.secret;
+    recoveryCodes = created.recoveryCodes;
   });
 
   after(async () => {
@@ -73,8 +85,18 @@ describe('đăng nhập vận hành nền tảng', () => {
     await platform?.close();
   });
 
-  const operatorLogin = (host: string | undefined, password = TEST_PASSWORD) =>
-    send(context, { path: '/auth/platform/login', host, body: { login, password } });
+  const operatorLogin = async (host: string | undefined, password = OPERATOR_TEST_PASSWORD, otp?: string | null) =>
+    send(context, {
+      path: '/auth/platform/login',
+      host,
+      body: {
+        login,
+        password,
+        ...(otp === null
+          ? {}
+          : { otp_code: otp ?? (await operatorOtp(platform.platform, operatorId, totpSecret, context.clock.now())) }),
+      },
+    });
 
   it('chưa đặt tên miền cổng nền tảng thì tắt: 404', async () => {
     assert.equal((await operatorLogin(CONSOLE_HOST)).status, 404);
@@ -161,12 +183,108 @@ describe('đăng nhập vận hành nền tảng', () => {
 
   it('tạo tài khoản: trùng tên đăng nhập và mật khẩu yếu bị từ chối', async () => {
     await assert.rejects(
-      createPlatformOperator(platform.platform, { login, fullName: 'X', password: TEST_PASSWORD }),
+      createPlatformOperator(platform.platform, { login, fullName: 'X', password: OPERATOR_TEST_PASSWORD }),
       /đã tồn tại/,
     );
     await assert.rejects(
       createPlatformOperator(platform.platform, { login: 'khac-ten', fullName: 'X', password: 'ngan' }),
       /Mật khẩu/,
     );
+    // Mật khẩu vận hành tối thiểu 12 ký tự (chặt hơn mặc định 8 của trường)
+    await assert.rejects(
+      createPlatformOperator(platform.platform, { login: 'khac-ten', fullName: 'X', password: TEST_PASSWORD }),
+      /ít nhất 12 ký tự/,
+    );
+  });
+
+  describe('xác thực hai lớp bắt buộc (DT-SaaS phần S8b)', () => {
+    it('đúng mật khẩu nhưng thiếu mã: 401 yêu cầu mã, chưa tính là lần nhập sai', async () => {
+      const reply = await operatorLogin(CONSOLE_HOST, OPERATOR_TEST_PASSWORD, null);
+      assert.equal(reply.status, 401);
+      const details = (reply.body.error as { details: Array<{ field: string }> }).details;
+      assert.ok(details.some((detail) => detail.field === 'otp_code'));
+      const row = await platform.platform
+        .selectFrom('platform_operators')
+        .select('failed_login_count')
+        .where('id', '=', operatorId)
+        .executeTakeFirstOrThrow();
+      assert.equal(row.failed_login_count, 0);
+    });
+
+    it('mã sai bị từ chối; mã đúng dùng lại trong cùng bước thời gian cũng bị từ chối', async () => {
+      assert.equal((await operatorLogin(CONSOLE_HOST, OPERATOR_TEST_PASSWORD, '000000')).status, 401);
+      await operatorOtp(platform.platform, operatorId, totpSecret, context.clock.now());
+      const code = totpCode(totpSecret, context.clock.now());
+      assert.equal((await operatorLogin(CONSOLE_HOST, OPERATOR_TEST_PASSWORD, code)).status, 200);
+      assert.equal((await operatorLogin(CONSOLE_HOST, OPERATOR_TEST_PASSWORD, code)).status, 401);
+      await platform.platform
+        .updateTable('platform_operators')
+        .set({ failed_login_count: 0 })
+        .where('id', '=', operatorId)
+        .execute();
+    });
+
+    it('mã khôi phục dùng được một lần', async () => {
+      const code = recoveryCodes[0] as string;
+      assert.equal((await operatorLogin(CONSOLE_HOST, OPERATOR_TEST_PASSWORD, code)).status, 200);
+      assert.equal((await operatorLogin(CONSOLE_HOST, OPERATOR_TEST_PASSWORD, code)).status, 401);
+      assert.equal(
+        (await operatorLogin(CONSOLE_HOST, OPERATOR_TEST_PASSWORD, generateRecoveryCodes(1)[0])).status,
+        401,
+      );
+      await platform.platform
+        .updateTable('platform_operators')
+        .set({ failed_login_count: 0 })
+        .where('id', '=', operatorId)
+        .execute();
+    });
+
+    it('khóa tạm thời sau 5 lần mã sai', async () => {
+      for (let attempt = 0; attempt < 5; attempt += 1) {
+        assert.equal((await operatorLogin(CONSOLE_HOST, OPERATOR_TEST_PASSWORD, '111111')).status, 401);
+      }
+      assert.equal((await operatorLogin(CONSOLE_HOST)).status, 401);
+      await platform.platform
+        .updateTable('platform_operators')
+        .set({ locked_until: null, failed_login_count: 0 })
+        .where('id', '=', operatorId)
+        .execute();
+      assert.equal((await operatorLogin(CONSOLE_HOST)).status, 200);
+    });
+
+    it('tài khoản chưa đăng ký xác thực hai lớp không đăng nhập được', async () => {
+      const bare = `khong-totp-${Math.random().toString(36).slice(2, 8)}`;
+      await createPlatformOperator(platform.platform, {
+        login: bare,
+        fullName: 'Chưa có TOTP',
+        password: OPERATOR_TEST_PASSWORD,
+      });
+      const reply = await send(context, {
+        path: '/auth/platform/login',
+        host: CONSOLE_HOST,
+        body: {
+          login: bare,
+          password: OPERATOR_TEST_PASSWORD,
+          otp_code: totpCode('JBSWY3DPEHPK3PXP', context.clock.now()),
+        },
+      });
+      assert.equal(reply.status, 401);
+      assert.match(JSON.stringify(reply.body), /xác thực hai lớp/);
+    });
+
+    it('khóa TOTP lưu mã hóa bằng khóa gốc, không có bản rõ ở cơ sở dữ liệu', async () => {
+      const row = await platform.platform
+        .selectFrom('platform_operator_totp')
+        .select('secret_encrypted')
+        .where('operator_id', '=', operatorId)
+        .executeTakeFirstOrThrow();
+      assert.ok(!row.secret_encrypted.includes(totpSecret));
+      const hashes = await platform.platform
+        .selectFrom('platform_operator_recovery_codes')
+        .select('code_hash')
+        .where('operator_id', '=', operatorId)
+        .execute();
+      assert.ok(hashes.every((entry) => !recoveryCodes.some((code) => entry.code_hash.includes(code))));
+    });
   });
 });

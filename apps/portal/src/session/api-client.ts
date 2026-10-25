@@ -151,10 +151,17 @@ export async function login(
   loginIdentifier: string,
   password: string,
   captcha?: CaptchaAnswer,
+  otpCode?: string,
 ): Promise<TokenResponse> {
   const tokens = await send<TokenResponse>('/api/v1/auth/login', {
     method: 'POST',
-    body: JSON.stringify({ login: loginIdentifier, password, channel: 'portal', ...captcha }),
+    body: JSON.stringify({
+      login: loginIdentifier,
+      password,
+      channel: 'portal',
+      ...captcha,
+      ...(otpCode ? { otp_code: otpCode } : {}),
+    }),
   });
   setAccessToken(tokens.access_token);
   return tokens;

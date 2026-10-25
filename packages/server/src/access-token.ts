@@ -21,34 +21,50 @@ export interface AccessTokenClaims {
   support?: 'read' | 'full';
 }
 
+// Xoay khóa ký (DT-SaaS phần S8b, tài liệu 32 mục 14.5): trong thời gian xoay, bên kiểm tra nhận cả khóa công khai mới và khóa cũ
+// (TOKEN_PREVIOUS_PUBLIC_KEY); mã phiên cũ sống tối đa ACCESS_TOKEN_LIFETIME_SECONDS (15 phút) nên gỡ khóa cũ sau chừng đó
 export class AccessTokenVerifier {
-  private publicKey?: Promise<CryptoKey>;
+  private publicKeys?: Promise<CryptoKey[]>;
 
-  constructor(private readonly publicKeyPem: string) {}
+  constructor(
+    private readonly publicKeyPem: string,
+    private readonly previousPublicKeyPem: string | null = null,
+  ) {}
+
+  private keys(): Promise<CryptoKey[]> {
+    this.publicKeys ??= Promise.all(
+      [this.publicKeyPem, this.previousPublicKeyPem]
+        .filter((pem): pem is string => Boolean(pem))
+        .map((pem) => importSPKI(pem, TOKEN_SIGNING_ALGORITHM)),
+    );
+    return this.publicKeys;
+  }
 
   async verify(token: string, now: Date): Promise<AccessTokenClaims> {
-    this.publicKey ??= importSPKI(this.publicKeyPem, TOKEN_SIGNING_ALGORITHM);
-    try {
-      const { payload } = await jwtVerify(token, await this.publicKey, {
-        issuer: TOKEN_ISSUER,
-        audience: TOKEN_AUDIENCE,
-        algorithms: [TOKEN_SIGNING_ALGORITHM],
-        currentDate: now,
-      });
-      if (typeof payload.sub !== 'string' || typeof payload.sid !== 'string' || typeof payload.channel !== 'string') {
-        throw unauthenticatedError();
+    for (const key of await this.keys()) {
+      try {
+        const { payload } = await jwtVerify(token, key, {
+          issuer: TOKEN_ISSUER,
+          audience: TOKEN_AUDIENCE,
+          algorithms: [TOKEN_SIGNING_ALGORITHM],
+          currentDate: now,
+        });
+        if (typeof payload.sub !== 'string' || typeof payload.sid !== 'string' || typeof payload.channel !== 'string') {
+          throw unauthenticatedError();
+        }
+        return {
+          userId: payload.sub,
+          sessionId: payload.sid,
+          channel: payload.channel as SessionChannel,
+          passwordChangeRequired: payload.password_change_required === true,
+          ...(typeof payload.tid === 'string' ? { tenantId: payload.tid } : {}),
+          ...(payload.spt === 'read' || payload.spt === 'full' ? { support: payload.spt } : {}),
+        };
+      } catch {
+        // Thử khóa kế tiếp (khóa cũ khi đang xoay khóa)
       }
-      return {
-        userId: payload.sub,
-        sessionId: payload.sid,
-        channel: payload.channel as SessionChannel,
-        passwordChangeRequired: payload.password_change_required === true,
-        ...(typeof payload.tid === 'string' ? { tenantId: payload.tid } : {}),
-        ...(payload.spt === 'read' || payload.spt === 'full' ? { support: payload.spt } : {}),
-      };
-    } catch {
-      throw unauthenticatedError();
     }
+    throw unauthenticatedError();
   }
 }
 

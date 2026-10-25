@@ -148,9 +148,13 @@ export function listPermissions(): Promise<Permission[]> {
 }
 
 // Chính sách hạn mật khẩu của tài khoản nhân sự (DT-15 phần 15g, YCTD-110)
+// DT-SaaS phần S8b: thêm độ dài tối thiểu, số lần nhập sai trước khi tạm khóa và số phút tạm khóa (riêng từng trường)
 export interface PasswordPolicy {
   password_max_age_days: number;
   password_expiry_warning_days: number;
+  password_min_length: number;
+  login_max_failed_attempts: number;
+  login_lock_minutes: number;
 }
 
 export function readPasswordPolicy(): Promise<PasswordPolicy> {

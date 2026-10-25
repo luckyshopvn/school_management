@@ -45,6 +45,8 @@ const NUMERIC_SETTINGS: Record<
 };
 
 const CAPTCHA_ALWAYS_KEY = 'captcha_always';
+// Xác thực hai lớp tuỳ chọn theo trường, mặc định tắt (DT-SaaS phần S8b, GD-97)
+const TOTP_ENABLED_KEY = 'totp_enabled';
 const LOGIN_HOTLINE_KEY = 'login_hotline';
 const MAXIMUM_HOTLINE_LENGTH = 100;
 
@@ -53,7 +55,13 @@ const NUMERIC_KEYS = Object.keys(NUMERIC_SETTINGS) as NumericSettingKey[];
 // Chính sách hạn mật khẩu của tài khoản nhân sự (DT-15 phần 15g, YCTD-110): số ngày tối đa dùng một mật khẩu (0 là không
 // giới hạn) và số ngày báo trước khi hết hạn. Quản trị nền tảng, Hiệu trưởng (quyền quản lý mọi tài khoản) sửa ở màn hình
 // Danh sách người dùng
-type PasswordPolicyKey = 'password_max_age_days' | 'password_expiry_warning_days';
+// DT-SaaS phần S8b (YCTD-201): thêm độ dài tối thiểu, số lần nhập sai trước khi tạm khóa, số phút tạm khóa (riêng từng trường)
+type PasswordPolicyKey =
+  | 'password_max_age_days'
+  | 'password_expiry_warning_days'
+  | 'password_min_length'
+  | 'login_max_failed_attempts'
+  | 'login_lock_minutes';
 
 const PASSWORD_POLICY_SETTINGS: Record<
   PasswordPolicyKey,
@@ -61,6 +69,9 @@ const PASSWORD_POLICY_SETTINGS: Record<
 > = {
   password_max_age_days: { defaultValue: 0, minimum: 0, maximum: 3650, label: 'Số ngày' },
   password_expiry_warning_days: { defaultValue: 7, minimum: 0, maximum: 90, label: 'Số ngày báo trước' },
+  password_min_length: { defaultValue: 8, minimum: 8, maximum: 64, label: 'Số ký tự' },
+  login_max_failed_attempts: { defaultValue: 5, minimum: 3, maximum: 10, label: 'Số lần nhập sai' },
+  login_lock_minutes: { defaultValue: 15, minimum: 1, maximum: 1440, label: 'Số phút' },
 };
 
 const PASSWORD_POLICY_KEYS = Object.keys(PASSWORD_POLICY_SETTINGS) as PasswordPolicyKey[];
@@ -71,6 +82,7 @@ export type IdentitySettingsView = Record<NumericSettingKey, number> & {
   parent_default_password_configured: boolean;
   captcha_always: boolean;
   login_hotline: string | null;
+  totp_enabled: boolean;
 };
 
 // Thông tin công khai của trang đăng nhập cổng quản trị (DT-16 phần 16c)
@@ -108,6 +120,10 @@ export class IdentitySettingsService {
       always: (await this.readValue(CAPTCHA_ALWAYS_KEY)) === true,
       failureThreshold: await this.numeric('captcha_failure_threshold'),
     };
+  }
+
+  async totpEnabled(): Promise<boolean> {
+    return (await this.readValue(TOTP_ENABLED_KEY)) === true;
   }
 
   async passwordHistoryCount(): Promise<number> {
@@ -165,6 +181,10 @@ export class IdentitySettingsService {
     if (captchaAlways !== undefined && typeof captchaAlways !== 'boolean') {
       errors.push({ field: 'captcha_always', message: 'Chọn có hoặc không' });
     }
+    const totpEnabled = body?.totp_enabled;
+    if (totpEnabled !== undefined && typeof totpEnabled !== 'boolean') {
+      errors.push({ field: 'totp_enabled', message: 'Chọn có hoặc không' });
+    }
     const hotlineValue = body?.login_hotline;
     let hotline: string | undefined;
     if (hotlineValue !== undefined) {
@@ -183,6 +203,9 @@ export class IdentitySettingsService {
     }
     if (hotline !== undefined) {
       otherChanges.push([LOGIN_HOTLINE_KEY, hotline]);
+    }
+    if (typeof totpEnabled === 'boolean') {
+      otherChanges.push([TOTP_ENABLED_KEY, totpEnabled]);
     }
     if (
       errors.length === 0 &&
@@ -339,6 +362,7 @@ export class IdentitySettingsService {
       parent_default_password_configured: (await this.parentDefaultPasswordHash()) !== null,
       captcha_always: options.captcha_always,
       login_hotline: options.hotline,
+      totp_enabled: await this.totpEnabled(),
     };
   }
 

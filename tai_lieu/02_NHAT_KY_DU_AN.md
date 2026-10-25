@@ -20,22 +20,46 @@
 
 - Đọc mục 14.3, 14.5 (S4) của `32_KE_HOACH_THEO_HE_THONG_SO.md`; rà đăng nhập thay của 18h (`ImpersonationService`, `ImpersonationInterceptor`), bộ lập lịch của S1b, gói và giới hạn của S5a, cổng nền tảng của S1a, S2.
 - Thêm tệp nền tảng 0060 (`school_metrics`, `school_error_counts`, `maintenance_notices`, `support_sessions`, `support_session_actions`), tệp hệ thống 0053 (`support_access_grants`); việc định kỳ `school-metrics`; bộ gom lỗi 5xx theo trường ở máy chủ API và dịch vụ định danh; trang Bảng điều khiển, Bảo trì và khối Phiên hỗ trợ ở cổng nền tảng; trang Cho phép hỗ trợ, trang `/support-login`, biểu ngữ bảo trì và phiên hỗ trợ ở cổng; biểu ngữ bảo trì ở ứng dụng giáo viên, phụ huynh; e2e spec 136.
-- Thêm quy tắc BR-219 đến BR-221, chức năng P01-71 đến P01-74, màn hình MH-325 đến MH-328, kịch bản CT-1043 đến CT-1051, tiêu chí AC-849 đến AC-852, bảo mật BM-84, QĐ-31; bảng ở `16` mục 18A, giao kèo ở `17`; phiên bản 0.136.0.
+- Thêm quy tắc BR-222 đến BR-224, chức năng P01-75 đến P01-78, màn hình MH-328 đến MH-331, kịch bản CT-1049 đến CT-1057, tiêu chí AC-853 đến AC-856, bảo mật BM-88, QĐ-32; bảng ở `16` mục 18A, giao kèo ở `17`; phiên bản 0.137.0.
 
 #### Quyết định
 
 - Số liệu thu bằng bộ lập lịch mỗi giờ (chỉ đếm, đo dung lượng, tên tệp thay đổi cấu trúc), bảng điều khiển chỉ đọc lần thu mới nhất, không mở cơ sở dữ liệu của từng trường khi xem.
-- Đăng nhập hỗ trợ dùng tài khoản hỗ trợ riêng của mỗi trường (`ho-tro-nen-tang`, vai trò Hiệu trưởng, không đăng nhập bằng mật khẩu) thay vì đăng nhập thay một người dùng thật, để nhật ký của trường phân biệt rõ thao tác của nhà cung cấp (QĐ-31).
+- Đăng nhập hỗ trợ dùng tài khoản hỗ trợ riêng của mỗi trường (`ho-tro-nen-tang`, vai trò Hiệu trưởng, không đăng nhập bằng mật khẩu) thay vì đăng nhập thay một người dùng thật, để nhật ký của trường phân biệt rõ thao tác của nhà cung cấp (QĐ-32).
 - Đồng ý của trường lưu ở cơ sở dữ liệu hệ thống của trường (bằng chứng đi theo dữ liệu của trường); phiên và thao tác ghi ở cơ sở dữ liệu nền tảng.
 
 #### Thay đổi
 
-- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-197, `07_QUY_TAC_NGHIEP_VU.md` BR-219 đến BR-221, `10_YEU_CAU_CHUC_NANG.md` P01-71 đến P01-74, `11_TIEU_CHI_NGHIEM_THU.md` AC-849 đến AC-852, `12_KIEN_TRUC_HE_THONG.md` QĐ-31, `14_DAC_TA_GIAO_DIEN.md` MH-325 đến MH-328, `16_CO_SO_DU_LIEU.md` mục 18A, `17_DAC_TA_API.md`, `21_KICH_BAN_KIEM_THU.md` CT-1043 đến CT-1051, `22_BAO_MAT.md` BM-84; phiên bản phần mềm 0.136.0.
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-197, `07_QUY_TAC_NGHIEP_VU.md` BR-222 đến BR-224, `10_YEU_CAU_CHUC_NANG.md` P01-75 đến P01-78, `11_TIEU_CHI_NGHIEM_THU.md` AC-853 đến AC-856, `12_KIEN_TRUC_HE_THONG.md` QĐ-32, `14_DAC_TA_GIAO_DIEN.md` MH-328 đến MH-331, `16_CO_SO_DU_LIEU.md` mục 18A, `17_DAC_TA_API.md`, `21_KICH_BAN_KIEM_THU.md` CT-1049 đến CT-1057, `22_BAO_MAT.md` BM-88; phiên bản phần mềm 0.137.0.
 
 #### Vấn đề tồn đọng
 
 - Chưa có biểu đồ theo thời gian (số liệu giữ 30 ngày, bảng điều khiển hiện lần thu mới nhất và số lỗi 1 giờ, 24 giờ); kết quả diễn tập khôi phục của S7b chưa hiện ở bảng điều khiển (chờ S7b gộp).
 - Cảnh báo chỉ hiện trên bảng điều khiển, chưa gửi ra ngoài (email, Zalo); gửi cảnh báo thuộc giám sát của S7a.
+
+### 2026-10-25 — DT-SaaS phần S8b: bảo mật mã
+
+#### Công việc đã thực hiện
+
+- Đọc mục 14.3, 14.5 (S8b), 14.9, 14.11 (GD-97) của `32_KE_HOACH_THEO_HE_THONG_SO.md`; rà đăng nhập của dịch vụ định danh, cơ chế hết hạn mật khẩu (DT-15), đăng nhập vận hành nền tảng (S1a), công cụ đổi khóa (S3), tiêu đề ở Caddy, quy trình CI.
+- Thêm xác thực hai lớp, chính sách theo trường, tiêu đề bảo mật, cookie `__Secure-`, khóa ký hai pha, quét bí mật và thành phần phụ thuộc, danh sách kiểm ASVS.
+- Thêm quy tắc BR-219 đến BR-221, chức năng P01-71 đến P01-74, màn hình MH-325 đến MH-327, kịch bản CT-1043 đến CT-1048, tiêu chí AC-849 đến AC-852, bảo mật BM-84 đến BM-87, QĐ-31.
+
+#### Quyết định
+
+- Giữ quyết định YCTD-31: xác thực hai lớp của người dùng trường chỉ tuỳ chọn, mặc định tắt (GD-97); bắt buộc chỉ cho tài khoản vận hành nền tảng.
+- Tài khoản vận hành nhận khóa TOTP qua lệnh dòng lệnh khi tạo hoặc cấp lại (không có màn hình đăng ký) vì do Eric tạo trực tiếp; chưa đăng ký khóa thì không đăng nhập được.
+- Chính sách theo trường đặt ở `identity_settings` (nơi dịch vụ định danh đọc) thay vì hệ thống 0054; khóa TOTP người dùng đặt cột `*_encrypted` có cột `id` để công cụ đổi khóa của S3 tự tìm thấy.
+- Không thêm thư viện TOTP, tự cài RFC 6238 và kiểm bằng vectơ thử của RFC.
+- Quét thành phần phụ thuộc đặt `continue-on-error` để không chặn gộp vì lỗ hổng ở thư viện bên thứ ba; quét bí mật chặn thật.
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-201, `07_QUY_TAC_NGHIEP_VU.md` BR-219 đến BR-221, `10_YEU_CAU_CHUC_NANG.md` P01-71 đến P01-74, `11_TIEU_CHI_NGHIEM_THU.md` AC-849 đến AC-852
+
+#### Vấn đề tồn đọng
+
+- Kiểm thử xâm nhập bên ngoài chờ Eric thuê; xác thực hai lớp cho ứng dụng phụ huynh và bắt buộc cho quản trị trường chưa làm; e2e toàn bộ do CI chạy
 
 ### 2026-10-25 — DT-SaaS phần S7b: vận hành nhiều trường
 

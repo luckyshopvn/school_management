@@ -189,8 +189,29 @@ export interface UserSchoolLevelsTable {
   created_at: CreatedTimestamp;
 }
 
+// Xác thực hai lớp tuỳ chọn của người dùng trường (DT-SaaS phần S8b, YCTD-201)
+export interface UserTotpTable {
+  id: Generated<string>;
+  user_id: string;
+  secret_encrypted: string;
+  confirmed_at: Date | null;
+  last_step: ColumnType<string | null, number | string | null | undefined, number | string | null>;
+  created_at: CreatedTimestamp;
+  updated_at: UpdatedTimestamp;
+}
+
+export interface UserRecoveryCodesTable {
+  id: Generated<string>;
+  user_id: string;
+  code_hash: string;
+  used_at: Date | null;
+  created_at: CreatedTimestamp;
+}
+
 export interface IdentityDatabase {
   users: UsersTable;
+  user_totp: UserTotpTable;
+  user_recovery_codes: UserRecoveryCodesTable;
   roles: RolesTable;
   permissions: PermissionsTable;
   role_permissions: RolePermissionsTable;

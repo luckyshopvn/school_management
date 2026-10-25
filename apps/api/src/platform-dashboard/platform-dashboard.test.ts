@@ -1,6 +1,10 @@
 import assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
-import { createPlatformOperator } from '@school-management/identity/testing';
+import {
+  createPlatformOperatorWithTotp,
+  OPERATOR_TEST_PASSWORD,
+  operatorOtp,
+} from '@school-management/identity/testing';
 import { runAsSchool } from '@school-management/server';
 import { startMultiTenantApi, sendWithHost, type MultiTenantApi } from '../tenant-test-support.js';
 import { SchoolMetricsService } from './platform-dashboard.js';
@@ -9,7 +13,6 @@ import { SchoolMetricsService } from './platform-dashboard.js';
 // của trường bật, rút cho phép hỗ trợ; phiên hỗ trợ chỉ đọc bị chặn ghi và được ghi thao tác; thông báo bảo trì theo trường. Hai
 // trường giả, dữ liệu giả
 const CONSOLE_HOST = 'platform.e2e.localhost';
-const PASSWORD = 'MatKhauGia#2026';
 
 describe('bảng điều khiển nền tảng ở máy chủ API nhiều trường', () => {
   let environment: MultiTenantApi;
@@ -19,15 +22,28 @@ describe('bảng điều khiển nền tảng ở máy chủ API nhiều trườ
     environment = await startMultiTenantApi({ label: 'dash' });
     environment.identity.configuration.platformConsoleHost = CONSOLE_HOST;
     const login = `van-hanh-${Math.random().toString(36).slice(2, 8)}`;
-    await createPlatformOperator(environment.platform.platform, {
-      login,
-      fullName: 'Nhân viên hỗ trợ giả',
-      password: PASSWORD,
-    });
+    const created = await createPlatformOperatorWithTotp(
+      environment.platform.platform,
+      environment.platform.masterKey,
+      {
+        login,
+        fullName: 'Nhân viên hỗ trợ giả',
+        password: OPERATOR_TEST_PASSWORD,
+      },
+    );
     const reply = await sendWithHost(environment.identityOrigin, {
       path: '/api/v1/auth/platform/login',
       host: CONSOLE_HOST,
-      body: { login, password: PASSWORD },
+      body: {
+        login,
+        password: OPERATOR_TEST_PASSWORD,
+        otp_code: await operatorOtp(
+          environment.platform.platform,
+          created.id,
+          created.secret,
+          environment.identity.clock.now(),
+        ),
+      },
     });
     operatorToken = reply.body.access_token as string;
   });

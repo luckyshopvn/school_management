@@ -68,7 +68,7 @@ const RULES = [
       /^apps\/api\/src\/common\/databases\.ts$/,
       /^apps\/identity\/src\/common\/infrastructure\.ts$/,
       // Lệnh dòng lệnh quản trị chạy một lần, không thuộc yêu cầu của trường nào
-      /^apps\/identity\/src\/create-platform-(administrator|operator)\.ts$/,
+      /^apps\/identity\/src\/(create-platform-(administrator|operator)|reset-operator-totp)\.ts$/,
     ],
   },
   {
@@ -92,6 +92,8 @@ const RULES = [
       /\/configuration\.ts$/,
       /\/main\.ts$/,
       /^database\/src\/(environment|platform-command|migrate-command|level-check-command|tenancy-runtime|test-admin)\.ts$/,
+      // Lệnh dòng lệnh vận hành nền tảng đọc khóa gốc ở biến môi trường (DT-SaaS phần S8b)
+      /^apps\/identity\/src\/(create-platform-operator|reset-operator-totp)\.ts$/,
     ],
   },
   {

@@ -33,3 +33,5 @@ export {
 } from './esms-client.js';
 export { applyTrustProxy, parseTrustProxy } from './trust-proxy.js';
 export * from './tenancy.js';
+export * from './totp.js';
+export * from './security-headers.js';

@@ -10,6 +10,9 @@ import { readPasswordPolicy, savePasswordPolicy } from './accounts-api.js';
 const FIELDS = [
   { key: 'password_max_age_days', label: 'Số ngày hết hạn mật khẩu', hint: '0 là không giới hạn' },
   { key: 'password_expiry_warning_days', label: 'Số ngày báo trước khi hết hạn', hint: '0 là không báo trước' },
+  { key: 'password_min_length', label: 'Độ dài mật khẩu tối thiểu', hint: 'Từ 8 đến 64 ký tự' },
+  { key: 'login_max_failed_attempts', label: 'Số lần nhập sai thì tạm khóa', hint: 'Từ 3 đến 10 lần' },
+  { key: 'login_lock_minutes', label: 'Số phút tạm khóa', hint: 'Từ 1 đến 1440 phút' },
 ] as const;
 
 type FieldKey = (typeof FIELDS)[number]['key'];
@@ -20,12 +23,18 @@ export function PasswordPolicySection({ onSaved }: { onSaved(message: string): v
   const [values, setValues] = useState<Record<FieldKey, string>>({
     password_max_age_days: '',
     password_expiry_warning_days: '',
+    password_min_length: '',
+    login_max_failed_attempts: '',
+    login_lock_minutes: '',
   });
   useEffect(() => {
     if (policy.data) {
       setValues({
         password_max_age_days: String(policy.data.password_max_age_days),
         password_expiry_warning_days: String(policy.data.password_expiry_warning_days),
+        password_min_length: String(policy.data.password_min_length),
+        login_max_failed_attempts: String(policy.data.login_max_failed_attempts),
+        login_lock_minutes: String(policy.data.login_lock_minutes),
       });
     }
   }, [policy.data]);
@@ -34,6 +43,9 @@ export function PasswordPolicySection({ onSaved }: { onSaved(message: string): v
       savePasswordPolicy({
         password_max_age_days: Number(values.password_max_age_days),
         password_expiry_warning_days: Number(values.password_expiry_warning_days),
+        password_min_length: Number(values.password_min_length),
+        login_max_failed_attempts: Number(values.login_max_failed_attempts),
+        login_lock_minutes: Number(values.login_lock_minutes),
       }),
     onSuccess: (saved) => {
       queryClient.setQueryData(['password-policy'], saved);

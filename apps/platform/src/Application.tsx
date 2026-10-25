@@ -11,6 +11,7 @@ import { fetchProfile, loginOperator, PlatformApiError, type OperatorProfile } f
 function LoginForm({ onLoggedIn }: { onLoggedIn: (accessToken: string) => void }) {
   const [login, setLogin] = useState('');
   const [password, setPassword] = useState('');
+  const [otpCode, setOtpCode] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
 
@@ -19,7 +20,7 @@ function LoginForm({ onLoggedIn }: { onLoggedIn: (accessToken: string) => void }
     setBusy(true);
     setError(null);
     try {
-      const result = await loginOperator(login, password);
+      const result = await loginOperator(login, password, otpCode);
       onLoggedIn(result.accessToken);
     } catch (caught) {
       setError(caught instanceof PlatformApiError ? caught.message : 'Không đăng nhập được, vui lòng thử lại');
@@ -43,6 +44,17 @@ function LoginForm({ onLoggedIn }: { onLoggedIn: (accessToken: string) => void }
             value={password}
             onChange={(event) => setPassword(event.target.value)}
             autoComplete="current-password"
+            required
+          />
+        </label>
+        <label>
+          Mã xác thực hai lớp
+          <input
+            value={otpCode}
+            onChange={(event) => setOtpCode(event.target.value)}
+            autoComplete="one-time-code"
+            inputMode="numeric"
+            placeholder="Mã 6 số hoặc mã khôi phục"
             required
           />
         </label>
