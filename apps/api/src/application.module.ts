@@ -421,6 +421,20 @@ import { ArchivesController } from './archives/archives.controller.js';
 import { ArchiveJobs, ArchivesService } from './archives/archives.js';
 import { InternalJobsController, JobScheduler } from './common/job-scheduler.js';
 import { SchoolPickerController } from './common/school-picker.js';
+import {
+  PublicBrandingController,
+  SchoolSettingsController,
+  SchoolSettingsService,
+} from './school-settings/school-settings.controller.js';
+import { SchoolSettings } from './school-settings/school-settings.js';
+import {
+  TenantFacebookPublisher,
+  TenantFileStorage,
+  TenantPaymentGatewayRegistry,
+  TenantSmsGateway,
+  TenantZaloSender,
+  zaloTokenOptions,
+} from './school-settings/tenant-connectors.js';
 import { ExportJobs, ExportJobsController } from './exports/export-jobs.js';
 // Quản trị và trình diễn (DT-18 phần 18h)
 import { ImpersonationActionsController, ImpersonationInterceptor } from './impersonation/impersonation.js';
@@ -523,6 +537,8 @@ export class ApplicationModule {
         WebsiteDomainCheckController,
         InternalJobsController,
         SchoolPickerController,
+        SchoolSettingsController,
+        PublicBrandingController,
         // Hồ sơ chuyên môn và Việc của tôi (DT-18 phần 18e)
         ProfessionalRecordsController,
         EducationPlansController,
@@ -954,56 +970,34 @@ export class ApplicationModule {
         // Bản trình diễn không gửi tin thật (DT-18 phần 18h)
         {
           provide: SmsGateway,
-          inject: [DemoMode],
-          useFactory: (demoMode: DemoMode) =>
-            new DemoAwareSmsGateway(options.smsGateway ?? createSmsGateway(configuration.smsProvider), demoMode),
+          inject: [DemoMode, SchoolSettings],
+          useFactory: (demoMode: DemoMode, settings: SchoolSettings) =>
+            new DemoAwareSmsGateway(options.smsGateway ?? new TenantSmsGateway(settings, configuration), demoMode),
         },
         // Kết nối Fanpage và Zalo: bộ giả lập khi phát triển, kết nối thật khi có khóa ở biến môi trường (YCTD-90)
         {
           provide: FacebookPublisher,
-          inject: [DemoMode],
-          useFactory: (demoMode: DemoMode) =>
-            new DemoAwareFacebookPublisher(
-              configuration.facebookPublisher === 'development'
-                ? new DevelopmentFacebookPublisher()
-                : configuration.facebookPageAccessToken
-                  ? new GraphApiFacebookPublisher(
-                      configuration.facebookPageAccessToken,
-                      configuration.facebookGraphVersion,
-                    )
-                  : new UnavailableFacebookPublisher(),
-              demoMode,
-            ),
+          inject: [DemoMode, SchoolSettings],
+          useFactory: (demoMode: DemoMode, settings: SchoolSettings) =>
+            new DemoAwareFacebookPublisher(new TenantFacebookPublisher(settings, configuration), demoMode),
         },
         // Kho khóa Zalo ở cơ sở dữ liệu hệ thống, mã hóa bằng khóa mã hóa dữ liệu của máy chủ (YCTD-92)
         {
           provide: ZaloTokenStore,
-          inject: [Databases],
-          useFactory: (databases: Databases) =>
-            // Hàm đọc lại theo từng lần dùng để ở chế độ nhiều trường lấy đúng cơ sở dữ liệu và khóa của trường trong ngữ cảnh
+          inject: [Databases, SchoolSettings],
+          useFactory: (databases: Databases, settings: SchoolSettings) =>
+            // Đọc lại theo từng lần dùng để ở chế độ nhiều trường lấy đúng cơ sở dữ liệu, khóa và cấu hình Zalo của trường trong ngữ cảnh
             new ZaloTokenStore(
               () => databases.system,
               () => configuration.childDataEncryptionKey,
-              {
-                appId: configuration.zaloAppId ?? null,
-                appSecret: configuration.zaloAppSecret ?? null,
-                seedRefreshToken: configuration.zaloOaRefreshToken ?? null,
-                seedAccessToken: configuration.zaloOaAccessToken ?? null,
-              },
+              zaloTokenOptions(settings, configuration),
             ),
         },
         {
           provide: ZaloSender,
-          inject: [ZaloTokenStore, DemoMode],
-          useFactory: (tokens: ZaloTokenStore, demoMode: DemoMode) =>
-            new DemoAwareZaloSender(
-              configuration.zaloSender === 'development'
-                ? new DevelopmentZaloSender()
-                : configuration.zaloSender === 'zalo_oa'
-                  ? new OfficialAccountZaloSender(tokens)
-                  : new UnavailableZaloSender(),
-              demoMode,
-            ),
+          inject: [ZaloTokenStore, DemoMode, SchoolSettings],
+          useFactory: (tokens: ZaloTokenStore, demoMode: DemoMode, settings: SchoolSettings) =>
+            new DemoAwareZaloSender(new TenantZaloSender(settings, configuration, tokens), demoMode),
         },
         IntegrationsService,
         QuickLinksService,
@@ -1076,12 +1070,8 @@ export class ApplicationModule {
         JournalsService,
         {
           provide: PaymentGatewayRegistry,
-          useFactory: () =>
-            new PaymentGatewayRegistry(
-              (configuration.paymentGateways ?? []).map((code) =>
-                createPaymentGateway(code, configuration.paymentProviders),
-              ),
-            ),
+          inject: [SchoolSettings],
+          useFactory: (settings: SchoolSettings) => new TenantPaymentGatewayRegistry(settings, configuration),
         },
         CashBooksService,
         WorkAccess,
@@ -1118,6 +1108,8 @@ export class ApplicationModule {
         AdmissionsPublicService,
         AdmissionsRateLimiter,
         PublicRateLimiter,
+        SchoolSettings,
+        SchoolSettingsService,
         RecruitmentRequestsService,
         JobPostingsService,
         PublicRecruitmentService,
@@ -1125,15 +1117,14 @@ export class ApplicationModule {
         SchoolCalendar,
         {
           provide: FileStorage,
-          useFactory: () => {
-            if (options.fileStorage) {
-              return options.fileStorage;
-            }
-            if (!configuration.objectStorage) {
-              throw new Error('Thiếu cấu hình kho tệp');
-            }
-            return new S3FileStorage(configuration.objectStorage);
-          },
+          inject: [SchoolSettings],
+          // Kho riêng của trường nếu có cấu hình, không thì kho chung của bản triển khai (DT-SaaS phần S3)
+          useFactory: (settings: SchoolSettings) =>
+            new TenantFileStorage(
+              settings,
+              options.fileStorage ??
+                (configuration.objectStorage ? new S3FileStorage(configuration.objectStorage) : null),
+            ),
         },
       ],
     };

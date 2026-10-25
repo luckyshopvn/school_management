@@ -14,6 +14,7 @@ import { matchesSearch } from '../pages/grid-search.js';
 import { useGridSettings } from '../pages/grid-settings.js';
 import { ApiError, requestJson } from '../session/api-client.js';
 import { menuPageTitle } from '../pages/page-title.js';
+import { SchoolConnectorsPanel } from './SchoolConnectorsPanel.js';
 
 // MH-71 Kết nối ngoài (P01.integration.manage; P14-08, G3-03, G3-08; YCTD-90): Hiệu trưởng bật, tắt Fanpage và Zalo Official
 // Account, nhập mã trang, mã Official Account; khóa truy cập đặt ở biến môi trường của máy chủ nên trang chỉ báo đã có hay
@@ -316,6 +317,7 @@ export function IntegrationsPage() {
         ))}
         {integrations.data ? <ZaloRefreshToken onSaved={setToastMessage} /> : null}
         <Followers onSaved={setToastMessage} />
+        <SchoolConnectorsPanel onSaved={setToastMessage} />
       </div>
     </AppShell>
   );

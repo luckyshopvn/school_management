@@ -1,7 +1,7 @@
 # 16. CƠ SỞ DỮ LIỆU
 
 - Mô tả: Thực thể, trường, kiểu dữ liệu, khóa chính, khóa ngoại, quan hệ, ràng buộc, chỉ mục, trạng thái, lịch sử thay đổi, chính sách xóa dữ liệu.
-- Phiên bản: 1.119
+- Phiên bản: 1.120
 - Ngày cập nhật: 2026-10-25
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -731,6 +731,14 @@ Cơ sở dữ liệu `platform` dùng chung cho nền tảng nhiều trường, 
 | school_hosting (từ YCTD-193) | Vùng máy chủ, bên xử lý phụ của trường theo PL-08 (BR-207) | school_id, provider, service, region, role (`subprocessor`, `transit`), stores_personal_data, started_on, ended_on |
 
 Từ YCTD-193 (tệp nền tảng `0020`, `0021`), bảng `schools` thêm address, school_levels (JSON, cấp học đã chọn), first_academic_year, suspended_at, deletion_requested_at, delete_after, deleted_at, deletion_record (JSON, bản ghi chứng minh đã xóa: mã, mã băm tên, thời điểm, người xóa, danh sách cơ sở dữ liệu, số tệp); bảng `school_domains` thêm provider (mặc định `system`), verification_token, cname_target, last_checked_at, check_error. Cơ sở dữ liệu hệ thống của từng trường thêm bảng `terms_acceptances` (tệp hệ thống `0050_create_terms_acceptances`: terms_version, accepted_at, accepted_by_name, accepted_by_title, source `platform-setup` hoặc `school-user`, recorded_by) để việc đồng ý điều khoản đi theo dữ liệu của trường khi xuất.
+
+## 18B. Cấu hình riêng từng trường (DT-SaaS phần S3, YCTD-195)
+
+| Bảng | Mục đích | Cột chính |
+|---|---|---|
+| integration_secrets (từ YCTD-195) | Cấu hình kết nối ngoài của trường, ở cơ sở dữ liệu hệ thống của trường (BR-209; hệ thống `0051_create_integration_secrets`) | connector (khóa chính: `payos`, `sepay`, `casso`, `vnpay`, `vietqr`, `esms`, `zalo`, `facebook`, `storage`), id, enabled, values_encrypted (JSON mã hóa bằng khóa của trường), hints, updated_at, updated_by |
+| school_branding (từ YCTD-195) | Thương hiệu của trường, một dòng (BR-211; hệ thống `0052_create_school_branding`) | id (luôn 1), display_name, primary_color (`#RRGGBB`), updated_at, updated_by_name |
+| school_key_rotations (từ YCTD-195) | Nhật ký đổi khóa mã hóa dữ liệu trẻ ở cơ sở dữ liệu nền tảng (BR-210; nền tảng `0030_create_key_rotations`, khối 0030 đến 0039 của S3) | school_id, status (`running`, `completed`, `failed`), new_encryption_key_encrypted, new_hash_key_encrypted (bọc bằng khóa gốc), progress (JSON), rows_done, started_by, started_at, finished_at, error; mỗi trường chỉ một lần `running` |
 
 ## 19. Quan hệ chính giữa các bảng
 

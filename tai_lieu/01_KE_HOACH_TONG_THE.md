@@ -1,7 +1,7 @@
 # 01. KẾ HOẠCH TỔNG THỂ
 
 - Mô tả: Tài liệu điều phối cấp cao nhất của dự án: mười hai giai đoạn kèm cổng kiểm soát, các mốc phát hành, kế hoạch thực thi theo đợt, đường găng, tổ chức thực hiện, quản lý thay đổi và rủi ro.
-- Phiên bản: 1.61
+- Phiên bản: 1.62
 - Ngày cập nhật: 2026-10-25
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -253,6 +253,7 @@ Sản phẩm: School Management, hệ thống quản lý trường mầm non cho
 | 0.129.0 | DT-SaaS phần S1a: nền đa thuê bao, phần lõi (cơ sở dữ liệu nền tảng, nhận diện trường theo tên miền, cơ sở dữ liệu theo trường ở hai bố cục, mã phiên mang mã trường, khóa dữ liệu trẻ riêng, nhận bản đang chạy làm trường số 1, đăng nhập vận hành nền tảng, bộ kiểm thử cách ly) | YCTD-191 |
 | 0.130.0 | DT-SaaS phần S1b: nền đa thuê bao, phần chạy nền và công khai (bộ lập lịch việc nền theo trường, điểm tick ngoài, hàng đợi máy xếp theo trường, domain-check theo danh mục tên miền nền tảng, trang chọn trường) | YCTD-192 |
 | 0.131.0 | DT-SaaS phần S2: khởi tạo và vòng đời trường (bước setup ở cổng nền tảng, tiến trình khởi tạo chạy tiếp được hoặc hoàn tác, tên miền mặc định hoặc tên miền riêng qua bộ nối `DomainProvider`, hồ sơ đồng ý dữ liệu thật, kích hoạt quản trị viên đầu tiên, tạm dừng, mở lại, xóa có thời gian chờ, xuất dữ liệu, migrate cuốn chiếu) | YCTD-193 |
+| 0.132.0 | DT-SaaS phần S3: cấu hình riêng từng trường (khóa kết nối ngoài mã hóa theo trường, đổi khóa dữ liệu trẻ và khóa gốc, thương hiệu) | YCTD-195 |
 | 1.0.0 | Giai đoạn 1 chạy thật: nền tảng, trẻ, điểm danh, học phí, thanh toán mã QR, phiếu thu, phiếu chi, quỹ tiền mặt, nhân sự, lương cơ bản, hai ứng dụng, báo cáo cơ bản, nhập dữ liệu từ Excel, nhập mã định danh của Bộ, API đối tác | 09 đến 11 | Eric nghiệm thu ngày 13/10/2026, thẻ `v1.0.0` (tài liệu 0.31.0, YCTD-92); chờ triển khai ở việc T6 |
 | 1.1.0 | Giai đoạn 2: giảng dạy, y tế, bếp, kho, hoạt động, tương tác, công việc, tài khoản ngân hàng và công nợ phải trả, báo cáo hợp nhất | 09 đến 11 | Eric nghiệm thu ngày 13/10/2026, thẻ `v1.1.0` (tài liệu 0.42.0, YCTD-92) |
 | 1.2.0 | Giai đoạn 3: tuyển sinh, tuyển dụng, kết nối Facebook và Zalo, đối soát thanh toán, sổ kế toán kép | 09 đến 11 | Eric nghiệm thu ngày 13/10/2026, thẻ `v1.2.0` (tài liệu 0.48.0, YCTD-92) |

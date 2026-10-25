@@ -1,7 +1,7 @@
 # 17. ĐẶC TẢ API
 
 - Mô tả: Điểm cuối, phương thức, yêu cầu, phản hồi, xác thực, phân quyền, kiểm tra dữ liệu, xử lý lỗi, phân trang, lọc, sắp xếp, phiên bản.
-- Phiên bản: 1.123
+- Phiên bản: 1.124
 - Ngày cập nhật: 2026-10-25
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -1979,6 +1979,12 @@ Bỏ ngày 09/10/2026: trường không có xe đưa đón (Q-62). Mọi điểm
 | POST | /api/v1/integrations/facebook/test | Kiểm tra kết nối Fanpage: trả mã và tên trang; lỗi trả 422 kèm lời báo (YCTD-95) |
 | POST | /api/v1/integrations/zalo/test | Kiểm tra kết nối Zalo Official Account: trả mã và tên Official Account; lỗi trả 422 (YCTD-95) |
 | PUT | /api/v1/integrations/zalo/refresh-token | Lưu khóa làm mới Zalo mới (mã hóa), bỏ khóa truy cập cũ; không bao giờ trả lại khóa, nhật ký chỉ ghi đã thay (YCTD-95) |
+| GET | /api/v1/school-settings/integrations | Danh sách kết nối ngoài riêng của trường (YCTD-195, BR-209, P01.integration.manage): trạng thái, các ô nhập (giá trị bí mật chỉ bốn ký tự cuối), địa chỉ gọi lại của trường |
+| PUT | /api/v1/school-settings/integrations/:connector | Lưu một kết nối `{ enabled, values }`: giá trị mã hóa bằng khóa của trường, ô trống giữ giá trị đã lưu; thiếu ô bắt buộc khi bật 400 |
+| DELETE | /api/v1/school-settings/integrations/:connector | Xóa cấu hình một kết nối |
+| POST | /api/v1/school-settings/integrations/:connector/test | Kiểm tra kết nối bằng giá trị đã lưu (Facebook, Zalo, eSMS gọi nhà cung cấp; kho tệp ghi và xóa tệp thử; cổng thanh toán kiểm tra đủ khóa); chưa cấu hình 422 `G3-10` |
+| GET, PUT | /api/v1/school-settings/branding | Thương hiệu của trường: `display_name`, `primary_color` (#RRGGBB) (YCTD-195, BR-211) |
+| GET | /api/v1/public/branding, /api/v1/public/branding/logo | Công khai theo tên miền của trường: tên hiển thị, màu, địa chỉ và ảnh biểu trưng cho trang đăng nhập (YCTD-195, MH-321) |
 | GET | /api/v1/sync-accounts | Tài khoản đồng bộ của Bộ (`moet`), của Sở (`doet`): `username`, `password_configured`, `updated_at`, `sync_available`; không bao giờ trả mật khẩu; cần `P01.integration.manage` (P01-19, YCTD-120) |
 | PUT, DELETE | /api/v1/sync-accounts/{target} | Ghi `username` (bắt buộc, đến 100 ký tự), `password` (đến 200 ký tự; trống thì giữ mật khẩu đã lưu, lần đầu bắt buộc); xóa thông tin đã lưu |
 | GET | /api/v1/account-directory | Danh sách người dùng của 1.4 ghép hồ sơ nhân sự: tham số như `GET /users` (`q`, `status`, `role_code`, `login`, `full_name`, `must_change_password`, `password_expires_from`, `password_expires_to`, `page`, `page_size` 10, 20, 50, 100, 200) và `identifier` (mã nhân sự hoặc mã Bộ, khớp một phần); mỗi dòng thêm `staff_id`, `staff_code`, `moet_staff_code`; cần `P01.account.manage` hoặc `P01.account.manage-in-unit` (YCTD-120) |

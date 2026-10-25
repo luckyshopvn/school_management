@@ -134,6 +134,11 @@ export class PaymentGatewayRegistry {
     this.gateways = gateways.length > 0 ? gateways : [new UnavailablePaymentGateway()];
   }
 
+  // Bảng cổng đang dùng: bảng chung của máy chủ trả về chính nó; bảng theo từng trường (DT-SaaS phần S3) trả bảng của trường trong ngữ cảnh
+  async prepare(): Promise<PaymentGatewayRegistry> {
+    return this;
+  }
+
   get defaultGateway(): PaymentGateway {
     return this.gateways[0] as PaymentGateway;
   }

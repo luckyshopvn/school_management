@@ -1,7 +1,7 @@
 # 12. KIẾN TRÚC HỆ THỐNG
 
 - Mô tả: Kiến trúc tổng thể, thành phần, xác thực, phân quyền, lưu trữ tệp, ghi nhật ký, giám sát, sao lưu, phục hồi, triển khai.
-- Phiên bản: 1.17
+- Phiên bản: 1.18
 - Ngày cập nhật: 2026-10-25
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -257,6 +257,7 @@ Thư viện `database/src/school-lifecycle.ts` dùng chung cho dịch vụ đị
 | QĐ-25 | Nền đa thuê bao (DT-SaaS phần S1a, YCTD-191): mô hình A, mỗi trường một bộ cơ sở dữ liệu và một vai trò PostgreSQL, thêm cơ sở dữ liệu nền tảng `platform`; ngữ cảnh trường đặt bằng `AsyncLocalStorage` ở đầu yêu cầu nên `Databases`, `cacheKey`, `storageKey` giữ chữ ký; đóng chặt khi thiếu ngữ cảnh; mã phiên mang `tid`, cặp khóa ký dùng chung; chế độ một trường là mặc định và bản đang chạy thành trường số 1 không chuyển dữ liệu; bố cục `schema` (mỗi lược đồ một vai trò, `search_path` mức vai trò) cho hồ sơ thử nghiệm; chi tiết ở `32_KE_HOACH_THEO_HE_THONG_SO.md` mục 14 | Đã chốt, làm ở S1a |
 | QĐ-26 | Việc nền nhiều trường (DT-SaaS phần S1b, YCTD-192): bộ lập lịch trong máy chủ API chiếm việc đến hạn ở bảng `scheduler_state` của cơ sở dữ liệu nền tảng thay vì đếm số lần gọi, nên chạy được cả khi có nhiều bản máy chủ lẫn khi máy chủ ngủ và được gọi bằng điểm tick; việc khởi động của tiến trình (đăng ký biểu EMIS) là loại `perProcess` không chiếm qua cơ sở dữ liệu; hàng đợi máy xếp giữ một khóa chung, phần tử mang tiền tố trường; thêm bộ đệm ngữ cảnh trường `contextOf` có gộp lượt nạp đồng thời để mỗi yêu cầu nội bộ không đọc cơ sở dữ liệu nền tảng | Đã chốt, làm ở S1b |
 | QĐ-27 | Khởi tạo và vòng đời trường (DT-SaaS phần S2, YCTD-193): khởi tạo là việc có bước lưu ở cơ sở dữ liệu nền tảng, chạy lặp được, chạy tiếp hoặc hoàn tác; điểm cuối quản lý trường ở dịch vụ định danh dưới `/api/v1/auth/platform/schools` (không thêm dịch vụ); tên miền riêng qua bộ nối `DomainProvider`; quản trị viên đầu tiên kích hoạt bằng đường liên kết một lần, không gửi mật khẩu; xóa có thời gian chờ, giữ hàng của trường ở trạng thái đã xóa kèm bản ghi chứng minh; xuất và xóa tệp chạy ở máy chủ API vì kho tệp nằm ở đó | Đã chốt, làm ở S2 |
+| QĐ-28 | Cấu hình kết nối ngoài theo trường (DT-SaaS phần S3, YCTD-195): một lớp `SchoolSettings` đọc `integration_secrets` (đệm 15 giây, xóa đệm khi ghi) và các bộ nối `Tenant*` (tin nhắn, Fanpage, Zalo, cổng thanh toán, kho tệp) chọn nguồn theo từng lần dùng: cấu hình của trường, rồi bộ giả lập, rồi (chỉ chế độ một trường) biến môi trường, còn lại tắt; `ZaloTokenStore` nhận cấu hình ban đầu bằng hàm bất đồng bộ; bảng cổng thanh toán có `prepare()` trả bảng của trường; đổi khóa dữ liệu trẻ tự tìm cột `*_encrypted` ở `information_schema` nên bảng thêm sau tự được xử lý | Đã chốt, làm ở S3 |
 
 ## 14. Chưa xác minh được
 

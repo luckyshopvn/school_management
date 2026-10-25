@@ -24,6 +24,13 @@ export abstract class FacebookPublisher {
   abstract readonly provider: string;
   // Đã có khóa hoặc là bộ giả lập; chưa có thì không cho đăng
   abstract readonly available: boolean;
+  // Bản bất đồng bộ của `provider` và `available` cho bộ nối đọc cấu hình theo trường (DT-SaaS phần S3)
+  async isAvailable(): Promise<boolean> {
+    return this.available;
+  }
+  async providerName(): Promise<string> {
+    return this.provider;
+  }
   abstract publish(input: FacebookPostInput): Promise<{ postId: string }>;
   // Kiểm tra kết nối: đọc mã và tên trang bằng khóa đang dùng; lỗi thì ném lỗi tiếng Việt
   abstract verify(pageId: string): Promise<{ id: string; name: string }>;

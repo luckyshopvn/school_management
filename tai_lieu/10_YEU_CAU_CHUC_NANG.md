@@ -1,7 +1,7 @@
 # 10. YÊU CẦU CHỨC NĂNG
 
 - Mô tả: Mã chức năng, tên chức năng, mục đích, người sử dụng, điều kiện thực hiện, dữ liệu đầu vào, quy trình xử lý, kết quả đầu ra, quy tắc nghiệp vụ, trường hợp ngoại lệ, phân quyền, thông báo lỗi.
-- Phiên bản: 1.96
+- Phiên bản: 1.97
 - Ngày cập nhật: 2026-10-25
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -76,6 +76,9 @@
 | P01-56 | Tên miền riêng và hồ sơ đồng ý của trường (YCTD-193) | Người vận hành nền tảng | Tên miền; hồ sơ đồng ý; vùng máy chủ; loại dữ liệu | Tên miền riêng chờ kiểm tra CNAME, TXT qua bộ nối `DomainProvider`; ghi hồ sơ, vùng máy chủ; đổi loại dữ liệu qua cổng hồ sơ | Tên miền hoạt động khi kiểm tra đạt; loại dữ liệu mới | BR-206, BR-207 |
 | P01-57 | Kích hoạt quản trị viên đầu tiên (YCTD-193) | Quản trị viên đầu tiên của trường mới (không cần đăng nhập) | Mã kích hoạt trong đường liên kết, mật khẩu mới | Kiểm tra lời mời đúng trường, chưa dùng, chưa hết hạn; đặt mật khẩu theo BM-03; đánh dấu đã dùng | Tài khoản đăng nhập được | BR-208 |
 | P01-58 | Migrate cuốn chiếu các trường (YCTD-193) | Người vận hành (lệnh `platform migrate-schools`) | Trường canary, có chạy tiếp khi lỗi | Chạy migrate lần lượt cơ sở dữ liệu định danh, hệ thống, năm học còn ghi được của từng trường, canary trước; lỗi thì dừng | Bảng kết quả theo làn sóng ở `school_migrations` | BR-208 |
+| P01-59 | Khóa kết nối ngoài riêng từng trường (YCTD-195) | Hiệu trưởng (VT-02) | Khóa và thông tin của cổng thanh toán, eSMS, Zalo, Facebook, kho tệp | Lưu mã hóa bằng khóa của trường; kiểm tra kết nối; xem địa chỉ gọi lại của trường; xóa cấu hình; bộ nối ngoài đọc theo trường | Trạng thái từng kết nối kèm bốn ký tự cuối giá trị bí mật | BR-209 |
+| P01-60 | Đổi khóa mã hóa dữ liệu trẻ và bọc lại khóa gốc (YCTD-195) | Người vận hành (lệnh dòng lệnh platform) | Mã trường đang tạm dừng; khóa gốc mới | Mã hóa lại từng lô, làm tiếp được, tính lại băm, thay khóa khi xong, ghi nhật ký | Khóa mới của trường; số dòng đã mã hóa lại | BR-210 |
+| P01-61 | Thương hiệu của trường (YCTD-195) | Hiệu trưởng (VT-02); người dùng chưa đăng nhập (đọc) | Tên hiển thị, màu chủ đạo | Lưu thương hiệu; trang đăng nhập đọc công khai theo tên miền | Tên, màu, biểu trưng của trường | BR-211 |
 
 ## 3. Phân hệ P02 — Trẻ, phụ huynh và lớp học
 

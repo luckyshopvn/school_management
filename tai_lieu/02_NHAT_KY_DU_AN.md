@@ -1,7 +1,7 @@
 # 02. NHẬT KÝ DỰ ÁN
 
 - Mô tả: Ghi nhận công việc, quyết định, thay đổi và vấn đề tồn đọng theo ngày, ngày mới nhất ở trên cùng.
-- Phiên bản: 0.65
+- Phiên bản: 0.66
 - Ngày cập nhật: 2026-10-25
 - Trạng thái: Đang cập nhật
 
@@ -13,6 +13,29 @@
 - Không ghi thông tin tạm thời như kết quả tra cứu, đường dẫn tạm, thông báo lỗi của công cụ.
 
 ## Nhật ký theo ngày
+
+### 2026-10-25 — DT-SaaS phần S3: cấu hình riêng từng trường
+
+#### Công việc đã thực hiện
+
+- Đọc mục 14.3, 14.5 (S3), 14.9 của `32_KE_HOACH_THEO_HE_THONG_SO.md`; rà nơi đọc khóa tích hợp (thanh toán, eSMS, Zalo, Facebook, kho tệp) ở `application.module.ts`, `ApiConfiguration`.
+- Thêm `integration_secrets`, `school_branding`, `school_key_rotations`, lớp `SchoolSettings` và bộ nối theo trường, màn hình quản trị, công cụ đổi khóa và bọc lại khóa gốc.
+- Thêm quy tắc BR-209 đến BR-211, chức năng P01-59 đến P01-61, màn hình MH-320, MH-321, kịch bản CT-1014 đến CT-1018, tiêu chí AC-835 đến AC-837, bảo mật BM-79, BM-80, QĐ-28.
+
+#### Quyết định
+
+- Giá trị kết nối lưu một đối tượng JSON mã hóa bằng khóa mã hóa của trường (cùng khóa với dữ liệu trẻ) nên đổi khóa dữ liệu trẻ mã hóa lại luôn cả cấu hình kết nối.
+- Đổi khóa chỉ khi trường tạm dừng, tự tìm cột `*_encrypted` có cột `id` ở `information_schema` để không bỏ sót bảng thêm sau.
+- Chế độ nhiều trường không rơi về biến môi trường; bộ giả lập đặt ở cấu hình máy chủ vẫn dùng được để các kiểm thử hiện có không đổi.
+- Biểu trưng dùng lại ảnh biểu trưng của website trường thay vì thêm đường tải mới; thương hiệu chỉ thêm tên hiển thị và màu.
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-195, `07_QUY_TAC_NGHIEP_VU.md` BR-209 đến BR-211, `10_YEU_CAU_CHUC_NANG.md` P01-59 đến P01-61, `11_TIEU_CHI_NGHIEM_THU.md` AC-835 đến AC-837
+
+#### Vấn đề tồn đọng
+
+- Kiểm tra kết nối thật cho cổng thanh toán, tên sản phẩm lấy từ cấu hình nền tảng, chuyển biến môi trường hiện có thành cấu hình của trường số 1 chưa làm; e2e toàn bộ do CI chạy
 
 ### 2026-10-25 — DT-SaaS phần S2: khởi tạo và vòng đời trường
 
