@@ -1,7 +1,7 @@
 # 11. TIÊU CHÍ NGHIỆM THU
 
 - Mô tả: Tiêu chí nghiệm thu cho từng chức năng, viết dạng Cho, Khi, Thì.
-- Phiên bản: 1.79
+- Phiên bản: 1.80
 - Ngày cập nhật: 2026-10-25
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -917,6 +917,10 @@ Các mã từ AC-94 đến AC-134 được viết trực tiếp trong mục 12 c
 | AC-842 | Cho trường gán gói chỉ có phân hệ Quản lý giáo dục / Khi người dùng mở cổng và gọi API của phân hệ khác / Thì menu không có phân hệ ngoài gói, máy chủ trả 403 `MODULE_NOT_IN_PLAN`; trường chưa gán gói dùng như trước (CT-1029, CT-1030, CT-1034; YCTD-194) |
 | AC-843 | Cho gói giới hạn số học sinh, dung lượng, số cấp học / Khi duyệt hồ sơ, nhập trẻ, bật cấp học, tải tệp vượt giới hạn / Thì bị chặn 422 `PLAN_LIMIT_EXCEEDED`, xem và sửa vẫn được (CT-1031; YCTD-194) |
 | AC-844 | Cho trường quá hạn / Khi chạy chuyển trạng thái và khi người dùng ghi dữ liệu / Thì trường chuyển chỉ đọc sau 7 ngày, tạm ngưng sau 30 ngày, có nhắc trước 15, 7, 1 ngày; ở chỉ đọc ghi bị 403 `SCHOOL_READ_ONLY`, xem, đăng nhập, xuất được, cổng hiện dải chỉ đọc; dữ liệu giữ nguyên; người vận hành gán gói và chạy chuyển trạng thái ở cổng nền tảng (CT-1027, CT-1028, CT-1032, CT-1033, CT-1034; YCTD-194) |
+| AC-845 | Cho nhiều trường có số liệu, lỗi, việc định kỳ lỗi / Khi người vận hành mở Bảng điều khiển và xem lỗi của một trường / Thì mỗi trường hiện trạng thái, gói, dung lượng, tài khoản, học sinh, lần đăng nhập gần nhất, cấu trúc dữ liệu, số lỗi 1 giờ và 24 giờ, cảnh báo đúng ngưỡng; trường chưa có số liệu bị cảnh báo; lỗi không chứa tham số hay nội dung yêu cầu (CT-1038, CT-1039, CT-1040, CT-1043; YCTD-197) |
+| AC-846 | Cho thông báo bảo trì cho mọi trường hoặc một số trường / Khi người dùng của trường mở cổng, ứng dụng / Thì trường nhận thấy biểu ngữ từ 72 giờ trước khi bắt đầu đến khi kết thúc, trường khác không thấy; thông báo đã hủy không hiện; dữ liệu sai bị 400 (CT-1038, CT-1039, CT-1042, CT-1043; YCTD-197) |
+| AC-847 | Cho trường chưa cho phép hoặc đã cho phép hỗ trợ / Khi nhân viên nền tảng mở phiên, dùng đường liên kết ở trường khác, dùng lại đường liên kết / Thì chưa cho phép bị 422; đường liên kết chỉ dùng một lần ở đúng trường; vào được cổng của trường bằng tài khoản hỗ trợ có biểu ngữ phiên hỗ trợ; tài khoản hỗ trợ không đăng nhập được bằng mật khẩu (CT-1035, CT-1036, CT-1043; YCTD-197) |
+| AC-848 | Cho phiên hỗ trợ chỉ đọc hoặc toàn quyền / Khi gửi yêu cầu ghi, đăng nhập thay, khi trường rút cho phép, khi nhân viên kết thúc phiên / Thì chỉ đọc bị 403 với mọi yêu cầu ghi, đăng nhập thay bị 403 ở mọi phạm vi; rút hoặc kết thúc thì phiên đăng nhập bị thu hồi ngay (401); thao tác và bắt đầu, kết thúc ghi ở nhật ký của trường và nhật ký nền tảng (CT-1036, CT-1037, CT-1041, CT-1043; YCTD-197) |
 
 ## 20. Chưa xác minh được
 

@@ -1,7 +1,7 @@
 # 24. YÊU CẦU THAY ĐỔI
 
 - Mô tả: Sổ quản lý yêu cầu thay đổi, ghi lý do, đánh giá ảnh hưởng và trạng thái của từng thay đổi trước khi triển khai.
-- Phiên bản: 0.66
+- Phiên bản: 0.67
 - Ngày cập nhật: 2026-10-25
 - Trạng thái: Đang cập nhật
 
@@ -10,6 +10,24 @@
 Mã yêu cầu thay đổi dạng `YCTD-nn`, đánh số tăng dần, không tái sử dụng. Mục mới nhất ở trên cùng. Trạng thái dùng bốn giá trị: Chờ phê duyệt, Đã phê duyệt, Từ chối, Đã triển khai.
 
 Các thay đổi trước phiên bản 0.4.0 chưa có sổ này; xem `23_LICH_SU_PHIEN_BAN.md` các phiên bản 0.1.0 đến 0.3.1.
+
+### YCTD-197: DT-SaaS phần S4: bảng điều khiển nền tảng – 2026-10-25
+
+- Lý do: phần S4 của `32_KE_HOACH_THEO_HE_THONG_SO.md` mục 14.3, 14.5 (kế hoạch DT-SaaS ở YCTD-190); sau S2 (cổng nền tảng, vòng đời trường) và S5a (gói dịch vụ). Người vận hành cần thấy tình trạng mọi trường, báo bảo trì và hỗ trợ trường mà không tự ý vào dữ liệu của trường.
+- Nội dung thay đổi (Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11 ở những chỗ kế hoạch chưa chốt):
+  - **Số liệu theo trường** (tệp nền tảng `0060_create_platform_dashboard`, bảng `school_metrics`): việc định kỳ `school-metrics` của bộ lập lịch S1b (mặc định mỗi giờ, `SCHOOL_METRICS_INTERVAL_SECONDS`) đếm tài khoản (không tính tài khoản hỗ trợ), học sinh đang học, dung lượng tệp (cách tính của S5a), dung lượng các bảng, lần đăng nhập gần nhất, tên tệp thay đổi cấu trúc mới nhất đã chạy ở cơ sở dữ liệu định danh, hệ thống và từng năm học; không đọc nội dung dữ liệu; giữ 30 ngày.
+  - **Lỗi theo trường** (`school_error_counts`): bộ lọc lỗi chung báo lỗi 5xx (mã trạng thái, phương thức, mẫu đường dẫn, mã lỗi; không nội dung yêu cầu) cho bộ gom trong bộ nhớ của máy chủ API và dịch vụ định danh, ghi cộng dồn theo trường, giờ, mẫu đường dẫn (mã định danh, số thay bằng `:id`) mỗi phút; giữ 30 ngày.
+  - **Bảng điều khiển** ở cổng nền tảng: danh sách trường kèm trạng thái, gói hiện hành, dung lượng, tài khoản, học sinh, đăng nhập gần nhất, cấu trúc dữ liệu, lỗi 1 giờ và 24 giờ, việc định kỳ lỗi (`scheduler_state`), phiên hỗ trợ đang mở, cảnh báo (lỗi một giờ từ `PLATFORM_ERROR_ALERT_PER_HOUR`, mặc định 20; cấu trúc chưa mới nhất; từ 90% giới hạn gói; số liệu cũ quá 3 giờ ở trường đang phục vụ; việc định kỳ lỗi); xem lỗi theo giờ của từng trường. Chưa có biểu đồ theo thời gian.
+  - **Thông báo bảo trì** (`maintenance_notices`): người vận hành tạo cho mọi trường hoặc danh sách trường, hủy được; trường nhận thấy biểu ngữ từ 72 giờ trước khi bắt đầu đến khi kết thúc ở cổng, ứng dụng giáo viên, phụ huynh (`GET /api/v1/platform-notices`).
+  - **Đăng nhập hỗ trợ** (mở rộng đăng nhập thay của 18h, QĐ-30): quản trị tài khoản của trường bật cho phép (`support_access_grants`, tệp hệ thống `0053`; chỉ đọc hoặc toàn quyền, 1 đến 168 giờ, mặc định 24, lý do; một cho phép còn hiệu lực; rút bất kỳ lúc nào); nhân viên nền tảng mở phiên ở trang chi tiết trường khi trường đang cho phép, ghi lý do, nhận đường liên kết một lần 5 phút (`/support-login`) tới cổng của trường; đổi mã lấy phiên đăng nhập của tài khoản hỗ trợ riêng `ho-tro-nen-tang` (vai trò Hiệu trưởng, không đăng nhập bằng mật khẩu), hạn không quá 8 giờ và không quá hạn cho phép; mã phiên mang claim `spt`; phiên chỉ đọc bị chặn ghi ở máy chủ API và dịch vụ định danh; mọi phiên hỗ trợ không đăng nhập thay, đổi mật khẩu, kí số, thao tác chứng thư số, xuất toàn bộ dữ liệu, đổi cho phép; mọi yêu cầu tới máy chủ API và yêu cầu tới dịch vụ định danh (trừ `/auth/me`) ghi vào `support_session_actions`; nhật ký hai phía: `identity_audit_logs` (`support_start`, `support_end`), nhật ký thao tác của trường khi bật, rút cho phép, `platform_audit_log` (`support.*`, `maintenance.*`); rút cho phép hoặc nhân viên kết thúc thì phiên hỗ trợ kết thúc và phiên đăng nhập bị thu hồi ngay; biểu ngữ phiên hỗ trợ ở cổng cho nhân viên hỗ trợ và quản trị tài khoản.
+- Thành phần bị ảnh hưởng: `packages/server`, `packages/shared`, `packages/ui`, `database`, `apps/api`, `apps/identity`, `apps/portal`, `apps/teacher`, `apps/parent`, `apps/platform`, `tests`, `.env.example`; tài liệu `01`, `02`, `07`, `10`, `11`, `12`, `14`, `16`, `17`, `21`, `22`, `23`, `24`, `32`, `index.md`.
+- Dữ liệu bị ảnh hưởng: cơ sở dữ liệu nền tảng (tệp 0060), cơ sở dữ liệu hệ thống của trường (tệp 0053); tài khoản hỗ trợ tạo ở cơ sở dữ liệu định danh của trường khi dùng lần đầu.
+- API bị ảnh hưởng: xem `17_DAC_TA_API.md` (nhóm `/auth/platform/dashboard`, `/maintenance-notices`, `/schools/{mã}/support`, `/support-sessions`, `/auth/support/exchange`, `/platform-notices`, `/support-access`; claim `spt`; trường `support` của `/auth/me`).
+- Giao diện bị ảnh hưởng: cổng nền tảng thêm Bảng điều khiển (MH-325), Bảo trì (MH-326), khối Phiên hỗ trợ ở chi tiết trường; cổng thêm Cho phép hỗ trợ (MH-327, mục 4.4), `/support-login` và biểu ngữ (MH-328); ứng dụng giáo viên, phụ huynh thêm biểu ngữ bảo trì.
+- Quyền bị ảnh hưởng: không thêm quyền; Cho phép hỗ trợ dùng P01.account.manage; trang của cổng nền tảng dùng tài khoản vận hành (PQ-105).
+- Ảnh hưởng chức năng cũ: không ở chế độ một trường; phiên đăng nhập thường không đổi.
+- Kiểm thử cần thực hiện: kiểm thử đơn vị `database`, `apps/identity`, `apps/api`; kiểm tra tĩnh nền đa thuê bao; `pnpm lint`; e2e spec 136 ở dự án nhiều trường; CI chạy toàn bộ e2e.
+- Trạng thái: Đã triển khai (PR (chưa mở))
 
 ### YCTD-194: DT-SaaS phần S5a: gói dịch vụ và giới hạn – 2026-10-25
 

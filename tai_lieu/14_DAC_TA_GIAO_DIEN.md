@@ -1,7 +1,7 @@
 # 14. ĐẶC TẢ GIAO DIỆN
 
 - Mô tả: Danh sách màn hình, điều hướng, bố cục, thành phần, dữ liệu hiển thị, thao tác, trạng thái, thông báo, xử lý lỗi, quyền hiển thị, khả năng thích ứng màn hình.
-- Phiên bản: 1.112
+- Phiên bản: 1.113
 - Ngày cập nhật: 2026-10-25
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -220,6 +220,7 @@ Từ YCTD-107 (DT-15 phần 15a), cổng quản trị dùng menu ngang nhiều c
 | Quản trị hệ thống | 4.1. | Đăng nhập thay | `/impersonations` |
 | Quản trị hệ thống | 4.2. | Xuất toàn bộ dữ liệu | `/school-data-export` |
 | Quản trị hệ thống | 4.3. | Bản trình diễn | `/demo-environment` |
+| Quản trị hệ thống | 4.4. | Cho phép hỗ trợ | `/support-access` |
 | Tài chính – học phí | 1. | Học phí và dịch vụ | (nhóm) |
 | Tài chính – học phí | 1.1. | Biểu phí và dịch vụ | `/fees` |
 | Tài chính – học phí | 1.2. | Đăng ký dịch vụ | `/registrations` |
@@ -690,6 +691,10 @@ Từ YCTD-184 (DT-22 phần 22h2), phân hệ "Kho học liệu" thêm 8. Câu h
 | MH-322 | Thương hiệu của trường (YCTD-195, cùng trang): tên hiển thị, màu chủ đạo, ghi chú biểu trưng lấy từ Cấu hình website, nút Lưu thương hiệu | Hiệu trưởng (VT-02) |
 | MH-323 | Cổng vận hành nền tảng: Gói dịch vụ (YCTD-194, mục menu "Gói dịch vụ"): bảng gói (mã, tên, phân hệ, giới hạn học sinh, dung lượng, cấp học, cách tính phí, đơn giá, trạng thái) kèm biểu mẫu thêm, sửa (chọn phân hệ, cách tính phí theo học sinh, theo trường, theo phân hệ); bảng trường (mã, trạng thái, gói hiện hành, hạn dùng thử, hạn đã trả phí) kèm gán gói, đặt hạn, đổi trạng thái; nút Chạy chuyển trạng thái hiện số trường đổi và số nhắc hạn | Người vận hành nền tảng |
 | MH-324 | Cổng: gói dịch vụ của trường (YCTD-194): ô Phân hệ chỉ liệt kê phân hệ trong gói; dải báo "Chế độ chỉ đọc" (vai trò alert) khi trường chỉ đọc; dải nhắc hạn gói khi còn từ 15 ngày trở xuống | Mọi người dùng của trường |
+| MH-325 | Cổng vận hành nền tảng: Bảng điều khiển (YCTD-197, mục menu "Bảng điều khiển"): ô tổng hợp (số trường, đang phục vụ, có cảnh báo, tài khoản, học sinh, dung lượng, lỗi 24 giờ kèm lỗi không thuộc trường nào); ô "Chỉ trường có cảnh báo", nút Tải lại; bảng trường (mã, tên kèm nhãn "Đang hỗ trợ", trạng thái, gói, tài khoản đang dùng / tổng, học sinh / giới hạn, dung lượng / giới hạn và dung lượng cơ sở dữ liệu, đăng nhập gần nhất, cấu trúc dữ liệu "Mới nhất" hoặc "Chưa mới nhất", lỗi 1 giờ / 24 giờ bấm để mở bảng lỗi theo giờ, danh sách cảnh báo), dòng có cảnh báo tô màu. Trang chi tiết trường (MH-318) thêm khối "Phiên hỗ trợ": cho phép đang hiệu lực của trường, ô Lý do hỗ trợ và nút Mở phiên hỗ trợ (chỉ khi trường cho phép), đường liên kết một lần, bảng lịch sử phiên kèm nút Kết thúc | Người vận hành nền tảng |
+| MH-326 | Cổng vận hành nền tảng: Bảo trì (YCTD-197, mục menu "Bảo trì"): biểu mẫu tạo thông báo (tiêu đề, nội dung, mức độ, bắt đầu, kết thúc, mã trường nhận để trống là mọi trường) và bảng thông báo (tiêu đề, mức độ, thời gian, trường nhận, trạng thái Sắp tới, Đang diễn ra, Đã kết thúc, Đã hủy, người tạo, nút Hủy) | Người vận hành nền tảng |
+| MH-327 | Cổng: Cho phép hỗ trợ (YCTD-197, mục 4.4 của phân hệ Quản trị hệ thống, `/support-access`): giải thích, khối cho phép đang hiệu lực kèm nút Rút cho phép, biểu mẫu (phạm vi Chỉ đọc hoặc Toàn quyền, thời hạn giờ, lý do), danh sách phiên hỗ trợ mở ra xem từng thao tác (lúc, phương thức và đường dẫn, kết quả), lịch sử cho phép | Quản trị tài khoản (P01.account.manage) |
+| MH-328 | Cổng: đăng nhập hỗ trợ và biểu ngữ (YCTD-197): trang `/support-login?code=…` mở được cả khi đang đăng nhập, đổi mã rồi vào trang chủ hoặc báo lỗi đường liên kết; biểu ngữ "Đang trong phiên hỗ trợ của nhân viên nền tảng …" (vai trò status) cho nhân viên hỗ trợ và quản trị tài khoản; biểu ngữ thông báo bảo trì (vai trò note, mức nghiêm trọng là alert) ở đầu mọi trang của cổng và ở ứng dụng giáo viên, phụ huynh khi đã đăng nhập | Mọi người dùng của trường; nhân viên nền tảng trong phiên hỗ trợ |
 
 Từ YCTD-128 (DT-16 phần 16i): MH-80 có nút "Nhập từ Excel" mở công cụ nhập chung "Nhập phòng từ Excel"; biểu mẫu phòng chỉ hiện thuộc tính khai báo được cho loại phòng đang chọn, bốn ô nhà vệ sinh (Đối tượng sử dụng nhà vệ sinh, Nhà vệ sinh đạt chuẩn, Riêng nam nữ, Số chỗ) chỉ hiện với Phòng vệ sinh; MH-80 cũng mở ở mục 6.2 (`/facility-input`) với tiêu đề "6.2. Nhập liệu cơ sở vật chất". MH-81 bỏ thẻ 2.2 (chuyển sang MH-129), thẻ Danh mục tối thiểu có nút "Nhập từ Excel". MH-20 thẻ Tài sản có khối "Gắn thiết bị dạy học" (Tài sản cần gắn, Thiết bị dạy học, Gắn thiết bị dạy học, Bỏ gắn) và cột Thiết bị dạy học khi người dùng có `P13.equipment.manage`.
 

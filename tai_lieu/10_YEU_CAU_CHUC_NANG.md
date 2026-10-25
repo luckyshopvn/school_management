@@ -1,7 +1,7 @@
 # 10. YÊU CẦU CHỨC NĂNG
 
 - Mô tả: Mã chức năng, tên chức năng, mục đích, người sử dụng, điều kiện thực hiện, dữ liệu đầu vào, quy trình xử lý, kết quả đầu ra, quy tắc nghiệp vụ, trường hợp ngoại lệ, phân quyền, thông báo lỗi.
-- Phiên bản: 1.99
+- Phiên bản: 1.100
 - Ngày cập nhật: 2026-10-25
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -85,6 +85,10 @@
 | P01-65 | Gói dịch vụ, phân hệ và giới hạn theo gói (YCTD-194) | Người vận hành nền tảng; hệ thống | Gói (phân hệ, giới hạn, cách tính phí), gán gói cho trường | Ẩn phân hệ ngoài gói, chặn ở máy chủ; chặn thêm học sinh, cấp học, tệp khi vượt giới hạn | Gói của trường, số đang dùng | BR-214, BR-215 |
 | P01-66 | Trạng thái trường và chế độ chỉ đọc khi hết hạn (YCTD-194) | Hệ thống (lệnh `platform plan-lifecycle`, bộ lập lịch S1b); người vận hành nền tảng | Hạn dùng thử, hạn đã trả phí, mốc cấu hình | Nhắc hạn; chuyển chỉ đọc, tạm ngưng; chặn ghi ở chế độ chỉ đọc; không xóa dữ liệu | Trạng thái trường, nhật ký nền tảng | BR-216 |
 | P01-67 | Trang Gói dịch vụ ở cổng nền tảng, dải báo gói ở cổng (YCTD-194) | Người vận hành nền tảng; người dùng của trường | Gói, gán gói, hạn, trạng thái | Lưu gói, gán gói, chạy chuyển trạng thái; cổng hiện dải chỉ đọc, nhắc hạn | MH-323, MH-324 | PQ-105 |
+| P01-68 | Bảng điều khiển nền tảng (YCTD-197) | Người vận hành nền tảng; hệ thống (việc định kỳ `school-metrics`) | Số liệu theo trường, lỗi theo giờ, việc định kỳ lỗi, gói của trường | Thu số liệu mỗi giờ; gom lỗi 5xx; tính cảnh báo; xem lỗi theo trường | Danh sách trường kèm trạng thái, gói, dung lượng, tài khoản, học sinh, đăng nhập gần nhất, cấu trúc dữ liệu, lỗi, cảnh báo (MH-325) | BR-217 |
+| P01-69 | Thông báo bảo trì (YCTD-197) | Người vận hành nền tảng; mọi người dùng của trường (xem) | Tiêu đề, nội dung, mức độ, thời gian, trường nhận | Tạo, hủy; trường nhận thấy biểu ngữ ở cổng, ứng dụng giáo viên, phụ huynh | MH-326, biểu ngữ ở MH-328 | BR-218 |
+| P01-70 | Cho phép hỗ trợ của trường (YCTD-197) | Quản trị tài khoản (P01.account.manage) | Phạm vi, thời hạn, lý do | Bật, cho phép lại, rút; xem phiên hỗ trợ và từng thao tác | MH-327 | BR-219 |
+| P01-71 | Phiên hỗ trợ của nhân viên nền tảng (YCTD-197) | Người vận hành nền tảng | Mã trường, lý do | Mở phiên khi trường cho phép, đường liên kết một lần, kết thúc phiên; chặn ghi khi chỉ đọc; ghi nhật ký hai phía | Phiên đăng nhập của tài khoản hỗ trợ, biểu ngữ phiên hỗ trợ (MH-325, MH-328) | BR-219 |
 
 ## 3. Phân hệ P02 — Trẻ, phụ huynh và lớp học
 

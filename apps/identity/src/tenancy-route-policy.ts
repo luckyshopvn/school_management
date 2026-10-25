@@ -11,6 +11,9 @@ const SIGN_IN =
 const PLATFORM =
   'Cổng vận hành nền tảng: không thuộc trường nào, chỉ phục vụ ở tên miền PLATFORM_CONSOLE_HOST (tên miền khác 404), mã phiên vận hành có đối tượng riêng';
 
+const SUPPORT =
+  'Đổi đường liên kết hỗ trợ lấy phiên đăng nhập (DT-SaaS S4): công khai theo tên miền của trường, cần mã một lần (chỉ lưu mã băm, hạn 5 phút) của đúng trường và trường đang cho phép hỗ trợ';
+
 const ACTIVATE =
   'Kích hoạt quản trị viên đầu tiên của trường mới (DT-SaaS S2): công khai theo tên miền của trường, cần mã kích hoạt một lần (chỉ lưu mã băm, hạn 72 giờ), có giới hạn tần suất';
 
@@ -55,4 +58,14 @@ export const PUBLIC_ROUTES: PublicRoute[] = [
   { method: 'GET', path: '/api/v1/auth/platform/plan-schools', reason: PLATFORM },
   { method: 'PUT', path: '/api/v1/auth/platform/plan-schools/:id', reason: PLATFORM },
   { method: 'POST', path: '/api/v1/auth/platform/plan-lifecycle', reason: PLATFORM },
+  // Bảng điều khiển nền tảng, thông báo bảo trì, phiên hỗ trợ (DT-SaaS phần S4): cùng điều kiện tên miền cổng và mã phiên vận hành
+  { method: 'GET', path: '/api/v1/auth/platform/dashboard', reason: PLATFORM },
+  { method: 'GET', path: '/api/v1/auth/platform/dashboard/errors', reason: PLATFORM },
+  { method: 'GET', path: '/api/v1/auth/platform/maintenance-notices', reason: PLATFORM },
+  { method: 'POST', path: '/api/v1/auth/platform/maintenance-notices', reason: PLATFORM },
+  { method: 'POST', path: '/api/v1/auth/platform/maintenance-notices/:id/cancel', reason: PLATFORM },
+  { method: 'GET', path: '/api/v1/auth/platform/schools/:code/support', reason: PLATFORM },
+  { method: 'POST', path: '/api/v1/auth/platform/schools/:code/support-sessions', reason: PLATFORM },
+  { method: 'POST', path: '/api/v1/auth/platform/support-sessions/:id/end', reason: PLATFORM },
+  { method: 'POST', path: '/api/v1/auth/support/exchange', reason: SUPPORT },
 ];

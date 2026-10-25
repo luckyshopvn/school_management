@@ -1,7 +1,7 @@
 # 16. CƠ SỞ DỮ LIỆU
 
 - Mô tả: Thực thể, trường, kiểu dữ liệu, khóa chính, khóa ngoại, quan hệ, ràng buộc, chỉ mục, trạng thái, lịch sử thay đổi, chính sách xóa dữ liệu.
-- Phiên bản: 1.122
+- Phiên bản: 1.123
 - Ngày cập nhật: 2026-10-25
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -744,6 +744,12 @@ Từ YCTD-203 (tệp nền tảng `0100_add_database_login_name`), bảng `schoo
 | plans (từ YCTD-194) | Gói dịch vụ (BR-214, BR-215; tệp nền tảng `0040_create_plans`) | code (duy nhất), name, description, modules (JSON danh sách phân hệ, trống là mọi phân hệ), max_active_students, max_storage_mb, max_school_levels (trống là không giới hạn), trial_days, pricing_mode (`per_student` mặc định, `per_school`, `per_module`), unit_price, minimum_fee, module_prices (JSON), billing_cycle (`monthly`, `term`, `yearly`), status (`active`, `archived`); gói mặc định `full` |
 | school_plans (từ YCTD-194) | Gán gói cho trường có ngày hiệu lực, giữ lịch sử (BR-214) | school_id, plan_id, effective_from, effective_to (trống là còn hiệu lực), assigned_by, note |
 | schools (thêm từ YCTD-194) | Hạn của trường (BR-216) | trial_ends_on, paid_until, status_changed_at; `platform_settings` thêm khóa `plan_lifecycle` (remind_days, read_only_after_days, suspend_after_days, default_trial_days) |
+| school_metrics (từ YCTD-197) | Số liệu theo trường mỗi lần thu, giữ 30 ngày (BR-217; tệp nền tảng `0060_create_platform_dashboard`, khối 0060 đến 0069 của S4) | school_id, captured_at, users_total, users_active, active_students, storage_mb, database_mb, last_login_at, schema_versions (JSON tên tệp thay đổi cấu trúc mới nhất theo cơ sở dữ liệu), schema_current |
+| school_error_counts (từ YCTD-197) | Số lỗi 5xx gom theo giờ, giữ 30 ngày (BR-217) | school_id (trống là lỗi không thuộc trường nào), service (`api`, `identity`), bucket (giờ), route (mẫu đường dẫn), status, count, last_code, last_at; duy nhất theo (school_id, service, bucket, route, status), coi trống là bằng nhau |
+| maintenance_notices (từ YCTD-197) | Thông báo bảo trì (BR-218) | title, body, severity (`info`, `warning`, `critical`), starts_at, ends_at (sau starts_at), audience (`all`, `schools`), school_codes (JSON), created_by, created_by_name, created_at, cancelled_at |
+| support_sessions (từ YCTD-197) | Phiên hỗ trợ của nhân viên nền tảng (BR-219) | school_id, operator_id, operator_name, grant_id, scope (`read`, `full`), reason, handoff_token_hash (duy nhất), handoff_expires_at, identity_session_id (phiên đăng nhập ở cơ sở dữ liệu định danh của trường), expires_at, created_at, started_at, ended_at, end_reason |
+| support_session_actions (từ YCTD-197) | Thao tác trong phiên hỗ trợ (BR-219) | support_session_id, service, method, route (mẫu đường dẫn), status, at |
+| support_access_grants (từ YCTD-197) | Cho phép hỗ trợ của trường, ở cơ sở dữ liệu hệ thống của trường (BR-219; hệ thống `0053_create_support_access_grants`) | granted_by_user_id, granted_by_name, scope (`read`, `full`), reason (1 đến 500 ký tự), expires_at, revoked_at, revoked_by_name, created_at |
 
 ## 19. Quan hệ chính giữa các bảng
 

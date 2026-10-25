@@ -17,6 +17,11 @@ export function originOf(request: Request, currentUser: CurrentUser): ChangeOrig
 // Đang đăng nhập thay thì tên người thực hiện ghi kèm người đăng nhập thay (DT-18 phần 18h)
 export function actorNameOf(currentUser: CurrentUser): string {
   const impersonation = currentUser.description.impersonation;
+  // Phiên hỗ trợ của nhân viên nền tảng (DT-SaaS phần S4): ghi kèm tên nhân viên
+  const support = currentUser.description.support;
+  if (support) {
+    return `${currentUser.description.full_name} (${support.operator_name})`;
+  }
   return impersonation
     ? `${currentUser.description.full_name} (đăng nhập thay bởi ${impersonation.impersonator_name})`
     : currentUser.description.full_name;

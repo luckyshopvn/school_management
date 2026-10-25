@@ -1,7 +1,7 @@
 # 02. NHẬT KÝ DỰ ÁN
 
 - Mô tả: Ghi nhận công việc, quyết định, thay đổi và vấn đề tồn đọng theo ngày, ngày mới nhất ở trên cùng.
-- Phiên bản: 0.68
+- Phiên bản: 0.69
 - Ngày cập nhật: 2026-10-25
 - Trạng thái: Đang cập nhật
 
@@ -13,6 +13,29 @@
 - Không ghi thông tin tạm thời như kết quả tra cứu, đường dẫn tạm, thông báo lỗi của công cụ.
 
 ## Nhật ký theo ngày
+
+### 2026-10-25 — DT-SaaS phần S4: bảng điều khiển nền tảng
+
+#### Công việc đã thực hiện
+
+- Đọc mục 14.3, 14.5 (S4) của `32_KE_HOACH_THEO_HE_THONG_SO.md`; rà đăng nhập thay của 18h (`ImpersonationService`, `ImpersonationInterceptor`), bộ lập lịch của S1b, gói và giới hạn của S5a, cổng nền tảng của S1a, S2.
+- Thêm tệp nền tảng 0060 (`school_metrics`, `school_error_counts`, `maintenance_notices`, `support_sessions`, `support_session_actions`), tệp hệ thống 0053 (`support_access_grants`); việc định kỳ `school-metrics`; bộ gom lỗi 5xx theo trường ở máy chủ API và dịch vụ định danh; trang Bảng điều khiển, Bảo trì và khối Phiên hỗ trợ ở cổng nền tảng; trang Cho phép hỗ trợ, trang `/support-login`, biểu ngữ bảo trì và phiên hỗ trợ ở cổng; biểu ngữ bảo trì ở ứng dụng giáo viên, phụ huynh; e2e spec 136.
+- Thêm quy tắc BR-217 đến BR-219, chức năng P01-68 đến P01-71, màn hình MH-325 đến MH-328, kịch bản CT-1035 đến CT-1043, tiêu chí AC-845 đến AC-848, bảo mật BM-83, QĐ-30; bảng ở `16` mục 18A, giao kèo ở `17`; phiên bản 0.135.0.
+
+#### Quyết định
+
+- Số liệu thu bằng bộ lập lịch mỗi giờ (chỉ đếm, đo dung lượng, tên tệp thay đổi cấu trúc), bảng điều khiển chỉ đọc lần thu mới nhất, không mở cơ sở dữ liệu của từng trường khi xem.
+- Đăng nhập hỗ trợ dùng tài khoản hỗ trợ riêng của mỗi trường (`ho-tro-nen-tang`, vai trò Hiệu trưởng, không đăng nhập bằng mật khẩu) thay vì đăng nhập thay một người dùng thật, để nhật ký của trường phân biệt rõ thao tác của nhà cung cấp (QĐ-30).
+- Đồng ý của trường lưu ở cơ sở dữ liệu hệ thống của trường (bằng chứng đi theo dữ liệu của trường); phiên và thao tác ghi ở cơ sở dữ liệu nền tảng.
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-197, `07_QUY_TAC_NGHIEP_VU.md` BR-217 đến BR-219, `10_YEU_CAU_CHUC_NANG.md` P01-68 đến P01-71, `11_TIEU_CHI_NGHIEM_THU.md` AC-845 đến AC-848, `12_KIEN_TRUC_HE_THONG.md` QĐ-30, `14_DAC_TA_GIAO_DIEN.md` MH-325 đến MH-328, `16_CO_SO_DU_LIEU.md` mục 18A, `17_DAC_TA_API.md`, `21_KICH_BAN_KIEM_THU.md` CT-1035 đến CT-1043, `22_BAO_MAT.md` BM-83; phiên bản phần mềm 0.135.0.
+
+#### Vấn đề tồn đọng
+
+- Chưa có biểu đồ theo thời gian (số liệu giữ 30 ngày, bảng điều khiển hiện lần thu mới nhất và số lỗi 1 giờ, 24 giờ); kết quả diễn tập khôi phục của S7b chưa hiện ở bảng điều khiển (chờ S7b gộp).
+- Cảnh báo chỉ hiện trên bảng điều khiển, chưa gửi ra ngoài (email, Zalo); gửi cảnh báo thuộc giám sát của S7a.
 
 ### 2026-10-25 — DT-SaaS phần S5a: gói dịch vụ và giới hạn
 

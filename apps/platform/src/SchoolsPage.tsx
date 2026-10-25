@@ -8,6 +8,7 @@ import {
   type SchoolDetail,
   type SchoolSummary,
 } from './platform-api.js';
+import { SupportPanel } from './SupportPanel.js';
 
 // Trang Trường của cổng vận hành nền tảng (DT-SaaS phần S2, YCTD-193; tài liệu 32 mục 14.5): danh sách, bước setup năm bước,
 // chi tiết và thao tác vòng đời. Hồ sơ đồng ý dùng dữ liệu thật (PL-00 của S8a) nhập ở bước 3 khi chọn loại dữ liệu `consented`
@@ -656,6 +657,7 @@ function SchoolDetailView({ token, code, onBack }: { token: string; code: string
         ))}
         {detail.consents.length + detail.hosting.length === 0 ? <li>Chưa có</li> : null}
       </ul>
+      <SupportPanel token={token} code={code} />
       <h3>Nhật ký vòng đời</h3>
       <ul>
         {detail.events.map((event) => (

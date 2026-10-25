@@ -17,6 +17,8 @@ export interface AccessTokenClaims {
   // Mã trường (claim `tid`), có khi dịch vụ định danh chạy ở chế độ nhiều trường; bên kiểm tra so với trường của tên miền (S1a).
   // Không dùng `sid` vì claim đó đã là mã phiên
   tenantId?: string;
+  // Phiên hỗ trợ của nhân viên nền tảng khi trường cho phép (claim `spt`, DT-SaaS phần S4): chỉ đọc hoặc toàn quyền
+  support?: 'read' | 'full';
 }
 
 export class AccessTokenVerifier {
@@ -42,6 +44,7 @@ export class AccessTokenVerifier {
         channel: payload.channel as SessionChannel,
         passwordChangeRequired: payload.password_change_required === true,
         ...(typeof payload.tid === 'string' ? { tenantId: payload.tid } : {}),
+        ...(payload.spt === 'read' || payload.spt === 'full' ? { support: payload.spt } : {}),
       };
     } catch {
       throw unauthenticatedError();

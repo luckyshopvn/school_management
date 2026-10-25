@@ -34,6 +34,12 @@ import {
   SchoolActivationService,
 } from './platform/platform-schools.js';
 import { PlatformPlansController, PlatformPlansService } from './platform/platform-plans.js';
+import { PlatformDashboardController, PlatformDashboardService } from './platform/platform-dashboard.js';
+import {
+  PlatformSupportController,
+  SupportExchangeController,
+  SupportSessionsService,
+} from './platform/support-sessions.js';
 
 @Module({})
 export class ApplicationModule {
@@ -57,6 +63,9 @@ export class ApplicationModule {
         PlatformSchoolsController,
         SchoolActivationController,
         PlatformPlansController,
+        PlatformDashboardController,
+        PlatformSupportController,
+        SupportExchangeController,
       ],
       providers: [
         { provide: IDENTITY_CONFIGURATION, useValue: configuration },
@@ -97,6 +106,8 @@ export class ApplicationModule {
         PlatformSchoolsService,
         SchoolActivationService,
         PlatformPlansService,
+        PlatformDashboardService,
+        SupportSessionsService,
       ],
     };
   }

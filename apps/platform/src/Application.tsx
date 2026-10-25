@@ -2,6 +2,8 @@ import { useEffect, useState, type FormEvent } from 'react';
 import { PLATFORM_MENU } from './platform-menu.js';
 import { SchoolsPage } from './SchoolsPage.js';
 import { PlansPage } from './PlansPage.js';
+import { DashboardPage } from './DashboardPage.js';
+import { MaintenancePage } from './MaintenancePage.js';
 import { fetchProfile, loginOperator, PlatformApiError, type OperatorProfile } from './platform-api.js';
 
 // Khung cổng vận hành nền tảng (DT-SaaS phần S1a): đăng nhập, menu theo dữ liệu, trang tổng quan; các trang sau do S2, S4, S5 thêm.
@@ -100,6 +102,8 @@ function Shell({ accessToken, onLogout }: { accessToken: string; onLogout: () =>
         ) : null}
         {active === 'schools' ? <SchoolsPage token={accessToken} /> : null}
         {active === 'plans' ? <PlansPage accessToken={accessToken} /> : null}
+        {active === 'dashboard' ? <DashboardPage token={accessToken} /> : null}
+        {active === 'maintenance' ? <MaintenancePage token={accessToken} /> : null}
       </main>
     </div>
   );

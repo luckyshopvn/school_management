@@ -285,6 +285,79 @@ export interface SchedulerStateTable {
   last_error: string | null;
 }
 
+// Bảng điều khiển nền tảng (DT-SaaS phần S4, YCTD-197)
+export type SupportScope = 'read' | 'full';
+export type MaintenanceSeverity = 'info' | 'warning' | 'critical';
+
+export interface SchoolMetricsTable {
+  id: Generated<string>;
+  school_id: string;
+  captured_at: ColumnType<Date, Date | undefined, Date>;
+  users_total: number;
+  users_active: number;
+  active_students: number | null;
+  storage_mb: ColumnType<string | null, number | null | undefined, number | null>;
+  database_mb: ColumnType<string | null, number | null | undefined, number | null>;
+  last_login_at: Date | null;
+  schema_versions: ColumnType<Record<string, string | null>, string | undefined, string>;
+  schema_current: Generated<boolean>;
+}
+
+export interface SchoolErrorCountsTable {
+  id: Generated<string>;
+  school_id: string | null;
+  service: 'api' | 'identity';
+  bucket: Date;
+  route: string;
+  status: number;
+  count: Generated<number>;
+  last_code: string | null;
+  last_at: ColumnType<Date, Date | undefined, Date>;
+}
+
+export interface MaintenanceNoticesTable {
+  id: Generated<string>;
+  title: string;
+  body: string;
+  severity: Generated<MaintenanceSeverity>;
+  starts_at: Date;
+  ends_at: Date;
+  audience: Generated<'all' | 'schools'>;
+  school_codes: ColumnType<string[], string | undefined, string>;
+  created_by: string | null;
+  created_by_name: string;
+  created_at: CreatedTimestamp;
+  cancelled_at: Date | null;
+}
+
+export interface SupportSessionsTable {
+  id: Generated<string>;
+  school_id: string;
+  operator_id: string;
+  operator_name: string;
+  grant_id: string;
+  scope: SupportScope;
+  reason: string;
+  handoff_token_hash: string;
+  handoff_expires_at: Date;
+  identity_session_id: string | null;
+  expires_at: Date;
+  created_at: CreatedTimestamp;
+  started_at: Date | null;
+  ended_at: Date | null;
+  end_reason: string | null;
+}
+
+export interface SupportSessionActionsTable {
+  id: Generated<string>;
+  support_session_id: string;
+  service: 'api' | 'identity';
+  method: string;
+  route: string;
+  status: number;
+  at: ColumnType<Date, Date | undefined, Date>;
+}
+
 export interface PlatformDatabase {
   school_clusters: SchoolClustersTable;
   schools: SchoolsTable;
@@ -304,4 +377,9 @@ export interface PlatformDatabase {
   school_hosting: SchoolHostingTable;
   scheduler_state: SchedulerStateTable;
   school_key_rotations: SchoolKeyRotationsTable;
+  school_metrics: SchoolMetricsTable;
+  school_error_counts: SchoolErrorCountsTable;
+  maintenance_notices: MaintenanceNoticesTable;
+  support_sessions: SupportSessionsTable;
+  support_session_actions: SupportSessionActionsTable;
 }

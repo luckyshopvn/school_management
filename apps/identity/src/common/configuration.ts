@@ -19,6 +19,8 @@ export interface IdentityConfiguration {
   platformConsoleHost?: string | null;
   // Khởi tạo và vòng đời trường ở cổng nền tảng (DT-SaaS phần S2): tên miền hệ thống, địa chỉ vào, bộ nối tên miền, số ngày chờ xóa
   platformLifecycle?: LifecycleSettings;
+  // Bảng điều khiển nền tảng (DT-SaaS phần S4): số lỗi máy chủ trong một giờ của một trường từ đó thì cảnh báo; mặc định 20
+  errorAlertPerHour?: number;
 }
 
 export const IDENTITY_CONFIGURATION = Symbol('IDENTITY_CONFIGURATION');
@@ -47,5 +49,7 @@ export function readConfigurationFromEnvironment(): IdentityConfiguration {
     smsProvider: readSmsProviderSettings(),
     platformConsoleHost: process.env.PLATFORM_CONSOLE_HOST?.trim() || null,
     platformLifecycle: lifecycleSettingsFrom(process.env),
+    errorAlertPerHour:
+      Number(process.env.PLATFORM_ERROR_ALERT_PER_HOUR) > 0 ? Number(process.env.PLATFORM_ERROR_ALERT_PER_HOUR) : 20,
   };
 }

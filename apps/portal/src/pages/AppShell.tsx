@@ -20,6 +20,7 @@ import { StartupNotices } from '../portal-shell/StartupNotices.js';
 import { readPortalContext } from '../portal-shell/portal-shell-api.js';
 import { DemoBanner, ImpersonationBanner } from '../administration/AdministrationBanners.js';
 import { SchoolPlanBanner } from '../school-plan/school-plan.js';
+import { PlatformNoticeBanner } from '../support/support.js';
 
 function MenuIcon() {
   return (
@@ -78,6 +79,8 @@ export function AppShell({ children }: { children: ReactNode }) {
           <DemoBanner />
           {/* Nhắc hạn gói dịch vụ, chế độ chỉ đọc (DT-SaaS phần S5a) */}
           <SchoolPlanBanner />
+          {/* Thông báo bảo trì, phiên hỗ trợ của nhân viên nền tảng (DT-SaaS phần S4) */}
+          <PlatformNoticeBanner />
           <header className="sticky top-0 z-40 flex h-14 items-center gap-3 bg-header px-4 text-white shadow-sm">
             <button
               type="button"
