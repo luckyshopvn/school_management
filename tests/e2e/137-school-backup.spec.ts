@@ -11,7 +11,12 @@ import {
   type IdentityDatabase,
   type LifecycleEnvironment,
 } from '@school-management/database';
-import { createPlatformOperator, createTestUser, type TestUser } from '@school-management/identity/testing';
+import {
+  createPlatformOperatorWithTotp,
+  createTestUser,
+  operatorOtp,
+  type TestUser,
+} from '@school-management/identity/testing';
 import {
   E2E_CONSOLE_HOST,
   E2E_MULTI_CONSOLE_PORT,
@@ -25,7 +30,8 @@ import { expect, test } from './fixtures.js';
 // phục; cổng nền tảng hiện lịch sử sao lưu, khôi phục của từng trường. Dữ liệu giả hoàn toàn
 const RESTORED = 'alpha-kp';
 const PASSPHRASE = 'cum-tu-kiem-thu-e2e-gia-du-dai';
-const PASSWORD = 'MatKhau2026';
+const PASSWORD = 'MatKhauVanHanh2026';
+let operator: Awaited<ReturnType<typeof createPlatformOperatorWithTotp>>;
 const operatorLogin = `van-hanh-${Math.random().toString(36).slice(2, 8)}`;
 
 let runtime: TenancyRuntime;
@@ -73,7 +79,7 @@ test.beforeAll(async () => {
   user = await createTestUser(runtime.connections.database<IdentityDatabase>(tenant, 'identity', 'identity'), {
     roles: [{ roleCode: 'VT-02', orgUnitId: null }],
   });
-  await createPlatformOperator(runtime.platform, {
+  operator = await createPlatformOperatorWithTotp(runtime.platform, runtime.configuration.masterKey, {
     login: operatorLogin,
     fullName: 'Người vận hành giả',
     password: PASSWORD,
@@ -132,6 +138,9 @@ test('Sao lưu một trường, khôi phục thành trường mới; người d�
   await consolePage.goto('/');
   await consolePage.getByLabel('Tên đăng nhập').fill(operatorLogin);
   await consolePage.getByLabel('Mật khẩu').fill(PASSWORD);
+  await consolePage
+    .getByLabel('Mã xác thực hai lớp')
+    .fill(await operatorOtp(runtime.platform, operator.id, operator.secret));
   await consolePage.getByRole('button', { name: 'Đăng nhập' }).click();
   await consolePage.getByRole('navigation', { name: 'Menu' }).getByRole('button', { name: 'Trường' }).click();
   await consolePage.getByRole('button', { name: 'alpha', exact: true }).click();
