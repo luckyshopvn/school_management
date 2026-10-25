@@ -8,7 +8,8 @@ import {
   type TenantTestPlatform,
 } from '@school-management/database';
 import { startTenantTestApplication, TEST_PASSWORD, type TenantTestContext } from '../test-support.js';
-import { createPlatformOperator } from './platform-operators.js';
+import { OPERATOR_TEST_PASSWORD, operatorOtp } from './operator-test-helpers.js';
+import { createPlatformOperatorWithTotp } from './platform-operators.js';
 
 // Quản lý trường ở cổng nền tảng và kích hoạt quản trị viên đầu tiên (DT-SaaS phần S2, YCTD-193): khởi tạo qua bước setup, tạm
 // dừng thì trường trả 503, mở lại, kích hoạt bằng đường liên kết một lần rồi đăng nhập. Dữ liệu giả hoàn toàn
@@ -76,11 +77,19 @@ describe('quản lý trường ở cổng nền tảng', () => {
       domainProvider: 'dns-check',
       deletionGraceDays: 30,
     };
-    await createPlatformOperator(platform.platform, { login, fullName: 'Người vận hành giả', password: TEST_PASSWORD });
+    const operator = await createPlatformOperatorWithTotp(platform.platform, platform.masterKey, {
+      login,
+      fullName: 'Người vận hành giả',
+      password: OPERATOR_TEST_PASSWORD,
+    });
     const reply = await send(context, {
       path: '/auth/platform/login',
       host: CONSOLE_HOST,
-      body: { login, password: TEST_PASSWORD },
+      body: {
+        login,
+        password: OPERATOR_TEST_PASSWORD,
+        otp_code: await operatorOtp(platform.platform, operator.id, operator.secret, context.clock.now()),
+      },
     });
     token = reply.body.access_token as string;
     schoolCode = `gamma-${platform.suffix}`;
@@ -146,7 +155,7 @@ describe('quản lý trường ở cổng nền tảng', () => {
       terms: { version: 'PL-04 v1', accepted: true, accepted_by_name: 'Hiệu trưởng giả' },
     });
     assert.equal(reply.status, 200, JSON.stringify(reply.body));
-    assert.equal(reply.body.status, 'done');
+    assert.equal(reply.body.status, 'done', JSON.stringify(reply.body));
     const activation = reply.body.activation as { path: string; host: string };
     assert.equal(activation.host, `${schoolCode}.${SYSTEM_DOMAIN}`);
     activationToken = new URLSearchParams(activation.path.split('?')[1]).get('token') as string;

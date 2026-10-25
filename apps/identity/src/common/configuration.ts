@@ -19,6 +19,10 @@ export interface IdentityConfiguration {
   platformConsoleHost?: string | null;
   // Khởi tạo và vòng đời trường ở cổng nền tảng (DT-SaaS phần S2): tên miền hệ thống, địa chỉ vào, bộ nối tên miền, số ngày chờ xóa
   platformLifecycle?: LifecycleSettings;
+  // Khóa mã hóa khóa xác thực hai lớp (32 byte) ở chế độ một trường (DT-SaaS phần S8b); chế độ nhiều trường dùng khóa mã hóa của trường
+  totpEncryptionKey?: Buffer | null;
+  // Khóa công khai cũ của mã phiên, còn nhận trong thời gian xoay khóa ký (DT-SaaS phần S8b)
+  tokenPreviousPublicKeyPem?: string | null;
 }
 
 export const IDENTITY_CONFIGURATION = Symbol('IDENTITY_CONFIGURATION');
@@ -31,6 +35,19 @@ function readRequired(name: string): string {
     throw new Error(`Thiếu biến môi trường ${name}`);
   }
   return value;
+}
+
+// Khóa 32 byte mã hóa base64 ở biến môi trường, trống thì không có (tính năng cần khóa này sẽ báo chưa cấu hình)
+function readOptionalKey(name: string): Buffer | null {
+  const value = process.env[name]?.trim();
+  if (!value) {
+    return null;
+  }
+  const key = Buffer.from(value, 'base64');
+  if (key.length !== 32) {
+    throw new Error(`Biến môi trường ${name} phải là 32 byte mã hóa base64`);
+  }
+  return key;
 }
 
 // Ở chế độ nhiều trường (có PLATFORM_DATABASE_URL) cơ sở dữ liệu định danh là của từng trường nên không đọc ở đây
@@ -46,6 +63,10 @@ export function readConfigurationFromEnvironment(): IdentityConfiguration {
     apiBaseUrl: readRequired('API_BASE_URL'),
     smsProvider: readSmsProviderSettings(),
     platformConsoleHost: process.env.PLATFORM_CONSOLE_HOST?.trim() || null,
+    tokenPreviousPublicKeyPem: process.env.TOKEN_PREVIOUS_PUBLIC_KEY
+      ? decodeBase64Key(process.env.TOKEN_PREVIOUS_PUBLIC_KEY)
+      : null,
+    totpEncryptionKey: readOptionalKey('TOTP_ENCRYPTION_KEY'),
     platformLifecycle: lifecycleSettingsFrom(process.env),
   };
 }

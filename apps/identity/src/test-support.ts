@@ -1,4 +1,4 @@
-import { randomInt, randomUUID } from 'node:crypto';
+import { randomBytes, randomInt, randomUUID } from 'node:crypto';
 import type { AddressInfo } from 'node:net';
 import type { INestApplication } from '@nestjs/common';
 import {
@@ -20,7 +20,12 @@ import { Redis } from 'ioredis';
 
 // Hỗ trợ kiểm thử tích hợp trên cơ sở dữ liệu định danh và Redis thật
 // Tạo tài khoản vận hành nền tảng cho kiểm thử giao diện cổng nền tảng (DT-SaaS phần S2, spec 132)
-export { createPlatformOperator } from './platform/platform-operators.js';
+export {
+  createPlatformOperator,
+  createPlatformOperatorWithTotp,
+  enrollOperatorTotp,
+} from './platform/platform-operators.js';
+export { OPERATOR_TEST_PASSWORD, operatorOtp, totpCode } from './platform/operator-test-helpers.js';
 
 export class AdjustableClock extends Clock {
   private offsetMilliseconds = 0;
@@ -69,6 +74,7 @@ export async function startTestApplication(
     // Môi trường kiểm thử của máy chủ API gán lại sau khi máy chủ API chạy
     apiBaseUrl: 'http://127.0.0.1:9',
     smsProvider: { provider: 'log' },
+    totpEncryptionKey: randomBytes(32),
   };
   const clock = new AdjustableClock();
   const smsSender = new RecordingSmsSender();
@@ -218,7 +224,7 @@ export async function postJson(
       // Gửi cùng giá trị dưới tên cookie của cả ba kênh; máy chủ đọc cookie đúng kênh (BM-71)
       ...(refreshToken
         ? {
-            cookie: ['refresh_token', 'refresh_token_teacher', 'refresh_token_parent']
+            cookie: ['__Secure-refresh_token', '__Secure-refresh_token_teacher', '__Secure-refresh_token_parent']
               .map((name) => `${name}=${encodeURIComponent(refreshToken)}`)
               .join('; '),
           }
@@ -227,7 +233,7 @@ export async function postJson(
     body: JSON.stringify(body),
   });
   const text = await response.text();
-  const setCookie = response.headers.getSetCookie().find((cookie) => cookie.startsWith('refresh_token'));
+  const setCookie = response.headers.getSetCookie().find((cookie) => cookie.startsWith('__Secure-refresh_token'));
   const firstPart = setCookie?.split(';')[0] ?? '';
   const cookieValue = firstPart.slice(firstPart.indexOf('=') + 1);
   return {

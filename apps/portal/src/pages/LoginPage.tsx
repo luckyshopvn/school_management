@@ -45,6 +45,9 @@ export function LoginPage() {
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const [submitting, setSubmitting] = useState(false);
   const [failedOnce, setFailedOnce] = useState(false);
+  // Xác thực hai lớp tuỳ chọn theo trường (DT-SaaS phần S8b): máy chủ đòi mã sau khi mật khẩu đúng
+  const [otpRequired, setOtpRequired] = useState(false);
+  const [otpCode, setOtpCode] = useState('');
   const info = useQuery({ queryKey: ['login-info'], queryFn: readLoginInfo, retry: false });
   const options = useQuery({ queryKey: ['login-options'], queryFn: readLoginOptions, retry: false });
   const captchaShown = Boolean(options.data?.captcha_always) || failedOnce;
@@ -56,11 +59,18 @@ export function LoginPage() {
     setFieldErrors({});
     setSubmitting(true);
     try {
-      await session.login(loginIdentifier.trim(), password, captcha.answer);
+      await session.login(loginIdentifier.trim(), password, captcha.answer, otpRequired ? otpCode.trim() : undefined);
       storeRememberedLogin(rememberLogin ? loginIdentifier.trim() : null);
     } catch (error) {
       if (error instanceof ApiError) {
         const details = Object.fromEntries(error.details.map((detail) => [detail.field, detail.message]));
+        // Đúng mật khẩu, chưa nhập mã: hiện ô mã, chưa tính là lần nhập sai (không bật mã xác nhận ảnh)
+        if (details.otp_code && !otpRequired) {
+          setOtpRequired(true);
+          setErrorMessage(undefined);
+          setSubmitting(false);
+          return;
+        }
         setErrorMessage(details.captcha ? undefined : error.message);
         setFieldErrors(details);
       } else {
@@ -116,6 +126,18 @@ export function LoginPage() {
           onChange={(event) => setPassword(event.target.value)}
           error={fieldErrors.password}
         />
+        {otpRequired ? (
+          <TextField
+            label="Mã xác thực hai lớp (hoặc mã khôi phục)"
+            name="otp_code"
+            autoComplete="one-time-code"
+            inputMode="numeric"
+            autoFocus
+            value={otpCode}
+            onChange={(event) => setOtpCode(event.target.value)}
+            error={fieldErrors.otp_code}
+          />
+        ) : null}
         {captchaShown ? <CaptchaField captcha={captcha} error={fieldErrors.captcha} /> : null}
         <div className="flex items-center justify-between gap-2">
           <label className="flex items-center gap-2 text-label text-text">

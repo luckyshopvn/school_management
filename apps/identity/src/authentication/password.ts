@@ -20,10 +20,15 @@ export function placeholderPasswordHash(): Promise<string> {
 // Mật khẩu tối thiểu 8 ký tự, có cả chữ và số (BM-03)
 export const MINIMUM_PASSWORD_LENGTH = 8;
 
-export function checkPasswordPolicy(field: string, password: string): FieldError[] {
+// Độ dài tối thiểu riêng từng trường (DT-SaaS phần S8b): trường đặt ở chính sách mật khẩu, mặc định 8
+export function checkPasswordPolicy(
+  field: string,
+  password: string,
+  minimumLength = MINIMUM_PASSWORD_LENGTH,
+): FieldError[] {
   const errors: FieldError[] = [];
-  if (password.length < MINIMUM_PASSWORD_LENGTH) {
-    errors.push({ field, message: `Mật khẩu phải có ít nhất ${MINIMUM_PASSWORD_LENGTH} ký tự` });
+  if (password.length < minimumLength) {
+    errors.push({ field, message: `Mật khẩu phải có ít nhất ${minimumLength} ký tự` });
   }
   if (!/\p{L}/u.test(password) || !/\p{Nd}/u.test(password)) {
     errors.push({ field, message: 'Mật khẩu phải có cả chữ và số' });

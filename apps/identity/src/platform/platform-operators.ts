@@ -5,11 +5,17 @@ import {
   Clock,
   extractTenantHost,
   normalizeHost,
+  generateRecoveryCodes,
+  generateTotpSecret,
+  hashRecoveryCode,
   readBearerToken,
+  totpUri,
   unauthenticatedError,
   validationError,
+  verifyTotp,
   type FieldError,
 } from '@school-management/server';
+import { decryptSecret, encryptSecret } from '@school-management/server/tenancy';
 import type { Request } from 'express';
 import type { Kysely } from 'kysely';
 import {
@@ -18,6 +24,7 @@ import {
   placeholderPasswordHash,
   verifyPassword,
 } from '../authentication/password.js';
+import { OTP_REQUIRED_MESSAGE } from '../authentication/totp.service.js';
 import { TokenService } from '../authentication/token.service.js';
 import { IDENTITY_CONFIGURATION, TENANCY_RUNTIME, type IdentityConfiguration } from '../common/configuration.js';
 
@@ -88,6 +95,7 @@ export class PlatformOperatorsService {
   async login(
     login: string,
     password: string,
+    otpCode: string | undefined,
     ipAddress: string | null,
   ): Promise<{ token: string; operator: PlatformOperatorSummary }> {
     const platform = this.platform();
@@ -126,6 +134,8 @@ export class PlatformOperatorsService {
       });
       throw unauthenticatedError('Tên đăng nhập hoặc mật khẩu không đúng');
     }
+    // Xác thực hai lớp bắt buộc (DT-SaaS phần S8b, GD-97): thiếu hoặc sai mã thì không vào được; sai mã tính như nhập sai mật khẩu
+    await this.assertSecondFactor(row.id, otpCode, ipAddress, now);
     await platform
       .updateTable('platform_operators')
       .set({ failed_login_count: 0, locked_until: null, last_login_at: now, updated_at: now })
@@ -141,6 +151,80 @@ export class PlatformOperatorsService {
       token: await this.tokenService.signOperatorToken(row.id),
       operator: { id: row.id, login: row.login, full_name: row.full_name },
     };
+  }
+
+  private async assertSecondFactor(
+    operatorId: string,
+    otpCode: string | undefined,
+    ipAddress: string | null,
+    now: Date,
+  ): Promise<void> {
+    const platform = this.platform();
+    const totp = await platform
+      .selectFrom('platform_operator_totp')
+      .selectAll()
+      .where('operator_id', '=', operatorId)
+      .executeTakeFirst();
+    if (!totp) {
+      throw unauthenticatedError(
+        'Tài khoản chưa đăng ký xác thực hai lớp (bắt buộc); chạy lệnh reset-operator-totp để cấp khóa mới',
+      );
+    }
+    if (!otpCode) {
+      throw new ApplicationError('ERR_UNAUTHENTICATED', 'Cần mã xác thực hai lớp', [
+        { field: 'otp_code', message: OTP_REQUIRED_MESSAGE },
+      ]);
+    }
+    const masterKey = this.tenancy?.configuration.masterKey as Buffer;
+    const lastStep = totp.last_step === null ? null : Number(totp.last_step);
+    const step = verifyTotp(decryptSecret(masterKey, totp.secret_encrypted), otpCode, now, { lastUsedStep: lastStep });
+    let accepted = false;
+    if (step !== null) {
+      // Cập nhật có điều kiện để hai yêu cầu cùng lúc không cùng dùng được một mã
+      const updated = await platform
+        .updateTable('platform_operator_totp')
+        .set({ last_step: String(step) })
+        .where('operator_id', '=', operatorId)
+        .where((expression) =>
+          expression.or([expression('last_step', 'is', null), expression('last_step', '<', String(step))]),
+        )
+        .executeTakeFirst();
+      accepted = Number(updated.numUpdatedRows) > 0;
+    } else if (!/^\d{6}$/.test(otpCode.trim())) {
+      const consumed = await platform
+        .updateTable('platform_operator_recovery_codes')
+        .set({ used_at: now })
+        .where('operator_id', '=', operatorId)
+        .where('code_hash', '=', hashRecoveryCode(otpCode))
+        .where('used_at', 'is', null)
+        .executeTakeFirst();
+      accepted = Number(consumed.numUpdatedRows) > 0;
+    }
+    if (!accepted) {
+      const row = await platform
+        .selectFrom('platform_operators')
+        .select('failed_login_count')
+        .where('id', '=', operatorId)
+        .executeTakeFirstOrThrow();
+      const failures = row.failed_login_count + 1;
+      const lock = failures >= MAX_FAILED_LOGINS;
+      await platform
+        .updateTable('platform_operators')
+        .set({
+          failed_login_count: lock ? 0 : failures,
+          locked_until: lock ? new Date(now.getTime() + LOCK_MINUTES * 60_000) : null,
+          updated_at: now,
+        })
+        .where('id', '=', operatorId)
+        .execute();
+      await writeAudit(platform, {
+        actorType: 'operator',
+        actorId: operatorId,
+        action: lock ? 'operator.login-locked' : 'operator.totp-failed',
+        details: { ip: ipAddress },
+      });
+      throw unauthenticatedError('Mã xác thực hai lớp không đúng');
+    }
   }
 
   async me(accessToken: string): Promise<PlatformOperatorSummary & { school_count: number }> {
@@ -166,6 +250,7 @@ export class PlatformOperatorsService {
 interface LoginBody {
   login?: unknown;
   password?: unknown;
+  otp_code?: unknown;
 }
 
 @Controller('auth/platform')
@@ -182,7 +267,13 @@ export class PlatformAuthController {
     if (errors.length > 0) {
       throw validationError(errors);
     }
-    const result = await this.operators.login(login, password, request.ip ?? null);
+    const otp = body?.otp_code;
+    const result = await this.operators.login(
+      login,
+      password,
+      typeof otp === 'string' && otp.trim() !== '' ? otp.trim() : undefined,
+      request.ip ?? null,
+    );
     return { access_token: result.token, token_type: 'Bearer', operator: result.operator };
   }
 
@@ -202,7 +293,7 @@ export async function createPlatformOperator(
   if (login.length < 3 || login.length > 64) {
     throw new Error('Tên đăng nhập có từ 3 đến 64 ký tự');
   }
-  const policyErrors = checkPasswordPolicy('password', input.password);
+  const policyErrors = checkPasswordPolicy('password', input.password, OPERATOR_MINIMUM_PASSWORD_LENGTH);
   if (policyErrors.length > 0) {
     throw new Error(policyErrors.map((error) => error.message).join('; '));
   }
@@ -221,4 +312,43 @@ export async function createPlatformOperator(
     .executeTakeFirstOrThrow();
   await writeAudit(platform, { actorType: 'cli', action: 'operator.create', details: { login } });
   return created.id;
+}
+
+// Đăng ký xác thực hai lớp cho tài khoản vận hành (hoặc cấp lại khóa mới khi mất điện thoại): sinh khóa TOTP, mã hóa bằng khóa gốc của nền tảng,
+// cấp mã khôi phục dùng một lần. Khóa và mã khôi phục chỉ trả ở đây một lần để người vận hành lưu lại
+export async function enrollOperatorTotp(
+  platform: Kysely<PlatformDatabase>,
+  masterKey: Buffer,
+  operatorId: string,
+  account: string,
+): Promise<{ secret: string; otpauthUri: string; recoveryCodes: string[] }> {
+  const secret = generateTotpSecret();
+  const recoveryCodes = generateRecoveryCodes();
+  await platform.transaction().execute(async (transaction) => {
+    await transaction.deleteFrom('platform_operator_recovery_codes').where('operator_id', '=', operatorId).execute();
+    await transaction.deleteFrom('platform_operator_totp').where('operator_id', '=', operatorId).execute();
+    await transaction
+      .insertInto('platform_operator_totp')
+      .values({ operator_id: operatorId, secret_encrypted: encryptSecret(masterKey, secret) })
+      .execute();
+    await transaction
+      .insertInto('platform_operator_recovery_codes')
+      .values(recoveryCodes.map((code) => ({ operator_id: operatorId, code_hash: hashRecoveryCode(code) })))
+      .execute();
+  });
+  await writeAudit(platform, { actorType: 'cli', actorId: operatorId, action: 'operator.totp-enroll' });
+  return { secret, otpauthUri: totpUri(secret, account, 'School Management (nền tảng)'), recoveryCodes };
+}
+
+// Tạo tài khoản vận hành kèm xác thực hai lớp (lệnh dòng lệnh và kiểm thử). Mật khẩu của tài khoản vận hành theo mặc định nền tảng chặt hơn
+// của trường: tối thiểu 12 ký tự (DT-SaaS phần S8b, tài liệu 32 mục 14.5)
+export const OPERATOR_MINIMUM_PASSWORD_LENGTH = 12;
+
+export async function createPlatformOperatorWithTotp(
+  platform: Kysely<PlatformDatabase>,
+  masterKey: Buffer,
+  input: { login: string; fullName: string; password: string },
+): Promise<{ id: string; secret: string; otpauthUri: string; recoveryCodes: string[] }> {
+  const id = await createPlatformOperator(platform, input);
+  return { id, ...(await enrollOperatorTotp(platform, masterKey, id, input.login.trim().toLowerCase())) };
 }

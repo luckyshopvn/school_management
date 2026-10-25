@@ -84,7 +84,7 @@ describe('Dịch vụ định danh: đăng nhập và phiên', () => {
     const { accessToken } = readTokens(response);
     const logout = await postJson(`${context.baseUrl}/auth/logout`, {}, accessToken);
     assert.equal(logout.status, 204);
-    assert.match(logout.setCookie ?? '', /refresh_token=;/);
+    assert.match(logout.setCookie ?? '', /__Secure-refresh_token=;/);
   });
 
   it('CTC-DD-003: sai mật khẩu bị từ chối, phản hồi không chứa thông tin nội bộ', async () => {

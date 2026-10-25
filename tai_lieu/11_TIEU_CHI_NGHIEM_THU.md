@@ -1,7 +1,7 @@
 # 11. TIÊU CHÍ NGHIỆM THU
 
 - Mô tả: Tiêu chí nghiệm thu cho từng chức năng, viết dạng Cho, Khi, Thì.
-- Phiên bản: 1.80
+- Phiên bản: 1.81
 - Ngày cập nhật: 2026-10-25
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -921,9 +921,13 @@ Các mã từ AC-94 đến AC-134 được viết trực tiếp trong mục 12 c
 | AC-846 | Cho một tệp sao lưu của trường A / Khi khôi phục thành trường mới, khi khôi phục vào chính A lúc A đang chạy và lúc A đã tạm dừng / Thì trường mới tạm dừng, có tên miền `<mã mới>.<tên miền hệ thống>`, tên cơ sở dữ liệu năm học theo tiền tố mới, người dùng của A đăng nhập được sau khi mở lại, A không đổi; khôi phục vào A khi đang chạy bị từ chối; khi đã tạm dừng thì dữ liệu của A trở về lúc sao lưu |
 | AC-847 | Cho trường có năm học chỉ đọc và bản sao lưu mới nhất / Khi sao lưu phạm vi `active`, chạy diễn tập khôi phục / Thì bản `active` bỏ năm học chỉ đọc; diễn tập khôi phục vào trường tạm, mọi bảng khớp, trường tạm bị gỡ, `backup_runs` ghi loại `drill` kèm số dòng và thời gian; cổng nền tảng hiện lịch sử sao lưu, khôi phục của từng trường |
 | AC-848 | Cho trường đang hoạt động / Khi chuyển sang cụm khác có xóa bản ở cụm nguồn / Thì trường tạm dừng trong lúc chép rồi trở lại hoạt động, mô tả kết nối và cụm trỏ cụm mới, dữ liệu đọc được bằng vai trò của trường, bản ở cụm nguồn bị xóa; lỗi giữa chừng thì giữ cụm cũ |
-| AC-849 | Cho quy tắc tính phí theo học sinh, theo trường, theo phân hệ, có bậc, phí tối thiểu, VAT / Khi tính một kỳ và khi việc nền chạy nhiều lần sau cuối kỳ / Thì số tiền đúng đến từng đồng, mỗi kỳ chỉ một hóa đơn, hạn trả là cuối kỳ cộng số ngày hạn (CT-1043, CT-1044, CT-1045, CT-1050; YCTD-196) |
-| AC-850 | Cho trường có hóa đơn quá hạn đang chỉ đọc / Khi quản trị trường trả bằng mã QR hoặc cổng báo tiền vào, kể cả báo trùng / Thì hóa đơn chuyển đã trả một lần, hạn dời tới kỳ sau, trường mở lại; khóa sai bị từ chối; tiền không khớp chờ gán tay (CT-1046, CT-1050, CT-1051, CT-1053; YCTD-196) |
-| AC-851 | Cho người vận hành nền tảng / Khi giảm giá, ghi nhận tiền tay, hủy, tặng kỳ, phát hành hóa đơn điện tử, cấu hình nhắc và khóa cổng / Thì mỗi điều chỉnh bắt buộc lý do và ghi nhật ký, nhắc mỗi mốc một lần, khóa chỉ trả gợi ý (CT-1047, CT-1048, CT-1049, CT-1052; YCTD-196) |
+| AC-849 | Cho tài khoản vận hành nền tảng có khóa TOTP / Khi đăng nhập thiếu mã, mã sai, mã đúng, mã đúng dùng lại, mã khôi phục dùng hai lần, sai mã năm lần, tài khoản chưa đăng ký khóa / Thì thiếu mã bị 401 đòi mã và chưa tính nhập sai, mã sai và mã dùng lại bị 401, mã khôi phục dùng được một lần, sai năm lần thì khóa tạm, chưa đăng ký khóa không đăng nhập được, khóa lưu mã hóa (CT-1043, CT-1044; YCTD-201) |
+| AC-850 | Cho hai trường, alpha bật xác thực hai lớp / Khi người dùng alpha đăng ký, xác nhận, đăng nhập thiếu mã, sai mã, đúng mã, dùng mã khôi phục, tắt, đặt lại hộ; người dùng beta đăng nhập và thử đăng ký / Thì chỉ alpha đòi mã sau khi người dùng đăng ký xong, beta không bị ảnh hưởng và không đăng ký được, bật rồi tắt cả trường thì bỏ qua mã (CT-1045; YCTD-201) |
+| AC-851 | Cho hai trường đặt chính sách mật khẩu khác nhau / Khi đổi mật khẩu ngắn hơn độ dài tối thiểu của trường A, sai mật khẩu quá ngưỡng của trường A, đặt giá trị ngoài giới hạn / Thì A từ chối mật khẩu ngắn và tạm khóa đúng ngưỡng, số phút riêng; B giữ mặc định; giá trị ngoài giới hạn bị 400 (CT-1046; YCTD-201) |
+| AC-852 | Cho máy chủ API và dịch vụ định danh / Khi gọi điểm cuối thường, qua HTTPS (tiêu đề chuyển tiếp), điểm cuối xác thực, đăng nhập đặt cookie; khi xoay khóa ký; khi chạy CI / Thì mọi phản hồi có tiêu đề bảo mật và không lộ phần mềm, HSTS chỉ khi qua HTTPS, phản hồi xác thực không lưu đệm, cookie mã làm mới có tiền tố `__Secure-`, mã phiên ký bằng khóa cũ còn dùng được trong thời gian xoay, quét bí mật và quét thành phần phụ thuộc chạy (CT-1047, CT-1048; YCTD-201) |
+| AC-853 | Cho quy tắc tính phí theo học sinh, theo trường, theo phân hệ, có bậc, phí tối thiểu, VAT / Khi tính một kỳ và khi việc nền chạy nhiều lần sau cuối kỳ / Thì số tiền đúng đến từng đồng, mỗi kỳ chỉ một hóa đơn, hạn trả là cuối kỳ cộng số ngày hạn (CT-1049, CT-1050, CT-1051, CT-1056; YCTD-196) |
+| AC-854 | Cho trường có hóa đơn quá hạn đang chỉ đọc / Khi quản trị trường trả bằng mã QR hoặc cổng báo tiền vào, kể cả báo trùng / Thì hóa đơn chuyển đã trả một lần, hạn dời tới kỳ sau, trường mở lại; khóa sai bị từ chối; tiền không khớp chờ gán tay (CT-1052, CT-1056, CT-1057, CT-1059; YCTD-196) |
+| AC-855 | Cho người vận hành nền tảng / Khi giảm giá, ghi nhận tiền tay, hủy, tặng kỳ, phát hành hóa đơn điện tử, cấu hình nhắc và khóa cổng / Thì mỗi điều chỉnh bắt buộc lý do và ghi nhật ký, nhắc mỗi mốc một lần, khóa chỉ trả gợi ý (CT-1053, CT-1054, CT-1055, CT-1058; YCTD-196) |
 
 ## 20. Chưa xác minh được
 

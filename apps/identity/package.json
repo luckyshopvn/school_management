@@ -16,7 +16,8 @@
     "test": "node --env-file-if-exists=../../.env --test --test-concurrency=1 \"dist/**/*.test.js\"",
     "generate-token-keys": "node dist/generate-token-keys.js",
     "create-platform-administrator": "node --env-file-if-exists=../../.env dist/create-platform-administrator.js",
-    "create-platform-operator": "node --env-file-if-exists=../../.env dist/create-platform-operator.js"
+    "create-platform-operator": "node --env-file-if-exists=../../.env dist/create-platform-operator.js",
+    "reset-operator-totp": "node --env-file-if-exists=../../.env dist/reset-operator-totp.js"
   },
   "dependencies": {
     "@nestjs/common": "^11.2.7",

@@ -21,6 +21,8 @@ export function readPaymentGateways(text: string | undefined): PaymentProviderCo
 // Cấu hình của máy chủ API nghiệp vụ; máy chủ API chỉ giữ khóa công khai để kiểm tra mã phiên (QĐ-22)
 export interface ApiConfiguration {
   tokenPublicKeyPem: string;
+  // Khóa công khai cũ còn nhận trong thời gian xoay khóa ký (DT-SaaS phần S8b)
+  tokenPreviousPublicKeyPem?: string | null;
   identityBaseUrl: string;
   systemDatabaseUrl: string;
   // Tên cơ sở dữ liệu năm học có dạng <tiền tố><năm bắt đầu>_<năm kết thúc>
@@ -152,6 +154,9 @@ export function readConfigurationFromEnvironment(options: { multiTenant?: boolea
   const multiTenant = options.multiTenant ?? Boolean(process.env.PLATFORM_DATABASE_URL?.trim());
   return {
     tokenPublicKeyPem: decodeBase64Key(readRequired('TOKEN_PUBLIC_KEY')),
+    tokenPreviousPublicKeyPem: process.env.TOKEN_PREVIOUS_PUBLIC_KEY
+      ? decodeBase64Key(process.env.TOKEN_PREVIOUS_PUBLIC_KEY)
+      : null,
     identityBaseUrl: readRequired('IDENTITY_BASE_URL'),
     systemDatabaseUrl: multiTenant ? '' : readRequired('SYSTEM_DATABASE_URL'),
     schoolYearDatabasePrefix: process.env.SCHOOL_YEAR_DATABASE_PREFIX ?? 'school_year_',

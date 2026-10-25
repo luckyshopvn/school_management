@@ -10,14 +10,21 @@ export function LoginScreen() {
   const [password, setPassword] = useState('');
   const [errorMessage, setErrorMessage] = useState<string>();
   const [submitting, setSubmitting] = useState(false);
+  // Xác thực hai lớp tuỳ chọn theo trường (DT-SaaS phần S8b): máy chủ đòi mã sau khi mật khẩu đúng
+  const [otpRequired, setOtpRequired] = useState(false);
+  const [otpCode, setOtpCode] = useState('');
 
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setErrorMessage(undefined);
     setSubmitting(true);
     try {
-      await session.login(loginIdentifier.trim(), password);
+      await session.login(loginIdentifier.trim(), password, otpRequired ? otpCode.trim() : undefined);
     } catch (error) {
+      if (error instanceof ApiError && !otpRequired && error.details.some((detail) => detail.field === 'otp_code')) {
+        setOtpRequired(true);
+        return;
+      }
       setErrorMessage(error instanceof ApiError ? error.message : 'Không kết nối được tới máy chủ, vui lòng thử lại');
     } finally {
       setSubmitting(false);
@@ -49,6 +56,16 @@ export function LoginScreen() {
           value={password}
           onChange={(event) => setPassword(event.target.value)}
         />
+        {otpRequired ? (
+          <TextField
+            label="Mã xác thực hai lớp (hoặc mã khôi phục)"
+            autoComplete="one-time-code"
+            inputMode="numeric"
+            autoFocus
+            value={otpCode}
+            onChange={(event) => setOtpCode(event.target.value)}
+          />
+        ) : null}
         <Button type="submit" variant="primary" disabled={submitting}>
           {submitting ? 'Đang đăng nhập…' : 'Đăng nhập'}
         </Button>

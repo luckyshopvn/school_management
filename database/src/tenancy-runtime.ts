@@ -156,8 +156,9 @@ export class TenancyRuntime {
   tokenTenantResolver(
     tokenPublicKeyPem: string,
     now: () => Date = () => new Date(),
+    previousTokenPublicKeyPem: string | null = null,
   ): (request: { header(name: string): string | undefined }) => Promise<TenantContext | null> {
-    const verifier = new AccessTokenVerifier(tokenPublicKeyPem);
+    const verifier = new AccessTokenVerifier(tokenPublicKeyPem, previousTokenPublicKeyPem);
     return async (request) => {
       const [scheme, token] = (request.header('authorization') ?? '').split(' ');
       if (scheme !== 'Bearer' || !token) {

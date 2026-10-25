@@ -133,8 +133,8 @@ describe('dịch vụ định danh nhiều trường', () => {
     const claims = decodeClaims(reply.body.access_token as string);
     assert.equal(claims.tid, alphaId);
     assert.notEqual(claims.sid, alphaId);
-    const cookie = reply.cookies.find((item) => item.startsWith('refresh_token'));
-    assert.ok(cookie?.startsWith(`refresh_token__${alphaCode}=`), cookie);
+    const cookie = reply.cookies.find((item) => item.startsWith('__Secure-refresh_token'));
+    assert.ok(cookie?.startsWith(`__Secure-refresh_token__${alphaCode}=`), cookie);
   });
 
   it('tài khoản của trường này không đăng nhập được ở tên miền của trường khác', async () => {
@@ -167,7 +167,7 @@ describe('dịch vụ định danh nhiều trường', () => {
 
   it('cookie mã làm mới của trường A không làm mới được phiên ở trường B', async () => {
     const loggedIn = await login(alphaHost, alphaUser);
-    const cookiePair = (loggedIn.cookies.find((item) => item.startsWith('refresh_token')) as string).split(
+    const cookiePair = (loggedIn.cookies.find((item) => item.startsWith('__Secure-refresh_token')) as string).split(
       ';',
     )[0] as string;
     const refreshed = await send(context, {
@@ -183,7 +183,7 @@ describe('dịch vụ định danh nhiều trường', () => {
       path: '/auth/refresh',
       host: betaHost,
       body: { channel: 'portal' },
-      cookie: `refresh_token__${betaCode}=${value}`,
+      cookie: `__Secure-refresh_token__${betaCode}=${value}`,
     });
     assert.equal(asBeta.status, 401);
     const raw = await send(context, {

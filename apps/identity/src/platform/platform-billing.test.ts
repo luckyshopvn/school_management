@@ -2,8 +2,9 @@ import assert from 'node:assert/strict';
 import http from 'node:http';
 import { after, before, describe, it } from 'node:test';
 import { startTenantTestPlatform, type TenancyRuntime, type TenantTestPlatform } from '@school-management/database';
-import { startTenantTestApplication, TEST_PASSWORD, type TenantTestContext } from '../test-support.js';
-import { createPlatformOperator } from './platform-operators.js';
+import { startTenantTestApplication, type TenantTestContext } from '../test-support.js';
+import { OPERATOR_TEST_PASSWORD, operatorOtp } from './operator-test-helpers.js';
+import { createPlatformOperatorWithTotp } from './platform-operators.js';
 
 // Thu phí ở cổng vận hành nền tảng (DT-SaaS phần S5b, YCTD-196), kịch bản CT-S5b-10: quy tắc tính phí và gắn vào gói, lập hóa đơn tay,
 // giảm giá, ghi nhận tiền tay, hủy, tặng kỳ, giao dịch chưa khớp, hóa đơn điện tử giả lập, cấu hình và khóa cổng của nền tảng (chỉ gợi ý);
@@ -65,11 +66,19 @@ describe('thu phí ở cổng vận hành nền tảng', () => {
     runtime = platform.createRuntime();
     context = await startTenantTestApplication(runtime);
     context.configuration.platformConsoleHost = CONSOLE_HOST;
-    await createPlatformOperator(platform.platform, { login, fullName: 'Người vận hành giả', password: TEST_PASSWORD });
+    const created = await createPlatformOperatorWithTotp(platform.platform, platform.masterKey, {
+      login,
+      fullName: 'Người vận hành giả',
+      password: OPERATOR_TEST_PASSWORD,
+    });
     const reply = await send(context, {
       path: '/auth/platform/login',
       host: CONSOLE_HOST,
-      body: { login, password: TEST_PASSWORD },
+      body: {
+        login,
+        password: OPERATOR_TEST_PASSWORD,
+        otp_code: await operatorOtp(platform.platform, created.id, created.secret, context.clock.now()),
+      },
     });
     token = (reply.body as { access_token: string }).access_token;
   });

@@ -1,7 +1,7 @@
 # 02. NHẬT KÝ DỰ ÁN
 
 - Mô tả: Ghi nhận công việc, quyết định, thay đổi và vấn đề tồn đọng theo ngày, ngày mới nhất ở trên cùng.
-- Phiên bản: 0.69
+- Phiên bản: 0.70
 - Ngày cập nhật: 2026-10-25
 - Trạng thái: Đang cập nhật
 
@@ -20,7 +20,7 @@
 
 - Đọc mục 14.3, 14.5 (S5b), 14.9, 14.11 của `32_KE_HOACH_THEO_HE_THONG_SO.md`; rà bộ nối cổng thanh toán (`payment-gateway.ts`, `payment-providers.ts`), kho khóa của S3 (`integration_secrets`, `tenant-connectors.ts`), bộ lập lịch theo trường của S1b, hàng đợi thông báo, gói và chuyển trạng thái của S5a.
 - Thêm tệp nền tảng 0050 (chín bảng thu phí), quyền `P01.billing.manage` (tệp định danh 0105), thư viện `database/src/billing` (hàm tính phí, kỳ, chốt kỳ, hóa đơn, tiền vào, điều chỉnh, nhắc hạn, hóa đơn điện tử, khóa cổng của nền tảng), việc nền `billing-cycle`, điểm cuối của trường và điểm nhận tiền vào của nền tảng ở máy chủ API, nhóm `/auth/platform/billing` ở dịch vụ định danh, trang Thu phí ở cổng nền tảng, trang Hóa đơn dịch vụ ở cổng, e2e spec 135.
-- Thêm BR-219 đến BR-221, PQ-107, P01-71 đến P01-73, AC-849 đến AC-851, MH-325, MH-326, CT-1043 đến CT-1053, BM-84, bảng ở `16` mục 18A, giao kèo ở `17`; phiên bản 0.136.0.
+- Thêm BR-222 đến BR-224, PQ-107, P01-75 đến P01-77, AC-853 đến AC-855, MH-328, MH-329, CT-1049 đến CT-1059, BM-88, bảng ở `16` mục 18A, giao kèo ở `17`; phiên bản 0.137.0.
 
 #### Quyết định
 
@@ -32,11 +32,35 @@
 
 #### Thay đổi
 
-- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-196, `07_QUY_TAC_NGHIEP_VU.md` BR-219 đến BR-221, `08_VAI_TRO_NGUOI_DUNG.md` PQ-107, `10_YEU_CAU_CHUC_NANG.md` P01-71 đến P01-73, `11_TIEU_CHI_NGHIEM_THU.md` AC-849 đến AC-851, `14_DAC_TA_GIAO_DIEN.md` MH-325, MH-326, `16_CO_SO_DU_LIEU.md` mục 18A, `17_DAC_TA_API.md`, `21_KICH_BAN_KIEM_THU.md` CT-1043 đến CT-1053, `22_BAO_MAT.md` BM-84; phiên bản phần mềm 0.136.0.
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-196, `07_QUY_TAC_NGHIEP_VU.md` BR-222 đến BR-224, `08_VAI_TRO_NGUOI_DUNG.md` PQ-107, `10_YEU_CAU_CHUC_NANG.md` P01-75 đến P01-77, `11_TIEU_CHI_NGHIEM_THU.md` AC-853 đến AC-855, `14_DAC_TA_GIAO_DIEN.md` MH-328, MH-329, `16_CO_SO_DU_LIEU.md` mục 18A, `17_DAC_TA_API.md`, `21_KICH_BAN_KIEM_THU.md` CT-1049 đến CT-1059, `22_BAO_MAT.md` BM-88; phiên bản phần mềm 0.137.0.
 
 #### Vấn đề tồn đọng
 
 - Tài khoản nhận tiền và khóa cổng thật của nền tảng (GD-95), nhà cung cấp hóa đơn điện tử chưa chốt; VNPay cho thu phí của nền tảng, nhắc qua email làm sau; S4 dùng `receivables`, `listInvoices` cho bảng điều khiển.
+
+### 2026-10-25 — DT-SaaS phần S8b: bảo mật mã
+
+#### Công việc đã thực hiện
+
+- Đọc mục 14.3, 14.5 (S8b), 14.9, 14.11 (GD-97) của `32_KE_HOACH_THEO_HE_THONG_SO.md`; rà đăng nhập của dịch vụ định danh, cơ chế hết hạn mật khẩu (DT-15), đăng nhập vận hành nền tảng (S1a), công cụ đổi khóa (S3), tiêu đề ở Caddy, quy trình CI.
+- Thêm xác thực hai lớp, chính sách theo trường, tiêu đề bảo mật, cookie `__Secure-`, khóa ký hai pha, quét bí mật và thành phần phụ thuộc, danh sách kiểm ASVS.
+- Thêm quy tắc BR-219 đến BR-221, chức năng P01-71 đến P01-74, màn hình MH-325 đến MH-327, kịch bản CT-1043 đến CT-1048, tiêu chí AC-849 đến AC-852, bảo mật BM-84 đến BM-87, QĐ-31.
+
+#### Quyết định
+
+- Giữ quyết định YCTD-31: xác thực hai lớp của người dùng trường chỉ tuỳ chọn, mặc định tắt (GD-97); bắt buộc chỉ cho tài khoản vận hành nền tảng.
+- Tài khoản vận hành nhận khóa TOTP qua lệnh dòng lệnh khi tạo hoặc cấp lại (không có màn hình đăng ký) vì do Eric tạo trực tiếp; chưa đăng ký khóa thì không đăng nhập được.
+- Chính sách theo trường đặt ở `identity_settings` (nơi dịch vụ định danh đọc) thay vì hệ thống 0054; khóa TOTP người dùng đặt cột `*_encrypted` có cột `id` để công cụ đổi khóa của S3 tự tìm thấy.
+- Không thêm thư viện TOTP, tự cài RFC 6238 và kiểm bằng vectơ thử của RFC.
+- Quét thành phần phụ thuộc đặt `continue-on-error` để không chặn gộp vì lỗ hổng ở thư viện bên thứ ba; quét bí mật chặn thật.
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-201, `07_QUY_TAC_NGHIEP_VU.md` BR-219 đến BR-221, `10_YEU_CAU_CHUC_NANG.md` P01-71 đến P01-74, `11_TIEU_CHI_NGHIEM_THU.md` AC-849 đến AC-852
+
+#### Vấn đề tồn đọng
+
+- Kiểm thử xâm nhập bên ngoài chờ Eric thuê; xác thực hai lớp cho ứng dụng phụ huynh và bắt buộc cho quản trị trường chưa làm; e2e toàn bộ do CI chạy
 
 ### 2026-10-25 — DT-SaaS phần S7b: vận hành nhiều trường
 

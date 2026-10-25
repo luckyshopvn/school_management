@@ -139,6 +139,22 @@ jobs:
           path: tests/test-results/
           retention-days: 7
 
+  # Quét thành phần phụ thuộc có lỗ hổng mức cao trở lên ở phần chạy thật (DT-SaaS phần S8b, YCTD-201). Báo cáo không chặn gộp (continue-on-error)
+  # vì lỗ hổng ở thư viện bên thứ ba cần thời gian nâng cấp; người duyệt đọc kết quả ở nhật ký việc này. Quét bí mật trong mã chạy ở
+  # tests/tenancy/secret-scan.test.mjs thuộc pnpm test
+  quet-phu-thuoc:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm audit --prod --audit-level=high
+        continue-on-error: true
+
   # Dựng ảnh Docker của môi trường chạy thật (không đẩy lên kho ảnh) để phát hiện sớm Dockerfile hỏng (YCTD-92)
   dung-anh-docker:
     runs-on: ubuntu-latest

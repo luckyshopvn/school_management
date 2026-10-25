@@ -37,12 +37,13 @@ async function keysOf(name: string) {
   };
 }
 
-async function withSystem<T>(
+async function withDatabase<T>(
   name: string,
+  kind: 'system' | 'identity',
   work: (database: ReturnType<typeof createDatabase>) => Promise<T>,
 ): Promise<T> {
   const descriptor = (await schoolDescriptors(environment, test.school(name).schoolId)).find(
-    (item) => item.kind === 'system',
+    (item) => item.kind === kind,
   );
   assert.ok(descriptor);
   const database = createDatabase<unknown>(connectionStringOf(descriptor), { max: 1 });
@@ -52,6 +53,9 @@ async function withSystem<T>(
     await database.destroy();
   }
 }
+
+const withSystem = <T>(name: string, work: (database: ReturnType<typeof createDatabase>) => Promise<T>) =>
+  withDatabase(name, 'system', work);
 
 const hashOf = (key: Buffer, text: string) => createHmac('sha256', key).update(text).digest('hex');
 
@@ -71,6 +75,26 @@ async function seed(name: string, count: number) {
     await sql`insert into integration_secrets (connector, values_encrypted) values ('esms', ${encryptSecret(keys.encryption, JSON.stringify({ api_key: 'khoa-gia' }))}) on conflict (connector) do update set values_encrypted = excluded.values_encrypted`.execute(
       database,
     );
+  });
+}
+
+async function seedIdentity(name: string) {
+  const keys = await keysOf(name);
+  await withDatabase(name, 'identity', async (database) => {
+    await sql`insert into users (full_name, phone, username, password_hash) values (${'Người xoay khóa'}, ${'0900000001'}, ${'xoay_khoa'}, ${'x'}) on conflict do nothing`.execute(
+      database,
+    );
+    await sql`insert into user_totp (user_id, secret_encrypted) select id, ${encryptSecret(keys.encryption, 'JBSWY3DPEHPK3PXP')} from users where username = ${'xoay_khoa'} on conflict (user_id) do update set secret_encrypted = excluded.secret_encrypted`.execute(
+      database,
+    );
+  });
+}
+
+async function expectIdentityOn(name: string, keys: { encryption: Buffer }) {
+  await withDatabase(name, 'identity', async (database) => {
+    const row = (await sql<{ secret_encrypted: string }>`select secret_encrypted from user_totp`.execute(database))
+      .rows[0];
+    assert.equal(decryptSecret(keys.encryption, row?.secret_encrypted ?? ''), 'JBSWY3DPEHPK3PXP');
   });
 }
 
@@ -105,6 +129,7 @@ describe('đổi khóa mã hóa dữ liệu trẻ', () => {
 
   it('mã hóa lại mọi cột *_encrypted, tính lại băm, thay khóa ở school_keys, ghi nhật ký', async () => {
     await seed('alpha', 5);
+    await seedIdentity('alpha');
     const before = await keysOf('alpha');
     await test.platform
       .updateTable('schools')
@@ -119,6 +144,8 @@ describe('đổi khóa mã hóa dữ liệu trẻ', () => {
     assert.notDeepEqual(after.hash, before.hash);
     assert.ok(after.rotatedAt);
     await expectAllOn('alpha', after, 5);
+    // Khóa xác thực hai lớp ở cơ sở dữ liệu định danh cũng được mã hóa lại (DT-SaaS phần S8b)
+    await expectIdentityOn('alpha', after);
     const actions = (
       await test.platform
         .selectFrom('platform_audit_log')

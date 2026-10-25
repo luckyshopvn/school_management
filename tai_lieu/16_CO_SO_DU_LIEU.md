@@ -1,7 +1,7 @@
 # 16. CƠ SỞ DỮ LIỆU
 
 - Mô tả: Thực thể, trường, kiểu dữ liệu, khóa chính, khóa ngoại, quan hệ, ràng buộc, chỉ mục, trạng thái, lịch sử thay đổi, chính sách xóa dữ liệu.
-- Phiên bản: 1.123
+- Phiên bản: 1.124
 - Ngày cập nhật: 2026-10-25
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -744,15 +744,15 @@ Từ YCTD-203 (tệp nền tảng `0100_add_database_login_name`), bảng `schoo
 | plans (từ YCTD-194) | Gói dịch vụ (BR-214, BR-215; tệp nền tảng `0040_create_plans`) | code (duy nhất), name, description, modules (JSON danh sách phân hệ, trống là mọi phân hệ), max_active_students, max_storage_mb, max_school_levels (trống là không giới hạn), trial_days, pricing_mode (`per_student` mặc định, `per_school`, `per_module`), unit_price, minimum_fee, module_prices (JSON), billing_cycle (`monthly`, `term`, `yearly`), status (`active`, `archived`); gói mặc định `full` |
 | school_plans (từ YCTD-194) | Gán gói cho trường có ngày hiệu lực, giữ lịch sử (BR-214) | school_id, plan_id, effective_from, effective_to (trống là còn hiệu lực), assigned_by, note |
 | schools (thêm từ YCTD-194) | Hạn của trường (BR-216) | trial_ends_on, paid_until, status_changed_at; `platform_settings` thêm khóa `plan_lifecycle` (remind_days, read_only_after_days, suspend_after_days, default_trial_days) |
-| price_rules (từ YCTD-196) | Quy tắc tính phí (BR-219; tệp nền tảng `0050_create_billing`); `plans.price_rule_id` trỏ tới | code (duy nhất), name, components (JSON: per_student, per_school, per_module), student_tiers (JSON [{up_to, unit_price}]), tier_mode (`graduated`, `volume`), school_fee, module_prices (JSON), minimum_fee, period (`monthly`, `quarterly`, `yearly`), vat_percent, due_days, status |
+| price_rules (từ YCTD-196) | Quy tắc tính phí (BR-222; tệp nền tảng `0050_create_billing`); `plans.price_rule_id` trỏ tới | code (duy nhất), name, components (JSON: per_student, per_school, per_module), student_tiers (JSON [{up_to, unit_price}]), tier_mode (`graduated`, `volume`), school_fee, module_prices (JSON), minimum_fee, period (`monthly`, `quarterly`, `yearly`), vat_percent, due_days, status |
 | usage_snapshots (từ YCTD-196) | Số liệu chốt kỳ của trường | school_id, period_start, period_end (duy nhất theo trường, đầu kỳ), active_students, storage_mb, school_levels, modules (JSON), source (`scheduler`, `operator`), taken_at |
-| invoices (từ YCTD-196) | Hóa đơn dịch vụ (BR-220) | school_id, code (duy nhất, `HD-000001`), payment_content (duy nhất), kind (`period`, `manual`), period_start, period_end, plan_id, plan_code, price_rule, usage (JSON bản chụp), subtotal, discount_total, vat_percent, vat_amount, total, amount_paid, status (`issued`, `paid`, `void`), issued_at, due_on, paid_at, voided_at, void_reason, last_payment_request (JSON), created_by, note; mỗi kỳ của trường một hóa đơn kỳ còn hiệu lực |
+| invoices (từ YCTD-196) | Hóa đơn dịch vụ (BR-223) | school_id, code (duy nhất, `HD-000001`), payment_content (duy nhất), kind (`period`, `manual`), period_start, period_end, plan_id, plan_code, price_rule, usage (JSON bản chụp), subtotal, discount_total, vat_percent, vat_amount, total, amount_paid, status (`issued`, `paid`, `void`), issued_at, due_on, paid_at, voided_at, void_reason, last_payment_request (JSON), created_by, note; mỗi kỳ của trường một hóa đơn kỳ còn hiệu lực |
 | invoice_lines (từ YCTD-196) | Dòng hóa đơn | invoice_id, sort, kind (`per_student`, `per_school`, `per_module`, `minimum`, `discount`), description, quantity, unit_price, amount |
 | invoice_payments (từ YCTD-196) | Tiền vào (cổng, giả lập, vận hành ghi tay) | invoice_id, school_id, provider, provider_reference (duy nhất theo provider), amount, transfer_content, received_at, status (`matched`, `unmatched`), recorded_by, note |
-| billing_adjustments (từ YCTD-196) | Điều chỉnh tay của vận hành (BR-221) | school_id, invoice_id, kind (`discount`, `free_period`, `manual_payment`, `void`, `assign_payment`), amount, months, reason (3–500 ký tự), actor_type, actor_id |
+| billing_adjustments (từ YCTD-196) | Điều chỉnh tay của vận hành (BR-224) | school_id, invoice_id, kind (`discount`, `free_period`, `manual_payment`, `void`, `assign_payment`), amount, months, reason (3–500 ký tự), actor_type, actor_id |
 | einvoice_documents (từ YCTD-196) | Hóa đơn điện tử qua bộ nối | invoice_id, provider, status (`issued`, `cancelled`, `failed`), external_id, lookup_code, error, issued_at, cancelled_at; mỗi hóa đơn một bản đang phát hành |
 | dunning_events (từ YCTD-196) | Nhắc gia hạn và mốc chuyển trạng thái | school_id, invoice_id, due_on, kind (`before_due`, `overdue`, `read_only`, `suspended`, `reopened`), days, channels (JSON); duy nhất theo trường, hạn, loại, số ngày |
-| platform_integration_secrets (từ YCTD-196) | Khóa cổng thanh toán của nền tảng (BM-84) | connector (`payos`, `sepay`, `casso`, `vnpay`, `vietqr`), enabled, values_encrypted (AES-256-GCM bằng khóa gốc của nền tảng), hints (JSON gợi ý), updated_at, updated_by; `platform_settings` thêm khóa `billing` (invoice_prefix, receiving_account, einvoice_provider, auto_issue_einvoice, remind_days_before, remind_days_after, channels) |
+| platform_integration_secrets (từ YCTD-196) | Khóa cổng thanh toán của nền tảng (BM-88) | connector (`payos`, `sepay`, `casso`, `vnpay`, `vietqr`), enabled, values_encrypted (AES-256-GCM bằng khóa gốc của nền tảng), hints (JSON gợi ý), updated_at, updated_by; `platform_settings` thêm khóa `billing` (invoice_prefix, receiving_account, einvoice_provider, auto_issue_einvoice, remind_days_before, remind_days_after, channels) |
 
 ## 18C. Sao lưu, khôi phục, chuyển cụm theo trường (DT-SaaS phần S7b, YCTD-199)
 
@@ -761,6 +761,17 @@ Từ YCTD-203 (tệp nền tảng `0100_add_database_login_name`), bảng `schoo
 | backup_runs (từ YCTD-199) | Mỗi lần sao lưu, khôi phục, diễn tập khôi phục, chuyển cụm của một trường ở cơ sở dữ liệu nền tảng (BR-217, BR-218; tệp nền tảng `0070_create_backup_runs`, khối 0070 đến 0079 của S7b) | id, school_id (khóa ngoại `schools`, đặt rỗng khi trường bị xóa), school_code, kind (`backup`, `restore`, `drill`, `cluster-move`), status (`running`, `done`, `failed`), file_name (đường dẫn tương đối `<mã>/<thời điểm>-<phạm vi>.sbak`), file_bytes, file_sha256, databases, tables, rows, details (JSON: phạm vi, chế độ khôi phục, trường nguồn, cụm đích, `duration_ms`), error, actor_type, actor_id, started_at, finished_at; chỉ mục (school_code, kind, started_at) |
 
 Tệp sao lưu `.sbak` không nằm trong cơ sở dữ liệu: đầu tệp `SMBK1`, muối 16 byte, IV 12 byte, nội dung (dòng JSON nén gzip, mã hóa AES-256-GCM), mã xác thực 16 byte ở cuối.
+
+## 18C. Xác thực hai lớp (DT-SaaS phần S8b, YCTD-201)
+
+| Bảng | Mục đích | Cột chính |
+|---|---|---|
+| platform_operator_totp (từ YCTD-201) | Khóa TOTP của tài khoản vận hành nền tảng, ở cơ sở dữ liệu nền tảng (BR-219; nền tảng `0080_create_operator_totp`, khối 0080 đến 0089 của S8b) | operator_id (khóa chính, xóa theo), secret_encrypted (mã hóa bằng khóa gốc, được bọc lại khi đổi khóa gốc), last_step, created_at |
+| platform_operator_recovery_codes (từ YCTD-201) | Mã khôi phục dùng một lần của tài khoản vận hành (nền tảng `0081`) | id, operator_id, code_hash (băm), used_at; duy nhất (operator_id, code_hash) |
+| user_totp (từ YCTD-201) | Khóa TOTP của người dùng trường, ở cơ sở dữ liệu định danh của trường (BR-219; định danh `0101_create_user_totp`) | user_id (duy nhất, xóa theo), secret_encrypted (mã hóa bằng khóa mã hóa của trường, được mã hóa lại khi đổi khóa dữ liệu trẻ), confirmed_at (null là đăng ký dở), last_step |
+| user_recovery_codes (từ YCTD-201) | Mã khôi phục dùng một lần của người dùng trường (định danh `0102`) | id, user_id, code_hash (băm), used_at |
+
+Chính sách theo trường không có bảng riêng: ba mục mới (`password_min_length`, `login_max_failed_attempts`, `login_lock_minutes`) và `totp_enabled` nằm ở `identity_settings` của cơ sở dữ liệu định danh của trường cùng các mục chính sách mật khẩu đã có (BR-220); hệ thống 0054 giữ trống vì dịch vụ định danh là nơi dùng.
 
 ## 19. Quan hệ chính giữa các bảng
 

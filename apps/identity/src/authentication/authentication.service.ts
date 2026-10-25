@@ -4,6 +4,7 @@ import type { Selectable } from 'kysely';
 import { randomUUID } from 'node:crypto';
 import {
   ACCESS_TOKEN_LIFETIME_SECONDS,
+  ApplicationError,
   Clock,
   unauthenticatedError,
   validationError,
@@ -12,6 +13,7 @@ import {
 import { isSchoolLevelCode, PORTAL_WORKSPACES } from '@school-management/shared';
 import { Infrastructure } from '../common/infrastructure.js';
 import { IdentitySettingsService } from '../settings/identity-settings.service.js';
+import { OTP_REQUIRED_MESSAGE, TotpService } from './totp.service.js';
 import { checkPasswordPolicy, hashPassword, placeholderPasswordHash, verifyPassword } from './password.js';
 import { assertPasswordNotReused, recordPasswordHistory } from './password-history.js';
 import { ImpersonationService, type ImpersonationDescription } from './impersonation.service.js';
@@ -92,6 +94,7 @@ export class AuthenticationService {
     private readonly clock: Clock,
     private readonly identitySettings: IdentitySettingsService,
     private readonly impersonation: ImpersonationService,
+    private readonly totp: TotpService,
   ) {}
 
   private get database() {
@@ -103,6 +106,7 @@ export class AuthenticationService {
     password: string,
     channel: SessionChannel,
     origin: RequestOrigin,
+    otpCode?: string,
   ): Promise<IssuedTokens> {
     const now = this.clock.now();
     const user = await this.database
@@ -129,6 +133,20 @@ export class AuthenticationService {
         origin.ipAddress,
       );
       throw unauthenticatedError(INVALID_CREDENTIALS_MESSAGE);
+    }
+
+    // Xác thực hai lớp tuỳ chọn theo trường (DT-SaaS phần S8b): người đã đăng ký phải nhập thêm mã; mã sai tính như nhập sai mật khẩu
+    if (await this.totp.isRequiredFor(user.id)) {
+      if (!otpCode) {
+        throw new ApplicationError('ERR_UNAUTHENTICATED', 'Cần mã xác thực hai lớp', [
+          { field: 'otp_code', message: OTP_REQUIRED_MESSAGE },
+        ]);
+      }
+      if (!(await this.totp.verify(user.id, otpCode))) {
+        await this.registerFailedLogin(user.id, user.failed_login_count, now);
+        await this.recordSecurityEvent('login_totp_failed', user.id, loginIdentifier, origin.ipAddress);
+        throw unauthenticatedError('Mã xác thực hai lớp không đúng');
+      }
     }
 
     // Đăng nhập bằng mật khẩu mặc định, mật khẩu tạm hoặc mật khẩu đã hết hạn chỉ dùng được điểm cuối đổi mật khẩu (BM-07,
@@ -305,7 +323,11 @@ export class AuthenticationService {
     if (!(await this.verifyAccountPassword(user.password_hash, currentPassword))) {
       throw validationError([{ field: 'current_password', message: 'Mật khẩu hiện tại không đúng' }]);
     }
-    const policyErrors = checkPasswordPolicy('new_password', newPassword);
+    const policyErrors = checkPasswordPolicy(
+      'new_password',
+      newPassword,
+      (await this.identitySettings.passwordPolicy()).password_min_length,
+    );
     if (policyErrors.length > 0) {
       throw validationError(policyErrors);
     }
@@ -525,6 +547,16 @@ export class AuthenticationService {
     return session;
   }
 
+  // Nhãn tài khoản hiện trong ứng dụng xác thực: tên đăng nhập, không có thì số điện thoại
+  async accountLabel(userId: string): Promise<string> {
+    const user = await this.database
+      .selectFrom('users')
+      .select(['username', 'phone', 'full_name'])
+      .where('id', '=', userId)
+      .executeTakeFirst();
+    return user?.username ?? user?.phone ?? user?.full_name ?? userId;
+  }
+
   private async findActiveUser(userId: string, now: Date) {
     const user = await this.database.selectFrom('users').selectAll().where('id', '=', userId).executeTakeFirst();
     if (!user || user.status !== 'active' || (user.valid_until !== null && user.valid_until < toDateText(now))) {
@@ -535,12 +567,14 @@ export class AuthenticationService {
 
   private async registerFailedLogin(userId: string, previousFailedCount: number, now: Date): Promise<void> {
     const failedCount = previousFailedCount + 1;
-    if (failedCount >= MAXIMUM_FAILED_LOGIN_COUNT) {
+    // Ngưỡng và thời gian khóa riêng từng trường (DT-SaaS phần S8b)
+    const policy = await this.identitySettings.passwordPolicy();
+    if (failedCount >= policy.login_max_failed_attempts) {
       await this.database
         .updateTable('users')
         .set({
           failed_login_count: 0,
-          locked_until: new Date(now.getTime() + TEMPORARY_LOCK_MINUTES * 60 * 1000),
+          locked_until: new Date(now.getTime() + policy.login_lock_minutes * 60 * 1000),
           updated_at: now,
         })
         .where('id', '=', userId)

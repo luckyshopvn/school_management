@@ -1,7 +1,7 @@
 # 17. ĐẶC TẢ API
 
 - Mô tả: Điểm cuối, phương thức, yêu cầu, phản hồi, xác thực, phân quyền, kiểm tra dữ liệu, xử lý lỗi, phân trang, lọc, sắp xếp, phiên bản.
-- Phiên bản: 1.127
+- Phiên bản: 1.128
 - Ngày cập nhật: 2026-10-25
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -68,6 +68,13 @@ Nhóm điểm cuối dưới đây do dịch vụ định danh phục vụ.
 | POST | /api/v1/auth/verify-otp | Bỏ ngày 09/10/2026: không dùng xác thực hai lớp (YCTD-31) |
 | GET | /api/v1/auth/me | Lấy thông tin tài khoản, vai trò, đơn vị, danh sách quyền |
 | GET, PUT | /api/v1/auth/settings/password-policy | Đọc và sửa chính sách hết hạn mật khẩu; cần `P01.account.manage` (BR-110, YCTD-110) |
+| GET | /api/v1/auth/totp | Trạng thái xác thực hai lớp của chính mình: `feature_enabled`, `enrolled`, `pending_setup`, `recovery_codes_left` (YCTD-201, BR-219) |
+| POST | /api/v1/auth/totp/setup | Bắt đầu đăng ký: trả `secret` và `otpauth_uri`; 422 khi trường chưa bật hoặc đã bật xác thực hai lớp |
+| POST | /api/v1/auth/totp/confirm | Xác nhận mã đầu tiên `{ code }`: bật, trả `recovery_codes` (8 mã, chỉ một lần); mã sai 400 |
+| POST | /api/v1/auth/totp/disable | Tắt bằng mã hiện tại hoặc mã khôi phục `{ code }` |
+| POST | /api/v1/auth/totp/reset | Người có quyền quản lý mọi tài khoản đặt lại hộ `{ user_id }`; có nhật ký; người khác 403 |
+| (đổi) | POST /api/v1/auth/login, POST /api/v1/auth/platform/login | Thêm `otp_code` (mã TOTP hoặc mã khôi phục): tài khoản đã bật xác thực hai lớp (vận hành nền tảng: luôn) thiếu mã thì 401 kèm chi tiết `otp_code` và chưa tính nhập sai; mã sai 401 (tính nhập sai) |
+| (đổi) | GET, PUT /api/v1/auth/settings | Thêm `totp_enabled` (mặc định false); GET, PUT /api/v1/auth/settings/password-policy thêm `password_min_length` (8 đến 64), `login_max_failed_attempts` (3 đến 10), `login_lock_minutes` (1 đến 1440) (YCTD-201, BR-220) |
 | GET | /api/v1/auth/login-options | Công khai: đường dây nóng và có luôn hiện mã xác nhận của trang đăng nhập cổng quản trị (YCTD-123) |
 | POST | /api/v1/auth/captcha | Công khai: cấp ảnh mã xác nhận mới (YCTD-123) |
 | POST | /api/v1/auth/password-reset/request | Công khai: quên mật khẩu, yêu cầu mã đặt lại gửi qua tin nhắn; cần mã xác nhận (YCTD-123) |
@@ -282,7 +289,7 @@ Giao kèo gói dịch vụ (DT-SaaS phần S5a, YCTD-194, BR-214 đến BR-216):
 
 1. Khi trường có gói, quyền thuộc phân hệ ngoài gói trả 403 `MODULE_NOT_IN_PLAN`; vượt giới hạn khi thêm học sinh, bật cấp học, tải tệp trả 422 `PLAN_LIMIT_EXCEEDED`; trường ở trạng thái `read_only` trả 403 `SCHOOL_READ_ONLY` cho mọi yêu cầu ghi tới máy chủ API và dịch vụ định danh, trừ `/api/v1/auth/*` (ngoài `/auth/settings`), đường dẫn xuất, `/api/v1/export-jobs`, `/api/v1/school-plan`, `/api/v1/billing`. Trường chưa gán gói và chế độ một trường không bị ảnh hưởng.
 
-Giao kèo thu phí tự động (DT-SaaS phần S5b, YCTD-196, BR-219 đến BR-221):
+Giao kèo thu phí tự động (DT-SaaS phần S5b, YCTD-196, BR-222 đến BR-224):
 
 1. Nhóm `/api/v1/billing` chỉ có ở nền tảng nhiều trường (chế độ một trường trả 404), cần `P01.billing.manage`, chỉ trả hóa đơn của trường theo tên miền; được gọi cả khi trường ở chế độ chỉ đọc. `POST /billing/invoices/{id}/pay` trả `{ provider, provider_reference, virtual_account_number, qr_content, amount, transfer_content, account_name }` cho số còn nợ; hóa đơn không còn nợ trả 409; `simulate-payment` chỉ có khi cổng mặc định của nền tảng là bộ giả lập (không thì 404).
 2. `POST /api/v1/platform-billing/webhooks/{payos|sepay|casso}` không cần trường, xác thực bằng chữ ký hoặc khóa của cổng lưu ở cơ sở dữ liệu nền tảng; cổng chưa bật 404, sai khóa 401; giao dịch trùng mã vẫn trả 200 nhưng không ghi lại.

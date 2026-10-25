@@ -1,7 +1,7 @@
 # 23. LỊCH SỬ PHIÊN BẢN
 
 - Mô tả: Mã phiên bản, ngày phát hành, danh sách thay đổi, chức năng mới, lỗi đã sửa, thay đổi dữ liệu, thay đổi API, rủi ro, khả năng tương thích, phương án quay lui.
-- Phiên bản: 0.59
+- Phiên bản: 0.60
 - Ngày cập nhật: 2026-10-25
 - Trạng thái: Đang cập nhật
 - Đã rà duyệt: Eric, ngày 2026-10-09
@@ -16,17 +16,29 @@
 
 ## 2. Danh sách phiên bản
 
-### Phiên bản 0.136.0 – 2026-10-25
+### Phiên bản 0.137.0 – 2026-10-25
 
 - Phạm vi thay đổi: DT-SaaS phần S5b, thu phí tự động (YCTD-196).
-- Chức năng mới: quy tắc tính phí cấu hình được, chốt số liệu kỳ, hóa đơn (P01-71); thu tiền qua mã QR và cổng của nền tảng, đối soát, gia hạn và mở lại trường, nhắc gia hạn (P01-72); trang Thu phí ở cổng nền tảng, điều chỉnh tay, hóa đơn điện tử qua bộ nối giả lập, trang Hóa đơn dịch vụ ở cổng (P01-73, MH-325, MH-326).
+- Chức năng mới: quy tắc tính phí cấu hình được, chốt số liệu kỳ, hóa đơn (P01-75); thu tiền qua mã QR và cổng của nền tảng, đối soát, gia hạn và mở lại trường, nhắc gia hạn (P01-76); trang Thu phí ở cổng nền tảng, điều chỉnh tay, hóa đơn điện tử qua bộ nối giả lập, trang Hóa đơn dịch vụ ở cổng (P01-77, MH-328, MH-329).
 - Lỗi đã sửa: không có.
 - Thay đổi dữ liệu: nền tảng thêm `price_rules`, `usage_snapshots`, `invoices`, `invoice_lines`, `invoice_payments`, `billing_adjustments`, `einvoice_documents`, `dunning_events`, `platform_integration_secrets`, cột `plans.price_rule_id` (tệp nền tảng `0050`); định danh thêm quyền `P01.billing.manage` (tệp `0105`).
 - Thay đổi API: nhóm `/billing` của trường, điểm nhận tiền vào `/platform-billing/webhooks`, nhóm `/auth/platform/billing` (xem `17_DAC_TA_API.md`).
-- Kiểm thử: kịch bản CT-1043 đến CT-1053 (CT-S5b-1 đến CT-S5b-11 trong mã kiểm thử). Kết quả ngày 25/10/2026: `database` 7 ca mới (hàm tính phí, kỳ, chốt kỳ, tiền vào, điều chỉnh, nhắc hạn, hóa đơn điện tử, khóa cổng), `apps/api` 2 ca mới, `apps/identity` 1 ca mới, ca cũ đạt không sửa; e2e spec 135 cùng 130, 131, 134 ở dự án nhiều trường và các spec menu ở dự án một trường đạt; e2e toàn bộ do CI chạy.
+- Kiểm thử: kịch bản CT-1049 đến CT-1059 (CT-S5b-1 đến CT-S5b-11 trong mã kiểm thử). Kết quả ngày 25/10/2026: `database` 7 ca mới (hàm tính phí, kỳ, chốt kỳ, tiền vào, điều chỉnh, nhắc hạn, hóa đơn điện tử, khóa cổng), `apps/api` 2 ca mới, `apps/identity` 1 ca mới, ca cũ đạt không sửa; e2e spec 135 cùng 130, 131, 134 ở dự án nhiều trường và các spec menu ở dự án một trường đạt; e2e toàn bộ do CI chạy.
 - Rủi ro: tài khoản nhận tiền và khóa cổng thật của nền tảng chưa có (GD-95), máy chủ dùng bộ giả lập khi chưa cấu hình; nhà cung cấp hóa đơn điện tử chưa chốt (mặc định chưa nối); VNPay cho thu phí của nền tảng chưa làm; nhắc qua email chưa có (dùng thông báo trong ứng dụng, tin nhắn).
 - Khả năng tương thích: chế độ một trường không đổi; trường chưa gán gói không phát sinh hóa đơn.
 - Phương án quay lui: hoàn lại commit gộp của nhánh S5b; tắt thu phí bằng cách bỏ quy tắc tính phí khỏi gói (giá niêm yết bằng 0) và hủy hóa đơn chưa thu; dữ liệu trường không bị ảnh hưởng.
+
+### Phiên bản 0.136.0 – 2026-10-25
+
+- Phạm vi thay đổi: DT-SaaS phần S8b, bảo mật mã (YCTD-201).
+- Chức năng mới: xác thực hai lớp TOTP (bắt buộc cho tài khoản vận hành nền tảng, tuỳ chọn theo trường cho người dùng trường; P01-71, P01-72, MH-325, MH-326); chính sách mật khẩu và khóa tạm theo trường (P01-73, MH-327); tiêu đề bảo mật, cookie `__Secure-`, xoay khóa ký hai pha, quét bí mật và thành phần phụ thuộc ở CI (P01-74); đổi khóa dữ liệu trẻ nay gồm cơ sở dữ liệu định danh.
+- Lỗi đã sửa: không có.
+- Thay đổi dữ liệu: `platform_operator_totp`, `platform_operator_recovery_codes` (nền tảng `0080`, `0081`); `user_totp`, `user_recovery_codes` (định danh `0101`, `0102`); xem `16_CO_SO_DU_LIEU.md` mục 18C.
+- Thay đổi API: `/auth/totp` (5 điểm cuối); `otp_code` ở đăng nhập; `totp_enabled`, ba mục chính sách mật khẩu mới; biến môi trường `TOTP_ENCRYPTION_KEY` (chế độ một trường), `TOKEN_PREVIOUS_PUBLIC_KEY`; lệnh `reset-operator-totp`; `create-platform-operator` cần `PLATFORM_MASTER_KEY` và in khóa TOTP, mã khôi phục (xem `17_DAC_TA_API.md`).
+- Kiểm thử: kịch bản CT-1043 đến CT-1048. Kết quả ngày 25/10/2026: packages/server 10 ca mới (TOTP 5, tiêu đề bảo mật 3, xoay khóa ký 2); database 4 ca đổi khóa và bọc lại khóa gốc (gồm cơ sở dữ liệu định danh); apps/identity 97 ca đạt (xác thực hai lớp trường 8 ca mới, vận hành nền tảng 6 ca mới); apps/api 1142 ca đạt (2 ca mới); kiểm tĩnh và quét bí mật 8 ca; e2e nhiều trường 18 ca (spec 130 đến 140, spec 138 có 4 ca) đạt ở cả hai bố cục; e2e một trường các spec 01 đến 07 (23 ca) đạt; e2e toàn bộ do CI chạy.
+- Rủi ro: tài khoản vận hành tạo trước phần này không đăng nhập được cho tới khi chạy `reset-operator-totp` (cố ý, vì bắt buộc); ứng dụng phụ huynh không dùng xác thực hai lớp (đăng nhập bằng mã một lần qua tin nhắn); đổi cookie sang `__Secure-` làm mọi người dùng phải đăng nhập lại một lần sau khi nâng cấp; chưa có kiểm thử xâm nhập bên ngoài.
+- Khả năng tương thích: chế độ một trường và đăng nhập hiện có giữ nguyên khi trường chưa bật xác thực hai lớp; `GET /auth/settings/password-policy` trả thêm ba trường.
+- Phương án quay lui: hoàn lại commit gộp của nhánh S8b; bốn bảng mới chỉ phần này dùng.
 
 ### Phiên bản 0.135.0 – 2026-10-25
 
