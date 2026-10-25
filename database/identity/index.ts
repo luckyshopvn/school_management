@@ -74,6 +74,7 @@ import { migration as addLearningResourcePermissions } from './migrations/0092_a
 import { migration as addLearningResourceSharePermission } from './migrations/0093_add_learning_resource_share_permission.js';
 import { migration as createUserTotp } from './migrations/0101_create_user_totp.js';
 import { migration as createUserRecoveryCodes } from './migrations/0102_create_user_recovery_codes.js';
+import { migration as addBillingPermission } from './migrations/0105_add_billing_permission.js';
 
 // Danh sách tệp thay đổi cấu trúc của cơ sở dữ liệu định danh, theo số thứ tự (QU-01)
 export const identityMigrations: Record<string, Migration> = {
@@ -152,4 +153,6 @@ export const identityMigrations: Record<string, Migration> = {
   '0093_add_learning_resource_share_permission': addLearningResourceSharePermission,
   '0101_create_user_totp': createUserTotp,
   '0102_create_user_recovery_codes': createUserRecoveryCodes,
+  // Hóa đơn dịch vụ của trường (DT-SaaS phần S5b)
+  '0105_add_billing_permission': addBillingPermission,
 };

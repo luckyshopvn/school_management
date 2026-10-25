@@ -352,6 +352,11 @@ export type {
   PlatformOperatorStatus,
   PlanBillingCycleValue,
   PlanPricingModeValue,
+  BillingPeriod,
+  InvoiceLineKind,
+  ServiceInvoiceStatus,
+  PriceComponent,
+  StudentTier,
   SchoolDataClassValue,
   SchoolDatabaseKind,
   SchoolDatabaseLayoutValue,
@@ -413,6 +418,7 @@ export {
   type LifecycleReminder,
   type PlanLifecycleSettings,
 } from './school-plans.js';
+export * from './billing/index.js';
 export {
   startTenantTestPlatform,
   textExistsInSchoolDatabase,

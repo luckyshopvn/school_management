@@ -1,7 +1,7 @@
 # 02. NHẬT KÝ DỰ ÁN
 
 - Mô tả: Ghi nhận công việc, quyết định, thay đổi và vấn đề tồn đọng theo ngày, ngày mới nhất ở trên cùng.
-- Phiên bản: 0.69
+- Phiên bản: 0.70
 - Ngày cập nhật: 2026-10-25
 - Trạng thái: Đang cập nhật
 
@@ -20,7 +20,7 @@
 
 - Đọc mục 14.3, 14.5 (S4) của `32_KE_HOACH_THEO_HE_THONG_SO.md`; rà đăng nhập thay của 18h (`ImpersonationService`, `ImpersonationInterceptor`), bộ lập lịch của S1b, gói và giới hạn của S5a, cổng nền tảng của S1a, S2.
 - Thêm tệp nền tảng 0060 (`school_metrics`, `school_error_counts`, `maintenance_notices`, `support_sessions`, `support_session_actions`), tệp hệ thống 0053 (`support_access_grants`); việc định kỳ `school-metrics`; bộ gom lỗi 5xx theo trường ở máy chủ API và dịch vụ định danh; trang Bảng điều khiển, Bảo trì và khối Phiên hỗ trợ ở cổng nền tảng; trang Cho phép hỗ trợ, trang `/support-login`, biểu ngữ bảo trì và phiên hỗ trợ ở cổng; biểu ngữ bảo trì ở ứng dụng giáo viên, phụ huynh; e2e spec 136.
-- Thêm quy tắc BR-222 đến BR-224, chức năng P01-75 đến P01-78, màn hình MH-328 đến MH-331, kịch bản CT-1049 đến CT-1057, tiêu chí AC-853 đến AC-856, bảo mật BM-88, QĐ-32; bảng ở `16` mục 18A, giao kèo ở `17`; phiên bản 0.137.0.
+- Thêm quy tắc BR-225 đến BR-227, chức năng P01-78 đến P01-81, màn hình MH-330 đến MH-333, kịch bản CT-1060 đến CT-1068, tiêu chí AC-856 đến AC-859, bảo mật BM-89, QĐ-32; bảng ở `16` mục 18A, giao kèo ở `17`; phiên bản 0.138.0.
 
 #### Quyết định
 
@@ -30,12 +30,36 @@
 
 #### Thay đổi
 
-- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-197, `07_QUY_TAC_NGHIEP_VU.md` BR-222 đến BR-224, `10_YEU_CAU_CHUC_NANG.md` P01-75 đến P01-78, `11_TIEU_CHI_NGHIEM_THU.md` AC-853 đến AC-856, `12_KIEN_TRUC_HE_THONG.md` QĐ-32, `14_DAC_TA_GIAO_DIEN.md` MH-328 đến MH-331, `16_CO_SO_DU_LIEU.md` mục 18A, `17_DAC_TA_API.md`, `21_KICH_BAN_KIEM_THU.md` CT-1049 đến CT-1057, `22_BAO_MAT.md` BM-88; phiên bản phần mềm 0.137.0.
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-197, `07_QUY_TAC_NGHIEP_VU.md` BR-225 đến BR-227, `10_YEU_CAU_CHUC_NANG.md` P01-78 đến P01-81, `11_TIEU_CHI_NGHIEM_THU.md` AC-856 đến AC-859, `12_KIEN_TRUC_HE_THONG.md` QĐ-32, `14_DAC_TA_GIAO_DIEN.md` MH-330 đến MH-333, `16_CO_SO_DU_LIEU.md` mục 18A, `17_DAC_TA_API.md`, `21_KICH_BAN_KIEM_THU.md` CT-1060 đến CT-1068, `22_BAO_MAT.md` BM-89; phiên bản phần mềm 0.138.0.
 
 #### Vấn đề tồn đọng
 
 - Chưa có biểu đồ theo thời gian (số liệu giữ 30 ngày, bảng điều khiển hiện lần thu mới nhất và số lỗi 1 giờ, 24 giờ); kết quả diễn tập khôi phục của S7b chưa hiện ở bảng điều khiển (chờ S7b gộp).
 - Cảnh báo chỉ hiện trên bảng điều khiển, chưa gửi ra ngoài (email, Zalo); gửi cảnh báo thuộc giám sát của S7a.
+
+### 2026-10-25 — DT-SaaS phần S5b: thu phí tự động
+
+#### Công việc đã thực hiện
+
+- Đọc mục 14.3, 14.5 (S5b), 14.9, 14.11 của `32_KE_HOACH_THEO_HE_THONG_SO.md`; rà bộ nối cổng thanh toán (`payment-gateway.ts`, `payment-providers.ts`), kho khóa của S3 (`integration_secrets`, `tenant-connectors.ts`), bộ lập lịch theo trường của S1b, hàng đợi thông báo, gói và chuyển trạng thái của S5a.
+- Thêm tệp nền tảng 0050 (chín bảng thu phí), quyền `P01.billing.manage` (tệp định danh 0105), thư viện `database/src/billing` (hàm tính phí, kỳ, chốt kỳ, hóa đơn, tiền vào, điều chỉnh, nhắc hạn, hóa đơn điện tử, khóa cổng của nền tảng), việc nền `billing-cycle`, điểm cuối của trường và điểm nhận tiền vào của nền tảng ở máy chủ API, nhóm `/auth/platform/billing` ở dịch vụ định danh, trang Thu phí ở cổng nền tảng, trang Hóa đơn dịch vụ ở cổng, e2e spec 135.
+- Thêm BR-222 đến BR-224, PQ-107, P01-75 đến P01-77, AC-853 đến AC-855, MH-328, MH-329, CT-1049 đến CT-1059, BM-88, bảng ở `16` mục 18A, giao kèo ở `17`; phiên bản 0.137.0.
+
+#### Quyết định
+
+- Thu sau theo kỳ lịch; `schools.paid_until` là hạn đang chờ trả, trả đủ thì dời tới hạn của hóa đơn kỳ sau; bộ chuyển trạng thái của S5a dùng nguyên.
+- Khóa cổng thanh toán của nền tảng lưu như kho khóa của S3 nhưng bằng khóa gốc của nền tảng (không thuộc trường nào), ở cơ sở dữ liệu nền tảng.
+- Điểm nhận tiền vào của nền tảng đi qua đường dẫn không cần trường; chỉ PayOS, SePay, Casso (VNPay làm sau).
+- Việc nền thu phí chạy theo từng trường trong ngữ cảnh của trường (cần cơ sở dữ liệu của trường để đếm học sinh), gọi luôn hàm chuyển trạng thái của S5a cho trường đó.
+- Quyền mới dùng tệp định danh `0105` (dải định danh của DT-SaaS, kho mã bật allowUnorderedMigrations).
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-196, `07_QUY_TAC_NGHIEP_VU.md` BR-222 đến BR-224, `08_VAI_TRO_NGUOI_DUNG.md` PQ-107, `10_YEU_CAU_CHUC_NANG.md` P01-75 đến P01-77, `11_TIEU_CHI_NGHIEM_THU.md` AC-853 đến AC-855, `14_DAC_TA_GIAO_DIEN.md` MH-328, MH-329, `16_CO_SO_DU_LIEU.md` mục 18A, `17_DAC_TA_API.md`, `21_KICH_BAN_KIEM_THU.md` CT-1049 đến CT-1059, `22_BAO_MAT.md` BM-88; phiên bản phần mềm 0.137.0.
+
+#### Vấn đề tồn đọng
+
+- Tài khoản nhận tiền và khóa cổng thật của nền tảng (GD-95), nhà cung cấp hóa đơn điện tử chưa chốt; VNPay cho thu phí của nền tảng, nhắc qua email làm sau; S4 dùng `receivables`, `listInvoices` cho bảng điều khiển.
 
 ### 2026-10-25 — DT-SaaS phần S8b: bảo mật mã
 

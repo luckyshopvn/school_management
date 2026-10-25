@@ -24,6 +24,14 @@ interface Plan {
   billing_cycle: 'monthly' | 'term' | 'yearly';
   status: 'active' | 'archived';
   school_count: number;
+  price_rule_id: string | null;
+}
+
+interface PriceRuleOption {
+  id: string;
+  code: string;
+  name: string;
+  status: 'active' | 'archived';
 }
 
 interface PlanSchool {
@@ -48,7 +56,7 @@ const STATUS_LABELS: Record<string, string> = {
   suspended: 'Tạm ngưng',
 };
 
-async function call<T>(accessToken: string, method: string, path: string, body?: unknown): Promise<T> {
+export async function call<T>(accessToken: string, method: string, path: string, body?: unknown): Promise<T> {
   const response = await fetch(`/api/v1/auth/platform/${path}`, {
     method,
     headers: {
@@ -88,12 +96,14 @@ const emptyForm = {
   unit_price: '0',
   minimum_fee: '0',
   billing_cycle: 'monthly' as Plan['billing_cycle'],
+  price_rule_id: '',
 };
 
 export function PlansPage({ accessToken }: { accessToken: string }) {
   const [modules, setModules] = useState<PlanModule[]>([]);
   const [plans, setPlans] = useState<Plan[]>([]);
   const [schools, setSchools] = useState<PlanSchool[]>([]);
+  const [rules, setRules] = useState<PriceRuleOption[]>([]);
   const [form, setForm] = useState(emptyForm);
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -102,11 +112,13 @@ export function PlansPage({ accessToken }: { accessToken: string }) {
   >({});
 
   const reload = useCallback(async () => {
-    const [nextModules, nextPlans, nextSchools] = await Promise.all([
+    const [nextModules, nextPlans, nextSchools, nextRules] = await Promise.all([
       call<PlanModule[]>(accessToken, 'GET', 'plan-modules'),
       call<Plan[]>(accessToken, 'GET', 'plans'),
       call<PlanSchool[]>(accessToken, 'GET', 'plan-schools'),
+      call<PriceRuleOption[]>(accessToken, 'GET', 'billing/price-rules'),
     ]);
+    setRules(nextRules);
     setModules(nextModules);
     setPlans(nextPlans);
     setSchools(nextSchools);
@@ -142,6 +154,7 @@ export function PlansPage({ accessToken }: { accessToken: string }) {
         unit_price: Number(form.unit_price),
         minimum_fee: Number(form.minimum_fee),
         billing_cycle: form.billing_cycle,
+        price_rule_id: form.price_rule_id || null,
       };
       const saved = await call<Plan>(
         accessToken,
@@ -169,6 +182,7 @@ export function PlansPage({ accessToken }: { accessToken: string }) {
       unit_price: String(plan.unit_price),
       minimum_fee: String(plan.minimum_fee),
       billing_cycle: plan.billing_cycle,
+      price_rule_id: plan.price_rule_id ?? '',
     });
 
   const assignmentOf = (school: PlanSchool) =>
@@ -342,6 +356,22 @@ export function PlansPage({ accessToken }: { accessToken: string }) {
             value={form.minimum_fee}
             onChange={(event) => setForm({ ...form, minimum_fee: event.target.value })}
           />
+        </label>
+        <label>
+          Quy tắc tính phí (thu phí tự động)
+          <select
+            value={form.price_rule_id}
+            onChange={(event) => setForm({ ...form, price_rule_id: event.target.value })}
+          >
+            <option value="">Theo giá niêm yết của gói</option>
+            {rules
+              .filter((rule) => rule.status === 'active' || rule.id === form.price_rule_id)
+              .map((rule) => (
+                <option key={rule.id} value={rule.id}>
+                  {rule.name}
+                </option>
+              ))}
+          </select>
         </label>
         <button type="submit">Lưu gói</button>
       </form>

@@ -148,6 +148,8 @@ export interface PlansTable {
   module_prices: ColumnType<Record<string, number>, string | undefined, string>;
   billing_cycle: Generated<PlanBillingCycleValue>;
   status: Generated<'active' | 'archived'>;
+  // Quy tắc tính phí (S5b); trống là tính theo giá niêm yết của gói
+  price_rule_id: string | null;
   created_at: CreatedTimestamp;
   updated_at: UpdatedTimestamp;
 }
@@ -301,6 +303,150 @@ export interface SchedulerStateTable {
   last_error: string | null;
 }
 
+// Thu phí tự động (DT-SaaS phần S5b)
+export type PriceComponent = 'per_student' | 'per_school' | 'per_module';
+export type BillingPeriod = 'monthly' | 'quarterly' | 'yearly';
+export type ServiceInvoiceStatus = 'issued' | 'paid' | 'void';
+export type InvoiceLineKind = PriceComponent | 'minimum' | 'discount';
+export interface StudentTier {
+  up_to: number | null;
+  unit_price: number;
+}
+type Money = ColumnType<string, number | undefined, number>;
+
+export interface PriceRulesTable {
+  id: Generated<string>;
+  code: string;
+  name: string;
+  components: ColumnType<PriceComponent[], string | undefined, string>;
+  student_tiers: ColumnType<StudentTier[], string | undefined, string>;
+  tier_mode: Generated<'graduated' | 'volume'>;
+  school_fee: Money;
+  module_prices: ColumnType<Record<string, number>, string | undefined, string>;
+  minimum_fee: Money;
+  period: Generated<BillingPeriod>;
+  vat_percent: Generated<number>;
+  due_days: Generated<number>;
+  status: Generated<'active' | 'archived'>;
+  created_at: CreatedTimestamp;
+  updated_at: UpdatedTimestamp;
+}
+
+export interface UsageSnapshotsTable {
+  id: Generated<string>;
+  school_id: string;
+  period_start: ColumnType<string, string, string>;
+  period_end: ColumnType<string, string, string>;
+  active_students: number;
+  storage_mb: Generated<number>;
+  school_levels: Generated<number>;
+  modules: ColumnType<string[] | null, string | null | undefined, string | null>;
+  source: Generated<'scheduler' | 'operator'>;
+  taken_at: ColumnType<Date, Date | undefined, Date>;
+}
+
+export interface InvoicesTable {
+  id: Generated<string>;
+  school_id: string;
+  code: string;
+  payment_content: string;
+  kind: Generated<'period' | 'manual'>;
+  period_start: ColumnType<string, string, string>;
+  period_end: ColumnType<string, string, string>;
+  plan_id: string | null;
+  plan_code: string | null;
+  price_rule: ColumnType<unknown, string, string>;
+  usage: ColumnType<unknown, string, string>;
+  subtotal: Money;
+  discount_total: Money;
+  vat_percent: Generated<number>;
+  vat_amount: Money;
+  total: Money;
+  amount_paid: Money;
+  status: Generated<ServiceInvoiceStatus>;
+  issued_at: ColumnType<Date, Date | undefined, Date>;
+  due_on: ColumnType<string, string, string>;
+  paid_at: Date | null;
+  voided_at: Date | null;
+  void_reason: string | null;
+  last_payment_request: ColumnType<unknown, string | null | undefined, string | null>;
+  created_by: string;
+  note: string | null;
+  updated_at: UpdatedTimestamp;
+}
+
+export interface InvoiceLinesTable {
+  id: Generated<string>;
+  invoice_id: string;
+  sort: number;
+  kind: InvoiceLineKind;
+  description: string;
+  quantity: Generated<number>;
+  unit_price: Money;
+  amount: Money;
+}
+
+export interface InvoicePaymentsTable {
+  id: Generated<string>;
+  invoice_id: string | null;
+  school_id: string | null;
+  provider: string;
+  provider_reference: string;
+  amount: Money;
+  transfer_content: Generated<string>;
+  received_at: Date;
+  status: 'matched' | 'unmatched';
+  recorded_by: string | null;
+  note: string | null;
+  created_at: CreatedTimestamp;
+}
+
+export interface BillingAdjustmentsTable {
+  id: Generated<string>;
+  school_id: string;
+  invoice_id: string | null;
+  kind: 'discount' | 'free_period' | 'manual_payment' | 'void' | 'assign_payment';
+  amount: Money;
+  months: Generated<number>;
+  reason: string;
+  actor_type: PlatformAuditActorType;
+  actor_id: string | null;
+  created_at: CreatedTimestamp;
+}
+
+export interface EinvoiceDocumentsTable {
+  id: Generated<string>;
+  invoice_id: string;
+  provider: string;
+  status: 'issued' | 'cancelled' | 'failed';
+  external_id: string | null;
+  lookup_code: string | null;
+  error: string | null;
+  issued_at: Date | null;
+  cancelled_at: Date | null;
+  created_at: CreatedTimestamp;
+}
+
+export interface DunningEventsTable {
+  id: Generated<string>;
+  school_id: string;
+  invoice_id: string | null;
+  due_on: ColumnType<string, string, string>;
+  kind: 'before_due' | 'overdue' | 'read_only' | 'suspended' | 'reopened';
+  days: Generated<number>;
+  channels: ColumnType<string[], string | undefined, string>;
+  created_at: CreatedTimestamp;
+}
+
+export interface PlatformIntegrationSecretsTable {
+  connector: string;
+  enabled: Generated<boolean>;
+  values_encrypted: string;
+  hints: ColumnType<Record<string, string>, string | undefined, string>;
+  updated_at: UpdatedTimestamp;
+  updated_by: string | null;
+}
+
 // Bảng điều khiển nền tảng (DT-SaaS phần S4, YCTD-197)
 export type SupportScope = 'read' | 'full';
 export type MaintenanceSeverity = 'info' | 'warning' | 'critical';
@@ -417,6 +563,15 @@ export interface PlatformDatabase {
   school_hosting: SchoolHostingTable;
   scheduler_state: SchedulerStateTable;
   school_key_rotations: SchoolKeyRotationsTable;
+  price_rules: PriceRulesTable;
+  usage_snapshots: UsageSnapshotsTable;
+  invoices: InvoicesTable;
+  invoice_lines: InvoiceLinesTable;
+  invoice_payments: InvoicePaymentsTable;
+  billing_adjustments: BillingAdjustmentsTable;
+  einvoice_documents: EinvoiceDocumentsTable;
+  dunning_events: DunningEventsTable;
+  platform_integration_secrets: PlatformIntegrationSecretsTable;
   school_metrics: SchoolMetricsTable;
   school_error_counts: SchoolErrorCountsTable;
   maintenance_notices: MaintenanceNoticesTable;

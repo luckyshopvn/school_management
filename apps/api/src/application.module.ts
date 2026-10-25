@@ -23,6 +23,13 @@ import { Module, type DynamicModule, type Type } from '@nestjs/common';
 import { APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
 import { PlanStorageGuard, SchoolPlanController, SchoolPlanService } from './school-plan/school-plan.js';
 import {
+  BillingCycleJob,
+  PlatformBillingWebhooksController,
+  PlatformPaymentGateways,
+  SchoolBillingController,
+  SchoolBillingService,
+} from './billing/billing.js';
+import {
   PlatformNoticesController,
   SchoolMetricsService,
   SupportAccessController,
@@ -494,6 +501,8 @@ export class ApplicationModule {
       module: ApplicationModule,
       controllers: [
         SchoolPlanController,
+        SchoolBillingController,
+        PlatformBillingWebhooksController,
         PlatformNoticesController,
         SupportAccessController,
         HealthController,
@@ -758,6 +767,9 @@ export class ApplicationModule {
         // Gói dịch vụ (DT-SaaS phần S5a): chặn tải tệp khi hết dung lượng của gói
         { provide: APP_GUARD, useClass: PlanStorageGuard },
         SchoolPlanService,
+        PlatformPaymentGateways,
+        SchoolBillingService,
+        BillingCycleJob,
         // Bảng điều khiển nền tảng (DT-SaaS phần S4): thu số liệu, cho phép hỗ trợ, ghi và chặn thao tác của phiên hỗ trợ
         SchoolMetricsService,
         SupportAccessService,

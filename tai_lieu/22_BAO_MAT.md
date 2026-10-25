@@ -1,7 +1,7 @@
 # 22. BẢO MẬT
 
 - Mô tả: Xác thực, phân quyền, phiên làm việc, kiểm tra dữ liệu đầu vào, bảo mật API, truy cập dữ liệu.
-- Phiên bản: 1.15
+- Phiên bản: 1.16
 - Ngày cập nhật: 2026-10-25
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -142,7 +142,8 @@ Các trường hợp trên phải đẩy cảnh báo cho quản trị nền tả
 | BM-85 | Mật khẩu và khóa tạm theo trường (YCTD-201, BR-220): độ dài tối thiểu, ngưỡng sai và thời gian khóa cấu hình theo trường trong giới hạn; tài khoản vận hành tối thiểu 12 ký tự theo ASVS 2.1.1 |
 | BM-86 | Tiêu đề bảo mật và cookie (YCTD-201, BR-221): `X-Content-Type-Options`, `X-Frame-Options: DENY`, `Referrer-Policy`, `Permissions-Policy`, `Cross-Origin-Opener-Policy`, HSTS (`includeSubDomains`) khi qua HTTPS, `Cache-Control: no-store` ở nhóm xác thực, bỏ `X-Powered-By`; Caddy đặt lớp tiêu đề tương ứng; cookie mã làm mới `__Secure-`, httpOnly, SameSite=Strict, Secure |
 | BM-87 | Xoay khóa (YCTD-201): khóa ký mã phiên theo quy trình hai pha (mục 10A); khóa gốc nền tảng bằng `platform rewrap-master-key`; khóa dữ liệu trẻ bằng `platform rotate-child-key` (gồm cơ sở dữ liệu định danh, nơi có khóa TOTP); khóa tích hợp của trường nhập lại ở màn hình quản trị |
-| BM-88 | Phiên hỗ trợ của nhân viên nền tảng (YCTD-197, BR-224, QĐ-32): chỉ khi trường đồng ý (lưu ở cơ sở dữ liệu của trường, có hạn, rút được); mã một lần chỉ lưu mã băm, hạn 5 phút, đánh dấu đã dùng nguyên tử, chỉ dùng ở tên miền của đúng trường; tài khoản hỗ trợ riêng không đăng nhập được bằng mật khẩu; kiểm phiên còn hiệu lực ở mỗi yêu cầu; phiên chỉ đọc chặn ghi ở cả hai dịch vụ; không đăng nhập thay, đổi mật khẩu, kí số, xuất toàn bộ, đổi cho phép; nhật ký hai phía. Số liệu và lỗi theo trường không chứa nội dung dữ liệu: lỗi chỉ ghi mẫu đường dẫn đã bỏ tham số, mã trạng thái, mã lỗi |
+| BM-88 | Thu phí của nền tảng (YCTD-196): khóa cổng thanh toán của nền tảng lưu mã hóa AES-256-GCM bằng khóa gốc của nền tảng, chỉ trả gợi ý bốn ký tự cuối, đổi khóa ghi nhật ký; điểm nhận tiền vào không cần trường nhưng xác thực bằng chữ ký hoặc khóa của cổng (so sánh thời gian hằng), cổng chưa bật trả 404; trùng mã giao dịch không ghi lại; trường chỉ thấy hóa đơn của mình; mọi điều chỉnh tay cần lý do và ghi nhật ký nền tảng |
+| BM-89 | Phiên hỗ trợ của nhân viên nền tảng (YCTD-197, BR-227, QĐ-32): chỉ khi trường đồng ý (lưu ở cơ sở dữ liệu của trường, có hạn, rút được); mã một lần chỉ lưu mã băm, hạn 5 phút, đánh dấu đã dùng nguyên tử, chỉ dùng ở tên miền của đúng trường; tài khoản hỗ trợ riêng không đăng nhập được bằng mật khẩu; kiểm phiên còn hiệu lực ở mỗi yêu cầu; phiên chỉ đọc chặn ghi ở cả hai dịch vụ; không đăng nhập thay, đổi mật khẩu, kí số, xuất toàn bộ, đổi cho phép; nhật ký hai phía. Số liệu và lỗi theo trường không chứa nội dung dữ liệu: lỗi chỉ ghi mẫu đường dẫn đã bỏ tham số, mã trạng thái, mã lỗi |
 
 Từ YCTD-200 (DT-SaaS phần S8a), quy trình xử lý sự cố và thông báo vi phạm dữ liệu cá nhân của nền tảng nhiều trường (thời hạn 72 giờ theo Điều 23 Luật Bảo vệ dữ liệu cá nhân số 91/2025/QH15, nội dung theo Điều 28 Nghị định 356/2025/NĐ-CP) ở `33_HO_SO_PHAP_LY/12_QUY_TRINH_SU_CO_VA_THONG_BAO.md` (bản nháp chờ luật sư rà).
 

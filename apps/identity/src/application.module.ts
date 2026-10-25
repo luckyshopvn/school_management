@@ -35,6 +35,7 @@ import {
   SchoolActivationService,
 } from './platform/platform-schools.js';
 import { PlatformPlansController, PlatformPlansService } from './platform/platform-plans.js';
+import { PlatformBillingController, PlatformBillingService } from './platform/platform-billing.js';
 import { PlatformDashboardController, PlatformDashboardService } from './platform/platform-dashboard.js';
 import {
   PlatformSupportController,
@@ -64,6 +65,7 @@ export class ApplicationModule {
         PlatformSchoolsController,
         SchoolActivationController,
         PlatformPlansController,
+        PlatformBillingController,
         PlatformDashboardController,
         PlatformSupportController,
         SupportExchangeController,
@@ -108,6 +110,7 @@ export class ApplicationModule {
         PlatformSchoolsService,
         SchoolActivationService,
         PlatformPlansService,
+        PlatformBillingService,
         PlatformDashboardService,
         SupportSessionsService,
       ],

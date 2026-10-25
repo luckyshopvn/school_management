@@ -1,7 +1,7 @@
 # 23. LỊCH SỬ PHIÊN BẢN
 
 - Mô tả: Mã phiên bản, ngày phát hành, danh sách thay đổi, chức năng mới, lỗi đã sửa, thay đổi dữ liệu, thay đổi API, rủi ro, khả năng tương thích, phương án quay lui.
-- Phiên bản: 0.59
+- Phiên bản: 0.60
 - Ngày cập nhật: 2026-10-25
 - Trạng thái: Đang cập nhật
 - Đã rà duyệt: Eric, ngày 2026-10-09
@@ -16,18 +16,29 @@
 
 ## 2. Danh sách phiên bản
 
-### Phiên bản 0.137.0 – 2026-10-25
+### Phiên bản 0.138.0 – 2026-10-25
 
 - Phạm vi thay đổi: DT-SaaS phần S4, bảng điều khiển nền tảng (YCTD-197).
-- Chức năng mới: bảng điều khiển nền tảng với số liệu, lỗi, cảnh báo theo trường (P01-75, MH-328); thông báo bảo trì (P01-76, MH-329); cho phép hỗ trợ của trường (P01-77, MH-330); phiên hỗ trợ của nhân viên nền tảng, đăng nhập bằng đường liên kết một lần, biểu ngữ (P01-78, MH-331).
+- Chức năng mới: bảng điều khiển nền tảng với số liệu, lỗi, cảnh báo theo trường (P01-78, MH-330); thông báo bảo trì (P01-79, MH-331); cho phép hỗ trợ của trường (P01-80, MH-332); phiên hỗ trợ của nhân viên nền tảng, đăng nhập bằng đường liên kết một lần, biểu ngữ (P01-81, MH-333).
 - Lỗi đã sửa: unit gói `database` ở bố cục `schema` có lúc hỏng "out of shared memory" (53200) khi nhiều trường tạo, gỡ năm học cùng lúc: chạy tệp thay đổi cấu trúc mỗi tệp một giao dịch thay vì mọi tệp một giao dịch, gỡ lược đồ theo lô 40 bảng; CI và hồ sơ vận hành đặt `max_locks_per_transaction` 256; ghi giới hạn của Neon, Supabase ở `deploy/profiles/trial/README.md`.
 - Thay đổi dữ liệu: cơ sở dữ liệu nền tảng thêm `school_metrics`, `school_error_counts`, `maintenance_notices`, `support_sessions`, `support_session_actions` (tệp nền tảng `0060`); cơ sở dữ liệu hệ thống của trường thêm `support_access_grants` (tệp hệ thống `0053`); xem `16_CO_SO_DU_LIEU.md` mục 18A.
 - Thay đổi API: nhóm `/auth/platform/dashboard`, `/maintenance-notices`, `/schools/{mã}/support`, `/support-sessions`; `POST /auth/support/exchange`; `GET /platform-notices`, `/support-access`; claim `spt`, trường `support` của `/auth/me`; biến `PLATFORM_ERROR_ALERT_PER_HOUR`, `SCHOOL_METRICS_INTERVAL_SECONDS` (xem `17_DAC_TA_API.md`).
-- Kiểm thử: kịch bản CT-1049 đến CT-1057 (CT-S4-1 đến CT-S4-9 trong mã kiểm thử). Kết quả ngày 25/10/2026: `apps/identity` 4 ca mới và ma trận cách ly đạt (8/8); `database` 4/4; `apps/api` 17/17 (S4, gói dịch vụ, bộ lập lịch) và menu 17/17; kiểm tra tĩnh nền đa thuê bao và `pnpm lint` đạt; e2e dự án nhiều trường 16/16 (spec 136 đạt sau khi sửa trang Cho phép hỗ trợ thiếu khung cổng quản trị); e2e toàn bộ do CI chạy.
+- Kiểm thử: kịch bản CT-1060 đến CT-1068 (CT-S4-1 đến CT-S4-9 trong mã kiểm thử). Kết quả ngày 25/10/2026: `apps/identity` 4 ca mới và ma trận cách ly đạt (8/8); `database` 4/4; `apps/api` 17/17 (S4, gói dịch vụ, bộ lập lịch) và menu 17/17; kiểm tra tĩnh nền đa thuê bao và `pnpm lint` đạt; e2e dự án nhiều trường 16/16 (spec 136 đạt sau khi sửa trang Cho phép hỗ trợ thiếu khung cổng quản trị); e2e toàn bộ do CI chạy.
 - Rủi ro: số liệu có độ trễ đến một giờ; bộ gom lỗi ở bộ nhớ nên lỗi trong phút cuối trước khi tiến trình dừng đột ngột có thể mất; tài khoản hỗ trợ hiện trong danh sách tài khoản của trường (cố ý để trường thấy).
 - Khả năng tương thích: chế độ một trường không có bảng điều khiển, cho phép hỗ trợ trả `available: false`, thông báo bảo trì rỗng; không đổi hành vi của phiên thường.
 - Phương án quay lui: hoàn lại commit gộp của nhánh S4; rút mọi cho phép hỗ trợ là chặn ngay mọi phiên hỗ trợ mà không cần quay lui mã.
 
+### Phiên bản 0.137.0 – 2026-10-25
+
+- Phạm vi thay đổi: DT-SaaS phần S5b, thu phí tự động (YCTD-196).
+- Chức năng mới: quy tắc tính phí cấu hình được, chốt số liệu kỳ, hóa đơn (P01-75); thu tiền qua mã QR và cổng của nền tảng, đối soát, gia hạn và mở lại trường, nhắc gia hạn (P01-76); trang Thu phí ở cổng nền tảng, điều chỉnh tay, hóa đơn điện tử qua bộ nối giả lập, trang Hóa đơn dịch vụ ở cổng (P01-77, MH-328, MH-329).
+- Lỗi đã sửa: không có.
+- Thay đổi dữ liệu: nền tảng thêm `price_rules`, `usage_snapshots`, `invoices`, `invoice_lines`, `invoice_payments`, `billing_adjustments`, `einvoice_documents`, `dunning_events`, `platform_integration_secrets`, cột `plans.price_rule_id` (tệp nền tảng `0050`); định danh thêm quyền `P01.billing.manage` (tệp `0105`).
+- Thay đổi API: nhóm `/billing` của trường, điểm nhận tiền vào `/platform-billing/webhooks`, nhóm `/auth/platform/billing` (xem `17_DAC_TA_API.md`).
+- Kiểm thử: kịch bản CT-1049 đến CT-1059 (CT-S5b-1 đến CT-S5b-11 trong mã kiểm thử). Kết quả ngày 25/10/2026: `database` 7 ca mới (hàm tính phí, kỳ, chốt kỳ, tiền vào, điều chỉnh, nhắc hạn, hóa đơn điện tử, khóa cổng), `apps/api` 2 ca mới, `apps/identity` 1 ca mới, ca cũ đạt không sửa; e2e spec 135 cùng 130, 131, 134 ở dự án nhiều trường và các spec menu ở dự án một trường đạt; e2e toàn bộ do CI chạy.
+- Rủi ro: tài khoản nhận tiền và khóa cổng thật của nền tảng chưa có (GD-95), máy chủ dùng bộ giả lập khi chưa cấu hình; nhà cung cấp hóa đơn điện tử chưa chốt (mặc định chưa nối); VNPay cho thu phí của nền tảng chưa làm; nhắc qua email chưa có (dùng thông báo trong ứng dụng, tin nhắn).
+- Khả năng tương thích: chế độ một trường không đổi; trường chưa gán gói không phát sinh hóa đơn.
+- Phương án quay lui: hoàn lại commit gộp của nhánh S5b; tắt thu phí bằng cách bỏ quy tắc tính phí khỏi gói (giá niêm yết bằng 0) và hủy hóa đơn chưa thu; dữ liệu trường không bị ảnh hưởng.
 ### Phiên bản 0.136.0 – 2026-10-25
 
 - Phạm vi thay đổi: DT-SaaS phần S8b, bảo mật mã (YCTD-201).
