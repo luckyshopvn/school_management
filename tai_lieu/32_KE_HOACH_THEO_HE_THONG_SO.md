@@ -1496,7 +1496,7 @@ Các lớp kiểm thử:
 | S5b | 4 | Chưa làm, YCTD-196; bắt đầu khi S5a, S3, S1b gộp |
 | S4 | 3 | Chưa làm, YCTD-197; bắt đầu khi S2, S5a gộp |
 | S7b | 4 | Chưa làm, YCTD-199; bắt đầu khi S1b, S2, S7a gộp |
-| S8b | 4 | Đã làm, YCTD-201, phiên bản 0.135.0, PR @@PR@@: xác thực hai lớp TOTP (bắt buộc cho tài khoản vận hành nền tảng, tuỳ chọn theo trường cho người dùng trường; nền tảng 0080, 0081, định danh 0101, 0102), chính sách mật khẩu và khóa tạm theo trường, tiêu đề bảo mật, cookie `__Secure-`, xoay khóa ký hai pha, quét bí mật và thành phần phụ thuộc ở CI, danh sách kiểm ASVS; chưa làm: kiểm thử xâm nhập bên ngoài (Eric thuê), xác thực hai lớp cho ứng dụng phụ huynh |
+| S8b | 4 | Đã làm, YCTD-201, phiên bản 0.135.0, PR 173: xác thực hai lớp TOTP (bắt buộc cho tài khoản vận hành nền tảng, tuỳ chọn theo trường cho người dùng trường; nền tảng 0080, 0081, định danh 0101, 0102), chính sách mật khẩu và khóa tạm theo trường, tiêu đề bảo mật, cookie `__Secure-`, xoay khóa ký hai pha, quét bí mật và thành phần phụ thuộc ở CI, danh sách kiểm ASVS; chưa làm: kiểm thử xâm nhập bên ngoài (Eric thuê), xác thực hai lớp cho ứng dụng phụ huynh |
 | S6 | 5 | Chưa làm, YCTD-202; **đợt 5, Eric đã duyệt ngày 2026-10-25**; bắt đầu khi S1a, S4, S8b gộp |
 
 ### 14.11 Giả định chưa chốt, làm cấu hình được

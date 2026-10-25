@@ -27,7 +27,7 @@ Các thay đổi trước phiên bản 0.4.0 chưa có sổ này; xem `23_LICH_S
 - Quyền bị ảnh hưởng: không thêm quyền (đặt lại hộ dùng quyền quản lý tài khoản, bật theo trường dùng quyền cấu hình).
 - Ảnh hưởng chức năng cũ: tài khoản vận hành tạo trước đó phải được cấp khóa TOTP; mọi người dùng đăng nhập lại một lần vì tên cookie đổi; ngoài ra không.
 - Kiểm thử cần thực hiện: kiểm thử đơn vị `packages/server`, `database`, `apps/identity`, `apps/api`; kiểm tĩnh và quét bí mật; ma trận cách ly; e2e spec 138 ở dự án nhiều trường, các spec đăng nhập, spec 132, 140 ở dự án nhiều trường và một trường; CI chạy toàn bộ e2e.
-- Trạng thái: Đã triển khai (PR @@PR@@)
+- Trạng thái: Đã triển khai (PR 173)
 
 ### YCTD-194: DT-SaaS phần S5a: gói dịch vụ và giới hạn – 2026-10-25
 
