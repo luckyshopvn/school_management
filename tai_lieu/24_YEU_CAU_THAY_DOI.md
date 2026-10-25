@@ -29,7 +29,7 @@ Các thay đổi trước phiên bản 0.4.0 chưa có sổ này; xem `23_LICH_S
 - Quyền bị ảnh hưởng: không đổi quyền, vai trò.
 - Ảnh hưởng chức năng cũ: không ở chế độ một trường (mặc định). Ở chế độ nhiều trường: việc nền chạy lại theo trường; vẫn không bật ở môi trường chạy thật trước khi S3 (khóa tích hợp riêng từng trường) gộp.
 - Kiểm thử cần thực hiện: kiểm thử đơn vị `packages/server`, `database`, `apps/api`, `apps/worker`, `apps/identity`; kiểm tĩnh; ma trận cách ly; e2e spec 131 ở dự án nhiều trường (hai bố cục) và các spec bị ảnh hưởng ở dự án một trường; CI chạy toàn bộ e2e.
-- Trạng thái: Đã triển khai (PR @@PR@@)
+- Trạng thái: Đã triển khai (PR 166)
 
 ### YCTD-191: DT-SaaS phần S1a: nền đa thuê bao, phần lõi – 2026-10-25
 
