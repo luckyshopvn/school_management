@@ -82,7 +82,8 @@ test('Hiệu trưởng nạp khối Tiểu học, thêm cấp cho Trường chí
   await loader.getByRole('button', { name: 'Nạp khối mẫu' }).click();
   await expect(page.getByRole('status').filter({ hasText: 'Đã nạp 5 khối mẫu Tiểu học' })).toBeVisible();
   const gradeLevels = page.getByRole('region', { name: 'Bậc học', exact: true });
-  await expect(gradeLevels.getByRole('row').filter({ hasText: 'Khối 1' })).toContainText('Tiểu học');
+  // Khớp đúng dòng Khối 1 (kịch bản khác có thể đã có Khối 10, 11, 12)
+  await expect(gradeLevels.getByRole('row', { name: /^K1 Khối 1 / })).toContainText('Tiểu học');
   await page.getByRole('tab', { name: 'Chương trình' }).click();
   const curricula = page.getByRole('region', { name: 'Chương trình', exact: true });
   await expect(curricula.getByRole('row').filter({ hasText: 'CT-GDMN' })).toContainText('Mầm non');

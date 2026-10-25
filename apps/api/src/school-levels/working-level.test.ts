@@ -67,6 +67,8 @@ const SECONDARY_ONLY_PATHS = [
   '/exam-reports',
   // Sơ đồ chỗ ngồi (DT-21 phần 21d)
   '/seating-charts',
+  // Báo cáo, thống kê, EMIS THCS, THPT (DT-21 phần 21g)
+  '/secondary-reports',
 ];
 
 describe('Cây menu và nhãn theo cấp học', () => {

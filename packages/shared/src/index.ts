@@ -666,6 +666,8 @@ export const PORTAL_QUICK_LINK_PATHS = [
   '/exams',
   // Sơ đồ chỗ ngồi (DT-21 phần 21d)
   '/seating-charts',
+  // Báo cáo, thống kê, EMIS THCS, THPT (DT-21 phần 21g)
+  '/secondary-reports',
   // Chấm bài kiểm tra, báo cáo (DT-21 phần 22g2)
   '/exam-grading',
   '/exam-reports',

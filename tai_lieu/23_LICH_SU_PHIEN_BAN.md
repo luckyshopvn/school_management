@@ -1,7 +1,7 @@
 # 23. LỊCH SỬ PHIÊN BẢN
 
 - Mô tả: Mã phiên bản, ngày phát hành, danh sách thay đổi, chức năng mới, lỗi đã sửa, thay đổi dữ liệu, thay đổi API, rủi ro, khả năng tương thích, phương án quay lui.
-- Phiên bản: 0.51
+- Phiên bản: 0.52
 - Ngày cập nhật: 2026-10-25
 - Trạng thái: Đang cập nhật
 - Đã rà duyệt: Eric, ngày 2026-10-09
@@ -15,6 +15,18 @@
 5. Từ phiên bản 0.4.0, mỗi mục ghi theo mẫu của Vibecoding_Flow; các mục trước giữ nguyên dạng bảng và tên tệp cũ vì là ghi nhận lịch sử.
 
 ## 2. Danh sách phiên bản
+
+### Phiên bản 0.127.0 – 2026-10-25
+
+- Phạm vi thay đổi: DT-21 phần 21g, báo cáo, thống kê và EMIS THCS, THPT (YCTD-175).
+- Chức năng mới: thống kê sĩ số, tổ hợp, kết quả cuối năm, phổ điểm, theo giáo viên, tổ bộ môn THCS, THPT; xuất Excel, PDF; biểu EMIS THCS, THPT cấu hình được (7.18).
+- Lỗi đã sửa: không.
+- Thay đổi dữ liệu: tệp hệ thống `0028_add_secondary_report_forms`.
+- Thay đổi API: `/secondary-reports/enrollment`, `/results`, `/scores`, `/teachers`, `/{report}/export`; `/secondary-reports/emis` và các đường con như `/primary-reports/emis`; `/primary-reports/emis` chỉ còn biểu Tiểu học.
+- Kiểm thử: kịch bản CT-981 đến CT-985. Kết quả ngày 25/10/2026: kiểm thử đơn vị `apps/api/src/secondary-reports/secondary-reports.test.ts` CT-21g-1 đến CT-21g-4 đạt 4/4; kiểm thử đơn vị các gói đã sửa trên máy (database 6/6, api 1080/1080) đạt, kiểm thử đang có không sửa kỳ vọng (thêm mục 7.18 vào bảng đối chiếu điều kiện cũ của CT-15e-2 và danh sách mục chỉ của THCS, THPT của CT-19c-1); e2e trên máy 02, 03, 06, 08, 94, 103, 82, 92 đạt (82, 92 sửa cách chọn để không phụ thuộc dữ liệu của 103; 103 dọn khối 10 tự tạo, đóng lớp thử); e2e toàn bộ do CI chạy; build, kiểm tra kiểu, lint, kiểm tra định dạng đạt.
+- Rủi ro: biểu khung chưa khớp Sở.
+- Khả năng tương thích: không đổi điểm cuối cũ; trường chỉ có Mầm non, Tiểu học thấy như cũ.
+- Phương án quay lui: hoàn lại commit gộp của nhánh 21g; chạy phần quay lui của tệp hệ thống `0028`.
 
 ### Phiên bản 0.126.0 – 2026-10-25
 

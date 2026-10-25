@@ -16,6 +16,7 @@ import {
   readReport,
   saveEmisRows,
   saveEmisValues,
+  type EmisBase,
   type EmisRow,
   type ReportGroup,
   type RowKind,
@@ -37,7 +38,7 @@ const GROUP_LABELS: Record<ReportGroup, string> = { class: 'Theo lớp', grade: 
 const SELECT_CLASS = 'rounded-lg border border-border bg-card px-3 py-2 text-content font-normal';
 const vietnamToday = () => new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Ho_Chi_Minh' }).format(new Date());
 
-function Table({
+export function Table({
   label,
   columns,
   rows,
@@ -74,7 +75,7 @@ function Table({
   );
 }
 
-function ExportButtons({ onExport }: { onExport(format: 'xlsx' | 'pdf'): Promise<void> }) {
+export function ExportButtons({ onExport }: { onExport(format: 'xlsx' | 'pdf'): Promise<void> }) {
   const run = useMutation({ mutationFn: onExport });
   return (
     <div className="flex flex-wrap gap-2">
@@ -89,7 +90,7 @@ function ExportButtons({ onExport }: { onExport(format: 'xlsx' | 'pdf'): Promise
   );
 }
 
-function GroupSelect({ value, onChange }: { value: ReportGroup; onChange(value: ReportGroup): void }) {
+export function GroupSelect({ value, onChange }: { value: ReportGroup; onChange(value: ReportGroup): void }) {
   return (
     <label className="flex flex-col gap-2 text-label font-medium text-text">
       Gộp
@@ -286,14 +287,15 @@ function AttendanceTab({ orgUnitId }: { orgUnitId: string | undefined }) {
   );
 }
 
-function EmisTab({ onSaved }: { onSaved(message: string): void }) {
+// Biểu EMIS cấu hình được; `base` chọn biểu Tiểu học (mặc định) hoặc THCS, THPT (21g)
+export function EmisTab({ onSaved, base = 'primary-reports' }: { onSaved(message: string): void; base?: EmisBase }) {
   const queryClient = useQueryClient();
-  const forms = useQuery({ queryKey: ['primary-emis-forms'], queryFn: listEmisForms });
+  const forms = useQuery({ queryKey: ['emis-forms', base], queryFn: () => listEmisForms(base) });
   const [code, setCode] = useState('');
   const selected = code || forms.data?.[0]?.code || '';
   const view = useQuery({
-    queryKey: ['primary-emis', selected],
-    queryFn: () => readEmis(selected),
+    queryKey: ['emis-form', base, selected],
+    queryFn: () => readEmis(selected, base),
     enabled: selected !== '',
     retry: false,
   });
@@ -326,7 +328,7 @@ function EmisTab({ onSaved }: { onSaved(message: string): void }) {
     }
   }, [view.data]);
   const refresh = async (message: string) => {
-    await queryClient.invalidateQueries({ queryKey: ['primary-emis', selected] });
+    await queryClient.invalidateQueries({ queryKey: ['emis-form', base, selected] });
     onSaved(message);
   };
   const saveValues = useMutation({
@@ -339,11 +341,12 @@ function EmisTab({ onSaved }: { onSaved(message: string): void }) {
             Object.entries(values).map(([key, value]) => [key, value === '' ? null : Number(value)]),
           ),
         })),
+        base,
       ),
     onSuccess: () => refresh('Đã lưu số nhập tay'),
   });
   const saveRows = useMutation({
-    mutationFn: () => saveEmisRows(selected, rows),
+    mutationFn: () => saveEmisRows(selected, rows, base),
     onSuccess: async () => {
       setEditing(false);
       await refresh('Đã lưu khung biểu');
@@ -366,7 +369,7 @@ function EmisTab({ onSaved }: { onSaved(message: string): void }) {
             ))}
           </select>
         </label>
-        {selected ? <ExportButtons onExport={(format) => exportEmis(selected, format)} /> : null}
+        {selected ? <ExportButtons onExport={(format) => exportEmis(selected, format, base)} /> : null}
         {data?.can_edit_form ? (
           <Button onClick={() => setEditing(!editing)}>{editing ? 'Thôi sửa khung' : 'Sửa khung biểu'}</Button>
         ) : null}

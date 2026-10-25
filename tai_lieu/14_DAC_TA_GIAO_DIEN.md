@@ -1,7 +1,7 @@
 # 14. ĐẶC TẢ GIAO DIỆN
 
 - Mô tả: Danh sách màn hình, điều hướng, bố cục, thành phần, dữ liệu hiển thị, thao tác, trạng thái, thông báo, xử lý lỗi, quyền hiển thị, khả năng thích ứng màn hình.
-- Phiên bản: 1.106
+- Phiên bản: 1.107
 - Ngày cập nhật: 2026-10-25
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -650,6 +650,7 @@ Từ YCTD-184 (DT-22 phần 22h2), phân hệ "Kho học liệu" thêm 8. Câu h
 | MH-309 | Kho học liệu 8. Câu hỏi, đề trong kho (YCTD-184, `/learning-resources/questions`): loại, tìm, mức nhận thức, "Thêm vào bộ sưu tập"; bảng "Câu hỏi, đề trong kho" (nội dung, môn, khối, chủ đề, mức, đã dùng, trạng thái, "Mở ở ngân hàng", Thêm); "Mục ngân hàng trong bộ sưu tập"; "Thống kê sử dụng câu hỏi" (theo mức nhận thức, chỗ trống chủ đề) | Người dùng kho |
 | MH-310 | Kho học liệu 9. Rubric (YCTD-184, `/learning-resources/rubrics`): bảng "Danh sách rubric" (tên, tiêu chí × mức, điểm tối đa, người lập, trạng thái; Sửa, Nhân bản, In, Lưu trữ); khối "Lập rubric" (tên, mô tả, số mức, tên, điểm từng mức, tiêu chí, trọng số, mô tả từng mức; Thêm tiêu chí, Lưu rubric) | Người dùng kho |
 | MH-311 | Kho học liệu 10. Gói chia sẻ liên trường (YCTD-184, `/learning-resources/packages`): "Xuất gói" (bộ sưu tập, tên trường nguồn, xem trước xuất được, bỏ qua kèm lý do; Xuất gói); "Nhập gói" (tệp gói, Nhập gói, học liệu bỏ qua; "Lịch sử nhập gói") | `P09.learning-resource.share` |
+| MH-312 | 7.18. Báo cáo, thống kê, EMIS THCS, THPT (YCTD-175, `/secondary-reports`): ô "Cấp học" khi trường bật cả THCS, THPT, chọn đơn vị; thẻ "Sĩ số" (bảng "Sĩ số theo khối", bảng "Học sinh theo tổ hợp" ở THPT), "Kết quả cuối năm" (gộp theo lớp, khối, toàn trường; học tập, rèn luyện theo mức, Xuất sắc, Giỏi, lên lớp, rèn luyện hè, ở lại lớp, tốt nghiệp), "Phổ điểm" (kỳ, môn, gộp; khoảng điểm, trung bình, tỉ lệ dưới 5), "Theo giáo viên, tổ bộ môn" (kỳ; hai bảng); mỗi thẻ có "Xuất Excel", "Xuất PDF"; thẻ "EMIS THCS, THPT" như thẻ EMIS của 7.15 với biểu THCS, THPT | Người có `P17.child-statistics.view` (thống kê), `P17.report.emis` (EMIS) |
 | MH-277 | 8.1. Ngân hàng câu hỏi (YCTD-168, `/question-bank`): chọn cấp (nếu nhiều), môn, khối; khối "Chủ đề" (danh sách, thêm chủ đề); khối "Soạn câu hỏi" (chủ đề, mức nhận thức, dạng, điểm, nội dung, lựa chọn A đến D hoặc ý a đến d, đáp án, hướng dẫn chấm, "Lưu câu hỏi"); bảng "Câu hỏi" (lọc trạng thái, tìm; nội dung, chủ đề, mức, dạng, trạng thái, người soạn; Sửa, Gửi thẩm định, Duyệt, Trả lại, Ngừng dùng); "Thống kê câu dùng được"; "Nhập câu hỏi từ Excel" (Tải mẫu Excel, tệp, Nhập Excel) | Soạn: `P02.question.author`; duyệt: `P02.exam.review` |
 | MH-278 | 8.2. Ma trận đề (YCTD-168, `/exam-matrices`): bảng "Ma trận đề" (tên, khối, số câu, điểm, kiểm tra, Mở); khối "Soạn ma trận" (môn, khối, tên, tỉ lệ bốn mức, bảng dòng: chủ đề, mức, dạng, số câu, điểm mỗi câu, yêu cầu cần đạt, Bỏ; Thêm dòng, Lưu ma trận); "Kiểm tra ma trận" (tổng câu, điểm, tỉ lệ, các điểm lệch) | Xem: người soạn đề; lập: `P02.exam.review` |
 | MH-279 | 8.3. Kế hoạch kiểm tra (YCTD-168, `/assessment-plans`): bảng "Kế hoạch kiểm tra" (học kỳ, khối, môn, loại, hình thức, thời gian, ngày kèm nhắc thời khoá biểu, trạng thái, số đề; Gửi duyệt, Duyệt, Trả lại); khối "Thêm kế hoạch kiểm tra" | Lập: `P02.exam.review`; duyệt: `P02.exam.manage` |
@@ -707,6 +708,8 @@ Từ YCTD-161 (DT-20 phần 20c), mục 7.3 "Đánh giá học sinh" (chỉ hi�
 Từ YCTD-160 (DT-20 phần 22c1), nhóm "7. Dạy học Tiểu học" có thêm 7.3 Khung giờ tiết học, 7.4 Thời khoá biểu (MH-263, MH-264); trang "Thời khóa biểu" của website trường hiện bảng của từng lớp khi đã có bản ban hành.
 
 Từ YCTD-171 (DT-21 phần 21d), 7.6 Sổ đầu bài, 7.7 Chuyên cần theo tiết và 4.9 Nề nếp, thi đua lớp hiện ở Tiểu học, THCS, THPT; thêm 7.16 Sơ đồ chỗ ngồi (MH-300, chỉ THCS, THPT). 7.6: cột Tiết ghi "Nhóm n" cho tiết nhóm, nút "Xuất Excel", "Xuất PDF" của sổ tuần, chi tiết tiết có nhãn xếp loại và sơ đồ chỗ ngồi; Ban Giám hiệu có khối "Quy tắc xếp loại tiết" theo từng cấp (xếp loại tiết, nhãn A đến D, tiết C, D phải nhận xét, tính điểm thi đua và điểm từng loại; nút "Lưu quy tắc <cấp>"). 4.9: ô "Cấp học" khi trường bật nhiều cấp ngoài Mầm non; ở THCS, THPT thẻ "Đội sao đỏ" (lớp của học sinh, học sinh, nhiệm vụ, nút "Thêm vào đội sao đỏ"; bảng có nút "Ngừng", "Hoạt động lại"), thẻ Ghi điểm có ô "Sao đỏ báo" (sao đỏ lớp khác) thay ô "Người báo"; Xếp hạng có cột "Điểm tiết" khi cấp tính điểm tiết. Ứng dụng giáo viên, Sổ đầu bài: tiết nhóm ghi "Nhóm n", nhãn xếp loại theo cấp, ghi "bắt buộc khi ký sổ", nhắc nhận xét tiết C, D, khối "Sơ đồ chỗ ngồi". Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11.
+
+Từ YCTD-175 (DT-21 phần 21g), nhóm 7 có thêm 7.18 "Báo cáo, thống kê, EMIS THCS, THPT" (MH-312, chỉ THCS, THPT); thẻ EMIS của 7.15 chỉ còn biểu Tiểu học. Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11.
 
 Từ YCTD-168 (DT-21 phần 22g1), phân hệ Quản lý giáo dục có nhóm "8. Kiểm tra, đánh giá" chỉ hiện khi trường bật THCS hoặc THPT: 8.1 Ngân hàng câu hỏi, 8.2 Ma trận đề, 8.3 Kế hoạch kiểm tra, 8.4 Đề kiểm tra (MH-277 đến MH-280); số mục tạm, đánh lại khi khảo sát Sở.
 

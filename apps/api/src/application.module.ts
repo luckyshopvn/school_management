@@ -78,6 +78,7 @@ import {
 } from './learning-records/learning-records.js';
 import { PrimaryEmisController, PrimaryEmisService } from './primary-reports/primary-emis.js';
 import { PrimaryReportsController, PrimaryReportsService } from './primary-reports/primary-reports.js';
+import { SecondaryReportsController, SecondaryReportsService } from './secondary-reports/secondary-reports.js';
 import { learningRecordsTransitionStep } from './learning-records/learning-records-transition.js';
 import { assessmentTransitionStep } from './assessments/assessment-transition.js';
 import { KitchenMenusController, KitchenMenusService } from './kitchen/kitchen-menus.js';
@@ -545,6 +546,8 @@ export class ApplicationModule {
         EmisFormsController,
         PrimaryReportsController,
         PrimaryEmisController,
+        // Báo cáo, thống kê THCS, THPT (DT-21 phần 21g)
+        SecondaryReportsController,
         EmisSendingController,
         GradeLevelsController,
         CurriculaController,
@@ -802,6 +805,7 @@ export class ApplicationModule {
         EmisReportService,
         EmisForms,
         PrimaryReportsService,
+        SecondaryReportsService,
         PrimaryEmisService,
         EmisSending,
         GradeLevelsService,

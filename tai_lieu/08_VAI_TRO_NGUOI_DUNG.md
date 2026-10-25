@@ -1,7 +1,7 @@
 # 08. VAI TRÒ NGƯỜI DÙNG
 
 - Mô tả: Nhóm người dùng, vai trò, trách nhiệm, quyền hạn.
-- Phiên bản: 1.91
+- Phiên bản: 1.92
 - Ngày cập nhật: 2026-10-25
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -201,6 +201,7 @@ Ghi chú áp dụng cho bảng:
 | PQ-101 | Sổ đầu bài, sơ đồ chỗ ngồi THCS, THPT (YCTD-171): quyền mới thuộc P02 cho VT-02, VT-15: `P02.class-log.settings` sửa quy tắc xếp loại tiết theo cấp và điểm thi đua theo xếp loại tiết; `P02.seating.manage` xếp sơ đồ chỗ ngồi mọi lớp. Giáo viên chủ nhiệm xếp sơ đồ lớp mình không cần quyền; xem sơ đồ như xem sổ đầu bài. Đội sao đỏ dùng `P02.conduct.manage` (thêm, ngừng), `P02.conduct.record` (xem, chọn sao đỏ báo khi ghi điểm) |
 | PQ-102 | Kho học liệu số (YCTD-183): phân hệ mới "Kho học liệu", quyền thuộc P09: `P09.learning-resource.use` (VT-02, VT-15, VT-03 đến VT-12, VT-16, VT-17: tải lên, tìm, xem, tải về, bộ sưu tập, báo lỗi); `P09.learning-resource.review` (VT-17: duyệt bước tổ, chỉ học liệu của tổ mình); `P09.learning-resource.approve` (VT-02, VT-15: duyệt bước Ban Giám hiệu, duyệt thay bước tổ); `P09.learning-resource.manage` (VT-02, VT-15: thủ kho, danh mục, xử lý báo lỗi, ẩn, mở lại, ngừng dùng, thống kê toàn trường). Phụ huynh (VT-14) không có phân hệ |
 | PQ-103 | Kho học liệu số, câu hỏi và chia sẻ (YCTD-184): quyền mới `P09.learning-resource.share` (VT-02, VT-15) xuất, nhập gói chia sẻ liên trường; câu hỏi, đề, ma trận trong kho, bộ sưu tập, rubric, thống kê dùng quyền dùng kho `P09.learning-resource.*` của 22h1, còn câu hỏi, đề thấy theo quyền của ngân hàng 22g1 (`P02.question.author`, `P02.exam.review`, `P02.exam.manage`) |
+| PQ-104 | Báo cáo, thống kê, EMIS THCS, THPT (YCTD-175): không thêm quyền. Xem, xuất thống kê: `P17.child-statistics.view`; xem, nhập tay, xuất biểu EMIS: `P17.report.emis`; sửa khung biểu: `P17.report-form.manage` (VT-02, VT-15) |
 
 ## 5. Phân cấp phê duyệt
 
