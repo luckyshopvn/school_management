@@ -1,8 +1,8 @@
 # 22. BẢO MẬT
 
 - Mô tả: Xác thực, phân quyền, phiên làm việc, kiểm tra dữ liệu đầu vào, bảo mật API, truy cập dữ liệu.
-- Phiên bản: 1.8
-- Ngày cập nhật: 2026-10-15
+- Phiên bản: 1.9
+- Ngày cập nhật: 2026-10-25
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
 
@@ -128,6 +128,8 @@ Các trường hợp trên phải đẩy cảnh báo cho quản trị nền tả
 | BM-52 | Thông báo | Thông báo cho nhà trường và phụ huynh bị ảnh hưởng theo mức độ sự cố |
 | BM-53 | Rà soát | Ghi biên bản sự cố, xác định nguyên nhân gốc, bổ sung biện pháp phòng ngừa |
 
+Từ YCTD-200 (DT-SaaS phần S8a), quy trình xử lý sự cố và thông báo vi phạm dữ liệu cá nhân của nền tảng nhiều trường (thời hạn 72 giờ theo Điều 23 Luật Bảo vệ dữ liệu cá nhân số 91/2025/QH15, nội dung theo Điều 28 Nghị định 356/2025/NĐ-CP) ở `33_HO_SO_PHAP_LY/12_QUY_TRINH_SU_CO_VA_THONG_BAO.md` (bản nháp chờ luật sư rà).
+
 ## 10. Trách nhiệm của các bên
 
 | Bên | Trách nhiệm |
@@ -136,6 +138,9 @@ Các trường hợp trên phải đẩy cảnh báo cho quản trị nền tả
 | Nhóm phát triển | Thực hiện đúng các biện pháp ở tài liệu này, không tự ý nới lỏng kiểm tra quyền, báo cáo rủi ro phát hiện được |
 | Quản trị nền tảng | Vận hành hạ tầng, sao lưu, giám sát, ứng phó sự cố, không truy cập dữ liệu nghiệp vụ |
 | Bên thứ ba | Cơ quan quản lý giáo dục và phần mềm kế toán chỉ đọc qua API theo khóa hoặc qua vai trò VT-19; đơn vị kiểm toán dùng vai trò VT-20 có ngày hết hiệu lực; bảo hiểm xã hội và cơ quan thuế chỉ nhận tệp xuất, không có tài khoản (Q-110) |
+
+
+Từ YCTD-200, khi chạy nhiều trường (DT-SaaS): trường là bên kiểm soát dữ liệu cá nhân, nền tảng là bên xử lý; quyền, nghĩa vụ theo thỏa thuận xử lý dữ liệu `33_HO_SO_PHAP_LY/02_THOA_THUAN_XU_LY_DU_LIEU.md`.
 
 ## 11. Chưa xác minh được
 
