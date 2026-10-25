@@ -1,7 +1,7 @@
 # 02. NHẬT KÝ DỰ ÁN
 
 - Mô tả: Ghi nhận công việc, quyết định, thay đổi và vấn đề tồn đọng theo ngày, ngày mới nhất ở trên cùng.
-- Phiên bản: 0.68
+- Phiên bản: 0.69
 - Ngày cập nhật: 2026-10-25
 - Trạng thái: Đang cập nhật
 
@@ -13,6 +13,30 @@
 - Không ghi thông tin tạm thời như kết quả tra cứu, đường dẫn tạm, thông báo lỗi của công cụ.
 
 ## Nhật ký theo ngày
+
+### 2026-10-25 — DT-SaaS phần S5b: thu phí tự động
+
+#### Công việc đã thực hiện
+
+- Đọc mục 14.3, 14.5 (S5b), 14.9, 14.11 của `32_KE_HOACH_THEO_HE_THONG_SO.md`; rà bộ nối cổng thanh toán (`payment-gateway.ts`, `payment-providers.ts`), kho khóa của S3 (`integration_secrets`, `tenant-connectors.ts`), bộ lập lịch theo trường của S1b, hàng đợi thông báo, gói và chuyển trạng thái của S5a.
+- Thêm tệp nền tảng 0050 (chín bảng thu phí), quyền `P01.billing.manage` (tệp định danh 0105), thư viện `database/src/billing` (hàm tính phí, kỳ, chốt kỳ, hóa đơn, tiền vào, điều chỉnh, nhắc hạn, hóa đơn điện tử, khóa cổng của nền tảng), việc nền `billing-cycle`, điểm cuối của trường và điểm nhận tiền vào của nền tảng ở máy chủ API, nhóm `/auth/platform/billing` ở dịch vụ định danh, trang Thu phí ở cổng nền tảng, trang Hóa đơn dịch vụ ở cổng, e2e spec 135.
+- Thêm BR-217 đến BR-219, PQ-107, P01-68 đến P01-70, AC-845 đến AC-847, MH-325, MH-326, CT-1035 đến CT-1045, BM-83, bảng ở `16` mục 18A, giao kèo ở `17`; phiên bản 0.135.0.
+
+#### Quyết định
+
+- Thu sau theo kỳ lịch; `schools.paid_until` là hạn đang chờ trả, trả đủ thì dời tới hạn của hóa đơn kỳ sau; bộ chuyển trạng thái của S5a dùng nguyên.
+- Khóa cổng thanh toán của nền tảng lưu như kho khóa của S3 nhưng bằng khóa gốc của nền tảng (không thuộc trường nào), ở cơ sở dữ liệu nền tảng.
+- Điểm nhận tiền vào của nền tảng đi qua đường dẫn không cần trường; chỉ PayOS, SePay, Casso (VNPay làm sau).
+- Việc nền thu phí chạy theo từng trường trong ngữ cảnh của trường (cần cơ sở dữ liệu của trường để đếm học sinh), gọi luôn hàm chuyển trạng thái của S5a cho trường đó.
+- Quyền mới dùng tệp định danh `0105` (dải định danh của DT-SaaS, kho mã bật allowUnorderedMigrations).
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-196, `07_QUY_TAC_NGHIEP_VU.md` BR-217 đến BR-219, `08_VAI_TRO_NGUOI_DUNG.md` PQ-107, `10_YEU_CAU_CHUC_NANG.md` P01-68 đến P01-70, `11_TIEU_CHI_NGHIEM_THU.md` AC-845 đến AC-847, `14_DAC_TA_GIAO_DIEN.md` MH-325, MH-326, `16_CO_SO_DU_LIEU.md` mục 18A, `17_DAC_TA_API.md`, `21_KICH_BAN_KIEM_THU.md` CT-1035 đến CT-1045, `22_BAO_MAT.md` BM-83; phiên bản phần mềm 0.135.0.
+
+#### Vấn đề tồn đọng
+
+- Tài khoản nhận tiền và khóa cổng thật của nền tảng (GD-95), nhà cung cấp hóa đơn điện tử chưa chốt; VNPay cho thu phí của nền tảng, nhắc qua email làm sau; S4 dùng `receivables`, `listInvoices` cho bảng điều khiển.
 
 ### 2026-10-25 — DT-SaaS phần S5a: gói dịch vụ và giới hạn
 

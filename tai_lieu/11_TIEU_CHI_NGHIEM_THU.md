@@ -1,7 +1,7 @@
 # 11. TIÊU CHÍ NGHIỆM THU
 
 - Mô tả: Tiêu chí nghiệm thu cho từng chức năng, viết dạng Cho, Khi, Thì.
-- Phiên bản: 1.79
+- Phiên bản: 1.80
 - Ngày cập nhật: 2026-10-25
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -917,6 +917,9 @@ Các mã từ AC-94 đến AC-134 được viết trực tiếp trong mục 12 c
 | AC-842 | Cho trường gán gói chỉ có phân hệ Quản lý giáo dục / Khi người dùng mở cổng và gọi API của phân hệ khác / Thì menu không có phân hệ ngoài gói, máy chủ trả 403 `MODULE_NOT_IN_PLAN`; trường chưa gán gói dùng như trước (CT-1029, CT-1030, CT-1034; YCTD-194) |
 | AC-843 | Cho gói giới hạn số học sinh, dung lượng, số cấp học / Khi duyệt hồ sơ, nhập trẻ, bật cấp học, tải tệp vượt giới hạn / Thì bị chặn 422 `PLAN_LIMIT_EXCEEDED`, xem và sửa vẫn được (CT-1031; YCTD-194) |
 | AC-844 | Cho trường quá hạn / Khi chạy chuyển trạng thái và khi người dùng ghi dữ liệu / Thì trường chuyển chỉ đọc sau 7 ngày, tạm ngưng sau 30 ngày, có nhắc trước 15, 7, 1 ngày; ở chỉ đọc ghi bị 403 `SCHOOL_READ_ONLY`, xem, đăng nhập, xuất được, cổng hiện dải chỉ đọc; dữ liệu giữ nguyên; người vận hành gán gói và chạy chuyển trạng thái ở cổng nền tảng (CT-1027, CT-1028, CT-1032, CT-1033, CT-1034; YCTD-194) |
+| AC-845 | Cho quy tắc tính phí theo học sinh, theo trường, theo phân hệ, có bậc, phí tối thiểu, VAT / Khi tính một kỳ và khi việc nền chạy nhiều lần sau cuối kỳ / Thì số tiền đúng đến từng đồng, mỗi kỳ chỉ một hóa đơn, hạn trả là cuối kỳ cộng số ngày hạn (CT-1035, CT-1036, CT-1037, CT-1042; YCTD-196) |
+| AC-846 | Cho trường có hóa đơn quá hạn đang chỉ đọc / Khi quản trị trường trả bằng mã QR hoặc cổng báo tiền vào, kể cả báo trùng / Thì hóa đơn chuyển đã trả một lần, hạn dời tới kỳ sau, trường mở lại; khóa sai bị từ chối; tiền không khớp chờ gán tay (CT-1038, CT-1042, CT-1043, CT-1045; YCTD-196) |
+| AC-847 | Cho người vận hành nền tảng / Khi giảm giá, ghi nhận tiền tay, hủy, tặng kỳ, phát hành hóa đơn điện tử, cấu hình nhắc và khóa cổng / Thì mỗi điều chỉnh bắt buộc lý do và ghi nhật ký, nhắc mỗi mốc một lần, khóa chỉ trả gợi ý (CT-1039, CT-1040, CT-1041, CT-1044; YCTD-196) |
 
 ## 20. Chưa xác minh được
 

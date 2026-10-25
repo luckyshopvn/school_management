@@ -1,7 +1,7 @@
 # 17. ĐẶC TẢ API
 
 - Mô tả: Điểm cuối, phương thức, yêu cầu, phản hồi, xác thực, phân quyền, kiểm tra dữ liệu, xử lý lỗi, phân trang, lọc, sắp xếp, phiên bản.
-- Phiên bản: 1.126
+- Phiên bản: 1.127
 - Ngày cập nhật: 2026-10-25
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -281,6 +281,12 @@ Giao kèo hồ sơ thử nghiệm (DT-SaaS phần S9, YCTD-203, BR-209, BR-210):
 Giao kèo gói dịch vụ (DT-SaaS phần S5a, YCTD-194, BR-214 đến BR-216):
 
 1. Khi trường có gói, quyền thuộc phân hệ ngoài gói trả 403 `MODULE_NOT_IN_PLAN`; vượt giới hạn khi thêm học sinh, bật cấp học, tải tệp trả 422 `PLAN_LIMIT_EXCEEDED`; trường ở trạng thái `read_only` trả 403 `SCHOOL_READ_ONLY` cho mọi yêu cầu ghi tới máy chủ API và dịch vụ định danh, trừ `/api/v1/auth/*` (ngoài `/auth/settings`), đường dẫn xuất, `/api/v1/export-jobs`, `/api/v1/school-plan`, `/api/v1/billing`. Trường chưa gán gói và chế độ một trường không bị ảnh hưởng.
+
+Giao kèo thu phí tự động (DT-SaaS phần S5b, YCTD-196, BR-217 đến BR-219):
+
+1. Nhóm `/api/v1/billing` chỉ có ở nền tảng nhiều trường (chế độ một trường trả 404), cần `P01.billing.manage`, chỉ trả hóa đơn của trường theo tên miền; được gọi cả khi trường ở chế độ chỉ đọc. `POST /billing/invoices/{id}/pay` trả `{ provider, provider_reference, virtual_account_number, qr_content, amount, transfer_content, account_name }` cho số còn nợ; hóa đơn không còn nợ trả 409; `simulate-payment` chỉ có khi cổng mặc định của nền tảng là bộ giả lập (không thì 404).
+2. `POST /api/v1/platform-billing/webhooks/{payos|sepay|casso}` không cần trường, xác thực bằng chữ ký hoặc khóa của cổng lưu ở cơ sở dữ liệu nền tảng; cổng chưa bật 404, sai khóa 401; giao dịch trùng mã vẫn trả 200 nhưng không ghi lại.
+3. Nhóm `/api/v1/auth/platform/billing` chỉ ở tên miền cổng nền tảng với mã phiên vận hành; điều chỉnh tay thiếu lý do (dưới 3 ký tự) trả 400, sai trạng thái (giảm giá hóa đơn đã trả, hủy hóa đơn đã thu) trả 409; khóa cổng chỉ trả gợi ý bốn ký tự cuối.
 
 ## 5. Nền tảng và phân quyền
 
@@ -1545,6 +1551,19 @@ Giao kèo văn thư lưu trữ (YCTD-118):
 | PUT | /api/v1/auth/platform/plan-schools/{id} | Gán gói (ngày hiệu lực), đặt hạn dùng thử, hạn đã trả phí, trạng thái trường (YCTD-194); ghi nhật ký nền tảng |
 | POST | /api/v1/auth/platform/plan-lifecycle | Chạy chuyển trạng thái theo hạn, trả danh sách trường đổi và trường cần nhắc (YCTD-194, BR-216) |
 | GET | /api/v1/school-plan | Gói của trường đang dùng: `restricted`, trạng thái, gói, phân hệ, giới hạn, số đang dùng (học sinh, dung lượng, cấp học), hạn, số ngày còn lại, `read_only` (YCTD-194); mọi người dùng đã đăng nhập |
+| GET | /api/v1/billing/invoices | Hóa đơn dịch vụ của trường, số còn nợ, cổng thanh toán đang dùng (YCTD-196, P01.billing.manage) |
+| GET | /api/v1/billing/invoices/{id} | Chi tiết: dòng, VAT, tiền đã nhận, hóa đơn điện tử, yêu cầu thanh toán gần nhất |
+| GET | /api/v1/billing/invoices/{id}/document | Bản in HTML của hóa đơn (tải về) |
+| POST | /api/v1/billing/invoices/{id}/pay | Tạo mã QR hoặc liên kết thanh toán qua cổng của nền tảng cho số còn nợ |
+| POST | /api/v1/billing/invoices/{id}/simulate-payment | Giả lập tiền vào đủ số còn nợ (chỉ khi dùng cổng giả lập) |
+| POST | /api/v1/platform-billing/webhooks/{provider} | Thông báo tiền vào của cổng thanh toán của nền tảng (PayOS, SePay, Casso); không cần trường |
+| GET | /api/v1/auth/platform/billing | Tổng quan thu phí: cấu hình, khóa cổng (gợi ý), công nợ theo trường, giao dịch chưa khớp |
+| PUT | /api/v1/auth/platform/billing/settings, /billing/connectors/{connector} | Cấu hình thu phí; khóa cổng của nền tảng (để trống giá trị bí mật là giữ nguyên) |
+| GET, POST | /api/v1/auth/platform/billing/price-rules; PUT .../price-rules/{id} | Quy tắc tính phí |
+| GET, POST | /api/v1/auth/platform/billing/invoices | Danh sách hóa đơn (lọc `status`: issued, paid, void, overdue; `school_id`); lập hóa đơn tay cho kỳ đang chạy |
+| GET | /api/v1/auth/platform/billing/invoices/{id} | Chi tiết hóa đơn |
+| POST | /api/v1/auth/platform/billing/invoices/{id}/{discount\|manual-payment\|void\|einvoice\|einvoice-cancel} | Điều chỉnh tay có lý do, hóa đơn điện tử |
+| POST | /api/v1/auth/platform/billing/payments/{id}/assign, /billing/schools/{id}/free-period | Gán giao dịch chưa khớp; tặng kỳ |
 | POST | /api/v1/internal/jobs/tick | Điểm gọi của bộ hẹn giờ bên ngoài (YCTD-192, BR-204): tiêu đề `x-internal-job-token` bằng `INTERNAL_JOB_TOKEN` (so sánh thời gian hằng, sai 401, chưa đặt 404, có giới hạn tần suất); chạy việc nền đến hạn của mọi trường rồi trả `{ jobs, schools, failed }`; không cần trường (gọi bằng địa chỉ nội bộ) |
 | GET | /api/v1/public/schools/picker | Trang chọn trường ở tên miền gốc (YCTD-192, BR-205, MH-315): trang HTML tĩnh, 404 khi chưa đặt `PLATFORM_ROOT_DOMAIN`; không cần trường |
 | GET | /api/v1/public/schools/resolve?code=<mã> | Đổi mã trường thành `{ url }` của trường đang phục vụ (YCTD-192, BR-205); mã lạ, trường tạm dừng, đang khởi tạo hoặc đã xóa 404; có giới hạn tần suất theo địa chỉ mạng; không liệt kê trường |

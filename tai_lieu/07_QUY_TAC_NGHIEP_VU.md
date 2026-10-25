@@ -1,7 +1,7 @@
 # 07. QUY TẮC NGHIỆP VỤ
 
 - Mô tả: Điều kiện, ràng buộc, công thức, trạng thái, ngoại lệ, quy tắc chuyển trạng thái.
-- Phiên bản: 1.97
+- Phiên bản: 1.98
 - Ngày cập nhật: 2026-10-25
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -288,6 +288,9 @@ Bổ sung ngày 2026-10-09 theo yêu cầu tách vai trò Ban Giám hiệu thàn
 | BR-214 | Gói dịch vụ và phân hệ (YCTD-194, DT-SaaS phần S5a): mỗi trường gán một gói có ngày hiệu lực (gói hiện hành là bản gán đã đến ngày hiệu lực, chưa hết, mới nhất); gói liệt kê phân hệ được bật theo phân hệ của menu cổng, trống là mọi phân hệ, phân hệ Hệ thống luôn bật; trường chưa gán gói không bị giới hạn. Phân hệ ngoài gói bị ẩn ở menu và máy chủ trả 403 `MODULE_NOT_IN_PLAN`; dữ liệu của phân hệ bị tắt giữ nguyên. Cách tính phí cấu hình được theo học sinh, theo trường hoặc theo phân hệ, mặc định theo học sinh (GD-94); thu tiền ở S5b |
 | BR-215 | Giới hạn của gói (YCTD-194): số học sinh đang học, dung lượng tệp (MB), số cấp học bật; trống là không giới hạn. Vượt giới hạn chỉ chặn thêm (duyệt hồ sơ trẻ, nhập trẻ, nhập từ CSDL của Bộ, bật cấp học, tải tệp) với 422 `PLAN_LIMIT_EXCEEDED`, không chặn xem, sửa hay xuất |
 | BR-216 | Trạng thái trường theo hạn (YCTD-194): dùng thử (hạn `trial_ends_on`, mặc định 30 ngày), hoạt động (hạn `paid_until`, trống là không hạn), chỉ đọc, tạm ngưng. Mặc định nhắc trước 15, 7, 1 ngày; quá hạn 7 ngày chuyển chỉ đọc; quá hạn 30 ngày chuyển tạm ngưng; các mốc cấu hình được ở `plan_lifecycle`. Ở chế độ chỉ đọc mọi yêu cầu ghi trả 403 `SCHOOL_READ_ONLY`, trừ đăng nhập, đăng xuất, xuất dữ liệu, xem gói, thanh toán và gia hạn. Không bao giờ xóa dữ liệu khi hết hạn; người vận hành mở lại trường sau khi gia hạn; mọi lần chuyển ghi nhật ký nền tảng |
+| BR-217 | Quy tắc tính phí (YCTD-196, DT-SaaS phần S5b, GD-94): mỗi gói chọn một quy tắc, chưa chọn thì tính theo giá niêm yết của gói; thành phần theo học sinh đang học chốt cuối kỳ (bậc thang lũy tiến hoặc theo bậc cả trường), theo trường, theo phân hệ đang bật, kết hợp được, mặc định theo học sinh; phí tối thiểu so với tổng các thành phần trước giảm giá; VAT tính trên số sau giảm giá, làm tròn nửa lên; số tiền là số nguyên đồng; kỳ tháng, quý, năm theo lịch |
+| BR-218 | Hóa đơn và thu tiền (YCTD-196): mỗi kỳ của trường một hóa đơn còn hiệu lực, lập sau khi kỳ kết thúc, hạn trả là cuối kỳ cộng số ngày hạn của quy tắc; nội dung chuyển khoản là mã hóa đơn bỏ gạch; tiền vào khớp theo nội dung, trùng mã giao dịch của cổng thì bỏ qua; trả đủ thì hạn chờ trả dời tới hạn của hóa đơn kỳ sau và trường chỉ đọc hoặc dùng thử chuyển hoạt động; trường tạm ngưng do vận hành mở lại; không xóa dữ liệu khi hết hạn |
+| BR-219 | Nhắc gia hạn và điều chỉnh tay (YCTD-196): nhắc trước hạn 15, 7, 1 ngày và sau hạn 1, 3 ngày (cấu hình được), mỗi mốc một lần; quá hạn chuyển trạng thái theo BR-216 của S5a; giảm giá, ghi nhận tiền tay, hủy hóa đơn chưa thu, tặng kỳ, gán giao dịch chưa khớp chỉ do vận hành nền tảng làm, bắt buộc lý do và ghi nhật ký |
 
 Danh mục chứng từ áp dụng hạn mức: phiếu chi, phiếu đảo phiếu thu (YCTD-23), phiếu đảo phiếu chi (YCTD-24), đề nghị mua hàng, phiếu điều chỉnh hóa đơn, miễn giảm học phí, bảng lương kỳ, chốt kỳ tài chính. Mức hạn mức cụ thể chưa có, xem Q-22 và Q-112.
 

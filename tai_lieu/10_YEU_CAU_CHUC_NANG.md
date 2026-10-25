@@ -1,7 +1,7 @@
 # 10. YÊU CẦU CHỨC NĂNG
 
 - Mô tả: Mã chức năng, tên chức năng, mục đích, người sử dụng, điều kiện thực hiện, dữ liệu đầu vào, quy trình xử lý, kết quả đầu ra, quy tắc nghiệp vụ, trường hợp ngoại lệ, phân quyền, thông báo lỗi.
-- Phiên bản: 1.99
+- Phiên bản: 1.100
 - Ngày cập nhật: 2026-10-25
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -85,6 +85,9 @@
 | P01-65 | Gói dịch vụ, phân hệ và giới hạn theo gói (YCTD-194) | Người vận hành nền tảng; hệ thống | Gói (phân hệ, giới hạn, cách tính phí), gán gói cho trường | Ẩn phân hệ ngoài gói, chặn ở máy chủ; chặn thêm học sinh, cấp học, tệp khi vượt giới hạn | Gói của trường, số đang dùng | BR-214, BR-215 |
 | P01-66 | Trạng thái trường và chế độ chỉ đọc khi hết hạn (YCTD-194) | Hệ thống (lệnh `platform plan-lifecycle`, bộ lập lịch S1b); người vận hành nền tảng | Hạn dùng thử, hạn đã trả phí, mốc cấu hình | Nhắc hạn; chuyển chỉ đọc, tạm ngưng; chặn ghi ở chế độ chỉ đọc; không xóa dữ liệu | Trạng thái trường, nhật ký nền tảng | BR-216 |
 | P01-67 | Trang Gói dịch vụ ở cổng nền tảng, dải báo gói ở cổng (YCTD-194) | Người vận hành nền tảng; người dùng của trường | Gói, gán gói, hạn, trạng thái | Lưu gói, gán gói, chạy chuyển trạng thái; cổng hiện dải chỉ đọc, nhắc hạn | MH-323, MH-324 | PQ-105 |
+| P01-68 | Quy tắc tính phí, chốt số liệu kỳ, hóa đơn (YCTD-196) | Người vận hành nền tảng; hệ thống (việc nền theo trường) | Quy tắc (thành phần, bậc, phí tối thiểu, kỳ, VAT, hạn), số học sinh đang học | Chốt số liệu, lập hóa đơn mỗi kỳ, lập tay cho kỳ đang chạy | Hóa đơn, số liệu kỳ | BR-217, BR-218 |
+| P01-69 | Thu tiền, đối soát, gia hạn, nhắc gia hạn (YCTD-196) | Quản trị trường; cổng thanh toán của nền tảng; hệ thống | Hóa đơn, giao dịch tiền vào | Mã QR hoặc liên kết thanh toán, khớp tiền vào theo nội dung, gia hạn và mở lại trường, nhắc trước và sau hạn | Hóa đơn đã trả, hạn mới, nhắc trong ứng dụng | BR-218, BR-219 |
+| P01-70 | Trang Thu phí ở cổng nền tảng, Hóa đơn dịch vụ ở cổng, hóa đơn điện tử (YCTD-196) | Người vận hành nền tảng; quản trị trường | Điều chỉnh có lý do, cấu hình, khóa cổng | Giảm giá, ghi tiền tay, hủy, tặng kỳ, gán giao dịch, phát hành hóa đơn điện tử qua bộ nối | MH-325, MH-326 | PQ-105, PQ-107 |
 
 ## 3. Phân hệ P02 — Trẻ, phụ huynh và lớp học
 

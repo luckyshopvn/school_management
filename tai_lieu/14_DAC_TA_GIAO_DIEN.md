@@ -1,7 +1,7 @@
 # 14. ĐẶC TẢ GIAO DIỆN
 
 - Mô tả: Danh sách màn hình, điều hướng, bố cục, thành phần, dữ liệu hiển thị, thao tác, trạng thái, thông báo, xử lý lỗi, quyền hiển thị, khả năng thích ứng màn hình.
-- Phiên bản: 1.112
+- Phiên bản: 1.113
 - Ngày cập nhật: 2026-10-25
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -690,6 +690,8 @@ Từ YCTD-184 (DT-22 phần 22h2), phân hệ "Kho học liệu" thêm 8. Câu h
 | MH-322 | Thương hiệu của trường (YCTD-195, cùng trang): tên hiển thị, màu chủ đạo, ghi chú biểu trưng lấy từ Cấu hình website, nút Lưu thương hiệu | Hiệu trưởng (VT-02) |
 | MH-323 | Cổng vận hành nền tảng: Gói dịch vụ (YCTD-194, mục menu "Gói dịch vụ"): bảng gói (mã, tên, phân hệ, giới hạn học sinh, dung lượng, cấp học, cách tính phí, đơn giá, trạng thái) kèm biểu mẫu thêm, sửa (chọn phân hệ, cách tính phí theo học sinh, theo trường, theo phân hệ); bảng trường (mã, trạng thái, gói hiện hành, hạn dùng thử, hạn đã trả phí) kèm gán gói, đặt hạn, đổi trạng thái; nút Chạy chuyển trạng thái hiện số trường đổi và số nhắc hạn | Người vận hành nền tảng |
 | MH-324 | Cổng: gói dịch vụ của trường (YCTD-194): ô Phân hệ chỉ liệt kê phân hệ trong gói; dải báo "Chế độ chỉ đọc" (vai trò alert) khi trường chỉ đọc; dải nhắc hạn gói khi còn từ 15 ngày trở xuống | Mọi người dùng của trường |
+| MH-325 | Cổng vận hành nền tảng: Thu phí (YCTD-196, mục menu "Thu phí"): bảng công nợ theo trường (còn nợ, số hóa đơn chưa trả, quá hạn, hạn chờ trả, nút Tặng kỳ); biểu mẫu lập hóa đơn tay; bảng hóa đơn lọc theo trạng thái kèm chi tiết (dòng, VAT, tiền đã nhận, hóa đơn điện tử; nút Giảm giá, Ghi nhận tiền tay, Hủy hóa đơn, Phát hành và Hủy hóa đơn điện tử, ô lý do bắt buộc); giao dịch chưa khớp (Gán vào hóa đơn); quy tắc tính phí (thành phần, bậc thang, phí theo trường, giá từng phân hệ, phí tối thiểu, kỳ, VAT, hạn); cấu hình thu phí (tiền tố, tài khoản nhận, bộ nối hóa đơn điện tử, lịch nhắc); khóa cổng của nền tảng (ô bí mật chỉ hiện gợi ý) | Người vận hành nền tảng |
+| MH-326 | Cổng: Hóa đơn dịch vụ (YCTD-196, Quản trị hệ thống › 4.4): số còn nợ; bảng hóa đơn (mã, kỳ, tổng, còn nợ, hạn, trạng thái, quá hạn; nút Tải hóa đơn, Thanh toán); khung thanh toán có mã QR hoặc liên kết, số tiền, nội dung chuyển khoản, số tài khoản; nút "Giả lập đã chuyển tiền" khi máy chủ dùng cổng giả lập | Hiệu trưởng, quản trị trường |
 
 Từ YCTD-128 (DT-16 phần 16i): MH-80 có nút "Nhập từ Excel" mở công cụ nhập chung "Nhập phòng từ Excel"; biểu mẫu phòng chỉ hiện thuộc tính khai báo được cho loại phòng đang chọn, bốn ô nhà vệ sinh (Đối tượng sử dụng nhà vệ sinh, Nhà vệ sinh đạt chuẩn, Riêng nam nữ, Số chỗ) chỉ hiện với Phòng vệ sinh; MH-80 cũng mở ở mục 6.2 (`/facility-input`) với tiêu đề "6.2. Nhập liệu cơ sở vật chất". MH-81 bỏ thẻ 2.2 (chuyển sang MH-129), thẻ Danh mục tối thiểu có nút "Nhập từ Excel". MH-20 thẻ Tài sản có khối "Gắn thiết bị dạy học" (Tài sản cần gắn, Thiết bị dạy học, Gắn thiết bị dạy học, Bỏ gắn) và cột Thiết bị dạy học khi người dùng có `P13.equipment.manage`.
 
