@@ -5,7 +5,7 @@
 - Ngày cập nhật: 2026-10-25
 - Trạng thái: Chờ phê duyệt
 - Thuộc: [Tài liệu 34, tổng hợp chức năng hệ thống](00_MUC_LUC.md)
-- Nguồn: mã và tài liệu trên nhánh `main` ngày 2026-10-25 (sau PR 165, 166, 167, 169). Khi tài liệu và mã lệch nhau, mô tả theo mã; chỗ lệch ghi ở [phụ lục](07_MA_TRAN_VAI_TRO_VA_PHU_LUC.md)
+- Nguồn: mã và tài liệu trên nhánh `main` ngày 2026-10-25 (sau PR 165, 166, 167, 169, 170). Khi tài liệu và mã lệch nhau, mô tả theo mã; chỗ lệch ghi ở [phụ lục](07_MA_TRAN_VAI_TRO_VA_PHU_LUC.md)
 
 ## 1. Ma trận vai trò × phân hệ
 
@@ -353,7 +353,7 @@ Gom từ khi rà mã ngày 2026-10-25. Tài liệu 34 mô tả theo mã; các ch
 | Chỗ | Tài liệu nói | Mã làm |
 |---|---|---|
 | `tai_lieu/index.md` dòng đầu; `04_TONG_QUAN_DU_AN.md` tên dự án, mục 1, GD-04 | "School Management - Hệ thống quản lý trường mầm non"; "Hệ thống phục vụ khối mầm non" | Hệ thống đã đa cấp: bốn mã cấp MN, TH, THCS, THPT (`school-levels.ts`), menu và ứng dụng theo cấp (DT-19 đến DT-21), đa thuê bao (DT-SaaS) |
-| `index.md` dòng tài liệu 32 | DT-SaaS "(S1a, S2 đã triển khai; S1b đến S9 ... kế hoạch)" | S1b đã gộp (PR 166, `scheduler_state`, `JobScheduler`, điểm tick); S7a, S8a, S9 (PR 167), S3 (PR 169) đã gộp; tài liệu 32 mục 14.10 ghi đúng |
+| `index.md` dòng tài liệu 32 | DT-SaaS "(S1a, S2 đã triển khai; S1b đến S9 ... kế hoạch)" | S1b đã gộp (PR 166, `scheduler_state`, `JobScheduler`, điểm tick); S7a, S8a, S9 (PR 167), S3 (PR 169), S5a (PR 170) đã gộp; tài liệu 32 mục 14.10 ghi đúng |
 | `index.md` "Phân hệ đã xác định 19", `05_PHAM_VI.md` mười chín phân hệ | 19 phân hệ P01 đến P19 | Cổng quản trị có 21 phân hệ (`PORTAL_WORKSPACES`); P01 đến P19 chỉ còn là tiền tố mã quyền. Hai cách chia khác nhau, tài liệu chưa có bảng đối chiếu |
 | `08_VAI_TRO_NGUOI_DUNG.md` mục 1 cột "Kênh sử dụng" | Mỗi vai trò dùng kênh nhất định (VT-07 ứng dụng giáo viên, VT-14 ứng dụng phụ huynh...) | `POST /auth/login` không kiểm vai trò theo kênh; chỉ đăng nhập mã một lần giới hạn tài khoản chỉ có VT-14. Ở cổng, VT-14 không thấy gì nhờ `role_workspace_exclusions`; VT-07 có quyền xem nhiều mục ở cổng |
 | `08_VAI_TRO_NGUOI_DUNG.md` mục 3 ma trận P01 đến P19 | Ma trận theo 19 phân hệ cũ với Q, S, D, X | Ma trận 0003 chỉ cấp `Pxx.view/edit/approve`; menu và API dùng quyền chi tiết thêm ở migration sau. Ví dụ `P01.edit` của VT-15, VT-03 không có điểm cuối nào dùng; VT-02 không thấy mục Giảng dạy dù tài liệu ghi D ở P03 |
@@ -364,7 +364,7 @@ Gom từ khi rà mã ngày 2026-10-25. Tài liệu 34 mô tả theo mã; các ch
 | `12` mục 9 CB-03, CB-06, CB-09 | Nhắc nợ quá hạn hằng ngày; tổng hợp bảng điều khiển hằng giờ; khóa tài khoản hết hiệu lực hằng ngày | Không có việc nền nào như vậy: nhắc nợ là thao tác tay (`sendReminders`); không có bảng số liệu tổng hợp sẵn; khóa tài khoản kiểm lúc đăng nhập |
 | `12` mục 8 "Kênh gửi và loại sự kiện cấu hình được theo đơn vị" | Cấu hình kênh theo đơn vị | Kênh ghi cứng ở từng chỗ gọi `queueNotification`; chỉ có mẫu nội dung chung toàn trường và bật Zalo toàn trường |
 | `32` mục 14.10 dòng S2 | Lịch chạy `purge-due`, `migrate-schools` chờ bộ lập lịch của S1b | Sau khi S1b gộp vẫn chưa đăng ký hai việc này vào `JobScheduler`; chạy bằng dòng lệnh |
-| `32` mục 14.4 bảng trạng thái `schools` | Có `read_only`, chuyển chỉ đọc khi hết hạn | Ràng buộc có `read_only` nhưng không hàm nào chuyển trường sang đó (chờ S5a) |
+| `32` mục 14.4 bảng trạng thái `schools` | Có `read_only`, chuyển chỉ đọc khi hết hạn | Đã làm ở S5a (PR 170): `applyPlanLifecycle` chuyển `read_only` sau hạn 7 ngày, `suspended` sau 30 ngày; chạy bằng lệnh hoặc nút ở cổng nền tảng, chưa nối bộ lập lịch S1b như tài liệu 32 ghi |
 | `04` mục 8 giới hạn 4, `13`, `12` QĐ-12 | Hạ tầng đám mây trong nước | Hồ sơ thử nghiệm S9 (đã gộp, PR 167; QĐ-28 tài liệu 12) đặt máy ngoài Việt Nam khi có văn bản đồng ý; hồ sơ vận hành S7a trên VPS trong nước |
 
 ### 3.2. 02 Quản lý giáo dục, cơ sở vật chất, tuyển sinh đầu cấp, EMIS, kí hồ sơ

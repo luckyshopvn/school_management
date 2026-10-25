@@ -5,7 +5,7 @@
 - Ngày cập nhật: 2026-10-25
 - Trạng thái: Chờ phê duyệt
 - Thuộc: [Tài liệu 34, tổng hợp chức năng hệ thống](00_MUC_LUC.md)
-- Nguồn: mã và tài liệu trên nhánh `main` ngày 2026-10-25 (sau PR 165, 166, 167, 169). Khi tài liệu và mã lệch nhau, mô tả theo mã; chỗ lệch ghi ở [phụ lục](07_MA_TRAN_VAI_TRO_VA_PHU_LUC.md)
+- Nguồn: mã và tài liệu trên nhánh `main` ngày 2026-10-25 (sau PR 165, 166, 167, 169, 170). Khi tài liệu và mã lệch nhau, mô tả theo mã; chỗ lệch ghi ở [phụ lục](07_MA_TRAN_VAI_TRO_VA_PHU_LUC.md)
 
 ## 1. Tổng quan
 
@@ -229,7 +229,7 @@ flowchart TD
 | Điểm cuối dịch vụ định danh | 68 | Như trên, `apps/identity/src` |
 | Vai trò seed | 19 | VT-01 đến VT-20, không có VT-13 |
 | Mã quyền seed | 269 | Chạy lại toàn bộ migration định danh, đếm câu `insert into permissions` |
-| Spec e2e | 115 | `tests/e2e/*.spec.ts` (từ `01-login` đến `140-trial-profile`, gồm `133-tenancy-school-settings`); thêm thư mục `tests/tenancy/` kiểm tĩnh cách ly, `tests/trial/` kiểm cổng biên và bộ định tuyến của hồ sơ thử nghiệm |
+| Spec e2e | 116 | `tests/e2e/*.spec.ts` (từ `01-login` đến `140-trial-profile`, gồm `133-tenancy-school-settings`, `134-school-plans`); thêm thư mục `tests/tenancy/` kiểm tĩnh cách ly, `tests/trial/` kiểm cổng biên và bộ định tuyến của hồ sơ thử nghiệm |
 | Màn hình ứng dụng giáo viên | 24 màn hình, 3 thành phần | `apps/teacher/src/screens`: Lớp của tôi (trang chủ), Đăng nhập, Đổi mật khẩu, Điểm danh, Đón trả, Xác nhận đón tại cổng, Nhật ký, Chăm sóc và y tế, Trao đổi và đồ bị mất, Hoạt động và hình ảnh, Báo cơm, Bán trú, Đánh giá học sinh, Sổ điểm, Dặn thuốc, Giảng dạy, Sổ đầu bài, Lịch dạy, Sách đang mượn, Bồi dưỡng, Kiểm kê thiết bị, Nghỉ phép, Phiếu lương, Công việc; thành phần: thẻ chấm công, danh sách lịch công tác, thông báo |
 | Màn hình ứng dụng phụ huynh | 5 màn hình, 20 khối chức năng theo con | `apps/parent/src/screens`: Đăng nhập, Kích hoạt (đặt mật khẩu mới), Trang chủ, Tuyển sinh, Tuyển dụng; khối: Thông báo, Khảo sát, Nhật ký, Dặn thuốc, Đồng ý hình ảnh, Sức khỏe, Học tập, Trao đổi, Hoạt động, Thực đơn, Người đón, Dịch vụ, Học phí (kèm mã QR), Hồ sơ cuối cấp, Bán trú, Thời khóa biểu, Đánh giá, Thư viện, Sổ điểm, Chuyên cần theo tiết, Học bạ |
 | Bảng dữ liệu | 488 | Định danh 16, hệ thống 80, năm học 377, nền tảng 15 |
@@ -588,12 +588,12 @@ Một nền tảng chạy nhiều trường, mỗi trường một đường d�
 | S8a Hồ sơ pháp lý | YCTD-200, PR 162 | Chỉ tài liệu: `tai_lieu/33_HO_SO_PHAP_LY/` PL-00 đến PL-15 (hợp đồng, thỏa thuận xử lý dữ liệu, văn bản đồng ý, điều khoản, chính sách bảo vệ dữ liệu, đánh giá tác động, chấp nhận rủi ro...), bản nháp chờ luật sư rà. Không có mã |
 | S9 Triển khai thử nghiệm miễn phí | YCTD-203, PR 167, 0.132.0 | Hồ sơ `deploy/profiles/trial/` dùng chung mã với hồ sơ vận hành, khác ở biến cấu hình (chi tiết ở mục "Hồ sơ triển khai thử nghiệm" dưới đây). Nền tảng 0100 (`school_databases.login_name`). Bộ nối nơi đặt PostgreSQL `DB_HOST_ADAPTER` (`plain`, `neon`, `supabase`); bộ nối tên miền `cloudflare-saas`, `vercel-domains`; chính sách dữ liệu `PLATFORM_DATA_POLICY` (BR-209); lệnh `platform relayout` (BR-210); kho khóa trong bộ nhớ của dịch vụ định danh (`REDIS_URL=memory://`); `APP_BASE_PATH` cho ba ứng dụng web. E2e spec 140, kiểm thử `tests/trial/`. Chưa dựng thật trên nhà cung cấp; chưa làm `INTEGRATIONS_MODE` (S3 thay bằng bộ nối đọc theo trường) và tự xóa trường dữ liệu giả sau 30 ngày |
 | S3 Cấu hình riêng từng trường | YCTD-195, PR 169, 0.133.0 | Khóa kết nối ngoài riêng từng trường (BR-211): bảng `integration_secrets` (hệ thống 0051) mã hóa AES-256-GCM bằng khóa của trường, cho chín kết nối `payos`, `sepay`, `casso`, `vnpay`, `vietqr` (VietQR tĩnh, đối soát qua sao kê), `esms`, `zalo`, `facebook`, `storage`. Không bao giờ trả lại giá trị đã lưu, chỉ bốn ký tự cuối của giá trị bí mật; ô để trống khi lưu là giữ giá trị cũ; nhật ký chỉ ghi tên kết nối và tên trường đã đổi. Bộ nối đọc theo trường (`TenantSmsGateway`, `TenantFacebookPublisher`, `TenantZaloSender`, `TenantPaymentGatewayRegistry`, `TenantFileStorage`), thứ tự nguồn: cấu hình trường, bộ giả lập, biến môi trường (chỉ chế độ một trường), tắt; chế độ nhiều trường không dùng khóa của cả bản triển khai hay của trường khác. Thương hiệu (BR-213): `school_branding` (hệ thống 0052) gồm tên hiển thị, màu chủ đạo `#RRGGBB`, biểu trưng lấy từ website trường; trang đăng nhập đọc công khai `GET /api/v1/public/branding` và `/public/branding/logo`, không trả dữ liệu cá nhân. Đổi khóa (BR-212): `school_key_rotations` (nền tảng 0030); lệnh `platform rotate-child-key --code <mã>` mã hóa lại từng lô mọi cột `*_encrypted` và tính lại `*_hash` ở cơ sở dữ liệu hệ thống và mọi năm học, chỉ khi trường tạm dừng, làm tiếp được; `platform rewrap-master-key` bọc lại khóa mọi trường bằng khóa gốc mới trong một giao dịch. Điểm cuối `/school-settings/integrations` (`GET`, `PUT :connector`, `DELETE :connector`, `POST :connector/test`) và `/school-settings/branding` (`GET`, `PUT`), quyền `P01.integration.manage` (VT-02). Màn hình MH-321, MH-322 trong trang Quản trị hệ thống 3.2 Kết nối ngoài. E2e spec 133. Chưa làm: kiểm tra kết nối thật cho cổng thanh toán, tải biểu trưng riêng, tên sản phẩm theo cấu hình nền tảng, chuyển `.env` của bản đang chạy thành cấu hình trường số 1 |
+| S5a Gói dịch vụ và giới hạn | YCTD-194, PR 170, 0.134.0 | Gói dịch vụ (nền tảng 0040): bảng `plans` (mã, tên, danh sách phân hệ, trống là mọi phân hệ; giới hạn số học sinh đang học, dung lượng tệp, số cấp học; số ngày dùng thử; chỗ tính phí cho S5b: `pricing_mode` theo học sinh, theo trường hoặc theo phân hệ, mặc định theo học sinh, đơn giá, mức tối thiểu, chu kỳ), `school_plans` (gán gói có ngày hiệu lực, giữ lịch sử), cột `trial_ends_on`, `paid_until`, `status_changed_at` của `schools`, cấu hình `plan_lifecycle`, gói mặc định `full`. Phân hệ của gói là phân hệ của menu cổng; `system` luôn bật; trường chưa gán gói không bị giới hạn (BR-214). Máy chủ trả 403 `MODULE_NOT_IN_PLAN` khi tuyến chỉ thuộc phân hệ ngoài gói; cổng ẩn phân hệ ngoài gói (MH-324). Vượt giới hạn chỉ chặn thêm (duyệt hồ sơ trẻ, nhập trẻ, nhập từ CSDL của Bộ, bật cấp học, tải tệp) với 422 `PLAN_LIMIT_EXCEEDED`, không chặn xem, sửa, xuất (BR-215). Trạng thái theo hạn (BR-216): nhắc trước 15, 7, 1 ngày; quá hạn 7 ngày chuyển `read_only`; quá hạn 30 ngày chuyển `suspended`; mốc cấu hình được; không bao giờ xóa dữ liệu. Ở `read_only` mọi yêu cầu ghi tới API và định danh trả 403 `SCHOOL_READ_ONLY`, trừ đăng nhập, đăng xuất, làm mới phiên, xuất dữ liệu, xem gói, nhóm `/billing`; cổng hiện dải "Chế độ chỉ đọc" và dải nhắc hạn từ 15 ngày. Hàm `applyPlanLifecycle` chạy bằng lệnh `platform plan-lifecycle` hoặc nút ở cổng nền tảng, chưa nối bộ lập lịch. Điểm cuối `GET /api/v1/school-plan`; nhóm `/auth/platform/plans`, `plan-modules`, `plan-schools`, `plan-lifecycle`. Trang Gói dịch vụ ở cổng nền tảng (MH-323). E2e spec 134. Phần thu tiền để S5b |
 
 ### Phần ĐANG LÀM hoặc KẾ HOẠCH (chưa có trong mã)
 
 | Phần | Đợt | Nội dung kế hoạch (tài liệu 32 mục 14.3) | Dấu hiệu trong mã |
 |---|---|---|---|
-| S5a Gói dịch vụ và giới hạn | 2 | Gói, phân hệ theo gói, giới hạn học sinh, dung lượng, trạng thái dùng thử, hoạt động, chỉ đọc, tạm ngưng; chỉ đọc khi hết hạn | Trạng thái `read_only` đã có trong ràng buộc và nhãn "Chỉ đọc" ở trang Trường, nhưng chưa có mã nào chuyển trường sang `read_only`; chưa có bảng `plans` |
 | S5b Thu phí tự động | 4 | Quy tắc tính phí (theo học sinh, theo trường, theo phân hệ, mặc định theo số học sinh), hóa đơn, thu qua QR, gia hạn, nhắc, hóa đơn điện tử | Chưa có |
 | S4 Bảng điều khiển nền tảng | 3 | Danh sách trường kèm dung lượng, số người dùng, học sinh, đăng nhập cuối, phiên bản cấu trúc; đăng nhập hỗ trợ có đồng ý; thông báo bảo trì; theo dõi lỗi | Trang "Tổng quan" của `apps/platform` mới là khung |
 | S7b Vận hành nhiều trường | 4 | Sao lưu, khôi phục từng trường, khôi phục theo thời điểm, chuyển cụm, thử tải, RPO, RTO | Chưa có |
@@ -604,11 +604,12 @@ Một nền tảng chạy nhiều trường, mỗi trường một đường d�
 
 **Tài khoản vận hành nền tảng**: bảng `platform_operators` (đăng nhập, họ tên, mật khẩu, trạng thái `active` hoặc `locked`, số lần sai, khóa tạm, bắt buộc đổi mật khẩu). Chưa có cột vai trò: mọi tài khoản vận hành có cùng quyền. Tạo bằng lệnh `create-platform-operator`. Chỉ đăng nhập ở tên miền cổng nền tảng (`PLATFORM_CONSOLE_HOST`); mã phiên đối tượng `school-management-platform`, hạn 8 giờ, giữ trong bộ nhớ trang (tải lại trang phải đăng nhập lại). Không nhầm với VT-01 "Quản trị nền tảng" là vai trò trong từng trường (lệnh `create-platform-administrator`).
 
-**Cổng vận hành nền tảng** (`apps/platform`, menu Tổng quan, Trường):
+**Cổng vận hành nền tảng** (`apps/platform`, menu Tổng quan, Trường, Gói dịch vụ):
 
 | Màn hình | Chức năng, nút |
 |---|---|
 | Tổng quan | Thông tin tài khoản vận hành; khung cho S4 |
+| Gói dịch vụ (S5a, MH-323) | Bảng gói (mã, tên, phân hệ, giới hạn học sinh, dung lượng, cấp học, cách tính phí, đơn giá, trạng thái `active` hoặc `archived`) kèm biểu mẫu Thêm, Sửa (chọn phân hệ, cách tính phí). Bảng trường (mã, trạng thái, gói hiện hành, hạn dùng thử, hạn đã trả phí) kèm gán gói, đặt hạn, đổi trạng thái giữa Dùng thử, Hoạt động, Chỉ đọc, Tạm ngưng. Nút Chạy chuyển trạng thái hiện số trường đổi trạng thái và số lượt nhắc hạn |
 | Trường, danh sách | Lưới cột Mã, Tên trường, Trạng thái, Loại dữ liệu, Tên miền; nút Khởi tạo trường |
 | Khởi tạo trường (5 bước) | 1. Thông tin trường: tên, mã (mẫu `[a-z0-9][a-z0-9-]{1,30}[a-z0-9]`, không trùng mã dành riêng như `www`, `api`, `platform`, `admin`; không đổi sau khi tạo), cấp học (MN, TH, THCS, THPT), năm học đầu, trạng thái ban đầu Dùng thử hoặc Hoạt động. 2. Tên miền: mặc định `<mã>.<tên miền hệ thống>` hoặc tên miền riêng cấu hình tay. 3. Loại dữ liệu: Dữ liệu giả, Dữ liệu thật có đồng ý, Vận hành chính thức; chọn dữ liệu thật thì nhập đủ bốn hồ sơ còn hiệu lực (PL-01 thỏa thuận xử lý dữ liệu, PL-02 văn bản đồng ý, PL-03 đánh giá tác động, PL-06 chấp nhận rủi ro) và ít nhất một vùng máy chủ. 4. Quản trị viên đầu tiên. 5. Điều khoản và xác nhận. Kết quả hiện đường liên kết kích hoạt một lần |
 | Chi tiết trường | Trạng thái, loại dữ liệu, cấp học, năm học đầu, hạn xóa vĩnh viễn; ô Lý do; nút Tạm dừng, Mở lại, Yêu cầu xóa, Hủy yêu cầu xóa, Cấp lại đường kích hoạt; với việc khởi tạo lỗi: Chạy tiếp khởi tạo, Hoàn tác khởi tạo; khối Tên miền (tên miền, loại Hệ thống hay Riêng, trạng thái, cấu hình DNS, nút Kiểm tra, thêm tên miền riêng); khối Hồ sơ đồng ý và vùng máy chủ (thêm hồ sơ, thêm vùng, đổi loại dữ liệu qua cùng cổng hồ sơ) |
@@ -617,7 +618,7 @@ Không có nút xóa vĩnh viễn ở cổng: xóa vĩnh viễn chạy bằng l�
 
 **Điểm cuối định danh** `/auth/platform/schools`: `GET` (danh sách), `GET settings`, `GET :code`, `POST` (setup), `POST jobs/:id/resume`, `POST jobs/:id/rollback`, `POST :code/suspend`, `:code/resume`, `:code/request-deletion`, `:code/cancel-deletion`, `:code/invitation`, `:code/consents`, `:code/hosting`, `:code/data-class`, `:code/domains`, `:code/domains/:host/verify`.
 
-**Lệnh dòng lệnh `platform`**: `generate-master-key`, `migrate`, `adopt-existing`, `provision --file`, `provision-resume --job`, `provision-rollback --job`, `suspend`, `resume`, `request-deletion`, `cancel-deletion` (kèm `--reason`), `purge-due`, `reissue-invitation`, `verify-domain --host`, `migrate-schools [--canary] [--continue]`, `relayout --school <mã> --to database|schema` (S9).
+**Lệnh dòng lệnh `platform`**: `generate-master-key`, `migrate`, `adopt-existing`, `provision --file`, `provision-resume --job`, `provision-rollback --job`, `suspend`, `resume`, `request-deletion`, `cancel-deletion` (kèm `--reason`), `purge-due`, `reissue-invitation`, `verify-domain --host`, `migrate-schools [--canary] [--continue]`, `relayout --school <mã> --to database|schema` (S9), `rotate-child-key --code <mã>`, `rewrap-master-key` (S3), `plan-lifecycle` (S5a).
 
 Ở bước 3 của Khởi tạo trường, khi `PLATFORM_DATA_POLICY` khác `any`, cổng hiện ghi chú: `synthetic-only` chỉ nhận dữ liệu giả; `consent-required` nhận dữ liệu thật khi đủ hồ sơ đồng ý, không nhận loại vận hành chính thức. Khối Tên miền hiện hướng dẫn xác nhận theo bộ nối: `dns-check` ghi bản ghi TXT, bộ nối khác ghi mã xác nhận của nhà cung cấp.
 
@@ -637,57 +638,6 @@ Nguồn: YCTD-203, tài liệu 12 mục 12D và QĐ-28, `deploy/profiles/trial/R
 | Chuyển sang vận hành | `platform relayout --school <mã>` kèm `--to database` hoặc `--to schema`, với biến `TARGET_PLATFORM_*`: trường nguồn phải tạm dừng hoặc chỉ đọc; ghi trường ở đích, bọc lại khóa dữ liệu trẻ bằng khóa gốc của đích, chép tên miền, hồ sơ đồng ý, vùng máy chủ; tạo cơ sở dữ liệu theo bố cục đích, migrate, chép từng bảng trong một giao dịch, đặt lại bộ đếm; so số dòng và tổng kiểm md5 từng bảng, lệch thì dừng (BR-210) |
 
 Mặc định (`DB_HOST_ADAPTER=plain`, `PLATFORM_DATA_POLICY=any`, `APP_BASE_PATH=/`) giữ nguyên chế độ một trường và hồ sơ vận hành.
-
-```mermaid
-stateDiagram-v2
-  classDef nhap fill:#eceff1,stroke:#546e7a,color:#263238
-  classDef cho fill:#fff3e0,stroke:#ef6c00,color:#4e2600
-  classDef dang fill:#e3f2fd,stroke:#1565c0,color:#0d2a4a
-  classDef xong fill:#e8f5e9,stroke:#2e7d32,color:#1b3d1d,font-weight:bold
-  classDef huy fill:#ffebee,stroke:#c62828,color:#5f0000
-
-  state "Đang khởi tạo" as provisioning
-  state "Dùng thử" as trial
-  state "Hoạt động" as active
-  state "Chỉ đọc (kế hoạch S5a)" as read_only
-  state "Tạm dừng" as suspended
-  state "Chờ xóa" as pending_deletion
-  state "Đã xóa" as deleted
-
-  [*] --> provisioning : Setup, startProvisioning
-  provisioning --> trial : Đủ 11 bước, dùng thử
-  provisioning --> active : Đủ 11 bước, hoạt động
-  provisioning --> [*] : Hoàn tác, xóa hẳn hàng
-  trial --> active : Kích hoạt gói, S5a
-  active --> read_only : Hết hạn gói, S5a
-  trial --> suspended : Tạm dừng
-  active --> suspended : Tạm dừng
-  read_only --> suspended : Tạm dừng
-  suspended --> active : Mở lại
-  trial --> pending_deletion : Yêu cầu xóa
-  active --> pending_deletion : Yêu cầu xóa
-  read_only --> pending_deletion : Yêu cầu xóa
-  suspended --> pending_deletion : Yêu cầu xóa
-  pending_deletion --> suspended : Hủy yêu cầu xóa
-  pending_deletion --> deleted : Quá hạn chờ, purge-due
-  deleted --> [*]
-
-  class provisioning nhap
-  class trial dang
-  class active dang
-  class read_only cho
-  class suspended cho
-  class pending_deletion cho
-  class deleted huy
-```
-
-**Khởi tạo mười một bước** (`PROVISION_STEPS`): `database:identity`, `migrate:identity`, `database:system`, `migrate:system`, `database:year`, `migrate:year`, `seed:system`, `seed:year`, `admin`, `domain`, `activate`. Mỗi bước kiểm việc đã làm nên chạy lại được; lỗi thì chạy tiếp hoặc hoàn tác xóa sạch. Trạng thái việc: `pending`, `running`, `failed`, `done`, `rolled_back`.
-
-**Migrate cuốn chiếu** (`migrateSchools`): chạy lần lượt từng trường không ở `provisioning`, `deleted`; trường canary chạy trước; ghi từng cơ sở dữ liệu vào `school_migrations` (`done`, `failed`, `skipped`); bỏ qua năm học chỉ đọc; lỗi thì dừng trừ khi `--continue`.
-
-### Sơ đồ "Vòng đời trường trong DT-SaaS"
-
-Theo `schools_status_check` và các hàm `startProvisioning`, `runProvisioningJob`, `rollbackProvisioningJob`, `suspendSchool`, `resumeSchool`, `requestDeletion`, `cancelDeletion`, `purgeSchool`. Hai chuyển sang `read_only` và giữa `trial`, `active` thuộc S5a (kế hoạch), chưa có trong mã.
 
 ```mermaid
 flowchart TD
@@ -753,4 +703,57 @@ flowchart TD
   style P4 fill:#fafafa,stroke:#90a4ae
 ```
 
-Ghi chú: lệnh `platform relayout` (S9) không đổi trạng thái; nó chỉ nhận trường nguồn đang `suspended` hoặc `read_only`. `provisioning`, `deleted` trả 404 chung; `suspended`, `pending_deletion` trả 503 và bộ lập lịch bỏ qua trường; `trial`, `active`, `read_only` được phục vụ.
+**Khởi tạo mười một bước** (`PROVISION_STEPS`): `database:identity`, `migrate:identity`, `database:system`, `migrate:system`, `database:year`, `migrate:year`, `seed:system`, `seed:year`, `admin`, `domain`, `activate`. Mỗi bước kiểm việc đã làm nên chạy lại được; lỗi thì chạy tiếp hoặc hoàn tác xóa sạch. Trạng thái việc: `pending`, `running`, `failed`, `done`, `rolled_back`.
+
+**Migrate cuốn chiếu** (`migrateSchools`): chạy lần lượt từng trường không ở `provisioning`, `deleted`; trường canary chạy trước; ghi từng cơ sở dữ liệu vào `school_migrations` (`done`, `failed`, `skipped`); bỏ qua năm học chỉ đọc; lỗi thì dừng trừ khi `--continue`.
+
+### Sơ đồ "Vòng đời trường trong DT-SaaS"
+
+Theo `schools_status_check` và các hàm `startProvisioning`, `runProvisioningJob`, `rollbackProvisioningJob`, `suspendSchool`, `resumeSchool`, `requestDeletion`, `cancelDeletion`, `purgeSchool`, và từ S5a `applyPlanLifecycle` (chuyển theo hạn gói) cùng thao tác đổi trạng thái của người vận hành ở trang Gói dịch vụ.
+
+```mermaid
+stateDiagram-v2
+  classDef nhap fill:#eceff1,stroke:#546e7a,color:#263238
+  classDef cho fill:#fff3e0,stroke:#ef6c00,color:#4e2600
+  classDef dang fill:#e3f2fd,stroke:#1565c0,color:#0d2a4a
+  classDef xong fill:#e8f5e9,stroke:#2e7d32,color:#1b3d1d,font-weight:bold
+  classDef huy fill:#ffebee,stroke:#c62828,color:#5f0000
+
+  state "Đang khởi tạo" as provisioning
+  state "Dùng thử" as trial
+  state "Hoạt động" as active
+  state "Chỉ đọc" as read_only
+  state "Tạm dừng" as suspended
+  state "Chờ xóa" as pending_deletion
+  state "Đã xóa" as deleted
+
+  [*] --> provisioning : Setup, startProvisioning
+  provisioning --> trial : Đủ 11 bước, dùng thử
+  provisioning --> active : Đủ 11 bước, hoạt động
+  provisioning --> [*] : Hoàn tác, xóa hẳn hàng
+  trial --> active : Người vận hành gia hạn, S5a
+  trial --> read_only : Quá hạn 7 ngày, S5a
+  active --> read_only : Quá hạn 7 ngày, S5a
+  read_only --> active : Gia hạn, mở lại
+  trial --> suspended : Tạm dừng hoặc quá hạn 30 ngày
+  active --> suspended : Tạm dừng hoặc quá hạn 30 ngày
+  read_only --> suspended : Tạm dừng hoặc quá hạn 30 ngày
+  suspended --> active : Mở lại
+  trial --> pending_deletion : Yêu cầu xóa
+  active --> pending_deletion : Yêu cầu xóa
+  read_only --> pending_deletion : Yêu cầu xóa
+  suspended --> pending_deletion : Yêu cầu xóa
+  pending_deletion --> suspended : Hủy yêu cầu xóa
+  pending_deletion --> deleted : Quá hạn chờ, purge-due
+  deleted --> [*]
+
+  class provisioning nhap
+  class trial dang
+  class active dang
+  class read_only cho
+  class suspended cho
+  class pending_deletion cho
+  class deleted huy
+```
+
+Ghi chú: lệnh `platform relayout` (S9) không đổi trạng thái; nó chỉ nhận trường nguồn đang `suspended` hoặc `read_only`. `provisioning`, `deleted` trả 404 chung; `suspended`, `pending_deletion` trả 503 và bộ lập lịch bỏ qua trường; `trial`, `active` được phục vụ đủ; `read_only` chỉ đọc (ghi trả 403 `SCHOOL_READ_ONLY`). Người vận hành còn đổi trực tiếp giữa `trial`, `active`, `read_only`, `suspended` ở trang Gói dịch vụ.

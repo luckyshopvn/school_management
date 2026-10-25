@@ -5,7 +5,7 @@
 - Ngày cập nhật: 2026-10-25
 - Trạng thái: Chờ phê duyệt
 - Căn cứ: yêu cầu của Eric ngày 2026-10-25 viết tài liệu tổng hợp chức năng kèm sơ đồ quy trình
-- Nguồn: mã và tài liệu trên nhánh `main` ngày 2026-10-25, sau PR 165 (DT-SaaS phần S2), PR 166 (phần S1b), PR 167 (phần S9) và PR 169 (phần S3). Mô tả theo mã đang chạy, không theo kế hoạch chưa làm. Phần DT-SaaS chưa có mã ghi rõ là đang làm hoặc kế hoạch
+- Nguồn: mã và tài liệu trên nhánh `main` ngày 2026-10-25, sau PR 165 (DT-SaaS phần S2), PR 166 (phần S1b), PR 167 (phần S9), PR 169 (phần S3) và PR 170 (phần S5a). Mô tả theo mã đang chạy, không theo kế hoạch chưa làm. Phần DT-SaaS chưa có mã ghi rõ là đang làm hoặc kế hoạch
 
 ## 1. Cách đọc
 
