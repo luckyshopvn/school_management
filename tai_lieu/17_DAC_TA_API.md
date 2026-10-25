@@ -282,11 +282,17 @@ Giao kèo gói dịch vụ (DT-SaaS phần S5a, YCTD-194, BR-214 đến BR-216):
 
 1. Khi trường có gói, quyền thuộc phân hệ ngoài gói trả 403 `MODULE_NOT_IN_PLAN`; vượt giới hạn khi thêm học sinh, bật cấp học, tải tệp trả 422 `PLAN_LIMIT_EXCEEDED`; trường ở trạng thái `read_only` trả 403 `SCHOOL_READ_ONLY` cho mọi yêu cầu ghi tới máy chủ API và dịch vụ định danh, trừ `/api/v1/auth/*` (ngoài `/auth/settings`), đường dẫn xuất, `/api/v1/export-jobs`, `/api/v1/school-plan`, `/api/v1/billing`. Trường chưa gán gói và chế độ một trường không bị ảnh hưởng.
 
-Giao kèo thu phí tự động (DT-SaaS phần S5b, YCTD-196, BR-217 đến BR-219):
+Giao kèo thu phí tự động (DT-SaaS phần S5b, YCTD-196, BR-219 đến BR-221):
 
 1. Nhóm `/api/v1/billing` chỉ có ở nền tảng nhiều trường (chế độ một trường trả 404), cần `P01.billing.manage`, chỉ trả hóa đơn của trường theo tên miền; được gọi cả khi trường ở chế độ chỉ đọc. `POST /billing/invoices/{id}/pay` trả `{ provider, provider_reference, virtual_account_number, qr_content, amount, transfer_content, account_name }` cho số còn nợ; hóa đơn không còn nợ trả 409; `simulate-payment` chỉ có khi cổng mặc định của nền tảng là bộ giả lập (không thì 404).
 2. `POST /api/v1/platform-billing/webhooks/{payos|sepay|casso}` không cần trường, xác thực bằng chữ ký hoặc khóa của cổng lưu ở cơ sở dữ liệu nền tảng; cổng chưa bật 404, sai khóa 401; giao dịch trùng mã vẫn trả 200 nhưng không ghi lại.
 3. Nhóm `/api/v1/auth/platform/billing` chỉ ở tên miền cổng nền tảng với mã phiên vận hành; điều chỉnh tay thiếu lý do (dưới 3 ký tự) trả 400, sai trạng thái (giảm giá hóa đơn đã trả, hủy hóa đơn đã thu) trả 409; khóa cổng chỉ trả gợi ý bốn ký tự cuối.
+Giao kèo sao lưu theo trường (DT-SaaS phần S7b, YCTD-199, BR-217, BR-218):
+
+1. `GET /api/v1/auth/platform/schools/{mã}` trả thêm `backups`: 20 dòng `backup_runs` gần nhất của trường (`id`, `kind`, `status`, `file_name`, `file_bytes`, `tables`, `rows`, `details`, `error`, `started_at`, `finished_at`); không có điểm cuối chạy sao lưu từ trình duyệt.
+2. Lệnh `platform` (biến `BACKUP_ENCRYPTION_PASSPHRASE` ít nhất 16 ký tự, `BACKUP_DIR`): `backup-school (--school <mã> | --all) [--scope all|active] [--keep-days n]` (đọc ở máy chủ khác khi có `BACKUP_SOURCE_HOST`, `BACKUP_SOURCE_PORT`), `verify-backup --file`, `restore-school --file (--in-place | --as <mã mới>)`, `restore-drill (--file | --school | --all)`, `move-school --school [--drop-source]` với `TARGET_CLUSTER_ADMIN_URL`, `TARGET_CLUSTER_LAYOUT`, `TARGET_CLUSTER_SHARED_DATABASE`. Lỗi một trường khi chạy `--all` thì báo dòng LỖI, chạy tiếp trường khác, mã thoát 1.
+3. `platform relayout` (S9) không còn cần quyền siêu người dùng ở nền tảng đích: dữ liệu nạp bằng vai trò của trường.
+
 
 ## 5. Nền tảng và phân quyền
 

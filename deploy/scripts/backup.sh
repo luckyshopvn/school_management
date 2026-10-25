@@ -118,11 +118,29 @@ if [ "$mode" = daily ]; then
   done
 fi
 
+# Nền tảng nhiều trường (DT-SaaS phần S7b, YCTD-199): thêm bản sao lưu logic riêng từng trường (hằng ngày mọi năm học, hằng giờ
+# năm học còn ghi được) để khôi phục một trường mà không đụng trường khác; mỗi tệp mã hóa AES-256-GCM, đọc lại kiểm tra
+if [ -n "${PLATFORM_DATABASE_URL:-}" ]; then
+  scope=all
+  keep_days=$RETENTION_DAYS
+  if [ "$mode" = hourly ]; then
+    scope=active
+    keep_days=$(((HOURLY_RETENTION_HOURS + 23) / 24))
+  fi
+  log "Sao lưu theo từng trường (phạm vi $scope)"
+  platform_command backup-school --all --scope "$scope" --keep-days "$keep_days" ||
+    fail "Sao lưu theo từng trường có lỗi (xem dòng LỖI ở trên; backup_runs ghi chi tiết)"
+fi
+
 # Đẩy sang kho ngoài máy chủ (SL-05); tệp đã mã hóa trước khi rời máy chủ
 if [ -n "${OFFSITE_S3_BUCKET:-}" ]; then
   remote="offsite:$OFFSITE_S3_BUCKET/${OFFSITE_S3_PREFIX:-school-management}"
   log "Đẩy bản sao lưu sang $remote/$mode/$stamp"
   rclone "$BACKUP_DIR" copy "/backup/$mode/$stamp" "$remote/$mode/$stamp"
+  if [ -n "${PLATFORM_DATABASE_URL:-}" ]; then
+    rclone "$BACKUP_DIR" copy /backup/schools "$remote/schools"
+    rclone "$BACKUP_DIR" delete "$remote/schools" --min-age "${RETENTION_DAYS}d"
+  fi
   if [ "$mode" = daily ]; then
     rclone "$BACKUP_DIR" copy /backup/archive "$remote/archive"
     rclone "$BACKUP_DIR" delete "$remote/daily" --min-age "${RETENTION_DAYS}d" --rmdirs

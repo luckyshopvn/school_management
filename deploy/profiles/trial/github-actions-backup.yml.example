@@ -1,0 +1,58 @@
+# Sao lưu theo từng trường cho hồ sơ thử nghiệm (DT-SaaS phần S7b, YCTD-199): chạy lệnh platform backup-school từ mã nguồn đã dựng,
+# đẩy tệp .sbak (đã mã hóa) lên R2 hoặc kho S3 khác; hằng tháng diễn tập khôi phục. Chép vào .github/workflows/trial-backup.yml của
+# kho triển khai. Bí mật kho: PLATFORM_DATABASE_URL, PLATFORM_ADMIN_DATABASE_URL (địa chỉ trực tiếp), PLATFORM_MASTER_KEY,
+# BACKUP_ENCRYPTION_PASSPHRASE, BACKUP_S3_ENDPOINT, BACKUP_S3_ACCESS_KEY_ID, BACKUP_S3_SECRET_ACCESS_KEY; biến kho
+# PLATFORM_SHARED_DATABASE, DB_HOST_ADAPTER, BACKUP_S3_BUCKET. Không in giá trị bí mật ra nhật ký
+name: Sao lưu hồ sơ thử nghiệm
+
+on:
+  schedule:
+    - cron: '30 18 * * *'
+    # Ngày 1 hằng tháng: sao lưu rồi diễn tập khôi phục
+    - cron: '0 19 1 * *'
+  workflow_dispatch:
+    inputs:
+      drill:
+        description: Diễn tập khôi phục sau khi sao lưu
+        type: boolean
+        default: false
+
+jobs:
+  backup:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    env:
+      PLATFORM_DATABASE_URL: ${{ secrets.PLATFORM_DATABASE_URL }}
+      PLATFORM_ADMIN_DATABASE_URL: ${{ secrets.PLATFORM_ADMIN_DATABASE_URL }}
+      PLATFORM_MASTER_KEY: ${{ secrets.PLATFORM_MASTER_KEY }}
+      BACKUP_ENCRYPTION_PASSPHRASE: ${{ secrets.BACKUP_ENCRYPTION_PASSPHRASE }}
+      TENANT_DB_LAYOUT: schema
+      PLATFORM_SHARED_DATABASE: ${{ vars.PLATFORM_SHARED_DATABASE }}
+      DB_HOST_ADAPTER: ${{ vars.DB_HOST_ADAPTER }}
+      BACKUP_DIR: ${{ runner.temp }}/schools
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile --filter "@school-management/database..."
+      - run: pnpm --filter "@school-management/database..." build
+      - name: Sao lưu mọi trường
+        run: node database/dist/src/platform-command.js backup-school --all --scope all --keep-days 30
+      - name: Diễn tập khôi phục (ngày 1 hằng tháng hoặc khi chọn)
+        if: ${{ inputs.drill || github.event.schedule == '0 19 1 * *' }}
+        run: node database/dist/src/platform-command.js restore-drill --all
+      - name: Đẩy tệp lên kho ngoài
+        env:
+          RCLONE_CONFIG_BACKUP_TYPE: s3
+          RCLONE_CONFIG_BACKUP_PROVIDER: Other
+          RCLONE_CONFIG_BACKUP_ENDPOINT: ${{ secrets.BACKUP_S3_ENDPOINT }}
+          RCLONE_CONFIG_BACKUP_ACCESS_KEY_ID: ${{ secrets.BACKUP_S3_ACCESS_KEY_ID }}
+          RCLONE_CONFIG_BACKUP_SECRET_ACCESS_KEY: ${{ secrets.BACKUP_S3_SECRET_ACCESS_KEY }}
+          RCLONE_CONFIG_BACKUP_FORCE_PATH_STYLE: 'true'
+        run: |
+          sudo apt-get update && sudo apt-get install -y rclone
+          rclone copy "$BACKUP_DIR" "backup:${{ vars.BACKUP_S3_BUCKET }}/schools"
+          rclone delete "backup:${{ vars.BACKUP_S3_BUCKET }}/schools" --min-age 30d

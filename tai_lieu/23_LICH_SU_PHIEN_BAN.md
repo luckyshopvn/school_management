@@ -16,18 +16,29 @@
 
 ## 2. Danh sách phiên bản
 
-### Phiên bản 0.135.0 – 2026-10-25
+### Phiên bản 0.136.0 – 2026-10-25
 
 - Phạm vi thay đổi: DT-SaaS phần S5b, thu phí tự động (YCTD-196).
-- Chức năng mới: quy tắc tính phí cấu hình được, chốt số liệu kỳ, hóa đơn (P01-68); thu tiền qua mã QR và cổng của nền tảng, đối soát, gia hạn và mở lại trường, nhắc gia hạn (P01-69); trang Thu phí ở cổng nền tảng, điều chỉnh tay, hóa đơn điện tử qua bộ nối giả lập, trang Hóa đơn dịch vụ ở cổng (P01-70, MH-325, MH-326).
+- Chức năng mới: quy tắc tính phí cấu hình được, chốt số liệu kỳ, hóa đơn (P01-71); thu tiền qua mã QR và cổng của nền tảng, đối soát, gia hạn và mở lại trường, nhắc gia hạn (P01-72); trang Thu phí ở cổng nền tảng, điều chỉnh tay, hóa đơn điện tử qua bộ nối giả lập, trang Hóa đơn dịch vụ ở cổng (P01-73, MH-325, MH-326).
 - Lỗi đã sửa: không có.
 - Thay đổi dữ liệu: nền tảng thêm `price_rules`, `usage_snapshots`, `invoices`, `invoice_lines`, `invoice_payments`, `billing_adjustments`, `einvoice_documents`, `dunning_events`, `platform_integration_secrets`, cột `plans.price_rule_id` (tệp nền tảng `0050`); định danh thêm quyền `P01.billing.manage` (tệp `0105`).
 - Thay đổi API: nhóm `/billing` của trường, điểm nhận tiền vào `/platform-billing/webhooks`, nhóm `/auth/platform/billing` (xem `17_DAC_TA_API.md`).
-- Kiểm thử: kịch bản CT-1035 đến CT-1045 (CT-S5b-1 đến CT-S5b-11 trong mã kiểm thử). Kết quả ngày 25/10/2026: `database` 7 ca mới (hàm tính phí, kỳ, chốt kỳ, tiền vào, điều chỉnh, nhắc hạn, hóa đơn điện tử, khóa cổng), `apps/api` 2 ca mới, `apps/identity` 1 ca mới, ca cũ đạt không sửa; e2e spec 135 cùng 130, 131, 134 ở dự án nhiều trường và các spec menu ở dự án một trường đạt; e2e toàn bộ do CI chạy.
+- Kiểm thử: kịch bản CT-1043 đến CT-1053 (CT-S5b-1 đến CT-S5b-11 trong mã kiểm thử). Kết quả ngày 25/10/2026: `database` 7 ca mới (hàm tính phí, kỳ, chốt kỳ, tiền vào, điều chỉnh, nhắc hạn, hóa đơn điện tử, khóa cổng), `apps/api` 2 ca mới, `apps/identity` 1 ca mới, ca cũ đạt không sửa; e2e spec 135 cùng 130, 131, 134 ở dự án nhiều trường và các spec menu ở dự án một trường đạt; e2e toàn bộ do CI chạy.
 - Rủi ro: tài khoản nhận tiền và khóa cổng thật của nền tảng chưa có (GD-95), máy chủ dùng bộ giả lập khi chưa cấu hình; nhà cung cấp hóa đơn điện tử chưa chốt (mặc định chưa nối); VNPay cho thu phí của nền tảng chưa làm; nhắc qua email chưa có (dùng thông báo trong ứng dụng, tin nhắn).
 - Khả năng tương thích: chế độ một trường không đổi; trường chưa gán gói không phát sinh hóa đơn.
 - Phương án quay lui: hoàn lại commit gộp của nhánh S5b; tắt thu phí bằng cách bỏ quy tắc tính phí khỏi gói (giá niêm yết bằng 0) và hủy hóa đơn chưa thu; dữ liệu trường không bị ảnh hưởng.
 
+### Phiên bản 0.135.0 – 2026-10-25
+
+- Phạm vi thay đổi: DT-SaaS phần S7b, vận hành nhiều trường (YCTD-199).
+- Chức năng mới: sao lưu logic theo từng trường ở cả hai bố cục (P01-68); khôi phục vào chính trường hoặc thành trường mới, diễn tập khôi phục tự động (P01-69); chuyển trường sang cụm cơ sở dữ liệu khác (P01-70); khôi phục về một thời điểm của cả cụm bằng WAL-G và lấy riêng một trường; bảng "Sao lưu và khôi phục" ở chi tiết trường (MH-318).
+- Lỗi đã sửa: không có.
+- Thay đổi dữ liệu: bảng nền tảng `backup_runs` (tệp `0070_create_backup_runs`); xem `16_CO_SO_DU_LIEU.md` mục 18C.
+- Thay đổi API: chi tiết trường ở cổng nền tảng trả thêm `backups`; lệnh `platform backup-school`, `verify-backup`, `restore-school`, `restore-drill`, `move-school` (xem `17_DAC_TA_API.md`); `platform relayout` không còn cần quyền siêu người dùng ở đích.
+- Kiểm thử: kịch bản CT-1035 đến CT-1042. Kết quả ngày 25/10/2026: `database/src/school-backup.test.ts` 10 ca (5 ca ở mỗi bố cục `schema`, `database`) và `school-relayout.test.ts` 1 ca đạt 11/11; kiểm tĩnh đa thuê bao 6/6; `pnpm lint` sạch; e2e nhiều trường spec 130, 131, 132, 137, 140 đạt ở bố cục database (12 ca), spec 132, 137 đạt ở bố cục schema; CT-1042 kiểm tay trên staging chờ VPS thử; e2e toàn bộ do CI chạy.
+- Rủi ro: khôi phục không nằm trong một giao dịch cho mọi bảng (để không vượt giới hạn khóa của máy chủ), lỗi giữa chừng phải chạy lại; tệp sao lưu chứa khóa dữ liệu trẻ, lộ khóa sao lưu là lộ dữ liệu; WAL-G và lấy riêng một trường về một thời điểm chưa diễn tập trên máy thật; thử tải nhiều trường chưa làm nên giới hạn T1 đến T3 vẫn là giả định.
+- Khả năng tương thích: chế độ một trường và `backup.sh` cũ không đổi khi không có `PLATFORM_DATABASE_URL`; lớp phủ WAL-G là tùy chọn.
+- Phương án quay lui: hoàn lại commit gộp của nhánh S7b; bảng `backup_runs` chỉ do phần này dùng; tắt lớp phủ `compose.pitr.yml` để PostgreSQL chạy như trước.
 ### Phiên bản 0.134.0 – 2026-10-25
 
 - Phạm vi thay đổi: DT-SaaS phần S5a, gói dịch vụ và giới hạn (YCTD-194).

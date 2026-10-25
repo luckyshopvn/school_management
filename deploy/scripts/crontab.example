@@ -9,3 +9,11 @@ PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
 
 # Bản hằng giờ ở phút 15, trừ giờ chạy bản hằng ngày (cơ sở dữ liệu đang dùng; mất tối đa 1 giờ dữ liệu)
 15 0,2-23 * * * cd /opt/school-management && bash deploy/scripts/backup.sh hourly >> /var/log/school-management/backup.log 2>&1
+
+# Nền tảng nhiều trường (DT-SaaS phần S7b): diễn tập khôi phục từng trường lúc 03:00 ngày 1 hằng tháng (khôi phục bản mới nhất vào
+# trường tạm, kiểm tra, gỡ; kết quả ở bảng backup_runs). Chỉ dùng khi PLATFORM_DATABASE_URL có trong tệp cấu hình
+0 3 1 * * cd /opt/school-management && bash deploy/scripts/restore-drill.sh >> /var/log/school-management/backup.log 2>&1
+
+# Khôi phục về một thời điểm (deploy/profiles/production/PITR.md): sao lưu cơ bản của cả cụm bằng WAL-G lúc 02:30 hằng ngày, nhật
+# ký giao dịch được đẩy liên tục bằng archive_command; giữ 7 bản cơ bản
+30 2 * * * cd /opt/school-management/deploy/profiles/production && docker compose -f compose.yml -f compose.pitr.yml --env-file production.env exec -T postgres sh -c 'wal-g backup-push "$PGDATA" && wal-g delete retain FULL 7 --confirm' >> /var/log/school-management/backup.log 2>&1

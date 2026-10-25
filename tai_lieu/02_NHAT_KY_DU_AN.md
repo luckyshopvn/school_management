@@ -20,7 +20,7 @@
 
 - Đọc mục 14.3, 14.5 (S5b), 14.9, 14.11 của `32_KE_HOACH_THEO_HE_THONG_SO.md`; rà bộ nối cổng thanh toán (`payment-gateway.ts`, `payment-providers.ts`), kho khóa của S3 (`integration_secrets`, `tenant-connectors.ts`), bộ lập lịch theo trường của S1b, hàng đợi thông báo, gói và chuyển trạng thái của S5a.
 - Thêm tệp nền tảng 0050 (chín bảng thu phí), quyền `P01.billing.manage` (tệp định danh 0105), thư viện `database/src/billing` (hàm tính phí, kỳ, chốt kỳ, hóa đơn, tiền vào, điều chỉnh, nhắc hạn, hóa đơn điện tử, khóa cổng của nền tảng), việc nền `billing-cycle`, điểm cuối của trường và điểm nhận tiền vào của nền tảng ở máy chủ API, nhóm `/auth/platform/billing` ở dịch vụ định danh, trang Thu phí ở cổng nền tảng, trang Hóa đơn dịch vụ ở cổng, e2e spec 135.
-- Thêm BR-217 đến BR-219, PQ-107, P01-68 đến P01-70, AC-845 đến AC-847, MH-325, MH-326, CT-1035 đến CT-1045, BM-83, bảng ở `16` mục 18A, giao kèo ở `17`; phiên bản 0.135.0.
+- Thêm BR-219 đến BR-221, PQ-107, P01-71 đến P01-73, AC-849 đến AC-851, MH-325, MH-326, CT-1043 đến CT-1053, BM-84, bảng ở `16` mục 18A, giao kèo ở `17`; phiên bản 0.136.0.
 
 #### Quyết định
 
@@ -32,12 +32,35 @@
 
 #### Thay đổi
 
-- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-196, `07_QUY_TAC_NGHIEP_VU.md` BR-217 đến BR-219, `08_VAI_TRO_NGUOI_DUNG.md` PQ-107, `10_YEU_CAU_CHUC_NANG.md` P01-68 đến P01-70, `11_TIEU_CHI_NGHIEM_THU.md` AC-845 đến AC-847, `14_DAC_TA_GIAO_DIEN.md` MH-325, MH-326, `16_CO_SO_DU_LIEU.md` mục 18A, `17_DAC_TA_API.md`, `21_KICH_BAN_KIEM_THU.md` CT-1035 đến CT-1045, `22_BAO_MAT.md` BM-83; phiên bản phần mềm 0.135.0.
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-196, `07_QUY_TAC_NGHIEP_VU.md` BR-219 đến BR-221, `08_VAI_TRO_NGUOI_DUNG.md` PQ-107, `10_YEU_CAU_CHUC_NANG.md` P01-71 đến P01-73, `11_TIEU_CHI_NGHIEM_THU.md` AC-849 đến AC-851, `14_DAC_TA_GIAO_DIEN.md` MH-325, MH-326, `16_CO_SO_DU_LIEU.md` mục 18A, `17_DAC_TA_API.md`, `21_KICH_BAN_KIEM_THU.md` CT-1043 đến CT-1053, `22_BAO_MAT.md` BM-84; phiên bản phần mềm 0.136.0.
 
 #### Vấn đề tồn đọng
 
 - Tài khoản nhận tiền và khóa cổng thật của nền tảng (GD-95), nhà cung cấp hóa đơn điện tử chưa chốt; VNPay cho thu phí của nền tảng, nhắc qua email làm sau; S4 dùng `receivables`, `listInvoices` cho bảng điều khiển.
 
+### 2026-10-25 — DT-SaaS phần S7b: vận hành nhiều trường
+
+#### Công việc đã thực hiện
+
+- Đọc mục 14.3, 14.5 (S7b), 14.9 của `32_KE_HOACH_THEO_HE_THONG_SO.md`; rà `deploy/scripts/backup.sh`, `restore.sh`, hồ sơ vận hành của S7a và bộ chép dữ liệu của `platform relayout` (S9).
+- Thêm bảng nền tảng `backup_runs` (tệp `0070_create_backup_runs`), bộ đọc và nạp dữ liệu dùng chung `school-data-copy.ts`, sao lưu và khôi phục theo trường `school-backup.ts`, chuyển cụm `school-cluster-move.ts`, năm lệnh mới của `platform` (`backup-school`, `verify-backup`, `restore-school`, `restore-drill`, `move-school`).
+- Nối sao lưu theo trường vào `deploy/scripts/backup.sh`; thêm `restore-drill.sh`, lịch diễn tập hằng tháng; ảnh `docker/postgres-walg`, lớp phủ `compose.pitr.yml`, `scripts/pitr-extract-school.sh`, `PITR.md` ở hồ sơ vận hành; mục 7 và `github-actions-backup.yml.example` ở hồ sơ thử nghiệm.
+- Cổng nền tảng hiện bảng "Sao lưu và khôi phục" ở chi tiết trường (20 lần gần nhất của `backup_runs`).
+- Thêm quy tắc BR-217, BR-218, chức năng P01-68 đến P01-70, tiêu chí AC-845 đến AC-848, kịch bản CT-1035 đến CT-1042, bảo mật BM-83, QĐ-30, mục kiến trúc 12E.
+
+#### Quyết định
+
+- Sao lưu logic viết bằng Node thay cho `pg_dump`: chạy được ở cả bố cục `database` và `schema`, qua bộ gom kết nối của Neon, Supabase, không phụ thuộc phiên bản công cụ của máy chủ; mỗi trường một tệp `.sbak` mã hóa AES-256-GCM.
+- Nạp dữ liệu bằng vai trò của trường, mỗi bảng một giao dịch: lần thử nạp cả cơ sở dữ liệu năm học trong một giao dịch gặp lỗi "out of shared memory" (giới hạn khóa `max_locks_per_transaction` 64); khóa ngoại gỡ trước, gắn lại sau cùng có kiểm. `platform relayout` (S9) chuyển sang cùng bộ nạp nên không còn cần quyền siêu người dùng ở đích.
+- Khôi phục về một thời điểm của cả cụm bằng WAL-G (ghim phiên bản v3.0.9 và mã băm), lấy riêng một trường từ bản khôi phục tạm bằng `backup-school` đọc ở máy chủ tạm (`BACKUP_SOURCE_HOST`).
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-199, `07_QUY_TAC_NGHIEP_VU.md` BR-217, BR-218, `10_YEU_CAU_CHUC_NANG.md` P01-68 đến P01-70, `11_TIEU_CHI_NGHIEM_THU.md` AC-845 đến AC-848, `12_KIEN_TRUC_HE_THONG.md` mục 12E và QĐ-30, `14_DAC_TA_GIAO_DIEN.md` MH-318, `16_CO_SO_DU_LIEU.md` mục 18C, `17_DAC_TA_API.md`, `21_KICH_BAN_KIEM_THU.md` CT-1035 đến CT-1042, `22_BAO_MAT.md` BM-83, `23_LICH_SU_PHIEN_BAN.md` phiên bản 0.135.0.
+
+#### Vấn đề tồn đọng
+
+- Chưa làm thử tải nhiều trường (50 trường giả) của kế hoạch; bảng điều khiển S4 chưa cảnh báo sao lưu, diễn tập quá hạn (dữ liệu đã có ở `backup_runs`); WAL-G, `pitr-extract-school.sh` và diễn tập trên staging chờ VPS thử để kiểm tay.
 ### 2026-10-25 — DT-SaaS phần S5a: gói dịch vụ và giới hạn
 
 #### Công việc đã thực hiện

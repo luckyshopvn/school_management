@@ -61,7 +61,7 @@ Giới hạn đã biết:
 7. Giám sát: sao chép `monitoring/targets.d/domains.example.yml` thành `domains.yml`, ghi tên miền đang phục vụ; xem Grafana qua đường hầm SSH `ssh -L 3300:127.0.0.1:3300 <vps>` rồi mở `http://127.0.0.1:3300`.
 8. Sao lưu: như bản một máy (`deploy/README.md` mục Sao lưu), chạy với biến của hồ sơ này:
    `COMPOSE_FILE=deploy/profiles/production/compose.yml ENV_FILE=deploy/profiles/production/production.env deploy/scripts/backup.sh`;
-   khôi phục thêm `RESTORE_STOP_SERVICES="web api-a api-b identity-a identity-b worker"`. Sao lưu theo từng trường, khôi phục về một thời điểm làm ở S7b.
+   khôi phục thêm `RESTORE_STOP_SERVICES="web api-a api-b identity-a identity-b worker"`. Sao lưu theo từng trường, khôi phục về một thời điểm (WAL-G), diễn tập khôi phục hằng tháng, chuyển trường sang cụm khác và mục tiêu RPO, RTO: xem [PITR.md](PITR.md) (S7b).
 
 ## 4. PgBouncer
 
@@ -141,7 +141,7 @@ Quy tắc thay đổi cấu trúc tương thích lùi: chỉ thêm bảng, thêm
 ## 10. Thao tác thường gặp
 
 - **Mở thêm VPS (T1 sang T2):** dựng máy cơ sở dữ liệu với `db,monitoring-agent`, sao lưu và khôi phục dữ liệu sang (thời gian dừng theo dung lượng), đổi `DATABASE_HOST`, `MIGRATE_DATABASE_HOST`, `POSTGRES_EXPORTER_HOST` ở máy ứng dụng, bỏ `db` khỏi `COMPOSE_PROFILES`, chạy lại.
-- **Chuyển cụm, chuyển một trường sang máy cơ sở dữ liệu khác:** công cụ ở S7b.
+- **Chuyển cụm, chuyển một trường sang máy cơ sở dữ liệu khác:** `platform move-school` ([PITR.md](PITR.md) mục 5).
 - **Chuyển sang bản sao khi máy chính hỏng (thao tác tay):** dừng ghi (dừng `api-*`, `identity-*`), trên máy bản sao chạy `docker compose exec -u postgres postgres-replica pg_ctl promote -D /var/lib/postgresql/data`, chạy PgBouncer trỏ máy mới (`PGBOUNCER_UPSTREAM_HOST`), đổi `DATABASE_HOST`, `MIGRATE_DATABASE_HOST` ở máy ứng dụng, chạy lại; dựng bản sao mới từ máy chính mới.
 - **Thay khóa:** khóa ký mã phiên (`IDENTITY_TOKEN_PRIVATE_KEY`, `TOKEN_PUBLIC_KEY`) đổi làm mọi phiên hết hiệu lực, làm ngoài giờ học; khóa dữ liệu trẻ (`CHILD_DATA_*`) không đổi được bằng cách thay biến (cần công cụ mã hóa lại, S8b). Mật khẩu PostgreSQL: đổi trong PostgreSQL (`alter role ... password`), sửa `production.env`, chạy lại `pgbouncer`, `api-*`, `identity-*`, `migrate`.
 - **Xử lý sự cố:** xem cảnh báo, nhật ký ở Grafana (nguồn Loki, lọc theo `service`); `docker compose ps`; `docker compose logs --tail 200 <dịch vụ>`; PgBouncer: `psql -h 127.0.0.1 -p 6432 -U pgbouncer_stats pgbouncer -c 'show pools'`; hết chỗ ổ đĩa: kiểm tra `BACKUP_DIR`, nhật ký Docker (giới hạn 5 × 20 MB mỗi vùng chứa), dữ liệu Prometheus, Loki.

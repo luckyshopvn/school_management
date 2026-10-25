@@ -37,6 +37,12 @@ const CONSENT_KINDS = [
   { kind: 'impact-assessment', label: 'Đánh giá tác động (PL-03)', template: 'PL-03' },
   { kind: 'risk-acceptance', label: 'Chấp nhận rủi ro (PL-06)', template: 'PL-06' },
 ];
+const BACKUP_KIND_LABELS: Record<string, string> = {
+  backup: 'Sao lưu',
+  restore: 'Khôi phục',
+  drill: 'Diễn tập khôi phục',
+  'cluster-move': 'Chuyển cụm',
+};
 const STEPS = ['Thông tin trường', 'Tên miền', 'Loại dữ liệu', 'Quản trị viên', 'Điều khoản và xác nhận'];
 
 function messageOf(caught: unknown): string {
@@ -656,6 +662,45 @@ function SchoolDetailView({ token, code, onBack }: { token: string; code: string
         ))}
         {detail.consents.length + detail.hosting.length === 0 ? <li>Chưa có</li> : null}
       </ul>
+      <h3>Sao lưu và khôi phục</h3>
+      {detail.backups.length === 0 ? (
+        <p>Chưa có lần sao lưu nào (chạy theo lịch bằng lệnh platform backup-school)</p>
+      ) : (
+        <table aria-label="Sao lưu và khôi phục">
+          <thead>
+            <tr>
+              <th>Thời điểm</th>
+              <th>Việc</th>
+              <th>Kết quả</th>
+              <th>Số bảng, số dòng</th>
+              <th>Tệp, ghi chú</th>
+            </tr>
+          </thead>
+          <tbody>
+            {detail.backups.map((run) => (
+              <tr key={run.id}>
+                <td>{new Date(run.started_at).toLocaleString('vi-VN')}</td>
+                <td>{BACKUP_KIND_LABELS[run.kind] ?? run.kind}</td>
+                <td>{run.status === 'done' ? 'Đạt' : run.status === 'failed' ? 'Lỗi' : 'Đang chạy'}</td>
+                <td>{run.tables !== null ? `${run.tables} bảng, ${run.rows ?? 0} dòng` : '—'}</td>
+                <td>
+                  <small>
+                    {run.error ??
+                      [
+                        run.file_name,
+                        typeof run.details.duration_ms === 'number'
+                          ? `${Math.round(run.details.duration_ms / 1000)} giây`
+                          : null,
+                      ]
+                        .filter(Boolean)
+                        .join('; ')}
+                  </small>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      )}
       <h3>Nhật ký vòng đời</h3>
       <ul>
         {detail.events.map((event) => (
