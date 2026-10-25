@@ -1,7 +1,7 @@
 # 14. ĐẶC TẢ GIAO DIỆN
 
 - Mô tả: Danh sách màn hình, điều hướng, bố cục, thành phần, dữ liệu hiển thị, thao tác, trạng thái, thông báo, xử lý lỗi, quyền hiển thị, khả năng thích ứng màn hình.
-- Phiên bản: 1.111
+- Phiên bản: 1.112
 - Ngày cập nhật: 2026-10-25
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -688,6 +688,8 @@ Từ YCTD-184 (DT-22 phần 22h2), phân hệ "Kho học liệu" thêm 8. Câu h
 | MH-320 | Cổng biên hồ sơ thử nghiệm (YCTD-203): trang "Hệ thống đang khởi động" (mã 503, tự tải lại sau 10 giây, giải thích máy chủ thử nghiệm ngủ khi không có người dùng và cần khoảng một phút) khi máy chủ ngủ hoặc lỗi cổng; biểu ngữ cố định cuối trang "Môi trường thử nghiệm, máy chủ đặt ngoài Việt Nam" kèm "dữ liệu thật chỉ dùng khi trường đã có văn bản đồng ý" (`consent-required`) hoặc "chỉ dùng dữ liệu giả" (`synthetic-only`) chèn vào mọi trang HTML qua cổng biên; cổng nền tảng (MH-317 bước 3) hiện ghi chú chính sách, MH-318 hiện bản ghi xác nhận theo bộ nối tên miền |
 | MH-321 | Khóa kết nối riêng của trường (YCTD-195, trong trang Kết nối ngoài 3.2): mỗi kết nối một thẻ gồm ô bật, các ô nhập (ô bí mật là ô mật khẩu, gợi ý bốn ký tự cuối, để trống là giữ giá trị đã lưu), địa chỉ gọi lại của trường cho cổng thanh toán, nút Lưu, Kiểm tra kết nối, Xóa cấu hình | Hiệu trưởng (VT-02) |
 | MH-322 | Thương hiệu của trường (YCTD-195, cùng trang): tên hiển thị, màu chủ đạo, ghi chú biểu trưng lấy từ Cấu hình website, nút Lưu thương hiệu | Hiệu trưởng (VT-02) |
+| MH-323 | Cổng vận hành nền tảng: Gói dịch vụ (YCTD-194, mục menu "Gói dịch vụ"): bảng gói (mã, tên, phân hệ, giới hạn học sinh, dung lượng, cấp học, cách tính phí, đơn giá, trạng thái) kèm biểu mẫu thêm, sửa (chọn phân hệ, cách tính phí theo học sinh, theo trường, theo phân hệ); bảng trường (mã, trạng thái, gói hiện hành, hạn dùng thử, hạn đã trả phí) kèm gán gói, đặt hạn, đổi trạng thái; nút Chạy chuyển trạng thái hiện số trường đổi và số nhắc hạn | Người vận hành nền tảng |
+| MH-324 | Cổng: gói dịch vụ của trường (YCTD-194): ô Phân hệ chỉ liệt kê phân hệ trong gói; dải báo "Chế độ chỉ đọc" (vai trò alert) khi trường chỉ đọc; dải nhắc hạn gói khi còn từ 15 ngày trở xuống | Mọi người dùng của trường |
 
 Từ YCTD-128 (DT-16 phần 16i): MH-80 có nút "Nhập từ Excel" mở công cụ nhập chung "Nhập phòng từ Excel"; biểu mẫu phòng chỉ hiện thuộc tính khai báo được cho loại phòng đang chọn, bốn ô nhà vệ sinh (Đối tượng sử dụng nhà vệ sinh, Nhà vệ sinh đạt chuẩn, Riêng nam nữ, Số chỗ) chỉ hiện với Phòng vệ sinh; MH-80 cũng mở ở mục 6.2 (`/facility-input`) với tiêu đề "6.2. Nhập liệu cơ sở vật chất". MH-81 bỏ thẻ 2.2 (chuyển sang MH-129), thẻ Danh mục tối thiểu có nút "Nhập từ Excel". MH-20 thẻ Tài sản có khối "Gắn thiết bị dạy học" (Tài sản cần gắn, Thiết bị dạy học, Gắn thiết bị dạy học, Bỏ gắn) và cột Thiết bị dạy học khi người dùng có `P13.equipment.manage`.
 

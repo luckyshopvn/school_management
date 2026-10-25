@@ -11,6 +11,7 @@ import { useQuery } from '@tanstack/react-query';
 import { fetchCurrentUser } from '../session/api-client.js';
 import { useCurrentPermissions } from '../session/permissions.js';
 import { useWorkingSchoolLevels } from '../school-levels/working-level.js';
+import { isWorkspaceInPlan, usePlanModules } from '../school-plan/school-plan.js';
 
 // Mục menu người dùng được thấy theo điều kiện quyền ở gói dùng chung (MENU_PERMISSION_RULES, DT-15 phần 15e), giữ đúng
 // điều kiện của thanh điều hướng cũ (trước DT-15); máy chủ vẫn kiểm tra quyền ở mọi yêu cầu (AI-12). Mục không có điều
@@ -59,9 +60,14 @@ export function usePortalMenu(): PortalWorkspace[] {
   const allowedKey = JSON.stringify(currentUser.data?.workspaces ?? null);
   const levels = useWorkingSchoolLevels();
   const levelsKey = JSON.stringify(levels.ready ? levels.working : null);
+  // Phân hệ ngoài gói dịch vụ của trường không hiện (DT-SaaS phần S5a)
+  const planKey = JSON.stringify(usePlanModules());
   return useMemo(() => {
     const working = JSON.parse(levelsKey) as Parameters<typeof portalWorkspacesForLevels>[0] | null;
-    const workspaces = working ? portalWorkspacesForLevels(working) : PRESCHOOL_WORKSPACES;
+    const modules = JSON.parse(planKey) as string[] | null;
+    const workspaces = (working ? portalWorkspacesForLevels(working) : PRESCHOOL_WORKSPACES).filter((workspace) =>
+      isWorkspaceInPlan(workspace.key, modules),
+    );
     return filterMenu(workspaces, JSON.parse(key), JSON.parse(allowedKey) ?? undefined);
-  }, [key, allowedKey, levelsKey]);
+  }, [key, allowedKey, levelsKey, planKey]);
 }

@@ -27,6 +27,7 @@ import { rewrapMasterKey, rotateChildKeys } from './key-rotation.js';
 import { createSchoolDatabaseLayout } from './school-database-layout.js';
 import { relayoutSchool } from './school-relayout.js';
 import { readMasterKey, readTenancyConfiguration, TenancyRuntime } from './tenancy-runtime.js';
+import { applyPlanLifecycle } from './school-plans.js';
 import type { PlatformDatabase } from '../platform/schema.js';
 
 // Lệnh quản trị nền tảng nhiều trường (DT-SaaS phần S1a, tài liệu 32 mục 14.5):
@@ -48,6 +49,8 @@ import type { PlatformDatabase } from '../platform/schema.js';
 //   verify-domain --host <tên miền>    kiểm tra DNS của tên miền riêng đang chờ
 //   migrate-schools [--canary <mã>] [--continue]
 //                                      migrate cuốn chiếu mọi trường, ghi kết quả vào school_migrations
+//   plan-lifecycle              chuyển trạng thái trường theo hạn dùng thử, hạn đã trả phí (S5a): chỉ đọc, tạm ngưng; in trường cần
+//                               nhắc; chạy lặp được trong ngày
 // Khóa (DT-SaaS phần S3, YCTD-195):
 //   rotate-child-key --code <mã>       đổi khóa mã hóa dữ liệu trẻ của trường đang tạm dừng: mã hóa lại từng bước, làm tiếp được khi
 //                                      chạy lại, ghi nhật ký; xong thì dùng lệnh resume để mở lại trường
@@ -276,6 +279,22 @@ async function main(): Promise<void> {
       throw error;
     }
     console.log('platform: đã ở phiên bản cấu trúc mới nhất');
+    return;
+  }
+  if (command === 'plan-lifecycle') {
+    const platform = createDatabase<PlatformDatabase>(readConnectionString('platform'), { max: 2 });
+    try {
+      const { changes, reminders } = await applyPlanLifecycle(platform, new Date(), { type: 'cli' });
+      for (const change of changes) {
+        console.log(`${change.code}: ${change.from} → ${change.to} (hạn ${change.dueOn ?? '—'})`);
+      }
+      for (const reminder of reminders) {
+        console.log(`${reminder.code}: còn ${reminder.daysLeft} ngày (hạn ${reminder.dueOn})`);
+      }
+      console.log(`Đã chuyển trạng thái ${changes.length} trường, ${reminders.length} trường cần nhắc`);
+    } finally {
+      await platform.destroy();
+    }
     return;
   }
   if (command === 'adopt-existing') {

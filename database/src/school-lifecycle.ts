@@ -30,6 +30,7 @@ import {
   type SchoolDatabaseLayout,
 } from './school-database-layout.js';
 import { createDomainProvider, type DomainProvider } from './domain-provider.js';
+import { addDays, readPlanLifecycleSettings, vietnamDate } from './school-plans.js';
 
 // Khởi tạo và vòng đời trường (DT-SaaS phần S2, YCTD-193; tài liệu 32 mục 14.5). Thư viện dùng chung cho cổng nền tảng (dịch vụ
 // định danh), lệnh dòng lệnh `platform` và kiểm thử. Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11:
@@ -786,9 +787,20 @@ export async function runProvisioningJob(environment: LifecycleEnvironment, jobI
       }
     },
     activate: async () => {
+      // Trường dùng thử có hạn dùng thử theo cấu hình gói dịch vụ (S5a, BR-208) nếu chưa đặt
+      const trialEndsOn =
+        input.status === 'trial'
+          ? addDays(vietnamDate(nowOf(environment)), (await readPlanLifecycleSettings(platform)).defaultTrialDays)
+          : null;
       await platform
         .updateTable('schools')
-        .set({ status: input.status, updated_at: nowOf(environment) })
+        .set((expression) => ({
+          status: input.status,
+          updated_at: nowOf(environment),
+          ...(trialEndsOn
+            ? { trial_ends_on: expression.fn.coalesce('trial_ends_on', expression.val(trialEndsOn)) }
+            : {}),
+        }))
         .where('id', '=', schoolId)
         .where('status', '=', 'provisioning')
         .execute();

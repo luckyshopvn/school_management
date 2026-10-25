@@ -1,7 +1,7 @@
 # 11. TIÊU CHÍ NGHIỆM THU
 
 - Mô tả: Tiêu chí nghiệm thu cho từng chức năng, viết dạng Cho, Khi, Thì.
-- Phiên bản: 1.78
+- Phiên bản: 1.79
 - Ngày cập nhật: 2026-10-25
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -914,6 +914,9 @@ Các mã từ AC-94 đến AC-134 được viết trực tiếp trong mục 12 c
 | AC-839 | Cho hai trường trên một nền tảng / Khi trường A nhập khóa SePay, xem danh sách, kiểm tra kết nối, xóa cấu hình, nhập thiếu trường bắt buộc / Thì giá trị không bao giờ trả lại (chỉ bốn ký tự cuối), cơ sở dữ liệu chỉ có bản mã, trường B không thấy cấu hình của A và thông báo SePay gửi tới B bị 404, nhập thiếu bị 400, kiểm tra kết nối của B chưa cấu hình bị 422 (CT-1022, CT-1023; YCTD-195) |
 | AC-840 | Cho trường có dữ liệu mã hóa ở cơ sở dữ liệu hệ thống / Khi đổi khóa lúc trường đang chạy, khi đổi lúc đang tạm dừng, khi bị gián đoạn rồi chạy lại, khi bọc lại khóa gốc / Thì chỉ đổi được khi tạm dừng, mọi dòng giải mã được bằng khóa mới và băm khớp khóa băm mới, làm tiếp không mã hóa hai lần, trường khác không bị đụng, khóa gốc cũ không còn đọc được sau khi bọc lại (CT-1024, CT-1025; YCTD-195) |
 | AC-841 | Cho trường A đặt tên hiển thị và màu / Khi trang đăng nhập của A và của B đọc thương hiệu công khai, khi nhập màu sai / Thì A trả tên, màu của A, B không bị lẫn, màu sai bị 400, chưa có biểu trưng thì 404 (CT-1026; YCTD-195) |
+| AC-842 | Cho trường gán gói chỉ có phân hệ Quản lý giáo dục / Khi người dùng mở cổng và gọi API của phân hệ khác / Thì menu không có phân hệ ngoài gói, máy chủ trả 403 `MODULE_NOT_IN_PLAN`; trường chưa gán gói dùng như trước (CT-1029, CT-1030, CT-1034; YCTD-194) |
+| AC-843 | Cho gói giới hạn số học sinh, dung lượng, số cấp học / Khi duyệt hồ sơ, nhập trẻ, bật cấp học, tải tệp vượt giới hạn / Thì bị chặn 422 `PLAN_LIMIT_EXCEEDED`, xem và sửa vẫn được (CT-1031; YCTD-194) |
+| AC-844 | Cho trường quá hạn / Khi chạy chuyển trạng thái và khi người dùng ghi dữ liệu / Thì trường chuyển chỉ đọc sau 7 ngày, tạm ngưng sau 30 ngày, có nhắc trước 15, 7, 1 ngày; ở chỉ đọc ghi bị 403 `SCHOOL_READ_ONLY`, xem, đăng nhập, xuất được, cổng hiện dải chỉ đọc; dữ liệu giữ nguyên; người vận hành gán gói và chạy chuyển trạng thái ở cổng nền tảng (CT-1027, CT-1028, CT-1032, CT-1033, CT-1034; YCTD-194) |
 
 ## 20. Chưa xác minh được
 
