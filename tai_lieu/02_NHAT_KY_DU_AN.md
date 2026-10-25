@@ -1,7 +1,7 @@
 # 02. NHẬT KÝ DỰ ÁN
 
 - Mô tả: Ghi nhận công việc, quyết định, thay đổi và vấn đề tồn đọng theo ngày, ngày mới nhất ở trên cùng.
-- Phiên bản: 0.57
+- Phiên bản: 0.58
 - Ngày cập nhật: 2026-10-25
 - Trạng thái: Đang cập nhật
 
@@ -13,6 +13,28 @@
 - Không ghi thông tin tạm thời như kết quả tra cứu, đường dẫn tạm, thông báo lỗi của công cụ.
 
 ## Nhật ký theo ngày
+
+### 2026-10-25 — Kế hoạch DT-SaaS: Enterprise SaaS nhiều trường
+
+#### Công việc đã thực hiện
+
+- Đọc bản nháp kế hoạch SaaS ngày 2026-10-19 (mục 4 chia phần S1 đến S8, mục 4b quyết định của Eric), mục 12, 13 của `32_KE_HOACH_THEO_HE_THONG_SO.md` làm khuôn, và mã trên nhánh chính: `Databases` (`apps/api/src/common/databases.ts`), cấu hình máy chủ API và dịch vụ định danh, `cacheKey`, `storageKey`, `database/src/migrate.ts`, Caddy `on_demand_tls` của 18f, `backup.sh`, `docker-compose.production.yml`, cấu hình e2e và CI.
+- Thêm mục 14 vào `32_KE_HOACH_THEO_HE_THONG_SO.md` (phiên bản 1.61): kế hoạch DT-SaaS gồm mười hai phần S1a, S1b, S2, S3, S4, S5a, S5b, S6, S7a, S7b, S8a, S8b chạy bốn đợt; kiến trúc đích; phạm vi chi tiết; quyết định thiết kế; chiến lược kiểm thử cách ly; rủi ro; tiến độ; giả định chưa chốt.
+- Ghi YCTD-190 (chỉ đổi tài liệu); thêm đợt DT-SaaS, RR-16 đến RR-18, GD-93 đến GD-99 vào `01_KE_HOACH_TONG_THE.md`.
+
+#### Quyết định
+
+- Eric chốt ngày 2026-10-25: đường dẫn trường mặc định là tên miền con `<mã trường>.<tên miền hệ thống>` (tên miền hệ thống là cấu hình), quản trị nền tảng cấu hình tay được tên miền riêng cho từng trường ở bước setup (CNAME, HTTPS cấp theo yêu cầu cho tên miền có trong danh sách); hạ tầng là VPS trong nước, một hoặc vài máy, không giả định dịch vụ đám mây quản lý, máy chủ đặt tại Việt Nam.
+- Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11: tách S1 thành S1a (lõi) và S1b (chạy nền, công khai), S5 thành S5a (gói) và S5b (thu phí), S7 thành S7a (dựng sẵn, chỉ `deploy/`) và S7b (vận hành nhiều trường), S8 thành S8a (pháp lý, tài liệu) và S8b (bảo mật mã) để tối đa ba phiên song song không sửa chung tệp lõi; mỗi trường một vai trò PostgreSQL; mã phiên gắn mã trường, cặp khóa ký dùng chung; chế độ một trường là mặc định, bản triển khai hiện có thành trường số 1 không chuyển dữ liệu; ba ứng dụng chung một tên miền theo tiền tố đường dẫn; kiểm thử cách ly nhiều lớp (kiểm tĩnh, ma trận tuyến API, bản chụp cơ sở dữ liệu tìm chuỗi canary, e2e nhiều trường) với tên miền `*.localhost`, `*.test`.
+- Phần chưa chốt (tên sản phẩm, cách tính phí, cổng thanh toán, hóa đơn điện tử, nhà cung cấp VPS) làm cấu hình được và ghi là giả định GD-93 đến GD-99.
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-190, `32_KE_HOACH_THEO_HE_THONG_SO.md` mục 14, `01_KE_HOACH_TONG_THE.md` mục 5, 10, 15. Không đổi mã nguồn, không đổi phiên bản phần mềm.
+
+#### Vấn đề tồn đọng
+
+- Eric chốt các giả định ở 14.11 (đặc biệt cách tính phí, tên sản phẩm, nhà cung cấp VPS, xác thực hai lớp so với YCTD-31); S6 chờ xác nhận có khách cấp trên; tài liệu pháp lý của S8a là bản nháp cần luật sư rà; đọc văn bản gốc trước khi làm từng phần; không bật nhiều trường ở môi trường chạy thật trước khi S1a, S1b gộp và kiểm thử cách ly đạt; e2e toàn bộ do CI chạy.
 
 ### 2026-10-25 — DT-22 phần 22h2: kho học liệu số, câu hỏi và chia sẻ
 

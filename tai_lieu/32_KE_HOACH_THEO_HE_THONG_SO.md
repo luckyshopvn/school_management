@@ -1,7 +1,7 @@
 # 32. KẾ HOẠCH ĐỒNG BỘ CHỨC NĂNG VÀ GIAO DIỆN THEO HỆ THỐNG CỦA SỞ (DT-15)
 
-- Mô tả: Kế hoạch điều chỉnh School Management theo kết quả khảo sát `31_KHAO_SAT_HE_THONG_SO.md`; từ mục 9 thêm kế hoạch DT-18 điều hành nhà trường, mục 10 thêm kế hoạch DT-19 nền đa cấp học, mục 11 thêm kế hoạch DT-20 Tiểu học (kèm 22c thời khoá biểu), mục 12 thêm kế hoạch DT-21 THCS và THPT (kèm 22g kiểm tra, đánh giá), mục 13 thêm kế hoạch DT-22 (22a thư viện, 22e hồ sơ bồi dưỡng, 22h kho học liệu số).
-- Phiên bản: 1.60
+- Mô tả: Kế hoạch điều chỉnh School Management theo kết quả khảo sát `31_KHAO_SAT_HE_THONG_SO.md`; từ mục 9 thêm kế hoạch DT-18 điều hành nhà trường, mục 10 thêm kế hoạch DT-19 nền đa cấp học, mục 11 thêm kế hoạch DT-20 Tiểu học (kèm 22c thời khoá biểu), mục 12 thêm kế hoạch DT-21 THCS và THPT (kèm 22g kiểm tra, đánh giá), mục 13 thêm kế hoạch DT-22 (22a thư viện, 22e hồ sơ bồi dưỡng, 22h kho học liệu số), mục 14 thêm kế hoạch DT-SaaS (Enterprise SaaS nhiều trường: S1a, S1b, S2, S3, S4, S5a, S5b, S6, S7a, S7b, S8a, S8b).
+- Phiên bản: 1.61
 - Ngày cập nhật: 2026-10-25
 - Trạng thái: Đã duyệt hướng làm
 - Căn cứ: yêu cầu của Eric ngày 2026-10-13 ("tính năng đã có thì ưu tiên phiên bản và giao diện của Sở; tính năng Sở không có thì giữ nguyên, chỉ đổi giao diện theo trang của Sở") và các lựa chọn của Eric cùng ngày ở mục 2.
@@ -1054,3 +1054,321 @@ Các lựa chọn dưới đây do Claude tự chọn theo ủy quyền của Er
 | 22e | 1 | Đã làm, YCTD-182, phiên bản 0.119.0, PR 145: danh mục (hệ thống 0041: định mức 120 tiết, chuyên đề theo ba chương trình, khung năng lực số 6 miền 3 mức theo Thông tư 18/2026), khoá, đăng ký, duyệt tổ và Ban Giám hiệu, kết quả, chứng nhận PDF có mã QR, thu hồi, cấp lại, trang tra cứu công khai (năm học 0101, `staff_certificates` thêm cột), chứng chỉ nhập tay, hồ sơ cá nhân, tổ, trường, năng lực số và gợi ý chuyên đề; nhóm 6 của Hồ sơ chuyên môn; quyền `P09.training.*` (định danh 0091); ứng dụng giáo viên; e2e 121 |
 | 22h1 | 2 | Đã làm, YCTD-183, phiên bản 0.125.0, PR 156: phân hệ "Kho học liệu" (hệ thống 0042: loại, giấy phép, chủ đề, học liệu, phiên bản tệp, liên kết, tham chiếu kế hoạch bài dạy, bộ sưu tập; năm học 0102: sự kiện duyệt, báo lỗi, lượt xem, tải); giấy phép bắt buộc; kiểm duyệt phân luồng theo rủi ro (tổ trưởng, Ban Giám hiệu); báo lỗi, thủ kho ẩn tạm; thống kê; quyền `P09.learning-resource.*` (định danh 0092); không có bảng câu hỏi; e2e 122 |
 | 22h2 | 3 | Đã làm, YCTD-184, phiên bản 0.126.0, PR 160: câu hỏi, đề, ma trận của ngân hàng 22g1 hiện trong kho bằng tham chiếu (không bảng câu hỏi thứ hai), bộ sưu tập chứa câu hỏi, đề; thống kê sử dụng câu hỏi (lịch sử dùng câu của 22g1, 22g2), chỗ trống chủ đề; rubric; gói chia sẻ liên trường bản chạy nội bộ (xuất, nhập có kiểm, chờ duyệt) (năm học 0103); quyền `P09.learning-resource.share` (định danh 0093); menu Kho học liệu 8. đến 10.; e2e 123 |
+
+## 14. DT-SaaS: Enterprise SaaS nhiều trường
+
+### 14.1 Căn cứ và mục tiêu
+
+1. Lộ trình Eric chốt ngày 2026-10-19: DT-18 → DT-19 → DT-20 → DT-21 → DT-22 → **DT-SaaS** (làm sau cùng, để mọi tính năng nghiệp vụ xong trước khi đổi nền). Khi viết kế hoạch này DT-22 đã xong (22a, 22e, 22h1, 22h2) và DT-21 chỉ còn 21g (PR 159). Đầu vào là bản nháp "Kế hoạch chuyển School Management thành Enterprise SaaS cho nhiều trường" (ngày 2026-10-19, lưu ngoài kho; mục 4 chia phần S1 đến S8, mục 4b ghi quyết định); mục này chốt lại thành các phần làm được sau khi đối chiếu mã.
+2. Quyết định của Eric đã chốt:
+   - **2026-10-19:** mô hình A, **mỗi trường một bộ cơ sở dữ liệu** (identity, system, các cơ sở dữ liệu năm học), nền tảng có thêm cơ sở dữ liệu `platform` giữ danh sách trường, tên miền, gói; **thu phí tự động làm ngay trong đợt đầu** (S5 thuộc lõi); không ghi cứng tên miền.
+   - **2026-10-25, đường dẫn trường:** mặc định là tên miền con theo mẫu `<mã trường>.<tên miền hệ thống>`; tên miền hệ thống là **cấu hình của nền tảng**, không ghi cứng. Ngoài ra quản trị nền tảng có thể **cấu hình tay tên miền riêng cho từng trường ở bước khởi tạo (setup)**, trường trỏ CNAME, HTTPS tự cấp theo yêu cầu (on-demand TLS), chỉ cấp cho tên miền có trong danh sách.
+   - **2026-10-25, hạ tầng:** **VPS trong nước** (một hoặc vài máy, Docker Compose); S7 **không giả định dịch vụ đám mây quản lý**; đặt máy chủ tại Việt Nam (Nghị định 53/2022/NĐ-CP).
+3. **Phần chưa chốt thì làm cấu hình được và ghi rõ là giả định** (14.11): tên sản phẩm; cách tính phí (theo học sinh, theo trường hay theo phân hệ); cổng thanh toán của nền tảng; nhà cung cấp hóa đơn điện tử; nhà cung cấp VPS.
+4. Mục tiêu: một nền tảng chạy nhiều trường, mỗi trường một đường dẫn riêng, **dữ liệu tách hẳn nhau** (dữ liệu trẻ em, Nghị định 13/2023/NĐ-CP), khởi tạo trường mới bằng một thao tác, cấu hình riêng từng trường, gói dịch vụ và thu phí tự động, vận hành được trên một đến vài VPS trong nước với sao lưu, khôi phục, giám sát theo từng trường. Khách hàng vẫn là **trường đơn lẻ**; tài khoản cấp Phòng, Sở (S6) là phần cuối, chưa giao nếu chưa có nhu cầu.
+5. Hiện trạng mã (đọc trên nhánh chính ngày 2026-10-25):
+   - **Một bản triển khai là một trường.** `deploy/docker-compose.production.yml`: `postgres`, `redis`, `seaweedfs` (S3), `migrate`, `identity`, `api`, `worker`, `demo-reset`, `web` (Caddy). Giao diện gọi `/api/v1` cùng tên miền, Caddy chuyển nhóm điểm cuối định danh sang `identity`, phần còn lại sang `api`. Tên miền cố định theo biến `.env` (`PORTAL_SITE`, `PARENT_SITE`, `TEACHER_SITE`, `API_SITE`).
+   - **Cơ sở dữ liệu:** lớp `Databases` (`apps/api/src/common/databases.ts`) mở cơ sở dữ liệu hệ thống từ `SYSTEM_DATABASE_URL` và cơ sở dữ liệu năm học theo tên (`replaceDatabaseName`, tên có tiền tố `SCHOOL_YEAR_DATABASE_PREFIX`); dịch vụ định danh dùng `IDENTITY_DATABASE_URL`. `database/src/migrate.ts` có ba loại `identity`, `system`, `school-year`, chạy lặp được (`allowUnorderedMigrations`); danh sách cơ sở dữ liệu năm học lấy từ bảng `academic_year_databases`. **Chưa có khái niệm "thuê bao" ở bất kỳ chỗ nào của mã.**
+   - **Cấu hình riêng nằm hết trong `.env`**, áp chung cả bản triển khai (`apps/api/src/common/configuration.ts`): khóa công khai kiểm mã phiên `TOKEN_PUBLIC_KEY` (khóa ký chỉ ở dịch vụ định danh), `CHILD_DATA_ENCRYPTION_KEY`, `CHILD_DATA_HASH_KEY`, `S3_*`, `PAYMENT_GATEWAY` và khóa PayOS, SePay, Casso, VNPay, eSMS, Zalo OA, Facebook, `REDIS_URL`, `LOGIN_REQUESTS_PER_MINUTE`. Khóa truy cập Zalo lưu ở `integration_credentials` (hệ thống 0003) mã hóa AES-GCM bằng khóa dữ liệu trẻ (`secret-encryption.ts`).
+   - **Đã viết sẵn cho đa thuê bao** (nguyên tắc từ DT-17): khóa Redis và tệp S3 đi qua `cacheKey`, `storageKey` (`packages/server/src/resource-names.ts`, có ghi chú "chỉ cần thêm tiền tố của trường ở đây"); không thêm biến `.env` riêng trường; không ghi cứng tên miền. Một số phân hệ cũ vẫn ghép khóa bằng tay (S1b rà và chuyển hết).
+   - **Đã có, dùng lại:** Caddy `on_demand_tls` hỏi `api:3000/api/v1/public/website/domain-check` cho tên miền website của trường (18f, bảng `website_domains`, hệ thống 0021); bản trình diễn và đăng nhập thay (18h, `demo_environment` hệ thống 0022, YCTD-145); gói ZIP toàn bộ dữ liệu (18h, chưa ZIP64); bốn nhà cung cấp thanh toán (`payment-providers.ts`); `backup.sh` đã liệt kê mọi cơ sở dữ liệu trong PostgreSQL, mã hóa AES-256, đẩy ra ngoài máy (SL-01 đến SL-05); tiến trình nền theo chu kỳ (`NotificationDispatcher`, tác vụ xuất nền 16a, `demo-reset`) và hàng đợi Redis của máy xếp thời khoá biểu trong `apps/worker`.
+   - **Ứng dụng giáo viên và phụ huynh là ứng dụng web** (`apps/teacher`, `apps/parent`), không có vỏ ứng dụng di động riêng.
+   - **Kiểm thử hiện nay:** e2e một máy chủ API (cổng 3200), một dịch vụ định danh (3201), ba giao diện (5373, 5375, 5376), `workers: 1`, cơ sở dữ liệu `school_system_e2e`, tiền tố năm học `school_year_e2e_`; CI một việc `kiem-thu` (định dạng, lint, build, typecheck, migrate, kiểm thử đơn vị, e2e).
+
+### 14.2 Nguyên tắc
+
+- **Không đổi hành vi bản triển khai một trường hiện có.** Nền tảng nhiều trường bật bằng cấu hình (`PLATFORM_DATABASE_URL`); không có thì chạy **chế độ một trường** như hôm nay (một bộ cơ sở dữ liệu theo `.env`, mọi tên miền thuộc về trường đó). Toàn bộ e2e và kiểm thử đơn vị hiện có vẫn đạt không sửa kỳ vọng. Bản triển khai hiện có trở thành **trường số 1** của nền tảng bằng lệnh nhận bản đang chạy (S1a), **không chuyển dữ liệu**.
+- **Mỗi trường một bộ cơ sở dữ liệu, một vai trò PostgreSQL, một tiền tố khóa Redis và tệp.** Không có truy vấn nào dùng chung bảng giữa hai trường; không thêm `tenant_id` vào bảng nghiệp vụ.
+- **Đóng chặt khi thiếu ngữ cảnh trường (fail closed):** ở chế độ nhiều trường, truy cập cơ sở dữ liệu, Redis, kho tệp ngoài ngữ cảnh một trường là lỗi, không rơi về trường mặc định.
+- **Giữ nguyên mã nghiệp vụ:** `Databases`, `cacheKey`, `storageKey` giữ chữ ký hiện tại và nhận trường qua ngữ cảnh của yêu cầu (`AsyncLocalStorage`), để hàng trăm chỗ gọi không phải sửa.
+- **Không bí mật dùng chung giữa các trường:** khóa mã hóa dữ liệu trẻ, khóa nhà cung cấp, tài khoản nhận tiền của từng trường lưu mã hóa theo trường, bọc bằng khóa gốc của nền tảng (S1a, S3). Trước khi S3 xong, trường thứ hai trở đi **không** được dùng khóa tích hợp trong `.env` của trường số 1: tích hợp ngoài ở các trường đó chạy bộ giả lập hoặc tắt.
+- **Cấu hình, không ghi cứng:** tên sản phẩm, tên miền hệ thống, danh sách mã trường dành riêng, cách tính phí, nhà cung cấp thanh toán và hóa đơn đều là cấu hình nền tảng.
+- **Nền tảng và trường là hai lớp quản trị tách nhau:** tài khoản vận hành nền tảng ở cơ sở dữ liệu `platform`, không phải tài khoản trong bất kỳ trường nào; quản trị nền tảng không xem dữ liệu của trường nếu trường không cho phép (đăng nhập hỗ trợ có đồng ý, có hạn, có nhật ký, S4).
+- **Tương thích lùi khi cập nhật cuốn chiếu (expand/contract):** bản mã mới chạy được trên cấu trúc cơ sở dữ liệu của bản liền trước, vì trường được chuyển cấu trúc lần lượt chứ không đồng loạt (S2, S7b).
+- **Đo bằng kiểm thử cách ly:** không phần nào được gộp khi kiểm thử cách ly (14.7) chưa đạt.
+- **Văn bản gốc trước khi viết điều khoản:** hợp đồng, thỏa thuận xử lý dữ liệu, hồ sơ đánh giá tác động, cấp độ an toàn thông tin đọc toàn văn văn bản còn hiệu lực lúc làm (dự kiến: Nghị định 13/2023/NĐ-CP và Luật Bảo vệ dữ liệu cá nhân, Luật An ninh mạng 2018, Nghị định 53/2022/NĐ-CP, Nghị định 85/2016/NĐ-CP, Thông tư 12/2022/TT-BTTTT, Nghị định 123/2020/NĐ-CP và Thông tư 78/2021/TT-BTC về hóa đơn điện tử) và ghi số hiệu vào YCTD của phần. Tài liệu pháp lý do Claude soạn là **bản nháp để luật sư của Eric rà**, không thay tư vấn pháp lý.
+- **Dùng dữ liệu giả ở mọi kiểm thử:** tên trường, tên miền, học sinh, tài khoản nhận tiền, hóa đơn trong kiểm thử và dữ liệu mẫu đều là dữ liệu bịa rõ ràng, tên miền dùng `*.localhost` hoặc `*.test`.
+
+### 14.3 Các phần
+
+Số giữ sẵn bắt đầu **sau dải của DT-22 và chừa dự phòng**: YCTD-190 dành cho chính bản kế hoạch này, các phần từ YCTD-191; migration năm học từ 0110, hệ thống từ 0050, định danh từ 0100, **cơ sở dữ liệu `platform` mới từ 0001**; spec e2e từ `130-`. DT-22 giữ đến YCTD-189, năm học 0109, hệ thống 0049, định danh 0099, e2e `129-`; **không dùng số trong dải đó** (kể cả chỗ dự phòng chưa dùng của DT-22). Phần nào không cần số đã giữ thì để trống, không cho phần khác dùng. Mỗi phần cần cơ sở dữ liệu `platform` có khối 10 số riêng; `platform` là loại migration thứ tư của `database/src/migrate.ts` (thư mục `database/platform/`), S1a thêm.
+
+| Phần | Phạm vi | Đợt | Phụ thuộc | YCTD giữ sẵn | Migration giữ sẵn | e2e giữ sẵn |
+|---|---|---|---|---|---|---|
+| S1a | Nền đa thuê bao, phần lõi: cơ sở dữ liệu `platform` (trường, tên miền, cụm cơ sở dữ liệu, khóa của trường), nhận diện trường theo tên miền, `Databases` theo ngữ cảnh trường, nhóm kết nối có giới hạn, vai trò PostgreSQL riêng từng trường, mã phiên gắn mã trường, tiền tố khóa Redis và tệp, chế độ một trường và nhiều trường, lệnh nhận bản đang chạy làm trường số 1, bộ khung kiểm thử cách ly, khung cổng vận hành nền tảng | 1 | DT-22 (đã gộp); chạy ngay | YCTD-191 | Nền tảng 0001 đến 0009 | 130 |
+| S1b | Nền đa thuê bao, phần chạy nền và công khai: tiến trình nền theo từng trường (gửi thông báo, xuất nền, đặt lại bản trình diễn, hàng đợi máy xếp thời khoá biểu), điểm cuối công khai và webhook theo tên miền, Caddy cấp chứng chỉ theo yêu cầu theo danh sách của nền tảng, trang chọn trường, giới hạn tần suất theo trường, chuyển mọi khóa ghép tay sang hàm chung, kiểm tĩnh | 2 | S1a | YCTD-192 | Nền tảng 0010 đến 0019 | 131 |
+| S2 | Khởi tạo và vòng đời trường: bước setup (thông tin, mã, cấp học, năm học đầu, tên miền mặc định hoặc tên miền riêng cấu hình tay, quản trị viên đầu tiên), tạo cơ sở dữ liệu, vai trò, chạy migrate, nạp mặc định, tạm dừng, mở lại, xuất toàn bộ dữ liệu, xóa có thời gian chờ, migrate cuốn chiếu, lệnh dòng lệnh tương đương | 2 | S1a (gộp S1b trước S2) | YCTD-193 | Nền tảng 0020 đến 0029; hệ thống 0050 | 132 |
+| S5a | Gói dịch vụ và giới hạn: gói, phân hệ theo gói, giới hạn (học sinh, dung lượng), kiểm tra ở máy chủ và ở menu, trạng thái trường (dùng thử, hoạt động, chỉ đọc, tạm ngưng), chế độ chỉ đọc khi hết hạn | 2 | S1a | YCTD-194 | Nền tảng 0040 đến 0049 | 134 |
+| S3 | Cấu hình riêng từng trường: chuyển khóa tích hợp trong `.env` thành cấu hình của trường lưu mã hóa (thanh toán, eSMS, Zalo OA, Facebook, kho tệp), logo, màu, tên, màn hình quản trị của trường, đổi khóa mã hóa dữ liệu trẻ có công cụ mã hóa lại | 3 | S1b (tiến trình nền đã theo trường), S2 | YCTD-195 | Nền tảng 0030 đến 0039; hệ thống 0051, 0052 | 133 |
+| S5b | Thu phí tự động: quy tắc tính phí cấu hình được, chốt số liệu kỳ, hóa đơn, thu qua mã QR và cổng thanh toán của nền tảng, đối soát, kích hoạt và gia hạn tự động, nhắc gia hạn, hóa đơn điện tử qua bộ nối | 3 | S5a, S3 (kho khóa mã hóa), S1b (tiến trình nền theo trường) | YCTD-196 | Nền tảng 0050 đến 0059 | 135 |
+| S4 | Bảng điều khiển nền tảng: danh sách trường, trạng thái, dung lượng, số người dùng, số học sinh, lần đăng nhập cuối, phiên bản cấu trúc, đăng nhập hỗ trợ có đồng ý, thông báo bảo trì, theo dõi lỗi theo trường | 3 | S2, S5a | YCTD-197 | Nền tảng 0060 đến 0069; hệ thống 0053 | 136 |
+| S7a | Hạ tầng VPS trong nước, phần dựng sẵn: Docker Compose một đến vài máy, PgBouncer, Caddy bắt mọi tên miền, giám sát và cảnh báo, môi trường thử (staging), triển khai không gián đoạn, hướng dẫn vận hành. **Không sửa mã nghiệp vụ** (chỉ `deploy/`, `docker/`) | 1 | không phụ thuộc mã DT-SaaS; chạy ngay | YCTD-198 | không | không (kiểm tay trên staging) |
+| S7b | Vận hành nhiều trường: sao lưu và khôi phục từng trường, lưu nhật ký giao dịch để khôi phục về một thời điểm, diễn tập khôi phục tự động, chuyển trường sang cụm khác, thử tải nhiều trường, đo RPO và RTO | 4 | S1b, S2, S7a | YCTD-199 | Nền tảng 0070 đến 0079 | 137 |
+| S8a | Pháp lý và hồ sơ tuân thủ (tài liệu): hợp đồng dịch vụ, thỏa thuận xử lý dữ liệu cá nhân, điều khoản sử dụng, chính sách bảo mật, hồ sơ đánh giá tác động xử lý dữ liệu cá nhân, hồ sơ đề xuất cấp độ an toàn hệ thống thông tin, quy trình xử lý sự cố và thông báo vi phạm dữ liệu | 1 | không phụ thuộc mã; chạy ngay | YCTD-200 | không | không |
+| S8b | Bảo mật mã: xác thực hai lớp cho tài khoản nền tảng (và tuỳ chọn cho quản trị trường), chính sách mật khẩu theo trường, rà bảo mật tiêu đề, giới hạn tần suất, xoay khóa, kiểm tra thành phần phụ thuộc và bí mật trong CI, sửa lỗi sau kiểm thử xâm nhập | 4 | S1a, S2, S3 | YCTD-201 | Nền tảng 0080 đến 0089; hệ thống 0054; định danh 0101, 0102 | 138 |
+| S6 | Đơn vị cấp trên: tài khoản cấp Phòng, Sở hoặc chuỗi trường xem số liệu tổng hợp của các trường **đã đồng ý**, không xem chi tiết từng học sinh | 4 | S1a, S4; **chờ Eric xác nhận có khách cấp trên** | YCTD-202 | Nền tảng 0090 đến 0099; định danh 0103 | 139 |
+
+Giữ chỗ chưa giao: YCTD-203 đến YCTD-209, hệ thống 0055 đến 0069, định danh 0104 đến 0119, năm học 0110 đến 0119, nền tảng 0100 đến 0199, e2e `140-` đến `149-` dự phòng cho bổ sung của DT-SaaS. Thư mục kiểm thử cách ly `tests/tenancy/` (14.7) không dùng số spec.
+
+Đợt làm, mỗi lúc tối đa ba phiên, **không hai phiên cùng sửa một tệp lõi trong cùng đợt**:
+- **Đợt 1: S1a, S7a, S8a.** S1a sửa mã lõi (`Databases`, định danh, tên khóa, `database/`); S7a chỉ sửa `deploy/` và `docker/`; S8a chỉ viết tài liệu. S1a làm một mình trên mã lõi.
+- **Đợt 2: S1b, S2, S5a.** S1b sửa tiến trình nền, điểm cuối công khai, Caddy; S2 sửa bước khởi tạo, lệnh `migrate`, `database-administration.ts`; S5a sửa kiểm tra gói và menu. **Thứ tự gộp: S1b trước S2** (nhiều trường chỉ bật ở môi trường chạy thật sau khi S1b gộp, 14.8). Đăng ký thêm trang nền tảng, tuyến API, mô-đun chỉ theo kiểu **thêm cuối tệp** (`application.module.ts`, `platform-menu.ts`).
+- **Đợt 3: S3, S5b, S4.** S3 sửa cấu hình và các bộ nối ngoài; S5b sửa phần thu phí và hóa đơn; S4 sửa bảng điều khiển và đăng nhập hỗ trợ (mở rộng đăng nhập thay của 18h). Bắt đầu khi S1b, S2, S5a đã gộp.
+- **Đợt 4: S7b, S8b, S6.** S6 chỉ làm khi Eric xác nhận nhu cầu; không có thì S7b và S8b chạy hai phiên.
+
+Thứ tự gộp để đánh số tài liệu (phiên bản, CT, AC, BR, MH, PQ, mã chức năng): S1a, S7a hoặc S8a (theo thứ tự xong), rồi S1b, S2, S5a, S3, S5b, S4, S7b, S8b, S6; phần gộp sau đánh lại số tài liệu theo nhánh chính lúc gộp. YCTD, số migration, số e2e giữ sẵn ở bảng trên không đổi theo thứ tự gộp.
+
+Cỡ ước lượng (một phần của DT-16 là một đơn vị, chỉ để so sánh): S1a 1,5; S1b 1; S2 1,25; S5a 0,75; S3 1; S5b 1,25; S4 1; S7a 0,5; S7b 0,75; S8a 0,5; S8b 0,75; S6 1; tổng khoảng 11,25 đơn vị. Bản nháp ngày 2026-10-19 ước lượng khoảng tám phần; kế hoạch này tách S1, S5, S7, S8 nhỏ hơn để mỗi phiên làm trọn trong một lượt và để tách phần sửa lõi ra khỏi phần chạy song song.
+
+**Điều kiện ra của DT-SaaS** (nghiệm thu với Eric): ít nhất hai trường chạy trên một nền tảng ở môi trường thử, mỗi trường một tên miền con; một trường có tên miền riêng cấu hình tay; khởi tạo trường mới bằng một thao tác trong dưới 10 phút (giả định, đo ở S2); bộ kiểm thử cách ly đạt (14.7); bản triển khai một trường hiện có chạy được như trước; chu kỳ gia hạn chạy hết một vòng bằng dữ liệu giả (hóa đơn, thu tiền giả lập, chuyển chỉ đọc, mở lại); sao lưu và khôi phục một trường diễn tập đạt RPO và RTO đã ghi.
+
+### 14.4 Kiến trúc đích
+
+Tên bảng dưới đây là đề xuất, chốt khi làm và ghi vào YCTD của phần.
+
+**Cơ sở dữ liệu `platform`** (một bộ cho cả nền tảng, loại migration `platform`):
+
+| Nhóm | Bảng đề xuất | Phần |
+|---|---|---|
+| Trường và cụm | `schools` (mã, tên, trạng thái `provisioning`, `trial`, `active`, `read_only`, `suspended`, `pending_deletion`, `deleted`; cụm; tiền tố tên cơ sở dữ liệu, tiền tố khóa; ghi chú), `school_clusters` (máy chủ cơ sở dữ liệu, cổng, vai trò chính hoặc bản sao), `school_domains` (trường, tên miền, loại `system` hoặc `custom`, trạng thái `pending`, `verified`, `active`, `disabled`), `school_keys` (khóa mã hóa và khóa băm dữ liệu trẻ của trường, bọc bằng khóa gốc), `platform_settings` (tên miền hệ thống, tên sản phẩm, mã dành riêng, ...) | S1a |
+| Tiến trình và vòng đời | `provisioning_jobs`, `school_lifecycle_events`, `school_migrations` (phiên bản cấu trúc, trạng thái, lỗi từng trường), `scheduler_state` | S1b, S2 |
+| Tài khoản vận hành | `platform_operators` (đăng nhập riêng của nền tảng), `platform_audit_log` | S2, S8b |
+| Gói và thu phí | `plans`, `plan_modules`, `plan_limits`, `school_subscriptions`, `price_rules`, `usage_snapshots`, `invoices`, `invoice_lines`, `invoice_payments`, `einvoice_documents`, `dunning_events` | S5a, S5b |
+| Vận hành | `maintenance_notices`, `support_sessions`, `school_metrics`, `backup_runs` | S4, S7b |
+| Cấp trên | `parent_orgs`, `parent_org_schools` (kèm phạm vi đồng ý), `aggregate_snapshots` | S6 |
+
+**Luồng một yêu cầu** (chế độ nhiều trường): tên miền → `school_domains` (đệm trong bộ nhớ có hạn, hủy khi đổi) → ngữ cảnh trường (mã, trạng thái, cụm, tên cơ sở dữ liệu, khóa) đặt vào `AsyncLocalStorage` ở đầu yêu cầu của `identity` và `api` → `Databases`, `cacheKey`, `storageKey`, bộ nối ngoài đọc ngữ cảnh → mã phiên phải mang cùng mã trường. Tên miền không có trong danh sách trả 404 chung, không lộ tên trường.
+
+**Tên cơ sở dữ liệu:** `<tiền tố trường>_identity`, `<tiền tố trường>_system`, `<tiền tố trường>_year_<năm bắt đầu>_<năm kết thúc>`; mỗi trường một vai trò PostgreSQL `s_<mã>` chỉ có quyền trên các cơ sở dữ liệu của trường đó. Trường số 1 giữ nguyên tên hiện có (`school_identity`, `school_system`, `school_year_*`) qua cột tiền tố.
+
+**Khóa tên:** `storageKey('a','b')` thành `tenants/<mã>/a/b`, `cacheKey('a','b')` thành `t:<mã>:a:b`; trường số 1 có tiền tố trống để khóa hiện có còn đúng.
+
+**Đường dẫn:** mỗi trường một tên miền (con `<mã>.<tên miền hệ thống>` hoặc tên miền riêng); ba lối vào trên cùng tên miền: gốc là website công khai của trường (18f), `/quan-ly` cổng quản trị, `/giao-vien` ứng dụng giáo viên, `/phu-huynh` ứng dụng phụ huynh, `/api/v1` cho cả bốn (cùng tên miền, không CORS, cookie mã làm mới giữ đường dẫn `/api/v1/auth` và không đặt `Domain`). Cổng vận hành nền tảng ở tên miền con dành riêng (ví dụ `platform.<tên miền hệ thống>`, cấu hình được). Trang chọn trường ở gốc tên miền hệ thống: nhập mã trường rồi chuyển sang tên miền của trường, không đăng nhập chéo.
+
+### 14.5 Phạm vi chi tiết
+
+#### S1a. Nền đa thuê bao, phần lõi
+
+- **Cơ sở dữ liệu `platform`** và loại migration `platform` (`database/platform/`, `PlatformDatabase`), biến `PLATFORM_DATABASE_URL`, khóa gốc `PLATFORM_MASTER_KEY` (bọc khóa của trường). Không có `PLATFORM_DATABASE_URL` thì chế độ một trường, hành vi hiện nay.
+- **Nhận diện trường:** phần mềm trung gian ở `identity` và `api` đọc `Host` (chỉ tin `X-Forwarded-Host` khi `TRUST_PROXY` bật), tra `school_domains`, đặt ngữ cảnh trường; tên miền của cổng nền tảng và tên miền dành riêng được tách; mã trường theo mẫu `[a-z0-9]([a-z0-9-]{1,30}[a-z0-9])`, không trùng danh sách dành riêng (`www`, `api`, `platform`, `admin`, `mail`, `app`, ...), cấu hình được, mã không đổi sau khi tạo.
+- **`Databases` theo ngữ cảnh:** cùng chữ ký hiện tại (`system`, `schoolYear(name)`), nhưng phân giải theo trường hiện tại; nhóm kết nối có giới hạn: số kết nối mỗi trường (mặc định 3), tổng số trường mở cùng lúc, tự đóng khi không dùng quá hạn, `statement_timeout`; ở chế độ nhiều trường thiếu ngữ cảnh là lỗi `TENANT_CONTEXT_MISSING`. Chạy việc nền phải gọi `runAsSchool(trường, hàm)` (S1b dùng).
+- **Dịch vụ định danh theo trường:** mỗi trường một cơ sở dữ liệu định danh; mã phiên mang `sid` (mã trường), máy chủ API và dịch vụ định danh từ chối mã phiên khác trường với 401; cặp khóa ký **dùng chung của nền tảng** (khóa công khai phát cho `api`); cookie mã làm mới gắn mã trường (cookie của trường khác bị từ chối kể cả khi bị đặt từ tên miền anh em); khóa giới hạn đăng nhập gồm mã trường.
+- **Khóa dữ liệu trẻ theo trường:** `school_keys` giữ khóa mã hóa và khóa băm riêng, bọc bằng `PLATFORM_MASTER_KEY` (AES-GCM, `secret-encryption.ts`); `childDataEncryptionKey`, `childDataHashKey` đọc theo trường. Trường số 1 nhận hai khóa từ `.env` hiện tại khi nhận bản đang chạy.
+- **Tiền tố khóa:** `cacheKey`, `storageKey` thêm tiền tố trường từ ngữ cảnh (14.4); kiểm thử đơn vị cho hai hàm.
+- **Vai trò PostgreSQL theo trường:** hàm tạo vai trò và cấp quyền (S2 gọi); kiểm thử kết nối chéo bị từ chối.
+- **Lệnh nhận bản đang chạy:** `platform adopt-existing` ghi bản triển khai hiện có thành trường số 1 (cơ sở dữ liệu hiện có, tiền tố trống, khóa nhập từ `.env`, tên miền từ `PORTAL_SITE` và các biến cùng loại); chạy lặp được; không đổi, không sao chép dữ liệu.
+- **Khung cổng vận hành nền tảng:** ứng dụng `apps/platform` (giao diện riêng, đăng nhập bằng `platform_operators`), chỉ có khung, đăng nhập, menu theo dữ liệu (`platform-menu.ts`); các phần sau thêm trang.
+- **Khung kiểm thử cách ly** (14.7): thư mục `tests/tenancy/`, hàm dựng nhiều trường giả, ma trận cách ly cho mọi tuyến API, kiểm tĩnh cấm truy cập trực tiếp cơ sở dữ liệu, Redis, S3 ngoài lớp hạ tầng; chạy ở CI.
+- **Lưu ở đâu:** bảng ở cơ sở dữ liệu `platform` 0001 đến 0009; không đổi cơ sở dữ liệu của trường.
+
+#### S1b. Nền đa thuê bao, phần chạy nền và công khai
+
+- **Bộ lập lịch theo trường** (`forEachActiveSchool(việc, {số việc song song, độ lệch ngẫu nhiên})`): dùng cho gửi thông báo, tác vụ xuất nền 16a, đặt lại bản trình diễn, nhắc và tổng hợp theo chu kỳ; bỏ qua trường tạm ngưng; trường lỗi không chặn trường khác; mỗi lần chạy ghi trường và thời gian.
+- **Hàng đợi Redis** của máy xếp thời khoá biểu (`apps/worker`): công việc mang mã trường, tên hàng đợi và khóa kết quả có tiền tố trường, hạn mức việc đồng thời mỗi trường để một trường không chiếm hết máy xếp.
+- **Điểm cuối công khai và webhook theo tên miền:** website, tra cứu chứng nhận bồi dưỡng (22e), giấy khen (22d), gọi lại của PayOS, SePay, Casso, VNPay; đều phân giải trường theo tên miền; giới hạn tần suất theo trường và địa chỉ; tên miền lạ trả 404 chung.
+- **Chứng chỉ theo yêu cầu theo danh sách của nền tảng:** Caddy bắt mọi tên miền (S7a), điểm cuối `domain-check` hỏi `school_domains` (chỉ tên miền ở trạng thái `verified` hoặc `active`, có giới hạn tần suất); thay phần kiểm tra theo `website_domains` hiện nay mà không đổi hành vi ở chế độ một trường.
+- **Trang chọn trường** ở gốc tên miền hệ thống.
+- **Chuyển khóa ghép tay sang hàm chung:** rà toàn kho mã các chỗ ghép khóa Redis, đường dẫn S3, tên hàng đợi bằng chuỗi; chuyển sang `cacheKey`, `storageKey`; kiểm tĩnh (14.7) chặn chỗ mới.
+- **Số đo theo trường:** nhãn mã trường ở nhật ký và chỉ số (`/metrics` của api, identity, worker) cho S4, S7.
+- **Lưu ở đâu:** nền tảng 0010 đến 0019 (trạng thái bộ lập lịch, hạn mức việc nền).
+
+#### S2. Khởi tạo và vòng đời trường
+
+- **Bước setup** trong cổng nền tảng: (1) thông tin trường (tên, mã, địa chỉ, cấp học bật theo DT-19, năm học đầu); (2) **tên miền:** mặc định `<mã>.<tên miền hệ thống>` tự gán, hoặc **cấu hình tay tên miền riêng** (nhập tên miền, hệ thống hướng dẫn CNAME về địa chỉ vào của nền tảng và bản ghi TXT xác nhận, chỉ chuyển sang `active` sau khi kiểm tra DNS đạt; từ chối tên miền thuộc tên miền hệ thống, địa chỉ IP, tên miền đã dùng); (3) gói và dùng thử; (4) quản trị viên đầu tiên (đường liên kết kích hoạt một lần, không gửi mật khẩu); (5) xác nhận, ghi việc đồng ý điều khoản (phiên bản điều khoản, thời điểm, người).
+- **Tiến trình khởi tạo có bước, chạy lại được:** tạo vai trò PostgreSQL, tạo cơ sở dữ liệu định danh, hệ thống, năm học đầu; chạy migrate từng loại; nạp mặc định theo cấp học (cấp học, vai trò, quyền, danh mục), tạo quản trị viên, gán tên miền, tạo tiền tố S3; từng bước ghi `provisioning_jobs`; lỗi giữa chừng thì tiếp tục từ bước đang dở, hoặc hoàn tác rồi xóa sạch; khởi tạo nhanh ở kiểm thử bằng cơ sở dữ liệu mẫu (`CREATE DATABASE ... TEMPLATE`) chỉ ở môi trường kiểm thử.
+- **Vòng đời:** tạm dừng (không đăng nhập, không việc nền, giữ dữ liệu), mở lại, **xuất toàn bộ dữ liệu** (dùng lại gói ZIP của 18h; làm tiếp ZIP64 và tùy chọn kèm số định danh đầy đủ có quyền riêng, các việc 18h đã ghi ở YCTD-145), **xóa vĩnh viễn** sau thời gian chờ cấu hình được (mặc định 30 ngày, giả định): xóa cơ sở dữ liệu, vai trò, tiền tố S3, khóa Redis, khóa của trường; giữ ở `platform` chỉ bản ghi chứng minh đã xóa; bản sao lưu của trường xóa theo thời hạn lưu (S7b) và hợp đồng nói rõ.
+- **Migrate cuốn chiếu:** lệnh `platform migrate` chạy lần lượt qua từng trường (loại `identity`, `system`, mọi năm học đang dùng), ghi `school_migrations`; trường đầu tiên là trường canary; lỗi thì dừng làn sóng và báo (có tùy chọn tiếp tục); bản mã tương thích lùi cấu trúc liền trước (14.2).
+- **Lệnh dòng lệnh tương đương** (`platform provision`, `platform suspend`, ...) cho kịch bản và kiểm thử.
+- **Lưu ở đâu:** nền tảng 0020 đến 0029; việc đồng ý điều khoản ở hệ thống 0050 của trường.
+
+#### S5a. Gói dịch vụ và giới hạn
+
+- **Gói:** tên, phân hệ được bật, giới hạn (số học sinh đang học, dung lượng tệp, số cấp học bật), giá niêm yết (dùng ở S5b); gán gói cho trường có ngày hiệu lực; phân hệ lấy từ cây menu và `LEVEL_FEATURES`, quyền `P..` gắn phân hệ qua bảng ánh xạ một nơi.
+- **Kiểm tra ở máy chủ:** phân hệ ngoài gói trả 403 `MODULE_NOT_IN_PLAN`; vượt giới hạn học sinh thì chặn **thêm** học sinh mới, không chặn xem; ở menu ẩn mục ngoài gói. Dữ liệu của phân hệ bị tắt được giữ nguyên.
+- **Trạng thái trường:** `trial` (dùng thử, mặc định 30 ngày, có thể nạp dữ liệu trình diễn của 18h), `active`, `read_only`, `suspended`. **Chế độ chỉ đọc:** mọi yêu cầu ghi bị chặn (trả `SCHOOL_READ_ONLY`), cho phép xem, xuất dữ liệu, đăng nhập, thanh toán và gia hạn; chuyển trạng thái bằng bộ lập lịch của S1b.
+- **Hạn chuyển trạng thái cấu hình được** (giả định mặc định: nhắc từ trước 15 ngày, chỉ đọc sau hạn 7 ngày, tạm ngưng sau 30 ngày, giữ dữ liệu theo hợp đồng); không xóa dữ liệu tự động khi hết hạn.
+- **Lưu ở đâu:** nền tảng 0040 đến 0049.
+
+#### S3. Cấu hình riêng từng trường
+
+- **Chuyển khóa trong `.env` thành cấu hình của trường**, lưu mã hóa bằng khóa của trường (bọc ở S1a): cổng thanh toán và tài khoản nhận tiền (PayOS, SePay, Casso, VNPay, VietQR tĩnh), eSMS (tên thương hiệu), Zalo OA, Facebook Page, kho tệp nếu trường muốn kho riêng; bộ nối ngoài đọc theo trường qua một lớp `SchoolSettings` thay cho `readConfigurationFromEnvironment`. Thiếu cấu hình thì bộ nối của trường **tắt hoặc chạy giả lập**, không rơi về khóa của trường khác.
+- **Nhận diện thương hiệu:** tên trường hiển thị, logo, màu chủ đạo; tên sản phẩm lấy từ cấu hình nền tảng (chưa chốt).
+- **Màn hình quản trị của trường** (4. Quản trị hệ thống): nhập, kiểm tra kết nối, xem địa chỉ gọi lại (webhook) của trường để dán vào cổng thanh toán; không hiển thị lại khóa đã lưu (chỉ 4 ký tự cuối).
+- **Đổi khóa mã hóa dữ liệu trẻ:** công cụ mã hóa lại từng bước có thể tiếp tục, ghi nhật ký; đổi khóa gốc của nền tảng bọc lại mọi khóa trường.
+- **Lưu ở đâu:** cấu hình nhạy cảm ở hệ thống của trường 0051, 0052 (bảng `integration_credentials` mở rộng hoặc bảng mới, chốt khi làm); bản ghi khóa ở `platform` 0030 đến 0039.
+
+#### S5b. Thu phí tự động
+
+- **Quy tắc tính phí cấu hình được** (`price_rules`): thước đo `per_student` (số học sinh đang học, bậc thang), `per_school` (phí cố định theo trường), `per_module` (theo phân hệ), kết hợp được; phí tối thiểu, kỳ (tháng, quý, năm), VAT; giả định mặc định: phí theo số học sinh đang học chốt vào cuối kỳ cộng phí tối thiểu theo trường; **hàm tính thuần có kiểm thử đơn vị** (số tiền là số nguyên đồng).
+- **Chốt số liệu kỳ** (`usage_snapshots`: số học sinh, dung lượng) bằng bộ lập lịch; **hóa đơn nội bộ** (`invoices`, dòng hóa đơn, trạng thái, mã thanh toán); điều chỉnh tay của vận hành (giảm giá, tặng kỳ) có lý do và nhật ký.
+- **Thu tiền:** mã QR và liên kết thanh toán qua cổng của nền tảng (dùng lại bộ nối PayOS, SePay, Casso, VNPay; **tài khoản nhận tiền của nền tảng là cấu hình, chưa chốt**), đối soát theo nội dung chuyển khoản mã hóa đơn; thanh toán đủ thì tự gia hạn gói và mở lại trường đang `read_only`; bộ giả lập `development` cho kiểm thử.
+- **Nhắc gia hạn:** thông báo trong ứng dụng cho quản trị trường, email hoặc tin nhắn theo lịch cấu hình (trước hạn 15, 7, 1 ngày, sau hạn), mỗi lần ghi `dunning_events`.
+- **Hóa đơn điện tử:** giao diện bộ nối `EInvoiceProvider` (phát hành, hủy, tra cứu), bộ nối giả lập; **nhà cung cấp thật chưa chốt**, chọn sau và viết một bộ nối; không tự phát hành hóa đơn thật trong DT-SaaS nếu chưa có hợp đồng nhà cung cấp.
+- **Màn hình:** hóa đơn của trường trong cổng quản trị trường (xem, tải, trả tiền), trang hóa đơn và công nợ trong cổng nền tảng.
+- **Lưu ở đâu:** nền tảng 0050 đến 0059.
+
+#### S4. Bảng điều khiển nền tảng
+
+- **Danh sách trường:** trạng thái, gói, dung lượng, số người dùng, số học sinh, lần đăng nhập cuối, phiên bản cấu trúc, lỗi gần nhất; số liệu thu bằng bộ lập lịch (chỉ số lượng, không đọc nội dung dữ liệu).
+- **Đăng nhập hỗ trợ:** mở rộng đăng nhập thay của 18h: quản trị trường bấm cho phép (có hạn, mặc định 24 giờ, rút được), nhân viên nền tảng vào với quyền chỉ đọc hoặc theo phạm vi cho phép, **mọi thao tác ghi cả hai phía** (nhật ký của trường và `platform_audit_log`), biểu ngữ báo đang có phiên hỗ trợ.
+- **Thông báo bảo trì** đến người dùng của một, nhiều hoặc mọi trường.
+- **Theo dõi lỗi theo trường:** gom lỗi 5xx và tác vụ nền lỗi theo trường, biểu đồ đơn giản, cảnh báo ngưỡng; không có nội dung dữ liệu cá nhân trong nhật ký lỗi.
+- **Lưu ở đâu:** nền tảng 0060 đến 0069; phiên hỗ trợ được trường đồng ý ở hệ thống 0053.
+
+#### S7a. Hạ tầng VPS trong nước, phần dựng sẵn
+
+Chỉ sửa `deploy/` và `docker/`, không sửa mã nghiệp vụ.
+- **Ba cách đặt máy, cùng một bộ tệp Compose:** (T1) một VPS chạy mọi thứ, cho đến vài chục trường; (T2) hai VPS: ứng dụng (Caddy, `web`, `api`, `identity`, `worker`, Redis, SeaweedFS) và cơ sở dữ liệu (PostgreSQL, PgBouncer, sao lưu); (T3) từ ba VPS: hai máy ứng dụng chạy song song, một máy cơ sở dữ liệu chính, một máy bản sao. Không giả định cân bằng tải hay cơ sở dữ liệu quản lý của nhà cung cấp: hai máy ứng dụng đặt sau hai địa chỉ A của tên miền kèm kiểm tra sức khỏe (hoặc một địa chỉ nổi nếu cùng mạng), ghi rõ giới hạn.
+- **PgBouncer** ở chế độ gom theo giao dịch phía trước PostgreSQL (kiểm tra trước: `timezone.ts`, mọi `SET` theo phiên, khóa tư vấn, `LISTEN`; ghi kết quả vào YCTD); cấu hình PostgreSQL cho hàng trăm cơ sở dữ liệu nhỏ.
+- **Caddy bắt mọi tên miền:** khối địa chỉ bắt chung với `on_demand_tls` hỏi điểm cuối `domain-check`; không còn tên miền ghi trong tệp; chạy được cả bản một trường hiện nay.
+- **Giám sát và cảnh báo** chạy trên chính VPS (không dịch vụ ngoài): chỉ số máy chủ và PostgreSQL, nhật ký tập trung, kiểm tra tên miền và chứng chỉ sắp hết hạn, cảnh báo qua email, Zalo hoặc Telegram cấu hình được.
+- **Môi trường thử (staging):** cùng bộ Compose, tên dự án và tiền tố cơ sở dữ liệu khác, tên miền `*.staging.<tên miền hệ thống>`, dữ liệu giả; chạy được trên cùng VPS hoặc máy riêng.
+- **Triển khai không gián đoạn:** hai bản `api` và `identity`, khởi động lại lần lượt sau kiểm tra sức khỏe, `migrate` chạy trước theo quy tắc tương thích lùi.
+- **Hướng dẫn vận hành** (`deploy/README.md` và tài liệu 12): quy mô gợi ý (giả định, chưa đo; S7b đo), mở thêm VPS, chuyển cụm, cấp chứng chỉ, thay khóa, xử lý sự cố.
+- **Vị trí máy chủ:** checklist chọn nhà cung cấp đặt máy tại Việt Nam, bản sao lưu ngoài máy cũng ở trong nước (Nghị định 53/2022/NĐ-CP, đọc lại văn bản còn hiệu lực).
+
+#### S7b. Vận hành nhiều trường
+
+- **Sao lưu theo từng trường:** `backup.sh` lấy danh sách trường từ `platform`, sao lưu logic riêng từng trường (định danh, hệ thống, năm học đang dùng mỗi giờ, mọi năm mỗi ngày như hiện nay), thư mục và mã hóa theo trường, đẩy ra ngoài máy chủ; **khôi phục một trường** vào chính nó hoặc vào trường mới (để xem lại) mà không ảnh hưởng trường khác.
+- **Khôi phục về một thời điểm** của cả cụm bằng sao lưu cơ bản và lưu nhật ký giao dịch (WAL) đẩy ra ngoài; quy trình lấy riêng một trường từ bản khôi phục tạm.
+- **Diễn tập khôi phục tự động hằng tháng** vào staging, kiểm tra đọc được và so số dòng; báo kết quả cho S4.
+- **Chuyển trường sang cụm khác:** công cụ dừng ghi, sao chép, đổi `school_clusters`, mở lại, có kiểm tra số dòng; dùng khi một máy cơ sở dữ liệu đầy.
+- **Thử tải nhiều trường:** dựng trường giả (ví dụ 50 trường, mỗi trường ba năm học, dữ liệu giả cỡ trường thật) đo số kết nối, bộ nhớ, thời gian migrate cuốn chiếu, thời gian sao lưu; ghi giới hạn của từng cách đặt máy (T1 đến T3).
+- **Mục tiêu ghi rõ (giả định, đo rồi chốt):** khôi phục về thời điểm cách sự cố không quá 5 phút (RPO) khi có nhật ký giao dịch, không quá 1 giờ khi chỉ có sao lưu theo giờ; khôi phục dịch vụ trong 4 giờ (RTO) với T2, T3; sẵn sàng 99,5% ở T1, 99,9% ở T3 khi bản sao tự gánh được (giả định, không cam kết trước khi đo).
+- **Lưu ở đâu:** `backup_runs` và trạng thái chuyển cụm ở `platform` 0070 đến 0079.
+
+#### S8a. Pháp lý và hồ sơ tuân thủ (tài liệu)
+
+- Bộ tài liệu bản nháp: **hợp đồng dịch vụ** (phạm vi, gói, phí, hạn, chấm dứt, trả dữ liệu), **thỏa thuận xử lý dữ liệu cá nhân** (trường là bên kiểm soát dữ liệu, nền tảng là bên xử lý; mục đích, thời hạn, biện pháp bảo vệ, bên xử lý phụ, quyền của chủ thể dữ liệu, dữ liệu của trẻ em), **điều khoản sử dụng và chính sách bảo mật** hiển thị trong ứng dụng (phiên bản có số, việc đồng ý ghi ở S2), **hồ sơ đánh giá tác động xử lý dữ liệu cá nhân** và hồ sơ thông báo, **hồ sơ đề xuất cấp độ an toàn hệ thống thông tin** (xác định cấp độ, phương án bảo vệ, đối chiếu tiêu chuẩn), **quy trình xử lý sự cố và thông báo vi phạm dữ liệu** (thời hạn theo văn bản hiện hành), chính sách lưu giữ và xóa (nối với S2, S7b), danh sách bên xử lý phụ (nhà cung cấp VPS, cổng thanh toán, tin nhắn).
+- Tệp tài liệu mới do S8a tự đặt số và đăng ký ở `index.md`; **bản nháp, cần luật sư của Eric rà trước khi dùng**; không ghi số liệu, tên pháp nhân hay thông tin thật của nhà cung cấp chưa chốt (để chỗ trống có chú thích).
+
+#### S8b. Bảo mật mã
+
+- **Xác thực hai lớp (TOTP) bắt buộc cho tài khoản vận hành nền tảng**; cho quản trị trường là **tuỳ chọn bật theo trường**. Quyết định hiện hành YCTD-31 (không dùng xác thực hai lớp cho Hiệu trưởng, Phó Hiệu trưởng, kế toán trưởng, quản trị nền tảng, RR-15) **chỉ đổi khi Eric xác nhận** (14.11).
+- **Chính sách mật khẩu theo trường** (độ dài, hết hạn, khóa khi sai) nằm trên cơ chế hết hạn mật khẩu đã có ở DT-15; mặc định nền tảng cho tài khoản vận hành.
+- **Rà bảo mật:** tiêu đề bảo mật ở Caddy, giới hạn tần suất theo trường và địa chỉ, `__Secure-` cho cookie mã làm mới, kiểm tra mã phiên theo trường, nhật ký truy cập dữ liệu trẻ theo trường; **xoay khóa** (khóa ký mã phiên, khóa gốc của nền tảng) có quy trình và công cụ.
+- **Kiểm tra trong CI:** quét thành phần phụ thuộc có lỗ hổng, quét bí mật trong mã, kiểm tĩnh của 14.7.
+- **Kiểm thử xâm nhập:** danh sách kiểm theo OWASP ASVS mức 2 cho phần đa thuê bao (vượt trường, đổi tên miền, giả `Host`, tải tệp), bản kiểm thử bên ngoài do Eric thuê; phần này chỉ sửa lỗi tìm ra và ghi hồ sơ.
+- **Lưu ở đâu:** nền tảng 0080 đến 0089; hệ thống 0054 (chính sách theo trường); định danh 0101, 0102 (bảng TOTP).
+
+#### S6. Đơn vị cấp trên
+
+- **Chỉ làm khi Eric xác nhận có khách cấp Phòng, Sở hoặc chuỗi trường** (khách hàng đã chốt là trường đơn lẻ ở 13.1).
+- **Tài khoản cấp trên** ở `platform` (không thuộc trường nào), gắn với các trường **đã đồng ý** theo từng nhóm số liệu (quản trị trường bật, tắt, rút bất kỳ lúc nào); **chỉ số liệu tổng hợp** (số lượng, tỉ lệ, báo cáo EMIS đã tổng hợp), mỗi trường đẩy bản chụp tổng hợp theo chu kỳ vào `aggregate_snapshots`, **không truy vấn chéo sang cơ sở dữ liệu của trường**, không có dữ liệu cá nhân của học sinh.
+- Nối thi đua khối, cụm, báo cáo cấp Phòng, Sở đã nhắc ở 22d, 22f là phần mở rộng, thêm bằng YCTD riêng.
+- **Lưu ở đâu:** nền tảng 0090 đến 0099; định danh 0103 nếu cần vai trò chuyển trường.
+
+### 14.6 Quyết định thiết kế và phương án đã loại
+
+Các lựa chọn dưới đây do Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11, trừ các quyết định của Eric ở 14.1.
+
+- **Mô hình A (Eric chốt), loại B và C:** B (dùng chung cơ sở dữ liệu, thêm cột `tenant_id`, hoặc bảo vệ ở mức dòng) loại vì phải sửa và kiểm thử mọi truy vấn, sót một chỗ là lộ dữ liệu trẻ giữa các trường, lại mâu thuẫn với cơ sở dữ liệu theo năm học. C (mỗi trường một bản triển khai riêng) vẫn dùng được cho khách lớn muốn máy riêng: cùng mã nguồn, chỉ khác nơi đặt, chạy ở chế độ một trường; không phải việc của DT-SaaS.
+- **Tên miền con theo mã trường là mặc định; tên miền riêng cấu hình tay (Eric chốt):** loại "đường dẫn `/<mã trường>` trên một tên miền" vì cookie, bộ nhớ trình duyệt và chứng chỉ chung cho mọi trường (một trường lỗi chạy mã giao diện có thể đọc dữ liệu cục bộ của trường kia). Tên miền con tách nguồn gốc (origin) từng trường.
+- **Ba ứng dụng chung một tên miền theo tiền tố đường dẫn** (`/quan-ly`, `/giao-vien`, `/phu-huynh`, gốc là website): giữ mọi thứ của một trường ở một tên miền, một chứng chỉ, cookie không cần `Domain`, không gọi chéo tên miền (khớp quy ước 8 của tài liệu 17). Phải đặt đường dẫn gốc (`base`) cho ba ứng dụng web và chỉnh Caddy; ghi vào S1b. Phương án loại: mỗi ứng dụng một tên miền con (`quan-ly-<mã>.…`) vì nhân số tên miền, chứng chỉ và hướng dẫn CNAME lên gấp ba.
+- **Cặp khóa ký mã phiên dùng chung của nền tảng, mã trường (`sid`) bắt buộc khớp:** đơn giản cho `api` (một khóa công khai), xoay khóa một nơi. Phương án loại: mỗi trường một cặp khóa (cách ly mạnh hơn khi lộ khóa, nhưng nhân việc phát khóa và xoay khóa; có thể thêm sau vì mã phiên đã có `sid`). Rủi ro lộ khóa ký ghi ở 14.8.
+- **Một vai trò PostgreSQL mỗi trường:** hàng rào thứ hai ngoài mã; một lỗi trong ứng dụng cũng không đọc được cơ sở dữ liệu trường khác. Phải xử lý PgBouncer xác thực theo vai trò (danh sách xác thực sinh từ `platform`). Phương án loại: một vai trò chung cho mọi trường (đơn giản nhưng bỏ hàng rào).
+- **Ngữ cảnh trường qua `AsyncLocalStorage`, giữ chữ ký `Databases`, `cacheKey`, `storageKey`:** không phải sửa hàng trăm chỗ gọi; nhược điểm là việc nền phải tự bọc ngữ cảnh, nên **đóng chặt** (lỗi khi thiếu) và có kiểm tĩnh. Phương án loại: truyền `school` làm tham số khắp nơi (sửa quá lớn, dễ sót).
+- **Một tiến trình `api` phục vụ mọi trường, không một tiến trình mỗi trường:** gom kết nối bằng nhóm có giới hạn và PgBouncer; mở rộng bằng thêm bản `api`. Phương án loại: một vùng chứa mỗi trường (tốn bộ nhớ, cập nhật phải lặp).
+- **Bản triển khai hiện có thành trường số 1, không chuyển dữ liệu:** lệnh nhận bản đang chạy chỉ ghi `platform` và dùng lại cơ sở dữ liệu cũ, khóa tên cũ (tiền tố trống). Phương án loại: đổi tên và chép cơ sở dữ liệu (rủi ro, thời gian dừng).
+- **Chế độ một trường là mặc định:** mọi bản triển khai hiện nay và e2e hiện có chạy không đổi; kiểm thử nhiều trường là bộ riêng (14.7).
+- **Tài khoản không gộp giữa các trường:** một người dạy hai trường có hai tài khoản, đăng nhập ở hai tên miền; không có danh tính chung (làm thế phải có kho tài khoản chung, trái mô hình A và nguyên tắc tách dữ liệu). Trang chọn trường chỉ chuyển hướng. Tài khoản chuyên viên Phòng, Sở nằm ở S6.
+- **Ứng dụng di động:** hiện chỉ có ứng dụng web; "nhập mã trường hoặc quét QR" của bản nháp chỉ làm ở trang chọn trường và mã QR của đường dẫn trường (in được ở S2); vỏ ứng dụng di động gốc nằm ngoài DT-SaaS.
+- **Thu phí tự động trong đợt đầu (Eric chốt):** S5a, S5b thuộc lõi; tiền thu qua cổng thanh toán đã có bộ nối; hóa đơn điện tử đi qua bộ nối có giả lập vì nhà cung cấp chưa chốt. Phương án loại: ký hợp đồng và thu thủ công trước (Eric không chọn).
+- **Hết hạn thì chỉ đọc, không xóa:** tránh mất dữ liệu trẻ vì quên gia hạn; xóa chỉ khi trường yêu cầu và qua thời gian chờ.
+- **Chứng chỉ HTTPS:** giai đoạn đầu cấp theo yêu cầu cho cả tên miền con và tên miền riêng (chỉ cho tên miền có trong danh sách, đã xác nhận DNS); nhà cung cấp chứng chỉ có hạn mức số chứng chỉ mới mỗi tuần cho một tên miền đăng ký (kiểm tra hạn mức hiện hành), nên khi mở nhiều trường cùng lúc cần **chứng chỉ ký tự đại diện** cho tên miền hệ thống (xác nhận bằng DNS, cần nhà cung cấp DNS có giao diện lập trình mà Caddy hỗ trợ). Ghi vào S7a như tùy chọn bật sau.
+- **Không làm ở DT-SaaS:** mô hình dùng chung cơ sở dữ liệu; danh tính chung nhiều trường; ứng dụng di động gốc; thị trường học liệu liên trường thật (22h2 chỉ có gói tệp, danh mục chung liên trường là việc sau DT-SaaS, thêm bằng YCTD riêng); tự động mở rộng máy chủ, dịch vụ đám mây quản lý (Eric chọn VPS trong nước); thành phần AI (YCTD-185 của DT-22 vẫn giữ chỗ).
+
+### 14.7 Kiểm thử cách ly dữ liệu giữa các trường
+
+Nguyên tắc: **cách ly là điều phải chứng minh bằng kiểm thử tự động, ở nhiều lớp, và phần nào làm yếu đi thì CI đỏ.** Bộ kiểm thử đặt ở `tests/tenancy/` và các spec `130-` đến `139-`, S1a dựng khung.
+
+**Dữ liệu mồi (canary).** Mỗi trường giả (`alpha`, `beta`, `gamma`) được nạp một bộ dữ liệu có **chuỗi nhận dạng riêng** (ví dụ `CANARY-ALPHA-…`) ở mọi loại nơi lưu: tên học sinh, phụ huynh, nhân viên; tệp ở kho tệp; thông báo ở hàng đợi; khóa trong Redis; tác vụ xuất nền; nhật ký kiểm toán; cấu hình tích hợp (bộ nối giả lập có dấu riêng từng trường); tên miền. Kiểm thử khẳng định chuỗi của trường này **không bao giờ** xuất hiện ở nơi của trường khác.
+
+Các lớp kiểm thử:
+
+1. **Đơn vị:** bộ phân giải trường (tên miền lạ, tên miền ở trạng thái chưa xác nhận, `Host` giả, `X-Forwarded-Host` khi không tin proxy); `Databases` không bao giờ trả kết nối của trường khác và lỗi khi thiếu ngữ cảnh ở chế độ nhiều trường; `cacheKey`, `storageKey` luôn có tiền tố; nhóm kết nối tôn trọng giới hạn và đóng đúng; mã phiên khác `sid` bị từ chối.
+2. **Kiểm tĩnh (chạy ở CI, không cần dịch vụ):** quét mã nguồn, chặn (a) mở kết nối cơ sở dữ liệu, Redis, S3 ngoài lớp hạ tầng, (b) đọc `process.env` ngoài tệp cấu hình và khởi động, (c) ghép khóa Redis, đường dẫn S3, tên hàng đợi bằng chuỗi thay vì hàm chung, (d) tên bảng hay đường dẫn có chứa mã trường ghi cứng, (e) **tuyến API chưa khai báo chính sách trường**: mọi tuyến phải nằm trong bảng `tenancy-route-policy` (cần trường, công khai theo tên miền, hoặc của nền tảng) kèm lý do, nên tuyến mới thêm mà chưa khai báo làm kiểm thử đỏ.
+3. **Ma trận cách ly API (cấp yêu cầu):** liệt kê **tự động mọi tuyến** từ bảng tuyến của máy chủ; với mỗi tuyến cần trường: (i) mã phiên của trường A gọi ở tên miền trường B, (ii) mã phiên trường A gọi tên miền A nhưng kèm mã đối tượng (id) của trường B, (iii) không mã phiên; kỳ vọng 401, 403 hoặc 404, và **thân phản hồi không chứa chuỗi canary của B**; với tuyến công khai theo tên miền: gọi tên miền A không thấy dữ liệu B. Tuyến mới thêm vào kho mã tự vào ma trận.
+4. **Cơ sở dữ liệu:** (i) kết nối bằng vai trò của A vào cơ sở dữ liệu của B bị từ chối; (ii) sau mỗi bộ kiểm thử, **xuất bản chụp cơ sở dữ liệu của A và tìm chuỗi canary của B** (phải không có); (iii) không có bảng nghiệp vụ nào có cột mã trường (khẳng định mô hình A không bị phá).
+5. **Kho tệp và Redis:** ghi tệp, khóa ở A rồi liệt kê khóa, tệp theo tiền tố B (phải rỗng); xóa trường A xóa sạch tiền tố của A mà không đụng B.
+6. **Việc nền và tích hợp:** hàng đợi thông báo có thông báo của A và B cùng lúc, bộ nối giả lập đánh dấu trường: thông báo của A chỉ ra bằng cấu hình của A; trường không có cấu hình thì bộ nối tắt chứ không dùng của trường khác; bộ lập lịch chạy cả hai trường, trường lỗi không chặn trường kia; hàng đợi máy xếp thời khoá biểu giữ công việc đúng trường; webhook thanh toán gọi tên miền A chỉ ghi nhận cho A.
+7. **E2E nhiều trường (trình duyệt):** hai ngữ cảnh trình duyệt (A, B) đăng nhập cùng lúc ở hai tên miền; dữ liệu mỗi bên khác nhau; thử sao chép địa chỉ API, mã phiên giữa hai bên; thử trang chọn trường; thử trường tạm dừng, chỉ đọc, bị xóa (tên miền trả 404 hoặc thông báo đúng); tên miền riêng cấu hình tay cho một trường.
+8. **Vòng đời:** khởi tạo trường mới rồi chạy ma trận; tạm dừng rồi mở lại; xóa trường rồi khẳng định cơ sở dữ liệu, vai trò, tiền tố tệp, khóa Redis đều hết và trường còn lại nguyên vẹn.
+9. **Hồi quy:** toàn bộ e2e hiện có chạy được ở **chế độ nhiều trường** (một trường giả có tên miền thay cho `localhost`) và ở chế độ một trường như cũ.
+
+**Cổng kiểm của mọi phần DT-SaaS:** lớp 1, 2, 3 chạy ở mọi PR; lớp 4 đến 8 chạy ở PR của phần chạm đến lớp tương ứng và hằng đêm trên `main`; lớp 9 chạy ở PR của S1a, S1b, S2, S3, S5a và hằng đêm. Không phần nào gộp khi lớp nào trong số bắt buộc của nó đỏ.
+
+**Chạy e2e với nhiều trường.**
+- **Tên miền giả lập:** tên miền hệ thống kiểm thử là `e2e.localhost`, các trường là `alpha.e2e.localhost`, `beta.e2e.localhost`, `gamma.e2e.localhost`. Trình duyệt Chromium tự đưa mọi `*.localhost` về `127.0.0.1`, không cần sửa tệp `hosts`. Với `*.test` (nếu cần thử tên miền riêng giả như `alpha.truong.test`), dùng tham số khởi chạy `--host-resolver-rules=MAP *.test 127.0.0.1`. Ở kiểm thử cấp API không dựa vào phân giải tên: trợ giúp `tenantRequest(mã)` kết nối thẳng `127.0.0.1` và đặt tiêu đề `Host`, nên chạy giống nhau trên Windows, Linux và CI.
+- **Máy chủ:** vẫn một `api` (cổng 3200), một `identity` (3201), ba giao diện (5373, 5375, 5376) như hiện nay; các máy chủ phát triển của giao diện cho phép `.localhost` (`server.allowedHosts`) và chuyển `/api/v1` giữ nguyên `Host`. Cơ sở dữ liệu `school_platform_e2e`, tiền tố cơ sở dữ liệu trường `e2e_<mã>_`, tiền tố Redis và S3 theo trường.
+- **Dựng trường:** bước dựng chung (`tests/e2e-setup.mjs`) tạo ba trường bằng lệnh `platform provision` (trước khi S2 xong dùng lệnh dựng thử của S1a), dùng cơ sở dữ liệu mẫu để nhanh (migrate một lần, `CREATE DATABASE ... TEMPLATE` cho trường kế); nạp bộ canary.
+- **Ba dự án Playwright:** `single` (e2e hiện có, không đổi), `multi` (spec `130-` đến `139-` và ma trận), `multi-regression` (e2e hiện có chạy ở chế độ nhiều trường). Chọn bằng `E2E_TENANCY=single|multi` và `--project`.
+- **Trên máy:** theo quy tắc chung, chỉ chạy spec của phần mình và spec bị ảnh hưởng, giữ khóa `/d/School_Management/.claude/e2e.lock`, đặt thời hạn, chạy nền; **không chạy toàn bộ e2e hay `multi-regression` trên máy**; dùng cơ sở dữ liệu định danh và nền tảng riêng của phiên (tên có hậu tố phần). Ghi trong tài liệu: "e2e toàn bộ do CI chạy".
+- **Trên CI:** thêm việc `kiem-thu-nhieu-truong` chạy song song với `kiem-thu` (cùng dịch vụ PostgreSQL, Redis, SeaweedFS): kiểm tĩnh, kiểm thử đơn vị cách ly, ma trận API, dự án `multi`; `multi-regression` chạy ở các PR đã nêu và hằng đêm. Việc `kiem-thu` giữ nguyên và vẫn chạy `single`. Từ khi S1a gộp, việc mới này là việc CI bắt buộc, ghi vào quy ước gộp.
+
+### 14.8 Rủi ro và cách kiểm
+
+| Rủi ro | Cách kiểm |
+|---|---|
+| Lộ dữ liệu giữa các trường (mã quên đi qua `Databases`, khóa ghép tay, việc nền không có ngữ cảnh, tuyến công khai) | Đóng chặt khi thiếu ngữ cảnh, vai trò PostgreSQL riêng, kiểm tĩnh, ma trận cách ly tự liệt kê tuyến, tìm chuỗi canary trong bản chụp cơ sở dữ liệu (14.7); **không bật nhiều trường ở môi trường chạy thật trước khi S1a, S1b đã gộp và ma trận đạt** |
+| Hai trường dùng chung khóa tích hợp trong `.env` của trường số 1 (gửi nhầm tin nhắn, nhận nhầm tiền) trong thời gian S3 chưa gộp | Nguyên tắc 14.2: trường thứ hai trở đi chạy bộ giả lập hoặc tắt tích hợp cho đến khi S3 gộp; kiểm thử bộ nối tắt khi thiếu cấu hình |
+| Lộ khóa ký mã phiên dùng chung làm giả được phiên của mọi trường | Khóa ký chỉ ở dịch vụ định danh, API chỉ giữ khóa công khai; `sid` bắt buộc; xoay khóa có quy trình (S8b); có thể chuyển sang khóa riêng từng trường vì mã phiên đã có `sid` |
+| Cookie bị đặt từ tên miền anh em (một tên miền hệ thống chung cho mọi trường) | Cookie mã làm mới không đặt `Domain`, tên có `__Secure-`, gắn mã trường và bị từ chối nếu khác trường; website của trường không chạy mã tùy ý của trường |
+| Mở nhiều trường cùng lúc vượt hạn mức cấp chứng chỉ | Chứng chỉ ký tự đại diện cho tên miền hệ thống (14.6); cấp theo yêu cầu chỉ cho tên miền có trong danh sách, đã xác nhận DNS, có giới hạn tần suất; theo dõi hạn mức ở S4 |
+| Cấp chứng chỉ cho tên miền không trỏ về nền tảng, bị lạm dụng làm bàn đạp | Điểm cuối kiểm tra chỉ chấp nhận tên miền đã xác nhận bản ghi TXT và CNAME; từ chối khi DNS đổi |
+| Quá nhiều kết nối PostgreSQL (nhiều trường × nhiều năm học × nhiều bản `api`) | Nhóm kết nối có giới hạn mỗi trường và toàn cục, tự đóng khi rảnh, PgBouncer; thử tải nhiều trường ở S7b; mở cụm cơ sở dữ liệu thứ hai và chuyển trường (S7b) |
+| PgBouncer chế độ gom theo giao dịch làm hỏng chỗ dùng `SET` theo phiên, khóa tư vấn | Rà trước ở S7a (`timezone.ts`, `Migrator`, mọi `SET`), ghi kết quả vào YCTD; migrate đi thẳng PostgreSQL không qua PgBouncer |
+| Migrate cuốn chiếu lỗi giữa chừng làm các trường lệch cấu trúc | Bản mã tương thích lùi (expand/contract), trường canary đầu tiên, dừng khi lỗi, bảng `school_migrations`, báo S4; không đổi cấu trúc phá vỡ trong một bản |
+| Một trường chiếm hết máy (xếp thời khoá biểu, xuất nền, nhập Excel) | Hạn mức việc đồng thời mỗi trường, giới hạn tần suất theo trường, độ lệch ngẫu nhiên của bộ lập lịch (S1b) |
+| Khởi tạo trường để lại cơ sở dữ liệu dở dang | Tiến trình có bước, chạy lại được, có hoàn tác; kiểm thử ngắt giữa chừng ở từng bước (S2) |
+| Xóa trường nhầm hoặc bị lạm dụng | Thời gian chờ có thể hủy, xác nhận bằng mã trường, chỉ vai trò vận hành cấp cao, nhật ký nền tảng; xuất dữ liệu trước khi xóa |
+| Hết hạn gói làm trường mất quyền vào dữ liệu | Chỉ đọc chứ không xóa, vẫn xuất được dữ liệu, thanh toán được; hạn chuyển trạng thái cấu hình được và nhắc nhiều lần (S5) |
+| Sai số tiền hóa đơn, thu trùng, thiếu | Hàm tính thuần có kiểm thử đơn vị nhiều ca, số nguyên đồng, đối soát theo mã hóa đơn, thu trùng không gia hạn hai lần, điều chỉnh tay có nhật ký |
+| Hóa đơn điện tử thật phát hành khi chưa sẵn sàng | Chỉ có bộ nối giả lập đến khi chọn nhà cung cấp; cờ bật bộ nối thật cần xác nhận của Eric |
+| Một VPS trong nước là điểm lỗi duy nhất ở cách đặt T1 | Ghi rõ mức sẵn sàng của T1; sao lưu ngoài máy, diễn tập khôi phục hằng tháng; chuyển T2, T3 khi vượt ngưỡng (S7) |
+| Chưa chọn nhà cung cấp VPS, chưa có số đo năng lực | Bộ Compose không phụ thuộc nhà cung cấp; số quy mô ghi là giả định, S7b đo rồi mới cam kết |
+| Tài liệu pháp lý do Claude soạn sai hoặc lỗi thời | Đọc văn bản gốc lúc làm, ghi số hiệu; luật sư của Eric rà; không dùng khi chưa rà (S8a) |
+| Quyết định không dùng xác thực hai lớp (YCTD-31, RR-15) mâu thuẫn với nhu cầu của SaaS | Xác thực hai lớp bắt buộc chỉ cho tài khoản vận hành nền tảng (mới), tuỳ chọn cho quản trị trường; đổi quyết định YCTD-31 chờ Eric (14.11) |
+| Hai phần cùng đợt sửa chung tệp lõi (`application.module.ts`, `platform-menu.ts`, cây menu, danh sách migration, quyền) | Đợt 1 chỉ S1a sửa mã lõi; sửa tệp chung theo kiểu thêm cuối; thứ tự gộp S1b trước S2; gộp `origin/main` trước khi mở PR |
+| Va số với DT-21, DT-22 chạy song song | Dải DT-SaaS bắt đầu sau dải DT-22 (14.3); không dùng số dự phòng của DT-22 |
+| Đổi đường dẫn gốc (`base`) của ba ứng dụng làm hỏng liên kết, e2e, bản đã triển khai | Chế độ một trường giữ đường dẫn hiện nay; đường dẫn tiền tố chỉ áp ở chế độ nhiều trường; e2e `single` và `multi-regression` kiểm cả hai |
+
+**Cổng kiểm của mỗi phần DT-SaaS:** kiểm thử đơn vị toàn bộ kho mã đạt không sửa kỳ vọng; e2e `single` hiện có đạt cộng e2e mới của phần (chạy riêng, giữ khóa `e2e.lock`, không chạy cùng kiểm thử đơn vị toàn kho); kiểm thử cách ly theo 14.7; typecheck, lint, build đạt; CI xanh toàn bộ (gồm việc nhiều trường từ khi S1a gộp); phiên bản phần mềm tăng theo từng phần, riêng bản kế hoạch này (YCTD-190) chỉ đổi tài liệu và S7a, S8a (chỉ cấu hình triển khai, tài liệu) ghi rõ có tăng phiên bản hay không trong YCTD của phần.
+
+### 14.9 Quy ước chung của DT-SaaS
+
+- Mỗi phần ghi YCTD giữ sẵn ở mục 14.3, cập nhật tài liệu theo quy ước của kho (02, 07, 08, 10, 11, 12 kiến trúc, 14, 16, 17, 21, 22 bảo mật, 23, 24, 32, `index.md` khi có thay đổi tương ứng), ghi văn bản căn cứ đã đọc, mở PR, gộp khi mọi kiểm tra CI đạt.
+- Mã mới theo mục 14.2 (tách dữ liệu từng trường, đóng chặt khi thiếu ngữ cảnh, chế độ một trường không đổi, không bí mật dùng chung, không ghi cứng tên miền).
+- Cơ sở dữ liệu `platform` có thư mục migration riêng, kiểm thử dùng cơ sở dữ liệu `platform` riêng của phiên (hậu tố phần), **tuyệt đối không chạy `migrate` lên cơ sở dữ liệu dùng chung**.
+- Kiểm thử, dữ liệu mẫu, tài liệu chỉ dùng tên trường, tên miền, tài khoản, hóa đơn giả (`*.localhost`, `*.test`); không dữ liệu thật, không in nội dung `.env`, không dán khóa vào tài liệu.
+- Các điểm chi tiết không nêu ở đây Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11 và ghi vào YCTD của từng phần; nếu một phần cần số ngoài khoảng đã giữ, ghi vào YCTD và lấy ở dải dự phòng của DT-SaaS (14.3).
+- Phần chưa chốt (14.11) làm cấu hình được; khi Eric chốt thì đổi giá trị mặc định bằng YCTD, không sửa mã.
+
+### 14.10 Tiến độ
+
+| Phần | Đợt | Tiến độ |
+|---|---|---|
+| S1a | 1 | Chưa làm, YCTD-191 |
+| S7a | 1 | Chưa làm, YCTD-198 |
+| S8a | 1 | Chưa làm, YCTD-200 |
+| S1b | 2 | Chưa làm, YCTD-192; bắt đầu khi S1a gộp |
+| S2 | 2 | Chưa làm, YCTD-193; bắt đầu khi S1a gộp, gộp sau S1b |
+| S5a | 2 | Chưa làm, YCTD-194; bắt đầu khi S1a gộp |
+| S3 | 3 | Chưa làm, YCTD-195; bắt đầu khi S1b, S2 gộp |
+| S5b | 3 | Chưa làm, YCTD-196; bắt đầu khi S5a, S3, S1b gộp |
+| S4 | 3 | Chưa làm, YCTD-197; bắt đầu khi S2, S5a gộp |
+| S7b | 4 | Chưa làm, YCTD-199; bắt đầu khi S1b, S2, S7a gộp |
+| S8b | 4 | Chưa làm, YCTD-201; bắt đầu khi S1a, S2, S3 gộp |
+| S6 | 4 | Chưa giao, YCTD-202; chờ Eric xác nhận có khách cấp trên |
+
+### 14.11 Giả định chưa chốt, làm cấu hình được
+
+| Mã | Mục chưa chốt | Giả định để làm | Cấu hình ở | Cần ai trả lời |
+|---|---|---|---|---|
+| GD-93 | Tên sản phẩm, tên miền hệ thống | Tên sản phẩm lấy từ cấu hình (mặc định "School Management"); tên miền hệ thống là cấu hình, kiểm thử dùng `e2e.localhost` | `platform_settings` | Eric |
+| GD-94 | Cách tính phí | Phí theo số học sinh đang học chốt cuối kỳ cộng phí tối thiểu theo trường; thước đo `per_student`, `per_school`, `per_module` đều có, kết hợp được; số tiền, bậc thang, kỳ là dữ liệu | `price_rules`, `plans` | Eric |
+| GD-95 | Cổng thanh toán của nền tảng, nhà cung cấp hóa đơn điện tử | Dùng lại bộ nối PayOS, SePay, Casso, VNPay (tài khoản nhận tiền của nền tảng chưa có); hóa đơn điện tử qua `EInvoiceProvider` với bộ giả lập | `platform_settings`, bộ nối | Eric |
+| GD-96 | Nhà cung cấp VPS trong nước, số máy | Bộ Compose không phụ thuộc nhà cung cấp; ba cách đặt máy T1 đến T3; quy mô gợi ý là giả định đến khi S7b đo | `deploy/` | Eric |
+| GD-97 | Xác thực hai lớp so với quyết định YCTD-31 (RR-15) | Bắt buộc cho tài khoản vận hành nền tảng; tuỳ chọn bật theo trường cho quản trị trường; không đổi quyết định hiện có | chính sách theo trường | Eric |
+| GD-98 | Khách hàng cấp trên (S6) | Chưa có; S6 chưa giao phiên | không | Eric |
+| GD-99 | Thời hạn giữ dữ liệu sau khi hết hạn, thời gian chờ xóa, hạn nhắc, hạn chuyển chỉ đọc, thời gian dùng thử | Dùng thử 30 ngày; nhắc trước hạn 15, 7, 1 ngày; chỉ đọc sau hạn 7 ngày; tạm ngưng sau 30 ngày; chờ xóa 30 ngày; sao lưu giữ tối thiểu 30 ngày (SL-01) | `plans`, `platform_settings` | Eric |
