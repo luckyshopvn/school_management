@@ -53,7 +53,10 @@ export class AuthenticationGuard implements CanActivate {
     private readonly reflector: Reflector,
     private readonly clock: Clock,
   ) {
-    this.verifier = new AccessTokenVerifier(configuration.tokenPublicKeyPem);
+    this.verifier = new AccessTokenVerifier(
+      configuration.tokenPublicKeyPem,
+      configuration.tokenPreviousPublicKeyPem ?? null,
+    );
   }
 
   async canActivate(context: ExecutionContext): Promise<boolean> {

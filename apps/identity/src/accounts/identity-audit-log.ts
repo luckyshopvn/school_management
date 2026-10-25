@@ -4,7 +4,8 @@ import type { Kysely, Transaction } from 'kysely';
 // Nhật ký thao tác của dịch vụ định danh kèm giá trị trước và sau (PQ-05, YCTD-39)
 export interface IdentityAuditEntry {
   actorUserId: string;
-  entityName: 'users' | 'user_roles' | 'roles' | 'identity_settings' | 'api_clients' | 'user_school_levels';
+  entityName:
+    'users' | 'user_roles' | 'roles' | 'identity_settings' | 'api_clients' | 'user_school_levels' | 'user_totp';
   entityId: string;
   action: string;
   before: unknown;

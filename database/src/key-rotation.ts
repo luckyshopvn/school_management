@@ -196,7 +196,7 @@ export async function rotateChildKeys(
   const batchSize = options.batchSize ?? BATCH_SIZE;
   let batches = 0;
   const descriptors: DatabaseDescriptor[] = (await schoolDescriptors(environment, school.id)).filter(
-    (descriptor) => descriptor.kind === 'system' || descriptor.kind === 'school-year',
+    (descriptor) => descriptor.kind === 'identity' || descriptor.kind === 'system' || descriptor.kind === 'school-year',
   );
   try {
     for (const descriptor of descriptors) {
@@ -279,7 +279,7 @@ export async function rewrapMasterKey(
   actor: Actor,
 ): Promise<{ keys: number; passwords: number; rotations: number }> {
   const rewrap = (value: string) => encryptSecret(newMasterKey, decryptSecret(oldMasterKey, value));
-  const counts = { keys: 0, passwords: 0, rotations: 0 };
+  const counts = { keys: 0, passwords: 0, rotations: 0, operatorTotp: 0 };
   await platform.transaction().execute(async (transaction) => {
     for (const row of await transaction.selectFrom('school_keys').selectAll().execute()) {
       await transaction
@@ -313,6 +313,18 @@ export async function rewrapMasterKey(
         .where('id', '=', row.id)
         .execute();
       counts.rotations += 1;
+    }
+    // Khóa xác thực hai lớp của tài khoản vận hành nền tảng (DT-SaaS phần S8b)
+    for (const row of await transaction
+      .selectFrom('platform_operator_totp')
+      .select(['operator_id', 'secret_encrypted'])
+      .execute()) {
+      await transaction
+        .updateTable('platform_operator_totp')
+        .set({ secret_encrypted: rewrap(row.secret_encrypted) })
+        .where('operator_id', '=', row.operator_id)
+        .execute();
+      counts.operatorTotp += 1;
     }
   });
   await writeAudit(platform, {

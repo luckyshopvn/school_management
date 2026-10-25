@@ -2,7 +2,7 @@ import 'reflect-metadata';
 import { NestFactory } from '@nestjs/core';
 import type { INestApplication, Type } from '@nestjs/common';
 import type { TenancyRuntime } from '@school-management/database';
-import { Clock, createTenantMiddleware, ErrorFilter, SystemClock } from '@school-management/server';
+import { Clock, createTenantMiddleware, ErrorFilter, securityHeaders, SystemClock } from '@school-management/server';
 import { API_VERSION_PREFIX } from '@school-management/shared';
 import type { AcademicYearTransitionStep } from './academic-years/academic-year-transition.js';
 import { ApplicationModule } from './application.module.js';
@@ -29,6 +29,8 @@ export async function createApplication(
     ApplicationModule.register(configuration, options.clock ?? new SystemClock(), options),
     { logger: ['error', 'warn'] },
   );
+  // Tiêu đề bảo mật (DT-SaaS phần S8b), đặt trước mọi lớp trung gian khác
+  application.use(securityHeaders());
   const tenancy = options.tenancy ?? null;
   if (tenancy) {
     // Gọi nội bộ giữa máy chủ API và dịch vụ định danh dùng địa chỉ nội bộ, không phải tên miền của trường: khi tên miền không
@@ -40,7 +42,11 @@ export async function createApplication(
         hostSource: tenancy.configuration.hostSource,
         isTenantFreePath: (path) => TENANT_FREE_PATHS.has(path),
         ...(tenancy.configuration.edgeSecret ? { edgeSecret: tenancy.configuration.edgeSecret } : {}),
-        resolveByToken: tenancy.tokenTenantResolver(configuration.tokenPublicKeyPem, () => clock.now()),
+        resolveByToken: tenancy.tokenTenantResolver(
+          configuration.tokenPublicKeyPem,
+          () => clock.now(),
+          configuration.tokenPreviousPublicKeyPem ?? null,
+        ),
       }),
     );
   }

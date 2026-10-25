@@ -13,7 +13,15 @@ import {
 } from '../test-support.js';
 
 // Hết hạn mật khẩu của tài khoản nhân sự (DT-15 phần 15g, YCTD-110); kịch bản CT-15g-9 đến CT-15g-13
-const POLICY_KEYS = ['password_max_age_days', 'password_expiry_warning_days'];
+const POLICY_KEYS = [
+  'password_max_age_days',
+  'password_expiry_warning_days',
+  'password_min_length',
+  'login_max_failed_attempts',
+  'login_lock_minutes',
+];
+// Mặc định của ba mục chính sách theo trường thêm ở DT-SaaS phần S8b
+const SCHOOL_POLICY_DEFAULTS = { password_min_length: 8, login_max_failed_attempts: 5, login_lock_minutes: 15 };
 const NEW_PASSWORD = 'MatKhauMoi2027';
 
 async function putJson(url: string, accessToken: string, body: unknown) {
@@ -55,7 +63,11 @@ describe('Dịch vụ định danh: hết hạn mật khẩu', () => {
   it('CT-15g-9: chỉ người quản lý mọi tài khoản đọc, sửa chính sách; mặc định tắt, báo trước 7 ngày', async () => {
     const initial = await getJson(policyUrl(), administratorToken);
     assert.equal(initial.status, 200);
-    assert.deepEqual(initial.body, { password_max_age_days: 0, password_expiry_warning_days: 7 });
+    assert.deepEqual(initial.body, {
+      password_max_age_days: 0,
+      password_expiry_warning_days: 7,
+      ...SCHOOL_POLICY_DEFAULTS,
+    });
 
     for (const roleCode of ['VT-07', 'VT-03']) {
       const other = await createTestUser(context.database, { roles: [{ roleCode, orgUnitId: null }] });
@@ -77,7 +89,11 @@ describe('Dịch vụ định danh: hết hạn mật khẩu', () => {
     const principalToken = (await login(principal)).body.access_token as string;
     const saved = await putJson(policyUrl(), principalToken, { password_max_age_days: 90 });
     assert.equal(saved.status, 200);
-    assert.deepEqual(saved.body, { password_max_age_days: 90, password_expiry_warning_days: 7 });
+    assert.deepEqual(saved.body, {
+      password_max_age_days: 90,
+      password_expiry_warning_days: 7,
+      ...SCHOOL_POLICY_DEFAULTS,
+    });
   });
 
   it('CT-15g-10: mật khẩu quá hạn thì đăng nhập phải đổi mật khẩu; mật khẩu mới phải khác mật khẩu cũ', async () => {

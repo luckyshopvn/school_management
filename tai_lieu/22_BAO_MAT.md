@@ -1,7 +1,7 @@
 # 22. BẢO MẬT
 
 - Mô tả: Xác thực, phân quyền, phiên làm việc, kiểm tra dữ liệu đầu vào, bảo mật API, truy cập dữ liệu.
-- Phiên bản: 1.13
+- Phiên bản: 1.14
 - Ngày cập nhật: 2026-10-25
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -137,6 +137,10 @@ Các trường hợp trên phải đẩy cảnh báo cho quản trị nền tả
 | BM-80 | Dữ liệu thật ở máy chủ ngoài nước (YCTD-203, BR-207, BR-209, PL-00 đến PL-15 của `33_HO_SO_PHAP_LY/`): chỉ trường đủ hồ sơ đồng ý; `PLATFORM_MASTER_KEY` chỉ ở máy chủ ứng dụng, không ở nhà cung cấp cơ sở dữ liệu, nên nhà cung cấp chỉ thấy bản mã của số định danh trẻ; phần dữ liệu còn lại dạng rõ (biện pháp giảm rủi ro, đề xuất mã hóa thêm số điện thoại cha mẹ, địa chỉ nhà, hồ sơ sức khỏe ở S3, S8b); biểu ngữ môi trường thử nghiệm; chuyển về trong nước bằng `platform relayout` (khóa bọc lại bằng khóa gốc của đích); kho khóa trong bộ nhớ (`REDIS_URL=memory://`) chỉ dùng với một bản dịch vụ; `SMS_ALLOW_LOG` chỉ cho trường dữ liệu giả |
 | BM-81 | Khóa kết nối ngoài của trường (YCTD-195, BR-211): mã hóa AES-256-GCM bằng khóa của trường trước khi lưu, không bao giờ trả lại qua API hay ghi vào nhật ký, chỉ bốn ký tự cuối để nhận biết; chế độ nhiều trường không rơi về khóa ở biến môi trường của cả bản triển khai hay của trường khác; chỉ người có quyền P01.integration.manage xem và đổi |
 | BM-82 | Đổi khóa dữ liệu trẻ và khóa gốc (YCTD-195, BR-212): khóa mới sinh ngẫu nhiên và bọc bằng khóa gốc ngay khi tạo; chỉ làm khi trường tạm dừng; thay khóa hiện tại nguyên tử khi xong; khóa gốc đổi bằng lệnh bọc lại trong một giao dịch; mọi bước ghi nhật ký nền tảng |
+| BM-83 | Xác thực hai lớp (YCTD-201, BR-214, GD-97): bắt buộc cho tài khoản vận hành nền tảng; tuỳ chọn bật theo trường, mặc định tắt (YCTD-31 giữ nguyên). TOTP chuẩn RFC 6238 (SHA-1, 30 giây, 6 chữ số, lệch một bước), mỗi mã một lần, cập nhật bước dùng cuối có điều kiện để hai yêu cầu cùng lúc không cùng dùng một mã; khóa mã hóa AES-256-GCM (khóa của trường hoặc khóa gốc nền tảng); mã khôi phục chỉ lưu bản băm; sai mã tính vào bộ đếm khóa tạm |
+| BM-84 | Mật khẩu và khóa tạm theo trường (YCTD-201, BR-215): độ dài tối thiểu, ngưỡng sai và thời gian khóa cấu hình theo trường trong giới hạn; tài khoản vận hành tối thiểu 12 ký tự theo ASVS 2.1.1 |
+| BM-85 | Tiêu đề bảo mật và cookie (YCTD-201, BR-216): `X-Content-Type-Options`, `X-Frame-Options: DENY`, `Referrer-Policy`, `Permissions-Policy`, `Cross-Origin-Opener-Policy`, HSTS (`includeSubDomains`) khi qua HTTPS, `Cache-Control: no-store` ở nhóm xác thực, bỏ `X-Powered-By`; Caddy đặt lớp tiêu đề tương ứng; cookie mã làm mới `__Secure-`, httpOnly, SameSite=Strict, Secure |
+| BM-86 | Xoay khóa (YCTD-201): khóa ký mã phiên theo quy trình hai pha (mục 10A); khóa gốc nền tảng bằng `platform rewrap-master-key`; khóa dữ liệu trẻ bằng `platform rotate-child-key` (gồm cơ sở dữ liệu định danh, nơi có khóa TOTP); khóa tích hợp của trường nhập lại ở màn hình quản trị |
 
 Từ YCTD-200 (DT-SaaS phần S8a), quy trình xử lý sự cố và thông báo vi phạm dữ liệu cá nhân của nền tảng nhiều trường (thời hạn 72 giờ theo Điều 23 Luật Bảo vệ dữ liệu cá nhân số 91/2025/QH15, nội dung theo Điều 28 Nghị định 356/2025/NĐ-CP) ở `33_HO_SO_PHAP_LY/12_QUY_TRINH_SU_CO_VA_THONG_BAO.md` (bản nháp chờ luật sư rà).
 
@@ -151,6 +155,29 @@ Từ YCTD-200 (DT-SaaS phần S8a), quy trình xử lý sự cố và thông bá
 
 
 Từ YCTD-200, khi chạy nhiều trường (DT-SaaS): trường là bên kiểm soát dữ liệu cá nhân, nền tảng là bên xử lý; quyền, nghĩa vụ theo thỏa thuận xử lý dữ liệu `33_HO_SO_PHAP_LY/02_THOA_THUAN_XU_LY_DU_LIEU.md`.
+
+## 10A. Bảo mật mã cho nhiều trường (DT-SaaS phần S8b, YCTD-201)
+
+### Quy trình xoay khóa ký mã phiên (hai pha, không ngừng dịch vụ)
+
+1. Sinh cặp khóa mới bằng `pnpm --filter @school-management/identity generate-token-keys`.
+2. Triển khai dịch vụ định danh với `IDENTITY_TOKEN_PRIVATE_KEY` mới và `TOKEN_PUBLIC_KEY` mới; đặt `TOKEN_PREVIOUS_PUBLIC_KEY` bằng khóa công khai cũ ở dịch vụ định danh **và** máy chủ API. Mã phiên mới ký bằng khóa mới, mã phiên cũ vẫn được nhận.
+3. Chờ quá hạn mã phiên (15 phút) với mã vận hành 8 giờ thì chờ 8 giờ, rồi gỡ `TOKEN_PREVIOUS_PUBLIC_KEY` và triển khai lại. Mã làm mới dài hơn không phụ thuộc khóa ký.
+4. Nghi lộ khóa: bỏ qua bước chờ, gỡ khóa cũ ngay; mọi người dùng phải đăng nhập lại.
+
+### Danh sách kiểm ASVS mức 2 cho phần đa thuê bao (Eric thuê bên ngoài kiểm thử xâm nhập; phần này chỉ ghi hồ sơ và sửa lỗi tìm ra)
+
+| Nhóm ASVS | Yêu cầu | Trạng thái | Bằng chứng |
+|---|---|---|---|
+| V2 Xác thực | Mật khẩu tối thiểu, khóa tạm, xác thực hai lớp cho tài khoản đặc quyền | Có | `totp.test.ts`, `platform-operators.test.ts`, spec 138 |
+| V3 Phiên | Cookie `__Secure-`, httpOnly, SameSite; phiên gắn trường (`tid`); thu hồi khi đổi mật khẩu | Có | `tenancy.test.ts`, spec 130 |
+| V4 Kiểm soát truy cập | Vượt trường: mã phiên trường A ở trường B, tuyến nào cũng 401 | Có | ma trận cách ly `tenancy-matrix.test.ts` |
+| V5 Kiểm tra đầu vào | Giả `Host`, `X-Forwarded-Host` chỉ tin khi có bí mật cổng biên; tên miền lạ 404 | Có | `tenancy.test.ts`, spec 130 |
+| V8 Bảo vệ dữ liệu | Khóa tích hợp, khóa TOTP, số định danh mã hóa; khóa của trường tách nhau; đổi khóa được | Có | `school-settings.test.ts`, `key-rotation.test.ts` |
+| V9 Truyền thông | HSTS qua HTTPS, chứng chỉ theo yêu cầu chỉ cho tên miền đã xác minh | Có | `security-headers.test.ts`, spec 131 |
+| V12 Tệp | Khóa tệp có tiền tố trường; xuất, xóa theo tiền tố | Có | `school-lifecycle` (S2) |
+| V14 Cấu hình | Tiêu đề bảo mật, quét bí mật, quét thành phần phụ thuộc ở CI, kiểm tĩnh nhiều trường | Có | `secret-scan.test.mjs`, `static-guard.test.mjs`, việc CI `quet-phu-thuoc` |
+| Kiểm thử xâm nhập bên ngoài | Vượt trường, đổi tên miền, giả Host, tải tệp độc hại, kênh phụ thời gian | Chờ Eric thuê | hồ sơ bàn giao sau khi có báo cáo |
 
 ## 11. Chưa xác minh được
 

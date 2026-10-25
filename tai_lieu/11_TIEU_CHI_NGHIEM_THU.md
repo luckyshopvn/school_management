@@ -1,7 +1,7 @@
 # 11. TIÊU CHÍ NGHIỆM THU
 
 - Mô tả: Tiêu chí nghiệm thu cho từng chức năng, viết dạng Cho, Khi, Thì.
-- Phiên bản: 1.78
+- Phiên bản: 1.79
 - Ngày cập nhật: 2026-10-25
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -914,6 +914,10 @@ Các mã từ AC-94 đến AC-134 được viết trực tiếp trong mục 12 c
 | AC-839 | Cho hai trường trên một nền tảng / Khi trường A nhập khóa SePay, xem danh sách, kiểm tra kết nối, xóa cấu hình, nhập thiếu trường bắt buộc / Thì giá trị không bao giờ trả lại (chỉ bốn ký tự cuối), cơ sở dữ liệu chỉ có bản mã, trường B không thấy cấu hình của A và thông báo SePay gửi tới B bị 404, nhập thiếu bị 400, kiểm tra kết nối của B chưa cấu hình bị 422 (CT-1022, CT-1023; YCTD-195) |
 | AC-840 | Cho trường có dữ liệu mã hóa ở cơ sở dữ liệu hệ thống / Khi đổi khóa lúc trường đang chạy, khi đổi lúc đang tạm dừng, khi bị gián đoạn rồi chạy lại, khi bọc lại khóa gốc / Thì chỉ đổi được khi tạm dừng, mọi dòng giải mã được bằng khóa mới và băm khớp khóa băm mới, làm tiếp không mã hóa hai lần, trường khác không bị đụng, khóa gốc cũ không còn đọc được sau khi bọc lại (CT-1024, CT-1025; YCTD-195) |
 | AC-841 | Cho trường A đặt tên hiển thị và màu / Khi trang đăng nhập của A và của B đọc thương hiệu công khai, khi nhập màu sai / Thì A trả tên, màu của A, B không bị lẫn, màu sai bị 400, chưa có biểu trưng thì 404 (CT-1026; YCTD-195) |
+| AC-842 | Cho tài khoản vận hành nền tảng có khóa TOTP / Khi đăng nhập thiếu mã, mã sai, mã đúng, mã đúng dùng lại, mã khôi phục dùng hai lần, sai mã năm lần, tài khoản chưa đăng ký khóa / Thì thiếu mã bị 401 đòi mã và chưa tính nhập sai, mã sai và mã dùng lại bị 401, mã khôi phục dùng được một lần, sai năm lần thì khóa tạm, chưa đăng ký khóa không đăng nhập được, khóa lưu mã hóa (CT-1027, CT-1028; YCTD-201) |
+| AC-843 | Cho hai trường, alpha bật xác thực hai lớp / Khi người dùng alpha đăng ký, xác nhận, đăng nhập thiếu mã, sai mã, đúng mã, dùng mã khôi phục, tắt, đặt lại hộ; người dùng beta đăng nhập và thử đăng ký / Thì chỉ alpha đòi mã sau khi người dùng đăng ký xong, beta không bị ảnh hưởng và không đăng ký được, bật rồi tắt cả trường thì bỏ qua mã (CT-1029; YCTD-201) |
+| AC-844 | Cho hai trường đặt chính sách mật khẩu khác nhau / Khi đổi mật khẩu ngắn hơn độ dài tối thiểu của trường A, sai mật khẩu quá ngưỡng của trường A, đặt giá trị ngoài giới hạn / Thì A từ chối mật khẩu ngắn và tạm khóa đúng ngưỡng, số phút riêng; B giữ mặc định; giá trị ngoài giới hạn bị 400 (CT-1030; YCTD-201) |
+| AC-845 | Cho máy chủ API và dịch vụ định danh / Khi gọi điểm cuối thường, qua HTTPS (tiêu đề chuyển tiếp), điểm cuối xác thực, đăng nhập đặt cookie; khi xoay khóa ký; khi chạy CI / Thì mọi phản hồi có tiêu đề bảo mật và không lộ phần mềm, HSTS chỉ khi qua HTTPS, phản hồi xác thực không lưu đệm, cookie mã làm mới có tiền tố `__Secure-`, mã phiên ký bằng khóa cũ còn dùng được trong thời gian xoay, quét bí mật và quét thành phần phụ thuộc chạy (CT-1031, CT-1032; YCTD-201) |
 
 ## 20. Chưa xác minh được
 

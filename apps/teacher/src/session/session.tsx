@@ -12,7 +12,7 @@ export type SessionStatus = 'checking' | 'signed-out' | 'signed-in';
 interface SessionValue {
   status: SessionStatus;
   passwordChangeRequired: boolean;
-  login(loginIdentifier: string, password: string): Promise<void>;
+  login(loginIdentifier: string, password: string, otpCode?: string): Promise<void>;
   changePassword(currentPassword: string, newPassword: string): Promise<void>;
   logout(): Promise<void>;
 }
@@ -39,8 +39,8 @@ export function SessionProvider({ children }: { children: ReactNode }) {
     () => ({
       status,
       passwordChangeRequired,
-      async login(loginIdentifier, password) {
-        applyTokens(await loginWithPassword(loginIdentifier, password));
+      async login(loginIdentifier, password, otpCode) {
+        applyTokens(await loginWithPassword(loginIdentifier, password, otpCode));
       },
       async changePassword(currentPassword, newPassword) {
         applyTokens(await requestPasswordChange(currentPassword, newPassword));

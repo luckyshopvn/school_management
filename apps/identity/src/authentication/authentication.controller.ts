@@ -10,6 +10,7 @@ import { assertChannel, AuthenticationService, type RequestOrigin } from './auth
 import { CaptchaService, type CaptchaAnswer } from './captcha.service.js';
 import { ImpersonationService } from './impersonation.service.js';
 import { LoginRateLimiter } from './login-rate-limiter.js';
+import { isTotpRequiredError, TotpService } from './totp.service.js';
 import { PasswordResetService } from './password-reset.service.js';
 import { IdentitySettingsService } from '../settings/identity-settings.service.js';
 import { OneTimeCodeService } from './one-time-code.service.js';
@@ -48,6 +49,7 @@ export class AuthenticationController {
     private readonly oneTimeCodeService: OneTimeCodeService,
     private readonly captchaService: CaptchaService,
     private readonly passwordResetService: PasswordResetService,
+    private readonly totpService: TotpService,
     private readonly identitySettings: IdentitySettingsService,
     private readonly impersonation: ImpersonationService,
     private readonly clock: Clock,
@@ -118,9 +120,17 @@ export class AuthenticationController {
     }
     let issued;
     try {
-      issued = await this.authenticationService.login(login, password, channel, origin);
+      const otp = body?.otp_code;
+      issued = await this.authenticationService.login(
+        login,
+        password,
+        channel,
+        origin,
+        typeof otp === 'string' && otp.trim() !== '' ? otp.trim() : undefined,
+      );
     } catch (error) {
-      if (portal) {
+      // Đúng mật khẩu nhưng chưa nhập mã xác thực hai lớp: chưa phải lần nhập sai
+      if (portal && !isTotpRequiredError(error)) {
         await this.captchaService.registerFailure(login);
       }
       throw error;
@@ -206,6 +216,60 @@ export class AuthenticationController {
       throw validationError(errors);
     }
     return this.authenticationService.changePassword(request.accessTokenClaims, currentPassword, newPassword);
+  }
+
+  // Xác thực hai lớp tuỳ chọn của người dùng trường (DT-SaaS phần S8b, YCTD-201): xem trạng thái, đăng ký, xác nhận, tắt; người quản lý
+  // tài khoản đặt lại hộ khi mất điện thoại
+  @Get('totp')
+  @UseGuards(AccessTokenGuard)
+  totpStatus(@Req() request: AuthenticatedRequest) {
+    return this.totpService.status(request.accessTokenClaims.userId);
+  }
+
+  @Post('totp/setup')
+  @HttpCode(200)
+  @UseGuards(AccessTokenGuard)
+  async totpSetup(@Req() request: AuthenticatedRequest) {
+    const claims = request.accessTokenClaims;
+    return this.totpService.beginSetup(claims.userId, await this.authenticationService.accountLabel(claims.userId));
+  }
+
+  @Post('totp/confirm')
+  @HttpCode(200)
+  @UseGuards(AccessTokenGuard)
+  totpConfirm(@Body() body: RequestBody, @Req() request: AuthenticatedRequest) {
+    const errors: FieldError[] = [];
+    const code = readText(body, 'code', errors);
+    if (errors.length > 0) {
+      throw validationError(errors);
+    }
+    return this.totpService.confirmSetup(request.accessTokenClaims.userId, code);
+  }
+
+  @Post('totp/disable')
+  @HttpCode(200)
+  @UseGuards(AccessTokenGuard)
+  async totpDisable(@Body() body: RequestBody, @Req() request: AuthenticatedRequest) {
+    const errors: FieldError[] = [];
+    const code = readText(body, 'code', errors);
+    if (errors.length > 0) {
+      throw validationError(errors);
+    }
+    await this.totpService.disable(request.accessTokenClaims.userId, code);
+    return this.totpService.status(request.accessTokenClaims.userId);
+  }
+
+  @Post('totp/reset')
+  @HttpCode(200)
+  @UseGuards(AccessTokenGuard)
+  async totpReset(@Body() body: RequestBody, @Req() request: AuthenticatedRequest) {
+    const errors: FieldError[] = [];
+    const userId = readText(body, 'user_id', errors);
+    if (errors.length > 0) {
+      throw validationError(errors);
+    }
+    await this.totpService.resetByManager(request.accessTokenClaims.userId, userId, readOrigin(request).ipAddress);
+    return { message: 'Đã đặt lại xác thực hai lớp của tài khoản' };
   }
 
   // Đăng nhập thay (DT-18 phần 18h): cookie cổng quản trị chuyển sang phiên của tài khoản đích; phiên gốc giữ nguyên

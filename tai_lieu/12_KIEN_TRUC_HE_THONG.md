@@ -1,7 +1,7 @@
 # 12. KIẾN TRÚC HỆ THỐNG
 
 - Mô tả: Kiến trúc tổng thể, thành phần, xác thực, phân quyền, lưu trữ tệp, ghi nhật ký, giám sát, sao lưu, phục hồi, triển khai.
-- Phiên bản: 1.19
+- Phiên bản: 1.20
 - Ngày cập nhật: 2026-10-25
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -263,6 +263,7 @@ Hồ sơ `deploy/profiles/trial/` chạy cùng mã nguồn với hồ sơ vận 
 | QĐ-27 | Khởi tạo và vòng đời trường (DT-SaaS phần S2, YCTD-193): khởi tạo là việc có bước lưu ở cơ sở dữ liệu nền tảng, chạy lặp được, chạy tiếp hoặc hoàn tác; điểm cuối quản lý trường ở dịch vụ định danh dưới `/api/v1/auth/platform/schools` (không thêm dịch vụ); tên miền riêng qua bộ nối `DomainProvider`; quản trị viên đầu tiên kích hoạt bằng đường liên kết một lần, không gửi mật khẩu; xóa có thời gian chờ, giữ hàng của trường ở trạng thái đã xóa kèm bản ghi chứng minh; xuất và xóa tệp chạy ở máy chủ API vì kho tệp nằm ở đó | Đã chốt, làm ở S2 |
 | QĐ-28 | Hồ sơ thử nghiệm (DT-SaaS phần S9, YCTD-203): một ảnh gộp `identity` + `api` sau cổng biên Cloudflare Worker (hoặc Vercel), bố cục `schema` qua bộ gom kết nối của nhà cung cấp, không Redis, việc định kỳ do Cron gọi `tick`; nhà cung cấp chọn bằng bộ nối cấu hình (`DB_HOST_ADAPTER`, `DOMAIN_PROVIDER`, `S3_*`); chuyển sang hồ sơ vận hành bằng `platform relayout`, không sửa mã | Đã áp dụng |
 | QĐ-29 | Cấu hình kết nối ngoài theo trường (DT-SaaS phần S3, YCTD-195): một lớp `SchoolSettings` đọc `integration_secrets` (đệm 15 giây, xóa đệm khi ghi) và các bộ nối `Tenant*` (tin nhắn, Fanpage, Zalo, cổng thanh toán, kho tệp) chọn nguồn theo từng lần dùng: cấu hình của trường, rồi bộ giả lập, rồi (chỉ chế độ một trường) biến môi trường, còn lại tắt; `ZaloTokenStore` nhận cấu hình ban đầu bằng hàm bất đồng bộ; bảng cổng thanh toán có `prepare()` trả bảng của trường; đổi khóa dữ liệu trẻ tự tìm cột `*_encrypted` ở `information_schema` nên bảng thêm sau tự được xử lý | Đã chốt, làm ở S3 |
+| QĐ-30 | Bảo mật mã (DT-SaaS phần S8b, YCTD-201): TOTP tự cài bằng `node:crypto` ở `packages/server/src/totp.ts` (không thêm thư viện); khóa TOTP người dùng trường mã hóa bằng khóa mã hóa của trường nên đi theo công cụ đổi khóa của S3 (mở rộng sang cơ sở dữ liệu định danh); tài khoản vận hành nhận khóa TOTP qua lệnh dòng lệnh thay vì màn hình đăng ký vì tài khoản này do Eric tạo; chính sách theo trường lưu ở `identity_settings` hiện có, không thêm bảng hệ thống 0054; xoay khóa ký hai pha qua `TOKEN_PREVIOUS_PUBLIC_KEY`; tiêu đề bảo mật đặt cả ở ứng dụng lẫn Caddy | Đã chốt, làm ở S8b |
 
 ## 14. Chưa xác minh được
 

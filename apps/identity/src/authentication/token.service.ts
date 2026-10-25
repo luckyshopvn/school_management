@@ -26,7 +26,10 @@ export class TokenService {
     @Inject(IDENTITY_CONFIGURATION) private readonly configuration: IdentityConfiguration,
     private readonly clock: Clock,
   ) {
-    this.verifier = new AccessTokenVerifier(configuration.tokenPublicKeyPem);
+    this.verifier = new AccessTokenVerifier(
+      configuration.tokenPublicKeyPem,
+      configuration.tokenPreviousPublicKeyPem ?? null,
+    );
   }
 
   async signAccessToken(claims: AccessTokenClaims): Promise<string> {
@@ -66,21 +69,28 @@ export class TokenService {
   }
 
   async verifyOperatorToken(token: string): Promise<string> {
-    try {
-      const key = await importSPKI(this.configuration.tokenPublicKeyPem, TOKEN_SIGNING_ALGORITHM);
-      const { payload } = await jwtVerify(token, key, {
-        issuer: TOKEN_ISSUER,
-        audience: OPERATOR_TOKEN_AUDIENCE,
-        algorithms: [TOKEN_SIGNING_ALGORITHM],
-        currentDate: this.clock.now(),
-      });
-      if (typeof payload.sub !== 'string' || payload.kind !== 'platform_operator') {
-        throw unauthenticatedError();
+    // Khóa cũ vẫn được nhận trong thời gian xoay khóa ký (DT-SaaS phần S8b)
+    for (const pem of [this.configuration.tokenPublicKeyPem, this.configuration.tokenPreviousPublicKeyPem]) {
+      if (!pem) {
+        continue;
       }
-      return payload.sub;
-    } catch {
-      throw unauthenticatedError();
+      try {
+        const key = await importSPKI(pem, TOKEN_SIGNING_ALGORITHM);
+        const { payload } = await jwtVerify(token, key, {
+          issuer: TOKEN_ISSUER,
+          audience: OPERATOR_TOKEN_AUDIENCE,
+          algorithms: [TOKEN_SIGNING_ALGORITHM],
+          currentDate: this.clock.now(),
+        });
+        if (typeof payload.sub !== 'string' || payload.kind !== 'platform_operator') {
+          throw unauthenticatedError();
+        }
+        return payload.sub;
+      } catch {
+        // Thử khóa kế tiếp
+      }
     }
+    throw unauthenticatedError();
   }
 
   async verifyAccessToken(token: string): Promise<AccessTokenClaims> {

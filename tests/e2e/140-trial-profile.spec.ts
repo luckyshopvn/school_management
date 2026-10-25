@@ -1,7 +1,7 @@
 import { createServer, type IncomingMessage, type Server } from 'node:http';
 import { request as playwrightRequest } from '@playwright/test';
 import { readTenancyConfiguration, TenancyRuntime } from '@school-management/database';
-import { createPlatformOperator } from '@school-management/identity/testing';
+import { createPlatformOperatorWithTotp, operatorOtp } from '@school-management/identity/testing';
 import worker, { runScheduled } from '../../deploy/profiles/trial/cloudflare/src/worker.mjs';
 import { createRouter } from '../../deploy/profiles/trial/container/router.mjs';
 import {
@@ -17,10 +17,11 @@ import { expect, test } from './fixtures.js';
 // tuyến của container gộp; Cron gọi tick thật; máy chủ ngủ thì trình duyệt thấy trang đang khởi động kèm biểu ngữ thử nghiệm;
 // chính sách dữ liệu consent-required ở bước setup của cổng nền tảng. Dữ liệu giả hoàn toàn
 const IDENTITY = `http://127.0.0.1:${E2E_MULTI_IDENTITY_PORT}`;
-const PASSWORD = 'MatKhau2026';
+const PASSWORD = 'MatKhauVanHanh2026';
 const operatorLogin = `van-hanh-${Math.random().toString(36).slice(2, 8)}`;
 
 let runtime: TenancyRuntime;
+let operator: Awaited<ReturnType<typeof createPlatformOperatorWithTotp>>;
 const servers: Server[] = [];
 
 function listen(server: Server): Promise<string> {
@@ -72,7 +73,7 @@ test.beforeAll(async () => {
     throw new Error('Thiếu cấu hình nền tảng nhiều trường: chạy bằng pnpm --filter @school-management/tests e2e:multi');
   }
   runtime = new TenancyRuntime(configuration);
-  await createPlatformOperator(runtime.platform, {
+  operator = await createPlatformOperatorWithTotp(runtime.platform, runtime.configuration.masterKey, {
     login: operatorLogin,
     fullName: 'Người vận hành giả',
     password: PASSWORD,
@@ -141,7 +142,11 @@ test('Chính sách consent-required: không nhận loại production, dữ liệ
   const context = await playwrightRequest.newContext({ extraHTTPHeaders: { Host: E2E_CONSOLE_HOST } });
   try {
     const login = await context.post(`${IDENTITY}/api/v1/auth/platform/login`, {
-      data: { login: operatorLogin, password: PASSWORD },
+      data: {
+        login: operatorLogin,
+        password: PASSWORD,
+        otp_code: await operatorOtp(runtime.platform, operator.id, operator.secret),
+      },
     });
     expect(login.status()).toBe(200);
     const token = ((await login.json()) as { access_token: string }).access_token;

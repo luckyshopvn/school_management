@@ -116,7 +116,11 @@ export class PasswordResetService {
   }
 
   async confirm(loginIdentifier: string, code: string, newPassword: string, origin: RequestOrigin): Promise<void> {
-    const policyErrors = checkPasswordPolicy('new_password', newPassword);
+    const policyErrors = checkPasswordPolicy(
+      'new_password',
+      newPassword,
+      (await this.identitySettings.passwordPolicy()).password_min_length,
+    );
     if (policyErrors.length > 0) {
       throw validationError(policyErrors);
     }
