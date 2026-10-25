@@ -29,7 +29,7 @@ Các thay đổi trước phiên bản 0.4.0 chưa có sổ này; xem `23_LICH_S
 - Quyền bị ảnh hưởng: không thêm quyền; quyền của trường bị giới hạn thêm theo phân hệ của gói; trang gói ở cổng nền tảng dùng tài khoản vận hành (PQ-105).
 - Ảnh hưởng chức năng cũ: không ở chế độ một trường và với trường chưa gán gói (mọi kiểm thử hiện có chạy không sửa kỳ vọng).
 - Kiểm thử cần thực hiện: kiểm thử đơn vị `packages/server`, `database`, `apps/identity`, `apps/api`; e2e spec 134 ở dự án nhiều trường cùng spec 130, các spec một trường bị ảnh hưởng (menu, spec 58); CI chạy toàn bộ e2e.
-- Trạng thái: Đã triển khai (PR 167)
+- Trạng thái: Đã triển khai (PR 170)
 
 ### YCTD-193: DT-SaaS phần S2: khởi tạo và vòng đời trường – 2026-10-25
 
