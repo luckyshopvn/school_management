@@ -28,7 +28,7 @@ Các thay đổi trước phiên bản 0.4.0 chưa có sổ này; xem `23_LICH_S
 - Quyền bị ảnh hưởng: PQ-106 (tài khoản vận hành nền tảng quản lý trường); quản trị viên đầu tiên nhận VT-02.
 - Ảnh hưởng chức năng cũ: không ở chế độ một trường. Không đụng việc nền theo trường của S1b và gói, giới hạn của S5a.
 - Kiểm thử cần thực hiện: kiểm thử đơn vị `database`, `apps/identity` (kèm ma trận cách ly), `apps/api` (tệp mới); e2e spec 130, 132 ở dự án nhiều trường; CI chạy toàn bộ e2e.
-- Trạng thái: Đã triển khai (PR chưa có số)
+- Trạng thái: Đã triển khai (PR 165)
 
 ### YCTD-191: DT-SaaS phần S1a: nền đa thuê bao, phần lõi – 2026-10-25
 
