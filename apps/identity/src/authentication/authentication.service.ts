@@ -1,5 +1,11 @@
 import { Injectable } from '@nestjs/common';
-import type { IdentityDatabase, LoginMethod, SessionChannel } from '@school-management/database';
+import {
+  SUPPORT_USERNAME,
+  type IdentityDatabase,
+  type LoginMethod,
+  type SessionChannel,
+  type SupportScope,
+} from '@school-management/database';
 import type { Selectable } from 'kysely';
 import { randomUUID } from 'node:crypto';
 import {
@@ -18,6 +24,7 @@ import { checkPasswordPolicy, hashPassword, placeholderPasswordHash, verifyPassw
 import { assertPasswordNotReused, recordPasswordHistory } from './password-history.js';
 import { ImpersonationService, type ImpersonationDescription } from './impersonation.service.js';
 import { createRefreshToken, hashRefreshToken, readSessionIdFromRefreshToken, TokenService } from './token.service.js';
+import { SupportSessionsService } from '../platform/support-sessions.js';
 
 // Sai mật khẩu 5 lần liên tiếp thì tạm khóa 15 phút rồi tự mở (BM-04, XT-05)
 export const MAXIMUM_FAILED_LOGIN_COUNT = 5;
@@ -81,6 +88,8 @@ export interface CurrentUserResponse {
   school_levels: string[];
   // Cấp đang làm việc người dùng chọn ở thanh đầu trang (DT-19 phần 19c): null là "Tất cả"
   working_school_level: string | null;
+  // Phiên hỗ trợ của nhân viên nền tảng (DT-SaaS phần S4): phạm vi, tên nhân viên, hạn; phiên thường là null
+  support: { id: string; scope: SupportScope; operator_name: string; expires_at: Date } | null;
 }
 
 const INVALID_CREDENTIALS_MESSAGE = 'Số điện thoại, tên đăng nhập hoặc mật khẩu không đúng';
@@ -94,6 +103,7 @@ export class AuthenticationService {
     private readonly clock: Clock,
     private readonly identitySettings: IdentitySettingsService,
     private readonly impersonation: ImpersonationService,
+    private readonly support: SupportSessionsService,
     private readonly totp: TotpService,
   ) {}
 
@@ -283,6 +293,16 @@ export class AuthenticationService {
     // Phiên đăng nhập bằng mã một lần luôn là phiên đầy đủ (Q-147)
     const oneTimeCodeSession = session.login_method === 'one_time_code';
     const expiry = oneTimeCodeSession ? NO_PASSWORD_EXPIRY : await this.passwordExpiry(user, now);
+    // Phiên hỗ trợ (DT-SaaS phần S4): chỉ làm mới khi phiên hỗ trợ còn hiệu lực và trường chưa rút cho phép
+    let support: SupportScope | undefined;
+    if (user.username === SUPPORT_USERNAME) {
+      try {
+        support = (await this.support.requireActive(session.id)).scope;
+      } catch (error) {
+        await this.revokeSession(session.id, now);
+        throw error;
+      }
+    }
 
     const refreshToken = createRefreshToken(session.id);
     await this.database
@@ -296,7 +316,12 @@ export class AuthenticationService {
         userId: user.id,
         sessionId: session.id,
         channel: session.channel,
-        passwordChangeRequired: oneTimeCodeSession ? false : requiresPasswordChange(user) || expiry.expired,
+        passwordChangeRequired: support
+          ? false
+          : oneTimeCodeSession
+            ? false
+            : requiresPasswordChange(user) || expiry.expired,
+        ...(support ? { support } : {}),
       },
       refreshToken.token,
       session.expires_at,
@@ -306,6 +331,9 @@ export class AuthenticationService {
 
   async logout(claims: AccessTokenClaims, ipAddress: string | null = null): Promise<void> {
     await this.impersonation.endOnLogout(claims.sessionId, ipAddress);
+    if (claims.support) {
+      await this.support.endForIdentitySession(claims.sessionId, 'logout');
+    }
     await this.revokeSession(claims.sessionId, this.clock.now());
   }
 
@@ -470,6 +498,7 @@ export class AuthenticationService {
           .execute()
       ).map((row) => row.school_level),
       working_school_level: await this.readWorkingSchoolLevel(user.id),
+      support: claims.support ? await this.support.describe(claims.sessionId) : null,
     };
   }
 

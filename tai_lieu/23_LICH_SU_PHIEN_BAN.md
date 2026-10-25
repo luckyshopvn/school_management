@@ -16,6 +16,18 @@
 
 ## 2. Danh sách phiên bản
 
+### Phiên bản 0.138.0 – 2026-10-25
+
+- Phạm vi thay đổi: DT-SaaS phần S4, bảng điều khiển nền tảng (YCTD-197).
+- Chức năng mới: bảng điều khiển nền tảng với số liệu, lỗi, cảnh báo theo trường (P01-78, MH-330); thông báo bảo trì (P01-79, MH-331); cho phép hỗ trợ của trường (P01-80, MH-332); phiên hỗ trợ của nhân viên nền tảng, đăng nhập bằng đường liên kết một lần, biểu ngữ (P01-81, MH-333).
+- Lỗi đã sửa: unit gói `database` ở bố cục `schema` có lúc hỏng "out of shared memory" (53200) khi nhiều trường tạo, gỡ năm học cùng lúc: chạy tệp thay đổi cấu trúc mỗi tệp một giao dịch thay vì mọi tệp một giao dịch, gỡ lược đồ theo lô 40 bảng; CI và hồ sơ vận hành đặt `max_locks_per_transaction` 256; ghi giới hạn của Neon, Supabase ở `deploy/profiles/trial/README.md`.
+- Thay đổi dữ liệu: cơ sở dữ liệu nền tảng thêm `school_metrics`, `school_error_counts`, `maintenance_notices`, `support_sessions`, `support_session_actions` (tệp nền tảng `0060`); cơ sở dữ liệu hệ thống của trường thêm `support_access_grants` (tệp hệ thống `0053`); xem `16_CO_SO_DU_LIEU.md` mục 18A.
+- Thay đổi API: nhóm `/auth/platform/dashboard`, `/maintenance-notices`, `/schools/{mã}/support`, `/support-sessions`; `POST /auth/support/exchange`; `GET /platform-notices`, `/support-access`; claim `spt`, trường `support` của `/auth/me`; biến `PLATFORM_ERROR_ALERT_PER_HOUR`, `SCHOOL_METRICS_INTERVAL_SECONDS` (xem `17_DAC_TA_API.md`).
+- Kiểm thử: kịch bản CT-1060 đến CT-1068 (CT-S4-1 đến CT-S4-9 trong mã kiểm thử). Kết quả ngày 25/10/2026: `apps/identity` 4 ca mới và ma trận cách ly đạt (8/8); `database` 4/4; `apps/api` 17/17 (S4, gói dịch vụ, bộ lập lịch) và menu 17/17; kiểm tra tĩnh nền đa thuê bao và `pnpm lint` đạt; e2e dự án nhiều trường 16/16 (spec 136 đạt sau khi sửa trang Cho phép hỗ trợ thiếu khung cổng quản trị); e2e toàn bộ do CI chạy.
+- Rủi ro: số liệu có độ trễ đến một giờ; bộ gom lỗi ở bộ nhớ nên lỗi trong phút cuối trước khi tiến trình dừng đột ngột có thể mất; tài khoản hỗ trợ hiện trong danh sách tài khoản của trường (cố ý để trường thấy).
+- Khả năng tương thích: chế độ một trường không có bảng điều khiển, cho phép hỗ trợ trả `available: false`, thông báo bảo trì rỗng; không đổi hành vi của phiên thường.
+- Phương án quay lui: hoàn lại commit gộp của nhánh S4; rút mọi cho phép hỗ trợ là chặn ngay mọi phiên hỗ trợ mà không cần quay lui mã.
+
 ### Phiên bản 0.137.0 – 2026-10-25
 
 - Phạm vi thay đổi: DT-SaaS phần S5b, thu phí tự động (YCTD-196).
@@ -27,7 +39,6 @@
 - Rủi ro: tài khoản nhận tiền và khóa cổng thật của nền tảng chưa có (GD-95), máy chủ dùng bộ giả lập khi chưa cấu hình; nhà cung cấp hóa đơn điện tử chưa chốt (mặc định chưa nối); VNPay cho thu phí của nền tảng chưa làm; nhắc qua email chưa có (dùng thông báo trong ứng dụng, tin nhắn).
 - Khả năng tương thích: chế độ một trường không đổi; trường chưa gán gói không phát sinh hóa đơn.
 - Phương án quay lui: hoàn lại commit gộp của nhánh S5b; tắt thu phí bằng cách bỏ quy tắc tính phí khỏi gói (giá niêm yết bằng 0) và hủy hóa đơn chưa thu; dữ liệu trường không bị ảnh hưởng.
-
 ### Phiên bản 0.136.0 – 2026-10-25
 
 - Phạm vi thay đổi: DT-SaaS phần S8b, bảo mật mã (YCTD-201).
@@ -51,6 +62,7 @@
 - Rủi ro: khôi phục không nằm trong một giao dịch cho mọi bảng (để không vượt giới hạn khóa của máy chủ), lỗi giữa chừng phải chạy lại; tệp sao lưu chứa khóa dữ liệu trẻ, lộ khóa sao lưu là lộ dữ liệu; WAL-G và lấy riêng một trường về một thời điểm chưa diễn tập trên máy thật; thử tải nhiều trường chưa làm nên giới hạn T1 đến T3 vẫn là giả định.
 - Khả năng tương thích: chế độ một trường và `backup.sh` cũ không đổi khi không có `PLATFORM_DATABASE_URL`; lớp phủ WAL-G là tùy chọn.
 - Phương án quay lui: hoàn lại commit gộp của nhánh S7b; bảng `backup_runs` chỉ do phần này dùng; tắt lớp phủ `compose.pitr.yml` để PostgreSQL chạy như trước.
+
 ### Phiên bản 0.134.0 – 2026-10-25
 
 - Phạm vi thay đổi: DT-SaaS phần S5a, gói dịch vụ và giới hạn (YCTD-194).

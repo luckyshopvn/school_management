@@ -8,14 +8,16 @@ import { PLATFORM_OPERATOR_LOGIN_PATH } from './platform/platform-operators.js';
 import type { OrganizationDirectory } from './accounts/organization-directory.js';
 import type { IdentityConfiguration } from './common/configuration.js';
 import type { SmsSender } from './messaging/sms-sender.js';
-import type { TenancyRuntime } from '@school-management/database';
+import { ErrorCountBuffer, type TenancyRuntime } from '@school-management/database';
 import {
   Clock,
   createSchoolReadOnlyMiddleware,
   createTenantMiddleware,
   ErrorFilter,
+  currentTenant,
   securityHeaders,
   isIdentityWriteAllowedWhenReadOnly,
+  setServerErrorListener,
   SystemClock,
 } from '@school-management/server';
 
@@ -52,6 +54,26 @@ export async function createApplication(
     );
     // Trường quá hạn ở chế độ chỉ đọc: chặn quản trị tài khoản, vẫn đăng nhập, đổi mật khẩu được (DT-SaaS phần S5a)
     application.use(createSchoolReadOnlyMiddleware({ isAllowedWrite: isIdentityWriteAllowedWhenReadOnly }));
+    // Lỗi máy chủ theo trường cho bảng điều khiển nền tảng (DT-SaaS phần S4): gom trong bộ nhớ, ghi cộng dồn mỗi phút
+    const errors = new ErrorCountBuffer();
+    setServerErrorListener((report) =>
+      errors.add({
+        schoolId: currentTenant()?.schoolId ?? null,
+        service: 'identity',
+        route: report.route,
+        status: report.status,
+        code: report.code,
+        at: clock.now(),
+      }),
+    );
+    const flush = () => (errors.size ? errors.flush(tenancy.platform).catch(() => 0) : Promise.resolve(0));
+    const timer = setInterval(() => void flush(), 60_000);
+    timer.unref();
+    application.getHttpServer().once('close', () => {
+      clearInterval(timer);
+      setServerErrorListener(null);
+      void flush();
+    });
   }
   application.setGlobalPrefix(API_VERSION_PREFIX.slice(1));
   application.useGlobalFilters(new ErrorFilter());

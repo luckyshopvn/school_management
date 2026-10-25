@@ -384,6 +384,8 @@ export const PORTAL_WORKSPACES: PortalWorkspace[] = [
         leaf('4.3.', 'Bản trình diễn', '/demo-environment'),
         // Hóa đơn dịch vụ của nền tảng (DT-SaaS phần S5b)
         leaf('4.4.', 'Hóa đơn dịch vụ', '/service-invoices'),
+        // Cho phép nhân viên nền tảng vào hỗ trợ (DT-SaaS phần S4)
+        leaf('4.5.', 'Cho phép hỗ trợ', '/support-access'),
       ]),
     ],
   },

@@ -201,3 +201,148 @@ export const schoolsApi = {
       {},
     ),
 };
+
+// Bảng điều khiển nền tảng, thông báo bảo trì, phiên hỗ trợ (DT-SaaS phần S4, YCTD-197)
+async function call<T>(accessToken: string, path: string, body?: unknown): Promise<T> {
+  const response = await fetch(`/api/v1/auth/platform${path}`, {
+    method: body === undefined ? 'GET' : 'POST',
+    headers: {
+      authorization: `Bearer ${accessToken}`,
+      ...(body === undefined ? {} : { 'content-type': 'application/json' }),
+    },
+    ...(body === undefined ? {} : { body: JSON.stringify(body) }),
+  });
+  if (!response.ok) {
+    let message = 'Không thực hiện được, vui lòng thử lại';
+    let problems: FieldProblem[] = [];
+    try {
+      const parsed = (await response.json()) as { error?: { message?: string; details?: FieldProblem[] } };
+      message = parsed.error?.message ?? message;
+      problems = parsed.error?.details ?? [];
+    } catch {
+      // Phản hồi không phải JSON: giữ thông điệp mặc định
+    }
+    throw new PlatformValidationError(response.status, message, problems);
+  }
+  return (await response.json()) as T;
+}
+
+export interface DashboardAlert {
+  kind: string;
+  message: string;
+}
+
+export interface DashboardSchool {
+  id: string;
+  code: string;
+  name: string;
+  status: string;
+  data_class: string;
+  plan: { code: string; name: string; max_active_students: number | null; max_storage_mb: number | null } | null;
+  metrics: {
+    captured_at: string;
+    users_total: number;
+    users_active: number;
+    active_students: number | null;
+    storage_mb: number | null;
+    database_mb: number | null;
+    last_login_at: string | null;
+    schema_versions: Record<string, string | null>;
+    schema_current: boolean;
+  } | null;
+  errors: { last_hour: number; last_day: number; last_at: string | null };
+  failing_jobs: Array<{ job: string; last_run_at: string; last_error: string | null }>;
+  support: { operator_name: string; scope: string; expires_at: string } | null;
+  alerts: DashboardAlert[];
+}
+
+export interface DashboardOverview {
+  generated_at: string;
+  error_alert_per_hour: number;
+  totals: {
+    schools: number;
+    serving: number;
+    with_alerts: number;
+    users: number;
+    active_students: number;
+    storage_mb: number;
+    errors_last_day: number;
+    platform_errors_last_day: number;
+  };
+  items: DashboardSchool[];
+}
+
+export interface ErrorCountRow {
+  school_code: string | null;
+  service: string;
+  bucket: string;
+  route: string;
+  status: number;
+  count: number;
+  last_code: string | null;
+  last_at: string;
+}
+
+export interface MaintenanceNotice {
+  id: string;
+  title: string;
+  body: string;
+  severity: 'info' | 'warning' | 'critical';
+  starts_at: string;
+  ends_at: string;
+  audience: 'all' | 'schools';
+  school_codes: string[];
+  created_by_name: string;
+  created_at: string;
+  cancelled_at: string | null;
+  state: 'scheduled' | 'active' | 'ended' | 'cancelled';
+}
+
+export interface SupportGrant {
+  id: string;
+  granted_by_name: string;
+  scope: 'read' | 'full';
+  reason: string;
+  expires_at: string;
+  revoked_at: string | null;
+  created_at: string;
+}
+
+export interface SupportSessionRow {
+  id: string;
+  operator_name: string;
+  scope: 'read' | 'full';
+  reason: string;
+  created_at: string;
+  started_at: string | null;
+  expires_at: string;
+  ended_at: string | null;
+  end_reason: string | null;
+}
+
+export interface SupportStartReply {
+  session_id: string;
+  scope: 'read' | 'full';
+  expires_at: string;
+  handoff: { path: string; host: string | null; expires_in_seconds: number };
+}
+
+export const dashboardApi = {
+  overview: (token: string) => call<DashboardOverview>(token, '/dashboard'),
+  errors: (token: string, school: string, hours: number) =>
+    call<{ hours: number; items: ErrorCountRow[] }>(
+      token,
+      `/dashboard/errors?hours=${hours}${school ? `&school=${encodeURIComponent(school)}` : ''}`,
+    ),
+  notices: (token: string) => call<{ items: MaintenanceNotice[] }>(token, '/maintenance-notices'),
+  createNotice: (token: string, input: unknown) => call<MaintenanceNotice>(token, '/maintenance-notices', input),
+  cancelNotice: (token: string, id: string) => call<unknown>(token, `/maintenance-notices/${id}/cancel`, {}),
+  support: (token: string, code: string) =>
+    call<{ active_grant: SupportGrant | null; grants: SupportGrant[]; sessions: SupportSessionRow[] }>(
+      token,
+      `/schools/${encodeURIComponent(code)}/support`,
+    ),
+  startSupport: (token: string, code: string, reason: string) =>
+    call<SupportStartReply>(token, `/schools/${encodeURIComponent(code)}/support-sessions`, { reason }),
+  endSupport: (token: string, id: string) => call<unknown>(token, `/support-sessions/${id}/end`, {}),
+};

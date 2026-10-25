@@ -14,6 +14,29 @@
 
 ## Nhật ký theo ngày
 
+### 2026-10-25 — DT-SaaS phần S4: bảng điều khiển nền tảng
+
+#### Công việc đã thực hiện
+
+- Đọc mục 14.3, 14.5 (S4) của `32_KE_HOACH_THEO_HE_THONG_SO.md`; rà đăng nhập thay của 18h (`ImpersonationService`, `ImpersonationInterceptor`), bộ lập lịch của S1b, gói và giới hạn của S5a, cổng nền tảng của S1a, S2.
+- Thêm tệp nền tảng 0060 (`school_metrics`, `school_error_counts`, `maintenance_notices`, `support_sessions`, `support_session_actions`), tệp hệ thống 0053 (`support_access_grants`); việc định kỳ `school-metrics`; bộ gom lỗi 5xx theo trường ở máy chủ API và dịch vụ định danh; trang Bảng điều khiển, Bảo trì và khối Phiên hỗ trợ ở cổng nền tảng; trang Cho phép hỗ trợ, trang `/support-login`, biểu ngữ bảo trì và phiên hỗ trợ ở cổng; biểu ngữ bảo trì ở ứng dụng giáo viên, phụ huynh; e2e spec 136.
+- Thêm quy tắc BR-225 đến BR-227, chức năng P01-78 đến P01-81, màn hình MH-330 đến MH-333, kịch bản CT-1060 đến CT-1068, tiêu chí AC-856 đến AC-859, bảo mật BM-89, QĐ-32; bảng ở `16` mục 18A, giao kèo ở `17`; phiên bản 0.138.0.
+
+#### Quyết định
+
+- Số liệu thu bằng bộ lập lịch mỗi giờ (chỉ đếm, đo dung lượng, tên tệp thay đổi cấu trúc), bảng điều khiển chỉ đọc lần thu mới nhất, không mở cơ sở dữ liệu của từng trường khi xem.
+- Đăng nhập hỗ trợ dùng tài khoản hỗ trợ riêng của mỗi trường (`ho-tro-nen-tang`, vai trò Hiệu trưởng, không đăng nhập bằng mật khẩu) thay vì đăng nhập thay một người dùng thật, để nhật ký của trường phân biệt rõ thao tác của nhà cung cấp (QĐ-32).
+- Đồng ý của trường lưu ở cơ sở dữ liệu hệ thống của trường (bằng chứng đi theo dữ liệu của trường); phiên và thao tác ghi ở cơ sở dữ liệu nền tảng.
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-197, `07_QUY_TAC_NGHIEP_VU.md` BR-225 đến BR-227, `10_YEU_CAU_CHUC_NANG.md` P01-78 đến P01-81, `11_TIEU_CHI_NGHIEM_THU.md` AC-856 đến AC-859, `12_KIEN_TRUC_HE_THONG.md` QĐ-32, `14_DAC_TA_GIAO_DIEN.md` MH-330 đến MH-333, `16_CO_SO_DU_LIEU.md` mục 18A, `17_DAC_TA_API.md`, `21_KICH_BAN_KIEM_THU.md` CT-1060 đến CT-1068, `22_BAO_MAT.md` BM-89; phiên bản phần mềm 0.138.0.
+
+#### Vấn đề tồn đọng
+
+- Chưa có biểu đồ theo thời gian (số liệu giữ 30 ngày, bảng điều khiển hiện lần thu mới nhất và số lỗi 1 giờ, 24 giờ); kết quả diễn tập khôi phục của S7b chưa hiện ở bảng điều khiển (chờ S7b gộp).
+- Cảnh báo chỉ hiện trên bảng điều khiển, chưa gửi ra ngoài (email, Zalo); gửi cảnh báo thuộc giám sát của S7a.
+
 ### 2026-10-25 — DT-SaaS phần S5b: thu phí tự động
 
 #### Công việc đã thực hiện

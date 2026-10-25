@@ -1419,6 +1419,19 @@ export interface ReportFormRowsTable {
   formula: string | null;
 }
 
+// Trường cho phép nhân viên nền tảng vào hỗ trợ (DT-SaaS phần S4, YCTD-197)
+export interface SupportAccessGrantsTable {
+  id: Generated<string>;
+  granted_by_user_id: string;
+  granted_by_name: string;
+  scope: 'read' | 'full';
+  reason: string;
+  expires_at: Date;
+  revoked_at: Date | null;
+  revoked_by_name: string | null;
+  created_at: CreatedTimestamp;
+}
+
 export interface SystemDatabase {
   academic_years: AcademicYearsTable;
   academic_terms: AcademicTermsTable;
@@ -1502,4 +1515,5 @@ export interface SystemDatabase {
   terms_acceptances: TermsAcceptancesTable;
   integration_secrets: IntegrationSecretsTable;
   school_branding: SchoolBrandingTable;
+  support_access_grants: SupportAccessGrantsTable;
 }

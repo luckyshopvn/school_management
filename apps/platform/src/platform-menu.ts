@@ -12,4 +12,7 @@ export const PLATFORM_MENU: readonly PlatformMenuItem[] = [
   { key: 'plans', label: 'Gói dịch vụ' },
   // Thu phí tự động (S5b)
   { key: 'billing', label: 'Thu phí' },
+  // Bảng điều khiển và thông báo bảo trì (S4)
+  { key: 'dashboard', label: 'Bảng điều khiển' },
+  { key: 'maintenance', label: 'Bảo trì' },
 ];

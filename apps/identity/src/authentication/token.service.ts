@@ -43,6 +43,8 @@ export class TokenService {
       channel: claims.channel,
       password_change_required: claims.passwordChangeRequired,
       ...(tenantId ? { tid: tenantId } : {}),
+      // Phiên hỗ trợ của nhân viên nền tảng (DT-SaaS phần S4): phạm vi chỉ đọc hoặc toàn quyền
+      ...(claims.support ? { spt: claims.support } : {}),
     })
       .setProtectedHeader({ alg: TOKEN_SIGNING_ALGORITHM })
       .setSubject(claims.userId)

@@ -3,6 +3,21 @@ import { Catch, HttpException, Logger, type ArgumentsHost, type ExceptionFilter 
 import type { Request, Response } from 'express';
 import { ApplicationError, STATUS_BY_ERROR_CODE, type ErrorCode } from './application-error.js';
 
+// Lỗi 5xx báo cho bộ gom lỗi theo trường của bảng điều khiển nền tảng (DT-SaaS phần S4): chỉ mã trạng thái, phương thức, mẫu
+// đường dẫn, mã lỗi; không nội dung yêu cầu. Mỗi dịch vụ đặt một bộ nghe lúc khởi động
+export interface ServerErrorReport {
+  status: number;
+  method: string;
+  route: string;
+  code: string;
+}
+
+let serverErrorListener: ((report: ServerErrorReport) => void) | null = null;
+
+export function setServerErrorListener(listener: ((report: ServerErrorReport) => void) | null): void {
+  serverErrorListener = listener;
+}
+
 const ERROR_CODE_BY_HTTP_STATUS: Record<number, ErrorCode> = {
   400: 'ERR_VALIDATION',
   401: 'ERR_UNAUTHENTICATED',
@@ -53,6 +68,21 @@ export class ErrorFilter implements ExceptionFilter {
     }
 
     response.setHeader('x-correlation-id', correlationId);
+    const status = STATUS_BY_ERROR_CODE[code];
+    if (status >= 500 && serverErrorListener) {
+      try {
+        serverErrorListener({
+          status,
+          method: request.method,
+          route: (request.route as { path?: string } | undefined)?.path
+            ? `${request.baseUrl}${(request.route as { path: string }).path}`
+            : request.path,
+          code,
+        });
+      } catch {
+        // Bộ gom lỗi không được làm hỏng phản hồi lỗi
+      }
+    }
     if (retryAfterSeconds !== undefined) {
       response.setHeader('retry-after', String(retryAfterSeconds));
     }

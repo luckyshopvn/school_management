@@ -24,6 +24,8 @@ export interface CurrentUserDescription {
   school_levels?: string[];
   // Cấp đang làm việc người dùng chọn ở thanh đầu trang (DT-19 phần 19c): null hoặc không có là "Tất cả"
   working_school_level?: string | null;
+  // Phiên hỗ trợ của nhân viên nền tảng (DT-SaaS phần S4): null hoặc không có là phiên thường
+  support?: { id: string; scope: 'read' | 'full'; operator_name: string; expires_at: string } | null;
 }
 
 // Phạm vi đơn vị của một quyền: toàn trường hoặc danh sách đơn vị được gán (lớp 2 của BM-10)

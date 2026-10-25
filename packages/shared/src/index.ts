@@ -585,6 +585,8 @@ export const PORTAL_QUICK_LINK_PATHS = [
   '/demo-environment',
   // Hóa đơn dịch vụ của trường (DT-SaaS phần S5b)
   '/service-invoices',
+  // Cho phép hỗ trợ (DT-SaaS phần S4)
+  '/support-access',
   // Bán trú: kiểm thực ba bước và an toàn thực phẩm (DT-18 phần 22b)
   '/food-safety/inspections',
   '/food-safety/samples',

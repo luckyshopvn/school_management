@@ -47,6 +47,8 @@ export interface ApiConfiguration {
   // chạy song song, mã dùng chung INTERNAL_JOB_TOKEN cho điểm tick bên ngoài (trống là không có điểm đó), số lần xếp thời khóa biểu đang chạy tối đa
   // mỗi trường (hạn mức gói do phần S5a thay thế)
   schedulerIntervalSeconds?: number;
+  // Bảng điều khiển nền tảng (DT-SaaS phần S4): chu kỳ thu số liệu của từng trường (giây, mặc định 3600; 0 là tắt)
+  schoolMetricsIntervalSeconds?: number;
   schedulerConcurrency?: number;
   schedulerSecret?: string;
   timetableMaxActiveRuns?: number;
@@ -177,6 +179,7 @@ export function readConfigurationFromEnvironment(options: { multiTenant?: boolea
     schedulerIntervalSeconds:
       process.env.SCHEDULER_MODE?.trim() === 'external' ? 0 : Number(process.env.SCHEDULER_INTERVAL_SECONDS ?? 15),
     schedulerConcurrency: Number(process.env.SCHEDULER_CONCURRENCY ?? 2),
+    schoolMetricsIntervalSeconds: Number(process.env.SCHOOL_METRICS_INTERVAL_SECONDS ?? 3600),
     ...(process.env.INTERNAL_JOB_TOKEN?.trim() ? { schedulerSecret: process.env.INTERNAL_JOB_TOKEN.trim() } : {}),
     timetableMaxActiveRuns: Number(process.env.TIMETABLE_MAX_ACTIVE_RUNS ?? 2),
     ...readIntegrationConfiguration(process.env),

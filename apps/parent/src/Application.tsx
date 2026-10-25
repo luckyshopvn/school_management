@@ -4,8 +4,17 @@ import { AdmissionsScreen } from './screens/AdmissionsScreen.js';
 import { HomeScreen } from './screens/HomeScreen.js';
 import { LoginScreen } from './screens/LoginScreen.js';
 import { RecruitmentScreen, useRecruitmentRoute } from './screens/RecruitmentScreen.js';
-import { DemoBanner } from '@school-management/ui';
+import { DemoBanner, MaintenanceBanner, type MaintenanceNoticeItem } from '@school-management/ui';
+import { requestJson } from './session/api-client.js';
 import { SessionProvider, useSession } from './session/session.js';
+
+// Thông báo bảo trì của nhà vận hành nền tảng khi đã đăng nhập (DT-SaaS phần S4)
+const readPlatformNotices = () => requestJson<{ maintenance: MaintenanceNoticeItem[] }>('/api/v1/platform-notices');
+
+function PlatformMaintenanceBanner() {
+  const session = useSession();
+  return session.status === 'signed-in' ? <MaintenanceBanner load={readPlatformNotices} /> : null;
+}
 
 // Chọn màn hình theo trạng thái phiên: chưa đăng nhập về MH-47 hoặc trang tuyển sinh trực tuyến công khai (MP-21, mở
 // bằng nút trên màn hình đăng nhập hoặc địa chỉ có #tuyen-sinh); phiên bằng mật khẩu mặc định về MH-48 (BM-69)
@@ -45,6 +54,7 @@ export function Application() {
     <SessionProvider>
       {/* Dải bản trình diễn (DT-18 phần 18h) */}
       <DemoBanner />
+      <PlatformMaintenanceBanner />
       <Screens />
     </SessionProvider>
   );

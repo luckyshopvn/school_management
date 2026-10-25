@@ -8,7 +8,7 @@ export {
   type ErrorCode,
   type FieldError,
 } from './application-error.js';
-export { ErrorFilter } from './error.filter.js';
+export { ErrorFilter, setServerErrorListener, type ServerErrorReport } from './error.filter.js';
 export { Clock, SystemClock } from './clock.js';
 export {
   ACCESS_TOKEN_LIFETIME_SECONDS,

@@ -23,8 +23,17 @@ import { ClassLogScreen } from './screens/ClassLogScreen.js';
 import { TrainingScreen } from './screens/TrainingScreen.js';
 import { TeachingScreen } from './screens/TeachingScreen.js';
 import { WorkScreen } from './screens/WorkScreen.js';
-import { DemoBanner } from '@school-management/ui';
+import { DemoBanner, MaintenanceBanner, type MaintenanceNoticeItem } from '@school-management/ui';
+import { requestJson } from './session/api-client.js';
 import { SessionProvider, useSession } from './session/session.js';
+
+// Thông báo bảo trì của nhà vận hành nền tảng khi đã đăng nhập (DT-SaaS phần S4)
+const readPlatformNotices = () => requestJson<{ maintenance: MaintenanceNoticeItem[] }>('/api/v1/platform-notices');
+
+function PlatformMaintenanceBanner() {
+  const session = useSession();
+  return session.status === 'signed-in' ? <MaintenanceBanner load={readPlatformNotices} /> : null;
+}
 
 // Chọn màn hình theo trạng thái phiên: chưa đăng nhập về MH-47; bắt buộc đổi mật khẩu về MH-48 (BM-07)
 function Screens() {
@@ -162,6 +171,7 @@ export function Application() {
     <SessionProvider>
       {/* Dải bản trình diễn (DT-18 phần 18h) */}
       <DemoBanner />
+      <PlatformMaintenanceBanner />
       <Screens />
     </SessionProvider>
   );

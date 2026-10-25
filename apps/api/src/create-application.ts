@@ -1,14 +1,16 @@
 import 'reflect-metadata';
 import { NestFactory } from '@nestjs/core';
 import type { INestApplication, Type } from '@nestjs/common';
-import type { TenancyRuntime } from '@school-management/database';
+import { ErrorCountBuffer, type TenancyRuntime } from '@school-management/database';
 import {
   Clock,
   createSchoolReadOnlyMiddleware,
   createTenantMiddleware,
+  currentTenant,
   ErrorFilter,
   securityHeaders,
   isApiWriteAllowedWhenReadOnly,
+  setServerErrorListener,
   SystemClock,
 } from '@school-management/server';
 import { API_VERSION_PREFIX } from '@school-management/shared';
@@ -59,6 +61,26 @@ export async function createApplication(
     );
     // Trường quá hạn ở chế độ chỉ đọc: chặn yêu cầu ghi (DT-SaaS phần S5a)
     application.use(createSchoolReadOnlyMiddleware({ isAllowedWrite: isApiWriteAllowedWhenReadOnly }));
+    // Lỗi máy chủ theo trường cho bảng điều khiển nền tảng (DT-SaaS phần S4): gom trong bộ nhớ, ghi cộng dồn mỗi phút
+    const errors = new ErrorCountBuffer();
+    setServerErrorListener((report) =>
+      errors.add({
+        schoolId: currentTenant()?.schoolId ?? null,
+        service: 'api',
+        route: report.route,
+        status: report.status,
+        code: report.code,
+        at: clock.now(),
+      }),
+    );
+    const flush = () => (errors.size ? errors.flush(tenancy.platform).catch(() => 0) : Promise.resolve(0));
+    const timer = setInterval(() => void flush(), 60_000);
+    timer.unref();
+    application.getHttpServer().once('close', () => {
+      clearInterval(timer);
+      setServerErrorListener(null);
+      void flush();
+    });
   }
   application.setGlobalPrefix(API_VERSION_PREFIX.slice(1));
   application.useGlobalFilters(new ErrorFilter());

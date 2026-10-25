@@ -444,6 +444,8 @@ export type { TenantContext, TenantPlan } from '@school-management/server/tenanc
 export { rotateChildKeys, rewrapMasterKey, type KeyRotationOptions, type KeyRotationResult } from './key-rotation.js';
 export * from './database-host-adapter.js';
 export * from './school-relayout.js';
+export * from './platform-dashboard.js';
+export type { MaintenanceSeverity, SupportScope } from '../platform/schema.js';
 export * from './school-data-copy.js';
 export * from './school-backup.js';
 export * from './school-cluster-move.js';

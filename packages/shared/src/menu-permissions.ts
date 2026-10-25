@@ -395,6 +395,8 @@ export const MENU_PERMISSION_RULES: Partial<Record<PortalQuickLinkPath, MenuPerm
   '/impersonations': 'P01.account.impersonate',
   '/school-data-export': 'P01.data.export-all',
   '/demo-environment': anyOf('P01.account.manage', 'P01.account.impersonate'),
+  // Cho phép nhân viên nền tảng vào hỗ trợ (DT-SaaS phần S4)
+  '/support-access': 'P01.account.manage',
   // Bán trú: kiểm thực ba bước và an toàn thực phẩm (DT-18 phần 22b): bếp, người kiểm thực; người xem báo cáo bếp và quản lý
   // đơn vị duyệt thực đơn xem được sổ, lô và truy xuất
   '/food-safety/inspections': anyOf('P12.food-safety.inspect', 'P12.kitchen.manage', 'P12.menu.approve'),

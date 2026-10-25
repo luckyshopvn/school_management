@@ -141,6 +141,7 @@ import { DemoEnvironmentPage, ImpersonationsPage, SchoolDataExportPage } from '.
 import { ServiceInvoicesPage } from './school-plan/ServiceInvoicesPage.js';
 import { ForgotPasswordPage } from './pages/ForgotPasswordPage.js';
 import { ActivatePage } from './pages/ActivatePage.js';
+import { SupportAccessPage, SupportLoginPage } from './support/support.js';
 import { HelpPage } from './portal-shell/HelpPage.js';
 import { MyProfilePage } from './portal-shell/MyProfilePage.js';
 import { SystemAnnouncementsPage } from './portal-shell/SystemAnnouncementsPage.js';
@@ -300,7 +301,14 @@ import { ResourceBankPage, ResourcePackagesPage, RubricsPage } from './learning-
 const PUBLIC_PATHS = ['/login', '/forgot-password', '/activate'];
 // Trang công khai mở được cả khi đã hay chưa đăng nhập: tra cứu mã QR của văn bản đi (DT-18 phần 18b)
 // và mã QR thời khoá biểu (DT-20 phần 22c2), chứng nhận bồi dưỡng (DT-22 phần 22e)
-const OPEN_PATHS = ['/tra-cuu-van-ban', '/tra-cuu-khen-thuong', '/tra-cuu-thoi-khoa-bieu', '/tra-cuu-chung-nhan'];
+// Đường liên kết hỗ trợ một lần của nhân viên nền tảng (DT-SaaS phần S4) mở được cả khi đang đăng nhập tài khoản khác
+const OPEN_PATHS = [
+  '/tra-cuu-van-ban',
+  '/tra-cuu-khen-thuong',
+  '/tra-cuu-thoi-khoa-bieu',
+  '/tra-cuu-chung-nhan',
+  '/support-login',
+];
 
 // Chuyển hướng theo trạng thái phiên: chưa đăng nhập về MH-47; bắt buộc đổi mật khẩu về MH-48 (BM-07)
 function SessionGate() {
@@ -334,6 +342,8 @@ const routeTree = rootRoute.addChildren([
   // Quên mật khẩu, hồ sơ nhân sự cá nhân, hướng dẫn, thông báo hệ thống, ứng dụng liên kết (DT-16 phần 16c)
   createRoute({ getParentRoute: () => rootRoute, path: '/forgot-password', component: ForgotPasswordPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/activate', component: ActivatePage }),
+  createRoute({ getParentRoute: () => rootRoute, path: '/support-login', component: SupportLoginPage }),
+  createRoute({ getParentRoute: () => rootRoute, path: '/support-access', component: SupportAccessPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/my-profile', component: MyProfilePage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/help', component: HelpPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/system-announcements', component: SystemAnnouncementsPage }),

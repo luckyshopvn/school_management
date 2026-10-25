@@ -118,3 +118,22 @@ button.link {
   grid-template-columns: 10rem 1fr;
   gap: 0.25rem 1rem;
 }
+
+/* Bảng điều khiển nền tảng (DT-SaaS phần S4) */
+tr[data-alert='true'] {
+  background: #fff7e6;
+}
+
+ul.alerts {
+  margin: 0;
+  padding-left: 1rem;
+}
+
+.badge {
+  display: inline-block;
+  margin-top: 0.25rem;
+  padding: 0.1rem 0.4rem;
+  border-radius: 0.25rem;
+  background: #e8f0fe;
+  font-size: 0.85em;
+}

@@ -70,6 +70,7 @@ Hệ quả:
 
 - Chỉ nuôi **vài trường thử**, mỗi trường một năm học đang dùng. Dung lượng thật của một trường đo sau khi dựng và ghi vào YCTD-203.
 - Trường có dữ liệu lớn phải dùng gói trả phí hoặc chuyển sang hồ sơ vận hành (mục 6).
+- **Bảng khóa của PostgreSQL** (`max_locks_per_transaction`, mặc định 64, chỉ đổi lúc khởi động máy chủ): Supabase cho đặt bằng `supabase postgres-config update` (chỉ qua CLI, cần khởi động lại cơ sở dữ liệu; trang "Customizing Postgres configs"); Neon chưa thấy tài liệu cho đổi, coi như 64 (kiểm bằng `SHOW max_locks_per_transaction;`). Mã không dựa vào mức này: chạy tệp thay đổi cấu trúc mỗi tệp một giao dịch, gỡ lược đồ năm học theo lô, nạp dữ liệu khi khôi phục mỗi bảng một giao dịch, nên chạy được ở mức 64. Hồ sơ vận hành đặt 256 (`POSTGRES_MAX_LOCKS_PER_TRANSACTION`).
 - Thử nghiệm với trường thật có thể bị coi là dùng thương mại, nên **không dùng Vercel Hobby cho trường thật**: chọn tổ hợp 1, 2 hoặc trả phí Vercel.
 
 ## 3. Chuẩn bị chung

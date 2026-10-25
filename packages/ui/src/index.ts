@@ -18,3 +18,4 @@ export {
 export { FORM_CONTROL_CLASS, FormBlock, FormRow } from './FormLayout.js';
 export { QrScanner, type QrScannerProperties } from './QrScanner.js';
 export { DemoAccountPicker, DemoBanner, type DemoNoticeAccount } from './DemoNotice.js';
+export { MaintenanceBanner, type MaintenanceNoticeItem } from './MaintenanceBanner.js';

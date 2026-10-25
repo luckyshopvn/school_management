@@ -12,6 +12,7 @@ import { migration as createOperatorRecoveryCodes } from './migrations/0081_crea
 import { migration as createKeyRotations } from './migrations/0030_create_key_rotations.js';
 import { migration as createPlans } from './migrations/0040_create_plans.js';
 import { migration as createBilling } from './migrations/0050_create_billing.js';
+import { migration as createPlatformDashboard } from './migrations/0060_create_platform_dashboard.js';
 import { migration as createBackupRuns } from './migrations/0070_create_backup_runs.js';
 import { migration as addDatabaseLoginName } from './migrations/0100_add_database_login_name.js';
 
@@ -35,6 +36,8 @@ export const platformMigrations: Record<string, Migration> = {
   '0040_create_plans': createPlans,
   // Thu phí tự động (S5b): 0050 đến 0059
   '0050_create_billing': createBilling,
+  // Bảng điều khiển nền tảng (S4): 0060 đến 0069
+  '0060_create_platform_dashboard': createPlatformDashboard,
   // Khối 0070 đến 0079 của phần S7b
   '0070_create_backup_runs': createBackupRuns,
   // Khối 0100 đến 0109 của phần S9
