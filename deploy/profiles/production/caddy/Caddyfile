@@ -1,0 +1,141 @@
+# Caddy của hồ sơ "Vận hành" (DT-SaaS phần S7a, YCTD-198). Dùng ảnh `web` sẵn có (ba giao diện ở /srv/portal, /srv/parent,
+# /srv/teacher); tệp này gắn đè /etc/caddy/Caddyfile, các tệp *.caddy trong sites.d/ gắn vào /etc/caddy/sites.d/.
+#
+# - Không ghi tên miền nào trong tệp: khối địa chỉ bắt chung nhận mọi tên miền và xin chứng chỉ theo yêu cầu (on_demand_tls),
+#   trước khi xin hỏi điểm cuối kiểm tra tên miền (DOMAIN_CHECK_URL); chỉ tên miền có trong danh sách của hệ thống được cấp.
+# - Bản một trường hiện nay: bật sites.d/single-school.caddy (bốn tên miền cố định như deploy/caddy/Caddyfile), website
+#   trên tên miền riêng đi qua khối bắt chung.
+# - Nhiều trường (sau DT-SaaS S1b): TENANT_PATHS=on mở ba lối vào /quan-ly, /giao-vien, /phu-huynh và /api/v1 trên tên miền
+#   của từng trường; gốc tên miền vẫn là website của trường.
+# - Hai bản api, identity (triển khai không gián đoạn): danh sách máy đích ở API_UPSTREAMS, IDENTITY_UPSTREAMS; kiểm tra
+#   sức khỏe chủ động mỗi 5 giây, yêu cầu gặp máy đang khởi động lại được thử lại sang máy kia trong lb_try_duration.
+# Biến môi trường do Compose truyền (deploy/profiles/production/compose.yml).
+
+{
+	email {$ACME_EMAIL}
+	on_demand_tls {
+		ask {$DOMAIN_CHECK_URL}
+	}
+	# Chỉ số Prometheus của Caddy, đọc ở khối :9180 bên dưới (không mở ra ngoài)
+	metrics
+	servers {
+		timeouts {
+			read_body 120s
+			read_header 15s
+			idle 2m
+		}
+	}
+}
+
+(common) {
+	encode zstd gzip
+	log {
+		output stdout
+		format json
+	}
+	header {
+		Strict-Transport-Security "max-age=31536000"
+		X-Content-Type-Options "nosniff"
+		X-Frame-Options "DENY"
+		Referrer-Policy "strict-origin-when-cross-origin"
+		Permissions-Policy "geolocation=(), microphone=()"
+		-Server
+	}
+	request_body {
+		max_size 25MB
+	}
+}
+
+(proxy-options) {
+	lb_policy round_robin
+	lb_try_duration 15s
+	lb_try_interval 250ms
+	health_uri /api/v1/health
+	health_interval 5s
+	health_timeout 3s
+	fail_duration 30s
+}
+
+(backend) {
+	@identity path /api/v1/auth /api/v1/auth/* /api/v1/users /api/v1/users/* /api/v1/roles /api/v1/roles/* /api/v1/permissions /api/v1/permissions/* /api/v1/api-clients /api/v1/api-clients/*
+	handle @identity {
+		reverse_proxy {$IDENTITY_UPSTREAMS} {
+			import proxy-options
+		}
+	}
+	@api path /api/v1/*
+	handle @api {
+		reverse_proxy {$API_UPSTREAMS} {
+			import proxy-options
+		}
+	}
+}
+
+(spa) {
+	handle {
+		root * {args[0]}
+		@hashed path /assets/*
+		header @hashed Cache-Control "public, max-age=31536000, immutable"
+		@other not path /assets/*
+		header @other Cache-Control "no-cache"
+		try_files {path} /index.html
+		file_server
+	}
+}
+
+(spa-under) {
+	redir {args[0]} {args[0]}/ 308
+	handle_path {args[0]}/* {
+		root * {args[1]}
+		@hashed path /assets/*
+		header @hashed Cache-Control "public, max-age=31536000, immutable"
+		@other not path /assets/*
+		header @other Cache-Control "no-cache"
+		try_files {path} /index.html
+		file_server
+	}
+}
+
+(website) {
+	handle {
+		rewrite * /api/v1/public/site{path}?{query}
+		reverse_proxy {$API_UPSTREAMS} {
+			import proxy-options
+			header_up X-Website-Root 1
+		}
+	}
+}
+
+# Ba lối vào theo đường dẫn trên tên miền của trường (nhiều trường, sau DT-SaaS S1b dựng giao diện với đường dẫn gốc này)
+(tenant-paths-on) {
+	import backend
+	import spa-under /quan-ly /srv/portal
+	import spa-under /giao-vien /srv/teacher
+	import spa-under /phu-huynh /srv/parent
+}
+(tenant-paths-off) {
+}
+
+(tls-on-demand) {
+	tls {
+		on_demand
+	}
+}
+(tls-off) {
+}
+
+# Chỉ số của Caddy cho Prometheus, chỉ nghe trong mạng nội bộ của Docker
+:9180 {
+	metrics /metrics
+}
+
+# Tên miền cố định (bản một trường, môi trường thử...): mỗi tệp một hoặc vài khối địa chỉ
+import sites.d/*.caddy
+
+# Khối bắt chung: mọi tên miền khác. Môi trường thử chạy sau Caddy chính thì đặt CATCH_ALL_ADDRESS=http:// và TLS_MODE=off
+{$CATCH_ALL_ADDRESS} {
+	import tls-{$TLS_MODE}
+	import common
+	import tenant-paths-{$TENANT_PATHS}
+	import website
+}

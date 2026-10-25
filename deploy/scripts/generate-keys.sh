@@ -36,6 +36,9 @@ CHILD_DATA_HASH_KEY=$(openssl rand -base64 32)
 S3_ACCESS_KEY_ID=$(openssl rand -hex 10)
 S3_SECRET_ACCESS_KEY=$(password)
 BACKUP_ENCRYPTION_PASSPHRASE=$(openssl rand -hex 32)
+PGBOUNCER_STATS_PASSWORD=$(password)
+REPLICATION_PASSWORD=$(password)
+GRAFANA_ADMIN_PASSWORD=$(password)
 EOF
 
 if [ $# -eq 0 ]; then

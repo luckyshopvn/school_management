@@ -1,0 +1,6 @@
+# Cách đặt T2, T3: node-exporter của các máy khác (địa chỉ trong mạng riêng giữa các VPS). Sao chép thành
+# node-other-hosts.yml; tương tự postgres-db.yml cho postgres-exporter ở máy cơ sở dữ liệu. Giá trị dưới đây là giả.
+- targets: ['10.10.0.12:9100']
+  labels: { host: 'may-co-so-du-lieu' }
+- targets: ['10.10.0.13:9100']
+  labels: { host: 'may-ung-dung-2' }

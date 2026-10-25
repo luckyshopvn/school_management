@@ -1,0 +1,25 @@
+# Promtail: đọc nhật ký các vùng chứa của dự án qua Docker rồi đẩy vào Loki (DT-SaaS phần S7a, YCTD-198). Chỉ lấy vùng chứa
+# có nhãn dự án Compose trùng COMPOSE_PROJECT_NAME. Nhật ký của dịch vụ không ghi dữ liệu trẻ dạng rõ (BM-64), nên không
+# lọc thêm ở đây.
+server:
+  http_listen_port: 9080
+positions:
+  filename: /var/lib/promtail/positions.yaml
+clients:
+  - url: http://loki:3100/loki/api/v1/push
+scrape_configs:
+  - job_name: docker
+    docker_sd_configs:
+      - host: unix:///var/run/docker.sock
+        refresh_interval: 30s
+        filters:
+          - name: label
+            values: ['com.docker.compose.project=${COMPOSE_PROJECT_NAME}']
+    relabel_configs:
+      - source_labels: ['__meta_docker_container_label_com_docker_compose_service']
+        target_label: service
+      - source_labels: ['__meta_docker_container_name']
+        regex: '/(.*)'
+        target_label: container
+      - target_label: host
+        replacement: '${HOST_LABEL}'

@@ -1,7 +1,7 @@
 # 02. NHẬT KÝ DỰ ÁN
 
 - Mô tả: Ghi nhận công việc, quyết định, thay đổi và vấn đề tồn đọng theo ngày, ngày mới nhất ở trên cùng.
-- Phiên bản: 0.63
+- Phiên bản: 0.64
 - Ngày cập nhật: 2026-10-25
 - Trạng thái: Đang cập nhật
 
@@ -20,7 +20,7 @@
 
 - Đọc mục 14.3, 14.4, 14.5, 14.7, 14.9 của `32_KE_HOACH_THEO_HE_THONG_SO.md`; rà mã: `Databases` (142 chỗ dùng `databases.system` ở 61 tệp), cấu hình máy chủ API và dịch vụ định danh, `Infrastructure`, mã phiên, cookie mã làm mới, khóa Redis của dịch vụ định danh, `cacheKey`, `storageKey`, các tiến trình nền, `academic-years.service.ts`, `database/src/migrate.ts`, cấu hình e2e và CI.
 - Thêm cơ sở dữ liệu nền tảng (tệp 0001 đến 0004), ngữ cảnh trường, nhận diện trường theo tên miền, bố cục cơ sở dữ liệu `database` và `schema`, nhóm kết nối có giới hạn, mã phiên mang `tid`, khóa dữ liệu trẻ riêng, tiền tố khóa, `adopt-existing`, đăng nhập vận hành nền tảng, khung cổng nền tảng, kiểm thử cách ly (kiểm tĩnh, ma trận tuyến, quét chuỗi mồi, hai bố cục, e2e nhiều trường), việc CI mới.
-- Thêm quy tắc BR-200 đến BR-202, quyền PQ-105, chức năng P01-47 đến P01-50, màn hình MH-313, MH-314, kịch bản CT-986 đến CT-994, tiêu chí AC-823 đến AC-826, bảo mật BM-73 đến BM-75, QĐ-25, bảng nền tảng ở `16` mục 18A, giao kèo ở `17`, mục 12A của `12`; phiên bản 0.128.0.
+- Thêm quy tắc BR-200 đến BR-202, quyền PQ-105, chức năng P01-47 đến P01-50, màn hình MH-313, MH-314, kịch bản CT-990 đến CT-998, tiêu chí AC-823 đến AC-826, bảo mật BM-73 đến BM-75, QĐ-25, bảng nền tảng ở `16` mục 18A, giao kèo ở `17`, mục 12A của `12`; phiên bản 0.129.0.
 
 #### Quyết định
 
@@ -33,11 +33,31 @@
 
 #### Thay đổi
 
-- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-191, `07_QUY_TAC_NGHIEP_VU.md` BR-200 đến BR-202, `08_VAI_TRO_NGUOI_DUNG.md` PQ-105, `10_YEU_CAU_CHUC_NANG.md` P01-47 đến P01-50, `11_TIEU_CHI_NGHIEM_THU.md` AC-823 đến AC-826, `14_DAC_TA_GIAO_DIEN.md` MH-313, MH-314, `16_CO_SO_DU_LIEU.md` mục 18A, `17_DAC_TA_API.md`, `21_KICH_BAN_KIEM_THU.md` CT-986 đến CT-994, `22_BAO_MAT.md` BM-73 đến BM-75, `12_KIEN_TRUC_HE_THONG.md` mục 12A, QĐ-25; phiên bản phần mềm 0.128.0.
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-191, `07_QUY_TAC_NGHIEP_VU.md` BR-200 đến BR-202, `08_VAI_TRO_NGUOI_DUNG.md` PQ-105, `10_YEU_CAU_CHUC_NANG.md` P01-47 đến P01-50, `11_TIEU_CHI_NGHIEM_THU.md` AC-823 đến AC-826, `14_DAC_TA_GIAO_DIEN.md` MH-313, MH-314, `16_CO_SO_DU_LIEU.md` mục 18A, `17_DAC_TA_API.md`, `21_KICH_BAN_KIEM_THU.md` CT-990 đến CT-998, `22_BAO_MAT.md` BM-73 đến BM-75, `12_KIEN_TRUC_HE_THONG.md` mục 12A, QĐ-25; phiên bản phần mềm 0.129.0.
 
 #### Vấn đề tồn đọng
 
 - Không bật nhiều trường ở môi trường chạy thật trước khi S1b (việc nền, điểm cuối công khai, khóa ghép tay còn trong baseline kiểm tĩnh) và S3 (khóa tích hợp riêng từng trường) gộp; e2e toàn bộ do CI chạy (trên máy chỉ chạy spec 130 và các spec bị ảnh hưởng); `pg_advisory_lock` ở mở năm học và `Migrator` cần kiểm khi qua bộ gom kết nối theo giao dịch (S7a); S9 dùng bố cục `schema` và `DB_HOST_ADAPTER` cho Neon, Supabase.
+
+### 2026-10-25 — DT-SaaS phần S7a: hạ tầng VPS trong nước, phần dựng sẵn
+
+#### Công việc đã thực hiện
+
+- Đọc mục 14.3, 14.4, 14.5, 14.9 của `32_KE_HOACH_THEO_HE_THONG_SO.md`; rà bộ triển khai một máy (YCTD-92) và mã có thể vướng khi gom kết nối theo giao dịch (múi giờ, `SET`, khóa tư vấn, `LISTEN`).
+- Viết hồ sơ `deploy/profiles/production/`: Compose T1, T2, T3; PgBouncer (`docker/pgbouncer/`); bản sao PostgreSQL; Caddy bắt mọi tên miền; giám sát, cảnh báo, nhật ký; môi trường thử; `scripts/deploy.sh`, `scripts/check-config.sh`; README hướng dẫn vận hành.
+- Thêm kịch bản CT-986 đến CT-989. Kết quả ngày 25/10/2026: `deploy/profiles/production/scripts/check-config.sh` đạt (Compose T1, T2 hai máy, T3 máy bản sao, staging cùng VPS; Caddyfile có và không có tệp `sites.d`; Prometheus, luật cảnh báo; Alertmanager đủ ba kênh và không kênh nào; Loki); dựng ảnh PgBouncer, chạy cùng PostgreSQL: kết nối `school_system` gom theo phiên giữ và mở khóa tư vấn trên cùng kết nối, `school_identity` gom theo giao dịch, sai mật khẩu bị từ chối, kiểm tra sức khỏe đạt; bản sao lấy bản sao cơ bản, máy chính báo `streaming`, bản sao đọc được dòng vừa ghi; cú pháp các script shell đạt; bản một máy cũ (`deploy/docker-compose.production.yml`) vẫn hợp lệ; kiểm tra định dạng đạt. Không có e2e (phần hạ tầng, không sửa mã nghiệp vụ); kiểm tay trên staging (CT-989) chờ dựng VPS thử.
+
+#### Quyết định
+
+- Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11: `school_system` gom theo phiên vì mở năm học giữ khóa tư vấn theo phiên (không sửa mã nghiệp vụ ở phần này); ảnh PgBouncer tự dựng từ gói Alpine; giám sát bằng Prometheus, Alertmanager, Loki chạy trên VPS; kênh Zalo qua webhook; việc định kỳ chỉ chạy ở `api-a`.
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-198, `12_KIEN_TRUC_HE_THONG.md` mục 10, 12, `21_KICH_BAN_KIEM_THU.md` CT-986 đến CT-989, `32_KE_HOACH_THEO_HE_THONG_SO.md` mục 14.10. Phiên bản 0.128.0.
+
+#### Vấn đề tồn đọng
+
+- Kiểm tay trên staging khi có VPS thử (CT-989); S7b đo quy mô, sao lưu theo trường; thêm kiểm tra cấu hình hồ sơ vào CI.
 
 ### 2026-10-25 — DT-SaaS phần S8a: pháp lý và hồ sơ tuân thủ (tài liệu)
 

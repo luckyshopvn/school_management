@@ -1,7 +1,7 @@
 # 01. KẾ HOẠCH TỔNG THỂ
 
 - Mô tả: Tài liệu điều phối cấp cao nhất của dự án: mười hai giai đoạn kèm cổng kiểm soát, các mốc phát hành, kế hoạch thực thi theo đợt, đường găng, tổ chức thực hiện, quản lý thay đổi và rủi ro.
-- Phiên bản: 1.59
+- Phiên bản: 1.60
 - Ngày cập nhật: 2026-10-25
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -90,6 +90,7 @@ Sản phẩm: School Management, hệ thống quản lý trường mầm non cho
 | 0.125.0 | DT-22 phần 22h1: kho học liệu số phần lõi (tải lên, liên kết, phiên bản, giấy phép bắt buộc, kiểm duyệt phân luồng, bộ sưu tập, báo lỗi, thống kê) | YCTD-183 |
 | 0.126.0 | DT-22 phần 22h2: kho học liệu số, câu hỏi và chia sẻ (câu hỏi, đề, ma trận của ngân hàng trong kho, thống kê sử dụng, rubric, gói chia sẻ liên trường) | YCTD-184 |
 | 0.127.0 | DT-21 phần 21g: báo cáo, thống kê THCS, THPT (sĩ số, tổ hợp, kết quả cuối năm, phổ điểm, theo giáo viên, tổ bộ môn) và biểu EMIS THCS, THPT cấu hình được | YCTD-175 |
+| 0.128.0 | DT-SaaS phần S7a: hạ tầng VPS trong nước, phần dựng sẵn (hồ sơ "Vận hành": Compose T1 đến T3, PgBouncer, Caddy bắt mọi tên miền, giám sát, staging, triển khai không gián đoạn) | YCTD-198 |
 | 0.116.0 | DT-20 phần 20f: báo cáo, thống kê Tiểu học (sĩ số, kết quả đánh giá, cuối năm, chuyên cần, bán trú; xuất Excel, PDF) và khung biểu EMIS Tiểu học cấu hình được | YCTD-165 |
 | 0.117.0 | DT-21 phần 22g1: kiểm tra, đánh giá phần đề (ngân hàng câu hỏi, ma trận, kế hoạch kiểm tra, đề nhiều mã, thẩm định, khoá đề, xuất đề và đáp án) | YCTD-168 |
 | 0.111.0 | DT-20 phần 20d: sổ đầu bài và điểm danh theo tiết (ghi, ký tiết theo thời khoá biểu, Ban giám hiệu ký sổ tuần, phụ huynh xem, tổng hợp chuyên cần) | YCTD-162 |
@@ -249,7 +250,7 @@ Sản phẩm: School Management, hệ thống quản lý trường mầm non cho
 | 0.5.1 | Trả lời Q-136 đến Q-138: tiêu chuẩn sức khỏe theo Bộ Y tế, phí ngoại khóa theo hoạt động hoặc theo tháng, nghỉ thứ bảy định kỳ trừ lịch học bù | 01 đến 08 | Đã có |
 | 0.5.0 | Bổ sung hai mươi chức năng theo tám ảnh sơ đồ chức năng | 01 đến 08 | Đã có |
 | 0.4.0 | Chuyển bộ tài liệu sang cấu trúc Vibecoding_Flow, sửa các chỗ chưa khớp, thống nhất phân cấp phê duyệt, đổi mã dự án thành SM | 01 đến 08 | Đã có |
-| 0.128.0 | DT-SaaS phần S1a: nền đa thuê bao, phần lõi (cơ sở dữ liệu nền tảng, nhận diện trường theo tên miền, cơ sở dữ liệu theo trường ở hai bố cục, mã phiên mang mã trường, khóa dữ liệu trẻ riêng, nhận bản đang chạy làm trường số 1, đăng nhập vận hành nền tảng, bộ kiểm thử cách ly) | YCTD-191 |
+| 0.129.0 | DT-SaaS phần S1a: nền đa thuê bao, phần lõi (cơ sở dữ liệu nền tảng, nhận diện trường theo tên miền, cơ sở dữ liệu theo trường ở hai bố cục, mã phiên mang mã trường, khóa dữ liệu trẻ riêng, nhận bản đang chạy làm trường số 1, đăng nhập vận hành nền tảng, bộ kiểm thử cách ly) | YCTD-191 |
 | 1.0.0 | Giai đoạn 1 chạy thật: nền tảng, trẻ, điểm danh, học phí, thanh toán mã QR, phiếu thu, phiếu chi, quỹ tiền mặt, nhân sự, lương cơ bản, hai ứng dụng, báo cáo cơ bản, nhập dữ liệu từ Excel, nhập mã định danh của Bộ, API đối tác | 09 đến 11 | Eric nghiệm thu ngày 13/10/2026, thẻ `v1.0.0` (tài liệu 0.31.0, YCTD-92); chờ triển khai ở việc T6 |
 | 1.1.0 | Giai đoạn 2: giảng dạy, y tế, bếp, kho, hoạt động, tương tác, công việc, tài khoản ngân hàng và công nợ phải trả, báo cáo hợp nhất | 09 đến 11 | Eric nghiệm thu ngày 13/10/2026, thẻ `v1.1.0` (tài liệu 0.42.0, YCTD-92) |
 | 1.2.0 | Giai đoạn 3: tuyển sinh, tuyển dụng, kết nối Facebook và Zalo, đối soát thanh toán, sổ kế toán kép | 09 đến 11 | Eric nghiệm thu ngày 13/10/2026, thẻ `v1.2.0` (tài liệu 0.48.0, YCTD-92) |

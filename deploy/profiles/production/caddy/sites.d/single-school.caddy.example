@@ -1,0 +1,29 @@
+# Bản một trường như hiện nay (YCTD-92): bốn tên miền cố định. Bật bằng cách sao chép thành single-school.caddy và đặt
+# PORTAL_SITE, PARENT_SITE, TEACHER_SITE, API_SITE trong production.env. Website trên tên miền riêng vẫn qua khối bắt chung.
+
+{$PORTAL_SITE} {
+	import common
+	import backend
+	import spa /srv/portal
+}
+
+{$PARENT_SITE} {
+	import common
+	import backend
+	import spa /srv/parent
+}
+
+{$TEACHER_SITE} {
+	import common
+	import backend
+	import spa /srv/teacher
+}
+
+# Địa chỉ cho đối tác (API chỉ đọc có khóa), cổng thanh toán gọi về, kiểm tra sức khỏe từ bên ngoài
+{$API_SITE} {
+	import common
+	import backend
+	handle {
+		respond "Không tìm thấy" 404
+	}
+}

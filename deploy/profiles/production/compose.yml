@@ -1,0 +1,538 @@
+# Hồ sơ "Vận hành" (b) trên VPS trong nước (DT-SaaS phần S7a, YCTD-198; tài liệu 32 mục 14.4, 14.5).
+# Một bộ tệp cho ba cách đặt máy, chọn dịch vụ bằng COMPOSE_PROFILES trong production.env:
+#   T1 một VPS:            COMPOSE_PROFILES=db,app,seaweedfs,monitoring
+#   T2 hai VPS:            máy cơ sở dữ liệu  COMPOSE_PROFILES=db,monitoring-agent
+#                          máy ứng dụng       COMPOSE_PROFILES=app,seaweedfs,monitoring (DATABASE_HOST, MIGRATE_DATABASE_HOST
+#                                             là địa chỉ riêng của máy cơ sở dữ liệu)
+#   T3 từ ba VPS:          như T2, thêm máy bản sao COMPOSE_PROFILES=replica,monitoring-agent; máy ứng dụng thứ hai như máy
+#                          ứng dụng thứ nhất (hai bản ghi A của tên miền), chỉ một máy chạy giám sát đầy đủ
+# Chạy từ thư mục này:
+#   docker compose --env-file production.env up -d --build
+# Triển khai không gián đoạn: scripts/deploy.sh. Hướng dẫn: README.md.
+#
+# Khác bản một máy cũ (deploy/docker-compose.production.yml, vẫn dùng được cho trường đơn lẻ):
+# - PgBouncer trước PostgreSQL; api, identity nối PgBouncer, migrate nối thẳng PostgreSQL;
+# - hai bản api (api-a, api-b) và identity (identity-a, identity-b); việc định kỳ chỉ chạy ở api-a;
+# - Caddy bắt mọi tên miền (caddy/Caddyfile), tên miền cố định để ở caddy/sites.d/;
+# - giám sát, cảnh báo, nhật ký tập trung chạy trên chính VPS (hồ sơ monitoring, monitoring-agent).
+name: ${COMPOSE_PROJECT_NAME:-school-production}
+
+x-logging: &logging
+  driver: json-file
+  options:
+    max-size: '20m'
+    max-file: '5'
+
+x-node-environment: &node-environment
+  NODE_ENV: ${NODE_ENV:-production}
+  TZ: Asia/Ho_Chi_Minh
+  TRUST_PROXY: ${TRUST_PROXY:-uniquelocal}
+  TOKEN_PUBLIC_KEY: ${TOKEN_PUBLIC_KEY:?Thiếu TOKEN_PUBLIC_KEY}
+
+x-sms-environment: &sms-environment
+  SMS_PROVIDER: ${SMS_PROVIDER:-}
+  ESMS_API_KEY: ${ESMS_API_KEY:-}
+  ESMS_SECRET_KEY: ${ESMS_SECRET_KEY:-}
+  ESMS_BRANDNAME: ${ESMS_BRANDNAME:-}
+  ESMS_SANDBOX: ${ESMS_SANDBOX:-}
+  ESMS_UNICODE: ${ESMS_UNICODE:-}
+
+x-identity-service: &identity-service
+  image: ${IMAGE_PREFIX:-school-management}/identity:${IMAGE_TAG:-latest}
+  build:
+    context: ../../..
+    dockerfile: deploy/docker/server.Dockerfile
+    target: identity
+  profiles: ['app']
+  restart: unless-stopped
+  environment:
+    <<: [*node-environment, *sms-environment]
+    IDENTITY_PORT: 3001
+    IDENTITY_DATABASE_URL: postgres://identity_service:${IDENTITY_DATABASE_PASSWORD}@${DATABASE_HOST:-pgbouncer}:${DATABASE_PORT:-6432}/school_identity
+    REDIS_URL: redis://:${REDIS_PASSWORD}@${REDIS_HOST:-redis}:6379
+    IDENTITY_TOKEN_PRIVATE_KEY: ${IDENTITY_TOKEN_PRIVATE_KEY:?Thiếu IDENTITY_TOKEN_PRIVATE_KEY}
+    # Dịch vụ định danh gọi máy chủ API (đồng bộ tài khoản) qua bản api-a; api-b chỉ nhận yêu cầu từ Caddy
+    API_BASE_URL: http://api-a:3000
+    LOGIN_REQUESTS_PER_MINUTE: ${LOGIN_REQUESTS_PER_MINUTE:-10}
+  depends_on:
+    migrate:
+      condition: service_completed_successfully
+    redis:
+      condition: service_healthy
+  logging: *logging
+
+x-api-environment: &api-environment
+  <<: [*node-environment, *sms-environment]
+  API_PORT: 3000
+  IDENTITY_BASE_URL: http://identity-a:3001
+  SYSTEM_DATABASE_URL: postgres://api_service:${API_DATABASE_PASSWORD}@${DATABASE_HOST:-pgbouncer}:${DATABASE_PORT:-6432}/school_system
+  SCHOOL_YEAR_DATABASE_PREFIX: school_year_
+  CHILD_DATA_ENCRYPTION_KEY: ${CHILD_DATA_ENCRYPTION_KEY:?Thiếu CHILD_DATA_ENCRYPTION_KEY}
+  CHILD_DATA_HASH_KEY: ${CHILD_DATA_HASH_KEY:?Thiếu CHILD_DATA_HASH_KEY}
+  S3_ENDPOINT: ${S3_ENDPOINT:-http://seaweedfs:8333}
+  S3_REGION: ${S3_REGION:-us-east-1}
+  S3_BUCKET: ${S3_BUCKET:-school-files}
+  S3_ACCESS_KEY_ID: ${S3_ACCESS_KEY_ID:?Thiếu S3_ACCESS_KEY_ID}
+  S3_SECRET_ACCESS_KEY: ${S3_SECRET_ACCESS_KEY:?Thiếu S3_SECRET_ACCESS_KEY}
+  PAYMENT_GATEWAY: ${PAYMENT_GATEWAY:-}
+  PAYOS_CLIENT_ID: ${PAYOS_CLIENT_ID:-}
+  PAYOS_API_KEY: ${PAYOS_API_KEY:-}
+  PAYOS_CHECKSUM_KEY: ${PAYOS_CHECKSUM_KEY:-}
+  PAYOS_RETURN_URL: ${PAYOS_RETURN_URL:-}
+  PAYOS_CANCEL_URL: ${PAYOS_CANCEL_URL:-}
+  SEPAY_WEBHOOK_API_KEY: ${SEPAY_WEBHOOK_API_KEY:-}
+  CASSO_WEBHOOK_SECRET: ${CASSO_WEBHOOK_SECRET:-}
+  VNPAY_TMN_CODE: ${VNPAY_TMN_CODE:-}
+  VNPAY_HASH_SECRET: ${VNPAY_HASH_SECRET:-}
+  VNPAY_RETURN_URL: ${VNPAY_RETURN_URL:-}
+  VNPAY_PAYMENT_URL: ${VNPAY_PAYMENT_URL:-}
+  NOTIFICATION_DISPATCH_INTERVAL_SECONDS: ${NOTIFICATION_DISPATCH_INTERVAL_SECONDS:-60}
+  EXPORT_JOB_INTERVAL_SECONDS: ${EXPORT_JOB_INTERVAL_SECONDS:-15}
+  FACEBOOK_PUBLISHER: ${FACEBOOK_PUBLISHER:-}
+  FACEBOOK_PAGE_ACCESS_TOKEN: ${FACEBOOK_PAGE_ACCESS_TOKEN:-}
+  FACEBOOK_GRAPH_VERSION: ${FACEBOOK_GRAPH_VERSION:-v21.0}
+  ZALO_SENDER: ${ZALO_SENDER:-}
+  ZALO_OA_ACCESS_TOKEN: ${ZALO_OA_ACCESS_TOKEN:-}
+  ZALO_APP_ID: ${ZALO_APP_ID:-}
+  ZALO_APP_SECRET: ${ZALO_APP_SECRET:-}
+  ZALO_OA_REFRESH_TOKEN: ${ZALO_OA_REFRESH_TOKEN:-}
+  REDIS_URL: redis://:${REDIS_PASSWORD}@${REDIS_HOST:-redis}:6379
+
+x-api-service: &api-service
+  image: ${IMAGE_PREFIX:-school-management}/api:${IMAGE_TAG:-latest}
+  build:
+    context: ../../..
+    dockerfile: deploy/docker/server.Dockerfile
+    target: api
+  profiles: ['app']
+  restart: unless-stopped
+  depends_on:
+    migrate:
+      condition: service_completed_successfully
+    redis:
+      condition: service_healthy
+    seaweedfs:
+      condition: service_healthy
+      required: false
+  logging: *logging
+
+services:
+  # ------------------------------------------------------------------------------------------------------------------
+  # Cơ sở dữ liệu (hồ sơ db): PostgreSQL và PgBouncer. Ở T1 chỉ nghe 127.0.0.1; ở T2, T3 đặt DB_BIND_ADDRESS là địa chỉ
+  # mạng riêng giữa các VPS (không bao giờ là địa chỉ công khai) và chặn cổng bằng tường lửa của nhà cung cấp
+  # ------------------------------------------------------------------------------------------------------------------
+  postgres:
+    image: postgres:17-alpine
+    profiles: ['db']
+    restart: unless-stopped
+    shm_size: 256mb
+    environment:
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Thiếu POSTGRES_PASSWORD}
+      IDENTITY_DATABASE_PASSWORD: ${IDENTITY_DATABASE_PASSWORD:?Thiếu IDENTITY_DATABASE_PASSWORD}
+      API_DATABASE_PASSWORD: ${API_DATABASE_PASSWORD:?Thiếu API_DATABASE_PASSWORD}
+      REPLICATION_PASSWORD: ${REPLICATION_PASSWORD:-}
+      REPLICATION_ALLOWED_CIDR: ${REPLICATION_ALLOWED_CIDR:-10.0.0.0/8}
+      TZ: Asia/Ho_Chi_Minh
+    # Cấu hình cho hàng trăm cơ sở dữ liệu nhỏ phía sau PgBouncer: ít kết nối thật, bộ nhớ làm việc vừa phải, tự dọn rác
+    # đủ nhanh; WAL ở mức replica để có bản sao (T3) và sao lưu nhật ký giao dịch (S7b)
+    command:
+      - postgres
+      - -c
+      - max_connections=${POSTGRES_MAX_CONNECTIONS:-300}
+      - -c
+      - shared_buffers=${POSTGRES_SHARED_BUFFERS:-1GB}
+      - -c
+      - effective_cache_size=${POSTGRES_EFFECTIVE_CACHE_SIZE:-3GB}
+      - -c
+      - work_mem=${POSTGRES_WORK_MEM:-8MB}
+      - -c
+      - maintenance_work_mem=${POSTGRES_MAINTENANCE_WORK_MEM:-256MB}
+      - -c
+      - max_locks_per_transaction=${POSTGRES_MAX_LOCKS_PER_TRANSACTION:-128}
+      - -c
+      - autovacuum_max_workers=${POSTGRES_AUTOVACUUM_MAX_WORKERS:-4}
+      - -c
+      - autovacuum_naptime=${POSTGRES_AUTOVACUUM_NAPTIME:-30s}
+      - -c
+      - wal_level=replica
+      - -c
+      - max_wal_senders=10
+      - -c
+      - max_replication_slots=10
+      - -c
+      - wal_keep_size=${POSTGRES_WAL_KEEP_SIZE:-1GB}
+      - -c
+      - password_encryption=scram-sha-256
+      - -c
+      - log_min_duration_statement=${POSTGRES_LOG_MIN_DURATION_MS:-1000}
+      - -c
+      - log_lock_waits=on
+      - -c
+      - shared_preload_libraries=pg_stat_statements
+    ports:
+      - '${DB_BIND_ADDRESS:-127.0.0.1}:${POSTGRES_PUBLISH_PORT:-5432}:5432'
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+      - ../../../docker/postgres/create-databases.sh:/docker-entrypoint-initdb.d/10-create-databases.sh:ro
+      - ../../../docker/postgres/create-replication-role.sh:/docker-entrypoint-initdb.d/20-create-replication-role.sh:ro
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U postgres']
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    logging: *logging
+
+  pgbouncer:
+    image: ${IMAGE_PREFIX:-school-management}/pgbouncer:${IMAGE_TAG:-latest}
+    build:
+      context: ../../..
+      dockerfile: docker/pgbouncer/Dockerfile
+    profiles: ['db']
+    restart: unless-stopped
+    environment:
+      PGBOUNCER_UPSTREAM_HOST: postgres
+      PGBOUNCER_USERS: identity_service:IDENTITY_DATABASE_PASSWORD api_service:API_DATABASE_PASSWORD
+      IDENTITY_DATABASE_PASSWORD: ${IDENTITY_DATABASE_PASSWORD}
+      API_DATABASE_PASSWORD: ${API_DATABASE_PASSWORD}
+      PGBOUNCER_STATS_PASSWORD: ${PGBOUNCER_STATS_PASSWORD:-}
+      PGBOUNCER_DEFAULT_POOL_SIZE: ${PGBOUNCER_DEFAULT_POOL_SIZE:-10}
+      PGBOUNCER_MAX_DB_CONNECTIONS: ${PGBOUNCER_MAX_DB_CONNECTIONS:-40}
+      PGBOUNCER_MAX_CLIENT_CONN: ${PGBOUNCER_MAX_CLIENT_CONN:-2000}
+      PGBOUNCER_SESSION_DATABASES: ${PGBOUNCER_SESSION_DATABASES:-school_system}
+    ports:
+      - '${DB_BIND_ADDRESS:-127.0.0.1}:${PGBOUNCER_PUBLISH_PORT:-6432}:6432'
+    depends_on:
+      postgres:
+        condition: service_healthy
+    logging: *logging
+
+  # Bản sao chỉ đọc (hồ sơ replica, T3): chạy trên máy riêng, nối máy chính qua mạng riêng
+  postgres-replica:
+    image: postgres:17-alpine
+    profiles: ['replica']
+    restart: unless-stopped
+    shm_size: 256mb
+    entrypoint: ['/bin/sh', '/usr/local/bin/replica-entrypoint.sh']
+    environment:
+      PRIMARY_HOST: ${PRIMARY_DATABASE_HOST:-postgres}
+      PRIMARY_PORT: ${PRIMARY_DATABASE_PORT:-5432}
+      REPLICATION_PASSWORD: ${REPLICATION_PASSWORD:-}
+      REPLICATION_SLOT: ${REPLICATION_SLOT:-replica_1}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Thiếu POSTGRES_PASSWORD}
+      TZ: Asia/Ho_Chi_Minh
+    ports:
+      - '${DB_BIND_ADDRESS:-127.0.0.1}:${POSTGRES_PUBLISH_PORT:-5432}:5432'
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+      - ../../../docker/postgres/replica-entrypoint.sh:/usr/local/bin/replica-entrypoint.sh:ro
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U postgres']
+      interval: 10s
+      timeout: 5s
+      retries: 30
+    logging: *logging
+
+  # ------------------------------------------------------------------------------------------------------------------
+  # Ứng dụng (hồ sơ app)
+  # ------------------------------------------------------------------------------------------------------------------
+  redis:
+    image: redis:7-alpine
+    profiles: ['app']
+    restart: unless-stopped
+    command: ['redis-server', '--appendonly', 'yes', '--requirepass', '${REDIS_PASSWORD:?Thiếu REDIS_PASSWORD}']
+    environment:
+      REDISCLI_AUTH: ${REDIS_PASSWORD}
+    volumes:
+      - redis-data:/data
+    healthcheck:
+      test: ['CMD', 'redis-cli', 'ping']
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    logging: *logging
+
+  seaweedfs:
+    image: chrislusf/seaweedfs:3.80
+    profiles: ['seaweedfs']
+    restart: unless-stopped
+    environment:
+      S3_ACCESS_KEY_ID: ${S3_ACCESS_KEY_ID:?Thiếu S3_ACCESS_KEY_ID}
+      S3_SECRET_ACCESS_KEY: ${S3_SECRET_ACCESS_KEY:?Thiếu S3_SECRET_ACCESS_KEY}
+    entrypoint:
+      - /bin/sh
+      - -c
+      - >-
+        printf '{"identities":[{"name":"school","credentials":[{"accessKey":"%s","secretKey":"%s"}],"actions":["Admin","Read","Write","List","Tagging"]}]}'
+        "$$S3_ACCESS_KEY_ID" "$$S3_SECRET_ACCESS_KEY" > /tmp/s3.json &&
+        exec weed server -dir=/data -volume.max=0 -master.volumeSizeLimitMB=1024 -s3 -s3.config=/tmp/s3.json
+    volumes:
+      - seaweedfs-data:/data
+    healthcheck:
+      test: ['CMD-SHELL', 'wget -q -O /dev/null http://127.0.0.1:9333/cluster/status || exit 1']
+      interval: 15s
+      timeout: 5s
+      retries: 10
+      start_period: 20s
+    logging: *logging
+
+  # Thay đổi cấu trúc chạy trước, nối thẳng PostgreSQL (không qua PgBouncer); quy tắc tương thích lùi để bản cũ còn chạy
+  # trong lúc khởi động lại lần lượt (README mục Triển khai)
+  migrate:
+    image: ${IMAGE_PREFIX:-school-management}/identity:${IMAGE_TAG:-latest}
+    build:
+      context: ../../..
+      dockerfile: deploy/docker/server.Dockerfile
+      target: identity
+    profiles: ['app']
+    restart: 'no'
+    working_dir: /app/database
+    command: ['node', 'dist/src/migrate-command.js']
+    environment:
+      TZ: Asia/Ho_Chi_Minh
+      IDENTITY_DATABASE_URL: postgres://identity_service:${IDENTITY_DATABASE_PASSWORD}@${MIGRATE_DATABASE_HOST:-postgres}:${MIGRATE_DATABASE_PORT:-5432}/school_identity
+      SYSTEM_DATABASE_URL: postgres://api_service:${API_DATABASE_PASSWORD}@${MIGRATE_DATABASE_HOST:-postgres}:${MIGRATE_DATABASE_PORT:-5432}/school_system
+    healthcheck:
+      disable: true
+    depends_on:
+      postgres:
+        condition: service_healthy
+        required: false
+      pgbouncer:
+        condition: service_healthy
+        required: false
+    logging: *logging
+
+  identity-a:
+    <<: *identity-service
+  identity-b:
+    <<: *identity-service
+
+  api-a:
+    <<: *api-service
+    environment:
+      <<: *api-environment
+  # Bản thứ hai chỉ nhận yêu cầu; việc định kỳ (gửi thông báo, nhắc việc, lưu trữ, xuất tệp, máy xếp) chỉ chạy ở api-a để
+  # không chạy hai lần
+  api-b:
+    <<: *api-service
+    environment:
+      <<: *api-environment
+      NOTIFICATION_DISPATCH_INTERVAL_SECONDS: 0
+      EXPORT_JOB_INTERVAL_SECONDS: 0
+
+  worker:
+    image: ${IMAGE_PREFIX:-school-management}/worker:${IMAGE_TAG:-latest}
+    build:
+      context: ../../..
+      dockerfile: deploy/docker/server.Dockerfile
+      target: worker
+    profiles: ['app']
+    restart: unless-stopped
+    environment:
+      TZ: Asia/Ho_Chi_Minh
+      NODE_ENV: production
+      REDIS_URL: redis://:${REDIS_PASSWORD}@${REDIS_HOST:-redis}:6379
+    depends_on:
+      redis:
+        condition: service_healthy
+    logging: *logging
+
+  # Dữ liệu giả của môi trường thử (staging): chỉ bật hồ sơ demo ở dự án staging; lệnh từ chối chạy trên cơ sở dữ liệu đã có
+  # dữ liệu thật
+  demo-reset:
+    image: ${IMAGE_PREFIX:-school-management}/api:${IMAGE_TAG:-latest}
+    profiles: ['demo']
+    restart: unless-stopped
+    command:
+      [
+        'node',
+        'dist/demo/demo-command.js',
+        'schedule',
+        '--confirm',
+        '--interval-hours',
+        '${DEMO_RESET_INTERVAL_HOURS:-24}',
+      ]
+    environment:
+      <<: *api-environment
+      IDENTITY_DATABASE_URL: postgres://identity_service:${IDENTITY_DATABASE_PASSWORD}@${MIGRATE_DATABASE_HOST:-postgres}:${MIGRATE_DATABASE_PORT:-5432}/school_identity
+    healthcheck:
+      disable: true
+    depends_on:
+      api-a:
+        condition: service_healthy
+    logging: *logging
+
+  web:
+    image: ${IMAGE_PREFIX:-school-management}/web:${IMAGE_TAG:-latest}
+    build:
+      context: ../../..
+      dockerfile: deploy/docker/web.Dockerfile
+    profiles: ['app']
+    restart: unless-stopped
+    environment:
+      ACME_EMAIL: ${ACME_EMAIL:?Thiếu ACME_EMAIL}
+      DOMAIN_CHECK_URL: ${DOMAIN_CHECK_URL:-http://api-a:3000/api/v1/public/website/domain-check}
+      API_UPSTREAMS: ${API_UPSTREAMS:-api-a:3000 api-b:3000}
+      IDENTITY_UPSTREAMS: ${IDENTITY_UPSTREAMS:-identity-a:3001 identity-b:3001}
+      CATCH_ALL_ADDRESS: ${CATCH_ALL_ADDRESS:-https://}
+      TLS_MODE: ${TLS_MODE:-on-demand}
+      TENANT_PATHS: ${TENANT_PATHS:-off}
+      PORTAL_SITE: ${PORTAL_SITE:-}
+      PARENT_SITE: ${PARENT_SITE:-}
+      TEACHER_SITE: ${TEACHER_SITE:-}
+      API_SITE: ${API_SITE:-}
+      STAGING_SITES: ${STAGING_SITES:-}
+    ports:
+      - '${HTTP_BIND:-80}:80'
+      - '${HTTPS_BIND:-443}:443'
+      - '${HTTPS_BIND:-443}:443/udp'
+    volumes:
+      - ./caddy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - ./caddy/sites.d:/etc/caddy/sites.d:ro
+      - caddy-data:/data
+      - caddy-config:/config
+    healthcheck:
+      test: ['CMD-SHELL', 'wget -q -O /dev/null http://127.0.0.1:9180/metrics || exit 1']
+      interval: 30s
+      timeout: 5s
+      retries: 3
+    depends_on:
+      identity-a:
+        condition: service_healthy
+      api-a:
+        condition: service_healthy
+    logging: *logging
+
+  # ------------------------------------------------------------------------------------------------------------------
+  # Giám sát (hồ sơ monitoring: đủ bộ ở một máy; monitoring-agent: chỉ bộ thu số liệu ở máy còn lại của T2, T3). Không mở
+  # cổng ra ngoài; xem Grafana qua đường hầm SSH tới 127.0.0.1:${GRAFANA_BIND_PORT}
+  # ------------------------------------------------------------------------------------------------------------------
+  node-exporter:
+    image: prom/node-exporter:v1.8.2
+    profiles: ['monitoring', 'monitoring-agent']
+    restart: unless-stopped
+    command:
+      ['--path.rootfs=/host', '--collector.filesystem.mount-points-exclude=^/(dev|proc|sys|run|var/lib/docker/.+)($|/)']
+    pid: host
+    ports:
+      - '${MONITORING_AGENT_BIND:-127.0.0.1}:9100:9100'
+    volumes:
+      - /:/host:ro,rslave
+    logging: *logging
+
+  postgres-exporter:
+    image: quay.io/prometheuscommunity/postgres-exporter:v0.15.0
+    profiles: ['monitoring', 'monitoring-agent']
+    restart: unless-stopped
+    environment:
+      DATA_SOURCE_URI: ${POSTGRES_EXPORTER_HOST:-postgres}:5432/postgres?sslmode=disable
+      DATA_SOURCE_USER: postgres
+      DATA_SOURCE_PASS: ${POSTGRES_PASSWORD}
+    ports:
+      - '${MONITORING_AGENT_BIND:-127.0.0.1}:9187:9187'
+    logging: *logging
+
+  blackbox:
+    image: prom/blackbox-exporter:v0.25.0
+    profiles: ['monitoring']
+    restart: unless-stopped
+    command: ['--config.file=/etc/blackbox/blackbox.yml']
+    volumes:
+      - ./monitoring/blackbox.yml:/etc/blackbox/blackbox.yml:ro
+    logging: *logging
+
+  prometheus:
+    image: prom/prometheus:v2.54.1
+    profiles: ['monitoring']
+    restart: unless-stopped
+    entrypoint: ['/bin/sh', '-c']
+    command:
+      - >-
+        sh /etc/monitoring/render.sh /etc/monitoring/prometheus.yml /tmp/prometheus.yml &&
+        exec /bin/prometheus --config.file=/tmp/prometheus.yml --storage.tsdb.path=/prometheus
+        --storage.tsdb.retention.time=${PROMETHEUS_RETENTION:-30d} --web.enable-lifecycle
+    environment:
+      ENVIRONMENT_NAME: ${ENVIRONMENT_NAME:-production}
+      HOST_LABEL: ${HOST_LABEL:-vps-1}
+    volumes:
+      - ./monitoring:/etc/monitoring:ro
+      - ./monitoring/rules:/etc/prometheus/rules:ro
+      - ./monitoring/targets.d:/etc/prometheus/targets.d:ro
+      - prometheus-data:/prometheus
+    logging: *logging
+
+  alertmanager:
+    image: prom/alertmanager:v0.27.0
+    profiles: ['monitoring']
+    restart: unless-stopped
+    user: root
+    entrypoint: ['/bin/sh', '-c']
+    command:
+      - >-
+        sh /etc/monitoring/render.sh /etc/monitoring/alertmanager.yml /tmp/alertmanager.yml &&
+        exec /bin/alertmanager --config.file=/tmp/alertmanager.yml --storage.path=/alertmanager
+    environment:
+      ALERT_EMAIL_TO: ${ALERT_EMAIL_TO:-}
+      ALERT_EMAIL_FROM: ${ALERT_EMAIL_FROM:-}
+      ALERT_EMAIL_SMARTHOST: ${ALERT_EMAIL_SMARTHOST:-}
+      ALERT_EMAIL_USERNAME: ${ALERT_EMAIL_USERNAME:-}
+      ALERT_EMAIL_PASSWORD: ${ALERT_EMAIL_PASSWORD:-}
+      ALERT_TELEGRAM_BOT_TOKEN: ${ALERT_TELEGRAM_BOT_TOKEN:-}
+      ALERT_TELEGRAM_CHAT_ID: ${ALERT_TELEGRAM_CHAT_ID:-}
+      ALERT_WEBHOOK_URL: ${ALERT_WEBHOOK_URL:-}
+    volumes:
+      - ./monitoring:/etc/monitoring:ro
+      - alertmanager-data:/alertmanager
+    logging: *logging
+
+  loki:
+    image: grafana/loki:3.2.1
+    profiles: ['monitoring']
+    restart: unless-stopped
+    command: ['-config.file=/etc/loki/loki.yml']
+    volumes:
+      - ./monitoring/loki.yml:/etc/loki/loki.yml:ro
+      - loki-data:/loki
+    logging: *logging
+
+  promtail:
+    image: grafana/promtail:3.2.1
+    profiles: ['monitoring']
+    restart: unless-stopped
+    command: ['-config.file=/etc/promtail/promtail.yml', '-config.expand-env=true']
+    environment:
+      COMPOSE_PROJECT_NAME: ${COMPOSE_PROJECT_NAME:-school-production}
+      HOST_LABEL: ${HOST_LABEL:-vps-1}
+    volumes:
+      - ./monitoring/promtail.yml:/etc/promtail/promtail.yml:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - promtail-data:/var/lib/promtail
+    logging: *logging
+
+  grafana:
+    image: grafana/grafana:11.2.2
+    profiles: ['monitoring']
+    restart: unless-stopped
+    environment:
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_ADMIN_PASSWORD:?Thiếu GRAFANA_ADMIN_PASSWORD}
+      GF_USERS_ALLOW_SIGN_UP: 'false'
+      GF_ANALYTICS_REPORTING_ENABLED: 'false'
+      GF_ANALYTICS_CHECK_FOR_UPDATES: 'false'
+    ports:
+      - '127.0.0.1:${GRAFANA_BIND_PORT:-3300}:3000'
+    volumes:
+      - ./monitoring/grafana-datasources.yml:/etc/grafana/provisioning/datasources/datasources.yml:ro
+      - grafana-data:/var/lib/grafana
+    logging: *logging
+
+volumes:
+  postgres-data:
+  redis-data:
+  seaweedfs-data:
+  caddy-data:
+  caddy-config:
+  prometheus-data:
+  alertmanager-data:
+  loki-data:
+  promtail-data:
+  grafana-data:

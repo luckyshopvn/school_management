@@ -1,7 +1,7 @@
 # 32. KẾ HOẠCH ĐỒNG BỘ CHỨC NĂNG VÀ GIAO DIỆN THEO HỆ THỐNG CỦA SỞ (DT-15)
 
 - Mô tả: Kế hoạch điều chỉnh School Management theo kết quả khảo sát `31_KHAO_SAT_HE_THONG_SO.md`; từ mục 9 thêm kế hoạch DT-18 điều hành nhà trường, mục 10 thêm kế hoạch DT-19 nền đa cấp học, mục 11 thêm kế hoạch DT-20 Tiểu học (kèm 22c thời khoá biểu), mục 12 thêm kế hoạch DT-21 THCS và THPT (kèm 22g kiểm tra, đánh giá), mục 13 thêm kế hoạch DT-22 (22a thư viện, 22e hồ sơ bồi dưỡng, 22h kho học liệu số), mục 14 thêm kế hoạch DT-SaaS (Enterprise SaaS nhiều trường: S1a, S1b, S2, S3, S4, S5a, S5b, S6, S7a, S7b, S8a, S8b, S9; hai hồ sơ triển khai: thử nghiệm miễn phí và vận hành).
-- Phiên bản: 1.66
+- Phiên bản: 1.67
 - Ngày cập nhật: 2026-10-25
 - Trạng thái: Đã duyệt hướng làm
 - Căn cứ: yêu cầu của Eric ngày 2026-10-13 ("tính năng đã có thì ưu tiên phiên bản và giao diện của Sở; tính năng Sở không có thì giữ nguyên, chỉ đổi giao diện theo trang của Sở") và các lựa chọn của Eric cùng ngày ở mục 2.
@@ -1485,8 +1485,8 @@ Các lớp kiểm thử:
 
 | Phần | Đợt | Tiến độ |
 |---|---|---|
-| S1a | 1 | Đã làm, YCTD-191, phiên bản 0.128.0, PR 164: cơ sở dữ liệu nền tảng (tệp 0001 đến 0004, loại `platform`), nhận diện trường theo tên miền (nguồn `host`, `x-forwarded-host`, `header:<tên>` kèm bí mật cổng biên), `Databases` và `Infrastructure` theo ngữ cảnh trường, bố cục `database` và `schema` (vai trò riêng, `search_path` mức vai trò), nhóm kết nối có giới hạn, mã phiên mang `tid` (không dùng `sid` vì đã là mã phiên), cookie, khóa Redis, khóa tệp có tiền tố, khóa dữ liệu trẻ riêng, `platform adopt-existing`, đăng nhập vận hành nền tảng dưới `/auth/platform`, khung `apps/platform`, kiểm tĩnh, ma trận cách ly mọi tuyến, quét chuỗi mồi, e2e nhiều trường (spec 130); việc nền theo trường để S1b |
-| S7a | 1 | Chưa làm, YCTD-198 |
+| S1a | 1 | Đã làm, YCTD-191, phiên bản 0.129.0, PR 164: cơ sở dữ liệu nền tảng (tệp 0001 đến 0004, loại `platform`), nhận diện trường theo tên miền (nguồn `host`, `x-forwarded-host`, `header:<tên>` kèm bí mật cổng biên), `Databases` và `Infrastructure` theo ngữ cảnh trường, bố cục `database` và `schema` (vai trò riêng, `search_path` mức vai trò), nhóm kết nối có giới hạn, mã phiên mang `tid` (không dùng `sid` vì đã là mã phiên), cookie, khóa Redis, khóa tệp có tiền tố, khóa dữ liệu trẻ riêng, `platform adopt-existing`, đăng nhập vận hành nền tảng dưới `/auth/platform`, khung `apps/platform`, kiểm tĩnh, ma trận cách ly mọi tuyến, quét chuỗi mồi, e2e nhiều trường (spec 130); việc nền theo trường để S1b |
+| S7a | 1 | Đã làm phần dựng sẵn (PR #163, YCTD-198, phiên bản 0.128.0); kiểm tay trên staging chờ VPS thử |
 | S8a | 1 | Đã làm, YCTD-200, PR 162: bộ mẫu `33_HO_SO_PHAP_LY/` (PL-00 đến PL-15, S8a-1.0, bản nháp chờ luật sư rà); không tăng phiên bản phần mềm |
 | S1b | 2 | Chưa làm, YCTD-192; bắt đầu khi S1a gộp |
 | S2 | 2 | Chưa làm, YCTD-193; bắt đầu khi S1a gộp, gộp sau S1b |

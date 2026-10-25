@@ -1,0 +1,12 @@
+# Môi trường thử (staging) chạy cùng VPS sau Caddy chính: chuyển các tên miền thử sang Caddy của dự án staging qua mạng
+# chung `school-edge` (compose.edge.yml). Bật bằng cách sao chép thành staging-proxy.caddy và đặt STAGING_SITES (các tên
+# miền thử cách nhau bằng dấu phẩy, ví dụ staging.he-thong.test, truong-a.staging.he-thong.test). Tên miền thử ghi cố định
+# nên chứng chỉ cấp như tên miền thường, không qua kiểm tra tên miền của môi trường chạy thật.
+
+{$STAGING_SITES} {
+	import common
+	reverse_proxy staging-web:80 {
+		header_up Host {host}
+		header_up X-Forwarded-Proto https
+	}
+}

@@ -2,6 +2,7 @@
 
 - Mã việc: DT-12 phần 12d (YCTD-92); dùng khi làm việc T6 (thuê máy chủ đám mây trong nước, QĐ-12).
 - Mô hình: một máy chủ Linux chạy Docker Compose. Toàn bộ cấu hình nằm trong thư mục `deploy/`.
+- Nhiều trường trên VPS trong nước (một đến vài máy, PgBouncer, Caddy bắt mọi tên miền, giám sát, môi trường thử, triển khai không gián đoạn): dùng hồ sơ "Vận hành" ở `deploy/profiles/production/` (DT-SaaS phần S7a, YCTD-198), hướng dẫn ở `deploy/profiles/production/README.md`. Bản một máy dưới đây vẫn dùng được.
 
 ## 1. Thành phần
 

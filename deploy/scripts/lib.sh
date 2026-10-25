@@ -4,7 +4,8 @@
 # `pwd -W` chỉ có ở Git Bash trên Windows (thử cấu hình trên máy phát triển); trên Linux dùng `pwd`
 DEPLOY_DIR=$(cd "$(dirname "$0")/.." && (pwd -W 2>/dev/null || pwd))
 ENV_FILE=${ENV_FILE:-"$DEPLOY_DIR/.env"}
-COMPOSE_FILE="$DEPLOY_DIR/docker-compose.production.yml"
+# Hồ sơ "Vận hành" (YCTD-198) đặt COMPOSE_FILE=deploy/profiles/production/compose.yml, ENV_FILE=.../production.env
+COMPOSE_FILE=${COMPOSE_FILE:-"$DEPLOY_DIR/docker-compose.production.yml"}
 RCLONE_IMAGE=${RCLONE_IMAGE:-rclone/rclone:1.68.2}
 
 [ -f "$ENV_FILE" ] || { echo "Không có tệp cấu hình $ENV_FILE" >&2; exit 1; }

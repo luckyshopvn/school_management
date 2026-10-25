@@ -1,0 +1,12 @@
+# Nguồn dữ liệu của Grafana (DT-SaaS phần S7a, YCTD-198): số liệu ở Prometheus, nhật ký ở Loki, cùng máy
+apiVersion: 1
+datasources:
+  - name: Prometheus
+    type: prometheus
+    access: proxy
+    url: http://prometheus:9090
+    isDefault: true
+  - name: Loki
+    type: loki
+    access: proxy
+    url: http://loki:3100

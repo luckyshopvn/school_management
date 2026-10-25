@@ -1,7 +1,7 @@
 # 12. KIẾN TRÚC HỆ THỐNG
 
 - Mô tả: Kiến trúc tổng thể, thành phần, xác thực, phân quyền, lưu trữ tệp, ghi nhật ký, giám sát, sao lưu, phục hồi, triển khai.
-- Phiên bản: 1.15
+- Phiên bản: 1.16
 - Ngày cập nhật: 2026-10-25
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -189,6 +189,8 @@ Kênh gửi và loại sự kiện cấu hình được theo đơn vị. Thông 
 4. Theo dõi tỷ lệ lỗi xác thực và số lần đăng nhập sai bất thường.
 5. Bảng theo dõi tình trạng hệ thống dành cho quản trị nền tảng.
 
+6. Hồ sơ "Vận hành" trên VPS (YCTD-198): Prometheus, node-exporter, postgres-exporter, blackbox, Loki, Promtail, Grafana, Alertmanager chạy trên chính VPS, không gửi số liệu ra ngoài; cảnh báo qua email, Telegram hoặc webhook (Zalo); chi tiết ở `deploy/profiles/production/``README.md` mục 8.
+
 ## 11. Sao lưu và phục hồi
 
 | Mã | Nội dung |
@@ -210,6 +212,8 @@ Kênh gửi và loại sự kiện cấu hình được theo đơn vị. Thông 
 Ba môi trường tách biệt về cơ sở dữ liệu, kho tệp và cấu hình kênh thông báo. Không dùng dữ liệu thật trên môi trường phát triển và thử nghiệm.
 
 Thứ tự dựng (YCTD-32): môi trường phát triển chạy Docker trên máy cục bộ từ đợt DT-00; tích hợp liên tục trên GitHub Actions chỉ chạy kiểm thử; môi trường thử nghiệm và chạy thật dựng trên máy chủ đám mây trong nước khi triển khai (việc T6).
+
+Hồ sơ "Vận hành" (b) cho nhiều trường trên VPS trong nước (DT-SaaS S7a, YCTD-198, `deploy/profiles/production/`): cùng ảnh container với bản một máy; một tệp Compose cho ba cách đặt máy (T1 một VPS; T2 máy ứng dụng và máy cơ sở dữ liệu; T3 hai máy ứng dụng, máy chính và bản sao); PgBouncer trước PostgreSQL (gom theo giao dịch, riêng `school_system` theo phiên); Caddy bắt mọi tên miền với chứng chỉ theo yêu cầu, chỉ cấp cho tên miền có trong danh sách; hai bản `api`, `identity` và triển khai không gián đoạn (migrate trước, khởi động lại lần lượt); môi trường thử cùng Compose, tên dự án khác, chỉ dữ liệu giả.
 
 ## 12A. Nhiều trường trên một nền tảng (DT-SaaS phần S1a, YCTD-191)
 

@@ -1,0 +1,70 @@
+# Prometheus của hồ sơ "Vận hành" (DT-SaaS phần S7a, YCTD-198): chạy trên chính VPS, không gửi số liệu ra dịch vụ ngoài.
+# Máy đích là tên dịch vụ trong mạng nội bộ của Docker. Cách đặt T2, T3: mỗi máy chạy node-exporter, máy cơ sở dữ liệu chạy
+# thêm postgres-exporter; khai báo địa chỉ riêng của máy khác ở targets.d/*.yml (file_sd), không sửa tệp này.
+global:
+  scrape_interval: 30s
+  evaluation_interval: 30s
+  external_labels:
+    environment: ${ENVIRONMENT_NAME}
+
+rule_files:
+  - /etc/prometheus/rules/*.yml
+
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets: ['alertmanager:9093']
+
+scrape_configs:
+  - job_name: prometheus
+    static_configs:
+      - targets: ['127.0.0.1:9090']
+
+  # Máy chủ (CPU, bộ nhớ, ổ đĩa, mạng) của máy này và các máy khai báo thêm
+  - job_name: node
+    static_configs:
+      - targets: ['node-exporter:9100']
+        labels: { host: '${HOST_LABEL}' }
+    file_sd_configs:
+      - files: ['/etc/prometheus/targets.d/node-*.yml']
+
+  # PostgreSQL (kết nối, kích thước, khóa, độ trễ bản sao)
+  - job_name: postgres
+    static_configs:
+      - targets: ['postgres-exporter:9187']
+        labels: { host: '${HOST_LABEL}' }
+    file_sd_configs:
+      - files: ['/etc/prometheus/targets.d/postgres-*.yml']
+
+  # Caddy (yêu cầu, lỗi, thời gian trả lời theo máy đích)
+  - job_name: caddy
+    static_configs:
+      - targets: ['web:9180']
+        labels: { host: '${HOST_LABEL}' }
+
+  # Sức khỏe dịch vụ nội bộ (từng bản api, identity)
+  - job_name: service-health
+    metrics_path: /probe
+    params: { module: [http_2xx] }
+    static_configs:
+      - targets:
+          - http://api-a:3000/api/v1/health
+          - http://api-b:3000/api/v1/health
+          - http://identity-a:3001/api/v1/health
+          - http://identity-b:3001/api/v1/health
+    relabel_configs: &blackbox-relabel
+      - source_labels: [__address__]
+        target_label: __param_target
+      - source_labels: [__param_target]
+        target_label: instance
+      - target_label: __address__
+        replacement: blackbox:9115
+
+  # Tên miền từ bên ngoài: trả lời được qua HTTPS và hạn chứng chỉ. Danh sách ở targets.d/domains.yml (sinh từ danh sách
+  # tên miền của nền tảng khi có, DT-SaaS S2; trước đó ghi tay)
+  - job_name: domains
+    metrics_path: /probe
+    params: { module: [https_2xx] }
+    file_sd_configs:
+      - files: ['/etc/prometheus/targets.d/domains.yml']
+    relabel_configs: *blackbox-relabel
