@@ -68,11 +68,10 @@ describe('quản lý trường ở cổng nền tảng', () => {
 
   before(async () => {
     platform = await startTenantTestPlatform({ schools: ['alpha'], label: 'sch' });
-    runtime = platform.createRuntime();
+    runtime = platform.createRuntime({ PLATFORM_ROOT_DOMAIN: SYSTEM_DOMAIN });
     context = await startTenantTestApplication(runtime);
     context.configuration.platformConsoleHost = CONSOLE_HOST;
     context.configuration.platformLifecycle = {
-      systemDomain: SYSTEM_DOMAIN,
       ingressHost: null,
       domainProvider: 'dns-check',
       deletionGraceDays: 30,

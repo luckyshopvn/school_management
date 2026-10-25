@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import type { SchoolYearDatabase } from '@school-management/database';
-import { ApplicationError, type FieldError } from '@school-management/server';
+import { ApplicationError, currentTenant, type FieldError } from '@school-management/server';
 import type { Kysely, Transaction } from 'kysely';
 import type { CurrentUser, OrganizationScope } from '../authentication/current-user.js';
 import type { NotificationRecipient } from '../common/notification-queue.js';
@@ -57,7 +57,9 @@ export class RecruitmentAccess {
 export class PublicRateLimiter {
   private readonly windows = new Map<string, { start: number; count: number }>();
 
-  check(key: string, limit: number, windowMilliseconds: number, now: number): void {
+  check(rawKey: string, limit: number, windowMilliseconds: number, now: number): void {
+    // Mỗi trường một bộ đếm riêng (DT-SaaS phần S1b)
+    const key = `${currentTenant()?.code ?? ''}:${rawKey}`;
     if (this.windows.size > 10_000) {
       for (const [entry, window] of this.windows) {
         if (now - window.start >= windowMilliseconds) {

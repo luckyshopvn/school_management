@@ -218,6 +218,16 @@ export interface SchoolHostingTable {
   created_at: CreatedTimestamp;
 }
 
+export interface SchedulerStateTable {
+  school_id: string;
+  job: string;
+  last_run_at: Date;
+  run_count: ColumnType<string, number | undefined, number | undefined>;
+  last_status: 'ok' | 'error' | null;
+  last_duration_ms: number | null;
+  last_error: string | null;
+}
+
 export interface PlatformDatabase {
   school_clusters: SchoolClustersTable;
   schools: SchoolsTable;
@@ -233,4 +243,5 @@ export interface PlatformDatabase {
   school_migrations: SchoolMigrationsTable;
   school_consents: SchoolConsentsTable;
   school_hosting: SchoolHostingTable;
+  scheduler_state: SchedulerStateTable;
 }

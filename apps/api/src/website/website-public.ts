@@ -1,10 +1,12 @@
-import { Body, Controller, Get, Injectable, Param, Post, Query, Req, Res } from '@nestjs/common';
+import { Body, Controller, Get, Inject, Injectable, Optional, Param, Post, Query, Req, Res } from '@nestjs/common';
+import type { TenancyRuntime } from '@school-management/database';
 import { ApplicationError, type FieldError } from '@school-management/server';
 import { API_VERSION_PREFIX, WEBSITE_PAGE_KEYS } from '@school-management/shared';
 import type { Request, Response } from 'express';
 import { AdmissionsPublicService } from '../admissions/admissions-public.js';
 import { AdmissionsRateLimiter } from '../admissions/public-rate-limit.js';
 import { PublicEndpoint } from '../authentication/authentication.guard.js';
+import { TENANCY_RUNTIME } from '../common/configuration.js';
 import { CurrentSchoolYearResolver } from '../common/current-school-year.js';
 import { Databases } from '../common/databases.js';
 import { SchoolLevelResolver } from '../common/school-levels.js';
@@ -744,11 +746,22 @@ function readPage(value: unknown): number {
 @Controller('public/website')
 @PublicEndpoint()
 export class WebsiteDomainCheckController {
-  constructor(private readonly website: WebsitePublicService) {}
+  constructor(
+    private readonly website: WebsitePublicService,
+    private readonly limiter: AdmissionsRateLimiter,
+    @Optional() @Inject(TENANCY_RUNTIME) private readonly tenancy: TenancyRuntime | null = null,
+  ) {}
 
+  // Chế độ nhiều trường: hỏi danh mục tên miền của nền tảng (không cần trường vì máy chủ web gọi bằng địa chỉ nội bộ); chế độ một
+  // trường: tên miền website của trường
   @Get('domain-check')
-  async domainCheck(@Query('domain') domain: string | undefined, @Res() response: Response) {
-    const served = typeof domain === 'string' && (await this.website.isServedDomain(domain));
+  async domainCheck(@Query('domain') domain: string | undefined, @Req() request: Request, @Res() response: Response) {
+    if (this.tenancy) {
+      this.limiter.hit('read', request.ip);
+    }
+    const served =
+      typeof domain === 'string' &&
+      (this.tenancy ? await this.tenancy.isServedHost(domain) : await this.website.isServedDomain(domain));
     response
       .status(served ? 200 : 404)
       .type('text/plain')

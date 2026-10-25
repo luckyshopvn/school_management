@@ -44,7 +44,7 @@ import { createDomainProvider, type DomainProvider } from './domain-provider.js'
 // - tạm dừng giữ dữ liệu, không đăng nhập (phần trung gian trả 503), không chạy việc nền (bộ lập lịch bỏ trường không phục vụ);
 // - xóa vĩnh viễn sau thời gian chờ (mặc định 30 ngày, giả định): xóa cơ sở dữ liệu, vai trò, khóa, tên miền; giữ hàng của
 //   trường ở trạng thái `deleted` kèm bản ghi chứng minh đã xóa; kho tệp, khóa Redis xóa qua hàm do lớp có hạ tầng truyền vào
-export const SCHOOL_LIFECYCLE_RULE_CODE = 'BR-205';
+export const SCHOOL_LIFECYCLE_RULE_CODE = 'BR-208';
 export const SCHOOL_LEVEL_CODES = ['MN', 'TH', 'THCS', 'THPT'] as const;
 export const CONSENT_KINDS: readonly SchoolConsentKind[] = ['dpa', 'consent', 'impact-assessment', 'risk-acceptance'];
 export const DEFAULT_DELETION_GRACE_DAYS = 30;

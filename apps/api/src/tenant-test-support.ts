@@ -90,6 +90,9 @@ export async function startMultiTenantApi(options: {
   schools?: string[];
   layout?: SchoolDatabaseLayoutValue;
   label?: string;
+  // Tên miền gốc của hệ thống (trang chọn trường) và phần cấu hình ghi đè của máy chủ API (bộ lập lịch, hạn mức)
+  rootDomain?: string;
+  configuration?: Partial<ApiConfiguration>;
 }): Promise<MultiTenantApi> {
   const schools = options.schools ?? ['alpha', 'beta'];
   const platform = await startTenantTestPlatform({
@@ -106,7 +109,9 @@ export async function startMultiTenantApi(options: {
       hosts[name] = platform.school(name).host;
     }
     const identityRuntime = platform.createRuntime();
-    const apiRuntime = platform.createRuntime();
+    const apiRuntime = platform.createRuntime(
+      options.rootDomain ? { PLATFORM_ROOT_DOMAIN: options.rootDomain } : undefined,
+    );
     identity = await startTenantTestApplication(identityRuntime);
     const base: ApiConfiguration = {
       tokenPublicKeyPem: identity.tokenPublicKeyPem,
@@ -121,6 +126,8 @@ export async function startMultiTenantApi(options: {
       exportJobIntervalSeconds: 0,
       facebookPublisher: 'development',
       zaloSender: 'development',
+      schedulerIntervalSeconds: 0,
+      ...options.configuration,
     };
     api = await createApplication(withTenantAccessors(base, apiRuntime), {
       fileStorage: new MemoryFileStorage(),

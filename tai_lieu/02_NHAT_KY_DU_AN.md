@@ -20,11 +20,11 @@
 
 - Đọc mục 14.3, 14.4, 14.5 (phần S2), 14.7, 14.9 của `32_KE_HOACH_THEO_HE_THONG_SO.md` và PL-00 của `33_HO_SO_PHAP_LY/`; rà `provisionSchool`, `SchoolDatabaseLayout`, `TenantRegistry`, `migrateToLatest`, đăng nhập vận hành nền tảng, khung `apps/platform`, gói xuất dữ liệu của 18h, cấu hình e2e nhiều trường.
 - Thêm tệp nền tảng `0020_create_school_lifecycle`, `0021_add_domain_verification`, `0022_create_school_consents` và tệp hệ thống `0050_create_terms_acceptances`; thư viện `database/src/school-lifecycle.ts` (bước setup, tiến trình khởi tạo có bước, hoàn tác, tạm dừng, mở lại, yêu cầu xóa, hủy xóa, xóa vĩnh viễn, hồ sơ đồng ý, vùng máy chủ, đổi loại dữ liệu, lời mời kích hoạt, migrate cuốn chiếu), `domain-provider.ts` (`dns-check`), `lifecycle-environment.ts`; mười một lệnh mới của `platform`; điểm cuối `/api/v1/auth/platform/schools…` và `/api/v1/auth/activate` ở dịch vụ định danh; trang Trường ở cổng nền tảng; trang Kích hoạt ở cổng quản trị; lệnh `school-lifecycle-command` (xuất, xóa vĩnh viễn kèm tệp) và `FileStorage.deletePrefix` ở máy chủ API; spec e2e 132.
-- Thêm quy tắc BR-203 đến BR-205, quyền PQ-106, chức năng P01-51 đến P01-55, màn hình MH-315 đến MH-318, kịch bản CT-999 đến CT-1008, tiêu chí AC-827 đến AC-831, bảo mật BM-76, BM-77, QĐ-26, bảng ở `16` mục 18A, giao kèo ở `17`, mục 12B của `12`; phiên bản 0.130.0.
+- Thêm quy tắc BR-206 đến BR-208, quyền PQ-106, chức năng P01-54 đến P01-58, màn hình MH-316 đến MH-319, kịch bản CT-1004 đến CT-1013, tiêu chí AC-830 đến AC-834, bảo mật BM-77, BM-78, QĐ-27, bảng ở `16` mục 18A, giao kèo ở `17`, mục 12C của `12`; phiên bản 0.131.0.
 
 #### Quyết định
 
-- Tên miền mặc định của trường là `<mã trường>.<tên miền hệ thống>` (`PLATFORM_SYSTEM_DOMAIN`), dùng ngay; tên miền riêng do người vận hành cấu hình tay, chờ kiểm tra DNS (CNAME về `PLATFORM_INGRESS_HOST` và bản ghi TXT `_school-verify.<tên miền>`) qua bộ nối `DomainProvider` (`dns-check`; `cloudflare-saas`, `vercel-domains` là của S9) theo quyết định của Eric.
+- Tên miền mặc định của trường là `<mã trường>.<tên miền hệ thống>` (`PLATFORM_ROOT_DOMAIN`), dùng ngay; tên miền riêng do người vận hành cấu hình tay, chờ kiểm tra DNS (CNAME về `PLATFORM_INGRESS_HOST` và bản ghi TXT `_school-verify.<tên miền>`) qua bộ nối `DomainProvider` (`dns-check`; `cloudflare-saas`, `vercel-domains` là của S9) theo quyết định của Eric.
 - Điểm cuối quản lý trường đặt dưới `/api/v1/auth/platform/schools` của dịch vụ định danh (nhóm không cần trường, đã có xác thực vận hành và quyền tạo cơ sở dữ liệu), không thêm dịch vụ mới.
 - Quản trị viên đầu tiên (Hiệu trưởng, VT-02) tạo với mã băm của mật khẩu ngẫu nhiên đã bỏ; nhận đường liên kết kích hoạt một lần hạn 72 giờ, chỉ lưu mã băm SHA-256; không gửi mật khẩu qua kênh nào.
 - Bằng chứng đồng ý dùng dữ liệu thật ghi ở `school_consents` và `school_hosting` theo PL-00 của S8a; chỉ lưu mã băm SHA-256 và khóa tệp của bản quét.
@@ -33,11 +33,34 @@
 
 #### Thay đổi
 
-- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-193, `07_QUY_TAC_NGHIEP_VU.md` BR-203 đến BR-205, `08_VAI_TRO_NGUOI_DUNG.md` PQ-106, `10_YEU_CAU_CHUC_NANG.md` P01-51 đến P01-55, `11_TIEU_CHI_NGHIEM_THU.md` AC-827 đến AC-831, `14_DAC_TA_GIAO_DIEN.md` MH-315 đến MH-318, `16_CO_SO_DU_LIEU.md` mục 18A, `17_DAC_TA_API.md`, `21_KICH_BAN_KIEM_THU.md` CT-999 đến CT-1008, `22_BAO_MAT.md` BM-76, BM-77, `12_KIEN_TRUC_HE_THONG.md` mục 12B, QĐ-26; phiên bản phần mềm 0.130.0.
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-193, `07_QUY_TAC_NGHIEP_VU.md` BR-206 đến BR-208, `08_VAI_TRO_NGUOI_DUNG.md` PQ-106, `10_YEU_CAU_CHUC_NANG.md` P01-54 đến P01-58, `11_TIEU_CHI_NGHIEM_THU.md` AC-830 đến AC-834, `14_DAC_TA_GIAO_DIEN.md` MH-316 đến MH-319, `16_CO_SO_DU_LIEU.md` mục 18A, `17_DAC_TA_API.md`, `21_KICH_BAN_KIEM_THU.md` CT-1004 đến CT-1013, `22_BAO_MAT.md` BM-77, BM-78, `12_KIEN_TRUC_HE_THONG.md` mục 12C, QĐ-27; phiên bản phần mềm 0.131.0.
 
 #### Vấn đề tồn đọng
 
 - Xóa vĩnh viễn và migrate cuốn chiếu chạy bằng lệnh theo lịch, chưa có bộ lập lịch của nền tảng (S1b); bản sao lưu của trường xóa theo thời hạn lưu ở S7b; bộ nối tên miền `cloudflare-saas`, `vercel-domains` làm ở S9; máy chủ API khác thấy trạng thái trường mới đổi sau `TENANT_CACHE_SECONDS`; xác thực hai lớp của tài khoản vận hành làm ở S8b.
+### 2026-10-25 — DT-SaaS phần S1b: nền đa thuê bao, phần chạy nền và công khai
+
+#### Công việc đã thực hiện
+
+- Đọc mục 14.3, 14.5 (S1b), 14.7, 14.9 của `32_KE_HOACH_THEO_HE_THONG_SO.md`; rà năm lớp việc nền, hàng đợi máy xếp và tiến trình `apps/worker`, `domain-check`, các bộ giới hạn tần suất công khai, bốn chỗ khóa Redis của dịch vụ định danh (đã đúng tiền tố từ S1a).
+- Thêm bộ lập lịch theo trường, điểm tick ngoài, hàng đợi máy xếp theo trường kèm hạn mức, domain-check theo danh mục tên miền nền tảng, trang chọn trường, giới hạn tần suất theo trường, bộ đệm ngữ cảnh trường, bảng `scheduler_state` (tệp nền tảng 0010).
+- Thêm quy tắc BR-203 đến BR-205, chức năng P01-51 đến P01-53, màn hình MH-315, kịch bản CT-999 đến CT-1003, tiêu chí AC-827 đến AC-829, bảo mật BM-76, QĐ-26.
+
+#### Quyết định
+
+- Việc đến hạn tính từ dấu thời gian ở cơ sở dữ liệu nền tảng (chiếm nguyên tử), không đếm số lần gọi: đúng với nhiều bản máy chủ và với máy chủ ngủ.
+- Việc khởi động của tiến trình (đăng ký biểu EMIS) là loại `perProcess`: kết quả chỉ nằm trong bộ nhớ của tiến trình nên không chiếm qua cơ sở dữ liệu.
+- Tên biến theo kế hoạch: `SCHEDULER_MODE=external` và `INTERNAL_JOB_TOKEN`; thêm `SCHEDULER_INTERVAL_SECONDS`, `SCHEDULER_CONCURRENCY`, `TIMETABLE_MAX_ACTIVE_RUNS`, `PLATFORM_ROOT_DOMAIN`.
+- Trang chọn trường là điểm cuối nhận mã trường (không liệt kê trường) vì danh sách khách hàng không được lộ ra công khai.
+- Không sửa khởi tạo trường (S2) và gói, giới hạn (S5a); hạn mức máy xếp là số cấu hình tạm để S5a thay.
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-192, `07_QUY_TAC_NGHIEP_VU.md` BR-203 đến BR-205, `10_YEU_CAU_CHUC_NANG.md` P01-51 đến P01-53, `11_TIEU_CHI_NGHIEM_THU.md` AC-827 đến AC-829
+
+#### Vấn đề tồn đọng
+
+- Số đo theo trường ở `/metrics`, bản trình diễn (18h) theo trường, biểu EMIS riêng từng trường chưa làm; không bật nhiều trường ở môi trường chạy thật trước S3; e2e toàn bộ do CI chạy
 
 ### 2026-10-25 — DT-SaaS phần S1a: nền đa thuê bao, phần lõi
 

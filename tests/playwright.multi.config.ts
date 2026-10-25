@@ -3,13 +3,14 @@ import { defineConfig, devices } from '@playwright/test';
 import { replaceDatabaseName, testAdminDatabaseUrl } from '@school-management/database';
 import {
   E2E_CONSOLE_HOST,
+  E2E_ROOT_DOMAIN,
+  E2E_SCHEDULER_SECRET,
   E2E_MULTI_API_PORT,
   E2E_MULTI_CONSOLE_PORT,
   E2E_MULTI_IDENTITY_PORT,
   E2E_MULTI_PORTAL_PORT,
   E2E_MULTI_STATE_FILE,
   E2E_PLATFORM_DATABASE_NAME,
-  E2E_ROOT_DOMAIN,
   E2E_SHARED_DATABASE_NAME,
   MULTI_TENANT_SPEC,
 } from './e2e-multi-environment.mjs';
@@ -37,9 +38,9 @@ const platformEnvironment: Record<string, string> = {
   TENANT_DB_LAYOUT: state.layout,
   ...(state.layout === 'schema' ? { PLATFORM_SHARED_DATABASE: E2E_SHARED_DATABASE_NAME } : {}),
   TENANT_HOST_SOURCE: 'host',
-  // Trường mới khởi tạo ở cổng nền tảng có tên miền <mã>.e2e.localhost (DT-SaaS phần S2); trạng thái trường đổi thì máy chủ
-  // API đọc lại sau 1 giây
-  PLATFORM_SYSTEM_DOMAIN: E2E_ROOT_DOMAIN,
+  // Trường mới khởi tạo ở cổng nền tảng có tên miền <mã>.e2e.localhost (DT-SaaS phần S2, dịch vụ định danh đọc tên miền hệ thống);
+  // trạng thái trường đổi thì máy chủ API đọc lại sau 1 giây
+  PLATFORM_ROOT_DOMAIN: E2E_ROOT_DOMAIN,
   TENANT_CACHE_SECONDS: '1',
 };
 // Tệp kiểm thử cũng dựng thời gian chạy nền tảng để tạo tài khoản cho từng trường
@@ -74,6 +75,10 @@ export default defineConfig({
       env: {
         ...platformEnvironment,
         API_PORT: String(E2E_MULTI_API_PORT),
+        // Phần S1b: tên miền gốc cho trang chọn trường; việc nền do spec gọi điểm tick (tắt hẹn giờ trong tiến trình) để chạy xác định
+        PLATFORM_ROOT_DOMAIN: E2E_ROOT_DOMAIN,
+        INTERNAL_JOB_TOKEN: E2E_SCHEDULER_SECRET,
+        SCHEDULER_MODE: 'external',
         IDENTITY_BASE_URL: identityBaseUrl,
         PAYMENT_GATEWAY: 'development,vietqr-static',
         FACEBOOK_PUBLISHER: 'development',

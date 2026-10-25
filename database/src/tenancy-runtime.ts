@@ -1,6 +1,8 @@
 import { AccessTokenVerifier } from '@school-management/server/access-token';
 import {
+  normalizeHost,
   parseTenantHostSource,
+  runAsSchool,
   setMultiTenantMode,
   type TenantContext,
   type TenantHostSource,
@@ -29,6 +31,9 @@ export interface TenancyConfiguration {
   sharedDatabase: string | null;
   hostSource: TenantHostSource;
   edgeSecret: string | null;
+  // Tên miền hệ thống (PLATFORM_ROOT_DOMAIN): gốc của các tên miền con `<mã trường>.<tên miền hệ thống>`; có thì trang chọn trường
+  // phục vụ ở tên miền này (DT-SaaS phần S1b)
+  rootDomain: string | null;
   connections: TenantConnectionsOptions;
   cacheSeconds: number;
 }
@@ -90,6 +95,7 @@ export function readTenancyConfiguration(env: NodeJS.ProcessEnv = process.env): 
     sharedDatabase,
     hostSource,
     edgeSecret,
+    rootDomain: normalizeHost(env.PLATFORM_ROOT_DOMAIN?.trim() || undefined) ?? null,
     connections: {
       ...(poolMax !== undefined ? { poolMax } : {}),
       // Mỗi trường dùng nhóm cho cơ sở dữ liệu định danh, hệ thống và năm học đang dùng
@@ -97,6 +103,14 @@ export function readTenancyConfiguration(env: NodeJS.ProcessEnv = process.env): 
     },
     cacheSeconds: readNumber(env, 'TENANT_CACHE_SECONDS') ?? 30,
   };
+}
+
+export interface SchoolRunResult {
+  schoolId: string;
+  schoolCode: string;
+  ok: boolean;
+  durationMilliseconds: number;
+  error?: string;
 }
 
 // Thời gian chạy của nền tảng nhiều trường: bộ phân giải, nhóm kết nối, bố cục cơ sở dữ liệu; dịch vụ định danh và máy chủ API
@@ -144,8 +158,55 @@ export class TenancyRuntime {
       if (!claims?.tenantId) {
         return null;
       }
-      return (await this.registry.loadSchool(claims.tenantId))?.context ?? null;
+      return this.registry.contextOf(claims.tenantId);
     };
+  }
+
+  // Chạy một việc cho từng trường đang phục vụ, mỗi việc trong ngữ cảnh của trường (DT-SaaS phần S1b, tài liệu 32 mục 14.5): bỏ qua
+  // trường tạm dừng hoặc đang khởi tạo; trường lỗi không chặn trường khác; số trường chạy song song giới hạn, mỗi trường lệch một
+  // khoảng ngẫu nhiên để các trường không dồn cùng lúc
+  async forEachServingSchool(
+    work: (tenant: TenantContext) => Promise<void>,
+    options: { concurrency?: number; jitterMilliseconds?: number } = {},
+  ): Promise<SchoolRunResult[]> {
+    const ids = await this.registry.listServingSchoolIds();
+    const results: SchoolRunResult[] = [];
+    const concurrency = Math.max(1, options.concurrency ?? 2);
+    const jitter = options.jitterMilliseconds ?? 0;
+    let next = 0;
+    const worker = async (): Promise<void> => {
+      while (next < ids.length) {
+        const id = ids[next] as string;
+        next += 1;
+        const tenant = await this.registry.contextOf(id).catch(() => null);
+        if (!tenant) {
+          continue;
+        }
+        if (jitter > 0) {
+          await new Promise((resolve) => setTimeout(resolve, Math.floor(Math.random() * jitter)));
+        }
+        const started = Date.now();
+        try {
+          await runAsSchool(tenant, () => work(tenant));
+          results.push({
+            schoolId: tenant.schoolId,
+            schoolCode: tenant.code,
+            ok: true,
+            durationMilliseconds: Date.now() - started,
+          });
+        } catch (error) {
+          results.push({
+            schoolId: tenant.schoolId,
+            schoolCode: tenant.code,
+            ok: false,
+            durationMilliseconds: Date.now() - started,
+            error: error instanceof Error ? error.message : String(error),
+          });
+        }
+      }
+    };
+    await Promise.all(Array.from({ length: Math.min(concurrency, ids.length) }, () => worker()));
+    return results.sort((a, b) => a.schoolCode.localeCompare(b.schoolCode));
   }
 
   private requireLayout(): SchoolDatabaseLayout {
@@ -205,6 +266,53 @@ export class TenancyRuntime {
     // Đóng kết nối cũ để kết nối mới nhận chế độ chỉ đọc hoặc ghi
     await this.connections.close(tenant, 'school-year', name);
     await this.registry.loadSchool(tenant.schoolId);
+  }
+
+  // Tên miền có được phục vụ không, cho điểm kiểm tra cấp chứng chỉ theo yêu cầu (DT-SaaS phần S1b; Caddy on-demand TLS hay Cloudflare for
+  // SaaS hỏi trước khi cấp): tên miền gốc của hệ thống, hoặc tên miền đã xác minh/đang dùng của trường chưa bị xóa hay đang khởi tạo
+  async isServedHost(host: string): Promise<boolean> {
+    const normalized = normalizeHost(host);
+    if (!normalized) {
+      return false;
+    }
+    if (this.configuration.rootDomain && normalized === this.configuration.rootDomain) {
+      return true;
+    }
+    const row = await this.platform
+      .selectFrom('school_domains')
+      .innerJoin('schools', 'schools.id', 'school_domains.school_id')
+      .select('school_domains.id')
+      .where('school_domains.host', '=', normalized)
+      .where('school_domains.status', 'in', ['verified', 'active'])
+      .where('schools.status', 'in', ['trial', 'active', 'read_only', 'suspended'])
+      .executeTakeFirst();
+    return row !== undefined;
+  }
+
+  // Trang chọn trường ở tên miền gốc: nhập mã trường, nhận địa chỉ của trường. Chỉ trả khi trường đang phục vụ; không liệt kê trường
+  async resolveSchoolAddress(code: string): Promise<string | null> {
+    const root = this.configuration.rootDomain;
+    const normalized = code.trim().toLowerCase();
+    if (!root || !/^[a-z0-9][a-z0-9-]{0,62}$/.test(normalized)) {
+      return null;
+    }
+    const school = await this.platform
+      .selectFrom('schools')
+      .select('id')
+      .where('code', '=', normalized)
+      .where('status', 'in', ['trial', 'active', 'read_only'])
+      .executeTakeFirst();
+    if (!school) {
+      return null;
+    }
+    const domain = await this.platform
+      .selectFrom('school_domains')
+      .select('host')
+      .where('school_id', '=', school.id)
+      .where('status', '=', 'active')
+      .orderBy('kind', 'asc')
+      .executeTakeFirst();
+    return domain ? `https://${domain.host}/` : null;
   }
 
   async close(): Promise<void> {

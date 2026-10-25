@@ -1,5 +1,6 @@
 import {
   GENERATION_QUEUE_KEY,
+  decodeGenerationQueueItem,
   GENERATION_TTL_SECONDS,
   generationCancelKey,
   generationJobKey,
@@ -24,24 +25,36 @@ export interface GenerationQueue extends GenerationStore {
 
 type Solve = typeof solveTimetable;
 
-async function writeState(store: GenerationStore, runId: string, state: Omit<GenerationState, 'updated_at'>) {
+async function writeState(
+  store: GenerationStore,
+  runId: string,
+  state: Omit<GenerationState, 'updated_at'>,
+  keyPrefix: string,
+) {
   const value: GenerationState = { ...state, updated_at: new Date().toISOString() };
-  await store.set(generationStateKey(runId), JSON.stringify(value), 'EX', GENERATION_TTL_SECONDS);
+  await store.set(generationStateKey(runId, keyPrefix), JSON.stringify(value), 'EX', GENERATION_TTL_SECONDS);
 }
 
-export async function runGenerationJob(store: GenerationStore, runId: string, solve: Solve = solveTimetable) {
+// keyPrefix là tiền tố khóa của trường (DT-SaaS phần S1b), đọc từ phần tử hàng đợi; trống là trường số 1 hoặc chế độ một trường
+export async function runGenerationJob(
+  store: GenerationStore,
+  runId: string,
+  solve: Solve = solveTimetable,
+  keyPrefix = '',
+) {
+  const write = (state: Omit<GenerationState, 'updated_at'>) => writeState(store, runId, state, keyPrefix);
   const base = { percent: 0, variant: 0, variant_count: 0, best_score: null, best_hard: null, message: null };
-  const text = await store.get(generationJobKey(runId));
+  const text = await store.get(generationJobKey(runId, keyPrefix));
   if (!text) {
-    await writeState(store, runId, { ...base, status: 'failed', message: 'Không tìm thấy đề bài của lần xếp' });
+    await write({ ...base, status: 'failed', message: 'Không tìm thấy đề bài của lần xếp' });
     return;
   }
-  if (await store.get(generationCancelKey(runId))) {
-    await writeState(store, runId, { ...base, status: 'cancelled', message: 'Đã huỷ trước khi chạy' });
+  if (await store.get(generationCancelKey(runId, keyPrefix))) {
+    await write({ ...base, status: 'cancelled', message: 'Đã huỷ trước khi chạy' });
     return;
   }
   const job = JSON.parse(text) as GenerationJob;
-  await writeState(store, runId, { ...base, status: 'running', variant_count: job.variant_count });
+  await write({ ...base, status: 'running', variant_count: job.variant_count });
   let result: SolverResult;
   try {
     result = await solve(job.input, {
@@ -49,7 +62,7 @@ export async function runGenerationJob(store: GenerationStore, runId: string, so
       variant_count: job.variant_count,
       seed: job.seed,
       on_progress: async (progress) => {
-        await writeState(store, runId, {
+        await write({
           status: 'running',
           percent: progress.percent,
           variant: progress.variant,
@@ -58,20 +71,20 @@ export async function runGenerationJob(store: GenerationStore, runId: string, so
           best_hard: progress.best_hard,
           message: null,
         });
-        return Boolean(await store.get(generationCancelKey(runId)));
+        return Boolean(await store.get(generationCancelKey(runId, keyPrefix)));
       },
     });
   } catch (error) {
-    await writeState(store, runId, {
+    await write({
       ...base,
       status: 'failed',
       message: `Máy xếp lỗi: ${error instanceof Error ? error.message : String(error)}`,
     });
     return;
   }
-  await store.set(generationResultKey(runId), JSON.stringify(result), 'EX', GENERATION_TTL_SECONDS);
+  await store.set(generationResultKey(runId, keyPrefix), JSON.stringify(result), 'EX', GENERATION_TTL_SECONDS);
   const best = result.variants[0];
-  await writeState(store, runId, {
+  await write({
     status: result.status === 'stopped' ? 'cancelled' : 'completed',
     percent: 100,
     variant: result.variants.length,
@@ -100,10 +113,10 @@ export async function consumeGenerationQueue(
       continue;
     }
     if (!item) continue;
-    const runId = item[1];
+    const { runId, keyPrefix } = decodeGenerationQueueItem(item[1]);
     log.log(`Bắt đầu xếp thời khoá biểu ${runId}`);
     try {
-      await runGenerationJob(queue, runId);
+      await runGenerationJob(queue, runId, solveTimetable, keyPrefix);
     } catch (error) {
       log.error(`Lần xếp ${runId} lỗi`, error);
     }
