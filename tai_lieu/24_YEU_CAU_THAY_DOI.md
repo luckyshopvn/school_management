@@ -27,7 +27,7 @@ Các thay đổi trước phiên bản 0.4.0 chưa có sổ này; xem `23_LICH_S
 - Quyền bị ảnh hưởng: không thêm quyền; Cho phép hỗ trợ dùng P01.account.manage; trang của cổng nền tảng dùng tài khoản vận hành (PQ-105).
 - Ảnh hưởng chức năng cũ: không ở chế độ một trường; phiên đăng nhập thường không đổi.
 - Kiểm thử cần thực hiện: kiểm thử đơn vị `database`, `apps/identity`, `apps/api`; kiểm tra tĩnh nền đa thuê bao; `pnpm lint`; e2e spec 136 ở dự án nhiều trường; CI chạy toàn bộ e2e.
-- Trạng thái: Đã triển khai (PR (chưa mở))
+- Trạng thái: Đã triển khai (PR 172)
 
 ### YCTD-194: DT-SaaS phần S5a: gói dịch vụ và giới hạn – 2026-10-25
 
