@@ -29,7 +29,7 @@ Các thay đổi trước phiên bản 0.4.0 chưa có sổ này; xem `23_LICH_S
 - Quyền bị ảnh hưởng: PQ-107 (`P01.billing.manage` cho VT-01, VT-02); trang Thu phí dùng tài khoản vận hành (PQ-105).
 - Ảnh hưởng chức năng cũ: không ở chế độ một trường (thu phí chỉ có ở nền tảng nhiều trường); trường chưa gán gói, gói không có giá không phát sinh hóa đơn.
 - Kiểm thử cần thực hiện: kiểm thử đơn vị `database`, `apps/api`, `apps/identity`; kiểm tĩnh; e2e spec 135 và 130, 131, 134 ở dự án nhiều trường; các spec menu ở dự án một trường; CI chạy toàn bộ e2e.
-- Trạng thái: Đã triển khai (PR …)
+- Trạng thái: Đã triển khai (PR 174)
 
 ### YCTD-201: DT-SaaS phần S8b: bảo mật mã – 2026-10-25
 
