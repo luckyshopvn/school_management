@@ -20,6 +20,7 @@ import type { CurrentUser } from '../authentication/current-user.js';
 import { ClassCapacity } from '../classes/class-capacity.js';
 import { writeAuditLog, type ChangeOrigin } from '../common/audit-log.js';
 import { ChildDataProtection, maskNationalId } from '../common/child-data-protection.js';
+import { assertStudentCapacity } from '../common/plan-limits.js';
 import { CurrentSchoolYearResolver } from '../common/current-school-year.js';
 import { writeDataAccessLog } from '../common/data-access-log.js';
 import { queueNotification } from '../common/notification-queue.js';
@@ -599,6 +600,8 @@ export class ChildrenService {
     if (child.status !== 'pending') {
       throw ruleViolationError('QT-01', 'Chỉ duyệt được hồ sơ đang chờ duyệt');
     }
+    // Gói dịch vụ giới hạn số học sinh đang học (DT-SaaS phần S5a)
+    await assertStudentCapacity(database, 1);
     const targetClass = await this.findActiveClass(database, input.classId);
     // Lớp ở đơn vị khác thì người duyệt cũng phải có quyền ở đơn vị đó; đơn vị của trẻ là đơn vị của lớp (BR-03, QĐ-14)
     await this.organizationScopes.assertCanAccess(currentUser, PERMISSION_CODES.childApprove, targetClass.org_unit_id);

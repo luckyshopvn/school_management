@@ -345,6 +345,8 @@ export type {
   PlatformAuditActorType,
   PlatformDatabase,
   PlatformOperatorStatus,
+  PlanBillingCycleValue,
+  PlanPricingModeValue,
   SchoolDataClassValue,
   SchoolDatabaseKind,
   SchoolDatabaseLayoutValue,
@@ -391,6 +393,21 @@ export {
 } from './tenancy-runtime.js';
 export { testAdminDatabaseUrl } from './test-admin.js';
 export {
+  addDays,
+  applyPlanLifecycle,
+  asDateText,
+  daysBetween,
+  decideLifecycle,
+  DEFAULT_PLAN_LIFECYCLE,
+  loadCurrentPlan,
+  readPlanLifecycleSettings,
+  vietnamDate,
+  type LifecycleChange,
+  type LifecycleDecision,
+  type LifecycleReminder,
+  type PlanLifecycleSettings,
+} from './school-plans.js';
+export {
   startTenantTestPlatform,
   textExistsInSchoolDatabase,
   type TenantTestPlatform,
@@ -402,4 +419,4 @@ export {
   type AdoptExistingOptions,
   type AdoptResult,
 } from './adopt-existing.js';
-export type { TenantContext } from '@school-management/server/tenancy';
+export type { TenantContext, TenantPlan } from '@school-management/server/tenancy';

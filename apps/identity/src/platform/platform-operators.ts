@@ -64,6 +64,11 @@ export class PlatformOperatorsService {
     return this.tenancy.platform;
   }
 
+  // Cơ sở dữ liệu nền tảng cho các trang khác của cổng (S5a gói dịch vụ); chế độ một trường thì 404
+  platformDatabase(): Kysely<PlatformDatabase> {
+    return this.platform();
+  }
+
   // Cổng nền tảng chỉ phục vụ ở tên miền riêng của nó; tên miền khác (kể cả tên miền của một trường) không thấy cổng này
   assertConsoleHost(request: Request): void {
     const consoleHost = normalizeHost(this.configuration.platformConsoleHost ?? undefined);

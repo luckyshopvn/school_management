@@ -26,4 +26,12 @@ export const PUBLIC_ROUTES: PublicRoute[] = [
   { method: 'POST', path: '/api/v1/auth/password-reset/request', reason: SIGN_IN },
   { method: 'POST', path: '/api/v1/auth/platform/login', reason: PLATFORM },
   { method: 'GET', path: '/api/v1/auth/platform/me', reason: PLATFORM },
+  // Gói dịch vụ ở cổng nền tảng (DT-SaaS phần S5a): cùng điều kiện tên miền cổng và mã phiên vận hành
+  { method: 'GET', path: '/api/v1/auth/platform/plan-modules', reason: PLATFORM },
+  { method: 'GET', path: '/api/v1/auth/platform/plans', reason: PLATFORM },
+  { method: 'POST', path: '/api/v1/auth/platform/plans', reason: PLATFORM },
+  { method: 'PUT', path: '/api/v1/auth/platform/plans/:id', reason: PLATFORM },
+  { method: 'GET', path: '/api/v1/auth/platform/plan-schools', reason: PLATFORM },
+  { method: 'PUT', path: '/api/v1/auth/platform/plan-schools/:id', reason: PLATFORM },
+  { method: 'POST', path: '/api/v1/auth/platform/plan-lifecycle', reason: PLATFORM },
 ];

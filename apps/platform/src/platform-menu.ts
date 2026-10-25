@@ -5,4 +5,8 @@ export interface PlatformMenuItem {
   label: string;
 }
 
-export const PLATFORM_MENU: readonly PlatformMenuItem[] = [{ key: 'overview', label: 'Tổng quan' }];
+export const PLATFORM_MENU: readonly PlatformMenuItem[] = [
+  { key: 'overview', label: 'Tổng quan' },
+  // Gói dịch vụ và giới hạn (S5a)
+  { key: 'plans', label: 'Gói dịch vụ' },
+];

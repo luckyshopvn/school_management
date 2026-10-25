@@ -57,6 +57,8 @@ export default defineConfig({
       env: {
         ...platformEnvironment,
         IDENTITY_PORT: String(E2E_MULTI_IDENTITY_PORT),
+        // Spec 134 (S5a) đổi gói, trạng thái trường ở cơ sở dữ liệu nền tảng giữa chừng: nạp lại ngữ cảnh trường sau 2 giây
+        TENANT_CACHE_SECONDS: '2',
         API_BASE_URL: apiBaseUrl,
         LOGIN_REQUESTS_PER_MINUTE: '60',
         PLATFORM_CONSOLE_HOST: E2E_CONSOLE_HOST,
@@ -68,6 +70,7 @@ export default defineConfig({
       env: {
         ...platformEnvironment,
         API_PORT: String(E2E_MULTI_API_PORT),
+        TENANT_CACHE_SECONDS: '2',
         IDENTITY_BASE_URL: identityBaseUrl,
         PAYMENT_GATEWAY: 'development,vietqr-static',
         FACEBOOK_PUBLISHER: 'development',

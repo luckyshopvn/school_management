@@ -7,6 +7,7 @@ import {
 import type { Kysely } from 'kysely';
 import type { PlatformDatabase, SchoolDatabaseKind } from '../platform/schema.js';
 import { connectionStringOf, type DatabaseDescriptor } from './school-database-layout.js';
+import { asDateText, loadCurrentPlan, vietnamDate } from './school-plans.js';
 
 // Bộ phân giải tên miền thành trường của nền tảng nhiều trường (DT-SaaS phần S1a): đọc cơ sở dữ liệu nền tảng, giữ trong bộ
 // nhớ ngữ cảnh trường, mô tả kết nối từng cơ sở dữ liệu và khóa của trường, làm mới sau một thời gian ngắn
@@ -100,6 +101,9 @@ export class TenantRegistry implements TenantResolver {
       dataClass: school.data_class,
       keyPrefix: school.key_prefix,
       yearDatabasePrefix: school.year_database_prefix,
+      plan: await loadCurrentPlan(this.platform, school.id, vietnamDate(new Date(this.now()))),
+      trialEndsOn: asDateText(school.trial_ends_on),
+      paidUntil: asDateText(school.paid_until),
       ...(keys
         ? {
             childDataEncryptionKey: Buffer.from(

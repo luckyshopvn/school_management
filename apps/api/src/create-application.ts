@@ -2,7 +2,14 @@ import 'reflect-metadata';
 import { NestFactory } from '@nestjs/core';
 import type { INestApplication, Type } from '@nestjs/common';
 import type { TenancyRuntime } from '@school-management/database';
-import { Clock, createTenantMiddleware, ErrorFilter, SystemClock } from '@school-management/server';
+import {
+  Clock,
+  createSchoolReadOnlyMiddleware,
+  createTenantMiddleware,
+  ErrorFilter,
+  isApiWriteAllowedWhenReadOnly,
+  SystemClock,
+} from '@school-management/server';
 import { API_VERSION_PREFIX } from '@school-management/shared';
 import type { AcademicYearTransitionStep } from './academic-years/academic-year-transition.js';
 import { ApplicationModule } from './application.module.js';
@@ -41,6 +48,8 @@ export async function createApplication(
         resolveByToken: tenancy.tokenTenantResolver(configuration.tokenPublicKeyPem, () => clock.now()),
       }),
     );
+    // Trường quá hạn ở chế độ chỉ đọc: chặn yêu cầu ghi (DT-SaaS phần S5a)
+    application.use(createSchoolReadOnlyMiddleware({ isAllowedWrite: isApiWriteAllowedWhenReadOnly }));
   }
   application.setGlobalPrefix(API_VERSION_PREFIX.slice(1));
   application.useGlobalFilters(new ErrorFilter());

@@ -12,6 +12,7 @@ export {
   type SchoolDataClass,
   type SchoolStatus,
   type TenantContext,
+  type TenantPlan,
 } from './tenant-context.js';
 export { DEFAULT_RESERVED_SCHOOL_CODES, SCHOOL_CODE_PATTERN, validateSchoolCode } from './school-code.js';
 export {
@@ -29,3 +30,9 @@ export {
   type TenantMiddlewareOptions,
   type TenantResolver,
 } from './tenant-middleware.js';
+export {
+  createSchoolReadOnlyMiddleware,
+  isApiWriteAllowedWhenReadOnly,
+  isIdentityWriteAllowedWhenReadOnly,
+  type ReadOnlyMiddlewareOptions,
+} from './school-plan-middleware.js';

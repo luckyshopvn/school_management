@@ -6,6 +6,7 @@ import type { Kysely, Transaction } from 'kysely';
 import { IdentityClient } from '../authentication/identity-client.js';
 import type { CurrentUser } from '../authentication/current-user.js';
 import { writeAuditLog, type ChangeOrigin } from '../common/audit-log.js';
+import { assertStudentCapacity } from '../common/plan-limits.js';
 import { ChildDataProtection } from '../common/child-data-protection.js';
 import { queueNotification } from '../common/notification-queue.js';
 import { nextDocumentCode } from '../fees/document-codes.js';
@@ -465,6 +466,10 @@ export class MoetImports {
   ): Promise<string[]> {
     const childIds: string[] = [];
     const accounts = new Map<string, { userId: string; created: boolean }>();
+    // Gói dịch vụ giới hạn số học sinh đang học (DT-SaaS phần S5a): hồ sơ mới vào thẳng trạng thái đang học (trừ hồ sơ nháp)
+    if (options.asDraft !== true) {
+      await assertStudentCapacity(database, plans.filter((plan) => !plan.existing_id).length);
+    }
     for (const plan of plans) {
       for (const guardian of plan.guardians) {
         if (guardian.phone && guardian.full_name && !accounts.has(guardian.phone)) {

@@ -4,6 +4,7 @@ import { createDatabase } from './connection.js';
 import { readConnectionString } from './environment.js';
 import { migrateToLatest } from './migrate.js';
 import { readMasterKey } from './tenancy-runtime.js';
+import { applyPlanLifecycle } from './school-plans.js';
 import type { PlatformDatabase } from '../platform/schema.js';
 
 // Lệnh quản trị nền tảng nhiều trường (DT-SaaS phần S1a, tài liệu 32 mục 14.5):
@@ -13,6 +14,8 @@ import type { PlatformDatabase } from '../platform/schema.js';
 //                               nhận bản triển khai đang chạy làm trường số 1: dùng lại cơ sở dữ liệu hiện có (không đổi tên,
 //                               không chép dữ liệu); khóa dữ liệu trẻ lấy từ CHILD_DATA_ENCRYPTION_KEY, CHILD_DATA_HASH_KEY;
 //                               tên miền lấy từ --domains hoặc PORTAL_SITE, PARENT_SITE, TEACHER_SITE, API_SITE; chạy lặp được
+//   plan-lifecycle              chuyển trạng thái trường theo hạn dùng thử, hạn đã trả phí (S5a): chỉ đọc, tạm ngưng; in trường cần
+//                               nhắc; chạy lặp được trong ngày (S1b gọi cùng hàm từ bộ lập lịch)
 
 function readOption(args: string[], name: string): string | undefined {
   const index = args.indexOf(`--${name}`);
@@ -44,6 +47,22 @@ async function main(): Promise<void> {
       throw error;
     }
     console.log('platform: đã ở phiên bản cấu trúc mới nhất');
+    return;
+  }
+  if (command === 'plan-lifecycle') {
+    const platform = createDatabase<PlatformDatabase>(readConnectionString('platform'), { max: 2 });
+    try {
+      const { changes, reminders } = await applyPlanLifecycle(platform, new Date(), { type: 'cli' });
+      for (const change of changes) {
+        console.log(`${change.code}: ${change.from} → ${change.to} (hạn ${change.dueOn ?? '—'})`);
+      }
+      for (const reminder of reminders) {
+        console.log(`${reminder.code}: còn ${reminder.daysLeft} ngày (hạn ${reminder.dueOn})`);
+      }
+      console.log(`Đã chuyển trạng thái ${changes.length} trường, ${reminders.length} trường cần nhắc`);
+    } finally {
+      await platform.destroy();
+    }
     return;
   }
   if (command === 'adopt-existing') {

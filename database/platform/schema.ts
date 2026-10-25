@@ -37,6 +37,10 @@ export interface SchoolsTable {
   notes: string | null;
   created_at: CreatedTimestamp;
   updated_at: UpdatedTimestamp;
+  // Gói dịch vụ (S5a): hạn dùng thử, hạn đã trả phí, thời điểm đổi trạng thái
+  trial_ends_on: ColumnType<string | null, string | null | undefined, string | null>;
+  paid_until: ColumnType<string | null, string | null | undefined, string | null>;
+  status_changed_at: Date | null;
 }
 
 export interface SchoolDomainsTable {
@@ -107,6 +111,42 @@ export interface PlatformAuditLogTable {
   ip_address: string | null;
 }
 
+// Gói dịch vụ và gán gói cho trường (DT-SaaS phần S5a)
+export type PlanPricingModeValue = 'per_student' | 'per_school' | 'per_module';
+export type PlanBillingCycleValue = 'monthly' | 'term' | 'yearly';
+
+export interface PlansTable {
+  id: Generated<string>;
+  code: string;
+  name: string;
+  description: string | null;
+  // Mảng mã phân hệ; null là mọi phân hệ
+  modules: ColumnType<string[] | null, string | null | undefined, string | null>;
+  max_active_students: number | null;
+  max_storage_mb: number | null;
+  max_school_levels: number | null;
+  trial_days: Generated<number>;
+  pricing_mode: Generated<PlanPricingModeValue>;
+  unit_price: ColumnType<string, number | undefined, number>;
+  minimum_fee: ColumnType<string, number | undefined, number>;
+  module_prices: ColumnType<Record<string, number>, string | undefined, string>;
+  billing_cycle: Generated<PlanBillingCycleValue>;
+  status: Generated<'active' | 'archived'>;
+  created_at: CreatedTimestamp;
+  updated_at: UpdatedTimestamp;
+}
+
+export interface SchoolPlansTable {
+  id: Generated<string>;
+  school_id: string;
+  plan_id: string;
+  effective_from: ColumnType<string, string, string>;
+  effective_to: ColumnType<string | null, string | null | undefined, string | null>;
+  assigned_by: string | null;
+  note: string | null;
+  created_at: CreatedTimestamp;
+}
+
 export interface PlatformDatabase {
   school_clusters: SchoolClustersTable;
   schools: SchoolsTable;
@@ -116,4 +156,6 @@ export interface PlatformDatabase {
   platform_settings: PlatformSettingsTable;
   platform_operators: PlatformOperatorsTable;
   platform_audit_log: PlatformAuditLogTable;
+  plans: PlansTable;
+  school_plans: SchoolPlansTable;
 }
