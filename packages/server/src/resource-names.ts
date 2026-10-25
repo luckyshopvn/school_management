@@ -2,6 +2,8 @@
 // chạy nhiều trường (DT-SaaS) chỉ cần thêm tiền tố của trường ở đây, mã nghiệp vụ không tự ghép đường dẫn. Mỗi phần là một
 // đoạn không rỗng, không có dấu "/" hay ":" để hai phần ghép không thành khóa của chỗ khác. Các phân hệ cũ ghép tay sẽ
 // chuyển dần sang hàm này
+import { requireTenant } from './tenant-context.js';
+
 const PART_PATTERN = /^[A-Za-z0-9._-]+$/;
 
 function checkedParts(parts: string[]): string[] {
@@ -11,12 +13,17 @@ function checkedParts(parts: string[]): string[] {
   return parts;
 }
 
-// Khóa của một tệp ở kho tệp, ví dụ storageKey('incoming-documents', documentId, fileId)
+// Khóa của một tệp ở kho tệp, ví dụ storageKey('incoming-documents', documentId, fileId). Ở chế độ nhiều trường khóa có tiền
+// tố của trường (`tenants/<mã>/...`) lấy từ ngữ cảnh; thiếu ngữ cảnh là lỗi. Trường số 1 có tiền tố trống nên khóa hiện có còn đúng
 export function storageKey(...parts: string[]): string {
-  return checkedParts(parts).join('/');
+  const tenant = requireTenant('kho tệp');
+  const prefix = tenant?.keyPrefix ? ['tenants', tenant.keyPrefix] : [];
+  return checkedParts([...prefix, ...parts]).join('/');
 }
 
-// Khóa ở bộ nhớ đệm, ví dụ cacheKey('incoming-documents', 'counts', userId)
+// Khóa ở bộ nhớ đệm, ví dụ cacheKey('incoming-documents', 'counts', userId); ở chế độ nhiều trường có tiền tố `t:<mã>`
 export function cacheKey(...parts: string[]): string {
-  return checkedParts(parts).join(':');
+  const tenant = requireTenant('bộ nhớ đệm');
+  const prefix = tenant?.keyPrefix ? ['t', tenant.keyPrefix] : [];
+  return checkedParts([...prefix, ...parts]).join(':');
 }

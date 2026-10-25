@@ -1,17 +1,19 @@
 import { Migrator, type Migration, type MigrationResultSet } from 'kysely/migration';
 import { identityMigrations } from '../identity/index.js';
+import { platformMigrations } from '../platform/index.js';
 import { schoolYearMigrations } from '../school-year/index.js';
 import { systemMigrations } from '../system/index.js';
 import type { Kysely } from 'kysely';
 import type { SystemDatabase } from '../system/schema.js';
 import { createDatabase } from './connection.js';
 
-export type DatabaseKind = 'identity' | 'system' | 'school-year';
+export type DatabaseKind = 'identity' | 'system' | 'school-year' | 'platform';
 
 const migrationsByKind: Record<DatabaseKind, Record<string, Migration>> = {
   identity: identityMigrations,
   system: systemMigrations,
   'school-year': schoolYearMigrations,
+  platform: platformMigrations,
 };
 
 // Chạy các tệp thay đổi cấu trúc chưa chạy; chạy lại nhiều lần không gây lỗi (QU-01)

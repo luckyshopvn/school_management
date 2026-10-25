@@ -113,6 +113,8 @@ export interface ObjectStorageSettings {
 }
 
 export const API_CONFIGURATION = Symbol('API_CONFIGURATION');
+// Thời gian chạy nền tảng nhiều trường (DT-SaaS phần S1a); null ở chế độ một trường
+export const TENANCY_RUNTIME = Symbol('TENANCY_RUNTIME');
 
 function readRequired(name: string): string {
   const value = process.env[name];
@@ -130,15 +132,18 @@ export function readKey(name: string): Buffer {
   return key;
 }
 
-export function readConfigurationFromEnvironment(): ApiConfiguration {
+// Ở chế độ nhiều trường (có PLATFORM_DATABASE_URL) địa chỉ cơ sở dữ liệu hệ thống, tiền tố năm học và khóa dữ liệu trẻ là của từng
+// trường nên không đọc ở đây; withTenantAccessors thay bằng thuộc tính đọc theo ngữ cảnh của yêu cầu
+export function readConfigurationFromEnvironment(options: { multiTenant?: boolean } = {}): ApiConfiguration {
   const paymentGateways = readPaymentGateways(process.env.PAYMENT_GATEWAY);
+  const multiTenant = options.multiTenant ?? Boolean(process.env.PLATFORM_DATABASE_URL?.trim());
   return {
     tokenPublicKeyPem: decodeBase64Key(readRequired('TOKEN_PUBLIC_KEY')),
     identityBaseUrl: readRequired('IDENTITY_BASE_URL'),
-    systemDatabaseUrl: readRequired('SYSTEM_DATABASE_URL'),
+    systemDatabaseUrl: multiTenant ? '' : readRequired('SYSTEM_DATABASE_URL'),
     schoolYearDatabasePrefix: process.env.SCHOOL_YEAR_DATABASE_PREFIX ?? 'school_year_',
-    childDataEncryptionKey: readKey('CHILD_DATA_ENCRYPTION_KEY'),
-    childDataHashKey: readKey('CHILD_DATA_HASH_KEY'),
+    childDataEncryptionKey: multiTenant ? Buffer.alloc(0) : readKey('CHILD_DATA_ENCRYPTION_KEY'),
+    childDataHashKey: multiTenant ? Buffer.alloc(0) : readKey('CHILD_DATA_HASH_KEY'),
     objectStorage: {
       endpoint: readRequired('S3_ENDPOINT'),
       region: process.env.S3_REGION ?? 'us-east-1',

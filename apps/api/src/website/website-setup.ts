@@ -162,16 +162,17 @@ const SAMPLE_POSTS = [
 
 @Injectable()
 export class WebsiteSetupService {
-  private readonly system;
+  // Đọc theo từng lần dùng để đúng trường trong ngữ cảnh ở chế độ nhiều trường (DT-SaaS phần S1a)
+  private get system() {
+    return this.databases.system;
+  }
 
   constructor(
-    databases: Databases,
+    private readonly databases: Databases,
     private readonly fileStorage: FileStorage,
     private readonly clock: Clock,
     private readonly schoolLevels: SchoolLevelResolver,
-  ) {
-    this.system = databases.system;
-  }
+  ) {}
 
   async settings() {
     const settings = await this.system

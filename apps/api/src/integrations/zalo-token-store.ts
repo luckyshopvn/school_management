@@ -35,13 +35,22 @@ export class ZaloTokenStore {
   private readonly fetcher: FetchFunction;
   private readonly now: () => Date;
 
+  // Cơ sở dữ liệu và khóa có thể là hàm để đọc theo từng lần dùng (nhiều trường: theo trường trong ngữ cảnh, DT-SaaS phần S1a)
   constructor(
-    private readonly system: Kysely<SystemDatabase>,
-    private readonly encryptionKey: Buffer,
+    private readonly systemSource: Kysely<SystemDatabase> | (() => Kysely<SystemDatabase>),
+    private readonly keySource: Buffer | (() => Buffer),
     private readonly options: ZaloTokenStoreOptions,
   ) {
     this.fetcher = options.fetcher ?? ((input, init) => fetch(input, init));
     this.now = options.now ?? (() => new Date());
+  }
+
+  private get system(): Kysely<SystemDatabase> {
+    return typeof this.systemSource === 'function' ? this.systemSource() : this.systemSource;
+  }
+
+  private get encryptionKey(): Buffer {
+    return typeof this.keySource === 'function' ? this.keySource() : this.keySource;
   }
 
   // Khóa truy cập còn hạn; sắp hết hạn thì làm mới trước

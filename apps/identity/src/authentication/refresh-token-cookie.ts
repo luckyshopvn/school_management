@@ -1,6 +1,6 @@
 import type { Request, Response } from 'express';
 import { API_VERSION_PREFIX } from '@school-management/shared';
-import type { Clock } from '@school-management/server';
+import { currentTenant, type Clock } from '@school-management/server';
 import type { SessionChannel } from '@school-management/database';
 
 // Mã làm mới gửi cho trình duyệt bằng cookie httpOnly, SameSite=Strict, Secure (BM-71).
@@ -12,6 +12,13 @@ const REFRESH_TOKEN_COOKIE_NAMES: Record<SessionChannel, string> = {
 };
 const COOKIE_PATH = `${API_VERSION_PREFIX}/auth`;
 
+// Nhiều trường: tên cookie có mã trường, nên cookie đặt từ tên miền của trường khác (các trường là tên miền anh em của cùng tên
+// miền hệ thống) không bao giờ được đọc như mã làm mới của trường này (DT-SaaS phần S1a)
+function cookieName(channel: SessionChannel): string {
+  const tenant = currentTenant();
+  return tenant ? `${REFRESH_TOKEN_COOKIE_NAMES[channel]}__${tenant.code}` : REFRESH_TOKEN_COOKIE_NAMES[channel];
+}
+
 export function setRefreshTokenCookie(
   response: Response,
   channel: SessionChannel,
@@ -19,7 +26,7 @@ export function setRefreshTokenCookie(
   expiresAt: Date,
   clock: Clock,
 ): void {
-  response.cookie(REFRESH_TOKEN_COOKIE_NAMES[channel], refreshToken, {
+  response.cookie(cookieName(channel), refreshToken, {
     httpOnly: true,
     secure: true,
     sameSite: 'strict',
@@ -29,7 +36,7 @@ export function setRefreshTokenCookie(
 }
 
 export function clearRefreshTokenCookie(response: Response, channel: SessionChannel): void {
-  response.clearCookie(REFRESH_TOKEN_COOKIE_NAMES[channel], {
+  response.clearCookie(cookieName(channel), {
     httpOnly: true,
     secure: true,
     sameSite: 'strict',
@@ -44,7 +51,7 @@ export function readRefreshTokenCookie(request: Request, channel: SessionChannel
   }
   for (const part of header.split(';')) {
     const separatorIndex = part.indexOf('=');
-    if (separatorIndex > 0 && part.slice(0, separatorIndex).trim() === REFRESH_TOKEN_COOKIE_NAMES[channel]) {
+    if (separatorIndex > 0 && part.slice(0, separatorIndex).trim() === cookieName(channel)) {
       return decodeURIComponent(part.slice(separatorIndex + 1).trim());
     }
   }

@@ -69,17 +69,18 @@ class SiteNotFound {
 
 @Injectable()
 export class WebsitePublicService {
-  private readonly system;
+  // Đọc theo từng lần dùng để đúng trường trong ngữ cảnh ở chế độ nhiều trường (DT-SaaS phần S1a)
+  private get system() {
+    return this.databases.system;
+  }
 
   constructor(
-    databases: Databases,
+    private readonly databases: Databases,
     private readonly fileStorage: FileStorage,
     private readonly currentSchoolYear: CurrentSchoolYearResolver,
     private readonly admissions: AdmissionsPublicService,
     private readonly schoolLevels: SchoolLevelResolver,
-  ) {
-    this.system = databases.system;
-  }
+  ) {}
 
   // Máy chủ web hỏi trước khi xin chứng chỉ cho một tên miền (cấp chứng chỉ theo yêu cầu): chỉ tên miền đang dùng
   async isServedDomain(domain: string): Promise<boolean> {

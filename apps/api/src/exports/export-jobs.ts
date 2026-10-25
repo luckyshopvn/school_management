@@ -10,6 +10,7 @@ import {
   type OnApplicationBootstrap,
   type OnModuleDestroy,
 } from '@nestjs/common';
+import { isMultiTenantMode } from '@school-management/server';
 import type { ExportJobFormat, ExportJobStatus } from '@school-management/database';
 import { ApplicationError, Clock, ruleViolationError } from '@school-management/server';
 import type { Request, Response } from 'express';
@@ -132,6 +133,11 @@ export class ExportJobs implements OnApplicationBootstrap, OnModuleDestroy {
   }
 
   onApplicationBootstrap() {
+    // Nhiều trường (DT-SaaS phần S1a): việc nền và việc khởi động theo từng trường làm ở phần S1b (tài liệu 32 mục 14.5); tới lúc
+    // đó không chạy ở chế độ nhiều trường vì ngoài yêu cầu không có ngữ cảnh trường
+    if (isMultiTenantMode()) {
+      return;
+    }
     const seconds = this.configuration.exportJobIntervalSeconds ?? 15;
     if (seconds > 0) {
       this.timer = setInterval(() => void this.tick(), seconds * 1000);

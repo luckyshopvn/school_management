@@ -1,0 +1,28 @@
+{
+  "_chu_thich": "Chỗ vi phạm có trước DT-SaaS S1a, kèm lý do; chỉ được co lại (tài liệu 32 mục 14.7 lớp 2)",
+  "rules": {
+    "direct-database-connection": {
+      "apps/api/src/demo/demo-command.ts": "Bản trình diễn (18h) chỉ chạy ở chế độ một trường; S1b đưa vào thời gian chạy theo trường",
+      "apps/api/src/demo/demo-seed.ts": "Bản trình diễn (18h) chỉ chạy ở chế độ một trường; S1b đưa vào thời gian chạy theo trường"
+    },
+    "direct-redis-connection": {
+      "apps/api/src/timetables/timetable-generator.ts": "Hàng đợi máy xếp thời khoá biểu (22c2): S1b chuyển tên hàng đợi, khóa kết quả sang cacheKey và đặt hạn mức việc theo trường",
+      "apps/worker/src/redis-connection.ts": "Tiến trình máy xếp thời khoá biểu (22c2): S1b chạy việc trong ngữ cảnh trường, khóa qua cacheKey"
+    },
+    "direct-object-storage": {},
+    "environment-read": {
+      "apps/api/src/demo/demo-command.ts": "Bản trình diễn (18h) chỉ chạy ở chế độ một trường; S1b đưa vào thời gian chạy theo trường",
+      "apps/api/src/finance/payment-providers.ts": "Khóa nhà cung cấp thanh toán đọc từ biến môi trường của cả bản triển khai; S3 chuyển thành cấu hình mã hóa của từng trường",
+      "apps/worker/src/redis-connection.ts": "Tiến trình máy xếp thời khoá biểu (22c2): S1b chạy việc trong ngữ cảnh trường, khóa qua cacheKey",
+      "packages/server/src/esms-client.ts": "Khóa eSMS đọc từ biến môi trường của cả bản triển khai; S3 chuyển thành cấu hình mã hóa của từng trường"
+    },
+    "redis-call-outside-infrastructure": {
+      "apps/api/src/timetables/timetable-generator.ts": "Hàng đợi máy xếp thời khoá biểu (22c2): S1b chuyển tên hàng đợi, khóa kết quả sang cacheKey và đặt hạn mức việc theo trường",
+      "apps/identity/src/authentication/captcha.service.ts": "Khóa đã có tiền tố trường qua Infrastructure.keyPrefix(); S1b gom về một hàm khóa chung",
+      "apps/identity/src/authentication/login-rate-limiter.ts": "Khóa đã có tiền tố trường qua Infrastructure.keyPrefix(); S1b gom về một hàm khóa chung",
+      "apps/identity/src/authentication/one-time-code.service.ts": "Khóa đã có tiền tố trường qua Infrastructure.keyPrefix(); S1b gom về một hàm khóa chung",
+      "apps/identity/src/authentication/password-reset.service.ts": "Khóa đã có tiền tố trường qua Infrastructure.keyPrefix(); S1b gom về một hàm khóa chung"
+    },
+    "handmade-tenant-prefix": {}
+  }
+}

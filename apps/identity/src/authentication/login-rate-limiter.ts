@@ -15,7 +15,7 @@ export class LoginRateLimiter {
   async check(ipAddress: string): Promise<void> {
     const nowMilliseconds = this.clock.now().getTime();
     const minute = Math.floor(nowMilliseconds / 60_000);
-    const key = `${this.configuration.redisKeyPrefix}:login-rate:${ipAddress}:${minute}`;
+    const key = `${this.infrastructure.keyPrefix()}:login-rate:${ipAddress}:${minute}`;
     const count = await this.infrastructure.redis.incr(key);
     if (count === 1) {
       await this.infrastructure.redis.expire(key, 120);

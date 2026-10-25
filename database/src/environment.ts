@@ -1,8 +1,9 @@
-export type ServiceDatabaseKind = 'identity' | 'system';
+export type ServiceDatabaseKind = 'identity' | 'system' | 'platform';
 
 const environmentVariableByKind: Record<ServiceDatabaseKind, string> = {
   identity: 'IDENTITY_DATABASE_URL',
   system: 'SYSTEM_DATABASE_URL',
+  platform: 'PLATFORM_DATABASE_URL',
 };
 
 export function readConnectionString(kind: ServiceDatabaseKind): string {

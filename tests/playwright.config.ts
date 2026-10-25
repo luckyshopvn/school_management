@@ -10,6 +10,7 @@ import {
   E2E_SCHOOL_YEAR_DATABASE_PREFIX,
   E2E_SYSTEM_DATABASE_NAME,
 } from './e2e-environment.mjs';
+import { MULTI_TENANT_SPEC } from './e2e-multi-environment.mjs';
 
 // Kiểm thử giao diện chạy trên dịch vụ định danh, máy chủ API và cổng quản trị thật (YCTD-36);
 // cơ sở dữ liệu hệ thống riêng do e2e-setup.mjs chuẩn bị trước mỗi lần chạy
@@ -24,6 +25,8 @@ const systemDatabaseUrl = replaceDatabaseName(process.env.SYSTEM_DATABASE_URL ??
 
 export default defineConfig({
   testDir: './e2e',
+  // Spec nhiều trường (130 đến 140) chạy riêng bằng playwright.multi.config.ts (pnpm e2e:multi)
+  testIgnore: MULTI_TENANT_SPEC,
   fullyParallel: false,
   workers: 1,
   forbidOnly: isContinuousIntegration,

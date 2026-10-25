@@ -9,8 +9,12 @@ import {
   TOKEN_SIGNING_ALGORITHM,
   type AccessTokenClaims,
 } from '@school-management/server';
-import { importPKCS8, SignJWT, type CryptoKey } from 'jose';
+import { importPKCS8, importSPKI, jwtVerify, SignJWT, type CryptoKey } from 'jose';
+import { currentTenant, isMultiTenantMode, unauthenticatedError } from '@school-management/server';
 import { IDENTITY_CONFIGURATION, type IdentityConfiguration } from '../common/configuration.js';
+
+export const OPERATOR_TOKEN_AUDIENCE = 'school-management-platform';
+export const OPERATOR_TOKEN_LIFETIME_SECONDS = 8 * 3600;
 
 // Mã phiên ký bằng Ed25519 (QĐ-22); hết hạn sau 15 phút (XT-02)
 @Injectable()
@@ -28,10 +32,14 @@ export class TokenService {
   async signAccessToken(claims: AccessTokenClaims): Promise<string> {
     this.privateKey ??= importPKCS8(this.configuration.tokenPrivateKeyPem, TOKEN_SIGNING_ALGORITHM);
     const issuedAt = Math.floor(this.clock.now().getTime() / 1000);
+    // Nhiều trường: mã phiên mang mã trường (claim `tid`; `sid` đã là mã phiên) để máy chủ API và dịch vụ định danh từ chối mã
+    // phiên của trường này khi dùng ở tên miền của trường khác (DT-SaaS phần S1a)
+    const tenantId = currentTenant()?.schoolId;
     return new SignJWT({
       sid: claims.sessionId,
       channel: claims.channel,
       password_change_required: claims.passwordChangeRequired,
+      ...(tenantId ? { tid: tenantId } : {}),
     })
       .setProtectedHeader({ alg: TOKEN_SIGNING_ALGORITHM })
       .setSubject(claims.userId)
@@ -42,8 +50,46 @@ export class TokenService {
       .sign(await this.privateKey);
   }
 
-  verifyAccessToken(token: string): Promise<AccessTokenClaims> {
-    return this.verifier.verify(token, this.clock.now());
+  // Mã phiên của người vận hành nền tảng (DT-SaaS phần S1a): đối tượng riêng nên máy chủ API và dịch vụ của trường không nhận, và
+  // mã phiên của trường không dùng được ở cổng nền tảng; hạn 8 giờ
+  async signOperatorToken(operatorId: string): Promise<string> {
+    this.privateKey ??= importPKCS8(this.configuration.tokenPrivateKeyPem, TOKEN_SIGNING_ALGORITHM);
+    const issuedAt = Math.floor(this.clock.now().getTime() / 1000);
+    return new SignJWT({ kind: 'platform_operator' })
+      .setProtectedHeader({ alg: TOKEN_SIGNING_ALGORITHM })
+      .setSubject(operatorId)
+      .setIssuer(TOKEN_ISSUER)
+      .setAudience(OPERATOR_TOKEN_AUDIENCE)
+      .setIssuedAt(issuedAt)
+      .setExpirationTime(issuedAt + OPERATOR_TOKEN_LIFETIME_SECONDS)
+      .sign(await this.privateKey);
+  }
+
+  async verifyOperatorToken(token: string): Promise<string> {
+    try {
+      const key = await importSPKI(this.configuration.tokenPublicKeyPem, TOKEN_SIGNING_ALGORITHM);
+      const { payload } = await jwtVerify(token, key, {
+        issuer: TOKEN_ISSUER,
+        audience: OPERATOR_TOKEN_AUDIENCE,
+        algorithms: [TOKEN_SIGNING_ALGORITHM],
+        currentDate: this.clock.now(),
+      });
+      if (typeof payload.sub !== 'string' || payload.kind !== 'platform_operator') {
+        throw unauthenticatedError();
+      }
+      return payload.sub;
+    } catch {
+      throw unauthenticatedError();
+    }
+  }
+
+  async verifyAccessToken(token: string): Promise<AccessTokenClaims> {
+    const claims = await this.verifier.verify(token, this.clock.now());
+    // Nhiều trường: mã phiên phải mang đúng mã trường của tên miền; mã phiên của trường khác bị từ chối
+    if (isMultiTenantMode() && (!claims.tenantId || claims.tenantId !== currentTenant()?.schoolId)) {
+      throw unauthenticatedError();
+    }
+    return claims;
   }
 }
 

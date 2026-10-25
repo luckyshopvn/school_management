@@ -1,13 +1,5 @@
 import { Inject, Injectable } from '@nestjs/common';
-import {
-  createEmptyDatabase,
-  dropDatabaseIfExists,
-  makeDatabaseReadOnly,
-  makeDatabaseWritable,
-  migrateToLatest,
-  type AcademicTermType,
-  type SchoolLevelCode,
-} from '@school-management/database';
+import { migrateToLatest, type AcademicTermType, type SchoolLevelCode } from '@school-management/database';
 import { ApplicationError, Clock, ruleViolationError, validationError } from '@school-management/server';
 import { sql, type Kysely } from 'kysely';
 import { API_CONFIGURATION, type ApiConfiguration } from '../common/configuration.js';
@@ -446,8 +438,7 @@ export class AcademicYearsService {
       throw new ApplicationError('ERR_CONFLICT', `Cơ sở dữ liệu ${databaseName} đã thuộc một năm học khác`);
     }
 
-    const connectionString = this.databases.schoolYearConnectionString(databaseName);
-    await createEmptyDatabase(this.configuration.systemDatabaseUrl, databaseName);
+    const connectionString = await this.databases.createSchoolYearDatabase(databaseName);
     try {
       const migration = await migrateToLatest('school-year', connectionString);
       if (migration.error) {
@@ -496,14 +487,12 @@ export class AcademicYearsService {
           .execute();
       });
     } catch (error) {
-      await this.databases.closeSchoolYear(databaseName);
-      await dropDatabaseIfExists(this.configuration.systemDatabaseUrl, databaseName);
+      await this.databases.dropSchoolYearDatabase(databaseName);
       throw error;
     }
 
     if (current) {
-      await makeDatabaseReadOnly(this.configuration.systemDatabaseUrl, current.database_name);
-      await this.databases.closeSchoolYear(current.database_name);
+      await this.databases.setSchoolYearReadOnly(current.database_name, true);
     }
     const opened = await this.findAcademicYear(academicYearId);
     return {
@@ -547,7 +536,7 @@ export class AcademicYearsService {
       }
       try {
         const { opened, previous } = await this.assertCancellable(academicYearId);
-        await makeDatabaseWritable(this.configuration.systemDatabaseUrl, previous.database_name);
+        await this.databases.setSchoolYearReadOnly(previous.database_name, false);
         const now = this.clock.now();
         await this.system.transaction().execute(async (transaction) => {
           await transaction
@@ -570,9 +559,7 @@ export class AcademicYearsService {
             .where('academic_year_id', '=', previous.academic_year_id)
             .execute();
         });
-        await this.databases.closeSchoolYear(opened.database_name);
-        await this.databases.closeSchoolYear(previous.database_name);
-        await dropDatabaseIfExists(this.configuration.systemDatabaseUrl, opened.database_name);
+        await this.databases.dropSchoolYearDatabase(opened.database_name);
         const year = await this.findAcademicYear(academicYearId);
         return {
           id: year.id,

@@ -34,7 +34,7 @@ export class CaptchaService {
   ) {}
 
   private key(kind: string, value: string): string {
-    return `${this.configuration.redisKeyPrefix}:${kind}:${value}`;
+    return `${this.infrastructure.keyPrefix()}:${kind}:${value}`;
   }
 
   async issue(): Promise<CaptchaChallenge> {

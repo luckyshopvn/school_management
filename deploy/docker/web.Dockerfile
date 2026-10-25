@@ -19,6 +19,7 @@ COPY apps/worker/package.json apps/worker/
 COPY apps/portal/package.json apps/portal/
 COPY apps/parent/package.json apps/parent/
 COPY apps/teacher/package.json apps/teacher/
+COPY apps/platform/package.json apps/platform/
 COPY packages/config/package.json packages/config/
 COPY packages/server/package.json packages/server/
 COPY packages/shared/package.json packages/shared/

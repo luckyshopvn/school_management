@@ -32,3 +32,4 @@ export {
   type SmsProviderSettings,
 } from './esms-client.js';
 export { applyTrustProxy, parseTrustProxy } from './trust-proxy.js';
+export * from './tenancy.js';

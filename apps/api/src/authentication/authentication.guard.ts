@@ -7,7 +7,15 @@ import {
   type ExecutionContext,
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
-import { AccessTokenVerifier, ApplicationError, Clock, readBearerToken } from '@school-management/server';
+import {
+  AccessTokenVerifier,
+  ApplicationError,
+  Clock,
+  currentTenant,
+  isMultiTenantMode,
+  readBearerToken,
+  unauthenticatedError,
+} from '@school-management/server';
 import type { Request } from 'express';
 import { API_CONFIGURATION, type ApiConfiguration } from '../common/configuration.js';
 import { CurrentUser } from './current-user.js';
@@ -56,6 +64,10 @@ export class AuthenticationGuard implements CanActivate {
     const request = context.switchToHttp().getRequest<AuthenticatedRequest>();
     const accessToken = readBearerToken(request.header('authorization'));
     const claims = await this.verifier.verify(accessToken, this.clock.now());
+    // Nhiều trường: mã phiên phải mang đúng mã trường của tên miền; mã phiên của trường khác bị từ chối (DT-SaaS phần S1a)
+    if (isMultiTenantMode() && (!claims.tenantId || claims.tenantId !== currentTenant()?.schoolId)) {
+      throw unauthenticatedError();
+    }
     if (claims.passwordChangeRequired) {
       throw new ApplicationError('ERR_FORBIDDEN', 'Bạn cần đổi mật khẩu trước khi tiếp tục');
     }

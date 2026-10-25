@@ -341,3 +341,65 @@ export type {
 export { DEFAULT_TAX_TABLE_ID } from '../school-year/migrations/0022_create_payrolls.js';
 export { MEAL_SERVICE_ID } from '../school-year/migrations/0010_create_fee_catalogs.js';
 export { DEFAULT_LEDGER_ACCOUNTS, DEFAULT_POSTING_RULES } from '../school-year/migrations/0042_create_ledger.js';
+export type {
+  PlatformAuditActorType,
+  PlatformDatabase,
+  PlatformOperatorStatus,
+  SchoolDataClassValue,
+  SchoolDatabaseKind,
+  SchoolDatabaseLayoutValue,
+  SchoolDatabaseStatus,
+  SchoolDomainKind,
+  SchoolDomainStatus,
+  SchoolStatusValue,
+} from '../platform/schema.js';
+export type { DatabaseOptions } from './connection.js';
+export {
+  assertIdentifier,
+  connectionStringOf,
+  createSchoolDatabaseLayout,
+  DatabaseLayout,
+  generatePassword,
+  purgeSchoolArtifacts,
+  SchemaLayout,
+  schoolRoleName,
+  schoolSlug,
+  type CreateSchoolDatabaseRequest,
+  type DatabaseDescriptor,
+  type LayoutEnvironment,
+  type SchoolDatabaseLayout,
+} from './school-database-layout.js';
+export { databaseKey, TenantRegistry, type TenantRecord, type TenantRegistryOptions } from './tenant-registry.js';
+export { TenantConnections, type TenantConnectionsOptions } from './tenant-connections.js';
+export {
+  dropSchool,
+  generateChildKeyPair,
+  provisionSchool,
+  registerDescriptor,
+  storeSchoolKeys,
+  writeAudit,
+  yearDatabaseName,
+  type ProvisionedSchool,
+  type ProvisionSchoolOptions,
+} from './provision-school.js';
+export {
+  createTenancyRuntime,
+  readMasterKey,
+  readTenancyConfiguration,
+  TenancyRuntime,
+  type TenancyConfiguration,
+} from './tenancy-runtime.js';
+export { testAdminDatabaseUrl } from './test-admin.js';
+export {
+  startTenantTestPlatform,
+  textExistsInSchoolDatabase,
+  type TenantTestPlatform,
+  type TestSchool,
+} from './tenant-test-support.js';
+export {
+  adoptExistingSchool,
+  hostFromSiteSetting,
+  type AdoptExistingOptions,
+  type AdoptResult,
+} from './adopt-existing.js';
+export type { TenantContext } from '@school-management/server/tenancy';
