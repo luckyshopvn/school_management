@@ -26,6 +26,16 @@ import {
 import { rewrapMasterKey, rotateChildKeys } from './key-rotation.js';
 import { createSchoolDatabaseLayout } from './school-database-layout.js';
 import { relayoutSchool } from './school-relayout.js';
+import {
+  backupSchool,
+  drillRestore,
+  latestBackupFile,
+  pruneBackups,
+  restoreSchool,
+  verifyBackup,
+  type BackupScope,
+} from './school-backup.js';
+import { moveSchoolToCluster } from './school-cluster-move.js';
 import { readMasterKey, readTenancyConfiguration, TenancyRuntime } from './tenancy-runtime.js';
 import { applyPlanLifecycle } from './school-plans.js';
 import type { PlatformDatabase } from '../platform/schema.js';
@@ -58,8 +68,21 @@ import type { PlatformDatabase } from '../platform/schema.js';
 // Chuyển trường sang nền tảng hoặc bố cục khác (DT-SaaS phần S9, YCTD-203):
 //   relayout --school <mã> --to database|schema
 //                                      chép trường (đang tạm dừng hoặc chỉ đọc) sang nền tảng đích đặt bằng TARGET_PLATFORM_DATABASE_URL,
-//                                      TARGET_PLATFORM_MASTER_KEY, TARGET_PLATFORM_ADMIN_DATABASE_URL (quyền siêu người dùng),
+//                                      TARGET_PLATFORM_MASTER_KEY, TARGET_PLATFORM_ADMIN_DATABASE_URL (tạo cơ sở dữ liệu, vai trò),
 //                                      TARGET_PLATFORM_SHARED_DATABASE (bố cục schema); so số dòng, tổng kiểm từng bảng
+// Sao lưu, khôi phục, chuyển cụm theo từng trường (DT-SaaS phần S7b, YCTD-199); khóa mã hóa BACKUP_ENCRYPTION_PASSPHRASE, thư mục
+// BACKUP_DIR (mặc định /var/backups/school-management/schools):
+//   backup-school (--school <mã> | --all) [--scope all|active] [--keep-days 30]
+//                                      BACKUP_SOURCE_HOST, BACKUP_SOURCE_PORT: đọc ở bản khôi phục tạm của cụm (PITR.md)
+//                                      sao lưu logic từng trường vào <BACKUP_DIR>/<mã>/<thời điểm>-<phạm vi>.sbak, đọc lại kiểm tra
+//   verify-backup --file <tệp>         kiểm tra mã xác thực, cấu trúc, số dòng của tệp sao lưu
+//   restore-school --file <tệp> (--in-place | --as <mã mới>)
+//                                      khôi phục vào chính trường (đang tạm dừng) hoặc thành trường mới (tạm dừng, để xem lại)
+//   restore-drill (--file <tệp> | --school <mã> | --all)
+//                                      khôi phục thử bản mới nhất vào trường tạm, kiểm tra rồi gỡ; ghi kết quả vào backup_runs
+//   move-school --school <mã> [--drop-source]
+//                                      chuyển trường sang cụm đặt bằng TARGET_CLUSTER_ADMIN_URL (TARGET_CLUSTER_LAYOUT,
+//                                      TARGET_CLUSTER_SHARED_DATABASE); tạm dừng trong lúc chép, so số dòng, tổng kiểm
 
 function readOption(args: string[], name: string): string | undefined {
   const index = args.indexOf(`--${name}`);
@@ -79,6 +102,161 @@ const [command, ...args] = process.argv.slice(2);
 
 const CLI_ACTOR: Actor = { type: 'cli', name: process.env.PLATFORM_CLI_ACTOR?.trim() || 'Dòng lệnh nền tảng' };
 const LIFECYCLE_SETTINGS = lifecycleSettingsFrom(process.env);
+
+function backupPassphrase(): string {
+  const value = process.env.BACKUP_ENCRYPTION_PASSPHRASE ?? '';
+  if (value.length < 16) {
+    throw new Error('Cần BACKUP_ENCRYPTION_PASSPHRASE (ít nhất 16 ký tự) để mã hóa, giải mã bản sao lưu');
+  }
+  return value;
+}
+
+function backupDirectory(): string {
+  return process.env.BACKUP_DIR?.trim() || '/var/backups/school-management/schools';
+}
+
+async function servingSchoolCodes(environment: LifecycleEnvironment): Promise<string[]> {
+  const rows = await environment.platform
+    .selectFrom('schools')
+    .select('code')
+    .where('status', 'not in', ['provisioning', 'deleted'])
+    .orderBy('code')
+    .execute();
+  return rows.map((row) => row.code);
+}
+
+async function backupCommand(): Promise<void> {
+  if (command === 'verify-backup') {
+    const contents = await verifyBackup(required('file'), backupPassphrase());
+    console.log(
+      `Tệp hợp lệ: trường ${contents.header.school.code}, lúc ${contents.header.created_at}, ${contents.header.databases.length} cơ sở dữ liệu, ${contents.tables} bảng, ${contents.rows} dòng`,
+    );
+    return;
+  }
+  await withLifecycle(async (environment) => {
+    if (command === 'backup-school') {
+      const scope = (readOption(args, 'scope') ?? 'all') as BackupScope;
+      if (scope !== 'all' && scope !== 'active') {
+        throw new Error('--scope là all hoặc active');
+      }
+      const keepDays = Number(readOption(args, 'keep-days') ?? 30);
+      const codes = args.includes('--all') ? await servingSchoolCodes(environment) : [required('school')];
+      let failed = 0;
+      for (const code of codes) {
+        try {
+          const summary = await backupSchool({
+            platform: environment.platform,
+            masterKey: environment.masterKey,
+            code,
+            passphrase: backupPassphrase(),
+            directory: backupDirectory(),
+            scope,
+            actor: CLI_ACTOR,
+            sourceHost: process.env.BACKUP_SOURCE_HOST?.trim()
+              ? {
+                  host: process.env.BACKUP_SOURCE_HOST.trim(),
+                  port: Number(process.env.BACKUP_SOURCE_PORT ?? 5432),
+                }
+              : null,
+          });
+          const removed = await pruneBackups(backupDirectory(), code, keepDays, scope);
+          console.log(
+            `${code}: ${summary.tables} bảng, ${summary.rows} dòng, ${summary.bytes} byte -> ${summary.file}${removed ? `; xóa ${removed} bản cũ` : ''}`,
+          );
+        } catch (error) {
+          failed += 1;
+          console.error(`${code}: LỖI ${error instanceof Error ? error.message : String(error)}`);
+        }
+      }
+      if (failed > 0) {
+        process.exitCode = 1;
+      }
+      return;
+    }
+    const restoreEnvironment = {
+      platform: environment.platform,
+      masterKey: environment.masterKey,
+      layout: environment.layout,
+      systemDomain: environment.systemDomain,
+    };
+    if (command === 'restore-school') {
+      const newCode = readOption(args, 'as');
+      if (!newCode && !args.includes('--in-place')) {
+        throw new Error('Chọn --in-place (khôi phục vào chính trường, trường phải đang tạm dừng) hoặc --as <mã mới>');
+      }
+      const result = await restoreSchool({
+        environment: restoreEnvironment,
+        file: required('file'),
+        passphrase: backupPassphrase(),
+        target: newCode ? { mode: 'new', code: newCode } : { mode: 'in-place' },
+        actor: CLI_ACTOR,
+      });
+      console.log(
+        `Đã khôi phục trường ${result.code}: ${result.databases} cơ sở dữ liệu, ${result.tables} bảng, ${result.rows} dòng trong ${Math.round(result.durationMilliseconds / 1000)} giây; trường đang tạm dừng, mở lại sau khi kiểm tra`,
+      );
+      return;
+    }
+    if (command === 'restore-drill') {
+      const files: string[] = [];
+      const file = readOption(args, 'file');
+      if (file) {
+        files.push(file);
+      } else {
+        const codes = args.includes('--all') ? await servingSchoolCodes(environment) : [required('school')];
+        for (const code of codes) {
+          const latest = await latestBackupFile(backupDirectory(), code);
+          if (latest) {
+            files.push(latest);
+          } else {
+            console.error(`${code}: chưa có bản sao lưu ở ${backupDirectory()}`);
+            process.exitCode = 1;
+          }
+        }
+      }
+      for (const item of files) {
+        try {
+          const result = await drillRestore({
+            environment: restoreEnvironment,
+            file: item,
+            passphrase: backupPassphrase(),
+            actor: CLI_ACTOR,
+          });
+          console.log(
+            `Diễn tập đạt: ${item}: ${result.tables} bảng, ${result.rows} dòng khớp; khôi phục mất ${Math.round(result.durationMilliseconds / 1000)} giây`,
+          );
+        } catch (error) {
+          process.exitCode = 1;
+          console.error(`Diễn tập LỖI: ${item}: ${error instanceof Error ? error.message : String(error)}`);
+        }
+      }
+      return;
+    }
+    // move-school
+    const targetAdminUrl = process.env.TARGET_CLUSTER_ADMIN_URL?.trim();
+    if (!targetAdminUrl) {
+      throw new Error('Cần TARGET_CLUSTER_ADMIN_URL (tài khoản tạo cơ sở dữ liệu, vai trò ở cụm đích)');
+    }
+    const targetLayoutKind = (process.env.TARGET_CLUSTER_LAYOUT?.trim() || environment.layout.kind) as
+      'database' | 'schema';
+    const sharedDatabase = process.env.TARGET_CLUSTER_SHARED_DATABASE?.trim();
+    const result = await moveSchoolToCluster({
+      platform: environment.platform,
+      masterKey: environment.masterKey,
+      code: required('school'),
+      sourceLayout: environment.layout,
+      targetLayout: createSchoolDatabaseLayout(targetLayoutKind, {
+        adminUrl: targetAdminUrl,
+        ...(sharedDatabase ? { sharedDatabase } : {}),
+      }),
+      actor: CLI_ACTOR,
+      dropSource: args.includes('--drop-source'),
+      onProgress: (line) => console.log(line),
+    });
+    console.log(
+      `Đã chuyển trường ${result.code} sang cụm ${result.cluster}: ${result.tables} bảng, ${result.rows} dòng khớp, ${Math.round(result.durationMilliseconds / 1000)} giây`,
+    );
+  });
+}
 
 async function withLifecycle(work: (environment: LifecycleEnvironment) => Promise<void>): Promise<void> {
   const configuration = readTenancyConfiguration(process.env);
@@ -200,6 +378,13 @@ async function lifecycleCommand(): Promise<boolean> {
         );
       });
       return true;
+    case 'backup-school':
+    case 'verify-backup':
+    case 'restore-school':
+    case 'restore-drill':
+    case 'move-school':
+      await backupCommand();
+      return true;
     case 'relayout': {
       const code = required('school');
       const to = required('to');
@@ -226,7 +411,6 @@ async function lifecycleCommand(): Promise<boolean> {
           target: {
             platform: target,
             masterKey: readMasterKey({ PLATFORM_MASTER_KEY: process.env.TARGET_PLATFORM_MASTER_KEY }),
-            adminUrl: targetAdminUrl,
             layout: createSchoolDatabaseLayout(to, {
               adminUrl: targetAdminUrl,
               ...(sharedDatabase ? { sharedDatabase } : {}),
@@ -334,7 +518,7 @@ async function main(): Promise<void> {
     return;
   }
   throw new Error(
-    'Lệnh: generate-master-key | migrate | adopt-existing | provision | provision-resume | provision-rollback | suspend | resume | request-deletion | cancel-deletion | purge-due | reissue-invitation | verify-domain | migrate-schools | relayout',
+    'Lệnh: generate-master-key | migrate | adopt-existing | provision | provision-resume | provision-rollback | suspend | resume | request-deletion | cancel-deletion | purge-due | reissue-invitation | verify-domain | migrate-schools | relayout | backup-school | verify-backup | restore-school | restore-drill | move-school',
   );
 }
 

@@ -150,6 +150,19 @@ export interface SchoolDetail {
     at: string;
   }>;
   invitations: Array<{ login: string; full_name: string; expires_at: string; used_at: string | null }>;
+  backups: Array<{
+    id: string;
+    kind: 'backup' | 'restore' | 'drill' | 'cluster-move';
+    status: 'running' | 'done' | 'failed';
+    file_name: string | null;
+    file_bytes: string | null;
+    tables: number | null;
+    rows: string | null;
+    details: Record<string, unknown>;
+    error: string | null;
+    started_at: string;
+    finished_at: string | null;
+  }>;
 }
 
 export interface PlatformSettings {

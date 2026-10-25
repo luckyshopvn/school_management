@@ -1,0 +1,63 @@
+# Lớp phủ bật khôi phục về một thời điểm cho hồ sơ vận hành (DT-SaaS phần S7b, YCTD-199; PITR.md): PostgreSQL dùng ảnh có WAL-G,
+# đẩy từng đoạn nhật ký giao dịch ra kho ngoài máy chủ (tương thích S3) ngay khi đầy hoặc sau archive_timeout giây, nên mất tối
+# đa khoảng archive_timeout dữ liệu (RPO). Dùng cùng compose.yml:
+#   docker compose -f compose.yml -f compose.pitr.yml --env-file production.env up -d postgres
+# Biến WALG_* đặt trong production.env (giá trị mẫu ở production.env.example, đều giả)
+services:
+  postgres:
+    image: ${IMAGE_PREFIX:-school-management}/postgres-walg:${IMAGE_TAG:-latest}
+    build:
+      context: ../../..
+      dockerfile: docker/postgres-walg/Dockerfile
+    environment:
+      WALG_S3_PREFIX: ${WALG_S3_PREFIX:?Thiếu WALG_S3_PREFIX (ví dụ s3://ten-kho/wal)}
+      AWS_ENDPOINT: ${WALG_S3_ENDPOINT:?Thiếu WALG_S3_ENDPOINT}
+      AWS_REGION: ${WALG_S3_REGION:-us-east-1}
+      AWS_S3_FORCE_PATH_STYLE: 'true'
+      AWS_ACCESS_KEY_ID: ${WALG_S3_ACCESS_KEY_ID:?Thiếu WALG_S3_ACCESS_KEY_ID}
+      AWS_SECRET_ACCESS_KEY: ${WALG_S3_SECRET_ACCESS_KEY:?Thiếu WALG_S3_SECRET_ACCESS_KEY}
+      # Mã hóa phía máy chủ trước khi đẩy đi (khóa đối xứng, 32 byte); giữ bản sao khóa ở nơi khác ngoài máy chủ
+      WALG_LIBSODIUM_KEY: ${WALG_LIBSODIUM_KEY:?Thiếu WALG_LIBSODIUM_KEY}
+      WALG_COMPRESSION_METHOD: brotli
+      PGHOST: /var/run/postgresql
+      PGUSER: postgres
+    command:
+      - postgres
+      - -c
+      - max_connections=${POSTGRES_MAX_CONNECTIONS:-300}
+      - -c
+      - shared_buffers=${POSTGRES_SHARED_BUFFERS:-1GB}
+      - -c
+      - effective_cache_size=${POSTGRES_EFFECTIVE_CACHE_SIZE:-3GB}
+      - -c
+      - work_mem=${POSTGRES_WORK_MEM:-8MB}
+      - -c
+      - maintenance_work_mem=${POSTGRES_MAINTENANCE_WORK_MEM:-256MB}
+      - -c
+      - max_locks_per_transaction=${POSTGRES_MAX_LOCKS_PER_TRANSACTION:-128}
+      - -c
+      - autovacuum_max_workers=${POSTGRES_AUTOVACUUM_MAX_WORKERS:-4}
+      - -c
+      - autovacuum_naptime=${POSTGRES_AUTOVACUUM_NAPTIME:-30s}
+      - -c
+      - wal_level=replica
+      - -c
+      - max_wal_senders=10
+      - -c
+      - max_replication_slots=10
+      - -c
+      - wal_keep_size=${POSTGRES_WAL_KEEP_SIZE:-1GB}
+      - -c
+      - password_encryption=scram-sha-256
+      - -c
+      - log_min_duration_statement=${POSTGRES_LOG_MIN_DURATION_MS:-1000}
+      - -c
+      - log_lock_waits=on
+      - -c
+      - shared_preload_libraries=pg_stat_statements
+      - -c
+      - archive_mode=on
+      - -c
+      - archive_command=wal-g wal-push %p
+      - -c
+      - archive_timeout=${POSTGRES_ARCHIVE_TIMEOUT:-60}

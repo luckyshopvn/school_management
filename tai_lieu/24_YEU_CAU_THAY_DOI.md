@@ -29,6 +29,29 @@ Các thay đổi trước phiên bản 0.4.0 chưa có sổ này; xem `23_LICH_S
 - Kiểm thử cần thực hiện: kiểm thử đơn vị `packages/server`, `database`, `apps/identity`, `apps/api`; kiểm tĩnh và quét bí mật; ma trận cách ly; e2e spec 138 ở dự án nhiều trường, các spec đăng nhập, spec 132, 140 ở dự án nhiều trường và một trường; CI chạy toàn bộ e2e.
 - Trạng thái: Đã triển khai (PR 173)
 
+### YCTD-199: DT-SaaS phần S7b: vận hành nhiều trường (sao lưu, khôi phục, chuyển cụm theo trường) – 2026-10-25
+
+- Lý do: phần S7b của `32_KE_HOACH_THEO_HE_THONG_SO.md` mục 14.3, 14.5, 14.9; S1b, S2, S7a đã gộp. Nhiều trường trên một máy thì bản sao lưu cả máy không đủ: khôi phục một trường không được đụng trường khác, cần khôi phục về một thời điểm, diễn tập đều và chuyển trường khi một máy cơ sở dữ liệu đầy.
+- Nội dung thay đổi (Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11 ở những chỗ kế hoạch chưa chốt):
+  - **Lưu ở đâu:** bảng nền tảng `backup_runs` (tệp 0070, khối 0070 đến 0079); tệp `.sbak` ở `BACKUP_DIR/<mã>/` và kho ngoài máy chủ.
+  - **Bộ đọc và nạp dùng chung** `database/src/school-data-copy.ts`: đọc một ảnh chụp `REPEATABLE READ` chỉ đọc, mọi cột dạng văn bản, UTC; nạp bằng vai trò của trường (không cần quyền siêu người dùng nên chạy được ở Neon, Supabase), gỡ khóa ngoại, mỗi bảng một giao dịch, gắn lại khóa ngoại có kiểm, lỗi thì gắn lại `NOT VALID`. Lý do mỗi bảng một giao dịch: nạp cả cơ sở dữ liệu năm học (khoảng 300 bảng cùng chỉ mục) trong một giao dịch gặp "out of shared memory" với `max_locks_per_transaction` 64. `platform relayout` (YCTD-203) chuyển sang bộ này.
+  - **Sao lưu, khôi phục** `database/src/school-backup.ts`: tệp dòng JSON nén gzip, mã hóa AES-256-GCM (khóa scrypt từ `BACKUP_ENCRYPTION_PASSPHRASE`), gồm khóa dữ liệu trẻ; phạm vi `all`, `active`; đọc lại kiểm tra; khôi phục vào chính trường (đang tạm dừng) hoặc thành trường mới (đổi tiền tố, đổi tên cơ sở dữ liệu năm học trong `academic_year_databases`, gắn tên miền hệ thống, để tạm dừng); diễn tập; giữ theo số ngày từng phạm vi; đọc ở máy chủ khác (`BACKUP_SOURCE_HOST`) cho khôi phục về một thời điểm.
+  - **Chuyển cụm** `database/src/school-cluster-move.ts`: tạm dừng, tạo, migrate, chép, so khớp, đổi `school_databases` và `cluster_id` trong một giao dịch, trả trạng thái, xóa nguồn khi yêu cầu, đổi tên tùy chọn khi hai cụm chung máy chủ.
+  - **Lệnh** `platform backup-school`, `verify-backup`, `restore-school`, `restore-drill`, `move-school`.
+  - **Triển khai:** `deploy/scripts/backup.sh` gọi sao lưu theo trường (hằng ngày `all`, hằng giờ `active`, giữ theo `BACKUP_RETENTION_DAYS`, `BACKUP_HOURLY_RETENTION_HOURS`) qua hàm `platform_command` ở `lib.sh` và đẩy `schools/` ra kho ngoài; `deploy/scripts/restore-drill.sh` và dòng lịch ngày 1 hằng tháng; ảnh `docker/postgres-walg` (WAL-G v3.0.9 phát hành 2026-08-20, mã băm `wal-g-pg-22.04-amd64.tar.gz` ghim cứng, tra ngày 2026-10-25), lớp phủ `deploy/profiles/production/compose.pitr.yml` (`archive_mode`, `archive_command = wal-g wal-push`, `archive_timeout` 60), biến `WALG_*` giả ở `production.env.example`, lịch bản cơ bản 02:30 giữ 7 bản; `scripts/pitr-extract-school.sh`; `PITR.md` (ba lớp, RPO, RTO, quy trình); hồ sơ thử nghiệm mục 7 và `github-actions-backup.yml.example`.
+  - **Giao diện:** chi tiết trường ở cổng nền tảng hiện 20 lần gần nhất của `backup_runs` (MH-318).
+  - **Giới hạn của nhà cung cấp, tra trang chính thức ngày 2026-10-25:** Neon Free: khoảng lịch sử 6 giờ (giới hạn 1 GB), một bản chụp thủ công mỗi dự án, không có bản chụp theo lịch (neon.com/pricing); Supabase Free: không có sao lưu tự động hằng ngày (gói Pro, Team, Enterprise giữ 7, 14, đến 30 ngày), không có khôi phục về một thời điểm, khuyên tự xuất dữ liệu (supabase.com/docs/guides/platform/backups).
+  - **Mục tiêu RPO, RTO (giả định, đo bằng diễn tập rồi chốt):** RPO ≤ 5 phút với WAL-G, ≤ 1 giờ với sao lưu theo trường hằng giờ, ≤ 24 giờ ở hồ sơ thử nghiệm (≤ 6 giờ nếu dùng lịch sử Neon); RTO ≤ 4 giờ ở T2, T3, ≤ 8 giờ ở T1, ≤ 2 giờ cho một trường ở hồ sơ thử nghiệm; sẵn sàng 99,5% ở T1, 99,9% ở T3.
+  - **Chưa làm ở phần này (ghi rõ):** thử tải nhiều trường (50 trường giả, đo kết nối, bộ nhớ, thời gian migrate và sao lưu) nên quy mô T1 đến T3 vẫn là giả định; bảng điều khiển S4 cảnh báo sao lưu, diễn tập quá hạn (đọc `backup_runs`); sao chép kho tệp riêng một trường ngoài hướng dẫn rclone; kiểm tay WAL-G và lấy riêng một trường trên staging chờ VPS thử.
+- Thành phần bị ảnh hưởng: `database`, `apps/identity`, `apps/platform`, `deploy/scripts`, `deploy/profiles/production`, `deploy/profiles/trial`, `docker/postgres-walg`, `tests`; tài liệu `01`, `02`, `07`, `10`, `11`, `12`, `14`, `16`, `17`, `21`, `22`, `23`, `24`, `32`, `index.md`.
+- Dữ liệu bị ảnh hưởng: bảng nền tảng `backup_runs`; không đổi bảng hiện có.
+- API bị ảnh hưởng: chi tiết trường ở cổng nền tảng trả thêm `backups`; thêm lệnh dòng lệnh nói trên.
+- Giao diện bị ảnh hưởng: MH-318 thêm bảng "Sao lưu và khôi phục".
+- Quyền bị ảnh hưởng: không thêm quyền; lệnh chạy bằng biến của nền tảng ở máy vận hành.
+- Ảnh hưởng chức năng cũ: không ở chế độ một trường; `backup.sh`, `restore.sh` cũ không đổi khi không có `PLATFORM_DATABASE_URL`.
+- Kiểm thử cần thực hiện: kiểm thử đơn vị `database` (hai bố cục), kiểm tĩnh, `pnpm lint`; e2e spec 137 ở dự án nhiều trường cả hai bố cục và các spec bị ảnh hưởng; kiểm tay trên staging (CT-1042); CI chạy toàn bộ e2e.
+- Trạng thái: Đã triển khai (PR 171)
+
 ### YCTD-194: DT-SaaS phần S5a: gói dịch vụ và giới hạn – 2026-10-25
 
 - Lý do: phần S5a của `32_KE_HOACH_THEO_HE_THONG_SO.md` mục 14.3, 14.5, 14.9 (kế hoạch DT-SaaS ở YCTD-190); quyết định của Eric ngày 2026-10-25 (GD-94: cách tính phí cấu hình được theo học sinh, theo trường, theo phân hệ, mặc định theo số học sinh; phần thu tiền thuộc S5b). Cần gói dịch vụ để bật phân hệ, đặt giới hạn và khóa ghi khi trường hết hạn mà không xóa dữ liệu.
