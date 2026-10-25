@@ -42,6 +42,7 @@
 | 30 | [30_BAO_CAO_KIEM_THU_G3.md](30_BAO_CAO_KIEM_THU_G3.md) | Báo cáo kiểm thử giai đoạn 3 | Kết quả chạy thật sau đợt DT-11, ca chưa chạy và quyết định xử lý, lỗi khi gộp các phần, giới hạn bản 1.2.0 (YCTD-91) | 10 Kiểm thử | Đã đánh giá |
 | 31 | [31_KHAO_SAT_HE_THONG_SO.md](31_KHAO_SAT_HE_THONG_SO.md) | Khảo sát hệ thống của Sở | Chức năng và giao diện của Hệ thống thông tin quản lý giáo dục cấp Trường (Mầm non) của Sở GD&ĐT TP.HCM, đối chiếu và đề xuất bổ sung; nền tảng kỹ thuật trang công khai (REA); khảo sát bổ sung ngày 2026-10-19 (Tuyển sinh đầu cấp, mẫu hồ sơ kí, chỉ tiêu và mã số EMIS, 1.7) và đối chiếu với mã nguồn | 02 Phân tích | Đã khảo sát |
 | 32 | [32_KE_HOACH_THEO_HE_THONG_SO.md](32_KE_HOACH_THEO_HE_THONG_SO.md) | Kế hoạch theo hệ thống của Sở | Đồng bộ chức năng và giao diện theo tài liệu 31: DT-15, DT-16 (đã triển khai), DT-17 (khảo sát bổ sung, năm phần 17a đến 17e, đã triển khai); DT-18 điều hành nhà trường (18a đến 18h, 22b, 22d, 22f, 22i); DT-19 nền đa cấp học (19a đến 19f, kế hoạch); DT-20 Tiểu học kèm 22c thời khoá biểu (20a đến 20f, 22c1, 22c2, kế hoạch); DT-21 THCS và THPT kèm 22g kiểm tra, đánh giá (21a đến 21g, 22g1, 22g2, kế hoạch); DT-22 thư viện, bồi dưỡng, kho học liệu số (22a, 22e, 22h1, 22h2 đã triển khai); DT-SaaS Enterprise SaaS nhiều trường (S1a đến S9, hồ sơ thử nghiệm miễn phí và vận hành, kế hoạch) | 02 Phân tích | Đã duyệt hướng làm |
+| 33 | [33_HO_SO_PHAP_LY/](33_HO_SO_PHAP_LY/00_MUC_LUC.md) | Hồ sơ pháp lý và tuân thủ | Bộ mẫu của DT-SaaS phần S8a (YCTD-200): hợp đồng dịch vụ, thỏa thuận xử lý dữ liệu cá nhân, văn bản đồng ý dùng thử dữ liệu thật ở máy chủ ngoài Việt Nam, điều khoản sử dụng, chính sách bảo vệ dữ liệu cá nhân, hồ sơ đánh giá tác động xử lý và chuyển dữ liệu xuyên biên giới (Luật 91/2025/QH15, Nghị định 356/2025/NĐ-CP), bản ghi vùng máy chủ, phiếu chấp nhận rủi ro, lộ trình chuyển về trong nước, hồ sơ đề xuất cấp độ, quy trình sự cố và thông báo vi phạm, lưu giữ và xóa, mã hóa dữ liệu trẻ em, điều kiện dịch vụ xử lý dữ liệu | 02 Phân tích | Bản nháp, chờ luật sư rà |
 
 ## Quy trình nghiệp vụ
 
@@ -89,7 +90,7 @@ Mã quy trình dạng `QT-nn`, đánh số tăng dần, không tái sử dụng 
 | Cổng kiểm soát chất lượng | 12 | Từ CG-01 đến CG-12, xem `01_KE_HOACH_TONG_THE.md` |
 | Đợt xây dựng | 12 | Từ DT-00 đến DT-11, xem `01_KE_HOACH_TONG_THE.md` |
 | Rủi ro đã ghi nhận | 14 | Từ RR-01 đến RR-14, xem `01_KE_HOACH_TONG_THE.md` |
-| Yêu cầu thay đổi | 176 | Từ YCTD-01 đến YCTD-190 (YCTD-180, YCTD-190 chỉ đổi tài liệu, YCTD-191 đến YCTD-209 giữ sẵn cho DT-SaaS (S9 là YCTD-203), YCTD-183 đến YCTD-189 giữ sẵn cho DT-22; YCTD-166 chỉ đổi tài liệu, YCTD-161 đến YCTD-165 giữ sẵn cho DT-20; số giữ sẵn của DT-18 ghi khi phần gộp; YCTD-142 gộp sau YCTD-143, YCTD-144; YCTD-156 của 19f ghi khi gộp), xem `24_YEU_CAU_THAY_DOI.md` |
+| Yêu cầu thay đổi | 177 | Từ YCTD-01 đến YCTD-190 (YCTD-200 của S8a chỉ đổi tài liệu, YCTD-180, YCTD-190 chỉ đổi tài liệu, YCTD-191 đến YCTD-209 giữ sẵn cho DT-SaaS (S9 là YCTD-203), YCTD-183 đến YCTD-189 giữ sẵn cho DT-22; YCTD-166 chỉ đổi tài liệu, YCTD-161 đến YCTD-165 giữ sẵn cho DT-20; số giữ sẵn của DT-18 ghi khi phần gộp; YCTD-142 gộp sau YCTD-143, YCTD-144; YCTD-156 của 19f ghi khi gộp), xem `24_YEU_CAU_THAY_DOI.md` |
 
 ## Quyết định đã chốt
 
