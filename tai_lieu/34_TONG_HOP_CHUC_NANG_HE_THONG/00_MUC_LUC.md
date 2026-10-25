@@ -5,7 +5,7 @@
 - Ngày cập nhật: 2026-10-25
 - Trạng thái: Chờ phê duyệt
 - Căn cứ: yêu cầu của Eric ngày 2026-10-25 viết tài liệu tổng hợp chức năng kèm sơ đồ quy trình
-- Nguồn: mã và tài liệu trên nhánh `main` ngày 2026-10-25, sau PR 165 (DT-SaaS phần S2) và PR 166 (phần S1b). Mô tả theo mã đang chạy, không theo kế hoạch chưa làm. Phần DT-SaaS chưa có mã ghi rõ là đang làm hoặc kế hoạch
+- Nguồn: mã và tài liệu trên nhánh `main` ngày 2026-10-25, sau PR 165 (DT-SaaS phần S2), PR 166 (phần S1b) và PR 167 (phần S9). Mô tả theo mã đang chạy, không theo kế hoạch chưa làm. Phần DT-SaaS chưa có mã ghi rõ là đang làm hoặc kế hoạch
 
 ## 1. Cách đọc
 
@@ -58,7 +58,7 @@ Ngoài 21 phân hệ còn ba kênh: ứng dụng giáo viên, ứng dụng phụ
 
 ## 4. Chỉ mục sơ đồ quy trình
 
-Tài liệu có 76 sơ đồ Mermaid (flowchart, sequenceDiagram, stateDiagram-v2), đã dựng thử bằng Mermaid 11.4.1, không có lỗi cú pháp. Bảng dưới là các luồng chính theo yêu cầu; các sơ đồ trạng thái phụ xem cuối từng tệp.
+Tài liệu có 77 sơ đồ Mermaid (flowchart, sequenceDiagram, stateDiagram-v2), đã dựng thử bằng Mermaid 11.4.1, không có lỗi cú pháp. Bảng dưới là các luồng chính theo yêu cầu; các sơ đồ trạng thái phụ xem cuối từng tệp.
 
 | Luồng | Tệp | Mục |
 |---|---|---|
@@ -66,6 +66,7 @@ Tài liệu có 76 sơ đồ Mermaid (flowchart, sequenceDiagram, stateDiagram-v
 | Đăng nhập, phân quyền và chọn phân hệ | [01](01_TONG_QUAN_VA_NEN_TANG.md) | 2. Sơ đồ (sequence đăng nhập, flowchart chọn phân hệ) |
 | Thông báo cho phụ huynh | [01](01_TONG_QUAN_VA_NEN_TANG.md) | 3. Sơ đồ "Thông báo cho phụ huynh" |
 | Vòng đời trường trong DT-SaaS | [01](01_TONG_QUAN_VA_NEN_TANG.md) | 4. Sơ đồ "Vòng đời trường trong DT-SaaS" |
+| Hồ sơ triển khai thử nghiệm DT-SaaS (S9) | [01](01_TONG_QUAN_VA_NEN_TANG.md) | 4. Hồ sơ triển khai thử nghiệm (S9) |
 | Tuyển sinh đầu cấp và nhập học | [02](02_QUAN_LY_GIAO_DUC_CSVC_EMIS.md) | Sơ đồ 1 |
 | Tuyển sinh nội bộ của trường | [05](05_TAI_CHINH_NHAN_SU_HAU_CAN.md) | Sơ đồ 6 |
 | Điểm danh hằng ngày, báo vắng, đón trả (Mầm non) | [02](02_QUAN_LY_GIAO_DUC_CSVC_EMIS.md) | Sơ đồ 2 |

@@ -5,7 +5,7 @@
 - Ngày cập nhật: 2026-10-25
 - Trạng thái: Chờ phê duyệt
 - Thuộc: [Tài liệu 34, tổng hợp chức năng hệ thống](00_MUC_LUC.md)
-- Nguồn: mã và tài liệu trên nhánh `main` ngày 2026-10-25 (sau PR 165, 166). Khi tài liệu và mã lệch nhau, mô tả theo mã; chỗ lệch ghi ở [phụ lục](07_MA_TRAN_VAI_TRO_VA_PHU_LUC.md)
+- Nguồn: mã và tài liệu trên nhánh `main` ngày 2026-10-25 (sau PR 165, 166, 167). Khi tài liệu và mã lệch nhau, mô tả theo mã; chỗ lệch ghi ở [phụ lục](07_MA_TRAN_VAI_TRO_VA_PHU_LUC.md)
 
 ## 1. Tổng quan
 
@@ -210,7 +210,7 @@ flowchart LR
 | Điểm cuối dịch vụ định danh | 68 | Như trên, `apps/identity/src` |
 | Vai trò seed | 19 | VT-01 đến VT-20, không có VT-13 |
 | Mã quyền seed | 269 | Chạy lại toàn bộ migration định danh, đếm câu `insert into permissions` |
-| Spec e2e | 113 | `tests/e2e/*.spec.ts` (từ `01-login` đến `132-school-lifecycle`); thêm thư mục `tests/tenancy/` kiểm tĩnh cách ly |
+| Spec e2e | 114 | `tests/e2e/*.spec.ts` (từ `01-login` đến `140-trial-profile`); thêm thư mục `tests/tenancy/` kiểm tĩnh cách ly, `tests/trial/` kiểm cổng biên và bộ định tuyến của hồ sơ thử nghiệm |
 | Màn hình ứng dụng giáo viên | 24 màn hình, 3 thành phần | `apps/teacher/src/screens`: Lớp của tôi (trang chủ), Đăng nhập, Đổi mật khẩu, Điểm danh, Đón trả, Xác nhận đón tại cổng, Nhật ký, Chăm sóc và y tế, Trao đổi và đồ bị mất, Hoạt động và hình ảnh, Báo cơm, Bán trú, Đánh giá học sinh, Sổ điểm, Dặn thuốc, Giảng dạy, Sổ đầu bài, Lịch dạy, Sách đang mượn, Bồi dưỡng, Kiểm kê thiết bị, Nghỉ phép, Phiếu lương, Công việc; thành phần: thẻ chấm công, danh sách lịch công tác, thông báo |
 | Màn hình ứng dụng phụ huynh | 5 màn hình, 20 khối chức năng theo con | `apps/parent/src/screens`: Đăng nhập, Kích hoạt (đặt mật khẩu mới), Trang chủ, Tuyển sinh, Tuyển dụng; khối: Thông báo, Khảo sát, Nhật ký, Dặn thuốc, Đồng ý hình ảnh, Sức khỏe, Học tập, Trao đổi, Hoạt động, Thực đơn, Người đón, Dịch vụ, Học phí (kèm mã QR), Hồ sơ cuối cấp, Bán trú, Thời khóa biểu, Đánh giá, Thư viện, Sổ điểm, Chuyên cần theo tiết, Học bạ |
 | Bảng dữ liệu | 488 | Định danh 16, hệ thống 80, năm học 377, nền tảng 15 |
@@ -479,7 +479,7 @@ sequenceDiagram
 
 ## 4. DT-SaaS: đa thuê bao nhiều trường
 
-Nguồn: tài liệu 32 mục 14; `database/platform/`, `database/src/school-lifecycle.ts`, `school-database-layout.ts`, `platform-command.ts`, `adopt-existing.ts`, `domain-provider.ts`; `packages/server/src/tenancy.ts`, `tenant-middleware.ts`, `tenant-context.ts`, `resource-names.ts`; `apps/identity/src/platform/*`; `apps/api/src/tenancy-route-policy.ts`, `common/job-scheduler.ts`, `common/school-picker.ts`; `apps/platform/src/*`; e2e `130-tenancy-isolation`, `131-tenancy-background`, `132-school-lifecycle`; `tests/tenancy/`.
+Nguồn: tài liệu 32 mục 14; `database/platform/`, `database/src/school-lifecycle.ts`, `school-database-layout.ts`, `platform-command.ts`, `adopt-existing.ts`, `domain-provider.ts`, `database-host-adapter.ts`, `school-relayout.ts`; `deploy/profiles/trial/`; `packages/server/src/tenancy.ts`, `tenant-middleware.ts`, `tenant-context.ts`, `resource-names.ts`; `apps/identity/src/platform/*`; `apps/api/src/tenancy-route-policy.ts`, `common/job-scheduler.ts`, `common/school-picker.ts`; `apps/platform/src/*`; e2e `130-tenancy-isolation`, `131-tenancy-background`, `132-school-lifecycle`, `140-trial-profile`; `tests/tenancy/`, `tests/trial/`.
 
 ### Mục tiêu và nguyên tắc
 
@@ -491,15 +491,15 @@ Một nền tảng chạy nhiều trường, mỗi trường một đường d�
 |---|---|---|
 | S1a Nền đa thuê bao, phần lõi | YCTD-191, PR 164, 0.129.0 | Cơ sở dữ liệu `platform` (nền tảng 0001 đến 0004): `schools`, `school_domains`, `school_databases`, `school_keys`, `school_clusters`, `platform_settings`, `platform_operators`, `platform_audit_log`. Nhận diện trường theo tên miền (`TENANT_HOST_SOURCE` = `host`, `x-forwarded-host`, `header:<tên>` kèm `EDGE_SHARED_SECRET`); lớp trung gian trả 404 chung với tên miền lạ, trường `provisioning` hoặc `deleted`; trả 503 "Trường tạm dừng sử dụng" với `suspended`, `pending_deletion`. Ngữ cảnh trường trong `AsyncLocalStorage`; `Databases` (API) và `Infrastructure` (định danh) theo ngữ cảnh; nhóm kết nối có giới hạn (`TENANT_POOL_MAX`, `TENANT_POOL_SCHOOLS`). Bố cục `database` hoặc `schema` (`TENANT_DB_LAYOUT`, `SchoolDatabaseLayout`). Mã phiên mang `tid`, mã phiên khác trường bị 401; cookie gắn mã trường. `cacheKey` thành `t:<mã>:...`, `storageKey` thành `tenants/<mã>/...`; trường số 1 tiền tố trống. Khóa dữ liệu trẻ riêng từng trường bọc bằng `PLATFORM_MASTER_KEY` (AES-256-GCM). Lệnh `platform adopt-existing` nhận bản đang chạy làm trường số 1 không chép dữ liệu. Đăng nhập vận hành nền tảng `/auth/platform/login`, `/auth/platform/me`. Khung `apps/platform` (menu theo dữ liệu `platform-menu.ts`). Chính sách tuyến công khai `tenancy-route-policy.ts` (API và định danh) kèm kiểm thử ma trận cách ly mọi tuyến; kiểm tĩnh cấm truy cập trực tiếp cơ sở dữ liệu, Redis, S3 ngoài lớp hạ tầng (`tests/tenancy/static-guard.test.mjs`). E2e spec 130 |
 | S1b Việc nền và công khai | YCTD-192, PR 166, 0.130.0 | `JobScheduler` theo trường, bảng `scheduler_state` (nền tảng 0010), hai chế độ: trong tiến trình hoặc ngoài (`POST /api/v1/internal/jobs/tick`, `INTERNAL_JOB_TOKEN`), bù lượt bỏ lỡ. Sáu việc nền đăng ký theo trường (mục 1.3). Hàng đợi máy xếp thời khóa biểu theo trường (phần tử `<tiền tố>|<mã lần xếp>`) kèm hạn mức. Kiểm tên miền cho Caddy cấp chứng chỉ theo danh mục tên miền nền tảng (`/api/v1/public/website/domain-check`). Trang chọn trường: `GET /api/v1/public/schools/picker`, `/resolve` (nhập mã trường rồi chuyển sang tên miền của trường, không đăng nhập chéo). Giới hạn tần suất công khai theo trường; bộ đệm ngữ cảnh trường (`TenantRegistry.contextOf`). E2e spec 131. Chưa làm: số đo theo trường, bản trình diễn theo trường |
-| S2 Khởi tạo và vòng đời trường | YCTD-193, PR 165, 0.131.0 | Nền tảng 0020 đến 0022: cột vòng đời của `schools`, `provisioning_jobs`, `school_lifecycle_events`, `school_admin_invitations`, `school_migrations`, cột kiểm tra tên miền, `school_consents`, `school_hosting`; hệ thống 0050 `terms_acceptances`. Thư viện `school-lifecycle.ts` (BR-206 đến BR-208, BM-77, BM-78): bước setup, khởi tạo mười một bước chạy tiếp được hoặc hoàn tác, tạm dừng, mở lại, yêu cầu xóa, hủy yêu cầu xóa, xóa vĩnh viễn sau thời gian chờ (mặc định 30 ngày, `SCHOOL_DELETION_GRACE_DAYS`), cổng hồ sơ đồng ý, lời mời kích hoạt một lần (72 giờ), migrate cuốn chiếu. Bộ nối `DomainProvider`: `dns-check` (tra CNAME về `PLATFORM_INGRESS_HOST` và TXT `_school-verify.<tên miền>`); `cloudflare-saas`, `vercel-domains` để S9. Điểm cuối `/auth/platform/schools` và `/auth/activate`; trang Trường ở `apps/platform`, trang `/activate` ở cổng quản trị. Lệnh dòng lệnh `platform` và lệnh `school-lifecycle-command` của API (xuất ZIP một trường, xóa tệp khi purge). E2e spec 132 |
+| S2 Khởi tạo và vòng đời trường | YCTD-193, PR 165, 0.131.0 | Nền tảng 0020 đến 0022: cột vòng đời của `schools`, `provisioning_jobs`, `school_lifecycle_events`, `school_admin_invitations`, `school_migrations`, cột kiểm tra tên miền, `school_consents`, `school_hosting`; hệ thống 0050 `terms_acceptances`. Thư viện `school-lifecycle.ts` (BR-206 đến BR-208, BM-77, BM-78): bước setup, khởi tạo mười một bước chạy tiếp được hoặc hoàn tác, tạm dừng, mở lại, yêu cầu xóa, hủy yêu cầu xóa, xóa vĩnh viễn sau thời gian chờ (mặc định 30 ngày, `SCHOOL_DELETION_GRACE_DAYS`), cổng hồ sơ đồng ý, lời mời kích hoạt một lần (72 giờ), migrate cuốn chiếu. Bộ nối `DomainProvider`: `dns-check` (tra CNAME về `PLATFORM_INGRESS_HOST` và TXT `_school-verify.<tên miền>`); `cloudflare-saas`, `vercel-domains` làm ở S9. Điểm cuối `/auth/platform/schools` và `/auth/activate`; trang Trường ở `apps/platform`, trang `/activate` ở cổng quản trị. Lệnh dòng lệnh `platform` và lệnh `school-lifecycle-command` của API (xuất ZIP một trường, xóa tệp khi purge). E2e spec 132 |
 | S7a Hạ tầng VPS, phần dựng sẵn | YCTD-198, PR 163, 0.128.0 | `deploy/profiles/production/`: Compose một đến vài máy (T1, T2, T3), PgBouncer, Caddy bắt mọi tên miền, giám sát (Prometheus, Loki, Grafana, Alertmanager), môi trường thử. Chưa kiểm tay trên staging |
 | S8a Hồ sơ pháp lý | YCTD-200, PR 162 | Chỉ tài liệu: `tai_lieu/33_HO_SO_PHAP_LY/` PL-00 đến PL-15 (hợp đồng, thỏa thuận xử lý dữ liệu, văn bản đồng ý, điều khoản, chính sách bảo vệ dữ liệu, đánh giá tác động, chấp nhận rủi ro...), bản nháp chờ luật sư rà. Không có mã |
+| S9 Triển khai thử nghiệm miễn phí | YCTD-203, PR 167, 0.132.0 | Hồ sơ `deploy/profiles/trial/` dùng chung mã với hồ sơ vận hành, khác ở biến cấu hình (chi tiết ở mục "Hồ sơ triển khai thử nghiệm" dưới đây). Nền tảng 0100 (`school_databases.login_name`). Bộ nối nơi đặt PostgreSQL `DB_HOST_ADAPTER` (`plain`, `neon`, `supabase`); bộ nối tên miền `cloudflare-saas`, `vercel-domains`; chính sách dữ liệu `PLATFORM_DATA_POLICY` (BR-209); lệnh `platform relayout` (BR-210); kho khóa trong bộ nhớ của dịch vụ định danh (`REDIS_URL=memory://`); `APP_BASE_PATH` cho ba ứng dụng web. E2e spec 140, kiểm thử `tests/trial/`. Chưa dựng thật trên nhà cung cấp; chưa làm `INTEGRATIONS_MODE` (để S3) và tự xóa trường dữ liệu giả sau 30 ngày |
 
 ### Phần ĐANG LÀM hoặc KẾ HOẠCH (chưa có trong mã)
 
 | Phần | Đợt | Nội dung kế hoạch (tài liệu 32 mục 14.3) | Dấu hiệu trong mã |
 |---|---|---|---|
-| S9 Triển khai thử nghiệm | 3 (giao đầu) | Hồ sơ (a) trên Cloudflare Worker hoặc Vercel, Neon hoặc Supabase, R2 hoặc Supabase Storage, Render hoặc Koyeb; container gộp `identity` + `api`, bố cục `schema`, không Redis; công cụ `platform relayout` chuyển sang VPS | Chỉ có giá trị `cloudflare-saas`, `vercel-domains` của `DOMAIN_PROVIDER` đặt sẵn; chưa có `deploy/profiles/trial/` |
 | S5a Gói dịch vụ và giới hạn | 2 | Gói, phân hệ theo gói, giới hạn học sinh, dung lượng, trạng thái dùng thử, hoạt động, chỉ đọc, tạm ngưng; chỉ đọc khi hết hạn | Trạng thái `read_only` đã có trong ràng buộc và nhãn "Chỉ đọc" ở trang Trường, nhưng chưa có mã nào chuyển trường sang `read_only`; chưa có bảng `plans` |
 | S3 Cấu hình riêng từng trường | 3 | Chuyển khóa tích hợp trong `.env` (thanh toán, eSMS, Zalo, Facebook, kho tệp) thành cấu hình mã hóa của trường; logo, màu, tên; đổi khóa dữ liệu trẻ có công cụ mã hóa lại | Chưa có; trước S3, trường thứ hai trở đi chạy tích hợp giả lập hoặc tắt (`INTEGRATIONS_MODE`) |
 | S5b Thu phí tự động | 4 | Quy tắc tính phí (theo học sinh, theo trường, theo phân hệ, mặc định theo số học sinh), hóa đơn, thu qua QR, gia hạn, nhắc, hóa đơn điện tử | Chưa có |
@@ -525,7 +525,44 @@ Không có nút xóa vĩnh viễn ở cổng: xóa vĩnh viễn chạy bằng l�
 
 **Điểm cuối định danh** `/auth/platform/schools`: `GET` (danh sách), `GET settings`, `GET :code`, `POST` (setup), `POST jobs/:id/resume`, `POST jobs/:id/rollback`, `POST :code/suspend`, `:code/resume`, `:code/request-deletion`, `:code/cancel-deletion`, `:code/invitation`, `:code/consents`, `:code/hosting`, `:code/data-class`, `:code/domains`, `:code/domains/:host/verify`.
 
-**Lệnh dòng lệnh `platform`**: `generate-master-key`, `migrate`, `adopt-existing`, `provision --file`, `provision-resume --job`, `provision-rollback --job`, `suspend`, `resume`, `request-deletion`, `cancel-deletion` (kèm `--reason`), `purge-due`, `reissue-invitation`, `verify-domain --host`, `migrate-schools [--canary] [--continue]`.
+**Lệnh dòng lệnh `platform`**: `generate-master-key`, `migrate`, `adopt-existing`, `provision --file`, `provision-resume --job`, `provision-rollback --job`, `suspend`, `resume`, `request-deletion`, `cancel-deletion` (kèm `--reason`), `purge-due`, `reissue-invitation`, `verify-domain --host`, `migrate-schools [--canary] [--continue]`, `relayout --school <mã> --to database|schema` (S9).
+
+Ở bước 3 của Khởi tạo trường, khi `PLATFORM_DATA_POLICY` khác `any`, cổng hiện ghi chú: `synthetic-only` chỉ nhận dữ liệu giả; `consent-required` nhận dữ liệu thật khi đủ hồ sơ đồng ý, không nhận loại vận hành chính thức. Khối Tên miền hiện hướng dẫn xác nhận theo bộ nối: `dns-check` ghi bản ghi TXT, bộ nối khác ghi mã xác nhận của nhà cung cấp.
+
+### Hồ sơ triển khai thử nghiệm (S9)
+
+Nguồn: YCTD-203, tài liệu 12 mục 12D và QĐ-28, `deploy/profiles/trial/README.md`. Dùng để Eric cho trường dùng thử sớm trên gói miễn phí, không thuê VPS; chuyển sang hồ sơ vận hành bằng lệnh, không sửa mã.
+
+| Thành phần | Cách làm |
+|---|---|
+| Cổng biên | Cloudflare Worker (`cloudflare/src/worker.mjs`) nhận mọi tên miền: `/quan-ly`, `/giao-vien`, `/phu-huynh` là ba ứng dụng tĩnh dựng với `APP_BASE_PATH`; tên miền cổng nền tảng phục vụ `apps/platform`; tên miền hệ thống phục vụ trang chọn trường; `/api/v1` và website chuyển về máy chủ kèm tiêu đề `x-school-host` và bí mật `x-edge-auth` (`TENANT_HOST_SOURCE=header:x-school-host`). Máy chủ đang ngủ thì trả trang "Hệ thống đang khởi động" (503, `ERR_SERVICE_WAKING`, MH-320). Chèn biểu ngữ thử nghiệm theo `DATA_POLICY`. `scheduled()` (Cron Triggers) gọi `tick` của bộ lập lịch S1b |
+| Máy chủ | Một container gộp (`container/Dockerfile.all-in-one`): `router.mjs` chia tuyến cùng bảng tuyến với Caddy (nhóm định danh sang `identity`, còn lại sang `api`); chạy migrate nền tảng khi khởi động (`MIGRATE_ON_START`, `MIGRATE_SCHOOLS_ON_START`); không có `worker`, không Redis (`REDIS_URL=memory://`, giới hạn đăng nhập và mã xác nhận mất khi khởi động lại); mẫu `render.yaml.example`, `koyeb.sh.example` |
+| Cơ sở dữ liệu | Bố cục `schema` qua bộ gom kết nối chế độ giao dịch của Neon hoặc Supabase; `DB_HOST_ADAPTER` quyết định máy chủ, cổng, hậu tố tên đăng nhập (Supabase `<vai trò>.<mã dự án>`, ghi ở `login_name`). Chạy được vì `search_path`, múi giờ đặt ở mức vai trò và migrate khóa bằng `pg_advisory_xact_lock` |
+| Tệp | R2 hoặc Supabase Storage qua biến `S3_*` |
+| Tên miền riêng | `DOMAIN_PROVIDER=cloudflare-saas` (Cloudflare for SaaS: tạo, hỏi trạng thái tên miền và chứng chỉ, gỡ) hoặc `vercel-domains` (thêm, xác nhận, gỡ tên miền dự án Vercel); xóa vĩnh viễn trường gỡ tên miền khỏi nhà cung cấp |
+| Ba tổ hợp | `to-hop-1`, `to-hop-2`, `to-hop-3` (README các bước, tệp biến mẫu, mẫu dòng vùng máy chủ `school_hosting`); tổ hợp 3 có Vercel 3a, 3b và lịch GitHub Actions gọi `tick`. Tổ hợp 3b không có trang đang khởi động và không chèn biểu ngữ. Koyeb gói miễn phí không có vùng Singapore. Mọi tệp mẫu chỉ có giá trị giả |
+| Chính sách dữ liệu | `PLATFORM_DATA_POLICY` = `any` (mặc định), `consent-required`, `synthetic-only`; áp ở bước setup và khi đổi loại dữ liệu (BR-209). Dữ liệu thật ở máy chủ ngoài Việt Nam chỉ khi có văn bản đồng ý và hồ sơ ở `tai_lieu/33_HO_SO_PHAP_LY/` |
+| Chuyển sang vận hành | `platform relayout --school <mã>` kèm `--to database` hoặc `--to schema`, với biến `TARGET_PLATFORM_*`: trường nguồn phải tạm dừng hoặc chỉ đọc; ghi trường ở đích, bọc lại khóa dữ liệu trẻ bằng khóa gốc của đích, chép tên miền, hồ sơ đồng ý, vùng máy chủ; tạo cơ sở dữ liệu theo bố cục đích, migrate, chép từng bảng trong một giao dịch, đặt lại bộ đếm; so số dòng và tổng kiểm md5 từng bảng, lệch thì dừng (BR-210) |
+
+Mặc định (`DB_HOST_ADAPTER=plain`, `PLATFORM_DATA_POLICY=any`, `APP_BASE_PATH=/`) giữ nguyên chế độ một trường và hồ sơ vận hành.
+
+```mermaid
+flowchart LR
+  ND["Người dùng"] --> CB["Cổng biên Cloudflare Worker"]
+  CB -->|"/quan-ly, /giao-vien, /phu-huynh"| TT["Ba ứng dụng tĩnh"]
+  CB -->|"tên miền cổng nền tảng"| PF["apps/platform"]
+  CB -->|"tên miền hệ thống"| CT["Trang chọn trường"]
+  CB -->|"/api/v1, website, kèm x-school-host"| CG{"Máy chủ đang thức?"}
+  CG -->|"Không"| KD["Trang đang khởi động 503"]
+  CG -->|"Có"| RT["router.mjs trong container gộp"]
+  RT -->|"nhóm định danh"| ID["identity"]
+  RT -->|"còn lại"| API["api"]
+  ID --> DB[("PostgreSQL bố cục schema qua bộ gom Neon hoặc Supabase")]
+  API --> DB
+  API --> S3[("R2 hoặc Supabase Storage")]
+  CR["Cron Triggers hoặc GitHub Actions"] -->|"tick"| API
+  DB -.->|"platform relayout"| VPS[("Hồ sơ vận hành trên VPS trong nước")]
+```
 
 **Khởi tạo mười một bước** (`PROVISION_STEPS`): `database:identity`, `migrate:identity`, `database:system`, `migrate:system`, `database:year`, `migrate:year`, `seed:system`, `seed:year`, `admin`, `domain`, `activate`. Mỗi bước kiểm việc đã làm nên chạy lại được; lỗi thì chạy tiếp hoặc hoàn tác xóa sạch. Trạng thái việc: `pending`, `running`, `failed`, `done`, `rolled_back`.
 
@@ -563,4 +600,4 @@ stateDiagram-v2
   deleted --> [*]
 ```
 
-Ghi chú: `provisioning`, `deleted` trả 404 chung; `suspended`, `pending_deletion` trả 503 và bộ lập lịch bỏ qua trường; `trial`, `active`, `read_only` được phục vụ.
+Ghi chú: lệnh `platform relayout` (S9) không đổi trạng thái; nó chỉ nhận trường nguồn đang `suspended` hoặc `read_only`. `provisioning`, `deleted` trả 404 chung; `suspended`, `pending_deletion` trả 503 và bộ lập lịch bỏ qua trường; `trial`, `active`, `read_only` được phục vụ.
