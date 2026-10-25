@@ -139,6 +139,7 @@ import { ArchiveReportPage } from './archives/ArchiveReportPage.js';
 import { GeneratedFilesPage } from './exports/GeneratedFilesPage.js';
 import { DemoEnvironmentPage, ImpersonationsPage, SchoolDataExportPage } from './administration/AdministrationPages.js';
 import { ForgotPasswordPage } from './pages/ForgotPasswordPage.js';
+import { ActivatePage } from './pages/ActivatePage.js';
 import { HelpPage } from './portal-shell/HelpPage.js';
 import { MyProfilePage } from './portal-shell/MyProfilePage.js';
 import { SystemAnnouncementsPage } from './portal-shell/SystemAnnouncementsPage.js';
@@ -294,8 +295,8 @@ import {
 } from './learning-resources/LearningResourcePages.js';
 import { ResourceBankPage, ResourcePackagesPage, RubricsPage } from './learning-resources/ResourceSharingPages.js';
 
-// Trang dùng được khi chưa đăng nhập (DT-16 phần 16c thêm Quên mật khẩu)
-const PUBLIC_PATHS = ['/login', '/forgot-password'];
+// Trang dùng được khi chưa đăng nhập (DT-16 phần 16c thêm Quên mật khẩu; DT-SaaS S2 thêm Kích hoạt quản trị viên đầu tiên)
+const PUBLIC_PATHS = ['/login', '/forgot-password', '/activate'];
 // Trang công khai mở được cả khi đã hay chưa đăng nhập: tra cứu mã QR của văn bản đi (DT-18 phần 18b)
 // và mã QR thời khoá biểu (DT-20 phần 22c2), chứng nhận bồi dưỡng (DT-22 phần 22e)
 const OPEN_PATHS = ['/tra-cuu-van-ban', '/tra-cuu-khen-thuong', '/tra-cuu-thoi-khoa-bieu', '/tra-cuu-chung-nhan'];
@@ -331,6 +332,7 @@ const routeTree = rootRoute.addChildren([
   createRoute({ getParentRoute: () => rootRoute, path: '/change-password', component: ChangePasswordPage }),
   // Quên mật khẩu, hồ sơ nhân sự cá nhân, hướng dẫn, thông báo hệ thống, ứng dụng liên kết (DT-16 phần 16c)
   createRoute({ getParentRoute: () => rootRoute, path: '/forgot-password', component: ForgotPasswordPage }),
+  createRoute({ getParentRoute: () => rootRoute, path: '/activate', component: ActivatePage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/my-profile', component: MyProfilePage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/help', component: HelpPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/system-announcements', component: SystemAnnouncementsPage }),

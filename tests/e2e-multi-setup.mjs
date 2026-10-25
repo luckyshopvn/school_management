@@ -15,6 +15,7 @@ import {
   testAdminDatabaseUrl,
 } from '@school-management/database';
 import {
+  E2E_LIFECYCLE_SCHOOL_CODES,
   E2E_MULTI_STATE_FILE,
   E2E_PLATFORM_DATABASE_NAME,
   E2E_SCHOOL_CODES,
@@ -31,7 +32,7 @@ const layoutKind = process.env.E2E_TENANT_LAYOUT === 'schema' ? 'schema' : 'data
 const host = new URL(adminUrl).hostname;
 const port = new URL(adminUrl).port ? Number(new URL(adminUrl).port) : 5432;
 
-for (const code of E2E_SCHOOL_CODES) {
+for (const code of [...E2E_SCHOOL_CODES, ...E2E_LIFECYCLE_SCHOOL_CODES]) {
   await purgeSchoolArtifacts(adminUrl, code, E2E_SHARED_DATABASE_NAME);
 }
 await dropDatabaseIfExists(adminUrl, E2E_PLATFORM_DATABASE_NAME);

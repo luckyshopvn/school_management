@@ -16,6 +16,17 @@
 
 ## 2. Danh sách phiên bản
 
+### Phiên bản 0.131.0 – 2026-10-25
+
+- Phạm vi thay đổi: DT-SaaS phần S2, khởi tạo và vòng đời trường (YCTD-193).
+- Chức năng mới: khởi tạo trường theo bước setup ở cổng nền tảng và lệnh `platform provision` (P01-54), vòng đời trường: tạm dừng, mở lại, yêu cầu xóa, hủy, xóa vĩnh viễn, xuất dữ liệu (P01-55), tên miền riêng qua bộ nối `DomainProvider`, hồ sơ đồng ý dữ liệu thật (P01-56), kích hoạt quản trị viên đầu tiên (P01-57), migrate cuốn chiếu (P01-58); trang Trường ở cổng nền tảng (MH-316 đến MH-318) và trang Kích hoạt ở cổng quản trị (MH-319).
+- Lỗi đã sửa: không có.
+- Thay đổi dữ liệu: tệp nền tảng `0020` đến `0022` (sáu bảng mới, cột mới ở `schools`, `school_domains`), tệp hệ thống `0050_create_terms_acceptances` (xem `16_CO_SO_DU_LIEU.md` mục 18A); không đổi cơ sở dữ liệu định danh, năm học.
+- Thay đổi API: nhóm `/api/v1/auth/platform/schools…`, `GET, POST /api/v1/auth/activate` (xem `17_DAC_TA_API.md`); lệnh mới `platform provision`, `provision-resume`, `provision-rollback`, `suspend`, `resume`, `request-deletion`, `cancel-deletion`, `purge-due`, `reissue-invitation`, `verify-domain`, `migrate-schools` và `school-lifecycle-command.js export | purge-due` của máy chủ API.
+- Kiểm thử: kịch bản CT-1004 đến CT-1013. Kết quả ngày 25/10/2026: `database` 13 ca mới (`school-lifecycle.test.ts`); `apps/identity` 7 ca mới (`platform-schools.test.ts`), vận hành nền tảng 7 ca và ma trận cách ly 4 ca chạy lại đạt; `apps/api` 2 ca mới; e2e spec 132 và 130 ở dự án nhiều trường; e2e toàn bộ do CI chạy.
+- Rủi ro: xóa vĩnh viễn, migrate cuốn chiếu chạy bằng lệnh theo lịch cho tới khi có bộ lập lịch (S1b); máy chủ API khác thấy trạng thái trường đổi chậm tối đa `TENANT_CACHE_SECONDS`; khởi tạo chạy đồng bộ trong yêu cầu (vài chục giây), lỗi thì chạy tiếp hoặc hoàn tác.
+- Khả năng tương thích: chế độ một trường không đổi; tệp hệ thống `0050` chỉ thêm bảng.
+- Phương án quay lui: hoàn lại commit gộp của nhánh S2; bảng mới không được mã cũ đọc.
 ### Phiên bản 0.130.0 – 2026-10-25
 
 - Phạm vi thay đổi: DT-SaaS phần S1b, nền đa thuê bao, phần chạy nền và công khai (YCTD-192).

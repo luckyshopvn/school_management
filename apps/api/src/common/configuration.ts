@@ -1,3 +1,9 @@
+import {
+  lifecycleSettingsFrom,
+  readTenancyConfiguration,
+  type LifecycleSettings,
+  type TenancyConfiguration,
+} from '@school-management/database';
 import { decodeBase64Key, readSmsProviderSettings, type SmsProviderSettings } from '@school-management/server';
 import { PAYMENT_PROVIDER_CODES, type PaymentProviderCode } from '../finance/payment-gateway.js';
 import { readPaymentProviderSettings, type PaymentProviderSettings } from '../finance/payment-providers.js';
@@ -171,5 +177,21 @@ export function readConfigurationFromEnvironment(options: { multiTenant?: boolea
     ...readIntegrationConfiguration(process.env),
     smsProvider: readSmsProviderSettings(),
     redisUrl: process.env.REDIS_URL?.trim() || null,
+  };
+}
+
+// Cấu hình của lệnh vòng đời trường (DT-SaaS phần S2): nền tảng nhiều trường, tên miền hệ thống và số ngày chờ xóa, tên người
+// chạy lệnh ghi vào nhật ký nền tảng
+export interface PlatformCommandSettings {
+  tenancy: TenancyConfiguration | null;
+  lifecycle: LifecycleSettings;
+  actorName: string;
+}
+
+export function readPlatformCommandSettings(): PlatformCommandSettings {
+  return {
+    tenancy: readTenancyConfiguration(process.env),
+    lifecycle: lifecycleSettingsFrom(process.env),
+    actorName: process.env.PLATFORM_CLI_ACTOR?.trim() || 'Lệnh vòng đời trường (máy chủ API)',
   };
 }

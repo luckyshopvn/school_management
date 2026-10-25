@@ -11,6 +11,9 @@ const SIGN_IN =
 const PLATFORM =
   'Cổng vận hành nền tảng: không thuộc trường nào, chỉ phục vụ ở tên miền PLATFORM_CONSOLE_HOST (tên miền khác 404), mã phiên vận hành có đối tượng riêng';
 
+const ACTIVATE =
+  'Kích hoạt quản trị viên đầu tiên của trường mới (DT-SaaS S2): công khai theo tên miền của trường, cần mã kích hoạt một lần (chỉ lưu mã băm, hạn 72 giờ), có giới hạn tần suất';
+
 export const PUBLIC_ROUTES: PublicRoute[] = [
   {
     method: 'GET',
@@ -26,4 +29,22 @@ export const PUBLIC_ROUTES: PublicRoute[] = [
   { method: 'POST', path: '/api/v1/auth/password-reset/request', reason: SIGN_IN },
   { method: 'POST', path: '/api/v1/auth/platform/login', reason: PLATFORM },
   { method: 'GET', path: '/api/v1/auth/platform/me', reason: PLATFORM },
+  { method: 'GET', path: '/api/v1/auth/platform/schools', reason: PLATFORM },
+  { method: 'GET', path: '/api/v1/auth/platform/schools/settings', reason: PLATFORM },
+  { method: 'GET', path: '/api/v1/auth/platform/schools/:code', reason: PLATFORM },
+  { method: 'POST', path: '/api/v1/auth/platform/schools', reason: PLATFORM },
+  { method: 'POST', path: '/api/v1/auth/platform/schools/jobs/:id/resume', reason: PLATFORM },
+  { method: 'POST', path: '/api/v1/auth/platform/schools/jobs/:id/rollback', reason: PLATFORM },
+  { method: 'POST', path: '/api/v1/auth/platform/schools/:code/suspend', reason: PLATFORM },
+  { method: 'POST', path: '/api/v1/auth/platform/schools/:code/resume', reason: PLATFORM },
+  { method: 'POST', path: '/api/v1/auth/platform/schools/:code/request-deletion', reason: PLATFORM },
+  { method: 'POST', path: '/api/v1/auth/platform/schools/:code/cancel-deletion', reason: PLATFORM },
+  { method: 'POST', path: '/api/v1/auth/platform/schools/:code/invitation', reason: PLATFORM },
+  { method: 'POST', path: '/api/v1/auth/platform/schools/:code/consents', reason: PLATFORM },
+  { method: 'POST', path: '/api/v1/auth/platform/schools/:code/hosting', reason: PLATFORM },
+  { method: 'POST', path: '/api/v1/auth/platform/schools/:code/data-class', reason: PLATFORM },
+  { method: 'POST', path: '/api/v1/auth/platform/schools/:code/domains', reason: PLATFORM },
+  { method: 'POST', path: '/api/v1/auth/platform/schools/:code/domains/:host/verify', reason: PLATFORM },
+  { method: 'GET', path: '/api/v1/auth/activate', reason: ACTIVATE },
+  { method: 'POST', path: '/api/v1/auth/activate', reason: ACTIVATE },
 ];

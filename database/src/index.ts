@@ -405,3 +405,12 @@ export {
   type AdoptResult,
 } from './adopt-existing.js';
 export type { TenantContext } from '@school-management/server/tenancy';
+export type { ProvisioningJobKind, ProvisioningJobStatus, SchoolConsentKind } from '../platform/schema.js';
+export * from './school-lifecycle.js';
+export * from './domain-provider.js';
+export {
+  DEFAULT_LIFECYCLE_SETTINGS,
+  lifecycleEnvironmentOf,
+  lifecycleSettingsFrom,
+  type LifecycleSettings,
+} from './lifecycle-environment.js';

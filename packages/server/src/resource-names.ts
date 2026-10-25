@@ -28,6 +28,16 @@ export function cacheKey(...parts: string[]): string {
   return checkedParts([...prefix, ...parts]).join(':');
 }
 
+// Tiền tố chung của mọi tệp của trường trong ngữ cảnh, dạng `tenants/<tiền tố>/`, để xóa sạch tệp khi xóa vĩnh viễn trường
+// (DT-SaaS phần S2). Từ chối khi không có trường hoặc trường không có tiền tố (trường số 1 dùng khóa không tiền tố)
+export function tenantStoragePrefix(): string {
+  const tenant = requireTenant('kho tệp');
+  if (!tenant?.keyPrefix) {
+    throw new Error('Trường không có tiền tố khóa riêng, không xóa tệp theo tiền tố được');
+  }
+  return `${checkedParts(['tenants', tenant.keyPrefix]).join('/')}/`;
+}
+
 // Khóa ở bộ nhớ đệm với tiền tố của trường cho sẵn (không đọc ngữ cảnh): tiến trình nền không có ngữ cảnh trường, nhận tiền tố kèm việc
 // (DT-SaaS phần S1b). Tiền tố trống là trường số 1 hoặc chế độ một trường: khóa như cacheKey khi không có trường
 export function cacheKeyWithPrefix(keyPrefix: string, ...parts: string[]): string {

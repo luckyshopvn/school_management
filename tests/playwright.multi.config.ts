@@ -6,6 +6,7 @@ import {
   E2E_ROOT_DOMAIN,
   E2E_SCHEDULER_SECRET,
   E2E_MULTI_API_PORT,
+  E2E_MULTI_CONSOLE_PORT,
   E2E_MULTI_IDENTITY_PORT,
   E2E_MULTI_PORTAL_PORT,
   E2E_MULTI_STATE_FILE,
@@ -37,6 +38,10 @@ const platformEnvironment: Record<string, string> = {
   TENANT_DB_LAYOUT: state.layout,
   ...(state.layout === 'schema' ? { PLATFORM_SHARED_DATABASE: E2E_SHARED_DATABASE_NAME } : {}),
   TENANT_HOST_SOURCE: 'host',
+  // Trường mới khởi tạo ở cổng nền tảng có tên miền <mã>.e2e.localhost (DT-SaaS phần S2, dịch vụ định danh đọc tên miền hệ thống);
+  // trạng thái trường đổi thì máy chủ API đọc lại sau 1 giây
+  PLATFORM_ROOT_DOMAIN: E2E_ROOT_DOMAIN,
+  TENANT_CACHE_SECONDS: '1',
 };
 // Tệp kiểm thử cũng dựng thời gian chạy nền tảng để tạo tài khoản cho từng trường
 Object.assign(process.env, platformEnvironment);
@@ -84,6 +89,11 @@ export default defineConfig({
       command: `pnpm --filter @school-management/portal exec vite --port ${E2E_MULTI_PORTAL_PORT} --strictPort`,
       url: `http://localhost:${E2E_MULTI_PORTAL_PORT}`,
       env: { IDENTITY_BASE_URL: identityBaseUrl, API_BASE_URL: apiBaseUrl },
+    },
+    {
+      command: `pnpm --filter @school-management/platform exec vite --port ${E2E_MULTI_CONSOLE_PORT} --strictPort`,
+      url: `http://localhost:${E2E_MULTI_CONSOLE_PORT}`,
+      env: { IDENTITY_BASE_URL: identityBaseUrl },
     },
   ],
 });
