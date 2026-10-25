@@ -1,7 +1,7 @@
 # 24. YÊU CẦU THAY ĐỔI
 
 - Mô tả: Sổ quản lý yêu cầu thay đổi, ghi lý do, đánh giá ảnh hưởng và trạng thái của từng thay đổi trước khi triển khai.
-- Phiên bản: 0.60
+- Phiên bản: 0.61
 - Ngày cập nhật: 2026-10-25
 - Trạng thái: Đang cập nhật
 
@@ -10,6 +10,26 @@
 Mã yêu cầu thay đổi dạng `YCTD-nn`, đánh số tăng dần, không tái sử dụng. Mục mới nhất ở trên cùng. Trạng thái dùng bốn giá trị: Chờ phê duyệt, Đã phê duyệt, Từ chối, Đã triển khai.
 
 Các thay đổi trước phiên bản 0.4.0 chưa có sổ này; xem `23_LICH_SU_PHIEN_BAN.md` các phiên bản 0.1.0 đến 0.3.1.
+
+### YCTD-198: DT-SaaS phần S7a: hạ tầng VPS trong nước, phần dựng sẵn – 2026-10-25
+
+- Lý do: phần S7a của `32_KE_HOACH_THEO_HE_THONG_SO.md` mục 14.3, 14.5 (đợt 1): hồ sơ "Vận hành" (b) để chạy nhiều trường trên VPS đặt tại Việt Nam. Căn cứ: Nghị định 53/2022/NĐ-CP về lưu trữ dữ liệu trong nước (đọc lại văn bản còn hiệu lực trước khi ký với nhà cung cấp; checklist ở README của hồ sơ). **Không sửa mã nghiệp vụ** (chỉ `deploy/`, `docker/`, tài liệu). Các điểm chi tiết Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11.
+- Nội dung thay đổi (Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11):
+  - **Hồ sơ `deploy/profiles/production/`**: một tệp Compose cho ba cách đặt máy chọn bằng `COMPOSE_PROFILES` (`db`, `replica`, `app`, `seaweedfs`, `monitoring`, `monitoring-agent`, `demo`): T1 một VPS; T2 máy ứng dụng và máy cơ sở dữ liệu (nối qua mạng riêng, `DATABASE_HOST`, `MIGRATE_DATABASE_HOST`); T3 thêm máy ứng dụng thứ hai (hai bản ghi A) và bản sao chỉ đọc (sao chép luồng, `docker/postgres/replica-entrypoint.sh`, vai trò sao chép `docker/postgres/create-replication-role.sh`). Giới hạn ghi rõ: không cân bằng tải, không tự chuyển sang bản sao, T3 phải dùng chung Redis và kho tệp.
+  - **PgBouncer** (`docker/pgbouncer/`, dựng từ gói của Alpine, cấu hình sinh từ biến môi trường, xác thực SCRAM): gom theo giao dịch cho cơ sở dữ liệu định danh và mọi cơ sở dữ liệu năm học (khai báo `*`), **gom theo phiên cho `school_system`**. Kết quả rà mã: múi giờ đặt ở mức cơ sở dữ liệu (`database/src/timezone.ts`); không có `SET` theo phiên, `LISTEN`, câu lệnh chuẩn bị có tên; khóa tư vấn ở các phân hệ đều là `pg_advisory_xact_lock` trong giao dịch; **riêng mở năm học** (`academic-years.service.ts`) giữ khóa tư vấn theo phiên (`pg_try_advisory_lock`, `pg_advisory_unlock`) và tạo cơ sở dữ liệu trên kết nối `school_system`, nên cơ sở dữ liệu này gom theo phiên. Migrate nối thẳng PostgreSQL. PostgreSQL cấu hình cho hàng trăm cơ sở dữ liệu nhỏ (kết nối thật ít, `autodb_idle_timeout` đóng kết nối rảnh, WAL mức `replica`).
+  - **Caddy bắt mọi tên miền** (`deploy/profiles/production/``caddy/Caddyfile`, gắn đè lên ảnh `web` sẵn có): khối địa chỉ bắt chung với chứng chỉ theo yêu cầu, hỏi `DOMAIN_CHECK_URL` (hiện là danh sách tên miền website của YCTD-144; đổi sang điểm cuối của nền tảng ở S1b bằng biến, không sửa tệp); không ghi tên miền trong tệp; tên miền cố định để ở `caddy/sites.d/` (bản một trường hiện nay, môi trường thử); `TENANT_PATHS=on` mở `/quan-ly`, `/giao-vien`, `/phu-huynh`, `/api/v1` trên tên miền của từng trường (bật sau S1b).
+  - **Triển khai không gián đoạn**: hai bản `api` (`api-a`, `api-b`) và `identity`; Caddy kiểm tra sức khỏe chủ động, thử lại sang bản kia; `scripts/deploy.sh` chạy migrate trước (quy tắc tương thích lùi), rồi khởi động lại lần lượt từng bản sau khi bản trước báo khỏe; việc định kỳ chỉ chạy ở `api-a` (`api-b` đặt khoảng chạy về 0) để không chạy hai lần.
+  - **Giám sát và cảnh báo trên chính VPS**: Prometheus, node-exporter, postgres-exporter, blackbox (dịch vụ nội bộ, tên miền và hạn chứng chỉ từ ngoài vào), Loki và Promtail (nhật ký tập trung), Grafana chỉ nghe 127.0.0.1; luật cảnh báo (máy, ổ đĩa, bộ nhớ, CPU, dịch vụ, lỗi 5xx, PostgreSQL, bản sao, tên miền, chứng chỉ; ngưỡng giả định); Alertmanager gửi email, Telegram hoặc webhook (chuyển tiếp sang Zalo OA), kênh để trống thì không gửi, bí mật ghi ra tệp riêng.
+  - **Môi trường thử**: cùng Compose, tên dự án `school-staging`, tên miền `*.staging.<tên miền hệ thống>`, chỉ dữ liệu giả (hồ sơ `demo`); cùng VPS thì nằm sau Caddy chính qua mạng `school-edge` (`compose.edge.yml`).
+  - **Hướng dẫn vận hành** (`deploy/profiles/production/``README.md`): dựng lần đầu, PgBouncer, Caddy, cấp chứng chỉ, môi trường thử, triển khai, giám sát, quy mô gợi ý (giả định, S7b đo), mở thêm VPS, chuyển sang bản sao, thay khóa, xử lý sự cố, checklist chọn nhà cung cấp trong nước, kiểm tay trên staging. Kiểm cấu hình: `scripts/check-config.sh`.
+  - Sửa nhỏ ở bộ triển khai sẵn có: `deploy/scripts/lib.sh` nhận `COMPOSE_FILE`, `restore.sh` nhận `RESTORE_STOP_SERVICES` để sao lưu, khôi phục chạy được với hồ sơ mới; `generate-keys.sh` sinh thêm mật khẩu PgBouncer xem thống kê, sao chép, Grafana. Bản một máy cũ giữ nguyên.
+- Thành phần bị ảnh hưởng: `deploy/profiles/production/` (mới), `docker/pgbouncer/` (mới), `docker/postgres/` (hai script mới), `deploy/scripts/` (ba sửa nhỏ), `deploy/README.md` (lời dẫn). Không đổi mã nguồn, cơ sở dữ liệu, API.
+- Dữ liệu bị ảnh hưởng: không.
+- Bảo mật: cổng cơ sở dữ liệu, bộ thu số liệu chỉ nghe 127.0.0.1 (T1) hoặc địa chỉ mạng riêng (T2, T3) kèm tường lửa của nhà cung cấp; Grafana chỉ qua đường hầm SSH; chỉ số Caddy chỉ trong mạng nội bộ; bí mật chỉ ở `production.env` (đã có trong `.gitignore`); giám sát không gửi số liệu, nhật ký ra dịch vụ ngoài; bản sao lưu ngoài máy chủ cũng ở trong nước.
+- Rủi ro: ngưỡng, quy mô là giả định chưa đo (S7b đo); hai bản ghi A không tự bỏ máy hỏng; Let's Encrypt giới hạn tốc độ cấp khi nhiều tên miền con mới cùng lúc.
+- Chưa làm trong phần này, ghi để làm tiếp: sao lưu theo từng trường, khôi phục về một thời điểm, chuyển cụm, thử tải (S7b); danh sách xác thực PgBouncer sinh từ cơ sở dữ liệu nền tảng khi có vai trò riêng cho từng trường (S1a, S2); điểm cuối kiểm tra tên miền của nền tảng (S1b); thêm kiểm tra cấu hình hồ sơ này vào CI (tệp CI ngoài phạm vi phần này).
+- Kiểm thử cần thực hiện: CT-986 đến CT-989. Kết quả ngày 25/10/2026: `deploy/profiles/production/scripts/check-config.sh` đạt (Compose T1, T2 hai máy, T3 máy bản sao, staging cùng VPS; Caddyfile có và không có tệp `sites.d`; Prometheus, luật cảnh báo; Alertmanager đủ ba kênh và không kênh nào; Loki); dựng ảnh PgBouncer, chạy cùng PostgreSQL: kết nối `school_system` gom theo phiên giữ và mở khóa tư vấn trên cùng kết nối, `school_identity` gom theo giao dịch, sai mật khẩu bị từ chối, kiểm tra sức khỏe đạt; bản sao lấy bản sao cơ bản, máy chính báo `streaming`, bản sao đọc được dòng vừa ghi; cú pháp các script shell đạt; bản một máy cũ (`deploy/docker-compose.production.yml`) vẫn hợp lệ; kiểm tra định dạng đạt. Không có e2e (phần hạ tầng, không sửa mã nghiệp vụ); kiểm tay trên staging (CT-989) chờ dựng VPS thử.
+- Trạng thái: Đã triển khai phần dựng sẵn (PR #163); kiểm tay trên staging chờ VPS thử.
 
 ### YCTD-200: DT-SaaS phần S8a: pháp lý và hồ sơ tuân thủ (tài liệu) – 2026-10-25
 

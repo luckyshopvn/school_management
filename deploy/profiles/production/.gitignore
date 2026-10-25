@@ -1,0 +1,8 @@
+# Cấu hình thật của hồ sơ "Vận hành" (YCTD-198): không đưa lên kho mã
+production.env
+staging.env
+*.env
+!*.env.example
+caddy/sites.d/*.caddy
+monitoring/targets.d/*.yml
+!monitoring/targets.d/*.example.yml

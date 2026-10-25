@@ -1,0 +1,8 @@
+# Tên miền kiểm tra từ ngoài vào (DT-SaaS phần S7a, YCTD-198). Sao chép thành domains.yml, ghi các tên miền đang phục vụ
+# (tên miền hệ thống, tên miền con và tên miền riêng của trường). Prometheus đọc lại tệp khi đổi, không cần khởi động lại.
+# Giá trị dưới đây là giả.
+- targets:
+    - https://truong-a.he-thong.test/
+    - https://quan-ly.truong-b.test/quan-ly/
+  labels:
+    group: truong

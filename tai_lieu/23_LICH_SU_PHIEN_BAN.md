@@ -1,7 +1,7 @@
 # 23. LỊCH SỬ PHIÊN BẢN
 
 - Mô tả: Mã phiên bản, ngày phát hành, danh sách thay đổi, chức năng mới, lỗi đã sửa, thay đổi dữ liệu, thay đổi API, rủi ro, khả năng tương thích, phương án quay lui.
-- Phiên bản: 0.52
+- Phiên bản: 0.53
 - Ngày cập nhật: 2026-10-25
 - Trạng thái: Đang cập nhật
 - Đã rà duyệt: Eric, ngày 2026-10-09
@@ -15,6 +15,18 @@
 5. Từ phiên bản 0.4.0, mỗi mục ghi theo mẫu của Vibecoding_Flow; các mục trước giữ nguyên dạng bảng và tên tệp cũ vì là ghi nhận lịch sử.
 
 ## 2. Danh sách phiên bản
+
+### Phiên bản 0.128.0 – 2026-10-25
+
+- Phạm vi thay đổi: DT-SaaS phần S7a, hạ tầng VPS trong nước, phần dựng sẵn (YCTD-198).
+- Chức năng mới: hồ sơ "Vận hành" `deploy/profiles/production/`: Compose cho T1, T2, T3; PgBouncer; Caddy bắt mọi tên miền; giám sát, cảnh báo, nhật ký tập trung; môi trường thử; triển khai không gián đoạn; hướng dẫn vận hành.
+- Lỗi đã sửa: không.
+- Thay đổi dữ liệu: không.
+- Thay đổi API: không.
+- Kiểm thử: kịch bản CT-986 đến CT-989. Kết quả ngày 25/10/2026: `deploy/profiles/production/scripts/check-config.sh` đạt (Compose T1, T2 hai máy, T3 máy bản sao, staging cùng VPS; Caddyfile có và không có tệp `sites.d`; Prometheus, luật cảnh báo; Alertmanager đủ ba kênh và không kênh nào; Loki); dựng ảnh PgBouncer, chạy cùng PostgreSQL: kết nối `school_system` gom theo phiên giữ và mở khóa tư vấn trên cùng kết nối, `school_identity` gom theo giao dịch, sai mật khẩu bị từ chối, kiểm tra sức khỏe đạt; bản sao lấy bản sao cơ bản, máy chính báo `streaming`, bản sao đọc được dòng vừa ghi; cú pháp các script shell đạt; bản một máy cũ (`deploy/docker-compose.production.yml`) vẫn hợp lệ; kiểm tra định dạng đạt. Không có e2e (phần hạ tầng, không sửa mã nghiệp vụ); kiểm tay trên staging (CT-989) chờ dựng VPS thử.
+- Rủi ro: quy mô, ngưỡng là giả định chưa đo.
+- Khả năng tương thích: bản một máy cũ không đổi; hồ sơ mới chạy được bản một trường hiện nay.
+- Phương án quay lui: tiếp tục dùng `deploy/docker-compose.production.yml`; hoàn lại commit gộp của nhánh S7a.
 
 ### Phiên bản 0.127.0 – 2026-10-25
 

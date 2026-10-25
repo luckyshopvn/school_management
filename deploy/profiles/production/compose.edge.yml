@@ -1,0 +1,19 @@
+# Ghép thêm khi môi trường thử (staging) chạy cùng VPS với môi trường chạy thật (DT-SaaS phần S7a, YCTD-198): Caddy của
+# hai dự án cùng nối mạng `school-edge`; Caddy của staging có tên `staging-web` trong mạng này và không mở cổng ra ngoài,
+# Caddy chính chuyển các tên miền thử sang (caddy/sites.d/staging-proxy.caddy). Tạo mạng một lần:
+#   docker network create school-edge
+# Dùng cho cả hai dự án:
+#   docker compose -f compose.yml -f compose.edge.yml --env-file production.env up -d
+#   docker compose -f compose.yml -f compose.edge.yml --env-file staging.env up -d
+services:
+  web:
+    networks:
+      default:
+      edge:
+        aliases:
+          - ${EDGE_ALIAS:-production-web}
+
+networks:
+  edge:
+    name: school-edge
+    external: true
