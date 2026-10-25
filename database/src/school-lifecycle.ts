@@ -936,9 +936,9 @@ export function cancelDeletion(environment: LifecycleEnvironment, code: string, 
 }
 
 export interface PurgeHooks {
-  // Xóa tệp của trường ở kho tệp (tiền tố tenants/<mã>/) và khóa Redis (t:<mã>:*); trả số mục đã xóa
+  // Xóa tệp của trường ở kho tệp (lớp có kho tệp truyền vào); trả số tệp đã xóa. Khóa Redis của trường đều có hạn sống tối
+  // đa 2 giờ nên tự hết, không cần xóa
   purgeStorage?: (keyPrefix: string) => Promise<number>;
-  purgeCache?: (keyPrefix: string) => Promise<number>;
 }
 
 // Xóa vĩnh viễn một trường đã quá hạn chờ: cơ sở dữ liệu, vai trò, khóa, tên miền, lời mời; giữ hàng của trường ở `deleted`
@@ -977,7 +977,6 @@ export async function purgeSchool(
   try {
     const databases = await dropSchoolResources(environment, school.id, code);
     const files = hooks.purgeStorage ? await hooks.purgeStorage(school.key_prefix) : null;
-    const cacheKeys = hooks.purgeCache ? await hooks.purgeCache(school.key_prefix) : null;
     const record = {
       code,
       name_sha256: createHash('sha256').update(school.name).digest('hex'),
@@ -986,8 +985,7 @@ export async function purgeSchool(
       requested_at: school.deletion_requested_at?.toISOString() ?? null,
       databases,
       files_deleted: files,
-      cache_keys_deleted: cacheKeys,
-      note: 'Bản sao lưu của trường xóa theo thời hạn lưu (S7b) và hợp đồng',
+      note: 'Bản sao lưu của trường xóa theo thời hạn lưu (S7b) và hợp đồng; khóa Redis của trường tự hết hạn sau tối đa 2 giờ',
     };
     await platform.transaction().execute(async (transaction) => {
       for (const table of ['school_keys', 'school_domains', 'school_admin_invitations', 'school_migrations'] as const) {

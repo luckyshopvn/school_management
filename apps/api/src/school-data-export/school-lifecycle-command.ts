@@ -3,14 +3,17 @@ import {
   dueDeletions,
   lifecycleEnvironmentOf,
   purgeSchool,
-  readTenancyConfiguration,
   TenancyRuntime,
   type Actor,
 } from '@school-management/database';
-import { runAsSchool } from '@school-management/server';
-import { Redis } from 'ioredis';
+import { runAsSchool, type TenantContext } from '@school-management/server';
+import { tenantStoragePrefix } from '@school-management/server/resource-names';
 import type { Kysely } from 'kysely';
-import { readConfigurationFromEnvironment } from '../common/configuration.js';
+import {
+  readConfigurationFromEnvironment,
+  readPlatformCommandSettings,
+  type PlatformCommandSettings,
+} from '../common/configuration.js';
 import { Databases } from '../common/databases.js';
 import { FileStorage, S3FileStorage } from '../files/file-storage.js';
 import { buildSchoolDataArchive, schoolArchiveSources } from './school-data-archive.js';
@@ -22,46 +25,25 @@ import { buildSchoolDataArchive, schoolArchiveSources } from './school-data-arch
 //        gói ZIP toàn bộ dữ liệu của trường (cùng định dạng gói của DT-18 phần 18h, thêm cơ sở dữ liệu định danh không có cột
 //        bí mật) để bàn giao trước khi xóa
 //   node dist/school-data-export/school-lifecycle-command.js purge-due [--code <mã>]
-//        xóa vĩnh viễn trường đã quá hạn chờ: cơ sở dữ liệu, vai trò, khóa, tên miền (thư viện vòng đời), tệp ở kho tệp có tiền
-//        tố tenants/<tiền tố>/ và khóa Redis của trường; ghi bản ghi chứng minh đã xóa
-const ACTOR: Actor = {
-  type: 'cli',
-  name: process.env.PLATFORM_CLI_ACTOR?.trim() || 'Lệnh vòng đời trường (máy chủ API)',
-};
-
+//        xóa vĩnh viễn trường đã quá hạn chờ: cơ sở dữ liệu, vai trò, khóa, tên miền (thư viện vòng đời) và tệp của trường ở kho
+//        tệp; ghi bản ghi chứng minh đã xóa. Khóa Redis của trường (giới hạn đăng nhập, mã xác nhận, việc xếp thời khóa biểu) đều
+//        có hạn sống tối đa 2 giờ nên tự hết, lệnh không xóa
 function option(name: string): string | undefined {
   const index = process.argv.indexOf(name);
   return index >= 0 ? process.argv[index + 1] : undefined;
 }
 
-// Tệp của trường ở kho tệp (khóa do storageKey tạo có tiền tố tenants/<tiền tố của trường>/)
-export async function purgeSchoolStorage(storage: FileStorage, keyPrefix: string): Promise<number> {
-  if (!/^[A-Za-z0-9._-]+$/.test(keyPrefix)) {
-    throw new Error('Tiền tố khóa của trường không hợp lệ');
-  }
-  return storage.deletePrefix(`tenants/${keyPrefix}/`);
+// Tệp của trường ở kho tệp: mọi khóa do storageKey tạo trong ngữ cảnh của trường
+export function purgeSchoolStorage(storage: FileStorage, tenant: TenantContext): Promise<number> {
+  return runAsSchool(tenant, async () => storage.deletePrefix(tenantStoragePrefix()));
 }
 
-// Khóa Redis của trường: cacheKey tạo `t:<tiền tố>:...`, dịch vụ định danh tạo `<tiền tố dịch vụ>:t:<tiền tố>:...`
-export async function purgeSchoolCache(redis: Redis, keyPrefix: string): Promise<number> {
-  if (!/^[A-Za-z0-9._-]+$/.test(keyPrefix)) {
-    throw new Error('Tiền tố khóa của trường không hợp lệ');
-  }
-  let deleted = 0;
-  for (const pattern of [`t:${keyPrefix}:*`, `*:t:${keyPrefix}:*`]) {
-    let cursor = '0';
-    do {
-      const [next, keys] = await redis.scan(cursor, 'MATCH', pattern, 'COUNT', 500);
-      if (keys.length > 0) {
-        deleted += await redis.del(...keys);
-      }
-      cursor = next;
-    } while (cursor !== '0');
-  }
-  return deleted;
-}
-
-async function exportSchool(runtime: TenancyRuntime, code: string, out: string): Promise<void> {
+async function exportSchool(
+  runtime: TenancyRuntime,
+  settings: PlatformCommandSettings,
+  code: string,
+  out: string,
+): Promise<void> {
   const configuration = readConfigurationFromEnvironment({ multiTenant: true });
   const school = await runtime.platform.selectFrom('schools').select('id').where('code', '=', code).executeTakeFirst();
   const record = school ? await runtime.registry.loadSchool(school.id) : null;
@@ -82,7 +64,7 @@ async function exportSchool(runtime: TenancyRuntime, code: string, out: string):
         sources,
         fileStorage: storage,
         generatedAt: new Date(),
-        generatedBy: { user_id: null, full_name: ACTOR.name },
+        generatedBy: { user_id: null, full_name: settings.actorName },
       });
     });
     await writeFile(out, archive.buffer);
@@ -92,36 +74,38 @@ async function exportSchool(runtime: TenancyRuntime, code: string, out: string):
   }
 }
 
-async function purgeDue(runtime: TenancyRuntime, only: string | undefined): Promise<void> {
+async function purgeDue(runtime: TenancyRuntime, settings: PlatformCommandSettings, only: string | undefined) {
   const configuration = readConfigurationFromEnvironment({ multiTenant: true });
-  const environment = lifecycleEnvironmentOf(runtime);
+  const environment = lifecycleEnvironmentOf(runtime, settings.lifecycle);
+  const actor: Actor = { type: 'cli', name: settings.actorName };
   const storage = configuration.objectStorage ? new S3FileStorage(configuration.objectStorage) : null;
-  const redis = configuration.redisUrl ? new Redis(configuration.redisUrl, { maxRetriesPerRequest: 3 }) : null;
-  try {
-    const codes = (await dueDeletions(environment)).filter((code) => !only || code === only);
-    for (const code of codes) {
-      const record = await purgeSchool(environment, code, ACTOR, {
-        ...(storage ? { purgeStorage: (prefix: string) => purgeSchoolStorage(storage, prefix) } : {}),
-        ...(redis ? { purgeCache: (prefix: string) => purgeSchoolCache(redis, prefix) } : {}),
-      });
-      console.log(`Đã xóa vĩnh viễn trường ${code}: ${JSON.stringify(record)}`);
-    }
-    console.log(`${codes.length} trường đã xóa`);
-  } finally {
-    redis?.disconnect();
+  const codes = (await dueDeletions(environment)).filter((code) => !only || code === only);
+  for (const code of codes) {
+    // Nạp ngữ cảnh của trường trước khi xóa khóa và cơ sở dữ liệu ở nền tảng
+    const school = await runtime.platform
+      .selectFrom('schools')
+      .select('id')
+      .where('code', '=', code)
+      .executeTakeFirstOrThrow();
+    const record = await runtime.registry.loadSchool(school.id);
+    const proof = await purgeSchool(environment, code, actor, {
+      ...(storage && record ? { purgeStorage: () => purgeSchoolStorage(storage, record.context) } : {}),
+    });
+    console.log(`Đã xóa vĩnh viễn trường ${code}: ${JSON.stringify(proof)}`);
   }
+  console.log(`${codes.length} trường đã xóa`);
 }
 
 async function main(): Promise<number> {
   const command = process.argv[2];
-  const configuration = readTenancyConfiguration(process.env);
-  if (!configuration || (command !== 'export' && command !== 'purge-due')) {
+  const settings = readPlatformCommandSettings();
+  if (!settings.tenancy || (command !== 'export' && command !== 'purge-due')) {
     console.error(
       'Dùng: school-lifecycle-command.js export --code <mã> --out <tệp.zip> | purge-due [--code <mã>] (cần PLATFORM_DATABASE_URL)',
     );
     return 2;
   }
-  const runtime = new TenancyRuntime(configuration);
+  const runtime = new TenancyRuntime(settings.tenancy);
   try {
     if (command === 'export') {
       const code = option('--code');
@@ -130,9 +114,9 @@ async function main(): Promise<number> {
         console.error('Cần --code và --out');
         return 2;
       }
-      await exportSchool(runtime, code, out);
+      await exportSchool(runtime, settings, code, out);
     } else {
-      await purgeDue(runtime, option('--code'));
+      await purgeDue(runtime, settings, option('--code'));
     }
     return 0;
   } finally {

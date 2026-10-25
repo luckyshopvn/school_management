@@ -2,6 +2,7 @@ import { request as playwrightRequest } from '@playwright/test';
 import {
   dropSchool,
   lifecycleEnvironmentOf,
+  lifecycleSettingsFrom,
   readTenancyConfiguration,
   TenancyRuntime,
 } from '@school-management/database';
@@ -30,7 +31,7 @@ let runtime: TenancyRuntime;
 async function removeGamma(): Promise<void> {
   const school = await runtime.platform.selectFrom('schools').select('id').where('code', '=', CODE).executeTakeFirst();
   if (school) {
-    const environment = lifecycleEnvironmentOf(runtime);
+    const environment = lifecycleEnvironmentOf(runtime, lifecycleSettingsFrom(process.env));
     await dropSchool({
       platform: runtime.platform,
       masterKey: environment.masterKey,

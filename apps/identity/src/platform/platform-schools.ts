@@ -4,7 +4,7 @@ import {
   addHosting,
   cancelDeletion,
   changeDataClass,
-  deletionGraceDays,
+  DEFAULT_LIFECYCLE_SETTINGS,
   findInvitation,
   lifecycleEnvironmentOf,
   LifecycleError,
@@ -45,7 +45,7 @@ import { checkPasswordPolicy, hashPassword } from '../authentication/password.js
 import { recordPasswordHistory } from '../authentication/password-history.js';
 import { LoginRateLimiter } from '../authentication/login-rate-limiter.js';
 import { TokenService } from '../authentication/token.service.js';
-import { TENANCY_RUNTIME } from '../common/configuration.js';
+import { IDENTITY_CONFIGURATION, TENANCY_RUNTIME, type IdentityConfiguration } from '../common/configuration.js';
 import { Infrastructure } from '../common/infrastructure.js';
 import { PlatformOperatorsService } from './platform-operators.js';
 
@@ -91,10 +91,15 @@ function reasonOf(body: Record<string, unknown> | undefined): string | null {
 @Injectable()
 export class PlatformSchoolsService {
   constructor(
+    @Inject(IDENTITY_CONFIGURATION) private readonly configuration: IdentityConfiguration,
     @Optional() @Inject(TENANCY_RUNTIME) private readonly tenancy: TenancyRuntime | null,
     private readonly operators: PlatformOperatorsService,
     private readonly tokenService: TokenService,
   ) {}
+
+  private lifecycleSettings() {
+    return this.configuration.platformLifecycle ?? DEFAULT_LIFECYCLE_SETTINGS;
+  }
 
   private runtime(): TenancyRuntime {
     if (!this.tenancy) {
@@ -105,7 +110,7 @@ export class PlatformSchoolsService {
 
   private environment(): LifecycleEnvironment {
     try {
-      return lifecycleEnvironmentOf(this.runtime());
+      return lifecycleEnvironmentOf(this.runtime(), this.lifecycleSettings());
     } catch (error) {
       throw ruleViolationError(SCHOOL_LIFECYCLE_RULE_CODE, error instanceof Error ? error.message : String(error));
     }
@@ -141,7 +146,7 @@ export class PlatformSchoolsService {
       system_domain: environment.systemDomain,
       ingress_host: environment.ingressHost ?? null,
       domain_provider: environment.domainProvider?.kind ?? 'dns-check',
-      deletion_grace_days: deletionGraceDays(),
+      deletion_grace_days: this.lifecycleSettings().deletionGraceDays,
     };
   }
 
@@ -310,7 +315,7 @@ export class PlatformSchoolsService {
         case 'resume':
           return resumeSchool(environment, code, actor, reason);
         case 'request-deletion':
-          return requestDeletion(environment, code, actor, reason, deletionGraceDays());
+          return requestDeletion(environment, code, actor, reason, this.lifecycleSettings().deletionGraceDays);
         case 'cancel-deletion':
           return cancelDeletion(environment, code, actor, reason);
         default:

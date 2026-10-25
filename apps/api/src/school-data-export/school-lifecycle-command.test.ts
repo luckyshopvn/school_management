@@ -1,9 +1,22 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
+import type { TenantContext } from '@school-management/server';
 import { MemoryFileStorage } from '../files/file-storage.js';
 import { purgeSchoolStorage } from './school-lifecycle-command.js';
 
 // Xóa tệp của một trường khi xóa vĩnh viễn (DT-SaaS phần S2): chỉ đúng tiền tố của trường, không đụng trường có mã bắt đầu giống
+function tenant(keyPrefix: string): TenantContext {
+  return {
+    schoolId: '00000000-0000-0000-0000-000000000001',
+    code: keyPrefix || 'truong-so-1',
+    name: 'Trường giả',
+    status: 'pending_deletion',
+    dataClass: 'synthetic',
+    keyPrefix,
+    yearDatabasePrefix: 's_gia_year_',
+  };
+}
+
 describe('xóa tệp của trường ở kho tệp', () => {
   it('chỉ xóa tệp có tiền tố tenants/<tiền tố>/', async () => {
     const storage = new MemoryFileStorage();
@@ -11,15 +24,15 @@ describe('xóa tệp của trường ở kho tệp', () => {
     await storage.put('tenants/gamma/b/2.pdf', Buffer.from('b'));
     await storage.put('tenants/gamma-2/a/1.pdf', Buffer.from('c'));
     await storage.put('khac/gamma/1.pdf', Buffer.from('d'));
-    assert.equal(await purgeSchoolStorage(storage, 'gamma'), 2);
+    assert.equal(await purgeSchoolStorage(storage, tenant('gamma')), 2);
     assert.equal(storage.has('tenants/gamma/a/1.pdf'), false);
     assert.equal(storage.has('tenants/gamma-2/a/1.pdf'), true);
     assert.equal(storage.has('khac/gamma/1.pdf'), true);
   });
 
-  it('từ chối tiền tố rỗng hoặc có ký tự lạ', async () => {
+  it('từ chối trường không có tiền tố (trường số 1) hoặc tiền tố có ký tự lạ', async () => {
     const storage = new MemoryFileStorage();
-    await assert.rejects(() => purgeSchoolStorage(storage, ''));
-    await assert.rejects(() => purgeSchoolStorage(storage, '../x'));
+    await assert.rejects(() => purgeSchoolStorage(storage, tenant('')));
+    await assert.rejects(() => purgeSchoolStorage(storage, tenant('../x')));
   });
 });

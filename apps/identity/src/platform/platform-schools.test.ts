@@ -65,14 +65,18 @@ describe('quản lý trường ở cổng nền tảng', () => {
   let schoolCode: string;
   let activationToken: string;
   const login = `van-hanh-${Math.random().toString(36).slice(2, 8)}`;
-  const previousDomain = process.env.PLATFORM_SYSTEM_DOMAIN;
 
   before(async () => {
-    process.env.PLATFORM_SYSTEM_DOMAIN = SYSTEM_DOMAIN;
     platform = await startTenantTestPlatform({ schools: ['alpha'], label: 'sch' });
     runtime = platform.createRuntime();
     context = await startTenantTestApplication(runtime);
     context.configuration.platformConsoleHost = CONSOLE_HOST;
+    context.configuration.platformLifecycle = {
+      systemDomain: SYSTEM_DOMAIN,
+      ingressHost: null,
+      domainProvider: 'dns-check',
+      deletionGraceDays: 30,
+    };
     await createPlatformOperator(platform.platform, { login, fullName: 'Người vận hành giả', password: TEST_PASSWORD });
     const reply = await send(context, {
       path: '/auth/platform/login',
@@ -99,11 +103,6 @@ describe('quản lý trường ở cổng nền tảng', () => {
     }
     await context?.close();
     await platform?.close();
-    if (previousDomain === undefined) {
-      delete process.env.PLATFORM_SYSTEM_DOMAIN;
-    } else {
-      process.env.PLATFORM_SYSTEM_DOMAIN = previousDomain;
-    }
   });
 
   const consoleApi = (path: string, body?: unknown) =>

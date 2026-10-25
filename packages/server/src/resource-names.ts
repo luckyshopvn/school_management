@@ -27,3 +27,13 @@ export function cacheKey(...parts: string[]): string {
   const prefix = tenant?.keyPrefix ? ['t', tenant.keyPrefix] : [];
   return checkedParts([...prefix, ...parts]).join(':');
 }
+
+// Tiền tố chung của mọi tệp của trường trong ngữ cảnh, dạng `tenants/<tiền tố>/`, để xóa sạch tệp khi xóa vĩnh viễn trường
+// (DT-SaaS phần S2). Từ chối khi không có trường hoặc trường không có tiền tố (trường số 1 dùng khóa không tiền tố)
+export function tenantStoragePrefix(): string {
+  const tenant = requireTenant('kho tệp');
+  if (!tenant?.keyPrefix) {
+    throw new Error('Trường không có tiền tố khóa riêng, không xóa tệp theo tiền tố được');
+  }
+  return `${checkedParts(['tenants', tenant.keyPrefix]).join('/')}/`;
+}

@@ -1,3 +1,4 @@
+import { lifecycleSettingsFrom, type LifecycleSettings } from '@school-management/database';
 import { decodeBase64Key, readSmsProviderSettings, type SmsProviderSettings } from '@school-management/server';
 
 // Cấu hình của dịch vụ định danh; bí mật đọc từ biến môi trường, không đặt trong mã nguồn (QU-05)
@@ -16,6 +17,8 @@ export interface IdentityConfiguration {
   // Tên miền riêng của cổng vận hành nền tảng (DT-SaaS phần S1a, ví dụ platform.<tên miền hệ thống>); trống thì tắt đăng nhập
   // vận hành nền tảng. Là cấu hình của nền tảng, không ghi cứng
   platformConsoleHost?: string | null;
+  // Khởi tạo và vòng đời trường ở cổng nền tảng (DT-SaaS phần S2): tên miền hệ thống, địa chỉ vào, bộ nối tên miền, số ngày chờ xóa
+  platformLifecycle?: LifecycleSettings;
 }
 
 export const IDENTITY_CONFIGURATION = Symbol('IDENTITY_CONFIGURATION');
@@ -43,5 +46,6 @@ export function readConfigurationFromEnvironment(): IdentityConfiguration {
     apiBaseUrl: readRequired('API_BASE_URL'),
     smsProvider: readSmsProviderSettings(),
     platformConsoleHost: process.env.PLATFORM_CONSOLE_HOST?.trim() || null,
+    platformLifecycle: lifecycleSettingsFrom(process.env),
   };
 }

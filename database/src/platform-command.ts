@@ -4,7 +4,7 @@ import { adoptExistingSchool, hostFromSiteSetting } from './adopt-existing.js';
 import { createDatabase } from './connection.js';
 import { readConnectionString } from './environment.js';
 import { migrateToLatest } from './migrate.js';
-import { deletionGraceDays, lifecycleEnvironmentOf } from './lifecycle-environment.js';
+import { lifecycleEnvironmentOf, lifecycleSettingsFrom } from './lifecycle-environment.js';
 import {
   cancelDeletion,
   dueDeletions,
@@ -63,6 +63,7 @@ function readKey32(name: string): Buffer {
 const [command, ...args] = process.argv.slice(2);
 
 const CLI_ACTOR: Actor = { type: 'cli', name: process.env.PLATFORM_CLI_ACTOR?.trim() || 'Dòng lệnh nền tảng' };
+const LIFECYCLE_SETTINGS = lifecycleSettingsFrom(process.env);
 
 async function withLifecycle(work: (environment: LifecycleEnvironment) => Promise<void>): Promise<void> {
   const configuration = readTenancyConfiguration(process.env);
@@ -71,7 +72,7 @@ async function withLifecycle(work: (environment: LifecycleEnvironment) => Promis
   }
   const runtime = new TenancyRuntime(configuration);
   try {
-    await work(lifecycleEnvironmentOf(runtime));
+    await work(lifecycleEnvironmentOf(runtime, LIFECYCLE_SETTINGS));
   } finally {
     await runtime.close();
   }
@@ -130,7 +131,7 @@ async function lifecycleCommand(): Promise<boolean> {
             : command === 'resume'
               ? await resumeSchool(environment, code, CLI_ACTOR, reason)
               : command === 'request-deletion'
-                ? await requestDeletion(environment, code, CLI_ACTOR, reason, deletionGraceDays())
+                ? await requestDeletion(environment, code, CLI_ACTOR, reason, LIFECYCLE_SETTINGS.deletionGraceDays)
                 : await cancelDeletion(environment, code, CLI_ACTOR, reason);
         console.log(`Trường ${code}: ${school.status}`);
       });
