@@ -788,7 +788,9 @@ export async function runProvisioningJob(environment: LifecycleEnvironment, jobI
         .set((expression) => ({
           status: input.status,
           updated_at: nowOf(environment),
-          ...(trialEndsOn ? { trial_ends_on: expression.fn.coalesce('trial_ends_on', expression.val(trialEndsOn)) } : {}),
+          ...(trialEndsOn
+            ? { trial_ends_on: expression.fn.coalesce('trial_ends_on', expression.val(trialEndsOn)) }
+            : {}),
         }))
         .where('id', '=', schoolId)
         .where('status', '=', 'provisioning')
