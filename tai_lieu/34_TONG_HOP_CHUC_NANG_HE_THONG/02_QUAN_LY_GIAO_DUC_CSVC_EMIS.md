@@ -517,51 +517,153 @@ Tiếp nhận và chuyển hồ sơ (BR-133, YCTD-135):
 
 Hai mạch không nối dữ liệu với nhau: hồ sơ cuối cấp (phía ra) chỉ dừng ở duyệt và xác nhận hoàn thành; hồ sơ nhập học (phía vào) mới tạo học sinh.
 
+Mạch 1, hồ sơ cuối cấp mầm non:
+
 ```mermaid
 flowchart TD
-  subgraph RA["Mạch 1. Hồ sơ cuối cấp mầm non"]
-    F1["Trẻ lớp năm cuối, tuổi từ 60 tháng"] --> F2["1.1 Tự tạo final_year_records"]
-    F2 --> F3{"Phụ huynh xác nhận trên ứng dụng?"}
-    F3 -->|"Đề xuất sửa"| F4["Chờ đơn vị chỉnh sửa"]
-    F4 --> F5["Nhà trường bấm Đã chỉnh sửa thông tin"]
-    F5 --> F3
-    F3 -->|"Xác nhận"| F6{"Đủ 5 mục kiểm dò?"}
-    F6 -->|"Không"| F7["Bổ sung hồ sơ"]
-    F7 --> F6
-    F6 -->|"Có"| F8["Duyệt hồ sơ"]
-    F8 --> F9["1.2 Xác nhận hoàn thành theo lớp, không gửi đi"]
+  classDef batdau fill:#2e7d32,stroke:#1b5e20,color:#ffffff,font-weight:bold
+  classDef ketthuc fill:#37474f,stroke:#263238,color:#ffffff,font-weight:bold
+  classDef nguoi fill:#e3f2fd,stroke:#1565c0,color:#0d2a4a
+  classDef heth fill:#eceff1,stroke:#546e7a,color:#263238
+  classDef duyet fill:#fff3e0,stroke:#ef6c00,color:#4e2600
+  classDef hoi fill:#fffde7,stroke:#f9a825,color:#3e2f00
+  classDef bao fill:#fce4ec,stroke:#ad1457,color:#4a0020
+  classDef chan fill:#ffebee,stroke:#c62828,color:#5f0000
+  classDef dulieu fill:#ede7f6,stroke:#5e35b1,color:#1f0f4d
+
+  S(["Trẻ lớp năm cuối, từ 60 tháng"]):::batdau
+
+  subgraph P1["① Tạo hồ sơ cuối cấp"]
+    F2[["<b>Hệ thống</b><br/>1.1 Tự tạo hồ sơ cuối cấp"]]:::heth
+    F2D[("final_year_records")]:::dulieu
+    F2 --> F2D
   end
-  subgraph VAO["Mạch 2. Hồ sơ nhập học"]
-    A1["1.4 Nhập Excel danh sách phân tuyến"] --> A3{"Đợt tiên tiến?"}
-    A2["Hồ sơ trực tuyến đạt ở Tuyển sinh nội bộ"] --> A4
-    A3 -->|"Có, trạng thái received"| A5["1.3 Trường xác nhận hồ sơ"]
-    A5 -->|"admitted, sang passed"| A4["Hồ sơ trạng thái passed"]
-    A3 -->|"Không, trạng thái passed"| A4
-    A4 --> A6["1.4 Ghi giấy tờ đã nộp, quyết định của phụ huynh"]
-    A6 --> A7["1.5 Gửi thông báo tuyển sinh"]
-    A7 --> A8{"Phụ huynh từ chối?"}
-    A8 -->|"Có"| A9["Không chuyển được"]
-    A8 -->|"Không"| A10["1.6 Chọn điểm trường hoặc 5.11 Bước 1 Xếp lớp"]
-    A10 --> A11{"Năm học nhận trẻ là năm hiện tại?"}
-    A11 -->|"Không"| A12["Báo lỗi, không chuyển"]
-    A11 -->|"Có"| A13["Chuyển hồ sơ sang CSDL hoặc 5.11 Bước 2"]
-    A13 --> A14["ChildrenService.create, học sinh Nháp"]
-    A14 --> A15["Gửi duyệt, học sinh Chờ duyệt"]
-    A15 --> A16{"Giữ lớp và có quyền duyệt?"}
-    A16 -->|"Có"| A17["Duyệt, học sinh Đang học, ghi danh lớp, tạo tài khoản phụ huynh"]
-    A16 -->|"Không"| A18["Chờ duyệt ở 4.1.1 Quản lý hồ sơ học sinh"]
-    A17 --> A19["Hồ sơ tuyển sinh converted, ghi admission_transfer_results"]
-    A18 --> A19
-    A19 --> A20{"Hủy nhập học ở 1.7?"}
-    A20 -->|"Chưa phát sinh dữ liệu"| A21["Xóa mềm học sinh, hồ sơ cancelled"]
-    A20 -->|"Đã phát sinh dữ liệu"| A22["Xử lý bằng thôi học ở 4.1.1"]
+
+  subgraph P2["② Phụ huynh xác nhận"]
+    F3{"Phụ huynh xác nhận?"}:::hoi
+    F4["<b>Phụ huynh</b><br/>Đề xuất sửa"]:::nguoi
+    F5["<b>Nhà trường</b><br/>Bấm Đã chỉnh sửa thông tin"]:::nguoi
+    F3 -->|"Đề xuất sửa"| F4
+    F4 -->|"Chờ đơn vị chỉnh sửa"| F5
+    F5 -.->|"xác nhận lại"| F3
   end
+
+  subgraph P3["③ Kiểm dò, duyệt"]
+    F6{"Đủ 5 mục kiểm dò?"}:::hoi
+    F7["<b>Nhà trường</b><br/>Bổ sung hồ sơ"]:::nguoi
+    F8["<b>Nhà trường</b><br/>Duyệt hồ sơ"]:::duyet
+    F6 -->|"Không"| F7
+    F7 -.-> F6
+    F6 -->|"Có"| F8
+  end
+
+  K(["1.2 Xác nhận hoàn thành theo lớp, không gửi đi"]):::ketthuc
+
+  S --> F2
+  F2D --> F3
+  F3 -->|"Xác nhận"| F6
+  F8 --> K
+
+  style P1 fill:#fafafa,stroke:#90a4ae
+  style P2 fill:#fafafa,stroke:#90a4ae
+  style P3 fill:#fafafa,stroke:#90a4ae
+```
+
+Mạch 2, hồ sơ nhập học:
+
+```mermaid
+flowchart TD
+  classDef batdau fill:#2e7d32,stroke:#1b5e20,color:#ffffff,font-weight:bold
+  classDef ketthuc fill:#37474f,stroke:#263238,color:#ffffff,font-weight:bold
+  classDef nguoi fill:#e3f2fd,stroke:#1565c0,color:#0d2a4a
+  classDef heth fill:#eceff1,stroke:#546e7a,color:#263238
+  classDef duyet fill:#fff3e0,stroke:#ef6c00,color:#4e2600
+  classDef hoi fill:#fffde7,stroke:#f9a825,color:#3e2f00
+  classDef bao fill:#fce4ec,stroke:#ad1457,color:#4a0020
+  classDef chan fill:#ffebee,stroke:#c62828,color:#5f0000
+  classDef dulieu fill:#ede7f6,stroke:#5e35b1,color:#1f0f4d
+
+  S1(["Danh sách phân tuyến"]):::batdau
+  S2(["Hồ sơ trực tuyến đạt<br/>ở Tuyển sinh nội bộ"]):::batdau
+
+  subgraph P1["① Tiếp nhận hồ sơ"]
+    A1["<b>Nhà trường</b><br/>1.4 Nhập Excel phân tuyến"]:::nguoi
+    A3{"Đợt tiên tiến?"}:::hoi
+    A5["<b>Nhà trường</b><br/>1.3 Xác nhận hồ sơ"]:::duyet
+    A4[("Hồ sơ trạng thái passed")]:::dulieu
+    A1 --> A3
+    A3 -->|"Có, received"| A5
+    A5 -->|"admitted, sang passed"| A4
+    A3 -->|"Không, passed"| A4
+  end
+
+  subgraph P2["② Giấy tờ, thông báo"]
+    A6["<b>Nhà trường</b><br/>1.4 Ghi giấy tờ, quyết định PH"]:::nguoi
+    A7>"1.5 Gửi thông báo tuyển sinh"]:::bao
+    A8{"Phụ huynh từ chối?"}:::hoi
+    A9["Không chuyển được"]:::chan
+    A6 --> A7 --> A8
+    A8 -->|"Có"| A9
+  end
+
+  subgraph P3["③ Xếp lớp, chuyển"]
+    A10["<b>Nhà trường</b><br/>1.6 Chọn điểm trường<br/>hoặc 5.11 Bước 1 Xếp lớp"]:::nguoi
+    A11{"Năm nhận trẻ là<br/>năm hiện tại?"}:::hoi
+    A12["Báo lỗi, không chuyển"]:::chan
+    A13["<b>Nhà trường</b><br/>Chuyển sang CSDL<br/>hoặc 5.11 Bước 2"]:::nguoi
+    A10 --> A11
+    A11 -->|"Không"| A12
+    A11 -->|"Có"| A13
+  end
+
+  subgraph P4["④ Tạo, duyệt học sinh"]
+    A14[["<b>Hệ thống</b><br/>ChildrenService.create, Nháp"]]:::heth
+    A15[["<b>Hệ thống</b><br/>Gửi duyệt, Chờ duyệt"]]:::heth
+    A16{"Giữ lớp và<br/>có quyền duyệt?"}:::hoi
+    A17["<b>Người có quyền duyệt</b><br/>Duyệt, sang Đang học<br/>ghi danh lớp, tạo TK phụ huynh"]:::duyet
+    A18["Chờ duyệt ở 4.1.1"]:::nguoi
+    A19[("Hồ sơ converted<br/>admission_transfer_results")]:::dulieu
+    A14 --> A15 --> A16
+    A16 -->|"Có"| A17 --> A19
+    A16 -->|"Không"| A18 --> A19
+  end
+
+  subgraph P5["⑤ Hủy nhập học (1.7)"]
+    A20{"Đã phát sinh dữ liệu?"}:::hoi
+    A21["Xóa mềm học sinh<br/>hồ sơ cancelled"]:::chan
+    A22["Xử lý bằng thôi học ở 4.1.1"]:::chan
+    A20 -->|"Chưa"| A21
+    A20 -->|"Đã có"| A22
+  end
+
+  K(["Học sinh đã có hồ sơ"]):::ketthuc
+
+  S1 --> A1
+  S2 --> A4
+  A4 --> A6
+  A8 -->|"Không"| A10
+  A13 --> A14
+  A19 --> K
+  A19 -.->|"Hủy nhập học"| A20
+
+  style P1 fill:#fafafa,stroke:#90a4ae
+  style P2 fill:#fafafa,stroke:#90a4ae
+  style P3 fill:#fafafa,stroke:#90a4ae
+  style P4 fill:#fafafa,stroke:#90a4ae
+  style P5 fill:#fafafa,stroke:#90a4ae
 ```
 
 Trạng thái hồ sơ tuyển sinh (`admission_applications.status`):
 
 ```mermaid
 stateDiagram-v2
+  classDef nhap fill:#eceff1,stroke:#546e7a,color:#263238
+  classDef cho fill:#fff3e0,stroke:#ef6c00,color:#4e2600
+  classDef dang fill:#e3f2fd,stroke:#1565c0,color:#0d2a4a
+  classDef xong fill:#e8f5e9,stroke:#2e7d32,color:#1b3d1d,font-weight:bold
+  classDef huy fill:#ffebee,stroke:#c62828,color:#5f0000
+
+  direction LR
   state "Đã nộp" as submitted
   state "Đã tiếp nhận" as received
   state "Đạt" as passed
@@ -569,18 +671,25 @@ stateDiagram-v2
   state "Đã chuyển thành học sinh" as converted
   state "Đã hủy nhập học" as cancelled
   [*] --> submitted : Nộp trực tuyến
-  [*] --> received : Nhập phân tuyến đợt tiên tiến
-  [*] --> passed : Nhập phân tuyến đợt thường
+  [*] --> received : Phân tuyến đợt tiên tiến
+  [*] --> passed : Phân tuyến đợt thường
   submitted --> received : Tiếp nhận
-  received --> passed : Xét đạt hoặc trường xác nhận
-  passed --> received : Chưa xác nhận hoặc không đồng ý
+  received --> passed : Xét đạt, trường xác nhận
+  passed --> received : Chưa xác nhận, không đồng ý
   received --> rejected : Xét không đạt
   passed --> converted : Chuyển sang CSDL
-  passed --> cancelled : Hủy nhập học ở 1.4
-  received --> cancelled : Hủy nhập học ở 1.4
-  converted --> cancelled : Hủy nhập học ở 1.7
+  passed --> cancelled : Hủy ở 1.4
+  received --> cancelled : Hủy ở 1.4
+  converted --> cancelled : Hủy ở 1.7
   converted --> [*]
   cancelled --> [*]
+
+  class submitted nhap
+  class received cho
+  class passed dang
+  class converted xong
+  class rejected huy
+  class cancelled huy
 ```
 
 Phân hệ Tuyển sinh nội bộ (`admissions`) cũng tạo học sinh: `POST admission-applications/:id/convert` từ hồ sơ `passed`, gọi cùng chuỗi `ChildrenService.create`, `submit`, `approve`.
@@ -589,36 +698,65 @@ Phân hệ Tuyển sinh nội bộ (`admissions`) cũng tạo học sinh: `POST 
 
 ```mermaid
 sequenceDiagram
-  participant PH as Phụ huynh
-  participant GV as Giáo viên chủ nhiệm
-  participant API as Máy chủ
-  participant BV as Bảo vệ
-  participant KT as Kế toán
-  PH->>API: Báo vắng POST absences, tối đa 31 ngày
-  API->>API: Bỏ ngày nghỉ, is_advised nếu trước giờ school_start_time
-  API-->>GV: Thông báo absence_reported
-  GV->>API: Mở điểm danh lớp theo ngày
-  API-->>GV: Danh sách trẻ, trẻ báo vắng đúng hạn điền sẵn absent_notified
-  GV->>API: Lưu điểm danh, chỉ ngày học, không ngày tương lai
-  GV->>API: Chốt điểm danh ngày
-  API->>API: Kiểm tra đủ mọi trẻ, đặt attendance_days locked
-  API-->>KT: Thông báo attendance_locked kèm số suất ăn tới bếp và kế toán
-  API-->>PH: Thông báo trẻ vắng không phép, kèm SMS số nhận tin
-  BV->>API: Kiểm tra người đón tại cổng
-  GV->>API: Ghi giao trẻ cho người đón
-  API->>API: Trẻ phải có mặt, người đón trong danh sách ủy quyền
-  API-->>PH: Người đón lạ thì gửi yêu cầu xác nhận
-  PH->>API: Đồng ý hoặc từ chối người đón
-  API-->>PH: Thông báo child_handed_over
-  KT->>API: Tính phí tháng
-  API->>API: Chặn nếu còn ngày chưa chốt điểm danh
-  API->>API: Tiền ăn bằng đơn giá nhân số ngày có mặt
+  autonumber
+  box rgb(227,242,253) Người dùng
+    actor PH as Phụ huynh
+    actor GV as Giáo viên chủ nhiệm
+    actor BV as Bảo vệ
+    actor KT as Kế toán
+  end
+  box rgb(236,239,241) Hệ thống
+    participant API as Máy chủ
+  end
+  rect rgb(255,253,231)
+    Note over PH,API: ① Báo vắng
+    PH->>API: Báo vắng, tối đa 31 ngày
+    API->>API: Bỏ ngày nghỉ, is_advised nếu trước school_start_time
+    API-->>GV: Thông báo absence_reported
+  end
+  rect rgb(255,253,231)
+    Note over GV,API: ② Điểm danh, chốt ngày
+    GV->>API: Mở điểm danh lớp theo ngày
+    API-->>GV: Danh sách trẻ, báo vắng đúng hạn điền sẵn
+    GV->>API: Lưu điểm danh, chỉ ngày học, không ngày tương lai
+    GV->>API: Chốt điểm danh ngày
+    API->>API: Kiểm tra đủ mọi trẻ, đặt locked
+    API-->>KT: attendance_locked kèm số suất ăn tới bếp, kế toán
+    API-->>PH: Báo trẻ vắng không phép, kèm SMS
+  end
+  rect rgb(255,253,231)
+    Note over PH,API: ③ Đón trả
+    BV->>API: Kiểm tra người đón tại cổng
+    GV->>API: Ghi giao trẻ cho người đón
+    API->>API: Trẻ có mặt, người đón trong danh sách ủy quyền
+    opt Người đón lạ
+      API-->>PH: Yêu cầu xác nhận người đón
+      PH->>API: Đồng ý hoặc từ chối
+    end
+    API-->>PH: Thông báo child_handed_over
+  end
+  rect rgb(255,253,231)
+    Note over KT,API: ④ Tính phí tháng
+    KT->>API: Tính phí tháng
+    alt Còn ngày chưa chốt
+      API-->>KT: Chặn tính phí
+    else Đã chốt đủ
+      API->>API: Tiền ăn bằng đơn giá nhân số ngày có mặt
+    end
+  end
 ```
 
 Trạng thái ngày điểm danh của lớp:
 
 ```mermaid
 stateDiagram-v2
+  classDef nhap fill:#eceff1,stroke:#546e7a,color:#263238
+  classDef cho fill:#fff3e0,stroke:#ef6c00,color:#4e2600
+  classDef dang fill:#e3f2fd,stroke:#1565c0,color:#0d2a4a
+  classDef xong fill:#e8f5e9,stroke:#2e7d32,color:#1b3d1d,font-weight:bold
+  classDef huy fill:#ffebee,stroke:#c62828,color:#5f0000
+
+  direction LR
   state "Chưa chốt" as open
   state "Đã chốt" as locked
   [*] --> open
@@ -626,35 +764,90 @@ stateDiagram-v2
   open --> locked : Chốt khi đủ mọi trẻ
   locked --> locked : Sửa kèm lý do, ghi nhật ký, báo quản lý
   locked --> open : Mở lại kèm lý do
+
+  class open dang
+  class locked xong
 ```
 
 ### Sơ đồ 3. Báo cáo EMIS gửi Sở cùng kí hồ sơ
 
 ```mermaid
 flowchart TD
-  E1["Lập biểu: Lấy dữ liệu từ hệ thống hoặc nhập thẻ, bấm Ghi"] --> E2{"Hoàn thành dữ liệu?"}
-  E2 -->|"Chưa đầy đủ"| E3["Xuất file lỗi, bổ sung dữ liệu nguồn"]
-  E3 --> E1
-  E2 -->|"Đầy đủ hoặc không có dữ liệu"| E4["Xuất tệp gửi, lưu ảnh chụp và tệp"]
-  E4 --> E5["Trường nộp tệp bằng tay cho cấp trên"]
-  E5 --> E6["Đánh dấu đã gửi, biểu bị khóa"]
-  E6 --> E7{"Cần sửa?"}
-  E7 -->|"Có"| E8["Gửi yêu cầu mở khóa kèm lý do"]
-  E8 --> E9{"Người có P01.school-profile.manage xử lý"}
-  E9 -->|"Mở khóa"| E10["Cần gửi lại, biểu mở"]
+  classDef batdau fill:#2e7d32,stroke:#1b5e20,color:#ffffff,font-weight:bold
+  classDef ketthuc fill:#37474f,stroke:#263238,color:#ffffff,font-weight:bold
+  classDef nguoi fill:#e3f2fd,stroke:#1565c0,color:#0d2a4a
+  classDef heth fill:#eceff1,stroke:#546e7a,color:#263238
+  classDef duyet fill:#fff3e0,stroke:#ef6c00,color:#4e2600
+  classDef hoi fill:#fffde7,stroke:#f9a825,color:#3e2f00
+  classDef bao fill:#fce4ec,stroke:#ad1457,color:#4a0020
+  classDef chan fill:#ffebee,stroke:#c62828,color:#5f0000
+  classDef dulieu fill:#ede7f6,stroke:#5e35b1,color:#1f0f4d
+
+  S(["Biểu EMIS năm học"]):::batdau
+  SK(["Kí hồ sơ 2.2"]):::batdau
+
+  subgraph P1["① Lập biểu"]
+    E1["<b>Ban Giám hiệu</b><br/>Lấy dữ liệu hoặc nhập thẻ, Ghi"]:::nguoi
+    E2{"Hoàn thành dữ liệu?"}:::hoi
+    E3>"Xuất file lỗi"]:::bao
+    E3B["<b>Nhà trường</b><br/>Bổ sung dữ liệu nguồn"]:::nguoi
+    E1 --> E2
+    E2 -->|"Chưa đầy đủ"| E3 --> E3B
+  end
+
+  subgraph P2["② Xuất, nộp, khóa"]
+    E4>"Xuất tệp gửi, lưu ảnh chụp"]:::bao
+    E5["<b>Nhà trường</b><br/>Nộp tệp bằng tay cho cấp trên"]:::nguoi
+    E6[("Đánh dấu đã gửi, biểu khóa")]:::dulieu
+    E4 --> E5 --> E6
+  end
+
+  subgraph P3["③ Mở khóa khi cần sửa"]
+    E7{"Cần sửa?"}:::hoi
+    E8["<b>Ban Giám hiệu</b><br/>Gửi yêu cầu mở khóa, lý do"]:::nguoi
+    E9{"Hiệu trưởng xử lý?"}:::hoi
+    E10["Cần gửi lại, biểu mở"]:::chan
+    E7 -->|"Có"| E8 --> E9
+    E9 -->|"Mở khóa"| E10
+  end
+
+  subgraph P4["④ Kí hồ sơ"]
+    K1["<b>Nhà trường</b><br/>Tạo hồ sơ"]:::nguoi
+    K2["<b>Người kí</b><br/>Kí xác nhận nội bộ"]:::duyet
+    K3["<b>Nhà trường</b><br/>2.3 Xác nhận hoàn thành"]:::duyet
+    K4[("Đánh dấu đã gửi")]:::dulieu
+    K1 --> K2 --> K3 --> K4
+  end
+
+  KT(["1.1.2 Gửi báo cáo đầu năm<br/>tính hồ sơ đã gửi"]):::ketthuc
+
+  S --> E1
+  E3B -.-> E1
+  E2 -->|"Đầy đủ hoặc không có dữ liệu"| E4
+  E6 --> E7
   E9 -->|"Từ chối"| E6
-  E10 --> E1
-  K1["Kí hồ sơ 2.2: Tạo hồ sơ"] --> K2["Kí xác nhận nội bộ"]
-  K2 --> K3["2.3 Xác nhận hoàn thành"]
-  K3 --> K4["Đánh dấu đã gửi"]
-  K4 --> S1["1.1.2 Gửi báo cáo đầu năm tính hồ sơ đã gửi"]
-  E6 --> S1
+  E10 -.-> E1
+  E7 -->|"Không"| KT
+  SK --> K1
+  K4 --> KT
+
+  style P1 fill:#fafafa,stroke:#90a4ae
+  style P2 fill:#fafafa,stroke:#90a4ae
+  style P3 fill:#fafafa,stroke:#90a4ae
+  style P4 fill:#fafafa,stroke:#90a4ae
 ```
 
 Trạng thái biểu gửi lên cấp trên (`upper_level_submissions.status`):
 
 ```mermaid
 stateDiagram-v2
+  classDef nhap fill:#eceff1,stroke:#546e7a,color:#263238
+  classDef cho fill:#fff3e0,stroke:#ef6c00,color:#4e2600
+  classDef dang fill:#e3f2fd,stroke:#1565c0,color:#0d2a4a
+  classDef xong fill:#e8f5e9,stroke:#2e7d32,color:#1b3d1d,font-weight:bold
+  classDef huy fill:#ffebee,stroke:#c62828,color:#5f0000
+
+  direction LR
   state "Chưa gửi" as draft
   state "Đã gửi" as sent
   state "Đã gửi yêu cầu mở khóa" as unlock_requested
@@ -668,12 +861,24 @@ stateDiagram-v2
   sent --> resend : Đặt trạng thái gửi lại
   resend --> resend : Xuất tệp gửi
   resend --> sent : Đánh dấu đã gửi
+
+  class draft nhap
+  class sent xong
+  class unlock_requested cho
+  class resend dang
 ```
 
 Trạng thái hồ sơ kí (`signing_dossiers.status`):
 
 ```mermaid
 stateDiagram-v2
+  classDef nhap fill:#eceff1,stroke:#546e7a,color:#263238
+  classDef cho fill:#fff3e0,stroke:#ef6c00,color:#4e2600
+  classDef dang fill:#e3f2fd,stroke:#1565c0,color:#0d2a4a
+  classDef xong fill:#e8f5e9,stroke:#2e7d32,color:#1b3d1d,font-weight:bold
+  classDef huy fill:#ffebee,stroke:#c62828,color:#5f0000
+
+  direction LR
   state "Chờ ký" as created
   state "Đã kí nội bộ" as signed
   state "Đã xác nhận hoàn thành" as completed
@@ -684,57 +889,130 @@ stateDiagram-v2
   created --> cancelled : Hủy kèm lý do
   signed --> cancelled : Hủy kèm lý do
   signed --> completed : Xác nhận hoàn thành
-  completed --> signed : Hủy xác nhận hoàn thành
+  completed --> signed : Hủy xác nhận
   completed --> sent : Đánh dấu đã gửi
   sent --> [*]
   cancelled --> [*]
+
+  class created cho
+  class signed dang
+  class completed xong
+  class sent xong
+  class cancelled huy
 ```
 
 ### Sơ đồ 4. Chuyển hồ sơ lên năm học mới
 
 ```mermaid
 flowchart TD
-  Y1["5.7 Chọn năm học mới ở trạng thái nháp"] --> Y2["Bấm Thực hiện"]
-  Y2 --> Y3{"Có thao tác mở năm khác đang chạy?"}
-  Y3 -->|"Có"| Y4["Báo lỗi BR-93"]
-  Y3 -->|"Không, giữ khóa tư vấn"| Y5{"Năm mới có lịch và bắt đầu sau năm hiện tại?"}
-  Y5 -->|"Không"| Y6["Báo lỗi BR-91 hoặc BR-93"]
-  Y5 -->|"Có"| Y7{"Kiểm tra mọi bước đạt?"}
-  Y7 -->|"Không"| Y8["Báo lỗi, ví dụ BR-89 công nợ của trẻ đã thôi học"]
-  Y7 -->|"Có"| Y9["Tạo CSDL school_year mới, chạy migration"]
-  Y9 --> Y10["Chạy các bước carryOver: đơn vị, cấu hình, danh mục, nhân sự, học sinh, lớp, phân công, tài chính, cơ sở vật chất, tuyển sinh dở dang"]
-  Y10 --> Y11["Năm mới open, ghi carried_over_at"]
-  Y11 --> Y12["Năm cũ closed, CSDL cũ chỉ đọc"]
-  Y12 --> H1{"Bấm Hủy?"}
-  H1 -->|"Không"| H9["Làm việc trên năm mới"]
-  H1 -->|"Có"| H2{"Đủ điều kiện hủy?"}
-  H2 -->|"Đã có biểu gửi cấp trên hoặc phát sinh dữ liệu sau carried_over_at"| H3["Không hủy được, hiện lý do"]
-  H2 -->|"Đủ"| H4["Mở lại CSDL cũ, năm cũ open, năm mới draft"]
-  H4 --> H5["Xóa CSDL năm mới"]
+  classDef batdau fill:#2e7d32,stroke:#1b5e20,color:#ffffff,font-weight:bold
+  classDef ketthuc fill:#37474f,stroke:#263238,color:#ffffff,font-weight:bold
+  classDef nguoi fill:#e3f2fd,stroke:#1565c0,color:#0d2a4a
+  classDef heth fill:#eceff1,stroke:#546e7a,color:#263238
+  classDef duyet fill:#fff3e0,stroke:#ef6c00,color:#4e2600
+  classDef hoi fill:#fffde7,stroke:#f9a825,color:#3e2f00
+  classDef bao fill:#fce4ec,stroke:#ad1457,color:#4a0020
+  classDef chan fill:#ffebee,stroke:#c62828,color:#5f0000
+  classDef dulieu fill:#ede7f6,stroke:#5e35b1,color:#1f0f4d
+
+  S(["5.7 Chuyển hồ sơ"]):::batdau
+
+  subgraph P1["① Chọn năm, thực hiện"]
+    Y1["<b>Quản lý năm học</b><br/>Chọn năm học mới (nháp)"]:::nguoi
+    Y2["<b>Quản lý năm học</b><br/>Bấm Thực hiện"]:::duyet
+    Y1 --> Y2
+  end
+
+  subgraph P2["② Kiểm tra"]
+    Y3{"Đang có thao tác<br/>mở năm khác?"}:::hoi
+    Y4["Báo lỗi BR-93"]:::chan
+    Y5{"Năm mới có lịch,<br/>bắt đầu sau năm hiện tại?"}:::hoi
+    Y6["Báo lỗi BR-91, BR-93"]:::chan
+    Y7{"Mọi bước kiểm tra đạt?"}:::hoi
+    Y8["Báo lỗi, ví dụ BR-89<br/>công nợ trẻ đã thôi học"]:::chan
+    Y3 -->|"Có"| Y4
+    Y3 -->|"Không, giữ khóa tư vấn"| Y5
+    Y5 -->|"Không"| Y6
+    Y5 -->|"Có"| Y7
+    Y7 -->|"Không"| Y8
+  end
+
+  subgraph P3["③ Tạo năm mới"]
+    Y9[["<b>Hệ thống</b><br/>Tạo CSDL school_year, migration"]]:::heth
+    Y10[["<b>Hệ thống</b><br/>Chạy các bước carryOver"]]:::heth
+    Y11[("Năm mới open<br/>ghi carried_over_at")]:::dulieu
+    Y12[("Năm cũ closed<br/>CSDL cũ chỉ đọc")]:::dulieu
+    Y9 --> Y10 --> Y11 --> Y12
+  end
+
+  subgraph P4["④ Hủy chuyển"]
+    H1{"Bấm Hủy?"}:::hoi
+    H2{"Đủ điều kiện hủy?"}:::hoi
+    H3["Không hủy được, hiện lý do"]:::chan
+    H4[["<b>Hệ thống</b><br/>Mở lại CSDL cũ, năm cũ open<br/>năm mới draft"]]:::heth
+    H5[["<b>Hệ thống</b><br/>Xóa CSDL năm mới"]]:::heth
+    H1 -->|"Có"| H2
+    H2 -->|"Đã có biểu gửi cấp trên<br/>hoặc dữ liệu sau carried_over_at"| H3
+    H2 -->|"Đủ"| H4 --> H5
+  end
+
+  K1(["Làm việc trên năm mới"]):::ketthuc
+  K2(["Trở về năm cũ"]):::ketthuc
+
+  S --> Y1
+  Y2 --> Y3
+  Y7 -->|"Có"| Y9
+  Y12 --> H1
+  H1 -->|"Không"| K1
+  H5 --> K2
+
+  style P1 fill:#fafafa,stroke:#90a4ae
+  style P2 fill:#fafafa,stroke:#90a4ae
+  style P3 fill:#fafafa,stroke:#90a4ae
+  style P4 fill:#fafafa,stroke:#90a4ae
 ```
 
 ### Sơ đồ 5. Dặn thuốc
 
 ```mermaid
 stateDiagram-v2
+  classDef nhap fill:#eceff1,stroke:#546e7a,color:#263238
+  classDef cho fill:#fff3e0,stroke:#ef6c00,color:#4e2600
+  classDef dang fill:#e3f2fd,stroke:#1565c0,color:#0d2a4a
+  classDef xong fill:#e8f5e9,stroke:#2e7d32,color:#1b3d1d,font-weight:bold
+  classDef huy fill:#ffebee,stroke:#c62828,color:#5f0000
+
+  direction LR
   state "Chờ nhận" as pending
   state "Đang cho uống" as administering
   state "Hoàn thành" as completed
   state "Từ chối" as rejected
   [*] --> pending : Phụ huynh lập yêu cầu
-  pending --> administering : Nhân viên y tế hoặc GVCN nhận thuốc
+  pending --> administering : Y tế hoặc GVCN nhận thuốc
   pending --> rejected : Từ chối kèm lý do
-  administering --> administering : Ghi liều đã uống hoặc bỏ liều kèm lý do
-  administering --> completed : Đủ số liều đã ghi
+  administering --> administering : Ghi liều uống hoặc bỏ liều
+  administering --> completed : Đủ số liều
   administering --> completed : Kết thúc sớm
   completed --> [*]
   rejected --> [*]
+
+  class pending cho
+  class administering dang
+  class completed xong
+  class rejected huy
 ```
 
 ### Sơ đồ 6. Kiểm kê thiết bị
 
 ```mermaid
 stateDiagram-v2
+  classDef nhap fill:#eceff1,stroke:#546e7a,color:#263238
+  classDef cho fill:#fff3e0,stroke:#ef6c00,color:#4e2600
+  classDef dang fill:#e3f2fd,stroke:#1565c0,color:#0d2a4a
+  classDef xong fill:#e8f5e9,stroke:#2e7d32,color:#1b3d1d,font-weight:bold
+  classDef huy fill:#ffebee,stroke:#c62828,color:#5f0000
+
+  direction LR
   state "Đang kiểm" as counting
   state "Đã nộp" as submitted
   state "Đã duyệt" as approved
@@ -750,4 +1028,10 @@ stateDiagram-v2
   approved --> closed : Chốt chênh lệch, cập nhật sổ, tạo phiếu hỏng mất
   closed --> [*]
   cancelled --> [*]
+
+  class counting dang
+  class submitted cho
+  class approved xong
+  class closed xong
+  class cancelled huy
 ```

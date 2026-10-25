@@ -1305,135 +1305,278 @@ Mọi danh hiệu mặc định có tỉ lệ phiếu đồng ý tối thiểu 5
 
 ```mermaid
 stateDiagram-v2
-    state "Chờ vào sổ" as pending_registration
-    state "Đã vào sổ" as registered
-    state "Đang xử lý" as processing
-    state "Đã kết thúc" as completed
-    [*] --> registered : Văn thư Thêm mới và vào sổ
-    [*] --> pending_registration : Nhập văn bản liên thông hoặc liên thông nội bộ từ văn bản đi
-    pending_registration --> pending_registration : Đánh dấu tiếp nhận hoặc hủy đánh dấu
-    pending_registration --> registered : Vào sổ
-    registered --> processing : Trình lãnh đạo hoặc chuyển trực tiếp
-    processing --> registered : Trả lại hoặc lấy lại về văn thư khi không còn ai chờ
-    registered --> completed : Kết thúc văn bản
-    processing --> completed : Kết thúc văn bản
-    completed --> [*]
+  direction LR
+  classDef nhap fill:#eceff1,stroke:#546e7a,color:#263238
+  classDef cho fill:#fff3e0,stroke:#ef6c00,color:#4e2600
+  classDef dang fill:#e3f2fd,stroke:#1565c0,color:#0d2a4a
+  classDef xong fill:#e8f5e9,stroke:#2e7d32,color:#1b3d1d,font-weight:bold
+  classDef huy fill:#ffebee,stroke:#c62828,color:#5f0000
+
+  state "Chờ vào sổ" as pending_registration
+  state "Đã vào sổ" as registered
+  state "Đang xử lý" as processing
+  state "Đã kết thúc" as completed
+
+  [*] --> pending_registration : Nhập liên thông
+  [*] --> registered : Văn thư thêm mới, vào sổ
+  pending_registration --> pending_registration : Đánh dấu, hủy đánh dấu
+  pending_registration --> registered : Vào sổ
+  registered --> processing : Trình hoặc chuyển trực tiếp
+  processing --> registered : Trả lại, lấy lại về văn thư
+  registered --> completed : Kết thúc
+  processing --> completed : Kết thúc
+  completed --> [*]
+
+  class pending_registration nhap
+  class registered cho
+  class processing dang
+  class completed xong
 ```
 
 ### Văn bản đến: trạng thái một dòng trong luồng xử lý
 
 ```mermaid
 stateDiagram-v2
-    state "Chờ xử lý" as pending
-    state "Đã chuyển" as forwarded
-    state "Đã xử lý" as done
-    state "Đã trả lại" as returned
-    state "Đã từ chối" as refused
-    state "Bị lấy lại" as revoked
-    state "Văn bản đã kết thúc" as closed
-    [*] --> pending : Được trình hoặc được chuyển
-    pending --> forwarded : Chuyển tiếp hoặc luân chuyển
-    forwarded --> pending : Người nhận trả lại hoặc mình lấy lại
-    pending --> done : Xử lý xong hoặc mở văn bản xem để biết
-    pending --> returned : Trả lại người chuyển
-    pending --> refused : Phối hợp từ chối
-    pending --> revoked : Người chuyển lấy lại
-    pending --> closed : Văn bản bị kết thúc
-    done --> [*]
-    returned --> [*]
-    refused --> [*]
-    revoked --> [*]
-    closed --> [*]
+  classDef nhap fill:#eceff1,stroke:#546e7a,color:#263238
+  classDef cho fill:#fff3e0,stroke:#ef6c00,color:#4e2600
+  classDef dang fill:#e3f2fd,stroke:#1565c0,color:#0d2a4a
+  classDef xong fill:#e8f5e9,stroke:#2e7d32,color:#1b3d1d,font-weight:bold
+  classDef huy fill:#ffebee,stroke:#c62828,color:#5f0000
+
+  state "Chờ xử lý" as pending
+  state "Đã chuyển" as forwarded
+  state "Đã xử lý" as done
+  state "Đã trả lại" as returned
+  state "Đã từ chối" as refused
+  state "Bị lấy lại" as revoked
+  state "Văn bản đã kết thúc" as closed
+
+  [*] --> pending : Được trình, được chuyển
+  pending --> forwarded : Chuyển tiếp, luân chuyển
+  forwarded --> pending : Bị trả lại hoặc mình lấy lại
+  pending --> done : Xử lý xong, mở xem để biết
+  pending --> returned : Trả lại người chuyển
+  pending --> refused : Phối hợp từ chối
+  pending --> revoked : Người chuyển lấy lại
+  pending --> closed : Văn bản bị kết thúc
+  done --> [*]
+  returned --> [*]
+  refused --> [*]
+  revoked --> [*]
+  closed --> [*]
+
+  class pending cho
+  class forwarded dang
+  class done xong
+  class closed xong
+  class returned huy
+  class refused huy
+  class revoked huy
 ```
 
 ### Văn bản đến: luồng nghiệp vụ
 
 ```mermaid
 flowchart TD
-    A["Văn thư Thêm mới hoặc nhập văn bản liên thông"] --> B{"Nguồn liên thông?"}
-    B -->|"Có"| C["Chờ vào sổ, đánh dấu tiếp nhận"]
-    C --> D["Vào sổ: cấp số đến theo sổ"]
+  classDef batdau fill:#2e7d32,stroke:#1b5e20,color:#ffffff,font-weight:bold
+  classDef ketthuc fill:#37474f,stroke:#263238,color:#ffffff,font-weight:bold
+  classDef nguoi fill:#e3f2fd,stroke:#1565c0,color:#0d2a4a
+  classDef heth fill:#eceff1,stroke:#546e7a,color:#263238
+  classDef duyet fill:#fff3e0,stroke:#ef6c00,color:#4e2600
+  classDef hoi fill:#fffde7,stroke:#f9a825,color:#3e2f00
+  classDef bao fill:#fce4ec,stroke:#ad1457,color:#4a0020
+  classDef chan fill:#ffebee,stroke:#c62828,color:#5f0000
+  classDef dulieu fill:#ede7f6,stroke:#5e35b1,color:#1f0f4d
+
+  S(["Có văn bản đến"]):::batdau
+
+  subgraph P1["① Tiếp nhận, vào sổ"]
+    A["<b>Văn thư</b><br/>Thêm mới, nhập liên thông"]:::nguoi
+    B{"Nguồn liên thông?"}:::hoi
+    C["<b>Văn thư</b><br/>Chờ vào sổ, đánh dấu tiếp nhận"]:::nguoi
+    D["<b>Văn thư</b><br/>Vào sổ, cấp số đến"]:::nguoi
+    E{"Có tệp chính?"}:::hoi
+    F["<b>Văn thư</b><br/>Quét hoặc tải tệp lên"]:::nguoi
+    A --> B
+    B -->|"Có"| C --> D
     B -->|"Không"| D
-    D --> E{"Có tệp chính?"}
-    E -->|"Chưa"| F["Đính kèm tệp quét hoặc tải lên"]
+    D --> E
+    E -->|"Chưa"| F
     F --> E
-    E -->|"Có"| G{"Văn thư chọn"}
-    G -->|"Trình lãnh đạo"| H["Lãnh đạo nhận văn bản"]
-    G -->|"Chuyển trực tiếp"| I["Phân công xử lý chính, phối hợp, xem để biết"]
+  end
+
+  subgraph P2["② Trình, phân công"]
+    G{"Văn thư chọn?"}:::hoi
+    H["<b>Lãnh đạo</b><br/>Nhận văn bản, chuyển xử lý"]:::duyet
+    I["<b>Người chuyển</b><br/>Giao chính, phối hợp, xem để biết"]:::nguoi
+    G -->|"Trình lãnh đạo"| H
+    G -->|"Chuyển trực tiếp"| I
     H -->|"Chuyển xử lý"| I
-    I --> J["Xem để biết: mở là đã xem"]
-    I --> K["Xử lý chính, phối hợp xử lý"]
-    K -->|"Xin gia hạn"| L{"Người chuyển, lãnh đạo hoặc văn thư duyệt"}
-    L --> K
-    K -->|"Trả lại hoặc từ chối"| H
-    K -->|"Xử lý xong"| M["Ghi ý kiến xử lý"]
-    M --> N["Kết thúc văn bản: đóng mọi dòng còn chờ"]
-    N --> O["Lưu hồ sơ, văn bản trả lời, tạo công việc"]
+  end
+
+  subgraph P3["③ Xử lý"]
+    J["<b>Người xem để biết</b><br/>Mở là đã xem"]:::nguoi
+    K2["<b>Xử lý chính, phối hợp</b><br/>Xử lý văn bản"]:::nguoi
+    L["<b>Người chuyển, lãnh đạo, văn thư</b><br/>Duyệt gia hạn"]:::duyet
+    M["<b>Người xử lý</b><br/>Ghi ý kiến xử lý"]:::nguoi
+    K2 -.->|"Xin gia hạn"| L
+    L -.-> K2
+    K2 -->|"Xử lý xong"| M
+  end
+
+  subgraph P4["④ Kết thúc"]
+    N["<b>Văn thư, lãnh đạo, xử lý chính</b><br/>Kết thúc văn bản"]:::nguoi
+    N2[["<b>Hệ thống</b><br/>Đóng mọi dòng còn chờ"]]:::heth
+    O[("Lưu hồ sơ, văn bản trả lời, tạo công việc")]:::dulieu
+    N --> N2 --> O
+  end
+
+  KT(["Văn bản đã kết thúc"]):::ketthuc
+
+  S --> A
+  E -->|"Có"| G
+  I --> J
+  I --> K2
+  K2 -.->|"Trả lại, từ chối"| H
+  M --> N
+  O --> KT
+
+  style P1 fill:#fafafa,stroke:#90a4ae
+  style P2 fill:#fafafa,stroke:#90a4ae
+  style P3 fill:#fafafa,stroke:#90a4ae
+  style P4 fill:#fafafa,stroke:#90a4ae
 ```
 
 ### Văn bản đi: trạng thái văn bản
 
 ```mermaid
 stateDiagram-v2
-    state "Dự thảo" as draft
-    state "Đang lấy ý kiến" as consulting
-    state "Chờ ký" as pending_signature
-    state "Đã ký, chờ cấp số" as signed
-    state "Đã ban hành" as issued
-    [*] --> draft : Tạo dự thảo, cấp số eOffice
-    draft --> consulting : Lấy ý kiến, mở đợt mới
-    consulting --> draft : Kết thúc lấy ý kiến
-    draft --> pending_signature : Trình ký
-    pending_signature --> draft : Lấy lại, không ký hoặc trả lại
-    pending_signature --> signed : Ký nội bộ
-    signed --> draft : Văn thư trả lại, bỏ bản đã ký
-    signed --> issued : Cấp số và phát hành
-    issued --> issued : Đánh dấu gửi, public, đóng băng, lưu hồ sơ
-    issued --> [*]
+  direction LR
+  classDef nhap fill:#eceff1,stroke:#546e7a,color:#263238
+  classDef cho fill:#fff3e0,stroke:#ef6c00,color:#4e2600
+  classDef dang fill:#e3f2fd,stroke:#1565c0,color:#0d2a4a
+  classDef xong fill:#e8f5e9,stroke:#2e7d32,color:#1b3d1d,font-weight:bold
+  classDef huy fill:#ffebee,stroke:#c62828,color:#5f0000
+
+  state "Dự thảo" as draft
+  state "Đang lấy ý kiến" as consulting
+  state "Chờ ký" as pending_signature
+  state "Đã ký, chờ cấp số" as signed
+  state "Đã ban hành" as issued
+
+  [*] --> draft : Tạo dự thảo, cấp số eOffice
+  draft --> consulting : Lấy ý kiến, mở đợt mới
+  consulting --> draft : Kết thúc lấy ý kiến
+  draft --> pending_signature : Trình ký
+  pending_signature --> draft : Lấy lại, không ký, trả lại
+  pending_signature --> signed : Ký nội bộ
+  signed --> draft : Văn thư trả lại, bỏ bản ký
+  signed --> issued : Cấp số, phát hành
+  issued --> issued : Đánh dấu gửi, public, đóng băng, lưu hồ sơ
+  issued --> [*]
+
+  class draft nhap
+  class consulting dang
+  class pending_signature cho
+  class signed cho
+  class issued xong
 ```
 
 ### Văn bản đi: cấp số, phát hành và liên thông
 
 ```mermaid
 flowchart TD
-    A["Văn thư mở văn bản Đã ký"] --> B["Chọn sổ văn bản đi, số đi, ký hiệu, ngày ban hành, số bản"]
-    B --> C{"Số và ngày hợp lệ với sổ?"}
+  classDef batdau fill:#2e7d32,stroke:#1b5e20,color:#ffffff,font-weight:bold
+  classDef ketthuc fill:#37474f,stroke:#263238,color:#ffffff,font-weight:bold
+  classDef nguoi fill:#e3f2fd,stroke:#1565c0,color:#0d2a4a
+  classDef heth fill:#eceff1,stroke:#546e7a,color:#263238
+  classDef duyet fill:#fff3e0,stroke:#ef6c00,color:#4e2600
+  classDef hoi fill:#fffde7,stroke:#f9a825,color:#3e2f00
+  classDef bao fill:#fce4ec,stroke:#ad1457,color:#4a0020
+  classDef chan fill:#ffebee,stroke:#c62828,color:#5f0000
+  classDef dulieu fill:#ede7f6,stroke:#5e35b1,color:#1f0f4d
+
+  S(["Văn bản Đã ký"]):::batdau
+
+  subgraph P1["① Cấp số, ban hành"]
+    A["<b>Văn thư</b><br/>Mở văn bản Đã ký"]:::nguoi
+    B["<b>Văn thư</b><br/>Chọn sổ, số, ký hiệu, ngày, số bản"]:::nguoi
+    C{"Số, ngày hợp lệ với sổ?"}:::hoi
+    D[["<b>Hệ thống</b><br/>Chuyển Đã ban hành"]]:::heth
+    A --> B --> C
     C -->|"Không"| B
-    C -->|"Có"| D["Văn bản thành Đã ban hành"]
-    D --> E{"Loại đơn vị nhận"}
-    E -->|"Đơn vị trong trường"| F["Tạo văn bản đến Chờ vào sổ kèm bản đã ký"]
-    F --> G["Dòng nhận: Đã chuyển vào văn bản đến"]
-    E -->|"Đơn vị bên ngoài"| H["Dòng nhận: Chờ gửi"]
-    H --> I["Văn thư gửi bằng cách khác"]
-    I --> J["Đánh dấu đã gửi kèm ghi chú"]
-    J -->|"Hủy đánh dấu"| H
-    D --> K{"Trả lời văn bản đến?"}
-    K -->|"Có"| L["Ghi số ký hiệu, ngày vào văn bản đến được trả lời"]
+    C -->|"Có"| D
+  end
+
+  subgraph P2["② Gửi nơi nhận"]
+    E{"Đơn vị nhận ở đâu?"}:::hoi
+    F[["<b>Hệ thống</b><br/>Tạo văn bản đến Chờ vào sổ"]]:::heth
+    G[("Dòng nhận: Đã chuyển vào văn bản đến")]:::dulieu
+    H[("Dòng nhận: Chờ gửi")]:::dulieu
+    I["<b>Văn thư</b><br/>Gửi bằng cách khác"]:::nguoi
+    J["<b>Văn thư</b><br/>Đánh dấu đã gửi, ghi chú"]:::nguoi
+    E -->|"Trong trường"| F --> G
+    E -->|"Bên ngoài"| H --> I --> J
+    J -.->|"Hủy đánh dấu"| H
+  end
+
+  subgraph P3["③ Trả lời văn bản đến"]
+    K{"Trả lời văn bản đến?"}:::hoi
+    L[["<b>Hệ thống</b><br/>Ghi số ký hiệu, ngày vào văn bản đến"]]:::heth
+    K -->|"Có"| L
+  end
+
+  KT(["Đã phát hành xong"]):::ketthuc
+
+  S --> A
+  D --> E
+  D --> K
+  G --> KT
+  J --> KT
+  L --> KT
+
+  style P1 fill:#fafafa,stroke:#90a4ae
+  style P2 fill:#fafafa,stroke:#90a4ae
+  style P3 fill:#fafafa,stroke:#90a4ae
 ```
 
 ### Giao việc: trạng thái dòng phân công
 
 ```mermaid
 stateDiagram-v2
-    state "Chưa xử lý" as todo
-    state "Đang xử lý" as in_progress
-    state "Chờ phê duyệt" as pending_approval
-    state "Đã hoàn thành" as done
-    state "Đã thu hồi" as cancelled
-    [*] --> todo : Giao việc hoặc phân công thêm, phân công tiếp
-    todo --> in_progress : Cập nhật tiến độ trên 0
-    in_progress --> todo : Cập nhật tiến độ về 0
-    todo --> pending_approval : Xử lý chính báo 100
-    in_progress --> pending_approval : Xử lý chính báo 100
-    todo --> done : Phối hợp báo 100
-    in_progress --> done : Phối hợp báo 100
-    pending_approval --> done : Duyệt xử lý xong
-    pending_approval --> in_progress : Chưa xử lý xong
-    todo --> cancelled : Thu hồi hoặc hủy việc
-    in_progress --> cancelled : Thu hồi hoặc hủy việc
-    pending_approval --> cancelled : Thu hồi hoặc hủy việc
-    done --> [*]
-    cancelled --> [*]
+  direction LR
+  classDef nhap fill:#eceff1,stroke:#546e7a,color:#263238
+  classDef cho fill:#fff3e0,stroke:#ef6c00,color:#4e2600
+  classDef dang fill:#e3f2fd,stroke:#1565c0,color:#0d2a4a
+  classDef xong fill:#e8f5e9,stroke:#2e7d32,color:#1b3d1d,font-weight:bold
+  classDef huy fill:#ffebee,stroke:#c62828,color:#5f0000
+
+  state "Chưa xử lý" as todo
+  state "Đang xử lý" as in_progress
+  state "Chờ phê duyệt" as pending_approval
+  state "Đã hoàn thành" as done
+  state "Đã thu hồi" as cancelled
+
+  [*] --> todo : Giao, phân công thêm, phân công tiếp
+  todo --> in_progress : Tiến độ trên 0
+  in_progress --> todo : Tiến độ về 0
+  todo --> pending_approval : Xử lý chính báo 100
+  in_progress --> pending_approval : Xử lý chính báo 100
+  todo --> done : Phối hợp báo 100
+  in_progress --> done : Phối hợp báo 100
+  pending_approval --> done : Duyệt xử lý xong
+  pending_approval --> in_progress : Chưa xử lý xong
+  todo --> cancelled : Thu hồi, hủy việc
+  in_progress --> cancelled : Thu hồi, hủy việc
+  pending_approval --> cancelled : Thu hồi, hủy việc
+  done --> [*]
+  cancelled --> [*]
+
+  class todo nhap
+  class in_progress dang
+  class pending_approval cho
+  class done xong
+  class cancelled huy
 ```
 
 ### Giao việc: luồng nghiệp vụ
@@ -1442,504 +1585,1120 @@ Mã không có bước "nhận việc" riêng: dòng ở Chưa xử lý là đã
 
 ```mermaid
 flowchart TD
-    A["Người có quyền giao việc lập việc ở 4.1"] --> B["Phân công: xử lý chính, phối hợp, theo dõi cho đơn vị hoặc cá nhân"]
-    B --> C["Thông báo người nhận, quản lý đơn vị"]
-    C --> D{"Dòng giao cho đơn vị?"}
-    D -->|"Có"| E["Quản lý đơn vị xử lý hoặc phân công tiếp cho cá nhân"]
-    D -->|"Không"| F["Cá nhân xử lý"]
-    E --> G["Cập nhật tiến độ và nội dung"]
-    F --> G
-    G --> H{"Báo 100 phần trăm?"}
-    H -->|"Chưa"| G
-    H -->|"Phối hợp"| I["Dòng Đã hoàn thành"]
-    H -->|"Xử lý chính"| J["Chờ phê duyệt, thông báo người giao"]
-    J --> K{"Người giao hoặc lãnh đạo giao duyệt"}
-    K -->|"Chưa xử lý xong"| G
-    K -->|"Duyệt xử lý xong"| I
-    I --> L{"Mọi xử lý chính cấp một xong?"}
-    L -->|"Có"| M["Việc hoàn thành"]
+  classDef batdau fill:#2e7d32,stroke:#1b5e20,color:#ffffff,font-weight:bold
+  classDef ketthuc fill:#37474f,stroke:#263238,color:#ffffff,font-weight:bold
+  classDef nguoi fill:#e3f2fd,stroke:#1565c0,color:#0d2a4a
+  classDef heth fill:#eceff1,stroke:#546e7a,color:#263238
+  classDef duyet fill:#fff3e0,stroke:#ef6c00,color:#4e2600
+  classDef hoi fill:#fffde7,stroke:#f9a825,color:#3e2f00
+  classDef bao fill:#fce4ec,stroke:#ad1457,color:#4a0020
+  classDef chan fill:#ffebee,stroke:#c62828,color:#5f0000
+  classDef dulieu fill:#ede7f6,stroke:#5e35b1,color:#1f0f4d
+
+  S(["Có việc cần giao"]):::batdau
+
+  subgraph P1["① Giao việc"]
+    A["<b>Người có quyền giao việc</b><br/>Lập việc ở 4.1"]:::nguoi
+    B["<b>Người giao việc</b><br/>Phân công chính, phối hợp, theo dõi"]:::nguoi
+    C>"Thông báo người nhận, quản lý đơn vị"]:::bao
+    A --> B --> C
+  end
+
+  subgraph P2["② Thực hiện"]
+    D{"Giao cho đơn vị?"}:::hoi
+    E["<b>Quản lý đơn vị</b><br/>Xử lý hoặc phân công tiếp"]:::nguoi
+    F["<b>Cá nhân</b><br/>Xử lý"]:::nguoi
+    G["<b>Người xử lý</b><br/>Cập nhật tiến độ, nội dung"]:::nguoi
+    H{"Báo 100 phần trăm?"}:::hoi
+    D -->|"Có"| E --> G
+    D -->|"Không"| F --> G
+    G --> H
+    H -.->|"Chưa"| G
+  end
+
+  subgraph P3["③ Duyệt, hoàn thành"]
+    J>"Chờ phê duyệt, báo người giao"]:::bao
+    K2["<b>Người giao, lãnh đạo giao</b><br/>Duyệt kết quả"]:::duyet
+    I[["<b>Hệ thống</b><br/>Dòng Đã hoàn thành"]]:::heth
+    L{"Xử lý chính cấp một xong hết?"}:::hoi
+    J --> K2
+    K2 -->|"Duyệt xử lý xong"| I
+    I --> L
+  end
+
+  KT(["Việc hoàn thành"]):::ketthuc
+
+  S --> A
+  C --> D
+  H -->|"Xử lý chính"| J
+  H -->|"Phối hợp"| I
+  K2 -.->|"Chưa xử lý xong"| G
+  L -->|"Có"| KT
+
+  style P1 fill:#fafafa,stroke:#90a4ae
+  style P2 fill:#fafafa,stroke:#90a4ae
+  style P3 fill:#fafafa,stroke:#90a4ae
 ```
 
 ### Hồ sơ công việc: trạng thái hồ sơ
 
 ```mermaid
 stateDiagram-v2
-    state "Đang cập nhật" as open
-    state "Đã hoàn thành" as closed
-    state "Đã bàn giao" as submitted
-    state "Bị trả về" as returned
-    state "Đã lưu trữ" as archived
-    [*] --> open : Thêm mới hồ sơ
-    open --> closed : Kết thúc hồ sơ
-    returned --> closed : Kết thúc hồ sơ
-    closed --> open : Mở lại
-    closed --> submitted : Nộp lưu
-    submitted --> archived : Văn thư lưu trữ tiếp nhận
-    submitted --> returned : Văn thư lưu trữ trả về
-    archived --> [*]
+  direction LR
+  classDef nhap fill:#eceff1,stroke:#546e7a,color:#263238
+  classDef cho fill:#fff3e0,stroke:#ef6c00,color:#4e2600
+  classDef dang fill:#e3f2fd,stroke:#1565c0,color:#0d2a4a
+  classDef xong fill:#e8f5e9,stroke:#2e7d32,color:#1b3d1d,font-weight:bold
+  classDef huy fill:#ffebee,stroke:#c62828,color:#5f0000
+
+  state "Đang cập nhật" as open
+  state "Đã hoàn thành" as closed
+  state "Đã bàn giao" as submitted
+  state "Bị trả về" as returned
+  state "Đã lưu trữ" as archived
+
+  [*] --> open : Thêm mới hồ sơ
+  open --> closed : Kết thúc hồ sơ
+  returned --> closed : Kết thúc hồ sơ
+  closed --> open : Mở lại
+  closed --> submitted : Nộp lưu
+  submitted --> archived : Lưu trữ tiếp nhận
+  submitted --> returned : Lưu trữ trả về
+  archived --> [*]
+
+  class open nhap
+  class closed dang
+  class submitted cho
+  class returned huy
+  class archived xong
 ```
 
 ### Đăng ký phòng họp: trạng thái lượt đăng ký
 
 ```mermaid
 stateDiagram-v2
-    state "Chờ phê duyệt" as pending
-    state "Phê duyệt" as approved
-    state "Bị từ chối" as rejected
-    state "Đã hủy" as cancelled
-    [*] --> pending : Đăng ký sử dụng
-    [*] --> approved : Người duyệt phòng họp tự đăng ký
-    pending --> approved : Phê duyệt, không chồng giờ
-    pending --> rejected : Từ chối có lý do
-    pending --> cancelled : Hủy đăng ký
-    approved --> cancelled : Hủy đăng ký hoặc xóa, đổi dòng lịch
-    rejected --> [*]
-    cancelled --> [*]
+  direction LR
+  classDef nhap fill:#eceff1,stroke:#546e7a,color:#263238
+  classDef cho fill:#fff3e0,stroke:#ef6c00,color:#4e2600
+  classDef dang fill:#e3f2fd,stroke:#1565c0,color:#0d2a4a
+  classDef xong fill:#e8f5e9,stroke:#2e7d32,color:#1b3d1d,font-weight:bold
+  classDef huy fill:#ffebee,stroke:#c62828,color:#5f0000
+
+  state "Chờ phê duyệt" as pending
+  state "Phê duyệt" as approved
+  state "Bị từ chối" as rejected
+  state "Đã hủy" as cancelled
+
+  [*] --> pending : Đăng ký sử dụng
+  [*] --> approved : Người duyệt tự đăng ký
+  pending --> approved : Phê duyệt, không chồng giờ
+  pending --> rejected : Từ chối có lý do
+  pending --> cancelled : Hủy đăng ký
+  approved --> cancelled : Hủy, xóa hoặc đổi dòng lịch
+  rejected --> [*]
+  cancelled --> [*]
+
+  class pending cho
+  class approved xong
+  class rejected huy
+  class cancelled huy
 ```
 
 ### Luồng đăng nhập thay
 
 ```mermaid
 sequenceDiagram
-    participant HT as Hiệu trưởng
+  autonumber
+  box rgb(227,242,253) Người dùng
+    actor HT as Hiệu trưởng
+  end
+  box rgb(236,239,241) Hệ thống
     participant CQ as Cổng quản trị
     participant DD as Dịch vụ định danh
     participant API as Máy chủ API
+  end
+  rect rgb(255,253,231)
+    Note over HT,DD: Bắt đầu đăng nhập thay
     HT->>CQ: Bấm Đăng nhập thay ở 1.4, nhập lý do
-    CQ->>DD: POST /auth/impersonation với user_id và reason
-    DD->>DD: Kiểm tra quyền P01.account.impersonate, kênh portal, không lồng nhau
-    DD->>DD: Kiểm tra tài khoản đích hoạt động, không quyền cao hơn
+    CQ->>DD: POST /auth/impersonation, user_id, reason
+    DD->>DD: Kiểm quyền impersonate, kênh portal, không lồng nhau
+    DD->>DD: Kiểm tài khoản đích hoạt động, không quyền cao hơn
     alt Không đạt
-        DD-->>CQ: Lỗi quy tắc YCTD-145 hoặc ERR_FORBIDDEN
+      DD-->>CQ: Lỗi YCTD-145 hoặc ERR_FORBIDDEN
     else Đạt
-        DD->>DD: Ghi impersonations, tạo phiên đích 60 phút, ghi identity_audit_logs
-        DD-->>CQ: Mã phiên của tài khoản đích, cookie cổng quản trị đổi sang phiên đích
-        CQ->>HT: Về trang chủ, hiện thanh đỏ và nút Thoát đăng nhập thay
+      DD->>DD: Ghi impersonations, phiên đích 60 phút, identity_audit_logs
+      DD-->>CQ: Mã phiên đích, cookie đổi sang phiên đích
+      CQ->>HT: Về trang chủ, thanh đỏ, nút Thoát đăng nhập thay
     end
+  end
+  rect rgb(255,253,231)
+    Note over HT,API: Thao tác dưới tên tài khoản đích
     HT->>CQ: Thao tác nghiệp vụ
     CQ->>API: Yêu cầu kèm mã phiên đích
     API->>DD: GET /auth/me trả thêm impersonation
-    alt Ghi vào chứng thư số, kí số hoặc xuất toàn bộ dữ liệu
-        API-->>CQ: Từ chối ERR_FORBIDDEN
-    else Thao tác ghi hoặc tải tệp
-        API->>API: Thực hiện, ghi audit_logs với tên kèm đăng nhập thay bởi
-        API->>API: Ghi impersonation_actions với phương thức, đường dẫn, mã kết quả
-        API-->>CQ: Kết quả
+    alt Chứng thư số, kí số, xuất toàn bộ dữ liệu
+      API-->>CQ: Từ chối ERR_FORBIDDEN
+    else Ghi hoặc tải tệp
+      API->>API: Thực hiện, audit_logs ghi kèm đăng nhập thay bởi
+      API->>API: Ghi impersonation_actions: phương thức, đường dẫn, mã kết quả
+      API-->>CQ: Kết quả
     end
+  end
+  rect rgb(255,253,231)
+    Note over HT,DD: Thoát đăng nhập thay
     HT->>CQ: Bấm Thoát đăng nhập thay
     CQ->>DD: POST /auth/impersonation/exit
     DD->>DD: Đóng phiên đích, end_reason exit
     alt Phiên gốc còn hiệu lực
-        DD-->>CQ: Mã mới cho phiên gốc
-        CQ->>HT: Về màn hình 4.1 Đăng nhập thay
+      DD-->>CQ: Mã mới cho phiên gốc
+      CQ->>HT: Về màn hình 4.1 Đăng nhập thay
     else Phiên gốc hết hạn
-        DD-->>CQ: signed_out true
-        CQ->>HT: Về màn hình đăng nhập
+      DD-->>CQ: signed_out true
+      CQ->>HT: Về màn hình đăng nhập
     end
+  end
 ```
 
 ### Luồng xuất toàn bộ dữ liệu
 
 ```mermaid
 flowchart TD
-    A["Hiệu trưởng bấm Tạo gói dữ liệu ở 4.2"] --> B{"Có quyền P01.data.export-all?"}
-    B -->|"Không"| X1["Từ chối ERR_FORBIDDEN"]
-    B -->|"Có"| C{"Đang đăng nhập thay?"}
-    C -->|"Có"| X2["Từ chối, không xuất khi đăng nhập thay"]
-    C -->|"Không"| D{"Đã có gói đang chờ hoặc đang tạo của người này?"}
-    D -->|"Có"| X3["Báo lỗi quy tắc YCTD-145, chờ gói trước xong"]
-    D -->|"Không"| E["Lấy dữ liệu định danh bằng mã phiên của người bấm, lưu tạm ở kho tệp"]
-    E --> F["Tạo export_jobs mã school-data-zip, trạng thái pending, trả 202"]
-    F --> G["Tiến trình xuất nền mỗi 15 giây nhận tác vụ, chuyển running"]
-    G --> H["Dựng ZIP: CSV mọi bảng hệ thống, năm học, định danh, bỏ cột bí mật"]
-    H --> I["Kèm tệp đính kèm tối đa 512 MB, manifest.json, DOC_TRUOC.txt"]
-    I --> J["Ghi export_logs ở năm học đang dùng, xóa tệp tạm định danh"]
-    J --> K{"Dựng gói thành công?"}
-    K -->|"Có"| L["Lưu ZIP ở kho tệp, trạng thái done, hạn tải 48 giờ"]
-    K -->|"Lỗi, còn lượt thử"| G
-    K -->|"Lỗi, hết lượt"| M["Trạng thái failed, ghi chú lỗi"]
-    L --> N["Màn hình hỏi lại danh sách, báo gói đã xong"]
-    N --> O["Người tạo bấm Tải về, ghi export_job_downloads"]
-    L --> P["Hết 48 giờ: xóa tệp ở kho, trạng thái expired"]
+  classDef batdau fill:#2e7d32,stroke:#1b5e20,color:#ffffff,font-weight:bold
+  classDef ketthuc fill:#37474f,stroke:#263238,color:#ffffff,font-weight:bold
+  classDef nguoi fill:#e3f2fd,stroke:#1565c0,color:#0d2a4a
+  classDef heth fill:#eceff1,stroke:#546e7a,color:#263238
+  classDef duyet fill:#fff3e0,stroke:#ef6c00,color:#4e2600
+  classDef hoi fill:#fffde7,stroke:#f9a825,color:#3e2f00
+  classDef bao fill:#fce4ec,stroke:#ad1457,color:#4a0020
+  classDef chan fill:#ffebee,stroke:#c62828,color:#5f0000
+  classDef dulieu fill:#ede7f6,stroke:#5e35b1,color:#1f0f4d
+
+  S(["Hiệu trưởng cần gói dữ liệu"]):::batdau
+
+  subgraph P1["① Kiểm tra yêu cầu"]
+    A["<b>Hiệu trưởng</b><br/>Bấm Tạo gói dữ liệu ở 4.2"]:::nguoi
+    B{"Có quyền export-all?"}:::hoi
+    C{"Đang đăng nhập thay?"}:::hoi
+    D{"Đã có gói đang chờ, đang tạo?"}:::hoi
+    X1["Từ chối ERR_FORBIDDEN"]:::chan
+    X2["Từ chối khi đăng nhập thay"]:::chan
+    X3["Lỗi YCTD-145, chờ gói trước"]:::chan
+    A --> B
+    B -->|"Có"| C
+    C -->|"Không"| D
+    B -.->|"Không"| X1
+    C -.->|"Có"| X2
+    D -.->|"Có"| X3
+  end
+
+  subgraph P2["② Tạo tác vụ"]
+    E[["<b>Hệ thống</b><br/>Lấy dữ liệu định danh, lưu tạm"]]:::heth
+    F[["<b>Hệ thống</b><br/>Tạo export_jobs pending, trả 202"]]:::heth
+    E --> F
+  end
+
+  subgraph P3["③ Dựng gói nền"]
+    G[["<b>Tiến trình nền, 15 giây</b><br/>Nhận tác vụ, chuyển running"]]:::heth
+    H[["<b>Tiến trình nền</b><br/>ZIP: CSV mọi bảng, bỏ cột bí mật"]]:::heth
+    I[["<b>Tiến trình nền</b><br/>Kèm tệp đến 512 MB, manifest, DOC_TRUOC"]]:::heth
+    J[("Ghi export_logs, xóa tệp tạm định danh")]:::dulieu
+    K{"Dựng thành công?"}:::hoi
+    M["Trạng thái failed, ghi lỗi"]:::chan
+    G --> H --> I --> J --> K
+    K -.->|"Lỗi, còn lượt thử"| G
+    K -->|"Lỗi, hết lượt"| M
+  end
+
+  subgraph P4["④ Tải về, hết hạn"]
+    L[("ZIP ở kho tệp, done, hạn 48 giờ")]:::dulieu
+    N>"Danh sách báo gói đã xong"]:::bao
+    O["<b>Người tạo</b><br/>Tải về, ghi export_job_downloads"]:::nguoi
+    P[["<b>Hệ thống</b><br/>Hết 48 giờ: xóa tệp, expired"]]:::heth
+    L --> N --> O
+    L -.-> P
+  end
+
+  KT1(["Đã tải gói"]):::ketthuc
+  KT2(["Gói hết hạn"]):::ketthuc
+
+  S --> A
+  D -->|"Không"| E
+  F --> G
+  K -->|"Có"| L
+  O --> KT1
+  P --> KT2
+
+  style P1 fill:#fafafa,stroke:#90a4ae
+  style P2 fill:#fafafa,stroke:#90a4ae
+  style P3 fill:#fafafa,stroke:#90a4ae
+  style P4 fill:#fafafa,stroke:#90a4ae
 ```
 
 ### Cấu trúc người dùng, nhóm, quyền, phân hệ, menu
 
 ```mermaid
-flowchart LR
-    U["Tài khoản users"] -->|"gán ở đơn vị"| UR["user_roles có org_unit_id"]
-    UR --> R["Nhóm người dùng roles"]
-    OU["Đơn vị org_units"] -.->|"phạm vi"| UR
-    R -->|"1.3 Phân quyền nhóm theo menu"| RP["role_permissions"]
-    RP --> P["Mã quyền permissions, ví dụ P01.account.manage"]
-    R -->|"1.2 Phân quyền nhóm theo phần mềm"| WX["role_workspace_exclusions"]
-    WX --> W["Phân hệ PORTAL_WORKSPACES"]
-    R --> ACT{"Nhóm còn hiệu lực?"}
-    ACT -->|"Không"| NONE["Không cấp quyền, không cấp phân hệ"]
-    ACT -->|"Có"| ME["Hàm auth me trả quyền theo đơn vị và phân hệ"]
-    P --> ME
-    W --> ME
-    ME --> MR["MENU_PERMISSION_RULES quyết định mục menu hiện"]
-    W --> MS["Ô chọn phân hệ và menu ngang"]
-    MR --> MS
-    ME --> API["Máy chủ API kiểm tra RequirePermission và phạm vi đơn vị ở mọi yêu cầu"]
+flowchart TD
+  classDef batdau fill:#2e7d32,stroke:#1b5e20,color:#ffffff,font-weight:bold
+  classDef ketthuc fill:#37474f,stroke:#263238,color:#ffffff,font-weight:bold
+  classDef nguoi fill:#e3f2fd,stroke:#1565c0,color:#0d2a4a
+  classDef heth fill:#eceff1,stroke:#546e7a,color:#263238
+  classDef duyet fill:#fff3e0,stroke:#ef6c00,color:#4e2600
+  classDef hoi fill:#fffde7,stroke:#f9a825,color:#3e2f00
+  classDef bao fill:#fce4ec,stroke:#ad1457,color:#4a0020
+  classDef chan fill:#ffebee,stroke:#c62828,color:#5f0000
+  classDef dulieu fill:#ede7f6,stroke:#5e35b1,color:#1f0f4d
+
+  subgraph P1["① Tài khoản, đơn vị"]
+    U[("<b>users</b><br/>Tài khoản")]:::dulieu
+    OU[("<b>org_units</b><br/>Đơn vị")]:::dulieu
+    UR[("<b>user_roles</b><br/>Gán nhóm ở đơn vị")]:::dulieu
+    U -->|"gán ở đơn vị"| UR
+    OU -.->|"phạm vi"| UR
+  end
+
+  subgraph P2["② Nhóm và quyền"]
+    R[("<b>roles</b><br/>Nhóm người dùng")]:::dulieu
+    ACT{"Nhóm còn hiệu lực?"}:::hoi
+    NONE["Không cấp quyền, phân hệ"]:::chan
+    RP[("<b>role_permissions</b><br/>1.3 Theo menu")]:::dulieu
+    P[("<b>permissions</b><br/>Ví dụ P01.account.manage")]:::dulieu
+    WX[("<b>role_workspace_exclusions</b><br/>1.2 Theo phần mềm")]:::dulieu
+    W[["<b>PORTAL_WORKSPACES</b><br/>Danh mục phân hệ"]]:::heth
+    R --> ACT
+    ACT -->|"Không"| NONE
+    R --> RP --> P
+    R --> WX --> W
+  end
+
+  subgraph P3["③ Kết quả dùng"]
+    ME[["<b>auth me</b><br/>Quyền theo đơn vị, phân hệ"]]:::heth
+    MR[["<b>MENU_PERMISSION_RULES</b><br/>Chọn mục menu hiện"]]:::heth
+    MS["<b>Cổng quản trị</b><br/>Ô chọn phân hệ, menu ngang"]:::nguoi
+    API[["<b>Máy chủ API</b><br/>RequirePermission, phạm vi đơn vị"]]:::heth
+    ME --> MR --> MS
+    ME --> API
+  end
+
+  UR --> R
+  ACT -->|"Có"| ME
+  P --> ME
+  W --> ME
+  W --> MS
+
+  style P1 fill:#fafafa,stroke:#90a4ae
+  style P2 fill:#fafafa,stroke:#90a4ae
+  style P3 fill:#fafafa,stroke:#90a4ae
 ```
 
 ### Sơ đồ KPI: từ giao việc đến biểu quyết và khóa kỳ
 
 ```mermaid
 flowchart TD
-    A["Quản lý giao việc"] --> B{"Người được giao xác nhận?"}
-    A2["Cán bộ tự đăng ký việc"] --> C{"Cấp trên duyệt đăng ký?"}
-    C -->|"Không duyệt, có lý do"| X1["Không duyệt rejected"]
-    C -->|"Duyệt hoặc quá hạn duyệt"| D["Đang thực hiện in_progress"]
-    B -->|"Xác nhận hoặc quá hạn xác nhận"| D
-    B -->|"Chuyển trả có lý do"| B2["Đã chuyển trả returned_to_assigner"]
-    B2 -->|"Người giao sửa, giao lại"| B
-    D --> E["Minh chứng, tự đánh giá việc"]
-    E --> F["Chờ chấm self_assessed"]
-    F -->|"Trả lại làm lại"| G["rework"]
-    G --> E
-    F -->|"Người chấm chấm điểm"| H["Đã chấm graded"]
-    F -->|"Quá hạn chấm, lấy kết quả tự đánh giá"| H
-    H --> I["Hệ thống tính A, B, tổng điểm, mức đề xuất"]
-    I --> J["Cá nhân tự đánh giá tiêu chí chung, tự đề xuất mức"]
-    J --> K["Nộp phiếu submitted"]
-    K --> L{"Cấp trên xử lý"}
-    L -->|"Trả lại"| M["Phiếu returned"]
-    M --> J
-    L -->|"Kết luận khi hết việc chờ"| N["Phiếu concluded"]
-    N --> O["Tham mưu đề xuất mức"]
-    N --> P["Lãnh đạo biểu quyết mức"]
-    O --> Q{"Khóa kỳ: số xuất sắc trong tỷ lệ?"}
+  classDef batdau fill:#2e7d32,stroke:#1b5e20,color:#ffffff,font-weight:bold
+  classDef ketthuc fill:#37474f,stroke:#263238,color:#ffffff,font-weight:bold
+  classDef nguoi fill:#e3f2fd,stroke:#1565c0,color:#0d2a4a
+  classDef heth fill:#eceff1,stroke:#546e7a,color:#263238
+  classDef duyet fill:#fff3e0,stroke:#ef6c00,color:#4e2600
+  classDef hoi fill:#fffde7,stroke:#f9a825,color:#3e2f00
+  classDef bao fill:#fce4ec,stroke:#ad1457,color:#4a0020
+  classDef chan fill:#ffebee,stroke:#c62828,color:#5f0000
+  classDef dulieu fill:#ede7f6,stroke:#5e35b1,color:#1f0f4d
+
+  S(["Kỳ KPI đang mở"]):::batdau
+
+  subgraph P1["① Giao, đăng ký việc"]
+    X1["Không duyệt rejected"]:::chan
+    C["<b>Cấp trên</b><br/>Duyệt đăng ký"]:::duyet
+    A2["<b>Cán bộ</b><br/>Tự đăng ký việc"]:::nguoi
+    A["<b>Quản lý</b><br/>Giao việc"]:::nguoi
+    B{"Người được giao xác nhận?"}:::hoi
+    B2["Chuyển trả returned_to_assigner"]:::chan
+    A2 --> C
+    C -.->|"Không duyệt, có lý do"| X1
+    A --> B
+    B -.->|"Chuyển trả có lý do"| B2
+    B2 -.->|"Người giao sửa, giao lại"| B
+  end
+
+  subgraph P2["② Thực hiện, chấm việc"]
+    D["<b>Cán bộ</b><br/>Thực hiện in_progress"]:::nguoi
+    E["<b>Cán bộ</b><br/>Minh chứng, tự đánh giá việc"]:::nguoi
+    F["<b>Người chấm</b><br/>Chấm việc self_assessed"]:::duyet
+    G["Trả lại làm lại rework"]:::chan
+    H[["<b>Hệ thống</b><br/>Đã chấm graded"]]:::heth
+    I[["<b>Hệ thống</b><br/>Tính A, B, tổng điểm, mức đề xuất"]]:::heth
+    D --> E --> F
+    F -->|"Trả lại"| G
+    G -.-> E
+    F -->|"Chấm điểm"| H
+    F -.->|"Quá hạn chấm, lấy tự đánh giá"| H
+    H --> I
+  end
+
+  subgraph P3["③ Phiếu đánh giá"]
+    J["<b>Cá nhân</b><br/>Tự đánh giá tiêu chí chung, đề xuất mức"]:::nguoi
+    K["<b>Cá nhân</b><br/>Nộp phiếu submitted"]:::nguoi
+    L["<b>Cấp trên</b><br/>Xử lý phiếu"]:::duyet
+    M["Phiếu returned"]:::chan
+    N[["<b>Hệ thống</b><br/>Phiếu concluded"]]:::heth
+    J --> K --> L
+    L -->|"Trả lại"| M
+    M -.-> J
+    L -->|"Kết luận khi hết việc chờ"| N
+  end
+
+  subgraph P4["④ Xếp mức, khóa kỳ"]
+    O["<b>Tham mưu</b><br/>Đề xuất mức"]:::nguoi
+    P["<b>Lãnh đạo</b><br/>Biểu quyết mức"]:::duyet
+    Q{"Khóa kỳ: xuất sắc trong tỷ lệ?"}:::hoi
+    R[["<b>Hệ thống</b><br/>Chốt mức: biểu quyết, tham mưu, cấp trên, đề xuất"]]:::heth
+    O --> Q
     P --> Q
-    Q -->|"Vượt tỷ lệ"| O
-    Q -->|"Đạt"| R["Chốt mức cuối: biểu quyết đa số, rồi tham mưu, cấp trên, đề xuất"]
-    R --> S["Kỳ đã khóa locked"]
+    Q -.->|"Vượt tỷ lệ"| O
+    Q -->|"Đạt"| R
+  end
+
+  KT(["Kỳ đã khóa locked"]):::ketthuc
+
+  S --> A2
+  S --> A
+  B -->|"Xác nhận, quá hạn xác nhận"| D
+  C -->|"Duyệt, quá hạn duyệt"| D
+  I --> J
+  N --> O
+  N --> P
+  R --> KT
+
+  style P1 fill:#fafafa,stroke:#90a4ae
+  style P2 fill:#fafafa,stroke:#90a4ae
+  style P3 fill:#fafafa,stroke:#90a4ae
+  style P4 fill:#fafafa,stroke:#90a4ae
 ```
 
 ### Trạng thái việc KPI
 
 ```mermaid
 stateDiagram-v2
-    state "Chờ duyệt đăng ký" as pending_approval
-    state "Chờ xác nhận" as assigned
-    state "Đã chuyển trả người giao" as returned_to_assigner
-    state "Đang thực hiện" as in_progress
-    state "Chờ chấm" as self_assessed
-    state "Trả lại làm lại" as rework
-    state "Đã chấm" as graded
-    state "Không duyệt" as rejected
-    state "Đã hủy" as cancelled
-    [*] --> pending_approval : Tự đăng ký
-    [*] --> assigned : Giao việc
-    pending_approval --> in_progress : Duyệt hoặc quá hạn duyệt
-    pending_approval --> rejected : Không duyệt
-    assigned --> in_progress : Xác nhận hoặc quá hạn
-    assigned --> returned_to_assigner : Chuyển trả
-    returned_to_assigner --> assigned : Giao lại
-    in_progress --> self_assessed : Nộp tự đánh giá
-    rework --> self_assessed : Nộp lại
-    self_assessed --> rework : Trả lại làm lại
-    self_assessed --> graded : Chấm hoặc quá hạn chấm
-    graded --> graded : Chấm lại khi kỳ mở
-    pending_approval --> cancelled : Hủy
-    assigned --> cancelled : Hủy
-    returned_to_assigner --> cancelled : Hủy
-    in_progress --> cancelled : Hủy
+  classDef nhap fill:#eceff1,stroke:#546e7a,color:#263238
+  classDef cho fill:#fff3e0,stroke:#ef6c00,color:#4e2600
+  classDef dang fill:#e3f2fd,stroke:#1565c0,color:#0d2a4a
+  classDef xong fill:#e8f5e9,stroke:#2e7d32,color:#1b3d1d,font-weight:bold
+  classDef huy fill:#ffebee,stroke:#c62828,color:#5f0000
+
+  state "Chờ duyệt đăng ký" as pending_approval
+  state "Chờ xác nhận" as assigned
+  state "Đã chuyển trả người giao" as returned_to_assigner
+  state "Đang thực hiện" as in_progress
+  state "Chờ chấm" as self_assessed
+  state "Trả lại làm lại" as rework
+  state "Đã chấm" as graded
+  state "Không duyệt" as rejected
+  state "Đã hủy" as cancelled
+
+  [*] --> pending_approval : Tự đăng ký
+  [*] --> assigned : Giao việc
+  pending_approval --> in_progress : Duyệt, quá hạn duyệt
+  pending_approval --> rejected : Không duyệt
+  assigned --> in_progress : Xác nhận, quá hạn
+  assigned --> returned_to_assigner : Chuyển trả
+  returned_to_assigner --> assigned : Giao lại
+  in_progress --> self_assessed : Nộp tự đánh giá
+  rework --> self_assessed : Nộp lại
+  self_assessed --> rework : Trả lại làm lại
+  self_assessed --> graded : Chấm, quá hạn chấm
+  graded --> graded : Chấm lại khi kỳ mở
+  pending_approval --> cancelled : Hủy
+  assigned --> cancelled : Hủy
+  returned_to_assigner --> cancelled : Hủy
+  in_progress --> cancelled : Hủy
+
+  class pending_approval cho
+  class assigned cho
+  class returned_to_assigner huy
+  class in_progress dang
+  class self_assessed cho
+  class rework huy
+  class graded xong
+  class rejected huy
+  class cancelled huy
 ```
 
 ### Trạng thái phiếu đánh giá KPI
 
 ```mermaid
 stateDiagram-v2
-    state "Chưa nộp" as draft
-    state "Đã nộp, chờ cấp trên" as submitted
-    state "Trả lại tự đánh giá lại" as returned
-    state "Cấp trên đã kết luận" as concluded
-    [*] --> draft : Mở mục 4.1 lần đầu
-    draft --> submitted : Nộp kèm mức tự đề xuất
-    returned --> submitted : Nộp lại
-    submitted --> returned : Cấp trên trả lại
-    concluded --> returned : Cấp trên trả lại
-    submitted --> concluded : Kết luận
-    concluded --> concluded : Tham mưu, biểu quyết, kết luận lại
-    concluded --> [*] : Khóa kỳ ghi mức cuối
+  direction LR
+  classDef nhap fill:#eceff1,stroke:#546e7a,color:#263238
+  classDef cho fill:#fff3e0,stroke:#ef6c00,color:#4e2600
+  classDef dang fill:#e3f2fd,stroke:#1565c0,color:#0d2a4a
+  classDef xong fill:#e8f5e9,stroke:#2e7d32,color:#1b3d1d,font-weight:bold
+  classDef huy fill:#ffebee,stroke:#c62828,color:#5f0000
+
+  state "Chưa nộp" as draft
+  state "Đã nộp, chờ cấp trên" as submitted
+  state "Trả lại tự đánh giá lại" as returned
+  state "Cấp trên đã kết luận" as concluded
+
+  [*] --> draft : Mở mục 4.1 lần đầu
+  draft --> submitted : Nộp kèm mức tự đề xuất
+  returned --> submitted : Nộp lại
+  submitted --> returned : Cấp trên trả lại
+  concluded --> returned : Cấp trên trả lại
+  submitted --> concluded : Kết luận
+  concluded --> concluded : Tham mưu, biểu quyết, kết luận lại
+  concluded --> [*] : Khóa kỳ ghi mức cuối
+
+  class draft nhap
+  class submitted cho
+  class returned huy
+  class concluded xong
 ```
 
 ### Duyệt nội dung website
 
 ```mermaid
 stateDiagram-v2
-    state "Nháp" as draft
-    state "Chờ duyệt" as pending
-    state "Đã đăng" as published
-    state "Đã gỡ" as unpublished
-    [*] --> draft : Người soạn tạo bài hoặc album
-    draft --> pending : Gửi duyệt khi có nội dung
-    unpublished --> pending : Gửi duyệt lại
-    pending --> published : Người duyệt duyệt và đăng
-    pending --> draft : Trả lại kèm lý do
-    published --> unpublished : Gỡ xuống kèm lý do
-    draft --> [*] : Xóa khi chưa từng đăng
-    unpublished --> [*] : Xóa khi chưa từng đăng
+  direction LR
+  classDef nhap fill:#eceff1,stroke:#546e7a,color:#263238
+  classDef cho fill:#fff3e0,stroke:#ef6c00,color:#4e2600
+  classDef dang fill:#e3f2fd,stroke:#1565c0,color:#0d2a4a
+  classDef xong fill:#e8f5e9,stroke:#2e7d32,color:#1b3d1d,font-weight:bold
+  classDef huy fill:#ffebee,stroke:#c62828,color:#5f0000
+
+  state "Nháp" as draft
+  state "Chờ duyệt" as pending
+  state "Đã đăng" as published
+  state "Đã gỡ" as unpublished
+
+  [*] --> draft : Người soạn tạo bài, album
+  draft --> pending : Gửi duyệt khi có nội dung
+  unpublished --> pending : Gửi duyệt lại
+  pending --> published : Người duyệt duyệt, đăng
+  pending --> draft : Trả lại kèm lý do
+  published --> unpublished : Gỡ xuống kèm lý do
+  draft --> [*] : Xóa khi chưa từng đăng
+  unpublished --> [*] : Xóa khi chưa từng đăng
+
+  class draft nhap
+  class pending cho
+  class published dang
+  class unpublished huy
 ```
 
 ### Phục vụ trang công khai theo tên miền
 
 ```mermaid
-flowchart LR
-    A["Người xem mở tên miền của trường"] --> B["Caddy hỏi domain-check trước khi xin chứng chỉ"]
-    B --> C{"Tên miền đã đăng ký và đang dùng?"}
-    C -->|"Không"| D["Không cấp chứng chỉ, trang 404"]
-    C -->|"Có"| E["Caddy chuyển sang /api/v1/public/site kèm X-Website-Root"]
-    E --> F{"Loại tên miền"}
-    F -->|"Phụ"| G["Chuyển hướng 301 về tên miền chính"]
-    F -->|"Chính"| H["Máy chủ API dựng HTML từ nội dung đã đăng"]
-    F -->|"Trình diễn"| I["Dựng HTML, hiện dải trình diễn, chặn lập chỉ mục"]
+flowchart TD
+  classDef batdau fill:#2e7d32,stroke:#1b5e20,color:#ffffff,font-weight:bold
+  classDef ketthuc fill:#37474f,stroke:#263238,color:#ffffff,font-weight:bold
+  classDef nguoi fill:#e3f2fd,stroke:#1565c0,color:#0d2a4a
+  classDef heth fill:#eceff1,stroke:#546e7a,color:#263238
+  classDef duyet fill:#fff3e0,stroke:#ef6c00,color:#4e2600
+  classDef hoi fill:#fffde7,stroke:#f9a825,color:#3e2f00
+  classDef bao fill:#fce4ec,stroke:#ad1457,color:#4a0020
+  classDef chan fill:#ffebee,stroke:#c62828,color:#5f0000
+  classDef dulieu fill:#ede7f6,stroke:#5e35b1,color:#1f0f4d
+
+  S(["Người xem mở tên miền trường"]):::batdau
+
+  subgraph P1["① Cấp chứng chỉ"]
+    B[["<b>Caddy</b><br/>Hỏi domain-check trước"]]:::heth
+    C{"Đã đăng ký, đang dùng?"}:::hoi
+    D["Không cấp chứng chỉ, trang 404"]:::chan
+    B --> C
+    C -->|"Không"| D
+  end
+
+  subgraph P2["② Chuyển yêu cầu"]
+    E[["<b>Caddy</b><br/>Chuyển /api/v1/public/site, X-Website-Root"]]:::heth
+    F{"Loại tên miền?"}:::hoi
+    E --> F
+  end
+
+  subgraph P3["③ Trả trang"]
+    G[["<b>Máy chủ API</b><br/>Chuyển hướng 301 về tên miền chính"]]:::heth
+    H[["<b>Máy chủ API</b><br/>Dựng HTML từ nội dung đã đăng"]]:::heth
+    I[["<b>Máy chủ API</b><br/>Dựng HTML, dải trình diễn, chặn lập chỉ mục"]]:::heth
+  end
+
+  KT(["Trang công khai hiển thị"]):::ketthuc
+
+  S --> B
+  C -->|"Có"| E
+  F -->|"Phụ"| G
+  F -->|"Chính"| H
+  F -->|"Trình diễn"| I
+  H --> KT
+  I --> KT
+
+  style P1 fill:#fafafa,stroke:#90a4ae
+  style P2 fill:#fafafa,stroke:#90a4ae
+  style P3 fill:#fafafa,stroke:#90a4ae
 ```
 
 ### Duyệt hồ sơ chuyên môn theo luồng duyệt của thư mục
 
 ```mermaid
 stateDiagram-v2
-    state "Chưa nộp" as draft
-    state "Chờ tổ trưởng duyệt" as pending_leader
-    state "Chờ Ban Giám hiệu duyệt" as pending_approval
-    state "Đã duyệt" as approved
-    state "Bị trả lại" as returned
-    [*] --> draft : Tạo hồ sơ và tải phiên bản
-    draft --> approved : Nộp, thư mục không duyệt
-    draft --> pending_leader : Nộp, hồ sơ thuộc tổ hoặc nhóm và người nộp không phải tổ trưởng
-    draft --> pending_approval : Nộp, bỏ bước tổ trưởng
-    pending_leader --> draft : Người nộp rút lại
-    pending_leader --> approved : Tổ trưởng duyệt, luồng một cấp, kí nếu thư mục cần kí
-    pending_leader --> pending_approval : Tổ trưởng duyệt, luồng hai cấp
-    pending_leader --> returned : Trả lại có lý do
-    pending_approval --> approved : Ban Giám hiệu duyệt, kí nếu thư mục cần kí
-    pending_approval --> returned : Trả lại có lý do
-    returned --> pending_leader : Tải phiên bản mới, nộp lại
-    returned --> pending_approval : Nộp lại, bỏ bước tổ trưởng
-    returned --> approved : Nộp lại, thư mục không duyệt
-    approved --> [*]
+  classDef nhap fill:#eceff1,stroke:#546e7a,color:#263238
+  classDef cho fill:#fff3e0,stroke:#ef6c00,color:#4e2600
+  classDef dang fill:#e3f2fd,stroke:#1565c0,color:#0d2a4a
+  classDef xong fill:#e8f5e9,stroke:#2e7d32,color:#1b3d1d,font-weight:bold
+  classDef huy fill:#ffebee,stroke:#c62828,color:#5f0000
+
+  state "Chưa nộp" as draft
+  state "Chờ tổ trưởng duyệt" as pending_leader
+  state "Chờ Ban Giám hiệu duyệt" as pending_approval
+  state "Đã duyệt" as approved
+  state "Bị trả lại" as returned
+
+  [*] --> draft : Tạo hồ sơ, tải phiên bản
+  draft --> approved : Nộp, thư mục không duyệt
+  draft --> pending_leader : Nộp, cần tổ trưởng duyệt
+  draft --> pending_approval : Nộp, bỏ bước tổ trưởng
+  pending_leader --> draft : Người nộp rút lại
+  pending_leader --> approved : Tổ trưởng duyệt, luồng một cấp
+  pending_leader --> pending_approval : Tổ trưởng duyệt, luồng hai cấp
+  pending_leader --> returned : Trả lại có lý do
+  pending_approval --> approved : Ban Giám hiệu duyệt
+  pending_approval --> returned : Trả lại có lý do
+  returned --> pending_leader : Tải bản mới, nộp lại
+  returned --> pending_approval : Nộp lại, bỏ bước tổ trưởng
+  returned --> approved : Nộp lại, thư mục không duyệt
+  approved --> [*]
+
+  class draft nhap
+  class pending_leader cho
+  class pending_approval cho
+  class approved xong
+  class returned huy
 ```
 
 ### Bước đầu khi nộp hồ sơ chuyên môn
 
 ```mermaid
 flowchart TD
-    A["Chủ hồ sơ bấm Nộp hồ sơ"] --> B{"Năm học đã khóa?"}
-    B -->|"Có"| X["Từ chối"]
-    B -->|"Không"| C{"Đã có phiên bản tệp?"}
+  classDef batdau fill:#2e7d32,stroke:#1b5e20,color:#ffffff,font-weight:bold
+  classDef ketthuc fill:#37474f,stroke:#263238,color:#ffffff,font-weight:bold
+  classDef nguoi fill:#e3f2fd,stroke:#1565c0,color:#0d2a4a
+  classDef heth fill:#eceff1,stroke:#546e7a,color:#263238
+  classDef duyet fill:#fff3e0,stroke:#ef6c00,color:#4e2600
+  classDef hoi fill:#fffde7,stroke:#f9a825,color:#3e2f00
+  classDef bao fill:#fce4ec,stroke:#ad1457,color:#4a0020
+  classDef chan fill:#ffebee,stroke:#c62828,color:#5f0000
+  classDef dulieu fill:#ede7f6,stroke:#5e35b1,color:#1f0f4d
+
+  S(["Chủ hồ sơ bấm Nộp hồ sơ"]):::batdau
+
+  subgraph P1["① Kiểm tra điều kiện"]
+    B{"Năm học đã khóa?"}:::hoi
+    C{"Đã có phiên bản tệp?"}:::hoi
+    D{"Nộp lần đầu, đợt đã đóng?"}:::hoi
+    X["Từ chối nộp"]:::chan
+    B -->|"Có"| X
+    B -->|"Không"| C
     C -->|"Chưa"| X
-    C -->|"Có"| D{"Nộp lần đầu và đợt đã đóng?"}
+    C -->|"Có"| D
     D -->|"Có"| X
-    D -->|"Không"| E{"Luồng duyệt của thư mục"}
-    E -->|"Không duyệt"| F["Đã duyệt ngay"]
-    E -->|"Tổ trưởng hoặc hai cấp"| G{"Hồ sơ thuộc tổ hoặc nhóm, không phải hồ sơ trường, người nộp không phải tổ trưởng?"}
-    G -->|"Có"| H["Chờ tổ trưởng duyệt, báo trưởng nhóm hoặc VT-17"]
-    G -->|"Không"| I["Chờ Ban Giám hiệu duyệt, báo VT-02 và VT-15"]
-    F --> J["Ghi nộp lúc, nộp trễ nếu qua hạn đợt"]
+  end
+
+  subgraph P2["② Chọn luồng duyệt"]
+    E{"Luồng duyệt của thư mục?"}:::hoi
+    G{"Hồ sơ tổ, nhóm, người nộp không phải tổ trưởng?"}:::hoi
+    E -->|"Tổ trưởng hoặc hai cấp"| G
+  end
+
+  subgraph P3["③ Ghi trạng thái"]
+    F[["<b>Hệ thống</b><br/>Đã duyệt ngay"]]:::heth
+    H>"Chờ tổ trưởng duyệt, báo trưởng nhóm hoặc VT-17"]:::bao
+    I>"Chờ Ban Giám hiệu duyệt, báo VT-02, VT-15"]:::bao
+    J[("Ghi nộp lúc, nộp trễ nếu qua hạn đợt")]:::dulieu
+    F --> J
     H --> J
     I --> J
+  end
+
+  KT(["Đã nộp"]):::ketthuc
+
+  S --> B
+  D -->|"Không"| E
+  E -->|"Không duyệt"| F
+  G -->|"Có"| H
+  G -->|"Không"| I
+  J --> KT
+
+  style P1 fill:#fafafa,stroke:#90a4ae
+  style P2 fill:#fafafa,stroke:#90a4ae
+  style P3 fill:#fafafa,stroke:#90a4ae
 ```
 
 ### Duyệt kế hoạch giáo dục nhiều bước
 
 ```mermaid
 flowchart TD
-    A["Người lập bấm Trình duyệt"] --> B{"Nội dung rỗng?"}
-    B -->|"Có"| X["Từ chối"]
-    B -->|"Không"| C["Lấy bước của mẫu theo thứ tự Tổ trưởng, Phó Hiệu trưởng, Hiệu trưởng"]
-    C --> D["Bỏ bước tổ trưởng nếu kế hoạch của trường hoặc không thuộc tổ, nhóm"]
-    D --> E["Bỏ bước mà người lập giữ quyền"]
-    E --> F{"Còn bước nào?"}
-    F -->|"Không"| K["Hoàn tất"]
-    F -->|"Còn"| G["Chờ duyệt ở bước đầu, tạo phiên bản, báo người duyệt"]
-    G --> H{"Người giữ quyền bước hiện tại xử lý"}
-    H -->|"Trả lại có lý do"| R["Bị trả lại"]
-    H -->|"Duyệt"| I["Bỏ tiếp các bước kế tiếp mà người duyệt cũng giữ quyền"]
-    I --> J{"Còn bước?"}
+  classDef batdau fill:#2e7d32,stroke:#1b5e20,color:#ffffff,font-weight:bold
+  classDef ketthuc fill:#37474f,stroke:#263238,color:#ffffff,font-weight:bold
+  classDef nguoi fill:#e3f2fd,stroke:#1565c0,color:#0d2a4a
+  classDef heth fill:#eceff1,stroke:#546e7a,color:#263238
+  classDef duyet fill:#fff3e0,stroke:#ef6c00,color:#4e2600
+  classDef hoi fill:#fffde7,stroke:#f9a825,color:#3e2f00
+  classDef bao fill:#fce4ec,stroke:#ad1457,color:#4a0020
+  classDef chan fill:#ffebee,stroke:#c62828,color:#5f0000
+  classDef dulieu fill:#ede7f6,stroke:#5e35b1,color:#1f0f4d
+
+  S(["Kế hoạch đang soạn"]):::batdau
+
+  subgraph P1["① Trình duyệt"]
+    A["<b>Người lập</b><br/>Bấm Trình duyệt"]:::nguoi
+    B{"Nội dung rỗng?"}:::hoi
+    X["Từ chối trình"]:::chan
+    A --> B
+    B -->|"Có"| X
+  end
+
+  subgraph P2["② Xác định các bước"]
+    C[["<b>Hệ thống</b><br/>Lấy bước của mẫu: TT, PHT, HT"]]:::heth
+    D[["<b>Hệ thống</b><br/>Bỏ bước tổ trưởng nếu không thuộc tổ"]]:::heth
+    E[["<b>Hệ thống</b><br/>Bỏ bước người lập giữ quyền"]]:::heth
+    F{"Còn bước nào?"}:::hoi
+    C --> D --> E --> F
+  end
+
+  subgraph P3["③ Duyệt từng bước"]
+    G>"Chờ duyệt bước đầu, tạo phiên bản, báo"]:::bao
+    H["<b>Người giữ quyền bước</b><br/>Xử lý"]:::duyet
+    I[["<b>Hệ thống</b><br/>Bỏ bước kế mà người duyệt giữ quyền"]]:::heth
+    J{"Còn bước?"}:::hoi
+    R["Bị trả lại"]:::chan
+    SS["Về Đang soạn"]:::chan
+    G --> H
+    H -->|"Trả lại có lý do"| R
+    H -->|"Duyệt"| I --> J
     J -->|"Còn"| G
-    J -->|"Hết"| K
-    G -->|"Người lập rút lại khi chưa bước nào duyệt"| S["Đang soạn"]
-    K --> L{"Mẫu cần kí?"}
-    L -->|"Có"| M["Kí nội bộ, cần chứng thư hợp lệ, không đăng nhập thay"]
-    L -->|"Không"| N["Dựng bản PDF"]
-    M --> N
-    N --> O{"Mẫu có thư mục lưu kho đang dùng?"}
-    O -->|"Có"| P["Tạo hồ sơ Đã duyệt trong kho hồ sơ chuyên môn"]
-    O -->|"Không"| Q["Đã duyệt"]
-    P --> Q
-    R -->|"Sửa nội dung, trình lại"| A
-    S -->|"Trình lại"| A
+    G -.->|"Người lập rút lại khi chưa ai duyệt"| SS
+  end
+
+  subgraph P4["④ Kí, dựng PDF, lưu kho"]
+    K[["<b>Hệ thống</b><br/>Hoàn tất các bước"]]:::heth
+    L{"Mẫu cần kí?"}:::hoi
+    M["<b>Kí nội bộ</b><br/>Chứng thư hợp lệ, không đăng nhập thay"]:::duyet
+    N[["<b>Hệ thống</b><br/>Dựng bản PDF"]]:::heth
+    O{"Mẫu có thư mục lưu kho?"}:::hoi
+    P[("Hồ sơ Đã duyệt trong kho hồ sơ chuyên môn")]:::dulieu
+    K --> L
+    L -->|"Có"| M --> N
+    L -->|"Không"| N
+    N --> O
+    O -->|"Có"| P
+  end
+
+  KT(["Đã duyệt"]):::ketthuc
+
+  S --> A
+  B -->|"Không"| C
+  F -->|"Còn"| G
+  F -->|"Không"| K
+  J -->|"Hết"| K
+  O -->|"Không"| KT
+  P --> KT
+  R -.->|"Sửa, trình lại"| A
+  SS -.->|"Trình lại"| A
+
+  style P1 fill:#fafafa,stroke:#90a4ae
+  style P2 fill:#fafafa,stroke:#90a4ae
+  style P3 fill:#fafafa,stroke:#90a4ae
+  style P4 fill:#fafafa,stroke:#90a4ae
 ```
 
 ### Trạng thái đăng ký khoá bồi dưỡng
 
 ```mermaid
 stateDiagram-v2
-    state "Chờ duyệt" as pending
-    state "Tổ đã duyệt" as team_approved
-    state "Đã duyệt" as approved
-    state "Không duyệt" as rejected
-    state "Đã huỷ" as cancelled
-    [*] --> pending : Giáo viên đăng ký khi khoá mở, chưa quá hạn, còn chỉ tiêu
-    pending --> team_approved : Tổ trưởng duyệt cấp tổ
-    pending --> approved : Ban Giám hiệu duyệt
-    team_approved --> approved : Ban Giám hiệu duyệt
-    pending --> rejected : Tổ trưởng hoặc Ban Giám hiệu không duyệt
-    team_approved --> rejected : Ban Giám hiệu không duyệt
-    pending --> cancelled : Người đăng ký huỷ
-    rejected --> pending : Đăng ký lại
-    cancelled --> pending : Đăng ký lại
-    approved --> [*] : Ghi kết quả, tính tiết, cấp chứng nhận nếu đạt
+  direction LR
+  classDef nhap fill:#eceff1,stroke:#546e7a,color:#263238
+  classDef cho fill:#fff3e0,stroke:#ef6c00,color:#4e2600
+  classDef dang fill:#e3f2fd,stroke:#1565c0,color:#0d2a4a
+  classDef xong fill:#e8f5e9,stroke:#2e7d32,color:#1b3d1d,font-weight:bold
+  classDef huy fill:#ffebee,stroke:#c62828,color:#5f0000
+
+  state "Chờ duyệt" as pending
+  state "Tổ đã duyệt" as team_approved
+  state "Đã duyệt" as approved
+  state "Không duyệt" as rejected
+  state "Đã huỷ" as cancelled
+
+  [*] --> pending : Giáo viên đăng ký, khoá mở, còn hạn, còn chỉ tiêu
+  pending --> team_approved : Tổ trưởng duyệt cấp tổ
+  pending --> approved : Ban Giám hiệu duyệt
+  team_approved --> approved : Ban Giám hiệu duyệt
+  pending --> rejected : Tổ trưởng, Ban Giám hiệu không duyệt
+  team_approved --> rejected : Ban Giám hiệu không duyệt
+  pending --> cancelled : Người đăng ký huỷ
+  rejected --> pending : Đăng ký lại
+  cancelled --> pending : Đăng ký lại
+  approved --> [*] : Ghi kết quả, tính tiết, cấp chứng nhận
+
+  class pending cho
+  class team_approved cho
+  class approved xong
+  class rejected huy
+  class cancelled huy
 ```
 
 ### Tính giờ bồi dưỡng và gợi ý theo năng lực số
 
 ```mermaid
-flowchart LR
-    A["Đăng ký Đã duyệt, kết quả Đạt"] --> B["Tiết ghi nhận, trống thì bằng số tiết khoá"]
-    C["Chứng chỉ nhập tay cấp trong năm học"] --> D["Số tiết của chứng chỉ"]
-    B --> E["Tổng tiết năm học"]
-    D --> E
-    E --> F{"So với định mức, mặc định 120 tiết"}
-    F -->|"Thiếu"| G["Hiện số tiết còn thiếu ở 6.1 và 6.3"]
-    H["Tự đánh giá năng lực số theo kỳ"] --> I{"Đã xác nhận?"}
-    I -->|"Có"| J["Mức xác nhận"]
-    I -->|"Chưa"| K["Mức tự đánh giá"]
-    J --> L{"Mức nhỏ hơn ngưỡng?"}
-    K --> L
-    L -->|"Có"| M["Gợi ý chuyên đề gắn miền đó"]
+flowchart TD
+  classDef batdau fill:#2e7d32,stroke:#1b5e20,color:#ffffff,font-weight:bold
+  classDef ketthuc fill:#37474f,stroke:#263238,color:#ffffff,font-weight:bold
+  classDef nguoi fill:#e3f2fd,stroke:#1565c0,color:#0d2a4a
+  classDef heth fill:#eceff1,stroke:#546e7a,color:#263238
+  classDef duyet fill:#fff3e0,stroke:#ef6c00,color:#4e2600
+  classDef hoi fill:#fffde7,stroke:#f9a825,color:#3e2f00
+  classDef bao fill:#fce4ec,stroke:#ad1457,color:#4a0020
+  classDef chan fill:#ffebee,stroke:#c62828,color:#5f0000
+  classDef dulieu fill:#ede7f6,stroke:#5e35b1,color:#1f0f4d
+
+  subgraph P1["① Nguồn tiết"]
+    A[("Đăng ký Đã duyệt, kết quả Đạt")]:::dulieu
+    C[("Chứng chỉ nhập tay trong năm học")]:::dulieu
+    B[["<b>Hệ thống</b><br/>Tiết ghi nhận, trống lấy tiết khoá"]]:::heth
+    D[["<b>Hệ thống</b><br/>Số tiết của chứng chỉ"]]:::heth
+    A --> B
+    C --> D
+  end
+
+  subgraph P2["② So định mức"]
+    E[["<b>Hệ thống</b><br/>Tổng tiết năm học"]]:::heth
+    F{"Đủ định mức, mặc định 120?"}:::hoi
+    G>"Hiện số tiết còn thiếu ở 6.1, 6.3"]:::bao
+    E --> F
+    F -->|"Thiếu"| G
+  end
+
+  subgraph P3["③ Gợi ý theo năng lực số"]
+    H["<b>Giáo viên</b><br/>Tự đánh giá năng lực số theo kỳ"]:::nguoi
+    I{"Đã xác nhận?"}:::hoi
+    J[["<b>Hệ thống</b><br/>Lấy mức xác nhận"]]:::heth
+    K[["<b>Hệ thống</b><br/>Lấy mức tự đánh giá"]]:::heth
+    L{"Mức nhỏ hơn ngưỡng?"}:::hoi
+    M>"Gợi ý chuyên đề gắn miền đó"]:::bao
+    H --> I
+    I -->|"Có"| J --> L
+    I -->|"Chưa"| K --> L
+    L -->|"Có"| M
+  end
+
+  S1(["Tổng hợp tiết năm học"]):::batdau
+  S2(["Kỳ tự đánh giá năng lực số"]):::batdau
+  S1 --> A
+  S1 --> C
+  S2 --> H
+  B --> E
+  D --> E
+
+  style P1 fill:#fafafa,stroke:#90a4ae
+  style P2 fill:#fafafa,stroke:#90a4ae
+  style P3 fill:#fafafa,stroke:#90a4ae
 ```
 
 ### Thi đua: từ đăng ký đến quyết định khen thưởng
 
 ```mermaid
 flowchart TD
-    A["Quản lý lập đợt, chọn danh hiệu, kỳ KPI"] --> B["Phát động đợt"]
-    B --> C["Cá nhân hoặc tổ trưởng đăng ký thi đua"]
-    C --> D{"Quản lý duyệt đăng ký?"}
-    D -->|"Trả lại"| C
-    D -->|"Duyệt"| E["Lập hồ sơ đề nghị, nối đăng ký đã duyệt"]
-    B --> E
-    E --> F["Tự chấm tiêu chí, thêm minh chứng từ kho 18e"]
-    F --> G["Nộp hồ sơ, chụp KPI và điều kiện"]
-    G --> H{"Quản lý tiếp nhận?"}
-    H -->|"Trả lại có lý do"| F
-    H -->|"Tiếp nhận"| I["Hồ sơ chờ bình xét"]
-    I --> J["Mở phiên bỏ phiếu, đưa mọi hồ sơ chờ vào phiên"]
-    J --> K["Thành viên hội đồng bỏ phiếu kín"]
-    K --> L["Đóng phiên, tỉ lệ đồng ý trên tổng thành viên"]
-    L --> M{"Tỉ lệ đạt ngưỡng của danh hiệu?"}
-    M -->|"Đạt"| N["Hội đồng thông qua"]
-    M -->|"Không đạt"| O["Hội đồng không thông qua"]
-    N --> P["Công bố kết quả, mở hạn phúc khảo"]
-    O --> P
-    P --> Q{"Có phúc khảo được chấp nhận?"}
-    Q -->|"Có"| I
-    Q -->|"Không"| R{"Cấp quyết định của danh hiệu"}
-    R -->|"Trường"| S["Dự thảo quyết định của trường"]
-    R -->|"Cấp trên"| T["Dự thảo tờ trình đề nghị cấp trên"]
-    S --> U["Hiệu trưởng ban hành"]
-    T --> U
-    U -->|"Quyết định"| V["Đã khen thưởng, ghi sổ có mã tra cứu"]
-    U -->|"Tờ trình"| W["Đã trình cấp trên"]
-    W --> X["Ghi kết quả của cấp trên"]
-    X --> V
-    X --> Y["Cấp trên không khen"]
+  classDef batdau fill:#2e7d32,stroke:#1b5e20,color:#ffffff,font-weight:bold
+  classDef ketthuc fill:#37474f,stroke:#263238,color:#ffffff,font-weight:bold
+  classDef nguoi fill:#e3f2fd,stroke:#1565c0,color:#0d2a4a
+  classDef heth fill:#eceff1,stroke:#546e7a,color:#263238
+  classDef duyet fill:#fff3e0,stroke:#ef6c00,color:#4e2600
+  classDef hoi fill:#fffde7,stroke:#f9a825,color:#3e2f00
+  classDef bao fill:#fce4ec,stroke:#ad1457,color:#4a0020
+  classDef chan fill:#ffebee,stroke:#c62828,color:#5f0000
+  classDef dulieu fill:#ede7f6,stroke:#5e35b1,color:#1f0f4d
+
+  S(["Đợt thi đua mới"]):::batdau
+
+  subgraph P1["① Lập, phát động đợt"]
+    A["<b>Quản lý</b><br/>Lập đợt, chọn danh hiệu, kỳ KPI"]:::nguoi
+    B>"<b>Quản lý</b><br/>Phát động đợt"]:::bao
+    A --> B
+  end
+
+  subgraph P2["② Đăng ký, hồ sơ"]
+    C["<b>Cá nhân, tổ trưởng</b><br/>Đăng ký thi đua"]:::nguoi
+    D{"Quản lý duyệt đăng ký?"}:::hoi
+    E["<b>Người đề nghị</b><br/>Lập hồ sơ, nối đăng ký đã duyệt"]:::nguoi
+    F["<b>Người đề nghị</b><br/>Tự chấm, minh chứng kho 18e"]:::nguoi
+    G["<b>Người đề nghị</b><br/>Nộp, chụp KPI và điều kiện"]:::nguoi
+    H{"Quản lý tiếp nhận?"}:::hoi
+    C --> D
+    D -.->|"Trả lại"| C
+    D -->|"Duyệt"| E
+    E --> F --> G --> H
+    H -.->|"Trả lại có lý do"| F
+  end
+
+  KT0(["Hồ sơ chờ bình xét"]):::ketthuc
+
+  S --> A
+  B --> C
+  B --> E
+  H -->|"Tiếp nhận"| KT0
+
+  style P1 fill:#fafafa,stroke:#90a4ae
+  style P2 fill:#fafafa,stroke:#90a4ae
+```
+
+### Thi đua: bình xét đến quyết định khen thưởng
+
+```mermaid
+flowchart TD
+  classDef batdau fill:#2e7d32,stroke:#1b5e20,color:#ffffff,font-weight:bold
+  classDef ketthuc fill:#37474f,stroke:#263238,color:#ffffff,font-weight:bold
+  classDef nguoi fill:#e3f2fd,stroke:#1565c0,color:#0d2a4a
+  classDef heth fill:#eceff1,stroke:#546e7a,color:#263238
+  classDef duyet fill:#fff3e0,stroke:#ef6c00,color:#4e2600
+  classDef hoi fill:#fffde7,stroke:#f9a825,color:#3e2f00
+  classDef bao fill:#fce4ec,stroke:#ad1457,color:#4a0020
+  classDef chan fill:#ffebee,stroke:#c62828,color:#5f0000
+  classDef dulieu fill:#ede7f6,stroke:#5e35b1,color:#1f0f4d
+
+  S0(["Hồ sơ đã tiếp nhận"]):::batdau
+
+  subgraph P1["① Phiên bỏ phiếu"]
+    I[("Hồ sơ chờ bình xét")]:::dulieu
+    J["<b>Quản lý</b><br/>Mở phiên, đưa hồ sơ chờ vào"]:::nguoi
+    K["<b>Thành viên hội đồng</b><br/>Bỏ phiếu kín"]:::duyet
+    L[["<b>Quản lý, hệ thống</b><br/>Đóng phiên, tỉ lệ đồng ý"]]:::heth
+    I --> J --> K --> L
+  end
+
+  subgraph P2["② Kết quả, phúc khảo"]
+    M{"Đạt ngưỡng của danh hiệu?"}:::hoi
+    N["Hội đồng thông qua"]:::duyet
+    O["Hội đồng không thông qua"]:::chan
+    P>"Công bố kết quả, mở phúc khảo"]:::bao
+    Q{"Phúc khảo được chấp nhận?"}:::hoi
+    M -->|"Đạt"| N --> P
+    M -->|"Không đạt"| O --> P
+    P --> Q
+  end
+
+  subgraph P3["③ Quyết định khen"]
+    R{"Cấp quyết định?"}:::hoi
+    S2["<b>Quản lý</b><br/>Dự thảo quyết định trường"]:::nguoi
+    T["<b>Quản lý</b><br/>Dự thảo tờ trình cấp trên"]:::nguoi
+    U["<b>Hiệu trưởng</b><br/>Ban hành"]:::duyet
+    W>"Đã trình cấp trên"]:::bao
+    X["<b>Quản lý</b><br/>Ghi kết quả của cấp trên"]:::nguoi
+    R -->|"Trường"| S2 --> U
+    R -->|"Cấp trên"| T --> U
+    U -->|"Tờ trình"| W --> X
+  end
+
+  KT1(["Đã khen thưởng, ghi sổ có mã"]):::ketthuc
+  KT2(["Cấp trên không khen"]):::ketthuc
+
+  S0 --> I
+  L --> M
+  Q -.->|"Có"| I
+  Q -->|"Không"| R
+  U -->|"Quyết định"| KT1
+  X -->|"Cấp trên khen"| KT1
+  X -->|"Không khen"| KT2
+
+  style P1 fill:#fafafa,stroke:#90a4ae
+  style P2 fill:#fafafa,stroke:#90a4ae
+  style P3 fill:#fafafa,stroke:#90a4ae
 ```
 
 ### Trạng thái đợt thi đua
 
 ```mermaid
 stateDiagram-v2
-    state "Đang soạn" as draft
-    state "Đã phát động" as launched
-    state "Đã công bố kết quả bình xét" as published
-    state "Đã kết thúc" as closed
-    [*] --> draft
-    draft --> launched : Phát động
-    draft --> [*] : Xóa
-    launched --> published : Công bố khi không còn phiên đang bỏ phiếu
-    published --> published : Công bố lại sau bỏ phiếu lại
-    published --> closed : Kết thúc khi hết phúc khảo chờ
-    closed --> [*]
+  direction LR
+  classDef nhap fill:#eceff1,stroke:#546e7a,color:#263238
+  classDef cho fill:#fff3e0,stroke:#ef6c00,color:#4e2600
+  classDef dang fill:#e3f2fd,stroke:#1565c0,color:#0d2a4a
+  classDef xong fill:#e8f5e9,stroke:#2e7d32,color:#1b3d1d,font-weight:bold
+  classDef huy fill:#ffebee,stroke:#c62828,color:#5f0000
+
+  state "Đang soạn" as draft
+  state "Đã phát động" as launched
+  state "Đã công bố kết quả" as published
+  state "Đã kết thúc" as closed
+
+  [*] --> draft
+  draft --> launched : Phát động
+  draft --> [*] : Xóa
+  launched --> published : Công bố khi hết phiên bỏ phiếu
+  published --> published : Công bố lại sau bỏ phiếu lại
+  published --> closed : Kết thúc khi hết phúc khảo chờ
+  closed --> [*]
+
+  class draft nhap
+  class launched dang
+  class published dang
+  class closed xong
 ```
 
 ### Trạng thái hồ sơ đề nghị
 
 ```mermaid
 stateDiagram-v2
-    state "Đang soạn" as draft
-    state "Đã nộp, chờ tiếp nhận" as submitted
-    state "Bị trả lại" as returned
-    state "Đã tiếp nhận, chờ bình xét" as accepted
-    state "Hội đồng thông qua" as passed
-    state "Hội đồng không thông qua" as failed
-    state "Đã trình cấp trên" as proposed
-    state "Đã khen thưởng" as awarded
-    state "Cấp trên không khen" as not_awarded
-    [*] --> draft
-    draft --> submitted : Nộp hồ sơ
-    submitted --> draft : Rút hồ sơ
-    submitted --> accepted : Tiếp nhận
-    submitted --> returned : Trả lại
-    accepted --> returned : Trả lại khi chưa vào phiên
-    returned --> submitted : Nộp lại
-    accepted --> passed : Đóng phiên, đạt ngưỡng
-    accepted --> failed : Đóng phiên, không đạt
-    passed --> accepted : Chấp nhận phúc khảo
-    failed --> accepted : Chấp nhận phúc khảo
-    passed --> awarded : Ban hành quyết định của trường
-    passed --> proposed : Ban hành tờ trình
-    proposed --> awarded : Cấp trên khen
-    proposed --> not_awarded : Cấp trên không khen
+  classDef nhap fill:#eceff1,stroke:#546e7a,color:#263238
+  classDef cho fill:#fff3e0,stroke:#ef6c00,color:#4e2600
+  classDef dang fill:#e3f2fd,stroke:#1565c0,color:#0d2a4a
+  classDef xong fill:#e8f5e9,stroke:#2e7d32,color:#1b3d1d,font-weight:bold
+  classDef huy fill:#ffebee,stroke:#c62828,color:#5f0000
+
+  state "Đang soạn" as draft
+  state "Đã nộp, chờ tiếp nhận" as submitted
+  state "Bị trả lại" as returned
+  state "Đã tiếp nhận, chờ bình xét" as accepted
+  state "Hội đồng thông qua" as passed
+  state "Hội đồng không thông qua" as failed
+  state "Đã trình cấp trên" as proposed
+  state "Đã khen thưởng" as awarded
+  state "Cấp trên không khen" as not_awarded
+
+  [*] --> draft
+  draft --> submitted : Nộp hồ sơ
+  submitted --> draft : Rút hồ sơ
+  submitted --> accepted : Tiếp nhận
+  submitted --> returned : Trả lại
+  accepted --> returned : Trả lại khi chưa vào phiên
+  returned --> submitted : Nộp lại
+  accepted --> passed : Đóng phiên, đạt ngưỡng
+  accepted --> failed : Đóng phiên, không đạt
+  passed --> accepted : Chấp nhận phúc khảo
+  failed --> accepted : Chấp nhận phúc khảo
+  passed --> awarded : Quyết định của trường
+  passed --> proposed : Ban hành tờ trình
+  proposed --> awarded : Cấp trên khen
+  proposed --> not_awarded : Cấp trên không khen
+
+  class draft nhap
+  class submitted cho
+  class returned huy
+  class accepted cho
+  class passed dang
+  class failed huy
+  class proposed cho
+  class awarded xong
+  class not_awarded huy
 ```
 
 ### Đợt tự đánh giá bảo đảm chất lượng
 
 ```mermaid
 flowchart TD
-    A["Ban Giám hiệu chọn bộ tiêu chuẩn đang dùng, lập đợt"] --> B["Tạo sẵn một phiếu cho mỗi tiêu chí"]
-    B --> C["Lập hội đồng có một Chủ tịch"]
-    C --> D["Lập nhóm công tác, phân mỗi tiêu chí cho một nhóm"]
-    D --> E{"Có Chủ tịch và mọi tiêu chí đã phân công?"}
-    E -->|"Chưa"| D
-    E -->|"Đủ"| F["Bắt đầu đánh giá"]
-    F --> G["Kế thừa minh chứng năm trước nếu có"]
-    F --> H["Nhóm đánh dấu chỉ báo, viết hiện trạng, điểm mạnh, điểm yếu, kế hoạch cải tiến, chọn mức"]
-    G --> I["Thêm minh chứng mã Hn-a.b-c, tải tệp hoặc chọn hồ sơ, văn bản"]
+  classDef batdau fill:#2e7d32,stroke:#1b5e20,color:#ffffff,font-weight:bold
+  classDef ketthuc fill:#37474f,stroke:#263238,color:#ffffff,font-weight:bold
+  classDef nguoi fill:#e3f2fd,stroke:#1565c0,color:#0d2a4a
+  classDef heth fill:#eceff1,stroke:#546e7a,color:#263238
+  classDef duyet fill:#fff3e0,stroke:#ef6c00,color:#4e2600
+  classDef hoi fill:#fffde7,stroke:#f9a825,color:#3e2f00
+  classDef bao fill:#fce4ec,stroke:#ad1457,color:#4a0020
+  classDef chan fill:#ffebee,stroke:#c62828,color:#5f0000
+  classDef dulieu fill:#ede7f6,stroke:#5e35b1,color:#1f0f4d
+
+  S(["Năm học cần tự đánh giá"]):::batdau
+
+  subgraph P1["① Lập đợt"]
+    A["<b>Ban Giám hiệu</b><br/>Chọn bộ tiêu chuẩn, lập đợt"]:::nguoi
+    B[["<b>Hệ thống</b><br/>Tạo một phiếu mỗi tiêu chí"]]:::heth
+    C["<b>Ban Giám hiệu</b><br/>Lập hội đồng có một Chủ tịch"]:::nguoi
+    D["<b>Ban Giám hiệu</b><br/>Lập nhóm, phân tiêu chí cho nhóm"]:::nguoi
+    E{"Có Chủ tịch, phân công đủ?"}:::hoi
+    A --> B --> C --> D --> E
+    E -.->|"Chưa"| D
+  end
+
+  subgraph P2["② Đánh giá tiêu chí"]
+    F["<b>Ban Giám hiệu</b><br/>Bắt đầu đánh giá"]:::nguoi
+    G[["<b>Hệ thống</b><br/>Kế thừa minh chứng năm trước"]]:::heth
+    H["<b>Nhóm công tác</b><br/>Chỉ báo, hiện trạng, cải tiến, chọn mức"]:::nguoi
+    I["<b>Nhóm công tác</b><br/>Thêm minh chứng Hn-a.b-c"]:::nguoi
+    J["<b>Nhóm công tác</b><br/>Nộp phiếu"]:::nguoi
+    F -.->|"nếu có"| G
+    F --> H
+    G --> I
     H --> I
-    H --> J["Nộp phiếu"]
-    J --> K{"Ban Giám hiệu duyệt?"}
-    K -->|"Trả lại có lý do"| H
-    K -->|"Duyệt"| L{"Mọi phiếu đã duyệt?"}
-    L -->|"Chưa"| H
-    L -->|"Rồi"| M["Hệ thống gợi ý mức thấp nhất của các tiêu chí"]
-    M --> N["Hội đồng chốt mức của trường, Hoàn thành đợt"]
-    N --> O["Xuất báo cáo tự đánh giá Word, PDF"]
-    N --> P["Tạo kế hoạch cải tiến thành kế hoạch công việc nháp"]
-    N --> Q["Ghi kết quả đánh giá ngoài, công nhận"]
-    Q --> R{"Cấp độ từ 1 và có bản rà soát 1.7?"}
-    R -->|"Có"| S["Cập nhật cấp độ, ngày, năm vào mục 1.7"]
-    R -->|"Không"| T["Chỉ lưu ở đợt, theo dõi hiệu lực 5 năm"]
-    N -->|"Mở lại đợt"| F
+    H --> J
+  end
+
+  subgraph P3["③ Duyệt phiếu"]
+    K["<b>Ban Giám hiệu</b><br/>Duyệt phiếu"]:::duyet
+    L{"Mọi phiếu đã duyệt?"}:::hoi
+    K -->|"Duyệt"| L
+  end
+
+  subgraph P4["④ Chốt kết quả"]
+    M[["<b>Hệ thống</b><br/>Gợi ý mức thấp nhất các tiêu chí"]]:::heth
+    N["<b>Hội đồng</b><br/>Chốt mức trường, Hoàn thành đợt"]:::duyet
+    O>"Báo cáo tự đánh giá Word, PDF"]:::bao
+    P[["<b>Hệ thống</b><br/>Kế hoạch cải tiến thành kế hoạch nháp"]]:::heth
+    M --> N
+    N --> O
+    N --> P
+  end
+
+  subgraph P5["⑤ Công nhận"]
+    Q["<b>Ban Giám hiệu</b><br/>Ghi kết quả đánh giá ngoài"]:::nguoi
+    R{"Cấp độ từ 1, có bản rà soát 1.7?"}:::hoi
+    SS[["<b>Hệ thống</b><br/>Cập nhật cấp độ, ngày vào 1.7"]]:::heth
+    T[("Lưu ở đợt, hiệu lực 5 năm")]:::dulieu
+    Q --> R
+    R -->|"Có"| SS
+    R -->|"Không"| T
+  end
+
+  KT(["Đã ghi công nhận"]):::ketthuc
+
+  S --> A
+  E -->|"Đủ"| F
+  J --> K
+  K -.->|"Trả lại có lý do"| H
+  L -.->|"Chưa"| H
+  L -->|"Rồi"| M
+  N --> Q
+  N -.->|"Mở lại đợt"| F
+  SS --> KT
+  T --> KT
+
+  style P1 fill:#fafafa,stroke:#90a4ae
+  style P2 fill:#fafafa,stroke:#90a4ae
+  style P3 fill:#fafafa,stroke:#90a4ae
+  style P4 fill:#fafafa,stroke:#90a4ae
+  style P5 fill:#fafafa,stroke:#90a4ae
 ```
 
 ### Trạng thái phiếu đánh giá tiêu chí
 
 ```mermaid
 stateDiagram-v2
-    state "Đang soạn" as draft
-    state "Chờ duyệt" as submitted
-    state "Đã duyệt" as approved
-    state "Bị trả lại" as returned
-    [*] --> draft
-    draft --> submitted : Nộp phiếu đủ nội dung và mức
-    submitted --> approved : Duyệt phiếu
-    submitted --> returned : Trả lại có lý do
-    returned --> submitted : Nộp lại
-    approved --> returned : Mở lại phiếu khi đợt đang đánh giá
+  direction LR
+  classDef nhap fill:#eceff1,stroke:#546e7a,color:#263238
+  classDef cho fill:#fff3e0,stroke:#ef6c00,color:#4e2600
+  classDef dang fill:#e3f2fd,stroke:#1565c0,color:#0d2a4a
+  classDef xong fill:#e8f5e9,stroke:#2e7d32,color:#1b3d1d,font-weight:bold
+  classDef huy fill:#ffebee,stroke:#c62828,color:#5f0000
+
+  state "Đang soạn" as draft
+  state "Chờ duyệt" as submitted
+  state "Đã duyệt" as approved
+  state "Bị trả lại" as returned
+
+  [*] --> draft
+  draft --> submitted : Nộp đủ nội dung và mức
+  submitted --> approved : Duyệt phiếu
+  submitted --> returned : Trả lại có lý do
+  returned --> submitted : Nộp lại
+  approved --> returned : Mở lại khi đợt đang đánh giá
+
+  class draft nhap
+  class submitted cho
+  class approved xong
+  class returned huy
 ```

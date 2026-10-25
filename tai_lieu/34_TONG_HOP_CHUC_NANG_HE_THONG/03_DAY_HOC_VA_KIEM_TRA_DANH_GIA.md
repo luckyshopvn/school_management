@@ -317,317 +317,784 @@ Tệp: mẫu Excel nhập câu hỏi; đề theo mã và đáp án các mã ra W
 
 ```mermaid
 flowchart TD
-    A["7.1 Khai báo môn học, nạp môn mẫu"] --> B["7.1 Số tiết mỗi tuần theo khối của chương trình"]
-    B --> C["7.2 Phân công giáo viên bộ môn theo môn ở lớp"]
-    C --> D["7.3 Khai báo khung giờ tiết theo cấp"]
-    D --> E["7.9 Ràng buộc, mức quan trọng, quy tắc môn, tiết giáo viên báo bận"]
-    E --> F["Kiểm tra trước khi xếp"]
-    F --> G{"Đề bài có lớp, môn?"}
-    G -->|"Không"| C
-    G -->|"Có"| H["API tạo lần xếp queued, ghi đề bài vào Redis, đẩy hàng đợi"]
-    H --> I["Worker lấy việc, chạy máy xếp có giới hạn thời gian"]
-    I --> J["Ghi tiến độ và các phương án vào Redis"]
-    J --> K["API đồng bộ, lưu phương án vào CSDL năm học"]
-    K --> L{"Người dùng chọn phương án?"}
-    L -->|"Không, xếp lại"| E
-    L -->|"Có"| M["Áp dụng thành bản nháp nguồn máy xếp"]
-    N["Nhập tay hoặc nhập Excel"] --> M2["Bản nháp 7.4"]
-    M --> M2
-    M2 --> O["Sửa tay trên lưới, Kiểm tra ngay"]
-    O --> P{"Còn xung đột cứng?"}
-    P -->|"Có"| O
-    P -->|"Không"| Q["Ban hành, bản thành chỉ đọc"]
-    Q --> R["Bản đang áp dụng theo ngày áp dụng"]
-    R --> S["Lịch dạy ứng dụng giáo viên"]
-    R --> T["Thời khoá biểu của con ứng dụng phụ huynh"]
-    R --> U["Website trường và trang tra cứu mã QR"]
-    R --> V["7.10 Dạy thay, đổi tiết theo ngày"]
-    V --> W["Tiết thực tế của ngày cho sổ đầu bài"]
+  classDef batdau fill:#2e7d32,stroke:#1b5e20,color:#ffffff,font-weight:bold
+  classDef ketthuc fill:#37474f,stroke:#263238,color:#ffffff,font-weight:bold
+  classDef nguoi fill:#e3f2fd,stroke:#1565c0,color:#0d2a4a
+  classDef heth fill:#eceff1,stroke:#546e7a,color:#263238
+  classDef duyet fill:#fff3e0,stroke:#ef6c00,color:#4e2600
+  classDef hoi fill:#fffde7,stroke:#f9a825,color:#3e2f00
+  classDef bao fill:#fce4ec,stroke:#ad1457,color:#4a0020
+  classDef chan fill:#ffebee,stroke:#c62828,color:#5f0000
+  classDef dulieu fill:#ede7f6,stroke:#5e35b1,color:#1f0f4d
+
+  S(["Đầu năm học"]):::batdau
+
+  subgraph P1["① Khai báo đầu vào"]
+    A1["<b>Người quản lý</b><br/>7.1 Khai báo môn, nạp mẫu"]:::nguoi
+    A2["<b>Người quản lý</b><br/>7.1 Số tiết mỗi tuần theo khối"]:::nguoi
+    A3["<b>Người quản lý</b><br/>7.2 Phân công giáo viên bộ môn"]:::nguoi
+    A4["<b>Người xếp</b><br/>7.3 Khung giờ tiết theo cấp"]:::nguoi
+    A1 --> A2 --> A3 --> A4
+  end
+
+  subgraph P2["② Máy xếp tự động 7.9"]
+    B1["<b>Người xếp</b><br/>Ràng buộc, quy tắc môn, tiết bận"]:::nguoi
+    B2[["<b>Hệ thống</b><br/>Kiểm tra trước khi xếp"]]:::heth
+    B3{"Đề bài có lớp, môn?"}:::hoi
+    B4[["<b>Máy chủ API</b><br/>Tạo lần xếp, đẩy hàng đợi"]]:::heth
+    B5[["<b>Worker</b><br/>Chạy máy xếp có giới hạn"]]:::heth
+    B6[("Redis: tiến độ, phương án")]:::dulieu
+    B7[["<b>Máy chủ API</b><br/>Lưu phương án vào CSDL"]]:::heth
+    B8{"Chọn phương án?"}:::hoi
+    B1 --> B2 --> B3
+    B3 -->|"Có"| B4 --> B5 --> B6 --> B7 --> B8
+  end
+
+  subgraph P3["③ Bản nháp 7.4"]
+    C0["<b>Người xếp</b><br/>Nhập tay hoặc nhập Excel"]:::nguoi
+    C1["<b>Người xếp</b><br/>Áp dụng phương án"]:::nguoi
+    C2[("Bản nháp thời khoá biểu")]:::dulieu
+    C3["<b>Người xếp</b><br/>Sửa lưới, Kiểm tra ngay"]:::nguoi
+    C4{"Còn xung đột cứng?"}:::hoi
+    C0 --> C2
+    C1 --> C2 --> C3 --> C4
+    C4 -->|"Có"| C3
+  end
+
+  subgraph P4["④ Ban hành, sử dụng"]
+    D1["<b>Ban Giám hiệu</b><br/>Ban hành, bản chỉ đọc"]:::duyet
+    D2[["<b>Hệ thống</b><br/>Chọn bản đang áp dụng theo ngày"]]:::heth
+    D3>"Lịch dạy ứng dụng giáo viên"]:::bao
+    D4>"Thời khoá biểu của con"]:::bao
+    D5>"Website, tra cứu mã QR"]:::bao
+    D6["<b>Người xếp</b><br/>7.10 Dạy thay, đổi tiết"]:::nguoi
+    D1 --> D2
+    D2 --> D3
+    D2 --> D4
+    D2 --> D5
+    D2 --> D6
+  end
+
+  K(["Tiết thực tế cho sổ đầu bài"]):::ketthuc
+
+  S --> A1
+  A4 --> B1
+  A4 -.->|"xếp tay"| C0
+  B3 -.->|"Không"| A3
+  B8 -.->|"Không, xếp lại"| B1
+  B8 -->|"Có"| C1
+  C4 -->|"Không"| D1
+  D6 --> K
+
+  style P1 fill:#fafafa,stroke:#90a4ae
+  style P2 fill:#fafafa,stroke:#90a4ae
+  style P3 fill:#fafafa,stroke:#90a4ae
+  style P4 fill:#fafafa,stroke:#90a4ae
 ```
 
 ```mermaid
 sequenceDiagram
-    participant ND as Người xếp
+  autonumber
+  box rgb(227,242,253) Người dùng
+    actor ND as Người xếp
+  end
+  box rgb(236,239,241) Hệ thống
     participant API as Máy chủ API
     participant RD as Redis
     participant WK as Worker
+  end
+  rect rgb(255,253,231)
+    Note over ND,RD: Tạo lần xếp
     ND->>API: POST timetable-generations
     API->>API: Kiểm mỗi cấp một lần xếp và hạn mức
     API->>RD: Ghi đề bài, đẩy mã lần xếp vào hàng đợi
     API-->>ND: Lần xếp trạng thái queued
+  end
+  rect rgb(255,253,231)
+    Note over RD,WK: Chạy nền
     WK->>RD: BLPOP hàng đợi
     WK->>RD: Ghi trạng thái running
     loop Khoảng 4 lần mỗi giây
-        WK->>RD: Ghi phần trăm, điểm tốt nhất
-        WK->>RD: Đọc khóa huỷ
+      WK->>RD: Ghi phần trăm, điểm tốt nhất
+      WK->>RD: Đọc khóa huỷ
     end
     WK->>RD: Ghi kết quả và trạng thái completed
+  end
+  rect rgb(255,253,231)
+    Note over ND,RD: Xem và áp dụng
     ND->>API: GET timetable-generations theo mã
     API->>RD: Đọc tiến độ, kết quả
     API->>API: Lưu phương án một lần
     API-->>ND: Phương án, điểm phạt, vi phạm
     ND->>API: POST variants N apply
     API-->>ND: Bản nháp mới nguồn generator
+  end
 ```
 
 ```mermaid
 stateDiagram-v2
-    state "Chờ chạy" as queued
-    state "Đang chạy" as running
-    state "Xong" as completed
-    state "Lỗi" as failed
-    state "Đã huỷ" as cancelled
-    [*] --> queued
-    queued --> running
-    queued --> cancelled
-    queued --> failed
-    running --> completed
-    running --> cancelled
-    running --> failed
-    completed --> [*]
-    failed --> [*]
-    cancelled --> [*]
+  direction LR
+  classDef nhap fill:#eceff1,stroke:#546e7a,color:#263238
+  classDef cho fill:#fff3e0,stroke:#ef6c00,color:#4e2600
+  classDef dang fill:#e3f2fd,stroke:#1565c0,color:#0d2a4a
+  classDef xong fill:#e8f5e9,stroke:#2e7d32,color:#1b3d1d,font-weight:bold
+  classDef huy fill:#ffebee,stroke:#c62828,color:#5f0000
+
+  state "Chờ chạy" as queued
+  state "Đang chạy" as running
+  state "Xong" as completed
+  state "Lỗi" as failed
+  state "Đã huỷ" as cancelled
+
+  [*] --> queued : Bấm xếp
+  queued --> running : Worker nhận việc
+  queued --> cancelled : Huỷ lần xếp
+  queued --> failed : 10 phút chưa nhận
+  running --> completed : Xếp xong
+  running --> cancelled : Huỷ lần xếp
+  running --> failed : Quá giờ, mất tiến độ
+  completed --> [*]
+  failed --> [*]
+  cancelled --> [*]
+
+  class queued cho
+  class running dang
+  class completed xong
+  class failed huy
+  class cancelled huy
 ```
 
 ```mermaid
 stateDiagram-v2
-    state "Nháp" as draft
-    state "Đã ban hành" as published
-    [*] --> draft
-    draft --> draft : sửa tiết, nhập Excel, kiểm tra
-    draft --> published : ban hành khi không còn xung đột cứng
-    draft --> [*] : xoá bản nháp
-    published --> draft : tạo bản nháp mới chép từ bản này
+  direction LR
+  classDef nhap fill:#eceff1,stroke:#546e7a,color:#263238
+  classDef cho fill:#fff3e0,stroke:#ef6c00,color:#4e2600
+  classDef dang fill:#e3f2fd,stroke:#1565c0,color:#0d2a4a
+  classDef xong fill:#e8f5e9,stroke:#2e7d32,color:#1b3d1d,font-weight:bold
+  classDef huy fill:#ffebee,stroke:#c62828,color:#5f0000
+
+  state "Nháp" as draft
+  state "Đã ban hành" as published
+
+  [*] --> draft : Tạo bản, nhập, máy xếp
+  draft --> draft : Sửa, nhập Excel
+  draft --> published : Ban hành khi hết xung đột cứng
+  draft --> [*] : Xoá bản nháp
+  published --> draft : Chép thành bản nháp mới
+
+  class draft nhap
+  class published dang
 ```
 
 ### 2. Sổ đầu bài và chuyên cần theo tiết
 
 ```mermaid
 flowchart TD
-    A["Bản thời khoá biểu đang áp dụng của cấp"] --> B["Tiết thực tế của ngày sau dạy thay, đổi tiết"]
-    B --> C["Giáo viên mở tiết ở cổng hoặc ứng dụng giáo viên"]
-    C --> D{"Đã đến ngày dạy?"}
-    D -->|"Chưa"| X1["Từ chối ghi trước"]
-    D -->|"Rồi"| E{"Là giáo viên của tiết?"}
-    E -->|"Không"| X2["Từ chối"]
-    E -->|"Có"| F["Danh sách học sinh, mặc định có mặt hoặc vắng có phép nếu phụ huynh báo vắng"]
-    F --> G["Ghi tên bài, nội dung, nhận xét, xếp loại tiết, điểm danh"]
-    G --> H["Lưu nháp"]
-    H --> I{"Ký tiết, quy tắc xếp loại đạt?"}
-    I -->|"Thiếu xếp loại hoặc nhận xét tiết C, D"| G
-    I -->|"Đạt"| J["Tiết đã ký, khoá với giáo viên"]
-    J --> K["Ban Giám hiệu ký sổ tuần"]
-    K --> L["Tuần khoá mọi tiết"]
-    J --> M["7.7 Chuyên cần theo tiết, đối chiếu báo vắng theo ngày"]
-    J --> N["Điểm thi đua lớp theo xếp loại tiết nếu cấp bật"]
-    M --> O["Phụ huynh xem điểm danh theo tiết của con"]
+  classDef batdau fill:#2e7d32,stroke:#1b5e20,color:#ffffff,font-weight:bold
+  classDef ketthuc fill:#37474f,stroke:#263238,color:#ffffff,font-weight:bold
+  classDef nguoi fill:#e3f2fd,stroke:#1565c0,color:#0d2a4a
+  classDef heth fill:#eceff1,stroke:#546e7a,color:#263238
+  classDef duyet fill:#fff3e0,stroke:#ef6c00,color:#4e2600
+  classDef hoi fill:#fffde7,stroke:#f9a825,color:#3e2f00
+  classDef bao fill:#fce4ec,stroke:#ad1457,color:#4a0020
+  classDef chan fill:#ffebee,stroke:#c62828,color:#5f0000
+  classDef dulieu fill:#ede7f6,stroke:#5e35b1,color:#1f0f4d
+
+  S(["Thời khoá biểu đang áp dụng"]):::batdau
+
+  subgraph P1["① Mở tiết"]
+    A1[["<b>Hệ thống</b><br/>Tiết thực tế sau dạy thay, đổi tiết"]]:::heth
+    A2["<b>Giáo viên</b><br/>Mở tiết ở cổng, ứng dụng"]:::nguoi
+    A3{"Đã đến ngày dạy?"}:::hoi
+    A4{"Là giáo viên của tiết?"}:::hoi
+    X1["Từ chối ghi trước"]:::chan
+    X2["Từ chối"]:::chan
+    A1 --> A2 --> A3
+    A3 -->|"Chưa"| X1
+    A3 -->|"Rồi"| A4
+    A4 -->|"Không"| X2
+  end
+
+  subgraph P2["② Ghi tiết"]
+    B1[["<b>Hệ thống</b><br/>Danh sách, mặc định có mặt hoặc vắng có phép"]]:::heth
+    B2["<b>Giáo viên</b><br/>Ghi bài, xếp loại, điểm danh"]:::nguoi
+    B3["<b>Giáo viên</b><br/>Lưu nháp"]:::nguoi
+    B4["<b>Giáo viên</b><br/>Ký tiết"]:::nguoi
+    B5{"Đạt quy tắc xếp loại?"}:::hoi
+    B6[("Tiết đã ký, khoá với giáo viên")]:::dulieu
+    B1 --> B2 --> B3 --> B4 --> B5
+    B5 -->|"Thiếu xếp loại, nhận xét C, D"| B2
+    B5 -->|"Đạt"| B6
+  end
+
+  subgraph P3["③ Ký tuần, tổng hợp"]
+    C1["<b>Ban Giám hiệu</b><br/>Ký sổ tuần"]:::duyet
+    C2[["<b>Hệ thống</b><br/>7.7 Đối chiếu báo vắng theo ngày"]]:::heth
+    C3[["<b>Hệ thống</b><br/>Điểm thi đua lớp nếu cấp bật"]]:::heth
+    C4>"Phụ huynh xem điểm danh theo tiết"]:::bao
+    C2 --> C4
+  end
+
+  K(["Tuần khoá mọi tiết"]):::ketthuc
+
+  S --> A1
+  A4 -->|"Có"| B1
+  B6 --> C1
+  B6 --> C2
+  B6 --> C3
+  C1 --> K
+
+  style P1 fill:#fafafa,stroke:#90a4ae
+  style P2 fill:#fafafa,stroke:#90a4ae
+  style P3 fill:#fafafa,stroke:#90a4ae
 ```
 
 ```mermaid
 stateDiagram-v2
-    state "Nháp" as draft
-    state "Giáo viên đã ký" as signed
-    state "Tuần đã ký" as weekSigned
-    [*] --> draft
-    draft --> draft : sửa trong tuần chưa ký
-    draft --> signed : giáo viên ký tiết
-    draft --> weekSigned : Ban Giám hiệu ký tuần
-    signed --> weekSigned : Ban Giám hiệu ký tuần
-    weekSigned --> [*]
+  direction LR
+  classDef nhap fill:#eceff1,stroke:#546e7a,color:#263238
+  classDef cho fill:#fff3e0,stroke:#ef6c00,color:#4e2600
+  classDef dang fill:#e3f2fd,stroke:#1565c0,color:#0d2a4a
+  classDef xong fill:#e8f5e9,stroke:#2e7d32,color:#1b3d1d,font-weight:bold
+  classDef huy fill:#ffebee,stroke:#c62828,color:#5f0000
+
+  state "Nháp" as draft
+  state "Giáo viên đã ký" as signed
+  state "Tuần đã ký" as weekSigned
+
+  [*] --> draft : Giáo viên lưu tiết
+  draft --> draft : Sửa trong tuần chưa ký
+  draft --> signed : Giáo viên ký tiết
+  draft --> weekSigned : Ban Giám hiệu ký tuần
+  signed --> weekSigned : Ban Giám hiệu ký tuần
+  weekSigned --> [*]
+
+  class draft nhap
+  class signed dang
+  class weekSigned xong
 ```
 
 ### 3. Đánh giá theo TT27 (Tiểu học)
 
 ```mermaid
 flowchart TD
-    A["Ban Giám hiệu nạp cấu hình mặc định TT27"] --> B["Thang mức, phẩm chất, năng lực, kỳ, bài kiểm tra định kỳ, câu nhận xét"]
-    B --> C["Giáo viên ghi nhận xét thường xuyên"]
-    B --> D["Kỳ GK1, CK1, GK2, CN"]
-    D --> E{"Trong hạn và kỳ chưa khoá?"}
-    E -->|"Không"| F["Chỉ người quản lý sửa, đã khoá thì mở khoá kèm lý do"]
-    E -->|"Có"| G["Giáo viên bộ môn nhập mức đạt, điểm KTĐK môn được phân công"]
-    E -->|"Có"| H["Giáo viên chủ nhiệm nhập phẩm chất, năng lực, môn chưa có giáo viên bộ môn"]
-    G --> I["Tổng hợp cuối kỳ của lớp"]
-    H --> I
-    I --> J["Ban Giám hiệu khoá số liệu kỳ"]
-    J --> K{"Kỳ cuối năm?"}
-    K -->|"Không"| L["Phụ huynh xem kết quả kỳ đã khoá"]
-    K -->|"Có"| M["Gợi ý kết quả cuối năm theo Điều 9"]
-    M --> N{"Mọi mức hạng 1?"}
-    N -->|"Có, KT cuối năm từ 9"| O["Hoàn thành xuất sắc"]
-    N -->|"Có, KT cuối năm từ 7"| P["Hoàn thành tốt"]
-    N -->|"Không"| Q{"Không mức chưa đạt và KT từ 5?"}
-    Q -->|"Có"| R["Hoàn thành"]
-    Q -->|"Không"| S["Chưa hoàn thành"]
-    O --> T["Giáo viên chủ nhiệm xác nhận"]
-    P --> T
-    R --> T
-    S --> T
-    T --> U["Khoá kỳ cuối năm, sang 7.8 học bạ, khen thưởng, lên lớp"]
+  classDef batdau fill:#2e7d32,stroke:#1b5e20,color:#ffffff,font-weight:bold
+  classDef ketthuc fill:#37474f,stroke:#263238,color:#ffffff,font-weight:bold
+  classDef nguoi fill:#e3f2fd,stroke:#1565c0,color:#0d2a4a
+  classDef heth fill:#eceff1,stroke:#546e7a,color:#263238
+  classDef duyet fill:#fff3e0,stroke:#ef6c00,color:#4e2600
+  classDef hoi fill:#fffde7,stroke:#f9a825,color:#3e2f00
+  classDef bao fill:#fce4ec,stroke:#ad1457,color:#4a0020
+  classDef chan fill:#ffebee,stroke:#c62828,color:#5f0000
+  classDef dulieu fill:#ede7f6,stroke:#5e35b1,color:#1f0f4d
+
+  S(["Đầu năm học"]):::batdau
+
+  subgraph P1["① Cấu hình"]
+    A1["<b>Ban Giám hiệu</b><br/>Nạp cấu hình mặc định TT27"]:::nguoi
+    A2[("Thang mức, phẩm chất, năng lực, kỳ, mẫu nhận xét")]:::dulieu
+    A1 --> A2
+  end
+
+  subgraph P2["② Nhập theo kỳ"]
+    B0["<b>Giáo viên</b><br/>Ghi nhận xét thường xuyên"]:::nguoi
+    B1[["<b>Hệ thống</b><br/>Kỳ GK1, CK1, GK2, CN"]]:::heth
+    B2{"Trong hạn, kỳ chưa khoá?"}:::hoi
+    B3["Chỉ người quản lý sửa, mở khoá có lý do"]:::chan
+    B4["<b>Giáo viên bộ môn</b><br/>Mức đạt, điểm KTĐK môn được giao"]:::nguoi
+    B5["<b>Giáo viên chủ nhiệm</b><br/>Phẩm chất, năng lực, môn chưa có GVBM"]:::nguoi
+    B1 --> B2
+    B2 -->|"Không"| B3
+    B2 -->|"Có"| B4
+    B2 -->|"Có"| B5
+  end
+
+  subgraph P3["③ Tổng hợp, khoá kỳ"]
+    C1[["<b>Hệ thống</b><br/>Tổng hợp cuối kỳ của lớp"]]:::heth
+    C2{"Kỳ cuối năm?"}:::hoi
+    C3["<b>Ban Giám hiệu</b><br/>Khoá số liệu kỳ"]:::duyet
+    C4>"Phụ huynh xem kết quả kỳ đã khoá"]:::bao
+    C1 --> C2
+    C2 -->|"Không"| C3 --> C4
+  end
+
+  subgraph P4["④ Kết quả cuối năm"]
+    D1[["<b>Hệ thống</b><br/>Gợi ý theo Điều 9"]]:::heth
+    D2{"Mọi mức hạng 1?"}:::hoi
+    D3{"Không mức cuối, KT từ 5?"}:::hoi
+    R1[["Hoàn thành xuất sắc"]]:::heth
+    R2[["Hoàn thành tốt"]]:::heth
+    R3[["Hoàn thành"]]:::heth
+    R4["Chưa hoàn thành"]:::chan
+    D4["<b>Giáo viên chủ nhiệm</b><br/>Xác nhận kết quả cuối năm"]:::nguoi
+    D5["<b>Ban Giám hiệu</b><br/>Khoá kỳ cuối năm"]:::duyet
+    D1 --> D2
+    D2 -->|"Có, KT từ 9"| R1
+    D2 -->|"Có, KT từ 7"| R2
+    D2 -->|"Không"| D3
+    D3 -->|"Có"| R3
+    D3 -->|"Không"| R4
+    R1 --> D4
+    R2 --> D4
+    R3 --> D4
+    R4 --> D4
+    D4 --> D5
+  end
+
+  K(["Sang 7.8 học bạ, khen thưởng, lên lớp"]):::ketthuc
+
+  S --> A1
+  A2 --> B0
+  A2 --> B1
+  B4 --> C1
+  B5 --> C1
+  C2 -->|"Có"| D1
+  D5 --> K
+
+  style P1 fill:#fafafa,stroke:#90a4ae
+  style P2 fill:#fafafa,stroke:#90a4ae
+  style P3 fill:#fafafa,stroke:#90a4ae
+  style P4 fill:#fafafa,stroke:#90a4ae
 ```
 
 ### 4. Nhập điểm và đánh giá theo TT22 (THCS, THPT)
 
 ```mermaid
 flowchart TD
-    A["Cấu hình sổ điểm theo cấp: hệ số 1, 2, 3, số lần TX, ngưỡng xếp loại"] --> B["Giáo viên bộ môn nhập ĐĐGtx, ĐĐGgk, ĐĐGck hoặc Đạt, Chưa đạt"]
-    C["Chấm bài kiểm tra 8.5 chuyển điểm"] --> B
-    B --> D{"Trong hạn, học kỳ chưa khoá, được phân công?"}
-    D -->|"Không"| E["Từ chối, người quản lý mở khoá kèm lý do"]
-    D -->|"Có"| F["Tính ĐTBmhk khi đủ TX, giữa kỳ, cuối kỳ"]
-    F --> G["Gợi ý xếp loại học tập Tốt, Khá, Đạt, Chưa đạt"]
-    G --> H["Giáo viên chủ nhiệm xác nhận học tập, chọn rèn luyện, nhận xét"]
-    H --> I["Khoá điểm học kỳ I"]
-    I --> J["Học kỳ II, nhập và xác nhận như trên"]
-    J --> K["ĐTBmcn bằng HKI cộng 2 lần HKII chia 3"]
-    K --> L["Xếp loại cả năm"]
-    L --> M["Khoá điểm học kỳ II"]
-    M --> N["Phụ huynh xem điểm, xếp loại đã khoá"]
-    M --> O["Học bạ, khen thưởng, lên lớp 7.8"]
-    M --> P["Xét tốt nghiệp 7.17"]
+  classDef batdau fill:#2e7d32,stroke:#1b5e20,color:#ffffff,font-weight:bold
+  classDef ketthuc fill:#37474f,stroke:#263238,color:#ffffff,font-weight:bold
+  classDef nguoi fill:#e3f2fd,stroke:#1565c0,color:#0d2a4a
+  classDef heth fill:#eceff1,stroke:#546e7a,color:#263238
+  classDef duyet fill:#fff3e0,stroke:#ef6c00,color:#4e2600
+  classDef hoi fill:#fffde7,stroke:#f9a825,color:#3e2f00
+  classDef bao fill:#fce4ec,stroke:#ad1457,color:#4a0020
+  classDef chan fill:#ffebee,stroke:#c62828,color:#5f0000
+  classDef dulieu fill:#ede7f6,stroke:#5e35b1,color:#1f0f4d
+
+  S(["Đầu năm học"]):::batdau
+
+  subgraph P1["① Cấu hình"]
+    A1["<b>Ban Giám hiệu</b><br/>Hệ số, số lần TX, ngưỡng xếp loại"]:::nguoi
+  end
+
+  subgraph P2["② Nhập điểm"]
+    B0[["<b>Hệ thống</b><br/>8.5 Chuyển điểm chấm bài"]]:::heth
+    B1["<b>Giáo viên bộ môn</b><br/>Nhập TX, GK, CK hoặc Đạt"]:::nguoi
+    B2{"Trong hạn, chưa khoá, được phân công?"}:::hoi
+    B3["Từ chối, quản lý mở khoá có lý do"]:::chan
+    B0 --> B2
+    B1 --> B2
+    B2 -->|"Không"| B3
+  end
+
+  subgraph P3["③ Tổng hợp học kỳ"]
+    C1[["<b>Hệ thống</b><br/>Tính ĐTBmhk khi đủ điểm"]]:::heth
+    C2[["<b>Hệ thống</b><br/>Gợi ý xếp loại học tập"]]:::heth
+    C3["<b>Giáo viên chủ nhiệm</b><br/>Xác nhận học tập, rèn luyện"]:::nguoi
+    C4{"Học kỳ nào?"}:::hoi
+    C5["<b>Ban Giám hiệu</b><br/>Khoá điểm học kỳ I"]:::duyet
+    C1 --> C2 --> C3 --> C4
+    C4 -->|"Học kỳ I"| C5
+  end
+
+  subgraph P4["④ Cả năm"]
+    D1[["<b>Hệ thống</b><br/>ĐTBmcn = (HKI + 2 × HKII) / 3"]]:::heth
+    D2["<b>Giáo viên chủ nhiệm</b><br/>Xếp loại cả năm"]:::nguoi
+    D3["<b>Ban Giám hiệu</b><br/>Khoá điểm học kỳ II"]:::duyet
+    D4>"Phụ huynh xem điểm, xếp loại đã khoá"]:::bao
+    D1 --> D2 --> D3 --> D4
+  end
+
+  K1(["7.8 Học bạ, khen thưởng, lên lớp"]):::ketthuc
+  K2(["7.17 Xét tốt nghiệp"]):::ketthuc
+
+  S --> A1 --> B1
+  B2 -->|"Có"| C1
+  C5 -.->|"sang học kỳ II"| B1
+  C4 -->|"Học kỳ II"| D1
+  D3 --> K1
+  D3 --> K2
+
+  style P1 fill:#fafafa,stroke:#90a4ae
+  style P2 fill:#fafafa,stroke:#90a4ae
+  style P3 fill:#fafafa,stroke:#90a4ae
+  style P4 fill:#fafafa,stroke:#90a4ae
 ```
 
 ```mermaid
 stateDiagram-v2
-    state "Đang nhập" as open
-    state "Quá hạn" as overdue
-    state "Đã khoá" as locked
-    [*] --> open
-    open --> overdue : qua ngày kết thúc học kỳ
-    open --> locked : người quản lý khoá
-    overdue --> locked : người quản lý khoá
-    locked --> open : mở khoá kèm lý do
+  direction LR
+  classDef nhap fill:#eceff1,stroke:#546e7a,color:#263238
+  classDef cho fill:#fff3e0,stroke:#ef6c00,color:#4e2600
+  classDef dang fill:#e3f2fd,stroke:#1565c0,color:#0d2a4a
+  classDef xong fill:#e8f5e9,stroke:#2e7d32,color:#1b3d1d,font-weight:bold
+  classDef huy fill:#ffebee,stroke:#c62828,color:#5f0000
+
+  state "Đang nhập" as open
+  state "Quá hạn" as overdue
+  state "Đã khoá" as locked
+
+  [*] --> open : Bắt đầu học kỳ
+  open --> overdue : Qua ngày kết thúc học kỳ
+  open --> locked : Người quản lý khoá
+  overdue --> locked : Người quản lý khoá
+  locked --> open : Mở khoá kèm lý do
+
+  class open dang
+  class overdue huy
+  class locked xong
 ```
 
 ### 5. Học bạ số, xét lên lớp, xét tốt nghiệp
 
+Cách đọc: sơ đồ thứ nhất là học bạ, khen thưởng, lên lớp (7.8); sơ đồ thứ hai là xét tốt nghiệp (7.17) cho khối 9, khối 12.
+
 ```mermaid
 flowchart TD
-    A{"Cấp của lớp"} -->|"Tiểu học"| B["Kỳ cuối năm TT27 đã khoá, kết quả cuối năm đã xác nhận"]
-    A -->|"THCS, THPT"| C["Học kỳ II sổ điểm đã khoá, xếp loại cả năm đã xác nhận"]
-    B --> D["Đề nghị khen thưởng, Ban Giám hiệu duyệt, giấy khen có mã tra cứu"]
-    C --> D
-    B --> E{"Đạt chương trình?"}
-    C --> E
-    E -->|"Đạt"| F{"Khối cuối cấp?"}
-    F -->|"Không"| G["Lên lớp"]
-    F -->|"Có"| H["Hoàn thành chương trình cấp học"]
-    E -->|"Chưa đạt"| I["Rèn luyện trong hè hoặc kiểm tra lại"]
-    I --> J{"Đánh giá bổ sung đạt?"}
-    J -->|"Đạt"| F
-    J -->|"Chưa đạt"| K["Ở lại lớp"]
-    B --> L["Lập học bạ nháp từ kết quả đã khoá"]
-    C --> L
-    L --> M["Giáo viên chủ nhiệm ghi nhận xét"]
-    M --> N["Hiệu trưởng xác nhận và kí nội bộ"]
-    N --> O["Học bạ đã kí, phụ huynh xem, tải"]
-    O -->|"Mở lại kèm lý do"| L
-    C --> P{"Khối 9 hoặc 12?"}
-    P -->|"Có"| Q["7.17 Lập danh sách thí sinh, điều kiện học tập, rèn luyện từ Đạt"]
-    Q --> R{"Cấp"}
-    R -->|"THCS"| S["Đủ điều kiện thì đề xuất tốt nghiệp"]
-    R -->|"THPT"| T["Số báo danh, phòng thi, điểm bài thi, điểm xét tốt nghiệp"]
-    T --> U["Đề xuất kết quả theo điểm xét và điểm liệt"]
-    S --> V["Biên bản họp hội đồng"]
-    U --> V
-    V --> W["Công nhận, số giấy chứng nhận, kỳ khoá"]
-    W --> X["Xuất tệp, hồ sơ chuyển cấp THCS"]
+  classDef batdau fill:#2e7d32,stroke:#1b5e20,color:#ffffff,font-weight:bold
+  classDef ketthuc fill:#37474f,stroke:#263238,color:#ffffff,font-weight:bold
+  classDef nguoi fill:#e3f2fd,stroke:#1565c0,color:#0d2a4a
+  classDef heth fill:#eceff1,stroke:#546e7a,color:#263238
+  classDef duyet fill:#fff3e0,stroke:#ef6c00,color:#4e2600
+  classDef hoi fill:#fffde7,stroke:#f9a825,color:#3e2f00
+  classDef bao fill:#fce4ec,stroke:#ad1457,color:#4a0020
+  classDef chan fill:#ffebee,stroke:#c62828,color:#5f0000
+  classDef dulieu fill:#ede7f6,stroke:#5e35b1,color:#1f0f4d
+
+  S(["Cuối năm học"]):::batdau
+
+  subgraph P1["① Điều kiện đầu vào"]
+    A0{"Cấp của lớp?"}:::hoi
+    A1[("Kỳ cuối năm TT27 đã khoá, đã xác nhận")]:::dulieu
+    A2[("Học kỳ II đã khoá, xếp loại cả năm")]:::dulieu
+    A0 -->|"Tiểu học"| A1
+    A3[["<b>Hệ thống</b><br/>Mở các thẻ 7.8 cho lớp"]]:::heth
+    A0 -->|"THCS, THPT"| A2
+    A1 --> A3
+    A2 --> A3
+  end
+
+  subgraph P2["② Khen thưởng"]
+    B1["<b>Giáo viên chủ nhiệm</b><br/>Đề nghị khen thưởng"]:::nguoi
+    B2{"Ban Giám hiệu duyệt?"}:::hoi
+    B3["Không duyệt, ghi lý do"]:::chan
+    B4>"Giấy khen có mã tra cứu"]:::bao
+    B1 --> B2
+    B2 -->|"Không"| B3
+    B2 -->|"Duyệt"| B4
+  end
+
+  subgraph P3["③ Lên lớp"]
+    C1{"Đạt chương trình?"}:::hoi
+    C2["<b>Giáo viên chủ nhiệm</b><br/>Rèn luyện hè hoặc kiểm tra lại"]:::nguoi
+    C3{"Đánh giá bổ sung đạt?"}:::hoi
+    C4{"Khối cuối cấp?"}:::hoi
+    C1 -->|"Đạt"| C4
+    C1 -->|"Chưa đạt"| C2 --> C3
+    C3 -->|"Đạt"| C4
+  end
+
+  subgraph P4["④ Học bạ số"]
+    D1["<b>Giáo viên chủ nhiệm</b><br/>Lập học bạ nháp"]:::nguoi
+    D2["<b>Giáo viên chủ nhiệm</b><br/>Ghi nhận xét"]:::nguoi
+    D3["<b>Hiệu trưởng</b><br/>Xác nhận và kí nội bộ"]:::duyet
+    D4[("Học bạ đã kí")]:::dulieu
+    D5>"Phụ huynh xem, tải"]:::bao
+    D1 --> D2 --> D3 --> D4 --> D5
+    D4 -.->|"Mở lại kèm lý do"| D1
+  end
+
+  K1(["Lên lớp"]):::ketthuc
+  K2(["Hoàn thành chương trình cấp học"]):::ketthuc
+  K3(["Ở lại lớp"]):::ketthuc
+
+  S --> A0
+  A3 --> B1
+  A3 --> C1
+  A3 --> D1
+  C4 -->|"Không"| K1
+  C4 -->|"Có"| K2
+  C3 -->|"Chưa đạt"| K3
+
+  style P1 fill:#fafafa,stroke:#90a4ae
+  style P2 fill:#fafafa,stroke:#90a4ae
+  style P3 fill:#fafafa,stroke:#90a4ae
+  style P4 fill:#fafafa,stroke:#90a4ae
+```
+
+```mermaid
+flowchart TD
+  classDef batdau fill:#2e7d32,stroke:#1b5e20,color:#ffffff,font-weight:bold
+  classDef ketthuc fill:#37474f,stroke:#263238,color:#ffffff,font-weight:bold
+  classDef nguoi fill:#e3f2fd,stroke:#1565c0,color:#0d2a4a
+  classDef heth fill:#eceff1,stroke:#546e7a,color:#263238
+  classDef duyet fill:#fff3e0,stroke:#ef6c00,color:#4e2600
+  classDef hoi fill:#fffde7,stroke:#f9a825,color:#3e2f00
+  classDef bao fill:#fce4ec,stroke:#ad1457,color:#4a0020
+  classDef chan fill:#ffebee,stroke:#c62828,color:#5f0000
+  classDef dulieu fill:#ede7f6,stroke:#5e35b1,color:#1f0f4d
+
+  S(["Học kỳ II lớp 9, 12 đã khoá"]):::batdau
+
+  subgraph P1["① Lập danh sách"]
+    A1["<b>Ban Giám hiệu</b><br/>Ghi cấu hình, tạo kỳ"]:::nguoi
+    A2[["<b>Hệ thống</b><br/>Lập danh sách thí sinh K9, K12"]]:::heth
+    A3{"Học tập, rèn luyện từ Đạt?"}:::hoi
+    A4["Chưa đủ điều kiện"]:::chan
+    A5{"Cấp?"}:::hoi
+    A1 --> A2 --> A3
+    A3 -->|"Không"| A4
+    A3 -->|"Có"| A5
+  end
+
+  subgraph P2["② Hồ sơ, điểm thi THPT"]
+    B1["<b>Ban Giám hiệu</b><br/>Số báo danh, phòng thi"]:::nguoi
+    B2["<b>Ban Giám hiệu</b><br/>Nhập điểm bài thi"]:::nguoi
+    B3[["<b>Hệ thống</b><br/>Điểm xét, điểm liệt"]]:::heth
+    B1 --> B2 --> B3
+  end
+
+  subgraph P3["③ Đề xuất, công nhận"]
+    C1[["<b>Hệ thống</b><br/>Đề xuất kết quả"]]:::heth
+    C2["<b>Hội đồng</b><br/>Biên bản họp hội đồng"]:::duyet
+    C3["<b>Ban Giám hiệu</b><br/>Công nhận, cấp số giấy"]:::duyet
+    C4[("Kỳ xét khoá")]:::dulieu
+    C1 --> C2 --> C3 --> C4
+  end
+
+  subgraph P4["④ Tệp, chuyển cấp"]
+    D1>"Tệp danh sách, kết quả"]:::bao
+    D2>"Hồ sơ chuyển cấp THCS"]:::bao
+  end
+
+  K(["Kỳ xét tốt nghiệp đã xong"]):::ketthuc
+
+  S --> A1
+  A5 -->|"THCS"| C1
+  A5 -->|"THPT"| B1
+  B3 --> C1
+  C4 --> D1
+  C4 --> D2
+  D1 --> K
+  D2 --> K
+
+  style P1 fill:#fafafa,stroke:#90a4ae
+  style P2 fill:#fafafa,stroke:#90a4ae
+  style P3 fill:#fafafa,stroke:#90a4ae
+  style P4 fill:#fafafa,stroke:#90a4ae
 ```
 
 ```mermaid
 stateDiagram-v2
-    state "Nháp" as draft
-    state "Đã kí" as signed
-    [*] --> draft : lập học bạ
-    draft --> draft : lập lại, sửa nhận xét
-    draft --> signed : Hiệu trưởng xác nhận và kí
-    signed --> draft : mở lại kèm lý do
+  direction LR
+  classDef nhap fill:#eceff1,stroke:#546e7a,color:#263238
+  classDef cho fill:#fff3e0,stroke:#ef6c00,color:#4e2600
+  classDef dang fill:#e3f2fd,stroke:#1565c0,color:#0d2a4a
+  classDef xong fill:#e8f5e9,stroke:#2e7d32,color:#1b3d1d,font-weight:bold
+  classDef huy fill:#ffebee,stroke:#c62828,color:#5f0000
+
+  state "Nháp" as draft
+  state "Đã kí" as signed
+
+  [*] --> draft : Lập học bạ
+  draft --> draft : Lập lại, sửa nhận xét
+  draft --> signed : Hiệu trưởng xác nhận và kí
+  signed --> draft : Mở lại kèm lý do
+
+  class draft nhap
+  class signed xong
 ```
 
 ### 6. Kiểm tra, đánh giá: ra đề, chấm, chuyển điểm
 
 ```mermaid
 flowchart TD
-    A["Người soạn soạn câu hỏi hoặc nhập Excel"] --> B["Gửi thẩm định"]
-    B --> C{"Người thẩm định duyệt?"}
-    C -->|"Trả lại"| A
-    C -->|"Duyệt"| D["Câu dùng được trong ngân hàng"]
-    E["Người thẩm định lập ma trận, bảng đặc tả"] --> F{"Ma trận hợp lệ?"}
-    F -->|"Không"| E
-    G["Lập kế hoạch kiểm tra, gửi duyệt"] --> H{"Người quản lý duyệt?"}
-    H -->|"Trả lại"| G
-    H -->|"Duyệt"| I["Giao đề: người ra đề, người thẩm định, hạn nộp"]
-    F -->|"Có"| I
-    D --> J["Bốc câu theo ma trận hoặc thêm câu đã duyệt"]
-    I --> J
-    J --> K["Trộn mã đề 101, 102"]
-    K --> L["Gửi thẩm định đề"]
-    L --> M{"Thẩm định đề?"}
-    M -->|"Trả lại"| J
-    M -->|"Duyệt"| N["Người quản lý khoá đề, ghi lịch sử dùng câu"]
-    N --> O["Tạo bài kiểm tra của lớp: học kỳ, loại điểm, lần"]
-    O --> P["In phiếu trả lời, học sinh làm bài"]
-    P --> Q["Nhập bài tay hoặc nhập tệp quét"]
-    Q --> R["Chấm tự động trắc nghiệm, nhập điểm tự luận"]
-    R --> S{"Đủ bài, không thiếu tự luận, không cần xem lại?"}
-    S -->|"Không"| Q
-    S -->|"Có"| T["Khoá điểm, ghi độ khó, độ phân biệt"]
-    T --> U["Chuyển vào sổ điểm qua một cửa"]
-    U --> V["Sổ điểm 7.14 nguồn exam"]
-    T --> W["Báo cáo kết quả 8.6"]
+  classDef batdau fill:#2e7d32,stroke:#1b5e20,color:#ffffff,font-weight:bold
+  classDef ketthuc fill:#37474f,stroke:#263238,color:#ffffff,font-weight:bold
+  classDef nguoi fill:#e3f2fd,stroke:#1565c0,color:#0d2a4a
+  classDef heth fill:#eceff1,stroke:#546e7a,color:#263238
+  classDef duyet fill:#fff3e0,stroke:#ef6c00,color:#4e2600
+  classDef hoi fill:#fffde7,stroke:#f9a825,color:#3e2f00
+  classDef bao fill:#fce4ec,stroke:#ad1457,color:#4a0020
+  classDef chan fill:#ffebee,stroke:#c62828,color:#5f0000
+  classDef dulieu fill:#ede7f6,stroke:#5e35b1,color:#1f0f4d
+
+  S(["Đầu học kỳ"]):::batdau
+
+  subgraph P1["① Ngân hàng câu hỏi"]
+    A1["<b>Người soạn</b><br/>Soạn câu hoặc nhập Excel"]:::nguoi
+    A2["<b>Người soạn</b><br/>Gửi thẩm định"]:::nguoi
+    A3{"Người thẩm định duyệt?"}:::hoi
+    A4[("Câu dùng được")]:::dulieu
+    A1 --> A2 --> A3
+    A3 -->|"Trả lại"| A1
+    A3 -->|"Duyệt"| A4
+  end
+
+  subgraph P2["② Ma trận, kế hoạch"]
+    B1["<b>Người thẩm định</b><br/>Lập ma trận, bảng đặc tả"]:::nguoi
+    B2{"Ma trận hợp lệ?"}:::hoi
+    B3["<b>Người thẩm định</b><br/>Lập kế hoạch, gửi duyệt"]:::nguoi
+    B4{"Người quản lý duyệt?"}:::hoi
+    B5["<b>Người quản lý</b><br/>Giao đề, người ra đề, hạn nộp"]:::duyet
+    B1 --> B2
+    B2 -->|"Không"| B1
+    B3 --> B4
+    B4 -->|"Trả lại"| B3
+    B2 -->|"Có"| B5
+    B4 -->|"Duyệt"| B5
+  end
+
+  subgraph P3["③ Ra đề, thẩm định"]
+    C1["<b>Người ra đề</b><br/>Bốc câu theo ma trận"]:::nguoi
+    C2["<b>Người ra đề</b><br/>Trộn mã đề 101, 102"]:::nguoi
+    C3["<b>Người ra đề</b><br/>Gửi thẩm định đề"]:::nguoi
+    C4{"Thẩm định đề?"}:::hoi
+    C5["<b>Người quản lý</b><br/>Khoá đề, ghi lịch sử dùng câu"]:::duyet
+    C1 --> C2 --> C3 --> C4
+    C4 -->|"Trả lại"| C1
+    C4 -->|"Duyệt"| C5
+  end
+
+  subgraph P4["④ Chấm bài"]
+    D1["<b>Giáo viên</b><br/>Tạo bài kiểm tra của lớp"]:::nguoi
+    D2>"Phiếu trả lời, học sinh làm bài"]:::bao
+    D3["<b>Giáo viên</b><br/>Nhập bài hoặc tệp quét"]:::nguoi
+    D4[["<b>Hệ thống</b><br/>Chấm trắc nghiệm, cộng tự luận"]]:::heth
+    D5{"Đủ bài, không cần xem lại?"}:::hoi
+    D1 --> D2 --> D3 --> D4 --> D5
+    D5 -->|"Không"| D3
+  end
+
+  subgraph P5["⑤ Khoá, chuyển điểm"]
+    E1["<b>Người quản lý</b><br/>Khoá điểm, ghi độ khó"]:::duyet
+    E2["<b>Giáo viên</b><br/>Chuyển vào sổ điểm"]:::nguoi
+    E3>"Báo cáo kết quả 8.6"]:::bao
+    E1 --> E2
+    E1 --> E3
+  end
+
+  K(["Sổ điểm 7.14, nguồn exam"]):::ketthuc
+
+  S --> A1
+  S --> B1
+  S --> B3
+  A4 --> C1
+  B5 --> C1
+  C5 --> D1
+  D5 -->|"Có"| E1
+  E2 --> K
+
+  style P1 fill:#fafafa,stroke:#90a4ae
+  style P2 fill:#fafafa,stroke:#90a4ae
+  style P3 fill:#fafafa,stroke:#90a4ae
+  style P4 fill:#fafafa,stroke:#90a4ae
+  style P5 fill:#fafafa,stroke:#90a4ae
 ```
 
 ```mermaid
 stateDiagram-v2
-    state "Nháp" as draft
-    state "Chờ thẩm định" as review
-    state "Dùng được" as approved
-    state "Ngừng dùng" as retired
-    [*] --> draft
-    draft --> review : gửi thẩm định
-    review --> approved : duyệt
-    review --> draft : trả lại
-    approved --> draft : sửa câu
-    draft --> retired
-    review --> retired
-    approved --> retired
+  direction LR
+  classDef nhap fill:#eceff1,stroke:#546e7a,color:#263238
+  classDef cho fill:#fff3e0,stroke:#ef6c00,color:#4e2600
+  classDef dang fill:#e3f2fd,stroke:#1565c0,color:#0d2a4a
+  classDef xong fill:#e8f5e9,stroke:#2e7d32,color:#1b3d1d,font-weight:bold
+  classDef huy fill:#ffebee,stroke:#c62828,color:#5f0000
+
+  state "Nháp" as draft
+  state "Chờ thẩm định" as review
+  state "Dùng được" as approved
+  state "Ngừng dùng" as retired
+
+  [*] --> draft : Soạn, nhập Excel
+  draft --> review : Gửi thẩm định
+  review --> approved : Duyệt
+  review --> draft : Trả lại
+  approved --> draft : Sửa câu
+  draft --> retired : Ngừng dùng
+  review --> retired : Ngừng dùng
+  approved --> retired : Ngừng dùng
+
+  class draft nhap
+  class review cho
+  class approved xong
+  class retired huy
 ```
 
 ```mermaid
 stateDiagram-v2
-    state "Đang soạn" as draft
-    state "Chờ thẩm định" as submitted
-    state "Đã thẩm định" as approved
-    state "Đã khoá" as locked
-    [*] --> draft : giao đề
-    draft --> submitted : gửi thẩm định khi đã trộn mã
-    submitted --> approved : duyệt
-    submitted --> draft : trả lại
-    approved --> locked : người quản lý khoá
-    locked --> approved : mở khoá kèm lý do
+  direction LR
+  classDef nhap fill:#eceff1,stroke:#546e7a,color:#263238
+  classDef cho fill:#fff3e0,stroke:#ef6c00,color:#4e2600
+  classDef dang fill:#e3f2fd,stroke:#1565c0,color:#0d2a4a
+  classDef xong fill:#e8f5e9,stroke:#2e7d32,color:#1b3d1d,font-weight:bold
+  classDef huy fill:#ffebee,stroke:#c62828,color:#5f0000
+
+  state "Đang soạn" as draft
+  state "Chờ thẩm định" as submitted
+  state "Đã thẩm định" as approved
+  state "Đã khoá" as locked
+
+  [*] --> draft : Người quản lý giao đề
+  draft --> submitted : Gửi thẩm định khi đã trộn mã
+  submitted --> approved : Duyệt
+  submitted --> draft : Trả lại
+  approved --> locked : Người quản lý khoá
+  locked --> approved : Mở khoá kèm lý do
+
+  class draft nhap
+  class submitted cho
+  class approved dang
+  class locked xong
 ```
 
 ```mermaid
 stateDiagram-v2
-    state "Đang chấm" as grading
-    state "Đã khoá" as locked
-    state "Đã chuyển sổ điểm" as transferred
-    [*] --> grading : tạo bài kiểm tra của lớp
-    grading --> locked : khoá khi đủ điều kiện
-    locked --> grading : mở khoá kèm lý do
-    locked --> transferred : chuyển vào sổ điểm
-    transferred --> [*]
+  direction LR
+  classDef nhap fill:#eceff1,stroke:#546e7a,color:#263238
+  classDef cho fill:#fff3e0,stroke:#ef6c00,color:#4e2600
+  classDef dang fill:#e3f2fd,stroke:#1565c0,color:#0d2a4a
+  classDef xong fill:#e8f5e9,stroke:#2e7d32,color:#1b3d1d,font-weight:bold
+  classDef huy fill:#ffebee,stroke:#c62828,color:#5f0000
+
+  state "Đang chấm" as grading
+  state "Đã khoá" as locked
+  state "Đã chuyển sổ điểm" as transferred
+
+  [*] --> grading : Tạo bài kiểm tra của lớp
+  grading --> locked : Khoá khi đủ điều kiện
+  locked --> grading : Mở khoá kèm lý do
+  locked --> transferred : Chuyển vào sổ điểm
+  transferred --> [*]
+
+  class grading dang
+  class locked cho
+  class transferred xong
 ```
 
 ```mermaid
 stateDiagram-v2
-    state "Nháp" as draft
-    state "Đã gửi duyệt" as submitted
-    state "Đã duyệt" as approved
-    state "Trả lại" as rejected
-    [*] --> draft
-    draft --> submitted : gửi duyệt
-    rejected --> submitted : sửa rồi gửi lại
-    submitted --> approved : người quản lý duyệt
-    submitted --> rejected : trả lại
+  direction LR
+  classDef nhap fill:#eceff1,stroke:#546e7a,color:#263238
+  classDef cho fill:#fff3e0,stroke:#ef6c00,color:#4e2600
+  classDef dang fill:#e3f2fd,stroke:#1565c0,color:#0d2a4a
+  classDef xong fill:#e8f5e9,stroke:#2e7d32,color:#1b3d1d,font-weight:bold
+  classDef huy fill:#ffebee,stroke:#c62828,color:#5f0000
+
+  state "Nháp" as draft
+  state "Đã gửi duyệt" as submitted
+  state "Đã duyệt" as approved
+  state "Trả lại" as rejected
+
+  [*] --> draft : Lập kế hoạch
+  draft --> submitted : Gửi duyệt
+  submitted --> approved : Người quản lý duyệt
+  submitted --> rejected : Trả lại
+  rejected --> draft : Sửa lại
+  approved --> [*]
+
+  class draft nhap
+  class submitted cho
+  class approved xong
+  class rejected huy
 ```

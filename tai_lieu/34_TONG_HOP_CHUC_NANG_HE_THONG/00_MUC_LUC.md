@@ -58,7 +58,26 @@ Ngoài 21 phân hệ còn ba kênh: ứng dụng giáo viên, ứng dụng phụ
 
 ## 4. Chỉ mục sơ đồ quy trình
 
-Tài liệu có 77 sơ đồ Mermaid (flowchart, sequenceDiagram, stateDiagram-v2), đã dựng thử bằng Mermaid 11.4.1, không có lỗi cú pháp. Bảng dưới là các luồng chính theo yêu cầu; các sơ đồ trạng thái phụ xem cuối từng tệp.
+Tài liệu có 82 sơ đồ Mermaid (flowchart, sequenceDiagram, stateDiagram-v2), đã dựng thử bằng Mermaid 11.4.1, không có lỗi cú pháp. Bảng dưới là các luồng chính theo yêu cầu; các sơ đồ trạng thái phụ xem cuối từng tệp. Bản PDF gộp toàn bộ tài liệu: [34_TONG_HOP_CHUC_NANG_HE_THONG.pdf](34_TONG_HOP_CHUC_NANG_HE_THONG.pdf).
+
+### Cách đọc sơ đồ
+
+- Sơ đồ luồng (flowchart) chia thành các giai đoạn đánh số ①, ②, ③... đặt trong khung xám nhạt; đọc từ trên xuống. Mỗi ô ghi người làm (chữ đậm) và việc làm.
+- Sơ đồ trạng thái (stateDiagram) tô màu theo nhóm trạng thái; nhãn trên mũi tên là thao tác chuyển trạng thái.
+- Sơ đồ tuần tự (sequenceDiagram) đánh số từng bước; các bên tham gia gom theo hộp màu (người dùng, hệ thống, bên ngoài); khung vàng nhạt là một giai đoạn.
+
+| Màu, hình | Nghĩa trong sơ đồ luồng | Màu | Nghĩa trong sơ đồ trạng thái |
+|---|---|---|---|
+| Viên thuốc xanh lá đậm | Bắt đầu | Xám | Nháp, mới tạo |
+| Viên thuốc xám đậm | Kết thúc | Cam | Chờ duyệt, chờ xử lý |
+| Ô xanh dương | Việc do người dùng làm | Xanh dương | Đang thực hiện, đang hiệu lực |
+| Ô xám viền đôi | Việc hệ thống, tác vụ nền, cổng ngoài tự làm | Xanh lá | Hoàn thành, đã duyệt |
+| Ô cam | Phê duyệt, ký, quyết định của lãnh đạo, hội đồng | Đỏ nhạt | Hủy, từ chối, quá hạn |
+| Hình thoi vàng | Rẽ nhánh theo câu hỏi | | |
+| Cờ hồng | Thông báo, tin nhắn, tệp xuất, công bố | | |
+| Ô đỏ nhạt | Bị chặn, lỗi, từ chối | | |
+| Hình trụ tím | Dữ liệu, sổ, hồ sơ được ghi | | |
+| Nét đứt | Luồng phụ, ngoại lệ | | |
 
 | Luồng | Tệp | Mục |
 |---|---|---|

@@ -441,48 +441,95 @@ Mô tả chi tiết:
 
 ```mermaid
 flowchart TD
-  A["Đầu kỳ: hệ thống tạo dòng đăng ký của tháng"] --> B["Dịch vụ bắt buộc Bán trú tự đăng ký cho mọi học sinh đang học"]
-  A --> C["Dịch vụ không bắt buộc giữ từ tháng trước, phụ huynh hoặc kế toán đăng ký, hủy"]
-  C --> D{"Sau ngày chốt hoặc đã chốt danh sách?"}
-  D -->|"Có"| E["Đăng ký trễ, hủy trễ chờ Ban Giám hiệu duyệt, chọn thu cả tháng hoặc theo ngày"]
-  D -->|"Không"| F["Đăng ký có hiệu lực"]
-  E --> F
-  B --> F
-  F --> G["Kế toán chốt danh sách đăng ký của kỳ"]
-  G --> H{"Cấp của lớp?"}
-  H -->|"Mầm non"| I["Giáo viên điểm danh, chốt điểm danh hằng ngày"]
-  H -->|"Tiểu học, THCS, THPT"| J["Phụ huynh cắt suất, giáo viên chốt suất bán trú của lớp"]
-  I --> K{"Còn ngày chưa chốt?"}
-  J --> K
-  K -->|"Có"| X1["Chặn tính học phí, liệt kê lớp và ngày"]
-  K -->|"Không"| L["Tính học phí: học phí chính khóa theo ngày học, tiền ăn theo ngày có mặt hoặc ngày ăn, dịch vụ, phí ngoại khóa"]
-  L --> M["Hóa đơn nháp kèm cờ cần xem lại"]
-  M --> N["Kế toán lập miễn giảm"]
-  N --> O{"Số tiền dưới hạn mức tuition_discount của đơn vị?"}
-  O -->|"Có"| P1["Phó Hiệu trưởng hoặc Hiệu trưởng duyệt"]
-  O -->|"Không hoặc chưa đặt hạn mức"| P2["Hiệu trưởng duyệt"]
-  P1 --> Q["Phát hành hóa đơn, cấp số HD, ngày đến hạn"]
-  P2 --> Q
-  M --> Q
-  Q --> R["Thông báo và tin nhắn cho phụ huynh"]
-  R --> S{"Cách nộp tiền"}
-  S -->|"Quét mã QR"| T["Cổng thanh toán báo tiền vào"]
-  T --> U{"Khớp mã hóa đơn và số tiền?"}
-  U -->|"Có"| V["Tự lập phiếu thu chuyển khoản"]
-  U -->|"Không"| W["Danh sách chờ kế toán xử lý"]
-  S -->|"Tiền mặt hoặc chuyển khoản thường"| Y["Kế toán hoặc thủ quỹ lập phiếu thu, trả đủ từng hóa đơn"]
-  W --> Y
-  V --> Z["Công nợ giảm, phần thừa thành số dư có"]
-  Y --> Z
-  Z --> AA{"Còn nợ quá hạn?"}
-  AA -->|"Có"| AB["Nhắc nợ theo mốc 3, 7, 15 ngày, đề xuất và quyết định xử lý"]
-  AA -->|"Không"| AC["Sổ quỹ, đối chiếu ngân hàng"]
-  AB --> AC
-  AC --> AD["Ghi sổ kế toán tự động: hóa đơn, miễn giảm, phiếu thu"]
-  AD --> AE["Kế toán trưởng đề nghị chốt kỳ tháng"]
-  AE --> AF{"Hiệu trưởng duyệt?"}
-  AF -->|"Duyệt"| AG["Kỳ đã chốt, khóa chứng từ của kỳ"]
-  AF -->|"Từ chối"| AE
+  classDef batdau fill:#2e7d32,stroke:#1b5e20,color:#ffffff,font-weight:bold
+  classDef ketthuc fill:#37474f,stroke:#263238,color:#ffffff,font-weight:bold
+  classDef nguoi fill:#e3f2fd,stroke:#1565c0,color:#0d2a4a
+  classDef heth fill:#eceff1,stroke:#546e7a,color:#263238
+  classDef duyet fill:#fff3e0,stroke:#ef6c00,color:#4e2600
+  classDef hoi fill:#fffde7,stroke:#f9a825,color:#3e2f00
+  classDef bao fill:#fce4ec,stroke:#ad1457,color:#4a0020
+  classDef chan fill:#ffebee,stroke:#c62828,color:#5f0000
+  classDef dulieu fill:#ede7f6,stroke:#5e35b1,color:#1f0f4d
+
+  S(["Đầu kỳ, tạo dòng đăng ký"]):::batdau
+
+  subgraph P1["① Đăng ký dịch vụ"]
+    A1[["<b>Hệ thống</b><br/>Tự đăng ký Bán trú bắt buộc"]]:::heth
+    A2["<b>Phụ huynh, kế toán</b><br/>Đăng ký, hủy dịch vụ khác"]:::nguoi
+    A3{"Quá ngày chốt?"}:::hoi
+    A4["<b>Ban Giám hiệu</b><br/>Duyệt trễ, chọn cách thu"]:::duyet
+    A5["<b>Kế toán</b><br/>Chốt danh sách kỳ"]:::nguoi
+    A2 --> A3
+    A3 -->|"Có"| A4 --> A5
+    A3 -->|"Không"| A5
+    A1 --> A5
+  end
+
+  subgraph P2["② Ngày học, ngày ăn"]
+    B1["<b>Giáo viên Mầm non</b><br/>Điểm danh, chốt ngày"]:::nguoi
+    B0["<b>Phụ huynh TH, THCS, THPT</b><br/>Cắt suất ăn"]:::nguoi
+    B2["<b>Giáo viên TH, THCS, THPT</b><br/>Chốt suất bán trú"]:::nguoi
+    B3{"Còn ngày chưa chốt?"}:::hoi
+    B4["Chặn tính phí<br/>liệt kê lớp, ngày"]:::chan
+    B0 --> B2
+    B1 --> B3
+    B2 --> B3
+    B3 -->|"Có"| B4
+  end
+
+  subgraph P3["③ Tính, phát hành phí"]
+    C1[["<b>Hệ thống</b><br/>Tính phí, hóa đơn nháp"]]:::heth
+    C2["<b>Kế toán</b><br/>Lập miễn giảm"]:::nguoi
+    C3{"Dưới hạn mức?"}:::hoi
+    C4["<b>Phó Hiệu trưởng</b><br/>Duyệt"]:::duyet
+    C5["<b>Hiệu trưởng</b><br/>Duyệt"]:::duyet
+    C6["<b>Kế toán</b><br/>Phát hành, cấp số HD"]:::nguoi
+    C1 --> C2 --> C3
+    C3 -->|"Có"| C4 --> C6
+    C3 -->|"Không"| C5 --> C6
+    C1 -.->|"không miễn giảm"| C6
+  end
+
+  subgraph P4["④ Thu tiền"]
+    D0>"Thông báo, SMS cho phụ huynh"]:::bao
+    D1{"Cách nộp?"}:::hoi
+    D2[["<b>Cổng thanh toán</b><br/>Báo tiền vào, tự lập phiếu thu"]]:::heth
+    D3["<b>Kế toán, thủ quỹ</b><br/>Lập phiếu thu"]:::nguoi
+    D0 --> D1
+    D1 -->|"Mã QR"| D2
+    D1 -->|"Tiền mặt, chuyển khoản"| D3
+    D2 -.->|"không khớp"| D3
+  end
+
+  subgraph P5["⑤ Công nợ, sổ sách"]
+    E1[("Công nợ, số dư có")]:::dulieu
+    E2>"Nhắc nợ mốc 3, 7, 15 ngày"]:::bao
+    E5["<b>Quản lý, Ban Giám hiệu</b><br/>Đề xuất, quyết định xử lý"]:::duyet
+    E6[["<b>Hệ thống</b><br/>Sổ quỹ, đối chiếu, ghi sổ"]]:::heth
+    E3["<b>Kế toán trưởng</b><br/>Đề nghị chốt kỳ"]:::nguoi
+    E4{"Hiệu trưởng duyệt?"}:::hoi
+    E1 -.->|"quá hạn"| E2 -.-> E5
+    E1 --> E6 --> E3 --> E4
+    E4 -->|"Từ chối"| E3
+  end
+
+  K(["Kỳ đã chốt, khóa chứng từ"]):::ketthuc
+
+  S --> A1
+  S --> A2
+  A5 --> B1
+  A5 --> B0
+  B3 -->|"Không"| C1
+  C6 --> D0
+  D2 --> E1
+  D3 --> E1
+  E4 -->|"Duyệt"| K
+
+  style P1 fill:#fafafa,stroke:#90a4ae
+  style P2 fill:#fafafa,stroke:#90a4ae
+  style P3 fill:#fafafa,stroke:#90a4ae
+  style P4 fill:#fafafa,stroke:#90a4ae
+  style P5 fill:#fafafa,stroke:#90a4ae
 ```
 
 ### Sơ đồ 2. Trạng thái hóa đơn, phiếu thu, phiếu chi và hạn mức phê duyệt
@@ -491,166 +538,399 @@ Hóa đơn học phí (trạng thái lưu `draft`, `issued`; trạng thái thu t
 
 ```mermaid
 stateDiagram-v2
+  direction LR
+  classDef nhap fill:#eceff1,stroke:#546e7a,color:#263238
+  classDef cho fill:#fff3e0,stroke:#ef6c00,color:#4e2600
+  classDef dang fill:#e3f2fd,stroke:#1565c0,color:#0d2a4a
+  classDef xong fill:#e8f5e9,stroke:#2e7d32,color:#1b3d1d,font-weight:bold
+  classDef huy fill:#ffebee,stroke:#c62828,color:#5f0000
+
   state "Nháp" as draft
   state "Đã phát hành" as issued
   state "Chưa thu" as unpaid
   state "Quá hạn" as overdue
   state "Đã thu đủ" as paid
-  [*] --> draft: Tính học phí
-  draft --> draft: Tính lại, thay kết quả nháp
-  draft --> issued: Phát hành, cấp số và ngày đến hạn
+
+  [*] --> draft : Tính học phí, tính lại thay nháp
+  draft --> issued : Phát hành, cấp số
   state issued {
     [*] --> unpaid
-    unpaid --> overdue: Qua ngày đến hạn còn nợ
-    unpaid --> paid: Phiếu thu phân bổ đủ
-    overdue --> paid: Phiếu thu phân bổ đủ
-    paid --> unpaid: Duyệt đảo phiếu thu hoặc điều chỉnh tăng
+    unpaid --> overdue : Qua hạn còn nợ
+    unpaid --> paid : Thu đủ
+    overdue --> paid : Thu đủ
+    paid --> unpaid : Đảo phiếu thu, điều chỉnh tăng
   }
   note right of issued
-    Không sửa trực tiếp, sửa bằng miễn giảm hoặc phiếu điều chỉnh
+    Không sửa trực tiếp, dùng miễn giảm hoặc phiếu điều chỉnh
     Khoản phát sinh sau phát hành vào hóa đơn bổ sung
   end note
+
+  class draft nhap
+  class unpaid cho
+  class overdue huy
+  class paid xong
 ```
 
 Phiếu thu (phát hành ngay khi lập, không có nháp) và phiếu chi:
 
 ```mermaid
 stateDiagram-v2
+  direction LR
+  classDef nhap fill:#eceff1,stroke:#546e7a,color:#263238
+  classDef cho fill:#fff3e0,stroke:#ef6c00,color:#4e2600
+  classDef dang fill:#e3f2fd,stroke:#1565c0,color:#0d2a4a
+  classDef xong fill:#e8f5e9,stroke:#2e7d32,color:#1b3d1d,font-weight:bold
+  classDef huy fill:#ffebee,stroke:#c62828,color:#5f0000
+
   state "Đã phát hành" as r_issued
   state "Chờ duyệt đảo" as r_pending
   state "Đã đảo" as r_reversed
-  [*] --> r_issued: Lập phiếu thu
-  r_issued --> r_pending: Lập phiếu đảo kèm lý do
-  r_pending --> r_reversed: Duyệt theo hạn mức receipt_reversal
-  r_pending --> r_issued: Từ chối kèm lý do
+
+  [*] --> r_issued : Lập phiếu thu
+  r_issued --> r_pending : Lập phiếu đảo, ghi lý do
+  r_pending --> r_reversed : Duyệt theo hạn mức
+  r_pending --> r_issued : Từ chối, ghi lý do
   r_reversed --> [*]
+
+  class r_issued dang
+  class r_pending cho
+  class r_reversed huy
 ```
 
 ```mermaid
 stateDiagram-v2
+  direction LR
+  classDef nhap fill:#eceff1,stroke:#546e7a,color:#263238
+  classDef cho fill:#fff3e0,stroke:#ef6c00,color:#4e2600
+  classDef dang fill:#e3f2fd,stroke:#1565c0,color:#0d2a4a
+  classDef xong fill:#e8f5e9,stroke:#2e7d32,color:#1b3d1d,font-weight:bold
+  classDef huy fill:#ffebee,stroke:#c62828,color:#5f0000
+
   state "Nháp" as p_draft
   state "Chờ duyệt" as p_pending
   state "Đã phát hành" as p_issued
   state "Chờ duyệt đảo" as p_rev_pending
   state "Đã đảo" as p_reversed
-  [*] --> p_draft: Lập phiếu chi
-  p_draft --> p_draft: Sửa, đính chứng từ
-  p_draft --> [*]: Xóa phiếu nháp
-  p_draft --> p_pending: Trình duyệt, bắt buộc có chứng từ
-  p_pending --> p_issued: Duyệt, trừ nguồn chi
-  p_pending --> p_draft: Từ chối kèm lý do
-  p_issued --> p_rev_pending: Lập phiếu đảo kèm lý do
-  p_rev_pending --> p_reversed: Duyệt theo hạn mức payment_reversal
-  p_rev_pending --> p_issued: Từ chối
+
+  [*] --> p_draft : Lập phiếu chi
+  p_draft --> [*] : Xóa nháp
+  p_draft --> p_pending : Sửa, đính chứng từ, trình duyệt
+  p_pending --> p_issued : Duyệt, trừ nguồn chi
+  p_pending --> p_draft : Từ chối, ghi lý do
+  p_issued --> p_rev_pending : Lập phiếu đảo
+  p_rev_pending --> p_reversed : Duyệt theo hạn mức
+  p_rev_pending --> p_issued : Từ chối
   note right of p_pending
     Người duyệt không là người lập
     Phiếu hoàn tiền luôn do Hiệu trưởng duyệt
   end note
+
+  class p_draft nhap
+  class p_pending cho
+  class p_issued dang
+  class p_rev_pending cho
+  class p_reversed huy
 ```
 
 Quyết định cấp duyệt theo hạn mức (dùng chung cho `payment`, `receipt_reversal`, `payment_reversal`, `invoice_adjustment`, `tuition_discount`, `purchase_request`; `payroll` lấy hạn mức của Trường chính):
 
 ```mermaid
 flowchart TD
-  A["Chứng từ trình duyệt với số tiền"] --> B{"Phiếu chi hoàn tiền?"}
-  B -->|"Có"| H["Chỉ Hiệu trưởng duyệt"]
-  B -->|"Không"| C{"Đơn vị có hạn mức đang hiệu lực cho loại chứng từ?"}
+  classDef batdau fill:#2e7d32,stroke:#1b5e20,color:#ffffff,font-weight:bold
+  classDef ketthuc fill:#37474f,stroke:#263238,color:#ffffff,font-weight:bold
+  classDef nguoi fill:#e3f2fd,stroke:#1565c0,color:#0d2a4a
+  classDef heth fill:#eceff1,stroke:#546e7a,color:#263238
+  classDef duyet fill:#fff3e0,stroke:#ef6c00,color:#4e2600
+  classDef hoi fill:#fffde7,stroke:#f9a825,color:#3e2f00
+  classDef bao fill:#fce4ec,stroke:#ad1457,color:#4a0020
+  classDef chan fill:#ffebee,stroke:#c62828,color:#5f0000
+  classDef dulieu fill:#ede7f6,stroke:#5e35b1,color:#1f0f4d
+
+  S(["Chứng từ trình duyệt"]):::batdau
+
+  subgraph P1["① Xác định cấp duyệt"]
+    B{"Phiếu chi hoàn tiền?"}:::hoi
+    C{"Có hạn mức hiệu lực?"}:::hoi
+    D{"Dưới hạn mức?"}:::hoi
+    B -->|"Không"| C
+    C -->|"Có"| D
+  end
+
+  subgraph P2["② Phê duyệt"]
+    H["<b>Hiệu trưởng</b><br/>Duyệt"]:::duyet
+    E["<b>Phó Hiệu trưởng, Hiệu trưởng</b><br/>Duyệt trong đơn vị"]:::duyet
+    F{"Duyệt?"}:::hoi
+    H --> F
+    E --> F
+  end
+
+  subgraph P3["③ Kết quả"]
+    G[("Ghi người duyệt, nhật ký")]:::dulieu
+    I["Từ chối<br/>bắt buộc lý do"]:::chan
+  end
+
+  K1(["Phát hành chứng từ"]):::ketthuc
+  K2(["Trả về người lập"]):::ketthuc
+
+  S --> B
+  B -->|"Có"| H
   C -->|"Không"| H
-  C -->|"Có"| D{"Số tiền nhỏ hơn hạn mức?"}
   D -->|"Không"| H
-  D -->|"Có"| E["Phó Hiệu trưởng trong phạm vi đơn vị hoặc Hiệu trưởng duyệt"]
-  H --> F{"Duyệt hay từ chối"}
-  E --> F
-  F -->|"Duyệt"| G["Ghi người duyệt, thời điểm, nhật ký, phát hành"]
-  F -->|"Từ chối"| I["Bắt buộc lý do, trả về người lập"]
+  D -->|"Có"| E
+  F -->|"Duyệt"| G --> K1
+  F -->|"Từ chối"| I --> K2
+
+  style P1 fill:#fafafa,stroke:#90a4ae
+  style P2 fill:#fafafa,stroke:#90a4ae
+  style P3 fill:#fafafa,stroke:#90a4ae
 ```
 
 ### Sơ đồ 3. Chấm công, nghỉ phép và tính lương
 
 ```mermaid
 flowchart TD
-  A["Nhân sự bấm Vào ca, Ra ca theo giờ máy chủ"] --> C["Bản ghi chấm công trong ngày"]
-  B["Phòng nhân sự nhập hoặc sửa giờ, có nhật ký"] --> C
-  D["Nhân sự gửi đơn nghỉ hoặc nhân sự lập hộ"] --> E{"Hiệu trưởng hoặc Phó Hiệu trưởng duyệt?"}
-  E -->|"Duyệt"| F["Ngày nghỉ theo loại nghỉ, trừ phép năm nếu có"]
-  E -->|"Từ chối"| G["Đơn bị từ chối"]
-  H["Lịch công tác đã công bố"] --> I["Ngày công tác tính đủ giờ chuẩn"]
-  J["Ngày lễ, học bù, nghỉ bù của lịch chung"] --> K
-  C --> K["Phòng nhân sự chốt bảng công từ mùng 1 tháng sau"]
-  F --> K
-  I --> K
-  K --> L{"Còn đơn nghỉ chờ duyệt?"}
-  L -->|"Có"| X["Chặn chốt"]
-  L -->|"Không"| M["Kỳ công đã chốt"]
-  M --> N["Đề nghị mở lại kèm lý do, Ban Giám hiệu duyệt"]
-  N --> K
-  M --> O["Đầu tháng M kế toán tính bảng lương toàn trường"]
-  O --> P{"Mọi đơn vị đã chốt công tháng M trừ 1?"}
-  P -->|"Không"| Y["Chặn tính, báo đơn vị chưa chốt"]
-  P -->|"Có"| Q["Trả trước tháng M cộng điều chỉnh công tháng M trừ 1, làm thêm giờ, thưởng, khấu trừ, thuế lũy tiến"]
-  Q --> R["Trình duyệt"]
-  R --> S{"Dưới hạn mức payroll của Trường chính?"}
-  S -->|"Có"| T["Phó Hiệu trưởng gán ở Trường chính hoặc Hiệu trưởng duyệt"]
-  S -->|"Không hoặc chưa đặt"| U["Hiệu trưởng duyệt"]
-  T --> V["Bảng lương đã duyệt, phiếu lương hiện cho nhân sự"]
-  U --> V
-  R -->|"Trả lại kèm lý do"| O
-  V --> W["Lập phiếu chi lương, trình duyệt như phiếu chi thường"]
-  V --> Z["Sai sót: khoản điều chỉnh cho tháng sau"]
+  classDef batdau fill:#2e7d32,stroke:#1b5e20,color:#ffffff,font-weight:bold
+  classDef ketthuc fill:#37474f,stroke:#263238,color:#ffffff,font-weight:bold
+  classDef nguoi fill:#e3f2fd,stroke:#1565c0,color:#0d2a4a
+  classDef heth fill:#eceff1,stroke:#546e7a,color:#263238
+  classDef duyet fill:#fff3e0,stroke:#ef6c00,color:#4e2600
+  classDef hoi fill:#fffde7,stroke:#f9a825,color:#3e2f00
+  classDef bao fill:#fce4ec,stroke:#ad1457,color:#4a0020
+  classDef chan fill:#ffebee,stroke:#c62828,color:#5f0000
+  classDef dulieu fill:#ede7f6,stroke:#5e35b1,color:#1f0f4d
+
+  S(["Ngày làm việc"]):::batdau
+
+  subgraph P1["① Ghi công hằng ngày"]
+    A1["<b>Nhân sự</b><br/>Vào ca, ra ca"]:::nguoi
+    A2["<b>Phòng nhân sự</b><br/>Nhập, sửa giờ, có nhật ký"]:::nguoi
+    A3[("Bản ghi chấm công")]:::dulieu
+    A1 --> A3
+    A2 --> A3
+  end
+
+  subgraph P2["② Nghỉ phép, công tác"]
+    B1["<b>Nhân sự</b><br/>Gửi đơn nghỉ, lập hộ"]:::nguoi
+    B2["<b>Ban Giám hiệu</b><br/>Duyệt đơn nghỉ"]:::duyet
+    B3[("Ngày nghỉ, trừ phép năm")]:::dulieu
+    B4["Đơn bị từ chối"]:::chan
+    B5["<b>Nhân sự, quản lý</b><br/>Công bố lịch công tác"]:::nguoi
+    B6[["<b>Hệ thống</b><br/>Ngày lễ, học bù, nghỉ bù"]]:::heth
+    B1 --> B2
+    B2 -->|"Duyệt"| B3
+    B2 -->|"Từ chối"| B4
+  end
+
+  subgraph P3["③ Chốt bảng công"]
+    C1["<b>Phòng nhân sự</b><br/>Chốt công từ mùng 1"]:::nguoi
+    C2{"Còn đơn chờ duyệt?"}:::hoi
+    C3["Chặn chốt"]:::chan
+    C4[("Kỳ công đã chốt")]:::dulieu
+    C5["<b>Ban Giám hiệu</b><br/>Duyệt mở lại"]:::duyet
+    C1 --> C2
+    C2 -->|"Có"| C3
+    C2 -->|"Không"| C4
+    C4 -.->|"đề nghị mở lại"| C5 -.-> C1
+  end
+
+  K(["Dùng để tính lương"]):::ketthuc
+
+  S --> A1
+  S --> A2
+  S --> B1
+  A3 --> C1
+  B3 --> C1
+  B5 --> C1
+  B6 --> C1
+  C4 --> K
+
+  style P1 fill:#fafafa,stroke:#90a4ae
+  style P2 fill:#fafafa,stroke:#90a4ae
+  style P3 fill:#fafafa,stroke:#90a4ae
+```
+
+### Sơ đồ 3 (tiếp). Tính, duyệt và chi lương
+
+```mermaid
+flowchart TD
+  classDef batdau fill:#2e7d32,stroke:#1b5e20,color:#ffffff,font-weight:bold
+  classDef ketthuc fill:#37474f,stroke:#263238,color:#ffffff,font-weight:bold
+  classDef nguoi fill:#e3f2fd,stroke:#1565c0,color:#0d2a4a
+  classDef heth fill:#eceff1,stroke:#546e7a,color:#263238
+  classDef duyet fill:#fff3e0,stroke:#ef6c00,color:#4e2600
+  classDef hoi fill:#fffde7,stroke:#f9a825,color:#3e2f00
+  classDef bao fill:#fce4ec,stroke:#ad1457,color:#4a0020
+  classDef chan fill:#ffebee,stroke:#c62828,color:#5f0000
+  classDef dulieu fill:#ede7f6,stroke:#5e35b1,color:#1f0f4d
+
+  S(["Đầu tháng M"]):::batdau
+
+  subgraph P4["① Tính lương tháng M"]
+    D1["<b>Kế toán</b><br/>Tính bảng lương toàn trường"]:::nguoi
+    D2{"Mọi đơn vị chốt công M−1?"}:::hoi
+    D3["Chặn tính<br/>báo đơn vị chưa chốt"]:::chan
+    D4[["<b>Hệ thống</b><br/>Trả trước, điều chỉnh, thuế"]]:::heth
+    D5["<b>Kế toán</b><br/>Trình duyệt"]:::nguoi
+    D1 --> D2
+    D2 -->|"Không"| D3
+    D2 -->|"Có"| D4 --> D5
+  end
+
+  subgraph P5["② Duyệt theo hạn mức"]
+    E1{"Dưới hạn mức payroll?"}:::hoi
+    E2["<b>Phó Hiệu trưởng, Hiệu trưởng</b><br/>Duyệt"]:::duyet
+    E3["<b>Hiệu trưởng</b><br/>Duyệt"]:::duyet
+    E7{"Kết quả?"}:::hoi
+    E1 -->|"Có"| E2 --> E7
+    E1 -->|"Không, chưa đặt"| E3 --> E7
+  end
+
+  subgraph P6["③ Phát hành, chi lương"]
+    E4>"Phiếu lương hiện cho nhân sự"]:::bao
+    E5["<b>Kế toán</b><br/>Lập phiếu chi lương"]:::nguoi
+    E6["<b>Kế toán</b><br/>Khoản điều chỉnh tháng sau"]:::nguoi
+    E4 --> E5
+    E4 -.->|"sai sót"| E6
+  end
+
+  K(["Phiếu chi lương trình duyệt"]):::ketthuc
+
+  S --> D1
+  D5 --> E1
+  E7 -->|"Duyệt"| E4
+  E7 -.->|"Trả lại, ghi lý do"| D1
+  E5 --> K
+
+  style P4 fill:#fafafa,stroke:#90a4ae
+  style P5 fill:#fafafa,stroke:#90a4ae
+  style P6 fill:#fafafa,stroke:#90a4ae
 ```
 
 ### Sơ đồ 4. Kiểm thực ba bước và truy xuất nguồn gốc
 
 ```mermaid
 flowchart TD
-  A["Bếp lập phiếu đi chợ, nhà cung cấp kèm cảnh báo giấy ATTP"] --> B["Xác nhận nhập phiếu"]
-  B --> C["Mỗi dòng tạo một lô chờ kiểm tra"]
-  A2["Nhập tay lô hàng theo hợp đồng, tài trợ"] --> C
-  C --> D["Bước 1: kiểm từng lô nhập trong ngày"]
-  D --> E{"Lô đạt?"}
-  E -->|"Đạt"| F["Lô Đạt, đã nhận"]
-  E -->|"Không đạt"| G["Lô Không đạt, ghi cách xử lý trả lại, hủy, khác"]
-  F --> H["Bước 2: kiểm từng món khi chế biến, ghi lô đã dùng"]
-  H --> I{"Lô đã đạt bước 1, nhập không sau ngày, chưa hết hạn?"}
-  I -->|"Không"| H
-  I -->|"Có"| J["Bước 3: kiểm món trước khi ăn"]
-  J --> K["Xác nhận phiếu, phiếu bị khóa"]
-  J --> L["Lưu mẫu mỗi món, bữa từ 30 suất phải lưu"]
-  L --> M{"Có phản ánh, nghi ngộ độc?"}
-  M -->|"Có"| N["Giữ mẫu, không hủy được"]
-  M -->|"Không"| O["Sau 24 giờ hủy mẫu, ghi người hủy"]
-  K --> P["Truy xuất theo ngày và món"]
-  N --> P
-  P --> Q["Lô, nhà cung cấp, giấy ATTP còn hiệu lực ngày đó, kết quả ba bước, mẫu lưu"]
-  Q --> R{"Có dữ liệu bước 2?"}
-  R -->|"Có"| S["Kết quả Đã ghi ở bước 2"]
-  R -->|"Không"| T["Suy ra theo nguyên liệu, cần đối chiếu"]
-  F --> U["Đóng lô: dùng hết hoặc hủy kèm lý do"]
+  classDef batdau fill:#2e7d32,stroke:#1b5e20,color:#ffffff,font-weight:bold
+  classDef ketthuc fill:#37474f,stroke:#263238,color:#ffffff,font-weight:bold
+  classDef nguoi fill:#e3f2fd,stroke:#1565c0,color:#0d2a4a
+  classDef heth fill:#eceff1,stroke:#546e7a,color:#263238
+  classDef duyet fill:#fff3e0,stroke:#ef6c00,color:#4e2600
+  classDef hoi fill:#fffde7,stroke:#f9a825,color:#3e2f00
+  classDef bao fill:#fce4ec,stroke:#ad1457,color:#4a0020
+  classDef chan fill:#ffebee,stroke:#c62828,color:#5f0000
+  classDef dulieu fill:#ede7f6,stroke:#5e35b1,color:#1f0f4d
+
+  S(["Hàng về bếp"]):::batdau
+
+  subgraph P1["① Nhập lô hàng"]
+    A1["<b>Bếp</b><br/>Lập phiếu đi chợ, chọn nhà cung cấp"]:::nguoi
+    A0>"Cảnh báo giấy ATTP"]:::bao
+    A2["<b>Bếp</b><br/>Xác nhận nhập phiếu"]:::nguoi
+    A3["<b>Bếp</b><br/>Nhập tay lô hợp đồng, tài trợ"]:::nguoi
+    A4[("Mỗi dòng một lô chờ kiểm")]:::dulieu
+    A1 -.-> A0
+    A1 --> A2 --> A4
+    A3 --> A4
+  end
+
+  subgraph P2["② Bước 1: kiểm lô nhập"]
+    B1["<b>Người kiểm thực</b><br/>Kiểm từng lô trong ngày"]:::nguoi
+    B2{"Lô đạt?"}:::hoi
+    B3["Không đạt<br/>trả lại, hủy, khác"]:::chan
+    B4[("Lô đạt, đã nhận")]:::dulieu
+    B5["<b>Bếp</b><br/>Đóng lô: dùng hết, hủy"]:::nguoi
+    B1 --> B2
+    B2 -->|"Không"| B3
+    B2 -->|"Có"| B4
+    B4 -.-> B5
+  end
+
+  subgraph P3["③ Bước 2, bước 3"]
+    C1["<b>Người kiểm thực</b><br/>Kiểm món chế biến, ghi lô"]:::nguoi
+    C2{"Lô đạt, chưa hết hạn?"}:::hoi
+    C3["<b>Người kiểm thực</b><br/>Kiểm món trước khi ăn"]:::nguoi
+    C4[("Xác nhận, phiếu bị khóa")]:::dulieu
+    C1 --> C2
+    C2 -.->|"Không, chọn lô khác"| C1
+    C2 -->|"Có"| C3 --> C4
+  end
+
+  subgraph P4["④ Lưu, hủy mẫu"]
+    D1["<b>Bếp</b><br/>Lưu mẫu mỗi món"]:::nguoi
+    D2{"Có phản ánh, nghi ngộ độc?"}:::hoi
+    D3[("Giữ mẫu, không hủy được")]:::dulieu
+    D4["<b>Bếp</b><br/>Hủy mẫu sau 24 giờ"]:::nguoi
+    D1 --> D2
+    D2 -->|"Có"| D3
+    D2 -->|"Không"| D4
+  end
+
+  subgraph P5["⑤ Truy xuất nguồn gốc"]
+    E1["<b>Người kiểm thực</b><br/>Tra theo ngày, món"]:::nguoi
+    E2[["<b>Hệ thống</b><br/>Lô, nhà cung cấp, giấy ATTP, mẫu"]]:::heth
+    E3{"Có dữ liệu bước 2?"}:::hoi
+    E4>"Đã ghi ở bước 2"]:::bao
+    E5>"Suy ra, cần đối chiếu"]:::bao
+    E1 --> E2 --> E3
+    E3 -->|"Có"| E4
+    E3 -->|"Không"| E5
+  end
+
+  K(["Kết quả truy xuất"]):::ketthuc
+
+  S --> A1
+  S --> A3
+  A4 --> B1
+  B4 --> C1
+  C3 --> D1
+  C4 --> E1
+  D3 --> E1
+  E4 --> K
+  E5 --> K
+
+  style P1 fill:#fafafa,stroke:#90a4ae
+  style P2 fill:#fafafa,stroke:#90a4ae
+  style P3 fill:#fafafa,stroke:#90a4ae
+  style P4 fill:#fafafa,stroke:#90a4ae
+  style P5 fill:#fafafa,stroke:#90a4ae
 ```
 
 ### Sơ đồ 5. Đăng hoạt động, duyệt và công bố cho phụ huynh
 
 ```mermaid
 sequenceDiagram
-  participant GV as Giáo viên
-  participant HT as Hệ thống
-  participant QL as Quản lý đơn vị hoặc Ban Giám hiệu
-  participant PH as Phụ huynh
-  GV->>HT: Tạo hoạt động của lớp, lưu nháp hoặc gửi duyệt
-  GV->>HT: Tải tối đa 30 ảnh, gắn thẻ trẻ
-  HT-->>GV: Cảnh báo ảnh có trẻ chưa đồng ý hình ảnh
-  GV->>HT: Gửi trình duyệt
-  HT-->>QL: Thông báo có hoạt động chờ duyệt
-  alt Từ chối
-    QL->>HT: Từ chối kèm lý do
-    HT-->>GV: Hoạt động bị từ chối, sửa xong về nháp rồi gửi lại
-  else Duyệt
-    QL->>HT: Duyệt và công bố
-    HT-->>PH: Thông báo hoạt động mới của lớp
-    PH->>HT: Xem hoạt động, ảnh không có trẻ chưa đồng ý
-    PH->>HT: Thích, bình luận
-    HT-->>GV: Thông báo có bình luận
-    QL->>HT: Đăng lên Fanpage nếu phạm vi toàn trường hoặc đơn vị
+  autonumber
+  box rgb(227,242,253) Nhà trường
+    actor GV as Giáo viên
+    actor QL as Quản lý, Ban Giám hiệu
+  end
+  box rgb(236,239,241) Hệ thống
+    participant HT as Hệ thống
+  end
+  box rgb(252,228,236) Gia đình
+    actor PH as Phụ huynh
+  end
+  rect rgb(255,253,231)
+    Note over GV,HT: Soạn hoạt động
+    GV->>HT: Tạo hoạt động, lưu nháp
+    GV->>HT: Tải tối đa 30 ảnh, gắn thẻ trẻ
+    HT-->>GV: Cảnh báo trẻ chưa đồng ý hình ảnh
+    GV->>HT: Gửi trình duyệt
+    HT-->>QL: Báo có hoạt động chờ duyệt
+  end
+  rect rgb(255,253,231)
+    Note over GV,PH: Duyệt và công bố
+    alt Từ chối
+      QL->>HT: Từ chối kèm lý do
+      HT-->>GV: Báo bị từ chối, sửa về nháp, gửi lại
+    else Duyệt
+      QL->>HT: Duyệt và công bố
+      HT-->>PH: Thông báo hoạt động mới
+      PH->>HT: Xem, không thấy ảnh trẻ chưa đồng ý
+      PH->>HT: Thích, bình luận
+      HT-->>GV: Báo có bình luận
+      QL->>HT: Đăng Fanpage nếu phạm vi trường, đơn vị
+    end
   end
   opt Cần gỡ
     QL->>HT: Ẩn hoạt động kèm lý do
@@ -662,61 +942,137 @@ sequenceDiagram
 
 ```mermaid
 flowchart TD
-  A["Nhân viên tuyển sinh lập đợt nháp: đơn vị, chỉ tiêu, thời gian nhận"] --> B["Mở đợt khi hạn nhận chưa qua"]
-  B --> C["Soạn và công bố tin tuyển sinh"]
-  C --> D["Phụ huynh nộp hồ sơ trực tuyến không cần tài khoản"]
-  B --> E["Nhân viên nhập hộ hồ sơ"]
-  D --> F["Hồ sơ đã nộp"]
-  F --> G{"Đủ điều kiện tối thiểu, có khai dị ứng?"}
-  G -->|"Không"| F
-  G -->|"Có"| H["Hồ sơ đã tiếp nhận"]
-  E --> H
-  H --> I{"Quản lý đơn vị xét"}
-  I -->|"Không đạt, ghi lý do"| J["Hồ sơ không đạt"]
-  I -->|"Đạt, chưa vượt chỉ tiêu"| K["Hồ sơ đạt"]
-  K --> L["Chuyển thành hồ sơ học sinh: lớp, giấy khai sinh, số định danh, quan hệ"]
-  L --> M{"Người chuyển có quyền duyệt hồ sơ ở đơn vị của lớp?"}
-  M -->|"Có"| N["Duyệt và phân lớp ngay, tạo tài khoản phụ huynh"]
-  M -->|"Không"| O["Hồ sơ học sinh chờ quản lý đơn vị duyệt theo QT-01"]
-  N --> P["Hồ sơ tuyển sinh đã chuyển"]
-  O --> P
-  D --> Q["Phụ huynh tra cứu bằng mã hồ sơ và số điện thoại"]
-  B --> R["Đóng đợt: thôi nhận trực tuyến, hồ sơ đã nhận vẫn xét"]
+  classDef batdau fill:#2e7d32,stroke:#1b5e20,color:#ffffff,font-weight:bold
+  classDef ketthuc fill:#37474f,stroke:#263238,color:#ffffff,font-weight:bold
+  classDef nguoi fill:#e3f2fd,stroke:#1565c0,color:#0d2a4a
+  classDef heth fill:#eceff1,stroke:#546e7a,color:#263238
+  classDef duyet fill:#fff3e0,stroke:#ef6c00,color:#4e2600
+  classDef hoi fill:#fffde7,stroke:#f9a825,color:#3e2f00
+  classDef bao fill:#fce4ec,stroke:#ad1457,color:#4a0020
+  classDef chan fill:#ffebee,stroke:#c62828,color:#5f0000
+  classDef dulieu fill:#ede7f6,stroke:#5e35b1,color:#1f0f4d
+
+  S(["Mùa tuyển sinh"]):::batdau
+
+  subgraph P1["① Mở đợt"]
+    A1["<b>Nhân viên tuyển sinh</b><br/>Lập đợt nháp, chỉ tiêu"]:::nguoi
+    A2["<b>Nhân viên tuyển sinh</b><br/>Mở đợt, hạn nhận chưa qua"]:::nguoi
+    A3>"Công bố tin tuyển sinh"]:::bao
+    A4["<b>Nhân viên tuyển sinh</b><br/>Đóng đợt, vẫn xét hồ sơ"]:::nguoi
+    A1 --> A2 --> A3
+    A2 -.->|"hết hạn nhận"| A4
+  end
+
+  subgraph P2["② Nhận hồ sơ"]
+    B1["<b>Phụ huynh</b><br/>Nộp trực tuyến, không tài khoản"]:::nguoi
+    B2["<b>Nhân viên tuyển sinh</b><br/>Nhập hộ hồ sơ"]:::nguoi
+    B3[("Hồ sơ đã nộp")]:::dulieu
+    B4{"Đủ điều kiện tối thiểu?"}:::hoi
+    B5>"Tra cứu mã hồ sơ, số điện thoại"]:::bao
+    B1 --> B3 --> B4
+    B4 -.->|"Không"| B3
+    B1 -.-> B5
+  end
+
+  subgraph P3["③ Xét hồ sơ"]
+    C1[("Hồ sơ đã tiếp nhận")]:::dulieu
+    C2["<b>Quản lý đơn vị</b><br/>Xét theo chỉ tiêu"]:::duyet
+    C3["Không đạt<br/>ghi lý do"]:::chan
+    C4[("Hồ sơ đạt")]:::dulieu
+    C1 --> C2
+    C2 -->|"Không đạt"| C3
+    C2 -->|"Đạt"| C4
+  end
+
+  subgraph P4["④ Chuyển hồ sơ học sinh"]
+    D1["<b>Nhân viên, quản lý</b><br/>Chuyển thành hồ sơ học sinh"]:::nguoi
+    D2{"Có quyền duyệt ở đơn vị lớp?"}:::hoi
+    D3[["<b>Hệ thống</b><br/>Phân lớp, tạo tài khoản phụ huynh"]]:::heth
+    D4["<b>Quản lý đơn vị</b><br/>Duyệt hồ sơ theo QT-01"]:::duyet
+    D1 --> D2
+    D2 -->|"Có"| D3
+    D2 -->|"Không"| D4
+  end
+
+  K1(["Hồ sơ đã chuyển"]):::ketthuc
+  K2(["Hồ sơ không đạt"]):::ketthuc
+
+  S --> A1
+  A3 --> B1
+  A2 --> B2
+  B4 -->|"Có"| C1
+  B2 --> C1
+  C3 --> K2
+  C4 --> D1
+  D3 --> K1
+  D4 --> K1
+
+  style P1 fill:#fafafa,stroke:#90a4ae
+  style P2 fill:#fafafa,stroke:#90a4ae
+  style P3 fill:#fafafa,stroke:#90a4ae
+  style P4 fill:#fafafa,stroke:#90a4ae
 ```
 
 ```mermaid
 stateDiagram-v2
+  direction LR
+  classDef nhap fill:#eceff1,stroke:#546e7a,color:#263238
+  classDef cho fill:#fff3e0,stroke:#ef6c00,color:#4e2600
+  classDef dang fill:#e3f2fd,stroke:#1565c0,color:#0d2a4a
+  classDef xong fill:#e8f5e9,stroke:#2e7d32,color:#1b3d1d,font-weight:bold
+  classDef huy fill:#ffebee,stroke:#c62828,color:#5f0000
+
   state "Đã nộp" as submitted
   state "Đã tiếp nhận" as received
   state "Đạt" as passed
   state "Không đạt" as rejected
   state "Đã chuyển" as converted
-  [*] --> submitted: Nộp trực tuyến
-  [*] --> received: Nhân viên nhập hộ
-  submitted --> received: Tiếp nhận
-  submitted --> rejected: Không đạt
-  received --> passed: Xét đạt trong chỉ tiêu
-  received --> rejected: Không đạt kèm lý do
-  passed --> converted: Chuyển thành hồ sơ học sinh
+
+  [*] --> submitted : Nộp trực tuyến
+  [*] --> received : Nhân viên nhập hộ
+  submitted --> received : Tiếp nhận
+  submitted --> rejected : Không đạt
+  received --> passed : Đạt trong chỉ tiêu
+  received --> rejected : Không đạt, ghi lý do
+  passed --> converted : Chuyển hồ sơ học sinh
   converted --> [*]
   rejected --> [*]
+
+  class submitted nhap
+  class received cho
+  class passed dang
+  class rejected huy
+  class converted xong
 ```
 
 ### Sơ đồ 7. Đề nghị mua hàng, phiếu mua hàng và nợ nhà cung cấp
 
 ```mermaid
 stateDiagram-v2
+  direction LR
+  classDef nhap fill:#eceff1,stroke:#546e7a,color:#263238
+  classDef cho fill:#fff3e0,stroke:#ef6c00,color:#4e2600
+  classDef dang fill:#e3f2fd,stroke:#1565c0,color:#0d2a4a
+  classDef xong fill:#e8f5e9,stroke:#2e7d32,color:#1b3d1d,font-weight:bold
+  classDef huy fill:#ffebee,stroke:#c62828,color:#5f0000
+
   state "Chờ duyệt" as pending
   state "Đã duyệt" as approved
   state "Từ chối" as rejected
   state "Đã lập phiếu mua hàng" as ordered
-  [*] --> pending: Nhân sự lập đề nghị, trình ngay
-  pending --> approved: Duyệt theo hạn mức purchase_request
-  pending --> rejected: Từ chối kèm lý do
-  approved --> ordered: Lập phiếu mua hàng PMH
+
+  [*] --> pending : Lập đề nghị, trình ngay
+  pending --> approved : Duyệt theo hạn mức
+  pending --> rejected : Từ chối, ghi lý do
+  approved --> ordered : Lập phiếu mua hàng PMH
   ordered --> [*]
   note right of ordered
-    Phiếu mua hàng: đã đặt sang đã nhận hàng, tăng tồn kho
-    Thanh toán: chờ thanh toán sang đã thanh toán khi gắn phiếu chi
+    Phiếu mua hàng: đã đặt, đã nhận hàng, tăng tồn kho
+    Thanh toán: chờ, đã thanh toán khi gắn phiếu chi
   end note
+
+  class pending cho
+  class approved xong
+  class rejected huy
+  class ordered dang
 ```

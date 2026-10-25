@@ -143,58 +143,77 @@ Tổng số mã quyền seed ở định danh: 269 (gồm 54 quyền gốc `Pxx.
 **Sơ đồ kiến trúc**
 
 ```mermaid
-flowchart LR
-  subgraph GIAODIEN["Tầng giao diện"]
-    PORTAL["Cổng quản trị apps/portal"]
-    TEACHER["Ứng dụng giáo viên apps/teacher"]
-    PARENT["Ứng dụng phụ huynh apps/parent"]
-    PLATFORM["Cổng vận hành nền tảng apps/platform"]
+flowchart TD
+  classDef batdau fill:#2e7d32,stroke:#1b5e20,color:#ffffff,font-weight:bold
+  classDef ketthuc fill:#37474f,stroke:#263238,color:#ffffff,font-weight:bold
+  classDef nguoi fill:#e3f2fd,stroke:#1565c0,color:#0d2a4a
+  classDef heth fill:#eceff1,stroke:#546e7a,color:#263238
+  classDef duyet fill:#fff3e0,stroke:#ef6c00,color:#4e2600
+  classDef hoi fill:#fffde7,stroke:#f9a825,color:#3e2f00
+  classDef bao fill:#fce4ec,stroke:#ad1457,color:#4a0020
+  classDef chan fill:#ffebee,stroke:#c62828,color:#5f0000
+  classDef dulieu fill:#ede7f6,stroke:#5e35b1,color:#1f0f4d
+
+  S(["Người dùng mở ứng dụng"]):::batdau
+
+  subgraph P1["① Tầng giao diện"]
+    PORTAL["<b>Cổng quản trị</b><br/>apps/portal"]:::nguoi
+    TEACHER["<b>Ứng dụng giáo viên</b><br/>apps/teacher"]:::nguoi
+    PARENT["<b>Ứng dụng phụ huynh</b><br/>apps/parent"]:::nguoi
+    PLATFORM["<b>Cổng nền tảng</b><br/>apps/platform"]:::nguoi
   end
-  WEB["Caddy cổng web"]
-  subgraph DICHVU["Tầng dịch vụ"]
-    IDENTITY["Dịch vụ định danh apps/identity"]
-    API["Máy chủ API apps/api"]
-    JOBS["Việc nền trong API: gửi thông báo, xuất nền, nhắc việc, lưu trữ"]
-    WORKER["Tiến trình nền apps/worker: máy xếp thời khóa biểu"]
+
+  WEB[["<b>Caddy</b><br/>Cổng web chia tuyến"]]:::heth
+
+  subgraph P2["② Tầng dịch vụ"]
+    IDENTITY[["<b>Định danh</b><br/>apps/identity"]]:::heth
+    API[["<b>Máy chủ API</b><br/>apps/api"]]:::heth
+    JOBS[["<b>Việc nền trong API</b><br/>Thông báo, xuất, nhắc, lưu trữ"]]:::heth
+    WORKER[["<b>Tiến trình nền</b><br/>apps/worker, xếp TKB"]]:::heth
   end
-  subgraph DULIEU["Tầng dữ liệu"]
-    IDDB[("CSDL định danh")]
-    SYSDB[("CSDL hệ thống")]
-    YEARDB[("CSDL năm học, mỗi năm một CSDL")]
-    PLATDB[("CSDL nền tảng, khi nhiều trường")]
-    REDIS[("Redis")]
-    S3[("Kho tệp S3, SeaweedFS")]
+
+  subgraph P3["③ Tầng dữ liệu"]
+    IDDB[("CSDL định danh")]:::dulieu
+    PLATDB[("CSDL nền tảng<br/>khi nhiều trường")]:::dulieu
+    SYSDB[("CSDL hệ thống")]:::dulieu
+    YEARDB[("CSDL năm học<br/>mỗi năm một CSDL")]:::dulieu
+    REDIS[("Redis")]:::dulieu
+    S3[("Kho tệp S3<br/>SeaweedFS")]:::dulieu
   end
-  subgraph NGOAI["Kết nối ngoài"]
-    ESMS["eSMS tin nhắn"]
-    ZALO["Zalo OA"]
-    FB["Facebook Fanpage"]
-    PAY["PayOS, SePay, Casso, VNPay"]
-    PARTNER["Đối tác đọc bằng khóa API"]
+
+  subgraph P4["④ Kết nối ngoài"]
+    ESMS>"eSMS tin nhắn"]:::bao
+    ZALO>"Zalo OA"]:::bao
+    FB>"Facebook Fanpage"]:::bao
+    PAY[["<b>Cổng thanh toán</b><br/>PayOS, SePay, Casso, VNPay"]]:::heth
+    PARTNER["<b>Đối tác</b><br/>Đọc bằng khóa API"]:::nguoi
   end
-  PORTAL --> WEB
-  TEACHER --> WEB
-  PARENT --> WEB
-  PLATFORM --> WEB
+
+  S --> PORTAL & TEACHER & PARENT & PLATFORM
+  PORTAL & TEACHER & PARENT & PLATFORM --> WEB
   WEB -->|"/api/v1/auth"| IDENTITY
   WEB -->|"/api/v1 còn lại"| API
-  API -->|"hỏi quyền hiện hành mỗi yêu cầu"| IDENTITY
+  API -->|"hỏi quyền mỗi yêu cầu"| IDENTITY
   IDENTITY --> IDDB
   IDENTITY --> PLATDB
-  IDENTITY --> ESMS
+  API --> PLATDB
   API --> SYSDB
   API --> YEARDB
-  API --> PLATDB
-  API --> REDIS
+  API -->|"đẩy lần xếp"| REDIS
   API --> S3
   API --> JOBS
+  WORKER -->|"BLPOP, ghi tiến độ"| REDIS
+  IDENTITY -.->|"mã OTP"| ESMS
   JOBS --> ESMS
   JOBS --> ZALO
-  API --> FB
-  PAY -->|"webhook tiền vào"| API
-  PARTNER -->|"x-api-key"| API
-  API -->|"đẩy lần xếp"| REDIS
-  WORKER -->|"BLPOP, ghi tiến độ"| REDIS
+  API -.-> FB
+  PAY -.->|"webhook tiền vào"| API
+  PARTNER -.->|"x-api-key"| API
+
+  style P1 fill:#fafafa,stroke:#90a4ae
+  style P2 fill:#fafafa,stroke:#90a4ae
+  style P3 fill:#fafafa,stroke:#90a4ae
+  style P4 fill:#fafafa,stroke:#90a4ae
 ```
 
 ### 1.4 Thống kê nhanh
@@ -322,40 +341,57 @@ Dưới thanh đầu trang là menu ngang đánh số của phân hệ đang ch�
 
 ```mermaid
 sequenceDiagram
-  actor ND as Người dùng
-  participant CT as Cổng quản trị
-  participant DD as Dịch vụ định danh
-  participant RD as Redis
-  participant API as Máy chủ API
-  ND->>CT: Mở trang đăng nhập
-  CT->>DD: GET auth login-options và public login-info
-  DD-->>CT: Đường dây nóng, có luôn hiện mã xác nhận
-  ND->>CT: Nhập tên đăng nhập, mật khẩu
-  CT->>DD: POST auth login kênh portal
-  DD->>RD: Kiểm giới hạn yêu cầu theo địa chỉ mạng
-  alt Tài khoản đã sai đủ 3 lần hoặc luôn hiện mã
-    DD-->>CT: Lỗi ô captcha
-    CT->>DD: POST auth captcha lấy ảnh mới
-    ND->>CT: Nhập mã xác nhận rồi gửi lại
+  autonumber
+  box rgb(227,242,253) Người dùng
+    actor ND as Người dùng
   end
-  DD->>DD: Kiểm hiệu lực, trạng thái, khóa tạm 15 phút
-  DD->>DD: So mật khẩu argon2id hoặc mật khẩu mặc định chung
-  alt Sai mật khẩu
-    DD->>DD: Tăng số lần sai, đủ 5 lần thì khóa 15 phút
-    DD-->>CT: 401 thông báo chung
-  else Đúng mật khẩu
-    DD->>DD: Kiểm lâu không đăng nhập quá số ngày cấu hình
-    DD->>DD: Tạo phiên, ký mã phiên 15 phút
-    DD-->>CT: Mã phiên, cookie mã làm mới 8 giờ, cờ bắt buộc đổi mật khẩu
+  box rgb(236,239,241) Hệ thống
+    participant CT as Cổng quản trị
+    participant DD as Dịch vụ định danh
+    participant RD as Redis
+    participant API as Máy chủ API
   end
-  alt Bắt buộc đổi mật khẩu
-    CT->>ND: Chuyển trang Đổi mật khẩu
-  else Bình thường
-    CT->>DD: GET auth me
-    DD-->>CT: Vai trò, quyền, phân hệ, phạm vi cấp, cấp đang làm việc
-    CT->>API: Gọi API kèm mã phiên
-    API->>DD: Hỏi quyền hiện hành
-    API-->>CT: Dữ liệu trong phạm vi đơn vị
+  rect rgb(255,253,231)
+    Note over ND,DD: ① Mở trang đăng nhập
+    ND->>CT: Mở trang đăng nhập
+    CT->>DD: GET login-options, login-info
+    DD-->>CT: Đường dây nóng, cờ luôn hiện mã
+  end
+  rect rgb(255,253,231)
+    Note over ND,RD: ② Gửi đăng nhập
+    ND->>CT: Nhập tên đăng nhập, mật khẩu
+    CT->>DD: POST auth login, kênh portal
+    DD->>RD: Kiểm giới hạn theo địa chỉ mạng
+    opt Đã sai 3 lần hoặc luôn hiện mã
+      DD-->>CT: Lỗi ô captcha
+      CT->>DD: POST auth captcha, lấy ảnh mới
+      ND->>CT: Nhập mã xác nhận, gửi lại
+    end
+  end
+  rect rgb(255,253,231)
+    Note over CT,DD: ③ Kiểm tài khoản, mật khẩu
+    DD->>DD: Kiểm hiệu lực, trạng thái, khóa tạm
+    DD->>DD: So mật khẩu argon2id hoặc mặc định
+    alt Sai mật khẩu
+      DD->>DD: Tăng số lần sai, đủ 5 thì khóa 15 phút
+      DD-->>CT: 401 thông báo chung
+    else Đúng mật khẩu
+      DD->>DD: Kiểm lâu không đăng nhập
+      DD->>DD: Tạo phiên, ký mã phiên 15 phút
+      DD-->>CT: Mã phiên, cookie làm mới 8 giờ, cờ đổi mật khẩu
+    end
+  end
+  rect rgb(255,253,231)
+    Note over ND,API: ④ Vào cổng
+    alt Bắt buộc đổi mật khẩu
+      CT->>ND: Chuyển trang Đổi mật khẩu
+    else Bình thường
+      CT->>DD: GET auth me
+      DD-->>CT: Vai trò, quyền, phân hệ, cấp học
+      CT->>API: Gọi API kèm mã phiên
+      API->>DD: Hỏi quyền hiện hành
+      API-->>CT: Dữ liệu trong phạm vi đơn vị
+    end
   end
 ```
 
@@ -363,22 +399,62 @@ sequenceDiagram
 
 ```mermaid
 flowchart TD
-  A["Đăng nhập thành công"] --> B["GET auth me"]
-  B --> C["Danh sách vai trò còn hiệu lực"]
-  C --> D{"Có nhóm nào không bỏ phân hệ này?"}
-  D -->|"Không"| X1["Ẩn phân hệ khỏi ô chọn"]
-  D -->|"Có"| E["Lọc theo cấp học đang làm việc"]
-  E --> F{"Phân hệ hoặc mục thuộc cấp đang bật?"}
-  F -->|"Không"| X2["Ẩn mục, nhóm, phân hệ"]
-  F -->|"Có"| G["Kiểm điều kiện quyền từng mục MENU_PERMISSION_RULES"]
-  G --> H{"Còn ít nhất một mục?"}
-  H -->|"Không"| X3["Bỏ phân hệ khỏi ô chọn"]
-  H -->|"Có"| I["Ô chọn phân hệ trên thanh đầu trang"]
-  I --> J["Người dùng chọn phân hệ, lưu ở trình duyệt"]
-  J --> K["Menu ngang đánh số của phân hệ"]
-  K --> L["Mở trang, máy chủ kiểm quyền lần nữa"]
-  M["Mở trang bằng đường dẫn, chuông, truy cập nhanh"] --> N["Tự chuyển sang phân hệ chứa trang"]
-  N --> K
+  classDef batdau fill:#2e7d32,stroke:#1b5e20,color:#ffffff,font-weight:bold
+  classDef ketthuc fill:#37474f,stroke:#263238,color:#ffffff,font-weight:bold
+  classDef nguoi fill:#e3f2fd,stroke:#1565c0,color:#0d2a4a
+  classDef heth fill:#eceff1,stroke:#546e7a,color:#263238
+  classDef duyet fill:#fff3e0,stroke:#ef6c00,color:#4e2600
+  classDef hoi fill:#fffde7,stroke:#f9a825,color:#3e2f00
+  classDef bao fill:#fce4ec,stroke:#ad1457,color:#4a0020
+  classDef chan fill:#ffebee,stroke:#c62828,color:#5f0000
+  classDef dulieu fill:#ede7f6,stroke:#5e35b1,color:#1f0f4d
+
+  S(["Đăng nhập thành công"]):::batdau
+
+  subgraph P1["① Lấy quyền"]
+    B[["<b>Cổng</b><br/>Gọi GET auth me"]]:::heth
+    C[["<b>Định danh</b><br/>Trả vai trò còn hiệu lực"]]:::heth
+    B --> C
+  end
+
+  subgraph P2["② Lọc phân hệ, mục"]
+    D{"Có nhóm không bỏ<br/>phân hệ này?"}:::hoi
+    X1["Ẩn phân hệ<br/>khỏi ô chọn"]:::chan
+    E[["<b>Cổng</b><br/>Lọc theo cấp đang làm việc"]]:::heth
+    F{"Thuộc cấp<br/>đang bật?"}:::hoi
+    X2["Ẩn mục, nhóm,<br/>phân hệ"]:::chan
+    G[["<b>Cổng</b><br/>Kiểm MENU_PERMISSION_RULES"]]:::heth
+    H{"Còn ít nhất<br/>một mục?"}:::hoi
+    X3["Bỏ phân hệ<br/>khỏi ô chọn"]:::chan
+    D -->|"Không"| X1
+    D -->|"Có"| E --> F
+    F -->|"Không"| X2
+    F -->|"Có"| G --> H
+    H -->|"Không"| X3
+  end
+
+  M(["Mở trang qua đường dẫn,<br/>chuông, truy cập nhanh"]):::batdau
+
+  subgraph P3["③ Chọn và mở trang"]
+    I[["<b>Cổng</b><br/>Ô chọn phân hệ đầu trang"]]:::heth
+    J["<b>Người dùng</b><br/>Chọn phân hệ"]:::nguoi
+    JD[("Lựa chọn lưu<br/>ở trình duyệt")]:::dulieu
+    K1[["<b>Cổng</b><br/>Menu ngang đánh số"]]:::heth
+    I --> J --> K1
+    J -.-> JD
+  end
+
+  K(["Mở trang, máy chủ<br/>kiểm quyền lần nữa"]):::ketthuc
+
+  S --> B
+  C --> D
+  H -->|"Có"| I
+  K1 --> K
+  M -.->|"tự chuyển sang<br/>phân hệ của trang"| K1
+
+  style P1 fill:#fafafa,stroke:#90a4ae
+  style P2 fill:#fafafa,stroke:#90a4ae
+  style P3 fill:#fafafa,stroke:#90a4ae
 ```
 
 ## 3. Thông báo
@@ -438,43 +514,59 @@ Có khoảng 130 mã mẫu. Nhóm chính:
 
 ```mermaid
 sequenceDiagram
-  actor GV as Giáo viên
-  participant API as Máy chủ API
-  participant DB as CSDL năm học
-  participant TB as Tiến trình gửi thông báo
-  participant ZL as Zalo OA
-  participant SMS as eSMS
-  actor PH as Phụ huynh
-  GV->>API: Ghi sự kiện, ví dụ điểm danh vắng không phép
-  API->>DB: Ghi nghiệp vụ và queueNotification trong cùng giao dịch
-  Note over DB: notifications và notification_recipients kênh in_app, sms hoặc zalo
-  loop Mỗi 60 giây
-    TB->>DB: Lấy tối đa 200 người nhận đang chờ, khóa bỏ qua dòng đang khóa
-    alt Kênh in_app
-      TB->>DB: Đánh dấu đã gửi
-    else Kênh sms hoặc zalo
-      TB->>DB: Tìm số điện thoại phụ huynh, đếm tin đã gửi trong ngày
-      alt Đã đủ 5 tin trong ngày
-        TB->>DB: Ghi trạng thái limited
-      else Kênh zalo, đã bật và số đã liên kết
-        TB->>ZL: Gửi tin Zalo
-        alt Zalo lỗi
-          TB->>SMS: Gửi tin nhắn thay thế
-        end
-        TB->>DB: Ghi đã gửi và kênh thực tế
-      else Kênh sms
-        TB->>SMS: Gửi tin nhắn
-        alt Nhà cung cấp lỗi
-          TB->>DB: Tăng số lần thử, hẹn lại sau 15 phút, đủ 5 lần thì failed
-        else Thành công
-          TB->>DB: Ghi đã gửi
+  autonumber
+  box rgb(227,242,253) Người dùng
+    actor GV as Giáo viên
+    actor PH as Phụ huynh
+  end
+  box rgb(236,239,241) Hệ thống
+    participant API as Máy chủ API
+    participant DB as CSDL năm học
+    participant TB as Tiến trình gửi
+  end
+  box rgb(252,228,236) Kênh gửi
+    participant ZL as Zalo OA
+    participant SMS as eSMS
+  end
+  rect rgb(255,253,231)
+    Note over GV,DB: ① Ghi sự kiện và xếp hàng
+    GV->>API: Ghi sự kiện, ví dụ vắng không phép
+    API->>DB: Ghi nghiệp vụ, queueNotification cùng giao dịch
+    Note over DB: notifications, notification_recipients
+  end
+  rect rgb(255,253,231)
+    Note over DB,SMS: ② Gửi theo lượt mỗi 60 giây
+    loop Mỗi 60 giây
+      TB->>DB: Lấy tối đa 200 người nhận đang chờ
+      alt Kênh in_app
+        TB->>DB: Đánh dấu đã gửi
+      else Kênh sms hoặc zalo
+        TB->>DB: Tìm số điện thoại, đếm tin trong ngày
+        alt Đủ 5 tin trong ngày
+          TB->>DB: Ghi limited
+        else Zalo đã bật, số đã liên kết
+          TB->>ZL: Gửi tin Zalo
+          opt Zalo lỗi
+            TB->>SMS: Gửi SMS thay thế
+          end
+          TB->>DB: Ghi đã gửi, kênh thực tế
+        else Kênh sms
+          TB->>SMS: Gửi tin nhắn
+          alt Nhà cung cấp lỗi
+            TB->>DB: Hẹn lại 15 phút, đủ 5 lần thì failed
+          else Thành công
+            TB->>DB: Ghi đã gửi
+          end
         end
       end
     end
   end
-  PH->>API: Mở ứng dụng phụ huynh, xem khối Thông báo
-  API->>DB: Đọc thông báo của tài khoản và ghi đã đọc
-  API-->>PH: Danh sách thông báo
+  rect rgb(255,253,231)
+    Note over PH,DB: ③ Phụ huynh đọc
+    PH->>API: Mở khối Thông báo
+    API->>DB: Đọc thông báo, ghi đã đọc
+    API-->>PH: Danh sách thông báo
+  end
 ```
 
 ## 4. DT-SaaS: đa thuê bao nhiều trường
@@ -547,21 +639,46 @@ Nguồn: YCTD-203, tài liệu 12 mục 12D và QĐ-28, `deploy/profiles/trial/R
 Mặc định (`DB_HOST_ADAPTER=plain`, `PLATFORM_DATA_POLICY=any`, `APP_BASE_PATH=/`) giữ nguyên chế độ một trường và hồ sơ vận hành.
 
 ```mermaid
-flowchart LR
-  ND["Người dùng"] --> CB["Cổng biên Cloudflare Worker"]
-  CB -->|"/quan-ly, /giao-vien, /phu-huynh"| TT["Ba ứng dụng tĩnh"]
-  CB -->|"tên miền cổng nền tảng"| PF["apps/platform"]
-  CB -->|"tên miền hệ thống"| CT["Trang chọn trường"]
-  CB -->|"/api/v1, website, kèm x-school-host"| CG{"Máy chủ đang thức?"}
-  CG -->|"Không"| KD["Trang đang khởi động 503"]
-  CG -->|"Có"| RT["router.mjs trong container gộp"]
-  RT -->|"nhóm định danh"| ID["identity"]
-  RT -->|"còn lại"| API["api"]
-  ID --> DB[("PostgreSQL bố cục schema qua bộ gom Neon hoặc Supabase")]
-  API --> DB
-  API --> S3[("R2 hoặc Supabase Storage")]
-  CR["Cron Triggers hoặc GitHub Actions"] -->|"tick"| API
-  DB -.->|"platform relayout"| VPS[("Hồ sơ vận hành trên VPS trong nước")]
+stateDiagram-v2
+  classDef nhap fill:#eceff1,stroke:#546e7a,color:#263238
+  classDef cho fill:#fff3e0,stroke:#ef6c00,color:#4e2600
+  classDef dang fill:#e3f2fd,stroke:#1565c0,color:#0d2a4a
+  classDef xong fill:#e8f5e9,stroke:#2e7d32,color:#1b3d1d,font-weight:bold
+  classDef huy fill:#ffebee,stroke:#c62828,color:#5f0000
+
+  state "Đang khởi tạo" as provisioning
+  state "Dùng thử" as trial
+  state "Hoạt động" as active
+  state "Chỉ đọc (kế hoạch S5a)" as read_only
+  state "Tạm dừng" as suspended
+  state "Chờ xóa" as pending_deletion
+  state "Đã xóa" as deleted
+
+  [*] --> provisioning : Setup, startProvisioning
+  provisioning --> trial : Đủ 11 bước, dùng thử
+  provisioning --> active : Đủ 11 bước, hoạt động
+  provisioning --> [*] : Hoàn tác, xóa hẳn hàng
+  trial --> active : Kích hoạt gói, S5a
+  active --> read_only : Hết hạn gói, S5a
+  trial --> suspended : Tạm dừng
+  active --> suspended : Tạm dừng
+  read_only --> suspended : Tạm dừng
+  suspended --> active : Mở lại
+  trial --> pending_deletion : Yêu cầu xóa
+  active --> pending_deletion : Yêu cầu xóa
+  read_only --> pending_deletion : Yêu cầu xóa
+  suspended --> pending_deletion : Yêu cầu xóa
+  pending_deletion --> suspended : Hủy yêu cầu xóa
+  pending_deletion --> deleted : Quá hạn chờ, purge-due
+  deleted --> [*]
+
+  class provisioning nhap
+  class trial dang
+  class active dang
+  class read_only cho
+  class suspended cho
+  class pending_deletion cho
+  class deleted huy
 ```
 
 **Khởi tạo mười một bước** (`PROVISION_STEPS`): `database:identity`, `migrate:identity`, `database:system`, `migrate:system`, `database:year`, `migrate:year`, `seed:system`, `seed:year`, `admin`, `domain`, `activate`. Mỗi bước kiểm việc đã làm nên chạy lại được; lỗi thì chạy tiếp hoặc hoàn tác xóa sạch. Trạng thái việc: `pending`, `running`, `failed`, `done`, `rolled_back`.
@@ -573,31 +690,67 @@ flowchart LR
 Theo `schools_status_check` và các hàm `startProvisioning`, `runProvisioningJob`, `rollbackProvisioningJob`, `suspendSchool`, `resumeSchool`, `requestDeletion`, `cancelDeletion`, `purgeSchool`. Hai chuyển sang `read_only` và giữa `trial`, `active` thuộc S5a (kế hoạch), chưa có trong mã.
 
 ```mermaid
-stateDiagram-v2
-  state "Đang khởi tạo" as provisioning
-  state "Dùng thử" as trial
-  state "Hoạt động" as active
-  state "Chỉ đọc, kế hoạch S5a" as read_only
-  state "Tạm dừng" as suspended
-  state "Chờ xóa" as pending_deletion
-  state "Đã xóa" as deleted
-  [*] --> provisioning : Bước setup, startProvisioning
-  provisioning --> trial : Đủ mười một bước, chọn dùng thử
-  provisioning --> active : Đủ mười một bước, chọn hoạt động
-  provisioning --> [*] : Hoàn tác khởi tạo, xóa hẳn hàng
-  trial --> suspended : Tạm dừng
-  active --> suspended : Tạm dừng
-  read_only --> suspended : Tạm dừng
-  suspended --> active : Mở lại
-  trial --> pending_deletion : Yêu cầu xóa
-  active --> pending_deletion : Yêu cầu xóa
-  read_only --> pending_deletion : Yêu cầu xóa
-  suspended --> pending_deletion : Yêu cầu xóa
-  pending_deletion --> suspended : Hủy yêu cầu xóa
-  pending_deletion --> deleted : Quá hạn chờ, lệnh purge-due
-  trial --> active : Kế hoạch S5a, kích hoạt gói
-  active --> read_only : Kế hoạch S5a, hết hạn gói
-  deleted --> [*]
+flowchart TD
+  classDef batdau fill:#2e7d32,stroke:#1b5e20,color:#ffffff,font-weight:bold
+  classDef ketthuc fill:#37474f,stroke:#263238,color:#ffffff,font-weight:bold
+  classDef nguoi fill:#e3f2fd,stroke:#1565c0,color:#0d2a4a
+  classDef heth fill:#eceff1,stroke:#546e7a,color:#263238
+  classDef duyet fill:#fff3e0,stroke:#ef6c00,color:#4e2600
+  classDef hoi fill:#fffde7,stroke:#f9a825,color:#3e2f00
+  classDef bao fill:#fce4ec,stroke:#ad1457,color:#4a0020
+  classDef chan fill:#ffebee,stroke:#c62828,color:#5f0000
+  classDef dulieu fill:#ede7f6,stroke:#5e35b1,color:#1f0f4d
+
+  S(["Người dùng truy cập"]):::batdau
+
+  subgraph P1["① Cổng biên"]
+    CB[["<b>Cloudflare Worker</b><br/>Nhận mọi tên miền"]]:::heth
+    TT[["<b>Ba ứng dụng tĩnh</b><br/>/quan-ly, /giao-vien,<br/>/phu-huynh"]]:::heth
+    PF[["<b>Cổng nền tảng</b><br/>apps/platform"]]:::heth
+    CT[["<b>Trang chọn trường</b><br/>Tên miền hệ thống"]]:::heth
+    CB -->|"đường dẫn ứng dụng"| TT
+    CB -->|"tên miền nền tảng"| PF
+    CB -->|"tên miền hệ thống"| CT
+  end
+
+  CR[["<b>Cron Triggers</b><br/>hoặc GitHub Actions"]]:::heth
+
+  subgraph P2["② Máy chủ container gộp"]
+    CG{"Máy chủ<br/>đang thức?"}:::hoi
+    KD["Trang đang khởi động<br/>503"]:::chan
+    RT[["<b>router.mjs</b><br/>Chia tuyến như Caddy"]]:::heth
+    ID[["<b>identity</b><br/>Nhóm định danh"]]:::heth
+    API[["<b>api</b><br/>Phần còn lại"]]:::heth
+    CG -->|"Không"| KD
+    CG -->|"Có"| RT
+    RT --> ID
+    RT --> API
+  end
+
+  subgraph P3["③ Dữ liệu, tệp"]
+    DB[("PostgreSQL bố cục schema<br/>Neon hoặc Supabase")]:::dulieu
+    S3[("R2 hoặc<br/>Supabase Storage")]:::dulieu
+  end
+
+  subgraph P4["④ Chuyển vận hành"]
+    RL[["<b>Lệnh platform relayout</b><br/>Chép, so md5 từng bảng"]]:::heth
+  end
+
+  K(["Hồ sơ vận hành<br/>trên VPS trong nước"]):::ketthuc
+
+  S --> CB
+  CB -->|"/api/v1, website<br/>kèm x-school-host"| CG
+  CR -->|"tick"| API
+  ID --> DB
+  API --> DB
+  API --> S3
+  DB -.-> RL
+  RL -.-> K
+
+  style P1 fill:#fafafa,stroke:#90a4ae
+  style P2 fill:#fafafa,stroke:#90a4ae
+  style P3 fill:#fafafa,stroke:#90a4ae
+  style P4 fill:#fafafa,stroke:#90a4ae
 ```
 
 Ghi chú: lệnh `platform relayout` (S9) không đổi trạng thái; nó chỉ nhận trường nguồn đang `suspended` hoặc `read_only`. `provisioning`, `deleted` trả 404 chung; `suspended`, `pending_deletion` trả 503 và bộ lập lịch bỏ qua trường; `trial`, `active`, `read_only` được phục vụ.

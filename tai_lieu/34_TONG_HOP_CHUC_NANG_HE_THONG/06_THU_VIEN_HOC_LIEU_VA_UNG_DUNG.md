@@ -379,174 +379,473 @@ Mỗi lớp là một thẻ (tên lớp, tên cấp khi dạy nhiều cấp, sĩ
 
 ### Thư viện: mượn, trả, đặt trước, quá hạn
 
+Cách đọc: "Thẻ dùng được" là thẻ đang dùng và người còn trong trường; "Bản sao hợp lệ" là bản tốt, ấn phẩm đang dùng, cho mượn về, chưa ai mượn, không giữ cho người khác.
+
 ```mermaid
 flowchart TD
-    A["Thủ thư quét số thẻ hoặc tìm tên"] --> B{"Thẻ đang dùng và người còn trong trường?"}
-    B -->|"Không"| X1["Từ chối mượn"]
-    B -->|"Có"| C{"Còn bản quá hạn?"}
-    C -->|"Có"| X2["Từ chối, trả sách quá hạn trước"]
-    C -->|"Không"| D["Quét mã các bản sao"]
-    D --> E{"Đang mượn cộng mượn thêm vượt số bản tối đa?"}
-    E -->|"Có"| X3["Từ chối cả lượt"]
-    E -->|"Không"| F{"Bản tốt, ấn phẩm đang dùng, cho mượn về, chưa ai mượn, không giữ cho người khác?"}
-    F -->|"Không"| X3
-    F -->|"Có"| G["Tạo lượt mượn open, hạn trả bằng hôm nay cộng số ngày mượn"]
-    G --> H["Đóng lượt đặt trước của chính bạn đọc nếu có"]
-    G --> I{"Quá hạn trả?"}
-    I -->|"Có"| J["Nhắc quá hạn, mỗi lượt tối đa một lần mỗi ngày"]
-    G --> K{"Gia hạn?"}
-    K -->|"Sách giáo khoa, đủ số lần, có người đặt trước"| X4["Từ chối gia hạn"]
-    K -->|"Được"| L["Hạn mới bằng max hạn cũ và hôm nay cộng số ngày mượn"]
-    G --> M["Trả bản sao, chọn tình trạng"]
-    M --> N["Tính phạt bằng số ngày trễ nhân mức phạt mỗi ngày"]
-    N --> O{"Tình trạng khi trả"}
-    O -->|"Mất"| P["Lượt mượn lost, bản sao lost"]
-    O -->|"Hỏng"| Q["Lượt mượn returned, bản sao damaged"]
-    O -->|"Tốt"| R["Lượt mượn returned"]
-    R --> S{"Có người đặt trước đang chờ?"}
-    S -->|"Có"| T["Giữ bản cho người đặt sớm nhất, gửi thông báo"]
-    S -->|"Không"| U["Bản sẵn sàng cho mượn"]
+  classDef batdau fill:#2e7d32,stroke:#1b5e20,color:#ffffff,font-weight:bold
+  classDef ketthuc fill:#37474f,stroke:#263238,color:#ffffff,font-weight:bold
+  classDef nguoi fill:#e3f2fd,stroke:#1565c0,color:#0d2a4a
+  classDef heth fill:#eceff1,stroke:#546e7a,color:#263238
+  classDef duyet fill:#fff3e0,stroke:#ef6c00,color:#4e2600
+  classDef hoi fill:#fffde7,stroke:#f9a825,color:#3e2f00
+  classDef bao fill:#fce4ec,stroke:#ad1457,color:#4a0020
+  classDef chan fill:#ffebee,stroke:#c62828,color:#5f0000
+  classDef dulieu fill:#ede7f6,stroke:#5e35b1,color:#1f0f4d
+
+  S(["Bạn đọc đến mượn"]):::batdau
+
+  subgraph P1["① Kiểm tra bạn đọc"]
+    A1["<b>Thủ thư</b><br/>Quét số thẻ, tìm tên"]:::nguoi
+    A2{"Thẻ dùng được?"}:::hoi
+    A3{"Còn bản quá hạn?"}:::hoi
+    X1["Từ chối mượn"]:::chan
+    X2["Từ chối<br/>trả sách quá hạn trước"]:::chan
+    A1 --> A2
+    A2 -->|"Không"| X1
+    A2 -->|"Có"| A3
+    A3 -->|"Có"| X2
+  end
+
+  subgraph P2["② Cho mượn"]
+    B1["<b>Thủ thư</b><br/>Quét mã các bản sao"]:::nguoi
+    B2{"Vượt số bản tối đa?"}:::hoi
+    B3{"Bản sao hợp lệ?"}:::hoi
+    X3["Từ chối cả lượt"]:::chan
+    B4[("Lượt mượn open<br/>hạn = hôm nay + số ngày")]:::dulieu
+    B5[["<b>Hệ thống</b><br/>Đóng đặt trước của bạn đọc"]]:::heth
+    B1 --> B2
+    B2 -->|"Có"| X3
+    B2 -->|"Không"| B3
+    B3 -->|"Không"| X3
+    B3 -->|"Có"| B4
+    B4 -.->|"nếu có"| B5
+  end
+
+  subgraph P3["③ Trong hạn mượn"]
+    C1{"Quá hạn trả?"}:::hoi
+    C2>"Nhắc quá hạn<br/>tối đa 1 lần mỗi ngày"]:::bao
+    C3{"Gia hạn được?"}:::hoi
+    C4[["<b>Hệ thống</b><br/>Hạn mới = max + số ngày"]]:::heth
+    X4["Từ chối gia hạn"]:::chan
+    C1 -->|"Có"| C2
+    C3 -->|"Được"| C4
+    C3 -->|"SGK, đủ lần, có đặt trước"| X4
+  end
+
+  subgraph P4["④ Trả sách"]
+    D1["<b>Thủ thư</b><br/>Nhận trả, chọn tình trạng"]:::nguoi
+    D2[["<b>Hệ thống</b><br/>Phạt = ngày trễ × mức phạt"]]:::heth
+    D3{"Tình trạng khi trả?"}:::hoi
+    D4["Lượt lost, bản lost"]:::chan
+    D5[("Lượt returned<br/>bản damaged")]:::dulieu
+    D6[("Lượt returned")]:::dulieu
+    D1 --> D2 --> D3
+    D3 -->|"Mất"| D4
+    D3 -->|"Hỏng"| D5
+    D3 -->|"Tốt"| D6
+  end
+
+  subgraph P5["⑤ Đặt trước"]
+    E1{"Có người đặt đang chờ?"}:::hoi
+    E2>"Giữ cho người đặt sớm nhất<br/>gửi thông báo"]:::bao
+  end
+
+  K1(["Bản sẵn sàng cho mượn"]):::ketthuc
+  K2(["Bản được giữ chỗ"]):::ketthuc
+
+  S --> A1
+  A3 -->|"Không"| B1
+  B4 --> C1
+  B4 --> C3
+  B4 --> D1
+  D6 --> E1
+  E1 -->|"Có"| E2 --> K2
+  E1 -->|"Không"| K1
+
+  style P1 fill:#fafafa,stroke:#90a4ae
+  style P2 fill:#fafafa,stroke:#90a4ae
+  style P3 fill:#fafafa,stroke:#90a4ae
+  style P4 fill:#fafafa,stroke:#90a4ae
+  style P5 fill:#fafafa,stroke:#90a4ae
 ```
 
 ```mermaid
 stateDiagram-v2
-    state "Đang chờ" as waiting
-    state "Đã có bản, đang giữ" as ready
-    state "Đã mượn" as fulfilled
-    state "Đã hủy" as cancelled
-    state "Hết hạn giữ" as expired
-    [*] --> waiting : Đặt trước khi không còn bản sẵn sàng
-    waiting --> ready : Bản tốt trả về, người đặt sớm nhất
-    waiting --> fulfilled : Bạn đọc mượn bản của ấn phẩm
-    ready --> fulfilled : Bạn đọc mượn bản được giữ
-    waiting --> cancelled : Thủ thư hủy
-    ready --> cancelled : Thủ thư hủy, bản giữ cho người kế tiếp
-    ready --> expired : Quá số ngày giữ chỗ
-    fulfilled --> [*]
-    cancelled --> [*]
-    expired --> [*]
+  direction LR
+  classDef nhap fill:#eceff1,stroke:#546e7a,color:#263238
+  classDef cho fill:#fff3e0,stroke:#ef6c00,color:#4e2600
+  classDef dang fill:#e3f2fd,stroke:#1565c0,color:#0d2a4a
+  classDef xong fill:#e8f5e9,stroke:#2e7d32,color:#1b3d1d,font-weight:bold
+  classDef huy fill:#ffebee,stroke:#c62828,color:#5f0000
+
+  state "Đang chờ" as waiting
+  state "Đã có bản, đang giữ" as ready
+  state "Đã mượn" as fulfilled
+  state "Đã hủy" as cancelled
+  state "Hết hạn giữ" as expired
+
+  [*] --> waiting : Đặt khi hết bản sẵn sàng
+  waiting --> ready : Bản tốt trả về, đặt sớm nhất
+  waiting --> fulfilled : Mượn bản của ấn phẩm
+  ready --> fulfilled : Mượn bản được giữ
+  waiting --> cancelled : Thủ thư hủy
+  ready --> cancelled : Thủ thư hủy, giữ cho người kế
+  ready --> expired : Quá số ngày giữ chỗ
+  fulfilled --> [*]
+  cancelled --> [*]
+  expired --> [*]
+
+  class waiting cho
+  class ready dang
+  class fulfilled xong
+  class cancelled huy
+  class expired huy
 ```
 
 ```mermaid
 stateDiagram-v2
-    state "Đang mượn" as open
-    state "Đã trả" as returned
-    state "Mất" as lost
-    [*] --> open : Cho mượn hoặc phát sách giáo khoa
-    open --> open : Gia hạn
-    open --> returned : Trả tốt hoặc hỏng
-    open --> lost : Trả với tình trạng mất hoặc báo mất
-    returned --> [*]
-    lost --> [*]
+  direction LR
+  classDef nhap fill:#eceff1,stroke:#546e7a,color:#263238
+  classDef cho fill:#fff3e0,stroke:#ef6c00,color:#4e2600
+  classDef dang fill:#e3f2fd,stroke:#1565c0,color:#0d2a4a
+  classDef xong fill:#e8f5e9,stroke:#2e7d32,color:#1b3d1d,font-weight:bold
+  classDef huy fill:#ffebee,stroke:#c62828,color:#5f0000
+
+  state "Đang mượn" as open
+  state "Đã trả" as returned
+  state "Mất" as lost
+
+  [*] --> open : Cho mượn, phát SGK
+  open --> open : Gia hạn
+  open --> returned : Trả tốt hoặc hỏng
+  open --> lost : Trả mất, báo mất
+  returned --> [*]
+  lost --> [*]
+
+  class open dang
+  class returned xong
+  class lost huy
 ```
 
 ### Kho học liệu: đóng góp, duyệt, công bố, chia sẻ liên trường
 
-```mermaid
-stateDiagram-v2
-    state "Nháp" as draft
-    state "Chờ tổ duyệt" as pending_unit
-    state "Chờ Ban Giám hiệu duyệt" as pending_school
-    state "Đã công bố" as published
-    state "Bị trả lại" as returned
-    state "Ẩn tạm" as hidden
-    state "Ngừng dùng" as retired
-    [*] --> draft : Tạo học liệu, thêm phiên bản
-    draft --> pending_unit : Gửi duyệt, người sở hữu thuộc tổ
-    draft --> pending_school : Gửi duyệt, người sở hữu không thuộc tổ
-    returned --> pending_unit : Thêm phiên bản, gửi lại
-    returned --> pending_school : Thêm phiên bản, gửi lại
-    pending_unit --> published : Tổ trưởng duyệt, không cần bước trường
-    pending_unit --> pending_school : Tổ trưởng duyệt, luồng rủi ro
-    pending_school --> published : Ban Giám hiệu duyệt
-    pending_unit --> returned : Trả lại có lý do, chưa từng công bố
-    pending_school --> returned : Trả lại có lý do, chưa từng công bố
-    pending_unit --> published : Trả lại bản nộp lại, giữ bản đã công bố
-    pending_school --> published : Trả lại bản nộp lại, giữ bản đã công bố
-    published --> pending_unit : Thêm phiên bản mới, gửi duyệt lại
-    published --> pending_school : Thêm phiên bản mới, gửi duyệt lại, không thuộc tổ
-    published --> hidden : Thủ kho ẩn tạm
-    hidden --> published : Thủ kho mở lại, đã có bản công bố
-    hidden --> draft : Thủ kho mở lại, chưa có bản công bố
-    draft --> retired : Người sở hữu hoặc thủ kho ngừng dùng
-    published --> retired : Người sở hữu hoặc thủ kho ngừng dùng
-    returned --> retired : Người sở hữu hoặc thủ kho ngừng dùng
-    retired --> [*]
-```
+Cách đọc: khung "Chờ duyệt" gồm hai bước, vào bước nào theo phân luồng; "Ngừng dùng" do người sở hữu hoặc thủ kho làm; "luồng rủi ro" là loại do trường đặt, video, liên kết hoặc giấy phép có xin phép.
 
 ```mermaid
-flowchart LR
-    A["Giáo viên lập bộ sưu tập học liệu đã công bố"] --> B["Người có quyền chia sẻ xem trước gói"]
-    B --> C{"Học liệu xuất được?"}
-    C -->|"Kế hoạch bài dạy tham chiếu, giấy phép bị chặn hoặc chỉ cá nhân"| D["Bỏ qua kèm lý do"]
-    C -->|"Tệp hoặc liên kết, giấy phép hợp lệ"| E["Đưa vào bản kê, tính SHA-256"]
-    E --> F["Tải tệp gói gzip, tối đa 100 MB"]
-    F --> G["Trường khác nhập gói"]
-    G --> H{"Định dạng, mã băm, giấy phép theo danh mục của trường đúng?"}
-    H -->|"Không"| I["Bỏ học liệu lỗi, ghi nhật ký nhập"]
-    H -->|"Có"| J{"Trùng mã băm hoặc địa chỉ liên kết?"}
-    J -->|"Có"| I
-    J -->|"Không"| K["Tạo học liệu của người nhập, phạm vi toàn trường"]
-    K --> L["Gửi duyệt ngay theo luồng tổ, Ban Giám hiệu"]
-    L --> M["Công bố trong trường"]
+stateDiagram-v2
+  classDef nhap fill:#eceff1,stroke:#546e7a,color:#263238
+  classDef cho fill:#fff3e0,stroke:#ef6c00,color:#4e2600
+  classDef dang fill:#e3f2fd,stroke:#1565c0,color:#0d2a4a
+  classDef xong fill:#e8f5e9,stroke:#2e7d32,color:#1b3d1d,font-weight:bold
+  classDef huy fill:#ffebee,stroke:#c62828,color:#5f0000
+
+  state "Nháp" as draft
+  state "Đã công bố" as published
+  state "Bị trả lại" as returned
+  state "Ẩn tạm" as hidden
+  state "Ngừng dùng" as retired
+  state "Chờ duyệt" as pending {
+    state "Chờ tổ duyệt" as pending_unit
+    state "Chờ Ban Giám hiệu duyệt" as pending_school
+    [*] --> pending_unit : Thuộc tổ
+    [*] --> pending_school : Không thuộc tổ
+    pending_unit --> pending_school : Tổ trưởng duyệt, luồng rủi ro
+  }
+
+  [*] --> draft : Tạo, thêm phiên bản
+  draft --> pending : Gửi duyệt
+  returned --> pending : Thêm phiên bản, gửi lại
+  published --> pending : Phiên bản mới, gửi lại
+  pending_unit --> published : Tổ trưởng duyệt
+  pending_school --> published : Ban Giám hiệu duyệt
+  pending --> returned : Trả lại, chưa từng công bố
+  pending --> published : Trả lại, giữ bản đã công bố
+  published --> hidden : Thủ kho ẩn tạm
+  hidden --> published : Mở lại, đã có bản công bố
+  hidden --> draft : Mở lại, chưa có bản công bố
+  draft --> retired : Ngừng dùng
+  published --> retired : Ngừng dùng
+  returned --> retired : Ngừng dùng
+  retired --> [*]
+
+  class draft nhap
+  class pending_unit cho
+  class pending_school cho
+  class published xong
+  class returned huy
+  class hidden huy
+  class retired huy
+```
+
+Cách đọc: không xuất được là kế hoạch bài dạy tham chiếu, giấy phép bị chặn hoặc chỉ cá nhân; xuất được là tệp hoặc liên kết có giấy phép hợp lệ. Học liệu nhập thuộc người nhập.
+
+```mermaid
+flowchart TD
+  classDef batdau fill:#2e7d32,stroke:#1b5e20,color:#ffffff,font-weight:bold
+  classDef ketthuc fill:#37474f,stroke:#263238,color:#ffffff,font-weight:bold
+  classDef nguoi fill:#e3f2fd,stroke:#1565c0,color:#0d2a4a
+  classDef heth fill:#eceff1,stroke:#546e7a,color:#263238
+  classDef duyet fill:#fff3e0,stroke:#ef6c00,color:#4e2600
+  classDef hoi fill:#fffde7,stroke:#f9a825,color:#3e2f00
+  classDef bao fill:#fce4ec,stroke:#ad1457,color:#4a0020
+  classDef chan fill:#ffebee,stroke:#c62828,color:#5f0000
+  classDef dulieu fill:#ede7f6,stroke:#5e35b1,color:#1f0f4d
+
+  S(["Chia sẻ học liệu"]):::batdau
+
+  subgraph P1["① Xuất gói, trường nguồn"]
+    A1["<b>Giáo viên</b><br/>Lập bộ sưu tập đã công bố"]:::nguoi
+    A2["<b>Người có quyền chia sẻ</b><br/>Xem trước gói"]:::nguoi
+    A3{"Xuất được?"}:::hoi
+    A4["Bỏ qua kèm lý do"]:::chan
+    A5[["<b>Hệ thống</b><br/>Đưa vào bản kê, SHA-256"]]:::heth
+    A6>"Tệp gói gzip<br/>tối đa 100 MB"]:::bao
+    A1 --> A2 --> A3
+    A3 -->|"Không"| A4
+    A3 -->|"Có"| A5 --> A6
+  end
+
+  subgraph P2["② Nhập gói, trường nhận"]
+    B1["<b>Trường khác</b><br/>Nhập gói"]:::nguoi
+    B2{"Định dạng, mã băm,<br/>giấy phép đúng?"}:::hoi
+    B3{"Trùng tệp, liên kết?"}:::hoi
+    B4[("Bỏ học liệu lỗi<br/>ghi nhật ký nhập")]:::dulieu
+    B5[["<b>Hệ thống</b><br/>Tạo học liệu toàn trường"]]:::heth
+    B1 --> B2
+    B2 -->|"Không"| B4
+    B2 -->|"Có"| B3
+    B3 -->|"Có"| B4
+    B3 -->|"Không"| B5
+  end
+
+  subgraph P3["③ Duyệt, công bố"]
+    C1["<b>Tổ, Ban Giám hiệu</b><br/>Duyệt theo luồng 22h1"]:::duyet
+  end
+
+  K(["Công bố trong trường"]):::ketthuc
+
+  S --> A1
+  A6 --> B1
+  B5 -->|"gửi duyệt ngay"| C1 --> K
+
+  style P1 fill:#fafafa,stroke:#90a4ae
+  style P2 fill:#fafafa,stroke:#90a4ae
+  style P3 fill:#fafafa,stroke:#90a4ae
 ```
 
 ### Điều hướng ứng dụng giáo viên
 
 ```mermaid
 flowchart TD
-    S{"Trạng thái phiên"} -->|"Chưa đăng nhập"| L["Đăng nhập MH-47"]
-    S -->|"Bắt buộc đổi mật khẩu"| P["Đổi mật khẩu MH-48"]
-    S -->|"Đã đăng nhập"| H["Lớp của tôi MG-01"]
+  classDef batdau fill:#2e7d32,stroke:#1b5e20,color:#ffffff,font-weight:bold
+  classDef ketthuc fill:#37474f,stroke:#263238,color:#ffffff,font-weight:bold
+  classDef nguoi fill:#e3f2fd,stroke:#1565c0,color:#0d2a4a
+  classDef heth fill:#eceff1,stroke:#546e7a,color:#263238
+  classDef duyet fill:#fff3e0,stroke:#ef6c00,color:#4e2600
+  classDef hoi fill:#fffde7,stroke:#f9a825,color:#3e2f00
+  classDef bao fill:#fce4ec,stroke:#ad1457,color:#4a0020
+  classDef chan fill:#ffebee,stroke:#c62828,color:#5f0000
+  classDef dulieu fill:#ede7f6,stroke:#5e35b1,color:#1f0f4d
+
+  O(["Mở ứng dụng"]):::batdau
+
+  subgraph P1["① Phiên đăng nhập"]
+    S{"Trạng thái phiên?"}:::hoi
+    L["Đăng nhập<br/>MH-47"]:::nguoi
+    P["Đổi mật khẩu<br/>MH-48"]:::nguoi
+    S -->|"Chưa đăng nhập"| L
+    S -->|"Bắt buộc đổi"| P
     L --> S
-    P --> H
-    H --> N["Thông báo"]
-    H --> CI["Chấm công hôm nay MG-10"]
-    CI --> LV["Đơn nghỉ phép"]
-    CI --> PS["Phiếu lương MG-11"]
-    CI --> WS["Lịch công tác"]
-    CI --> WK["Công việc của tôi MG-12"]
-    H -->|"Quyền xác nhận cổng"| GT["Xác nhận người đón tại cổng MG-16"]
-    H -->|"Quyền quét kiểm kê"| ST["Kiểm kê thiết bị MG-18"]
-    H -->|"Quyền bồi dưỡng"| TR["Bồi dưỡng của tôi"]
-    H -->|"Có lớp TH, THCS, THPT"| TT["Lịch dạy của tôi"]
-    H --> LB["Sách tôi đang mượn MH-298"]
-    H -->|"Có lớp TH, THCS, THPT"| CL["Sổ đầu bài"]
-    H --> C["Mỗi lớp"]
-    C -->|"MN"| AT["Bảng điểm danh MG-02"]
-    C -->|"MN"| JN["Nhật ký MG-03"]
-    C -->|"MN"| CR["Chăm sóc và y tế MG-09"]
-    C -->|"MN"| ML["Báo cơm MG-14"]
-    C -->|"TH"| AS["Đánh giá học sinh"]
-    C -->|"TH"| BD["Bán trú"]
-    C -->|"THCS, THPT"| SC["Sổ điểm"]
-    C -->|"Mọi cấp"| PU["Đón trả MG-04"]
-    C -->|"Mọi cấp"| MS["Trao đổi và đồ bị mất MG-08, MG-15"]
-    C -->|"Mọi cấp"| AC["Hoạt động và hình ảnh MG-07"]
-    C -->|"Mọi cấp"| MD["Dặn thuốc MG-09"]
-    C -->|"Mọi cấp"| TC["Giảng dạy MG-05, MG-06"]
+  end
+
+  subgraph P2["② Màn hình gốc"]
+    H["<b>Lớp của tôi</b><br/>MG-01"]:::nguoi
+    N>"Thông báo"]:::bao
+    CI["Chấm công hôm nay<br/>MG-10"]:::nguoi
+    H --> N
+    H --> CI
+  end
+
+  subgraph P3["③ Màn hình cá nhân"]
+    subgraph Q1["Từ thẻ chấm công"]
+      direction TB
+      LV["Đơn nghỉ phép"]:::nguoi
+      PS["Phiếu lương MG-11"]:::nguoi
+      WS["Lịch công tác"]:::nguoi
+      WK["Công việc của tôi MG-12"]:::nguoi
+      LV ~~~ PS ~~~ WS ~~~ WK
+    end
+    subgraph Q2["Theo quyền"]
+      direction TB
+      GT["Người đón tại cổng MG-16"]:::nguoi
+      ST["Kiểm kê thiết bị MG-18"]:::nguoi
+      TR["Bồi dưỡng của tôi"]:::nguoi
+      GT ~~~ ST ~~~ TR
+    end
+    subgraph Q3["Có lớp TH, THCS, THPT"]
+      direction TB
+      TT["Lịch dạy của tôi"]:::nguoi
+      CL["Sổ đầu bài"]:::nguoi
+      TT ~~~ CL
+    end
+    LB["Sách tôi đang mượn<br/>MH-298, luôn hiện"]:::nguoi
+  end
+
+  K(["Mỗi lớp: xem sơ đồ dưới"]):::ketthuc
+
+  O --> S
+  S -->|"Đã đăng nhập"| H
+  P --> H
+  CI --> Q1
+  H --> Q2
+  H --> Q3
+  H --> LB
+  H -->|"mỗi lớp"| K
+
+  style P1 fill:#fafafa,stroke:#90a4ae
+  style P2 fill:#fafafa,stroke:#90a4ae
+  style P3 fill:#fafafa,stroke:#90a4ae
+  style Q1 fill:#ffffff,stroke:#cfd8dc
+  style Q2 fill:#ffffff,stroke:#cfd8dc
+  style Q3 fill:#ffffff,stroke:#cfd8dc
+```
+
+### Điều hướng ứng dụng giáo viên: màn hình theo lớp
+
+```mermaid
+flowchart TD
+  classDef batdau fill:#2e7d32,stroke:#1b5e20,color:#ffffff,font-weight:bold
+  classDef ketthuc fill:#37474f,stroke:#263238,color:#ffffff,font-weight:bold
+  classDef nguoi fill:#e3f2fd,stroke:#1565c0,color:#0d2a4a
+  classDef heth fill:#eceff1,stroke:#546e7a,color:#263238
+  classDef duyet fill:#fff3e0,stroke:#ef6c00,color:#4e2600
+  classDef hoi fill:#fffde7,stroke:#f9a825,color:#3e2f00
+  classDef bao fill:#fce4ec,stroke:#ad1457,color:#4a0020
+  classDef chan fill:#ffebee,stroke:#c62828,color:#5f0000
+  classDef dulieu fill:#ede7f6,stroke:#5e35b1,color:#1f0f4d
+
+  H(["Lớp của tôi MG-01"]):::batdau
+
+  subgraph P1["① Chọn lớp"]
+    C["<b>Giáo viên</b><br/>Chọn nút dưới thẻ lớp"]:::nguoi
+    D{"Cấp của lớp?"}:::hoi
+    C --> D
+  end
+
+  subgraph P2["② Nút theo cấp"]
+    subgraph R1["Mầm non"]
+      direction TB
+      AT["Bảng điểm danh MG-02"]:::nguoi
+      JN["Nhật ký MG-03"]:::nguoi
+      CR["Chăm sóc, y tế MG-09"]:::nguoi
+      ML["Báo cơm MG-14"]:::nguoi
+      AT ~~~ JN ~~~ CR ~~~ ML
+    end
+    subgraph R2["Tiểu học"]
+      direction TB
+      AS["Đánh giá học sinh"]:::nguoi
+      BD["Bán trú"]:::nguoi
+      AS ~~~ BD
+    end
+    subgraph R3["THCS, THPT"]
+      direction TB
+      SC["Sổ điểm"]:::nguoi
+    end
+  end
+
+  subgraph P3["③ Nút mọi cấp"]
+    direction TB
+    PU["Đón trả<br/>MG-04"]:::nguoi
+    MS["Trao đổi, đồ mất<br/>MG-08, MG-15"]:::nguoi
+    AC["Hoạt động, hình ảnh<br/>MG-07"]:::nguoi
+    MD["Dặn thuốc<br/>MG-09"]:::nguoi
+    TC["Giảng dạy<br/>MG-05, MG-06"]:::nguoi
+    PU ~~~ MS ~~~ AC ~~~ MD ~~~ TC
+  end
+
+  H --> C
+  D -->|"MN"| R1
+  D -->|"TH"| R2
+  D -->|"THCS, THPT"| R3
+  C -->|"mọi cấp"| P3
+
+  style P1 fill:#fafafa,stroke:#90a4ae
+  style P2 fill:#fafafa,stroke:#90a4ae
+  style P3 fill:#fafafa,stroke:#90a4ae
+  style R1 fill:#ffffff,stroke:#cfd8dc
+  style R2 fill:#ffffff,stroke:#cfd8dc
+  style R3 fill:#ffffff,stroke:#cfd8dc
 ```
 
 ### Điều hướng ứng dụng phụ huynh
 
 ```mermaid
 flowchart TD
-    S{"Trạng thái phiên"} -->|"Chưa đăng nhập"| L["Đăng nhập MH-47, mật khẩu hoặc mã một lần"]
-    L --> AD["Tuyển sinh trực tuyến MP-21"]
-    L --> RC["Tuyển dụng MH-65"]
-    S -->|"Mật khẩu mặc định"| AV["Đặt mật khẩu mới MH-48"]
-    S -->|"Đã đăng nhập"| H["Trang chủ"]
+  classDef batdau fill:#2e7d32,stroke:#1b5e20,color:#ffffff,font-weight:bold
+  classDef ketthuc fill:#37474f,stroke:#263238,color:#ffffff,font-weight:bold
+  classDef nguoi fill:#e3f2fd,stroke:#1565c0,color:#0d2a4a
+  classDef heth fill:#eceff1,stroke:#546e7a,color:#263238
+  classDef duyet fill:#fff3e0,stroke:#ef6c00,color:#4e2600
+  classDef hoi fill:#fffde7,stroke:#f9a825,color:#3e2f00
+  classDef bao fill:#fce4ec,stroke:#ad1457,color:#4a0020
+  classDef chan fill:#ffebee,stroke:#c62828,color:#5f0000
+  classDef dulieu fill:#ede7f6,stroke:#5e35b1,color:#1f0f4d
+
+  O(["Mở ứng dụng"]):::batdau
+
+  subgraph P1["① Phiên đăng nhập"]
+    S{"Trạng thái phiên?"}:::hoi
+    L["<b>Đăng nhập MH-47</b><br/>Mật khẩu hoặc mã một lần"]:::nguoi
+    AV["Đặt mật khẩu mới<br/>MH-48"]:::nguoi
+    AD["Tuyển sinh trực tuyến<br/>MP-21"]:::nguoi
+    RC["Tuyển dụng<br/>MH-65"]:::nguoi
+    S -->|"Chưa đăng nhập"| L
+    S -->|"Mật khẩu mặc định"| AV
     L --> S
-    AV --> H
-    H --> NT["Thông báo"]
-    H --> PC["Xác nhận người đón ngoài danh sách MP-18"]
-    H --> PL["Bình chọn và khảo sát MP-17"]
-    H --> CC["Thẻ từng con"]
-    CC -->|"Mọi cấp"| G1["Người đón, Dịch vụ, Học phí và mã QR, Hình ảnh"]
-    CC -->|"Mọi cấp"| G2["Sức khỏe, Học tập, Trao đổi, Hoạt động, Thực đơn, Dặn thuốc"]
-    CC -->|"MN, TH, THCS, THPT"| AB["Báo vắng MP-06"]
-    CC -->|"MN"| G3["Điểm danh tháng này, Nhật ký, Hồ sơ cuối cấp"]
-    CC -->|"TH"| G4["Kết quả đánh giá, Cắt suất bán trú"]
-    CC -->|"TH, THCS, THPT"| G5["Học bạ, Thời khoá biểu, Điểm danh theo tiết, Sách thư viện"]
-    CC -->|"THCS, THPT"| G6["Điểm học tập"]
+    L -.->|"không đăng nhập"| AD
+    L -.->|"không đăng nhập"| RC
+  end
+
+  subgraph P2["② Trang chủ"]
+    H["<b>Trang chủ</b><br/>MP-01"]:::nguoi
+    NT>"Thông báo"]:::bao
+    PC["Xác nhận người đón<br/>MP-18"]:::nguoi
+    PL["Bình chọn, khảo sát<br/>MP-17"]:::nguoi
+    CC["<b>Thẻ từng con</b><br/>mỗi nút mở một bảng"]:::nguoi
+    H --> NT
+    H --> PC
+    H --> PL
+    H --> CC
+  end
+
+  subgraph P3["③ Bảng theo cấp của con"]
+    subgraph Q1["Mọi cấp"]
+      direction TB
+      G1["Người đón, Dịch vụ<br/>Học phí và mã QR<br/>Hình ảnh"]:::nguoi
+      G2["Sức khỏe, Học tập<br/>Trao đổi, Hoạt động<br/>Thực đơn, Dặn thuốc"]:::nguoi
+      G1 ~~~ G2
+    end
+    subgraph Q2["Theo cấp"]
+      direction TB
+      AB["<b>MN, TH, THCS, THPT</b><br/>Báo vắng MP-06"]:::nguoi
+      G3["<b>MN</b><br/>Điểm danh tháng này<br/>Nhật ký, Hồ sơ cuối cấp"]:::nguoi
+      G4["<b>TH</b><br/>Kết quả đánh giá<br/>Cắt suất bán trú"]:::nguoi
+      G5["<b>TH, THCS, THPT</b><br/>Học bạ, Thời khoá biểu<br/>Điểm danh theo tiết<br/>Sách thư viện"]:::nguoi
+      G6["<b>THCS, THPT</b><br/>Điểm học tập"]:::nguoi
+      AB ~~~ G3 ~~~ G4 ~~~ G5 ~~~ G6
+    end
+  end
+
+  O --> S
+  S -->|"Đã đăng nhập"| H
+  AV --> H
+  CC --> Q1
+  CC --> Q2
+
+  style P1 fill:#fafafa,stroke:#90a4ae
+  style P2 fill:#fafafa,stroke:#90a4ae
+  style P3 fill:#fafafa,stroke:#90a4ae
+  style Q1 fill:#ffffff,stroke:#cfd8dc
+  style Q2 fill:#ffffff,stroke:#cfd8dc
 ```
