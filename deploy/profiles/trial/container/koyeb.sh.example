@@ -1,0 +1,53 @@
+#!/bin/sh
+# Tạo dịch vụ web Koyeb cho máy chủ gộp, hồ sơ thử nghiệm dự phòng (DT-SaaS phần S9, YCTD-203). Koyeb không có tệp khai báo dịch vụ
+# chính thức nên dùng dòng lệnh `koyeb`. Gói miễn phí (tra trang tài liệu chính thức ngày 2026-10-25): mỗi tổ chức một bản miễn phí,
+# 512 MB RAM, 0,1 vCPU, 2 GB SSD; chỉ một vùng Frankfurt hoặc Washington, D.C.; ngủ sau 1 giờ không có yêu cầu; chỉ dịch vụ web,
+# không gắn ổ đĩa. 0,1 vCPU rất yếu: tắt máy xếp thời khoá biểu ở trường thử. Chép thành tệp ngoài kho, thay giá trị giả rồi chạy.
+# Ảnh dựng sẵn từ Dockerfile.all-in-one, đẩy lên kho ảnh của bạn (ví dụ ghcr.io); không đưa khóa thật vào tệp này
+set -eu
+IMAGE=ghcr.io/to-chuc-gia/school-trial:latest
+
+koyeb app init school-trial \
+  --docker "$IMAGE" \
+  --instance-type free \
+  --regions fra \
+  --ports 8080:http \
+  --routes /:8080 \
+  --checks 8080:http:/api/v1/health \
+  --env NODE_ENV=production \
+  --env TENANT_DB_LAYOUT=schema \
+  --env PLATFORM_SHARED_DATABASE=postgres \
+  --env DB_HOST_ADAPTER=supabase \
+  --env TENANT_HOST_SOURCE=header:x-school-host \
+  --env TRUST_PROXY=2 \
+  --env SCHEDULER_MODE=external \
+  --env MIGRATE_ON_START=true \
+  --env REDIS_URL=memory:// \
+  --env PLATFORM_DATA_POLICY=consent-required \
+  --env DOMAIN_PROVIDER=cloudflare-saas \
+  --env PLATFORM_ROOT_DOMAIN=thu.example.test \
+  --env PLATFORM_CONSOLE_HOST=platform.thu.example.test \
+  --env PLATFORM_INGRESS_HOST=vao.thu.example.test \
+  --env SMS_PROVIDER=log \
+  --env SMS_ALLOW_LOG=true \
+  --env PAYMENT_GATEWAY=development \
+  --env FACEBOOK_PUBLISHER=development \
+  --env ZALO_SENDER=development \
+  --env "PLATFORM_DATABASE_URL={{ secret.PLATFORM_DATABASE_URL }}" \
+  --env "PLATFORM_ADMIN_DATABASE_URL={{ secret.PLATFORM_ADMIN_DATABASE_URL }}" \
+  --env "PLATFORM_MASTER_KEY={{ secret.PLATFORM_MASTER_KEY }}" \
+  --env "EDGE_SHARED_SECRET={{ secret.EDGE_SHARED_SECRET }}" \
+  --env "INTERNAL_JOB_TOKEN={{ secret.INTERNAL_JOB_TOKEN }}" \
+  --env "IDENTITY_TOKEN_PRIVATE_KEY={{ secret.IDENTITY_TOKEN_PRIVATE_KEY }}" \
+  --env "TOKEN_PUBLIC_KEY={{ secret.TOKEN_PUBLIC_KEY }}" \
+  --env "CLOUDFLARE_API_TOKEN={{ secret.CLOUDFLARE_API_TOKEN }}" \
+  --env "CLOUDFLARE_ZONE_ID={{ secret.CLOUDFLARE_ZONE_ID }}" \
+  --env "DB_POOLER_HOST={{ secret.DB_POOLER_HOST }}" \
+  --env "SUPABASE_PROJECT_REF={{ secret.SUPABASE_PROJECT_REF }}" \
+  --env "S3_ENDPOINT={{ secret.S3_ENDPOINT }}" \
+  --env "S3_REGION={{ secret.S3_REGION }}" \
+  --env S3_BUCKET=school-files \
+  --env "S3_ACCESS_KEY_ID={{ secret.S3_ACCESS_KEY_ID }}" \
+  --env "S3_SECRET_ACCESS_KEY={{ secret.S3_SECRET_ACCESS_KEY }}"
+# Các giá trị {{ secret.<TÊN> }} là bí mật của Koyeb (cú pháp theo trang Environment variables, tra ngày 2026-10-25), tạo trước bằng
+# koyeb secret create <TÊN> --value '<giá trị>'. Kiểm lại tên cờ bằng koyeb app init --help trước khi chạy

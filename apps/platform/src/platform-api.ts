@@ -123,6 +123,7 @@ export interface SchoolDetail {
     host: string;
     kind: string;
     status: string;
+    provider: string;
     verification_token: string | null;
     cname_target: string | null;
     last_checked_at: string | null;
@@ -154,6 +155,7 @@ export interface PlatformSettings {
   ingress_host: string | null;
   domain_provider: string;
   deletion_grace_days: number;
+  data_policy: 'any' | 'consent-required' | 'synthetic-only';
 }
 
 export interface ProvisionReply {

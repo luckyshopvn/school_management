@@ -158,6 +158,10 @@ jobs:
           - image: web
             dockerfile: deploy/docker/web.Dockerfile
             target: web
+          # Ảnh gộp identity + api của hồ sơ thử nghiệm (DT-SaaS phần S9)
+          - image: trial
+            dockerfile: deploy/profiles/trial/container/Dockerfile.all-in-one
+            target: all-in-one
     steps:
       - uses: actions/checkout@v4
       - uses: docker/setup-buildx-action@v3

@@ -1,0 +1,73 @@
+# syntax=docker/dockerfile:1.7
+# Ảnh gộp của hồ sơ thử nghiệm (DT-SaaS phần S9, YCTD-203): dịch vụ định danh và máy chủ API trong một container, một cổng
+# (PORT), bộ định tuyến router.mjs chia tuyến như Caddy ở hồ sơ vận hành. Cùng mã nguồn với ảnh `identity`, `api` của
+# deploy/docker/server.Dockerfile; không có `worker` (hồ sơ thử nghiệm không dùng Redis).
+# Dựng từ thư mục gốc kho mã nguồn: docker build -f deploy/profiles/trial/container/Dockerfile.all-in-one .
+
+ARG NODE_IMAGE=node:24-alpine
+
+FROM ${NODE_IMAGE} AS base
+ENV PNPM_HOME=/pnpm \
+    PATH=/pnpm:$PATH \
+    CI=true
+RUN npm install --global pnpm@10.12.1 && npm cache clean --force
+WORKDIR /app
+
+FROM base AS manifests
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
+COPY apps/api/package.json apps/api/
+COPY apps/identity/package.json apps/identity/
+COPY apps/worker/package.json apps/worker/
+COPY apps/portal/package.json apps/portal/
+COPY apps/parent/package.json apps/parent/
+COPY apps/teacher/package.json apps/teacher/
+COPY apps/platform/package.json apps/platform/
+COPY packages/config/package.json packages/config/
+COPY packages/server/package.json packages/server/
+COPY packages/shared/package.json packages/shared/
+COPY packages/ui/package.json packages/ui/
+COPY database/package.json database/
+COPY tests/package.json tests/
+
+FROM manifests AS build
+RUN --mount=type=cache,id=pnpm-store,target=/pnpm/store \
+    pnpm install --frozen-lockfile --store-dir /pnpm/store \
+      --filter "@school-management/api..." --filter "@school-management/identity..."
+COPY packages/config packages/config
+COPY packages/shared packages/shared
+COPY packages/server packages/server
+COPY database database
+COPY apps/identity apps/identity
+COPY apps/api apps/api
+RUN pnpm --filter "@school-management/api..." --filter "@school-management/identity..." build
+
+# Thư viện chạy thật của cả hai dịch vụ, dàn phẳng
+FROM manifests AS production-dependencies
+RUN --mount=type=cache,id=pnpm-store,target=/pnpm/store \
+    pnpm install --frozen-lockfile --prod --store-dir /pnpm/store --config.node-linker=hoisted \
+      --filter "@school-management/api..." --filter "@school-management/identity..."
+
+FROM ${NODE_IMAGE} AS all-in-one
+ENV NODE_ENV=production \
+    PORT=8080 \
+    MIGRATE_ON_START=true \
+    TENANT_DB_LAYOUT=schema \
+    SCHEDULER_MODE=external \
+    TENANT_POOL_MAX=1 \
+    TENANT_POOL_SCHOOLS=4 \
+    NODE_OPTIONS=--max-old-space-size=384
+RUN apk add --no-cache tini
+WORKDIR /app
+COPY --from=production-dependencies --chown=node:node /app /app
+COPY --from=build --chown=node:node /app/packages/shared/dist /app/packages/shared/dist
+COPY --from=build --chown=node:node /app/packages/server/dist /app/packages/server/dist
+COPY --from=build --chown=node:node /app/database/dist /app/database/dist
+COPY --from=build --chown=node:node /app/apps/identity/dist /app/apps/identity/dist
+COPY --from=build --chown=node:node /app/apps/api/dist /app/apps/api/dist
+COPY --chown=node:node deploy/profiles/trial/container/router.mjs /app/router.mjs
+USER node
+EXPOSE 8080
+HEALTHCHECK --interval=30s --timeout=5s --start-period=60s --retries=3 \
+  CMD wget -q -O /dev/null http://127.0.0.1:${PORT}/api/v1/health || exit 1
+ENTRYPOINT ["/sbin/tini", "--"]
+CMD ["node", "/app/router.mjs"]

@@ -1,7 +1,7 @@
 # 23. LỊCH SỬ PHIÊN BẢN
 
 - Mô tả: Mã phiên bản, ngày phát hành, danh sách thay đổi, chức năng mới, lỗi đã sửa, thay đổi dữ liệu, thay đổi API, rủi ro, khả năng tương thích, phương án quay lui.
-- Phiên bản: 0.55
+- Phiên bản: 0.56
 - Ngày cập nhật: 2026-10-25
 - Trạng thái: Đang cập nhật
 - Đã rà duyệt: Eric, ngày 2026-10-09
@@ -15,6 +15,18 @@
 5. Từ phiên bản 0.4.0, mỗi mục ghi theo mẫu của Vibecoding_Flow; các mục trước giữ nguyên dạng bảng và tên tệp cũ vì là ghi nhận lịch sử.
 
 ## 2. Danh sách phiên bản
+
+### Phiên bản 0.132.0 – 2026-10-25
+
+- Phạm vi thay đổi: DT-SaaS phần S9, triển khai thử nghiệm miễn phí (YCTD-203).
+- Chức năng mới: hồ sơ thử nghiệm `deploy/profiles/trial/` với cổng biên Cloudflare Worker, container gộp, ba tổ hợp Render/Koyeb, Neon/Supabase, R2/Supabase Storage, Vercel (P01-59, MH-320); bộ nối tên miền `cloudflare-saas`, `vercel-domains` (P01-60); chính sách dữ liệu của môi trường; lệnh `platform relayout` chuyển trường sang nền tảng, bố cục khác (P01-61).
+- Lỗi đã sửa: không có.
+- Thay đổi dữ liệu: cột `school_databases.login_name` (tệp nền tảng `0100`, `16_CO_SO_DU_LIEU.md` mục 18A).
+- Thay đổi API: không thêm điểm cuối; lỗi `ERR_SERVICE_WAKING` của cổng biên; lỗi chính sách dữ liệu ở bước setup; biến `DB_HOST_ADAPTER`, `DB_POOLER_HOST`, `DB_POOLER_PORT`, `SUPABASE_PROJECT_REF`, `PLATFORM_DATA_POLICY`, `CLOUDFLARE_API_TOKEN`, `CLOUDFLARE_ZONE_ID`, `VERCEL_TOKEN`, `VERCEL_PROJECT_ID`, `VERCEL_TEAM_ID`, `MIGRATE_ON_START`, `MIGRATE_SCHOOLS_ON_START`, `SMS_ALLOW_LOG`, `APP_BASE_PATH`, `REDIS_URL=memory://`, `TARGET_PLATFORM_*` (xem `17_DAC_TA_API.md`).
+- Kiểm thử: kịch bản CT-1014 đến CT-1021. Kết quả ngày 25/10/2026: `database` 8 ca mới ở `trial-adapters.test.ts`; `tests` 12 ca (`trial/edge-worker.test.mjs` 9, `trial/container-router.test.mjs` 3); `apps/identity` 1 ca mới (`memory-store.test.ts`); `packages/server` 11 ca `esms-client.test.ts`; `school-relayout.test.ts` 1 ca đạt (chép 3 cơ sở dữ liệu, khớp số dòng và tổng kiểm từng bảng); e2e nhiều trường spec 130, 131, 132, 140 đạt ở bố cục database, spec 132, 140 đạt ở bố cục schema; e2e một trường spec 01 đạt; e2e toàn bộ do CI chạy.
+- Rủi ro: chưa dựng thật trên các nhà cung cấp; giới hạn gói miễn phí thay đổi; máy chủ ngủ làm lần mở đầu chậm khoảng một phút; kho khóa trong bộ nhớ không đúng khi chạy nhiều bản; dữ liệu thật ở máy chủ ngoài nước là rủi ro tồn đọng do Eric chấp nhận (PL-09).
+- Khả năng tương thích: mặc định giữ hành vi cũ (`DB_HOST_ADAPTER=plain`, `PLATFORM_DATA_POLICY=any`, `APP_BASE_PATH=/`, Redis thật); cột `login_name` trống thì đăng nhập bằng tên vai trò.
+- Phương án quay lui: hoàn lại commit gộp của nhánh S9; cột `login_name` để trống không ảnh hưởng mã cũ.
 
 ### Phiên bản 0.131.0 – 2026-10-25
 

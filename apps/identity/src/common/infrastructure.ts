@@ -4,19 +4,24 @@ import { requireTenant } from '@school-management/server';
 import { Redis } from 'ioredis';
 import type { Kysely } from 'kysely';
 import { IDENTITY_CONFIGURATION, TENANCY_RUNTIME, type IdentityConfiguration } from './configuration.js';
+import { MEMORY_STORE_URL, MemoryStore, type CacheStore } from './memory-store.js';
 
-// Kết nối cơ sở dữ liệu định danh và Redis, đóng khi dịch vụ dừng
+// Kết nối cơ sở dữ liệu định danh và Redis, đóng khi dịch vụ dừng. REDIS_URL=memory:// dùng kho trong bộ nhớ (một bản dịch vụ, hồ
+// sơ thử nghiệm DT-SaaS S9)
 @Injectable()
 export class Infrastructure implements OnModuleDestroy {
   private readonly singleDatabase: Kysely<IdentityDatabase> | null;
-  readonly redis: Redis;
+  readonly redis: CacheStore;
 
   constructor(
     @Inject(IDENTITY_CONFIGURATION) private readonly configuration: IdentityConfiguration,
     @Optional() @Inject(TENANCY_RUNTIME) private readonly tenancy: TenancyRuntime | null = null,
   ) {
     this.singleDatabase = tenancy ? null : createDatabase<IdentityDatabase>(configuration.databaseUrl);
-    this.redis = new Redis(configuration.redisUrl, { maxRetriesPerRequest: 3 });
+    this.redis =
+      configuration.redisUrl === MEMORY_STORE_URL
+        ? new MemoryStore()
+        : new Redis(configuration.redisUrl, { maxRetriesPerRequest: 3 });
   }
 
   // Chế độ một trường: cơ sở dữ liệu định danh duy nhất. Chế độ nhiều trường (DT-SaaS phần S1a): cơ sở dữ liệu định danh của

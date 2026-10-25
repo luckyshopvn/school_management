@@ -51,7 +51,9 @@ export function readSmsProviderSettings(environment: Environment = process.env):
   if (provider !== 'log') {
     throw new Error(`Nhà cung cấp tin nhắn ${provider} chưa được hỗ trợ`);
   }
-  if (environment.NODE_ENV === 'production') {
+  // Hồ sơ thử nghiệm (DT-SaaS phần S9) cho phép ghi mã ra nhật ký khi đặt rõ SMS_ALLOW_LOG=true: chỉ trường dữ liệu giả, người vận
+  // hành đọc mã ở nhật ký máy chủ; trường dữ liệu thật cấu hình eSMS
+  if (environment.NODE_ENV === 'production' && environment.SMS_ALLOW_LOG !== 'true') {
     throw new Error('Chưa cấu hình nhà cung cấp tin nhắn cho môi trường chạy thật (đặt SMS_PROVIDER=esms)');
   }
   return { provider };

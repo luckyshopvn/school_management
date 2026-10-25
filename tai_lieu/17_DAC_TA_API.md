@@ -1,7 +1,7 @@
 # 17. ĐẶC TẢ API
 
 - Mô tả: Điểm cuối, phương thức, yêu cầu, phản hồi, xác thực, phân quyền, kiểm tra dữ liệu, xử lý lỗi, phân trang, lọc, sắp xếp, phiên bản.
-- Phiên bản: 1.123
+- Phiên bản: 1.124
 - Ngày cập nhật: 2026-10-25
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -270,6 +270,13 @@ Giao kèo khởi tạo và vòng đời trường (DT-SaaS phần S2, YCTD-193, 
 2. `POST /schools` nhận `{ code, name, address, levels, first_year_start, domain: { mode: 'system' } | { mode: 'custom', host }, data_class, status, consents[], hosting[], admin: { full_name, login, phone }, terms: { version, accepted, accepted_by_name, accepted_by_title } }`, chạy khởi tạo ngay, trả `{ job_id, status: 'done' | 'failed', error, school, activation: { path: '/activate?token=…', host } }`; đường kích hoạt chỉ trả ở lần chạy tạo lời mời.
 3. `GET /api/v1/auth/activate?token=` và `POST /api/v1/auth/activate` (`{ token, new_password }`) phục vụ ở tên miền của trường, không cần đăng nhập, có giới hạn tần suất đăng nhập; mã sai, đã dùng, hết hạn hoặc của trường khác trả 401; mật khẩu sai chính sách trả 400.
 4. Trạng thái trường đổi thì bộ phân giải của dịch vụ định danh đọc lại ngay; máy chủ API đọc lại sau `TENANT_CACHE_SECONDS`.
+
+Giao kèo hồ sơ thử nghiệm (DT-SaaS phần S9, YCTD-203, BR-209, BR-210):
+
+1. Cổng biên chuyển `/api/v1` về máy chủ kèm `x-school-host: <tên miền gốc>` và `x-edge-auth: <EDGE_SHARED_SECRET>`, bỏ hai tiêu đề này, `x-forwarded-host`, `x-website-root` nếu người dùng tự đặt; đặt `x-forwarded-for` bằng địa chỉ người dùng. Máy chủ ngủ (quá `ORIGIN_TIMEOUT_MS`, lỗi kết nối, 502, 504, 520 đến 524) thì cổng biên trả 503 kèm `Retry-After: 10`: trang HTML cho trình duyệt, `{ error: { code: 'ERR_SERVICE_WAKING', message, details: [] } }` cho lời gọi khác. Lỗi 503 của ứng dụng chuyển nguyên.
+2. Bước setup và `POST /auth/platform/schools/{mã}/data-class` trả 400 hoặc 422 có lỗi ở `data_class` khi loại dữ liệu trái `PLATFORM_DATA_POLICY`; `GET /auth/platform/schools/settings` thêm `data_policy`; chi tiết trường trả `provider` của từng tên miền.
+3. Biến của nền tảng: `DB_HOST_ADAPTER` (`plain`, `neon`, `supabase`), `DB_POOLER_HOST`, `DB_POOLER_PORT`, `SUPABASE_PROJECT_REF`, `PLATFORM_DATA_POLICY`, `DOMAIN_PROVIDER` (`dns-check`, `cloudflare-saas`, `vercel-domains`) kèm `CLOUDFLARE_API_TOKEN`, `CLOUDFLARE_ZONE_ID` hoặc `VERCEL_TOKEN`, `VERCEL_PROJECT_ID`, `VERCEL_TEAM_ID`, `MIGRATE_ON_START`, `MIGRATE_SCHOOLS_ON_START`, `SMS_ALLOW_LOG`, `REDIS_URL=memory://` (dịch vụ định danh), `APP_BASE_PATH` (lúc dựng giao diện).
+4. Lệnh `platform relayout --school <mã> --to database|schema` đọc nền tảng nguồn từ biến của nền tảng và nền tảng đích từ `TARGET_PLATFORM_DATABASE_URL`, `TARGET_PLATFORM_MASTER_KEY`, `TARGET_PLATFORM_ADMIN_DATABASE_URL`, `TARGET_PLATFORM_SHARED_DATABASE`; in mỗi cơ sở dữ liệu đã chép và số bảng khớp.
 ## 5. Nền tảng và phân quyền
 
 Các điểm cuối tài khoản, vai trò, quyền và khóa API dưới đây do dịch vụ định danh phục vụ. Các điểm cuối còn lại, gồm đơn vị, năm học, cấu hình và nhóm `/partner/`, do máy chủ API nghiệp vụ phục vụ; khóa API gửi kèm yêu cầu của đối tác được máy chủ API kiểm tra với dịch vụ định danh.
