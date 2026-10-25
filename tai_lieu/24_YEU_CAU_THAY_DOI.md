@@ -29,7 +29,7 @@ Các thay đổi trước phiên bản 0.4.0 chưa có sổ này; xem `23_LICH_S
 - Rủi ro: ngưỡng, quy mô là giả định chưa đo (S7b đo); hai bản ghi A không tự bỏ máy hỏng; Let's Encrypt giới hạn tốc độ cấp khi nhiều tên miền con mới cùng lúc.
 - Chưa làm trong phần này, ghi để làm tiếp: sao lưu theo từng trường, khôi phục về một thời điểm, chuyển cụm, thử tải (S7b); danh sách xác thực PgBouncer sinh từ cơ sở dữ liệu nền tảng khi có vai trò riêng cho từng trường (S1a, S2); điểm cuối kiểm tra tên miền của nền tảng (S1b); thêm kiểm tra cấu hình hồ sơ này vào CI (tệp CI ngoài phạm vi phần này).
 - Kiểm thử cần thực hiện: CT-986 đến CT-989. Kết quả ngày 25/10/2026: `deploy/profiles/production/scripts/check-config.sh` đạt (Compose T1, T2 hai máy, T3 máy bản sao, staging cùng VPS; Caddyfile có và không có tệp `sites.d`; Prometheus, luật cảnh báo; Alertmanager đủ ba kênh và không kênh nào; Loki); dựng ảnh PgBouncer, chạy cùng PostgreSQL: kết nối `school_system` gom theo phiên giữ và mở khóa tư vấn trên cùng kết nối, `school_identity` gom theo giao dịch, sai mật khẩu bị từ chối, kiểm tra sức khỏe đạt; bản sao lấy bản sao cơ bản, máy chính báo `streaming`, bản sao đọc được dòng vừa ghi; cú pháp các script shell đạt; bản một máy cũ (`deploy/docker-compose.production.yml`) vẫn hợp lệ; kiểm tra định dạng đạt. Không có e2e (phần hạ tầng, không sửa mã nghiệp vụ); kiểm tay trên staging (CT-989) chờ dựng VPS thử.
-- Trạng thái: Đã triển khai phần dựng sẵn (PR …); kiểm tay trên staging chờ VPS thử.
+- Trạng thái: Đã triển khai phần dựng sẵn (PR #163); kiểm tay trên staging chờ VPS thử.
 
 ### YCTD-175: DT-21 phần 21g: báo cáo, thống kê và EMIS THCS, THPT – 2026-10-25
 

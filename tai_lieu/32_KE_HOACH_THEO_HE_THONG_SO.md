@@ -1484,7 +1484,7 @@ Các lớp kiểm thử:
 | Phần | Đợt | Tiến độ |
 |---|---|---|
 | S1a | 1 | Chưa làm, YCTD-191 |
-| S7a | 1 | Đã làm phần dựng sẵn (PR …, YCTD-198, phiên bản 0.128.0); kiểm tay trên staging chờ VPS thử |
+| S7a | 1 | Đã làm phần dựng sẵn (PR #163, YCTD-198, phiên bản 0.128.0); kiểm tay trên staging chờ VPS thử |
 | S8a | 1 | Chưa làm, YCTD-200 |
 | S1b | 2 | Chưa làm, YCTD-192; bắt đầu khi S1a gộp |
 | S2 | 2 | Chưa làm, YCTD-193; bắt đầu khi S1a gộp, gộp sau S1b |
