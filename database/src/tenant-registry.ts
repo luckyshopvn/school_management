@@ -31,6 +31,8 @@ export function databaseKey(kind: SchoolDatabaseKind, name: string): string {
 export class TenantRegistry implements TenantResolver {
   private readonly records = new Map<string, TenantRecord>();
   private readonly hostToSchool = new Map<string, { schoolId: string; at: number }>();
+  // Nhiều yêu cầu cùng lúc gặp bản đã hết hạn thì chỉ một lần nạp, các yêu cầu khác chờ kết quả
+  private readonly loading = new Map<string, Promise<TenantRecord | null>>();
   private readonly cacheMillis: number;
   private readonly now: () => number;
 
@@ -133,6 +135,23 @@ export class TenantRegistry implements TenantResolver {
     const record: TenantRecord = { context, databases, loadedAt: this.now() };
     this.records.set(schoolId, record);
     return record;
+  }
+
+  // Ngữ cảnh một trường theo mã, dùng bản đã nạp còn trong thời hạn đệm: mỗi yêu cầu nội bộ giữa máy chủ API và dịch vụ định danh
+  // (nhận trường theo mã trong mã phiên) và mỗi việc nền gọi hàm này nên không đọc cơ sở dữ liệu nền tảng mỗi lần (DT-SaaS phần S1b)
+  async contextOf(schoolId: string): Promise<TenantContext | null> {
+    const record = this.records.get(schoolId);
+    if (record && this.now() - record.loadedAt < this.cacheMillis) {
+      return record.context;
+    }
+    let pending = this.loading.get(schoolId);
+    if (!pending) {
+      pending = this.loadSchool(schoolId).finally(() => {
+        this.loading.delete(schoolId);
+      });
+      this.loading.set(schoolId, pending);
+    }
+    return (await pending)?.context ?? null;
   }
 
   // Bản đã nạp (đồng bộ). Thiếu nghĩa là chưa có yêu cầu nào của trường qua resolveHost hoặc loadSchool: đóng chặt

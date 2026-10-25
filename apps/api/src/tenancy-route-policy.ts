@@ -33,7 +33,19 @@ export const PUBLIC_ROUTES: PublicRoute[] = [
   post('/api/v1/payment-webhooks/sepay', WEBHOOK),
   get(
     '/api/v1/public/website/domain-check',
-    'Caddy hỏi trước khi cấp chứng chỉ theo yêu cầu (18f); gọi bằng địa chỉ nội bộ nên ở chế độ nhiều trường chưa dùng được, S1b chuyển sang danh sách tên miền của cơ sở dữ liệu nền tảng',
+    'Caddy hỏi trước khi cấp chứng chỉ theo yêu cầu (18f); gọi bằng địa chỉ nội bộ nên không cần trường: ở chế độ nhiều trường tra danh mục tên miền của cơ sở dữ liệu nền tảng, chỉ trả 200 hoặc 404, không trả dữ liệu (S1b)',
+  ),
+  get(
+    '/api/v1/public/schools/picker',
+    'Trang chọn trường ở tên miền gốc của hệ thống: trang tĩnh không dữ liệu, không cần trường; chưa đặt tên miền gốc thì 404 (S1b)',
+  ),
+  get(
+    '/api/v1/public/schools/resolve',
+    'Đổi mã trường thành địa chỉ trường ở trang chọn trường: chỉ trả địa chỉ của trường đang phục vụ, không liệt kê trường, có giới hạn tần suất theo địa chỉ mạng (S1b)',
+  ),
+  post(
+    '/api/v1/internal/jobs/tick',
+    'Điểm gọi của bộ hẹn giờ bên ngoài chạy việc nền đến hạn của mọi trường; đòi bí mật dùng chung INTERNAL_JOB_TOKEN (so sánh thời gian hằng), chưa đặt bí mật thì 404 (S1b)',
   ),
   get('/api/v1/public/demo', 'Thông tin bản trình diễn của trường (18h), theo tên miền của trường'),
   get(

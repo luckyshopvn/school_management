@@ -3,6 +3,8 @@ import { defineConfig, devices } from '@playwright/test';
 import { replaceDatabaseName, testAdminDatabaseUrl } from '@school-management/database';
 import {
   E2E_CONSOLE_HOST,
+  E2E_ROOT_DOMAIN,
+  E2E_SCHEDULER_SECRET,
   E2E_MULTI_API_PORT,
   E2E_MULTI_IDENTITY_PORT,
   E2E_MULTI_PORTAL_PORT,
@@ -71,6 +73,10 @@ export default defineConfig({
         ...platformEnvironment,
         API_PORT: String(E2E_MULTI_API_PORT),
         TENANT_CACHE_SECONDS: '2',
+        // Phần S1b: tên miền gốc cho trang chọn trường; việc nền do spec gọi điểm tick (tắt hẹn giờ trong tiến trình) để chạy xác định
+        PLATFORM_ROOT_DOMAIN: E2E_ROOT_DOMAIN,
+        INTERNAL_JOB_TOKEN: E2E_SCHEDULER_SECRET,
+        SCHEDULER_MODE: 'external',
         IDENTITY_BASE_URL: identityBaseUrl,
         PAYMENT_GATEWAY: 'development,vietqr-static',
         FACEBOOK_PUBLISHER: 'development',

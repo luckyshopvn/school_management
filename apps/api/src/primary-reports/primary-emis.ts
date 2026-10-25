@@ -1,4 +1,18 @@
-import { Body, Controller, Get, Injectable, OnModuleInit, Param, Put, Query, Req, Res } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Inject,
+  Injectable,
+  OnModuleInit,
+  Optional,
+  Param,
+  Put,
+  Query,
+  Req,
+  Res,
+} from '@nestjs/common';
+import { JobScheduler } from '../common/job-scheduler.js';
 import { isMultiTenantMode } from '@school-management/server';
 import {
   ApplicationError,
@@ -58,15 +72,26 @@ export class PrimaryEmisService implements OnModuleInit {
     private readonly submissions: UpperLevelSubmissions,
     private readonly forms: UpperLevelForms,
     private readonly clock: Clock,
+    @Optional() @Inject(JobScheduler) private readonly scheduler: JobScheduler | null = null,
   ) {}
 
   // Biểu trong danh mục đăng ký vào luồng gửi lên cấp trên lúc khởi động (biểu thêm sau cần khởi động lại máy chủ)
   async onModuleInit(): Promise<void> {
-    // Nhiều trường (DT-SaaS phần S1a): việc nền và việc khởi động theo từng trường làm ở phần S1b (tài liệu 32 mục 14.5); tới lúc
-    // đó không chạy ở chế độ nhiều trường vì ngoài yêu cầu không có ngữ cảnh trường
+    // Nhiều trường (DT-SaaS phần S1b): biểu nằm ở cơ sở dữ liệu của từng trường, đăng ký theo từng trường qua bộ lập lịch (việc khởi động
+    // của tiến trình); danh mục biểu của các trường cùng một mã nên đăng ký lại bản sau đè bản trước
     if (isMultiTenantMode()) {
+      this.scheduler?.register({
+        name: 'emis-forms',
+        intervalSeconds: 3600,
+        perProcess: true,
+        run: () => this.registerForms(),
+      });
       return;
     }
+    await this.registerForms();
+  }
+
+  async registerForms(): Promise<void> {
     const rows = await this.databases.system.selectFrom('report_forms').select(['code', 'name']).execute();
     for (const form of rows) {
       this.forms.register({

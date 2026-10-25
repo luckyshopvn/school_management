@@ -1,7 +1,7 @@
 # 03. DANH SÁCH KIỂM TRA CÔNG VIỆC
 
 - Mô tả: Danh sách công việc, trạng thái và thứ tự ưu tiên của dự án.
-- Phiên bản: 0.72
+- Phiên bản: 0.73
 - Ngày cập nhật: 2026-10-25
 - Trạng thái: Đang cập nhật
 

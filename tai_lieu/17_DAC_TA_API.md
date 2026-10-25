@@ -1,7 +1,7 @@
 # 17. ĐẶC TẢ API
 
 - Mô tả: Điểm cuối, phương thức, yêu cầu, phản hồi, xác thực, phân quyền, kiểm tra dữ liệu, xử lý lỗi, phân trang, lọc, sắp xếp, phiên bản.
-- Phiên bản: 1.123
+- Phiên bản: 1.124
 - Ngày cập nhật: 2026-10-25
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -262,8 +262,9 @@ Giao kèo nhiều trường (DT-SaaS phần S1a, YCTD-191, BR-200 đến BR-202)
 1. Có biến `PLATFORM_DATABASE_URL` thì dịch vụ định danh và máy chủ API chạy nhiều trường: mỗi yêu cầu nhận diện trường theo tên miền (`TENANT_HOST_SOURCE` là `host`, `x-forwarded-host` kèm `TRUST_PROXY`, hoặc `header:<tên>` kèm `EDGE_SHARED_SECRET`); tên miền lạ, thiếu tên miền, trường đang khởi tạo hoặc đã xóa trả 404 chung (`ERR_NOT_FOUND`), trường tạm dừng trả 503 (`ERR_SCHOOL_SUSPENDED`); đường dẫn `/api/v1/health` và `/api/v1/auth/platform/*` không cần trường.
 2. Mã phiên mang claim `tid` (mã trường; `sid` đã là mã phiên). Máy chủ API và dịch vụ định danh trả 401 khi thiếu `tid` hoặc `tid` khác trường của tên miền. Gọi nội bộ giữa hai dịch vụ dùng địa chỉ nội bộ, không phải tên miền của trường: khi tên miền không phân giải được mà yêu cầu có mã phiên hợp lệ thì lấy trường theo `tid` trong mã phiên đã ký.
 3. Cookie mã làm mới đặt tên kèm mã trường (`refresh_token__<mã>`), khóa Redis của dịch vụ định danh có tiền tố `t:<mã>`, `cacheKey`, `storageKey` thêm tiền tố của trường (trường số 1 tiền tố trống).
-4. Việc nền và việc khởi động theo trường (gửi thông báo, xuất nền, hàng đợi máy xếp, đăng ký biểu EMIS) chưa chạy ở chế độ nhiều trường, làm ở phần S1b.
-5. Gói dịch vụ (DT-SaaS phần S5a, YCTD-194, BR-203 đến BR-205): khi trường có gói, quyền thuộc phân hệ ngoài gói trả 403 `MODULE_NOT_IN_PLAN`; vượt giới hạn khi thêm học sinh, bật cấp học, tải tệp trả 422 `PLAN_LIMIT_EXCEEDED`; trường ở trạng thái `read_only` trả 403 `SCHOOL_READ_ONLY` cho mọi yêu cầu ghi tới máy chủ API và dịch vụ định danh, trừ `/api/v1/auth/*` (ngoài `/auth/settings`), đường dẫn xuất, `/api/v1/export-jobs`, `/api/v1/school-plan`, `/api/v1/billing`. Trường chưa gán gói và chế độ một trường không bị ảnh hưởng.
+4. Việc nền và việc khởi động theo trường (gửi thông báo, văn thư, xuất nền, lưu kết quả máy xếp, nhắc việc, đăng ký biểu EMIS) chạy qua bộ lập lịch (YCTD-192, BR-203, BR-204): `SCHEDULER_MODE` (`internal` mặc định hoặc `external`), `SCHEDULER_INTERVAL_SECONDS` (15), `SCHEDULER_CONCURRENCY` (2), `INTERNAL_JOB_TOKEN`, `TIMETABLE_MAX_ACTIVE_RUNS` (2), `PLATFORM_ROOT_DOMAIN`. `domain-check` ở chế độ nhiều trường tra danh mục tên miền của nền tảng (BR-205).
+5. Gói dịch vụ (DT-SaaS phần S5a, YCTD-194, BR-206 đến BR-208): khi trường có gói, quyền thuộc phân hệ ngoài gói trả 403 `MODULE_NOT_IN_PLAN`; vượt giới hạn khi thêm học sinh, bật cấp học, tải tệp trả 422 `PLAN_LIMIT_EXCEEDED`; trường ở trạng thái `read_only` trả 403 `SCHOOL_READ_ONLY` cho mọi yêu cầu ghi tới máy chủ API và dịch vụ định danh, trừ `/api/v1/auth/*` (ngoài `/auth/settings`), đường dẫn xuất, `/api/v1/export-jobs`, `/api/v1/school-plan`, `/api/v1/billing`. Trường chưa gán gói và chế độ một trường không bị ảnh hưởng.
+
 ## 5. Nền tảng và phân quyền
 
 Các điểm cuối tài khoản, vai trò, quyền và khóa API dưới đây do dịch vụ định danh phục vụ. Các điểm cuối còn lại, gồm đơn vị, năm học, cấu hình và nhóm `/partner/`, do máy chủ API nghiệp vụ phục vụ; khóa API gửi kèm yêu cầu của đối tác được máy chủ API kiểm tra với dịch vụ định danh.
@@ -1525,8 +1526,11 @@ Giao kèo văn thư lưu trữ (YCTD-118):
 | PUT | /api/v1/auth/platform/plans/{id} | Sửa gói (YCTD-194) |
 | GET | /api/v1/auth/platform/plan-schools | Danh sách trường kèm trạng thái, gói hiện hành, hạn (YCTD-194) |
 | PUT | /api/v1/auth/platform/plan-schools/{id} | Gán gói (ngày hiệu lực), đặt hạn dùng thử, hạn đã trả phí, trạng thái trường (YCTD-194); ghi nhật ký nền tảng |
-| POST | /api/v1/auth/platform/plan-lifecycle | Chạy chuyển trạng thái theo hạn, trả danh sách trường đổi và trường cần nhắc (YCTD-194, BR-205) |
+| POST | /api/v1/auth/platform/plan-lifecycle | Chạy chuyển trạng thái theo hạn, trả danh sách trường đổi và trường cần nhắc (YCTD-194, BR-208) |
 | GET | /api/v1/school-plan | Gói của trường đang dùng: `restricted`, trạng thái, gói, phân hệ, giới hạn, số đang dùng (học sinh, dung lượng, cấp học), hạn, số ngày còn lại, `read_only` (YCTD-194); mọi người dùng đã đăng nhập |
+| POST | /api/v1/internal/jobs/tick | Điểm gọi của bộ hẹn giờ bên ngoài (YCTD-192, BR-204): tiêu đề `x-internal-job-token` bằng `INTERNAL_JOB_TOKEN` (so sánh thời gian hằng, sai 401, chưa đặt 404, có giới hạn tần suất); chạy việc nền đến hạn của mọi trường rồi trả `{ jobs, schools, failed }`; không cần trường (gọi bằng địa chỉ nội bộ) |
+| GET | /api/v1/public/schools/picker | Trang chọn trường ở tên miền gốc (YCTD-192, BR-205, MH-315): trang HTML tĩnh, 404 khi chưa đặt `PLATFORM_ROOT_DOMAIN`; không cần trường |
+| GET | /api/v1/public/schools/resolve?code=<mã> | Đổi mã trường thành `{ url }` của trường đang phục vụ (YCTD-192, BR-205); mã lạ, trường tạm dừng, đang khởi tạo hoặc đã xóa 404; có giới hạn tần suất theo địa chỉ mạng; không liệt kê trường |
 | GET, POST | /api/v1/school-data-exports; GET /api/v1/users/data-export | Gói ZIP toàn bộ dữ liệu; phần dữ liệu tài khoản của dịch vụ định danh (P01-33, YCTD-145) |
 | GET | /api/v1/public/demo | Trạng thái bản trình diễn, tài khoản trình diễn, mật khẩu chung (công khai; P01-34, YCTD-145) |
 | GET | /api/v1/outgoing-documents | Danh sách văn bản đi theo `view` (`drafts`, `pending`, `processed`, `to_issue`, `issued`, `search`), lọc, phân trang (YCTD-140) |

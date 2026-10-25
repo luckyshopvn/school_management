@@ -1,5 +1,13 @@
-import { Inject, Injectable, Logger, type OnApplicationBootstrap, type OnModuleDestroy } from '@nestjs/common';
-import { isMultiTenantMode } from '@school-management/server';
+import {
+  Inject,
+  Injectable,
+  Optional,
+  Logger,
+  type OnApplicationBootstrap,
+  type OnModuleDestroy,
+} from '@nestjs/common';
+import { JobScheduler } from '../common/job-scheduler.js';
+import { currentTenant, isMultiTenantMode } from '@school-management/server';
 import type { SchoolYearDatabase } from '@school-management/database';
 import { Clock } from '@school-management/server';
 import { sql, type Kysely } from 'kysely';
@@ -37,7 +45,7 @@ const VIETNAM_TIME = new Intl.DateTimeFormat('en-GB', {
 export class NotificationDispatcher implements OnApplicationBootstrap, OnModuleDestroy {
   private readonly logger = new Logger('NotificationDispatcher');
   private timer: NodeJS.Timeout | null = null;
-  private running = false;
+  private readonly running = new Set<string>();
 
   constructor(
     @Inject(API_CONFIGURATION) private readonly configuration: ApiConfiguration,
@@ -47,12 +55,17 @@ export class NotificationDispatcher implements OnApplicationBootstrap, OnModuleD
     private readonly sms: SmsGateway,
     private readonly zalo: ZaloSender,
     private readonly clock: Clock,
+    @Optional() @Inject(JobScheduler) private readonly scheduler: JobScheduler | null = null,
   ) {}
 
   onApplicationBootstrap() {
-    // Nhiều trường (DT-SaaS phần S1a): việc nền và việc khởi động theo từng trường làm ở phần S1b (tài liệu 32 mục 14.5); tới lúc
-    // đó không chạy ở chế độ nhiều trường vì ngoài yêu cầu không có ngữ cảnh trường
+    // Nhiều trường (DT-SaaS phần S1b): bộ lập lịch gọi tick cho từng trường đang phục vụ, trong ngữ cảnh của trường
     if (isMultiTenantMode()) {
+      this.scheduler?.register({
+        name: 'notification-dispatch',
+        intervalSeconds: this.configuration.notificationDispatchIntervalSeconds ?? 60,
+        run: () => this.tick(),
+      });
       return;
     }
     const seconds = this.configuration.notificationDispatchIntervalSeconds ?? 60;
@@ -70,17 +83,18 @@ export class NotificationDispatcher implements OnApplicationBootstrap, OnModuleD
 
   // Một lượt chạy; lượt trước chưa xong thì bỏ qua lượt này
   async tick(): Promise<void> {
-    if (this.running) {
+    if (this.running.has(currentTenant()?.code ?? '')) {
       return;
     }
-    this.running = true;
+    const tenantKey = currentTenant()?.code ?? '';
+    this.running.add(tenantKey);
     try {
       await this.remindJournals();
       await this.dispatchPending();
     } catch (error) {
       this.logger.error('Tiến trình gửi thông báo lỗi', error instanceof Error ? error.stack : String(error));
     } finally {
-      this.running = false;
+      this.running.delete(tenantKey);
     }
   }
 

@@ -1,7 +1,7 @@
 # 23. LỊCH SỬ PHIÊN BẢN
 
 - Mô tả: Mã phiên bản, ngày phát hành, danh sách thay đổi, chức năng mới, lỗi đã sửa, thay đổi dữ liệu, thay đổi API, rủi ro, khả năng tương thích, phương án quay lui.
-- Phiên bản: 0.55
+- Phiên bản: 0.56
 - Ngày cập nhật: 2026-10-25
 - Trạng thái: Đang cập nhật
 - Đã rà duyệt: Eric, ngày 2026-10-09
@@ -16,17 +16,29 @@
 
 ## 2. Danh sách phiên bản
 
-### Phiên bản 0.130.0 – 2026-10-25
+### Phiên bản 0.131.0 – 2026-10-25
 
 - Phạm vi thay đổi: DT-SaaS phần S5a, gói dịch vụ và giới hạn (YCTD-194).
-- Chức năng mới: gói dịch vụ, phân hệ bật theo gói, giới hạn số học sinh, dung lượng, số cấp học (P01-51); trạng thái trường và chế độ chỉ đọc khi hết hạn (P01-52); trang Gói dịch vụ ở cổng nền tảng, dải báo và lọc menu ở cổng (P01-53, MH-315, MH-316).
+- Chức năng mới: gói dịch vụ, phân hệ bật theo gói, giới hạn số học sinh, dung lượng, số cấp học (P01-54); trạng thái trường và chế độ chỉ đọc khi hết hạn (P01-55); trang Gói dịch vụ ở cổng nền tảng, dải báo và lọc menu ở cổng (P01-56, MH-316, MH-317).
 - Lỗi đã sửa: không có.
 - Thay đổi dữ liệu: cơ sở dữ liệu nền tảng thêm `plans`, `school_plans`, ba cột của `schools` (tệp nền tảng `0040`, `16_CO_SO_DU_LIEU.md` mục 18A).
 - Thay đổi API: `GET /school-plan`, nhóm gói ở `/auth/platform`; mã lỗi `MODULE_NOT_IN_PLAN`, `SCHOOL_READ_ONLY`, `PLAN_LIMIT_EXCEEDED` (xem `17_DAC_TA_API.md`).
-- Kiểm thử: kịch bản CT-999 đến CT-1006 (CT-S5a-1 đến CT-S5a-8 trong mã kiểm thử). Kết quả ngày 25/10/2026: `database` 1 ca, `packages/server` 1 ca, `apps/identity` 1 ca, `apps/api` 4 ca mới đạt, ca cũ của các gói này đạt không sửa; e2e spec 134 và 130 ở dự án nhiều trường, spec 58 và các spec menu ở dự án một trường đạt; e2e toàn bộ do CI chạy.
+- Kiểm thử: kịch bản CT-1004 đến CT-1011 (CT-S5a-1 đến CT-S5a-8 trong mã kiểm thử). Kết quả ngày 25/10/2026: `database` 1 ca, `packages/server` 1 ca, `apps/identity` 1 ca, `apps/api` 4 ca mới đạt, ca cũ của các gói này đạt không sửa; e2e spec 134 và 130 ở dự án nhiều trường, spec 58 và các spec menu ở dự án một trường đạt; e2e toàn bộ do CI chạy.
 - Rủi ro: gói nằm trong bản đệm ngữ cảnh trường nên đổi gói, đổi trạng thái có hiệu lực sau `TENANT_CACHE_SECONDS` (mặc định 30 giây); chuyển trạng thái tự động chờ bộ lập lịch của S1b (trước đó chạy bằng lệnh hoặc nút ở cổng nền tảng); dung lượng tính trên tệp đính kèm và học liệu của năm học hiện hành.
 - Khả năng tương thích: chế độ một trường và trường chưa gán gói không đổi hành vi.
 - Phương án quay lui: hoàn lại commit gộp của nhánh S5a; gỡ gán gói (`school_plans`) và đặt trạng thái trường về `active` là bỏ giới hạn mà không cần quay lui mã.
+
+### Phiên bản 0.130.0 – 2026-10-25
+
+- Phạm vi thay đổi: DT-SaaS phần S1b, nền đa thuê bao, phần chạy nền và công khai (YCTD-192).
+- Chức năng mới: bộ lập lịch việc nền theo trường và điểm tick ngoài (P01-51); hàng đợi máy xếp theo trường và hạn mức đồng thời (P01-52); domain-check theo danh mục tên miền nền tảng, trang chọn trường, giới hạn tần suất công khai theo trường (P01-53, MH-315); bộ đệm ngữ cảnh trường cho yêu cầu nội bộ.
+- Lỗi đã sửa: không có.
+- Thay đổi dữ liệu: bảng `scheduler_state` ở cơ sở dữ liệu nền tảng (tệp `0010`, `16_CO_SO_DU_LIEU.md` mục 18A); không đổi cơ sở dữ liệu định danh, hệ thống, năm học.
+- Thay đổi API: `POST /internal/jobs/tick`, `GET /public/schools/picker`, `GET /public/schools/resolve`; `domain-check` ở chế độ nhiều trường tra danh mục nền tảng (xem `17_DAC_TA_API.md`); biến môi trường `SCHEDULER_MODE`, `SCHEDULER_INTERVAL_SECONDS`, `SCHEDULER_CONCURRENCY`, `INTERNAL_JOB_TOKEN`, `TIMETABLE_MAX_ACTIVE_RUNS`, `PLATFORM_ROOT_DOMAIN`.
+- Kiểm thử: kịch bản CT-999 đến CT-1003. Kết quả ngày 25/10/2026: database 11 ca mới; apps/api 10 ca mới cùng ma trận tuyến, toàn bộ 1126 ca đạt; apps/worker 3 ca (1 mới); apps/identity 75 ca đạt; kiểm tĩnh 6 ca; spec 131 nhiều trường; e2e toàn bộ do CI chạy.
+- Rủi ro: ở lượt mỗi trường mỗi việc mở kết nối của trường nên số trường lớn cần chỉnh `SCHEDULER_CONCURRENCY` và `TENANT_POOL_SCHOOLS` (S4 đo, S7 chỉnh); số đo theo trường ở `/metrics`, bản trình diễn (18h) và việc đăng ký biểu EMIS dùng chung danh mục mã giữa các trường chưa làm riêng (xem YCTD-192).
+- Khả năng tương thích: chế độ một trường giữ nguyên (bộ đếm giờ riêng từng lớp, `domain-check` theo `website_domains`, không hạn mức máy xếp mới); phần tử hàng đợi máy xếp không tiền tố vẫn đọc được.
+- Phương án quay lui: hoàn lại commit gộp của nhánh S1b; bảng `scheduler_state` chỉ chế độ nhiều trường dùng.
 
 ### Phiên bản 0.129.0 – 2026-10-25
 

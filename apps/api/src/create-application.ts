@@ -14,6 +14,7 @@ import { API_VERSION_PREFIX } from '@school-management/shared';
 import type { AcademicYearTransitionStep } from './academic-years/academic-year-transition.js';
 import { ApplicationModule } from './application.module.js';
 import type { ApiConfiguration } from './common/configuration.js';
+import { TENANT_FREE_PATHS } from './common/school-picker.js';
 import type { FileStorage } from './files/file-storage.js';
 import type { SmsGateway } from './notifications/sms-gateway.js';
 import type { IdentityClient } from './authentication/identity-client.js';
@@ -44,6 +45,7 @@ export async function createApplication(
       createTenantMiddleware({
         resolver: tenancy.registry,
         hostSource: tenancy.configuration.hostSource,
+        isTenantFreePath: (path) => TENANT_FREE_PATHS.has(path),
         ...(tenancy.configuration.edgeSecret ? { edgeSecret: tenancy.configuration.edgeSecret } : {}),
         resolveByToken: tenancy.tokenTenantResolver(configuration.tokenPublicKeyPem, () => clock.now()),
       }),
