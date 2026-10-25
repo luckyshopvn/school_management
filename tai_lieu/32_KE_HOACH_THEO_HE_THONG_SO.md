@@ -1,7 +1,7 @@
 # 32. KẾ HOẠCH ĐỒNG BỘ CHỨC NĂNG VÀ GIAO DIỆN THEO HỆ THỐNG CỦA SỞ (DT-15)
 
 - Mô tả: Kế hoạch điều chỉnh School Management theo kết quả khảo sát `31_KHAO_SAT_HE_THONG_SO.md`; từ mục 9 thêm kế hoạch DT-18 điều hành nhà trường, mục 10 thêm kế hoạch DT-19 nền đa cấp học, mục 11 thêm kế hoạch DT-20 Tiểu học (kèm 22c thời khoá biểu), mục 12 thêm kế hoạch DT-21 THCS và THPT (kèm 22g kiểm tra, đánh giá), mục 13 thêm kế hoạch DT-22 (22a thư viện, 22e hồ sơ bồi dưỡng, 22h kho học liệu số), mục 14 thêm kế hoạch DT-SaaS (Enterprise SaaS nhiều trường: S1a, S1b, S2, S3, S4, S5a, S5b, S6, S7a, S7b, S8a, S8b, S9; hai hồ sơ triển khai: thử nghiệm miễn phí và vận hành).
-- Phiên bản: 1.67
+- Phiên bản: 1.68
 - Ngày cập nhật: 2026-10-25
 - Trạng thái: Đã duyệt hướng làm
 - Căn cứ: yêu cầu của Eric ngày 2026-10-13 ("tính năng đã có thì ưu tiên phiên bản và giao diện của Sở; tính năng Sở không có thì giữ nguyên, chỉ đổi giao diện theo trang của Sở") và các lựa chọn của Eric cùng ngày ở mục 2.
@@ -1491,7 +1491,7 @@ Các lớp kiểm thử:
 | S1b | 2 | Chưa làm, YCTD-192; bắt đầu khi S1a gộp |
 | S2 | 2 | Chưa làm, YCTD-193; bắt đầu khi S1a gộp, gộp sau S1b |
 | S9 | 3 | Chưa làm, YCTD-203; bắt đầu khi S1a, S1b, S2 gộp, giao đầu tiên của đợt 3 |
-| S5a | 2 | Chưa làm, YCTD-194; bắt đầu khi S1a gộp |
+| S5a | 2 | Đã làm, YCTD-194, phiên bản 0.130.0, PR …: gói dịch vụ (tệp nền tảng 0040, `plans`, `school_plans`, hạn của trường), phân hệ theo menu cổng, giới hạn học sinh, dung lượng, cấp học, kiểm tra ở máy chủ và menu, trạng thái trường, chế độ chỉ đọc, hàm `applyPlanLifecycle` và lệnh `platform plan-lifecycle` cho bộ lập lịch của S1b, chỗ tính phí cho S5b (mặc định theo học sinh), trang Gói dịch vụ ở cổng nền tảng, e2e spec 134 |
 | S3 | 3 | Chưa làm, YCTD-195; bắt đầu khi S1b, S2 gộp |
 | S5b | 4 | Chưa làm, YCTD-196; bắt đầu khi S5a, S3, S1b gộp |
 | S4 | 3 | Chưa làm, YCTD-197; bắt đầu khi S2, S5a gộp |

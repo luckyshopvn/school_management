@@ -107,9 +107,10 @@ test('CT-S5a-8: phân hệ ngoài gói không hiện, máy chủ chặn; trườ
     }
   });
   await signIn(alpha, users.alpha as TestUser);
-  const workspaces = alpha.getByLabel('Phân hệ', { exact: true });
+  await alpha.getByRole('button', { name: /^Phân hệ: / }).click();
+  const workspaces = alpha.getByRole('menu', { name: 'Chọn phân hệ' });
   await expect(workspaces).toBeVisible();
-  const labels = await workspaces.locator('option').allInnerTexts();
+  const labels = await workspaces.getByRole('menuitemradio').allInnerTexts();
   expect(labels.some((label) => label.includes('Quản lý giáo dục'))).toBe(true);
   expect(labels.some((label) => label.includes('Kho học liệu'))).toBe(false);
   expect(labels.some((label) => label.includes('Tài chính'))).toBe(false);

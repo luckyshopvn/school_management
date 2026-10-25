@@ -1,7 +1,7 @@
 # 11. TIÊU CHÍ NGHIỆM THU
 
 - Mô tả: Tiêu chí nghiệm thu cho từng chức năng, viết dạng Cho, Khi, Thì.
-- Phiên bản: 1.75
+- Phiên bản: 1.76
 - Ngày cập nhật: 2026-10-25
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -899,6 +899,9 @@ Các mã từ AC-94 đến AC-134 được viết trực tiếp trong mục 12 c
 | AC-824 | Cho tài khoản và mã phiên của trường A / Khi đăng nhập ở tên miền trường B, dùng mã phiên của A ở trường B, giả hoặc bỏ mã trường trong mã phiên, dùng cookie mã làm mới của A ở B / Thì bị từ chối ở mọi tuyến; mã phiên dùng được ở tên miền A và ở địa chỉ nội bộ; giới hạn đăng nhập và khóa Redis tính riêng từng trường (CT-992, CT-993; YCTD-191) |
 | AC-825 | Cho hai trường ở cả hai bố cục (database, schema) / Khi mở năm học, tạo đơn vị mồi, mở năm học kế tiếp rồi hủy, quét mọi bảng của từng trường / Thì chuỗi mồi của trường kia không có ở đâu; vai trò của trường A không kết nối hay đọc, ghi, tạo bảng ở phần của B; năm học cũ khóa ghi ở mức PostgreSQL, bản mã dữ liệu trẻ của A không giải được ở B (CT-994, CT-995; YCTD-191) |
 | AC-826 | Cho bản đang chạy một trường và nền tảng / Khi chạy adopt-existing hai lần, và khi tài khoản vận hành đăng nhập ở cổng nền tảng / Thì trường số 1 dùng lại cơ sở dữ liệu cũ, tiền tố khóa trống, không tạo thêm hàng; cổng nền tảng chỉ phục vụ ở tên miền riêng, khóa 15 phút sau 5 lần sai, mã phiên vận hành và mã phiên của trường không dùng chéo (CT-996, CT-997; YCTD-191) |
+| AC-827 | Cho trường gán gói chỉ có phân hệ Quản lý giáo dục / Khi người dùng mở cổng và gọi API của phân hệ khác / Thì menu không có phân hệ ngoài gói, máy chủ trả 403 `MODULE_NOT_IN_PLAN`; trường chưa gán gói dùng như trước (CT-1001, CT-1002, CT-1006; YCTD-194) |
+| AC-828 | Cho gói giới hạn số học sinh, dung lượng, số cấp học / Khi duyệt hồ sơ, nhập trẻ, bật cấp học, tải tệp vượt giới hạn / Thì bị chặn 422 `PLAN_LIMIT_EXCEEDED`, xem và sửa vẫn được (CT-1003; YCTD-194) |
+| AC-829 | Cho trường quá hạn / Khi chạy chuyển trạng thái và khi người dùng ghi dữ liệu / Thì trường chuyển chỉ đọc sau 7 ngày, tạm ngưng sau 30 ngày, có nhắc trước 15, 7, 1 ngày; ở chỉ đọc ghi bị 403 `SCHOOL_READ_ONLY`, xem, đăng nhập, xuất được, cổng hiện dải chỉ đọc; dữ liệu giữ nguyên; người vận hành gán gói và chạy chuyển trạng thái ở cổng nền tảng (CT-999, CT-1000, CT-1004, CT-1005, CT-1006; YCTD-194) |
 
 ## 20. Chưa xác minh được
 

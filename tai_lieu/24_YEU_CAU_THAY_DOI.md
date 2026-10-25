@@ -1,7 +1,7 @@
 # 24. YÊU CẦU THAY ĐỔI
 
 - Mô tả: Sổ quản lý yêu cầu thay đổi, ghi lý do, đánh giá ảnh hưởng và trạng thái của từng thay đổi trước khi triển khai.
-- Phiên bản: 0.62
+- Phiên bản: 0.63
 - Ngày cập nhật: 2026-10-25
 - Trạng thái: Đang cập nhật
 
@@ -10,6 +10,25 @@
 Mã yêu cầu thay đổi dạng `YCTD-nn`, đánh số tăng dần, không tái sử dụng. Mục mới nhất ở trên cùng. Trạng thái dùng bốn giá trị: Chờ phê duyệt, Đã phê duyệt, Từ chối, Đã triển khai.
 
 Các thay đổi trước phiên bản 0.4.0 chưa có sổ này; xem `23_LICH_SU_PHIEN_BAN.md` các phiên bản 0.1.0 đến 0.3.1.
+
+### YCTD-194: DT-SaaS phần S5a: gói dịch vụ và giới hạn – 2026-10-25
+
+- Lý do: phần S5a của `32_KE_HOACH_THEO_HE_THONG_SO.md` mục 14.3, 14.5, 14.9 (kế hoạch DT-SaaS ở YCTD-190); quyết định của Eric ngày 2026-10-25 (GD-94: cách tính phí cấu hình được theo học sinh, theo trường, theo phân hệ, mặc định theo số học sinh; phần thu tiền thuộc S5b). Cần gói dịch vụ để bật phân hệ, đặt giới hạn và khóa ghi khi trường hết hạn mà không xóa dữ liệu.
+- Nội dung thay đổi (Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11 ở những chỗ kế hoạch chưa chốt):
+  - **Gói dịch vụ** (tệp nền tảng `0040_create_plans`): bảng `plans` (mã, tên, mô tả, `modules` là danh sách phân hệ hoặc trống là mọi phân hệ, giới hạn số học sinh đang học, dung lượng tệp, số cấp học bật, số ngày dùng thử, chỗ cho thu phí của S5b: `pricing_mode` `per_student`, `per_school`, `per_module` mặc định `per_student`, `unit_price`, `minimum_fee`, `module_prices`, `billing_cycle`), bảng `school_plans` (gán gói cho trường có ngày hiệu lực, lịch sử giữ nguyên), cột `trial_ends_on`, `paid_until`, `status_changed_at` của `schools`, cấu hình `plan_lifecycle` ở `platform_settings`, gói mặc định `full`. Kế hoạch dự kiến tách `plan_modules`, `plan_limits`, `school_subscriptions`; gộp vào hai bảng vì phân hệ và giới hạn luôn đi cùng gói.
+  - **Phân hệ:** phân hệ chính là các phân hệ của menu cổng (`PORTAL_WORKSPACES`), `system` luôn bật; quyền `P..` gắn phân hệ qua `MENU_PERMISSION_RULES` (một nơi, `packages/shared/src/plan-modules.ts`). Trường chưa gán gói không bị giới hạn (như trước).
+  - **Kiểm tra ở máy chủ:** `AuthenticationGuard` trả 403 `MODULE_NOT_IN_PLAN` khi mọi quyền đáp ứng tuyến đều thuộc phân hệ ngoài gói; vượt giới hạn trả 422 `PLAN_LIMIT_EXCEEDED` khi duyệt hồ sơ trẻ, nhập trẻ từ Excel, nhập từ CSDL của Bộ (chỉ chặn thêm, không chặn xem), khi bật thêm cấp học, khi tải tệp lên quá dung lượng; dữ liệu của phân hệ bị tắt giữ nguyên.
+  - **Kiểm tra ở menu:** `GET /api/v1/school-plan` trả gói, phân hệ, giới hạn, số đang dùng, trạng thái, hạn; cổng ẩn phân hệ ngoài gói, hiện dải báo chế độ chỉ đọc và dải nhắc hạn (từ 15 ngày).
+  - **Trạng thái trường và chế độ chỉ đọc:** `trial`, `active`, `read_only`, `suspended`; ở `read_only` mọi yêu cầu ghi tới máy chủ API và dịch vụ định danh trả 403 `SCHOOL_READ_ONLY`, trừ đăng nhập, đăng xuất, làm mới phiên, xuất dữ liệu, xem gói và nhóm `/billing` để S5b thu tiền, gia hạn. Hàm `applyPlanLifecycle` (thư viện `database`, lệnh `platform plan-lifecycle`, nút ở cổng nền tảng) chuyển trạng thái theo hạn: nhắc trước 15, 7, 1 ngày; chỉ đọc sau hạn 7 ngày; tạm ngưng sau 30 ngày; cấu hình được; không bao giờ xóa dữ liệu; trường đã chỉ đọc hoặc tạm ngưng do người vận hành mở lại sau khi gia hạn. Bộ lập lịch theo trường của S1b gọi hàm này; S5a không sửa phần của S1b, S2.
+  - **Cổng vận hành nền tảng:** trang Gói dịch vụ (danh sách và sửa gói, gán gói, hạn dùng thử, hạn đã trả phí, trạng thái cho từng trường, chạy chuyển trạng thái), các điểm cuối dưới `/api/v1/auth/platform/`.
+- Thành phần bị ảnh hưởng: `packages/shared`, `packages/server`, `database`, `apps/api`, `apps/identity`, `apps/portal`, `apps/platform`, `tests`; tài liệu `01`, `02`, `07`, `10`, `11`, `14`, `16`, `17`, `21`, `23`, `24`, `32`, `index.md`.
+- Dữ liệu bị ảnh hưởng: cơ sở dữ liệu nền tảng (tệp 0040); không đổi cơ sở dữ liệu định danh, hệ thống, năm học.
+- API bị ảnh hưởng: thêm `GET /api/v1/school-plan`, nhóm `/api/v1/auth/platform/plans`, `plan-modules`, `plan-schools`, `plan-lifecycle`; mã lỗi 403 `MODULE_NOT_IN_PLAN`, 403 `SCHOOL_READ_ONLY`, 422 `PLAN_LIMIT_EXCEEDED` (chỉ ở chế độ nhiều trường khi trường có gói hoặc chỉ đọc).
+- Giao diện bị ảnh hưởng: cổng nền tảng thêm trang Gói dịch vụ (MH-315); cổng thêm dải báo gói dịch vụ và lọc phân hệ theo gói (MH-316).
+- Quyền bị ảnh hưởng: không thêm quyền; quyền của trường bị giới hạn thêm theo phân hệ của gói; trang gói ở cổng nền tảng dùng tài khoản vận hành (PQ-105).
+- Ảnh hưởng chức năng cũ: không ở chế độ một trường và với trường chưa gán gói (mọi kiểm thử hiện có chạy không sửa kỳ vọng).
+- Kiểm thử cần thực hiện: kiểm thử đơn vị `packages/server`, `database`, `apps/identity`, `apps/api`; e2e spec 134 ở dự án nhiều trường cùng spec 130, các spec một trường bị ảnh hưởng (menu, spec 58); CI chạy toàn bộ e2e.
+- Trạng thái: Đã triển khai (PR …)
 
 ### YCTD-191: DT-SaaS phần S1a: nền đa thuê bao, phần lõi – 2026-10-25
 

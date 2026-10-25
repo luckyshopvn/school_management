@@ -42,13 +42,15 @@ export async function assertStudentCapacity(database: YearExecutor, adding: numb
 export async function usedStorageMb(system: Kysely<SystemDatabase> | null, year: YearExecutor | null): Promise<number> {
   let bytes = 0;
   if (year) {
-    const row = await sql<{ total: string | null }>`select coalesce(sum(size_bytes), 0) as total from files`.execute(year);
+    const row = await sql<{ total: string | null }>`select coalesce(sum(size_bytes), 0) as total from files`.execute(
+      year,
+    );
     bytes += Number(row.rows[0]?.total ?? 0);
   }
   if (system) {
-    const row = await sql<{ total: string | null }>`select coalesce(sum(size_bytes), 0) as total from learning_resource_versions`.execute(
-      system,
-    );
+    const row = await sql<{
+      total: string | null;
+    }>`select coalesce(sum(size_bytes), 0) as total from learning_resource_versions`.execute(system);
     bytes += Number(row.rows[0]?.total ?? 0);
   }
   return Math.round((bytes / 1024 / 1024) * 10) / 10;
@@ -76,10 +78,8 @@ export async function assertStorageCapacity(
 export function assertSchoolLevelCapacity(enabledCount: number): void {
   const limit = planLimit('maxSchoolLevels');
   if (limit !== null && enabledCount > limit) {
-    throw new ApplicationError(
-      'PLAN_LIMIT_EXCEEDED',
-      `Gói dịch vụ cho phép bật tối đa ${limit} cấp học`,
-      [{ field: 'max_school_levels', message: String(limit) }],
-    );
+    throw new ApplicationError('PLAN_LIMIT_EXCEEDED', `Gói dịch vụ cho phép bật tối đa ${limit} cấp học`, [
+      { field: 'max_school_levels', message: String(limit) },
+    ]);
   }
 }

@@ -1,7 +1,7 @@
 # 16. CƠ SỞ DỮ LIỆU
 
 - Mô tả: Thực thể, trường, kiểu dữ liệu, khóa chính, khóa ngoại, quan hệ, ràng buộc, chỉ mục, trạng thái, lịch sử thay đổi, chính sách xóa dữ liệu.
-- Phiên bản: 1.118
+- Phiên bản: 1.119
 - Ngày cập nhật: 2026-10-25
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -722,6 +722,9 @@ Cơ sở dữ liệu `platform` dùng chung cho nền tảng nhiều trường, 
 | platform_settings (từ YCTD-191) | Cấu hình của nền tảng (tên miền hệ thống, tên sản phẩm, mã trường dành riêng; các phần sau thêm) | key (khóa chính), value (JSON) |
 | platform_operators (từ YCTD-191) | Tài khoản vận hành nền tảng, không thuộc trường nào (PQ-105) | login (chữ thường, duy nhất), full_name, password_hash (argon2id), status, failed_login_count, locked_until, last_login_at, must_change_password |
 | platform_audit_log (từ YCTD-191) | Nhật ký của nền tảng, không khóa ngoại tới trường để giữ lại sau khi xóa trường | at, actor_type (`operator`, `system`, `cli`), actor_id, action, school_id, details (JSON), ip_address |
+| plans (từ YCTD-194) | Gói dịch vụ (BR-203, BR-204; tệp nền tảng `0040_create_plans`) | code (duy nhất), name, description, modules (JSON danh sách phân hệ, trống là mọi phân hệ), max_active_students, max_storage_mb, max_school_levels (trống là không giới hạn), trial_days, pricing_mode (`per_student` mặc định, `per_school`, `per_module`), unit_price, minimum_fee, module_prices (JSON), billing_cycle (`monthly`, `term`, `yearly`), status (`active`, `archived`); gói mặc định `full` |
+| school_plans (từ YCTD-194) | Gán gói cho trường có ngày hiệu lực, giữ lịch sử (BR-203) | school_id, plan_id, effective_from, effective_to (trống là còn hiệu lực), assigned_by, note |
+| schools (thêm từ YCTD-194) | Hạn của trường (BR-205) | trial_ends_on, paid_until, status_changed_at; `platform_settings` thêm khóa `plan_lifecycle` (remind_days, read_only_after_days, suspend_after_days, default_trial_days) |
 
 ## 19. Quan hệ chính giữa các bảng
 

@@ -1,7 +1,7 @@
 # 10. YÊU CẦU CHỨC NĂNG
 
 - Mô tả: Mã chức năng, tên chức năng, mục đích, người sử dụng, điều kiện thực hiện, dữ liệu đầu vào, quy trình xử lý, kết quả đầu ra, quy tắc nghiệp vụ, trường hợp ngoại lệ, phân quyền, thông báo lỗi.
-- Phiên bản: 1.95
+- Phiên bản: 1.96
 - Ngày cập nhật: 2026-10-25
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -68,6 +68,9 @@
 | P01-48 | Cách ly dữ liệu giữa các trường (YCTD-191) | Hệ thống | Trường, bố cục cơ sở dữ liệu (database hoặc schema) | Cơ sở dữ liệu hoặc lược đồ và vai trò riêng, nhóm kết nối có giới hạn, mã phiên mang mã trường, tiền tố khóa, khóa dữ liệu trẻ riêng; tạo, khóa ghi, xóa cơ sở dữ liệu năm học theo bố cục | Kết nối đúng trường; từ chối chéo trường | BR-201 |
 | P01-49 | Cơ sở dữ liệu nền tảng và nhận bản đang chạy làm trường số 1 (YCTD-191) | Người vận hành (lệnh dòng lệnh platform) | Mã trường, tên, tên miền, biến môi trường hiện có | Chạy tệp thay đổi cấu trúc nền tảng; adopt-existing ghi trường, mô tả kết nối, khóa, tên miền; sinh khóa gốc | Trường số 1 ở cơ sở dữ liệu nền tảng | BR-202 |
 | P01-50 | Đăng nhập vận hành nền tảng và khung cổng vận hành nền tảng (YCTD-191) | Người vận hành nền tảng | Tên đăng nhập, mật khẩu | Đăng nhập ở tên miền cổng nền tảng; khóa sau 5 lần sai; thông tin tài khoản kèm số trường; menu theo dữ liệu | Mã phiên vận hành; trang tổng quan | PQ-105 |
+| P01-51 | Gói dịch vụ, phân hệ và giới hạn theo gói (YCTD-194) | Người vận hành nền tảng; hệ thống | Gói (phân hệ, giới hạn, cách tính phí), gán gói cho trường | Ẩn phân hệ ngoài gói, chặn ở máy chủ; chặn thêm học sinh, cấp học, tệp khi vượt giới hạn | Gói của trường, số đang dùng | BR-203, BR-204 |
+| P01-52 | Trạng thái trường và chế độ chỉ đọc khi hết hạn (YCTD-194) | Hệ thống (lệnh `platform plan-lifecycle`, bộ lập lịch S1b); người vận hành nền tảng | Hạn dùng thử, hạn đã trả phí, mốc cấu hình | Nhắc hạn; chuyển chỉ đọc, tạm ngưng; chặn ghi ở chế độ chỉ đọc; không xóa dữ liệu | Trạng thái trường, nhật ký nền tảng | BR-205 |
+| P01-53 | Trang Gói dịch vụ ở cổng nền tảng, dải báo gói ở cổng (YCTD-194) | Người vận hành nền tảng; người dùng của trường | Gói, gán gói, hạn, trạng thái | Lưu gói, gán gói, chạy chuyển trạng thái; cổng hiện dải chỉ đọc, nhắc hạn | MH-315, MH-316 | PQ-105 |
 
 ## 3. Phân hệ P02 — Trẻ, phụ huynh và lớp học
 

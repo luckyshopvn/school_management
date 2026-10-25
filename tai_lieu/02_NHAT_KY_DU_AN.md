@@ -1,7 +1,7 @@
 # 02. NHẬT KÝ DỰ ÁN
 
 - Mô tả: Ghi nhận công việc, quyết định, thay đổi và vấn đề tồn đọng theo ngày, ngày mới nhất ở trên cùng.
-- Phiên bản: 0.64
+- Phiên bản: 0.65
 - Ngày cập nhật: 2026-10-25
 - Trạng thái: Đang cập nhật
 
@@ -13,6 +13,29 @@
 - Không ghi thông tin tạm thời như kết quả tra cứu, đường dẫn tạm, thông báo lỗi của công cụ.
 
 ## Nhật ký theo ngày
+
+### 2026-10-25 — DT-SaaS phần S5a: gói dịch vụ và giới hạn
+
+#### Công việc đã thực hiện
+
+- Đọc mục 14.3, 14.5 (S5a), 14.9 của `32_KE_HOACH_THEO_HE_THONG_SO.md`; rà menu cổng (`PORTAL_WORKSPACES`, `MENU_PERMISSION_RULES`), `AuthenticationGuard`, các chỗ thêm trẻ (duyệt hồ sơ, nhập Excel, nhập CSDL của Bộ), cấp học, tải tệp, ngữ cảnh trường của S1a.
+- Thêm gói dịch vụ (tệp nền tảng 0040), phân hệ theo gói, giới hạn, trạng thái trường và chế độ chỉ đọc, hàm chuyển trạng thái theo hạn cùng lệnh `platform plan-lifecycle`, `GET /school-plan`, trang Gói dịch vụ ở cổng nền tảng, dải báo và lọc menu ở cổng, e2e spec 134.
+- Thêm quy tắc BR-203 đến BR-205, chức năng P01-51 đến P01-53, màn hình MH-315, MH-316, kịch bản CT-999 đến CT-1006, tiêu chí AC-827 đến AC-829, bảng nền tảng ở `16` mục 18A, giao kèo ở `17`; phiên bản 0.130.0.
+
+#### Quyết định
+
+- Phân hệ của gói là phân hệ của menu cổng, `system` luôn bật; quyền gắn phân hệ suy từ luật menu (một nơi), không thêm bảng ánh xạ.
+- Gộp phân hệ và giới hạn vào `plans`, gán gói ở `school_plans` có ngày hiệu lực (kế hoạch dự kiến `plan_modules`, `plan_limits`, `school_subscriptions`); cột tính phí (`pricing_mode` mặc định `per_student`, đơn giá, mức tối thiểu, giá theo phân hệ, kỳ thu) chừa sẵn cho S5b.
+- Trường chưa gán gói không bị giới hạn; trường đã chỉ đọc hoặc tạm ngưng không tự mở lại khi gia hạn, người vận hành mở ở cổng nền tảng.
+- Ở chế độ chỉ đọc vẫn cho đăng nhập, xuất dữ liệu, xem gói và nhóm `/billing` của S5b.
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-194, `07_QUY_TAC_NGHIEP_VU.md` BR-203 đến BR-205, `10_YEU_CAU_CHUC_NANG.md` P01-51 đến P01-53, `11_TIEU_CHI_NGHIEM_THU.md` AC-827 đến AC-829, `14_DAC_TA_GIAO_DIEN.md` MH-315, MH-316, `16_CO_SO_DU_LIEU.md` mục 18A, `17_DAC_TA_API.md`, `21_KICH_BAN_KIEM_THU.md` CT-999 đến CT-1006; phiên bản phần mềm 0.130.0.
+
+#### Vấn đề tồn đọng
+
+- Bộ lập lịch theo trường của S1b gọi `applyPlanLifecycle` hằng ngày và gửi nhắc hạn (S4 hiện nhắc ở bảng điều khiển); thu tiền, gia hạn tự động ở S5b. Ở `24` dòng số giữ sẵn của YCTD-190 ghi S3 194, S5a 195, khác bảng ở `32` mục 14.10 (S5a 194, S3 195); phần này theo bảng ở `32` và lời giao việc.
 
 ### 2026-10-25 — DT-SaaS phần S1a: nền đa thuê bao, phần lõi
 
