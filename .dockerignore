@@ -9,6 +9,8 @@
 tai_lieu
 deploy
 !deploy/caddy
+# Bộ định tuyến của container gộp, hồ sơ thử nghiệm (DT-SaaS phần S9); không mở tệp mẫu *.example
+!deploy/profiles/trial/container/router.mjs
 .env
 .env.*
 **/coverage

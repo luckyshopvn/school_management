@@ -7,7 +7,12 @@ import { defineConfig } from 'vite';
 const identityTarget = process.env.IDENTITY_BASE_URL ?? 'http://localhost:3001';
 const apiTarget = process.env.API_BASE_URL ?? 'http://localhost:3000';
 
+// Đường dẫn gốc khi dựng (DT-SaaS phần S9): hồ sơ thử nghiệm phục vụ ba ứng dụng dưới /quan-ly, /giao-vien, /phu-huynh trên
+// cùng tên miền của trường; mặc định / như trước
+const base = process.env.APP_BASE_PATH?.trim() || '/';
+
 export default defineConfig({
+  base,
   plugins: [react(), tailwindcss()],
   server: {
     port: 5175,

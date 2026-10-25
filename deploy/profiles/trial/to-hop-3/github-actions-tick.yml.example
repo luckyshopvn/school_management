@@ -1,0 +1,23 @@
+# Lịch gọi điểm tick của bộ lập lịch (DT-SaaS phần S9, tổ hợp 3b không có Cloudflare Cron Triggers). Chép vào
+# .github/workflows/trial-tick.yml của kho triển khai; đặt bí mật kho INTERNAL_JOB_TOKEN và biến kho ORIGIN_URL (địa chỉ máy chủ
+# Render hoặc Koyeb). Lịch của GitHub Actions có thể trễ vài phút; việc nền đã bù khi bỏ lỡ (S1b)
+name: Gọi tick hồ sơ thử nghiệm
+
+on:
+  schedule:
+    - cron: '*/15 * * * *'
+  workflow_dispatch:
+
+jobs:
+  tick:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Gọi tick (đánh thức máy chủ nếu đang ngủ)
+        env:
+          ORIGIN_URL: ${{ vars.ORIGIN_URL }}
+          INTERNAL_JOB_TOKEN: ${{ secrets.INTERNAL_JOB_TOKEN }}
+        run: |
+          curl --fail --silent --show-error --retry 4 --retry-delay 20 --retry-all-errors --max-time 120 \
+            -X POST "$ORIGIN_URL/api/v1/internal/jobs/tick" \
+            -H "x-internal-job-token: $INTERNAL_JOB_TOKEN" -H 'content-type: application/json' -d '{}'
