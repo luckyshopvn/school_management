@@ -176,15 +176,19 @@ export async function applyPlanLifecycle(
   platform: Kysely<PlatformDatabase>,
   now: Date,
   actor: { type: 'system' | 'cli' | 'operator'; id?: string } = { type: 'system' },
+  // Chỉ một trường (việc nền theo trường của S5b gọi); trống là mọi trường
+  schoolId?: string,
 ): Promise<{ changes: LifecycleChange[]; reminders: LifecycleReminder[] }> {
   const today = vietnamDate(now);
   const settings = await readPlanLifecycleSettings(platform);
-  const schools = await platform
+  let query = platform
     .selectFrom('schools')
     .select(['id', 'code', 'status', 'trial_ends_on', 'paid_until'])
-    .where('status', 'in', ['trial', 'active', 'read_only'])
-    .orderBy('code')
-    .execute();
+    .where('status', 'in', ['trial', 'active', 'read_only']);
+  if (schoolId) {
+    query = query.where('id', '=', schoolId);
+  }
+  const schools = await query.orderBy('code').execute();
   const changes: LifecycleChange[] = [];
   const reminders: LifecycleReminder[] = [];
   for (const school of schools) {

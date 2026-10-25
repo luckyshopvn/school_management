@@ -413,6 +413,7 @@ export {
   type LifecycleReminder,
   type PlanLifecycleSettings,
 } from './school-plans.js';
+export * from './billing/index.js';
 export {
   startTenantTestPlatform,
   textExistsInSchoolDatabase,
