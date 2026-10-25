@@ -138,6 +138,7 @@ import { ArchiveRecordsPage } from './archives/ArchiveRecordsPage.js';
 import { ArchiveReportPage } from './archives/ArchiveReportPage.js';
 import { GeneratedFilesPage } from './exports/GeneratedFilesPage.js';
 import { DemoEnvironmentPage, ImpersonationsPage, SchoolDataExportPage } from './administration/AdministrationPages.js';
+import { ServiceInvoicesPage } from './school-plan/ServiceInvoicesPage.js';
 import { ForgotPasswordPage } from './pages/ForgotPasswordPage.js';
 import { ActivatePage } from './pages/ActivatePage.js';
 import { HelpPage } from './portal-shell/HelpPage.js';
@@ -629,6 +630,8 @@ const routeTree = rootRoute.addChildren([
   createRoute({ getParentRoute: () => rootRoute, path: '/impersonations', component: ImpersonationsPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/school-data-export', component: SchoolDataExportPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/demo-environment', component: DemoEnvironmentPage }),
+  // Hóa đơn dịch vụ của trường (DT-SaaS phần S5b)
+  createRoute({ getParentRoute: () => rootRoute, path: '/service-invoices', component: ServiceInvoicesPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/work', component: WorkPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/evaluations', component: EvaluationsPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/bonus-deductions', component: BonusDeductionsPage }),

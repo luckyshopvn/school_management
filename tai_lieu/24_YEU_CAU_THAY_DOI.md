@@ -1,7 +1,7 @@
 # 24. YÊU CẦU THAY ĐỔI
 
 - Mô tả: Sổ quản lý yêu cầu thay đổi, ghi lý do, đánh giá ảnh hưởng và trạng thái của từng thay đổi trước khi triển khai.
-- Phiên bản: 0.67
+- Phiên bản: 0.68
 - Ngày cập nhật: 2026-10-25
 - Trạng thái: Đang cập nhật
 
@@ -10,6 +10,26 @@
 Mã yêu cầu thay đổi dạng `YCTD-nn`, đánh số tăng dần, không tái sử dụng. Mục mới nhất ở trên cùng. Trạng thái dùng bốn giá trị: Chờ phê duyệt, Đã phê duyệt, Từ chối, Đã triển khai.
 
 Các thay đổi trước phiên bản 0.4.0 chưa có sổ này; xem `23_LICH_SU_PHIEN_BAN.md` các phiên bản 0.1.0 đến 0.3.1.
+
+### YCTD-196: DT-SaaS phần S5b: thu phí tự động – 2026-10-25
+
+- Lý do: phần S5b của `32_KE_HOACH_THEO_HE_THONG_SO.md` mục 14.3, 14.5 "#### S5b", 14.9, 14.11 (GD-94, GD-95, GD-99); quyết định của Eric ngày 2026-10-25: quy tắc tính phí cấu hình được theo học sinh, theo trường, theo phân hệ, mặc định theo số học sinh đang học; thu qua mã QR và cổng thanh toán của nền tảng; hóa đơn điện tử qua bộ nối (nhà cung cấp chưa chốt). Cần thu phí các trường mà không xóa dữ liệu khi hết hạn.
+- Nội dung thay đổi (Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11 ở những chỗ kế hoạch chưa chốt):
+  - **Quy tắc tính phí** (tệp nền tảng `0050_create_billing`, bảng `price_rules`, cột `plans.price_rule_id`): thành phần theo học sinh (bậc thang lũy tiến `graduated` hoặc theo bậc cả trường `volume`), theo trường (phí cố định mỗi kỳ), theo phân hệ (giá từng phân hệ đang bật trong gói), kết hợp được; phí tối thiểu, kỳ tháng, quý, năm theo lịch, VAT (làm tròn nửa lên), số ngày hạn trả; mặc định một thành phần theo học sinh. Gói chưa chọn quy tắc tính theo giá niêm yết của gói (S5a; kỳ học kỳ tính là quý). Hàm tính thuần `computeCharges` trên số nguyên đồng, có kiểm thử nhiều ca.
+  - **Chốt số liệu kỳ và hóa đơn:** thu sau; việc nền theo trường (`billing-cycle`, bộ lập lịch của S1b, mỗi giờ, chạy lặp được) chốt số học sinh đang học, dung lượng, số cấp học của kỳ vừa xong vào `usage_snapshots` rồi lập hóa đơn (`invoices`, `invoice_lines`, mã `HD-000001`, nội dung chuyển khoản là mã bỏ gạch, hạn trả là cuối kỳ cộng số ngày hạn); mỗi kỳ một hóa đơn; tổng bằng 0 thì chỉ chốt số liệu; chỉ lập tự động cho trường hoạt động hoặc chỉ đọc đã gán gói; vận hành lập hóa đơn tay cho kỳ đang chạy (trường dùng thử muốn chuyển hoạt động, trả trước).
+  - **Thu tiền, đối soát, gia hạn:** quản trị trường tạo mã QR hoặc liên kết thanh toán qua cổng của nền tảng (dùng lại bộ nối PayOS, SePay, Casso, VietQR tĩnh; khóa lưu mã hóa AES-256-GCM bằng khóa gốc của nền tảng ở `platform_integration_secrets`, cùng cách lưu với kho khóa của S3; chưa có khóa thì dùng bộ giả lập đặt ở cấu hình máy chủ); điểm nhận thông báo tiền vào `/api/v1/platform-billing/webhooks/{payos|sepay|casso}` không theo tên miền trường, xác thực bằng chữ ký hoặc khóa của cổng; tiền vào khớp theo nội dung chuyển khoản, trùng mã giao dịch thì bỏ qua (không gia hạn hai lần), chưa khớp thì chờ vận hành gán tay; trả đủ thì hạn chờ trả dời tới hạn của hóa đơn kỳ sau, trường chỉ đọc hoặc dùng thử chuyển hoạt động (trường tạm ngưng do vận hành mở lại). VNPay cho thu phí của nền tảng làm sau (cần đối chiếu mã đơn).
+  - **Nhắc gia hạn và chuyển trạng thái:** nhắc trong ứng dụng cho Hiệu trưởng, quản trị trường trước hạn 15, 7, 1 ngày và sau hạn 1, 3 ngày (cấu hình được, kênh in_app hoặc sms), mỗi mốc ghi `dunning_events` một lần; việc nền theo trường gọi hàm chuyển trạng thái của S5a cho riêng trường đó (chỉ đọc sau hạn 7 ngày, tạm ngưng sau 30 ngày), ghi mốc chuyển trạng thái vào nhật ký nhắc. Không xóa dữ liệu khi hết hạn. Việc này thay cho việc còn lại của S5a (nối `applyPlanLifecycle` vào bộ lập lịch).
+  - **Điều chỉnh tay của vận hành:** giảm giá (tính lại VAT), ghi nhận tiền tay, hủy hóa đơn chưa thu, tặng kỳ (dời hạn, mở lại trường chỉ đọc), gán giao dịch chưa khớp; bắt buộc lý do 3 đến 500 ký tự, ghi `billing_adjustments` và nhật ký nền tảng.
+  - **Hóa đơn điện tử:** giao diện bộ nối `EInvoiceProvider` (phát hành, hủy, tra cứu), bộ giả lập `development`, mặc định chưa nối (`none`); không phát hành hóa đơn thật khi chưa có hợp đồng nhà cung cấp; ghi `einvoice_documents` (kể cả lần lỗi).
+  - **Màn hình:** cổng nền tảng thêm trang Thu phí (công nợ theo trường, hóa đơn và chi tiết, lập hóa đơn tay, điều chỉnh, giao dịch chưa khớp, quy tắc tính phí, cấu hình, khóa cổng của nền tảng), trang Gói dịch vụ chọn quy tắc tính phí; cổng của trường thêm "Hóa đơn dịch vụ" (Quản trị hệ thống › 4.4: xem, tải bản in, trả bằng mã QR, giả lập khi dùng cổng giả lập); quyền mới `P01.billing.manage` cho VT-01, VT-02 (tệp định danh `0105`, lấy ở dải định danh của DT-SaaS).
+- Thành phần bị ảnh hưởng: `database` (nền tảng 0050, định danh 0105, thư mục `src/billing`), `packages/shared` (quyền, menu), `apps/api` (`billing/`, đường dẫn không cần trường), `apps/identity` (`platform/platform-billing.ts`, gói chọn quy tắc), `apps/platform`, `apps/portal`, `tests`; tài liệu `01`, `02`, `07`, `08`, `10`, `11`, `14`, `16`, `17`, `21`, `22`, `23`, `24`, `32`, `index.md`.
+- Dữ liệu bị ảnh hưởng: cơ sở dữ liệu nền tảng thêm chín bảng và cột `plans.price_rule_id`, khóa `platform_settings.billing`; định danh thêm quyền `P01.billing.manage`; không đổi cơ sở dữ liệu hệ thống, năm học.
+- API bị ảnh hưởng: thêm `GET /api/v1/billing/invoices`, `GET /api/v1/billing/invoices/{id}`, `GET .../document`, `POST .../pay`, `POST .../simulate-payment`, `POST /api/v1/platform-billing/webhooks/{provider}`, nhóm `/api/v1/auth/platform/billing`; `PUT /auth/platform/plans` nhận `price_rule_id`.
+- Giao diện bị ảnh hưởng: MH-328 (cổng nền tảng: Thu phí), MH-329 (cổng: Hóa đơn dịch vụ); trang Gói dịch vụ (MH-323 của S5a) thêm ô quy tắc tính phí.
+- Quyền bị ảnh hưởng: PQ-107 (`P01.billing.manage` cho VT-01, VT-02); trang Thu phí dùng tài khoản vận hành (PQ-105).
+- Ảnh hưởng chức năng cũ: không ở chế độ một trường (thu phí chỉ có ở nền tảng nhiều trường); trường chưa gán gói, gói không có giá không phát sinh hóa đơn.
+- Kiểm thử cần thực hiện: kiểm thử đơn vị `database`, `apps/api`, `apps/identity`; kiểm tĩnh; e2e spec 135 và 130, 131, 134 ở dự án nhiều trường; các spec menu ở dự án một trường; CI chạy toàn bộ e2e.
+- Trạng thái: Đã triển khai (PR 174)
 
 ### YCTD-201: DT-SaaS phần S8b: bảo mật mã – 2026-10-25
 

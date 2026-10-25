@@ -1,7 +1,7 @@
 # 01. KẾ HOẠCH TỔNG THỂ
 
 - Mô tả: Tài liệu điều phối cấp cao nhất của dự án: mười hai giai đoạn kèm cổng kiểm soát, các mốc phát hành, kế hoạch thực thi theo đợt, đường găng, tổ chức thực hiện, quản lý thay đổi và rủi ro.
-- Phiên bản: 1.65
+- Phiên bản: 1.66
 - Ngày cập nhật: 2026-10-25
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -258,6 +258,7 @@ Sản phẩm: School Management, hệ thống quản lý trường mầm non cho
 | 0.134.0 | DT-SaaS phần S5a: gói dịch vụ và giới hạn (phân hệ theo gói, giới hạn học sinh, dung lượng, cấp học, trạng thái trường, chế độ chỉ đọc khi hết hạn, trang gói ở cổng nền tảng) | YCTD-194 |
 | 0.135.0 | DT-SaaS phần S7b: vận hành nhiều trường (sao lưu logic và khôi phục theo từng trường ở cả hai bố cục, diễn tập khôi phục tự động, chuyển trường sang cụm khác, khôi phục về một thời điểm bằng WAL-G, mục tiêu RPO, RTO) | YCTD-199 |
 | 0.136.0 | DT-SaaS phần S8b: bảo mật mã (xác thực hai lớp TOTP, chính sách mật khẩu và khóa tạm theo trường, tiêu đề bảo mật, cookie `__Secure-`, xoay khóa ký, quét bí mật và thành phần phụ thuộc ở CI, danh sách kiểm ASVS) | YCTD-201 |
+| 0.137.0 | DT-SaaS phần S5b: thu phí tự động (quy tắc tính phí cấu hình được, chốt số liệu kỳ, hóa đơn, thu qua mã QR và cổng của nền tảng, đối soát, gia hạn và mở lại trường, nhắc gia hạn, điều chỉnh tay, hóa đơn điện tử qua bộ nối giả lập) | YCTD-196 |
 | 1.0.0 | Giai đoạn 1 chạy thật: nền tảng, trẻ, điểm danh, học phí, thanh toán mã QR, phiếu thu, phiếu chi, quỹ tiền mặt, nhân sự, lương cơ bản, hai ứng dụng, báo cáo cơ bản, nhập dữ liệu từ Excel, nhập mã định danh của Bộ, API đối tác | 09 đến 11 | Eric nghiệm thu ngày 13/10/2026, thẻ `v1.0.0` (tài liệu 0.31.0, YCTD-92); chờ triển khai ở việc T6 |
 | 1.1.0 | Giai đoạn 2: giảng dạy, y tế, bếp, kho, hoạt động, tương tác, công việc, tài khoản ngân hàng và công nợ phải trả, báo cáo hợp nhất | 09 đến 11 | Eric nghiệm thu ngày 13/10/2026, thẻ `v1.1.0` (tài liệu 0.42.0, YCTD-92) |
 | 1.2.0 | Giai đoạn 3: tuyển sinh, tuyển dụng, kết nối Facebook và Zalo, đối soát thanh toán, sổ kế toán kép | 09 đến 11 | Eric nghiệm thu ngày 13/10/2026, thẻ `v1.2.0` (tài liệu 0.48.0, YCTD-92) |

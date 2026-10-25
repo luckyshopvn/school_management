@@ -13,6 +13,10 @@ export const TENANT_FREE_PATHS = new Set([
   '/api/v1/public/website/domain-check',
   '/api/v1/public/schools/resolve',
   '/api/v1/public/schools/picker',
+  // Thông báo tiền vào của cổng thanh toán của nền tảng (S5b): không thuộc trường nào
+  '/api/v1/platform-billing/webhooks/payos',
+  '/api/v1/platform-billing/webhooks/sepay',
+  '/api/v1/platform-billing/webhooks/casso',
 ]);
 
 const PICKER_PAGE = `<!doctype html>

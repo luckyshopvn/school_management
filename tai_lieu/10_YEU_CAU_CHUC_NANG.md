@@ -1,7 +1,7 @@
 # 10. YÊU CẦU CHỨC NĂNG
 
 - Mô tả: Mã chức năng, tên chức năng, mục đích, người sử dụng, điều kiện thực hiện, dữ liệu đầu vào, quy trình xử lý, kết quả đầu ra, quy tắc nghiệp vụ, trường hợp ngoại lệ, phân quyền, thông báo lỗi.
-- Phiên bản: 1.100
+- Phiên bản: 1.101
 - Ngày cập nhật: 2026-10-25
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -92,6 +92,9 @@
 | P01-72 | Xác thực hai lớp bắt buộc của tài khoản vận hành nền tảng (YCTD-201) | Người vận hành nền tảng; lệnh dòng lệnh platform | Mật khẩu, mã TOTP hoặc mã khôi phục | Tạo tài khoản kèm khóa TOTP và mã khôi phục; cấp lại khóa bằng `reset-operator-totp`; đăng nhập ở cổng nền tảng đòi mã | Mã phiên vận hành | BR-219 |
 | P01-73 | Chính sách mật khẩu và khóa tạm theo trường (YCTD-201) | Hiệu trưởng, quản trị | Độ dài tối thiểu, số lần sai, số phút khóa | Lưu chính sách; áp khi đổi, đặt mật khẩu và khi đăng nhập sai | Chính sách đang áp dụng | BR-220 |
 | P01-74 | Rà bảo mật và xoay khóa (YCTD-201) | Hệ thống; người vận hành | Khóa ký mới, khóa gốc mới | Tiêu đề bảo mật, cookie `__Secure-`, xoay khóa ký hai pha, bọc lại khóa gốc, quét bí mật và thành phần phụ thuộc ở CI | Phản hồi có tiêu đề bảo mật; quy trình xoay khóa | BR-221 |
+| P01-75 | Quy tắc tính phí, chốt số liệu kỳ, hóa đơn (YCTD-196) | Người vận hành nền tảng; hệ thống (việc nền theo trường) | Quy tắc (thành phần, bậc, phí tối thiểu, kỳ, VAT, hạn), số học sinh đang học | Chốt số liệu, lập hóa đơn mỗi kỳ, lập tay cho kỳ đang chạy | Hóa đơn, số liệu kỳ | BR-222, BR-223 |
+| P01-76 | Thu tiền, đối soát, gia hạn, nhắc gia hạn (YCTD-196) | Quản trị trường; cổng thanh toán của nền tảng; hệ thống | Hóa đơn, giao dịch tiền vào | Mã QR hoặc liên kết thanh toán, khớp tiền vào theo nội dung, gia hạn và mở lại trường, nhắc trước và sau hạn | Hóa đơn đã trả, hạn mới, nhắc trong ứng dụng | BR-223, BR-224 |
+| P01-77 | Trang Thu phí ở cổng nền tảng, Hóa đơn dịch vụ ở cổng, hóa đơn điện tử (YCTD-196) | Người vận hành nền tảng; quản trị trường | Điều chỉnh có lý do, cấu hình, khóa cổng | Giảm giá, ghi tiền tay, hủy, tặng kỳ, gán giao dịch, phát hành hóa đơn điện tử qua bộ nối | MH-328, MH-329 | PQ-105, PQ-107 |
 
 ## 3. Phân hệ P02 — Trẻ, phụ huynh và lớp học
 

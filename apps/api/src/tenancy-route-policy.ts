@@ -47,6 +47,10 @@ export const PUBLIC_ROUTES: PublicRoute[] = [
     '/api/v1/internal/jobs/tick',
     'Điểm gọi của bộ hẹn giờ bên ngoài chạy việc nền đến hạn của mọi trường; đòi bí mật dùng chung INTERNAL_JOB_TOKEN (so sánh thời gian hằng), chưa đặt bí mật thì 404 (S1b)',
   ),
+  post(
+    '/api/v1/platform-billing/webhooks/:provider',
+    'Thông báo tiền vào của cổng thanh toán của nền tảng (thu phí dịch vụ, S5b): không thuộc trường nào, đi qua đường dẫn không cần trường; xác thực bằng chữ ký hoặc khóa của cổng lưu mã hóa ở cơ sở dữ liệu nền tảng, cổng chưa bật thì 404; chỉ ghi tiền vào hóa đơn theo nội dung chuyển khoản',
+  ),
   get(
     '/api/v1/public/branding',
     'Tên hiển thị, màu chủ đạo và địa chỉ biểu trưng của trường cho trang đăng nhập (S3), theo tên miền của trường; không trả dữ liệu cá nhân',

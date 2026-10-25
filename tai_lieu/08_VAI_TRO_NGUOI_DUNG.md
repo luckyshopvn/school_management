@@ -1,7 +1,7 @@
 # 08. VAI TRÒ NGƯỜI DÙNG
 
 - Mô tả: Nhóm người dùng, vai trò, trách nhiệm, quyền hạn.
-- Phiên bản: 1.94
+- Phiên bản: 1.95
 - Ngày cập nhật: 2026-10-25
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -204,6 +204,7 @@ Ghi chú áp dụng cho bảng:
 | PQ-104 | Báo cáo, thống kê, EMIS THCS, THPT (YCTD-175): không thêm quyền. Xem, xuất thống kê: `P17.child-statistics.view`; xem, nhập tay, xuất biểu EMIS: `P17.report.emis`; sửa khung biểu: `P17.report-form.manage` (VT-02, VT-15) |
 | PQ-105 | Tài khoản vận hành nền tảng (YCTD-191, DT-SaaS phần S1a): không thuộc trường nào và không phải vai trò VT-nn của trường; lưu ở cơ sở dữ liệu nền tảng; đăng nhập riêng chỉ ở tên miền của cổng vận hành nền tảng (cấu hình PLATFORM_CONSOLE_HOST), tên miền khác kể cả của một trường trả 404; mã phiên có đối tượng riêng nên máy chủ API và dịch vụ của trường không nhận và mã phiên của trường không dùng ở cổng nền tảng; sai mật khẩu 5 lần khóa 15 phút; mọi lần đăng nhập ghi nhật ký nền tảng; xác thực hai lớp bắt buộc làm ở phần S8b (BR-200) |
 | PQ-106 | Quản lý trường ở cổng vận hành nền tảng (YCTD-193, DT-SaaS phần S2): mọi tài khoản vận hành nền tảng đang hoạt động (PQ-105) được xem danh sách, chi tiết trường, khởi tạo trường, chạy tiếp hoặc hoàn tác việc khởi tạo, tạm dừng, mở lại, yêu cầu xóa, hủy xóa, cấp lại đường kích hoạt, ghi hồ sơ đồng ý, vùng máy chủ, đổi loại dữ liệu, thêm và kiểm tra tên miền riêng; chưa chia cấp quyền giữa các tài khoản vận hành; xóa vĩnh viễn, xuất dữ liệu, migrate cuốn chiếu chỉ chạy bằng lệnh trên máy chủ. Quản trị viên đầu tiên của trường mới nhận vai trò VT-02 Hiệu trưởng phạm vi toàn trường |
+| PQ-107 | Hóa đơn dịch vụ của trường (YCTD-196, DT-SaaS phần S5b): quyền `P01.billing.manage` cho Hiệu trưởng (VT-01) và quản trị trường (VT-02): xem, tải, thanh toán hóa đơn dịch vụ của trường mình, dùng được cả khi trường ở chế độ chỉ đọc; quy tắc tính phí, điều chỉnh, cấu hình thu phí chỉ ở cổng vận hành nền tảng (PQ-105) |
 
 ## 5. Phân cấp phê duyệt
 

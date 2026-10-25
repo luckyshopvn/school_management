@@ -153,6 +153,8 @@ export const PERMISSION_CODES = {
   bankStatementImport: 'P06.bank-statement.import',
   facebookManage: 'P14.facebook.manage',
   integrationManage: 'P01.integration.manage',
+  // Hóa đơn dịch vụ của trường (DT-SaaS phần S5b)
+  billingManage: 'P01.billing.manage',
   leavePolicyManage: 'P08.leave-policy.manage',
   leaveApprove: 'P08.leave.approve',
   timesheetReopenApprove: 'P08.timesheet-reopen.approve',
@@ -581,6 +583,8 @@ export const PORTAL_QUICK_LINK_PATHS = [
   '/impersonations',
   '/school-data-export',
   '/demo-environment',
+  // Hóa đơn dịch vụ của trường (DT-SaaS phần S5b)
+  '/service-invoices',
   // Bán trú: kiểm thực ba bước và an toàn thực phẩm (DT-18 phần 22b)
   '/food-safety/inspections',
   '/food-safety/samples',

@@ -1,7 +1,7 @@
 # 07. QUY TẮC NGHIỆP VỤ
 
 - Mô tả: Điều kiện, ràng buộc, công thức, trạng thái, ngoại lệ, quy tắc chuyển trạng thái.
-- Phiên bản: 1.98
+- Phiên bản: 1.99
 - Ngày cập nhật: 2026-10-25
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -293,6 +293,9 @@ Bổ sung ngày 2026-10-09 theo yêu cầu tách vai trò Ban Giám hiệu thàn
 | BR-219 | Xác thực hai lớp (YCTD-201, DT-SaaS phần S8b, GD-97): bắt buộc cho tài khoản vận hành nền tảng (đăng nhập cần mật khẩu cộng mã TOTP 6 số hoặc mã khôi phục dùng một lần; tài khoản chưa đăng ký khóa thì không đăng nhập được); tuỳ chọn bật theo trường cho người dùng của trường, mặc định tắt cả trường nên quyết định hiện hành YCTD-31 (RR-15) không đổi: trường bật thì mỗi người tự đăng ký bằng ứng dụng xác thực và từ đó đăng nhập cần mã. Mã TOTP dùng một lần (không dùng lại trong cùng bước 30 giây), cho lệch một bước; mã sai tính như nhập sai mật khẩu và vào cùng bộ đếm khóa tạm; đúng mật khẩu nhưng chưa nhập mã không tính là lần nhập sai. Khóa TOTP mã hóa (người dùng trường: khóa mã hóa của trường; tài khoản vận hành: khóa gốc của nền tảng), mã khôi phục chỉ lưu bản băm. Người quản lý tài khoản đặt lại hộ khi mất điện thoại và hết mã khôi phục, có nhật ký |
 | BR-220 | Chính sách mật khẩu và khóa tạm theo trường (YCTD-201): mỗi trường đặt độ dài mật khẩu tối thiểu (8 đến 64, mặc định 8), số lần nhập sai thì tạm khóa (3 đến 10, mặc định 5), số phút tạm khóa (1 đến 1440, mặc định 15) cùng chính sách hết hạn mật khẩu đã có (DT-15, YCTD-110); mặc định nền tảng cho tài khoản vận hành chặt hơn: mật khẩu tối thiểu 12 ký tự, khóa 15 phút sau 5 lần sai |
 | BR-221 | Rà bảo mật và xoay khóa (YCTD-201): máy chủ API và dịch vụ định danh đặt tiêu đề bảo mật (chặn đoán kiểu nội dung, chặn nhúng khung, HSTS khi qua HTTPS, tắt quyền cảm biến, không lưu đệm phản hồi xác thực, bỏ tiêu đề lộ phần mềm); cookie mã làm mới có tiền tố `__Secure-`; khóa ký mã phiên xoay theo quy trình hai pha (`TOKEN_PREVIOUS_PUBLIC_KEY` nhận khóa cũ trong thời gian xoay); khóa gốc của nền tảng xoay bằng lệnh bọc lại, khóa dữ liệu trẻ bằng công cụ đổi khóa của S3 (nay gồm cả cơ sở dữ liệu định danh); CI quét bí mật trong mã và quét thành phần phụ thuộc có lỗ hổng |
+| BR-222 | Quy tắc tính phí (YCTD-196, DT-SaaS phần S5b, GD-94): mỗi gói chọn một quy tắc, chưa chọn thì tính theo giá niêm yết của gói; thành phần theo học sinh đang học chốt cuối kỳ (bậc thang lũy tiến hoặc theo bậc cả trường), theo trường, theo phân hệ đang bật, kết hợp được, mặc định theo học sinh; phí tối thiểu so với tổng các thành phần trước giảm giá; VAT tính trên số sau giảm giá, làm tròn nửa lên; số tiền là số nguyên đồng; kỳ tháng, quý, năm theo lịch |
+| BR-223 | Hóa đơn và thu tiền (YCTD-196): mỗi kỳ của trường một hóa đơn còn hiệu lực, lập sau khi kỳ kết thúc, hạn trả là cuối kỳ cộng số ngày hạn của quy tắc; nội dung chuyển khoản là mã hóa đơn bỏ gạch; tiền vào khớp theo nội dung, trùng mã giao dịch của cổng thì bỏ qua; trả đủ thì hạn chờ trả dời tới hạn của hóa đơn kỳ sau và trường chỉ đọc hoặc dùng thử chuyển hoạt động; trường tạm ngưng do vận hành mở lại; không xóa dữ liệu khi hết hạn |
+| BR-224 | Nhắc gia hạn và điều chỉnh tay (YCTD-196): nhắc trước hạn 15, 7, 1 ngày và sau hạn 1, 3 ngày (cấu hình được), mỗi mốc một lần; quá hạn chuyển trạng thái theo BR-216 của S5a; giảm giá, ghi nhận tiền tay, hủy hóa đơn chưa thu, tặng kỳ, gán giao dịch chưa khớp chỉ do vận hành nền tảng làm, bắt buộc lý do và ghi nhật ký |
 
 Danh mục chứng từ áp dụng hạn mức: phiếu chi, phiếu đảo phiếu thu (YCTD-23), phiếu đảo phiếu chi (YCTD-24), đề nghị mua hàng, phiếu điều chỉnh hóa đơn, miễn giảm học phí, bảng lương kỳ, chốt kỳ tài chính. Mức hạn mức cụ thể chưa có, xem Q-22 và Q-112.
 

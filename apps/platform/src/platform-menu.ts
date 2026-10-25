@@ -10,4 +10,6 @@ export const PLATFORM_MENU: readonly PlatformMenuItem[] = [
   { key: 'schools', label: 'Trường' },
   // Gói dịch vụ và giới hạn (S5a)
   { key: 'plans', label: 'Gói dịch vụ' },
+  // Thu phí tự động (S5b)
+  { key: 'billing', label: 'Thu phí' },
 ];

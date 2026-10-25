@@ -382,6 +382,8 @@ export const PORTAL_WORKSPACES: PortalWorkspace[] = [
         leaf('4.1.', 'Đăng nhập thay', '/impersonations'),
         leaf('4.2.', 'Xuất toàn bộ dữ liệu', '/school-data-export'),
         leaf('4.3.', 'Bản trình diễn', '/demo-environment'),
+        // Hóa đơn dịch vụ của nền tảng (DT-SaaS phần S5b)
+        leaf('4.4.', 'Hóa đơn dịch vụ', '/service-invoices'),
       ]),
     ],
   },
