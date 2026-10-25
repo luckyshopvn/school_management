@@ -54,7 +54,7 @@ Các thay đổi trước phiên bản 0.4.0 chưa có sổ này; xem `23_LICH_S
 - Quyền bị ảnh hưởng: không đổi.
 - Ảnh hưởng chức năng cũ: không ở chế độ một trường và hồ sơ vận hành (mặc định `DB_HOST_ADAPTER=plain`, `PLATFORM_DATA_POLICY=any`, `APP_BASE_PATH=/`).
 - Kiểm thử cần thực hiện: kiểm thử đơn vị `database`, `apps/identity`, `packages/server`, `tests` (thư mục `trial`, kiểm tĩnh); e2e spec 140, 130, 132 ở dự án nhiều trường; CI chạy toàn bộ e2e và dựng ảnh `trial`.
-- Trạng thái: Đã triển khai (PR chưa có số)
+- Trạng thái: Đã triển khai (PR 167)
 
 ### YCTD-193: DT-SaaS phần S2: khởi tạo và vòng đời trường – 2026-10-25
 
