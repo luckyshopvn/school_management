@@ -118,7 +118,7 @@ export class FacebookPostsService {
     if (!facebook.enabled || !pageId) {
       throw ruleViolationError('P14-08', 'Nhà trường chưa bật kết nối Fanpage');
     }
-    if (!this.publisher.available) {
+    if (!(await this.publisher.isAvailable())) {
       throw ruleViolationError('P14-08', 'Máy chủ chưa có khóa truy cập Fanpage');
     }
     return pageId;
@@ -150,7 +150,7 @@ export class FacebookPostsService {
       excluded_photo_count: source.excludedPhotoCount,
       status: result ? ('posted' as const) : ('failed' as const),
       page_id: pageId,
-      provider: this.publisher.provider,
+      provider: await this.publisher.providerName(),
       external_post_id: result?.postId ?? null,
       last_error: error,
       posted_by: origin.actorUserId,

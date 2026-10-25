@@ -1202,6 +1202,31 @@ export interface TermsAcceptancesTable {
   recorded_by: string;
 }
 
+export type IntegrationSecretConnector =
+  'payos' | 'sepay' | 'casso' | 'vnpay' | 'vietqr' | 'esms' | 'zalo' | 'facebook' | 'storage';
+
+// Cấu hình kết nối ngoài riêng từng trường, mã hóa bằng khóa của trường (DT-SaaS phần S3, YCTD-195)
+export interface IntegrationSecretsTable {
+  connector: IntegrationSecretConnector;
+  id: Generated<string>;
+  enabled: Generated<boolean>;
+  values_encrypted: string;
+  hints: ColumnType<Record<string, string>, string | undefined, string>;
+  created_at: CreatedTimestamp;
+  updated_at: UpdatedTimestamp;
+  updated_by: string | null;
+  updated_by_name: string | null;
+}
+
+// Nhận diện thương hiệu của trường: một dòng (DT-SaaS phần S3)
+export interface SchoolBrandingTable {
+  id: number;
+  display_name: string | null;
+  primary_color: string | null;
+  updated_at: UpdatedTimestamp;
+  updated_by_name: string | null;
+}
+
 export interface SchoolLevelsTable {
   code: string;
   is_enabled: Generated<boolean>;
@@ -1475,4 +1500,6 @@ export interface SystemDatabase {
   website_events: WebsiteEventsTable;
   school_levels: SchoolLevelsTable;
   terms_acceptances: TermsAcceptancesTable;
+  integration_secrets: IntegrationSecretsTable;
+  school_branding: SchoolBrandingTable;
 }

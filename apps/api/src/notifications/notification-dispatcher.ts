@@ -131,7 +131,7 @@ export class NotificationDispatcher implements OnApplicationBootstrap, OnModuleD
         .skipLocked()
         .execute();
       const startOfDay = new Date(`${VIETNAM_DATE.format(now)}T00:00:00+07:00`);
-      const zaloActive = this.zalo.available && (await readIntegration(transaction, 'zalo')).enabled;
+      const zaloActive = (await this.zalo.isAvailable()) && (await readIntegration(transaction, 'zalo')).enabled;
       for (const recipient of pending) {
         if (recipient.channel === 'in_app') {
           await transaction

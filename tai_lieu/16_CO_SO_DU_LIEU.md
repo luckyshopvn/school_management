@@ -1,7 +1,7 @@
 # 16. CƠ SỞ DỮ LIỆU
 
 - Mô tả: Thực thể, trường, kiểu dữ liệu, khóa chính, khóa ngoại, quan hệ, ràng buộc, chỉ mục, trạng thái, lịch sử thay đổi, chính sách xóa dữ liệu.
-- Phiên bản: 1.121
+- Phiên bản: 1.122
 - Ngày cập nhật: 2026-10-25
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -729,13 +729,21 @@ Cơ sở dữ liệu `platform` dùng chung cho nền tảng nhiều trường, 
 | school_migrations (từ YCTD-193) | Kết quả migrate cuốn chiếu từng cơ sở dữ liệu của trường (P01-58) | school_id, wave_id, database_kind, database_name, status (`done`, `failed`, `skipped`), applied (JSON), error, canary, at |
 | school_consents (từ YCTD-193) | Hồ sơ đồng ý dùng dữ liệu thật theo PL-00 (BR-207; tệp nền tảng `0022_create_school_consents`) | school_id, kind (`dpa`, `consent`, `impact-assessment`, `risk-acceptance`), template_code, template_version, signer_name, signer_title, signed_on, valid_from, valid_until, data_scope, hosting_snapshot (JSON), file_sha256 (64 ký tự hexa thường), file_key, file_name, submitted_to_authority_on, authority_reference, recorded_by, recorded_by_name, withdrawn_on |
 | school_hosting (từ YCTD-193) | Vùng máy chủ, bên xử lý phụ của trường theo PL-08 (BR-207) | school_id, provider, service, region, role (`subprocessor`, `transit`), stores_personal_data, started_on, ended_on |
-| plans (từ YCTD-194) | Gói dịch vụ (BR-211, BR-212; tệp nền tảng `0040_create_plans`) | code (duy nhất), name, description, modules (JSON danh sách phân hệ, trống là mọi phân hệ), max_active_students, max_storage_mb, max_school_levels (trống là không giới hạn), trial_days, pricing_mode (`per_student` mặc định, `per_school`, `per_module`), unit_price, minimum_fee, module_prices (JSON), billing_cycle (`monthly`, `term`, `yearly`), status (`active`, `archived`); gói mặc định `full` |
-| school_plans (từ YCTD-194) | Gán gói cho trường có ngày hiệu lực, giữ lịch sử (BR-211) | school_id, plan_id, effective_from, effective_to (trống là còn hiệu lực), assigned_by, note |
-| schools (thêm từ YCTD-194) | Hạn của trường (BR-213) | trial_ends_on, paid_until, status_changed_at; `platform_settings` thêm khóa `plan_lifecycle` (remind_days, read_only_after_days, suspend_after_days, default_trial_days) |
 
 Từ YCTD-193 (tệp nền tảng `0020`, `0021`), bảng `schools` thêm address, school_levels (JSON, cấp học đã chọn), first_academic_year, suspended_at, deletion_requested_at, delete_after, deleted_at, deletion_record (JSON, bản ghi chứng minh đã xóa: mã, mã băm tên, thời điểm, người xóa, danh sách cơ sở dữ liệu, số tệp); bảng `school_domains` thêm provider (mặc định `system`), verification_token, cname_target, last_checked_at, check_error. Cơ sở dữ liệu hệ thống của từng trường thêm bảng `terms_acceptances` (tệp hệ thống `0050_create_terms_acceptances`: terms_version, accepted_at, accepted_by_name, accepted_by_title, source `platform-setup` hoặc `school-user`, recorded_by) để việc đồng ý điều khoản đi theo dữ liệu của trường khi xuất.
 
 Từ YCTD-203 (tệp nền tảng `0100_add_database_login_name`), bảng `school_databases` thêm login_name (tên đăng nhập qua bộ gom kết nối khi khác tên vai trò, ví dụ `<vai trò>.<mã dự án>` của Supabase; trống là đăng nhập bằng role_name). Lệnh tạo, khóa, xóa vai trò vẫn dùng role_name.
+
+## 18B. Cấu hình riêng từng trường (DT-SaaS phần S3, YCTD-195)
+
+| Bảng | Mục đích | Cột chính |
+|---|---|---|
+| integration_secrets (từ YCTD-195) | Cấu hình kết nối ngoài của trường, ở cơ sở dữ liệu hệ thống của trường (BR-211; hệ thống `0051_create_integration_secrets`) | connector (khóa chính: `payos`, `sepay`, `casso`, `vnpay`, `vietqr`, `esms`, `zalo`, `facebook`, `storage`), id, enabled, values_encrypted (JSON mã hóa bằng khóa của trường), hints, updated_at, updated_by |
+| school_branding (từ YCTD-195) | Thương hiệu của trường, một dòng (BR-213; hệ thống `0052_create_school_branding`) | id (luôn 1), display_name, primary_color (`#RRGGBB`), updated_at, updated_by_name |
+| school_key_rotations (từ YCTD-195) | Nhật ký đổi khóa mã hóa dữ liệu trẻ ở cơ sở dữ liệu nền tảng (BR-212; nền tảng `0030_create_key_rotations`, khối 0030 đến 0039 của S3) | school_id, status (`running`, `completed`, `failed`), new_encryption_key_encrypted, new_hash_key_encrypted (bọc bằng khóa gốc), progress (JSON), rows_done, started_by, started_at, finished_at, error; mỗi trường chỉ một lần `running` |
+| plans (từ YCTD-194) | Gói dịch vụ (BR-214, BR-215; tệp nền tảng `0040_create_plans`) | code (duy nhất), name, description, modules (JSON danh sách phân hệ, trống là mọi phân hệ), max_active_students, max_storage_mb, max_school_levels (trống là không giới hạn), trial_days, pricing_mode (`per_student` mặc định, `per_school`, `per_module`), unit_price, minimum_fee, module_prices (JSON), billing_cycle (`monthly`, `term`, `yearly`), status (`active`, `archived`); gói mặc định `full` |
+| school_plans (từ YCTD-194) | Gán gói cho trường có ngày hiệu lực, giữ lịch sử (BR-214) | school_id, plan_id, effective_from, effective_to (trống là còn hiệu lực), assigned_by, note |
+| schools (thêm từ YCTD-194) | Hạn của trường (BR-216) | trial_ends_on, paid_until, status_changed_at; `platform_settings` thêm khóa `plan_lifecycle` (remind_days, read_only_after_days, suspend_after_days, default_trial_days) |
 
 ## 19. Quan hệ chính giữa các bảng
 

@@ -502,8 +502,8 @@ function parseVnpayDate(value: string | undefined, fallback: Date): Date {
 
 // ---------- Cấu hình và tạo cổng ----------
 
-const DEFAULT_PAYOS_API_URL = 'https://api-merchant.payos.vn';
-const DEFAULT_VNPAY_PAYMENT_URL = 'https://sandbox.vnpayment.vn/paymentv2/vpcpay.html';
+export const DEFAULT_PAYOS_API_URL = 'https://api-merchant.payos.vn';
+export const DEFAULT_VNPAY_PAYMENT_URL = 'https://sandbox.vnpayment.vn/paymentv2/vpcpay.html';
 
 // Đọc khóa của các cổng đã bật từ biến môi trường; cổng bật mà thiếu biến thì dừng khởi động máy chủ
 export function readPaymentProviderSettings(

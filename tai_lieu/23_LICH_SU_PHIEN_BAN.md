@@ -1,7 +1,7 @@
 # 23. LỊCH SỬ PHIÊN BẢN
 
 - Mô tả: Mã phiên bản, ngày phát hành, danh sách thay đổi, chức năng mới, lỗi đã sửa, thay đổi dữ liệu, thay đổi API, rủi ro, khả năng tương thích, phương án quay lui.
-- Phiên bản: 0.57
+- Phiên bản: 0.58
 - Ngày cập nhật: 2026-10-25
 - Trạng thái: Đang cập nhật
 - Đã rà duyệt: Eric, ngày 2026-10-09
@@ -16,17 +16,29 @@
 
 ## 2. Danh sách phiên bản
 
-### Phiên bản 0.133.0 – 2026-10-25
+### Phiên bản 0.134.0 – 2026-10-25
 
 - Phạm vi thay đổi: DT-SaaS phần S5a, gói dịch vụ và giới hạn (YCTD-194).
-- Chức năng mới: gói dịch vụ, phân hệ bật theo gói, giới hạn số học sinh, dung lượng, số cấp học (P01-62); trạng thái trường và chế độ chỉ đọc khi hết hạn (P01-63); trang Gói dịch vụ ở cổng nền tảng, dải báo và lọc menu ở cổng (P01-64, MH-321, MH-322).
+- Chức năng mới: gói dịch vụ, phân hệ bật theo gói, giới hạn số học sinh, dung lượng, số cấp học (P01-65); trạng thái trường và chế độ chỉ đọc khi hết hạn (P01-66); trang Gói dịch vụ ở cổng nền tảng, dải báo và lọc menu ở cổng (P01-67, MH-323, MH-324).
 - Lỗi đã sửa: không có.
 - Thay đổi dữ liệu: cơ sở dữ liệu nền tảng thêm `plans`, `school_plans`, ba cột của `schools` (tệp nền tảng `0040`, `16_CO_SO_DU_LIEU.md` mục 18A).
 - Thay đổi API: `GET /school-plan`, nhóm gói ở `/auth/platform`; mã lỗi `MODULE_NOT_IN_PLAN`, `SCHOOL_READ_ONLY`, `PLAN_LIMIT_EXCEEDED` (xem `17_DAC_TA_API.md`).
-- Kiểm thử: kịch bản CT-1022 đến CT-1029 (CT-S5a-1 đến CT-S5a-8 trong mã kiểm thử). Kết quả ngày 25/10/2026: `database` 1 ca, `packages/server` 1 ca, `apps/identity` 1 ca, `apps/api` 4 ca mới đạt, ca cũ của các gói này đạt không sửa; e2e spec 134 và 130 ở dự án nhiều trường, spec 58 và các spec menu ở dự án một trường đạt; e2e toàn bộ do CI chạy.
+- Kiểm thử: kịch bản CT-1027 đến CT-1034 (CT-S5a-1 đến CT-S5a-8 trong mã kiểm thử). Kết quả ngày 25/10/2026: `database` 1 ca, `packages/server` 1 ca, `apps/identity` 1 ca, `apps/api` 4 ca mới đạt, ca cũ của các gói này đạt không sửa; e2e spec 134 và 130 ở dự án nhiều trường, spec 58 và các spec menu ở dự án một trường đạt; e2e toàn bộ do CI chạy.
 - Rủi ro: gói nằm trong bản đệm ngữ cảnh trường nên đổi gói, đổi trạng thái có hiệu lực sau `TENANT_CACHE_SECONDS` (mặc định 30 giây); chuyển trạng thái tự động chờ bộ lập lịch của S1b (trước đó chạy bằng lệnh hoặc nút ở cổng nền tảng); dung lượng tính trên tệp đính kèm và học liệu của năm học hiện hành.
 - Khả năng tương thích: chế độ một trường và trường chưa gán gói không đổi hành vi.
 - Phương án quay lui: hoàn lại commit gộp của nhánh S5a; gỡ gán gói (`school_plans`) và đặt trạng thái trường về `active` là bỏ giới hạn mà không cần quay lui mã.
+
+### Phiên bản 0.133.0 – 2026-10-25
+
+- Phạm vi thay đổi: DT-SaaS phần S3, cấu hình riêng từng trường (YCTD-195).
+- Chức năng mới: khóa kết nối ngoài riêng từng trường lưu mã hóa (P01-62, MH-321); đổi khóa mã hóa dữ liệu trẻ có thể làm tiếp và bọc lại khóa gốc (P01-63); thương hiệu của trường (P01-64, MH-322).
+- Lỗi đã sửa: không có.
+- Thay đổi dữ liệu: `integration_secrets`, `school_branding` ở cơ sở dữ liệu hệ thống (tệp `0051`, `0052`); `school_key_rotations` ở cơ sở dữ liệu nền tảng (tệp `0030`); xem `16_CO_SO_DU_LIEU.md` mục 18B.
+- Thay đổi API: `/school-settings/integrations`, `/school-settings/branding`, `/public/branding` (xem `17_DAC_TA_API.md`); lệnh `platform rotate-child-key`, `platform rewrap-master-key`.
+- Kiểm thử: kịch bản CT-1022 đến CT-1026. Kết quả ngày 25/10/2026: database 19 ca (đổi khóa 4 mới, migrate, nền tảng); apps/api 8 ca mới (kiểm tra giá trị 3, hai trường 5) cùng ma trận tuyến, toàn bộ 1136 ca đạt; e2e nhiều trường 11 ca (spec 130 đến 133) đạt ở cả hai bố cục; kiểm tĩnh 6 ca; e2e toàn bộ do CI chạy.
+- Rủi ro: cấu hình đọc theo từng lần dùng nên tăng một truy vấn nhỏ (đệm 15 giây); tiến trình khác thấy thay đổi chậm tối đa chừng đó; đổi khóa dữ liệu trẻ phải tạm dừng trường (có thời gian ngừng); kiểm tra kết nối cổng thanh toán chỉ kiểm tra đủ khóa, nhà cung cấp chỉ xác nhận khi có giao dịch thật.
+- Khả năng tương thích: chế độ một trường giữ nguyên (khóa ở biến môi trường vẫn dùng khi trường chưa nhập cấu hình riêng); đổi chữ ký `FacebookPublisher`, `ZaloSender` (thêm `isAvailable`, `providerName`), `PaymentGatewayRegistry` (thêm `prepare`).
+- Phương án quay lui: hoàn lại commit gộp của nhánh S3; bảng mới chỉ do phần này dùng, khóa ở biến môi trường vẫn dùng được ở chế độ một trường.
 
 ### Phiên bản 0.132.0 – 2026-10-25
 

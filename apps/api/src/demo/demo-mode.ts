@@ -124,6 +124,14 @@ export class DemoAwareZaloSender extends ZaloSender {
     return this.inner.available;
   }
 
+  override isAvailable(): Promise<boolean> {
+    return this.inner.isAvailable();
+  }
+
+  override providerName(): Promise<string> {
+    return this.inner.providerName();
+  }
+
   async send(zaloUserId: string, text: string): Promise<void> {
     if (await this.demoMode.isEnabled()) {
       this.logger.warn(`Bản trình diễn: không gửi tin Zalo thật tới ${zaloUserId}: ${text}`);
@@ -152,6 +160,14 @@ export class DemoAwareFacebookPublisher extends FacebookPublisher {
 
   get available(): boolean {
     return this.inner.available;
+  }
+
+  override isAvailable(): Promise<boolean> {
+    return this.inner.isAvailable();
+  }
+
+  override providerName(): Promise<string> {
+    return this.inner.providerName();
   }
 
   async publish(input: FacebookPostInput): Promise<{ postId: string }> {

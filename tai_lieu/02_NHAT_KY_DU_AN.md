@@ -1,7 +1,7 @@
 # 02. NHẬT KÝ DỰ ÁN
 
 - Mô tả: Ghi nhận công việc, quyết định, thay đổi và vấn đề tồn đọng theo ngày, ngày mới nhất ở trên cùng.
-- Phiên bản: 0.67
+- Phiên bản: 0.68
 - Ngày cập nhật: 2026-10-25
 - Trạng thái: Đang cập nhật
 
@@ -20,7 +20,7 @@
 
 - Đọc mục 14.3, 14.5 (S5a), 14.9 của `32_KE_HOACH_THEO_HE_THONG_SO.md`; rà menu cổng (`PORTAL_WORKSPACES`, `MENU_PERMISSION_RULES`), `AuthenticationGuard`, các chỗ thêm trẻ (duyệt hồ sơ, nhập Excel, nhập CSDL của Bộ), cấp học, tải tệp, ngữ cảnh trường của S1a.
 - Thêm gói dịch vụ (tệp nền tảng 0040), phân hệ theo gói, giới hạn, trạng thái trường và chế độ chỉ đọc, hàm chuyển trạng thái theo hạn cùng lệnh `platform plan-lifecycle`, `GET /school-plan`, trang Gói dịch vụ ở cổng nền tảng, dải báo và lọc menu ở cổng, e2e spec 134.
-- Thêm quy tắc BR-211 đến BR-213, chức năng P01-62 đến P01-64, màn hình MH-321, MH-322, kịch bản CT-1022 đến CT-1029, tiêu chí AC-839 đến AC-841, bảng nền tảng ở `16` mục 18A, giao kèo ở `17`; phiên bản 0.133.0.
+- Thêm quy tắc BR-214 đến BR-216, chức năng P01-65 đến P01-67, màn hình MH-323, MH-324, kịch bản CT-1027 đến CT-1034, tiêu chí AC-842 đến AC-844, bảng nền tảng ở `16` mục 18A, giao kèo ở `17`; phiên bản 0.134.0.
 
 #### Quyết định
 
@@ -31,12 +31,35 @@
 
 #### Thay đổi
 
-- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-194, `07_QUY_TAC_NGHIEP_VU.md` BR-211 đến BR-213, `10_YEU_CAU_CHUC_NANG.md` P01-62 đến P01-64, `11_TIEU_CHI_NGHIEM_THU.md` AC-839 đến AC-841, `14_DAC_TA_GIAO_DIEN.md` MH-321, MH-322, `16_CO_SO_DU_LIEU.md` mục 18A, `17_DAC_TA_API.md`, `21_KICH_BAN_KIEM_THU.md` CT-1022 đến CT-1029; phiên bản phần mềm 0.133.0.
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-194, `07_QUY_TAC_NGHIEP_VU.md` BR-214 đến BR-216, `10_YEU_CAU_CHUC_NANG.md` P01-65 đến P01-67, `11_TIEU_CHI_NGHIEM_THU.md` AC-842 đến AC-844, `14_DAC_TA_GIAO_DIEN.md` MH-323, MH-324, `16_CO_SO_DU_LIEU.md` mục 18A, `17_DAC_TA_API.md`, `21_KICH_BAN_KIEM_THU.md` CT-1027 đến CT-1034; phiên bản phần mềm 0.134.0.
 
 #### Vấn đề tồn đọng
 
 - Chưa nối `applyPlanLifecycle` vào bộ lập lịch của S1b (bộ lập lịch chạy việc theo từng trường, còn chuyển trạng thái chạy cho cả nền tảng): trước mắt chạy bằng lệnh `platform plan-lifecycle` hoặc nút ở cổng nền tảng; nhắc hạn hiện ở cổng của trường (S4 thêm ở bảng điều khiển); thu tiền, gia hạn tự động ở S5b.
 - Khi gộp với S2: trường khởi tạo ở trạng thái dùng thử được đặt `trial_ends_on` theo `plan_lifecycle.default_trial_days` (mặc định 30 ngày) ở bước kích hoạt, nếu chưa đặt. Ở `24` dòng số giữ sẵn của YCTD-190 ghi S3 194, S5a 195, khác bảng ở `32` mục 14.10 (S5a 194, S3 195); phần này theo bảng ở `32` và lời giao việc.
+
+### 2026-10-25 — DT-SaaS phần S3: cấu hình riêng từng trường
+
+#### Công việc đã thực hiện
+
+- Đọc mục 14.3, 14.5 (S3), 14.9 của `32_KE_HOACH_THEO_HE_THONG_SO.md`; rà nơi đọc khóa tích hợp (thanh toán, eSMS, Zalo, Facebook, kho tệp) ở `application.module.ts`, `ApiConfiguration`.
+- Thêm `integration_secrets`, `school_branding`, `school_key_rotations`, lớp `SchoolSettings` và bộ nối theo trường, màn hình quản trị, công cụ đổi khóa và bọc lại khóa gốc.
+- Thêm quy tắc BR-211 đến BR-213, chức năng P01-62 đến P01-64, màn hình MH-321, MH-322, kịch bản CT-1022 đến CT-1026, tiêu chí AC-839 đến AC-841, bảo mật BM-81, BM-82, QĐ-29.
+
+#### Quyết định
+
+- Giá trị kết nối lưu một đối tượng JSON mã hóa bằng khóa mã hóa của trường (cùng khóa với dữ liệu trẻ) nên đổi khóa dữ liệu trẻ mã hóa lại luôn cả cấu hình kết nối.
+- Đổi khóa chỉ khi trường tạm dừng, tự tìm cột `*_encrypted` có cột `id` ở `information_schema` để không bỏ sót bảng thêm sau.
+- Chế độ nhiều trường không rơi về biến môi trường; bộ giả lập đặt ở cấu hình máy chủ vẫn dùng được để các kiểm thử hiện có không đổi.
+- Biểu trưng dùng lại ảnh biểu trưng của website trường thay vì thêm đường tải mới; thương hiệu chỉ thêm tên hiển thị và màu.
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-195, `07_QUY_TAC_NGHIEP_VU.md` BR-211 đến BR-213, `10_YEU_CAU_CHUC_NANG.md` P01-62 đến P01-64, `11_TIEU_CHI_NGHIEM_THU.md` AC-839 đến AC-841
+
+#### Vấn đề tồn đọng
+
+- Kiểm tra kết nối thật cho cổng thanh toán, tên sản phẩm lấy từ cấu hình nền tảng, chuyển biến môi trường hiện có thành cấu hình của trường số 1 chưa làm; e2e toàn bộ do CI chạy
 
 ### 2026-10-25 — DT-SaaS phần S9: triển khai thử nghiệm miễn phí
 

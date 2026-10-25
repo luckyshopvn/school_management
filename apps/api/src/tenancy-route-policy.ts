@@ -47,6 +47,11 @@ export const PUBLIC_ROUTES: PublicRoute[] = [
     '/api/v1/internal/jobs/tick',
     'Điểm gọi của bộ hẹn giờ bên ngoài chạy việc nền đến hạn của mọi trường; đòi bí mật dùng chung INTERNAL_JOB_TOKEN (so sánh thời gian hằng), chưa đặt bí mật thì 404 (S1b)',
   ),
+  get(
+    '/api/v1/public/branding',
+    'Tên hiển thị, màu chủ đạo và địa chỉ biểu trưng của trường cho trang đăng nhập (S3), theo tên miền của trường; không trả dữ liệu cá nhân',
+  ),
+  get('/api/v1/public/branding/logo', 'Ảnh biểu trưng của trường (S3), theo tên miền của trường'),
   get('/api/v1/public/demo', 'Thông tin bản trình diễn của trường (18h), theo tên miền của trường'),
   get(
     '/api/v1/public/login-info',
