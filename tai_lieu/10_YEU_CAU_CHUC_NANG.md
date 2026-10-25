@@ -1,7 +1,7 @@
 # 10. YÊU CẦU CHỨC NĂNG
 
 - Mô tả: Mã chức năng, tên chức năng, mục đích, người sử dụng, điều kiện thực hiện, dữ liệu đầu vào, quy trình xử lý, kết quả đầu ra, quy tắc nghiệp vụ, trường hợp ngoại lệ, phân quyền, thông báo lỗi.
-- Phiên bản: 1.98
+- Phiên bản: 1.99
 - Ngày cập nhật: 2026-10-25
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -82,6 +82,9 @@
 | P01-62 | Khóa kết nối ngoài riêng từng trường (YCTD-195) | Hiệu trưởng (VT-02) | Khóa và thông tin của cổng thanh toán, eSMS, Zalo, Facebook, kho tệp | Lưu mã hóa bằng khóa của trường; kiểm tra kết nối; xem địa chỉ gọi lại của trường; xóa cấu hình; bộ nối ngoài đọc theo trường | Trạng thái từng kết nối kèm bốn ký tự cuối giá trị bí mật | BR-211 |
 | P01-63 | Đổi khóa mã hóa dữ liệu trẻ và bọc lại khóa gốc (YCTD-195) | Người vận hành (lệnh dòng lệnh platform) | Mã trường đang tạm dừng; khóa gốc mới | Mã hóa lại từng lô, làm tiếp được, tính lại băm, thay khóa khi xong, ghi nhật ký | Khóa mới của trường; số dòng đã mã hóa lại | BR-212 |
 | P01-64 | Thương hiệu của trường (YCTD-195) | Hiệu trưởng (VT-02); người dùng chưa đăng nhập (đọc) | Tên hiển thị, màu chủ đạo | Lưu thương hiệu; trang đăng nhập đọc công khai theo tên miền | Tên, màu, biểu trưng của trường | BR-213 |
+| P01-65 | Gói dịch vụ, phân hệ và giới hạn theo gói (YCTD-194) | Người vận hành nền tảng; hệ thống | Gói (phân hệ, giới hạn, cách tính phí), gán gói cho trường | Ẩn phân hệ ngoài gói, chặn ở máy chủ; chặn thêm học sinh, cấp học, tệp khi vượt giới hạn | Gói của trường, số đang dùng | BR-214, BR-215 |
+| P01-66 | Trạng thái trường và chế độ chỉ đọc khi hết hạn (YCTD-194) | Hệ thống (lệnh `platform plan-lifecycle`, bộ lập lịch S1b); người vận hành nền tảng | Hạn dùng thử, hạn đã trả phí, mốc cấu hình | Nhắc hạn; chuyển chỉ đọc, tạm ngưng; chặn ghi ở chế độ chỉ đọc; không xóa dữ liệu | Trạng thái trường, nhật ký nền tảng | BR-216 |
+| P01-67 | Trang Gói dịch vụ ở cổng nền tảng, dải báo gói ở cổng (YCTD-194) | Người vận hành nền tảng; người dùng của trường | Gói, gán gói, hạn, trạng thái | Lưu gói, gán gói, chạy chuyển trạng thái; cổng hiện dải chỉ đọc, nhắc hạn | MH-323, MH-324 | PQ-105 |
 
 ## 3. Phân hệ P02 — Trẻ, phụ huynh và lớp học
 

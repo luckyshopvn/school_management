@@ -9,6 +9,16 @@ export type SchoolStatus =
 // synthetic: dữ liệu giả; consented: dữ liệu thật đã có văn bản đồng ý (S9); production: dữ liệu thật ở hồ sơ vận hành
 export type SchoolDataClass = 'synthetic' | 'consented' | 'production';
 
+// Gói dịch vụ hiện hành của trường (DT-SaaS phần S5a): phân hệ được bật (null là mọi phân hệ) và giới hạn (null là không giới hạn)
+export interface TenantPlan {
+  code: string;
+  name: string;
+  modules: string[] | null;
+  maxActiveStudents: number | null;
+  maxStorageMb: number | null;
+  maxSchoolLevels: number | null;
+}
+
 export interface TenantContext {
   schoolId: string;
   // Mã trường: tên miền con, tiền tố khóa; không đổi sau khi tạo
@@ -23,6 +33,11 @@ export interface TenantContext {
   // Khóa mã hóa và khóa băm số định danh của trẻ, riêng từng trường (BM-64); chỉ có khi trường đã có khóa
   childDataEncryptionKey?: Buffer;
   childDataHashKey?: Buffer;
+  // Gói hiện hành; không có là trường chưa gán gói, không giới hạn (S5a)
+  plan?: TenantPlan | null;
+  // Hạn dùng thử, hạn đã trả phí dạng yyyy-mm-dd (S5a)
+  trialEndsOn?: string | null;
+  paidUntil?: string | null;
 }
 
 export class TenantContextMissingError extends Error {
