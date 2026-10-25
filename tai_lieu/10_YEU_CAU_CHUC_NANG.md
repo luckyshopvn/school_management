@@ -1,7 +1,7 @@
 # 10. YÊU CẦU CHỨC NĂNG
 
 - Mô tả: Mã chức năng, tên chức năng, mục đích, người sử dụng, điều kiện thực hiện, dữ liệu đầu vào, quy trình xử lý, kết quả đầu ra, quy tắc nghiệp vụ, trường hợp ngoại lệ, phân quyền, thông báo lỗi.
-- Phiên bản: 1.97
+- Phiên bản: 1.98
 - Ngày cập nhật: 2026-10-25
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -76,9 +76,12 @@
 | P01-56 | Tên miền riêng và hồ sơ đồng ý của trường (YCTD-193) | Người vận hành nền tảng | Tên miền; hồ sơ đồng ý; vùng máy chủ; loại dữ liệu | Tên miền riêng chờ kiểm tra CNAME, TXT qua bộ nối `DomainProvider`; ghi hồ sơ, vùng máy chủ; đổi loại dữ liệu qua cổng hồ sơ | Tên miền hoạt động khi kiểm tra đạt; loại dữ liệu mới | BR-206, BR-207 |
 | P01-57 | Kích hoạt quản trị viên đầu tiên (YCTD-193) | Quản trị viên đầu tiên của trường mới (không cần đăng nhập) | Mã kích hoạt trong đường liên kết, mật khẩu mới | Kiểm tra lời mời đúng trường, chưa dùng, chưa hết hạn; đặt mật khẩu theo BM-03; đánh dấu đã dùng | Tài khoản đăng nhập được | BR-208 |
 | P01-58 | Migrate cuốn chiếu các trường (YCTD-193) | Người vận hành (lệnh `platform migrate-schools`) | Trường canary, có chạy tiếp khi lỗi | Chạy migrate lần lượt cơ sở dữ liệu định danh, hệ thống, năm học còn ghi được của từng trường, canary trước; lỗi thì dừng | Bảng kết quả theo làn sóng ở `school_migrations` | BR-208 |
-| P01-59 | Gói dịch vụ, phân hệ và giới hạn theo gói (YCTD-194) | Người vận hành nền tảng; hệ thống | Gói (phân hệ, giới hạn, cách tính phí), gán gói cho trường | Ẩn phân hệ ngoài gói, chặn ở máy chủ; chặn thêm học sinh, cấp học, tệp khi vượt giới hạn | Gói của trường, số đang dùng | BR-209, BR-210 |
-| P01-60 | Trạng thái trường và chế độ chỉ đọc khi hết hạn (YCTD-194) | Hệ thống (lệnh `platform plan-lifecycle`, bộ lập lịch S1b); người vận hành nền tảng | Hạn dùng thử, hạn đã trả phí, mốc cấu hình | Nhắc hạn; chuyển chỉ đọc, tạm ngưng; chặn ghi ở chế độ chỉ đọc; không xóa dữ liệu | Trạng thái trường, nhật ký nền tảng | BR-211 |
-| P01-61 | Trang Gói dịch vụ ở cổng nền tảng, dải báo gói ở cổng (YCTD-194) | Người vận hành nền tảng; người dùng của trường | Gói, gán gói, hạn, trạng thái | Lưu gói, gán gói, chạy chuyển trạng thái; cổng hiện dải chỉ đọc, nhắc hạn | MH-320, MH-321 | PQ-105 |
+| P01-59 | Hồ sơ triển khai thử nghiệm miễn phí (YCTD-203) | Người vận hành nền tảng | Tổ hợp (1: Cloudflare, Neon, R2, Render; 2: Cloudflare, Supabase, Koyeb; 3: Vercel), biến cấu hình của nền tảng | Cổng biên chia đường dẫn, chuyển `/api/v1` về máy chủ gộp kèm tên miền gốc và bí mật, trang đang khởi động khi máy chủ ngủ, gọi `tick` theo lịch; bộ nối nơi đặt PostgreSQL sinh địa chỉ qua bộ gom kết nối | Nền tảng nhiều trường chạy trên gói miễn phí | BR-209 |
+| P01-60 | Tên miền riêng qua nhà cung cấp (YCTD-203) | Người vận hành nền tảng | Tên miền riêng của trường; `DOMAIN_PROVIDER` `cloudflare-saas` hoặc `vercel-domains` | Tạo tên miền ở nhà cung cấp, hiện bản ghi xác nhận, hỏi trạng thái, gỡ khi xóa vĩnh viễn trường | Tên miền riêng hoạt động có chứng chỉ | BR-206 |
+| P01-61 | Chuyển trường sang hồ sơ vận hành (YCTD-203) | Người vận hành (lệnh `platform relayout`) | Mã trường, bố cục đích, nền tảng đích | Chép trường, khóa, cơ sở dữ liệu theo bố cục đích, so số dòng và tổng kiểm từng bảng | Trường ở nền tảng đích, báo cáo khớp từng bảng | BR-210 |
+| P01-62 | Gói dịch vụ, phân hệ và giới hạn theo gói (YCTD-194) | Người vận hành nền tảng; hệ thống | Gói (phân hệ, giới hạn, cách tính phí), gán gói cho trường | Ẩn phân hệ ngoài gói, chặn ở máy chủ; chặn thêm học sinh, cấp học, tệp khi vượt giới hạn | Gói của trường, số đang dùng | BR-211, BR-212 |
+| P01-63 | Trạng thái trường và chế độ chỉ đọc khi hết hạn (YCTD-194) | Hệ thống (lệnh `platform plan-lifecycle`, bộ lập lịch S1b); người vận hành nền tảng | Hạn dùng thử, hạn đã trả phí, mốc cấu hình | Nhắc hạn; chuyển chỉ đọc, tạm ngưng; chặn ghi ở chế độ chỉ đọc; không xóa dữ liệu | Trạng thái trường, nhật ký nền tảng | BR-213 |
+| P01-64 | Trang Gói dịch vụ ở cổng nền tảng, dải báo gói ở cổng (YCTD-194) | Người vận hành nền tảng; người dùng của trường | Gói, gán gói, hạn, trạng thái | Lưu gói, gán gói, chạy chuyển trạng thái; cổng hiện dải chỉ đọc, nhắc hạn | MH-321, MH-322 | PQ-105 |
 
 ## 3. Phân hệ P02 — Trẻ, phụ huynh và lớp học
 

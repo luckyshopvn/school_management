@@ -1,7 +1,7 @@
 # 17. ĐẶC TẢ API
 
 - Mô tả: Điểm cuối, phương thức, yêu cầu, phản hồi, xác thực, phân quyền, kiểm tra dữ liệu, xử lý lỗi, phân trang, lọc, sắp xếp, phiên bản.
-- Phiên bản: 1.124
+- Phiên bản: 1.125
 - Ngày cập nhật: 2026-10-25
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -271,7 +271,14 @@ Giao kèo khởi tạo và vòng đời trường (DT-SaaS phần S2, YCTD-193, 
 3. `GET /api/v1/auth/activate?token=` và `POST /api/v1/auth/activate` (`{ token, new_password }`) phục vụ ở tên miền của trường, không cần đăng nhập, có giới hạn tần suất đăng nhập; mã sai, đã dùng, hết hạn hoặc của trường khác trả 401; mật khẩu sai chính sách trả 400.
 4. Trạng thái trường đổi thì bộ phân giải của dịch vụ định danh đọc lại ngay; máy chủ API đọc lại sau `TENANT_CACHE_SECONDS`.
 
-Giao kèo gói dịch vụ (DT-SaaS phần S5a, YCTD-194, BR-209 đến BR-211):
+Giao kèo hồ sơ thử nghiệm (DT-SaaS phần S9, YCTD-203, BR-209, BR-210):
+
+1. Cổng biên chuyển `/api/v1` về máy chủ kèm `x-school-host: <tên miền gốc>` và `x-edge-auth: <EDGE_SHARED_SECRET>`, bỏ hai tiêu đề này, `x-forwarded-host`, `x-website-root` nếu người dùng tự đặt; đặt `x-forwarded-for` bằng địa chỉ người dùng. Máy chủ ngủ (quá `ORIGIN_TIMEOUT_MS`, lỗi kết nối, 502, 504, 520 đến 524) thì cổng biên trả 503 kèm `Retry-After: 10`: trang HTML cho trình duyệt, `{ error: { code: 'ERR_SERVICE_WAKING', message, details: [] } }` cho lời gọi khác. Lỗi 503 của ứng dụng chuyển nguyên.
+2. Bước setup và `POST /auth/platform/schools/{mã}/data-class` trả 400 hoặc 422 có lỗi ở `data_class` khi loại dữ liệu trái `PLATFORM_DATA_POLICY`; `GET /auth/platform/schools/settings` thêm `data_policy`; chi tiết trường trả `provider` của từng tên miền.
+3. Biến của nền tảng: `DB_HOST_ADAPTER` (`plain`, `neon`, `supabase`), `DB_POOLER_HOST`, `DB_POOLER_PORT`, `SUPABASE_PROJECT_REF`, `PLATFORM_DATA_POLICY`, `DOMAIN_PROVIDER` (`dns-check`, `cloudflare-saas`, `vercel-domains`) kèm `CLOUDFLARE_API_TOKEN`, `CLOUDFLARE_ZONE_ID` hoặc `VERCEL_TOKEN`, `VERCEL_PROJECT_ID`, `VERCEL_TEAM_ID`, `MIGRATE_ON_START`, `MIGRATE_SCHOOLS_ON_START`, `SMS_ALLOW_LOG`, `REDIS_URL=memory://` (dịch vụ định danh), `APP_BASE_PATH` (lúc dựng giao diện).
+4. Lệnh `platform relayout --school <mã> --to database|schema` đọc nền tảng nguồn từ biến của nền tảng và nền tảng đích từ `TARGET_PLATFORM_DATABASE_URL`, `TARGET_PLATFORM_MASTER_KEY`, `TARGET_PLATFORM_ADMIN_DATABASE_URL`, `TARGET_PLATFORM_SHARED_DATABASE`; in mỗi cơ sở dữ liệu đã chép và số bảng khớp.
+
+Giao kèo gói dịch vụ (DT-SaaS phần S5a, YCTD-194, BR-211 đến BR-213):
 
 1. Khi trường có gói, quyền thuộc phân hệ ngoài gói trả 403 `MODULE_NOT_IN_PLAN`; vượt giới hạn khi thêm học sinh, bật cấp học, tải tệp trả 422 `PLAN_LIMIT_EXCEEDED`; trường ở trạng thái `read_only` trả 403 `SCHOOL_READ_ONLY` cho mọi yêu cầu ghi tới máy chủ API và dịch vụ định danh, trừ `/api/v1/auth/*` (ngoài `/auth/settings`), đường dẫn xuất, `/api/v1/export-jobs`, `/api/v1/school-plan`, `/api/v1/billing`. Trường chưa gán gói và chế độ một trường không bị ảnh hưởng.
 
@@ -1536,7 +1543,7 @@ Giao kèo văn thư lưu trữ (YCTD-118):
 | PUT | /api/v1/auth/platform/plans/{id} | Sửa gói (YCTD-194) |
 | GET | /api/v1/auth/platform/plan-schools | Danh sách trường kèm trạng thái, gói hiện hành, hạn (YCTD-194) |
 | PUT | /api/v1/auth/platform/plan-schools/{id} | Gán gói (ngày hiệu lực), đặt hạn dùng thử, hạn đã trả phí, trạng thái trường (YCTD-194); ghi nhật ký nền tảng |
-| POST | /api/v1/auth/platform/plan-lifecycle | Chạy chuyển trạng thái theo hạn, trả danh sách trường đổi và trường cần nhắc (YCTD-194, BR-211) |
+| POST | /api/v1/auth/platform/plan-lifecycle | Chạy chuyển trạng thái theo hạn, trả danh sách trường đổi và trường cần nhắc (YCTD-194, BR-213) |
 | GET | /api/v1/school-plan | Gói của trường đang dùng: `restricted`, trạng thái, gói, phân hệ, giới hạn, số đang dùng (học sinh, dung lượng, cấp học), hạn, số ngày còn lại, `read_only` (YCTD-194); mọi người dùng đã đăng nhập |
 | POST | /api/v1/internal/jobs/tick | Điểm gọi của bộ hẹn giờ bên ngoài (YCTD-192, BR-204): tiêu đề `x-internal-job-token` bằng `INTERNAL_JOB_TOKEN` (so sánh thời gian hằng, sai 401, chưa đặt 404, có giới hạn tần suất); chạy việc nền đến hạn của mọi trường rồi trả `{ jobs, schools, failed }`; không cần trường (gọi bằng địa chỉ nội bộ) |
 | GET | /api/v1/public/schools/picker | Trang chọn trường ở tên miền gốc (YCTD-192, BR-205, MH-315): trang HTML tĩnh, 404 khi chưa đặt `PLATFORM_ROOT_DOMAIN`; không cần trường |

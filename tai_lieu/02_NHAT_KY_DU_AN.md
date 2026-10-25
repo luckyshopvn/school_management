@@ -1,7 +1,7 @@
 # 02. NHẬT KÝ DỰ ÁN
 
 - Mô tả: Ghi nhận công việc, quyết định, thay đổi và vấn đề tồn đọng theo ngày, ngày mới nhất ở trên cùng.
-- Phiên bản: 0.66
+- Phiên bản: 0.67
 - Ngày cập nhật: 2026-10-25
 - Trạng thái: Đang cập nhật
 
@@ -20,7 +20,7 @@
 
 - Đọc mục 14.3, 14.5 (S5a), 14.9 của `32_KE_HOACH_THEO_HE_THONG_SO.md`; rà menu cổng (`PORTAL_WORKSPACES`, `MENU_PERMISSION_RULES`), `AuthenticationGuard`, các chỗ thêm trẻ (duyệt hồ sơ, nhập Excel, nhập CSDL của Bộ), cấp học, tải tệp, ngữ cảnh trường của S1a.
 - Thêm gói dịch vụ (tệp nền tảng 0040), phân hệ theo gói, giới hạn, trạng thái trường và chế độ chỉ đọc, hàm chuyển trạng thái theo hạn cùng lệnh `platform plan-lifecycle`, `GET /school-plan`, trang Gói dịch vụ ở cổng nền tảng, dải báo và lọc menu ở cổng, e2e spec 134.
-- Thêm quy tắc BR-209 đến BR-211, chức năng P01-59 đến P01-61, màn hình MH-320, MH-321, kịch bản CT-1014 đến CT-1021, tiêu chí AC-835 đến AC-837, bảng nền tảng ở `16` mục 18A, giao kèo ở `17`; phiên bản 0.132.0.
+- Thêm quy tắc BR-211 đến BR-213, chức năng P01-62 đến P01-64, màn hình MH-321, MH-322, kịch bản CT-1022 đến CT-1029, tiêu chí AC-839 đến AC-841, bảng nền tảng ở `16` mục 18A, giao kèo ở `17`; phiên bản 0.133.0.
 
 #### Quyết định
 
@@ -31,12 +31,36 @@
 
 #### Thay đổi
 
-- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-194, `07_QUY_TAC_NGHIEP_VU.md` BR-209 đến BR-211, `10_YEU_CAU_CHUC_NANG.md` P01-59 đến P01-61, `11_TIEU_CHI_NGHIEM_THU.md` AC-835 đến AC-837, `14_DAC_TA_GIAO_DIEN.md` MH-320, MH-321, `16_CO_SO_DU_LIEU.md` mục 18A, `17_DAC_TA_API.md`, `21_KICH_BAN_KIEM_THU.md` CT-1014 đến CT-1021; phiên bản phần mềm 0.132.0.
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-194, `07_QUY_TAC_NGHIEP_VU.md` BR-211 đến BR-213, `10_YEU_CAU_CHUC_NANG.md` P01-62 đến P01-64, `11_TIEU_CHI_NGHIEM_THU.md` AC-839 đến AC-841, `14_DAC_TA_GIAO_DIEN.md` MH-321, MH-322, `16_CO_SO_DU_LIEU.md` mục 18A, `17_DAC_TA_API.md`, `21_KICH_BAN_KIEM_THU.md` CT-1022 đến CT-1029; phiên bản phần mềm 0.133.0.
 
 #### Vấn đề tồn đọng
 
 - Chưa nối `applyPlanLifecycle` vào bộ lập lịch của S1b (bộ lập lịch chạy việc theo từng trường, còn chuyển trạng thái chạy cho cả nền tảng): trước mắt chạy bằng lệnh `platform plan-lifecycle` hoặc nút ở cổng nền tảng; nhắc hạn hiện ở cổng của trường (S4 thêm ở bảng điều khiển); thu tiền, gia hạn tự động ở S5b.
 - Khi gộp với S2: trường khởi tạo ở trạng thái dùng thử được đặt `trial_ends_on` theo `plan_lifecycle.default_trial_days` (mặc định 30 ngày) ở bước kích hoạt, nếu chưa đặt. Ở `24` dòng số giữ sẵn của YCTD-190 ghi S3 194, S5a 195, khác bảng ở `32` mục 14.10 (S5a 194, S3 195); phần này theo bảng ở `32` và lời giao việc.
+
+### 2026-10-25 — DT-SaaS phần S9: triển khai thử nghiệm miễn phí
+
+#### Công việc đã thực hiện
+
+- Đọc mục 14.3, 14.4, 14.5 (phần S9), 14.11 của `32_KE_HOACH_THEO_HE_THONG_SO.md`, PL-00, PL-08, PL-09 của `33_HO_SO_PHAP_LY/`, Caddy và hồ sơ vận hành của S7a; tra trang chính thức của Render, Koyeb, Neon, Supabase, Cloudflare (R2, Workers, Cron Triggers, Cloudflare for SaaS, custom hostname), Vercel (Hobby, Routing Middleware, thêm tên miền) ngày 2026-10-25.
+- Thêm tệp nền tảng `0100_add_database_login_name`; bộ nối `DB_HOST_ADAPTER` (`plain`, `neon`, `supabase`); bộ nối tên miền `cloudflare-saas`, `vercel-domains`; chính sách `PLATFORM_DATA_POLICY`; lệnh `platform relayout`; kho khóa trong bộ nhớ của dịch vụ định danh (`REDIS_URL=memory://`); `SMS_ALLOW_LOG`; `APP_BASE_PATH` cho ba ứng dụng; hồ sơ `deploy/profiles/trial/` (cổng biên Cloudflare Worker, container gộp, ba tổ hợp, Vercel 3a, 3b, công cụ chuyển); ảnh `trial` ở CI; spec e2e 140.
+- Thêm quy tắc BR-209, BR-210, chức năng P01-59 đến P01-61, màn hình MH-320, kịch bản CT-1014 đến CT-1021, tiêu chí AC-835 đến AC-838, bảo mật BM-79, BM-80, QĐ-28, mục 12D của `12`, giao kèo ở `17`, cột mới ở `16` mục 18A; phiên bản 0.132.0.
+
+#### Quyết định
+
+- Hồ sơ thử nghiệm dùng cùng mã nguồn và ảnh với hồ sơ vận hành, chọn mọi khác biệt bằng biến cấu hình của nền tảng; không rẽ nhánh trong mã nghiệp vụ.
+- Máy chủ có địa chỉ công khai nên nhận trường từ tiêu đề do cổng biên đặt kèm bí mật (`TENANT_HOST_SOURCE=header:x-school-host`, `EDGE_SHARED_SECRET`).
+- Không dùng Redis; dịch vụ định danh dùng kho trong bộ nhớ, chỉ đúng với một bản container.
+- Trường dữ liệu thật chỉ khi đủ hồ sơ theo PL-00 (`PLATFORM_DATA_POLICY=consent-required` mặc định của hồ sơ này, không nhận loại `production`); chuyển sang VPS trong nước bằng `platform relayout` rồi mới đổi sang `production`.
+- Chi tiết, bảng giới hạn gói miễn phí và các điểm chưa làm ghi ở YCTD-203.
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-203, `07_QUY_TAC_NGHIEP_VU.md` BR-209, BR-210, `10_YEU_CAU_CHUC_NANG.md` P01-59 đến P01-61, `11_TIEU_CHI_NGHIEM_THU.md` AC-835 đến AC-838, `14_DAC_TA_GIAO_DIEN.md` MH-320, `16_CO_SO_DU_LIEU.md` mục 18A, `17_DAC_TA_API.md`, `21_KICH_BAN_KIEM_THU.md` CT-1014 đến CT-1021, `22_BAO_MAT.md` BM-79, BM-80, `12_KIEN_TRUC_HE_THONG.md` mục 12D, QĐ-28; phiên bản phần mềm 0.132.0.
+
+#### Vấn đề tồn đọng
+
+- Chưa dựng thật trên Render, Koyeb, Neon, Supabase, Cloudflare, Vercel (cần tài khoản của Eric); dung lượng thật của một trường đo khi dựng. Cách 3b cần kiểm khả năng thêm tiêu đề trước khi dùng. `INTEGRATIONS_MODE` và cấu hình riêng từng trường làm ở S3; tự xóa trường dữ liệu giả chưa làm; rà thêm trường dữ liệu cần mã hóa ở S3, S8b.
 
 ### 2026-10-25 — DT-SaaS phần S2: khởi tạo và vòng đời trường
 

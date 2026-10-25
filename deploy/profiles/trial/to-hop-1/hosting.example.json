@@ -1,0 +1,34 @@
+[
+  {
+    "provider": "Cloudflare (Workers, DNS, Cloudflare for SaaS)",
+    "service": "Mạng biên, định tuyến, tệp tĩnh giao diện",
+    "region": "Mạng biên toàn cầu",
+    "role": "transit",
+    "stores_personal_data": false,
+    "started_on": "2026-10-25"
+  },
+  {
+    "provider": "Render",
+    "service": "Máy chủ ứng dụng (định danh, API)",
+    "region": "Singapore",
+    "role": "subprocessor",
+    "stores_personal_data": true,
+    "started_on": "2026-10-25"
+  },
+  {
+    "provider": "Neon",
+    "service": "Cơ sở dữ liệu PostgreSQL",
+    "region": "AWS ap-southeast-1 (Singapore), kiểm trên bảng điều khiển",
+    "role": "subprocessor",
+    "stores_personal_data": true,
+    "started_on": "2026-10-25"
+  },
+  {
+    "provider": "Cloudflare R2",
+    "service": "Kho tệp",
+    "region": "Gợi ý vị trí châu Á - Thái Bình Dương, kiểm trên bảng điều khiển",
+    "role": "subprocessor",
+    "stores_personal_data": true,
+    "started_on": "2026-10-25"
+  }
+]

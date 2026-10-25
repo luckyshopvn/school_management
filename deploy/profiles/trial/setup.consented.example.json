@@ -1,0 +1,86 @@
+{
+  "code": "truong-thu",
+  "name": "Trường thử (tên giả)",
+  "address": "Địa chỉ giả",
+  "levels": ["THCS"],
+  "first_year_start": 2026,
+  "domain": { "mode": "system" },
+  "data_class": "consented",
+  "status": "trial",
+  "admin": { "full_name": "Quản trị viên giả", "login": "quantri" },
+  "terms": {
+    "version": "PL-04 S8a-1.0",
+    "accepted": true,
+    "accepted_by_name": "Hiệu trưởng giả",
+    "accepted_by_title": "Hiệu trưởng"
+  },
+  "consents": [
+    {
+      "kind": "dpa",
+      "template_code": "PL-02",
+      "template_version": "S8a-1.0",
+      "signer_name": "Hiệu trưởng giả",
+      "signer_title": "Hiệu trưởng",
+      "signed_on": "2026-10-25",
+      "valid_from": "2026-10-25",
+      "valid_until": "2027-10-24",
+      "data_scope": "Dữ liệu học sinh, cha mẹ, nhân sự của trường theo PL-02 Phụ lục A",
+      "file_sha256": "0000000000000000000000000000000000000000000000000000000000000000"
+    },
+    {
+      "kind": "consent",
+      "template_code": "PL-03",
+      "template_version": "S8a-1.0",
+      "signer_name": "Hiệu trưởng giả",
+      "signer_title": "Hiệu trưởng",
+      "signed_on": "2026-10-25",
+      "valid_from": "2026-10-25",
+      "valid_until": "2027-10-24",
+      "data_scope": "Như PL-03 mục 2",
+      "file_sha256": "1111111111111111111111111111111111111111111111111111111111111111"
+    },
+    {
+      "kind": "impact-assessment",
+      "template_code": "PL-07",
+      "template_version": "S8a-1.0",
+      "signer_name": "Hiệu trưởng giả",
+      "signer_title": "Hiệu trưởng",
+      "signed_on": "2026-10-25",
+      "valid_from": "2026-10-25",
+      "data_scope": "Chuyển dữ liệu xuyên biên giới theo PL-07",
+      "file_sha256": "2222222222222222222222222222222222222222222222222222222222222222",
+      "submitted_to_authority_on": "2026-10-26",
+      "authority_reference": "SO-TIEP-NHAN-GIA"
+    },
+    {
+      "kind": "risk-acceptance",
+      "template_code": "PL-09",
+      "template_version": "S8a-1.0",
+      "signer_name": "Người chấp nhận rủi ro giả",
+      "signer_title": "Chủ nền tảng",
+      "signed_on": "2026-10-25",
+      "valid_from": "2026-10-25",
+      "valid_until": "2027-04-24",
+      "data_scope": "Lưu dữ liệu ở máy chủ ngoài Việt Nam (RP-1 đến RP-n của PL-09)",
+      "file_sha256": "3333333333333333333333333333333333333333333333333333333333333333"
+    }
+  ],
+  "hosting": [
+    {
+      "provider": "Render",
+      "service": "Máy chủ ứng dụng (định danh, API)",
+      "region": "Singapore",
+      "role": "subprocessor",
+      "stores_personal_data": true,
+      "started_on": "2026-10-25"
+    },
+    {
+      "provider": "Neon",
+      "service": "Cơ sở dữ liệu PostgreSQL",
+      "region": "AWS ap-southeast-1 (Singapore)",
+      "role": "subprocessor",
+      "stores_personal_data": true,
+      "started_on": "2026-10-25"
+    }
+  ]
+}

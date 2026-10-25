@@ -69,6 +69,8 @@ export default defineConfig({
         API_BASE_URL: apiBaseUrl,
         LOGIN_REQUESTS_PER_MINUTE: '60',
         PLATFORM_CONSOLE_HOST: E2E_CONSOLE_HOST,
+        // Chính sách dữ liệu của hồ sơ thử nghiệm (DT-SaaS phần S9, spec 140): dữ liệu thật chỉ khi đủ hồ sơ, không nhận production
+        PLATFORM_DATA_POLICY: 'consent-required',
       },
     },
     {

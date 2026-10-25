@@ -1,7 +1,7 @@
 # 11. TIÊU CHÍ NGHIỆM THU
 
 - Mô tả: Tiêu chí nghiệm thu cho từng chức năng, viết dạng Cho, Khi, Thì.
-- Phiên bản: 1.77
+- Phiên bản: 1.78
 - Ngày cập nhật: 2026-10-25
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -907,9 +907,13 @@ Các mã từ AC-94 đến AC-134 được viết trực tiếp trong mục 12 c
 | AC-832 | Cho trường đang hoạt động / Khi tạm dừng, mở lại, yêu cầu xóa, hủy, yêu cầu lại rồi quá hạn chờ / Thì tạm dừng trả 503, mở lại phục vụ lại; chưa quá hạn không xóa được; quá hạn thì xóa cơ sở dữ liệu, khóa, tên miền, tệp đúng tiền tố, giữ hàng đã xóa kèm bản ghi chứng minh; mọi bước có sự kiện vòng đời (CT-1007, CT-1010, CT-1011, CT-1013; YCTD-193) |
 | AC-833 | Cho trường mới và đường kích hoạt / Khi mở ở tên miền của trường, ở trường khác, đặt mật khẩu yếu, đặt đúng, mở lại đường đã dùng / Thì chỉ trường đúng thấy lời mời; mật khẩu yếu bị từ chối; kích hoạt xong đăng nhập được; đường đã dùng báo đã dùng hoặc hết hạn; cổng nền tảng không hiện lại mã kích hoạt (CT-1005, CT-1010, CT-1013; YCTD-193) |
 | AC-834 | Cho trường muốn dùng dữ liệu thật và tên miền riêng / Khi đổi sang `consented` thiếu hồ sơ, đủ hồ sơ nhưng thiếu vùng máy chủ, đủ cả hai; thêm tên miền riêng chưa trỏ DNS rồi trỏ đúng / Thì hai lần đầu bị từ chối kèm danh sách thiếu, lần ba được; tên miền chờ kiểm tra, báo thiếu CNAME, TXT, trỏ đúng thì hoạt động; tên miền thuộc tên miền hệ thống hoặc địa chỉ IP bị từ chối (CT-1008, CT-1009, CT-1010; YCTD-193) |
-| AC-835 | Cho trường gán gói chỉ có phân hệ Quản lý giáo dục / Khi người dùng mở cổng và gọi API của phân hệ khác / Thì menu không có phân hệ ngoài gói, máy chủ trả 403 `MODULE_NOT_IN_PLAN`; trường chưa gán gói dùng như trước (CT-1016, CT-1017, CT-1021; YCTD-194) |
-| AC-836 | Cho gói giới hạn số học sinh, dung lượng, số cấp học / Khi duyệt hồ sơ, nhập trẻ, bật cấp học, tải tệp vượt giới hạn / Thì bị chặn 422 `PLAN_LIMIT_EXCEEDED`, xem và sửa vẫn được (CT-1018; YCTD-194) |
-| AC-837 | Cho trường quá hạn / Khi chạy chuyển trạng thái và khi người dùng ghi dữ liệu / Thì trường chuyển chỉ đọc sau 7 ngày, tạm ngưng sau 30 ngày, có nhắc trước 15, 7, 1 ngày; ở chỉ đọc ghi bị 403 `SCHOOL_READ_ONLY`, xem, đăng nhập, xuất được, cổng hiện dải chỉ đọc; dữ liệu giữ nguyên; người vận hành gán gói và chạy chuyển trạng thái ở cổng nền tảng (CT-1014, CT-1015, CT-1019, CT-1020, CT-1021; YCTD-194) |
+| AC-835 | Cho cổng biên của hồ sơ thử nghiệm / Khi người dùng mở `/quan-ly`, `/giao-vien`, `/phu-huynh`, website của trường, cổng nền tảng, tên miền hệ thống và gọi `/api/v1` kèm tiêu đề tự đặt / Thì ứng dụng tĩnh đúng tiền tố (đường dẫn ứng dụng trả `index.html`), website, trang chọn trường được phục vụ; yêu cầu về máy chủ mang tên miền gốc và bí mật của cổng biên, tiêu đề tự đặt bị bỏ |
+| AC-836 | Cho máy chủ đang ngủ hoặc lỗi cổng / Khi mở trang hoặc gọi API qua cổng biên, và khi đến lịch / Thì trình duyệt thấy trang "Hệ thống đang khởi động" mã 503 tự tải lại, lời gọi API nhận `ERR_SERVICE_WAKING`, lỗi 503 của chính ứng dụng giữ nguyên; lịch gọi `tick` bằng bí mật dùng chung |
+| AC-837 | Cho môi trường đặt `PLATFORM_DATA_POLICY=consent-required` hoặc `synthetic-only` / Khi khởi tạo hoặc đổi trường sang `production`, `consented` thiếu hồ sơ / Thì máy chủ từ chối với lỗi ở `data_class` hoặc `consents`; mọi trang qua cổng biên có biểu ngữ môi trường thử nghiệm |
+| AC-838 | Cho trường đang tạm dừng ở hồ sơ thử nghiệm (bố cục `schema`) / Khi chạy `platform relayout --to database` sang nền tảng khác / Thì đủ ba cơ sở dữ liệu ở đích, mọi bảng khớp số dòng và tổng kiểm, khóa dữ liệu trẻ cùng giá trị, tên miền và vùng máy chủ được chép, trường đang hoạt động hoặc đã có ở đích thì bị từ chối |
+| AC-839 | Cho trường gán gói chỉ có phân hệ Quản lý giáo dục / Khi người dùng mở cổng và gọi API của phân hệ khác / Thì menu không có phân hệ ngoài gói, máy chủ trả 403 `MODULE_NOT_IN_PLAN`; trường chưa gán gói dùng như trước (CT-1024, CT-1025, CT-1029; YCTD-194) |
+| AC-840 | Cho gói giới hạn số học sinh, dung lượng, số cấp học / Khi duyệt hồ sơ, nhập trẻ, bật cấp học, tải tệp vượt giới hạn / Thì bị chặn 422 `PLAN_LIMIT_EXCEEDED`, xem và sửa vẫn được (CT-1026; YCTD-194) |
+| AC-841 | Cho trường quá hạn / Khi chạy chuyển trạng thái và khi người dùng ghi dữ liệu / Thì trường chuyển chỉ đọc sau 7 ngày, tạm ngưng sau 30 ngày, có nhắc trước 15, 7, 1 ngày; ở chỉ đọc ghi bị 403 `SCHOOL_READ_ONLY`, xem, đăng nhập, xuất được, cổng hiện dải chỉ đọc; dữ liệu giữ nguyên; người vận hành gán gói và chạy chuyển trạng thái ở cổng nền tảng (CT-1022, CT-1023, CT-1027, CT-1028, CT-1029; YCTD-194) |
 
 ## 20. Chưa xác minh được
 

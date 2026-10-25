@@ -79,6 +79,8 @@ export interface SchoolDatabasesTable {
   database_name: string;
   schema_name: string | null;
   role_name: string;
+  // Tên đăng nhập qua bộ gom kết nối của nhà cung cấp khi khác tên vai trò (S9); trống là tên vai trò
+  login_name: string | null;
   password_encrypted: string;
   status: Generated<SchoolDatabaseStatus>;
   created_at: CreatedTimestamp;

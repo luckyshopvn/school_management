@@ -253,6 +253,13 @@ function SetupWizard({
       {step === 2 ? (
         <fieldset>
           <legend>Loại dữ liệu</legend>
+          {settings && settings.data_policy !== 'any' ? (
+            <p role="note">
+              {settings.data_policy === 'synthetic-only'
+                ? 'Môi trường thử nghiệm, máy chủ ngoài Việt Nam: chỉ nhận dữ liệu giả.'
+                : 'Môi trường thử nghiệm, máy chủ ngoài Việt Nam: dữ liệu thật chỉ khi đủ hồ sơ đồng ý (PL-00, tài liệu 33); không nhận loại vận hành chính thức.'}
+            </p>
+          ) : null}
           {Object.entries(DATA_CLASS_LABELS).map(([value, label]) => (
             <label key={value} className="inline">
               <input
@@ -594,7 +601,10 @@ function SchoolDetailView({ token, code, onBack }: { token: string; code: string
               <td>
                 {domain.kind === 'custom' ? (
                   <small>
-                    CNAME → {domain.cname_target ?? '—'}; TXT _school-verify.{domain.host} = {domain.verification_token}
+                    CNAME → {domain.cname_target ?? '—'};{' '}
+                    {domain.provider === 'dns-check'
+                      ? `TXT _school-verify.${domain.host} = ${domain.verification_token ?? ''}`
+                      : `Xác nhận (${domain.provider}): ${domain.verification_token ?? '—'}`}
                     {domain.check_error ? ` (${domain.check_error})` : ''}
                   </small>
                 ) : null}
