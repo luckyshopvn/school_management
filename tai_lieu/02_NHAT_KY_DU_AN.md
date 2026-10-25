@@ -1,7 +1,7 @@
 # 02. NHẬT KÝ DỰ ÁN
 
 - Mô tả: Ghi nhận công việc, quyết định, thay đổi và vấn đề tồn đọng theo ngày, ngày mới nhất ở trên cùng.
-- Phiên bản: 0.58
+- Phiên bản: 0.59
 - Ngày cập nhật: 2026-10-25
 - Trạng thái: Đang cập nhật
 
@@ -19,13 +19,14 @@
 #### Công việc đã thực hiện
 
 - Đọc bản nháp kế hoạch SaaS ngày 2026-10-19 (mục 4 chia phần S1 đến S8, mục 4b quyết định của Eric), mục 12, 13 của `32_KE_HOACH_THEO_HE_THONG_SO.md` làm khuôn, và mã trên nhánh chính: `Databases` (`apps/api/src/common/databases.ts`), cấu hình máy chủ API và dịch vụ định danh, `cacheKey`, `storageKey`, `database/src/migrate.ts`, Caddy `on_demand_tls` của 18f, `backup.sh`, `docker-compose.production.yml`, cấu hình e2e và CI.
-- Thêm mục 14 vào `32_KE_HOACH_THEO_HE_THONG_SO.md` (phiên bản 1.61): kế hoạch DT-SaaS gồm mười hai phần S1a, S1b, S2, S3, S4, S5a, S5b, S6, S7a, S7b, S8a, S8b chạy bốn đợt; kiến trúc đích; phạm vi chi tiết; quyết định thiết kế; chiến lược kiểm thử cách ly; rủi ro; tiến độ; giả định chưa chốt.
-- Ghi YCTD-190 (chỉ đổi tài liệu); thêm đợt DT-SaaS, RR-16 đến RR-18, GD-93 đến GD-99 vào `01_KE_HOACH_TONG_THE.md`.
+- Thêm mục 14 vào `32_KE_HOACH_THEO_HE_THONG_SO.md` (phiên bản 1.61): kế hoạch DT-SaaS gồm mười ba phần S1a, S1b, S2, S3, S4, S5a, S5b, S6, S7a, S7b, S8a, S8b, S9 chạy năm đợt; kiến trúc đích; phạm vi chi tiết; quyết định thiết kế; chiến lược kiểm thử cách ly; rủi ro; tiến độ; giả định chưa chốt.
+- Ghi YCTD-190 (chỉ đổi tài liệu); thêm đợt DT-SaaS, RR-16 đến RR-18, GD-93 đến GD-101 vào `01_KE_HOACH_TONG_THE.md`.
 
 #### Quyết định
 
 - Eric chốt ngày 2026-10-25: đường dẫn trường mặc định là tên miền con `<mã trường>.<tên miền hệ thống>` (tên miền hệ thống là cấu hình), quản trị nền tảng cấu hình tay được tên miền riêng cho từng trường ở bước setup (CNAME, HTTPS cấp theo yêu cầu cho tên miền có trong danh sách); hạ tầng là VPS trong nước, một hoặc vài máy, không giả định dịch vụ đám mây quản lý, máy chủ đặt tại Việt Nam.
 - Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11: tách S1 thành S1a (lõi) và S1b (chạy nền, công khai), S5 thành S5a (gói) và S5b (thu phí), S7 thành S7a (dựng sẵn, chỉ `deploy/`) và S7b (vận hành nhiều trường), S8 thành S8a (pháp lý, tài liệu) và S8b (bảo mật mã) để tối đa ba phiên song song không sửa chung tệp lõi; mỗi trường một vai trò PostgreSQL; mã phiên gắn mã trường, cặp khóa ký dùng chung; chế độ một trường là mặc định, bản triển khai hiện có thành trường số 1 không chuyển dữ liệu; ba ứng dụng chung một tên miền theo tiền tố đường dẫn; kiểm thử cách ly nhiều lớp (kiểm tĩnh, ma trận tuyến API, bản chụp cơ sở dữ liệu tìm chuỗi canary, e2e nhiều trường) với tên miền `*.localhost`, `*.test`.
+- Bổ sung của Eric ngày 2026-10-25: giai đoạn đầu là thử nghiệm nên kế hoạch có hai hồ sơ triển khai dùng chung một mã nguồn, chọn bằng cấu hình: (a) thử nghiệm miễn phí trên Cloudflare và nền tảng miễn phí khác, (b) vận hành trên VPS trong nước. Claude tự chọn: thêm phần S9 triển khai thử nghiệm giao đầu đợt 3; bố cục cơ sở dữ liệu `schema` (mỗi lược đồ một vai trò, `search_path` mức vai trò) cho thử nghiệm vì gói miễn phí giới hạn số cơ sở dữ liệu; cổng biên bằng Cloudflare Worker kèm tài sản tĩnh (Vercel Hobby phi thương mại, Pages không có tên miền ký tự đại diện); một container gộp, không Redis (`BLPOP` của máy xếp tiêu hết hạn mức Upstash); việc định kỳ do Cron Triggers gọi và có việc bù; Render là lựa chọn đầu, Koyeb thứ hai, Fly.io loại; chỉ dữ liệu giả hoặc đã được đồng ý ở máy chủ ngoài nước.
 - Phần chưa chốt (tên sản phẩm, cách tính phí, cổng thanh toán, hóa đơn điện tử, nhà cung cấp VPS) làm cấu hình được và ghi là giả định GD-93 đến GD-99.
 
 #### Thay đổi
