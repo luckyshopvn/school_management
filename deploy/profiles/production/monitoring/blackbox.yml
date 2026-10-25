@@ -1,0 +1,16 @@
+# Blackbox exporter (DT-SaaS phần S7a, YCTD-198): kiểm tra dịch vụ nội bộ qua HTTP và tên miền từ ngoài vào qua HTTPS
+# (kèm hạn chứng chỉ, probe_ssl_earliest_cert_expiry)
+modules:
+  http_2xx:
+    prober: http
+    timeout: 5s
+    http:
+      preferred_ip_protocol: ip4
+  https_2xx:
+    prober: http
+    timeout: 10s
+    http:
+      preferred_ip_protocol: ip4
+      fail_if_not_ssl: true
+      follow_redirects: true
+      valid_status_codes: [200, 301, 302, 308, 401, 404]

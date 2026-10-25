@@ -1,7 +1,7 @@
 # 02. NHẬT KÝ DỰ ÁN
 
 - Mô tả: Ghi nhận công việc, quyết định, thay đổi và vấn đề tồn đọng theo ngày, ngày mới nhất ở trên cùng.
-- Phiên bản: 0.61
+- Phiên bản: 0.62
 - Ngày cập nhật: 2026-10-25
 - Trạng thái: Đang cập nhật
 
@@ -13,6 +13,26 @@
 - Không ghi thông tin tạm thời như kết quả tra cứu, đường dẫn tạm, thông báo lỗi của công cụ.
 
 ## Nhật ký theo ngày
+
+### 2026-10-25 — DT-SaaS phần S7a: hạ tầng VPS trong nước, phần dựng sẵn
+
+#### Công việc đã thực hiện
+
+- Đọc mục 14.3, 14.4, 14.5, 14.9 của `32_KE_HOACH_THEO_HE_THONG_SO.md`; rà bộ triển khai một máy (YCTD-92) và mã có thể vướng khi gom kết nối theo giao dịch (múi giờ, `SET`, khóa tư vấn, `LISTEN`).
+- Viết hồ sơ `deploy/profiles/production/`: Compose T1, T2, T3; PgBouncer (`docker/pgbouncer/`); bản sao PostgreSQL; Caddy bắt mọi tên miền; giám sát, cảnh báo, nhật ký; môi trường thử; `scripts/deploy.sh`, `scripts/check-config.sh`; README hướng dẫn vận hành.
+- Thêm kịch bản CT-986 đến CT-989. Kết quả ngày 25/10/2026: `deploy/profiles/production/scripts/check-config.sh` đạt (Compose T1, T2 hai máy, T3 máy bản sao, staging cùng VPS; Caddyfile có và không có tệp `sites.d`; Prometheus, luật cảnh báo; Alertmanager đủ ba kênh và không kênh nào; Loki); dựng ảnh PgBouncer, chạy cùng PostgreSQL: kết nối `school_system` gom theo phiên giữ và mở khóa tư vấn trên cùng kết nối, `school_identity` gom theo giao dịch, sai mật khẩu bị từ chối, kiểm tra sức khỏe đạt; bản sao lấy bản sao cơ bản, máy chính báo `streaming`, bản sao đọc được dòng vừa ghi; cú pháp các script shell đạt; bản một máy cũ (`deploy/docker-compose.production.yml`) vẫn hợp lệ; kiểm tra định dạng đạt. Không có e2e (phần hạ tầng, không sửa mã nghiệp vụ); kiểm tay trên staging (CT-989) chờ dựng VPS thử.
+
+#### Quyết định
+
+- Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11: `school_system` gom theo phiên vì mở năm học giữ khóa tư vấn theo phiên (không sửa mã nghiệp vụ ở phần này); ảnh PgBouncer tự dựng từ gói Alpine; giám sát bằng Prometheus, Alertmanager, Loki chạy trên VPS; kênh Zalo qua webhook; việc định kỳ chỉ chạy ở `api-a`.
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-198, `12_KIEN_TRUC_HE_THONG.md` mục 10, 12, `21_KICH_BAN_KIEM_THU.md` CT-986 đến CT-989, `32_KE_HOACH_THEO_HE_THONG_SO.md` mục 14.10. Phiên bản 0.128.0.
+
+#### Vấn đề tồn đọng
+
+- Kiểm tay trên staging khi có VPS thử (CT-989); S7b đo quy mô, sao lưu theo trường; thêm kiểm tra cấu hình hồ sơ vào CI.
 
 ### 2026-10-25 — DT-21 phần 21g: báo cáo, thống kê và EMIS THCS, THPT
 

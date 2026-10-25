@@ -1,0 +1,91 @@
+# Luật cảnh báo của hồ sơ "Vận hành" (DT-SaaS phần S7a, YCTD-198). Ngưỡng là giả định ban đầu, chỉnh sau khi đo (S7b).
+groups:
+  - name: may-chu
+    rules:
+      - alert: MayChuKhongTraLoi
+        expr: up{job=~"node|postgres|caddy"} == 0
+        for: 2m
+        labels: { severity: critical }
+        annotations:
+          summary: 'Không lấy được số liệu {{ $labels.job }} ở {{ $labels.instance }}'
+      - alert: ODiaSapDay
+        expr: (node_filesystem_avail_bytes{fstype!~"tmpfs|overlay|squashfs"} / node_filesystem_size_bytes) < 0.15
+        for: 10m
+        labels: { severity: warning }
+        annotations:
+          summary: 'Ổ {{ $labels.mountpoint }} ở {{ $labels.host }} còn dưới 15%'
+      - alert: ODiaGanHet
+        expr: (node_filesystem_avail_bytes{fstype!~"tmpfs|overlay|squashfs"} / node_filesystem_size_bytes) < 0.05
+        for: 5m
+        labels: { severity: critical }
+        annotations:
+          summary: 'Ổ {{ $labels.mountpoint }} ở {{ $labels.host }} còn dưới 5%'
+      - alert: BoNhoCaoKeoDai
+        expr: (1 - node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes) > 0.9
+        for: 15m
+        labels: { severity: warning }
+        annotations:
+          summary: 'Bộ nhớ ở {{ $labels.host }} dùng trên 90% trong 15 phút'
+      - alert: CPUCaoKeoDai
+        expr: (1 - avg by (instance, host) (rate(node_cpu_seconds_total{mode="idle"}[5m]))) > 0.9
+        for: 15m
+        labels: { severity: warning }
+        annotations:
+          summary: 'CPU ở {{ $labels.host }} trên 90% trong 15 phút'
+
+  - name: dich-vu
+    rules:
+      - alert: DichVuKhongKhoe
+        expr: probe_success{job="service-health"} == 0
+        for: 2m
+        labels: { severity: critical }
+        annotations:
+          summary: '{{ $labels.instance }} không trả lời kiểm tra sức khỏe'
+      - alert: CaHaiBanApiHong
+        expr: sum(probe_success{job="service-health", instance=~".*api-[ab].*"}) == 0
+        for: 1m
+        labels: { severity: critical }
+        annotations:
+          summary: 'Cả hai bản api đều không trả lời'
+      - alert: TiLeLoi5xxCao
+        expr: sum(rate(caddy_http_requests_total{code=~"5.."}[5m])) / clamp_min(sum(rate(caddy_http_requests_total[5m])), 1) > 0.05
+        for: 10m
+        labels: { severity: warning }
+        annotations:
+          summary: 'Trên 5% yêu cầu trả lỗi 5xx trong 10 phút'
+
+  - name: co-so-du-lieu
+    rules:
+      - alert: PostgresKhongChay
+        expr: pg_up == 0
+        for: 1m
+        labels: { severity: critical }
+        annotations:
+          summary: 'PostgreSQL ở {{ $labels.host }} không trả lời'
+      - alert: KetNoiPostgresGanToiDa
+        expr: sum by (host) (pg_stat_activity_count) / on (host) max by (host) (pg_settings_max_connections) > 0.8
+        for: 5m
+        labels: { severity: warning }
+        annotations:
+          summary: 'Số kết nối PostgreSQL ở {{ $labels.host }} trên 80% giới hạn'
+      - alert: BanSaoTreNhieu
+        expr: pg_replication_lag_seconds > 300
+        for: 5m
+        labels: { severity: warning }
+        annotations:
+          summary: 'Bản sao PostgreSQL trễ hơn 5 phút'
+
+  - name: ten-mien
+    rules:
+      - alert: TenMienKhongTruyCapDuoc
+        expr: probe_success{job="domains"} == 0
+        for: 5m
+        labels: { severity: critical }
+        annotations:
+          summary: 'Không truy cập được {{ $labels.instance }} qua HTTPS'
+      - alert: ChungChiSapHetHan
+        expr: (probe_ssl_earliest_cert_expiry{job="domains"} - time()) / 86400 < 14
+        for: 1h
+        labels: { severity: warning }
+        annotations:
+          summary: 'Chứng chỉ của {{ $labels.instance }} hết hạn sau dưới 14 ngày'

@@ -63,7 +63,8 @@ fi
 
 started_at=$(date +%s)
 log "Dừng các dịch vụ dùng cơ sở dữ liệu"
-compose stop web api identity >/dev/null
+# Hồ sơ "Vận hành" (YCTD-198): RESTORE_STOP_SERVICES="web api-a api-b identity-a identity-b worker"
+compose stop ${RESTORE_STOP_SERVICES:-web api identity} >/dev/null
 compose up -d postgres >/dev/null
 for attempt in $(seq 1 30); do
   compose exec -T postgres pg_isready -U postgres >/dev/null 2>&1 && break

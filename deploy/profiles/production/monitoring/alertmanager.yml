@@ -1,0 +1,50 @@
+# Alertmanager của hồ sơ "Vận hành" (DT-SaaS phần S7a, YCTD-198). Tệp mẫu: lúc khởi động, render.sh thay ${TEN_BIEN} bằng
+# giá trị trong production.env (không ghi bí mật vào kho mã). Ba kênh cấu hình được:
+# - email: SMTP của nhà cung cấp trong nước (ALERT_EMAIL_*);
+# - Telegram: bot và nhóm (ALERT_TELEGRAM_*);
+# - Zalo và kênh khác: gọi địa chỉ webhook (ALERT_WEBHOOK_URL), ví dụ dịch vụ chuyển tiếp sang Zalo OA của đơn vị vận hành;
+#   Alertmanager không có kênh Zalo sẵn.
+# Kênh nào để trống địa chỉ thì không gửi (render.sh bỏ khối của kênh đó).
+global:
+  resolve_timeout: 5m
+
+route:
+  receiver: van-hanh
+  group_by: [alertname, host]
+  group_wait: 30s
+  group_interval: 5m
+  repeat_interval: 4h
+  routes:
+    - matchers: ['severity="critical"']
+      receiver: van-hanh
+      repeat_interval: 1h
+
+receivers:
+  - name: van-hanh
+    # @email
+    email_configs:
+      - to: '${ALERT_EMAIL_TO}'
+        from: '${ALERT_EMAIL_FROM}'
+        smarthost: '${ALERT_EMAIL_SMARTHOST}'
+        auth_username: '${ALERT_EMAIL_USERNAME}'
+        auth_password_file: /run/alertmanager/email-password
+        require_tls: true
+        send_resolved: true
+    # @end
+    # @telegram
+    telegram_configs:
+      - bot_token_file: /run/alertmanager/telegram-token
+        chat_id: ${ALERT_TELEGRAM_CHAT_ID}
+        parse_mode: ''
+        send_resolved: true
+    # @end
+    # @webhook
+    webhook_configs:
+      - url: '${ALERT_WEBHOOK_URL}'
+        send_resolved: true
+    # @end
+
+inhibit_rules:
+  - source_matchers: ['severity="critical"']
+    target_matchers: ['severity="warning"']
+    equal: [alertname, host]
