@@ -20,23 +20,46 @@
 
 - Đọc mục 14.3, 14.5 (S4) của `32_KE_HOACH_THEO_HE_THONG_SO.md`; rà đăng nhập thay của 18h (`ImpersonationService`, `ImpersonationInterceptor`), bộ lập lịch của S1b, gói và giới hạn của S5a, cổng nền tảng của S1a, S2.
 - Thêm tệp nền tảng 0060 (`school_metrics`, `school_error_counts`, `maintenance_notices`, `support_sessions`, `support_session_actions`), tệp hệ thống 0053 (`support_access_grants`); việc định kỳ `school-metrics`; bộ gom lỗi 5xx theo trường ở máy chủ API và dịch vụ định danh; trang Bảng điều khiển, Bảo trì và khối Phiên hỗ trợ ở cổng nền tảng; trang Cho phép hỗ trợ, trang `/support-login`, biểu ngữ bảo trì và phiên hỗ trợ ở cổng; biểu ngữ bảo trì ở ứng dụng giáo viên, phụ huynh; e2e spec 136.
-- Thêm quy tắc BR-217 đến BR-219, chức năng P01-68 đến P01-71, màn hình MH-325 đến MH-328, kịch bản CT-1035 đến CT-1043, tiêu chí AC-845 đến AC-848, bảo mật BM-83, QĐ-30; bảng ở `16` mục 18A, giao kèo ở `17`; phiên bản 0.135.0.
+- Thêm quy tắc BR-219 đến BR-221, chức năng P01-71 đến P01-74, màn hình MH-325 đến MH-328, kịch bản CT-1043 đến CT-1051, tiêu chí AC-849 đến AC-852, bảo mật BM-84, QĐ-31; bảng ở `16` mục 18A, giao kèo ở `17`; phiên bản 0.136.0.
 
 #### Quyết định
 
 - Số liệu thu bằng bộ lập lịch mỗi giờ (chỉ đếm, đo dung lượng, tên tệp thay đổi cấu trúc), bảng điều khiển chỉ đọc lần thu mới nhất, không mở cơ sở dữ liệu của từng trường khi xem.
-- Đăng nhập hỗ trợ dùng tài khoản hỗ trợ riêng của mỗi trường (`ho-tro-nen-tang`, vai trò Hiệu trưởng, không đăng nhập bằng mật khẩu) thay vì đăng nhập thay một người dùng thật, để nhật ký của trường phân biệt rõ thao tác của nhà cung cấp (QĐ-30).
+- Đăng nhập hỗ trợ dùng tài khoản hỗ trợ riêng của mỗi trường (`ho-tro-nen-tang`, vai trò Hiệu trưởng, không đăng nhập bằng mật khẩu) thay vì đăng nhập thay một người dùng thật, để nhật ký của trường phân biệt rõ thao tác của nhà cung cấp (QĐ-31).
 - Đồng ý của trường lưu ở cơ sở dữ liệu hệ thống của trường (bằng chứng đi theo dữ liệu của trường); phiên và thao tác ghi ở cơ sở dữ liệu nền tảng.
 
 #### Thay đổi
 
-- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-197, `07_QUY_TAC_NGHIEP_VU.md` BR-217 đến BR-219, `10_YEU_CAU_CHUC_NANG.md` P01-68 đến P01-71, `11_TIEU_CHI_NGHIEM_THU.md` AC-845 đến AC-848, `12_KIEN_TRUC_HE_THONG.md` QĐ-30, `14_DAC_TA_GIAO_DIEN.md` MH-325 đến MH-328, `16_CO_SO_DU_LIEU.md` mục 18A, `17_DAC_TA_API.md`, `21_KICH_BAN_KIEM_THU.md` CT-1035 đến CT-1043, `22_BAO_MAT.md` BM-83; phiên bản phần mềm 0.135.0.
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-197, `07_QUY_TAC_NGHIEP_VU.md` BR-219 đến BR-221, `10_YEU_CAU_CHUC_NANG.md` P01-71 đến P01-74, `11_TIEU_CHI_NGHIEM_THU.md` AC-849 đến AC-852, `12_KIEN_TRUC_HE_THONG.md` QĐ-31, `14_DAC_TA_GIAO_DIEN.md` MH-325 đến MH-328, `16_CO_SO_DU_LIEU.md` mục 18A, `17_DAC_TA_API.md`, `21_KICH_BAN_KIEM_THU.md` CT-1043 đến CT-1051, `22_BAO_MAT.md` BM-84; phiên bản phần mềm 0.136.0.
 
 #### Vấn đề tồn đọng
 
 - Chưa có biểu đồ theo thời gian (số liệu giữ 30 ngày, bảng điều khiển hiện lần thu mới nhất và số lỗi 1 giờ, 24 giờ); kết quả diễn tập khôi phục của S7b chưa hiện ở bảng điều khiển (chờ S7b gộp).
 - Cảnh báo chỉ hiện trên bảng điều khiển, chưa gửi ra ngoài (email, Zalo); gửi cảnh báo thuộc giám sát của S7a.
 
+### 2026-10-25 — DT-SaaS phần S7b: vận hành nhiều trường
+
+#### Công việc đã thực hiện
+
+- Đọc mục 14.3, 14.5 (S7b), 14.9 của `32_KE_HOACH_THEO_HE_THONG_SO.md`; rà `deploy/scripts/backup.sh`, `restore.sh`, hồ sơ vận hành của S7a và bộ chép dữ liệu của `platform relayout` (S9).
+- Thêm bảng nền tảng `backup_runs` (tệp `0070_create_backup_runs`), bộ đọc và nạp dữ liệu dùng chung `school-data-copy.ts`, sao lưu và khôi phục theo trường `school-backup.ts`, chuyển cụm `school-cluster-move.ts`, năm lệnh mới của `platform` (`backup-school`, `verify-backup`, `restore-school`, `restore-drill`, `move-school`).
+- Nối sao lưu theo trường vào `deploy/scripts/backup.sh`; thêm `restore-drill.sh`, lịch diễn tập hằng tháng; ảnh `docker/postgres-walg`, lớp phủ `compose.pitr.yml`, `scripts/pitr-extract-school.sh`, `PITR.md` ở hồ sơ vận hành; mục 7 và `github-actions-backup.yml.example` ở hồ sơ thử nghiệm.
+- Cổng nền tảng hiện bảng "Sao lưu và khôi phục" ở chi tiết trường (20 lần gần nhất của `backup_runs`).
+- Thêm quy tắc BR-217, BR-218, chức năng P01-68 đến P01-70, tiêu chí AC-845 đến AC-848, kịch bản CT-1035 đến CT-1042, bảo mật BM-83, QĐ-30, mục kiến trúc 12E.
+
+#### Quyết định
+
+- Sao lưu logic viết bằng Node thay cho `pg_dump`: chạy được ở cả bố cục `database` và `schema`, qua bộ gom kết nối của Neon, Supabase, không phụ thuộc phiên bản công cụ của máy chủ; mỗi trường một tệp `.sbak` mã hóa AES-256-GCM.
+- Nạp dữ liệu bằng vai trò của trường, mỗi bảng một giao dịch: lần thử nạp cả cơ sở dữ liệu năm học trong một giao dịch gặp lỗi "out of shared memory" (giới hạn khóa `max_locks_per_transaction` 64); khóa ngoại gỡ trước, gắn lại sau cùng có kiểm. `platform relayout` (S9) chuyển sang cùng bộ nạp nên không còn cần quyền siêu người dùng ở đích.
+- Khôi phục về một thời điểm của cả cụm bằng WAL-G (ghim phiên bản v3.0.9 và mã băm), lấy riêng một trường từ bản khôi phục tạm bằng `backup-school` đọc ở máy chủ tạm (`BACKUP_SOURCE_HOST`).
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-199, `07_QUY_TAC_NGHIEP_VU.md` BR-217, BR-218, `10_YEU_CAU_CHUC_NANG.md` P01-68 đến P01-70, `11_TIEU_CHI_NGHIEM_THU.md` AC-845 đến AC-848, `12_KIEN_TRUC_HE_THONG.md` mục 12E và QĐ-30, `14_DAC_TA_GIAO_DIEN.md` MH-318, `16_CO_SO_DU_LIEU.md` mục 18C, `17_DAC_TA_API.md`, `21_KICH_BAN_KIEM_THU.md` CT-1035 đến CT-1042, `22_BAO_MAT.md` BM-83, `23_LICH_SU_PHIEN_BAN.md` phiên bản 0.135.0.
+
+#### Vấn đề tồn đọng
+
+- Chưa làm thử tải nhiều trường (50 trường giả) của kế hoạch; bảng điều khiển S4 chưa cảnh báo sao lưu, diễn tập quá hạn (dữ liệu đã có ở `backup_runs`); WAL-G, `pitr-extract-school.sh` và diễn tập trên staging chờ VPS thử để kiểm tay.
 ### 2026-10-25 — DT-SaaS phần S5a: gói dịch vụ và giới hạn
 
 #### Công việc đã thực hiện

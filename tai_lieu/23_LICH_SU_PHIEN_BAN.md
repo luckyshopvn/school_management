@@ -16,18 +16,29 @@
 
 ## 2. Danh sách phiên bản
 
-### Phiên bản 0.135.0 – 2026-10-25
+### Phiên bản 0.136.0 – 2026-10-25
 
 - Phạm vi thay đổi: DT-SaaS phần S4, bảng điều khiển nền tảng (YCTD-197).
-- Chức năng mới: bảng điều khiển nền tảng với số liệu, lỗi, cảnh báo theo trường (P01-68, MH-325); thông báo bảo trì (P01-69, MH-326); cho phép hỗ trợ của trường (P01-70, MH-327); phiên hỗ trợ của nhân viên nền tảng, đăng nhập bằng đường liên kết một lần, biểu ngữ (P01-71, MH-328).
+- Chức năng mới: bảng điều khiển nền tảng với số liệu, lỗi, cảnh báo theo trường (P01-71, MH-325); thông báo bảo trì (P01-72, MH-326); cho phép hỗ trợ của trường (P01-73, MH-327); phiên hỗ trợ của nhân viên nền tảng, đăng nhập bằng đường liên kết một lần, biểu ngữ (P01-74, MH-328).
 - Lỗi đã sửa: không có.
 - Thay đổi dữ liệu: cơ sở dữ liệu nền tảng thêm `school_metrics`, `school_error_counts`, `maintenance_notices`, `support_sessions`, `support_session_actions` (tệp nền tảng `0060`); cơ sở dữ liệu hệ thống của trường thêm `support_access_grants` (tệp hệ thống `0053`); xem `16_CO_SO_DU_LIEU.md` mục 18A.
 - Thay đổi API: nhóm `/auth/platform/dashboard`, `/maintenance-notices`, `/schools/{mã}/support`, `/support-sessions`; `POST /auth/support/exchange`; `GET /platform-notices`, `/support-access`; claim `spt`, trường `support` của `/auth/me`; biến `PLATFORM_ERROR_ALERT_PER_HOUR`, `SCHOOL_METRICS_INTERVAL_SECONDS` (xem `17_DAC_TA_API.md`).
-- Kiểm thử: kịch bản CT-1035 đến CT-1043 (CT-S4-1 đến CT-S4-9 trong mã kiểm thử). Kết quả ngày 25/10/2026: `apps/identity` 4 ca mới và ma trận cách ly đạt (8/8); `database` 4/4; `apps/api` 17/17 (S4, gói dịch vụ, bộ lập lịch) và menu 17/17; kiểm tra tĩnh nền đa thuê bao và `pnpm lint` đạt; e2e dự án nhiều trường 16/16 (spec 136 đạt sau khi sửa trang Cho phép hỗ trợ thiếu khung cổng quản trị); e2e toàn bộ do CI chạy.
+- Kiểm thử: kịch bản CT-1043 đến CT-1051 (CT-S4-1 đến CT-S4-9 trong mã kiểm thử). Kết quả ngày 25/10/2026: `apps/identity` 4 ca mới và ma trận cách ly đạt (8/8); `database` 4/4; `apps/api` 17/17 (S4, gói dịch vụ, bộ lập lịch) và menu 17/17; kiểm tra tĩnh nền đa thuê bao và `pnpm lint` đạt; e2e dự án nhiều trường 16/16 (spec 136 đạt sau khi sửa trang Cho phép hỗ trợ thiếu khung cổng quản trị); e2e toàn bộ do CI chạy.
 - Rủi ro: số liệu có độ trễ đến một giờ; bộ gom lỗi ở bộ nhớ nên lỗi trong phút cuối trước khi tiến trình dừng đột ngột có thể mất; tài khoản hỗ trợ hiện trong danh sách tài khoản của trường (cố ý để trường thấy).
 - Khả năng tương thích: chế độ một trường không có bảng điều khiển, cho phép hỗ trợ trả `available: false`, thông báo bảo trì rỗng; không đổi hành vi của phiên thường.
 - Phương án quay lui: hoàn lại commit gộp của nhánh S4; rút mọi cho phép hỗ trợ là chặn ngay mọi phiên hỗ trợ mà không cần quay lui mã.
 
+### Phiên bản 0.136.0 – 2026-10-25
+
+- Phạm vi thay đổi: DT-SaaS phần S7b, vận hành nhiều trường (YCTD-199).
+- Chức năng mới: sao lưu logic theo từng trường ở cả hai bố cục (P01-68); khôi phục vào chính trường hoặc thành trường mới, diễn tập khôi phục tự động (P01-69); chuyển trường sang cụm cơ sở dữ liệu khác (P01-70); khôi phục về một thời điểm của cả cụm bằng WAL-G và lấy riêng một trường; bảng "Sao lưu và khôi phục" ở chi tiết trường (MH-318).
+- Lỗi đã sửa: không có.
+- Thay đổi dữ liệu: bảng nền tảng `backup_runs` (tệp `0070_create_backup_runs`); xem `16_CO_SO_DU_LIEU.md` mục 18C.
+- Thay đổi API: chi tiết trường ở cổng nền tảng trả thêm `backups`; lệnh `platform backup-school`, `verify-backup`, `restore-school`, `restore-drill`, `move-school` (xem `17_DAC_TA_API.md`); `platform relayout` không còn cần quyền siêu người dùng ở đích.
+- Kiểm thử: kịch bản CT-1035 đến CT-1042. Kết quả ngày 25/10/2026: `database/src/school-backup.test.ts` 10 ca (5 ca ở mỗi bố cục `schema`, `database`) và `school-relayout.test.ts` 1 ca đạt 11/11; kiểm tĩnh đa thuê bao 6/6; `pnpm lint` sạch; e2e nhiều trường spec 130, 131, 132, 137, 140 đạt ở bố cục database (12 ca), spec 132, 137 đạt ở bố cục schema; CT-1042 kiểm tay trên staging chờ VPS thử; e2e toàn bộ do CI chạy.
+- Rủi ro: khôi phục không nằm trong một giao dịch cho mọi bảng (để không vượt giới hạn khóa của máy chủ), lỗi giữa chừng phải chạy lại; tệp sao lưu chứa khóa dữ liệu trẻ, lộ khóa sao lưu là lộ dữ liệu; WAL-G và lấy riêng một trường về một thời điểm chưa diễn tập trên máy thật; thử tải nhiều trường chưa làm nên giới hạn T1 đến T3 vẫn là giả định.
+- Khả năng tương thích: chế độ một trường và `backup.sh` cũ không đổi khi không có `PLATFORM_DATABASE_URL`; lớp phủ WAL-G là tùy chọn.
+- Phương án quay lui: hoàn lại commit gộp của nhánh S7b; bảng `backup_runs` chỉ do phần này dùng; tắt lớp phủ `compose.pitr.yml` để PostgreSQL chạy như trước.
 ### Phiên bản 0.134.0 – 2026-10-25
 
 - Phạm vi thay đổi: DT-SaaS phần S5a, gói dịch vụ và giới hạn (YCTD-194).

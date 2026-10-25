@@ -358,6 +358,30 @@ export interface SupportSessionActionsTable {
   at: ColumnType<Date, Date | undefined, Date>;
 }
 
+// Sao lưu, khôi phục, diễn tập, chuyển cụm theo từng trường (DT-SaaS phần S7b, YCTD-199)
+export type BackupRunKind = 'backup' | 'restore' | 'drill' | 'cluster-move';
+export type BackupRunStatus = 'running' | 'done' | 'failed';
+
+export interface BackupRunsTable {
+  id: Generated<string>;
+  school_id: string | null;
+  school_code: string;
+  kind: BackupRunKind;
+  status: Generated<BackupRunStatus>;
+  file_name: string | null;
+  file_bytes: ColumnType<string | null, number | null | undefined, number | null>;
+  file_sha256: string | null;
+  databases: number | null;
+  tables: number | null;
+  rows: ColumnType<string | null, number | null | undefined, number | null>;
+  details: ColumnType<Record<string, unknown>, string | undefined, string>;
+  error: string | null;
+  actor_type: PlatformAuditActorType;
+  actor_id: string | null;
+  started_at: ColumnType<Date, Date | undefined, Date>;
+  finished_at: Date | null;
+}
+
 export interface PlatformDatabase {
   school_clusters: SchoolClustersTable;
   schools: SchoolsTable;
@@ -382,4 +406,5 @@ export interface PlatformDatabase {
   maintenance_notices: MaintenanceNoticesTable;
   support_sessions: SupportSessionsTable;
   support_session_actions: SupportSessionActionsTable;
+  backup_runs: BackupRunsTable;
 }
