@@ -1,7 +1,7 @@
 # 24. YÊU CẦU THAY ĐỔI
 
 - Mô tả: Sổ quản lý yêu cầu thay đổi, ghi lý do, đánh giá ảnh hưởng và trạng thái của từng thay đổi trước khi triển khai.
-- Phiên bản: 0.63
+- Phiên bản: 0.64
 - Ngày cập nhật: 2026-10-25
 - Trạng thái: Đang cập nhật
 
@@ -10,6 +10,51 @@
 Mã yêu cầu thay đổi dạng `YCTD-nn`, đánh số tăng dần, không tái sử dụng. Mục mới nhất ở trên cùng. Trạng thái dùng bốn giá trị: Chờ phê duyệt, Đã phê duyệt, Từ chối, Đã triển khai.
 
 Các thay đổi trước phiên bản 0.4.0 chưa có sổ này; xem `23_LICH_SU_PHIEN_BAN.md` các phiên bản 0.1.0 đến 0.3.1.
+
+### YCTD-203: DT-SaaS phần S9: triển khai thử nghiệm miễn phí – 2026-10-25
+
+- Lý do: phần S9 của `32_KE_HOACH_THEO_HE_THONG_SO.md` mục 14.3, 14.4, 14.5 ("S9"), 14.11 (GD-100, GD-101 Eric đã chốt ngày 2026-10-25): Eric dùng thử nền tảng nhiều trường sớm trên gói miễn phí, không thuê VPS, cho trường thật dùng thử với dữ liệu thật khi đã có văn bản đồng ý; viết theo kiểu bộ nối chọn bằng cấu hình cho cả ba tổ hợp; có công cụ chuyển sang VPS trong nước.
+- Nội dung thay đổi (Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11 ở những chỗ kế hoạch chưa chốt):
+  - **Cơ sở dữ liệu:** tệp nền tảng `0100_add_database_login_name` (cột `school_databases.login_name`: tên đăng nhập qua bộ gom kết nối khi khác tên vai trò).
+  - **Bộ nối nơi đặt PostgreSQL** `database/src/database-host-adapter.ts`: `DB_HOST_ADAPTER` = `plain` | `neon` | `supabase` cùng `DB_POOLER_HOST`, `DB_POOLER_PORT`, `SUPABASE_PROJECT_REF`; quyết định máy chủ, cổng, hậu tố tên đăng nhập (`loginSuffix`, Supabase `<vai trò>.<mã dự án>`) và có thu hồi quyền kết nối mặc định của `PUBLIC` hay không (`revokePublicConnect`); `TenancyRuntime` dựng bố cục với các giá trị này; `descriptorFromRow` gom chỗ đọc mô tả kết nối từ `school_databases`.
+  - **Bộ nối tên miền** ở `domain-provider.ts`: `cloudflare-saas` (custom hostname của Cloudflare for SaaS: tạo, hỏi trạng thái tên miền và chứng chỉ, gỡ; `CLOUDFLARE_API_TOKEN`, `CLOUDFLARE_ZONE_ID`) và `vercel-domains` (thêm, xác nhận, gỡ tên miền của dự án Vercel; `VERCEL_TOKEN`, `VERCEL_PROJECT_ID`, `VERCEL_TEAM_ID`), gọi qua `fetch` thay được để kiểm thử với máy chủ giả; xóa vĩnh viễn trường gỡ tên miền riêng khỏi nhà cung cấp.
+  - **Chính sách dữ liệu** `PLATFORM_DATA_POLICY` = `any` | `consent-required` | `synthetic-only` (`dataPolicyProblem`): áp ở bước setup và khi đổi loại dữ liệu (BR-209); cổng nền tảng hiện ghi chú chính sách ở bước 3 và hướng dẫn xác nhận tên miền theo bộ nối.
+  - **Chuyển bố cục, nền tảng:** `platform relayout --school <mã> --to database|schema` (`database/src/school-relayout.ts`, biến `TARGET_PLATFORM_DATABASE_URL`, `TARGET_PLATFORM_MASTER_KEY`, `TARGET_PLATFORM_ADMIN_DATABASE_URL`, `TARGET_PLATFORM_SHARED_DATABASE`): trường nguồn phải tạm dừng hoặc chỉ đọc; ghi trường ở đích, bọc lại khóa dữ liệu trẻ bằng khóa gốc của đích, chép tên miền, hồ sơ đồng ý, vùng máy chủ; tạo cơ sở dữ liệu theo bố cục đích, migrate, chép từng bảng trong một giao dịch với `session_replication_role = replica`, đặt lại bộ đếm tự tăng; so số dòng và tổng kiểm md5 từng bảng (cố định múi giờ UTC); lệch thì dừng (BR-210).
+  - **Dịch vụ định danh:** `REDIS_URL=memory://` dùng kho khóa trong bộ nhớ (`MemoryStore`, chỉ đúng với một bản dịch vụ); máy chủ chung: `SMS_ALLOW_LOG=true` cho phép `SMS_PROVIDER=log` khi `NODE_ENV=production` (hồ sơ thử nghiệm, trường dữ liệu giả).
+  - **Giao diện:** `APP_BASE_PATH` khi dựng cổng quản trị, ứng dụng giáo viên, ứng dụng phụ huynh (`/quan-ly/`, `/giao-vien/`, `/phu-huynh/`); bộ định tuyến của cổng quản trị đặt `basepath` theo đường dẫn gốc lúc dựng; mặc định `/` như trước.
+  - **Hồ sơ thử nghiệm** `deploy/profiles/trial/`: cổng biên Cloudflare Worker (`cloudflare/src/worker.mjs`: định tuyến theo tên miền và đường dẫn, đặt `x-school-host` kèm bí mật `x-edge-auth`, trang "Hệ thống đang khởi động" 503 và `ERR_SERVICE_WAKING` khi máy chủ ngủ, biểu ngữ theo `DATA_POLICY`, `scheduled()` gọi `tick`; `wrangler.toml.example`, `build-assets.sh`); container gộp (`container/Dockerfile.all-in-one`, `router.mjs` cùng bảng tuyến với Caddy, `MIGRATE_ON_START`, `MIGRATE_SCHOOLS_ON_START`; `render.yaml.example`, `koyeb.sh.example`); ba tổ hợp `to-hop-1`, `to-hop-2`, `to-hop-3` (README các bước, tệp biến, mẫu dòng `school_hosting`; Vercel 3a, 3b; lịch GitHub Actions gọi `tick`); `scripts/relayout.sh`; `setup.consented.example.json`; `env.trial.example`. Mọi tệp mẫu chỉ có giá trị giả.
+  - **CI, công cụ:** CI dựng thêm ảnh `trial`; gói `tests` chạy `trial/*.test.mjs`; ESLint khai báo giao diện Fetch chuẩn cho tệp `.mjs`.
+  - **Kiểm thử:** `database/src/trial-adapters.test.ts`, `database/src/school-relayout.test.ts`, `apps/identity/src/common/memory-store.test.ts`, ca mới ở `packages/server/src/esms-client.test.ts`, `tests/trial/edge-worker.test.mjs`, `tests/trial/container-router.test.mjs`; spec e2e 140 ở dự án nhiều trường (dịch vụ định danh đặt `PLATFORM_DATA_POLICY=consent-required`).
+  - **Giới hạn gói miễn phí** (tra trang chính thức ngày 2026-10-25, ghi theo yêu cầu của kế hoạch; đổi thường xuyên, kiểm lại khi dựng):
+
+    | Dịch vụ | Giới hạn | Nguồn |
+    |---|---|---|
+    | Render, dịch vụ web miễn phí | Ngủ sau 15 phút không có yêu cầu, thức dậy khoảng 1 phút; 750 giờ máy mỗi tháng cho cả không gian làm việc (dịch vụ đang ngủ không tính giờ, hết giờ thì tạm dừng đến đầu tháng); tệp trên đĩa mất khi triển khai lại, khởi động lại hoặc ngủ, không gắn ổ đĩa; có thể khởi động lại bất kỳ lúc nào; PostgreSQL miễn phí hết hạn sau 30 ngày (không dùng); không ghi RAM, CPU | render.com/docs/free |
+    | Koyeb, bản miễn phí | Mỗi tổ chức một bản: 512 MB RAM, 0,1 vCPU, 2 GB SSD; chỉ một vùng Frankfurt hoặc Washington, D.C. (không có Singapore); ngủ sau 1 giờ không có yêu cầu; chỉ dịch vụ web, không gắn ổ đĩa | koyeb.com/docs/reference/instances |
+    | Neon Free | 100 dự án mỗi tổ chức; 1 GB mỗi dự án, 20 GB cả tài khoản; 100 giờ máy tính mỗi dự án; tự tạm dừng sau 5 phút rảnh, không tắt được; có bộ gom kết nối (PgBouncer, chế độ theo giao dịch); trang giá không ghi vùng | neon.com/pricing, neon.com/docs/connect/connection-pooling |
+    | Supabase Free | 500 MB cơ sở dữ liệu mỗi dự án; 2 dự án đang hoạt động; tạm dừng sau 1 tuần không hoạt động; kho tệp 1 GB, mỗi tệp tối đa 50 MB; 5 GB lưu lượng ra; bộ gom dùng chung cổng 6543, tên đăng nhập `<vai trò>.<mã dự án>`, không có câu lệnh chuẩn bị có tên | supabase.com/pricing, supabase.com/docs/guides/database/connecting-to-postgres |
+    | Cloudflare R2 | 10 GB-tháng lưu trữ (lớp Standard); 1 triệu thao tác loại A, 10 triệu loại B mỗi tháng; không tính phí lưu lượng ra | developers.cloudflare.com/r2/pricing |
+    | Cloudflare Workers Free | 100.000 yêu cầu mỗi ngày; 10 ms CPU mỗi yêu cầu (không tính thời gian chờ mạng); 50 yêu cầu con ra ngoài mỗi lần chạy; 5 Cron Triggers mỗi tài khoản; tệp tĩnh 20.000 tệp, mỗi tệp tối đa 25 MiB | developers.cloudflare.com/workers/platform/limits |
+    | Cloudflare for SaaS | 100 tên miền riêng miễn phí, mỗi tên thêm 0,10 USD; tên miền riêng ký tự đại diện chỉ ở gói Enterprise | developers.cloudflare.com/cloudflare-for-platforms/cloudflare-for-saas/plans |
+    | Vercel Hobby | Chỉ dùng phi thương mại, cá nhân; 50 tên miền mỗi dự án; 1 triệu yêu cầu CDN; 100 GB truyền nhanh mỗi tháng; vượt hạn mức thì chờ 30 ngày | vercel.com/docs/plans/hobby |
+  - **Quyết định:**
+    - Bộ gom kết nối chế độ theo giao dịch (Neon, Supabase) chạy được với mã hiện có: `search_path` và múi giờ đặt ở mức vai trò (S1a), tệp thay đổi cấu trúc khóa bằng `pg_advisory_xact_lock` trong giao dịch, thư viện `pg` dùng câu lệnh chuẩn bị không tên; migrate đi qua bộ gom, không cần địa chỉ trực tiếp.
+    - Không dùng Redis ở hồ sơ thử nghiệm: dịch vụ định danh dùng kho trong bộ nhớ vì chỉ có một bản container; giới hạn đăng nhập, mã xác nhận mất khi khởi động lại.
+    - Tổ hợp 3b (Vercel làm cổng biên) không có trang "đang khởi động" và không chèn biểu ngữ, vì phần mềm trung gian của Vercel chỉ viết lại yêu cầu; cần biểu ngữ thì dùng 3a hoặc chỉ dữ liệu giả.
+    - Koyeb gói miễn phí không có vùng Singapore: ghi đúng vùng Frankfurt hoặc Washington, D.C. vào `school_hosting`.
+    - Bộ nối `supabase` không thu hồi quyền kết nối mặc định của `PUBLIC` vào cơ sở dữ liệu `postgres` (dịch vụ của Supabase dùng chung); cách ly vẫn bằng quyền trên lược đồ và `search_path` mức vai trò.
+    - `INTEGRATIONS_MODE` chưa làm: tích hợp ngoài ở hồ sơ thử nghiệm dùng bộ nối giả lập hiện có (`development`, `log`); cấu hình riêng từng trường làm ở S3 (YCTD-195).
+    - Tự xóa trường dữ liệu giả sau 30 ngày (tùy chọn ở kế hoạch) chưa làm, để việc sau.
+    - Trường dữ liệu nên mã hóa thêm cho trường `consented`: số định danh của trẻ đã mã hóa bằng khóa riêng của trường (S1a); đề xuất rà ở S3, S8b: số điện thoại của cha mẹ, người giám hộ, địa chỉ nhà, hồ sơ sức khỏe.
+    - Căn cứ pháp lý về lưu dữ liệu tại Việt Nam theo PL-09 của `33_HO_SO_PHAP_LY/`: Luật An ninh mạng số 116/2025/QH15 và Nghị định 333/2026/NĐ-CP; Nghị định 53/2022/NĐ-CP chưa rõ còn hiệu lực, luật sư kiểm.
+- Thành phần bị ảnh hưởng: `database`, `apps/identity`, `apps/portal`, `apps/teacher`, `apps/parent`, `apps/platform`, `packages/server`, `deploy/profiles/trial`, `tests`, `.github/workflows/ci.yml`, `eslint.config.js`; tài liệu `01`, `02`, `07`, `10`, `11`, `12`, `14`, `16`, `17`, `21`, `22`, `23`, `24`, `32`, `index.md`.
+- Dữ liệu bị ảnh hưởng: cơ sở dữ liệu nền tảng thêm cột `school_databases.login_name` (tệp 0100); không đổi dữ liệu hiện có.
+- API bị ảnh hưởng: không thêm điểm cuối; lỗi mới `ERR_SERVICE_WAKING` do cổng biên trả; bước setup và đổi loại dữ liệu có thêm lỗi theo chính sách dữ liệu; lệnh mới `platform relayout`.
+- Giao diện bị ảnh hưởng: MH-320 (trang đang khởi động, biểu ngữ thử nghiệm của cổng biên); ghi chú chính sách và hướng dẫn xác nhận tên miền ở MH-317, MH-318.
+- Quyền bị ảnh hưởng: không đổi.
+- Ảnh hưởng chức năng cũ: không ở chế độ một trường và hồ sơ vận hành (mặc định `DB_HOST_ADAPTER=plain`, `PLATFORM_DATA_POLICY=any`, `APP_BASE_PATH=/`).
+- Kiểm thử cần thực hiện: kiểm thử đơn vị `database`, `apps/identity`, `packages/server`, `tests` (thư mục `trial`, kiểm tĩnh); e2e spec 140, 130, 132 ở dự án nhiều trường; CI chạy toàn bộ e2e và dựng ảnh `trial`.
+- Trạng thái: Đã triển khai (PR chưa có số)
 
 ### YCTD-193: DT-SaaS phần S2: khởi tạo và vòng đời trường – 2026-10-25
 

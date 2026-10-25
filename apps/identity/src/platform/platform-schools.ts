@@ -147,6 +147,7 @@ export class PlatformSchoolsService {
       ingress_host: environment.ingressHost ?? null,
       domain_provider: environment.domainProvider?.kind ?? 'dns-check',
       deletion_grace_days: this.lifecycleSettings().deletionGraceDays,
+      data_policy: environment.dataPolicy ?? 'any',
     };
   }
 

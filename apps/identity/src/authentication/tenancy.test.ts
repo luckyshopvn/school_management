@@ -7,6 +7,7 @@ import {
   type TenancyRuntime,
   type TenantTestPlatform,
 } from '@school-management/database';
+import type { Redis } from 'ioredis';
 import type { Kysely } from 'kysely';
 import { Infrastructure } from '../common/infrastructure.js';
 import {
@@ -213,7 +214,8 @@ describe('dịch vụ định danh nhiều trường', () => {
   });
 
   it('khóa Redis có tiền tố của từng trường', async () => {
-    const redis = context.application.get(Infrastructure).redis;
+    // Kiểm thử chạy với Redis thật (REDIS_URL), không phải kho trong bộ nhớ
+    const redis = context.application.get(Infrastructure).redis as Redis;
     const prefix = context.configuration.redisKeyPrefix;
     const alphaKeys = await redis.keys(`${prefix}:t:${alphaCode}:*`);
     const betaKeys = await redis.keys(`${prefix}:t:${betaCode}:*`);

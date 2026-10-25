@@ -6,7 +6,7 @@ import {
 } from '@school-management/server/tenancy';
 import type { Kysely } from 'kysely';
 import type { PlatformDatabase, SchoolDatabaseKind } from '../platform/schema.js';
-import { connectionStringOf, type DatabaseDescriptor } from './school-database-layout.js';
+import { connectionStringOf, descriptorFromRow, type DatabaseDescriptor } from './school-database-layout.js';
 
 // Bộ phân giải tên miền thành trường của nền tảng nhiều trường (DT-SaaS phần S1a): đọc cơ sở dữ liệu nền tảng, giữ trong bộ
 // nhớ ngữ cảnh trường, mô tả kết nối từng cơ sở dữ liệu và khóa của trường, làm mới sau một thời gian ngắn
@@ -117,15 +117,7 @@ export class TenantRegistry implements TenantResolver {
       databases.set(databaseKey(row.kind, row.name), {
         id: row.id,
         updatedAt: row.updated_at.getTime(),
-        kind: row.kind,
-        name: row.name,
-        layout: row.layout,
-        host: row.host,
-        port: row.port,
-        databaseName: row.database_name,
-        schemaName: row.schema_name,
-        roleName: row.role_name,
-        password: decryptSecret(this.masterKey, row.password_encrypted),
+        ...descriptorFromRow(row, this.masterKey),
       });
     }
     const record: TenantRecord = { context, databases, loadedAt: this.now() };

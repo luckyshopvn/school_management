@@ -3,6 +3,7 @@ import { sql } from 'kysely';
 import { createDatabase } from './connection.js';
 import { replaceDatabaseName } from './environment.js';
 import type { SchoolDatabaseKind, SchoolDatabaseLayoutValue } from '../platform/schema.js';
+import { decryptSecret } from '@school-management/server/tenancy';
 import { VIETNAM_TIMEZONE } from './timezone.js';
 
 // Bố cục cơ sở dữ liệu của một trường (DT-SaaS phần S1a, tài liệu 32 mục 14.4):
@@ -42,6 +43,8 @@ export interface DatabaseDescriptor {
   databaseName: string;
   schemaName: string | null;
   roleName: string;
+  // Tên đăng nhập khi khác tên vai trò: bộ gom kết nối của Supabase nhận `<vai trò>.<mã dự án>` (DT-SaaS phần S9)
+  loginName?: string | null;
   password: string;
 }
 
@@ -49,7 +52,7 @@ export function connectionStringOf(descriptor: DatabaseDescriptor): string {
   const url = new URL('postgres://placeholder');
   url.hostname = descriptor.host;
   url.port = String(descriptor.port);
-  url.username = descriptor.roleName;
+  url.username = descriptor.loginName || descriptor.roleName;
   url.password = descriptor.password;
   url.pathname = `/${descriptor.databaseName}`;
   return url.toString();
@@ -84,6 +87,45 @@ export interface LayoutEnvironment {
   port?: number;
   // Bố cục schema: cơ sở dữ liệu dùng chung chứa các lược đồ của mọi trường
   sharedDatabase?: string;
+  // Hậu tố tên đăng nhập qua bộ gom kết nối của nhà cung cấp (Supabase: `.<mã dự án>`); trống là đăng nhập bằng tên vai trò
+  loginSuffix?: string;
+  // Thu hồi quyền kết nối mặc định của PUBLIC vào cơ sở dữ liệu dùng chung (mặc định có). Supabase để không, vì dịch vụ của
+  // Supabase (kho tệp, xác thực) kết nối cùng cơ sở dữ liệu; cách ly vẫn bằng quyền trên lược đồ và search_path mức vai trò
+  revokePublicConnect?: boolean;
+}
+
+function loginOf(environment: LayoutEnvironment, roleName: string): string | null {
+  return environment.loginSuffix ? `${roleName}${environment.loginSuffix}` : null;
+}
+
+// Mô tả kết nối từ một dòng của `school_databases` (mật khẩu giải mã bằng khóa gốc)
+export function descriptorFromRow(
+  row: {
+    kind: SchoolDatabaseKind;
+    name: string;
+    layout: SchoolDatabaseLayoutValue;
+    host: string;
+    port: number;
+    database_name: string;
+    schema_name: string | null;
+    role_name: string;
+    login_name?: string | null;
+    password_encrypted: string;
+  },
+  masterKey: Buffer,
+): DatabaseDescriptor {
+  return {
+    kind: row.kind,
+    name: row.name,
+    layout: row.layout,
+    host: row.host,
+    port: row.port,
+    databaseName: row.database_name,
+    schemaName: row.schema_name,
+    roleName: row.role_name,
+    loginName: row.login_name ?? null,
+    password: decryptSecret(masterKey, row.password_encrypted),
+  };
 }
 
 function hostOf(environment: LayoutEnvironment): { host: string; port: number } {
@@ -144,6 +186,7 @@ export class DatabaseLayout implements SchoolDatabaseLayout {
       databaseName: request.physicalName,
       schemaName: null,
       roleName,
+      loginName: loginOf(this.environment, roleName),
       password: request.schoolRolePassword,
     };
   }
@@ -208,7 +251,9 @@ export class SchemaLayout implements SchoolDatabaseLayout {
       // Vai trò của lược đồ chỉ thấy lược đồ của mình: không có public trong search_path, không quyền tạo ở public
       await sql`alter role ${sql.id(name)} set search_path to ${sql.id(name)}`.execute(database);
       await sql`revoke all on schema public from ${sql.id(name)}`.execute(database);
-      await sql`revoke connect on database ${sql.id(shared)} from public`.execute(database);
+      if (this.environment.revokePublicConnect !== false) {
+        await sql`revoke connect on database ${sql.id(shared)} from public`.execute(database);
+      }
       await sql`grant connect on database ${sql.id(shared)} to ${sql.id(name)}`.execute(database);
     });
     return {
@@ -219,6 +264,7 @@ export class SchemaLayout implements SchoolDatabaseLayout {
       databaseName: shared,
       schemaName: name,
       roleName: name,
+      loginName: loginOf(this.environment, name),
       password,
     };
   }

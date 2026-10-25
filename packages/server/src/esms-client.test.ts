@@ -136,4 +136,12 @@ describe('Kết nối eSMS.vn', () => {
     assert.throws(() => readSmsProviderSettings({ NODE_ENV: 'production' }), /môi trường chạy thật/);
     assert.throws(() => readSmsProviderSettings({ SMS_PROVIDER: 'khac' }), /chưa được hỗ trợ/);
   });
+
+  it('hồ sơ thử nghiệm (DT-SaaS S9): SMS_ALLOW_LOG=true cho phép ghi mã ra nhật ký ở môi trường chạy thật', () => {
+    assert.deepEqual(readSmsProviderSettings({ NODE_ENV: 'production', SMS_ALLOW_LOG: 'true' }), { provider: 'log' });
+    assert.throws(
+      () => readSmsProviderSettings({ NODE_ENV: 'production', SMS_ALLOW_LOG: '1' }),
+      /môi trường chạy thật/,
+    );
+  });
 });

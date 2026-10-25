@@ -1,7 +1,7 @@
 # 22. BẢO MẬT
 
 - Mô tả: Xác thực, phân quyền, phiên làm việc, kiểm tra dữ liệu đầu vào, bảo mật API, truy cập dữ liệu.
-- Phiên bản: 1.11
+- Phiên bản: 1.12
 - Ngày cập nhật: 2026-10-25
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -133,6 +133,8 @@ Các trường hợp trên phải đẩy cảnh báo cho quản trị nền tả
 | BM-76 | Việc nền và điểm công khai nhiều trường (YCTD-192, BR-203 đến BR-205): việc nền chạy trong ngữ cảnh của đúng trường và tiến trình máy xếp nhận tiền tố khóa kèm phần tử hàng đợi nên không đọc hay ghi khóa của trường khác; điểm tick đòi `INTERNAL_JOB_TOKEN` so sánh thời gian hằng và giới hạn tần suất, không có mã thì không tồn tại; trang chọn trường chỉ đổi mã thành địa chỉ, không liệt kê trường; `domain-check` chỉ trả 200 hoặc 404; hạn mức tần suất công khai tách theo trường; hạn mức lần xếp đang chạy mỗi trường chống một trường chiếm máy xếp |
 | BM-77 | Kích hoạt quản trị viên đầu tiên (YCTD-193, BR-208): tài khoản mới có mã băm của mật khẩu ngẫu nhiên đã bỏ nên không đăng nhập được trước khi kích hoạt; mã kích hoạt 24 byte ngẫu nhiên, chỉ lưu mã băm SHA-256, hạn 72 giờ, dùng một lần (đánh dấu có điều kiện nên hai yêu cầu cùng lúc chỉ một được), chỉ dùng ở tên miền của đúng trường, có giới hạn tần suất; cổng nền tảng chỉ hiện đường kích hoạt một lần, chi tiết trường không trả mã; không gửi mật khẩu qua kênh nào |
 | BM-78 | Quản lý vòng đời trường (YCTD-193, PQ-106): thao tác chỉ ở tên miền cổng nền tảng bằng mã phiên vận hành, mọi thao tác ghi sự kiện vòng đời và nhật ký nền tảng; hồ sơ đồng ý chỉ lưu mã băm và khóa tệp của bản quét; việc khởi tạo không lưu mật khẩu; xóa vĩnh viễn chỉ sau thời gian chờ, xóa cả vai trò PostgreSQL, khóa dữ liệu trẻ, tệp của trường (khóa Redis của trường đều có hạn sống tối đa 2 giờ nên tự hết, không xóa), bản ghi chứng minh chỉ giữ mã băm tên trường; trường số 1 không xóa bằng lệnh này |
+| BM-79 | Cổng biên hồ sơ thử nghiệm (YCTD-203): máy chủ có địa chỉ công khai chỉ nhận ra trường khi tiêu đề tên miền đi kèm bí mật `x-edge-auth` khớp `EDGE_SHARED_SECRET` (so sánh thời gian hằng); cổng biên bỏ `x-edge-auth`, `x-school-host`, `x-forwarded-host`, `x-website-root` do người dùng tự đặt và ghi đè `x-forwarded-for`; `tick` cần `INTERNAL_JOB_TOKEN`; bí mật đặt bằng `wrangler secret`, biến bí mật của Render, Koyeb, không có trong kho; tệp mẫu chỉ có giá trị giả |
+| BM-80 | Dữ liệu thật ở máy chủ ngoài nước (YCTD-203, BR-207, BR-209, PL-00 đến PL-15 của `33_HO_SO_PHAP_LY/`): chỉ trường đủ hồ sơ đồng ý; `PLATFORM_MASTER_KEY` chỉ ở máy chủ ứng dụng, không ở nhà cung cấp cơ sở dữ liệu, nên nhà cung cấp chỉ thấy bản mã của số định danh trẻ; phần dữ liệu còn lại dạng rõ (biện pháp giảm rủi ro, đề xuất mã hóa thêm số điện thoại cha mẹ, địa chỉ nhà, hồ sơ sức khỏe ở S3, S8b); biểu ngữ môi trường thử nghiệm; chuyển về trong nước bằng `platform relayout` (khóa bọc lại bằng khóa gốc của đích); kho khóa trong bộ nhớ (`REDIS_URL=memory://`) chỉ dùng với một bản dịch vụ; `SMS_ALLOW_LOG` chỉ cho trường dữ liệu giả |
 
 Từ YCTD-200 (DT-SaaS phần S8a), quy trình xử lý sự cố và thông báo vi phạm dữ liệu cá nhân của nền tảng nhiều trường (thời hạn 72 giờ theo Điều 23 Luật Bảo vệ dữ liệu cá nhân số 91/2025/QH15, nội dung theo Điều 28 Nghị định 356/2025/NĐ-CP) ở `33_HO_SO_PHAP_LY/12_QUY_TRINH_SU_CO_VA_THONG_BAO.md` (bản nháp chờ luật sư rà).
 

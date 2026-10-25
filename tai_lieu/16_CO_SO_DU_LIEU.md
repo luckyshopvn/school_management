@@ -1,7 +1,7 @@
 # 16. CƠ SỞ DỮ LIỆU
 
 - Mô tả: Thực thể, trường, kiểu dữ liệu, khóa chính, khóa ngoại, quan hệ, ràng buộc, chỉ mục, trạng thái, lịch sử thay đổi, chính sách xóa dữ liệu.
-- Phiên bản: 1.119
+- Phiên bản: 1.120
 - Ngày cập nhật: 2026-10-25
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -731,6 +731,8 @@ Cơ sở dữ liệu `platform` dùng chung cho nền tảng nhiều trường, 
 | school_hosting (từ YCTD-193) | Vùng máy chủ, bên xử lý phụ của trường theo PL-08 (BR-207) | school_id, provider, service, region, role (`subprocessor`, `transit`), stores_personal_data, started_on, ended_on |
 
 Từ YCTD-193 (tệp nền tảng `0020`, `0021`), bảng `schools` thêm address, school_levels (JSON, cấp học đã chọn), first_academic_year, suspended_at, deletion_requested_at, delete_after, deleted_at, deletion_record (JSON, bản ghi chứng minh đã xóa: mã, mã băm tên, thời điểm, người xóa, danh sách cơ sở dữ liệu, số tệp); bảng `school_domains` thêm provider (mặc định `system`), verification_token, cname_target, last_checked_at, check_error. Cơ sở dữ liệu hệ thống của từng trường thêm bảng `terms_acceptances` (tệp hệ thống `0050_create_terms_acceptances`: terms_version, accepted_at, accepted_by_name, accepted_by_title, source `platform-setup` hoặc `school-user`, recorded_by) để việc đồng ý điều khoản đi theo dữ liệu của trường khi xuất.
+
+Từ YCTD-203 (tệp nền tảng `0100_add_database_login_name`), bảng `school_databases` thêm login_name (tên đăng nhập qua bộ gom kết nối khi khác tên vai trò, ví dụ `<vai trò>.<mã dự án>` của Supabase; trống là đăng nhập bằng role_name). Lệnh tạo, khóa, xóa vai trò vẫn dùng role_name.
 
 ## 19. Quan hệ chính giữa các bảng
 

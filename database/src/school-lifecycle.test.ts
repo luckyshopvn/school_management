@@ -506,7 +506,7 @@ describe('Tên miền riêng', () => {
   });
 
   it('bộ nối của S9 báo rõ là chưa có', async () => {
-    await assert.rejects(() => createDomainProvider('cloudflare-saas').request('a.example.test', null), /S9/);
+    assert.throws(() => createDomainProvider('cloudflare-saas'), /CLOUDFLARE_API_TOKEN/);
     assert.throws(() => createDomainProvider('khac'));
   });
 });
