@@ -32,7 +32,7 @@ Các thay đổi trước phiên bản 0.4.0 chưa có sổ này; xem `23_LICH_S
 - Quyền bị ảnh hưởng: không thêm quyền; lệnh chạy bằng biến của nền tảng ở máy vận hành.
 - Ảnh hưởng chức năng cũ: không ở chế độ một trường; `backup.sh`, `restore.sh` cũ không đổi khi không có `PLATFORM_DATABASE_URL`.
 - Kiểm thử cần thực hiện: kiểm thử đơn vị `database` (hai bố cục), kiểm tĩnh, `pnpm lint`; e2e spec 137 ở dự án nhiều trường cả hai bố cục và các spec bị ảnh hưởng; kiểm tay trên staging (CT-1034); CI chạy toàn bộ e2e.
-- Trạng thái: Đã triển khai (PR chưa có số)
+- Trạng thái: Đã triển khai (PR 171)
 
 
 ### YCTD-195: DT-SaaS phần S3: cấu hình riêng từng trường – 2026-10-25
