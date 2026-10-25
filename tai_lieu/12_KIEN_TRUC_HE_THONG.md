@@ -1,7 +1,7 @@
 # 12. KIẾN TRÚC HỆ THỐNG
 
 - Mô tả: Kiến trúc tổng thể, thành phần, xác thực, phân quyền, lưu trữ tệp, ghi nhật ký, giám sát, sao lưu, phục hồi, triển khai.
-- Phiên bản: 1.19
+- Phiên bản: 1.20
 - Ngày cập nhật: 2026-10-25
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -230,6 +230,14 @@ Thư viện `database/src/school-lifecycle.ts` dùng chung cho dịch vụ đị
 
 Hồ sơ `deploy/profiles/trial/` chạy cùng mã nguồn với hồ sơ vận hành, khác ở biến cấu hình của nền tảng. Cổng biên Cloudflare Worker (`cloudflare/src/worker.mjs`) nhận mọi tên miền: `/quan-ly`, `/giao-vien`, `/phu-huynh` là ba ứng dụng tĩnh dựng với `APP_BASE_PATH`; cổng nền tảng phục vụ `apps/platform`; tên miền hệ thống phục vụ trang chọn trường; `/api/v1` và website chuyển về máy chủ với tiêu đề `x-school-host` và `x-edge-auth` (`TENANT_HOST_SOURCE=header:x-school-host`); máy chủ ngủ thì trả trang đang khởi động; `scheduled()` gọi `tick`. Máy chủ là một container gộp (`container/Dockerfile.all-in-one`): `router.mjs` chia tuyến như Caddy (nhóm định danh sang `identity`, còn lại sang `api`), chạy migrate nền tảng khi khởi động, không `worker`, không Redis (`REDIS_URL=memory://`). `DB_HOST_ADAPTER` (`plain`, `neon`, `supabase`) quyết định địa chỉ qua bộ gom kết nối ghi vào `school_databases` (cột `login_name` cho Supabase); bộ gom chế độ theo giao dịch chạy được vì `search_path`, múi giờ đặt ở mức vai trò và migrate khóa bằng `pg_advisory_xact_lock`. Tên miền riêng qua `cloudflare-saas` hoặc `vercel-domains`. `platform relayout` chuyển một trường sang nền tảng và bố cục khác (hồ sơ vận hành), so số dòng và tổng kiểm từng bảng. Quy tắc ở BR-209, BR-210, bảo mật ở BM-79, BM-80.
 
+## 12E. Sao lưu, khôi phục và chuyển cụm theo trường (DT-SaaS phần S7b, YCTD-199)
+
+Ba lớp sao lưu ở hồ sơ vận hành (`deploy/profiles/production/PITR.md`): (1) sao lưu logic theo từng trường bằng `platform backup-school` (hằng ngày phạm vi `all`, hằng giờ phạm vi `active`, gọi từ `deploy/scripts/backup.sh` khi có `PLATFORM_DATABASE_URL`, đẩy thư mục `schools/` ra kho ngoài); (2) `pg_dump` cả máy như YCTD-92; (3) khôi phục về một thời điểm của cả cụm bằng WAL-G (bản cơ bản hằng ngày, nhật ký giao dịch đẩy liên tục, `archive_timeout` 60 giây, `compose.pitr.yml`, ảnh `docker/postgres-walg`); lấy riêng một trường về thời điểm T bằng `scripts/pitr-extract-school.sh` (dựng bản khôi phục tạm trong mạng riêng rồi `backup-school` đọc ở máy chủ tạm qua `BACKUP_SOURCE_HOST`). Ở hồ sơ thử nghiệm lớp (1) là lớp chính, chạy từ GitHub Actions và đẩy lên R2 (Neon Free chỉ giữ lịch sử 6 giờ, Supabase Free không có sao lưu tự động).
+
+`database/src/school-data-copy.ts` là bộ đọc và nạp dùng chung cho sao lưu, khôi phục, diễn tập, chuyển cụm và `platform relayout` (S9): đọc mỗi cơ sở dữ liệu trong một giao dịch `REPEATABLE READ` chỉ đọc, mọi cột ở dạng văn bản của PostgreSQL, múi giờ UTC; nạp bằng vai trò của trường (chủ các bảng, không cần quyền siêu người dùng): gỡ khóa ngoại, mỗi bảng một giao dịch (tắt trigger người dùng nếu bảng có, xóa dữ liệu cũ, chèn theo trang, đặt lại bộ đếm tự tăng), cuối cùng gắn lại khóa ngoại có kiểm; lỗi thì gắn lại không kiểm (`NOT VALID`), đích không phục vụ nên chạy lại là nạp lại. Tổng kiểm mỗi bảng là số dòng và md5 của các dòng dạng văn bản đã sắp. `school-backup.ts` ghi tệp `.sbak` (dòng JSON nén gzip, mã hóa AES-256-GCM, khóa dẫn bằng scrypt từ `BACKUP_ENCRYPTION_PASSPHRASE`; gồm thông tin trường, khóa dữ liệu trẻ, tên miền, từng bảng và tổng kiểm). `school-cluster-move.ts` chuyển trường sang cụm khác. Mọi lần chạy ghi `backup_runs` ở cơ sở dữ liệu nền tảng; cổng nền tảng hiện 20 lần gần nhất ở chi tiết trường, bảng điều khiển S4 dùng để cảnh báo.
+
+Mục tiêu (giả định, đo bằng diễn tập rồi chốt): RPO ≤ 5 phút khi có WAL-G, ≤ 1 giờ khi chỉ có sao lưu theo trường hằng giờ, ≤ 24 giờ ở hồ sơ thử nghiệm (≤ 6 giờ nếu dùng lịch sử của Neon); RTO ≤ 4 giờ ở T2, T3, ≤ 8 giờ ở T1, ≤ 2 giờ cho một trường ở hồ sơ thử nghiệm; sẵn sàng 99,5% ở T1, 99,9% ở T3. Quy tắc ở BR-214, BR-215, bảo mật ở BM-83.
+
 ## 13. Quyết định kiến trúc
 
 | Mã | Quyết định | Trạng thái |
@@ -263,6 +271,7 @@ Hồ sơ `deploy/profiles/trial/` chạy cùng mã nguồn với hồ sơ vận 
 | QĐ-27 | Khởi tạo và vòng đời trường (DT-SaaS phần S2, YCTD-193): khởi tạo là việc có bước lưu ở cơ sở dữ liệu nền tảng, chạy lặp được, chạy tiếp hoặc hoàn tác; điểm cuối quản lý trường ở dịch vụ định danh dưới `/api/v1/auth/platform/schools` (không thêm dịch vụ); tên miền riêng qua bộ nối `DomainProvider`; quản trị viên đầu tiên kích hoạt bằng đường liên kết một lần, không gửi mật khẩu; xóa có thời gian chờ, giữ hàng của trường ở trạng thái đã xóa kèm bản ghi chứng minh; xuất và xóa tệp chạy ở máy chủ API vì kho tệp nằm ở đó | Đã chốt, làm ở S2 |
 | QĐ-28 | Hồ sơ thử nghiệm (DT-SaaS phần S9, YCTD-203): một ảnh gộp `identity` + `api` sau cổng biên Cloudflare Worker (hoặc Vercel), bố cục `schema` qua bộ gom kết nối của nhà cung cấp, không Redis, việc định kỳ do Cron gọi `tick`; nhà cung cấp chọn bằng bộ nối cấu hình (`DB_HOST_ADAPTER`, `DOMAIN_PROVIDER`, `S3_*`); chuyển sang hồ sơ vận hành bằng `platform relayout`, không sửa mã | Đã áp dụng |
 | QĐ-29 | Cấu hình kết nối ngoài theo trường (DT-SaaS phần S3, YCTD-195): một lớp `SchoolSettings` đọc `integration_secrets` (đệm 15 giây, xóa đệm khi ghi) và các bộ nối `Tenant*` (tin nhắn, Fanpage, Zalo, cổng thanh toán, kho tệp) chọn nguồn theo từng lần dùng: cấu hình của trường, rồi bộ giả lập, rồi (chỉ chế độ một trường) biến môi trường, còn lại tắt; `ZaloTokenStore` nhận cấu hình ban đầu bằng hàm bất đồng bộ; bảng cổng thanh toán có `prepare()` trả bảng của trường; đổi khóa dữ liệu trẻ tự tìm cột `*_encrypted` ở `information_schema` nên bảng thêm sau tự được xử lý | Đã chốt, làm ở S3 |
+| QĐ-30 | Sao lưu theo trường (DT-SaaS phần S7b, YCTD-199): sao lưu logic viết bằng Node (không `pg_dump`) để chạy được ở hai bố cục và qua bộ gom của Neon, Supabase; nạp bằng vai trò của trường, mỗi bảng một giao dịch để không vượt giới hạn khóa của máy chủ, khóa ngoại gắn lại sau cùng có kiểm; khôi phục về một thời điểm của cả cụm bằng WAL-G và lấy riêng một trường từ bản khôi phục tạm; chuyển cụm dùng cùng bộ chép, đổi mô tả kết nối trong một giao dịch khi mọi bảng khớp | Đã áp dụng |
 
 ## 14. Chưa xác minh được
 

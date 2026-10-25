@@ -7,6 +7,7 @@ import { migration as createSchedulerState } from './migrations/0010_create_sche
 import { migration as createSchoolLifecycle } from './migrations/0020_create_school_lifecycle.js';
 import { migration as addDomainVerification } from './migrations/0021_add_domain_verification.js';
 import { migration as createSchoolConsents } from './migrations/0022_create_school_consents.js';
+import { migration as createBackupRuns } from './migrations/0070_create_backup_runs.js';
 import { migration as createKeyRotations } from './migrations/0030_create_key_rotations.js';
 import { migration as addDatabaseLoginName } from './migrations/0100_add_database_login_name.js';
 
@@ -23,6 +24,8 @@ export const platformMigrations: Record<string, Migration> = {
   '0022_create_school_consents': createSchoolConsents,
   // Khối 0030 đến 0039 của phần S3
   '0030_create_key_rotations': createKeyRotations,
+  // Khối 0070 đến 0079 của phần S7b
+  '0070_create_backup_runs': createBackupRuns,
   // Khối 0100 đến 0109 của phần S9
   '0100_add_database_login_name': addDatabaseLoginName,
 };

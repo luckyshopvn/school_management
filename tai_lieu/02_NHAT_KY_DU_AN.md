@@ -1,7 +1,7 @@
 # 02. NHẬT KÝ DỰ ÁN
 
 - Mô tả: Ghi nhận công việc, quyết định, thay đổi và vấn đề tồn đọng theo ngày, ngày mới nhất ở trên cùng.
-- Phiên bản: 0.67
+- Phiên bản: 0.68
 - Ngày cập nhật: 2026-10-25
 - Trạng thái: Đang cập nhật
 
@@ -13,6 +13,30 @@
 - Không ghi thông tin tạm thời như kết quả tra cứu, đường dẫn tạm, thông báo lỗi của công cụ.
 
 ## Nhật ký theo ngày
+
+### 2026-10-25 — DT-SaaS phần S7b: vận hành nhiều trường
+
+#### Công việc đã thực hiện
+
+- Đọc mục 14.3, 14.5 (S7b), 14.9 của `32_KE_HOACH_THEO_HE_THONG_SO.md`; rà `deploy/scripts/backup.sh`, `restore.sh`, hồ sơ vận hành của S7a và bộ chép dữ liệu của `platform relayout` (S9).
+- Thêm bảng nền tảng `backup_runs` (tệp `0070_create_backup_runs`), bộ đọc và nạp dữ liệu dùng chung `school-data-copy.ts`, sao lưu và khôi phục theo trường `school-backup.ts`, chuyển cụm `school-cluster-move.ts`, năm lệnh mới của `platform` (`backup-school`, `verify-backup`, `restore-school`, `restore-drill`, `move-school`).
+- Nối sao lưu theo trường vào `deploy/scripts/backup.sh`; thêm `restore-drill.sh`, lịch diễn tập hằng tháng; ảnh `docker/postgres-walg`, lớp phủ `compose.pitr.yml`, `scripts/pitr-extract-school.sh`, `PITR.md` ở hồ sơ vận hành; mục 7 và `github-actions-backup.yml.example` ở hồ sơ thử nghiệm.
+- Cổng nền tảng hiện bảng "Sao lưu và khôi phục" ở chi tiết trường (20 lần gần nhất của `backup_runs`).
+- Thêm quy tắc BR-214, BR-215, chức năng P01-65 đến P01-67, tiêu chí AC-842 đến AC-845, kịch bản CT-1027 đến CT-1034, bảo mật BM-83, QĐ-30, mục kiến trúc 12E.
+
+#### Quyết định
+
+- Sao lưu logic viết bằng Node thay cho `pg_dump`: chạy được ở cả bố cục `database` và `schema`, qua bộ gom kết nối của Neon, Supabase, không phụ thuộc phiên bản công cụ của máy chủ; mỗi trường một tệp `.sbak` mã hóa AES-256-GCM.
+- Nạp dữ liệu bằng vai trò của trường, mỗi bảng một giao dịch: lần thử nạp cả cơ sở dữ liệu năm học trong một giao dịch gặp lỗi "out of shared memory" (giới hạn khóa `max_locks_per_transaction` 64); khóa ngoại gỡ trước, gắn lại sau cùng có kiểm. `platform relayout` (S9) chuyển sang cùng bộ nạp nên không còn cần quyền siêu người dùng ở đích.
+- Khôi phục về một thời điểm của cả cụm bằng WAL-G (ghim phiên bản v3.0.9 và mã băm), lấy riêng một trường từ bản khôi phục tạm bằng `backup-school` đọc ở máy chủ tạm (`BACKUP_SOURCE_HOST`).
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-199, `07_QUY_TAC_NGHIEP_VU.md` BR-214, BR-215, `10_YEU_CAU_CHUC_NANG.md` P01-65 đến P01-67, `11_TIEU_CHI_NGHIEM_THU.md` AC-842 đến AC-845, `12_KIEN_TRUC_HE_THONG.md` mục 12E và QĐ-30, `14_DAC_TA_GIAO_DIEN.md` MH-318, `16_CO_SO_DU_LIEU.md` mục 18C, `17_DAC_TA_API.md`, `21_KICH_BAN_KIEM_THU.md` CT-1027 đến CT-1034, `22_BAO_MAT.md` BM-83, `23_LICH_SU_PHIEN_BAN.md` phiên bản 0.134.0.
+
+#### Vấn đề tồn đọng
+
+- Chưa làm thử tải nhiều trường (50 trường giả) của kế hoạch; bảng điều khiển S4 chưa cảnh báo sao lưu, diễn tập quá hạn (dữ liệu đã có ở `backup_runs`); WAL-G, `pitr-extract-school.sh` và diễn tập trên staging chờ VPS thử để kiểm tay.
 
 ### 2026-10-25 — DT-SaaS phần S3: cấu hình riêng từng trường
 

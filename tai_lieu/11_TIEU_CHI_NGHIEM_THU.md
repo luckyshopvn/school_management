@@ -1,7 +1,7 @@
 # 11. TIÊU CHÍ NGHIỆM THU
 
 - Mô tả: Tiêu chí nghiệm thu cho từng chức năng, viết dạng Cho, Khi, Thì.
-- Phiên bản: 1.78
+- Phiên bản: 1.79
 - Ngày cập nhật: 2026-10-25
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -914,6 +914,10 @@ Các mã từ AC-94 đến AC-134 được viết trực tiếp trong mục 12 c
 | AC-839 | Cho hai trường trên một nền tảng / Khi trường A nhập khóa SePay, xem danh sách, kiểm tra kết nối, xóa cấu hình, nhập thiếu trường bắt buộc / Thì giá trị không bao giờ trả lại (chỉ bốn ký tự cuối), cơ sở dữ liệu chỉ có bản mã, trường B không thấy cấu hình của A và thông báo SePay gửi tới B bị 404, nhập thiếu bị 400, kiểm tra kết nối của B chưa cấu hình bị 422 (CT-1022, CT-1023; YCTD-195) |
 | AC-840 | Cho trường có dữ liệu mã hóa ở cơ sở dữ liệu hệ thống / Khi đổi khóa lúc trường đang chạy, khi đổi lúc đang tạm dừng, khi bị gián đoạn rồi chạy lại, khi bọc lại khóa gốc / Thì chỉ đổi được khi tạm dừng, mọi dòng giải mã được bằng khóa mới và băm khớp khóa băm mới, làm tiếp không mã hóa hai lần, trường khác không bị đụng, khóa gốc cũ không còn đọc được sau khi bọc lại (CT-1024, CT-1025; YCTD-195) |
 | AC-841 | Cho trường A đặt tên hiển thị và màu / Khi trang đăng nhập của A và của B đọc thương hiệu công khai, khi nhập màu sai / Thì A trả tên, màu của A, B không bị lẫn, màu sai bị 400, chưa có biểu trưng thì 404 (CT-1026; YCTD-195) |
+| AC-842 | Cho một trường có đủ ba cơ sở dữ liệu ở bố cục `database` hoặc `schema` / Khi sao lưu theo trường, đọc tệp bằng khóa đúng, bằng khóa sai, đọc tệp bị sửa một byte / Thì tệp có đủ cơ sở dữ liệu, bảng, dòng và khóa dữ liệu trẻ, không thấy dữ liệu dạng rõ trong tệp, khóa sai và tệp bị sửa đều bị từ chối, `backup_runs` ghi kích thước và mã băm |
+| AC-843 | Cho một tệp sao lưu của trường A / Khi khôi phục thành trường mới, khi khôi phục vào chính A lúc A đang chạy và lúc A đã tạm dừng / Thì trường mới tạm dừng, có tên miền `<mã mới>.<tên miền hệ thống>`, tên cơ sở dữ liệu năm học theo tiền tố mới, người dùng của A đăng nhập được sau khi mở lại, A không đổi; khôi phục vào A khi đang chạy bị từ chối; khi đã tạm dừng thì dữ liệu của A trở về lúc sao lưu |
+| AC-844 | Cho trường có năm học chỉ đọc và bản sao lưu mới nhất / Khi sao lưu phạm vi `active`, chạy diễn tập khôi phục / Thì bản `active` bỏ năm học chỉ đọc; diễn tập khôi phục vào trường tạm, mọi bảng khớp, trường tạm bị gỡ, `backup_runs` ghi loại `drill` kèm số dòng và thời gian; cổng nền tảng hiện lịch sử sao lưu, khôi phục của từng trường |
+| AC-845 | Cho trường đang hoạt động / Khi chuyển sang cụm khác có xóa bản ở cụm nguồn / Thì trường tạm dừng trong lúc chép rồi trở lại hoạt động, mô tả kết nối và cụm trỏ cụm mới, dữ liệu đọc được bằng vai trò của trường, bản ở cụm nguồn bị xóa; lỗi giữa chừng thì giữ cụm cũ |
 
 ## 20. Chưa xác minh được
 

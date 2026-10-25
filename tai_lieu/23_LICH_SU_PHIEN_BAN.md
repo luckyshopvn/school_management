@@ -1,7 +1,7 @@
 # 23. LỊCH SỬ PHIÊN BẢN
 
 - Mô tả: Mã phiên bản, ngày phát hành, danh sách thay đổi, chức năng mới, lỗi đã sửa, thay đổi dữ liệu, thay đổi API, rủi ro, khả năng tương thích, phương án quay lui.
-- Phiên bản: 0.57
+- Phiên bản: 0.58
 - Ngày cập nhật: 2026-10-25
 - Trạng thái: Đang cập nhật
 - Đã rà duyệt: Eric, ngày 2026-10-09
@@ -15,6 +15,18 @@
 5. Từ phiên bản 0.4.0, mỗi mục ghi theo mẫu của Vibecoding_Flow; các mục trước giữ nguyên dạng bảng và tên tệp cũ vì là ghi nhận lịch sử.
 
 ## 2. Danh sách phiên bản
+
+### Phiên bản 0.134.0 – 2026-10-25
+
+- Phạm vi thay đổi: DT-SaaS phần S7b, vận hành nhiều trường (YCTD-199).
+- Chức năng mới: sao lưu logic theo từng trường ở cả hai bố cục (P01-65); khôi phục vào chính trường hoặc thành trường mới, diễn tập khôi phục tự động (P01-66); chuyển trường sang cụm cơ sở dữ liệu khác (P01-67); khôi phục về một thời điểm của cả cụm bằng WAL-G và lấy riêng một trường; bảng "Sao lưu và khôi phục" ở chi tiết trường (MH-318).
+- Lỗi đã sửa: không có.
+- Thay đổi dữ liệu: bảng nền tảng `backup_runs` (tệp `0070_create_backup_runs`); xem `16_CO_SO_DU_LIEU.md` mục 18C.
+- Thay đổi API: chi tiết trường ở cổng nền tảng trả thêm `backups`; lệnh `platform backup-school`, `verify-backup`, `restore-school`, `restore-drill`, `move-school` (xem `17_DAC_TA_API.md`); `platform relayout` không còn cần quyền siêu người dùng ở đích.
+- Kiểm thử: kịch bản CT-1027 đến CT-1034. Kết quả ngày 25/10/2026: `database/src/school-backup.test.ts` 10 ca (5 ca ở mỗi bố cục `schema`, `database`) và `school-relayout.test.ts` 1 ca đạt 11/11; kiểm tĩnh đa thuê bao 6/6; `pnpm lint` sạch; e2e nhiều trường spec 130, 131, 132, 137, 140 đạt ở bố cục database (12 ca), spec 132, 137 đạt ở bố cục schema; CT-1034 kiểm tay trên staging chờ VPS thử; e2e toàn bộ do CI chạy.
+- Rủi ro: khôi phục không nằm trong một giao dịch cho mọi bảng (để không vượt giới hạn khóa của máy chủ), lỗi giữa chừng phải chạy lại; tệp sao lưu chứa khóa dữ liệu trẻ, lộ khóa sao lưu là lộ dữ liệu; WAL-G và lấy riêng một trường về một thời điểm chưa diễn tập trên máy thật; thử tải nhiều trường chưa làm nên giới hạn T1 đến T3 vẫn là giả định.
+- Khả năng tương thích: chế độ một trường và `backup.sh` cũ không đổi khi không có `PLATFORM_DATABASE_URL`; lớp phủ WAL-G là tùy chọn.
+- Phương án quay lui: hoàn lại commit gộp của nhánh S7b; bảng `backup_runs` chỉ do phần này dùng; tắt lớp phủ `compose.pitr.yml` để PostgreSQL chạy như trước.
 
 ### Phiên bản 0.133.0 – 2026-10-25
 

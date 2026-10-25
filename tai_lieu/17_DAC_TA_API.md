@@ -1,7 +1,7 @@
 # 17. ĐẶC TẢ API
 
 - Mô tả: Điểm cuối, phương thức, yêu cầu, phản hồi, xác thực, phân quyền, kiểm tra dữ liệu, xử lý lỗi, phân trang, lọc, sắp xếp, phiên bản.
-- Phiên bản: 1.125
+- Phiên bản: 1.126
 - Ngày cập nhật: 2026-10-25
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -277,6 +277,13 @@ Giao kèo hồ sơ thử nghiệm (DT-SaaS phần S9, YCTD-203, BR-209, BR-210):
 2. Bước setup và `POST /auth/platform/schools/{mã}/data-class` trả 400 hoặc 422 có lỗi ở `data_class` khi loại dữ liệu trái `PLATFORM_DATA_POLICY`; `GET /auth/platform/schools/settings` thêm `data_policy`; chi tiết trường trả `provider` của từng tên miền.
 3. Biến của nền tảng: `DB_HOST_ADAPTER` (`plain`, `neon`, `supabase`), `DB_POOLER_HOST`, `DB_POOLER_PORT`, `SUPABASE_PROJECT_REF`, `PLATFORM_DATA_POLICY`, `DOMAIN_PROVIDER` (`dns-check`, `cloudflare-saas`, `vercel-domains`) kèm `CLOUDFLARE_API_TOKEN`, `CLOUDFLARE_ZONE_ID` hoặc `VERCEL_TOKEN`, `VERCEL_PROJECT_ID`, `VERCEL_TEAM_ID`, `MIGRATE_ON_START`, `MIGRATE_SCHOOLS_ON_START`, `SMS_ALLOW_LOG`, `REDIS_URL=memory://` (dịch vụ định danh), `APP_BASE_PATH` (lúc dựng giao diện).
 4. Lệnh `platform relayout --school <mã> --to database|schema` đọc nền tảng nguồn từ biến của nền tảng và nền tảng đích từ `TARGET_PLATFORM_DATABASE_URL`, `TARGET_PLATFORM_MASTER_KEY`, `TARGET_PLATFORM_ADMIN_DATABASE_URL`, `TARGET_PLATFORM_SHARED_DATABASE`; in mỗi cơ sở dữ liệu đã chép và số bảng khớp.
+Giao kèo sao lưu theo trường (DT-SaaS phần S7b, YCTD-199, BR-214, BR-215):
+
+1. `GET /api/v1/auth/platform/schools/{mã}` trả thêm `backups`: 20 dòng `backup_runs` gần nhất của trường (`id`, `kind`, `status`, `file_name`, `file_bytes`, `tables`, `rows`, `details`, `error`, `started_at`, `finished_at`); không có điểm cuối chạy sao lưu từ trình duyệt.
+2. Lệnh `platform` (biến `BACKUP_ENCRYPTION_PASSPHRASE` ít nhất 16 ký tự, `BACKUP_DIR`): `backup-school (--school <mã> | --all) [--scope all|active] [--keep-days n]` (đọc ở máy chủ khác khi có `BACKUP_SOURCE_HOST`, `BACKUP_SOURCE_PORT`), `verify-backup --file`, `restore-school --file (--in-place | --as <mã mới>)`, `restore-drill (--file | --school | --all)`, `move-school --school [--drop-source]` với `TARGET_CLUSTER_ADMIN_URL`, `TARGET_CLUSTER_LAYOUT`, `TARGET_CLUSTER_SHARED_DATABASE`. Lỗi một trường khi chạy `--all` thì báo dòng LỖI, chạy tiếp trường khác, mã thoát 1.
+3. `platform relayout` (S9) không còn cần quyền siêu người dùng ở nền tảng đích: dữ liệu nạp bằng vai trò của trường.
+
+
 ## 5. Nền tảng và phân quyền
 
 Các điểm cuối tài khoản, vai trò, quyền và khóa API dưới đây do dịch vụ định danh phục vụ. Các điểm cuối còn lại, gồm đơn vị, năm học, cấu hình và nhóm `/partner/`, do máy chủ API nghiệp vụ phục vụ; khóa API gửi kèm yêu cầu của đối tác được máy chủ API kiểm tra với dịch vụ định danh.

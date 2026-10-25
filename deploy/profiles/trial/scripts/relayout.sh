@@ -2,7 +2,7 @@
 # Chuyển một trường từ hồ sơ thử nghiệm sang hồ sơ vận hành (DT-SaaS phần S9, YCTD-203; README mục 6). Chạy từ gốc kho mã nguồn đã
 # dựng (pnpm build) trên máy kết nối được tới cả hai nơi. Biến của nguồn: PLATFORM_DATABASE_URL, PLATFORM_MASTER_KEY (nền tảng thử
 # nghiệm). Biến của đích: TARGET_PLATFORM_DATABASE_URL, TARGET_PLATFORM_MASTER_KEY, TARGET_PLATFORM_ADMIN_DATABASE_URL (tài khoản
-# siêu người dùng của PostgreSQL ở VPS, địa chỉ trực tiếp không qua PgBouncer). Trường nguồn phải đang tạm dừng hoặc chỉ đọc
+# tạo cơ sở dữ liệu, vai trò ở VPS, địa chỉ trực tiếp không qua PgBouncer; không cần quyền siêu người dùng từ S7b). Trường nguồn phải đang tạm dừng hoặc chỉ đọc
 set -eu
 if [ $# -lt 1 ]; then
   echo "Dùng: sh deploy/profiles/trial/scripts/relayout.sh <mã trường> [database|schema]" >&2

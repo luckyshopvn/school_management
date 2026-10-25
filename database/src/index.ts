@@ -421,3 +421,7 @@ export {
 export { rotateChildKeys, rewrapMasterKey, type KeyRotationOptions, type KeyRotationResult } from './key-rotation.js';
 export * from './database-host-adapter.js';
 export * from './school-relayout.js';
+export * from './school-data-copy.js';
+export * from './school-backup.js';
+export * from './school-cluster-move.js';
+export type { BackupRunKind, BackupRunStatus } from '../platform/schema.js';

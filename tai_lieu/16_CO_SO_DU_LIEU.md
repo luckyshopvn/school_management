@@ -1,7 +1,7 @@
 # 16. CƠ SỞ DỮ LIỆU
 
 - Mô tả: Thực thể, trường, kiểu dữ liệu, khóa chính, khóa ngoại, quan hệ, ràng buộc, chỉ mục, trạng thái, lịch sử thay đổi, chính sách xóa dữ liệu.
-- Phiên bản: 1.121
+- Phiên bản: 1.122
 - Ngày cập nhật: 2026-10-25
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -741,6 +741,14 @@ Từ YCTD-203 (tệp nền tảng `0100_add_database_login_name`), bảng `schoo
 | integration_secrets (từ YCTD-195) | Cấu hình kết nối ngoài của trường, ở cơ sở dữ liệu hệ thống của trường (BR-211; hệ thống `0051_create_integration_secrets`) | connector (khóa chính: `payos`, `sepay`, `casso`, `vnpay`, `vietqr`, `esms`, `zalo`, `facebook`, `storage`), id, enabled, values_encrypted (JSON mã hóa bằng khóa của trường), hints, updated_at, updated_by |
 | school_branding (từ YCTD-195) | Thương hiệu của trường, một dòng (BR-213; hệ thống `0052_create_school_branding`) | id (luôn 1), display_name, primary_color (`#RRGGBB`), updated_at, updated_by_name |
 | school_key_rotations (từ YCTD-195) | Nhật ký đổi khóa mã hóa dữ liệu trẻ ở cơ sở dữ liệu nền tảng (BR-212; nền tảng `0030_create_key_rotations`, khối 0030 đến 0039 của S3) | school_id, status (`running`, `completed`, `failed`), new_encryption_key_encrypted, new_hash_key_encrypted (bọc bằng khóa gốc), progress (JSON), rows_done, started_by, started_at, finished_at, error; mỗi trường chỉ một lần `running` |
+
+## 18C. Sao lưu, khôi phục, chuyển cụm theo trường (DT-SaaS phần S7b, YCTD-199)
+
+| Bảng | Mục đích | Cột chính |
+|---|---|---|
+| backup_runs (từ YCTD-199) | Mỗi lần sao lưu, khôi phục, diễn tập khôi phục, chuyển cụm của một trường ở cơ sở dữ liệu nền tảng (BR-214, BR-215; tệp nền tảng `0070_create_backup_runs`, khối 0070 đến 0079 của S7b) | id, school_id (khóa ngoại `schools`, đặt rỗng khi trường bị xóa), school_code, kind (`backup`, `restore`, `drill`, `cluster-move`), status (`running`, `done`, `failed`), file_name (đường dẫn tương đối `<mã>/<thời điểm>-<phạm vi>.sbak`), file_bytes, file_sha256, databases, tables, rows, details (JSON: phạm vi, chế độ khôi phục, trường nguồn, cụm đích, `duration_ms`), error, actor_type, actor_id, started_at, finished_at; chỉ mục (school_code, kind, started_at) |
+
+Tệp sao lưu `.sbak` không nằm trong cơ sở dữ liệu: đầu tệp `SMBK1`, muối 16 byte, IV 12 byte, nội dung (dòng JSON nén gzip, mã hóa AES-256-GCM), mã xác thực 16 byte ở cuối.
 
 ## 19. Quan hệ chính giữa các bảng
 

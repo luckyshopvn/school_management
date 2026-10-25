@@ -1,7 +1,7 @@
 # 10. YÊU CẦU CHỨC NĂNG
 
 - Mô tả: Mã chức năng, tên chức năng, mục đích, người sử dụng, điều kiện thực hiện, dữ liệu đầu vào, quy trình xử lý, kết quả đầu ra, quy tắc nghiệp vụ, trường hợp ngoại lệ, phân quyền, thông báo lỗi.
-- Phiên bản: 1.98
+- Phiên bản: 1.99
 - Ngày cập nhật: 2026-10-25
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -82,6 +82,9 @@
 | P01-62 | Khóa kết nối ngoài riêng từng trường (YCTD-195) | Hiệu trưởng (VT-02) | Khóa và thông tin của cổng thanh toán, eSMS, Zalo, Facebook, kho tệp | Lưu mã hóa bằng khóa của trường; kiểm tra kết nối; xem địa chỉ gọi lại của trường; xóa cấu hình; bộ nối ngoài đọc theo trường | Trạng thái từng kết nối kèm bốn ký tự cuối giá trị bí mật | BR-211 |
 | P01-63 | Đổi khóa mã hóa dữ liệu trẻ và bọc lại khóa gốc (YCTD-195) | Người vận hành (lệnh dòng lệnh platform) | Mã trường đang tạm dừng; khóa gốc mới | Mã hóa lại từng lô, làm tiếp được, tính lại băm, thay khóa khi xong, ghi nhật ký | Khóa mới của trường; số dòng đã mã hóa lại | BR-212 |
 | P01-64 | Thương hiệu của trường (YCTD-195) | Hiệu trưởng (VT-02); người dùng chưa đăng nhập (đọc) | Tên hiển thị, màu chủ đạo | Lưu thương hiệu; trang đăng nhập đọc công khai theo tên miền | Tên, màu, biểu trưng của trường | BR-213 |
+| P01-65 | Sao lưu theo từng trường (YCTD-199) | Người vận hành (lệnh `platform backup-school`, lịch `backup.sh`) | Mã trường hoặc mọi trường, phạm vi `all`, `active`, số ngày giữ | Đọc từng cơ sở dữ liệu của trường trong một ảnh chụp, ghi tệp `.sbak` mã hóa, đọc lại kiểm tra, xóa bản quá hạn | Tệp sao lưu, dòng `backup_runs` (kích thước, mã băm, số bảng, số dòng) | BR-214 |
+| P01-66 | Khôi phục và diễn tập khôi phục một trường (YCTD-199) | Người vận hành (lệnh `platform restore-school`, `restore-drill`, `verify-backup`; lịch hằng tháng) | Tệp sao lưu, khôi phục vào chính trường hoặc thành mã mới | Kiểm tệp, nạp từng cơ sở dữ liệu, so tổng kiểm; diễn tập vào trường tạm rồi gỡ, đo thời gian | Trường khôi phục (tạm dừng), dòng `backup_runs` kèm thời gian (bằng chứng RTO); bảng "Sao lưu và khôi phục" ở cổng nền tảng | BR-214 |
+| P01-67 | Chuyển trường sang cụm cơ sở dữ liệu khác (YCTD-199) | Người vận hành (lệnh `platform move-school`) | Mã trường, tài khoản quản trị của cụm đích, bố cục đích | Tạm dừng, chép, so khớp, đổi mô tả kết nối và cụm, trả trạng thái | Trường chạy ở cụm mới, dòng `backup_runs` loại `cluster-move` | BR-215 |
 
 ## 3. Phân hệ P02 — Trẻ, phụ huynh và lớp học
 

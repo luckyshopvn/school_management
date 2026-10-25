@@ -31,6 +31,19 @@ compose() {
   docker compose -f "$COMPOSE_FILE" --env-file "$ENV_FILE" -p "$PROJECT_NAME" "$@"
 }
 
+# Lệnh `platform` của nền tảng nhiều trường (DT-SaaS S2, S7b) chạy trong ảnh định danh (có database/dist), thư mục sao lưu gắn
+# vào /backup/schools; biến của nền tảng lấy từ tệp cấu hình đã nạp
+platform_command() {
+  mkdir -p "$BACKUP_DIR/schools"
+  compose run --rm --no-deps -T --user "$(id -u):$(id -g)" \
+    -v "$BACKUP_DIR/schools:/backup/schools" \
+    -e BACKUP_DIR=/backup/schools \
+    -e BACKUP_ENCRYPTION_PASSPHRASE \
+    -e PLATFORM_DATABASE_URL -e PLATFORM_MASTER_KEY -e PLATFORM_ADMIN_DATABASE_URL \
+    -e TENANT_DB_LAYOUT -e PLATFORM_SHARED_DATABASE -e PLATFORM_ROOT_DOMAIN -e DB_HOST_ADAPTER \
+    --entrypoint node "${PLATFORM_TOOL_SERVICE:-migrate}" /app/database/dist/src/platform-command.js "$@"
+}
+
 # Câu lệnh SQL chạy bằng tài khoản quản trị postgres bên trong vùng chứa
 psql_admin() {
   database=$1

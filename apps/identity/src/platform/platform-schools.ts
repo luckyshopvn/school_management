@@ -173,7 +173,7 @@ export class PlatformSchoolsService {
     if (!school) {
       throw notFound();
     }
-    const [domains, consents, hosting, jobs, events, invitations] = await Promise.all([
+    const [domains, consents, hosting, jobs, events, invitations, backups] = await Promise.all([
       this.platform
         .selectFrom('school_domains')
         .select([
@@ -220,6 +220,26 @@ export class PlatformSchoolsService {
         .where('school_id', '=', school.id)
         .orderBy('created_at', 'desc')
         .execute(),
+      // Sao lưu, khôi phục, diễn tập, chuyển cụm gần nhất (DT-SaaS phần S7b); khóa giải mã không nằm ở đây
+      this.platform
+        .selectFrom('backup_runs')
+        .select([
+          'id',
+          'kind',
+          'status',
+          'file_name',
+          'file_bytes',
+          'tables',
+          'rows',
+          'details',
+          'error',
+          'started_at',
+          'finished_at',
+        ])
+        .where('school_code', '=', school.code)
+        .orderBy('started_at', 'desc')
+        .limit(20)
+        .execute(),
     ]);
     return {
       id: school.id,
@@ -243,6 +263,7 @@ export class PlatformSchoolsService {
       jobs,
       events,
       invitations,
+      backups,
     };
   }
 
