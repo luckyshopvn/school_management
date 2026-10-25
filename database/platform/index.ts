@@ -9,6 +9,7 @@ import { migration as addDomainVerification } from './migrations/0021_add_domain
 import { migration as createSchoolConsents } from './migrations/0022_create_school_consents.js';
 import { migration as createOperatorTotp } from './migrations/0080_create_operator_totp.js';
 import { migration as createOperatorRecoveryCodes } from './migrations/0081_create_operator_recovery_codes.js';
+import { migration as createParentOrgs } from './migrations/0090_create_parent_orgs.js';
 import { migration as createKeyRotations } from './migrations/0030_create_key_rotations.js';
 import { migration as createPlans } from './migrations/0040_create_plans.js';
 import { migration as createBilling } from './migrations/0050_create_billing.js';
@@ -32,6 +33,8 @@ export const platformMigrations: Record<string, Migration> = {
   // Khối 0080 đến 0089 của phần S8b
   '0080_create_operator_totp': createOperatorTotp,
   '0081_create_operator_recovery_codes': createOperatorRecoveryCodes,
+  // Đơn vị cấp trên (S6): 0090 đến 0099
+  '0090_create_parent_orgs': createParentOrgs,
   // Gói dịch vụ và giới hạn (S5a): 0040 đến 0049
   '0040_create_plans': createPlans,
   // Thu phí tự động (S5b): 0050 đến 0059

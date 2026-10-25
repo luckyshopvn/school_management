@@ -4,6 +4,10 @@ import {
   ACCESS_TOKEN_LIFETIME_SECONDS,
   AccessTokenVerifier,
   Clock,
+  PARENT_ORG_TOKEN_AUDIENCE,
+  PARENT_ORG_TOKEN_KIND,
+  PARENT_ORG_TOKEN_LIFETIME_SECONDS,
+  ParentOrgTokenVerifier,
   TOKEN_AUDIENCE,
   TOKEN_ISSUER,
   TOKEN_SIGNING_ALGORITHM,
@@ -21,6 +25,7 @@ export const OPERATOR_TOKEN_LIFETIME_SECONDS = 8 * 3600;
 export class TokenService {
   private privateKey?: Promise<CryptoKey>;
   private readonly verifier: AccessTokenVerifier;
+  private parentOrgVerifier?: ParentOrgTokenVerifier;
 
   constructor(
     @Inject(IDENTITY_CONFIGURATION) private readonly configuration: IdentityConfiguration,
@@ -68,6 +73,28 @@ export class TokenService {
       .setIssuedAt(issuedAt)
       .setExpirationTime(issuedAt + OPERATOR_TOKEN_LIFETIME_SECONDS)
       .sign(await this.privateKey);
+  }
+
+  // Mã phiên của tài khoản cấp trên (DT-SaaS phần S6): đối tượng riêng, máy chủ API kiểm bằng ParentOrgTokenVerifier
+  async signParentOrgToken(userId: string): Promise<string> {
+    this.privateKey ??= importPKCS8(this.configuration.tokenPrivateKeyPem, TOKEN_SIGNING_ALGORITHM);
+    const issuedAt = Math.floor(this.clock.now().getTime() / 1000);
+    return new SignJWT({ kind: PARENT_ORG_TOKEN_KIND })
+      .setProtectedHeader({ alg: TOKEN_SIGNING_ALGORITHM })
+      .setSubject(userId)
+      .setIssuer(TOKEN_ISSUER)
+      .setAudience(PARENT_ORG_TOKEN_AUDIENCE)
+      .setIssuedAt(issuedAt)
+      .setExpirationTime(issuedAt + PARENT_ORG_TOKEN_LIFETIME_SECONDS)
+      .sign(await this.privateKey);
+  }
+
+  verifyParentOrgToken(token: string): Promise<string> {
+    this.parentOrgVerifier ??= new ParentOrgTokenVerifier(
+      this.configuration.tokenPublicKeyPem,
+      this.configuration.tokenPreviousPublicKeyPem ?? null,
+    );
+    return this.parentOrgVerifier.verify(token, this.clock.now());
   }
 
   async verifyOperatorToken(token: string): Promise<string> {

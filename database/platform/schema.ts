@@ -50,6 +50,8 @@ export interface SchoolsTable {
   trial_ends_on: ColumnType<string | null, string | null | undefined, string | null>;
   paid_until: ColumnType<string | null, string | null | undefined, string | null>;
   status_changed_at: Date | null;
+  // Nút quản lý ở cây đơn vị hành chính (DT-SaaS phần S6)
+  admin_unit_id: ColumnType<string | null, string | null | undefined, string | null>;
 }
 
 export interface SchoolDomainsTable {
@@ -497,7 +499,10 @@ export interface SupportSessionsTable {
   school_id: string;
   operator_id: string;
   operator_name: string;
-  grant_id: string;
+  // Cho phép hỗ trợ của trường (S4); phiên xem chi tiết của cấp trên (S6) không có, đi theo access_request_id
+  grant_id: string | null;
+  requester_kind: Generated<SupportRequesterKind>;
+  access_request_id: string | null;
   scope: SupportScope;
   reason: string;
   handoff_token_hash: string;
@@ -544,6 +549,91 @@ export interface BackupRunsTable {
   finished_at: Date | null;
 }
 
+// Đơn vị cấp trên (DT-SaaS phần S6, YCTD-202)
+export type AdminUnitLevel = 'ministry' | 'department' | 'commune';
+export type AggregateCategory = 'scale' | 'attendance' | 'learning' | 'facilities' | 'staff' | 'emis';
+export type SupportRequesterKind = 'operator' | 'parent_org';
+
+export interface AdminUnitsTable {
+  id: Generated<string>;
+  level: AdminUnitLevel;
+  code: string;
+  name: string;
+  parent_id: string | null;
+  status: Generated<'active' | 'inactive' | 'merged'>;
+  merged_into_id: string | null;
+  created_at: CreatedTimestamp;
+  updated_at: UpdatedTimestamp;
+}
+
+export interface ParentOrgUsersTable {
+  id: Generated<string>;
+  login: string;
+  full_name: string;
+  password_hash: string;
+  admin_unit_id: string;
+  status: Generated<'active' | 'locked'>;
+  failed_login_count: Generated<number>;
+  locked_until: Date | null;
+  last_login_at: Date | null;
+  created_by_name: string;
+  created_at: CreatedTimestamp;
+  updated_at: UpdatedTimestamp;
+}
+
+export interface ParentOrgUserTotpTable {
+  user_id: string;
+  secret_encrypted: string;
+  last_step: ColumnType<string | null, number | string | null | undefined, number | string | null>;
+  created_at: CreatedTimestamp;
+}
+
+export interface ParentOrgUserRecoveryCodesTable {
+  id: Generated<string>;
+  user_id: string;
+  code_hash: string;
+  used_at: Date | null;
+  created_at: CreatedTimestamp;
+}
+
+export interface SchoolAggregateConsentsTable {
+  id: Generated<string>;
+  school_id: string;
+  level: AdminUnitLevel;
+  category: AggregateCategory;
+  granted_at: ColumnType<Date, Date | undefined, Date>;
+  granted_by_user_id: string;
+  granted_by_name: string;
+  revoked_at: Date | null;
+  revoked_by_name: string | null;
+}
+
+export interface AggregateSnapshotsTable {
+  id: Generated<string>;
+  school_id: string;
+  category: AggregateCategory;
+  academic_year: string | null;
+  metrics: ColumnType<Record<string, unknown>, string, string>;
+  captured_at: ColumnType<Date, Date | undefined, Date>;
+}
+
+export interface ParentOrgAccessRequestsTable {
+  id: Generated<string>;
+  school_id: string;
+  user_id: string;
+  user_name: string;
+  unit_name: string;
+  categories: ColumnType<AggregateCategory[], string, string>;
+  reason: string;
+  hours: number;
+  status: Generated<'pending' | 'approved' | 'rejected' | 'revoked'>;
+  decided_at: Date | null;
+  decided_by_name: string | null;
+  expires_at: Date | null;
+  revoked_at: Date | null;
+  created_at: CreatedTimestamp;
+}
+
 export interface PlatformDatabase {
   school_clusters: SchoolClustersTable;
   schools: SchoolsTable;
@@ -580,4 +670,11 @@ export interface PlatformDatabase {
   platform_operator_totp: PlatformOperatorTotpTable;
   platform_operator_recovery_codes: PlatformOperatorRecoveryCodesTable;
   backup_runs: BackupRunsTable;
+  admin_units: AdminUnitsTable;
+  parent_org_users: ParentOrgUsersTable;
+  parent_org_user_totp: ParentOrgUserTotpTable;
+  parent_org_user_recovery_codes: ParentOrgUserRecoveryCodesTable;
+  school_aggregate_consents: SchoolAggregateConsentsTable;
+  aggregate_snapshots: AggregateSnapshotsTable;
+  parent_org_access_requests: ParentOrgAccessRequestsTable;
 }

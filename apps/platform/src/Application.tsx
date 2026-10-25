@@ -5,6 +5,8 @@ import { PlansPage } from './PlansPage.js';
 import { BillingPage } from './BillingPage.js';
 import { DashboardPage } from './DashboardPage.js';
 import { MaintenancePage } from './MaintenancePage.js';
+import { AdminUnitsPage } from './AdminUnitsPage.js';
+import { ParentOrgApp } from './ParentOrgApp.js';
 import { fetchProfile, loginOperator, PlatformApiError, type OperatorProfile } from './platform-api.js';
 
 // Khung cổng vận hành nền tảng (DT-SaaS phần S1a): đăng nhập, menu theo dữ liệu, trang tổng quan; các trang sau do S2, S4, S5 thêm.
@@ -118,6 +120,7 @@ function Shell({ accessToken, onLogout }: { accessToken: string; onLogout: () =>
         {active === 'billing' ? <BillingPage accessToken={accessToken} /> : null}
         {active === 'dashboard' ? <DashboardPage token={accessToken} /> : null}
         {active === 'maintenance' ? <MaintenancePage token={accessToken} /> : null}
+        {active === 'parent-orgs' ? <AdminUnitsPage token={accessToken} /> : null}
       </main>
     </div>
   );
@@ -125,6 +128,10 @@ function Shell({ accessToken, onLogout }: { accessToken: string; onLogout: () =>
 
 export function Application() {
   const [accessToken, setAccessToken] = useState<string | null>(null);
+  // Trang của tài khoản cấp trên (DT-SaaS phần S6) ở cùng tên miền cổng nền tảng, đường dẫn /cap-tren
+  if (window.location.pathname.startsWith('/cap-tren')) {
+    return <ParentOrgApp />;
+  }
   return accessToken ? (
     <Shell accessToken={accessToken} onLogout={() => setAccessToken(null)} />
   ) : (

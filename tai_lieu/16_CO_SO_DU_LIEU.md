@@ -779,6 +779,21 @@ Tệp sao lưu `.sbak` không nằm trong cơ sở dữ liệu: đầu tệp `SM
 
 Chính sách theo trường không có bảng riêng: ba mục mới (`password_min_length`, `login_max_failed_attempts`, `login_lock_minutes`) và `totp_enabled` nằm ở `identity_settings` của cơ sở dữ liệu định danh của trường cùng các mục chính sách mật khẩu đã có (BR-220); hệ thống 0054 giữ trống vì dịch vụ định danh là nơi dùng.
 
+## 18D. Đơn vị cấp trên (DT-SaaS phần S6, YCTD-202)
+
+| Bảng | Mục đích | Cột chính |
+|---|---|---|
+| admin_units (từ YCTD-202) | Cây đơn vị hành chính cấp trên, ở cơ sở dữ liệu nền tảng (BR-228; nền tảng `0090_create_parent_orgs`) | id, level (`ministry`, `department`, `commune`), code (duy nhất, chữ thường, số, gạch ngang), name, parent_id, status (`active`, `inactive`, `merged`), merged_into_id, created_at, updated_at |
+| schools.admin_unit_id (từ YCTD-202) | Nút quản lý của trường (cột mới của `schools`) | admin_unit_id, chỉ mục `schools_admin_unit_idx` |
+| parent_org_users (từ YCTD-202) | Tài khoản cấp trên (BR-228) | id, login (duy nhất), full_name, password_hash, admin_unit_id, status (`active`, `locked`), failed_login_count, locked_until, last_login_at, created_by_name |
+| parent_org_user_totp, parent_org_user_recovery_codes (từ YCTD-202) | Khóa TOTP mã hóa bằng khóa gốc của nền tảng, bước dùng gần nhất; mã khôi phục chỉ lưu bản băm | user_id, secret_encrypted, last_step; id, user_id, code_hash, used_at |
+| school_aggregate_consents (từ YCTD-202) | Đồng ý của trường theo cấp và nhóm số liệu, bằng chứng (BR-229) | id, school_id, level, category (`scale`, `attendance`, `learning`, `facilities`, `staff`, `emis`), granted_at, granted_by_user_id, granted_by_name, revoked_at, revoked_by_name; chỉ mục duy nhất một đồng ý còn hiệu lực mỗi trường, cấp, nhóm |
+| aggregate_snapshots (từ YCTD-202) | Bản chụp tổng hợp của từng trường, chỉ số đếm, giữ 400 ngày (BR-229) | id, school_id, category, academic_year, metrics (JSON), captured_at |
+| parent_org_access_requests (từ YCTD-202) | Đề nghị xem chi tiết của cấp trên (BR-230) | id, school_id, user_id, user_name, unit_name, categories, reason, hours, status (`pending`, `approved`, `rejected`, `revoked`), decided_at, decided_by_name, expires_at, revoked_at |
+| support_sessions (đổi ở YCTD-202) | Thêm `requester_kind` (`operator`, `parent_org`), `access_request_id`; `grant_id` cho phép trống (phiên xem chi tiết của cấp trên) | requester_kind, access_request_id |
+
+Không thêm tệp định danh 0103, hệ thống 0055 (đã giữ dự phòng): bằng chứng đồng ý lưu ở cơ sở dữ liệu nền tảng cùng phạm vi của cấp trên.
+
 ## 19. Quan hệ chính giữa các bảng
 
 ```mermaid

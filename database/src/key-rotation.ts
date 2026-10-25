@@ -279,7 +279,7 @@ export async function rewrapMasterKey(
   actor: Actor,
 ): Promise<{ keys: number; passwords: number; rotations: number }> {
   const rewrap = (value: string) => encryptSecret(newMasterKey, decryptSecret(oldMasterKey, value));
-  const counts = { keys: 0, passwords: 0, rotations: 0, operatorTotp: 0 };
+  const counts = { keys: 0, passwords: 0, rotations: 0, operatorTotp: 0, parentOrgTotp: 0 };
   await platform.transaction().execute(async (transaction) => {
     for (const row of await transaction.selectFrom('school_keys').selectAll().execute()) {
       await transaction
@@ -325,6 +325,18 @@ export async function rewrapMasterKey(
         .where('operator_id', '=', row.operator_id)
         .execute();
       counts.operatorTotp += 1;
+    }
+    // Khóa xác thực hai lớp của tài khoản cấp trên (DT-SaaS phần S6)
+    for (const row of await transaction
+      .selectFrom('parent_org_user_totp')
+      .select(['user_id', 'secret_encrypted'])
+      .execute()) {
+      await transaction
+        .updateTable('parent_org_user_totp')
+        .set({ secret_encrypted: rewrap(row.secret_encrypted) })
+        .where('user_id', '=', row.user_id)
+        .execute();
+      counts.parentOrgTotp += 1;
     }
   });
   await writeAudit(platform, {

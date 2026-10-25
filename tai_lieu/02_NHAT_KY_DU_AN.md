@@ -14,6 +14,30 @@
 
 ## Nhật ký theo ngày
 
+### 2026-10-26 — DT-SaaS phần S6: đơn vị cấp trên
+
+#### Công việc đã thực hiện
+
+- Đọc mục 14.3, 14.5 (S6), 14.9 của `32_KE_HOACH_THEO_HE_THONG_SO.md`; rà phiên hỗ trợ của S4, xác thực hai lớp của S8b, danh mục hành chính TP.HCM sẵn có (DT-15 phần 15h1), báo cáo, EMIS hiện có làm đầu vào bản chụp.
+- Thêm tệp nền tảng 0090 (`admin_units`, `parent_org_users` và xác thực hai lớp, `school_aggregate_consents`, `aggregate_snapshots`, `parent_org_access_requests`, cột `schools.admin_unit_id`, phiên hỗ trợ của cấp trên); hàm dùng chung `database/src/parent-org.ts`; dịch vụ định danh: quản lý cây, tài khoản, đăng nhập cấp trên, đề nghị xem chi tiết; máy chủ API: việc định kỳ `aggregate-snapshots`, đồng ý của trường, số liệu và xuất tệp cho cấp trên; cổng nền tảng: menu Đơn vị cấp trên, trang `/cap-tren`; cổng quản trị: Chia sẻ số liệu cấp trên (4.6); e2e spec 139.
+- Thêm quy tắc BR-228 đến BR-230, chức năng P01-82 đến P01-85, màn hình MH-334 đến MH-336, kịch bản CT-1069 đến CT-1077, tiêu chí AC-860 đến AC-863, bảo mật BM-90, QĐ-33, mục kiến trúc 12F, mục cơ sở dữ liệu 18D.
+
+#### Quyết định
+
+- Cấp trên chỉ đọc bản chụp tổng hợp trên cơ sở dữ liệu nền tảng, không truy vấn cơ sở dữ liệu của trường; đồng ý theo cấp và nhóm, ẩn nhóm nhỏ (ngưỡng 5, giả định).
+- Bằng chứng đồng ý lưu ở cơ sở dữ liệu nền tảng (mỗi lần bật một dòng, rút ghi người, thời điểm); không dùng tệp định danh 0103, hệ thống 0055 đã giữ dự phòng.
+- Trang của cấp trên đặt ở cổng nền tảng (`/cap-tren`), không thêm ứng dụng mới; số liệu ở máy chủ API dưới đường dẫn không cần trường, chỉ phục vụ ở tên miền cổng.
+- Bộ nút mặc định lấy từ danh mục hành chính TP.HCM đã có trong kho (văn bản chính thức); tỉnh, thành khác nạp bằng danh sách sau khi đọc văn bản gốc.
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-202, `07_QUY_TAC_NGHIEP_VU.md` BR-228 đến BR-230, `10_YEU_CAU_CHUC_NANG.md` P01-82 đến P01-85, `11_TIEU_CHI_NGHIEM_THU.md` AC-860 đến AC-863, `12_KIEN_TRUC_HE_THONG.md` QĐ-33 và mục 12F, `14_DAC_TA_GIAO_DIEN.md` MH-334 đến MH-336, `16_CO_SO_DU_LIEU.md` mục 18D, `17_DAC_TA_API.md`, `21_KICH_BAN_KIEM_THU.md` CT-1069 đến CT-1077, `22_BAO_MAT.md` BM-90, `23_LICH_SU_PHIEN_BAN.md` 0.139.0.
+
+#### Vấn đề tồn đọng
+
+- Danh mục hành chính toàn quốc ngoài TP.HCM chưa nạp; ngưỡng ẩn nhóm nhỏ chờ Eric chốt; chưa có biểu đồ theo thời gian.
+- Thi đua khối, cụm và cấp Phòng, Sở (22d), đánh giá ngoài (22f), nối hệ thống của Bộ, Sở làm bằng YCTD riêng như kế hoạch.
+
 ### 2026-10-25 — DT-SaaS phần S4: bảng điều khiển nền tảng
 
 #### Công việc đã thực hiện

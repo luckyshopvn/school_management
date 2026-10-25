@@ -15,4 +15,6 @@ export const PLATFORM_MENU: readonly PlatformMenuItem[] = [
   // Bảng điều khiển và thông báo bảo trì (S4)
   { key: 'dashboard', label: 'Bảng điều khiển' },
   { key: 'maintenance', label: 'Bảo trì' },
+  // Đơn vị cấp trên: cây đơn vị, tài khoản cấp trên (S6)
+  { key: 'parent-orgs', label: 'Đơn vị cấp trên' },
 ];
