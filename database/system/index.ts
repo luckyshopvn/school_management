@@ -28,6 +28,8 @@ import { migration as addSecondaryReportForms } from './migrations/0028_add_seco
 import { migration as createTrainingCatalogs } from './migrations/0041_create_training_catalogs.js';
 import { migration as createLearningResources } from './migrations/0042_create_learning_resources.js';
 import { migration as createTermsAcceptances } from './migrations/0050_create_terms_acceptances.js';
+import { migration as createIntegrationSecrets } from './migrations/0051_create_integration_secrets.js';
+import { migration as createSchoolBranding } from './migrations/0052_create_school_branding.js';
 
 // Danh sách tệp thay đổi cấu trúc của cơ sở dữ liệu hệ thống, theo số thứ tự (QU-01, QĐ-17)
 export const systemMigrations: Record<string, Migration> = {
@@ -60,4 +62,6 @@ export const systemMigrations: Record<string, Migration> = {
   '0041_create_training_catalogs': createTrainingCatalogs,
   '0042_create_learning_resources': createLearningResources,
   '0050_create_terms_acceptances': createTermsAcceptances,
+  '0051_create_integration_secrets': createIntegrationSecrets,
+  '0052_create_school_branding': createSchoolBranding,
 };

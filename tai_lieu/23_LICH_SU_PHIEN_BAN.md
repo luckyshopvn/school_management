@@ -1,7 +1,7 @@
 # 23. LỊCH SỬ PHIÊN BẢN
 
 - Mô tả: Mã phiên bản, ngày phát hành, danh sách thay đổi, chức năng mới, lỗi đã sửa, thay đổi dữ liệu, thay đổi API, rủi ro, khả năng tương thích, phương án quay lui.
-- Phiên bản: 0.56
+- Phiên bản: 0.57
 - Ngày cập nhật: 2026-10-25
 - Trạng thái: Đang cập nhật
 - Đã rà duyệt: Eric, ngày 2026-10-09
@@ -15,6 +15,18 @@
 5. Từ phiên bản 0.4.0, mỗi mục ghi theo mẫu của Vibecoding_Flow; các mục trước giữ nguyên dạng bảng và tên tệp cũ vì là ghi nhận lịch sử.
 
 ## 2. Danh sách phiên bản
+
+### Phiên bản 0.133.0 – 2026-10-25
+
+- Phạm vi thay đổi: DT-SaaS phần S3, cấu hình riêng từng trường (YCTD-195).
+- Chức năng mới: khóa kết nối ngoài riêng từng trường lưu mã hóa (P01-62, MH-321); đổi khóa mã hóa dữ liệu trẻ có thể làm tiếp và bọc lại khóa gốc (P01-63); thương hiệu của trường (P01-64, MH-322).
+- Lỗi đã sửa: không có.
+- Thay đổi dữ liệu: `integration_secrets`, `school_branding` ở cơ sở dữ liệu hệ thống (tệp `0051`, `0052`); `school_key_rotations` ở cơ sở dữ liệu nền tảng (tệp `0030`); xem `16_CO_SO_DU_LIEU.md` mục 18B.
+- Thay đổi API: `/school-settings/integrations`, `/school-settings/branding`, `/public/branding` (xem `17_DAC_TA_API.md`); lệnh `platform rotate-child-key`, `platform rewrap-master-key`.
+- Kiểm thử: kịch bản CT-1022 đến CT-1026. Kết quả ngày 25/10/2026: database 19 ca (đổi khóa 4 mới, migrate, nền tảng); apps/api 8 ca mới (kiểm tra giá trị 3, hai trường 5) cùng ma trận tuyến, toàn bộ 1136 ca đạt; e2e nhiều trường 11 ca (spec 130 đến 133) đạt ở cả hai bố cục; kiểm tĩnh 6 ca; e2e toàn bộ do CI chạy.
+- Rủi ro: cấu hình đọc theo từng lần dùng nên tăng một truy vấn nhỏ (đệm 15 giây); tiến trình khác thấy thay đổi chậm tối đa chừng đó; đổi khóa dữ liệu trẻ phải tạm dừng trường (có thời gian ngừng); kiểm tra kết nối cổng thanh toán chỉ kiểm tra đủ khóa, nhà cung cấp chỉ xác nhận khi có giao dịch thật.
+- Khả năng tương thích: chế độ một trường giữ nguyên (khóa ở biến môi trường vẫn dùng khi trường chưa nhập cấu hình riêng); đổi chữ ký `FacebookPublisher`, `ZaloSender` (thêm `isAvailable`, `providerName`), `PaymentGatewayRegistry` (thêm `prepare`).
+- Phương án quay lui: hoàn lại commit gộp của nhánh S3; bảng mới chỉ do phần này dùng, khóa ở biến môi trường vẫn dùng được ở chế độ một trường.
 
 ### Phiên bản 0.132.0 – 2026-10-25
 

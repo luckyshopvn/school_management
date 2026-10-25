@@ -249,9 +249,9 @@ export class IntegrationsService {
     const provider = connector === 'facebook' ? this.facebook : this.zalo;
     return {
       ...state,
-      provider: provider.provider,
+      provider: await provider.providerName(),
       // Chỉ báo đã có khóa truy cập hay chưa, không trả khóa
-      credentials_configured: provider.available,
+      credentials_configured: await provider.isAvailable(),
       ...(connector === 'zalo' ? { token_status: await this.zaloTokens.status() } : {}),
     };
   }

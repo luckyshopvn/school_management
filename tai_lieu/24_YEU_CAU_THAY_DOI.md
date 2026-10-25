@@ -1,7 +1,7 @@
 # 24. YÊU CẦU THAY ĐỔI
 
 - Mô tả: Sổ quản lý yêu cầu thay đổi, ghi lý do, đánh giá ảnh hưởng và trạng thái của từng thay đổi trước khi triển khai.
-- Phiên bản: 0.64
+- Phiên bản: 0.65
 - Ngày cập nhật: 2026-10-25
 - Trạng thái: Đang cập nhật
 
@@ -10,6 +10,24 @@
 Mã yêu cầu thay đổi dạng `YCTD-nn`, đánh số tăng dần, không tái sử dụng. Mục mới nhất ở trên cùng. Trạng thái dùng bốn giá trị: Chờ phê duyệt, Đã phê duyệt, Từ chối, Đã triển khai.
 
 Các thay đổi trước phiên bản 0.4.0 chưa có sổ này; xem `23_LICH_SU_PHIEN_BAN.md` các phiên bản 0.1.0 đến 0.3.1.
+
+### YCTD-195: DT-SaaS phần S3: cấu hình riêng từng trường – 2026-10-25
+
+- Lý do: phần S3 của `32_KE_HOACH_THEO_HE_THONG_SO.md` mục 14.3, 14.5, 14.9; sau S1a, S1b (khóa tích hợp còn ở biến môi trường của cả bản triển khai nên trường thứ hai không thể dùng riêng khóa của mình).
+- Nội dung thay đổi (Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11 ở những chỗ kế hoạch chưa chốt):
+  - **Lưu cấu hình:** `integration_secrets` (hệ thống 0051), mã hóa bằng khóa của trường; `school_branding` (hệ thống 0052); `school_key_rotations` (nền tảng 0030).
+  - **Lớp `SchoolSettings`** và các bộ nối `TenantSmsGateway`, `TenantFacebookPublisher`, `TenantZaloSender` (cùng `ZaloTokenStore` nhận cấu hình bất đồng bộ), `TenantPaymentGatewayRegistry` (`prepare()`), `TenantFileStorage`; thứ tự nguồn: cấu hình trường, bộ giả lập, biến môi trường (chỉ chế độ một trường), tắt.
+  - **Màn hình quản trị:** `/school-settings/integrations` (nhập, kiểm tra kết nối, xóa, địa chỉ gọi lại, không trả lại giá trị bí mật) và `/school-settings/branding`, `/public/branding`; bảng ở trang Kết nối ngoài của cổng quản trị.
+  - **Đổi khóa:** `rotateChildKeys` (mã hóa lại từng lô, làm tiếp được, chỉ khi trường tạm dừng, tự tìm cột `*_encrypted`), `rewrapMasterKey`, lệnh `platform rotate-child-key`, `platform rewrap-master-key`.
+  - **Chưa làm ở phần này (ghi rõ):** kiểm tra kết nối thật cho cổng thanh toán (cần giao dịch thật); công cụ tải biểu trưng riêng (dùng ảnh biểu trưng của website); tên sản phẩm lấy từ cấu hình nền tảng (kế hoạch ghi chưa chốt); chuyển `.env` hiện có của bản đang chạy thành cấu hình của trường số 1 (tạm giữ biến môi trường làm nguồn dự phòng ở chế độ một trường).
+- Thành phần bị ảnh hưởng: `database`, `apps/api`, `apps/portal`, `tests`; tài liệu `01`, `02`, `03`, `07`, `10`, `11`, `12`, `14`, `16`, `17`, `21`, `22`, `23`, `24`, `32`, `index.md`.
+- Dữ liệu bị ảnh hưởng: ba bảng mới nói trên; không đổi bảng hiện có.
+- API bị ảnh hưởng: thêm các điểm cuối nói trên; chế độ một trường không đổi.
+- Giao diện bị ảnh hưởng: trang Kết nối ngoài thêm khối khóa kết nối riêng và thương hiệu (MH-321, MH-322).
+- Quyền bị ảnh hưởng: dùng `P01.integration.manage` hiện có; không thêm quyền.
+- Ảnh hưởng chức năng cũ: không ở chế độ một trường khi chưa nhập cấu hình riêng. Ở chế độ nhiều trường: bộ nối ngoài không còn dùng khóa của cả bản triển khai.
+- Kiểm thử cần thực hiện: kiểm thử đơn vị `database`, `apps/api`, `apps/portal`; kiểm tĩnh; ma trận cách ly; e2e spec 133 ở dự án nhiều trường và các spec bị ảnh hưởng; CI chạy toàn bộ e2e.
+- Trạng thái: Đã triển khai (PR 169)
 
 ### YCTD-203: DT-SaaS phần S9: triển khai thử nghiệm miễn phí – 2026-10-25
 

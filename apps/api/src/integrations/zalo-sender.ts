@@ -8,6 +8,13 @@ import type { ZaloTokenStore } from './zalo-token-store.js';
 export abstract class ZaloSender {
   abstract readonly provider: string;
   abstract readonly available: boolean;
+  // Bản bất đồng bộ của `provider` và `available` cho bộ nối đọc cấu hình theo trường (DT-SaaS phần S3)
+  async isAvailable(): Promise<boolean> {
+    return this.available;
+  }
+  async providerName(): Promise<string> {
+    return this.provider;
+  }
   abstract send(zaloUserId: string, text: string): Promise<void>;
   // Kiểm tra kết nối: đọc thông tin Official Account bằng khóa đang dùng; lỗi thì ném lỗi tiếng Việt
   abstract verify(): Promise<{ oaId: string; name: string }>;

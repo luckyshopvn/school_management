@@ -107,8 +107,8 @@ export class OnlinePaymentsController {
   // Giả lập thông báo tiền vào; chỉ có khi dùng bộ giả lập nhà cung cấp, người gọi phải có quyền lập phiếu thu
   @Post('payment-webhooks/development')
   @HttpCode(200)
-  simulate(@Body() body: RequestBody, @AuthenticatedUser() currentUser: CurrentUser) {
-    if (!this.onlinePayments.supportsProvider('development')) {
+  async simulate(@Body() body: RequestBody, @AuthenticatedUser() currentUser: CurrentUser) {
+    if (!(await this.onlinePayments.supportsProvider('development'))) {
       throw new NotFoundException();
     }
     if (!currentUser.hasPermission(PERMISSION_CODES.receiptManage)) {
