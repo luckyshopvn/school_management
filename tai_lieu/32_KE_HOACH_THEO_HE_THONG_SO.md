@@ -1,7 +1,7 @@
 # 32. KẾ HOẠCH ĐỒNG BỘ CHỨC NĂNG VÀ GIAO DIỆN THEO HỆ THỐNG CỦA SỞ (DT-15)
 
 - Mô tả: Kế hoạch điều chỉnh School Management theo kết quả khảo sát `31_KHAO_SAT_HE_THONG_SO.md`; từ mục 9 thêm kế hoạch DT-18 điều hành nhà trường, mục 10 thêm kế hoạch DT-19 nền đa cấp học, mục 11 thêm kế hoạch DT-20 Tiểu học (kèm 22c thời khoá biểu), mục 12 thêm kế hoạch DT-21 THCS và THPT (kèm 22g kiểm tra, đánh giá), mục 13 thêm kế hoạch DT-22 (22a thư viện, 22e hồ sơ bồi dưỡng, 22h kho học liệu số), mục 14 thêm kế hoạch DT-SaaS (Enterprise SaaS nhiều trường: S1a, S1b, S2, S3, S4, S5a, S5b, S6, S7a, S7b, S8a, S8b, S9; hai hồ sơ triển khai: thử nghiệm miễn phí và vận hành).
-- Phiên bản: 1.67
+- Phiên bản: 1.68
 - Ngày cập nhật: 2026-10-25
 - Trạng thái: Đã duyệt hướng làm
 - Căn cứ: yêu cầu của Eric ngày 2026-10-13 ("tính năng đã có thì ưu tiên phiên bản và giao diện của Sở; tính năng Sở không có thì giữ nguyên, chỉ đổi giao diện theo trang của Sở") và các lựa chọn của Eric cùng ngày ở mục 2.
@@ -1489,7 +1489,7 @@ Các lớp kiểm thử:
 | S7a | 1 | Đã làm phần dựng sẵn (PR #163, YCTD-198, phiên bản 0.128.0); kiểm tay trên staging chờ VPS thử |
 | S8a | 1 | Đã làm, YCTD-200, PR 162: bộ mẫu `33_HO_SO_PHAP_LY/` (PL-00 đến PL-15, S8a-1.0, bản nháp chờ luật sư rà); không tăng phiên bản phần mềm |
 | S1b | 2 | Chưa làm, YCTD-192; bắt đầu khi S1a gộp |
-| S2 | 2 | Chưa làm, YCTD-193; bắt đầu khi S1a gộp, gộp sau S1b |
+| S2 | 2 | Đã làm, YCTD-193, phiên bản 0.130.0, PR chưa có số: tệp nền tảng 0020 đến 0022 (cột vòng đời của `schools`, `provisioning_jobs`, `school_lifecycle_events`, `school_admin_invitations`, `school_migrations`, cột kiểm tra tên miền, `school_consents`, `school_hosting`), tệp hệ thống 0050 (`terms_acceptances`); thư viện `school-lifecycle.ts` (bước setup, khởi tạo mười một bước chạy tiếp được hoặc hoàn tác, tạm dừng, mở lại, xóa có thời gian chờ, cổng hồ sơ đồng ý, lời mời kích hoạt một lần, migrate cuốn chiếu); bộ nối `DomainProvider` (`dns-check`; `cloudflare-saas`, `vercel-domains` để S9); điểm cuối `/auth/platform/schools` và `/auth/activate` ở dịch vụ định danh; trang Trường ở `apps/platform`, trang `/activate` ở cổng quản trị; lệnh `platform` và lệnh xuất, xóa vĩnh viễn của máy chủ API; biến `PLATFORM_SYSTEM_DOMAIN`, `PLATFORM_INGRESS_HOST`, `DOMAIN_PROVIDER`, `SCHOOL_DELETION_GRACE_DAYS`; e2e spec 132; lịch chạy `purge-due`, `migrate-schools` chờ bộ lập lịch của S1b |
 | S9 | 3 | Chưa làm, YCTD-203; bắt đầu khi S1a, S1b, S2 gộp, giao đầu tiên của đợt 3 |
 | S5a | 2 | Chưa làm, YCTD-194; bắt đầu khi S1a gộp |
 | S3 | 3 | Chưa làm, YCTD-195; bắt đầu khi S1b, S2 gộp |

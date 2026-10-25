@@ -1,7 +1,7 @@
 # 10. YÊU CẦU CHỨC NĂNG
 
 - Mô tả: Mã chức năng, tên chức năng, mục đích, người sử dụng, điều kiện thực hiện, dữ liệu đầu vào, quy trình xử lý, kết quả đầu ra, quy tắc nghiệp vụ, trường hợp ngoại lệ, phân quyền, thông báo lỗi.
-- Phiên bản: 1.95
+- Phiên bản: 1.96
 - Ngày cập nhật: 2026-10-25
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -68,6 +68,11 @@
 | P01-48 | Cách ly dữ liệu giữa các trường (YCTD-191) | Hệ thống | Trường, bố cục cơ sở dữ liệu (database hoặc schema) | Cơ sở dữ liệu hoặc lược đồ và vai trò riêng, nhóm kết nối có giới hạn, mã phiên mang mã trường, tiền tố khóa, khóa dữ liệu trẻ riêng; tạo, khóa ghi, xóa cơ sở dữ liệu năm học theo bố cục | Kết nối đúng trường; từ chối chéo trường | BR-201 |
 | P01-49 | Cơ sở dữ liệu nền tảng và nhận bản đang chạy làm trường số 1 (YCTD-191) | Người vận hành (lệnh dòng lệnh platform) | Mã trường, tên, tên miền, biến môi trường hiện có | Chạy tệp thay đổi cấu trúc nền tảng; adopt-existing ghi trường, mô tả kết nối, khóa, tên miền; sinh khóa gốc | Trường số 1 ở cơ sở dữ liệu nền tảng | BR-202 |
 | P01-50 | Đăng nhập vận hành nền tảng và khung cổng vận hành nền tảng (YCTD-191) | Người vận hành nền tảng | Tên đăng nhập, mật khẩu | Đăng nhập ở tên miền cổng nền tảng; khóa sau 5 lần sai; thông tin tài khoản kèm số trường; menu theo dữ liệu | Mã phiên vận hành; trang tổng quan | PQ-105 |
+| P01-51 | Khởi tạo trường theo bước setup (YCTD-193) | Người vận hành nền tảng (cổng nền tảng hoặc lệnh `platform provision`) | Thông tin trường, cấp học, năm học đầu, tên miền, loại dữ liệu, hồ sơ đồng ý, quản trị viên, đồng ý điều khoản | Kiểm tra; ghi trường đang khởi tạo, khóa dữ liệu trẻ; chạy các bước khởi tạo; lỗi thì chạy tiếp hoặc hoàn tác | Trường dùng thử hoặc hoạt động; đường kích hoạt hiện một lần | BR-203, BR-204 |
+| P01-52 | Vòng đời trường (YCTD-193) | Người vận hành nền tảng; lệnh theo lịch | Mã trường, lý do | Tạm dừng, mở lại, yêu cầu xóa, hủy xóa, xóa vĩnh viễn khi quá hạn (kèm tệp, khóa Redis), xuất toàn bộ dữ liệu ra gói ZIP | Trạng thái mới, sự kiện vòng đời, bản ghi chứng minh đã xóa, gói ZIP | BR-205 |
+| P01-53 | Tên miền riêng và hồ sơ đồng ý của trường (YCTD-193) | Người vận hành nền tảng | Tên miền; hồ sơ đồng ý; vùng máy chủ; loại dữ liệu | Tên miền riêng chờ kiểm tra CNAME, TXT qua bộ nối `DomainProvider`; ghi hồ sơ, vùng máy chủ; đổi loại dữ liệu qua cổng hồ sơ | Tên miền hoạt động khi kiểm tra đạt; loại dữ liệu mới | BR-203, BR-204 |
+| P01-54 | Kích hoạt quản trị viên đầu tiên (YCTD-193) | Quản trị viên đầu tiên của trường mới (không cần đăng nhập) | Mã kích hoạt trong đường liên kết, mật khẩu mới | Kiểm tra lời mời đúng trường, chưa dùng, chưa hết hạn; đặt mật khẩu theo BM-03; đánh dấu đã dùng | Tài khoản đăng nhập được | BR-205 |
+| P01-55 | Migrate cuốn chiếu các trường (YCTD-193) | Người vận hành (lệnh `platform migrate-schools`) | Trường canary, có chạy tiếp khi lỗi | Chạy migrate lần lượt cơ sở dữ liệu định danh, hệ thống, năm học còn ghi được của từng trường, canary trước; lỗi thì dừng | Bảng kết quả theo làn sóng ở `school_migrations` | BR-205 |
 
 ## 3. Phân hệ P02 — Trẻ, phụ huynh và lớp học
 

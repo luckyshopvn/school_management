@@ -1,7 +1,7 @@
 # 12. KIẾN TRÚC HỆ THỐNG
 
 - Mô tả: Kiến trúc tổng thể, thành phần, xác thực, phân quyền, lưu trữ tệp, ghi nhật ký, giám sát, sao lưu, phục hồi, triển khai.
-- Phiên bản: 1.16
+- Phiên bản: 1.17
 - Ngày cập nhật: 2026-10-25
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -219,6 +219,10 @@ Hồ sơ "Vận hành" (b) cho nhiều trường trên VPS trong nước (DT-Saa
 
 Có `PLATFORM_DATABASE_URL` thì dịch vụ định danh và máy chủ API chạy nhiều trường; không có thì chế độ một trường như trước. Luồng một yêu cầu: tên miền → bảng `school_domains` của cơ sở dữ liệu nền tảng (đệm có hạn) → ngữ cảnh trường (mã, trạng thái, tiền tố khóa, khóa dữ liệu trẻ) đặt vào `AsyncLocalStorage` → `Databases` (máy chủ API), `Infrastructure` (dịch vụ định danh), `cacheKey`, `storageKey` đọc ngữ cảnh → mã phiên phải mang cùng `tid`. Nhóm kết nối có giới hạn mỗi cơ sở dữ liệu của trường (`TENANT_POOL_MAX`) và tổng số trường mở cùng lúc (`TENANT_POOL_SCHOOLS`), tự đóng khi không dùng. Bố cục cơ sở dữ liệu cấu hình bằng `TENANT_DB_LAYOUT`: `database` (hồ sơ vận hành) hoặc `schema` (hồ sơ thử nghiệm), mô tả kết nối nằm ở `school_databases` nên mã nghiệp vụ không biết bố cục. Quy tắc ở BR-200 đến BR-202, bảo mật ở BM-73 đến BM-75, bảng ở `16_CO_SO_DU_LIEU.md` mục 18A.
 
+## 12B. Khởi tạo và vòng đời trường (DT-SaaS phần S2, YCTD-193)
+
+Thư viện `database/src/school-lifecycle.ts` dùng chung cho dịch vụ định danh (điểm cuối của cổng nền tảng), lệnh `platform` và kiểm thử. Khởi tạo gồm hai pha: `startProvisioning` kiểm tra bước setup, ghi trường ở trạng thái `provisioning`, khóa dữ liệu trẻ, hồ sơ đồng ý và một việc ở `provisioning_jobs`; `runProvisioningJob` chạy lần lượt mười một bước (`database:identity`, `migrate:identity`, `database:system`, `migrate:system`, `database:year`, `migrate:year`, `seed:system`, `seed:year`, `admin`, `domain`, `activate`), ghi bước đã xong vào `completed_steps`; mỗi bước kiểm tra việc đã làm nên gọi lại sau lỗi thì chạy tiếp; `rollbackProvisioningJob` xóa sạch. Tạo cơ sở dữ liệu đi qua `SchoolDatabaseLayout` nên chạy được ở cả hai bố cục. Tên miền riêng đi qua bộ nối `DomainProvider` chọn bằng `DOMAIN_PROVIDER`: `dns-check` (hồ sơ vận hành; tra CNAME về `PLATFORM_INGRESS_HOST` và TXT `_school-verify.<tên miền>`, Caddy cấp chứng chỉ theo yêu cầu), `cloudflare-saas`, `vercel-domains` (S9). Xóa vĩnh viễn gọi móc xóa tệp (`FileStorage.deletePrefix('tenants/<tiền tố>/')`) và khóa Redis (`t:<tiền tố>:*`, `*:t:<tiền tố>:*`) do lệnh của máy chủ API truyền vào. Migrate cuốn chiếu (`migrateSchools`) chạy trường canary trước, ghi từng cơ sở dữ liệu vào `school_migrations`, bỏ qua năm học chỉ đọc, dừng khi lỗi. Biến môi trường: `PLATFORM_SYSTEM_DOMAIN`, `PLATFORM_INGRESS_HOST`, `DOMAIN_PROVIDER`, `SCHOOL_DELETION_GRACE_DAYS`. Quy tắc ở BR-203 đến BR-205, bảo mật ở BM-76, BM-77.
+
 ## 13. Quyết định kiến trúc
 
 | Mã | Quyết định | Trạng thái |
@@ -248,6 +252,7 @@ Có `PLATFORM_DATABASE_URL` thì dịch vụ định danh và máy chủ API ch�
 | QĐ-23 | Đơn vị tổ chức là cây hai cấp: cấp 1 là Trường chính, chỉ một đơn vị; cấp 2 là Phân hiệu hoặc Điểm trường, chọn loại cho từng đơn vị, trực thuộc thẳng Trường chính; nhãn cố định; cả hai cấp có lớp; trẻ gắn với đơn vị của lớp trẻ đang học (YCTD-38) | Đã chốt ngày 2026-10-09 |
 | QĐ-24 | Nền đa cấp học (DT-19, YCTD-151 đến YCTD-156): bốn mã cấp cố định; cấp của trường ở `school_levels` (cơ sở dữ liệu hệ thống), đọc qua `SchoolLevelResolver`; cấp là thuộc tính của khối, lớp, đơn vị, chương trình, lịch, biểu phí; tham số cấp dùng chung `school_level`; một năm học một cơ sở dữ liệu cho cả trường, không tách theo cấp; chuyển dữ liệu bằng tệp vá chạy lặp được và lệnh kiểm đối chiếu chỉ đọc | Đã chốt ngày 2026-10-23 theo `32_KE_HOACH_THEO_HE_THONG_SO.md` mục 10, 10.10 |
 | QĐ-25 | Nền đa thuê bao (DT-SaaS phần S1a, YCTD-191): mô hình A, mỗi trường một bộ cơ sở dữ liệu và một vai trò PostgreSQL, thêm cơ sở dữ liệu nền tảng `platform`; ngữ cảnh trường đặt bằng `AsyncLocalStorage` ở đầu yêu cầu nên `Databases`, `cacheKey`, `storageKey` giữ chữ ký; đóng chặt khi thiếu ngữ cảnh; mã phiên mang `tid`, cặp khóa ký dùng chung; chế độ một trường là mặc định và bản đang chạy thành trường số 1 không chuyển dữ liệu; bố cục `schema` (mỗi lược đồ một vai trò, `search_path` mức vai trò) cho hồ sơ thử nghiệm; chi tiết ở `32_KE_HOACH_THEO_HE_THONG_SO.md` mục 14 | Đã chốt, làm ở S1a |
+| QĐ-26 | Khởi tạo và vòng đời trường (DT-SaaS phần S2, YCTD-193): khởi tạo là việc có bước lưu ở cơ sở dữ liệu nền tảng, chạy lặp được, chạy tiếp hoặc hoàn tác; điểm cuối quản lý trường ở dịch vụ định danh dưới `/api/v1/auth/platform/schools` (không thêm dịch vụ); tên miền riêng qua bộ nối `DomainProvider`; quản trị viên đầu tiên kích hoạt bằng đường liên kết một lần, không gửi mật khẩu; xóa có thời gian chờ, giữ hàng của trường ở trạng thái đã xóa kèm bản ghi chứng minh; xuất và xóa tệp chạy ở máy chủ API vì kho tệp nằm ở đó | Đã chốt, làm ở S2 |
 
 ## 14. Chưa xác minh được
 

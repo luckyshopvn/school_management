@@ -1,7 +1,7 @@
 # 02. NHẬT KÝ DỰ ÁN
 
 - Mô tả: Ghi nhận công việc, quyết định, thay đổi và vấn đề tồn đọng theo ngày, ngày mới nhất ở trên cùng.
-- Phiên bản: 0.64
+- Phiên bản: 0.65
 - Ngày cập nhật: 2026-10-25
 - Trạng thái: Đang cập nhật
 
@@ -13,6 +13,31 @@
 - Không ghi thông tin tạm thời như kết quả tra cứu, đường dẫn tạm, thông báo lỗi của công cụ.
 
 ## Nhật ký theo ngày
+
+### 2026-10-25 — DT-SaaS phần S2: khởi tạo và vòng đời trường
+
+#### Công việc đã thực hiện
+
+- Đọc mục 14.3, 14.4, 14.5 (phần S2), 14.7, 14.9 của `32_KE_HOACH_THEO_HE_THONG_SO.md` và PL-00 của `33_HO_SO_PHAP_LY/`; rà `provisionSchool`, `SchoolDatabaseLayout`, `TenantRegistry`, `migrateToLatest`, đăng nhập vận hành nền tảng, khung `apps/platform`, gói xuất dữ liệu của 18h, cấu hình e2e nhiều trường.
+- Thêm tệp nền tảng `0020_create_school_lifecycle`, `0021_add_domain_verification`, `0022_create_school_consents` và tệp hệ thống `0050_create_terms_acceptances`; thư viện `database/src/school-lifecycle.ts` (bước setup, tiến trình khởi tạo có bước, hoàn tác, tạm dừng, mở lại, yêu cầu xóa, hủy xóa, xóa vĩnh viễn, hồ sơ đồng ý, vùng máy chủ, đổi loại dữ liệu, lời mời kích hoạt, migrate cuốn chiếu), `domain-provider.ts` (`dns-check`), `lifecycle-environment.ts`; mười một lệnh mới của `platform`; điểm cuối `/api/v1/auth/platform/schools…` và `/api/v1/auth/activate` ở dịch vụ định danh; trang Trường ở cổng nền tảng; trang Kích hoạt ở cổng quản trị; lệnh `school-lifecycle-command` (xuất, xóa vĩnh viễn kèm tệp và khóa Redis) và `FileStorage.deletePrefix` ở máy chủ API; spec e2e 132.
+- Thêm quy tắc BR-203 đến BR-205, quyền PQ-106, chức năng P01-51 đến P01-55, màn hình MH-315 đến MH-318, kịch bản CT-999 đến CT-1008, tiêu chí AC-827 đến AC-831, bảo mật BM-76, BM-77, QĐ-26, bảng ở `16` mục 18A, giao kèo ở `17`, mục 12B của `12`; phiên bản 0.130.0.
+
+#### Quyết định
+
+- Tên miền mặc định của trường là `<mã trường>.<tên miền hệ thống>` (`PLATFORM_SYSTEM_DOMAIN`), dùng ngay; tên miền riêng do người vận hành cấu hình tay, chờ kiểm tra DNS (CNAME về `PLATFORM_INGRESS_HOST` và bản ghi TXT `_school-verify.<tên miền>`) qua bộ nối `DomainProvider` (`dns-check`; `cloudflare-saas`, `vercel-domains` là của S9) theo quyết định của Eric.
+- Điểm cuối quản lý trường đặt dưới `/api/v1/auth/platform/schools` của dịch vụ định danh (nhóm không cần trường, đã có xác thực vận hành và quyền tạo cơ sở dữ liệu), không thêm dịch vụ mới.
+- Quản trị viên đầu tiên (Hiệu trưởng, VT-02) tạo với mã băm của mật khẩu ngẫu nhiên đã bỏ; nhận đường liên kết kích hoạt một lần hạn 72 giờ, chỉ lưu mã băm SHA-256; không gửi mật khẩu qua kênh nào.
+- Bằng chứng đồng ý dùng dữ liệu thật ghi ở `school_consents` và `school_hosting` theo PL-00 của S8a; chỉ lưu mã băm SHA-256 và khóa tệp của bản quét.
+- Xóa vĩnh viễn giữ hàng của trường ở trạng thái `deleted` kèm bản ghi chứng minh đã xóa (mã băm tên, danh sách cơ sở dữ liệu, số tệp, số khóa Redis); thời gian chờ mặc định 30 ngày (`SCHOOL_DELETION_GRACE_DAYS`, giả định).
+- Không đụng mã việc nền theo trường của S1b và gói, giới hạn của S5a.
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-193, `07_QUY_TAC_NGHIEP_VU.md` BR-203 đến BR-205, `08_VAI_TRO_NGUOI_DUNG.md` PQ-106, `10_YEU_CAU_CHUC_NANG.md` P01-51 đến P01-55, `11_TIEU_CHI_NGHIEM_THU.md` AC-827 đến AC-831, `14_DAC_TA_GIAO_DIEN.md` MH-315 đến MH-318, `16_CO_SO_DU_LIEU.md` mục 18A, `17_DAC_TA_API.md`, `21_KICH_BAN_KIEM_THU.md` CT-999 đến CT-1008, `22_BAO_MAT.md` BM-76, BM-77, `12_KIEN_TRUC_HE_THONG.md` mục 12B, QĐ-26; phiên bản phần mềm 0.130.0.
+
+#### Vấn đề tồn đọng
+
+- Xóa vĩnh viễn và migrate cuốn chiếu chạy bằng lệnh theo lịch, chưa có bộ lập lịch của nền tảng (S1b); bản sao lưu của trường xóa theo thời hạn lưu ở S7b; bộ nối tên miền `cloudflare-saas`, `vercel-domains` làm ở S9; máy chủ API khác thấy trạng thái trường mới đổi sau `TENANT_CACHE_SECONDS`; xác thực hai lớp của tài khoản vận hành làm ở S8b.
 
 ### 2026-10-25 — DT-SaaS phần S1a: nền đa thuê bao, phần lõi
 

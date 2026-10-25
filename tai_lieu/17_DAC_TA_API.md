@@ -1,7 +1,7 @@
 # 17. ĐẶC TẢ API
 
 - Mô tả: Điểm cuối, phương thức, yêu cầu, phản hồi, xác thực, phân quyền, kiểm tra dữ liệu, xử lý lỗi, phân trang, lọc, sắp xếp, phiên bản.
-- Phiên bản: 1.122
+- Phiên bản: 1.123
 - Ngày cập nhật: 2026-10-25
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -263,6 +263,13 @@ Giao kèo nhiều trường (DT-SaaS phần S1a, YCTD-191, BR-200 đến BR-202)
 2. Mã phiên mang claim `tid` (mã trường; `sid` đã là mã phiên). Máy chủ API và dịch vụ định danh trả 401 khi thiếu `tid` hoặc `tid` khác trường của tên miền. Gọi nội bộ giữa hai dịch vụ dùng địa chỉ nội bộ, không phải tên miền của trường: khi tên miền không phân giải được mà yêu cầu có mã phiên hợp lệ thì lấy trường theo `tid` trong mã phiên đã ký.
 3. Cookie mã làm mới đặt tên kèm mã trường (`refresh_token__<mã>`), khóa Redis của dịch vụ định danh có tiền tố `t:<mã>`, `cacheKey`, `storageKey` thêm tiền tố của trường (trường số 1 tiền tố trống).
 4. Việc nền và việc khởi động theo trường (gửi thông báo, xuất nền, hàng đợi máy xếp, đăng ký biểu EMIS) chưa chạy ở chế độ nhiều trường, làm ở phần S1b.
+
+Giao kèo khởi tạo và vòng đời trường (DT-SaaS phần S2, YCTD-193, BR-203 đến BR-205):
+
+1. Nhóm `/api/v1/auth/platform/schools` chỉ phục vụ ở tên miền cổng nền tảng (tên miền khác 404) và cần mã phiên vận hành (thiếu, sai 401). Lỗi bước setup trả 400 `ERR_VALIDATION` kèm `details` theo từng trường (`code`, `name`, `levels`, `domain.host`, `consents`, `admin.login`, `terms`, ...); vi phạm vòng đời (đổi trạng thái không hợp lệ, thiếu hồ sơ khi đổi sang `consented`, cấp lại lời mời khi đã kích hoạt) trả 422 `ERR_RULE_VIOLATION` mã quy tắc BR-205; mã trường không có trả 404.
+2. `POST /schools` nhận `{ code, name, address, levels, first_year_start, domain: { mode: 'system' } | { mode: 'custom', host }, data_class, status, consents[], hosting[], admin: { full_name, login, phone }, terms: { version, accepted, accepted_by_name, accepted_by_title } }`, chạy khởi tạo ngay, trả `{ job_id, status: 'done' | 'failed', error, school, activation: { path: '/activate?token=…', host } }`; đường kích hoạt chỉ trả ở lần chạy tạo lời mời.
+3. `GET /api/v1/auth/activate?token=` và `POST /api/v1/auth/activate` (`{ token, new_password }`) phục vụ ở tên miền của trường, không cần đăng nhập, có giới hạn tần suất đăng nhập; mã sai, đã dùng, hết hạn hoặc của trường khác trả 401; mật khẩu sai chính sách trả 400.
+4. Trạng thái trường đổi thì bộ phân giải của dịch vụ định danh đọc lại ngay; máy chủ API đọc lại sau `TENANT_CACHE_SECONDS`.
 ## 5. Nền tảng và phân quyền
 
 Các điểm cuối tài khoản, vai trò, quyền và khóa API dưới đây do dịch vụ định danh phục vụ. Các điểm cuối còn lại, gồm đơn vị, năm học, cấu hình và nhóm `/partner/`, do máy chủ API nghiệp vụ phục vụ; khóa API gửi kèm yêu cầu của đối tác được máy chủ API kiểm tra với dịch vụ định danh.
@@ -1519,6 +1526,14 @@ Giao kèo văn thư lưu trữ (YCTD-118):
 | GET | /api/v1/auth/impersonations, /api/v1/impersonation-actions | Nhật ký đăng nhập thay (định danh), thao tác trong từng lần (máy chủ API) (P01-32, YCTD-145) |
 | POST | /api/v1/auth/platform/login | Đăng nhập vận hành nền tảng (YCTD-191, PQ-105): chỉ ở tên miền cổng nền tảng (PLATFORM_CONSOLE_HOST), tên miền khác 404; đúng thì trả mã phiên vận hành (đối tượng riêng, hạn 8 giờ); sai 5 lần khóa 15 phút; không cần trường |
 | GET | /api/v1/auth/platform/me | Thông tin tài khoản vận hành đang đăng nhập kèm số trường (YCTD-191); mã phiên của trường không dùng được ở đây |
+| GET | /api/v1/auth/platform/schools, /auth/platform/schools/settings, /auth/platform/schools/{mã} | Danh sách trường kèm tên miền; cấu hình (tên miền hệ thống, địa chỉ vào, bộ nối tên miền, số ngày chờ xóa); chi tiết trường kèm tên miền, hồ sơ đồng ý, vùng máy chủ, việc khởi tạo, sự kiện, lời mời (không có mã kích hoạt) (P01-51 đến P01-53, PQ-106, YCTD-193) |
+| POST | /api/v1/auth/platform/schools | Khởi tạo trường theo bước setup (P01-51, BR-203, BR-204) |
+| POST | /api/v1/auth/platform/schools/jobs/{mã việc}/resume, /jobs/{mã việc}/rollback | Chạy tiếp, hoàn tác việc khởi tạo lỗi (P01-51) |
+| POST | /api/v1/auth/platform/schools/{mã}/suspend, /resume, /request-deletion, /cancel-deletion | Tạm dừng, mở lại, yêu cầu xóa, hủy yêu cầu xóa; thân `{ reason }` (P01-52, BR-205) |
+| POST | /api/v1/auth/platform/schools/{mã}/invitation | Cấp lại đường kích hoạt quản trị viên đầu tiên (P01-54) |
+| POST | /api/v1/auth/platform/schools/{mã}/consents, /hosting, /data-class | Ghi hồ sơ đồng ý, vùng máy chủ; đổi loại dữ liệu (P01-53, BR-204) |
+| POST | /api/v1/auth/platform/schools/{mã}/domains, /domains/{tên miền}/verify | Thêm tên miền riêng (chờ kiểm tra), kiểm tra DNS (P01-53) |
+| GET, POST | /api/v1/auth/activate | Xem lời mời, kích hoạt quản trị viên đầu tiên ở tên miền của trường (P01-54, BM-76) |
 | GET, POST | /api/v1/school-data-exports; GET /api/v1/users/data-export | Gói ZIP toàn bộ dữ liệu; phần dữ liệu tài khoản của dịch vụ định danh (P01-33, YCTD-145) |
 | GET | /api/v1/public/demo | Trạng thái bản trình diễn, tài khoản trình diễn, mật khẩu chung (công khai; P01-34, YCTD-145) |
 | GET | /api/v1/outgoing-documents | Danh sách văn bản đi theo `view` (`drafts`, `pending`, `processed`, `to_issue`, `issued`, `search`), lọc, phân trang (YCTD-140) |

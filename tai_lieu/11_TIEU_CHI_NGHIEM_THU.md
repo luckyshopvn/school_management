@@ -1,7 +1,7 @@
 # 11. TIÊU CHÍ NGHIỆM THU
 
 - Mô tả: Tiêu chí nghiệm thu cho từng chức năng, viết dạng Cho, Khi, Thì.
-- Phiên bản: 1.75
+- Phiên bản: 1.76
 - Ngày cập nhật: 2026-10-25
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -899,6 +899,11 @@ Các mã từ AC-94 đến AC-134 được viết trực tiếp trong mục 12 c
 | AC-824 | Cho tài khoản và mã phiên của trường A / Khi đăng nhập ở tên miền trường B, dùng mã phiên của A ở trường B, giả hoặc bỏ mã trường trong mã phiên, dùng cookie mã làm mới của A ở B / Thì bị từ chối ở mọi tuyến; mã phiên dùng được ở tên miền A và ở địa chỉ nội bộ; giới hạn đăng nhập và khóa Redis tính riêng từng trường (CT-992, CT-993; YCTD-191) |
 | AC-825 | Cho hai trường ở cả hai bố cục (database, schema) / Khi mở năm học, tạo đơn vị mồi, mở năm học kế tiếp rồi hủy, quét mọi bảng của từng trường / Thì chuỗi mồi của trường kia không có ở đâu; vai trò của trường A không kết nối hay đọc, ghi, tạo bảng ở phần của B; năm học cũ khóa ghi ở mức PostgreSQL, bản mã dữ liệu trẻ của A không giải được ở B (CT-994, CT-995; YCTD-191) |
 | AC-826 | Cho bản đang chạy một trường và nền tảng / Khi chạy adopt-existing hai lần, và khi tài khoản vận hành đăng nhập ở cổng nền tảng / Thì trường số 1 dùng lại cơ sở dữ liệu cũ, tiền tố khóa trống, không tạo thêm hàng; cổng nền tảng chỉ phục vụ ở tên miền riêng, khóa 15 phút sau 5 lần sai, mã phiên vận hành và mã phiên của trường không dùng chéo (CT-996, CT-997; YCTD-191) |
+| AC-827 | Cho cổng nền tảng đã cấu hình tên miền hệ thống / Khi người vận hành khởi tạo trường qua năm bước, nhập thiếu hoặc sai, chưa đồng ý điều khoản / Thì máy chủ báo lỗi từng trường; nhập đủ thì trường có ba cơ sở dữ liệu đã migrate, cấp học đã bật, năm học đầu mở, đơn vị Trường chính, quản trị viên VT-02, tên miền `<mã>.<tên miền hệ thống>` hoạt động, trạng thái dùng thử (CT-999, CT-1000, CT-1005, CT-1008; YCTD-193) |
+| AC-828 | Cho việc khởi tạo lỗi giữa chừng / Khi chạy tiếp hoặc hoàn tác / Thì chạy tiếp làm nốt từ bước dở, không làm lại bước đã xong; hoàn tác xóa sạch cơ sở dữ liệu, vai trò và hàng của trường (CT-1001; YCTD-193) |
+| AC-829 | Cho trường đang hoạt động / Khi tạm dừng, mở lại, yêu cầu xóa, hủy, yêu cầu lại rồi quá hạn chờ / Thì tạm dừng trả 503, mở lại phục vụ lại; chưa quá hạn không xóa được; quá hạn thì xóa cơ sở dữ liệu, khóa, tên miền, tệp đúng tiền tố, giữ hàng đã xóa kèm bản ghi chứng minh; mọi bước có sự kiện vòng đời (CT-1002, CT-1005, CT-1006, CT-1008; YCTD-193) |
+| AC-830 | Cho trường mới và đường kích hoạt / Khi mở ở tên miền của trường, ở trường khác, đặt mật khẩu yếu, đặt đúng, mở lại đường đã dùng / Thì chỉ trường đúng thấy lời mời; mật khẩu yếu bị từ chối; kích hoạt xong đăng nhập được; đường đã dùng báo đã dùng hoặc hết hạn; cổng nền tảng không hiện lại mã kích hoạt (CT-1000, CT-1005, CT-1008; YCTD-193) |
+| AC-831 | Cho trường muốn dùng dữ liệu thật và tên miền riêng / Khi đổi sang `consented` thiếu hồ sơ, đủ hồ sơ nhưng thiếu vùng máy chủ, đủ cả hai; thêm tên miền riêng chưa trỏ DNS rồi trỏ đúng / Thì hai lần đầu bị từ chối kèm danh sách thiếu, lần ba được; tên miền chờ kiểm tra, báo thiếu CNAME, TXT, trỏ đúng thì hoạt động; tên miền thuộc tên miền hệ thống hoặc địa chỉ IP bị từ chối (CT-1003, CT-1004, CT-1005; YCTD-193) |
 
 ## 20. Chưa xác minh được
 

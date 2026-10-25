@@ -1,7 +1,7 @@
 # 24. YÊU CẦU THAY ĐỔI
 
 - Mô tả: Sổ quản lý yêu cầu thay đổi, ghi lý do, đánh giá ảnh hưởng và trạng thái của từng thay đổi trước khi triển khai.
-- Phiên bản: 0.62
+- Phiên bản: 0.63
 - Ngày cập nhật: 2026-10-25
 - Trạng thái: Đang cập nhật
 
@@ -10,6 +10,25 @@
 Mã yêu cầu thay đổi dạng `YCTD-nn`, đánh số tăng dần, không tái sử dụng. Mục mới nhất ở trên cùng. Trạng thái dùng bốn giá trị: Chờ phê duyệt, Đã phê duyệt, Từ chối, Đã triển khai.
 
 Các thay đổi trước phiên bản 0.4.0 chưa có sổ này; xem `23_LICH_SU_PHIEN_BAN.md` các phiên bản 0.1.0 đến 0.3.1.
+
+### YCTD-193: DT-SaaS phần S2: khởi tạo và vòng đời trường – 2026-10-25
+
+- Lý do: phần S2 của `32_KE_HOACH_THEO_HE_THONG_SO.md` mục 14.3, 14.4, 14.5 (kế hoạch DT-SaaS ở YCTD-190); quyết định của Eric: tên miền mặc định `<mã trường>.<tên miền hệ thống>` (cấu hình được) hoặc tên miền riêng do người vận hành cấu hình tay qua bộ nối `DomainProvider`, có bước setup; bằng chứng đồng ý dùng dữ liệu thật ghi ở `school_consents`, `school_hosting` theo PL-00 của S8a. Cần để người vận hành tự tạo, tạm dừng, xóa trường trên nền tảng mà không thao tác tay ở cơ sở dữ liệu.
+- Nội dung thay đổi (Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11 ở những chỗ kế hoạch chưa chốt):
+  - **Cơ sở dữ liệu:** tệp nền tảng `0020_create_school_lifecycle` (cột vòng đời của `schools`, `provisioning_jobs`, `school_lifecycle_events`, `school_admin_invitations`, `school_migrations`), `0021_add_domain_verification` (cột kiểm tra tên miền của `school_domains`), `0022_create_school_consents` (`school_consents`, `school_hosting`); tệp hệ thống `0050_create_terms_acceptances`.
+  - **Thư viện vòng đời** `database/src/school-lifecycle.ts`: kiểm tra bước setup, cổng hồ sơ đồng ý, khởi tạo hai pha có mười một bước chạy tiếp được, hoàn tác, tạm dừng, mở lại, yêu cầu xóa (mặc định 30 ngày, giả định), hủy, xóa vĩnh viễn kèm móc xóa tệp và khóa Redis, hồ sơ đồng ý, vùng máy chủ, đổi loại dữ liệu, lời mời kích hoạt (cấp, tìm, đánh dấu dùng, cấp lại), tên miền riêng, migrate cuốn chiếu; `domain-provider.ts` (`dns-check` với bộ phân giải thay được; `cloudflare-saas`, `vercel-domains` báo chưa có, làm ở S9); `lifecycle-environment.ts` đọc `PLATFORM_SYSTEM_DOMAIN`, `PLATFORM_INGRESS_HOST`, `DOMAIN_PROVIDER`, `SCHOOL_DELETION_GRACE_DAYS`; mười một lệnh mới của `platform`.
+  - **Dịch vụ định danh:** `PlatformSchoolsController` dưới `/api/v1/auth/platform/schools` (chỉ tên miền cổng nền tảng, mã phiên vận hành; đổi trạng thái thì làm mới bộ phân giải); `SchoolActivationController` `/api/v1/auth/activate` ở tên miền của trường; khai báo tuyến công khai ở `tenancy-route-policy.ts`; `createPlatformOperator` xuất ở `@school-management/identity/testing`.
+  - **Máy chủ API:** lệnh `school-data-export/school-lifecycle-command.js` (`export`: gói ZIP của 18h thêm cơ sở dữ liệu định danh không có cột bí mật; `purge-due`: xóa vĩnh viễn kèm tệp `tenants/<tiền tố>/`, khóa Redis của trường); `FileStorage.deletePrefix`.
+  - **Giao diện:** cổng nền tảng thêm menu "Trường" (danh sách, khởi tạo năm bước, chi tiết và thao tác); cổng quản trị thêm trang công khai `/activate`.
+  - **Kiểm thử:** `database/src/school-lifecycle.test.ts`, `apps/identity/src/platform/platform-schools.test.ts`, `apps/api/src/school-data-export/school-lifecycle-command.test.ts`; spec e2e 132 ở dự án nhiều trường (thêm máy chủ cổng nền tảng cổng 5384, `PLATFORM_SYSTEM_DOMAIN=e2e.localhost`, bước dựng dọn trường gamma).
+- Thành phần bị ảnh hưởng: `database`, `apps/identity`, `apps/api`, `apps/platform`, `apps/portal`, `tests`; tài liệu `01`, `02`, `03`, `07`, `08`, `10`, `11`, `12`, `14`, `16`, `17`, `21`, `22`, `23`, `24`, `32`, `index.md`.
+- Dữ liệu bị ảnh hưởng: cơ sở dữ liệu nền tảng (tệp 0020 đến 0022); cơ sở dữ liệu hệ thống của mọi trường thêm bảng `terms_acceptances` (tệp 0050); không đổi dữ liệu hiện có.
+- API bị ảnh hưởng: thêm nhóm `/api/v1/auth/platform/schools…` và `GET, POST /api/v1/auth/activate`; không đổi điểm cuối cũ.
+- Giao diện bị ảnh hưởng: MH-315 đến MH-317 (cổng nền tảng), MH-318 (cổng quản trị).
+- Quyền bị ảnh hưởng: PQ-106 (tài khoản vận hành nền tảng quản lý trường); quản trị viên đầu tiên nhận VT-02.
+- Ảnh hưởng chức năng cũ: không ở chế độ một trường. Không đụng việc nền theo trường của S1b và gói, giới hạn của S5a.
+- Kiểm thử cần thực hiện: kiểm thử đơn vị `database`, `apps/identity` (kèm ma trận cách ly), `apps/api` (tệp mới); e2e spec 130, 132 ở dự án nhiều trường; CI chạy toàn bộ e2e.
+- Trạng thái: Đã triển khai (PR chưa có số)
 
 ### YCTD-191: DT-SaaS phần S1a: nền đa thuê bao, phần lõi – 2026-10-25
 
