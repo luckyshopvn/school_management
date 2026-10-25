@@ -1,7 +1,7 @@
 # 12. KIẾN TRÚC HỆ THỐNG
 
 - Mô tả: Kiến trúc tổng thể, thành phần, xác thực, phân quyền, lưu trữ tệp, ghi nhật ký, giám sát, sao lưu, phục hồi, triển khai.
-- Phiên bản: 1.16
+- Phiên bản: 1.17
 - Ngày cập nhật: 2026-10-25
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -219,6 +219,10 @@ Hồ sơ "Vận hành" (b) cho nhiều trường trên VPS trong nước (DT-Saa
 
 Có `PLATFORM_DATABASE_URL` thì dịch vụ định danh và máy chủ API chạy nhiều trường; không có thì chế độ một trường như trước. Luồng một yêu cầu: tên miền → bảng `school_domains` của cơ sở dữ liệu nền tảng (đệm có hạn) → ngữ cảnh trường (mã, trạng thái, tiền tố khóa, khóa dữ liệu trẻ) đặt vào `AsyncLocalStorage` → `Databases` (máy chủ API), `Infrastructure` (dịch vụ định danh), `cacheKey`, `storageKey` đọc ngữ cảnh → mã phiên phải mang cùng `tid`. Nhóm kết nối có giới hạn mỗi cơ sở dữ liệu của trường (`TENANT_POOL_MAX`) và tổng số trường mở cùng lúc (`TENANT_POOL_SCHOOLS`), tự đóng khi không dùng. Bố cục cơ sở dữ liệu cấu hình bằng `TENANT_DB_LAYOUT`: `database` (hồ sơ vận hành) hoặc `schema` (hồ sơ thử nghiệm), mô tả kết nối nằm ở `school_databases` nên mã nghiệp vụ không biết bố cục. Quy tắc ở BR-200 đến BR-202, bảo mật ở BM-73 đến BM-75, bảng ở `16_CO_SO_DU_LIEU.md` mục 18A.
 
+## 12B. Việc nền và công khai nhiều trường (DT-SaaS phần S1b, YCTD-192)
+
+`JobScheduler` (máy chủ API) giữ danh sách việc do các lớp việc nền đăng ký lúc khởi động. Mỗi lượt (bộ đếm giờ trong tiến trình hoặc điểm tick) duyệt các trường đang phục vụ qua `TenancyRuntime.forEachServingSchool`, với từng trường chiếm việc đến hạn ở `scheduler_state` bằng `insert ... on conflict do update ... where last_run_at <= now() - chu kỳ` rồi chạy trong ngữ cảnh trường và ghi kết quả. Ngữ cảnh trường dùng `TenantRegistry.contextOf` (đệm có hạn, gộp lượt nạp đồng thời) nên yêu cầu nội bộ giữa máy chủ API và dịch vụ định danh không đọc cơ sở dữ liệu nền tảng mỗi lần. Hàng đợi Redis của máy xếp thời khóa biểu giữ một khóa chung; phần tử `<tiền tố>|<mã lần xếp>` cho tiến trình `apps/worker` (không có ngữ cảnh trường) tính đúng khóa của trường. Quy tắc ở BR-203 đến BR-205, bảng `scheduler_state` ở `16_CO_SO_DU_LIEU.md` mục 18A.
+
 ## 13. Quyết định kiến trúc
 
 | Mã | Quyết định | Trạng thái |
@@ -248,6 +252,7 @@ Có `PLATFORM_DATABASE_URL` thì dịch vụ định danh và máy chủ API ch�
 | QĐ-23 | Đơn vị tổ chức là cây hai cấp: cấp 1 là Trường chính, chỉ một đơn vị; cấp 2 là Phân hiệu hoặc Điểm trường, chọn loại cho từng đơn vị, trực thuộc thẳng Trường chính; nhãn cố định; cả hai cấp có lớp; trẻ gắn với đơn vị của lớp trẻ đang học (YCTD-38) | Đã chốt ngày 2026-10-09 |
 | QĐ-24 | Nền đa cấp học (DT-19, YCTD-151 đến YCTD-156): bốn mã cấp cố định; cấp của trường ở `school_levels` (cơ sở dữ liệu hệ thống), đọc qua `SchoolLevelResolver`; cấp là thuộc tính của khối, lớp, đơn vị, chương trình, lịch, biểu phí; tham số cấp dùng chung `school_level`; một năm học một cơ sở dữ liệu cho cả trường, không tách theo cấp; chuyển dữ liệu bằng tệp vá chạy lặp được và lệnh kiểm đối chiếu chỉ đọc | Đã chốt ngày 2026-10-23 theo `32_KE_HOACH_THEO_HE_THONG_SO.md` mục 10, 10.10 |
 | QĐ-25 | Nền đa thuê bao (DT-SaaS phần S1a, YCTD-191): mô hình A, mỗi trường một bộ cơ sở dữ liệu và một vai trò PostgreSQL, thêm cơ sở dữ liệu nền tảng `platform`; ngữ cảnh trường đặt bằng `AsyncLocalStorage` ở đầu yêu cầu nên `Databases`, `cacheKey`, `storageKey` giữ chữ ký; đóng chặt khi thiếu ngữ cảnh; mã phiên mang `tid`, cặp khóa ký dùng chung; chế độ một trường là mặc định và bản đang chạy thành trường số 1 không chuyển dữ liệu; bố cục `schema` (mỗi lược đồ một vai trò, `search_path` mức vai trò) cho hồ sơ thử nghiệm; chi tiết ở `32_KE_HOACH_THEO_HE_THONG_SO.md` mục 14 | Đã chốt, làm ở S1a |
+| QĐ-26 | Việc nền nhiều trường (DT-SaaS phần S1b, YCTD-192): bộ lập lịch trong máy chủ API chiếm việc đến hạn ở bảng `scheduler_state` của cơ sở dữ liệu nền tảng thay vì đếm số lần gọi, nên chạy được cả khi có nhiều bản máy chủ lẫn khi máy chủ ngủ và được gọi bằng điểm tick; việc khởi động của tiến trình (đăng ký biểu EMIS) là loại `perProcess` không chiếm qua cơ sở dữ liệu; hàng đợi máy xếp giữ một khóa chung, phần tử mang tiền tố trường; thêm bộ đệm ngữ cảnh trường `contextOf` có gộp lượt nạp đồng thời để mỗi yêu cầu nội bộ không đọc cơ sở dữ liệu nền tảng | Đã chốt, làm ở S1b |
 
 ## 14. Chưa xác minh được
 

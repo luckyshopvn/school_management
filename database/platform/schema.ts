@@ -107,6 +107,16 @@ export interface PlatformAuditLogTable {
   ip_address: string | null;
 }
 
+export interface SchedulerStateTable {
+  school_id: string;
+  job: string;
+  last_run_at: Date;
+  run_count: ColumnType<string, number | undefined, number | undefined>;
+  last_status: 'ok' | 'error' | null;
+  last_duration_ms: number | null;
+  last_error: string | null;
+}
+
 export interface PlatformDatabase {
   school_clusters: SchoolClustersTable;
   schools: SchoolsTable;
@@ -116,4 +126,5 @@ export interface PlatformDatabase {
   platform_settings: PlatformSettingsTable;
   platform_operators: PlatformOperatorsTable;
   platform_audit_log: PlatformAuditLogTable;
+  scheduler_state: SchedulerStateTable;
 }

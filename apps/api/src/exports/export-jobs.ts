@@ -3,6 +3,7 @@ import {
   Get,
   Inject,
   Injectable,
+  Optional,
   Logger,
   Param,
   Req,
@@ -10,7 +11,8 @@ import {
   type OnApplicationBootstrap,
   type OnModuleDestroy,
 } from '@nestjs/common';
-import { isMultiTenantMode } from '@school-management/server';
+import { JobScheduler } from '../common/job-scheduler.js';
+import { currentTenant, isMultiTenantMode } from '@school-management/server';
 import type { ExportJobFormat, ExportJobStatus } from '@school-management/database';
 import { ApplicationError, Clock, ruleViolationError } from '@school-management/server';
 import type { Request, Response } from 'express';
@@ -115,13 +117,14 @@ export class ExportJobs implements OnApplicationBootstrap, OnModuleDestroy {
   private readonly logger = new Logger('ExportJobs');
   private readonly handlers = new Map<string, ExportJobHandler>();
   private timer: NodeJS.Timeout | null = null;
-  private running = false;
+  private readonly running = new Set<string>();
 
   constructor(
     @Inject(API_CONFIGURATION) private readonly configuration: ApiConfiguration,
     private readonly databases: Databases,
     private readonly fileStorage: FileStorage,
     private readonly clock: Clock,
+    @Optional() @Inject(JobScheduler) private readonly scheduler: JobScheduler | null = null,
   ) {}
 
   get syncRowLimit(): number {
@@ -133,9 +136,13 @@ export class ExportJobs implements OnApplicationBootstrap, OnModuleDestroy {
   }
 
   onApplicationBootstrap() {
-    // Nhiều trường (DT-SaaS phần S1a): việc nền và việc khởi động theo từng trường làm ở phần S1b (tài liệu 32 mục 14.5); tới lúc
-    // đó không chạy ở chế độ nhiều trường vì ngoài yêu cầu không có ngữ cảnh trường
+    // Nhiều trường (DT-SaaS phần S1b): bộ lập lịch gọi tick cho từng trường đang phục vụ, trong ngữ cảnh của trường
     if (isMultiTenantMode()) {
+      this.scheduler?.register({
+        name: 'export-jobs',
+        intervalSeconds: this.configuration.exportJobIntervalSeconds ?? 15,
+        run: () => this.tick(),
+      });
       return;
     }
     const seconds = this.configuration.exportJobIntervalSeconds ?? 15;
@@ -267,10 +274,11 @@ export class ExportJobs implements OnApplicationBootstrap, OnModuleDestroy {
   // Một lượt của tiến trình nền: xóa tệp hết hạn, trả tác vụ bị gián đoạn, chạy các tác vụ đang chờ; lượt trước chưa xong
   // thì bỏ qua lượt này
   async tick(): Promise<void> {
-    if (this.running) {
+    if (this.running.has(currentTenant()?.code ?? '')) {
       return;
     }
-    this.running = true;
+    const tenantKey = currentTenant()?.code ?? '';
+    this.running.add(tenantKey);
     try {
       await this.expireFiles();
       await this.recoverStale();
@@ -284,7 +292,7 @@ export class ExportJobs implements OnApplicationBootstrap, OnModuleDestroy {
     } catch (error) {
       this.logger.error('Tiến trình xuất nền lỗi', error instanceof Error ? error.stack : String(error));
     } finally {
-      this.running = false;
+      this.running.delete(tenantKey);
     }
   }
 

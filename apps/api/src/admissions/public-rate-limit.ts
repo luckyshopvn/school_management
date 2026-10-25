@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { ApplicationError, Clock } from '@school-management/server';
+import { ApplicationError, Clock, currentTenant } from '@school-management/server';
 
 // Giới hạn số yêu cầu theo địa chỉ mạng cho điểm cuối công khai không cần đăng nhập (P16; YCTD-86), cùng cách cửa sổ cố
 // định như khóa API đối tác: nộp hồ sơ tối đa 10 lần mỗi giờ, đọc tin và tra cứu tối đa 60 lần mỗi phút trên một địa chỉ.
@@ -17,7 +17,8 @@ export class AdmissionsRateLimiter {
 
   hit(kind: keyof typeof PUBLIC_LIMITS, ip: string | undefined): void {
     const rule = PUBLIC_LIMITS[kind];
-    const key = `${kind}:${ip ?? 'unknown'}`;
+    // Mỗi trường một bộ đếm riêng (DT-SaaS phần S1b): cùng địa chỉ mạng gọi hai trường không dùng chung hạn mức
+    const key = `${currentTenant()?.code ?? ''}:${kind}:${ip ?? 'unknown'}`;
     const now = this.clock.now().getTime();
     const window = this.windows.get(key);
     if (!window || now - window.start >= rule.windowMs) {

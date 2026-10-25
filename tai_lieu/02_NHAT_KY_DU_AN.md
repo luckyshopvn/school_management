@@ -1,7 +1,7 @@
 # 02. NHẬT KÝ DỰ ÁN
 
 - Mô tả: Ghi nhận công việc, quyết định, thay đổi và vấn đề tồn đọng theo ngày, ngày mới nhất ở trên cùng.
-- Phiên bản: 0.64
+- Phiên bản: 0.65
 - Ngày cập nhật: 2026-10-25
 - Trạng thái: Đang cập nhật
 
@@ -13,6 +13,30 @@
 - Không ghi thông tin tạm thời như kết quả tra cứu, đường dẫn tạm, thông báo lỗi của công cụ.
 
 ## Nhật ký theo ngày
+
+### 2026-10-25 — DT-SaaS phần S1b: nền đa thuê bao, phần chạy nền và công khai
+
+#### Công việc đã thực hiện
+
+- Đọc mục 14.3, 14.5 (S1b), 14.7, 14.9 của `32_KE_HOACH_THEO_HE_THONG_SO.md`; rà năm lớp việc nền, hàng đợi máy xếp và tiến trình `apps/worker`, `domain-check`, các bộ giới hạn tần suất công khai, bốn chỗ khóa Redis của dịch vụ định danh (đã đúng tiền tố từ S1a).
+- Thêm bộ lập lịch theo trường, điểm tick ngoài, hàng đợi máy xếp theo trường kèm hạn mức, domain-check theo danh mục tên miền nền tảng, trang chọn trường, giới hạn tần suất theo trường, bộ đệm ngữ cảnh trường, bảng `scheduler_state` (tệp nền tảng 0010).
+- Thêm quy tắc BR-203 đến BR-205, chức năng P01-51 đến P01-53, màn hình MH-315, kịch bản CT-999 đến CT-1003, tiêu chí AC-827 đến AC-829, bảo mật BM-76, QĐ-26.
+
+#### Quyết định
+
+- Việc đến hạn tính từ dấu thời gian ở cơ sở dữ liệu nền tảng (chiếm nguyên tử), không đếm số lần gọi: đúng với nhiều bản máy chủ và với máy chủ ngủ.
+- Việc khởi động của tiến trình (đăng ký biểu EMIS) là loại `perProcess`: kết quả chỉ nằm trong bộ nhớ của tiến trình nên không chiếm qua cơ sở dữ liệu.
+- Tên biến theo kế hoạch: `SCHEDULER_MODE=external` và `INTERNAL_JOB_TOKEN`; thêm `SCHEDULER_INTERVAL_SECONDS`, `SCHEDULER_CONCURRENCY`, `TIMETABLE_MAX_ACTIVE_RUNS`, `PLATFORM_ROOT_DOMAIN`.
+- Trang chọn trường là điểm cuối nhận mã trường (không liệt kê trường) vì danh sách khách hàng không được lộ ra công khai.
+- Không sửa khởi tạo trường (S2) và gói, giới hạn (S5a); hạn mức máy xếp là số cấu hình tạm để S5a thay.
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-192, `07_QUY_TAC_NGHIEP_VU.md` BR-203 đến BR-205, `10_YEU_CAU_CHUC_NANG.md` P01-51 đến P01-53, `11_TIEU_CHI_NGHIEM_THU.md` AC-827 đến AC-829
+
+#### Vấn đề tồn đọng
+
+- Số đo theo trường ở `/metrics`, bản trình diễn (18h) theo trường, biểu EMIS riêng từng trường chưa làm; không bật nhiều trường ở môi trường chạy thật trước S3; e2e toàn bộ do CI chạy
 
 ### 2026-10-25 — DT-SaaS phần S1a: nền đa thuê bao, phần lõi
 

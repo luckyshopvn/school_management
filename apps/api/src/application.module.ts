@@ -419,6 +419,8 @@ import { GridSettingsController, GridSettingsService } from './grid-settings/gri
 import { FeedbackController, FeedbackService } from './feedback/feedback.js';
 import { ArchivesController } from './archives/archives.controller.js';
 import { ArchiveJobs, ArchivesService } from './archives/archives.js';
+import { InternalJobsController, JobScheduler } from './common/job-scheduler.js';
+import { SchoolPickerController } from './common/school-picker.js';
 import { ExportJobs, ExportJobsController } from './exports/export-jobs.js';
 // Quản trị và trình diễn (DT-18 phần 18h)
 import { ImpersonationActionsController, ImpersonationInterceptor } from './impersonation/impersonation.js';
@@ -519,6 +521,8 @@ export class ApplicationModule {
         WebsiteContentController,
         WebsitePublicController,
         WebsiteDomainCheckController,
+        InternalJobsController,
+        SchoolPickerController,
         // Hồ sơ chuyên môn và Việc của tôi (DT-18 phần 18e)
         ProfessionalRecordsController,
         EducationPlansController,
@@ -1006,6 +1010,7 @@ export class ApplicationModule {
         GridSettingsService,
         FeedbackService,
         ArchivesService,
+        JobScheduler,
         ArchiveJobs,
         ExportJobs,
         UpperLevelForms,

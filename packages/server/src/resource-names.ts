@@ -27,3 +27,10 @@ export function cacheKey(...parts: string[]): string {
   const prefix = tenant?.keyPrefix ? ['t', tenant.keyPrefix] : [];
   return checkedParts([...prefix, ...parts]).join(':');
 }
+
+// Khóa ở bộ nhớ đệm với tiền tố của trường cho sẵn (không đọc ngữ cảnh): tiến trình nền không có ngữ cảnh trường, nhận tiền tố kèm việc
+// (DT-SaaS phần S1b). Tiền tố trống là trường số 1 hoặc chế độ một trường: khóa như cacheKey khi không có trường
+export function cacheKeyWithPrefix(keyPrefix: string, ...parts: string[]): string {
+  const prefix = keyPrefix ? ['t', keyPrefix] : [];
+  return checkedParts([...prefix, ...parts]).join(':');
+}

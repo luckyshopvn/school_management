@@ -1,6 +1,8 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import {
+  decodeGenerationQueueItem,
+  encodeGenerationQueueItem,
   GENERATION_QUEUE_KEY,
   generationCancelKey,
   generationJobKey,
@@ -98,5 +100,34 @@ describe('Máy xếp thời khoá biểu chạy nền', () => {
     const failed = JSON.parse(queue.values.get(generationStateKey('run-4')) ?? '{}') as GenerationState;
     assert.equal(failed.status, 'failed');
     assert.match(failed.message ?? '', /Máy xếp lỗi: hết bộ nhớ/);
+  });
+
+  it('nhiều trường (DT-SaaS S1b): phần tử hàng đợi mang tiền tố của trường, khóa đề bài, tiến độ, kết quả theo tiền tố, trường khác không lẫn', async () => {
+    assert.deepEqual(decodeGenerationQueueItem(encodeGenerationQueueItem('run-9', 'abc')), {
+      runId: 'run-9',
+      keyPrefix: 'abc',
+    });
+    // Trường số 1 (tiền tố trống) giữ nguyên dạng cũ nên phần tử đã xếp hàng trước khi nâng cấp vẫn đọc được
+    assert.equal(encodeGenerationQueueItem('run-9', ''), 'run-9');
+    assert.deepEqual(decodeGenerationQueueItem('run-9'), { runId: 'run-9', keyPrefix: '' });
+    assert.notEqual(generationJobKey('run-5', 'alpha'), generationJobKey('run-5', 'beta'));
+
+    const queue = new MemoryQueue();
+    // Cùng mã lần xếp ở hai trường: chỉ trường alpha có đề bài
+    queue.values.set(generationJobKey('run-5', 'alpha'), JSON.stringify(job('run-5')));
+    queue.lists.set(GENERATION_QUEUE_KEY, [
+      encodeGenerationQueueItem('run-5', 'alpha'),
+      encodeGenerationQueueItem('run-5', 'beta'),
+    ]);
+    let rounds = 0;
+    await consumeGenerationQueue(queue, () => (rounds += 1) <= 3, { log: () => {}, error: () => {} });
+    const state = (prefix: string) =>
+      JSON.parse(queue.values.get(generationStateKey('run-5', prefix)) ?? '{}') as GenerationState;
+    assert.equal(state('alpha').status, 'completed');
+    assert.ok(queue.values.has(generationResultKey('run-5', 'alpha')));
+    assert.equal(state('beta').status, 'failed');
+    assert.equal(queue.values.has(generationResultKey('run-5', 'beta')), false);
+    // Không ghi gì vào khóa không tiền tố
+    assert.equal(queue.values.has(generationStateKey('run-5')), false);
   });
 });

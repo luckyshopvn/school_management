@@ -5,6 +5,7 @@ import {
   HttpCode,
   Inject,
   Injectable,
+  Optional,
   Logger,
   Param,
   ParseIntPipe,
@@ -15,9 +16,11 @@ import {
   type OnApplicationBootstrap,
   type OnModuleDestroy,
 } from '@nestjs/common';
-import { isMultiTenantMode } from '@school-management/server';
+import { JobScheduler } from '../common/job-scheduler.js';
+import { currentTenant, isMultiTenantMode, requireTenant } from '@school-management/server';
 import { Clock, ruleViolationError, validationError, type FieldError } from '@school-management/server';
 import {
+  encodeGenerationQueueItem,
   GENERATION_QUEUE_KEY,
   GENERATION_TTL_SECONDS,
   MAXIMUM_TIME_LIMIT_SECONDS,
@@ -112,7 +115,10 @@ export class RedisTimetableGenerationQueue extends TimetableGenerationQueue {
 
   async enqueue(job: GenerationJob) {
     await this.redis.set(generationJobKey(job.run_id), JSON.stringify(job), 'EX', GENERATION_TTL_SECONDS);
-    await this.redis.rpush(GENERATION_QUEUE_KEY, job.run_id);
+    await this.redis.rpush(
+      GENERATION_QUEUE_KEY,
+      encodeGenerationQueueItem(job.run_id, requireTenant('hàng đợi máy xếp')?.keyPrefix ?? ''),
+    );
   }
 
   async readState(runId: string) {
@@ -331,6 +337,7 @@ export class TimetableGeneratorService {
     private readonly timetables: TimetablesService,
     private readonly queue: TimetableGenerationQueue,
     private readonly clock: Clock,
+    @Optional() @Inject(API_CONFIGURATION) private readonly configuration: ApiConfiguration | null = null,
   ) {}
 
   async settings(level: SchoolLevelCode) {
@@ -632,6 +639,28 @@ export class TimetableGeneratorService {
     };
   }
 
+  // Nhiều trường (DT-SaaS phần S1b): một trường không chiếm máy xếp của cả hệ thống, số lần xếp đang chạy cùng lúc có hạn mức (hạn mức
+  // theo gói do phần S5a thay thế). Chế độ một trường không giới hạn thêm ngoài quy tắc mỗi cấp một lần
+  private async assertWithinActiveRunQuota(
+    database: Awaited<ReturnType<CurrentSchoolYearResolver['require']>>['database'],
+  ): Promise<void> {
+    if (!isMultiTenantMode()) {
+      return;
+    }
+    const limit = this.configuration?.timetableMaxActiveRuns ?? 2;
+    const active = await database
+      .selectFrom('timetable_generation_runs')
+      .select((builder) => builder.fn.countAll<string>().as('count'))
+      .where('status', 'in', ['queued', 'running'])
+      .executeTakeFirstOrThrow();
+    if (Number(active.count) >= limit) {
+      throw ruleViolationError(
+        TIMETABLE_RULE_CODE_22C2,
+        `Trường đang có ${limit} lần xếp chưa xong, là số tối đa chạy cùng lúc; chờ xong hoặc huỷ bớt`,
+      );
+    }
+  }
+
   async startRun(
     currentUser: CurrentUser,
     level: SchoolLevelCode,
@@ -656,6 +685,7 @@ export class TimetableGeneratorService {
         throw ruleViolationError(TIMETABLE_RULE_CODE_22C2, 'Cấp này đang có một lần xếp chưa xong; chờ xong hoặc huỷ');
       }
     }
+    await this.assertWithinActiveRunQuota(database);
     const settings = overrides ?? (await this.settings(level));
     const input = await this.buildInput(level, settings.weights);
     if (input.demands.length === 0) {
@@ -1053,18 +1083,23 @@ function summaryOf(result: GenerationResult | null): string | null {
 export class TimetableGenerationJobs implements OnApplicationBootstrap, OnModuleDestroy {
   private readonly logger = new Logger('TimetableGenerationJobs');
   private timer: NodeJS.Timeout | null = null;
-  private running = false;
+  private readonly running = new Set<string>();
 
   constructor(
     @Inject(API_CONFIGURATION) private readonly configuration: ApiConfiguration,
     private readonly generator: TimetableGeneratorService,
     private readonly queue: TimetableGenerationQueue,
+    @Optional() @Inject(JobScheduler) private readonly scheduler: JobScheduler | null = null,
   ) {}
 
   onApplicationBootstrap() {
-    // Nhiều trường (DT-SaaS phần S1a): việc nền và việc khởi động theo từng trường làm ở phần S1b (tài liệu 32 mục 14.5); tới lúc
-    // đó không chạy ở chế độ nhiều trường vì ngoài yêu cầu không có ngữ cảnh trường
+    // Nhiều trường (DT-SaaS phần S1b): bộ lập lịch gọi tick cho từng trường đang phục vụ, trong ngữ cảnh của trường
     if (isMultiTenantMode()) {
+      this.scheduler?.register({
+        name: 'timetable-sync',
+        intervalSeconds: this.configuration.notificationDispatchIntervalSeconds ?? 60,
+        run: () => this.tick(),
+      });
       return;
     }
     const seconds = this.configuration.notificationDispatchIntervalSeconds ?? 60;
@@ -1082,16 +1117,17 @@ export class TimetableGenerationJobs implements OnApplicationBootstrap, OnModule
   }
 
   async tick(): Promise<void> {
-    if (this.running) {
+    if (this.running.has(currentTenant()?.code ?? '')) {
       return;
     }
-    this.running = true;
+    const tenantKey = currentTenant()?.code ?? '';
+    this.running.add(tenantKey);
     try {
       await this.generator.syncPending();
     } catch (error) {
       this.logger.error('Tiến trình lưu kết quả máy xếp lỗi', error instanceof Error ? error.stack : String(error));
     } finally {
-      this.running = false;
+      this.running.delete(tenantKey);
     }
   }
 }

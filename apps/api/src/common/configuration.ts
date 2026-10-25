@@ -35,6 +35,13 @@ export interface ApiConfiguration {
   // Tác vụ xuất nền (DT-16 phần 16a): chu kỳ tiến trình xuất nền tính bằng giây, 0 là tắt, kiểm thử tự gọi; số dòng tối đa
   // của một lần xuất trực tiếp, vượt thì tạo tác vụ nền (mặc định 10 000)
   exportJobIntervalSeconds?: number;
+  // Bộ lập lịch việc nền nhiều trường (DT-SaaS phần S1b): chu kỳ tick trong tiến trình (giây; 0 là tắt, dùng điểm tick bên ngoài), số trường
+  // chạy song song, mã dùng chung INTERNAL_JOB_TOKEN cho điểm tick bên ngoài (trống là không có điểm đó), số lần xếp thời khóa biểu đang chạy tối đa
+  // mỗi trường (hạn mức gói do phần S5a thay thế)
+  schedulerIntervalSeconds?: number;
+  schedulerConcurrency?: number;
+  schedulerSecret?: string;
+  timetableMaxActiveRuns?: number;
   syncExportRowLimit?: number;
   // Đăng Fanpage và gửi Zalo: `development` là bộ giả lập (YCTD-90). Khóa trang Facebook chỉ đặt ở biến môi trường;
   // Graph API dùng phiên bản facebookGraphVersion, mặc định v21.0 (YCTD-92)
@@ -155,6 +162,12 @@ export function readConfigurationFromEnvironment(options: { multiTenant?: boolea
     paymentProviders: readPaymentProviderSettings(paymentGateways),
     notificationDispatchIntervalSeconds: Number(process.env.NOTIFICATION_DISPATCH_INTERVAL_SECONDS ?? 60),
     exportJobIntervalSeconds: Number(process.env.EXPORT_JOB_INTERVAL_SECONDS ?? 15),
+    // SCHEDULER_MODE=external: không có hẹn giờ trong tiến trình, bộ hẹn giờ bên ngoài gọi điểm tick (máy chủ được phép ngủ khi rảnh)
+    schedulerIntervalSeconds:
+      process.env.SCHEDULER_MODE?.trim() === 'external' ? 0 : Number(process.env.SCHEDULER_INTERVAL_SECONDS ?? 15),
+    schedulerConcurrency: Number(process.env.SCHEDULER_CONCURRENCY ?? 2),
+    ...(process.env.INTERNAL_JOB_TOKEN?.trim() ? { schedulerSecret: process.env.INTERNAL_JOB_TOKEN.trim() } : {}),
+    timetableMaxActiveRuns: Number(process.env.TIMETABLE_MAX_ACTIVE_RUNS ?? 2),
     ...readIntegrationConfiguration(process.env),
     smsProvider: readSmsProviderSettings(),
     redisUrl: process.env.REDIS_URL?.trim() || null,

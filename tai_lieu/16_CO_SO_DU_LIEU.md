@@ -1,7 +1,7 @@
 # 16. CƠ SỞ DỮ LIỆU
 
 - Mô tả: Thực thể, trường, kiểu dữ liệu, khóa chính, khóa ngoại, quan hệ, ràng buộc, chỉ mục, trạng thái, lịch sử thay đổi, chính sách xóa dữ liệu.
-- Phiên bản: 1.118
+- Phiên bản: 1.119
 - Ngày cập nhật: 2026-10-25
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -722,6 +722,7 @@ Cơ sở dữ liệu `platform` dùng chung cho nền tảng nhiều trường, 
 | platform_settings (từ YCTD-191) | Cấu hình của nền tảng (tên miền hệ thống, tên sản phẩm, mã trường dành riêng; các phần sau thêm) | key (khóa chính), value (JSON) |
 | platform_operators (từ YCTD-191) | Tài khoản vận hành nền tảng, không thuộc trường nào (PQ-105) | login (chữ thường, duy nhất), full_name, password_hash (argon2id), status, failed_login_count, locked_until, last_login_at, must_change_password |
 | platform_audit_log (từ YCTD-191) | Nhật ký của nền tảng, không khóa ngoại tới trường để giữ lại sau khi xóa trường | at, actor_type (`operator`, `system`, `cli`), actor_id, action, school_id, details (JSON), ip_address |
+| scheduler_state (từ YCTD-192) | Trạng thái bộ lập lịch theo trường (BR-203; tệp nền tảng `0010_create_scheduler_state`, khối 0010 đến 0019 của S1b) | school_id (khóa ngoại tới schools, xóa theo), job (khóa chính cùng school_id), last_run_at, run_count, last_status (`ok`, `error`), last_duration_ms, last_error |
 
 ## 19. Quan hệ chính giữa các bảng
 
