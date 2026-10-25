@@ -1,7 +1,7 @@
 # 17. ĐẶC TẢ API
 
 - Mô tả: Điểm cuối, phương thức, yêu cầu, phản hồi, xác thực, phân quyền, kiểm tra dữ liệu, xử lý lỗi, phân trang, lọc, sắp xếp, phiên bản.
-- Phiên bản: 1.121
+- Phiên bản: 1.122
 - Ngày cập nhật: 2026-10-25
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -257,6 +257,12 @@ Giao kèo của nhóm điểm cuối xác thực (DT-01 phần 1):
     - `GET`, `PUT /auth/settings` có thêm `captcha_failure_threshold` (1 đến 10), `password_history_count` (0 đến 24), `captcha_always` (đúng hoặc sai), `login_hotline` (tối đa 100 ký tự, chuỗi rỗng là bỏ); sửa cần `P01.setting.manage` ở phạm vi toàn trường như mục 10.
     - `otp/login` của phụ huynh chỉ nhận mã có `purpose` là `login`.
 
+Giao kèo nhiều trường (DT-SaaS phần S1a, YCTD-191, BR-200 đến BR-202):
+
+1. Có biến `PLATFORM_DATABASE_URL` thì dịch vụ định danh và máy chủ API chạy nhiều trường: mỗi yêu cầu nhận diện trường theo tên miền (`TENANT_HOST_SOURCE` là `host`, `x-forwarded-host` kèm `TRUST_PROXY`, hoặc `header:<tên>` kèm `EDGE_SHARED_SECRET`); tên miền lạ, thiếu tên miền, trường đang khởi tạo hoặc đã xóa trả 404 chung (`ERR_NOT_FOUND`), trường tạm dừng trả 503 (`ERR_SCHOOL_SUSPENDED`); đường dẫn `/api/v1/health` và `/api/v1/auth/platform/*` không cần trường.
+2. Mã phiên mang claim `tid` (mã trường; `sid` đã là mã phiên). Máy chủ API và dịch vụ định danh trả 401 khi thiếu `tid` hoặc `tid` khác trường của tên miền. Gọi nội bộ giữa hai dịch vụ dùng địa chỉ nội bộ, không phải tên miền của trường: khi tên miền không phân giải được mà yêu cầu có mã phiên hợp lệ thì lấy trường theo `tid` trong mã phiên đã ký.
+3. Cookie mã làm mới đặt tên kèm mã trường (`refresh_token__<mã>`), khóa Redis của dịch vụ định danh có tiền tố `t:<mã>`, `cacheKey`, `storageKey` thêm tiền tố của trường (trường số 1 tiền tố trống).
+4. Việc nền và việc khởi động theo trường (gửi thông báo, xuất nền, hàng đợi máy xếp, đăng ký biểu EMIS) chưa chạy ở chế độ nhiều trường, làm ở phần S1b.
 ## 5. Nền tảng và phân quyền
 
 Các điểm cuối tài khoản, vai trò, quyền và khóa API dưới đây do dịch vụ định danh phục vụ. Các điểm cuối còn lại, gồm đơn vị, năm học, cấu hình và nhóm `/partner/`, do máy chủ API nghiệp vụ phục vụ; khóa API gửi kèm yêu cầu của đối tác được máy chủ API kiểm tra với dịch vụ định danh.
@@ -1511,6 +1517,8 @@ Giao kèo văn thư lưu trữ (YCTD-118):
 | GET, POST | /api/v1/public/site, /public/site/{trang}, /public/website/domain-check | Trang công khai theo tên miền (không cần đăng nhập; trang gioi-thieu, co-cau-to-chuc, tin-tuc, thong-bao, van-ban, tuyen-sinh, cong-khai, thoi-khoa-bieu, thu-vien-anh, lien-he, tep, robots.txt, sitemap.xml), kiểm tra tên miền cho máy chủ web (P14-16, YCTD-144) |
 | POST | /api/v1/auth/impersonation, /auth/impersonation/exit | Bắt đầu, thoát đăng nhập thay (dịch vụ định danh, P01-32, YCTD-145) |
 | GET | /api/v1/auth/impersonations, /api/v1/impersonation-actions | Nhật ký đăng nhập thay (định danh), thao tác trong từng lần (máy chủ API) (P01-32, YCTD-145) |
+| POST | /api/v1/auth/platform/login | Đăng nhập vận hành nền tảng (YCTD-191, PQ-105): chỉ ở tên miền cổng nền tảng (PLATFORM_CONSOLE_HOST), tên miền khác 404; đúng thì trả mã phiên vận hành (đối tượng riêng, hạn 8 giờ); sai 5 lần khóa 15 phút; không cần trường |
+| GET | /api/v1/auth/platform/me | Thông tin tài khoản vận hành đang đăng nhập kèm số trường (YCTD-191); mã phiên của trường không dùng được ở đây |
 | GET, POST | /api/v1/school-data-exports; GET /api/v1/users/data-export | Gói ZIP toàn bộ dữ liệu; phần dữ liệu tài khoản của dịch vụ định danh (P01-33, YCTD-145) |
 | GET | /api/v1/public/demo | Trạng thái bản trình diễn, tài khoản trình diễn, mật khẩu chung (công khai; P01-34, YCTD-145) |
 | GET | /api/v1/outgoing-documents | Danh sách văn bản đi theo `view` (`drafts`, `pending`, `processed`, `to_issue`, `issued`, `search`), lọc, phân trang (YCTD-140) |

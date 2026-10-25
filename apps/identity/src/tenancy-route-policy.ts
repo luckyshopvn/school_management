@@ -1,0 +1,29 @@
+// Chính sách trường của các tuyến công khai của dịch vụ định danh (DT-SaaS phần S1a, tài liệu 32 mục 14.7 lớp 3): tuyến không đòi mã
+// phiên của đúng trường phải khai ở đây kèm lý do; kiểm thử ma trận cách ly tự liệt kê tuyến và đối chiếu danh sách này
+export interface PublicRoute {
+  method: string;
+  path: string;
+  reason: string;
+}
+
+const SIGN_IN =
+  'Đăng nhập, mã xác nhận, mã một lần, đặt lại mật khẩu: công khai theo tên miền của trường (tài khoản và Redis của đúng trường), có giới hạn tần suất';
+const PLATFORM =
+  'Cổng vận hành nền tảng: không thuộc trường nào, chỉ phục vụ ở tên miền PLATFORM_CONSOLE_HOST (tên miền khác 404), mã phiên vận hành có đối tượng riêng';
+
+export const PUBLIC_ROUTES: PublicRoute[] = [
+  {
+    method: 'GET',
+    path: '/api/v1/health',
+    reason: 'Kiểm tra sức khỏe do máy chủ chuyển tiếp gọi bằng địa chỉ nội bộ, không cần trường, không trả dữ liệu',
+  },
+  { method: 'GET', path: '/api/v1/auth/login-options', reason: SIGN_IN },
+  { method: 'POST', path: '/api/v1/auth/captcha', reason: SIGN_IN },
+  { method: 'POST', path: '/api/v1/auth/login', reason: SIGN_IN },
+  { method: 'POST', path: '/api/v1/auth/otp/login', reason: SIGN_IN },
+  { method: 'POST', path: '/api/v1/auth/otp/request', reason: SIGN_IN },
+  { method: 'POST', path: '/api/v1/auth/password-reset/confirm', reason: SIGN_IN },
+  { method: 'POST', path: '/api/v1/auth/password-reset/request', reason: SIGN_IN },
+  { method: 'POST', path: '/api/v1/auth/platform/login', reason: PLATFORM },
+  { method: 'GET', path: '/api/v1/auth/platform/me', reason: PLATFORM },
+];

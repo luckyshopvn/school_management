@@ -1,7 +1,7 @@
 # 12. KIẾN TRÚC HỆ THỐNG
 
 - Mô tả: Kiến trúc tổng thể, thành phần, xác thực, phân quyền, lưu trữ tệp, ghi nhật ký, giám sát, sao lưu, phục hồi, triển khai.
-- Phiên bản: 1.15
+- Phiên bản: 1.16
 - Ngày cập nhật: 2026-10-25
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -215,6 +215,10 @@ Thứ tự dựng (YCTD-32): môi trường phát triển chạy Docker trên m�
 
 Hồ sơ "Vận hành" (b) cho nhiều trường trên VPS trong nước (DT-SaaS S7a, YCTD-198, `deploy/profiles/production/`): cùng ảnh container với bản một máy; một tệp Compose cho ba cách đặt máy (T1 một VPS; T2 máy ứng dụng và máy cơ sở dữ liệu; T3 hai máy ứng dụng, máy chính và bản sao); PgBouncer trước PostgreSQL (gom theo giao dịch, riêng `school_system` theo phiên); Caddy bắt mọi tên miền với chứng chỉ theo yêu cầu, chỉ cấp cho tên miền có trong danh sách; hai bản `api`, `identity` và triển khai không gián đoạn (migrate trước, khởi động lại lần lượt); môi trường thử cùng Compose, tên dự án khác, chỉ dữ liệu giả.
 
+## 12A. Nhiều trường trên một nền tảng (DT-SaaS phần S1a, YCTD-191)
+
+Có `PLATFORM_DATABASE_URL` thì dịch vụ định danh và máy chủ API chạy nhiều trường; không có thì chế độ một trường như trước. Luồng một yêu cầu: tên miền → bảng `school_domains` của cơ sở dữ liệu nền tảng (đệm có hạn) → ngữ cảnh trường (mã, trạng thái, tiền tố khóa, khóa dữ liệu trẻ) đặt vào `AsyncLocalStorage` → `Databases` (máy chủ API), `Infrastructure` (dịch vụ định danh), `cacheKey`, `storageKey` đọc ngữ cảnh → mã phiên phải mang cùng `tid`. Nhóm kết nối có giới hạn mỗi cơ sở dữ liệu của trường (`TENANT_POOL_MAX`) và tổng số trường mở cùng lúc (`TENANT_POOL_SCHOOLS`), tự đóng khi không dùng. Bố cục cơ sở dữ liệu cấu hình bằng `TENANT_DB_LAYOUT`: `database` (hồ sơ vận hành) hoặc `schema` (hồ sơ thử nghiệm), mô tả kết nối nằm ở `school_databases` nên mã nghiệp vụ không biết bố cục. Quy tắc ở BR-200 đến BR-202, bảo mật ở BM-73 đến BM-75, bảng ở `16_CO_SO_DU_LIEU.md` mục 18A.
+
 ## 13. Quyết định kiến trúc
 
 | Mã | Quyết định | Trạng thái |
@@ -243,6 +247,7 @@ Hồ sơ "Vận hành" (b) cho nhiều trường trên VPS trong nước (DT-Saa
 | QĐ-22 | Mã phiên ký bằng khóa bất đối xứng Ed25519; dịch vụ định danh giữ khóa bí mật, máy chủ API chỉ giữ khóa công khai (YCTD-34) | Đã chốt ngày 2026-10-09 |
 | QĐ-23 | Đơn vị tổ chức là cây hai cấp: cấp 1 là Trường chính, chỉ một đơn vị; cấp 2 là Phân hiệu hoặc Điểm trường, chọn loại cho từng đơn vị, trực thuộc thẳng Trường chính; nhãn cố định; cả hai cấp có lớp; trẻ gắn với đơn vị của lớp trẻ đang học (YCTD-38) | Đã chốt ngày 2026-10-09 |
 | QĐ-24 | Nền đa cấp học (DT-19, YCTD-151 đến YCTD-156): bốn mã cấp cố định; cấp của trường ở `school_levels` (cơ sở dữ liệu hệ thống), đọc qua `SchoolLevelResolver`; cấp là thuộc tính của khối, lớp, đơn vị, chương trình, lịch, biểu phí; tham số cấp dùng chung `school_level`; một năm học một cơ sở dữ liệu cho cả trường, không tách theo cấp; chuyển dữ liệu bằng tệp vá chạy lặp được và lệnh kiểm đối chiếu chỉ đọc | Đã chốt ngày 2026-10-23 theo `32_KE_HOACH_THEO_HE_THONG_SO.md` mục 10, 10.10 |
+| QĐ-25 | Nền đa thuê bao (DT-SaaS phần S1a, YCTD-191): mô hình A, mỗi trường một bộ cơ sở dữ liệu và một vai trò PostgreSQL, thêm cơ sở dữ liệu nền tảng `platform`; ngữ cảnh trường đặt bằng `AsyncLocalStorage` ở đầu yêu cầu nên `Databases`, `cacheKey`, `storageKey` giữ chữ ký; đóng chặt khi thiếu ngữ cảnh; mã phiên mang `tid`, cặp khóa ký dùng chung; chế độ một trường là mặc định và bản đang chạy thành trường số 1 không chuyển dữ liệu; bố cục `schema` (mỗi lược đồ một vai trò, `search_path` mức vai trò) cho hồ sơ thử nghiệm; chi tiết ở `32_KE_HOACH_THEO_HE_THONG_SO.md` mục 14 | Đã chốt, làm ở S1a |
 
 ## 14. Chưa xác minh được
 

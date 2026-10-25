@@ -1,4 +1,5 @@
 import { Body, Controller, Get, Injectable, OnModuleInit, Param, Put, Query, Req, Res } from '@nestjs/common';
+import { isMultiTenantMode } from '@school-management/server';
 import {
   ApplicationError,
   Clock,
@@ -61,6 +62,11 @@ export class PrimaryEmisService implements OnModuleInit {
 
   // Biểu trong danh mục đăng ký vào luồng gửi lên cấp trên lúc khởi động (biểu thêm sau cần khởi động lại máy chủ)
   async onModuleInit(): Promise<void> {
+    // Nhiều trường (DT-SaaS phần S1a): việc nền và việc khởi động theo từng trường làm ở phần S1b (tài liệu 32 mục 14.5); tới lúc
+    // đó không chạy ở chế độ nhiều trường vì ngoài yêu cầu không có ngữ cảnh trường
+    if (isMultiTenantMode()) {
+      return;
+    }
     const rows = await this.databases.system.selectFrom('report_forms').select(['code', 'name']).execute();
     for (const form of rows) {
       this.forms.register({

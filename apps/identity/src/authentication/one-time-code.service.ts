@@ -44,7 +44,7 @@ export class OneTimeCodeService {
     // Đếm số lần yêu cầu theo số điện thoại cho mọi số, kể cả số không có trong hệ thống,
     // nên báo vượt giới hạn không lộ số có tồn tại hay không (CTC-DD-022, BM-61)
     const hour = Math.floor(now.getTime() / 3_600_000);
-    const counterKey = `${this.configuration.redisKeyPrefix}:one-time-code-requests:${phone}:${hour}`;
+    const counterKey = `${this.infrastructure.keyPrefix()}:one-time-code-requests:${phone}:${hour}`;
     const requestCount = await this.infrastructure.redis.incr(counterKey);
     if (requestCount === 1) {
       await this.infrastructure.redis.expire(counterKey, 7200);

@@ -1,7 +1,7 @@
 # 14. ĐẶC TẢ GIAO DIỆN
 
 - Mô tả: Danh sách màn hình, điều hướng, bố cục, thành phần, dữ liệu hiển thị, thao tác, trạng thái, thông báo, xử lý lỗi, quyền hiển thị, khả năng thích ứng màn hình.
-- Phiên bản: 1.107
+- Phiên bản: 1.108
 - Ngày cập nhật: 2026-10-25
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -678,6 +678,8 @@ Từ YCTD-184 (DT-22 phần 22h2), phân hệ "Kho học liệu" thêm 8. Câu h
 | MH-285 | 6.4. Năng lực số (YCTD-182, `/training/competency`): thẻ kỳ; bảng "Bản đồ năng lực số" (giáo viên × miền, ô dưới ngưỡng tô đỏ nhạt, dòng trung bình, "Xác nhận"); khối xác nhận (mức xác nhận, lý do đổi mức) | Tổ trưởng (tổ mình), Ban Giám hiệu |
 | MH-286 | 6.5. Danh mục bồi dưỡng (YCTD-182, `/training/settings`): căn cứ; khối "Thiết lập" (định mức tiết, ngưỡng gợi ý, đơn vị cấp); bảng, biểu mẫu chuyên đề (chương trình, số tiết, miền gắn kèm, đang dùng hoặc ngừng); khung năng lực số (mức, miền, "Thêm miền") | `P09.training.manage` |
 | MH-287 | Tra cứu chứng nhận bồi dưỡng (YCTD-182, `/tra-cuu-chung-nhan?ma=…`, công khai): ô mã tra cứu, nút "Tra cứu"; khối "Kết quả tra cứu" (còn hiệu lực hoặc đã thu hồi, người được cấp, khoá, đơn vị cấp, ngày cấp, số tiết) | Không cần đăng nhập |
+| MH-313 | Cổng vận hành nền tảng: Đăng nhập (YCTD-191, ứng dụng riêng `apps/platform`, tên miền `PLATFORM_CONSOLE_HOST`): ô tên đăng nhập, mật khẩu, nút Đăng nhập, thông báo lỗi của máy chủ | Người vận hành nền tảng |
+| MH-314 | Cổng vận hành nền tảng: khung và Tổng quan (YCTD-191): thanh đầu trang có tên người vận hành và Đăng xuất; menu bên trái theo dữ liệu (mỗi phần sau thêm mục); trang Tổng quan hiện số trường đang quản lý | Người vận hành nền tảng |
 
 Từ YCTD-128 (DT-16 phần 16i): MH-80 có nút "Nhập từ Excel" mở công cụ nhập chung "Nhập phòng từ Excel"; biểu mẫu phòng chỉ hiện thuộc tính khai báo được cho loại phòng đang chọn, bốn ô nhà vệ sinh (Đối tượng sử dụng nhà vệ sinh, Nhà vệ sinh đạt chuẩn, Riêng nam nữ, Số chỗ) chỉ hiện với Phòng vệ sinh; MH-80 cũng mở ở mục 6.2 (`/facility-input`) với tiêu đề "6.2. Nhập liệu cơ sở vật chất". MH-81 bỏ thẻ 2.2 (chuyển sang MH-129), thẻ Danh mục tối thiểu có nút "Nhập từ Excel". MH-20 thẻ Tài sản có khối "Gắn thiết bị dạy học" (Tài sản cần gắn, Thiết bị dạy học, Gắn thiết bị dạy học, Bỏ gắn) và cột Thiết bị dạy học khi người dùng có `P13.equipment.manage`.
 

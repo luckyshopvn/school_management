@@ -5,7 +5,9 @@
   "type": "module",
   "scripts": {
     "typecheck": "tsc -p tsconfig.json --noEmit",
-    "e2e": "node e2e-setup.mjs && playwright test"
+    "e2e": "node e2e-setup.mjs && playwright test",
+    "test": "node --test tenancy/*.test.mjs",
+    "e2e:multi": "node e2e-multi-setup.mjs && playwright test --config playwright.multi.config.ts"
   },
   "devDependencies": {
     "@playwright/test": "^1.64.0",

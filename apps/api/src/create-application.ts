@@ -1,7 +1,8 @@
 import 'reflect-metadata';
 import { NestFactory } from '@nestjs/core';
 import type { INestApplication, Type } from '@nestjs/common';
-import { Clock, ErrorFilter, SystemClock } from '@school-management/server';
+import type { TenancyRuntime } from '@school-management/database';
+import { Clock, createTenantMiddleware, ErrorFilter, SystemClock } from '@school-management/server';
 import { API_VERSION_PREFIX } from '@school-management/shared';
 import type { AcademicYearTransitionStep } from './academic-years/academic-year-transition.js';
 import { ApplicationModule } from './application.module.js';
@@ -19,12 +20,28 @@ export async function createApplication(
     fileStorage?: FileStorage;
     smsGateway?: SmsGateway;
     identityClient?: IdentityClient;
+    // Nền tảng nhiều trường (DT-SaaS phần S1a): có thì mỗi yêu cầu nhận diện trường theo tên miền; không có là chế độ một trường
+    tenancy?: TenancyRuntime | null;
   } = {},
 ): Promise<INestApplication> {
   const application = await NestFactory.create(
     ApplicationModule.register(configuration, options.clock ?? new SystemClock(), options),
     { logger: ['error', 'warn'] },
   );
+  const tenancy = options.tenancy ?? null;
+  if (tenancy) {
+    // Gọi nội bộ giữa máy chủ API và dịch vụ định danh dùng địa chỉ nội bộ, không phải tên miền của trường: khi tên miền không
+    // phân giải được mà yêu cầu mang mã phiên hợp lệ thì lấy trường theo mã trường trong mã phiên (đã ký)
+    const clock = options.clock ?? new SystemClock();
+    application.use(
+      createTenantMiddleware({
+        resolver: tenancy.registry,
+        hostSource: tenancy.configuration.hostSource,
+        ...(tenancy.configuration.edgeSecret ? { edgeSecret: tenancy.configuration.edgeSecret } : {}),
+        resolveByToken: tenancy.tokenTenantResolver(configuration.tokenPublicKeyPem, () => clock.now()),
+      }),
+    );
+  }
   application.setGlobalPrefix(API_VERSION_PREFIX.slice(1));
   application.useGlobalFilters(new ErrorFilter());
   application.enableShutdownHooks();

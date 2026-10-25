@@ -6,5 +6,5 @@ export default typescript.config(
   javascript.configs.recommended,
   ...typescript.configs.recommended,
   // Tệp JavaScript chạy trên Node
-  { files: ['**/*.mjs'], languageOptions: { globals: { process: 'readonly', console: 'readonly' } } },
+  { files: ['**/*.mjs'], languageOptions: { globals: { process: 'readonly', console: 'readonly', URL: 'readonly' } } },
 );

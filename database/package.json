@@ -14,9 +14,11 @@
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "migrate": "node --env-file-if-exists=../.env dist/src/migrate-command.js",
     "level-check": "node --env-file-if-exists=../.env dist/src/level-check-command.js",
-    "test": "node --env-file-if-exists=../.env --test \"dist/**/*.test.js\""
+    "test": "node --env-file-if-exists=../.env --test \"dist/**/*.test.js\"",
+    "platform": "node --env-file-if-exists=../.env dist/src/platform-command.js"
   },
   "dependencies": {
+    "@school-management/server": "workspace:*",
     "kysely": "^0.29.6",
     "pg": "^8.23.0"
   },

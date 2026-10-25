@@ -15,7 +15,8 @@ import { AuthenticationService } from './authentication/authentication.service.j
 import { LoginRateLimiter } from './authentication/login-rate-limiter.js';
 import { TokenService } from './authentication/token.service.js';
 import { Clock } from '@school-management/server';
-import { IDENTITY_CONFIGURATION, type IdentityConfiguration } from './common/configuration.js';
+import type { TenancyRuntime } from '@school-management/database';
+import { IDENTITY_CONFIGURATION, TENANCY_RUNTIME, type IdentityConfiguration } from './common/configuration.js';
 import { Infrastructure } from './common/infrastructure.js';
 import { HealthController } from './health.controller.js';
 import { createSmsSender, SmsSender } from './messaging/sms-sender.js';
@@ -25,6 +26,7 @@ import { CaptchaService } from './authentication/captcha.service.js';
 import { PasswordResetService } from './authentication/password-reset.service.js';
 import { ImpersonationService } from './authentication/impersonation.service.js';
 import { IdentityDataExportService } from './accounts/identity-data-export.js';
+import { PlatformAuthController, PlatformOperatorsService } from './platform/platform-operators.js';
 
 @Module({})
 export class ApplicationModule {
@@ -33,6 +35,7 @@ export class ApplicationModule {
     clock: Clock,
     organizationDirectory?: OrganizationDirectory,
     smsSender?: SmsSender,
+    tenancy?: TenancyRuntime | null,
   ): DynamicModule {
     return {
       module: ApplicationModule,
@@ -43,9 +46,11 @@ export class ApplicationModule {
         AccountsController,
         RolesController,
         ApiClientsController,
+        PlatformAuthController,
       ],
       providers: [
         { provide: IDENTITY_CONFIGURATION, useValue: configuration },
+        { provide: TENANCY_RUNTIME, useValue: tenancy ?? null },
         { provide: Clock, useValue: clock },
         Infrastructure,
         TokenService,
@@ -78,6 +83,7 @@ export class ApplicationModule {
         GuardianAccountsService,
         StaffAccountsService,
         IdentitySettingsService,
+        PlatformOperatorsService,
       ],
     };
   }

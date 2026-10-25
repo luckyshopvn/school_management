@@ -13,9 +13,14 @@ export interface IdentityConfiguration {
   // Nhà cung cấp tin nhắn: 'log' chỉ ghi ra nhật ký, không dùng được ở môi trường chạy thật (YCTD-43); 'esms' là
   // eSMS.vn, cần khóa và tên thương hiệu ở biến môi trường (YCTD-92)
   smsProvider: SmsProviderSettings;
+  // Tên miền riêng của cổng vận hành nền tảng (DT-SaaS phần S1a, ví dụ platform.<tên miền hệ thống>); trống thì tắt đăng nhập
+  // vận hành nền tảng. Là cấu hình của nền tảng, không ghi cứng
+  platformConsoleHost?: string | null;
 }
 
 export const IDENTITY_CONFIGURATION = Symbol('IDENTITY_CONFIGURATION');
+// Thời gian chạy nền tảng nhiều trường (DT-SaaS phần S1a); null ở chế độ một trường
+export const TENANCY_RUNTIME = Symbol('TENANCY_RUNTIME');
 
 function readRequired(name: string): string {
   const value = process.env[name];
@@ -25,9 +30,11 @@ function readRequired(name: string): string {
   return value;
 }
 
+// Ở chế độ nhiều trường (có PLATFORM_DATABASE_URL) cơ sở dữ liệu định danh là của từng trường nên không đọc ở đây
 export function readConfigurationFromEnvironment(): IdentityConfiguration {
+  const multiTenant = Boolean(process.env.PLATFORM_DATABASE_URL?.trim());
   return {
-    databaseUrl: readRequired('IDENTITY_DATABASE_URL'),
+    databaseUrl: multiTenant ? '' : readRequired('IDENTITY_DATABASE_URL'),
     redisUrl: readRequired('REDIS_URL'),
     redisKeyPrefix: 'identity',
     tokenPrivateKeyPem: decodeBase64Key(readRequired('IDENTITY_TOKEN_PRIVATE_KEY')),
@@ -35,5 +42,6 @@ export function readConfigurationFromEnvironment(): IdentityConfiguration {
     loginRequestsPerMinutePerAddress: Number(process.env.LOGIN_REQUESTS_PER_MINUTE ?? 10),
     apiBaseUrl: readRequired('API_BASE_URL'),
     smsProvider: readSmsProviderSettings(),
+    platformConsoleHost: process.env.PLATFORM_CONSOLE_HOST?.trim() || null,
   };
 }

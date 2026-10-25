@@ -10,3 +10,6 @@ playwright-report/
 # Cấu hình môi trường chạy thật chứa bí mật (YCTD-92); chỉ đưa tệp mẫu lên kho
 deploy/.env.*
 !deploy/.env.production.example
+
+# Trạng thái kiểm thử giao diện nhiều trường (khóa gốc của lần chạy)
+tests/.e2e-multi.json

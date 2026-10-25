@@ -19,6 +19,18 @@
     "./resource-names": {
       "types": "./dist/resource-names.d.ts",
       "default": "./dist/resource-names.js"
+    },
+    "./tenant-context": {
+      "types": "./dist/tenant-context.d.ts",
+      "default": "./dist/tenant-context.js"
+    },
+    "./tenancy": {
+      "types": "./dist/tenancy.d.ts",
+      "default": "./dist/tenancy.js"
+    },
+    "./access-token": {
+      "types": "./dist/access-token.d.ts",
+      "default": "./dist/access-token.js"
     }
   },
   "scripts": {

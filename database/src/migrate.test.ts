@@ -24,7 +24,7 @@ async function assertMigratesTwiceWithVietnamTimezone(kind: DatabaseKind, connec
   }
 }
 
-describe('Tệp thay đổi cấu trúc trên ba loại cơ sở dữ liệu', () => {
+describe('Tệp thay đổi cấu trúc trên bốn loại cơ sở dữ liệu', () => {
   it('identity: chạy hai lần không lỗi và đặt giờ Việt Nam', async () => {
     await assertMigratesTwiceWithVietnamTimezone('identity', readConnectionString('identity'));
   });
@@ -40,6 +40,20 @@ describe('Tệp thay đổi cấu trúc trên ba loại cơ sở dữ liệu', (
     try {
       await assertMigratesTwiceWithVietnamTimezone(
         'school-year',
+        replaceDatabaseName(systemConnectionString, databaseName),
+      );
+    } finally {
+      await dropDatabaseIfExists(systemConnectionString, databaseName);
+    }
+  });
+
+  it('platform: cơ sở dữ liệu nền tảng tạo mới chạy hai lần không lỗi và đặt giờ Việt Nam (DT-SaaS phần S1a)', async () => {
+    const systemConnectionString = readConnectionString('system');
+    const databaseName = `school_platform_test_${randomUUID().replaceAll('-', '').slice(0, 12)}`;
+    await createEmptyDatabase(systemConnectionString, databaseName);
+    try {
+      await assertMigratesTwiceWithVietnamTimezone(
+        'platform',
         replaceDatabaseName(systemConnectionString, databaseName),
       );
     } finally {

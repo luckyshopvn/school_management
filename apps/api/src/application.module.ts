@@ -30,7 +30,8 @@ import { AcademicYearsController } from './academic-years/academic-years.control
 import { AcademicYearsService } from './academic-years/academic-years.service.js';
 import { AuthenticationGuard } from './authentication/authentication.guard.js';
 import { IdentityClient } from './authentication/identity-client.js';
-import { API_CONFIGURATION, type ApiConfiguration } from './common/configuration.js';
+import type { TenancyRuntime } from '@school-management/database';
+import { API_CONFIGURATION, TENANCY_RUNTIME, type ApiConfiguration } from './common/configuration.js';
 import { CurrentSchoolYearResolver } from './common/current-school-year.js';
 import { SchoolLevelResolver } from './common/school-levels.js';
 import { SchoolLevelsController, SchoolLevelsService } from './school-levels/school-levels.js';
@@ -473,6 +474,7 @@ export class ApplicationModule {
       smsGateway?: SmsGateway;
       // Lệnh tạo dữ liệu trình diễn chạy máy chủ API trong tiến trình, đọc tài khoản thẳng từ cơ sở dữ liệu định danh
       identityClient?: IdentityClient;
+      tenancy?: TenancyRuntime | null;
     } = {},
   ): DynamicModule {
     return {
@@ -728,6 +730,7 @@ export class ApplicationModule {
       ],
       providers: [
         { provide: API_CONFIGURATION, useValue: configuration },
+        { provide: TENANCY_RUNTIME, useValue: options.tenancy ?? null },
         { provide: Clock, useValue: clock },
         Databases,
         options.identityClient ? { provide: IdentityClient, useValue: options.identityClient } : IdentityClient,
@@ -973,12 +976,17 @@ export class ApplicationModule {
           provide: ZaloTokenStore,
           inject: [Databases],
           useFactory: (databases: Databases) =>
-            new ZaloTokenStore(databases.system, configuration.childDataEncryptionKey, {
-              appId: configuration.zaloAppId ?? null,
-              appSecret: configuration.zaloAppSecret ?? null,
-              seedRefreshToken: configuration.zaloOaRefreshToken ?? null,
-              seedAccessToken: configuration.zaloOaAccessToken ?? null,
-            }),
+            // Hàm đọc lại theo từng lần dùng để ở chế độ nhiều trường lấy đúng cơ sở dữ liệu và khóa của trường trong ngữ cảnh
+            new ZaloTokenStore(
+              () => databases.system,
+              () => configuration.childDataEncryptionKey,
+              {
+                appId: configuration.zaloAppId ?? null,
+                appSecret: configuration.zaloAppSecret ?? null,
+                seedRefreshToken: configuration.zaloOaRefreshToken ?? null,
+                seedAccessToken: configuration.zaloOaAccessToken ?? null,
+              },
+            ),
         },
         {
           provide: ZaloSender,

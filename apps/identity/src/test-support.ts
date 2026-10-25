@@ -1,7 +1,12 @@
 import { randomInt, randomUUID } from 'node:crypto';
 import type { AddressInfo } from 'node:net';
 import type { INestApplication } from '@nestjs/common';
-import { createDatabase, readConnectionString, type IdentityDatabase } from '@school-management/database';
+import {
+  createDatabase,
+  readConnectionString,
+  type IdentityDatabase,
+  type TenancyRuntime,
+} from '@school-management/database';
 import type { Kysely } from 'kysely';
 import { hashPassword } from './authentication/password.js';
 import { Clock } from '@school-management/server';
@@ -242,4 +247,55 @@ export async function getJson(
 
 export function errorCode(body: Record<string, unknown>): unknown {
   return (body.error as Record<string, unknown> | undefined)?.code;
+}
+
+export interface TenantTestContext {
+  application: INestApplication;
+  clock: AdjustableClock;
+  baseUrl: string;
+  origin: string;
+  tokenPublicKeyPem: string;
+  configuration: IdentityConfiguration;
+  smsSender: RecordingSmsSender;
+  close(): Promise<void>;
+}
+
+// Dịch vụ định danh chạy ở chế độ nhiều trường (DT-SaaS phần S1a): cơ sở dữ liệu định danh theo trường của nền tảng đã dựng,
+// nhận diện trường theo tên miền; Redis thật với tiền tố khóa riêng của lần chạy
+export async function startTenantTestApplication(
+  tenancy: TenancyRuntime,
+  options: { loginRequestsPerMinutePerAddress?: number } = {},
+): Promise<TenantTestContext> {
+  const redisUrl = process.env.REDIS_URL;
+  if (!redisUrl) {
+    throw new Error('Thiếu biến môi trường REDIS_URL');
+  }
+  const keys = await generateTokenKeyPair();
+  const configuration: IdentityConfiguration = {
+    databaseUrl: '',
+    redisUrl,
+    redisKeyPrefix: `identity-test-${randomUUID()}`,
+    tokenPrivateKeyPem: keys.privateKeyPem,
+    tokenPublicKeyPem: keys.publicKeyPem,
+    loginRequestsPerMinutePerAddress: options.loginRequestsPerMinutePerAddress ?? 1000,
+    apiBaseUrl: 'http://127.0.0.1:9',
+    smsProvider: { provider: 'log' },
+  };
+  const clock = new AdjustableClock();
+  const smsSender = new RecordingSmsSender();
+  const application = await createApplication(configuration, clock, undefined, smsSender, tenancy);
+  await application.listen(0);
+  const address = application.getHttpServer().address() as AddressInfo;
+  return {
+    application,
+    clock,
+    baseUrl: `http://127.0.0.1:${address.port}/api/v1`,
+    origin: `http://127.0.0.1:${address.port}`,
+    tokenPublicKeyPem: keys.publicKeyPem,
+    configuration,
+    smsSender,
+    async close() {
+      await application.close();
+    },
+  };
 }

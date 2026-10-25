@@ -1,7 +1,7 @@
 # 02. NHẬT KÝ DỰ ÁN
 
 - Mô tả: Ghi nhận công việc, quyết định, thay đổi và vấn đề tồn đọng theo ngày, ngày mới nhất ở trên cùng.
-- Phiên bản: 0.63
+- Phiên bản: 0.64
 - Ngày cập nhật: 2026-10-25
 - Trạng thái: Đang cập nhật
 
@@ -13,6 +13,31 @@
 - Không ghi thông tin tạm thời như kết quả tra cứu, đường dẫn tạm, thông báo lỗi của công cụ.
 
 ## Nhật ký theo ngày
+
+### 2026-10-25 — DT-SaaS phần S1a: nền đa thuê bao, phần lõi
+
+#### Công việc đã thực hiện
+
+- Đọc mục 14.3, 14.4, 14.5, 14.7, 14.9 của `32_KE_HOACH_THEO_HE_THONG_SO.md`; rà mã: `Databases` (142 chỗ dùng `databases.system` ở 61 tệp), cấu hình máy chủ API và dịch vụ định danh, `Infrastructure`, mã phiên, cookie mã làm mới, khóa Redis của dịch vụ định danh, `cacheKey`, `storageKey`, các tiến trình nền, `academic-years.service.ts`, `database/src/migrate.ts`, cấu hình e2e và CI.
+- Thêm cơ sở dữ liệu nền tảng (tệp 0001 đến 0004), ngữ cảnh trường, nhận diện trường theo tên miền, bố cục cơ sở dữ liệu `database` và `schema`, nhóm kết nối có giới hạn, mã phiên mang `tid`, khóa dữ liệu trẻ riêng, tiền tố khóa, `adopt-existing`, đăng nhập vận hành nền tảng, khung cổng nền tảng, kiểm thử cách ly (kiểm tĩnh, ma trận tuyến, quét chuỗi mồi, hai bố cục, e2e nhiều trường), việc CI mới.
+- Thêm quy tắc BR-200 đến BR-202, quyền PQ-105, chức năng P01-47 đến P01-50, màn hình MH-313, MH-314, kịch bản CT-990 đến CT-998, tiêu chí AC-823 đến AC-826, bảo mật BM-73 đến BM-75, QĐ-25, bảng nền tảng ở `16` mục 18A, giao kèo ở `17`, mục 12A của `12`; phiên bản 0.129.0.
+
+#### Quyết định
+
+- Claim mã trường của mã phiên là `tid`, không phải `sid` như kế hoạch viết, vì `sid` đã là mã phiên.
+- Gọi nội bộ giữa máy chủ API và dịch vụ định danh (địa chỉ nội bộ, không phải tên miền trường) lấy trường theo `tid` của mã phiên đã ký khi tên miền không phân giải được; không có mã phiên thì vẫn 404.
+- Đăng nhập vận hành nền tảng đặt dưới `/api/v1/auth/platform/*` (nhóm `/api/v1/auth` đã chuyển sang dịch vụ định danh ở Caddy và proxy phát triển) để không sửa `deploy/` của phần S7a; mã phiên vận hành có đối tượng riêng.
+- Tên cookie mã làm mới kèm mã trường ở chế độ nhiều trường; trường số 1 có tiền tố khóa trống.
+- Sáu tiến trình nền và việc khởi động theo trường không chạy ở chế độ nhiều trường cho tới S1b (ngoài yêu cầu không có ngữ cảnh trường); ghi rõ ở YCTD-191.
+- Hai Dockerfile thêm `COPY apps/platform/package.json` để khớp tệp khóa pnpm (một dòng mỗi tệp, phần S7a có thể gộp xung đột nhỏ).
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-191, `07_QUY_TAC_NGHIEP_VU.md` BR-200 đến BR-202, `08_VAI_TRO_NGUOI_DUNG.md` PQ-105, `10_YEU_CAU_CHUC_NANG.md` P01-47 đến P01-50, `11_TIEU_CHI_NGHIEM_THU.md` AC-823 đến AC-826, `14_DAC_TA_GIAO_DIEN.md` MH-313, MH-314, `16_CO_SO_DU_LIEU.md` mục 18A, `17_DAC_TA_API.md`, `21_KICH_BAN_KIEM_THU.md` CT-990 đến CT-998, `22_BAO_MAT.md` BM-73 đến BM-75, `12_KIEN_TRUC_HE_THONG.md` mục 12A, QĐ-25; phiên bản phần mềm 0.129.0.
+
+#### Vấn đề tồn đọng
+
+- Không bật nhiều trường ở môi trường chạy thật trước khi S1b (việc nền, điểm cuối công khai, khóa ghép tay còn trong baseline kiểm tĩnh) và S3 (khóa tích hợp riêng từng trường) gộp; e2e toàn bộ do CI chạy (trên máy chỉ chạy spec 130 và các spec bị ảnh hưởng); `pg_advisory_lock` ở mở năm học và `Migrator` cần kiểm khi qua bộ gom kết nối theo giao dịch (S7a); S9 dùng bố cục `schema` và `DB_HOST_ADAPTER` cho Neon, Supabase.
 
 ### 2026-10-25 — DT-SaaS phần S7a: hạ tầng VPS trong nước, phần dựng sẵn
 

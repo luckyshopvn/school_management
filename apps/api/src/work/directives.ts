@@ -18,6 +18,7 @@ import {
   type OnApplicationBootstrap,
   type OnModuleDestroy,
 } from '@nestjs/common';
+import { isMultiTenantMode } from '@school-management/server';
 import { FileInterceptor } from '@nestjs/platform-express';
 import type {
   SchoolYearDatabase,
@@ -1768,6 +1769,11 @@ export class DirectiveJobs implements OnApplicationBootstrap, OnModuleDestroy {
   ) {}
 
   onApplicationBootstrap() {
+    // Nhiều trường (DT-SaaS phần S1a): việc nền và việc khởi động theo từng trường làm ở phần S1b (tài liệu 32 mục 14.5); tới lúc
+    // đó không chạy ở chế độ nhiều trường vì ngoài yêu cầu không có ngữ cảnh trường
+    if (isMultiTenantMode()) {
+      return;
+    }
     const seconds = this.configuration.notificationDispatchIntervalSeconds ?? 60;
     if (seconds > 0) {
       this.timer = setInterval(() => void this.tick(), seconds * 1000);

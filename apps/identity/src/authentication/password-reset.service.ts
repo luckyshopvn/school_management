@@ -49,7 +49,7 @@ export class PasswordResetService {
     };
 
     const hour = Math.floor(now.getTime() / 3_600_000);
-    const counterKey = `${this.configuration.redisKeyPrefix}:password-reset-requests:${loginIdentifier.toLowerCase()}:${hour}`;
+    const counterKey = `${this.infrastructure.keyPrefix()}:password-reset-requests:${loginIdentifier.toLowerCase()}:${hour}`;
     const requestCount = await this.infrastructure.redis.incr(counterKey);
     if (requestCount === 1) {
       await this.infrastructure.redis.expire(counterKey, 7200);
