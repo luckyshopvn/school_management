@@ -1,7 +1,7 @@
 # 10. YÊU CẦU CHỨC NĂNG
 
 - Mô tả: Mã chức năng, tên chức năng, mục đích, người sử dụng, điều kiện thực hiện, dữ liệu đầu vào, quy trình xử lý, kết quả đầu ra, quy tắc nghiệp vụ, trường hợp ngoại lệ, phân quyền, thông báo lỗi.
-- Phiên bản: 1.97
+- Phiên bản: 1.98
 - Ngày cập nhật: 2026-10-25
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -79,6 +79,9 @@
 | P01-59 | Hồ sơ triển khai thử nghiệm miễn phí (YCTD-203) | Người vận hành nền tảng | Tổ hợp (1: Cloudflare, Neon, R2, Render; 2: Cloudflare, Supabase, Koyeb; 3: Vercel), biến cấu hình của nền tảng | Cổng biên chia đường dẫn, chuyển `/api/v1` về máy chủ gộp kèm tên miền gốc và bí mật, trang đang khởi động khi máy chủ ngủ, gọi `tick` theo lịch; bộ nối nơi đặt PostgreSQL sinh địa chỉ qua bộ gom kết nối | Nền tảng nhiều trường chạy trên gói miễn phí | BR-209 |
 | P01-60 | Tên miền riêng qua nhà cung cấp (YCTD-203) | Người vận hành nền tảng | Tên miền riêng của trường; `DOMAIN_PROVIDER` `cloudflare-saas` hoặc `vercel-domains` | Tạo tên miền ở nhà cung cấp, hiện bản ghi xác nhận, hỏi trạng thái, gỡ khi xóa vĩnh viễn trường | Tên miền riêng hoạt động có chứng chỉ | BR-206 |
 | P01-61 | Chuyển trường sang hồ sơ vận hành (YCTD-203) | Người vận hành (lệnh `platform relayout`) | Mã trường, bố cục đích, nền tảng đích | Chép trường, khóa, cơ sở dữ liệu theo bố cục đích, so số dòng và tổng kiểm từng bảng | Trường ở nền tảng đích, báo cáo khớp từng bảng | BR-210 |
+| P01-62 | Khóa kết nối ngoài riêng từng trường (YCTD-195) | Hiệu trưởng (VT-02) | Khóa và thông tin của cổng thanh toán, eSMS, Zalo, Facebook, kho tệp | Lưu mã hóa bằng khóa của trường; kiểm tra kết nối; xem địa chỉ gọi lại của trường; xóa cấu hình; bộ nối ngoài đọc theo trường | Trạng thái từng kết nối kèm bốn ký tự cuối giá trị bí mật | BR-211 |
+| P01-63 | Đổi khóa mã hóa dữ liệu trẻ và bọc lại khóa gốc (YCTD-195) | Người vận hành (lệnh dòng lệnh platform) | Mã trường đang tạm dừng; khóa gốc mới | Mã hóa lại từng lô, làm tiếp được, tính lại băm, thay khóa khi xong, ghi nhật ký | Khóa mới của trường; số dòng đã mã hóa lại | BR-212 |
+| P01-64 | Thương hiệu của trường (YCTD-195) | Hiệu trưởng (VT-02); người dùng chưa đăng nhập (đọc) | Tên hiển thị, màu chủ đạo | Lưu thương hiệu; trang đăng nhập đọc công khai theo tên miền | Tên, màu, biểu trưng của trường | BR-213 |
 
 ## 3. Phân hệ P02 — Trẻ, phụ huynh và lớp học
 

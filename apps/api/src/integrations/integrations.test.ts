@@ -15,6 +15,7 @@ import {
 } from '../test-support.js';
 import { DevelopmentFacebookPublisher, FacebookPublisher } from './facebook-publisher.js';
 import { DevelopmentZaloSender, ZaloSender } from './zalo-sender.js';
+import type { TenantFacebookPublisher, TenantZaloSender } from '../school-settings/tenant-connectors.js';
 
 // Kết nối Fanpage và Zalo Official Account (DT-11 phần 11e, YCTD-90); kịch bản đề xuất CT-202 đến CT-207
 const vietnamToday = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Ho_Chi_Minh' }).format(new Date());
@@ -87,9 +88,12 @@ describe('Kết nối Fanpage và Zalo Official Account', () => {
   before(async () => {
     environment = await startApiTestEnvironment();
     dispatcher = environment.api.get(NotificationDispatcher);
-    publisher = (environment.api.get(FacebookPublisher) as DemoAwareFacebookPublisher)
-      .inner as DevelopmentFacebookPublisher;
-    zalo = (environment.api.get(ZaloSender) as DemoAwareZaloSender).inner as DevelopmentZaloSender;
+    publisher = (await (
+      (environment.api.get(FacebookPublisher) as DemoAwareFacebookPublisher).inner as TenantFacebookPublisher
+    ).current()) as DevelopmentFacebookPublisher;
+    zalo = (await (
+      (environment.api.get(ZaloSender) as DemoAwareZaloSender).inner as TenantZaloSender
+    ).current()) as DevelopmentZaloSender;
     principal = await environment.loginAs('VT-02', null);
     academicYearId = await openTestAcademicYear(environment, principal.accessToken, 'Năm học kết nối', {
       first_term: { start_date: addDays(vietnamToday, -60), end_date: addDays(vietnamToday, 90) },

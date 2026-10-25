@@ -488,7 +488,10 @@ export interface ProvisionResult {
   activationToken: string | null;
 }
 
-async function schoolDescriptors(environment: LifecycleEnvironment, schoolId: string): Promise<DatabaseDescriptor[]> {
+export async function schoolDescriptors(
+  environment: LifecycleEnvironment,
+  schoolId: string,
+): Promise<DatabaseDescriptor[]> {
   const rows = await environment.platform
     .selectFrom('school_databases')
     .selectAll()

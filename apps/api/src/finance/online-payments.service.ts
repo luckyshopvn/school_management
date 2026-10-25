@@ -73,13 +73,13 @@ export class OnlinePaymentsService {
   ) {}
 
   // Cổng có được bật trên máy chủ không (điểm cuối giả lập chỉ có khi bật cổng giả lập)
-  supportsProvider(provider: string): boolean {
-    return this.gateways.has(provider);
+  async supportsProvider(provider: string): Promise<boolean> {
+    return (await this.gateways.prepare()).has(provider);
   }
 
   async providers(currentUser: CurrentUser) {
     await this.assertViewer(currentUser, null);
-    return this.gateways.list();
+    return (await this.gateways.prepare()).list();
   }
 
   // Tài khoản ngân hàng chọn cổng thanh toán (trống là cổng mặc định) và khai mã BIN ngân hàng (YCTD-89)
@@ -102,10 +102,11 @@ export class OnlinePaymentsService {
     if (account.account_type !== 'bank') {
       throw validationError([{ field: 'account_id', message: 'Chỉ tài khoản ngân hàng chọn cổng thanh toán' }]);
     }
-    if (input.provider && !this.gateways.has(input.provider)) {
+    const gateways = await this.gateways.prepare();
+    if (input.provider && !gateways.has(input.provider)) {
       throw validationError([{ field: 'payment_provider', message: 'Cổng thanh toán chưa được bật trên máy chủ' }]);
     }
-    const gateway = this.gateways.forAccount(input.provider);
+    const gateway = gateways.forAccount(input.provider);
     if (gateway.requiresBankBin && (!input.bankBin || !account.account_number)) {
       throw validationError([
         { field: 'bank_bin', message: 'Cổng này cần mã BIN ngân hàng 6 số và số tài khoản của tài khoản nhận' },
@@ -232,7 +233,7 @@ export class OnlinePaymentsService {
       active &&
       Number(active.amount) === outstanding &&
       (!active.expires_at || active.expires_at.getTime() > this.clock.now().getTime());
-    const gateway = this.gateways.forAccount(account.payment_provider);
+    const gateway = (await this.gateways.prepare()).forAccount(account.payment_provider);
     // Mã còn hiệu lực của cổng khác (tài khoản vừa đổi cổng) thì xin mã mới của cổng đang chọn
     const request =
       stillValid && active.provider === gateway.provider
@@ -279,7 +280,7 @@ export class OnlinePaymentsService {
   // liệu thử PayOS gửi khi đăng ký địa chỉ nhận thông báo cũng vào danh sách chờ một lần)
   async receiveWebhook(provider: string, request: WebhookRequest) {
     await this.demoMode.assertLive('nhận thông báo tiền vào của cổng thanh toán thật');
-    const gateway = this.gateways.find(provider);
+    const gateway = (await this.gateways.prepare()).find(provider);
     if (!gateway || !isWebhookGateway(gateway)) {
       throw new ApplicationError('ERR_NOT_FOUND', 'Cổng thanh toán chưa được bật');
     }
@@ -305,7 +306,7 @@ export class OnlinePaymentsService {
     if (await this.demoMode.isEnabled()) {
       return { RspCode: '99', Message: 'Demo environment' };
     }
-    const gateway = this.gateways.find('vnpay');
+    const gateway = (await this.gateways.prepare()).find('vnpay');
     if (!(gateway instanceof VnpayPaymentGateway)) {
       throw new ApplicationError('ERR_NOT_FOUND', 'Cổng thanh toán chưa được bật');
     }

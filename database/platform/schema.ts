@@ -220,6 +220,21 @@ export interface SchoolHostingTable {
   created_at: CreatedTimestamp;
 }
 
+// Nhật ký đổi khóa mã hóa dữ liệu trẻ (DT-SaaS phần S3, YCTD-195)
+export interface SchoolKeyRotationsTable {
+  id: Generated<string>;
+  school_id: string;
+  status: Generated<'running' | 'completed' | 'failed'>;
+  new_encryption_key_encrypted: string;
+  new_hash_key_encrypted: string;
+  progress: ColumnType<Record<string, string>, string | undefined, string>;
+  rows_done: ColumnType<string, number | string | undefined, number | string>;
+  started_by: string;
+  started_at: CreatedTimestamp;
+  finished_at: Date | null;
+  error: string | null;
+}
+
 export interface SchedulerStateTable {
   school_id: string;
   job: string;
@@ -246,4 +261,5 @@ export interface PlatformDatabase {
   school_consents: SchoolConsentsTable;
   school_hosting: SchoolHostingTable;
   scheduler_state: SchedulerStateTable;
+  school_key_rotations: SchoolKeyRotationsTable;
 }

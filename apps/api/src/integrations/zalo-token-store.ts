@@ -39,10 +39,17 @@ export class ZaloTokenStore {
   constructor(
     private readonly systemSource: Kysely<SystemDatabase> | (() => Kysely<SystemDatabase>),
     private readonly keySource: Buffer | (() => Buffer),
-    private readonly options: ZaloTokenStoreOptions,
+    private readonly optionsSource: ZaloTokenStoreOptions | (() => Promise<ZaloTokenStoreOptions>),
+    extras: Pick<ZaloTokenStoreOptions, 'fetcher' | 'now'> = {},
   ) {
-    this.fetcher = options.fetcher ?? ((input, init) => fetch(input, init));
-    this.now = options.now ?? (() => new Date());
+    const base = typeof optionsSource === 'function' ? extras : optionsSource;
+    this.fetcher = base.fetcher ?? ((input, init) => fetch(input, init));
+    this.now = base.now ?? (() => new Date());
+  }
+
+  // Cấu hình ban đầu của Zalo: cố định, hoặc hàm đọc theo từng lần dùng (nhiều trường: theo cấu hình của trường, DT-SaaS phần S3)
+  private resolveOptions(): Promise<ZaloTokenStoreOptions> {
+    return typeof this.optionsSource === 'function' ? this.optionsSource() : Promise.resolve(this.optionsSource);
   }
 
   private get system(): Kysely<SystemDatabase> {
@@ -119,18 +126,19 @@ export class ZaloTokenStore {
   }
 
   private async seedIfEmpty(): Promise<void> {
-    if (!this.options.seedRefreshToken || (await this.read())) {
+    const options = await this.resolveOptions();
+    if (!options.seedRefreshToken || (await this.read())) {
       return;
     }
     await this.system
       .insertInto('integration_credentials')
       .values({
         connector: 'zalo',
-        refresh_token_encrypted: encryptSecret(this.encryptionKey, this.options.seedRefreshToken),
-        access_token_encrypted: this.options.seedAccessToken
-          ? encryptSecret(this.encryptionKey, this.options.seedAccessToken)
+        refresh_token_encrypted: encryptSecret(this.encryptionKey, options.seedRefreshToken),
+        access_token_encrypted: options.seedAccessToken
+          ? encryptSecret(this.encryptionKey, options.seedAccessToken)
           : null,
-        access_token_expires_at: this.options.seedAccessToken
+        access_token_expires_at: options.seedAccessToken
           ? new Date(this.now().getTime() + SEEDED_ACCESS_TOKEN_TTL_MS)
           : null,
       })
@@ -139,9 +147,9 @@ export class ZaloTokenStore {
   }
 
   private async refreshLocked(staleAccessToken: string | null): Promise<string> {
-    const { appId, appSecret } = this.options;
+    const { appId, appSecret } = await this.resolveOptions();
     if (!appId || !appSecret) {
-      throw new Error('Máy chủ chưa cấu hình ZALO_APP_ID và ZALO_APP_SECRET để làm mới khóa Zalo');
+      throw new Error('Trường chưa cấu hình App ID và App Secret của Zalo để làm mới khóa Zalo');
     }
     await this.seedIfEmpty();
     return this.system.transaction().execute(async (transaction) => {

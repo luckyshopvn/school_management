@@ -1,7 +1,7 @@
 # 22. BẢO MẬT
 
 - Mô tả: Xác thực, phân quyền, phiên làm việc, kiểm tra dữ liệu đầu vào, bảo mật API, truy cập dữ liệu.
-- Phiên bản: 1.12
+- Phiên bản: 1.13
 - Ngày cập nhật: 2026-10-25
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -135,6 +135,8 @@ Các trường hợp trên phải đẩy cảnh báo cho quản trị nền tả
 | BM-78 | Quản lý vòng đời trường (YCTD-193, PQ-106): thao tác chỉ ở tên miền cổng nền tảng bằng mã phiên vận hành, mọi thao tác ghi sự kiện vòng đời và nhật ký nền tảng; hồ sơ đồng ý chỉ lưu mã băm và khóa tệp của bản quét; việc khởi tạo không lưu mật khẩu; xóa vĩnh viễn chỉ sau thời gian chờ, xóa cả vai trò PostgreSQL, khóa dữ liệu trẻ, tệp của trường (khóa Redis của trường đều có hạn sống tối đa 2 giờ nên tự hết, không xóa), bản ghi chứng minh chỉ giữ mã băm tên trường; trường số 1 không xóa bằng lệnh này |
 | BM-79 | Cổng biên hồ sơ thử nghiệm (YCTD-203): máy chủ có địa chỉ công khai chỉ nhận ra trường khi tiêu đề tên miền đi kèm bí mật `x-edge-auth` khớp `EDGE_SHARED_SECRET` (so sánh thời gian hằng); cổng biên bỏ `x-edge-auth`, `x-school-host`, `x-forwarded-host`, `x-website-root` do người dùng tự đặt và ghi đè `x-forwarded-for`; `tick` cần `INTERNAL_JOB_TOKEN`; bí mật đặt bằng `wrangler secret`, biến bí mật của Render, Koyeb, không có trong kho; tệp mẫu chỉ có giá trị giả |
 | BM-80 | Dữ liệu thật ở máy chủ ngoài nước (YCTD-203, BR-207, BR-209, PL-00 đến PL-15 của `33_HO_SO_PHAP_LY/`): chỉ trường đủ hồ sơ đồng ý; `PLATFORM_MASTER_KEY` chỉ ở máy chủ ứng dụng, không ở nhà cung cấp cơ sở dữ liệu, nên nhà cung cấp chỉ thấy bản mã của số định danh trẻ; phần dữ liệu còn lại dạng rõ (biện pháp giảm rủi ro, đề xuất mã hóa thêm số điện thoại cha mẹ, địa chỉ nhà, hồ sơ sức khỏe ở S3, S8b); biểu ngữ môi trường thử nghiệm; chuyển về trong nước bằng `platform relayout` (khóa bọc lại bằng khóa gốc của đích); kho khóa trong bộ nhớ (`REDIS_URL=memory://`) chỉ dùng với một bản dịch vụ; `SMS_ALLOW_LOG` chỉ cho trường dữ liệu giả |
+| BM-81 | Khóa kết nối ngoài của trường (YCTD-195, BR-211): mã hóa AES-256-GCM bằng khóa của trường trước khi lưu, không bao giờ trả lại qua API hay ghi vào nhật ký, chỉ bốn ký tự cuối để nhận biết; chế độ nhiều trường không rơi về khóa ở biến môi trường của cả bản triển khai hay của trường khác; chỉ người có quyền P01.integration.manage xem và đổi |
+| BM-82 | Đổi khóa dữ liệu trẻ và khóa gốc (YCTD-195, BR-212): khóa mới sinh ngẫu nhiên và bọc bằng khóa gốc ngay khi tạo; chỉ làm khi trường tạm dừng; thay khóa hiện tại nguyên tử khi xong; khóa gốc đổi bằng lệnh bọc lại trong một giao dịch; mọi bước ghi nhật ký nền tảng |
 
 Từ YCTD-200 (DT-SaaS phần S8a), quy trình xử lý sự cố và thông báo vi phạm dữ liệu cá nhân của nền tảng nhiều trường (thời hạn 72 giờ theo Điều 23 Luật Bảo vệ dữ liệu cá nhân số 91/2025/QH15, nội dung theo Điều 28 Nghị định 356/2025/NĐ-CP) ở `33_HO_SO_PHAP_LY/12_QUY_TRINH_SU_CO_VA_THONG_BAO.md` (bản nháp chờ luật sư rà).
 

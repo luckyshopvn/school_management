@@ -23,6 +23,7 @@ import {
   type LifecycleEnvironment,
   type SchoolSetupInput,
 } from './school-lifecycle.js';
+import { rewrapMasterKey, rotateChildKeys } from './key-rotation.js';
 import { createSchoolDatabaseLayout } from './school-database-layout.js';
 import { relayoutSchool } from './school-relayout.js';
 import { readMasterKey, readTenancyConfiguration, TenancyRuntime } from './tenancy-runtime.js';
@@ -47,6 +48,10 @@ import type { PlatformDatabase } from '../platform/schema.js';
 //   verify-domain --host <tên miền>    kiểm tra DNS của tên miền riêng đang chờ
 //   migrate-schools [--canary <mã>] [--continue]
 //                                      migrate cuốn chiếu mọi trường, ghi kết quả vào school_migrations
+// Khóa (DT-SaaS phần S3, YCTD-195):
+//   rotate-child-key --code <mã>       đổi khóa mã hóa dữ liệu trẻ của trường đang tạm dừng: mã hóa lại từng bước, làm tiếp được khi
+//                                      chạy lại, ghi nhật ký; xong thì dùng lệnh resume để mở lại trường
+//   rewrap-master-key                  bọc lại khóa của mọi trường bằng khóa gốc mới (PLATFORM_NEW_MASTER_KEY)
 // Chuyển trường sang nền tảng hoặc bố cục khác (DT-SaaS phần S9, YCTD-203):
 //   relayout --school <mã> --to database|schema
 //                                      chép trường (đang tạm dừng hoặc chỉ đọc) sang nền tảng đích đặt bằng TARGET_PLATFORM_DATABASE_URL,
@@ -164,6 +169,32 @@ async function lifecycleCommand(): Promise<boolean> {
       await withLifecycle(async (environment) => {
         const result = await verifyCustomDomain(environment, required('host'), CLI_ACTOR);
         console.log(result.verified ? `${result.host}: đã xác nhận` : `${result.host}: ${result.problems.join('; ')}`);
+      });
+      return true;
+    case 'rotate-child-key':
+      await withLifecycle(async (environment) => {
+        const result = await rotateChildKeys(environment, required('code'), CLI_ACTOR, {
+          onProgress: (line) => console.log(line),
+        });
+        console.log(
+          `Đổi khóa ${result.rotationId}: ${result.status}, ${result.rowsDone} dòng${result.resumed ? ' (làm tiếp)' : ''}; ` +
+            'mở lại trường bằng lệnh resume',
+        );
+      });
+      return true;
+    case 'rewrap-master-key':
+      // Khóa gốc cũ lấy từ PLATFORM_MASTER_KEY, khóa gốc mới từ PLATFORM_NEW_MASTER_KEY; xong thì đặt khóa mới vào PLATFORM_MASTER_KEY
+      await withLifecycle(async (environment) => {
+        const result = await rewrapMasterKey(
+          environment.platform,
+          environment.masterKey,
+          readKey32('PLATFORM_NEW_MASTER_KEY'),
+          CLI_ACTOR,
+        );
+        console.log(
+          `Đã bọc lại ${result.keys} bộ khóa trường, ${result.passwords} mật khẩu kết nối, ${result.rotations} lần đổi khóa đang dở bằng khóa gốc mới; ` +
+            'đặt PLATFORM_NEW_MASTER_KEY vào PLATFORM_MASTER_KEY ở mọi tiến trình',
+        );
       });
       return true;
     case 'relayout': {

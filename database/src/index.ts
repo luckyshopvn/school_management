@@ -25,6 +25,9 @@ export type {
 } from '../identity/schema.js';
 export { administrativeNameKey } from '../system/administrative-names.js';
 export type {
+  IntegrationSecretConnector,
+  IntegrationSecretsTable,
+  SchoolBrandingTable,
   AcademicTermType,
   AdministrativeLevel,
   AdministrativePeriod,
@@ -342,6 +345,7 @@ export { DEFAULT_TAX_TABLE_ID } from '../school-year/migrations/0022_create_payr
 export { MEAL_SERVICE_ID } from '../school-year/migrations/0010_create_fee_catalogs.js';
 export { DEFAULT_LEDGER_ACCOUNTS, DEFAULT_POSTING_RULES } from '../school-year/migrations/0042_create_ledger.js';
 export type {
+  SchoolKeyRotationsTable,
   SchedulerStateTable,
   PlatformAuditActorType,
   PlatformDatabase,
@@ -414,5 +418,6 @@ export {
   lifecycleSettingsFrom,
   type LifecycleSettings,
 } from './lifecycle-environment.js';
+export { rotateChildKeys, rewrapMasterKey, type KeyRotationOptions, type KeyRotationResult } from './key-rotation.js';
 export * from './database-host-adapter.js';
 export * from './school-relayout.js';
