@@ -27,7 +27,7 @@ Các thay đổi trước phiên bản 0.4.0 chưa có sổ này; xem `23_LICH_S
 - Quyền bị ảnh hưởng: dùng `P01.integration.manage` hiện có; không thêm quyền.
 - Ảnh hưởng chức năng cũ: không ở chế độ một trường khi chưa nhập cấu hình riêng. Ở chế độ nhiều trường: bộ nối ngoài không còn dùng khóa của cả bản triển khai.
 - Kiểm thử cần thực hiện: kiểm thử đơn vị `database`, `apps/api`, `apps/portal`; kiểm tĩnh; ma trận cách ly; e2e spec 133 ở dự án nhiều trường và các spec bị ảnh hưởng; CI chạy toàn bộ e2e.
-- Trạng thái: Đã triển khai (PR @@PR@@)
+- Trạng thái: Đã triển khai (PR 169)
 
 ### YCTD-193: DT-SaaS phần S2: khởi tạo và vòng đời trường – 2026-10-25
 
