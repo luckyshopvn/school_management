@@ -745,6 +745,14 @@ Từ YCTD-203 (tệp nền tảng `0100_add_database_login_name`), bảng `schoo
 | school_plans (từ YCTD-194) | Gán gói cho trường có ngày hiệu lực, giữ lịch sử (BR-214) | school_id, plan_id, effective_from, effective_to (trống là còn hiệu lực), assigned_by, note |
 | schools (thêm từ YCTD-194) | Hạn của trường (BR-216) | trial_ends_on, paid_until, status_changed_at; `platform_settings` thêm khóa `plan_lifecycle` (remind_days, read_only_after_days, suspend_after_days, default_trial_days) |
 
+## 18C. Sao lưu, khôi phục, chuyển cụm theo trường (DT-SaaS phần S7b, YCTD-199)
+
+| Bảng | Mục đích | Cột chính |
+|---|---|---|
+| backup_runs (từ YCTD-199) | Mỗi lần sao lưu, khôi phục, diễn tập khôi phục, chuyển cụm của một trường ở cơ sở dữ liệu nền tảng (BR-217, BR-218; tệp nền tảng `0070_create_backup_runs`, khối 0070 đến 0079 của S7b) | id, school_id (khóa ngoại `schools`, đặt rỗng khi trường bị xóa), school_code, kind (`backup`, `restore`, `drill`, `cluster-move`), status (`running`, `done`, `failed`), file_name (đường dẫn tương đối `<mã>/<thời điểm>-<phạm vi>.sbak`), file_bytes, file_sha256, databases, tables, rows, details (JSON: phạm vi, chế độ khôi phục, trường nguồn, cụm đích, `duration_ms`), error, actor_type, actor_id, started_at, finished_at; chỉ mục (school_code, kind, started_at) |
+
+Tệp sao lưu `.sbak` không nằm trong cơ sở dữ liệu: đầu tệp `SMBK1`, muối 16 byte, IV 12 byte, nội dung (dòng JSON nén gzip, mã hóa AES-256-GCM), mã xác thực 16 byte ở cuối.
+
 ## 19. Quan hệ chính giữa các bảng
 
 ```mermaid

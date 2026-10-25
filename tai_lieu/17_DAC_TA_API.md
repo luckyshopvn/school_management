@@ -281,6 +281,12 @@ Giao kèo hồ sơ thử nghiệm (DT-SaaS phần S9, YCTD-203, BR-209, BR-210):
 Giao kèo gói dịch vụ (DT-SaaS phần S5a, YCTD-194, BR-214 đến BR-216):
 
 1. Khi trường có gói, quyền thuộc phân hệ ngoài gói trả 403 `MODULE_NOT_IN_PLAN`; vượt giới hạn khi thêm học sinh, bật cấp học, tải tệp trả 422 `PLAN_LIMIT_EXCEEDED`; trường ở trạng thái `read_only` trả 403 `SCHOOL_READ_ONLY` cho mọi yêu cầu ghi tới máy chủ API và dịch vụ định danh, trừ `/api/v1/auth/*` (ngoài `/auth/settings`), đường dẫn xuất, `/api/v1/export-jobs`, `/api/v1/school-plan`, `/api/v1/billing`. Trường chưa gán gói và chế độ một trường không bị ảnh hưởng.
+Giao kèo sao lưu theo trường (DT-SaaS phần S7b, YCTD-199, BR-217, BR-218):
+
+1. `GET /api/v1/auth/platform/schools/{mã}` trả thêm `backups`: 20 dòng `backup_runs` gần nhất của trường (`id`, `kind`, `status`, `file_name`, `file_bytes`, `tables`, `rows`, `details`, `error`, `started_at`, `finished_at`); không có điểm cuối chạy sao lưu từ trình duyệt.
+2. Lệnh `platform` (biến `BACKUP_ENCRYPTION_PASSPHRASE` ít nhất 16 ký tự, `BACKUP_DIR`): `backup-school (--school <mã> | --all) [--scope all|active] [--keep-days n]` (đọc ở máy chủ khác khi có `BACKUP_SOURCE_HOST`, `BACKUP_SOURCE_PORT`), `verify-backup --file`, `restore-school --file (--in-place | --as <mã mới>)`, `restore-drill (--file | --school | --all)`, `move-school --school [--drop-source]` với `TARGET_CLUSTER_ADMIN_URL`, `TARGET_CLUSTER_LAYOUT`, `TARGET_CLUSTER_SHARED_DATABASE`. Lỗi một trường khi chạy `--all` thì báo dòng LỖI, chạy tiếp trường khác, mã thoát 1.
+3. `platform relayout` (S9) không còn cần quyền siêu người dùng ở nền tảng đích: dữ liệu nạp bằng vai trò của trường.
+
 
 ## 5. Nền tảng và phân quyền
 

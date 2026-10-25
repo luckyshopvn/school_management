@@ -11,8 +11,8 @@ export const E2E_ROOT_DOMAIN = 'e2e.localhost';
 export const E2E_SCHEDULER_SECRET = 'e2e-scheduler-secret';
 export const E2E_CONSOLE_HOST = `platform.${E2E_ROOT_DOMAIN}`;
 export const E2E_SCHOOL_CODES = ['alpha', 'beta'];
-// Trường do spec 132 khởi tạo qua cổng nền tảng; bước dựng dọn sót của lần chạy trước
-export const E2E_LIFECYCLE_SCHOOL_CODES = ['gamma'];
+// Trường do spec 132 khởi tạo qua cổng nền tảng, spec 137 khôi phục từ bản sao lưu; bước dựng dọn sót của lần chạy trước
+export const E2E_LIFECYCLE_SCHOOL_CODES = ['gamma', 'alpha-kp'];
 export const E2E_PLATFORM_DATABASE_NAME = 'school_platform_e2e';
 export const E2E_SHARED_DATABASE_NAME = 'school_shared_e2e';
 export const E2E_MULTI_STATE_FILE = new URL('./.e2e-multi.json', import.meta.url);

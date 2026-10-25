@@ -148,3 +148,19 @@ Theo `tai_lieu/33_HO_SO_PHAP_LY/00_MUC_LUC.md` mục 2 (PL-00). Bộ mẫu là b
 7. Ở nền tảng thử nghiệm: yêu cầu xóa trường, rồi xóa vĩnh viễn sau thời gian chờ. Yêu cầu nhà cung cấp xóa bản sao lưu nếu có, và giữ biên bản (PL-10).
 
 Trường dữ liệu giả có thể dựng lại bằng khởi tạo, thay cho chuyển.
+
+## 7. Sao lưu và khôi phục ở hồ sơ thử nghiệm
+
+Giới hạn sao lưu của nhà cung cấp, tra trang chính thức ngày 2026-10-25:
+
+- **Neon Free:** khoảng lịch sử 6 giờ, giới hạn 1 GB, để khôi phục về một thời điểm. Một bản chụp thủ công mỗi dự án, không có bản chụp theo lịch, không có khôi phục tức thì. Nguồn: neon.com/pricing.
+- **Supabase Free:** không có sao lưu tự động hằng ngày (chỉ gói Pro, Team, Enterprise: giữ 7, 14, đến 30 ngày), không có khôi phục về một thời điểm (tiện ích thêm của gói trả phí). Supabase khuyên dự án miễn phí tự xuất dữ liệu định kỳ. Nguồn: supabase.com/docs/guides/platform/backups.
+- **Render Free:** đĩa mất khi khởi động lại, nên không giữ bản sao lưu trong container.
+
+Vì vậy lớp chính là **sao lưu logic theo từng trường** (`platform backup-school`), chạy bên ngoài nền tảng:
+
+1. Sao chép [`github-actions-backup.yml.example`](github-actions-backup.yml.example) vào kho triển khai. Lịch hằng ngày chạy `backup-school --all` với biến của nền tảng (địa chỉ trực tiếp của Neon hoặc bộ gom ở chế độ phiên của Supabase), rồi đẩy tệp `.sbak` lên R2 bằng rclone.
+2. Tệp mã hóa AES-256-GCM bằng `BACKUP_ENCRYPTION_PASSPHRASE`; đặt khóa này ở bí mật của GitHub. Lưu khóa và `PLATFORM_MASTER_KEY` ở nơi khác ngoài GitHub.
+3. Hằng tháng chạy `restore-drill --all` trong cùng luồng việc. Kết quả ghi vào bảng `backup_runs` của nền tảng. Diễn tập tạo lược đồ tạm trong cơ sở dữ liệu dùng chung, nên cần dư dung lượng của gói (Neon 1 GB một dự án, Supabase 500 MB).
+
+Mục tiêu ở hồ sơ thử nghiệm (giả định): RPO ≤ 24 giờ (sao lưu hằng ngày), hoặc ≤ 6 giờ nếu dùng lịch sử của Neon Free cho cả cơ sở dữ liệu; RTO ≤ 2 giờ cho một trường. Trường dữ liệu thật cần RPO nhỏ hơn thì chạy sao lưu dày hơn, hoặc chuyển sang hồ sơ vận hành (mục 6).
