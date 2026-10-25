@@ -40,10 +40,23 @@ interface PaymentRequest {
 
 const money = (value: number) => `${value.toLocaleString('vi-VN')} đồng`;
 const day = (value: string) => value.split('-').reverse().join('/');
-const STATUS: Record<ServiceInvoice['status'], string> = { issued: 'Chưa thanh toán', paid: 'Đã thanh toán', void: 'Đã hủy' };
-const messageOf = (error: unknown) => (error instanceof ApiError ? error.message : 'Không thực hiện được, vui lòng thử lại');
+const STATUS: Record<ServiceInvoice['status'], string> = {
+  issued: 'Chưa thanh toán',
+  paid: 'Đã thanh toán',
+  void: 'Đã hủy',
+};
+const messageOf = (error: unknown) =>
+  error instanceof ApiError ? error.message : 'Không thực hiện được, vui lòng thử lại';
 
-function PaymentPanel({ invoice, request, simulated }: { invoice: ServiceInvoice; request: PaymentRequest; simulated: boolean }) {
+function PaymentPanel({
+  invoice,
+  request,
+  simulated,
+}: {
+  invoice: ServiceInvoice;
+  request: PaymentRequest;
+  simulated: boolean;
+}) {
   const client = useQueryClient();
   const [image, setImage] = useState<string | null>(null);
   const isLink = /^https?:\/\//.test(request.qr_content);
@@ -69,7 +82,10 @@ function PaymentPanel({ invoice, request, simulated }: { invoice: ServiceInvoice
     },
   });
   return (
-    <section aria-label={`Thanh toán ${invoice.code}`} className="flex flex-col gap-2 rounded-md border border-border p-4">
+    <section
+      aria-label={`Thanh toán ${invoice.code}`}
+      className="flex flex-col gap-2 rounded-md border border-border p-4"
+    >
       <h2 className="text-section-title font-semibold">Thanh toán hóa đơn {invoice.code}</h2>
       {isLink ? (
         <a className="text-primary underline" href={request.qr_content} target="_blank" rel="noreferrer">
@@ -102,7 +118,9 @@ function PaymentPanel({ invoice, request, simulated }: { invoice: ServiceInvoice
             Giả lập đã chuyển tiền
           </Button>
           {simulate.error ? <Alert tone="danger">{messageOf(simulate.error)}</Alert> : null}
-          {simulate.data?.paid ? <Alert tone="success">Đã nhận đủ tiền, hóa đơn {invoice.code} đã thanh toán.</Alert> : null}
+          {simulate.data?.paid ? (
+            <Alert tone="success">Đã nhận đủ tiền, hóa đơn {invoice.code} đã thanh toán.</Alert>
+          ) : null}
         </div>
       ) : null}
     </section>
@@ -146,7 +164,9 @@ export function ServiceInvoicesPage() {
               Còn nợ: <strong>{money(data.outstanding)}</strong>
             </p>
             {!data.payment.available ? (
-              <Alert tone="info">Nền tảng chưa nối cổng thanh toán; liên hệ nhà cung cấp để thanh toán chuyển khoản.</Alert>
+              <Alert tone="info">
+                Nền tảng chưa nối cổng thanh toán; liên hệ nhà cung cấp để thanh toán chuyển khoản.
+              </Alert>
             ) : null}
             <table aria-label="Hóa đơn dịch vụ" className="w-full text-content">
               <thead>

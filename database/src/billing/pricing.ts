@@ -113,7 +113,10 @@ function studentLines(rule: PriceRule, students: number): ChargeLine[] {
     const upper = tier.up_to === null ? students : Math.min(students, tier.up_to);
     const quantity = upper - lower;
     if (quantity > 0) {
-      const band = tier.up_to === null ? `từ ${formatNumber(lower + 1)}` : `${formatNumber(lower + 1)}–${formatNumber(tier.up_to)}`;
+      const band =
+        tier.up_to === null
+          ? `từ ${formatNumber(lower + 1)}`
+          : `${formatNumber(lower + 1)}–${formatNumber(tier.up_to)}`;
       lines.push({
         kind: 'per_student',
         description: `Học sinh đang học, bậc ${band}`,

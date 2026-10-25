@@ -1,7 +1,12 @@
 import assert from 'node:assert/strict';
 import http from 'node:http';
 import { after, before, describe, it } from 'node:test';
-import { asDateText, readBillingSettings, saveBillingSettings, savePlatformConnector } from '@school-management/database';
+import {
+  asDateText,
+  readBillingSettings,
+  saveBillingSettings,
+  savePlatformConnector,
+} from '@school-management/database';
 import { runAsSchool } from '@school-management/server';
 import { startMultiTenantApi, type MultiTenantApi } from '../tenant-test-support.js';
 import { BillingCycleJob } from './billing.js';
@@ -48,7 +53,8 @@ describe('thu phí ở máy chủ API nhiều trường', () => {
     await environment?.close();
   });
 
-  const call = (name: string, method: string, path: string, body?: unknown) => environment.call(name, method, path, body);
+  const call = (name: string, method: string, path: string, body?: unknown) =>
+    environment.call(name, method, path, body);
 
   async function runJob(name: string, now: Date) {
     environment.apiRuntime.registry.invalidate();
@@ -75,9 +81,13 @@ describe('thu phí ở máy chủ API nhiều trường', () => {
     const invoice = invoices[0] as Record<string, unknown>;
     assert.equal(invoice.total, 2_000_000);
     assert.equal(invoice.due_on, '2026-11-10');
-    assert.equal(((list.body.payment as Record<string, unknown>).provider), 'development');
+    assert.equal((list.body.payment as Record<string, unknown>).provider, 'development');
     assert.equal(((await call('beta', 'GET', '/billing/invoices')).body.invoices as unknown[]).length, 0);
-    assert.equal((await call('beta', 'GET', `/billing/invoices/${String(invoice.id)}`)).status, 404, 'trường khác không xem được');
+    assert.equal(
+      (await call('beta', 'GET', `/billing/invoices/${String(invoice.id)}`)).status,
+      404,
+      'trường khác không xem được',
+    );
 
     // Quá hạn 8 ngày: nhắc sau hạn rồi chuyển chỉ đọc (giả định GD-99), ghi nhật ký nhắc
     await runJob('alpha', new Date('2026-11-18T03:00:00Z'));
@@ -114,7 +124,9 @@ describe('thu phí ở máy chủ API nhiều trường', () => {
   it('CT-S5b-9: cổng SePay của nền tảng báo tiền vào không theo tên miền trường: sai khóa 401, đúng khóa ghi một lần, cổng chưa bật 404', async () => {
     const platform = environment.platform.platform;
     await runJob('beta', new Date('2026-11-01T03:00:00Z'));
-    const invoice = ((await call('beta', 'GET', '/billing/invoices')).body.invoices as Array<Record<string, unknown>>)[0];
+    const invoice = (
+      (await call('beta', 'GET', '/billing/invoices')).body.invoices as Array<Record<string, unknown>>
+    )[0];
     assert.ok(invoice);
     await savePlatformConnector(
       platform,

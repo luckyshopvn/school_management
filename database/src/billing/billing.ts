@@ -54,10 +54,15 @@ const days = (value: unknown, fallback: number[]) =>
 const textOrNull = (value: unknown) => (typeof value === 'string' && value.trim() ? value.trim() : null);
 
 export async function readBillingSettings(platform: Executor): Promise<BillingSettings> {
-  const row = await platform.selectFrom('platform_settings').select('value').where('key', '=', 'billing').executeTakeFirst();
+  const row = await platform
+    .selectFrom('platform_settings')
+    .select('value')
+    .where('key', '=', 'billing')
+    .executeTakeFirst();
   const value = (row?.value ?? {}) as Record<string, unknown>;
   const account = (value.receiving_account ?? {}) as Record<string, unknown>;
-  const prefix = typeof value.invoice_prefix === 'string' && /^[A-Z]{1,6}$/.test(value.invoice_prefix) ? value.invoice_prefix : 'HD';
+  const prefix =
+    typeof value.invoice_prefix === 'string' && /^[A-Z]{1,6}$/.test(value.invoice_prefix) ? value.invoice_prefix : 'HD';
   return {
     invoicePrefix: prefix,
     receivingAccount: {
@@ -92,7 +97,9 @@ export async function saveBillingSettings(platform: Kysely<PlatformDatabase>, se
   await platform
     .insertInto('platform_settings')
     .values({ key: 'billing', value: JSON.stringify(value) })
-    .onConflict((conflict) => conflict.column('key').doUpdateSet({ value: JSON.stringify(value), updated_at: new Date() }))
+    .onConflict((conflict) =>
+      conflict.column('key').doUpdateSet({ value: JSON.stringify(value), updated_at: new Date() }),
+    )
     .execute();
   await writeAudit(platform, {
     actorType: actor.type,
@@ -371,7 +378,11 @@ export async function closeDuePeriod(
   input: { schoolId: string; today: string; now: Date; usage: () => Promise<BillingUsage> },
   pricing: PricingContext,
 ): Promise<IssuedInvoice | null> {
-  const school = await platform.selectFrom('schools').select(['status']).where('id', '=', input.schoolId).executeTakeFirst();
+  const school = await platform
+    .selectFrom('schools')
+    .select(['status'])
+    .where('id', '=', input.schoolId)
+    .executeTakeFirst();
   if (!school || !['active', 'read_only'].includes(school.status)) {
     return null;
   }
@@ -668,7 +679,12 @@ async function recordAdjustment(
     ...(actor.id ? { actorId: actor.id } : {}),
     action: `billing.${input.kind.replace('_', '-')}`,
     schoolId: input.schoolId,
-    details: { invoice_id: input.invoiceId, amount: input.amount ?? 0, months: input.months ?? 0, reason: input.reason },
+    details: {
+      invoice_id: input.invoiceId,
+      amount: input.amount ?? 0,
+      months: input.months ?? 0,
+      reason: input.reason,
+    },
   });
 }
 
@@ -692,7 +708,11 @@ export async function applyDiscount(
     const base = subtotal - discount;
     const vatAmount = Math.floor((base * invoice.vat_percent + 50) / 100);
     const total = base + vatAmount;
-    await transaction.deleteFrom('invoice_lines').where('invoice_id', '=', invoice.id).where('kind', '=', 'discount').execute();
+    await transaction
+      .deleteFrom('invoice_lines')
+      .where('invoice_id', '=', invoice.id)
+      .where('kind', '=', 'discount')
+      .execute();
     const last = await transaction
       .selectFrom('invoice_lines')
       .select((expression) => expression.fn.max('sort').as('sort'))
@@ -813,7 +833,11 @@ export async function voidInvoice(
         pending ? expression.val(true) : expression('paid_until', '=', asDateText(due.due_on) as string),
       )
       .execute();
-    await recordAdjustment(transaction, { schoolId: invoice.school_id, invoiceId: invoice.id, kind: 'void', reason }, actor);
+    await recordAdjustment(
+      transaction,
+      { schoolId: invoice.school_id, invoiceId: invoice.id, kind: 'void', reason },
+      actor,
+    );
   });
 }
 
@@ -859,7 +883,13 @@ export async function recordManualPayment(
   await platform.transaction().execute((transaction) =>
     recordAdjustment(
       transaction,
-      { schoolId: invoice.school_id, invoiceId: input.invoiceId, kind: 'manual_payment', amount: input.amount, reason },
+      {
+        schoolId: invoice.school_id,
+        invoiceId: input.invoiceId,
+        kind: 'manual_payment',
+        amount: input.amount,
+        reason,
+      },
       actor,
     ),
   );
@@ -1100,7 +1130,12 @@ export async function cancelEInvoice(
   const document = await platform
     .selectFrom('einvoice_documents')
     .innerJoin('invoices', 'invoices.id', 'einvoice_documents.invoice_id')
-    .select(['einvoice_documents.id', 'einvoice_documents.provider', 'einvoice_documents.external_id', 'invoices.school_id'])
+    .select([
+      'einvoice_documents.id',
+      'einvoice_documents.provider',
+      'einvoice_documents.external_id',
+      'invoices.school_id',
+    ])
     .where('einvoice_documents.invoice_id', '=', input.invoiceId)
     .where('einvoice_documents.status', '=', 'issued')
     .executeTakeFirst();
@@ -1187,15 +1222,24 @@ export async function listInvoices(platform: Executor, filter: InvoiceListFilter
 }
 
 export async function invoiceDetail(platform: Executor, invoiceId: string, today: string, schoolId?: string) {
-  const [invoice] = await listInvoices(platform, { today, ...(schoolId ? { schoolId } : {}), limit: 500 }).then((rows) =>
-    rows.filter((row) => row.id === invoiceId),
+  const [invoice] = await listInvoices(platform, { today, ...(schoolId ? { schoolId } : {}), limit: 500 }).then(
+    (rows) => rows.filter((row) => row.id === invoiceId),
   );
   if (!invoice) {
     return null;
   }
   const extra = await platform
     .selectFrom('invoices')
-    .select(['subtotal', 'discount_total', 'vat_percent', 'vat_amount', 'usage', 'price_rule', 'last_payment_request', 'void_reason'])
+    .select([
+      'subtotal',
+      'discount_total',
+      'vat_percent',
+      'vat_amount',
+      'usage',
+      'price_rule',
+      'last_payment_request',
+      'void_reason',
+    ])
     .where('id', '=', invoiceId)
     .executeTakeFirstOrThrow();
   const lines = await platform
@@ -1236,18 +1280,20 @@ export async function invoiceDetail(platform: Executor, invoiceId: string, today
 export async function receivables(platform: Executor, today: string) {
   const rows = await platform
     .selectFrom('schools')
-    .leftJoin('invoices', (join) => join.onRef('invoices.school_id', '=', 'schools.id').on('invoices.status', '=', 'issued'))
+    .leftJoin('invoices', (join) =>
+      join.onRef('invoices.school_id', '=', 'schools.id').on('invoices.status', '=', 'issued'),
+    )
     .select((expression) => [
       'schools.id',
       'schools.code',
       'schools.name',
       'schools.status',
       'schools.paid_until',
-      expression.fn.coalesce(expression.fn.sum<string>(sql`invoices.total - invoices.amount_paid`), sql`0`).as('outstanding'),
-      expression.fn.count<string>('invoices.id').as('open_invoices'),
       expression.fn
-        .count<string>(sql`case when invoices.due_on < ${today}::date then 1 end`)
-        .as('overdue_invoices'),
+        .coalesce(expression.fn.sum<string>(sql`invoices.total - invoices.amount_paid`), sql`0`)
+        .as('outstanding'),
+      expression.fn.count<string>('invoices.id').as('open_invoices'),
+      expression.fn.count<string>(sql`case when invoices.due_on < ${today}::date then 1 end`).as('overdue_invoices'),
       expression.fn.min('invoices.due_on').as('earliest_due'),
     ])
     .where('schools.status', 'not in', ['provisioning', 'deleted'])

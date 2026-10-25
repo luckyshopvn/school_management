@@ -359,7 +359,10 @@ export function PlansPage({ accessToken }: { accessToken: string }) {
         </label>
         <label>
           Quy tắc tính phí (thu phí tự động)
-          <select value={form.price_rule_id} onChange={(event) => setForm({ ...form, price_rule_id: event.target.value })}>
+          <select
+            value={form.price_rule_id}
+            onChange={(event) => setForm({ ...form, price_rule_id: event.target.value })}
+          >
             <option value="">Theo giá niêm yết của gói</option>
             {rules
               .filter((rule) => rule.status === 'active' || rule.id === form.price_rule_id)

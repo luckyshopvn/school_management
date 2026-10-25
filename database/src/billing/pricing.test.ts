@@ -62,14 +62,20 @@ describe('tính phí theo quy tắc cấu hình được', () => {
     assert.equal(school.total, 2_000_000);
 
     const modules = { education: 500_000, finance: 300_000, website: 900_000 };
-    const perModule = computeCharges({ ...base, components: ['per_module'], modulePrices: modules }, usage(10, ['education', 'finance']), {
-      allModules: ALL,
-      moduleLabels: { education: 'Quản lý giáo dục' },
-    });
+    const perModule = computeCharges(
+      { ...base, components: ['per_module'], modulePrices: modules },
+      usage(10, ['education', 'finance']),
+      {
+        allModules: ALL,
+        moduleLabels: { education: 'Quản lý giáo dục' },
+      },
+    );
     assert.equal(perModule.total, 800_000, 'chỉ phân hệ bật trong gói và có giá');
     assert.equal(perModule.lines[0]?.description, 'Phân hệ Quản lý giáo dục');
     assert.equal(
-      computeCharges({ ...base, components: ['per_module'], modulePrices: modules }, usage(10, null), { allModules: ALL }).total,
+      computeCharges({ ...base, components: ['per_module'], modulePrices: modules }, usage(10, null), {
+        allModules: ALL,
+      }).total,
       800_000,
       'gói bật mọi phân hệ thì tính mọi phân hệ có giá trong danh sách phân hệ',
     );
@@ -86,7 +92,9 @@ describe('tính phí theo quy tắc cấu hình được', () => {
     assert.equal(minimum.lines.at(-1)?.kind, 'minimum');
     assert.equal(minimum.lines.at(-1)?.amount, 1_300_000);
     assert.equal(
-      computeCharges({ ...base, minimumFee: 1_500_000 }, usage(200), { allModules: ALL }).lines.some((line) => line.kind === 'minimum'),
+      computeCharges({ ...base, minimumFee: 1_500_000 }, usage(200), { allModules: ALL }).lines.some(
+        (line) => line.kind === 'minimum',
+      ),
       false,
     );
 
@@ -95,7 +103,11 @@ describe('tính phí theo quy tắc cấu hình được', () => {
     assert.equal(taxed.discountTotal, 1_001);
     assert.equal(taxed.vatAmount, 2_320, '28.999 × 8% = 2.319,92 làm tròn nửa lên');
     assert.equal(taxed.total, 31_319);
-    assert.equal(computeCharges(base, usage(1), { allModules: ALL, discount: 99_999 }).total, 0, 'giảm giá không vượt tổng');
+    assert.equal(
+      computeCharges(base, usage(1), { allModules: ALL, discount: 99_999 }).total,
+      0,
+      'giảm giá không vượt tổng',
+    );
     assert.equal(computeCharges({ ...base, vatPercent: 10 }, usage(1), { allModules: ALL }).vatAmount, 1_000);
 
     assert.throws(() => validatePriceRule({ ...base, studentTiers: [{ up_to: 100, unit_price: 1 }] }), PricingError);

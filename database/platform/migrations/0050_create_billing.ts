@@ -110,7 +110,11 @@ export const migration: Migration = {
       .execute();
     await sql`create unique index invoices_period_idx on invoices (school_id, period_start)
       where kind = 'period' and status <> 'void'`.execute(database);
-    await database.schema.createIndex('invoices_school_idx').on('invoices').columns(['school_id', 'issued_at']).execute();
+    await database.schema
+      .createIndex('invoices_school_idx')
+      .on('invoices')
+      .columns(['school_id', 'issued_at'])
+      .execute();
 
     await database.schema
       .createTable('invoice_lines')

@@ -16,7 +16,13 @@ import {
   Res,
   type OnApplicationBootstrap,
 } from '@nestjs/common';
-import { ApplicationError, Clock, currentTenant, isMultiTenantMode, unauthenticatedError } from '@school-management/server';
+import {
+  ApplicationError,
+  Clock,
+  currentTenant,
+  isMultiTenantMode,
+  unauthenticatedError,
+} from '@school-management/server';
 import {
   applyPlanLifecycle,
   BillingError,
@@ -36,8 +42,7 @@ import {
 } from '@school-management/database';
 import { PERMISSION_CODES, PLAN_MODULES } from '@school-management/shared';
 import type { Request, Response } from 'express';
-import { AuthenticatedUser, PublicEndpoint, RequirePermission } from '../authentication/authentication.guard.js';
-import type { CurrentUser } from '../authentication/current-user.js';
+import { PublicEndpoint, RequirePermission } from '../authentication/authentication.guard.js';
 import { API_CONFIGURATION, TENANCY_RUNTIME, type ApiConfiguration } from '../common/configuration.js';
 import { CurrentSchoolYearResolver } from '../common/current-school-year.js';
 import { Databases } from '../common/databases.js';
@@ -225,7 +230,8 @@ export class SchoolBillingService {
           `<tr><td>${escape(line.description)}</td><td class="r">${line.quantity}</td><td class="r">${money(line.unit_price)}</td><td class="r">${money(line.amount)}</td></tr>`,
       )
       .join('');
-    const status = invoice.status === 'paid' ? 'Đã thanh toán' : invoice.status === 'void' ? 'Đã hủy' : 'Chưa thanh toán';
+    const status =
+      invoice.status === 'paid' ? 'Đã thanh toán' : invoice.status === 'void' ? 'Đã hủy' : 'Chưa thanh toán';
     return `<!doctype html><html lang="vi"><head><meta charset="utf-8"><title>Hóa đơn ${escape(invoice.code)}</title>
 <style>body{font-family:system-ui,sans-serif;margin:32px;color:#111}table{border-collapse:collapse;width:100%}td,th{border:1px solid #ccc;padding:6px}.r{text-align:right}</style></head>
 <body><h1>Hóa đơn dịch vụ ${escape(invoice.code)}</h1>
@@ -273,7 +279,7 @@ export class SchoolBillingController {
   @Post('invoices/:id/simulate-payment')
   @HttpCode(200)
   @RequirePermission(PERMISSION_CODES.billingManage)
-  simulate(@Param('id', ParseUUIDPipe) id: string, @AuthenticatedUser() _user: CurrentUser) {
+  simulate(@Param('id', ParseUUIDPipe) id: string) {
     return this.billing.simulate(id);
   }
 }
@@ -376,9 +382,18 @@ export class BillingCycleJob implements OnApplicationBootstrap {
     }
     const platform = this.tenancy.platform;
     const today = vietnamDate(now);
-    const issued = await closeDuePeriod(platform, { schoolId: tenant.schoolId, today, now, usage: () => this.usage() }, PRICING);
+    const issued = await closeDuePeriod(
+      platform,
+      { schoolId: tenant.schoolId, today, now, usage: () => this.usage() },
+      PRICING,
+    );
     if (issued) {
-      await this.notify('billing_invoice_issued', `Có hóa đơn dịch vụ ${issued.code}`, `Số tiền ${issued.total.toLocaleString('vi-VN')} đồng, hạn ${issued.dueOn}`, issued.id);
+      await this.notify(
+        'billing_invoice_issued',
+        `Có hóa đơn dịch vụ ${issued.code}`,
+        `Số tiền ${issued.total.toLocaleString('vi-VN')} đồng, hạn ${issued.dueOn}`,
+        issued.id,
+      );
     }
     const notice = await runDunning(platform, { schoolId: tenant.schoolId, today });
     if (notice) {
@@ -403,7 +418,13 @@ export class BillingCycleJob implements OnApplicationBootstrap {
     }
   }
 
-  private async notify(templateCode: string, title: string, body: string, targetId: string, channels: string[] = ['in_app']) {
+  private async notify(
+    templateCode: string,
+    title: string,
+    body: string,
+    targetId: string,
+    channels: string[] = ['in_app'],
+  ) {
     const current = await this.currentSchoolYear.find();
     if (!current) {
       return;
@@ -424,7 +445,9 @@ export class BillingCycleJob implements OnApplicationBootstrap {
       body,
       targetType: 'service_invoices',
       targetId,
-      recipients: ['VT-01', 'VT-02'].flatMap((roleCode) => wanted.map((channel) => ({ roleCode, orgUnitId: root.id, channel }))),
+      recipients: ['VT-01', 'VT-02'].flatMap((roleCode) =>
+        wanted.map((channel) => ({ roleCode, orgUnitId: root.id, channel })),
+      ),
     });
   }
 }

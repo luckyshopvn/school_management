@@ -40,7 +40,13 @@ interface InvoiceDetail extends InvoiceRow {
   vat_amount: number;
   lines: Array<{ sort: number; description: string; quantity: number; unit_price: number; amount: number }>;
   payments: Array<{ id: string; provider: string; provider_reference: string; amount: number; received_at: string }>;
-  einvoices: Array<{ provider: string; status: string; external_id: string | null; lookup_code: string | null; error: string | null }>;
+  einvoices: Array<{
+    provider: string;
+    status: string;
+    external_id: string | null;
+    lookup_code: string | null;
+    error: string | null;
+  }>;
 }
 
 interface Connector {
@@ -65,7 +71,13 @@ interface Overview {
   einvoice_providers: string[];
   connectors: Connector[];
   receivables: Receivable[];
-  unmatched_payments: Array<{ id: string; provider: string; provider_reference: string; amount: number; transfer_content: string }>;
+  unmatched_payments: Array<{
+    id: string;
+    provider: string;
+    provider_reference: string;
+    amount: number;
+    transfer_content: string;
+  }>;
   modules: Array<{ key: string; label: string }>;
 }
 
@@ -221,7 +233,12 @@ export function BillingPage({ accessToken }: { accessToken: string }) {
         vat_percent: Number(ruleForm.vat_percent),
         due_days: Number(ruleForm.due_days),
       };
-      await call(accessToken, ruleForm.id ? 'PUT' : 'POST', ruleForm.id ? `billing/price-rules/${ruleForm.id}` : 'billing/price-rules', body);
+      await call(
+        accessToken,
+        ruleForm.id ? 'PUT' : 'POST',
+        ruleForm.id ? `billing/price-rules/${ruleForm.id}` : 'billing/price-rules',
+        body,
+      );
       setRuleForm(emptyRule);
       return `Đã lưu quy tắc ${body.name}`;
     });
@@ -292,10 +309,15 @@ export function BillingPage({ accessToken }: { accessToken: string }) {
                       if (!months || !reason) {
                         return 'Đã bỏ qua';
                       }
-                      const result = await call<{ paidUntil: string }>(accessToken, 'POST', `billing/schools/${row.school_id}/free-period`, {
-                        months: Number(months),
-                        reason,
-                      });
+                      const result = await call<{ paidUntil: string }>(
+                        accessToken,
+                        'POST',
+                        `billing/schools/${row.school_id}/free-period`,
+                        {
+                          months: Number(months),
+                          reason,
+                        },
+                      );
                       return `Đã tặng kỳ, hạn mới ${result.paidUntil}`;
                     })
                   }
@@ -326,7 +348,11 @@ export function BillingPage({ accessToken }: { accessToken: string }) {
         <h3>Lập hóa đơn tay (kỳ đang chạy)</h3>
         <label>
           Trường
-          <select value={manual.school_id} onChange={(event) => setManual({ ...manual, school_id: event.target.value })} required>
+          <select
+            value={manual.school_id}
+            onChange={(event) => setManual({ ...manual, school_id: event.target.value })}
+            required
+          >
             <option value="">Chọn trường</option>
             {overview.receivables.map((row) => (
               <option key={row.school_id} value={row.school_id}>
@@ -337,7 +363,11 @@ export function BillingPage({ accessToken }: { accessToken: string }) {
         </label>
         <label>
           Số học sinh đang học (trống là số chốt gần nhất)
-          <input inputMode="numeric" value={manual.active_students} onChange={(event) => setManual({ ...manual, active_students: event.target.value })} />
+          <input
+            inputMode="numeric"
+            value={manual.active_students}
+            onChange={(event) => setManual({ ...manual, active_students: event.target.value })}
+          />
         </label>
         <label>
           Ghi chú
@@ -437,11 +467,18 @@ export function BillingPage({ accessToken }: { accessToken: string }) {
           </ul>
           <label>
             Số tiền (đồng)
-            <input inputMode="numeric" value={action.amount} onChange={(event) => setAction({ ...action, amount: event.target.value })} />
+            <input
+              inputMode="numeric"
+              value={action.amount}
+              onChange={(event) => setAction({ ...action, amount: event.target.value })}
+            />
           </label>
           <label>
             Mã giao dịch (ghi nhận tiền tay)
-            <input value={action.reference} onChange={(event) => setAction({ ...action, reference: event.target.value })} />
+            <input
+              value={action.reference}
+              onChange={(event) => setAction({ ...action, reference: event.target.value })}
+            />
           </label>
           <label>
             Lý do
@@ -485,7 +522,10 @@ export function BillingPage({ accessToken }: { accessToken: string }) {
                       if (!invoice || !reason) {
                         return 'Đã bỏ qua';
                       }
-                      await call(accessToken, 'POST', `billing/payments/${payment.id}/assign`, { invoice_id: invoice.id, reason });
+                      await call(accessToken, 'POST', `billing/payments/${payment.id}/assign`, {
+                        invoice_id: invoice.id,
+                        reason,
+                      });
                       return `Đã gán vào ${invoice.code}`;
                     })
                   }
@@ -520,11 +560,19 @@ export function BillingPage({ accessToken }: { accessToken: string }) {
       <form aria-label={ruleForm.id ? 'Sửa quy tắc tính phí' : 'Lập quy tắc tính phí'} onSubmit={saveRule}>
         <label>
           Mã quy tắc
-          <input value={ruleForm.code} onChange={(event) => setRuleForm({ ...ruleForm, code: event.target.value })} required />
+          <input
+            value={ruleForm.code}
+            onChange={(event) => setRuleForm({ ...ruleForm, code: event.target.value })}
+            required
+          />
         </label>
         <label>
           Tên quy tắc
-          <input value={ruleForm.name} onChange={(event) => setRuleForm({ ...ruleForm, name: event.target.value })} required />
+          <input
+            value={ruleForm.name}
+            onChange={(event) => setRuleForm({ ...ruleForm, name: event.target.value })}
+            required
+          />
         </label>
         <fieldset>
           <legend>Thành phần tính phí</legend>
@@ -562,7 +610,11 @@ export function BillingPage({ accessToken }: { accessToken: string }) {
         </label>
         <label>
           Phí theo trường mỗi kỳ (đồng)
-          <input inputMode="numeric" value={ruleForm.school_fee} onChange={(event) => setRuleForm({ ...ruleForm, school_fee: event.target.value })} />
+          <input
+            inputMode="numeric"
+            value={ruleForm.school_fee}
+            onChange={(event) => setRuleForm({ ...ruleForm, school_fee: event.target.value })}
+          />
         </label>
         <fieldset>
           <legend>Giá từng phân hệ mỗi kỳ (đồng)</legend>
@@ -573,7 +625,10 @@ export function BillingPage({ accessToken }: { accessToken: string }) {
                 inputMode="numeric"
                 value={ruleForm.module_prices[module.key] ?? ''}
                 onChange={(event) =>
-                  setRuleForm({ ...ruleForm, module_prices: { ...ruleForm.module_prices, [module.key]: event.target.value } })
+                  setRuleForm({
+                    ...ruleForm,
+                    module_prices: { ...ruleForm.module_prices, [module.key]: event.target.value },
+                  })
                 }
               />
             </label>
@@ -581,7 +636,11 @@ export function BillingPage({ accessToken }: { accessToken: string }) {
         </fieldset>
         <label>
           Phí tối thiểu mỗi kỳ (đồng)
-          <input inputMode="numeric" value={ruleForm.minimum_fee} onChange={(event) => setRuleForm({ ...ruleForm, minimum_fee: event.target.value })} />
+          <input
+            inputMode="numeric"
+            value={ruleForm.minimum_fee}
+            onChange={(event) => setRuleForm({ ...ruleForm, minimum_fee: event.target.value })}
+          />
         </label>
         <label>
           Kỳ thu
@@ -598,11 +657,19 @@ export function BillingPage({ accessToken }: { accessToken: string }) {
         </label>
         <label>
           VAT (%)
-          <input inputMode="numeric" value={ruleForm.vat_percent} onChange={(event) => setRuleForm({ ...ruleForm, vat_percent: event.target.value })} />
+          <input
+            inputMode="numeric"
+            value={ruleForm.vat_percent}
+            onChange={(event) => setRuleForm({ ...ruleForm, vat_percent: event.target.value })}
+          />
         </label>
         <label>
           Số ngày hạn trả sau cuối kỳ
-          <input inputMode="numeric" value={ruleForm.due_days} onChange={(event) => setRuleForm({ ...ruleForm, due_days: event.target.value })} />
+          <input
+            inputMode="numeric"
+            value={ruleForm.due_days}
+            onChange={(event) => setRuleForm({ ...ruleForm, due_days: event.target.value })}
+          />
         </label>
         <button type="submit">Lưu quy tắc</button>
       </form>
@@ -638,12 +705,18 @@ export function BillingPage({ accessToken }: { accessToken: string }) {
         ].map(([key, label]) => (
           <label key={key}>
             {label}
-            <input value={settings[key as string] ?? ''} onChange={(event) => setSettings({ ...settings, [key as string]: event.target.value })} />
+            <input
+              value={settings[key as string] ?? ''}
+              onChange={(event) => setSettings({ ...settings, [key as string]: event.target.value })}
+            />
           </label>
         ))}
         <label>
           Bộ nối hóa đơn điện tử
-          <select value={settings.einvoice_provider ?? 'none'} onChange={(event) => setSettings({ ...settings, einvoice_provider: event.target.value })}>
+          <select
+            value={settings.einvoice_provider ?? 'none'}
+            onChange={(event) => setSettings({ ...settings, einvoice_provider: event.target.value })}
+          >
             {overview.einvoice_providers.map((code) => (
               <option key={code} value={code}>
                 {code === 'none' ? 'Chưa nối (nhà cung cấp chưa chốt)' : 'Giả lập (phát triển, kiểm thử)'}
@@ -672,7 +745,8 @@ export function BillingPage({ accessToken }: { accessToken: string }) {
           }}
         >
           <h4>
-            {connector.label} {connector.configured ? (connector.enabled ? '(đang bật)' : '(đang tắt)') : '(chưa cấu hình)'}
+            {connector.label}{' '}
+            {connector.configured ? (connector.enabled ? '(đang bật)' : '(đang tắt)') : '(chưa cấu hình)'}
           </h4>
           {connector.fields.map((field) => (
             <label key={field.name}>
@@ -685,7 +759,10 @@ export function BillingPage({ accessToken }: { accessToken: string }) {
                 onChange={(event) =>
                   setSecrets({
                     ...secrets,
-                    [connector.connector]: { ...(secrets[connector.connector] ?? {}), [field.name]: event.target.value },
+                    [connector.connector]: {
+                      ...(secrets[connector.connector] ?? {}),
+                      [field.name]: event.target.value,
+                    },
                   })
                 }
               />

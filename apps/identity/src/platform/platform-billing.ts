@@ -1,4 +1,17 @@
-import { Body, Controller, Get, HttpCode, Inject, Injectable, Optional, Param, Post, Put, Query, Req } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  HttpCode,
+  Inject,
+  Injectable,
+  Optional,
+  Param,
+  Post,
+  Put,
+  Query,
+  Req,
+} from '@nestjs/common';
 import {
   applyDiscount,
   assignPayment,
@@ -181,13 +194,18 @@ export function parsePriceRuleInput(body: Body_): PriceRuleInput {
 
 export function parseBillingSettings(body: Body_, current: BillingSettings): BillingSettings {
   const errors: FieldError[] = [];
-  const prefix = body?.invoice_prefix === undefined ? current.invoicePrefix : text(body, 'invoice_prefix').toUpperCase();
+  const prefix =
+    body?.invoice_prefix === undefined ? current.invoicePrefix : text(body, 'invoice_prefix').toUpperCase();
   if (!/^[A-Z]{1,6}$/.test(prefix)) {
     errors.push({ field: 'invoice_prefix', message: 'Tiền tố mã hóa đơn từ 1 đến 6 chữ cái' });
   }
   const account = (body?.receiving_account ?? {}) as Record<string, unknown>;
   const accountText = (key: string, fallback: string | null) =>
-    account[key] === undefined ? fallback : typeof account[key] === 'string' && account[key] ? String(account[key]).trim() : null;
+    account[key] === undefined
+      ? fallback
+      : typeof account[key] === 'string' && account[key]
+        ? String(account[key]).trim()
+        : null;
   const bankBin = accountText('bank_bin', current.receivingAccount.bankBin);
   if (bankBin !== null && !/^\d{6}$/.test(bankBin)) {
     errors.push({ field: 'receiving_account.bank_bin', message: 'Mã BIN ngân hàng gồm 6 chữ số' });
@@ -205,7 +223,11 @@ export function parseBillingSettings(body: Body_, current: BillingSettings): Bil
     if (value === undefined) {
       return fallback;
     }
-    if (!Array.isArray(value) || value.some((day) => !Number.isInteger(day) || day < 0 || day > 120) || value.length > 10) {
+    if (
+      !Array.isArray(value) ||
+      value.some((day) => !Number.isInteger(day) || day < 0 || day > 120) ||
+      value.length > 10
+    ) {
       errors.push({ field, message: 'Danh sách số ngày từ 0 đến 120' });
       return fallback;
     }
@@ -220,9 +242,14 @@ export function parseBillingSettings(body: Body_, current: BillingSettings): Bil
   }
   return {
     invoicePrefix: prefix,
-    receivingAccount: { bankBin, accountNumber, accountName: accountText('account_name', current.receivingAccount.accountName) },
+    receivingAccount: {
+      bankBin,
+      accountNumber,
+      accountName: accountText('account_name', current.receivingAccount.accountName),
+    },
     einvoiceProvider: provider,
-    autoIssueEinvoice: typeof body?.auto_issue_einvoice === 'boolean' ? body.auto_issue_einvoice : current.autoIssueEinvoice,
+    autoIssueEinvoice:
+      typeof body?.auto_issue_einvoice === 'boolean' ? body.auto_issue_einvoice : current.autoIssueEinvoice,
     remindDaysBefore: dayList('remind_days_before', current.remindDaysBefore),
     remindDaysAfter: dayList('remind_days_after', current.remindDaysAfter),
     channels: channels as string[],
@@ -310,7 +337,11 @@ export class PlatformBillingService {
 
   async listRules(platform: Kysely<PlatformDatabase>) {
     const rows = await platform.selectFrom('price_rules').selectAll().orderBy('status').orderBy('code').execute();
-    const used = await platform.selectFrom('plans').select(['price_rule_id', 'code']).where('price_rule_id', 'is not', null).execute();
+    const used = await platform
+      .selectFrom('plans')
+      .select(['price_rule_id', 'code'])
+      .where('price_rule_id', 'is not', null)
+      .execute();
     return rows.map((row) => ({
       ...row,
       school_fee: Number(row.school_fee),
@@ -320,7 +351,11 @@ export class PlatformBillingService {
   }
 
   async saveRule(platform: Kysely<PlatformDatabase>, operatorId: string, id: string | null, input: PriceRuleInput) {
-    const duplicate = await platform.selectFrom('price_rules').select('id').where('code', '=', input.code).executeTakeFirst();
+    const duplicate = await platform
+      .selectFrom('price_rules')
+      .select('id')
+      .where('code', '=', input.code)
+      .executeTakeFirst();
     if (duplicate && duplicate.id !== id) {
       throw new ApplicationError('ERR_CONFLICT', 'Mã quy tắc đã có');
     }
@@ -404,7 +439,9 @@ export class PlatformBillingService {
       .executeTakeFirst();
     const activeStudents = typeof given === 'number' ? given : (latest?.active_students ?? null);
     if (activeStudents === null && plan.rule.components.includes('per_student')) {
-      throw validationError([{ field: 'active_students', message: 'Chưa có số liệu chốt kỳ, nhập số học sinh đang học' }]);
+      throw validationError([
+        { field: 'active_students', message: 'Chưa có số liệu chốt kỳ, nhập số học sinh đang học' },
+      ]);
     }
     const range = periodContaining(today, plan.rule.period);
     const issued = await mapped(
@@ -451,7 +488,9 @@ export class PlatformBillingService {
         if (errors.length > 0) {
           throw validationError(errors);
         }
-        return mapped(recordManualPayment(platform, { invoiceId, amount, reference: text(body, 'reference'), reason, now }, actor));
+        return mapped(
+          recordManualPayment(platform, { invoiceId, amount, reference: text(body, 'reference'), reason, now }, actor),
+        );
       }
       case 'void':
         await mapped(voidInvoice(platform, { invoiceId, reason, now }, actor));
@@ -489,7 +528,13 @@ export class PlatformBillingService {
     return mapped(
       grantFreePeriod(
         platform,
-        { schoolId: assertId(schoolId), months, reason: text(body, 'reason'), today: this.today(), now: this.clock.now() },
+        {
+          schoolId: assertId(schoolId),
+          months,
+          reason: text(body, 'reason'),
+          today: this.today(),
+          now: this.clock.now(),
+        },
         { type: 'operator', id: operatorId },
       ),
     );

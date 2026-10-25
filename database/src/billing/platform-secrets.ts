@@ -24,7 +24,10 @@ const field = (name: string, label: string, secret = false, required = true): Pl
   required,
 });
 
-export const PLATFORM_CONNECTOR_FIELDS: Record<PlatformPaymentConnector, { label: string; fields: PlatformConnectorField[] }> = {
+export const PLATFORM_CONNECTOR_FIELDS: Record<
+  PlatformPaymentConnector,
+  { label: string; fields: PlatformConnectorField[] }
+> = {
   payos: {
     label: 'PayOS',
     fields: [

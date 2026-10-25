@@ -66,7 +66,11 @@ describe('thu phí ở cổng vận hành nền tảng', () => {
     context = await startTenantTestApplication(runtime);
     context.configuration.platformConsoleHost = CONSOLE_HOST;
     await createPlatformOperator(platform.platform, { login, fullName: 'Người vận hành giả', password: TEST_PASSWORD });
-    const reply = await send(context, { path: '/auth/platform/login', host: CONSOLE_HOST, body: { login, password: TEST_PASSWORD } });
+    const reply = await send(context, {
+      path: '/auth/platform/login',
+      host: CONSOLE_HOST,
+      body: { login, password: TEST_PASSWORD },
+    });
     token = (reply.body as { access_token: string }).access_token;
   });
 
@@ -111,27 +115,49 @@ describe('thu phí ở cổng vận hành nền tảng', () => {
     });
     assert.equal(rule.status, 201, JSON.stringify(rule.body));
     const ruleId = (rule.body as Json).id as string;
-    assert.equal((await operator('POST', 'billing/price-rules', { code: 'bac-thang', name: 'Trùng', components: ['per_school'] })).status, 409);
+    assert.equal(
+      (await operator('POST', 'billing/price-rules', { code: 'bac-thang', name: 'Trùng', components: ['per_school'] }))
+        .status,
+      409,
+    );
 
     const plan = await operator('POST', 'plans', { code: 'co-ban', name: 'Cơ bản', price_rule_id: ruleId });
     assert.equal(plan.status, 201, JSON.stringify(plan.body));
     const alpha = platform.school('alpha').schoolId;
     const beta = platform.school('beta').schoolId;
-    await operator('PUT', `plan-schools/${alpha}`, { plan_id: (plan.body as Json).id, effective_from: '2026-01-01', status: 'active' });
+    await operator('PUT', `plan-schools/${alpha}`, {
+      plan_id: (plan.body as Json).id,
+      effective_from: '2026-01-01',
+      status: 'active',
+    });
     const rules = (await operator('GET', 'billing/price-rules')).body as Json[];
     assert.deepEqual(rules[0]?.plans, ['co-ban']);
 
     assert.equal((await operator('POST', 'billing/invoices', { school_id: beta })).status, 409, 'trường chưa gán gói');
-    assert.equal((await operator('POST', 'billing/invoices', { school_id: alpha })).status, 400, 'chưa có số liệu chốt');
-    const created = await operator('POST', 'billing/invoices', { school_id: alpha, active_students: 150, note: 'Trả trước' });
+    assert.equal(
+      (await operator('POST', 'billing/invoices', { school_id: alpha })).status,
+      400,
+      'chưa có số liệu chốt',
+    );
+    const created = await operator('POST', 'billing/invoices', {
+      school_id: alpha,
+      active_students: 150,
+      note: 'Trả trước',
+    });
     assert.equal(created.status, 201, JSON.stringify(created.body));
     const invoice = created.body as Json;
     // 100 × 10.000 + 50 × 8.000 + 500.000 = 1.900.000; VAT 8% = 152.000
     assert.equal(invoice.total, 2_052_000);
     const invoiceId = invoice.id as string;
 
-    assert.equal((await operator('POST', `billing/invoices/${invoiceId}/discount`, { amount: 100_000, reason: 'x' })).status, 400);
-    const discount = await operator('POST', `billing/invoices/${invoiceId}/discount`, { amount: 100_000, reason: 'Ưu đãi khai trương' });
+    assert.equal(
+      (await operator('POST', `billing/invoices/${invoiceId}/discount`, { amount: 100_000, reason: 'x' })).status,
+      400,
+    );
+    const discount = await operator('POST', `billing/invoices/${invoiceId}/discount`, {
+      amount: 100_000,
+      reason: 'Ưu đãi khai trương',
+    });
     assert.equal(discount.status, 200, JSON.stringify(discount.body));
     assert.equal((discount.body as Json).total, 1_944_000);
     const paid = await operator('POST', `billing/invoices/${invoiceId}/manual-payment`, {
@@ -141,9 +167,16 @@ describe('thu phí ở cổng vận hành nền tảng', () => {
     });
     assert.equal(paid.status, 200, JSON.stringify(paid.body));
     assert.equal((paid.body as Json).paid, true);
-    assert.equal((await operator('POST', `billing/invoices/${invoiceId}/void`, { reason: 'Hủy sau khi trả' })).status, 409);
+    assert.equal(
+      (await operator('POST', `billing/invoices/${invoiceId}/void`, { reason: 'Hủy sau khi trả' })).status,
+      409,
+    );
 
-    assert.equal((await operator('POST', `billing/invoices/${invoiceId}/einvoice`)).status, 409, 'chưa nối nhà cung cấp');
+    assert.equal(
+      (await operator('POST', `billing/invoices/${invoiceId}/einvoice`)).status,
+      409,
+      'chưa nối nhà cung cấp',
+    );
     const settings = await operator('PUT', 'billing/settings', {
       einvoice_provider: 'development',
       receiving_account: { bank_bin: '970436', account_number: '0123456789', account_name: 'NEN TANG GIA LAP' },
@@ -157,11 +190,19 @@ describe('thu phí ở cổng vận hành nền tảng', () => {
     assert.equal(detail.status, 'paid');
     assert.equal((detail.einvoices as Json[]).at(-1)?.status, 'issued');
 
-    const free = await operator('POST', `billing/schools/${beta}/free-period`, { months: 3, reason: 'Tặng trường thí điểm' });
+    const free = await operator('POST', `billing/schools/${beta}/free-period`, {
+      months: 3,
+      reason: 'Tặng trường thí điểm',
+    });
     assert.equal(free.status, 200, JSON.stringify(free.body));
-    assert.equal((await operator('POST', `billing/schools/${beta}/free-period`, { months: 0, reason: 'Sai số tháng' })).status, 400);
+    assert.equal(
+      (await operator('POST', `billing/schools/${beta}/free-period`, { months: 0, reason: 'Sai số tháng' })).status,
+      400,
+    );
 
-    const connector = await operator('PUT', 'billing/connectors/casso', { values: { webhook_secret: 'bi-mat-casso-9876' } });
+    const connector = await operator('PUT', 'billing/connectors/casso', {
+      values: { webhook_secret: 'bi-mat-casso-9876' },
+    });
     assert.equal(connector.status, 200, JSON.stringify(connector.body));
     assert.equal(JSON.stringify(connector.body).includes('bi-mat-casso'), false, 'chỉ trả gợi ý');
     assert.equal((await operator('PUT', 'billing/connectors/payos', { values: { client_id: 'x' } })).status, 400);
@@ -176,9 +217,25 @@ describe('thu phí ở cổng vận hành nền tảng', () => {
       listed.map((row) => row.id),
       [invoiceId],
     );
-    const audit = await platform.platform.selectFrom('platform_audit_log').select('action').where('action', 'like', 'billing.%').execute();
-    for (const action of ['billing.price-rule-create', 'billing.invoice-issue', 'billing.discount', 'billing.manual-payment', 'billing.einvoice-issue', 'billing.free-period', 'billing.connector-update', 'billing.settings-update']) {
-      assert.ok(audit.some((row) => row.action === action), action);
+    const audit = await platform.platform
+      .selectFrom('platform_audit_log')
+      .select('action')
+      .where('action', 'like', 'billing.%')
+      .execute();
+    for (const action of [
+      'billing.price-rule-create',
+      'billing.invoice-issue',
+      'billing.discount',
+      'billing.manual-payment',
+      'billing.einvoice-issue',
+      'billing.free-period',
+      'billing.connector-update',
+      'billing.settings-update',
+    ]) {
+      assert.ok(
+        audit.some((row) => row.action === action),
+        action,
+      );
     }
   });
 });

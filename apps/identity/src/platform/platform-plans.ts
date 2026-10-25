@@ -146,7 +146,9 @@ export function parsePlanInput(body: Body_): PlanInput {
     errors.push({ field: 'status', message: 'Trạng thái là active hoặc archived' });
   }
   const priceRuleId =
-    typeof body?.price_rule_id === 'string' && body.price_rule_id.trim() ? body.price_rule_id.trim().toLowerCase() : null;
+    typeof body?.price_rule_id === 'string' && body.price_rule_id.trim()
+      ? body.price_rule_id.trim().toLowerCase()
+      : null;
   if (priceRuleId !== null && !UUID.test(priceRuleId)) {
     errors.push({ field: 'price_rule_id', message: 'Mã quy tắc tính phí không hợp lệ' });
   }
@@ -213,7 +215,11 @@ export class PlatformPlansService {
   async savePlan(platform: Kysely<PlatformDatabase>, operatorId: string, id: string | null, input: PlanInput) {
     const duplicate = await platform.selectFrom('plans').select('id').where('code', '=', input.code).executeTakeFirst();
     if (input.price_rule_id) {
-      const rule = await platform.selectFrom('price_rules').select('id').where('id', '=', input.price_rule_id).executeTakeFirst();
+      const rule = await platform
+        .selectFrom('price_rules')
+        .select('id')
+        .where('id', '=', input.price_rule_id)
+        .executeTakeFirst();
       if (!rule) {
         throw validationError([{ field: 'price_rule_id', message: 'Không tìm thấy quy tắc tính phí' }]);
       }
