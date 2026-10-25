@@ -1,0 +1,82 @@
+# Bản thiết kế Render (Blueprint) cho máy chủ gộp, hồ sơ thử nghiệm (DT-SaaS phần S9, YCTD-203). Chép thành render.yaml ở gốc kho
+# của bạn hoặc tạo dịch vụ web tay với cùng giá trị. Gói miễn phí (tra trang chính thức ngày 2026-10-25): ngủ sau 15 phút không có
+# yêu cầu, thức dậy khoảng 1 phút; 750 giờ máy mỗi tháng cho cả không gian làm việc (đủ cho một dịch vụ chạy cả tháng); tệp ghi
+# trên đĩa mất khi khởi động lại; không dùng PostgreSQL miễn phí của Render (hết hạn sau 30 ngày). Biến bí mật để sync: false và
+# nhập ở bảng điều khiển, giá trị lấy theo env.trial.example và tệp của tổ hợp
+services:
+  - type: web
+    name: school-trial
+    runtime: docker
+    plan: free
+    region: singapore
+    dockerfilePath: ./deploy/profiles/trial/container/Dockerfile.all-in-one
+    dockerContext: .
+    healthCheckPath: /api/v1/health
+    autoDeploy: false
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: TENANT_DB_LAYOUT
+        value: schema
+      - key: PLATFORM_SHARED_DATABASE
+        value: school_shared
+      - key: DB_HOST_ADAPTER
+        value: neon
+      - key: TENANT_HOST_SOURCE
+        value: header:x-school-host
+      - key: TRUST_PROXY
+        value: '2'
+      - key: SCHEDULER_MODE
+        value: external
+      - key: MIGRATE_ON_START
+        value: 'true'
+      - key: REDIS_URL
+        value: memory://
+      - key: PLATFORM_DATA_POLICY
+        value: consent-required
+      - key: DOMAIN_PROVIDER
+        value: cloudflare-saas
+      - key: PLATFORM_ROOT_DOMAIN
+        value: thu.example.test
+      - key: PLATFORM_CONSOLE_HOST
+        value: platform.thu.example.test
+      - key: PLATFORM_INGRESS_HOST
+        value: vao.thu.example.test
+      - key: SMS_PROVIDER
+        value: log
+      - key: SMS_ALLOW_LOG
+        value: 'true'
+      - key: PAYMENT_GATEWAY
+        value: development
+      - key: FACEBOOK_PUBLISHER
+        value: development
+      - key: ZALO_SENDER
+        value: development
+      - key: S3_REGION
+        value: auto
+      - key: S3_BUCKET
+        value: school-files
+      - key: PLATFORM_DATABASE_URL
+        sync: false
+      - key: PLATFORM_ADMIN_DATABASE_URL
+        sync: false
+      - key: PLATFORM_MASTER_KEY
+        sync: false
+      - key: EDGE_SHARED_SECRET
+        sync: false
+      - key: INTERNAL_JOB_TOKEN
+        sync: false
+      - key: IDENTITY_TOKEN_PRIVATE_KEY
+        sync: false
+      - key: TOKEN_PUBLIC_KEY
+        sync: false
+      - key: CLOUDFLARE_API_TOKEN
+        sync: false
+      - key: CLOUDFLARE_ZONE_ID
+        sync: false
+      - key: S3_ENDPOINT
+        sync: false
+      - key: S3_ACCESS_KEY_ID
+        sync: false
+      - key: S3_SECRET_ACCESS_KEY
+        sync: false

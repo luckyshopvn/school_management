@@ -1,0 +1,34 @@
+[
+  {
+    "provider": "Cloudflare (Workers, DNS, Cloudflare for SaaS)",
+    "service": "Mạng biên, định tuyến, tệp tĩnh giao diện",
+    "region": "Mạng biên toàn cầu",
+    "role": "transit",
+    "stores_personal_data": false,
+    "started_on": "2026-10-25"
+  },
+  {
+    "provider": "Koyeb",
+    "service": "Máy chủ ứng dụng (định danh, API)",
+    "region": "Frankfurt (gói miễn phí không có Singapore)",
+    "role": "subprocessor",
+    "stores_personal_data": true,
+    "started_on": "2026-10-25"
+  },
+  {
+    "provider": "Supabase",
+    "service": "Cơ sở dữ liệu PostgreSQL",
+    "region": "Southeast Asia (Singapore)",
+    "role": "subprocessor",
+    "stores_personal_data": true,
+    "started_on": "2026-10-25"
+  },
+  {
+    "provider": "Supabase Storage",
+    "service": "Kho tệp",
+    "region": "Southeast Asia (Singapore)",
+    "role": "subprocessor",
+    "stores_personal_data": true,
+    "started_on": "2026-10-25"
+  }
+]

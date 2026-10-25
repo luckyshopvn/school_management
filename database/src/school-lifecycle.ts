@@ -1,10 +1,5 @@
 import { createHash, randomBytes } from 'node:crypto';
-import {
-  DEFAULT_RESERVED_SCHOOL_CODES,
-  decryptSecret,
-  normalizeHost,
-  validateSchoolCode,
-} from '@school-management/server/tenancy';
+import { DEFAULT_RESERVED_SCHOOL_CODES, normalizeHost, validateSchoolCode } from '@school-management/server/tenancy';
 import { sql, type Kysely } from 'kysely';
 import type { IdentityDatabase } from '../identity/schema.js';
 import type {
@@ -28,6 +23,7 @@ import {
 } from './provision-school.js';
 import {
   connectionStringOf,
+  descriptorFromRow,
   generatePassword,
   schoolSlug,
   type DatabaseDescriptor,
@@ -122,7 +118,23 @@ export interface LifecycleEnvironment {
   ingressHost?: string | null;
   reservedCodes?: readonly string[];
   domainProvider?: DomainProvider;
+  // Chính sách dữ liệu của môi trường (PLATFORM_DATA_POLICY, DT-SaaS phần S9); mặc định any
+  dataPolicy?: DataPolicy;
   now?: () => Date;
+}
+
+// any: môi trường dựng của nhà phát triển, hồ sơ vận hành; consent-required (mặc định hồ sơ thử nghiệm): dữ liệu thật chỉ khi đủ
+// hồ sơ đồng ý, không nhận loại `production` vì máy chủ ở ngoài Việt Nam; synthetic-only: chỉ dữ liệu giả
+export type DataPolicy = 'any' | 'consent-required' | 'synthetic-only';
+
+export function dataPolicyProblem(policy: DataPolicy | undefined, dataClass: string): string | null {
+  if (policy === 'synthetic-only' && dataClass !== 'synthetic') {
+    return 'Môi trường này chỉ nhận dữ liệu giả (PLATFORM_DATA_POLICY=synthetic-only)';
+  }
+  if (policy === 'consent-required' && dataClass === 'production') {
+    return 'Môi trường thử nghiệm (máy chủ ngoài Việt Nam) không nhận loại production; dùng consented khi đủ hồ sơ đồng ý hoặc chuyển sang hồ sơ vận hành';
+  }
+  return null;
 }
 
 export interface Actor {
@@ -228,9 +240,13 @@ export function systemHostOf(code: string, systemDomain: string | null): string 
 
 export function validateSetup(
   input: SchoolSetupInput,
-  environment: Pick<LifecycleEnvironment, 'systemDomain' | 'reservedCodes'>,
+  environment: Pick<LifecycleEnvironment, 'systemDomain' | 'reservedCodes' | 'dataPolicy'>,
 ): FieldProblem[] {
   const problems: FieldProblem[] = [];
+  const policyProblem = dataPolicyProblem(environment.dataPolicy, String(input.data_class ?? ''));
+  if (policyProblem) {
+    problems.push({ field: 'data_class', message: policyProblem });
+  }
   const codeProblem = validateSchoolCode(
     String(input.code ?? ''),
     environment.reservedCodes ?? DEFAULT_RESERVED_SCHOOL_CODES,
@@ -482,17 +498,7 @@ export async function schoolDescriptors(
     .where('school_id', '=', schoolId)
     .where('status', '!=', 'dropped')
     .execute();
-  return rows.map((row) => ({
-    kind: row.kind,
-    name: row.name,
-    layout: row.layout,
-    host: row.host,
-    port: row.port,
-    databaseName: row.database_name,
-    schemaName: row.schema_name,
-    roleName: row.role_name,
-    password: decryptSecret(environment.masterKey, row.password_encrypted),
-  }));
+  return rows.map((row) => descriptorFromRow(row, environment.masterKey));
 }
 
 async function withDescriptor<D, T>(
@@ -979,6 +985,18 @@ export async function purgeSchool(
     .executeTakeFirstOrThrow();
   try {
     const databases = await dropSchoolResources(environment, school.id, code);
+    // Gỡ tên miền riêng khỏi nhà cung cấp tên miền (Cloudflare for SaaS, Vercel) trước khi xóa danh sách của nền tảng
+    const customDomains = await platform
+      .selectFrom('school_domains')
+      .select(['host', 'provider'])
+      .where('school_id', '=', school.id)
+      .where('kind', '=', 'custom')
+      .execute();
+    for (const domain of customDomains) {
+      if (environment.domainProvider && environment.domainProvider.kind === domain.provider) {
+        await environment.domainProvider.remove(domain.host);
+      }
+    }
     const files = hooks.purgeStorage ? await hooks.purgeStorage(school.key_prefix) : null;
     const record = {
       code,
@@ -1208,6 +1226,10 @@ export async function changeDataClass(
 ) {
   const { platform } = environment;
   const school = await loadSchool(platform, code);
+  const policyProblem = dataPolicyProblem(environment.dataPolicy, dataClass);
+  if (policyProblem) {
+    throw new LifecycleError(policyProblem, [{ field: 'data_class', message: policyProblem }]);
+  }
   if (dataClass === 'consented') {
     const consents = await platform
       .selectFrom('school_consents')

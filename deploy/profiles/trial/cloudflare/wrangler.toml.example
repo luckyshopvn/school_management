@@ -1,0 +1,38 @@
+# Cấu hình Cloudflare Worker của cổng biên, hồ sơ thử nghiệm (DT-SaaS phần S9, YCTD-203). Chép thành wrangler.toml (không đưa lên
+# kho), thay tên miền giả; bí mật đặt bằng `npx wrangler secret put <TÊN>`, không ghi ở đây:
+#   EDGE_SHARED_SECRET   trùng EDGE_SHARED_SECRET của máy chủ
+#   INTERNAL_JOB_TOKEN   trùng INTERNAL_JOB_TOKEN của máy chủ
+# Dựng tệp tĩnh trước khi triển khai: sh build-assets.sh (ba ứng dụng và cổng nền tảng vào ./public)
+name = "school-trial-edge"
+main = "src/worker.mjs"
+compatibility_date = "2026-10-01"
+workers_dev = false
+
+# Mọi yêu cầu qua Worker trước (định tuyến theo tên miền, đường dẫn), Worker tự lấy tệp tĩnh qua ASSETS
+[assets]
+directory = "./public"
+binding = "ASSETS"
+run_worker_first = true
+html_handling = "none"
+not_found_handling = "none"
+
+# Tên miền con ký tự đại diện của tên miền hệ thống, tên miền hệ thống và cổng nền tảng. Tên miền riêng của trường đi qua Cloudflare
+# for SaaS: thêm tuyến "*/*" cho vùng (fallback origin trỏ về Worker) theo README của tổ hợp 1
+routes = [
+  { pattern = "*.thu.example.test/*", zone_name = "thu.example.test" },
+  { pattern = "thu.example.test/*", zone_name = "thu.example.test" },
+]
+
+[vars]
+ORIGIN_URL = "https://school-trial.onrender.com"
+ROOT_DOMAIN = "thu.example.test"
+CONSOLE_HOST = "platform.thu.example.test"
+EDGE_HOST_HEADER = "x-school-host"
+ORIGIN_TIMEOUT_MS = "10000"
+DATA_POLICY = "consent-required"
+# Tổ hợp 3a: lấy tệp tĩnh từ dự án Vercel thay cho ASSETS
+# STATIC_ORIGIN = "https://school-trial-static.vercel.app"
+
+# Gọi tick của bộ lập lịch mỗi 5 phút (gói miễn phí cho 5 Cron Triggers mỗi tài khoản, tra ngày 2026-10-25)
+[triggers]
+crons = ["*/5 * * * *"]

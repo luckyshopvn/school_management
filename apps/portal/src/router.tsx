@@ -766,7 +766,8 @@ const routeTree = rootRoute.addChildren([
   createRoute({ getParentRoute: () => rootRoute, path: '/library/settings', component: LibrarySettingsPage }),
 ]);
 
-export const router = createRouter({ routeTree });
+// Đường dẫn gốc lúc dựng (APP_BASE_PATH của vite, DT-SaaS phần S9): /quan-ly/ ở hồ sơ thử nghiệm, / mặc định
+export const router = createRouter({ routeTree, basepath: import.meta.env.BASE_URL });
 
 declare module '@tanstack/react-router' {
   interface Register {

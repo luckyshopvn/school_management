@@ -1,5 +1,5 @@
 import { randomBytes } from 'node:crypto';
-import { decryptSecret, encryptSecret, normalizeHost, validateSchoolCode } from '@school-management/server/tenancy';
+import { encryptSecret, normalizeHost, validateSchoolCode } from '@school-management/server/tenancy';
 import type { Kysely } from 'kysely';
 import type {
   PlatformDatabase,
@@ -10,6 +10,7 @@ import type {
 import { migrateToLatest } from './migrate.js';
 import {
   connectionStringOf,
+  descriptorFromRow,
   generatePassword,
   schoolSlug,
   type DatabaseDescriptor,
@@ -43,6 +44,7 @@ export async function registerDescriptor(
       database_name: descriptor.databaseName,
       schema_name: descriptor.schemaName,
       role_name: descriptor.roleName,
+      login_name: descriptor.loginName ?? null,
       password_encrypted: encryptSecret(masterKey, descriptor.password),
       status,
     })
@@ -224,17 +226,7 @@ export async function dropSchool(options: {
     .where('school_id', '=', options.schoolId)
     .execute();
   for (const row of rows) {
-    await layout.drop({
-      kind: row.kind,
-      name: row.name,
-      layout: row.layout,
-      host: row.host,
-      port: row.port,
-      databaseName: row.database_name,
-      schemaName: row.schema_name,
-      roleName: row.role_name,
-      password: decryptSecret(options.masterKey, row.password_encrypted),
-    });
+    await layout.drop(descriptorFromRow(row, options.masterKey));
   }
   await layout.dropSchoolRole(school.code);
   await platform.deleteFrom('schools').where('id', '=', options.schoolId).execute();

@@ -24,6 +24,8 @@ import {
   type SchoolSetupInput,
 } from './school-lifecycle.js';
 import { rewrapMasterKey, rotateChildKeys } from './key-rotation.js';
+import { createSchoolDatabaseLayout } from './school-database-layout.js';
+import { relayoutSchool } from './school-relayout.js';
 import { readMasterKey, readTenancyConfiguration, TenancyRuntime } from './tenancy-runtime.js';
 import type { PlatformDatabase } from '../platform/schema.js';
 
@@ -50,6 +52,11 @@ import type { PlatformDatabase } from '../platform/schema.js';
 //   rotate-child-key --code <mã>       đổi khóa mã hóa dữ liệu trẻ của trường đang tạm dừng: mã hóa lại từng bước, làm tiếp được khi
 //                                      chạy lại, ghi nhật ký; xong thì dùng lệnh resume để mở lại trường
 //   rewrap-master-key                  bọc lại khóa của mọi trường bằng khóa gốc mới (PLATFORM_NEW_MASTER_KEY)
+// Chuyển trường sang nền tảng hoặc bố cục khác (DT-SaaS phần S9, YCTD-203):
+//   relayout --school <mã> --to database|schema
+//                                      chép trường (đang tạm dừng hoặc chỉ đọc) sang nền tảng đích đặt bằng TARGET_PLATFORM_DATABASE_URL,
+//                                      TARGET_PLATFORM_MASTER_KEY, TARGET_PLATFORM_ADMIN_DATABASE_URL (quyền siêu người dùng),
+//                                      TARGET_PLATFORM_SHARED_DATABASE (bố cục schema); so số dòng, tổng kiểm từng bảng
 
 function readOption(args: string[], name: string): string | undefined {
   const index = args.indexOf(`--${name}`);
@@ -190,6 +197,51 @@ async function lifecycleCommand(): Promise<boolean> {
         );
       });
       return true;
+    case 'relayout': {
+      const code = required('school');
+      const to = required('to');
+      if (to !== 'database' && to !== 'schema') {
+        throw new Error('--to là database hoặc schema');
+      }
+      const targetAdminUrl = process.env.TARGET_PLATFORM_ADMIN_DATABASE_URL?.trim();
+      const targetPlatformUrl = process.env.TARGET_PLATFORM_DATABASE_URL?.trim();
+      if (!targetAdminUrl || !targetPlatformUrl) {
+        throw new Error(
+          'Cần TARGET_PLATFORM_DATABASE_URL, TARGET_PLATFORM_ADMIN_DATABASE_URL, TARGET_PLATFORM_MASTER_KEY',
+        );
+      }
+      const sharedDatabase = process.env.TARGET_PLATFORM_SHARED_DATABASE?.trim();
+      const sourceConfiguration = readTenancyConfiguration(process.env);
+      if (!sourceConfiguration) {
+        throw new Error('Thiếu PLATFORM_DATABASE_URL của nền tảng nguồn');
+      }
+      const source = createDatabase<PlatformDatabase>(sourceConfiguration.platformDatabaseUrl, { max: 2 });
+      const target = createDatabase<PlatformDatabase>(targetPlatformUrl, { max: 2 });
+      try {
+        const report = await relayoutSchool({
+          source: { platform: source, masterKey: sourceConfiguration.masterKey },
+          target: {
+            platform: target,
+            masterKey: readMasterKey({ PLATFORM_MASTER_KEY: process.env.TARGET_PLATFORM_MASTER_KEY }),
+            adminUrl: targetAdminUrl,
+            layout: createSchoolDatabaseLayout(to, {
+              adminUrl: targetAdminUrl,
+              ...(sharedDatabase ? { sharedDatabase } : {}),
+            }),
+          },
+          code,
+          actor: CLI_ACTOR,
+          onProgress: (line) => console.log(line),
+        });
+        console.log(
+          `Đã chuyển trường ${code}: ${report.databases.length} cơ sở dữ liệu, ${report.tables.length} bảng khớp số dòng và tổng kiểm`,
+        );
+      } finally {
+        await source.destroy();
+        await target.destroy();
+      }
+      return true;
+    }
     case 'migrate-schools':
       await withLifecycle(async (environment) => {
         const result = await migrateSchools(environment, {
@@ -263,7 +315,7 @@ async function main(): Promise<void> {
     return;
   }
   throw new Error(
-    'Lệnh: generate-master-key | migrate | adopt-existing | provision | provision-resume | provision-rollback | suspend | resume | request-deletion | cancel-deletion | purge-due | reissue-invitation | verify-domain | migrate-schools',
+    'Lệnh: generate-master-key | migrate | adopt-existing | provision | provision-resume | provision-rollback | suspend | resume | request-deletion | cancel-deletion | purge-due | reissue-invitation | verify-domain | migrate-schools | relayout',
   );
 }
 

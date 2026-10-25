@@ -340,7 +340,6 @@ import { OnlinePaymentsController } from './finance/online-payments.controller.j
 import { PaymentWebhooksController } from './finance/payment-webhooks.controller.js';
 import { OnlinePaymentsService } from './finance/online-payments.service.js';
 import { PaymentGatewayRegistry } from './finance/payment-gateway.js';
-import { createPaymentGateway } from './finance/payment-providers.js';
 import { DebtsService } from './fees/debts.service.js';
 import { ChildLifecycleController, ChildLifecycleService } from './children/child-lifecycle.js';
 import { StudentMovementsController, StudentMovementsService } from './children/student-movements.js';
@@ -396,7 +395,7 @@ import { AttendanceMealsController, AttendanceMealsService } from './reports/att
 import { PartnerController, PartnerService } from './partner/partner.js';
 import { NotificationsController, NotificationsService } from './notifications/notifications.js';
 import { NotificationDispatcher } from './notifications/notification-dispatcher.js';
-import { createSmsGateway, SmsGateway } from './notifications/sms-gateway.js';
+import { SmsGateway } from './notifications/sms-gateway.js';
 import { JournalsController, JournalsService } from './journals/journals.js';
 import { OrgUnitsController } from './organization/org-units.controller.js';
 import { OrgUnitsService } from './organization/org-units.service.js';
@@ -464,18 +463,8 @@ import {
 } from './portal-shell/portal-shell.js';
 import { integrationsTransitionStep } from './integrations/integrations-transition.js';
 import { FacebookPostsController, FacebookPostsService } from './integrations/facebook-posts.js';
-import {
-  DevelopmentFacebookPublisher,
-  FacebookPublisher,
-  GraphApiFacebookPublisher,
-  UnavailableFacebookPublisher,
-} from './integrations/facebook-publisher.js';
-import {
-  DevelopmentZaloSender,
-  OfficialAccountZaloSender,
-  UnavailableZaloSender,
-  ZaloSender,
-} from './integrations/zalo-sender.js';
+import { FacebookPublisher } from './integrations/facebook-publisher.js';
+import { ZaloSender } from './integrations/zalo-sender.js';
 import { ZaloTokenStore } from './integrations/zalo-token-store.js';
 
 @Module({})

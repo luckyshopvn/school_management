@@ -419,3 +419,5 @@ export {
   type LifecycleSettings,
 } from './lifecycle-environment.js';
 export { rotateChildKeys, rewrapMasterKey, type KeyRotationOptions, type KeyRotationResult } from './key-rotation.js';
+export * from './database-host-adapter.js';
+export * from './school-relayout.js';

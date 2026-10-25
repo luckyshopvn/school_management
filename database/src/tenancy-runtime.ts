@@ -19,6 +19,7 @@ import {
 } from './school-database-layout.js';
 import { TenantConnections, type TenantConnectionsOptions } from './tenant-connections.js';
 import { TenantRegistry } from './tenant-registry.js';
+import { databaseHostSettings, readDatabaseHostOptions, type DatabaseHostOptions } from './database-host-adapter.js';
 
 // Cấu hình nền tảng nhiều trường đọc từ biến môi trường của nền tảng (không phải của từng trường, tài liệu 32 mục 14.4).
 // Không có PLATFORM_DATABASE_URL thì chế độ một trường: hành vi hiện nay, mọi tên miền thuộc về trường duy nhất
@@ -34,6 +35,8 @@ export interface TenancyConfiguration {
   // Tên miền hệ thống (PLATFORM_ROOT_DOMAIN): gốc của các tên miền con `<mã trường>.<tên miền hệ thống>`; có thì trang chọn trường
   // phục vụ ở tên miền này (DT-SaaS phần S1b)
   rootDomain: string | null;
+  // Nơi đặt PostgreSQL của trường (DB_HOST_ADAPTER, DT-SaaS phần S9): địa chỉ gom kết nối ghi vào mô tả kết nối
+  databaseHost?: DatabaseHostOptions;
   connections: TenantConnectionsOptions;
   cacheSeconds: number;
 }
@@ -96,6 +99,7 @@ export function readTenancyConfiguration(env: NodeJS.ProcessEnv = process.env): 
     hostSource,
     edgeSecret,
     rootDomain: normalizeHost(env.PLATFORM_ROOT_DOMAIN?.trim() || undefined) ?? null,
+    databaseHost: readDatabaseHostOptions(env),
     connections: {
       ...(poolMax !== undefined ? { poolMax } : {}),
       // Mỗi trường dùng nhóm cho cơ sở dữ liệu định danh, hệ thống và năm học đang dùng
@@ -129,11 +133,16 @@ export class TenancyRuntime {
     });
     this.connections = new TenantConnections(this.registry, configuration.connections);
     if (configuration.adminDatabaseUrl) {
-      const url = new URL(configuration.adminDatabaseUrl);
+      const host = databaseHostSettings(
+        configuration.databaseHost ?? readDatabaseHostOptions({}),
+        configuration.adminDatabaseUrl,
+      );
       this.layout = createSchoolDatabaseLayout(configuration.layout, {
         adminUrl: configuration.adminDatabaseUrl,
-        host: url.hostname,
-        port: url.port ? Number(url.port) : 5432,
+        host: host.host,
+        port: host.port,
+        ...(host.loginSuffix ? { loginSuffix: host.loginSuffix } : {}),
+        revokePublicConnect: host.revokePublicConnect,
         ...(configuration.sharedDatabase ? { sharedDatabase: configuration.sharedDatabase } : {}),
       });
     } else {
