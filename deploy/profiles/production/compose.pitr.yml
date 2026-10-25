@@ -34,7 +34,7 @@ services:
       - -c
       - maintenance_work_mem=${POSTGRES_MAINTENANCE_WORK_MEM:-256MB}
       - -c
-      - max_locks_per_transaction=${POSTGRES_MAX_LOCKS_PER_TRANSACTION:-128}
+      - max_locks_per_transaction=${POSTGRES_MAX_LOCKS_PER_TRANSACTION:-256}
       - -c
       - autovacuum_max_workers=${POSTGRES_AUTOVACUUM_MAX_WORKERS:-4}
       - -c

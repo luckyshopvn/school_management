@@ -28,7 +28,17 @@ export async function migrateToLatest(kind: DatabaseKind, connectionString: stri
       // gộp sau vẫn chạy được trên cơ sở dữ liệu đã chạy tệp số lớn hơn
       allowUnorderedMigrations: true,
     });
-    return await migrator.migrateToLatest();
+    // Mỗi tệp một giao dịch thay vì mọi tệp trong một giao dịch: cơ sở dữ liệu năm học mới có hàng trăm bảng, chạy chung một
+    // giao dịch giữ khóa của mọi bảng cùng lúc và vượt bảng khóa dùng chung của máy chủ (lỗi "out of shared memory", giới hạn
+    // max_locks_per_transaction mặc định 64, gói miễn phí của Neon, Supabase không đổi được) khi nhiều trường tạo cùng lúc
+    const results: NonNullable<MigrationResultSet['results']>[number][] = [];
+    for (;;) {
+      const step = await migrator.migrateUp();
+      results.push(...(step.results ?? []));
+      if (step.error || !step.results?.length) {
+        return step.error ? { error: step.error, results } : { results };
+      }
+    }
   } finally {
     await database.destroy();
   }

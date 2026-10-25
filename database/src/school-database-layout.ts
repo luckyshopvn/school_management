@@ -136,6 +136,23 @@ function hostOf(environment: LayoutEnvironment): { host: string; port: number } 
   };
 }
 
+// Gỡ lược đồ của trường theo lô: mỗi lô vài chục bảng một giao dịch rồi mới gỡ lược đồ. `drop schema ... cascade` một lần giữ khóa
+// của mọi bảng, chỉ mục trong một giao dịch, lược đồ năm học có hàng trăm bảng nên vượt bảng khóa dùng chung của máy chủ ("out of
+// shared memory") khi nhiều trường cùng thao tác; gói miễn phí của Neon, Supabase không đổi được max_locks_per_transaction
+const DROP_BATCH = 40;
+
+async function dropSchemaInBatches(database: ReturnType<typeof createDatabase<unknown>>, name: string): Promise<void> {
+  const tables = await sql<{ relname: string }>`
+    select c.relname from pg_class c join pg_namespace n on n.oid = c.relnamespace
+    where n.nspname = ${name} and c.relkind in ('r', 'p') and not c.relispartition`.execute(database);
+  const names = tables.rows.map((row) => row.relname);
+  for (let index = 0; index < names.length; index += DROP_BATCH) {
+    const batch = names.slice(index, index + DROP_BATCH).map((table) => sql`${sql.id(name, table)}`);
+    await sql`drop table if exists ${sql.join(batch)} cascade`.execute(database);
+  }
+  await sql`drop schema if exists ${sql.id(name)} cascade`.execute(database);
+}
+
 async function withAdmin<T>(
   adminUrl: string,
   databaseName: string | null,
@@ -276,7 +293,7 @@ export class SchemaLayout implements SchoolDatabaseLayout {
     }
     assertIdentifier(name, 'Tên lược đồ');
     await withAdmin(this.environment.adminUrl, this.sharedDatabase, async (database) => {
-      await sql`drop schema if exists ${sql.id(name)} cascade`.execute(database);
+      await dropSchemaInBatches(database, name);
       await sql`drop owned by ${sql.id(name)}`.execute(database);
       await sql`drop role if exists ${sql.id(name)}`.execute(database);
     });
@@ -356,7 +373,7 @@ export async function purgeSchoolArtifacts(
   if (sharedDatabase && sharedExists) {
     await withAdmin(adminUrl, sharedDatabase, async (database) => {
       for (const roleName of roleNames) {
-        await sql`drop schema if exists ${sql.id(roleName)} cascade`.execute(database);
+        await dropSchemaInBatches(database, roleName);
         await sql`drop owned by ${sql.id(roleName)}`.execute(database);
       }
     });
