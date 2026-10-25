@@ -5,7 +5,7 @@
 - Ngày cập nhật: 2026-10-25
 - Trạng thái: Chờ phê duyệt
 - Thuộc: [Tài liệu 34, tổng hợp chức năng hệ thống](00_MUC_LUC.md)
-- Nguồn: mã và tài liệu trên nhánh `main` ngày 2026-10-25 (sau PR 165, 166, 167). Khi tài liệu và mã lệch nhau, mô tả theo mã; chỗ lệch ghi ở [phụ lục](07_MA_TRAN_VAI_TRO_VA_PHU_LUC.md)
+- Nguồn: mã và tài liệu trên nhánh `main` ngày 2026-10-25 (sau PR 165, 166, 167, 169). Khi tài liệu và mã lệch nhau, mô tả theo mã; chỗ lệch ghi ở [phụ lục](07_MA_TRAN_VAI_TRO_VA_PHU_LUC.md)
 
 ## 1. Ma trận vai trò × phân hệ
 
@@ -353,7 +353,7 @@ Gom từ khi rà mã ngày 2026-10-25. Tài liệu 34 mô tả theo mã; các ch
 | Chỗ | Tài liệu nói | Mã làm |
 |---|---|---|
 | `tai_lieu/index.md` dòng đầu; `04_TONG_QUAN_DU_AN.md` tên dự án, mục 1, GD-04 | "School Management - Hệ thống quản lý trường mầm non"; "Hệ thống phục vụ khối mầm non" | Hệ thống đã đa cấp: bốn mã cấp MN, TH, THCS, THPT (`school-levels.ts`), menu và ứng dụng theo cấp (DT-19 đến DT-21), đa thuê bao (DT-SaaS) |
-| `index.md` dòng tài liệu 32 | DT-SaaS "(S1a, S2 đã triển khai; S1b đến S9 ... kế hoạch)" | S1b đã gộp (PR 166, `scheduler_state`, `JobScheduler`, điểm tick); S7a, S8a, S9 (PR 167) đã gộp; tài liệu 32 mục 14.10 ghi đúng |
+| `index.md` dòng tài liệu 32 | DT-SaaS "(S1a, S2 đã triển khai; S1b đến S9 ... kế hoạch)" | S1b đã gộp (PR 166, `scheduler_state`, `JobScheduler`, điểm tick); S7a, S8a, S9 (PR 167), S3 (PR 169) đã gộp; tài liệu 32 mục 14.10 ghi đúng |
 | `index.md` "Phân hệ đã xác định 19", `05_PHAM_VI.md` mười chín phân hệ | 19 phân hệ P01 đến P19 | Cổng quản trị có 21 phân hệ (`PORTAL_WORKSPACES`); P01 đến P19 chỉ còn là tiền tố mã quyền. Hai cách chia khác nhau, tài liệu chưa có bảng đối chiếu |
 | `08_VAI_TRO_NGUOI_DUNG.md` mục 1 cột "Kênh sử dụng" | Mỗi vai trò dùng kênh nhất định (VT-07 ứng dụng giáo viên, VT-14 ứng dụng phụ huynh...) | `POST /auth/login` không kiểm vai trò theo kênh; chỉ đăng nhập mã một lần giới hạn tài khoản chỉ có VT-14. Ở cổng, VT-14 không thấy gì nhờ `role_workspace_exclusions`; VT-07 có quyền xem nhiều mục ở cổng |
 | `08_VAI_TRO_NGUOI_DUNG.md` mục 3 ma trận P01 đến P19 | Ma trận theo 19 phân hệ cũ với Q, S, D, X | Ma trận 0003 chỉ cấp `Pxx.view/edit/approve`; menu và API dùng quyền chi tiết thêm ở migration sau. Ví dụ `P01.edit` của VT-15, VT-03 không có điểm cuối nào dùng; VT-02 không thấy mục Giảng dạy dù tài liệu ghi D ở P03 |
@@ -478,7 +478,7 @@ Gom từ khi rà mã ngày 2026-10-25. Tài liệu 34 mô tả theo mã; các ch
 | QT-06 mục 7 | Không có trạng thái trả lại bảng lương | Bảng lương có thao tác Trả lại, đưa về `draft` kèm lý do (`payroll.service.ts` dòng 294) |
 | QT-10 mục 7 | Từ chối chỉ về Nháp rồi mới gửi lại | Mã cho gửi trình duyệt trực tiếp từ `rejected` ("Chỉ gửi trình duyệt hoạt động nháp hoặc bị từ chối"); sửa hoạt động bị từ chối thì về nháp (`activities/activities.ts`) |
 | BR-83 và BR-167 | BR-83 bán trú bắt buộc với mọi trẻ đang học; BR-167 danh sách ăn lớp ngoài Mầm non là học sinh "đăng ký bán trú của tháng" | Dịch vụ `BAN_TRU` bắt buộc được tự đăng ký cho mọi học sinh đang học, không phân biệt cấp (`fees/registrations.service.ts` dòng 618-640), nên danh sách ăn lớp ngoài Mầm non là cả lớp trừ học sinh cắt suất; không có cách để học sinh Tiểu học không đăng ký bán trú |
-| Tài liệu 32 mục kế hoạch DT-SaaS | Khóa cổng thanh toán, eSMS, Zalo, Facebook chuyển thành cấu hình của từng trường | `finance/payment-providers.ts` ghi khóa cổng thanh toán chỉ đặt ở biến môi trường, không lưu trong cơ sở dữ liệu; khóa Zalo, Facebook lưu mã hóa ở CSDL hệ thống (`integration_credentials`) |
+| Tài liệu 32 mục kế hoạch DT-SaaS | Khóa cổng thanh toán, eSMS, Zalo, Facebook chuyển thành cấu hình của từng trường | Đã làm ở S3 (PR 169): khóa thanh toán, eSMS, Zalo, Facebook, kho tệp lưu mã hóa theo trường ở `integration_secrets`; dịch vụ định danh vẫn gửi mã đăng nhập qua eSMS theo cấu hình máy chủ, chưa theo trường |
 | Q-140 (tài liệu 04) | Hệ thống tài khoản theo Thông tư 24/2024/TT-BTC "theo hiểu biết của nhóm thiết kế", kế toán trưởng kiểm lại số hiệu | Mã dựng sẵn tài khoản 111, 112, 131, 334, 332, 3335, 421, 531, 642 và quy tắc ghi sổ mặc định; chưa có ghi nhận đã kiểm lại số hiệu văn bản |
 | MH-29 (tài liệu 14) | VT-15 chưa có quyền ở tệp 0034 nên chưa thấy thẻ Hợp nhất đơn vị | Đúng như mã: `P17.report.consolidated` chỉ gán VT-02, VT-19 |
 | Tài liệu 12.1 BR-77 và mã | Hạn mức chốt kỳ tài chính có trong danh mục loại chứng từ `financial_period_closing` | `finance/fiscal-periods.ts` ghi Hiệu trưởng duyệt chốt kỳ, không theo hạn mức vì không có giá trị tiền; loại chứng từ này có trong `APPROVAL_DOCUMENT_TYPES` nhưng không được dùng |

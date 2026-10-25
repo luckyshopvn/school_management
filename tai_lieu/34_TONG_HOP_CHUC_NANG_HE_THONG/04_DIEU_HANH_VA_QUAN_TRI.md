@@ -5,7 +5,7 @@
 - Ngày cập nhật: 2026-10-25
 - Trạng thái: Chờ phê duyệt
 - Thuộc: [Tài liệu 34, tổng hợp chức năng hệ thống](00_MUC_LUC.md)
-- Nguồn: mã và tài liệu trên nhánh `main` ngày 2026-10-25 (sau PR 165, 166, 167). Khi tài liệu và mã lệch nhau, mô tả theo mã; chỗ lệch ghi ở [phụ lục](07_MA_TRAN_VAI_TRO_VA_PHU_LUC.md)
+- Nguồn: mã và tài liệu trên nhánh `main` ngày 2026-10-25 (sau PR 165, 166, 167, 169). Khi tài liệu và mã lệch nhau, mô tả theo mã; chỗ lệch ghi ở [phụ lục](07_MA_TRAN_VAI_TRO_VA_PHU_LUC.md)
 
 Mỗi phân hệ mô tả theo cùng khuôn: mục đích, cấp học, vai trò và mã quyền, căn cứ pháp lý, chức năng và màn hình, quy tắc nghiệp vụ, dữ liệu và tệp xuất, liên kết, kiểm thử e2e. Số mục menu, đường dẫn theo `packages/shared/src/portal-menu.ts`. Sơ đồ quy trình ở cuối tệp.
 
@@ -303,7 +303,7 @@ Quyền hiện mục menu (`menu-permissions.ts`, tiền tố `P09.` lược b�
 | 2.5. Phòng học và bậc học | `/rooms` | Ba danh mục: Phòng học, Bậc học (khối), Chương trình; Nạp khối mẫu theo cấp | MH-34 |
 | 2.6. Hạn mức phê duyệt | `/approval-thresholds` | Bảng hạn mức theo đơn vị và loại chứng từ; Ghi | MH-33 |
 | 3.1. Khóa API cho đối tác | `/api-clients` | Cấp khóa API (phạm vi, căn cứ pháp lý, địa chỉ mạng, ngày hết hạn), thu hồi | MH-42 |
-| 3.2. Kết nối ngoài | `/integrations` | Bật, tắt Fanpage, Zalo Official Account; Kiểm tra kết nối; thay khóa làm mới Zalo; liên kết, bỏ liên kết phụ huynh quan tâm Zalo | MH-71 |
+| 3.2. Kết nối ngoài | `/integrations` | Bật, tắt Fanpage, Zalo Official Account; Kiểm tra kết nối; thay khóa làm mới Zalo; liên kết, bỏ liên kết phụ huynh quan tâm Zalo; khóa kết nối riêng của trường và thương hiệu (S3) | MH-71, MH-321, MH-322 |
 | 3.3. Nhật ký thao tác | `/audit-logs` | Hai thẻ Nghiệp vụ, Tài khoản và quyền; lọc đối tượng, khoảng ngày | MH-31 |
 | 3.4. Ý kiến phản hồi | `/feedback` | Lưới ý kiến của mọi người dùng; nút Xử lý: đổi trạng thái, trả lời | MH-89 (gửi: MH-87, của mình: MH-88) |
 | 3.5. Tệp đã tạo | `/generated-files` | Tác vụ xuất nền của chính người dùng; Tải về, Làm mới | MH-101 |
@@ -364,6 +364,13 @@ Quyền hiện mục menu (`menu-permissions.ts`, tiền tố `P09.` lược b�
 **3.1. Khóa API cho đối tác (`ApiClientsPage`).** Biểu mẫu "Cấp khóa API": Tên đối tác, Loại đối tác, Phạm vi (`reports`, `finance`, `children`, `staff`), Căn cứ pháp lý (bắt buộc khi có phạm vi `children` hoặc `staff`), Địa chỉ mạng cho phép (cách nhau bằng dấu phẩy), Ngày hết hạn (sau hôm nay). Khóa mới chỉ hiện một lần trong ô "Khóa mới", lưu dạng băm. Lưới: Đối tác, Phạm vi, Căn cứ pháp lý, Địa chỉ mạng cho phép, Hết hạn, Trạng thái, Dùng gần nhất, Khóa (tiền tố); nút Thu hồi có hiệu lực ngay. Đối tác gọi nhóm điểm cuối chỉ đọc `/partner/reports/summary`, `/partner/finance`, `/partner/children`, `/partner/staff` với tiêu đề `x-api-key`; tối đa 60 yêu cầu mỗi phút mỗi khóa; đọc trẻ, phụ huynh, nhân sự, lương luôn ghi nhật ký truy cập dữ liệu kèm khóa và căn cứ pháp lý.
 
 **3.2. Kết nối ngoài (`IntegrationsPage`).** Bật, tắt Fanpage (mã trang, tên trang) và Zalo Official Account (mã OA, tên); khóa truy cập đặt ở cấu hình máy chủ, trang chỉ báo đã có hay chưa. Nút Kiểm tra kết nối (máy chủ gọi Facebook, Zalo, trả tên trang, tên OA hoặc lỗi). Ô "Khóa làm mới Zalo" (hạn 3 tháng) lưu mã hóa ở cơ sở dữ liệu hệ thống, không trả lại, sau khi lưu xóa trắng. Lưới "Phụ huynh quan tâm Zalo" (Số điện thoại, Phụ huynh, Mã người dùng Zalo), tìm tại chỗ; liên kết số điện thoại với mã Zalo; Bỏ liên kết qua hộp xác nhận xóa. Mục 1.6 Tài khoản đồng bộ của Bộ, của Sở (`/sync-accounts`, cùng quyền) nằm ở phân hệ Mầm non.
+
+Từ DT-SaaS phần S3 (YCTD-195, PR 169) trang có thêm hai khối (`SchoolConnectorsPanel`):
+
+- Khóa kết nối riêng của trường (MH-321, BR-211): mỗi kết nối một thẻ (PayOS, SePay, Casso, VNPay, VietQR tĩnh, eSMS, Zalo Official Account, Facebook Page, kho tệp riêng) gồm ô Bật, các ô nhập (ô bí mật là ô mật khẩu, gợi ý bốn ký tự cuối, để trống là giữ giá trị đã lưu), địa chỉ gọi lại của trường cho cổng thanh toán; nút Lưu, Kiểm tra kết nối, Xóa cấu hình. Giá trị lưu mã hóa ở `integration_secrets`, không trả lại. Cổng thanh toán chưa có kiểm tra kết nối thật.
+- Thương hiệu của trường (MH-322, BR-213): Tên hiển thị (trống thì dùng tên trường ở Cấu hình trường), Màu chủ đạo `#RRGGBB`, ghi chú biểu trưng lấy từ Cấu hình website; nút Lưu thương hiệu. Trang đăng nhập đọc thương hiệu công khai theo tên miền của trường.
+
+Hai khối dùng quyền `P01.integration.manage`. Chi tiết bộ nối và đổi khóa ở [tệp 01](01_TONG_QUAN_VA_NEN_TANG.md) mục 4.
 
 **3.3. Nhật ký thao tác (`AuditLogsPage`).** Hai thẻ, mỗi thẻ một lưới phân trang ở máy chủ (đến 200 dòng):
 - Nghiệp vụ: đọc `GET /audit-logs` của máy chủ API, nhật ký của năm học đang dùng, chỉ trong phạm vi đơn vị của người xem. Mở rộng tìm kiếm: Đối tượng, Từ ngày, Đến ngày; lọc thêm theo mã đối tượng, người thực hiện, đơn vị.
