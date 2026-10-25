@@ -29,7 +29,7 @@ Các thay đổi trước phiên bản 0.4.0 chưa có sổ này; xem `23_LICH_S
 - Ảnh hưởng chức năng cũ: phiên hỗ trợ của S4 thêm loại người mở phiên, không đổi hành vi cũ; chế độ một trường không đổi.
 - Kiểm thử cần thực hiện: kiểm thử đơn vị `database`, `apps/identity`, `apps/api` (hai bố cục); kiểm tra tĩnh nền đa thuê bao; `pnpm lint`; e2e spec 139.
 - Chưa làm (YCTD sau): thi đua khối, cụm và cấp Phòng, Sở (22d), đánh giá ngoài (22f), nối hệ thống của Bộ, Sở; nạp danh mục hành chính toàn quốc từ văn bản gốc; biểu đồ theo thời gian.
-- Trạng thái: Đã triển khai (PR (chưa mở))
+- Trạng thái: Đã triển khai (PR 175)
 
 ### YCTD-197: DT-SaaS phần S4: bảng điều khiển nền tảng – 2026-10-25
 
