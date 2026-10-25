@@ -249,7 +249,7 @@ describe('Dịch vụ định danh: đăng nhập và phiên', () => {
     assert.equal(verifyOtp.status, 404);
   });
 
-  it('PQ-10: VT-01 chỉ có quyền quản lý tài khoản, xử lý ý kiến phản hồi (YCTD-110), soạn thông báo hệ thống (DT-16 phần 16c), không có quyền nghiệp vụ', async () => {
+  it('PQ-10: VT-01 chỉ có quyền quản lý tài khoản, xử lý ý kiến phản hồi (YCTD-110), soạn thông báo hệ thống (DT-16 phần 16c), hóa đơn dịch vụ của trường (DT-SaaS phần S5b), không có quyền nghiệp vụ', async () => {
     const administrator = await createTestUser(context.database, { roles: [{ roleCode: 'VT-01', orgUnitId: null }] });
     const { accessToken } = readTokens(await login(context, administrator.username, administrator.password));
     const me = await getJson(`${context.baseUrl}/auth/me`, accessToken);
@@ -257,6 +257,7 @@ describe('Dịch vụ định danh: đăng nhập và phiên', () => {
     assert.deepEqual(assignments[0]?.permissions, [
       'P01.account.manage',
       'P01.announcement.manage',
+      'P01.billing.manage',
       'P01.feedback.manage',
     ]);
   });
