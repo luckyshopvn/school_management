@@ -18,6 +18,7 @@ import type { AcademicYearTransitionStep } from './academic-years/academic-year-
 import { ApplicationModule } from './application.module.js';
 import type { ApiConfiguration } from './common/configuration.js';
 import { TENANT_FREE_PATHS } from './common/school-picker.js';
+import { PARENT_ORG_PATH_PREFIX } from './parent-org/parent-org.js';
 import type { FileStorage } from './files/file-storage.js';
 import type { SmsGateway } from './notifications/sms-gateway.js';
 import type { IdentityClient } from './authentication/identity-client.js';
@@ -50,7 +51,8 @@ export async function createApplication(
       createTenantMiddleware({
         resolver: tenancy.registry,
         hostSource: tenancy.configuration.hostSource,
-        isTenantFreePath: (path) => TENANT_FREE_PATHS.has(path),
+        // Số liệu cho tài khoản cấp trên (DT-SaaS phần S6) không thuộc trường nào
+        isTenantFreePath: (path) => TENANT_FREE_PATHS.has(path) || path.startsWith(PARENT_ORG_PATH_PREFIX),
         ...(tenancy.configuration.edgeSecret ? { edgeSecret: tenancy.configuration.edgeSecret } : {}),
         resolveByToken: tenancy.tokenTenantResolver(
           configuration.tokenPublicKeyPem,

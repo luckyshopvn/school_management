@@ -11,6 +11,26 @@ Mã yêu cầu thay đổi dạng `YCTD-nn`, đánh số tăng dần, không tá
 
 Các thay đổi trước phiên bản 0.4.0 chưa có sổ này; xem `23_LICH_SU_PHIEN_BAN.md` các phiên bản 0.1.0 đến 0.3.1.
 
+### YCTD-202: DT-SaaS phần S6: đơn vị cấp trên – 2026-10-26
+
+- Lý do: phần S6 của `32_KE_HOACH_THEO_HE_THONG_SO.md` mục 14.3, 14.5 (kế hoạch DT-SaaS ở YCTD-190); Eric duyệt ngày 2026-10-25 (GD-98): ba cấp Bộ, Sở, Phòng Văn hóa – Xã hội (cấp xã, mô hình chính quyền hai cấp), cây đơn vị hành chính cấu hình được, mỗi cấp xem số liệu tổng hợp của trường thuộc phạm vi và đã đồng ý, không xem chi tiết từng học sinh nếu không được cấp quyền. Phụ thuộc S1a, S4, S8b đã gộp.
+- Nội dung thay đổi (Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11 ở những chỗ kế hoạch chưa chốt):
+  - **Cây đơn vị** (`admin_units`, nền tảng 0090): cấp Bộ, Sở, Phòng theo quy tắc cấp cha; thêm, đổi tên, ngừng, gộp (nút con, trường, tài khoản chuyển sang nút nhận, nút cũ giữ trạng thái đã gộp), tách, nạp danh sách hoặc bộ nút mặc định (Bộ GD&ĐT, Sở GD&ĐT TP.HCM, 168 Phòng Văn hóa – Xã hội của xã, phường mới theo Nghị quyết 1685/NQ-UBTVQH15, Nghị quyết 202/2025/QH15, mã của Cục Thống kê đã có trong kho); mỗi trường gắn một nút quản lý (`schools.admin_unit_id`).
+  - **Tài khoản cấp trên** (`parent_org_users`): người vận hành tạo, gắn một nút; mật khẩu tối thiểu 12 ký tự; xác thực hai lớp bắt buộc như tài khoản vận hành của S8b (khóa, mã khôi phục hiện một lần, cấp lại được); sai 5 lần khóa 15 phút; chỉ đăng nhập ở tên miền cổng nền tảng (trang `/cap-tren`), mã phiên đối tượng riêng 8 giờ; phạm vi là cây con; đổi khóa gốc bọc lại khóa TOTP.
+  - **Đồng ý của trường** (`school_aggregate_consents`): theo cấp và sáu nhóm số liệu, quản trị của trường bật, tắt ở cổng quản trị (P01.setting.manage), lịch sử là bằng chứng; trường chưa đồng ý không có mặt trong số liệu của cấp đó, kể cả cộng dồn.
+  - **Bản chụp tổng hợp** (`aggregate_snapshots`): việc định kỳ `aggregate-snapshots` của máy chủ API mỗi 6 giờ (`AGGREGATE_SNAPSHOT_INTERVAL_SECONDS`), trong ngữ cảnh từng trường ở cả hai bố cục, chỉ số đếm từ năm học đang dùng, không dữ liệu cá nhân, giữ 400 ngày.
+  - **Số liệu cho cấp trên** ở máy chủ API (`/api/v1/parent-org/aggregate`, `/export`): đường dẫn không cần trường, chỉ tên miền cổng nền tảng, mã phiên cấp trên; tổng của nút và nút con, so sánh trường đã đồng ý, xuất Excel, PDF; ẩn nhóm nhỏ `PARENT_ORG_MIN_GROUP` (mặc định 5, giả định): ô 1 đến 4 người ghi "ẩn", tổng của nút ít hơn 5 trường không hiện; mỗi lần xem, xuất ghi nhật ký nền tảng.
+  - **Xem chi tiết** (`parent_org_access_requests`): cấp trên đề nghị (trường trong phạm vi, nhóm, lý do, 1 đến 168 giờ), trường duyệt, từ chối, rút; đã duyệt thì mở phiên hỗ trợ chỉ đọc của S4 (`requester_kind = parent_org`), đường liên kết một lần 5 phút, tối đa 8 giờ; rút thì phiên kết thúc, phiên đăng nhập bị thu hồi ngay; ghi nhật ký hai phía.
+- Thành phần bị ảnh hưởng: `packages/server` (mã phiên cấp trên), `packages/shared` (menu 4.6), `database`, `apps/api`, `apps/identity`, `apps/platform`, `apps/portal`, `tests` (spec 139, cấu hình e2e nhiều trường).
+- Dữ liệu bị ảnh hưởng: cơ sở dữ liệu nền tảng (tệp 0090); không đổi cơ sở dữ liệu của trường.
+- API bị ảnh hưởng: xem `17_DAC_TA_API.md` (nhóm `/auth/platform/admin-units`, `/auth/platform/parent-org-users`, `/auth/parent-org/*`, `/parent-org-consents`, `/parent-org/aggregate`).
+- Giao diện bị ảnh hưởng: cổng nền tảng thêm Đơn vị cấp trên (MH-334), trang `/cap-tren` (MH-335); cổng quản trị thêm Chia sẻ số liệu cấp trên (MH-336, mục 4.6 của Quản trị hệ thống).
+- Quyền bị ảnh hưởng: không thêm quyền; Chia sẻ số liệu cấp trên dùng P01.setting.manage; tài khoản cấp trên không thuộc trường nào.
+- Ảnh hưởng chức năng cũ: phiên hỗ trợ của S4 thêm loại người mở phiên, không đổi hành vi cũ; chế độ một trường không đổi.
+- Kiểm thử cần thực hiện: kiểm thử đơn vị `database`, `apps/identity`, `apps/api` (hai bố cục); kiểm tra tĩnh nền đa thuê bao; `pnpm lint`; e2e spec 139.
+- Chưa làm (YCTD sau): thi đua khối, cụm và cấp Phòng, Sở (22d), đánh giá ngoài (22f), nối hệ thống của Bộ, Sở; nạp danh mục hành chính toàn quốc từ văn bản gốc; biểu đồ theo thời gian.
+- Trạng thái: Đã triển khai (PR 175)
+
 ### YCTD-197: DT-SaaS phần S4: bảng điều khiển nền tảng – 2026-10-25
 
 - Lý do: phần S4 của `32_KE_HOACH_THEO_HE_THONG_SO.md` mục 14.3, 14.5 (kế hoạch DT-SaaS ở YCTD-190); sau S2 (cổng nền tảng, vòng đời trường) và S5a (gói dịch vụ). Người vận hành cần thấy tình trạng mọi trường, báo bảo trì và hỗ trợ trường mà không tự ý vào dữ liệu của trường.

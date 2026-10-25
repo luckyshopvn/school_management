@@ -52,6 +52,14 @@ export const PUBLIC_ROUTES: PublicRoute[] = [
     'Thông báo tiền vào của cổng thanh toán của nền tảng (thu phí dịch vụ, S5b): không thuộc trường nào, đi qua đường dẫn không cần trường; xác thực bằng chữ ký hoặc khóa của cổng lưu mã hóa ở cơ sở dữ liệu nền tảng, cổng chưa bật thì 404; chỉ ghi tiền vào hóa đơn theo nội dung chuyển khoản',
   ),
   get(
+    '/api/v1/parent-org/aggregate',
+    'Số liệu tổng hợp cho tài khoản cấp trên (Bộ, Sở, Phòng; DT-SaaS S6): không thuộc trường nào, chỉ phục vụ ở tên miền PLATFORM_CONSOLE_HOST (tên miền khác 404), mã phiên cấp trên có đối tượng riêng; chỉ trường đã đồng ý trong cây con',
+  ),
+  get(
+    '/api/v1/parent-org/aggregate/export',
+    'Xuất Excel, PDF số liệu tổng hợp cho tài khoản cấp trên (DT-SaaS S6): cùng điều kiện tên miền cổng nền tảng và mã phiên cấp trên',
+  ),
+  get(
     '/api/v1/public/branding',
     'Tên hiển thị, màu chủ đạo và địa chỉ biểu trưng của trường cho trang đăng nhập (S3), theo tên miền của trường; không trả dữ liệu cá nhân',
   ),

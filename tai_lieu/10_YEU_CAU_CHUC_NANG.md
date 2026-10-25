@@ -99,6 +99,10 @@
 | P01-79 | Thông báo bảo trì (YCTD-197) | Người vận hành nền tảng; mọi người dùng của trường (xem) | Tiêu đề, nội dung, mức độ, thời gian, trường nhận | Tạo, hủy; trường nhận thấy biểu ngữ ở cổng, ứng dụng giáo viên, phụ huynh | MH-331, biểu ngữ ở MH-333 | BR-226 |
 | P01-80 | Cho phép hỗ trợ của trường (YCTD-197) | Quản trị tài khoản (P01.account.manage) | Phạm vi, thời hạn, lý do | Bật, cho phép lại, rút; xem phiên hỗ trợ và từng thao tác | MH-332 | BR-227 |
 | P01-81 | Phiên hỗ trợ của nhân viên nền tảng (YCTD-197) | Người vận hành nền tảng | Mã trường, lý do | Mở phiên khi trường cho phép, đường liên kết một lần, kết thúc phiên; chặn ghi khi chỉ đọc; ghi nhật ký hai phía | Phiên đăng nhập của tài khoản hỗ trợ, biểu ngữ phiên hỗ trợ (MH-330, MH-333) | BR-227 |
+| P01-82 | Cây đơn vị và tài khoản cấp trên (YCTD-202) | Người vận hành nền tảng | Cấp, mã, tên, nút cha; đơn vị quản lý của trường; tên đăng nhập, họ tên, mật khẩu ban đầu, đơn vị | Thêm, đổi tên, ngừng, gộp, tách, nạp bộ nút mặc định hoặc danh sách; gắn trường vào nút; tạo tài khoản cấp trên (khóa TOTP, mã khôi phục hiện một lần), cấp lại xác thực hai lớp, khóa, mở khóa | MH-334 | BR-228 |
+| P01-83 | Số liệu tổng hợp cho cấp trên (YCTD-202) | Tài khoản cấp trên (Bộ, Sở, Phòng); hệ thống (việc định kỳ `aggregate-snapshots`) | Nút trong phạm vi, nhóm số liệu | Đăng nhập có mã xác thực hai lớp; tổng của nút và từng nút con; so sánh các trường đã đồng ý; xuất Excel, PDF | MH-335 | BR-228, BR-229 |
+| P01-84 | Đồng ý chia sẻ số liệu với cấp trên (YCTD-202) | Quản trị của trường (P01.setting.manage) | Cấp, nhóm số liệu | Xem chuỗi đơn vị quản lý; bật, tắt từng ô cấp × nhóm; lịch sử đồng ý | MH-336 | BR-229 |
+| P01-85 | Đề nghị xem chi tiết của cấp trên (YCTD-202) | Tài khoản cấp trên; quản trị của trường | Trường, nhóm dữ liệu, lý do, thời hạn | Gửi đề nghị; trường duyệt, từ chối, rút; mở phiên xem chi tiết chỉ đọc khi đã duyệt | MH-335, MH-336 | BR-230 |
 
 ## 3. Phân hệ P02 — Trẻ, phụ huynh và lớp học
 

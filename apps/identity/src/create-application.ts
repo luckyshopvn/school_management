@@ -43,7 +43,11 @@ export async function createApplication(
         resolver: tenancy.registry,
         hostSource: tenancy.configuration.hostSource,
         // Đăng nhập vận hành nền tảng không thuộc trường nào; chỉ phục vụ ở tên miền của cổng nền tảng (kiểm ở bộ điều khiển)
-        isTenantFreePath: (path) => path === '/api/v1/health' || path.startsWith(PLATFORM_OPERATOR_LOGIN_PATH),
+        isTenantFreePath: (path) =>
+          path === '/api/v1/health' ||
+          path.startsWith(PLATFORM_OPERATOR_LOGIN_PATH) ||
+          // Tài khoản cấp trên (DT-SaaS phần S6) không thuộc trường nào
+          path.startsWith('/api/v1/auth/parent-org/'),
         ...(tenancy.configuration.edgeSecret ? { edgeSecret: tenancy.configuration.edgeSecret } : {}),
         resolveByToken: tenancy.tokenTenantResolver(
           configuration.tokenPublicKeyPem,

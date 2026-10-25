@@ -36,6 +36,13 @@ import {
   SupportAccessService,
   SupportSessionInterceptor,
 } from './platform-dashboard/platform-dashboard.js';
+import {
+  AggregateSnapshotService,
+  ParentOrgDataController,
+  ParentOrgDataService,
+  SchoolParentOrgController,
+  SchoolParentOrgService,
+} from './parent-org/parent-org.js';
 import { Clock } from '@school-management/server';
 import {
   ACADEMIC_YEAR_TRANSITION_STEPS,
@@ -505,6 +512,9 @@ export class ApplicationModule {
         PlatformBillingWebhooksController,
         PlatformNoticesController,
         SupportAccessController,
+        // Đơn vị cấp trên (DT-SaaS phần S6)
+        SchoolParentOrgController,
+        ParentOrgDataController,
         HealthController,
         AcademicYearsController,
         OrgUnitsController,
@@ -773,6 +783,9 @@ export class ApplicationModule {
         // Bảng điều khiển nền tảng (DT-SaaS phần S4): thu số liệu, cho phép hỗ trợ, ghi và chặn thao tác của phiên hỗ trợ
         SchoolMetricsService,
         SupportAccessService,
+        AggregateSnapshotService,
+        SchoolParentOrgService,
+        ParentOrgDataService,
         { provide: APP_INTERCEPTOR, useClass: SupportSessionInterceptor },
         // Ghi thao tác, chặn kí số trong lúc đăng nhập thay (DT-18 phần 18h)
         { provide: APP_INTERCEPTOR, useClass: ImpersonationInterceptor },

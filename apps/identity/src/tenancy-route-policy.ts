@@ -14,6 +14,9 @@ const PLATFORM =
 const SUPPORT =
   'Đổi đường liên kết hỗ trợ lấy phiên đăng nhập (DT-SaaS S4): công khai theo tên miền của trường, cần mã một lần (chỉ lưu mã băm, hạn 5 phút) của đúng trường và trường đang cho phép hỗ trợ';
 
+const PARENT_ORG =
+  'Tài khoản cấp trên (Bộ, Sở, Phòng; DT-SaaS S6): không thuộc trường nào, chỉ phục vụ ở tên miền PLATFORM_CONSOLE_HOST (tên miền khác 404), mã phiên cấp trên có đối tượng riêng, xác thực hai lớp bắt buộc';
+
 const ACTIVATE =
   'Kích hoạt quản trị viên đầu tiên của trường mới (DT-SaaS S2): công khai theo tên miền của trường, cần mã kích hoạt một lần (chỉ lưu mã băm, hạn 72 giờ), có giới hạn tần suất';
 
@@ -81,4 +84,20 @@ export const PUBLIC_ROUTES: PublicRoute[] = [
   { method: 'POST', path: '/api/v1/auth/platform/schools/:code/support-sessions', reason: PLATFORM },
   { method: 'POST', path: '/api/v1/auth/platform/support-sessions/:id/end', reason: PLATFORM },
   { method: 'POST', path: '/api/v1/auth/support/exchange', reason: SUPPORT },
+  // Đơn vị cấp trên (DT-SaaS phần S6): cây đơn vị, tài khoản cấp trên ở cổng nền tảng; tài khoản cấp trên đăng nhập ở tên miền cổng
+  { method: 'GET', path: '/api/v1/auth/platform/admin-units', reason: PLATFORM },
+  { method: 'POST', path: '/api/v1/auth/platform/admin-units', reason: PLATFORM },
+  { method: 'POST', path: '/api/v1/auth/platform/admin-units/import', reason: PLATFORM },
+  { method: 'PUT', path: '/api/v1/auth/platform/admin-units/:id', reason: PLATFORM },
+  { method: 'POST', path: '/api/v1/auth/platform/admin-units/:id/merge', reason: PLATFORM },
+  { method: 'POST', path: '/api/v1/auth/platform/admin-units/:id/split', reason: PLATFORM },
+  { method: 'PUT', path: '/api/v1/auth/platform/schools/:code/admin-unit', reason: PLATFORM },
+  { method: 'POST', path: '/api/v1/auth/platform/parent-org-users', reason: PLATFORM },
+  { method: 'POST', path: '/api/v1/auth/platform/parent-org-users/:id/totp', reason: PLATFORM },
+  { method: 'POST', path: '/api/v1/auth/platform/parent-org-users/:id/status', reason: PLATFORM },
+  { method: 'POST', path: '/api/v1/auth/parent-org/login', reason: PARENT_ORG },
+  { method: 'GET', path: '/api/v1/auth/parent-org/me', reason: PARENT_ORG },
+  { method: 'GET', path: '/api/v1/auth/parent-org/access-requests', reason: PARENT_ORG },
+  { method: 'POST', path: '/api/v1/auth/parent-org/access-requests', reason: PARENT_ORG },
+  { method: 'POST', path: '/api/v1/auth/parent-org/access-requests/:id/open', reason: PARENT_ORG },
 ];

@@ -22,6 +22,12 @@ export {
   type SessionChannel,
 } from './access-token.js';
 export {
+  PARENT_ORG_TOKEN_AUDIENCE,
+  PARENT_ORG_TOKEN_KIND,
+  PARENT_ORG_TOKEN_LIFETIME_SECONDS,
+  ParentOrgTokenVerifier,
+} from './parent-org-token.js';
+export {
   ESMS_SEND_URL,
   EsmsClient,
   normalizeVietnamesePhone,

@@ -211,6 +211,83 @@ export class SupportSessionsService {
     };
   }
 
+  // Đề nghị xem chi tiết của cấp trên còn hiệu lực (đã duyệt, chưa rút, chưa hết hạn)
+  private async approvedAccessRequest(id: string | null, now: Date) {
+    if (!id) {
+      return undefined;
+    }
+    return this.platform
+      .selectFrom('parent_org_access_requests')
+      .selectAll()
+      .where('id', '=', id)
+      .where('status', '=', 'approved')
+      .where('revoked_at', 'is', null)
+      .where('expires_at', '>', now)
+      .executeTakeFirst();
+  }
+
+  // Cấp trên mở phiên xem chi tiết (DT-SaaS phần S6): chỉ khi trường đã duyệt đề nghị; luôn chỉ đọc; hết hạn theo đề nghị, tối đa
+  // 8 giờ; nhận đường liên kết một lần như phiên hỗ trợ của S4
+  async startForParentOrg(requestId: string, user: { id: string; name: string; unitName: string }) {
+    const now = this.clock.now();
+    const request = await this.approvedAccessRequest(requestId, now);
+    if (!request || request.user_id !== user.id) {
+      throw ruleViolationError(
+        SUPPORT_RULE_CODE,
+        'Đề nghị xem chi tiết chưa được trường duyệt, đã bị rút hoặc đã hết hạn',
+      );
+    }
+    const record = await this.runtime().registry.loadSchool(request.school_id);
+    if (!record || !['trial', 'active', 'read_only'].includes(record.context.status)) {
+      throw ruleViolationError(SUPPORT_RULE_CODE, 'Trường không đang phục vụ');
+    }
+    const token = randomBytes(32).toString('base64url');
+    const expiresAt = new Date(
+      Math.min((request.expires_at as Date).getTime(), now.getTime() + MAX_SESSION_HOURS * 3_600_000),
+    );
+    const session = await this.platform
+      .insertInto('support_sessions')
+      .values({
+        school_id: request.school_id,
+        operator_id: user.id,
+        operator_name: `${user.name} (${user.unitName})`,
+        grant_id: null,
+        requester_kind: 'parent_org',
+        access_request_id: request.id,
+        scope: 'read',
+        reason: request.reason,
+        handoff_token_hash: hashToken(token),
+        handoff_expires_at: new Date(now.getTime() + HANDOFF_MINUTES * 60_000),
+        expires_at: expiresAt,
+      })
+      .returning(['id', 'scope', 'expires_at'])
+      .executeTakeFirstOrThrow();
+    await writeAudit(this.platform, {
+      actorType: 'system',
+      action: 'parent-org.detail-session-requested',
+      schoolId: request.school_id,
+      details: { support_session_id: session.id, access_request_id: request.id, parent_org_user_id: user.id },
+    });
+    const domain = await this.platform
+      .selectFrom('school_domains')
+      .select('host')
+      .where('school_id', '=', request.school_id)
+      .where('status', '=', 'active')
+      .orderBy('kind', 'desc')
+      .orderBy('created_at')
+      .executeTakeFirst();
+    return {
+      session_id: session.id,
+      scope: session.scope,
+      expires_at: session.expires_at,
+      handoff: {
+        path: `/support-login?code=${token}`,
+        host: domain?.host ?? null,
+        expires_in_seconds: HANDOFF_MINUTES * 60,
+      },
+    };
+  }
+
   // Nhân viên nền tảng hoặc trường kết thúc phiên: thu hồi phiên đăng nhập của trường, ghi hai phía
   async end(id: string, reason: string, actor: { type: 'operator' | 'system'; id?: string | null; name: string }) {
     const session = await this.platform
@@ -290,9 +367,16 @@ export class SupportSessionsService {
     ) {
       throw unauthenticatedError('Đường liên kết hỗ trợ không đúng, đã dùng hoặc đã hết hạn');
     }
-    const grant = await this.activeGrant(tenant, now);
-    if (!grant || grant.id !== session.grant_id) {
+    // Phiên của nhân viên nền tảng theo cho phép hỗ trợ (S4); phiên xem chi tiết của cấp trên theo đề nghị trường đã duyệt (S6)
+    const grant = session.requester_kind === 'operator' ? await this.activeGrant(tenant, now) : undefined;
+    if (session.requester_kind === 'operator' && (!grant || grant.id !== session.grant_id)) {
       throw unauthenticatedError('Trường đã rút cho phép hỗ trợ');
+    }
+    if (
+      session.requester_kind === 'parent_org' &&
+      !(await this.approvedAccessRequest(session.access_request_id, now))
+    ) {
+      throw unauthenticatedError('Trường đã rút hoặc chưa duyệt đề nghị xem chi tiết');
     }
     // Đánh dấu đã dùng trước khi cấp phiên: hai yêu cầu cùng lúc chỉ một yêu cầu thành công
     const claimed = await this.platform
@@ -333,7 +417,9 @@ export class SupportSessionsService {
           operator_name: session.operator_name,
           scope: session.scope,
           reason: session.reason,
-          grant_id: grant.id,
+          requester_kind: session.requester_kind,
+          grant_id: grant?.id ?? null,
+          access_request_id: session.access_request_id,
           expires_at: session.expires_at.toISOString(),
         },
         ipAddress,

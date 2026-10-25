@@ -587,6 +587,8 @@ export const PORTAL_QUICK_LINK_PATHS = [
   '/service-invoices',
   // Cho phép hỗ trợ (DT-SaaS phần S4)
   '/support-access',
+  // Chia sẻ số liệu cấp trên (DT-SaaS phần S6)
+  '/parent-org-consents',
   // Bán trú: kiểm thực ba bước và an toàn thực phẩm (DT-18 phần 22b)
   '/food-safety/inspections',
   '/food-safety/samples',

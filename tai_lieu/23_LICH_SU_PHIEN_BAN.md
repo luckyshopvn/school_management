@@ -16,6 +16,18 @@
 
 ## 2. Danh sách phiên bản
 
+### Phiên bản 0.139.0 – 2026-10-26
+
+- Phạm vi thay đổi: DT-SaaS phần S6, đơn vị cấp trên (YCTD-202).
+- Chức năng mới: cây đơn vị và tài khoản cấp trên ở cổng nền tảng (P01-82, MH-334); trang Đơn vị cấp trên `/cap-tren` với số liệu tổng hợp, so sánh trường, xuất Excel, PDF (P01-83, MH-335); Chia sẻ số liệu cấp trên ở cổng quản trị của trường (P01-84, MH-336); đề nghị xem chi tiết qua phiên hỗ trợ chỉ đọc (P01-85). Quy tắc BR-228 đến BR-230, quyết định QĐ-33, bảo mật BM-90.
+- Lỗi đã sửa: không có.
+- Thay đổi dữ liệu: cơ sở dữ liệu nền tảng thêm `admin_units`, `parent_org_users`, `parent_org_user_totp`, `parent_org_user_recovery_codes`, `school_aggregate_consents`, `aggregate_snapshots`, `parent_org_access_requests`, cột `schools.admin_unit_id`, cột `support_sessions.requester_kind`, `access_request_id` (tệp nền tảng `0090`); xem `16_CO_SO_DU_LIEU.md` mục 18D.
+- Thay đổi API: nhóm `/auth/platform/admin-units`, `/auth/platform/parent-org-users`, `/auth/parent-org/*` ở dịch vụ định danh; `/parent-org-consents`, `/parent-org/aggregate`, `/parent-org/aggregate/export` ở máy chủ API; biến `AGGREGATE_SNAPSHOT_INTERVAL_SECONDS`, `PARENT_ORG_MIN_GROUP`; máy chủ API đọc thêm `PLATFORM_CONSOLE_HOST`.
+- Kiểm thử: kịch bản CT-1069 đến CT-1077 (CT-S6-1 đến CT-S6-9 trong mã kiểm thử). Kết quả ngày 26/10/2026: `database` 4/4 (và đổi khóa gốc 4/4); `apps/identity` 3 ca mới cùng phiên hỗ trợ S4 và ma trận cách ly đạt; `apps/api` 6 ca ở hai bố cục `database`, `schema` (CT-S6-8 ở bố cục `database`) và ma trận cách ly đạt (10/10); kiểm tra tĩnh nền đa thuê bao 6/6, `pnpm lint` đạt; e2e spec 139 và 136 ở dự án nhiều trường đạt; e2e toàn bộ do CI chạy.
+- Rủi ro: số liệu trễ đến một chu kỳ bản chụp (mặc định 6 giờ); ngưỡng ẩn nhóm nhỏ là giả định, cần Eric chốt; danh mục hành chính sẵn có mới có TP.HCM, tỉnh, thành khác phải nạp từ văn bản gốc.
+- Khả năng tương thích: chế độ một trường không có đơn vị cấp trên (trang đồng ý báo không áp dụng); không đổi phiên hỗ trợ của S4.
+- Phương án quay lui: hoàn lại commit gộp của nhánh S6; rút mọi đồng ý là cấp trên không còn thấy số liệu mà không cần quay lui mã.
+
 ### Phiên bản 0.138.0 – 2026-10-25
 
 - Phạm vi thay đổi: DT-SaaS phần S4, bảng điều khiển nền tảng (YCTD-197).

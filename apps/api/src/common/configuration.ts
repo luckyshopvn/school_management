@@ -49,6 +49,11 @@ export interface ApiConfiguration {
   schedulerIntervalSeconds?: number;
   // Bảng điều khiển nền tảng (DT-SaaS phần S4): chu kỳ thu số liệu của từng trường (giây, mặc định 3600; 0 là tắt)
   schoolMetricsIntervalSeconds?: number;
+  // Đơn vị cấp trên (DT-SaaS phần S6): chu kỳ bản chụp tổng hợp của từng trường (giây, mặc định 6 giờ; 0 là tắt), ngưỡng ẩn nhóm nhỏ
+  aggregateSnapshotIntervalSeconds?: number;
+  parentOrgMinGroup?: number;
+  // Tên miền của cổng nền tảng: số liệu cho tài khoản cấp trên chỉ phục vụ ở đây (tên miền khác 404); trống thì tắt
+  platformConsoleHost?: string | null;
   schedulerConcurrency?: number;
   schedulerSecret?: string;
   timetableMaxActiveRuns?: number;
@@ -180,6 +185,9 @@ export function readConfigurationFromEnvironment(options: { multiTenant?: boolea
       process.env.SCHEDULER_MODE?.trim() === 'external' ? 0 : Number(process.env.SCHEDULER_INTERVAL_SECONDS ?? 15),
     schedulerConcurrency: Number(process.env.SCHEDULER_CONCURRENCY ?? 2),
     schoolMetricsIntervalSeconds: Number(process.env.SCHOOL_METRICS_INTERVAL_SECONDS ?? 3600),
+    aggregateSnapshotIntervalSeconds: Number(process.env.AGGREGATE_SNAPSHOT_INTERVAL_SECONDS ?? 21_600),
+    parentOrgMinGroup: Number(process.env.PARENT_ORG_MIN_GROUP) > 0 ? Number(process.env.PARENT_ORG_MIN_GROUP) : 5,
+    platformConsoleHost: process.env.PLATFORM_CONSOLE_HOST?.trim() || null,
     ...(process.env.INTERNAL_JOB_TOKEN?.trim() ? { schedulerSecret: process.env.INTERNAL_JOB_TOKEN.trim() } : {}),
     timetableMaxActiveRuns: Number(process.env.TIMETABLE_MAX_ACTIVE_RUNS ?? 2),
     ...readIntegrationConfiguration(process.env),

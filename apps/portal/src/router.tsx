@@ -142,6 +142,7 @@ import { ServiceInvoicesPage } from './school-plan/ServiceInvoicesPage.js';
 import { ForgotPasswordPage } from './pages/ForgotPasswordPage.js';
 import { ActivatePage } from './pages/ActivatePage.js';
 import { SupportAccessPage, SupportLoginPage } from './support/support.js';
+import { ParentOrgConsentsPage } from './support/parent-org-consents.js';
 import { HelpPage } from './portal-shell/HelpPage.js';
 import { MyProfilePage } from './portal-shell/MyProfilePage.js';
 import { SystemAnnouncementsPage } from './portal-shell/SystemAnnouncementsPage.js';
@@ -344,6 +345,7 @@ const routeTree = rootRoute.addChildren([
   createRoute({ getParentRoute: () => rootRoute, path: '/activate', component: ActivatePage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/support-login', component: SupportLoginPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/support-access', component: SupportAccessPage }),
+  createRoute({ getParentRoute: () => rootRoute, path: '/parent-org-consents', component: ParentOrgConsentsPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/my-profile', component: MyProfilePage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/help', component: HelpPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/system-announcements', component: SystemAnnouncementsPage }),

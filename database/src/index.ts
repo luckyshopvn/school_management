@@ -445,7 +445,9 @@ export { rotateChildKeys, rewrapMasterKey, type KeyRotationOptions, type KeyRota
 export * from './database-host-adapter.js';
 export * from './school-relayout.js';
 export * from './platform-dashboard.js';
+export * from './parent-org.js';
 export type { MaintenanceSeverity, SupportScope } from '../platform/schema.js';
+export type { AdminUnitLevel, AggregateCategory, SupportRequesterKind } from '../platform/schema.js';
 export * from './school-data-copy.js';
 export * from './school-backup.js';
 export * from './school-cluster-move.js';

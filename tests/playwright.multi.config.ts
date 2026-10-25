@@ -84,6 +84,8 @@ export default defineConfig({
         PLATFORM_ROOT_DOMAIN: E2E_ROOT_DOMAIN,
         INTERNAL_JOB_TOKEN: E2E_SCHEDULER_SECRET,
         SCHEDULER_MODE: 'external',
+        // Số liệu cho tài khoản cấp trên (S6) chỉ phục vụ ở tên miền của cổng nền tảng
+        PLATFORM_CONSOLE_HOST: E2E_CONSOLE_HOST,
         IDENTITY_BASE_URL: identityBaseUrl,
         PAYMENT_GATEWAY: 'development,vietqr-static',
         FACEBOOK_PUBLISHER: 'development',
@@ -98,7 +100,8 @@ export default defineConfig({
     {
       command: `pnpm --filter @school-management/platform exec vite --port ${E2E_MULTI_CONSOLE_PORT} --strictPort`,
       url: `http://localhost:${E2E_MULTI_CONSOLE_PORT}`,
-      env: { IDENTITY_BASE_URL: identityBaseUrl },
+      // Trang của tài khoản cấp trên (S6) đọc số liệu tổng hợp ở máy chủ API
+      env: { IDENTITY_BASE_URL: identityBaseUrl, API_BASE_URL: apiBaseUrl },
     },
   ],
 });

@@ -37,6 +37,7 @@ import {
 import { PlatformPlansController, PlatformPlansService } from './platform/platform-plans.js';
 import { PlatformBillingController, PlatformBillingService } from './platform/platform-billing.js';
 import { PlatformDashboardController, PlatformDashboardService } from './platform/platform-dashboard.js';
+import { ParentOrgAuthController, ParentOrgsService, PlatformParentOrgsController } from './platform/parent-orgs.js';
 import {
   PlatformSupportController,
   SupportExchangeController,
@@ -67,6 +68,8 @@ export class ApplicationModule {
         PlatformPlansController,
         PlatformBillingController,
         PlatformDashboardController,
+        PlatformParentOrgsController,
+        ParentOrgAuthController,
         PlatformSupportController,
         SupportExchangeController,
       ],
@@ -112,6 +115,7 @@ export class ApplicationModule {
         PlatformPlansService,
         PlatformBillingService,
         PlatformDashboardService,
+        ParentOrgsService,
         SupportSessionsService,
       ],
     };

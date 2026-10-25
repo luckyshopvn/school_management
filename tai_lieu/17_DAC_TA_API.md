@@ -307,6 +307,12 @@ Giao kèo bảng điều khiển nền tảng và phiên hỗ trợ (DT-SaaS ph�
 2. Phiên chỉ đọc: mọi yêu cầu ghi tới máy chủ API và dịch vụ định danh trả 403 `ERR_FORBIDDEN` (mã quy tắc YCTD-197 ở máy chủ API), trừ đăng xuất; mọi phiên hỗ trợ bị 403 ở `/auth/impersonation*`, `/auth/change-password`, `/signing/*`, kí văn bản đi, `/school-data-exports`, `/support-access`.
 3. Biến môi trường: `PLATFORM_ERROR_ALERT_PER_HOUR` (dịch vụ định danh, mặc định 20), `SCHOOL_METRICS_INTERVAL_SECONDS` (máy chủ API, mặc định 3600, 0 là tắt).
 
+Giao kèo đơn vị cấp trên (DT-SaaS phần S6, YCTD-202, BR-228 đến BR-230):
+
+1. Mã phiên cấp trên: đối tượng `school-management-parent-org`, claim `kind = parent_org_user`, hạn 8 giờ; máy chủ API kiểm bằng khóa công khai (cả khóa cũ khi đang xoay khóa).
+2. Nhóm số liệu (`category`): `scale` (lớp, học sinh đang học theo giới tính, khối), `attendance` (30 ngày: số ngày, lượt điểm danh, có mặt, vắng, tỉ lệ), `learning` (kết quả môn đạt, chưa đạt; mức tiến bộ), `facilities` (phòng, diện tích, tình trạng), `staff` (nhân sự theo giới tính), `emis` (số dòng theo biểu). Ô số người dưới ngưỡng trả `null` và liệt kê ở `hidden_cells`.
+3. Biến môi trường máy chủ API: `AGGREGATE_SNAPSHOT_INTERVAL_SECONDS` (mặc định 21600), `PARENT_ORG_MIN_GROUP` (mặc định 5), `PLATFORM_CONSOLE_HOST` (như dịch vụ định danh). Khi phát triển, cổng nền tảng chuyển `/api/v1/parent-org` sang máy chủ API.
+
 ## 5. Nền tảng và phân quyền
 
 Các điểm cuối tài khoản, vai trò, quyền và khóa API dưới đây do dịch vụ định danh phục vụ. Các điểm cuối còn lại, gồm đơn vị, năm học, cấu hình và nhóm `/partner/`, do máy chủ API nghiệp vụ phục vụ; khóa API gửi kèm yêu cầu của đối tác được máy chủ API kiểm tra với dịch vụ định danh.
@@ -1594,6 +1600,20 @@ Giao kèo văn thư lưu trữ (YCTD-118):
 | GET | /api/v1/platform-notices | Thông báo bảo trì đang hiệu lực hoặc bắt đầu trong 72 giờ của trường và phiên hỗ trợ đang mở (chỉ trả cho quản trị tài khoản và chính phiên hỗ trợ) (YCTD-197); mọi người dùng đã đăng nhập |
 | GET, POST | /api/v1/support-access | Cho phép hỗ trợ của trường (YCTD-197, BR-227, P01.account.manage): đọc cho phép đang hiệu lực, lịch sử, phiên hỗ trợ kèm thao tác; bật `{ scope, hours, reason }` (thời hạn 1 đến 168 giờ, sai 400; phiên hỗ trợ không tự bật được) |
 | POST | /api/v1/support-access/{id}/revoke | Rút cho phép (YCTD-197): kết thúc phiên hỗ trợ theo cho phép đó và thu hồi phiên đăng nhập của tài khoản hỗ trợ ngay, trả `ended_sessions` |
+| GET, POST | /api/v1/auth/platform/admin-units | Cây đơn vị cấp trên kèm trường, tài khoản (GET); thêm đơn vị `{ level, code, name, parent_id }`, sai cấp 400, trùng mã 409 (YCTD-202, BR-228); chỉ ở tên miền cổng nền tảng |
+| POST | /api/v1/auth/platform/admin-units/import | Nạp danh sách `{ units: [{ level, code, name, parent_code }] }` hoặc `{ preset: "default" }`; trả `{ created, skipped }` |
+| PUT | /api/v1/auth/platform/admin-units/{id} | Đổi tên, trạng thái (`active`, `inactive`) |
+| POST | /api/v1/auth/platform/admin-units/{id}/merge, /split | Gộp vào `{ into_id }` cùng cấp; tách `{ code, name, school_ids, child_ids }` |
+| PUT | /api/v1/auth/platform/schools/{mã}/admin-unit | Gắn trường vào nút `{ admin_unit_id }` (trống là bỏ gắn) |
+| POST | /api/v1/auth/platform/parent-org-users, /parent-org-users/{id}/totp, /parent-org-users/{id}/status | Tạo tài khoản cấp trên (trả khóa TOTP, mã khôi phục một lần), cấp lại xác thực hai lớp, khóa hoặc mở khóa |
+| POST | /api/v1/auth/parent-org/login | Đăng nhập cấp trên `{ login, password, otp_code }` ở tên miền cổng nền tảng (tên miền khác 404); trả `access_token` (đối tượng `school-management-parent-org`, 8 giờ) và phạm vi |
+| GET | /api/v1/auth/parent-org/me | Tài khoản, đơn vị, cấp, các nút và trường trong cây con, nhóm số liệu |
+| GET, POST | /api/v1/auth/parent-org/access-requests | Đề nghị xem chi tiết của mình; gửi `{ school_code, categories, reason, hours }` (trường ngoài phạm vi 403) |
+| POST | /api/v1/auth/parent-org/access-requests/{id}/open | Mở phiên xem chi tiết chỉ đọc khi trường đã duyệt (chưa duyệt, đã rút 422); trả đường liên kết một lần như phiên hỗ trợ |
+| GET, PUT | /api/v1/parent-org-consents | Phía trường (P01.setting.manage): chuỗi đơn vị quản lý, đồng ý đang hiệu lực, lịch sử, đề nghị; PUT `{ items: [{ level, category, granted }] }` bật, tắt |
+| POST | /api/v1/parent-org-consents/requests/{id}/{approve|reject|revoke} | Duyệt, từ chối, rút đề nghị xem chi tiết; rút kết thúc phiên đang mở |
+| GET | /api/v1/parent-org/aggregate?unit=<id>&category=<nhóm> | Số liệu tổng hợp cho tài khoản cấp trên (đường dẫn không cần trường, chỉ tên miền cổng nền tảng): tổng của nút (trống khi ít trường hơn ngưỡng), nút con, so sánh trường đã đồng ý, ô ẩn; nút ngoài phạm vi 403, nhóm sai 400 |
+| GET | /api/v1/parent-org/aggregate/export?unit=&category=&format=xlsx|pdf | Xuất Excel, PDF (trang So sánh trường, Tổng hợp) |
 | POST | /api/v1/internal/jobs/tick | Điểm gọi của bộ hẹn giờ bên ngoài (YCTD-192, BR-204): tiêu đề `x-internal-job-token` bằng `INTERNAL_JOB_TOKEN` (so sánh thời gian hằng, sai 401, chưa đặt 404, có giới hạn tần suất); chạy việc nền đến hạn của mọi trường rồi trả `{ jobs, schools, failed }`; không cần trường (gọi bằng địa chỉ nội bộ) |
 | GET | /api/v1/public/schools/picker | Trang chọn trường ở tên miền gốc (YCTD-192, BR-205, MH-315): trang HTML tĩnh, 404 khi chưa đặt `PLATFORM_ROOT_DOMAIN`; không cần trường |
 | GET | /api/v1/public/schools/resolve?code=<mã> | Đổi mã trường thành `{ url }` của trường đang phục vụ (YCTD-192, BR-205); mã lạ, trường tạm dừng, đang khởi tạo hoặc đã xóa 404; có giới hạn tần suất theo địa chỉ mạng; không liệt kê trường |
