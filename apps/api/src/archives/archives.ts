@@ -1,5 +1,13 @@
-import { Inject, Injectable, Logger, type OnApplicationBootstrap, type OnModuleDestroy } from '@nestjs/common';
-import { isMultiTenantMode } from '@school-management/server';
+import {
+  Inject,
+  Injectable,
+  Optional,
+  Logger,
+  type OnApplicationBootstrap,
+  type OnModuleDestroy,
+} from '@nestjs/common';
+import { JobScheduler } from '../common/job-scheduler.js';
+import { currentTenant, isMultiTenantMode } from '@school-management/server';
 import type {
   ArchiveRecordStatus,
   ArchiveRetention,
@@ -1362,17 +1370,22 @@ export class ArchivesService {
 export class ArchiveJobs implements OnApplicationBootstrap, OnModuleDestroy {
   private readonly logger = new Logger('ArchiveJobs');
   private timer: NodeJS.Timeout | null = null;
-  private running = false;
+  private readonly running = new Set<string>();
 
   constructor(
     @Inject(API_CONFIGURATION) private readonly configuration: ApiConfiguration,
     private readonly archives: ArchivesService,
+    @Optional() @Inject(JobScheduler) private readonly scheduler: JobScheduler | null = null,
   ) {}
 
   onApplicationBootstrap() {
-    // Nhiều trường (DT-SaaS phần S1a): việc nền và việc khởi động theo từng trường làm ở phần S1b (tài liệu 32 mục 14.5); tới lúc
-    // đó không chạy ở chế độ nhiều trường vì ngoài yêu cầu không có ngữ cảnh trường
+    // Nhiều trường (DT-SaaS phần S1b): bộ lập lịch gọi tick cho từng trường đang phục vụ, trong ngữ cảnh của trường
     if (isMultiTenantMode()) {
+      this.scheduler?.register({
+        name: 'archives',
+        intervalSeconds: this.configuration.notificationDispatchIntervalSeconds ?? 60,
+        run: () => this.tick(),
+      });
       return;
     }
     const seconds = this.configuration.notificationDispatchIntervalSeconds ?? 60;
@@ -1389,17 +1402,18 @@ export class ArchiveJobs implements OnApplicationBootstrap, OnModuleDestroy {
   }
 
   async tick(): Promise<void> {
-    if (this.running) {
+    if (this.running.has(currentTenant()?.code ?? '')) {
       return;
     }
-    this.running = true;
+    const tenantKey = currentTenant()?.code ?? '';
+    this.running.add(tenantKey);
     try {
       await this.archives.remindDueRecords();
       await this.archives.retryFileDeletions();
     } catch (error) {
       this.logger.error('Tiến trình văn thư lưu trữ lỗi', error instanceof Error ? error.stack : String(error));
     } finally {
-      this.running = false;
+      this.running.delete(tenantKey);
     }
   }
 }

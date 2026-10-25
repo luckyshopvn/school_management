@@ -1,7 +1,7 @@
 # 23. LỊCH SỬ PHIÊN BẢN
 
 - Mô tả: Mã phiên bản, ngày phát hành, danh sách thay đổi, chức năng mới, lỗi đã sửa, thay đổi dữ liệu, thay đổi API, rủi ro, khả năng tương thích, phương án quay lui.
-- Phiên bản: 0.54
+- Phiên bản: 0.55
 - Ngày cập nhật: 2026-10-25
 - Trạng thái: Đang cập nhật
 - Đã rà duyệt: Eric, ngày 2026-10-09
@@ -15,6 +15,18 @@
 5. Từ phiên bản 0.4.0, mỗi mục ghi theo mẫu của Vibecoding_Flow; các mục trước giữ nguyên dạng bảng và tên tệp cũ vì là ghi nhận lịch sử.
 
 ## 2. Danh sách phiên bản
+
+### Phiên bản 0.130.0 – 2026-10-25
+
+- Phạm vi thay đổi: DT-SaaS phần S1b, nền đa thuê bao, phần chạy nền và công khai (YCTD-192).
+- Chức năng mới: bộ lập lịch việc nền theo trường và điểm tick ngoài (P01-51); hàng đợi máy xếp theo trường và hạn mức đồng thời (P01-52); domain-check theo danh mục tên miền nền tảng, trang chọn trường, giới hạn tần suất công khai theo trường (P01-53, MH-315); bộ đệm ngữ cảnh trường cho yêu cầu nội bộ.
+- Lỗi đã sửa: không có.
+- Thay đổi dữ liệu: bảng `scheduler_state` ở cơ sở dữ liệu nền tảng (tệp `0010`, `16_CO_SO_DU_LIEU.md` mục 18A); không đổi cơ sở dữ liệu định danh, hệ thống, năm học.
+- Thay đổi API: `POST /internal/jobs/tick`, `GET /public/schools/picker`, `GET /public/schools/resolve`; `domain-check` ở chế độ nhiều trường tra danh mục nền tảng (xem `17_DAC_TA_API.md`); biến môi trường `SCHEDULER_MODE`, `SCHEDULER_INTERVAL_SECONDS`, `SCHEDULER_CONCURRENCY`, `INTERNAL_JOB_TOKEN`, `TIMETABLE_MAX_ACTIVE_RUNS`, `PLATFORM_ROOT_DOMAIN`.
+- Kiểm thử: kịch bản CT-999 đến CT-1003. Kết quả ngày 25/10/2026: database 11 ca mới; apps/api 10 ca mới cùng ma trận tuyến, toàn bộ 1126 ca đạt; apps/worker 3 ca (1 mới); apps/identity 75 ca đạt; kiểm tĩnh 6 ca; spec 131 nhiều trường; e2e toàn bộ do CI chạy.
+- Rủi ro: ở lượt mỗi trường mỗi việc mở kết nối của trường nên số trường lớn cần chỉnh `SCHEDULER_CONCURRENCY` và `TENANT_POOL_SCHOOLS` (S4 đo, S7 chỉnh); số đo theo trường ở `/metrics`, bản trình diễn (18h) và việc đăng ký biểu EMIS dùng chung danh mục mã giữa các trường chưa làm riêng (xem YCTD-192).
+- Khả năng tương thích: chế độ một trường giữ nguyên (bộ đếm giờ riêng từng lớp, `domain-check` theo `website_domains`, không hạn mức máy xếp mới); phần tử hàng đợi máy xếp không tiền tố vẫn đọc được.
+- Phương án quay lui: hoàn lại commit gộp của nhánh S1b; bảng `scheduler_state` chỉ chế độ nhiều trường dùng.
 
 ### Phiên bản 0.129.0 – 2026-10-25
 

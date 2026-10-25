@@ -1,7 +1,7 @@
 # 24. YÊU CẦU THAY ĐỔI
 
 - Mô tả: Sổ quản lý yêu cầu thay đổi, ghi lý do, đánh giá ảnh hưởng và trạng thái của từng thay đổi trước khi triển khai.
-- Phiên bản: 0.62
+- Phiên bản: 0.63
 - Ngày cập nhật: 2026-10-25
 - Trạng thái: Đang cập nhật
 
@@ -10,6 +10,26 @@
 Mã yêu cầu thay đổi dạng `YCTD-nn`, đánh số tăng dần, không tái sử dụng. Mục mới nhất ở trên cùng. Trạng thái dùng bốn giá trị: Chờ phê duyệt, Đã phê duyệt, Từ chối, Đã triển khai.
 
 Các thay đổi trước phiên bản 0.4.0 chưa có sổ này; xem `23_LICH_SU_PHIEN_BAN.md` các phiên bản 0.1.0 đến 0.3.1.
+
+### YCTD-192: DT-SaaS phần S1b: nền đa thuê bao, phần chạy nền và công khai – 2026-10-25
+
+- Lý do: phần S1b của `32_KE_HOACH_THEO_HE_THONG_SO.md` mục 14.3, 14.5, 14.7, 14.9; phần S1a (YCTD-191, PR 164) để việc nền và việc khởi động theo trường không chạy ở chế độ nhiều trường, S1b làm cho chạy đúng.
+- Nội dung thay đổi (Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11 ở những chỗ kế hoạch chưa chốt):
+  - **Bộ lập lịch theo trường:** `TenancyRuntime.forEachServingSchool` (bỏ qua trường không phục vụ, trường lỗi không chặn trường khác, song song có giới hạn, lệch ngẫu nhiên) và `JobScheduler` ở máy chủ API (chiếm việc đến hạn ở `scheduler_state`, ghi kết quả); năm lớp việc nền (thông báo, văn thư, xuất nền, lưu kết quả máy xếp, nhắc việc) đăng ký vào bộ lập lịch, cờ đang chạy tính riêng từng trường; việc đăng ký biểu EMIS thành việc khởi động theo trường.
+  - **Điểm tick ngoài:** `POST /api/v1/internal/jobs/tick` với `INTERNAL_JOB_TOKEN`; `SCHEDULER_MODE=external`.
+  - **Hàng đợi máy xếp:** `GENERATION_QUEUE_KEY` chung, phần tử mang tiền tố trường (`encodeGenerationQueueItem`, `decodeGenerationQueueItem`); khóa theo tiền tố (`cacheKeyWithPrefix`); `apps/worker` đọc tiền tố; hạn mức lần xếp đang chạy mỗi trường ở `startRun` (chế độ nhiều trường). Không có Redis thì hàng đợi trong tiến trình vẫn có ngữ cảnh trường và hạn mức.
+  - **Công khai:** `domain-check` theo danh mục tên miền nền tảng (`TenancyRuntime.isServedHost`); trang chọn trường `/public/schools/picker` và `/public/schools/resolve`; giới hạn tần suất của tuyển sinh, tuyển dụng, website tính riêng từng trường; đường dẫn không cần trường khai ở `school-picker.ts` và danh sách tuyến công khai.
+  - **Hiệu năng:** `TenantRegistry.contextOf` đệm ngữ cảnh trường có gộp lượt nạp đồng thời, dùng cho mã phiên nội bộ và việc nền (trước đây mỗi yêu cầu nội bộ giữa máy chủ API và dịch vụ định danh nạp lại trường từ cơ sở dữ liệu nền tảng).
+  - **Kiểm tĩnh:** cập nhật lý do trong baseline; không còn chỗ nào hứa S1b.
+  - **Chưa làm ở phần này (ghi rõ):** số đo theo trường ở `/metrics` (S4, S7); bản trình diễn (18h) trong thời gian chạy theo trường; gom khóa Redis của dịch vụ định danh về một hàm khóa chung (đã đúng tiền tố từ S1a, giữ trong baseline); biểu EMIS đăng ký chung theo mã giữa các trường.
+- Thành phần bị ảnh hưởng: `packages/server`, `database`, `apps/api`, `apps/worker`, `tests`; tài liệu `01`, `02`, `03`, `07`, `10`, `11`, `12`, `14`, `16`, `17`, `21`, `22`, `23`, `24`, `32`, `index.md`.
+- Dữ liệu bị ảnh hưởng: bảng `scheduler_state` ở cơ sở dữ liệu nền tảng (tệp `0010`); không đổi cơ sở dữ liệu định danh, hệ thống, năm học.
+- API bị ảnh hưởng: thêm `POST /api/v1/internal/jobs/tick`, `GET /api/v1/public/schools/picker`, `GET /api/v1/public/schools/resolve`; `domain-check` ở chế độ nhiều trường đổi nguồn tra; chế độ một trường không đổi.
+- Giao diện bị ảnh hưởng: thêm trang chọn trường (MH-315); các giao diện khác không đổi.
+- Quyền bị ảnh hưởng: không đổi quyền, vai trò.
+- Ảnh hưởng chức năng cũ: không ở chế độ một trường (mặc định). Ở chế độ nhiều trường: việc nền chạy lại theo trường; vẫn không bật ở môi trường chạy thật trước khi S3 (khóa tích hợp riêng từng trường) gộp.
+- Kiểm thử cần thực hiện: kiểm thử đơn vị `packages/server`, `database`, `apps/api`, `apps/worker`, `apps/identity`; kiểm tĩnh; ma trận cách ly; e2e spec 131 ở dự án nhiều trường (hai bố cục) và các spec bị ảnh hưởng ở dự án một trường; CI chạy toàn bộ e2e.
+- Trạng thái: Đã triển khai (PR 166)
 
 ### YCTD-191: DT-SaaS phần S1a: nền đa thuê bao, phần lõi – 2026-10-25
 
