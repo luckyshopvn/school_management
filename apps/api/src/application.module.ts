@@ -22,6 +22,13 @@ import { AccountExportsController, AccountExportsService } from './accounts-expo
 import { Module, type DynamicModule, type Type } from '@nestjs/common';
 import { APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
 import { PlanStorageGuard, SchoolPlanController, SchoolPlanService } from './school-plan/school-plan.js';
+import {
+  BillingCycleJob,
+  PlatformBillingWebhooksController,
+  PlatformPaymentGateways,
+  SchoolBillingController,
+  SchoolBillingService,
+} from './billing/billing.js';
 import { Clock } from '@school-management/server';
 import {
   ACADEMIC_YEAR_TRANSITION_STEPS,
@@ -487,6 +494,8 @@ export class ApplicationModule {
       module: ApplicationModule,
       controllers: [
         SchoolPlanController,
+        SchoolBillingController,
+        PlatformBillingWebhooksController,
         HealthController,
         AcademicYearsController,
         OrgUnitsController,
@@ -749,6 +758,9 @@ export class ApplicationModule {
         // Gói dịch vụ (DT-SaaS phần S5a): chặn tải tệp khi hết dung lượng của gói
         { provide: APP_GUARD, useClass: PlanStorageGuard },
         SchoolPlanService,
+        PlatformPaymentGateways,
+        SchoolBillingService,
+        BillingCycleJob,
         // Ghi thao tác, chặn kí số trong lúc đăng nhập thay (DT-18 phần 18h)
         { provide: APP_INTERCEPTOR, useClass: ImpersonationInterceptor },
         DemoMode,

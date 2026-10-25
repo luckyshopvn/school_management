@@ -55,4 +55,17 @@ export const PUBLIC_ROUTES: PublicRoute[] = [
   { method: 'GET', path: '/api/v1/auth/platform/plan-schools', reason: PLATFORM },
   { method: 'PUT', path: '/api/v1/auth/platform/plan-schools/:id', reason: PLATFORM },
   { method: 'POST', path: '/api/v1/auth/platform/plan-lifecycle', reason: PLATFORM },
+  // Thu phí ở cổng nền tảng (DT-SaaS phần S5b): cùng điều kiện tên miền cổng và mã phiên vận hành
+  { method: 'GET', path: '/api/v1/auth/platform/billing', reason: PLATFORM },
+  { method: 'PUT', path: '/api/v1/auth/platform/billing/settings', reason: PLATFORM },
+  { method: 'PUT', path: '/api/v1/auth/platform/billing/connectors/:connector', reason: PLATFORM },
+  { method: 'GET', path: '/api/v1/auth/platform/billing/price-rules', reason: PLATFORM },
+  { method: 'POST', path: '/api/v1/auth/platform/billing/price-rules', reason: PLATFORM },
+  { method: 'PUT', path: '/api/v1/auth/platform/billing/price-rules/:id', reason: PLATFORM },
+  { method: 'GET', path: '/api/v1/auth/platform/billing/invoices', reason: PLATFORM },
+  { method: 'POST', path: '/api/v1/auth/platform/billing/invoices', reason: PLATFORM },
+  { method: 'GET', path: '/api/v1/auth/platform/billing/invoices/:id', reason: PLATFORM },
+  { method: 'POST', path: '/api/v1/auth/platform/billing/invoices/:id/:action', reason: PLATFORM },
+  { method: 'POST', path: '/api/v1/auth/platform/billing/payments/:id/assign', reason: PLATFORM },
+  { method: 'POST', path: '/api/v1/auth/platform/billing/schools/:id/free-period', reason: PLATFORM },
 ];

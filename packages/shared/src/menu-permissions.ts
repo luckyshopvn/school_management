@@ -379,6 +379,8 @@ export const MENU_PERMISSION_RULES: Partial<Record<PortalQuickLinkPath, MenuPerm
   '/approval-thresholds': 'P01.view',
   '/api-clients': gated(ACCOUNTS, 'P01.api-client.manage'),
   '/integrations': 'P01.integration.manage',
+  // Hóa đơn dịch vụ của trường (DT-SaaS phần S5b)
+  '/service-invoices': 'P01.billing.manage',
   // Tài khoản đồng bộ của Bộ, của Sở (DT-16 phần 16d)
   '/sync-accounts': 'P01.integration.manage',
   '/audit-logs': 'P01.view',

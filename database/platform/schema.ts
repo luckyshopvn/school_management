@@ -290,7 +290,7 @@ export interface SchedulerStateTable {
 // Thu phí tự động (DT-SaaS phần S5b)
 export type PriceComponent = 'per_student' | 'per_school' | 'per_module';
 export type BillingPeriod = 'monthly' | 'quarterly' | 'yearly';
-export type InvoiceStatus = 'issued' | 'paid' | 'void';
+export type ServiceInvoiceStatus = 'issued' | 'paid' | 'void';
 export type InvoiceLineKind = PriceComponent | 'minimum' | 'discount';
 export interface StudentTier {
   up_to: number | null;
@@ -347,7 +347,7 @@ export interface InvoicesTable {
   vat_amount: Money;
   total: Money;
   amount_paid: Money;
-  status: Generated<InvoiceStatus>;
+  status: Generated<ServiceInvoiceStatus>;
   issued_at: ColumnType<Date, Date | undefined, Date>;
   due_on: ColumnType<string, string, string>;
   paid_at: Date | null;

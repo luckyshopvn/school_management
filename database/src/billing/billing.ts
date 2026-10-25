@@ -914,6 +914,7 @@ export async function assignPayment(
 // ---------- Nhắc gia hạn
 
 export interface DunningNotice {
+  invoiceId: string;
   kind: 'before_due' | 'overdue';
   days: number;
   dueOn: string;
@@ -965,6 +966,7 @@ export async function runDunning(
     return null;
   }
   return {
+    invoiceId: invoice.id,
     kind,
     days: offset,
     dueOn,
