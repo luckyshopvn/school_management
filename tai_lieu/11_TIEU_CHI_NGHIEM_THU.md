@@ -1,7 +1,7 @@
 # 11. TIÊU CHÍ NGHIỆM THU
 
 - Mô tả: Tiêu chí nghiệm thu cho từng chức năng, viết dạng Cho, Khi, Thì.
-- Phiên bản: 1.73
+- Phiên bản: 1.74
 - Ngày cập nhật: 2026-10-25
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -860,6 +860,10 @@ Các mã từ AC-94 đến AC-134 được viết trực tiếp trong mục 12 c
 | AC-816 | Cho câu hỏi, đề của ngân hàng 22g1 / Khi giáo viên tìm trong kho, thêm vào bộ sưu tập / Thì thấy đúng theo quyền 22g1, có số lần dùng, độ khó; kho không tạo câu hỏi mới; người không được giao đề không thấy đề trong bộ sưu tập (CT-976, CT-977, CT-980; YCTD-184) |
 | AC-817 | Cho rubric / Khi lập, nhân bản, in / Thì điểm tối đa tính đúng, rubric sai bị từ chối, chỉ nối câu tự luận, bản sao là của người nhân bản (CT-975, CT-978, CT-980; YCTD-184) |
 | AC-818 | Cho bộ sưu tập / Khi xuất gói và trường khác nhập gói / Thì gói chỉ có học liệu đã công bố đủ giấy phép, không có dữ liệu cá nhân; tệp hỏng, giấy phép không rõ, học liệu trùng bị bỏ qua; học liệu nhập chờ duyệt, ghi nguồn gốc gói (CT-975, CT-979, CT-980; YCTD-184) |
+| AC-819 | Cho trường THPT có lớp 10 ba học sinh (nữ dân tộc, khuyết tật, tổ hợp TN1) và lớp 11 một học sinh nội trú / Khi xem sĩ số; phụ huynh xem / Thì số theo khối, toàn trường, theo tổ hợp đúng; 403 (CT-982; YCTD-175) |
+| AC-820 | Cho xếp loại cả năm, Xuất sắc đã duyệt, lên lớp, ở lại lớp / Khi xem kết quả cuối năm theo lớp; xuất Excel / Thì số Tốt, Đạt, Chưa đạt, Xuất sắc, lên lớp, ở lại lớp đúng; tải được, có nhật ký xuất (CT-982, CT-985; YCTD-175) |
+| AC-821 | Cho điểm Toán ba học sinh 9, 6, 3 cả hai học kỳ, giáo viên Toán thuộc tổ Toán / Khi xem phổ điểm cả năm, theo giáo viên, tổ bộ môn; xuất PDF / Thì mỗi khoảng một học sinh, trung bình 6, dưới 5 là 33,3%; giáo viên 3 điểm, từ 5 là 66,7%; tải được (CT-983; YCTD-175) |
+| AC-822 | Cho biểu EMIS THPT cuối năm / Khi liệt kê biểu ở hai đường, mở biểu THPT ở đường Tiểu học, xem, nhập tay, sửa khung với điều kiện Tiểu học, với điều kiện THPT / Thì mỗi đường chỉ biểu của cấp mình; 404; số tính đúng theo cột; lưu được; 400; dòng mới tính được (CT-981, CT-984, CT-985; YCTD-175) |
 | AC-783 | Cho trường có lớp 4, lớp 5 với học sinh nữ dân tộc, khuyết tật, bán trú, lớp 2 buổi/ngày / Khi xem sĩ số; phụ huynh xem / Thì số theo khối và toàn trường đúng; 403 (CT-905, CT-910; YCTD-165) |
 | AC-784 | Cho kết quả kỳ cuối học kỳ I, kết quả cuối năm, hoàn thành, khen thưởng / Khi xem theo khối, toàn trường, theo lớp / Thì số theo mức, điểm theo khoảng, kết quả cuối năm, ở lại lớp, khen thưởng đúng (CT-906, CT-907; YCTD-165) |
 | AC-785 | Cho sổ đầu bài có vắng, ngày đã chốt suất, cắt suất / Khi xem chuyên cần, bán trú; xuất Excel, PDF / Thì số theo lớp đúng; tệp tải được, có nhật ký xuất (CT-908; YCTD-165) |

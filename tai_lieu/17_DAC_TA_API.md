@@ -1,7 +1,7 @@
 # 17. ĐẶC TẢ API
 
 - Mô tả: Điểm cuối, phương thức, yêu cầu, phản hồi, xác thực, phân quyền, kiểm tra dữ liệu, xử lý lỗi, phân trang, lọc, sắp xếp, phiên bản.
-- Phiên bản: 1.120
+- Phiên bản: 1.121
 - Ngày cập nhật: 2026-10-25
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -1477,6 +1477,8 @@ Giao kèo văn thư lưu trữ (YCTD-118):
 | GET | /api/v1/public/student-awards/verify (từ YCTD-163) | Tra cứu công khai mã giấy khen học sinh (`code` 12 kí tự), giới hạn tần suất |
 | GET | /api/v1/primary-reports/enrollment, /assessments, /year-end, /attendance, /{report}/export (từ YCTD-165) | Thống kê Tiểu học (`org_unit_id`; `period_id`, `group` = `class`, `grade`, `school`; `from`, `to`); xuất `format` = `xlsx`, `pdf`; cần `P17.child-statistics.view` |
 | GET, PUT | /api/v1/primary-reports/emis, /{code}, /{code}/values, /{code}/rows, /{code}/export (từ YCTD-165) | Biểu EMIS Tiểu học cấu hình được: danh sách, biểu đã tính, lưu số nhập tay (`rows`: `code`, `values`), thay khung (`rows`: `code`, `label`, `unit`, `kind`, `formula`; cần `P17.report-form.manage`), xuất; biểu đã gửi trả 422 mã YCTD-165 |
+| GET | /api/v1/secondary-reports/enrollment, /results, /scores, /teachers, /{report}/export (từ YCTD-175) | Thống kê THCS, THPT (`school_level` = `THCS`, `THPT` bắt buộc; `org_unit_id`; `group` = `class`, `grade`, `school`; `term` = `first_term`, `second_term`, `year`; `subject_id`); xuất `format` = `xlsx`, `pdf`; cần `P17.child-statistics.view` |
+| GET, PUT | /api/v1/secondary-reports/emis, /{code}, /{code}/values, /{code}/rows, /{code}/export (từ YCTD-175) | Biểu EMIS THCS, THPT, cùng giao kèo với `/primary-reports/emis`; mỗi đường chỉ biểu của cấp mình (biểu cấp khác 404); công thức kiểm theo bộ điều kiện của cấp của biểu |
 | GET, POST, PUT, DELETE | /api/v1/emulation/decisions, /{id}, /document, /outgoing, /issue, /upper-result; /emulation/awards/{id}/certificate; /emulation/history, /export, /{id}; GET /public/emulation-awards/verify | Quyết định, giấy khen, sổ theo dõi, tra cứu công khai (P09-38, P09-39) |
 | GET, PUT, POST, PATCH | /api/v1/training/catalog, /training/settings, /training/topics, /training/topics/{id}, /training/competency-domains, /training/competency-domains/{id} | Danh mục bồi dưỡng; sửa cần `P09.training.manage` (P09-49, YCTD-182) |
 | GET, POST, PATCH | /api/v1/training/courses, /training/courses/{id} | Khoá bồi dưỡng kèm số đăng ký, đăng ký của tôi; chi tiết kèm đăng ký theo quyền; tạo, sửa, đổi trạng thái (P09-45) |

@@ -17,6 +17,7 @@ import { notFoundError, type RequestBody } from '../common/request-fields.js';
 import { readTableFileFormat } from '../exports/table-file.js';
 import { buildFacilitiesWorkbook, fileStamp, sendWorkbook } from '../facilities/facilities-workbook.js';
 import { UpperLevelForms, UpperLevelSubmissions } from '../submissions/upper-level-submissions.js';
+import { loadSecondaryFacts } from '../secondary-reports/secondary-facts.js';
 import { loadPrimaryFacts } from './primary-facts.js';
 
 // EMIS Tiểu học (DT-20 phần 20f, YCTD-165): biểu là khung cấu hình được ở cơ sở dữ liệu hệ thống (`report_forms`,
@@ -24,8 +25,17 @@ import { loadPrimaryFacts } from './primary-facts.js';
 // dòng nhập tay lưu ở `emis_report_values` của năm học (mã biểu, thẻ `main`, mã dòng) như biểu Mầm non. Xuất Excel, PDF theo
 // bố cục TT, Chỉ tiêu, Mã số, Đơn vị, các cột; gửi lên cấp trên, đánh dấu đã gửi, mở khoá dùng luồng có sẵn của 16a (biểu đã
 // gửi thì khoá ô nhập tay). Sửa khung (dòng, công thức) cần `P17.report-form.manage`; công thức kiểm cú pháp khi lưu. Claude
-// tự chọn theo ủy quyền của Eric ngày 2026-10-11
+// tự chọn theo ủy quyền của Eric ngày 2026-10-11. THCS, THPT (DT-21 phần 21g, YCTD-175) dùng cùng khung: biểu ghi cấp, dòng
+// công thức tính từ số liệu của cấp đó với bộ điều kiện của cấp; cổng gọi `/primary-reports/emis` (Tiểu học) hoặc
+// `/secondary-reports/emis` (THCS, THPT), mỗi đường chỉ thấy, mở được biểu của cấp mình
 export const PRIMARY_REPORT_RULE_CODE = 'YCTD-165';
+const PRIMARY_LEVELS = ['TH'];
+const SECONDARY_LEVELS = ['THCS', 'THPT'];
+
+// Cấp của biểu theo đường gọi
+function levelsOf(request: Request): string[] {
+  return /\/secondary-reports\//.test(request.originalUrl ?? request.url ?? '') ? SECONDARY_LEVELS : PRIMARY_LEVELS;
+}
 const PERMISSION = 'P17.report.emis';
 const TAB = 'main';
 
@@ -67,22 +77,23 @@ export class PrimaryEmisService implements OnModuleInit {
     }
   }
 
-  async list() {
+  async list(levels: string[] = PRIMARY_LEVELS) {
     return this.databases.system
       .selectFrom('report_forms')
       .select(['id', 'code', 'name', 'school_level', 'period', 'note', 'updated_at', 'updated_by_name'])
+      .where('school_level', 'in', levels as Array<'TH'>)
       .orderBy('school_level')
       .orderBy('period', 'desc')
       .execute();
   }
 
-  private async form(code: string) {
+  private async form(code: string, levels?: string[]) {
     const form = await this.databases.system
       .selectFrom('report_forms')
       .selectAll()
       .where('code', '=', code)
       .executeTakeFirst();
-    if (!form) {
+    if (!form || (levels && !levels.includes(form.school_level))) {
       throw notFoundError('Không có biểu báo cáo này', 'report_form');
     }
     const rows = (await this.databases.system
@@ -95,10 +106,14 @@ export class PrimaryEmisService implements OnModuleInit {
   }
 
   // Biểu đã tính: dòng công thức tính từ số liệu, dòng nhập tay lấy số đã lưu; dòng công thức sai cú pháp ghi lỗi ở cảnh báo
-  async view(currentUser: CurrentUser, code: string) {
-    const { form, rows } = await this.form(code);
+  async view(currentUser: CurrentUser, code: string, levels?: string[]) {
+    const { form, rows } = await this.form(code, levels);
     const { database } = await this.currentSchoolYear.require();
-    const facts = await loadPrimaryFacts(database, null);
+    const level = form.school_level;
+    const facts =
+      level === 'THCS' || level === 'THPT'
+        ? await loadSecondaryFacts(database, level, null)
+        : await loadPrimaryFacts(database, null);
     const saved = await database
       .selectFrom('emis_report_values')
       .select(['row_code', 'values', 'updated_by_name', 'updated_at'])
@@ -116,7 +131,7 @@ export class PrimaryEmisService implements OnModuleInit {
         return { ...row, values: (stored?.values ?? {}) as Record<string, number | null> };
       }
       try {
-        const parsed = parseFormula(row.formula ?? '');
+        const parsed = parseFormula(row.formula ?? '', level);
         return {
           ...row,
           values: Object.fromEntries(columns.map((column) => [column.key, evaluateFormula(parsed, column.key, facts)])),
@@ -131,6 +146,7 @@ export class PrimaryEmisService implements OnModuleInit {
     return {
       code: form.code,
       name: form.name,
+      school_level: form.school_level,
       period: form.period,
       note: form.note,
       columns,
@@ -156,8 +172,9 @@ export class PrimaryEmisService implements OnModuleInit {
     code: string,
     rows: Array<{ code: string; values: Record<string, number | null> }>,
     ip: string | null,
+    levels?: string[],
   ) {
-    const { form, rows: definitions } = await this.form(code);
+    const { form, rows: definitions } = await this.form(code, levels);
     if (this.submissions.isLocked(await this.submissions.statusOf(code))) {
       throw ruleViolationError(PRIMARY_REPORT_RULE_CODE, 'Biểu đã gửi lên cấp trên; mở khoá trước khi sửa');
     }
@@ -205,7 +222,7 @@ export class PrimaryEmisService implements OnModuleInit {
         after: { form_code: code, rows },
       });
     });
-    return this.view(currentUser, code);
+    return this.view(currentUser, code, levels);
   }
 
   // Thay cả bộ dòng của khung biểu (sửa cho khớp Sở sau khảo sát); công thức phải đúng cú pháp, mã dòng không trùng
@@ -220,8 +237,9 @@ export class PrimaryEmisService implements OnModuleInit {
       formula: string | null;
     }>,
     ip: string | null,
+    levels?: string[],
   ) {
-    const { form, rows: before } = await this.form(code);
+    const { form, rows: before } = await this.form(code, levels);
     const errors: FieldError[] = [];
     const codes = new Set<string>();
     rows.forEach((row, index) => {
@@ -237,7 +255,7 @@ export class PrimaryEmisService implements OnModuleInit {
       }
       if (row.kind === 'formula') {
         try {
-          parseFormula(row.formula ?? '');
+          parseFormula(row.formula ?? '', form.school_level);
         } catch (error) {
           errors.push({ field: `rows[${index}].formula`, message: (error as Error).message });
         }
@@ -281,11 +299,11 @@ export class PrimaryEmisService implements OnModuleInit {
       before,
       after: rows,
     });
-    return this.view(currentUser, code);
+    return this.view(currentUser, code, levels);
   }
 
-  async export(currentUser: CurrentUser, code: string, format: 'xlsx' | 'pdf', ip: string | null) {
-    const view = await this.view(currentUser, code);
+  async export(currentUser: CurrentUser, code: string, format: 'xlsx' | 'pdf', ip: string | null, levels?: string[]) {
+    const view = await this.view(currentUser, code, levels);
     const { database } = await this.currentSchoolYear.require();
     const now = this.clock.now();
     let order = 0;
@@ -323,20 +341,20 @@ export class PrimaryEmisService implements OnModuleInit {
   }
 }
 
-@Controller('primary-reports/emis')
+@Controller(['primary-reports/emis', 'secondary-reports/emis'])
 export class PrimaryEmisController {
   constructor(private readonly emis: PrimaryEmisService) {}
 
   @Get()
   @RequirePermission(PERMISSION)
-  list() {
-    return this.emis.list();
+  list(@Req() request: Request) {
+    return this.emis.list(levelsOf(request));
   }
 
   @Get(':code')
   @RequirePermission(PERMISSION)
-  view(@Param('code') code: string, @AuthenticatedUser() currentUser: CurrentUser) {
-    return this.emis.view(currentUser, code);
+  view(@Param('code') code: string, @Req() request: Request, @AuthenticatedUser() currentUser: CurrentUser) {
+    return this.emis.view(currentUser, code, levelsOf(request));
   }
 
   @Put(':code/values')
@@ -355,7 +373,7 @@ export class PrimaryEmisController {
       const values = typeof item.values === 'object' && item.values !== null ? item.values : {};
       return { code: String(item.code ?? ''), values: values as Record<string, number | null> };
     });
-    return this.emis.saveValues(currentUser, code, rows, originOf(request, currentUser).ipAddress);
+    return this.emis.saveValues(currentUser, code, rows, originOf(request, currentUser).ipAddress, levelsOf(request));
   }
 
   @Put(':code/rows')
@@ -380,7 +398,7 @@ export class PrimaryEmisController {
         formula: text('formula') || null,
       };
     });
-    return this.emis.saveRows(currentUser, code, rows, originOf(request, currentUser).ipAddress);
+    return this.emis.saveRows(currentUser, code, rows, originOf(request, currentUser).ipAddress, levelsOf(request));
   }
 
   @Get(':code/export')
@@ -399,6 +417,6 @@ export class PrimaryEmisController {
     if (!currentUser.hasPermission(PERMISSION)) {
       throw new ApplicationError('ERR_FORBIDDEN', 'Bạn không xuất được biểu EMIS');
     }
-    sendWorkbook(response, await this.emis.export(currentUser, code, format, request.ip ?? null));
+    sendWorkbook(response, await this.emis.export(currentUser, code, format, request.ip ?? null, levelsOf(request)));
   }
 }

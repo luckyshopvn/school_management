@@ -189,6 +189,8 @@ export const PORTAL_WORKSPACES: PortalWorkspace[] = [
           primary(leaf('7.15.', 'Báo cáo, thống kê, EMIS Tiểu học', '/primary-reports')),
           // Sơ đồ chỗ ngồi theo lớp (DT-21 phần 21d)
           secondary(leaf('7.16.', 'Sơ đồ chỗ ngồi', '/seating-charts')),
+          // Báo cáo, thống kê, EMIS THCS, THPT (DT-21 phần 21g)
+          secondary(leaf('7.18.', 'Báo cáo, thống kê, EMIS THCS, THPT', '/secondary-reports')),
         ]),
         ['TH', 'THCS', 'THPT'],
       ),

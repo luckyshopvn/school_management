@@ -1,7 +1,7 @@
 # 01. KẾ HOẠCH TỔNG THỂ
 
 - Mô tả: Tài liệu điều phối cấp cao nhất của dự án: mười hai giai đoạn kèm cổng kiểm soát, các mốc phát hành, kế hoạch thực thi theo đợt, đường găng, tổ chức thực hiện, quản lý thay đổi và rủi ro.
-- Phiên bản: 1.56
+- Phiên bản: 1.57
 - Ngày cập nhật: 2026-10-25
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -89,6 +89,7 @@ Sản phẩm: School Management, hệ thống quản lý trường mầm non cho
 | 0.124.0 | DT-21 phần 21f: xét tốt nghiệp THCS, THPT và hồ sơ thi (danh sách đủ điều kiện, hồ sơ dự thi, số báo danh, phòng thi, điểm thi, công nhận, giấy chứng nhận, biên bản, tệp xuất, hồ sơ chuyển cấp) | YCTD-174 |
 | 0.125.0 | DT-22 phần 22h1: kho học liệu số phần lõi (tải lên, liên kết, phiên bản, giấy phép bắt buộc, kiểm duyệt phân luồng, bộ sưu tập, báo lỗi, thống kê) | YCTD-183 |
 | 0.126.0 | DT-22 phần 22h2: kho học liệu số, câu hỏi và chia sẻ (câu hỏi, đề, ma trận của ngân hàng trong kho, thống kê sử dụng, rubric, gói chia sẻ liên trường) | YCTD-184 |
+| 0.127.0 | DT-21 phần 21g: báo cáo, thống kê THCS, THPT (sĩ số, tổ hợp, kết quả cuối năm, phổ điểm, theo giáo viên, tổ bộ môn) và biểu EMIS THCS, THPT cấu hình được | YCTD-175 |
 | 0.116.0 | DT-20 phần 20f: báo cáo, thống kê Tiểu học (sĩ số, kết quả đánh giá, cuối năm, chuyên cần, bán trú; xuất Excel, PDF) và khung biểu EMIS Tiểu học cấu hình được | YCTD-165 |
 | 0.117.0 | DT-21 phần 22g1: kiểm tra, đánh giá phần đề (ngân hàng câu hỏi, ma trận, kế hoạch kiểm tra, đề nhiều mã, thẩm định, khoá đề, xuất đề và đáp án) | YCTD-168 |
 | 0.111.0 | DT-20 phần 20d: sổ đầu bài và điểm danh theo tiết (ghi, ký tiết theo thời khoá biểu, Ban giám hiệu ký sổ tuần, phụ huynh xem, tổng hợp chuyên cần) | YCTD-162 |
@@ -413,7 +414,7 @@ Quy tắc bắt buộc: không thực hiện thay đổi trực tiếp trên h�
 | DT-10 | Giai đoạn 2: giảng dạy, công việc, y tế, bếp, kho, hoạt động, tương tác, tài khoản ngân hàng và công nợ phải trả, báo cáo hợp nhất | P03, P06, P09, P10, P12 đến P15, P17 | `M03`, `M09`, `M10`, `M12` đến `M15` | 1.0.0 (làm song song khi 1.0.0 chờ nghiệm thu, YCTD-73) | Mười phần 10a đến 10j đã gộp vào `main` ngày 12/10/2026; báo cáo kiểm thử `29_BAO_CAO_KIEM_THU_G2.md`; bản ứng viên 1.1.0 là phiên bản tài liệu 0.42.0 (YCTD-84) |
 | DT-11 | Giai đoạn 3: tuyển sinh, tuyển dụng, kết nối Facebook và Zalo, đối soát thanh toán, sổ kế toán kép | P01, P06, P14, P16, P18 | `M16`, `M18`, `N3` đến `N5` | 1.1.0 (làm song song khi 1.0.0, 1.1.0 chờ nghiệm thu, YCTD-85) | Năm phần 11a đến 11e đã gộp vào `main` ngày 12/10/2026; báo cáo kiểm thử `30_BAO_CAO_KIEM_THU_G3.md`; bản ứng viên 1.2.0 là phiên bản tài liệu 0.48.0 (YCTD-91); G3-04, G3-09 chưa làm |
 | DT-12 | Nối nhà cung cấp thật và chuẩn bị triển khai: tin nhắn eSMS, cổng thanh toán PayOS, SePay, Casso, VNPay, Fanpage và Zalo Official Account, cấu hình triển khai Docker Compose, sao lưu và phục hồi | P01, P06, P14, P19 | `T1`, `T4`, `T5`, `T7`, chuẩn bị `T6` | 1.2.0 | Bốn phần 12a đến 12d (YCTD-92) |
-| DT-SaaS | Enterprise SaaS nhiều trường (làm sau DT-22, kế hoạch ở `32_KE_HOACH_THEO_HE_THONG_SO.md` mục 14, YCTD-190): nền đa thuê bao (mỗi trường một bộ cơ sở dữ liệu, tên miền con và tên miền riêng, mã phiên gắn mã trường), khởi tạo và vòng đời trường, cấu hình riêng từng trường, gói dịch vụ và thu phí tự động, bảng điều khiển nền tảng, hạ tầng VPS trong nước, sao lưu và khôi phục từng trường, pháp lý và bảo mật; mười ba phần S1a đến S9 (kèm hai hồ sơ triển khai: thử nghiệm miễn phí trên Cloudflare và nền tảng miễn phí, vận hành trên VPS trong nước) chạy năm đợt | Toàn dự án | `T6` (hạ tầng chạy thật), `T7` | DT-22 (22a, 22e, 22h1, 22h2 đã gộp); DT-21 phần 21g không chặn | Bộ kiểm thử cách ly dữ liệu giữa các trường đạt; hai trường chạy trên một nền tảng ở môi trường thử; chu kỳ gia hạn chạy hết một vòng bằng dữ liệu giả; khôi phục một trường diễn tập đạt RPO, RTO đã ghi |
+| DT-SaaS | Enterprise SaaS nhiều trường (làm sau DT-22, kế hoạch ở `32_KE_HOACH_THEO_HE_THONG_SO.md` mục 14, YCTD-190): nền đa thuê bao (mỗi trường một bộ cơ sở dữ liệu, tên miền con và tên miền riêng, mã phiên gắn mã trường), khởi tạo và vòng đời trường, cấu hình riêng từng trường, gói dịch vụ và thu phí tự động, bảng điều khiển nền tảng, hạ tầng VPS trong nước, sao lưu và khôi phục từng trường, pháp lý và bảo mật; mười ba phần S1a đến S9 (kèm hai hồ sơ triển khai: thử nghiệm miễn phí trên Cloudflare và nền tảng miễn phí, vận hành trên VPS trong nước) chạy năm đợt | Toàn dự án | `T6` (hạ tầng chạy thật), `T7` | DT-22 (22a, 22e, 22h1, 22h2 đã gộp); DT-21 (đã gộp) | Bộ kiểm thử cách ly dữ liệu giữa các trường đạt; hai trường chạy trên một nền tảng ở môi trường thử; chu kỳ gia hạn chạy hết một vòng bằng dữ liệu giả; khôi phục một trường diễn tập đạt RPO, RTO đã ghi |
 
 Thứ tự trong bảng là thứ tự đề xuất, không phải thứ tự cứng. Đổi thứ tự phải qua quản lý thay đổi và phải giữ nguyên các phụ thuộc ở cột thứ sáu.
 

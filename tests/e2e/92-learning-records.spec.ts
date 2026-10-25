@@ -166,14 +166,15 @@ test('CT-20e-7: khen thưởng có giấy khen, hoàn thành chương trình ti�
   await setPrimaryEnabled(portal, true);
   try {
     await openMenu(portal, '/learning-records');
+    // Chọn lớp Tiểu học trước: thẻ Danh hiệu theo cấp của lớp đang chọn (kịch bản khác có thể đã có lớp THCS, THPT)
+    await portal.getByLabel('Đơn vị', { exact: true }).selectOption(reference.org_unit_id);
+    await portal.getByRole('combobox', { name: 'Lớp' }).selectOption({ label: className });
     await portal.getByRole('tab', { name: 'Danh hiệu' }).click();
     await portal.getByRole('button', { name: 'Nạp danh hiệu mặc định (Thông tư 27/2020)' }).click();
     await expect(toast(portal, /Đã nạp \d+ danh hiệu mặc định/)).toBeVisible();
     await expect(portal.getByRole('list', { name: 'Danh hiệu khen thưởng' })).toContainText('Học sinh Xuất sắc');
 
     // Khen thưởng: gợi ý Học sinh Xuất sắc, đề nghị rồi duyệt; giấy khen có mã tra cứu
-    await portal.getByLabel('Đơn vị', { exact: true }).selectOption(reference.org_unit_id);
-    await portal.getByRole('combobox', { name: 'Lớp' }).selectOption({ label: className });
     await portal.getByRole('tab', { name: 'Khen thưởng' }).click();
     await expect(portal.getByLabel(`Danh hiệu cho ${childName}`)).toHaveValue(/.+/);
     await portal.getByRole('button', { name: `Đề nghị khen thưởng ${childName}` }).click();

@@ -1,7 +1,7 @@
 # 21. KỊCH BẢN KIỂM THỬ
 
 - Mô tả: Danh sách ca kiểm thử theo chức năng, dữ liệu đầu vào, kết quả mong đợi, kết quả thực tế.
-- Phiên bản: 1.89
+- Phiên bản: 1.90
 - Ngày cập nhật: 2026-10-25
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -992,6 +992,11 @@ Ca CT-105 đến CT-550 lần lượt kiểm tra AC-149 đến AC-594. CT-534 đ
 | CT-978 | P09-57 | Rubric: phụ huynh tạo, nối câu không tự luận, tạo, người khác sửa, nhân bản, in, lưu trữ | 403; 400; điểm tối đa 5; 403; bản sao cá nhân; PDF; 403 người khác, người lập lưu trữ được | Kiểm thử tự động `apps/api/src/learning-resources/resource-sharing.test.ts` CT-22h2-4 đạt ngày 25/10/2026 | Đạt |
 | CT-979 | P09-58 | Xuất bộ sưu tập 3 học liệu (1 đã công bố); nhập lại chính gói; nhập gói trường khác (1 tốt, 1 mã băm sai, 1 không rõ giấy phép); giáo viên nhập | 1 xuất được, 2 bỏ qua; gói không có người sở hữu; 0 nhập, trùng; 1 nhập chờ duyệt, ghi nguồn gốc, 2 bỏ qua; 403 | Kiểm thử tự động `apps/api/src/learning-resources/resource-sharing.test.ts` CT-22h2-5 đạt ngày 25/10/2026 | Đạt |
 | CT-980 | P09-56, P09-57, P09-58 | Giao diện: giáo viên tìm câu của ngân hàng, thêm vào bộ sưu tập, lập rubric 2 tiêu chí 3 mức, in; Hiệu trưởng nhập gói | câu dùng được, đường dẫn ngân hàng; mục trong bộ sưu tập; điểm tối đa 6, rubric.pdf; 1 học liệu chờ duyệt, lịch sử nhập | Kiểm thử giao diện `tests/e2e/123-resource-sharing.spec.ts` CT-22h2-6 đạt ngày 25/10/2026 | Đạt |
+| CT-981 | P17-35 | Công thức theo cấp; đếm theo cột; khoảng điểm; menu 7.18 | Phân tích đúng, điều kiện cấp khác bị từ chối; Tốt 2, nữ 1, dân tộc 1, khuyết tật 1; khoảng đúng ở biên; THCS, THPT có 7.18, Tiểu học không | Kiểm thử đơn vị CT-21g-1 đạt ngày 25/10/2026 | Đạt |
+| CT-982 | P17-34 | Sĩ số, tổ hợp; kết quả cuối năm theo lớp; cấp TH; phụ huynh | Khối 10: 1 lớp 3 học sinh, khối 11: 1 lớp 1 học sinh nội trú; TN1 1, chưa đăng ký 3; lớp 10: Tốt 1, Đạt 1, Chưa đạt 1, Xuất sắc 1, lên lớp 2, ở lại 1; 400; 403 | Kiểm thử đơn vị CT-21g-2 đạt ngày 25/10/2026 | Đạt |
+| CT-983 | P17-34 | Phổ điểm Toán cả năm theo lớp; theo giáo viên, tổ; xuất Excel, PDF | 3 điểm mỗi khoảng 1, trung bình 6, dưới 5 33,3%; Tổ Toán 3 điểm, trung bình 6, từ 5 66,7%; tải được, có nhật ký | Kiểm thử đơn vị CT-21g-3 đạt ngày 25/10/2026 | Đạt |
+| CT-984 | P17-35 | Danh sách biểu hai đường; biểu THPT ở đường Tiểu học; dòng 101, 301, 404; nhập tay; sửa khung sai, đúng; xuất | 4 biểu THCS, THPT, đường Tiểu học chỉ biểu TH; 404; 2, 1, 1; 200; 400, 200 dòng mới 1; tải được | Kiểm thử đơn vị CT-21g-4 đạt ngày 25/10/2026 | Đạt |
+| CT-985 | P17-34 đến P17-35 | Giao diện: kết quả cuối năm theo lớp, xuất Excel; biểu EMIS THPT cuối năm nhập tay, sửa khung thêm dòng theo tổ hợp | Lớp 2 học sinh, Tốt 1, Đạt 1; tệp xlsx; đã lưu; dòng mới tổng 1, nữ 1 | Kiểm thử giao diện `tests/e2e/103-secondary-reports.spec.ts` CT-21g-5 đạt ngày 25/10/2026 | Đạt |
 | CT-904 | P17-32 | Cú pháp công thức đúng, sai; đếm theo cột với bộ học sinh, lớp mẫu | Phân tích được; báo lỗi; tổng, nữ, dân tộc, nữ dân tộc, khuyết tật đúng; lớp chỉ cột tổng | Kiểm thử đơn vị CT-20f-1 đạt ngày 24/10/2026 | Đạt |
 | CT-905 | P17-31 | Sĩ số: phụ huynh; Hiệu trưởng | 403; khối 4: 1 lớp 2 học sinh 2 buổi/ngày, khối 5: 1 lớp 1 học sinh; toàn trường 3 học sinh, 2 nữ, 1 dân tộc, 1 khuyết tật, 1 bán trú | Kiểm thử đơn vị CT-20f-2 đạt ngày 24/10/2026 | Đạt |
 | CT-906 | P17-31 | Kết quả cuối học kỳ I theo khối, toàn trường; thiếu kỳ | Tiếng Việt khối 4: T 1, H 1, điểm 9-10 1, 5-6 1; toàn trường 3 học sinh; 400 | Kiểm thử đơn vị CT-20f-3 đạt ngày 24/10/2026 | Đạt |
