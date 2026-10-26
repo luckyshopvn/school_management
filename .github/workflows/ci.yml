@@ -302,7 +302,8 @@ jobs:
 
   # Quét thành phần phụ thuộc có lỗ hổng mức cao trở lên ở phần chạy thật (DT-SaaS phần S8b, YCTD-201). Báo cáo không chặn gộp (continue-on-error)
   # vì lỗ hổng ở thư viện bên thứ ba cần thời gian nâng cấp; người duyệt đọc kết quả ở nhật ký việc này. Quét bí mật trong mã chạy ở
-  # tests/tenancy/secret-scan.test.mjs thuộc pnpm test
+  # tests/tenancy/secret-scan.test.mjs thuộc pnpm test. Việc này không cài gói nên không dùng cache pnpm: khi lockfile đổi (cache trượt),
+  # bước lưu cache của setup-node không thấy thư mục store và làm hỏng việc
   quet-phu-thuoc:
     runs-on: ubuntu-latest
     timeout-minutes: 10
@@ -312,7 +313,6 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 24
-          cache: pnpm
       - run: pnpm audit --prod --audit-level=high
         continue-on-error: true
 
