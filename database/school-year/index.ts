@@ -98,6 +98,7 @@ import { migration as createResourceQuestionsAndRubrics } from './migrations/010
 import { migration as addQuestionAiFlag } from './migrations/0128_add_question_ai_flag.js';
 import { migration as createClassroomTools } from './migrations/0124_create_classroom_tools.js';
 import { migration as createClassroomScoreEvents } from './migrations/0125_create_classroom_score_events.js';
+import { migration as addPushChannel } from './migrations/0140_add_push_channel.js';
 import { migration as createGroupSets } from './migrations/0170_create_group_sets.js';
 import { migration as moveClassroomGroupingsToGroupSets } from './migrations/0171_move_classroom_groupings_to_group_sets.js';
 
@@ -203,6 +204,8 @@ export const schoolYearMigrations: Record<string, Migration> = {
   '0128_add_question_ai_flag': addQuestionAiFlag,
   '0124_create_classroom_tools': createClassroomTools,
   '0125_create_classroom_score_events': createClassroomScoreEvents,
+  // Thông báo đẩy Web Push (DT-26 phần 26b): 0140
+  '0140_add_push_channel': addPushChannel,
   // Mô hình nhóm dùng chung (DT-28 phần 28a): 0170, 0171
   '0170_create_group_sets': createGroupSets,
   '0171_move_classroom_groupings_to_group_sets': moveClassroomGroupingsToGroupSets,

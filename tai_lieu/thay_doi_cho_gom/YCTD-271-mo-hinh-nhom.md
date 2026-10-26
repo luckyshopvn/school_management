@@ -61,7 +61,7 @@ phien_ban_de_xuat: 0.149.0
 - Phạm vi thay đổi: DT-28 phần 28a, mô hình nhóm dùng chung (YCTD-271).
 - Chức năng mới: bộ nhóm của lớp (chia tay, ngẫu nhiên có hạt, trộn năng lực, gom tầng, cân bằng giới, ràng buộc cùng nhóm, không cùng nhóm, từ tiết nhóm 21b), nhóm trưởng (đặt, ngẫu nhiên, luân phiên), lịch sử đổi thành viên; công cụ lớp học dùng bộ nhóm, chọn bộ sẵn có; hàm đọc ổn định `GroupSetsReader` cho 28b, 28c, 28e; giao đề thi trực tuyến 23a cho nhóm của bộ nhóm.
 - Lỗi đã sửa: không có.
-- Thay đổi dữ liệu: năm học `0170`, `0171`; xem `16_CO_SO_DU_LIEU.md` mục 18F.
+- Thay đổi dữ liệu: năm học `0170`, `0171`; xem `16_CO_SO_DU_LIEU.md` mục 18G.
 - Thay đổi API: nhóm `/group-sets`; `PUT /classroom-tools/classes/{id}/grouping` nhận thêm `group_set_id`.
 - Kiểm thử: kịch bản CT-1112 đến CT-1119 (CT-28a-1 đến CT-28a-14 trong mã kiểm thử).
 - Rủi ro: chia theo năng lực dựa trên điểm chưa đầy đủ đầu năm (học sinh chưa có điểm xếp sau ở gom tầng); bảng `classroom_groupings` còn ghi song song một bản phát hành.

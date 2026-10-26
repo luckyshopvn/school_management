@@ -21,6 +21,7 @@ import { migration as createAiTokenUsage } from './migrations/0201_create_ai_tok
 import { migration as createPlanAiPricing } from './migrations/0202_create_plan_ai_pricing.js';
 import { migration as createSchoolCatalog } from './migrations/0210_create_school_catalog.js';
 import { migration as linkCatalogAndPlatformAccess } from './migrations/0211_link_catalog_and_platform_access.js';
+import { migration as createPushKeys } from './migrations/0230_create_push_keys.js';
 
 // Khối số giữ sẵn của phần S1a: 0001 đến 0009; S2: 0020 đến 0029 (tài liệu 32 mục 14.3)
 export const platformMigrations: Record<string, Migration> = {
@@ -57,4 +58,6 @@ export const platformMigrations: Record<string, Migration> = {
   // Danh mục đơn vị toàn quốc, đăng nhập theo đơn vị, quyền quản trị nền tảng (DT-24): 0210 đến 0219
   '0210_create_school_catalog': createSchoolCatalog,
   '0211_link_catalog_and_platform_access': linkCatalogAndPlatformAccess,
+  // Khóa VAPID của nền tảng cho thông báo đẩy (DT-26 phần 26b): 0230
+  '0230_create_push_keys': createPushKeys,
 };
