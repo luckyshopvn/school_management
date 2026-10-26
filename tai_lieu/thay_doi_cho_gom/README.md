@@ -1,8 +1,8 @@
 # Thay đổi chờ gom
 
 - Mô tả: Quy ước ghi tài liệu chung bằng tệp mảnh, mỗi PR một tệp, gom định kỳ vào `01`, `02`, `03`, `23`, `24`, `index.md` (YCTD-291).
-- Phiên bản: 1.0
-- Ngày cập nhật: 2026-10-26
+- Phiên bản: 1.1
+- Ngày cập nhật: 2026-10-27
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-26
 
@@ -14,7 +14,7 @@ Nhiều phiên làm song song, mỗi PR đều thêm mục vào `02_NHAT_KY_DU_A
 
 1. Thêm đúng một tệp `tai_lieu/thay_doi_cho_gom/YCTD-<số>-<ten-ngan>.md` (tên chữ thường không dấu, nối bằng gạch ngang), ví dụ `YCTD-233-khung-kiem-thu-thiet-bi.md`.
 2. **Không sửa** `02_NHAT_KY_DU_AN.md`, `23_LICH_SU_PHIEN_BAN.md`, `24_YEU_CAU_THAY_DOI.md`, `index.md`, bảng mốc phát hành ở mục 3 của `01_KE_HOACH_TONG_THE.md`; **không tăng** số "Phiên bản" và "Ngày cập nhật" đầu các tài liệu này. Dòng chung của nhiều phần (ví dụ dòng phân hệ ở `03_DANH_SACH_CONG_VIEC.md`, ghi chú ở `index.md`) ghi qua mục "Nối dòng" của tệp mảnh.
-3. Nội dung riêng của phần vẫn sửa tại chỗ vì mỗi phần sửa dòng khác nhau: dòng trạng thái của phần ở `32`, dòng của phần ở `34`, đặc tả `07`, `08`, `10`, `11`, `14`, `16`, `17`, `21`, `22`. Các tài liệu này cũng không tăng số phiên bản đầu tài liệu trong PR thường (lần gom tăng một lần cho tài liệu chung; các tài liệu khác tăng khi có đợt rà soát).
+3. Nội dung riêng của phần vẫn sửa tại chỗ vì mỗi phần sửa dòng khác nhau: dòng trạng thái của phần ở `32`, dòng của phần ở `34`, đặc tả `07`, `08`, `10`, `11`, `14`, `16`, `17`, `21`, `22`. **Dòng bảng mới** chèn vào cuối bảng hoặc ngay sau một dòng có sẵn (mã BR, AC, MH, CT, PQ, mã chức năng mới…) thì không sửa tại chỗ mà ghi ở mục "Thêm dòng" của tệp mảnh, vì nhiều PR cùng nối cuối một bảng sẽ xung đột (YCTD-293). Sửa nội dung một dòng có sẵn, thêm đoạn văn, thêm mục mới thì vẫn sửa tại chỗ. Các tài liệu này cũng không tăng số phiên bản đầu tài liệu trong PR thường (lần gom tăng một lần cho tài liệu chung; các tài liệu khác tăng khi có đợt rà soát).
 4. Mã YCTD: lấy số còn trống hoặc số đã giữ sẵn cho đợt (xem dòng "Yêu cầu thay đổi" ở `index.md`), kiểm cả các PR đang mở và các tệp ở thư mục này.
 5. Số phiên bản phần mềm ghi trong tệp mảnh chỉ là **đề xuất**; trong nội dung dùng chỗ giữ `{PHIEN_BAN}`. Số chính thức chốt khi gom theo thứ tự merge: phiên bản đề xuất có số sửa khác 0 (ví dụ `0.145.1`) thì tăng số sửa, ngược lại tăng số phụ.
 6. CI chạy `node scripts/gom-thay-doi.mjs --kiem`: tệp mảnh sai định dạng thì CI hỏng. PR thường (nhánh không bắt đầu bằng `gom-`) sửa trực tiếp `02`, `23`, `24`, `index.md` thì CI cảnh báo, không chặn.
@@ -79,6 +79,11 @@ phien_ban_de_xuat: 0.146.0
 
 | 03_DANH_SACH_CONG_VIEC.md | P02 Trẻ, phụ huynh và lớp học | DT-26 phần 26c (YCTD-233: khung kiểm thử theo khổ thiết bị) |
 | index.md | Màn hình dự kiến | MH-350, MH-351 (YCTD-233) |
+
+## Thêm dòng
+
+| 14_DAC_TA_GIAO_DIEN.md | MH-349 | MH-350 | Ứng dụng giáo viên: khung theo khổ thiết bị (YCTD-233) | … |
+| 21_KICH_BAN_KIEM_THU.md | cuối bảng 15. Ca kiểm thử chức năng bổ sung | CT-1120 | P19-07 | CT-26c-1: … | … | … | Đạt |
 ```
 
 Quy tắc của từng phần:
@@ -92,6 +97,7 @@ Quy tắc của từng phần:
 | `## 01` | Không | Một dòng bảng mốc phát hành ở mục 3 của `01`, bắt đầu bằng `\| {PHIEN_BAN} \|` |
 | `## index` | Không | Mỗi dòng `\| <khoá dòng> \| <cụm sau số> \| +N \|`: cộng N vào số đứng ngay trước cụm (lần đầu trong dòng) ở dòng bảng của `index.md` có ô đầu đúng bằng khoá; cụm `Số lượng` là ô số thứ hai của bảng "Trạng thái tổng thể". Ví dụ `\| 10 \| mã chức năng \| +4 \|`, `\| Chức năng đã liệt kê \| Số lượng \| +4 \|`. Không ghi dòng "Yêu cầu thay đổi" (tự đếm) và không cần sửa khoảng `BR-01 đến BR-…`, `AC-01 đến AC-…`, `CT-001 đến CT-…`, `YCTD-01 đến YCTD-…` (tự tính lại từ `07`, `11`, `21`, `24`) |
 | `## Nối dòng` | Không | Mỗi dòng `\| <tệp trong tai_lieu> \| <khoá dòng> \| <nội dung> \|`: nối `; <nội dung>` vào cuối ô cuối của dòng bảng có ô đầu đúng bằng khoá |
+| `## Thêm dòng` | Không | Mỗi dòng `\| <tệp trong tai_lieu> \| <neo> \| <ô 1> \| <ô 2> \| … \|`: phần từ ô thứ ba trở đi là dòng bảng mới, giữ nguyên văn (kể cả `\|` đã thoát; `{PHIEN_BAN}` được điền). Neo là ô đầu của dòng đứng ngay trước (dòng mới chèn ngay sau dòng đó), hoặc `cuối bảng <tiêu đề>`: chèn sau dòng cuối của bảng đầu tiên nằm dưới tiêu đề bắt đầu bằng `<tiêu đề>` (không ghi các dấu `#`). Nhiều tệp cùng chèn sau một neo thì xếp theo thứ tự merge. `--kiem` báo lỗi khi: tệp hoặc neo không có, số ô của dòng mới khác số ô của dòng neo, mã dòng mới (ô đầu) đã có trong tài liệu hoặc trùng với tệp mảnh khác |
 
 Không dùng tiêu đề cấp 1, cấp 2 (`#`, `##`) trong nội dung các mục. Không đưa dữ liệu thật (repo công khai).
 
@@ -100,7 +106,7 @@ Không dùng tiêu đề cấp 1, cấp 2 (`#`, `##`) trong nội dung các mụ
 Người gom (phiên điều phối hoặc Eric) làm định kỳ, khi không có PR nào sắp merge:
 
 1. Tạo nhánh `gom-<ngày>` từ `origin/main`.
-2. Chạy `node scripts/gom-thay-doi.mjs`. Tập lệnh kiểm mọi tệp mảnh (sai thì dừng, không ghi gì), xếp theo thứ tự merge (lần commit trên nhánh chính thêm tệp, theo `git log --first-parent`), rồi với từng tệp: chèn mục 02, 24, 23 lên đầu danh sách (tệp merge sau cùng nằm trên cùng), chốt số phiên bản phần mềm và thay `{PHIEN_BAN}`, chèn dòng 01 trước dòng `1.0.0`, cộng số ở `index.md`, nối dòng; sau đó tính lại các khoảng mã và số "Yêu cầu thay đổi" ở `index.md`, tăng số phiên bản đầu mỗi tài liệu chung đã sửa đúng một lần, đặt ngày cập nhật, xoá các tệp mảnh đã gom.
+2. Chạy `node scripts/gom-thay-doi.mjs`. Tập lệnh kiểm mọi tệp mảnh (sai thì dừng, không ghi gì), xếp theo thứ tự merge (lần commit trên nhánh chính thêm tệp, theo `git log --first-parent`), rồi với từng tệp: chèn mục 02, 24, 23 lên đầu danh sách (tệp merge sau cùng nằm trên cùng), chốt số phiên bản phần mềm và thay `{PHIEN_BAN}`, chèn dòng 01 trước dòng `1.0.0`, cộng số ở `index.md`, nối dòng, thêm dòng bảng; sau đó tính lại các khoảng mã và số "Yêu cầu thay đổi" ở `index.md`, tăng số phiên bản đầu mỗi tài liệu chung đã sửa đúng một lần, đặt ngày cập nhật, xoá các tệp mảnh đã gom.
 3. Rà `git diff`, commit, mở PR. PR gom được sửa trực tiếp tài liệu chung (CI không cảnh báo nhánh `gom-`).
 
 Tuỳ chọn: `--kiem` chỉ kiểm định dạng; `--ngay <YYYY-MM-DD>` đặt ngày cập nhật; `--thu-muc <đường dẫn>` chạy trên bản sao `tai_lieu`. Kiểm thử đơn vị: `tests/tai-lieu/gom-thay-doi.test.mjs`.

@@ -233,4 +233,88 @@ describe('gom tệp mảnh thay đổi', () => {
     assert.equal(soTep, 2);
     assert.match(loi.map((k) => k.loi.join('; ')).join('\n'), /YCTD-233 trùng với tệp/);
   });
+
+  describe('mục Thêm dòng', () => {
+    const DAC_TA =
+      '# 14. ĐẶC TẢ\n\n## 3. Màn hình\n\n| Mã | Tên | Ghi chú |\n|---|---|---|\n| MH-348 | Cũ | |\n| MH-349 | Cũ hơn | |\n\n## 4. Khác\n\n| Mã | Tên | Ghi chú |\n|---|---|---|\n| MH-900 | Khác | |\n';
+    const themDong = (...dong) => ['', '## Thêm dòng', '', ...dong].join('\n');
+
+    beforeEach(() => writeFileSync(join(thuMuc, '14_DAC_TA_GIAO_DIEN.md'), DAC_TA));
+
+    it('chèn sau dòng neo và cuối bảng theo thứ tự merge, giữ nguyên dòng mới, điền phiên bản', () => {
+      ghiManh(
+        'YCTD-253-hoc-phi.md',
+        tepManh({
+          so: 253,
+          ten: 'Học phí',
+          them: themDong(
+            '| 14_DAC_TA_GIAO_DIEN.md | MH-348 | MH-360 | Thu phí ({PHIEN_BAN}) | a \\| b |',
+            '| 14_DAC_TA_GIAO_DIEN.md | MH-348 | MH-361 | Thu phí 2 | |',
+            '| 14_DAC_TA_GIAO_DIEN.md | cuối bảng 3. Màn hình | MH-362 | Cuối 1 | |',
+          ),
+        }),
+      );
+      ghiManh(
+        'YCTD-254-khoa-hoc.md',
+        tepManh({
+          so: 254,
+          ten: 'Khoá học',
+          them: themDong(
+            '| 14_DAC_TA_GIAO_DIEN.md | MH-348 | MH-370 | Khoá học | |',
+            '| 14_DAC_TA_GIAO_DIEN.md | cuối bảng 3. Màn hình | MH-371 | Cuối 2 | |',
+          ),
+        }),
+      );
+      const thuTu = ['YCTD-253', 'YCTD-254'];
+      const sapXep = (tep) =>
+        [...tep].sort((a, b) => thuTu.findIndex((t) => a.includes(t)) - thuTu.findIndex((t) => b.includes(t)));
+      assert.deepEqual(kiemThuMuc(thuMuc).loi, []);
+      gomThayDoi({ thuMuc, ngay: '2026-10-28', sapXep });
+
+      const bang = doc('14_DAC_TA_GIAO_DIEN.md')
+        .split('\n')
+        .filter((d) => d.startsWith('| MH-'));
+      assert.deepEqual(bang, [
+        '| MH-348 | Cũ | |',
+        '| MH-360 | Thu phí (0.145.0) | a \\| b |',
+        '| MH-361 | Thu phí 2 | |',
+        '| MH-370 | Khoá học | |',
+        '| MH-349 | Cũ hơn | |',
+        '| MH-362 | Cuối 1 | |',
+        '| MH-371 | Cuối 2 | |',
+        '| MH-900 | Khác | |',
+      ]);
+    });
+
+    it('chế độ kiểm báo neo không có, sai số ô, trùng mã dòng', () => {
+      const loi = (dong) =>
+        kiemTepManh(docTepManh('YCTD-253-x.md', tepManh({ so: 253, ten: 'X', them: themDong(dong) })), {
+          ...TAI_LIEU,
+          '14_DAC_TA_GIAO_DIEN.md': DAC_TA,
+        }).join('\n');
+      assert.equal(loi('| 14_DAC_TA_GIAO_DIEN.md | MH-349 | MH-360 | Mới | |'), '');
+      assert.match(loi('| 14_DAC_TA_GIAO_DIEN.md | MH-347 | MH-360 | Mới | |'), /không có dòng bảng "MH-347"/);
+      assert.match(
+        loi('| 14_DAC_TA_GIAO_DIEN.md | cuối bảng 9. Không có | MH-360 | Mới | |'),
+        /không có bảng sau tiêu đề/,
+      );
+      assert.match(loi('| 14_DAC_TA_GIAO_DIEN.md | MH-349 | MH-360 | Mới |'), /dòng mới có 2 ô, bảng .* có 3 ô/);
+      assert.match(loi('| 14_DAC_TA_GIAO_DIEN.md | MH-349 | MH-348 | Trùng | |'), /đã có dòng "MH-348"/);
+      assert.match(loi('| 99_KHONG_CO.md | MH-349 | MH-360 | Mới | |'), /không có tệp tai_lieu\/99_KHONG_CO\.md/);
+      assert.match(loi('| 14_DAC_TA_GIAO_DIEN.md | MH-349 |'), /phải dạng/);
+    });
+
+    it('chế độ kiểm báo hai tệp mảnh thêm cùng một mã dòng', () => {
+      ghiManh(
+        'YCTD-253-mot.md',
+        tepManh({ so: 253, ten: 'Một', them: themDong('| 14_DAC_TA_GIAO_DIEN.md | MH-349 | MH-360 | Một | |') }),
+      );
+      ghiManh(
+        'YCTD-254-hai.md',
+        tepManh({ so: 254, ten: 'Hai', them: themDong('| 14_DAC_TA_GIAO_DIEN.md | MH-348 | MH-360 | Hai | |') }),
+      );
+      const { loi } = kiemThuMuc(thuMuc);
+      assert.match(loi.map((k) => k.loi.join('; ')).join('\n'), /"MH-360" ở 14_DAC_TA_GIAO_DIEN\.md trùng với tệp/);
+    });
+  });
 });
