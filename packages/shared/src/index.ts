@@ -37,6 +37,7 @@ export * from './class-records.js';
 export * from './training.js';
 export * from './learning-resources.js';
 export * from './online-exams.js';
+export * from './tutoring.js';
 
 export const API_VERSION_PREFIX = '/api/v1';
 
@@ -690,6 +691,11 @@ export const PORTAL_QUICK_LINK_PATHS = [
   '/online-exams/settings',
   // Trợ lý AI soạn nháp (DT-23 phần 23d)
   '/ai-assistant',
+  // Gia sư trong trường (DT-27 phần 27b)
+  '/tutoring',
+  '/tutoring/sessions',
+  '/tutoring/exemptions',
+  '/tutoring/rules',
 ] as const;
 
 export type PortalQuickLinkPath = (typeof PORTAL_QUICK_LINK_PATHS)[number];
