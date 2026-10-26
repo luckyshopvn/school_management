@@ -1,3 +1,4 @@
+import { createHash } from 'node:crypto';
 import { Injectable } from '@nestjs/common';
 import type { SchoolYearDatabase } from '@school-management/database';
 import { ApplicationError, Clock, ruleViolationError, validationError } from '@school-management/server';
@@ -38,6 +39,12 @@ type Database = Kysely<SchoolYearDatabase>;
 
 const MANAGE = PERMISSION_CODES.examManage;
 export const ONLINE_EXAM_LEVELS: SchoolLevelCode[] = ['TH', 'THCS', 'THPT'];
+
+// Nhật ký thao tác ghi mã thực thể dạng uuid; công tắc theo cấp khoá bằng mã cấp nên lấy uuid cố định từ mã cấp
+function settingEntityId(level: SchoolLevelCode): string {
+  const hex = createHash('md5').update(`online_exam_settings:${level}`).digest('hex');
+  return `${hex.slice(0, 8)}-${hex.slice(8, 12)}-${hex.slice(12, 16)}-${hex.slice(16, 20)}-${hex.slice(20, 32)}`;
+}
 
 export interface AssignmentInput {
   exam_id: string;
@@ -136,7 +143,7 @@ export class OnlineExamsService {
         origin,
         orgUnitId: null,
         entityName: 'online_exam_settings',
-        entityId: level,
+        entityId: settingEntityId(level),
         action: before ? 'update' : 'create',
         before: before ? { student_login_enabled: before.student_login_enabled } : null,
         after: { school_level: level, student_login_enabled: enabled },
@@ -238,9 +245,7 @@ export class OnlineExamsService {
       ? await database
           .selectFrom('children')
           .leftJoin('class_enrollments', (join) =>
-            join
-              .onRef('class_enrollments.child_id', '=', 'children.id')
-              .on('class_enrollments.is_current', '=', true),
+            join.onRef('class_enrollments.child_id', '=', 'children.id').on('class_enrollments.is_current', '=', true),
           )
           .leftJoin('classes', 'classes.id', 'class_enrollments.class_id')
           .select([
@@ -263,7 +268,9 @@ export class OnlineExamsService {
     ];
     for (const row of classProblems) {
       if (!row.id || row.school_level !== exam.school_level || row.grade_level !== exam.grade_level_code) {
-        throw validationError([{ field: 'targets', message: 'Lớp hoặc học sinh khác cấp, khối của đề, hoặc chưa xếp lớp' }]);
+        throw validationError([
+          { field: 'targets', message: 'Lớp hoặc học sinh khác cấp, khối của đề, hoặc chưa xếp lớp' },
+        ]);
       }
       if (scope !== 'all' && !scope.has(row.id)) {
         throw new ApplicationError('ERR_FORBIDDEN', 'Chỉ giao đề cho lớp mình chủ nhiệm hoặc dạy môn của đề');
@@ -361,9 +368,7 @@ export class OnlineExamsService {
       ? await database
           .selectFrom('children')
           .leftJoin('class_enrollments', (join) =>
-            join
-              .onRef('class_enrollments.child_id', '=', 'children.id')
-              .on('class_enrollments.is_current', '=', true),
+            join.onRef('class_enrollments.child_id', '=', 'children.id').on('class_enrollments.is_current', '=', true),
           )
           .leftJoin('classes', 'classes.id', 'class_enrollments.class_id')
           .select(['children.id as child_id', 'children.full_name', 'classes.name'])
@@ -376,12 +381,20 @@ export class OnlineExamsService {
       for (const target of mine) {
         if (target.class_id) {
           for (const member of members.filter((row) => row.class_id === target.class_id)) {
-            rows.set(member.child_id, { child_id: member.child_id, full_name: member.full_name, class_name: member.name });
+            rows.set(member.child_id, {
+              child_id: member.child_id,
+              full_name: member.full_name,
+              class_name: member.name,
+            });
           }
         } else {
           const single = singles.find((row) => row.child_id === target.child_id);
           if (single) {
-            rows.set(single.child_id, { child_id: single.child_id, full_name: single.full_name, class_name: single.name });
+            rows.set(single.child_id, {
+              child_id: single.child_id,
+              full_name: single.full_name,
+              class_name: single.name,
+            });
           }
         }
       }
@@ -483,8 +496,10 @@ export class OnlineExamsService {
       .where('exam_assignments.school_level', '=', level)
       .orderBy('exam_assignments.opens_at', 'desc')
       .execute();
-    const visible: typeof rows = [];
-    for (const row of rows) {
+    // Người quản lý thấy mọi bài; giáo viên chỉ thấy bài mình giao hoặc của lớp mình dạy (kiểm từng bài)
+    const manager = currentUser.hasPermission(MANAGE);
+    const visible: typeof rows = manager ? [...rows] : [];
+    for (const row of manager ? [] : rows) {
       try {
         await this.assertCanManage(database, currentUser, row.id);
         visible.push(row);
@@ -519,7 +534,8 @@ export class OnlineExamsService {
         window: windowState(now, row.opens_at, row.closes_at),
         students: rosters.get(row.id)?.length ?? 0,
         started: new Set(mine.map((attempt) => attempt.child_id)).size,
-        submitted: new Set(mine.filter((attempt) => attempt.status === 'submitted').map((attempt) => attempt.child_id)).size,
+        submitted: new Set(mine.filter((attempt) => attempt.status === 'submitted').map((attempt) => attempt.child_id))
+          .size,
         flagged: new Set(mine.filter((attempt) => attempt.flagged).map((attempt) => attempt.child_id)).size,
       };
     });
@@ -741,7 +757,11 @@ export class OnlineExamsService {
   async attemptDetail(currentUser: CurrentUser, attemptId: string) {
     assertOnlineExamModule();
     const { database } = await this.currentSchoolYear.require();
-    const attempt = await database.selectFrom('exam_attempts').selectAll().where('id', '=', attemptId).executeTakeFirst();
+    const attempt = await database
+      .selectFrom('exam_attempts')
+      .selectAll()
+      .where('id', '=', attemptId)
+      .executeTakeFirst();
     if (!attempt) {
       throw notFoundError('Không tìm thấy bài làm', 'exam_attempt');
     }
@@ -764,7 +784,12 @@ export class OnlineExamsService {
     const layout = attempt.layout as AttemptLayout;
     const answers = attempt.answers as Record<string, string[]>;
     const marks = attempt.essay_marks as Record<string, number>;
-    const results = attempt.results as Array<{ question_id: string; number: number; earned: number; correct: boolean | null }>;
+    const results = attempt.results as Array<{
+      question_id: string;
+      number: number;
+      earned: number;
+      correct: boolean | null;
+    }>;
     const items = new Map((variant?.items ?? []).map((item) => [item.number, item]));
     return {
       id: attempt.id,
@@ -826,8 +851,7 @@ export class OnlineExamsService {
                     }))
                   : [],
             score: question.score,
-            student_answer:
-              question.question_type === 'essay' ? given : keysToLabels(layout, number, given),
+            student_answer: question.question_type === 'essay' ? given : keysToLabels(layout, number, given),
             correct_answer: question.question_type === 'essay' ? [] : keysToLabels(layout, number, item.answer),
             guidance: question.question_type === 'essay' ? snapshot.guidance : null,
             earned: result?.earned ?? null,
@@ -840,15 +864,14 @@ export class OnlineExamsService {
   }
 
   // Giáo viên nhập điểm câu tự luận của lượt đã nộp: chấm lại, cập nhật phiếu chấm của 22g2 (nếu chưa khoá điểm)
-  async markEssay(
-    currentUser: CurrentUser,
-    attemptId: string,
-    marks: Record<string, number>,
-    origin: ChangeOrigin,
-  ) {
+  async markEssay(currentUser: CurrentUser, attemptId: string, marks: Record<string, number>, origin: ChangeOrigin) {
     assertOnlineExamModule();
     const { database } = await this.currentSchoolYear.require();
-    const attempt = await database.selectFrom('exam_attempts').selectAll().where('id', '=', attemptId).executeTakeFirst();
+    const attempt = await database
+      .selectFrom('exam_attempts')
+      .selectAll()
+      .where('id', '=', attemptId)
+      .executeTakeFirst();
     if (!attempt) {
       throw notFoundError('Không tìm thấy bài làm', 'exam_attempt');
     }
@@ -890,7 +913,11 @@ export class OnlineExamsService {
   async forceSubmit(currentUser: CurrentUser, attemptId: string, origin: ChangeOrigin) {
     assertOnlineExamModule();
     const { database } = await this.currentSchoolYear.require();
-    const attempt = await database.selectFrom('exam_attempts').selectAll().where('id', '=', attemptId).executeTakeFirst();
+    const attempt = await database
+      .selectFrom('exam_attempts')
+      .selectAll()
+      .where('id', '=', attemptId)
+      .executeTakeFirst();
     if (!attempt) {
       throw notFoundError('Không tìm thấy bài làm', 'exam_attempt');
     }

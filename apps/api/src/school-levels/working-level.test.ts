@@ -71,22 +71,28 @@ const SECONDARY_ONLY_PATHS = [
   '/secondary-reports',
 ];
 
+// Phân hệ Thi trực tuyến (DT-23 phần 23a) có từ Tiểu học trở lên: trường chỉ có Mầm non không thấy
+const ONLINE_EXAM_PATHS = ['/online-exams', '/online-exams/monitor', '/online-exams/settings'];
+
 describe('Cây menu và nhãn theo cấp học', () => {
   it('CT-19c-1: trường chỉ có Mầm non giữ y hệt cây menu (tên phân hệ, số thứ bậc, thứ tự, mục)', () => {
     const preschool = portalWorkspacesForLevels(levelsOf('MN'));
     assert.deepEqual(
       listPortalMenuEntries(preschool).map((entry) => [entry.workspace.key, entry.node.number, entry.node.path]),
       listPortalMenuEntries(PORTAL_WORKSPACES)
-        .filter((entry) => ![...PRIMARY_ONLY_PATHS, ...SECONDARY_ONLY_PATHS].includes(entry.node.path))
+        .filter(
+          (entry) =>
+            ![...PRIMARY_ONLY_PATHS, ...SECONDARY_ONLY_PATHS, ...ONLINE_EXAM_PATHS].includes(entry.node.path),
+        )
         .map((entry) => [entry.workspace.key, entry.node.number, entry.node.path]),
     );
     assert.deepEqual(
       preschool.map((workspace) => workspace.label),
-      PORTAL_WORKSPACES.map((workspace) => workspace.label),
+      PORTAL_WORKSPACES.filter((workspace) => workspace.key !== 'online-exam').map((workspace) => workspace.label),
     );
     assert.deepEqual(
       [...portalMenuPathsOutsideLevels(['MN'])].sort(),
-      [...PRIMARY_ONLY_PATHS, ...SECONDARY_ONLY_PATHS].sort(),
+      [...PRIMARY_ONLY_PATHS, ...SECONDARY_ONLY_PATHS, ...ONLINE_EXAM_PATHS].sort(),
     );
     assert.deepEqual([...portalMenuPathsOutsideLevels(['MN', 'TH'])].sort(), [...SECONDARY_ONLY_PATHS].sort());
     assert.equal(portalMenuPathsOutsideLevels(['MN', 'TH', 'THCS', 'THPT']).size, 0);

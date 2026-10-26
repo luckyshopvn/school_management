@@ -47,8 +47,8 @@ export function StudentActivationScreen() {
         <div className="flex flex-col gap-1">
           <h1 className="text-page-title font-bold text-text">Đặt mật khẩu mới</h1>
           <p className="text-label text-text-secondary">
-            Mật khẩu do nhà trường cấp chỉ dùng một lần. Em đặt mật khẩu riêng, ít nhất 8 ký tự, có cả chữ và số, và không
-            cho bạn khác biết.
+            Mật khẩu do nhà trường cấp chỉ dùng một lần. Em đặt mật khẩu riêng, ít nhất 8 ký tự, có cả chữ và số, và
+            không cho bạn khác biết.
           </p>
         </div>
         {errorMessage ? <Alert tone="danger">{errorMessage}</Alert> : null}

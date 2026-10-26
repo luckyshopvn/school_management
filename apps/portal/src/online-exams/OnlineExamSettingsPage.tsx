@@ -19,9 +19,7 @@ export function OnlineExamSettingsPage() {
     onSuccess: async (data, input) => {
       queryClient.setQueryData(['online-exam-settings'], data);
       setToastMessage(
-        input.enabled
-          ? 'Đã cho học sinh cấp này đăng nhập làm bài'
-          : 'Đã tắt đăng nhập làm bài của học sinh cấp này',
+        input.enabled ? 'Đã cho học sinh cấp này đăng nhập làm bài' : 'Đã tắt đăng nhập làm bài của học sinh cấp này',
       );
     },
   });
@@ -32,9 +30,9 @@ export function OnlineExamSettingsPage() {
       <div className="flex flex-col gap-6">
         <h1 className="text-page-title font-bold text-text">{menuPageTitle('/online-exams/settings')}</h1>
         <Alert tone="info">
-          Học sinh dùng tài khoản ở 4.1.10 Tài khoản học và thi để vào làm bài; trẻ nhỏ làm bài với sự hướng dẫn của cha mẹ hoặc
-          giáo viên. Camera chỉ xử lý ngay trên máy học sinh, không gửi hình hay video lên máy chủ. Chỉ người quản lý đề, kiểm tra
-          (Hiệu trưởng, Phó Hiệu trưởng) bật, tắt theo cấp.
+          Học sinh dùng tài khoản ở 4.1.10 Tài khoản học và thi để vào làm bài; trẻ nhỏ làm bài với sự hướng dẫn của cha
+          mẹ hoặc giáo viên. Camera chỉ xử lý ngay trên máy học sinh, không gửi hình hay video lên máy chủ. Chỉ người
+          quản lý đề, kiểm tra (Hiệu trưởng, Phó Hiệu trưởng) bật, tắt theo cấp.
         </Alert>
         {settings.error ? <Alert tone="danger">{messageOf(settings.error)}</Alert> : null}
         {update.error ? <Alert tone="danger">{messageOf(update.error)}</Alert> : null}

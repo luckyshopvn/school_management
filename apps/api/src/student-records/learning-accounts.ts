@@ -77,7 +77,7 @@ export class LearningAccountsService {
     return childIds.length
       ? database
           .selectFrom('student_learning_accounts')
-          .select(['child_id', 'username', 'issued_at', 'issued_by_name', 'reset_count'])
+          .select(['child_id', 'username', 'issued_at', 'issued_by_name', 'reset_count', 'identity_user_id'])
           .where('child_id', 'in', childIds)
           .execute()
       : [];
@@ -109,6 +109,8 @@ export class LearningAccountsService {
           issued_at: account?.issued_at ?? null,
           issued_by_name: account?.issued_by_name ?? null,
           reset_count: account?.reset_count ?? 0,
+          // Đã nối với người dùng kênh student (DT-23 phần 23a); tài khoản cấp trước đó cần "Cấp lại mật khẩu" một lần
+          sign_in_ready: Boolean(account?.identity_user_id),
         };
       }),
     };

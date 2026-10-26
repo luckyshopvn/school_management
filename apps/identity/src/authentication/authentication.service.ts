@@ -686,7 +686,5 @@ export function assertChannel(value: unknown): SessionChannel {
   if (typeof value === 'string' && (SESSION_CHANNELS as string[]).includes(value)) {
     return value as SessionChannel;
   }
-  throw validationError([
-    { field: 'channel', message: 'Kênh đăng nhập phải là portal, teacher, parent hoặc student' },
-  ]);
+  throw validationError([{ field: 'channel', message: 'Kênh đăng nhập phải là portal, teacher, parent hoặc student' }]);
 }

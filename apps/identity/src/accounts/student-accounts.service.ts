@@ -59,7 +59,9 @@ export class StudentAccountsService {
     // Băm mật khẩu trước khi mở giao dịch để giữ giao dịch ngắn; argon2 chạy ở luồng riêng nên băm song song theo nhóm
     const hashes: string[] = [];
     for (let start = 0; start < inputs.length; start += HASH_CHUNK) {
-      hashes.push(...(await Promise.all(inputs.slice(start, start + HASH_CHUNK).map((item) => hashPassword(item.password)))));
+      hashes.push(
+        ...(await Promise.all(inputs.slice(start, start + HASH_CHUNK).map((item) => hashPassword(item.password)))),
+      );
     }
 
     const results = await this.database.transaction().execute(async (transaction) => {

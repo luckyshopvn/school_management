@@ -37,9 +37,11 @@ import { NO_ONLINE_LEVEL_MESSAGE, useOnlineExamLevel } from './OnlineExamsPage.j
 // điểm; điểm vào sổ điểm theo luồng 8.5 Chấm bài kiểm tra
 const formatTime = (iso: string | null) =>
   iso
-    ? new Intl.DateTimeFormat('vi-VN', { dateStyle: 'short', timeStyle: 'medium', timeZone: 'Asia/Ho_Chi_Minh' }).format(
-        new Date(iso),
-      )
+    ? new Intl.DateTimeFormat('vi-VN', {
+        dateStyle: 'short',
+        timeStyle: 'medium',
+        timeZone: 'Asia/Ho_Chi_Minh',
+      }).format(new Date(iso))
     : '';
 
 const CAMERA_LABELS: Record<string, string> = {
@@ -109,7 +111,8 @@ function AttemptPanel({
         </Button>
       </div>
       <p className="text-content text-text">
-        Điểm: {data.total_score ?? 'chờ chấm tự luận'} / {data.max_score ?? '—'}; trắc nghiệm {data.objective_score ?? '—'}
+        Điểm: {data.total_score ?? 'chờ chấm tự luận'} / {data.max_score ?? '—'}; trắc nghiệm{' '}
+        {data.objective_score ?? '—'}
         {data.submitted_at
           ? `; nộp lúc ${formatTime(data.submitted_at)} (${EXAM_SUBMIT_REASON_LABELS[data.submit_reason as ExamSubmitReason] ?? ''})`
           : '; đang làm bài'}
@@ -125,7 +128,8 @@ function AttemptPanel({
       {mark.error ? <Alert tone="danger">{messageOf(mark.error)}</Alert> : null}
       {force.error ? <Alert tone="danger">{messageOf(force.error)}</Alert> : null}
       <p className="text-label text-text-secondary">
-        Sự kiện chống gian lận chỉ là căn cứ để giáo viên xét, không tự trừ điểm. {CAMERA_LABELS[data.camera_state] ?? ''}
+        Sự kiện chống gian lận chỉ là căn cứ để giáo viên xét, không tự trừ điểm.{' '}
+        {CAMERA_LABELS[data.camera_state] ?? ''}
       </p>
       <ul className="flex flex-col gap-1 text-content text-text" aria-label="Sự kiện của bài làm">
         {data.events.length === 0 ? <li className="text-text-secondary">Không có sự kiện nào.</li> : null}
@@ -294,16 +298,20 @@ export function OnlineExamMonitorPage() {
               <>
                 <section aria-label="Cấu hình bài thi" className="flex flex-col gap-1 text-content text-text">
                   <p>
-                    {data.title} · {data.subject_name} · giao cho {data.targets.map((target) => target.label).join(', ')}
+                    {data.title} · {data.subject_name} · giao cho{' '}
+                    {data.targets.map((target) => target.label).join(', ')}
                   </p>
                   <p>
-                    Mở {formatTime(data.opens_at)}, đóng {formatTime(data.closes_at)}; {data.duration_minutes} phút; tối đa{' '}
-                    {data.max_attempts} lần ({EXAM_ATTEMPT_POLICY_LABELS[data.attempt_policy as ExamAttemptPolicy]}).
+                    Mở {formatTime(data.opens_at)}, đóng {formatTime(data.closes_at)}; {data.duration_minutes} phút; tối
+                    đa {data.max_attempts} lần ({EXAM_ATTEMPT_POLICY_LABELS[data.attempt_policy as ExamAttemptPolicy]}).
                   </p>
                   <p>
                     Kết quả: {EXAM_RESULT_MODE_LABELS[data.result_mode as ExamResultMode]}
-                    {data.results_released_at ? ` (đã công bố lúc ${formatTime(data.results_released_at)})` : ''}. Toàn màn
-                    hình: {data.fullscreen_required ? `bật, cho rời bài ${data.max_violations} lần, quá thì ${EXAM_VIOLATION_ACTION_LABELS[data.violation_action as ExamViolationAction].toLowerCase()}` : 'tắt'}
+                    {data.results_released_at ? ` (đã công bố lúc ${formatTime(data.results_released_at)})` : ''}. Toàn
+                    màn hình:{' '}
+                    {data.fullscreen_required
+                      ? `bật, cho rời bài ${data.max_violations} lần, quá thì ${EXAM_VIOLATION_ACTION_LABELS[data.violation_action as ExamViolationAction].toLowerCase()}`
+                      : 'tắt'}
                     . Camera:{' '}
                     {data.camera_enabled
                       ? `bật, không có camera thì ${EXAM_CAMERA_FALLBACK_LABELS[data.camera_fallback as ExamCameraFallback].toLowerCase()}`
@@ -343,7 +351,11 @@ export function OnlineExamMonitorPage() {
                     </thead>
                     <tbody>
                       {data.students.map((student) => (
-                        <StudentRow key={student.child_id} student={student} onOpen={(attempt) => setAttemptId(attempt.id)} />
+                        <StudentRow
+                          key={student.child_id}
+                          student={student}
+                          onOpen={(attempt) => setAttemptId(attempt.id)}
+                        />
                       ))}
                     </tbody>
                   </table>

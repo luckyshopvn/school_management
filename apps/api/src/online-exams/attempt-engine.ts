@@ -3,7 +3,12 @@ import type { SchoolYearDatabase } from '@school-management/database';
 import { Clock } from '@school-management/server';
 import { ANSWER_SAVE_GRACE_SECONDS, type ExamSubmitReason } from '@school-management/shared';
 import type { Kysely, Transaction } from 'kysely';
-import { gradeSheet, type GradedQuestion, type QuestionResult, type TrueFalseRule } from '../exam-grading/grading-rules.js';
+import {
+  gradeSheet,
+  type GradedQuestion,
+  type QuestionResult,
+  type TrueFalseRule,
+} from '../exam-grading/grading-rules.js';
 import type { QuestionType, VariantItem } from '../exams/exam-rules.js';
 import type { QuestionSnapshot } from '../exams/exams.js';
 import { answersForGrading, countedAttempt, type AttemptScore } from './online-exam-rules.js';
@@ -241,7 +246,11 @@ export class AttemptEngine {
 
   // Đưa lượt được tính của học sinh vào phiếu chấm của bài kiểm tra lớp (22g2); chỉ THCS, THPT có sổ điểm theo luồng 22g2
   async syncSheet(database: Kysely<SchoolYearDatabase>, attemptId: string): Promise<void> {
-    const attempt = await database.selectFrom('exam_attempts').selectAll().where('id', '=', attemptId).executeTakeFirst();
+    const attempt = await database
+      .selectFrom('exam_attempts')
+      .selectAll()
+      .where('id', '=', attemptId)
+      .executeTakeFirst();
     if (!attempt || attempt.status !== 'submitted') {
       return;
     }
@@ -370,11 +379,7 @@ export class AttemptEngine {
         .onConflict((conflict) => conflict.columns(['session_id', 'child_id']).doUpdateSet(values))
         .execute();
       await transaction.updateTable('exam_sessions').set({ updated_at: now }).where('id', '=', session.id).execute();
-      await transaction
-        .updateTable('exam_attempts')
-        .set({ sheet_synced: true })
-        .where('id', '=', attempt.id)
-        .execute();
+      await transaction.updateTable('exam_attempts').set({ sheet_synced: true }).where('id', '=', attempt.id).execute();
     });
   }
 }

@@ -51,8 +51,7 @@ describe('Thi trực tuyến cho học sinh', () => {
   const children: Record<string, string> = {};
   const students: Record<string, Student> = {};
   const url = (path: string) => `${environment.baseUrl}${path}`;
-  const api = (method: string, path: string, token: string, body?: unknown) =>
-    sendJson(method, url(path), token, body);
+  const api = (method: string, path: string, token: string, body?: unknown) => sendJson(method, url(path), token, body);
   const as = (user: LoggedInUser) => user.accessToken;
   const list = (body: unknown) => body as unknown as Json[];
   const identityUrl = (path: string) => `${environment.identity.baseUrl}${path}`;
@@ -328,7 +327,10 @@ describe('Thi trực tuyến cho học sinh', () => {
       .select(['child_id', 'identity_user_id'])
       .execute();
     assert.equal(linked.length, 4);
-    assert.ok(linked.every((row) => row.identity_user_id !== null), 'mỗi tài khoản nối đúng một người dùng định danh');
+    assert.ok(
+      linked.every((row) => row.identity_user_id !== null),
+      'mỗi tài khoản nối đúng một người dùng định danh',
+    );
     assert.equal(new Set(linked.map((row) => row.identity_user_id)).size, 4);
 
     const an = students.An as Student;
@@ -346,7 +348,11 @@ describe('Thi trực tuyến cho học sinh', () => {
       channel: 'student',
     });
     assert.equal(staffOnStudent.status, 401, 'tài khoản cán bộ không vào kênh student');
-    const first = await postJson(identityUrl('/auth/login'), { login: an.username, password: an.password, channel: 'student' });
+    const first = await postJson(identityUrl('/auth/login'), {
+      login: an.username,
+      password: an.password,
+      channel: 'student',
+    });
     assert.equal(first.status, 200, JSON.stringify(first.body));
     assert.equal(first.body.password_change_required, true, 'mật khẩu do trường cấp phải đổi ở lần đầu');
     const firstToken = first.body.access_token as string;
@@ -368,6 +374,13 @@ describe('Thi trực tuyến cho học sinh', () => {
     const profile = await studentApi('GET', '/profile', an.accessToken);
     assert.equal(profile.status, 200, JSON.stringify(profile.body));
     assert.deepEqual([profile.body.full_name, profile.body.class_name], ['Học sinh An', '6A']);
+    const me = await sendJson('GET', identityUrl('/auth/me'), an.accessToken);
+    assert.deepEqual(me.body.workspaces, [], 'học sinh không có phân hệ nào của cổng quản trị');
+    assert.deepEqual(
+      (me.body.assignments as Json[]).map((assignment) => [assignment.role_code, assignment.permissions]),
+      [['VT-21', ['P02.exam.take']]],
+      'học sinh chỉ có quyền làm bài',
+    );
     // Học sinh không với tới tuyến của cán bộ; cán bộ, phụ huynh không vào tuyến của học sinh
     assert.equal((await api('GET', '/children', an.accessToken)).status, 403);
     assert.equal((await api('GET', '/exam-grading/sessions?school_level=THCS', an.accessToken)).status, 403);
@@ -398,12 +411,18 @@ describe('Thi trực tuyến cho học sinh', () => {
       400,
     );
     assert.equal(
-      (await api('POST', '/online-exams/assignments', as(math), { ...body, variant_mode: 'fixed', fixed_variant_code: '999' }))
-        .status,
+      (
+        await api('POST', '/online-exams/assignments', as(math), {
+          ...body,
+          variant_mode: 'fixed',
+          fixed_variant_code: '999',
+        })
+      ).status,
       400,
     );
     assert.equal(
-      (await api('POST', '/online-exams/assignments', as(math), assignmentBody(essayExamId, { max_attempts: 2 }))).status,
+      (await api('POST', '/online-exams/assignments', as(math), assignmentBody(essayExamId, { max_attempts: 2 })))
+        .status,
       422,
       'đề có tự luận chỉ cho làm một lần',
     );
@@ -427,7 +446,11 @@ describe('Thi trực tuyến cho học sinh', () => {
     );
     assert.equal((await startAttempt(an.accessToken, future)).status, 422, 'chưa đến giờ mở');
     const dung = students.Dung as Student;
-    assert.equal(list((await studentApi('GET', '/exams', dung.accessToken)).body.items).length, 0, 'lớp khác không thấy');
+    assert.equal(
+      list((await studentApi('GET', '/exams', dung.accessToken)).body.items).length,
+      0,
+      'lớp khác không thấy',
+    );
     assert.equal((await startAttempt(dung.accessToken, future)).status, 404);
     assert.equal(
       (await api('PATCH', `/online-exams/assignments/${future}`, as(math), { closes_at: minutesFromNow(-5) })).status,
@@ -450,7 +473,11 @@ describe('Thi trực tuyến cho học sinh', () => {
     const started = await startAttempt(an.accessToken, assignmentId);
     assert.equal(started.status, 200, JSON.stringify(started.body));
     const text = JSON.stringify(started.body);
-    assert.doesNotMatch(text, /"answer"|correct_answer|guidance|Hướng dẫn chấm/, 'đáp án đúng không xuống máy học sinh');
+    assert.doesNotMatch(
+      text,
+      /"answer"|correct_answer|guidance|Hướng dẫn chấm/,
+      'đáp án đúng không xuống máy học sinh',
+    );
     const attemptId = started.body.id as string;
     const questions = list(started.body.questions);
     assert.deepEqual(
@@ -466,12 +493,20 @@ describe('Thi trực tuyến cho học sinh', () => {
       ['A', 'B', 'C', 'D'],
     );
     assert.equal(list(questions[1]?.statements).length, 4);
-    assert.ok((started.body.remaining_seconds as number) > 25 * 60 && (started.body.remaining_seconds as number) <= 30 * 60);
+    assert.ok(
+      (started.body.remaining_seconds as number) > 25 * 60 && (started.body.remaining_seconds as number) <= 30 * 60,
+    );
     // Lưu nháp từng câu, câu khác giữ nguyên, tải lại vẫn còn
-    assert.equal((await studentApi('PUT', `/attempts/${attemptId}/answers`, an.accessToken, { answers: { 1: ['b'] } })).status, 200);
     assert.equal(
-      (await studentApi('PUT', `/attempts/${attemptId}/answers`, an.accessToken, { answers: { 2: ['Đ', 'S', 'Đ', 'S'] } }))
-        .status,
+      (await studentApi('PUT', `/attempts/${attemptId}/answers`, an.accessToken, { answers: { 1: ['b'] } })).status,
+      200,
+    );
+    assert.equal(
+      (
+        await studentApi('PUT', `/attempts/${attemptId}/answers`, an.accessToken, {
+          answers: { 2: ['Đ', 'S', 'Đ', 'S'] },
+        })
+      ).status,
       200,
     );
     const bad = await studentApi('PUT', `/attempts/${attemptId}/answers`, an.accessToken, { answers: { 9: ['A'] } });
@@ -485,18 +520,19 @@ describe('Thi trực tuyến cho học sinh', () => {
     assert.deepEqual((reload.body.answers as Json)['2'], ['Đ', 'S', 'Đ', 'S']);
     // Học sinh khác không xem được lượt của bạn
     assert.equal((await studentApi('GET', `/attempts/${attemptId}`, binh.accessToken)).status, 404);
-    assert.equal((await studentApi('PUT', `/attempts/${attemptId}/answers`, binh.accessToken, { answers: {} })).status, 404);
+    assert.equal(
+      (await studentApi('PUT', `/attempts/${attemptId}/answers`, binh.accessToken, { answers: {} })).status,
+      404,
+    );
     // Nộp kèm câu cuối: 2 + 2 + 2 = 6 điểm; chế độ hiện ngay
     const submitted = await studentApi('POST', `/attempts/${attemptId}/submit`, an.accessToken, {
       answers: { 3: [' 12.5 '] },
     });
     assert.equal(submitted.status, 200, JSON.stringify(submitted.body));
-    assert.deepEqual([submitted.body.status, submitted.body.visible, submitted.body.total_score, submitted.body.max_score], [
-      'submitted',
-      true,
-      6,
-      6,
-    ]);
+    assert.deepEqual(
+      [submitted.body.status, submitted.body.visible, submitted.body.total_score, submitted.body.max_score],
+      ['submitted', true, 6, 6],
+    );
     assert.equal(
       (await studentApi('PUT', `/attempts/${attemptId}/answers`, an.accessToken, { answers: { 1: ['A'] } })).status,
       422,
@@ -515,13 +551,17 @@ describe('Thi trực tuyến cho học sinh', () => {
       .where('session_id', '=', session.id)
       .where('child_id', '=', children.An as string)
       .executeTakeFirstOrThrow();
-    assert.deepEqual([Number(sheet.total_score), sheet.source, sheet.attempt_id, sheet.variant_code], [6, 'online', attemptId, '101']);
+    assert.deepEqual(
+      [Number(sheet.total_score), sheet.source, sheet.attempt_id, sheet.variant_code],
+      [6, 'online', attemptId, '101'],
+    );
     // Lượt hai làm sai hết: điểm cao nhất vẫn là lượt một; hết lượt thì không vào nữa
     const second = await startAttempt(an.accessToken, assignmentId);
     assert.equal(second.status, 200);
     const secondId = second.body.id as string;
     assert.equal(
-      (await studentApi('POST', `/attempts/${secondId}/submit`, an.accessToken, { answers: { 1: ['A'] } })).body.total_score,
+      (await studentApi('POST', `/attempts/${secondId}/submit`, an.accessToken, { answers: { 1: ['A'] } })).body
+        .total_score,
       0,
     );
     const afterSecond = await schoolYear
@@ -565,14 +605,24 @@ describe('Thi trực tuyến cho học sinh', () => {
     const refused = await startAttempt(secondToken, reject, 'off');
     assert.equal(refused.status, 422);
     assert.match(JSON.stringify(refused.body), /replaced/);
-    assert.equal((await studentApi('GET', `/attempts/${attemptId}`, secondToken)).status, 422, 'phiên khác không đọc được lượt');
-    assert.equal((await studentApi('PUT', `/attempts/${attemptId}/answers`, binh.accessToken, { answers: { 1: ['C'] } })).status, 200);
+    assert.equal(
+      (await studentApi('GET', `/attempts/${attemptId}`, secondToken)).status,
+      422,
+      'phiên khác không đọc được lượt',
+    );
+    assert.equal(
+      (await studentApi('PUT', `/attempts/${attemptId}/answers`, binh.accessToken, { answers: { 1: ['C'] } })).status,
+      200,
+    );
     const events = await schoolYear
       .selectFrom('exam_attempt_events')
       .select('event_type')
       .where('attempt_id', '=', attemptId)
       .execute();
-    assert.deepEqual(events.map((row) => row.event_type), ['second_session']);
+    assert.deepEqual(
+      events.map((row) => row.event_type),
+      ['second_session'],
+    );
     // Hết giờ: đặt hạn nộp về quá khứ, yêu cầu kế tiếp chốt lượt, điểm chốt theo câu đã lưu
     await schoolYear
       .updateTable('exam_attempts')
@@ -595,15 +645,28 @@ describe('Thi trực tuyến cho học sinh', () => {
     const resumed = await startAttempt(newToken, takeover, 'off');
     assert.equal(resumed.status, 200, JSON.stringify(resumed.body));
     assert.equal(resumed.body.id, oldStart.body.id, 'làm tiếp đúng lượt đang làm');
-    const replaced = await studentApi('PUT', `/attempts/${oldStart.body.id}/answers`, chi.accessToken, { answers: { 1: ['A'] } });
+    const replaced = await studentApi('PUT', `/attempts/${oldStart.body.id}/answers`, chi.accessToken, {
+      answers: { 1: ['A'] },
+    });
     assert.equal(replaced.status, 422);
     assert.match(JSON.stringify(replaced.body), /replaced/);
-    assert.equal((await studentApi('PUT', `/attempts/${oldStart.body.id}/answers`, newToken, { answers: { 1: ['A'] } })).status, 200);
+    assert.equal(
+      (await studentApi('PUT', `/attempts/${oldStart.body.id}/answers`, newToken, { answers: { 1: ['A'] } })).status,
+      200,
+    );
   });
 
   it('CT-23a-6: sự kiện rời bài: gộp liền nhau, quá số lần thì đánh dấu hoặc tự nộp; camera chỉ là căn cứ', async () => {
-    const flag = await createAssignment(plainExamId, { max_violations: 1, violation_action: 'flag', camera_enabled: true });
-    const auto = await createAssignment(plainExamId, { max_violations: 1, violation_action: 'auto_submit', camera_enabled: false });
+    const flag = await createAssignment(plainExamId, {
+      max_violations: 1,
+      violation_action: 'flag',
+      camera_enabled: true,
+    });
+    const auto = await createAssignment(plainExamId, {
+      max_violations: 1,
+      violation_action: 'auto_submit',
+      camera_enabled: false,
+    });
     const an = students.An as Student;
     const binh = students.Binh as Student;
     const startedFlag = await startAttempt(an.accessToken, flag, 'unavailable');
@@ -618,15 +681,23 @@ describe('Thi trực tuyến cho học sinh', () => {
       ],
     });
     assert.equal(first.status, 200, JSON.stringify(first.body));
-    assert.deepEqual([first.body.violations, first.body.outcome], [1, 'warn'], 'hai sự kiện liền nhau là một lần; camera không tính');
+    assert.deepEqual(
+      [first.body.violations, first.body.outcome],
+      [1, 'warn'],
+      'hai sự kiện liền nhau là một lần; camera không tính',
+    );
     const stored = await schoolYear
       .selectFrom('exam_attempt_events')
       .select(['event_type', 'detail'])
       .where('attempt_id', '=', flagId)
       .execute();
-    assert.ok(stored.every((row) => JSON.stringify(row.detail).indexOf('note') === -1), 'chỉ nhận các số đo cho phép');
+    assert.ok(
+      stored.every((row) => JSON.stringify(row.detail).indexOf('note') === -1),
+      'chỉ nhận các số đo cho phép',
+    );
     assert.equal(
-      (await studentApi('POST', `/attempts/${flagId}/events`, an.accessToken, { events: [{ type: 'second_session' }] })).status,
+      (await studentApi('POST', `/attempts/${flagId}/events`, an.accessToken, { events: [{ type: 'second_session' }] }))
+        .status,
       400,
       'học sinh không tự báo phiên thứ hai',
     );
@@ -637,28 +708,30 @@ describe('Thi trực tuyến cho học sinh', () => {
       .set({ occurred_at: new Date(Date.now() - 60_000) })
       .where('attempt_id', '=', flagId)
       .execute();
-    const second = await studentApi('POST', `/attempts/${flagId}/events`, an.accessToken, { events: [{ type: 'page_hidden' }] });
+    const second = await studentApi('POST', `/attempts/${flagId}/events`, an.accessToken, {
+      events: [{ type: 'page_hidden' }],
+    });
     assert.deepEqual([second.body.violations, second.body.outcome, second.body.status], [2, 'flag', 'in_progress']);
     const row = await schoolYear
       .selectFrom('exam_attempts')
       .select(['flagged', 'flag_reasons', 'camera_state'])
       .where('id', '=', flagId)
       .executeTakeFirstOrThrow();
-    assert.deepEqual([row.flagged, row.flag_reasons, row.camera_state], [true, ['camera_not_available', 'violation_limit'], 'unavailable']);
+    assert.deepEqual(
+      [row.flagged, row.flag_reasons, row.camera_state],
+      [true, ['camera_not_available', 'violation_limit'], 'unavailable'],
+    );
     const monitor = await api('GET', `/online-exams/assignments/${flag}`, as(math));
     const anRow = list(monitor.body.students).find((item) => item.child_id === children.An) as Json;
     assert.equal(anRow.violations, 2);
-    assert.deepEqual(
-      Object.entries(anRow.event_counts as Json).sort(),
-      [
-        ['camera_unavailable', 1],
-        ['fullscreen_exit', 1],
-        ['multiple_faces', 1],
-        ['no_face', 1],
-        ['page_hidden', 1],
-        ['window_blur', 1],
-      ],
-    );
+    assert.deepEqual(Object.entries(anRow.event_counts as Json).sort(), [
+      ['camera_unavailable', 1],
+      ['fullscreen_exit', 1],
+      ['multiple_faces', 1],
+      ['no_face', 1],
+      ['page_hidden', 1],
+      ['window_blur', 1],
+    ]);
     const detail = await api('GET', `/online-exams/attempts/${flagId}`, as(math));
     assert.equal(detail.body.flagged, true);
     assert.ok(list(detail.body.events).some((event) => event.label === 'Thoát toàn màn hình'));
@@ -670,7 +743,9 @@ describe('Thi trực tuyến cho học sinh', () => {
       .values({ attempt_id: autoId, event_type: 'page_hidden', occurred_at: new Date(Date.now() - 60_000) })
       .execute();
     await studentApi('PUT', `/attempts/${autoId}/answers`, binh.accessToken, { answers: { 1: ['B'] } });
-    const forced = await studentApi('POST', `/attempts/${autoId}/events`, binh.accessToken, { events: [{ type: 'fullscreen_exit' }] });
+    const forced = await studentApi('POST', `/attempts/${autoId}/events`, binh.accessToken, {
+      events: [{ type: 'fullscreen_exit' }],
+    });
     assert.deepEqual([forced.body.outcome, forced.body.status], ['auto_submit', 'submitted']);
     const autoRow = await schoolYear
       .selectFrom('exam_attempts')
@@ -682,10 +757,16 @@ describe('Thi trực tuyến cho học sinh', () => {
     const startedForce = await createAssignment(plainExamId, { camera_enabled: false });
     const chi = students.Chi as Student;
     const chiAttempt = await startAttempt(chi.accessToken, startedForce, 'off');
-    assert.equal((await api('POST', `/online-exams/attempts/${chiAttempt.body.id}/force-submit`, as(other))).status, 403);
+    assert.equal(
+      (await api('POST', `/online-exams/attempts/${chiAttempt.body.id}/force-submit`, as(other))).status,
+      403,
+    );
     const forcedByTeacher = await api('POST', `/online-exams/attempts/${chiAttempt.body.id}/force-submit`, as(math));
     assert.equal(forcedByTeacher.body.submit_reason, 'teacher');
-    assert.equal((await api('POST', `/online-exams/attempts/${chiAttempt.body.id}/force-submit`, as(math))).status, 422);
+    assert.equal(
+      (await api('POST', `/online-exams/attempts/${chiAttempt.body.id}/force-submit`, as(math))).status,
+      422,
+    );
   });
 
   it('CT-23a-7: tự luận, giáo viên chấm, công bố kết quả, khoá điểm và chuyển vào sổ điểm theo luồng 22g2', async () => {
@@ -696,7 +777,9 @@ describe('Thi trực tuyến cho học sinh', () => {
     const take = async (student: Student, answers: Json) => {
       const started = await startAttempt(student.accessToken, assignmentId, 'off');
       assert.equal(started.status, 200, JSON.stringify(started.body));
-      const submitted = await studentApi('POST', `/attempts/${started.body.id}/submit`, student.accessToken, { answers });
+      const submitted = await studentApi('POST', `/attempts/${started.body.id}/submit`, student.accessToken, {
+        answers,
+      });
       assert.equal(submitted.status, 200, JSON.stringify(submitted.body));
       return { id: started.body.id as string, submitted };
     };
@@ -708,27 +791,41 @@ describe('Thi trực tuyến cho học sinh', () => {
       'chế độ giáo viên công bố: chưa xem được',
     );
     const pending = await api('GET', `/online-exams/attempts/${anAttempt.id}`, as(math));
-    assert.deepEqual([pending.body.needs_marking, pending.body.total_score, pending.body.objective_score], [true, null, 6]);
+    assert.deepEqual(
+      [pending.body.needs_marking, pending.body.total_score, pending.body.objective_score],
+      [true, null, 6],
+    );
     const essay = list(pending.body.questions).find((row) => row.type === 'essay') as Json;
     assert.deepEqual(essay.student_answer, ['Bài tự luận của An']);
     assert.equal(essay.guidance, 'Hướng dẫn chấm bí mật', 'giáo viên thấy hướng dẫn chấm');
     // Điểm tự luận: không quá điểm câu, đúng câu tự luận, đúng người
     const markPath = (id: string) => `/online-exams/attempts/${id}/essay-marks`;
     assert.equal((await api('PUT', markPath(anAttempt.id), as(math), { marks: { [essayId]: 5 } })).status, 400);
-    assert.equal((await api('PUT', markPath(anAttempt.id), as(math), { marks: { [essayQuestionIds[0] as string]: 1 } })).status, 400);
+    assert.equal(
+      (await api('PUT', markPath(anAttempt.id), as(math), { marks: { [essayQuestionIds[0] as string]: 1 } })).status,
+      400,
+    );
     assert.equal((await api('PUT', markPath(anAttempt.id), as(other), { marks: { [essayId]: 3 } })).status, 403);
     const marked = await api('PUT', markPath(anAttempt.id), as(math), { marks: { [essayId]: 3 } });
     assert.equal(marked.status, 200, JSON.stringify(marked.body));
     assert.deepEqual([marked.body.needs_marking, marked.body.total_score, marked.body.essay_score], [false, 9, 3]);
-    assert.equal((await api('PUT', markPath(binhAttempt.id), as(math), { marks: { [essayId]: 2 } })).body.total_score, 6);
+    assert.equal(
+      (await api('PUT', markPath(binhAttempt.id), as(math), { marks: { [essayId]: 2 } })).body.total_score,
+      6,
+    );
     const hidden = await studentApi('GET', `/attempts/${anAttempt.id}/result`, an.accessToken);
     assert.deepEqual([hidden.body.visible, hidden.body.total_score], [false, null]);
-    assert.equal((await api('POST', `/online-exams/assignments/${assignmentId}/release-results`, as(other))).status, 403);
+    assert.equal(
+      (await api('POST', `/online-exams/assignments/${assignmentId}/release-results`, as(other))).status,
+      403,
+    );
     await api('POST', `/online-exams/assignments/${assignmentId}/release-results`, as(math));
     const shown = await studentApi('GET', `/attempts/${anAttempt.id}/result`, an.accessToken);
     assert.deepEqual([shown.body.visible, shown.body.total_score, shown.body.max_score], [true, 9, 10]);
     assert.ok(
-      list(shown.body.questions).filter((row) => row.type !== 'essay').every((row) => row.correct_answer === null),
+      list(shown.body.questions)
+        .filter((row) => row.type !== 'essay')
+        .every((row) => row.correct_answer === null),
       'còn trong giờ mở nên chưa hiện đáp án đúng',
     );
     // Luồng 22g2: phiếu của An, Bình do hệ thống ghi; Chi vắng do giáo viên ghi; khoá điểm; giáo viên xác nhận chuyển
@@ -790,12 +887,25 @@ describe('Thi trực tuyến cho học sinh', () => {
       ],
       'mặc định bật ở mọi cấp, kể cả Tiểu học',
     );
-    assert.equal((await api('PUT', '/online-exams/settings/THCS', as(math), { student_login_enabled: false })).status, 403);
-    assert.equal((await api('PUT', '/online-exams/settings/THCS', as(principal), { student_login_enabled: 'x' })).status, 400);
-    assert.equal((await api('PUT', '/online-exams/settings/MN', as(principal), { student_login_enabled: false })).status, 400);
+    assert.equal(
+      (await api('PUT', '/online-exams/settings/THCS', as(math), { student_login_enabled: false })).status,
+      403,
+    );
+    assert.equal(
+      (await api('PUT', '/online-exams/settings/THCS', as(principal), { student_login_enabled: 'x' })).status,
+      400,
+    );
+    assert.equal(
+      (await api('PUT', '/online-exams/settings/MN', as(principal), { student_login_enabled: false })).status,
+      400,
+    );
     const off = await api('PUT', '/online-exams/settings/THCS', as(principal), { student_login_enabled: false });
     assert.equal(off.status, 200);
-    assert.equal((await studentApi('GET', '/exams', an.accessToken)).status, 403, 'cấp đã tắt: học sinh không dùng được');
+    assert.equal(
+      (await studentApi('GET', '/exams', an.accessToken)).status,
+      403,
+      'cấp đã tắt: học sinh không dùng được',
+    );
     assert.equal((await api('POST', '/online-exams/assignments', as(math), assignmentBody(plainExamId))).status, 422);
     await api('PUT', '/online-exams/settings/THCS', as(principal), { student_login_enabled: true });
     assert.equal((await studentApi('GET', '/exams', an.accessToken)).status, 200);
@@ -814,11 +924,19 @@ describe('Thi trực tuyến cho học sinh', () => {
     assert.ok(results.every((row) => row.status === 200));
     assert.ok(Date.now() - t0 < 20_000);
     // Học sinh nghỉ học thì tài khoản bị tắt
-    await schoolYear.updateTable('children').set({ status: 'withdrawn' }).where('id', '=', children.An as string).execute();
+    await schoolYear
+      .updateTable('children')
+      .set({ status: 'withdrawn' })
+      .where('id', '=', children.An as string)
+      .execute();
     const closed = await studentApi('GET', '/exams', an.accessToken);
     assert.equal(closed.status, 403);
     assert.match(JSON.stringify(closed.body), /không còn đang học/);
-    await schoolYear.updateTable('children').set({ status: 'active' }).where('id', '=', children.An as string).execute();
+    await schoolYear
+      .updateTable('children')
+      .set({ status: 'active' })
+      .where('id', '=', children.An as string)
+      .execute();
     assert.equal((await studentApi('GET', '/exams', an.accessToken)).status, 200);
   });
 
@@ -832,7 +950,11 @@ describe('Thi trực tuyến cho học sinh', () => {
     const item = list(reissued.body.items)[0] as Json;
     assert.equal(item.username, chi.username);
     assert.equal((await studentApi('GET', '/profile', chi.accessToken)).status, 401, 'phiên cũ bị thu hồi');
-    const old = await postJson(identityUrl('/auth/login'), { login: chi.username, password: 'MatKhau2026', channel: 'student' });
+    const old = await postJson(identityUrl('/auth/login'), {
+      login: chi.username,
+      password: 'MatKhau2026',
+      channel: 'student',
+    });
     assert.equal(old.status, 401);
     const fresh = await postJson(identityUrl('/auth/login'), {
       login: chi.username,

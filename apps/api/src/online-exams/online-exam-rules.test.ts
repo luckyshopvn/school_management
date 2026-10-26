@@ -1,6 +1,8 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
+import type { Clock } from '@school-management/server';
 import { createFaceWatch } from '@school-management/shared';
+import { EXAM_LIMITS, ExamRateLimiter } from './exam-rate-limit.js';
 import { createRandom, type QuestionType, type VariantItem } from '../exams/exam-rules.js';
 import { gradeSheet, type GradedQuestion } from '../exam-grading/grading-rules.js';
 import {
@@ -36,7 +38,13 @@ const types: Record<string, QuestionType> = {
   q4: 'short_answer',
   q5: 'essay',
 };
-const byNumber: Record<number, QuestionType> = { 1: 'multiple_choice', 2: 'multiple_choice', 3: 'true_false', 4: 'short_answer', 5: 'essay' };
+const byNumber: Record<number, QuestionType> = {
+  1: 'multiple_choice',
+  2: 'multiple_choice',
+  3: 'true_false',
+  4: 'short_answer',
+  5: 'essay',
+};
 
 const at = (iso: string) => new Date(iso);
 
@@ -63,10 +71,17 @@ describe('Xếp câu và lựa chọn của lượt', () => {
   });
 
   it('CT-23a-1b: nhãn hiển thị đổi qua lại với khoá lựa chọn của mã đề, hàm chấm của 22g2 chấm đúng', () => {
-    const layout: AttemptLayout = { order: [2, 1, 3, 4, 5], options: { '1': ['C', 'A', 'B', 'D'], '2': ['A', 'B', 'C', 'D'] } };
+    const layout: AttemptLayout = {
+      order: [2, 1, 3, 4, 5],
+      options: { '1': ['C', 'A', 'B', 'D'], '2': ['A', 'B', 'C', 'D'] },
+    };
     // Học sinh chọn nhãn B ở câu 1: vị trí thứ hai là khoá A của mã đề
     assert.deepEqual(labelsToKeys(layout, 1, ['B']), ['A']);
-    assert.deepEqual(labelsToKeys(layout, 1, ['C', 'a']), ['B', 'C'], 'nhãn chữ thường vẫn đọc được, kết quả xếp theo khoá');
+    assert.deepEqual(
+      labelsToKeys(layout, 1, ['C', 'a']),
+      ['B', 'C'],
+      'nhãn chữ thường vẫn đọc được, kết quả xếp theo khoá',
+    );
     assert.equal(labelsToKeys(layout, 1, ['Z']), null);
     assert.deepEqual(keysToLabels(layout, 1, ['B']), ['C']);
     assert.deepEqual(keysToLabels(layout, 3, ['Đ']), ['Đ'], 'câu không đảo giữ nguyên');
@@ -115,7 +130,9 @@ describe('Xếp câu và lựa chọn của lượt', () => {
 
   it('CT-23a-1d: phát mã đề: ngẫu nhiên hoặc cố định', () => {
     const random = createRandom(5);
-    const picks = new Set(Array.from({ length: 40 }, () => pickVariantCode(['101', '102', '103'], 'random', null, random)));
+    const picks = new Set(
+      Array.from({ length: 40 }, () => pickVariantCode(['101', '102', '103'], 'random', null, random)),
+    );
     assert.deepEqual([...picks].sort(), ['101', '102', '103']);
     assert.equal(pickVariantCode(['101', '102'], 'fixed', '102', random), '102');
     assert.equal(pickVariantCode(['101', '102'], 'fixed', '109', random), null);
@@ -205,12 +222,35 @@ describe('Đồng hồ máy chủ, sự kiện rời bài, lượt được tín
     assert.deepEqual(watch.push(0, 5_000), []);
     assert.deepEqual(watch.push(0, 10_000), [{ type: 'no_face', duration_ms: 5_000, faces: 0 }]);
     assert.deepEqual(watch.push(0, 20_000), [], 'một lần cho mỗi đợt');
-    assert.deepEqual(watch.push(0, 70_000), [{ type: 'no_face', duration_ms: 65_000, faces: 0 }], 'kéo dài thì báo lại');
+    assert.deepEqual(
+      watch.push(0, 70_000),
+      [{ type: 'no_face', duration_ms: 65_000, faces: 0 }],
+      'kéo dài thì báo lại',
+    );
     assert.deepEqual(watch.push(1, 71_000), []);
     assert.deepEqual(watch.push(2, 72_000), []);
     assert.deepEqual(watch.push(3, 74_000), [{ type: 'multiple_faces', duration_ms: 2_000, faces: 3 }]);
     assert.deepEqual(watch.push(1, 75_000), []);
     assert.deepEqual(watch.push(0, 76_000), [], 'đợt mới tính lại từ đầu');
     assert.deepEqual(watch.push(0, 81_000), [{ type: 'no_face', duration_ms: 5_000, faces: 0 }]);
+  });
+
+  it('CT-23a-1i: giới hạn tần suất lưu nháp theo học sinh và theo trường, cửa sổ cố định mở lại sau một phút', () => {
+    let now = Date.parse('2026-11-02T01:00:00Z');
+    const limiter = new ExamRateLimiter({ now: () => new Date(now) } as unknown as Clock);
+    for (let index = 0; index < EXAM_LIMITS.student.limit; index += 1) {
+      limiter.hit('hoc-sinh-a');
+    }
+    assert.throws(() => limiter.hit('hoc-sinh-a'), /quá nhiều yêu cầu/);
+    limiter.hit('hoc-sinh-b');
+    now += 61_000;
+    limiter.hit('hoc-sinh-a');
+    limiter.reset();
+    for (let index = 0; index < 125; index += 1) {
+      for (let student = 0; student < 240; student += 1) {
+        limiter.hit(`hs-${student}`);
+      }
+    }
+    assert.throws(() => limiter.hit('hs-0'), /quá tải/);
   });
 });

@@ -191,7 +191,10 @@ export function OnlineExamsPage() {
     },
   });
   const set = <Key extends keyof Form>(key: Key, value: Form[Key]) => setForm({ ...form, [key]: value });
-  const check = (label: string, key: 'shuffle_questions' | 'shuffle_options' | 'fullscreen_required' | 'camera_enabled') => (
+  const check = (
+    label: string,
+    key: 'shuffle_questions' | 'shuffle_options' | 'fullscreen_required' | 'camera_enabled',
+  ) => (
     <label className="text-label font-medium text-text">
       <input type="checkbox" checked={form[key]} onChange={(event) => set(key, event.target.checked)} /> {label}
     </label>
@@ -209,7 +212,8 @@ export function OnlineExamsPage() {
     </label>
   );
   const labelled = (labels: Record<string, string>) => Object.entries(labels) as Array<[string, string]>;
-  const open = (row: AssignmentSummary) => void navigate({ to: '/online-exams/monitor', search: { assignment: row.id } });
+  const open = (row: AssignmentSummary) =>
+    void navigate({ to: '/online-exams/monitor', search: { assignment: row.id } });
 
   return (
     <AppShell>
@@ -284,9 +288,9 @@ export function OnlineExamsPage() {
             <section className="flex flex-col gap-3" aria-label="Giao đề thi trực tuyến">
               <h2 className="text-section-title font-semibold text-text">Giao đề thi trực tuyến</h2>
               <Alert tone="info">
-                Học sinh làm bài ở ứng dụng phụ huynh (địa chỉ có #hoc-sinh) bằng tài khoản ở 4.1.10 Tài khoản học và thi. Camera chỉ
-                xử lý ngay trên máy học sinh, không gửi hình hay video lên máy chủ; sự kiện chỉ để giáo viên xét, không tự trừ điểm.
-                Chỉ giao được đề đã khoá; đề có câu tự luận chỉ cho làm một lần.
+                Học sinh làm bài ở ứng dụng phụ huynh (địa chỉ có #hoc-sinh) bằng tài khoản ở 4.1.10 Tài khoản học và
+                thi. Camera chỉ xử lý ngay trên máy học sinh, không gửi hình hay video lên máy chủ; sự kiện chỉ để giáo
+                viên xét, không tự trừ điểm. Chỉ giao được đề đã khoá; đề có câu tự luận chỉ cho làm một lần.
               </Alert>
               {create.error ? <Alert tone="danger">{messageOf(create.error)}</Alert> : null}
               <div className="flex flex-wrap items-end gap-3">

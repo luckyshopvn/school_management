@@ -144,7 +144,7 @@ export const migration: Migration = {
       .addColumn('class_id', 'uuid', (column) => column.references('classes.id'))
       .addColumn('child_id', 'uuid', (column) => column.references('children.id'))
       .addCheckConstraint(
-        'exam_assignment_targets_kind_check',
+        'exam_assignment_targets_shape_check',
         sql`(kind = 'class' and class_id is not null and child_id is null)
           or (kind = 'student' and child_id is not null and class_id is null)`,
       )

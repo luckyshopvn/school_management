@@ -51,10 +51,7 @@ function QuestionCard({
 }) {
   const heading = `Câu ${question.position}`;
   return (
-    <section
-      aria-label={heading}
-      className="flex flex-col gap-3 rounded-xl border border-border bg-card p-4 shadow-sm"
-    >
+    <section aria-label={heading} className="flex flex-col gap-3 rounded-xl border border-border bg-card p-4 shadow-sm">
       <h2 className="text-label font-semibold text-text">
         {heading} <span className="font-normal text-text-secondary">({question.score} điểm)</span>
       </h2>
@@ -69,7 +66,9 @@ function QuestionCard({
                   type="checkbox"
                   checked={checked}
                   onChange={() =>
-                    onChange(checked ? value.filter((label) => label !== option.label) : [...value, option.label].sort())
+                    onChange(
+                      checked ? value.filter((label) => label !== option.label) : [...value, option.label].sort(),
+                    )
                   }
                 />
                 <span>
@@ -452,8 +451,8 @@ export function ExamRoom({
     return (
       <main className="mx-auto flex min-h-screen max-w-xl flex-col gap-4 px-4 py-12">
         <Alert tone="danger">
-          Bài này đang được làm ở một phiên đăng nhập khác nên phiên này đã bị đóng. Nếu không phải em, hãy báo giáo viên
-          và đổi mật khẩu.
+          Bài này đang được làm ở một phiên đăng nhập khác nên phiên này đã bị đóng. Nếu không phải em, hãy báo giáo
+          viên và đổi mật khẩu.
         </Alert>
         <Button variant="primary" onClick={() => onExit(null)}>
           Về danh sách bài thi
@@ -491,22 +490,26 @@ export function ExamRoom({
           {assignment.subject_name} · {assignment.duration_minutes} phút · làm tối đa {assignment.max_attempts} lần
         </p>
         {errorMessage ? <Alert tone="danger">{errorMessage}</Alert> : null}
-        <section aria-label="Điều cần biết trước khi làm bài" className="flex flex-col gap-2 rounded-xl border border-border bg-card p-4">
+        <section
+          aria-label="Điều cần biết trước khi làm bài"
+          className="flex flex-col gap-2 rounded-xl border border-border bg-card p-4"
+        >
           <h2 className="text-label font-semibold text-text">Điều cần biết trước khi làm bài</h2>
           <ul className="list-disc pl-5 text-body text-text">
             <li>Đồng hồ chạy trên máy chủ của nhà trường; tải lại trang hay mất mạng không làm đồng hồ dừng lại.</li>
             <li>Mỗi câu em chọn được lưu ngay; mất mạng thì vào lại để làm tiếp trong thời gian còn lại.</li>
             {assignment.fullscreen_required ? (
               <li>
-                Bài làm ở chế độ toàn màn hình. Thoát toàn màn hình, rời trang hay đổi cửa sổ được ghi lại để giáo viên xem; quá số
-                lần cho phép, bài có thể bị đánh dấu hoặc tự nộp.
+                Bài làm ở chế độ toàn màn hình. Thoát toàn màn hình, rời trang hay đổi cửa sổ được ghi lại để giáo viên
+                xem; quá số lần cho phép, bài có thể bị đánh dấu hoặc tự nộp.
               </li>
             ) : null}
             {assignment.camera_enabled ? (
               <li>
-                Camera được dùng để kiểm tra có em trong khung hình và không có người khác. <strong>Hình chỉ được xử lý ngay trên
-                máy của em, không gửi hình hay video lên máy chủ</strong>; máy chủ chỉ ghi loại sự kiện (ví dụ không thấy mặt) và
-                thời điểm. Giáo viên dùng sự kiện để xem xét, hệ thống không tự trừ điểm.
+                Camera được dùng để kiểm tra có em trong khung hình và không có người khác.{' '}
+                <strong>Hình chỉ được xử lý ngay trên máy của em, không gửi hình hay video lên máy chủ</strong>; máy chủ
+                chỉ ghi loại sự kiện (ví dụ không thấy mặt) và thời điểm. Giáo viên dùng sự kiện để xem xét, hệ thống
+                không tự trừ điểm.
               </li>
             ) : null}
             <li>Một bài chỉ làm ở một phiên đăng nhập; đăng nhập thêm ở máy khác sẽ bị ghi lại.</li>
@@ -561,7 +564,11 @@ export function ExamRoom({
           </p>
         ) : null}
         {confirmSubmit ? (
-          <div role="alertdialog" aria-label="Xác nhận nộp bài" className="flex flex-col gap-2 rounded-xl border border-border bg-card p-4">
+          <div
+            role="alertdialog"
+            aria-label="Xác nhận nộp bài"
+            className="flex flex-col gap-2 rounded-xl border border-border bg-card p-4"
+          >
             <p className="text-body text-text">Em chắc chắn nộp bài? Nộp rồi không sửa được nữa.</p>
             <div className="flex gap-2">
               <Button variant="primary" onClick={() => void submit(false)} disabled={submitting}>
@@ -590,7 +597,8 @@ export function ExamRoom({
           className="fixed inset-0 z-20 flex flex-col items-center justify-center gap-4 bg-page/95 px-4 text-center"
         >
           <p className="max-w-md text-body text-text">
-            Bài làm cần ở chế độ toàn màn hình. Việc thoát toàn màn hình đã được ghi lại ({PROCTOR_EVENT_LABELS.fullscreen_exit}).
+            Bài làm cần ở chế độ toàn màn hình. Việc thoát toàn màn hình đã được ghi lại (
+            {PROCTOR_EVENT_LABELS.fullscreen_exit}).
           </p>
           <Button variant="primary" onClick={() => void returnToFullscreen()}>
             Quay lại toàn màn hình

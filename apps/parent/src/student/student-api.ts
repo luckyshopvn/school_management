@@ -214,12 +214,7 @@ export interface EventReport {
 
 export type CameraState = 'off' | 'granted' | 'denied' | 'unavailable';
 export type ClientEventType =
-  | 'fullscreen_exit'
-  | 'page_hidden'
-  | 'window_blur'
-  | 'camera_lost'
-  | 'no_face'
-  | 'multiple_faces';
+  'fullscreen_exit' | 'page_hidden' | 'window_blur' | 'camera_lost' | 'no_face' | 'multiple_faces';
 
 export const readStudentProfile = () => requestStudentJson<StudentProfile>('/api/v1/student/profile');
 export const listStudentExams = () =>
@@ -232,10 +227,10 @@ export const startAttempt = (assignmentId: string, cameraState: CameraState) =>
 export const readAttempt = (attemptId: string) =>
   requestStudentJson<AttemptView>(`/api/v1/student/attempts/${attemptId}`);
 export const saveAnswers = (attemptId: string, answers: Record<string, string[]>) =>
-  requestStudentJson<{ saved_at: string; remaining_seconds: number }>(
-    `/api/v1/student/attempts/${attemptId}/answers`,
-    { method: 'PUT', body: JSON.stringify({ answers }) },
-  );
+  requestStudentJson<{ saved_at: string; remaining_seconds: number }>(`/api/v1/student/attempts/${attemptId}/answers`, {
+    method: 'PUT',
+    body: JSON.stringify({ answers }),
+  });
 export const reportEvents = (
   attemptId: string,
   events: Array<{ type: ClientEventType; client_at: string; detail?: Record<string, number> }>,

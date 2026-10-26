@@ -20,12 +20,7 @@ import type { Request } from 'express';
 import { AuthenticatedUser, RequirePermission } from '../authentication/authentication.guard.js';
 import type { CurrentUser } from '../authentication/current-user.js';
 import { originOf } from '../common/audit-log.js';
-import {
-  isUuid,
-  readInteger,
-  readRequiredUuid,
-  type RequestBody,
-} from '../common/request-fields.js';
+import { isUuid, readInteger, readRequiredUuid, type RequestBody } from '../common/request-fields.js';
 import { uuidParameter } from '../common/uuid-parameter.js';
 import {
   ONLINE_EXAM_LEVELS,

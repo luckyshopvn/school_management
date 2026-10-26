@@ -136,8 +136,7 @@ export function createFaceWatch(options: FaceWatchOptions = {}) {
         }
         entry.since ??= now;
         const elapsed = now - entry.since;
-        const due =
-          entry.lastReport === null ? elapsed >= thresholds[type] : now - entry.lastReport >= repeatMs;
+        const due = entry.lastReport === null ? elapsed >= thresholds[type] : now - entry.lastReport >= repeatMs;
         if (due) {
           entry.lastReport = now;
           signals.push({ type, duration_ms: elapsed, faces });

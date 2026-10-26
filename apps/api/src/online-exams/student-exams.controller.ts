@@ -60,11 +60,7 @@ export class StudentExamsController {
 
   @Post('attempts/:id/events')
   @HttpCode(200)
-  events(
-    @Param('id', idPipe()) id: string,
-    @Body() body: RequestBody,
-    @AuthenticatedUser() currentUser: CurrentUser,
-  ) {
+  events(@Param('id', idPipe()) id: string, @Body() body: RequestBody, @AuthenticatedUser() currentUser: CurrentUser) {
     return this.service.recordEvents(currentUser, id, readEvents(body?.events));
   }
 

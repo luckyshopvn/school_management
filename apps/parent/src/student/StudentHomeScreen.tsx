@@ -35,7 +35,10 @@ const formatTime = (iso: string) =>
 
 function ResultPanel({ result, onClose }: { result: AttemptResult; onClose(): void }) {
   return (
-    <section aria-label={`Kết quả ${result.title}`} className="flex flex-col gap-3 rounded-xl border border-border bg-card p-4">
+    <section
+      aria-label={`Kết quả ${result.title}`}
+      className="flex flex-col gap-3 rounded-xl border border-border bg-card p-4"
+    >
       <h2 className="text-label font-semibold text-text">Kết quả: {result.title}</h2>
       {result.visible ? (
         <>

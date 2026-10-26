@@ -23,6 +23,7 @@ import { CurrentSchoolYearResolver } from '../common/current-school-year.js';
 import { notFoundError } from '../common/request-fields.js';
 import { OPTION_KEYS, createRandom, type VariantItem } from '../exams/exam-rules.js';
 import { AttemptEngine, variantTypes, type ExamContent } from './attempt-engine.js';
+import { ExamRateLimiter } from './exam-rate-limit.js';
 import {
   attemptDeadline,
   buildAttemptLayout,
@@ -96,6 +97,7 @@ export class StudentExamsService {
     private readonly currentSchoolYear: CurrentSchoolYearResolver,
     private readonly engine: AttemptEngine,
     private readonly clock: Clock,
+    private readonly limiter: ExamRateLimiter,
   ) {}
 
   // Học sinh của người gọi: tài khoản nối đúng một học sinh đang học, đã xếp lớp, cấp học còn bật thi trực tuyến
@@ -108,7 +110,10 @@ export class StudentExamsService {
       .where('identity_user_id', '=', currentUser.id)
       .executeTakeFirst();
     if (!account) {
-      throw new ApplicationError('ERR_FORBIDDEN', 'Tài khoản chưa nối với hồ sơ học sinh, nhờ nhà trường cấp lại mật khẩu');
+      throw new ApplicationError(
+        'ERR_FORBIDDEN',
+        'Tài khoản chưa nối với hồ sơ học sinh, nhờ nhà trường cấp lại mật khẩu',
+      );
     }
     const child = await database
       .selectFrom('children')
@@ -230,15 +235,13 @@ export class StudentExamsService {
               ? 'open'
               : 'closed';
         const counted = countedAttempt(
-          mine.map(
-            (attempt): AttemptScore => ({
-              id: attempt.id,
-              status: attempt.status,
-              submitted_at: attempt.submitted_at,
-              total: attempt.total_score === null ? null : Number(attempt.total_score),
-              objective: attempt.objective_score === null ? null : Number(attempt.objective_score),
-            }),
-          ),
+          mine.map((attempt): AttemptScore => ({
+            id: attempt.id,
+            status: attempt.status,
+            submitted_at: attempt.submitted_at,
+            total: attempt.total_score === null ? null : Number(attempt.total_score),
+            objective: attempt.objective_score === null ? null : Number(attempt.objective_score),
+          })),
           assignment.attempt_policy,
         );
         const visible =
@@ -558,6 +561,7 @@ export class StudentExamsService {
   // Lưu nháp từng câu: chỉ các câu gửi lên được ghi đè, câu khác giữ nguyên
   async saveAnswers(currentUser: CurrentUser, attemptId: string, raw: unknown) {
     const student = await this.resolve(currentUser);
+    this.limiter.hit(student.childId);
     const attempt = await this.activeAttempt(currentUser, student, attemptId);
     if (attempt.status !== 'in_progress') {
       throw ruleViolationError(ONLINE_EXAM_RULE_CODE, 'Bài đã nộp hoặc đã hết giờ, không lưu thêm được', [
@@ -596,9 +600,17 @@ export class StudentExamsService {
     const content: ExamContent = await this.engine.loadContent(student.database, assignment.exam_id);
     const variant = content.variants.find((row) => row.code === attempt.variant_code);
     const types = variantTypes(variant ?? { items: [] }, content);
-    const { answers, errors } = normalizeAnswers(raw, attempt.layout as AttemptLayout, types.byNumber, types.trueFalseCounts);
+    const { answers, errors } = normalizeAnswers(
+      raw,
+      attempt.layout as AttemptLayout,
+      types.byNumber,
+      types.trueFalseCounts,
+    );
     if (errors.length > 0) {
-      const details: FieldError[] = errors.map((error) => ({ field: `answers.${error.number}`, message: error.message }));
+      const details: FieldError[] = errors.map((error) => ({
+        field: `answers.${error.number}`,
+        message: error.message,
+      }));
       throw validationError(details);
     }
     return answers;
@@ -607,6 +619,7 @@ export class StudentExamsService {
   // Báo sự kiện rời bài và camera (chỉ loại, thời điểm và vài số đo; không có hình hay video)
   async recordEvents(currentUser: CurrentUser, attemptId: string, events: EventInput[]) {
     const student = await this.resolve(currentUser);
+    this.limiter.hit(student.childId);
     const attempt = await this.activeAttempt(currentUser, student, attemptId);
     const { database } = student;
     const assignment = await database
@@ -709,7 +722,13 @@ export class StudentExamsService {
       .executeTakeFirstOrThrow();
     const now = this.clock.now();
     const submitted = attempt.status === 'submitted';
-    const visible = resultsVisible(assignment.result_mode, now, assignment.closes_at, assignment.results_released_at, submitted);
+    const visible = resultsVisible(
+      assignment.result_mode,
+      now,
+      assignment.closes_at,
+      assignment.results_released_at,
+      submitted,
+    );
     const base = {
       attempt_id: attempt.id,
       title: assignment.title,
@@ -725,7 +744,12 @@ export class StudentExamsService {
     const variant = content.variants.find((row) => row.code === attempt.variant_code);
     const layout = attempt.layout as AttemptLayout;
     const answers = attempt.answers as Record<string, string[]>;
-    const results = attempt.results as Array<{ question_id: string; number: number; earned: number; correct: boolean | null }>;
+    const results = attempt.results as Array<{
+      question_id: string;
+      number: number;
+      earned: number;
+      correct: boolean | null;
+    }>;
     const showKeys = now >= assignment.closes_at;
     const items = new Map((variant?.items ?? []).map((item) => [item.number, item]));
     return {
@@ -804,7 +828,9 @@ export function readCameraState(raw: unknown): ExamCameraState {
     return 'off';
   }
   if (typeof raw !== 'string' || !(CAMERA_STATES as string[]).includes(raw)) {
-    throw validationError([{ field: 'camera_state', message: 'Tình trạng camera là off, granted, denied hoặc unavailable' }]);
+    throw validationError([
+      { field: 'camera_state', message: 'Tình trạng camera là off, granted, denied hoặc unavailable' },
+    ]);
   }
   return raw as ExamCameraState;
 }

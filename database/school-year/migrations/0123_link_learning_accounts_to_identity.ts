@@ -6,10 +6,7 @@ import type { Migration } from 'kysely/migration';
 // không nhận tài khoản đó nữa (kiểm tra trạng thái học sinh ở mỗi yêu cầu của tuyến /student/*)
 export const migration: Migration = {
   async up(database) {
-    await database.schema
-      .alterTable('student_learning_accounts')
-      .addColumn('identity_user_id', 'uuid')
-      .execute();
+    await database.schema.alterTable('student_learning_accounts').addColumn('identity_user_id', 'uuid').execute();
     await sql`create unique index student_learning_accounts_identity_index
       on student_learning_accounts (identity_user_id) where identity_user_id is not null`.execute(database);
   },

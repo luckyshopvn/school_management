@@ -9,13 +9,39 @@ import type { Migration } from 'kysely/migration';
 // - quyền P02.exam.take (làm bài thi trực tuyến) chỉ của VT-21; học sinh không có quyền nào khác;
 // - quyền P02.exam.assign (giao đề thi trực tuyến, theo dõi bài làm, cấu hình thi trực tuyến) cho người chấm bài kiểm tra:
 //   Hiệu trưởng, Phó Hiệu trưởng, giáo viên chủ nhiệm, giáo viên bộ môn, tổ trưởng chuyên môn;
-// - phân hệ "Thi trực tuyến" của cổng quản trị không hiện cho Phụ huynh (VT-14).
+// - phân hệ "Thi trực tuyến" của cổng quản trị không hiện cho Phụ huynh (VT-14); học sinh (VT-21) không dùng cổng quản trị nên
+//   không có phân hệ nào.
 const WORKSPACE_KEY = 'online-exam';
+const ALL_WORKSPACE_KEYS = [
+  'education',
+  'facilities',
+  'entry-admissions',
+  'emis',
+  'signing',
+  'documents',
+  'system',
+  'finance',
+  'personnel',
+  'logistics',
+  'interaction',
+  'teaching',
+  'admissions',
+  'reports',
+  'kpi',
+  'website',
+  'professional-records',
+  'emulation',
+  'quality-assurance',
+  'library',
+  'learning-resources',
+  WORKSPACE_KEY,
+];
 const STUDENT_ROLE = { code: 'VT-21', name: 'Học sinh' };
 const PERMISSIONS = [
   {
     code: 'P02.exam.assign',
-    description: 'Thi trực tuyến: giao đề đã khoá cho lớp, học sinh; theo dõi bài làm; cấu hình thi trực tuyến theo cấp',
+    description:
+      'Thi trực tuyến: giao đề đã khoá cho lớp, học sinh; theo dõi bài làm; cấu hình thi trực tuyến theo cấp',
     roles: ['VT-02', 'VT-07', 'VT-08', 'VT-15', 'VT-17'],
   },
   {
@@ -44,9 +70,16 @@ export const migration: Migration = {
     await sql`insert into role_workspace_exclusions (role_id, workspace_key)
       select roles.id, ${WORKSPACE_KEY} from roles where roles.code = 'VT-14'
       on conflict do nothing`.execute(database);
+    for (const key of ALL_WORKSPACE_KEYS) {
+      await sql`insert into role_workspace_exclusions (role_id, workspace_key)
+        select roles.id, ${key} from roles where roles.code = ${STUDENT_ROLE.code}
+        on conflict do nothing`.execute(database);
+    }
   },
   async down(database) {
     await sql`delete from role_workspace_exclusions where workspace_key = ${WORKSPACE_KEY}`.execute(database);
+    await sql`delete from role_workspace_exclusions where role_id in
+      (select id from roles where code = ${STUDENT_ROLE.code})`.execute(database);
     const codes = PERMISSIONS.map((permission) => permission.code);
     await sql`delete from role_permissions where permission_id in
       (select id from permissions where code in (${sql.join(codes)}))`.execute(database);

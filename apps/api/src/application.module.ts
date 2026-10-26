@@ -490,6 +490,7 @@ import { ZaloSender } from './integrations/zalo-sender.js';
 import { ZaloTokenStore } from './integrations/zalo-token-store.js';
 // Thi trực tuyến cho học sinh (DT-23 phần 23a)
 import { AttemptEngine } from './online-exams/attempt-engine.js';
+import { ExamRateLimiter } from './online-exams/exam-rate-limit.js';
 import { OnlineExamsController } from './online-exams/online-exams.controller.js';
 import { OnlineExamsService } from './online-exams/online-exams.js';
 import { StudentExamsController } from './online-exams/student-exams.controller.js';
@@ -1169,6 +1170,7 @@ export class ApplicationModule {
         },
         // Thi trực tuyến cho học sinh (DT-23 phần 23a)
         AttemptEngine,
+        ExamRateLimiter,
         OnlineExamsService,
         StudentExamsService,
       ],

@@ -168,9 +168,15 @@ export function normalizeAnswers(
         errors.push({ number, message: 'Mỗi ý chỉ chọn Đ hoặc S' });
         continue;
       }
-      answers[key] = entries.some((entry) => entry !== '') ? Array.from({ length: count }, (_u, i) => entries[i] ?? '') : [];
+      answers[key] = entries.some((entry) => entry !== '')
+        ? Array.from({ length: count }, (_u, i) => entries[i] ?? '')
+        : [];
     } else {
-      const keys = labelsToKeys(layout, number, entries.filter((entry) => entry !== ''));
+      const keys = labelsToKeys(
+        layout,
+        number,
+        entries.filter((entry) => entry !== ''),
+      );
       if (keys === null) {
         errors.push({ number, message: 'Lựa chọn không có trong câu' });
         continue;
