@@ -20,7 +20,7 @@
 
 - Đọc mục 15 của `32_KE_HOACH_THEO_HE_THONG_SO.md` (15.3, 15.4 phần 23a, 15.6, GD-105, GD-106); rà kênh đăng nhập, `student_learning_accounts`, ngân hàng câu hỏi và đề (22g1), bài kiểm tra lớp và phiếu chấm (22g2), sổ điểm một cửa.
 - Cơ sở dữ liệu: năm học `0120` đến `0123`, định danh `0120`, `0121`. Dịch vụ định danh: kênh `student`, vai trò VT-21, đồng bộ người dùng học sinh khi cấp tài khoản học và thi. Máy chủ API: hàm thuần (xếp câu, hạn nộp, đếm lần rời bài, lượt được tính), lõi chấm và chốt lượt, phía học sinh, phía giáo viên, đánh dấu tuyến học sinh. Cổng quản trị: phân hệ "Thi trực tuyến" (giao đề, theo dõi, cấu hình). Ứng dụng phụ huynh: màn hình học sinh (đăng nhập, mật khẩu mới, danh sách bài, phòng làm bài toàn màn hình có camera).
-- Thêm quy tắc BR-237, chức năng P02-82 đến P02-85, quyền PQ-109, biện pháp BM-97 đến BM-99, màn hình MH-342 đến MH-347, kịch bản CT-1097 đến CT-1106, tiêu chí AC-874 đến AC-878. Kết quả ngày 26/10/2026: kiểm thử đơn vị `apps/api/src/online-exams/online-exam-rules.test.ts` (CT-23a-1a đến CT-23a-1h) và `online-exams.test.ts` (CT-23a-2 đến CT-23a-9) đạt; kiểm thử đơn vị toàn kho đạt (lượt đầy đủ 1.441/1.441 trước khi gộp main; sau khi gộp, bộ 23a, 22g, tenancy-matrix, định danh 81/81 và 134/134); kiểm thử giao diện `tests/e2e/150-online-exams.spec.ts` (CT-23a-10) cùng 02, 03, 07, 58, 101 đạt; toàn bộ kiểm thử giao diện để CI chạy toàn bộ; trên máy chạy riêng 02, 03, 06, 07, 08, 58, 83, 101 và 150 đạt; kiểm tĩnh đa thuê bao, ma trận cách ly, kiểm thử hai bố cục cơ sở dữ liệu `database` và `schema`, build, kiểm tra kiểu, lint, kiểm tra định dạng đạt.
+- Thêm quy tắc BR-237, chức năng P02-82 đến P02-85, quyền PQ-109, biện pháp BM-97 đến BM-99, màn hình MH-342 đến MH-347, kịch bản CT-1097 đến CT-1107, tiêu chí AC-874 đến AC-879. Kết quả ngày 26/10/2026: kiểm thử đơn vị `apps/api/src/online-exams/online-exam-rules.test.ts` (CT-23a-1a đến CT-23a-1h) và `online-exams.test.ts` (CT-23a-2 đến CT-23a-9) đạt; kiểm thử đơn vị toàn kho đạt (lượt đầy đủ 1.441/1.441 trước khi gộp main; sau đó bộ 23a, 22g, tenancy-matrix, định danh đạt); kiểm thử giao diện `tests/e2e/150-online-exams.spec.ts` (CT-23a-10) cùng 02, 03, 07, 58, 101 đạt; toàn bộ kiểm thử giao diện để CI chạy toàn bộ; trên máy chạy riêng 02, 03, 06, 07, 08, 58, 83, 101 và 150 đạt; kiểm tĩnh đa thuê bao, ma trận cách ly, kiểm thử hai bố cục cơ sở dữ liệu `database` và `schema`, build, kiểm tra kiểu, lint, kiểm tra định dạng đạt.
 
 #### Quyết định
 
@@ -28,7 +28,7 @@
 
 #### Thay đổi
 
-- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-211, `07_QUY_TAC_NGHIEP_VU.md` BR-237, `08_VAI_TRO_NGUOI_DUNG.md` PQ-109, `10_YEU_CAU_CHUC_NANG.md` P02-82 đến P02-85, `11_TIEU_CHI_NGHIEM_THU.md` AC-874 đến AC-878, `14_DAC_TA_GIAO_DIEN.md` MH-342 đến MH-347, `16_CO_SO_DU_LIEU.md`, `17_DAC_TA_API.md`, `21_KICH_BAN_KIEM_THU.md` CT-1097 đến CT-1106, `22_BAO_MAT.md` BM-97 đến BM-99, `23_LICH_SU_PHIEN_BAN.md` 0.144.0.
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-211, `07_QUY_TAC_NGHIEP_VU.md` BR-237, `08_VAI_TRO_NGUOI_DUNG.md` PQ-109, `10_YEU_CAU_CHUC_NANG.md` P02-82 đến P02-85, `11_TIEU_CHI_NGHIEM_THU.md` AC-874 đến AC-879, `14_DAC_TA_GIAO_DIEN.md` MH-342 đến MH-347, `16_CO_SO_DU_LIEU.md`, `17_DAC_TA_API.md`, `21_KICH_BAN_KIEM_THU.md` CT-1097 đến CT-1107, `22_BAO_MAT.md` BM-97 đến BM-99, `23_LICH_SU_PHIEN_BAN.md` 0.144.0.
 
 #### Vấn đề tồn đọng
 
