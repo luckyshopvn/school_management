@@ -3,6 +3,7 @@ import { existsSync } from 'node:fs';
 import { readFile } from 'node:fs/promises';
 import { basename } from 'node:path';
 import { CATALOG_QUALITY_FLAGS, importSchoolCatalog } from './school-catalog.js';
+import { generateVapidKeyPair, rotateVapidKeys } from './push-keys.js';
 import { adoptExistingSchool, hostFromSiteSetting } from './adopt-existing.js';
 import { createDatabase } from './connection.js';
 import { readConnectionString } from './environment.js';
@@ -89,6 +90,11 @@ import type { PlatformDatabase } from '../platform/schema.js';
 // Danh mục đơn vị toàn quốc (DT-24, YCTD-220; tài liệu 32 mục 16.6):
 //   catalog-import --units <tệp.csv> [--communes <tệp.csv>] [--source <tên nguồn>] [--dry-run] [--deactivate-missing]
 //                                      nhập hoặc cập nhật danh mục (so theo mã Bộ), in báo cáo thêm, sửa, giữ nguyên, bỏ qua
+// Thông báo đẩy Web Push (DT-26 phần 26b, YCTD-232):
+//   generate-vapid-keys --subject mailto:<thư> [--print-only]
+//                                      sinh cặp khóa VAPID của nền tảng, lưu khóa riêng mã hóa bằng khóa gốc ở cơ sở dữ liệu nền tảng
+//                                      (thay khóa đang dùng; đăng ký đẩy cũ phải đăng ký lại), in khóa công khai; --print-only in cả
+//                                      hai khóa để đặt vào VAPID_PUBLIC_KEY, VAPID_PRIVATE_KEY của bản một trường, không ghi cơ sở dữ liệu
 //   catalog-seed                       máy phát triển: nạp từ CATALOG_UNITS_FILE, CATALOG_COMMUNES_FILE (mặc định tệp khảo sát ở
 //                                      ../.claude/logs-khaosat-csdl-moet và ../.claude/logs-khaosat-smis); không có tệp thì bỏ qua
 
@@ -533,6 +539,22 @@ async function main(): Promise<void> {
     console.log('platform: đã ở phiên bản cấu trúc mới nhất');
     return;
   }
+  if (command === 'generate-vapid-keys') {
+    if (args.includes('--print-only')) {
+      const pair = generateVapidKeyPair();
+      console.log(`VAPID_PUBLIC_KEY=${pair.publicKey}`);
+      console.log(`VAPID_PRIVATE_KEY=${pair.privateKey}`);
+      return;
+    }
+    const platform = createDatabase<PlatformDatabase>(readConnectionString('platform'), { max: 2 });
+    try {
+      const { publicKey } = await rotateVapidKeys(platform, readMasterKey(process.env), required('subject'));
+      console.log(`Đã sinh khóa VAPID mới của nền tảng; khóa công khai: ${publicKey}`);
+    } finally {
+      await platform.destroy();
+    }
+    return;
+  }
   if (command === 'catalog-import' || command === 'catalog-seed') {
     await catalogCommand();
     return;
@@ -590,7 +612,7 @@ async function main(): Promise<void> {
     return;
   }
   throw new Error(
-    'Lệnh: generate-master-key | migrate | adopt-existing | provision | provision-resume | provision-rollback | suspend | resume | request-deletion | cancel-deletion | purge-due | reissue-invitation | verify-domain | migrate-schools | relayout | backup-school | verify-backup | restore-school | restore-drill | move-school | catalog-import | catalog-seed',
+    'Lệnh: generate-master-key | migrate | adopt-existing | provision | provision-resume | provision-rollback | suspend | resume | request-deletion | cancel-deletion | purge-due | reissue-invitation | verify-domain | migrate-schools | relayout | backup-school | verify-backup | restore-school | restore-drill | move-school | catalog-import | catalog-seed | generate-vapid-keys',
   );
 }
 

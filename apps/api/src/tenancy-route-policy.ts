@@ -111,6 +111,8 @@ export const PUBLIC_ROUTES: PublicRoute[] = [
     '/api/v1/public/site/van-ban',
     '/api/v1/public/site/van-ban/:id/tep',
   ].map((path) => get(path, 'Website công khai của trường (18f), theo tên miền của trường')),
+  // Thông báo đẩy (DT-26 phần 26b): khóa công khai VAPID của nền tảng, không có dữ liệu của trường
+  get('/api/v1/public/push/vapid-public-key', 'Khóa công khai VAPID cho đăng ký đẩy, không có dữ liệu của trường'),
   post(
     '/api/v1/public/site/lien-he',
     'Biểu mẫu liên hệ của website công khai, theo tên miền của trường; có giới hạn tần suất',

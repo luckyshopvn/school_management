@@ -464,3 +464,13 @@ export type { BackupRunKind, BackupRunStatus } from '../platform/schema.js';
 // Danh mục đơn vị toàn quốc, quyền truy cập của quản trị nền tảng (DT-24)
 export * from './school-catalog.js';
 export type { SupportAccessBasis } from '../platform/schema.js';
+// Khóa VAPID của nền tảng cho thông báo đẩy (DT-26 phần 26b)
+export * from './push-keys.js';
+export type { PlatformPushKeysTable } from '../platform/schema.js';
+export type {
+  NotificationPreferencesTable,
+  NotificationUrgentTemplatesTable,
+  PushSubscriptionApp,
+  PushSubscriptionKind,
+  PushSubscriptionsTable,
+} from '../system/schema.js';
