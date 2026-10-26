@@ -25,5 +25,11 @@
     "prettier": "^3.6.0",
     "typescript": "~6.0.3",
     "typescript-eslint": "^8.71.0"
+  },
+  "pnpm": {
+    "overrides": {
+      "multer@<2.5.0": "^2.5.0",
+      "body-parser@>=2.0.0 <2.4.0": "^2.4.0"
+    }
   }
 }
