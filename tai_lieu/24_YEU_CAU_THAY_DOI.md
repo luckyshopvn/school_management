@@ -1,7 +1,7 @@
 # 24. YÊU CẦU THAY ĐỔI
 
 - Mô tả: Sổ quản lý yêu cầu thay đổi, ghi lý do, đánh giá ảnh hưởng và trạng thái của từng thay đổi trước khi triển khai.
-- Phiên bản: 0.71
+- Phiên bản: 0.72
 - Ngày cập nhật: 2026-10-26
 - Trạng thái: Đang cập nhật
 
@@ -10,6 +10,24 @@
 Mã yêu cầu thay đổi dạng `YCTD-nn`, đánh số tăng dần, không tái sử dụng. Mục mới nhất ở trên cùng. Trạng thái dùng bốn giá trị: Chờ phê duyệt, Đã phê duyệt, Từ chối, Đã triển khai.
 
 Các thay đổi trước phiên bản 0.4.0 chưa có sổ này; xem `23_LICH_SU_PHIEN_BAN.md` các phiên bản 0.1.0 đến 0.3.1.
+
+### YCTD-270: Kế hoạch DT-28: nhóm học tập, học nhóm trực tuyến, bài tập và bài về nhà – 2026-10-26
+
+- Lý do: Eric yêu cầu ngày 2026-10-26 bốn tính năng: giáo viên chia nhóm trong lớp, học nhóm trực tuyến, làm bài tập trực tuyến, giao bài tập về nhà, xây trên các phần đã có. Trong mã đã có nhóm học sinh của DT-14c, chia nhóm `jsonb` của 23b, tiết nhóm của 21b, ngân hàng câu hỏi và hàm chấm 22g1, 22g2, thang tiêu chí 22h2, sổ đầu bài, sổ điểm; đang làm 23a (kênh học sinh), 23d (AI); đã lên kế hoạch 26a (PWA), 27a (video). Chưa có chỗ nào cho bài tập về nhà.
+- Nội dung thay đổi (Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11 ở những chỗ Eric chưa quyết):
+  - `32_KE_HOACH_THEO_HE_THONG_SO.md` phiên bản 1.77: thêm mục 20 "DT-28" (sau mục 19 của DT-27; mục 16, 17 vẫn để cho DT-24, DT-25): căn cứ và hiện trạng mã (20.1), căn cứ pháp lý đã đọc kèm nguồn, ngày đọc, mức đọc và ràng buộc sản phẩm (20.2: Thông tư 15/2026/TT-BGDĐT đọc bản gốc một phần, Thông tư 22/2021/TT-BGDĐT Điều 6, 7 qua bản đăng lại, Thông tư 27/2020/TT-BGDĐT theo tóm tắt của 20c, Công văn 3977/BGDĐT-GDTH và quy định học 2 buổi/ngày chưa xác minh, Luật 91/2025/QH15 và Nghị định 356/2025/NĐ-CP theo S8a), nguyên tắc (20.3), bảy phần 28a đến 28g trong ba đợt có phân tệp lõi và điều kiện ra (20.4), phạm vi chi tiết (20.5), phương án đã loại (20.6), rủi ro (20.7), quy ước (20.8), tiến độ (20.9), việc Eric phải quyết E-01 đến E-04 (20.10), giả định GD-140 đến GD-150 (20.11).
+  - Số giữ sẵn: YCTD-270 cho chính bản kế hoạch này; 28a YCTD-271, 28b YCTD-272, 28c YCTD-273, 28d YCTD-274, 28e YCTD-275, 28f YCTD-276, 28g YCTD-277; YCTD-278 đến YCTD-284 dự phòng; migration năm học 0170 đến 0189, định danh 0180 đến 0189, hệ thống 0110 đến 0114 và nền tảng 0250 đến 0254 chỉ giữ chỗ; e2e `210-` đến `216-`, `217-` đến `219-` dự phòng; GD-140 đến GD-150; RR-32 đến RR-35. Đặt sau dải của DT-27 (PR 179) và các số của PR 181, 182 đang mở.
+  - Đợt 1: 28a (làm ngay), 28b (khi 23a gộp); đợt 2: 28c, 28d, 28f (phần AI khi 23d gộp); đợt 3: 28e (khi 27a gộp), 28g (khi 26a gộp).
+  - Quyết định thiết kế: mở rộng `child_groups` thêm bộ nhóm `group_sets` dùng chung cho công cụ lớp học, giao bài, giao đề, không gian và phòng nhóm (chia lại tạo bộ mới, bộ cũ vào lịch sử; 23b chuyển sang bộ nhóm); bài tập có bảng giao và bài nộp riêng, dùng câu đã duyệt và hàm chấm của 22g1, 22g2, thang tiêu chí 22h2, màn hình học sinh 23a; bài nhóm một bài nộp cho cả nhóm kèm đánh giá đóng góp; điểm chỉ vào đánh giá thường xuyên qua `ScoresService` khi giáo viên xác nhận, tắt mặc định, Tiểu học chỉ nhận xét; bài về nhà giao từ sổ đầu bài, giới hạn khối lượng là cấu hình có ô căn cứ (lớp 1 chặn mặc định); phụ huynh theo dõi và nộp thay; không gian học nhóm thay cho nhắn tin giữa học sinh, giáo viên luôn thấy, giờ mở, lọc, báo cáo; video nhóm và phòng chia nhỏ dùng bộ nối 27a; AI gợi ý nhận xét mặc định không đọc bài làm.
+  - `01_KE_HOACH_TONG_THE.md` phiên bản 1.70: đợt DT-28, RR-32 đến RR-35, GD-140 đến GD-150; `02_NHAT_KY_DU_AN.md` (0.74), `34_TONG_HOP_CHUC_NANG_HE_THONG/01_TONG_QUAN_VA_NEN_TANG.md` (mục 9 kế hoạch DT-28), `index.md` cập nhật tương ứng.
+- Thành phần bị ảnh hưởng: tài liệu `01`, `02`, `24`, `32`, `34`, `index.md`. Không đổi mã nguồn.
+- Dữ liệu bị ảnh hưởng: không.
+- API bị ảnh hưởng: không.
+- Giao diện bị ảnh hưởng: không.
+- Quyền bị ảnh hưởng: không.
+- Ảnh hưởng chức năng cũ: không. Phiên bản phần mềm giữ nguyên (thay đổi chỉ tài liệu); số phiên bản tài liệu đặt trên số của nhánh chính lúc viết; gộp sau thì đánh lại theo nhánh chính lúc gộp.
+- Kiểm thử cần thực hiện: rà bảng đủ cột; số YCTD, migration, e2e, GD, RR giữ sẵn không trùng DT-23, DT-26, DT-27 và các số đã thấy của PR 181, 182; kiểm tra định dạng tài liệu đạt.
+- Trạng thái: Đã triển khai
 
 ### YCTD-250: Kế hoạch DT-27: nền tảng gia sư trực tuyến – 2026-10-26
 

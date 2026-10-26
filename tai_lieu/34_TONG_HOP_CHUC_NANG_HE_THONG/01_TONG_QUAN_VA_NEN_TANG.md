@@ -1,6 +1,6 @@
 # 34.1. TỔNG QUAN, KIẾN TRÚC VÀ NỀN TẢNG CHUNG
 
-- Mô tả: Mục tiêu, đối tượng dùng, cấp học, kiến trúc, đăng nhập và phân quyền, chọn phân hệ, thông báo, DT-SaaS đa thuê bao, kế hoạch DT-23, DT-26 và DT-27
+- Mô tả: Mục tiêu, đối tượng dùng, cấp học, kiến trúc, đăng nhập và phân quyền, chọn phân hệ, thông báo, DT-SaaS đa thuê bao, kế hoạch DT-23, DT-26, DT-27 và DT-28
 - Phiên bản: 1.0
 - Ngày cập nhật: 2026-10-26
 - Trạng thái: Chờ phê duyệt
@@ -810,3 +810,17 @@ Nguồn: tài liệu 32 mục 19, YCTD-250. Mục này chỉ ghi để người 
 | 27g Hồ sơ và xác minh gia sư | 4 | Xác minh danh tính (OIDC, VNeID), bằng cấp, lý lịch tư pháp, đăng ký kinh doanh, trang công khai theo Mẫu 02, tìm kiếm, đánh giá | Chưa có |
 | 27h Đặt buổi, thanh toán, tranh chấp | 4 | Thanh toán qua tổ chức có giấy phép hoặc trả thẳng gia sư, hoa hồng, giải ngân, hoàn tiền, tranh chấp, khấu trừ thuế cấu hình | Chưa có |
 | 27i An toàn trẻ em ở chợ | 4 | Tin nhắn luôn có phụ huynh, lọc liên lạc ngoài, báo cáo vi phạm, kiểm duyệt | Chưa có |
+
+## 9. DT-28: kế hoạch (chưa có trong mã)
+
+Nguồn: tài liệu 32 mục 20, YCTD-270. Mục này chỉ ghi để người đọc biết phần sắp làm; chưa có bảng, tuyến hay màn hình nào trong mã. Khi từng phần gộp, chuyển phần đó sang các mục mô tả theo mã.
+
+| Phần | Đợt | Nội dung kế hoạch (tài liệu 32 mục 20.4) | Dấu hiệu trong mã |
+|---|---|---|---|
+| 28a Mô hình nhóm dùng chung | 1 | Bộ nhóm theo lớp, môn, mục đích; chia tay, ngẫu nhiên, theo năng lực, cân bằng giới, ràng buộc; nhóm trưởng; lịch sử; công cụ lớp học 23b dùng bộ nhóm | `child_groups`, `child_group_members` (DT-14c), `classroom_groupings` (23b) có sẵn để mở rộng, dời dữ liệu |
+| 28b Bài tập trực tuyến | 1 | Trắc nghiệm từ ngân hàng 22g1 chấm bằng hàm 22g2, tự luận, ảnh, tệp, ghi âm, học liệu; phân hóa; bài nhóm; nộp muộn, nộp lại; thang tiêu chí; trả bài; đích nhóm cho đề 23a | `questions`, `grading-rules.ts`, `rubrics`, màn hình học sinh của 23a (đang làm) |
+| 28c Bài về nhà và phụ huynh | 2 | Giao từ tiết trong sổ đầu bài, giới hạn khối lượng theo cấp, khối, ngày; phụ huynh xem, nộp thay, nhận nhắc | `class_logs`, `timetable_lessons`, hàng đợi `notifications` có sẵn |
+| 28d Không gian học nhóm | 2 | Thảo luận, tệp chung, chia việc, ghi chú; giáo viên luôn thấy, giờ mở, lọc, báo cáo vi phạm | Chưa có |
+| 28e Phòng video nhóm, phòng chia nhỏ | 3 | Phòng nhóm và phòng con qua bộ nối video của 27a, giáo viên quan sát (luôn hiện) | Chưa có (chờ 27a) |
+| 28f Kết quả, sổ điểm, gợi ý nhận xét | 2 | Điểm thường xuyên qua `ScoresService` nguồn `assignment` khi giáo viên xác nhận; nhận xét Tiểu học vào `regular_comments`; thống kê; nhận xét nháp bằng AI 23d | `score_entries`, `regular_comments` có sẵn |
+| 28g Làm bài khi mạng yếu | 3 | Bản nháp và tệp chờ gửi của học sinh lưu trên máy, hàng đợi gửi lại (vỏ PWA 26a) | Chưa có (chờ 26a) |
