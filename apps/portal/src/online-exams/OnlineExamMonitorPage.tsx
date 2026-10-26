@@ -21,6 +21,8 @@ import { menuPageTitle } from '../pages/page-title.js';
 import { messageOf } from '../exams/exam-filters.js';
 import {
   assignmentAction,
+  closeRoom,
+  openRoom,
   forceSubmit,
   listAssignments,
   markEssay,
@@ -263,6 +265,14 @@ export function OnlineExamMonitorPage() {
       setToastMessage(name === 'cancel' ? 'Đã huỷ bài thi' : 'Đã công bố kết quả cho học sinh');
     },
   });
+  const room = useMutation({
+    mutationFn: (input: { kind: 'open' } | { kind: 'close'; roomId: string }) =>
+      input.kind === 'open' ? openRoom(selectedId) : closeRoom(input.roomId),
+    onSuccess: async (data, input) => {
+      queryClient.setQueryData(['online-exam-assignment', selectedId], data);
+      setToastMessage(input.kind === 'open' ? 'Đã mở phòng thi' : 'Đã đóng phòng thi');
+    },
+  });
   const data = detail.data;
   return (
     <AppShell>
@@ -294,6 +304,7 @@ export function OnlineExamMonitorPage() {
             </label>
             {detail.error ? <Alert tone="danger">{messageOf(detail.error)}</Alert> : null}
             {action.error ? <Alert tone="danger">{messageOf(action.error)}</Alert> : null}
+            {room.error ? <Alert tone="danger">{messageOf(room.error)}</Alert> : null}
             {data ? (
               <>
                 <section aria-label="Cấu hình bài thi" className="flex flex-col gap-1 text-content text-text">
@@ -335,6 +346,49 @@ export function OnlineExamMonitorPage() {
                     )}
                   </div>
                 </section>
+                {data.exam_mode === 'at-school' ? (
+                  <section aria-label="Phòng thi" className="flex flex-col gap-2 rounded border border-border p-3">
+                    <h2 className="text-section-title font-semibold text-text">Phòng thi</h2>
+                    <p className="text-label text-text-secondary">
+                      Thi tại trường: giám thị mở phòng, đọc mã cho học sinh; học sinh chỉ vào bài khi nhập mã phòng
+                      đang mở (và từ mạng của trường nếu trường cấu hình). Đóng phòng thì không vào được nữa.
+                    </p>
+                    {data.status === 'published' ? (
+                      <div>
+                        <Button onClick={() => room.mutate({ kind: 'open' })} disabled={room.isPending}>
+                          Mở phòng thi
+                        </Button>
+                      </div>
+                    ) : null}
+                    <ul className="flex flex-col gap-1 text-content text-text">
+                      {data.rooms.length === 0 ? <li className="text-text-secondary">Chưa mở phòng thi nào.</li> : null}
+                      {data.rooms.map((item) => (
+                        <li key={item.id} className="flex flex-wrap items-center gap-3">
+                          <span>
+                            Mã phòng <strong aria-label="Mã phòng thi">{item.code}</strong>
+                          </span>
+                          <StatusBadge
+                            tone={item.open ? 'success' : 'neutral'}
+                            label={item.open ? 'Đang mở' : 'Đã đóng'}
+                          />
+                          <span>
+                            Hết hạn {formatTime(item.expires_at)}; đã vào {item.entered}/{item.students}
+                          </span>
+                          {item.open ? (
+                            <Button
+                              onClick={() => room.mutate({ kind: 'close', roomId: item.id })}
+                              disabled={room.isPending}
+                            >
+                              Đóng phòng thi
+                            </Button>
+                          ) : null}
+                        </li>
+                      ))}
+                    </ul>
+                  </section>
+                ) : (
+                  <Alert tone="info">Bài thi từ xa: học sinh vào bài không cần mã phòng.</Alert>
+                )}
                 <div className="overflow-x-auto">
                   <table className="w-full text-content" aria-label="Học sinh được giao">
                     <thead className="text-left text-label font-medium text-text-secondary">

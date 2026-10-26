@@ -7,6 +7,7 @@ import {
   PROCTOR_EVENT_LABELS,
   type ExamAttemptPolicy,
   type ExamCameraFallback,
+  type ExamMode,
   type ExamResultMode,
   type ExamSingleSessionMode,
   type ExamVariantMode,
@@ -23,7 +24,14 @@ import { ExamGradingService } from '../exam-grading/exam-grading.js';
 import { OPTION_KEYS } from '../exams/exam-rules.js';
 import { AttemptEngine } from './attempt-engine.js';
 import { assertOnlineExamModule, ONLINE_EXAM_RULE_CODE } from './student-exams.js';
-import { countViolations, keysToLabels, windowState, type AttemptLayout } from './online-exam-rules.js';
+import {
+  countViolations,
+  generateRoomCode,
+  keysToLabels,
+  parseNetworkRange,
+  windowState,
+  type AttemptLayout,
+} from './online-exam-rules.js';
 
 // Phía giáo viên của thi trực tuyến (DT-23 phần 23a, YCTD-211): công tắc cho học sinh đăng nhập theo cấp, giao đề đã khoá cho lớp
 // hoặc học sinh, theo dõi bài làm (số lần rời bài, sự kiện camera, phiên thứ hai), chấm câu tự luận, nộp thay, công bố kết quả.
@@ -41,7 +49,7 @@ const MANAGE = PERMISSION_CODES.examManage;
 export const ONLINE_EXAM_LEVELS: SchoolLevelCode[] = ['TH', 'THCS', 'THPT'];
 
 // Nhật ký thao tác ghi mã thực thể dạng uuid; công tắc theo cấp khoá bằng mã cấp nên lấy uuid cố định từ mã cấp
-function settingEntityId(level: SchoolLevelCode): string {
+function settingEntityId(level: string): string {
   const hex = createHash('md5').update(`online_exam_settings:${level}`).digest('hex');
   return `${hex.slice(0, 8)}-${hex.slice(8, 12)}-${hex.slice(12, 16)}-${hex.slice(16, 20)}-${hex.slice(20, 32)}`;
 }
@@ -65,6 +73,8 @@ export interface AssignmentInput {
   camera_enabled: boolean;
   camera_fallback: ExamCameraFallback;
   single_session_mode: ExamSingleSessionMode;
+  // Chế độ thi; để trống là mặc định của trường (at-school)
+  exam_mode: ExamMode | null;
   term_type: 'first_term' | 'second_term';
   score_kind: 'regular' | 'mid' | 'final';
   score_seq: number;
@@ -152,6 +162,208 @@ export class OnlineExamsService {
     return this.settings();
   }
 
+  // Cấu hình thi trực tuyến của cả trường: chế độ thi mặc định, cho phép thi từ xa, dải mạng của trường, thời hạn mã phòng
+  async readSchoolSettings(database: Database) {
+    const row = await database.selectFrom('online_exam_school_settings').selectAll().executeTakeFirst();
+    return {
+      default_exam_mode: row?.default_exam_mode ?? ('at-school' as ExamMode),
+      allow_remote: row?.allow_remote ?? false,
+      allowed_networks: (row?.allowed_networks as string[] | undefined) ?? [],
+      room_code_minutes: row?.room_code_minutes ?? 60,
+      updated_by_name: row?.updated_by_name ?? null,
+      updated_at: row?.updated_at ?? null,
+    };
+  }
+
+  async schoolSettings() {
+    assertOnlineExamModule();
+    const { database } = await this.currentSchoolYear.require();
+    return this.readSchoolSettings(database);
+  }
+
+  async updateSchoolSettings(
+    currentUser: CurrentUser,
+    input: {
+      default_exam_mode: ExamMode;
+      allow_remote: boolean;
+      allowed_networks: string[];
+      room_code_minutes: number;
+    },
+    origin: ChangeOrigin,
+  ) {
+    assertOnlineExamModule();
+    if (!currentUser.hasPermission(MANAGE)) {
+      throw new ApplicationError(
+        'ERR_FORBIDDEN',
+        'Chỉ người quản lý đề, kiểm tra đặt chế độ thi và dải mạng của trường',
+      );
+    }
+    const invalid = input.allowed_networks.filter((text) => parseNetworkRange(text) === null);
+    if (invalid.length > 0) {
+      throw validationError([
+        { field: 'allowed_networks', message: `Dải mạng không hợp lệ: ${invalid.join(', ')} (ví dụ 10.0.0.0/8)` },
+      ]);
+    }
+    if (input.default_exam_mode === 'remote' && !input.allow_remote) {
+      throw validationError([
+        { field: 'default_exam_mode', message: 'Chế độ thi từ xa phải được bật trước khi đặt làm mặc định' },
+      ]);
+    }
+    const { database } = await this.currentSchoolYear.require();
+    const before = await this.readSchoolSettings(database);
+    const now = this.clock.now();
+    const values = {
+      default_exam_mode: input.default_exam_mode,
+      allow_remote: input.allow_remote,
+      allowed_networks: JSON.stringify(input.allowed_networks),
+      room_code_minutes: input.room_code_minutes,
+      updated_by: currentUser.id,
+      updated_by_name: currentUser.description.full_name,
+    };
+    await database.transaction().execute(async (transaction) => {
+      await transaction
+        .insertInto('online_exam_school_settings')
+        .values({ id: true, ...values })
+        .onConflict((conflict) => conflict.column('id').doUpdateSet({ ...values, updated_at: now }))
+        .execute();
+      await writeAuditLog(transaction, {
+        origin,
+        orgUnitId: null,
+        entityName: 'online_exam_school_settings',
+        entityId: settingEntityId('school'),
+        action: 'update',
+        before,
+        after: input,
+      });
+    });
+    return this.readSchoolSettings(database);
+  }
+
+  // Phòng thi của bài giao (chế độ at-school): mã, hạn, số học sinh được vào và đã vào
+  private async roomsOf(database: Database, assignmentId: string) {
+    const rooms = await database
+      .selectFrom('exam_rooms')
+      .select(['id', 'code', 'opened_by_name', 'opened_at', 'expires_at', 'closed_at'])
+      .where('assignment_id', '=', assignmentId)
+      .orderBy('opened_at', 'desc')
+      .execute();
+    const members = rooms.length
+      ? await database
+          .selectFrom('exam_room_students')
+          .select(['room_id', 'entered_at'])
+          .where(
+            'room_id',
+            'in',
+            rooms.map((room) => room.id),
+          )
+          .execute()
+      : [];
+    const now = this.clock.now();
+    return rooms.map((room) => {
+      const mine = members.filter((member) => member.room_id === room.id);
+      return {
+        id: room.id,
+        code: room.code,
+        opened_by_name: room.opened_by_name,
+        opened_at: room.opened_at,
+        expires_at: room.expires_at,
+        closed_at: room.closed_at,
+        open: room.closed_at === null && room.expires_at > now,
+        students: mine.length,
+        entered: mine.filter((member) => member.entered_at !== null).length,
+      };
+    });
+  }
+
+  // Giám thị mở phòng thi: mã 6 chữ số có hạn (mặc định theo trường), danh sách học sinh được vào (bỏ trống là mọi học sinh được giao)
+  async openRoom(currentUser: CurrentUser, assignmentId: string, childIds: string[] | null, origin: ChangeOrigin) {
+    assertOnlineExamModule();
+    const { database } = await this.currentSchoolYear.require();
+    const assignment = await this.assertCanManage(database, currentUser, assignmentId);
+    if (assignment.status === 'cancelled') {
+      throw ruleViolationError(ONLINE_EXAM_RULE_CODE, 'Bài thi đã huỷ, không mở phòng được');
+    }
+    if (assignment.exam_mode !== 'at-school') {
+      throw ruleViolationError(ONLINE_EXAM_RULE_CODE, 'Bài thi từ xa không có phòng thi');
+    }
+    const roster = ((await this.rosters(database, [assignmentId])).get(assignmentId) ?? []).map((row) => row.child_id);
+    const chosen = childIds ?? roster;
+    if (chosen.length === 0 || chosen.some((id) => !roster.includes(id))) {
+      throw validationError([{ field: 'child_ids', message: 'Chọn ít nhất một học sinh trong danh sách được giao' }]);
+    }
+    const settings = await this.readSchoolSettings(database);
+    const now = this.clock.now();
+    const expiresAt = new Date(now.getTime() + settings.room_code_minutes * 60_000);
+    for (let attempt = 0; attempt < 10; attempt += 1) {
+      const code = generateRoomCode();
+      try {
+        await database.transaction().execute(async (transaction) => {
+          const row = await transaction
+            .insertInto('exam_rooms')
+            .values({
+              assignment_id: assignmentId,
+              code,
+              opened_by: currentUser.id,
+              opened_by_name: currentUser.description.full_name,
+              expires_at: expiresAt,
+            })
+            .returning('id')
+            .executeTakeFirstOrThrow();
+          await transaction
+            .insertInto('exam_room_students')
+            .values(chosen.map((childId) => ({ room_id: row.id, child_id: childId })))
+            .execute();
+          await writeAuditLog(transaction, {
+            origin,
+            orgUnitId: null,
+            entityName: 'exam_rooms',
+            entityId: row.id,
+            action: 'create',
+            before: null,
+            after: { assignment_id: assignmentId, students: chosen.length, expires_at: expiresAt },
+          });
+        });
+        return this.detail(currentUser, assignmentId);
+      } catch (error) {
+        // Trùng mã với phòng đang mở khác: bốc mã khác
+        if (!(error instanceof Error) || !/exam_rooms_open_code_index/.test(error.message)) {
+          throw error;
+        }
+      }
+    }
+    throw new ApplicationError('ERR_INTERNAL', 'Không tạo được mã phòng thi, thử lại');
+  }
+
+  async closeRoom(currentUser: CurrentUser, roomId: string, origin: ChangeOrigin) {
+    assertOnlineExamModule();
+    const { database } = await this.currentSchoolYear.require();
+    const room = await database.selectFrom('exam_rooms').selectAll().where('id', '=', roomId).executeTakeFirst();
+    if (!room) {
+      throw notFoundError('Không tìm thấy phòng thi', 'exam_room');
+    }
+    await this.assertCanManage(database, currentUser, room.assignment_id);
+    if (room.closed_at !== null) {
+      throw ruleViolationError(ONLINE_EXAM_RULE_CODE, 'Phòng thi đã đóng');
+    }
+    await database.transaction().execute(async (transaction) => {
+      await transaction
+        .updateTable('exam_rooms')
+        .set({ closed_at: this.clock.now(), closed_by_name: currentUser.description.full_name })
+        .where('id', '=', roomId)
+        .execute();
+      await writeAuditLog(transaction, {
+        origin,
+        orgUnitId: null,
+        entityName: 'exam_rooms',
+        entityId: roomId,
+        action: 'update',
+        before: { closed: false },
+        after: { closed: true },
+      });
+    });
+    return this.detail(currentUser, room.assignment_id);
+  }
+
   // Đề đã khoá, lớp giao được (theo quyền của người gọi): dùng lại danh sách của 22g2
   async lockedExams(level: SchoolLevelCode) {
     assertOnlineExamModule();
@@ -230,6 +442,14 @@ export class OnlineExamsService {
     if (input.closes_at <= input.opens_at) {
       throw validationError([{ field: 'closes_at', message: 'Giờ đóng phải sau giờ mở' }]);
     }
+    const schoolSettings = await this.readSchoolSettings(database);
+    const examMode: ExamMode = input.exam_mode ?? schoolSettings.default_exam_mode;
+    if (examMode === 'remote' && !schoolSettings.allow_remote) {
+      throw ruleViolationError(
+        ONLINE_EXAM_RULE_CODE,
+        'Trường chưa bật chế độ thi từ xa; mặc định chỉ thi tại trường, quản trị trường bật ở Cấu hình thi trực tuyến',
+      );
+    }
     const scope = await this.teachableClassIds(database, currentUser, exam.subject_id);
     const classes = input.class_ids.length
       ? await database
@@ -299,6 +519,7 @@ export class OnlineExamsService {
           camera_enabled: input.camera_enabled,
           camera_fallback: input.camera_fallback,
           single_session_mode: input.single_session_mode,
+          exam_mode: examMode,
           term_type: input.term_type,
           score_kind: input.score_kind,
           score_seq: input.score_kind === 'regular' ? input.score_seq : 1,
@@ -435,6 +656,7 @@ export class OnlineExamsService {
         'exam_assignments.camera_enabled',
         'exam_assignments.camera_fallback',
         'exam_assignments.single_session_mode',
+        'exam_assignments.exam_mode',
         'exam_assignments.term_type',
         'exam_assignments.score_kind',
         'exam_assignments.score_seq',
@@ -619,6 +841,8 @@ export class OnlineExamsService {
       camera_enabled: assignment.camera_enabled,
       camera_fallback: assignment.camera_fallback,
       single_session_mode: assignment.single_session_mode,
+      exam_mode: assignment.exam_mode,
+      rooms: await this.roomsOf(database, assignmentId),
       term_type: assignment.term_type,
       score_kind: assignment.score_kind,
       score_seq: assignment.score_seq,

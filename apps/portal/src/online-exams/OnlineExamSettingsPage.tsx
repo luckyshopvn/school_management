@@ -1,11 +1,11 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { SCHOOL_LEVELS, type SchoolLevelCode } from '@school-management/shared';
-import { Alert, Toast } from '@school-management/ui';
+import { EXAM_MODE_LABELS, SCHOOL_LEVELS, type ExamMode, type SchoolLevelCode } from '@school-management/shared';
+import { Alert, Button, FORM_CONTROL_CLASS, Toast } from '@school-management/ui';
 import { AppShell } from '../pages/AppShell.js';
 import { menuPageTitle } from '../pages/page-title.js';
 import { messageOf } from '../exams/exam-filters.js';
-import { listLevelSettings, updateLevelSetting } from './online-exams-api.js';
+import { listLevelSettings, readSchoolSettings, updateLevelSetting, updateSchoolSettings } from './online-exams-api.js';
 
 // 3. Cấu hình thi trực tuyến (DT-23 phần 23a, GD-105 Eric chốt 2026-10-26): học sinh tự đăng nhập làm bài ở mọi cấp học, kể cả
 // Tiểu học; trường tắt được theo từng cấp. Tắt thì học sinh cấp đó không vào được và không giao đề mới; bài đã làm giữ nguyên
@@ -21,6 +21,36 @@ export function OnlineExamSettingsPage() {
       setToastMessage(
         input.enabled ? 'Đã cho học sinh cấp này đăng nhập làm bài' : 'Đã tắt đăng nhập làm bài của học sinh cấp này',
       );
+    },
+  });
+  // Chế độ thi mặc định, thi từ xa, dải mạng, hạn mã phòng (Eric chốt 2026-10-26: mặc định chỉ thi tại trường)
+  const school = useQuery({ queryKey: ['online-exam-school-settings'], queryFn: readSchoolSettings });
+  const [mode, setMode] = useState<ExamMode>('at-school');
+  const [allowRemote, setAllowRemote] = useState(false);
+  const [networks, setNetworks] = useState('');
+  const [minutes, setMinutes] = useState('60');
+  useEffect(() => {
+    if (school.data) {
+      setMode(school.data.default_exam_mode);
+      setAllowRemote(school.data.allow_remote);
+      setNetworks(school.data.allowed_networks.join('\n'));
+      setMinutes(String(school.data.room_code_minutes));
+    }
+  }, [school.data]);
+  const saveSchool = useMutation({
+    mutationFn: () =>
+      updateSchoolSettings({
+        default_exam_mode: mode,
+        allow_remote: allowRemote,
+        allowed_networks: networks
+          .split(/\r?\n/)
+          .map((line) => line.trim())
+          .filter((line) => line !== ''),
+        room_code_minutes: Number(minutes),
+      }),
+    onSuccess: async (data) => {
+      queryClient.setQueryData(['online-exam-school-settings'], data);
+      setToastMessage('Đã ghi chế độ thi của trường');
     },
   });
   const levelName = (code: SchoolLevelCode) => SCHOOL_LEVELS.find((level) => level.value === code)?.label ?? code;
@@ -51,6 +81,58 @@ export function OnlineExamSettingsPage() {
               {row.updated_by_name ? ` (sửa lần cuối bởi ${row.updated_by_name})` : ''}
             </label>
           ))}
+        </section>
+        <section aria-label="Chế độ thi của trường" className="flex flex-col gap-3">
+          <h2 className="text-section-title font-semibold text-text">Chế độ thi của trường</h2>
+          <Alert tone="info">
+            Mặc định chỉ thi tại trường: giám thị mở phòng thi, học sinh nhập mã phòng; nếu khai dải mạng thì chỉ vào
+            được từ mạng của trường. Thi từ xa tắt mặc định, trường phải bật.
+          </Alert>
+          {school.error ? <Alert tone="danger">{messageOf(school.error)}</Alert> : null}
+          {saveSchool.error ? <Alert tone="danger">{messageOf(saveSchool.error)}</Alert> : null}
+          <label className="text-content text-text">
+            <input type="checkbox" checked={allowRemote} onChange={(event) => setAllowRemote(event.target.checked)} />{' '}
+            Cho phép giao bài thi từ xa
+          </label>
+          <label className="text-label font-medium text-text">
+            Chế độ thi mặc định
+            <select
+              aria-label="Chế độ thi mặc định"
+              className={`mt-2 block ${FORM_CONTROL_CLASS}`}
+              value={mode}
+              onChange={(event) => setMode(event.target.value as ExamMode)}
+            >
+              {(Object.keys(EXAM_MODE_LABELS) as ExamMode[]).map((key) => (
+                <option key={key} value={key} disabled={key === 'remote' && !allowRemote}>
+                  {EXAM_MODE_LABELS[key]}
+                </option>
+              ))}
+            </select>
+          </label>
+          <label className="text-label font-medium text-text">
+            Dải mạng của trường (mỗi dòng một dải, ví dụ 10.0.0.0/8; để trống là không giới hạn)
+            <textarea
+              aria-label="Dải mạng của trường"
+              className={`mt-2 block min-h-24 w-80 ${FORM_CONTROL_CLASS}`}
+              value={networks}
+              onChange={(event) => setNetworks(event.target.value)}
+            />
+          </label>
+          <label className="text-label font-medium text-text">
+            Hạn của mã phòng thi (phút)
+            <input
+              type="number"
+              aria-label="Hạn của mã phòng thi"
+              className={`mt-2 block w-24 ${FORM_CONTROL_CLASS}`}
+              value={minutes}
+              onChange={(event) => setMinutes(event.target.value)}
+            />
+          </label>
+          <div>
+            <Button variant="primary" onClick={() => saveSchool.mutate()} disabled={saveSchool.isPending}>
+              Ghi chế độ thi
+            </Button>
+          </div>
         </section>
       </div>
     </AppShell>

@@ -8,7 +8,11 @@ import type { Migration } from 'kysely/migration';
 //   giao): giờ mở, giờ đóng, thời lượng, số lần làm, cách tính các lần, đảo câu và đáp án, phát mã đề, chế độ hiện kết quả,
 //   khóa toàn màn hình và số lần rời bài, camera và cách xử lý khi không có camera, cách xử lý phiên đăng nhập thứ hai (GD-106
 //   Eric chốt 2026-10-26); cấu hình bài kiểm tra của lớp (học kỳ, loại điểm, lần) để chuyển điểm theo luồng 22g2;
-// - `exam_assignment_targets`: giao cho cả lớp hoặc cho từng học sinh.
+// - `exam_assignment_targets`: giao cho cả lớp hoặc cho từng học sinh;
+// - chế độ thi (Eric chốt 2026-10-26: mặc định chỉ thi tại trường): `exam_assignments.exam_mode` là `at-school` (mặc định, học sinh
+//   vào bài bằng mã phòng thi do giám thị mở, và từ dải mạng của trường nếu trường cấu hình) hoặc `remote` (tắt mặc định, trường
+//   phải bật); `online_exam_school_settings` giữ mặc định chế độ thi, cho phép `remote`, dải mạng, thời hạn mã phòng;
+//   `exam_rooms` là phòng thi (mã ngắn hạn, mở, đóng) và `exam_room_students` là danh sách học sinh được vào phòng.
 // Ảnh chụp định kỳ (tắt mặc định, chỉ bật khi có văn bản đồng ý của cha mẹ) chưa làm ở phần này nên chưa có cột
 export const migration: Migration = {
   async up(database) {
@@ -18,6 +22,33 @@ export const migration: Migration = {
         column.primaryKey().check(sql`school_level in ('MN', 'TH', 'THCS', 'THPT')`),
       )
       .addColumn('student_login_enabled', 'boolean', (column) => column.notNull().defaultTo(true))
+      .addColumn('updated_by', 'uuid')
+      .addColumn('updated_by_name', 'text')
+      .addColumn('updated_at', 'timestamptz', (column) => column.notNull().defaultTo(sql`now()`))
+      .execute();
+
+    await database.schema
+      .createTable('online_exam_school_settings')
+      .addColumn('id', 'boolean', (column) =>
+        column
+          .primaryKey()
+          .defaultTo(true)
+          .check(sql`id`),
+      )
+      .addColumn('default_exam_mode', 'text', (column) =>
+        column
+          .notNull()
+          .defaultTo('at-school')
+          .check(sql`default_exam_mode in ('at-school', 'remote')`),
+      )
+      .addColumn('allow_remote', 'boolean', (column) => column.notNull().defaultTo(false))
+      .addColumn('allowed_networks', 'jsonb', (column) => column.notNull().defaultTo(sql`'[]'::jsonb`))
+      .addColumn('room_code_minutes', 'integer', (column) =>
+        column
+          .notNull()
+          .defaultTo(60)
+          .check(sql`room_code_minutes between 5 and 720`),
+      )
       .addColumn('updated_by', 'uuid')
       .addColumn('updated_by_name', 'text')
       .addColumn('updated_at', 'timestamptz', (column) => column.notNull().defaultTo(sql`now()`))
@@ -120,6 +151,12 @@ export const migration: Migration = {
           .defaultTo('skip')
           .check(sql`absent_policy in ('skip', 'zero')`),
       )
+      .addColumn('exam_mode', 'text', (column) =>
+        column
+          .notNull()
+          .defaultTo('at-school')
+          .check(sql`exam_mode in ('at-school', 'remote')`),
+      )
       .addColumn('status', 'text', (column) =>
         column
           .notNull()
@@ -154,10 +191,40 @@ export const migration: Migration = {
       .on('exam_assignment_targets')
       .column('assignment_id')
       .execute();
+
+    await database.schema
+      .createTable('exam_rooms')
+      .addColumn('id', 'uuid', (column) => column.primaryKey().defaultTo(sql`gen_random_uuid()`))
+      .addColumn('assignment_id', 'uuid', (column) =>
+        column.notNull().references('exam_assignments.id').onDelete('cascade'),
+      )
+      .addColumn('code', 'text', (column) => column.notNull().check(sql`code ~ '^[0-9]{6}$'`))
+      .addColumn('opened_by', 'uuid', (column) => column.notNull())
+      .addColumn('opened_by_name', 'text', (column) => column.notNull())
+      .addColumn('opened_at', 'timestamptz', (column) => column.notNull().defaultTo(sql`now()`))
+      .addColumn('expires_at', 'timestamptz', (column) => column.notNull())
+      .addColumn('closed_at', 'timestamptz')
+      .addColumn('closed_by_name', 'text')
+      .execute();
+    await database.schema.createIndex('exam_rooms_assignment_index').on('exam_rooms').column('assignment_id').execute();
+    await sql`create unique index exam_rooms_open_code_index on exam_rooms (code) where closed_at is null`.execute(
+      database,
+    );
+
+    await database.schema
+      .createTable('exam_room_students')
+      .addColumn('room_id', 'uuid', (column) => column.notNull().references('exam_rooms.id').onDelete('cascade'))
+      .addColumn('child_id', 'uuid', (column) => column.notNull().references('children.id'))
+      .addColumn('entered_at', 'timestamptz')
+      .addPrimaryKeyConstraint('exam_room_students_pkey', ['room_id', 'child_id'])
+      .execute();
   },
   async down(database) {
+    await database.schema.dropTable('exam_room_students').execute();
+    await database.schema.dropTable('exam_rooms').execute();
     await database.schema.dropTable('exam_assignment_targets').execute();
     await database.schema.dropTable('exam_assignments').execute();
     await database.schema.dropTable('online_exam_settings').execute();
+    await database.schema.dropTable('online_exam_school_settings').execute();
   },
 };

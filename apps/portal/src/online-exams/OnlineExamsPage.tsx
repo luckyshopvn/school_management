@@ -4,6 +4,7 @@ import { useNavigate } from '@tanstack/react-router';
 import {
   EXAM_ATTEMPT_POLICY_LABELS,
   EXAM_CAMERA_FALLBACK_LABELS,
+  EXAM_MODE_LABELS,
   EXAM_RESULT_MODE_LABELS,
   EXAM_SINGLE_SESSION_LABELS,
   EXAM_VARIANT_MODE_LABELS,
@@ -20,6 +21,7 @@ import {
   listAssignments,
   listClassesForExam,
   listLockedExams,
+  readSchoolSettings,
   type AssignmentSummary,
 } from './online-exams-api.js';
 
@@ -87,6 +89,7 @@ function Select<Value extends string>({
 
 interface Form {
   exam_id: string;
+  exam_mode: string;
   class_id: string;
   title: string;
   opens: string;
@@ -112,6 +115,7 @@ interface Form {
 
 const emptyForm = (): Form => ({
   exam_id: '',
+  exam_mode: '',
   class_id: '',
   title: '',
   opens: defaultLocal(0),
@@ -158,11 +162,14 @@ export function OnlineExamsPage() {
     queryFn: () => listClassesForExam(form.exam_id),
     enabled: Boolean(form.exam_id),
   });
+  const schoolSettings = useQuery({ queryKey: ['online-exam-school-settings'], queryFn: readSchoolSettings });
+  const effectiveMode = form.exam_mode || schoolSettings.data?.default_exam_mode || 'at-school';
   const create = useMutation({
     mutationFn: () =>
       createAssignment({
         exam_id: form.exam_id,
         class_ids: form.class_id ? [form.class_id] : [],
+        exam_mode: effectiveMode,
         ...(form.title.trim() ? { title: form.title.trim() } : {}),
         opens_at: localToIso(form.opens),
         closes_at: localToIso(form.closes),
@@ -357,6 +364,14 @@ export function OnlineExamsPage() {
                 </label>
                 {number('Thời lượng (phút)', 'duration')}
                 {number('Số lần làm', 'max_attempts')}
+                <Select
+                  label="Chế độ thi"
+                  value={effectiveMode}
+                  options={labelled(EXAM_MODE_LABELS).filter(
+                    ([mode]) => mode === 'at-school' || schoolSettings.data?.allow_remote,
+                  )}
+                  onChange={(value) => set('exam_mode', value)}
+                />
                 <Select
                   label="Cách tính các lần"
                   value={form.attempt_policy}

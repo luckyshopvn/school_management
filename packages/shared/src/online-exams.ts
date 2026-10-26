@@ -146,3 +146,12 @@ export function createFaceWatch(options: FaceWatchOptions = {}) {
     },
   };
 }
+
+// Chế độ thi (Eric chốt 2026-10-26: mặc định chỉ thi tại trường): `at-school` vào bài bằng mã phòng thi do giám thị mở (và từ dải
+// mạng của trường nếu trường cấu hình); `remote` tắt mặc định, trường phải bật
+export type ExamMode = 'at-school' | 'remote';
+export const EXAM_MODES: readonly ExamMode[] = ['at-school', 'remote'];
+export const EXAM_MODE_LABELS: Record<ExamMode, string> = {
+  'at-school': 'Thi tại trường (vào bài bằng mã phòng thi)',
+  remote: 'Thi từ xa',
+};

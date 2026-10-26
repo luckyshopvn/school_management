@@ -155,6 +155,8 @@ export interface StudentExamItem {
   attempt_id: string | null;
   fullscreen_required: boolean;
   camera_enabled: boolean;
+  // Thi tại trường (mặc định): vào bài bằng mã phòng thi do giám thị mở
+  exam_mode: 'at-school' | 'remote';
   result_mode: string;
   result: { attempt_id: string; total_score: number | null; max_score: number | null; pending_marking: boolean } | null;
 }
@@ -219,10 +221,10 @@ export type ClientEventType =
 export const readStudentProfile = () => requestStudentJson<StudentProfile>('/api/v1/student/profile');
 export const listStudentExams = () =>
   requestStudentJson<{ server_now: string; items: StudentExamItem[] }>('/api/v1/student/exams');
-export const startAttempt = (assignmentId: string, cameraState: CameraState) =>
+export const startAttempt = (assignmentId: string, cameraState: CameraState, roomCode: string | null) =>
   requestStudentJson<AttemptView>(`/api/v1/student/exams/${assignmentId}/start`, {
     method: 'POST',
-    body: JSON.stringify({ camera_state: cameraState }),
+    body: JSON.stringify({ camera_state: cameraState, room_code: roomCode }),
   });
 export const readAttempt = (attemptId: string) =>
   requestStudentJson<AttemptView>(`/api/v1/student/attempts/${attemptId}`);

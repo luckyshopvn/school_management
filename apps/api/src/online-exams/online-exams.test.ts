@@ -12,7 +12,7 @@ import {
   type LoggedInUser,
 } from '../test-support.js';
 
-// Thi trực tuyến cho học sinh (DT-23 phần 23a, YCTD-211), kịch bản CT-23a-2 đến CT-23a-9. Dữ liệu giả, cấp THCS
+// Thi trực tuyến cho học sinh (DT-23 phần 23a, YCTD-211), kịch bản CT-23a-2 đến CT-23a-9 và CT-23a-11. Dữ liệu giả, cấp THCS
 const vietnamToday = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Ho_Chi_Minh' }).format(new Date());
 const addDays = (date: string, days: number) =>
   new Date(Date.parse(`${date}T00:00:00Z`) + days * 86_400_000).toISOString().slice(0, 10);
@@ -164,6 +164,7 @@ describe('Thi trực tuyến cho học sinh', () => {
     fixed_variant_code: '101',
     result_mode: 'immediate',
     class_ids: [classId],
+    exam_mode: 'remote',
     camera_enabled: true,
     camera_fallback: 'flag',
     ...changes,
@@ -300,6 +301,14 @@ describe('Thi trực tuyến cho học sinh', () => {
     essayQuestionIds.push(...essayExam.questionIds);
     plainExamId = (await insertExam('Kiểm tra trắc nghiệm', 'locked', false)).id;
     draftExamId = (await insertExam('Đề chưa khoá', 'approved', false)).id;
+    // Trường bật thi từ xa để các kịch bản làm bài dùng; chế độ mặc định (tại trường) kiểm ở CT-23a-11
+    const enabled = await api('PUT', '/online-exams/school-settings', as(principal), {
+      default_exam_mode: 'at-school',
+      allow_remote: true,
+      allowed_networks: [],
+      room_code_minutes: 60,
+    });
+    assert.equal(enabled.status, 200, JSON.stringify(enabled.body));
   });
 
   after(async () => {
@@ -970,5 +979,112 @@ describe('Thi trực tuyến cho học sinh', () => {
       .executeTakeFirstOrThrow();
     assert.equal(links.reset_count, 1);
     assert.ok(links.identity_user_id);
+  });
+
+  it('CT-23a-11: chế độ thi: mặc định tại trường, mã phòng thi, danh sách học sinh, dải mạng, đóng phòng, bật thi từ xa', async () => {
+    const an = students.An as Student;
+    const binh = students.Binh as Student;
+    // Cấu hình: chỉ người quản lý đặt; dải mạng sai, mặc định từ xa khi chưa bật bị từ chối
+    const settingsBody = {
+      default_exam_mode: 'at-school',
+      allow_remote: true,
+      allowed_networks: [],
+      room_code_minutes: 60,
+    };
+    assert.equal((await api('GET', '/online-exams/school-settings', as(math))).status, 200);
+    assert.equal((await api('PUT', '/online-exams/school-settings', as(math), settingsBody)).status, 403);
+    assert.equal(
+      (
+        await api('PUT', '/online-exams/school-settings', as(principal), {
+          ...settingsBody,
+          allowed_networks: ['10.0.0.0/33'],
+        })
+      ).status,
+      400,
+    );
+    assert.equal(
+      (
+        await api('PUT', '/online-exams/school-settings', as(principal), {
+          ...settingsBody,
+          allow_remote: false,
+          default_exam_mode: 'remote',
+        })
+      ).status,
+      400,
+    );
+    // Chưa bật thi từ xa thì giao bài từ xa bị từ chối; không nêu chế độ thì là tại trường
+    assert.equal(
+      (await api('PUT', '/online-exams/school-settings', as(principal), { ...settingsBody, allow_remote: false }))
+        .status,
+      200,
+    );
+    assert.equal((await api('POST', '/online-exams/assignments', as(math), assignmentBody(plainExamId))).status, 422);
+    const atSchool = await api('POST', '/online-exams/assignments', as(math), {
+      ...assignmentBody(plainExamId, { camera_enabled: false }),
+      exam_mode: undefined,
+    });
+    assert.equal(atSchool.status, 201, JSON.stringify(atSchool.body));
+    assert.equal(atSchool.body.exam_mode, 'at-school');
+    const assignmentId = atSchool.body.id as string;
+    assert.equal((await api('PUT', '/online-exams/school-settings', as(principal), settingsBody)).status, 200);
+
+    // Chưa có phòng thi: không vào được; mã sai, thiếu mã cũng không
+    const noCode = await startAttempt(an.accessToken, assignmentId, 'off');
+    assert.equal(noCode.status, 422);
+    assert.match(JSON.stringify(noCode.body), /room_code/);
+    const startWith = (token: string, roomCode: string) =>
+      studentApi('POST', `/exams/${assignmentId}/start`, token, { camera_state: 'off', room_code: roomCode });
+    assert.equal((await startWith(an.accessToken, '000000')).status, 422);
+    // Giám thị mở phòng chỉ cho An; người không dạy lớp, phụ huynh không mở được
+    assert.equal((await api('POST', `/online-exams/assignments/${assignmentId}/rooms`, as(other), {})).status, 403);
+    assert.equal((await api('POST', `/online-exams/assignments/${assignmentId}/rooms`, as(parent), {})).status, 403);
+    assert.equal(
+      (await api('POST', `/online-exams/assignments/${assignmentId}/rooms`, as(math), { child_ids: [children.Dung] }))
+        .status,
+      400,
+      'học sinh ngoài danh sách được giao',
+    );
+    const opened = await api('POST', `/online-exams/assignments/${assignmentId}/rooms`, as(math), {
+      child_ids: [children.An],
+    });
+    assert.equal(opened.status, 201, JSON.stringify(opened.body));
+    const room = list(opened.body.rooms)[0] as Json;
+    const code = room.code as string;
+    assert.match(code, /^\d{6}$/);
+    assert.deepEqual([room.open, room.students, room.entered], [true, 1, 0]);
+    assert.equal((await startWith(binh.accessToken, code)).status, 422, 'Bình không có tên trong phòng');
+    // Dải mạng: ngoài dải thì 403, trong dải (địa chỉ máy thử) thì vào được
+    const ranged = (networks: string[]) =>
+      api('PUT', '/online-exams/school-settings', as(principal), { ...settingsBody, allowed_networks: networks });
+    assert.equal((await ranged(['10.0.0.0/8'])).status, 200);
+    const outside = await startWith(an.accessToken, code);
+    assert.equal(outside.status, 403, JSON.stringify(outside.body));
+    assert.match(JSON.stringify(outside.body), /mạng của nhà trường/);
+    assert.equal((await ranged(['127.0.0.0/8', '::1/128'])).status, 200);
+    const entered = await startWith(an.accessToken, code);
+    assert.equal(entered.status, 200, JSON.stringify(entered.body));
+    const attemptId = entered.body.id as string;
+    const roomRow = await schoolYear
+      .selectFrom('exam_room_students')
+      .select('entered_at')
+      .where('child_id', '=', children.An as string)
+      .executeTakeFirstOrThrow();
+    assert.ok(roomRow.entered_at, 'ghi lúc học sinh vào phòng');
+    // Đóng phòng: không vào được nữa, lượt đang làm vẫn lưu và nộp được
+    assert.equal((await api('POST', `/online-exams/rooms/${room.id}/close`, as(other))).status, 403);
+    const closed = await api('POST', `/online-exams/rooms/${room.id}/close`, as(math));
+    assert.equal(closed.status, 200);
+    assert.equal(list(closed.body.rooms)[0]?.open, false);
+    assert.equal((await api('POST', `/online-exams/rooms/${room.id}/close`, as(math))).status, 422);
+    assert.equal((await startWith(an.accessToken, code)).status, 422, 'phòng đã đóng');
+    assert.equal(
+      (await studentApi('PUT', `/attempts/${attemptId}/answers`, an.accessToken, { answers: { 1: ['B'] } })).status,
+      200,
+    );
+    assert.equal((await studentApi('POST', `/attempts/${attemptId}/submit`, an.accessToken, {})).status, 200);
+    // Bài từ xa không có phòng thi
+    const remote = await createAssignment(plainExamId, { camera_enabled: false });
+    assert.equal((await api('POST', `/online-exams/assignments/${remote}/rooms`, as(math), {})).status, 422);
+    assert.equal((await startAttempt(binh.accessToken, remote, 'off')).status, 200, 'từ xa không cần mã phòng');
   });
 });

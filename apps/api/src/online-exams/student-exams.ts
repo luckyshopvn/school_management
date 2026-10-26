@@ -30,6 +30,7 @@ import {
   canSaveAnswers,
   countViolations,
   countedAttempt,
+  ipAllowed,
   keysToLabels,
   normalizeAnswers,
   pickVariantCode,
@@ -194,6 +195,7 @@ export class StudentExamsService {
         'exam_assignments.results_released_at',
         'exam_assignments.fullscreen_required',
         'exam_assignments.camera_enabled',
+        'exam_assignments.exam_mode',
         'subjects.name as subject_name',
       ])
       .orderBy('exam_assignments.opens_at', 'desc')
@@ -261,6 +263,7 @@ export class StudentExamsService {
           attempt_id: inProgress?.id ?? null,
           fullscreen_required: assignment.fullscreen_required,
           camera_enabled: assignment.camera_enabled,
+          exam_mode: assignment.exam_mode,
           result_mode: assignment.result_mode,
           result:
             visible && countedRow
@@ -292,8 +295,9 @@ export class StudentExamsService {
   async start(
     currentUser: CurrentUser,
     assignmentId: string,
-    body: { camera_state: ExamCameraState },
+    body: { camera_state: ExamCameraState; room_code: string | null },
     origin: ChangeOrigin,
+    ipAddress: string | undefined,
   ): Promise<Awaited<ReturnType<StudentExamsService['attemptView']>>> {
     const student = await this.resolve(currentUser);
     const { database } = student;
@@ -301,6 +305,10 @@ export class StudentExamsService {
     const assignment = await this.findAssignment(student, assignmentId);
     const now = this.clock.now();
     const sessionId = currentUser.session?.sessionId ?? '';
+    // Chế độ thi tại trường (mặc định): vào bài từ dải mạng của trường (nếu trường cấu hình) và bằng mã phòng thi đang mở
+    if (assignment.exam_mode === 'at-school') {
+      await this.assertCanEnterRoom(student, assignmentId, body.room_code, ipAddress, now);
+    }
     const open = await database
       .selectFrom('exam_attempts')
       .selectAll()
@@ -407,9 +415,58 @@ export class StudentExamsService {
     });
     if (!inserted) {
       // Hai yêu cầu vào bài cùng lúc: yêu cầu sau lấy lượt của yêu cầu trước
-      return this.start(currentUser, assignmentId, body, origin);
+      return this.start(currentUser, assignmentId, body, origin, ipAddress);
     }
     return this.attemptView(student, inserted.id);
+  }
+
+  // Vào bài ở chế độ thi tại trường: địa chỉ mạng trong dải của trường (trống là không giới hạn), mã phòng thi của bài còn mở và học
+  // sinh có tên trong danh sách của phòng; phòng đóng hoặc hết hạn thì không vào được (lượt đang làm vẫn nộp được)
+  private async assertCanEnterRoom(
+    student: StudentContext,
+    assignmentId: string,
+    roomCode: string | null,
+    ipAddress: string | undefined,
+    now: Date,
+  ) {
+    const { database } = student;
+    const settings = await database
+      .selectFrom('online_exam_school_settings')
+      .select('allowed_networks')
+      .executeTakeFirst();
+    const ranges = (settings?.allowed_networks as string[] | undefined) ?? [];
+    if (!ipAllowed(ipAddress, ranges)) {
+      throw new ApplicationError('ERR_FORBIDDEN', 'Bài thi này chỉ vào được từ mạng của nhà trường', [
+        { field: 'network', message: 'outside' },
+      ]);
+    }
+    const code = (roomCode ?? '').trim();
+    const room = /^\d{6}$/.test(code)
+      ? await database
+          .selectFrom('exam_rooms')
+          .innerJoin('exam_room_students', 'exam_room_students.room_id', 'exam_rooms.id')
+          .select(['exam_rooms.id'])
+          .where('exam_rooms.assignment_id', '=', assignmentId)
+          .where('exam_rooms.code', '=', code)
+          .where('exam_rooms.closed_at', 'is', null)
+          .where('exam_rooms.expires_at', '>', now)
+          .where('exam_room_students.child_id', '=', student.childId)
+          .executeTakeFirst()
+      : undefined;
+    if (!room) {
+      throw ruleViolationError(
+        ONLINE_EXAM_RULE_CODE,
+        'Mã phòng thi không đúng, phòng chưa mở, đã đóng hoặc em không có tên trong phòng; hỏi giám thị',
+        [{ field: 'room_code', message: 'invalid' }],
+      );
+    }
+    await database
+      .updateTable('exam_room_students')
+      .set({ entered_at: now })
+      .where('room_id', '=', room.id)
+      .where('child_id', '=', student.childId)
+      .where('entered_at', 'is', null)
+      .execute();
   }
 
   private async recordSecondSession(database: Database, attemptId: string, takeOver: boolean, now: Date) {

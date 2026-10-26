@@ -1,3 +1,5 @@
+import { randomInt } from 'node:crypto';
+import { BlockList, isIP } from 'node:net';
 import {
   ANSWER_SAVE_GRACE_SECONDS,
   VIOLATION_EVENT_TYPES,
@@ -304,4 +306,62 @@ export function resultsVisible(
     return now >= closesAt;
   }
   return releasedAt !== null && releasedAt <= now;
+}
+
+// Chế độ thi và phòng thi (DT-23 phần 23a, Eric chốt 2026-10-26: mặc định chỉ thi tại trường): ở `at-school` học sinh vào bài bằng
+// mã phòng thi đang mở và, nếu trường cấu hình dải mạng, từ địa chỉ nằm trong dải đó. Địa chỉ lấy từ yêu cầu đã qua cấu hình tin
+// cậy cổng biên của máy chủ (trust proxy), không đọc tiêu đề do học sinh tự gửi
+export interface NetworkRange {
+  address: string;
+  prefix: number;
+  family: 'ipv4' | 'ipv6';
+}
+
+// IPv4 viết dạng ánh xạ IPv6 (::ffff:10.0.0.5) đổi về IPv4 để so với dải
+export function normalizeIp(ip: string): string {
+  const mapped = /^::ffff:(\d{1,3}(?:\.\d{1,3}){3})$/i.exec(ip.trim());
+  return mapped ? (mapped[1] as string) : ip.trim();
+}
+
+// "10.0.0.0/8", "192.168.1.0/24", "2001:db8::/32" hoặc một địa chỉ đơn; sai thì null
+export function parseNetworkRange(text: string): NetworkRange | null {
+  const [address, rawPrefix, extra] = text.trim().split('/');
+  if (!address || extra !== undefined) {
+    return null;
+  }
+  const version = isIP(address);
+  if (version === 0) {
+    return null;
+  }
+  const maximum = version === 4 ? 32 : 128;
+  const prefix = rawPrefix === undefined ? maximum : /^\d{1,3}$/.test(rawPrefix) ? Number(rawPrefix) : -1;
+  if (prefix < 0 || prefix > maximum) {
+    return null;
+  }
+  return { address, prefix, family: version === 4 ? 'ipv4' : 'ipv6' };
+}
+
+// Danh sách dải trống nghĩa là trường không giới hạn mạng
+export function ipAllowed(ip: string | undefined, ranges: string[]): boolean {
+  if (ranges.length === 0) {
+    return true;
+  }
+  const normalized = ip ? normalizeIp(ip) : '';
+  const version = isIP(normalized);
+  if (version === 0) {
+    return false;
+  }
+  const list = new BlockList();
+  for (const text of ranges) {
+    const range = parseNetworkRange(text);
+    if (range) {
+      list.addSubnet(range.address, range.prefix, range.family);
+    }
+  }
+  return list.check(normalized, version === 4 ? 'ipv4' : 'ipv6');
+}
+
+// Mã phòng thi 6 chữ số, ngắn hạn
+export function generateRoomCode(): string {
+  return String(randomInt(0, 1_000_000)).padStart(6, '0');
 }

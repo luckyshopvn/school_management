@@ -3,6 +3,7 @@ import { validationError, type FieldError } from '@school-management/server';
 import {
   EXAM_ATTEMPT_POLICY_LABELS,
   EXAM_CAMERA_FALLBACK_LABELS,
+  EXAM_MODES,
   EXAM_RESULT_MODES,
   EXAM_SINGLE_SESSION_LABELS,
   EXAM_VARIANT_MODE_LABELS,
@@ -11,6 +12,7 @@ import {
   isSchoolLevelCode,
   type ExamAttemptPolicy,
   type ExamCameraFallback,
+  type ExamMode,
   type ExamSingleSessionMode,
   type ExamVariantMode,
   type ExamViolationAction,
@@ -158,6 +160,10 @@ export function parseAssignmentInput(body: RequestBody): AssignmentInput {
       'reject_new',
       errors,
     ),
+    exam_mode:
+      body?.exam_mode === undefined || body.exam_mode === null
+        ? null
+        : readChoice<ExamMode>(body, 'exam_mode', EXAM_MODES, 'at-school', errors),
     term_type: readChoice(body, 'term_type', ['first_term', 'second_term'] as const, 'first_term', errors),
     score_kind: readChoice(body, 'score_kind', ['regular', 'mid', 'final'] as const, 'regular', errors),
     score_seq: scoreSeq,
@@ -224,6 +230,68 @@ export class OnlineExamsController {
       throw validationError([{ field: 'student_login_enabled', message: 'Phải là đúng hoặc sai' }]);
     }
     return this.service.updateSetting(currentUser, readLevel(level), enabled, originOf(request, currentUser));
+  }
+
+  // Cấu hình thi trực tuyến của cả trường: chế độ thi mặc định, cho phép thi từ xa, dải mạng, hạn mã phòng
+  @Get('school-settings')
+  @RequirePermission(ASSIGN)
+  schoolSettings() {
+    return this.service.schoolSettings();
+  }
+
+  @Put('school-settings')
+  @RequirePermission(ASSIGN)
+  updateSchoolSettings(
+    @Body() body: RequestBody,
+    @Req() request: Request,
+    @AuthenticatedUser() currentUser: CurrentUser,
+  ) {
+    const errors: FieldError[] = [];
+    const mode = readChoice<ExamMode>(body, 'default_exam_mode', EXAM_MODES, 'at-school', errors);
+    const allowRemote = readBoolean(body, 'allow_remote', false, errors);
+    const minutes = readInteger(body, 'room_code_minutes', errors, { min: 5, max: 720 }) ?? 60;
+    const rawNetworks = body?.allowed_networks ?? [];
+    let networks: string[] = [];
+    if (
+      !Array.isArray(rawNetworks) ||
+      rawNetworks.length > 100 ||
+      rawNetworks.some((item) => typeof item !== 'string')
+    ) {
+      errors.push({ field: 'allowed_networks', message: 'Danh sách dải mạng tối đa 100 dòng' });
+    } else {
+      networks = [...new Set((rawNetworks as string[]).map((item) => item.trim()).filter((item) => item !== ''))];
+    }
+    if (errors.length > 0) {
+      throw validationError(errors);
+    }
+    return this.service.updateSchoolSettings(
+      currentUser,
+      { default_exam_mode: mode, allow_remote: allowRemote, allowed_networks: networks, room_code_minutes: minutes },
+      originOf(request, currentUser),
+    );
+  }
+
+  @Post('assignments/:id/rooms')
+  @RequirePermission(ASSIGN)
+  openRoom(
+    @Param('id', idPipe()) id: string,
+    @Body() body: RequestBody,
+    @Req() request: Request,
+    @AuthenticatedUser() currentUser: CurrentUser,
+  ) {
+    const errors: FieldError[] = [];
+    const childIds = body?.child_ids === undefined ? null : readIdList(body, 'child_ids', errors);
+    if (errors.length > 0) {
+      throw validationError(errors);
+    }
+    return this.service.openRoom(currentUser, id, childIds, originOf(request, currentUser));
+  }
+
+  @Post('rooms/:id/close')
+  @HttpCode(200)
+  @RequirePermission(ASSIGN)
+  closeRoom(@Param('id', idPipe()) id: string, @Req() request: Request, @AuthenticatedUser() currentUser: CurrentUser) {
+    return this.service.closeRoom(currentUser, id, originOf(request, currentUser));
   }
 
   @Get('exams')

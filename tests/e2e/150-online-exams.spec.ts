@@ -298,6 +298,14 @@ test('CT-23a-10: giao đề, học sinh làm bài toàn màn hình có camera, t
       teacherPage.getByRole('table', { name: 'Bài thi đã giao' }).getByRole('row', { name: new RegExp(examTitle) }),
     ).toContainText('Đang mở');
 
+    // Chế độ mặc định là thi tại trường: giám thị (giáo viên) mở phòng thi, đọc mã cho học sinh
+    await openMenu(teacherPage, '/online-exams/monitor');
+    await teacherPage.getByLabel('Bài thi', { exact: true }).selectOption({ label: `${examTitle} (Toán)` });
+    await teacherPage.getByRole('button', { name: 'Mở phòng thi' }).click();
+    await expect(toast(teacherPage, 'Đã mở phòng thi')).toBeVisible();
+    const roomCode = (await teacherPage.getByLabel('Mã phòng thi').first().innerText()).trim();
+    expect(roomCode).toMatch(/^\d{6}$/);
+
     // Học sinh: đăng nhập ở kênh student, đặt mật khẩu mới, làm bài (camera giả, toàn màn hình)
     const studentContext = await browser.newContext({ permissions: ['camera'] });
     const student = await studentContext.newPage();
@@ -316,7 +324,13 @@ test('CT-23a-10: giao đề, học sinh làm bài toàn màn hình có camera, t
     await expect(student.getByRole('region', { name: 'Điều cần biết trước khi làm bài' })).toContainText(
       'không gửi hình hay video lên máy chủ',
     );
-    await student.getByRole('button', { name: 'Bắt đầu làm bài' }).click();
+    const startButton = student.getByRole('button', { name: 'Bắt đầu làm bài' });
+    await expect(startButton).toBeDisabled();
+    await student.getByLabel('Mã phòng thi').fill('000000');
+    await startButton.click();
+    await expect(student.getByRole('alert')).toContainText('Mã phòng thi không đúng');
+    await student.getByLabel('Mã phòng thi').fill(roomCode);
+    await startButton.click();
     await expect(student.getByRole('timer')).toBeVisible();
     await expect(student.getByRole('region', { name: 'Câu 1' })).not.toContainText('Đáp án đúng');
 
@@ -337,6 +351,7 @@ test('CT-23a-10: giao đề, học sinh làm bài toàn màn hình có camera, t
     await expect(student.getByRole('heading', { name: `Xin chào, ${childName}` })).toBeVisible();
     await expect(student.getByRole('article', { name: examTitle })).toContainText('Đang làm dở');
     await student.getByRole('article', { name: examTitle }).getByRole('button', { name: 'Làm tiếp bài' }).click();
+    await student.getByLabel('Mã phòng thi').fill(roomCode);
     await student.getByRole('button', { name: 'Làm tiếp bài' }).click();
     await expect(student.getByRole('timer')).toBeVisible();
     await expect(student.getByRole('group', { name: 'Đáp án Câu 1' }).getByLabel(/^B\./)).toBeChecked();

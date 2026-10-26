@@ -39,8 +39,12 @@ export class StudentExamsController {
     return this.service.start(
       currentUser,
       id,
-      { camera_state: readCameraState(body?.camera_state) },
+      {
+        camera_state: readCameraState(body?.camera_state),
+        room_code: typeof body?.room_code === 'string' ? body.room_code : null,
+      },
       originOf(request, currentUser),
+      request.ip,
     );
   }
 

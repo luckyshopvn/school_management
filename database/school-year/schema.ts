@@ -6016,6 +6016,38 @@ export interface OnlineExamSettingsTable {
   updated_at: UpdatedTimestamp;
 }
 
+export type ExamMode = 'at-school' | 'remote';
+
+// Cấu hình thi trực tuyến của trường (DT-23 phần 23a, Eric chốt 2026-10-26: mặc định chỉ thi tại trường); một dòng duy nhất
+export interface OnlineExamSchoolSettingsTable {
+  id: Generated<boolean>;
+  default_exam_mode: Generated<ExamMode>;
+  allow_remote: Generated<boolean>;
+  allowed_networks: DefaultJson;
+  room_code_minutes: Generated<number>;
+  updated_by: string | null;
+  updated_by_name: string | null;
+  updated_at: UpdatedTimestamp;
+}
+
+export interface ExamRoomsTable {
+  id: Generated<string>;
+  assignment_id: string;
+  code: string;
+  opened_by: string;
+  opened_by_name: string;
+  opened_at: CreatedTimestamp;
+  expires_at: Date;
+  closed_at: Date | null;
+  closed_by_name: string | null;
+}
+
+export interface ExamRoomStudentsTable {
+  room_id: string;
+  child_id: string;
+  entered_at: Date | null;
+}
+
 export interface ExamAssignmentsTable {
   id: Generated<string>;
   exam_id: string;
@@ -6038,6 +6070,7 @@ export interface ExamAssignmentsTable {
   camera_enabled: Generated<boolean>;
   camera_fallback: Generated<'block' | 'flag'>;
   single_session_mode: Generated<'reject_new' | 'close_old'>;
+  exam_mode: Generated<ExamMode>;
   term_type: Generated<'first_term' | 'second_term'>;
   score_kind: Generated<'regular' | 'mid' | 'final'>;
   score_seq: Generated<number>;
@@ -6203,6 +6236,9 @@ export interface SchoolYearDatabase {
   exam_sessions: ExamSessionsTable;
   exam_sheets: ExamSheetsTable;
   online_exam_settings: OnlineExamSettingsTable;
+  online_exam_school_settings: OnlineExamSchoolSettingsTable;
+  exam_rooms: ExamRoomsTable;
+  exam_room_students: ExamRoomStudentsTable;
   exam_assignments: ExamAssignmentsTable;
   exam_assignment_targets: ExamAssignmentTargetsTable;
   exam_attempts: ExamAttemptsTable;

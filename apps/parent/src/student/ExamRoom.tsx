@@ -153,6 +153,7 @@ export function ExamRoom({
   const [confirmSubmit, setConfirmSubmit] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [cameraNote, setCameraNote] = useState<string>();
+  const [roomCode, setRoomCode] = useState('');
   const [result, setResult] = useState<AttemptResult | null>(null);
 
   const attemptRef = useRef<AttemptView | undefined>(undefined);
@@ -214,7 +215,11 @@ export function ExamRoom({
       camera = await openCamera();
     }
     try {
-      const view = await startAttempt(assignment.id, camera.state);
+      const view = await startAttempt(
+        assignment.id,
+        camera.state,
+        assignment.exam_mode === 'at-school' ? roomCode.trim() : null,
+      );
       streamRef.current = camera.stream;
       applyAttempt(view);
       setNeedFullscreen(assignment.fullscreen_required && !fullscreen);
@@ -513,9 +518,33 @@ export function ExamRoom({
               </li>
             ) : null}
             <li>Một bài chỉ làm ở một phiên đăng nhập; đăng nhập thêm ở máy khác sẽ bị ghi lại.</li>
+            {assignment.exam_mode === 'at-school' ? (
+              <li>
+                Bài thi này thi tại trường: em nhập mã phòng thi do giám thị đọc, và chỉ vào được từ mạng của nhà
+                trường. Giám thị đóng phòng thì không vào được nữa (bài đang làm vẫn nộp được).
+              </li>
+            ) : null}
           </ul>
         </section>
-        <Button variant="primary" onClick={() => void begin()} disabled={stage === 'starting'}>
+        {assignment.exam_mode === 'at-school' ? (
+          <label className="flex flex-col gap-1 text-label font-medium text-text">
+            Mã phòng thi
+            <input
+              aria-label="Mã phòng thi"
+              inputMode="numeric"
+              autoComplete="off"
+              maxLength={6}
+              className="w-40 rounded-lg border border-border-strong bg-card px-3 py-2 text-body text-text"
+              value={roomCode}
+              onChange={(event) => setRoomCode(event.target.value.replace(/\D/g, ''))}
+            />
+          </label>
+        ) : null}
+        <Button
+          variant="primary"
+          onClick={() => void begin()}
+          disabled={stage === 'starting' || (assignment.exam_mode === 'at-school' && roomCode.length !== 6)}
+        >
           {stage === 'starting' ? 'Đang vào bài…' : resume ? 'Làm tiếp bài' : 'Bắt đầu làm bài'}
         </Button>
         <Button variant="text" onClick={() => onExit(null)}>

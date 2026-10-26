@@ -11,6 +11,10 @@ import {
   buildAttemptLayout,
   canSaveAnswers,
   countViolations,
+  generateRoomCode,
+  ipAllowed,
+  normalizeIp,
+  parseNetworkRange,
   countedAttempt,
   keysToLabels,
   labelsToKeys,
@@ -252,5 +256,26 @@ describe('Đồng hồ máy chủ, sự kiện rời bài, lượt được tín
       }
     }
     assert.throws(() => limiter.hit('hs-0'), /quá tải/);
+  });
+
+  it('CT-23a-1j: dải mạng của trường và mã phòng thi', () => {
+    assert.deepEqual(parseNetworkRange('10.0.0.0/8'), { address: '10.0.0.0', prefix: 8, family: 'ipv4' });
+    assert.deepEqual(parseNetworkRange('192.168.1.5'), { address: '192.168.1.5', prefix: 32, family: 'ipv4' });
+    assert.deepEqual(parseNetworkRange('2001:db8::/32'), { address: '2001:db8::', prefix: 32, family: 'ipv6' });
+    for (const bad of ['', 'abc', '10.0.0.0/33', '10.0.0.0/8/1', '10.0.0/8', '::1/129', '10.0.0.0/x']) {
+      assert.equal(parseNetworkRange(bad), null, bad);
+    }
+    assert.equal(normalizeIp('::ffff:10.1.2.3'), '10.1.2.3');
+    assert.equal(ipAllowed('203.0.113.9', []), true, 'không khai dải thì không giới hạn');
+    assert.equal(ipAllowed('10.20.30.40', ['10.0.0.0/8', '192.168.0.0/16']), true);
+    assert.equal(ipAllowed('::ffff:192.168.5.5', ['10.0.0.0/8', '192.168.0.0/16']), true, 'IPv4 dạng ánh xạ IPv6');
+    assert.equal(ipAllowed('172.16.0.1', ['10.0.0.0/8', '192.168.0.0/16']), false);
+    assert.equal(ipAllowed('2001:db8::1', ['2001:db8::/32']), true);
+    assert.equal(ipAllowed('2001:db9::1', ['2001:db8::/32']), false);
+    assert.equal(ipAllowed(undefined, ['10.0.0.0/8']), false, 'không rõ địa chỉ thì từ chối khi có giới hạn');
+    assert.equal(ipAllowed('khong-phai-dia-chi', ['10.0.0.0/8']), false);
+    for (let index = 0; index < 50; index += 1) {
+      assert.match(generateRoomCode(), /^\d{6}$/);
+    }
   });
 });

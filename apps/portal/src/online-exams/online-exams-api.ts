@@ -67,8 +67,31 @@ export interface AssignmentDetail {
   camera_enabled: boolean;
   camera_fallback: string;
   single_session_mode: string;
+  exam_mode: 'at-school' | 'remote';
+  rooms: ExamRoom[];
   targets: Array<{ kind: 'class' | 'student'; label: string }>;
   students: MonitorStudent[];
+}
+
+export interface ExamRoom {
+  id: string;
+  code: string;
+  opened_by_name: string;
+  opened_at: string;
+  expires_at: string;
+  closed_at: string | null;
+  open: boolean;
+  students: number;
+  entered: number;
+}
+
+export interface SchoolSettings {
+  default_exam_mode: 'at-school' | 'remote';
+  allow_remote: boolean;
+  allowed_networks: string[];
+  room_code_minutes: number;
+  updated_by_name: string | null;
+  updated_at: string | null;
 }
 
 export interface AttemptDetail {
@@ -143,3 +166,15 @@ export const forceSubmit = (id: string): Promise<AttemptDetail> =>
 export const listLevelSettings = (): Promise<LevelSetting[]> => requestJson('/api/v1/online-exams/settings');
 export const updateLevelSetting = (level: SchoolLevelCode, enabled: boolean): Promise<LevelSetting[]> =>
   requestJson(`/api/v1/online-exams/settings/${level}`, json('PUT', { student_login_enabled: enabled }));
+
+export const readSchoolSettings = (): Promise<SchoolSettings> => requestJson('/api/v1/online-exams/school-settings');
+export const updateSchoolSettings = (
+  input: Omit<SchoolSettings, 'updated_by_name' | 'updated_at'>,
+): Promise<SchoolSettings> => requestJson('/api/v1/online-exams/school-settings', json('PUT', input));
+export const openRoom = (assignmentId: string, childIds?: string[]): Promise<AssignmentDetail> =>
+  requestJson(
+    `/api/v1/online-exams/assignments/${assignmentId}/rooms`,
+    json('POST', childIds ? { child_ids: childIds } : {}),
+  );
+export const closeRoom = (roomId: string): Promise<AssignmentDetail> =>
+  requestJson(`/api/v1/online-exams/rooms/${roomId}/close`, json('POST', {}));
