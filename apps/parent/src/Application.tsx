@@ -5,7 +5,14 @@ import { HomeScreen } from './screens/HomeScreen.js';
 import { LoginScreen } from './screens/LoginScreen.js';
 import { RecruitmentScreen, useRecruitmentRoute } from './screens/RecruitmentScreen.js';
 import { UpdateBanner } from '@school-management/pwa';
-import { DemoBanner, MaintenanceBanner, type MaintenanceNoticeItem } from '@school-management/ui';
+import {
+  DemoBanner,
+  ExternalSignInCallback,
+  isExternalCallbackLocation,
+  MaintenanceBanner,
+  type MaintenanceNoticeItem,
+} from '@school-management/ui';
+import { externalRequest } from './session/external-request.js';
 import { requestJson } from './session/api-client.js';
 import { SessionProvider, useSession } from './session/session.js';
 import { StudentApplication, useStudentRoute } from './student/StudentApplication.js';
@@ -33,6 +40,17 @@ function Screens() {
   };
   if (recruitment) {
     return <RecruitmentScreen />;
+  }
+  // Quay về từ nhà cung cấp định danh bên ngoài (DT-25 bước 25b)
+  if (isExternalCallbackLocation(import.meta.env.BASE_URL)) {
+    return (
+      <ExternalSignInCallback
+        request={externalRequest}
+        basePath={import.meta.env.BASE_URL}
+        ready={session.status !== 'checking'}
+        afterLink={import.meta.env.BASE_URL}
+      />
+    );
   }
   if (session.status === 'checking') {
     return <div className="min-h-screen animate-pulse bg-page" aria-busy="true" />;

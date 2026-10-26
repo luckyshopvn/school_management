@@ -831,7 +831,7 @@ Nguồn: tài liệu 32 mục 19, YCTD-250. Mục này chỉ ghi để người 
 
 Kế hoạch ở `32_KE_HOACH_THEO_HE_THONG_SO.md` mục 17, YCTD-225. **Phần máy chủ đã có trong mã** (`apps/identity/src/external-identity/`): lớp trừu tượng `IdentityProvider`, bộ nối OIDC chung (authorization code + PKCE, state, nonce, discovery, kiểm chữ ký `id_token` qua JWKS, tải lại khóa khi nhà cung cấp quay khóa), hồ sơ `vneid` với các tham số "chờ tài liệu RAR" là cấu hình; nền tảng khai nhà cung cấp ở `EXTERNAL_IDENTITY_PROVIDERS` và `EXTERNAL_IDENTITY_<MÃ>_CLIENT_SECRET`; trường bật tắt, chọn nhóm vai trò, mã ứng dụng và khóa riêng (mã hóa theo khóa của trường) ở `PUT /auth/external/settings/:provider` (quyền `P01.account.manage`); bảng định danh 0140 `external_identity_providers`, `external_identities` (chỉ subject mã hóa và băm), `external_identity_events`; nhà cung cấp OIDC giả lập cho kiểm thử; e2e spec 165.
 
-**Chưa có:** nút "Đăng nhập bằng VNeID" trên màn hình đăng nhập, trang quay về `/dang-nhap/ben-ngoai`, mục liên kết ở "Tài khoản của tôi", màn hình cấu hình của trường (bước 25b, làm sau khi DT-24 gộp); hợp đồng và tài liệu kỹ thuật của Trung tâm RAR (việc của Eric).
+**Giao diện (bước 25b, YCTD-226):** nút "Đăng nhập bằng <nhà cung cấp>" trên màn hình đăng nhập của cổng quản trị, ứng dụng giáo viên, ứng dụng phụ huynh (chỉ khi trường bật; ở tên miền chung không hiện), trang quay về `/dang-nhap/ben-ngoai` có bước nhập mã hai lớp, mục "Liên kết tài khoản" ở Tài khoản của tôi và ứng dụng phụ huynh, khối cấu hình ở Danh sách người dùng. **Chưa có:** hợp đồng và tài liệu kỹ thuật của Trung tâm RAR (việc của Eric).
 
 ## 10. DT-28: kế hoạch hệ thống quản lý học tập (chưa có trong mã)
 
