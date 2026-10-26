@@ -15,6 +15,8 @@ import { AssessmentScreen } from './screens/AssessmentScreen.js';
 import { ScoreScreen } from './screens/ScoreScreen.js';
 import { PayslipsScreen } from './screens/PayslipsScreen.js';
 import { LoginScreen } from './screens/LoginScreen.js';
+import { ExternalSignInCallback, isExternalCallbackLocation } from '@school-management/ui';
+import { externalRequest } from './session/external-request.js';
 import { MedicationScreen } from './screens/MedicationScreen.js';
 import { PickupScreen } from './screens/PickupScreen.js';
 import { StocktakeScreen } from './screens/StocktakeScreen.js';
@@ -91,6 +93,17 @@ function Screens() {
     | { screen: 'classroom-tools'; classes: MyClass[] }
   >();
   const back = () => setOpened(undefined);
+  // Quay về từ nhà cung cấp định danh bên ngoài (DT-25 bước 25b)
+  if (isExternalCallbackLocation(import.meta.env.BASE_URL)) {
+    return (
+      <ExternalSignInCallback
+        request={externalRequest}
+        basePath={import.meta.env.BASE_URL}
+        ready={session.status !== 'checking'}
+        afterLink={import.meta.env.BASE_URL}
+      />
+    );
+  }
   if (session.status === 'checking') {
     return <div className="min-h-screen animate-pulse bg-page" aria-busy="true" />;
   }

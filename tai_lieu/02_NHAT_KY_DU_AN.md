@@ -1,7 +1,7 @@
 # 02. NHẬT KÝ DỰ ÁN
 
 - Mô tả: Ghi nhận công việc, quyết định, thay đổi và vấn đề tồn đọng theo ngày, ngày mới nhất ở trên cùng.
-- Phiên bản: 0.80
+- Phiên bản: 0.81
 - Ngày cập nhật: 2026-10-26
 - Trạng thái: Đang cập nhật
 
@@ -36,6 +36,26 @@
 #### Vấn đề tồn đọng
 
 - Màn hình nhóm của con ở ứng dụng phụ huynh, của học sinh; màn hình bộ nhóm ở cổng quản trị.
+### 2026-10-26 — DT-25 bước 25b: giao diện đăng nhập và liên kết bằng nhà cung cấp định danh
+
+#### Công việc đã thực hiện
+
+- Thành phần dùng chung ở `packages/ui` cho nút đăng nhập, trang quay về `/dang-nhap/ben-ngoai`, mục liên kết tài khoản; nối vào cổng quản trị (điểm gắn của DT-24, Tài khoản của tôi, khối cấu hình ở Danh sách người dùng), ứng dụng giáo viên, ứng dụng phụ huynh.
+- e2e spec 165 thêm ca giao diện: liên kết ở Tài khoản của tôi, đăng nhập bằng nút, gỡ liên kết, nút ẩn khi trường tắt. Kết quả trên máy 13/13 cùng spec 01.
+
+#### Quyết định
+
+- Ở tên miền chung (đăng nhập theo đơn vị) không hiện nút: cấu hình, liên kết và lượt đăng nhập theo trường, người dùng mở trang đăng nhập riêng của trường.
+- Ứng dụng giáo viên chỉ có nút đăng nhập; giáo viên liên kết ở cổng quản trị. Phụ huynh liên kết ngay trong ứng dụng phụ huynh.
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-226, `23_LICH_SU_PHIEN_BAN.md` 0.147.0.
+
+#### Vấn đề tồn đọng
+
+- Hợp đồng và tài liệu kỹ thuật của Trung tâm RAR (việc của Eric).
+
 ### 2026-10-26 — DT-23 phần 23a: thi trực tuyến cho học sinh
 
 #### Công việc đã thực hiện

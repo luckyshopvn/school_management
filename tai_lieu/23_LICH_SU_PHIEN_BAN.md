@@ -27,6 +27,18 @@
 - Rủi ro: chia theo năng lực dựa trên điểm chưa đầy đủ đầu năm (học sinh chưa có điểm xếp sau ở gom tầng); bảng `classroom_groupings` còn ghi song song một bản phát hành.
 - Khả năng tương thích: nhóm 4.1.6 không đổi; công cụ lớp học giữ dạng phản hồi; bản chia cũ của 23b chuyển thành bộ nhóm.
 - Phương án quay lui: hoàn lại commit gộp; tệp 0171 và 0170 có hàm `down` xóa bộ nhóm đã dời và các cột mới, `classroom_groupings` vẫn đủ dữ liệu vì được ghi song song.
+### Phiên bản 0.147.0 – 2026-10-26
+
+- Phạm vi thay đổi: DT-25 bước 25b, giao diện đăng nhập và liên kết bằng nhà cung cấp định danh bên ngoài (YCTD-226).
+- Chức năng mới: nút "Đăng nhập bằng <nhà cung cấp>" trên màn hình đăng nhập của cổng quản trị, ứng dụng giáo viên, ứng dụng phụ huynh (chỉ hiện khi trường đã bật); trang quay về `/dang-nhap/ben-ngoai` (có bước nhập mã hai lớp); mục "Liên kết tài khoản" ở Tài khoản của tôi (cổng quản trị) và màn hình chính của ứng dụng phụ huynh (liên kết, gỡ liên kết, nhật ký); khối cấu hình của trường ở Danh sách người dùng.
+- Lỗi đã sửa: không có.
+- Thay đổi dữ liệu: không.
+- Thay đổi API: không (dùng nhóm `/auth/external/*` của 0.142.0).
+- Kiểm thử: e2e spec 165 thêm ca giao diện (liên kết, đăng nhập bằng nút, gỡ liên kết, nút ẩn khi trường tắt); kết quả trên máy 13/13 cùng spec 01.
+- Rủi ro: thấp; ở tên miền chung (đăng nhập theo đơn vị của DT-24) không hiện nút, người dùng mở trang đăng nhập riêng của trường.
+- Khả năng tương thích: trường chưa bật nhà cung cấp thì không có gì thay đổi trên màn hình.
+- Phương án quay lui: tắt nhà cung cấp ở trường; hoàn lại commit gộp.
+
 ### Phiên bản 0.144.0 – 2026-10-26
 
 - Phạm vi thay đổi: DT-23 phần 23a, thi trực tuyến cho học sinh (YCTD-211).
