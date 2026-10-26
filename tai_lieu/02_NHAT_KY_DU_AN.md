@@ -1,7 +1,7 @@
 # 02. NHẬT KÝ DỰ ÁN
 
 - Mô tả: Ghi nhận công việc, quyết định, thay đổi và vấn đề tồn đọng theo ngày, ngày mới nhất ở trên cùng.
-- Phiên bản: 0.74
+- Phiên bản: 0.75
 - Ngày cập nhật: 2026-10-26
 - Trạng thái: Đang cập nhật
 
@@ -32,13 +32,41 @@
 
 #### Thay đổi
 
-- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-270, `32` mục 19 (dòng 27d, 27e), mục 20 (phiên bản 1.77), `01` (1.70), `34_TONG_HOP_CHUC_NANG_HE_THONG/01_TONG_QUAN_VA_NEN_TANG.md`, `index.md`. Chỉ đổi tài liệu, không tăng phiên bản phần mềm.
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-270, `32` mục 19 (dòng 27d, 27e), mục 20 (phiên bản 1.78), `01` (1.71), `34_TONG_HOP_CHUC_NANG_HE_THONG/01_TONG_QUAN_VA_NEN_TANG.md`, `index.md`. Chỉ đổi tài liệu, không tăng phiên bản phần mềm.
 
 #### Vấn đề tồn đọng
 
 - Chờ Eric: luật sư rà theo dõi tiến độ, quan sát nhóm, LTI; chọn trường thử; xác nhận thứ tự 27d, 27e; tuỳ chọn hỏi văn bản bài về nhà và văn bản sửa Thông tư 09 (E-01 đến E-05 ở `32` mục 20.12).
 - PR 181 (DT-25) dùng GD-128 đến GD-130 và RR-28, trùng với DT-27 đã gộp; phiên điều phối đánh lại khi gộp PR 181.
 
+### 2026-10-26 — DT-24: danh mục đơn vị toàn quốc, đăng nhập theo đơn vị, quyền quản trị nền tảng
+
+#### Công việc đã thực hiện
+
+- Đọc báo cáo của ba phiên khảo sát (lưu ngoài kho mã), mã S1a, S1b, S2, S3, S4, S6, S8b; đếm thử bản khảo sát bằng bộ đọc mới (không in dữ liệu): 39.658 đơn vị nhập được, 11 dòng loại vì mã trùng khuôn số căn cước, 4.333 mã không chuẩn, 314 tên rỗng, 366 thiếu phường xã; nhập thử vào cơ sở dữ liệu tạm 16 giây, nhập lại 3 giây, rồi xóa cơ sở dữ liệu tạm.
+- Viết mục 16 của `32` (kế hoạch DT-24) và làm trọn mã trong cùng một PR: danh mục, công cụ nhập, trang đăng nhập theo đơn vị, chuyển phiên, quyền vào mọi trường của quản trị nền tảng, trang Danh mục đơn vị của cổng nền tảng; sửa PL-02 (Điều 5a).
+
+#### Quyết định
+
+- Eric quyết định ngày 2026-10-26: quản trị nền tảng vào mọi trường mặc định không cần trường đồng ý, bắt buộc xác thực hai lớp, lý do, nhật ký, có hạn, biểu ngữ, chính sách cấu hình được; không commit dữ liệu thu thập; không dùng quốc huy, tên của Bộ.
+- Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11: một PR; đăng nhập ở tên miền chung chuyển phiên bằng mã một lần lưu ở cơ sở dữ liệu định danh của trường; danh sách ô chọn không đánh dấu đơn vị đã dùng nền tảng; nhập lại mã xác thực hai lớp ngay lúc mở phiên không cần đồng ý; ứng dụng giáo viên, phụ huynh không đổi (màn hình đăng nhập riêng).
+
+#### Thay đổi
+
+- Tệp: xem YCTD-220 ở `24_YEU_CAU_THAY_DOI.md`. Phiên bản 0.141.0 (0.140.0 là của 23b, gộp trước).
+
+#### Kết quả kiểm thử
+
+- `database`: `school-catalog.test.ts` 5/5 (CT-24-1 đến CT-24-4).
+- `apps/identity`: `directory/unit-directory.test.ts` 4/4 (CT-24-5 đến CT-24-8), `platform/support-sessions.test.ts` 4/4 (CT-S4-1 đến CT-S4-4, không sửa kỳ vọng), `tenancy-matrix.test.ts` 4/4.
+- `tests/trial/edge-worker.test.mjs`: đạt (sửa kỳ vọng ca tên miền hệ thống theo hành vi mới).
+- Typecheck, lint, định dạng: đạt.
+- e2e nhiều trường (bố cục `database`, giữ khóa `e2e.lock`): 160 2/2 (CT-24-9, CT-24-10); 130, 131, 133, 134, 135, 136, 137, 138, 139, 140 đạt; 132 đạt sau khi đổi nhãn ô lý do ở khung truy cập của cổng nền tảng (nhãn cũ trùng chuỗi con với ô "Lý do" mà spec 132 dùng). e2e một trường (CSDL định danh riêng của phiên): 01-login 8/8, 59-portal-shell-login 5/5; 02, 03 hỏng ở bước mở năm học vượt 30 giây do máy đang chạy nhiều phiên (không liên quan đăng nhập), để CI chạy lại.
+
+#### Vấn đề tồn đọng
+
+- Luật sư rà PL-02 Điều 5a trước khi nhận dữ liệu thật (GD-110); quyền dùng lại danh mục lấy từ trang công khai (GD-109); tên sản phẩm cho tiêu đề trang đăng nhập (GD-111).
+- Đăng nhập theo đơn vị cho ứng dụng giáo viên, phụ huynh: chưa làm, chờ Eric cần.
 ### 2026-10-26 — Kế hoạch DT-27: nền tảng gia sư trực tuyến
 
 #### Công việc đã thực hiện

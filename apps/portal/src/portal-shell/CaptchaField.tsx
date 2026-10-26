@@ -4,19 +4,23 @@ import type { CaptchaAnswer } from '../session/api-client.js';
 import { issueCaptcha, type CaptchaChallenge } from './portal-shell-api.js';
 
 // Ô mã xác nhận dạng ảnh có nút làm mới (DT-16 phần 16c); ảnh do máy chủ tự sinh. Mỗi mã chỉ dùng một lần nên trang gọi
-// làm mới sau mỗi lần gửi
-export function useCaptcha(enabled: boolean) {
+// làm mới sau mỗi lần gửi. Đăng nhập theo đơn vị (DT-24) lấy ảnh của trường đang chọn: truyền hàm lấy ảnh và khóa là mã đơn vị,
+// đổi đơn vị thì lấy ảnh mới
+export function useCaptcha(enabled: boolean, issue: () => Promise<CaptchaChallenge> = issueCaptcha, key = '') {
   const [challenge, setChallenge] = useState<CaptchaChallenge>();
   const [text, setText] = useState('');
   const [loadError, setLoadError] = useState(false);
   // Chỉ nhận ảnh của lần lấy mới nhất, để ảnh đang hiện luôn khớp mã gửi đi
   const latest = useRef(0);
+  const issueRef = useRef(issue);
+  issueRef.current = issue;
 
   const refresh = useCallback(() => {
     const request = ++latest.current;
     setText('');
     setLoadError(false);
-    issueCaptcha()
+    issueRef
+      .current()
       .then((issued) => {
         if (request === latest.current) {
           setChallenge(issued);
@@ -35,7 +39,7 @@ export function useCaptcha(enabled: boolean) {
     } else {
       setChallenge(undefined);
     }
-  }, [enabled, refresh]);
+  }, [enabled, refresh, key]);
 
   const answer: CaptchaAnswer | undefined =
     enabled && challenge ? { captcha_id: challenge.captcha_id, captcha_text: text } : undefined;
