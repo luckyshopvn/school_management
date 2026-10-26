@@ -1,7 +1,7 @@
 # 32. KẾ HOẠCH ĐỒNG BỘ CHỨC NĂNG VÀ GIAO DIỆN THEO HỆ THỐNG CỦA SỞ (DT-15)
 
-- Mô tả: Kế hoạch điều chỉnh School Management theo kết quả khảo sát `31_KHAO_SAT_HE_THONG_SO.md`; từ mục 9 thêm kế hoạch DT-18 điều hành nhà trường, mục 10 thêm kế hoạch DT-19 nền đa cấp học, mục 11 thêm kế hoạch DT-20 Tiểu học (kèm 22c thời khoá biểu), mục 12 thêm kế hoạch DT-21 THCS và THPT (kèm 22g kiểm tra, đánh giá), mục 13 thêm kế hoạch DT-22 (22a thư viện, 22e hồ sơ bồi dưỡng, 22h kho học liệu số), mục 14 thêm kế hoạch DT-SaaS (Enterprise SaaS nhiều trường: S1a, S1b, S2, S3, S4, S5a, S5b, S6, S7a, S7b, S8a, S8b, S9; hai hồ sơ triển khai: thử nghiệm miễn phí và vận hành), mục 15 thêm kế hoạch DT-23 (thi trực tuyến cho học sinh, công cụ lớp học, trò chơi kiến thức và thẻ đáp án giấy, trợ lý AI; 23a đến 23d).
-- Phiên bản: 1.74
+- Mô tả: Kế hoạch điều chỉnh School Management theo kết quả khảo sát `31_KHAO_SAT_HE_THONG_SO.md`; từ mục 9 thêm kế hoạch DT-18 điều hành nhà trường, mục 10 thêm kế hoạch DT-19 nền đa cấp học, mục 11 thêm kế hoạch DT-20 Tiểu học (kèm 22c thời khoá biểu), mục 12 thêm kế hoạch DT-21 THCS và THPT (kèm 22g kiểm tra, đánh giá), mục 13 thêm kế hoạch DT-22 (22a thư viện, 22e hồ sơ bồi dưỡng, 22h kho học liệu số), mục 14 thêm kế hoạch DT-SaaS (Enterprise SaaS nhiều trường: S1a, S1b, S2, S3, S4, S5a, S5b, S6, S7a, S7b, S8a, S8b, S9; hai hồ sơ triển khai: thử nghiệm miễn phí và vận hành), mục 15 thêm kế hoạch DT-23 (thi trực tuyến cho học sinh, công cụ lớp học, trò chơi kiến thức và thẻ đáp án giấy, trợ lý AI; 23a đến 23d), mục 19 thêm kế hoạch DT-27 (nền tảng gia sư trực tuyến: gia sư trong trường, khoá học ghi sẵn, hỏi đáp, chợ gia sư mở; 27a đến 27i; mục 16 đến 18 để cho DT-24 đến DT-26).
+- Phiên bản: 1.75
 - Ngày cập nhật: 2026-10-26
 - Trạng thái: Đã duyệt hướng làm
 - Căn cứ: yêu cầu của Eric ngày 2026-10-13 ("tính năng đã có thì ưu tiên phiên bản và giao diện của Sở; tính năng Sở không có thì giữ nguyên, chỉ đổi giao diện theo trang của Sở") và các lựa chọn của Eric cùng ngày ở mục 2.
@@ -1670,3 +1670,279 @@ Bản kế hoạch này là YCTD-210, chỉ đổi tài liệu (không tăng phi
 | GD-106 | Mức chống gian lận | **Eric đã chốt 2026-10-26:** khóa toàn màn hình và camera. Claude chọn cách làm tôn trọng dữ liệu trẻ em: camera xử lý ngay trên máy học sinh, chỉ gửi sự kiện, không gửi hình hay video; ảnh định kỳ tắt mặc định, chỉ bật khi có đồng ý của cha mẹ; sự kiện không tự trừ điểm; điểm cần giáo viên xác nhận mới vào sổ | cấu hình thi trực tuyến, theo bài | Eric (đã chốt hướng; chốt lại nếu muốn lưu hình mặc định) |
 | GD-107 | Thư viện đọc thẻ đáp án | Tự viết bộ đọc hoặc dùng thư viện mã nguồn mở có giấy phép cho phép dùng thương mại; chọn và ghi giấy phép lúc làm | mã 23c | Claude (theo ủy quyền) |
 | GD-108 | Phạm vi ngoại tuyến của ứng dụng giáo viên | **Eric đã chốt 2026-10-26:** chỉ trang công cụ lớp học (23b); danh sách lớp lưu 24 giờ, xóa khi đăng xuất | cấu hình theo trường | Eric (đã chốt) |
+
+## 19. DT-27: nền tảng gia sư trực tuyến (27a đến 27i)
+
+> Số mục: mục 16, 17, 18 để cho kế hoạch DT-24 (danh mục trường, đăng nhập kiểu SMIS), DT-25 (định danh OIDC, VNeID) và DT-26 (PWA, máy tính bảng, ứng dụng di động) đang viết ở phiên khác. Nếu lúc gộp các mục đó mang số khác thì đánh lại số mục này theo nhánh chính lúc gộp; nội dung không đổi.
+
+### 19.1 Căn cứ và mục tiêu
+
+1. **Quyết định của Eric ngày 2026-10-26** (giao qua phiên điều phối):
+   - **Mô hình: làm cả hai, theo thứ tự.** Trước: **gia sư trong từng trường** (trường tổ chức phụ đạo, bồi dưỡng trực tuyến cho học sinh của mình, dùng giáo viên, lớp, danh mục sẵn có). Sau: **chợ gia sư mở** (phụ huynh hoặc học sinh bất kỳ tìm và đặt gia sư bên ngoài, nền tảng thu hoa hồng).
+   - **Hình thức học: cả ba.** Lớp video trực tiếp (1-1 và nhóm nhỏ, bảng trắng, chia sẻ màn hình, ghi hình); khoá học ghi sẵn (video bài giảng, bài tập, theo dõi tiến độ); hỏi đáp bài tập không đồng bộ (học sinh gửi câu hỏi, gia sư trả lời; có thể có gợi ý của trợ lý AI 23d, **luôn ở dạng nháp**).
+   - **Thu phí qua nền tảng:** phụ huynh trả qua mã QR hoặc cổng thanh toán (S5b), nền tảng chi trả cho gia sư hoặc trường sau buổi học, có hoàn tiền và giải quyết tranh chấp. Mục 19.3 chỉ ra phần này **phải làm khác nhau** ở hai mô hình để đúng quy định: trong trường, tiền vào thẳng tài khoản của trường; ở chợ mở, giữ tiền và chia tiền phải đi qua tổ chức có giấy phép trung gian thanh toán.
+2. **Mục tiêu:** trường dạy phụ đạo, bồi dưỡng trực tuyến đúng Thông tư 29/2024/TT-BGDĐT (sửa đổi bởi Thông tư 19/2026/TT-BGDĐT) ngay trên dữ liệu đang có; sau đó mở thêm một sản phẩm chợ gia sư cho phụ huynh không thuộc trường nào, **không dựng kho dữ liệu thứ hai cho phần đã có** (ngân hàng câu hỏi, đề, kho học liệu, thi trực tuyến, AI, thu phí, bảng lương, nhắn tin).
+3. **Hiện trạng mã** (đọc trên nhánh chính ngày 2026-10-26, sau PR 177; các phần DT-23, DT-24, DT-25 đang làm ở nhánh khác, chưa gộp):
+   - **Học liệu và câu hỏi:** kho học liệu số 22h1, 22h2 (`learning_resources`, sự kiện, báo lỗi, lượt dùng, bộ sưu tập câu hỏi); ngân hàng câu hỏi và đề 22g1, 22g2 (`questions`, `exams`, `exam_variants`, `question_usages`, luồng chuyển điểm vào `score_entries`).
+   - **Thời khoá biểu và điểm danh:** `timetable_lessons` (giáo viên, lớp, môn, tiết) của 22c; `period_attendance`, `attendance_records`; `class_staff_assignments`. Đây là nguồn để biết **giáo viên đang được phân công dạy học sinh nào** (ràng buộc 19.2).
+   - **Thu phí của trường:** `fee_schedules`, `fee_schedule_items`, `invoices`, `invoice_items`, `receipts`, `payments`, `payment_refund_sources`, `online_payment_transactions`; cổng thanh toán **theo trường** qua `TenantPaymentGatewayRegistry` (S3: PayOS, SePay, Casso, VNPay, VietQR tĩnh), tiền vào tài khoản của trường.
+   - **Bảng lương:** `pay_item_types`, `staff_pay_items`, `payrolls`, biểu thuế thu nhập cá nhân lũy tiến (`apps/api/src/payroll/pay-items.ts`, YCTD-60).
+   - **Thu phí nền tảng:** S5b (`PlatformPaymentGateways` trong `apps/api/src/billing/billing.ts`) chỉ thu tiền **hóa đơn dịch vụ của chính nền tảng** vào tài khoản nền tảng; `EInvoiceProvider` mới có bộ giả lập.
+   - **Nhắn tin:** `message_threads`, `messages` (phụ huynh và giáo viên, theo năm học); thông báo `notifications`.
+   - **Đa thuê bao:** mỗi trường một bộ cơ sở dữ liệu `identity`, `system`, `year_*` (bố cục `database` hoặc `schema`); `platform` là cơ sở dữ liệu chung duy nhất (14.4). **Chưa có chỗ nào chứa người dùng không thuộc trường** (cần cho chợ mở).
+   - **Chưa có:** WebRTC, máy chủ video, ghi hình, khoá học, hỏi đáp. 23e (giám thị camera, YCTD-215) sẽ dựng coturn và WebRTC cho thi; 23a thêm kênh đăng nhập `student`; 23d thêm `AiProvider`; DT-25 thêm bộ nối OIDC (sẵn cho VNeID); DT-26 lên kế hoạch PWA và ứng dụng di động.
+
+### 19.2 Căn cứ pháp lý đã đọc và ràng buộc sản phẩm
+
+Claude tra ngày **2026-10-26**. Cột "Mức đọc" ghi rõ đọc bản gốc hay nguồn thứ cấp; chỗ ghi **chưa xác minh** thì luật sư của Eric phải đối chiếu văn bản gốc trước khi dùng. Tài liệu này không thay tư vấn pháp lý.
+
+| Văn bản | Ban hành, hiệu lực | Nguồn | Mức đọc |
+|---|---|---|---|
+| Thông tư 19/2026/TT-BGDĐT sửa đổi, bổ sung một số điều của Thông tư 29/2024/TT-BGDĐT về dạy thêm, học thêm | 31/03/2026; hiệu lực 15/05/2026 | `vanban.chinhphu.vn` (thuộc tính, docid 217679); tệp gốc `datafiles.chinhphu.vn/cpp/files/vbpq/2026/4/19-bgddt.pdf` (ảnh quét, Claude đọc từng trang) | **Toàn văn** Điều 1 đến Điều 11 |
+| Thông tư 29/2024/TT-BGDĐT quy định về dạy thêm, học thêm | 30/12/2024; hiệu lực 14/02/2025 | Bài phân tích của Báo Luật sư Việt Nam (`lsvn.vn`), `vneconomy.vn`, `thuvienphapluat.vn` (trang hỏi đáp) | Nguồn thứ cấp; **chưa đọc bản gốc** (trang toàn văn trả lỗi 403 hoặc 404). Điều 3, 4, 5 dưới đây **chưa xác minh** từng chữ |
+| Nghị định 52/2024/NĐ-CP về thanh toán không dùng tiền mặt; Thông tư 40/2024/TT-NHNN về dịch vụ trung gian thanh toán | 15/05/2024, hiệu lực 01/07/2024; 17/07/2024 | `chinhsachonline.chinhphu.vn`, `baochinhphu.vn`, `vcci.com.vn`, trích đoạn `thuvienphapluat.vn` | Định nghĩa khoản 5, khoản 17 Điều 3 và mức vốn qua trích dẫn; **chưa đọc toàn văn**; chưa biết có văn bản sửa đổi đến 10/2026 hay không (**chưa xác minh**) |
+| Nghị định 117/2025/NĐ-CP về quản lý thuế với hoạt động kinh doanh trên nền tảng thương mại điện tử, nền tảng số | hiệu lực 01/07/2025 | `luatvietnam.vn`, `amis.misa.vn`, `viet-partners.com`; bản tin EY (tệp mã hóa, không đọc được) | Nguồn thứ cấp; tỷ lệ khấu trừ **chưa xác minh** (nguồn mâu thuẫn: thuế thu nhập cá nhân với dịch vụ 2% hay 5%) |
+| Luật Thương mại điện tử số 122/2025/QH15; Nghị định 248/2026/NĐ-CP hướng dẫn | 10/12/2025, hiệu lực 01/07/2026 | `luatvietnam.vn`, `thuvienphapluat.vn` (tin), `baolaocai.vn` | Nguồn thứ cấp; nghĩa vụ xác thực danh tính người bán trước khi cho bán (Điều 17 theo các bài) **chưa xác minh**; chưa rõ tiếp thị dịch vụ dạy học có thuộc phạm vi "nền tảng trung gian" không |
+| Luật Bảo vệ dữ liệu cá nhân số 91/2025/QH15; Nghị định 356/2025/NĐ-CP | 26/06/2025 và 31/12/2025; hiệu lực 01/01/2026 | Đã đọc toàn văn các điều liên quan ở S8a ngày 2026-10-25 (`33_HO_SO_PHAP_LY/00_MUC_LUC.md` mục 4) | Điều 24 Luật (dữ liệu trẻ em), Điều 9, 10 (đồng ý), Điều 21 Nghị định (dịch vụ xử lý dữ liệu, khoản 5 "phần mềm giáo dục có yếu tố giám sát như điểm danh, ghi hình") |
+| Luật Trẻ em số 102/2016/QH13; Nghị định 56/2017/NĐ-CP | 05/04/2016, hiệu lực 01/06/2017 | Hiểu biết sẵn có, **chưa đọc lại trong phiên này** | Quyền bí mật đời sống riêng tư; trách nhiệm bảo đảm an toàn cho trẻ em trên môi trường mạng; Tổng đài quốc gia bảo vệ trẻ em 111: **chưa xác minh** số điều |
+| Cấp phiếu lý lịch tư pháp qua VNeID | Thí điểm toàn quốc 01/10/2024 đến 30/06/2025 (Công văn 656/TTg-KSTT) | `lsvn.vn`, `hatinh.gov.vn` | Nguồn thứ cấp; **chưa xác minh** việc gia hạn hay chính thức hóa sau 30/06/2025, giá trị của bản điện tử |
+| Luật Nhà giáo số 73/2025/QH15 | — | Là căn cứ của Thông tư 19/2026 (trang 1) | Chỉ biết là căn cứ; **chưa đọc** điều về hành vi nhà giáo không được làm |
+
+**1. Dạy thêm, học thêm (Thông tư 29/2024 sửa bởi Thông tư 19/2026).** Điều đọc được và ràng buộc trong sản phẩm:
+
+| Quy định | Nguồn | Ràng buộc trong sản phẩm |
+|---|---|---|
+| "Dạy thêm, học thêm" là dạy học phụ thêm ngoài thời lượng kế hoạch giáo dục đối với **các môn học trong Chương trình giáo dục phổ thông** (và giáo dục thường xuyên) do Bộ trưởng ban hành. Văn hóa, nghệ thuật, thể thao, tăng cường ngoại ngữ, STEM/STEAM, năng lực số, AI, hướng nghiệp, kỹ năng sống **không thuộc nội dung chương trình môn học thì không thuộc phạm vi** Thông tư | TT 19/2026 Điều 1 (khoản 1 Điều 2 mới), bản gốc | Mỗi chương trình gia sư (trong trường và ở chợ) có trường bắt buộc **"loại nội dung"**: `curriculum` (môn trong chương trình, chịu Thông tư 29) hoặc `enrichment` (bổ trợ ngoài chương trình, theo pháp luật khác). Chỉ `curriculum` chịu các khóa dưới đây. Người tạo phải chọn, có giải thích ngay trên màn hình; quản trị trường duyệt |
+| Dạy thêm **trong nhà trường không được thu tiền** của học sinh; chỉ cho học sinh đăng ký tự nguyện thuộc các nhóm: kết quả môn học cuối kỳ liền kề chưa đạt, được chọn bồi dưỡng học sinh giỏi, lớp cuối cấp tự nguyện ôn thi | TT 29/2024 khoản 1 Điều 5 (**chưa xác minh** bản gốc) | Chương trình `curriculum` do trường tổ chức **khóa cứng chế độ "không thu tiền"**: không tạo được khoản thu, không hiện nút trả tiền, máy chủ từ chối; bắt buộc chọn nhóm đối tượng; với nhóm "chưa đạt" hệ thống gợi ý danh sách từ sổ điểm (giáo viên xác nhận); có đơn đăng ký của cha mẹ (19.4, 27b) |
+| Mỗi môn **không quá 02 tiết/tuần**; học sinh thuộc nhóm đối tượng cần hơn thì Giám đốc Sở quyết định theo đề nghị của Hiệu trưởng | TT 19/2026 Điều 2 (điểm c khoản 4 Điều 5 mới), bản gốc | Đếm số tiết `curriculum` trong trường theo môn, theo học sinh, theo tuần; vượt 2 thì chặn, trừ khi trường nhập số và ngày quyết định của Sở cho học sinh hoặc nhóm đó (lưu tệp quyết định); độ dài một tiết theo cấu hình cấp học hiện có |
+| Không tổ chức dạy thêm cho học sinh **tiểu học**, trừ bồi dưỡng nghệ thuật, thể dục thể thao, rèn luyện kỹ năng sống | TT 29/2024 khoản 1 Điều 4 (**chưa xác minh** bản gốc) | Chương trình `curriculum` không chọn được lớp hoặc học sinh cấp Tiểu học (cả trong trường lẫn ở chợ: hồ sơ trẻ có cấp học); `enrichment` vẫn được |
+| Giáo viên đang dạy ở trường **không được dạy thêm ngoài nhà trường có thu tiền đối với học sinh mà mình đang được nhà trường phân công dạy** theo kế hoạch giáo dục | TT 29/2024 khoản 2 Điều 4 (**chưa xác minh** bản gốc; Thông tư 19/2026 không sửa Điều 4) | **Ở chợ mở** (27g, 27h): gia sư khai mình đang là giáo viên trường nào; nếu là trường dùng nền tảng thì so khớp với phân công giảng dạy (`timetable_lessons`, `class_staff_assignments`) khi phụ huynh đặt buổi `curriculum` có thu tiền cho trẻ đã liên kết với trường: **chặn**; nếu không so khớp được (trẻ chưa liên kết, trường không dùng nền tảng) thì cả gia sư và phụ huynh phải tích cam kết "không phải giáo viên đang được phân công dạy trẻ này", ghi lại. **Trong trường**: không áp dụng vì `curriculum` đã không thu tiền |
+| Giáo viên trường công lập không được tham gia **quản lý, điều hành** dạy thêm ngoài nhà trường nhưng được tham gia dạy thêm | TT 29/2024 khoản 3 Điều 4 (**chưa xác minh** bản gốc) | Ở chợ: giáo viên công lập không mở được hồ sơ **cơ sở dạy thêm** (đứng tên kinh doanh) cho nội dung `curriculum`; chỉ dạy được với tư cách người dạy thuộc một cơ sở đã đăng ký, hoặc dạy `enrichment`. Luật sư kết luận (19.10, việc E-07) |
+| Giáo viên đang dạy ở trường khi tham gia dạy thêm ngoài nhà trường phải **báo cáo Hiệu trưởng** về môn, địa điểm, hình thức, mối quan hệ với chủ thể đứng tên đăng ký kinh doanh cơ sở dạy thêm, thời gian, **trước khi bắt đầu** và cập nhật khi thay đổi (Mẫu 03 sửa bởi Điều 10) | TT 19/2026 Điều 3 (khoản 3 Điều 6 mới), Điều 10, bản gốc | Gia sư ở chợ là giáo viên của trường dùng nền tảng: hệ thống **dựng sẵn báo cáo theo Mẫu 03** từ hồ sơ gia sư, gia sư xem và gửi vào trường (luồng văn bản đến hiện có hoặc việc của tôi của Hiệu trưởng); chưa gửi thì không mở nhận buổi `curriculum`. Trường không dùng nền tảng: tải bản PDF để tự nộp, tích xác nhận đã nộp |
+| Tổ chức, cá nhân tổ chức dạy thêm ngoài nhà trường **có thu tiền** (cơ sở dạy thêm) phải **đăng ký kinh doanh** và **công khai, cập nhật thường xuyên trên trang thông tin điện tử hoặc niêm yết**: môn học, thời lượng theo khối lớp, địa điểm, hình thức, thời gian, danh sách người dạy, mức thu, trước khi tuyển sinh (Mẫu 02) | TT 19/2026 Điều 3 (khoản 1 Điều 6 mới), bản gốc | Ở chợ: hồ sơ cơ sở dạy thêm `curriculum` bắt buộc mã số đăng ký kinh doanh hoặc mã số thuế hộ kinh doanh (nhân viên nền tảng duyệt tay, lưu tệp); **trang công khai của từng cơ sở trên chợ dựng theo các mục của Mẫu 02** (môn, thời lượng theo khối, hình thức "trực tuyến", lịch, danh sách người dạy, mức thu), không mở tuyển sinh khi thiếu mục. Trong trường: `enrichment` có thu tiền do trường tổ chức theo quy định thu khác của trường, không phải cơ sở dạy thêm |
+| Người dạy thêm ngoài nhà trường phải có phẩm chất đạo đức tốt, năng lực chuyên môn phù hợp môn dạy | TT 19/2026 Điều 3 (khoản 2 Điều 6 mới), bản gốc | Xác minh gia sư (27g): danh tính, bằng cấp hoặc chứng chỉ theo môn, phiếu lý lịch tư pháp; nhân viên nền tảng duyệt |
+| Nhà trường, xã, Sở lập **đường dây nóng** tiếp nhận phản ánh dạy thêm trái quy định | TT 19/2026 Điều 5, 7, 8, bản gốc | Trang công khai của trường (18f) và cổng phụ huynh hiện số đường dây nóng của trường (cấu hình); nút "Phản ánh dạy thêm" chuyển vào hộp thư góp ý hiện có |
+| Thông tư không nhắc riêng hình thức **trực tuyến** | Đọc toàn văn TT 19/2026; TT 29/2024 qua nguồn thứ cấp | Claude áp mọi ràng buộc trên **cho cả dạy trực tuyến** (định nghĩa dạy thêm theo nội dung, không theo nơi dạy); luật sư xác nhận (việc E-07) |
+
+**2. Giữ tiền rồi chi trả.**
+- **Dịch vụ hỗ trợ thu hộ, chi hộ** là dịch vụ trung gian thanh toán: "tiếp nhận, xử lý dữ liệu điện tử, tính toán kết quả thu hộ, chi hộ ... và thực hiện thanh toán cho các bên có liên quan" (khoản 17 Điều 3 Nghị định 52/2024, qua trích dẫn); chỉ tổ chức không phải ngân hàng **được Ngân hàng Nhà nước cấp giấy phép** mới được cung ứng (khoản 5 Điều 3); vốn điều lệ tối thiểu **50 tỷ đồng** cho ví điện tử, thu hộ chi hộ, cổng thanh toán điện tử; tổ chức này mở **tài khoản đảm bảo thanh toán** ở ngân hàng hợp tác (Thông tư 40/2024). Kết luận làm việc của Claude (**luật sư kết luận**): nền tảng **nhận tiền của phụ huynh vào tài khoản của mình rồi chi lại cho gia sư** thì có nguy cơ là cung ứng dịch vụ thu hộ, chi hộ không phép. **Không làm cách đó.**
+- **Phương án hợp pháp, theo mô hình:**
+  - **Trong trường (mốc 1):** tiền vào **thẳng tài khoản của trường** qua cổng thanh toán của trường (S3) như học phí; nền tảng không chạm tiền. Thù lao giáo viên trả qua **bảng lương của trường** (khoản mục mới), khấu trừ thuế thu nhập cá nhân theo biểu thuế sẵn có. Hoàn tiền qua luồng hoàn hiện có (`payment_refund_sources`).
+  - **Chợ mở (mốc 3), phương án A (đề xuất):** dùng tính năng **chia tiền hoặc giữ tiền có điều kiện của một tổ chức có giấy phép** (cổng thanh toán, ví điện tử hoặc ngân hàng có dịch vụ thu hộ, chi hộ, tài khoản đảm bảo); tiền nằm ở tổ chức đó, nền tảng chỉ gửi lệnh "giải ngân", "hoàn", "giữ do tranh chấp" và nhận phần hoa hồng. Bộ nối `MarketplacePaymentProvider` (19.4, 27h), bộ giả lập `mock`; nhà cung cấp thật Eric chọn (việc E-02). Tên tổ chức có dịch vụ như vậy ở Việt Nam: **chưa xác minh**, Eric hỏi báo giá.
+  - **Chợ mở, phương án B (dự phòng):** nền tảng **chỉ thu phí dịch vụ** (hoa hồng hoặc phí đăng tin) xuất hóa đơn cho gia sư; phụ huynh trả **thẳng vào tài khoản của gia sư** (mã VietQR của gia sư); nền tảng chỉ ghi nhận xác nhận đã trả. Hoàn tiền và tranh chấp khi đó chỉ là quy trình giữa hai bên có nền tảng hòa giải, không giữ tiền được.
+- **Thuế và hóa đơn:** Nghị định 117/2025 giao **tổ chức quản lý nền tảng thương mại điện tử, nền tảng số có chức năng thanh toán** khấu trừ, nộp thay thuế giá trị gia tăng và thu nhập cá nhân của hộ, cá nhân bán hàng tại thời điểm giao dịch thành công, theo tỷ lệ trên doanh thu từng giao dịch (Điều 4, 5 theo nguồn thứ cấp). **Chưa xác minh:** nền tảng ở phương án A có bị coi là "có chức năng thanh toán" không; tỷ lệ áp cho dịch vụ dạy học; dịch vụ dạy học có thuộc diện không chịu thuế giá trị gia tăng không; ngưỡng doanh thu không chịu thuế của hộ, cá nhân năm 2026 (nguồn ghi 200 triệu hoặc 500 triệu đồng, mâu thuẫn). Thiết kế: **hàm tính khấu trừ thuần, tỷ lệ là dữ liệu thiết lập có ngày hiệu lực** (như biểu thuế của bảng lương), có công tắc bật khấu trừ; báo cáo khấu trừ theo kỳ; hóa đơn điện tử cho phần hoa hồng của nền tảng qua `EInvoiceProvider` của S5b (nhà cung cấp thật chưa chốt). Gia sư là hộ kinh doanh tự xuất hóa đơn của mình (nếu phải) ngoài nền tảng.
+
+**3. An toàn trẻ em và dữ liệu.**
+- **Đồng ý của cha mẹ:** dữ liệu của trẻ em do người đại diện theo pháp luật thay mặt thực hiện quyền; công bố, tiết lộ đời sống riêng tư của trẻ từ đủ 07 tuổi cần đồng ý của cả trẻ và người đại diện (khoản 2 Điều 24 Luật 91/2025, đã đọc ở S8a). Sản phẩm: **mọi tài khoản học sinh ở chợ mở là hồ sơ con do tài khoản phụ huynh tạo**, trẻ không tự đăng ký; đăng ký lớp video, ghi hình, gửi ảnh câu hỏi đều cần phụ huynh đồng ý từng mục (lưu phiên bản văn bản đồng ý, thời điểm, rút lại được); trẻ từ 7 tuổi thấy câu hỏi đồng ý của chính mình khi vào lớp lần đầu.
+- **Ghi hình:** Nghị định 356/2025 Điều 21 khoản 5 nêu "phần mềm giáo dục có yếu tố giám sát như điểm danh, ghi hình" là một loại dịch vụ xử lý dữ liệu cá nhân; câu hỏi nền tảng có phải có Giấy chứng nhận đủ điều kiện đã nằm ở PL-15, **ghi hình lớp video làm câu hỏi đó nặng thêm** (thêm vào PL-15, việc E-06). Sản phẩm: biểu tượng "đang ghi" luôn hiện; trong trường ghi hình **tắt mặc định**, bật theo chương trình khi có đồng ý; ở chợ mở **mọi buổi có trẻ vị thành niên đều ghi** (điều kiện dịch vụ để bảo vệ trẻ và giải quyết tranh chấp, phụ huynh đồng ý khi đặt), giữ **30 ngày** (cùng hạn của 23e), giữ lâu hơn chỉ khi có tranh chấp hoặc báo cáo vi phạm đang mở; chỉ người dự buổi, phụ huynh, quản trị có quyền xem; **không tải xuống**; lưu mã hóa ở kho tệp theo `storageKey`.
+- **Kênh liên lạc:** **không có nhắn riêng giữa gia sư và trẻ mà phụ huynh không thấy**: mọi luồng tin nhắn gia sư với trẻ luôn có phụ huynh (trong trường dùng `message_threads` hiện có, thêm người dự luôn là phụ huynh); không gọi video ngoài buổi đã đặt; lọc và cảnh báo số điện thoại, địa chỉ thư, mạng xã hội, liên kết ngoài trong tin nhắn và hồ sơ (cũng chống né hoa hồng); phụ huynh vào xem buổi 1-1 bất cứ lúc nào.
+- **Báo cáo vi phạm:** nút báo cáo ở phòng học, tin nhắn, hồ sơ; hàng chờ xử lý của nền tảng (với chợ) và của trường (trong trường) có thời hạn phản hồi, tạm khóa gia sư ngay khi báo cáo mức nghiêm trọng, giữ bằng chứng (bản ghi, tin nhắn), hướng dẫn gọi Tổng đài 111 và chuyển cơ quan có thẩm quyền (**chưa xác minh** thủ tục chuyển).
+- **Xác minh lý lịch gia sư ở chợ mở:** danh tính qua bộ nối OIDC của DT-25 (VNeID khi có tổ chức cung cấp dịch vụ xác thực, xem ghi chú khảo sát VNeID: doanh nghiệp tư nhân đi qua tổ chức trung gian), đủ 18 tuổi; bằng cấp, chứng chỉ; **phiếu lý lịch tư pháp** tải lên (bản giấy quét hoặc bản điện tử từ VNeID nếu kênh còn hoạt động, **chưa xác minh**), nhân viên duyệt, hạn 6 tháng (giả định GD-126); không lưu số định danh toàn văn ngoài phần mã hóa cần thiết.
+
+**4. Hạ tầng video** (giá tra ngày 2026-10-26, kiểm lại trang chính thức khi làm):
+
+| Lựa chọn | Giá công bố | Nhận xét |
+|---|---|---|
+| **LiveKit mã nguồn mở tự host** (SFU, báo hiệu, TURN nhúng, Egress ghi hình ra kho S3) | Phần mềm không thu phí (giấy phép Apache 2.0, **chưa xác minh lại** trên kho mã); trả tiền máy và băng thông | **Chọn.** Có sẵn SDK web, React, iOS, Android (khớp DT-26), Egress ghi thẳng vào R2 hoặc SeaweedFS; dữ liệu trẻ em nằm ở máy chủ trong nước |
+| mediasoup tự host | Thư viện mã nguồn mở (giấy phép ISC, **chưa xác minh lại**) | Phải tự viết báo hiệu, quản phòng, ghi hình; nhiều việc hơn cho cùng kết quả |
+| LiveKit Cloud | Gói Ship 50 USD/tháng gồm 150.000 phút, sau đó 0,0005 USD/phút người dự, băng thông tải xuống 250 GB rồi 0,12 USD/GB; gói Scale 500 USD/tháng, 0,0004 USD/phút, 3 TB rồi 0,10 USD/GB; ghi hình (Egress) 0,001 USD/phút, chuyển mã 0,015 đến 0,02 USD/phút (`livekit.com/pricing.md`) | Giữ làm **bộ nối dự phòng** (cùng SDK); máy chủ ngoài nước nên vướng chuyển dữ liệu trẻ em xuyên biên giới |
+| Cloudflare Realtime (SFU, TURN) | 1.000 GB đầu mỗi tháng miễn phí, sau đó 0,05 USD/GB dữ liệu đi ra (`developers.cloudflare.com/realtime/sfu/pricing`) | Rẻ nhất về băng thông; khác SDK, phải tự làm ghi hình; ngoài nước. Ghi làm phương án cho hồ sơ thử nghiệm miễn phí |
+| Cloudflare R2 (lưu bản ghi) | 0,015 USD/GB-tháng, không tính phí dữ liệu ra (nguồn thứ cấp `filebase.com`, **chưa xác minh** trên trang Cloudflare) | Kho tệp của hồ sơ thử nghiệm; hồ sơ vận hành dùng SeaweedFS trên VPS (14.4) |
+
+**Ước lượng băng thông** (giả định, đo lại ở 27a): video 720p khoảng 1,2 Mbit/s, kèm tiếng khoảng 1,3 Mbit/s; luồng nhỏ của học sinh khi có giả lập nhiều lớp (simulcast) khoảng 0,3 Mbit/s.
+- Lớp 1-1: máy chủ gửi đi khoảng 2 × 1,3 = 2,6 Mbit/s, tức khoảng **1,2 GB mỗi giờ phòng**.
+- Nhóm 6 người (1 gia sư, 5 học sinh): luồng gia sư tới 5 học sinh 6,5 Mbit/s, mỗi học sinh nhận 4 luồng nhỏ 1,2 Mbit/s (cộng 6 Mbit/s), gia sư nhận 5 luồng nhỏ 1,5 Mbit/s: khoảng 14 Mbit/s, tức khoảng **6,3 GB mỗi giờ phòng**.
+- Bản ghi tổng hợp 720p khoảng 1,5 đến 2 Mbit/s: **0,7 đến 0,9 GB mỗi giờ**; giữ 30 ngày.
+- Ví dụ 1.000 giờ phòng 1-1 mỗi ngày: khoảng 35 TB/tháng đi ra. Cloudflare Realtime khoảng 34.000 GB × 0,05 ≈ 1.700 USD/tháng; LiveKit Cloud gói Scale khoảng 3,6 triệu phút người dự × 0,0004 ≈ 1.440 USD cộng 32 TB × 0,10 ≈ 3.200 USD, cộng phí gói, khoảng **5.100 USD/tháng**; tự host: trung bình khoảng 110 Mbit/s, giờ cao điểm buổi tối giả định gấp 4 lần, cần **cổng 1 Gbit/s** và khoảng 8 đến 16 nhân cho SFU cộng máy ghi hình (Egress khoảng 2 đến 4 nhân cho mỗi bản ghi 720p đồng thời, **chưa xác minh**). Giá băng thông VPS trong nước **chưa xác minh**, Eric hỏi báo giá (việc E-05). Ghi hình 1.000 giờ/ngày giữ 30 ngày khoảng 24 TB thường trực, R2 khoảng 360 USD/tháng.
+- Kết luận: tự host LiveKit trên VPS trong nước ở hồ sơ vận hành; bộ nối cho phép đổi sang LiveKit Cloud hoặc tắt ghi hình theo gói; **giới hạn phút video và dung lượng bản ghi là giới hạn của gói** (S5a) để chi phí đi cùng doanh thu.
+
+### 19.3 Nguyên tắc
+
+- **Dùng lại, không dựng song song:** thời khoá biểu, phân công, điểm danh, sổ điểm, thu phí và bảng lương của trường, cổng thanh toán theo trường (S3), ngân hàng câu hỏi và đề (22g1, 22g2), kho học liệu (22h1), lượt làm bài và kênh `student` (23a), `AiProvider` (23d), coturn (23e), bộ nối OIDC (DT-25), nhắn tin và thông báo hiện có. Phần mới chỉ thêm bảng cho thứ chưa có (phòng video, chương trình gia sư, buổi, khoá học, câu hỏi bài tập, và toàn bộ chợ mở).
+- **Tiền đi theo mô hình:** trong trường **tiền vào tài khoản của trường**, nền tảng không chạm; ở chợ mở **tiền nằm ở tổ chức có giấy phép**, nền tảng chỉ ra lệnh và nhận hoa hồng. Không dùng tài khoản nhận tiền của S5b cho tiền học của phụ huynh. **Không bật thu tiền ở chợ mở trên môi trường thật trước khi Eric chốt E-01 đến E-04 và luật sư rà** (19.10).
+- **Quy định dạy thêm là luật của máy chủ:** mọi khóa ở 19.2 mục 1 kiểm ở máy chủ, có kiểm thử đơn vị theo từng dòng của bảng; số liệu (2 tiết, cấp học được miễn) là cấu hình có ngày hiệu lực để khi văn bản đổi thì đổi dữ liệu bằng YCTD, không sửa mã.
+- **Trẻ em trước:** phụ huynh luôn thấy, luôn đồng ý trước, rút lại được; không kênh riêng; ghi hình có thời hạn; dữ liệu trẻ ở chợ mở tối thiểu (tên hiển thị, năm sinh, cấp học, lớp), không thu số định danh của trẻ.
+- **Hai sản phẩm, một mã nguồn:** gia sư trong trường chạy trong bộ cơ sở dữ liệu của từng trường (cả hai bố cục `database`, `schema`, đạt kiểm tĩnh đa thuê bao 14.7); chợ mở dùng **cơ sở dữ liệu chung mới `marketplace`** (loại migration mới, vai trò PostgreSQL riêng) vì người dùng chợ không thuộc trường nào; chợ đọc dữ liệu trường **chỉ qua API có đồng ý** (liên kết trẻ với trường, so khớp phân công), không đọc thẳng cơ sở dữ liệu trường.
+- **Không đổi hành vi phần đã có:** mọi e2e và kiểm thử đơn vị hiện có đạt không sửa kỳ vọng; trường không bật phân hệ "Gia sư trực tuyến" thì không thấy gì mới.
+- **Kiểm thử không gọi dịch vụ ngoài thật:** video, thanh toán, xác minh danh tính, AI đều có bộ giả lập `mock`; dữ liệu mẫu bịa; không dán khóa vào tài liệu.
+
+### 19.4 Các phần
+
+Số giữ sẵn bắt đầu **sau dải đã thấy của DT-23 (đến YCTD-219), DT-24 (YCTD-220, định danh 0130, nền tảng 0210, 0211) và DT-25 (YCTD-225, định danh 0140)**, chừa YCTD-230 đến YCTD-239 cho DT-26 đang lập kế hoạch: YCTD-240 cho chính bản kế hoạch này, YCTD-241 đến YCTD-249 cho chín phần, YCTD-250 đến YCTD-254 dự phòng. Migration: năm học 0140 đến 0159, hệ thống 0090 đến 0099, định danh 0160 đến 0169, nền tảng 0240 đến 0249, **cơ sở dữ liệu mới `marketplace` từ 0001** (mỗi phần một khối 10 số). e2e `180-` đến `188-`, `189-` đến `194-` dự phòng (để trống `160-` đến `179-` cho bổ sung của DT-23, DT-24, DT-25, DT-26). **Nếu lúc gộp nhánh chính đã dùng một số trong dải này thì đánh lại theo nhánh chính lúc gộp và ghi vào YCTD của phần.**
+
+| Phần | Phạm vi | Đợt | Phụ thuộc | YCTD | Migration | e2e |
+|---|---|---|---|---|---|---|
+| 27a | Lớp video trực tiếp: bộ nối `VideoRoomProvider` (`livekit` tự host, `livekit-cloud` dự phòng, `mock`), dịch vụ `livekit` và Egress trong hồ sơ vận hành, dùng chung coturn với 23e; phòng 1-1 và nhóm nhỏ (tối đa 8 người dự mặc định, cấu hình), vào phòng bằng mã ngắn hạn do máy chủ cấp theo vai trò; bảng trắng (thư viện mã nguồn mở có giấy phép dùng thương mại, chọn lúc làm), chia sẻ màn hình, tắt tiếng, phòng chờ; ghi hình vào kho tệp theo `storageKey`, thời hạn giữ và xóa tự động, xem lại không tải xuống; phụ huynh vào xem; nhật ký vào ra phòng (nguồn điểm danh); giới hạn phút video và dung lượng bản ghi theo gói (S5a) | 1 | 23a đã gộp (kênh `student`); dùng coturn của 23e nếu đã gộp, chưa thì 27a thêm coturn và 23e dùng lại | YCTD-241 | Năm học 0140, 0141; hệ thống 0090; nền tảng 0240 | 180 (kèm kiểm cách ly phòng video ở nhiều trường: mở rộng `MULTI_TENANT_SPEC`, chỉ 27a sửa ở đợt 1) |
+| 27b | Chương trình gia sư trong trường, lịch và đặt buổi, điểm danh: chương trình (môn, lớp hoặc nhóm, giáo viên, **loại nội dung `curriculum` hoặc `enrichment`**, nhóm đối tượng theo Thông tư 29, có thu tiền hay không), buổi học lặp theo tuần tránh trùng thời khoá biểu, đăng ký của học sinh có **đơn của cha mẹ** trên ứng dụng phụ huynh, kiểm tra 2 tiết/tuần/môn, chặn Tiểu học với `curriculum`, quyết định tăng thời lượng của Sở; điểm danh tự động từ nhật ký phòng (27a) và giáo viên xác nhận, ghi vắng báo phụ huynh; tin nhắn luôn có phụ huynh; đường dây nóng của trường | 1 | 22c (thời khoá biểu) đã gộp; 27a cho phòng (làm song song: 27b gọi giao diện phòng qua bộ giả lập đến khi 27a gộp) | YCTD-242 | Năm học 0142 đến 0144 | 181 |
+| 27c | Thu phí và chi trả trong trường theo quy định: chương trình `curriculum` khóa cứng "không thu tiền"; `enrichment` có thu tạo khoản thu trên hóa đơn của trường (`fee_schedules`, `invoices`), thu qua cổng của trường (S3), hoàn tiền buổi hủy qua luồng hoàn hiện có; **thù lao giáo viên** tính theo buổi đã dạy và điểm danh xác nhận, đẩy vào bảng lương (khoản mục mới, thuế thu nhập cá nhân theo biểu sẵn có); báo cáo thu chi theo chương trình; kinh phí dạy thêm `curriculum` lấy từ nguồn hợp pháp của trường (chỉ ghi nhận, không thu của học sinh) | 2 | 27b | YCTD-243 | Năm học 0145, 0146 | 182 |
+| 27d | Khoá học ghi sẵn: khoá học, chương, bài; bài là học liệu của kho 22h1 (video tải lên kho tệp, phát theo đoạn có kiểm quyền, không tải xuống) hoặc bài tập (đề của 22g1 giao qua lượt làm của 23a); tiến độ theo học sinh (đã xem bao nhiêu phần trăm, bài tập đã làm), giáo viên và phụ huynh xem; giao khoá cho lớp, nhóm, chương trình 27b; khoá công khai trong trường | 2 | 23a, 22h1 đã gộp | YCTD-244 | Hệ thống 0091 đến 0093 (khoá học dùng qua nhiều năm học); năm học 0147 (tiến độ) | 183 |
+| 27e | Hỏi đáp bài tập: học sinh gửi câu hỏi (chữ, ảnh) theo môn, chương trình hoặc khoá; hàng chờ của giáo viên phụ trách, nhận câu, trả lời (chữ, ảnh, liên kết học liệu hoặc câu trong ngân hàng), học sinh đánh dấu đã hiểu; **gợi ý của AI 23d luôn là bản nháp chỉ giáo viên thấy**, giáo viên sửa rồi mới gửi, câu trả lời mang dấu "có AI hỗ trợ"; chỉ gửi phần chữ đã quét thông tin cá nhân như 23d, **không gửi ảnh của học sinh cho AI**, phụ huynh bật tắt việc dùng AI cho con; hạn mức theo gói 23d | 2 | 23a, 23d đã gộp | YCTD-245 | Năm học 0148, 0149 | 184 |
+| 27f | Nền chợ gia sư: cơ sở dữ liệu `marketplace` và loại migration mới, vai trò PostgreSQL riêng; ứng dụng web mới `apps/market` trên tên miền con dành riêng của nền tảng (trang công khai, tài khoản phụ huynh, tài khoản gia sư); đăng nhập riêng của chợ (mật khẩu, mã xác nhận, OIDC của DT-25), hồ sơ con do phụ huynh tạo, đồng ý của phụ huynh theo phiên bản văn bản; **liên kết tùy chọn** với tài khoản phụ huynh ở trường (luồng chuyển đăng nhập của DT-24, có đồng ý) để biết trẻ học trường nào; hồ sơ gia sư và cơ sở dạy thêm ở mức tối thiểu; cấu hình chợ trong cổng nền tảng | 3 | 27a đến 27e đã gộp; DT-24, DT-25 đã gộp | YCTD-246 | Marketplace 0001 đến 0009; định danh 0160 (liên kết) | 185 (kiểm cách ly chợ với các trường: mở rộng `MULTI_TENANT_SPEC`, chỉ 27f sửa ở đợt 3) |
+| 27g | Hồ sơ gia sư, xác minh, tìm kiếm, đánh giá: hồ sơ (môn, cấp học, loại nội dung, giá, lịch trống, giới thiệu), xác minh danh tính qua OIDC (VNeID khi có), đủ 18 tuổi, bằng cấp, phiếu lý lịch tư pháp, đăng ký kinh doanh cho `curriculum`, khai là giáo viên trường nào và **báo cáo Mẫu 03 cho Hiệu trưởng**; hàng chờ duyệt của nhân viên nền tảng; **trang công khai theo Mẫu 02**; tìm kiếm và lọc (môn, cấp, giá, lịch, đánh giá); đánh giá sau buổi chỉ của phụ huynh đã học, kiểm duyệt, trả lời của gia sư | 4 | 27f | YCTD-247 | Marketplace 0010 đến 0019 | 186 |
+| 27h | Đặt buổi, thanh toán, hoa hồng, chi trả, hoàn tiền, tranh chấp: đặt buổi lẻ hoặc gói buổi, giữ chỗ có hạn, **chặn giáo viên đang được phân công dạy trẻ** với `curriculum` có thu tiền, phòng video của 27a ở ngữ cảnh chợ; bộ nối `MarketplacePaymentProvider` (`mock`, nhà cung cấp có phép khi Eric chọn; phương án B "trả thẳng gia sư" là cấu hình); quy tắc hoa hồng cấu hình (tỷ lệ, tối thiểu, theo loại nội dung), giải ngân sau buổi khi hết thời gian khiếu nại, hoàn tiền theo chính sách hủy, **tranh chấp giữ tiền** và hòa giải có bằng chứng (bản ghi, điểm danh, tin nhắn); hàm tính thuần cho hoa hồng, hoàn, khấu trừ thuế (tỷ lệ là dữ liệu có ngày hiệu lực, công tắc bật); hóa đơn hoa hồng qua `EInvoiceProvider`; đối soát với nhà cung cấp; báo cáo khấu trừ | 4 | 27f; 27g cho hồ sơ đầy đủ (làm song song, dùng hồ sơ tối thiểu của 27f) | YCTD-248 | Marketplace 0020 đến 0029 | 187 |
+| 27i | An toàn trẻ em và kiểm duyệt ở chợ: tin nhắn trong chợ luôn có phụ huynh, lọc và cảnh báo thông tin liên lạc ngoài; báo cáo vi phạm từ phòng, tin nhắn, hồ sơ, đánh giá; hàng chờ kiểm duyệt có mức độ và thời hạn, tạm khóa ngay, giữ bằng chứng (kéo dài hạn giữ bản ghi), hướng dẫn Tổng đài 111; nhật ký kiểm duyệt; trang chính sách an toàn trẻ em; chỉ số an toàn trên bảng điều khiển nền tảng | 4 | 27f | YCTD-249 | Marketplace 0030 đến 0039 | 188 |
+
+Giữ chỗ chưa giao: YCTD-250 đến YCTD-254; năm học 0150 đến 0159; hệ thống 0094 đến 0099; định danh 0161 đến 0169; nền tảng 0241 đến 0249; marketplace 0040 đến 0049; e2e `189-` đến `194-`.
+
+Đợt làm, mỗi lúc **tối đa ba phiên**, **không hai phiên cùng sửa một tệp lõi trong cùng đợt**:
+- **Đợt 1: 27a, 27b.** 27a sửa `deploy/` (dịch vụ `livekit`, Egress, coturn nếu 23e chưa có), phân hệ video mới, `MULTI_TENANT_SPEC`, `database/platform/` (giới hạn gói); 27b sửa phân hệ gia sư mới ở năm học, trang trong `apps/teacher`, `apps/parent`, `apps/portal`, chỉ đọc thời khoá biểu. Đăng ký mô-đun, tuyến, menu theo kiểu **thêm cuối tệp** (`application.module.ts`, `platform-menu.ts`, `PORTAL_WORKSPACES`).
+- **Đợt 2: 27c, 27d, 27e.** 27c là phần duy nhất sửa `fees/`, `finance/`, `payroll/`; 27d sửa phân hệ khoá học mới và chỉ thêm hàm đọc ở `learning-resources/`; 27e là phần duy nhất sửa phân hệ AI của 23d (thêm mẫu lời nhắc "gợi ý trả lời bài tập"). **Mốc 1 "gia sư trong trường" xong khi 27a, 27b, 27c gộp.**
+- **Đợt 3: 27f** một mình (dựng cơ sở dữ liệu `marketplace`, loại migration mới trong `database/`, ứng dụng `apps/market`, `MULTI_TENANT_SPEC`): các phần sau đều dựa vào.
+- **Đợt 4: 27g, 27h, 27i.** Mỗi phần một thư mục con trong phân hệ chợ; chỉ 27h sửa phần thanh toán và `billing/` (hóa đơn hoa hồng); chỉ 27g sửa luồng đăng nhập chợ (xác minh OIDC); chỉ 27i sửa tin nhắn chợ. Thêm bảng và tuyến theo kiểu thêm cuối.
+
+Thứ tự gộp để đánh số tài liệu (phiên bản, CT, AC, BR, MH, PQ, mã chức năng): theo thứ tự xong trong từng đợt; phần gộp sau đánh lại số tài liệu theo nhánh chính lúc gộp. YCTD, migration, e2e giữ sẵn ở bảng trên không đổi theo thứ tự gộp (trừ khi va với nhánh chính như đã nói).
+
+Cỡ ước lượng (một phần của DT-16 là một đơn vị): 27a 1,75; 27b 1,25; 27c 1; 27d 1,25; 27e 1; 27f 1,75; 27g 1,25; 27h 1,75; 27i 1; tổng khoảng 12 đơn vị.
+
+**Điều kiện ra** (nghiệm thu với Eric, dữ liệu giả):
+- **Mốc 1:** một trường lập chương trình phụ đạo `curriculum` không thu tiền cho học sinh lớp 9 có kết quả chưa đạt, hệ thống chặn khi thêm tiết thứ ba trong tuần và khi chọn lớp Tiểu học; phụ huynh gửi đơn đăng ký; giáo viên dạy một buổi video nhóm có bảng trắng, chia sẻ màn hình, ghi hình (khi bật), điểm danh tự động rồi xác nhận; một chương trình `enrichment` có thu tạo khoản thu trên hóa đơn của trường, thu qua cổng giả lập của trường, buổi hủy được hoàn; thù lao vào bảng lương; chạy ở cả hai bố cục; cách ly (14.7) đạt.
+- **Mốc 2:** khoá học có video và bài tập, tiến độ hiện cho giáo viên và phụ huynh; học sinh gửi câu hỏi, giáo viên dùng gợi ý AI giả lập, bản nháp không đến học sinh khi chưa gửi.
+- **Mốc 3:** phụ huynh không thuộc trường nào đăng ký, tạo hồ sơ con, tìm gia sư đã xác minh (OIDC giả lập), đặt và trả một buổi qua nhà cung cấp giả lập, buổi có ghi hình, giải ngân trừ hoa hồng sau hạn khiếu nại; một buổi khác bị tranh chấp thì tiền bị giữ và hoàn sau hòa giải; giáo viên đang được phân công dạy trẻ bị chặn khi nhận buổi `curriculum` có thu tiền; báo cáo vi phạm tạm khóa gia sư; trang gia sư có đủ mục của Mẫu 02; cách ly chợ với các trường đạt. **Không mở chợ mở có tiền thật trước khi 19.10 mục E-01 đến E-07 xong.**
+
+### 19.5 Phạm vi chi tiết
+
+**27a. Lớp video trực tiếp**
+- **Bộ nối:** `VideoRoomProvider` (tạo phòng, cấp mã vào phòng theo người và quyền, kết thúc phòng, bắt đầu và dừng ghi, nhận sự kiện vào ra qua địa chỉ gọi lại có chữ ký); bộ nối `livekit` (tự host, địa chỉ và khóa là cấu hình của nền tảng, lưu mã hóa ở `platform`), `livekit-cloud` (cùng mã, khác địa chỉ), `mock` (kiểm thử, phát sự kiện giả). Không có `if` theo nhà cung cấp trong mã nghiệp vụ.
+- **Phòng:** gắn với một buổi (27b, 27h) hoặc phòng tức thời của giáo viên; tên phòng có mã trường để không trùng giữa trường; mã vào phòng ngắn hạn (mặc định 10 phút để vào, hết buổi thì hết), quyền theo vai trò (gia sư: chia sẻ, ghi, tắt tiếng người khác; học sinh: nói, chia sẻ khi được cho; phụ huynh: xem, nói khi được cho); phòng chờ, gia sư cho vào; tối đa người dự cấu hình.
+- **Bảng trắng và chia sẻ màn hình:** bảng trắng đồng bộ qua kênh dữ liệu của phòng, lưu ảnh bảng cuối buổi vào buổi học (tuỳ chọn); thư viện mã nguồn mở có giấy phép dùng thương mại, chọn và ghi giấy phép lúc làm (GD-127).
+- **Ghi hình:** Egress ghi tổng hợp vào kho tệp theo `storageKey('video-recordings', …)`; bật theo cấu hình (19.2 mục 3), luôn hiện "đang ghi"; thời hạn giữ theo cấu hình trường (mặc định 30 ngày) và xóa bằng việc nền theo trường của S1b; giữ thêm khi có cờ tranh chấp hoặc báo cáo; xem lại bằng đường dẫn ký ngắn hạn, không có nút tải; mỗi lần xem ghi nhật ký.
+- **Hạ tầng:** hồ sơ vận hành thêm dịch vụ `livekit` và `egress` vào `deploy/docker-compose.production.yml`, mở cổng UDP; coturn dùng chung với 23e; hồ sơ thử nghiệm miễn phí dùng `livekit-cloud` hoặc tắt video theo gói (không có máy chạy SFU miễn phí); tài liệu vận hành ghi cách đo băng thông thật.
+- **Gói và đo:** giới hạn mới của gói (nền tảng 0240): số phút người dự mỗi tháng, dung lượng bản ghi; đo từ sự kiện vào ra, chặn mở phòng mới khi vượt, hiển thị còn lại.
+
+**27b. Chương trình gia sư trong trường, lịch, điểm danh**
+- **Chương trình:** tên, môn, cấp, lớp hoặc danh sách học sinh, giáo viên (một hoặc nhiều), loại nội dung, nhóm đối tượng (với `curriculum` trong trường), có thu tiền (với `curriculum` luôn "không", máy chủ khóa), hình thức (video trực tiếp, khoá học, hỏi đáp, kết hợp), ngày bắt đầu, kết thúc; quản trị trường duyệt trước khi mở đăng ký.
+- **Buổi:** lặp theo tuần hoặc lẻ, kiểm trùng với thời khoá biểu chính khóa của giáo viên và lớp (22c), kiểm **2 tiết/tuần/môn/học sinh** cho `curriculum` (đếm cả các chương trình khác cùng môn), ngoại lệ có quyết định của Sở (số, ngày, tệp, học sinh áp dụng).
+- **Đăng ký:** phụ huynh thấy chương trình mở trên ứng dụng phụ huynh, đọc nội dung, bấm gửi **đơn đăng ký** (văn bản theo mẫu của trường, lưu phiên bản); giáo viên chủ nhiệm hoặc quản trị duyệt; rút đăng ký.
+- **Điểm danh:** từ nhật ký vào ra phòng (vào muộn, ra sớm theo ngưỡng), giáo viên xác nhận hoặc sửa; vắng thì báo phụ huynh qua thông báo hiện có; buổi bị hủy báo mọi người.
+- **Nhắn tin:** luồng tin nhắn của chương trình luôn có phụ huynh của học sinh; giáo viên không mở được luồng riêng với học sinh mà không có phụ huynh.
+
+**27c. Thu phí và chi trả trong trường**
+- **Khóa "không thu tiền":** `curriculum` do trường tổ chức không tạo khoản thu (máy chủ chặn, có kiểm thử); màn hình ghi rõ căn cứ.
+- **Khoản thu `enrichment`:** tạo dòng biểu phí và khoản thu theo buổi hoặc trọn gói vào hóa đơn hiện có của học sinh; thu qua cổng của trường (S3); hủy buổi do trường thì hoàn hoặc trừ kỳ sau theo cấu hình qua luồng hoàn hiện có.
+- **Thù lao:** đơn giá theo giáo viên hoặc chương trình, tính theo buổi đã dạy có điểm danh xác nhận; tạo khoản thu nhập trong bảng lương kỳ (khoản mục "thù lao dạy phụ đạo, bồi dưỡng"), chịu thuế thu nhập cá nhân theo biểu thuế sẵn có; với `curriculum` nguồn chi là kinh phí của trường (ghi nguồn, không gắn với thu của học sinh).
+- **Báo cáo:** thu, hoàn, chi thù lao theo chương trình và kỳ; xuất Excel.
+
+**27d. Khoá học ghi sẵn**
+- Khoá, chương, bài; bài video dùng học liệu của 22h1 (tải lên đi qua kiểm duyệt của 22h1, giấy phép theo 22h1); phát theo đoạn có kiểm quyền và đường dẫn ký ngắn hạn, không tải xuống; chuyển mã nhiều độ phân giải là tuỳ chọn ở việc nền (bật theo gói, mặc định tắt: phát tệp MP4 gốc).
+- Bài tập: đề đã duyệt của 22g1 giao qua lượt làm của 23a; điểm không tự vào sổ điểm (theo 23a cần giáo viên xác nhận).
+- Tiến độ: phần trăm đã xem (ghi theo nhịp, không ghi mỗi giây), bài tập đã nộp, điểm; màn hình cho học sinh, giáo viên, phụ huynh.
+
+**27e. Hỏi đáp bài tập**
+- Câu hỏi: chữ, tối đa vài ảnh (nén ở máy, xóa siêu dữ liệu ảnh), gắn môn, chương trình hoặc khoá; hàng chờ theo môn và người phụ trách, thời hạn trả lời cấu hình, nhắc khi quá hạn.
+- Trả lời: chữ, ảnh, liên kết học liệu hoặc câu hỏi trong ngân hàng; học sinh đánh dấu đã hiểu hoặc hỏi thêm; phụ huynh xem.
+- **AI:** nút "Gợi ý bằng AI" cho giáo viên; dùng `AiProvider` của 23d với mẫu lời nhắc cố định chỉ chứa môn, lớp, nội dung chữ của câu hỏi **sau khi quét** mẫu số điện thoại, thư điện tử, số định danh, tên trong danh sách trường (như 23d); **không gửi ảnh, không gửi tên học sinh**; kết quả là bản nháp chỉ giáo viên thấy; câu trả lời đã gửi ghi "có AI hỗ trợ"; nhật ký và hạn mức theo 23d; phụ huynh tắt được AI cho con (mặc định theo cấu hình trường); trường tắt AI thì nút không hiện.
+
+**27f. Nền chợ gia sư**
+- **Cơ sở dữ liệu `marketplace`:** loại migration mới chạy bằng cùng công cụ migrate (như `platform`), vai trò riêng `marketplace`, không có quyền trên cơ sở dữ liệu trường; bố cục `schema` ở hồ sơ thử nghiệm.
+- **Ứng dụng `apps/market`:** trang công khai (tìm gia sư, trang gia sư theo Mẫu 02, chính sách), khu phụ huynh, khu gia sư; dùng gói giao diện chung; tên miền con dành riêng cấu hình ở `platform_settings`.
+- **Tài khoản:** phụ huynh đăng ký bằng thư điện tử hoặc số điện thoại có mã xác nhận, hoặc OIDC (DT-25); hồ sơ con (tên hiển thị, năm sinh, cấp, lớp), không có tài khoản riêng cho trẻ dưới 16 tuổi (giả định GD-125, trẻ vào lớp qua đường dẫn của phụ huynh mở trên máy của trẻ); văn bản điều khoản, chính sách, đồng ý có phiên bản.
+- **Liên kết với trường (tùy chọn):** phụ huynh của trường dùng nền tảng bấm "liên kết" và đăng nhập ở trường (luồng chuyển đăng nhập DT-24), chợ chỉ nhận mã trường, mã học sinh dạng băm và cấp lớp; dùng cho so khớp phân công (27h).
+- **Cấu hình chợ** trong cổng nền tảng: bật tắt chợ, tên miền, văn bản pháp lý, hạn giữ bản ghi, tỷ lệ hoa hồng mặc định (dữ liệu, 27h dùng).
+
+**27g. Hồ sơ gia sư, xác minh, tìm kiếm, đánh giá**
+- Hồ sơ: ảnh, giới thiệu, môn, cấp, loại nội dung, giá theo buổi hoặc gói, lịch trống, ngôn ngữ dạy.
+- Xác minh từng bậc, hiển thị huy hiệu theo bậc: danh tính (OIDC, đủ 18 tuổi), bằng cấp, lý lịch tư pháp, đăng ký kinh doanh (bắt buộc trước khi nhận buổi `curriculum` có thu); hàng chờ duyệt của nhân viên nền tảng có nhật ký; tệp giấy tờ lưu mã hóa, chỉ nhân viên duyệt xem.
+- Giáo viên đang dạy ở trường: khai trường, môn, lớp; giáo viên công lập không mở được cơ sở dạy thêm `curriculum` (19.2 mục 1); dựng báo cáo Mẫu 03 gửi Hiệu trưởng.
+- Trang công khai theo Mẫu 02; tìm kiếm có lọc và sắp xếp (đánh giá, giá, giờ trống); không hiện số điện thoại, địa chỉ của gia sư.
+- Đánh giá: chỉ phụ huynh có buổi đã hoàn thành, một đánh giá mỗi gói, kiểm duyệt theo từ khoá và báo cáo, gia sư trả lời một lần.
+
+**27h. Đặt buổi, thanh toán, hoa hồng, chi trả, hoàn tiền, tranh chấp**
+- Đặt buổi: chọn gia sư, con, nội dung, giờ (múi giờ Việt Nam), giữ chỗ trong thời hạn trả tiền; kiểm Tiểu học với `curriculum`; **so khớp phân công** với trẻ đã liên kết, chặn nếu trùng; cam kết khi không so khớp được.
+- Thanh toán: `MarketplacePaymentProvider` (tạo lệnh thu có giữ, giải ngân chia hoa hồng, hoàn một phần hoặc toàn phần, giữ khi tranh chấp, nhận sự kiện có chữ ký, đối soát); `mock`; phương án B: chỉ ghi nhận phụ huynh đã chuyển thẳng cho gia sư và thu hoa hồng của gia sư qua hóa đơn kỳ (S5b mở rộng cho đối tượng gia sư hoặc bảng riêng, chốt khi làm).
+- Hoa hồng: quy tắc cấu hình (tỷ lệ phần trăm, tối thiểu, theo loại nội dung, theo gia sư), **tỷ lệ cụ thể Eric chốt** (E-01); hàm tính thuần, số nguyên đồng, kiểm thử đơn vị.
+- Giải ngân: tự động sau buổi khi điểm danh hai bên có mặt và hết **thời hạn khiếu nại** (mặc định 48 giờ, GD-123); hủy trước giờ học theo chính sách hủy (GD-124).
+- Tranh chấp: phụ huynh mở trong thời hạn khiếu nại; tiền bị giữ; hai bên nộp trình bày; nhân viên nền tảng xem bản ghi (kéo dài hạn giữ), điểm danh, tin nhắn; quyết định hoàn toàn phần, một phần hoặc giải ngân, có lý do và nhật ký; khiếu nại lần hai do người khác xét.
+- Thuế và hóa đơn: hàm khấu trừ theo dữ liệu tỷ lệ có ngày hiệu lực, công tắc bật (19.2 mục 2); hóa đơn hoa hồng qua `EInvoiceProvider`; báo cáo khấu trừ, báo cáo doanh thu theo gia sư.
+
+**27i. An toàn trẻ em và kiểm duyệt ở chợ**
+- Tin nhắn chợ: luồng giữa gia sư và phụ huynh (trẻ đọc khi phụ huynh cho), không có luồng gia sư với trẻ không có phụ huynh; lọc và che thông tin liên lạc ngoài, cảnh báo, đếm số lần, nhiều lần thì gắn cờ.
+- Báo cáo vi phạm: phân loại (an toàn trẻ em, quấy rối, gian lận, né hoa hồng, nội dung sai), mức độ; mức nghiêm trọng tạm khóa ngay hồ sơ và mọi buổi sắp tới, báo phụ huynh có buổi với gia sư đó; giữ bằng chứng; hướng dẫn Tổng đài 111; xuất hồ sơ cho cơ quan có thẩm quyền khi có yêu cầu hợp lệ (có nhật ký).
+- Kiểm duyệt: hàng chờ, thời hạn theo mức, người xử lý, quyết định có lý do, kháng nghị; chỉ số trên bảng điều khiển nền tảng.
+- Trang chính sách an toàn trẻ em (văn bản ở `33_HO_SO_PHAP_LY` PL-19).
+
+### 19.6 Quyết định thiết kế và phương án đã loại
+
+- **Trong trường tiền vào tài khoản trường, chợ mở tiền nằm ở tổ chức có phép:** đúng Nghị định 52/2024 theo cách hiểu hiện tại; phương án đã loại: nền tảng thu tất cả vào tài khoản của mình rồi chi lại (có nguy cơ là thu hộ chi hộ không phép); nền tảng tự xin giấy phép trung gian thanh toán (vốn tối thiểu 50 tỷ đồng, không hợp giai đoạn này); nền tảng đứng ra bán lại dịch vụ dạy học (nền tảng thành cơ sở dạy thêm, gánh nghĩa vụ Thông tư 29 và thuế trên toàn bộ tiền học).
+- **`curriculum` trong trường khóa cứng không thu tiền:** đúng khoản 1 Điều 5 Thông tư 29; phương án đã loại: chỉ cảnh báo (dễ sai, trường chịu trách nhiệm).
+- **Loại nội dung `curriculum` hoặc `enrichment` thay cho danh sách môn cứng:** Thông tư 19/2026 phân định theo nội dung chương trình, một môn (ví dụ Tiếng Anh) có thể dạy theo chương trình hoặc tăng cường; người tạo chọn và quản trị duyệt.
+- **LiveKit tự host, bộ nối đổi được:** dữ liệu trẻ em ở trong nước, chi phí theo máy; phương án đã loại: Jitsi (khó tách theo trường, ghi hình nặng), dịch vụ video ngoài làm mặc định (chuyển dữ liệu trẻ em ra nước ngoài, giá theo phút cao ở quy mô lớn), mediasoup (nhiều việc tự viết).
+- **Chợ mở dùng cơ sở dữ liệu `marketplace` riêng và ứng dụng `apps/market`:** người dùng chợ không thuộc trường nào, trang công khai cần tên miền chung; phương án đã loại: đặt chợ trong ứng dụng phụ huynh (gắn tên miền con của từng trường), đặt bảng chợ trong `platform` (trộn dữ liệu người dùng cuối với dữ liệu vận hành, khó cách ly và xóa).
+- **Ghi hình bắt buộc ở chợ với trẻ vị thành niên, tắt mặc định trong trường:** ở chợ người dạy là người lạ, bản ghi là biện pháp bảo vệ và bằng chứng tranh chấp; trong trường đã có quan hệ quản lý của nhà trường; phương án đã loại: ghi mọi buổi mọi nơi (vượt mức cần thiết), không ghi ở chợ (không có bằng chứng khi có sự cố).
+- **Hồ sơ con thay vì tài khoản riêng của trẻ ở chợ:** trẻ không tự ký hợp đồng, phụ huynh kiểm soát; phương án đã loại: trẻ tự đăng ký (vướng đồng ý và độ tuổi).
+- **AI gợi ý chỉ cho giáo viên, không gửi ảnh:** giữ nguyên nguyên tắc 23d; phương án đã loại: AI trả lời thẳng học sinh (DT-23 15.5 đã loại), gửi ảnh bài làm cho AI (dữ liệu trẻ em).
+- **Không làm ở DT-27:** dạy trực tiếp tại nhà hay trung tâm (chỉ trực tuyến); gói tài khoản cá nhân cho giáo viên ngoài chợ; quảng cáo; ví điện tử của nền tảng; tiền tệ ngoài đồng Việt Nam; chấm điểm hay xếp hạng gia sư bằng AI; nhận diện khuôn mặt trong lớp video.
+
+### 19.7 Rủi ro và cách kiểm
+
+| Rủi ro | Cách kiểm |
+|---|---|
+| Nền tảng giữ tiền rồi chi lại bị coi là trung gian thanh toán không phép | Không nhận tiền học vào tài khoản nền tảng; trong trường tiền vào tài khoản trường; chợ mở qua tổ chức có phép hoặc trả thẳng gia sư; luật sư kết luận trước khi bật (E-03); không bật chợ có tiền thật trước đó |
+| Trường thu tiền dạy thêm `curriculum` trái Thông tư 29 | Khóa ở máy chủ, kiểm thử đơn vị và e2e thử tạo khoản thu bị từ chối; quản trị duyệt loại nội dung |
+| Giáo viên nhận dạy có thu tiền học sinh mình đang dạy | So khớp phân công với trẻ đã liên kết, chặn; cam kết khi không so khớp được; báo cáo Mẫu 03 cho Hiệu trưởng; báo cáo vi phạm |
+| Văn bản dạy thêm, thuế đổi hoặc Claude hiểu sai bản gốc (Thông tư 29, Nghị định 117 chưa đọc bản gốc) | Ngưỡng và tỷ lệ là dữ liệu có ngày hiệu lực; luật sư rà (E-07); phần đọc trước khi làm mỗi phần ghi vào YCTD |
+| Trẻ bị tiếp cận, dụ dỗ qua lớp video hoặc tin nhắn | Phụ huynh luôn thấy, không kênh riêng, lọc liên lạc ngoài, ghi hình ở chợ, xác minh và lý lịch tư pháp, báo cáo và khóa ngay, chỉ số an toàn |
+| Bản ghi video của trẻ bị lộ | Lưu mã hóa theo trường, đường dẫn ký ngắn hạn, không tải xuống, nhật ký xem, xóa theo hạn bằng việc nền, kiểm thử trường khác không xem được bản ghi (spec 180) |
+| Chi phí băng thông vượt doanh thu | Giới hạn phút và dung lượng theo gói, đo từ sự kiện, cảnh báo ở bảng điều khiển, giảm độ phân giải tự động, đo thật ở 27a trước khi chốt giá (E-05) |
+| Chất lượng video kém ở mạng di động | Simulcast và tự giảm chất lượng, TURN qua TCP, thử trên mạng 4G giả lập độ trễ |
+| Gian lận đánh giá, né hoa hồng | Chỉ người đã học mới đánh giá, lọc liên lạc ngoài, gắn cờ lặp, báo cáo |
+| Tranh chấp không có bằng chứng | Bản ghi giữ đến khi xong tranh chấp, điểm danh từ nhật ký phòng, tin nhắn trong nền tảng |
+| Lộ dữ liệu giữa chợ và các trường | Cơ sở dữ liệu và vai trò riêng, chợ chỉ đọc trường qua API có đồng ý và mã băm, spec 185 mở rộng ma trận cách ly, kiểm tĩnh |
+| Nền tảng phải có Giấy chứng nhận dịch vụ xử lý dữ liệu cá nhân vì ghi hình, điểm danh (Nghị định 356/2025 Điều 21 khoản 5) | Bổ sung câu hỏi vào PL-15 (E-06); luật sư kết luận trước khi bật ghi hình ở trường thật |
+| Hai phần cùng đợt sửa chung tệp lõi | Phân tệp ở 19.4; thêm cuối tệp; gộp `origin/main` trước khi mở PR |
+| Va số với DT-23, DT-24, DT-25, DT-26 chạy song song | Dải bắt đầu sau các số đã thấy và chừa khoảng; va thì đánh lại theo nhánh chính lúc gộp |
+
+**Cổng kiểm của mỗi phần DT-27:** kiểm thử đơn vị toàn kho đạt không sửa kỳ vọng; e2e `single` hiện có đạt cộng e2e mới của phần (giữ khóa `e2e.lock`); kiểm thử cách ly 14.7 ở cả hai bố cục `database` và `schema`; kiểm tĩnh đa thuê bao đạt; typecheck, lint, build đạt; CI xanh toàn bộ; phiên bản phần mềm tăng theo từng phần, riêng bản kế hoạch này (YCTD-240) chỉ đổi tài liệu.
+
+### 19.8 Quy ước chung của DT-27
+
+- Mỗi phần ghi YCTD giữ sẵn ở 19.4, cập nhật tài liệu theo quy ước của kho (02, 07, 08, 10, 11, 12, 14, 16, 17, 21, 22, 23, 24, 32, 34, `index.md`), **đọc lại văn bản gốc liên quan trước khi làm** (27b, 27c: Thông tư 29/2024 bản gốc; 27h: Nghị định 52/2024, Thông tư 40/2024, Nghị định 117/2025, Luật 122/2025 bản gốc; 27a, 27i: Luật Trẻ em, Luật 91/2025 Điều 24) và ghi số hiệu, ngày đọc vào YCTD.
+- Kiểm thử và dữ liệu mẫu chỉ dùng người, trường, gia sư bịa; video, thanh toán, xác minh, AI qua bộ giả lập; không in `.env`, không dán khóa.
+- Tuyệt đối không chạy `migrate` lên cơ sở dữ liệu dùng chung; kiểm thử dùng cơ sở dữ liệu riêng của phiên.
+- Điểm chi tiết không nêu ở đây Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11 và ghi vào YCTD của phần; giả định ở 19.11 làm cấu hình được, Eric chốt thì đổi giá trị bằng YCTD.
+
+### 19.9 Tiến độ
+
+| Phần | Đợt | Tiến độ |
+|---|---|---|
+| 27a | 1 | Chưa làm; YCTD-241 giữ sẵn; chờ 23a gộp |
+| 27b | 1 | Chưa làm; YCTD-242 giữ sẵn |
+| 27c | 2 | Chưa làm; YCTD-243 giữ sẵn; chờ 27b |
+| 27d | 2 | Chưa làm; YCTD-244 giữ sẵn |
+| 27e | 2 | Chưa làm; YCTD-245 giữ sẵn; chờ 23d gộp |
+| 27f | 3 | Chưa làm; YCTD-246 giữ sẵn; chờ mốc 2, DT-24, DT-25 |
+| 27g | 4 | Chưa làm; YCTD-247 giữ sẵn |
+| 27h | 4 | Chưa làm; YCTD-248 giữ sẵn; bật tiền thật chờ E-01 đến E-04 |
+| 27i | 4 | Chưa làm; YCTD-249 giữ sẵn |
+
+Bản kế hoạch này là YCTD-240, chỉ đổi tài liệu (không tăng phiên bản phần mềm).
+
+### 19.10 Việc Eric phải quyết hoặc làm
+
+| Mã | Việc | Cần trước | Ghi chú |
+|---|---|---|---|
+| E-01 | Chốt tỷ lệ hoa hồng của chợ (theo phần trăm, tối thiểu, có khác nhau theo `curriculum` và `enrichment` không) và phí với trường ở mốc 1 (gói có phân hệ gia sư trực tuyến giá bao nhiêu) | 27h bật tiền thật; S5a cấu hình gói | Là dữ liệu, không chặn làm mã |
+| E-02 | Chọn tổ chức có giấy phép cung cấp chia tiền hoặc giữ tiền có điều kiện (phương án A) hoặc quyết dùng phương án B; ký hợp đồng | 27h viết bộ nối thật | Claude chưa xác minh được tổ chức nào có dịch vụ này; Eric hỏi báo giá ở ngân hàng, cổng thanh toán đang dùng |
+| E-03 | Luật sư rà mô hình tiền của chợ (Nghị định 52/2024, Thông tư 40/2024), nghĩa vụ khấu trừ thuế (Nghị định 117/2025), nghĩa vụ nền tảng trung gian (Luật 122/2025, Nghị định 248/2026) | Mở chợ có tiền thật | |
+| E-04 | Pháp nhân vận hành chợ (doanh nghiệp hiện có hay pháp nhân mới), ngành nghề đăng ký, thông báo hoặc đăng ký với Bộ Công Thương nếu luật yêu cầu (**chưa xác minh**) | Mở chợ | |
+| E-05 | Báo giá VPS trong nước có cổng 1 Gbit/s và giá băng thông; chốt có tự host video ở hồ sơ vận hành không | 27a lên môi trường thật | Bảng ước lượng ở 19.2 mục 4 |
+| E-06 | Luật sư kết luận PL-15 thêm câu hỏi ghi hình, điểm danh lớp video (Nghị định 356/2025 Điều 21 khoản 5) | Bật ghi hình ở trường thật | |
+| E-07 | Luật sư xác nhận cách hiểu Thông tư 29/2024 (bản gốc) và Thông tư 19/2026 áp cho dạy trực tuyến, giáo viên công lập ở chợ, ranh giới `curriculum` và `enrichment` | Mốc 1 ở trường thật | |
+| E-08 | Rà và ký các hồ sơ PL-16 đến PL-21 (`33_HO_SO_PHAP_LY/16_DANH_SACH_HO_SO_GIA_SU.md`) | Mốc 1 (PL-17, PL-18 phần trong trường), mốc 3 (tất cả) | |
+| E-09 | Chọn nhà cung cấp hóa đơn điện tử thật (đã treo từ S5b) | 27h xuất hóa đơn hoa hồng thật | |
+| E-10 | Chốt các giả định GD-120 đến GD-128 ở 19.11 nếu muốn khác giá trị Claude đặt | Khi làm từng phần | |
+
+### 19.11 Giả định chưa chốt, làm cấu hình được
+
+Số GD và RR của DT-27 bắt đầu từ GD-120 và RR-24, chừa GD-109 đến GD-119 và RR-21 đến RR-23 cho DT-23e, DT-24, DT-25, DT-26; va thì đánh lại khi gộp.
+
+| Mã | Mục chưa chốt | Giả định để làm | Cấu hình ở | Cần ai trả lời |
+|---|---|---|---|---|
+| GD-120 | Số người tối đa một lớp video nhóm nhỏ | 8 (cả gia sư) | `video_settings` của trường, cấu hình chợ | Eric |
+| GD-121 | Ghi hình | Trong trường tắt mặc định, bật theo chương trình khi có đồng ý; ở chợ bắt buộc với buổi có trẻ vị thành niên | `video_settings`, cấu hình chợ | Eric |
+| GD-122 | Thời hạn giữ bản ghi | 30 ngày (cùng 23e), kéo dài khi có tranh chấp hoặc báo cáo đang mở | `video_settings`, cấu hình chợ | Eric |
+| GD-123 | Thời hạn khiếu nại trước khi giải ngân | 48 giờ sau buổi | cấu hình chợ | Eric |
+| GD-124 | Chính sách hủy và hoàn | Hủy trước 24 giờ hoàn đủ; trong 24 giờ hoàn 50%; gia sư hủy hoặc vắng hoàn đủ; trong trường theo cấu hình trường | cấu hình chợ, chương trình | Eric |
+| GD-125 | Tuổi có tài khoản riêng ở chợ | Không có tài khoản riêng dưới 16 tuổi; trẻ vào lớp qua đường dẫn của phụ huynh | cấu hình chợ | Eric, luật sư |
+| GD-126 | Hạn của phiếu lý lịch tư pháp khi xác minh gia sư | Phiếu cấp trong 6 tháng, xác minh lại mỗi 12 tháng | cấu hình chợ | Eric |
+| GD-127 | Thư viện bảng trắng | Thư viện mã nguồn mở có giấy phép dùng thương mại, chọn và ghi giấy phép lúc làm | mã 27a | Claude (theo ủy quyền) |
+| GD-128 | Khấu trừ thuế ở chợ | Công tắc tắt đến khi luật sư kết luận (E-03); tỷ lệ là dữ liệu có ngày hiệu lực | cấu hình chợ | Eric, luật sư |

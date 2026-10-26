@@ -1,7 +1,7 @@
 # 24. YÊU CẦU THAY ĐỔI
 
 - Mô tả: Sổ quản lý yêu cầu thay đổi, ghi lý do, đánh giá ảnh hưởng và trạng thái của từng thay đổi trước khi triển khai.
-- Phiên bản: 0.69
+- Phiên bản: 0.70
 - Ngày cập nhật: 2026-10-26
 - Trạng thái: Đang cập nhật
 
@@ -10,6 +10,25 @@
 Mã yêu cầu thay đổi dạng `YCTD-nn`, đánh số tăng dần, không tái sử dụng. Mục mới nhất ở trên cùng. Trạng thái dùng bốn giá trị: Chờ phê duyệt, Đã phê duyệt, Từ chối, Đã triển khai.
 
 Các thay đổi trước phiên bản 0.4.0 chưa có sổ này; xem `23_LICH_SU_PHIEN_BAN.md` các phiên bản 0.1.0 đến 0.3.1.
+
+### YCTD-240: Kế hoạch DT-27: nền tảng gia sư trực tuyến – 2026-10-26
+
+- Lý do: Eric quyết định ngày 2026-10-26 làm nền tảng gia sư trực tuyến theo hai mô hình (trước: gia sư trong từng trường; sau: chợ gia sư mở có hoa hồng), ba hình thức học (lớp video trực tiếp, khoá học ghi sẵn, hỏi đáp bài tập có gợi ý AI nháp) và thu phí qua nền tảng có hoàn tiền, tranh chấp. Phiên điều phối giao viết kế hoạch vào `32_KE_HOACH_THEO_HE_THONG_SO.md` như DT-23.
+- Nội dung thay đổi (Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11 ở những chỗ Eric chưa quyết):
+  - `32_KE_HOACH_THEO_HE_THONG_SO.md` phiên bản 1.75: thêm mục 19 "DT-27" (mục 16 đến 18 để cho DT-24 đến DT-26): căn cứ và hiện trạng mã (19.1), căn cứ pháp lý đã đọc kèm nguồn, ngày đọc, mức đọc và ràng buộc sản phẩm (19.2: Thông tư 29/2024/TT-BGDĐT, Thông tư 19/2026/TT-BGDĐT đọc toàn văn bản gốc; Nghị định 52/2024/NĐ-CP, Thông tư 40/2024/TT-NHNN, Nghị định 117/2025/NĐ-CP, Luật 122/2025/QH15 qua nguồn thứ cấp, ghi chưa xác minh; Luật 91/2025/QH15, Nghị định 356/2025/NĐ-CP; hạ tầng video và ước lượng băng thông), nguyên tắc (19.3), chín phần 27a đến 27i chạy bốn đợt, tối đa ba phiên (19.4), phạm vi chi tiết (19.5), phương án đã loại (19.6), rủi ro và cổng kiểm (19.7), quy ước (19.8), tiến độ (19.9), việc Eric phải quyết E-01 đến E-10 (19.10), giả định GD-120 đến GD-128 (19.11).
+  - Số giữ sẵn: YCTD-240 cho chính bản kế hoạch này; 27a YCTD-241, 27b 242, 27c 243, 27d 244, 27e 245, 27f 246, 27g 247, 27h 248, 27i 249; YCTD-250 đến YCTD-254 dự phòng; migration năm học 0140 đến 0159, hệ thống 0090 đến 0099, định danh 0160 đến 0169, nền tảng 0240 đến 0249, cơ sở dữ liệu mới `marketplace` từ 0001; e2e `180-` đến `188-` (`189-` đến `194-` dự phòng). Dải nằm sau các số đã thấy của DT-23 (đến YCTD-219), DT-24 (YCTD-220, định danh 0130, nền tảng 0210, 0211), DT-25 (YCTD-225, định danh 0140), chừa YCTD-230 đến YCTD-239 cho DT-26; GD từ GD-120, RR từ RR-24. Va số với nhánh chính lúc gộp thì đánh lại.
+  - Đợt 1: 27a, 27b; đợt 2: 27c, 27d, 27e (mốc 1 "gia sư trong trường" xong khi 27a, 27b, 27c gộp); đợt 3: 27f; đợt 4: 27g, 27h, 27i.
+  - Quyết định thiết kế: dạy thêm thuộc chương trình môn học trong trường khóa cứng không thu tiền, loại nội dung `curriculum` hoặc `enrichment`, kiểm 2 tiết/tuần/môn và chặn Tiểu học ở máy chủ, chặn giáo viên nhận dạy có thu tiền học sinh mình đang được phân công, dựng báo cáo Mẫu 03 cho Hiệu trưởng, trang gia sư theo Mẫu 02; tiền trong trường vào tài khoản trường, thù lao qua bảng lương; chợ mở giữ và chia tiền qua tổ chức có giấy phép hoặc trả thẳng gia sư, không nhận tiền học vào tài khoản nền tảng; video LiveKit tự host, bộ nối đổi được, giới hạn phút và dung lượng bản ghi theo gói; chợ dùng cơ sở dữ liệu `marketplace` và ứng dụng `apps/market`; phụ huynh luôn thấy, không kênh riêng gia sư với trẻ, ghi hình bắt buộc ở chợ với trẻ vị thành niên, giữ 30 ngày.
+  - `33_HO_SO_PHAP_LY/16_DANH_SACH_HO_SO_GIA_SU.md` (mới) và mục lục: danh sách hồ sơ PL-16 đến PL-21 (điều khoản gia sư, đồng ý của cha mẹ, đơn đăng ký học thêm trong trường, chính sách an toàn trẻ em, điều khoản chợ và tranh chấp, bổ sung hồ sơ dữ liệu cá nhân), giấy tờ Eric phải có, điểm chưa xác minh.
+  - `01_KE_HOACH_TONG_THE.md` phiên bản 1.68: đợt DT-27, RR-24 đến RR-27, GD-120 đến GD-128; `02_NHAT_KY_DU_AN.md`, `34_TONG_HOP_CHUC_NANG_HE_THONG/01_TONG_QUAN_VA_NEN_TANG.md` (mục 6 kế hoạch DT-27), `index.md` cập nhật tương ứng.
+- Thành phần bị ảnh hưởng: tài liệu `01`, `02`, `24`, `32`, `33`, `34`, `index.md`. Không đổi mã nguồn.
+- Dữ liệu bị ảnh hưởng: không.
+- API bị ảnh hưởng: không.
+- Giao diện bị ảnh hưởng: không.
+- Quyền bị ảnh hưởng: không.
+- Ảnh hưởng chức năng cũ: không. Phiên bản phần mềm giữ nguyên (thay đổi chỉ tài liệu); số phiên bản tài liệu đặt trên số của nhánh chính lúc viết; gộp sau thì đánh lại theo nhánh chính lúc gộp.
+- Kiểm thử cần thực hiện: rà bảng đủ cột; số YCTD, migration, e2e, GD, RR giữ sẵn không trùng DT-23 và các số đã thấy của DT-24, DT-25; kiểm tra định dạng tài liệu đạt.
+- Trạng thái: Đã triển khai
 
 ### YCTD-210: Kế hoạch DT-23: thi trực tuyến, công cụ lớp học, trò chơi kiến thức, trợ lý AI – 2026-10-26
 

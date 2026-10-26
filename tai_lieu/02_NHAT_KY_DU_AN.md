@@ -1,7 +1,7 @@
 # 02. NHẬT KÝ DỰ ÁN
 
 - Mô tả: Ghi nhận công việc, quyết định, thay đổi và vấn đề tồn đọng theo ngày, ngày mới nhất ở trên cùng.
-- Phiên bản: 0.71
+- Phiên bản: 0.72
 - Ngày cập nhật: 2026-10-26
 - Trạng thái: Đang cập nhật
 
@@ -13,6 +13,30 @@
 - Không ghi thông tin tạm thời như kết quả tra cứu, đường dẫn tạm, thông báo lỗi của công cụ.
 
 ## Nhật ký theo ngày
+
+### 2026-10-26 — Kế hoạch DT-27: nền tảng gia sư trực tuyến
+
+#### Công việc đã thực hiện
+
+- Đọc mục 13 đến 15 của `32_KE_HOACH_THEO_HE_THONG_SO.md`, `33_HO_SO_PHAP_LY/`, `34_TONG_HOP_CHUC_NANG_HE_THONG/`; đối chiếu mã trên nhánh chính: thời khoá biểu và phân công, điểm danh, học phí và cổng thanh toán theo trường (S3), bảng lương có biểu thuế, thu phí nền tảng (S5b), nhắn tin, kiến trúc đa thuê bao (mỗi trường một bộ cơ sở dữ liệu, `platform` dùng chung). Xem dải số các phiên DT-24, DT-25 đang dùng để không va.
+- Tra văn bản ngày 2026-10-26: **đọc toàn văn bản gốc Thông tư 19/2026/TT-BGDĐT** (sửa Thông tư 29/2024, hiệu lực 15/05/2026; tệp quét ở Cổng thông tin điện tử Chính phủ); Thông tư 29/2024, Nghị định 52/2024, Thông tư 40/2024, Nghị định 117/2025, Luật Thương mại điện tử 122/2025 chỉ đọc được qua nguồn thứ cấp, ghi "chưa xác minh"; giá LiveKit Cloud, Cloudflare Realtime từ trang chính thức.
+- Viết mục 19 của `32`: căn cứ pháp lý và ràng buộc sản phẩm, ước lượng băng thông video, nguyên tắc, chín phần 27a đến 27i trong bốn đợt, phạm vi chi tiết, phương án đã loại, rủi ro, việc Eric phải quyết E-01 đến E-10, giả định GD-120 đến GD-128.
+- Thêm danh sách hồ sơ pháp lý PL-16 đến PL-21 vào `33_HO_SO_PHAP_LY/16_DANH_SACH_HO_SO_GIA_SU.md`; thêm đợt DT-27, RR-24 đến RR-27, GD-120 đến GD-128 vào `01`; mục kế hoạch DT-27 ở `34`.
+
+#### Quyết định
+
+- Eric (ngày 2026-10-26): làm cả gia sư trong trường (trước) và chợ gia sư mở (sau); cả ba hình thức học (video trực tiếp, khoá học ghi sẵn, hỏi đáp có gợi ý AI nháp); thu phí qua nền tảng có hoàn tiền và tranh chấp.
+- Claude chọn theo ủy quyền: trong trường tiền vào thẳng tài khoản của trường, thù lao qua bảng lương; dạy thêm thuộc chương trình môn học trong trường khóa cứng "không thu tiền" (Thông tư 29/2024); chợ mở giữ và chia tiền qua tổ chức có giấy phép trung gian thanh toán (phương án A) hoặc trả thẳng gia sư (phương án B), không để tiền học vào tài khoản nền tảng; video LiveKit tự host, bộ nối đổi được; chợ dùng cơ sở dữ liệu `marketplace` và ứng dụng `apps/market` mới.
+- Số giữ sẵn: YCTD-240 (kế hoạch), YCTD-241 đến YCTD-249, dự phòng đến YCTD-254; năm học 0140 đến 0159, hệ thống 0090 đến 0099, định danh 0160 đến 0169, nền tảng 0240 đến 0249, `marketplace` từ 0001; e2e `180-` đến `194-`. Chừa YCTD-230 đến YCTD-239 cho DT-26; va số thì đánh lại theo nhánh chính lúc gộp.
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-240, `32` mục 19 (phiên bản 1.75), `01` (1.68), `33_HO_SO_PHAP_LY/00_MUC_LUC.md`, `33_HO_SO_PHAP_LY/16_DANH_SACH_HO_SO_GIA_SU.md`, `34_TONG_HOP_CHUC_NANG_HE_THONG/01_TONG_QUAN_VA_NEN_TANG.md`, `index.md`. Chỉ đổi tài liệu, không tăng phiên bản phần mềm.
+
+#### Vấn đề tồn đọng
+
+- Chờ Eric: tỷ lệ hoa hồng, chọn tổ chức thanh toán có phép, pháp nhân vận hành chợ, báo giá VPS, luật sư rà (E-01 đến E-10 ở `32` mục 19.10).
+- Mục 16 đến 18 của `32` để cho DT-24, DT-25, DT-26 đang viết song song; nếu lúc gộp số mục khác thì đánh lại số mục 19.
 
 ### 2026-10-26 — Kế hoạch DT-23: thi trực tuyến, công cụ lớp học, trò chơi kiến thức, trợ lý AI
 
