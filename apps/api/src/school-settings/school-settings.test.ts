@@ -253,6 +253,13 @@ describe('manifest và biểu tượng của ứng dụng cài được (DT-26 p
   it('tên ngắn, màu mặc định, biểu tượng dự phòng cho iOS', () => {
     assert.equal(shortNameOf('teacher', null), 'Giáo viên');
     assert.equal(shortNameOf('parent', 'Hoa Sen'), 'Hoa Sen PH');
+    assert.equal(shortNameOf('student', 'Hoa Sen'), 'Hoa Sen HS');
+    // Màn hình học sinh của 23a cài thành ứng dụng riêng, mở thẳng #hoc-sinh trong ứng dụng phụ huynh
+    const student = buildManifest('student', '/phu-huynh/', branding);
+    assert.equal(student.start_url, '/phu-huynh/#hoc-sinh');
+    assert.equal(student.scope, '/phu-huynh/');
+    assert.equal(student.id, '/phu-huynh/?ung-dung=student');
+    assert.equal(student.name, 'Trường Mầm non Hoa Sen – Học sinh');
     const manifest = buildManifest('parent', '/', branding);
     assert.equal(manifest.theme_color, '#0a8be6');
     assert.equal(manifest.id, '/?ung-dung=parent');

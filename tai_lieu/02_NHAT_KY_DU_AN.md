@@ -34,7 +34,7 @@
 
 #### Vấn đề tồn đọng
 
-- Nối màn hình học sinh của 23a khi 23a gộp; ảnh PNG và màn hình chờ iOS theo trường, phiên bản tối thiểu do máy chủ áp để phần sau (ghi ở YCTD-231).
+- Đã nối màn hình học sinh của 23a sau khi 23a gộp (manifest `student` mở thẳng `#hoc-sinh`, lời mời cài và dải "Có bản mới" ở danh sách bài, không hiện trong phòng thi). Còn: ảnh PNG và màn hình chờ iOS theo trường, phiên bản tối thiểu do máy chủ áp để phần sau (ghi ở YCTD-231).
 
 ### 2026-10-26 — DT-23 phần 23a: thi trực tuyến cho học sinh
 

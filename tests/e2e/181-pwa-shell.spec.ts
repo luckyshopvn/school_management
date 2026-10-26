@@ -135,6 +135,23 @@ test('CT-26a-01: service worker chung, manifest theo thương hiệu trường, 
     expect(parentManifest.theme_color).toBe('#127A3E');
     expect(parentManifest.display).toBe('standalone');
     expect(parentManifest.start_url).toBe('/');
+    // Màn hình học sinh (23a) cài thành ứng dụng riêng mở thẳng #hoc-sinh
+    const studentManifest = await (
+      await parent.request.get(`${PARENT_URL}/api/v1/public/pwa/student.webmanifest?base=%2F`)
+    ).json();
+    expect(studentManifest.start_url).toBe('/#hoc-sinh');
+    expect(studentManifest.short_name).toBe(`${shortName} HS`);
+    await parent.goto(`${PARENT_URL}/#hoc-sinh`);
+    await expect
+      .poll(() =>
+        parent.evaluate(
+          () =>
+            (globalThis as unknown as BrowserGlobals).document
+              .querySelector('link[rel="manifest"]')
+              ?.getAttribute('href') ?? '',
+        ),
+      )
+      .toContain('/api/v1/public/pwa/student.webmanifest');
     const icon = await parent.request.get(`${PARENT_URL}${parentManifest.icons[0].src}`);
     expect(icon.headers()['content-type']).toContain('image/svg+xml');
     expect(await icon.text()).toContain('#127A3E');
