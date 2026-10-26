@@ -475,6 +475,17 @@ export type { BackupRunKind, BackupRunStatus } from '../platform/schema.js';
 // Danh mục đơn vị toàn quốc, quyền truy cập của quản trị nền tảng (DT-24)
 export * from './school-catalog.js';
 export type { SupportAccessBasis } from '../platform/schema.js';
+// Lõi hệ thống quản lý học tập (DT-28 phần 28b)
+export type {
+  ActivityResultLevel,
+  ActivityResultStatus,
+  CourseActivityCompletionRule,
+  CourseActivityKind,
+  CourseSpaceKind,
+  LearningEventVerb,
+  TeachingMode,
+} from '../school-year/schema.js';
+export type { CourseTemplateStatus } from '../system/schema.js';
 // Khóa VAPID của nền tảng cho thông báo đẩy (DT-26 phần 26b)
 export * from './push-keys.js';
 export type { PlatformPushKeysTable } from '../platform/schema.js';

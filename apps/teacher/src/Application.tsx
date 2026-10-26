@@ -21,6 +21,7 @@ import { MedicationScreen } from './screens/MedicationScreen.js';
 import { PickupScreen } from './screens/PickupScreen.js';
 import { StocktakeScreen } from './screens/StocktakeScreen.js';
 import { MyTimetableScreen } from './screens/MyTimetableScreen.js';
+import { OnlineClassesScreen } from './screens/OnlineClassesScreen.js';
 import { ClassLogScreen } from './screens/ClassLogScreen.js';
 import { TrainingScreen } from './screens/TrainingScreen.js';
 import { TeachingScreen } from './screens/TeachingScreen.js';
@@ -93,6 +94,7 @@ function Screens() {
     | { screen: 'class-log' }
     | { screen: 'training' }
     | { screen: 'classroom-tools'; classes: MyClass[] }
+    | { screen: 'online-classes' }
     | { screen: 'tutoring' }
   >();
   const back = () => setOpened(undefined);
@@ -183,6 +185,9 @@ function Screens() {
   if (opened?.screen === 'classroom-tools') {
     return <ClassroomToolsScreen classes={opened.classes} onBack={back} />;
   }
+  if (opened?.screen === 'online-classes') {
+    return <OnlineClassesScreen onBack={back} />;
+  }
   if (opened?.screen === 'stocktake') {
     return <StocktakeScreen onBack={back} />;
   }
@@ -213,6 +218,7 @@ function Screens() {
       onOpenClassLog={() => setOpened({ screen: 'class-log' })}
       onOpenTraining={() => setOpened({ screen: 'training' })}
       onOpenClassroomTools={(classes) => setOpened({ screen: 'classroom-tools', classes })}
+      onOpenOnlineClasses={() => setOpened({ screen: 'online-classes' })}
       onOpenTutoring={() => setOpened({ screen: 'tutoring' })}
     />
   );
