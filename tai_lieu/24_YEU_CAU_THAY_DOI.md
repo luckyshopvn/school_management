@@ -1,7 +1,7 @@
 # 24. YÊU CẦU THAY ĐỔI
 
 - Mô tả: Sổ quản lý yêu cầu thay đổi, ghi lý do, đánh giá ảnh hưởng và trạng thái của từng thay đổi trước khi triển khai.
-- Phiên bản: 0.75
+- Phiên bản: 0.76
 - Ngày cập nhật: 2026-10-26
 - Trạng thái: Đang cập nhật
 
@@ -42,6 +42,25 @@ Các thay đổi trước phiên bản 0.4.0 chưa có sổ này; xem `23_LICH_S
   - thử tải một lớp 45 học sinh và một khối 400 học sinh ở môi trường thử chưa chạy; có kiểm thử 45 yêu cầu lưu nháp cùng lúc vào một lượt (CT-23a-8);
   - quy định về dữ liệu của trẻ em đã đọc lại ngày 26/10/2026 theo GD-105 (Điều 24 Luật Bảo vệ dữ liệu cá nhân 91/2025/QH15, đã ghi ở PL-02, PL-05 của `33_HO_SO_PHAP_LY`; đọc qua bản tóm tắt trên thuvienphapluat.vn, lsvn.vn, toàn văn do luật sư của Eric đối chiếu): người đại diện theo pháp luật (cha mẹ, người giám hộ) thực hiện quyền của chủ thể thay trẻ; xử lý dữ liệu nhằm công bố, tiết lộ đời sống riêng tư của trẻ từ đủ 07 tuổi cần đồng ý của cả trẻ và người đại diện; phải ngừng xử lý khi trẻ hoặc người đại diện rút đồng ý. Việc tự đăng nhập làm bài của học sinh do trường quyết định và chịu trách nhiệm về căn cứ xử lý (PL-02 mục 1), trường thông báo cho cha mẹ, người giám hộ trước khi bật cho cấp học nhỏ tuổi, có công tắc tắt theo cấp; Claude không tự đặt ngưỡng tuổi cứng mà để trường quyết định theo cấp. Cần luật sư rà trước khi trường bật camera cho học sinh nhỏ tuổi; camera xử lý trên máy, không gửi hình nên không phát sinh dữ liệu hình ảnh ở máy chủ; khuyến nghị thi chính thức ở phòng máy có giám thị, không hứa chống gian lận tuyệt đối (GD-106).
 - Kiểm thử cần thực hiện: kịch bản CT-1097 đến CT-1107 (trong mã kiểm thử là CT-23a-1 đến CT-23a-11); kiểm thử đơn vị mới `apps/api/src/online-exams/online-exam-rules.test.ts`, `online-exams.test.ts`; kiểm thử giao diện mới `tests/e2e/150-online-exams.spec.ts`
+- Trạng thái: Đã triển khai
+
+### YCTD-290: Sửa kiểm thử chập chờn: thời khoá biểu, mở năm học, e2e 45, 151, 88, 103 – 2026-10-26
+
+- Lý do: sau PR 177 (kiểm thử API chạy song song ba tệp) và PR 180 (23b), CI của nhánh chính và mọi PR phải chạy lại vì một số kiểm thử lúc đạt lúc hỏng. Phiên điều phối giao tìm nguyên nhân gốc, không tăng thời gian chờ hay thêm lần chạy lại, không bỏ kiểm thử.
+- Nguyên nhân và cách sửa (Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11):
+  - **Loạt CTC-P01-013 đến CTC-P01-104 (năm học, mở năm học):** hai tiến trình kiểm thử cùng dựng cơ sở dữ liệu mẫu `school_tpl_*` (PR 177); cùng đổi tên bản dựng tạm về một tên thì bên thua nhận `23505` (chỉ mục `pg_database_datname_index`), mã cũ chỉ nhận `42P04` nên ném lỗi và cả bộ hỏng. Sửa `database/src/migration-templates.ts`: giữ khóa tư vấn (`pg_advisory_lock`) theo tên mẫu trong lúc kiểm và dựng, chỉ một tiến trình dựng; nhận cả `23505` của chỉ mục đó là trùng tên.
+  - **CT-22c2-12 (dạy thay, đổi tiết):** ca chỉ tìm cặp tiết đổi được của lớp 1B trong đúng ngày dạy thay của 1A; phương án của máy xếp ngẫu nhiên nên có ngày mọi cặp đều bị chặn vì giáo viên trùng tiết. Sửa ca kiểm thử: tìm trong 7 ngày, khoảng ngày kiểm tra danh sách thay đổi gồm cả hai ngày.
+  - **Dòng "fetch failed"** ở nhật ký CI là của ca "Không liên lạc được với dịch vụ định danh thì trả ERR_INTERNAL" (cố ý), không phải lỗi.
+  - **e2e 45:** danh sách học sinh chia trang; spec chạy theo thứ tự tên tệp nên `151-` (23b, thêm bốn học sinh) chạy trước `45-` và đẩy học sinh vừa nhập sang trang 2. Sửa spec: lọc theo họ tên, họ tên riêng cho mỗi lần chạy.
+  - **e2e 151:** vết chạy CI cho thấy trang `/` lấy được từ bộ nhớ đệm nhưng `@vite/client`, `src/main.tsx`, `@react-refresh` hỏng khi ngoại tuyến: máy chủ trả `Vary: Origin`, tệp lưu lúc làm ấm bộ nhớ đệm không kèm Origin còn yêu cầu mô-đun kèm Origin, nên `cache.match` (tôn trọng Vary) không khớp. Sửa `apps/teacher/public/sw.js`: tra bộ nhớ đệm với `ignoreVary: true` (bộ nhớ đệm chỉ giữ tệp tĩnh cùng nguồn của vỏ ứng dụng). Spec còn chờ service worker kiểm soát trang và lưu đủ tệp trước khi ngắt mạng (bộ nhớ đệm được ghi sau khi trả phản hồi).
+  - **e2e 54 (CT-15b-10):** cùng nguyên nhân với 45: lưới phân công phụ trách lớp chia trang, phân công "Lớp công cụ" của 151 chạy trước đẩy dòng "Mầm 1" sang trang 2 (ảnh chụp lúc hỏng: "Trang 1 / 2"). Sửa spec: lọc theo tên giáo viên chủ nhiệm của Mầm 1 trước khi tìm dòng.
+  - **e2e 88:** thẻ "Nề nếp, thi đua lớp" (1.4 Cấu hình trường) cho sửa trước khi tải xong cấu hình; dữ liệu về sau đặt lại ô chọn, ghi đè thao tác (người dùng thật cũng có thể lưu nhầm giá trị mặc định). Sửa giao diện `ConductSettingsBlock.tsx`: khóa ô và nút Lưu tới khi tải xong.
+  - **e2e 103 (cùng mẫu ở 97, 99):** chọn cấp đang làm việc rồi mở menu ngay; tên phân hệ đổi theo cấp sau khi lưu ("Quản lý giáo dục" thành "Quản lý giáo dục Trung học phổ thông") nên bộ chọn thanh menu khớp đúng tên cũ không còn phần tử, lệnh bấm chờ tới hết 240 giây. Sửa `tests/e2e/menu.ts`: `openMenu` tìm thanh menu theo tên gốc của phân hệ (có hoặc không có tên cấp); thêm `selectSchoolLevel` chờ ô ngữ cảnh hiện đúng cấp, dùng ở 97, 99, 103.
+- Thành phần bị ảnh hưởng: `database/src/migration-templates.ts`, `apps/teacher/public/sw.js`, `apps/api/src/timetables/timetable-generator.test.ts`, `apps/portal/src/conduct/ConductSettingsBlock.tsx`, `tests/e2e/menu.ts`, spec 45, 54, 97, 99, 103, 151; tài liệu `02`, `24`.
+- Dữ liệu, API, quyền bị ảnh hưởng: không.
+- Giao diện bị ảnh hưởng: thẻ "Nề nếp, thi đua lớp" khóa ô và nút Lưu trong lúc tải cấu hình (thường dưới một giây).
+- Ảnh hưởng chức năng cũ: không. Phiên bản phần mềm giữ nguyên (sửa kiểm thử và một lỗi nhỏ của giao diện, cập nhật tài liệu tối thiểu theo yêu cầu của phiên điều phối).
+- Kiểm thử cần thực hiện: tái hiện cuộc đua dựng mẫu với mã cũ và chạy lại với mã mới; chạy lặp 10 lần các tệp thời khoá biểu, năm học với `--test-concurrency=3`; e2e toàn bộ một lượt rồi lặp 45, 151, 88, 103 bằng `--repeat-each`.
 - Trạng thái: Đã triển khai
 
 ### YCTD-270: Kế hoạch DT-28: hệ thống quản lý học tập (LMS) – 2026-10-26
