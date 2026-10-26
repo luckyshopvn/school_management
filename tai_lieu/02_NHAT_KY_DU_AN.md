@@ -20,7 +20,7 @@
 
 - Đọc nhật ký và ảnh chụp, vết chạy (trace) của các lượt CI hỏng trên nhánh chính và PR 181, PR 184; tìm nguyên nhân gốc từng ca (xem YCTD-290).
 - Tái hiện cuộc đua dựng cơ sở dữ liệu mẫu bằng ba tiến trình cùng lúc trên bản sao mã (tên mẫu riêng, không đụng mẫu đang dùng): mã cũ hỏng 2/5 vòng với `23505`, mã mới 0/10 vòng.
-- Sửa `migration-templates.ts` (khóa tư vấn), service worker của ứng dụng giáo viên (tra bộ nhớ đệm bỏ qua `Vary: Origin`), ca CT-22c2-12, thẻ "Nề nếp, thi đua lớp", trợ giúp menu e2e, spec 45, 97, 99, 103, 151.
+- Sửa `migration-templates.ts` (khóa tư vấn), service worker của ứng dụng giáo viên (tra bộ nhớ đệm bỏ qua `Vary: Origin`), ca CT-22c2-12, thẻ "Nề nếp, thi đua lớp", trợ giúp menu e2e, spec 45, 54, 97, 99, 103, 151 (54 hỏng ở CI của PR 190 cùng nguyên nhân phân trang như 45).
 - Chạy lặp 10 lần ba tệp thời khoá biểu, năm học (`--test-concurrency=3` như CI): 24/24 ca đạt cả 10 lần.
 
 #### Quyết định
