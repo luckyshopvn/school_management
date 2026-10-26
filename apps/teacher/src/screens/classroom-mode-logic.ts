@@ -20,18 +20,16 @@ export interface CurrentLesson {
   when: 'now' | 'next';
 }
 
-// Giờ Việt Nam của một thời điểm: thứ (1 đến 7, thứ Hai là 1) và số phút từ 0 giờ
+// Giờ Việt Nam của một thời điểm: thứ (1 đến 7, thứ Hai là 1) và số phút từ 0 giờ. Việt Nam cố định UTC+7, không đổi giờ theo mùa, nên
+// cộng 7 giờ rồi đọc theo UTC (Intl.DateTimeFormat cho kết quả khác nhau giữa các trình duyệt)
+const VIETNAM_OFFSET_MILLISECONDS = 7 * 60 * 60_000;
+
 export function vietnamClock(now: Date): { weekday: number; minutes: number } {
-  const parts = new Intl.DateTimeFormat('en-GB', {
-    timeZone: 'Asia/Ho_Chi_Minh',
-    weekday: 'short',
-    hour: '2-digit',
-    minute: '2-digit',
-    hourCycle: 'h23',
-  }).formatToParts(now);
-  const read = (type: string) => parts.find((part) => part.type === type)?.value ?? '';
-  const weekday = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].indexOf(read('weekday')) + 1;
-  return { weekday, minutes: Number(read('hour')) * 60 + Number(read('minute')) };
+  const shifted = new Date(now.getTime() + VIETNAM_OFFSET_MILLISECONDS);
+  return {
+    weekday: ((shifted.getUTCDay() + 6) % 7) + 1,
+    minutes: shifted.getUTCHours() * 60 + shifted.getUTCMinutes(),
+  };
 }
 
 function toMinutes(time: string): number {
