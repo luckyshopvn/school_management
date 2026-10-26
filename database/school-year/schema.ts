@@ -779,8 +779,8 @@ export interface NotificationsTable {
   created_at: CreatedTimestamp;
 }
 
-// Kênh thông báo: trong ứng dụng, tin nhắn, Zalo Official Account (YCTD-71, YCTD-90)
-export type NotificationChannel = 'in_app' | 'sms' | 'zalo';
+// Kênh thông báo: trong ứng dụng, tin nhắn, Zalo Official Account (YCTD-71, YCTD-90), thông báo đẩy (DT-26 phần 26b, YCTD-232)
+export type NotificationChannel = 'in_app' | 'sms' | 'zalo' | 'push';
 
 export interface NotificationRecipientsTable {
   id: Generated<string>;
