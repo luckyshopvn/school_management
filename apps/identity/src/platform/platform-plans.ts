@@ -83,6 +83,9 @@ export interface PlanInput {
   max_active_students: number | null;
   max_storage_mb: number | null;
   max_school_levels: number | null;
+  // Hạn mức AI mỗi tháng (DT-23 phần 23d); trống là không giới hạn, 0 là không dùng AI
+  ai_max_requests: number | null;
+  ai_max_tokens: number | null;
   trial_days: number;
   pricing_mode: PlanPricingMode;
   unit_price: number;
@@ -160,6 +163,8 @@ export function parsePlanInput(body: Body_): PlanInput {
     max_active_students: optionalCount(body, 'max_active_students', errors),
     max_storage_mb: optionalCount(body, 'max_storage_mb', errors),
     max_school_levels: maxSchoolLevels,
+    ai_max_requests: optionalCount(body, 'ai_max_requests', errors, 2_000_000_000),
+    ai_max_tokens: optionalCount(body, 'ai_max_tokens', errors, 2_000_000_000),
     trial_days: trialDays,
     pricing_mode: pricingMode,
     unit_price: money(body, 'unit_price', errors),

@@ -520,6 +520,84 @@ export class LearningResourcesService {
     }
   }
 
+  // Kế hoạch bài dạy nháp do trợ lý AI soạn (DT-23 phần 23d): học liệu riêng tư, trạng thái nháp, mang cờ `ai_generated`; nội dung lưu
+  // thành tệp văn bản Markdown ở phiên bản 1. Muốn chia sẻ phải điền giấy phép rồi gửi duyệt như mọi học liệu (kiểm duyệt 22h1)
+  async createAiLessonPlanDraft(
+    currentUser: CurrentUser,
+    input: {
+      title: string;
+      markdown: string;
+      school_level: string | null;
+      grade_level_code: string | null;
+      subject_code: string | null;
+      duration_minutes: number | null;
+      requestId: string;
+    },
+  ) {
+    const context = await this.context(currentUser);
+    const type = await this.system
+      .selectFrom('resource_types')
+      .select('id')
+      .where('code', '=', 'lesson_plan')
+      .where('status', '=', 'active')
+      .executeTakeFirst();
+    if (!type) {
+      throw resourceRule('Danh mục loại học liệu chưa có "Kế hoạch bài dạy"');
+    }
+    const metadata = await this.resolveMetadata({
+      type_id: type.id,
+      license_id: null,
+      topic_id: null,
+      subject_code: input.subject_code,
+    } as LearningResourceInput);
+    const created = await this.system
+      .insertInto('learning_resources')
+      .values({
+        title: input.title.slice(0, 300),
+        description: 'Bản nháp do trợ lý AI soạn, cần giáo viên kiểm tra trước khi dùng',
+        type_id: type.id,
+        school_level: input.school_level,
+        grade_level_code: input.grade_level_code,
+        subject_code: input.subject_code,
+        ...metadata,
+        keywords: ['do AI soạn'],
+        author_name: context.name,
+        duration_minutes: input.duration_minutes,
+        visibility: 'private',
+        owner_user_id: context.userId,
+        owner_name: context.name,
+        department_id: context.staffDepartmentId,
+        department_name: context.staffDepartmentName,
+        ai_generated: true,
+        ai_request_id: input.requestId,
+      })
+      .returningAll()
+      .executeTakeFirstOrThrow();
+    const body = Buffer.from(input.markdown, 'utf8');
+    const key = storageKey('learning-resources', created.id, randomUUID());
+    await this.fileStorage.put(key, body, 'text/markdown');
+    try {
+      await this.addVersion(
+        created,
+        {
+          kind: 'file',
+          storage_key: key,
+          file_name: 'ke-hoach-bai-day-ai.md',
+          content_type: 'text/markdown',
+          size_bytes: body.length,
+          sha256: createHash('sha256').update(body).digest('hex'),
+          note: 'Do trợ lý AI soạn',
+        },
+        context.userId,
+      );
+    } catch (error) {
+      await this.fileStorage.delete(key).catch(() => undefined);
+      await this.system.deleteFrom('learning_resources').where('id', '=', created.id).execute();
+      throw error;
+    }
+    return this.findResource(created.id);
+  }
+
   async addLink(currentUser: CurrentUser, id: string, body: RequestBody) {
     const context = await this.context(currentUser);
     const row = await this.findResource(id);

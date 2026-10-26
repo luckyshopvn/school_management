@@ -680,6 +680,8 @@ export const PORTAL_QUICK_LINK_PATHS = [
   // Chấm bài kiểm tra, báo cáo (DT-21 phần 22g2)
   '/exam-grading',
   '/exam-reports',
+  // Trợ lý AI soạn nháp (DT-23 phần 23d)
+  '/ai-assistant',
 ] as const;
 
 export type PortalQuickLinkPath = (typeof PORTAL_QUICK_LINK_PATHS)[number];
