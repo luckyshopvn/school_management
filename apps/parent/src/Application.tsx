@@ -4,7 +4,7 @@ import { AdmissionsScreen } from './screens/AdmissionsScreen.js';
 import { HomeScreen } from './screens/HomeScreen.js';
 import { LoginScreen } from './screens/LoginScreen.js';
 import { RecruitmentScreen, useRecruitmentRoute } from './screens/RecruitmentScreen.js';
-import { UpdateBanner } from '@school-management/pwa';
+import { UpdateBanner, usePushSync } from '@school-management/pwa';
 import {
   DemoBanner,
   ExternalSignInCallback,
@@ -68,6 +68,13 @@ function Screens() {
   return <HomeScreen />;
 }
 
+// Đã đăng nhập: báo lại đăng ký đẩy của máy cho máy chủ (DT-26 phần 26b)
+function PushSync() {
+  const session = useSession();
+  usePushSync('parent', import.meta.env.BASE_URL, requestJson, session.status === 'signed-in');
+  return null;
+}
+
 // Giao diện chỉ gọi giao diện lập trình ứng dụng, không chứa quy tắc nghiệp vụ (QU-09)
 export function Application() {
   // Học sinh làm bài thi trực tuyến ở kênh đăng nhập riêng (DT-23 phần 23a)
@@ -82,6 +89,7 @@ export function Application() {
       <PlatformMaintenanceBanner />
       {/* Có bản mới của ứng dụng: hỏi tải lại (DT-26 phần 26a) */}
       <UpdateBanner />
+      <PushSync />
       <Screens />
     </SessionProvider>
   );
