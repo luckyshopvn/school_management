@@ -50,11 +50,26 @@ const emptyForm = () => ({
   class_ids: [] as string[],
 });
 
-function ProgramDetailPanel({ id, onChanged, notify }: { id: string; onChanged: () => void; notify: (text: string) => void }) {
+function ProgramDetailPanel({
+  id,
+  onChanged,
+  notify,
+}: {
+  id: string;
+  onChanged: () => void;
+  notify: (text: string) => void;
+}) {
   const queryClient = useQueryClient();
   const detail = useQuery({ queryKey: ['tutoring-program', id], queryFn: () => tutoringApi.program(id) });
   const [error, setError] = useState<string>();
-  const [weekly, setWeekly] = useState({ weekdays: [] as number[], from: '', to: '', start_time: '17:00', end_time: '17:45', location: '' });
+  const [weekly, setWeekly] = useState({
+    weekdays: [] as number[],
+    from: '',
+    to: '',
+    start_time: '17:00',
+    end_time: '17:45',
+    location: '',
+  });
   const [suggested, setSuggested] = useState<Array<{ id: string; full_name: string }>>([]);
   const [selected, setSelected] = useState<string[]>([]);
   const [messageChild, setMessageChild] = useState('');
@@ -63,7 +78,11 @@ function ProgramDetailPanel({ id, onChanged, notify }: { id: string; onChanged: 
   useEffect(() => {
     if (program) {
       setSelected(program.candidates.map((candidate) => candidate.id));
-      setWeekly((current) => ({ ...current, from: current.from || program.starts_on, to: current.to || program.ends_on }));
+      setWeekly((current) => ({
+        ...current,
+        from: current.from || program.starts_on,
+        to: current.to || program.ends_on,
+      }));
     }
   }, [program]);
   const run = useMutation({
@@ -86,17 +105,27 @@ function ProgramDetailPanel({ id, onChanged, notify }: { id: string; onChanged: 
       return 'Đã cập nhật trạng thái chương trình';
     });
   return (
-    <section aria-label={`Chương trình ${program.name}`} className="flex flex-col gap-4 rounded-lg border border-border p-4">
+    <section
+      aria-label={`Chương trình ${program.name}`}
+      className="flex flex-col gap-4 rounded-lg border border-border p-4"
+    >
       <h2 className="text-section-title font-semibold">{program.name}</h2>
       {error ? <Alert tone="danger">{error}</Alert> : null}
       <p className="text-content">
         {TUTORING_CONTENT_TYPE_LABELS[program.content_type]}
-        {program.audience ? ` · ${TUTORING_AUDIENCE_LABELS[program.audience]}` : ''} · {TUTORING_PROGRAM_STATUS_LABELS[program.status]}
-        {program.content_type === 'curriculum' ? ' · Không thu tiền (Thông tư 29)' : program.charges_fee ? ' · Có thu tiền' : ' · Không thu tiền'}
+        {program.audience ? ` · ${TUTORING_AUDIENCE_LABELS[program.audience]}` : ''} ·{' '}
+        {TUTORING_PROGRAM_STATUS_LABELS[program.status]}
+        {program.content_type === 'curriculum'
+          ? ' · Không thu tiền (Thông tư 29)'
+          : program.charges_fee
+            ? ' · Có thu tiền'
+            : ' · Không thu tiền'}
       </p>
       {program.reject_reason ? <Alert tone="warning">Lý do không duyệt: {program.reject_reason}</Alert> : null}
       <div className="flex flex-wrap gap-2">
-        {program.can_teach && ['draft', 'rejected'].includes(program.status) ? <Button onClick={() => act('submit')}>Nộp duyệt</Button> : null}
+        {program.can_teach && ['draft', 'rejected'].includes(program.status) ? (
+          <Button onClick={() => act('submit')}>Nộp duyệt</Button>
+        ) : null}
         {program.can_manage && program.status === 'submitted' ? (
           <>
             <Button variant="primary" onClick={() => act('approve')}>
@@ -105,7 +134,9 @@ function ProgramDetailPanel({ id, onChanged, notify }: { id: string; onChanged: 
             <Button onClick={() => act('reject')}>Không duyệt</Button>
           </>
         ) : null}
-        {program.can_manage && program.status === 'approved' ? <Button onClick={() => act('close')}>Đóng chương trình</Button> : null}
+        {program.can_manage && program.status === 'approved' ? (
+          <Button onClick={() => act('close')}>Đóng chương trình</Button>
+        ) : null}
       </div>
 
       <h3 className="font-semibold">Học sinh được đăng ký</h3>
@@ -128,7 +159,11 @@ function ProgramDetailPanel({ id, onChanged, notify }: { id: string; onChanged: 
         <Button
           onClick={() =>
             run.mutate(async () => {
-              await tutoringApi.setCandidates(id, selected, suggested.map((row) => row.id));
+              await tutoringApi.setCandidates(
+                id,
+                selected,
+                suggested.map((row) => row.id),
+              );
               return 'Đã xác nhận danh sách học sinh';
             })
           }
@@ -144,7 +179,9 @@ function ProgramDetailPanel({ id, onChanged, notify }: { id: string; onChanged: 
                 type="checkbox"
                 checked={selected.includes(child.id)}
                 onChange={(event) =>
-                  setSelected(event.target.checked ? [...selected, child.id] : selected.filter((item) => item !== child.id))
+                  setSelected(
+                    event.target.checked ? [...selected, child.id] : selected.filter((item) => item !== child.id),
+                  )
                 }
               />
               {child.full_name}
@@ -180,7 +217,9 @@ function ProgramDetailPanel({ id, onChanged, notify }: { id: string; onChanged: 
                 onChange={(event) =>
                   setWeekly({
                     ...weekly,
-                    weekdays: event.target.checked ? [...weekly.weekdays, day] : weekly.weekdays.filter((item) => item !== day),
+                    weekdays: event.target.checked
+                      ? [...weekly.weekdays, day]
+                      : weekly.weekdays.filter((item) => item !== day),
                   })
                 }
               />
@@ -190,23 +229,47 @@ function ProgramDetailPanel({ id, onChanged, notify }: { id: string; onChanged: 
         </fieldset>
         <label className="flex flex-col text-label">
           Từ ngày
-          <input type="date" className={FORM_CONTROL_CLASS} value={weekly.from} onChange={(event) => setWeekly({ ...weekly, from: event.target.value })} />
+          <input
+            type="date"
+            className={FORM_CONTROL_CLASS}
+            value={weekly.from}
+            onChange={(event) => setWeekly({ ...weekly, from: event.target.value })}
+          />
         </label>
         <label className="flex flex-col text-label">
           Đến ngày
-          <input type="date" className={FORM_CONTROL_CLASS} value={weekly.to} onChange={(event) => setWeekly({ ...weekly, to: event.target.value })} />
+          <input
+            type="date"
+            className={FORM_CONTROL_CLASS}
+            value={weekly.to}
+            onChange={(event) => setWeekly({ ...weekly, to: event.target.value })}
+          />
         </label>
         <label className="flex flex-col text-label">
           Bắt đầu
-          <input type="time" className={FORM_CONTROL_CLASS} value={weekly.start_time} onChange={(event) => setWeekly({ ...weekly, start_time: event.target.value })} />
+          <input
+            type="time"
+            className={FORM_CONTROL_CLASS}
+            value={weekly.start_time}
+            onChange={(event) => setWeekly({ ...weekly, start_time: event.target.value })}
+          />
         </label>
         <label className="flex flex-col text-label">
           Kết thúc
-          <input type="time" className={FORM_CONTROL_CLASS} value={weekly.end_time} onChange={(event) => setWeekly({ ...weekly, end_time: event.target.value })} />
+          <input
+            type="time"
+            className={FORM_CONTROL_CLASS}
+            value={weekly.end_time}
+            onChange={(event) => setWeekly({ ...weekly, end_time: event.target.value })}
+          />
         </label>
         <label className="flex flex-col text-label">
           Địa điểm
-          <input className={FORM_CONTROL_CLASS} value={weekly.location} onChange={(event) => setWeekly({ ...weekly, location: event.target.value })} />
+          <input
+            className={FORM_CONTROL_CLASS}
+            value={weekly.location}
+            onChange={(event) => setWeekly({ ...weekly, location: event.target.value })}
+          />
         </label>
         <Button type="submit">Xếp buổi</Button>
       </form>
@@ -278,11 +341,16 @@ function ProgramDetailPanel({ id, onChanged, notify }: { id: string; onChanged: 
         }}
       >
         <p className="text-label text-text-secondary">
-          Tin nhắn của chương trình luôn gửi tới cha mẹ của học sinh (luồng Trao đổi), không có luồng riêng với học sinh.
+          Tin nhắn của chương trình luôn gửi tới cha mẹ của học sinh (luồng Trao đổi), không có luồng riêng với học
+          sinh.
         </p>
         <label className="flex flex-col text-label">
           Học sinh
-          <select className={FORM_CONTROL_CLASS} value={messageChild} onChange={(event) => setMessageChild(event.target.value)}>
+          <select
+            className={FORM_CONTROL_CLASS}
+            value={messageChild}
+            onChange={(event) => setMessageChild(event.target.value)}
+          >
             <option value="">Chọn học sinh</option>
             {program.registrations
               .filter((registration) => registration.status === 'pending' || registration.status === 'approved')
@@ -295,7 +363,11 @@ function ProgramDetailPanel({ id, onChanged, notify }: { id: string; onChanged: 
         </label>
         <label className="flex flex-col text-label">
           Nội dung
-          <textarea className={FORM_CONTROL_CLASS} value={messageText} onChange={(event) => setMessageText(event.target.value)} />
+          <textarea
+            className={FORM_CONTROL_CLASS}
+            value={messageText}
+            onChange={(event) => setMessageText(event.target.value)}
+          />
         </label>
         <Button type="submit" disabled={!messageChild || !messageText}>
           Gửi cha mẹ
@@ -331,7 +403,8 @@ export function TutoringProgramsPage() {
   });
   const subjects = meta.data?.subjects.filter((subject) => subject.school_level === form.school_level) ?? [];
   const classes = meta.data?.classes.filter((item) => item.school_level === form.school_level) ?? [];
-  const blocked = meta.data?.rules.curriculumBlockedLevels.includes(form.school_level) && form.content_type === 'curriculum';
+  const blocked =
+    meta.data?.rules.curriculumBlockedLevels.includes(form.school_level) && form.content_type === 'curriculum';
   return (
     <AppShell>
       <Toast message={toastMessage} onClose={closeToast} />
@@ -362,7 +435,9 @@ export function TutoringProgramsPage() {
                 </td>
                 <td>{TUTORING_PROGRAM_STATUS_LABELS[program.status]}</td>
                 <td>
-                  <Button onClick={() => setOpen(open === program.id ? undefined : program.id)}>Xem {program.name}</Button>
+                  <Button onClick={() => setOpen(open === program.id ? undefined : program.id)}>
+                    Xem {program.name}
+                  </Button>
                 </td>
               </tr>
             ))}
@@ -388,7 +463,12 @@ export function TutoringProgramsPage() {
           {create.error ? <Alert tone="danger">{messageOf(create.error)}</Alert> : null}
           <label className="flex flex-col text-label">
             Tên chương trình
-            <input className={FORM_CONTROL_CLASS} value={form.name} onChange={(event) => setForm({ ...form, name: event.target.value })} required />
+            <input
+              className={FORM_CONTROL_CLASS}
+              value={form.name}
+              onChange={(event) => setForm({ ...form, name: event.target.value })}
+              required
+            />
           </label>
           <fieldset className="flex flex-col gap-1">
             <legend className="text-label font-medium">Loại nội dung (bắt buộc)</legend>
@@ -398,7 +478,9 @@ export function TutoringProgramsPage() {
                   type="radio"
                   name="content_type"
                   checked={form.content_type === type}
-                  onChange={() => setForm({ ...form, content_type: type, audience: type === 'curriculum' ? 'below_standard' : '' })}
+                  onChange={() =>
+                    setForm({ ...form, content_type: type, audience: type === 'curriculum' ? 'below_standard' : '' })
+                  }
                 />
                 <span>
                   <span className="font-medium">{TUTORING_CONTENT_TYPE_LABELS[type]}</span>
@@ -412,7 +494,9 @@ export function TutoringProgramsPage() {
             <select
               className={FORM_CONTROL_CLASS}
               value={form.school_level}
-              onChange={(event) => setForm({ ...form, school_level: event.target.value as SchoolLevelCode, subject_id: '', class_ids: [] })}
+              onChange={(event) =>
+                setForm({ ...form, school_level: event.target.value as SchoolLevelCode, subject_id: '', class_ids: [] })
+              }
             >
               {LEVELS.map((level) => (
                 <option key={level} value={level}>
@@ -421,10 +505,19 @@ export function TutoringProgramsPage() {
               ))}
             </select>
           </label>
-          {blocked ? <Alert tone="warning">Không tổ chức dạy thêm môn học cho học sinh tiểu học; chọn loại bổ trợ nếu là nghệ thuật, thể thao, kỹ năng sống.</Alert> : null}
+          {blocked ? (
+            <Alert tone="warning">
+              Không tổ chức dạy thêm môn học cho học sinh tiểu học; chọn loại bổ trợ nếu là nghệ thuật, thể thao, kỹ
+              năng sống.
+            </Alert>
+          ) : null}
           <label className="flex flex-col text-label">
             Môn học
-            <select className={FORM_CONTROL_CLASS} value={form.subject_id} onChange={(event) => setForm({ ...form, subject_id: event.target.value })}>
+            <select
+              className={FORM_CONTROL_CLASS}
+              value={form.subject_id}
+              onChange={(event) => setForm({ ...form, subject_id: event.target.value })}
+            >
               <option value="">{form.content_type === 'curriculum' ? 'Chọn môn' : 'Không theo môn'}</option>
               {subjects.map((subject) => (
                 <option key={subject.id} value={subject.id}>
@@ -436,7 +529,11 @@ export function TutoringProgramsPage() {
           {form.content_type === 'curriculum' ? (
             <label className="flex flex-col text-label">
               Nhóm đối tượng
-              <select className={FORM_CONTROL_CLASS} value={form.audience} onChange={(event) => setForm({ ...form, audience: event.target.value as TutoringAudience })}>
+              <select
+                className={FORM_CONTROL_CLASS}
+                value={form.audience}
+                onChange={(event) => setForm({ ...form, audience: event.target.value as TutoringAudience })}
+              >
                 {(Object.keys(TUTORING_AUDIENCE_LABELS) as TutoringAudience[]).map((audience) => (
                   <option key={audience} value={audience}>
                     {TUTORING_AUDIENCE_LABELS[audience]}
@@ -446,16 +543,26 @@ export function TutoringProgramsPage() {
             </label>
           ) : (
             <label className="flex items-center gap-2">
-              <input type="checkbox" checked={form.charges_fee} onChange={(event) => setForm({ ...form, charges_fee: event.target.checked })} />
+              <input
+                type="checkbox"
+                checked={form.charges_fee}
+                onChange={(event) => setForm({ ...form, charges_fee: event.target.checked })}
+              />
               Có thu tiền (thu theo quy định thu của trường)
             </label>
           )}
           {form.content_type === 'curriculum' ? (
-            <p className="text-label text-text-secondary">Dạy thêm môn học trong nhà trường không được thu tiền của học sinh.</p>
+            <p className="text-label text-text-secondary">
+              Dạy thêm môn học trong nhà trường không được thu tiền của học sinh.
+            </p>
           ) : null}
           <label className="flex flex-col text-label">
             Hình thức
-            <select className={FORM_CONTROL_CLASS} value={form.delivery} onChange={(event) => setForm({ ...form, delivery: event.target.value as TutoringDelivery })}>
+            <select
+              className={FORM_CONTROL_CLASS}
+              value={form.delivery}
+              onChange={(event) => setForm({ ...form, delivery: event.target.value as TutoringDelivery })}
+            >
               {(Object.keys(TUTORING_DELIVERY_LABELS) as TutoringDelivery[]).map((delivery) => (
                 <option key={delivery} value={delivery}>
                   {TUTORING_DELIVERY_LABELS[delivery]}
@@ -473,7 +580,9 @@ export function TutoringProgramsPage() {
                   onChange={(event) =>
                     setForm({
                       ...form,
-                      class_ids: event.target.checked ? [...form.class_ids, item.id] : form.class_ids.filter((id) => id !== item.id),
+                      class_ids: event.target.checked
+                        ? [...form.class_ids, item.id]
+                        : form.class_ids.filter((id) => id !== item.id),
                     })
                   }
                 />
@@ -483,19 +592,37 @@ export function TutoringProgramsPage() {
           </fieldset>
           <label className="flex flex-col text-label">
             Từ ngày
-            <input type="date" className={FORM_CONTROL_CLASS} value={form.starts_on} onChange={(event) => setForm({ ...form, starts_on: event.target.value })} />
+            <input
+              type="date"
+              className={FORM_CONTROL_CLASS}
+              value={form.starts_on}
+              onChange={(event) => setForm({ ...form, starts_on: event.target.value })}
+            />
           </label>
           <label className="flex flex-col text-label">
             Đến ngày
-            <input type="date" className={FORM_CONTROL_CLASS} value={form.ends_on} onChange={(event) => setForm({ ...form, ends_on: event.target.value })} />
+            <input
+              type="date"
+              className={FORM_CONTROL_CLASS}
+              value={form.ends_on}
+              onChange={(event) => setForm({ ...form, ends_on: event.target.value })}
+            />
           </label>
           <label className="flex flex-col text-label">
             Mô tả
-            <textarea className={FORM_CONTROL_CLASS} value={form.description} onChange={(event) => setForm({ ...form, description: event.target.value })} />
+            <textarea
+              className={FORM_CONTROL_CLASS}
+              value={form.description}
+              onChange={(event) => setForm({ ...form, description: event.target.value })}
+            />
           </label>
           <label className="flex flex-col text-label">
             Mẫu đơn đăng ký của cha mẹ
-            <textarea className={FORM_CONTROL_CLASS} value={form.registration_form} onChange={(event) => setForm({ ...form, registration_form: event.target.value })} />
+            <textarea
+              className={FORM_CONTROL_CLASS}
+              value={form.registration_form}
+              onChange={(event) => setForm({ ...form, registration_form: event.target.value })}
+            />
           </label>
           <Button type="submit" variant="primary" disabled={create.isPending}>
             Lập chương trình

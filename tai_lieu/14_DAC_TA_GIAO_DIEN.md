@@ -1,7 +1,7 @@
 # 14. ĐẶC TẢ GIAO DIỆN
 
 - Mô tả: Danh sách màn hình, điều hướng, bố cục, thành phần, dữ liệu hiển thị, thao tác, trạng thái, thông báo, xử lý lỗi, quyền hiển thị, khả năng thích ứng màn hình.
-- Phiên bản: 1.116
+- Phiên bản: 1.117
 - Ngày cập nhật: 2026-10-26
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -718,6 +718,12 @@ Từ YCTD-211 (DT-23 phần 23a), thêm phân hệ "Thi trực tuyến" (1. Giao
 | MH-345 | Thi trực tuyến 1. Giao đề thi trực tuyến (YCTD-211, `/online-exams`): bảng "Bài thi đã giao" (bài, môn, giờ mở và đóng, giao, đã vào, đã nộp, cần xét, trạng thái, Theo dõi); khối "Giao đề thi trực tuyến" (đề đã khoá, lớp, tên, giờ mở, giờ đóng, thời lượng, số lần, cách tính, chế độ thi, phát mã đề, hiện kết quả, đảo câu, đảo đáp án, toàn màn hình, số lần rời bài, camera, phiên thứ hai, học kỳ, loại điểm; Giao đề) | `P02.exam.assign` |
 | MH-346 | Thi trực tuyến 2. Theo dõi bài làm (YCTD-211, `/online-exams/monitor`): chọn bài thi; cấu hình; Công bố kết quả, Huỷ bài thi; bảng "Học sinh được giao" (tình trạng, điểm từng lần, số lần rời bài, sự kiện, cần xét, Xem bài); khối "Phòng thi" (Mở phòng thi, mã phòng, hạn, đã vào, Đóng phòng thi); khối "Bài làm của …" (điểm, sự kiện, câu trả lời kèm đáp án đúng, Nộp thay học sinh, điểm câu tự luận, Lưu điểm tự luận) | `P02.exam.assign` |
 | MH-347 | Thi trực tuyến 3. Cấu hình thi trực tuyến (YCTD-211, `/online-exams/settings`): công tắc "Cho học sinh … đăng nhập làm bài" theo cấp Tiểu học, THCS, THPT; khối "Chế độ thi của trường" (cho phép thi từ xa, chế độ mặc định, dải mạng, hạn mã phòng) | `P02.exam.assign` xem; `P02.exam.manage` đặt |
+| MH-348 | Cổng: Gia sư trực tuyến › 1. Chương trình gia sư (YCTD-252): bảng chương trình; biểu mẫu lập (loại nội dung có giải thích ngay dưới ô chọn, cấp, môn, nhóm đối tượng, câu "không thu tiền" với môn học, hình thức, lớp đối tượng, thời gian, mẫu đơn); khung chi tiết (Nộp duyệt, Duyệt, Không duyệt, Đóng; học sinh được đăng ký và Gợi ý từ sổ điểm; xếp buổi lặp theo tuần; đơn đăng ký và nút duyệt; nhắn cha mẹ) | Giáo viên, Ban Giám hiệu |
+| MH-349 | Cổng: Gia sư trực tuyến › 2. Lịch buổi học, điểm danh (YCTD-252): buổi theo khoảng ngày, hủy buổi có lý do, điểm danh từng học sinh (có mặt, vào muộn, về sớm, vắng; gợi ý từ nhật ký phòng), Xác nhận điểm danh | Giáo viên, Ban Giám hiệu |
+| MH-350 | Cổng: Gia sư trực tuyến › 3. Quyết định tăng thời lượng (YCTD-252): danh sách và biểu mẫu (số, ngày, môn, số tiết tối đa mỗi tuần, học sinh, tệp quyết định) | Ban Giám hiệu |
+| MH-351 | Cổng: Gia sư trực tuyến › 4. Quy định dạy thêm (YCTD-252): quy định đang áp dụng, lịch sử, thêm quy định có ngày hiệu lực (Ban Giám hiệu) | Giáo viên, Ban Giám hiệu |
+| MH-352 | Ứng dụng giáo viên: Gia sư trong trường (YCTD-252): buổi dạy hai tuần tới, điểm danh từng học sinh bằng nút, xác nhận | Giáo viên |
+| MH-353 | Ứng dụng phụ huynh: mục Gia sư của con (YCTD-252): chương trình mở cho con (thu tiền hay không), đơn đăng ký có ô xác nhận, đơn đã gửi và rút đơn, lịch học và điểm danh đã xác nhận, đường dây nóng, ô phản ánh dạy thêm | Cha mẹ |
 
 Từ YCTD-128 (DT-16 phần 16i): MH-80 có nút "Nhập từ Excel" mở công cụ nhập chung "Nhập phòng từ Excel"; biểu mẫu phòng chỉ hiện thuộc tính khai báo được cho loại phòng đang chọn, bốn ô nhà vệ sinh (Đối tượng sử dụng nhà vệ sinh, Nhà vệ sinh đạt chuẩn, Riêng nam nữ, Số chỗ) chỉ hiện với Phòng vệ sinh; MH-80 cũng mở ở mục 6.2 (`/facility-input`) với tiêu đề "6.2. Nhập liệu cơ sở vật chất". MH-81 bỏ thẻ 2.2 (chuyển sang MH-129), thẻ Danh mục tối thiểu có nút "Nhập từ Excel". MH-20 thẻ Tài sản có khối "Gắn thiết bị dạy học" (Tài sản cần gắn, Thiết bị dạy học, Gắn thiết bị dạy học, Bỏ gắn) và cột Thiết bị dạy học khi người dùng có `P13.equipment.manage`.
 

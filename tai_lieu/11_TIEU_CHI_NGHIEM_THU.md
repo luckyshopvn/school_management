@@ -1,7 +1,7 @@
 # 11. TIÊU CHÍ NGHIỆM THU
 
 - Mô tả: Tiêu chí nghiệm thu cho từng chức năng, viết dạng Cho, Khi, Thì.
-- Phiên bản: 1.83
+- Phiên bản: 1.84
 - Ngày cập nhật: 2026-10-26
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -952,6 +952,9 @@ Các mã từ AC-94 đến AC-134 được viết trực tiếp trong mục 12 c
 | AC-877 | Cho bài nộp có câu tự luận / Khi giáo viên chấm, Hiệu trưởng khoá điểm, giáo viên xác nhận chuyển / Thì điểm vào sổ điểm đúng một lần theo luồng 22g2, phiếu đã khoá không bị ghi đè (CT-1103, CT-1107; YCTD-211) |
 | AC-878 | Cho bài thi tại trường (chế độ mặc định) / Khi học sinh vào bài không có mã phòng đang mở, ngoài dải mạng của trường, hoặc sau khi giám thị đóng phòng / Thì bị từ chối; chỉ vào được bằng mã phòng đang mở có tên mình; thi từ xa chỉ giao được khi trường bật (CT-1106, CT-1107; YCTD-211) |
 | AC-879 | Cho trường và gói dịch vụ / Khi tắt thi trực tuyến theo cấp hoặc gói không có phân hệ / Thì học sinh cấp đó không vào được và không giao đề mới; dữ liệu cũ giữ nguyên (CT-1104; YCTD-211) |
+| AC-880 | Cho chương trình dạy thêm môn học trong trường / Khi lập có thu tiền, thiếu nhóm đối tượng, cấp Tiểu học / Thì máy chủ từ chối kèm lý do theo từng dòng của Thông tư; chương trình bổ trợ không bị chặn; Ban Giám hiệu duyệt rồi mới mở đăng ký (CT-1108, CT-1110; YCTD-252) |
+| AC-881 | Cho chương trình đã duyệt / Khi xếp buổi trùng tiết chính khoá hoặc làm học sinh quá 2 tiết/tuần một môn / Thì bị chặn, trừ khi có quyết định của Sở cho học sinh đó (CT-1109, CT-1111; YCTD-252) |
+| AC-882 | Cho cha mẹ và giáo viên / Khi cha mẹ gửi đơn có xác nhận, giáo viên duyệt, điểm danh vắng, nhắn tin / Thì đơn lưu bản chụp, vắng báo cha mẹ một lần, tin nhắn đi qua luồng với cha mẹ, cha mẹ thấy điểm danh đã xác nhận (CT-1112, CT-1113, CT-1114, CT-1115; YCTD-252) |
 
 ## 20. Chưa xác minh được
 

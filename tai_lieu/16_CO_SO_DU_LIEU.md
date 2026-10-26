@@ -1,7 +1,7 @@
 # 16. CƠ SỞ DỮ LIỆU
 
 - Mô tả: Thực thể, trường, kiểu dữ liệu, khóa chính, khóa ngoại, quan hệ, ràng buộc, chỉ mục, trạng thái, lịch sử thay đổi, chính sách xóa dữ liệu.
-- Phiên bản: 1.126
+- Phiên bản: 1.127
 - Ngày cập nhật: 2026-10-26
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -296,6 +296,13 @@ Ràng buộc duy nhất: `attendance_records` trên bộ đôi trẻ, ngày; `ab
 | online_exam_school_settings (từ YCTD-211) | Cấu hình thi trực tuyến của trường, một dòng (P02-85) | id (luôn true), default_exam_mode, allow_remote, allowed_networks (JSON dải CIDR), room_code_minutes, người sửa |
 | exam_rooms (từ YCTD-211) | Phòng thi của bài giao tại trường (P02-84) | assignment_id (xóa theo), code (6 chữ số, duy nhất khi còn mở), opened_by, opened_at, expires_at, closed_at |
 | exam_room_students (từ YCTD-211) | Học sinh được vào phòng (P02-84) | room_id (xóa theo), child_id, entered_at |
+| tutoring_rules (từ YCTD-252) | Quy định dạy thêm có ngày hiệu lực (BR-238, BR-239; năm học `0152`) | effective_from (duy nhất), max_curriculum_periods_per_week, curriculum_blocked_levels (JSON), default_period_minutes (JSON theo cấp), legal_basis |
+| tutoring_programs (từ YCTD-252) | Chương trình gia sư (BR-238) | name, school_level, subject_id, topic, content_type (`curriculum`, `enrichment`), audience, charges_fee (luôn false với `curriculum`, ràng buộc bảng), delivery, description, registration_form, max_students, starts_on, ends_on, status (`draft`, `submitted`, `approved`, `rejected`, `closed`), người duyệt |
+| tutoring_program_teachers, tutoring_program_classes, tutoring_program_candidates (từ YCTD-252) | Giáo viên dạy, lớp đối tượng, học sinh được đăng ký (gợi ý từ sổ điểm hoặc thêm tay) | program_id, teacher_user_id, teacher_name; class_id; child_id, source, confirmed_by_name |
+| tutoring_sessions (từ YCTD-252) | Buổi học (BR-239; `0153`) | program_id, series_id, session_date, start_time, end_time, periods, location, status (`scheduled`, `cancelled`), cancel_reason, video_room_ref (chỗ nối 27a), attendance_confirmed_at |
+| tutoring_exemptions, tutoring_exemption_children (từ YCTD-252) | Quyết định tăng thời lượng của Sở | decision_no, decision_date, subject_id, max_periods_per_week, file_key, file_name; child_id |
+| tutoring_registrations (từ YCTD-252) | Đơn đăng ký của cha mẹ (BR-240; `0154`) | program_id, child_id, guardian_user_id, guardian_name, form_text, form_hash, status (`pending`, `approved`, `rejected`, `withdrawn`), người duyệt; một đơn còn hiệu lực mỗi học sinh mỗi chương trình |
+| tutoring_attendance, tutoring_room_events (từ YCTD-252) | Điểm danh, nhật ký vào ra phòng (chỗ nối 27a) | session_id, child_id, status (`present`, `late`, `left_early`, `absent`), source (`room_log`, `teacher`), confirmed_at, guardian_notified_at; kind (`join`, `leave`), at |
 | (ghi chú cột mới, YCTD-211) | `exam_assignments`: `exam_mode` (`at-school` mặc định, `remote`); `exam_sheets`: nguồn thêm `online` và `attempt_id` (tệp `0122_extend_exam_sheets_for_online`); `student_learning_accounts`: `identity_user_id` nối người dùng định danh, duy nhất khi có (tệp `0123_link_learning_accounts_to_identity`); định danh: bảng `student_accounts` (user_id, learning_username; tệp `0121_create_student_accounts`), kênh `student` ở `sessions`, vai trò VT-21 (tệp `0120_add_student_channel`) | |
 | registration_periods | Trạng thái chốt danh sách đăng ký của kỳ theo đơn vị (YCTD-50) | org_unit_id, period_year, period_month (duy nhất cùng đơn vị), status (đang mở hoặc đã chốt), locked_by, locked_at |
 | summer_registrations | Đăng ký học hè theo tháng (P05-13, BR-92) | child_id, org_unit_id, period_year, period_month (duy nhất cùng trẻ), status (đang hiệu lực hoặc đã hủy), source, registered_by, registered_at, cancelled_by, cancelled_at |

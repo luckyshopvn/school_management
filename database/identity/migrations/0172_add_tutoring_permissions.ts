@@ -14,12 +14,14 @@ const WORKSPACE_KEY = 'tutoring';
 const PERMISSIONS = [
   {
     code: 'P02.tutoring.manage',
-    description: 'Gia sư trong trường: duyệt chương trình, duyệt đơn đăng ký, quyết định tăng thời lượng của Sở, quy định dạy thêm',
+    description:
+      'Gia sư trong trường: duyệt chương trình, duyệt đơn đăng ký, quyết định tăng thời lượng của Sở, quy định dạy thêm',
     roles: ['VT-02', 'VT-15'],
   },
   {
     code: 'P02.tutoring.teach',
-    description: 'Gia sư trong trường: lập chương trình, xếp buổi học, điểm danh, duyệt đơn của lớp chủ nhiệm, nhắn cha mẹ',
+    description:
+      'Gia sư trong trường: lập chương trình, xếp buổi học, điểm danh, duyệt đơn của lớp chủ nhiệm, nhắn cha mẹ',
     roles: ['VT-02', 'VT-07', 'VT-08', 'VT-15', 'VT-17'],
   },
 ];
@@ -31,7 +33,9 @@ export const migration: Migration = {
         values (${permission.code}, 'P02', ${permission.description})`.execute(database);
       await sql`insert into role_permissions (role_id, permission_id)
         select roles.id, permissions.id from roles, permissions
-        where roles.code in (${sql.join(permission.roles)}) and permissions.code = ${permission.code}`.execute(database);
+        where roles.code in (${sql.join(permission.roles)}) and permissions.code = ${permission.code}`.execute(
+        database,
+      );
     }
     await sql`insert into role_workspace_exclusions (role_id, workspace_key)
       select roles.id, ${WORKSPACE_KEY} from roles where roles.code in ('VT-14', 'VT-21')

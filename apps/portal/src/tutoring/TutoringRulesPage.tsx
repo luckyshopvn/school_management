@@ -20,7 +20,10 @@ export function TutoringRulesPage() {
       tutoringApi.addRule({
         effective_from: form.effective_from,
         max_curriculum_periods_per_week: Number(form.max),
-        curriculum_blocked_levels: form.blocked.split(',').map((item) => item.trim()).filter(Boolean),
+        curriculum_blocked_levels: form.blocked
+          .split(',')
+          .map((item) => item.trim())
+          .filter(Boolean),
         legal_basis: form.legal_basis,
       }),
     onSuccess: async () => {
@@ -71,19 +74,37 @@ export function TutoringRulesPage() {
             {add.error ? <Alert tone="danger">{messageOf(add.error)}</Alert> : null}
             <label className="flex flex-col text-label">
               Ngày hiệu lực
-              <input type="date" className={FORM_CONTROL_CLASS} value={form.effective_from} onChange={(event) => setForm({ ...form, effective_from: event.target.value })} />
+              <input
+                type="date"
+                className={FORM_CONTROL_CLASS}
+                value={form.effective_from}
+                onChange={(event) => setForm({ ...form, effective_from: event.target.value })}
+              />
             </label>
             <label className="flex flex-col text-label">
               Số tiết tối đa mỗi tuần mỗi môn
-              <input inputMode="numeric" className={FORM_CONTROL_CLASS} value={form.max} onChange={(event) => setForm({ ...form, max: event.target.value })} />
+              <input
+                inputMode="numeric"
+                className={FORM_CONTROL_CLASS}
+                value={form.max}
+                onChange={(event) => setForm({ ...form, max: event.target.value })}
+              />
             </label>
             <label className="flex flex-col text-label">
               Cấp không tổ chức dạy thêm môn học (cách nhau dấu phẩy)
-              <input className={FORM_CONTROL_CLASS} value={form.blocked} onChange={(event) => setForm({ ...form, blocked: event.target.value })} />
+              <input
+                className={FORM_CONTROL_CLASS}
+                value={form.blocked}
+                onChange={(event) => setForm({ ...form, blocked: event.target.value })}
+              />
             </label>
             <label className="flex flex-col text-label">
               Căn cứ (số hiệu văn bản)
-              <input className={FORM_CONTROL_CLASS} value={form.legal_basis} onChange={(event) => setForm({ ...form, legal_basis: event.target.value })} />
+              <input
+                className={FORM_CONTROL_CLASS}
+                value={form.legal_basis}
+                onChange={(event) => setForm({ ...form, legal_basis: event.target.value })}
+              />
             </label>
             <Button type="submit" variant="primary">
               Ghi quy định

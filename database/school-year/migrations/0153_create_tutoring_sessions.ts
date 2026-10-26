@@ -11,7 +11,9 @@ export const migration: Migration = {
     await database.schema
       .createTable('tutoring_sessions')
       .addColumn('id', 'uuid', (column) => column.primaryKey().defaultTo(sql`gen_random_uuid()`))
-      .addColumn('program_id', 'uuid', (column) => column.notNull().references('tutoring_programs.id').onDelete('cascade'))
+      .addColumn('program_id', 'uuid', (column) =>
+        column.notNull().references('tutoring_programs.id').onDelete('cascade'),
+      )
       .addColumn('series_id', 'uuid')
       .addColumn('session_date', 'date', (column) => column.notNull())
       .addColumn('start_time', 'text', (column) => column.notNull())
@@ -54,7 +56,9 @@ export const migration: Migration = {
       .execute();
     await database.schema
       .createTable('tutoring_exemption_children')
-      .addColumn('exemption_id', 'uuid', (column) => column.notNull().references('tutoring_exemptions.id').onDelete('cascade'))
+      .addColumn('exemption_id', 'uuid', (column) =>
+        column.notNull().references('tutoring_exemptions.id').onDelete('cascade'),
+      )
       .addColumn('child_id', 'uuid', (column) => column.notNull().references('children.id'))
       .addPrimaryKeyConstraint('tutoring_exemption_children_pkey', ['exemption_id', 'child_id'])
       .execute();

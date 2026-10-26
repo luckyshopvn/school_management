@@ -18,7 +18,8 @@ import { openMenu } from './menu.js';
 const identity = createDatabase<IdentityDatabase>(readConnectionString('identity'));
 let schoolYear: ReturnType<typeof createDatabase<SchoolYearDatabase>>;
 const today = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Ho_Chi_Minh' }).format(new Date());
-const addDays = (date: string, days: number) => new Date(Date.parse(`${date}T00:00:00Z`) + days * 86_400_000).toISOString().slice(0, 10);
+const addDays = (date: string, days: number) =>
+  new Date(Date.parse(`${date}T00:00:00Z`) + days * 86_400_000).toISOString().slice(0, 10);
 const weekdayOf = (date: string) => {
   const day = new Date(`${date}T00:00:00Z`).getUTCDay();
   return day === 0 ? 7 : day;
@@ -59,7 +60,9 @@ async function signIn(page: Page, user: { username: string; password: string }) 
   await expect(page.getByRole('heading', { name: /^Xin chào,/ })).toBeVisible();
 }
 
-test('CT-27b-8: lập, duyệt chương trình gia sư, xếp buổi, cha mẹ đăng ký, duyệt đơn, điểm danh vắng báo cha mẹ', async ({ browser }) => {
+test('CT-27b-8: lập, duyệt chương trình gia sư, xếp buổi, cha mẹ đăng ký, duyệt đơn, điểm danh vắng báo cha mẹ', async ({
+  browser,
+}) => {
   test.setTimeout(300_000);
   const suffix = Date.now() % 1_000_000;
   const reference = await schoolYear
@@ -74,7 +77,14 @@ test('CT-27b-8: lập, duyệt chương trình gia sư, xếp buổi, cha mẹ �
   await identity.updateTable('users').set({ phone: parentPhone }).where('id', '=', parent.id).execute();
   await schoolYear
     .insertInto('grade_levels')
-    .values({ code: 'K6', name: 'Khối 6', order_no: 106, age_from_months: null, age_to_months: null, school_level: 'THCS' })
+    .values({
+      code: 'K6',
+      name: 'Khối 6',
+      order_no: 106,
+      age_from_months: null,
+      age_to_months: null,
+      school_level: 'THCS',
+    })
     .onConflict((conflict) => conflict.column('code').doNothing())
     .execute();
 
@@ -91,7 +101,11 @@ test('CT-27b-8: lập, duyệt chương trình gia sư, xếp buổi, cha mẹ �
       await page.getByRole('button', { name: 'Nạp môn mẫu' }).click();
       await expect(toast(page, /Đã nạp \d+ môn mẫu/)).toBeVisible();
     }
-    const subject = await schoolYear.selectFrom('subjects').select('id').where('code', '=', 'THCS-TOAN').executeTakeFirstOrThrow();
+    const subject = await schoolYear
+      .selectFrom('subjects')
+      .select('id')
+      .where('code', '=', 'THCS-TOAN')
+      .executeTakeFirstOrThrow();
     const className = `Lớp 6G ${suffix}`;
     const classRow = await schoolYear
       .insertInto('classes')
@@ -147,7 +161,10 @@ test('CT-27b-8: lập, duyệt chương trình gia sư, xếp buổi, cha mẹ �
         .returning('id')
         .executeTakeFirstOrThrow()
     ).id;
-    await schoolYear.insertInto('class_enrollments').values({ child_id: childId, class_id: classRow.id, from_date: addDays(today, -30) }).execute();
+    await schoolYear
+      .insertInto('class_enrollments')
+      .values({ child_id: childId, class_id: classRow.id, from_date: addDays(today, -30) })
+      .execute();
     await schoolYear
       .insertInto('child_guardians')
       .values({ child_id: childId, guardian_id: guardianId, relationship_item_id: relationship.id })
@@ -219,7 +236,9 @@ test('CT-27b-8: lập, duyệt chương trình gia sư, xếp buổi, cha mẹ �
 
     await card.getByRole('button', { name: 'Gia sư' }).click();
     await card.getByRole('button', { name: 'Gia sư' }).click();
-    await expect(panel.getByRole('list', { name: 'Lịch học gia sư' })).toContainText(`${first} 17:00–17:45 · ${programName}`);
+    await expect(panel.getByRole('list', { name: 'Lịch học gia sư' })).toContainText(
+      `${first} 17:00–17:45 · ${programName}`,
+    );
     await expect(panel.getByRole('list', { name: 'Lịch học gia sư' })).toContainText('Vắng');
   } finally {
     if (childId) {

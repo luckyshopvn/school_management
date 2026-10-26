@@ -31,7 +31,12 @@ interface Program {
 
 interface Overview {
   programs: Program[];
-  registrations: Array<{ id: string; program_name: string; status: TutoringRegistrationStatus; reject_reason: string | null }>;
+  registrations: Array<{
+    id: string;
+    program_name: string;
+    status: TutoringRegistrationStatus;
+    reject_reason: string | null;
+  }>;
   sessions: Array<{
     id: string;
     program_name: string;
@@ -97,7 +102,8 @@ export function TutoringPanel({ child }: { child: { id: string; full_name: strin
             <span className="text-label text-text-secondary">
               {program.subject_name ? `${program.subject_name} · ` : ''}
               {TUTORING_CONTENT_TYPE_LABELS[program.content_type]}
-              {program.audience ? ` · ${TUTORING_AUDIENCE_LABELS[program.audience]}` : ''} · {program.starts_on} đến {program.ends_on}
+              {program.audience ? ` · ${TUTORING_AUDIENCE_LABELS[program.audience]}` : ''} · {program.starts_on} đến{' '}
+              {program.ends_on}
             </span>
             <span className="text-label">
               {program.content_type === 'curriculum'
@@ -123,7 +129,10 @@ export function TutoringPanel({ child }: { child: { id: string; full_name: strin
       </ul>
 
       {reading ? (
-        <section aria-label={`Đơn đăng ký ${reading.name}`} className="flex flex-col gap-2 rounded-lg border border-border p-3">
+        <section
+          aria-label={`Đơn đăng ký ${reading.name}`}
+          className="flex flex-col gap-2 rounded-lg border border-border p-3"
+        >
           <h4 className="font-semibold">Đơn đăng ký: {reading.name}</h4>
           {reading.description ? <p className="text-content">{reading.description}</p> : null}
           <p className="whitespace-pre-wrap rounded bg-page p-2 text-content">{reading.registration_form}</p>
@@ -163,7 +172,9 @@ export function TutoringPanel({ child }: { child: { id: string; full_name: strin
                 onClick={() =>
                   void run(
                     () =>
-                      requestJson(`/api/v1/children/${child.id}/tutoring/registrations/${registration.id}/withdraw`, { method: 'POST' }),
+                      requestJson(`/api/v1/children/${child.id}/tutoring/registrations/${registration.id}/withdraw`, {
+                        method: 'POST',
+                      }),
                     'Đã rút đơn',
                   )
                 }

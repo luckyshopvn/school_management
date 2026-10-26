@@ -79,35 +79,60 @@ export class TutoringController {
 
   @Put('programs/:id')
   @RequirePermission(TEACH, MANAGE)
-  update(@Param('id') id: string, @Body() body: RequestBody, @AuthenticatedUser() currentUser: CurrentUser, @Req() request: Request) {
+  update(
+    @Param('id') id: string,
+    @Body() body: RequestBody,
+    @AuthenticatedUser() currentUser: CurrentUser,
+    @Req() request: Request,
+  ) {
     return this.tutoring.saveProgram(currentUser, id, parseProgramBody(body), originOf(request, currentUser));
   }
 
   @Post('programs/:id/submit')
   @HttpCode(200)
   @RequirePermission(TEACH, MANAGE)
-  submit(@Param('id') id: string, @Body() body: RequestBody, @AuthenticatedUser() currentUser: CurrentUser, @Req() request: Request) {
+  submit(
+    @Param('id') id: string,
+    @Body() body: RequestBody,
+    @AuthenticatedUser() currentUser: CurrentUser,
+    @Req() request: Request,
+  ) {
     return this.tutoring.transition(currentUser, id, 'submit', reasonOf(body), originOf(request, currentUser));
   }
 
   @Post('programs/:id/approve')
   @HttpCode(200)
   @RequirePermission(TEACH, MANAGE)
-  approve(@Param('id') id: string, @Body() body: RequestBody, @AuthenticatedUser() currentUser: CurrentUser, @Req() request: Request) {
+  approve(
+    @Param('id') id: string,
+    @Body() body: RequestBody,
+    @AuthenticatedUser() currentUser: CurrentUser,
+    @Req() request: Request,
+  ) {
     return this.tutoring.transition(currentUser, id, 'approve', reasonOf(body), originOf(request, currentUser));
   }
 
   @Post('programs/:id/reject')
   @HttpCode(200)
   @RequirePermission(TEACH, MANAGE)
-  reject(@Param('id') id: string, @Body() body: RequestBody, @AuthenticatedUser() currentUser: CurrentUser, @Req() request: Request) {
+  reject(
+    @Param('id') id: string,
+    @Body() body: RequestBody,
+    @AuthenticatedUser() currentUser: CurrentUser,
+    @Req() request: Request,
+  ) {
     return this.tutoring.transition(currentUser, id, 'reject', reasonOf(body), originOf(request, currentUser));
   }
 
   @Post('programs/:id/close')
   @HttpCode(200)
   @RequirePermission(TEACH, MANAGE)
-  close(@Param('id') id: string, @Body() body: RequestBody, @AuthenticatedUser() currentUser: CurrentUser, @Req() request: Request) {
+  close(
+    @Param('id') id: string,
+    @Body() body: RequestBody,
+    @AuthenticatedUser() currentUser: CurrentUser,
+    @Req() request: Request,
+  ) {
     return this.tutoring.transition(currentUser, id, 'close', reasonOf(body), originOf(request, currentUser));
   }
 
@@ -119,13 +144,23 @@ export class TutoringController {
 
   @Put('programs/:id/candidates')
   @RequirePermission(TEACH, MANAGE)
-  candidates(@Param('id') id: string, @Body() body: RequestBody, @AuthenticatedUser() currentUser: CurrentUser, @Req() request: Request) {
+  candidates(
+    @Param('id') id: string,
+    @Body() body: RequestBody,
+    @AuthenticatedUser() currentUser: CurrentUser,
+    @Req() request: Request,
+  ) {
     return this.tutoring.setCandidates(currentUser, id, body, originOf(request, currentUser));
   }
 
   @Post('programs/:id/sessions')
   @RequirePermission(TEACH, MANAGE)
-  createSessions(@Param('id') id: string, @Body() body: RequestBody, @AuthenticatedUser() currentUser: CurrentUser, @Req() request: Request) {
+  createSessions(
+    @Param('id') id: string,
+    @Body() body: RequestBody,
+    @AuthenticatedUser() currentUser: CurrentUser,
+    @Req() request: Request,
+  ) {
     return this.tutoring.createSessions(currentUser, id, body, originOf(request, currentUser));
   }
 
@@ -137,27 +172,46 @@ export class TutoringController {
 
   @Post('programs/:id/messages')
   @RequirePermission(TEACH, MANAGE)
-  message(@Param('id') id: string, @Body() body: RequestBody, @AuthenticatedUser() currentUser: CurrentUser, @Req() request: Request) {
+  message(
+    @Param('id') id: string,
+    @Body() body: RequestBody,
+    @AuthenticatedUser() currentUser: CurrentUser,
+    @Req() request: Request,
+  ) {
     return this.tutoring.messageGuardian(currentUser, id, body, originOf(request, currentUser));
   }
 
   @Post('registrations/:id/approve')
   @HttpCode(200)
   @RequirePermission(TEACH, MANAGE)
-  approveRegistration(@Param('id') id: string, @Body() body: RequestBody, @AuthenticatedUser() currentUser: CurrentUser, @Req() request: Request) {
+  approveRegistration(
+    @Param('id') id: string,
+    @Body() body: RequestBody,
+    @AuthenticatedUser() currentUser: CurrentUser,
+    @Req() request: Request,
+  ) {
     return this.tutoring.decideRegistration(currentUser, id, true, reasonOf(body), originOf(request, currentUser));
   }
 
   @Post('registrations/:id/reject')
   @HttpCode(200)
   @RequirePermission(TEACH, MANAGE)
-  rejectRegistration(@Param('id') id: string, @Body() body: RequestBody, @AuthenticatedUser() currentUser: CurrentUser, @Req() request: Request) {
+  rejectRegistration(
+    @Param('id') id: string,
+    @Body() body: RequestBody,
+    @AuthenticatedUser() currentUser: CurrentUser,
+    @Req() request: Request,
+  ) {
     return this.tutoring.decideRegistration(currentUser, id, false, reasonOf(body), originOf(request, currentUser));
   }
 
   @Get('sessions')
   @RequirePermission(TEACH, MANAGE)
-  sessions(@Query('from') from: string | undefined, @Query('to') to: string | undefined, @AuthenticatedUser() currentUser: CurrentUser) {
+  sessions(
+    @Query('from') from: string | undefined,
+    @Query('to') to: string | undefined,
+    @AuthenticatedUser() currentUser: CurrentUser,
+  ) {
     const today = this.tutoring.today();
     return this.tutoring.listSessions(currentUser, from ?? today, to ?? from ?? today);
   }
@@ -165,7 +219,12 @@ export class TutoringController {
   @Post('sessions/:id/cancel')
   @HttpCode(200)
   @RequirePermission(TEACH, MANAGE)
-  cancel(@Param('id') id: string, @Body() body: RequestBody, @AuthenticatedUser() currentUser: CurrentUser, @Req() request: Request) {
+  cancel(
+    @Param('id') id: string,
+    @Body() body: RequestBody,
+    @AuthenticatedUser() currentUser: CurrentUser,
+    @Req() request: Request,
+  ) {
     return this.tutoring.cancelSession(currentUser, id, reasonOf(body) ?? '', originOf(request, currentUser));
   }
 
@@ -177,7 +236,12 @@ export class TutoringController {
 
   @Put('sessions/:id/attendance')
   @RequirePermission(TEACH, MANAGE)
-  confirm(@Param('id') id: string, @Body() body: RequestBody, @AuthenticatedUser() currentUser: CurrentUser, @Req() request: Request) {
+  confirm(
+    @Param('id') id: string,
+    @Body() body: RequestBody,
+    @AuthenticatedUser() currentUser: CurrentUser,
+    @Req() request: Request,
+  ) {
     return this.tutoring.confirmAttendance(currentUser, id, body, originOf(request, currentUser));
   }
 
@@ -216,7 +280,11 @@ export class TutoringController {
   ) {
     const upload =
       file && file.size > 0
-        ? { fileName: Buffer.from(file.originalname, 'latin1').toString('utf8'), body: file.buffer, contentType: file.mimetype }
+        ? {
+            fileName: Buffer.from(file.originalname, 'latin1').toString('utf8'),
+            body: file.buffer,
+            contentType: file.mimetype,
+          }
         : null;
     return this.tutoring.createExemption(currentUser, body, upload, originOf(request, currentUser));
   }
@@ -242,7 +310,12 @@ export class ChildTutoringController {
   }
 
   @Post('registrations')
-  register(@Param('id') childId: string, @Body() body: RequestBody, @AuthenticatedUser() currentUser: CurrentUser, @Req() request: Request) {
+  register(
+    @Param('id') childId: string,
+    @Body() body: RequestBody,
+    @AuthenticatedUser() currentUser: CurrentUser,
+    @Req() request: Request,
+  ) {
     return this.tutoring.register(currentUser, childId, body, originOf(request, currentUser));
   }
 
@@ -257,7 +330,6 @@ export class ChildTutoringController {
     return this.tutoring.withdraw(currentUser, childId, registrationId, originOf(request, currentUser));
   }
 }
-
 
 function parseProgramBody(body: RequestBody) {
   return parseProgramInput(body as Record<string, unknown> | undefined);

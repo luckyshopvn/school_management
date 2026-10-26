@@ -1,13 +1,7 @@
 import { createHash, randomUUID } from 'node:crypto';
 import { Injectable } from '@nestjs/common';
 import type { SchoolYearDatabase } from '@school-management/database';
-import {
-  ApplicationError,
-  Clock,
-  currentTenant,
-  validationError,
-  type FieldError,
-} from '@school-management/server';
+import { ApplicationError, Clock, currentTenant, validationError, type FieldError } from '@school-management/server';
 import {
   isModuleInPlan,
   isoWeekday,
@@ -93,7 +87,11 @@ function idList(body: Body, field: string, errors: FieldError[]): string[] {
   if (value === undefined || value === null) {
     return [];
   }
-  if (!Array.isArray(value) || value.some((item) => typeof item !== 'string' || !UUID.test(item)) || value.length > 500) {
+  if (
+    !Array.isArray(value) ||
+    value.some((item) => typeof item !== 'string' || !UUID.test(item)) ||
+    value.length > 500
+  ) {
     errors.push({ field, message: 'Danh sách mã không hợp lệ' });
     return [];
   }
@@ -130,9 +128,15 @@ export function parseProgramInput(body: Body): ProgramInput {
   }
   const contentType = body?.content_type as TutoringContentType;
   if (!CONTENT_TYPES.includes(contentType)) {
-    errors.push({ field: 'content_type', message: 'Chọn loại nội dung: môn học trong chương trình hoặc bổ trợ ngoài chương trình' });
+    errors.push({
+      field: 'content_type',
+      message: 'Chọn loại nội dung: môn học trong chương trình hoặc bổ trợ ngoài chương trình',
+    });
   }
-  const audience = body?.audience === undefined || body.audience === null || body.audience === '' ? null : (body.audience as TutoringAudience);
+  const audience =
+    body?.audience === undefined || body.audience === null || body.audience === ''
+      ? null
+      : (body.audience as TutoringAudience);
   if (audience !== null && !AUDIENCES.includes(audience)) {
     errors.push({ field: 'audience', message: 'Nhóm đối tượng không hợp lệ' });
   }
@@ -147,14 +151,21 @@ export function parseProgramInput(body: Body): ProgramInput {
   const startsOn = text(body, 'starts_on');
   const endsOn = text(body, 'ends_on');
   if (!DATE.test(startsOn) || !DATE.test(endsOn) || endsOn < startsOn) {
-    errors.push({ field: 'starts_on', message: 'Ngày bắt đầu, kết thúc dạng yyyy-mm-dd, kết thúc không trước bắt đầu' });
+    errors.push({
+      field: 'starts_on',
+      message: 'Ngày bắt đầu, kết thúc dạng yyyy-mm-dd, kết thúc không trước bắt đầu',
+    });
   }
   const registrationForm = text(body, 'registration_form');
   if (registrationForm.length < 10 || registrationForm.length > 5000) {
     errors.push({ field: 'registration_form', message: 'Mẫu đơn đăng ký từ 10 đến 5000 ký tự' });
   }
   const maxStudents = body?.max_students;
-  if (maxStudents !== undefined && maxStudents !== null && (typeof maxStudents !== 'number' || !Number.isInteger(maxStudents) || maxStudents < 1 || maxStudents > 500)) {
+  if (
+    maxStudents !== undefined &&
+    maxStudents !== null &&
+    (typeof maxStudents !== 'number' || !Number.isInteger(maxStudents) || maxStudents < 1 || maxStudents > 500)
+  ) {
     errors.push({ field: 'max_students', message: 'Sĩ số tối đa từ 1 đến 500' });
   }
   const input: ProgramInput = {
@@ -196,7 +207,8 @@ interface ProgramRow {
   created_by: string;
 }
 
-const dateText = (value: unknown) => (value instanceof Date ? value.toISOString().slice(0, 10) : String(value).slice(0, 10));
+const dateText = (value: unknown) =>
+  value instanceof Date ? value.toISOString().slice(0, 10) : String(value).slice(0, 10);
 const vietnamToday = (now: Date) => new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Ho_Chi_Minh' }).format(now);
 
 @Injectable()
@@ -294,7 +306,11 @@ export class TutoringService {
         entityId: created.id,
         action: 'create',
         before: null,
-        after: { effective_from: effectiveFrom, max_curriculum_periods_per_week: max, curriculum_blocked_levels: blocked },
+        after: {
+          effective_from: effectiveFrom,
+          max_curriculum_periods_per_week: max,
+          curriculum_blocked_levels: blocked,
+        },
       });
       return { id: created.id };
     });
@@ -356,9 +372,17 @@ export class TutoringService {
     }
     const homeroom = await this.homeroomClassIds(database, currentUser.id);
     const [teaching, byClass] = await Promise.all([
-      database.selectFrom('tutoring_program_teachers').select('program_id').where('teacher_user_id', '=', currentUser.id).execute(),
+      database
+        .selectFrom('tutoring_program_teachers')
+        .select('program_id')
+        .where('teacher_user_id', '=', currentUser.id)
+        .execute(),
       homeroom.length
-        ? database.selectFrom('tutoring_program_classes').select('program_id').where('class_id', 'in', homeroom).execute()
+        ? database
+            .selectFrom('tutoring_program_classes')
+            .select('program_id')
+            .where('class_id', 'in', homeroom)
+            .execute()
         : Promise.resolve([]),
     ]);
     return [...new Set([...teaching, ...byClass].map((row) => row.program_id))];
@@ -442,7 +466,10 @@ export class TutoringService {
       .where('teacher_user_id', '=', currentUser.id)
       .executeTakeFirst();
     if (!teacher) {
-      throw new ApplicationError('ERR_FORBIDDEN', 'Chỉ giáo viên dạy chương trình hoặc Ban Giám hiệu làm được việc này');
+      throw new ApplicationError(
+        'ERR_FORBIDDEN',
+        'Chỉ giáo viên dạy chương trình hoặc Ban Giám hiệu làm được việc này',
+      );
     }
   }
 
@@ -485,7 +512,8 @@ export class TutoringService {
       sessions: sessions.map((session) => ({ ...session, session_date: dateText(session.session_date) })),
       registrations,
       can_manage: currentUser.hasPermission(MANAGE),
-      can_teach: program.created_by === currentUser.id || teachers.some((teacher) => teacher.teacher_user_id === currentUser.id),
+      can_teach:
+        program.created_by === currentUser.id || teachers.some((teacher) => teacher.teacher_user_id === currentUser.id),
     };
   }
 
@@ -517,15 +545,25 @@ export class TutoringService {
       throw tutoringRuleError(violations);
     }
     if (input.subjectId) {
-      const subject = await database.selectFrom('subjects').select('school_level').where('id', '=', input.subjectId).executeTakeFirst();
+      const subject = await database
+        .selectFrom('subjects')
+        .select('school_level')
+        .where('id', '=', input.subjectId)
+        .executeTakeFirst();
       if (!subject || subject.school_level !== input.schoolLevel) {
         throw validationError([{ field: 'subject_id', message: 'Môn không thuộc cấp học của chương trình' }]);
       }
     }
     if (input.classIds.length > 0) {
-      const classes = await database.selectFrom('classes').select(['id', 'school_level']).where('id', 'in', input.classIds).execute();
+      const classes = await database
+        .selectFrom('classes')
+        .select(['id', 'school_level'])
+        .where('id', 'in', input.classIds)
+        .execute();
       if (classes.length !== input.classIds.length || classes.some((row) => row.school_level !== input.schoolLevel)) {
-        throw validationError([{ field: 'class_ids', message: 'Có lớp không tồn tại hoặc không thuộc cấp học của chương trình' }]);
+        throw validationError([
+          { field: 'class_ids', message: 'Có lớp không tồn tại hoặc không thuộc cấp học của chương trình' },
+        ]);
       }
     }
   }
@@ -551,7 +589,9 @@ export class TutoringService {
     const names = new Map(known.map((row) => [row.staff_user_id, row.staff_name]));
     names.set(currentUser.id, names.get(currentUser.id) ?? currentUser.description.full_name);
     if (teacherIds.some((teacherId) => !names.has(teacherId))) {
-      throw validationError([{ field: 'teacher_user_ids', message: 'Có giáo viên không có trong phân công giảng dạy của trường' }]);
+      throw validationError([
+        { field: 'teacher_user_ids', message: 'Có giáo viên không có trong phân công giảng dạy của trường' },
+      ]);
     }
     const now = this.clock.now();
     const values = {
@@ -586,7 +626,13 @@ export class TutoringService {
       await transaction.deleteFrom('tutoring_program_teachers').where('program_id', '=', saved.id).execute();
       await transaction
         .insertInto('tutoring_program_teachers')
-        .values(teacherIds.map((teacherId) => ({ program_id: saved.id, teacher_user_id: teacherId, teacher_name: names.get(teacherId) as string })))
+        .values(
+          teacherIds.map((teacherId) => ({
+            program_id: saved.id,
+            teacher_user_id: teacherId,
+            teacher_name: names.get(teacherId) as string,
+          })),
+        )
         .execute();
       await transaction.deleteFrom('tutoring_program_classes').where('program_id', '=', saved.id).execute();
       if (input.classIds.length > 0) {
@@ -652,10 +698,7 @@ export class TutoringService {
       }
     }
     const status = { submit: 'submitted', approve: 'approved', reject: 'rejected', close: 'closed' }[action] as
-      | 'submitted'
-      | 'approved'
-      | 'rejected'
-      | 'closed';
+      'submitted' | 'approved' | 'rejected' | 'closed';
     const now = this.clock.now();
     await database.transaction().execute(async (transaction) => {
       await transaction
@@ -663,7 +706,9 @@ export class TutoringService {
         .set({
           status,
           updated_at: now,
-          ...(action === 'submit' ? {} : { decided_by: currentUser.id, decided_by_name: currentUser.description.full_name, decided_at: now }),
+          ...(action === 'submit'
+            ? {}
+            : { decided_by: currentUser.id, decided_by_name: currentUser.description.full_name, decided_at: now }),
           ...(action === 'reject' ? { reject_reason: reason } : {}),
         })
         .where('id', '=', id)
@@ -786,7 +831,13 @@ export class TutoringService {
       const lessons = await database
         .selectFrom('timetable_lessons')
         .leftJoin('classes', 'classes.id', 'timetable_lessons.class_id')
-        .select(['timetable_lessons.period_no', 'timetable_lessons.teacher_user_id', 'timetable_lessons.class_id', 'timetable_lessons.teacher_name', 'classes.name as class_name'])
+        .select([
+          'timetable_lessons.period_no',
+          'timetable_lessons.teacher_user_id',
+          'timetable_lessons.class_id',
+          'timetable_lessons.teacher_name',
+          'classes.name as class_name',
+        ])
         .where('timetable_lessons.version_id', '=', version.id)
         .where('timetable_lessons.weekday', '=', isoWeekday(session.date))
         .where((expression) =>
@@ -799,7 +850,10 @@ export class TutoringService {
         .execute();
       for (const lesson of lessons) {
         const slot = slots.get(lesson.period_no);
-        if (!slot || !timesOverlap({ start: session.start, end: session.end }, { start: slot.start_time, end: slot.end_time })) {
+        if (
+          !slot ||
+          !timesOverlap({ start: session.start, end: session.end }, { start: slot.start_time, end: slot.end_time })
+        ) {
           continue;
         }
         if (lesson.teacher_user_id && teacherIds.includes(lesson.teacher_user_id)) {
@@ -866,9 +920,13 @@ export class TutoringService {
       return [];
     }
     const names = new Map(
-      (await database.selectFrom('children').select(['id', 'full_name']).where('id', 'in', [...new Set(over.map((item) => item.childId))]).execute()).map(
-        (row) => [row.id, row.full_name],
-      ),
+      (
+        await database
+          .selectFrom('children')
+          .select(['id', 'full_name'])
+          .where('id', 'in', [...new Set(over.map((item) => item.childId))])
+          .execute()
+      ).map((row) => [row.id, row.full_name]),
     );
     return over.map((item) => ({
       code: 'weekly_periods' as const,
@@ -907,8 +965,16 @@ export class TutoringService {
       const from = text(weekly, 'from') || startsOn;
       const to = text(weekly, 'to') || endsOn;
       const weekdays = Array.isArray(weekly.weekdays) ? (weekly.weekdays as unknown[]) : [];
-      if (!DATE.test(from) || !DATE.test(to) || weekdays.length === 0 || weekdays.some((day) => !Number.isInteger(day) || (day as number) < 1 || (day as number) > 7)) {
-        errors.push({ field: 'weekly', message: 'Lặp theo tuần cần từ ngày, đến ngày, các thứ (1 là thứ Hai đến 7 là Chủ nhật)' });
+      if (
+        !DATE.test(from) ||
+        !DATE.test(to) ||
+        weekdays.length === 0 ||
+        weekdays.some((day) => !Number.isInteger(day) || (day as number) < 1 || (day as number) > 7)
+      ) {
+        errors.push({
+          field: 'weekly',
+          message: 'Lặp theo tuần cần từ ngày, đến ngày, các thứ (1 là thứ Hai đến 7 là Chủ nhật)',
+        });
       } else {
         dates = weeklyDates(from, to, weekdays as number[]);
       }
@@ -921,7 +987,10 @@ export class TutoringService {
       }
     }
     if (dates.some((date) => date < startsOn || date > endsOn)) {
-      errors.push({ field: 'session_date', message: `Buổi học phải trong thời gian của chương trình (${startsOn} đến ${endsOn})` });
+      errors.push({
+        field: 'session_date',
+        message: `Buổi học phải trong thời gian của chương trình (${startsOn} đến ${endsOn})`,
+      });
     }
     if (errors.length === 0 && dates.length === 0) {
       errors.push({ field: 'weekly', message: 'Không có ngày nào rơi vào các thứ đã chọn' });
@@ -933,7 +1002,11 @@ export class TutoringService {
     const { periodMinutes, slots } = await this.periodContext(program.school_level, rules);
     const periods = periodsForSession(startTime, endTime, periodMinutes);
     const [teachers, classes] = await Promise.all([
-      database.selectFrom('tutoring_program_teachers').select('teacher_user_id').where('program_id', '=', programId).execute(),
+      database
+        .selectFrom('tutoring_program_teachers')
+        .select('teacher_user_id')
+        .where('program_id', '=', programId)
+        .execute(),
       database.selectFrom('tutoring_program_classes').select('class_id').where('program_id', '=', programId).execute(),
     ]);
     const violations = await this.timetableConflicts(
@@ -997,11 +1070,18 @@ export class TutoringService {
       .where('program_id', '=', programId)
       .where('status', '=', 'approved')
       .execute();
-    return [...new Set(rows.map((row) => row.guardian_user_id))].map((userId) => ({ userId, channel: 'in_app' as const }));
+    return [...new Set(rows.map((row) => row.guardian_user_id))].map((userId) => ({
+      userId,
+      channel: 'in_app' as const,
+    }));
   }
 
   private async rootOrgUnit(database: Executor): Promise<string | null> {
-    const root = await database.selectFrom('org_units').select('id').where('unit_type', '=', 'truong_chinh').executeTakeFirst();
+    const root = await database
+      .selectFrom('org_units')
+      .select('id')
+      .where('unit_type', '=', 'truong_chinh')
+      .executeTakeFirst();
     return root?.id ?? null;
   }
 
@@ -1097,7 +1177,10 @@ export class TutoringService {
       .orderBy('tutoring_sessions.start_time');
     if (!currentUser.hasPermission(MANAGE)) {
       query = query.where('tutoring_sessions.program_id', 'in', (subquery) =>
-        subquery.selectFrom('tutoring_program_teachers').select('program_id').where('teacher_user_id', '=', currentUser.id),
+        subquery
+          .selectFrom('tutoring_program_teachers')
+          .select('program_id')
+          .where('teacher_user_id', '=', currentUser.id),
       );
     }
     const rows = await query.execute();
@@ -1154,8 +1237,15 @@ export class TutoringService {
       errors.push({ field: 'entries', message: 'Danh sách điểm danh trống hoặc quá dài' });
     }
     for (const entry of entries) {
-      if (typeof entry?.child_id !== 'string' || !registrants.has(entry.child_id) || !ATTENDANCE.includes(entry.status as TutoringAttendanceStatus)) {
-        errors.push({ field: 'entries', message: 'Có học sinh không đăng ký chương trình hoặc trạng thái không hợp lệ' });
+      if (
+        typeof entry?.child_id !== 'string' ||
+        !registrants.has(entry.child_id) ||
+        !ATTENDANCE.includes(entry.status as TutoringAttendanceStatus)
+      ) {
+        errors.push({
+          field: 'entries',
+          message: 'Có học sinh không đăng ký chương trình hoặc trạng thái không hợp lệ',
+        });
         break;
       }
     }
@@ -1164,7 +1254,9 @@ export class TutoringService {
     }
     const now = this.clock.now();
     const existing = new Map(
-      (await database.selectFrom('tutoring_attendance').selectAll().where('session_id', '=', sessionId).execute()).map((row) => [row.child_id, row]),
+      (await database.selectFrom('tutoring_attendance').selectAll().where('session_id', '=', sessionId).execute()).map(
+        (row) => [row.child_id, row],
+      ),
     );
     const notify: string[] = [];
     await database.transaction().execute(async (transaction) => {
@@ -1255,7 +1347,15 @@ export class TutoringService {
     await database.transaction().execute(async (transaction) => {
       await transaction
         .insertInto('tutoring_room_events')
-        .values(valid.map((event) => ({ session_id: sessionId, child_id: event.childId, kind: event.kind, at: event.at, source })))
+        .values(
+          valid.map((event) => ({
+            session_id: sessionId,
+            child_id: event.childId,
+            kind: event.kind,
+            at: event.at,
+            source,
+          })),
+        )
         .execute();
       for (const childId of new Set(valid.map((event) => event.childId))) {
         const all = await transaction
@@ -1300,7 +1400,13 @@ export class TutoringService {
     return this.registrationRows(database, programId);
   }
 
-  async decideRegistration(currentUser: CurrentUser, registrationId: string, approve: boolean, reason: string | null, origin: ChangeOrigin) {
+  async decideRegistration(
+    currentUser: CurrentUser,
+    registrationId: string,
+    approve: boolean,
+    reason: string | null,
+    origin: ChangeOrigin,
+  ) {
     const database = await this.database();
     if (!UUID.test(registrationId)) {
       throw notFoundError('Không tìm thấy đơn', 'registration');
@@ -1329,7 +1435,10 @@ export class TutoringService {
         .where('teacher_user_id', '=', currentUser.id)
         .executeTakeFirst();
       if (!teaches && !(childClass && homeroom.includes(childClass.class_id))) {
-        throw new ApplicationError('ERR_FORBIDDEN', 'Chỉ giáo viên chủ nhiệm của học sinh, giáo viên dạy chương trình hoặc Ban Giám hiệu duyệt đơn');
+        throw new ApplicationError(
+          'ERR_FORBIDDEN',
+          'Chỉ giáo viên chủ nhiệm của học sinh, giáo viên dạy chương trình hoặc Ban Giám hiệu duyệt đơn',
+        );
       }
     }
     if (registration.status !== 'pending') {
@@ -1356,7 +1465,11 @@ export class TutoringService {
           database,
           program.subject_id,
           [registration.child_id],
-          upcoming.map((session) => ({ childId: registration.child_id, date: dateText(session.session_date), periods: session.periods })),
+          upcoming.map((session) => ({
+            childId: registration.child_id,
+            date: dateText(session.session_date),
+            periods: session.periods,
+          })),
           await this.ruleSet(database, this.today()),
         );
         if (violations.length > 0) {
@@ -1453,7 +1566,11 @@ export class TutoringService {
         })
         .returning('id')
         .executeTakeFirstOrThrow();
-      await transaction.updateTable('message_threads').set({ last_message_at: now }).where('id', '=', thread.id).execute();
+      await transaction
+        .updateTable('message_threads')
+        .set({ last_message_at: now })
+        .where('id', '=', thread.id)
+        .execute();
       await queueNotification(transaction, {
         orgUnitId: registration.org_unit_id,
         templateCode: 'message_received',
@@ -1500,13 +1617,19 @@ export class TutoringService {
           .selectFrom('tutoring_exemption_children')
           .innerJoin('children', 'children.id', 'tutoring_exemption_children.child_id')
           .select(['tutoring_exemption_children.exemption_id', 'children.id', 'children.full_name'])
-          .where('tutoring_exemption_children.exemption_id', 'in', rows.map((row) => row.id))
+          .where(
+            'tutoring_exemption_children.exemption_id',
+            'in',
+            rows.map((row) => row.id),
+          )
           .execute()
       : [];
     return rows.map((row) => ({
       ...row,
       decision_date: dateText(row.decision_date),
-      children: children.filter((child) => child.exemption_id === row.id).map((child) => ({ id: child.id, full_name: child.full_name })),
+      children: children
+        .filter((child) => child.exemption_id === row.id)
+        .map((child) => ({ id: child.id, full_name: child.full_name })),
     }));
   }
 
@@ -1534,7 +1657,13 @@ export class TutoringService {
     if (!Number.isInteger(max) || max < 1 || max > 20) {
       errors.push({ field: 'max_periods_per_week', message: 'Số tiết tối đa mỗi tuần từ 1 đến 20' });
     }
-    const rawChildren = typeof body?.child_ids === 'string' ? (body.child_ids as string).split(',').map((item) => item.trim()).filter(Boolean) : body?.child_ids;
+    const rawChildren =
+      typeof body?.child_ids === 'string'
+        ? (body.child_ids as string)
+            .split(',')
+            .map((item) => item.trim())
+            .filter(Boolean)
+        : body?.child_ids;
     const childIds = idList({ child_ids: rawChildren }, 'child_ids', errors);
     if (childIds.length === 0) {
       errors.push({ field: 'child_ids', message: 'Chọn học sinh áp dụng quyết định' });
@@ -1550,7 +1679,14 @@ export class TutoringService {
     let stored: { key: string; name: string } | null = null;
     if (file) {
       const safeName = file.fileName.replace(/[^\p{L}\p{N}._-]+/gu, '_').slice(0, 120) || 'quyet-dinh';
-      stored = { key: storageKey('tutoring-exemptions', id, `${createHash('sha256').update(file.body).digest('hex').slice(0, 12)}-${safeName}`), name: safeName };
+      stored = {
+        key: storageKey(
+          'tutoring-exemptions',
+          id,
+          `${createHash('sha256').update(file.body).digest('hex').slice(0, 12)}-${safeName}`,
+        ),
+        name: safeName,
+      };
       await this.fileStorage.put(stored.key, file.body, file.contentType || 'application/octet-stream');
     }
     await database.transaction().execute(async (transaction) => {
@@ -1580,7 +1716,13 @@ export class TutoringService {
         entityId: id,
         action: 'create',
         before: null,
-        after: { decision_no: decisionNo, decision_date: decisionDate, subject_id: subjectId, max_periods_per_week: max, child_ids: childIds },
+        after: {
+          decision_no: decisionNo,
+          decision_date: decisionDate,
+          subject_id: subjectId,
+          max_periods_per_week: max,
+          child_ids: childIds,
+        },
       });
     });
     return { id };
@@ -1591,7 +1733,11 @@ export class TutoringService {
     if (!UUID.test(id)) {
       throw notFoundError('Không tìm thấy quyết định', 'exemption');
     }
-    const row = await database.selectFrom('tutoring_exemptions').select(['file_key', 'file_name']).where('id', '=', id).executeTakeFirst();
+    const row = await database
+      .selectFrom('tutoring_exemptions')
+      .select(['file_key', 'file_name'])
+      .where('id', '=', id)
+      .executeTakeFirst();
     if (!row?.file_key) {
       throw notFoundError('Quyết định không có tệp', 'exemption');
     }
@@ -1651,8 +1797,16 @@ export class TutoringService {
     }
     const ids = programs.map((program) => program.id);
     const [classes, candidates] = await Promise.all([
-      database.selectFrom('tutoring_program_classes').select(['program_id', 'class_id']).where('program_id', 'in', ids).execute(),
-      database.selectFrom('tutoring_program_candidates').select(['program_id', 'child_id']).where('program_id', 'in', ids).execute(),
+      database
+        .selectFrom('tutoring_program_classes')
+        .select(['program_id', 'class_id'])
+        .where('program_id', 'in', ids)
+        .execute(),
+      database
+        .selectFrom('tutoring_program_candidates')
+        .select(['program_id', 'child_id'])
+        .where('program_id', 'in', ids)
+        .execute(),
     ]);
     return programs.filter((program) => {
       const programCandidates = candidates.filter((row) => row.program_id === program.id);
@@ -1694,7 +1848,9 @@ export class TutoringService {
           .selectFrom('tutoring_sessions')
           .innerJoin('tutoring_programs', 'tutoring_programs.id', 'tutoring_sessions.program_id')
           .leftJoin('tutoring_attendance', (join) =>
-            join.onRef('tutoring_attendance.session_id', '=', 'tutoring_sessions.id').on('tutoring_attendance.child_id', '=', childId),
+            join
+              .onRef('tutoring_attendance.session_id', '=', 'tutoring_sessions.id')
+              .on('tutoring_attendance.child_id', '=', childId),
           )
           .select([
             'tutoring_sessions.id',
@@ -1714,7 +1870,9 @@ export class TutoringService {
           .limit(100)
           .execute()
       : [];
-    const active = new Set(registrations.filter((row) => row.status === 'pending' || row.status === 'approved').map((row) => row.program_id));
+    const active = new Set(
+      registrations.filter((row) => row.status === 'pending' || row.status === 'approved').map((row) => row.program_id),
+    );
     return {
       programs: programs.map((program) => ({
         ...program,

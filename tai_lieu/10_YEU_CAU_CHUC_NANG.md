@@ -1,7 +1,7 @@
 # 10. YÊU CẦU CHỨC NĂNG
 
 - Mô tả: Mã chức năng, tên chức năng, mục đích, người sử dụng, điều kiện thực hiện, dữ liệu đầu vào, quy trình xử lý, kết quả đầu ra, quy tắc nghiệp vụ, trường hợp ngoại lệ, phân quyền, thông báo lỗi.
-- Phiên bản: 1.103
+- Phiên bản: 1.104
 - Ngày cập nhật: 2026-10-26
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -174,6 +174,9 @@
 | P02-83 | Học sinh đăng nhập và làm bài (ứng dụng phụ huynh, #hoc-sinh, YCTD-211) | VT-21, `P02.exam.take` | Tên đăng nhập, mật khẩu; câu trả lời; sự kiện; trạng thái camera | Kênh `student`, đổi mật khẩu lần đầu; mở lượt, đồng hồ máy chủ, lưu nháp từng câu, chấm tự động, nộp, xem kết quả | Lượt làm bài, điểm, kết quả theo chế độ | BR-237 |
 | P02-84 | Theo dõi bài làm, chấm tự luận, công bố kết quả (Thi trực tuyến 2., YCTD-211) | `P02.exam.assign` | Bài giao; điểm câu tự luận | Danh sách học sinh, số lần rời bài, sự kiện; mở, đóng phòng thi (mã phòng, danh sách học sinh được vào); xem bài; chấm lại; vào phiếu chấm 22g2; nộp thay; công bố; huỷ | Bảng theo dõi, điểm, mã phòng thi | BR-237 |
 | P02-85 | Cấu hình thi trực tuyến theo cấp (Thi trực tuyến 3., YCTD-211) | `P02.exam.manage` | Cấp học, bật hoặc tắt | Bật, tắt học sinh đăng nhập làm bài theo cấp (mặc định bật ở mọi cấp); chế độ thi mặc định, cho phép thi từ xa, dải mạng, hạn mã phòng | Công tắc theo cấp, cấu hình chế độ thi | BR-237 |
+| P02-86 | Chương trình gia sư trong trường (YCTD-252) | Giáo viên; Ban Giám hiệu | Tên, cấp, môn, loại nội dung, nhóm đối tượng, thu tiền, hình thức, thời gian, lớp, giáo viên, mẫu đơn | Kiểm khóa của Thông tư 29, nộp, duyệt, gợi ý học sinh chưa đạt từ sổ điểm | Chương trình đã duyệt mở đăng ký | BR-238 |
+| P02-87 | Buổi học gia sư và quyết định của Sở (YCTD-252) | Giáo viên; Ban Giám hiệu | Thứ, giờ, khoảng ngày; quyết định (số, ngày, môn, số tiết, tệp, học sinh) | Kiểm trùng thời khoá biểu, giới hạn tiết mỗi tuần mỗi môn | Buổi học, số tiết quy đổi | BR-239 |
+| P02-88 | Đơn đăng ký, điểm danh, tin nhắn gia sư (YCTD-252) | Cha mẹ; giáo viên | Đơn có xác nhận; trạng thái điểm danh; tin nhắn | Duyệt đơn, xác nhận điểm danh, báo vắng, nhắn qua cha mẹ, phản ánh dạy thêm | Đơn, điểm danh, thông báo | BR-240, PQ-110 |
 | P02-61 | Ngân hàng câu hỏi (8.1., YCTD-168) | Soạn: `P02.question.author`; duyệt, chủ đề: `P02.exam.review` | Chủ đề; câu hỏi theo môn, khối, chủ đề, mức, dạng; tệp Excel | Kiểm tra theo dạng câu; gửi, duyệt, trả lại, ngừng dùng; nhập Excel; thống kê | Câu dùng được cho đề; lịch sử dùng | BR-184 |
 | P02-62 | Ma trận đề, bảng đặc tả (8.2., YCTD-168) | Xem: người soạn đề; lập: `P02.exam.review` | Môn, khối, dòng chủ đề × mức × dạng, số câu, điểm, yêu cầu cần đạt; tỉ lệ mẫu, sai số | Tổng hợp, kiểm tổng điểm, tỉ lệ | Ma trận và kết quả kiểm tra | BR-184 |
 | P02-63 | Kế hoạch kiểm tra (8.3., YCTD-168) | Lập: `P02.exam.review`; duyệt: `P02.exam.manage` | Cấp, học kỳ, khối, môn, loại, hình thức, thời gian, ngày | Gửi, duyệt, trả lại; đếm đề; nhắc tiết theo thời khoá biểu | Kế hoạch đã duyệt để giao đề | BR-184 |

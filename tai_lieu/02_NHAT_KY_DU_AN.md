@@ -1,7 +1,7 @@
 # 02. NHẬT KÝ DỰ ÁN
 
 - Mô tả: Ghi nhận công việc, quyết định, thay đổi và vấn đề tồn đọng theo ngày, ngày mới nhất ở trên cùng.
-- Phiên bản: 0.79
+- Phiên bản: 0.80
 - Ngày cập nhật: 2026-10-26
 - Trạng thái: Đang cập nhật
 
@@ -13,6 +13,30 @@
 - Không ghi thông tin tạm thời như kết quả tra cứu, đường dẫn tạm, thông báo lỗi của công cụ.
 
 ## Nhật ký theo ngày
+
+### 2026-10-26 — DT-27 phần 27b: chương trình gia sư trong trường, lịch và đặt buổi, điểm danh
+
+#### Công việc đã thực hiện
+
+- Đọc mục 19.2, 19.3, 19.4, 19.5 (27b), 19.11 của `32_KE_HOACH_THEO_HE_THONG_SO.md`; rà thời khoá biểu (`timetable_lessons`, `period_slots`, `applyingVersions`), sổ điểm (`subject_term_results`), quan hệ phụ huynh, luồng trao đổi, thông báo, góp ý, phân hệ của gói dịch vụ (S5a), mẫu phần 23a.
+- Thêm năm học 0152 đến 0154, định danh 0172, hàm thuần quy định dạy thêm, máy chủ API `tutoring/`, bốn trang ở cổng quản trị, màn hình ở ứng dụng giáo viên, mục Gia sư ở ứng dụng phụ huynh, kiểm thử đơn vị và e2e 191.
+- Thêm BR-238 đến BR-240, PQ-110, P02-86 đến P02-88, AC-880 đến AC-882, MH-348 đến MH-353, CT-1108 đến CT-1115; phiên bản 0.152.0.
+
+#### Quyết định
+
+- Quy định dạy thêm là dữ liệu có ngày hiệu lực (`tutoring_rules`); khóa kiểm ở máy chủ bằng hàm thuần dùng chung với giao diện.
+- Giới hạn tiết đếm cả chương trình khác cùng môn; kiểm khi xếp buổi và khi duyệt đơn.
+- Đơn đăng ký lưu bản chụp văn bản và mã băm; người duyệt là giáo viên chủ nhiệm, giáo viên dạy hoặc Ban Giám hiệu.
+- Tin nhắn của chương trình dùng luồng trao đổi giáo viên với cha mẹ hiện có; không có luồng riêng với học sinh.
+- Điểm danh tự động là chỗ nối `recordRoomEvents` cho 27a, có điểm cuối giả lập; không dựng video.
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-252, `07_QUY_TAC_NGHIEP_VU.md` BR-238 đến BR-240, `08_VAI_TRO_NGUOI_DUNG.md` PQ-110, `10_YEU_CAU_CHUC_NANG.md` P02-86 đến P02-88, `11_TIEU_CHI_NGHIEM_THU.md` AC-880 đến AC-882, `14_DAC_TA_GIAO_DIEN.md` MH-348 đến MH-353, `16_CO_SO_DU_LIEU.md`, `17_DAC_TA_API.md`, `21_KICH_BAN_KIEM_THU.md` CT-1108 đến CT-1115; phiên bản 0.152.0.
+
+#### Vấn đề tồn đọng
+
+- Thông tư 29/2024 chưa đối chiếu bản gốc (E-07); điểm danh tự động khi 27a gộp; thu phí, thù lao ở 27c.
 
 ### 2026-10-26 — DT-23 phần 23a: thi trực tuyến cho học sinh
 

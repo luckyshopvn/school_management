@@ -16,7 +16,14 @@ export function TutoringExemptionsPage() {
   const closeToast = useCallback(() => setToastMessage(undefined), []);
   const meta = useQuery({ queryKey: ['tutoring-meta'], queryFn: tutoringApi.meta });
   const exemptions = useQuery({ queryKey: ['tutoring-exemptions'], queryFn: tutoringApi.exemptions });
-  const [form, setForm] = useState({ decision_no: '', decision_date: '', subject_id: '', max_periods_per_week: '3', child_ids: '', note: '' });
+  const [form, setForm] = useState({
+    decision_no: '',
+    decision_date: '',
+    subject_id: '',
+    max_periods_per_week: '3',
+    child_ids: '',
+    note: '',
+  });
   const [file, setFile] = useState<File | null>(null);
   const create = useMutation({
     mutationFn: () => {
@@ -31,7 +38,14 @@ export function TutoringExemptionsPage() {
     },
     onSuccess: async () => {
       setToastMessage('Đã ghi quyết định của Sở');
-      setForm({ decision_no: '', decision_date: '', subject_id: '', max_periods_per_week: '3', child_ids: '', note: '' });
+      setForm({
+        decision_no: '',
+        decision_date: '',
+        subject_id: '',
+        max_periods_per_week: '3',
+        child_ids: '',
+        note: '',
+      });
       setFile(null);
       await queryClient.invalidateQueries({ queryKey: ['tutoring-exemptions'] });
     },
@@ -70,7 +84,11 @@ export function TutoringExemptionsPage() {
                 <td>{row.subject_name}</td>
                 <td>{row.max_periods_per_week}</td>
                 <td>{row.children.map((child) => child.full_name).join(', ')}</td>
-                <td>{row.file_name ? <Button onClick={() => void download(row.id, row.file_name as string)}>Tải tệp</Button> : null}</td>
+                <td>
+                  {row.file_name ? (
+                    <Button onClick={() => void download(row.id, row.file_name as string)}>Tải tệp</Button>
+                  ) : null}
+                </td>
               </tr>
             ))}
           </tbody>
@@ -86,15 +104,28 @@ export function TutoringExemptionsPage() {
           {create.error ? <Alert tone="danger">{messageOf(create.error)}</Alert> : null}
           <label className="flex flex-col text-label">
             Số quyết định
-            <input className={FORM_CONTROL_CLASS} value={form.decision_no} onChange={(event) => setForm({ ...form, decision_no: event.target.value })} />
+            <input
+              className={FORM_CONTROL_CLASS}
+              value={form.decision_no}
+              onChange={(event) => setForm({ ...form, decision_no: event.target.value })}
+            />
           </label>
           <label className="flex flex-col text-label">
             Ngày quyết định
-            <input type="date" className={FORM_CONTROL_CLASS} value={form.decision_date} onChange={(event) => setForm({ ...form, decision_date: event.target.value })} />
+            <input
+              type="date"
+              className={FORM_CONTROL_CLASS}
+              value={form.decision_date}
+              onChange={(event) => setForm({ ...form, decision_date: event.target.value })}
+            />
           </label>
           <label className="flex flex-col text-label">
             Môn
-            <select className={FORM_CONTROL_CLASS} value={form.subject_id} onChange={(event) => setForm({ ...form, subject_id: event.target.value })}>
+            <select
+              className={FORM_CONTROL_CLASS}
+              value={form.subject_id}
+              onChange={(event) => setForm({ ...form, subject_id: event.target.value })}
+            >
               <option value="">Chọn môn</option>
               {(meta.data?.subjects ?? []).map((subject) => (
                 <option key={subject.id} value={subject.id}>
@@ -105,11 +136,20 @@ export function TutoringExemptionsPage() {
           </label>
           <label className="flex flex-col text-label">
             Số tiết tối đa mỗi tuần
-            <input inputMode="numeric" className={FORM_CONTROL_CLASS} value={form.max_periods_per_week} onChange={(event) => setForm({ ...form, max_periods_per_week: event.target.value })} />
+            <input
+              inputMode="numeric"
+              className={FORM_CONTROL_CLASS}
+              value={form.max_periods_per_week}
+              onChange={(event) => setForm({ ...form, max_periods_per_week: event.target.value })}
+            />
           </label>
           <label className="flex flex-col text-label">
             Mã học sinh áp dụng (cách nhau dấu phẩy)
-            <input className={FORM_CONTROL_CLASS} value={form.child_ids} onChange={(event) => setForm({ ...form, child_ids: event.target.value })} />
+            <input
+              className={FORM_CONTROL_CLASS}
+              value={form.child_ids}
+              onChange={(event) => setForm({ ...form, child_ids: event.target.value })}
+            />
           </label>
           <label className="flex flex-col text-label">
             Tệp quyết định
@@ -117,7 +157,11 @@ export function TutoringExemptionsPage() {
           </label>
           <label className="flex flex-col text-label">
             Ghi chú
-            <input className={FORM_CONTROL_CLASS} value={form.note} onChange={(event) => setForm({ ...form, note: event.target.value })} />
+            <input
+              className={FORM_CONTROL_CLASS}
+              value={form.note}
+              onChange={(event) => setForm({ ...form, note: event.target.value })}
+            />
           </label>
           <Button type="submit" variant="primary" disabled={create.isPending}>
             Ghi quyết định

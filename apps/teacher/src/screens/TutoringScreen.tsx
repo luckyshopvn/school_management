@@ -17,12 +17,18 @@ interface Session {
 }
 
 interface Attendance {
-  students: Array<{ child_id: string; full_name: string; status: TutoringAttendanceStatus | null; confirmed_at: string | null }>;
+  students: Array<{
+    child_id: string;
+    full_name: string;
+    status: TutoringAttendanceStatus | null;
+    confirmed_at: string | null;
+  }>;
 }
 
 const STATUSES = Object.keys(TUTORING_ATTENDANCE_LABELS) as TutoringAttendanceStatus[];
 const today = () => new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Ho_Chi_Minh' }).format(new Date());
-const addDays = (date: string, days: number) => new Date(Date.parse(`${date}T00:00:00Z`) + days * 86_400_000).toISOString().slice(0, 10);
+const addDays = (date: string, days: number) =>
+  new Date(Date.parse(`${date}T00:00:00Z`) + days * 86_400_000).toISOString().slice(0, 10);
 const messageOf = (error: unknown) => (error instanceof ApiError ? error.message : 'Không kết nối được tới máy chủ');
 
 export function TutoringScreen({ onBack }: { onBack(): void }) {
@@ -46,7 +52,9 @@ export function TutoringScreen({ onBack }: { onBack(): void }) {
     try {
       const attendance = await requestJson<Attendance>(`/api/v1/tutoring/sessions/${session.id}/attendance`);
       setStudents(attendance.students);
-      setMarks(Object.fromEntries(attendance.students.map((student) => [student.child_id, student.status ?? 'present'])));
+      setMarks(
+        Object.fromEntries(attendance.students.map((student) => [student.child_id, student.status ?? 'present'])),
+      );
       setOpen(session);
     } catch (error) {
       setErrorMessage(messageOf(error));
@@ -58,10 +66,13 @@ export function TutoringScreen({ onBack }: { onBack(): void }) {
       return;
     }
     try {
-      const result = await requestJson<{ confirmed: number; notified: number }>(`/api/v1/tutoring/sessions/${open.id}/attendance`, {
-        method: 'PUT',
-        body: JSON.stringify({ entries: Object.entries(marks).map(([child_id, status]) => ({ child_id, status })) }),
-      });
+      const result = await requestJson<{ confirmed: number; notified: number }>(
+        `/api/v1/tutoring/sessions/${open.id}/attendance`,
+        {
+          method: 'PUT',
+          body: JSON.stringify({ entries: Object.entries(marks).map(([child_id, status]) => ({ child_id, status })) }),
+        },
+      );
       setNotice(`Đã điểm danh ${result.confirmed} học sinh, báo vắng ${result.notified} cha mẹ`);
       setOpen(undefined);
       await load();
@@ -86,7 +97,9 @@ export function TutoringScreen({ onBack }: { onBack(): void }) {
             <h2 className="text-section-title font-semibold">
               {open.program_name} · {open.session_date} {open.start_time}
             </h2>
-            {students.length === 0 ? <p className="text-content text-text-secondary">Chưa có học sinh được duyệt đơn.</p> : null}
+            {students.length === 0 ? (
+              <p className="text-content text-text-secondary">Chưa có học sinh được duyệt đơn.</p>
+            ) : null}
             <ul className="flex flex-col gap-2">
               {students.map((student) => (
                 <li key={student.child_id} className="flex flex-col gap-1 rounded-lg border border-border bg-card p-3">
@@ -116,7 +129,10 @@ export function TutoringScreen({ onBack }: { onBack(): void }) {
               <li className="text-content text-text-secondary">Không có buổi dạy gia sư trong hai tuần tới.</li>
             ) : null}
             {(sessions ?? []).map((session) => (
-              <li key={session.id} className="flex items-center justify-between gap-2 rounded-lg border border-border bg-card p-3 text-content">
+              <li
+                key={session.id}
+                className="flex items-center justify-between gap-2 rounded-lg border border-border bg-card p-3 text-content"
+              >
                 <span>
                   <span className="font-semibold">
                     {session.session_date} {session.start_time}–{session.end_time}
@@ -124,9 +140,15 @@ export function TutoringScreen({ onBack }: { onBack(): void }) {
                   <br />
                   {session.program_name}
                   {session.location ? ` · ${session.location}` : ''}
-                  {session.status === 'cancelled' ? ' · Đã hủy' : session.attendance_confirmed_at ? ' · Đã điểm danh' : ''}
+                  {session.status === 'cancelled'
+                    ? ' · Đã hủy'
+                    : session.attendance_confirmed_at
+                      ? ' · Đã điểm danh'
+                      : ''}
                 </span>
-                {session.status === 'scheduled' ? <Button onClick={() => void openSession(session)}>Điểm danh</Button> : null}
+                {session.status === 'scheduled' ? (
+                  <Button onClick={() => void openSession(session)}>Điểm danh</Button>
+                ) : null}
               </li>
             ))}
           </ul>

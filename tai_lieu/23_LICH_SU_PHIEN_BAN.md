@@ -1,7 +1,7 @@
 # 23. LỊCH SỬ PHIÊN BẢN
 
 - Mô tả: Mã phiên bản, ngày phát hành, danh sách thay đổi, chức năng mới, lỗi đã sửa, thay đổi dữ liệu, thay đổi API, rủi ro, khả năng tương thích, phương án quay lui.
-- Phiên bản: 0.63
+- Phiên bản: 0.64
 - Ngày cập nhật: 2026-10-26
 - Trạng thái: Đang cập nhật
 - Đã rà duyệt: Eric, ngày 2026-10-09
@@ -15,6 +15,18 @@
 5. Từ phiên bản 0.4.0, mỗi mục ghi theo mẫu của Vibecoding_Flow; các mục trước giữ nguyên dạng bảng và tên tệp cũ vì là ghi nhận lịch sử.
 
 ## 2. Danh sách phiên bản
+
+### Phiên bản 0.152.0 – 2026-10-26
+
+- Phạm vi thay đổi: DT-27 phần 27b, chương trình gia sư trong trường, lịch và đặt buổi, điểm danh (YCTD-252).
+- Chức năng mới: chương trình gia sư theo Thông tư 29/2024 sửa bởi Thông tư 19/2026 (P02-86); buổi học lặp theo tuần không trùng thời khoá biểu, không quá 2 tiết/tuần/môn, quyết định tăng thời lượng của Sở (P02-87); đơn đăng ký của cha mẹ, điểm danh, báo vắng, tin nhắn qua cha mẹ, đường dây nóng (P02-88).
+- Lỗi đã sửa: không có.
+- Thay đổi dữ liệu: năm học `0152` đến `0154` (11 bảng `tutoring_*`), định danh `0172` (hai quyền).
+- Thay đổi API: nhóm `/tutoring`, `/children/{id}/tutoring` (xem `17_DAC_TA_API.md`).
+- Kiểm thử: kịch bản CT-1108 đến CT-1115 (CT-27b-1 đến CT-27b-8 trong mã kiểm thử): quy tắc thuần, luồng có cơ sở dữ liệu ở `apps/api`, e2e 191; e2e toàn bộ do CI chạy.
+- Rủi ro: Thông tư 29/2024 chưa đối chiếu bản gốc (E-07); trường chưa khai khung giờ tiết thì không so được giờ với thời khoá biểu; điểm danh tự động chờ 27a.
+- Khả năng tương thích: không đổi hành vi cũ.
+- Phương án quay lui: hoàn lại commit gộp của nhánh 27b; gói dịch vụ tắt phân hệ "Gia sư trực tuyến".
 
 ### Phiên bản 0.144.0 – 2026-10-26
 

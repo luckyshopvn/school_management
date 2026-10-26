@@ -10,20 +10,30 @@ import { messageOf } from './TutoringProgramsPage.js';
 // 2. Lịch buổi học, điểm danh (DT-27 phần 27b, YCTD-252): buổi của chương trình mình dạy (Ban Giám hiệu thấy mọi buổi); điểm danh
 // gợi ý từ nhật ký vào ra phòng video (27a, chưa có thì trống), giáo viên xác nhận; vắng báo cha mẹ một lần; hủy buổi báo cha mẹ
 const today = () => new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Ho_Chi_Minh' }).format(new Date());
-const addDays = (date: string, days: number) => new Date(Date.parse(`${date}T00:00:00Z`) + days * 86_400_000).toISOString().slice(0, 10);
+const addDays = (date: string, days: number) =>
+  new Date(Date.parse(`${date}T00:00:00Z`) + days * 86_400_000).toISOString().slice(0, 10);
 const STATUSES = Object.keys(TUTORING_ATTENDANCE_LABELS) as TutoringAttendanceStatus[];
 
 function AttendancePanel({ sessionId, notify }: { sessionId: string; notify: (text: string) => void }) {
   const queryClient = useQueryClient();
-  const view = useQuery({ queryKey: ['tutoring-attendance', sessionId], queryFn: () => tutoringApi.attendance(sessionId) });
+  const view = useQuery({
+    queryKey: ['tutoring-attendance', sessionId],
+    queryFn: () => tutoringApi.attendance(sessionId),
+  });
   const [marks, setMarks] = useState<Record<string, TutoringAttendanceStatus>>({});
   useEffect(() => {
     if (view.data) {
-      setMarks(Object.fromEntries(view.data.students.map((student) => [student.child_id, student.status ?? 'present'])));
+      setMarks(
+        Object.fromEntries(view.data.students.map((student) => [student.child_id, student.status ?? 'present'])),
+      );
     }
   }, [view.data]);
   const confirm = useMutation({
-    mutationFn: () => tutoringApi.confirmAttendance(sessionId, Object.entries(marks).map(([child_id, status]) => ({ child_id, status }))),
+    mutationFn: () =>
+      tutoringApi.confirmAttendance(
+        sessionId,
+        Object.entries(marks).map(([child_id, status]) => ({ child_id, status })),
+      ),
     onSuccess: async (result) => {
       notify(`Đã xác nhận điểm danh ${result.confirmed} học sinh, báo vắng ${result.notified} cha mẹ`);
       await queryClient.invalidateQueries({ queryKey: ['tutoring-attendance', sessionId] });
@@ -34,7 +44,10 @@ function AttendancePanel({ sessionId, notify }: { sessionId: string; notify: (te
     return view.error ? <Alert tone="danger">{messageOf(view.error)}</Alert> : null;
   }
   return (
-    <section aria-label={`Điểm danh ${view.data.session.program_name} ${view.data.session.session_date}`} className="flex flex-col gap-2 rounded-lg border border-border p-4">
+    <section
+      aria-label={`Điểm danh ${view.data.session.program_name} ${view.data.session.session_date}`}
+      className="flex flex-col gap-2 rounded-lg border border-border p-4"
+    >
       <h2 className="text-section-title font-semibold">
         Điểm danh {view.data.session.program_name} ngày {view.data.session.session_date}
       </h2>
@@ -50,7 +63,9 @@ function AttendancePanel({ sessionId, notify }: { sessionId: string; notify: (te
                   aria-label={`Điểm danh ${student.full_name}`}
                   className={FORM_CONTROL_CLASS}
                   value={marks[student.child_id] ?? 'present'}
-                  onChange={(event) => setMarks({ ...marks, [student.child_id]: event.target.value as TutoringAttendanceStatus })}
+                  onChange={(event) =>
+                    setMarks({ ...marks, [student.child_id]: event.target.value as TutoringAttendanceStatus })
+                  }
                 >
                   {STATUSES.map((status) => (
                     <option key={status} value={status}>
@@ -60,13 +75,21 @@ function AttendancePanel({ sessionId, notify }: { sessionId: string; notify: (te
                 </select>
               </td>
               <td className="text-label text-text-secondary">
-                {student.source === 'room_log' && !student.confirmed_at ? 'Gợi ý từ nhật ký phòng' : student.confirmed_at ? 'Đã xác nhận' : ''}
+                {student.source === 'room_log' && !student.confirmed_at
+                  ? 'Gợi ý từ nhật ký phòng'
+                  : student.confirmed_at
+                    ? 'Đã xác nhận'
+                    : ''}
               </td>
             </tr>
           ))}
         </tbody>
       </table>
-      <Button variant="primary" disabled={view.data.students.length === 0 || confirm.isPending} onClick={() => confirm.mutate()}>
+      <Button
+        variant="primary"
+        disabled={view.data.students.length === 0 || confirm.isPending}
+        onClick={() => confirm.mutate()}
+      >
         Xác nhận điểm danh
       </Button>
     </section>
@@ -80,7 +103,10 @@ export function TutoringSessionsPage() {
   const [from, setFrom] = useState(today());
   const [to, setTo] = useState(addDays(today(), 13));
   const [open, setOpen] = useState<string>();
-  const sessions = useQuery({ queryKey: ['tutoring-sessions', from, to], queryFn: () => tutoringApi.sessions(from, to) });
+  const sessions = useQuery({
+    queryKey: ['tutoring-sessions', from, to],
+    queryFn: () => tutoringApi.sessions(from, to),
+  });
   const cancel = useMutation({
     mutationFn: (input: { id: string; reason: string }) => tutoringApi.cancelSession(input.id, input.reason),
     onSuccess: async () => {
@@ -96,11 +122,21 @@ export function TutoringSessionsPage() {
         <div className="flex gap-2">
           <label className="flex flex-col text-label">
             Từ ngày
-            <input type="date" className={FORM_CONTROL_CLASS} value={from} onChange={(event) => setFrom(event.target.value)} />
+            <input
+              type="date"
+              className={FORM_CONTROL_CLASS}
+              value={from}
+              onChange={(event) => setFrom(event.target.value)}
+            />
           </label>
           <label className="flex flex-col text-label">
             Đến ngày
-            <input type="date" className={FORM_CONTROL_CLASS} value={to} onChange={(event) => setTo(event.target.value)} />
+            <input
+              type="date"
+              className={FORM_CONTROL_CLASS}
+              value={to}
+              onChange={(event) => setTo(event.target.value)}
+            />
           </label>
         </div>
         {sessions.error ? <Alert tone="danger">{messageOf(sessions.error)}</Alert> : null}
@@ -135,7 +171,9 @@ export function TutoringSessionsPage() {
                 <td className="flex gap-2">
                   {session.status === 'scheduled' ? (
                     <>
-                      <Button onClick={() => setOpen(open === session.id ? undefined : session.id)}>Điểm danh {session.session_date}</Button>
+                      <Button onClick={() => setOpen(open === session.id ? undefined : session.id)}>
+                        Điểm danh {session.session_date}
+                      </Button>
                       <Button
                         onClick={() => {
                           const reason = window.prompt('Lý do hủy buổi');

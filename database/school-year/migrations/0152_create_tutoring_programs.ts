@@ -86,20 +86,26 @@ export const migration: Migration = {
 
     await database.schema
       .createTable('tutoring_program_teachers')
-      .addColumn('program_id', 'uuid', (column) => column.notNull().references('tutoring_programs.id').onDelete('cascade'))
+      .addColumn('program_id', 'uuid', (column) =>
+        column.notNull().references('tutoring_programs.id').onDelete('cascade'),
+      )
       .addColumn('teacher_user_id', 'uuid', (column) => column.notNull())
       .addColumn('teacher_name', 'text', (column) => column.notNull())
       .addPrimaryKeyConstraint('tutoring_program_teachers_pkey', ['program_id', 'teacher_user_id'])
       .execute();
     await database.schema
       .createTable('tutoring_program_classes')
-      .addColumn('program_id', 'uuid', (column) => column.notNull().references('tutoring_programs.id').onDelete('cascade'))
+      .addColumn('program_id', 'uuid', (column) =>
+        column.notNull().references('tutoring_programs.id').onDelete('cascade'),
+      )
       .addColumn('class_id', 'uuid', (column) => column.notNull().references('classes.id'))
       .addPrimaryKeyConstraint('tutoring_program_classes_pkey', ['program_id', 'class_id'])
       .execute();
     await database.schema
       .createTable('tutoring_program_candidates')
-      .addColumn('program_id', 'uuid', (column) => column.notNull().references('tutoring_programs.id').onDelete('cascade'))
+      .addColumn('program_id', 'uuid', (column) =>
+        column.notNull().references('tutoring_programs.id').onDelete('cascade'),
+      )
       .addColumn('child_id', 'uuid', (column) => column.notNull().references('children.id'))
       .addColumn('source', 'text', (column) => column.notNull().defaultTo('manual'))
       .addColumn('confirmed_by_name', 'text', (column) => column.notNull())

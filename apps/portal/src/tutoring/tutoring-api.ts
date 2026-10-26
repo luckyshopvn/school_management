@@ -81,7 +81,14 @@ export interface SessionRow extends ProgramSession {
 }
 
 export interface AttendanceView {
-  session: { id: string; program_name: string; session_date: string; start_time: string; end_time: string; status: string };
+  session: {
+    id: string;
+    program_name: string;
+    session_date: string;
+    start_time: string;
+    end_time: string;
+    status: string;
+  };
   students: Array<{
     child_id: string;
     full_name: string;
@@ -128,24 +135,38 @@ export const tutoringApi = {
   programs: () => requestJson<ProgramSummary[]>('/api/v1/tutoring/programs'),
   program: (id: string) => requestJson<ProgramDetail>(`/api/v1/tutoring/programs/${id}`),
   createProgram: (body: unknown) => requestJson<{ id: string }>('/api/v1/tutoring/programs', json('POST', body)),
-  updateProgram: (id: string, body: unknown) => requestJson<{ id: string }>(`/api/v1/tutoring/programs/${id}`, json('PUT', body)),
+  updateProgram: (id: string, body: unknown) =>
+    requestJson<{ id: string }>(`/api/v1/tutoring/programs/${id}`, json('PUT', body)),
   transition: (id: string, action: 'submit' | 'approve' | 'reject' | 'close', reason?: string) =>
-    requestJson<{ status: string }>(`/api/v1/tutoring/programs/${id}/${action}`, json('POST', reason ? { reason } : {})),
+    requestJson<{ status: string }>(
+      `/api/v1/tutoring/programs/${id}/${action}`,
+      json('POST', reason ? { reason } : {}),
+    ),
   suggestions: (id: string) =>
     requestJson<Array<{ id: string; full_name: string }>>(`/api/v1/tutoring/programs/${id}/candidate-suggestions`),
   setCandidates: (id: string, childIds: string[], suggestedIds: string[]) =>
-    requestJson(`/api/v1/tutoring/programs/${id}/candidates`, json('PUT', { child_ids: childIds, suggested_ids: suggestedIds })),
+    requestJson(
+      `/api/v1/tutoring/programs/${id}/candidates`,
+      json('PUT', { child_ids: childIds, suggested_ids: suggestedIds }),
+    ),
   createSessions: (id: string, body: unknown) =>
     requestJson<{ count: number; periods: number }>(`/api/v1/tutoring/programs/${id}/sessions`, json('POST', body)),
   decide: (registrationId: string, approve: boolean, reason?: string) =>
-    requestJson(`/api/v1/tutoring/registrations/${registrationId}/${approve ? 'approve' : 'reject'}`, json('POST', reason ? { reason } : {})),
+    requestJson(
+      `/api/v1/tutoring/registrations/${registrationId}/${approve ? 'approve' : 'reject'}`,
+      json('POST', reason ? { reason } : {}),
+    ),
   message: (id: string, childId: string, content: string) =>
     requestJson(`/api/v1/tutoring/programs/${id}/messages`, json('POST', { child_id: childId, content })),
   sessions: (from: string, to: string) => requestJson<SessionRow[]>(`/api/v1/tutoring/sessions?from=${from}&to=${to}`),
-  cancelSession: (id: string, reason: string) => requestJson(`/api/v1/tutoring/sessions/${id}/cancel`, json('POST', { reason })),
+  cancelSession: (id: string, reason: string) =>
+    requestJson(`/api/v1/tutoring/sessions/${id}/cancel`, json('POST', { reason })),
   attendance: (id: string) => requestJson<AttendanceView>(`/api/v1/tutoring/sessions/${id}/attendance`),
   confirmAttendance: (id: string, entries: Array<{ child_id: string; status: TutoringAttendanceStatus }>) =>
-    requestJson<{ confirmed: number; notified: number }>(`/api/v1/tutoring/sessions/${id}/attendance`, json('PUT', { entries })),
+    requestJson<{ confirmed: number; notified: number }>(
+      `/api/v1/tutoring/sessions/${id}/attendance`,
+      json('PUT', { entries }),
+    ),
   exemptions: () => requestJson<ExemptionRow[]>('/api/v1/tutoring/exemptions'),
   async createExemption(form: FormData): Promise<{ id: string }> {
     const response = await fetchWithSession('/api/v1/tutoring/exemptions', { method: 'POST', body: form });

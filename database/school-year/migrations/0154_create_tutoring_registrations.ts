@@ -12,7 +12,9 @@ export const migration: Migration = {
     await database.schema
       .createTable('tutoring_registrations')
       .addColumn('id', 'uuid', (column) => column.primaryKey().defaultTo(sql`gen_random_uuid()`))
-      .addColumn('program_id', 'uuid', (column) => column.notNull().references('tutoring_programs.id').onDelete('cascade'))
+      .addColumn('program_id', 'uuid', (column) =>
+        column.notNull().references('tutoring_programs.id').onDelete('cascade'),
+      )
       .addColumn('child_id', 'uuid', (column) => column.notNull().references('children.id'))
       .addColumn('guardian_user_id', 'uuid', (column) => column.notNull())
       .addColumn('guardian_name', 'text', (column) => column.notNull())
@@ -35,7 +37,9 @@ export const migration: Migration = {
 
     await database.schema
       .createTable('tutoring_attendance')
-      .addColumn('session_id', 'uuid', (column) => column.notNull().references('tutoring_sessions.id').onDelete('cascade'))
+      .addColumn('session_id', 'uuid', (column) =>
+        column.notNull().references('tutoring_sessions.id').onDelete('cascade'),
+      )
       .addColumn('child_id', 'uuid', (column) => column.notNull().references('children.id'))
       .addColumn('status', 'text', (column) => column.notNull())
       .addColumn('source', 'text', (column) => column.notNull())
@@ -46,14 +50,19 @@ export const migration: Migration = {
       .addColumn('confirmed_at', 'timestamptz')
       .addColumn('guardian_notified_at', 'timestamptz')
       .addPrimaryKeyConstraint('tutoring_attendance_pkey', ['session_id', 'child_id'])
-      .addCheckConstraint('tutoring_attendance_status_check', sql`status in ('present', 'late', 'left_early', 'absent')`)
+      .addCheckConstraint(
+        'tutoring_attendance_status_check',
+        sql`status in ('present', 'late', 'left_early', 'absent')`,
+      )
       .addCheckConstraint('tutoring_attendance_source_check', sql`source in ('room_log', 'teacher')`)
       .execute();
 
     await database.schema
       .createTable('tutoring_room_events')
       .addColumn('id', 'uuid', (column) => column.primaryKey().defaultTo(sql`gen_random_uuid()`))
-      .addColumn('session_id', 'uuid', (column) => column.notNull().references('tutoring_sessions.id').onDelete('cascade'))
+      .addColumn('session_id', 'uuid', (column) =>
+        column.notNull().references('tutoring_sessions.id').onDelete('cascade'),
+      )
       .addColumn('child_id', 'uuid', (column) => column.notNull().references('children.id'))
       .addColumn('kind', 'text', (column) => column.notNull())
       .addColumn('at', 'timestamptz', (column) => column.notNull())

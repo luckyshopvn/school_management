@@ -38,7 +38,10 @@ describe('quy định dạy thêm ở máy chủ', () => {
     assert.deepEqual(codes(programRuleViolations(program({ subjectId: null }), RULES)), ['curriculum_subject']);
     assert.deepEqual(codes(programRuleViolations(program({ schoolLevel: 'TH' }), RULES)), ['curriculum_level']);
     assert.deepEqual(
-      programRuleViolations(program({ contentType: 'enrichment', chargesFee: true, audience: null, subjectId: null, schoolLevel: 'TH' }), RULES),
+      programRuleViolations(
+        program({ contentType: 'enrichment', chargesFee: true, audience: null, subjectId: null, schoolLevel: 'TH' }),
+        RULES,
+      ),
       [],
       'bổ trợ ngoài chương trình (nghệ thuật, thể thao, kỹ năng sống) không thuộc phạm vi',
     );
@@ -56,20 +59,44 @@ describe('quy định dạy thêm ở máy chủ', () => {
     assert.equal(isoWeekday('2026-11-02'), 1);
     assert.equal(isoWeekday('2026-11-08'), 7);
     assert.equal(weekStart('2026-11-05'), '2026-11-02');
-    assert.deepEqual(weeklyDates('2026-11-02', '2026-11-15', [2, 4]), ['2026-11-03', '2026-11-05', '2026-11-10', '2026-11-12']);
+    assert.deepEqual(weeklyDates('2026-11-02', '2026-11-15', [2, 4]), [
+      '2026-11-03',
+      '2026-11-05',
+      '2026-11-10',
+      '2026-11-12',
+    ]);
     assert.equal(timesOverlap({ start: '07:00', end: '07:45' }, { start: '07:30', end: '08:00' }), true);
-    assert.equal(timesOverlap({ start: '07:00', end: '07:45' }, { start: '07:45', end: '08:30' }), false, 'liền nhau không trùng');
+    assert.equal(
+      timesOverlap({ start: '07:00', end: '07:45' }, { start: '07:45', end: '08:30' }),
+      false,
+      'liền nhau không trùng',
+    );
 
-    const load = (periods: number, week = '2026-11-02', childId = 'a', subjectId = 'toan') => ({ childId, subjectId, week, periods });
+    const load = (periods: number, week = '2026-11-02', childId = 'a', subjectId = 'toan') => ({
+      childId,
+      subjectId,
+      week,
+      periods,
+    });
     assert.deepEqual(weeklyLoadViolations([load(1), load(1)], 2, []), []);
     const over = weeklyLoadViolations([load(1), load(2)], 2, []);
     assert.equal(over.length, 1);
     assert.equal(over[0]?.periods, 3);
     assert.deepEqual(weeklyLoadViolations([load(2), load(2, '2026-11-09')], 2, []), [], 'mỗi tuần đếm riêng');
-    assert.deepEqual(weeklyLoadViolations([load(2), load(2, '2026-11-02', 'a', 'van')], 2, []), [], 'mỗi môn đếm riêng');
+    assert.deepEqual(
+      weeklyLoadViolations([load(2), load(2, '2026-11-02', 'a', 'van')], 2, []),
+      [],
+      'mỗi môn đếm riêng',
+    );
     assert.deepEqual(weeklyLoadViolations([load(2), load(2, '2026-11-02', 'b')], 2, []), [], 'mỗi học sinh đếm riêng');
-    assert.deepEqual(weeklyLoadViolations([load(1), load(2)], 2, [{ childId: 'a', subjectId: 'toan', maxPeriods: 4 }]), []);
-    assert.equal(weeklyLoadViolations([load(3), load(2)], 2, [{ childId: 'a', subjectId: 'toan', maxPeriods: 4 }])[0]?.limit, 4);
+    assert.deepEqual(
+      weeklyLoadViolations([load(1), load(2)], 2, [{ childId: 'a', subjectId: 'toan', maxPeriods: 4 }]),
+      [],
+    );
+    assert.equal(
+      weeklyLoadViolations([load(3), load(2)], 2, [{ childId: 'a', subjectId: 'toan', maxPeriods: 4 }])[0]?.limit,
+      4,
+    );
     assert.equal(
       weeklyLoadViolations([load(3)], 2, [{ childId: 'a', subjectId: 'van', maxPeriods: 4 }]).length,
       1,
@@ -79,11 +106,36 @@ describe('quy định dạy thêm ở máy chủ', () => {
     const session = { date: '2026-11-03', startTime: '17:00', endTime: '18:00' };
     const at = (time: string) => new Date(`2026-11-03T${time}:00+07:00`);
     assert.equal(attendanceFromRoomEvents([], session).status, 'absent');
-    assert.equal(attendanceFromRoomEvents([{ kind: 'join', at: at('17:05') }, { kind: 'leave', at: at('18:00') }], session).status, 'present');
-    assert.equal(attendanceFromRoomEvents([{ kind: 'join', at: at('17:20') }], session).status, 'late');
-    assert.equal(attendanceFromRoomEvents([{ kind: 'join', at: at('16:58') }, { kind: 'leave', at: at('17:30') }], session).status, 'left_early');
     assert.equal(
-      attendanceFromRoomEvents([{ kind: 'join', at: at('17:00') }, { kind: 'leave', at: at('17:20') }, { kind: 'join', at: at('17:25') }], session).status,
+      attendanceFromRoomEvents(
+        [
+          { kind: 'join', at: at('17:05') },
+          { kind: 'leave', at: at('18:00') },
+        ],
+        session,
+      ).status,
+      'present',
+    );
+    assert.equal(attendanceFromRoomEvents([{ kind: 'join', at: at('17:20') }], session).status, 'late');
+    assert.equal(
+      attendanceFromRoomEvents(
+        [
+          { kind: 'join', at: at('16:58') },
+          { kind: 'leave', at: at('17:30') },
+        ],
+        session,
+      ).status,
+      'left_early',
+    );
+    assert.equal(
+      attendanceFromRoomEvents(
+        [
+          { kind: 'join', at: at('17:00') },
+          { kind: 'leave', at: at('17:20') },
+          { kind: 'join', at: at('17:25') },
+        ],
+        session,
+      ).status,
       'present',
       'rớt mạng rồi vào lại thì tính theo lần cuối',
     );

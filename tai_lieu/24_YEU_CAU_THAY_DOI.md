@@ -1,7 +1,7 @@
 # 24. YÊU CẦU THAY ĐỔI
 
 - Mô tả: Sổ quản lý yêu cầu thay đổi, ghi lý do, đánh giá ảnh hưởng và trạng thái của từng thay đổi trước khi triển khai.
-- Phiên bản: 0.76
+- Phiên bản: 0.77
 - Ngày cập nhật: 2026-10-26
 - Trạng thái: Đang cập nhật
 
@@ -10,6 +10,28 @@
 Mã yêu cầu thay đổi dạng `YCTD-nn`, đánh số tăng dần, không tái sử dụng. Mục mới nhất ở trên cùng. Trạng thái dùng bốn giá trị: Chờ phê duyệt, Đã phê duyệt, Từ chối, Đã triển khai.
 
 Các thay đổi trước phiên bản 0.4.0 chưa có sổ này; xem `23_LICH_SU_PHIEN_BAN.md` các phiên bản 0.1.0 đến 0.3.1.
+
+### YCTD-252: DT-27 phần 27b: chương trình gia sư trong trường, lịch và đặt buổi, điểm danh – 2026-10-26
+
+- Lý do: phần 27b của `32_KE_HOACH_THEO_HE_THONG_SO.md` mục 19.4, 19.5 (kế hoạch DT-27 ở YCTD-250); ràng buộc của Thông tư 29/2024/TT-BGDĐT sửa đổi bởi Thông tư 19/2026/TT-BGDĐT theo bảng 19.2 mục 1. Văn bản căn cứ: dùng bảng 19.2 do Claude tra ngày 2026-10-26 (Thông tư 19/2026 đọc toàn văn; Thông tư 29/2024 qua nguồn thứ cấp, **chưa đọc lại bản gốc trong phần này**, các dòng ghi "chưa xác minh" ở 19.2 giữ nguyên; luật sư đối chiếu theo việc E-07 trước khi dùng ở trường thật).
+- Nội dung thay đổi (Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11 ở những chỗ kế hoạch chưa chốt):
+  - **Chương trình** (năm học `0152_create_tutoring_programs`): tên, cấp, môn, chủ đề, **loại nội dung bắt buộc** `curriculum` (môn học trong chương trình, chịu Thông tư 29) hoặc `enrichment` (bổ trợ ngoài chương trình), nhóm đối tượng (chưa đạt môn học kỳ liền kề, bồi dưỡng học sinh giỏi, lớp cuối cấp ôn thi), có thu tiền hay không, hình thức, sĩ số tối đa, thời gian, mẫu đơn đăng ký, lớp đối tượng, giáo viên dạy; danh sách học sinh được đăng ký do giáo viên xác nhận, có gợi ý học sinh chưa đạt môn ở kỳ gần nhất từ sổ điểm (`subject_term_results`); giáo viên lập, nộp; Ban Giám hiệu duyệt trước khi mở đăng ký.
+  - **Khóa của Thông tư 29 ở máy chủ** (hàm thuần ở `@school-management/shared`, kiểm thử theo từng dòng của bảng 19.2): `curriculum` không thu tiền (cả ràng buộc của bảng), bắt buộc nhóm đối tượng và môn, không cho cấp Tiểu học; mỗi môn không quá 02 tiết/tuần/học sinh cộng mọi chương trình `curriculum` cùng môn, trừ khi có **quyết định tăng thời lượng của Sở** (số, ngày, môn, số tiết tối đa mới, tệp ở kho tệp, học sinh áp dụng; năm học `0153`); số liệu (2 tiết, cấp bị chặn, độ dài tiết mặc định) là dữ liệu có ngày hiệu lực ở `tutoring_rules`, dòng đầu hiệu lực 15/05/2026.
+  - **Buổi học** (`0153`): buổi lẻ hoặc lặp theo tuần (tối đa 200 buổi một lần), số tiết quy đổi theo khung giờ tiết của trường (chưa khai thì theo độ dài tiết mặc định); kiểm trùng thời khoá biểu chính khoá đang áp dụng (chỉ đọc) của giáo viên dạy và của lớp đối tượng theo khung giờ tiết; hủy buổi có lý do, báo cha mẹ; chỗ nối phòng video của 27a (`video_room_ref`).
+  - **Đăng ký** (`0154`): cha mẹ thấy chương trình đã duyệt mở cho con (theo lớp đối tượng hoặc danh sách học sinh), đọc nội dung và mẫu đơn, tích xác nhận rồi gửi; máy chủ lưu bản chụp văn bản đơn và mã băm; giáo viên chủ nhiệm, giáo viên dạy hoặc Ban Giám hiệu duyệt (kiểm sĩ số và giới hạn tiết); cha mẹ rút đơn; mỗi học sinh một đơn còn hiệu lực ở mỗi chương trình.
+  - **Điểm danh** (`0154`): giáo viên xác nhận (có mặt, vào muộn, về sớm, vắng) ở cổng quản trị hoặc ứng dụng giáo viên; vắng thì báo cha mẹ một lần qua thông báo hiện có; **chỗ nối của 27a**: hàm `recordRoomEvents` nhận sự kiện vào, ra phòng và suy ra điểm danh gợi ý (vào muộn, về sớm theo ngưỡng 10 phút), chưa dựng video; trước khi 27a gộp có điểm cuối giả lập cho giáo viên của buổi.
+  - **Tin nhắn luôn có cha mẹ:** giáo viên của chương trình nhắn qua luồng trao đổi giáo viên với cha mẹ của học sinh (`message_threads` hiện có), không có luồng riêng với học sinh.
+  - **Đường dây nóng, phản ánh:** ứng dụng phụ huynh hiện đường dây nóng của trường (cấu hình đăng nhập hiện có) và ô "Phản ánh dạy thêm" gửi vào hộp thư góp ý của trường (Thông tư 19/2026 Điều 5).
+  - **Phân hệ và quyền:** phân hệ "Gia sư trực tuyến" ở cổng quản trị (từ Tiểu học, gói dịch vụ bật tắt được, S5a), quyền `P02.tutoring.manage` (Hiệu trưởng, Phó Hiệu trưởng) và `P02.tutoring.teach` (giáo viên chủ nhiệm, bộ môn, tổ trưởng, Ban Giám hiệu) ở tệp định danh `0172_add_tutoring_permissions` (dải định danh 0170 đến 0179 của DT-27; 27a không dùng định danh); không hiện cho Phụ huynh, Học sinh.
+- Thành phần bị ảnh hưởng: `database` (năm học 0152 đến 0154, định danh 0172), `packages/shared` (`tutoring.ts`, quyền, menu), `apps/api` (`tutoring/`), `apps/portal` (`tutoring/`, bốn trang), `apps/teacher` (màn hình Gia sư trong trường), `apps/parent` (mục Gia sư của con), `tests` (e2e 191); tài liệu `01`, `02`, `07`, `08`, `10`, `11`, `14`, `16`, `17`, `21`, `23`, `24`, `32`, `index.md`.
+- Dữ liệu bị ảnh hưởng: cơ sở dữ liệu năm học thêm 11 bảng `tutoring_*`; định danh thêm hai quyền; không đổi bảng hiện có.
+- API bị ảnh hưởng: thêm nhóm `/api/v1/tutoring` và `/api/v1/children/{id}/tutoring`.
+- Giao diện bị ảnh hưởng: MH-348 đến MH-351 (cổng quản trị), MH-352 (ứng dụng giáo viên), MH-353 (ứng dụng phụ huynh).
+- Quyền bị ảnh hưởng: PQ-110.
+- Ảnh hưởng chức năng cũ: không (trường không bật phân hệ hoặc không có chương trình thì không thấy gì mới); số phân hệ của cổng quản trị tăng một nên các kiểm thử đếm phân hệ cập nhật số.
+- Kiểm thử cần thực hiện: kiểm thử đơn vị `apps/api` (quy tắc thuần và luồng có cơ sở dữ liệu), `database`; kiểm tĩnh; e2e 191 và các spec bị ảnh hưởng (01, 58, 59, 83, 134 nhiều trường); CI chạy toàn bộ e2e.
+- Còn lại: điểm danh tự động khi 27a gộp (gọi `recordRoomEvents` từ nhật ký phòng); thu phí `enrichment` và thù lao ở 27c.
+- Trạng thái: Đã triển khai (PR …)
 
 ### YCTD-211: DT-23 phần 23a: thi trực tuyến cho học sinh – 2026-10-26
 
