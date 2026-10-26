@@ -20,6 +20,12 @@ const PARENT_ORG =
 const ACTIVATE =
   'Kích hoạt quản trị viên đầu tiên của trường mới (DT-SaaS S2): công khai theo tên miền của trường, cần mã kích hoạt một lần (chỉ lưu mã băm, hạn 72 giờ), có giới hạn tần suất';
 
+const DIRECTORY =
+  'Ô chọn đơn vị và đăng nhập theo đơn vị ở tên miền chung (DT-24): không thuộc trường nào, chỉ phục vụ ở PLATFORM_ROOT_DOMAIN (tên miền khác 404), chỉ đọc danh mục công khai có phân trang và giới hạn tần suất; đăng nhập chạy trong ngữ cảnh của đúng trường đã chọn';
+
+const HANDOFF =
+  'Đổi mã chuyển phiên sau đăng nhập theo đơn vị (DT-24): công khai theo tên miền của trường, cần mã một lần của đúng trường (chỉ lưu mã băm ở cơ sở dữ liệu định danh của trường, hạn 2 phút)';
+
 export const PUBLIC_ROUTES: PublicRoute[] = [
   {
     method: 'GET',
@@ -100,4 +106,23 @@ export const PUBLIC_ROUTES: PublicRoute[] = [
   { method: 'GET', path: '/api/v1/auth/parent-org/access-requests', reason: PARENT_ORG },
   { method: 'POST', path: '/api/v1/auth/parent-org/access-requests', reason: PARENT_ORG },
   { method: 'POST', path: '/api/v1/auth/parent-org/access-requests/:id/open', reason: PARENT_ORG },
+  // Danh mục đơn vị toàn quốc, đăng nhập theo đơn vị, quyền quản trị nền tảng (DT-24)
+  { method: 'GET', path: '/api/v1/auth/directory/context', reason: DIRECTORY },
+  { method: 'GET', path: '/api/v1/auth/directory/departments', reason: DIRECTORY },
+  { method: 'GET', path: '/api/v1/auth/directory/levels', reason: DIRECTORY },
+  { method: 'GET', path: '/api/v1/auth/directory/communes', reason: DIRECTORY },
+  { method: 'GET', path: '/api/v1/auth/directory/units', reason: DIRECTORY },
+  { method: 'GET', path: '/api/v1/auth/directory/unit', reason: DIRECTORY },
+  { method: 'POST', path: '/api/v1/auth/directory/captcha', reason: DIRECTORY },
+  { method: 'POST', path: '/api/v1/auth/directory/login', reason: DIRECTORY },
+  { method: 'POST', path: '/api/v1/auth/handoff/exchange', reason: HANDOFF },
+  { method: 'GET', path: '/api/v1/auth/platform/catalog', reason: PLATFORM },
+  { method: 'GET', path: '/api/v1/auth/platform/catalog/units', reason: PLATFORM },
+  { method: 'GET', path: '/api/v1/auth/platform/catalog/unit', reason: PLATFORM },
+  { method: 'POST', path: '/api/v1/auth/platform/catalog/import', reason: PLATFORM },
+  { method: 'PUT', path: '/api/v1/auth/platform/schools/:code/catalog-unit', reason: PLATFORM },
+  { method: 'GET', path: '/api/v1/auth/platform/login-page', reason: PLATFORM },
+  { method: 'PUT', path: '/api/v1/auth/platform/login-page', reason: PLATFORM },
+  { method: 'GET', path: '/api/v1/auth/platform/support-policy', reason: PLATFORM },
+  { method: 'PUT', path: '/api/v1/auth/platform/support-policy', reason: PLATFORM },
 ];

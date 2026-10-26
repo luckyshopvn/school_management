@@ -17,9 +17,9 @@ export const E2E_PLATFORM_DATABASE_NAME = 'school_platform_e2e';
 export const E2E_SHARED_DATABASE_NAME = 'school_shared_e2e';
 export const E2E_MULTI_STATE_FILE = new URL('./.e2e-multi.json', import.meta.url);
 
-// Spec nhiều trường (số 130 đến 139 của các phần S1a đến S6 và 140 của S9) chỉ chạy ở dự án `multi`; dự án `single` (e2e hiện
-// có) bỏ qua
-export const MULTI_TENANT_SPEC = /[\\/]1(?:3\d|40)-[^\\/]*\.spec\.ts$/;
+// Spec nhiều trường (số 130 đến 139 của các phần S1a đến S6, 140 của S9 và 160 của DT-24: đăng nhập theo đơn vị, quyền quản trị
+// nền tảng) chỉ chạy ở dự án `multi`; dự án `single` (e2e hiện có) bỏ qua
+export const MULTI_TENANT_SPEC = /[\\/]1(?:3\d|40|60)-[^\\/]*\.spec\.ts$/;
 
 export function schoolHost(code) {
   return `${code}.${E2E_ROOT_DOMAIN}`;

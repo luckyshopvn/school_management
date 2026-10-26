@@ -165,7 +165,7 @@ export class SupportAccessService {
     const support = canSee
       ? await platform
           .selectFrom('support_sessions')
-          .select(['operator_name', 'scope', 'expires_at', 'started_at'])
+          .select(['operator_name', 'scope', 'expires_at', 'started_at', 'access_basis', 'reason'])
           .where('school_id', '=', tenant.schoolId)
           .where('ended_at', 'is', null)
           .where('started_at', 'is not', null)
@@ -194,6 +194,7 @@ export class SupportAccessService {
               'operator_name',
               'scope',
               'reason',
+              'access_basis',
               'created_at',
               'started_at',
               'expires_at',

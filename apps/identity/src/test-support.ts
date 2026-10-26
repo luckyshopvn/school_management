@@ -188,15 +188,16 @@ export async function solvedCaptcha(context: TestContext): Promise<{ captcha_id:
   return { captcha_id: captchaId, captcha_text: text };
 }
 
-// Kiểm thử giao diện chạy dịch vụ định danh thật (tiền tố khóa Redis "identity"); đọc đáp án mã xác nhận theo mã ảnh
-export async function readCaptchaAnswerForTesting(captchaId: string): Promise<string | null> {
+// Kiểm thử giao diện chạy dịch vụ định danh thật (tiền tố khóa Redis "identity"); đọc đáp án mã xác nhận theo mã ảnh. Ở chế độ
+// nhiều trường, khóa có thêm tiền tố của trường (DT-24: đăng nhập theo đơn vị ở tên miền chung)
+export async function readCaptchaAnswerForTesting(captchaId: string, tenantKeyPrefix?: string): Promise<string | null> {
   const redisUrl = process.env.REDIS_URL;
   if (!redisUrl) {
     throw new Error('Thiếu biến môi trường REDIS_URL');
   }
   const redis = new Redis(redisUrl, { maxRetriesPerRequest: 3 });
   try {
-    return await redis.get(`identity:captcha:${captchaId}`);
+    return await redis.get(`identity${tenantKeyPrefix ? `:t:${tenantKeyPrefix}` : ''}:captcha:${captchaId}`);
   } finally {
     redis.disconnect();
   }

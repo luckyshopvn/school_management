@@ -5,6 +5,7 @@ import type { NestExpressApplication } from '@nestjs/platform-express';
 import { API_VERSION_PREFIX } from '@school-management/shared';
 import { ApplicationModule } from './application.module.js';
 import { PLATFORM_OPERATOR_LOGIN_PATH } from './platform/platform-operators.js';
+import { DIRECTORY_PATH_PREFIX } from './directory/unit-directory.js';
 import type { OrganizationDirectory } from './accounts/organization-directory.js';
 import type { IdentityConfiguration } from './common/configuration.js';
 import type { SmsSender } from './messaging/sms-sender.js';
@@ -47,7 +48,9 @@ export async function createApplication(
           path === '/api/v1/health' ||
           path.startsWith(PLATFORM_OPERATOR_LOGIN_PATH) ||
           // Tài khoản cấp trên (DT-SaaS phần S6) không thuộc trường nào
-          path.startsWith('/api/v1/auth/parent-org/'),
+          path.startsWith('/api/v1/auth/parent-org/') ||
+          // Ô chọn đơn vị, đăng nhập theo đơn vị ở tên miền chung (DT-24): tự chọn trường theo đơn vị người dùng chọn
+          path.startsWith(DIRECTORY_PATH_PREFIX),
         ...(tenancy.configuration.edgeSecret ? { edgeSecret: tenancy.configuration.edgeSecret } : {}),
         resolveByToken: tenancy.tokenTenantResolver(
           configuration.tokenPublicKeyPem,
@@ -79,6 +82,8 @@ export async function createApplication(
       void flush();
     });
   }
+  // Nhập danh mục đơn vị ở cổng nền tảng gửi nguyên văn bản tệp CSV (DT-24, tối đa 20 MB)
+  application.useBodyParser('text', { type: ['text/csv', 'text/plain'], limit: '20mb' });
   application.setGlobalPrefix(API_VERSION_PREFIX.slice(1));
   application.useGlobalFilters(new ErrorFilter());
   application.enableShutdownHooks();
