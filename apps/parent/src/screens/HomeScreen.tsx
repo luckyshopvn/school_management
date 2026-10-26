@@ -20,6 +20,7 @@ import { ServicesPanel } from './ServicesPanel.js';
 import { FinalYearPanel } from './FinalYearPanel.js';
 import { BoardingPanel } from './BoardingPanel.js';
 import { LibraryPanel } from './LibraryPanel.js';
+import { OnlineLearningPanel } from './OnlineLearningPanel.js';
 import { TimetablePanel } from './TimetablePanel.js';
 import { AssessmentPanel } from './AssessmentPanel.js';
 import { ScorePanel } from './ScorePanel.js';
@@ -144,6 +145,7 @@ function ChildCard({
     | 'period-attendance'
     | 'learning-record'
     | 'proctor-consent'
+    | 'online-learning'
     | 'tutoring'
   >('none');
   const [attendance, setAttendance] = useState<MonthAttendance>();
@@ -224,6 +226,11 @@ function ChildCard({
             Giám sát thi trực tuyến
           </Button>
         ) : null}
+        {has('online_learning') ? (
+          <Button onClick={() => setView(view === 'online-learning' ? 'none' : 'online-learning')}>
+            Học trực tuyến
+          </Button>
+        ) : null}
         {/* Gia sư trong trường (DT-27 phần 27b): từ Tiểu học trở lên */}
         {has('period_timetable') ? (
           <Button onClick={() => setView(view === 'tutoring' ? 'none' : 'tutoring')}>Gia sư</Button>
@@ -253,6 +260,7 @@ function ChildCard({
       {view === 'period-attendance' ? <PeriodAttendancePanel child={child} month={month} /> : null}
       {view === 'learning-record' ? <LearningRecordPanel child={child} /> : null}
       {view === 'proctor-consent' ? <ProctorConsentPanel child={child} /> : null}
+      {view === 'online-learning' ? <OnlineLearningPanel child={child} /> : null}
       {errorMessage ? <Alert tone="danger">{errorMessage}</Alert> : null}
       {view === 'absence' ? (
         <AbsenceForm

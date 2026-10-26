@@ -390,8 +390,8 @@ describe('Thi trực tuyến cho học sinh', () => {
     assert.deepEqual(me.body.workspaces, [], 'học sinh không có phân hệ nào của cổng quản trị');
     assert.deepEqual(
       (me.body.assignments as Json[]).map((assignment) => [assignment.role_code, assignment.permissions]),
-      [['VT-21', ['P02.exam.take']]],
-      'học sinh chỉ có quyền làm bài',
+      [['VT-21', ['P02.exam.take', 'P02.learning.study']]],
+      'học sinh chỉ có quyền làm bài thi, tự học ở lớp học trực tuyến (28b)',
     );
     // Học sinh không với tới tuyến của cán bộ; cán bộ, phụ huynh không vào tuyến của học sinh
     assert.equal((await api('GET', '/children', an.accessToken)).status, 403);
