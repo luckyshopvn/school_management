@@ -27,6 +27,16 @@ function scopeLabel(scope: 'read' | 'full'): string {
   return scope === 'read' ? 'chỉ đọc' : 'toàn quyền';
 }
 
+// Căn cứ mở phiên (DT-24): trường cho phép (S4), quyền quản trị nền tảng theo chính sách nền tảng, đề nghị đã duyệt của cấp trên
+type AccessBasis = 'school_grant' | 'platform_policy' | 'access_request';
+
+function basisLabel(basis: AccessBasis | undefined): string {
+  if (basis === 'platform_policy') {
+    return 'quyền quản trị nền tảng, không cần trường cho phép';
+  }
+  return basis === 'access_request' ? 'đề nghị xem chi tiết của cấp trên đã duyệt' : 'trường cho phép';
+}
+
 interface MaintenanceNotice {
   id: string;
   title: string;
@@ -38,7 +48,14 @@ interface MaintenanceNotice {
 
 interface PlatformNotices {
   maintenance: MaintenanceNotice[];
-  support: { operator_name: string; scope: 'read' | 'full'; expires_at: string; started_at: string } | null;
+  support: {
+    operator_name: string;
+    scope: 'read' | 'full';
+    expires_at: string;
+    started_at: string;
+    access_basis?: AccessBasis;
+    reason?: string;
+  } | null;
 }
 
 interface SupportGrant {
@@ -61,6 +78,7 @@ interface SupportOverview {
     operator_name: string;
     scope: 'read' | 'full';
     reason: string;
+    access_basis?: AccessBasis;
     started_at: string | null;
     expires_at: string;
     ended_at: string | null;
@@ -80,7 +98,17 @@ export function PlatformNoticeBanner() {
   }
   return (
     <>
-      {data.support ? (
+      {data.support && data.support.access_basis === 'platform_policy' ? (
+        <div
+          role="status"
+          aria-label="Phiên hỗ trợ"
+          className="bg-warning px-4 py-1.5 text-center text-label font-medium text-text"
+        >
+          Đang truy cập với quyền quản trị nền tảng: {data.support.operator_name} ({scopeLabel(data.support.scope)}, đến{' '}
+          {time(data.support.expires_at)}){data.support.reason ? `, lý do: ${data.support.reason}` : ''}. Mọi thao tác
+          đều được ghi nhật ký; quản trị của trường xem ở trang Cho phép hỗ trợ.
+        </div>
+      ) : data.support ? (
         <div
           role="status"
           aria-label="Phiên hỗ trợ"
@@ -205,8 +233,10 @@ export function SupportAccessPage() {
       <section className="flex flex-col gap-4">
         <h1 className="text-page-title font-bold text-text">{menuPageTitle('/support-access')}</h1>
         <p className="text-label text-text-secondary">
-          Nhân viên hỗ trợ của nhà cung cấp chỉ vào được dữ liệu của trường khi trường cho phép, trong thời hạn trường
-          chọn. Mọi phiên hỗ trợ và thao tác đều được ghi nhật ký; rút cho phép thì phiên đang mở kết thúc ngay.
+          Nhân viên hỗ trợ của nhà cung cấp vào dữ liệu của trường khi trường cho phép, trong thời hạn trường chọn. Theo
+          thỏa thuận xử lý dữ liệu, quản trị nền tảng còn vào được để vận hành, xử lý sự cố khi chính sách của nền tảng
+          cho phép: bắt buộc xác thực hai lớp, ghi lý do, có thời hạn, cổng quản trị hiện biểu ngữ trong phiên. Mọi
+          phiên và thao tác đều được ghi nhật ký ở dưới; rút cho phép thì phiên đang mở theo cho phép kết thúc ngay.
         </p>
         {message ? <Alert tone="success">{message}</Alert> : null}
         {errorMessage ? <Alert tone="danger">{errorMessage}</Alert> : null}
@@ -265,7 +295,8 @@ export function SupportAccessPage() {
         {data?.sessions.map((session) => (
           <details key={session.id} className="rounded-lg border border-border bg-card p-3">
             <summary>
-              {session.operator_name} ({scopeLabel(session.scope)}), {time(session.started_at)}
+              {session.operator_name} ({scopeLabel(session.scope)}; {basisLabel(session.access_basis)}),{' '}
+              {time(session.started_at)}
               {session.ended_at ? ` đến ${time(session.ended_at)}` : ', đang mở'}: {session.reason}
             </summary>
             <table className="mt-2 w-full text-label">

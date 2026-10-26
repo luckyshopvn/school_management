@@ -1,8 +1,8 @@
 # 16. CƠ SỞ DỮ LIỆU
 
 - Mô tả: Thực thể, trường, kiểu dữ liệu, khóa chính, khóa ngoại, quan hệ, ràng buộc, chỉ mục, trạng thái, lịch sử thay đổi, chính sách xóa dữ liệu.
-- Phiên bản: 1.124
-- Ngày cập nhật: 2026-10-25
+- Phiên bản: 1.125
+- Ngày cập nhật: 2026-10-26
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
 
@@ -794,19 +794,47 @@ Chính sách theo trường không có bảng riêng: ba mục mới (`password_
 
 Không thêm tệp định danh 0103, hệ thống 0055 (đã giữ dự phòng): bằng chứng đồng ý lưu ở cơ sở dữ liệu nền tảng cùng phạm vi của cấp trên.
 
+## 18E. Danh mục đơn vị toàn quốc, đăng nhập theo đơn vị, quyền quản trị nền tảng (DT-24, YCTD-220)
+
+| Bảng | Mục đích | Cột chính |
+|---|---|---|
+| catalog_departments (từ YCTD-220) | Sở GD&ĐT, cơ sở dữ liệu nền tảng (nền tảng `0210_create_school_catalog`) | code (khóa chính, 2 chữ số, mã tỉnh sau sáp nhập), name, status (`active`, `inactive`), updated_at |
+| catalog_levels (từ YCTD-220) | Cấp học theo mã của Bộ, nạp sẵn trong migration | code (`MN`, `TH`, `THCS`, `THPT`, `GDTX`), moet_code (`01` đến `05`, duy nhất), name, sort |
+| catalog_communes (từ YCTD-220) | Phường, xã | code (khóa chính, 5 chữ số), department_code (khóa ngoại), name, name_search (bỏ dấu), status, updated_at; chỉ mục (department_code, name_search) |
+| catalog_units (từ YCTD-220) | Đơn vị trường | id, moet_code (duy nhất, chuỗi 1 đến 40 ký tự, không ký tự điều khiển), name, name_search, department_code (khóa ngoại), commune_code (khóa ngoại, trống được), commune_name_raw, school_year (`yyyy-yyyy`), source, status, quality_flags (mảng chữ), first_seen_at, last_seen_at, updated_at; chỉ mục (department_code, name_search), commune_code |
+| catalog_unit_levels (từ YCTD-220) | Trường liên cấp (nhiều-nhiều) | unit_id, level_code; khóa chính (unit_id, level_code) |
+| catalog_import_runs (từ YCTD-220) | Mỗi lần nhập, kể cả chạy thử | id, source, file_name, dry_run, totals (JSON), skipped (JSON, tối đa 500 dòng, mã che `[đã che]`), actor_type, actor_id, actor_name, started_at, finished_at |
+| schools.moet_code (từ YCTD-220) | Mã Bộ của trường trong danh mục (nền tảng `0211_link_catalog_and_platform_access`) | chỉ mục duy nhất `schools_moet_code_unique` khi khác trống; không khóa ngoại |
+| support_sessions.access_basis (từ YCTD-220) | Căn cứ mở phiên | `school_grant` (mặc định), `platform_policy`, `access_request` |
+| platform_settings: `support_access_policy`, `login_page` (từ YCTD-220) | Chính sách vào trường của quản trị nền tảng; tiêu đề, chân trang trang đăng nhập ở tên miền chung | `{ mode, default_hours, max_hours }` (mode là `any_school` hoặc `school_grant`); `{ title, subtitle, support_lines }` |
+| login_handoffs (từ YCTD-220) | Mã chuyển phiên một lần sau đăng nhập theo đơn vị, ở cơ sở dữ liệu định danh của mỗi trường (định danh `0130_create_login_handoffs`) | id, token_hash (duy nhất), session_id (khóa ngoại `sessions`), user_id, ip_address, created_at, expires_at (2 phút), used_at |
+
+Kho mã không chứa dữ liệu danh mục thật; tệp mẫu giả ở `database/platform/catalog-sample/`.
+## 18E. Công cụ lớp học (DT-23 phần 23b, YCTD-212)
+
+Ba bảng ở cơ sở dữ liệu năm học (tệp `0124_create_classroom_tools`, `0125_create_classroom_score_events`), chạy ở cả hai bố cục `database` và `schema`.
+
+| Bảng | Mục đích | Cột chính |
+|---|---|---|
+| classroom_call_logs (từ YCTD-212) | Lượt gọi tên ngẫu nhiên (BR-231) | id, client_id (duy nhất, máy giáo viên sinh), class_id, child_id, called_by, called_by_name, called_at (giờ bấm trên máy, đã kẹp), created_at; chỉ mục (class_id, called_at) |
+| classroom_groupings (từ YCTD-212) | Bản chia nhóm gần nhất của một giáo viên cho một lớp (BR-231) | id, class_id, owner_user_id, groups (JSON: [{ name, child_ids }], không lưu họ tên), created_at, updated_at; duy nhất (class_id, owner_user_id) |
+| classroom_score_events (từ YCTD-212) | Dòng điểm của bảng điểm nhanh (BR-232) | id, client_id (duy nhất), session_key (mã buổi), class_id, target_kind (`group`, `student`), group_name, child_id, delta (-50 đến 50, khác 0), note, recorded_by, recorded_by_name, occurred_at, conduct_entry_id (dòng nề nếp đã chuyển), confirmed_at, created_at; chỉ mục (class_id, session_key, occurred_at) |
+
+Hai mục cấu hình theo trường ở bảng `settings` của Trường chính (không có bảng riêng): `classroom_offline_enabled` (bật, mặc định bật) và `classroom_roster_ttl_hours` (1 đến 100, mặc định 24) (BR-233).
+
 ## 18E. Trợ lý AI (DT-23 phần 23d, YCTD-214)
 
 | Bảng | Mục đích | Cột chính |
 |---|---|---|
-| ai_settings (từ YCTD-214) | Thiết lập AI của trường, một dòng, ở cơ sở dữ liệu hệ thống (BR-231; hệ thống `0071`) | id (=1), enabled (mặc định tắt), key_mode (`school`, `platform`), provider, model, per_user_daily_requests, log_retention_months (12), updated_at, updated_by_name |
-| ai_requests (từ YCTD-214) | Nhật ký yêu cầu AI của trường, không lưu toàn văn lời nhắc (BR-232; hệ thống `0071`, chỉ mục `0072`) | id, created_at, user_id, user_name, kind (`questions`, `lesson_plan`, `check`), school_level, grade_level_code, subject_name, topic, status (`success`, `failed`, `rejected`, `blocked`), key_mode, provider, model, prompt_sha256, prompt_chars, response_chars, input_tokens, output_tokens, result_count, result_ids, error, duration_ms |
+| ai_settings (từ YCTD-214) | Thiết lập AI của trường, một dòng, ở cơ sở dữ liệu hệ thống (BR-234; hệ thống `0071`) | id (=1), enabled (mặc định tắt), key_mode (`school`, `platform`), provider, model, per_user_daily_requests, log_retention_months (12), updated_at, updated_by_name |
+| ai_requests (từ YCTD-214) | Nhật ký yêu cầu AI của trường, không lưu toàn văn lời nhắc (BR-235; hệ thống `0071`, chỉ mục `0072`) | id, created_at, user_id, user_name, kind (`questions`, `lesson_plan`, `check`), school_level, grade_level_code, subject_name, topic, status (`success`, `failed`, `rejected`, `blocked`), key_mode, provider, model, prompt_sha256, prompt_chars, response_chars, input_tokens, output_tokens, result_count, result_ids, error, duration_ms |
 | integration_secrets (đổi ở YCTD-214) | Thêm kết nối `ai` (khóa của trường, cấu hình `school`) | connector = `ai` |
 | learning_resources (đổi ở YCTD-214) | Học liệu do AI soạn nháp (hệ thống `0073`) | ai_generated, ai_request_id |
 | questions (đổi ở YCTD-214) | Câu hỏi do AI soạn nháp (năm học `0128`) | ai_generated, ai_request_id |
 | plans (đổi ở YCTD-214) | Hạn mức AI mỗi tháng của gói (nền tảng `0200`) | ai_max_requests, ai_max_tokens (trống là không giới hạn, 0 là không dùng AI) |
 | platform_integration_secrets (đổi ở YCTD-214) | Khóa AI chung của nền tảng (cấu hình `platform`), mã hóa bằng khóa gốc | connector = `ai`; thiết lập nhà cung cấp, mô hình ở `platform_settings` khóa `ai` |
-| ai_token_usage (từ YCTD-214) | Token AI theo trường, ngày, mô hình, cấu hình, để thu phí (BR-233; nền tảng `0201`) | school_id, usage_date, model, config, requests, input_tokens, output_tokens |
-| plan_ai_pricing (từ YCTD-214) | Đơn giá AI theo gói (BR-233; nền tảng `0202`) | plan_id, free_tokens, input_price_per_1k, output_price_per_1k (trống là chưa nhập), model_prices, minimum_fee, rounding_step |
+| ai_token_usage (từ YCTD-214) | Token AI theo trường, ngày, mô hình, cấu hình, để thu phí (BR-236; nền tảng `0201`) | school_id, usage_date, model, config, requests, input_tokens, output_tokens |
+| plan_ai_pricing (từ YCTD-214) | Đơn giá AI theo gói (BR-236; nền tảng `0202`) | plan_id, free_tokens, input_price_per_1k, output_price_per_1k (trống là chưa nhập), model_prices, minimum_fee, rounding_step |
 | invoice_lines (đổi ở YCTD-214) | Thêm loại dòng `ai` | kind = `ai` |
 
 ## 19. Quan hệ chính giữa các bảng

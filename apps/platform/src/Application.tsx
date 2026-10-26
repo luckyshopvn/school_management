@@ -7,6 +7,7 @@ import { AiPage } from './AiPage.js';
 import { DashboardPage } from './DashboardPage.js';
 import { MaintenancePage } from './MaintenancePage.js';
 import { AdminUnitsPage } from './AdminUnitsPage.js';
+import { CatalogPage } from './CatalogPage.js';
 import { ParentOrgApp } from './ParentOrgApp.js';
 import { fetchProfile, loginOperator, PlatformApiError, type OperatorProfile } from './platform-api.js';
 
@@ -123,6 +124,7 @@ function Shell({ accessToken, onLogout }: { accessToken: string; onLogout: () =>
         {active === 'maintenance' ? <MaintenancePage token={accessToken} /> : null}
         {active === 'parent-orgs' ? <AdminUnitsPage token={accessToken} /> : null}
         {active === 'ai' ? <AiPage accessToken={accessToken} /> : null}
+        {active === 'catalog' ? <CatalogPage token={accessToken} /> : null}
       </main>
     </div>
   );

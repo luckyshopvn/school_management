@@ -491,6 +491,7 @@ import { ZaloTokenStore } from './integrations/zalo-token-store.js';
 import { AiAssistantController, AiUsageJob } from './ai-assistant/ai-assistant.controller.js';
 import { AI_PROVIDERS, AiAssistantService } from './ai-assistant/ai-assistant.js';
 import { AiProviderRegistry } from './ai-assistant/ai-provider.js';
+import { ClassroomToolsController, ClassroomToolsService } from './classroom-tools/classroom-tools.js';
 
 @Module({})
 export class ApplicationModule {
@@ -770,6 +771,7 @@ export class ApplicationModule {
         ProfessionalStandardsController,
         // Trợ lý AI (DT-23 phần 23d)
         AiAssistantController,
+        ClassroomToolsController,
         ...(options.additionalControllers ?? []),
       ],
       providers: [
@@ -1156,6 +1158,7 @@ export class ApplicationModule {
         PublicRecruitmentService,
         CandidatesService,
         SchoolCalendar,
+        ClassroomToolsService,
         {
           provide: FileStorage,
           inject: [SchoolSettings],

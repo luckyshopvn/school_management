@@ -5437,6 +5437,46 @@ export interface ConductEntriesTable {
   created_at: CreatedTimestamp;
 }
 
+// Công cụ lớp học trên ứng dụng giáo viên (DT-23 phần 23b, YCTD-212)
+export interface ClassroomCallLogsTable {
+  id: Generated<string>;
+  client_id: string;
+  class_id: string;
+  child_id: string;
+  called_by: string;
+  called_by_name: string;
+  called_at: Date;
+  created_at: CreatedTimestamp;
+}
+
+export interface ClassroomGroupingsTable {
+  id: Generated<string>;
+  class_id: string;
+  owner_user_id: string;
+  // [{ name, child_ids }]
+  groups: JsonDocument;
+  created_at: CreatedTimestamp;
+  updated_at: UpdatedTimestamp;
+}
+
+export interface ClassroomScoreEventsTable {
+  id: Generated<string>;
+  client_id: string;
+  session_key: string;
+  class_id: string;
+  target_kind: 'group' | 'student';
+  group_name: string | null;
+  child_id: string | null;
+  delta: number;
+  note: string | null;
+  recorded_by: string;
+  recorded_by_name: string;
+  occurred_at: Date;
+  conduct_entry_id: ColumnType<string | null, string | null | undefined, string | null>;
+  confirmed_at: ColumnType<Date | null, Date | null | undefined, Date | null>;
+  created_at: CreatedTimestamp;
+}
+
 // Sổ đầu bài, sơ đồ chỗ ngồi, sao đỏ cấp THCS, THPT (DT-21 phần 21d, YCTD-171)
 export type LessonRatingMode = 'off' | 'optional' | 'required';
 export type LessonRatingCode = 'A' | 'B' | 'C' | 'D';
@@ -6419,4 +6459,7 @@ export interface SchoolYearDatabase {
   student_awards: StudentAwardsTable;
   completion_results: CompletionResultsTable;
   learning_records: LearningRecordsTable;
+  classroom_call_logs: ClassroomCallLogsTable;
+  classroom_groupings: ClassroomGroupingsTable;
+  classroom_score_events: ClassroomScoreEventsTable;
 }

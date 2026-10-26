@@ -1,8 +1,8 @@
 # 23. LỊCH SỬ PHIÊN BẢN
 
 - Mô tả: Mã phiên bản, ngày phát hành, danh sách thay đổi, chức năng mới, lỗi đã sửa, thay đổi dữ liệu, thay đổi API, rủi ro, khả năng tương thích, phương án quay lui.
-- Phiên bản: 0.60
-- Ngày cập nhật: 2026-10-25
+- Phiên bản: 0.61
+- Ngày cập nhật: 2026-10-26
 - Trạng thái: Đang cập nhật
 - Đã rà duyệt: Eric, ngày 2026-10-09
 
@@ -16,17 +16,41 @@
 
 ## 2. Danh sách phiên bản
 
-### Phiên bản 0.140.0 – 2026-10-26
+### Phiên bản 0.142.0 – 2026-10-26
 
 - Phạm vi thay đổi: DT-23 phần 23d, trợ lý AI soạn câu hỏi nháp và kế hoạch bài dạy nháp (YCTD-214).
-- Chức năng mới: màn hình 3.8 Trợ lý AI của trường (P01-86, MH-337); Soạn nháp bằng AI ở ngân hàng câu hỏi và kho học liệu (P01-87, P01-88, MH-338); trang Trợ lý AI và giới hạn AI của gói ở cổng nền tảng, dòng phí AI trên hóa đơn dịch vụ (P01-89, MH-339). Quy tắc BR-231 đến BR-233, quyết định QĐ-34, bảo mật BM-91.
+- Chức năng mới: màn hình 3.8 Trợ lý AI của trường (P01-86, MH-339); Soạn nháp bằng AI ở ngân hàng câu hỏi và kho học liệu (P01-87, P01-88, MH-340); trang Trợ lý AI và giới hạn AI của gói ở cổng nền tảng, dòng phí AI trên hóa đơn dịch vụ (P01-89, MH-341). Quy tắc BR-234 đến BR-236, quyết định QĐ-35, bảo mật BM-92.
 - Lỗi đã sửa: không có.
 - Thay đổi dữ liệu: năm học `0128`; hệ thống `0071` đến `0073`; nền tảng `0200` đến `0202`; xem `16_CO_SO_DU_LIEU.md` mục 18E.
 - Thay đổi API: nhóm `/ai/*` ở máy chủ API, `/auth/platform/ai` ở dịch vụ định danh, kết nối `ai` ở `/school-settings/integrations`; biến `AI_MOCK`; câu hỏi trả thêm `ai_generated`.
-- Kiểm thử: kịch bản CT-1078 đến CT-1090 (CT-23d-1 đến CT-23d-16, CT-AI-1, CT-AI-2 trong mã kiểm thử). Kết quả ghi ở PR [số PR].
-- Rủi ro: dữ liệu cá nhân lọt qua bộ quét ở mô tả tự do (đã nêu ở PL-16); đơn giá và nhà cung cấp chưa nhập; mức rủi ro theo Luật Trí tuệ nhân tạo chờ luật sư.
+- Kiểm thử: kịch bản CT-1084 đến CT-1096 (CT-23d-1 đến CT-23d-16, CT-AI-1, CT-AI-2 trong mã kiểm thử). Kết quả ghi ở PR [số PR].
+- Rủi ro: dữ liệu cá nhân lọt qua bộ quét ở mô tả tự do (đã nêu ở PL-22); đơn giá và nhà cung cấp chưa nhập; mức rủi ro theo Luật Trí tuệ nhân tạo chờ luật sư.
 - Khả năng tương thích: mặc định tắt nên trường hiện có không đổi; câu hỏi cũ có `ai_generated = false`.
 - Phương án quay lui: tắt AI theo trường hoặc hoàn lại commit gộp của nhánh 23d; các cột thêm có mặc định nên không cần quay lui dữ liệu.
+
+### Phiên bản 0.141.0 – 2026-10-26
+
+- Phạm vi thay đổi: DT-24, danh mục đơn vị toàn quốc, đăng nhập theo đơn vị, quyền vào mọi trường của quản trị nền tảng (YCTD-220).
+- Chức năng mới: danh mục đơn vị (sở, cấp học, phường xã, trường theo mã Bộ) nhập từ CSV bằng lệnh `platform catalog-import`, `catalog-seed` hoặc trang Danh mục đơn vị của cổng nền tảng, có chạy thử, báo cáo, cờ chất lượng; gắn trường với mã Bộ khi khởi tạo hoặc ở chi tiết trường; trang đăng nhập bố cục "Đăng nhập hệ thống" có ô chọn Sở → Cấp học, Phường/Xã → Trường ở tên miền chung và chuyển phiên một lần sang tên miền của trường; chính sách vào mọi trường của quản trị nền tảng (mặc định bật, nhập lại mã xác thực hai lớp, lý do, có hạn, biểu ngữ, nhật ký trường xem được).
+- Lỗi đã sửa: không có.
+- Thay đổi dữ liệu: nền tảng 0210 (`catalog_departments`, `catalog_levels`, `catalog_communes`, `catalog_units`, `catalog_unit_levels`, `catalog_import_runs`), 0211 (`schools.moet_code`, `support_sessions.access_basis`, cài đặt `support_access_policy`); định danh 0130 (`login_handoffs`).
+- Thay đổi API: nhóm `/auth/directory/*`, `/auth/handoff/exchange`, `/auth/platform/catalog*`, `/auth/platform/schools/:code/catalog-unit`, `/auth/platform/login-page`, `/auth/platform/support-policy`; `support-sessions` nhận `otp_code`, `scope`, `hours`; `/platform-notices`, `/support-access` trả thêm `access_basis`, `reason`.
+- Kiểm thử: CT-24-1 đến CT-24-10 trong mã kiểm thử. Kết quả ngày 26/10/2026 ghi ở `02_NHAT_KY_DU_AN.md` mục cùng ngày.
+- Rủi ro: quyền vào trường không cần đồng ý phải nằm trong thỏa thuận xử lý dữ liệu đã ký (PL-02 Điều 5a), luật sư rà trước khi nhận dữ liệu thật; danh mục lấy từ trang công khai chỉ dùng làm dữ liệu tham chiếu (GD-109).
+- Khả năng tương thích: tên miền của trường và chế độ một trường giữ hành vi đăng nhập; phiên hỗ trợ theo cho phép của S4 và phiên của cấp trên S6 không đổi; cổng biên thử nghiệm đổi gốc tên miền hệ thống từ trang chọn trường sang trang đăng nhập theo đơn vị (trang chọn trường vẫn ở đường dẫn cũ của API).
+- Phương án quay lui: đổi chính sách sang `school_grant` ở cổng nền tảng để ngừng quyền vào không cần đồng ý mà không cần quay lui mã; hoàn lại commit gộp của nhánh DT-24 để bỏ cả tính năng (bảng danh mục để lại không ảnh hưởng).
+
+### Phiên bản 0.140.0 – 2026-10-26
+
+- Phạm vi thay đổi: DT-23 phần 23b, công cụ lớp học trên ứng dụng giáo viên (YCTD-212).
+- Chức năng mới: gọi tên ngẫu nhiên, chia nhóm, đếm ngược và bấm giờ (P03-09, MH-337); bảng điểm nhanh gắn nề nếp, thi đua có xác nhận của giáo viên (P03-10); ngoại tuyến bằng service worker và manifest, bản chụp danh sách lớp gọn lưu 24 giờ, hàng đợi lượt gọi và điểm đồng bộ khi có mạng, công tắc tắt ngoại tuyến theo trường (P03-11, MH-338).
+- Lỗi đã sửa: không có.
+- Thay đổi dữ liệu: cơ sở dữ liệu năm học thêm `classroom_call_logs`, `classroom_groupings` (tệp `0124`), `classroom_score_events` (tệp `0125`); hai mục cấu hình trường `classroom_offline_enabled`, `classroom_roster_ttl_hours` ở bảng `settings`; xem `16_CO_SO_DU_LIEU.md` mục 18E.
+- Thay đổi API: nhóm `/classroom-tools` (cấu hình, danh sách lớp, lượt gọi, nhóm, dòng điểm, chuyển vào nề nếp) (xem `17_DAC_TA_API.md`).
+- Kiểm thử: kịch bản CT-1078 đến CT-1083 (CT-23b-1 đến CT-23b-14 trong mã kiểm thử). Kết quả ngày 26/10/2026: `apps/teacher` 10/10 (`node --test`, CT-23b-1 đến CT-23b-4); `apps/api` 9/9 ca của `classroom-tools.test.ts` (CT-23b-5 đến CT-23b-13) và ma trận cách ly mọi tuyến 5/5; `database` 103/103 (tệp 0124, 0125 chạy ở cả hai bố cục `database`, `schema`); kiểm tĩnh đa thuê bao và quét bí mật đạt; `pnpm lint` đạt; typecheck, build `apps/teacher`, `apps/api` đạt; e2e spec 151 đạt (CT-23b-14) trên bố cục `database` sau chuỗi spec 02 đến 08; spec 121 (ứng dụng giáo viên) đạt, spec 09 trên máy phát triển hỏng ở bước tải tệp lên kho tệp (không liên quan phần này, CI chạy lại toàn bộ)
+- Rủi ro: máy giáo viên bị mất khi bản chụp danh sách lớp chưa hết hạn (giảm bằng hạn ngắn, xóa khi đăng xuất, công tắc tắt theo trường); tiếng báo hết giờ không vang khi màn hình tắt và trình duyệt tạm dừng trang (đồng hồ vẫn đúng, tiếng báo khi mở lại hoặc khi giữ màn hình sáng); trình duyệt cũ không có service worker thì công cụ chỉ chạy khi có mạng.
+- Khả năng tương thích: không đổi hành vi các phân hệ cũ; trường không dùng công cụ lớp học không thấy khác biệt ngoài một nút ở Lớp của tôi; trường tắt ngoại tuyến thì ứng dụng gỡ service worker.
+- Phương án quay lui: hoàn lại commit gộp của nhánh 23b; hai tệp năm học 0124, 0125 chỉ thêm bảng nên giữ lại không ảnh hưởng.
 
 ### Phiên bản 0.139.0 – 2026-10-26
 

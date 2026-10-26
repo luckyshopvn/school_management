@@ -44,6 +44,13 @@ import {
   SupportExchangeController,
   SupportSessionsService,
 } from './platform/support-sessions.js';
+import {
+  DirectoryRateLimiter,
+  LoginHandoffController,
+  UnitDirectoryController,
+  UnitDirectoryService,
+} from './directory/unit-directory.js';
+import { PlatformCatalogController, PlatformCatalogService } from './platform/platform-catalog.js';
 
 @Module({})
 export class ApplicationModule {
@@ -75,6 +82,10 @@ export class ApplicationModule {
         SupportExchangeController,
         // Trợ lý AI (DT-23 phần 23d)
         PlatformAiController,
+        // Danh mục đơn vị, đăng nhập theo đơn vị (DT-24)
+        UnitDirectoryController,
+        LoginHandoffController,
+        PlatformCatalogController,
       ],
       providers: [
         { provide: IDENTITY_CONFIGURATION, useValue: configuration },
@@ -121,6 +132,9 @@ export class ApplicationModule {
         PlatformDashboardService,
         ParentOrgsService,
         SupportSessionsService,
+        DirectoryRateLimiter,
+        UnitDirectoryService,
+        PlatformCatalogService,
       ],
     };
   }

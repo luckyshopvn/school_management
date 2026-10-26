@@ -19,4 +19,6 @@ export const PLATFORM_MENU: readonly PlatformMenuItem[] = [
   { key: 'parent-orgs', label: 'Đơn vị cấp trên' },
   // Trợ lý AI: khóa nền tảng, đơn giá AI theo gói, token đã dùng (DT-23 phần 23d)
   { key: 'ai', label: 'Trợ lý AI' },
+  // Danh mục đơn vị toàn quốc, trang đăng nhập theo đơn vị, chính sách vào trường (DT-24)
+  { key: 'catalog', label: 'Danh mục đơn vị' },
 ];
