@@ -28,7 +28,7 @@ Các thay đổi trước phiên bản 0.4.0 chưa có sổ này; xem `23_LICH_S
 - Ảnh hưởng chức năng cũ: không đổi hành vi; nề nếp, thi đua chỉ nhận thêm dòng ghi bởi giáo viên qua luồng sẵn có; đăng nhập của ứng dụng giáo viên không đổi, chỉ phân biệt lỗi mạng với phiên hết hạn lúc mở ứng dụng.
 - Kiểm thử cần thực hiện: kiểm thử đơn vị toàn kho; e2e `single` (spec 151 cùng các spec hiện có); kiểm tĩnh đa thuê bao và ma trận cách ly; typecheck, lint, build.
 - Chưa làm (YCTD sau): trò chơi dùng lại nhóm, bảng điểm (23c); đồng bộ nền khi ứng dụng đóng (Background Sync); thông báo đẩy khi hết giờ; ngoại tuyến cho phân hệ khác.
-- Trạng thái: Đã triển khai
+- Trạng thái: Đã triển khai (PR 180)
 
 ### YCTD-210: Kế hoạch DT-23: thi trực tuyến, công cụ lớp học, trò chơi kiến thức, trợ lý AI – 2026-10-26
 
