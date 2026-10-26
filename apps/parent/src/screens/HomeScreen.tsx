@@ -23,6 +23,7 @@ import { AssessmentPanel } from './AssessmentPanel.js';
 import { ScorePanel } from './ScorePanel.js';
 import { PeriodAttendancePanel } from './PeriodAttendancePanel.js';
 import { LearningRecordPanel } from './LearningRecordPanel.js';
+import { ProctorConsentPanel } from './ProctorConsentPanel.js';
 import { hasLevelFeature, levelOf } from '@school-management/shared';
 import { useSchoolLevelNames } from './school-levels.js';
 
@@ -139,6 +140,7 @@ function ChildCard({
     | 'scores'
     | 'period-attendance'
     | 'learning-record'
+    | 'proctor-consent'
   >('none');
   const [attendance, setAttendance] = useState<MonthAttendance>();
   const [errorMessage, setErrorMessage] = useState<string>();
@@ -213,6 +215,11 @@ function ChildCard({
             Điểm danh theo tiết
           </Button>
         ) : null}
+        {has('learning_record') ? (
+          <Button onClick={() => setView(view === 'proctor-consent' ? 'none' : 'proctor-consent')}>
+            Giám sát thi trực tuyến
+          </Button>
+        ) : null}
         {has('final_year_record') ? (
           <Button onClick={() => setView(view === 'final-year' ? 'none' : 'final-year')}>Hồ sơ cuối cấp</Button>
         ) : null}
@@ -236,6 +243,7 @@ function ChildCard({
       {view === 'scores' ? <ScorePanel child={child} /> : null}
       {view === 'period-attendance' ? <PeriodAttendancePanel child={child} month={month} /> : null}
       {view === 'learning-record' ? <LearningRecordPanel child={child} /> : null}
+      {view === 'proctor-consent' ? <ProctorConsentPanel child={child} /> : null}
       {errorMessage ? <Alert tone="danger">{errorMessage}</Alert> : null}
       {view === 'absence' ? (
         <AbsenceForm

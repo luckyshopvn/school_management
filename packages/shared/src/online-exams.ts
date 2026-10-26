@@ -155,3 +155,49 @@ export const EXAM_MODE_LABELS: Record<ExamMode, string> = {
   'at-school': 'Thi tại trường (vào bài bằng mã phòng thi)',
   remote: 'Thi từ xa',
 };
+
+// Giám thị camera cho thi trực tuyến (DT-23 phần 23e, YCTD-215). Mặc định tắt: trường bật ở cấu hình thi trực tuyến, giáo viên bật
+// theo từng bài giao. Hình ảnh đi thẳng giữa trình duyệt của giáo viên và của học sinh (WebRTC); máy chủ chỉ chuyển thông điệp
+// báo hiệu ngắn hạn. Học sinh dưới 16 tuổi cần cha mẹ đồng ý theo từng loại; mọi học sinh đều phải xác nhận thông báo trước khi vào
+export type ProctorConsentScope = 'live' | 'record';
+export const PROCTOR_CONSENT_SCOPES: readonly ProctorConsentScope[] = ['live', 'record'];
+export const PROCTOR_CONSENT_SCOPE_LABELS: Record<ProctorConsentScope, string> = {
+  live: 'Giáo viên coi thi xem camera trực tiếp',
+  record: 'Ghi hình camera trong lúc thi',
+};
+export const PROCTOR_CONSENT_AGE = 16;
+export const PROCTOR_CONSENT_SOURCE_LABELS = {
+  parent: 'Phụ huynh đồng ý trên ứng dụng',
+  school: 'Trường ghi nhận văn bản',
+} as const;
+// Số phiên xem trực tiếp đồng thời tối đa cho một bài giao và thời gian im lặng thì coi là đã ngắt
+export const PROCTOR_MAX_LIVE_VIEWS = 60;
+export const PROCTOR_VIEW_STALE_SECONDS = 30;
+// Bản ghi: mỗi đoạn dài chừng 10 giây, tối đa 8 MB; thời hạn giữ mặc định 30 ngày (GD-132), chỉnh 7 đến 90 ngày
+export const RECORDING_CHUNK_SECONDS = 10;
+export const RECORDING_CHUNK_MAX_BYTES = 8 * 1024 * 1024;
+export const RECORDING_RETENTION_DEFAULT_DAYS = 30;
+export const PROCTOR_SIGNAL_KINDS = ['offer', 'answer', 'ice'] as const;
+export type ProctorSignalKind = (typeof PROCTOR_SIGNAL_KINDS)[number];
+
+// Tuổi tròn tại một ngày (ngày sinh dạng YYYY-MM-DD); học sinh chưa rõ ngày sinh coi như chưa đủ tuổi tự đồng ý
+export function ageOn(dob: string | null, today: string): number | null {
+  if (!dob || !/^\d{4}-\d{2}-\d{2}/.test(dob)) {
+    return null;
+  }
+  const [year, month, day] = dob.slice(0, 10).split('-').map(Number) as [number, number, number];
+  const [nowYear, nowMonth, nowDay] = today.slice(0, 10).split('-').map(Number) as [number, number, number];
+  return nowYear - year - (nowMonth < month || (nowMonth === month && nowDay < day) ? 1 : 0);
+}
+
+export function needsParentConsent(dob: string | null, today: string): boolean {
+  const age = ageOn(dob, today);
+  return age === null || age < PROCTOR_CONSENT_AGE;
+}
+
+// Phương án khi cấu hình máy chủ báo hiệu: danh sách máy chủ ICE (STUN, TURN) cho trình duyệt
+export interface IceServerConfig {
+  urls: string[];
+  username?: string;
+  credential?: string;
+}

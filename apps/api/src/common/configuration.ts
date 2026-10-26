@@ -35,6 +35,9 @@ export interface ApiConfiguration {
   childDataHashKey: Buffer;
   // Kho tệp tương thích S3; trống khi kiểm thử dùng kho trong bộ nhớ
   objectStorage: ObjectStorageSettings | null;
+  // Máy chủ ICE cho giám thị camera của thi trực tuyến (DT-23 phần 23e): STUN, TURN (coturn tự host) và khóa dùng chung để cấp
+  // tên đăng nhập, mật khẩu TURN có hạn; trống thì trình duyệt chỉ dùng kết nối trực tiếp trong cùng mạng
+  webrtc?: WebrtcSettings;
   // Các cổng thanh toán trực tuyến được bật, cổng đầu là mặc định; trống là chưa nối (T1), `development` là bộ giả
   // lập (YCTD-57), `vietqr-static` là mã VietQR tĩnh đối soát qua sao kê (YCTD-89). Biến PAYMENT_GATEWAY ghi các mã
   // cách nhau bằng dấu phẩy; `payos`, `sepay`, `casso`, `vnpay` là nhà cung cấp thật (YCTD-92)
@@ -131,6 +134,20 @@ export function readIntegrationConfiguration(environment: NodeJS.ProcessEnv): In
   };
 }
 
+export interface WebrtcSettings {
+  stunUrls: string[];
+  turnUrls: string[];
+  turnSecret: string | null;
+  turnTtlSeconds: number;
+}
+
+function readList(value: string | undefined): string[] {
+  return (value ?? '')
+    .split(',')
+    .map((item) => item.trim())
+    .filter((item) => item !== '');
+}
+
 export interface ObjectStorageSettings {
   endpoint: string;
   region: string;
@@ -180,6 +197,12 @@ export function readConfigurationFromEnvironment(options: { multiTenant?: boolea
       bucket: readRequired('S3_BUCKET'),
       accessKeyId: readRequired('S3_ACCESS_KEY_ID'),
       secretAccessKey: readRequired('S3_SECRET_ACCESS_KEY'),
+    },
+    webrtc: {
+      stunUrls: readList(process.env.STUN_URLS),
+      turnUrls: readList(process.env.TURN_URLS),
+      turnSecret: process.env.TURN_SHARED_SECRET?.trim() || null,
+      turnTtlSeconds: Number(process.env.TURN_TTL_SECONDS) > 0 ? Number(process.env.TURN_TTL_SECONDS) : 4 * 3600,
     },
     paymentGateways,
     paymentProviders: readPaymentProviderSettings(paymentGateways),

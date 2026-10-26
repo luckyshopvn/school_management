@@ -15,6 +15,7 @@
 | `postgres`  | `postgres:17-alpine`                               | `school_identity`, `school_system`, các `school_year_*`                                                         | Không                |
 | `redis`     | `redis:7-alpine`                                   | Giới hạn đăng nhập, mã OTP; bật `appendonly`, có mật khẩu                                                       | Không                |
 | `seaweedfs` | `chrislusf/seaweedfs:3.80`                         | Kho tệp tương thích S3, có kiểm tra khóa truy cập; bật bằng `COMPOSE_PROFILES=seaweedfs`                        | Không                |
+| `coturn`    | `coturn/coturn:4.6.2`                              | Máy chủ chuyển tiếp WebRTC cho giám thị camera thi trực tuyến (DT-23 phần 23e), dùng chung về sau cho 27a; tuỳ chọn, bật bằng `COMPOSE_PROFILES=coturn` | UDP, TCP 3478 và UDP 49160 đến 49200 (mạng của máy chủ) |
 
 Định tuyến của Caddy:
 
@@ -86,6 +87,10 @@ Lưu ý:
 2. `PAYMENT_GATEWAY`, `FACEBOOK_PUBLISHER`, `ZALO_SENDER` không được đặt `development` ở môi trường chạy thật (đó là bộ giả lập).
 3. Cất bản sao `CHILD_DATA_ENCRYPTION_KEY`, `CHILD_DATA_HASH_KEY`, `BACKUP_ENCRYPTION_PASSPHRASE` ở nơi khác máy chủ (két mật khẩu của nhà trường). Mất hai khóa đầu thì không đọc được số định danh của trẻ; mất khóa thứ ba thì không khôi phục được bản sao lưu.
 4. Kiểm tra sau khi chạy: `curl -fsS https://api.<tên miền>/api/v1/health` trả `{"status":"ok","service":"api"}`; mở `https://portal.<tên miền>` thấy trang đăng nhập.
+
+### 4.0. Máy chủ chuyển tiếp WebRTC (coturn) cho giám thị camera (tuỳ chọn, DT-23 phần 23e)
+
+Giám thị camera (xem trực tiếp camera học sinh khi thi trực tuyến) dùng WebRTC: hình đi thẳng giữa trình duyệt giáo viên và học sinh, máy chủ API chỉ chuyển thông điệp báo hiệu. Khi hai bên khác mạng hoặc tường lửa chặn kết nối trực tiếp thì cần máy chủ chuyển tiếp. Cách bật: thêm `coturn` vào `COMPOSE_PROFILES`, đặt trong `deploy/.env` các biến `TURN_SHARED_SECRET` (sinh bằng `deploy/scripts/generate-keys.sh`), `TURN_EXTERNAL_IP` (địa chỉ IP công khai của máy chủ), `TURN_URLS` (ví dụ `turn:turn.<tên miền>:3478?transport=udp,turn:turn.<tên miền>:3478?transport=tcp`), `STUN_URLS` (ví dụ `stun:turn.<tên miền>:3478`); mở ở tường lửa cổng UDP và TCP 3478 và dải UDP 49160 đến 49200 (tệp `deploy/coturn/turnserver.conf` chặn chuyển tiếp tới địa chỉ mạng nội bộ). Máy chủ API không giữ khoá lâu dài cho trình duyệt mà chỉ cấp tên đăng nhập TURN có hạn (`TURN_TTL_SECONDS`, mặc định 4 giờ) tính từ `TURN_SHARED_SECRET`. Để trống các biến này thì giám thị camera chỉ chạy khi hai bên cùng mạng. Giám thị camera mặc định tắt ở từng trường; cần luật sư rà (PL-15) trước khi bật ở trường thật.
 
 ### 4.1. Dùng kho đối tượng của nhà cung cấp đám mây thay SeaweedFS
 

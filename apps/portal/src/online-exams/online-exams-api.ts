@@ -68,6 +68,8 @@ export interface AssignmentDetail {
   camera_fallback: string;
   single_session_mode: string;
   exam_mode: 'at-school' | 'remote';
+  proctor_live: boolean;
+  proctor_record: boolean;
   rooms: ExamRoom[];
   targets: Array<{ kind: 'class' | 'student'; label: string }>;
   students: MonitorStudent[];
@@ -90,6 +92,9 @@ export interface SchoolSettings {
   allow_remote: boolean;
   allowed_networks: string[];
   room_code_minutes: number;
+  allow_live_proctoring: boolean;
+  allow_recording: boolean;
+  recording_retention_days: number;
   updated_by_name: string | null;
   updated_at: string | null;
 }
@@ -178,3 +183,54 @@ export const openRoom = (assignmentId: string, childIds?: string[]): Promise<Ass
   );
 export const closeRoom = (roomId: string): Promise<AssignmentDetail> =>
   requestJson(`/api/v1/online-exams/rooms/${roomId}/close`, json('POST', {}));
+
+// Giám thị camera (DT-23 phần 23e, YCTD-215)
+export interface IceServer {
+  urls: string[];
+  username?: string;
+  credential?: string;
+}
+export interface ConsentState {
+  granted_at: string;
+  source: string;
+  granted_by_name: string;
+}
+export type ConsentMap = Record<'live' | 'record', ConsentState | null>;
+export interface AssignmentConsents {
+  proctor_live: boolean;
+  proctor_record: boolean;
+  students: Array<{ child_id: string; full_name: string; needs_parent_consent: boolean; consents: ConsentMap }>;
+}
+export interface AttemptProctor {
+  proctor_live: boolean;
+  proctor_record: boolean;
+  camera_state: string;
+  notice_at: string | null;
+  can_watch_recording: boolean;
+  recording: { chunks: number; approx_seconds: number; expires_at: string } | null;
+  views: Array<{ kind: 'live' | 'recording'; viewer_name: string; started_at: string; ended_at: string | null }>;
+}
+export const readProctorIce = (): Promise<{ ice_servers: IceServer[] }> =>
+  requestJson('/api/v1/online-exams/proctor/ice');
+export const startProctorView = (attemptId: string): Promise<{ view_id: string }> =>
+  requestJson(`/api/v1/online-exams/attempts/${attemptId}/proctor/views`, json('POST', {}));
+export const pollProctorView = (
+  viewId: string,
+  after: number,
+): Promise<{ ended: boolean; signals: Array<{ id: number; kind: 'answer' | 'ice'; payload: string }> }> =>
+  requestJson(`/api/v1/online-exams/proctor/views/${viewId}/signals?after=${after}`);
+export const sendProctorSignal = (viewId: string, kind: 'offer' | 'ice', payload: string): Promise<{ sent: boolean }> =>
+  requestJson(`/api/v1/online-exams/proctor/views/${viewId}/signals`, json('POST', { kind, payload }));
+export const endProctorView = (viewId: string): Promise<{ ended: boolean }> =>
+  requestJson(`/api/v1/online-exams/proctor/views/${viewId}`, json('DELETE'));
+export const readAttemptProctor = (attemptId: string): Promise<AttemptProctor> =>
+  requestJson(`/api/v1/online-exams/attempts/${attemptId}/proctor`);
+export const readAssignmentConsents = (assignmentId: string): Promise<AssignmentConsents> =>
+  requestJson(`/api/v1/online-exams/assignments/${assignmentId}/proctor/consents`);
+export const recordSchoolConsent = (input: {
+  child_id: string;
+  scope: 'live' | 'record';
+  granted: boolean;
+  guardian_name?: string;
+  note?: string;
+}): Promise<ConsentMap> => requestJson('/api/v1/online-exams/proctor/consents', json('PUT', input));

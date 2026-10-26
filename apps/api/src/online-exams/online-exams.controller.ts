@@ -164,6 +164,8 @@ export function parseAssignmentInput(body: RequestBody): AssignmentInput {
       body?.exam_mode === undefined || body.exam_mode === null
         ? null
         : readChoice<ExamMode>(body, 'exam_mode', EXAM_MODES, 'at-school', errors),
+    proctor_live: readBoolean(body, 'proctor_live', false, errors),
+    proctor_record: readBoolean(body, 'proctor_record', false, errors),
     term_type: readChoice(body, 'term_type', ['first_term', 'second_term'] as const, 'first_term', errors),
     score_kind: readChoice(body, 'score_kind', ['regular', 'mid', 'final'] as const, 'regular', errors),
     score_seq: scoreSeq,
@@ -250,6 +252,12 @@ export class OnlineExamsController {
     const mode = readChoice<ExamMode>(body, 'default_exam_mode', EXAM_MODES, 'at-school', errors);
     const allowRemote = readBoolean(body, 'allow_remote', false, errors);
     const minutes = readInteger(body, 'room_code_minutes', errors, { min: 5, max: 720 }) ?? 60;
+    const allowLive = readBoolean(body, 'allow_live_proctoring', false, errors);
+    const allowRecording = readBoolean(body, 'allow_recording', false, errors);
+    const retention =
+      body?.recording_retention_days === undefined
+        ? undefined
+        : (readInteger(body, 'recording_retention_days', errors, { min: 7, max: 90 }) ?? undefined);
     const rawNetworks = body?.allowed_networks ?? [];
     let networks: string[] = [];
     if (
@@ -266,7 +274,15 @@ export class OnlineExamsController {
     }
     return this.service.updateSchoolSettings(
       currentUser,
-      { default_exam_mode: mode, allow_remote: allowRemote, allowed_networks: networks, room_code_minutes: minutes },
+      {
+        default_exam_mode: mode,
+        allow_remote: allowRemote,
+        allowed_networks: networks,
+        room_code_minutes: minutes,
+        allow_live_proctoring: body?.allow_live_proctoring === undefined ? undefined : allowLive,
+        allow_recording: body?.allow_recording === undefined ? undefined : allowRecording,
+        recording_retention_days: retention,
+      },
       originOf(request, currentUser),
     );
   }

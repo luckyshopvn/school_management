@@ -42,6 +42,7 @@ import {
   type AttemptScore,
   type ViolationOutcome,
 } from './online-exam-rules.js';
+import { assertProctorConsent } from './proctor-consent.js';
 
 // Phía học sinh của thi trực tuyến (DT-23 phần 23a, YCTD-211; GD-105, GD-106): danh sách bài được giao, vào làm, lưu nháp từng
 // câu, báo sự kiện rời bài và camera, nộp bài, xem kết quả. Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11:
@@ -196,6 +197,8 @@ export class StudentExamsService {
         'exam_assignments.fullscreen_required',
         'exam_assignments.camera_enabled',
         'exam_assignments.exam_mode',
+        'exam_assignments.proctor_live',
+        'exam_assignments.proctor_record',
         'subjects.name as subject_name',
       ])
       .orderBy('exam_assignments.opens_at', 'desc')
@@ -264,6 +267,8 @@ export class StudentExamsService {
           fullscreen_required: assignment.fullscreen_required,
           camera_enabled: assignment.camera_enabled,
           exam_mode: assignment.exam_mode,
+          proctor_live: assignment.proctor_live,
+          proctor_record: assignment.proctor_record,
           result_mode: assignment.result_mode,
           result:
             visible && countedRow
@@ -295,7 +300,7 @@ export class StudentExamsService {
   async start(
     currentUser: CurrentUser,
     assignmentId: string,
-    body: { camera_state: ExamCameraState; room_code: string | null },
+    body: { camera_state: ExamCameraState; room_code: string | null; proctor_notice: boolean },
     origin: ChangeOrigin,
     ipAddress: string | undefined,
   ): Promise<Awaited<ReturnType<StudentExamsService['attemptView']>>> {
@@ -351,6 +356,14 @@ export class StudentExamsService {
         [{ field: 'camera', message: cameraState }],
       );
     }
+    const proctored = await assertProctorConsent(
+      database,
+      student,
+      assignment,
+      body.proctor_notice,
+      now.toISOString().slice(0, 10),
+      ONLINE_EXAM_RULE_CODE,
+    );
     const content = await this.engine.loadContent(database, assignment.exam_id);
     const seed = randomInt(1, 2 ** 31);
     const variantCode = pickVariantCode(
@@ -383,6 +396,7 @@ export class StudentExamsService {
           deadline_at: attemptDeadline(now, assignment.duration_minutes, assignment.closes_at),
           session_id: sessionId,
           camera_state: cameraState,
+          proctor_notice_at: proctored ? now : null,
           flagged: cameraMissing,
           flag_reasons: JSON.stringify(flagReasons),
         })
@@ -522,6 +536,8 @@ export class StudentExamsService {
         'exam_assignments.violation_action',
         'exam_assignments.camera_enabled',
         'exam_assignments.camera_fallback',
+        'exam_assignments.proctor_live',
+        'exam_assignments.proctor_record',
         'exam_assignments.closes_at',
         'exam_assignments.result_mode',
         'exam_assignments.results_released_at',
@@ -554,6 +570,8 @@ export class StudentExamsService {
         max_violations: assignment.max_violations,
         violation_action: assignment.violation_action,
         camera_enabled: assignment.camera_enabled,
+        proctor_live: assignment.proctor_live,
+        proctor_record: assignment.proctor_record,
       },
       camera_state: attempt.camera_state,
       violations: countViolations(events),
