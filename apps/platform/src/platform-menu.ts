@@ -17,4 +17,6 @@ export const PLATFORM_MENU: readonly PlatformMenuItem[] = [
   { key: 'maintenance', label: 'Bảo trì' },
   // Đơn vị cấp trên: cây đơn vị, tài khoản cấp trên (S6)
   { key: 'parent-orgs', label: 'Đơn vị cấp trên' },
+  // Danh mục đơn vị toàn quốc, trang đăng nhập theo đơn vị, chính sách vào trường (DT-24)
+  { key: 'catalog', label: 'Danh mục đơn vị' },
 ];

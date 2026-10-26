@@ -52,6 +52,8 @@ export interface SchoolsTable {
   status_changed_at: Date | null;
   // Nút quản lý ở cây đơn vị hành chính (DT-SaaS phần S6)
   admin_unit_id: ColumnType<string | null, string | null | undefined, string | null>;
+  // Mã Bộ của đơn vị trong danh mục toàn quốc (DT-24)
+  moet_code: ColumnType<string | null, string | null | undefined, string | null>;
 }
 
 export interface SchoolDomainsTable {
@@ -513,6 +515,8 @@ export interface SupportSessionsTable {
   started_at: Date | null;
   ended_at: Date | null;
   end_reason: string | null;
+  // Căn cứ mở phiên (DT-24): trường cho phép, chính sách nền tảng hoặc đề nghị đã duyệt của cấp trên
+  access_basis: Generated<SupportAccessBasis>;
 }
 
 export interface SupportSessionActionsTable {
@@ -634,6 +638,69 @@ export interface ParentOrgAccessRequestsTable {
   created_at: CreatedTimestamp;
 }
 
+// Danh mục đơn vị giáo dục toàn quốc (DT-24, YCTD-220)
+export type SupportAccessBasis = 'school_grant' | 'platform_policy' | 'access_request';
+export type CatalogEntryStatus = 'active' | 'inactive';
+
+export interface CatalogDepartmentsTable {
+  code: string;
+  name: string;
+  status: Generated<CatalogEntryStatus>;
+  updated_at: UpdatedTimestamp;
+}
+
+export interface CatalogLevelsTable {
+  code: string;
+  moet_code: string;
+  name: string;
+  sort: number;
+}
+
+export interface CatalogCommunesTable {
+  code: string;
+  department_code: string;
+  name: string;
+  name_search: string;
+  status: Generated<CatalogEntryStatus>;
+  updated_at: UpdatedTimestamp;
+}
+
+export interface CatalogUnitsTable {
+  id: Generated<string>;
+  moet_code: string;
+  name: string;
+  name_search: string;
+  department_code: string;
+  commune_code: string | null;
+  commune_name_raw: string | null;
+  school_year: string | null;
+  source: string;
+  status: Generated<CatalogEntryStatus>;
+  quality_flags: ColumnType<string[], string[] | undefined, string[]>;
+  first_seen_at: CreatedTimestamp;
+  last_seen_at: ColumnType<Date, Date | undefined, Date>;
+  updated_at: UpdatedTimestamp;
+}
+
+export interface CatalogUnitLevelsTable {
+  unit_id: string;
+  level_code: string;
+}
+
+export interface CatalogImportRunsTable {
+  id: Generated<string>;
+  source: string;
+  file_name: string | null;
+  dry_run: Generated<boolean>;
+  totals: ColumnType<Record<string, number>, string, string>;
+  skipped: ColumnType<Array<{ line: number; reason: string; code?: string }>, string | undefined, string>;
+  actor_type: PlatformAuditActorType;
+  actor_id: string | null;
+  actor_name: string;
+  started_at: ColumnType<Date, Date | undefined, Date>;
+  finished_at: Date | null;
+}
+
 export interface PlatformDatabase {
   school_clusters: SchoolClustersTable;
   schools: SchoolsTable;
@@ -677,4 +744,10 @@ export interface PlatformDatabase {
   school_aggregate_consents: SchoolAggregateConsentsTable;
   aggregate_snapshots: AggregateSnapshotsTable;
   parent_org_access_requests: ParentOrgAccessRequestsTable;
+  catalog_departments: CatalogDepartmentsTable;
+  catalog_levels: CatalogLevelsTable;
+  catalog_communes: CatalogCommunesTable;
+  catalog_units: CatalogUnitsTable;
+  catalog_unit_levels: CatalogUnitLevelsTable;
+  catalog_import_runs: CatalogImportRunsTable;
 }

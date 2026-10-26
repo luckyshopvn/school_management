@@ -257,6 +257,8 @@ export class PlatformSchoolsService {
       deleted_at: school.deleted_at,
       deletion_record: school.deletion_record,
       created_at: school.created_at,
+      // Mã Bộ của đơn vị trong danh mục toàn quốc (DT-24)
+      moet_code: school.moet_code,
       domains,
       consents,
       hosting,

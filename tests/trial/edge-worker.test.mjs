@@ -136,11 +136,15 @@ describe('cổng biên Cloudflare Worker', () => {
     assert.match(await (await call('https://alpha.thu.example.test/giao-vien/')).text(), /Giáo viên/);
   });
 
-  it('cổng nền tảng ở tên miền riêng; trang chọn trường ở tên miền hệ thống', async () => {
+  it('cổng nền tảng ở tên miền riêng; tên miền hệ thống là trang đăng nhập theo đơn vị (DT-24)', async () => {
     assert.match(await (await call('https://platform.thu.example.test/truong')).text(), /Cổng nền tảng/);
+    const root = await call('https://thu.example.test/');
+    assert.equal(root.status, 308);
+    assert.equal(root.headers.get('location'), 'https://thu.example.test/quan-ly/');
+    assert.match(await (await call('https://thu.example.test/quan-ly/')).text(), /id="root"/);
     requests.length = 0;
-    await call('https://thu.example.test/');
-    assert.equal(requests.at(-1).url, '/api/v1/public/schools/picker');
+    await call('https://thu.example.test/api/v1/auth/directory/context');
+    assert.equal(requests.at(-1).url, '/api/v1/auth/directory/context');
     assert.equal((await call('https://thu.example.test/khac')).status, 404);
   });
 

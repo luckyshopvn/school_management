@@ -1,0 +1,15 @@
+ma_so,ten_so,ma_cap_hoc,cap_hoc,ma_phuong_xa,ten_phuong_xa,ma_truong,ten_truong,ma_trong_nhan_khop,tien_to_2_so_ma_truong,nam_hoc
+97,Tỉnh Mẫu Bắc,01,Mầm non,99001,Phường Mẫu Một,97000101,Trường Mầm non Mẫu Hoa Sen,1,97,2026
+97,Tỉnh Mẫu Bắc,02,Tiểu học,99001,Phường Mẫu Một,97000201,Trường Tiểu học Mẫu Bình Minh,1,97,2026
+97,Tỉnh Mẫu Bắc,02;03,Tiểu học;Trung học cơ sở,99002,Xã Mẫu Hai,97000301,Trường TH và THCS Mẫu Sao Mai,1,97,2026
+97,Tỉnh Mẫu Bắc,03,Trung học cơ sở,99002,Xã Mẫu Hai,97000302,"Trường THCS Mẫu Ánh Dương, cơ sở 2",1,97,2026
+97,Tỉnh Mẫu Bắc,04,Trung học phổ thông,99003,Phường Mẫu Ba,9700000001,Trường THPT Mẫu Đồng Xanh,1,97,2026
+97,Tỉnh Mẫu Bắc,05,Giáo dục thường xuyên,99003,Phường Mẫu Ba,9700000002,Trung tâm GDTX Mẫu,1,97,2026
+97,Tỉnh Mẫu Bắc,01,Mầm non,,,97000B13,Nhóm trẻ Mẫu Chồi Non,0,97,2026
+97,Tỉnh Mẫu Bắc,01,Mầm non,99001,Phường Mẫu Một,97000102,,1,97,2026
+97,Tỉnh Mẫu Bắc,01,Mầm non,99001,Phường Mẫu Một,[DA_CHE_TRUNG_KHUON_CCCD],[DA_CHE_TRUNG_KHUON_CCCD],1,,2026
+97,Tỉnh Mẫu Bắc,01,Mầm non,99001,Phường Mẫu Một,012345678901,Nhóm lớp Mẫu Có Mã Mười Hai Số,1,,2026
+98,Thành phố Mẫu Nam,03,Trung học cơ sở,99101,Phường Mẫu Nam Một,98000301,Trường THCS Mẫu Alpha,1,98,2026
+98,Thành phố Mẫu Nam,03;04,Trung học cơ sở;Trung học phổ thông,99101,Phường Mẫu Nam Một,98000302,Trường THCS và THPT Mẫu Beta,1,98,2026
+98,Thành phố Mẫu Nam,02,Tiểu học,99102,Xã Mẫu Nam Hai,98000201,Trường Tiểu học Mẫu Gamma,1,98,2026
+98,Thành phố Mẫu Nam,02,Tiểu học,99999,Xã Không Có Trong Danh Mục,98000202,Trường Tiểu học Mẫu Delta,0,98,2026

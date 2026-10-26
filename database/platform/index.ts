@@ -16,6 +16,8 @@ import { migration as createBilling } from './migrations/0050_create_billing.js'
 import { migration as createPlatformDashboard } from './migrations/0060_create_platform_dashboard.js';
 import { migration as createBackupRuns } from './migrations/0070_create_backup_runs.js';
 import { migration as addDatabaseLoginName } from './migrations/0100_add_database_login_name.js';
+import { migration as createSchoolCatalog } from './migrations/0210_create_school_catalog.js';
+import { migration as linkCatalogAndPlatformAccess } from './migrations/0211_link_catalog_and_platform_access.js';
 
 // Khối số giữ sẵn của phần S1a: 0001 đến 0009; S2: 0020 đến 0029 (tài liệu 32 mục 14.3)
 export const platformMigrations: Record<string, Migration> = {
@@ -45,4 +47,7 @@ export const platformMigrations: Record<string, Migration> = {
   '0070_create_backup_runs': createBackupRuns,
   // Khối 0100 đến 0109 của phần S9
   '0100_add_database_login_name': addDatabaseLoginName,
+  // Danh mục đơn vị toàn quốc, đăng nhập theo đơn vị, quyền quản trị nền tảng (DT-24): 0210 đến 0219
+  '0210_create_school_catalog': createSchoolCatalog,
+  '0211_link_catalog_and_platform_access': linkCatalogAndPlatformAccess,
 };

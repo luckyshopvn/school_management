@@ -1,5 +1,18 @@
 import { createHash, randomBytes, randomUUID } from 'node:crypto';
-import { Body, Controller, Get, HttpCode, Inject, Injectable, Optional, Param, Post, Req, Res } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  HttpCode,
+  Inject,
+  Injectable,
+  Optional,
+  Param,
+  Post,
+  Put,
+  Req,
+  Res,
+} from '@nestjs/common';
 import {
   activeSupportSession,
   recordSupportAction,
@@ -9,6 +22,7 @@ import {
   type ActiveSupportSession,
   type IdentityDatabase,
   type PlatformDatabase,
+  type SupportAccessBasis,
   type SupportScope,
   type SystemDatabase,
   type TenancyRuntime,
@@ -32,6 +46,7 @@ import { setRefreshTokenCookie } from '../authentication/refresh-token-cookie.js
 import { createRefreshToken, TokenService } from '../authentication/token.service.js';
 import { TENANCY_RUNTIME } from '../common/configuration.js';
 import { Infrastructure } from '../common/infrastructure.js';
+import { PlatformOperatorsService } from './platform-operators.js';
 import { PlatformSchoolsService } from './platform-schools.js';
 
 // Đăng nhập hỗ trợ của nhân viên nền tảng (DT-SaaS phần S4, YCTD-197; tài liệu 32 mục 14.5 "S4"), mở rộng đăng nhập thay của 18h.
@@ -47,6 +62,47 @@ import { PlatformSchoolsService } from './platform-schools.js';
 //   support_session_actions; bắt đầu, kết thúc ghi cả nhật ký của trường (nhật ký định danh) và platform_audit_log;
 // - cổng quản trị hiện biểu ngữ "đang trong phiên hỗ trợ" cho nhân viên nền tảng, và báo phiên đang mở cho người dùng của trường.
 export const SUPPORT_RULE_CODE = 'YCTD-197';
+// Quyền vào mọi trường của quản trị nền tảng (DT-24, YCTD-220; tài liệu 32 mục 16; Eric quyết định ngày 2026-10-26): chính sách ở mức
+// nền tảng (platform_settings.support_access_policy), mặc định `any_school`: tài khoản vận hành vào được mọi trường đã khởi tạo mà
+// không cần trường đồng ý, nhưng bắt buộc nhập lại mã xác thực hai lớp ngay lúc mở, ghi lý do, chọn phạm vi và số giờ (mặc định 2,
+// tối đa 8), ghi nhật ký hai phía như phiên hỗ trợ, trường xem được ở trang Cho phép hỗ trợ, cổng quản trị hiện biểu ngữ "đang truy
+// cập với quyền quản trị nền tảng". Đổi sang `school_grant` (khi hợp đồng xử lý dữ liệu đòi trường đồng ý) thì chỉ còn luồng cho
+// phép của S4 và các phiên đang mở theo chính sách nền tảng kết thúc ngay.
+export type SupportAccessPolicyMode = 'any_school' | 'school_grant';
+export interface SupportAccessPolicy {
+  mode: SupportAccessPolicyMode;
+  default_hours: number;
+  max_hours: number;
+}
+export const DEFAULT_SUPPORT_ACCESS_POLICY: SupportAccessPolicy = {
+  mode: 'any_school',
+  default_hours: 2,
+  max_hours: 8,
+};
+const PLATFORM_ACCESS_RULE_CODE = 'YCTD-220';
+const MAX_POLICY_HOURS = 8;
+
+function validHours(value: unknown): value is number {
+  return typeof value === 'number' && Number.isInteger(value) && value >= 1 && value <= MAX_POLICY_HOURS;
+}
+
+export async function readSupportAccessPolicy(platform: Kysely<PlatformDatabase>): Promise<SupportAccessPolicy> {
+  const row = await platform
+    .selectFrom('platform_settings')
+    .select('value')
+    .where('key', '=', 'support_access_policy')
+    .executeTakeFirst();
+  const value = (row?.value ?? {}) as Record<string, unknown>;
+  const max = validHours(value.max_hours) ? value.max_hours : DEFAULT_SUPPORT_ACCESS_POLICY.max_hours;
+  const fallbackDefault = validHours(value.default_hours)
+    ? value.default_hours
+    : DEFAULT_SUPPORT_ACCESS_POLICY.default_hours;
+  return {
+    mode: value.mode === 'school_grant' ? 'school_grant' : DEFAULT_SUPPORT_ACCESS_POLICY.mode,
+    default_hours: Math.min(max, fallbackDefault),
+    max_hours: max,
+  };
+}
 const HANDOFF_MINUTES = 5;
 const MAX_SESSION_HOURS = 8;
 
@@ -75,6 +131,7 @@ export class SupportSessionsService {
     private readonly infrastructure: Infrastructure,
     private readonly tokenService: TokenService,
     private readonly clock: Clock,
+    private readonly operators: PlatformOperatorsService,
   ) {}
 
   private runtime(): TenancyRuntime {
@@ -131,6 +188,7 @@ export class SupportSessionsService {
         'operator_name',
         'scope',
         'reason',
+        'access_basis',
         'created_at',
         'started_at',
         'expires_at',
@@ -146,11 +204,19 @@ export class SupportSessionsService {
       active_grant: grants.find((grant) => !grant.revoked_at && grant.expires_at > now) ?? null,
       grants,
       sessions,
+      policy: await readSupportAccessPolicy(this.platform),
     };
   }
 
-  // Mở phiên hỗ trợ: trường phải đang cho phép; trả đường liên kết một lần tới cổng quản trị của trường
-  async start(code: string, reasonInput: unknown, actor: { id: string; name: string }) {
+  // Mở phiên hỗ trợ: trường đang cho phép (S4), hoặc chính sách nền tảng cho vào mọi trường (DT-24) kèm mã xác thực hai lớp nhập lại
+  // ngay lúc mở; trả đường liên kết một lần tới cổng quản trị của trường
+  async start(
+    code: string,
+    body: Record<string, unknown> | undefined,
+    actor: { id: string; name: string },
+    ipAddress: string | null = null,
+  ) {
+    const reasonInput = body?.reason;
     const reason = typeof reasonInput === 'string' ? reasonInput.trim() : '';
     if (reason.length < 5 || reason.length > 500) {
       throw validationError([{ field: 'reason', message: 'Ghi lý do hỗ trợ (5 đến 500 ký tự)' }]);
@@ -161,23 +227,46 @@ export class SupportSessionsService {
     }
     const now = this.clock.now();
     const grant = await this.activeGrant(tenant, now);
-    if (!grant) {
-      throw ruleViolationError(
-        SUPPORT_RULE_CODE,
-        'Trường chưa cho phép hỗ trợ hoặc cho phép đã hết hạn; đề nghị quản trị của trường bật ở cổng quản trị',
-      );
+    let basis: SupportAccessBasis = 'school_grant';
+    let scope: SupportScope;
+    let expiresAt: Date;
+    if (grant) {
+      scope = grant.scope;
+      expiresAt = new Date(Math.min(grant.expires_at.getTime(), now.getTime() + MAX_SESSION_HOURS * 3_600_000));
+    } else {
+      const policy = await readSupportAccessPolicy(this.platform);
+      const otp = typeof body?.otp_code === 'string' ? body.otp_code.trim() : '';
+      if (policy.mode !== 'any_school' || !otp) {
+        throw ruleViolationError(
+          policy.mode === 'any_school' ? PLATFORM_ACCESS_RULE_CODE : SUPPORT_RULE_CODE,
+          policy.mode === 'any_school'
+            ? 'Trường chưa cho phép hỗ trợ; để truy cập với quyền quản trị nền tảng, nhập lại mã xác thực hai lớp'
+            : 'Trường chưa cho phép hỗ trợ hoặc cho phép đã hết hạn; đề nghị quản trị của trường bật ở cổng quản trị',
+        );
+      }
+      const requestedHours = body?.hours === undefined ? policy.default_hours : body.hours;
+      if (!validHours(requestedHours) || requestedHours > policy.max_hours) {
+        throw validationError([{ field: 'hours', message: `Số giờ từ 1 đến ${policy.max_hours}` }]);
+      }
+      if (body?.scope !== undefined && body.scope !== 'read' && body.scope !== 'full') {
+        throw validationError([{ field: 'scope', message: 'Phạm vi là chỉ đọc hoặc toàn quyền' }]);
+      }
+      await this.operators.assertSecondFactor(actor.id, otp, ipAddress, now);
+      basis = 'platform_policy';
+      scope = body?.scope === 'full' ? 'full' : 'read';
+      expiresAt = new Date(now.getTime() + requestedHours * 3_600_000);
     }
     const token = randomBytes(32).toString('base64url');
-    const expiresAt = new Date(Math.min(grant.expires_at.getTime(), now.getTime() + MAX_SESSION_HOURS * 3_600_000));
     const session = await this.platform
       .insertInto('support_sessions')
       .values({
         school_id: tenant.schoolId,
         operator_id: actor.id,
         operator_name: actor.name,
-        grant_id: grant.id,
-        scope: grant.scope,
+        grant_id: grant?.id ?? null,
+        scope,
         reason,
+        access_basis: basis,
         handoff_token_hash: hashToken(token),
         handoff_expires_at: new Date(now.getTime() + HANDOFF_MINUTES * 60_000),
         expires_at: expiresAt,
@@ -187,9 +276,17 @@ export class SupportSessionsService {
     await writeAudit(this.platform, {
       actorType: 'operator',
       actorId: actor.id,
-      action: 'support.session-requested',
+      action: basis === 'platform_policy' ? 'support.platform-access-requested' : 'support.session-requested',
       schoolId: tenant.schoolId,
-      details: { support_session_id: session.id, scope: session.scope, reason, grant_id: grant.id },
+      details: {
+        support_session_id: session.id,
+        scope: session.scope,
+        reason,
+        grant_id: grant?.id ?? null,
+        access_basis: basis,
+        expires_at: session.expires_at,
+        ...(basis === 'platform_policy' ? { second_factor: 'totp-step-up', ip: ipAddress } : {}),
+      },
     });
     const domain = await this.platform
       .selectFrom('school_domains')
@@ -202,6 +299,7 @@ export class SupportSessionsService {
     return {
       session_id: session.id,
       scope: session.scope,
+      access_basis: basis,
       expires_at: session.expires_at,
       handoff: {
         path: `/support-login?code=${token}`,
@@ -253,6 +351,7 @@ export class SupportSessionsService {
         operator_name: `${user.name} (${user.unitName})`,
         grant_id: null,
         requester_kind: 'parent_org',
+        access_basis: 'access_request',
         access_request_id: request.id,
         scope: 'read',
         reason: request.reason,
@@ -368,9 +467,18 @@ export class SupportSessionsService {
       throw unauthenticatedError('Đường liên kết hỗ trợ không đúng, đã dùng hoặc đã hết hạn');
     }
     // Phiên của nhân viên nền tảng theo cho phép hỗ trợ (S4); phiên xem chi tiết của cấp trên theo đề nghị trường đã duyệt (S6)
-    const grant = session.requester_kind === 'operator' ? await this.activeGrant(tenant, now) : undefined;
-    if (session.requester_kind === 'operator' && (!grant || grant.id !== session.grant_id)) {
+    const grant =
+      session.requester_kind === 'operator' && session.access_basis === 'school_grant'
+        ? await this.activeGrant(tenant, now)
+        : undefined;
+    if (session.access_basis === 'school_grant' && (!grant || grant.id !== session.grant_id)) {
       throw unauthenticatedError('Trường đã rút cho phép hỗ trợ');
+    }
+    if (
+      session.access_basis === 'platform_policy' &&
+      (await readSupportAccessPolicy(this.platform)).mode !== 'any_school'
+    ) {
+      throw unauthenticatedError('Chính sách nền tảng không còn cho truy cập khi trường chưa cho phép');
     }
     if (
       session.requester_kind === 'parent_org' &&
@@ -418,6 +526,7 @@ export class SupportSessionsService {
           scope: session.scope,
           reason: session.reason,
           requester_kind: session.requester_kind,
+          access_basis: session.access_basis,
           grant_id: grant?.id ?? null,
           access_request_id: session.access_request_id,
           expires_at: session.expires_at.toISOString(),
@@ -435,7 +544,12 @@ export class SupportSessionsService {
       actorId: session.operator_id,
       action: 'support.session-started',
       schoolId: tenant.schoolId,
-      details: { support_session_id: session.id, scope: session.scope, ip: ipAddress },
+      details: {
+        support_session_id: session.id,
+        scope: session.scope,
+        access_basis: session.access_basis,
+        ip: ipAddress,
+      },
     });
     return {
       scope: session.scope,
@@ -511,6 +625,57 @@ export class SupportSessionsService {
     }
   }
 
+  policy(): Promise<SupportAccessPolicy> {
+    return readSupportAccessPolicy(this.platform);
+  }
+
+  // Đổi chính sách vào trường của quản trị nền tảng: bắt buộc nhập lại mã xác thực hai lớp; chuyển sang `school_grant` thì các phiên
+  // đang mở theo chính sách nền tảng kết thúc ngay
+  async updatePolicy(
+    body: Record<string, unknown> | undefined,
+    actor: { id: string; name: string },
+    ipAddress: string | null,
+  ): Promise<SupportAccessPolicy> {
+    const mode = body?.mode;
+    const defaultHours = body?.default_hours;
+    const maxHours = body?.max_hours;
+    if (mode !== 'any_school' && mode !== 'school_grant') {
+      throw validationError([{ field: 'mode', message: 'Chọn vào mọi trường hoặc chỉ khi trường cho phép' }]);
+    }
+    if (!validHours(maxHours) || !validHours(defaultHours) || defaultHours > maxHours) {
+      throw validationError([
+        { field: 'default_hours', message: 'Số giờ mặc định và tối đa từ 1 đến 8, mặc định không quá tối đa' },
+      ]);
+    }
+    const otp = typeof body?.otp_code === 'string' ? body.otp_code.trim() : '';
+    await this.operators.assertSecondFactor(actor.id, otp || undefined, ipAddress, this.clock.now());
+    const before = await readSupportAccessPolicy(this.platform);
+    const value = JSON.stringify({ mode, default_hours: defaultHours, max_hours: maxHours });
+    await this.platform
+      .insertInto('platform_settings')
+      .values({ key: 'support_access_policy', value, updated_at: this.clock.now() })
+      .onConflict((conflict) => conflict.column('key').doUpdateSet({ value, updated_at: this.clock.now() }))
+      .execute();
+    await writeAudit(this.platform, {
+      actorType: 'operator',
+      actorId: actor.id,
+      action: 'support.policy-changed',
+      details: { before, after: { mode, default_hours: defaultHours, max_hours: maxHours }, ip: ipAddress },
+    });
+    if (mode === 'school_grant') {
+      const open = await this.platform
+        .selectFrom('support_sessions')
+        .select('id')
+        .where('access_basis', '=', 'platform_policy')
+        .where('ended_at', 'is', null)
+        .execute();
+      for (const session of open) {
+        await this.end(session.id, 'policy-changed', { type: 'operator', id: actor.id, name: actor.name });
+      }
+    }
+    return readSupportAccessPolicy(this.platform);
+  }
+
   record(active: ActiveSupportSession, method: string, route: string, status: number): void {
     void recordSupportAction(this.platform, active.id, { service: 'identity', method, route, status }).catch(
       () => undefined,
@@ -535,7 +700,19 @@ export class PlatformSupportController {
   @HttpCode(200)
   async start(@Param('code') code: string, @Body() body: Record<string, unknown> | undefined, @Req() request: Request) {
     const actor = await this.schools.actor(request);
-    return this.support.start(code, body?.reason, { id: actor.id ?? '', name: actor.name });
+    return this.support.start(code, body, { id: actor.id ?? '', name: actor.name }, request.ip ?? null);
+  }
+
+  @Get('support-policy')
+  async policy(@Req() request: Request) {
+    await this.schools.actor(request);
+    return this.support.policy();
+  }
+
+  @Put('support-policy')
+  async updatePolicy(@Body() body: Record<string, unknown> | undefined, @Req() request: Request) {
+    const actor = await this.schools.actor(request);
+    return this.support.updatePolicy(body, { id: actor.id ?? '', name: actor.name }, request.ip ?? null);
   }
 
   @Post('support-sessions/:id/end')
