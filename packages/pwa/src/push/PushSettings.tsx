@@ -10,7 +10,7 @@ import {
 } from './push-client.js';
 import type { PushState } from './push-state.js';
 
-// Khối "Cài đặt thông báo" của ứng dụng giáo viên, phụ huynh, học sinh (DT-26 phần 26b, YCTD-232): bật, tắt đẩy trên máy này (chỉ
+// Khối "Cài đặt thông báo" của ứng dụng giáo viên, phụ huynh, học sinh (DT-26 phần 26b, YCTD-239): bật, tắt đẩy trên máy này (chỉ
 // hỏi quyền khi người dùng bấm), tắt theo nhóm loại thông báo, danh sách máy đã đăng ký và nút gỡ. iPhone, iPad chưa cài lên màn
 // hình chính thì hướng dẫn cài thay cho nút bật. Thông báo khẩn của trường vẫn đến dù tắt nhóm (máy chủ quyết định)
 interface PushGroupPreference {

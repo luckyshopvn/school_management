@@ -113,7 +113,7 @@ self.addEventListener('fetch', (event) => {
   event.respondWith(networkFirst(request));
 });
 
-// Thông báo đẩy (DT-26 phần 26b, YCTD-232): máy chủ chỉ gửi tiêu đề theo nhóm, tên trường, một câu chung và mã thông báo, không có
+// Thông báo đẩy (DT-26 phần 26b, YCTD-239): máy chủ chỉ gửi tiêu đề theo nhóm, tên trường, một câu chung và mã thông báo, không có
 // dữ liệu cá nhân; nội dung đầy đủ chỉ thấy khi mở ứng dụng (đã đăng nhập). Nội dung không đọc được thì hiện câu chung
 self.addEventListener('push', (event) => {
   let message;

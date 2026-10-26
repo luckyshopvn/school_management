@@ -10,7 +10,7 @@ import {
 import { createTestUser } from '@school-management/identity/testing';
 import { E2E_SCHOOL_YEAR_DATABASE_PREFIX, E2E_TEACHER_PORT } from '../e2e-environment.mjs';
 
-// Giao diện thông báo đẩy (DT-26 phần 26b, YCTD-232), kịch bản CT-26b-giao-dien: giáo viên mở "Cài đặt thông báo", thấy các nhóm
+// Giao diện thông báo đẩy (DT-26 phần 26b, YCTD-239), kịch bản CT-26b-8 (CT-1121): giáo viên mở "Cài đặt thông báo", thấy các nhóm
 // loại thông báo, tắt một nhóm thì tải lại vẫn tắt (máy chủ lưu); e2e một trường không bật đẩy nên máy báo "Hệ thống chưa bật";
 // iPhone mở bằng Safari được hướng dẫn cài lên màn hình chính thay cho nút bật; mở trong Zalo báo không nhận được đẩy. Phần nhận
 // đẩy của service worker kiểm ở packages/pwa/src/push/service-worker-push.test.ts (Chromium chạy ẩn không hiện thông báo). Dữ liệu giả

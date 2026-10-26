@@ -1,4 +1,4 @@
-// Trạng thái thông báo đẩy trên máy đang dùng (DT-26 phần 26b, YCTD-232). Hàm thuần để kiểm thử đơn vị được:
+// Trạng thái thông báo đẩy trên máy đang dùng (DT-26 phần 26b, YCTD-239). Hàm thuần để kiểm thử đơn vị được:
 // - 'unsupported': trình duyệt không có Web Push (trình duyệt cũ, trình duyệt nhúng của Zalo, Facebook);
 // - 'needs-install': iPhone, iPad (iOS 16.4 trở lên) chỉ nhận đẩy khi ứng dụng đã cài lên màn hình chính và mở từ biểu tượng;
 // - 'no-service-worker': ứng dụng chưa có service worker (ứng dụng giáo viên khi trường tắt ngoại tuyến, GD-108);

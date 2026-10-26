@@ -1,7 +1,7 @@
 import { isIos } from '../install-state.js';
 import { decodeBase64Url, detectPushState, deviceLabel, type PushState } from './push-state.js';
 
-// Đăng ký, hủy, đồng bộ thông báo đẩy trên trình duyệt (DT-26 phần 26b, YCTD-232), gọi các điểm cuối của phần máy chủ 26b:
+// Đăng ký, hủy, đồng bộ thông báo đẩy trên trình duyệt (DT-26 phần 26b, YCTD-239), gọi các điểm cuối của phần máy chủ 26b:
 // `GET /api/v1/public/push/vapid-public-key`, `POST /api/v1/push/subscriptions`, `POST /api/v1/push/subscriptions/unsubscribe`.
 // Mỗi ứng dụng truyền hàm gọi máy chủ có mã phiên của mình (giáo viên, phụ huynh, học sinh) nên gói không giữ mã phiên.
 // Một trình duyệt chỉ có một đăng ký đẩy cho mỗi service worker: ứng dụng phụ huynh và màn hình học sinh dùng chung phạm vi, người
