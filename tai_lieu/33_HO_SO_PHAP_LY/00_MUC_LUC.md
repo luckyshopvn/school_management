@@ -1,9 +1,9 @@
 # 33. HỒ SƠ PHÁP LÝ VÀ TUÂN THỦ (DT-SaaS phần S8a)
 
-- Mô tả: Bộ mẫu pháp lý và hồ sơ tuân thủ cho nền tảng School Management nhiều trường (DT-SaaS), gồm mẫu dùng chung và bộ hồ sơ riêng cho trường dùng thử dữ liệu thật trên máy chủ ngoài Việt Nam.
-- Phiên bản bộ mẫu: S8a-1.1 (2026-10-26: PL-02 thêm Điều 5a quyền truy cập của quản trị nền tảng, DT-24, YCTD-220)
-- Ngày soạn: 2026-10-25
-- Yêu cầu thay đổi: YCTD-200 (`24_YEU_CAU_THAY_DOI.md`); kế hoạch ở `32_KE_HOACH_THEO_HE_THONG_SO.md` mục 14.3, 14.5 "S8a", 14.11.
+- Mô tả: Bộ mẫu pháp lý và hồ sơ tuân thủ cho nền tảng School Management nhiều trường (DT-SaaS), gồm mẫu dùng chung và bộ hồ sơ riêng cho trường dùng thử dữ liệu thật trên máy chủ ngoài Việt Nam; từ 2026-10-26 thêm danh sách hồ sơ cần có cho nền tảng gia sư trực tuyến (DT-27, PL-16 đến PL-21, chưa soạn nội dung).
+- Phiên bản bộ mẫu: S8a-1.1 (2026-10-26: PL-02 thêm Điều 5a quyền truy cập của quản trị nền tảng, DT-24, YCTD-220); danh sách DT-27: DT27-0.1
+- Ngày soạn: 2026-10-25; bổ sung 2026-10-26
+- Yêu cầu thay đổi: YCTD-200 (`24_YEU_CAU_THAY_DOI.md`); kế hoạch ở `32_KE_HOACH_THEO_HE_THONG_SO.md` mục 14.3, 14.5 "S8a", 14.11. Danh sách DT-27: YCTD-250, kế hoạch ở `32` mục 19.
 - Trạng thái: **Bản nháp. Luật sư của Eric phải rà trước khi dùng.** Không ký, không gửi cho trường, không nhận dữ liệu thật của trường nào khi bộ mẫu này chưa được rà.
 
 > **Lưu ý bắt buộc khi dùng bộ mẫu**
@@ -31,6 +31,7 @@
 | PL-13 | [13_CHINH_SACH_LUU_GIU_VA_XOA.md](13_CHINH_SACH_LUU_GIU_VA_XOA.md) | Chính sách lưu giữ và xóa dữ liệu | Thường trực | Nền tảng ban hành | Cấu hình `platform_settings`, `plans` |
 | PL-14 | [14_HUONG_DAN_MA_HOA_DU_LIEU_TRE_EM.md](14_HUONG_DAN_MA_HOA_DU_LIEU_TRE_EM.md) | Hướng dẫn mã hóa trường dữ liệu trẻ em bằng khóa riêng của trường và giới hạn | Kèm PL-07 | Nền tảng | — |
 | PL-15 | [15_DIEU_KIEN_DICH_VU_XU_LY_DU_LIEU.md](15_DIEU_KIEN_DICH_VU_XU_LY_DU_LIEU.md) | Danh mục kiểm tra điều kiện kinh doanh dịch vụ xử lý dữ liệu cá nhân của nền tảng | Trước khi nhận dữ liệu thật của trường đầu tiên | Eric, luật sư | Ngoài kho |
+| PL-16 đến PL-21 | [16_DANH_SACH_HO_SO_GIA_SU.md](16_DANH_SACH_HO_SO_GIA_SU.md) | Danh sách hồ sơ của nền tảng gia sư trực tuyến (DT-27): điều khoản gia sư, đồng ý của cha mẹ, đơn đăng ký học thêm trong trường, chính sách an toàn trẻ em, điều khoản chợ và tranh chấp, bổ sung hồ sơ dữ liệu cá nhân | Chưa soạn; từng hồ sơ soạn ở phần 27a đến 27i rồi luật sư rà | Theo từng hồ sơ | Theo từng hồ sơ |
 
 ## 2. Thứ tự dùng cho một trường dùng thử dữ liệu thật ở máy chủ ngoài Việt Nam
 
