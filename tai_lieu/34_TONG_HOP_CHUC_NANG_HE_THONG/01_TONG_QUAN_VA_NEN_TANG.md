@@ -1,6 +1,6 @@
 # 34.1. TỔNG QUAN, KIẾN TRÚC VÀ NỀN TẢNG CHUNG
 
-- Mô tả: Mục tiêu, đối tượng dùng, cấp học, kiến trúc, đăng nhập và phân quyền, chọn phân hệ, thông báo, DT-SaaS đa thuê bao, kế hoạch DT-23, DT-26 và DT-27
+- Mô tả: Mục tiêu, đối tượng dùng, cấp học, kiến trúc, đăng nhập và phân quyền, chọn phân hệ, thông báo, DT-SaaS đa thuê bao, kế hoạch DT-23, DT-26, DT-27 và DT-28
 - Phiên bản: 1.0
 - Ngày cập nhật: 2026-10-26
 - Trạng thái: Chờ phê duyệt
@@ -832,3 +832,20 @@ Nguồn: tài liệu 32 mục 19, YCTD-250. Mục này chỉ ghi để người 
 Kế hoạch ở `32_KE_HOACH_THEO_HE_THONG_SO.md` mục 17, YCTD-225. **Phần máy chủ đã có trong mã** (`apps/identity/src/external-identity/`): lớp trừu tượng `IdentityProvider`, bộ nối OIDC chung (authorization code + PKCE, state, nonce, discovery, kiểm chữ ký `id_token` qua JWKS, tải lại khóa khi nhà cung cấp quay khóa), hồ sơ `vneid` với các tham số "chờ tài liệu RAR" là cấu hình; nền tảng khai nhà cung cấp ở `EXTERNAL_IDENTITY_PROVIDERS` và `EXTERNAL_IDENTITY_<MÃ>_CLIENT_SECRET`; trường bật tắt, chọn nhóm vai trò, mã ứng dụng và khóa riêng (mã hóa theo khóa của trường) ở `PUT /auth/external/settings/:provider` (quyền `P01.account.manage`); bảng định danh 0140 `external_identity_providers`, `external_identities` (chỉ subject mã hóa và băm), `external_identity_events`; nhà cung cấp OIDC giả lập cho kiểm thử; e2e spec 165.
 
 **Giao diện (bước 25b, YCTD-226):** nút "Đăng nhập bằng <nhà cung cấp>" trên màn hình đăng nhập của cổng quản trị, ứng dụng giáo viên, ứng dụng phụ huynh (chỉ khi trường bật; ở tên miền chung không hiện), trang quay về `/dang-nhap/ben-ngoai` có bước nhập mã hai lớp, mục "Liên kết tài khoản" ở Tài khoản của tôi và ứng dụng phụ huynh, khối cấu hình ở Danh sách người dùng. **Chưa có:** hợp đồng và tài liệu kỹ thuật của Trung tâm RAR (việc của Eric).
+
+## 10. DT-28: kế hoạch hệ thống quản lý học tập (chưa có trong mã)
+
+Nguồn: tài liệu 32 mục 20, YCTD-270. Mục này chỉ ghi để người đọc biết phần sắp làm; chưa có bảng, tuyến hay màn hình nào trong mã. Khi từng phần gộp, chuyển phần đó sang các mục mô tả theo mã. Khoá học ghi sẵn (27d) và hỏi đáp (27e) của DT-27 xây trên lõi này.
+
+| Phần | Đợt | Nội dung kế hoạch (tài liệu 32 mục 20.6) | Dấu hiệu trong mã |
+|---|---|---|---|
+| 28a Mô hình nhóm dùng chung | 1 | Bộ nhóm theo lớp, môn, mục đích; chia tay, ngẫu nhiên, theo năng lực, cân bằng giới; nhóm trưởng; lịch sử; công cụ lớp học 23b dùng bộ nhóm | `child_groups`, `child_group_members` (DT-14c), `classroom_groupings` (23b) có sẵn để mở rộng, dời dữ liệu |
+| 28b Lõi LMS | 1 | Lớp học trực tuyến tự sinh từ phân công, khoá tự chọn, khoá học mẫu của tổ qua luồng duyệt 22h1, chương, hoạt động, điều kiện mở, kết quả hoạt động, quyết định hình thức theo Thông tư 09/2021, kế hoạch theo tuần, nhật ký học tập | `timetable_lessons`, `class_staff_assignments`, `subject_teams`, `learning_resources` có sẵn |
+| 28c Bài tập trực tuyến | 2 | Trắc nghiệm từ 22g1 chấm bằng hàm 22g2, tự luận, ảnh, ghi âm, phân hóa, bài nhóm, thang tiêu chí, trả bài, gợi ý nhận xét AI nháp | `questions`, `grading-rules.ts`, `rubrics` có sẵn |
+| 28d Tiến độ, bảng điểm, báo cáo | 2 | Tiến độ học sinh và lớp, bảng điểm hoạt động, điểm thường xuyên qua `ScoresService` (Tiểu học: gợi ý nhận xét, mức đạt), báo cáo cho chủ nhiệm, tổ, Hiệu trưởng, phụ huynh, báo cáo học kỳ và hồ sơ dạy học trực tuyến | `score_entries`, `regular_comments` có sẵn |
+| 28e Thông báo, diễn đàn, hỏi đáp, học nhóm | 2 | Một bộ máy thảo luận cho lớp và nhóm, giáo viên luôn thấy, không tin nhắn riêng giữa học sinh, giờ mở, lọc, báo cáo; lịch học tập | Chưa có |
+| 28f Bài về nhà và phụ huynh | 3 | Giao từ sổ đầu bài, quy tắc khối lượng do trường tự cấu hình, phụ huynh xem và nộp thay, nhắc | `class_logs`, hàng đợi `notifications` có sẵn |
+| 28g Giờ học trực tuyến, phòng nhóm, phòng chia nhỏ | 3 | Dùng phòng video của 27a | Chưa có (chờ 27a) |
+| 28h SCORM và gói khoá học | 3 | Phát SCORM 1.2, 2004 trong khung cô lập; nhập xuất khoá học giữa các trường (mở rộng gói 22h2) | Gói `school-management.resource-package/1` của 22h2 có sẵn |
+| 28i Huy hiệu, chứng nhận | 4 | Tuỳ chọn, tắt mặc định, không bảng xếp hạng | Chưa có |
+| 28j Học khi mạng yếu | 4 | Bản nháp và tệp chờ gửi của học sinh lưu trên máy (vỏ PWA 26a) | Chưa có (chờ 26a) |

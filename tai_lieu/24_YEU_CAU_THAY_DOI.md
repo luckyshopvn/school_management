@@ -1,7 +1,7 @@
 # 24. YÊU CẦU THAY ĐỔI
 
 - Mô tả: Sổ quản lý yêu cầu thay đổi, ghi lý do, đánh giá ảnh hưởng và trạng thái của từng thay đổi trước khi triển khai.
-- Phiên bản: 0.74
+- Phiên bản: 0.76
 - Ngày cập nhật: 2026-10-26
 - Trạng thái: Đang cập nhật
 
@@ -26,6 +26,25 @@ Các thay đổi trước phiên bản 0.4.0 chưa có sổ này; xem `23_LICH_S
 - Kiểm thử cần thực hiện: typecheck, lint ba ứng dụng và `packages/ui`; e2e 165 (giao diện và máy chủ) cùng 01.
 - Trạng thái: Đã triển khai
 
+### YCTD-270: Kế hoạch DT-28: hệ thống quản lý học tập (LMS) – 2026-10-26
+
+- Lý do: Eric yêu cầu ngày 2026-10-26 bốn tính năng (giáo viên chia nhóm trong lớp, học nhóm trực tuyến, làm bài tập trực tuyến, giao bài tập về nhà), rồi cùng ngày mở rộng thành **phát triển hệ thống quản lý học tập (LMS)**, bốn tính năng là các phần. Trong mã đã có phân công giảng dạy, nhóm học sinh DT-14c, chia nhóm `jsonb` của 23b, kho học liệu và luồng duyệt 22h1, gói chia sẻ 22h2, ngân hàng câu hỏi và hàm chấm 22g1, 22g2, thang tiêu chí, sổ đầu bài, sổ điểm; đang làm 23a (kênh học sinh), 23d (AI); đã lên kế hoạch 26a (PWA), 27a (video), 27d (khoá học ghi sẵn), 27e (hỏi đáp). Chưa có khoá học hay bài tập về nhà. Thông tư 09/2021/TT-BGDĐT đặt chức năng tối thiểu cho hệ thống quản lý học tập trực tuyến ở trường phổ thông.
+- Nội dung thay đổi (Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11 ở những chỗ Eric chưa quyết):
+  - `32_KE_HOACH_THEO_HE_THONG_SO.md` phiên bản 1.79: thêm mục 20 "DT-28" (sau mục 19 của DT-27; mục 16, 17 vẫn để cho DT-24, DT-25): căn cứ và hiện trạng mã (20.1); căn cứ pháp lý (20.2: **Thông tư 09/2021/TT-BGDĐT đọc toàn văn bản gốc** và ánh xạ từng điều vào sản phẩm; Thông tư 15/2026/TT-BGDĐT bản gốc một phần; Thông tư 22/2021 Điều 6, 7 qua bản đăng lại; Thông tư 27/2020 theo tóm tắt của 20c; Công văn 3977/BGDĐT-GDTH, quy định học 2 buổi/ngày, văn bản sửa Thông tư 09 năm 2025 chưa xác minh; Luật 91/2025/QH15, Nghị định 356/2025/NĐ-CP theo S8a); đối chiếu Moodle, Google Classroom, Canvas, K12Online, VNPT E-Learning ở mức trang công khai và phạm vi chọn (20.3); đánh giá chuẩn SCORM 1.2, SCORM 2004, xAPI, cmi5, LTI 1.3, gói khoá học, Common Cartridge, Open Badges (20.4); nguyên tắc (20.5); mười phần 28a đến 28j trong bốn đợt, phân tệp lõi, thứ tự với DT-27, điều kiện ra (20.6); phạm vi chi tiết (20.7); phương án đã loại (20.8); rủi ro (20.9); quy ước (20.10); tiến độ (20.11); việc Eric E-01 đến E-05 (20.12); giả định GD-140 đến GD-157 (20.13).
+  - Mục 19 (DT-27): dòng 27d, 27e ở bảng phần, cách chia đợt, phạm vi chi tiết và tiến độ ghi thêm phụ thuộc vào lõi LMS (28b, 28d, 28e); 27d, 27e bắt đầu sau DT-28 đợt 2.
+  - Số giữ sẵn: YCTD-270 cho chính bản kế hoạch này; 28a YCTD-271, 28b YCTD-272, 28c YCTD-273, 28d YCTD-274, 28e YCTD-275, 28f YCTD-276, 28g YCTD-277, 28h YCTD-278, 28i YCTD-279, 28j YCTD-280; YCTD-281 đến YCTD-289 dự phòng; migration năm học 0170 đến 0199, hệ thống 0110 đến 0119, định danh 0180 đến 0189, nền tảng 0250 đến 0254 chỉ giữ chỗ; e2e `210-` đến `219-`, `220-` đến `224-` dự phòng; GD-140 đến GD-157; RR-32 đến RR-36. Đặt sau dải của DT-27 và tránh số của DT-24, DT-25 đã gộp.
+  - Đợt 1: 28a mô hình nhóm dùng chung, 28b lõi LMS; đợt 2: 28c bài tập, 28d tiến độ, sổ điểm, báo cáo, 28e thảo luận, hỏi đáp, học nhóm; đợt 3: 28f bài về nhà và phụ huynh, 28g video (27a), 28h SCORM và gói khoá học; đợt 4: 28i huy hiệu, chứng nhận, 28j học khi mạng yếu (26a).
+  - Quyết định thiết kế: tự làm LMS gọn trong School Management thay vì nhúng Moodle; lớp học trực tuyến tự sinh từ phân công; khoá học mẫu của tổ ở cơ sở dữ liệu hệ thống qua luồng duyệt 22h1, đẩy xuống lớp; bản của lớp, kết quả, nhật ký ở năm học; một bảng kết quả hoạt động chung; danh mục loại hoạt động cắm được; quyết định hình thức trực tuyến thay thế của Hiệu trưởng; kế hoạch dạy học trực tuyến theo tuần, báo cáo học kỳ, xuất hồ sơ theo Thông tư 09; mở rộng `child_groups` thêm bộ nhóm; điểm hoạt động chỉ vào điểm thường xuyên qua `ScoresService`, tắt mặc định; thảo luận, hỏi đáp, không gian nhóm cùng bộ máy, không tin nhắn riêng giữa học sinh; SCORM chạy ở tên miền con nội dung, khung cô lập; LTI, xAPI, cmi5 để sau; huy hiệu tắt mặc định, không bảng xếp hạng; AI gợi ý nhận xét mặc định không đọc bài làm.
+  - Quyết định của Eric ngày 2026-10-26 sau khi xem kế hoạch: GD-141 cho phép cả Tiểu học (THCS, THPT vào điểm thường xuyên; Tiểu học là căn cứ gợi ý nhận xét thường xuyên và mức đạt môn, giáo viên xác nhận, không điểm số; công tắc trường mặc định bật, giáo viên chọn từng hoạt động); GD-142 AI không đọc bài làm, bỏ chế độ gửi bài làm khỏi phạm vi; GD-143 quy tắc bài về nhà do trường tự cấu hình, nền tảng không đặt giới hạn mặc định, bảng mẫu chỉ ở hướng dẫn, E-02 thành tuỳ chọn; GD-145 phụ huynh xem không gian nhóm theo cấp như đề xuất. Mục 20.2, 20.5, 20.6, 20.7, 20.8, 20.9, 20.12, 20.13 và RR-33, RR-34, dòng GD ở `01` sửa theo.
+  - `01_KE_HOACH_TONG_THE.md` phiên bản 1.72: đợt DT-28, phụ thuộc mới của DT-27, RR-32 đến RR-36, GD-140 đến GD-157; `02_NHAT_KY_DU_AN.md` (0.77), `34_TONG_HOP_CHUC_NANG_HE_THONG/01_TONG_QUAN_VA_NEN_TANG.md` (mục 10 kế hoạch DT-28), `index.md` cập nhật tương ứng.
+- Thành phần bị ảnh hưởng: tài liệu `01`, `02`, `24`, `32`, `34`, `index.md`. Không đổi mã nguồn.
+- Dữ liệu bị ảnh hưởng: không.
+- API bị ảnh hưởng: không.
+- Giao diện bị ảnh hưởng: không.
+- Quyền bị ảnh hưởng: không.
+- Ảnh hưởng chức năng cũ: không. Phiên bản phần mềm giữ nguyên (thay đổi chỉ tài liệu); số phiên bản tài liệu đặt trên số của nhánh chính lúc viết; gộp sau thì đánh lại theo nhánh chính lúc gộp.
+- Kiểm thử cần thực hiện: rà bảng đủ cột; số YCTD, migration, e2e, GD, RR giữ sẵn không trùng DT-23, DT-26, DT-27 và các số của DT-24, DT-25 (PR 181, 182 đã gộp); kiểm tra định dạng tài liệu đạt.
+- Trạng thái: Đã triển khai
 ### YCTD-214: DT-23 phần 23d: trợ lý AI soạn câu hỏi và kế hoạch bài dạy – 2026-10-26
 
 - Lý do: phần 23d của `32_KE_HOACH_THEO_HE_THONG_SO.md` mục 15 (YCTD-210); Eric đồng ý đưa AI vào ngày 2026-10-26 và chốt GD-102 (hai cấu hình khóa), GD-103 (thu theo gói và token, số tiền để trống).
