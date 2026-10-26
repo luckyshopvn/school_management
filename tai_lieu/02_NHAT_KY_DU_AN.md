@@ -1,7 +1,7 @@
 # 02. NHẬT KÝ DỰ ÁN
 
 - Mô tả: Ghi nhận công việc, quyết định, thay đổi và vấn đề tồn đọng theo ngày, ngày mới nhất ở trên cùng.
-- Phiên bản: 0.72
+- Phiên bản: 0.73
 - Ngày cập nhật: 2026-10-26
 - Trạng thái: Đang cập nhật
 
@@ -20,23 +20,46 @@
 
 - Đọc mục 13 đến 15 của `32_KE_HOACH_THEO_HE_THONG_SO.md`, `33_HO_SO_PHAP_LY/`, `34_TONG_HOP_CHUC_NANG_HE_THONG/`; đối chiếu mã trên nhánh chính: thời khoá biểu và phân công, điểm danh, học phí và cổng thanh toán theo trường (S3), bảng lương có biểu thuế, thu phí nền tảng (S5b), nhắn tin, kiến trúc đa thuê bao (mỗi trường một bộ cơ sở dữ liệu, `platform` dùng chung). Xem dải số các phiên DT-24, DT-25 đang dùng để không va.
 - Tra văn bản ngày 2026-10-26: **đọc toàn văn bản gốc Thông tư 19/2026/TT-BGDĐT** (sửa Thông tư 29/2024, hiệu lực 15/05/2026; tệp quét ở Cổng thông tin điện tử Chính phủ); Thông tư 29/2024, Nghị định 52/2024, Thông tư 40/2024, Nghị định 117/2025, Luật Thương mại điện tử 122/2025 chỉ đọc được qua nguồn thứ cấp, ghi "chưa xác minh"; giá LiveKit Cloud, Cloudflare Realtime từ trang chính thức.
-- Viết mục 19 của `32`: căn cứ pháp lý và ràng buộc sản phẩm, ước lượng băng thông video, nguyên tắc, chín phần 27a đến 27i trong bốn đợt, phạm vi chi tiết, phương án đã loại, rủi ro, việc Eric phải quyết E-01 đến E-10, giả định GD-120 đến GD-128.
-- Thêm danh sách hồ sơ pháp lý PL-16 đến PL-21 vào `33_HO_SO_PHAP_LY/16_DANH_SACH_HO_SO_GIA_SU.md`; thêm đợt DT-27, RR-24 đến RR-27, GD-120 đến GD-128 vào `01`; mục kế hoạch DT-27 ở `34`.
+- Viết mục 19 của `32`: căn cứ pháp lý và ràng buộc sản phẩm, ước lượng băng thông video, nguyên tắc, chín phần 27a đến 27i trong bốn đợt, phạm vi chi tiết, phương án đã loại, rủi ro, việc Eric phải quyết E-01 đến E-10, giả định GD-130 đến GD-138.
+- Thêm danh sách hồ sơ pháp lý PL-16 đến PL-21 vào `33_HO_SO_PHAP_LY/16_DANH_SACH_HO_SO_GIA_SU.md`; thêm đợt DT-27, RR-28 đến RR-31, GD-130 đến GD-138 vào `01`; mục kế hoạch DT-27 ở `34`.
 
 #### Quyết định
 
 - Eric (ngày 2026-10-26): làm cả gia sư trong trường (trước) và chợ gia sư mở (sau); cả ba hình thức học (video trực tiếp, khoá học ghi sẵn, hỏi đáp có gợi ý AI nháp); thu phí qua nền tảng có hoàn tiền và tranh chấp.
 - Claude chọn theo ủy quyền: trong trường tiền vào thẳng tài khoản của trường, thù lao qua bảng lương; dạy thêm thuộc chương trình môn học trong trường khóa cứng "không thu tiền" (Thông tư 29/2024); chợ mở giữ và chia tiền qua tổ chức có giấy phép trung gian thanh toán (phương án A) hoặc trả thẳng gia sư (phương án B), không để tiền học vào tài khoản nền tảng; video LiveKit tự host, bộ nối đổi được; chợ dùng cơ sở dữ liệu `marketplace` và ứng dụng `apps/market` mới.
-- Số giữ sẵn: YCTD-240 (kế hoạch), YCTD-241 đến YCTD-249, dự phòng đến YCTD-254; năm học 0140 đến 0159, hệ thống 0090 đến 0099, định danh 0160 đến 0169, nền tảng 0240 đến 0249, `marketplace` từ 0001; e2e `180-` đến `194-`. Chừa YCTD-230 đến YCTD-239 cho DT-26; va số thì đánh lại theo nhánh chính lúc gộp.
+- Số giữ sẵn: YCTD-250 (kế hoạch), YCTD-251 đến YCTD-259, dự phòng đến YCTD-264; năm học 0150 đến 0169, hệ thống 0100 đến 0109, định danh 0170 đến 0179, nền tảng 0240 đến 0249, `marketplace` từ 0001; e2e `190-` đến `204-`. Dải đặt sau dải của DT-26 (PR 178); bản đầu của PR dùng YCTD-240, trùng DT-26, nên sau khi gộp nhánh chính đã đánh lại toàn bộ (YCTD, migration, e2e, GD, RR).
 
 #### Thay đổi
 
-- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-240, `32` mục 19 (phiên bản 1.75), `01` (1.68), `33_HO_SO_PHAP_LY/00_MUC_LUC.md`, `33_HO_SO_PHAP_LY/16_DANH_SACH_HO_SO_GIA_SU.md`, `34_TONG_HOP_CHUC_NANG_HE_THONG/01_TONG_QUAN_VA_NEN_TANG.md`, `index.md`. Chỉ đổi tài liệu, không tăng phiên bản phần mềm.
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-250, `32` mục 19 (phiên bản 1.76), `01` (1.69), `33_HO_SO_PHAP_LY/00_MUC_LUC.md`, `33_HO_SO_PHAP_LY/16_DANH_SACH_HO_SO_GIA_SU.md`, `34_TONG_HOP_CHUC_NANG_HE_THONG/01_TONG_QUAN_VA_NEN_TANG.md`, `index.md`. Chỉ đổi tài liệu, không tăng phiên bản phần mềm.
 
 #### Vấn đề tồn đọng
 
 - Chờ Eric: tỷ lệ hoa hồng, chọn tổ chức thanh toán có phép, pháp nhân vận hành chợ, báo giá VPS, luật sư rà (E-01 đến E-10 ở `32` mục 19.10).
-- Mục 16 đến 18 của `32` để cho DT-24, DT-25, DT-26 đang viết song song; nếu lúc gộp số mục khác thì đánh lại số mục 19.
+- Mục 16, 17 của `32` để cho DT-24, DT-25; mục 18 là DT-26 (đã gộp).
+
+### 2026-10-26 — Kế hoạch DT-26: PWA, máy tính bảng, ứng dụng di động
+
+#### Công việc đã thực hiện
+
+- Đối chiếu mã trên nhánh chính sau PR 177: `apps/teacher`, `apps/parent` (React 19, Vite, Tailwind 4, bố cục một cột, chưa có manifest, service worker, thông báo đẩy), thương hiệu trường của S3, hàng đợi thông báo chung (`queueNotification`, `notification-dispatch`, kênh `in_app`, `sms`, `zalo`), `packages/ui` (`DataGrid`, `FormLayout`), cấu hình Playwright (một dự án `chromium`) và các việc CI sau PR 177. Đọc phần đang làm song song: service worker, manifest của 23b; kênh `student` và màn hình học sinh của 23a; số migration DT-24, DT-25 đang dùng trên nhánh làm việc.
+- Viết mục 18 của `32`: căn cứ, nguyên tắc, tám phần 26a đến 26h chạy ba đợt (PWA, máy tính bảng, ứng dụng cài đặt), phạm vi chi tiết, quyết định thiết kế và phương án đã loại, rủi ro, quy ước, tiến độ, giả định GD-120 đến GD-127, việc Eric phải làm; đánh dấu cập nhật ở 14.6, 15.5.
+- Thêm đợt DT-26, RR-25 đến RR-27, GD-120 đến GD-127 vào `01`; thêm mục 6 kế hoạch DT-26 vào `34` tệp 01.
+
+#### Quyết định
+
+- Eric (ngày 2026-10-26) yêu cầu làm theo thứ tự PWA, bố cục máy tính bảng, ứng dụng cài đặt iOS và Android; ứng dụng di động không còn là phương án đã loại của 14.6, 15.5.
+- Claude chọn (theo ủy quyền ngày 2026-10-11): đóng gói mã web bằng Capacitor, một ứng dụng có chọn vai trò, học sinh dùng PWA; thông báo đẩy là kênh `push` của hàng đợi chung với bộ nối Web Push, FCM, APNs; nội dung đẩy không có dữ liệu cá nhân; kiểm thử thiết bị ở việc CI riêng, yêu cầu kéo chạy tập con.
+- Số giữ sẵn: YCTD-230 (kế hoạch) và YCTD-231 đến YCTD-238, dự phòng đến YCTD-244; hệ thống từ 0090, năm học từ 0140, định danh từ 0160, nền tảng từ 0230; e2e từ `180-`; chừa khoảng trống cho DT-24, DT-25.
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-230, `32_KE_HOACH_THEO_HE_THONG_SO.md` mục 18 (phiên bản 1.75), `01_KE_HOACH_TONG_THE.md` (1.68), `34_TONG_HOP_CHUC_NANG_HE_THONG/01_TONG_QUAN_VA_NEN_TANG.md`, `index.md`. Chỉ đổi tài liệu, không tăng phiên bản phần mềm.
+
+#### Vấn đề tồn đọng
+
+- Còn chờ Eric: tên ứng dụng, mã gói (GD-120), một hay hai ứng dụng (GD-121), pháp nhân và hai tài khoản nhà phát triển (Apple 99 USD mỗi năm, Google Play 25 USD một lần, GD-124), các khóa cho secrets, luật sư rà hồ sơ quyền riêng tư trước khi nộp.
+- Mục 16, 17 của `32` và số giữ sẵn của DT-24, DT-25 chưa có trên nhánh chính; phiên điều phối kiểm lại dải số DT-26 khi giao phần.
 
 ### 2026-10-26 — Kế hoạch DT-23: thi trực tuyến, công cụ lớp học, trò chơi kiến thức, trợ lý AI
 
