@@ -6275,6 +6275,179 @@ export interface ExamVariantsTable {
   created_at: CreatedTimestamp;
 }
 
+// Lõi hệ thống quản lý học tập (DT-28 phần 28b, YCTD-272)
+export type CourseSpaceKind = 'class_subject' | 'elective';
+export type CourseActivityKind =
+  | 'resource'
+  | 'page'
+  | 'link'
+  | 'exam'
+  | 'live_session'
+  | 'assignment'
+  | 'discussion'
+  | 'question_board'
+  | 'group_work'
+  | 'scorm';
+export type CourseActivityCompletionRule = 'view' | 'submit' | 'pass' | 'teacher';
+export type ActivityResultStatus = 'not_started' | 'in_progress' | 'completed' | 'passed' | 'failed' | 'excused';
+export type ActivityResultLevel = 'excellent' | 'completed' | 'not_completed';
+export type TeachingMode = 'support' | 'replace';
+export type LearningEventVerb =
+  'opened' | 'viewed' | 'progressed' | 'completed' | 'submitted' | 'scored' | 'published' | 'unlocked' | 'acknowledged';
+
+export interface CourseSpacesTable {
+  id: Generated<string>;
+  kind: CourseSpaceKind;
+  class_id: string | null;
+  subject_id: string | null;
+  school_level: 'TH' | 'THCS' | 'THPT';
+  grade_level: string | null;
+  title: string;
+  description: string | null;
+  visible_to_students: Generated<boolean>;
+  status: Generated<'active' | 'archived'>;
+  enrollment_mode: Generated<'teacher' | 'request'>;
+  capacity: number | null;
+  source_template_id: string | null;
+  source_template_version: number | null;
+  created_by: string | null;
+  created_at: CreatedTimestamp;
+  updated_at: UpdatedTimestamp;
+}
+
+export interface CourseSpaceTeachersTable {
+  space_id: string;
+  user_id: string;
+  user_name: string;
+  source: 'assignment' | 'timetable' | 'manual';
+  created_at: CreatedTimestamp;
+}
+
+export interface CourseEnrollmentsTable {
+  space_id: string;
+  child_id: string;
+  status: Generated<'requested' | 'active' | 'removed'>;
+  requested_by: string | null;
+  decided_by: string | null;
+  decided_at: Date | null;
+  created_at: CreatedTimestamp;
+}
+
+export interface CourseSectionsTable {
+  id: Generated<string>;
+  space_id: string;
+  title: string;
+  position: number;
+  planned_week: number | null;
+  template_section_key: string | null;
+  created_at: CreatedTimestamp;
+  updated_at: UpdatedTimestamp;
+}
+
+export interface CourseActivitiesTable {
+  id: Generated<string>;
+  space_id: string;
+  section_id: string;
+  kind: CourseActivityKind;
+  title: string;
+  lesson_label: string | null;
+  instructions: string | null;
+  position: number;
+  status: Generated<'draft' | 'published'>;
+  required: Generated<boolean>;
+  teaching_mode: Generated<TeachingMode>;
+  estimated_minutes: number | null;
+  opens_at: Date | null;
+  due_at: Date | null;
+  closes_at: Date | null;
+  group_set_id: string | null;
+  // { mode: 'all' | 'any', rules: [...] }
+  open_rules: JsonValue;
+  completion_rule: Generated<CourseActivityCompletionRule>;
+  graded: Generated<boolean>;
+  // numeric đọc ra chuỗi
+  weight: ColumnType<string, string | number | undefined, string | number>;
+  pass_score: ColumnType<string | null, string | number | null | undefined, string | number | null>;
+  planned_week: number | null;
+  settings: ColumnType<unknown, string | undefined, string>;
+  template_item_key: string | null;
+  edited_locally: Generated<boolean>;
+  created_by: string | null;
+  created_at: CreatedTimestamp;
+  updated_at: UpdatedTimestamp;
+}
+
+export interface ActivityExceptionsTable {
+  activity_id: string;
+  child_id: string;
+  unlocked: Generated<boolean>;
+  due_at: Date | null;
+  reason: string;
+  granted_by: string;
+  granted_by_name: string;
+  created_at: CreatedTimestamp;
+}
+
+export interface ActivityResultsTable {
+  id: Generated<string>;
+  activity_id: string;
+  child_id: string;
+  status: ActivityResultStatus;
+  progress: number | null;
+  score: ColumnType<string | null, string | number | null | undefined, string | number | null>;
+  level: ActivityResultLevel | null;
+  source: string;
+  completed_at: Date | null;
+  recorded_by: string | null;
+  updated_at: UpdatedTimestamp;
+}
+
+export interface LearningEventsTable {
+  id: Generated<string>;
+  space_id: string;
+  activity_id: string | null;
+  child_id: string | null;
+  actor_user_id: string;
+  actor_kind: 'teacher' | 'student' | 'guardian' | 'staff';
+  verb: LearningEventVerb;
+  result: JsonValue;
+  occurred_at: CreatedTimestamp;
+}
+
+export interface OnlineTeachingDecisionsTable {
+  id: Generated<string>;
+  decision_no: string;
+  decision_date: string;
+  reason: string;
+  // Mã lớp áp dụng; mảng rỗng là toàn trường
+  class_ids: ColumnType<unknown, string | undefined, string>;
+  starts_on: string;
+  ends_on: string;
+  status: Generated<'active' | 'revoked'>;
+  created_by: string;
+  created_by_name: string;
+  revoked_by: string | null;
+  revoked_at: Date | null;
+  created_at: CreatedTimestamp;
+}
+
+export interface OnlineLearningRulesTable {
+  id: Generated<string>;
+  version: number;
+  content: string;
+  published_by: string;
+  published_by_name: string;
+  published_at: CreatedTimestamp;
+}
+
+export interface OnlineLearningRuleAcksTable {
+  rule_id: string;
+  child_id: string;
+  acknowledged_by: string;
+  acknowledged_as: 'student' | 'guardian';
+  acknowledged_at: CreatedTimestamp;
+}
+
 // Gia sư trong trường (DT-27 phần 27b, YCTD-252)
 export type TutoringContentType = 'curriculum' | 'enrichment';
 export type TutoringAudience = 'below_standard' | 'gifted' | 'final_year_review';
@@ -6873,6 +7046,17 @@ export interface SchoolYearDatabase {
   classroom_call_logs: ClassroomCallLogsTable;
   classroom_groupings: ClassroomGroupingsTable;
   classroom_score_events: ClassroomScoreEventsTable;
+  course_spaces: CourseSpacesTable;
+  course_space_teachers: CourseSpaceTeachersTable;
+  course_enrollments: CourseEnrollmentsTable;
+  course_sections: CourseSectionsTable;
+  course_activities: CourseActivitiesTable;
+  activity_exceptions: ActivityExceptionsTable;
+  activity_results: ActivityResultsTable;
+  learning_events: LearningEventsTable;
+  online_teaching_decisions: OnlineTeachingDecisionsTable;
+  online_learning_rules: OnlineLearningRulesTable;
+  online_learning_rule_acks: OnlineLearningRuleAcksTable;
   tutoring_rules: TutoringRulesTable;
   tutoring_programs: TutoringProgramsTable;
   tutoring_program_teachers: TutoringProgramTeachersTable;

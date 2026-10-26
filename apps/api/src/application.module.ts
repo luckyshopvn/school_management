@@ -507,6 +507,9 @@ import { AI_PROVIDERS, AiAssistantService } from './ai-assistant/ai-assistant.js
 import { AiProviderRegistry } from './ai-assistant/ai-provider.js';
 import { ClassroomToolsController, ClassroomToolsService } from './classroom-tools/classroom-tools.js';
 import { GroupSetsController, GroupSetsReader, GroupSetsService } from './child-groups/group-sets.js';
+import { LearningController } from './learning/learning.controller.js';
+import { StudentLearningController } from './learning/student-learning.controller.js';
+import { LearningService } from './learning/learning.js';
 
 @Module({})
 export class ApplicationModule {
@@ -789,6 +792,8 @@ export class ApplicationModule {
         // Trợ lý AI (DT-23 phần 23d)
         AiAssistantController,
         ClassroomToolsController,
+        // Lõi hệ thống quản lý học tập (DT-28 phần 28b)
+        LearningController,
         // Thông báo đẩy Web Push (DT-26 phần 26b)
         PushController,
         PublicPushController,
@@ -798,6 +803,8 @@ export class ApplicationModule {
         // Thi trực tuyến cho học sinh (DT-23 phần 23a)
         OnlineExamsController,
         StudentExamsController,
+        // Học sinh tự học ở lớp học trực tuyến (DT-28 phần 28b)
+        StudentLearningController,
         // Gia sư trong trường (DT-27 phần 27b)
         TutoringController,
         ChildTutoringController,
@@ -1191,6 +1198,7 @@ export class ApplicationModule {
         ClassroomToolsService,
         GroupSetsReader,
         GroupSetsService,
+        LearningService,
         {
           provide: FileStorage,
           inject: [SchoolSettings],

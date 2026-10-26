@@ -8,6 +8,9 @@ import { SyncAccountsPage } from './accounts/SyncAccountsPage.js';
 import { ApiClientsPage } from './accounts/ApiClientsPage.js';
 import { IntegrationsPage } from './settings/IntegrationsPage.js';
 import { AiAssistantPage } from './ai-assistant/AiAssistantPage.js';
+import { CourseTemplatesPage } from './learning/CourseTemplatesPage.js';
+import { OnlineClassesPage } from './learning/OnlineClassesPage.js';
+import { OnlineTeachingPage } from './learning/OnlineTeachingPage.js';
 import { NotificationsPage } from './notifications/NotificationsPage.js';
 import { ApprovalThresholdsPage } from './catalogs/ApprovalThresholdsPage.js';
 import { CommonCatalogPage } from './catalogs/CommonCatalogPage.js';
@@ -808,6 +811,10 @@ const routeTree = rootRoute.addChildren([
   createRoute({ getParentRoute: () => rootRoute, path: '/tutoring/finance', component: TutoringFinancePage }),
   // Trợ lý AI soạn nháp (DT-23 phần 23d)
   createRoute({ getParentRoute: () => rootRoute, path: '/ai-assistant', component: AiAssistantPage }),
+  // Lõi hệ thống quản lý học tập (DT-28 phần 28b)
+  createRoute({ getParentRoute: () => rootRoute, path: '/online-classes', component: OnlineClassesPage }),
+  createRoute({ getParentRoute: () => rootRoute, path: '/course-templates', component: CourseTemplatesPage }),
+  createRoute({ getParentRoute: () => rootRoute, path: '/online-teaching', component: OnlineTeachingPage }),
 ]);
 
 // Đường dẫn gốc lúc dựng (APP_BASE_PATH của vite, DT-SaaS phần S9): /quan-ly/ ở hồ sơ thử nghiệm, / mặc định
