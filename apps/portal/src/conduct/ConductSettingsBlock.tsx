@@ -26,6 +26,9 @@ export function ConductSettingsBlock({ editable, onSaved }: { editable: boolean;
   if (settings.isError) {
     return null;
   }
+  // Chưa tải xong cấu hình thì chưa cho sửa: dữ liệu về sau sẽ đặt lại ô chọn, ghi đè thao tác của người dùng (và lưu nhầm giá trị
+  // mặc định nếu bấm Lưu sớm)
+  const loaded = settings.data !== undefined;
   return (
     <section
       className="flex flex-col gap-4 rounded-xl border border-border bg-card p-4"
@@ -42,7 +45,7 @@ export function ConductSettingsBlock({ editable, onSaved }: { editable: boolean;
           <input
             type="checkbox"
             checked={enabled}
-            disabled={!editable}
+            disabled={!editable || !loaded}
             onChange={(event) => setEnabled(event.target.checked)}
           />
           Bật nề nếp, thi đua lớp
@@ -51,11 +54,11 @@ export function ConductSettingsBlock({ editable, onSaved }: { editable: boolean;
           label="Điểm nền mỗi tuần"
           inputMode="numeric"
           value={basePoints}
-          disabled={!editable}
+          disabled={!editable || !loaded}
           onChange={(event) => setBasePoints(event.target.value)}
         />
         {editable ? (
-          <Button onClick={() => save.mutate()} disabled={save.isPending}>
+          <Button onClick={() => save.mutate()} disabled={save.isPending || !loaded}>
             Lưu nề nếp
           </Button>
         ) : null}
