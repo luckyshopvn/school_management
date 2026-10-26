@@ -36,6 +36,7 @@ export * from './level-structure.js';
 export * from './class-records.js';
 export * from './training.js';
 export * from './learning-resources.js';
+export * from './online-exams.js';
 
 export const API_VERSION_PREFIX = '/api/v1';
 
@@ -304,6 +305,9 @@ export const PERMISSION_CODES = {
   examManage: 'P02.exam.manage',
   // Chấm bài kiểm tra (DT-21 phần 22g2)
   examGrade: 'P02.exam.grade',
+  // Thi trực tuyến cho học sinh (DT-23 phần 23a): giao đề, theo dõi, chấm (giáo viên); làm bài (học sinh, kênh student)
+  examAssign: 'P02.exam.assign',
+  examTake: 'P02.exam.take',
 } as const;
 
 // Danh mục chứng từ áp dụng hạn mức phê duyệt (07_QUY_TAC_NGHIEP_VU.md mục 12.1, BR-77)
@@ -680,6 +684,10 @@ export const PORTAL_QUICK_LINK_PATHS = [
   // Chấm bài kiểm tra, báo cáo (DT-21 phần 22g2)
   '/exam-grading',
   '/exam-reports',
+  // Thi trực tuyến (DT-23 phần 23a)
+  '/online-exams',
+  '/online-exams/monitor',
+  '/online-exams/settings',
 ] as const;
 
 export type PortalQuickLinkPath = (typeof PORTAL_QUICK_LINK_PATHS)[number];

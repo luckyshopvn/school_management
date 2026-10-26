@@ -36,6 +36,9 @@ import { AssessmentPlansPage } from './exams/AssessmentPlansPage.js';
 import { ExamsPage } from './exams/ExamsPage.js';
 import { ExamGradingPage } from './exam-grading/ExamGradingPage.js';
 import { ExamReportsPage } from './exam-grading/ExamReportsPage.js';
+import { OnlineExamsPage } from './online-exams/OnlineExamsPage.js';
+import { OnlineExamMonitorPage } from './online-exams/OnlineExamMonitorPage.js';
+import { OnlineExamSettingsPage } from './online-exams/OnlineExamSettingsPage.js';
 import { ChildrenPage } from './children/ChildrenPage.js';
 import { StudentMovementsPage } from './children/StudentMovementsPage.js';
 import { DefaultPasswordsPage } from './students/DefaultPasswordsPage.js';
@@ -779,6 +782,10 @@ const routeTree = rootRoute.addChildren([
   createRoute({ getParentRoute: () => rootRoute, path: '/library/stocktakes', component: LibraryStocktakesPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/library/reports', component: LibraryReportsPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/library/settings', component: LibrarySettingsPage }),
+  // Thi trực tuyến cho học sinh (DT-23 phần 23a)
+  createRoute({ getParentRoute: () => rootRoute, path: '/online-exams', component: OnlineExamsPage }),
+  createRoute({ getParentRoute: () => rootRoute, path: '/online-exams/monitor', component: OnlineExamMonitorPage }),
+  createRoute({ getParentRoute: () => rootRoute, path: '/online-exams/settings', component: OnlineExamSettingsPage }),
 ]);
 
 // Đường dẫn gốc lúc dựng (APP_BASE_PATH của vite, DT-SaaS phần S9): /quan-ly/ ở hồ sơ thử nghiệm, / mặc định

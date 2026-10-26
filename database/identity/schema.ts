@@ -5,7 +5,8 @@ type CreatedTimestamp = ColumnType<Date, Date | undefined, never>;
 type UpdatedTimestamp = ColumnType<Date, Date | undefined, Date>;
 
 export type UserStatus = 'active' | 'locked';
-export type SessionChannel = 'portal' | 'teacher' | 'parent';
+// Kênh student của học sinh (DT-23 phần 23a)
+export type SessionChannel = 'portal' | 'teacher' | 'parent' | 'student';
 // Đăng nhập thay (DT-18 phần 18h) mở phiên của tài khoản được đăng nhập thay với cách đăng nhập 'impersonation'
 export type LoginMethod = 'password' | 'one_time_code' | 'impersonation';
 
@@ -208,6 +209,13 @@ export interface UserRecoveryCodesTable {
   created_at: CreatedTimestamp;
 }
 
+// Người dùng của kênh student nối một-một với tài khoản học và thi của học sinh (DT-23 phần 23a)
+export interface StudentAccountsTable {
+  user_id: string;
+  learning_username: string;
+  created_at: CreatedTimestamp;
+}
+
 export interface IdentityDatabase {
   users: UsersTable;
   user_totp: UserTotpTable;
@@ -227,4 +235,5 @@ export interface IdentityDatabase {
   password_history: PasswordHistoryTable;
   user_school_levels: UserSchoolLevelsTable;
   user_preferences: UserPreferencesTable;
+  student_accounts: StudentAccountsTable;
 }
