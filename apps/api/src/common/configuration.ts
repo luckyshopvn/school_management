@@ -27,6 +27,9 @@ export interface ApiConfiguration {
   systemDatabaseUrl: string;
   // Tên cơ sở dữ liệu năm học có dạng <tiền tố><năm bắt đầu>_<năm kết thúc>
   schoolYearDatabasePrefix: string;
+  // Chỉ kiểm thử: tạo cơ sở dữ liệu năm học bằng bản sao của cơ sở dữ liệu mẫu đã chạy tệp thay đổi cấu trúc thay cho cơ sở dữ
+  // liệu rỗng; bước chạy tệp thay đổi cấu trúc sau đó giữ nguyên
+  schoolYearDatabasesFromTemplate?: boolean;
   // Khóa mã hóa và khóa băm số định danh của trẻ, mỗi khóa 32 byte (BM-64, YCTD-45)
   childDataEncryptionKey: Buffer;
   childDataHashKey: Buffer;
