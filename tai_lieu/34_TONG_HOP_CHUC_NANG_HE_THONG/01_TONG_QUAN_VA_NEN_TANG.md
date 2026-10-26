@@ -2,7 +2,7 @@
 
 - Mô tả: Mục tiêu, đối tượng dùng, cấp học, kiến trúc, đăng nhập và phân quyền, chọn phân hệ, thông báo, DT-SaaS đa thuê bao
 - Phiên bản: 1.0
-- Ngày cập nhật: 2026-10-25
+- Ngày cập nhật: 2026-10-26
 - Trạng thái: Chờ phê duyệt
 - Thuộc: [Tài liệu 34, tổng hợp chức năng hệ thống](00_MUC_LUC.md)
 - Nguồn: mã và tài liệu trên nhánh `main` ngày 2026-10-25 (sau PR 165, 166, 167, 169, 170). Khi tài liệu và mã lệch nhau, mô tả theo mã; chỗ lệch ghi ở [phụ lục](07_MA_TRAN_VAI_TRO_VA_PHU_LUC.md)
@@ -758,3 +758,14 @@ stateDiagram-v2
 ```
 
 Ghi chú: lệnh `platform relayout` (S9) không đổi trạng thái; nó chỉ nhận trường nguồn đang `suspended` hoặc `read_only`. `provisioning`, `deleted` trả 404 chung; `suspended`, `pending_deletion` trả 503 và bộ lập lịch bỏ qua trường; `trial`, `active` được phục vụ đủ; `read_only` chỉ đọc (ghi trả 403 `SCHOOL_READ_ONLY`). Người vận hành còn đổi trực tiếp giữa `trial`, `active`, `read_only`, `suspended` ở trang Gói dịch vụ.
+
+## 5. DT-23: kế hoạch (chưa có trong mã)
+
+Nguồn: tài liệu 32 mục 15, YCTD-210. Mục này chỉ ghi để người đọc biết phần sắp làm; chưa có bảng, tuyến hay màn hình nào trong mã. Khi từng phần gộp, chuyển phần đó sang các mục mô tả theo mã.
+
+| Phần | Đợt | Nội dung kế hoạch (tài liệu 32 mục 15.3) | Dấu hiệu trong mã |
+|---|---|---|---|
+| 23a Thi trực tuyến cho học sinh | 1 | Kênh đăng nhập `student`, giao đề, làm bài có đếm ngược theo đồng hồ máy chủ, chấm tự động câu trắc nghiệm, chuyển điểm vào sổ điểm theo luồng 22g2, ghi sự kiện rời trang | `SessionChannel` chỉ có `portal`, `teacher`, `parent`; `student_learning_accounts` chưa có đăng nhập |
+| 23b Công cụ lớp học | 1 | Gọi tên ngẫu nhiên, chia nhóm, đếm ngược, bấm giờ, bảng điểm nhanh gắn nề nếp, ngoại tuyến | Ứng dụng giáo viên chưa có service worker, manifest |
+| 23d Trợ lý AI | 1 | Soạn câu hỏi và kế hoạch bài dạy nháp, tắt mặc định theo trường, chỉ gửi nội dung chương trình, hạn mức theo gói | `IntegrationSecretConnector` chưa có `ai`; chưa có nơi nào gọi dịch vụ AI |
+| 23c Trò chơi kiến thức và thẻ đáp án giấy | 2 | Ô chữ, vòng quay, hỏi đáp theo vòng sinh từ ngân hàng câu hỏi; thẻ đáp án giấy đọc bằng camera | Chưa có |

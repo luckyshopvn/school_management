@@ -1,8 +1,8 @@
 # 24. YÊU CẦU THAY ĐỔI
 
 - Mô tả: Sổ quản lý yêu cầu thay đổi, ghi lý do, đánh giá ảnh hưởng và trạng thái của từng thay đổi trước khi triển khai.
-- Phiên bản: 0.68
-- Ngày cập nhật: 2026-10-25
+- Phiên bản: 0.69
+- Ngày cập nhật: 2026-10-26
 - Trạng thái: Đang cập nhật
 
 ## Quy ước
@@ -10,6 +10,25 @@
 Mã yêu cầu thay đổi dạng `YCTD-nn`, đánh số tăng dần, không tái sử dụng. Mục mới nhất ở trên cùng. Trạng thái dùng bốn giá trị: Chờ phê duyệt, Đã phê duyệt, Từ chối, Đã triển khai.
 
 Các thay đổi trước phiên bản 0.4.0 chưa có sổ này; xem `23_LICH_SU_PHIEN_BAN.md` các phiên bản 0.1.0 đến 0.3.1.
+
+### YCTD-210: Kế hoạch DT-23: thi trực tuyến, công cụ lớp học, trò chơi kiến thức, trợ lý AI – 2026-10-26
+
+- Lý do: Eric xem báo cáo khảo sát một hệ thống dạy học trực tuyến của bên khác và chọn đề xuất 1, 2, 3, 5 ngày 2026-10-26, chỉ học ý tưởng tính năng, không sao chép nội dung, tên gọi hay giao diện; đồng ý đưa AI vào (thay câu "không dùng AI" của DT-22). Phiên điều phối giao viết kế hoạch vào `32_KE_HOACH_THEO_HE_THONG_SO.md` như đã làm cho DT-22 và DT-SaaS.
+- Nội dung thay đổi (Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11 ở những chỗ Eric chưa quyết):
+  - `32_KE_HOACH_THEO_HE_THONG_SO.md` phiên bản 1.74: thêm mục 15 "DT-23" gồm căn cứ và hiện trạng mã (15.1), nguyên tắc (15.2), bốn phần 23a đến 23d chạy hai đợt, tối đa ba phiên một lúc (15.3), phạm vi chi tiết (15.4), quyết định thiết kế và phương án đã loại (15.5), rủi ro và cổng kiểm (15.6), quy ước chung (15.7), tiến độ (15.8), giả định chưa chốt GD-102 đến GD-108 (15.9); sửa các chỗ ghi "không dùng AI" ở 9.2, 13.1, 13.5, 13.7 thành phạm vi cho phép của 23d (đánh dấu cập nhật 2026-10-26).
+  - Số giữ sẵn: YCTD-210 cho chính bản kế hoạch này, 23a YCTD-211, 23b YCTD-212, 23c YCTD-213, 23d YCTD-214, YCTD-215 đến YCTD-219 dự phòng; migration năm học 0120 đến 0129, hệ thống 0070 đến 0079, định danh 0120 đến 0129, nền tảng 0200 đến 0209; e2e `150-` đến `153-` (154 đến 159 dự phòng). Dải này nằm sau mọi số giữ của DT-SaaS (YCTD-209, năm học 0119, hệ thống 0069, định danh 0119, nền tảng 0199, e2e 149). Số giữ chỗ AI cũ của DT-22 (YCTD-185, năm học 0104, hệ thống 0043, định danh 0094, e2e 124) hết hiệu lực, để trống.
+  - Đợt 1: 23a, 23b, 23d; đợt 2: 23c (sau 23a và 23b). Mỗi phần chạy được ở cả hai bố cục cơ sở dữ liệu `database` và `schema`, đạt kiểm tĩnh đa thuê bao và ma trận cách ly.
+  - Quyết định thiết kế: học sinh đăng nhập qua kênh `student` riêng gắn tài khoản học và thi, màn hình học sinh đặt trong ứng dụng phụ huynh; đồng hồ và đáp án ở máy chủ; chuyển điểm bằng luồng 22g2 có giáo viên xác nhận; ngoại tuyến bằng service worker chỉ cho công cụ lớp học; thẻ đáp án giấy tự thiết kế, xử lý hình ở máy, không tải hình lên; AI là bộ nối cấu hình được (mặc định Claude, mã mô hình cấu hình), khóa lưu mã hóa theo trường (bộ nối `ai` của S3), tắt mặc định, chỉ gửi nội dung chương trình, kết quả luôn là bản nháp qua luồng duyệt 22g1 và kiểm duyệt 22h1, nhật ký yêu cầu, hạn mức là giới hạn mới của gói (S5a); ràng buộc pháp lý ghi để 23d đọc văn bản gốc (Luật Bảo vệ dữ liệu cá nhân số 91/2025/QH15, Nghị định 356/2025/NĐ-CP, chuyển dữ liệu ra nước ngoài nếu nhà cung cấp ở nước ngoài).
+  - Không làm ở DT-23: đăng nhập Google, Đoàn Đội, quảng bá thương mại, gói cá nhân, chấm tự luận bằng AI, AI xem dữ liệu học sinh, giám sát bằng camera.
+  - `01_KE_HOACH_TONG_THE.md` phiên bản 1.67: thêm đợt DT-23 ở mục 5, rủi ro RR-19, RR-20 ở mục 10, giả định GD-102 đến GD-108 ở mục 15; `02_NHAT_KY_DU_AN.md`, `34_TONG_HOP_CHUC_NANG_HE_THONG/` (mục kế hoạch DT-23, bỏ câu "không gọi AI" ở học liệu cho đúng quyết định mới), `index.md` cập nhật tương ứng.
+- Thành phần bị ảnh hưởng: tài liệu `01`, `02`, `24`, `32`, `34`, `index.md`. Không đổi mã nguồn.
+- Dữ liệu bị ảnh hưởng: không.
+- API bị ảnh hưởng: không.
+- Giao diện bị ảnh hưởng: không.
+- Quyền bị ảnh hưởng: không.
+- Ảnh hưởng chức năng cũ: không. Phiên bản phần mềm giữ nguyên (thay đổi chỉ tài liệu); số phiên bản tài liệu đặt trên số của nhánh chính lúc viết; phần gộp sau đánh lại số tài liệu theo nhánh chính lúc gộp.
+- Kiểm thử cần thực hiện: rà bảng không thiếu dấu `|` kết thúc; số YCTD, migration, e2e giữ sẵn không trùng DT-22, DT-SaaS và không trùng giữa các phần; số GD, RR mới không trùng; kiểm tra định dạng tài liệu đạt.
+- Trạng thái: Đã triển khai
 
 ### YCTD-202: DT-SaaS phần S6: đơn vị cấp trên – 2026-10-26
 
