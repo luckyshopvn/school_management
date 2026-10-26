@@ -660,7 +660,7 @@ Không còn mục chưa xác minh. Các mục trước đây đã được trả
 | GD-103 | Eric đã chốt ngày 2026-10-26 (DT-23): AI thu theo gói và theo token sử dụng, có màn hình thiết lập riêng; số tiền cụ thể là dữ liệu quản trị nền tảng nhập | Eric (số tiền) |
 | GD-104 | DT-23: thời hạn giữ nhật ký yêu cầu AI (12 tháng) | Eric |
 | GD-105 | Eric đã chốt ngày 2026-10-26 (DT-23): học sinh tự đăng nhập làm bài ở mọi cấp học, trường có công tắc tắt theo cấp | Eric (đã chốt) |
-| GD-106 | DT-23: mức chống gian lận cơ bản, không camera, điểm cần giáo viên xác nhận | Eric |
+| GD-106 | Eric đã chốt ngày 2026-10-26 (DT-23): chống gian lận bằng khóa toàn màn hình và camera; camera xử lý trên máy học sinh, chỉ gửi sự kiện, không gửi hình hay video; ảnh định kỳ tắt mặc định, chỉ bật khi có đồng ý của cha mẹ; điểm cần giáo viên xác nhận | Eric (đã chốt hướng) |
 | GD-107 | DT-23: thư viện đọc thẻ đáp án giấy, chọn và ghi giấy phép lúc làm | Claude (theo ủy quyền) |
 | GD-108 | Eric đã chốt ngày 2026-10-26 (DT-23): ngoại tuyến của ứng dụng giáo viên chỉ cho công cụ lớp học, danh sách lớp lưu 24 giờ | Eric (đã chốt) |
 | Q-128 | Đã trả lời ngày 09/10/2026: giữ cách dùng điều kiện vào, điều kiện ra, không đặt mốc ngày | Eric |
