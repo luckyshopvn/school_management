@@ -80,6 +80,7 @@ import { migration as createStudentAccounts } from './migrations/0121_create_stu
 import { migration as createLoginHandoffs } from './migrations/0130_create_login_handoffs.js';
 import { migration as createExternalIdentities } from './migrations/0140_create_external_identities.js';
 import { migration as addTutoringPermissions } from './migrations/0172_add_tutoring_permissions.js';
+import { migration as addLearningPermissions } from './migrations/0180_add_learning_permissions.js';
 
 // Danh sách tệp thay đổi cấu trúc của cơ sở dữ liệu định danh, theo số thứ tự (QU-01)
 export const identityMigrations: Record<string, Migration> = {
@@ -168,4 +169,6 @@ export const identityMigrations: Record<string, Migration> = {
   '0140_create_external_identities': createExternalIdentities,
   // Gia sư trong trường (DT-27 phần 27b)
   '0172_add_tutoring_permissions': addTutoringPermissions,
+  // Quyền của lõi hệ thống quản lý học tập (DT-28 phần 28b): 0180
+  '0180_add_learning_permissions': addLearningPermissions,
 };
