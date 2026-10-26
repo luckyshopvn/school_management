@@ -36,6 +36,27 @@ async function findUnitId(name: string): Promise<string> {
   }
 }
 
+// Tên giáo viên chủ nhiệm đang phân công của một lớp (để lọc lưới phân công theo tên)
+async function homeroomTeacherName(className: string): Promise<string> {
+  const systemUrl = readConnectionString('system');
+  const [databaseName] = await listDatabasesWithPrefix(systemUrl, E2E_SCHOOL_YEAR_DATABASE_PREFIX);
+  const schoolYear = createDatabase<SchoolYearDatabase>(replaceDatabaseName(systemUrl, databaseName ?? ''));
+  try {
+    return (
+      await schoolYear
+        .selectFrom('class_staff_assignments')
+        .innerJoin('classes', 'classes.id', 'class_staff_assignments.class_id')
+        .select('class_staff_assignments.staff_name')
+        .where('classes.name', '=', className)
+        .where('class_staff_assignments.status', '=', 'active')
+        .where('class_staff_assignments.assignment_role', '=', 'homeroom')
+        .executeTakeFirstOrThrow()
+    ).staff_name;
+  } finally {
+    await schoolYear.destroy();
+  }
+}
+
 async function signIn(page: Page, roleCode: string, unit: string | null) {
   const user = await createTestUser(identity, { roles: [{ roleCode, orgUnitId: unit }] });
   await page.goto('/');
@@ -211,7 +232,9 @@ test('CT-15b-10: 3.3 Phân công phụ trách lớp: liệt kê, thêm mới, k�
   await openMenu(page, '/class-assignments');
   await expect(page.getByRole('heading', { name: '3.3. Phân công phụ trách lớp', exact: true })).toBeVisible();
   const grid = page.getByRole('region', { name: 'Danh sách phân công phụ trách lớp' });
-  // Giáo viên chủ nhiệm của Mầm 1 phân công ở 08-classes
+  // Giáo viên chủ nhiệm của Mầm 1 phân công ở 08-classes. Lưới phân trang và các spec chạy trước (thứ tự theo tên tệp, ví dụ 151)
+  // thêm phân công nên dòng của Mầm 1 có thể không ở trang đầu: lọc theo tên giáo viên chủ nhiệm trước khi tìm dòng
+  await grid.getByLabel('Tìm theo tên giáo viên').fill(await homeroomTeacherName('Mầm 1'));
   await expect(grid.getByRole('row').filter({ hasText: 'Mầm 1' }).first()).toContainText('Chủ nhiệm');
 
   await grid.getByRole('button', { name: 'Thêm mới' }).click();

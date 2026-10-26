@@ -11,7 +11,7 @@ import {
 } from '@school-management/database';
 import { createTestUser } from '@school-management/identity/testing';
 import { E2E_SCHOOL_YEAR_DATABASE_PREFIX, E2E_SYSTEM_DATABASE_NAME, E2E_TEACHER_PORT } from '../e2e-environment.mjs';
-import { openMenu } from './menu.js';
+import { openMenu, selectSchoolLevel } from './menu.js';
 
 // Sổ đầu bài, điểm danh theo tiết THPT, sơ đồ chỗ ngồi, thi đua lớp và sao đỏ (DT-21 phần 21d, YCTD-171), kịch bản CT-21d-6:
 // trường bật THPT, lớp có thời khoá biểu đã ban hành (tiết 1 cả lớp, tiết 2 nhóm Vật lí); Hiệu trưởng lập sơ đồ chỗ ngồi theo
@@ -246,7 +246,7 @@ test('CT-21d-6: sơ đồ chỗ ngồi; ký tiết theo quy tắc xếp loại T
   await expect(page.getByRole('heading', { name: /^Xin chào,/ })).toBeVisible();
   await setSecondaryEnabled(page, true);
   try {
-    await page.getByTestId('school-level-switcher').selectOption('THPT');
+    await selectSchoolLevel(page, 'THPT');
 
     // 7.16 Sơ đồ chỗ ngồi: lập theo tên (2 dãy, 2 bàn, 2 chỗ), chuyển một học sinh xuống bàn 2 dãy 2, lưu, in
     await openMenu(page, '/seating-charts');
