@@ -1,7 +1,7 @@
 # 32. KẾ HOẠCH ĐỒNG BỘ CHỨC NĂNG VÀ GIAO DIỆN THEO HỆ THỐNG CỦA SỞ (DT-15)
 
 - Mô tả: Kế hoạch điều chỉnh School Management theo kết quả khảo sát `31_KHAO_SAT_HE_THONG_SO.md`; từ mục 9 thêm kế hoạch DT-18 điều hành nhà trường, mục 10 thêm kế hoạch DT-19 nền đa cấp học, mục 11 thêm kế hoạch DT-20 Tiểu học (kèm 22c thời khoá biểu), mục 12 thêm kế hoạch DT-21 THCS và THPT (kèm 22g kiểm tra, đánh giá), mục 13 thêm kế hoạch DT-22 (22a thư viện, 22e hồ sơ bồi dưỡng, 22h kho học liệu số), mục 14 thêm kế hoạch DT-SaaS (Enterprise SaaS nhiều trường: S1a, S1b, S2, S3, S4, S5a, S5b, S6, S7a, S7b, S8a, S8b, S9; hai hồ sơ triển khai: thử nghiệm miễn phí và vận hành), mục 15 thêm kế hoạch DT-23 (thi trực tuyến cho học sinh, công cụ lớp học, trò chơi kiến thức và thẻ đáp án giấy, trợ lý AI; 23a đến 23d), mục 18 thêm kế hoạch DT-26 (ứng dụng web cài được, bố cục máy tính bảng, ứng dụng cài đặt iOS và Android; 26a đến 26h), mục 16 thêm DT-24 (danh mục đơn vị toàn quốc, đăng nhập theo đơn vị, quyền vào mọi trường của quản trị nền tảng), mục 19 thêm kế hoạch DT-27 (nền tảng gia sư trực tuyến: gia sư trong trường, khoá học ghi sẵn, hỏi đáp, chợ gia sư mở; 27a đến 27i); mục 17 thêm DT-25 bộ nối nhà cung cấp định danh OIDC, sẵn cho VNeID.
-- Phiên bản: 1.78
+- Phiên bản: 1.79
 - Ngày cập nhật: 2026-10-26
 - Trạng thái: Đã duyệt hướng làm
 - Căn cứ: yêu cầu của Eric ngày 2026-10-13 ("tính năng đã có thì ưu tiên phiên bản và giao diện của Sở; tính năng Sở không có thì giữ nguyên, chỉ đổi giao diện theo trang của Sở") và các lựa chọn của Eric cùng ngày ở mục 2.
@@ -1843,7 +1843,7 @@ DT-25 là một thành phần nhỏ, làm hai bước. Số giữ sẵn nằm **
 | Bước | Phạm vi | Phụ thuộc | Trạng thái |
 |---|---|---|---|
 | 25a | Phần máy chủ: lớp `IdentityProvider`, bộ nối OIDC chung, hồ sơ `vneid`, khai báo nền tảng, cấu hình của trường, liên kết, gỡ liên kết, đăng nhập, nhập mã hai lớp sau nhà cung cấp, nhật ký, nhà cung cấp OIDC giả lập, kiểm thử đơn vị, cách ly, e2e 165 (phần máy chủ), tài liệu | Không | Làm ở PR của YCTD-225 |
-| 25b | Giao diện: nút "Đăng nhập bằng VNeID" (và nhà cung cấp khác) trên màn hình đăng nhập của cổng quản trị, ứng dụng giáo viên, ứng dụng phụ huynh, chỉ hiện khi trường đã bật; trang quay về `/dang-nhap/ben-ngoai`; mục liên kết, gỡ liên kết, nhật ký ở "Tài khoản của tôi"; màn hình cấu hình của trường; mở rộng e2e 165 bằng trình duyệt | **Sau khi PR DT-24 gộp** (DT-24 đang sửa màn hình đăng nhập; không sửa song song cùng tệp) | Chờ |
+| 25b | Giao diện: nút "Đăng nhập bằng VNeID" (và nhà cung cấp khác) trên màn hình đăng nhập của cổng quản trị, ứng dụng giáo viên, ứng dụng phụ huynh, chỉ hiện khi trường đã bật; trang quay về `/dang-nhap/ben-ngoai`; mục liên kết, gỡ liên kết, nhật ký ở "Tài khoản của tôi"; màn hình cấu hình của trường; mở rộng e2e 165 bằng trình duyệt | **Sau khi PR DT-24 gộp** (DT-24 đang sửa màn hình đăng nhập; không sửa song song cùng tệp) | Đã làm (YCTD-226) |
 
 ### 17.4 Thiết kế
 
@@ -1901,7 +1901,7 @@ DT-25 là một thành phần nhỏ, làm hai bước. Số giữ sẵn nằm **
 | Bước | Tiến độ |
 |---|---|
 | 25a | Đã làm ở PR của YCTD-225 |
-| 25b | Chờ PR DT-24 gộp |
+| 25b | Đã làm ở PR của YCTD-226 (phiên bản 0.144.0) |
 
 ### 17.8 Giả định chưa chốt, làm cấu hình được
 
