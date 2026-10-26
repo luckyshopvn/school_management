@@ -1,7 +1,7 @@
 # 23. LỊCH SỬ PHIÊN BẢN
 
 - Mô tả: Mã phiên bản, ngày phát hành, danh sách thay đổi, chức năng mới, lỗi đã sửa, thay đổi dữ liệu, thay đổi API, rủi ro, khả năng tương thích, phương án quay lui.
-- Phiên bản: 0.63
+- Phiên bản: 0.64
 - Ngày cập nhật: 2026-10-26
 - Trạng thái: Đang cập nhật
 - Đã rà duyệt: Eric, ngày 2026-10-09
@@ -16,17 +16,30 @@
 
 ## 2. Danh sách phiên bản
 
+### Phiên bản 0.147.0 – 2026-10-26
+
+- Phạm vi thay đổi: DT-25 bước 25b, giao diện đăng nhập và liên kết bằng nhà cung cấp định danh bên ngoài (YCTD-226).
+- Chức năng mới: nút "Đăng nhập bằng <nhà cung cấp>" trên màn hình đăng nhập của cổng quản trị, ứng dụng giáo viên, ứng dụng phụ huynh (chỉ hiện khi trường đã bật); trang quay về `/dang-nhap/ben-ngoai` (có bước nhập mã hai lớp); mục "Liên kết tài khoản" ở Tài khoản của tôi (cổng quản trị) và màn hình chính của ứng dụng phụ huynh (liên kết, gỡ liên kết, nhật ký); khối cấu hình của trường ở Danh sách người dùng.
+- Lỗi đã sửa: không có.
+- Thay đổi dữ liệu: không.
+- Thay đổi API: không (dùng nhóm `/auth/external/*` của 0.142.0).
+- Kiểm thử: e2e spec 165 thêm ca giao diện (liên kết, đăng nhập bằng nút, gỡ liên kết, nút ẩn khi trường tắt); kết quả trên máy 13/13 cùng spec 01.
+- Rủi ro: thấp; ở tên miền chung (đăng nhập theo đơn vị của DT-24) không hiện nút, người dùng mở trang đăng nhập riêng của trường.
+- Khả năng tương thích: trường chưa bật nhà cung cấp thì không có gì thay đổi trên màn hình.
+- Phương án quay lui: tắt nhà cung cấp ở trường; hoàn lại commit gộp.
+
 ### Phiên bản 0.146.0 – 2026-10-26
 
 - Phạm vi thay đổi: DT-26 phần 26c, khung kiểm thử theo khổ thiết bị (YCTD-233).
 - Chức năng mới: không có chức năng cho người dùng; thêm dự án kiểm thử Playwright theo khổ điện thoại, máy tính bảng dọc, ngang, WebKit; bộ kiểm dùng chung (vùng chạm, cỡ chữ, cuộn ngang, axe-core); việc CI `kiem-thu-thiet-bi`.
-- Lỗi đã sửa: không có.
+- Lỗi đã sửa: vùng chạm của hai liên kết ở màn hình đăng nhập ứng dụng phụ huynh (Học sinh làm bài thi trực tuyến, Tuyển dụng giáo viên và nhân viên) dưới 44 px, bộ kiểm 26c bắt được; nay tối thiểu 44 px chiều cao.
 - Thay đổi dữ liệu: không.
 - Thay đổi API: không.
 - Kiểm thử: CT-1108 đến CT-1110. Kết quả ở PR 188.
 - Rủi ro: việc CI thêm thời gian chạy song song (không nối đuôi); ảnh chụp tham chiếu chưa có tệp gốc; vi phạm ở đường cơ sở chờ 26d, 26e.
 - Khả năng tương thích: mặc định không đổi (dự án chromium); thêm thư viện kiểm thử `@axe-core/playwright` (MPL-2.0, chỉ ở kiểm thử).
 - Phương án quay lui: hoàn lại commit gộp của nhánh 26c.
+
 ### Phiên bản 0.144.0 – 2026-10-26
 
 - Phạm vi thay đổi: DT-23 phần 23a, thi trực tuyến cho học sinh (YCTD-211).

@@ -1,7 +1,10 @@
 # 24. YÊU CẦU THAY ĐỔI
 
 - Mô tả: Sổ quản lý yêu cầu thay đổi, ghi lý do, đánh giá ảnh hưởng và trạng thái của từng thay đổi trước khi triển khai.
-- Phiên bản: 0.76
+- Phiên bản: 0.77
+
+- Phiên bản: 0.75
+
 - Ngày cập nhật: 2026-10-26
 - Trạng thái: Đang cập nhật
 
@@ -10,6 +13,20 @@
 Mã yêu cầu thay đổi dạng `YCTD-nn`, đánh số tăng dần, không tái sử dụng. Mục mới nhất ở trên cùng. Trạng thái dùng bốn giá trị: Chờ phê duyệt, Đã phê duyệt, Từ chối, Đã triển khai.
 
 Các thay đổi trước phiên bản 0.4.0 chưa có sổ này; xem `23_LICH_SU_PHIEN_BAN.md` các phiên bản 0.1.0 đến 0.3.1.
+
+### YCTD-226: DT-25 bước 25b: giao diện đăng nhập và liên kết bằng nhà cung cấp định danh – 2026-10-26
+
+- Lý do: bước 25b của kế hoạch DT-25 (`32` mục 17.3), làm sau khi DT-24 gộp màn hình đăng nhập mới (điểm gắn `ExternalLoginProviders.tsx`).
+- Nội dung thay đổi (Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11):
+  - Thành phần dùng chung ở `packages/ui/src/ExternalIdentity.tsx`: `ExternalProviderButtons` (đọc nhà cung cấp trường đã bật, bắt đầu lượt, chuyển sang nhà cung cấp), `ExternalSignInCallback` (trang quay về: chờ ứng dụng khôi phục phiên, gửi `state`, `code`, nhập mã hai lớp khi máy chủ đòi, đăng nhập xong tải lại trang gốc, liên kết xong về trang liên kết), `ExternalLinksPanel` (liên kết, gỡ liên kết cần mật khẩu và mã hai lớp nếu đã bật, nhật ký gần đây). Mỗi ứng dụng truyền hàm gọi giao diện lập trình của mình.
+  - Cổng quản trị: nút ở màn hình đăng nhập (điểm gắn của DT-24; ở tên miền chung không hiện vì cấu hình, liên kết, lượt đăng nhập đều theo trường), trang `/dang-nhap/ben-ngoai` mở được khi đã hay chưa đăng nhập, mục "Liên kết tài khoản" ở Tài khoản của tôi, khối "Đăng nhập bằng nhà cung cấp định danh" ở Danh sách người dùng cho người quản lý mọi tài khoản (bật tắt, coi là đạt xác thực hai lớp, nhóm vai trò, mã ứng dụng và khóa riêng; nhắc mục chờ tài liệu RAR với hồ sơ vneid).
+  - Ứng dụng giáo viên: nút ở màn hình đăng nhập, trang quay về. Ứng dụng phụ huynh: nút, trang quay về, mục liên kết ở màn hình chính.
+  - e2e spec 165 thêm ca giao diện.
+- Thành phần bị ảnh hưởng: `packages/ui`, `apps/portal` (`router.tsx`, `portal-shell/ExternalLoginProviders.tsx`, `portal-shell/external-identity.tsx`, `portal-shell/MyProfilePage.tsx`, `accounts/AccountsPage.tsx`, `accounts/ExternalProvidersSection.tsx`), `apps/teacher`, `apps/parent`, `tests/e2e/165-external-identity.spec.ts`; tài liệu `01`, `02`, `23`, `24`, `32`, `34`, `index.md`.
+- Dữ liệu, API, quyền bị ảnh hưởng: không.
+- Giao diện bị ảnh hưởng: như trên; trường chưa bật nhà cung cấp thì không đổi.
+- Ảnh hưởng chức năng cũ: không.
+- Kiểm thử cần thực hiện: typecheck, lint ba ứng dụng và `packages/ui`; e2e 165 (giao diện và máy chủ) cùng 01.
 
 ### YCTD-211: DT-23 phần 23a: thi trực tuyến cho học sinh – 2026-10-26
 
@@ -130,7 +147,7 @@ Các thay đổi trước phiên bản 0.4.0 chưa có sổ này; xem `23_LICH_S
 - Lý do: phần 26c của `32_KE_HOACH_THEO_HE_THONG_SO.md` mục 18 (YCTD-230): có bộ kiểm cố định để 26d, 26e và các phần sau đo giao diện ở khổ điện thoại và máy tính bảng.
 - Nội dung thay đổi: dự án Playwright `dien-thoai`, `may-tinh-bang-doc`, `may-tinh-bang-ngang`, `dien-thoai-webkit` (biến `E2E_DEVICES`); nhãn `@thiet-bi`, `@thiet-bi-pr`; `tests/e2e/device-checks.ts` (vùng chạm 44 px, cỡ chữ ô nhập 16 px, không cuộn ngang cả trang, axe-core; đường cơ sở vi phạm đã biết); spec 180; việc CI `kiem-thu-thiet-bi` song song, yêu cầu kéo chạy tập con, nhánh chính và lịch hằng đêm chạy đủ chia hai mảnh có WebKit.
 - Thành phần bị ảnh hưởng: `tests/playwright.config.ts`, `tests/e2e/` (tệp mới), `tests/package.json` (thêm `@axe-core/playwright`), `pnpm-lock.yaml`, `.github/workflows/ci.yml` (thêm việc mới và lịch hằng đêm; việc `kiem-thu`, `kiem-thu-giao-dien`, `kiem-thu-nhieu-truong` bỏ qua khi chạy theo lịch).
-- Dữ liệu, API, giao diện, quyền bị ảnh hưởng: không (không sửa giao diện: các vi phạm đo được ghi ở đường cơ sở cho 26d, 26e).
+- Dữ liệu, API, quyền bị ảnh hưởng: không. Giao diện: chỉ sửa hai liên kết ở màn hình đăng nhập ứng dụng phụ huynh (`min-h-11`) vì bộ kiểm bắt lỗi vùng chạm của liên kết 23a thêm; các vi phạm cũ còn lại ghi ở đường cơ sở cho 26d, 26e.
 - Ảnh hưởng chức năng cũ: không; mặc định chỉ chạy `chromium` như trước.
 - Kiểm thử cần thực hiện: `pnpm typecheck`, `pnpm lint`, spec 180 ở `E2E_DEVICES=pr` (hai khổ) và `full`; e2e hiện có.
 - Chưa làm: tạo ảnh chụp tham chiếu ở Linux của CI; đo số phút việc mới (ghi vào mục này sau lần chạy đầu); sửa vi phạm ở đường cơ sở (26d, 26e).
