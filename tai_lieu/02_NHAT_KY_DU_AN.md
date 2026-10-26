@@ -1,7 +1,7 @@
 # 02. NHẬT KÝ DỰ ÁN
 
 - Mô tả: Ghi nhận công việc, quyết định, thay đổi và vấn đề tồn đọng theo ngày, ngày mới nhất ở trên cùng.
-- Phiên bản: 0.78
+- Phiên bản: 0.79
 - Ngày cập nhật: 2026-10-26
 - Trạng thái: Đang cập nhật
 
@@ -35,6 +35,24 @@
 #### Vấn đề tồn đọng
 
 - Nối màn hình học sinh của 23a khi 23a gộp; ảnh PNG và màn hình chờ iOS theo trường, phiên bản tối thiểu do máy chủ áp để phần sau (ghi ở YCTD-231).
+
+### 2026-10-26 — Sửa kiểm thử chập chờn (YCTD-290)
+
+#### Công việc đã thực hiện
+
+- Đọc nhật ký và ảnh chụp, vết chạy (trace) của các lượt CI hỏng trên nhánh chính và PR 181, PR 184; tìm nguyên nhân gốc từng ca (xem YCTD-290).
+- Tái hiện cuộc đua dựng cơ sở dữ liệu mẫu bằng ba tiến trình cùng lúc trên bản sao mã (tên mẫu riêng, không đụng mẫu đang dùng): mã cũ hỏng 2/5 vòng với `23505`, mã mới 0/10 vòng.
+- Sửa `migration-templates.ts` (khóa tư vấn), service worker của ứng dụng giáo viên (tra bộ nhớ đệm bỏ qua `Vary: Origin`), ca CT-22c2-12, thẻ "Nề nếp, thi đua lớp", trợ giúp menu e2e, spec 45, 54, 97, 99, 103, 151 (54 hỏng ở CI của PR 190 cùng nguyên nhân phân trang như 45).
+- Chạy lặp 10 lần ba tệp thời khoá biểu, năm học (`--test-concurrency=3` như CI): 24/24 ca đạt cả 10 lần.
+
+#### Quyết định
+
+- Sửa nguyên nhân, không tăng thời gian chờ hay số lần chạy lại, không bỏ kiểm thử.
+- Dòng "fetch failed" ở nhật ký CI là của ca cố ý tắt dịch vụ định danh, không cần sửa.
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-290. Không tăng phiên bản phần mềm.
 
 ### 2026-10-26 — Kế hoạch DT-28: hệ thống quản lý học tập (LMS)
 

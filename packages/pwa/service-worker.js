@@ -8,6 +8,10 @@ const VERSION = 'phat-trien';
 /* precache */ const PRECACHE = ['./']; /* end-precache */
 /* cache-prefix */ const CACHE_PREFIX = 'ung-dung-v-'; /* end-cache-prefix */
 const CACHE = `${CACHE_PREFIX}${VERSION}`;
+// Bộ nhớ đệm chỉ giữ tệp tĩnh cùng nguồn của vỏ ứng dụng nên bỏ qua Vary khi tra: máy chủ trả Vary: Origin (máy chủ phát triển
+// vite luôn trả) thì tệp đã lưu không kèm Origin (lưu lúc làm ấm) không khớp yêu cầu mô-đun kèm Origin và trang không mở được
+// khi mất mạng (lỗi chập chờn của e2e 151)
+const MATCH = { ignoreVary: true };
 
 self.addEventListener('install', (event) => {
   // Không tự giành quyền ngay: bản mới chờ giáo viên đồng ý tải lại (SKIP_WAITING), trừ lần cài đầu tiên
@@ -62,7 +66,7 @@ self.addEventListener('message', (event) => {
             if (target.origin !== self.location.origin || target.pathname.includes('/api/')) {
               continue;
             }
-            if (!(await cache.match(target))) {
+            if (!(await cache.match(target, MATCH))) {
               const response = await fetch(target);
               if (response.ok) {
                 await cache.put(target, response);
@@ -86,12 +90,12 @@ async function networkFirst(request) {
     }
     return response;
   } catch (error) {
-    const hit = await cache.match(request);
+    const hit = await cache.match(request, MATCH);
     if (hit) {
       return hit;
     }
     if (request.mode === 'navigate') {
-      const shell = await cache.match(new URL('./', self.registration.scope));
+      const shell = await cache.match(new URL('./', self.registration.scope), MATCH);
       if (shell) {
         return shell;
       }

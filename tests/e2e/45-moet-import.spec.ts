@@ -37,6 +37,13 @@ test.afterAll(async () => {
   await identity.destroy();
 });
 
+// Chữ cái ngẫu nhiên viết hoa chữ đầu, dùng làm phần cuối của họ tên
+const letters = (length: number) =>
+  Array.from({ length }, (_, index) => {
+    const letter = 'abcdeghiklmnopqrstuvxy'[Math.floor(Math.random() * 22)] as string;
+    return index === 0 ? letter.toUpperCase() : letter;
+  }).join('');
+
 const digits = (length: number) =>
   Math.floor(Math.random() * 10 ** length)
     .toString()
@@ -46,6 +53,8 @@ test('Hiệu trưởng tải tệp học sinh của CSDL ngành, xem trước r�
   page,
 }) => {
   const principal = await createTestUser(identity, { roles: [{ roleCode: 'VT-02', orgUnitId: null }] });
+  // Tên riêng cho mỗi lần chạy (kể cả lần chạy lại) để tìm đúng một dòng
+  const childName = `Lê Thị Mai Anh ${letters(5)}`;
   const book = new ExcelJS.Workbook();
   const sheet = book.addWorksheet('Sheet1');
   sheet.addRow([
@@ -68,7 +77,7 @@ test('Hiệu trưởng tải tệp học sinh của CSDL ngành, xem trước r�
     1,
     'mầm 9',
     digits(10),
-    'Lê Thị Mai Anh',
+    childName,
     '12/06/2022',
     'Nữ',
     'Đang học',
@@ -103,11 +112,14 @@ test('Hiệu trưởng tải tệp học sinh của CSDL ngành, xem trước r�
   await openMenu(page, '/children');
   await page.getByRole('button', { name: 'Mở rộng tìm kiếm' }).click();
   await page.getByLabel('Thiếu giấy khai sinh').check();
-  const imported = page.getByRole('row').filter({ hasText: 'Lê Thị Mai Anh' });
+  // Danh sách chia trang; các spec chạy trước (thứ tự theo tên tệp, ví dụ 151) thêm trẻ nên trẻ vừa nhập có thể không ở trang đầu.
+  // Lọc theo họ tên thay vì giả định danh sách ngắn hơn một trang
+  await page.getByLabel('Tìm theo họ tên').fill(childName);
+  const imported = page.getByRole('row').filter({ hasText: childName });
   await expect(imported).toContainText('Đang học');
   await expect(imported).toContainText('Mầm 9');
   await imported.click();
-  const profile = page.getByRole('region', { name: 'Hồ sơ Lê Thị Mai Anh' });
+  const profile = page.getByRole('region', { name: `Hồ sơ ${childName}` });
   await profile.getByText('Thông tin theo CSDL ngành').click();
   const moet = profile.getByRole('group', { name: 'Thông tin theo CSDL ngành' });
   await expect(moet).toContainText('Dân tộc');
