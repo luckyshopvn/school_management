@@ -1,7 +1,7 @@
 # 23. LỊCH SỬ PHIÊN BẢN
 
 - Mô tả: Mã phiên bản, ngày phát hành, danh sách thay đổi, chức năng mới, lỗi đã sửa, thay đổi dữ liệu, thay đổi API, rủi ro, khả năng tương thích, phương án quay lui.
-- Phiên bản: 0.65
+- Phiên bản: 0.66
 - Ngày cập nhật: 2026-10-26
 - Trạng thái: Đang cập nhật
 - Đã rà duyệt: Eric, ngày 2026-10-09
@@ -13,6 +13,7 @@
 3. Phiên bản đánh số theo dạng chính.phụ.sửa. Tăng số chính khi thay đổi phá vỡ tương thích, tăng số phụ khi thêm chức năng, tăng số sửa khi sửa lỗi.
 4. Bản phần mềm 1.0.0, 1.1.0, 1.2.0 được Eric nghiệm thu ngày 13/10/2026, gắn thẻ `v1.0.0`, `v1.1.0`, `v1.2.0` (YCTD-92), ứng với phiên bản tài liệu 0.31.0, 0.42.0, 0.48.0. Các mục dưới đây ghi các mốc của bộ tài liệu.
 5. Từ phiên bản 0.4.0, mỗi mục ghi theo mẫu của Vibecoding_Flow; các mục trước giữ nguyên dạng bảng và tên tệp cũ vì là ghi nhận lịch sử.
+6. Từ YCTD-291 (ngày 2026-10-26), mục phiên bản mới của mỗi PR nằm ở tệp mảnh trong thư mục `tai_lieu/thay_doi_cho_gom/` cho tới lần gom, với số phiên bản đề xuất và chỗ giữ `{PHIEN_BAN}`; PR thường không sửa tệp này. Số chính thức chốt khi gom theo thứ tự merge (quy ước ở `thay_doi_cho_gom/README.md`).
 
 ## 2. Danh sách phiên bản
 
@@ -27,18 +28,6 @@
 - Rủi ro: thấp; ở tên miền chung (đăng nhập theo đơn vị của DT-24) không hiện nút, người dùng mở trang đăng nhập riêng của trường.
 - Khả năng tương thích: trường chưa bật nhà cung cấp thì không có gì thay đổi trên màn hình.
 - Phương án quay lui: tắt nhà cung cấp ở trường; hoàn lại commit gộp.
-
-### Phiên bản 0.146.0 – 2026-10-26
-
-- Phạm vi thay đổi: DT-26 phần 26c, khung kiểm thử theo khổ thiết bị (YCTD-233).
-- Chức năng mới: không có chức năng cho người dùng; thêm dự án kiểm thử Playwright theo khổ điện thoại, máy tính bảng dọc, ngang, WebKit; bộ kiểm dùng chung (vùng chạm, cỡ chữ, cuộn ngang, axe-core); việc CI `kiem-thu-thiet-bi`.
-- Lỗi đã sửa: vùng chạm của hai liên kết ở màn hình đăng nhập ứng dụng phụ huynh (Học sinh làm bài thi trực tuyến, Tuyển dụng giáo viên và nhân viên) dưới 44 px, bộ kiểm 26c bắt được; nay tối thiểu 44 px chiều cao.
-- Thay đổi dữ liệu: không.
-- Thay đổi API: không.
-- Kiểm thử: CT-1112 đến CT-1114. Kết quả ở PR 188.
-- Rủi ro: việc CI thêm thời gian chạy song song (không nối đuôi); ảnh chụp tham chiếu chưa có tệp gốc; vi phạm ở đường cơ sở chờ 26d, 26e.
-- Khả năng tương thích: mặc định không đổi (dự án chromium); thêm thư viện kiểm thử `@axe-core/playwright` (MPL-2.0, chỉ ở kiểm thử).
-- Phương án quay lui: hoàn lại commit gộp của nhánh 26c.
 
 ### Phiên bản 0.145.0 – 2026-10-26
 

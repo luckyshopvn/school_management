@@ -6,7 +6,7 @@
   "scripts": {
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "e2e": "node e2e-setup.mjs && playwright test",
-    "test": "node --test tenancy/*.test.mjs trial/*.test.mjs",
+    "test": "node --test tenancy/*.test.mjs trial/*.test.mjs tai-lieu/*.test.mjs",
     "e2e:multi": "node e2e-multi-setup.mjs && playwright test --config playwright.multi.config.ts"
   },
   "devDependencies": {

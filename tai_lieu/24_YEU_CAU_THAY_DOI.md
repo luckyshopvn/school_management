@@ -1,7 +1,7 @@
 # 24. YÊU CẦU THAY ĐỔI
 
 - Mô tả: Sổ quản lý yêu cầu thay đổi, ghi lý do, đánh giá ảnh hưởng và trạng thái của từng thay đổi trước khi triển khai.
-- Phiên bản: 0.78
+- Phiên bản: 0.79
 - Ngày cập nhật: 2026-10-26
 - Trạng thái: Đang cập nhật
 
@@ -10,6 +10,23 @@
 Mã yêu cầu thay đổi dạng `YCTD-nn`, đánh số tăng dần, không tái sử dụng. Mục mới nhất ở trên cùng. Trạng thái dùng bốn giá trị: Chờ phê duyệt, Đã phê duyệt, Từ chối, Đã triển khai.
 
 Các thay đổi trước phiên bản 0.4.0 chưa có sổ này; xem `23_LICH_SU_PHIEN_BAN.md` các phiên bản 0.1.0 đến 0.3.1.
+
+Từ YCTD-291 (ngày 2026-10-26), mục YCTD mới của mỗi PR nằm ở tệp mảnh `tai_lieu/thay_doi_cho_gom/YCTD-<số>-<ten-ngan>.md` cho tới lần gom; PR thường không sửa tệp này. Lần gom chép các mục vào đây theo thứ tự merge (quy ước ở `thay_doi_cho_gom/README.md`). Khi chọn số YCTD, kiểm cả các tệp ở thư mục đó.
+
+### YCTD-291: Đổi quy ước ghi tài liệu chung sang tệp mảnh theo từng PR – 2026-10-26
+
+- Lý do: nhiều phiên làm song song (DT-23 đến DT-28), mỗi PR đều sửa `02_NHAT_KY_DU_AN.md`, `24_YEU_CAU_THAY_DOI.md`, `23_LICH_SU_PHIEN_BAN.md`, bảng mốc phát hành ở `01_KE_HOACH_TONG_THE.md`, số đếm ở `index.md` và số phiên bản đầu các tài liệu này. Mỗi lần một PR merge, mọi PR khác xung đột tài liệu, phải gộp main và chạy lại CI khoảng 40 phút; `gh pr update-branch` không gộp được vì xung đột. Eric đồng ý ngày 2026-10-26 chuyển sang tệp mảnh theo từng PR, gom định kỳ.
+- Nội dung thay đổi (chi tiết Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11):
+  - **Thư mục tệp mảnh** `tai_lieu/thay_doi_cho_gom/`: mỗi PR thêm một tệp `YCTD-<số>-<ten-ngan>.md` có phần đầu tệp (`yctd`, `tieu_de`, `ngay`, `phien_ban_de_xuat`) và các mục `## 02` (mục nhật ký), `## 24` (mục YCTD), `## 23` (mục phiên bản, khi có), `## 01` (dòng bảng mốc phát hành), `## index` (cộng số đếm), `## Nối dòng` (nối nội dung vào dòng bảng dùng chung, ví dụ dòng phân hệ ở `03`). Số phiên bản phần mềm trong tệp mảnh là đề xuất, nội dung dùng chỗ giữ `{PHIEN_BAN}`.
+  - **Quy tắc**: PR thường không sửa `02`, `23`, `24`, `index.md`, bảng mốc phát hành ở `01`, không tăng số phiên bản đầu tài liệu; nội dung riêng của phần (dòng trạng thái ở `32`, dòng ở `34`, đặc tả `07`, `08`, `10`, `11`, `14`, `16`, `17`, `21`, `22`) vẫn sửa tại chỗ.
+  - **Tập lệnh gom** `scripts/gom-thay-doi.mjs` (Node, không thêm gói): kiểm mọi tệp mảnh (sai thì dừng, không ghi gì); xếp theo thứ tự merge (`git log --first-parent`); chèn mục 02, 24, 23 lên đầu, chốt số phiên bản phần mềm (đề xuất có số sửa khác 0 thì tăng số sửa, ngược lại tăng số phụ) và thay `{PHIEN_BAN}`; chèn dòng 01 trước dòng `1.0.0`; cộng số ở `index.md`, nối dòng; tính lại khoảng `BR`, `AC`, `CT`, `YCTD` và số "Yêu cầu thay đổi" ở `index.md`; tăng số phiên bản đầu mỗi tài liệu chung đã sửa đúng một lần; xoá tệp mảnh đã gom. Chế độ `--kiem` chỉ kiểm định dạng.
+  - **CI**: việc `kiem-thu` thêm bước `node scripts/gom-thay-doi.mjs --kiem` (sai định dạng thì hỏng) và bước cảnh báo, không chặn, khi PR có nhánh không bắt đầu bằng `gom-` sửa trực tiếp `02`, `23`, `24`, `index.md`.
+  - PR này sửa `02`, `24`, `index.md` theo cách cũ lần cuối.
+- Thành phần bị ảnh hưởng: `scripts/gom-thay-doi.mjs` (mới), `tests/tai-lieu/gom-thay-doi.test.mjs` (mới), `tests/package.json`, `.github/workflows/ci.yml`; tài liệu `tai_lieu/thay_doi_cho_gom/README.md` (mới), `01` mục 9, `02`, `19` mục 2, `23` mục 1, `24`, `index.md`.
+- Dữ liệu, API, giao diện, quyền bị ảnh hưởng: không.
+- Ảnh hưởng chức năng cũ: không đổi mã nghiệp vụ. Phiên bản phần mềm giữ nguyên.
+- Kiểm thử cần thực hiện: kiểm thử đơn vị `tests/tai-lieu/gom-thay-doi.test.mjs` (gom theo thứ tự merge, chốt phiên bản, tăng phiên bản tài liệu một lần, cộng số đếm, nối dòng, xoá tệp mảnh; dừng khi sai định dạng; các lỗi định dạng thường gặp; trùng YCTD); thử gom trên bản sao `tai_lieu`. Kết quả ngày 26/10/2026: đạt.
+- Trạng thái: Đã triển khai
 
 ### YCTD-226: DT-25 bước 25b: giao diện đăng nhập và liên kết bằng nhà cung cấp định danh – 2026-10-26
 
@@ -139,17 +156,6 @@ Các thay đổi trước phiên bản 0.4.0 chưa có sổ này; xem `23_LICH_S
 - Ảnh hưởng chức năng cũ: không. Nền tảng không khai nhà cung cấp (mặc định) hoặc trường chưa bật thì mọi điểm cuối mới trả trống hoặc báo chưa bật, đăng nhập như cũ.
 - Kiểm thử cần thực hiện: kiểm thử đơn vị `external-identity` (khai báo, PKCE, tuổi; liên kết, đăng nhập, chữ ký sai, nonce sai, sai đối tượng, sai bên phát hành, hết hạn, state dùng lại, liên kết khác phiên, subject đã liên kết với người khác, quay khóa, nhóm vai trò, dưới 14 tuổi, xác thực hai lớp, trường tắt, gỡ liên kết, nhật ký); cách ly hai trường; ma trận cách ly; các ca đăng nhập, xác thực hai lớp, nhiều trường hiện có; kiểm tĩnh đa thuê bao; e2e 165 cùng spec đăng nhập.
 - Trạng thái: Đã triển khai (phần máy chủ); bước 25b chờ DT-24
-### YCTD-233: DT-26 phần 26c: khung kiểm thử theo khổ thiết bị – 2026-10-26
-
-- Lý do: phần 26c của `32_KE_HOACH_THEO_HE_THONG_SO.md` mục 18 (YCTD-230): có bộ kiểm cố định để 26d, 26e và các phần sau đo giao diện ở khổ điện thoại và máy tính bảng.
-- Nội dung thay đổi: dự án Playwright `dien-thoai`, `may-tinh-bang-doc`, `may-tinh-bang-ngang`, `dien-thoai-webkit` (biến `E2E_DEVICES`); nhãn `@thiet-bi`, `@thiet-bi-pr`; `tests/e2e/device-checks.ts` (vùng chạm 44 px, cỡ chữ ô nhập 16 px, không cuộn ngang cả trang, axe-core; đường cơ sở vi phạm đã biết); spec 180; việc CI `kiem-thu-thiet-bi` song song, yêu cầu kéo chạy tập con, nhánh chính và lịch hằng đêm chạy đủ chia hai mảnh có WebKit.
-- Thành phần bị ảnh hưởng: `tests/playwright.config.ts`, `tests/e2e/` (tệp mới), `tests/package.json` (thêm `@axe-core/playwright`), `pnpm-lock.yaml`, `.github/workflows/ci.yml` (thêm việc mới và lịch hằng đêm; việc `kiem-thu`, `kiem-thu-giao-dien`, `kiem-thu-nhieu-truong` bỏ qua khi chạy theo lịch).
-- Dữ liệu, API, quyền bị ảnh hưởng: không. Giao diện: chỉ sửa hai liên kết ở màn hình đăng nhập ứng dụng phụ huynh (`min-h-11`) vì bộ kiểm bắt lỗi vùng chạm của liên kết 23a thêm; các vi phạm cũ còn lại ghi ở đường cơ sở cho 26d, 26e.
-- Ảnh hưởng chức năng cũ: không; mặc định chỉ chạy `chromium` như trước.
-- Kiểm thử cần thực hiện: `pnpm typecheck`, `pnpm lint`, spec 180 ở `E2E_DEVICES=pr` (hai khổ) và `full`; e2e hiện có.
-- Chưa làm: tạo ảnh chụp tham chiếu ở Linux của CI; đo số phút việc mới (ghi vào mục này sau lần chạy đầu); sửa vi phạm ở đường cơ sở (26d, 26e).
-- Trạng thái: Đã triển khai (PR 188)
-
 ### YCTD-250: Kế hoạch DT-27: nền tảng gia sư trực tuyến – 2026-10-26
 
 - Lý do: Eric quyết định ngày 2026-10-26 làm nền tảng gia sư trực tuyến theo hai mô hình (trước: gia sư trong từng trường; sau: chợ gia sư mở có hoa hồng), ba hình thức học (lớp video trực tiếp, khoá học ghi sẵn, hỏi đáp bài tập có gợi ý AI nháp) và thu phí qua nền tảng có hoàn tiền, tranh chấp. Phiên điều phối giao viết kế hoạch vào `32_KE_HOACH_THEO_HE_THONG_SO.md` như DT-23.

@@ -1,12 +1,13 @@
 # 02. NHẬT KÝ DỰ ÁN
 
 - Mô tả: Ghi nhận công việc, quyết định, thay đổi và vấn đề tồn đọng theo ngày, ngày mới nhất ở trên cùng.
-- Phiên bản: 0.81
+- Phiên bản: 0.82
 - Ngày cập nhật: 2026-10-26
 - Trạng thái: Đang cập nhật
 
 ## Quy ước ghi nhật ký
 
+- Từ YCTD-291 (ngày 2026-10-26), mục nhật ký mới của mỗi PR nằm ở tệp mảnh trong thư mục `tai_lieu/thay_doi_cho_gom/` cho tới lần gom; PR thường không sửa tệp này. Lần gom (`node scripts/gom-thay-doi.mjs`, nhánh `gom-…`) chép các mục vào đây theo thứ tự merge. Quy ước đầy đủ ở `thay_doi_cho_gom/README.md`. Muốn biết việc mới nhất thì đọc cả các tệp ở thư mục đó.
 - Mục mới ghi ở trên cùng; không sửa nội dung mục cũ.
 - Từ ngày 2026-10-09, mỗi mục ghi theo mẫu của Vibecoding_Flow: công việc đã thực hiện, quyết định, thay đổi, vấn đề tồn đọng. Các mục cũ giữ nguyên dạng và tên tệp cũ.
 - Mỗi mục ghi rõ ngày, người thực hiện, nội dung, tệp bị ảnh hưởng, kết quả kiểm thử.
@@ -14,29 +15,27 @@
 
 ## Nhật ký theo ngày
 
-### 2026-10-26 — DT-26 phần 26c: khung kiểm thử theo khổ thiết bị
+### 2026-10-26 — Đổi quy ước ghi tài liệu chung sang tệp mảnh (YCTD-291)
 
 #### Công việc đã thực hiện
 
-- Đọc mục 18 của `32_KE_HOACH_THEO_HE_THONG_SO.md` (26c, ranh giới tệp với 26a, 26b), `tests/playwright.config.ts`, `.github/workflows/ci.yml` sau PR 177.
-- `tests/playwright.config.ts`: biến `E2E_DEVICES` (`pr`, `full`); mặc định giữ dự án `chromium` như cũ. Thêm dự án `dien-thoai` (390 × 844), `may-tinh-bang-doc` (820 × 1180), `may-tinh-bang-ngang` (1180 × 820), `dien-thoai-webkit`; nhãn `@thiet-bi`, `@thiet-bi-pr`.
-- `tests/e2e/device-checks.ts` (vùng chạm, cỡ chữ ô nhập, cuộn ngang, axe-core, đường cơ sở vi phạm đã biết) và `device-baseline.json`; spec 180 (`180-device-frame.spec.ts`) đo trang đăng nhập của ba ứng dụng và trang chủ cổng quản trị, ảnh chụp tham chiếu bật bằng `E2E_SCREENSHOTS=1` ở Linux.
-- `.github/workflows/ci.yml`: việc `kiem-thu-thiet-bi` song song với `kiem-thu-giao-dien` (yêu cầu kéo: một mảnh, hai khổ, Chromium, nhãn `@thiet-bi-pr`; nhánh chính và lịch hằng đêm 19 giờ UTC: bốn dự án, chia hai mảnh, có WebKit); các việc nặng khác bỏ qua khi chạy theo lịch.
-- Thêm thư viện kiểm thử `@axe-core/playwright` (axe-core, giấy phép MPL-2.0, chỉ dùng ở kiểm thử).
+- Các phiên làm song song (DT-23 đến DT-28) mỗi PR đều thêm mục vào `02`, `23`, `24`, bảng mốc phát hành ở `01`, số đếm ở `index.md` và tăng số phiên bản đầu các tài liệu này, nên mỗi lần một PR merge thì mọi PR khác xung đột tài liệu, phải gộp main và chạy lại CI (khoảng 40 phút); `gh pr update-branch` cũng không gộp được.
+- Thêm thư mục `tai_lieu/thay_doi_cho_gom/` kèm `README.md` mô tả quy ước và định dạng tệp mảnh; tập lệnh `scripts/gom-thay-doi.mjs` (Node, không thêm gói) có chế độ `--kiem` và chế độ gom; kiểm thử đơn vị `tests/tai-lieu/gom-thay-doi.test.mjs` (chạy trong `pnpm test` của gói `tests`); CI thêm bước `--kiem` và bước cảnh báo PR thường sửa trực tiếp `02`, `23`, `24`, `index.md`.
+- Thử gom trên bản sao `tai_lieu` với hai tệp mảnh mẫu: mục 02, 24, 23 chèn đúng chỗ theo thứ tự, phiên bản phần mềm chốt 0.145.0 rồi 0.145.1, dòng 01 chèn trước 1.0.0, số đếm và khoảng mã ở `index.md` đúng, phiên bản đầu tài liệu tăng một lần. Kết quả ngày 26/10/2026: kiểm thử đơn vị `tests/tai-lieu/gom-thay-doi.test.mjs` đạt 5/5; `node scripts/gom-thay-doi.mjs --kiem`, lint, kiểm tra định dạng đạt.
 
 #### Quyết định
 
-- Bộ kiểm đã đo ra vi phạm thật ở trang đăng nhập (vùng chạm dưới 44 px, ô nhập 15 px, tương phản màu). Phần 26c không sửa giao diện (thuộc 26d cho ứng dụng giáo viên và phụ huynh, 26e cho cổng quản trị): các vi phạm đó ghi ở `device-baseline.json` kèm phần chịu trách nhiệm; spec chỉ hỏng khi có vi phạm mới ngoài đường cơ sở, xóa khỏi tệp khi đã sửa.
-- Ảnh chụp tham chiếu chưa có tệp gốc trong kho (kết xuất khác nhau giữa hệ điều hành): tạo bằng `--update-snapshots` ở Linux của CI rồi đưa vào kho.
-- Số phút đo của việc mới ở CI chưa có: ghi vào YCTD-233 sau lần chạy đầu của yêu cầu kéo.
+- Eric đồng ý ngày 2026-10-26 chuyển sang tệp mảnh theo từng PR, gom định kỳ. Chi tiết (tên thư mục, định dạng, cách đánh số phiên bản khi gom, cảnh báo không chặn) Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11.
+- PR này là PR cuối cùng sửa trực tiếp `02`, `24`, `index.md` theo cách cũ. Không tăng phiên bản phần mềm (chỉ đổi quy trình tài liệu và CI).
 
 #### Thay đổi
 
-- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-233, `21_KICH_BAN_KIEM_THU.md` CT-1112 đến CT-1114, `23_LICH_SU_PHIEN_BAN.md` 0.146.0.
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-291, `thay_doi_cho_gom/README.md`, `01_KE_HOACH_TONG_THE.md` mục 9, `19_CHI_DAN_HE_THONG_AI.md` mục 2, đầu `23_LICH_SU_PHIEN_BAN.md`, `index.md`.
 
 #### Vấn đề tồn đọng
 
-- Sửa các vi phạm ở đường cơ sở (26d, 26e); tạo ảnh chụp tham chiếu ở CI; đo thời gian việc `kiem-thu-thiet-bi`.
+- Các PR đang mở (188, 191, 192, 193) đã sửa trực tiếp tài liệu chung theo cách cũ; phiên điều phối quyết định chuyển phần đó sang tệp mảnh hay để merge như cũ. Lần gom đầu tiên chưa chạy.
+
 ### 2026-10-26 — DT-26 phần 26a: vỏ ứng dụng web cài được dùng chung
 
 #### Công việc đã thực hiện
