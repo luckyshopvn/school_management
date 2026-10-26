@@ -1,7 +1,13 @@
 import { createHash } from 'node:crypto';
 import { validationError, type FieldError } from '@school-management/server';
 import { isSchoolLevelCode, type SchoolLevelCode } from '@school-management/shared';
-import { readInteger, readOptionalText, readOptionalUuid, readRequiredText, type RequestBody } from '../common/request-fields.js';
+import {
+  readInteger,
+  readOptionalText,
+  readOptionalUuid,
+  readRequiredText,
+  type RequestBody,
+} from '../common/request-fields.js';
 import {
   COGNITIVE_LABELS,
   COGNITIVE_LEVELS,
@@ -21,10 +27,14 @@ import type { AiPrompt } from './ai-provider.js';
 export const AI_RULE_CODE = 'YCTD-214';
 export const MAXIMUM_DRAFT_QUESTIONS = 10;
 
-const CONTROL = /[\u0000-\u001f\u007f]+/g;
+// Ký tự điều khiển (mã 0 đến 31 và 127) thay bằng khoảng trắng
+const withoutControl = (text: string) =>
+  [...text]
+    .map((character) => (character.charCodeAt(0) < 32 || character.charCodeAt(0) === 127 ? ' ' : character))
+    .join('');
 
 // Gộp khoảng trắng và ký tự xuống dòng: một trường chữ không thể tự thêm dòng giả của mẫu
-const flatten = (text: string) => text.replace(CONTROL, ' ').replace(/\s+/g, ' ').trim();
+const flatten = (text: string) => withoutControl(text).replace(/\s+/g, ' ').trim();
 
 // ---------- Quét dữ liệu cá nhân
 
@@ -38,9 +48,10 @@ export const PERSONAL_DATA_LABELS: Record<PersonalDataKind, string> = {
 };
 
 const EMAIL = /[A-Za-z0-9._%+-]+@[A-Za-z0-9-]+(?:\.[A-Za-z0-9-]+)*\.[A-Za-z]{2,}/;
-const DIGIT_RUN = /\+?\d[\d\s.\-]{6,}\d/g;
+const DIGIT_RUN = /\+?\d[\d\s.-]{6,}\d/g;
 const CODE_WITH_DIGITS = /(?<![A-Za-z0-9])[A-Za-z]{1,4}[\s-]?\d{5,}(?![A-Za-z0-9])/;
-const ID_WORD = /(?:cccd|cmnd|cmt|căn cước|can cuoc|chứng minh|chung minh|mã định danh|ma dinh danh|mã học sinh|ma hoc sinh)/i;
+const ID_WORD =
+  /(?:cccd|cmnd|cmt|căn cước|can cuoc|chứng minh|chung minh|mã định danh|ma dinh danh|số định danh|so dinh danh|mã học sinh|ma hoc sinh)/i;
 
 // Chuẩn hóa để so tên: bỏ dấu, chữ thường, một khoảng trắng
 export function normalizeName(text: string): string {
@@ -177,7 +188,11 @@ const QUESTION_SYSTEM = [
   'essay không có "options" và "answer", "guidance" là hướng dẫn chấm. "score" mặc định 1.',
 ].join(' ');
 
-export function buildQuestionPrompt(request: QuestionDraftRequest, subjectName: string, topicName: string | null): AiPrompt {
+export function buildQuestionPrompt(
+  request: QuestionDraftRequest,
+  subjectName: string,
+  topicName: string | null,
+): AiPrompt {
   const topic = topicName ?? request.topic_text ?? 'không nêu';
   const user = [
     `CAP_HOC: ${request.school_level}`,
@@ -304,7 +319,11 @@ export interface LessonPlanDraft {
 }
 
 const textList = (value: unknown): string[] =>
-  Array.isArray(value) ? value.filter((item): item is string => typeof item === 'string' && item.trim() !== '').map((item) => item.trim().slice(0, 1000)) : [];
+  Array.isArray(value)
+    ? value
+        .filter((item): item is string => typeof item === 'string' && item.trim() !== '')
+        .map((item) => item.trim().slice(0, 1000))
+    : [];
 
 export function lessonPlanOf(text: string): LessonPlanDraft | null {
   const parsed = extractJson(text);
@@ -315,7 +334,8 @@ export function lessonPlanOf(text: string): LessonPlanDraft | null {
     .filter(isRecord)
     .map((item) => ({
       name: typeof item.name === 'string' ? item.name.trim().slice(0, 200) : '',
-      minutes: typeof item.minutes === 'number' && Number.isFinite(item.minutes) ? Math.max(0, Math.round(item.minutes)) : 0,
+      minutes:
+        typeof item.minutes === 'number' && Number.isFinite(item.minutes) ? Math.max(0, Math.round(item.minutes)) : 0,
       description: typeof item.description === 'string' ? item.description.trim().slice(0, 2000) : '',
     }))
     .filter((item) => item.name);
@@ -334,7 +354,10 @@ export function lessonPlanOf(text: string): LessonPlanDraft | null {
 
 export const AI_DRAFT_NOTICE = 'Bản nháp do trợ lý AI soạn, cần giáo viên kiểm tra trước khi dùng.';
 
-export function lessonPlanMarkdown(plan: LessonPlanDraft, header: { subject: string; grade: string; minutes: number }): string {
+export function lessonPlanMarkdown(
+  plan: LessonPlanDraft,
+  header: { subject: string; grade: string; minutes: number },
+): string {
   const list = (items: string[]) => (items.length > 0 ? items.map((item) => `- ${item}`).join('\n') : '- (chưa có)');
   return [
     `# ${plan.title}`,
@@ -350,7 +373,9 @@ export function lessonPlanMarkdown(plan: LessonPlanDraft, header: { subject: str
     list(plan.preparation),
     '',
     '## Tiến trình dạy học',
-    ...plan.activities.map((item, index) => `${index + 1}. **${item.name}** (${item.minutes} phút): ${item.description}`),
+    ...plan.activities.map(
+      (item, index) => `${index + 1}. **${item.name}** (${item.minutes} phút): ${item.description}`,
+    ),
     '',
     '## Kiểm tra, đánh giá',
     plan.assessment || '(chưa có)',

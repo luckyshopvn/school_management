@@ -149,10 +149,17 @@ export function parseAiSettings(body: RequestBody, providerCodes: string[]): AiS
     }
   }
   let perUser: number | null = null;
-  if (body?.per_user_daily_requests !== undefined && body.per_user_daily_requests !== null && body.per_user_daily_requests !== '') {
+  if (
+    body?.per_user_daily_requests !== undefined &&
+    body.per_user_daily_requests !== null &&
+    body.per_user_daily_requests !== ''
+  ) {
     const value = body.per_user_daily_requests;
     if (typeof value !== 'number' || !Number.isInteger(value) || value < 0 || value > 10_000) {
-      errors.push({ field: 'per_user_daily_requests', message: 'Số nguyên từ 0 đến 10.000, để trống là không giới hạn' });
+      errors.push({
+        field: 'per_user_daily_requests',
+        message: 'Số nguyên từ 0 đến 10.000, để trống là không giới hạn',
+      });
     } else {
       perUser = value;
     }
@@ -545,7 +552,12 @@ export class AiAssistantService {
     const settings = await this.settings();
     const resolved = await this.resolve(settings);
     const { database } = await this.currentSchoolYear.require();
-    const subject = await this.assertSubject(database, { id: request.subject_id }, request.school_level, request.grade_level_code);
+    const subject = await this.assertSubject(
+      database,
+      { id: request.subject_id },
+      request.school_level,
+      request.grade_level_code,
+    );
     let topicName: string | null = null;
     if (request.topic_id) {
       const topic = await database
@@ -608,7 +620,8 @@ export class AiAssistantService {
       questions: created,
       skipped,
       tokens: { input: completion.inputTokens, output: completion.outputTokens },
-      notice: 'Câu hỏi do AI soạn đang ở trạng thái nháp: kiểm tra, sửa rồi gửi thẩm định; chỉ dùng trong đề sau khi được duyệt',
+      notice:
+        'Câu hỏi do AI soạn đang ở trạng thái nháp: kiểm tra, sửa rồi gửi thẩm định; chỉ dùng trong đề sau khi được duyệt',
     };
   }
 
@@ -619,7 +632,12 @@ export class AiAssistantService {
     const settings = await this.settings();
     const resolved = await this.resolve(settings);
     const { database } = await this.currentSchoolYear.require();
-    const subject = await this.assertSubject(database, { code: request.subject_code }, request.school_level, request.grade_level_code);
+    const subject = await this.assertSubject(
+      database,
+      { code: request.subject_code },
+      request.school_level,
+      request.grade_level_code,
+    );
     const prompt = buildLessonPlanPrompt(request, subject.name);
     const context: RequestContext = {
       user: currentUser,
@@ -660,7 +678,8 @@ export class AiAssistantService {
       request_id: logId,
       resource,
       tokens: { input: completion.inputTokens, output: completion.outputTokens },
-      notice: 'Kế hoạch bài dạy do AI soạn là bản nháp riêng tư: kiểm tra, điền giấy phép rồi gửi duyệt trước khi chia sẻ',
+      notice:
+        'Kế hoạch bài dạy do AI soạn là bản nháp riêng tư: kiểm tra, điền giấy phép rồi gửi duyệt trước khi chia sẻ',
     };
   }
 
@@ -687,7 +706,12 @@ export class AiAssistantService {
         model: resolved.credentials.model,
         promptSha256: sha,
       });
-      return { ...result, key_mode: resolved.mode, provider: resolved.provider.code, model: resolved.credentials.model };
+      return {
+        ...result,
+        key_mode: resolved.mode,
+        provider: resolved.provider.code,
+        model: resolved.credentials.model,
+      };
     } catch (error) {
       const message = error instanceof AiProviderError ? error.message : 'Không kiểm tra được kết nối AI';
       await this.log(context, {

@@ -87,7 +87,10 @@ describe('computeAiCharges (CT-AI-1)', () => {
       { model: 'rieng', requests: 1, inputTokens: 1000, outputTokens: 1000 },
       { model: 'chung', requests: 1, inputTokens: 1000, outputTokens: 1000 },
     ]);
-    assert.deepEqual(result.lines.map((line) => line.amount).sort((left, right) => left - right), [600, 2000]);
+    assert.deepEqual(
+      result.lines.map((line) => line.amount).sort((left, right) => left - right),
+      [600, 2000],
+    );
     const empty = computeAiCharges({ ...PRICING, inputPricePer1k: null, outputPricePer1k: null }, [
       { model: 'x', requests: 1, inputTokens: 10, outputTokens: 10 },
     ]);

@@ -31,11 +31,7 @@ const ENDPOINT_PATTERN = /^https?:\/\/[^\s/$.?#][^\s]*$/;
 export class PlatformAiError extends Error {}
 
 export async function readPlatformAiSettings(platform: Executor): Promise<PlatformAiSettings> {
-  const row = await platform
-    .selectFrom('platform_settings')
-    .select('value')
-    .where('key', '=', 'ai')
-    .executeTakeFirst();
+  const row = await platform.selectFrom('platform_settings').select('value').where('key', '=', 'ai').executeTakeFirst();
   const value = (row?.value ?? {}) as Record<string, unknown>;
   const text = (key: string, fallback: string) =>
     typeof value[key] === 'string' && (value[key] as string).trim() ? (value[key] as string).trim() : fallback;
@@ -149,7 +145,12 @@ export async function readPlatformAiKey(platform: Executor, masterKey: Buffer): 
     return null;
   }
   return apiKey
-    ? { enabled: row.enabled, apiKey, hint: row.hints.api_key ?? hintOf(apiKey), version: `${row.updated_at.getTime()}` }
+    ? {
+        enabled: row.enabled,
+        apiKey,
+        hint: row.hints.api_key ?? hintOf(apiKey),
+        version: `${row.updated_at.getTime()}`,
+      }
     : null;
 }
 

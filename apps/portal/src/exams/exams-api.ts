@@ -74,6 +74,8 @@ export interface Question {
   author_user_id: string;
   author_name: string;
   use_count: number;
+  // Câu do trợ lý AI soạn nháp (DT-23 phần 23d)
+  ai_generated?: boolean;
 }
 
 export interface MatrixRow {

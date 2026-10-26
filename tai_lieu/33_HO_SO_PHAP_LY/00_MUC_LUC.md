@@ -31,6 +31,7 @@
 | PL-13 | [13_CHINH_SACH_LUU_GIU_VA_XOA.md](13_CHINH_SACH_LUU_GIU_VA_XOA.md) | Chính sách lưu giữ và xóa dữ liệu | Thường trực | Nền tảng ban hành | Cấu hình `platform_settings`, `plans` |
 | PL-14 | [14_HUONG_DAN_MA_HOA_DU_LIEU_TRE_EM.md](14_HUONG_DAN_MA_HOA_DU_LIEU_TRE_EM.md) | Hướng dẫn mã hóa trường dữ liệu trẻ em bằng khóa riêng của trường và giới hạn | Kèm PL-07 | Nền tảng | — |
 | PL-15 | [15_DIEU_KIEN_DICH_VU_XU_LY_DU_LIEU.md](15_DIEU_KIEN_DICH_VU_XU_LY_DU_LIEU.md) | Danh mục kiểm tra điều kiện kinh doanh dịch vụ xử lý dữ liệu cá nhân của nền tảng | Trước khi nhận dữ liệu thật của trường đầu tiên | Eric, luật sư | Ngoài kho |
+| PL-16 | [16_TRO_LY_AI_SOAN_NHAP.md](16_TRO_LY_AI_SOAN_NHAP.md) | Bản nháp: trợ lý AI soạn câu hỏi, kế hoạch bài dạy (DT-23 phần 23d, YCTD-214) | Trước khi bật AI ở trường thật | Luật sư của Eric rà; Eric chốt nhà cung cấp | Ngoài kho; `school_hosting` khi chốt nhà cung cấp |
 
 ## 2. Thứ tự dùng cho một trường dùng thử dữ liệu thật ở máy chủ ngoài Việt Nam
 
@@ -86,6 +87,8 @@ Claude đọc ngày **2026-10-25** trên Cổng thông tin điện tử Chính p
 | Nghị định 331/2026/NĐ-CP về bảo vệ an ninh mạng đối với hệ thống thông tin | 19/08/2026; hiệu lực 19/08/2026 | `chinhphu.vn` (thuộc tính, tệp gốc); bài `mps.gov.vn`, `baochinhphu.vn` | Tiêu chí năm cấp độ, ngưỡng dữ liệu cá nhân, Điều 8, 39 qua bài của Bộ Công an; **chưa đọc toàn văn** (tệp gốc là ảnh quét) |
 | Nghị định 53/2022/NĐ-CP quy định chi tiết một số điều của Luật An ninh mạng | 15/08/2022; hiệu lực 01/10/2022 | `vanban.chinhphu.vn` (thuộc tính) | **Chưa xác định được còn hiệu lực hay đã bị thay thế** sau khi Luật 116/2025 và Nghị định 333/2026 có hiệu lực; các bài chính thức không nêu điều khoản bãi bỏ. Luật sư kiểm |
 | Nghị định 85/2016/NĐ-CP về bảo đảm an toàn hệ thống thông tin theo cấp độ; Thông tư 12/2022/TT-BTTTT | 01/07/2016; 12/08/2022 | Bài `mps.gov.vn` về Nghị định 331/2026 | Nghị định 331/2026 Điều 39 nhắc Nghị định 85/2016 ở phần chuyển tiếp; **chưa xác định được văn bản bãi bỏ chính thức**. Luật sư kiểm |
+| Luật Trí tuệ nhân tạo số 134/2025/QH15 (bổ sung 2026-10-26, YCTD-214) | Thông qua 10/12/2025; hiệu lực 01/03/2026 | Bản Word `luatvietnam.vn`; mục lục `thuvienphapluat.vn` | **Toàn văn** 35 điều; xem PL-16 mục 1 |
+| Nghị định 142/2026/NĐ-CP hướng dẫn Luật Trí tuệ nhân tạo; Quyết định 33/2026/QĐ-TTg danh mục hệ thống trí tuệ nhân tạo rủi ro cao (bổ sung 2026-10-26) | 30/04/2026; hiệu lực 15/08/2026 (Quyết định) | `thuviennhadat.vn`; báo chính thống | **Chỉ thuộc tính và tóm tắt**; chưa đọc toàn văn và phụ lục lĩnh vực giáo dục |
 
 Những điểm Claude **chưa xác minh được** từ văn bản gốc, luật sư cần kiểm trước khi dùng:
 
@@ -94,3 +97,4 @@ Những điểm Claude **chưa xác minh được** từ văn bản gốc, luậ
 3. Tình trạng hiệu lực của Nghị định 53/2022/NĐ-CP, Nghị định 85/2016/NĐ-CP, Thông tư 12/2022/TT-BTTTT.
 4. Nền tảng có thuộc diện **kinh doanh dịch vụ xử lý dữ liệu cá nhân** cần Giấy chứng nhận đủ điều kiện (Điều 21 đến 26 Nghị định 356/2025/NĐ-CP) hay không; xem PL-15. Đây là điều kiện có thể chặn việc nhận dữ liệu thật.
 5. Các văn bản chuyên ngành giáo dục về hồ sơ, sổ sách điện tử và thời hạn lưu trữ hồ sơ học sinh (chưa tra ở phần này), dùng để điền PL-13.
+6. (Bổ sung 2026-10-26, YCTD-214) Toàn văn Nghị định 142/2026/NĐ-CP, phụ lục Quyết định 33/2026/QĐ-TTg về lĩnh vực giáo dục, quy định về gắn nhãn nội dung do AI tạo; Luật Bảo vệ trẻ em 2016 về bí mật đời sống riêng tư của trẻ em. Xem PL-16 mục 6.

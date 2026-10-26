@@ -2,6 +2,7 @@ import { useCallback, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { PERMISSION_CODES } from '@school-management/shared';
 import { Alert, Button, FORM_CONTROL_CLASS, StatusBadge, Toast } from '@school-management/ui';
+import { AiQuestionDraftPanel } from '../ai-assistant/AiDraftPanels.js';
 import { AppShell } from '../pages/AppShell.js';
 import { menuPageTitle } from '../pages/page-title.js';
 import { useHasPermission } from '../session/permissions.js';
@@ -67,6 +68,7 @@ export function QuestionBankPage() {
   const reviewer = useHasPermission(PERMISSION_CODES.examReview);
   const manager = useHasPermission(PERMISSION_CODES.examManage);
   const canReview = reviewer || manager;
+  const author = useHasPermission(PERMISSION_CODES.questionAuthor);
   const queryClient = useQueryClient();
   const [toastMessage, setToastMessage] = useState<string>();
   const closeToast = useCallback(() => setToastMessage(undefined), []);
@@ -186,6 +188,13 @@ export function QuestionBankPage() {
                     </div>
                   ) : null}
                 </section>
+                {author ? (
+                  <AiQuestionDraftPanel
+                    scope={{ level: scope.level, subjectId: scope.subjectId, grade: scope.grade }}
+                    topics={topics.data ?? []}
+                    onDone={setToastMessage}
+                  />
+                ) : null}
                 <section className="flex flex-col gap-3" aria-label="Soạn câu hỏi">
                   <h2 className="text-section-title font-semibold text-text">
                     {draft.id ? 'Sửa câu hỏi' : 'Soạn câu hỏi'}
@@ -364,6 +373,11 @@ export function QuestionBankPage() {
                           <tr key={question.id} className="border-t border-border align-top">
                             <td className="px-3 py-2">
                               {question.content}
+                              {question.ai_generated ? (
+                                <span className="block text-label text-text-secondary">
+                                  Do AI soạn, cần giáo viên kiểm tra
+                                </span>
+                              ) : null}
                               {question.review_note ? (
                                 <span className="block text-label text-danger">Thẩm định: {question.review_note}</span>
                               ) : null}

@@ -17,4 +17,6 @@ export const PLATFORM_MENU: readonly PlatformMenuItem[] = [
   { key: 'maintenance', label: 'Bảo trì' },
   // Đơn vị cấp trên: cây đơn vị, tài khoản cấp trên (S6)
   { key: 'parent-orgs', label: 'Đơn vị cấp trên' },
+  // Trợ lý AI: khóa nền tảng, đơn giá AI theo gói, token đã dùng (DT-23 phần 23d)
+  { key: 'ai', label: 'Trợ lý AI' },
 ];

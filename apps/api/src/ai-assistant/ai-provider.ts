@@ -123,7 +123,13 @@ function mockQuestions(user: string): string {
           guidance: null,
         };
       case 'short_answer':
-        return { ...base, content: `Câu hỏi mẫu ${number}: 2 + 3 bằng bao nhiêu?`, options: [], answer: ['5'], guidance: null };
+        return {
+          ...base,
+          content: `Câu hỏi mẫu ${number}: 2 + 3 bằng bao nhiêu?`,
+          options: [],
+          answer: ['5'],
+          guidance: null,
+        };
       case 'essay':
         return {
           ...base,
@@ -136,7 +142,12 @@ function mockQuestions(user: string): string {
         return {
           ...base,
           content: `Câu hỏi mẫu ${number}: chọn phương án đúng`,
-          options: ['Phương án A của câu mẫu', 'Phương án B của câu mẫu', 'Phương án C của câu mẫu', 'Phương án D của câu mẫu'],
+          options: [
+            'Phương án A của câu mẫu',
+            'Phương án B của câu mẫu',
+            'Phương án C của câu mẫu',
+            'Phương án D của câu mẫu',
+          ],
           answer: ['B'],
           guidance: null,
         };
@@ -175,7 +186,12 @@ export class MockAiProvider implements AiProvider {
       this.failNext = null;
       throw new AiProviderError(message);
     }
-    const text = prompt.kind === 'questions' ? mockQuestions(prompt.user) : prompt.kind === 'lesson_plan' ? mockLessonPlan() : 'ok';
+    const text =
+      prompt.kind === 'questions'
+        ? mockQuestions(prompt.user)
+        : prompt.kind === 'lesson_plan'
+          ? mockLessonPlan()
+          : 'ok';
     return {
       text,
       inputTokens: tokensOf(prompt.system) + tokensOf(prompt.user),

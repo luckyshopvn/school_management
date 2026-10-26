@@ -1654,7 +1654,7 @@ Cỡ ước lượng (một phần của DT-16 là một đơn vị, chỉ để
 |---|---|---|
 | 23a | 1 | Chưa làm; YCTD-211 giữ sẵn |
 | 23b | 1 | Chưa làm; YCTD-212 giữ sẵn |
-| 23d | 1 | Chưa làm; YCTD-214 giữ sẵn |
+| 23d | 1 | Đã làm, YCTD-214, phiên bản 0.140.0, PR [số PR]: bộ nối `AiProvider` (`anthropic`, `mock`), hai cấu hình khóa, bật tắt theo trường, lời nhắc từ mẫu cố định và bộ quét dữ liệu cá nhân, bản nháp qua duyệt 22g1 và kiểm duyệt 22h1, nhật ký, hạn mức theo gói, phí theo token qua S5b, màn hình quản trị, e2e spec 153, bản nháp pháp lý PL-16 |
 | 23c | 2 | Chưa làm; YCTD-213 giữ sẵn, bắt đầu khi 23a và 23b đã gộp |
 
 Bản kế hoạch này là YCTD-210, chỉ đổi tài liệu (không tăng phiên bản phần mềm).

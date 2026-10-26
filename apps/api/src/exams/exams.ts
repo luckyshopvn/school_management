@@ -433,10 +433,16 @@ export class ExamsService {
       const existing = await this.findQuestion(database, questionId);
       if (existing.ai_generated) {
         if (existing.status !== 'review') {
-          throw ruleViolationError(EXAM_RULE_CODE, 'Câu do AI soạn phải được người soạn kiểm tra và gửi thẩm định trước khi duyệt');
+          throw ruleViolationError(
+            EXAM_RULE_CODE,
+            'Câu do AI soạn phải được người soạn kiểm tra và gửi thẩm định trước khi duyệt',
+          );
         }
         if (existing.author_user_id === currentUser.id) {
-          throw ruleViolationError(EXAM_RULE_CODE, 'Câu do AI soạn phải do người khác thẩm định, không tự duyệt câu mình yêu cầu AI soạn');
+          throw ruleViolationError(
+            EXAM_RULE_CODE,
+            'Câu do AI soạn phải do người khác thẩm định, không tự duyệt câu mình yêu cầu AI soạn',
+          );
         }
       }
     }

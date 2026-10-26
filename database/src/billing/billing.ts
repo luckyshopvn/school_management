@@ -331,7 +331,9 @@ export async function issueInvoice(
         period_end: input.range.end,
         plan_id: input.plan.planId,
         plan_code: input.plan.planCode,
-        price_rule: JSON.stringify(aiPricing && aiUsage.length > 0 ? { ...input.plan.rule, ai_pricing: aiPricing } : input.plan.rule),
+        price_rule: JSON.stringify(
+          aiPricing && aiUsage.length > 0 ? { ...input.plan.rule, ai_pricing: aiPricing } : input.plan.rule,
+        ),
         usage: JSON.stringify(aiUsage.length > 0 ? { ...input.usage, ai: aiUsage } : input.usage),
         subtotal: charges.subtotal,
         discount_total: charges.discountTotal,

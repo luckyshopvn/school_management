@@ -37,6 +37,7 @@ Cha mẹ hoặc người đại diện theo pháp luật thay mặt học sinh t
 ## 5. Nơi lưu trữ và bên xử lý phụ
 
 - Dữ liệu của mỗi trường được tách riêng.
+- **Trợ lý AI (chỉ khi trường bật; bản nháp theo PL-16):** chỉ nội dung chương trình (cấp, khối, môn, chủ đề, yêu cầu cần đạt) được gửi cho nhà cung cấp AI; hệ thống không gửi dữ liệu cá nhân của học sinh, phụ huynh, cán bộ và chặn yêu cầu có thông tin đó. Nhật ký yêu cầu (người yêu cầu, loại, số token, mô hình; không lưu toàn văn lời nhắc) được giữ `[12]` tháng. Nhà cung cấp AI nằm trong danh sách ở PL-08 khi trường chọn cấu hình do nền tảng cấp khóa.
 - Danh sách nhà cung cấp hạ tầng (bên xử lý phụ) và vùng máy chủ: `[đường dẫn tới danh sách công khai theo PL-08]`.
 - **Môi trường thử nghiệm**: với trường đã đồng ý dùng thử, dữ liệu được lưu tạm thời trên máy chủ đặt ngoài Việt Nam (vùng `[Singapore]`), đây là chuyển dữ liệu cá nhân xuyên biên giới; Nhà trường và Nền tảng lập hồ sơ đánh giá tác động theo quy định và chuyển dữ liệu về máy chủ trong nước theo lộ trình đã thông báo.
 

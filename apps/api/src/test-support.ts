@@ -85,6 +85,8 @@ export async function startApiTestEnvironment(
       syncExportRowLimit: options.syncExportRowLimit,
       facebookPublisher: 'development',
       zaloSender: 'development',
+      // Bộ giả lập nhà cung cấp AI (DT-23 phần 23d)
+      aiMock: true,
     },
     { ...options, fileStorage: new MemoryFileStorage(), smsGateway },
   );

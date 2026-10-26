@@ -16,6 +16,18 @@
 
 ## 2. Danh sách phiên bản
 
+### Phiên bản 0.140.0 – 2026-10-26
+
+- Phạm vi thay đổi: DT-23 phần 23d, trợ lý AI soạn câu hỏi nháp và kế hoạch bài dạy nháp (YCTD-214).
+- Chức năng mới: màn hình 3.8 Trợ lý AI của trường (P01-86, MH-337); Soạn nháp bằng AI ở ngân hàng câu hỏi và kho học liệu (P01-87, P01-88, MH-338); trang Trợ lý AI và giới hạn AI của gói ở cổng nền tảng, dòng phí AI trên hóa đơn dịch vụ (P01-89, MH-339). Quy tắc BR-231 đến BR-233, quyết định QĐ-34, bảo mật BM-91.
+- Lỗi đã sửa: không có.
+- Thay đổi dữ liệu: năm học `0128`; hệ thống `0071` đến `0073`; nền tảng `0200` đến `0202`; xem `16_CO_SO_DU_LIEU.md` mục 18E.
+- Thay đổi API: nhóm `/ai/*` ở máy chủ API, `/auth/platform/ai` ở dịch vụ định danh, kết nối `ai` ở `/school-settings/integrations`; biến `AI_MOCK`; câu hỏi trả thêm `ai_generated`.
+- Kiểm thử: kịch bản CT-1078 đến CT-1090 (CT-23d-1 đến CT-23d-16, CT-AI-1, CT-AI-2 trong mã kiểm thử). Kết quả ghi ở PR [số PR].
+- Rủi ro: dữ liệu cá nhân lọt qua bộ quét ở mô tả tự do (đã nêu ở PL-16); đơn giá và nhà cung cấp chưa nhập; mức rủi ro theo Luật Trí tuệ nhân tạo chờ luật sư.
+- Khả năng tương thích: mặc định tắt nên trường hiện có không đổi; câu hỏi cũ có `ai_generated = false`.
+- Phương án quay lui: tắt AI theo trường hoặc hoàn lại commit gộp của nhánh 23d; các cột thêm có mặc định nên không cần quay lui dữ liệu.
+
 ### Phiên bản 0.139.0 – 2026-10-26
 
 - Phạm vi thay đổi: DT-SaaS phần S6, đơn vị cấp trên (YCTD-202).

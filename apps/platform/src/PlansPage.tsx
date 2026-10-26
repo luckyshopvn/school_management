@@ -17,6 +17,9 @@ interface Plan {
   max_active_students: number | null;
   max_storage_mb: number | null;
   max_school_levels: number | null;
+  // Hạn mức AI mỗi tháng (DT-23 phần 23d): trống là không giới hạn, 0 là không dùng AI
+  ai_max_requests: number | null;
+  ai_max_tokens: number | null;
   trial_days: number;
   pricing_mode: 'per_student' | 'per_school' | 'per_module';
   unit_price: number;
@@ -91,6 +94,8 @@ const emptyForm = {
   max_active_students: '',
   max_storage_mb: '',
   max_school_levels: '',
+  ai_max_requests: '',
+  ai_max_tokens: '',
   trial_days: '30',
   pricing_mode: 'per_student' as Plan['pricing_mode'],
   unit_price: '0',
@@ -149,6 +154,8 @@ export function PlansPage({ accessToken }: { accessToken: string }) {
         max_active_students: numberOrNull(form.max_active_students),
         max_storage_mb: numberOrNull(form.max_storage_mb),
         max_school_levels: numberOrNull(form.max_school_levels),
+        ai_max_requests: numberOrNull(form.ai_max_requests),
+        ai_max_tokens: numberOrNull(form.ai_max_tokens),
         trial_days: Number(form.trial_days),
         pricing_mode: form.pricing_mode,
         unit_price: Number(form.unit_price),
@@ -177,6 +184,8 @@ export function PlansPage({ accessToken }: { accessToken: string }) {
       max_active_students: plan.max_active_students?.toString() ?? '',
       max_storage_mb: plan.max_storage_mb?.toString() ?? '',
       max_school_levels: plan.max_school_levels?.toString() ?? '',
+      ai_max_requests: plan.ai_max_requests?.toString() ?? '',
+      ai_max_tokens: plan.ai_max_tokens?.toString() ?? '',
       trial_days: String(plan.trial_days),
       pricing_mode: plan.pricing_mode,
       unit_price: String(plan.unit_price),
@@ -236,6 +245,8 @@ export function PlansPage({ accessToken }: { accessToken: string }) {
                   plan.max_active_students !== null ? `${plan.max_active_students} học sinh` : null,
                   plan.max_storage_mb !== null ? `${plan.max_storage_mb} MB` : null,
                   plan.max_school_levels !== null ? `${plan.max_school_levels} cấp học` : null,
+                  plan.ai_max_requests !== null ? `${plan.ai_max_requests} yêu cầu AI mỗi tháng` : null,
+                  plan.ai_max_tokens !== null ? `${plan.ai_max_tokens} token AI mỗi tháng` : null,
                 ]
                   .filter(Boolean)
                   .join(', ') || 'Không giới hạn'}
@@ -318,6 +329,22 @@ export function PlansPage({ accessToken }: { accessToken: string }) {
             inputMode="numeric"
             value={form.max_school_levels}
             onChange={(event) => setForm({ ...form, max_school_levels: event.target.value })}
+          />
+        </label>
+        <label>
+          Tối đa yêu cầu AI mỗi tháng (trống là không giới hạn, 0 là không dùng AI)
+          <input
+            inputMode="numeric"
+            value={form.ai_max_requests}
+            onChange={(event) => setForm({ ...form, ai_max_requests: event.target.value })}
+          />
+        </label>
+        <label>
+          Tối đa token AI mỗi tháng (trống là không giới hạn)
+          <input
+            inputMode="numeric"
+            value={form.ai_max_tokens}
+            onChange={(event) => setForm({ ...form, ai_max_tokens: event.target.value })}
           />
         </label>
         <label>

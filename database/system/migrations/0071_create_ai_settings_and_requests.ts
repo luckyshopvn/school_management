@@ -21,7 +21,10 @@ export const migration: Migration = {
       .addColumn('model', 'text', (column) => column.check(sql`char_length(model) between 1 and 100`))
       .addColumn('per_user_daily_requests', 'integer', (column) => column.check(sql`per_user_daily_requests >= 0`))
       .addColumn('log_retention_months', 'integer', (column) =>
-        column.notNull().defaultTo(12).check(sql`log_retention_months between 1 and 120`),
+        column
+          .notNull()
+          .defaultTo(12)
+          .check(sql`log_retention_months between 1 and 120`),
       )
       .addColumn('updated_at', 'timestamptz', (column) => column.notNull().defaultTo(sql`now()`))
       .addColumn('updated_by_name', 'text')

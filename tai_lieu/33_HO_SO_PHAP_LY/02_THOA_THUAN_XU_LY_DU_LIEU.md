@@ -63,7 +63,8 @@ Nền tảng áp dụng tối thiểu:
 1. Nhà trường đồng ý cho Nền tảng dùng các bên xử lý phụ ở Phụ lục B (theo PL-08 tại ngày ký).
 2. Nền tảng ký với bên xử lý phụ điều khoản bảo vệ dữ liệu không kém Thỏa thuận này, đề nghị bên xử lý phụ thực hiện nghĩa vụ bảo vệ dữ liệu theo pháp luật Việt Nam (điểm b khoản 3 Điều 12 Nghị định 356/2025/NĐ-CP), và chịu trách nhiệm trước Nhà trường về việc làm của bên xử lý phụ.
 3. Thêm, đổi bên xử lý phụ hoặc vùng máy chủ: báo trước `[30]` ngày; Nhà trường có quyền phản đối, chấm dứt không bị phạt.
-4. Nếu hồ sơ triển khai đặt máy chủ ngoài Việt Nam, việc lưu trữ đó là **chuyển dữ liệu cá nhân xuyên biên giới** (khoản 1 Điều 20 Luật 91/2025; điểm a khoản 1 Điều 17 Nghị định 356/2025/NĐ-CP); hai bên làm theo PL-03, PL-07, PL-10.
+4. Tính năng trợ lý AI (nếu Nhà trường bật, PL-16): nhà cung cấp AI được liệt kê ở Phụ lục B khi Nhà trường chọn cấu hình do Nền tảng cấp khóa; chỉ nhận nội dung chương trình, không nhận dữ liệu cá nhân; Nền tảng không dùng và không cho nhà cung cấp dùng nội dung đó để huấn luyện mô hình khi nhà cung cấp cho phép chọn.
+5. Nếu hồ sơ triển khai đặt máy chủ ngoài Việt Nam, việc lưu trữ đó là **chuyển dữ liệu cá nhân xuyên biên giới** (khoản 1 Điều 20 Luật 91/2025; điểm a khoản 1 Điều 17 Nghị định 356/2025/NĐ-CP); hai bên làm theo PL-03, PL-07, PL-10.
 
 ## Điều 8. Thông báo vi phạm
 

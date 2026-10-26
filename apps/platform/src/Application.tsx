@@ -3,6 +3,7 @@ import { PLATFORM_MENU } from './platform-menu.js';
 import { SchoolsPage } from './SchoolsPage.js';
 import { PlansPage } from './PlansPage.js';
 import { BillingPage } from './BillingPage.js';
+import { AiPage } from './AiPage.js';
 import { DashboardPage } from './DashboardPage.js';
 import { MaintenancePage } from './MaintenancePage.js';
 import { AdminUnitsPage } from './AdminUnitsPage.js';
@@ -121,6 +122,7 @@ function Shell({ accessToken, onLogout }: { accessToken: string; onLogout: () =>
         {active === 'dashboard' ? <DashboardPage token={accessToken} /> : null}
         {active === 'maintenance' ? <MaintenancePage token={accessToken} /> : null}
         {active === 'parent-orgs' ? <AdminUnitsPage token={accessToken} /> : null}
+        {active === 'ai' ? <AiPage accessToken={accessToken} /> : null}
       </main>
     </div>
   );

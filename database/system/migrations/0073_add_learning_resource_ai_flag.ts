@@ -17,6 +17,10 @@ export const migration: Migration = {
   },
   async down(database) {
     await sql`drop index learning_resources_ai_idx`.execute(database);
-    await database.schema.alterTable('learning_resources').dropColumn('ai_generated').dropColumn('ai_request_id').execute();
+    await database.schema
+      .alterTable('learning_resources')
+      .dropColumn('ai_generated')
+      .dropColumn('ai_request_id')
+      .execute();
   },
 };

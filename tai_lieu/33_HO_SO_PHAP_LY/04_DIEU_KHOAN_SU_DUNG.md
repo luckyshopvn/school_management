@@ -27,7 +27,8 @@ Bạn chỉ dùng Phần mềm cho công việc của Nhà trường hoặc cho 
 2. Tải lên nội dung trái pháp luật, mã độc, nội dung xâm phạm quyền của người khác;
 3. Sao chép, công bố, chia sẻ dữ liệu cá nhân của học sinh, phụ huynh, cán bộ ra ngoài Phần mềm khi không có quyền;
 4. Đăng tải hình ảnh, thông tin đời sống riêng tư của trẻ em khi chưa có đồng ý theo quy định;
-5. Dùng Phần mềm để quảng cáo, kinh doanh riêng.
+5. Dùng Phần mềm để quảng cáo, kinh doanh riêng;
+6. (Khi trường bật trợ lý AI, DT-23 phần 23d, bản nháp theo PL-16) Nhập họ tên, số điện thoại, thư điện tử, số định danh hoặc thông tin cá nhân khác vào mô tả gửi cho trợ lý AI; dùng kết quả AI làm điểm hay nhận xét về học sinh; sử dụng hoặc công bố nội dung AI soạn khi chưa kiểm tra. Nội dung AI soạn luôn là bản nháp cần người có thẩm quyền duyệt.
 
 ## 4. Dữ liệu và quyền riêng tư
 

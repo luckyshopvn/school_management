@@ -7,6 +7,7 @@ import { RoleWorkspacesPage } from './accounts/RoleWorkspacesPage.js';
 import { SyncAccountsPage } from './accounts/SyncAccountsPage.js';
 import { ApiClientsPage } from './accounts/ApiClientsPage.js';
 import { IntegrationsPage } from './settings/IntegrationsPage.js';
+import { AiAssistantPage } from './ai-assistant/AiAssistantPage.js';
 import { NotificationsPage } from './notifications/NotificationsPage.js';
 import { ApprovalThresholdsPage } from './catalogs/ApprovalThresholdsPage.js';
 import { CommonCatalogPage } from './catalogs/CommonCatalogPage.js';
@@ -779,6 +780,8 @@ const routeTree = rootRoute.addChildren([
   createRoute({ getParentRoute: () => rootRoute, path: '/library/stocktakes', component: LibraryStocktakesPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/library/reports', component: LibraryReportsPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/library/settings', component: LibrarySettingsPage }),
+  // Trợ lý AI soạn nháp (DT-23 phần 23d)
+  createRoute({ getParentRoute: () => rootRoute, path: '/ai-assistant', component: AiAssistantPage }),
 ]);
 
 // Đường dẫn gốc lúc dựng (APP_BASE_PATH của vite, DT-SaaS phần S9): /quan-ly/ ở hồ sơ thử nghiệm, / mặc định

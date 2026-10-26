@@ -73,7 +73,10 @@ export function parseAiPricing(body: Body_): AiPricing {
         const valid = (value: unknown): value is number =>
           typeof value === 'number' && Number.isInteger(value) && value >= 0 && value <= MAXIMUM_MONEY;
         if (!/^[A-Za-z0-9][A-Za-z0-9._:/-]{0,99}$/.test(model) || !valid(entry?.input) || !valid(entry?.output)) {
-          errors.push({ field: `model_prices.${model}`, message: 'Mã mô hình hợp lệ, đơn giá vào và ra là số nguyên không âm' });
+          errors.push({
+            field: `model_prices.${model}`,
+            message: 'Mã mô hình hợp lệ, đơn giá vào và ra là số nguyên không âm',
+          });
           continue;
         }
         modelPrices[model] = { input: entry.input, output: entry.output };

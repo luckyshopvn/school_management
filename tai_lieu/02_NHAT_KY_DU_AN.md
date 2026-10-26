@@ -39,6 +39,33 @@
 
 - Còn chờ Eric: số tiền của phí AI (GD-103) khi triển khai 23d; 23d đọc văn bản pháp luật gốc và nhờ luật sư của Eric rà trước khi bật AI ở trường thật.
 
+### 2026-10-26 — DT-23 phần 23d: trợ lý AI soạn nháp
+
+#### Công việc đã thực hiện
+
+- Đọc mục 15.2 đến 15.6, GD-102 đến GD-104 của `32_KE_HOACH_THEO_HE_THONG_SO.md`; rà kho khóa kết nối của trường (S3), gói và giới hạn (S5a), quy tắc tính phí (S5b), ngân hàng câu hỏi (22g1), kho học liệu (22h1).
+- Thêm tệp năm học 0128 (cờ `questions.ai_generated`), hệ thống 0071 đến 0073 (`ai_settings`, `ai_requests`, mở `integration_secrets` cho `ai`, cờ ở `learning_resources`), nền tảng 0200 đến 0202 (hạn mức AI của gói, khóa AI nền tảng, `ai_token_usage`, `plan_ai_pricing`, dòng phí `ai`).
+- Mã: `apps/api/src/ai-assistant/` (bộ nối `AiProvider`: `anthropic`, `mock`; lời nhắc từ mẫu cố định và bộ quét dữ liệu cá nhân; dịch vụ, điểm cuối `/ai/*`, việc nền `ai-usage-sync`); `database/src/billing/ai-pricing.ts`, `platform-ai.ts`; thành phần AI trong `computeCharges` và `issueInvoice`; dịch vụ định danh `/auth/platform/ai`; cổng quản trị 3.8 Trợ lý AI, nút Soạn nháp bằng AI ở ngân hàng câu hỏi và kho học liệu; cổng nền tảng trang Trợ lý AI và giới hạn AI ở Gói dịch vụ; e2e spec 153.
+- Đọc toàn văn Luật Trí tuệ nhân tạo 134/2025/QH15 và viết bản nháp `33_HO_SO_PHAP_LY/16_TRO_LY_AI_SOAN_NHAP.md` (PL-16), bổ sung PL-02, PL-04, PL-05, PL-08, `00_MUC_LUC.md`.
+- Thêm quy tắc BR-231 đến BR-233, chức năng P01-86 đến P01-89, màn hình MH-337 đến MH-339, kịch bản CT-1078 đến CT-1090, tiêu chí AC-864 đến AC-868, bảo mật BM-91, quyết định QĐ-34, mục kiến trúc 12G, mục cơ sở dữ liệu 18E.
+
+#### Quyết định
+
+- Nhà cung cấp là bảng tra theo mã (`anthropic` mặc định, `mock` chỉ khi `AI_MOCK=true`, từ chối ở `NODE_ENV=production`); không có `if` theo nhà cung cấp ở mã nghiệp vụ.
+- Token miễn phí trừ theo tỷ lệ vào chi phí mọi mô hình; mỗi dòng làm tròn lên theo bước; dòng phí AI không tính vào phí tối thiểu chung của quy tắc; kỳ không dùng AI thì không có dòng AI; gói chưa nhập đơn giá thì cấu hình `platform` chưa dùng được (số tiền để trống theo GD-103).
+- Câu hỏi do AI soạn chỉ được duyệt khi đã gửi thẩm định và do người khác duyệt; kế hoạch bài dạy là học liệu nháp riêng tư, nội dung lưu thành tệp Markdown.
+- Yêu cầu nhà cung cấp đã trả lời nhưng kết quả không dùng được vẫn tính token (đã tốn); lỗi nhà cung cấp, bị chặn, bị từ chối thì không tính.
+- Hạn mức tháng của gói áp cho cả hai cấu hình (cấu hình `school` chỉ để chống lạm dụng, để trống là không giới hạn).
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-214, `07_QUY_TAC_NGHIEP_VU.md` BR-231 đến BR-233, `10_YEU_CAU_CHUC_NANG.md` P01-86 đến P01-89, `11_TIEU_CHI_NGHIEM_THU.md` AC-864 đến AC-868, `12_KIEN_TRUC_HE_THONG.md` QĐ-34 và mục 12G, `14_DAC_TA_GIAO_DIEN.md` MH-337 đến MH-339, `16_CO_SO_DU_LIEU.md` mục 18E, `17_DAC_TA_API.md`, `21_KICH_BAN_KIEM_THU.md` CT-1078 đến CT-1090, `22_BAO_MAT.md` BM-91, `23_LICH_SU_PHIEN_BAN.md` 0.140.0.
+
+#### Vấn đề tồn đọng
+
+- Bản nháp pháp lý PL-16 chờ luật sư của Eric rà (mức rủi ro theo phụ lục Quyết định 33/2026/QĐ-TTg, chuyển dữ liệu ra nước ngoài, tư cách các bên); nhà cung cấp AI, vùng máy chủ và số tiền thu để trống chờ Eric.
+- Bộ quét dữ liệu cá nhân so tên đầy đủ (từ hai chữ) và mẫu số, thư điện tử; không bắt được tên viết tắt hoặc thông tin định danh gián tiếp.
+
 ### 2026-10-26 — DT-SaaS phần S6: đơn vị cấp trên
 
 #### Công việc đã thực hiện

@@ -98,7 +98,8 @@ export function computeAiCharges(pricing: AiPricing, usage: AiModelUsage[]): AiC
     if (tokens === 0n) {
       continue;
     }
-    const raw = BigInt(item.inputTokens) * BigInt(item.price.input) + BigInt(item.outputTokens) * BigInt(item.price.output);
+    const raw =
+      BigInt(item.inputTokens) * BigInt(item.price.input) + BigInt(item.outputTokens) * BigInt(item.price.output);
     const payableRaw = total === 0n ? 0n : (raw * (total - free)) / total;
     const amount = ceilDivide(payableRaw, 1000n * step) * step;
     if (amount > BigInt(Number.MAX_SAFE_INTEGER)) {
