@@ -1,7 +1,7 @@
 # 11. TIÊU CHÍ NGHIỆM THU
 
 - Mô tả: Tiêu chí nghiệm thu cho từng chức năng, viết dạng Cho, Khi, Thì.
-- Phiên bản: 1.82
+- Phiên bản: 1.83
 - Ngày cập nhật: 2026-10-26
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -946,6 +946,13 @@ Các mã từ AC-94 đến AC-134 được viết trực tiếp trong mục 12 c
 | AC-871 | Cho câu hỏi và kế hoạch bài dạy do AI soạn / Khi soạn, duyệt, đưa vào đề / Thì câu vào ngân hàng ở trạng thái nháp với cờ do AI soạn, không dùng được trong đề; chưa gửi thẩm định hoặc người yêu cầu tự duyệt bị 422; người khác duyệt được và cờ giữ; kế hoạch bài dạy là học liệu nháp riêng tư, người khác không thấy, chưa điền giấy phép thì chưa gửi duyệt | P01-87, P01-88 |
 | AC-872 | Cho hạn mức và nhật ký / Khi vượt hạn mức mỗi người mỗi ngày, hạn mức yêu cầu hoặc token tháng của gói (cả hai cấu hình), nhà cung cấp lỗi / Thì chặn `PLAN_LIMIT_EXCEEDED` và ghi `blocked`, người khác không bị ảnh hưởng; lỗi nhà cung cấp ghi `failed` không tốn token; nhật ký có mã băm, token, mô hình, cấu hình, không có toàn văn lời nhắc | P01-86 |
 | AC-873 | Cho hai trường và cấu hình do nền tảng cấp khóa / Khi mỗi trường nhập khóa riêng, một trường xóa khóa, gói chưa có đơn giá rồi có đơn giá, kỳ có token / Thì mỗi trường dùng khóa của mình, trường xóa khóa bị đóng chặt (không rơi về khóa trường kia), khóa không có ở cơ sở dữ liệu nền tảng; cấu hình nền tảng chỉ sẵn sàng khi gói có đơn giá và nền tảng bật khóa; hóa đơn kỳ có đúng một dòng AI tính theo hàm (cấu hình trường không có dòng AI); chạy được ở bố cục database và schema | P01-86, P01-89 |
+| AC-874 | Cho lớp 7A, 7B có phân công giáo viên Toán / Khi giáo viên mở danh sách lớp học trực tuyến, đồng bộ lại, giáo viên khác mở / Thì giáo viên thấy Toán - Lớp 7A, Toán - Lớp 7B đang ẩn với học sinh, đồng bộ lại không tạo trùng, giáo viên khác không thấy và mở chi tiết bị 403, giáo viên không đồng bộ được toàn trường | P03-12 |
+| AC-875 | Cho lớp học trực tuyến có chương / Khi thêm trang nội dung, liên kết mở sau khi hoàn thành trang, dùng chương của lớp khác, điều kiện trỏ vào chính nó, học liệu chưa công bố, loại hoạt động chưa đăng ký / Thì hai hoạt động được tạo; ba trường hợp sau bị 422; loại chưa đăng ký bị 400 | P03-13 |
+| AC-876 | Cho hoạt động chọn hình thức thay thế / Khi chưa có quyết định, giáo viên tự ghi quyết định, Hiệu trưởng ghi quyết định cho lớp 7A, thu hồi / Thì chưa có quyết định bị 422; giáo viên ghi bị 403; có quyết định thì lớp 7A đổi được, lớp 7B vẫn không; thu hồi thì hết dùng được | P03-16 |
+| AC-877 | Cho lớp học trực tuyến chưa mở / Khi phụ huynh xem, giáo viên mở lớp và giao hai hoạt động, giáo viên đánh dấu con hoàn thành hoạt động đầu, phụ huynh xem con người khác / Thì lúc đầu không thấy lớp; sau khi mở thấy hai hoạt động, hoạt động sau khóa kèm lý do "Hoàn thành ... để mở" và không lộ hướng dẫn; sau khi đánh dấu thì mở, tiến độ 1/2 (50%); con người khác bị 403 | P03-14, P03-17 |
+| AC-878 | Cho lớp có hai học sinh / Khi xem tiến độ, kế hoạch theo tuần, mở riêng cho một học sinh, xem nhật ký, ghi kết quả cho học sinh ngoài lớp / Thì tiến độ đúng từng em, kế hoạch xếp theo tuần của hoạt động rồi của chương, nhật ký có giao, hoàn thành, mở riêng; học sinh ngoài lớp bị 422 | P03-14 |
+| AC-879 | Cho khoá học mẫu của giáo viên / Khi đẩy trước khi duyệt, tự duyệt, Ban Giám hiệu duyệt hai bước, đẩy xuống lớp 7B, giáo viên sửa hoạt động rồi nhận cập nhật, giáo viên khác đẩy vào lớp không dạy / Thì đẩy sớm bị 422, tự duyệt bị 403, sau hai bước là đã duyệt, đẩy thêm một hoạt động, nhận cập nhật giữ hoạt động đã sửa, giáo viên khác bị 403 | P03-15 |
+| AC-880 | Cho trường chưa có nội quy / Khi giáo viên ban hành, Hiệu trưởng ban hành, phụ huynh xác nhận, Hiệu trưởng ban hành phiên bản 2 / Thì giáo viên bị 403, phiên bản 1 được ghi, đếm 1 học sinh đã xác nhận, phiên bản 2 cần xác nhận lại; ở nhiều trường, lớp học trực tuyến, khoá mẫu, quyết định của trường này không đọc, không sửa được từ trường kia (404) ở cả hai bố cục | P03-12, P03-15, P03-16 |
 
 ## 20. Chưa xác minh được
 

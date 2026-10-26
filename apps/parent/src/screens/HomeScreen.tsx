@@ -18,6 +18,7 @@ import { ServicesPanel } from './ServicesPanel.js';
 import { FinalYearPanel } from './FinalYearPanel.js';
 import { BoardingPanel } from './BoardingPanel.js';
 import { LibraryPanel } from './LibraryPanel.js';
+import { OnlineLearningPanel } from './OnlineLearningPanel.js';
 import { TimetablePanel } from './TimetablePanel.js';
 import { AssessmentPanel } from './AssessmentPanel.js';
 import { ScorePanel } from './ScorePanel.js';
@@ -139,6 +140,7 @@ function ChildCard({
     | 'scores'
     | 'period-attendance'
     | 'learning-record'
+    | 'online-learning'
   >('none');
   const [attendance, setAttendance] = useState<MonthAttendance>();
   const [errorMessage, setErrorMessage] = useState<string>();
@@ -213,6 +215,11 @@ function ChildCard({
             Điểm danh theo tiết
           </Button>
         ) : null}
+        {has('online_learning') ? (
+          <Button onClick={() => setView(view === 'online-learning' ? 'none' : 'online-learning')}>
+            Học trực tuyến
+          </Button>
+        ) : null}
         {has('final_year_record') ? (
           <Button onClick={() => setView(view === 'final-year' ? 'none' : 'final-year')}>Hồ sơ cuối cấp</Button>
         ) : null}
@@ -236,6 +243,7 @@ function ChildCard({
       {view === 'scores' ? <ScorePanel child={child} /> : null}
       {view === 'period-attendance' ? <PeriodAttendancePanel child={child} month={month} /> : null}
       {view === 'learning-record' ? <LearningRecordPanel child={child} /> : null}
+      {view === 'online-learning' ? <OnlineLearningPanel child={child} /> : null}
       {errorMessage ? <Alert tone="danger">{errorMessage}</Alert> : null}
       {view === 'absence' ? (
         <AbsenceForm

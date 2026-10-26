@@ -492,6 +492,8 @@ import { AiAssistantController, AiUsageJob } from './ai-assistant/ai-assistant.c
 import { AI_PROVIDERS, AiAssistantService } from './ai-assistant/ai-assistant.js';
 import { AiProviderRegistry } from './ai-assistant/ai-provider.js';
 import { ClassroomToolsController, ClassroomToolsService } from './classroom-tools/classroom-tools.js';
+import { LearningController } from './learning/learning.controller.js';
+import { LearningService } from './learning/learning.js';
 
 @Module({})
 export class ApplicationModule {
@@ -772,6 +774,8 @@ export class ApplicationModule {
         // Trợ lý AI (DT-23 phần 23d)
         AiAssistantController,
         ClassroomToolsController,
+        // Lõi hệ thống quản lý học tập (DT-28 phần 28b)
+        LearningController,
         ...(options.additionalControllers ?? []),
       ],
       providers: [
@@ -1159,6 +1163,7 @@ export class ApplicationModule {
         CandidatesService,
         SchoolCalendar,
         ClassroomToolsService,
+        LearningService,
         {
           provide: FileStorage,
           inject: [SchoolSettings],

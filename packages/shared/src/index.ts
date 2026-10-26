@@ -304,6 +304,11 @@ export const PERMISSION_CODES = {
   examManage: 'P02.exam.manage',
   // Chấm bài kiểm tra (DT-21 phần 22g2)
   examGrade: 'P02.exam.grade',
+  // Lõi hệ thống quản lý học tập (DT-28 phần 28b)
+  learningTeach: 'P02.learning.teach',
+  learningTemplate: 'P02.learning.template',
+  learningDecide: 'P02.learning.decide',
+  learningView: 'P02.learning.view',
 } as const;
 
 // Danh mục chứng từ áp dụng hạn mức phê duyệt (07_QUY_TAC_NGHIEP_VU.md mục 12.1, BR-77)
@@ -682,6 +687,10 @@ export const PORTAL_QUICK_LINK_PATHS = [
   '/exam-reports',
   // Trợ lý AI soạn nháp (DT-23 phần 23d)
   '/ai-assistant',
+  // Lõi hệ thống quản lý học tập (DT-28 phần 28b)
+  '/online-classes',
+  '/course-templates',
+  '/online-teaching',
 ] as const;
 
 export type PortalQuickLinkPath = (typeof PORTAL_QUICK_LINK_PATHS)[number];

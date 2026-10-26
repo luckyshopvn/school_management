@@ -1,7 +1,7 @@
 # 17. ĐẶC TẢ API
 
 - Mô tả: Điểm cuối, phương thức, yêu cầu, phản hồi, xác thực, phân quyền, kiểm tra dữ liệu, xử lý lỗi, phân trang, lọc, sắp xếp, phiên bản.
-- Phiên bản: 1.129
+- Phiên bản: 1.130
 - Ngày cập nhật: 2026-10-26
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -2320,6 +2320,31 @@ Hướng dẫn dùng cho các phần sau (16b, 16e đến 16k):
 5. Xuất file lỗi (từ YCTD-129): mọi biểu mẫu đã đăng ký có sẵn `POST /upper-level-submissions/{form}/error-file`, dựng từ `completeness` của biểu (các mục `done` sai), không cần khai báo thêm; `UpperLevelSubmissionPanel` hiện nút "Xuất file lỗi" ở dòng biểu khi dữ liệu chưa hoàn thành, kể cả hai biểu của phần 16i (YCTD-128). Đặt `label` của mục hoàn thành là câu đọc được (ví dụ "Đã ghi thẻ Nhà vệ sinh") vì tệp in nguyên câu đó. Màn hình nhập số liệu của biểu cần khóa khi đã gửi thì gọi `UpperLevelSubmissions.statusOf(formCode)` rồi `isLocked(status)` (đúng khi đã gửi hoặc đang chờ mở khóa) trước khi ghi.
 6. Cách phần 16j dùng: `EmisForms` (`apps/api/src/emis/emis-forms.ts`) đăng ký bảy biểu trong một vòng lặp, `completeness` và `snapshot` gọi lại hàm xem biểu và hàm dựng tệp Excel của biểu nên tệp gửi trùng với tệp Xuất Excel; ghi, lấy dữ liệu kiểm tra `isLocked` và trả mã YCTD-129. Cổng quản trị đặt `<UpperLevelSubmissionPanel formCodes={EMIS_FORM_CODES} summary … />` ở 1.1 (bảy dòng kèm dòng tổng hợp số đã gửi, số cần gửi, lần gửi cuối) và `formCodes={[mã biểu]}` ở sáu màn hình còn lại.
 7. Tệp PDF dạng hồ sơ (từ YCTD-130): `buildPdf(sheets, createdAt, { orientation, closing, subject })` ở `apps/api/src/exports/table-file.ts` dựng PDF khổ dọc (`portrait`) và thêm phần cuối tài liệu (`closing`, ví dụ khối xác nhận kí kèm ảnh `data:image/png;base64,…`); `buildTableFile` không đổi. Phần 16k dùng cho hồ sơ kí.
+
+### 17.2. Lõi hệ thống quản lý học tập (DT-28 phần 28b, YCTD-272)
+
+| Phương thức | Đường dẫn | Mô tả |
+|---|---|---|
+| GET | /api/v1/learning/config | Quyền của người gọi (`can_teach`, `can_template`, `can_decide`, `can_view`, `can_review`), `link_domains`, danh mục loại hoạt động |
+| GET | /api/v1/learning/spaces?scope=mine\|all | Lớp học trực tuyến của tôi (đồng bộ phần của giáo viên trước) hoặc của trường (`P02.learning.view`); kèm tên lớp, môn, giáo viên, số hoạt động (P03-12, BR-237) |
+| POST | /api/v1/learning/spaces/sync | Đồng bộ lớp học trực tuyến từ phân công và thời khoá biểu (`P02.learning.view`); trả `created`, `teachers_added`, `teachers_removed` |
+| POST | /api/v1/learning/spaces | Tạo khoá tự chọn `{ title, school_level, description, enrollment_mode, capacity, teacher_user_ids }` (`P02.learning.view`) |
+| GET, PATCH | /api/v1/learning/spaces/{id} | Chi tiết (lớp, giáo viên, số học sinh, chương, hoạt động, `replace_allowed_today`, `can_teach`); sửa `title`, `description`, `visible_to_students`, `status` (giáo viên của lớp); người không dạy, không quản lý 403 |
+| POST, DELETE | /api/v1/learning/spaces/{id}/teachers, /teachers/{userId} | Thêm, bỏ giáo viên thêm tay (`P02.learning.view`) |
+| POST, DELETE | /api/v1/learning/spaces/{id}/enrollments, /enrollments/{childId} | Ghi danh `{ child_ids }`, bỏ ghi danh khoá tự chọn; lớp theo môn 422; quá số chỗ 422 |
+| GET | /api/v1/learning/spaces/{id}/progress, /plan, /events | Tiến độ (hoạt động đã giao, mỗi học sinh `summary` và `results`); kế hoạch theo tuần `weeks`; 200 dòng nhật ký gần nhất (P03-14) |
+| POST | /api/v1/learning/spaces/{id}/sections; PATCH, DELETE /api/v1/learning/sections/{id} | Thêm, sửa (`title`, `planned_week`, `position`), xóa chương (có kết quả thì 422) |
+| POST | /api/v1/learning/spaces/{id}/activities; PATCH, DELETE /api/v1/learning/activities/{id} | Thêm, sửa, xóa hoạt động `{ section_id, kind, title, lesson_label, instructions, required, teaching_mode, estimated_minutes, opens_at, due_at, closes_at, open_rules, completion_rule, graded, weight, pass_score, planned_week, settings }`; loại chưa đăng ký 400; học liệu chưa công bố, tên miền chưa cho phép, điều kiện mở trỏ ra ngoài lớp, thay thế khi chưa có quyết định 422 (P03-13, BR-238, BR-239, BR-241) |
+| POST | /api/v1/learning/activities/{id}/publish | Giao `{ published: true }` hoặc chuyển về nháp |
+| POST | /api/v1/learning/activities/{id}/exceptions | Mở riêng, gia hạn `{ child_id, reason, due_at, unlocked }`; học sinh ngoài lớp 422 |
+| POST | /api/v1/learning/activities/{id}/results | Giáo viên ghi kết quả `{ child_id, status, score, level }`; hoạt động chưa giao, học sinh ngoài lớp 422 |
+| GET, POST | /api/v1/learning/templates | Khoá mẫu người gọi được thấy; tạo `{ title, description, school_level, subject_id, grade_level_code, content }` (`P02.learning.template`) (P03-15) |
+| GET, PUT | /api/v1/learning/templates/{id} | Chi tiết kèm `reviews`; người soạn sửa `title`, `description`, `content` |
+| POST | /api/v1/learning/templates/{id}/submit, /review, /retire, /apply | Gửi duyệt; duyệt `{ decision: approve\|return, note }` (người duyệt của bước, không phải người soạn); ngừng dùng; đẩy bản đã duyệt `{ space_ids }` trả số hoạt động thêm, cập nhật, giữ (BR-240) |
+| GET, POST | /api/v1/learning/decisions; POST /api/v1/learning/decisions/{id}/revoke | Quyết định dạy học trực tuyến thay thế; ghi `{ decision_no, decision_date, reason, class_ids, starts_on, ends_on }`, thu hồi (`P02.learning.decide`) (P03-16) |
+| GET, POST | /api/v1/learning/rules | Nội quy hiện hành và số học sinh đã xác nhận; ban hành phiên bản mới `{ content }` (`P02.learning.decide`) |
+| GET | /api/v1/learning/children/{childId} | Phụ huynh xem việc học trực tuyến của con: `rules` (nội quy, đã xác nhận chưa), `spaces` (lớp đã mở, tiến độ, chương, hoạt động đã giao với `open`, `locked_reasons`, `status`, `score`); khác con 403 (P03-17) |
+| POST | /api/v1/learning/children/{childId}/rules/acknowledge | Phụ huynh xác nhận đã đọc nội quy thay con |
 
 ## 18. Quy tắc kiểm tra dữ liệu
 

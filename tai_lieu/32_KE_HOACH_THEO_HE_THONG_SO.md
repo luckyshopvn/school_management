@@ -2713,7 +2713,7 @@ Cỡ ước lượng (một phần của DT-16 là một đơn vị): 28a 1,0; 2
 | Phần | Đợt | Tiến độ |
 |---|---|---|
 | 28a | 1 | Chưa làm; YCTD-271 giữ sẵn; làm được ngay (đích nhóm cho 23a khi 23a gộp) |
-| 28b | 1 | Chưa làm; YCTD-272 giữ sẵn; phần giáo viên làm được ngay, màn hình học sinh chờ 23a |
+| 28b | 1 | Đã làm (YCTD-272, phiên bản 0.144.0, PR PR_NUMBER): lớp học trực tuyến tự sinh từ phân công, khoá tự chọn, khoá mẫu qua duyệt, chương, hoạt động trang, liên kết, học liệu, điều kiện mở, kết quả, tiến độ, kế hoạch tuần, nhật ký, quyết định thay thế, nội quy; hệ thống 0110, năm học 0172 đến 0175, định danh 0180; e2e 211; màn hình học sinh chờ 23a |
 | 28c | 2 | Chưa làm; YCTD-273 giữ sẵn; chờ 28b; phần AI chờ 23d |
 | 28d | 2 | Chưa làm; YCTD-274 giữ sẵn; chờ 28b |
 | 28e | 2 | Chưa làm; YCTD-275 giữ sẵn; chờ 28b, 28a |

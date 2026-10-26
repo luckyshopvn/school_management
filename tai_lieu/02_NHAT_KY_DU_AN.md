@@ -1,7 +1,7 @@
 # 02. NHẬT KÝ DỰ ÁN
 
 - Mô tả: Ghi nhận công việc, quyết định, thay đổi và vấn đề tồn đọng theo ngày, ngày mới nhất ở trên cùng.
-- Phiên bản: 0.77
+- Phiên bản: 0.78
 - Ngày cập nhật: 2026-10-26
 - Trạng thái: Đang cập nhật
 
@@ -13,6 +13,27 @@
 - Không ghi thông tin tạm thời như kết quả tra cứu, đường dẫn tạm, thông báo lỗi của công cụ.
 
 ## Nhật ký theo ngày
+
+### 2026-10-26 — DT-28 phần 28b: lõi hệ thống quản lý học tập
+
+#### Công việc đã thực hiện
+
+- Làm phần 28b theo `32` mục 20.6, 20.7: lớp học trực tuyến tự sinh từ phân công giảng dạy, khoá tự chọn, khoá học mẫu của tổ qua duyệt hai bước, chương, hoạt động (trang, liên kết, học liệu), điều kiện mở, kết quả hoạt động chung, tiến độ, kế hoạch theo tuần, nhật ký học tập, quyết định dạy học trực tuyến thay thế và nội quy theo Thông tư 09/2021/TT-BGDĐT; cổng quản trị 9.1 đến 9.3, ứng dụng giáo viên, ứng dụng phụ huynh.
+- Kiểm thử: 14/14 ca API, 2/2 ca cách ly nhiều trường (hai bố cục), kiểm thử menu theo cấp và quyền menu; e2e 211 và 151 đạt (chạy kèm spec nền 01 đến 09; lần đầu hỏng vì ứng dụng phụ huynh đăng nhập bằng số điện thoại, đã sửa spec). Chạy với CSDL định danh, hệ thống riêng của phần (`school_identity_28b`, `school_system_28b`).
+
+#### Quyết định
+
+- Claude chọn theo ủy quyền: phân công giảng dạy là nguồn chính để sinh lớp học trực tuyến, thời khoá biểu là nguồn phụ; đồng bộ khi mở danh sách thay vì móc vào luồng ban hành thời khoá biểu; quy tắc duyệt khoá mẫu viết lại theo đúng quy tắc của 22h1 vì 28b không sửa tệp của 22h1; cách ly kiểm ở mức API cho cả hai bố cục thay vì e2e nhiều trường.
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-272, phiên bản 0.144.0 ở `23`, tài liệu 01, 07, 08, 10, 11, 12, 14, 16, 17, 21, 22, 32, 34, `index.md`.
+
+#### Vấn đề tồn đọng
+
+- Màn hình học sinh chờ 23a (PR 189) gộp; gộp main xong thì thêm tuyến `/student/learning` dùng `learningOfChild`, `recordView`.
+- Phiên bản 0.144.0 trùng với các PR 185, 188, 189, 190, 191 đang mở; PR nào gộp sau thì đánh lại.
+
 
 ### 2026-10-26 — Kế hoạch DT-28: hệ thống quản lý học tập (LMS)
 

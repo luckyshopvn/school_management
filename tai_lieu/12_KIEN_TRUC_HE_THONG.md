@@ -1,7 +1,7 @@
 # 12. KIẾN TRÚC HỆ THỐNG
 
 - Mô tả: Kiến trúc tổng thể, thành phần, xác thực, phân quyền, lưu trữ tệp, ghi nhật ký, giám sát, sao lưu, phục hồi, triển khai.
-- Phiên bản: 1.22
+- Phiên bản: 1.23
 - Ngày cập nhật: 2026-10-26
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -254,6 +254,10 @@ Máy giáo viên bốc ngẫu nhiên, chia nhóm và giữ đồng hồ (hàm th
 
 Mô-đun `apps/api/src/ai-assistant/`: `ai-provider.ts` (giao diện `AiProvider`, `AnthropicProvider` gọi `/v1/messages`, `MockAiProvider`, `AiProviderRegistry`), `ai-prompt.ts` (mẫu lời nhắc, bộ quét dữ liệu cá nhân, đọc kết quả), `ai-assistant.ts` (thiết lập, khóa, hạn mức, nhật ký, soạn câu hỏi và kế hoạch bài dạy, tổng hợp token, xóa nhật ký quá hạn), `ai-assistant.controller.ts` (`/api/v1/ai/*`, việc nền `ai-usage-sync` 15 phút). Soạn câu hỏi đi qua `ExamsService.createQuestion` (cờ `ai_generated`), kế hoạch bài dạy qua `LearningResourcesService.createAiLessonPlanDraft`. Phía nền tảng: `database/src/billing/ai-pricing.ts` (hàm tính thuần), `platform-ai.ts` (khóa, thiết lập, đơn giá theo gói, đo token), dịch vụ định danh `/auth/platform/ai`. Thu phí dùng lại `computeCharges` và `issueInvoice` của S5b.
 
+## 12H. Lõi hệ thống quản lý học tập (DT-28 phần 28b, YCTD-272)
+
+Phân hệ `apps/api/src/learning`: hàm thuần (`learning-rules.ts`: sinh lớp từ phân công, điều kiện mở, hoàn thành, tiến độ, kế hoạch theo tuần, quyết định thay thế; `learning-template-rules.ts`: nội dung khoá mẫu, cách đẩy xuống lớp; `learning-activity-kinds.ts`: danh mục loại hoạt động), dịch vụ `learning.ts`, tuyến `learning.controller.ts`. Khoá học mẫu ở cơ sở dữ liệu hệ thống (dùng qua nhiều năm như học liệu 22h1); lớp học trực tuyến, chương, hoạt động, kết quả, nhật ký, quyết định, nội quy ở năm học. Lõi chỉ đọc phân công (`class_staff_assignments`), thời khoá biểu (gọi `TimetablesService.applyingVersions`), tổ bộ môn, học liệu, nhóm học sinh; không sửa tệp của các phân hệ đó. Loại hoạt động là danh mục cắm được: phần sau (28c bài tập, 28e thảo luận, 28g giờ học trực tuyến, 28h SCORM, bài kiểm tra của 23a) thêm loại bằng một dòng ở cuối `ACTIVITY_KINDS`, ràng buộc của cột `kind` đã liệt kê sẵn mọi loại của kế hoạch DT-28. Màn hình học sinh chờ 23a (kênh `student`) gộp; dịch vụ đã có `learningOfChild`, `recordView` để nối.
+
 ## 13. Quyết định kiến trúc
 
 | Mã | Quyết định | Trạng thái |
@@ -293,6 +297,7 @@ Mô-đun `apps/api/src/ai-assistant/`: `ai-provider.ts` (giao diện `AiProvider
 | QĐ-33 | Đơn vị cấp trên (DT-SaaS phần S6, YCTD-202): số liệu cho Bộ, Sở, Phòng chỉ từ bản chụp tổng hợp mỗi trường tự đẩy lên cơ sở dữ liệu nền tảng (không truy vấn chéo cơ sở dữ liệu của trường, không dữ liệu cá nhân), lọc theo đồng ý từng cấp, từng nhóm, ẩn nhóm nhỏ; tài khoản cấp trên ở nền tảng, đăng nhập ở tên miền cổng nền tảng (trang `/cap-tren`), mã phiên có đối tượng riêng, xác thực hai lớp bắt buộc; số liệu, xuất tệp ở máy chủ API (đường dẫn không cần trường, chỉ tên miền cổng); xem chi tiết dùng lại phiên hỗ trợ chỉ đọc của S4 theo đề nghị trường duyệt. Loại: tài khoản cấp trên trong cơ sở dữ liệu của trường (không có phạm vi nhiều trường), truy vấn trực tiếp cơ sở dữ liệu của trường lúc xem (lộ dữ liệu, chậm), ứng dụng riêng cho cấp trên (thêm hạ tầng chưa cần) | YCTD-202 |
 | QĐ-34 | Ngoại tuyến chỉ cho công cụ lớp học (DT-23 phần 23b, YCTD-212, GD-108): service worker giữ vỏ ứng dụng nhưng không bao giờ giữ API, dữ liệu ngoại tuyến là bản chụp danh sách lớp gọn có hạn và hàng đợi có `client_id` để máy chủ chống trùng, không làm ngoại tuyến cho sổ điểm, học bạ, điểm danh (tránh xung đột dữ liệu chính thức); phương án đã loại: ngoại tuyến toàn ứng dụng giáo viên, ứng dụng di động gốc (14.6 của tài liệu 32) | Đã chọn |
 | QĐ-35 | Trợ lý AI (DT-23 phần 23d, YCTD-214): nhà cung cấp là bộ nối `AiProvider` tra theo mã (`anthropic` mặc định, `mock` chỉ kiểm thử), địa chỉ và mã mô hình là cấu hình; lời nhắc dựng từ mẫu cố định ở máy chủ, chữ nhập bị quét dữ liệu cá nhân ở máy chủ trước khi gửi; kết quả luôn là bản nháp đi qua duyệt của 22g1, 22h1; hai cấu hình khóa (`school`: khóa của trường lưu mã hóa theo trường như S3; `platform`: khóa chung ở cơ sở dữ liệu nền tảng, thu phí qua thành phần AI của S5b); nhật ký ở cơ sở dữ liệu hệ thống của trường không lưu toàn văn lời nhắc; token tổng hợp lên nền tảng bằng việc nền theo trường. Không dựng bộ đếm hay luồng thu thứ hai |
+| QĐ-36 | Lõi hệ thống quản lý học tập tự làm trong School Management (DT-28 phần 28b, YCTD-272): không nhúng Moodle hay hệ thống ngoài để dữ liệu học tập đi cùng phân công, sổ điểm, phụ huynh và cách ly theo trường; lớp học trực tuyến sinh từ phân công thay vì giáo viên tạo lớp; một bảng kết quả hoạt động chung cho mọi loại hoạt động; nhật ký học tập dạng gần xAPI để sau này xuất hoặc dựng kho bản ghi học tập không phải đổi dữ liệu; LTI 1.3, xAPI, cmi5 để sau (tài liệu 32 mục 20.4) |
 
 ## 14. Chưa xác minh được
 

@@ -1477,6 +1477,44 @@ export interface SupportAccessGrantsTable {
   created_at: CreatedTimestamp;
 }
 
+// Khoá học mẫu của tổ chuyên môn (DT-28 phần 28b, YCTD-272)
+export type CourseTemplateStatus = 'draft' | 'pending_unit' | 'pending_school' | 'published' | 'returned' | 'retired';
+
+export interface CourseTemplatesTable {
+  id: Generated<string>;
+  title: string;
+  description: string | null;
+  school_level: 'TH' | 'THCS' | 'THPT';
+  grade_level_code: string | null;
+  subject_code: string | null;
+  subject_name: string | null;
+  department_id: string | null;
+  department_name: string | null;
+  owner_user_id: string;
+  owner_name: string;
+  status: Generated<CourseTemplateStatus>;
+  version: Generated<number>;
+  // { sections: [{ key, title, planned_week, items: [...] }] }
+  content: ColumnType<unknown, string, string>;
+  published_version: number | null;
+  published_content: ColumnType<unknown, string | null | undefined, string | null>;
+  published_at: Date | null;
+  return_reason: string | null;
+  created_at: CreatedTimestamp;
+  updated_at: UpdatedTimestamp;
+}
+
+export interface CourseTemplateReviewsTable {
+  id: Generated<string>;
+  template_id: string;
+  version: number;
+  action: 'submit' | 'approve_unit' | 'approve_school' | 'return' | 'retire';
+  actor_user_id: string;
+  actor_name: string;
+  note: string | null;
+  created_at: CreatedTimestamp;
+}
+
 export interface SystemDatabase {
   academic_years: AcademicYearsTable;
   academic_terms: AcademicTermsTable;
@@ -1563,4 +1601,6 @@ export interface SystemDatabase {
   ai_settings: AiSettingsTable;
   ai_requests: AiRequestsTable;
   support_access_grants: SupportAccessGrantsTable;
+  course_templates: CourseTemplatesTable;
+  course_template_reviews: CourseTemplateReviewsTable;
 }

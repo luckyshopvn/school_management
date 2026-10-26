@@ -206,6 +206,15 @@ export const PORTAL_WORKSPACES: PortalWorkspace[] = [
           leaf('8.6.', 'Báo cáo kết quả kiểm tra', '/exam-reports'),
         ]),
       ),
+      // Học tập trực tuyến (DT-28 phần 28b, Thông tư 09/2021/TT-BGDĐT): Tiểu học, THCS, THPT
+      secondary(
+        group('9.', 'Học tập trực tuyến', [
+          leaf('9.1.', 'Lớp học trực tuyến', '/online-classes'),
+          leaf('9.2.', 'Khoá học mẫu', '/course-templates'),
+          leaf('9.3.', 'Hình thức và nội quy dạy học trực tuyến', '/online-teaching'),
+        ]),
+        ['TH', 'THCS', 'THPT'],
+      ),
     ],
   },
   {

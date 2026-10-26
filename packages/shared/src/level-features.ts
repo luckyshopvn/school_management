@@ -23,7 +23,9 @@ export type LevelFeature =
   | 'period_attendance'
   | 'learning_record'
   // Sổ điểm theo Thông tư 22/2021 (DT-21 phần 21c): giáo viên nhập, phụ huynh xem điểm đã khoá
-  | 'student_scores';
+  | 'student_scores'
+  // Lớp học trực tuyến (DT-28 phần 28b, Thông tư 09/2021/TT-BGDĐT Điều 1): con học cấp phổ thông
+  | 'online_learning';
 
 export const LEVEL_FEATURES: Record<LevelFeature, readonly SchoolLevelCode[]> = {
   daily_attendance: ['MN'],
@@ -42,6 +44,7 @@ export const LEVEL_FEATURES: Record<LevelFeature, readonly SchoolLevelCode[]> = 
   // Học bạ số, khen thưởng đã duyệt (DT-20 phần 20e): phụ huynh xem, tải học bạ đã kí của con
   learning_record: ['TH', 'THCS', 'THPT'],
   student_scores: ['THCS', 'THPT'],
+  online_learning: ['TH', 'THCS', 'THPT'],
 };
 
 // Cấp của con hoặc lớp như máy chủ trả; trống (con chưa xếp lớp, máy chủ cũ) là Mầm non như mọi chỗ đọc cấp khác

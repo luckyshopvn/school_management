@@ -1,7 +1,7 @@
 # 16. CƠ SỞ DỮ LIỆU
 
 - Mô tả: Thực thể, trường, kiểu dữ liệu, khóa chính, khóa ngoại, quan hệ, ràng buộc, chỉ mục, trạng thái, lịch sử thay đổi, chính sách xóa dữ liệu.
-- Phiên bản: 1.125
+- Phiên bản: 1.126
 - Ngày cập nhật: 2026-10-26
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -836,6 +836,28 @@ Hai mục cấu hình theo trường ở bảng `settings` của Trường chín
 | ai_token_usage (từ YCTD-214) | Token AI theo trường, ngày, mô hình, cấu hình, để thu phí (BR-236; nền tảng `0201`) | school_id, usage_date, model, config, requests, input_tokens, output_tokens |
 | plan_ai_pricing (từ YCTD-214) | Đơn giá AI theo gói (BR-236; nền tảng `0202`) | plan_id, free_tokens, input_price_per_1k, output_price_per_1k (trống là chưa nhập), model_prices, minimum_fee, rounding_step |
 | invoice_lines (đổi ở YCTD-214) | Thêm loại dòng `ai` | kind = `ai` |
+
+## 18F. Lõi hệ thống quản lý học tập (DT-28 phần 28b, YCTD-272)
+
+Hai bảng ở cơ sở dữ liệu hệ thống (tệp `0110_create_course_templates`), mười một bảng ở cơ sở dữ liệu năm học (tệp `0172_create_course_spaces`, `0173_create_course_content`, `0174_create_activity_results`, `0175_create_online_teaching_rules`), bốn quyền ở cơ sở dữ liệu định danh (tệp `0180_add_learning_permissions`); chạy ở cả hai bố cục `database` và `schema`.
+
+| Bảng | Mục đích | Cột chính |
+|---|---|---|
+| course_templates (hệ thống, từ YCTD-272) | Khoá học mẫu của tổ chuyên môn (BR-240) | id, title, description, school_level (`TH`, `THCS`, `THPT`), grade_level_code, subject_code, subject_name, department_id, department_name, owner_user_id, owner_name, status (`draft`, `pending_unit`, `pending_school`, `published`, `returned`, `retired`), version, content (JSON chương, hoạt động đang soạn), published_version, published_content, published_at, return_reason, created_at, updated_at |
+| course_template_reviews (hệ thống, từ YCTD-272) | Lịch sử gửi, duyệt, trả lại, ngừng dùng | id, template_id, version, action (`submit`, `approve_unit`, `approve_school`, `return`, `retire`), actor_user_id, actor_name, note, created_at |
+| course_spaces (từ YCTD-272) | Lớp học trực tuyến theo lớp, môn hoặc khoá tự chọn (BR-237) | id, kind (`class_subject`, `elective`), class_id, subject_id, school_level, grade_level, title, description, visible_to_students (mặc định không), status (`active`, `archived`), enrollment_mode (`teacher`, `request`), capacity, source_template_id, source_template_version, created_by, created_at, updated_at; duy nhất (class_id, subject_id) với `class_subject` |
+| course_space_teachers (từ YCTD-272) | Giáo viên của lớp học trực tuyến | space_id, user_id, user_name, source (`assignment`, `timetable`, `manual`), created_at; khóa chính (space_id, user_id) |
+| course_enrollments (từ YCTD-272) | Ghi danh khoá tự chọn | space_id, child_id, status (`requested`, `active`, `removed`), requested_by, decided_by, decided_at, created_at |
+| course_sections (từ YCTD-272) | Chương, chủ đề | id, space_id, title, position, planned_week, template_section_key, created_at, updated_at |
+| course_activities (từ YCTD-272) | Hoạt động (BR-238, BR-239) | id, space_id, section_id, kind (danh mục của DT-28: `resource`, `page`, `link`, `exam`, `live_session`, `assignment`, `discussion`, `question_board`, `group_work`, `scorm`), title, lesson_label, instructions, position, status (`draft`, `published`), required, teaching_mode (`support`, `replace`), estimated_minutes, opens_at, due_at, closes_at, group_set_id, open_rules (JSON), completion_rule (`view`, `submit`, `pass`, `teacher`), graded, weight, pass_score, planned_week, settings (JSON theo loại), template_item_key, edited_locally, created_by, created_at, updated_at |
+| activity_exceptions (từ YCTD-272) | Mở riêng, gia hạn cho một học sinh | activity_id, child_id, unlocked, due_at, reason, granted_by, granted_by_name, created_at |
+| activity_results (từ YCTD-272) | Kết quả hoạt động chung của mọi loại (BR-239) | id, activity_id, child_id, status (`not_started`, `in_progress`, `completed`, `passed`, `failed`, `excused`), progress, score (0 đến 10), level (`excellent`, `completed`, `not_completed`), source, completed_at, recorded_by, updated_at; duy nhất (activity_id, child_id) |
+| learning_events (từ YCTD-272) | Nhật ký học tập dạng gần xAPI (Thông tư 09/2021 Điều 8 khoản 1 điểm b) | id, space_id, activity_id, child_id, actor_user_id, actor_kind (`teacher`, `student`, `guardian`, `staff`), verb (`opened`, `viewed`, `progressed`, `completed`, `submitted`, `scored`, `published`, `unlocked`, `acknowledged`), result (JSON), occurred_at; không có vị trí, chuỗi nhận dạng thiết bị |
+| online_teaching_decisions (từ YCTD-272) | Quyết định dạy học trực tuyến thay thế (BR-241) | id, decision_no, decision_date, reason, class_ids (JSON, rỗng là toàn trường), starts_on, ends_on, status (`active`, `revoked`), created_by, created_by_name, revoked_by, revoked_at, created_at |
+| online_learning_rules (từ YCTD-272) | Nội quy dạy học trực tuyến có phiên bản | id, version (duy nhất), content, published_by, published_by_name, published_at |
+| online_learning_rule_acks (từ YCTD-272) | Xác nhận đã đọc nội quy | rule_id, child_id, acknowledged_by, acknowledged_as (`student`, `guardian`), acknowledged_at |
+
+Một mục cấu hình tuỳ chọn ở bảng `settings` của Trường chính: `learning_link_domains` (mảng tên miền cho liên kết ngoài; không có thì cho mọi liên kết https).
 
 ## 19. Quan hệ chính giữa các bảng
 

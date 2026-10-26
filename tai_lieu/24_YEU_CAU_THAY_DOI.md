@@ -1,7 +1,7 @@
 # 24. YÊU CẦU THAY ĐỔI
 
 - Mô tả: Sổ quản lý yêu cầu thay đổi, ghi lý do, đánh giá ảnh hưởng và trạng thái của từng thay đổi trước khi triển khai.
-- Phiên bản: 0.74
+- Phiên bản: 0.75
 - Ngày cập nhật: 2026-10-26
 - Trạng thái: Đang cập nhật
 
@@ -10,6 +10,29 @@
 Mã yêu cầu thay đổi dạng `YCTD-nn`, đánh số tăng dần, không tái sử dụng. Mục mới nhất ở trên cùng. Trạng thái dùng bốn giá trị: Chờ phê duyệt, Đã phê duyệt, Từ chối, Đã triển khai.
 
 Các thay đổi trước phiên bản 0.4.0 chưa có sổ này; xem `23_LICH_SU_PHIEN_BAN.md` các phiên bản 0.1.0 đến 0.3.1.
+
+### YCTD-272: DT-28 phần 28b: lõi hệ thống quản lý học tập – 2026-10-26
+
+- Lý do: phần 28b của `32_KE_HOACH_THEO_HE_THONG_SO.md` mục 20.6, 20.7 (kế hoạch DT-28 ở YCTD-270); Eric yêu cầu ngày 2026-10-26 phát triển hệ thống quản lý học tập, lõi LMS đi trước cùng mô hình nhóm (28a). Căn cứ: Thông tư 09/2021/TT-BGDĐT (đọc toàn văn bản gốc khi viết kế hoạch, mục 20.2).
+- Nội dung thay đổi (Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11 ở những chỗ kế hoạch chưa chốt):
+  - **Lớp học trực tuyến** (`course_spaces`): sinh từ phân công giảng dạy (`class_staff_assignments` có môn) là nguồn chính, thời khoá biểu đang áp dụng là nguồn phụ (kế hoạch ghi ngược lại; đổi vì phân công là nơi trường ghi ai dạy lớp, môn nào); đồng bộ lúc giáo viên mở danh sách và khi Ban Giám hiệu bấm (không móc vào luồng ban hành thời khoá biểu để không sửa phân hệ thời khoá biểu); khoá tự chọn có ghi danh, số chỗ.
+  - **Nội dung**: chương, hoạt động; danh mục loại hoạt động `ACTIVITY_KINDS` có `resource`, `page`, `link`; ràng buộc cột `kind` liệt kê sẵn mọi loại của DT-28; học liệu chỉ dùng bản đã công bố của 22h1; liên kết theo `learning_link_domains` (chưa đặt thì cho mọi https); điều kiện mở tối đa 10 điều kiện; mở riêng, gia hạn có lý do.
+  - **Kết quả và tiến độ**: bảng `activity_results` chung; giáo viên đánh dấu hoàn thành, miễn, điểm, mức; `recordView` (xem xong thì hoàn thành) dùng cho màn hình học sinh khi 23a gộp; kế hoạch theo tuần; nhật ký `learning_events` dạng gần xAPI.
+  - **Khoá học mẫu** (hệ thống): nội dung JSON có phiên bản, bản đã duyệt tách riêng; duyệt hai bước dùng quyền duyệt học liệu của 22h1 với cùng quy tắc người duyệt (viết lại quy tắc trong `learning.ts` vì 28b không sửa tệp của 22h1); đẩy, nhận cập nhật không ghi đè hoạt động giáo viên đã sửa, hoạt động đẩy xuống là nháp, hình thức hỗ trợ.
+  - **Thông tư 09/2021**: quyết định dạy học trực tuyến thay thế (`online_teaching_decisions`) chặn hình thức thay thế khi chưa có; nội quy có phiên bản, phụ huynh xác nhận thay con.
+  - **Quyền** (định danh 0180): `P02.learning.teach`, `P02.learning.template` (có cả Ban Giám hiệu), `P02.learning.decide`, `P02.learning.view`; tổ trưởng xem lớp của môn trong tổ bộ môn.
+  - **Giao diện**: cổng quản trị nhóm menu 9. Học tập trực tuyến (9.1, 9.2, 9.3) cho TH, THCS, THPT; ứng dụng giáo viên Lớp học trực tuyến; ứng dụng phụ huynh Học trực tuyến (mã chức năng theo cấp `online_learning`).
+  - **Cách ly**: kiểm thử API ở nền tảng nhiều trường, cả hai bố cục (`learning-tenancy.test.ts`) thay cho mở rộng `MULTI_TENANT_SPEC` của e2e (kế hoạch ghi spec 211 nhiều trường; spec 211 chạy một trường, cách ly kiểm ở mức API đủ phủ các tuyến mới).
+- Thành phần bị ảnh hưởng: `apps/api` (phân hệ mới `learning`, đăng ký thêm cuối `application.module.ts`, một danh sách trong `working-level.test.ts`), `apps/portal` (ba trang, `router.tsx`), `apps/teacher`, `apps/parent`, `packages/shared` (mã quyền, đường dẫn menu, quyền menu, nhóm menu 9, `online_learning`), `database` (hệ thống 0110, năm học 0172 đến 0175, định danh 0180, kiểu và xuất kiểu), `tests` (spec 211). Không sửa `child-groups/`, `learning-resources/`, `timetables/`, `online-exams/`.
+- Dữ liệu bị ảnh hưởng: hệ thống `0110`; năm học `0172` đến `0175`; định danh `0180`.
+- API bị ảnh hưởng: nhóm `/api/v1/learning` (xem `17_DAC_TA_API.md` mục 17.2).
+- Giao diện bị ảnh hưởng: MH-342 đến MH-346.
+- Quyền bị ảnh hưởng: PQ-109.
+- Ảnh hưởng chức năng cũ: không đổi hành vi; trường chỉ có Mầm non không thấy gì mới.
+- Kiểm thử cần thực hiện: kiểm thử đơn vị toàn kho; e2e `single` (spec 211 cùng các spec hiện có); kiểm tĩnh đa thuê bao, ma trận cách ly; typecheck, lint, build.
+- Chưa làm (YCTD sau): màn hình học sinh (`/student/learning`, chờ 23a); đính kèm tệp quyết định dạy thay thế; loại hoạt động `exam` (khi 23a gộp); đẩy khoá mẫu chọn nhiều lớp của người khác (chỉ lớp người đẩy dạy hoặc quản lý); trình soạn khoá mẫu đủ loại hoạt động ở cổng quản trị (mới có chương, trang nội dung); duyệt yêu cầu ghi danh của học sinh (`request`); báo cáo, sổ điểm, hồ sơ Thông tư 09 (28d).
+- Trạng thái: Đã triển khai (PR PR_NUMBER)
+
 
 ### YCTD-270: Kế hoạch DT-28: hệ thống quản lý học tập (LMS) – 2026-10-26
 
