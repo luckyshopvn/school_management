@@ -12,6 +12,7 @@ const REFRESH_TOKEN_COOKIE_NAMES: Record<SessionChannel, string> = {
   portal: SECURE_COOKIE_PREFIX + 'refresh_token',
   teacher: SECURE_COOKIE_PREFIX + 'refresh_token_teacher',
   parent: SECURE_COOKIE_PREFIX + 'refresh_token_parent',
+  student: SECURE_COOKIE_PREFIX + 'refresh_token_student',
 };
 const COOKIE_PATH = `${API_VERSION_PREFIX}/auth`;
 

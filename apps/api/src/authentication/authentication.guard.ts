@@ -24,9 +24,14 @@ import { IdentityClient } from './identity-client.js';
 
 const PUBLIC_ENDPOINT = 'publicEndpoint';
 const REQUIRED_PERMISSIONS = 'requiredPermissions';
+const STUDENT_ENDPOINT = 'studentEndpoint';
 
 // Điểm cuối không cần mã phiên, ví dụ kiểm tra sức khỏe
 export const PublicEndpoint = () => SetMetadata(PUBLIC_ENDPOINT, true);
+
+// Điểm cuối của học sinh (DT-23 phần 23a, nhóm /student/*): chỉ mã phiên của kênh student gọi được. Ngược lại mã phiên kênh student
+// chỉ gọi được điểm cuối loại này, nên học sinh không với tới được dữ liệu của cán bộ, phụ huynh dù tuyến quên khai quyền
+export const StudentEndpoint = () => SetMetadata(STUDENT_ENDPOINT, true);
 
 // Lớp 1 của phân quyền: điểm cuối khai báo quyền cần có; có một trong các quyền là đủ (BM-10)
 export const RequirePermission = (...permissionCodes: string[]) => SetMetadata(REQUIRED_PERMISSIONS, permissionCodes);
@@ -75,7 +80,15 @@ export class AuthenticationGuard implements CanActivate {
     if (claims.passwordChangeRequired) {
       throw new ApplicationError('ERR_FORBIDDEN', 'Bạn cần đổi mật khẩu trước khi tiếp tục');
     }
-    const currentUser = new CurrentUser(await this.identityClient.describeCurrentUser(accessToken));
+    // Kênh student và nhóm điểm cuối của học sinh đi cặp với nhau, kiểm tra sau khi mã phiên đã đúng trường
+    const studentEndpoint = this.reflector.getAllAndOverride<boolean>(STUDENT_ENDPOINT, targets) === true;
+    if ((claims.channel === 'student') !== studentEndpoint) {
+      throw new ApplicationError('ERR_FORBIDDEN', 'Mã phiên này không dùng được cho chức năng này');
+    }
+    const currentUser = new CurrentUser(await this.identityClient.describeCurrentUser(accessToken), {
+      channel: claims.channel,
+      sessionId: claims.sessionId,
+    });
     request.currentUser = currentUser;
 
     const requiredPermissions = this.reflector.getAllAndOverride<string[] | undefined>(REQUIRED_PERMISSIONS, targets);

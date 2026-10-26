@@ -234,10 +234,15 @@ export async function postJson(
     headers: {
       'content-type': 'application/json',
       ...(accessToken ? { authorization: `Bearer ${accessToken}` } : {}),
-      // Gửi cùng giá trị dưới tên cookie của cả ba kênh; máy chủ đọc cookie đúng kênh (BM-71)
+      // Gửi cùng giá trị dưới tên cookie của cả bốn kênh; máy chủ đọc cookie đúng kênh (BM-71)
       ...(refreshToken
         ? {
-            cookie: ['__Secure-refresh_token', '__Secure-refresh_token_teacher', '__Secure-refresh_token_parent']
+            cookie: [
+              '__Secure-refresh_token',
+              '__Secure-refresh_token_teacher',
+              '__Secure-refresh_token_parent',
+              '__Secure-refresh_token_student',
+            ]
               .map((name) => `${name}=${encodeURIComponent(refreshToken)}`)
               .join('; '),
           }

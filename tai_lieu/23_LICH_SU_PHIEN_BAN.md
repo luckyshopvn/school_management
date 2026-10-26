@@ -1,7 +1,7 @@
 # 23. LỊCH SỬ PHIÊN BẢN
 
 - Mô tả: Mã phiên bản, ngày phát hành, danh sách thay đổi, chức năng mới, lỗi đã sửa, thay đổi dữ liệu, thay đổi API, rủi ro, khả năng tương thích, phương án quay lui.
-- Phiên bản: 0.63
+- Phiên bản: 0.64
 - Ngày cập nhật: 2026-10-26
 - Trạng thái: Đang cập nhật
 - Đã rà duyệt: Eric, ngày 2026-10-09
@@ -16,18 +16,30 @@
 
 ## 2. Danh sách phiên bản
 
-### Phiên bản 0.144.0 – 2026-10-26
+### Phiên bản 0.145.0 – 2026-10-26
 
 - Phạm vi thay đổi: DT-28 phần 28b, lõi hệ thống quản lý học tập (YCTD-272).
-- Chức năng mới: lớp học trực tuyến theo lớp, môn tự sinh từ phân công giảng dạy và khoá tự chọn (P03-12, MH-342); chương, hoạt động trang nội dung, liên kết, học liệu, điều kiện mở, giao cho học sinh (P03-13); tiến độ, kết quả hoạt động, kế hoạch dạy học trực tuyến theo tuần, nhật ký học tập (P03-14); khoá học mẫu của tổ chuyên môn qua duyệt hai bước rồi đẩy xuống lớp (P03-15, MH-343); quyết định dạy học trực tuyến thay thế và nội quy theo Thông tư 09/2021/TT-BGDĐT (P03-16, MH-344); ứng dụng giáo viên Lớp học trực tuyến (MH-345); ứng dụng phụ huynh Học trực tuyến của con (P03-17, MH-346).
+- Chức năng mới: lớp học trực tuyến theo lớp, môn tự sinh từ phân công giảng dạy và khoá tự chọn (P03-12, MH-348); chương, hoạt động trang nội dung, liên kết, học liệu, điều kiện mở, giao cho học sinh (P03-13); tiến độ, kết quả hoạt động, kế hoạch dạy học trực tuyến theo tuần, nhật ký học tập (P03-14); khoá học mẫu của tổ chuyên môn qua duyệt hai bước rồi đẩy xuống lớp (P03-15, MH-349); quyết định dạy học trực tuyến thay thế và nội quy theo Thông tư 09/2021/TT-BGDĐT (P03-16, MH-350); ứng dụng giáo viên Lớp học trực tuyến (MH-351); ứng dụng phụ huynh Học trực tuyến của con (P03-17, MH-352).
 - Lỗi đã sửa: không có.
 - Thay đổi dữ liệu: hệ thống `0110`; năm học `0172` đến `0175`; định danh `0180` (bốn quyền `P02.learning.*`); xem `16_CO_SO_DU_LIEU.md` mục 18F.
 - Thay đổi API: nhóm `/learning` (xem `17_DAC_TA_API.md` mục 17.2).
-- Kiểm thử: kịch bản CT-1097 đến CT-1103 (CT-28b-1 đến CT-28b-16 trong mã kiểm thử). Kết quả ngày 26/10/2026: `apps/api` 14/14 ca của `learning-rules.test.ts`, `learning.test.ts`; `learning-tenancy.test.ts` 2/2 (hai bố cục); `working-level.test.ts` 8/8, `menu-permissions.test.ts` và `secondary-class-records.test.ts` đạt; e2e: `211-online-classes` (CT-28b-16) và `151-classroom-tools` (CT-23b-14, có màn Lớp của tôi thêm nút mới) đạt, chạy kèm spec nền 01 đến 09.
+- Kiểm thử: kịch bản CT-1108 đến CT-1114 (CT-28b-1 đến CT-28b-16 trong mã kiểm thử). Kết quả ngày 26/10/2026: `apps/api` 14/14 ca của `learning-rules.test.ts`, `learning.test.ts`; `learning-tenancy.test.ts` 2/2 (hai bố cục); `working-level.test.ts` 8/8, `menu-permissions.test.ts` và `secondary-class-records.test.ts` đạt; e2e: `211-online-classes` (CT-28b-16) và `151-classroom-tools` (CT-23b-14, có màn Lớp của tôi thêm nút mới) đạt, chạy kèm spec nền 01 đến 09.
 - Rủi ro: màn hình học sinh chưa có (chờ 23a gộp kênh `student`); tệp quyết định dạy thay thế chưa đính kèm được; báo cáo theo vai trò, sổ điểm, hồ sơ Thông tư 09 là phần 28d; trình soạn nội dung khoá mẫu ở cổng quản trị mới có chương và trang nội dung.
 - Khả năng tương thích: không đổi hành vi các phân hệ cũ; lớp học trực tuyến tự sinh ẩn với học sinh đến khi giáo viên mở; trường chỉ có Mầm non không thấy nhóm menu 9. Học tập trực tuyến.
 - Phương án quay lui: hoàn lại commit gộp của nhánh 28b; các tệp migration chỉ thêm bảng và quyền.
 
+
+### Phiên bản 0.144.0 – 2026-10-26
+
+- Phạm vi thay đổi: DT-23 phần 23a, thi trực tuyến cho học sinh (YCTD-211).
+- Chức năng mới: kênh đăng nhập `student` và vai trò học sinh nối với tài khoản học và thi; giao đề đã khoá cho lớp, học sinh; làm bài có đồng hồ máy chủ, lưu nháp từng câu, chấm tự động; khóa toàn màn hình, camera kiểm tra có mặt và nhiều khuôn mặt ngay trên máy học sinh (chỉ gửi sự kiện); theo dõi, chấm tự luận, công bố kết quả; bài nộp vào phiếu chấm 22g2 để chuyển sổ điểm có giáo viên xác nhận; công tắc theo cấp; phân hệ "Thi trực tuyến".
+- Lỗi đã sửa: không có.
+- Thay đổi dữ liệu: tệp năm học `0120` đến `0123`; tệp định danh `0120`, `0121`.
+- Thay đổi API: `/online-exams/…`, `/student/…`, `POST /users/student-accounts/sync`, kênh `student` của `POST /auth/login`.
+- Kiểm thử: kịch bản CT-1097 đến CT-1107. Kết quả ngày 26/10/2026: kiểm thử đơn vị `apps/api/src/online-exams/online-exam-rules.test.ts` (CT-23a-1a đến CT-23a-1h) và `online-exams.test.ts` (CT-23a-2 đến CT-23a-9) đạt; kiểm thử đơn vị toàn kho đạt (lượt đầy đủ 1.441/1.441 trước khi gộp main; sau đó bộ 23a, 22g, tenancy-matrix, định danh đạt); kiểm thử giao diện `tests/e2e/150-online-exams.spec.ts` (CT-23a-10) cùng 02, 03, 07, 58, 101 đạt; toàn bộ kiểm thử giao diện để CI chạy toàn bộ; trên máy chạy riêng 02, 03, 06, 07, 08, 58, 83, 101 và 150 đạt; kiểm tĩnh đa thuê bao, ma trận cách ly, kiểm thử hai bố cục cơ sở dữ liệu `database` và `schema`, build, kiểm tra kiểu, lint, kiểm tra định dạng đạt.
+- Rủi ro: học sinh xem đáp án hoặc dữ liệu bạn khác (đáp án không xuống máy học sinh, tuyến `/student/*` chỉ trả dữ liệu của chính học sinh, mã phiên kênh `student` chỉ gọi nhóm này); lộ hình ảnh trẻ em (không có hình nào rời khỏi máy học sinh); mất bài khi mất mạng (đồng hồ máy chủ, lưu nháp từng câu, làm tiếp); gian lận (khóa toàn màn hình, camera, một phiên, điểm do giáo viên xác nhận; không hứa tuyệt đối).
+- Khả năng tương thích: không đổi hành vi cũ; tài khoản học và thi cấp trước cần cấp lại mật khẩu một lần để đăng nhập làm bài.
+- Phương án quay lui: hoàn lại commit gộp của nhánh 23a; chạy phần quay lui của tệp năm học `0123` đến `0120` và định danh `0121`, `0120`.
 
 ### Phiên bản 0.143.0 – 2026-10-26
 

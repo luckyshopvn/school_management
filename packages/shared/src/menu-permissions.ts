@@ -145,6 +145,10 @@ export const MENU_PERMISSION_RULES: Partial<Record<PortalQuickLinkPath, MenuPerm
   '/online-classes': anyOf('P02.learning.teach', 'P02.learning.view'),
   '/course-templates': anyOf('P02.learning.template'),
   '/online-teaching': anyOf('P02.learning.decide', 'P02.learning.view'),
+  // Thi trực tuyến cho học sinh (DT-23 phần 23a): giao đề, theo dõi bài làm, cấu hình thi trực tuyến theo cấp
+  '/online-exams': 'P02.exam.assign',
+  '/online-exams/monitor': 'P02.exam.assign',
+  '/online-exams/settings': 'P02.exam.assign',
   // Khai báo tuần: ai xem được thiết lập thì xem, sửa cần quyền quản lý năm học như 2.1 Năm học (DT-16 phần 16e)
   '/school-weeks': anyOf('P01.view', 'P01.academic-year.manage'),
   '/staff': 'P07.staff.view',

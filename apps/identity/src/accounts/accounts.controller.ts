@@ -28,6 +28,7 @@ import { RolesService } from './roles.service.js';
 import { StaffDirectoryService } from './staff-directory.service.js';
 import { GuardianAccountsService } from './guardian-accounts.service.js';
 import { StaffAccountsService } from './staff-accounts.service.js';
+import { StudentAccountsService, type StudentAccountInput } from './student-accounts.service.js';
 import { IdentityDataExportService } from './identity-data-export.js';
 import { ImpersonationService } from '../authentication/impersonation.service.js';
 
@@ -122,6 +123,7 @@ export class AccountsController {
     private readonly staffAccounts: StaffAccountsService,
     private readonly impersonation: ImpersonationService,
     private readonly dataExport: IdentityDataExportService,
+    private readonly studentAccounts: StudentAccountsService,
   ) {}
 
   // Dữ liệu của dịch vụ định danh cho gói ZIP toàn bộ dữ liệu của trường, không có mật khẩu và mã bí mật (DT-18 phần 18h)
@@ -262,6 +264,44 @@ export class AccountsController {
       full_name: fullName ?? '',
       org_unit_id: orgUnitId as string,
     });
+  }
+
+  // Máy chủ API gọi khi trường khởi tạo hoặc cấp lại mật khẩu tài khoản học và thi của học sinh: tạo hoặc cấp lại người dùng của
+  // kênh student (DT-23 phần 23a, YCTD-211); mật khẩu chỉ đi một lần qua cuộc gọi này, dịch vụ chỉ lưu giá trị băm
+  @Post('student-accounts/sync')
+  @HttpCode(200)
+  async syncStudentAccounts(@Req() request: AuthenticatedRequest, @Body() body: RequestBody) {
+    const raw = body?.accounts;
+    const errors: FieldError[] = [];
+    const items: StudentAccountInput[] = [];
+    if (!Array.isArray(raw) || raw.length === 0 || raw.length > 500) {
+      errors.push({ field: 'accounts', message: 'Gồm từ 1 đến 500 tài khoản' });
+    } else {
+      raw.forEach((entry: unknown, index) => {
+        const row = (entry ?? {}) as Record<string, unknown>;
+        const username = typeof row.username === 'string' ? row.username : '';
+        const fullName = typeof row.full_name === 'string' ? row.full_name.trim() : '';
+        const password = typeof row.password === 'string' ? row.password : '';
+        const orgUnitId = row.org_unit_id;
+        if (!USERNAME_PATTERN.test(username)) {
+          errors.push({ field: `accounts[${index}].username`, message: 'Tên đăng nhập không hợp lệ' });
+        }
+        if (!fullName) {
+          errors.push({ field: `accounts[${index}].full_name`, message: 'Bắt buộc nhập họ tên' });
+        }
+        if (password.length < 8) {
+          errors.push({ field: `accounts[${index}].password`, message: 'Mật khẩu tối thiểu 8 ký tự' });
+        }
+        if (typeof orgUnitId !== 'string' || !UUID_PATTERN.test(orgUnitId)) {
+          errors.push({ field: `accounts[${index}].org_unit_id`, message: 'Bắt buộc chọn đơn vị' });
+        }
+        items.push({ username, full_name: fullName, password, org_unit_id: orgUnitId as string });
+      });
+    }
+    if (errors.length > 0) {
+      throw validationError(errors);
+    }
+    return { items: await this.studentAccounts.sync(callerOf(request), items) };
   }
 
   // Máy chủ API gọi khi phòng nhân sự liên kết tài khoản với hồ sơ nhân sự (P07-01, YCTD-58)

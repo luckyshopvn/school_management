@@ -1,7 +1,7 @@
 # 34.1. TỔNG QUAN, KIẾN TRÚC VÀ NỀN TẢNG CHUNG
 
 - Mô tả: Mục tiêu, đối tượng dùng, cấp học, kiến trúc, đăng nhập và phân quyền, chọn phân hệ, thông báo, DT-SaaS đa thuê bao, kế hoạch DT-23, DT-26, DT-27 và DT-28
-- Phiên bản: 1.0
+- Phiên bản: 1.1
 - Ngày cập nhật: 2026-10-26
 - Trạng thái: Chờ phê duyệt
 - Thuộc: [Tài liệu 34, tổng hợp chức năng hệ thống](00_MUC_LUC.md)
@@ -781,7 +781,7 @@ Nguồn: tài liệu 32 mục 15, YCTD-210. Mục này chỉ ghi để người 
 
 | Phần | Đợt | Nội dung kế hoạch (tài liệu 32 mục 15.3) | Dấu hiệu trong mã |
 |---|---|---|---|
-| 23a Thi trực tuyến cho học sinh | 1 | Kênh đăng nhập `student`, giao đề, làm bài có đếm ngược theo đồng hồ máy chủ, chấm tự động câu trắc nghiệm, chuyển điểm vào sổ điểm theo luồng 22g2, ghi sự kiện rời trang | `SessionChannel` chỉ có `portal`, `teacher`, `parent`; `student_learning_accounts` chưa có đăng nhập |
+| 23a Thi trực tuyến cho học sinh | 1 | Kênh đăng nhập `student`, giao đề, làm bài có đếm ngược theo đồng hồ máy chủ, chấm tự động câu trắc nghiệm, chuyển điểm vào sổ điểm theo luồng 22g2, ghi sự kiện rời trang | Đã làm (YCTD-211, phiên bản 0.144.0): `SessionChannel` có `student`; bảng `exam_assignments`, `exam_attempts`, `exam_attempt_events`; nhóm `/student/*`; phân hệ `online-exam`; màn hình học sinh ở ứng dụng phụ huynh (`#hoc-sinh`); chưa làm ảnh chụp định kỳ |
 | 23b Công cụ lớp học | 1 | Đã có trong mã (YCTD-212, tài liệu 0.140.0): xem mục 7 bên dưới | `apps/teacher/src/tools`, `apps/teacher/public/sw.js`, `apps/api/src/classroom-tools` |
 | 23d Trợ lý AI (đã làm, YCTD-214, PR 184) | 1 | Soạn câu hỏi và kế hoạch bài dạy nháp bằng bộ nối `AiProvider` (`anthropic`, `mock`); tắt mặc định theo trường; hai cấu hình khóa (`school` miễn phí, `platform` thu theo gói và token); chỉ gửi nội dung chương trình, quét dữ liệu cá nhân ở máy chủ; bản nháp qua duyệt 22g1, 22h1; nhật ký, hạn mức theo gói | Mô-đun `apps/api/src/ai-assistant/`, màn hình 3.8 Trợ lý AI, trang Trợ lý AI ở cổng nền tảng, `plan_ai_pricing`, dòng phí `ai`, e2e spec 153 |
 | 23c Trò chơi kiến thức và thẻ đáp án giấy | 2 | Ô chữ, vòng quay, hỏi đáp theo vòng sinh từ ngân hàng câu hỏi; thẻ đáp án giấy đọc bằng camera | Chưa có |
@@ -840,7 +840,7 @@ Nguồn: tài liệu 32 mục 20, YCTD-270. Mục này chỉ ghi để người 
 | Phần | Đợt | Nội dung kế hoạch (tài liệu 32 mục 20.6) | Dấu hiệu trong mã |
 |---|---|---|---|
 | 28a Mô hình nhóm dùng chung | 1 | Bộ nhóm theo lớp, môn, mục đích; chia tay, ngẫu nhiên, theo năng lực, cân bằng giới; nhóm trưởng; lịch sử; công cụ lớp học 23b dùng bộ nhóm | `child_groups`, `child_group_members` (DT-14c), `classroom_groupings` (23b) có sẵn để mở rộng, dời dữ liệu |
-| 28b Lõi LMS | 1 | Lớp học trực tuyến tự sinh từ phân công, khoá tự chọn, khoá học mẫu của tổ qua luồng duyệt 22h1, chương, hoạt động, điều kiện mở, kết quả hoạt động, quyết định hình thức theo Thông tư 09/2021, kế hoạch theo tuần, nhật ký học tập | **Đã có (YCTD-272, 0.144.0):** phân hệ `apps/api/src/learning`, nhóm `/api/v1/learning`, bảng `course_spaces`, `course_sections`, `course_activities`, `activity_results`, `learning_events`, `online_teaching_decisions`, `online_learning_rules` (năm học), `course_templates` (hệ thống); cổng quản trị 9.1 đến 9.3 (MH-342 đến MH-344), ứng dụng giáo viên MH-345, ứng dụng phụ huynh MH-346 |
+| 28b Lõi LMS | 1 | Lớp học trực tuyến tự sinh từ phân công, khoá tự chọn, khoá học mẫu của tổ qua luồng duyệt 22h1, chương, hoạt động, điều kiện mở, kết quả hoạt động, quyết định hình thức theo Thông tư 09/2021, kế hoạch theo tuần, nhật ký học tập | **Đã có (YCTD-272, 0.145.0):** phân hệ `apps/api/src/learning`, nhóm `/api/v1/learning`, bảng `course_spaces`, `course_sections`, `course_activities`, `activity_results`, `learning_events`, `online_teaching_decisions`, `online_learning_rules` (năm học), `course_templates` (hệ thống); cổng quản trị 9.1 đến 9.3 (MH-348 đến MH-350), ứng dụng giáo viên MH-351, ứng dụng phụ huynh MH-352 |
 | 28c Bài tập trực tuyến | 2 | Trắc nghiệm từ 22g1 chấm bằng hàm 22g2, tự luận, ảnh, ghi âm, phân hóa, bài nhóm, thang tiêu chí, trả bài, gợi ý nhận xét AI nháp | `questions`, `grading-rules.ts`, `rubrics` có sẵn |
 | 28d Tiến độ, bảng điểm, báo cáo | 2 | Tiến độ học sinh và lớp, bảng điểm hoạt động, điểm thường xuyên qua `ScoresService` (Tiểu học: gợi ý nhận xét, mức đạt), báo cáo cho chủ nhiệm, tổ, Hiệu trưởng, phụ huynh, báo cáo học kỳ và hồ sơ dạy học trực tuyến | `score_entries`, `regular_comments` có sẵn |
 | 28e Thông báo, diễn đàn, hỏi đáp, học nhóm | 2 | Một bộ máy thảo luận cho lớp và nhóm, giáo viên luôn thấy, không tin nhắn riêng giữa học sinh, giờ mở, lọc, báo cáo; lịch học tập | Chưa có |
