@@ -3,12 +3,13 @@ import type { AddressInfo } from 'node:net';
 import type { INestApplication, Type } from '@nestjs/common';
 import {
   createDatabase,
-  createEmptyDatabase,
+  createMigratedTestDatabase,
   dropDatabaseIfExists,
   listDatabasesWithPrefix,
   migrateToLatest,
   readConnectionString,
   replaceDatabaseName,
+  testAdminDatabaseUrl,
   type SystemDatabase,
 } from '@school-management/database';
 import {
@@ -25,7 +26,8 @@ import type { PaymentProviderSettings } from './finance/payment-providers.js';
 import { RecordingSmsGateway } from './notifications/sms-gateway.js';
 import { MemoryFileStorage } from './files/file-storage.js';
 
-// Môi trường kiểm thử tích hợp: dịch vụ định danh thật, cơ sở dữ liệu hệ thống tạm và tiền tố tên cơ sở dữ liệu năm học riêng
+// Môi trường kiểm thử tích hợp: dịch vụ định danh thật trên cơ sở dữ liệu định danh tạm, cơ sở dữ liệu hệ thống tạm và tiền tố tên cơ
+// sở dữ liệu năm học riêng; không dùng chung gì giữa các tệp kiểm thử nên các tệp chạy song song được
 export interface ApiTestEnvironment {
   identity: IdentityTestContext;
   api: INestApplication;
@@ -60,14 +62,23 @@ export async function startApiTestEnvironment(
   const baseSystemUrl = readConnectionString('system');
   const systemDatabaseName = `school_system_test_${suffix}`;
   const schoolYearDatabasePrefix = `school_year_test_${suffix}_`;
-  await createEmptyDatabase(baseSystemUrl, systemDatabaseName);
+  // Sao từ cơ sở dữ liệu mẫu đã chạy tệp thay đổi cấu trúc (mỗi lần chạy kiểm thử dựng mẫu một lần); bước chạy tệp sau đó không còn
+  // tệp nào chưa chạy
+  await createMigratedTestDatabase(baseSystemUrl, systemDatabaseName, 'system');
   const systemDatabaseUrl = replaceDatabaseName(baseSystemUrl, systemDatabaseName);
   const migration = await migrateToLatest('system', systemDatabaseUrl);
   if (migration.error) {
     throw migration.error;
   }
 
-  const identity = await startTestApplication();
+  // Cơ sở dữ liệu định danh riêng thuộc identity_service (vai trò này không có quyền tạo cơ sở dữ liệu nên tạo bằng tài khoản quản trị)
+  const adminUrl = testAdminDatabaseUrl();
+  const baseIdentityUrl = readConnectionString('identity');
+  const identityDatabaseName = `school_identity_test_${suffix}`;
+  await createMigratedTestDatabase(baseIdentityUrl, identityDatabaseName, 'identity', { adminUrl });
+  const identity = await startTestApplication({
+    databaseUrl: replaceDatabaseName(baseIdentityUrl, identityDatabaseName),
+  });
   const smsGateway = new RecordingSmsGateway();
   const api = await createApplication(
     {
@@ -75,6 +86,7 @@ export async function startApiTestEnvironment(
       identityBaseUrl: identity.origin,
       systemDatabaseUrl,
       schoolYearDatabasePrefix,
+      schoolYearDatabasesFromTemplate: true,
       childDataEncryptionKey: randomBytes(32),
       childDataHashKey: randomBytes(32),
       objectStorage: null,
@@ -133,6 +145,7 @@ export async function startApiTestEnvironment(
         await dropDatabaseIfExists(baseSystemUrl, databaseName);
       }
       await dropDatabaseIfExists(baseSystemUrl, systemDatabaseName);
+      await dropDatabaseIfExists(adminUrl, identityDatabaseName);
     },
   };
 }
