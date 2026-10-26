@@ -1,7 +1,7 @@
 # 23. LỊCH SỬ PHIÊN BẢN
 
 - Mô tả: Mã phiên bản, ngày phát hành, danh sách thay đổi, chức năng mới, lỗi đã sửa, thay đổi dữ liệu, thay đổi API, rủi ro, khả năng tương thích, phương án quay lui.
-- Phiên bản: 0.64
+- Phiên bản: 0.65
 - Ngày cập nhật: 2026-10-26
 - Trạng thái: Đang cập nhật
 - Đã rà duyệt: Eric, ngày 2026-10-09
@@ -27,6 +27,18 @@
 - Rủi ro: nội dung đẩy đi qua máy chủ của nhà cung cấp trình duyệt ở nước ngoài (chỉ tiêu đề nhóm và tên trường); người nhận theo vai trò chưa có kênh đẩy; giao diện bật đẩy chờ 26a.
 - Khả năng tương thích: chưa đặt `PUSH_PROVIDER` hoặc người chưa đăng ký đẩy thì như cũ.
 - Phương án quay lui: bỏ `PUSH_PROVIDER` để ngừng kênh đẩy không cần quay lui mã; hoàn lại commit gộp để bỏ cả tính năng.
+
+### Phiên bản 0.147.0 – 2026-10-26
+
+- Phạm vi thay đổi: DT-25 bước 25b, giao diện đăng nhập và liên kết bằng nhà cung cấp định danh bên ngoài (YCTD-226).
+- Chức năng mới: nút "Đăng nhập bằng <nhà cung cấp>" trên màn hình đăng nhập của cổng quản trị, ứng dụng giáo viên, ứng dụng phụ huynh (chỉ hiện khi trường đã bật); trang quay về `/dang-nhap/ben-ngoai` (có bước nhập mã hai lớp); mục "Liên kết tài khoản" ở Tài khoản của tôi (cổng quản trị) và màn hình chính của ứng dụng phụ huynh (liên kết, gỡ liên kết, nhật ký); khối cấu hình của trường ở Danh sách người dùng.
+- Lỗi đã sửa: không có.
+- Thay đổi dữ liệu: không.
+- Thay đổi API: không (dùng nhóm `/auth/external/*` của 0.142.0).
+- Kiểm thử: e2e spec 165 thêm ca giao diện (liên kết, đăng nhập bằng nút, gỡ liên kết, nút ẩn khi trường tắt); kết quả trên máy 13/13 cùng spec 01.
+- Rủi ro: thấp; ở tên miền chung (đăng nhập theo đơn vị của DT-24) không hiện nút, người dùng mở trang đăng nhập riêng của trường.
+- Khả năng tương thích: trường chưa bật nhà cung cấp thì không có gì thay đổi trên màn hình.
+- Phương án quay lui: tắt nhà cung cấp ở trường; hoàn lại commit gộp.
 
 ### Phiên bản 0.144.0 – 2026-10-26
 
