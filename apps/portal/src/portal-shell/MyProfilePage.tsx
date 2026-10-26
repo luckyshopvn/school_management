@@ -1,12 +1,21 @@
 import { useCallback, useEffect, useState, type ReactNode } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Link } from '@tanstack/react-router';
-import { Alert, Button, FORM_CONTROL_CLASS, FormBlock, FormRow, Toast } from '@school-management/ui';
+import {
+  Alert,
+  Button,
+  ExternalLinksPanel,
+  FORM_CONTROL_CLASS,
+  FormBlock,
+  FormRow,
+  Toast,
+} from '@school-management/ui';
 import { AppShell } from '../pages/AppShell.js';
 import { ApiError, fetchCurrentUser, requestJson } from '../session/api-client.js';
 import type { StaffDetail } from '../staff/staff-api.js';
 import { formatDate } from './SystemAnnouncementsPage.js';
 import { TotpPanel } from './TotpPanel.js';
+import { portalExternalRequest } from './external-identity.js';
 
 // Hồ sơ nhân sự cá nhân ở menu người dùng (DT-16 phần 16c): xem hồ sơ nhân sự gắn với tài khoản của mình; tự sửa điện
 // thoại, thư điện tử, chỗ ở. Các mục khác do người quản lý nhân sự cập nhật ở 3.1.1 Hồ sơ cán bộ, giáo viên
@@ -164,6 +173,7 @@ export function MyProfilePage() {
           </>
         ) : null}
         <TotpPanel />
+        <ExternalLinksPanel request={portalExternalRequest} basePath={import.meta.env.BASE_URL} />
       </div>
     </AppShell>
   );

@@ -39,6 +39,7 @@ import { BulkPasswordDialog, BulkRoleDialog, StaffAccountsDialog } from './Accou
 import { UserSchoolLevelsBlock } from '../school-levels/UserSchoolLevelsBlock.js';
 import { RoleGrantFields } from './RoleGrantFields.js';
 import { PasswordPolicySection } from './PasswordPolicySection.js';
+import { ExternalProvidersSection } from './ExternalProvidersSection.js';
 import { ImpersonateDialog } from '../administration/ImpersonateDialog.js';
 
 // MH-30 phần tài khoản: danh sách, tạo, khóa, mở khóa, đặt lại mật khẩu, gán vai trò (P01-06, P01-07, PQ-13); danh sách
@@ -671,6 +672,7 @@ export function AccountsPage() {
           </aside>
         </div>
         {canAssignRoles ? <PasswordPolicySection onSaved={setToastMessage} /> : null}
+        {canAssignRoles ? <ExternalProvidersSection onSaved={setToastMessage} /> : null}
       </div>
     </AppShell>
   );

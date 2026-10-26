@@ -1,5 +1,6 @@
 import { useState, type FormEvent } from 'react';
-import { Alert, Button, DemoAccountPicker, TextField } from '@school-management/ui';
+import { Alert, Button, DemoAccountPicker, ExternalProviderButtons, TextField } from '@school-management/ui';
+import { externalRequest } from '../session/external-request.js';
 import { ApiError, requestOneTimeCode } from '../session/api-client.js';
 import { useSession } from '../session/session.js';
 import { STUDENT_HASH } from '../student/StudentApplication.js';
@@ -144,6 +145,7 @@ export function LoginScreen({ onAdmissions }: { onAdmissions?: () => void }) {
           </Button>
         ) : null}
       </form>
+      <ExternalProviderButtons request={externalRequest} channel="parent" basePath={import.meta.env.BASE_URL} />
       {/* Bản trình diễn: chọn tài khoản phụ huynh giả để vào thử (DT-18 phần 18h) */}
       <DemoAccountPicker
         app="parent"
