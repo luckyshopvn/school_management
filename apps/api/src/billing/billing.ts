@@ -42,6 +42,7 @@ import {
 } from '@school-management/database';
 import { PERMISSION_CODES, PLAN_MODULES } from '@school-management/shared';
 import type { Request, Response } from 'express';
+import { AiAssistantService } from '../ai-assistant/ai-assistant.js';
 import { PublicEndpoint, RequirePermission } from '../authentication/authentication.guard.js';
 import { API_CONFIGURATION, TENANCY_RUNTIME, type ApiConfiguration } from '../common/configuration.js';
 import { CurrentSchoolYearResolver } from '../common/current-school-year.js';
@@ -346,6 +347,8 @@ export class BillingCycleJob implements OnApplicationBootstrap {
     private readonly clock: Clock,
     @Optional() @Inject(TENANCY_RUNTIME) private readonly tenancy: TenancyRuntime | null = null,
     @Optional() @Inject(JobScheduler) private readonly scheduler: JobScheduler | null = null,
+    // Tổng hợp token AI lên nền tảng trước khi chốt kỳ để dòng phí AI đủ số liệu (DT-23 phần 23d)
+    @Optional() @Inject(AiAssistantService) private readonly aiAssistant: AiAssistantService | null = null,
   ) {}
 
   onApplicationBootstrap() {
@@ -382,6 +385,7 @@ export class BillingCycleJob implements OnApplicationBootstrap {
     }
     const platform = this.tenancy.platform;
     const today = vietnamDate(now);
+    await this.aiAssistant?.syncUsage();
     const issued = await closeDuePeriod(
       platform,
       { schoolId: tenant.schoolId, today, now, usage: () => this.usage() },

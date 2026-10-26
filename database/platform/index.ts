@@ -16,6 +16,9 @@ import { migration as createBilling } from './migrations/0050_create_billing.js'
 import { migration as createPlatformDashboard } from './migrations/0060_create_platform_dashboard.js';
 import { migration as createBackupRuns } from './migrations/0070_create_backup_runs.js';
 import { migration as addDatabaseLoginName } from './migrations/0100_add_database_login_name.js';
+import { migration as addAiPlanLimits } from './migrations/0200_add_ai_plan_limits.js';
+import { migration as createAiTokenUsage } from './migrations/0201_create_ai_token_usage.js';
+import { migration as createPlanAiPricing } from './migrations/0202_create_plan_ai_pricing.js';
 import { migration as createSchoolCatalog } from './migrations/0210_create_school_catalog.js';
 import { migration as linkCatalogAndPlatformAccess } from './migrations/0211_link_catalog_and_platform_access.js';
 
@@ -47,6 +50,10 @@ export const platformMigrations: Record<string, Migration> = {
   '0070_create_backup_runs': createBackupRuns,
   // Khối 0100 đến 0109 của phần S9
   '0100_add_database_login_name': addDatabaseLoginName,
+  // Trợ lý AI (DT-23 phần 23d): 0200 đến 0202
+  '0200_add_ai_plan_limits': addAiPlanLimits,
+  '0201_create_ai_token_usage': createAiTokenUsage,
+  '0202_create_plan_ai_pricing': createPlanAiPricing,
   // Danh mục đơn vị toàn quốc, đăng nhập theo đơn vị, quyền quản trị nền tảng (DT-24): 0210 đến 0219
   '0210_create_school_catalog': createSchoolCatalog,
   '0211_link_catalog_and_platform_access': linkCatalogAndPlatformAccess,

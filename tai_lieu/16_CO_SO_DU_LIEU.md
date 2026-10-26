@@ -822,6 +822,21 @@ Ba bảng ở cơ sở dữ liệu năm học (tệp `0124_create_classroom_tool
 
 Hai mục cấu hình theo trường ở bảng `settings` của Trường chính (không có bảng riêng): `classroom_offline_enabled` (bật, mặc định bật) và `classroom_roster_ttl_hours` (1 đến 100, mặc định 24) (BR-233).
 
+## 18E. Trợ lý AI (DT-23 phần 23d, YCTD-214)
+
+| Bảng | Mục đích | Cột chính |
+|---|---|---|
+| ai_settings (từ YCTD-214) | Thiết lập AI của trường, một dòng, ở cơ sở dữ liệu hệ thống (BR-234; hệ thống `0071`) | id (=1), enabled (mặc định tắt), key_mode (`school`, `platform`), provider, model, per_user_daily_requests, log_retention_months (12), updated_at, updated_by_name |
+| ai_requests (từ YCTD-214) | Nhật ký yêu cầu AI của trường, không lưu toàn văn lời nhắc (BR-235; hệ thống `0071`, chỉ mục `0072`) | id, created_at, user_id, user_name, kind (`questions`, `lesson_plan`, `check`), school_level, grade_level_code, subject_name, topic, status (`success`, `failed`, `rejected`, `blocked`), key_mode, provider, model, prompt_sha256, prompt_chars, response_chars, input_tokens, output_tokens, result_count, result_ids, error, duration_ms |
+| integration_secrets (đổi ở YCTD-214) | Thêm kết nối `ai` (khóa của trường, cấu hình `school`) | connector = `ai` |
+| learning_resources (đổi ở YCTD-214) | Học liệu do AI soạn nháp (hệ thống `0073`) | ai_generated, ai_request_id |
+| questions (đổi ở YCTD-214) | Câu hỏi do AI soạn nháp (năm học `0128`) | ai_generated, ai_request_id |
+| plans (đổi ở YCTD-214) | Hạn mức AI mỗi tháng của gói (nền tảng `0200`) | ai_max_requests, ai_max_tokens (trống là không giới hạn, 0 là không dùng AI) |
+| platform_integration_secrets (đổi ở YCTD-214) | Khóa AI chung của nền tảng (cấu hình `platform`), mã hóa bằng khóa gốc | connector = `ai`; thiết lập nhà cung cấp, mô hình ở `platform_settings` khóa `ai` |
+| ai_token_usage (từ YCTD-214) | Token AI theo trường, ngày, mô hình, cấu hình, để thu phí (BR-236; nền tảng `0201`) | school_id, usage_date, model, config, requests, input_tokens, output_tokens |
+| plan_ai_pricing (từ YCTD-214) | Đơn giá AI theo gói (BR-236; nền tảng `0202`) | plan_id, free_tokens, input_price_per_1k, output_price_per_1k (trống là chưa nhập), model_prices, minimum_fee, rounding_step |
+| invoice_lines (đổi ở YCTD-214) | Thêm loại dòng `ai` | kind = `ai` |
+
 ## 19. Quan hệ chính giữa các bảng
 
 ```mermaid

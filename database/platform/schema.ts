@@ -145,6 +145,9 @@ export interface PlansTable {
   max_active_students: number | null;
   max_storage_mb: number | null;
   max_school_levels: number | null;
+  // Hạn mức AI mỗi tháng (DT-23 phần 23d); null là không giới hạn, 0 là không dùng AI
+  ai_max_requests: number | null;
+  ai_max_tokens: number | null;
   trial_days: Generated<number>;
   pricing_mode: Generated<PlanPricingModeValue>;
   unit_price: ColumnType<string, number | undefined, number>;
@@ -311,7 +314,7 @@ export interface SchedulerStateTable {
 export type PriceComponent = 'per_student' | 'per_school' | 'per_module';
 export type BillingPeriod = 'monthly' | 'quarterly' | 'yearly';
 export type ServiceInvoiceStatus = 'issued' | 'paid' | 'void';
-export type InvoiceLineKind = PriceComponent | 'minimum' | 'discount';
+export type InvoiceLineKind = PriceComponent | 'minimum' | 'discount' | 'ai';
 export interface StudentTier {
   up_to: number | null;
   unit_price: number;
@@ -447,6 +450,30 @@ export interface PlatformIntegrationSecretsTable {
   enabled: Generated<boolean>;
   values_encrypted: string;
   hints: ColumnType<Record<string, string>, string | undefined, string>;
+  updated_at: UpdatedTimestamp;
+  updated_by: string | null;
+}
+
+// Trợ lý AI (DT-23 phần 23d, YCTD-214)
+export interface AiTokenUsageTable {
+  school_id: string;
+  usage_date: ColumnType<string, string, string>;
+  model: string;
+  config: 'school' | 'platform';
+  requests: Generated<number>;
+  input_tokens: ColumnType<string, number | string | undefined, number | string>;
+  output_tokens: ColumnType<string, number | string | undefined, number | string>;
+  updated_at: UpdatedTimestamp;
+}
+
+export interface PlanAiPricingTable {
+  plan_id: string;
+  free_tokens: ColumnType<string, number | undefined, number>;
+  input_price_per_1k: ColumnType<string | null, number | null | undefined, number | null>;
+  output_price_per_1k: ColumnType<string | null, number | null | undefined, number | null>;
+  model_prices: ColumnType<Record<string, { input: number; output: number }>, string | undefined, string>;
+  minimum_fee: ColumnType<string, number | undefined, number>;
+  rounding_step: Generated<number>;
   updated_at: UpdatedTimestamp;
   updated_by: string | null;
 }
@@ -729,6 +756,8 @@ export interface PlatformDatabase {
   einvoice_documents: EinvoiceDocumentsTable;
   dunning_events: DunningEventsTable;
   platform_integration_secrets: PlatformIntegrationSecretsTable;
+  ai_token_usage: AiTokenUsageTable;
+  plan_ai_pricing: PlanAiPricingTable;
   school_metrics: SchoolMetricsTable;
   school_error_counts: SchoolErrorCountsTable;
   maintenance_notices: MaintenanceNoticesTable;

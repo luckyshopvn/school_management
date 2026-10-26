@@ -90,6 +90,7 @@ const QUESTION_COLUMNS = [
   'questions.reviewed_at',
   'questions.last_used_at',
   'questions.use_count',
+  'questions.ai_generated',
   'questions.updated_at',
 ] as const;
 
@@ -294,7 +295,13 @@ export class ExamsService {
     }
   }
 
-  async createQuestion(currentUser: CurrentUser, input: QuestionInput, origin: ChangeOrigin) {
+  // `ai` có khi câu do trợ lý AI soạn nháp (DT-23 phần 23d): câu mang cờ `ai_generated`, vào ở trạng thái nháp như mọi câu mới
+  async createQuestion(
+    currentUser: CurrentUser,
+    input: QuestionInput,
+    origin: ChangeOrigin,
+    ai?: { requestId: string },
+  ) {
     const { database } = await this.currentSchoolYear.require();
     await this.assertSubjectGrade(database, input.school_level, input.subject_id, input.grade_level_code);
     await this.assertTopic(database, input);
@@ -307,6 +314,7 @@ export class ExamsService {
           answer: JSON.stringify(input.answer),
           author_user_id: currentUser.id,
           author_name: currentUser.description.full_name,
+          ...(ai ? { ai_generated: true, ai_request_id: ai.requestId } : {}),
         })
         .returning('id')
         .executeTakeFirstOrThrow();
@@ -317,7 +325,7 @@ export class ExamsService {
         entityId: created.id,
         action: 'create',
         before: null,
-        after: input,
+        after: ai ? { ...input, ai_generated: true } : input,
       });
       return this.findQuestion(transaction, created.id);
     });
@@ -419,6 +427,25 @@ export class ExamsService {
     decision: { approve: boolean; note: string | null },
     origin: ChangeOrigin,
   ) {
+    // Câu do AI soạn chỉ được duyệt khi người soạn đã gửi thẩm định và người duyệt là người khác (DT-23 phần 23d)
+    if (decision.approve) {
+      const { database } = await this.currentSchoolYear.require();
+      const existing = await this.findQuestion(database, questionId);
+      if (existing.ai_generated) {
+        if (existing.status !== 'review') {
+          throw ruleViolationError(
+            EXAM_RULE_CODE,
+            'Câu do AI soạn phải được người soạn kiểm tra và gửi thẩm định trước khi duyệt',
+          );
+        }
+        if (existing.author_user_id === currentUser.id) {
+          throw ruleViolationError(
+            EXAM_RULE_CODE,
+            'Câu do AI soạn phải do người khác thẩm định, không tự duyệt câu mình yêu cầu AI soạn',
+          );
+        }
+      }
+    }
     return this.setQuestionStatus(
       questionId,
       ['review', 'draft'],
