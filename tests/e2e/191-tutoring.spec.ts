@@ -177,7 +177,7 @@ test('CT-27b-8: lập, duyệt chương trình gia sư, xếp buổi, cha mẹ �
     const form = teacherPage.getByRole('form', { name: 'Lập chương trình gia sư' });
     await expect(form).toContainText('trong nhà trường không thu tiền');
     await form.getByLabel('Tên chương trình').fill(programName);
-    await form.getByLabel('Môn học').selectOption({ label: 'Toán' });
+    await form.getByRole('combobox', { name: /^Môn học/ }).selectOption({ label: 'Toán' });
     await form.getByLabel(className).check();
     await form.getByLabel('Đến ngày').fill(addDays(today, 20));
     await form.getByRole('button', { name: 'Lập chương trình' }).click();
