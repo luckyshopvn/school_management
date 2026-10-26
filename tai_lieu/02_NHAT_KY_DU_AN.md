@@ -36,7 +36,7 @@
 - `apps/identity`: `directory/unit-directory.test.ts` 4/4 (CT-24-5 đến CT-24-8), `platform/support-sessions.test.ts` 4/4 (CT-S4-1 đến CT-S4-4, không sửa kỳ vọng), `tenancy-matrix.test.ts` 4/4.
 - `tests/trial/edge-worker.test.mjs`: đạt (sửa kỳ vọng ca tên miền hệ thống theo hành vi mới).
 - Typecheck, lint, định dạng: đạt.
-- e2e: ghi ở mục kết quả bổ sung dưới đây.
+- e2e nhiều trường (bố cục `database`, giữ khóa `e2e.lock`): 160 2/2 (CT-24-9, CT-24-10); 130, 131, 133, 134, 135, 136, 137, 138, 139, 140 đạt; 132 đạt sau khi đổi nhãn ô lý do ở khung truy cập của cổng nền tảng (nhãn cũ trùng chuỗi con với ô "Lý do" mà spec 132 dùng). e2e một trường (CSDL định danh riêng của phiên): 01-login 8/8, 59-portal-shell-login 5/5; 02, 03 hỏng ở bước mở năm học vượt 30 giây do máy đang chạy nhiều phiên (không liên quan đăng nhập), để CI chạy lại.
 
 #### Vấn đề tồn đọng
 

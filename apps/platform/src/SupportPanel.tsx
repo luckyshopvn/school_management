@@ -132,7 +132,7 @@ export function SupportPanel({ token, code }: { token: string; code: string }) {
             trường hiện biểu ngữ và trường xem được nhật ký.
           </p>
           <label>
-            Lý do truy cập
+            Mục đích truy cập (ghi rõ việc cần làm)
             <input
               value={reason}
               onChange={(event) => setReason(event.target.value)}

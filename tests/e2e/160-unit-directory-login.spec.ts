@@ -182,7 +182,7 @@ test('CT-24-10: quản trị nền tảng vào trường chưa cho phép: mã x�
   const support = consolePage.getByRole('region', { name: 'Phiên hỗ trợ' });
   await expect(support).toContainText('Trường chưa cho phép hỗ trợ');
   const access = support.getByRole('form', { name: 'Truy cập với quyền quản trị nền tảng' });
-  await access.getByLabel('Lý do truy cập').fill('Xử lý sự cố đồng bộ (e2e)');
+  await access.getByLabel('Mục đích truy cập').fill('Xử lý sự cố đồng bộ (e2e)');
   await access.getByLabel('Số giờ').fill('1');
   await access
     .getByLabel('Mã xác thực hai lớp')
@@ -212,8 +212,8 @@ test('CT-24-10: quản trị nền tảng vào trường chưa cho phép: mã x�
   await expect(adminPage.getByRole('heading', { name: /^Xin chào,/ })).toBeVisible();
   await expect(adminPage.getByRole('status', { name: 'Phiên hỗ trợ' })).toContainText('quyền quản trị nền tảng');
   await adminPage.goto('/support-access');
-  await expect(adminPage.getByText('Xử lý sự cố đồng bộ (e2e)')).toBeVisible();
-  await expect(adminPage.getByText(/quyền quản trị nền tảng, không cần trường cho phép/)).toBeVisible();
+  const entry = adminPage.locator('summary').filter({ hasText: 'Xử lý sự cố đồng bộ (e2e)' });
+  await expect(entry).toContainText('quyền quản trị nền tảng, không cần trường cho phép');
   await adminContext.close();
   await operatorContext.close();
 });
