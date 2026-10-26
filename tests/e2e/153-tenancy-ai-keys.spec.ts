@@ -147,7 +147,7 @@ test('Màn hình quản trị AI: bật, nhập khóa, kiểm tra kết nối �
   const settings = page.getByRole('form', { name: 'Thiết lập trợ lý AI' });
   await settings.getByLabel('Bật trợ lý AI').check();
   await page.getByLabel('Đã đọc thông báo bật AI').check();
-  await page.getByLabel('Nhà cung cấp AI').selectOption('mock');
+  await page.getByLabel('Nhà cung cấp AI', { exact: true }).selectOption('mock');
   await settings.getByRole('button', { name: 'Lưu thiết lập' }).click();
   await expect(page.getByText('Đã lưu thiết lập trợ lý AI')).toBeVisible();
 
@@ -161,7 +161,7 @@ test('Màn hình quản trị AI: bật, nhập khóa, kiểm tra kết nối �
 
   await page.getByRole('button', { name: 'Kiểm tra kết nối' }).click();
   await expect(page.getByText(/Bộ giả lập nhận khóa ••••7001/)).toBeVisible();
-  await expect(page.getByRole('table', { name: 'Yêu cầu AI' }).getByText('Kiểm tra kết nối')).toBeVisible();
+  await expect(page.getByRole('table', { name: 'Yêu cầu AI' }).getByText('Kiểm tra kết nối').first()).toBeVisible();
   await context.close();
 
   // Dọn: tắt AI và xóa khóa để các spec khác không bị ảnh hưởng
