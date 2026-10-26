@@ -594,7 +594,7 @@ Một nền tảng chạy nhiều trường, mỗi trường một đường d�
 | S5b Thu phí tự động | YCTD-196, PR 174, 0.137.0 | Quy tắc tính phí cấu hình được (mặc định theo học sinh, kết hợp theo trường, theo phân hệ), chốt số liệu kỳ và hóa đơn bằng việc nền theo trường, thu qua mã QR và cổng thanh toán của nền tảng, đối soát, gia hạn và mở lại trường, nhắc gia hạn, điều chỉnh tay có lý do, hóa đơn điện tử qua bộ nối; trang Thu phí ở cổng nền tảng, Hóa đơn dịch vụ ở cổng quản trị |
 | S4 Bảng điều khiển nền tảng | YCTD-197, PR 172, 0.138.0 | Số liệu theo trường thu mỗi giờ (nền tảng 0060), lỗi 5xx theo trường, cảnh báo; thông báo bảo trì; đăng nhập hỗ trợ có đồng ý của trường (hệ thống 0053, phiên chỉ đọc hoặc toàn quyền, đường liên kết một lần, ghi nhật ký hai phía); trang Bảng điều khiển, Bảo trì ở cổng nền tảng, Cho phép hỗ trợ ở cổng quản trị; e2e spec 136 |
 | S6 Đơn vị cấp trên | YCTD-202, PR 175, 0.139.0 | Nền tảng 0090: cây `admin_units` (Bộ, Sở, Phòng Văn hóa – Xã hội; thêm, gộp, tách, nạp bộ nút mặc định TP.HCM), `schools.admin_unit_id`, tài khoản cấp trên `parent_org_users` (xác thực hai lớp bắt buộc, phạm vi cây con, đăng nhập ở cổng nền tảng trang `/cap-tren`); đồng ý của trường theo cấp và sáu nhóm số liệu (cổng quản trị, mục 4.6 Chia sẻ số liệu cấp trên); bản chụp tổng hợp mỗi 6 giờ, chỉ số đếm; tổng theo nút, so sánh trường đã đồng ý, xuất Excel, PDF, ẩn nhóm nhỏ; xem chi tiết qua phiên hỗ trợ chỉ đọc khi trường duyệt; e2e spec 139 |
-| DT-24 Danh mục đơn vị, đăng nhập theo đơn vị, quyền quản trị nền tảng | YCTD-220, 0.140.0 | Nền tảng 0210, 0211, định danh 0130: danh mục đơn vị toàn quốc nạp từ CSV (mã Bộ, sở, cấp, phường xã), gắn trường với mã Bộ; trang đăng nhập chọn Sở → Cấp → Trường ở tên miền chung, chuyển phiên một lần sang tên miền của trường; chính sách vào mọi trường của quản trị nền tảng (mặc định bật, xác thực hai lớp lúc mở, lý do, có hạn, biểu ngữ, nhật ký trường xem được); e2e spec 160 (chi tiết ở mục "DT-24" dưới đây) |
+| DT-24 Danh mục đơn vị, đăng nhập theo đơn vị, quyền quản trị nền tảng | YCTD-220, 0.141.0 | Nền tảng 0210, 0211, định danh 0130: danh mục đơn vị toàn quốc nạp từ CSV (mã Bộ, sở, cấp, phường xã), gắn trường với mã Bộ; trang đăng nhập chọn Sở → Cấp → Trường ở tên miền chung, chuyển phiên một lần sang tên miền của trường; chính sách vào mọi trường của quản trị nền tảng (mặc định bật, xác thực hai lớp lúc mở, lý do, có hạn, biểu ngữ, nhật ký trường xem được); e2e spec 160 (chi tiết ở mục "DT-24" dưới đây) |
 
 ### Phần ĐANG LÀM hoặc KẾ HOẠCH (chưa có trong mã)
 
@@ -626,7 +626,7 @@ Không có nút xóa vĩnh viễn ở cổng: xóa vĩnh viễn chạy bằng l�
 
 ### DT-24: danh mục đơn vị toàn quốc, đăng nhập theo đơn vị, quyền quản trị nền tảng
 
-Nguồn: YCTD-220, tài liệu 32 mục 16, phiên bản 0.140.0.
+Nguồn: YCTD-220, tài liệu 32 mục 16, phiên bản 0.141.0.
 
 | Chức năng | Ở đâu | Quy tắc chính |
 |---|---|---|
@@ -781,7 +781,7 @@ Nguồn: tài liệu 32 mục 15, YCTD-210. Mục này chỉ ghi để người 
 | Phần | Đợt | Nội dung kế hoạch (tài liệu 32 mục 15.3) | Dấu hiệu trong mã |
 |---|---|---|---|
 | 23a Thi trực tuyến cho học sinh | 1 | Kênh đăng nhập `student`, giao đề, làm bài có đếm ngược theo đồng hồ máy chủ, chấm tự động câu trắc nghiệm, chuyển điểm vào sổ điểm theo luồng 22g2, ghi sự kiện rời trang | `SessionChannel` chỉ có `portal`, `teacher`, `parent`; `student_learning_accounts` chưa có đăng nhập |
-| 23b Công cụ lớp học | 1 | Gọi tên ngẫu nhiên, chia nhóm, đếm ngược, bấm giờ, bảng điểm nhanh gắn nề nếp, ngoại tuyến | Ứng dụng giáo viên chưa có service worker, manifest |
+| 23b Công cụ lớp học | 1 | Đã có trong mã (YCTD-212, tài liệu 0.140.0): xem mục 7 bên dưới | `apps/teacher/src/tools`, `apps/teacher/public/sw.js`, `apps/api/src/classroom-tools` |
 | 23d Trợ lý AI | 1 | Soạn câu hỏi và kế hoạch bài dạy nháp, tắt mặc định theo trường, chỉ gửi nội dung chương trình, hạn mức theo gói | `IntegrationSecretConnector` chưa có `ai`; chưa có nơi nào gọi dịch vụ AI |
 | 23c Trò chơi kiến thức và thẻ đáp án giấy | 2 | Ô chữ, vòng quay, hỏi đáp theo vòng sinh từ ngân hàng câu hỏi; thẻ đáp án giấy đọc bằng camera | Chưa có |
 
@@ -799,3 +799,13 @@ Nguồn: tài liệu 32 mục 18, YCTD-230 (Eric yêu cầu ngày 2026-10-26 the
 | 26f Ứng dụng cài đặt | 3 | Capacitor đóng gói mã web của hai ứng dụng, chọn trường từ danh mục DT-24, chọn vai trò, mã làm mới trong Keychain, Keystore có sinh trắc học, liên kết sâu | Chưa có `apps/mobile` |
 | 26g Thông báo đẩy native | 3 | Bộ nối `fcm`, `apns` dùng chung bộ phát của 26b | Chưa có |
 | 26h Ký, dựng bản, phát hành | 3 | CI dựng và ký bản Android, iOS, quy trình phát hành, hồ sơ cửa hàng, chính sách quyền riêng tư; việc của Eric (tài khoản Apple, Google Play, pháp nhân, tên ứng dụng) | Chưa có |
+
+## 7. DT-23 phần 23b: công cụ lớp học trên ứng dụng giáo viên (YCTD-212)
+
+| Chức năng | Mô tả theo mã | Bảng, tuyến, màn hình |
+|---|---|---|
+| Gọi tên ngẫu nhiên | Bốc từ danh sách lớp thật, tuỳ chọn không lặp, loại học sinh vắng hôm nay, ghi và xóa lượt gọi | `classroom_call_logs`; `/classroom-tools/calls`; MH-337 |
+| Chia nhóm ngẫu nhiên | Theo số nhóm hoặc số người mỗi nhóm, chia lại, giữ bản chia gần nhất | `classroom_groupings`; `/classroom-tools/classes/{id}/grouping`; MH-337 |
+| Đếm ngược, bấm giờ | Nhiều đồng hồ theo thời điểm tuyệt đối, tiếng báo hết giờ, giữ màn hình sáng; chỉ trên máy | MH-337 |
+| Bảng điểm nhanh | Cộng, trừ điểm theo nhóm hoặc học sinh; giáo viên chọn tiêu chí và xác nhận mới ghi `conduct_entries`; bỏ buổi | `classroom_score_events`; `/classroom-tools/scores`, `/confirm`; MH-337 |
+| Ngoại tuyến | Service worker, manifest, bản chụp danh sách lớp gọn có hạn (mặc định 24 giờ, xóa khi đăng xuất), hàng đợi đồng bộ, công tắc tắt theo trường | `classroom_offline_enabled`, `classroom_roster_ttl_hours` ở `settings`; MH-338 |

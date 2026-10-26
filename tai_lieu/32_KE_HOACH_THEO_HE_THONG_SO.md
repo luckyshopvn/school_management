@@ -1653,7 +1653,7 @@ Cỡ ước lượng (một phần của DT-16 là một đơn vị, chỉ để
 | Phần | Đợt | Tiến độ |
 |---|---|---|
 | 23a | 1 | Chưa làm; YCTD-211 giữ sẵn |
-| 23b | 1 | Chưa làm; YCTD-212 giữ sẵn |
+| 23b | 1 | Đã làm (YCTD-212, phiên bản 0.140.0, PR 180): công cụ lớp học, ngoại tuyến, bản chụp danh sách lớp 24 giờ; năm học 0124, 0125; e2e 151 |
 | 23d | 1 | Chưa làm; YCTD-214 giữ sẵn |
 | 23c | 2 | Chưa làm; YCTD-213 giữ sẵn, bắt đầu khi 23a và 23b đã gộp |
 
@@ -1714,7 +1714,7 @@ Một phần duy nhất, **một PR** (Claude tự chọn theo ủy quyền củ
 | Migration năm học, hệ thống | Không dùng |
 | e2e | `160-unit-directory-login.spec.ts` (dự án nhiều trường, `MULTI_TENANT_SPEC` thêm 160); `161-` đến `169-` dự phòng |
 | Kịch bản kiểm thử trong mã | CT-24-1 đến CT-24-10 |
-| Phiên bản phần mềm | 0.140.0 (phần gộp sau đánh lại số theo nhánh chính lúc gộp) |
+| Phiên bản phần mềm | 0.141.0 (0.140.0 của 23b gộp trước; phần gộp sau đánh lại số theo nhánh chính lúc gộp) |
 
 ### 16.4 Phạm vi chi tiết
 
@@ -1801,7 +1801,7 @@ Một phần duy nhất, **một PR** (Claude tự chọn theo ủy quyền củ
 
 | Phần | Tiến độ |
 |---|---|
-| DT-24 | Đã làm trong PR "DT-24: danh mục trường toàn quốc, đăng nhập theo đơn vị, quyền quản trị nền tảng" (YCTD-220, phiên bản 0.140.0) |
+| DT-24 | Đã làm trong PR "DT-24: danh mục trường toàn quốc, đăng nhập theo đơn vị, quyền quản trị nền tảng" (YCTD-220, phiên bản 0.141.0) |
 
 ### 16.9 Giả định chưa chốt, làm cấu hình được
 

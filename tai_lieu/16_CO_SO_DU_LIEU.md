@@ -810,6 +810,17 @@ Không thêm tệp định danh 0103, hệ thống 0055 (đã giữ dự phòng)
 | login_handoffs (từ YCTD-220) | Mã chuyển phiên một lần sau đăng nhập theo đơn vị, ở cơ sở dữ liệu định danh của mỗi trường (định danh `0130_create_login_handoffs`) | id, token_hash (duy nhất), session_id (khóa ngoại `sessions`), user_id, ip_address, created_at, expires_at (2 phút), used_at |
 
 Kho mã không chứa dữ liệu danh mục thật; tệp mẫu giả ở `database/platform/catalog-sample/`.
+## 18E. Công cụ lớp học (DT-23 phần 23b, YCTD-212)
+
+Ba bảng ở cơ sở dữ liệu năm học (tệp `0124_create_classroom_tools`, `0125_create_classroom_score_events`), chạy ở cả hai bố cục `database` và `schema`.
+
+| Bảng | Mục đích | Cột chính |
+|---|---|---|
+| classroom_call_logs (từ YCTD-212) | Lượt gọi tên ngẫu nhiên (BR-231) | id, client_id (duy nhất, máy giáo viên sinh), class_id, child_id, called_by, called_by_name, called_at (giờ bấm trên máy, đã kẹp), created_at; chỉ mục (class_id, called_at) |
+| classroom_groupings (từ YCTD-212) | Bản chia nhóm gần nhất của một giáo viên cho một lớp (BR-231) | id, class_id, owner_user_id, groups (JSON: [{ name, child_ids }], không lưu họ tên), created_at, updated_at; duy nhất (class_id, owner_user_id) |
+| classroom_score_events (từ YCTD-212) | Dòng điểm của bảng điểm nhanh (BR-232) | id, client_id (duy nhất), session_key (mã buổi), class_id, target_kind (`group`, `student`), group_name, child_id, delta (-50 đến 50, khác 0), note, recorded_by, recorded_by_name, occurred_at, conduct_entry_id (dòng nề nếp đã chuyển), confirmed_at, created_at; chỉ mục (class_id, session_key, occurred_at) |
+
+Hai mục cấu hình theo trường ở bảng `settings` của Trường chính (không có bảng riêng): `classroom_offline_enabled` (bật, mặc định bật) và `classroom_roster_ttl_hours` (1 đến 100, mặc định 24) (BR-233).
 
 ## 19. Quan hệ chính giữa các bảng
 
