@@ -1,6 +1,6 @@
 # 34.1. TỔNG QUAN, KIẾN TRÚC VÀ NỀN TẢNG CHUNG
 
-- Mô tả: Mục tiêu, đối tượng dùng, cấp học, kiến trúc, đăng nhập và phân quyền, chọn phân hệ, thông báo, DT-SaaS đa thuê bao
+- Mô tả: Mục tiêu, đối tượng dùng, cấp học, kiến trúc, đăng nhập và phân quyền, chọn phân hệ, thông báo, DT-SaaS đa thuê bao, kế hoạch DT-23, DT-26 và DT-27
 - Phiên bản: 1.0
 - Ngày cập nhật: 2026-10-26
 - Trạng thái: Chờ phê duyệt
@@ -796,7 +796,23 @@ Nguồn: tài liệu 32 mục 18, YCTD-230 (Eric yêu cầu ngày 2026-10-26 the
 | Bảng điểm nhanh | Cộng, trừ điểm theo nhóm hoặc học sinh; giáo viên chọn tiêu chí và xác nhận mới ghi `conduct_entries`; bỏ buổi | `classroom_score_events`; `/classroom-tools/scores`, `/confirm`; MH-337 |
 | Ngoại tuyến | Service worker, manifest, bản chụp danh sách lớp gọn có hạn (mặc định 24 giờ, xóa khi đăng xuất), hàng đợi đồng bộ, công tắc tắt theo trường | `classroom_offline_enabled`, `classroom_roster_ttl_hours` ở `settings`; MH-338 |
 
-## 8. DT-25: bộ nối nhà cung cấp định danh OIDC, sẵn cho VNeID
+## 8. DT-27: kế hoạch (chưa có trong mã)
+
+Nguồn: tài liệu 32 mục 19, YCTD-250. Mục này chỉ ghi để người đọc biết phần sắp làm; chưa có bảng, tuyến hay màn hình nào trong mã. Khi từng phần gộp, chuyển phần đó sang các mục mô tả theo mã.
+
+| Phần | Đợt | Nội dung kế hoạch (tài liệu 32 mục 19.4) | Dấu hiệu trong mã |
+|---|---|---|---|
+| 27a Lớp video trực tiếp | 1 | Phòng 1-1 và nhóm nhỏ, bảng trắng, chia sẻ màn hình, ghi hình có thời hạn, LiveKit tự host, giới hạn phút theo gói | Chưa có WebRTC hay máy chủ video |
+| 27b Chương trình gia sư, lịch, điểm danh | 1 | Chương trình theo loại nội dung `curriculum` hoặc `enrichment`, kiểm 2 tiết/tuần/môn, chặn Tiểu học, đơn của cha mẹ, điểm danh từ nhật ký phòng | `timetable_lessons`, `period_attendance` có sẵn để dùng lại |
+| 27c Thu phí và chi trả trong trường | 2 | Dạy thêm trong trường không thu tiền; `enrichment` có thu vào hóa đơn của trường; thù lao qua bảng lương | `fee_schedules`, `invoices`, `payrolls` có sẵn để dùng lại |
+| 27d Khoá học ghi sẵn | 2 | Khoá, chương, bài từ kho học liệu 22h1 và đề 22g1, tiến độ | Chưa có |
+| 27e Hỏi đáp bài tập | 2 | Câu hỏi của học sinh, trả lời của giáo viên, gợi ý AI nháp (23d) chỉ giáo viên thấy | Chưa có |
+| 27f Nền chợ gia sư | 3 | Cơ sở dữ liệu `marketplace`, ứng dụng `apps/market`, tài khoản phụ huynh không thuộc trường, hồ sơ con, liên kết tùy chọn với trường | Chưa có chỗ chứa người dùng không thuộc trường |
+| 27g Hồ sơ và xác minh gia sư | 4 | Xác minh danh tính (OIDC, VNeID), bằng cấp, lý lịch tư pháp, đăng ký kinh doanh, trang công khai theo Mẫu 02, tìm kiếm, đánh giá | Chưa có |
+| 27h Đặt buổi, thanh toán, tranh chấp | 4 | Thanh toán qua tổ chức có giấy phép hoặc trả thẳng gia sư, hoa hồng, giải ngân, hoàn tiền, tranh chấp, khấu trừ thuế cấu hình | Chưa có |
+| 27i An toàn trẻ em ở chợ | 4 | Tin nhắn luôn có phụ huynh, lọc liên lạc ngoài, báo cáo vi phạm, kiểm duyệt | Chưa có |
+
+## 9. DT-25: bộ nối nhà cung cấp định danh OIDC, sẵn cho VNeID
 
 Kế hoạch ở `32_KE_HOACH_THEO_HE_THONG_SO.md` mục 17, YCTD-225. **Phần máy chủ đã có trong mã** (`apps/identity/src/external-identity/`): lớp trừu tượng `IdentityProvider`, bộ nối OIDC chung (authorization code + PKCE, state, nonce, discovery, kiểm chữ ký `id_token` qua JWKS, tải lại khóa khi nhà cung cấp quay khóa), hồ sơ `vneid` với các tham số "chờ tài liệu RAR" là cấu hình; nền tảng khai nhà cung cấp ở `EXTERNAL_IDENTITY_PROVIDERS` và `EXTERNAL_IDENTITY_<MÃ>_CLIENT_SECRET`; trường bật tắt, chọn nhóm vai trò, mã ứng dụng và khóa riêng (mã hóa theo khóa của trường) ở `PUT /auth/external/settings/:provider` (quyền `P01.account.manage`); bảng định danh 0140 `external_identity_providers`, `external_identities` (chỉ subject mã hóa và băm), `external_identity_events`; nhà cung cấp OIDC giả lập cho kiểm thử; e2e spec 165.
 
