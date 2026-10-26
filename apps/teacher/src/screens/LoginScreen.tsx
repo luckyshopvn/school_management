@@ -1,5 +1,6 @@
 import { useState, type FormEvent } from 'react';
-import { Alert, Button, DemoAccountPicker, TextField } from '@school-management/ui';
+import { Alert, Button, DemoAccountPicker, ExternalProviderButtons, TextField } from '@school-management/ui';
+import { externalRequest } from '../session/external-request.js';
 import { ApiError } from '../session/api-client.js';
 import { useSession } from '../session/session.js';
 
@@ -70,6 +71,7 @@ export function LoginScreen() {
           {submitting ? 'Đang đăng nhập…' : 'Đăng nhập'}
         </Button>
       </form>
+      <ExternalProviderButtons request={externalRequest} channel="teacher" basePath={import.meta.env.BASE_URL} />
       <DemoAccountPicker
         app="teacher"
         onPick={(login, demoPassword) => {

@@ -2,6 +2,7 @@ import { expect, test } from './fixtures.js';
 import type { APIRequestContext } from '@playwright/test';
 import { createDatabase, readConnectionString, type IdentityDatabase } from '@school-management/database';
 import { createTestUser, MockOidcServer, type MockIdentity, type TestUser } from '@school-management/identity/testing';
+import { logout } from './menu.js';
 import {
   E2E_IDENTITY_PORT,
   E2E_OIDC_CLIENT_ID,
@@ -112,7 +113,45 @@ test('Chữ ký sai và nonce sai bị từ chối; subject đã liên kết v�
   expect((await link(request, other, 'e2e-giao-vien-1')).status()).toBe(409);
 });
 
-test('Trường tắt nhà cung cấp thì không đăng nhập được và nút biến mất', async ({ request }) => {
+// Giao diện (bước 25b): liên kết ở Tài khoản của tôi rồi đăng nhập bằng nút trên màn hình đăng nhập; nhà cung cấp giả lập chuyển
+// trình duyệt về /dang-nhap/ben-ngoai với danh tính đặt trước
+test('Giao diện: liên kết ở Tài khoản của tôi, đăng nhập bằng nút nhà cung cấp, gỡ liên kết', async ({ page }) => {
+  const principal = await createTestUser(database, { roles: [{ roleCode: 'VT-02', orgUnitId: null }] });
+  await page.goto('/');
+  await page.getByLabel('Số điện thoại hoặc tên đăng nhập').fill(principal.username);
+  await page.getByLabel('Mật khẩu', { exact: true }).fill(principal.password);
+  await page.getByRole('button', { name: 'Đăng nhập', exact: true }).click();
+  await expect(page.getByRole('heading', { name: /^Xin chào,/ })).toBeVisible();
+
+  await page.goto('/my-profile');
+  const panel = page.getByRole('region', { name: 'Liên kết tài khoản' });
+  await expect(panel).toContainText('Định danh giả lập: chưa liên kết');
+  await panel.getByRole('button', { name: 'Liên kết Định danh giả lập' }).click();
+  await panel.getByLabel('Mật khẩu hiện tại').fill(principal.password);
+  // Subject riêng mỗi lần chạy (kể cả lần chạy lại của CI)
+  mock.nextIdentity = { subject: `e2e-giao-dien-${Date.now()}` };
+  await panel.getByRole('button', { name: 'Tiếp tục tới nhà cung cấp' }).click();
+  await page.waitForURL((url) => url.pathname === '/my-profile');
+  await expect(panel).toContainText('Định danh giả lập: đã liên kết');
+
+  await logout(page);
+  await expect(page.getByRole('heading', { name: 'Đăng nhập' })).toBeVisible();
+  await page.getByRole('button', { name: 'Đăng nhập bằng Định danh giả lập' }).click();
+  await expect(page.getByRole('heading', { name: /^Xin chào,/ })).toBeVisible();
+
+  // Gỡ liên kết cần mật khẩu; sau đó đăng nhập bằng nhà cung cấp bị từ chối
+  await page.goto('/my-profile');
+  await panel.getByRole('button', { name: 'Gỡ liên kết Định danh giả lập' }).click();
+  await panel.getByLabel('Mật khẩu hiện tại').fill(principal.password);
+  await panel.getByRole('button', { name: 'Gỡ liên kết', exact: true }).click();
+  await expect(panel).toContainText('Đã gỡ liên kết Định danh giả lập');
+  await logout(page);
+  await page.getByRole('button', { name: 'Đăng nhập bằng Định danh giả lập' }).click();
+  await expect(page.getByRole('alert')).toContainText('chưa liên kết');
+  mock.nextIdentity = null;
+});
+
+test('Trường tắt nhà cung cấp thì không đăng nhập được và nút biến mất', async ({ request, page }) => {
   const token = await passwordLogin(request, manager);
   await request.put(`${identity}/auth/external/settings/${CODE}`, {
     data: { enabled: false },
@@ -123,4 +162,7 @@ test('Trường tắt nhà cung cấp thì không đăng nhập được và nú
     data: { channel: 'portal', redirect_uri: redirectUri },
   });
   expect(started.status()).toBe(422);
+  await page.goto('/');
+  await expect(page.getByRole('heading', { name: 'Đăng nhập' })).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Đăng nhập bằng Định danh giả lập' })).toHaveCount(0);
 });
