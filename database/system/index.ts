@@ -36,6 +36,8 @@ import { migration as addAiRequestUsageIndex } from './migrations/0072_add_ai_re
 import { migration as addLearningResourceAiFlag } from './migrations/0073_add_learning_resource_ai_flag.js';
 import { migration as addSchoolBrandingAppShortName } from './migrations/0090_add_school_branding_app_short_name.js';
 import { migration as createCourseTemplates } from './migrations/0110_create_course_templates.js';
+import { migration as createPushSubscriptions } from './migrations/0091_create_push_subscriptions.js';
+import { migration as createNotificationPreferences } from './migrations/0092_create_notification_preferences.js';
 
 // Danh sách tệp thay đổi cấu trúc của cơ sở dữ liệu hệ thống, theo số thứ tự (QU-01, QĐ-17)
 export const systemMigrations: Record<string, Migration> = {
@@ -78,4 +80,7 @@ export const systemMigrations: Record<string, Migration> = {
   '0090_add_school_branding_app_short_name': addSchoolBrandingAppShortName,
   // Lõi hệ thống quản lý học tập (DT-28 phần 28b): 0110
   '0110_create_course_templates': createCourseTemplates,
+  // Thông báo đẩy Web Push (DT-26 phần 26b): 0091, 0092
+  '0091_create_push_subscriptions': createPushSubscriptions,
+  '0092_create_notification_preferences': createNotificationPreferences,
 };

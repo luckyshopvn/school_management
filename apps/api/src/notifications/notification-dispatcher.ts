@@ -19,6 +19,9 @@ import { SettingsService } from '../settings/settings.service.js';
 import { readIntegration } from '../integrations/integrations.js';
 import { ZaloSender } from '../integrations/zalo-sender.js';
 import { SmsGateway } from './sms-gateway.js';
+import { buildPushMessage, pushGroupOf } from './push/push-groups.js';
+import { PUSH_SENDER, type PushSender } from './push/push-sender.js';
+import { PushSubscriptions } from './push/push-subscriptions.js';
 
 // Tiến trình chạy nền của thông báo (CB-05, CB-07; YCTD-71):
 // - thông báo trong ứng dụng chuyển sang đã gửi ngay khi tiến trình nhận;
@@ -30,6 +33,10 @@ import { SmsGateway } from './sms-gateway.js';
 // - kênh zalo (G3-08, YCTD-90): khi nhà trường bật Zalo Official Account và số điện thoại của người nhận đã liên kết thì gửi
 //   qua Zalo, không thì gửi tin nhắn theo các quy tắc trên; Zalo lỗi thì gửi ngay bằng tin nhắn. Tin qua Zalo tính chung
 //   giới hạn 5 tin mỗi ngày với tin nhắn; `delivered_via` ghi kênh thực tế.
+// - kênh push (DT-26 phần 26b, YCTD-232): người nhận trong ứng dụng (tài khoản cụ thể) có đăng ký đẩy còn hiệu lực và chưa tắt nhóm
+//   của loại thông báo thì có thêm một dòng người nhận kênh push; gửi tới mọi máy đã đăng ký qua bộ nối PushSender với nội dung không
+//   có dữ liệu cá nhân (push-groups.ts); máy báo hết hạn thì thu hồi đăng ký; lỗi tạm thời thử lại như tin nhắn; không tính vào giới
+//   hạn tin nhắn trong ngày; cùng người, cùng nhóm đã đẩy trong PUSH_COALESCE_MINUTES (mặc định 5) phút thì gộp (ghi `limited`).
 export const MAXIMUM_ATTEMPTS = 5;
 export const RETRY_DELAY_MILLISECONDS = 15 * 60_000;
 export const DAILY_SMS_LIMIT = 5;
@@ -55,7 +62,9 @@ export class NotificationDispatcher implements OnApplicationBootstrap, OnModuleD
     private readonly sms: SmsGateway,
     private readonly zalo: ZaloSender,
     private readonly clock: Clock,
+    private readonly pushSubscriptions: PushSubscriptions,
     @Optional() @Inject(JobScheduler) private readonly scheduler: JobScheduler | null = null,
+    @Optional() @Inject(PUSH_SENDER) private readonly pushSender: PushSender | null = null,
   ) {}
 
   onApplicationBootstrap() {
@@ -91,6 +100,9 @@ export class NotificationDispatcher implements OnApplicationBootstrap, OnModuleD
     try {
       await this.remindJournals();
       await this.dispatchPending();
+      if (this.pushSender) {
+        await this.pushSubscriptions.cleanup();
+      }
     } catch (error) {
       this.logger.error('Tiến trình gửi thông báo lỗi', error instanceof Error ? error.stack : String(error));
     } finally {
@@ -115,8 +127,10 @@ export class NotificationDispatcher implements OnApplicationBootstrap, OnModuleD
           'notification_recipients.user_id',
           'notification_recipients.channel',
           'notification_recipients.attempt_count',
+          'notification_recipients.notification_id',
           'notifications.title',
           'notifications.body',
+          'notifications.template_code',
         ])
         .where('notification_recipients.channel_status', '=', 'pending')
         .where((builder) =>
@@ -140,6 +154,22 @@ export class NotificationDispatcher implements OnApplicationBootstrap, OnModuleD
             .where('id', '=', recipient.id)
             .execute();
           result.sent += 1;
+          if (
+            this.pushSender &&
+            recipient.user_id &&
+            (await this.pushSubscriptions.hasActive(recipient.user_id)) &&
+            (await this.pushSubscriptions.allows(recipient.user_id, recipient.template_code))
+          ) {
+            await transaction
+              .insertInto('notification_recipients')
+              .values({ notification_id: recipient.notification_id, user_id: recipient.user_id, channel: 'push' })
+              .execute();
+          }
+          continue;
+        }
+        if (recipient.channel === 'push') {
+          const outcome = await this.dispatchPush(transaction, recipient, now);
+          result[outcome] += 1;
           continue;
         }
         const fail = async (message: string) => {
@@ -228,6 +258,93 @@ export class NotificationDispatcher implements OnApplicationBootstrap, OnModuleD
       }
     });
     return result;
+  }
+
+  // Gửi một dòng kênh push tới mọi máy của người nhận; trả loại kết quả để cộng vào thống kê
+  private async dispatchPush(
+    transaction: Kysely<SchoolYearDatabase>,
+    recipient: {
+      id: string;
+      user_id: string | null;
+      attempt_count: number;
+      notification_id: string;
+      template_code: string;
+    },
+    now: Date,
+  ): Promise<'sent' | 'retried' | 'failed' | 'limited'> {
+    const mark = (values: Record<string, unknown>) =>
+      transaction.updateTable('notification_recipients').set(values).where('id', '=', recipient.id).execute();
+    const subscriptions =
+      this.pushSender && recipient.user_id ? await this.pushSubscriptions.activeFor(recipient.user_id) : [];
+    if (!this.pushSender || subscriptions.length === 0) {
+      await mark({ channel_status: 'failed', last_error: 'Người nhận không còn máy đăng ký đẩy' });
+      return 'failed';
+    }
+    const coalesceMinutes = this.configuration.push?.coalesceMinutes ?? 5;
+    if (coalesceMinutes > 0 && recipient.attempt_count === 0) {
+      const group = pushGroupOf(recipient.template_code).code;
+      const recent = await transaction
+        .selectFrom('notification_recipients')
+        .innerJoin('notifications', 'notifications.id', 'notification_recipients.notification_id')
+        .select('notifications.template_code')
+        .where('notification_recipients.user_id', '=', recipient.user_id)
+        .where('notification_recipients.channel', '=', 'push')
+        .where('notification_recipients.delivered_via', '=', 'push')
+        .where('notification_recipients.sent_at', '>=', new Date(now.getTime() - coalesceMinutes * 60_000))
+        .execute();
+      if (recent.some((row) => pushGroupOf(row.template_code).code === group)) {
+        await mark({
+          channel_status: 'limited',
+          last_error: `Gộp với thông báo cùng nhóm đã đẩy trong ${coalesceMinutes} phút`,
+        });
+        return 'limited';
+      }
+    }
+    const message = buildPushMessage({
+      notificationId: recipient.notification_id,
+      templateCode: recipient.template_code,
+      schoolName: this.pushSubscriptions.schoolName(),
+    });
+    const vapid = await this.pushSubscriptions.vapid();
+    let delivered = 0;
+    let lastError: string | null = null;
+    for (const subscription of subscriptions) {
+      try {
+        const outcome = await this.pushSender.send(subscription.target, message, vapid);
+        await this.pushSubscriptions.recordOutcome(subscription.id, outcome);
+        if (outcome === 'sent') {
+          delivered += 1;
+        }
+      } catch (error) {
+        lastError = error instanceof Error ? error.message : String(error);
+        await this.pushSubscriptions.recordOutcome(subscription.id, 'error');
+      }
+    }
+    const attempts = recipient.attempt_count + 1;
+    if (delivered > 0) {
+      await mark({
+        channel_status: 'sent',
+        sent_at: now,
+        attempt_count: attempts,
+        delivered_via: 'push',
+        last_error: lastError,
+      });
+      return 'sent';
+    }
+    if (!lastError) {
+      await mark({ channel_status: 'failed', attempt_count: attempts, last_error: 'Mọi máy đăng ký đẩy đã hết hạn' });
+      return 'failed';
+    }
+    if (attempts >= MAXIMUM_ATTEMPTS) {
+      await mark({ channel_status: 'failed', attempt_count: attempts, last_error: lastError });
+      return 'failed';
+    }
+    await mark({
+      attempt_count: attempts,
+      last_error: lastError,
+      next_attempt_at: new Date(now.getTime() + RETRY_DELAY_MILLISECONDS),
+    });
+    return 'retried';
   }
 
   async remindJournals(): Promise<number> {

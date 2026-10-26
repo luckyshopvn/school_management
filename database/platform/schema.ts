@@ -728,6 +728,16 @@ export interface CatalogImportRunsTable {
   finished_at: Date | null;
 }
 
+// Khóa VAPID của nền tảng (DT-26 phần 26b, YCTD-232)
+export interface PlatformPushKeysTable {
+  id: Generated<string>;
+  public_key: string;
+  private_key_encrypted: string;
+  subject: string;
+  created_at: CreatedTimestamp;
+  retired_at: Date | null;
+}
+
 export interface PlatformDatabase {
   school_clusters: SchoolClustersTable;
   schools: SchoolsTable;
@@ -779,4 +789,5 @@ export interface PlatformDatabase {
   catalog_units: CatalogUnitsTable;
   catalog_unit_levels: CatalogUnitLevelsTable;
   catalog_import_runs: CatalogImportRunsTable;
+  platform_push_keys: PlatformPushKeysTable;
 }
