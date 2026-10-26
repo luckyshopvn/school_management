@@ -31,7 +31,7 @@ Các thay đổi trước phiên bản 0.4.0 chưa có sổ này; xem `23_LICH_S
 - Ảnh hưởng chức năng cũ: không (trường không bật phân hệ hoặc không có chương trình thì không thấy gì mới); số phân hệ của cổng quản trị tăng một nên các kiểm thử đếm phân hệ cập nhật số.
 - Kiểm thử cần thực hiện: kiểm thử đơn vị `apps/api` (quy tắc thuần và luồng có cơ sở dữ liệu), `database`; kiểm tĩnh; e2e 191 và các spec bị ảnh hưởng (01, 58, 59, 83, 134 nhiều trường); CI chạy toàn bộ e2e.
 - Còn lại: điểm danh tự động khi 27a gộp (gọi `recordRoomEvents` từ nhật ký phòng); thu phí `enrichment` và thù lao ở 27c.
-- Trạng thái: Đã triển khai (PR …)
+- Trạng thái: Đã triển khai (PR 196)
 
 ### YCTD-226: DT-25 bước 25b: giao diện đăng nhập và liên kết bằng nhà cung cấp định danh – 2026-10-26
 
