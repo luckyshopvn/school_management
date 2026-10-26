@@ -5943,13 +5943,17 @@ export interface QuestionsTable {
 export interface QuestionUsagesTable {
   id: Generated<string>;
   question_id: string;
-  exam_id: string;
+  exam_id: string | null;
   used_on: string;
   created_at: CreatedTimestamp;
   // Kết quả sử dụng ghi khi khoá bài kiểm tra (DT-21 phần 22g2)
   attempts: number | null;
   difficulty: ColumnType<string | null, number | null | undefined, number | null>;
   discrimination: ColumnType<string | null, number | null | undefined, number | null>;
+  // Lượt dùng trong trò chơi ở lớp (DT-23 phần 23c): nguồn, lượt chơi, tỷ lệ đúng của lớp (phần trăm)
+  source: Generated<'exam' | 'game'>;
+  game_session_id: string | null;
+  correct_rate: ColumnType<string | null, number | null | undefined, number | null>;
 }
 
 // Chấm bài kiểm tra (DT-21 phần 22g2, YCTD-173)
@@ -6221,6 +6225,36 @@ export interface ExamVariantsTable {
   exam_id: string;
   code: string;
   items: JsonDocument;
+  created_at: CreatedTimestamp;
+}
+
+// Trò chơi kiến thức và thẻ đáp án giấy (DT-23 phần 23c, YCTD-213)
+export type ClassroomGameKind = 'crossword' | 'wheel' | 'quiz_rounds' | 'answer_cards';
+
+export interface ClassroomGameSessionsTable {
+  id: Generated<string>;
+  client_id: string;
+  class_id: string;
+  kind: ClassroomGameKind;
+  title: string;
+  config: ColumnType<Record<string, unknown>, string | undefined, string>;
+  group_scores: ColumnType<Record<string, number>, string | undefined, string>;
+  question_count: Generated<number>;
+  started_at: Date;
+  finished_at: Date;
+  recorded_by: string;
+  recorded_by_name: string;
+  created_at: CreatedTimestamp;
+}
+
+export interface ClassroomGameAnswersTable {
+  id: Generated<string>;
+  session_id: string;
+  question_id: string;
+  child_id: string | null;
+  group_name: string | null;
+  answer: string | null;
+  correct: boolean;
   created_at: CreatedTimestamp;
 }
 
@@ -6613,4 +6647,6 @@ export interface SchoolYearDatabase {
   classroom_call_logs: ClassroomCallLogsTable;
   classroom_groupings: ClassroomGroupingsTable;
   classroom_score_events: ClassroomScoreEventsTable;
+  classroom_game_sessions: ClassroomGameSessionsTable;
+  classroom_game_answers: ClassroomGameAnswersTable;
 }

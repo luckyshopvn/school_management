@@ -17,17 +17,20 @@ import { CallTool } from './CallTool.js';
 import { GroupTool } from './GroupTool.js';
 import { ScoreboardTool } from './ScoreboardTool.js';
 import { TimerTool } from './TimerTool.js';
+import { GamesTool } from './games/GamesTool.js';
 
 // Công cụ lớp học trên ứng dụng giáo viên (DT-23 phần 23b, YCTD-212; tài liệu 32 mục 15.4): gọi tên ngẫu nhiên, chia nhóm, đếm
 // ngược và bấm giờ, bảng điểm nhanh. Mở được khi mất mạng sau lần tải đầu nhờ service worker và bản chụp danh sách lớp gọn
 // (hết hạn theo cấu hình của trường, xóa khi đăng xuất); các phân hệ khác của ứng dụng vẫn cần mạng (GD-108)
-type Tab = 'call' | 'group' | 'timer' | 'score';
+type Tab = 'call' | 'group' | 'timer' | 'score' | 'game';
 
 const TABS: Array<{ key: Tab; label: string }> = [
   { key: 'call', label: 'Gọi tên' },
   { key: 'group', label: 'Chia nhóm' },
   { key: 'timer', label: 'Đồng hồ' },
   { key: 'score', label: 'Bảng điểm' },
+  // Trò chơi kiến thức và thẻ đáp án giấy (DT-23 phần 23c)
+  { key: 'game', label: 'Trò chơi' },
 ];
 
 function useOnline(): boolean {
@@ -191,7 +194,7 @@ export function ClassroomToolsScreen({
         ) : null}
         {snapshot ? (
           <>
-            <div role="tablist" aria-label="Công cụ" className="grid grid-cols-4 gap-1">
+            <div role="tablist" aria-label="Công cụ" className="grid grid-cols-5 gap-1">
               {TABS.map((item) => (
                 <button
                   key={item.key}
@@ -224,6 +227,7 @@ export function ClassroomToolsScreen({
               />
             ) : null}
             {tab === 'timer' ? <TimerTool /> : null}
+            {tab === 'game' ? <GamesTool snapshot={snapshot} online={online && classes !== null} /> : null}
             {tab === 'score' ? (
               <ScoreboardTool
                 classId={snapshot.class_id}
