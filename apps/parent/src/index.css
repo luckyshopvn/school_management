@@ -6,3 +6,21 @@
 body {
   @apply bg-page text-content text-text;
 }
+
+/* Truy cập trên điện thoại và máy tính bảng (DT-26 phần 26d, YCTD-234): vùng chạm tối thiểu 44 × 44 px, chữ trong ô nhập từ 16 px để iOS
+   không tự phóng to khi chạm vào ô. Viết ngoài lớp (cascade layer) nên thắng các lớp tiện ích cỡ nhỏ hơn của Tailwind và của
+   packages/ui mà không phải sửa gói dùng chung */
+input:not([type='checkbox'], [type='radio'], [type='range'], [type='hidden'], [type='color']),
+select,
+textarea {
+  font-size: max(16px, 1em);
+  min-height: 44px;
+}
+button,
+[role='button'],
+[role='tab'],
+input[type='button'],
+input[type='submit'] {
+  min-height: 44px;
+  min-width: 44px;
+}

@@ -83,7 +83,7 @@ export function TrainingScreen({ onBack }: { onBack(): void }) {
   return (
     <div className="min-h-screen">
       <ApplicationHeader title="Bồi dưỡng của tôi" />
-      <main className="mx-auto flex max-w-md flex-col gap-4 px-4 py-6">
+      <main className="mx-auto flex max-w-md flex-col md:max-w-3xl gap-4 px-4 py-6">
         <div>
           <Button variant="text" onClick={onBack}>
             Quay lại

@@ -119,7 +119,7 @@ export function MessagesScreen({ myClass, onBack }: { myClass: MyClass; onBack()
   return (
     <div className="min-h-screen bg-page">
       <ApplicationHeader title={`Trao đổi lớp ${myClass.name}`} />
-      <main className="mx-auto flex max-w-xl flex-col gap-4 p-4">
+      <main className="mx-auto flex max-w-xl flex-col md:max-w-3xl gap-4 p-4">
         <div className="flex gap-2">
           <Button variant="text" onClick={openThread ? () => setOpenThread(undefined) : onBack}>
             Quay lại
