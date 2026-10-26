@@ -103,6 +103,8 @@ import { migration as createCourseContent } from './migrations/0173_create_cours
 import { migration as createActivityResults } from './migrations/0174_create_activity_results.js';
 import { migration as createOnlineTeachingRules } from './migrations/0175_create_online_teaching_rules.js';
 import { migration as addPushChannel } from './migrations/0140_add_push_channel.js';
+import { migration as createGroupSets } from './migrations/0170_create_group_sets.js';
+import { migration as moveClassroomGroupingsToGroupSets } from './migrations/0171_move_classroom_groupings_to_group_sets.js';
 
 // Danh sách tệp thay đổi cấu trúc của cơ sở dữ liệu năm học, theo số thứ tự (QU-01, QU-11)
 export const schoolYearMigrations: Record<string, Migration> = {
@@ -213,4 +215,7 @@ export const schoolYearMigrations: Record<string, Migration> = {
   '0175_create_online_teaching_rules': createOnlineTeachingRules,
   // Thông báo đẩy Web Push (DT-26 phần 26b): 0140
   '0140_add_push_channel': addPushChannel,
+  // Mô hình nhóm dùng chung (DT-28 phần 28a): 0170, 0171
+  '0170_create_group_sets': createGroupSets,
+  '0171_move_classroom_groupings_to_group_sets': moveClassroomGroupingsToGroupSets,
 };

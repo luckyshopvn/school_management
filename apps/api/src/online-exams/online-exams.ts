@@ -22,6 +22,7 @@ import { CurrentSchoolYearResolver } from '../common/current-school-year.js';
 import { notFoundError } from '../common/request-fields.js';
 import { ExamGradingService } from '../exam-grading/exam-grading.js';
 import { OPTION_KEYS } from '../exams/exam-rules.js';
+import { GroupSetsReader } from '../child-groups/group-sets.js';
 import { AttemptEngine } from './attempt-engine.js';
 import { assertOnlineExamModule, ONLINE_EXAM_RULE_CODE } from './student-exams.js';
 import {
@@ -82,6 +83,8 @@ export interface AssignmentInput {
   absent_policy: 'skip' | 'zero';
   class_ids: string[];
   child_ids: string[];
+  // Nhóm của bộ nhóm đang dùng (DT-28 phần 28a, YCTD-271)
+  group_ids: string[];
 }
 
 export interface AssignmentChanges {
@@ -97,6 +100,7 @@ export class OnlineExamsService {
     private readonly currentSchoolYear: CurrentSchoolYearResolver,
     private readonly engine: AttemptEngine,
     private readonly grading: ExamGradingService,
+    private readonly groupSets: GroupSetsReader,
     private readonly clock: Clock,
   ) {}
 
@@ -451,6 +455,32 @@ export class OnlineExamsService {
       );
     }
     const scope = await this.teachableClassIds(database, currentUser, exam.subject_id);
+    // Đích nhóm (DT-28 phần 28a): nhóm phải thuộc bộ nhóm đang dùng; thành viên lúc giao được kiểm và giao như học sinh
+    const groups = input.group_ids.length
+      ? await database
+          .selectFrom('child_groups')
+          .innerJoin('group_sets', 'group_sets.id', 'child_groups.group_set_id')
+          .select(['child_groups.id', 'child_groups.name'])
+          .where('child_groups.id', 'in', input.group_ids)
+          .where('group_sets.status', '=', 'active')
+          .execute()
+      : [];
+    if (groups.length !== input.group_ids.length) {
+      throw notFoundError('Có nhóm không tồn tại hoặc thuộc bộ nhóm đã lưu trữ', 'child_group');
+    }
+    const memberSource = new Map<string, string>();
+    for (const group of groups) {
+      const members = await this.groupSets.childIdsOfGroup(database, group.id);
+      if (members.length === 0) {
+        throw validationError([{ field: 'group_ids', message: `Nhóm ${group.name} chưa có học sinh` }]);
+      }
+      for (const childId of members) {
+        if (!input.child_ids.includes(childId) && !memberSource.has(childId)) {
+          memberSource.set(childId, group.id);
+        }
+      }
+    }
+    const allChildIds = [...input.child_ids, ...memberSource.keys()];
     const classes = input.class_ids.length
       ? await database
           .selectFrom('classes')
@@ -461,7 +491,7 @@ export class OnlineExamsService {
     if (classes.length !== input.class_ids.length) {
       throw notFoundError('Có lớp không tồn tại', 'class');
     }
-    const children = input.child_ids.length
+    const children = allChildIds.length
       ? await database
           .selectFrom('children')
           .leftJoin('class_enrollments', (join) =>
@@ -475,11 +505,11 @@ export class OnlineExamsService {
             'classes.school_level',
             'classes.grade_level',
           ])
-          .where('children.id', 'in', input.child_ids)
+          .where('children.id', 'in', allChildIds)
           .where('children.deleted_at', 'is', null)
           .execute()
       : [];
-    if (children.length !== input.child_ids.length) {
+    if (children.length !== allChildIds.length) {
       throw notFoundError('Có học sinh không tồn tại', 'child');
     }
     const classProblems = [
@@ -536,12 +566,28 @@ export class OnlineExamsService {
           kind: 'class' as const,
           class_id: classId,
           child_id: null,
+          group_id: null,
         })),
         ...input.child_ids.map((childId) => ({
           assignment_id: row.id,
           kind: 'student' as const,
           class_id: null,
           child_id: childId,
+          group_id: null,
+        })),
+        ...groups.map((group) => ({
+          assignment_id: row.id,
+          kind: 'group' as const,
+          class_id: null,
+          child_id: null,
+          group_id: group.id,
+        })),
+        ...[...memberSource.entries()].map(([childId, groupId]) => ({
+          assignment_id: row.id,
+          kind: 'student' as const,
+          class_id: null,
+          child_id: childId,
+          group_id: groupId,
         })),
       ];
       await transaction.insertInto('exam_assignment_targets').values(targets).execute();
@@ -775,12 +821,15 @@ export class OnlineExamsService {
         .selectFrom('exam_assignment_targets')
         .leftJoin('classes', 'classes.id', 'exam_assignment_targets.class_id')
         .leftJoin('children', 'children.id', 'exam_assignment_targets.child_id')
+        .leftJoin('child_groups', 'child_groups.id', 'exam_assignment_targets.group_id')
         .select([
           'exam_assignment_targets.kind',
           'exam_assignment_targets.class_id',
           'exam_assignment_targets.child_id',
+          'exam_assignment_targets.group_id',
           'classes.name as class_name',
           'children.full_name as child_name',
+          'child_groups.name as group_name',
         ])
         .where('exam_assignment_targets.assignment_id', '=', assignmentId)
         .execute(),
@@ -846,10 +895,18 @@ export class OnlineExamsService {
       term_type: assignment.term_type,
       score_kind: assignment.score_kind,
       score_seq: assignment.score_seq,
-      targets: targets.map((target) => ({
-        kind: target.kind,
-        label: target.kind === 'class' ? (target.class_name ?? '') : (target.child_name ?? ''),
-      })),
+      // Học sinh được giao qua nhóm hiện dưới dòng nhóm, không hiện riêng
+      targets: targets
+        .filter((target) => !(target.kind === 'student' && target.group_id !== null))
+        .map((target) => ({
+          kind: target.kind,
+          label:
+            target.kind === 'class'
+              ? (target.class_name ?? '')
+              : target.kind === 'group'
+                ? (target.group_name ?? '')
+                : (target.child_name ?? ''),
+        })),
       students: (rosters.get(assignmentId) ?? []).map((student) => {
         const mine = attempts.filter((attempt) => attempt.child_id === student.child_id);
         const mineEvents = events.filter((event) => mine.some((attempt) => attempt.id === event.attempt_id));

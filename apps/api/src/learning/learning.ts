@@ -4,6 +4,7 @@ import { ApplicationError, Clock, type FieldError } from '@school-management/ser
 import { PERMISSION_CODES } from '@school-management/shared';
 import { sql, type Kysely, type Selectable, type Transaction } from 'kysely';
 import type { CurrentUser } from '../authentication/current-user.js';
+import { GroupSetsReader } from '../child-groups/group-sets.js';
 import { writeAuditLog, type ChangeOrigin } from '../common/audit-log.js';
 import { CurrentSchoolYearResolver } from '../common/current-school-year.js';
 import { Databases } from '../common/databases.js';
@@ -212,6 +213,7 @@ export class LearningService {
     private readonly databases: Databases,
     private readonly currentSchoolYear: CurrentSchoolYearResolver,
     private readonly timetables: TimetablesService,
+    private readonly groupSets: GroupSetsReader,
     private readonly clock: Clock,
   ) {}
 
@@ -1492,7 +1494,7 @@ export class LearningService {
         .orderBy('position')
         .execute(),
       database.selectFrom('activity_exceptions').selectAll().where('child_id', '=', childId).execute(),
-      database.selectFrom('child_group_members').select('group_id').where('child_id', '=', childId).execute(),
+      this.groupSets.groupsOfChild(database, childId),
     ]);
     const results = await this.resultsFor(
       database,

@@ -12,12 +12,13 @@ import { sql, type Kysely } from 'kysely';
 import type { Request } from 'express';
 import { AuthenticatedUser, RequirePermission } from '../authentication/authentication.guard.js';
 import type { CurrentUser } from '../authentication/current-user.js';
-import { originOf } from '../common/audit-log.js';
+import { originOf, type ChangeOrigin } from '../common/audit-log.js';
 import { CurrentSchoolYearResolver } from '../common/current-school-year.js';
 import { isUuid, notFoundError, readRequiredUuid, type RequestBody } from '../common/request-fields.js';
 import { uuidParameter } from '../common/uuid-parameter.js';
 import { ChildScope } from '../children/child-scope.js';
 import { ConductService } from '../conduct/conduct.js';
+import { GroupSetsService } from '../child-groups/group-sets.js';
 
 // Công cụ lớp học trên ứng dụng giáo viên (DT-23 phần 23b, YCTD-212; tài liệu 32 mục 15.4): gọi tên ngẫu nhiên, chia nhóm,
 // bảng điểm nhanh. Máy giáo viên bốc ngẫu nhiên và giữ đồng hồ; máy chủ chỉ cấp danh sách lớp thật, ghi lượt gọi, bản chia
@@ -264,6 +265,7 @@ export class ClassroomToolsService {
     private readonly currentSchoolYear: CurrentSchoolYearResolver,
     private readonly childScope: ChildScope,
     private readonly conduct: ConductService,
+    private readonly groupSets: GroupSetsService,
     private readonly clock: Clock,
   ) {}
 
@@ -411,19 +413,23 @@ export class ClassroomToolsService {
     return { deleted: removed.length };
   }
 
+  // Bản chia nhóm đang dùng là bộ nhóm `classroom` mới nhất của giáo viên cho lớp (DT-28 phần 28a, YCTD-271)
   async grouping(currentUser: CurrentUser, classId: string) {
     const { database } = await this.currentSchoolYear.require();
     await this.assertCanUse(currentUser, database, classId);
-    const row = await database
-      .selectFrom('classroom_groupings')
-      .select(['groups', 'updated_at'])
-      .where('class_id', '=', classId)
-      .where('owner_user_id', '=', currentUser.id)
-      .executeTakeFirst();
-    return row ? { groups: row.groups as GroupInput[], updated_at: row.updated_at } : { groups: [], updated_at: null };
+    const current = await this.groupSets.classroomGrouping(database, classId, currentUser.id);
+    return current ? { groups: current.groups, updated_at: current.updated_at } : { groups: [], updated_at: null };
   }
 
-  async saveGrouping(currentUser: CurrentUser, classId: string, groups: GroupInput[]) {
+  // Lưu bản chia thành bộ nhóm `classroom` (chọn bộ sẵn có thì ghi kèm mã bộ nguồn). Bảng `classroom_groupings` của 23b còn
+  // được ghi song song một bản phát hành để bản ứng dụng cũ đọc được; máy chủ không đọc bảng đó nữa
+  async saveGrouping(
+    currentUser: CurrentUser,
+    classId: string,
+    groups: GroupInput[],
+    origin: ChangeOrigin,
+    sourceGroupSetId: string | null = null,
+  ) {
     const { database } = await this.currentSchoolYear.require();
     await this.assertCanUse(currentUser, database, classId);
     await this.assertEnrolled(
@@ -442,6 +448,7 @@ export class ClassroomToolsService {
           .doUpdateSet({ groups: serialized, updated_at: now }),
       )
       .execute();
+    await this.groupSets.saveClassroomGrouping(currentUser, classId, groups, origin, sourceGroupSetId);
     return this.grouping(currentUser, classId);
   }
 
@@ -799,9 +806,20 @@ export class ClassroomToolsController {
   saveGrouping(
     @Param('classId', uuidParameter('Mã lớp không hợp lệ')) classId: string,
     @Body() body: RequestBody,
+    @Req() request: Request,
     @AuthenticatedUser() user: CurrentUser,
   ) {
-    return this.tools.saveGrouping(user, classId, parseGroupsInput(body));
+    const groups = parseGroupsInput(body);
+    if (body?.group_set_id !== undefined && body?.group_set_id !== null && !isUuid(body.group_set_id)) {
+      throw validationError([{ field: 'group_set_id', message: 'Mã bộ nhóm không hợp lệ' }]);
+    }
+    return this.tools.saveGrouping(
+      user,
+      classId,
+      groups,
+      originOf(request, user),
+      isUuid(body?.group_set_id) ? body.group_set_id : null,
+    );
   }
 
   @Post('scores')
