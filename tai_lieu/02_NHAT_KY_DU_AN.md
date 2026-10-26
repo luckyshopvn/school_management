@@ -27,6 +27,7 @@
 - Eric (ngày 2026-10-26) chọn đề xuất 1, 2, 3, 5 của báo cáo khảo sát; chỉ học ý tưởng tính năng, không sao chép nội dung, tên gọi, giao diện; đồng ý đưa AI vào (thành phần AI của DT-22 giữ chỗ YCTD-185 chuyển thành phần 23d).
 - Bốn phần: 23a thi trực tuyến (kênh `student`), 23b công cụ lớp học (ngoại tuyến), 23c trò chơi và thẻ đáp án giấy, 23d trợ lý AI; đợt 1: 23a, 23b, 23d; đợt 2: 23c.
 - Số giữ sẵn: YCTD-210 (kế hoạch) và YCTD-211 đến YCTD-214, dự phòng đến YCTD-219; năm học từ 0120, hệ thống từ 0070, định danh từ 0120, nền tảng từ 0200; e2e từ `150-`; số giữ chỗ cũ của DT-22 cho AI hết hiệu lực.
+- Eric bổ sung cùng ngày phần 23e giám thị coi thi trực tuyến: cho phép ghi camera, giám thị xem bất cứ lúc nào, AI tự phát hiện gian lận; Claude chọn cách làm: đồng ý của cha mẹ, bản ghi mã hóa theo khóa của trường, giữ có hạn, nhật ký người xem, AI chạy trên máy học sinh, AI không tự trừ điểm; YCTD-215, năm học 0129, e2e 154; thêm RR-21, GD-109 đến GD-112; phiên 23a giữ phần xin quyền camera và sự kiện, 23e làm sau 23a (đợt 2).
 - Eric chốt thêm cùng ngày: chống gian lận khi thi trực tuyến bằng khóa toàn màn hình và camera (GD-106); Claude chọn cách làm: camera xử lý trên máy học sinh, chỉ gửi sự kiện, không gửi hình hay video, ảnh định kỳ tắt mặc định và chỉ bật khi cha mẹ đồng ý; số tiền phí AI để trống, nhập khi triển khai.
 - Eric trả lời câu hỏi ngày 2026-10-26: AI có cả hai cấu hình (trường tự nhập khóa miễn phí; nền tảng giữ khóa, thu theo gói và theo token, có màn hình thiết lập riêng); học sinh tự đăng nhập ở mọi cấp học; ngoại tuyến chỉ cho công cụ lớp học. 23d phụ thuộc thêm S5b, dùng nền tảng 0200 đến 0202.
 - AI: bộ nối cấu hình được (mặc định Claude), khóa theo trường lưu mã hóa, tắt mặc định, chỉ gửi nội dung chương trình, luôn là bản nháp qua luồng duyệt, hạn mức theo gói; ràng buộc pháp lý để 23d đọc văn bản gốc.
@@ -37,7 +38,7 @@
 
 #### Vấn đề tồn đọng
 
-- Còn chờ Eric: số tiền của phí AI (GD-103) khi triển khai 23d; 23d đọc văn bản pháp luật gốc và nhờ luật sư của Eric rà trước khi bật AI ở trường thật.
+- Còn chờ Eric: số tiền của phí AI (GD-103) khi triển khai 23d; thời hạn giữ bản ghi, nhà cung cấp TURN, điều kiện đồng ý của cha mẹ (GD-109, GD-110, GD-112) và luật sư rà hồ sơ camera trước khi dùng ở trường thật; 23d đọc văn bản pháp luật gốc và nhờ luật sư của Eric rà trước khi bật AI ở trường thật.
 
 ### 2026-10-26 — DT-SaaS phần S6: đơn vị cấp trên
 
