@@ -64,6 +64,10 @@ export const PUBLIC_ROUTES: PublicRoute[] = [
     'Tên hiển thị, màu chủ đạo và địa chỉ biểu trưng của trường cho trang đăng nhập (S3), theo tên miền của trường; không trả dữ liệu cá nhân',
   ),
   get('/api/v1/public/branding/logo', 'Ảnh biểu trưng của trường (S3), theo tên miền của trường'),
+  get(
+    '/api/v1/public/pwa/:file',
+    'Manifest và biểu tượng SVG của ứng dụng giáo viên, phụ huynh cài lên màn hình chính (DT-26 phần 26a), theo tên miền của trường: tên, tên ngắn, màu, biểu trưng; không có dữ liệu cá nhân',
+  ),
   get('/api/v1/public/demo', 'Thông tin bản trình diễn của trường (18h), theo tên miền của trường'),
   get(
     '/api/v1/public/login-info',

@@ -1,7 +1,7 @@
 # 02. NHẬT KÝ DỰ ÁN
 
 - Mô tả: Ghi nhận công việc, quyết định, thay đổi và vấn đề tồn đọng theo ngày, ngày mới nhất ở trên cùng.
-- Phiên bản: 0.81
+- Phiên bản: 0.82
 - Ngày cập nhật: 2026-10-26
 - Trạng thái: Đang cập nhật
 
@@ -20,7 +20,7 @@
 
 - Đọc mục 19.2, 19.3, 19.4, 19.5 (27b), 19.11 của `32_KE_HOACH_THEO_HE_THONG_SO.md`; rà thời khoá biểu (`timetable_lessons`, `period_slots`, `applyingVersions`), sổ điểm (`subject_term_results`), quan hệ phụ huynh, luồng trao đổi, thông báo, góp ý, phân hệ của gói dịch vụ (S5a), mẫu phần 23a.
 - Thêm năm học 0152 đến 0154, định danh 0172, hàm thuần quy định dạy thêm, máy chủ API `tutoring/`, bốn trang ở cổng quản trị, màn hình ở ứng dụng giáo viên, mục Gia sư ở ứng dụng phụ huynh, kiểm thử đơn vị và e2e 191.
-- Thêm BR-238 đến BR-240, PQ-110, P02-86 đến P02-88, AC-880 đến AC-882, MH-348 đến MH-353, CT-1108 đến CT-1115; phiên bản 0.152.0.
+- Thêm BR-239 đến BR-241, PQ-110, P02-86 đến P02-88, AC-883 đến AC-885, MH-349 đến MH-354, CT-1112 đến CT-1119; phiên bản 0.152.0.
 
 #### Quyết định
 
@@ -32,11 +32,33 @@
 
 #### Thay đổi
 
-- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-252, `07_QUY_TAC_NGHIEP_VU.md` BR-238 đến BR-240, `08_VAI_TRO_NGUOI_DUNG.md` PQ-110, `10_YEU_CAU_CHUC_NANG.md` P02-86 đến P02-88, `11_TIEU_CHI_NGHIEM_THU.md` AC-880 đến AC-882, `14_DAC_TA_GIAO_DIEN.md` MH-348 đến MH-353, `16_CO_SO_DU_LIEU.md`, `17_DAC_TA_API.md`, `21_KICH_BAN_KIEM_THU.md` CT-1108 đến CT-1115; phiên bản 0.152.0.
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-252, `07_QUY_TAC_NGHIEP_VU.md` BR-239 đến BR-241, `08_VAI_TRO_NGUOI_DUNG.md` PQ-110, `10_YEU_CAU_CHUC_NANG.md` P02-86 đến P02-88, `11_TIEU_CHI_NGHIEM_THU.md` AC-883 đến AC-885, `14_DAC_TA_GIAO_DIEN.md` MH-349 đến MH-354, `16_CO_SO_DU_LIEU.md`, `17_DAC_TA_API.md`, `21_KICH_BAN_KIEM_THU.md` CT-1112 đến CT-1119; phiên bản 0.152.0.
 
 #### Vấn đề tồn đọng
 
 - Thông tư 29/2024 chưa đối chiếu bản gốc (E-07); điểm danh tự động khi 27a gộp; thu phí, thù lao ở 27c.
+
+### 2026-10-26 — DT-26 phần 26a: vỏ ứng dụng web cài được dùng chung
+
+#### Công việc đã thực hiện
+
+- Tạo gói `packages/pwa`: dời service worker của 23b thành mẫu dùng chung, plugin Vite phục vụ và phát `sw.js` theo tiền tố của từng ứng dụng, thư viện đăng ký, kiểm bản mới, gỡ; `applyBrandedManifest`, `InstallPrompt`, `UpdateBanner`; hàm nhận biết cách cài theo trình duyệt có kiểm thử đơn vị.
+- Máy chủ: manifest và biểu tượng SVG theo thương hiệu từng trường (`/api/v1/public/pwa/*`), cột `school_branding.app_short_name` (hệ thống 0090), ô tên ngắn ở cổng quản trị.
+- Ứng dụng giáo viên chuyển sang gói chung (giữ tiền tố và công tắc ngoại tuyến của 23b); ứng dụng phụ huynh có manifest, biểu tượng, service worker; lời mời cài ở trang đầu hai ứng dụng.
+- Kiểm thử: `packages/pwa` (CT-26a-1), `apps/api` `school-settings.test.ts` (CT-26a-2, CT-26a-3), e2e spec 181 (CT-26a-4) và spec 151.
+
+#### Quyết định
+
+- Viết tay service worker và plugin, không thêm thư viện; biểu tượng là SVG dựng ở máy chủ, PNG của sản phẩm làm dự phòng (QĐ-36).
+- Ứng dụng phụ huynh luôn đăng ký service worker (chỉ giữ vỏ ứng dụng); ứng dụng giáo viên vẫn theo công tắc ngoại tuyến của trường.
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-231, `23_LICH_SU_PHIEN_BAN.md` phiên bản 0.145.0; BR-238, P19-07, AC-880 đến AC-882, CT-1108 đến CT-1111, MH-348, BM-100, QĐ-36, mục 12H.
+
+#### Vấn đề tồn đọng
+
+- Đã nối màn hình học sinh của 23a sau khi 23a gộp (manifest `student` mở thẳng `#hoc-sinh`, lời mời cài và dải "Có bản mới" ở danh sách bài, không hiện trong phòng thi). Còn: ảnh PNG và màn hình chờ iOS theo trường, phiên bản tối thiểu do máy chủ áp để phần sau (ghi ở YCTD-231).
 
 ### 2026-10-26 — DT-25 bước 25b: giao diện đăng nhập và liên kết bằng nhà cung cấp định danh
 

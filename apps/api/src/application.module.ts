@@ -447,6 +447,7 @@ import {
   SchoolSettingsController,
   SchoolSettingsService,
 } from './school-settings/school-settings.controller.js';
+import { PublicPwaController } from './school-settings/pwa-manifest.js';
 import { SchoolSettings } from './school-settings/school-settings.js';
 import {
   TenantFacebookPublisher,
@@ -571,6 +572,8 @@ export class ApplicationModule {
         SchoolPickerController,
         SchoolSettingsController,
         PublicBrandingController,
+        // Manifest, biểu tượng của ứng dụng web cài được theo trường (DT-26 phần 26a)
+        PublicPwaController,
         // Hồ sơ chuyên môn và Việc của tôi (DT-18 phần 18e)
         ProfessionalRecordsController,
         EducationPlansController,
