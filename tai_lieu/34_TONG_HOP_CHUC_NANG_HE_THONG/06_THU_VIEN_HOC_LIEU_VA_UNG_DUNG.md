@@ -197,7 +197,7 @@ Mỗi phân hệ mô tả theo cùng khuôn: mục đích, cấp học, vai trò
   - Gói xuất chỉ chứa học liệu đã công bố dạng tệp hoặc liên kết, giấy phép không bị chặn, không "chỉ cá nhân"; không có người sở hữu, người chịu trách nhiệm hay dữ liệu cá nhân; kế hoạch bài dạy tham chiếu và câu hỏi không vào gói.
   - Nhập gói kiểm định dạng, mã băm từng tệp, giấy phép có trong danh mục của trường; loại trùng theo mã băm tệp hoặc địa chỉ liên kết đã có; học liệu nhập thuộc người nhập, phạm vi toàn trường, gửi duyệt ngay theo luồng 22h1, ghi nguồn gốc gói.
 - Việc của tôi có nguồn `learning_resources`: học liệu chờ tôi duyệt, học liệu của tôi bị trả lại, báo lỗi đang chờ xử lý (thủ kho).
-- Không gọi AI, không gọi dịch vụ ngoài; liên kết ngoài không tải về, không nhúng.
+- Hiện chưa gọi AI, không gọi dịch vụ ngoài; liên kết ngoài không tải về, không nhúng. Soạn kế hoạch bài dạy nháp bằng AI là phần 23d của DT-23 (kế hoạch, xem `01_TONG_QUAN_VA_NEN_TANG.md` mục 5).
 
 ### Dữ liệu, báo cáo và tệp xuất
 

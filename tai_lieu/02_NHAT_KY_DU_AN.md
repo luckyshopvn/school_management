@@ -1,8 +1,8 @@
 # 02. NHẬT KÝ DỰ ÁN
 
 - Mô tả: Ghi nhận công việc, quyết định, thay đổi và vấn đề tồn đọng theo ngày, ngày mới nhất ở trên cùng.
-- Phiên bản: 0.70
-- Ngày cập nhật: 2026-10-25
+- Phiên bản: 0.71
+- Ngày cập nhật: 2026-10-26
 - Trạng thái: Đang cập nhật
 
 ## Quy ước ghi nhật ký
@@ -13,6 +13,31 @@
 - Không ghi thông tin tạm thời như kết quả tra cứu, đường dẫn tạm, thông báo lỗi của công cụ.
 
 ## Nhật ký theo ngày
+
+### 2026-10-26 — Kế hoạch DT-23: thi trực tuyến, công cụ lớp học, trò chơi kiến thức, trợ lý AI
+
+#### Công việc đã thực hiện
+
+- Đọc báo cáo khảo sát hệ thống dạy học trực tuyến của bên khác (lưu ngoài `tai_lieu/`), mục 13 và 14 của `32_KE_HOACH_THEO_HE_THONG_SO.md` làm khuôn; đối chiếu mã: ngân hàng câu hỏi và đề (22g1), phiên thi và chuyển điểm (22g2), tài khoản học và thi, `SessionChannel`, ứng dụng giáo viên và phụ huynh (chưa có service worker), nề nếp (DT-21), gói và bộ nối khóa theo trường (S5a, S3).
+- Viết mục 15 của `32`: căn cứ, nguyên tắc, bốn phần 23a đến 23d, phạm vi chi tiết, quyết định thiết kế, rủi ro, quy ước, tiến độ, giả định GD-102 đến GD-108; sửa các chỗ "không dùng AI" của mục 9.2, 13.1, 13.5, 13.7 và bản tổng hợp `34` theo quyết định mới.
+- Thêm đợt DT-23 và RR-19, RR-20, GD-102 đến GD-108 vào `01`.
+
+#### Quyết định
+
+- Eric (ngày 2026-10-26) chọn đề xuất 1, 2, 3, 5 của báo cáo khảo sát; chỉ học ý tưởng tính năng, không sao chép nội dung, tên gọi, giao diện; đồng ý đưa AI vào (thành phần AI của DT-22 giữ chỗ YCTD-185 chuyển thành phần 23d).
+- Bốn phần: 23a thi trực tuyến (kênh `student`), 23b công cụ lớp học (ngoại tuyến), 23c trò chơi và thẻ đáp án giấy, 23d trợ lý AI; đợt 1: 23a, 23b, 23d; đợt 2: 23c.
+- Số giữ sẵn: YCTD-210 (kế hoạch) và YCTD-211 đến YCTD-214, dự phòng đến YCTD-219; năm học từ 0120, hệ thống từ 0070, định danh từ 0120, nền tảng từ 0200; e2e từ `150-`; số giữ chỗ cũ của DT-22 cho AI hết hiệu lực.
+- Eric chốt thêm cùng ngày: chống gian lận khi thi trực tuyến bằng khóa toàn màn hình và camera (GD-106); Claude chọn cách làm: camera xử lý trên máy học sinh, chỉ gửi sự kiện, không gửi hình hay video, ảnh định kỳ tắt mặc định và chỉ bật khi cha mẹ đồng ý; số tiền phí AI để trống, nhập khi triển khai.
+- Eric trả lời câu hỏi ngày 2026-10-26: AI có cả hai cấu hình (trường tự nhập khóa miễn phí; nền tảng giữ khóa, thu theo gói và theo token, có màn hình thiết lập riêng); học sinh tự đăng nhập ở mọi cấp học; ngoại tuyến chỉ cho công cụ lớp học. 23d phụ thuộc thêm S5b, dùng nền tảng 0200 đến 0202.
+- AI: bộ nối cấu hình được (mặc định Claude), khóa theo trường lưu mã hóa, tắt mặc định, chỉ gửi nội dung chương trình, luôn là bản nháp qua luồng duyệt, hạn mức theo gói; ràng buộc pháp lý để 23d đọc văn bản gốc.
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-210, `32_KE_HOACH_THEO_HE_THONG_SO.md` mục 15 (phiên bản 1.74), `01_KE_HOACH_TONG_THE.md` (1.67), `34_TONG_HOP_CHUC_NANG_HE_THONG/01_TONG_QUAN_VA_NEN_TANG.md`, `index.md`. Chỉ đổi tài liệu, không tăng phiên bản phần mềm.
+
+#### Vấn đề tồn đọng
+
+- Còn chờ Eric: số tiền của phí AI (GD-103) khi triển khai 23d; 23d đọc văn bản pháp luật gốc và nhờ luật sư của Eric rà trước khi bật AI ở trường thật.
 
 ### 2026-10-26 — DT-SaaS phần S6: đơn vị cấp trên
 
