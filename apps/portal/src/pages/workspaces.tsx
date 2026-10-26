@@ -43,6 +43,7 @@ export const WORKSPACE_ICONS: Record<WorkspaceKey, IconName> = {
   'quality-assurance': 'chart',
   library: 'book',
   'learning-resources': 'book',
+  'online-exam': 'cap',
 };
 
 const WORKSPACE_KEY = 'portal.workspace';

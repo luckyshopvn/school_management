@@ -158,6 +158,9 @@ importers:
       '@school-management/ui':
         specifier: workspace:*
         version: link:../../packages/ui
+      '@vladmandic/face-api':
+        specifier: 1.7.15
+        version: 1.7.15
       qrcode:
         specifier: 1.5.4
         version: 1.5.4
@@ -1106,6 +1109,10 @@ packages:
         optional: true
       oxc-transform-react:
         optional: true
+
+  '@vladmandic/face-api@1.7.15':
+    resolution: {integrity: sha512-WDMmK3CfNLo8jylWqMoQgf4nIst3M0fzx1dnac96wv/dvMTN4DxC/Pq1DGtduDk1lktCamQ3MIDXFnvrdHTXDw==}
+    engines: {node: '>=14.0.0'}
 
   accepts@2.0.0:
     resolution: {integrity: sha512-5cvg6CtKwfgdmVqY1WIiXKc3Q1bkRqGLi+2W/6ao+6Y7gu/RCwRuAhGEzh5B4KlszSuTLgZYuqFqo5bImjNKng==}
@@ -3644,6 +3651,8 @@ snapshots:
     dependencies:
       '@rolldown/pluginutils': 1.0.1
       vite: 8.3.4(@types/node@24.19.1)(jiti@2.7.0)
+
+  '@vladmandic/face-api@1.7.15': {}
 
   accepts@2.0.0:
     dependencies:
