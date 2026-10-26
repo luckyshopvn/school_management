@@ -1,7 +1,7 @@
 # 01. KẾ HOẠCH TỔNG THỂ
 
 - Mô tả: Tài liệu điều phối cấp cao nhất của dự án: mười hai giai đoạn kèm cổng kiểm soát, các mốc phát hành, kế hoạch thực thi theo đợt, đường găng, tổ chức thực hiện, quản lý thay đổi và rủi ro.
-- Phiên bản: 1.74
+- Phiên bản: 1.76
 - Ngày cập nhật: 2026-10-26
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -266,6 +266,7 @@ Sản phẩm: School Management, hệ thống quản lý trường mầm non cho
 | 0.142.0 | DT-25: bộ nối nhà cung cấp định danh OIDC sẵn cho VNeID, phần máy chủ (lớp `IdentityProvider`, bộ nối OIDC chung có PKCE, JWKS, quay khóa; hồ sơ `vneid` cấu hình được; liên kết tài khoản chỉ lưu subject mã hóa; nhật ký liên kết), YCTD-225 | 2026-10-26 |
 | 0.143.0 | DT-23 phần 23d: trợ lý AI soạn câu hỏi nháp và kế hoạch bài dạy nháp (bộ nối nhà cung cấp, hai cấu hình khóa `school` và `platform`, bật tắt theo trường, quét dữ liệu cá nhân, nhật ký, hạn mức theo gói, phí theo token qua thu phí S5b), YCTD-214 | 2026-10-26 |
 | 0.144.0 | DT-23 phần 23a: thi trực tuyến cho học sinh (kênh student, giao đề, làm bài, khóa toàn màn hình và camera trên máy, chấm, chuyển điểm theo luồng 22g2) | YCTD-211 |
+| 0.145.0 | DT-26 phần 26a: vỏ ứng dụng web cài được dùng chung (gói `packages/pwa` gom service worker của 23b, manifest và biểu tượng theo thương hiệu từng trường, ứng dụng phụ huynh có service worker, dải có bản mới, lời mời cài cho Android, iPhone, Zalo), YCTD-231 | 2026-10-26 |
 | 0.147.0 | DT-25 bước 25b: giao diện đăng nhập và liên kết bằng nhà cung cấp định danh (nút trên màn hình đăng nhập của ba ứng dụng, trang quay về có nhập mã hai lớp, liên kết và gỡ ở Tài khoản của tôi, cấu hình của trường), YCTD-226 | 2026-10-26 |
 | 0.149.0 | DT-28 phần 28a: mô hình nhóm dùng chung (bộ nhóm của lớp mở rộng `child_groups`; chia tay, ngẫu nhiên, theo năng lực, cân bằng giới, ràng buộc, từ tiết nhóm 21b; nhóm trưởng, lịch sử; công cụ lớp học 23b dùng bộ nhóm; hàm đọc ổn định cho phần khác) | YCTD-271 |
 | 1.0.0 | Giai đoạn 1 chạy thật: nền tảng, trẻ, điểm danh, học phí, thanh toán mã QR, phiếu thu, phiếu chi, quỹ tiền mặt, nhân sự, lương cơ bản, hai ứng dụng, báo cáo cơ bản, nhập dữ liệu từ Excel, nhập mã định danh của Bộ, API đối tác | 09 đến 11 | Eric nghiệm thu ngày 13/10/2026, thẻ `v1.0.0` (tài liệu 0.31.0, YCTD-92); chờ triển khai ở việc T6 |

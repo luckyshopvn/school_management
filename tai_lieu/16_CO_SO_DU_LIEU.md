@@ -1,7 +1,7 @@
 # 16. CƠ SỞ DỮ LIỆU
 
 - Mô tả: Thực thể, trường, kiểu dữ liệu, khóa chính, khóa ngoại, quan hệ, ràng buộc, chỉ mục, trạng thái, lịch sử thay đổi, chính sách xóa dữ liệu.
-- Phiên bản: 1.127
+- Phiên bản: 1.128
 - Ngày cập nhật: 2026-10-26
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -748,7 +748,7 @@ Từ YCTD-203 (tệp nền tảng `0100_add_database_login_name`), bảng `schoo
 | Bảng | Mục đích | Cột chính |
 |---|---|---|
 | integration_secrets (từ YCTD-195) | Cấu hình kết nối ngoài của trường, ở cơ sở dữ liệu hệ thống của trường (BR-211; hệ thống `0051_create_integration_secrets`) | connector (khóa chính: `payos`, `sepay`, `casso`, `vnpay`, `vietqr`, `esms`, `zalo`, `facebook`, `storage`), id, enabled, values_encrypted (JSON mã hóa bằng khóa của trường), hints, updated_at, updated_by |
-| school_branding (từ YCTD-195) | Thương hiệu của trường, một dòng (BR-213; hệ thống `0052_create_school_branding`) | id (luôn 1), display_name, primary_color (`#RRGGBB`), updated_at, updated_by_name |
+| school_branding (từ YCTD-195) | Thương hiệu của trường, một dòng (BR-213; hệ thống `0052_create_school_branding`) | id (luôn 1), display_name, primary_color (`#RRGGBB`), app_short_name (từ YCTD-231, hệ thống `0090_add_school_branding_app_short_name`: tên ngắn dưới biểu tượng khi cài lên màn hình chính, 1 đến 9 ký tự, BR-238), updated_at, updated_by_name |
 | school_key_rotations (từ YCTD-195) | Nhật ký đổi khóa mã hóa dữ liệu trẻ ở cơ sở dữ liệu nền tảng (BR-212; nền tảng `0030_create_key_rotations`, khối 0030 đến 0039 của S3) | school_id, status (`running`, `completed`, `failed`), new_encryption_key_encrypted, new_hash_key_encrypted (bọc bằng khóa gốc), progress (JSON), rows_done, started_by, started_at, finished_at, error; mỗi trường chỉ một lần `running` |
 | plans (từ YCTD-194) | Gói dịch vụ (BR-214, BR-215; tệp nền tảng `0040_create_plans`) | code (duy nhất), name, description, modules (JSON danh sách phân hệ, trống là mọi phân hệ), max_active_students, max_storage_mb, max_school_levels (trống là không giới hạn), trial_days, pricing_mode (`per_student` mặc định, `per_school`, `per_module`), unit_price, minimum_fee, module_prices (JSON), billing_cycle (`monthly`, `term`, `yearly`), status (`active`, `archived`); gói mặc định `full` |
 | school_plans (từ YCTD-194) | Gán gói cho trường có ngày hiệu lực, giữ lịch sử (BR-214) | school_id, plan_id, effective_from, effective_to (trống là còn hiệu lực), assigned_by, note |
@@ -852,10 +852,10 @@ Hai mục cấu hình theo trường ở bảng `settings` của Trường chín
 
 | Bảng | Mục đích | Cột chính |
 |---|---|---|
-| group_sets (từ YCTD-271) | Bộ nhóm của một lớp (BR-238) | id, org_unit_id, class_id, subject_id (tuỳ chọn), name (1 đến 120 ký tự), purpose (`subject`, `activity`, `classroom`), method (`manual`, `random`, `ability_mixed`, `ability_tiered`, `gender_balanced`, `timetable_group`), params (JSON: cách chia theo số nhóm hoặc số người, hạt, nguồn năng lực, cân bằng giới, loại vắng, ràng buộc, cách chọn nhóm trưởng; không có mức năng lực), status (`active`, `archived`), owner_user_id, owner_name, replaces_id (bộ được thay), archived_at, created_at, updated_at; chỉ mục (class_id, status) |
+| group_sets (từ YCTD-271) | Bộ nhóm của một lớp (BR-239) | id, org_unit_id, class_id, subject_id (tuỳ chọn), name (1 đến 120 ký tự), purpose (`subject`, `activity`, `classroom`), method (`manual`, `random`, `ability_mixed`, `ability_tiered`, `gender_balanced`, `timetable_group`), params (JSON: cách chia theo số nhóm hoặc số người, hạt, nguồn năng lực, cân bằng giới, loại vắng, ràng buộc, cách chọn nhóm trưởng; không có mức năng lực), status (`active`, `archived`), owner_user_id, owner_name, replaces_id (bộ được thay), archived_at, created_at, updated_at; chỉ mục (class_id, status) |
 | child_groups (thêm cột từ YCTD-271) | Nhóm của bộ; nhóm 4.1.6 để trống các cột này | group_set_id, class_id, position, leader_child_id; chỉ mục riêng phần duy nhất (org_unit_id, name) khi `group_set_id` trống và (group_set_id, name) khi có |
 | child_group_members (thêm cột từ YCTD-271) | Thành viên nhóm | role (`member`, `leader`) |
-| child_group_member_events (từ YCTD-271) | Lịch sử đổi thành viên, nhóm trưởng của bộ (BR-239) | id, group_set_id, group_id, child_id, event (`added`, `removed`, `moved`, `leader_set`, `leader_unset`), from_group_id, actor_user_id, actor_name, created_at; chỉ mục (group_set_id, created_at) |
+| child_group_member_events (từ YCTD-271) | Lịch sử đổi thành viên, nhóm trưởng của bộ (BR-240) | id, group_set_id, group_id, child_id, event (`added`, `removed`, `moved`, `leader_set`, `leader_unset`), from_group_id, actor_user_id, actor_name, created_at; chỉ mục (group_set_id, created_at) |
 
 `classroom_groupings` (YCTD-212) được dời sang bộ nhóm `classroom` bởi tệp 0171; máy chủ còn ghi song song bảng này một bản phát hành rồi bỏ.
 
