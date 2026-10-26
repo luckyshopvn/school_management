@@ -30,6 +30,7 @@ Các thay đổi trước phiên bản 0.4.0 chưa có sổ này; xem `23_LICH_S
 - Ảnh hưởng chức năng cũ: không. Phiên bản phần mềm giữ nguyên (thay đổi chỉ tài liệu); số phiên bản tài liệu đặt trên số của nhánh chính lúc viết; gộp sau thì đánh lại theo nhánh chính lúc gộp.
 - Kiểm thử cần thực hiện: rà bảng đủ cột; số YCTD, migration, e2e, GD, RR giữ sẵn không trùng DT-23, DT-26, DT-27 và các số của DT-24, DT-25 (PR 181, 182 đã gộp); kiểm tra định dạng tài liệu đạt.
 - Trạng thái: Đã triển khai
+
 ### YCTD-232: DT-26 phần 26b: thông báo đẩy Web Push, phần máy chủ – 2026-10-26
 
 - Lý do: phần 26b của `32_KE_HOACH_THEO_HE_THONG_SO.md` mục 18 (kế hoạch DT-26, YCTD-230). Phiên điều phối giao làm phần máy chủ trước; phần giao diện (màn hình "Cài đặt thông báo" ở ứng dụng giáo viên, phụ huynh và mã nhận đẩy ở service worker `packages/pwa/src/push/`) nối sau khi 26a (PR 185) gộp, ở PR tiếp theo.
