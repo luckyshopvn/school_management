@@ -471,7 +471,7 @@ Nguồn: `apps/api/src/common/notification-queue.ts`, `apps/api/src/notification
 | Zalo | `zalo` | Zalo Official Account khi nhà trường bật và số điện thoại đã liên kết (`zalo_followers`); không được thì gửi SMS; Zalo lỗi thì gửi ngay SMS | `delivered_via` ghi kênh thực tế |
 | Mã đăng nhập, đặt lại mật khẩu | Không qua hàng đợi | Dịch vụ định danh gửi thẳng qua `SmsSender` (eSMS) | Không tính vào giới hạn 5 tin mỗi ngày |
 | Thư điện tử | Không có | Không có trong mã | Tài liệu 12 mục 8 có vẽ, chưa làm |
-| Thông báo đẩy | Không có | Không có trong mã | Ứng dụng là web, không có vỏ di động |
+| Thông báo đẩy | Không có | Không có trong mã | Ứng dụng là web, không có vỏ di động; kế hoạch thêm kênh đẩy (Web Push, FCM, APNs) ở DT-26, xem mục 6 |
 | Facebook | Không phải kênh thông báo | Chỉ đăng hoạt động, tin tức lên Fanpage | |
 
 ### Quy tắc gửi
@@ -771,7 +771,22 @@ Nguồn: tài liệu 32 mục 15, YCTD-210. Mục này chỉ ghi để người 
 | 23d Trợ lý AI | 1 | Soạn câu hỏi và kế hoạch bài dạy nháp, tắt mặc định theo trường, chỉ gửi nội dung chương trình, hạn mức theo gói | `IntegrationSecretConnector` chưa có `ai`; chưa có nơi nào gọi dịch vụ AI |
 | 23c Trò chơi kiến thức và thẻ đáp án giấy | 2 | Ô chữ, vòng quay, hỏi đáp theo vòng sinh từ ngân hàng câu hỏi; thẻ đáp án giấy đọc bằng camera | Chưa có |
 
-## 6. DT-25: bộ nối nhà cung cấp định danh OIDC, sẵn cho VNeID
+## 6. DT-26: kế hoạch (chưa có trong mã)
+
+Nguồn: tài liệu 32 mục 18, YCTD-230 (Eric yêu cầu ngày 2026-10-26 theo thứ tự PWA, máy tính bảng, ứng dụng cài đặt). Mục này chỉ ghi để người đọc biết phần sắp làm; chưa có bảng, tuyến hay màn hình nào trong mã. Khi từng phần gộp, chuyển phần đó sang các mục mô tả theo mã.
+
+| Phần | Đợt | Nội dung kế hoạch (tài liệu 32 mục 18.3) | Dấu hiệu trong mã |
+|---|---|---|---|
+| 26a Vỏ PWA dùng chung | 1 | Gói `packages/pwa`, manifest, biểu tượng, màn hình chờ theo thương hiệu từng trường, cài lên màn hình chính, hướng dẫn cài cho iOS, gom service worker của 23b | Ứng dụng giáo viên, phụ huynh chưa có manifest, service worker trên nhánh chính |
+| 26b Thông báo đẩy Web Push | 1 | Kênh `push` của hàng đợi thông báo chung, đăng ký theo người dùng và thiết bị, tắt theo loại, khóa VAPID của nền tảng | `NotificationChannel` chỉ có `in_app`, `sms`, `zalo` |
+| 26c Khung kiểm thử theo khổ thiết bị | 1 | Dự án Playwright khổ điện thoại, máy tính bảng dọc và ngang, việc CI riêng, kiểm vùng chạm 44 px | Playwright chỉ có dự án `chromium` khổ máy tính |
+| 26d Máy tính bảng: giáo viên, phụ huynh | 2 | Chế độ lớp học (điểm danh, sổ đầu bài, công cụ lớp học) chia hai khung, chế độ trình chiếu; phụ huynh hai cột | Bố cục một cột `max-w-md`, `max-w-lg` |
+| 26e Máy tính bảng: cổng quản trị, cổng nền tảng | 2 | Thanh điều hướng thu gọn, bảng cuộn ngang hoặc dạng thẻ, biểu mẫu hai cột | `DataGrid`, `FormLayout` của `packages/ui` thiết kế cho máy tính |
+| 26f Ứng dụng cài đặt | 3 | Capacitor đóng gói mã web của hai ứng dụng, chọn trường từ danh mục DT-24, chọn vai trò, mã làm mới trong Keychain, Keystore có sinh trắc học, liên kết sâu | Chưa có `apps/mobile` |
+| 26g Thông báo đẩy native | 3 | Bộ nối `fcm`, `apns` dùng chung bộ phát của 26b | Chưa có |
+| 26h Ký, dựng bản, phát hành | 3 | CI dựng và ký bản Android, iOS, quy trình phát hành, hồ sơ cửa hàng, chính sách quyền riêng tư; việc của Eric (tài khoản Apple, Google Play, pháp nhân, tên ứng dụng) | Chưa có |
+
+## 7. DT-25: bộ nối nhà cung cấp định danh OIDC, sẵn cho VNeID
 
 Kế hoạch ở `32_KE_HOACH_THEO_HE_THONG_SO.md` mục 17, YCTD-225. **Phần máy chủ đã có trong mã** (`apps/identity/src/external-identity/`): lớp trừu tượng `IdentityProvider`, bộ nối OIDC chung (authorization code + PKCE, state, nonce, discovery, kiểm chữ ký `id_token` qua JWKS, tải lại khóa khi nhà cung cấp quay khóa), hồ sơ `vneid` với các tham số "chờ tài liệu RAR" là cấu hình; nền tảng khai nhà cung cấp ở `EXTERNAL_IDENTITY_PROVIDERS` và `EXTERNAL_IDENTITY_<MÃ>_CLIENT_SECRET`; trường bật tắt, chọn nhóm vai trò, mã ứng dụng và khóa riêng (mã hóa theo khóa của trường) ở `PUT /auth/external/settings/:provider` (quyền `P01.account.manage`); bảng định danh 0140 `external_identity_providers`, `external_identities` (chỉ subject mã hóa và băm), `external_identity_events`; nhà cung cấp OIDC giả lập cho kiểm thử; e2e spec 165.
 

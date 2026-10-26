@@ -1,7 +1,7 @@
 # 02. NHẬT KÝ DỰ ÁN
 
 - Mô tả: Ghi nhận công việc, quyết định, thay đổi và vấn đề tồn đọng theo ngày, ngày mới nhất ở trên cùng.
-- Phiên bản: 0.72
+- Phiên bản: 0.73
 - Ngày cập nhật: 2026-10-26
 - Trạng thái: Đang cập nhật
 
@@ -19,10 +19,10 @@
 #### Công việc đã thực hiện
 
 - Đọc báo cáo khảo sát tích hợp VNeID ngày 2026-10-26 (lưu ngoài `tai_lieu/`, mục 5 đến 7) và mã dịch vụ định danh (đăng nhập, xác thực hai lớp S8b, kho khóa S3, nhận diện trường S1a, kiểm tĩnh và ma trận cách ly).
-- Viết mục 17 của `32`: căn cứ, nguyên tắc, hai bước 25a (máy chủ) và 25b (giao diện, sau DT-24), thiết kế, quyết định, rủi ro, giả định GD-120 đến GD-122.
+- Viết mục 17 của `32`: căn cứ, nguyên tắc, hai bước 25a (máy chủ) và 25b (giao diện, sau DT-24), thiết kế, quyết định, rủi ro, giả định GD-128 đến GD-130.
 - Làm phần máy chủ ở `apps/identity/src/external-identity/`: lớp `IdentityProvider`, bộ nối OIDC chung, hồ sơ `vneid`, khai báo nền tảng bằng biến môi trường, cấu hình của trường, liên kết, gỡ liên kết, đăng nhập, nhập mã hai lớp sau nhà cung cấp, nhật ký; migration định danh 0140; `Infrastructure.scopedCache` cho khóa Redis theo trường.
 - Dựng nhà cung cấp OIDC giả lập cục bộ (`MockOidcServer`) cho kiểm thử đơn vị và e2e; spec 165.
-- Cập nhật `22` (BM-95, BM-96), `33_HO_SO_PHAP_LY/` PL-02 (Điều 7 khoản 5, Phụ lục A) và PL-05 (mục 2, mục 5) lên S8a-1.1, `34` (bảng cách đăng nhập, mục 6), `01`, `23`, `24`.
+- Cập nhật `22` (BM-95, BM-96), `33_HO_SO_PHAP_LY/` PL-02 (Điều 7 khoản 5, Phụ lục A) và PL-05 (mục 2, mục 5) lên S8a-1.1, `34` (bảng cách đăng nhập, mục 7), `01`, `23`, `24`.
 
 #### Quyết định
 
@@ -33,12 +33,35 @@
 
 #### Thay đổi
 
-- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-225, `23_LICH_SU_PHIEN_BAN.md` 0.140.0, `32_KE_HOACH_THEO_HE_THONG_SO.md` mục 17 (phiên bản 1.75).
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-225, `23_LICH_SU_PHIEN_BAN.md` 0.140.0, `32_KE_HOACH_THEO_HE_THONG_SO.md` mục 17 (phiên bản 1.76).
 
 #### Vấn đề tồn đọng
 
 - Bước 25b (giao diện) chờ PR DT-24 gộp.
 - Eric: ký hợp đồng và lấy tài liệu kỹ thuật, môi trường thử của Trung tâm RAR (văn bản gửi RAR đã soạn ở thư mục khảo sát); luật sư rà vai trò của nhà cung cấp định danh trong PL-02, PL-05 trước khi bật ở trường thật.
+
+### 2026-10-26 — Kế hoạch DT-26: PWA, máy tính bảng, ứng dụng di động
+
+#### Công việc đã thực hiện
+
+- Đối chiếu mã trên nhánh chính sau PR 177: `apps/teacher`, `apps/parent` (React 19, Vite, Tailwind 4, bố cục một cột, chưa có manifest, service worker, thông báo đẩy), thương hiệu trường của S3, hàng đợi thông báo chung (`queueNotification`, `notification-dispatch`, kênh `in_app`, `sms`, `zalo`), `packages/ui` (`DataGrid`, `FormLayout`), cấu hình Playwright (một dự án `chromium`) và các việc CI sau PR 177. Đọc phần đang làm song song: service worker, manifest của 23b; kênh `student` và màn hình học sinh của 23a; số migration DT-24, DT-25 đang dùng trên nhánh làm việc.
+- Viết mục 18 của `32`: căn cứ, nguyên tắc, tám phần 26a đến 26h chạy ba đợt (PWA, máy tính bảng, ứng dụng cài đặt), phạm vi chi tiết, quyết định thiết kế và phương án đã loại, rủi ro, quy ước, tiến độ, giả định GD-120 đến GD-127, việc Eric phải làm; đánh dấu cập nhật ở 14.6, 15.5.
+- Thêm đợt DT-26, RR-25 đến RR-27, GD-120 đến GD-127 vào `01`; thêm mục 6 kế hoạch DT-26 vào `34` tệp 01.
+
+#### Quyết định
+
+- Eric (ngày 2026-10-26) yêu cầu làm theo thứ tự PWA, bố cục máy tính bảng, ứng dụng cài đặt iOS và Android; ứng dụng di động không còn là phương án đã loại của 14.6, 15.5.
+- Claude chọn (theo ủy quyền ngày 2026-10-11): đóng gói mã web bằng Capacitor, một ứng dụng có chọn vai trò, học sinh dùng PWA; thông báo đẩy là kênh `push` của hàng đợi chung với bộ nối Web Push, FCM, APNs; nội dung đẩy không có dữ liệu cá nhân; kiểm thử thiết bị ở việc CI riêng, yêu cầu kéo chạy tập con.
+- Số giữ sẵn: YCTD-230 (kế hoạch) và YCTD-231 đến YCTD-238, dự phòng đến YCTD-244; hệ thống từ 0090, năm học từ 0140, định danh từ 0160, nền tảng từ 0230; e2e từ `180-`; chừa khoảng trống cho DT-24, DT-25.
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-230, `32_KE_HOACH_THEO_HE_THONG_SO.md` mục 18 (phiên bản 1.75), `01_KE_HOACH_TONG_THE.md` (1.68), `34_TONG_HOP_CHUC_NANG_HE_THONG/01_TONG_QUAN_VA_NEN_TANG.md`, `index.md`. Chỉ đổi tài liệu, không tăng phiên bản phần mềm.
+
+#### Vấn đề tồn đọng
+
+- Còn chờ Eric: tên ứng dụng, mã gói (GD-120), một hay hai ứng dụng (GD-121), pháp nhân và hai tài khoản nhà phát triển (Apple 99 USD mỗi năm, Google Play 25 USD một lần, GD-124), các khóa cho secrets, luật sư rà hồ sơ quyền riêng tư trước khi nộp.
+- Mục 16, 17 của `32` và số giữ sẵn của DT-24, DT-25 chưa có trên nhánh chính; phiên điều phối kiểm lại dải số DT-26 khi giao phần.
 
 ### 2026-10-26 — Kế hoạch DT-23: thi trực tuyến, công cụ lớp học, trò chơi kiến thức, trợ lý AI
 
