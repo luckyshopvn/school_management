@@ -81,8 +81,7 @@ describe('Cây menu và nhãn theo cấp học', () => {
       listPortalMenuEntries(preschool).map((entry) => [entry.workspace.key, entry.node.number, entry.node.path]),
       listPortalMenuEntries(PORTAL_WORKSPACES)
         .filter(
-          (entry) =>
-            ![...PRIMARY_ONLY_PATHS, ...SECONDARY_ONLY_PATHS, ...ONLINE_EXAM_PATHS].includes(entry.node.path),
+          (entry) => ![...PRIMARY_ONLY_PATHS, ...SECONDARY_ONLY_PATHS, ...ONLINE_EXAM_PATHS].includes(entry.node.path),
         )
         .map((entry) => [entry.workspace.key, entry.node.number, entry.node.path]),
     );

@@ -1,7 +1,7 @@
 # 32. KẾ HOẠCH ĐỒNG BỘ CHỨC NĂNG VÀ GIAO DIỆN THEO HỆ THỐNG CỦA SỞ (DT-15)
 
 - Mô tả: Kế hoạch điều chỉnh School Management theo kết quả khảo sát `31_KHAO_SAT_HE_THONG_SO.md`; từ mục 9 thêm kế hoạch DT-18 điều hành nhà trường, mục 10 thêm kế hoạch DT-19 nền đa cấp học, mục 11 thêm kế hoạch DT-20 Tiểu học (kèm 22c thời khoá biểu), mục 12 thêm kế hoạch DT-21 THCS và THPT (kèm 22g kiểm tra, đánh giá), mục 13 thêm kế hoạch DT-22 (22a thư viện, 22e hồ sơ bồi dưỡng, 22h kho học liệu số), mục 14 thêm kế hoạch DT-SaaS (Enterprise SaaS nhiều trường: S1a, S1b, S2, S3, S4, S5a, S5b, S6, S7a, S7b, S8a, S8b, S9; hai hồ sơ triển khai: thử nghiệm miễn phí và vận hành), mục 15 thêm kế hoạch DT-23 (thi trực tuyến cho học sinh, công cụ lớp học, trò chơi kiến thức và thẻ đáp án giấy, trợ lý AI; 23a đến 23d), mục 18 thêm kế hoạch DT-26 (ứng dụng web cài được, bố cục máy tính bảng, ứng dụng cài đặt iOS và Android; 26a đến 26h), mục 16 thêm DT-24 (danh mục đơn vị toàn quốc, đăng nhập theo đơn vị, quyền vào mọi trường của quản trị nền tảng), mục 19 thêm kế hoạch DT-27 (nền tảng gia sư trực tuyến: gia sư trong trường, khoá học ghi sẵn, hỏi đáp, chợ gia sư mở; 27a đến 27i); mục 17 thêm DT-25 bộ nối nhà cung cấp định danh OIDC, sẵn cho VNeID.
-- Phiên bản: 1.78
+- Phiên bản: 1.79
 - Ngày cập nhật: 2026-10-26
 - Trạng thái: Đã duyệt hướng làm
 - Căn cứ: yêu cầu của Eric ngày 2026-10-13 ("tính năng đã có thì ưu tiên phiên bản và giao diện của Sở; tính năng Sở không có thì giữ nguyên, chỉ đổi giao diện theo trang của Sở") và các lựa chọn của Eric cùng ngày ở mục 2.
@@ -1652,7 +1652,7 @@ Cỡ ước lượng (một phần của DT-16 là một đơn vị, chỉ để
 
 | Phần | Đợt | Tiến độ |
 |---|---|---|
-| 23a | 1 | Chưa làm; YCTD-211 giữ sẵn |
+| 23a | 1 | Đã làm, YCTD-211, phiên bản 0.144.0, PR …: kênh `student` và vai trò VT-21 nối tài khoản học và thi, giao đề đã khoá cho lớp hoặc học sinh, làm bài có đồng hồ máy chủ, lưu nháp từng câu, chấm tự động, bài nộp vào phiếu chấm 22g2 (chuyển sổ điểm có giáo viên xác nhận), khóa toàn màn hình và camera nhận diện trên máy học sinh (chỉ gửi sự kiện), theo dõi, chấm tự luận, công tắc theo cấp, phân hệ "Thi trực tuyến" (năm học 0120 đến 0123, định danh 0120, 0121, e2e 150); chưa làm: ảnh chụp định kỳ, chuyển điểm Tiểu học, việc nền chốt lượt quá hạn |
 | 23b | 1 | Đã làm (YCTD-212, phiên bản 0.140.0, PR 180): công cụ lớp học, ngoại tuyến, bản chụp danh sách lớp 24 giờ; năm học 0124, 0125; e2e 151 |
 | 23d | 1 | Đã làm, YCTD-214, phiên bản 0.143.0, PR 184: bộ nối `AiProvider` (`anthropic`, `mock`), hai cấu hình khóa, bật tắt theo trường, lời nhắc từ mẫu cố định và bộ quét dữ liệu cá nhân, bản nháp qua duyệt 22g1 và kiểm duyệt 22h1, nhật ký, hạn mức theo gói, phí theo token qua S5b, màn hình quản trị, e2e spec 153, bản nháp pháp lý PL-22 |
 | 23c | 2 | Chưa làm; YCTD-213 giữ sẵn, bắt đầu khi 23a và 23b đã gộp |
