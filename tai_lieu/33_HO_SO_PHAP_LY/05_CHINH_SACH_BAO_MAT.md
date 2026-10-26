@@ -1,6 +1,6 @@
 # PL-05. MẪU CHÍNH SÁCH BẢO VỆ DỮ LIỆU CÁ NHÂN
 
-- Mã mẫu: PL-05; phiên bản mẫu: S8a-1.0 (2026-10-25); YCTD-200.
+- Mã mẫu: PL-05; phiên bản mẫu: S8a-1.1 (2026-10-26; YCTD-225 thêm đăng nhập bằng nhà cung cấp định danh bên ngoài ở mục 2, mục 5), S8a-1.0 (2026-10-25); YCTD-200.
 - Trạng thái: **bản nháp, cần luật sư rà trước khi dùng.**
 - Hiển thị: trong ứng dụng (đường dẫn ở chân trang và ở màn đồng ý của PL-04) và trang công khai của nền tảng; có số phiên bản; đổi nội dung thì tăng phiên bản và hỏi đồng ý lại (S2).
 - Căn cứ (đã đọc ngày 2026-10-25): Điều 4 (quyền của chủ thể dữ liệu), Điều 9 (điều kiện của sự đồng ý: biết loại dữ liệu, mục đích, bên kiểm soát, quyền và nghĩa vụ), Điều 10, Điều 20, Điều 24 Luật Bảo vệ dữ liệu cá nhân số 91/2025/QH15; Điều 4, Điều 6 Nghị định 356/2025/NĐ-CP.
@@ -23,6 +23,7 @@ Tùy phân hệ Nhà trường bật, gồm:
 - **Cha mẹ, người giám hộ, người đưa đón**: họ tên, quan hệ với học sinh, số điện thoại, thư điện tử, ảnh người đưa đón, tài khoản ứng dụng.
 - **Cán bộ, giáo viên, nhân viên**: hồ sơ nhân sự, bằng cấp, phân công, chấm công, nghỉ phép, lương, bảo hiểm, tài khoản ngân hàng nhận lương.
 - **Dữ liệu kỹ thuật**: tài khoản đăng nhập, thời điểm đăng nhập, địa chỉ IP, nhật ký thao tác (để bảo mật và điều tra sự cố).
+- **Đăng nhập bằng nhà cung cấp định danh bên ngoài** (ví dụ VNeID), chỉ khi Nhà trường bật và chính bạn liên kết tài khoản: Nền tảng chỉ lưu **mã liên kết** do nhà cung cấp trả (được mã hóa), cùng nhật ký liên kết và đăng nhập; **không lưu số định danh cá nhân, căn cước, họ tên hay ngày sinh** từ nhà cung cấp. Nền tảng không tự tạo tài khoản từ nhà cung cấp; bạn có thể gỡ liên kết bất cứ lúc nào trong mục "Tài khoản của tôi" và vẫn đăng nhập bằng mật khẩu như trước. Học sinh dưới 14 tuổi không tự đăng nhập bằng cách này.
 
 **Dữ liệu cá nhân nhạy cảm** có thể gồm: tình trạng sức khỏe; hình ảnh thẻ căn cước (nếu Nhà trường tải lên); thông tin tài khoản ngân hàng; vị trí (nếu dùng tính năng có vị trí) — theo danh mục ở Điều 4 Nghị định 356/2025/NĐ-CP. Các dữ liệu này được giới hạn quyền truy cập.
 
@@ -37,6 +38,7 @@ Cha mẹ hoặc người đại diện theo pháp luật thay mặt học sinh t
 ## 5. Nơi lưu trữ và bên xử lý phụ
 
 - Dữ liệu của mỗi trường được tách riêng.
+- Khi bạn đăng nhập bằng nhà cung cấp định danh bên ngoài, việc xác thực diễn ra trên hệ thống của nhà cung cấp đó (với VNeID là hệ thống định danh và xác thực điện tử, qua tổ chức cung cấp dịch vụ xác thực điện tử) theo quy định và điều khoản của nhà cung cấp; Nền tảng chỉ nhận lại kết quả xác thực và mã liên kết. `[luật sư rà vai trò của nhà cung cấp định danh trước khi bật ở trường thật]`
 - Danh sách nhà cung cấp hạ tầng (bên xử lý phụ) và vùng máy chủ: `[đường dẫn tới danh sách công khai theo PL-08]`.
 - **Môi trường thử nghiệm**: với trường đã đồng ý dùng thử, dữ liệu được lưu tạm thời trên máy chủ đặt ngoài Việt Nam (vùng `[Singapore]`), đây là chuyển dữ liệu cá nhân xuyên biên giới; Nhà trường và Nền tảng lập hồ sơ đánh giá tác động theo quy định và chuyển dữ liệu về máy chủ trong nước theo lộ trình đã thông báo.
 

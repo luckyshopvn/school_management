@@ -1,7 +1,7 @@
 # 32. KẾ HOẠCH ĐỒNG BỘ CHỨC NĂNG VÀ GIAO DIỆN THEO HỆ THỐNG CỦA SỞ (DT-15)
 
-- Mô tả: Kế hoạch điều chỉnh School Management theo kết quả khảo sát `31_KHAO_SAT_HE_THONG_SO.md`; từ mục 9 thêm kế hoạch DT-18 điều hành nhà trường, mục 10 thêm kế hoạch DT-19 nền đa cấp học, mục 11 thêm kế hoạch DT-20 Tiểu học (kèm 22c thời khoá biểu), mục 12 thêm kế hoạch DT-21 THCS và THPT (kèm 22g kiểm tra, đánh giá), mục 13 thêm kế hoạch DT-22 (22a thư viện, 22e hồ sơ bồi dưỡng, 22h kho học liệu số), mục 14 thêm kế hoạch DT-SaaS (Enterprise SaaS nhiều trường: S1a, S1b, S2, S3, S4, S5a, S5b, S6, S7a, S7b, S8a, S8b, S9; hai hồ sơ triển khai: thử nghiệm miễn phí và vận hành), mục 15 thêm kế hoạch DT-23 (thi trực tuyến cho học sinh, công cụ lớp học, trò chơi kiến thức và thẻ đáp án giấy, trợ lý AI; 23a đến 23d), mục 18 thêm kế hoạch DT-26 (ứng dụng web cài được, bố cục máy tính bảng, ứng dụng cài đặt iOS và Android; 26a đến 26h), mục 16 thêm DT-24 (danh mục đơn vị toàn quốc, đăng nhập theo đơn vị, quyền vào mọi trường của quản trị nền tảng; mục 17 dành cho DT-25), mục 19 thêm kế hoạch DT-27 (nền tảng gia sư trực tuyến: gia sư trong trường, khoá học ghi sẵn, hỏi đáp, chợ gia sư mở; 27a đến 27i), mục 20 thêm kế hoạch DT-28 (hệ thống quản lý học tập LMS: lõi khoá học, lớp học trực tuyến, nhóm học tập, bài tập, bài về nhà, tiến độ, thảo luận, học nhóm, SCORM, huy hiệu; 28a đến 28j).
-- Phiên bản: 1.78
+- Mô tả: Kế hoạch điều chỉnh School Management theo kết quả khảo sát `31_KHAO_SAT_HE_THONG_SO.md`; từ mục 9 thêm kế hoạch DT-18 điều hành nhà trường, mục 10 thêm kế hoạch DT-19 nền đa cấp học, mục 11 thêm kế hoạch DT-20 Tiểu học (kèm 22c thời khoá biểu), mục 12 thêm kế hoạch DT-21 THCS và THPT (kèm 22g kiểm tra, đánh giá), mục 13 thêm kế hoạch DT-22 (22a thư viện, 22e hồ sơ bồi dưỡng, 22h kho học liệu số), mục 14 thêm kế hoạch DT-SaaS (Enterprise SaaS nhiều trường: S1a, S1b, S2, S3, S4, S5a, S5b, S6, S7a, S7b, S8a, S8b, S9; hai hồ sơ triển khai: thử nghiệm miễn phí và vận hành), mục 15 thêm kế hoạch DT-23 (thi trực tuyến cho học sinh, công cụ lớp học, trò chơi kiến thức và thẻ đáp án giấy, trợ lý AI; 23a đến 23d), mục 18 thêm kế hoạch DT-26 (ứng dụng web cài được, bố cục máy tính bảng, ứng dụng cài đặt iOS và Android; 26a đến 26h), mục 16 thêm DT-24 (danh mục đơn vị toàn quốc, đăng nhập theo đơn vị, quyền vào mọi trường của quản trị nền tảng), mục 19 thêm kế hoạch DT-27 (nền tảng gia sư trực tuyến: gia sư trong trường, khoá học ghi sẵn, hỏi đáp, chợ gia sư mở; 27a đến 27i); mục 17 thêm DT-25 bộ nối nhà cung cấp định danh OIDC, sẵn cho VNeID; mục 20 thêm kế hoạch DT-28 (hệ thống quản lý học tập LMS: lõi khoá học, lớp học trực tuyến, nhóm học tập, bài tập, bài về nhà, tiến độ, thảo luận, học nhóm, SCORM, huy hiệu; 28a đến 28j).
+- Phiên bản: 1.79
 - Ngày cập nhật: 2026-10-26
 - Trạng thái: Đã duyệt hướng làm
 - Căn cứ: yêu cầu của Eric ngày 2026-10-13 ("tính năng đã có thì ưu tiên phiên bản và giao diện của Sở; tính năng Sở không có thì giữ nguyên, chỉ đổi giao diện theo trang của Sở") và các lựa chọn của Eric cùng ngày ở mục 2.
@@ -1812,6 +1812,105 @@ Một phần duy nhất, **một PR** (Claude tự chọn theo ủy quyền củ
 | GD-111 | Tiêu đề trang đăng nhập ở tên miền chung | "Hệ thống quản lý trường học" cho đến khi Eric chốt tên sản phẩm | `platform_settings.login_page` | Eric |
 | GD-112 | Cập nhật danh mục | Nạp tay mỗi năm học từ tệp người vận hành có được; chưa tự động | Không | Eric |
 
+## 17. DT-25: bộ nối nhà cung cấp định danh bên ngoài theo chuẩn OIDC (sẵn cho VNeID)
+
+### 17.1 Căn cứ và mục tiêu
+
+1. Eric yêu cầu ngày 2026-10-26: xây bộ nối nhà cung cấp định danh bên ngoài theo chuẩn OIDC để sau này cắm VNeID mà không phải sửa mã nghiệp vụ.
+2. Nguồn: báo cáo khảo sát tích hợp VNeID ngày 2026-10-26 (`.claude/logs-khaosat-vneid/BAO_CAO_KHAO_SAT_VNEID.md`, ở ngoài `tai_lieu/`), mục 5 đến 7:
+   - Doanh nghiệp tư nhân **không tự kết nối trực tiếp** vào hệ thống định danh và xác thực điện tử; phải qua tổ chức cung cấp dịch vụ xác thực, trên thực tế là **Trung tâm RAR (Cục C06, Bộ Công an)** theo hợp đồng. Có tiền lệ doanh nghiệp tư nhân dùng VNeID để đăng nhập một lần (FPT Life, 01/2026).
+   - **Chuẩn kỹ thuật, phạm vi, tên claim, môi trường thử của RAR chưa công bố.** Vì vậy làm bộ nối OIDC chung, mọi tham số chưa biết là cấu hình, ghi rõ "chờ tài liệu RAR".
+   - Rủi ro chính: dữ liệu định danh và dữ liệu trẻ em (Luật 91/2025/QH15, NĐ 356/2025/NĐ-CP; NĐ 69/2024 sửa bởi NĐ 320/2026, người dưới 14 tuổi cần người đại diện đồng ý); phụ thuộc một nhà cung cấp (giữ mật khẩu cộng xác thực hai lớp làm đường dự phòng); nhầm kênh (mã định danh học sinh trên CSDL ngành đi kênh Bộ GD&ĐT, không qua VNeID).
+3. Mục tiêu: phụ huynh, giáo viên, cán bộ **đã có tài khoản** tự liên kết tài khoản với VNeID (hoặc nhà cung cấp OIDC khác nền tảng cho phép) rồi đăng nhập bằng nhà cung cấp đó; trường bật tắt; hệ thống chỉ lưu mã liên kết.
+4. Liên quan quyết định cũ: DT-23 (15.1, 15.5) ghi "không làm đăng nhập Google" vì nhà trường quản tài khoản. DT-25 giữ đúng ý đó: **không tự tạo tài khoản từ nhà cung cấp ngoài**, tài khoản vẫn do trường cấp; nhà cung cấp chỉ thay bước nhập mật khẩu sau khi chính người dùng liên kết. Nền tảng không khai nhà cung cấp nào thì không có gì thay đổi.
+5. Hiện trạng mã trước DT-25 (nhánh chính ngày 2026-10-26, sau PR 176): dịch vụ định danh `apps/identity` có đăng nhập mật khẩu, mã một lần, xác thực hai lớp TOTP tuỳ chọn theo trường (S8b), khóa mã hóa và khóa băm riêng từng trường do kho khóa S3 quản lý (`school_keys`, công cụ đổi khóa tự xử lý mọi cột `*_encrypted` và `*_hash` ở cơ sở dữ liệu định danh, hệ thống, năm học), nhận diện trường theo tên miền (S1a), kiểm tĩnh đa thuê bao và ma trận cách ly (14.7). Thư viện `jose` đã có trong `apps/identity`.
+
+### 17.2 Nguyên tắc
+
+- **Không tự tạo tài khoản.** Chỉ người đã có tài khoản tự liên kết sau khi xác nhận lại bằng **mật khẩu riêng và mã xác thực hai lớp** (nếu đã bật). Tài khoản còn dùng mật khẩu mặc định chung phải đặt mật khẩu riêng trước.
+- **Lưu tối thiểu.** Chỉ lưu mã liên kết (`subject`) nhà cung cấp trả, **mã hóa bằng khóa của trường và kèm băm có khóa để tra**; không lưu số định danh, căn cước, họ tên, ngày sinh hay claim nào khác; không gọi `userinfo`. Ngày sinh (nếu nhà cung cấp trả) chỉ dùng trong yêu cầu để chặn người dưới 14 tuổi, không lưu. Nếu RAR trả số định danh làm `subject` thì vẫn chỉ ở dạng mã hóa và băm.
+- **Mã nghiệp vụ không phụ thuộc nhà cung cấp.** Lớp trừu tượng `IdentityProvider`; bộ nối theo hồ sơ cấu hình (`oidc`, `vneid`); không có `if` theo tên nhà cung cấp trong luồng liên kết, đăng nhập, kiểm vai trò, nhật ký.
+- **Hai lớp cấu hình:** nền tảng khai nhà cung cấp nào dùng được (và có thể cấp mã ứng dụng dùng chung); trường tự bật, chọn nhóm vai trò, có thể dùng mã ứng dụng và khóa riêng. Mặc định mọi trường **tắt**.
+- **Không hạ mức bảo mật:** người đã bật xác thực hai lớp vẫn phải nhập mã sau khi đăng nhập bằng nhà cung cấp ngoài, trừ khi trường bật "coi là đạt xác thực hai lớp" và mức đảm bảo nhà cung cấp trả nằm trong danh sách nền tảng khai.
+- **Đúng chuẩn OIDC:** authorization code + PKCE (S256), `state` và `nonce` dùng một lần, kiểm chữ ký `id_token` qua JWKS (chỉ thuật toán khóa bất đối xứng, không nhận `none`, `HS*`), kiểm `iss`, `aud`, `azp`, `exp`, `iat`, discovery có kiểm `issuer`, tải lại bộ khóa khi quay khóa.
+- **Đa thuê bao:** cấu hình, liên kết, nhật ký ở cơ sở dữ liệu định danh của trường; `state` và vé nhập mã ở Redis theo tiền tố khóa của trường (qua `Infrastructure.scopedCache`, không ghép khóa tay); đạt kiểm tĩnh và ma trận cách ly.
+- **Kiểm thử không gọi dịch vụ thật, không có khóa thật:** nhà cung cấp OIDC giả lập chạy cục bộ, khóa ký sinh mới mỗi lần chạy.
+
+### 17.3 Phạm vi và số giữ sẵn
+
+DT-25 là một thành phần nhỏ, làm hai bước. Số giữ sẵn nằm **sau mọi dải đã giữ** (DT-23 giữ đến YCTD-219, định danh 0129, nền tảng 0209, e2e `159-`; DT-24 dùng định danh 0130, nền tảng 0210, 0211): **YCTD-225**, migration định danh **0140, 0141** (0141 dự phòng), không dùng migration nền tảng, hệ thống, năm học; spec e2e **`165-`** (166 dự phòng). YCTD-225, định danh 0140 và e2e `165-` nằm trong khoảng DT-26 (18.3) chừa cho DT-24, DT-25. Nếu phần khác gộp trước và trùng số tài liệu (phiên bản, GD, RR) thì đánh lại theo nhánh chính lúc gộp; YCTD, migration, e2e không đổi. Khi gộp sau DT-26 và DT-27, giả định đổi thành GD-113 đến GD-115 và rủi ro thành RR-23 (khoảng hai đợt đó chừa cho DT-24, DT-25).
+
+| Bước | Phạm vi | Phụ thuộc | Trạng thái |
+|---|---|---|---|
+| 25a | Phần máy chủ: lớp `IdentityProvider`, bộ nối OIDC chung, hồ sơ `vneid`, khai báo nền tảng, cấu hình của trường, liên kết, gỡ liên kết, đăng nhập, nhập mã hai lớp sau nhà cung cấp, nhật ký, nhà cung cấp OIDC giả lập, kiểm thử đơn vị, cách ly, e2e 165 (phần máy chủ), tài liệu | Không | Làm ở PR của YCTD-225 |
+| 25b | Giao diện: nút "Đăng nhập bằng VNeID" (và nhà cung cấp khác) trên màn hình đăng nhập của cổng quản trị, ứng dụng giáo viên, ứng dụng phụ huynh, chỉ hiện khi trường đã bật; trang quay về `/dang-nhap/ben-ngoai`; mục liên kết, gỡ liên kết, nhật ký ở "Tài khoản của tôi"; màn hình cấu hình của trường; mở rộng e2e 165 bằng trình duyệt | **Sau khi PR DT-24 gộp** (DT-24 đang sửa màn hình đăng nhập; không sửa song song cùng tệp) | Chờ |
+
+### 17.4 Thiết kế
+
+**Lớp và bộ nối** (`apps/identity/src/external-identity/`):
+- `identity-provider.ts`: lớp trừu tượng `IdentityProvider` (`authorizationUrl`, `exchange`), kết quả `ExternalIdentityResult` (`subject`, `assurance`, `ageYears`), tạo `state`, `nonce`, `code_verifier`.
+- `oidc-provider.ts`: `OidcIdentityProvider` (discovery có bộ nhớ tạm 1 giờ và kiểm `issuer`; đổi mã bằng `client_secret_basic` hoặc `client_secret_post`; kiểm `id_token` bằng `jose` với bộ khóa JWKS từ xa, tải lại khi gặp mã khóa lạ, thời gian chờ giữa hai lần tải cấu hình được; dung sai đồng hồ 60 giây; thời gian chờ mạng 10 giây).
+- `provider-profiles.ts`: khai báo của nền tảng và hồ sơ `oidc`, `vneid`; `PENDING_RAR_DOCUMENTATION` liệt kê mục của hồ sơ `vneid` đang là giả định.
+- Thêm giao thức khác (nếu RAR không dùng OIDC): viết bộ nối mới theo `IdentityProvider` và thêm một dòng ở `PROVIDER_FACTORIES`; mã nghiệp vụ không đổi.
+
+**Khai báo của nền tảng** (biến môi trường, không chứa bí mật trong JSON):
+- `EXTERNAL_IDENTITY_PROVIDERS`: danh sách JSON, mỗi mục gồm `code`, `profile` (`oidc` hoặc `vneid`), `display_name`, `issuer`, `discovery` (mặc định bật) hoặc ba địa chỉ `authorization_endpoint`, `token_endpoint`, `jwks_uri`, `client_id` dùng chung (tuỳ chọn), `scopes` (phải có `openid`), `token_auth_method`, `subject_claim`, `assurance_claim`, `birthdate_claim`, `mfa_assurance_values`, `algorithms`, `extra_authorization_parameters`, `jwks_cooldown_seconds`.
+- `EXTERNAL_IDENTITY_<MÃ>_CLIENT_SECRET`: khóa bí mật dùng chung của nền tảng.
+- Địa chỉ phải là `https`; `http` chỉ nhận cho máy cục bộ (bộ giả lập).
+- **Hồ sơ `vneid`, chờ tài liệu RAR:** `issuer`, `discovery`, `scopes` (giả định `openid`), `token_auth_method` (giả định `client_secret_basic`), `subject_claim` (giả định `sub`), `assurance_claim` (giả định `acr`), `birthdate_claim` (giả định `birthdate`), `mfa_assurance_values`, `extra_authorization_parameters`.
+
+**Cấu hình của trường** (`external_identity_providers`, định danh 0140): `enabled` (mặc định tắt), `client_id` và `client_secret_encrypted` riêng (mã hóa bằng khóa của trường; có cột `id` nên công cụ đổi khóa của S3 tự mã hóa lại), `allowed_roles` (trống là mặc định: mọi vai trò trừ học sinh), `satisfies_mfa` (mặc định tắt). Người có quyền `P01.account.manage` xem, sửa; mỗi lần sửa ghi `identity_audit_logs` (khóa bí mật chỉ ghi "đã đặt") và nhật ký liên kết.
+
+**Liên kết** (`external_identities`): `provider_code`, `subject_encrypted`, `subject_hash` (HMAC-SHA256 bằng khóa băm của trường; chế độ một trường dùng khóa dẫn xuất từ `TOTP_ENCRYPTION_KEY`), `user_id`, `linked_at`, `last_login_at`; duy nhất theo (nhà cung cấp, subject) và (nhà cung cấp, tài khoản). Xóa tài khoản thì xóa liên kết.
+
+**Nhật ký** (`external_identity_events`): `linked`, `unlinked`, `login`, `login_rejected`, `link_rejected`, `settings_updated` với lý do (`not_linked`, `invalid_id_token`, `nonce_mismatch`, `subject_linked_to_other`, `already_linked`, `session_mismatch`, `provider_disabled`, `role_not_allowed`, `under_minimum_age`, `totp_failed`...), người thực hiện, địa chỉ mạng, thời điểm. Phiên mở bằng nhà cung cấp ngoài có `login_method = 'external_provider'`.
+
+**Luồng:**
+1. Đăng nhập: `POST /auth/external/:provider/start` (`channel`, `redirect_uri`) trả `authorization_url`; nhà cung cấp chuyển về `/dang-nhap/ben-ngoai` của ứng dụng; trang đó gửi `state`, `code` lên `POST /auth/external/callback`. Kết quả `signed_in` (mã phiên, cookie làm mới như đăng nhập mật khẩu) hoặc `otp_required` kèm vé dùng 5 phút, nhập mã ở `POST /auth/external/complete` (sai 3 lần phải làm lại).
+2. Liên kết: người đang đăng nhập gọi `POST /auth/external/:provider/link` kèm mật khẩu, mã hai lớp (nếu đã bật), `redirect_uri`; quay về gửi `callback` **kèm mã phiên của đúng phiên đã bắt đầu**.
+3. Gỡ liên kết: `POST /auth/external/:provider/unlink` kèm mật khẩu, mã hai lớp.
+4. Xem: `GET /auth/external/providers` (công khai, nút trên màn hình đăng nhập), `GET /auth/external/links`, `GET /auth/external/events` (của chính người dùng), `GET /auth/external/settings`, `PUT /auth/external/settings/:provider` (quản lý tài khoản).
+5. Địa chỉ quay về: tuyệt đối, cùng tên miền với yêu cầu, đường dẫn kết thúc bằng `/dang-nhap/ben-ngoai`, không có tham số; nhà cung cấp còn so với địa chỉ đã đăng ký.
+6. Điều kiện khi đăng nhập: nền tảng đã khai và trường đang bật (kiểm lại lúc quay về, nên trường tắt giữa chừng thì lượt dở dang bị từ chối); tài khoản còn hiệu lực, không khóa; có ít nhất một vai trò trong nhóm được dùng; người có vai trò học sinh (VT-21 của 23a) chỉ khi trường cho vai trò học sinh và nhà cung cấp trả ngày sinh đủ 14 tuổi; bất kỳ ai nhà cung cấp trả ngày sinh dưới 14 tuổi đều bị từ chối.
+
+### 17.5 Quyết định thiết kế và phương án đã loại
+
+- **Khai báo nền tảng bằng biến môi trường, cấu hình trường bằng bảng:** hợp đồng với RAR là của doanh nghiệp vận hành nền tảng (báo cáo khảo sát mục 6), mã ứng dụng dùng chung là bí mật cấp nền tảng như các khóa khác (QU-05), chạy được cả chế độ một trường lẫn nhiều trường; phương án đã loại: bảng ở cơ sở dữ liệu nền tảng có màn hình ở cổng nền tảng (chế độ một trường không có cơ sở dữ liệu nền tảng; khi cần màn hình thì thêm sau, không đổi mã nghiệp vụ).
+- **Lưu subject mã hóa kèm băm có khóa thay vì bản rõ:** tra được, đổi khóa theo S3 được, và không lộ số định danh nếu RAR trả số định danh làm subject; phương án đã loại: lưu bản rõ (rủi ro nếu subject là số định danh), chỉ lưu băm (không tính lại được khi đổi khóa của trường).
+- **Vé nhập mã hai lớp sau nhà cung cấp:** giữ nguyên mức bảo mật của S8b; phương án đã loại: luôn coi nhà cung cấp ngoài là đạt xác thực hai lớp (chưa biết mức đảm bảo của RAR).
+- **Lượt liên kết gắn với phiên đã bắt đầu:** chống kẻ xấu gửi đường dẫn quay về chứa định danh của mình để gắn vào tài khoản nạn nhân (tấn công giả yêu cầu đăng nhập).
+- **Không làm ở DT-25:** tự tạo tài khoản từ nhà cung cấp ngoài; lưu số định danh, căn cước; đăng xuất một lần (single logout) với nhà cung cấp; xác minh danh tính khi tuyển sinh (báo cáo mục 5.2; làm sau khi có hợp đồng RAR); liên kết mã định danh học sinh trên CSDL ngành (đi kênh Bộ GD&ĐT); màn hình khai báo nhà cung cấp ở cổng nền tảng.
+
+### 17.6 Rủi ro và cách kiểm
+
+| Rủi ro | Cách kiểm |
+|---|---|
+| Giả mạo `id_token` hoặc dùng lại mã của lượt khác | Kiểm chữ ký qua JWKS, `iss`, `aud`, `azp`, `exp`, `nonce`; `state` dùng một lần; PKCE S256; kiểm thử chữ ký sai, nonce sai, sai đối tượng, sai bên phát hành, hết hạn, dùng lại state |
+| Gắn định danh của người khác vào tài khoản | Liên kết cần mật khẩu, mã hai lớp và đúng phiên đã bắt đầu; subject đã liên kết với người khác bị từ chối (409); kiểm thử ba ca |
+| Lộ số định danh hoặc dữ liệu cá nhân | Không gọi `userinfo`, chỉ lưu subject mã hóa và băm có khóa; ngày sinh không lưu; kiểm thử dữ liệu lưu không chứa subject bản rõ |
+| Trẻ dưới 14 tuổi tự đăng nhập bằng VNeID | Mặc định không cho vai trò học sinh; học sinh chỉ khi trường cho và nhà cung cấp trả ngày sinh đủ 14 tuổi; ngày sinh dưới 14 tuổi luôn bị từ chối; kiểm thử |
+| Lẫn liên kết, cấu hình giữa các trường | Cơ sở dữ liệu định danh theo trường, khóa băm theo trường, Redis theo tiền tố của trường; kiểm thử cách ly hai trường, ma trận cách ly, kiểm tĩnh |
+| Nhà cung cấp quay khóa ký | Tải lại JWKS khi gặp mã khóa lạ; kiểm thử quay khóa với bộ giả lập |
+| Tham số RAR khác giả định | Mọi tham số là cấu hình, có danh sách "chờ tài liệu RAR"; nếu không phải OIDC thì viết bộ nối mới theo `IdentityProvider` |
+| VNeID gián đoạn | Đăng nhập mật khẩu và xác thực hai lớp luôn còn; nhà cung cấp ngoài chỉ là đường thêm |
+
+**Cổng kiểm của DT-25:** kiểm thử đơn vị `apps/identity` (ca mới, các ca đăng nhập, xác thực hai lớp, nhiều trường, ma trận cách ly) đạt không sửa kỳ vọng cũ; e2e 165 cùng spec đăng nhập 01, 07 đạt (chạy riêng, giữ khóa `e2e.lock`); kiểm tĩnh đa thuê bao, typecheck, lint, build đạt; CI xanh toàn bộ.
+
+### 17.7 Tiến độ
+
+| Bước | Tiến độ |
+|---|---|
+| 25a | Đã làm ở PR của YCTD-225 |
+| 25b | Chờ PR DT-24 gộp |
+
+### 17.8 Giả định chưa chốt, làm cấu hình được
+
+| Mã | Mục chưa chốt | Giả định để làm | Cấu hình ở | Cần ai trả lời |
+|---|---|---|---|---|
+| GD-113 | Giao thức và tham số kỹ thuật của RAR | OIDC, discovery, phạm vi `openid`, subject ở `sub`, mức đảm bảo ở `acr`, ngày sinh ở `birthdate` | `EXTERNAL_IDENTITY_PROVIDERS` | Trung tâm RAR (qua văn bản Eric gửi) |
+| GD-114 | Đăng nhập VNeID có được coi là đạt xác thực hai lớp | Không, trừ khi trường bật và mức đảm bảo nằm trong danh sách nền tảng khai | `satisfies_mfa`, `mfa_assurance_values` | Eric, sau khi có tài liệu RAR |
+| GD-115 | Nhóm vai trò được dùng mặc định | Mọi vai trò trừ học sinh (phụ huynh, giáo viên, cán bộ) | `allowed_roles` của trường | Eric |
+
 ## 18. DT-26: ứng dụng web cài được (PWA), bố cục máy tính bảng, ứng dụng cài đặt iOS và Android (26a đến 26h)
 
 Mục 16 và 17 dành cho DT-24 (danh mục trường, đăng nhập kiểu SMIS) và DT-25 (bộ nối nhà cung cấp định danh), do các đợt đó ghi khi gộp; DT-26 ghi ở mục 18 để không va số mục với hai đợt đang chạy.
@@ -2445,7 +2544,7 @@ Phiên bản chuẩn ghi theo hiểu biết sẵn có, **chưa đọc lại đ�
 
 ### 20.6 Các phần
 
-Số giữ sẵn bắt đầu **sau dải của DT-27** (đến YCTD-264, năm học 0169, hệ thống 0109, định danh 0179, nền tảng 0249, e2e `204-`, GD-138, RR-31) và tránh số của PR 181, 182 đang mở (định danh 0130, 0140, nền tảng 0210, 0211, e2e 160, 165, GD-109 đến GD-112, GD-128 đến GD-130, RR-21, RR-22, RR-28): YCTD-270 cho chính bản kế hoạch này, YCTD-271 đến YCTD-280 cho mười phần, YCTD-281 đến YCTD-289 dự phòng. Migration: năm học 0170 đến 0199; hệ thống 0110 đến 0119; định danh 0180 đến 0189; nền tảng 0250 đến 0254 chỉ giữ chỗ. e2e `210-` đến `219-`, `220-` đến `224-` dự phòng. **Nếu lúc gộp nhánh chính đã dùng một số trong dải này thì đánh lại theo nhánh chính lúc gộp và ghi vào YCTD của phần.**
+Số giữ sẵn bắt đầu **sau dải của DT-27** (đến YCTD-264, năm học 0169, hệ thống 0109, định danh 0179, nền tảng 0249, e2e `204-`, GD-138, RR-31) và các số của DT-24, DT-25 đã gộp (PR 182, 181: định danh 0130, 0140, nền tảng 0210, 0211, e2e 160, 165, GD-109 đến GD-115, RR-21 đến RR-23): YCTD-270 cho chính bản kế hoạch này, YCTD-271 đến YCTD-280 cho mười phần, YCTD-281 đến YCTD-289 dự phòng. Migration: năm học 0170 đến 0199; hệ thống 0110 đến 0119; định danh 0180 đến 0189; nền tảng 0250 đến 0254 chỉ giữ chỗ. e2e `210-` đến `219-`, `220-` đến `224-` dự phòng. **Nếu lúc gộp nhánh chính đã dùng một số trong dải này thì đánh lại theo nhánh chính lúc gộp và ghi vào YCTD của phần.**
 
 | Phần | Phạm vi | Đợt | Phụ thuộc | YCTD | Migration | e2e |
 |---|---|---|---|---|---|---|
@@ -2640,7 +2739,7 @@ Không có việc cần tài khoản, thanh toán hay ký kết.
 
 ### 20.13 Giả định chưa chốt, làm cấu hình được
 
-Số GD và RR của DT-28 bắt đầu từ GD-140 và RR-32 (DT-27 dùng GD-130 đến GD-138, RR-28 đến RR-31; tránh GD-109 đến GD-112, GD-128 đến GD-130, RR-21, RR-22, RR-28 của PR 181, 182). Va thì đánh lại khi gộp.
+Số GD và RR của DT-28 bắt đầu từ GD-140 và RR-32 (DT-27 dùng GD-130 đến GD-138, RR-28 đến RR-31; DT-24, DT-25 đã gộp dùng GD-109 đến GD-115, RR-21 đến RR-23). Va thì đánh lại khi gộp.
 
 | Mã | Mục chưa chốt | Giả định để làm | Cấu hình ở | Cần ai trả lời |
 |---|---|---|---|---|
