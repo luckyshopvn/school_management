@@ -1370,6 +1370,75 @@ export class LearningService {
     return this.learningOfChild(database, childId);
   }
 
+  // Học sinh tự học (kênh student của 23a): tài khoản học nối đúng một học sinh đang học. Không đòi cấp học bật thi trực tuyến
+  // như phía thi của 23a: công tắc đó chỉ cho thi
+  private async studentOf(currentUser: CurrentUser) {
+    const { database } = await this.currentSchoolYear.require();
+    const account = await database
+      .selectFrom('student_learning_accounts')
+      .innerJoin('children', 'children.id', 'student_learning_accounts.child_id')
+      .select(['children.id', 'children.status', 'children.deleted_at'])
+      .where('student_learning_accounts.identity_user_id', '=', currentUser.id)
+      .executeTakeFirst();
+    if (!account || account.status !== 'active' || account.deleted_at !== null) {
+      throw new ApplicationError(
+        'ERR_FORBIDDEN',
+        'Tài khoản chưa nối với học sinh đang học, nhờ nhà trường kiểm tra lại',
+      );
+    }
+    return { database, childId: account.id };
+  }
+
+  async studentLearning(currentUser: CurrentUser) {
+    const { database, childId } = await this.studentOf(currentUser);
+    return this.learningOfChild(database, childId);
+  }
+
+  // Học sinh mở một hoạt động: chỉ hoạt động đã giao, đang mở với em; ghi nhật ký xem, "xem xong" thì hoàn thành; trả nội dung
+  // để xem (trang, liên kết, tên học liệu)
+  async studentOpenActivity(currentUser: CurrentUser, activityId: string) {
+    const { database, childId } = await this.studentOf(currentUser);
+    const learning = await this.learningOfChild(database, childId);
+    const entry = learning.spaces
+      .flatMap((space) => space.sections.flatMap((section) => section.activities))
+      .find((activity) => activity.id === activityId);
+    if (!entry) {
+      throw notFoundError('Không tìm thấy hoạt động trong lớp học trực tuyến của em', 'course_activity');
+    }
+    if (!entry.open) {
+      throw learningRule(['Hoạt động chưa mở với em', ...entry.locked_reasons].join('. '));
+    }
+    const activity = await database
+      .selectFrom('course_activities')
+      .selectAll()
+      .where('id', '=', activityId)
+      .executeTakeFirstOrThrow();
+    await this.recordView(database, activity, childId, { userId: currentUser.id, kind: 'student' });
+    const settings = (activity.settings ?? {}) as Record<string, unknown>;
+    const resource =
+      activity.kind === 'resource' && typeof settings.resource_id === 'string'
+        ? await this.system
+            .selectFrom('learning_resources')
+            .select(['id', 'title', 'description'])
+            .where('id', '=', settings.resource_id)
+            .executeTakeFirst()
+        : undefined;
+    return {
+      id: activity.id,
+      kind: activity.kind,
+      title: activity.title,
+      instructions: activity.instructions,
+      body: activity.kind === 'page' && typeof settings.body === 'string' ? settings.body : null,
+      url: activity.kind === 'link' && typeof settings.url === 'string' ? settings.url : null,
+      resource: resource ?? null,
+    };
+  }
+
+  async studentAcknowledgeRule(currentUser: CurrentUser) {
+    const { childId } = await this.studentOf(currentUser);
+    return this.acknowledgeRule(currentUser, childId, 'student');
+  }
+
   async learningOfChild(database: YearExecutor, childId: string) {
     const enrollment = await database
       .selectFrom('class_enrollments')

@@ -2369,6 +2369,11 @@ Hướng dẫn dùng cho các phần sau (16b, 16e đến 16k):
 | GET, POST | /api/v1/learning/rules | Nội quy hiện hành và số học sinh đã xác nhận; ban hành phiên bản mới `{ content }` (`P02.learning.decide`) |
 | GET | /api/v1/learning/children/{childId} | Phụ huynh xem việc học trực tuyến của con: `rules` (nội quy, đã xác nhận chưa), `spaces` (lớp đã mở, tiến độ, chương, hoạt động đã giao với `open`, `locked_reasons`, `status`, `score`); khác con 403 (P03-17) |
 | POST | /api/v1/learning/children/{childId}/rules/acknowledge | Phụ huynh xác nhận đã đọc nội quy thay con |
+| GET | /api/v1/student/learning | Học sinh (kênh `student`, `P02.learning.study`) xem lớp học trực tuyến đã mở cho mình: cùng dạng với tuyến của phụ huynh |
+| POST | /api/v1/student/learning/activities/{id}/open | Học sinh mở hoạt động đang mở với mình: ghi đã xem, cách tính "xem xong" thì hoàn thành; trả `{ id, kind, title, instructions, body, url, resource }`; hoạt động còn khóa trả 422 `YCTD-272` kèm lý do |
+| POST | /api/v1/student/learning/rules/acknowledge | Học sinh xác nhận đã đọc nội quy |
+
+Mọi tuyến nhân sự của `/learning` (trừ `children/...`) cần một trong `P02.learning.teach`, `template`, `decide`, `view`; ở nền tảng nhiều trường, gói không gồm phân hệ của nhóm menu 9 thì trả 403 `MODULE_NOT_IN_PLAN`.
 
 ## 18. Quy tắc kiểm tra dữ liệu
 

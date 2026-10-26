@@ -500,6 +500,7 @@ import { AI_PROVIDERS, AiAssistantService } from './ai-assistant/ai-assistant.js
 import { AiProviderRegistry } from './ai-assistant/ai-provider.js';
 import { ClassroomToolsController, ClassroomToolsService } from './classroom-tools/classroom-tools.js';
 import { LearningController } from './learning/learning.controller.js';
+import { StudentLearningController } from './learning/student-learning.controller.js';
 import { LearningService } from './learning/learning.js';
 
 @Module({})
@@ -787,6 +788,8 @@ export class ApplicationModule {
         // Thi trực tuyến cho học sinh (DT-23 phần 23a)
         OnlineExamsController,
         StudentExamsController,
+        // Học sinh tự học ở lớp học trực tuyến (DT-28 phần 28b)
+        StudentLearningController,
       ],
       providers: [
         { provide: API_CONFIGURATION, useValue: configuration },

@@ -10,6 +10,7 @@ import type { Migration } from 'kysely/migration';
 // - quyết định hình thức dạy học trực tuyến thay thế, ban hành nội quy dạy học trực tuyến: Hiệu trưởng (Điều 5 khoản 4, Điều 15);
 // - xem mọi lớp học trực tuyến, đồng bộ lớp từ phân công, tạo khoá tự chọn: Hiệu trưởng, Phó Hiệu trưởng, tổ trưởng chuyên môn
 //   (tổ trưởng chỉ thấy lớp của môn trong tổ khi xem, việc lọc theo tổ do máy chủ làm)
+// - học sinh tự học ở lớp học trực tuyến của mình (kênh student của 23a): vai trò Học sinh (VT-21), thêm sau khi 23a gộp
 const PERMISSIONS = [
   {
     code: 'P02.learning.teach',
@@ -30,6 +31,11 @@ const PERMISSIONS = [
     code: 'P02.learning.view',
     description: 'Xem mọi lớp học trực tuyến, đồng bộ lớp từ phân công giảng dạy, tạo khoá tự chọn',
     roles: ['VT-02', 'VT-15', 'VT-17'],
+  },
+  {
+    code: 'P02.learning.study',
+    description: 'Học sinh học ở lớp học trực tuyến của mình: xem, mở hoạt động, xác nhận nội quy (kênh student)',
+    roles: ['VT-21'],
   },
 ];
 

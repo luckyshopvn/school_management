@@ -31,7 +31,7 @@
 
 #### Vấn đề tồn đọng
 
-- Màn hình học sinh: 23a đã gộp; thêm ở cùng PR (xem mục dưới).
+- Sau khi 23a gộp: thêm học sinh tự học ở kênh `student` (`/student/learning`, quyền `P02.learning.study` cho VT-21, MH-353, CT-1115) trong cùng PR; sửa CI hỏng CT-S5a-8 (quy tắc menu khoá mẫu ghi quyền kho học liệu làm tuyến kho học liệu không còn bị chặn theo gói; tuyến nhân sự `/learning` nay chặn theo gói).
 - 23a (PR 189) gộp trước lấy 0.144.0 và các số BR-237, PQ-109, AC-874 đến AC-879, MH-342 đến MH-347, CT-1097 đến CT-1107, BM-97 đến BM-99; 28b đánh lại sang số kế tiếp (0.145.0). Phiên bản 0.145.0 có thể trùng với PR khác đang mở; PR nào gộp sau thì đánh lại.
 
 ### 2026-10-26 — DT-23 phần 23a: thi trực tuyến cho học sinh

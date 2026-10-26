@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Alert, Button, StatusBadge, type StatusTone } from '@school-management/ui';
 import { ExamRoom } from './ExamRoom.js';
+import { StudentLearningPanel } from './StudentLearningPanel.js';
 import {
   listStudentExams,
   readResult,
@@ -158,6 +159,8 @@ export function StudentHomeScreen() {
           );
         })}
       </section>
+      {/* Lớp học trực tuyến (DT-28 phần 28b) */}
+      <StudentLearningPanel />
     </main>
   );
 }

@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import { randomUUID } from 'node:crypto';
 import { after, before, describe, it } from 'node:test';
 import { createDatabase, replaceDatabaseName, type SchoolYearDatabase } from '@school-management/database';
+import { createTestUser, postJson } from '@school-management/identity/testing';
 import type { Kysely } from 'kysely';
 import {
   openTestAcademicYear,
@@ -450,5 +451,81 @@ describe('Điểm cuối lõi hệ thống quản lý học tập', () => {
     assert.equal(second.body.version, 2);
     const again = await api('GET', `/learning/children/${children[0]}`, parent.accessToken);
     assert.equal((again.body.rules as Record<string, unknown>).acknowledged_at, null, 'phiên bản mới cần xác nhận lại');
+  });
+
+  it('CT-28b-17: học sinh tự học ở kênh student: thấy lớp của mình, mở hoạt động đang mở thì hoàn thành, hoạt động khóa bị chặn, xác nhận nội quy', async () => {
+    // Tài khoản học của Bình nối người dùng kênh student (như 23a cấp ở 4.1.10)
+    const student = await createTestUser(environment.identity.database, {
+      roles: [{ roleCode: 'VT-21', orgUnitId: unitId }],
+    });
+    await schoolYear
+      .insertInto('student_learning_accounts')
+      .values({
+        child_id: children[1] ?? '',
+        username: student.username,
+        password_hash: 'khong-dung',
+        issued_at: new Date(),
+        issued_by_name: 'Hiệu trưởng thử',
+        identity_user_id: student.id,
+      })
+      .execute();
+    const login = await postJson(`${environment.identity.baseUrl}/auth/login`, {
+      login: student.username,
+      password: student.password,
+      channel: 'student',
+    });
+    assert.equal(login.status, 200, JSON.stringify(login.body));
+    const token = login.body.access_token as string;
+    const studentApi = (method: string, path: string) => api(method, `/student/learning${path}`, token);
+
+    // Bài ôn mở sau bài đọc; bài luyện tập đã được giáo viên mở riêng cho Bình ở CT-28b-12
+    const review = await api('POST', `/learning/spaces/${spaceA}/activities`, mathTeacher.accessToken, {
+      section_id: sectionId,
+      kind: 'page',
+      title: 'Ôn tập số hữu tỉ',
+      settings: { body: 'Ôn lại cách viết phân số.' },
+      open_rules: { mode: 'all', rules: [{ type: 'after_activity', activity_id: readingId }] },
+    });
+    assert.equal(review.status, 201, JSON.stringify(review.body));
+    const reviewId = review.body.id as string;
+    assert.equal((await api('POST', `/learning/activities/${reviewId}/publish`, mathTeacher.accessToken)).status, 200);
+
+    const view = await studentApi('GET', '');
+    assert.equal(view.status, 200, JSON.stringify(view.body));
+    const space = (view.body.spaces as Array<Record<string, unknown>>).find((row) => row.title === 'Toán - Lớp 7A');
+    const activities = ((space?.sections as Array<Record<string, unknown>>)[0]?.activities ?? []) as Array<
+      Record<string, unknown>
+    >;
+    const byTitle = (title: string) => activities.find((activity) => activity.title === title);
+    assert.equal(byTitle('Đọc: số hữu tỉ là gì')?.open, true);
+    assert.equal(byTitle('Ôn tập số hữu tỉ')?.open, false);
+
+    const locked = await studentApi('POST', `/activities/${reviewId}/open`);
+    assert.equal(locked.status, 422, 'hoạt động còn khóa không mở được');
+    const opened = await studentApi('POST', `/activities/${readingId}/open`);
+    assert.equal(opened.status, 200, JSON.stringify(opened.body));
+    assert.equal(opened.body.body, 'Số hữu tỉ là số viết được dưới dạng phân số.');
+    const result = await schoolYear
+      .selectFrom('activity_results')
+      .select('status')
+      .where('activity_id', '=', readingId)
+      .where('child_id', '=', children[1] ?? '')
+      .executeTakeFirst();
+    assert.equal(result?.status, 'completed', 'hoạt động "xem xong" hoàn thành khi học sinh mở');
+    const unlocked = await studentApi('POST', `/activities/${reviewId}/open`);
+    assert.equal(unlocked.status, 200, 'mở xong bài đọc thì bài ôn mở');
+    assert.equal(unlocked.body.body, 'Ôn lại cách viết phân số.');
+    const link = await studentApi('POST', `/activities/${practiceId}/open`);
+    assert.equal(link.status, 200, JSON.stringify(link.body));
+    assert.equal(link.body.url, 'https://hoc.truong-thu.example/bai-1');
+
+    assert.equal((await studentApi('POST', '/rules/acknowledge')).status, 200);
+    const acknowledged = await studentApi('GET', '');
+    assert.notEqual((acknowledged.body.rules as Record<string, unknown>).acknowledged_at, null);
+
+    // Kênh, tuyến đi cặp: cán bộ, phụ huynh không vào tuyến học sinh; học sinh không vào tuyến của cán bộ
+    assert.equal((await api('GET', '/student/learning', parent.accessToken)).status, 403);
+    assert.equal((await api('GET', '/student/learning', mathTeacher.accessToken)).status, 403);
+    assert.equal((await api('GET', '/learning/spaces', token)).status, 403);
   });
 });

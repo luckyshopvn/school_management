@@ -19,12 +19,12 @@
 ### Phiên bản 0.145.0 – 2026-10-26
 
 - Phạm vi thay đổi: DT-28 phần 28b, lõi hệ thống quản lý học tập (YCTD-272).
-- Chức năng mới: lớp học trực tuyến theo lớp, môn tự sinh từ phân công giảng dạy và khoá tự chọn (P03-12, MH-348); chương, hoạt động trang nội dung, liên kết, học liệu, điều kiện mở, giao cho học sinh (P03-13); tiến độ, kết quả hoạt động, kế hoạch dạy học trực tuyến theo tuần, nhật ký học tập (P03-14); khoá học mẫu của tổ chuyên môn qua duyệt hai bước rồi đẩy xuống lớp (P03-15, MH-349); quyết định dạy học trực tuyến thay thế và nội quy theo Thông tư 09/2021/TT-BGDĐT (P03-16, MH-350); ứng dụng giáo viên Lớp học trực tuyến (MH-351); ứng dụng phụ huynh Học trực tuyến của con (P03-17, MH-352).
+- Chức năng mới: lớp học trực tuyến theo lớp, môn tự sinh từ phân công giảng dạy và khoá tự chọn (P03-12, MH-348); chương, hoạt động trang nội dung, liên kết, học liệu, điều kiện mở, giao cho học sinh (P03-13); tiến độ, kết quả hoạt động, kế hoạch dạy học trực tuyến theo tuần, nhật ký học tập (P03-14); khoá học mẫu của tổ chuyên môn qua duyệt hai bước rồi đẩy xuống lớp (P03-15, MH-349); quyết định dạy học trực tuyến thay thế và nội quy theo Thông tư 09/2021/TT-BGDĐT (P03-16, MH-350); ứng dụng giáo viên Lớp học trực tuyến (MH-351); ứng dụng phụ huynh Học trực tuyến của con (P03-17, MH-352); học sinh tự học ở kênh `student` (MH-353).
 - Lỗi đã sửa: không có.
 - Thay đổi dữ liệu: hệ thống `0110`; năm học `0172` đến `0175`; định danh `0180` (bốn quyền `P02.learning.*`); xem `16_CO_SO_DU_LIEU.md` mục 18F.
-- Thay đổi API: nhóm `/learning` (xem `17_DAC_TA_API.md` mục 17.2).
+- Thay đổi API: nhóm `/learning` và `/student/learning` của học sinh (xem `17_DAC_TA_API.md` mục 17.2); tuyến nhân sự chặn theo gói của trường.
 - Kiểm thử: kịch bản CT-1108 đến CT-1114 (CT-28b-1 đến CT-28b-16 trong mã kiểm thử). Kết quả ngày 26/10/2026: `apps/api` 14/14 ca của `learning-rules.test.ts`, `learning.test.ts`; `learning-tenancy.test.ts` 2/2 (hai bố cục); `working-level.test.ts` 8/8, `menu-permissions.test.ts` và `secondary-class-records.test.ts` đạt; e2e: `211-online-classes` (CT-28b-16) và `151-classroom-tools` (CT-23b-14, có màn Lớp của tôi thêm nút mới) đạt, chạy kèm spec nền 01 đến 09.
-- Rủi ro: màn hình học sinh chưa có (chờ 23a gộp kênh `student`); tệp quyết định dạy thay thế chưa đính kèm được; báo cáo theo vai trò, sổ điểm, hồ sơ Thông tư 09 là phần 28d; trình soạn nội dung khoá mẫu ở cổng quản trị mới có chương và trang nội dung.
+- Rủi ro: học sinh mới thấy tên, mô tả học liệu, chưa tải được tệp; tệp quyết định dạy thay thế chưa đính kèm được; báo cáo theo vai trò, sổ điểm, hồ sơ Thông tư 09 là phần 28d; trình soạn nội dung khoá mẫu ở cổng quản trị mới có chương và trang nội dung.
 - Khả năng tương thích: không đổi hành vi các phân hệ cũ; lớp học trực tuyến tự sinh ẩn với học sinh đến khi giáo viên mở; trường chỉ có Mầm non không thấy nhóm menu 9. Học tập trực tuyến.
 - Phương án quay lui: hoàn lại commit gộp của nhánh 28b; các tệp migration chỉ thêm bảng và quyền.
 
