@@ -9,6 +9,7 @@
     "typecheck": "tsc -p tsconfig.json"
   },
   "dependencies": {
+    "@school-management/pwa": "workspace:*",
     "@school-management/shared": "workspace:*",
     "@school-management/ui": "workspace:*",
     "@vladmandic/face-api": "1.7.15",

@@ -1,7 +1,7 @@
 # 23. LỊCH SỬ PHIÊN BẢN
 
 - Mô tả: Mã phiên bản, ngày phát hành, danh sách thay đổi, chức năng mới, lỗi đã sửa, thay đổi dữ liệu, thay đổi API, rủi ro, khả năng tương thích, phương án quay lui.
-- Phiên bản: 0.65
+- Phiên bản: 0.66
 - Ngày cập nhật: 2026-10-26
 - Trạng thái: Đang cập nhật
 - Đã rà duyệt: Eric, ngày 2026-10-09
@@ -28,6 +28,18 @@
 - Rủi ro: thấp; ở tên miền chung (đăng nhập theo đơn vị của DT-24) không hiện nút, người dùng mở trang đăng nhập riêng của trường.
 - Khả năng tương thích: trường chưa bật nhà cung cấp thì không có gì thay đổi trên màn hình.
 - Phương án quay lui: tắt nhà cung cấp ở trường; hoàn lại commit gộp.
+
+### Phiên bản 0.145.0 – 2026-10-26
+
+- Phạm vi thay đổi: DT-26 phần 26a, vỏ ứng dụng web cài được dùng chung (YCTD-231).
+- Chức năng mới: ứng dụng giáo viên và phụ huynh cài được lên màn hình chính với tên, tên ngắn, màu, biểu tượng của trường (P19-07, MH-348); service worker dùng chung ở gói `packages/pwa` (gom từ 23b), ứng dụng phụ huynh có service worker giữ vỏ ứng dụng; dải "Có bản mới" dùng chung; lời mời cài theo trình duyệt (Android, iPhone, Zalo, Facebook); ô tên ngắn ở Thương hiệu của cổng quản trị.
+- Lỗi đã sửa: không có.
+- Thay đổi dữ liệu: cơ sở dữ liệu hệ thống thêm cột `school_branding.app_short_name` (tệp `0090`); xem `16_CO_SO_DU_LIEU.md`.
+- Thay đổi API: `GET /api/v1/public/pwa/{teacher,parent,student}.webmanifest`, `icon.svg`, `icon-maskable.svg`; `PUT /api/v1/school-settings/branding` nhận thêm `app_short_name` (xem `17_DAC_TA_API.md`).
+- Kiểm thử: kịch bản CT-1108 đến CT-1111 (CT-26a-1 đến CT-26a-4). Kết quả ngày 26/10/2026: `packages/pwa` 6/6 (CT-26a-1); `apps/teacher` 10/10; `apps/api` `school-settings.test.ts` 12/12 (CT-26a-2, CT-26a-3), ma trận cách ly và kiểm thử nhiều trường 27/27; kiểm tĩnh đa thuê bao, quét khóa 20/20; e2e `single` spec 01 đến 09, 151, 181 đạt 29/29 (spec 181 là CT-26a-4; trên máy chậm phải nới tạm thời gian chờ mở năm học của spec 02, không commit).
+- Rủi ro: biểu tượng SVG chưa được mọi trình duyệt dùng làm biểu tượng cài đặt (đã có PNG của sản phẩm làm dự phòng); iOS chưa có màn hình chờ theo trường (chưa sinh ảnh PNG theo khổ máy, ghi ở YCTD-231).
+- Khả năng tương thích: không đổi hành vi các phân hệ cũ; công cụ lớp học (23b) giữ tiền tố bộ nhớ đệm và công tắc ngoại tuyến; dải "Có bản mới" chuyển từ trang công cụ lớp học lên đầu ứng dụng.
+- Phương án quay lui: hoàn lại commit gộp của nhánh 26a; cột `app_short_name` chỉ thêm nên giữ lại không ảnh hưởng.
 
 ### Phiên bản 0.144.0 – 2026-10-26
 
