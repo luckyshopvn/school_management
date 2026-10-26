@@ -1,7 +1,7 @@
 # 02. NHẬT KÝ DỰ ÁN
 
 - Mô tả: Ghi nhận công việc, quyết định, thay đổi và vấn đề tồn đọng theo ngày, ngày mới nhất ở trên cùng.
-- Phiên bản: 0.74
+- Phiên bản: 0.75
 - Ngày cập nhật: 2026-10-26
 - Trạng thái: Đang cập nhật
 
@@ -34,12 +34,38 @@
 
 #### Thay đổi
 
-- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-214, `07_QUY_TAC_NGHIEP_VU.md` BR-234 đến BR-236, `10_YEU_CAU_CHUC_NANG.md` P01-86 đến P01-89, `11_TIEU_CHI_NGHIEM_THU.md` AC-869 đến AC-873, `12_KIEN_TRUC_HE_THONG.md` QĐ-35 và mục 12G, `14_DAC_TA_GIAO_DIEN.md` MH-339 đến MH-341, `16_CO_SO_DU_LIEU.md` mục 18E, `17_DAC_TA_API.md`, `21_KICH_BAN_KIEM_THU.md` CT-1084 đến CT-1096, `22_BAO_MAT.md` BM-92, `23_LICH_SU_PHIEN_BAN.md` 0.142.0.
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-214, `07_QUY_TAC_NGHIEP_VU.md` BR-234 đến BR-236, `10_YEU_CAU_CHUC_NANG.md` P01-86 đến P01-89, `11_TIEU_CHI_NGHIEM_THU.md` AC-869 đến AC-873, `12_KIEN_TRUC_HE_THONG.md` QĐ-35 và mục 12G, `14_DAC_TA_GIAO_DIEN.md` MH-339 đến MH-341, `16_CO_SO_DU_LIEU.md` mục 18E, `17_DAC_TA_API.md`, `21_KICH_BAN_KIEM_THU.md` CT-1084 đến CT-1096, `22_BAO_MAT.md` BM-92, `23_LICH_SU_PHIEN_BAN.md` 0.143.0.
 
 #### Vấn đề tồn đọng
 
 - Bản nháp pháp lý PL-22 chờ luật sư của Eric rà (mức rủi ro theo phụ lục Quyết định 33/2026/QĐ-TTg, chuyển dữ liệu ra nước ngoài, tư cách các bên); nhà cung cấp AI, vùng máy chủ và số tiền thu để trống chờ Eric.
 - Bộ quét dữ liệu cá nhân so tên đầy đủ (từ hai chữ) và mẫu số, thư điện tử; không bắt được tên viết tắt hoặc thông tin định danh gián tiếp.
+### 2026-10-26 — DT-25: bộ nối nhà cung cấp định danh OIDC, sẵn cho VNeID (phần máy chủ)
+
+#### Công việc đã thực hiện
+
+- Đọc báo cáo khảo sát tích hợp VNeID ngày 2026-10-26 (lưu ngoài `tai_lieu/`, mục 5 đến 7) và mã dịch vụ định danh (đăng nhập, xác thực hai lớp S8b, kho khóa S3, nhận diện trường S1a, kiểm tĩnh và ma trận cách ly).
+- Viết mục 17 của `32`: căn cứ, nguyên tắc, hai bước 25a (máy chủ) và 25b (giao diện, sau DT-24), thiết kế, quyết định, rủi ro, giả định GD-113 đến GD-115.
+- Làm phần máy chủ ở `apps/identity/src/external-identity/`: lớp `IdentityProvider`, bộ nối OIDC chung, hồ sơ `vneid`, khai báo nền tảng bằng biến môi trường, cấu hình của trường, liên kết, gỡ liên kết, đăng nhập, nhập mã hai lớp sau nhà cung cấp, nhật ký; migration định danh 0140; `Infrastructure.scopedCache` cho khóa Redis theo trường.
+- Dựng nhà cung cấp OIDC giả lập cục bộ (`MockOidcServer`) cho kiểm thử đơn vị và e2e; spec 165.
+- Cập nhật `22` (BM-95, BM-96), `33_HO_SO_PHAP_LY/` PL-02 (Điều 7 khoản 5, Phụ lục A) và PL-05 (mục 2, mục 5) lên S8a-1.1, `34` (bảng cách đăng nhập, mục 9), `01`, `23`, `24`.
+
+#### Quyết định
+
+- Không tự tạo tài khoản từ nhà cung cấp ngoài; người đã có tài khoản tự liên kết sau khi nhập lại mật khẩu và mã hai lớp; lượt liên kết gắn với phiên đã bắt đầu.
+- Chỉ lưu subject mã hóa bằng khóa của trường cùng băm có khóa (đổi khóa S3 tự xử lý); không lưu số định danh, căn cước, ngày sinh.
+- Nền tảng khai nhà cung cấp bằng biến môi trường; trường bật tắt (mặc định tắt), chọn nhóm vai trò (mặc định trừ học sinh); dưới 14 tuổi bị từ chối; đăng nhập bằng nhà cung cấp ngoài không thay xác thực hai lớp trừ khi trường bật và mức đảm bảo đạt.
+- Tham số của RAR chưa công bố nên để cấu hình, danh sách mục "chờ tài liệu RAR" trả ở màn hình cấu hình.
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-225, `23_LICH_SU_PHIEN_BAN.md` 0.142.0, `32_KE_HOACH_THEO_HE_THONG_SO.md` mục 17 (phiên bản 1.78).
+
+#### Vấn đề tồn đọng
+
+- Bước 25b (giao diện) chờ PR DT-24 gộp.
+- Eric: ký hợp đồng và lấy tài liệu kỹ thuật, môi trường thử của Trung tâm RAR (văn bản gửi RAR đã soạn ở thư mục khảo sát); luật sư rà vai trò của nhà cung cấp định danh trong PL-02, PL-05 trước khi bật ở trường thật.
+
 
 ### 2026-10-26 — DT-24: danh mục đơn vị toàn quốc, đăng nhập theo đơn vị, quyền quản trị nền tảng
 

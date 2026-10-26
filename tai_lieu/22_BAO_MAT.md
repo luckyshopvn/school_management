@@ -1,7 +1,7 @@
 # 22. BẢO MẬT
 
 - Mô tả: Xác thực, phân quyền, phiên làm việc, kiểm tra dữ liệu đầu vào, bảo mật API, truy cập dữ liệu.
-- Phiên bản: 1.17
+- Phiên bản: 1.18
 - Ngày cập nhật: 2026-10-26
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -35,6 +35,8 @@
 | BM-68 | Tài khoản kiểm toán viên (VT-20) bắt buộc có ngày hết hiệu lực; hết hạn thì tự khóa |
 | BM-69 | Mật khẩu mặc định chung của tài khoản phụ huynh do nhà trường cấu hình, lưu dạng băm, không gửi qua tin nhắn; phiên đăng nhập bằng mật khẩu mặc định chỉ dùng được màn hình đổi mật khẩu; phiên đăng nhập bằng mã một lần dùng bình thường dù chưa đổi mật khẩu mặc định (Q-147); theo dõi đăng nhập sai bất thường trên tài khoản chưa đổi mật khẩu |
 | BM-72 | Mật khẩu của tài khoản nhân sự hết hạn sau số ngày do VT-01, VT-02 đặt (0 đến 3650, mặc định 0 là không giới hạn); quá hạn thì bắt buộc đổi như BM-07, mật khẩu mới phải khác mật khẩu hiện tại; báo trước số ngày cấu hình (mặc định 7). Không áp cho tài khoản chỉ có vai trò Phụ huynh, tài khoản còn dùng mật khẩu mặc định chung, phiên đăng nhập bằng mã một lần. Đăng nhập bằng mật khẩu đã hết hạn ghi nhật ký bảo mật `login_password_expired` (YCTD-110, BR-110) |
+| BM-95 | Đăng nhập bằng nhà cung cấp định danh bên ngoài (YCTD-225, tài liệu 32 mục 17; sẵn cho VNeID qua Trung tâm RAR): chuẩn OIDC authorization code + PKCE S256, `state` và `nonce` dùng một lần (hạn 10 phút), kiểm chữ ký `id_token` qua JWKS chỉ với thuật toán khóa bất đối xứng, kiểm `iss`, `aud`, `azp`, `exp`, `iat`, discovery có kiểm `issuer`, tải lại bộ khóa khi nhà cung cấp quay khóa; địa chỉ nhà cung cấp bắt buộc `https`. Nền tảng khai nhà cung cấp ở biến môi trường, khóa bí mật dùng chung ở biến riêng; trường tự bật (mặc định tắt), có thể dùng mã ứng dụng và khóa riêng mã hóa bằng khóa của trường. **Không tự tạo tài khoản**; người dùng tự liên kết sau khi nhập lại mật khẩu riêng và mã xác thực hai lớp (nếu đã bật); lượt liên kết chỉ hoàn tất trong đúng phiên đã bắt đầu; mỗi subject chỉ gắn một tài khoản. Người đã bật xác thực hai lớp vẫn nhập mã sau nhà cung cấp, trừ khi trường bật "coi là đạt xác thực hai lớp" và mức đảm bảo nằm trong danh sách nền tảng khai. Nhóm vai trò được dùng do trường chọn, mặc định mọi vai trò trừ học sinh; người nhà cung cấp trả ngày sinh dưới 14 tuổi bị từ chối. Đăng nhập mật khẩu cộng xác thực hai lớp luôn còn làm đường dự phòng |
+| BM-96 | Dữ liệu định danh từ nhà cung cấp ngoài (YCTD-225): chỉ lưu mã liên kết (subject) mã hóa AES-256-GCM bằng khóa của trường cùng băm HMAC-SHA256 bằng khóa băm của trường để tra (cột `*_encrypted`, `*_hash` nên công cụ đổi khóa của S3 tự mã hóa và băm lại); không lưu số định danh, căn cước, họ tên, ngày sinh hay claim khác, không gọi `userinfo`; mọi lần liên kết, gỡ, đăng nhập, từ chối, sửa cấu hình ghi `external_identity_events` (sửa cấu hình ghi thêm `identity_audit_logs`, khóa bí mật chỉ ghi "đã đặt") |
 
 ## 3. Phân quyền
 

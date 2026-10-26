@@ -18,6 +18,7 @@ export {
 } from './level-check.js';
 export type {
   ApiClientScope,
+  ExternalIdentityEventType,
   IdentityDatabase,
   ImpersonationEndReason,
   LoginMethod,

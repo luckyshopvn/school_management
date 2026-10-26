@@ -51,6 +51,8 @@ import {
   UnitDirectoryService,
 } from './directory/unit-directory.js';
 import { PlatformCatalogController, PlatformCatalogService } from './platform/platform-catalog.js';
+import { ExternalIdentityController } from './external-identity/external-identity.controller.js';
+import { ExternalIdentityService } from './external-identity/external-identity.service.js';
 
 @Module({})
 export class ApplicationModule {
@@ -86,6 +88,7 @@ export class ApplicationModule {
         UnitDirectoryController,
         LoginHandoffController,
         PlatformCatalogController,
+        ExternalIdentityController,
       ],
       providers: [
         { provide: IDENTITY_CONFIGURATION, useValue: configuration },
@@ -135,6 +138,7 @@ export class ApplicationModule {
         DirectoryRateLimiter,
         UnitDirectoryService,
         PlatformCatalogService,
+        ExternalIdentityService,
       ],
     };
   }

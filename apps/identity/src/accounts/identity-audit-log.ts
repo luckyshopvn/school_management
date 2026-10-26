@@ -5,7 +5,14 @@ import type { Kysely, Transaction } from 'kysely';
 export interface IdentityAuditEntry {
   actorUserId: string;
   entityName:
-    'users' | 'user_roles' | 'roles' | 'identity_settings' | 'api_clients' | 'user_school_levels' | 'user_totp';
+    | 'users'
+    | 'user_roles'
+    | 'roles'
+    | 'identity_settings'
+    | 'api_clients'
+    | 'user_school_levels'
+    | 'user_totp'
+    | 'external_identity_providers';
   entityId: string;
   action: string;
   before: unknown;
