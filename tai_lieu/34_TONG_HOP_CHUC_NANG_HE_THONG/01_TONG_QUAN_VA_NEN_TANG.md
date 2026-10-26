@@ -470,7 +470,7 @@ Nguồn: `apps/api/src/common/notification-queue.ts`, `apps/api/src/notification
 | Zalo | `zalo` | Zalo Official Account khi nhà trường bật và số điện thoại đã liên kết (`zalo_followers`); không được thì gửi SMS; Zalo lỗi thì gửi ngay SMS | `delivered_via` ghi kênh thực tế |
 | Mã đăng nhập, đặt lại mật khẩu | Không qua hàng đợi | Dịch vụ định danh gửi thẳng qua `SmsSender` (eSMS) | Không tính vào giới hạn 5 tin mỗi ngày |
 | Thư điện tử | Không có | Không có trong mã | Tài liệu 12 mục 8 có vẽ, chưa làm |
-| Thông báo đẩy | Không có | Không có trong mã | Ứng dụng là web, không có vỏ di động |
+| Thông báo đẩy | Không có | Không có trong mã | Ứng dụng là web, không có vỏ di động; kế hoạch thêm kênh đẩy (Web Push, FCM, APNs) ở DT-26, xem mục 6 |
 | Facebook | Không phải kênh thông báo | Chỉ đăng hoạt động, tin tức lên Fanpage | |
 
 ### Quy tắc gửi
@@ -766,11 +766,26 @@ Nguồn: tài liệu 32 mục 15, YCTD-210. Mục này chỉ ghi để người 
 | Phần | Đợt | Nội dung kế hoạch (tài liệu 32 mục 15.3) | Dấu hiệu trong mã |
 |---|---|---|---|
 | 23a Thi trực tuyến cho học sinh | 1 | Kênh đăng nhập `student`, giao đề, làm bài có đếm ngược theo đồng hồ máy chủ, chấm tự động câu trắc nghiệm, chuyển điểm vào sổ điểm theo luồng 22g2, ghi sự kiện rời trang | `SessionChannel` chỉ có `portal`, `teacher`, `parent`; `student_learning_accounts` chưa có đăng nhập |
-| 23b Công cụ lớp học | 1 | Đã có trong mã (YCTD-212, tài liệu 0.140.0): xem mục 6 bên dưới | `apps/teacher/src/tools`, `apps/teacher/public/sw.js`, `apps/api/src/classroom-tools` |
+| 23b Công cụ lớp học | 1 | Đã có trong mã (YCTD-212, tài liệu 0.140.0): xem mục 7 bên dưới | `apps/teacher/src/tools`, `apps/teacher/public/sw.js`, `apps/api/src/classroom-tools` |
 | 23d Trợ lý AI | 1 | Soạn câu hỏi và kế hoạch bài dạy nháp, tắt mặc định theo trường, chỉ gửi nội dung chương trình, hạn mức theo gói | `IntegrationSecretConnector` chưa có `ai`; chưa có nơi nào gọi dịch vụ AI |
 | 23c Trò chơi kiến thức và thẻ đáp án giấy | 2 | Ô chữ, vòng quay, hỏi đáp theo vòng sinh từ ngân hàng câu hỏi; thẻ đáp án giấy đọc bằng camera | Chưa có |
 
-## 6. DT-23 phần 23b: công cụ lớp học trên ứng dụng giáo viên (YCTD-212)
+## 6. DT-26: kế hoạch (chưa có trong mã)
+
+Nguồn: tài liệu 32 mục 18, YCTD-230 (Eric yêu cầu ngày 2026-10-26 theo thứ tự PWA, máy tính bảng, ứng dụng cài đặt). Mục này chỉ ghi để người đọc biết phần sắp làm; chưa có bảng, tuyến hay màn hình nào trong mã. Khi từng phần gộp, chuyển phần đó sang các mục mô tả theo mã.
+
+| Phần | Đợt | Nội dung kế hoạch (tài liệu 32 mục 18.3) | Dấu hiệu trong mã |
+|---|---|---|---|
+| 26a Vỏ PWA dùng chung | 1 | Gói `packages/pwa`, manifest, biểu tượng, màn hình chờ theo thương hiệu từng trường, cài lên màn hình chính, hướng dẫn cài cho iOS, gom service worker của 23b | Ứng dụng giáo viên, phụ huynh chưa có manifest, service worker trên nhánh chính |
+| 26b Thông báo đẩy Web Push | 1 | Kênh `push` của hàng đợi thông báo chung, đăng ký theo người dùng và thiết bị, tắt theo loại, khóa VAPID của nền tảng | `NotificationChannel` chỉ có `in_app`, `sms`, `zalo` |
+| 26c Khung kiểm thử theo khổ thiết bị | 1 | Dự án Playwright khổ điện thoại, máy tính bảng dọc và ngang, việc CI riêng, kiểm vùng chạm 44 px | Playwright chỉ có dự án `chromium` khổ máy tính |
+| 26d Máy tính bảng: giáo viên, phụ huynh | 2 | Chế độ lớp học (điểm danh, sổ đầu bài, công cụ lớp học) chia hai khung, chế độ trình chiếu; phụ huynh hai cột | Bố cục một cột `max-w-md`, `max-w-lg` |
+| 26e Máy tính bảng: cổng quản trị, cổng nền tảng | 2 | Thanh điều hướng thu gọn, bảng cuộn ngang hoặc dạng thẻ, biểu mẫu hai cột | `DataGrid`, `FormLayout` của `packages/ui` thiết kế cho máy tính |
+| 26f Ứng dụng cài đặt | 3 | Capacitor đóng gói mã web của hai ứng dụng, chọn trường từ danh mục DT-24, chọn vai trò, mã làm mới trong Keychain, Keystore có sinh trắc học, liên kết sâu | Chưa có `apps/mobile` |
+| 26g Thông báo đẩy native | 3 | Bộ nối `fcm`, `apns` dùng chung bộ phát của 26b | Chưa có |
+| 26h Ký, dựng bản, phát hành | 3 | CI dựng và ký bản Android, iOS, quy trình phát hành, hồ sơ cửa hàng, chính sách quyền riêng tư; việc của Eric (tài khoản Apple, Google Play, pháp nhân, tên ứng dụng) | Chưa có |
+
+## 7. DT-23 phần 23b: công cụ lớp học trên ứng dụng giáo viên (YCTD-212)
 
 | Chức năng | Mô tả theo mã | Bảng, tuyến, màn hình |
 |---|---|---|

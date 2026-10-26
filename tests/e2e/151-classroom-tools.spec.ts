@@ -41,6 +41,12 @@ async function signIn(browser: Browser, user: { username: string; password: stri
   return page;
 }
 
+// Mã chạy trong trang dùng kiểu của trình duyệt, gói kiểm thử không nạp thư viện kiểu DOM (hàm truyền vào evaluate chạy ở trang nên ép kiểu ngay trong hàm)
+type BrowserGlobals = {
+  navigator: { serviceWorker: { ready: Promise<unknown>; getRegistrations(): Promise<unknown[]> } };
+  caches: { keys(): Promise<string[]> };
+};
+
 const storedKeys = (page: Page) =>
   page.evaluate((prefix) => Object.keys(localStorage).filter((key) => key.startsWith(prefix)), STORAGE_PREFIX);
 
@@ -139,9 +145,17 @@ test('CT-23b-14: gọi tên, chia nhóm, đồng hồ, bảng điểm vào nề 
 
   const page = await signIn(browser, teacher);
   // Tệp dựng của trang nằm trong service worker ngay sau lần tải đầu (trường mặc định bật ngoại tuyến)
-  await page.evaluate(() => navigator.serviceWorker.ready.then(() => undefined));
+  await page.evaluate(() =>
+    (globalThis as unknown as BrowserGlobals).navigator.serviceWorker.ready.then(() => undefined),
+  );
   await expect
-    .poll(() => page.evaluate(async () => (await caches.keys()).some((name) => name.startsWith('cong-cu-lop-hoc-v-'))))
+    .poll(() =>
+      page.evaluate(async () =>
+        (await (globalThis as unknown as BrowserGlobals).caches.keys()).some((name) =>
+          name.startsWith('cong-cu-lop-hoc-v-'),
+        ),
+      ),
+    )
     .toBe(true);
   const manifest = await page.request.get(`${TEACHER_URL}/manifest.webmanifest`);
   expect(manifest.ok()).toBe(true);
@@ -303,10 +317,19 @@ test('CT-23b-14: gọi tên, chia nhóm, đồng hồ, bảng điểm vào nề 
     await page.getByRole('button', { name: 'Đăng nhập' }).click();
     await expect(page.getByRole('heading', { name: 'Lớp của tôi' })).toBeVisible();
     await expect
-      .poll(() => page.evaluate(async () => (await navigator.serviceWorker.getRegistrations()).length))
+      .poll(() =>
+        page.evaluate(
+          async () =>
+            (await (globalThis as unknown as BrowserGlobals).navigator.serviceWorker.getRegistrations()).length,
+        ),
+      )
       .toBe(0);
     expect(
-      await page.evaluate(async () => (await caches.keys()).filter((name) => name.startsWith('cong-cu-lop-hoc-v-'))),
+      await page.evaluate(async () =>
+        (await (globalThis as unknown as BrowserGlobals).caches.keys()).filter((name) =>
+          name.startsWith('cong-cu-lop-hoc-v-'),
+        ),
+      ),
     ).toEqual([]);
     await page.getByRole('button', { name: 'Công cụ lớp học' }).click();
     await page.getByLabel('Lớp', { exact: true }).selectOption({ label: className });
