@@ -560,7 +560,7 @@ Mã rủi ro dùng tiền tố `RR-nn`. Mức đánh giá theo ba bậc: cao, tr
 | RR-18 | Phần chưa chốt của SaaS (cách tính phí, cổng thanh toán, hóa đơn điện tử, tên sản phẩm) và tài liệu pháp lý do Claude soạn (DT-SaaS) | Trung bình | Làm lại phần thu phí, hóa đơn; điều khoản sai hoặc lỗi thời | Cấu hình được, bộ giả lập thay nhà cung cấp chưa chốt, giả định GD-93 đến GD-101, luật sư của Eric rà tài liệu pháp lý trước khi dùng |
 | RR-19 | Dữ liệu cá nhân của học sinh, giáo viên lọt vào lời nhắc gửi nhà cung cấp AI (DT-23, 23d) | Cao | Lộ dữ liệu trẻ em cho bên thứ ba, có thể ở nước ngoài, vi phạm Luật Bảo vệ dữ liệu cá nhân | Lời nhắc dựng từ mẫu cố định chỉ có nội dung chương trình, quét mẫu cá nhân và tên trong danh sách của trường ở máy chủ, tắt mặc định theo trường, nhật ký, bộ giả lập kiểm thử có chuỗi mồi, luật sư của Eric rà hồ sơ trước khi bật ở trường thật (`32` mục 15.4, 15.6) |
 | RR-20 | Thi trực tuyến: gian lận, lộ đáp án, mất bài khi mạng chập chờn; học sinh đăng nhập lần đầu có tài khoản riêng (DT-23, 23a) | Trung bình | Điểm thi không đáng tin, học sinh xem được dữ liệu người khác | Đồng hồ và đáp án ở máy chủ, một phiên mỗi lượt, ghi sự kiện, điểm do giáo viên xác nhận mới vào sổ, kênh `student` chỉ trả dữ liệu của chính học sinh, ma trận cách ly mọi tuyến (`32` mục 15.6) |
-| RR-21 | Ghi và xem camera của học sinh, AI phát hiện gian lận báo nhầm (DT-23, 23e) | Cao | Lộ hình ảnh trẻ em, xem trái phép, giữ quá hạn, vi phạm Luật Bảo vệ dữ liệu cá nhân; học sinh bị oan | Đồng ý của cha mẹ, mã hóa theo khóa của trường, không tải về, giữ có hạn rồi xóa, nhật ký mọi lần xem, hình không gửi nhà cung cấp AI ngoài, AI chỉ cảnh báo, người coi thi quyết định, luật sư của Eric rà trước khi dùng ở trường thật (`32` mục 15.4, 15.6) |
+| RR-21 | Ghi và xem camera của học sinh, AI phát hiện gian lận báo nhầm (DT-23, 23e) | Cao | Lộ hình ảnh trẻ em, xem trái phép, giữ quá hạn, vi phạm Luật Bảo vệ dữ liệu cá nhân; học sinh bị oan | Mặc định chỉ thi tại trường (thi từ xa tắt, bật thì cần đồng ý của cha mẹ), mã hóa theo khóa của trường, không tải về, giữ có hạn rồi xóa, nhật ký mọi lần xem, hình không gửi nhà cung cấp AI ngoài, AI chỉ cảnh báo, người coi thi quyết định, luật sư của Eric rà trước khi dùng ở trường thật (`32` mục 15.4, 15.6) |
 
 ## 11. Định nghĩa hoàn thành
 
@@ -661,13 +661,13 @@ Không còn mục chưa xác minh. Các mục trước đây đã được trả
 | GD-103 | Eric đã chốt ngày 2026-10-26 (DT-23): AI thu theo gói và theo token sử dụng, có màn hình thiết lập riêng; số tiền cụ thể là dữ liệu quản trị nền tảng nhập | Eric (số tiền) |
 | GD-104 | DT-23: thời hạn giữ nhật ký yêu cầu AI (12 tháng) | Eric |
 | GD-105 | Eric đã chốt ngày 2026-10-26 (DT-23): học sinh tự đăng nhập làm bài ở mọi cấp học, trường có công tắc tắt theo cấp | Eric (đã chốt) |
-| GD-106 | Eric đã chốt ngày 2026-10-26 (DT-23): khóa toàn màn hình và camera; sau đó bổ sung cho phép ghi camera, giám thị xem bất cứ lúc nào, AI tự phát hiện gian lận (phần 23e); Claude chọn cách làm: đồng ý của cha mẹ, bản ghi mã hóa giữ có hạn, nhật ký người xem, AI chạy trên máy học sinh, AI không tự trừ điểm | Eric (đã chốt hướng) |
+| GD-106 | Eric đã chốt ngày 2026-10-26 (DT-23): khóa toàn màn hình và camera; sau đó bổ sung cho phép ghi camera, giám thị xem bất cứ lúc nào, AI tự phát hiện gian lận (phần 23e), mặc định chỉ thi tại trường, không cần đồng ý riêng của cha mẹ khi thi tại trường; Claude chọn cách làm: bản ghi mã hóa giữ có hạn, nhật ký người xem, AI chạy trên máy học sinh, AI không tự trừ điểm, thi từ xa tắt mặc định và cần đồng ý nếu bật | Eric (đã chốt hướng) |
 | GD-107 | DT-23: thư viện đọc thẻ đáp án giấy, chọn và ghi giấy phép lúc làm | Claude (theo ủy quyền) |
 | GD-108 | Eric đã chốt ngày 2026-10-26 (DT-23): ngoại tuyến của ứng dụng giáo viên chỉ cho công cụ lớp học, danh sách lớp lưu 24 giờ | Eric (đã chốt) |
-| GD-109 | DT-23 (23e): thời hạn giữ bản ghi camera (30 ngày sau công bố điểm) | Eric |
-| GD-110 | DT-23 (23e): hạ tầng TURN và băng thông cho truyền hình trực tiếp | Eric |
+| GD-109 | Eric đã chốt ngày 2026-10-26 (DT-23, 23e): giữ bản ghi camera 30 ngày sau công bố điểm | Eric (đã chốt) |
+| GD-110 | Eric đã chốt ngày 2026-10-26 (DT-23, 23e): tự dựng coturn trên VPS cho truyền hình trực tiếp | Eric (đã chốt) |
 | GD-111 | DT-23 (23e): mô hình AI phát hiện gian lận chạy trên máy học sinh, chọn và ghi giấy phép lúc làm | Claude (theo ủy quyền) |
-| GD-112 | DT-23 (23e): điều kiện đồng ý của cha mẹ cho camera (từng năm học hay từng bài, độ tuổi) | Eric, luật sư của Eric |
+| GD-112 | Eric đã chốt ngày 2026-10-26 (DT-23, 23e): không cần đồng ý riêng khi thi tại trường, mặc định chỉ thi tại trường; thi từ xa tắt mặc định và cần đồng ý nếu bật | Eric (đã chốt) |
 | Q-128 | Đã trả lời ngày 09/10/2026: giữ cách dùng điều kiện vào, điều kiện ra, không đặt mốc ngày | Eric |
 | Q-129 | Đã trả lời ngày 09/10/2026: Eric duyệt mọi cổng; Hiệu trưởng cùng nghiệm thu nghiệp vụ; kế toán trưởng cùng nghiệm thu phân hệ học phí, tài chính, lương | Eric |
 | Q-130 | Đã trả lời ngày 09/10/2026: dùng Git trên GitHub, kho riêng; dựng tích hợp và triển khai tự động ngay từ đợt DT-00 | Eric |
