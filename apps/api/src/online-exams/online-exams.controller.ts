@@ -114,8 +114,10 @@ export function parseAssignmentInput(body: RequestBody): AssignmentInput {
   }
   const classIds = readIdList(body, 'class_ids', errors);
   const childIds = readIdList(body, 'child_ids', errors);
-  if (classIds.length + childIds.length === 0) {
-    errors.push({ field: 'targets', message: 'Chọn ít nhất một lớp hoặc một học sinh' });
+  // Nhóm của bộ nhóm (DT-28 phần 28a): thành viên lúc giao được giao như đích học sinh
+  const groupIds = readIdList(body, 'group_ids', errors);
+  if (classIds.length + childIds.length + groupIds.length === 0) {
+    errors.push({ field: 'targets', message: 'Chọn ít nhất một lớp, một nhóm hoặc một học sinh' });
   }
   const input: AssignmentInput = {
     exam_id: examId,
@@ -171,6 +173,7 @@ export function parseAssignmentInput(body: RequestBody): AssignmentInput {
     absent_policy: readChoice(body, 'absent_policy', ['skip', 'zero'] as const, 'skip', errors),
     class_ids: classIds,
     child_ids: childIds,
+    group_ids: groupIds,
   };
   if (errors.length > 0) {
     throw validationError(errors);
