@@ -1544,10 +1544,21 @@ Giao kèo văn thư lưu trữ (YCTD-118):
 | GET, PUT | /api/v1/online-exams/school-settings | Cấu hình thi trực tuyến của trường: chế độ thi mặc định, thi từ xa, dải mạng, hạn mã phòng (P02-85) |
 | POST | /api/v1/online-exams/assignments/{id}/rooms, /api/v1/online-exams/rooms/{id}/close | Mở phòng thi (mã 6 chữ số, danh sách học sinh); đóng phòng (P02-84) |
 | GET | /api/v1/online-exams/exams, /classes | Đề đã khoá, lớp giao được (P02-82) |
-| GET, POST | /api/v1/online-exams/assignments | Danh sách, giao đề (P02-82) |
+| GET, POST | /api/v1/online-exams/assignments | Danh sách, giao đề (P02-82); từ YCTD-271 nhận thêm `group_ids` (nhóm của bộ nhóm đang dùng, thành viên lúc giao được giao như học sinh; nhóm của bộ đã lưu trữ 404, nhóm trống 400) |
 | GET, PATCH | /api/v1/online-exams/assignments/{id} | Chi tiết, theo dõi; sửa tên, giờ, chế độ kết quả (P02-84) |
 | POST | /api/v1/online-exams/assignments/{id}/cancel, /release-results | Huỷ; công bố kết quả (P02-84) |
 | GET, PUT, POST | /api/v1/online-exams/attempts/{id}, /essay-marks, /force-submit | Xem bài; điểm tự luận; nộp thay (P02-84) |
+| GET | /api/v1/tutoring/meta, /tutoring/rules; POST /tutoring/rules | Danh mục cho biểu mẫu, quy định dạy thêm đang áp dụng và lịch sử; thêm quy định có ngày hiệu lực (P02.tutoring.manage) (YCTD-252) |
+| GET, POST | /api/v1/tutoring/programs; GET, PUT /tutoring/programs/{id} | Chương trình gia sư; vi phạm Thông tư 29 trả 422 `ERR_RULE_VIOLATION` mã YCTD-252, chi tiết mã từng dòng (`curriculum_fee`, `curriculum_audience`, `curriculum_subject`, `curriculum_level`) |
+| POST | /api/v1/tutoring/programs/{id}/submit, /approve, /reject, /close | Nộp (người dạy), duyệt, không duyệt (cần `reason`), đóng (Ban Giám hiệu) |
+| GET, PUT | /api/v1/tutoring/programs/{id}/candidate-suggestions, /candidates | Gợi ý học sinh chưa đạt môn từ sổ điểm; xác nhận danh sách học sinh được đăng ký |
+| POST | /api/v1/tutoring/programs/{id}/sessions | Xếp buổi lẻ (`session_date`) hoặc lặp theo tuần (`weekly`: from, to, weekdays 1 đến 7), `start_time`, `end_time`; trùng thời khoá biểu (`timetable_teacher`, `timetable_class`) hoặc quá giới hạn tiết (`weekly_periods`) trả 422 |
+| GET | /api/v1/tutoring/programs/{id}/registrations; POST /tutoring/registrations/{id}/approve, /reject | Đơn đăng ký; duyệt kiểm sĩ số và giới hạn tiết |
+| POST | /api/v1/tutoring/programs/{id}/messages | Nhắn cha mẹ của học sinh đã đăng ký qua luồng trao đổi |
+| GET | /api/v1/tutoring/sessions?from&to; POST /tutoring/sessions/{id}/cancel | Buổi của chương trình mình dạy (Ban Giám hiệu: mọi buổi); hủy buổi báo cha mẹ |
+| GET, PUT | /api/v1/tutoring/sessions/{id}/attendance; POST .../room-events | Điểm danh và xác nhận (vắng báo cha mẹ một lần); sự kiện vào, ra phòng giả lập đến khi 27a gộp |
+| GET, POST | /api/v1/tutoring/exemptions; GET .../{id}/file | Quyết định tăng thời lượng của Sở (biểu mẫu nhiều phần, tệp tùy chọn) |
+| GET | /api/v1/children/{id}/tutoring; POST .../registrations; POST .../registrations/{rid}/withdraw | Cha mẹ: chương trình mở cho con, đơn đã gửi, lịch học và điểm danh đã xác nhận; gửi đơn (`agree` bắt buộc), rút đơn |
 | GET | /api/v1/student/profile, /exams | Học sinh: thông tin, bài được giao (P02-83) |
 | POST | /api/v1/student/exams/{id}/start | Mở hoặc tiếp tục lượt (`camera_state`) (P02-83) |
 | GET, PUT | /api/v1/student/attempts/{id}, /answers | Đọc lượt; lưu nháp từng câu (P02-83) |
@@ -1674,7 +1685,15 @@ Giao kèo trợ lý AI (DT-23 phần 23d, YCTD-214, BR-234 đến BR-236):
 | GET | /api/v1/classroom-tools/classes/{id}/roster (từ YCTD-212) | Danh sách lớp gọn: `students` (`id`, `order_no`, `full_name`, `code`, `absent_today`); chỉ người có phạm vi xem trẻ của lớp, không thì 403 (P03-09, BR-231) |
 | POST | /api/v1/classroom-tools/calls (từ YCTD-212) | Ghi lượt gọi (`class_id`, `calls` 1 đến 100 mục `client_id`, `child_id`, `called_at` tuỳ chọn); trả `saved`, `duplicates` (gửi lại cùng `client_id` không trùng); học sinh ngoài lớp 400 |
 | GET, DELETE | /api/v1/classroom-tools/classes/{id}/calls, /calls/{callId} (từ YCTD-212) | Xem 100 lượt gần nhất; xóa một lượt hoặc toàn bộ lượt của chính mình |
-| GET, PUT | /api/v1/classroom-tools/classes/{id}/grouping (từ YCTD-212) | Bản chia nhóm gần nhất của giáo viên (`groups`: `name`, `child_ids`; mỗi học sinh một nhóm, thuộc lớp) |
+| GET, PUT | /api/v1/classroom-tools/classes/{id}/grouping (từ YCTD-212) | Bản chia nhóm gần nhất của giáo viên (`groups`: `name`, `child_ids`; mỗi học sinh một nhóm, thuộc lớp); từ YCTD-271 đọc và lưu bộ nhóm `classroom` của giáo viên, `PUT` nhận thêm `group_set_id` tuỳ chọn khi chọn bộ sẵn có |
+| GET | /api/v1/group-sets?class_id=&subject_id=&purpose=&include_archived= (từ YCTD-271) | Bộ nhóm của lớp, mới nhất trước: `id`, `name`, `purpose`, `method`, `status`, `subject_name`, `owner_name`, `group_count`, `replaces_id`; mặc định chỉ bộ đang dùng. Giáo viên được phân công hoặc dạy lớp, vai trò đơn vị xem được lớp; khác 403 |
+| POST | /api/v1/group-sets/preview (từ YCTD-271) | Xem trước, không lưu: `class_id`, `subject_id`, `method`, `by` (`count`, `size`), `value` (1 đến 50), `seed`, `ability_source` (`term_average`, `subject_level`; `activity` 400 đến khi có 28d), `balance_gender`, `exclude_absent`, `apart`, `together` (tối đa 100 cặp), `leader_mode` (`none`, `random`, `rotate`); trả `groups` (`name`, `child_ids`, `leader_child_id`), `violations`, `seed`, `excluded_absent`; không trả mức năng lực. Theo năng lực thiếu môn 400 |
+| POST | /api/v1/group-sets (từ YCTD-271) | Lưu bộ nhóm: như xem trước, thêm `purpose`, `name`, `groups` (lưu đúng danh sách đã xem hoặc chia tay), `replaces_id` (bộ cũ chuyển `archived`); học sinh ngoài lớp hoặc ở hai nhóm 400 (trừ `timetable_group`); trả bộ kèm `groups`, `violations` |
+| GET | /api/v1/group-sets/{id} (từ YCTD-271) | Bộ nhóm, `can_edit`, `groups` (`id`, `name`, `position`, `leader_child_id`, `child_ids`, `members`: `child_id`, `full_name`, `is_leader`) |
+| PATCH | /api/v1/group-sets/{id} (từ YCTD-271) | Đổi `name`, `status` = `archived`; bộ đã lưu trữ 400; không phải người lập hoặc vai trò đơn vị 403 |
+| POST | /api/v1/group-sets/{id}/move, /groups/{groupId}/leader, /leaders (từ YCTD-271) | Chuyển `child_id` sang `to_group_id` (trống là bỏ khỏi bộ); đặt hoặc bỏ nhóm trưởng (`child_id` phải trong nhóm); đổi nhóm trưởng cả bộ `mode` = `random` hoặc `rotate`; mỗi thay đổi ghi `child_group_member_events` |
+| GET | /api/v1/group-sets/subjects?class_id= (từ YCTD-271) | Môn đang dùng của cấp học của lớp, để chọn môn khi chia theo năng lực |
+| GET | /api/v1/group-sets/children/{childId} (từ YCTD-271) | Nhóm của con trong các bộ đang dùng: `set_name`, `purpose`, `subject_name`, `group_name`, `leader_name`, `members` (họ tên); không có cách chia, tham số. Phụ huynh của học sinh hoặc nhân sự xem được học sinh; khác 403 |
 | POST | /api/v1/classroom-tools/scores (từ YCTD-212) | Ghi dòng điểm (`class_id`, `session_key`, `events` 1 đến 200 mục `client_id`, `target_kind`, `group_name` hoặc `child_id`, `delta`, `note`, `occurred_at`); chống trùng theo `client_id` |
 | GET, DELETE | /api/v1/classroom-tools/classes/{id}/scores?session_key=, /scores/{sessionKey} (từ YCTD-212) | Dòng điểm và tổng theo đối tượng của buổi (chỉ của chính giáo viên); bỏ buổi xóa dòng chưa chuyển vào nề nếp |
 | POST | /api/v1/classroom-tools/classes/{id}/scores/{sessionKey}/confirm (từ YCTD-212) | Chuyển điểm vào nề nếp: `criterion_id`, `targets` (tuỳ chọn), `date` (tuỳ chọn); cần `P02.conduct.record`; trả `confirmed_events`, `net`, `quantity`, `conduct_entry_ids`; 422 khi tổng bằng 0, tiêu chí ngược chiều, nề nếp chưa bật (BR-232) |

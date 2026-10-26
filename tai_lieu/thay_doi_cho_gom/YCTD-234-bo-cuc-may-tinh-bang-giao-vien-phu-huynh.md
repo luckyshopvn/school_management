@@ -23,7 +23,7 @@ phien_ban_de_xuat: 0.155.0
 
 #### Thay đổi
 
-- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-234, `23_LICH_SU_PHIEN_BAN.md` {PHIEN_BAN}; BR-250, P19-09, AC-900 đến AC-902, CT-1135 đến CT-1137, MH-360, QĐ-38.
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-234, `23_LICH_SU_PHIEN_BAN.md` {PHIEN_BAN}; BR-253, P19-09, AC-905 đến AC-907, CT-1146 đến CT-1148, MH-363, QĐ-38.
 
 #### Vấn đề tồn đọng
 
@@ -42,10 +42,10 @@ phien_ban_de_xuat: 0.155.0
 - Thành phần bị ảnh hưởng: `apps/teacher`, `apps/parent`, `tests` (spec 183, đường cơ sở). Không sửa `packages/ui`, máy chủ, cơ sở dữ liệu.
 - Dữ liệu bị ảnh hưởng: không.
 - API bị ảnh hưởng: không (dùng `/api/v1/classes?mine=true`, `/api/v1/timetables/mine` sẵn có).
-- Giao diện bị ảnh hưởng: MH-360; bố cục các màn hình của hai ứng dụng ở khổ từ 768 px; màu của hai ứng dụng đậm hơn một bậc.
+- Giao diện bị ảnh hưởng: MH-363; bố cục các màn hình của hai ứng dụng ở khổ từ 768 px; màu của hai ứng dụng đậm hơn một bậc.
 - Quyền bị ảnh hưởng: không.
 - Ảnh hưởng chức năng cũ: khổ điện thoại giữ bố cục cũ; nút nhỏ hơn 44 px được nới; e2e khổ máy tính hiện có đạt không sửa kỳ vọng.
-- Kiểm thử cần thực hiện: `apps/teacher` (CT-1135), e2e spec 183 ở bốn khổ thiết bị (CT-1136, CT-1137), spec 180, e2e khổ máy tính của hai ứng dụng; typecheck, lint.
+- Kiểm thử cần thực hiện: `apps/teacher` (CT-1146), e2e spec 183 ở bốn khổ thiết bị (CT-1147, CT-1148), spec 180, e2e khổ máy tính của hai ứng dụng; typecheck, lint.
 - Trạng thái: Đã triển khai
 
 ## 23 Lịch sử phiên bản
@@ -53,11 +53,11 @@ phien_ban_de_xuat: 0.155.0
 ### Phiên bản {PHIEN_BAN} – 2026-10-27
 
 - Phạm vi thay đổi: DT-26 phần 26d, bố cục máy tính bảng của ứng dụng giáo viên và phụ huynh (YCTD-234).
-- Chức năng mới: chế độ lớp học của giáo viên (P19-09, MH-360); trang chủ giáo viên hai khung, trang chủ phụ huynh hai cột; vùng chạm, cỡ chữ ô nhập, màu tương phản đạt yêu cầu truy cập.
+- Chức năng mới: chế độ lớp học của giáo viên (P19-09, MH-363); trang chủ giáo viên hai khung, trang chủ phụ huynh hai cột; vùng chạm, cỡ chữ ô nhập, màu tương phản đạt yêu cầu truy cập.
 - Lỗi đã sửa: nút, ô nhập dưới 44 px, chữ ô nhập dưới 16 px (iOS tự phóng to), màu chữ thiếu tương phản ở hai ứng dụng.
 - Thay đổi dữ liệu: không.
 - Thay đổi API: không.
-- Kiểm thử: CT-1135 đến CT-1137. Kết quả: kiểm thử đơn vị ứng dụng giáo viên 14/14 đạt; e2e thiết bị (E2E_DEVICES=full, spec 180 và 183, bốn dự án `dien-thoai`, `may-tinh-bang-doc`, `may-tinh-bang-ngang`, `dien-thoai-webkit`) 24/24 đạt, chạy lặp spec 183 hai lần 16/16 đạt; e2e máy tính 01–09, 151, 181, 187 30/30 đạt (spec 02 nới thời gian chờ tại máy, không đưa vào mã); typecheck, lint, prettier của `apps/teacher`, `apps/parent`, `tests` đạt. Spec 183 chặn service worker (`serviceWorkers: block`) vì ở WebKit yêu cầu do service worker gửi không đi qua `page.route`, và giả lập Fullscreen API vì WebKit chạy không giao diện có thể treo khi vào toàn màn hình thật.
+- Kiểm thử: CT-1146 đến CT-1148. Kết quả: kiểm thử đơn vị ứng dụng giáo viên 14/14 đạt; e2e thiết bị (E2E_DEVICES=full, spec 180 và 183, bốn dự án `dien-thoai`, `may-tinh-bang-doc`, `may-tinh-bang-ngang`, `dien-thoai-webkit`) 24/24 đạt, chạy lặp spec 183 hai lần 16/16 đạt; e2e máy tính 01–09, 151, 181, 187 30/30 đạt (spec 02 nới thời gian chờ tại máy, không đưa vào mã); typecheck, lint, prettier của `apps/teacher`, `apps/parent`, `tests` đạt. Spec 183 chặn service worker (`serviceWorkers: block`) vì ở WebKit yêu cầu do service worker gửi không đi qua `page.route`, và giả lập Fullscreen API vì WebKit chạy không giao diện có thể treo khi vào toàn màn hình thật.
 - Rủi ro: màu hai ứng dụng đậm hơn cổng quản trị cho tới khi 26e sửa `packages/ui`; chưa thử trên máy tính bảng thật.
 - Khả năng tương thích: khổ điện thoại giữ bố cục cũ; không đổi API, dữ liệu.
 - Phương án quay lui: hoàn lại commit gộp của nhánh; không có thay đổi dữ liệu.

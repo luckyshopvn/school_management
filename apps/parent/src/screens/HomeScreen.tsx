@@ -25,6 +25,7 @@ import { AssessmentPanel } from './AssessmentPanel.js';
 import { ScorePanel } from './ScorePanel.js';
 import { PeriodAttendancePanel } from './PeriodAttendancePanel.js';
 import { LearningRecordPanel } from './LearningRecordPanel.js';
+import { TutoringPanel } from './TutoringPanel.js';
 import { hasLevelFeature, levelOf } from '@school-management/shared';
 import { useSchoolLevelNames } from './school-levels.js';
 
@@ -141,6 +142,7 @@ function ChildCard({
     | 'scores'
     | 'period-attendance'
     | 'learning-record'
+    | 'tutoring'
   >('none');
   const [attendance, setAttendance] = useState<MonthAttendance>();
   const [errorMessage, setErrorMessage] = useState<string>();
@@ -215,12 +217,17 @@ function ChildCard({
             Điểm danh theo tiết
           </Button>
         ) : null}
+        {/* Gia sư trong trường (DT-27 phần 27b): từ Tiểu học trở lên */}
+        {has('period_timetable') ? (
+          <Button onClick={() => setView(view === 'tutoring' ? 'none' : 'tutoring')}>Gia sư</Button>
+        ) : null}
         {has('final_year_record') ? (
           <Button onClick={() => setView(view === 'final-year' ? 'none' : 'final-year')}>Hồ sơ cuối cấp</Button>
         ) : null}
       </div>
       {view === 'journal' ? <JournalPanel child={child} /> : null}
       {view === 'medication' ? <MedicationPanel child={child} /> : null}
+      {view === 'tutoring' ? <TutoringPanel child={child} /> : null}
       {view === 'consent' ? <PhotoConsentPanel child={child} /> : null}
       {view === 'health' ? <HealthPanel child={child} schoolLevel={child.school_level} /> : null}
       {view === 'learning' ? <LearningPanel child={child} /> : null}

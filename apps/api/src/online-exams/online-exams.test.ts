@@ -1087,4 +1087,92 @@ describe('Thi trực tuyến cho học sinh', () => {
     assert.equal((await api('POST', `/online-exams/assignments/${remote}/rooms`, as(math), {})).status, 422);
     assert.equal((await startAttempt(binh.accessToken, remote, 'off')).status, 200, 'từ xa không cần mã phòng');
   });
+  // Đích nhóm của bộ nhóm (DT-28 phần 28a, YCTD-271): thành viên lúc giao được giao như học sinh, đổi nhóm sau đó không đổi bài
+  it('CT-28a-14: giao đề cho nhóm của bộ nhóm: chỉ thành viên lúc giao làm bài; nhóm của bộ đã lưu trữ bị từ chối', async () => {
+    const addSet = async (status: 'active' | 'archived') =>
+      (
+        await schoolYear
+          .insertInto('group_sets')
+          .values({
+            org_unit_id: unitId,
+            class_id: classId,
+            name: `Bộ nhóm thi ${status}`,
+            purpose: 'subject',
+            method: 'manual',
+            status,
+            owner_user_id: math.userId,
+            owner_name: 'Giáo viên Toán',
+            replaces_id: null,
+            archived_at: null,
+          })
+          .returning('id')
+          .executeTakeFirstOrThrow()
+      ).id;
+    const addGroup = async (setId: string, name: string, members: string[]) => {
+      const group = await schoolYear
+        .insertInto('child_groups')
+        .values({
+          org_unit_id: unitId,
+          name,
+          created_by: math.userId,
+          group_set_id: setId,
+          class_id: classId,
+          position: 1,
+        })
+        .returning('id')
+        .executeTakeFirstOrThrow();
+      await schoolYear
+        .insertInto('child_group_members')
+        .values(members.map((childId) => ({ group_id: group.id, child_id: childId, added_by: math.userId })))
+        .execute();
+      return group.id;
+    };
+    const star = await addGroup(await addSet('active'), 'Nhóm Sao', [children.An as string, children.Binh as string]);
+    const old = await addGroup(await addSet('archived'), 'Nhóm cũ', [children.Chi as string]);
+    const assignment = await createAssignment(plainExamId, {
+      title: 'Kiểm tra theo nhóm',
+      class_ids: [],
+      group_ids: [star],
+    });
+    const detail = await api('GET', `/online-exams/assignments/${assignment}`, as(math));
+    assert.equal(detail.status, 200, JSON.stringify(detail.body));
+    assert.deepEqual(detail.body.targets, [{ kind: 'group', label: 'Nhóm Sao' }]);
+    const rows = await schoolYear
+      .selectFrom('exam_assignment_targets')
+      .select(['kind', 'child_id', 'group_id'])
+      .where('assignment_id', '=', assignment)
+      .execute();
+    assert.equal(rows.filter((row) => row.kind === 'group').length, 1);
+    assert.deepEqual(
+      rows
+        .filter((row) => row.kind === 'student')
+        .map((row) => row.child_id)
+        .sort(),
+      [children.An, children.Binh].sort(),
+    );
+    assert.ok(rows.every((row) => row.group_id === star));
+    // Đổi nhóm sau khi giao không đổi danh sách làm bài
+    await schoolYear
+      .deleteFrom('child_group_members')
+      .where('group_id', '=', star)
+      .where('child_id', '=', children.Binh as string)
+      .execute();
+    const again = await api('GET', `/online-exams/assignments/${assignment}`, as(math));
+    assert.equal((again.body.students as unknown[]).length, 2);
+    const an = students.An as Student;
+    const mine = list((await studentApi('GET', '/exams', an.accessToken)).body.items);
+    assert.ok(mine.some((row) => row.title === 'Kiểm tra theo nhóm'));
+    assert.equal(
+      (
+        await api(
+          'POST',
+          '/online-exams/assignments',
+          as(math),
+          assignmentBody(plainExamId, { class_ids: [], group_ids: [old] }),
+        )
+      ).status,
+      404,
+      'nhóm của bộ đã lưu trữ',
+    );
+  });
 });

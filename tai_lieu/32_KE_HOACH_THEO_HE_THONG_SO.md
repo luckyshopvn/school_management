@@ -2376,7 +2376,7 @@ Cỡ ước lượng (một phần của DT-16 là một đơn vị): 27a 1,75; 
 | Phần | Đợt | Tiến độ |
 |---|---|---|
 | 27a | 1 | Chưa làm; YCTD-251 giữ sẵn; chờ 23a gộp |
-| 27b | 1 | Chưa làm; YCTD-252 giữ sẵn |
+| 27b | 1 | Đã làm, YCTD-252, phiên bản 0.152.0, PR 196: chương trình gia sư trong trường (loại nội dung bắt buộc, khóa của Thông tư 29 ở máy chủ, quy định có ngày hiệu lực), buổi lặp theo tuần không trùng thời khoá biểu, giới hạn 2 tiết/tuần/môn, quyết định của Sở, đơn của cha mẹ, điểm danh và báo vắng, tin nhắn qua cha mẹ, chỗ nối điểm danh tự động cho 27a; năm học 0152 đến 0154, định danh 0172, e2e 191 |
 | 27c | 2 | Chưa làm; YCTD-253 giữ sẵn; chờ 27b |
 | 27d | 2 | Chưa làm; YCTD-254 giữ sẵn; chờ 28b, 28d (lõi LMS, YCTD-270) |
 | 27e | 2 | Chưa làm; YCTD-255 giữ sẵn; chờ 23d gộp và 28e (YCTD-270) |
@@ -2712,7 +2712,7 @@ Cỡ ước lượng (một phần của DT-16 là một đơn vị): 28a 1,0; 2
 
 | Phần | Đợt | Tiến độ |
 |---|---|---|
-| 28a | 1 | Chưa làm; YCTD-271 giữ sẵn; làm được ngay (đích nhóm cho 23a khi 23a gộp) |
+| 28a | 1 | Đã làm (YCTD-271, phiên bản 0.149.0): bộ nhóm, cách chia, nhóm trưởng, 23b dùng bộ nhóm, `GroupSetsReader`, đích `group` cho đề 23a; năm học 0170, 0171; e2e 210. Còn nguồn kết quả hoạt động (chờ 28d) |
 | 28b | 1 | Chưa làm; YCTD-272 giữ sẵn; phần giáo viên làm được ngay, màn hình học sinh chờ 23a |
 | 28c | 2 | Chưa làm; YCTD-273 giữ sẵn; chờ 28b; phần AI chờ 23d |
 | 28d | 2 | Chưa làm; YCTD-274 giữ sẵn; chờ 28b |
