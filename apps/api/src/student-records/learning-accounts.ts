@@ -3,6 +3,7 @@ import type { SchoolYearDatabase } from '@school-management/database';
 import {
   ApplicationError,
   Clock,
+  readBearerToken,
   ruleViolationError,
   validationError,
   type FieldError,
@@ -13,6 +14,7 @@ import type { Kysely, Transaction } from 'kysely';
 import { randomBytes, randomInt, scrypt, timingSafeEqual } from 'node:crypto';
 import { promisify } from 'node:util';
 import { AuthenticatedUser, RequirePermission } from '../authentication/authentication.guard.js';
+import { IdentityClient } from '../authentication/identity-client.js';
 import type { CurrentUser } from '../authentication/current-user.js';
 import { ChildScope } from '../children/child-scope.js';
 import { findStudents, readStudentListFilter, type StudentListFilter } from '../children/student-list.js';
@@ -68,13 +70,14 @@ export class LearningAccountsService {
     private readonly childScope: ChildScope,
     private readonly protection: ChildDataProtection,
     private readonly clock: Clock,
+    private readonly identityClient: IdentityClient,
   ) {}
 
   private async accountsOf(database: Executor, childIds: string[]) {
     return childIds.length
       ? database
           .selectFrom('student_learning_accounts')
-          .select(['child_id', 'username', 'issued_at', 'issued_by_name', 'reset_count'])
+          .select(['child_id', 'username', 'issued_at', 'issued_by_name', 'reset_count', 'identity_user_id'])
           .where('child_id', 'in', childIds)
           .execute()
       : [];
@@ -106,6 +109,8 @@ export class LearningAccountsService {
           issued_at: account?.issued_at ?? null,
           issued_by_name: account?.issued_by_name ?? null,
           reset_count: account?.reset_count ?? 0,
+          // Đã nối với người dùng kênh student (DT-23 phần 23a); tài khoản cấp trước đó cần "Cấp lại mật khẩu" một lần
+          sign_in_ready: Boolean(account?.identity_user_id),
         };
       }),
     };
@@ -199,6 +204,7 @@ export class LearningAccountsService {
     mode: IssueMode,
     origin: ChangeOrigin,
     ipAddress: string | null,
+    accessToken: string,
   ) {
     const { database } = await this.currentSchoolYear.require();
     const scope = await this.childScope.resolve(currentUser, database);
@@ -304,6 +310,24 @@ export class LearningAccountsService {
           before: existing ? { username, reset_count: existing.reset_count } : null,
           after: { username, password_issued: true, mode },
         });
+      }
+      // Người dùng định danh của kênh student gắn một-một với tài khoản (DT-23 phần 23a, GD-105): gọi trong giao dịch để lỗi
+      // ở dịch vụ định danh hoàn tác cả lần cấp, học sinh không cầm mật khẩu không đăng nhập được
+      const synced = await this.identityClient.syncStudentAccounts(
+        accessToken,
+        issued.map((item) => ({
+          username: item.username,
+          full_name: item.full_name,
+          password: item.password,
+          org_unit_id: targets.find((child) => child.id === item.child_id)?.org_unit_id ?? '',
+        })),
+      );
+      for (const item of synced.items) {
+        await transaction
+          .updateTable('student_learning_accounts')
+          .set({ identity_user_id: item.user_id })
+          .where('username', '=', item.username)
+          .execute();
       }
     });
     const buffer = await buildTableFile(
@@ -411,6 +435,7 @@ export class LearningAccountsController {
       mode as IssueMode,
       originOf(request, currentUser),
       request.ip ?? null,
+      readBearerToken(request.header('authorization')),
     );
   }
 }

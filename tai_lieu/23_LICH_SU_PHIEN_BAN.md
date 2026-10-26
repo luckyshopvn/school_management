@@ -1,7 +1,7 @@
 # 23. LỊCH SỬ PHIÊN BẢN
 
 - Mô tả: Mã phiên bản, ngày phát hành, danh sách thay đổi, chức năng mới, lỗi đã sửa, thay đổi dữ liệu, thay đổi API, rủi ro, khả năng tương thích, phương án quay lui.
-- Phiên bản: 0.63
+- Phiên bản: 0.64
 - Ngày cập nhật: 2026-10-26
 - Trạng thái: Đang cập nhật
 - Đã rà duyệt: Eric, ngày 2026-10-09
@@ -16,17 +16,29 @@
 
 ## 2. Danh sách phiên bản
 
-### Phiên bản 0.144.0 – 2026-10-26
+### Phiên bản 0.149.0 – 2026-10-26
 
 - Phạm vi thay đổi: DT-28 phần 28a, mô hình nhóm dùng chung (YCTD-271).
 - Chức năng mới: bộ nhóm của lớp (chia tay, ngẫu nhiên có hạt, trộn năng lực, gom tầng, cân bằng giới, ràng buộc cùng nhóm, không cùng nhóm, từ tiết nhóm 21b), nhóm trưởng (đặt, ngẫu nhiên, luân phiên), lịch sử đổi thành viên; công cụ lớp học dùng bộ nhóm, chọn bộ sẵn có; hàm đọc ổn định `GroupSetsReader` cho 28b, 28c, 28e.
 - Lỗi đã sửa: không có.
 - Thay đổi dữ liệu: năm học `0170`, `0171`; xem `16_CO_SO_DU_LIEU.md` mục 18F.
 - Thay đổi API: nhóm `/group-sets`; `PUT /classroom-tools/classes/{id}/grouping` nhận thêm `group_set_id`.
-- Kiểm thử: kịch bản CT-1097 đến CT-1103 (CT-28a-1 đến CT-28a-13 trong mã kiểm thử).
+- Kiểm thử: kịch bản CT-1108 đến CT-1114 (CT-28a-1 đến CT-28a-13 trong mã kiểm thử).
 - Rủi ro: chia theo năng lực dựa trên điểm chưa đầy đủ đầu năm (học sinh chưa có điểm xếp sau ở gom tầng); bảng `classroom_groupings` còn ghi song song một bản phát hành.
 - Khả năng tương thích: nhóm 4.1.6 không đổi; công cụ lớp học giữ dạng phản hồi; bản chia cũ của 23b chuyển thành bộ nhóm.
 - Phương án quay lui: hoàn lại commit gộp; tệp 0171 và 0170 có hàm `down` xóa bộ nhóm đã dời và các cột mới, `classroom_groupings` vẫn đủ dữ liệu vì được ghi song song.
+### Phiên bản 0.144.0 – 2026-10-26
+
+- Phạm vi thay đổi: DT-23 phần 23a, thi trực tuyến cho học sinh (YCTD-211).
+- Chức năng mới: kênh đăng nhập `student` và vai trò học sinh nối với tài khoản học và thi; giao đề đã khoá cho lớp, học sinh; làm bài có đồng hồ máy chủ, lưu nháp từng câu, chấm tự động; khóa toàn màn hình, camera kiểm tra có mặt và nhiều khuôn mặt ngay trên máy học sinh (chỉ gửi sự kiện); theo dõi, chấm tự luận, công bố kết quả; bài nộp vào phiếu chấm 22g2 để chuyển sổ điểm có giáo viên xác nhận; công tắc theo cấp; phân hệ "Thi trực tuyến".
+- Lỗi đã sửa: không có.
+- Thay đổi dữ liệu: tệp năm học `0120` đến `0123`; tệp định danh `0120`, `0121`.
+- Thay đổi API: `/online-exams/…`, `/student/…`, `POST /users/student-accounts/sync`, kênh `student` của `POST /auth/login`.
+- Kiểm thử: kịch bản CT-1097 đến CT-1107. Kết quả ngày 26/10/2026: kiểm thử đơn vị `apps/api/src/online-exams/online-exam-rules.test.ts` (CT-23a-1a đến CT-23a-1h) và `online-exams.test.ts` (CT-23a-2 đến CT-23a-9) đạt; kiểm thử đơn vị toàn kho đạt (lượt đầy đủ 1.441/1.441 trước khi gộp main; sau đó bộ 23a, 22g, tenancy-matrix, định danh đạt); kiểm thử giao diện `tests/e2e/150-online-exams.spec.ts` (CT-23a-10) cùng 02, 03, 07, 58, 101 đạt; toàn bộ kiểm thử giao diện để CI chạy toàn bộ; trên máy chạy riêng 02, 03, 06, 07, 08, 58, 83, 101 và 150 đạt; kiểm tĩnh đa thuê bao, ma trận cách ly, kiểm thử hai bố cục cơ sở dữ liệu `database` và `schema`, build, kiểm tra kiểu, lint, kiểm tra định dạng đạt.
+- Rủi ro: học sinh xem đáp án hoặc dữ liệu bạn khác (đáp án không xuống máy học sinh, tuyến `/student/*` chỉ trả dữ liệu của chính học sinh, mã phiên kênh `student` chỉ gọi nhóm này); lộ hình ảnh trẻ em (không có hình nào rời khỏi máy học sinh); mất bài khi mất mạng (đồng hồ máy chủ, lưu nháp từng câu, làm tiếp); gian lận (khóa toàn màn hình, camera, một phiên, điểm do giáo viên xác nhận; không hứa tuyệt đối).
+- Khả năng tương thích: không đổi hành vi cũ; tài khoản học và thi cấp trước cần cấp lại mật khẩu một lần để đăng nhập làm bài.
+- Phương án quay lui: hoàn lại commit gộp của nhánh 23a; chạy phần quay lui của tệp năm học `0123` đến `0120` và định danh `0121`, `0120`.
+
 ### Phiên bản 0.143.0 – 2026-10-26
 
 - Phạm vi thay đổi: DT-23 phần 23d, trợ lý AI soạn câu hỏi nháp và kế hoạch bài dạy nháp (YCTD-214).

@@ -122,6 +122,7 @@ export interface LearningAccountRow {
   issued_at: string | null;
   issued_by_name: string | null;
   reset_count: number;
+  sign_in_ready: boolean;
 }
 
 export interface IssuedAccounts {

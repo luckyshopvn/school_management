@@ -488,6 +488,13 @@ import { FacebookPostsController, FacebookPostsService } from './integrations/fa
 import { FacebookPublisher } from './integrations/facebook-publisher.js';
 import { ZaloSender } from './integrations/zalo-sender.js';
 import { ZaloTokenStore } from './integrations/zalo-token-store.js';
+// Thi trực tuyến cho học sinh (DT-23 phần 23a)
+import { AttemptEngine } from './online-exams/attempt-engine.js';
+import { ExamRateLimiter } from './online-exams/exam-rate-limit.js';
+import { OnlineExamsController } from './online-exams/online-exams.controller.js';
+import { OnlineExamsService } from './online-exams/online-exams.js';
+import { StudentExamsController } from './online-exams/student-exams.controller.js';
+import { StudentExamsService } from './online-exams/student-exams.js';
 import { AiAssistantController, AiUsageJob } from './ai-assistant/ai-assistant.controller.js';
 import { AI_PROVIDERS, AiAssistantService } from './ai-assistant/ai-assistant.js';
 import { AiProviderRegistry } from './ai-assistant/ai-provider.js';
@@ -776,6 +783,9 @@ export class ApplicationModule {
         // Mô hình nhóm dùng chung (DT-28 phần 28a)
         GroupSetsController,
         ...(options.additionalControllers ?? []),
+        // Thi trực tuyến cho học sinh (DT-23 phần 23a)
+        OnlineExamsController,
+        StudentExamsController,
       ],
       providers: [
         { provide: API_CONFIGURATION, useValue: configuration },
@@ -1175,6 +1185,11 @@ export class ApplicationModule {
                 (configuration.objectStorage ? new S3FileStorage(configuration.objectStorage) : null),
             ),
         },
+        // Thi trực tuyến cho học sinh (DT-23 phần 23a)
+        AttemptEngine,
+        ExamRateLimiter,
+        OnlineExamsService,
+        StudentExamsService,
       ],
     };
   }

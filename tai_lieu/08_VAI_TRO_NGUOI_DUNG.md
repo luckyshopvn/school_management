@@ -1,7 +1,7 @@
 # 08. VAI TRÒ NGƯỜI DÙNG
 
 - Mô tả: Nhóm người dùng, vai trò, trách nhiệm, quyền hạn.
-- Phiên bản: 1.96
+- Phiên bản: 1.97
 - Ngày cập nhật: 2026-10-26
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -206,6 +206,7 @@ Ghi chú áp dụng cho bảng:
 | PQ-106 | Quản lý trường ở cổng vận hành nền tảng (YCTD-193, DT-SaaS phần S2): mọi tài khoản vận hành nền tảng đang hoạt động (PQ-105) được xem danh sách, chi tiết trường, khởi tạo trường, chạy tiếp hoặc hoàn tác việc khởi tạo, tạm dừng, mở lại, yêu cầu xóa, hủy xóa, cấp lại đường kích hoạt, ghi hồ sơ đồng ý, vùng máy chủ, đổi loại dữ liệu, thêm và kiểm tra tên miền riêng; chưa chia cấp quyền giữa các tài khoản vận hành; xóa vĩnh viễn, xuất dữ liệu, migrate cuốn chiếu chỉ chạy bằng lệnh trên máy chủ. Quản trị viên đầu tiên của trường mới nhận vai trò VT-02 Hiệu trưởng phạm vi toàn trường |
 | PQ-107 | Hóa đơn dịch vụ của trường (YCTD-196, DT-SaaS phần S5b): quyền `P01.billing.manage` cho Hiệu trưởng (VT-01) và quản trị trường (VT-02): xem, tải, thanh toán hóa đơn dịch vụ của trường mình, dùng được cả khi trường ở chế độ chỉ đọc; quy tắc tính phí, điều chỉnh, cấu hình thu phí chỉ ở cổng vận hành nền tảng (PQ-105) |
 | PQ-108 | Công cụ lớp học (YCTD-212, DT-23 phần 23b): không thêm quyền mới; dùng được cho người có phạm vi xem trẻ của lớp (giáo viên VT-07, VT-08 được phân công lớp, vai trò văn phòng trong đơn vị); phụ huynh và người ngoài lớp bị từ chối 403; ghi vào nề nếp, thi đua cần `P02.conduct.record` (VT-02, VT-15, VT-03, VT-07, VT-08); bật, tắt ngoại tuyến là cấu hình trường (`P01.setting.manage`) |
+| PQ-109 | Thi trực tuyến cho học sinh (YCTD-211): vai trò hệ thống mới VT-21 Học sinh (kênh `student`, quyền duy nhất `P02.exam.take`, không có phân hệ nào của cổng quản trị); quyền mới `P02.exam.assign` (VT-02, VT-07, VT-08, VT-15, VT-17) giao đề đã khoá, theo dõi, chấm tự luận, nộp thay, công bố kết quả (giáo viên chỉ với lớp mình chủ nhiệm hoặc dạy môn của đề, hoặc bài do mình giao); bật, tắt thi trực tuyến theo cấp dùng `P02.exam.manage`; phân hệ "Thi trực tuyến" không hiện cho VT-14; khoá điểm dùng `P02.exam.manage`, chuyển điểm theo quyền nhập điểm của lớp như 22g2 |
 
 ## 5. Phân cấp phê duyệt
 

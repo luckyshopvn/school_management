@@ -1,0 +1,3 @@
+Mô hình nhận diện khuôn mặt nhỏ (Tiny Face Detector) của thư viện @vladmandic/face-api 1.7.15 (giấy phép MIT), trọng số gốc của
+dự án face-api.js (giấy phép MIT). Dùng ở màn hình làm bài thi trực tuyến của học sinh (DT-23 phần 23a): hình từ camera chỉ được
+xử lý ngay trên máy học sinh để đếm số khuôn mặt, không gửi hình hay video lên máy chủ.

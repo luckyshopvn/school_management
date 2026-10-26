@@ -5,6 +5,7 @@ import { API_CONFIGURATION, type ApiConfiguration } from '../common/configuratio
 import type { CurrentUserDescription } from './current-user.js';
 
 const IDENTITY_TIMEOUT_MILLISECONDS = 5000;
+const STUDENT_SYNC_TIMEOUT_MILLISECONDS = 120_000;
 
 // Hỏi dịch vụ định danh vai trò và quyền hiện hành ở mỗi yêu cầu, không lưu bộ nhớ đệm (QĐ-20, PQ-04)
 export interface ApiClientIdentity {
@@ -191,13 +192,31 @@ export class IdentityClient {
     );
   }
 
+  // Tạo hoặc cấp lại người dùng của kênh student cho tài khoản học và thi vừa khởi tạo, cấp lại mật khẩu (DT-23 phần 23a); băm
+  // mật khẩu của tối đa 500 học sinh mất thời gian nên chờ lâu hơn các cuộc gọi khác
+  syncStudentAccounts(accessToken: string, accounts: StudentAccountSyncInput[]) {
+    return this.requestJson<{ items: Array<{ username: string; user_id: string; created: boolean }> }>(
+      accessToken,
+      '/users/student-accounts/sync',
+      { accounts },
+      'cấp tài khoản đăng nhập cho học sinh',
+      STUDENT_SYNC_TIMEOUT_MILLISECONDS,
+    );
+  }
+
   // Gọi dịch vụ định danh bằng mã phiên của người thao tác; lỗi nghiệp vụ trả nguyên mã lỗi và nội dung
   private postJson<Result>(accessToken: string, path: string, body: unknown, action: string): Promise<Result> {
     return this.requestJson<Result>(accessToken, path, body, action);
   }
 
   // Có nội dung thì gửi POST, không có thì GET
-  private async requestJson<Result>(accessToken: string, path: string, body: unknown, action: string): Promise<Result> {
+  private async requestJson<Result>(
+    accessToken: string,
+    path: string,
+    body: unknown,
+    action: string,
+    timeoutMilliseconds = IDENTITY_TIMEOUT_MILLISECONDS,
+  ): Promise<Result> {
     let response: Response;
     try {
       response = await fetch(`${this.configuration.identityBaseUrl}${API_VERSION_PREFIX}${path}`, {
@@ -208,7 +227,7 @@ export class IdentityClient {
               headers: { authorization: `Bearer ${accessToken}`, 'content-type': 'application/json' },
               body: JSON.stringify(body),
             }),
-        signal: AbortSignal.timeout(IDENTITY_TIMEOUT_MILLISECONDS),
+        signal: AbortSignal.timeout(timeoutMilliseconds),
       });
     } catch (error) {
       this.logger.error('Không liên lạc được với dịch vụ định danh', error instanceof Error ? error.message : '');
@@ -237,6 +256,13 @@ export class IdentityClient {
     }
     return (await response.json()) as Result;
   }
+}
+
+export interface StudentAccountSyncInput {
+  username: string;
+  full_name: string;
+  password: string;
+  org_unit_id: string;
 }
 
 export interface StaffAccountResult {
