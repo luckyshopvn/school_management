@@ -159,10 +159,16 @@ export function LoginScreen({ onAdmissions }: { onAdmissions?: () => void }) {
         }}
       />
       <nav aria-label="Trang công khai" className="fixed bottom-6 left-0 right-0 flex justify-center gap-6">
-        <a href={STUDENT_HASH} className="text-label font-medium text-text underline">
+        <a
+          href={STUDENT_HASH}
+          className="inline-flex min-h-11 items-center px-2 text-label font-medium text-text underline"
+        >
           Học sinh làm bài thi trực tuyến
         </a>
-        <a href={RECRUITMENT_HASH} className="text-label font-medium text-text underline">
+        <a
+          href={RECRUITMENT_HASH}
+          className="inline-flex min-h-11 items-center px-2 text-label font-medium text-text underline"
+        >
           Tuyển dụng giáo viên và nhân viên
         </a>
       </nav>
