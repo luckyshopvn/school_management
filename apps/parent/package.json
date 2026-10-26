@@ -9,6 +9,7 @@
     "typecheck": "tsc -p tsconfig.json"
   },
   "dependencies": {
+    "@school-management/pwa": "workspace:*",
     "@school-management/shared": "workspace:*",
     "@school-management/ui": "workspace:*",
     "qrcode": "1.5.4",

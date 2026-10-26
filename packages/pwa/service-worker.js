@@ -1,12 +1,12 @@
 /* global self, caches, fetch, URL */
-// Service worker của ứng dụng giáo viên (DT-23 phần 23b, YCTD-212, GD-108): chỉ để trang công cụ lớp học mở được khi mất mạng
-// sau lần tải đầu. Giữ vỏ ứng dụng (trang, tệp dựng); KHÔNG bao giờ giữ lời gọi /api (dữ liệu, điểm, học bạ vẫn cần mạng),
-// các phân hệ khác của ứng dụng giáo viên không dùng ngoại tuyến được. Gặp mạng thì lấy bản mới nhất và cập nhật bộ nhớ đệm,
-// mất mạng mới dùng bản đã giữ. Phiên bản bộ nhớ đệm đặt theo bản phát hành: khi dựng, vite.config.ts thay hai dòng đánh
-// dấu bên dưới (mã bản dựng và danh sách tệp dựng); lúc phát triển giữ giá trị mặc định
+// Service worker dùng chung của ứng dụng giáo viên và phụ huynh (DT-26 phần 26a, YCTD-231; gom từ DT-23 phần 23b, YCTD-212,
+// GD-108). Giữ vỏ ứng dụng (trang, tệp dựng) để mở được khi mất mạng sau lần tải đầu; KHÔNG bao giờ giữ lời gọi /api (dữ liệu,
+// điểm, học bạ, học phí vẫn cần mạng). Gặp mạng thì lấy bản mới nhất và cập nhật bộ nhớ đệm, mất mạng mới dùng bản đã giữ.
+// Plugin `pwaServiceWorker` (src/vite.ts) phục vụ tệp này ở `<base>sw.js` và thay ba dòng đánh dấu bên dưới: tiền tố bộ nhớ đệm
+// của từng ứng dụng, mã bản dựng và danh sách tệp dựng (lúc phát triển mã bản dựng là 'phat-trien', chỉ giữ trang)
 const VERSION = 'phat-trien';
 /* precache */ const PRECACHE = ['./']; /* end-precache */
-const CACHE_PREFIX = 'cong-cu-lop-hoc-v-';
+/* cache-prefix */ const CACHE_PREFIX = 'ung-dung-v-'; /* end-cache-prefix */
 const CACHE = `${CACHE_PREFIX}${VERSION}`;
 
 self.addEventListener('install', (event) => {

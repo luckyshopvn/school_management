@@ -4,6 +4,7 @@ import { sql } from 'kysely';
 import { sendWithHost, startMultiTenantApi, type MultiTenantApi } from '../tenant-test-support.js';
 import { CONNECTOR_SPECS, validateConnectorValues } from './school-settings.js';
 import { paymentSettingsOf } from './tenant-connectors.js';
+import { buildIcon, buildManifest, initialOf, normalizeBase, shortNameOf } from './pwa-manifest.js';
 
 // Cấu hình kết nối riêng từng trường (DT-SaaS phần S3, YCTD-195; tài liệu 32 mục 14.5). Hai trường trên một nền tảng; dữ liệu giả hoàn toàn.
 // Khóa lưu mã hóa bằng khóa của trường, không trả lại giá trị bí mật, trường này không thấy và không dùng cấu hình của trường kia
@@ -177,5 +178,103 @@ describe('cấu hình riêng từng trường ở máy chủ API nhiều trườ
       ).status,
       404,
     );
+  });
+
+  it('manifest của ứng dụng cài được theo thương hiệu từng trường (DT-26 phần 26a)', async () => {
+    const saved = await call('alpha', 'PUT', '/school-settings/branding', {
+      display_name: 'Trường Alpha giả',
+      primary_color: '#1D5FD1',
+      app_short_name: 'Alpha',
+    });
+    assert.equal(saved.status, 200, JSON.stringify(saved.body));
+    assert.equal(saved.body.app_short_name, 'Alpha');
+    assert.equal('logo_file_id' in saved.body, false);
+    assert.equal(
+      (await call('alpha', 'PUT', '/school-settings/branding', { app_short_name: 'Quá dài mười' })).status,
+      400,
+    );
+    // Không gửi tên ngắn thì giữ tên đã lưu
+    const kept = await call('alpha', 'PUT', '/school-settings/branding', {
+      display_name: 'Trường Alpha giả',
+      primary_color: '#1D5FD1',
+    });
+    assert.equal(kept.body.app_short_name, 'Alpha');
+    const alpha = await sendWithHost(environment.apiOrigin, {
+      path: '/api/v1/public/pwa/teacher.webmanifest?base=%2Fgiao-vien%2F',
+      host: environment.hosts.alpha as string,
+    });
+    assert.equal(alpha.status, 200);
+    assert.equal(alpha.body.name, 'Trường Alpha giả – Giáo viên');
+    assert.equal(alpha.body.short_name, 'Alpha GV');
+    assert.equal(alpha.body.theme_color, '#1D5FD1');
+    assert.equal(alpha.body.start_url, '/giao-vien/');
+    assert.equal(alpha.body.scope, '/giao-vien/');
+    const beta = await sendWithHost(environment.apiOrigin, {
+      path: '/api/v1/public/pwa/parent.webmanifest?base=%2Fphu-huynh%2F',
+      host: environment.hosts.beta as string,
+    });
+    assert.equal(beta.status, 200);
+    assert.notEqual(beta.body.name, 'Trường Alpha giả – Phụ huynh');
+    assert.notEqual(beta.body.theme_color, '#1D5FD1');
+    assert.equal(beta.body.short_name, 'Phụ huynh');
+    const icon = await sendWithHost(environment.apiOrigin, {
+      path: '/api/v1/public/pwa/icon.svg',
+      host: environment.hosts.alpha as string,
+    });
+    assert.equal(icon.status, 200);
+    assert.match(String(icon.body.raw), /^<svg[^>]*>.*#1D5FD1/);
+    const unknown = await sendWithHost(environment.apiOrigin, {
+      path: '/api/v1/public/pwa/portal.webmanifest',
+      host: environment.hosts.alpha as string,
+    });
+    assert.equal(unknown.status, 404);
+    await call('alpha', 'PUT', '/school-settings/branding', { app_short_name: null });
+  });
+});
+
+describe('manifest và biểu tượng của ứng dụng cài được (DT-26 phần 26a)', () => {
+  const branding = {
+    display_name: 'Trường Mầm non Hoa Sen',
+    app_short_name: null,
+    primary_color: null,
+    logo_content_type: null,
+    revision: 'abc',
+  };
+
+  it('chỉ nhận đường dẫn gốc dạng thư mục, còn lại dùng /', () => {
+    assert.equal(normalizeBase('/giao-vien/'), '/giao-vien/');
+    assert.equal(normalizeBase('/'), '/');
+    assert.equal(normalizeBase('https://ngoai.example/'), '/');
+    assert.equal(normalizeBase('/giao-vien'), '/');
+    assert.equal(normalizeBase('/../'), '/');
+    assert.equal(normalizeBase(['/a/']), '/');
+  });
+
+  it('tên ngắn, màu mặc định, biểu tượng dự phòng cho iOS', () => {
+    assert.equal(shortNameOf('teacher', null), 'Giáo viên');
+    assert.equal(shortNameOf('parent', 'Hoa Sen'), 'Hoa Sen PH');
+    const manifest = buildManifest('parent', '/', branding);
+    assert.equal(manifest.theme_color, '#0a8be6');
+    assert.equal(manifest.id, '/?ung-dung=parent');
+    assert.equal(manifest.apple_touch_icon, '/icon-192.png');
+    assert.ok(manifest.icons.some((icon) => icon.purpose === 'maskable'));
+    assert.equal(
+      buildManifest('parent', '/', { ...branding, logo_content_type: 'image/png' }).apple_touch_icon,
+      '/api/v1/public/branding/logo',
+    );
+  });
+
+  it('biểu tượng: chữ cái đầu khi chưa có biểu trưng, thoát ký tự, nhúng biểu trưng nhỏ', () => {
+    assert.equal(initialOf('Trường Mầm non Hoa Sen'), 'S');
+    assert.equal(initialOf('Trường Tiểu học Ánh Dương'), 'D');
+    assert.match(buildIcon(branding, null, false), />S<\/text>/);
+    assert.doesNotMatch(buildIcon({ ...branding, display_name: '<script>' }, null, false), /<script>/);
+    const logo = { data: Buffer.from('png'), contentType: 'image/png' };
+    assert.match(buildIcon(branding, logo, true), /href="data:image\/png;base64,cG5n"/);
+    assert.doesNotMatch(
+      buildIcon(branding, { data: Buffer.alloc(600 * 1024), contentType: 'image/png' }, false),
+      /<image/,
+    );
+    assert.doesNotMatch(buildIcon(branding, { data: Buffer.from('x'), contentType: 'text/html' }, false), /<image/);
   });
 });

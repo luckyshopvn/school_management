@@ -31,6 +31,7 @@ import { migration as createTermsAcceptances } from './migrations/0050_create_te
 import { migration as createIntegrationSecrets } from './migrations/0051_create_integration_secrets.js';
 import { migration as createSchoolBranding } from './migrations/0052_create_school_branding.js';
 import { migration as createSupportAccessGrants } from './migrations/0053_create_support_access_grants.js';
+import { migration as addSchoolBrandingAppShortName } from './migrations/0090_add_school_branding_app_short_name.js';
 
 // Danh sách tệp thay đổi cấu trúc của cơ sở dữ liệu hệ thống, theo số thứ tự (QU-01, QĐ-17)
 export const systemMigrations: Record<string, Migration> = {
@@ -66,4 +67,5 @@ export const systemMigrations: Record<string, Migration> = {
   '0051_create_integration_secrets': createIntegrationSecrets,
   '0052_create_school_branding': createSchoolBranding,
   '0053_create_support_access_grants': createSupportAccessGrants,
+  '0090_add_school_branding_app_short_name': addSchoolBrandingAppShortName,
 };

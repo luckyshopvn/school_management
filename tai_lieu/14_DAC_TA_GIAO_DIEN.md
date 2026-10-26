@@ -1,7 +1,7 @@
 # 14. ĐẶC TẢ GIAO DIỆN
 
 - Mô tả: Danh sách màn hình, điều hướng, bố cục, thành phần, dữ liệu hiển thị, thao tác, trạng thái, thông báo, xử lý lỗi, quyền hiển thị, khả năng thích ứng màn hình.
-- Phiên bản: 1.115
+- Phiên bản: 1.116
 - Ngày cập nhật: 2026-10-26
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -706,6 +706,7 @@ Từ YCTD-184 (DT-22 phần 22h2), phân hệ "Kho học liệu" thêm 8. Câu h
 | MH-336 | Cổng: Chia sẻ số liệu cấp trên (YCTD-202, mục 4.6 của phân hệ Quản trị hệ thống, `/parent-org-consents`, P01.setting.manage): chuỗi đơn vị quản lý; bảng ô đánh dấu nhóm số liệu × cấp (Bộ, Sở, Phòng) kèm Lưu đồng ý; bảng Đề nghị xem chi tiết (Duyệt, Từ chối, Rút); Lịch sử đồng ý | P01-84, P01-85 |
 | MH-337 | Ứng dụng giáo viên: Công cụ lớp học (YCTD-212, nút "Công cụ lớp học" ở Lớp của tôi): chọn lớp; bốn thẻ Gọi tên, Chia nhóm, Đồng hồ, Bảng điểm. Gọi tên: ô chọn "Không gọi lặp lại trong một lượt", "Loại học sinh vắng hôm nay", nút Gọi tên (hiệu ứng chọn, bỏ khi người dùng chọn giảm chuyển động), Lượt mới, số đã gọi, Lịch sử gọi (Xóa từng lượt, Xóa lịch sử của tôi). Chia nhóm: theo số nhóm hoặc số người mỗi nhóm, Chia nhóm, Chia lại, danh sách nhóm. Đồng hồ: đếm ngược 1, 2, 5, 10 phút hoặc số phút tự chọn, bấm giờ, Chạy, Dừng, Đặt lại, Xóa, giữ màn hình sáng, tiếng báo hết giờ. Bảng điểm: chấm theo nhóm hoặc theo học sinh (+1, +2, +5, −1), tổng điểm, khối Ghi vào nề nếp, thi đua (tiêu chí cùng chiều với tổng, nút Ghi vào nề nếp), Bỏ buổi này | P03-09, P03-10 |
 | MH-338 | Ứng dụng giáo viên: chế độ ngoại tuyến (YCTD-212, GD-108): dải "Đang dùng ngoại tuyến" khi mất mạng, số mục chờ gửi, dòng "Danh sách lớp lưu trên máy lúc ... , giữ tối đa N giờ", dải "Có bản mới của ứng dụng" kèm Tải lại; khi mở ứng dụng lúc mất mạng chỉ có công cụ lớp học với các lớp còn bản chụp (không có thì màn "Chưa có kết nối" kèm Thử kết nối lại), nút Xóa dữ liệu công cụ lớp học trên máy này; manifest cho phép thêm vào màn hình chính | P03-11 |
+| MH-339 | Ứng dụng giáo viên (Lớp của tôi) và phụ huynh (trang chủ): khối "Cài … lên màn hình chính" (YCTD-231): Android, máy tính có nút "Cài ứng dụng"; iPhone, iPad hướng dẫn ba bước nút Chia sẻ, "Thêm vào MH chính", ghi chú thông báo đẩy trên iPhone chỉ nhận được khi đã cài; Chrome trên iPhone hướng dẫn mở bằng Safari; trình duyệt nhúng của Zalo, Facebook hướng dẫn mở bằng trình duyệt; nút "Để sau" (ẩn 30 ngày); đã cài thì không hiện. Dải "Có bản mới của ứng dụng. Tải lại để dùng bản mới" ở đầu mọi màn hình (thay dải riêng của trang công cụ lớp học). Cổng quản trị, Cấu hình kết nối, Thương hiệu: thêm ô "Tên ngắn trên màn hình chính (tối đa 9 ký tự)" | P19-07 |
 
 Từ YCTD-128 (DT-16 phần 16i): MH-80 có nút "Nhập từ Excel" mở công cụ nhập chung "Nhập phòng từ Excel"; biểu mẫu phòng chỉ hiện thuộc tính khai báo được cho loại phòng đang chọn, bốn ô nhà vệ sinh (Đối tượng sử dụng nhà vệ sinh, Nhà vệ sinh đạt chuẩn, Riêng nam nữ, Số chỗ) chỉ hiện với Phòng vệ sinh; MH-80 cũng mở ở mục 6.2 (`/facility-input`) với tiêu đề "6.2. Nhập liệu cơ sở vật chất". MH-81 bỏ thẻ 2.2 (chuyển sang MH-129), thẻ Danh mục tối thiểu có nút "Nhập từ Excel". MH-20 thẻ Tài sản có khối "Gắn thiết bị dạy học" (Tài sản cần gắn, Thiết bị dạy học, Gắn thiết bị dạy học, Bỏ gắn) và cột Thiết bị dạy học khi người dùng có `P13.equipment.manage`.
 

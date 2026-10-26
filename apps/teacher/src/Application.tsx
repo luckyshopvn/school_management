@@ -23,6 +23,7 @@ import { ClassLogScreen } from './screens/ClassLogScreen.js';
 import { TrainingScreen } from './screens/TrainingScreen.js';
 import { TeachingScreen } from './screens/TeachingScreen.js';
 import { WorkScreen } from './screens/WorkScreen.js';
+import { UpdateBanner } from '@school-management/pwa';
 import { Button, DemoBanner, MaintenanceBanner, type MaintenanceNoticeItem } from '@school-management/ui';
 import { requestJson } from './session/api-client.js';
 import { ClassroomOfflineManager } from './tools/ClassroomOfflineManager.js';
@@ -205,6 +206,8 @@ export function Application() {
       {/* Dải bản trình diễn (DT-18 phần 18h) */}
       <DemoBanner />
       <PlatformMaintenanceBanner />
+      {/* Có bản mới của ứng dụng: hỏi tải lại (DT-26 phần 26a) */}
+      <UpdateBanner />
       <ClassroomOfflineManager />
       <Screens />
     </SessionProvider>

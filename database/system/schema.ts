@@ -1223,6 +1223,8 @@ export interface SchoolBrandingTable {
   id: number;
   display_name: string | null;
   primary_color: string | null;
+  // Tên ngắn dưới biểu tượng khi cài lên màn hình chính (DT-26 phần 26a)
+  app_short_name: string | null;
   updated_at: UpdatedTimestamp;
   updated_by_name: string | null;
 }

@@ -1,7 +1,7 @@
 # 02. NHẬT KÝ DỰ ÁN
 
 - Mô tả: Ghi nhận công việc, quyết định, thay đổi và vấn đề tồn đọng theo ngày, ngày mới nhất ở trên cùng.
-- Phiên bản: 0.72
+- Phiên bản: 0.73
 - Ngày cập nhật: 2026-10-26
 - Trạng thái: Đang cập nhật
 
@@ -13,6 +13,28 @@
 - Không ghi thông tin tạm thời như kết quả tra cứu, đường dẫn tạm, thông báo lỗi của công cụ.
 
 ## Nhật ký theo ngày
+
+### 2026-10-26 — DT-26 phần 26a: vỏ ứng dụng web cài được dùng chung
+
+#### Công việc đã thực hiện
+
+- Tạo gói `packages/pwa`: dời service worker của 23b thành mẫu dùng chung, plugin Vite phục vụ và phát `sw.js` theo tiền tố của từng ứng dụng, thư viện đăng ký, kiểm bản mới, gỡ; `applyBrandedManifest`, `InstallPrompt`, `UpdateBanner`; hàm nhận biết cách cài theo trình duyệt có kiểm thử đơn vị.
+- Máy chủ: manifest và biểu tượng SVG theo thương hiệu từng trường (`/api/v1/public/pwa/*`), cột `school_branding.app_short_name` (hệ thống 0090), ô tên ngắn ở cổng quản trị.
+- Ứng dụng giáo viên chuyển sang gói chung (giữ tiền tố và công tắc ngoại tuyến của 23b); ứng dụng phụ huynh có manifest, biểu tượng, service worker; lời mời cài ở trang đầu hai ứng dụng.
+- Kiểm thử: `packages/pwa` (CT-26a-1), `apps/api` `school-settings.test.ts` (CT-26a-2, CT-26a-3), e2e spec 181 (CT-26a-4) và spec 151.
+
+#### Quyết định
+
+- Viết tay service worker và plugin, không thêm thư viện; biểu tượng là SVG dựng ở máy chủ, PNG của sản phẩm làm dự phòng (QĐ-35).
+- Ứng dụng phụ huynh luôn đăng ký service worker (chỉ giữ vỏ ứng dụng); ứng dụng giáo viên vẫn theo công tắc ngoại tuyến của trường.
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-231, `23_LICH_SU_PHIEN_BAN.md` phiên bản 0.141.0; BR-234, P19-07, AC-869 đến AC-871, CT-1084 đến CT-1087, MH-339, BM-92, QĐ-35, mục 12H.
+
+#### Vấn đề tồn đọng
+
+- Nối màn hình học sinh của 23a khi 23a gộp; ảnh PNG và màn hình chờ iOS theo trường, phiên bản tối thiểu do máy chủ áp để phần sau (ghi ở YCTD-231).
 
 ### 2026-10-26 — DT-23 phần 23b: công cụ lớp học trên ứng dụng giáo viên
 

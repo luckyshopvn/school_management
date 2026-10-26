@@ -10,6 +10,7 @@
     "test": "node --test \"src/**/*.test.ts\""
   },
   "dependencies": {
+    "@school-management/pwa": "workspace:*",
     "@school-management/shared": "workspace:*",
     "@school-management/ui": "workspace:*",
     "react": "^19.2.0",

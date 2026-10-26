@@ -1,7 +1,7 @@
 # 11. TIÊU CHÍ NGHIỆM THU
 
 - Mô tả: Tiêu chí nghiệm thu cho từng chức năng, viết dạng Cho, Khi, Thì.
-- Phiên bản: 1.82
+- Phiên bản: 1.83
 - Ngày cập nhật: 2026-10-26
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -941,6 +941,9 @@ Các mã từ AC-94 đến AC-134 được viết trực tiếp trong mục 12 c
 | AC-866 | Cho giáo viên chia lớp thành nhóm / Khi chia theo số nhóm hoặc số người mỗi nhóm, chia lại, lưu / Thì mọi học sinh vào đúng một nhóm, nhóm chênh nhau tối đa một người, bản chia gần nhất được giữ; học sinh ngoài lớp bị 400 | P03-09 |
 | AC-867 | Cho bảng điểm nhanh và nề nếp, thi đua đã bật / Khi chấm điểm nhóm, chưa xác nhận, chọn tiêu chí trừ cho tổng dương, chọn tiêu chí cộng, bấm xác nhận lần hai, nề nếp tắt / Thì chưa xác nhận thì chưa có dòng nề nếp nào; tiêu chí ngược chiều bị 422 và dòng điểm được trả lại; tiêu chí đúng chiều ghi dòng nề nếp có số lần bằng tổng, điểm theo tiêu chí, người ghi là giáo viên; lần hai bị 422; tổng quá 50 lần tách nhiều dòng; nề nếp tắt thì 422 và dòng điểm còn nguyên | P03-10 |
 | AC-868 | Cho giáo viên đã mở ứng dụng có mạng một lần / Khi mất mạng rồi tải lại trang, gọi tên, có mạng lại, đăng xuất, trường tắt ngoại tuyến / Thì trang công cụ lớp học mở được với danh sách lớp đã lưu và dải báo ngoại tuyến, lượt gọi vào hàng đợi rồi tự gửi khi có mạng (máy chủ có đủ lượt, không trùng); đăng xuất xóa mọi dữ liệu công cụ lớp học trên máy; trường tắt thì gỡ service worker, bộ nhớ đệm, bản chụp danh sách lớp và công cụ vẫn chạy khi có mạng | P03-11 |
+| AC-869 | Cho hai trường có thương hiệu khác nhau / Khi lấy manifest của ứng dụng giáo viên, phụ huynh và biểu tượng theo tên miền của từng trường, đặt tên ngắn quá 9 ký tự, đường dẫn gốc lạ, ứng dụng lạ / Thì manifest có tên "<tên trường> – Giáo viên" hoặc "– Phụ huynh", tên ngắn "<tên ngắn> GV", "PH" (trống thì "Giáo viên", "Phụ huynh"), màu, `start_url`, `scope` theo đường dẫn gốc; trường kia không thấy thương hiệu của trường này; tên ngắn quá dài 400; đường dẫn gốc lạ thành `/`; ứng dụng lạ 404 | P19-07 |
+| AC-870 | Cho người dùng mở ứng dụng phụ huynh, giáo viên (trường bật ngoại tuyến) / Khi tải trang, tải lại, phát hành bản mới / Thì service worker chung đăng ký ở `<base>sw.js`, bộ nhớ đệm có tiền tố riêng từng ứng dụng, chỉ có vỏ ứng dụng, không có địa chỉ `/api`; thẻ manifest trỏ sang manifest của trường; có bản mới thì dải "Có bản mới của ứng dụng" kèm Tải lại | P19-07 |
+| AC-871 | Cho ứng dụng chưa cài / Khi mở bằng Safari trên iPhone, trong Zalo, bằng Chrome có sự kiện cài đặt, ở chế độ đã cài, bấm "Để sau" / Thì iPhone thấy hướng dẫn "Thêm vào MH chính", Zalo thấy hướng dẫn mở bằng trình duyệt, Chrome thấy nút "Cài ứng dụng", đã cài không thấy lời mời; "Để sau" ẩn lời mời 30 ngày | P19-07 |
 
 ## 20. Chưa xác minh được
 
