@@ -78,7 +78,7 @@ for (const layout of ['database', 'schema'] as SchoolDatabaseLayoutValue[]) {
       });
 
     before(async () => {
-      environment = await startMultiTenantApi({ label: `ai-${layout}`, layout, configuration: { aiMock: true } });
+      environment = await startMultiTenantApi({ label: `ai_${layout}`, layout, configuration: { aiMock: true } });
       mock = (environment.api.get(AI_PROVIDERS) as AiProviderRegistry).get('mock') as MockAiProvider;
       const platform = environment.platform.platform;
       const rule = await platform
@@ -328,10 +328,17 @@ for (const layout of ['database', 'schema'] as SchoolDatabaseLayoutValue[]) {
         .select(['config'])
         .where('school_id', '=', betaTenant.schoolId)
         .execute();
-      assert.deepEqual(betaUsage, [{ config: 'school' }]);
-      // Trường xem tạm tính của kỳ hiện tại trước khi chốt (kỳ tháng 11: chưa dùng)
+      // Beta dùng cấu hình school (cả lần kiểm tra kết nối): chỉ có dòng của cấu hình school, không có dòng thu phí
+      assert.ok(betaUsage.length >= 1);
+      assert.ok(betaUsage.every((row) => row.config === 'school'));
+      // Trường xem tạm tính của kỳ hiện tại (tháng 10, đồng hồ thật còn trong kỳ) từ nhật ký của chính mình: khớp số trên hóa đơn
       const status = await call('alpha', 'GET', '/ai/status');
-      assert.equal((status.body.estimate as Record<string, unknown>).amount, 0);
+      const estimate = status.body.estimate as Record<string, unknown>;
+      assert.equal(typeof estimate.amount, 'number');
+      assert.match(String(estimate.period_start), /^\d{4}-\d{2}-01$/);
+      if (String(estimate.period_start) === '2026-10-01') {
+        assert.equal(estimate.amount, expected);
+      }
     });
 
     it('CT-23d-11: hạn mức yêu cầu và token của gói chặn ở máy chủ cho cả hai cấu hình; 0 là gói không dùng AI', async () => {

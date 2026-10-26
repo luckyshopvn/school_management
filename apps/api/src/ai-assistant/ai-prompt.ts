@@ -49,7 +49,7 @@ export const PERSONAL_DATA_LABELS: Record<PersonalDataKind, string> = {
 
 const EMAIL = /[A-Za-z0-9._%+-]+@[A-Za-z0-9-]+(?:\.[A-Za-z0-9-]+)*\.[A-Za-z]{2,}/;
 const DIGIT_RUN = /\+?\d[\d\s.-]{6,}\d/g;
-const CODE_WITH_DIGITS = /(?<![A-Za-z0-9])[A-Za-z]{1,4}[\s-]?\d{5,}(?![A-Za-z0-9])/;
+const CODE_WITH_DIGITS = /(?<![\p{L}\p{N}])[A-Za-z]{1,4}-?\d{5,}(?![\p{L}\p{N}])/u;
 const ID_WORD =
   /(?:cccd|cmnd|cmt|căn cước|can cuoc|chứng minh|chung minh|mã định danh|ma dinh danh|số định danh|so dinh danh|mã học sinh|ma hoc sinh)/i;
 
