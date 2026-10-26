@@ -13,20 +13,10 @@
 3. Phiên bản đánh số theo dạng chính.phụ.sửa. Tăng số chính khi thay đổi phá vỡ tương thích, tăng số phụ khi thêm chức năng, tăng số sửa khi sửa lỗi.
 4. Bản phần mềm 1.0.0, 1.1.0, 1.2.0 được Eric nghiệm thu ngày 13/10/2026, gắn thẻ `v1.0.0`, `v1.1.0`, `v1.2.0` (YCTD-92), ứng với phiên bản tài liệu 0.31.0, 0.42.0, 0.48.0. Các mục dưới đây ghi các mốc của bộ tài liệu.
 5. Từ phiên bản 0.4.0, mỗi mục ghi theo mẫu của Vibecoding_Flow; các mục trước giữ nguyên dạng bảng và tên tệp cũ vì là ghi nhận lịch sử.
+6. Từ YCTD-291 (ngày 2026-10-26), mục phiên bản mới của mỗi PR nằm ở tệp mảnh trong thư mục `tai_lieu/thay_doi_cho_gom/` cho tới lần gom, với số phiên bản đề xuất và chỗ giữ `{PHIEN_BAN}`; PR thường không sửa tệp này. Số chính thức chốt khi gom theo thứ tự merge (quy ước ở `thay_doi_cho_gom/README.md`).
 
 ## 2. Danh sách phiên bản
 
-### Phiên bản 0.149.0 – 2026-10-26
-
-- Phạm vi thay đổi: DT-28 phần 28a, mô hình nhóm dùng chung (YCTD-271).
-- Chức năng mới: bộ nhóm của lớp (chia tay, ngẫu nhiên có hạt, trộn năng lực, gom tầng, cân bằng giới, ràng buộc cùng nhóm, không cùng nhóm, từ tiết nhóm 21b), nhóm trưởng (đặt, ngẫu nhiên, luân phiên), lịch sử đổi thành viên; công cụ lớp học dùng bộ nhóm, chọn bộ sẵn có; hàm đọc ổn định `GroupSetsReader` cho 28b, 28c, 28e; giao đề thi trực tuyến 23a cho nhóm của bộ nhóm.
-- Lỗi đã sửa: không có.
-- Thay đổi dữ liệu: năm học `0170`, `0171`; xem `16_CO_SO_DU_LIEU.md` mục 18F.
-- Thay đổi API: nhóm `/group-sets`; `PUT /classroom-tools/classes/{id}/grouping` nhận thêm `group_set_id`.
-- Kiểm thử: kịch bản CT-1112 đến CT-1119 (CT-28a-1 đến CT-28a-14 trong mã kiểm thử).
-- Rủi ro: chia theo năng lực dựa trên điểm chưa đầy đủ đầu năm (học sinh chưa có điểm xếp sau ở gom tầng); bảng `classroom_groupings` còn ghi song song một bản phát hành.
-- Khả năng tương thích: nhóm 4.1.6 không đổi; công cụ lớp học giữ dạng phản hồi; bản chia cũ của 23b chuyển thành bộ nhóm.
-- Phương án quay lui: hoàn lại commit gộp; tệp 0171 và 0170 có hàm `down` xóa bộ nhóm đã dời và các cột mới, `classroom_groupings` vẫn đủ dữ liệu vì được ghi song song.
 ### Phiên bản 0.147.0 – 2026-10-26
 
 - Phạm vi thay đổi: DT-25 bước 25b, giao diện đăng nhập và liên kết bằng nhà cung cấp định danh bên ngoài (YCTD-226).

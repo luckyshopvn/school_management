@@ -7,6 +7,7 @@
 
 ## Quy ước ghi nhật ký
 
+- Từ YCTD-291 (ngày 2026-10-26), mục nhật ký mới của mỗi PR nằm ở tệp mảnh trong thư mục `tai_lieu/thay_doi_cho_gom/` cho tới lần gom; PR thường không sửa tệp này. Lần gom (`node scripts/gom-thay-doi.mjs`, nhánh `gom-…`) chép các mục vào đây theo thứ tự merge. Quy ước đầy đủ ở `thay_doi_cho_gom/README.md`. Muốn biết việc mới nhất thì đọc cả các tệp ở thư mục đó.
 - Mục mới ghi ở trên cùng; không sửa nội dung mục cũ.
 - Từ ngày 2026-10-09, mỗi mục ghi theo mẫu của Vibecoding_Flow: công việc đã thực hiện, quyết định, thay đổi, vấn đề tồn đọng. Các mục cũ giữ nguyên dạng và tên tệp cũ.
 - Mỗi mục ghi rõ ngày, người thực hiện, nội dung, tệp bị ảnh hưởng, kết quả kiểm thử.
@@ -14,28 +15,27 @@
 
 ## Nhật ký theo ngày
 
-### 2026-10-26 — DT-28 phần 28a: mô hình nhóm dùng chung
+### 2026-10-26 — Đổi quy ước ghi tài liệu chung sang tệp mảnh (YCTD-291)
 
 #### Công việc đã thực hiện
 
-- Đọc mục 20 của `32` (dòng 28a, phạm vi 20.7, ranh giới đợt 1), mã `child-groups/` (4.1.6), `classroom-tools/` và `apps/teacher/src/tools/` (23b), sổ điểm (21c), mức đạt Tiểu học (20c), tiết nhóm và tổ hợp môn (21a, 21b).
-- Thêm năm học 0170 (`group_sets`, cột bộ nhóm ở `child_groups`, `role` ở thành viên, `child_group_member_events`) và 0171 (dời `classroom_groupings` sang bộ nhóm `classroom`).
-- Viết hàm chia thuần `group-split.ts` (ngẫu nhiên có hạt, trộn năng lực, gom tầng, cân bằng giới, ràng buộc, nhóm trưởng, từ tiết nhóm 21b), dịch vụ và điểm cuối `/group-sets`, hàm đọc ổn định `GroupSetsReader` cho 28b, 28c, 28e; công cụ lớp học 23b đọc, lưu bộ `classroom`; thẻ Chia nhóm thêm Kiểu chia và Dùng bộ nhóm có sẵn.
-- Kiểm thử đơn vị CT-28a-1 đến CT-28a-12, e2e spec 210 (CT-28a-13); tài liệu 01, 07, 16, 17, 21, 23, 24, 32, `index.md`.
+- Các phiên làm song song (DT-23 đến DT-28) mỗi PR đều thêm mục vào `02`, `23`, `24`, bảng mốc phát hành ở `01`, số đếm ở `index.md` và tăng số phiên bản đầu các tài liệu này, nên mỗi lần một PR merge thì mọi PR khác xung đột tài liệu, phải gộp main và chạy lại CI (khoảng 40 phút); `gh pr update-branch` cũng không gộp được.
+- Thêm thư mục `tai_lieu/thay_doi_cho_gom/` kèm `README.md` mô tả quy ước và định dạng tệp mảnh; tập lệnh `scripts/gom-thay-doi.mjs` (Node, không thêm gói) có chế độ `--kiem` và chế độ gom; kiểm thử đơn vị `tests/tai-lieu/gom-thay-doi.test.mjs` (chạy trong `pnpm test` của gói `tests`); CI thêm bước `--kiem` và bước cảnh báo PR thường sửa trực tiếp `02`, `23`, `24`, `index.md`.
+- Thử gom trên bản sao `tai_lieu` với hai tệp mảnh mẫu: mục 02, 24, 23 chèn đúng chỗ theo thứ tự, phiên bản phần mềm chốt 0.145.0 rồi 0.145.1, dòng 01 chèn trước 1.0.0, số đếm và khoảng mã ở `index.md` đúng, phiên bản đầu tài liệu tăng một lần. Kết quả ngày 26/10/2026: kiểm thử đơn vị `tests/tai-lieu/gom-thay-doi.test.mjs` đạt 5/5; `node scripts/gom-thay-doi.mjs --kiem`, lint, kiểm tra định dạng đạt.
 
 #### Quyết định
 
-- Claude chọn theo ủy quyền: GD-140 như kế hoạch (điểm trung bình môn học kỳ gần nhất có điểm, chưa đủ điểm thì trung bình cộng điểm đã có; Tiểu học mức đạt môn kỳ gần nhất); nguồn kết quả hoạt động báo lỗi đến khi 28d gộp.
-- Bảng `classroom_groupings` của 23b còn được ghi song song một bản phát hành để spec 151, CT-23b-10 và bản ứng dụng cũ đọc được; máy chủ chỉ đọc bộ nhóm. Lưu bản chia không đổi thì giữ bộ cũ (tránh sinh bộ thừa).
-- Sau khi 23a (PR 189) gộp: thêm đích `group` cho đề thi trực tuyến; thành viên lúc giao ghi thành dòng học sinh mang `group_id` nguồn để màn hình học sinh, danh sách học sinh của 23a không phải đổi và đổi nhóm sau đó không đổi bài đã giao.
+- Eric đồng ý ngày 2026-10-26 chuyển sang tệp mảnh theo từng PR, gom định kỳ. Chi tiết (tên thư mục, định dạng, cách đánh số phiên bản khi gom, cảnh báo không chặn) Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11.
+- PR này là PR cuối cùng sửa trực tiếp `02`, `24`, `index.md` theo cách cũ. Không tăng phiên bản phần mềm (chỉ đổi quy trình tài liệu và CI).
 
 #### Thay đổi
 
-- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-271, phiên bản 0.149.0.
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-291, `thay_doi_cho_gom/README.md`, `01_KE_HOACH_TONG_THE.md` mục 9, `19_CHI_DAN_HE_THONG_AI.md` mục 2, đầu `23_LICH_SU_PHIEN_BAN.md`, `index.md`.
 
 #### Vấn đề tồn đọng
 
-- Màn hình nhóm của con ở ứng dụng phụ huynh, của học sinh; màn hình bộ nhóm ở cổng quản trị.
+- Các PR đang mở (188, 191, 192, 193) đã sửa trực tiếp tài liệu chung theo cách cũ; phiên điều phối quyết định chuyển phần đó sang tệp mảnh hay để merge như cũ. Lần gom đầu tiên chưa chạy.
+
 ### 2026-10-26 — DT-26 phần 26a: vỏ ứng dụng web cài được dùng chung
 
 #### Công việc đã thực hiện
