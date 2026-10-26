@@ -270,7 +270,7 @@ test('CT-23b-14: gọi tên, chia nhóm, đồng hồ, bảng điểm vào nề 
             location: { href: string; origin: string };
             navigator: { serviceWorker: { controller: unknown } };
             performance: { getEntriesByType(type: string): Array<{ name: string }> };
-            caches: { match(url: string): Promise<unknown> };
+            caches: { match(url: string, options: { ignoreVary: boolean }): Promise<unknown> };
           };
           if (!browser.navigator.serviceWorker.controller) {
             return -1;
@@ -284,7 +284,8 @@ test('CT-23b-14: gọi tên, chia nhóm, đồng hồ, bảng điểm vào nề 
           ];
           let missing = 0;
           for (const url of urls) {
-            if (!(await browser.caches.match(url))) {
+            // Tra như service worker (bỏ qua Vary)
+            if (!(await browser.caches.match(url, { ignoreVary: true }))) {
               missing += 1;
             }
           }

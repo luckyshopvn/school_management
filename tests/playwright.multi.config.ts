@@ -90,6 +90,8 @@ export default defineConfig({
         PAYMENT_GATEWAY: 'development,vietqr-static',
         FACEBOOK_PUBLISHER: 'development',
         ZALO_SENDER: 'development',
+        // Bộ giả lập nhà cung cấp AI (DT-23 phần 23d, spec 153): không gọi dịch vụ AI thật
+        AI_MOCK: 'true',
       },
     },
     {

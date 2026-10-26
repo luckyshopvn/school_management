@@ -19,15 +19,37 @@ Các thay đổi trước phiên bản 0.4.0 chưa có sổ này; xem `23_LICH_S
   - **CT-22c2-12 (dạy thay, đổi tiết):** ca chỉ tìm cặp tiết đổi được của lớp 1B trong đúng ngày dạy thay của 1A; phương án của máy xếp ngẫu nhiên nên có ngày mọi cặp đều bị chặn vì giáo viên trùng tiết. Sửa ca kiểm thử: tìm trong 7 ngày, khoảng ngày kiểm tra danh sách thay đổi gồm cả hai ngày.
   - **Dòng "fetch failed"** ở nhật ký CI là của ca "Không liên lạc được với dịch vụ định danh thì trả ERR_INTERNAL" (cố ý), không phải lỗi.
   - **e2e 45:** danh sách học sinh chia trang; spec chạy theo thứ tự tên tệp nên `151-` (23b, thêm bốn học sinh) chạy trước `45-` và đẩy học sinh vừa nhập sang trang 2. Sửa spec: lọc theo họ tên, họ tên riêng cho mỗi lần chạy.
-  - **e2e 151:** service worker lưu bộ nhớ đệm sau khi trả phản hồi, spec ngắt mạng ngay sau khi tải lại nên còn tệp chưa lưu và trang không dựng được khi ngoại tuyến. Sửa spec: chờ service worker kiểm soát trang và mọi tệp trang đã tải có trong bộ nhớ đệm rồi mới ngắt mạng.
+  - **e2e 151:** vết chạy CI cho thấy trang `/` lấy được từ bộ nhớ đệm nhưng `@vite/client`, `src/main.tsx`, `@react-refresh` hỏng khi ngoại tuyến: máy chủ trả `Vary: Origin`, tệp lưu lúc làm ấm bộ nhớ đệm không kèm Origin còn yêu cầu mô-đun kèm Origin, nên `cache.match` (tôn trọng Vary) không khớp. Sửa `apps/teacher/public/sw.js`: tra bộ nhớ đệm với `ignoreVary: true` (bộ nhớ đệm chỉ giữ tệp tĩnh cùng nguồn của vỏ ứng dụng). Spec còn chờ service worker kiểm soát trang và lưu đủ tệp trước khi ngắt mạng (bộ nhớ đệm được ghi sau khi trả phản hồi).
   - **e2e 88:** thẻ "Nề nếp, thi đua lớp" (1.4 Cấu hình trường) cho sửa trước khi tải xong cấu hình; dữ liệu về sau đặt lại ô chọn, ghi đè thao tác (người dùng thật cũng có thể lưu nhầm giá trị mặc định). Sửa giao diện `ConductSettingsBlock.tsx`: khóa ô và nút Lưu tới khi tải xong.
   - **e2e 103 (cùng mẫu ở 97, 99):** chọn cấp đang làm việc rồi mở menu ngay; tên phân hệ đổi theo cấp sau khi lưu ("Quản lý giáo dục" thành "Quản lý giáo dục Trung học phổ thông") nên bộ chọn thanh menu khớp đúng tên cũ không còn phần tử, lệnh bấm chờ tới hết 240 giây. Sửa `tests/e2e/menu.ts`: `openMenu` tìm thanh menu theo tên gốc của phân hệ (có hoặc không có tên cấp); thêm `selectSchoolLevel` chờ ô ngữ cảnh hiện đúng cấp, dùng ở 97, 99, 103.
-- Thành phần bị ảnh hưởng: `database/src/migration-templates.ts`, `apps/api/src/timetables/timetable-generator.test.ts`, `apps/portal/src/conduct/ConductSettingsBlock.tsx`, `tests/e2e/menu.ts`, spec 45, 97, 99, 103, 151; tài liệu `02`, `24`.
+- Thành phần bị ảnh hưởng: `database/src/migration-templates.ts`, `apps/teacher/public/sw.js`, `apps/api/src/timetables/timetable-generator.test.ts`, `apps/portal/src/conduct/ConductSettingsBlock.tsx`, `tests/e2e/menu.ts`, spec 45, 97, 99, 103, 151; tài liệu `02`, `24`.
 - Dữ liệu, API, quyền bị ảnh hưởng: không.
 - Giao diện bị ảnh hưởng: thẻ "Nề nếp, thi đua lớp" khóa ô và nút Lưu trong lúc tải cấu hình (thường dưới một giây).
 - Ảnh hưởng chức năng cũ: không. Phiên bản phần mềm giữ nguyên (sửa kiểm thử và một lỗi nhỏ của giao diện, cập nhật tài liệu tối thiểu theo yêu cầu của phiên điều phối).
 - Kiểm thử cần thực hiện: tái hiện cuộc đua dựng mẫu với mã cũ và chạy lại với mã mới; chạy lặp 10 lần các tệp thời khoá biểu, năm học với `--test-concurrency=3`; e2e toàn bộ một lượt rồi lặp 45, 151, 88, 103 bằng `--repeat-each`.
 - Trạng thái: Đã triển khai
+
+### YCTD-214: DT-23 phần 23d: trợ lý AI soạn câu hỏi và kế hoạch bài dạy – 2026-10-26
+
+- Lý do: phần 23d của `32_KE_HOACH_THEO_HE_THONG_SO.md` mục 15 (YCTD-210); Eric đồng ý đưa AI vào ngày 2026-10-26 và chốt GD-102 (hai cấu hình khóa), GD-103 (thu theo gói và token, số tiền để trống).
+- Nội dung thay đổi (Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11 ở những chỗ kế hoạch chưa chốt):
+  - **Bộ nối** `AiProvider` (`anthropic`, `mock`), nhà cung cấp tra theo mã, không `if` theo nhà cung cấp; kết nối `ai` thêm vào `IntegrationSecretConnector`.
+  - **Hai cấu hình khóa**: `school` (khóa của trường, miễn phí), `platform` (khóa chung ở cơ sở dữ liệu nền tảng, thu phí); `ai_settings` bật tắt theo trường, mặc định tắt.
+  - **Lời nhắc từ mẫu cố định**, bộ quét dữ liệu cá nhân và tên trong danh sách trường ở máy chủ; thử với chuỗi mồi, bộ giả lập không nhận được.
+  - **Bản nháp**: câu hỏi vào ngân hàng với cờ `ai_generated` (năm học 0128), chỉ duyệt khi đã gửi thẩm định và do người khác duyệt; kế hoạch bài dạy vào kho học liệu ở trạng thái nháp riêng tư.
+  - **Nhật ký** `ai_requests` (hệ thống 0071, 0072), chỉ mã băm lời nhắc; **hạn mức** `plans.ai_max_requests`, `ai_max_tokens` (nền tảng 0200) và mỗi người mỗi ngày; việc nền `ai-usage-sync` tổng hợp token lên `ai_token_usage` (nền tảng 0201).
+  - **Phí AI**: `plan_ai_pricing` (nền tảng 0202), hàm tính thuần `computeAiCharges`, thành phần AI trong `computeCharges` và `issueInvoice`, dòng loại `ai`; khối Phí AI của gói đặt ngay trang Gói dịch vụ của cổng nền tảng (điều phối chỉnh ngày 2026-10-26: không dựng màn hình riêng).
+  - **Giao diện**: cổng quản trị 3.8 Trợ lý AI; nút Soạn nháp bằng AI ở ngân hàng câu hỏi và kho học liệu; cổng nền tảng trang Trợ lý AI, giới hạn AI ở Gói dịch vụ.
+  - **Hồ sơ pháp lý** (bản nháp cho luật sư): `33_HO_SO_PHAP_LY/22_TRO_LY_AI_SOAN_NHAP.md` (PL-22), bổ sung PL-02, PL-04, PL-05, PL-08, `00_MUC_LUC.md`; văn bản đã đọc: Luật Trí tuệ nhân tạo 134/2025/QH15 toàn văn; Nghị định 142/2026/NĐ-CP và Quyết định 33/2026/QĐ-TTg chỉ tóm tắt.
+- Thành phần bị ảnh hưởng: `packages/server` (gói của trường có hạn mức AI), `packages/shared` (menu 3.8), `database`, `apps/api`, `apps/identity`, `apps/platform`, `apps/portal`, `tests` (spec 153, `MULTI_TENANT_SPEC`, `AI_MOCK` ở cấu hình e2e nhiều trường).
+- Dữ liệu bị ảnh hưởng: năm học 0128; hệ thống 0071 đến 0073; nền tảng 0200 đến 0202.
+- API bị ảnh hưởng: xem `17_DAC_TA_API.md` (nhóm `/ai/*`, `/auth/platform/ai`, kết nối `ai`).
+- Giao diện bị ảnh hưởng: MH-339 đến MH-341; câu hỏi và học liệu ghi dấu do AI soạn.
+- Quyền bị ảnh hưởng: không thêm quyền (dùng P02.question.author, P09.learning-resource.use, P01.integration.manage).
+- Ảnh hưởng chức năng cũ: mặc định tắt nên không đổi; câu hỏi trả thêm `ai_generated`; duyệt câu do AI soạn chặt hơn; bước đầu việc `billing-cycle` tổng hợp token; hóa đơn có thể có dòng loại `ai`.
+- Kiểm thử cần thực hiện: kiểm thử đơn vị `database`, `apps/api` (hai bố cục), kiểm tra tĩnh nền đa thuê bao, ma trận cách ly, `pnpm typecheck`, `pnpm lint`, build, e2e một trường và nhiều trường (spec 153).
+- Chưa làm: chấm tự luận bằng AI, AI nhìn dữ liệu học sinh, trả lời học sinh bằng AI (không làm theo kế hoạch); nhà cung cấp AI cụ thể, đơn giá thật (chờ Eric); kết luận pháp lý (chờ luật sư).
+- Trạng thái: Đã triển khai (PR 184)
 
 ### YCTD-225: DT-25: bộ nối nhà cung cấp định danh OIDC, sẵn cho VNeID (phần máy chủ) – 2026-10-26
 

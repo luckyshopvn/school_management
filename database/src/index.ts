@@ -27,6 +27,11 @@ export type {
 } from '../identity/schema.js';
 export { administrativeNameKey } from '../system/administrative-names.js';
 export type {
+  AiKeyMode,
+  AiRequestKind,
+  AiRequestStatus,
+  AiRequestsTable,
+  AiSettingsTable,
   IntegrationSecretConnector,
   IntegrationSecretsTable,
   SchoolBrandingTable,
