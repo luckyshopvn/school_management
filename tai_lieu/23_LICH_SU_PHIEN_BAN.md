@@ -23,7 +23,7 @@
 - Lỗi đã sửa: không có.
 - Thay đổi dữ liệu: không.
 - Thay đổi API: không.
-- Kiểm thử: CT-1097 đến CT-1099. Kết quả ở PR [số PR].
+- Kiểm thử: CT-1097 đến CT-1099. Kết quả ở PR 188.
 - Rủi ro: việc CI thêm thời gian chạy song song (không nối đuôi); ảnh chụp tham chiếu chưa có tệp gốc; vi phạm ở đường cơ sở chờ 26d, 26e.
 - Khả năng tương thích: mặc định không đổi (dự án chromium); thêm thư viện kiểm thử `@axe-core/playwright` (MPL-2.0, chỉ ở kiểm thử).
 - Phương án quay lui: hoàn lại commit gộp của nhánh 26c.

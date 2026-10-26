@@ -63,7 +63,7 @@ Các thay đổi trước phiên bản 0.4.0 chưa có sổ này; xem `23_LICH_S
 - Ảnh hưởng chức năng cũ: không; mặc định chỉ chạy `chromium` như trước.
 - Kiểm thử cần thực hiện: `pnpm typecheck`, `pnpm lint`, spec 180 ở `E2E_DEVICES=pr` (hai khổ) và `full`; e2e hiện có.
 - Chưa làm: tạo ảnh chụp tham chiếu ở Linux của CI; đo số phút việc mới (ghi vào mục này sau lần chạy đầu); sửa vi phạm ở đường cơ sở (26d, 26e).
-- Trạng thái: Đã triển khai (PR [số PR])
+- Trạng thái: Đã triển khai (PR 188)
 
 ### YCTD-250: Kế hoạch DT-27: nền tảng gia sư trực tuyến – 2026-10-26
 

@@ -2099,7 +2099,7 @@ Cỡ ước lượng (một phần của DT-16 là một đơn vị, chỉ để
 |---|---|---|
 | 26a | 1 | Chưa làm; YCTD-231 giữ sẵn, bắt đầu khi 23b đã gộp |
 | 26b | 1 | Chưa làm; YCTD-232 giữ sẵn |
-| 26c | 1 | Đã làm, YCTD-233, phiên bản 0.144.0, PR [số PR]: dự án Playwright theo khổ thiết bị, nhãn `@thiet-bi`, bộ kiểm dùng chung, spec 180, việc CI `kiem-thu-thiet-bi`; vi phạm đo được ghi ở đường cơ sở cho 26d, 26e |
+| 26c | 1 | Đã làm, YCTD-233, phiên bản 0.144.0, PR 188: dự án Playwright theo khổ thiết bị, nhãn `@thiet-bi`, bộ kiểm dùng chung, spec 180, việc CI `kiem-thu-thiet-bi`; vi phạm đo được ghi ở đường cơ sở cho 26d, 26e |
 | 26d | 2 | Chưa làm; YCTD-234 giữ sẵn |
 | 26e | 2 | Chưa làm; YCTD-235 giữ sẵn |
 | 26f | 3 | Chưa làm; YCTD-236 giữ sẵn, bắt đầu khi DT-24, DT-25 đã gộp |
