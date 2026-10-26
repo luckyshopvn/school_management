@@ -52,6 +52,8 @@ export interface SchoolsTable {
   status_changed_at: Date | null;
   // Nút quản lý ở cây đơn vị hành chính (DT-SaaS phần S6)
   admin_unit_id: ColumnType<string | null, string | null | undefined, string | null>;
+  // Mã Bộ của đơn vị trong danh mục toàn quốc (DT-24)
+  moet_code: ColumnType<string | null, string | null | undefined, string | null>;
 }
 
 export interface SchoolDomainsTable {
@@ -143,6 +145,9 @@ export interface PlansTable {
   max_active_students: number | null;
   max_storage_mb: number | null;
   max_school_levels: number | null;
+  // Hạn mức AI mỗi tháng (DT-23 phần 23d); null là không giới hạn, 0 là không dùng AI
+  ai_max_requests: number | null;
+  ai_max_tokens: number | null;
   trial_days: Generated<number>;
   pricing_mode: Generated<PlanPricingModeValue>;
   unit_price: ColumnType<string, number | undefined, number>;
@@ -309,7 +314,7 @@ export interface SchedulerStateTable {
 export type PriceComponent = 'per_student' | 'per_school' | 'per_module';
 export type BillingPeriod = 'monthly' | 'quarterly' | 'yearly';
 export type ServiceInvoiceStatus = 'issued' | 'paid' | 'void';
-export type InvoiceLineKind = PriceComponent | 'minimum' | 'discount';
+export type InvoiceLineKind = PriceComponent | 'minimum' | 'discount' | 'ai';
 export interface StudentTier {
   up_to: number | null;
   unit_price: number;
@@ -449,6 +454,30 @@ export interface PlatformIntegrationSecretsTable {
   updated_by: string | null;
 }
 
+// Trợ lý AI (DT-23 phần 23d, YCTD-214)
+export interface AiTokenUsageTable {
+  school_id: string;
+  usage_date: ColumnType<string, string, string>;
+  model: string;
+  config: 'school' | 'platform';
+  requests: Generated<number>;
+  input_tokens: ColumnType<string, number | string | undefined, number | string>;
+  output_tokens: ColumnType<string, number | string | undefined, number | string>;
+  updated_at: UpdatedTimestamp;
+}
+
+export interface PlanAiPricingTable {
+  plan_id: string;
+  free_tokens: ColumnType<string, number | undefined, number>;
+  input_price_per_1k: ColumnType<string | null, number | null | undefined, number | null>;
+  output_price_per_1k: ColumnType<string | null, number | null | undefined, number | null>;
+  model_prices: ColumnType<Record<string, { input: number; output: number }>, string | undefined, string>;
+  minimum_fee: ColumnType<string, number | undefined, number>;
+  rounding_step: Generated<number>;
+  updated_at: UpdatedTimestamp;
+  updated_by: string | null;
+}
+
 // Bảng điều khiển nền tảng (DT-SaaS phần S4, YCTD-197)
 export type SupportScope = 'read' | 'full';
 export type MaintenanceSeverity = 'info' | 'warning' | 'critical';
@@ -513,6 +542,8 @@ export interface SupportSessionsTable {
   started_at: Date | null;
   ended_at: Date | null;
   end_reason: string | null;
+  // Căn cứ mở phiên (DT-24): trường cho phép, chính sách nền tảng hoặc đề nghị đã duyệt của cấp trên
+  access_basis: Generated<SupportAccessBasis>;
 }
 
 export interface SupportSessionActionsTable {
@@ -634,6 +665,69 @@ export interface ParentOrgAccessRequestsTable {
   created_at: CreatedTimestamp;
 }
 
+// Danh mục đơn vị giáo dục toàn quốc (DT-24, YCTD-220)
+export type SupportAccessBasis = 'school_grant' | 'platform_policy' | 'access_request';
+export type CatalogEntryStatus = 'active' | 'inactive';
+
+export interface CatalogDepartmentsTable {
+  code: string;
+  name: string;
+  status: Generated<CatalogEntryStatus>;
+  updated_at: UpdatedTimestamp;
+}
+
+export interface CatalogLevelsTable {
+  code: string;
+  moet_code: string;
+  name: string;
+  sort: number;
+}
+
+export interface CatalogCommunesTable {
+  code: string;
+  department_code: string;
+  name: string;
+  name_search: string;
+  status: Generated<CatalogEntryStatus>;
+  updated_at: UpdatedTimestamp;
+}
+
+export interface CatalogUnitsTable {
+  id: Generated<string>;
+  moet_code: string;
+  name: string;
+  name_search: string;
+  department_code: string;
+  commune_code: string | null;
+  commune_name_raw: string | null;
+  school_year: string | null;
+  source: string;
+  status: Generated<CatalogEntryStatus>;
+  quality_flags: ColumnType<string[], string[] | undefined, string[]>;
+  first_seen_at: CreatedTimestamp;
+  last_seen_at: ColumnType<Date, Date | undefined, Date>;
+  updated_at: UpdatedTimestamp;
+}
+
+export interface CatalogUnitLevelsTable {
+  unit_id: string;
+  level_code: string;
+}
+
+export interface CatalogImportRunsTable {
+  id: Generated<string>;
+  source: string;
+  file_name: string | null;
+  dry_run: Generated<boolean>;
+  totals: ColumnType<Record<string, number>, string, string>;
+  skipped: ColumnType<Array<{ line: number; reason: string; code?: string }>, string | undefined, string>;
+  actor_type: PlatformAuditActorType;
+  actor_id: string | null;
+  actor_name: string;
+  started_at: ColumnType<Date, Date | undefined, Date>;
+  finished_at: Date | null;
+}
+
 export interface PlatformDatabase {
   school_clusters: SchoolClustersTable;
   schools: SchoolsTable;
@@ -662,6 +756,8 @@ export interface PlatformDatabase {
   einvoice_documents: EinvoiceDocumentsTable;
   dunning_events: DunningEventsTable;
   platform_integration_secrets: PlatformIntegrationSecretsTable;
+  ai_token_usage: AiTokenUsageTable;
+  plan_ai_pricing: PlanAiPricingTable;
   school_metrics: SchoolMetricsTable;
   school_error_counts: SchoolErrorCountsTable;
   maintenance_notices: MaintenanceNoticesTable;
@@ -677,4 +773,10 @@ export interface PlatformDatabase {
   school_aggregate_consents: SchoolAggregateConsentsTable;
   aggregate_snapshots: AggregateSnapshotsTable;
   parent_org_access_requests: ParentOrgAccessRequestsTable;
+  catalog_departments: CatalogDepartmentsTable;
+  catalog_levels: CatalogLevelsTable;
+  catalog_communes: CatalogCommunesTable;
+  catalog_units: CatalogUnitsTable;
+  catalog_unit_levels: CatalogUnitLevelsTable;
+  catalog_import_runs: CatalogImportRunsTable;
 }

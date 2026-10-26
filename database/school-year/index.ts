@@ -95,6 +95,9 @@ import { migration as createOnlineExamAttempts } from './migrations/0121_create_
 import { migration as extendExamSheetsForOnline } from './migrations/0122_extend_exam_sheets_for_online.js';
 import { migration as linkLearningAccountsToIdentity } from './migrations/0123_link_learning_accounts_to_identity.js';
 import { migration as createResourceQuestionsAndRubrics } from './migrations/0103_create_resource_questions_and_rubrics.js';
+import { migration as addQuestionAiFlag } from './migrations/0128_add_question_ai_flag.js';
+import { migration as createClassroomTools } from './migrations/0124_create_classroom_tools.js';
+import { migration as createClassroomScoreEvents } from './migrations/0125_create_classroom_score_events.js';
 
 // Danh sách tệp thay đổi cấu trúc của cơ sở dữ liệu năm học, theo số thứ tự (QU-01, QU-11)
 export const schoolYearMigrations: Record<string, Migration> = {
@@ -194,4 +197,8 @@ export const schoolYearMigrations: Record<string, Migration> = {
   '0121_create_online_exam_attempts': createOnlineExamAttempts,
   '0122_extend_exam_sheets_for_online': extendExamSheetsForOnline,
   '0123_link_learning_accounts_to_identity': linkLearningAccountsToIdentity,
+  // Trợ lý AI (DT-23 phần 23d): 0128
+  '0128_add_question_ai_flag': addQuestionAiFlag,
+  '0124_create_classroom_tools': createClassroomTools,
+  '0125_create_classroom_score_events': createClassroomScoreEvents,
 };

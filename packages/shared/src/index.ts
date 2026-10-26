@@ -688,6 +688,8 @@ export const PORTAL_QUICK_LINK_PATHS = [
   '/online-exams',
   '/online-exams/monitor',
   '/online-exams/settings',
+  // Trợ lý AI soạn nháp (DT-23 phần 23d)
+  '/ai-assistant',
 ] as const;
 
 export type PortalQuickLinkPath = (typeof PORTAL_QUICK_LINK_PATHS)[number];

@@ -11,6 +11,7 @@ import {
   type ResourceVisibility,
 } from '@school-management/shared';
 import { Alert, Button, FORM_CONTROL_CLASS, StatusBadge } from '@school-management/ui';
+import { AiLessonPlanPanel, useAiReady } from '../ai-assistant/AiDraftPanels.js';
 import { messageOf } from '../archives/archive-ui.js';
 import { Page, useToast } from '../directives/directive-ui.js';
 import { useHasPermission } from '../session/permissions.js';
@@ -101,7 +102,12 @@ function ResourceTable({ label, rows, onOpen }: { label: string; rows: LearningR
       <tbody>
         {rows.map((row) => (
           <tr key={row.id} className="border-t border-border">
-            <td className={cell}>{row.title}</td>
+            <td className={cell}>
+              {row.title}
+              {row.ai_generated ? (
+                <span className="block text-label text-text-secondary">Do AI soạn, cần giáo viên kiểm tra</span>
+              ) : null}
+            </td>
             <td className={cell}>{row.type_name}</td>
             <td className={cell}>{[row.subject_name, row.grade_level_code].filter(Boolean).join(', ')}</td>
             <td className={cell}>{row.license_name ?? 'Chưa chọn'}</td>
@@ -203,6 +209,11 @@ function ResourceDetailPanel({ id, onMessage }: { id: string; onMessage(message:
     download.error;
   return (
     <Section title={`Học liệu ${resource.title}`}>
+      {resource.ai_generated ? (
+        <Alert tone="info">
+          Bản nháp do trợ lý AI soạn, cần giáo viên kiểm tra nội dung, nguồn và giấy phép trước khi gửi duyệt chia sẻ.
+        </Alert>
+      ) : null}
       <p className="text-content">
         {resource.type_name} · {RESOURCE_VISIBILITY_LABELS[resource.visibility]} ·{' '}
         {LEARNING_RESOURCE_STATUS_LABELS[resource.status]}
@@ -665,7 +676,27 @@ export function MyResourcesPage() {
           }}
         />
       </Section>
+      <AiLessonPlanSection
+        onDone={(id, message) => {
+          setToast(message);
+          setOpened(id);
+        }}
+      />
     </Page>
+  );
+}
+
+// Soạn kế hoạch bài dạy nháp bằng AI (DT-23 phần 23d): chỉ hiện khi trường đã bật AI và đủ khóa
+function AiLessonPlanSection({ onDone }: { onDone(id: string, message: string): void }) {
+  const catalog = useCatalog();
+  const ready = useAiReady();
+  if (!ready || !catalog.data) {
+    return null;
+  }
+  return (
+    <Section title="Soạn nháp bằng AI">
+      <AiLessonPlanPanel scope={{ subjects: catalog.data.subjects, grades: catalog.data.grades }} onDone={onDone} />
+    </Section>
   );
 }
 

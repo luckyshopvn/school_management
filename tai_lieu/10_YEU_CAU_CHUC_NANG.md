@@ -1,8 +1,8 @@
 # 10. YÊU CẦU CHỨC NĂNG
 
 - Mô tả: Mã chức năng, tên chức năng, mục đích, người sử dụng, điều kiện thực hiện, dữ liệu đầu vào, quy trình xử lý, kết quả đầu ra, quy tắc nghiệp vụ, trường hợp ngoại lệ, phân quyền, thông báo lỗi.
-- Phiên bản: 1.101
-- Ngày cập nhật: 2026-10-25
+- Phiên bản: 1.102
+- Ngày cập nhật: 2026-10-26
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
 
@@ -103,6 +103,10 @@
 | P01-83 | Số liệu tổng hợp cho cấp trên (YCTD-202) | Tài khoản cấp trên (Bộ, Sở, Phòng); hệ thống (việc định kỳ `aggregate-snapshots`) | Nút trong phạm vi, nhóm số liệu | Đăng nhập có mã xác thực hai lớp; tổng của nút và từng nút con; so sánh các trường đã đồng ý; xuất Excel, PDF | MH-335 | BR-228, BR-229 |
 | P01-84 | Đồng ý chia sẻ số liệu với cấp trên (YCTD-202) | Quản trị của trường (P01.setting.manage) | Cấp, nhóm số liệu | Xem chuỗi đơn vị quản lý; bật, tắt từng ô cấp × nhóm; lịch sử đồng ý | MH-336 | BR-229 |
 | P01-85 | Đề nghị xem chi tiết của cấp trên (YCTD-202) | Tài khoản cấp trên; quản trị của trường | Trường, nhóm dữ liệu, lý do, thời hạn | Gửi đề nghị; trường duyệt, từ chối, rút; mở phiên xem chi tiết chỉ đọc khi đã duyệt | MH-335, MH-336 | BR-230 |
+| P01-86 | Trợ lý AI của trường (YCTD-214) | Quản trị trường (P01.integration.manage) | Bật tắt, cấu hình khóa, nhà cung cấp, mã mô hình, hạn mức mỗi người, thời hạn giữ nhật ký, khóa API | Bật (đọc thông báo), chọn cấu hình, lưu khóa mã hóa, kiểm tra kết nối, xem hạn mức còn lại, token đã dùng, tạm tính phí kỳ, nhật ký yêu cầu | MH-339 | BR-234, BR-235 |
+| P01-87 | Soạn câu hỏi nháp bằng AI (YCTD-214) | Người có quyền soạn câu hỏi | Môn, khối, chủ đề, mức, dạng, số câu, yêu cầu cần đạt, mô tả thêm | Nút Soạn nháp bằng AI ở ngân hàng câu hỏi; câu vào ngân hàng ở trạng thái nháp, dấu do AI soạn; duyệt bởi người khác | MH-340 | BR-234 |
+| P01-88 | Soạn kế hoạch bài dạy nháp bằng AI (YCTD-214) | Người dùng kho học liệu | Cấp, khối, môn, tên bài, thời lượng, yêu cầu cần đạt, mô tả thêm | Nút Soạn nháp bằng AI ở Học liệu của tôi; học liệu nháp riêng tư, tệp Markdown, gửi duyệt như học liệu thường | MH-340 | BR-234 |
+| P01-89 | Thiết lập AI của nền tảng và phí AI theo gói (YCTD-214) | Người vận hành nền tảng | Khóa AI chung, nhà cung cấp, mô hình, hạn mức yêu cầu và token của gói, token miễn phí, đơn giá vào và ra, đơn giá theo mô hình, phí tối thiểu, bước làm tròn | Lưu khóa (chỉ hiện bốn ký tự cuối), lưu đơn giá từng gói, đặt giới hạn AI ở Gói dịch vụ, xem token đã dùng của từng trường; dòng phí AI trên hóa đơn | MH-341 | BR-235, BR-236 |
 
 ## 3. Phân hệ P02 — Trẻ, phụ huynh và lớp học
 
@@ -202,6 +206,9 @@
 | P03-06 | Tiến độ học tập của trẻ (G2) | VT-07 | Trẻ, chỉ số phát triển, nhận xét theo kỳ | Ghi nhận và công bố cho phụ huynh | Phiếu tiến độ của trẻ | BR-15 |
 | P03-07 | Lịch hoạt động lớp (G2) | VT-07 | Lớp, ngày, hoạt động | Lập lịch và công bố | Lịch hoạt động của lớp | BR-69 |
 | P03-08 | Lĩnh vực và nhóm bài học (G2) | VT-03, VT-07 | Tên lĩnh vực, tên nhóm bài học, thứ tự | Quản lý hai danh mục, gán bài học vào lĩnh vực và nhóm | Danh mục lĩnh vực và nhóm bài học | BR-01, BR-75 |
+| P03-09 | Công cụ lớp học: gọi tên ngẫu nhiên, chia nhóm, đếm ngược và bấm giờ (YCTD-212, DT-23 phần 23b) | VT-07, VT-08 được phân công lớp; vai trò xem trẻ trong đơn vị | Lớp; tuỳ chọn không lặp, loại học sinh vắng; số nhóm hoặc số người mỗi nhóm; đồng hồ | Bốc ngẫu nhiên từ danh sách lớp thật, ghi lượt gọi, giữ bản chia nhóm gần nhất, đồng hồ theo thời điểm tuyệt đối | Lượt gọi, bản chia nhóm, đồng hồ trên màn hình lớp | BR-231 |
+| P03-10 | Bảng điểm nhanh gắn nề nếp, thi đua (YCTD-212) | Giáo viên như P03-09; ghi nề nếp: `P02.conduct.record` | Nhóm hoặc học sinh, điểm cộng, trừ; tiêu chí nề nếp | Cộng, trừ điểm trong buổi, xác nhận mới ghi vào `conduct_entries`, bỏ buổi | Bảng điểm của buổi; dòng nề nếp của lớp | BR-232 |
+| P03-11 | Ngoại tuyến của công cụ lớp học (YCTD-212, GD-108) | Giáo viên; bật tắt: `P01.setting.manage` | Cấu hình `classroom_offline_enabled`, `classroom_roster_ttl_hours` | Service worker và manifest, bản chụp danh sách lớp gọn có hạn, hàng đợi lượt gọi và điểm đồng bộ khi có mạng | Công cụ lớp học mở được khi mất mạng | BR-233 |
 
 ## 5. Phân hệ P04 — Điểm danh và chăm sóc hằng ngày
 

@@ -8,6 +8,7 @@ export {
 } from './database-administration.js';
 export { readConnectionString, replaceDatabaseName, type ServiceDatabaseKind } from './environment.js';
 export { migrateToLatest, schoolYearDatabasesToMigrate, type DatabaseKind } from './migrate.js';
+export { createMigratedTestDatabase, type MigratedTestDatabaseOptions } from './migration-templates.js';
 export {
   checkSchoolYearDatabase,
   collectLevelReport,
@@ -17,6 +18,7 @@ export {
 } from './level-check.js';
 export type {
   ApiClientScope,
+  ExternalIdentityEventType,
   IdentityDatabase,
   ImpersonationEndReason,
   LoginMethod,
@@ -25,6 +27,11 @@ export type {
 } from '../identity/schema.js';
 export { administrativeNameKey } from '../system/administrative-names.js';
 export type {
+  AiKeyMode,
+  AiRequestKind,
+  AiRequestStatus,
+  AiRequestsTable,
+  AiSettingsTable,
   IntegrationSecretConnector,
   IntegrationSecretsTable,
   SchoolBrandingTable,
@@ -453,3 +460,6 @@ export * from './school-data-copy.js';
 export * from './school-backup.js';
 export * from './school-cluster-move.js';
 export type { BackupRunKind, BackupRunStatus } from '../platform/schema.js';
+// Danh mục đơn vị toàn quốc, quyền truy cập của quản trị nền tảng (DT-24)
+export * from './school-catalog.js';
+export type { SupportAccessBasis } from '../platform/schema.js';

@@ -117,6 +117,8 @@ export interface SchoolDetail {
   legacy: boolean;
   school_levels: string[];
   first_academic_year: string | null;
+  // Mã Bộ của đơn vị trong danh mục toàn quốc (DT-24)
+  moet_code?: string | null;
   suspended_at: string | null;
   deletion_requested_at: string | null;
   delete_after: string | null;
@@ -318,11 +320,21 @@ export interface SupportSessionRow {
   expires_at: string;
   ended_at: string | null;
   end_reason: string | null;
+  // Căn cứ mở phiên (DT-24)
+  access_basis?: 'school_grant' | 'platform_policy' | 'access_request';
+}
+
+// Chính sách vào trường của quản trị nền tảng (DT-24)
+export interface SupportAccessPolicy {
+  mode: 'any_school' | 'school_grant';
+  default_hours: number;
+  max_hours: number;
 }
 
 export interface SupportStartReply {
   session_id: string;
   scope: 'read' | 'full';
+  access_basis?: 'school_grant' | 'platform_policy';
   expires_at: string;
   handoff: { path: string; host: string | null; expires_in_seconds: number };
 }
@@ -338,11 +350,18 @@ export const dashboardApi = {
   createNotice: (token: string, input: unknown) => call<MaintenanceNotice>(token, '/maintenance-notices', input),
   cancelNotice: (token: string, id: string) => call<unknown>(token, `/maintenance-notices/${id}/cancel`, {}),
   support: (token: string, code: string) =>
-    call<{ active_grant: SupportGrant | null; grants: SupportGrant[]; sessions: SupportSessionRow[] }>(
-      token,
-      `/schools/${encodeURIComponent(code)}/support`,
-    ),
-  startSupport: (token: string, code: string, reason: string) =>
-    call<SupportStartReply>(token, `/schools/${encodeURIComponent(code)}/support-sessions`, { reason }),
+    call<{
+      active_grant: SupportGrant | null;
+      grants: SupportGrant[];
+      sessions: SupportSessionRow[];
+      policy?: SupportAccessPolicy;
+    }>(token, `/schools/${encodeURIComponent(code)}/support`),
+  // Quyền quản trị nền tảng (DT-24): không có cho phép của trường thì gửi kèm mã xác thực hai lớp, phạm vi, số giờ
+  startSupport: (
+    token: string,
+    code: string,
+    reason: string,
+    access: { otp_code?: string; scope?: 'read' | 'full'; hours?: number } = {},
+  ) => call<SupportStartReply>(token, `/schools/${encodeURIComponent(code)}/support-sessions`, { reason, ...access }),
   endSupport: (token: string, id: string) => call<unknown>(token, `/support-sessions/${id}/end`, {}),
 };

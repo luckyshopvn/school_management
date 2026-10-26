@@ -23,8 +23,11 @@ import { ClassLogScreen } from './screens/ClassLogScreen.js';
 import { TrainingScreen } from './screens/TrainingScreen.js';
 import { TeachingScreen } from './screens/TeachingScreen.js';
 import { WorkScreen } from './screens/WorkScreen.js';
-import { DemoBanner, MaintenanceBanner, type MaintenanceNoticeItem } from '@school-management/ui';
+import { Button, DemoBanner, MaintenanceBanner, type MaintenanceNoticeItem } from '@school-management/ui';
 import { requestJson } from './session/api-client.js';
+import { ClassroomOfflineManager } from './tools/ClassroomOfflineManager.js';
+import { ClassroomToolsScreen } from './tools/ClassroomToolsScreen.js';
+import { readRosters } from './tools/classroom-store.js';
 import { SessionProvider, useSession } from './session/session.js';
 
 // Thông báo bảo trì của nhà vận hành nền tảng khi đã đăng nhập (DT-SaaS phần S4)
@@ -33,6 +36,27 @@ const readPlatformNotices = () => requestJson<{ maintenance: MaintenanceNoticeIt
 function PlatformMaintenanceBanner() {
   const session = useSession();
   return session.status === 'signed-in' ? <MaintenanceBanner load={readPlatformNotices} /> : null;
+}
+
+// Màn hình khi mất mạng lúc mở ứng dụng: công cụ lớp học với bản chụp danh sách lớp còn hạn, không thì báo cần mạng
+function OfflineScreen() {
+  const session = useSession();
+  const [, refresh] = useState(0);
+  if (Object.keys(readRosters(new Date())).length === 0) {
+    return (
+      <main className="mx-auto flex max-w-md flex-col gap-4 px-4 py-6">
+        <h1 className="text-page-title font-bold text-text">Chưa có kết nối</h1>
+        <p className="text-content text-text-secondary">
+          Ứng dụng cần có mạng để đăng nhập. Công cụ lớp học dùng được khi mất mạng sau khi bạn đã mở lớp ít nhất một
+          lần có mạng trong thời gian lưu danh sách lớp.
+        </p>
+        <Button variant="primary" onClick={session.retry}>
+          Thử kết nối lại
+        </Button>
+      </main>
+    );
+  }
+  return <ClassroomToolsScreen classes={null} onCleared={() => refresh((value) => value + 1)} />;
 }
 
 // Chọn màn hình theo trạng thái phiên: chưa đăng nhập về MH-47; bắt buộc đổi mật khẩu về MH-48 (BM-07)
@@ -64,6 +88,7 @@ function Screens() {
     | { screen: 'library' }
     | { screen: 'class-log' }
     | { screen: 'training' }
+    | { screen: 'classroom-tools'; classes: MyClass[] }
   >();
   const back = () => setOpened(undefined);
   if (session.status === 'checking') {
@@ -71,6 +96,10 @@ function Screens() {
   }
   if (session.status === 'signed-out') {
     return <LoginScreen />;
+  }
+  // Mất mạng lúc mở ứng dụng: chỉ công cụ lớp học dùng được, với danh sách lớp đã lưu còn hạn (DT-23 phần 23b, GD-108)
+  if (session.status === 'offline') {
+    return <OfflineScreen />;
   }
   if (session.passwordChangeRequired) {
     return <ChangePasswordScreen />;
@@ -132,6 +161,9 @@ function Screens() {
   if (opened?.screen === 'training') {
     return <TrainingScreen onBack={back} />;
   }
+  if (opened?.screen === 'classroom-tools') {
+    return <ClassroomToolsScreen classes={opened.classes} onBack={back} />;
+  }
   if (opened?.screen === 'stocktake') {
     return <StocktakeScreen onBack={back} />;
   }
@@ -161,6 +193,7 @@ function Screens() {
       onOpenLibrary={() => setOpened({ screen: 'library' })}
       onOpenClassLog={() => setOpened({ screen: 'class-log' })}
       onOpenTraining={() => setOpened({ screen: 'training' })}
+      onOpenClassroomTools={(classes) => setOpened({ screen: 'classroom-tools', classes })}
     />
   );
 }
@@ -172,6 +205,7 @@ export function Application() {
       {/* Dải bản trình diễn (DT-18 phần 18h) */}
       <DemoBanner />
       <PlatformMaintenanceBanner />
+      <ClassroomOfflineManager />
       <Screens />
     </SessionProvider>
   );

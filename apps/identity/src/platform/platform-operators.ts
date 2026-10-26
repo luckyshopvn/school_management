@@ -153,7 +153,8 @@ export class PlatformOperatorsService {
     };
   }
 
-  private async assertSecondFactor(
+  // Cũng dùng làm bước xác thực lại ngay lúc thao tác nhạy cảm (DT-24: quản trị nền tảng vào trường không cần trường cho phép)
+  async assertSecondFactor(
     operatorId: string,
     otpCode: string | undefined,
     ipAddress: string | null,

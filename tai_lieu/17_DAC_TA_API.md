@@ -1,8 +1,8 @@
 # 17. ĐẶC TẢ API
 
 - Mô tả: Điểm cuối, phương thức, yêu cầu, phản hồi, xác thực, phân quyền, kiểm tra dữ liệu, xử lý lỗi, phân trang, lọc, sắp xếp, phiên bản.
-- Phiên bản: 1.128
-- Ngày cập nhật: 2026-10-25
+- Phiên bản: 1.129
+- Ngày cập nhật: 2026-10-26
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
 
@@ -1614,6 +1614,46 @@ Giao kèo văn thư lưu trữ (YCTD-118):
 | POST | /api/v1/parent-org-consents/requests/{id}/{approve|reject|revoke} | Duyệt, từ chối, rút đề nghị xem chi tiết; rút kết thúc phiên đang mở |
 | GET | /api/v1/parent-org/aggregate?unit=<id>&category=<nhóm> | Số liệu tổng hợp cho tài khoản cấp trên (đường dẫn không cần trường, chỉ tên miền cổng nền tảng): tổng của nút (trống khi ít trường hơn ngưỡng), nút con, so sánh trường đã đồng ý, ô ẩn; nút ngoài phạm vi 403, nhóm sai 400 |
 | GET | /api/v1/parent-org/aggregate/export?unit=&category=&format=xlsx|pdf | Xuất Excel, PDF (trang So sánh trường, Tổng hợp) |
+Giao kèo trợ lý AI (DT-23 phần 23d, YCTD-214, BR-234 đến BR-236):
+
+1. Lỗi: tắt hoặc thiếu khóa hoặc gói chưa có đơn giá 422 (quy tắc YCTD-214, thông báo nêu lý do); có dữ liệu cá nhân trong mô tả 422 (không nhắc lại nội dung); vượt hạn mức 422 `PLAN_LIMIT_EXCEEDED`; nhà cung cấp lỗi 422 (không lộ khóa); kết quả không đúng định dạng 422.
+2. Biến môi trường máy chủ API: `AI_MOCK=true` bật bộ giả lập `mock` (chỉ kiểm thử; máy chủ không khởi động khi `NODE_ENV=production`).
+
+| GET | /api/v1/ai/status | Trạng thái cho nút Soạn nháp bằng AI `{ enabled, ready, reason }`; với P01.integration.manage thêm thiết lập, nhà cung cấp, khóa (gợi ý), cấu hình nền tảng, mức dùng tháng, hạn mức, tạm tính phí kỳ; quyền: soạn câu hỏi, kho học liệu hoặc quản lý kết nối |
+| PUT | /api/v1/ai/settings | `{ enabled, key_mode, provider, model, per_user_daily_requests, log_retention_months }` (P01.integration.manage); `platform` ở một trường 422; nhà cung cấp lạ 400 |
+| POST | /api/v1/ai/check | Kiểm tra kết nối bằng khóa của cấu hình đang chọn (P01.integration.manage); ghi nhật ký loại `check` |
+| GET | /api/v1/ai/requests, /api/v1/ai/requests/{id} | Nhật ký yêu cầu (`limit` đến 500, `status`); không có toàn văn lời nhắc |
+| POST | /api/v1/ai/question-drafts | Soạn câu hỏi nháp `{ school_level, subject_id, grade_level_code, topic_id, cognitive_level, question_type, count (1 đến 10), requirement, extra }` (P02.question.author); trả 201 `{ request_id, questions, skipped, tokens, notice }` |
+| POST | /api/v1/ai/lesson-plan-drafts | Soạn kế hoạch bài dạy nháp `{ school_level, subject_code, grade_level_code, topic_text, duration_minutes (10 đến 240), requirement, extra }` (P09.learning-resource.use); trả 201 `{ request_id, resource, tokens, notice }` |
+| PUT, DELETE | /api/v1/school-settings/integrations/ai | Nhập, xóa khóa AI của trường (kết nối `ai` của S3: `api_key`, `endpoint`); không trả lại giá trị |
+| GET | /api/v1/auth/platform/ai | Cổng nền tảng: thiết lập, gợi ý khóa chung, đơn giá AI từng gói |
+| PUT | /api/v1/auth/platform/ai/settings, /ai/key, /ai/pricing/{planId} | Lưu nhà cung cấp và mô hình; khóa chung `{ enabled, api_key }` (trống là giữ khóa cũ); đơn giá AI của gói `{ free_tokens, input_price_per_1k, output_price_per_1k, model_prices, minimum_fee, rounding_step }` |
+| GET | /api/v1/auth/platform/ai/usage?from=&to= | Token đã dùng theo trường, cấu hình, mô hình trong khoảng ngày (mặc định tháng hiện tại) |
+| POST, PUT | /api/v1/auth/platform/plans | Thêm `ai_max_requests`, `ai_max_tokens` (trống là không giới hạn, 0 là không dùng AI) |
+| GET | /api/v1/auth/directory/context | Chế độ trang đăng nhập (YCTD-220): `{ mode: "single" }` chế độ một trường; `{ mode: "directory", page }` ở tên miền chung `PLATFORM_ROOT_DOMAIN`; `{ mode: "school", unit }` ở tên miền của trường (tên, mã Bộ, sở, xã, cấp); tên miền lạ 404 |
+| GET | /api/v1/auth/directory/departments, /levels | Danh sách sở, cấp học của danh mục; chỉ ở tên miền chung (khác 404); 120 yêu cầu mỗi phút mỗi địa chỉ |
+| GET | /api/v1/auth/directory/communes?department=&q=&limit=&offset= | Phường, xã của sở, tìm không dấu, tối đa 50 dòng, `{ items, has_more }`; thiếu sở 400 |
+| GET | /api/v1/auth/directory/units?department=&level=&commune=&q=&limit=&offset= | Trường của sở theo cấp, xã, chữ (tên hoặc đầu mã), tối đa 50 dòng; chỉ trả `moet_code`, `name`, `commune_name`, `levels` |
+| GET | /api/v1/auth/directory/unit?code= | Một đơn vị khi người dùng chọn: `available` (đã khởi tạo trên nền tảng và đang phục vụ), `login_host`, `message`; mã lạ 404 |
+| POST | /api/v1/auth/directory/captcha | `{ unit }`: ảnh mã xác nhận của trường đã chọn; đơn vị chưa dùng nền tảng 422 |
+| POST | /api/v1/auth/directory/login | `{ unit, login, password, captcha_id, captcha_text, otp_code }`: đăng nhập trong ngữ cảnh của trường (mã xác nhận luôn bắt buộc, sai như `/auth/login`), 20 lần mỗi phút mỗi địa chỉ; đúng thì trả `{ handoff: { host, path: "/sign-in-handoff#code=...", expires_in_seconds: 120 } }`, không đặt cookie |
+| POST | /api/v1/auth/handoff/exchange | `{ code }` ở tên miền của trường: đổi mã chuyển phiên một lần lấy mã phiên và cookie làm mới kênh cổng; sai trường, đã dùng, hết hạn 401 |
+| GET | /api/v1/auth/platform/catalog | Số liệu danh mục (sở, xã, đơn vị, theo cấp, theo cờ, số trường đã gắn), 10 lần nhập gần nhất, danh sách sở, nhãn cờ (YCTD-220) |
+| GET | /api/v1/auth/platform/catalog/units?department=&level=&commune=&q=&flag=&include_inactive=&offset= | Tra cứu đơn vị kèm cờ chất lượng, trạng thái, mã trường đã gắn |
+| GET | /api/v1/auth/platform/catalog/unit?code= | Chi tiết một đơn vị kèm trường đã gắn |
+| POST | /api/v1/auth/platform/catalog/import?kind=units (hoặc communes)&file_name=&dry_run=&deactivate_missing= | Nội dung `text/csv` (UTF-8, tối đa 20 MB): nhập hoặc cập nhật danh mục; trả báo cáo `{ run_id, dry_run, totals, flags, skipped }`; thiếu cột 400 |
+| PUT | /api/v1/auth/platform/schools/{mã}/catalog-unit | Gắn trường với mã Bộ `{ moet_code }` (trống là gỡ); mã không có trong danh mục hoặc đã gắn trường khác 400 |
+| GET, PUT | /api/v1/auth/platform/login-page | Tiêu đề, dòng phụ, tối đa 6 dòng thông tin hỗ trợ của trang đăng nhập ở tên miền chung |
+| GET, PUT | /api/v1/auth/platform/support-policy | Chính sách vào trường của quản trị nền tảng `{ mode, default_hours, max_hours }`; PUT cần `otp_code`; chuyển `school_grant` kết thúc phiên đang mở theo chính sách nền tảng |
+| POST | /api/v1/auth/platform/schools/{mã}/support-sessions (đổi ở YCTD-220) | Thêm `otp_code`, `scope` (`read` mặc định, `full`), `hours` (1 đến tối đa của chính sách): trường chưa cho phép mà chính sách là `any_school` thì mở phiên `access_basis: "platform_policy"` sau khi kiểm mã xác thực hai lớp (thiếu mã 422, sai 401, giờ sai 400); trả thêm `access_basis` |
+| GET | /api/v1/classroom-tools/config (từ YCTD-212) | Cấu hình công cụ lớp học của trường: `offline_enabled`, `roster_ttl_hours`, `conduct_enabled`; người đăng nhập nào cũng đọc được |
+| GET | /api/v1/classroom-tools/classes/{id}/roster (từ YCTD-212) | Danh sách lớp gọn: `students` (`id`, `order_no`, `full_name`, `code`, `absent_today`); chỉ người có phạm vi xem trẻ của lớp, không thì 403 (P03-09, BR-231) |
+| POST | /api/v1/classroom-tools/calls (từ YCTD-212) | Ghi lượt gọi (`class_id`, `calls` 1 đến 100 mục `client_id`, `child_id`, `called_at` tuỳ chọn); trả `saved`, `duplicates` (gửi lại cùng `client_id` không trùng); học sinh ngoài lớp 400 |
+| GET, DELETE | /api/v1/classroom-tools/classes/{id}/calls, /calls/{callId} (từ YCTD-212) | Xem 100 lượt gần nhất; xóa một lượt hoặc toàn bộ lượt của chính mình |
+| GET, PUT | /api/v1/classroom-tools/classes/{id}/grouping (từ YCTD-212) | Bản chia nhóm gần nhất của giáo viên (`groups`: `name`, `child_ids`; mỗi học sinh một nhóm, thuộc lớp) |
+| POST | /api/v1/classroom-tools/scores (từ YCTD-212) | Ghi dòng điểm (`class_id`, `session_key`, `events` 1 đến 200 mục `client_id`, `target_kind`, `group_name` hoặc `child_id`, `delta`, `note`, `occurred_at`); chống trùng theo `client_id` |
+| GET, DELETE | /api/v1/classroom-tools/classes/{id}/scores?session_key=, /scores/{sessionKey} (từ YCTD-212) | Dòng điểm và tổng theo đối tượng của buổi (chỉ của chính giáo viên); bỏ buổi xóa dòng chưa chuyển vào nề nếp |
+| POST | /api/v1/classroom-tools/classes/{id}/scores/{sessionKey}/confirm (từ YCTD-212) | Chuyển điểm vào nề nếp: `criterion_id`, `targets` (tuỳ chọn), `date` (tuỳ chọn); cần `P02.conduct.record`; trả `confirmed_events`, `net`, `quantity`, `conduct_entry_ids`; 422 khi tổng bằng 0, tiêu chí ngược chiều, nề nếp chưa bật (BR-232) |
 | POST | /api/v1/internal/jobs/tick | Điểm gọi của bộ hẹn giờ bên ngoài (YCTD-192, BR-204): tiêu đề `x-internal-job-token` bằng `INTERNAL_JOB_TOKEN` (so sánh thời gian hằng, sai 401, chưa đặt 404, có giới hạn tần suất); chạy việc nền đến hạn của mọi trường rồi trả `{ jobs, schools, failed }`; không cần trường (gọi bằng địa chỉ nội bộ) |
 | GET | /api/v1/public/schools/picker | Trang chọn trường ở tên miền gốc (YCTD-192, BR-205, MH-315): trang HTML tĩnh, 404 khi chưa đặt `PLATFORM_ROOT_DOMAIN`; không cần trường |
 | GET | /api/v1/public/schools/resolve?code=<mã> | Đổi mã trường thành `{ url }` của trường đang phục vụ (YCTD-192, BR-205); mã lạ, trường tạm dừng, đang khởi tạo hoặc đã xóa 404; có giới hạn tần suất theo địa chỉ mạng; không liệt kê trường |

@@ -7,6 +7,7 @@ import { RoleWorkspacesPage } from './accounts/RoleWorkspacesPage.js';
 import { SyncAccountsPage } from './accounts/SyncAccountsPage.js';
 import { ApiClientsPage } from './accounts/ApiClientsPage.js';
 import { IntegrationsPage } from './settings/IntegrationsPage.js';
+import { AiAssistantPage } from './ai-assistant/AiAssistantPage.js';
 import { NotificationsPage } from './notifications/NotificationsPage.js';
 import { ApprovalThresholdsPage } from './catalogs/ApprovalThresholdsPage.js';
 import { CommonCatalogPage } from './catalogs/CommonCatalogPage.js';
@@ -127,6 +128,7 @@ import { SettingsPage } from './settings/SettingsPage.js';
 import { ChangePasswordPage } from './pages/ChangePasswordPage.js';
 import { HomePage } from './pages/HomePage.js';
 import { LoginPage } from './pages/LoginPage.js';
+import { SignInHandoffPage } from './pages/SignInHandoffPage.js';
 import { useSession } from './session/session.js';
 import { WorkPage } from './work/WorkPage.js';
 import { EvaluationsPage } from './work/EvaluationsPage.js';
@@ -312,6 +314,8 @@ const OPEN_PATHS = [
   '/tra-cuu-thoi-khoa-bieu',
   '/tra-cuu-chung-nhan',
   '/support-login',
+  // Nhận phiên sau khi đăng nhập theo đơn vị ở tên miền chung (DT-24)
+  '/sign-in-handoff',
 ];
 
 // Chuyển hướng theo trạng thái phiên: chưa đăng nhập về MH-47; bắt buộc đổi mật khẩu về MH-48 (BM-07)
@@ -347,6 +351,7 @@ const routeTree = rootRoute.addChildren([
   createRoute({ getParentRoute: () => rootRoute, path: '/forgot-password', component: ForgotPasswordPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/activate', component: ActivatePage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/support-login', component: SupportLoginPage }),
+  createRoute({ getParentRoute: () => rootRoute, path: '/sign-in-handoff', component: SignInHandoffPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/support-access', component: SupportAccessPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/parent-org-consents', component: ParentOrgConsentsPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/my-profile', component: MyProfilePage }),
@@ -786,6 +791,8 @@ const routeTree = rootRoute.addChildren([
   createRoute({ getParentRoute: () => rootRoute, path: '/online-exams', component: OnlineExamsPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/online-exams/monitor', component: OnlineExamMonitorPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/online-exams/settings', component: OnlineExamSettingsPage }),
+  // Trợ lý AI soạn nháp (DT-23 phần 23d)
+  createRoute({ getParentRoute: () => rootRoute, path: '/ai-assistant', component: AiAssistantPage }),
 ]);
 
 // Đường dẫn gốc lúc dựng (APP_BASE_PATH của vite, DT-SaaS phần S9): /quan-ly/ ở hồ sơ thử nghiệm, / mặc định

@@ -1,7 +1,7 @@
 # 02. NHẬT KÝ DỰ ÁN
 
 - Mô tả: Ghi nhận công việc, quyết định, thay đổi và vấn đề tồn đọng theo ngày, ngày mới nhất ở trên cùng.
-- Phiên bản: 0.71
+- Phiên bản: 0.75
 - Ngày cập nhật: 2026-10-26
 - Trạng thái: Đang cập nhật
 
@@ -13,6 +13,161 @@
 - Không ghi thông tin tạm thời như kết quả tra cứu, đường dẫn tạm, thông báo lỗi của công cụ.
 
 ## Nhật ký theo ngày
+
+### 2026-10-26 — DT-23 phần 23d: trợ lý AI soạn nháp
+
+#### Công việc đã thực hiện
+
+- Đọc mục 15.2 đến 15.6, GD-102 đến GD-104 của `32_KE_HOACH_THEO_HE_THONG_SO.md`; rà kho khóa kết nối của trường (S3), gói và giới hạn (S5a), quy tắc tính phí (S5b), ngân hàng câu hỏi (22g1), kho học liệu (22h1).
+- Thêm tệp năm học 0128 (cờ `questions.ai_generated`), hệ thống 0071 đến 0073 (`ai_settings`, `ai_requests`, mở `integration_secrets` cho `ai`, cờ ở `learning_resources`), nền tảng 0200 đến 0202 (hạn mức AI của gói, khóa AI nền tảng, `ai_token_usage`, `plan_ai_pricing`, dòng phí `ai`).
+- Mã: `apps/api/src/ai-assistant/` (bộ nối `AiProvider`: `anthropic`, `mock`; lời nhắc từ mẫu cố định và bộ quét dữ liệu cá nhân; dịch vụ, điểm cuối `/ai/*`, việc nền `ai-usage-sync`); `database/src/billing/ai-pricing.ts`, `platform-ai.ts`; thành phần AI trong `computeCharges` và `issueInvoice`; dịch vụ định danh `/auth/platform/ai`; cổng quản trị 3.8 Trợ lý AI, nút Soạn nháp bằng AI ở ngân hàng câu hỏi và kho học liệu; cổng nền tảng trang Trợ lý AI và giới hạn AI ở Gói dịch vụ; e2e spec 153.
+- Đọc toàn văn Luật Trí tuệ nhân tạo 134/2025/QH15 và viết bản nháp `33_HO_SO_PHAP_LY/22_TRO_LY_AI_SOAN_NHAP.md` (PL-22), bổ sung PL-02, PL-04, PL-05, PL-08, `00_MUC_LUC.md`.
+- Thêm quy tắc BR-234 đến BR-236, chức năng P01-86 đến P01-89, màn hình MH-339 đến MH-341, kịch bản CT-1084 đến CT-1096, tiêu chí AC-869 đến AC-873, bảo mật BM-92, quyết định QĐ-35, mục kiến trúc 12G, mục cơ sở dữ liệu 18E.
+
+#### Quyết định
+
+- Nhà cung cấp là bảng tra theo mã (`anthropic` mặc định, `mock` chỉ khi `AI_MOCK=true`, từ chối ở `NODE_ENV=production`); không có `if` theo nhà cung cấp ở mã nghiệp vụ.
+- Token miễn phí trừ theo tỷ lệ vào chi phí mọi mô hình; mỗi dòng làm tròn lên theo bước; dòng phí AI không tính vào phí tối thiểu chung của quy tắc; kỳ không dùng AI thì không có dòng AI; gói chưa nhập đơn giá thì cấu hình `platform` chưa dùng được (số tiền để trống theo GD-103).
+- Câu hỏi do AI soạn chỉ được duyệt khi đã gửi thẩm định và do người khác duyệt; kế hoạch bài dạy là học liệu nháp riêng tư, nội dung lưu thành tệp Markdown.
+- Yêu cầu nhà cung cấp đã trả lời nhưng kết quả không dùng được vẫn tính token (đã tốn); lỗi nhà cung cấp, bị chặn, bị từ chối thì không tính.
+- Hạn mức tháng của gói áp cho cả hai cấu hình (cấu hình `school` chỉ để chống lạm dụng, để trống là không giới hạn).
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-214, `07_QUY_TAC_NGHIEP_VU.md` BR-234 đến BR-236, `10_YEU_CAU_CHUC_NANG.md` P01-86 đến P01-89, `11_TIEU_CHI_NGHIEM_THU.md` AC-869 đến AC-873, `12_KIEN_TRUC_HE_THONG.md` QĐ-35 và mục 12G, `14_DAC_TA_GIAO_DIEN.md` MH-339 đến MH-341, `16_CO_SO_DU_LIEU.md` mục 18E, `17_DAC_TA_API.md`, `21_KICH_BAN_KIEM_THU.md` CT-1084 đến CT-1096, `22_BAO_MAT.md` BM-92, `23_LICH_SU_PHIEN_BAN.md` 0.143.0.
+
+#### Vấn đề tồn đọng
+
+- Bản nháp pháp lý PL-22 chờ luật sư của Eric rà (mức rủi ro theo phụ lục Quyết định 33/2026/QĐ-TTg, chuyển dữ liệu ra nước ngoài, tư cách các bên); nhà cung cấp AI, vùng máy chủ và số tiền thu để trống chờ Eric.
+- Bộ quét dữ liệu cá nhân so tên đầy đủ (từ hai chữ) và mẫu số, thư điện tử; không bắt được tên viết tắt hoặc thông tin định danh gián tiếp.
+### 2026-10-26 — DT-25: bộ nối nhà cung cấp định danh OIDC, sẵn cho VNeID (phần máy chủ)
+
+#### Công việc đã thực hiện
+
+- Đọc báo cáo khảo sát tích hợp VNeID ngày 2026-10-26 (lưu ngoài `tai_lieu/`, mục 5 đến 7) và mã dịch vụ định danh (đăng nhập, xác thực hai lớp S8b, kho khóa S3, nhận diện trường S1a, kiểm tĩnh và ma trận cách ly).
+- Viết mục 17 của `32`: căn cứ, nguyên tắc, hai bước 25a (máy chủ) và 25b (giao diện, sau DT-24), thiết kế, quyết định, rủi ro, giả định GD-113 đến GD-115.
+- Làm phần máy chủ ở `apps/identity/src/external-identity/`: lớp `IdentityProvider`, bộ nối OIDC chung, hồ sơ `vneid`, khai báo nền tảng bằng biến môi trường, cấu hình của trường, liên kết, gỡ liên kết, đăng nhập, nhập mã hai lớp sau nhà cung cấp, nhật ký; migration định danh 0140; `Infrastructure.scopedCache` cho khóa Redis theo trường.
+- Dựng nhà cung cấp OIDC giả lập cục bộ (`MockOidcServer`) cho kiểm thử đơn vị và e2e; spec 165.
+- Cập nhật `22` (BM-95, BM-96), `33_HO_SO_PHAP_LY/` PL-02 (Điều 7 khoản 5, Phụ lục A) và PL-05 (mục 2, mục 5) lên S8a-1.1, `34` (bảng cách đăng nhập, mục 9), `01`, `23`, `24`.
+
+#### Quyết định
+
+- Không tự tạo tài khoản từ nhà cung cấp ngoài; người đã có tài khoản tự liên kết sau khi nhập lại mật khẩu và mã hai lớp; lượt liên kết gắn với phiên đã bắt đầu.
+- Chỉ lưu subject mã hóa bằng khóa của trường cùng băm có khóa (đổi khóa S3 tự xử lý); không lưu số định danh, căn cước, ngày sinh.
+- Nền tảng khai nhà cung cấp bằng biến môi trường; trường bật tắt (mặc định tắt), chọn nhóm vai trò (mặc định trừ học sinh); dưới 14 tuổi bị từ chối; đăng nhập bằng nhà cung cấp ngoài không thay xác thực hai lớp trừ khi trường bật và mức đảm bảo đạt.
+- Tham số của RAR chưa công bố nên để cấu hình, danh sách mục "chờ tài liệu RAR" trả ở màn hình cấu hình.
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-225, `23_LICH_SU_PHIEN_BAN.md` 0.142.0, `32_KE_HOACH_THEO_HE_THONG_SO.md` mục 17 (phiên bản 1.78).
+
+#### Vấn đề tồn đọng
+
+- Bước 25b (giao diện) chờ PR DT-24 gộp.
+- Eric: ký hợp đồng và lấy tài liệu kỹ thuật, môi trường thử của Trung tâm RAR (văn bản gửi RAR đã soạn ở thư mục khảo sát); luật sư rà vai trò của nhà cung cấp định danh trong PL-02, PL-05 trước khi bật ở trường thật.
+
+
+### 2026-10-26 — DT-24: danh mục đơn vị toàn quốc, đăng nhập theo đơn vị, quyền quản trị nền tảng
+
+#### Công việc đã thực hiện
+
+- Đọc báo cáo của ba phiên khảo sát (lưu ngoài kho mã), mã S1a, S1b, S2, S3, S4, S6, S8b; đếm thử bản khảo sát bằng bộ đọc mới (không in dữ liệu): 39.658 đơn vị nhập được, 11 dòng loại vì mã trùng khuôn số căn cước, 4.333 mã không chuẩn, 314 tên rỗng, 366 thiếu phường xã; nhập thử vào cơ sở dữ liệu tạm 16 giây, nhập lại 3 giây, rồi xóa cơ sở dữ liệu tạm.
+- Viết mục 16 của `32` (kế hoạch DT-24) và làm trọn mã trong cùng một PR: danh mục, công cụ nhập, trang đăng nhập theo đơn vị, chuyển phiên, quyền vào mọi trường của quản trị nền tảng, trang Danh mục đơn vị của cổng nền tảng; sửa PL-02 (Điều 5a).
+
+#### Quyết định
+
+- Eric quyết định ngày 2026-10-26: quản trị nền tảng vào mọi trường mặc định không cần trường đồng ý, bắt buộc xác thực hai lớp, lý do, nhật ký, có hạn, biểu ngữ, chính sách cấu hình được; không commit dữ liệu thu thập; không dùng quốc huy, tên của Bộ.
+- Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11: một PR; đăng nhập ở tên miền chung chuyển phiên bằng mã một lần lưu ở cơ sở dữ liệu định danh của trường; danh sách ô chọn không đánh dấu đơn vị đã dùng nền tảng; nhập lại mã xác thực hai lớp ngay lúc mở phiên không cần đồng ý; ứng dụng giáo viên, phụ huynh không đổi (màn hình đăng nhập riêng).
+
+#### Thay đổi
+
+- Tệp: xem YCTD-220 ở `24_YEU_CAU_THAY_DOI.md`. Phiên bản 0.141.0 (0.140.0 là của 23b, gộp trước).
+
+#### Kết quả kiểm thử
+
+- `database`: `school-catalog.test.ts` 5/5 (CT-24-1 đến CT-24-4).
+- `apps/identity`: `directory/unit-directory.test.ts` 4/4 (CT-24-5 đến CT-24-8), `platform/support-sessions.test.ts` 4/4 (CT-S4-1 đến CT-S4-4, không sửa kỳ vọng), `tenancy-matrix.test.ts` 4/4.
+- `tests/trial/edge-worker.test.mjs`: đạt (sửa kỳ vọng ca tên miền hệ thống theo hành vi mới).
+- Typecheck, lint, định dạng: đạt.
+- e2e nhiều trường (bố cục `database`, giữ khóa `e2e.lock`): 160 2/2 (CT-24-9, CT-24-10); 130, 131, 133, 134, 135, 136, 137, 138, 139, 140 đạt; 132 đạt sau khi đổi nhãn ô lý do ở khung truy cập của cổng nền tảng (nhãn cũ trùng chuỗi con với ô "Lý do" mà spec 132 dùng). e2e một trường (CSDL định danh riêng của phiên): 01-login 8/8, 59-portal-shell-login 5/5; 02, 03 hỏng ở bước mở năm học vượt 30 giây do máy đang chạy nhiều phiên (không liên quan đăng nhập), để CI chạy lại.
+
+#### Vấn đề tồn đọng
+
+- Luật sư rà PL-02 Điều 5a trước khi nhận dữ liệu thật (GD-110); quyền dùng lại danh mục lấy từ trang công khai (GD-109); tên sản phẩm cho tiêu đề trang đăng nhập (GD-111).
+- Đăng nhập theo đơn vị cho ứng dụng giáo viên, phụ huynh: chưa làm, chờ Eric cần.
+### 2026-10-26 — Kế hoạch DT-27: nền tảng gia sư trực tuyến
+
+#### Công việc đã thực hiện
+
+- Đọc mục 13 đến 15 của `32_KE_HOACH_THEO_HE_THONG_SO.md`, `33_HO_SO_PHAP_LY/`, `34_TONG_HOP_CHUC_NANG_HE_THONG/`; đối chiếu mã trên nhánh chính: thời khoá biểu và phân công, điểm danh, học phí và cổng thanh toán theo trường (S3), bảng lương có biểu thuế, thu phí nền tảng (S5b), nhắn tin, kiến trúc đa thuê bao (mỗi trường một bộ cơ sở dữ liệu, `platform` dùng chung). Xem dải số các phiên DT-24, DT-25 đang dùng để không va.
+- Tra văn bản ngày 2026-10-26: **đọc toàn văn bản gốc Thông tư 19/2026/TT-BGDĐT** (sửa Thông tư 29/2024, hiệu lực 15/05/2026; tệp quét ở Cổng thông tin điện tử Chính phủ); Thông tư 29/2024, Nghị định 52/2024, Thông tư 40/2024, Nghị định 117/2025, Luật Thương mại điện tử 122/2025 chỉ đọc được qua nguồn thứ cấp, ghi "chưa xác minh"; giá LiveKit Cloud, Cloudflare Realtime từ trang chính thức.
+- Viết mục 19 của `32`: căn cứ pháp lý và ràng buộc sản phẩm, ước lượng băng thông video, nguyên tắc, chín phần 27a đến 27i trong bốn đợt, phạm vi chi tiết, phương án đã loại, rủi ro, việc Eric phải quyết E-01 đến E-10, giả định GD-130 đến GD-138.
+- Thêm danh sách hồ sơ pháp lý PL-16 đến PL-21 vào `33_HO_SO_PHAP_LY/16_DANH_SACH_HO_SO_GIA_SU.md`; thêm đợt DT-27, RR-28 đến RR-31, GD-130 đến GD-138 vào `01`; mục kế hoạch DT-27 ở `34`.
+
+#### Quyết định
+
+- Eric (ngày 2026-10-26): làm cả gia sư trong trường (trước) và chợ gia sư mở (sau); cả ba hình thức học (video trực tiếp, khoá học ghi sẵn, hỏi đáp có gợi ý AI nháp); thu phí qua nền tảng có hoàn tiền và tranh chấp.
+- Claude chọn theo ủy quyền: trong trường tiền vào thẳng tài khoản của trường, thù lao qua bảng lương; dạy thêm thuộc chương trình môn học trong trường khóa cứng "không thu tiền" (Thông tư 29/2024); chợ mở giữ và chia tiền qua tổ chức có giấy phép trung gian thanh toán (phương án A) hoặc trả thẳng gia sư (phương án B), không để tiền học vào tài khoản nền tảng; video LiveKit tự host, bộ nối đổi được; chợ dùng cơ sở dữ liệu `marketplace` và ứng dụng `apps/market` mới.
+- Số giữ sẵn: YCTD-250 (kế hoạch), YCTD-251 đến YCTD-259, dự phòng đến YCTD-264; năm học 0150 đến 0169, hệ thống 0100 đến 0109, định danh 0170 đến 0179, nền tảng 0240 đến 0249, `marketplace` từ 0001; e2e `190-` đến `204-`. Dải đặt sau dải của DT-26 (PR 178); bản đầu của PR dùng YCTD-240, trùng DT-26, nên sau khi gộp nhánh chính đã đánh lại toàn bộ (YCTD, migration, e2e, GD, RR).
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-250, `32` mục 19 (phiên bản 1.76), `01` (1.69), `33_HO_SO_PHAP_LY/00_MUC_LUC.md`, `33_HO_SO_PHAP_LY/16_DANH_SACH_HO_SO_GIA_SU.md`, `34_TONG_HOP_CHUC_NANG_HE_THONG/01_TONG_QUAN_VA_NEN_TANG.md`, `index.md`. Chỉ đổi tài liệu, không tăng phiên bản phần mềm.
+
+#### Vấn đề tồn đọng
+
+- Chờ Eric: tỷ lệ hoa hồng, chọn tổ chức thanh toán có phép, pháp nhân vận hành chợ, báo giá VPS, luật sư rà (E-01 đến E-10 ở `32` mục 19.10).
+- Mục 16, 17 của `32` để cho DT-24, DT-25; mục 18 là DT-26 (đã gộp).
+
+### 2026-10-26 — DT-23 phần 23b: công cụ lớp học trên ứng dụng giáo viên
+
+#### Công việc đã thực hiện
+
+- Đọc mục 15.3, 15.4 (23b), 15.6, GD-108 của `32_KE_HOACH_THEO_HE_THONG_SO.md`; rà `ConductService` (DT-21), `ChildScope` của điểm danh, cấu hình trường (`settings`), đăng nhập và `api-client` của ứng dụng giáo viên, lớp hạ tầng kiểm tĩnh đa thuê bao.
+- Thêm tệp năm học 0124 (`classroom_call_logs`, `classroom_groupings`) và 0125 (`classroom_score_events`); mô-đun `apps/api/src/classroom-tools` (cấu hình, danh sách lớp gọn, lượt gọi, bản chia nhóm, dòng điểm chống trùng, chuyển vào nề nếp có xác nhận); hai mục cấu hình trường `classroom_offline_enabled`, `classroom_roster_ttl_hours`.
+- Ứng dụng giáo viên: màn hình Công cụ lớp học (gọi tên, chia nhóm, đồng hồ, bảng điểm nhanh), service worker `public/sw.js`, manifest, biểu tượng, bản chụp danh sách lớp gọn có hạn, hàng đợi đồng bộ, chế độ `offline` của phiên; `vite.config.ts` đặt phiên bản bộ nhớ đệm theo bản phát hành; thêm `test` cho `apps/teacher`.
+- Thêm quy tắc BR-231 đến BR-233, chức năng P03-09 đến P03-11, màn hình MH-337, MH-338, kịch bản CT-1078 đến CT-1083, tiêu chí AC-864 đến AC-868, bảo mật BM-91, QĐ-34, mục kiến trúc 12G, mục cơ sở dữ liệu 18E.
+- Gộp `origin/main` (PR 176) vào nhánh, không rebase; đánh số tài liệu theo nhánh chính lúc gộp.
+
+#### Quyết định
+
+- Máy giáo viên bốc ngẫu nhiên và giữ đồng hồ; máy chủ chỉ cấp danh sách lớp thật, ghi lượt gọi, dòng điểm và chuyển nề nếp (mọi dòng có `client_id` để gửi lại không trùng).
+- Bảng điểm nhanh là nháp của giáo viên; vào `conduct_entries` chỉ khi chọn tiêu chí cùng chiều với tổng điểm và xác nhận, tổng đổi thành số lần của tiêu chí, dòng điểm giữ chỗ trước để không chuyển đôi.
+- Service worker mạng trước, bộ nhớ đệm sau, không giữ `/api/`; dữ liệu ngoại tuyến là bản chụp gọn (số thứ tự, họ tên, mã, cờ vắng) có hạn 24 giờ mặc định và hàng đợi; đăng xuất, phiên hết hạn, trường tắt ngoại tuyến xóa hết.
+- Không thêm quyền, không đổi kênh đăng nhập (`access-token.ts` của 23a), không sửa `MULTI_TENANT_SPEC`; đăng ký mô-đun thêm cuối `application.module.ts`.
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-212, `07_QUY_TAC_NGHIEP_VU.md` BR-231 đến BR-233, `10_YEU_CAU_CHUC_NANG.md` P03-09 đến P03-11, `11_TIEU_CHI_NGHIEM_THU.md` AC-864 đến AC-868, `12_KIEN_TRUC_HE_THONG.md` QĐ-34 và mục 12G, `14_DAC_TA_GIAO_DIEN.md` MH-337, MH-338, `16_CO_SO_DU_LIEU.md` mục 18E, `17_DAC_TA_API.md` nhóm `/classroom-tools`, `21_KICH_BAN_KIEM_THU.md` CT-1078 đến CT-1083, `22_BAO_MAT.md` BM-91, `23_LICH_SU_PHIEN_BAN.md` 0.140.0, `index.md`.
+- Kết quả kiểm thử ngày 26/10/2026: `apps/teacher` 10/10 (`node --test`, CT-23b-1 đến CT-23b-4); `apps/api` 9/9 ca của `classroom-tools.test.ts` (CT-23b-5 đến CT-23b-13) và ma trận cách ly mọi tuyến 5/5; `database` 103/103 (tệp 0124, 0125 chạy ở cả hai bố cục `database`, `schema`); kiểm tĩnh đa thuê bao và quét bí mật đạt; `pnpm lint` đạt; typecheck, build `apps/teacher`, `apps/api` đạt; e2e spec 151 đạt (CT-23b-14) trên bố cục `database` sau chuỗi spec 02 đến 08; spec 121 (ứng dụng giáo viên) đạt, spec 09 trên máy phát triển hỏng ở bước tải tệp lên kho tệp (không liên quan phần này, CI chạy lại toàn bộ)
+
+#### Vấn đề tồn đọng
+
+- Tiếng báo hết giờ không vang khi màn hình tắt và trình duyệt tạm dừng trang (đồng hồ vẫn đúng); chưa có đồng bộ nền khi ứng dụng đóng (Background Sync).
+- Phần 23c (trò chơi) dùng lại nhóm, bảng điểm và vỏ ngoại tuyến của phần này.
+
+### 2026-10-26 — Kế hoạch DT-26: PWA, máy tính bảng, ứng dụng di động
+
+#### Công việc đã thực hiện
+
+- Đối chiếu mã trên nhánh chính sau PR 177: `apps/teacher`, `apps/parent` (React 19, Vite, Tailwind 4, bố cục một cột, chưa có manifest, service worker, thông báo đẩy), thương hiệu trường của S3, hàng đợi thông báo chung (`queueNotification`, `notification-dispatch`, kênh `in_app`, `sms`, `zalo`), `packages/ui` (`DataGrid`, `FormLayout`), cấu hình Playwright (một dự án `chromium`) và các việc CI sau PR 177. Đọc phần đang làm song song: service worker, manifest của 23b; kênh `student` và màn hình học sinh của 23a; số migration DT-24, DT-25 đang dùng trên nhánh làm việc.
+- Viết mục 18 của `32`: căn cứ, nguyên tắc, tám phần 26a đến 26h chạy ba đợt (PWA, máy tính bảng, ứng dụng cài đặt), phạm vi chi tiết, quyết định thiết kế và phương án đã loại, rủi ro, quy ước, tiến độ, giả định GD-120 đến GD-127, việc Eric phải làm; đánh dấu cập nhật ở 14.6, 15.5.
+- Thêm đợt DT-26, RR-25 đến RR-27, GD-120 đến GD-127 vào `01`; thêm mục 6 kế hoạch DT-26 vào `34` tệp 01.
+
+#### Quyết định
+
+- Eric (ngày 2026-10-26) yêu cầu làm theo thứ tự PWA, bố cục máy tính bảng, ứng dụng cài đặt iOS và Android; ứng dụng di động không còn là phương án đã loại của 14.6, 15.5.
+- Claude chọn (theo ủy quyền ngày 2026-10-11): đóng gói mã web bằng Capacitor, một ứng dụng có chọn vai trò, học sinh dùng PWA; thông báo đẩy là kênh `push` của hàng đợi chung với bộ nối Web Push, FCM, APNs; nội dung đẩy không có dữ liệu cá nhân; kiểm thử thiết bị ở việc CI riêng, yêu cầu kéo chạy tập con.
+- Số giữ sẵn: YCTD-230 (kế hoạch) và YCTD-231 đến YCTD-238, dự phòng đến YCTD-244; hệ thống từ 0090, năm học từ 0140, định danh từ 0160, nền tảng từ 0230; e2e từ `180-`; chừa khoảng trống cho DT-24, DT-25.
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-230, `32_KE_HOACH_THEO_HE_THONG_SO.md` mục 18 (phiên bản 1.75), `01_KE_HOACH_TONG_THE.md` (1.68), `34_TONG_HOP_CHUC_NANG_HE_THONG/01_TONG_QUAN_VA_NEN_TANG.md`, `index.md`. Chỉ đổi tài liệu, không tăng phiên bản phần mềm.
+
+#### Vấn đề tồn đọng
+
+- Còn chờ Eric: tên ứng dụng, mã gói (GD-120), một hay hai ứng dụng (GD-121), pháp nhân và hai tài khoản nhà phát triển (Apple 99 USD mỗi năm, Google Play 25 USD một lần, GD-124), các khóa cho secrets, luật sư rà hồ sơ quyền riêng tư trước khi nộp.
+- Mục 16, 17 của `32` và số giữ sẵn của DT-24, DT-25 chưa có trên nhánh chính; phiên điều phối kiểm lại dải số DT-26 khi giao phần.
 
 ### 2026-10-26 — Kế hoạch DT-23: thi trực tuyến, công cụ lớp học, trò chơi kiến thức, trợ lý AI
 

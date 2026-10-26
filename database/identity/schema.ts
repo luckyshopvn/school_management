@@ -8,7 +8,8 @@ export type UserStatus = 'active' | 'locked';
 // Kênh student của học sinh (DT-23 phần 23a)
 export type SessionChannel = 'portal' | 'teacher' | 'parent' | 'student';
 // Đăng nhập thay (DT-18 phần 18h) mở phiên của tài khoản được đăng nhập thay với cách đăng nhập 'impersonation'
-export type LoginMethod = 'password' | 'one_time_code' | 'impersonation';
+// Đăng nhập bằng nhà cung cấp định danh bên ngoài đã liên kết (DT-25) mở phiên với cách đăng nhập 'external_provider'
+export type LoginMethod = 'password' | 'one_time_code' | 'impersonation' | 'external_provider';
 
 export interface UsersTable {
   id: Generated<string>;
@@ -201,6 +202,18 @@ export interface UserTotpTable {
   updated_at: UpdatedTimestamp;
 }
 
+// Mã chuyển phiên một lần sau khi đăng nhập theo đơn vị ở tên miền chung (DT-24, YCTD-220)
+export interface LoginHandoffsTable {
+  id: Generated<string>;
+  token_hash: string;
+  session_id: string;
+  user_id: string;
+  ip_address: string | null;
+  created_at: CreatedTimestamp;
+  expires_at: Date;
+  used_at: Date | null;
+}
+
 export interface UserRecoveryCodesTable {
   id: Generated<string>;
   user_id: string;
@@ -213,6 +226,45 @@ export interface UserRecoveryCodesTable {
 export interface StudentAccountsTable {
   user_id: string;
   learning_username: string;
+  created_at: CreatedTimestamp;
+}
+
+// Bộ nối nhà cung cấp định danh bên ngoài (DT-25, YCTD-225): cấu hình của trường cho nhà cung cấp nền tảng đã khai
+export interface ExternalIdentityProvidersTable {
+  id: Generated<string>;
+  provider_code: string;
+  enabled: Generated<boolean>;
+  client_id: string | null;
+  client_secret_encrypted: string | null;
+  allowed_roles: string[] | null;
+  satisfies_mfa: Generated<boolean>;
+  updated_by: string | null;
+  created_at: CreatedTimestamp;
+  updated_at: UpdatedTimestamp;
+}
+
+// Liên kết tài khoản với nhà cung cấp ngoài: chỉ mã liên kết (subject) mã hóa bằng khóa của trường và băm có khóa để tra
+export interface ExternalIdentitiesTable {
+  id: Generated<string>;
+  provider_code: string;
+  subject_encrypted: string;
+  subject_hash: string;
+  user_id: string;
+  linked_at: CreatedTimestamp;
+  last_login_at: Date | null;
+}
+
+export type ExternalIdentityEventType =
+  'linked' | 'unlinked' | 'login' | 'login_rejected' | 'link_rejected' | 'settings_updated';
+
+export interface ExternalIdentityEventsTable {
+  id: Generated<string>;
+  provider_code: string;
+  user_id: string | null;
+  actor_user_id: string | null;
+  event_type: ExternalIdentityEventType;
+  reason: string | null;
+  ip_address: string | null;
   created_at: CreatedTimestamp;
 }
 
@@ -236,4 +288,8 @@ export interface IdentityDatabase {
   user_school_levels: UserSchoolLevelsTable;
   user_preferences: UserPreferencesTable;
   student_accounts: StudentAccountsTable;
+  login_handoffs: LoginHandoffsTable;
+  external_identity_providers: ExternalIdentityProvidersTable;
+  external_identities: ExternalIdentitiesTable;
+  external_identity_events: ExternalIdentityEventsTable;
 }

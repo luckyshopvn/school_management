@@ -1,7 +1,7 @@
 # 32. KẾ HOẠCH ĐỒNG BỘ CHỨC NĂNG VÀ GIAO DIỆN THEO HỆ THỐNG CỦA SỞ (DT-15)
 
-- Mô tả: Kế hoạch điều chỉnh School Management theo kết quả khảo sát `31_KHAO_SAT_HE_THONG_SO.md`; từ mục 9 thêm kế hoạch DT-18 điều hành nhà trường, mục 10 thêm kế hoạch DT-19 nền đa cấp học, mục 11 thêm kế hoạch DT-20 Tiểu học (kèm 22c thời khoá biểu), mục 12 thêm kế hoạch DT-21 THCS và THPT (kèm 22g kiểm tra, đánh giá), mục 13 thêm kế hoạch DT-22 (22a thư viện, 22e hồ sơ bồi dưỡng, 22h kho học liệu số), mục 14 thêm kế hoạch DT-SaaS (Enterprise SaaS nhiều trường: S1a, S1b, S2, S3, S4, S5a, S5b, S6, S7a, S7b, S8a, S8b, S9; hai hồ sơ triển khai: thử nghiệm miễn phí và vận hành), mục 15 thêm kế hoạch DT-23 (thi trực tuyến cho học sinh, công cụ lớp học, trò chơi kiến thức và thẻ đáp án giấy, trợ lý AI; 23a đến 23d).
-- Phiên bản: 1.74
+- Mô tả: Kế hoạch điều chỉnh School Management theo kết quả khảo sát `31_KHAO_SAT_HE_THONG_SO.md`; từ mục 9 thêm kế hoạch DT-18 điều hành nhà trường, mục 10 thêm kế hoạch DT-19 nền đa cấp học, mục 11 thêm kế hoạch DT-20 Tiểu học (kèm 22c thời khoá biểu), mục 12 thêm kế hoạch DT-21 THCS và THPT (kèm 22g kiểm tra, đánh giá), mục 13 thêm kế hoạch DT-22 (22a thư viện, 22e hồ sơ bồi dưỡng, 22h kho học liệu số), mục 14 thêm kế hoạch DT-SaaS (Enterprise SaaS nhiều trường: S1a, S1b, S2, S3, S4, S5a, S5b, S6, S7a, S7b, S8a, S8b, S9; hai hồ sơ triển khai: thử nghiệm miễn phí và vận hành), mục 15 thêm kế hoạch DT-23 (thi trực tuyến cho học sinh, công cụ lớp học, trò chơi kiến thức và thẻ đáp án giấy, trợ lý AI; 23a đến 23d), mục 18 thêm kế hoạch DT-26 (ứng dụng web cài được, bố cục máy tính bảng, ứng dụng cài đặt iOS và Android; 26a đến 26h), mục 16 thêm DT-24 (danh mục đơn vị toàn quốc, đăng nhập theo đơn vị, quyền vào mọi trường của quản trị nền tảng), mục 19 thêm kế hoạch DT-27 (nền tảng gia sư trực tuyến: gia sư trong trường, khoá học ghi sẵn, hỏi đáp, chợ gia sư mở; 27a đến 27i); mục 17 thêm DT-25 bộ nối nhà cung cấp định danh OIDC, sẵn cho VNeID.
+- Phiên bản: 1.78
 - Ngày cập nhật: 2026-10-26
 - Trạng thái: Đã duyệt hướng làm
 - Căn cứ: yêu cầu của Eric ngày 2026-10-13 ("tính năng đã có thì ưu tiên phiên bản và giao diện của Sở; tính năng Sở không có thì giữ nguyên, chỉ đổi giao diện theo trang của Sở") và các lựa chọn của Eric cùng ngày ở mục 2.
@@ -1391,7 +1391,7 @@ Các lựa chọn dưới đây do Claude tự chọn theo ủy quyền của Er
 - **Bản triển khai hiện có thành trường số 1, không chuyển dữ liệu:** lệnh nhận bản đang chạy chỉ ghi `platform` và dùng lại cơ sở dữ liệu cũ, khóa tên cũ (tiền tố trống). Phương án loại: đổi tên và chép cơ sở dữ liệu (rủi ro, thời gian dừng).
 - **Chế độ một trường là mặc định:** mọi bản triển khai hiện nay và e2e hiện có chạy không đổi; kiểm thử nhiều trường là bộ riêng (14.7).
 - **Tài khoản không gộp giữa các trường:** một người dạy hai trường có hai tài khoản, đăng nhập ở hai tên miền; không có danh tính chung (làm thế phải có kho tài khoản chung, trái mô hình A và nguyên tắc tách dữ liệu). Trang chọn trường chỉ chuyển hướng. Tài khoản chuyên viên Phòng, Sở nằm ở S6.
-- **Ứng dụng di động:** hiện chỉ có ứng dụng web; "nhập mã trường hoặc quét QR" của bản nháp chỉ làm ở trang chọn trường và mã QR của đường dẫn trường (in được ở S2); vỏ ứng dụng di động gốc nằm ngoài DT-SaaS.
+- **Ứng dụng di động:** hiện chỉ có ứng dụng web; "nhập mã trường hoặc quét QR" của bản nháp chỉ làm ở trang chọn trường và mã QR của đường dẫn trường (in được ở S2); vỏ ứng dụng di động gốc nằm ngoài DT-SaaS (cập nhật 2026-10-26: Eric yêu cầu ứng dụng cài đặt, làm ở DT-26 bằng cách đóng gói mã web, mục 18).
 - **Thu phí tự động trong đợt đầu (Eric chốt):** S5a, S5b thuộc lõi; tiền thu qua cổng thanh toán đã có bộ nối; hóa đơn điện tử đi qua bộ nối có giả lập vì nhà cung cấp chưa chốt. Phương án loại: ký hợp đồng và thu thủ công trước (Eric không chọn).
 - **Hết hạn thì chỉ đọc, không xóa:** tránh mất dữ liệu trẻ vì quên gia hạn; xóa chỉ khi trường yêu cầu và qua thời gian chờ.
 - **Chứng chỉ HTTPS:** giai đoạn đầu cấp theo yêu cầu cho cả tên miền con và tên miền riêng (chỉ cho tên miền có trong danh sách, đã xác nhận DNS); nhà cung cấp chứng chỉ có hạn mức số chứng chỉ mới mỗi tuần cho một tên miền đăng ký (kiểm tra hạn mức hiện hành), nên khi mở nhiều trường cùng lúc cần **chứng chỉ ký tự đại diện** cho tên miền hệ thống (xác nhận bằng DNS, cần nhà cung cấp DNS có giao diện lập trình mà Caddy hỗ trợ). Ghi vào S7a như tùy chọn bật sau.
@@ -1403,7 +1403,7 @@ Các lựa chọn dưới đây do Claude tự chọn theo ủy quyền của Er
 - **Một container gộp, không Redis, không worker ở hồ sơ (a):** các gói miễn phí chỉ cho một dịch vụ, RAM nhỏ và CPU yếu; Redis miễn phí hết hạn mức vì `BLPOP`. Máy xếp thời khoá biểu có thể tắt bằng gói dịch vụ.
 - **Việc định kỳ do bên ngoài gọi, làm việc bù:** tiến trình miễn phí ngủ nên bộ đếm giờ trong tiến trình không đáng tin; việc đến hạn tính từ dấu thời gian trong cơ sở dữ liệu nên gọi muộn vẫn đủ.
 - **Không giữ thức bằng gọi liên tục theo mặc định:** có thể trái điều khoản gói miễn phí và tốn giờ máy; chấp nhận khởi động chậm và có trang chờ.
-- **Không làm ở DT-SaaS:** mô hình dùng chung cơ sở dữ liệu; danh tính chung nhiều trường; ứng dụng di động gốc; thị trường học liệu liên trường thật (22h2 chỉ có gói tệp, danh mục chung liên trường là việc sau DT-SaaS, thêm bằng YCTD riêng); tự động mở rộng máy chủ, dịch vụ đám mây quản lý (Eric chọn VPS trong nước); thành phần AI (đã chuyển thành phần 23d của DT-23, mục 15, theo quyết định của Eric ngày 2026-10-26).
+- **Không làm ở DT-SaaS:** mô hình dùng chung cơ sở dữ liệu; danh tính chung nhiều trường; ứng dụng di động gốc (cập nhật 2026-10-26: chuyển sang DT-26, mục 18); thị trường học liệu liên trường thật (22h2 chỉ có gói tệp, danh mục chung liên trường là việc sau DT-SaaS, thêm bằng YCTD riêng); tự động mở rộng máy chủ, dịch vụ đám mây quản lý (Eric chọn VPS trong nước); thành phần AI (đã chuyển thành phần 23d của DT-23, mục 15, theo quyết định của Eric ngày 2026-10-26).
 
 ### 14.7 Kiểm thử cách ly dữ liệu giữa các trường
 
@@ -1608,7 +1608,7 @@ Cỡ ước lượng (một phần của DT-16 là một đơn vị, chỉ để
 - **Học sinh đăng nhập qua kênh `student` riêng, không dùng tài khoản phụ huynh:** cùng cơ chế phiên, khác kênh, khác tuyến, khác quyền; phương án đã loại: dùng chung tài khoản phụ huynh (lộ thông tin phụ huynh cho học sinh, không biết ai đang làm bài), tạo ứng dụng học sinh thứ tư (thêm một ứng dụng phải dựng, triển khai, kiểm thử riêng; màn hình học sinh gọn nên đặt trong ứng dụng phụ huynh, tách khi cần).
 - **Đồng hồ và đáp án ở máy chủ:** học sinh đổi giờ máy hoặc xem mã trang không đổi được kết quả; phương án đã loại: chấm ở trình duyệt (lộ đáp án).
 - **Chuyển điểm bằng luồng 22g2, có xác nhận của giáo viên:** một đường duy nhất vào sổ điểm; phương án đã loại: ghi thẳng điểm thi trực tuyến vào `score_entries` không qua giáo viên (điểm thi online chưa chắc là điểm chính thức: học sinh có thể làm ở nhà).
-- **Ngoại tuyến bằng service worker chỉ cho 23b:** phạm vi nhỏ, dữ liệu gọn, có hàng đợi đồng bộ; phương án đã loại: ngoại tuyến toàn bộ ứng dụng giáo viên (xung đột dữ liệu điểm, học bạ), ứng dụng di động gốc (14.6 đã loại).
+- **Ngoại tuyến bằng service worker chỉ cho 23b:** phạm vi nhỏ, dữ liệu gọn, có hàng đợi đồng bộ; phương án đã loại: ngoại tuyến toàn bộ ứng dụng giáo viên (xung đột dữ liệu điểm, học bạ), ứng dụng di động gốc (14.6 đã loại; cập nhật 2026-10-26: ứng dụng cài đặt làm ở DT-26 bằng cách đóng gói mã web, mục 18; ngoại tuyến vẫn chỉ cho 23b).
 - **Thẻ đáp án giấy đọc trên máy, không tải hình lên:** giảm rủi ro dữ liệu trẻ em; phương án đã loại: gửi video lên máy chủ để nhận dạng (nặng, vướng quy định); dùng đúng mẫu thẻ của sản phẩm khác (không sao chép, tự thiết kế).
 - **AI là bộ nối cấu hình được, không phụ thuộc một nhà cung cấp:** mặc định Claude vì Eric chọn; thay nhà cung cấp hay mô hình bằng cấu hình; phương án đã loại: tự lưu mô hình chạy ở máy chủ của dự án (tốn máy, chất lượng thấp ở giai đoạn này).
 - **Hai cấu hình AI, hạn mức và phí gắn với gói:** cấu hình `school` miễn phí cho trường có sẵn khóa, cấu hình `platform` thu theo gói và theo token (Eric chốt 2026-10-26); dùng lại chỗ kiểm tra gói của S5a và luồng thu phí của S5b, không dựng bộ đếm hay luồng thu riêng; phương án đã loại: chỉ tin hạn mức của nhà cung cấp (không chặn theo trường được), chỉ một cấu hình (không đáp ứng cả trường có khóa sẵn lẫn trường muốn trả theo mức dùng).
@@ -1653,8 +1653,8 @@ Cỡ ước lượng (một phần của DT-16 là một đơn vị, chỉ để
 | Phần | Đợt | Tiến độ |
 |---|---|---|
 | 23a | 1 | Chưa làm; YCTD-211 giữ sẵn |
-| 23b | 1 | Chưa làm; YCTD-212 giữ sẵn |
-| 23d | 1 | Chưa làm; YCTD-214 giữ sẵn |
+| 23b | 1 | Đã làm (YCTD-212, phiên bản 0.140.0, PR 180): công cụ lớp học, ngoại tuyến, bản chụp danh sách lớp 24 giờ; năm học 0124, 0125; e2e 151 |
+| 23d | 1 | Đã làm, YCTD-214, phiên bản 0.143.0, PR 184: bộ nối `AiProvider` (`anthropic`, `mock`), hai cấu hình khóa, bật tắt theo trường, lời nhắc từ mẫu cố định và bộ quét dữ liệu cá nhân, bản nháp qua duyệt 22g1 và kiểm duyệt 22h1, nhật ký, hạn mức theo gói, phí theo token qua S5b, màn hình quản trị, e2e spec 153, bản nháp pháp lý PL-22 |
 | 23c | 2 | Chưa làm; YCTD-213 giữ sẵn, bắt đầu khi 23a và 23b đã gộp |
 
 Bản kế hoạch này là YCTD-210, chỉ đổi tài liệu (không tăng phiên bản phần mềm).
@@ -1670,3 +1670,748 @@ Bản kế hoạch này là YCTD-210, chỉ đổi tài liệu (không tăng phi
 | GD-106 | Mức chống gian lận | **Eric đã chốt 2026-10-26:** khóa toàn màn hình và camera. Claude chọn cách làm tôn trọng dữ liệu trẻ em: camera xử lý ngay trên máy học sinh, chỉ gửi sự kiện, không gửi hình hay video; ảnh định kỳ tắt mặc định, chỉ bật khi có đồng ý của cha mẹ; sự kiện không tự trừ điểm; điểm cần giáo viên xác nhận mới vào sổ | cấu hình thi trực tuyến, theo bài | Eric (đã chốt hướng; chốt lại nếu muốn lưu hình mặc định) |
 | GD-107 | Thư viện đọc thẻ đáp án | Tự viết bộ đọc hoặc dùng thư viện mã nguồn mở có giấy phép cho phép dùng thương mại; chọn và ghi giấy phép lúc làm | mã 23c | Claude (theo ủy quyền) |
 | GD-108 | Phạm vi ngoại tuyến của ứng dụng giáo viên | **Eric đã chốt 2026-10-26:** chỉ trang công cụ lớp học (23b); danh sách lớp lưu 24 giờ, xóa khi đăng xuất | cấu hình theo trường | Eric (đã chốt) |
+
+## 16. DT-24: danh mục đơn vị toàn quốc, đăng nhập theo đơn vị, quyền quản trị nền tảng
+
+### 16.1 Căn cứ và mục tiêu
+
+1. **Yêu cầu của Eric ngày 2026-10-26**, ba việc làm thành một đợt nhỏ DT-24 (kế hoạch và mã trong cùng một PR):
+   - tự lập danh sách trường toàn quốc theo nguồn đầy đủ nhất;
+   - đổi màn hình đăng nhập theo bố cục trang đăng nhập của hệ thống ngành (chọn đơn vị rồi nhập tài khoản);
+   - tài khoản quản trị nền tảng vào được mọi trường; **mặc định không cần trường đồng ý** nhưng bắt buộc xác thực hai lớp, lý do, nhật ký đầy đủ trường xem được, phiên có hạn, biểu ngữ; chính sách để cấu hình được ở mức nền tảng.
+2. **Nguồn danh mục:** ba phiên khảo sát ngày 2026-10-26 chỉ đọc phần công khai, lưu kết quả **ngoài kho mã** (`.claude/logs-khaosat-csdl-moet`, `.claude/logs-khaosat-smis`, `.claude/logs-khaosat-truong-hcm`):
+   - trang đăng nhập cấp trường của CSDL ngành là nguồn đầy đủ nhất: 39.669 trường kèm mã Bộ (43.063 cặp trường, cấp học), 34 sở, 5 cấp học (Mầm non, Tiểu học, THCS, THPT, GDTX), năm học 2026-2027; 11 mã trùng khuôn số căn cước đã che ở nguồn;
+   - trang của hệ thống học bạ có đủ 3.321 phường, xã của 34 tỉnh, thành (mã đơn vị hành chính cấp xã 5 chữ số);
+   - dữ liệu của Sở TP.HCM (6.168 mã) dùng để đối chiếu: mã trường của Sở trùng mã Bộ.
+   - Đối chiếu bằng bộ đọc của DT-24 (chỉ đếm, không in dữ liệu): 39.658 đơn vị nhập được, 11 dòng bị loại vì mã trùng khuôn số căn cước, 4.333 mã không theo dạng 8 hoặc 10 chữ số, 314 tên rỗng, 366 thiếu phường, xã; mọi mã xã của trường đều có trong danh mục phường, xã.
+3. **Hiện trạng mã trước DT-24** (nhánh chính ngày 2026-10-26, sau PR 176):
+   - S1a nhận diện trường theo tên miền; S1b có trang chọn trường ở tên miền hệ thống (nhập mã trường, không liệt kê trường);
+   - S2 khởi tạo trường (mã trường do người vận hành gõ); S3 thương hiệu theo trường (tên hiển thị, màu, biểu trưng công khai ở `/public/branding`);
+   - S4 phiên hỗ trợ: nhân viên nền tảng chỉ mở được khi trường đang cho phép (`support_access_grants`), có lý do, đường liên kết một lần, biểu ngữ, nhật ký hai phía; S6 cây đơn vị hành chính do người vận hành tự dựng (`admin_units`) cho tài khoản cấp trên;
+   - S8b xác thực hai lớp, khóa tạm, chính sách mật khẩu theo trường; 16c mã xác nhận dạng ảnh do máy chủ sinh.
+   - Ứng dụng giáo viên và phụ huynh có màn hình đăng nhập riêng (`apps/teacher`, `apps/parent`), **không dùng chung** trang đăng nhập của cổng quản trị.
+4. **Mục tiêu:** danh mục đơn vị toàn quốc là dữ liệu tham chiếu của nền tảng, nạp lại được mỗi năm học; người dùng ở tên miền chung chọn Sở → Cấp học → Phường/Xã → Trường rồi đăng nhập vào đúng trường; quản trị nền tảng vào được mọi trường với các biện pháp bắt buộc; không đổi hành vi của tên miền riêng của trường và chế độ một trường.
+
+### 16.2 Nguyên tắc
+
+- **Kho mã công khai:** không commit tệp CSV toàn quốc hay bất kỳ dữ liệu thu thập nào từ trang của Bộ, Sở. Kho chỉ có mã, migration, công cụ nhập và một tệp mẫu nhỏ toàn dữ liệu giả (`database/platform/catalog-sample/`: mã sở 97, 98, phường xã 99xxx, tên bịa).
+- **Không mạo danh cơ quan nhà nước:** trang đăng nhập chỉ học bố cục và luồng chọn đơn vị; không dùng quốc huy, tên, biểu trưng của Bộ GD&ĐT hay tên của hệ thống ngành. Tiêu đề lấy từ cấu hình của nền tảng (tên miền chung) hoặc thương hiệu của trường (S3).
+- **Không lộ danh sách khách hàng:** ô chọn liệt kê cả danh mục, không đánh dấu đơn vị nào dùng nền tảng; chỉ khi người dùng chọn một đơn vị mới tra đơn vị đó (như trang chọn trường của S1b), có giới hạn tần suất.
+- **Không đổi hành vi cũ:** chế độ một trường và tên miền của trường giữ trang đăng nhập cũ (thêm khung "Thông tin đơn vị" đã khóa); nhãn ô, nút mà các e2e cũ dùng giữ nguyên ("Số điện thoại hoặc tên đăng nhập", "Mật khẩu", "Đăng nhập", "Ghi nhớ tài khoản", "Quên mật khẩu?"); phiên hỗ trợ theo cho phép của S4 giữ nguyên.
+- **Đăng nhập luôn chạy trong ngữ cảnh của đúng trường:** tài khoản, khóa tạm, chính sách mật khẩu, xác thực hai lớp, mã xác nhận, nhật ký là của trường được chọn; tên miền chung không nhận cookie phiên của trường nào.
+- **Nền tảng là bên xử lý** (Luật Bảo vệ dữ liệu cá nhân số 91/2025/QH15, Điều 37): quyền vào trường của quản trị nền tảng phải nằm trong thỏa thuận xử lý dữ liệu đã ký (PL-02), chỉ cho mục đích vận hành, hỗ trợ, xử lý sự cố, có biện pháp kiểm soát và trường xem được nhật ký.
+- Chạy được ở cả hai bố cục cơ sở dữ liệu `database` và `schema`; đạt kiểm tĩnh đa thuê bao và ma trận cách ly (14.7).
+
+### 16.3 Phần, số giữ sẵn
+
+Một phần duy nhất, **một PR** (Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11: ba việc dùng chung bảng danh mục, trang đăng nhập và phiên hỗ trợ; tách hai PR sẽ phải sửa trang đăng nhập hai lần). Số giữ sẵn bắt đầu sau dải của DT-23 (đến YCTD-219, năm học 0129, hệ thống 0079, định danh 0129, nền tảng 0209, e2e `159-`):
+
+| Mục | Số |
+|---|---|
+| YCTD | YCTD-220 (kế hoạch và mã); YCTD-221 đến YCTD-229 dự phòng cho bổ sung của DT-24 |
+| Migration nền tảng | 0210 (danh mục), 0211 (gắn mã Bộ cho trường, căn cứ phiên hỗ trợ, chính sách mặc định); giữ 0212 đến 0219 |
+| Migration định danh | 0130 (mã chuyển phiên); giữ 0131 đến 0139 |
+| Migration năm học, hệ thống | Không dùng |
+| e2e | `160-unit-directory-login.spec.ts` (dự án nhiều trường, `MULTI_TENANT_SPEC` thêm 160); `161-` đến `169-` dự phòng |
+| Kịch bản kiểm thử trong mã | CT-24-1 đến CT-24-10 |
+| Phiên bản phần mềm | 0.141.0 (0.140.0 của 23b gộp trước; phần gộp sau đánh lại số theo nhánh chính lúc gộp) |
+
+### 16.4 Phạm vi chi tiết
+
+**1. Danh mục đơn vị toàn quốc (cơ sở dữ liệu `platform`, migration 0210)**
+
+| Bảng | Nội dung |
+|---|---|
+| `catalog_departments` | Sở GD&ĐT: mã 2 chữ số là mã tỉnh, thành sau sáp nhập (theo cột mã sở của nguồn), tên tỉnh, thành, trạng thái |
+| `catalog_levels` | Cấp học theo mã của Bộ: `MN` 01, `TH` 02, `THCS` 03, `THPT` 04, `GDTX` 05 (nạp sẵn trong migration, là danh mục chuẩn) |
+| `catalog_communes` | Phường, xã: mã đơn vị hành chính cấp xã 5 chữ số, sở, tên, tên bỏ dấu để tìm |
+| `catalog_units` | Đơn vị trường: mã Bộ (chuỗi bất biến, giữ số 0 đầu, có thể có chữ, tối đa 40 ký tự, duy nhất), tên, tên bỏ dấu, sở, phường xã (có thể trống), tên xã ở nguồn khi không ghép được mã, năm học, nguồn, trạng thái `active`/`inactive`, cờ chất lượng, lần đầu và lần cuối thấy |
+| `catalog_unit_levels` | Trường liên cấp: nhiều dòng (nhiều-nhiều với cấp học) |
+| `catalog_import_runs` | Mỗi lần nhập (kể cả chạy thử) một dòng: nguồn, tệp, số thêm, sửa, giữ nguyên, bỏ qua, cờ; 500 dòng bỏ qua đầu kèm lý do; người nhập |
+
+- **Quy tắc làm sạch** (`database/src/school-catalog.ts`, Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11):
+  - đọc CSV theo RFC 4180 (ô có dấu phẩy, ngoặc kép), bỏ dấu BOM; nhận cả tệp một dòng mỗi trường và tệp một dòng mỗi cặp trường, cấp học (gộp cấp theo mã);
+  - **không suy ra tỉnh từ hai số đầu mã trường** (mã bất biến, hai số đầu là tỉnh lúc cấp mã trước sáp nhập): sở lấy theo cột `ma_so`;
+  - mã giữ nguyên chuỗi (chỉ bỏ khoảng trắng hai đầu); mã không theo dạng 8 hoặc 10 chữ số vẫn nhập, gắn cờ `code_nonstandard`;
+  - **mã đã che hoặc 12 chữ số bắt đầu bằng 0 (trùng khuôn số căn cước) không nhập**, ghi vào báo cáo là bị loại với mã `[đã che]`, không ghi giá trị mã;
+  - tên rỗng thì đặt tên tạm "Đơn vị mã <mã>", gắn cờ `name_missing`; thiếu xã gắn cờ `commune_missing`; mã xã sai hoặc không có trong danh mục gắn cờ `commune_invalid` và giữ tên xã ở nguồn; thiếu cấp gắn cờ `level_missing`, cấp lạ gắn cờ `level_unknown`;
+  - cùng mã ở hai sở khác nhau trong một tệp: giữ dòng đầu, ghi dòng sau vào báo cáo bỏ qua.
+- **Nhập lặp lại được:** so từng đơn vị theo mã, chỉ ghi phần đổi (thêm, sửa, giữ nguyên chỉ cập nhật lần cuối thấy); tùy chọn chuyển "ngừng hoạt động" các đơn vị của những sở có trong tệp mà không còn trong tệp (không xóa, vì mã bất biến); chạy thử chỉ tính báo cáo; mỗi lần nhập ghi `catalog_import_runs` và nhật ký nền tảng. Đo trên máy phát triển với bản khảo sát: nhập lần đầu khoảng 16 giây, nhập lại khoảng 3 giây, tìm một trang khoảng 17 ms.
+- **Công cụ nhập:** lệnh `platform catalog-import --units <tệp> [--communes <tệp>] [--source] [--dry-run] [--deactivate-missing]` và `platform catalog-seed` (máy phát triển, đọc `CATALOG_UNITS_FILE`, `CATALOG_COMMUNES_FILE`, mặc định tệp khảo sát ở `../.claude/logs-khaosat-*`, không có thì bỏ qua); trang **Danh mục đơn vị** ở cổng nền tảng: số liệu, nhập tệp CSV (gửi nguyên văn bản, tối đa 20 MB, chạy thử trước), báo cáo, tra cứu theo sở, cấp, cờ, chữ (thấy trường đã gắn), các lần nhập gần đây.
+- **Gắn với trường đã khởi tạo (S2):** cột `schools.moet_code` (migration 0211, duy nhất, liên kết mềm không khóa ngoại để nạp lại danh mục không vướng trường); bước setup của S2 có ô chọn đơn vị trong danh mục, chọn thì điền tên, cấp học và **mã trường gợi ý theo mã Bộ** (viết thường, khi đúng quy tắc mã trường của S1a); trang chi tiết trường gắn hoặc gỡ mã Bộ cho trường đã có; lệnh `provision --file` nhận thêm `moet_code`.
+
+**2. Màn hình đăng nhập theo đơn vị**
+
+- **Bố cục** (cổng quản trị, MH-47): đầu trang là tiêu đề, biểu trưng theo cấu hình; khung "Đăng nhập hệ thống" gồm phần **Thông tin đơn vị** (Sở GD&ĐT\*, Cấp học\*, Phường/Xã, Trường\*; ô chọn có tìm kiếm không phân biệt dấu, danh sách lấy theo trang từ máy chủ, "Xem thêm") và phần **Thông tin tài khoản** (tên đăng nhập, mật khẩu, mã xác thực hai lớp khi cần, mã xác nhận dạng ảnh do máy chủ sinh, "Ghi nhớ tài khoản" nhớ cả đơn vị đã chọn, "Quên mật khẩu?", nút Đăng nhập); chân trang là các dòng thông tin hỗ trợ cấu hình ở cổng nền tảng (`platform_settings.login_page`) hoặc đường dây nóng của trường.
+- **Ba chế độ** theo điểm cuối `GET /auth/directory/context`:
+  - **tên miền chung** (`PLATFORM_ROOT_DOMAIN`): hiện ô chọn đơn vị; chọn một trường thì tra `GET /auth/directory/unit`: đơn vị chưa khởi tạo trên nền tảng hiện "Đơn vị này chưa sử dụng hệ thống trên nền tảng..." và không gửi được; đơn vị đã khởi tạo thì lấy mã xác nhận của đúng trường, mã xác nhận luôn bắt buộc ở tên miền chung; đăng nhập `POST /auth/directory/login` chạy trong ngữ cảnh của trường (cùng bộ đếm sai, khóa tạm, chính sách mật khẩu, xác thực hai lớp như đăng nhập ở tên miền của trường); đúng thì phiên mở ở trường đó, trả **mã chuyển phiên một lần** (chỉ lưu mã băm ở `login_handoffs` của cơ sở dữ liệu định danh của trường, hạn 2 phút), trình duyệt sang `https://<tên miền của trường>/sign-in-handoff#code=...`, trang đó đổi mã lấy cookie phiên (`POST /auth/handoff/exchange`) rồi xóa mã khỏi thanh địa chỉ; "Quên mật khẩu?" dẫn sang trang quên mật khẩu ở tên miền của trường đã chọn;
+  - **tên miền của trường** (tên miền con hoặc tên miền riêng): ẩn ô chọn, khung "Thông tin đơn vị" khóa vào trường (Sở, tên trường, cấp, mã Bộ nếu đã gắn, năm học); đăng nhập như cũ;
+  - **chế độ một trường**: như tên miền của trường, dữ liệu lấy từ `login-info` như cũ.
+- **API danh mục cho ô chọn** (dịch vụ định danh, không thuộc trường nào, chỉ phục vụ ở tên miền chung, tên miền khác 404): `departments`, `levels`, `communes?department&q&limit&offset`, `units?department&level&commune&q&limit&offset` (bắt buộc chọn sở, tối đa 50 dòng mỗi trang, chỉ trả mã, tên, xã, cấp, không trả cờ chất lượng), `unit?code`; giới hạn 120 yêu cầu đọc và 20 lần đăng nhập mỗi phút trên một địa chỉ mạng, cộng giới hạn đăng nhập theo trường đã có.
+- **Ứng dụng giáo viên, phụ huynh** có màn hình đăng nhập riêng, không dùng chung trang này, nên **không đổi** ở DT-24 (ghi để không bị hỏi lại); đăng nhập theo đơn vị cho hai ứng dụng này là việc sau nếu Eric cần.
+- **Cổng biên, máy chủ web:** hồ sơ thử nghiệm chuyển gốc tên miền hệ thống về `/quan-ly/` (trang đăng nhập theo đơn vị); trang chọn trường cũ của S1b vẫn ở `/api/v1/public/schools/picker`. Hồ sơ vận hành nhiều trường đã mở `/quan-ly` trên mọi tên miền đang phục vụ (khối bắt chung, `TENANT_PATHS=on`), nên trang đăng nhập theo đơn vị ở `https://<tên miền hệ thống>/quan-ly/`.
+
+**3. Quyền vào mọi trường của quản trị nền tảng**
+
+- **Chính sách ở mức nền tảng** `platform_settings.support_access_policy` (migration 0211 đặt mặc định): `mode` = `any_school` (mặc định theo quyết định của Eric ngày 2026-10-26) hoặc `school_grant` (chỉ khi trường cho phép, như S4); `default_hours` 2, `max_hours` 8. Đổi ở trang Danh mục đơn vị của cổng nền tảng, bắt buộc nhập lại mã xác thực hai lớp, ghi nhật ký; chuyển sang `school_grant` thì mọi phiên đang mở theo chính sách nền tảng kết thúc ngay và mở mới bị từ chối.
+- **Mở phiên khi trường chưa cho phép** (dùng lại phiên hỗ trợ của S4): ở trang chi tiết trường, người vận hành ghi lý do (5 đến 500 ký tự), chọn phạm vi chỉ đọc hoặc toàn quyền, số giờ (1 đến tối đa), **nhập lại mã xác thực hai lớp ngay lúc mở** (ngoài lần đăng nhập cổng); thiếu mã thì từ chối 422, sai mã tính như nhập sai mật khẩu (khóa tạm). Phiên ghi `support_sessions.access_basis = 'platform_policy'`; đường liên kết một lần 5 phút; phiên tự hết hạn theo số giờ; mã phiên mang phạm vi như S4 (chỉ đọc thì chặn ghi).
+- **Nhật ký đầy đủ, trường xem được:** nhật ký nền tảng (`support.platform-access-requested`, `support.session-started` kèm căn cứ, lý do, hạn, địa chỉ mạng), nhật ký định danh của trường (`support_start` kèm căn cứ, lý do), từng thao tác trong phiên (`support_session_actions`); trang **Cho phép hỗ trợ** của cổng quản trị liệt kê mọi phiên kèm căn cứ ("quyền quản trị nền tảng, không cần trường cho phép"), lý do, thao tác.
+- **Biểu ngữ** ở mọi trang của cổng quản trị trong phiên: "Đang truy cập với quyền quản trị nền tảng: <tên> (phạm vi, đến <giờ>), lý do: ...", cho chính người vận hành và cho quản trị tài khoản của trường.
+- Phiên theo cho phép của trường (S4) và phiên xem chi tiết của cấp trên (S6) giữ nguyên; căn cứ ghi `school_grant`, `access_request`.
+
+### 16.5 Quyết định thiết kế và phương án đã loại
+
+- **Danh mục là bảng riêng ở cơ sở dữ liệu nền tảng, không dùng `admin_units` của S6:** `admin_units` là cây quản lý cấp trên do người vận hành tự dựng (gộp, tách nút, tài khoản cấp trên); danh mục là dữ liệu tham chiếu nạp từ nguồn, khóa theo mã của nguồn, nạp lại mỗi năm học. Phương án đã loại: ghi danh mục vào cây S6 (trộn dữ liệu nguồn với cấu hình của người vận hành, gộp, tách nút làm sai mã nguồn).
+- **Mã Bộ là chuỗi, không ràng buộc dạng 8 chữ số; không suy ra tỉnh từ mã:** theo báo cáo khảo sát, mã bất biến từ lần cấp đầu, có 4.333 mã không chuẩn. Phương án đã loại: chuẩn hóa hay bỏ mã lạ (mất đơn vị thật).
+- **Đăng nhập ở tên miền chung rồi chuyển phiên bằng mã một lần, không đặt cookie dùng chung các tên miền:** cookie phiên của S1a là cookie cùng tên miền (SameSite=Strict); tên miền riêng của trường không chung tên miền gốc. Phương án đã loại: chọn đơn vị xong chuyển hướng sang trang đăng nhập của trường để nhập lại (hai bước, khác luồng một khung của trang mẫu); đặt cookie miền gốc (không áp dụng được cho tên miền riêng, mở rộng phạm vi cookie).
+- **Mã chuyển phiên lưu ở cơ sở dữ liệu định danh của trường, không ở Redis:** kiểm tĩnh đa thuê bao cấm gọi Redis ngoài lớp hạ tầng; bảng của trường tự cách ly theo trường. Phương án đã loại: lưu mã làm mới ở Redis (lộ mã làm mới nếu Redis bị đọc).
+- **Danh sách không đánh dấu đơn vị đã dùng nền tảng:** tránh lộ danh sách khách hàng; tra từng đơn vị khi chọn, có giới hạn tần suất.
+- **Quyền quản trị nền tảng dùng lại phiên hỗ trợ của S4:** một đường duy nhất có đường liên kết một lần, tài khoản hỗ trợ riêng của trường (không đăng nhập bằng mật khẩu), phạm vi, nhật ký thao tác, biểu ngữ. Phương án đã loại: đăng nhập thẳng bằng tài khoản quản trị của trường (không phân biệt được người thao tác), tài khoản vận hành có quyền ở mọi cơ sở dữ liệu (vượt lớp cách ly theo trường).
+- **Bắt buộc nhập lại mã xác thực hai lớp lúc mở phiên không cần đồng ý,** dù cổng đã bắt buộc xác thực hai lớp khi đăng nhập: phiên cổng có thể đang mở trên máy để quên; bước xác thực lại cho mỗi lần vào trường là bằng chứng có chủ đích.
+- **Không làm ở DT-24:** đăng nhập theo đơn vị cho ứng dụng giáo viên, phụ huynh; kết nối API của hệ thống ngành (chưa có đặc tả công khai; căn cứ là Điều 14 Thông tư 42/2021/TT-BGDĐT, đầu mối Cục Công nghệ thông tin; việc này Eric quyết định); tự động cập nhật danh mục định kỳ (nạp tay mỗi năm học); cho trường tự xin đăng ký từ ô chọn.
+
+### 16.6 Nạp danh mục khi triển khai
+
+1. Lấy tệp danh mục ở máy của người vận hành (không qua kho mã), đúng cột: đơn vị `ma_so, ten_so, ma_cap_hoc, cap_hoc, ma_phuong_xa, ten_phuong_xa, ma_truong, ten_truong, nam_hoc`; phường xã `ma_so, ten_so, ma_phuong_xa, ten_phuong_xa`. Tệp phải giữ bước che mã trùng khuôn số căn cước như bản khảo sát.
+2. Chạy thử: `pnpm --filter @school-management/database platform catalog-import --units <tệp đơn vị> --communes <tệp phường xã> --dry-run`, đọc báo cáo (số thêm, bỏ qua, cờ).
+3. Nhập thật: bỏ `--dry-run`. Hoặc ở cổng nền tảng, trang Danh mục đơn vị: nạp tệp phường xã trước, rồi tệp đơn vị; chạy thử rồi nhập.
+4. Mỗi năm học nạp lại cùng cách; thêm `--deactivate-missing` (hoặc tích ô tương ứng) khi muốn chuyển ngừng hoạt động các đơn vị không còn trong tệp của các sở có trong tệp.
+5. Gắn trường đã khởi tạo với mã Bộ ở trang chi tiết trường (hoặc chọn từ danh mục khi khởi tạo trường mới).
+6. Đặt tiêu đề, chân trang của trang đăng nhập ở tên miền chung (trang Danh mục đơn vị); kiểm tra chính sách vào trường của quản trị nền tảng đúng thỏa thuận đã ký với các trường (PL-02 Điều 5a).
+7. Máy phát triển: `pnpm --filter @school-management/database platform catalog-seed` nạp từ thư mục khảo sát nếu có, không có thì bỏ qua.
+
+### 16.7 Rủi ro và cách kiểm
+
+| Rủi ro | Cách kiểm |
+|---|---|
+| Dữ liệu thu thập lọt vào kho công khai | Tệp mẫu chỉ có mã 97, 98, 99xxx và tên bịa; công cụ đọc tệp ở ngoài kho; người duyệt PR rà danh sách tệp; quét bí mật của S8b vẫn chạy |
+| Số căn cước của chủ nhóm trẻ lọt vào danh mục qua mã 12 chữ số | Bộ đọc loại mã đã che và mã khớp khuôn 12 chữ số bắt đầu bằng 0, báo cáo chỉ ghi `[đã che]`; kiểm thử CT-24-2 kiểm báo cáo không chứa giá trị mã |
+| Mạo danh cơ quan nhà nước | Tiêu đề, biểu trưng từ cấu hình; e2e 160 kiểm trang không có chữ "Bộ Giáo dục" hay "quốc gia"; người duyệt đối chiếu |
+| Lộ danh sách khách hàng qua ô chọn | Danh sách không có cờ đã dùng; tra từng đơn vị có giới hạn 120 yêu cầu mỗi phút mỗi địa chỉ; ô chọn chỉ ở tên miền chung |
+| Dò mật khẩu qua tên miền chung, lách giới hạn theo trường | Mã xác nhận luôn bắt buộc; giới hạn 20 lần đăng nhập mỗi phút mỗi địa chỉ trên mọi trường cộng giới hạn theo trường; khóa tạm theo tài khoản như cũ |
+| Mã chuyển phiên bị lộ hoặc dùng ở trường khác | Mã 32 byte ngẫu nhiên sau dấu `#`, chỉ lưu mã băm, hạn 2 phút, một lần, bảng ở cơ sở dữ liệu của đúng trường (trường khác không thấy), trang xóa mã khỏi lịch sử; kiểm thử CT-24-6 |
+| Trang đăng nhập đổi làm hỏng các e2e đang dùng | Giữ nhãn ô, nút, mã kiểm thử cũ; chạy 01, 59 (một trường) và 130 đến 140, 160 (nhiều trường) |
+| Quản trị nền tảng vào trường không đúng mục đích, trái thỏa thuận xử lý dữ liệu | Chỉ khi chính sách cho phép; xác thực hai lớp lúc mở, lý do, có hạn, phạm vi; nhật ký hai phía và từng thao tác; trường xem được; biểu ngữ; PL-02 Điều 5a ghi rõ quyền và giới hạn; chính sách đổi được sang `school_grant`; luật sư rà (GD-110) |
+| Chính sách đổi sang `school_grant` mà phiên cũ vẫn chạy | Đổi chính sách kết thúc mọi phiên `platform_policy` đang mở; đổi mã chuyển phiên kiểm lại chính sách; kiểm thử CT-24-7 |
+| Va số với DT-23 chạy song song | Dải DT-24 bắt đầu sau toàn bộ dải giữ của DT-23; sửa tệp chung (`application.module.ts`, `MULTI_TENANT_SPEC`, `platform-menu.ts`, schema nền tảng) theo kiểu thêm cuối; gộp `origin/main` khi PR khác gộp trước |
+
+**Cổng kiểm của DT-24:** kiểm thử đơn vị của gói đã sửa (`database` CT-24-1 đến CT-24-4; `apps/identity` CT-24-5 đến CT-24-8 cùng phiên hỗ trợ S4 và ma trận cách ly); e2e 160 và các spec đăng nhập (01, 59 ở dự án một trường; 130 đến 140 ở dự án nhiều trường) giữ khóa `e2e.lock`; kiểm tĩnh đa thuê bao; typecheck, lint, định dạng; CI xanh toàn bộ.
+
+### 16.8 Tiến độ
+
+| Phần | Tiến độ |
+|---|---|
+| DT-24 | Đã làm trong PR "DT-24: danh mục trường toàn quốc, đăng nhập theo đơn vị, quyền quản trị nền tảng" (YCTD-220, phiên bản 0.141.0) |
+
+### 16.9 Giả định chưa chốt, làm cấu hình được
+
+| Mã | Mục chưa chốt | Giả định để làm | Cấu hình ở | Cần ai trả lời |
+|---|---|---|---|---|
+| GD-109 | Được dùng lại danh mục lấy từ trang công khai của hệ thống ngành vào phần mềm thương mại không | Chỉ dùng làm dữ liệu tham chiếu nội bộ (tên, mã đơn vị, không có dữ liệu cá nhân), không công bố lại cả danh sách, không ghi tên nguồn trên giao diện; hướng lâu dài là xin kết nối chính thức theo Điều 14 Thông tư 42/2021/TT-BGDĐT | Không | Eric, luật sư |
+| GD-110 | Quản trị nền tảng vào mọi trường không cần trường đồng ý | **Eric đã chốt 2026-10-26:** mặc định `any_school`, bắt buộc xác thực hai lớp, lý do, nhật ký trường xem được, có hạn, biểu ngữ; ghi vào PL-02 Điều 5a; luật sư rà trước khi nhận dữ liệu thật | `platform_settings.support_access_policy` | Eric (đã chốt), luật sư |
+| GD-111 | Tiêu đề trang đăng nhập ở tên miền chung | "Hệ thống quản lý trường học" cho đến khi Eric chốt tên sản phẩm | `platform_settings.login_page` | Eric |
+| GD-112 | Cập nhật danh mục | Nạp tay mỗi năm học từ tệp người vận hành có được; chưa tự động | Không | Eric |
+
+## 17. DT-25: bộ nối nhà cung cấp định danh bên ngoài theo chuẩn OIDC (sẵn cho VNeID)
+
+### 17.1 Căn cứ và mục tiêu
+
+1. Eric yêu cầu ngày 2026-10-26: xây bộ nối nhà cung cấp định danh bên ngoài theo chuẩn OIDC để sau này cắm VNeID mà không phải sửa mã nghiệp vụ.
+2. Nguồn: báo cáo khảo sát tích hợp VNeID ngày 2026-10-26 (`.claude/logs-khaosat-vneid/BAO_CAO_KHAO_SAT_VNEID.md`, ở ngoài `tai_lieu/`), mục 5 đến 7:
+   - Doanh nghiệp tư nhân **không tự kết nối trực tiếp** vào hệ thống định danh và xác thực điện tử; phải qua tổ chức cung cấp dịch vụ xác thực, trên thực tế là **Trung tâm RAR (Cục C06, Bộ Công an)** theo hợp đồng. Có tiền lệ doanh nghiệp tư nhân dùng VNeID để đăng nhập một lần (FPT Life, 01/2026).
+   - **Chuẩn kỹ thuật, phạm vi, tên claim, môi trường thử của RAR chưa công bố.** Vì vậy làm bộ nối OIDC chung, mọi tham số chưa biết là cấu hình, ghi rõ "chờ tài liệu RAR".
+   - Rủi ro chính: dữ liệu định danh và dữ liệu trẻ em (Luật 91/2025/QH15, NĐ 356/2025/NĐ-CP; NĐ 69/2024 sửa bởi NĐ 320/2026, người dưới 14 tuổi cần người đại diện đồng ý); phụ thuộc một nhà cung cấp (giữ mật khẩu cộng xác thực hai lớp làm đường dự phòng); nhầm kênh (mã định danh học sinh trên CSDL ngành đi kênh Bộ GD&ĐT, không qua VNeID).
+3. Mục tiêu: phụ huynh, giáo viên, cán bộ **đã có tài khoản** tự liên kết tài khoản với VNeID (hoặc nhà cung cấp OIDC khác nền tảng cho phép) rồi đăng nhập bằng nhà cung cấp đó; trường bật tắt; hệ thống chỉ lưu mã liên kết.
+4. Liên quan quyết định cũ: DT-23 (15.1, 15.5) ghi "không làm đăng nhập Google" vì nhà trường quản tài khoản. DT-25 giữ đúng ý đó: **không tự tạo tài khoản từ nhà cung cấp ngoài**, tài khoản vẫn do trường cấp; nhà cung cấp chỉ thay bước nhập mật khẩu sau khi chính người dùng liên kết. Nền tảng không khai nhà cung cấp nào thì không có gì thay đổi.
+5. Hiện trạng mã trước DT-25 (nhánh chính ngày 2026-10-26, sau PR 176): dịch vụ định danh `apps/identity` có đăng nhập mật khẩu, mã một lần, xác thực hai lớp TOTP tuỳ chọn theo trường (S8b), khóa mã hóa và khóa băm riêng từng trường do kho khóa S3 quản lý (`school_keys`, công cụ đổi khóa tự xử lý mọi cột `*_encrypted` và `*_hash` ở cơ sở dữ liệu định danh, hệ thống, năm học), nhận diện trường theo tên miền (S1a), kiểm tĩnh đa thuê bao và ma trận cách ly (14.7). Thư viện `jose` đã có trong `apps/identity`.
+
+### 17.2 Nguyên tắc
+
+- **Không tự tạo tài khoản.** Chỉ người đã có tài khoản tự liên kết sau khi xác nhận lại bằng **mật khẩu riêng và mã xác thực hai lớp** (nếu đã bật). Tài khoản còn dùng mật khẩu mặc định chung phải đặt mật khẩu riêng trước.
+- **Lưu tối thiểu.** Chỉ lưu mã liên kết (`subject`) nhà cung cấp trả, **mã hóa bằng khóa của trường và kèm băm có khóa để tra**; không lưu số định danh, căn cước, họ tên, ngày sinh hay claim nào khác; không gọi `userinfo`. Ngày sinh (nếu nhà cung cấp trả) chỉ dùng trong yêu cầu để chặn người dưới 14 tuổi, không lưu. Nếu RAR trả số định danh làm `subject` thì vẫn chỉ ở dạng mã hóa và băm.
+- **Mã nghiệp vụ không phụ thuộc nhà cung cấp.** Lớp trừu tượng `IdentityProvider`; bộ nối theo hồ sơ cấu hình (`oidc`, `vneid`); không có `if` theo tên nhà cung cấp trong luồng liên kết, đăng nhập, kiểm vai trò, nhật ký.
+- **Hai lớp cấu hình:** nền tảng khai nhà cung cấp nào dùng được (và có thể cấp mã ứng dụng dùng chung); trường tự bật, chọn nhóm vai trò, có thể dùng mã ứng dụng và khóa riêng. Mặc định mọi trường **tắt**.
+- **Không hạ mức bảo mật:** người đã bật xác thực hai lớp vẫn phải nhập mã sau khi đăng nhập bằng nhà cung cấp ngoài, trừ khi trường bật "coi là đạt xác thực hai lớp" và mức đảm bảo nhà cung cấp trả nằm trong danh sách nền tảng khai.
+- **Đúng chuẩn OIDC:** authorization code + PKCE (S256), `state` và `nonce` dùng một lần, kiểm chữ ký `id_token` qua JWKS (chỉ thuật toán khóa bất đối xứng, không nhận `none`, `HS*`), kiểm `iss`, `aud`, `azp`, `exp`, `iat`, discovery có kiểm `issuer`, tải lại bộ khóa khi quay khóa.
+- **Đa thuê bao:** cấu hình, liên kết, nhật ký ở cơ sở dữ liệu định danh của trường; `state` và vé nhập mã ở Redis theo tiền tố khóa của trường (qua `Infrastructure.scopedCache`, không ghép khóa tay); đạt kiểm tĩnh và ma trận cách ly.
+- **Kiểm thử không gọi dịch vụ thật, không có khóa thật:** nhà cung cấp OIDC giả lập chạy cục bộ, khóa ký sinh mới mỗi lần chạy.
+
+### 17.3 Phạm vi và số giữ sẵn
+
+DT-25 là một thành phần nhỏ, làm hai bước. Số giữ sẵn nằm **sau mọi dải đã giữ** (DT-23 giữ đến YCTD-219, định danh 0129, nền tảng 0209, e2e `159-`; DT-24 dùng định danh 0130, nền tảng 0210, 0211): **YCTD-225**, migration định danh **0140, 0141** (0141 dự phòng), không dùng migration nền tảng, hệ thống, năm học; spec e2e **`165-`** (166 dự phòng). YCTD-225, định danh 0140 và e2e `165-` nằm trong khoảng DT-26 (18.3) chừa cho DT-24, DT-25. Nếu phần khác gộp trước và trùng số tài liệu (phiên bản, GD, RR) thì đánh lại theo nhánh chính lúc gộp; YCTD, migration, e2e không đổi. Khi gộp sau DT-26 và DT-27, giả định đổi thành GD-113 đến GD-115 và rủi ro thành RR-23 (khoảng hai đợt đó chừa cho DT-24, DT-25).
+
+| Bước | Phạm vi | Phụ thuộc | Trạng thái |
+|---|---|---|---|
+| 25a | Phần máy chủ: lớp `IdentityProvider`, bộ nối OIDC chung, hồ sơ `vneid`, khai báo nền tảng, cấu hình của trường, liên kết, gỡ liên kết, đăng nhập, nhập mã hai lớp sau nhà cung cấp, nhật ký, nhà cung cấp OIDC giả lập, kiểm thử đơn vị, cách ly, e2e 165 (phần máy chủ), tài liệu | Không | Làm ở PR của YCTD-225 |
+| 25b | Giao diện: nút "Đăng nhập bằng VNeID" (và nhà cung cấp khác) trên màn hình đăng nhập của cổng quản trị, ứng dụng giáo viên, ứng dụng phụ huynh, chỉ hiện khi trường đã bật; trang quay về `/dang-nhap/ben-ngoai`; mục liên kết, gỡ liên kết, nhật ký ở "Tài khoản của tôi"; màn hình cấu hình của trường; mở rộng e2e 165 bằng trình duyệt | **Sau khi PR DT-24 gộp** (DT-24 đang sửa màn hình đăng nhập; không sửa song song cùng tệp) | Chờ |
+
+### 17.4 Thiết kế
+
+**Lớp và bộ nối** (`apps/identity/src/external-identity/`):
+- `identity-provider.ts`: lớp trừu tượng `IdentityProvider` (`authorizationUrl`, `exchange`), kết quả `ExternalIdentityResult` (`subject`, `assurance`, `ageYears`), tạo `state`, `nonce`, `code_verifier`.
+- `oidc-provider.ts`: `OidcIdentityProvider` (discovery có bộ nhớ tạm 1 giờ và kiểm `issuer`; đổi mã bằng `client_secret_basic` hoặc `client_secret_post`; kiểm `id_token` bằng `jose` với bộ khóa JWKS từ xa, tải lại khi gặp mã khóa lạ, thời gian chờ giữa hai lần tải cấu hình được; dung sai đồng hồ 60 giây; thời gian chờ mạng 10 giây).
+- `provider-profiles.ts`: khai báo của nền tảng và hồ sơ `oidc`, `vneid`; `PENDING_RAR_DOCUMENTATION` liệt kê mục của hồ sơ `vneid` đang là giả định.
+- Thêm giao thức khác (nếu RAR không dùng OIDC): viết bộ nối mới theo `IdentityProvider` và thêm một dòng ở `PROVIDER_FACTORIES`; mã nghiệp vụ không đổi.
+
+**Khai báo của nền tảng** (biến môi trường, không chứa bí mật trong JSON):
+- `EXTERNAL_IDENTITY_PROVIDERS`: danh sách JSON, mỗi mục gồm `code`, `profile` (`oidc` hoặc `vneid`), `display_name`, `issuer`, `discovery` (mặc định bật) hoặc ba địa chỉ `authorization_endpoint`, `token_endpoint`, `jwks_uri`, `client_id` dùng chung (tuỳ chọn), `scopes` (phải có `openid`), `token_auth_method`, `subject_claim`, `assurance_claim`, `birthdate_claim`, `mfa_assurance_values`, `algorithms`, `extra_authorization_parameters`, `jwks_cooldown_seconds`.
+- `EXTERNAL_IDENTITY_<MÃ>_CLIENT_SECRET`: khóa bí mật dùng chung của nền tảng.
+- Địa chỉ phải là `https`; `http` chỉ nhận cho máy cục bộ (bộ giả lập).
+- **Hồ sơ `vneid`, chờ tài liệu RAR:** `issuer`, `discovery`, `scopes` (giả định `openid`), `token_auth_method` (giả định `client_secret_basic`), `subject_claim` (giả định `sub`), `assurance_claim` (giả định `acr`), `birthdate_claim` (giả định `birthdate`), `mfa_assurance_values`, `extra_authorization_parameters`.
+
+**Cấu hình của trường** (`external_identity_providers`, định danh 0140): `enabled` (mặc định tắt), `client_id` và `client_secret_encrypted` riêng (mã hóa bằng khóa của trường; có cột `id` nên công cụ đổi khóa của S3 tự mã hóa lại), `allowed_roles` (trống là mặc định: mọi vai trò trừ học sinh), `satisfies_mfa` (mặc định tắt). Người có quyền `P01.account.manage` xem, sửa; mỗi lần sửa ghi `identity_audit_logs` (khóa bí mật chỉ ghi "đã đặt") và nhật ký liên kết.
+
+**Liên kết** (`external_identities`): `provider_code`, `subject_encrypted`, `subject_hash` (HMAC-SHA256 bằng khóa băm của trường; chế độ một trường dùng khóa dẫn xuất từ `TOTP_ENCRYPTION_KEY`), `user_id`, `linked_at`, `last_login_at`; duy nhất theo (nhà cung cấp, subject) và (nhà cung cấp, tài khoản). Xóa tài khoản thì xóa liên kết.
+
+**Nhật ký** (`external_identity_events`): `linked`, `unlinked`, `login`, `login_rejected`, `link_rejected`, `settings_updated` với lý do (`not_linked`, `invalid_id_token`, `nonce_mismatch`, `subject_linked_to_other`, `already_linked`, `session_mismatch`, `provider_disabled`, `role_not_allowed`, `under_minimum_age`, `totp_failed`...), người thực hiện, địa chỉ mạng, thời điểm. Phiên mở bằng nhà cung cấp ngoài có `login_method = 'external_provider'`.
+
+**Luồng:**
+1. Đăng nhập: `POST /auth/external/:provider/start` (`channel`, `redirect_uri`) trả `authorization_url`; nhà cung cấp chuyển về `/dang-nhap/ben-ngoai` của ứng dụng; trang đó gửi `state`, `code` lên `POST /auth/external/callback`. Kết quả `signed_in` (mã phiên, cookie làm mới như đăng nhập mật khẩu) hoặc `otp_required` kèm vé dùng 5 phút, nhập mã ở `POST /auth/external/complete` (sai 3 lần phải làm lại).
+2. Liên kết: người đang đăng nhập gọi `POST /auth/external/:provider/link` kèm mật khẩu, mã hai lớp (nếu đã bật), `redirect_uri`; quay về gửi `callback` **kèm mã phiên của đúng phiên đã bắt đầu**.
+3. Gỡ liên kết: `POST /auth/external/:provider/unlink` kèm mật khẩu, mã hai lớp.
+4. Xem: `GET /auth/external/providers` (công khai, nút trên màn hình đăng nhập), `GET /auth/external/links`, `GET /auth/external/events` (của chính người dùng), `GET /auth/external/settings`, `PUT /auth/external/settings/:provider` (quản lý tài khoản).
+5. Địa chỉ quay về: tuyệt đối, cùng tên miền với yêu cầu, đường dẫn kết thúc bằng `/dang-nhap/ben-ngoai`, không có tham số; nhà cung cấp còn so với địa chỉ đã đăng ký.
+6. Điều kiện khi đăng nhập: nền tảng đã khai và trường đang bật (kiểm lại lúc quay về, nên trường tắt giữa chừng thì lượt dở dang bị từ chối); tài khoản còn hiệu lực, không khóa; có ít nhất một vai trò trong nhóm được dùng; người có vai trò học sinh (VT-21 của 23a) chỉ khi trường cho vai trò học sinh và nhà cung cấp trả ngày sinh đủ 14 tuổi; bất kỳ ai nhà cung cấp trả ngày sinh dưới 14 tuổi đều bị từ chối.
+
+### 17.5 Quyết định thiết kế và phương án đã loại
+
+- **Khai báo nền tảng bằng biến môi trường, cấu hình trường bằng bảng:** hợp đồng với RAR là của doanh nghiệp vận hành nền tảng (báo cáo khảo sát mục 6), mã ứng dụng dùng chung là bí mật cấp nền tảng như các khóa khác (QU-05), chạy được cả chế độ một trường lẫn nhiều trường; phương án đã loại: bảng ở cơ sở dữ liệu nền tảng có màn hình ở cổng nền tảng (chế độ một trường không có cơ sở dữ liệu nền tảng; khi cần màn hình thì thêm sau, không đổi mã nghiệp vụ).
+- **Lưu subject mã hóa kèm băm có khóa thay vì bản rõ:** tra được, đổi khóa theo S3 được, và không lộ số định danh nếu RAR trả số định danh làm subject; phương án đã loại: lưu bản rõ (rủi ro nếu subject là số định danh), chỉ lưu băm (không tính lại được khi đổi khóa của trường).
+- **Vé nhập mã hai lớp sau nhà cung cấp:** giữ nguyên mức bảo mật của S8b; phương án đã loại: luôn coi nhà cung cấp ngoài là đạt xác thực hai lớp (chưa biết mức đảm bảo của RAR).
+- **Lượt liên kết gắn với phiên đã bắt đầu:** chống kẻ xấu gửi đường dẫn quay về chứa định danh của mình để gắn vào tài khoản nạn nhân (tấn công giả yêu cầu đăng nhập).
+- **Không làm ở DT-25:** tự tạo tài khoản từ nhà cung cấp ngoài; lưu số định danh, căn cước; đăng xuất một lần (single logout) với nhà cung cấp; xác minh danh tính khi tuyển sinh (báo cáo mục 5.2; làm sau khi có hợp đồng RAR); liên kết mã định danh học sinh trên CSDL ngành (đi kênh Bộ GD&ĐT); màn hình khai báo nhà cung cấp ở cổng nền tảng.
+
+### 17.6 Rủi ro và cách kiểm
+
+| Rủi ro | Cách kiểm |
+|---|---|
+| Giả mạo `id_token` hoặc dùng lại mã của lượt khác | Kiểm chữ ký qua JWKS, `iss`, `aud`, `azp`, `exp`, `nonce`; `state` dùng một lần; PKCE S256; kiểm thử chữ ký sai, nonce sai, sai đối tượng, sai bên phát hành, hết hạn, dùng lại state |
+| Gắn định danh của người khác vào tài khoản | Liên kết cần mật khẩu, mã hai lớp và đúng phiên đã bắt đầu; subject đã liên kết với người khác bị từ chối (409); kiểm thử ba ca |
+| Lộ số định danh hoặc dữ liệu cá nhân | Không gọi `userinfo`, chỉ lưu subject mã hóa và băm có khóa; ngày sinh không lưu; kiểm thử dữ liệu lưu không chứa subject bản rõ |
+| Trẻ dưới 14 tuổi tự đăng nhập bằng VNeID | Mặc định không cho vai trò học sinh; học sinh chỉ khi trường cho và nhà cung cấp trả ngày sinh đủ 14 tuổi; ngày sinh dưới 14 tuổi luôn bị từ chối; kiểm thử |
+| Lẫn liên kết, cấu hình giữa các trường | Cơ sở dữ liệu định danh theo trường, khóa băm theo trường, Redis theo tiền tố của trường; kiểm thử cách ly hai trường, ma trận cách ly, kiểm tĩnh |
+| Nhà cung cấp quay khóa ký | Tải lại JWKS khi gặp mã khóa lạ; kiểm thử quay khóa với bộ giả lập |
+| Tham số RAR khác giả định | Mọi tham số là cấu hình, có danh sách "chờ tài liệu RAR"; nếu không phải OIDC thì viết bộ nối mới theo `IdentityProvider` |
+| VNeID gián đoạn | Đăng nhập mật khẩu và xác thực hai lớp luôn còn; nhà cung cấp ngoài chỉ là đường thêm |
+
+**Cổng kiểm của DT-25:** kiểm thử đơn vị `apps/identity` (ca mới, các ca đăng nhập, xác thực hai lớp, nhiều trường, ma trận cách ly) đạt không sửa kỳ vọng cũ; e2e 165 cùng spec đăng nhập 01, 07 đạt (chạy riêng, giữ khóa `e2e.lock`); kiểm tĩnh đa thuê bao, typecheck, lint, build đạt; CI xanh toàn bộ.
+
+### 17.7 Tiến độ
+
+| Bước | Tiến độ |
+|---|---|
+| 25a | Đã làm ở PR của YCTD-225 |
+| 25b | Chờ PR DT-24 gộp |
+
+### 17.8 Giả định chưa chốt, làm cấu hình được
+
+| Mã | Mục chưa chốt | Giả định để làm | Cấu hình ở | Cần ai trả lời |
+|---|---|---|---|---|
+| GD-113 | Giao thức và tham số kỹ thuật của RAR | OIDC, discovery, phạm vi `openid`, subject ở `sub`, mức đảm bảo ở `acr`, ngày sinh ở `birthdate` | `EXTERNAL_IDENTITY_PROVIDERS` | Trung tâm RAR (qua văn bản Eric gửi) |
+| GD-114 | Đăng nhập VNeID có được coi là đạt xác thực hai lớp | Không, trừ khi trường bật và mức đảm bảo nằm trong danh sách nền tảng khai | `satisfies_mfa`, `mfa_assurance_values` | Eric, sau khi có tài liệu RAR |
+| GD-115 | Nhóm vai trò được dùng mặc định | Mọi vai trò trừ học sinh (phụ huynh, giáo viên, cán bộ) | `allowed_roles` của trường | Eric |
+
+## 18. DT-26: ứng dụng web cài được (PWA), bố cục máy tính bảng, ứng dụng cài đặt iOS và Android (26a đến 26h)
+
+Mục 16 và 17 dành cho DT-24 (danh mục trường, đăng nhập kiểu SMIS) và DT-25 (bộ nối nhà cung cấp định danh), do các đợt đó ghi khi gộp; DT-26 ghi ở mục 18 để không va số mục với hai đợt đang chạy.
+
+### 18.1 Căn cứ và mục tiêu
+
+1. Nguồn: **yêu cầu của Eric ngày 2026-10-26**, làm theo thứ tự (1) ứng dụng web cài được (PWA) → (2) bố cục máy tính bảng → (3) ứng dụng cài đặt iOS và Android. Ba bước thành ba đợt; đợt sau dùng lại phần của đợt trước.
+2. Mục tiêu:
+   - **Đợt 1, PWA:** ứng dụng giáo viên, ứng dụng phụ huynh và màn hình học sinh của 23a **cài được lên màn hình chính** với tên, biểu tượng, màn hình chờ theo thương hiệu từng trường; một service worker dùng chung; **thông báo đẩy qua Web Push** nối vào hàng đợi thông báo chung, người dùng tắt được theo loại.
+   - **Đợt 2, máy tính bảng:** ứng dụng giáo viên có chế độ lớp học trên máy tính bảng hoặc màn hình lớn; ứng dụng phụ huynh dùng tốt ở máy tính bảng; cổng quản trị và cổng nền tảng có bố cục máy tính bảng; kiểm thử giao diện chạy thêm ở khổ điện thoại và máy tính bảng; đạt yêu cầu truy cập về vùng chạm và cỡ chữ.
+   - **Đợt 3, ứng dụng cài đặt:** một ứng dụng iOS và Android đóng gói bằng Capacitor **từ chính mã web** của ứng dụng giáo viên và phụ huynh, thông báo đẩy native qua FCM và APNs dùng chung bộ phát của đợt 1, chọn trường khi mở lần đầu, liên kết sâu, mở khóa phiên bằng sinh trắc học, dựng và ký trên CI, quy trình phát hành và hồ sơ cửa hàng.
+3. Đổi quyết định cũ: mục 14.6 và 15.5 ghi "ứng dụng di động gốc" là phương án đã loại. **Eric yêu cầu ứng dụng cài đặt ngày 2026-10-26**; câu ở 14.6, 15.5 được đánh dấu cập nhật và trỏ về mục này. Hướng làm vẫn giữ tinh thần cũ: không viết ứng dụng gốc thứ hai, chỉ đóng gói mã web hiện có (18.5).
+4. Hiện trạng mã (đọc trên nhánh chính ngày 2026-10-26, sau PR 177) và phần đang làm song song:
+   - **Ứng dụng giáo viên và phụ huynh** (`apps/teacher`, `apps/parent`): React 19, Vite, Tailwind 4; thiết kế cho điện thoại, bố cục một cột (`max-w-md`, `max-w-lg`), có thẻ viewport; **chưa có manifest, service worker, thông báo đẩy** trên nhánh chính. Đường dẫn `/giao-vien/`, `/phu-huynh/` trên tên miền của trường (14.4).
+   - **23b (đang làm, YCTD-212)** thêm `apps/teacher/public/sw.js` viết tay (bộ nhớ đệm theo bản dựng, không giữ lời gọi `/api`, hỏi giáo viên trước khi tải lại bản mới), `manifest.webmanifest` và biểu tượng tĩnh, bản chụp danh sách lớp lưu trên máy xóa khi đăng xuất. **DT-26 gom phần này về gói chung, không viết lại** (26a).
+   - **23a (đang làm, YCTD-211)** thêm kênh phiên `student` và màn hình học sinh **trong ứng dụng phụ huynh**; PWA của ứng dụng phụ huynh vì thế phủ cả màn hình học sinh.
+   - **DT-24 (đang làm)** đổi màn hình đăng nhập và thêm danh mục trường toàn quốc ở cơ sở dữ liệu nền tảng; **DT-25 (đang làm)** thêm đăng nhập bằng nhà cung cấp định danh (OIDC, sẵn cho VNeID). Đợt 3 dùng danh mục của DT-24 cho bước chọn trường và luồng của DT-25 cho đăng nhập trong ứng dụng cài đặt.
+   - **Thương hiệu trường (S3):** `school_branding` (tên hiển thị, màu chủ đạo, logo), điểm cuối công khai `/api/v1/public/branding` và `/api/v1/public/branding/logo`.
+   - **Hàng đợi thông báo chung:** `queueNotification` ghi `notifications` và `notification_recipients` (năm học); tiến trình `notification-dispatch` gửi theo kênh `in_app`, `sms`, `zalo` (`NotificationChannel`), thử lại 15 phút tối đa 5 lần; chạy theo từng trường qua bộ lập lịch của S1b. **Chưa có kênh đẩy** (tài liệu 34 ghi "Ứng dụng là web, không có vỏ di động").
+   - **Cổng quản trị và cổng nền tảng** (`apps/portal`, `apps/platform`): co giãn một phần, thiết kế cho máy tính; bảng dữ liệu (`DataGrid`), bố cục biểu mẫu (`FormLayout`), đầu trang (`ApplicationHeader`) nằm ở `packages/ui` dùng chung.
+   - **Kiểm thử giao diện:** Playwright chỉ có một dự án `chromium` khổ máy tính (`tests/playwright.config.ts`); sau PR 177 kiểm thử giao diện chạy ở việc riêng `kiem-thu-giao-dien` của `ci.yml`, kiểm thử nhiều trường ở `kiem-thu-nhieu-truong`; spec lớn nhất trên nhánh chính là `140-`, DT-23 giữ `150-` đến `159-`.
+
+### 18.2 Nguyên tắc
+
+- **Một mã web, nhiều cách phát:** trình duyệt, PWA cài lên màn hình chính, ứng dụng cài đặt đều chạy cùng mã `apps/teacher`, `apps/parent`; phần riêng của từng cách phát nằm sau một lớp mỏng (phát hiện đang chạy trong Capacitor hay trình duyệt), không rẽ nhánh mã nghiệp vụ.
+- **Dùng lại, không dựng song song:** service worker và manifest của 23b gom về gói chung; thông báo đẩy là **một kênh mới của hàng đợi thông báo chung** (một bộ phát, nhiều bộ nối `web-push`, `fcm`, `apns`, `development`), không dựng hàng đợi thứ hai; thương hiệu lấy từ S3; chọn trường dùng danh mục của DT-24; đăng nhập qua nhà cung cấp định danh dùng luồng của DT-25.
+- **Không đổi hành vi các phần đã có:** toàn bộ e2e và kiểm thử đơn vị hiện có vẫn đạt không sửa kỳ vọng; người không cài, không bật thông báo đẩy dùng như hôm nay; bố cục điện thoại giữ nguyên ở khổ điện thoại.
+- **Chạy được ở cả hai bố cục cơ sở dữ liệu `database` và `schema`, chế độ một trường lẫn nhiều trường:** bảng mới nằm ở cơ sở dữ liệu của trường (hệ thống, năm học, định danh) hoặc nền tảng; khóa Redis, tệp đi qua `cacheKey`, `storageKey`; **đạt kiểm tĩnh đa thuê bao** (14.2, 14.7); ma trận cách ly tự liệt kê tuyến mới.
+- **Chạy được trên tên miền con và tên miền riêng của từng trường:** manifest, service worker, đăng ký đẩy gắn với **nguồn gốc (origin) của trường**, không ghi cứng tên miền; mỗi trường một nguồn gốc nên bộ nhớ đệm, IndexedDB, đăng ký đẩy tự tách theo trường (14.6).
+- **Dữ liệu trên máy tối thiểu:** bộ nhớ đệm ngoại tuyến chỉ giữ vỏ ứng dụng và tệp tĩnh, **không giữ phản hồi `/api`**; dữ liệu ngoại tuyến của 23b giữ nguyên giới hạn GD-108; **đăng xuất thì xóa** bộ nhớ đệm có dữ liệu người dùng, IndexedDB, hủy đăng ký đẩy ở máy và ở máy chủ; **không lưu mật khẩu** ở bất kỳ đâu trên máy.
+- **Nội dung đẩy không chứa dữ liệu cá nhân:** thông báo đẩy đi qua máy chủ của Google, Apple, Mozilla (ở nước ngoài), nên nội dung chỉ gồm tiêu đề theo loại và tên trường; họ tên trẻ, số tiền, điểm, sức khỏe chỉ hiện khi mở ứng dụng (đã đăng nhập).
+- **Khóa ký và tài khoản nhà phát triển chỉ ở secrets:** không commit khóa ký, tệp chứng chỉ, khóa APNs, tệp dịch vụ Firebase, khóa VAPID riêng; kiểm thử dùng bộ nối giả lập và khóa sinh lúc chạy.
+- **Văn bản gốc trước khi viết điều khoản:** phần 26h đọc toàn văn văn bản còn hiệu lực lúc làm (dự kiến Luật Bảo vệ dữ liệu cá nhân số 91/2025/QH15, Nghị định 356/2025/NĐ-CP; văn bản về cung cấp ứng dụng trên mạng, dự kiến Nghị định 147/2024/NĐ-CP) và chính sách hiện hành của App Store, Google Play; ghi số hiệu, ngày đọc vào YCTD; tài liệu do Claude soạn là bản nháp để luật sư của Eric rà.
+
+### 18.3 Các phần
+
+Số giữ sẵn bắt đầu **sau dải của DT-23 và các số DT-24, DT-25 đang dùng trên nhánh làm việc** (DT-24: YCTD-220, định danh 0130, nền tảng 0210, 0211; DT-25: định danh 0140), chừa khoảng trống cho bổ sung của hai đợt đó (YCTD-221 đến YCTD-229, định danh 0141 đến 0159, nền tảng 0212 đến 0229, e2e `160-` đến `179-`): YCTD-230 dành cho chính bản kế hoạch này, các phần YCTD-231 đến YCTD-238, YCTD-239 đến YCTD-244 dự phòng; migration hệ thống từ 0090, năm học từ 0140, định danh từ 0160, nền tảng từ 0230; spec e2e từ `180-`. **Phiên điều phối kiểm lại** khi giao phần: nếu DT-24, DT-25 đã gộp dùng số nằm trong dải này thì dời phần của DT-26 lên số dự phòng và ghi vào YCTD của phần.
+
+| Phần | Phạm vi | Đợt | Phụ thuộc | YCTD giữ sẵn | Migration giữ sẵn | e2e giữ sẵn |
+|---|---|---|---|---|---|---|
+| 26a | Vỏ PWA dùng chung: gói `packages/pwa` (đăng ký service worker, chiến lược bộ nhớ đệm, cập nhật phiên bản, xóa khi đăng xuất, nhận thông báo đẩy ở service worker), dời service worker và manifest của 23b về gói chung; manifest, biểu tượng, màn hình chờ theo thương hiệu từng trường (điểm cuối công khai sinh từ `school_branding`); cài lên màn hình chính, hướng dẫn cài cho iOS và trình duyệt trong ứng dụng (Zalo, Facebook); áp cho ứng dụng giáo viên, ứng dụng phụ huynh (gồm màn hình học sinh của 23a) | 1 | 23b đã gộp (gom service worker của 23b); 23a đã gộp hoặc gộp trước 26a (màn hình học sinh) | YCTD-231 | Hệ thống 0090 | 181 |
+| 26b | Thông báo đẩy Web Push: kênh `push` của hàng đợi thông báo chung, bộ nối `PushSender` (`web-push` theo VAPID, `development` giả lập; chừa `fcm`, `apns` cho 26g), đăng ký theo người dùng và thiết bị, tuỳ chọn tắt theo loại thông báo, khóa VAPID của nền tảng lưu mã hóa, gửi lại và dọn đăng ký hỏng; màn hình bật tắt ở ứng dụng giáo viên, phụ huynh; kiểm cách ly đăng ký giữa các trường | 1 | DT-SaaS (S1a, S1b, S3 đã gộp); phần nối giao diện mở PR sau khi 26a gộp | YCTD-232 | Hệ thống 0091, 0092; năm học 0140; nền tảng 0230 | 182 (cách ly ở nhiều trường: mở rộng `MULTI_TENANT_SPEC`, ở đợt 1 chỉ 26b sửa) |
+| 26c | Khung kiểm thử theo khổ thiết bị: dự án Playwright `dien-thoai` (390 × 844), `may-tinh-bang-doc` (820 × 1180), `may-tinh-bang-ngang` (1180 × 820), thêm WebKit cho khổ điện thoại khi chạy đủ; nhãn `@thiet-bi` chọn spec; việc CI riêng `kiem-thu-thiet-bi` (yêu cầu kéo chạy tập con, nhánh chính và hằng đêm chạy đủ, chia mảnh); bộ kiểm vùng chạm 44 px, cỡ chữ, axe-core; ảnh chụp tham chiếu | 1 | PR 177 (đã gộp); chạy ngay | YCTD-233 | Không | 180 |
+| 26d | Bố cục máy tính bảng của ứng dụng giáo viên và phụ huynh: chế độ lớp học (sổ đầu bài, điểm danh, công cụ lớp học của 23b, trò chơi của 23c khi đã có) chia hai khung ở máy tính bảng ngang, chế độ trình chiếu lên màn hình lớn; ứng dụng phụ huynh hai cột ở máy tính bảng; vùng chạm, cỡ chữ | 2 | 26a, 26c đã gộp; 23b đã gộp | YCTD-234 | Không | 183 |
+| 26e | Bố cục máy tính bảng của cổng quản trị và cổng nền tảng: thanh điều hướng thu gọn thành biểu tượng hoặc ngăn kéo, `DataGrid` cuộn ngang có cột đầu cố định hoặc dạng thẻ, `FormLayout` hai cột, hộp thoại toàn màn hình ở khổ hẹp; vùng chạm, cỡ chữ; sửa `packages/ui` | 2 | 26c đã gộp | YCTD-235 | Không | 184 |
+| 26f | Ứng dụng cài đặt: vỏ Capacitor `apps/mobile` (một ứng dụng, chọn vai trò giáo viên hoặc phụ huynh), đóng gói mã dựng của `apps/teacher`, `apps/parent`; chọn trường khi mở lần đầu từ danh mục của DT-24 (nhiều trường được); đăng nhập kiểu ứng dụng gốc (mã làm mới lưu ở Keychain, Keystore sau sinh trắc học, không lưu mật khẩu; nhà cung cấp định danh của DT-25 qua trình duyệt hệ thống); liên kết sâu; chặn phiên bản quá cũ | 3 | 26a, 26b, 26d đã gộp; DT-24 (danh mục), DT-25 (định danh) đã gộp | YCTD-236 | Định danh 0160, 0161; nền tảng 0231 | 185 |
+| 26g | Thông báo đẩy native: bộ nối `fcm` (Android) và `apns` (iOS) của `PushSender` dùng chung bộ phát 26b; đăng ký mã thiết bị qua cùng điểm cuối; khóa FCM, APNs của nền tảng lưu mã hóa; mở đúng màn hình khi chạm thông báo | 3 | 26b, 26f đã gộp | YCTD-237 | Hệ thống 0093; nền tảng 0232 | 186 (chỉ 26g sửa `MULTI_TENANT_SPEC` ở đợt 3) |
+| 26h | Ký và dựng bản trên CI (GitHub Actions, Android trên Ubuntu, iOS trên macOS, chỉ chạy khi gắn thẻ phát hành hoặc chạy tay), quy trình phát hành (thử nội bộ, TestFlight, thử kín Google Play, phát hành theo tỷ lệ), hồ sơ cửa hàng (mô tả, ảnh chụp bằng dữ liệu giả, tài khoản trình diễn), chính sách quyền riêng tư và biểu mẫu khai báo dữ liệu của App Store, Google Play (`33_HO_SO_PHAP_LY/`), hướng dẫn việc Eric phải làm | 3 | 26f đã gộp (phần dựng bản); phần hồ sơ pháp lý làm được ngay khi đợt 3 mở | YCTD-238 | Không | Không |
+
+Giữ chỗ chưa giao: YCTD-239 đến YCTD-244, hệ thống 0094 đến 0099, năm học 0141 đến 0149, định danh 0162 đến 0169, nền tảng 0233 đến 0239, e2e `187-` đến `189-` dự phòng cho bổ sung của DT-26.
+
+Đợt làm, mỗi lúc tối đa ba phiên, **không hai phiên cùng sửa một tệp lõi trong cùng đợt**:
+- **Đợt 1 (PWA): 26a, 26b, 26c.** 26a sở hữu `packages/pwa` (mới), `apps/teacher` và `apps/parent` phần `index.html`, `vite.config.ts`, `main.tsx`, `public/`, điểm cuối công khai manifest và biểu tượng ở `apps/api/src/school-settings/`; 26b sở hữu `apps/api/src/notifications/`, `NotificationChannel` (`database/school-year/schema.ts`), bảng đăng ký đẩy (`database/system/`), khóa VAPID (`database/platform/`), `MULTI_TENANT_SPEC`; mã nhận đẩy ở service worker do 26b viết **trong thư mục riêng** `packages/pwa/src/push/` mà 26a không sửa, còn màn hình bật tắt ở hai ứng dụng nối sau khi 26a gộp (26b gộp `origin/main` rồi mới mở PR phần giao diện); 26c chỉ sửa `tests/playwright.config.ts`, thêm spec `180-` và việc mới trong `.github/workflows/ci.yml` (26a, 26b không sửa `ci.yml`, `playwright.config.ts`). Đăng ký thêm mô-đun, tuyến chỉ theo kiểu **thêm cuối tệp** (`application.module.ts`).
+- **Đợt 2 (máy tính bảng): 26d, 26e.** 26d chỉ sửa `apps/teacher`, `apps/parent` (thành phần cần dùng chung thì đặt tạm trong ứng dụng, không sửa `packages/ui`); 26e sở hữu `packages/ui`, `apps/portal`, `apps/platform`. Hai phần cùng thêm spec có nhãn `@thiet-bi` vào tập chạy ở yêu cầu kéo bằng danh sách trong spec của mình, không sửa cấu hình của 26c.
+- **Đợt 3 (ứng dụng cài đặt): 26f trước; 26g và 26h khi 26f đã gộp.** 26h làm ngay phần hồ sơ pháp lý, mô tả cửa hàng (chỉ sửa `tai_lieu/33_HO_SO_PHAP_LY/`) song song với 26f; phần quy trình dựng bản (`.github/workflows/ung-dung-di-dong.yml` mới, `apps/mobile/fastlane/`) làm sau khi 26f gộp. 26g sửa `apps/api/src/notifications/` phần bộ nối, `apps/mobile/src/push/` (thư mục riêng), cấu hình đẩy trong dự án Android và iOS do 26f tạo. **Đợt 3 sửa dịch vụ định danh** (`authentication.service.ts`, `access-token.ts`, `database/identity/`): chỉ bắt đầu khi DT-24, DT-25 đã gộp, không chạy song song với phần khác sửa định danh.
+
+Thứ tự gộp để đánh số tài liệu (phiên bản, CT, AC, BR, MH, PQ, mã chức năng): theo thứ tự xong; phần gộp sau đánh lại số tài liệu theo nhánh chính lúc gộp. YCTD, số migration, số e2e giữ sẵn ở bảng trên không đổi theo thứ tự gộp.
+
+Cỡ ước lượng (một phần của DT-16 là một đơn vị, chỉ để so sánh): 26a 1,0; 26b 1,0; 26c 0,5; 26d 1,0; 26e 1,0; 26f 1,5; 26g 0,75; 26h 1,0; tổng khoảng 7,75 đơn vị.
+
+**Điều kiện ra của từng đợt** (nghiệm thu với Eric):
+- **Đợt 1:** ứng dụng giáo viên và ứng dụng phụ huynh của hai trường thử (một tên miền con, một tên miền riêng) cài được lên màn hình chính Android (Chrome) và iOS (Safari 16.4 trở lên) với tên, biểu tượng, màu của đúng trường; mở lại khi mất mạng thấy vỏ ứng dụng và trang công cụ lớp học (23b), các phân hệ khác báo cần mạng; bản mới phát hành thì ứng dụng hỏi tải lại; một thông báo của hàng đợi chung đến được máy đã bật đẩy (bộ giả lập trong kiểm thử, máy thật khi Eric thử), tắt loại đó thì không đến; đăng xuất thì máy không nhận đẩy của người cũ; kiểm thử cách ly đạt ở cả hai bố cục.
+- **Đợt 2:** các spec `@thiet-bi` đạt ở ba khổ; không có nút, ô nhập dưới 44 × 44 px ở màn hình đã rà; giáo viên làm trọn một tiết trên máy tính bảng ngang (điểm danh, ghi sổ đầu bài, gọi tên, đếm ngược); cổng quản trị dùng được ở 820 × 1180 không cuộn ngang cả trang; thời gian CI của yêu cầu kéo không tăng quá 5 phút so với sau PR 177.
+- **Đợt 3:** bản Android và iOS dựng, ký được trên CI (khi có secrets của Eric) và cài được qua thử nội bộ, TestFlight; chọn trường, đăng nhập, mở khóa bằng sinh trắc học, nhận đẩy qua FCM và APNs, chạm thông báo mở đúng màn hình; liên kết sâu mở đúng màn hình; hồ sơ quyền riêng tư và biểu mẫu khai báo dữ liệu có bản nháp để luật sư rà; nộp được bản đầu tiên lên hai cửa hàng (việc nộp do Eric bấm).
+
+### 18.4 Phạm vi chi tiết
+
+**26a. Vỏ PWA dùng chung**
+- **Gói `packages/pwa`:** đăng ký service worker theo phạm vi của từng ứng dụng (`/giao-vien/`, `/phu-huynh/`), báo có bản mới, hỏi người dùng rồi mới tải lại (giữ cách của 23b), xóa dữ liệu khi đăng xuất, phát hiện chế độ cài đặt (`display-mode: standalone`), chạy trong Capacitor hay trình duyệt (để đợt 3 dùng lại). Công cụ dựng service worker chọn lúc làm (viết tay như 23b hoặc thư viện mã nguồn mở có giấy phép cho phép dùng thương mại), ghi giấy phép vào YCTD.
+- **Chiến lược bộ nhớ đệm:** tệp dựng có mã băm giữ sẵn khi cài (precache theo danh sách của bản dựng); trang `index.html` lấy mạng trước, mất mạng dùng bản giữ; biểu tượng, logo trường lấy bộ nhớ đệm trước rồi làm mới nền; **mọi lời gọi `/api/` đi thẳng ra mạng, không giữ** (dữ liệu ngoại tuyến của 23b vẫn do ứng dụng giữ ở IndexedDB như GD-108). Tên bộ nhớ đệm có tiền tố theo ứng dụng và phiên bản bản dựng.
+- **Cập nhật phiên bản:** mã bản dựng nhúng vào service worker; bản mới cài ở nền, hiện thanh "Có bản mới, tải lại"; bản đang dùng quá cũ so với máy chủ (máy chủ trả phiên bản tối thiểu của giao diện ở `/api/v1/health` hoặc tiêu đề phản hồi) thì bắt tải lại; xóa bộ nhớ đệm của bản cũ khi bản mới chạy. Dùng chung cho ứng dụng cài đặt ở đợt 3 (bản đóng gói quá cũ thì báo cập nhật ở cửa hàng).
+- **Gom phần của 23b:** dời `apps/teacher/public/sw.js` và cơ chế thay danh sách tệp lúc dựng vào gói chung; trang công cụ lớp học vẫn mở được khi mất mạng như 23b đã nghiệm thu (spec `151-` đạt không sửa kỳ vọng).
+- **Manifest theo trường:** `index.html` trỏ tới manifest do máy chủ sinh theo trường đang phục vụ (ví dụ `/api/v1/public/pwa/teacher.webmanifest`, `/api/v1/public/pwa/parent.webmanifest`): `name` là tên hiển thị của trường kèm tên ứng dụng, `short_name` ngắn (cột mới `school_branding.app_short_name`, hệ thống 0090, mặc định cắt từ tên hiển thị), `theme_color` và `background_color` từ màu chủ đạo, `id`, `start_url`, `scope` theo đường dẫn ứng dụng, `display: standalone`. Hai ứng dụng trên cùng tên miền có `id` khác nhau nên cài được cả hai.
+- **Biểu tượng và màn hình chờ:** sinh từ logo trường ở các cỡ 192, 512, biểu tượng vừa khung (maskable), biểu tượng Apple 180; màn hình chờ Android lấy từ manifest; màn hình chờ iOS (`apple-touch-startup-image`) sinh theo vài khổ máy phổ biến; ảnh sinh một lần khi đổi logo, lưu ở kho tệp qua `storageKey`, có bản mặc định của sản phẩm khi trường chưa có logo; thẻ `<meta>` màu và tên cho iOS chèn lúc phục vụ trang hoặc lấy động.
+- **Cài lên màn hình chính:** Android, máy tính dùng sự kiện cài đặt của trình duyệt, hiện nút "Cài ứng dụng" ở trang chủ và trang thông báo (không hiện lại khi người dùng đã từ chối trong 30 ngày); **iOS không có sự kiện cài đặt** nên hiện tấm hướng dẫn từng bước (nút Chia sẻ, "Thêm vào MH chính") khi mở bằng Safari và chưa cài; mở trong trình duyệt trong ứng dụng (Zalo, Facebook, Messenger, thường gặp khi liên kết gửi qua nhóm Zalo) thì hướng dẫn mở bằng Safari hoặc Chrome. Văn bản hướng dẫn đặt trong tài liệu hướng dẫn sử dụng.
+- **Tên miền:** manifest, service worker, biểu tượng đều theo nguồn gốc đang phục vụ; trường đổi từ tên miền con sang tên miền riêng thì bản đã cài ở nguồn gốc cũ thấy thông báo chuyển và hướng dẫn cài lại (nguồn gốc cũ chuyển hướng như 14.4).
+
+**26b. Thông báo đẩy Web Push**
+- **Kênh `push`:** thêm `push` vào `NotificationChannel` (năm học 0140); mỗi sự kiện đang gửi `in_app` sẽ thêm người nhận kênh `push` khi người nhận có ít nhất một đăng ký đẩy còn hiệu lực và chưa tắt loại đó; tiến trình `notification-dispatch` gửi qua `PushSender`, cùng cơ chế khóa dòng, thử lại 15 phút tối đa 5 lần, ghi `delivered_via`; **không tính vào giới hạn 5 tin nhắn mỗi ngày** (đẩy không tốn tiền), có giới hạn riêng chống dồn dập (cấu hình, mặc định gộp nhiều thông báo cùng loại trong 5 phút thành một).
+- **Bộ nối `PushSender`:** `web-push` (giao thức Web Push, mã hóa nội dung theo chuẩn, khóa VAPID), `development` (giả lập, ghi lại để kiểm thử đọc), chừa `fcm`, `apns` cho 26g; chọn bằng cấu hình, **không có `if` theo nhà cung cấp trong mã nghiệp vụ**; đăng ký trả lỗi hết hạn (404, 410) thì đánh dấu thu hồi.
+- **Đăng ký theo người dùng và thiết bị** (`push_subscriptions`, hệ thống 0091): người dùng, ứng dụng (`teacher`, `parent`, `student`), loại (`web_push`, chừa `fcm`, `apns`), địa chỉ đăng ký và khóa **lưu mã hóa bằng khóa của trường** (bọc ở S1a) kèm mã băm để chống trùng, nguồn gốc lúc đăng ký, nhãn thiết bị ngắn do người dùng đặt hoặc tự sinh (loại máy, trình duyệt, không lưu toàn chuỗi nhận dạng trình duyệt), lần thấy gần nhất, số lần lỗi, thời điểm thu hồi. Một người nhiều thiết bị; một thiết bị dùng chung đổi người thì đăng ký cũ bị thu hồi khi đăng xuất. Đăng ký quá 90 ngày không thấy (cấu hình) thì dọn.
+- **Tuỳ chọn tắt theo loại** (`notification_preferences`, hệ thống 0092): nhóm loại thông báo cố định, ánh xạ từ `template_code` (thông báo chung của trường, điểm danh và đón trả, học phí, sức khỏe và thuốc, học tập và điểm, thi trực tuyến, tin nhắn, công việc của giáo viên); mặc định bật; người dùng tắt theo nhóm cho kênh đẩy; thông báo khẩn của trường (loại do quản trị trường đánh dấu) không tắt được. Màn hình "Cài đặt thông báo" ở ứng dụng giáo viên và phụ huynh: bật đẩy trên máy này (xin quyền chỉ sau khi người dùng bấm), danh sách máy đã đăng ký và nút gỡ, công tắc theo nhóm.
+- **Khóa VAPID:** một cặp khóa của nền tảng (nền tảng 0230, lưu mã hóa ở cơ sở dữ liệu `platform`, không xuống cơ sở dữ liệu trường); khóa công khai trả qua điểm cuối công khai cho giao diện; chế độ một trường lấy từ cấu hình; công cụ dòng lệnh sinh khóa, không ghi vào kho; đổi khóa thì đăng ký cũ cần đăng ký lại (ghi trong hướng dẫn vận hành).
+- **Nội dung đẩy:** tiêu đề theo nhóm và tên trường, một câu chung, mã thông báo để mở đúng màn hình; **không có họ tên, số tiền, điểm, nội dung sức khỏe**; chạm thông báo mở ứng dụng ở màn hình của thông báo (đăng nhập nếu phiên đã hết); dấu đã đọc vẫn ghi theo kênh `in_app` như hiện nay.
+- **Giới hạn iOS:** Web Push chỉ chạy ở iOS và iPadOS 16.4 trở lên **khi đã cài lên màn hình chính**; màn hình cài đặt thông báo phát hiện và hiện hướng dẫn cài (26a) thay cho nút bật; không hứa đẩy trên iOS khi mở bằng Safari thường.
+- **Đa thuê bao:** đăng ký nằm ở cơ sở dữ liệu của trường; tiến trình gửi chạy theo trường (S1b); kiểm thử cách ly: thông báo của trường A không gửi tới đăng ký của trường B, trường B không đọc, xóa được đăng ký của A (spec `182-` ở chế độ nhiều trường, ma trận cách ly).
+
+**26c. Khung kiểm thử theo khổ thiết bị**
+- **Dự án Playwright:** giữ dự án `chromium` khổ máy tính như hiện nay cho mọi spec; thêm `dien-thoai` (390 × 844, chạm, di động), `may-tinh-bang-doc` (820 × 1180), `may-tinh-bang-ngang` (1180 × 820), chỉ chạy spec có nhãn `@thiet-bi`; thêm `dien-thoai-webkit` (WebKit, gần Safari iOS) chỉ khi chạy đủ. Spec cũ không tự chạy ở khổ mới; mỗi phần đợt 2 gắn nhãn cho spec mình rà.
+- **Bộ kiểm dùng chung trong `tests/e2e/`:** đo vùng chạm của nút, liên kết, ô nhập đang hiện (tối thiểu 44 × 44 px, cho phép ngoại lệ có ghi lý do), cỡ chữ ô nhập tối thiểu 16 px (tránh iOS tự phóng to), không cuộn ngang cả trang, kiểm truy cập bằng axe-core (thư viện mã nguồn mở, ghi giấy phép); ảnh chụp tham chiếu cho vài màn hình chính, chỉ so ở một nền (Linux của CI).
+- **CI, hợp với cách tổ chức của PR 177:** thêm việc `kiem-thu-thiet-bi` chạy **song song** với `kiem-thu-giao-dien` (không nối đuôi, nên thời gian chờ của yêu cầu kéo không cộng dồn). Ở **yêu cầu kéo**: chỉ `dien-thoai` và `may-tinh-bang-doc`, chỉ spec có nhãn `@thiet-bi-pr` (tập con chọn lọc, mục tiêu dưới 10 phút cho riêng việc này), chỉ Chromium. Ở **lần đẩy lên nhánh chính và chạy hằng đêm** (lịch `schedule`, khoảng 2 giờ sáng giờ Việt Nam): đủ bốn dự án thiết bị, mọi spec `@thiet-bi`, chia mảnh bằng `--shard` (ma trận 2 đến 3 mảnh). Chạy hằng đêm hỏng thì mở vấn đề hoặc ghi vào bản tóm tắt của lần chạy, không chặn yêu cầu kéo. Kết quả hỏng giữ dấu vết như `kiem-thu-giao-dien`.
+- **Không làm chậm:** dựng một lần trong việc, dùng cùng cơ sở dữ liệu mẫu đã migrate của PR 177; nếu sau này cần thì tách bước dựng thành tệp tạo tác dùng chung giữa các việc (ghi ở YCTD, không bắt buộc ở 26c). Ghi số phút đo được trước và sau vào YCTD-233.
+
+**26d. Bố cục máy tính bảng của ứng dụng giáo viên và phụ huynh**
+- **Điểm ngắt:** dưới 768 px giữ bố cục điện thoại hiện nay; từ 768 px (máy tính bảng dọc) hai cột thẻ; từ 1024 px (máy tính bảng ngang, màn hình lớn) chia hai khung danh sách và chi tiết. Bỏ khóa `max-w-md`, `max-w-lg` ở khổ lớn, giữ ở khổ điện thoại.
+- **Chế độ lớp học của ứng dụng giáo viên:** một màn hình theo tiết đang dạy (lấy từ thời khoá biểu của giáo viên): khung trái danh sách lớp, khung phải chuyển giữa **điểm danh** (màn hình điểm danh hiện có), **sổ đầu bài** (màn hình sổ đầu bài hiện có), **công cụ lớp học** (23b) và **trò chơi kiến thức** (23c khi đã gộp); chế độ **trình chiếu** cho màn hình lớn hoặc máy chiếu: chữ to, nền tương phản, ẩn thông tin riêng (điểm, ghi chú) khi đang chiếu; giữ màn hình sáng khi đang dùng công cụ (khi trình duyệt cho phép).
+- **Ứng dụng phụ huynh:** trang chủ hai cột (thông báo, lịch, học phí bên cạnh nhau), danh sách và chi tiết cạnh nhau ở máy tính bảng ngang; màn hình học sinh của 23a dùng được ở máy tính bảng (làm bài ở khổ lớn, khóa toàn màn hình như 23a).
+- **Truy cập:** vùng chạm tối thiểu 44 × 44 px, cỡ chữ cơ sở không nhỏ hơn hiện nay, phóng chữ 200% không mất nội dung; spec `183-` gắn `@thiet-bi`, phần chính gắn `@thiet-bi-pr`.
+
+**26e. Bố cục máy tính bảng của cổng quản trị và cổng nền tảng**
+- **Điều hướng:** từ 1280 px giữ thanh bên đầy đủ; 768 đến 1279 px thanh bên thu gọn thành biểu tượng có chú thích khi chạm giữ hoặc rê chuột; dưới 768 px thành ngăn kéo mở bằng nút trên đầu trang; giữ đúng thứ tự menu và quyền.
+- **Bảng dữ liệu (`DataGrid`):** thêm chế độ co giãn: khổ máy tính bảng cuộn ngang trong khung bảng, cột đầu (mã, tên) cố định; khổ hẹp chuyển dạng thẻ (mỗi dòng một thẻ, cột chính lên đầu, cột phụ thu gọn); mỗi bảng khai báo cột chính, không phải sửa từng màn hình nghiệp vụ trừ khi bảng tự viết.
+- **Biểu mẫu (`FormLayout`):** hai cột từ 768 px, một cột dưới 768 px; nhóm trường dài giữ một cột; hộp thoại thành toàn màn hình dưới 768 px; nút hành động chính dính đáy ở khổ hẹp.
+- **Truy cập:** như 26d; rà các màn hình dùng nhiều (danh sách học sinh, điểm danh, học phí, sổ điểm, trang chủ cổng nền tảng) và ghi danh sách đã rà vào YCTD; spec `184-`.
+
+**26f. Ứng dụng cài đặt bằng Capacitor**
+- **Vỏ ứng dụng `apps/mobile`:** dự án Capacitor (phiên bản ổn định hiện hành lúc làm, ghi vào YCTD) đóng gói **bản dựng tĩnh** của `apps/teacher` và `apps/parent` trong cùng một ứng dụng; màn hình đầu chọn vai trò (Giáo viên, Phụ huynh) sau khi chọn trường; đổi vai trò, đổi trường trong menu. Mã nghiệp vụ của hai ứng dụng web không đổi; chỗ khác nhau (địa chỉ máy chủ, lưu phiên, đẩy, mở liên kết) đi qua lớp phát hiện nền tảng của `packages/pwa`. Màn hình học sinh (23a) **không đưa vào ứng dụng cài đặt ở DT-26** (GD-123), học sinh dùng PWA.
+- **Chọn trường khi mở lần đầu:** tìm theo tên, mã, tỉnh hoặc thành phố trong danh mục trường của DT-24 (điểm cuối công khai ở tên miền hệ thống), chỉ trường đang dùng nền tảng; hoặc nhập tên miền, quét mã QR đường dẫn trường (in ở S2); lưu danh sách trường đã thêm (phụ huynh có con học hai trường); **mỗi trường một vùng lưu riêng trên máy** (phiên, bộ nhớ đệm, đăng ký đẩy), xóa trường thì xóa vùng của trường đó.
+- **Gọi máy chủ:** mọi lời gọi tới nguồn gốc của trường đã chọn qua lớp HTTP gốc của Capacitor (không phụ thuộc CORS); máy chủ nhận diện ứng dụng cài đặt bằng tiêu đề riêng kèm phiên bản; kiểm lại chính sách nguồn gốc của dịch vụ định danh và API cho kiểu gọi này (YCTD ghi kết quả).
+- **Đăng nhập, không lưu mật khẩu:** đăng nhập bằng tên đăng nhập và mật khẩu như web (mật khẩu chỉ gửi đi, không lưu); với ứng dụng cài đặt, dịch vụ định danh trả mã làm mới trong thân phản hồi thay cho cookie khi phiên đánh dấu `client_kind = native` (định danh 0160, chỉ đặt được khi đăng nhập từ ứng dụng cài đặt), mã làm mới lưu ở **Keychain (iOS) hoặc Keystore (Android) có điều kiện sinh trắc học** (hoặc mã khóa máy); mã truy cập chỉ ở bộ nhớ; xoay vòng mã làm mới như hiện nay; đăng xuất, đổi mật khẩu, trường khóa tài khoản thì mã làm mới bị thu hồi ở máy chủ. Danh sách phiên ứng dụng cài đặt theo người dùng (định danh 0161) để người dùng và quản trị trường gỡ máy.
+- **Sinh trắc học:** sau lần đăng nhập đầu, hỏi bật "Mở khóa bằng Face ID, vân tay"; mở ứng dụng hoặc quay lại sau thời gian chờ (cấu hình, mặc định 5 phút) thì phải xác thực sinh trắc học mới đọc được mã làm mới; sinh trắc học đổi (thêm vân tay mới) hoặc lỗi nhiều lần thì xóa mã và đăng nhập lại; không có sinh trắc học thì dùng mã khóa máy; trường tắt được "nhớ đăng nhập trên ứng dụng" (cấu hình, ghép với xác thực hai lớp của S8b: bước hai vẫn hỏi ở lần đăng nhập đầu).
+- **Nhà cung cấp định danh (DT-25):** luồng OIDC chạy ở **trình duyệt hệ thống** (ASWebAuthenticationSession, Custom Tabs) theo cách khuyến nghị cho ứng dụng gốc, có PKCE, quay về ứng dụng bằng liên kết sâu; không mở trang đăng nhập của nhà cung cấp trong khung web của ứng dụng.
+- **Liên kết sâu:** liên kết phổ quát (iOS) và liên kết ứng dụng (Android) cho `*.<tên miền hệ thống>` (tệp `apple-app-site-association`, `assetlinks.json` phục vụ ở mọi tên miền con, nền tảng 0231 lưu mã ứng dụng và vân tay chứng chỉ để sinh tệp); **tên miền riêng của trường không khai báo được trước trong ứng dụng**, nên liên kết trên tên miền riêng mở trình duyệt như hiện nay, còn thông báo đẩy và liên kết do hệ thống tạo cho ứng dụng dùng tên miền con; đường dẫn ánh xạ về màn hình (thông báo, học phí, điểm danh, bài thi); liên kết của trường chưa thêm thì hỏi thêm trường.
+- **Phiên bản tối thiểu:** máy chủ trả phiên bản tối thiểu của ứng dụng cài đặt (cấu hình nền tảng); thấp hơn thì chặn và dẫn tới cửa hàng; API giữ tương thích ngược với các bản ứng dụng còn được hỗ trợ (ghi chính sách ở tài liệu 12). Không dùng dịch vụ cập nhật mã qua mạng ở DT-26 (18.5).
+- **Kiểm thử:** kiểm thử đơn vị cho lớp nền tảng, lưu phiên, ánh xạ liên kết; spec `185-` chạy bản web của vỏ (chọn trường, chọn vai trò, ánh xạ liên kết) với lớp Capacitor giả lập; thử trên máy ảo Android ở CI của 26h, trên máy thật khi Eric thử.
+
+**26g. Thông báo đẩy native**
+- **Bộ nối `fcm`** (Firebase Cloud Messaging, giao thức HTTP v1, cho Android) và **`apns`** (Apple Push Notification service, khóa dạng mã thông báo `.p8`, cho iOS) của `PushSender`; cùng bộ phát, cùng nhóm loại và tuỳ chọn tắt của 26b, cùng quy tắc nội dung không có dữ liệu cá nhân (nội dung FCM, APNs **không mã hóa đầu cuối** như Web Push nên quy tắc này bắt buộc).
+- **Đăng ký mã thiết bị:** ứng dụng xin quyền thông báo (Android 13 trở lên, iOS) sau khi người dùng bấm, gửi mã thiết bị về cùng điểm cuối đăng ký của 26b với loại `fcm` hoặc `apns` (hệ thống 0093 nếu cần thêm ràng buộc), làm mới khi mã đổi, thu hồi khi đăng xuất hoặc xóa trường khỏi ứng dụng.
+- **Khóa của nền tảng:** tệp tài khoản dịch vụ Firebase và khóa APNs thuộc **một ứng dụng chung cho mọi trường**, lưu mã hóa ở cơ sở dữ liệu `platform` (nền tảng 0232) hoặc cấu hình triển khai, không xuống cơ sở dữ liệu trường; thiếu khóa thì bộ nối tắt, các kênh khác chạy như cũ.
+- **Mở đúng màn hình:** chạm thông báo mở trường và màn hình tương ứng (cùng ánh xạ của liên kết sâu 26f); ứng dụng đang mở thì hiện thông báo trong ứng dụng.
+- **Kiểm thử:** bộ nối giả lập trả các mã lỗi thật của FCM, APNs (mã hết hạn, khóa sai) để kiểm thử thu hồi và thử lại; spec `186-` kiểm cách ly đăng ký `fcm`, `apns` giữa các trường.
+
+**26h. Ký, dựng bản, phát hành và hồ sơ cửa hàng**
+- **CI dựng bản** (tệp quy trình mới `.github/workflows/ung-dung-di-dong.yml`): Android trên Ubuntu (Gradle, gói AAB và APK); iOS trên macOS (Xcode, công cụ tự động hóa dựng và ký, ví dụ fastlane, chọn lúc làm); **chỉ chạy khi gắn thẻ phát hành ứng dụng hoặc chạy tay**, không chạy ở mọi yêu cầu kéo (máy macOS tốn phút gấp nhiều lần); ở yêu cầu kéo sửa `apps/mobile/` chỉ chạy dựng Android bản gỡ lỗi không ký để bắt lỗi sớm.
+- **Khóa ký chỉ ở secrets:** khóa tải lên Android (Google Play giữ khóa ký ứng dụng, dùng Play App Signing), chứng chỉ phân phối và hồ sơ cấp phép iOS hoặc khóa App Store Connect API, khóa Google Play API để tải bản lên; giải mã vào thư mục tạm của lần chạy, xóa sau khi dựng; thiếu secrets thì quy trình dựng bản không ký và báo rõ, không hỏng. Hướng dẫn Eric tạo khóa trên máy mình (lệnh mẫu), sao lưu khóa ngoại tuyến, đưa vào secrets của kho; quy tắc chặn commit tệp khóa (`.gitignore`, kiểm ở CI).
+- **Quy trình phát hành:** số phiên bản ứng dụng theo phiên bản phần mềm, số bản dựng tăng tự động; luồng: thử nội bộ (Google Play internal testing, TestFlight nội bộ) → thử kín với vài trường thử → phát hành theo tỷ lệ (Android) hoặc phát hành theo giai đoạn (iOS) → toàn bộ; ghi trong tài liệu triển khai; mỗi bản có ghi chú phát hành tiếng Việt.
+- **Hồ sơ cửa hàng:** tên ứng dụng, mô tả ngắn và dài tiếng Việt, ảnh chụp màn hình điện thoại và máy tính bảng sinh bằng Playwright trên dữ liệu giả, biểu tượng, danh mục Giáo dục, xếp hạng độ tuổi, **tài khoản trình diễn cho người duyệt** trên môi trường trình diễn (18h) với dữ liệu giả; quốc gia phát hành ban đầu: Việt Nam.
+- **Chính sách quyền riêng tư và khai báo dữ liệu (`33_HO_SO_PHAP_LY/`):** cập nhật chính sách bảo mật cho ứng dụng cài đặt (dữ liệu thu, mã thiết bị đẩy, nhà cung cấp đẩy Google, Apple là bên xử lý, sinh trắc học chỉ xử lý trên máy, không thu vị trí, không quảng cáo, không theo dõi); bản nháp nội dung cho mục "Quyền riêng tư của ứng dụng" (App Store) và "An toàn dữ liệu" (Google Play); đường dẫn công khai của chính sách; cách yêu cầu xóa tài khoản (tài khoản do trường cấp, yêu cầu gửi trường xử lý, có trang hướng dẫn công khai như cửa hàng yêu cầu); đọc chính sách cửa hàng về ứng dụng có người dùng là trẻ em và ghi kết luận vào YCTD (GD-123).
+- **Việc Eric phải làm** ghi thành danh sách kiểm ở 18.10.
+
+### 18.5 Quyết định thiết kế và phương án đã loại
+
+- **PWA trước, ứng dụng cài đặt sau, cùng một mã:** PWA cho phần lớn lợi ích (cài lên màn hình chính, đẩy, mở nhanh) mà không qua cửa hàng; ứng dụng cài đặt chỉ thêm phần web không làm được (đẩy trên iOS khi chưa cài PWA, sinh trắc học, có mặt trên cửa hàng). Thứ tự này đúng yêu cầu của Eric.
+- **Capacitor đóng gói mã web hiện có (chọn):** dùng lại toàn bộ `apps/teacher`, `apps/parent`, cùng ngôn ngữ, cùng kiểm thử; chỉ thêm lớp nền tảng và dự án Android, iOS. Phương án đã loại:
+  - **Viết lại bằng React Native:** phải viết lại toàn bộ giao diện hai ứng dụng bằng thành phần gốc (không dùng lại thành phần DOM, Tailwind), hai mã giao diện phải giữ khớp nhau về nghiệp vụ lâu dài, kiểm thử e2e hiện có không dùng được; công sức nhiều lần DT-26 mà lợi ích chính (đẩy, sinh trắc học) Capacitor đã có.
+  - **Viết lại bằng Flutter:** như trên và thêm ngôn ngữ Dart, bộ công cụ, thư viện mới cho dự án chỉ dùng TypeScript; không dùng lại được mã kiểm tra dữ liệu, gói `shared`.
+  - **Chỉ bọc trang web từ xa (ứng dụng mở thẳng địa chỉ của trường):** luôn có bản mới nhất nhưng dễ bị App Store từ chối vì chỉ là trang web đóng gói, không chạy được khi mất mạng, phụ thuộc cookie của khung web; giữ làm phương án dự phòng nếu bản đóng gói gặp trở ngại.
+  - **Dịch vụ cập nhật mã qua mạng (live update):** thêm dịch vụ ngoài hoặc tự dựng, thêm rủi ro bảo mật chuỗi cung ứng; DT-26 dùng chặn phiên bản tối thiểu và phát hành qua cửa hàng; xem lại khi nhịp phát hành cửa hàng thành trở ngại.
+  - **Ứng dụng Android dạng TWA (Trusted Web Activity) riêng:** không có tương đương cho iOS, nên vẫn phải làm Capacitor cho iOS; hai cách đóng gói là hai thứ phải giữ.
+- **Một ứng dụng có chọn vai trò (chọn) thay cho hai ứng dụng Giáo viên và Phụ huynh:** một hồ sơ cửa hàng, một lần duyệt, một bộ khóa ký và khóa đẩy, một quy trình CI; người vừa là giáo viên vừa là phụ huynh dùng một ứng dụng. Đổi lại mô tả cửa hàng phải nói cho cả hai nhóm và gói nặng hơn một chút (hai bản dựng tĩnh nhỏ). Phương án hai ứng dụng giữ được nếu Eric muốn tên riêng cho từng nhóm (GD-121); đổi được vì vỏ chỉ là cấu hình vai trò.
+- **Không làm ứng dụng riêng mang thương hiệu từng trường:** cửa hàng hạn chế ứng dụng sinh từ khuôn mẫu nộp dưới tài khoản của bên làm phần mềm (App Store yêu cầu ứng dụng như vậy nộp bằng tài khoản của chính khách hàng); thương hiệu trường hiện bên trong ứng dụng sau khi chọn trường. Trường muốn ứng dụng riêng là việc sau DT-26, cần tài khoản nhà phát triển của trường.
+- **Mã làm mới trong Keychain, Keystore có sinh trắc học, không dùng cookie trong ứng dụng cài đặt:** gắn việc dùng phiên với xác thực trên máy, thu hồi được từ máy chủ; phương án đã loại: lưu mật khẩu để tự đăng nhập (vi phạm nguyên tắc không lưu mật khẩu), giữ cookie trong kho cookie của khung web (không gắn được sinh trắc học, khó thu hồi theo máy).
+- **Một bộ phát đẩy, nhiều bộ nối:** Web Push, FCM, APNs là bộ nối của kênh `push`; tuỳ chọn tắt, nội dung, cách ly dùng chung; phương án đã loại: dịch vụ đẩy trung gian bên ngoài (thêm bên xử lý dữ liệu, thêm chi phí), FCM cho cả iOS (iOS vẫn cần khóa APNs, thêm phụ thuộc Google cho thiết bị Apple).
+- **Kiểm thử thiết bị ở việc CI riêng, yêu cầu kéo chạy tập con:** giữ thời gian chờ của yêu cầu kéo; chạy đủ ở nhánh chính và hằng đêm; phương án đã loại: chạy mọi spec ở mọi khổ cho mọi yêu cầu kéo (nhân ba thời gian kiểm thử giao diện), chỉ kiểm bằng mắt.
+- **Không làm ở DT-26:** ứng dụng học sinh cài đặt (GD-123); ngoại tuyến cho phân hệ ngoài 23b (GD-108 giữ nguyên); cập nhật mã qua mạng; ứng dụng mang thương hiệu từng trường; ứng dụng cho cổng quản trị, cổng nền tảng (chỉ bố cục máy tính bảng trên web); thông báo đẩy có nội dung đầy đủ; đẩy qua dịch vụ trung gian.
+
+### 18.6 Rủi ro và cách kiểm
+
+| Rủi ro | Cách kiểm |
+|---|---|
+| Bộ nhớ đệm ngoại tuyến giữ dữ liệu cá nhân, lộ khi mất máy hoặc máy dùng chung | Service worker không giữ phản hồi `/api`; kiểm thử đọc toàn bộ bộ nhớ đệm sau khi dùng các màn hình chính và tìm chuỗi mồi của dữ liệu giả; đăng xuất xóa bộ nhớ đệm, IndexedDB, hủy đăng ký đẩy; dữ liệu 23b giữ theo GD-108 |
+| Máy dùng chung nhận thông báo đẩy của người dùng trước | Đăng xuất thu hồi đăng ký ở máy chủ và ở máy; kiểm thử đăng xuất rồi gửi thông báo, bộ giả lập không ghi nhận gửi tới đăng ký đó |
+| Nội dung đẩy lộ dữ liệu cá nhân qua máy chủ của Google, Apple, Mozilla hoặc trên màn hình khóa | Nội dung chỉ tiêu đề theo nhóm và tên trường; kiểm thử dựng nội dung từ thông báo có họ tên, số tiền, điểm và kiểm không còn chuỗi đó; ghi vào hồ sơ đánh giá tác động |
+| Đăng ký đẩy hoặc khóa của trường này dùng cho trường khác | Đăng ký lưu ở cơ sở dữ liệu của trường, mã hóa bằng khóa của trường; tiến trình gửi theo trường; spec `182-`, `186-` ở chế độ nhiều trường; ma trận cách ly; kiểm tĩnh |
+| Service worker giữ bản cũ sau khi cập nhật, hoặc lỗi service worker làm "kẹt" ứng dụng | Phiên bản bộ nhớ đệm theo bản dựng, hỏi tải lại, phiên bản tối thiểu từ máy chủ; có tuyến gỡ service worker khẩn (tệp service worker tự hủy khi máy chủ bật cờ); kiểm thử nâng bản |
+| Trên iOS người dùng không cài nên không nhận đẩy | Hướng dẫn cài rõ ràng, phát hiện trình duyệt trong ứng dụng Zalo, Facebook; kênh `in_app`, SMS, Zalo vẫn chạy; đợt 3 giải quyết bằng ứng dụng cài đặt |
+| Trường đổi tên miền làm bản PWA đã cài, đăng ký đẩy ở nguồn gốc cũ hỏng | Nguồn gốc cũ chuyển hướng và báo cài lại; đăng ký ghi nguồn gốc, đổi tên miền thì đánh dấu cần đăng ký lại; kiểm thử ở bố cục có tên miền riêng |
+| Thêm kiểm thử thiết bị làm CI chậm | Việc riêng chạy song song, yêu cầu kéo chỉ tập con hai khổ, chạy đủ ở nhánh chính và hằng đêm, chia mảnh; đo và ghi số phút ở YCTD-233; điều kiện ra đợt 2 giới hạn tăng 5 phút |
+| Ảnh chụp tham chiếu lệch theo phông chữ, nền tảng làm kiểm thử chập chờn | Chỉ so ảnh ở Linux của CI, ngưỡng sai khác, ít màn hình; ảnh chụp không chặn yêu cầu kéo ở lần đầu thêm |
+| Sửa `packages/ui` làm vỡ bố cục máy tính ở các màn hình đã có | Chế độ co giãn bật theo khổ, khổ máy tính giữ nguyên; toàn bộ e2e `chromium` hiện có đạt không sửa kỳ vọng; chỉ 26e sửa `packages/ui` ở đợt 2 |
+| Ứng dụng bị App Store hoặc Google Play từ chối (chỉ là trang web, thiếu tài khoản trình diễn, thiếu cách xóa tài khoản, người dùng là trẻ em) | Bản đóng gói có chức năng gốc (đẩy, sinh trắc học, ngoại tuyến của 23b); tài khoản trình diễn dữ liệu giả; trang hướng dẫn xóa tài khoản; không đưa học sinh vào ứng dụng cài đặt ở DT-26 (GD-123); 26h đọc chính sách hiện hành trước khi nộp |
+| Lộ khóa ký hoặc khóa đẩy, hoặc mất khóa tải lên Android | Khóa chỉ ở secrets và bản sao lưu ngoại tuyến của Eric; Play App Signing nên mất khóa tải lên đổi được; kiểm CI chặn tệp khóa trong kho; quy trình dựng xóa tệp tạm |
+| Mã làm mới trong ứng dụng cài đặt bị lấy khỏi máy | Lưu ở Keychain, Keystore có điều kiện sinh trắc học; xoay vòng; thu hồi theo máy ở máy chủ; trường tắt được nhớ đăng nhập; kiểm thử mã làm mới cũ bị từ chối sau xoay vòng |
+| API đổi làm hỏng bản ứng dụng cài đặt cũ đang dùng | Chính sách tương thích ngược, phiên bản tối thiểu, tiêu đề phiên bản ứng dụng để ghi nhận bản còn dùng; kiểm thử hợp đồng API cho các tuyến ứng dụng dùng |
+| Liên kết sâu không mở được ở tên miền riêng | Thông báo đẩy, liên kết do hệ thống tạo cho ứng dụng dùng tên miền con; liên kết ở tên miền riêng mở web như cũ; ghi rõ trong hướng dẫn |
+| Đợt 3 va chạm với DT-24, DT-25 ở dịch vụ định danh | Đợt 3 chỉ bắt đầu khi DT-24, DT-25 đã gộp; một phần duy nhất (26f) sửa định danh trong đợt 3; gộp `origin/main` trước khi mở PR |
+| Hai phần cùng đợt sửa chung tệp lõi (`application.module.ts`, `ci.yml`, `playwright.config.ts`, `packages/ui`, `MULTI_TENANT_SPEC`, `NotificationChannel`) | Phân quyền sở hữu tệp ở 18.3; sửa tệp chung theo kiểu thêm cuối; gộp `origin/main` trước khi mở PR |
+| Va số với DT-23, DT-24, DT-25 | Dải DT-26 bắt đầu sau các số đang dùng và chừa khoảng trống (18.3); phiên điều phối kiểm lại lúc giao |
+
+**Cổng kiểm của mỗi phần DT-26:** kiểm thử đơn vị toàn bộ kho mã đạt không sửa kỳ vọng; e2e `single` hiện có đạt cộng e2e mới của phần (chạy riêng, giữ khóa `e2e.lock`); spec `@thiet-bi` đạt ở các khổ đã khai báo (từ khi 26c gộp); kiểm thử cách ly theo 14.7 ở cả hai bố cục `database` và `schema`; kiểm tĩnh đa thuê bao đạt; typecheck, lint, build đạt; CI xanh toàn bộ; phiên bản phần mềm tăng theo từng phần, riêng bản kế hoạch này (YCTD-230) chỉ đổi tài liệu.
+
+### 18.7 Quy ước chung của DT-26
+
+- Mỗi phần ghi YCTD giữ sẵn ở mục 18.3, cập nhật tài liệu theo quy ước của kho (02, 07, 08, 10, 11, 12, 13, 14, 15, 16, 17, 20, 21, 22, 23, 24, 32, 33, 34, `index.md` khi có thay đổi tương ứng), mở PR, gộp khi mọi kiểm tra CI đạt.
+- Mã mới theo mục 18.2 (một mã web, dùng lại phần đã có, không đổi hành vi cũ, hai bố cục cơ sở dữ liệu, kiểm tĩnh đa thuê bao, dữ liệu trên máy tối thiểu, nội dung đẩy không có dữ liệu cá nhân).
+- Kiểm thử và dữ liệu mẫu chỉ dùng dữ liệu bịa; đẩy chỉ qua bộ giả lập `development`; khóa VAPID, khóa ký trong kiểm thử sinh lúc chạy; không in nội dung `.env`, không dán khóa vào tài liệu, không commit tệp khóa, chứng chỉ, tệp dịch vụ Firebase.
+- Tuyệt đối không chạy `migrate` lên cơ sở dữ liệu dùng chung; kiểm thử dùng cơ sở dữ liệu riêng của phiên.
+- Thư viện mới (công cụ service worker, Capacitor và phần bổ trợ, axe-core, công cụ dựng iOS) chọn loại mã nguồn mở có giấy phép cho phép dùng thương mại, ghi tên, phiên bản, giấy phép vào YCTD của phần.
+- Các điểm chi tiết không nêu ở đây Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11 và ghi vào YCTD của từng phần; nếu một phần cần số ngoài khoảng đã giữ, ghi vào YCTD và lấy ở dải dự phòng của DT-26 (18.3).
+- Phần chưa chốt (18.9) làm cấu hình được; khi Eric chốt thì đổi giá trị mặc định bằng YCTD, không sửa mã.
+
+### 18.8 Tiến độ
+
+| Phần | Đợt | Tiến độ |
+|---|---|---|
+| 26a | 1 | Chưa làm; YCTD-231 giữ sẵn, bắt đầu khi 23b đã gộp |
+| 26b | 1 | Chưa làm; YCTD-232 giữ sẵn |
+| 26c | 1 | Chưa làm; YCTD-233 giữ sẵn |
+| 26d | 2 | Chưa làm; YCTD-234 giữ sẵn |
+| 26e | 2 | Chưa làm; YCTD-235 giữ sẵn |
+| 26f | 3 | Chưa làm; YCTD-236 giữ sẵn, bắt đầu khi DT-24, DT-25 đã gộp |
+| 26g | 3 | Chưa làm; YCTD-237 giữ sẵn |
+| 26h | 3 | Chưa làm; YCTD-238 giữ sẵn; phát hành cần các việc của Eric ở 18.10 |
+
+Bản kế hoạch này là YCTD-230, chỉ đổi tài liệu (không tăng phiên bản phần mềm).
+
+### 18.9 Giả định chưa chốt, làm cấu hình được
+
+Mã GD-109 đến GD-119 chừa cho DT-24, DT-25; DT-26 dùng từ GD-120.
+
+| Mã | Mục chưa chốt | Giả định để làm | Cấu hình ở | Cần ai trả lời |
+|---|---|---|---|---|
+| GD-120 | Tên ứng dụng trên cửa hàng, mã gói (bundle id, application id), tên miền hệ thống dùng cho liên kết sâu | Tạm dùng tên sản phẩm của cấu hình nền tảng (GD-93, mặc định "School Management") và mã gói theo tên miền của Eric; đổi trước lần nộp đầu (mã gói không đổi được sau khi phát hành) | Cấu hình `apps/mobile`, nền tảng 0231 | Eric |
+| GD-121 | Một ứng dụng có chọn vai trò hay hai ứng dụng Giáo viên, Phụ huynh | Một ứng dụng (18.5) | Cấu hình vai trò của vỏ | Eric |
+| GD-122 | Mức chi tiết của nội dung đẩy | Chỉ tiêu đề theo nhóm và tên trường, không dữ liệu cá nhân; trường không đổi được ở DT-26 | Mã bộ phát (quy tắc cố định) | Eric |
+| GD-123 | Học sinh dùng ứng dụng cài đặt | Không ở DT-26: học sinh dùng PWA; tránh chính sách ứng dụng có người dùng dưới 13 tuổi của hai cửa hàng; 26h đọc chính sách và ghi kết luận để Eric quyết bước sau | Cấu hình vai trò của vỏ | Eric |
+| GD-124 | Pháp nhân đứng tên tài khoản nhà phát triển | Tài khoản tổ chức (cần pháp nhân và mã D-U-N-S); tài khoản cá nhân mới của Google Play phải qua thử kín bắt buộc trước khi phát hành (kiểm lại điều kiện lúc làm) | Ngoài phần mềm | Eric |
+| GD-125 | Thời gian chờ trước khi đòi mở khóa sinh trắc học; trường có được tắt "nhớ đăng nhập" | 5 phút; có công tắc theo trường, mặc định bật | Cấu hình của trường | Eric |
+| GD-126 | Thời hạn dọn đăng ký đẩy không dùng | 90 ngày | Cấu hình nền tảng | Claude (theo ủy quyền) |
+| GD-127 | Phiên bản iOS, Android thấp nhất hỗ trợ | Theo yêu cầu của phiên bản Capacitor chọn lúc làm; PWA đẩy trên iOS từ 16.4 | Cấu hình dự án | Claude (theo ủy quyền) |
+
+### 18.10 Việc Eric phải làm
+
+Phần mềm làm được đến bản dựng không ký và bộ hồ sơ nháp; các việc sau cần Eric (hoặc người đại diện pháp nhân) tự làm, Claude không làm thay vì cần danh tính, thanh toán hoặc ký kết:
+
+| Việc | Khi nào cần | Ghi chú |
+|---|---|---|
+| Chọn tên ứng dụng, mã gói, tên miền hệ thống (GD-120) | Trước khi 26f tạo dự án Android, iOS | Mã gói không đổi được sau khi phát hành |
+| Chọn pháp nhân đứng tên (GD-124), xin mã D-U-N-S (miễn phí, mất vài ngày) | Trước khi đăng ký hai tài khoản | Tên pháp nhân hiện trên cửa hàng |
+| Đăng ký **Apple Developer Program** (99 USD mỗi năm) | Trước 26g (khóa APNs) và 26h (ký iOS, TestFlight) | Gia hạn hằng năm; hết hạn thì ứng dụng bị gỡ khỏi cửa hàng |
+| Đăng ký **Google Play Console** (25 USD một lần) | Trước 26h (thử nội bộ Android) | Xác minh danh tính, địa chỉ, số điện thoại của tổ chức |
+| Tạo dự án Firebase cho FCM, khóa APNs `.p8` trong tài khoản Apple, khóa App Store Connect API, khóa Google Play API | 26g, 26h | Claude viết hướng dẫn từng bước; Eric tạo và đưa vào secrets của kho |
+| Tạo và sao lưu khóa tải lên Android theo lệnh mẫu, đưa vào secrets | 26h | Giữ bản sao lưu ngoại tuyến; bật Play App Signing |
+| Cung cấp đường dẫn công khai cho chính sách quyền riêng tư, trang hỗ trợ, thư điện tử liên hệ | 26h | Có thể đặt ở website của sản phẩm |
+| Nhờ luật sư rà chính sách quyền riêng tư, khai báo dữ liệu, kết luận về văn bản cung cấp ứng dụng (18.2) | Trước khi nộp lần đầu | Tài liệu do Claude soạn là bản nháp |
+| Bấm nộp bản lên App Store và Google Play, trả lời người duyệt | Cuối 26h | Claude chuẩn bị bản dựng, hồ sơ, ghi chú cho người duyệt |
+| Thử trên máy thật (một iPhone, một máy Android, một máy tính bảng) | Điều kiện ra của đợt 1 và đợt 3 | Bộ giả lập không thay được đẩy thật trên iOS |
+
+## 19. DT-27: nền tảng gia sư trực tuyến (27a đến 27i)
+
+> Số mục: mục 16, 17 để cho kế hoạch DT-24 (danh mục trường, đăng nhập kiểu SMIS) và DT-25 (định danh OIDC, VNeID); mục 18 là DT-26 (PWA, máy tính bảng, ứng dụng cài đặt, PR 178). Bản này đã gộp nhánh chính sau PR 178 và đánh lại toàn bộ số giữ sẵn của DT-27 vì trùng dải với DT-26.
+
+### 19.1 Căn cứ và mục tiêu
+
+1. **Quyết định của Eric ngày 2026-10-26** (giao qua phiên điều phối):
+   - **Mô hình: làm cả hai, theo thứ tự.** Trước: **gia sư trong từng trường** (trường tổ chức phụ đạo, bồi dưỡng trực tuyến cho học sinh của mình, dùng giáo viên, lớp, danh mục sẵn có). Sau: **chợ gia sư mở** (phụ huynh hoặc học sinh bất kỳ tìm và đặt gia sư bên ngoài, nền tảng thu hoa hồng).
+   - **Hình thức học: cả ba.** Lớp video trực tiếp (1-1 và nhóm nhỏ, bảng trắng, chia sẻ màn hình, ghi hình); khoá học ghi sẵn (video bài giảng, bài tập, theo dõi tiến độ); hỏi đáp bài tập không đồng bộ (học sinh gửi câu hỏi, gia sư trả lời; có thể có gợi ý của trợ lý AI 23d, **luôn ở dạng nháp**).
+   - **Thu phí qua nền tảng:** phụ huynh trả qua mã QR hoặc cổng thanh toán (S5b), nền tảng chi trả cho gia sư hoặc trường sau buổi học, có hoàn tiền và giải quyết tranh chấp. Mục 19.3 chỉ ra phần này **phải làm khác nhau** ở hai mô hình để đúng quy định: trong trường, tiền vào thẳng tài khoản của trường; ở chợ mở, giữ tiền và chia tiền phải đi qua tổ chức có giấy phép trung gian thanh toán.
+2. **Mục tiêu:** trường dạy phụ đạo, bồi dưỡng trực tuyến đúng Thông tư 29/2024/TT-BGDĐT (sửa đổi bởi Thông tư 19/2026/TT-BGDĐT) ngay trên dữ liệu đang có; sau đó mở thêm một sản phẩm chợ gia sư cho phụ huynh không thuộc trường nào, **không dựng kho dữ liệu thứ hai cho phần đã có** (ngân hàng câu hỏi, đề, kho học liệu, thi trực tuyến, AI, thu phí, bảng lương, nhắn tin).
+3. **Hiện trạng mã** (đọc trên nhánh chính ngày 2026-10-26, sau PR 177; các phần DT-23, DT-24, DT-25 đang làm ở nhánh khác, chưa gộp):
+   - **Học liệu và câu hỏi:** kho học liệu số 22h1, 22h2 (`learning_resources`, sự kiện, báo lỗi, lượt dùng, bộ sưu tập câu hỏi); ngân hàng câu hỏi và đề 22g1, 22g2 (`questions`, `exams`, `exam_variants`, `question_usages`, luồng chuyển điểm vào `score_entries`).
+   - **Thời khoá biểu và điểm danh:** `timetable_lessons` (giáo viên, lớp, môn, tiết) của 22c; `period_attendance`, `attendance_records`; `class_staff_assignments`. Đây là nguồn để biết **giáo viên đang được phân công dạy học sinh nào** (ràng buộc 19.2).
+   - **Thu phí của trường:** `fee_schedules`, `fee_schedule_items`, `invoices`, `invoice_items`, `receipts`, `payments`, `payment_refund_sources`, `online_payment_transactions`; cổng thanh toán **theo trường** qua `TenantPaymentGatewayRegistry` (S3: PayOS, SePay, Casso, VNPay, VietQR tĩnh), tiền vào tài khoản của trường.
+   - **Bảng lương:** `pay_item_types`, `staff_pay_items`, `payrolls`, biểu thuế thu nhập cá nhân lũy tiến (`apps/api/src/payroll/pay-items.ts`, YCTD-60).
+   - **Thu phí nền tảng:** S5b (`PlatformPaymentGateways` trong `apps/api/src/billing/billing.ts`) chỉ thu tiền **hóa đơn dịch vụ của chính nền tảng** vào tài khoản nền tảng; `EInvoiceProvider` mới có bộ giả lập.
+   - **Nhắn tin:** `message_threads`, `messages` (phụ huynh và giáo viên, theo năm học); thông báo `notifications`.
+   - **Đa thuê bao:** mỗi trường một bộ cơ sở dữ liệu `identity`, `system`, `year_*` (bố cục `database` hoặc `schema`); `platform` là cơ sở dữ liệu chung duy nhất (14.4). **Chưa có chỗ nào chứa người dùng không thuộc trường** (cần cho chợ mở).
+   - **Chưa có:** WebRTC, máy chủ video, ghi hình, khoá học, hỏi đáp. 23e (giám thị camera, YCTD-215) sẽ dựng coturn và WebRTC cho thi; 23a thêm kênh đăng nhập `student`; 23d thêm `AiProvider`; DT-25 thêm bộ nối OIDC (sẵn cho VNeID); DT-26 (mục 18) lên kế hoạch PWA, bố cục máy tính bảng và ứng dụng cài đặt iOS, Android.
+
+### 19.2 Căn cứ pháp lý đã đọc và ràng buộc sản phẩm
+
+Claude tra ngày **2026-10-26**. Cột "Mức đọc" ghi rõ đọc bản gốc hay nguồn thứ cấp; chỗ ghi **chưa xác minh** thì luật sư của Eric phải đối chiếu văn bản gốc trước khi dùng. Tài liệu này không thay tư vấn pháp lý.
+
+| Văn bản | Ban hành, hiệu lực | Nguồn | Mức đọc |
+|---|---|---|---|
+| Thông tư 19/2026/TT-BGDĐT sửa đổi, bổ sung một số điều của Thông tư 29/2024/TT-BGDĐT về dạy thêm, học thêm | 31/03/2026; hiệu lực 15/05/2026 | `vanban.chinhphu.vn` (thuộc tính, docid 217679); tệp gốc `datafiles.chinhphu.vn/cpp/files/vbpq/2026/4/19-bgddt.pdf` (ảnh quét, Claude đọc từng trang) | **Toàn văn** Điều 1 đến Điều 11 |
+| Thông tư 29/2024/TT-BGDĐT quy định về dạy thêm, học thêm | 30/12/2024; hiệu lực 14/02/2025 | Bài phân tích của Báo Luật sư Việt Nam (`lsvn.vn`), `vneconomy.vn`, `thuvienphapluat.vn` (trang hỏi đáp) | Nguồn thứ cấp; **chưa đọc bản gốc** (trang toàn văn trả lỗi 403 hoặc 404). Điều 3, 4, 5 dưới đây **chưa xác minh** từng chữ |
+| Nghị định 52/2024/NĐ-CP về thanh toán không dùng tiền mặt; Thông tư 40/2024/TT-NHNN về dịch vụ trung gian thanh toán | 15/05/2024, hiệu lực 01/07/2024; 17/07/2024 | `chinhsachonline.chinhphu.vn`, `baochinhphu.vn`, `vcci.com.vn`, trích đoạn `thuvienphapluat.vn` | Định nghĩa khoản 5, khoản 17 Điều 3 và mức vốn qua trích dẫn; **chưa đọc toàn văn**; chưa biết có văn bản sửa đổi đến 10/2026 hay không (**chưa xác minh**) |
+| Nghị định 117/2025/NĐ-CP về quản lý thuế với hoạt động kinh doanh trên nền tảng thương mại điện tử, nền tảng số | hiệu lực 01/07/2025 | `luatvietnam.vn`, `amis.misa.vn`, `viet-partners.com`; bản tin EY (tệp mã hóa, không đọc được) | Nguồn thứ cấp; tỷ lệ khấu trừ **chưa xác minh** (nguồn mâu thuẫn: thuế thu nhập cá nhân với dịch vụ 2% hay 5%) |
+| Luật Thương mại điện tử số 122/2025/QH15; Nghị định 248/2026/NĐ-CP hướng dẫn | 10/12/2025, hiệu lực 01/07/2026 | `luatvietnam.vn`, `thuvienphapluat.vn` (tin), `baolaocai.vn` | Nguồn thứ cấp; nghĩa vụ xác thực danh tính người bán trước khi cho bán (Điều 17 theo các bài) **chưa xác minh**; chưa rõ tiếp thị dịch vụ dạy học có thuộc phạm vi "nền tảng trung gian" không |
+| Luật Bảo vệ dữ liệu cá nhân số 91/2025/QH15; Nghị định 356/2025/NĐ-CP | 26/06/2025 và 31/12/2025; hiệu lực 01/01/2026 | Đã đọc toàn văn các điều liên quan ở S8a ngày 2026-10-25 (`33_HO_SO_PHAP_LY/00_MUC_LUC.md` mục 4) | Điều 24 Luật (dữ liệu trẻ em), Điều 9, 10 (đồng ý), Điều 21 Nghị định (dịch vụ xử lý dữ liệu, khoản 5 "phần mềm giáo dục có yếu tố giám sát như điểm danh, ghi hình") |
+| Luật Trẻ em số 102/2016/QH13; Nghị định 56/2017/NĐ-CP | 05/04/2016, hiệu lực 01/06/2017 | Hiểu biết sẵn có, **chưa đọc lại trong phiên này** | Quyền bí mật đời sống riêng tư; trách nhiệm bảo đảm an toàn cho trẻ em trên môi trường mạng; Tổng đài quốc gia bảo vệ trẻ em 111: **chưa xác minh** số điều |
+| Cấp phiếu lý lịch tư pháp qua VNeID | Thí điểm toàn quốc 01/10/2024 đến 30/06/2025 (Công văn 656/TTg-KSTT) | `lsvn.vn`, `hatinh.gov.vn` | Nguồn thứ cấp; **chưa xác minh** việc gia hạn hay chính thức hóa sau 30/06/2025, giá trị của bản điện tử |
+| Luật Nhà giáo số 73/2025/QH15 | — | Là căn cứ của Thông tư 19/2026 (trang 1) | Chỉ biết là căn cứ; **chưa đọc** điều về hành vi nhà giáo không được làm |
+
+**1. Dạy thêm, học thêm (Thông tư 29/2024 sửa bởi Thông tư 19/2026).** Điều đọc được và ràng buộc trong sản phẩm:
+
+| Quy định | Nguồn | Ràng buộc trong sản phẩm |
+|---|---|---|
+| "Dạy thêm, học thêm" là dạy học phụ thêm ngoài thời lượng kế hoạch giáo dục đối với **các môn học trong Chương trình giáo dục phổ thông** (và giáo dục thường xuyên) do Bộ trưởng ban hành. Văn hóa, nghệ thuật, thể thao, tăng cường ngoại ngữ, STEM/STEAM, năng lực số, AI, hướng nghiệp, kỹ năng sống **không thuộc nội dung chương trình môn học thì không thuộc phạm vi** Thông tư | TT 19/2026 Điều 1 (khoản 1 Điều 2 mới), bản gốc | Mỗi chương trình gia sư (trong trường và ở chợ) có trường bắt buộc **"loại nội dung"**: `curriculum` (môn trong chương trình, chịu Thông tư 29) hoặc `enrichment` (bổ trợ ngoài chương trình, theo pháp luật khác). Chỉ `curriculum` chịu các khóa dưới đây. Người tạo phải chọn, có giải thích ngay trên màn hình; quản trị trường duyệt |
+| Dạy thêm **trong nhà trường không được thu tiền** của học sinh; chỉ cho học sinh đăng ký tự nguyện thuộc các nhóm: kết quả môn học cuối kỳ liền kề chưa đạt, được chọn bồi dưỡng học sinh giỏi, lớp cuối cấp tự nguyện ôn thi | TT 29/2024 khoản 1 Điều 5 (**chưa xác minh** bản gốc) | Chương trình `curriculum` do trường tổ chức **khóa cứng chế độ "không thu tiền"**: không tạo được khoản thu, không hiện nút trả tiền, máy chủ từ chối; bắt buộc chọn nhóm đối tượng; với nhóm "chưa đạt" hệ thống gợi ý danh sách từ sổ điểm (giáo viên xác nhận); có đơn đăng ký của cha mẹ (19.4, 27b) |
+| Mỗi môn **không quá 02 tiết/tuần**; học sinh thuộc nhóm đối tượng cần hơn thì Giám đốc Sở quyết định theo đề nghị của Hiệu trưởng | TT 19/2026 Điều 2 (điểm c khoản 4 Điều 5 mới), bản gốc | Đếm số tiết `curriculum` trong trường theo môn, theo học sinh, theo tuần; vượt 2 thì chặn, trừ khi trường nhập số và ngày quyết định của Sở cho học sinh hoặc nhóm đó (lưu tệp quyết định); độ dài một tiết theo cấu hình cấp học hiện có |
+| Không tổ chức dạy thêm cho học sinh **tiểu học**, trừ bồi dưỡng nghệ thuật, thể dục thể thao, rèn luyện kỹ năng sống | TT 29/2024 khoản 1 Điều 4 (**chưa xác minh** bản gốc) | Chương trình `curriculum` không chọn được lớp hoặc học sinh cấp Tiểu học (cả trong trường lẫn ở chợ: hồ sơ trẻ có cấp học); `enrichment` vẫn được |
+| Giáo viên đang dạy ở trường **không được dạy thêm ngoài nhà trường có thu tiền đối với học sinh mà mình đang được nhà trường phân công dạy** theo kế hoạch giáo dục | TT 29/2024 khoản 2 Điều 4 (**chưa xác minh** bản gốc; Thông tư 19/2026 không sửa Điều 4) | **Ở chợ mở** (27g, 27h): gia sư khai mình đang là giáo viên trường nào; nếu là trường dùng nền tảng thì so khớp với phân công giảng dạy (`timetable_lessons`, `class_staff_assignments`) khi phụ huynh đặt buổi `curriculum` có thu tiền cho trẻ đã liên kết với trường: **chặn**; nếu không so khớp được (trẻ chưa liên kết, trường không dùng nền tảng) thì cả gia sư và phụ huynh phải tích cam kết "không phải giáo viên đang được phân công dạy trẻ này", ghi lại. **Trong trường**: không áp dụng vì `curriculum` đã không thu tiền |
+| Giáo viên trường công lập không được tham gia **quản lý, điều hành** dạy thêm ngoài nhà trường nhưng được tham gia dạy thêm | TT 29/2024 khoản 3 Điều 4 (**chưa xác minh** bản gốc) | Ở chợ: giáo viên công lập không mở được hồ sơ **cơ sở dạy thêm** (đứng tên kinh doanh) cho nội dung `curriculum`; chỉ dạy được với tư cách người dạy thuộc một cơ sở đã đăng ký, hoặc dạy `enrichment`. Luật sư kết luận (19.10, việc E-07) |
+| Giáo viên đang dạy ở trường khi tham gia dạy thêm ngoài nhà trường phải **báo cáo Hiệu trưởng** về môn, địa điểm, hình thức, mối quan hệ với chủ thể đứng tên đăng ký kinh doanh cơ sở dạy thêm, thời gian, **trước khi bắt đầu** và cập nhật khi thay đổi (Mẫu 03 sửa bởi Điều 10) | TT 19/2026 Điều 3 (khoản 3 Điều 6 mới), Điều 10, bản gốc | Gia sư ở chợ là giáo viên của trường dùng nền tảng: hệ thống **dựng sẵn báo cáo theo Mẫu 03** từ hồ sơ gia sư, gia sư xem và gửi vào trường (luồng văn bản đến hiện có hoặc việc của tôi của Hiệu trưởng); chưa gửi thì không mở nhận buổi `curriculum`. Trường không dùng nền tảng: tải bản PDF để tự nộp, tích xác nhận đã nộp |
+| Tổ chức, cá nhân tổ chức dạy thêm ngoài nhà trường **có thu tiền** (cơ sở dạy thêm) phải **đăng ký kinh doanh** và **công khai, cập nhật thường xuyên trên trang thông tin điện tử hoặc niêm yết**: môn học, thời lượng theo khối lớp, địa điểm, hình thức, thời gian, danh sách người dạy, mức thu, trước khi tuyển sinh (Mẫu 02) | TT 19/2026 Điều 3 (khoản 1 Điều 6 mới), bản gốc | Ở chợ: hồ sơ cơ sở dạy thêm `curriculum` bắt buộc mã số đăng ký kinh doanh hoặc mã số thuế hộ kinh doanh (nhân viên nền tảng duyệt tay, lưu tệp); **trang công khai của từng cơ sở trên chợ dựng theo các mục của Mẫu 02** (môn, thời lượng theo khối, hình thức "trực tuyến", lịch, danh sách người dạy, mức thu), không mở tuyển sinh khi thiếu mục. Trong trường: `enrichment` có thu tiền do trường tổ chức theo quy định thu khác của trường, không phải cơ sở dạy thêm |
+| Người dạy thêm ngoài nhà trường phải có phẩm chất đạo đức tốt, năng lực chuyên môn phù hợp môn dạy | TT 19/2026 Điều 3 (khoản 2 Điều 6 mới), bản gốc | Xác minh gia sư (27g): danh tính, bằng cấp hoặc chứng chỉ theo môn, phiếu lý lịch tư pháp; nhân viên nền tảng duyệt |
+| Nhà trường, xã, Sở lập **đường dây nóng** tiếp nhận phản ánh dạy thêm trái quy định | TT 19/2026 Điều 5, 7, 8, bản gốc | Trang công khai của trường (18f) và cổng phụ huynh hiện số đường dây nóng của trường (cấu hình); nút "Phản ánh dạy thêm" chuyển vào hộp thư góp ý hiện có |
+| Thông tư không nhắc riêng hình thức **trực tuyến** | Đọc toàn văn TT 19/2026; TT 29/2024 qua nguồn thứ cấp | Claude áp mọi ràng buộc trên **cho cả dạy trực tuyến** (định nghĩa dạy thêm theo nội dung, không theo nơi dạy); luật sư xác nhận (việc E-07) |
+
+**2. Giữ tiền rồi chi trả.**
+- **Dịch vụ hỗ trợ thu hộ, chi hộ** là dịch vụ trung gian thanh toán: "tiếp nhận, xử lý dữ liệu điện tử, tính toán kết quả thu hộ, chi hộ ... và thực hiện thanh toán cho các bên có liên quan" (khoản 17 Điều 3 Nghị định 52/2024, qua trích dẫn); chỉ tổ chức không phải ngân hàng **được Ngân hàng Nhà nước cấp giấy phép** mới được cung ứng (khoản 5 Điều 3); vốn điều lệ tối thiểu **50 tỷ đồng** cho ví điện tử, thu hộ chi hộ, cổng thanh toán điện tử; tổ chức này mở **tài khoản đảm bảo thanh toán** ở ngân hàng hợp tác (Thông tư 40/2024). Kết luận làm việc của Claude (**luật sư kết luận**): nền tảng **nhận tiền của phụ huynh vào tài khoản của mình rồi chi lại cho gia sư** thì có nguy cơ là cung ứng dịch vụ thu hộ, chi hộ không phép. **Không làm cách đó.**
+- **Phương án hợp pháp, theo mô hình:**
+  - **Trong trường (mốc 1):** tiền vào **thẳng tài khoản của trường** qua cổng thanh toán của trường (S3) như học phí; nền tảng không chạm tiền. Thù lao giáo viên trả qua **bảng lương của trường** (khoản mục mới), khấu trừ thuế thu nhập cá nhân theo biểu thuế sẵn có. Hoàn tiền qua luồng hoàn hiện có (`payment_refund_sources`).
+  - **Chợ mở (mốc 3), phương án A (đề xuất):** dùng tính năng **chia tiền hoặc giữ tiền có điều kiện của một tổ chức có giấy phép** (cổng thanh toán, ví điện tử hoặc ngân hàng có dịch vụ thu hộ, chi hộ, tài khoản đảm bảo); tiền nằm ở tổ chức đó, nền tảng chỉ gửi lệnh "giải ngân", "hoàn", "giữ do tranh chấp" và nhận phần hoa hồng. Bộ nối `MarketplacePaymentProvider` (19.4, 27h), bộ giả lập `mock`; nhà cung cấp thật Eric chọn (việc E-02). Tên tổ chức có dịch vụ như vậy ở Việt Nam: **chưa xác minh**, Eric hỏi báo giá.
+  - **Chợ mở, phương án B (dự phòng):** nền tảng **chỉ thu phí dịch vụ** (hoa hồng hoặc phí đăng tin) xuất hóa đơn cho gia sư; phụ huynh trả **thẳng vào tài khoản của gia sư** (mã VietQR của gia sư); nền tảng chỉ ghi nhận xác nhận đã trả. Hoàn tiền và tranh chấp khi đó chỉ là quy trình giữa hai bên có nền tảng hòa giải, không giữ tiền được.
+- **Thuế và hóa đơn:** Nghị định 117/2025 giao **tổ chức quản lý nền tảng thương mại điện tử, nền tảng số có chức năng thanh toán** khấu trừ, nộp thay thuế giá trị gia tăng và thu nhập cá nhân của hộ, cá nhân bán hàng tại thời điểm giao dịch thành công, theo tỷ lệ trên doanh thu từng giao dịch (Điều 4, 5 theo nguồn thứ cấp). **Chưa xác minh:** nền tảng ở phương án A có bị coi là "có chức năng thanh toán" không; tỷ lệ áp cho dịch vụ dạy học; dịch vụ dạy học có thuộc diện không chịu thuế giá trị gia tăng không; ngưỡng doanh thu không chịu thuế của hộ, cá nhân năm 2026 (nguồn ghi 200 triệu hoặc 500 triệu đồng, mâu thuẫn). Thiết kế: **hàm tính khấu trừ thuần, tỷ lệ là dữ liệu thiết lập có ngày hiệu lực** (như biểu thuế của bảng lương), có công tắc bật khấu trừ; báo cáo khấu trừ theo kỳ; hóa đơn điện tử cho phần hoa hồng của nền tảng qua `EInvoiceProvider` của S5b (nhà cung cấp thật chưa chốt). Gia sư là hộ kinh doanh tự xuất hóa đơn của mình (nếu phải) ngoài nền tảng.
+
+**3. An toàn trẻ em và dữ liệu.**
+- **Đồng ý của cha mẹ:** dữ liệu của trẻ em do người đại diện theo pháp luật thay mặt thực hiện quyền; công bố, tiết lộ đời sống riêng tư của trẻ từ đủ 07 tuổi cần đồng ý của cả trẻ và người đại diện (khoản 2 Điều 24 Luật 91/2025, đã đọc ở S8a). Sản phẩm: **mọi tài khoản học sinh ở chợ mở là hồ sơ con do tài khoản phụ huynh tạo**, trẻ không tự đăng ký; đăng ký lớp video, ghi hình, gửi ảnh câu hỏi đều cần phụ huynh đồng ý từng mục (lưu phiên bản văn bản đồng ý, thời điểm, rút lại được); trẻ từ 7 tuổi thấy câu hỏi đồng ý của chính mình khi vào lớp lần đầu.
+- **Ghi hình:** Nghị định 356/2025 Điều 21 khoản 5 nêu "phần mềm giáo dục có yếu tố giám sát như điểm danh, ghi hình" là một loại dịch vụ xử lý dữ liệu cá nhân; câu hỏi nền tảng có phải có Giấy chứng nhận đủ điều kiện đã nằm ở PL-15, **ghi hình lớp video làm câu hỏi đó nặng thêm** (thêm vào PL-15, việc E-06). Sản phẩm: biểu tượng "đang ghi" luôn hiện; trong trường ghi hình **tắt mặc định**, bật theo chương trình khi có đồng ý; ở chợ mở **mọi buổi có trẻ vị thành niên đều ghi** (điều kiện dịch vụ để bảo vệ trẻ và giải quyết tranh chấp, phụ huynh đồng ý khi đặt), giữ **30 ngày** (cùng hạn của 23e), giữ lâu hơn chỉ khi có tranh chấp hoặc báo cáo vi phạm đang mở; chỉ người dự buổi, phụ huynh, quản trị có quyền xem; **không tải xuống**; lưu mã hóa ở kho tệp theo `storageKey`.
+- **Kênh liên lạc:** **không có nhắn riêng giữa gia sư và trẻ mà phụ huynh không thấy**: mọi luồng tin nhắn gia sư với trẻ luôn có phụ huynh (trong trường dùng `message_threads` hiện có, thêm người dự luôn là phụ huynh); không gọi video ngoài buổi đã đặt; lọc và cảnh báo số điện thoại, địa chỉ thư, mạng xã hội, liên kết ngoài trong tin nhắn và hồ sơ (cũng chống né hoa hồng); phụ huynh vào xem buổi 1-1 bất cứ lúc nào.
+- **Báo cáo vi phạm:** nút báo cáo ở phòng học, tin nhắn, hồ sơ; hàng chờ xử lý của nền tảng (với chợ) và của trường (trong trường) có thời hạn phản hồi, tạm khóa gia sư ngay khi báo cáo mức nghiêm trọng, giữ bằng chứng (bản ghi, tin nhắn), hướng dẫn gọi Tổng đài 111 và chuyển cơ quan có thẩm quyền (**chưa xác minh** thủ tục chuyển).
+- **Xác minh lý lịch gia sư ở chợ mở:** danh tính qua bộ nối OIDC của DT-25 (VNeID khi có tổ chức cung cấp dịch vụ xác thực, xem ghi chú khảo sát VNeID: doanh nghiệp tư nhân đi qua tổ chức trung gian), đủ 18 tuổi; bằng cấp, chứng chỉ; **phiếu lý lịch tư pháp** tải lên (bản giấy quét hoặc bản điện tử từ VNeID nếu kênh còn hoạt động, **chưa xác minh**), nhân viên duyệt, hạn 6 tháng (giả định GD-136); không lưu số định danh toàn văn ngoài phần mã hóa cần thiết.
+
+**4. Hạ tầng video** (giá tra ngày 2026-10-26, kiểm lại trang chính thức khi làm):
+
+| Lựa chọn | Giá công bố | Nhận xét |
+|---|---|---|
+| **LiveKit mã nguồn mở tự host** (SFU, báo hiệu, TURN nhúng, Egress ghi hình ra kho S3) | Phần mềm không thu phí (giấy phép Apache 2.0, **chưa xác minh lại** trên kho mã); trả tiền máy và băng thông | **Chọn.** Có sẵn SDK web, React, iOS, Android (khớp DT-26), Egress ghi thẳng vào R2 hoặc SeaweedFS; dữ liệu trẻ em nằm ở máy chủ trong nước |
+| mediasoup tự host | Thư viện mã nguồn mở (giấy phép ISC, **chưa xác minh lại**) | Phải tự viết báo hiệu, quản phòng, ghi hình; nhiều việc hơn cho cùng kết quả |
+| LiveKit Cloud | Gói Ship 50 USD/tháng gồm 150.000 phút, sau đó 0,0005 USD/phút người dự, băng thông tải xuống 250 GB rồi 0,12 USD/GB; gói Scale 500 USD/tháng, 0,0004 USD/phút, 3 TB rồi 0,10 USD/GB; ghi hình (Egress) 0,001 USD/phút, chuyển mã 0,015 đến 0,02 USD/phút (`livekit.com/pricing.md`) | Giữ làm **bộ nối dự phòng** (cùng SDK); máy chủ ngoài nước nên vướng chuyển dữ liệu trẻ em xuyên biên giới |
+| Cloudflare Realtime (SFU, TURN) | 1.000 GB đầu mỗi tháng miễn phí, sau đó 0,05 USD/GB dữ liệu đi ra (`developers.cloudflare.com/realtime/sfu/pricing`) | Rẻ nhất về băng thông; khác SDK, phải tự làm ghi hình; ngoài nước. Ghi làm phương án cho hồ sơ thử nghiệm miễn phí |
+| Cloudflare R2 (lưu bản ghi) | 0,015 USD/GB-tháng, không tính phí dữ liệu ra (nguồn thứ cấp `filebase.com`, **chưa xác minh** trên trang Cloudflare) | Kho tệp của hồ sơ thử nghiệm; hồ sơ vận hành dùng SeaweedFS trên VPS (14.4) |
+
+**Ước lượng băng thông** (giả định, đo lại ở 27a): video 720p khoảng 1,2 Mbit/s, kèm tiếng khoảng 1,3 Mbit/s; luồng nhỏ của học sinh khi có giả lập nhiều lớp (simulcast) khoảng 0,3 Mbit/s.
+- Lớp 1-1: máy chủ gửi đi khoảng 2 × 1,3 = 2,6 Mbit/s, tức khoảng **1,2 GB mỗi giờ phòng**.
+- Nhóm 6 người (1 gia sư, 5 học sinh): luồng gia sư tới 5 học sinh 6,5 Mbit/s, mỗi học sinh nhận 4 luồng nhỏ 1,2 Mbit/s (cộng 6 Mbit/s), gia sư nhận 5 luồng nhỏ 1,5 Mbit/s: khoảng 14 Mbit/s, tức khoảng **6,3 GB mỗi giờ phòng**.
+- Bản ghi tổng hợp 720p khoảng 1,5 đến 2 Mbit/s: **0,7 đến 0,9 GB mỗi giờ**; giữ 30 ngày.
+- Ví dụ 1.000 giờ phòng 1-1 mỗi ngày: khoảng 35 TB/tháng đi ra. Cloudflare Realtime khoảng 34.000 GB × 0,05 ≈ 1.700 USD/tháng; LiveKit Cloud gói Scale khoảng 3,6 triệu phút người dự × 0,0004 ≈ 1.440 USD cộng 32 TB × 0,10 ≈ 3.200 USD, cộng phí gói, khoảng **5.100 USD/tháng**; tự host: trung bình khoảng 110 Mbit/s, giờ cao điểm buổi tối giả định gấp 4 lần, cần **cổng 1 Gbit/s** và khoảng 8 đến 16 nhân cho SFU cộng máy ghi hình (Egress khoảng 2 đến 4 nhân cho mỗi bản ghi 720p đồng thời, **chưa xác minh**). Giá băng thông VPS trong nước **chưa xác minh**, Eric hỏi báo giá (việc E-05). Ghi hình 1.000 giờ/ngày giữ 30 ngày khoảng 24 TB thường trực, R2 khoảng 360 USD/tháng.
+- Kết luận: tự host LiveKit trên VPS trong nước ở hồ sơ vận hành; bộ nối cho phép đổi sang LiveKit Cloud hoặc tắt ghi hình theo gói; **giới hạn phút video và dung lượng bản ghi là giới hạn của gói** (S5a) để chi phí đi cùng doanh thu.
+
+### 19.3 Nguyên tắc
+
+- **Dùng lại, không dựng song song:** thời khoá biểu, phân công, điểm danh, sổ điểm, thu phí và bảng lương của trường, cổng thanh toán theo trường (S3), ngân hàng câu hỏi và đề (22g1, 22g2), kho học liệu (22h1), lượt làm bài và kênh `student` (23a), `AiProvider` (23d), coturn (23e), bộ nối OIDC (DT-25), nhắn tin và thông báo hiện có. Phần mới chỉ thêm bảng cho thứ chưa có (phòng video, chương trình gia sư, buổi, khoá học, câu hỏi bài tập, và toàn bộ chợ mở).
+- **Tiền đi theo mô hình:** trong trường **tiền vào tài khoản của trường**, nền tảng không chạm; ở chợ mở **tiền nằm ở tổ chức có giấy phép**, nền tảng chỉ ra lệnh và nhận hoa hồng. Không dùng tài khoản nhận tiền của S5b cho tiền học của phụ huynh. **Không bật thu tiền ở chợ mở trên môi trường thật trước khi Eric chốt E-01 đến E-04 và luật sư rà** (19.10).
+- **Quy định dạy thêm là luật của máy chủ:** mọi khóa ở 19.2 mục 1 kiểm ở máy chủ, có kiểm thử đơn vị theo từng dòng của bảng; số liệu (2 tiết, cấp học được miễn) là cấu hình có ngày hiệu lực để khi văn bản đổi thì đổi dữ liệu bằng YCTD, không sửa mã.
+- **Trẻ em trước:** phụ huynh luôn thấy, luôn đồng ý trước, rút lại được; không kênh riêng; ghi hình có thời hạn; dữ liệu trẻ ở chợ mở tối thiểu (tên hiển thị, năm sinh, cấp học, lớp), không thu số định danh của trẻ.
+- **Hai sản phẩm, một mã nguồn:** gia sư trong trường chạy trong bộ cơ sở dữ liệu của từng trường (cả hai bố cục `database`, `schema`, đạt kiểm tĩnh đa thuê bao 14.7); chợ mở dùng **cơ sở dữ liệu chung mới `marketplace`** (loại migration mới, vai trò PostgreSQL riêng) vì người dùng chợ không thuộc trường nào; chợ đọc dữ liệu trường **chỉ qua API có đồng ý** (liên kết trẻ với trường, so khớp phân công), không đọc thẳng cơ sở dữ liệu trường.
+- **Không đổi hành vi phần đã có:** mọi e2e và kiểm thử đơn vị hiện có đạt không sửa kỳ vọng; trường không bật phân hệ "Gia sư trực tuyến" thì không thấy gì mới.
+- **Kiểm thử không gọi dịch vụ ngoài thật:** video, thanh toán, xác minh danh tính, AI đều có bộ giả lập `mock`; dữ liệu mẫu bịa; không dán khóa vào tài liệu.
+
+### 19.4 Các phần
+
+Số giữ sẵn bắt đầu **sau dải đã thấy của DT-23 (đến YCTD-219), DT-24 (YCTD-220, định danh 0130, nền tảng 0210, 0211) và DT-25 (YCTD-225, định danh 0140) và DT-26 (mục 18, PR 178: YCTD-230 đến YCTD-244, năm học 0140 đến 0149, hệ thống 0090 đến 0099, định danh 0160 đến 0169, nền tảng 0230 đến 0239, e2e `180-` đến `189-`, GD-120 đến GD-127, RR-25 đến RR-27)**: YCTD-250 cho chính bản kế hoạch này, YCTD-251 đến YCTD-259 cho chín phần, YCTD-260 đến YCTD-264 dự phòng. Migration: năm học 0150 đến 0169, hệ thống 0100 đến 0109, định danh 0170 đến 0179, nền tảng 0240 đến 0249, **cơ sở dữ liệu mới `marketplace` từ 0001** (mỗi phần một khối 10 số). e2e `190-` đến `198-`, `199-` đến `204-` dự phòng (`160-` đến `179-` DT-26 đã chừa cho DT-24, DT-25). **Nếu lúc gộp nhánh chính đã dùng một số trong dải này thì đánh lại theo nhánh chính lúc gộp và ghi vào YCTD của phần.**
+
+| Phần | Phạm vi | Đợt | Phụ thuộc | YCTD | Migration | e2e |
+|---|---|---|---|---|---|---|
+| 27a | Lớp video trực tiếp: bộ nối `VideoRoomProvider` (`livekit` tự host, `livekit-cloud` dự phòng, `mock`), dịch vụ `livekit` và Egress trong hồ sơ vận hành, dùng chung coturn với 23e; phòng 1-1 và nhóm nhỏ (tối đa 8 người dự mặc định, cấu hình), vào phòng bằng mã ngắn hạn do máy chủ cấp theo vai trò; bảng trắng (thư viện mã nguồn mở có giấy phép dùng thương mại, chọn lúc làm), chia sẻ màn hình, tắt tiếng, phòng chờ; ghi hình vào kho tệp theo `storageKey`, thời hạn giữ và xóa tự động, xem lại không tải xuống; phụ huynh vào xem; nhật ký vào ra phòng (nguồn điểm danh); giới hạn phút video và dung lượng bản ghi theo gói (S5a) | 1 | 23a đã gộp (kênh `student`); dùng coturn của 23e nếu đã gộp, chưa thì 27a thêm coturn và 23e dùng lại | YCTD-251 | Năm học 0150, 0151; hệ thống 0100; nền tảng 0240 | 190 (kèm kiểm cách ly phòng video ở nhiều trường: mở rộng `MULTI_TENANT_SPEC`, chỉ 27a sửa ở đợt 1) |
+| 27b | Chương trình gia sư trong trường, lịch và đặt buổi, điểm danh: chương trình (môn, lớp hoặc nhóm, giáo viên, **loại nội dung `curriculum` hoặc `enrichment`**, nhóm đối tượng theo Thông tư 29, có thu tiền hay không), buổi học lặp theo tuần tránh trùng thời khoá biểu, đăng ký của học sinh có **đơn của cha mẹ** trên ứng dụng phụ huynh, kiểm tra 2 tiết/tuần/môn, chặn Tiểu học với `curriculum`, quyết định tăng thời lượng của Sở; điểm danh tự động từ nhật ký phòng (27a) và giáo viên xác nhận, ghi vắng báo phụ huynh; tin nhắn luôn có phụ huynh; đường dây nóng của trường | 1 | 22c (thời khoá biểu) đã gộp; 27a cho phòng (làm song song: 27b gọi giao diện phòng qua bộ giả lập đến khi 27a gộp) | YCTD-252 | Năm học 0152 đến 0154 | 191 |
+| 27c | Thu phí và chi trả trong trường theo quy định: chương trình `curriculum` khóa cứng "không thu tiền"; `enrichment` có thu tạo khoản thu trên hóa đơn của trường (`fee_schedules`, `invoices`), thu qua cổng của trường (S3), hoàn tiền buổi hủy qua luồng hoàn hiện có; **thù lao giáo viên** tính theo buổi đã dạy và điểm danh xác nhận, đẩy vào bảng lương (khoản mục mới, thuế thu nhập cá nhân theo biểu sẵn có); báo cáo thu chi theo chương trình; kinh phí dạy thêm `curriculum` lấy từ nguồn hợp pháp của trường (chỉ ghi nhận, không thu của học sinh) | 2 | 27b | YCTD-253 | Năm học 0155, 0156 | 192 |
+| 27d | Khoá học ghi sẵn: khoá học, chương, bài; bài là học liệu của kho 22h1 (video tải lên kho tệp, phát theo đoạn có kiểm quyền, không tải xuống) hoặc bài tập (đề của 22g1 giao qua lượt làm của 23a); tiến độ theo học sinh (đã xem bao nhiêu phần trăm, bài tập đã làm), giáo viên và phụ huynh xem; giao khoá cho lớp, nhóm, chương trình 27b; khoá công khai trong trường | 2 | 23a, 22h1 đã gộp | YCTD-254 | Hệ thống 0101 đến 0103 (khoá học dùng qua nhiều năm học); năm học 0157 (tiến độ) | 193 |
+| 27e | Hỏi đáp bài tập: học sinh gửi câu hỏi (chữ, ảnh) theo môn, chương trình hoặc khoá; hàng chờ của giáo viên phụ trách, nhận câu, trả lời (chữ, ảnh, liên kết học liệu hoặc câu trong ngân hàng), học sinh đánh dấu đã hiểu; **gợi ý của AI 23d luôn là bản nháp chỉ giáo viên thấy**, giáo viên sửa rồi mới gửi, câu trả lời mang dấu "có AI hỗ trợ"; chỉ gửi phần chữ đã quét thông tin cá nhân như 23d, **không gửi ảnh của học sinh cho AI**, phụ huynh bật tắt việc dùng AI cho con; hạn mức theo gói 23d | 2 | 23a, 23d đã gộp | YCTD-255 | Năm học 0158, 0159 | 194 |
+| 27f | Nền chợ gia sư: cơ sở dữ liệu `marketplace` và loại migration mới, vai trò PostgreSQL riêng; ứng dụng web mới `apps/market` trên tên miền con dành riêng của nền tảng (trang công khai, tài khoản phụ huynh, tài khoản gia sư); đăng nhập riêng của chợ (mật khẩu, mã xác nhận, OIDC của DT-25), hồ sơ con do phụ huynh tạo, đồng ý của phụ huynh theo phiên bản văn bản; **liên kết tùy chọn** với tài khoản phụ huynh ở trường (luồng chuyển đăng nhập của DT-24, có đồng ý) để biết trẻ học trường nào; hồ sơ gia sư và cơ sở dạy thêm ở mức tối thiểu; cấu hình chợ trong cổng nền tảng | 3 | 27a đến 27e đã gộp; DT-24, DT-25 đã gộp | YCTD-256 | Marketplace 0001 đến 0009; định danh 0170 (liên kết) | 195 (kiểm cách ly chợ với các trường: mở rộng `MULTI_TENANT_SPEC`, chỉ 27f sửa ở đợt 3) |
+| 27g | Hồ sơ gia sư, xác minh, tìm kiếm, đánh giá: hồ sơ (môn, cấp học, loại nội dung, giá, lịch trống, giới thiệu), xác minh danh tính qua OIDC (VNeID khi có), đủ 18 tuổi, bằng cấp, phiếu lý lịch tư pháp, đăng ký kinh doanh cho `curriculum`, khai là giáo viên trường nào và **báo cáo Mẫu 03 cho Hiệu trưởng**; hàng chờ duyệt của nhân viên nền tảng; **trang công khai theo Mẫu 02**; tìm kiếm và lọc (môn, cấp, giá, lịch, đánh giá); đánh giá sau buổi chỉ của phụ huynh đã học, kiểm duyệt, trả lời của gia sư | 4 | 27f | YCTD-257 | Marketplace 0010 đến 0019 | 196 |
+| 27h | Đặt buổi, thanh toán, hoa hồng, chi trả, hoàn tiền, tranh chấp: đặt buổi lẻ hoặc gói buổi, giữ chỗ có hạn, **chặn giáo viên đang được phân công dạy trẻ** với `curriculum` có thu tiền, phòng video của 27a ở ngữ cảnh chợ; bộ nối `MarketplacePaymentProvider` (`mock`, nhà cung cấp có phép khi Eric chọn; phương án B "trả thẳng gia sư" là cấu hình); quy tắc hoa hồng cấu hình (tỷ lệ, tối thiểu, theo loại nội dung), giải ngân sau buổi khi hết thời gian khiếu nại, hoàn tiền theo chính sách hủy, **tranh chấp giữ tiền** và hòa giải có bằng chứng (bản ghi, điểm danh, tin nhắn); hàm tính thuần cho hoa hồng, hoàn, khấu trừ thuế (tỷ lệ là dữ liệu có ngày hiệu lực, công tắc bật); hóa đơn hoa hồng qua `EInvoiceProvider`; đối soát với nhà cung cấp; báo cáo khấu trừ | 4 | 27f; 27g cho hồ sơ đầy đủ (làm song song, dùng hồ sơ tối thiểu của 27f) | YCTD-258 | Marketplace 0020 đến 0029 | 197 |
+| 27i | An toàn trẻ em và kiểm duyệt ở chợ: tin nhắn trong chợ luôn có phụ huynh, lọc và cảnh báo thông tin liên lạc ngoài; báo cáo vi phạm từ phòng, tin nhắn, hồ sơ, đánh giá; hàng chờ kiểm duyệt có mức độ và thời hạn, tạm khóa ngay, giữ bằng chứng (kéo dài hạn giữ bản ghi), hướng dẫn Tổng đài 111; nhật ký kiểm duyệt; trang chính sách an toàn trẻ em; chỉ số an toàn trên bảng điều khiển nền tảng | 4 | 27f | YCTD-259 | Marketplace 0030 đến 0039 | 198 |
+
+Giữ chỗ chưa giao: YCTD-260 đến YCTD-264; năm học 0160 đến 0169; hệ thống 0104 đến 0109; định danh 0171 đến 0179; nền tảng 0241 đến 0249; marketplace 0040 đến 0049; e2e `199-` đến `204-`.
+
+Đợt làm, mỗi lúc **tối đa ba phiên**, **không hai phiên cùng sửa một tệp lõi trong cùng đợt**:
+- **Đợt 1: 27a, 27b.** 27a sửa `deploy/` (dịch vụ `livekit`, Egress, coturn nếu 23e chưa có), phân hệ video mới, `MULTI_TENANT_SPEC`, `database/platform/` (giới hạn gói); 27b sửa phân hệ gia sư mới ở năm học, trang trong `apps/teacher`, `apps/parent`, `apps/portal`, chỉ đọc thời khoá biểu. Đăng ký mô-đun, tuyến, menu theo kiểu **thêm cuối tệp** (`application.module.ts`, `platform-menu.ts`, `PORTAL_WORKSPACES`).
+- **Đợt 2: 27c, 27d, 27e.** 27c là phần duy nhất sửa `fees/`, `finance/`, `payroll/`; 27d sửa phân hệ khoá học mới và chỉ thêm hàm đọc ở `learning-resources/`; 27e là phần duy nhất sửa phân hệ AI của 23d (thêm mẫu lời nhắc "gợi ý trả lời bài tập"). **Mốc 1 "gia sư trong trường" xong khi 27a, 27b, 27c gộp.**
+- **Đợt 3: 27f** một mình (dựng cơ sở dữ liệu `marketplace`, loại migration mới trong `database/`, ứng dụng `apps/market`, `MULTI_TENANT_SPEC`): các phần sau đều dựa vào.
+- **Đợt 4: 27g, 27h, 27i.** Mỗi phần một thư mục con trong phân hệ chợ; chỉ 27h sửa phần thanh toán và `billing/` (hóa đơn hoa hồng); chỉ 27g sửa luồng đăng nhập chợ (xác minh OIDC); chỉ 27i sửa tin nhắn chợ. Thêm bảng và tuyến theo kiểu thêm cuối.
+
+Thứ tự gộp để đánh số tài liệu (phiên bản, CT, AC, BR, MH, PQ, mã chức năng): theo thứ tự xong trong từng đợt; phần gộp sau đánh lại số tài liệu theo nhánh chính lúc gộp. YCTD, migration, e2e giữ sẵn ở bảng trên không đổi theo thứ tự gộp (trừ khi va với nhánh chính như đã nói).
+
+Cỡ ước lượng (một phần của DT-16 là một đơn vị): 27a 1,75; 27b 1,25; 27c 1; 27d 1,25; 27e 1; 27f 1,75; 27g 1,25; 27h 1,75; 27i 1; tổng khoảng 12 đơn vị.
+
+**Điều kiện ra** (nghiệm thu với Eric, dữ liệu giả):
+- **Mốc 1:** một trường lập chương trình phụ đạo `curriculum` không thu tiền cho học sinh lớp 9 có kết quả chưa đạt, hệ thống chặn khi thêm tiết thứ ba trong tuần và khi chọn lớp Tiểu học; phụ huynh gửi đơn đăng ký; giáo viên dạy một buổi video nhóm có bảng trắng, chia sẻ màn hình, ghi hình (khi bật), điểm danh tự động rồi xác nhận; một chương trình `enrichment` có thu tạo khoản thu trên hóa đơn của trường, thu qua cổng giả lập của trường, buổi hủy được hoàn; thù lao vào bảng lương; chạy ở cả hai bố cục; cách ly (14.7) đạt.
+- **Mốc 2:** khoá học có video và bài tập, tiến độ hiện cho giáo viên và phụ huynh; học sinh gửi câu hỏi, giáo viên dùng gợi ý AI giả lập, bản nháp không đến học sinh khi chưa gửi.
+- **Mốc 3:** phụ huynh không thuộc trường nào đăng ký, tạo hồ sơ con, tìm gia sư đã xác minh (OIDC giả lập), đặt và trả một buổi qua nhà cung cấp giả lập, buổi có ghi hình, giải ngân trừ hoa hồng sau hạn khiếu nại; một buổi khác bị tranh chấp thì tiền bị giữ và hoàn sau hòa giải; giáo viên đang được phân công dạy trẻ bị chặn khi nhận buổi `curriculum` có thu tiền; báo cáo vi phạm tạm khóa gia sư; trang gia sư có đủ mục của Mẫu 02; cách ly chợ với các trường đạt. **Không mở chợ mở có tiền thật trước khi 19.10 mục E-01 đến E-07 xong.**
+
+### 19.5 Phạm vi chi tiết
+
+**27a. Lớp video trực tiếp**
+- **Bộ nối:** `VideoRoomProvider` (tạo phòng, cấp mã vào phòng theo người và quyền, kết thúc phòng, bắt đầu và dừng ghi, nhận sự kiện vào ra qua địa chỉ gọi lại có chữ ký); bộ nối `livekit` (tự host, địa chỉ và khóa là cấu hình của nền tảng, lưu mã hóa ở `platform`), `livekit-cloud` (cùng mã, khác địa chỉ), `mock` (kiểm thử, phát sự kiện giả). Không có `if` theo nhà cung cấp trong mã nghiệp vụ.
+- **Phòng:** gắn với một buổi (27b, 27h) hoặc phòng tức thời của giáo viên; tên phòng có mã trường để không trùng giữa trường; mã vào phòng ngắn hạn (mặc định 10 phút để vào, hết buổi thì hết), quyền theo vai trò (gia sư: chia sẻ, ghi, tắt tiếng người khác; học sinh: nói, chia sẻ khi được cho; phụ huynh: xem, nói khi được cho); phòng chờ, gia sư cho vào; tối đa người dự cấu hình.
+- **Bảng trắng và chia sẻ màn hình:** bảng trắng đồng bộ qua kênh dữ liệu của phòng, lưu ảnh bảng cuối buổi vào buổi học (tuỳ chọn); thư viện mã nguồn mở có giấy phép dùng thương mại, chọn và ghi giấy phép lúc làm (GD-137).
+- **Ghi hình:** Egress ghi tổng hợp vào kho tệp theo `storageKey('video-recordings', …)`; bật theo cấu hình (19.2 mục 3), luôn hiện "đang ghi"; thời hạn giữ theo cấu hình trường (mặc định 30 ngày) và xóa bằng việc nền theo trường của S1b; giữ thêm khi có cờ tranh chấp hoặc báo cáo; xem lại bằng đường dẫn ký ngắn hạn, không có nút tải; mỗi lần xem ghi nhật ký.
+- **Hạ tầng:** hồ sơ vận hành thêm dịch vụ `livekit` và `egress` vào `deploy/docker-compose.production.yml`, mở cổng UDP; coturn dùng chung với 23e; hồ sơ thử nghiệm miễn phí dùng `livekit-cloud` hoặc tắt video theo gói (không có máy chạy SFU miễn phí); tài liệu vận hành ghi cách đo băng thông thật.
+- **Gói và đo:** giới hạn mới của gói (nền tảng 0240): số phút người dự mỗi tháng, dung lượng bản ghi; đo từ sự kiện vào ra, chặn mở phòng mới khi vượt, hiển thị còn lại.
+
+**27b. Chương trình gia sư trong trường, lịch, điểm danh**
+- **Chương trình:** tên, môn, cấp, lớp hoặc danh sách học sinh, giáo viên (một hoặc nhiều), loại nội dung, nhóm đối tượng (với `curriculum` trong trường), có thu tiền (với `curriculum` luôn "không", máy chủ khóa), hình thức (video trực tiếp, khoá học, hỏi đáp, kết hợp), ngày bắt đầu, kết thúc; quản trị trường duyệt trước khi mở đăng ký.
+- **Buổi:** lặp theo tuần hoặc lẻ, kiểm trùng với thời khoá biểu chính khóa của giáo viên và lớp (22c), kiểm **2 tiết/tuần/môn/học sinh** cho `curriculum` (đếm cả các chương trình khác cùng môn), ngoại lệ có quyết định của Sở (số, ngày, tệp, học sinh áp dụng).
+- **Đăng ký:** phụ huynh thấy chương trình mở trên ứng dụng phụ huynh, đọc nội dung, bấm gửi **đơn đăng ký** (văn bản theo mẫu của trường, lưu phiên bản); giáo viên chủ nhiệm hoặc quản trị duyệt; rút đăng ký.
+- **Điểm danh:** từ nhật ký vào ra phòng (vào muộn, ra sớm theo ngưỡng), giáo viên xác nhận hoặc sửa; vắng thì báo phụ huynh qua thông báo hiện có; buổi bị hủy báo mọi người.
+- **Nhắn tin:** luồng tin nhắn của chương trình luôn có phụ huynh của học sinh; giáo viên không mở được luồng riêng với học sinh mà không có phụ huynh.
+
+**27c. Thu phí và chi trả trong trường**
+- **Khóa "không thu tiền":** `curriculum` do trường tổ chức không tạo khoản thu (máy chủ chặn, có kiểm thử); màn hình ghi rõ căn cứ.
+- **Khoản thu `enrichment`:** tạo dòng biểu phí và khoản thu theo buổi hoặc trọn gói vào hóa đơn hiện có của học sinh; thu qua cổng của trường (S3); hủy buổi do trường thì hoàn hoặc trừ kỳ sau theo cấu hình qua luồng hoàn hiện có.
+- **Thù lao:** đơn giá theo giáo viên hoặc chương trình, tính theo buổi đã dạy có điểm danh xác nhận; tạo khoản thu nhập trong bảng lương kỳ (khoản mục "thù lao dạy phụ đạo, bồi dưỡng"), chịu thuế thu nhập cá nhân theo biểu thuế sẵn có; với `curriculum` nguồn chi là kinh phí của trường (ghi nguồn, không gắn với thu của học sinh).
+- **Báo cáo:** thu, hoàn, chi thù lao theo chương trình và kỳ; xuất Excel.
+
+**27d. Khoá học ghi sẵn**
+- Khoá, chương, bài; bài video dùng học liệu của 22h1 (tải lên đi qua kiểm duyệt của 22h1, giấy phép theo 22h1); phát theo đoạn có kiểm quyền và đường dẫn ký ngắn hạn, không tải xuống; chuyển mã nhiều độ phân giải là tuỳ chọn ở việc nền (bật theo gói, mặc định tắt: phát tệp MP4 gốc).
+- Bài tập: đề đã duyệt của 22g1 giao qua lượt làm của 23a; điểm không tự vào sổ điểm (theo 23a cần giáo viên xác nhận).
+- Tiến độ: phần trăm đã xem (ghi theo nhịp, không ghi mỗi giây), bài tập đã nộp, điểm; màn hình cho học sinh, giáo viên, phụ huynh.
+
+**27e. Hỏi đáp bài tập**
+- Câu hỏi: chữ, tối đa vài ảnh (nén ở máy, xóa siêu dữ liệu ảnh), gắn môn, chương trình hoặc khoá; hàng chờ theo môn và người phụ trách, thời hạn trả lời cấu hình, nhắc khi quá hạn.
+- Trả lời: chữ, ảnh, liên kết học liệu hoặc câu hỏi trong ngân hàng; học sinh đánh dấu đã hiểu hoặc hỏi thêm; phụ huynh xem.
+- **AI:** nút "Gợi ý bằng AI" cho giáo viên; dùng `AiProvider` của 23d với mẫu lời nhắc cố định chỉ chứa môn, lớp, nội dung chữ của câu hỏi **sau khi quét** mẫu số điện thoại, thư điện tử, số định danh, tên trong danh sách trường (như 23d); **không gửi ảnh, không gửi tên học sinh**; kết quả là bản nháp chỉ giáo viên thấy; câu trả lời đã gửi ghi "có AI hỗ trợ"; nhật ký và hạn mức theo 23d; phụ huynh tắt được AI cho con (mặc định theo cấu hình trường); trường tắt AI thì nút không hiện.
+
+**27f. Nền chợ gia sư**
+- **Cơ sở dữ liệu `marketplace`:** loại migration mới chạy bằng cùng công cụ migrate (như `platform`), vai trò riêng `marketplace`, không có quyền trên cơ sở dữ liệu trường; bố cục `schema` ở hồ sơ thử nghiệm.
+- **Ứng dụng `apps/market`:** trang công khai (tìm gia sư, trang gia sư theo Mẫu 02, chính sách), khu phụ huynh, khu gia sư; dùng gói giao diện chung; tên miền con dành riêng cấu hình ở `platform_settings`.
+- **Tài khoản:** phụ huynh đăng ký bằng thư điện tử hoặc số điện thoại có mã xác nhận, hoặc OIDC (DT-25); hồ sơ con (tên hiển thị, năm sinh, cấp, lớp), không có tài khoản riêng cho trẻ dưới 16 tuổi (giả định GD-135, trẻ vào lớp qua đường dẫn của phụ huynh mở trên máy của trẻ); văn bản điều khoản, chính sách, đồng ý có phiên bản.
+- **Liên kết với trường (tùy chọn):** phụ huynh của trường dùng nền tảng bấm "liên kết" và đăng nhập ở trường (luồng chuyển đăng nhập DT-24), chợ chỉ nhận mã trường, mã học sinh dạng băm và cấp lớp; dùng cho so khớp phân công (27h).
+- **Cấu hình chợ** trong cổng nền tảng: bật tắt chợ, tên miền, văn bản pháp lý, hạn giữ bản ghi, tỷ lệ hoa hồng mặc định (dữ liệu, 27h dùng).
+
+**27g. Hồ sơ gia sư, xác minh, tìm kiếm, đánh giá**
+- Hồ sơ: ảnh, giới thiệu, môn, cấp, loại nội dung, giá theo buổi hoặc gói, lịch trống, ngôn ngữ dạy.
+- Xác minh từng bậc, hiển thị huy hiệu theo bậc: danh tính (OIDC, đủ 18 tuổi), bằng cấp, lý lịch tư pháp, đăng ký kinh doanh (bắt buộc trước khi nhận buổi `curriculum` có thu); hàng chờ duyệt của nhân viên nền tảng có nhật ký; tệp giấy tờ lưu mã hóa, chỉ nhân viên duyệt xem.
+- Giáo viên đang dạy ở trường: khai trường, môn, lớp; giáo viên công lập không mở được cơ sở dạy thêm `curriculum` (19.2 mục 1); dựng báo cáo Mẫu 03 gửi Hiệu trưởng.
+- Trang công khai theo Mẫu 02; tìm kiếm có lọc và sắp xếp (đánh giá, giá, giờ trống); không hiện số điện thoại, địa chỉ của gia sư.
+- Đánh giá: chỉ phụ huynh có buổi đã hoàn thành, một đánh giá mỗi gói, kiểm duyệt theo từ khoá và báo cáo, gia sư trả lời một lần.
+
+**27h. Đặt buổi, thanh toán, hoa hồng, chi trả, hoàn tiền, tranh chấp**
+- Đặt buổi: chọn gia sư, con, nội dung, giờ (múi giờ Việt Nam), giữ chỗ trong thời hạn trả tiền; kiểm Tiểu học với `curriculum`; **so khớp phân công** với trẻ đã liên kết, chặn nếu trùng; cam kết khi không so khớp được.
+- Thanh toán: `MarketplacePaymentProvider` (tạo lệnh thu có giữ, giải ngân chia hoa hồng, hoàn một phần hoặc toàn phần, giữ khi tranh chấp, nhận sự kiện có chữ ký, đối soát); `mock`; phương án B: chỉ ghi nhận phụ huynh đã chuyển thẳng cho gia sư và thu hoa hồng của gia sư qua hóa đơn kỳ (S5b mở rộng cho đối tượng gia sư hoặc bảng riêng, chốt khi làm).
+- Hoa hồng: quy tắc cấu hình (tỷ lệ phần trăm, tối thiểu, theo loại nội dung, theo gia sư), **tỷ lệ cụ thể Eric chốt** (E-01); hàm tính thuần, số nguyên đồng, kiểm thử đơn vị.
+- Giải ngân: tự động sau buổi khi điểm danh hai bên có mặt và hết **thời hạn khiếu nại** (mặc định 48 giờ, GD-133); hủy trước giờ học theo chính sách hủy (GD-134).
+- Tranh chấp: phụ huynh mở trong thời hạn khiếu nại; tiền bị giữ; hai bên nộp trình bày; nhân viên nền tảng xem bản ghi (kéo dài hạn giữ), điểm danh, tin nhắn; quyết định hoàn toàn phần, một phần hoặc giải ngân, có lý do và nhật ký; khiếu nại lần hai do người khác xét.
+- Thuế và hóa đơn: hàm khấu trừ theo dữ liệu tỷ lệ có ngày hiệu lực, công tắc bật (19.2 mục 2); hóa đơn hoa hồng qua `EInvoiceProvider`; báo cáo khấu trừ, báo cáo doanh thu theo gia sư.
+
+**27i. An toàn trẻ em và kiểm duyệt ở chợ**
+- Tin nhắn chợ: luồng giữa gia sư và phụ huynh (trẻ đọc khi phụ huynh cho), không có luồng gia sư với trẻ không có phụ huynh; lọc và che thông tin liên lạc ngoài, cảnh báo, đếm số lần, nhiều lần thì gắn cờ.
+- Báo cáo vi phạm: phân loại (an toàn trẻ em, quấy rối, gian lận, né hoa hồng, nội dung sai), mức độ; mức nghiêm trọng tạm khóa ngay hồ sơ và mọi buổi sắp tới, báo phụ huynh có buổi với gia sư đó; giữ bằng chứng; hướng dẫn Tổng đài 111; xuất hồ sơ cho cơ quan có thẩm quyền khi có yêu cầu hợp lệ (có nhật ký).
+- Kiểm duyệt: hàng chờ, thời hạn theo mức, người xử lý, quyết định có lý do, kháng nghị; chỉ số trên bảng điều khiển nền tảng.
+- Trang chính sách an toàn trẻ em (văn bản ở `33_HO_SO_PHAP_LY` PL-19).
+
+### 19.6 Quyết định thiết kế và phương án đã loại
+
+- **Trong trường tiền vào tài khoản trường, chợ mở tiền nằm ở tổ chức có phép:** đúng Nghị định 52/2024 theo cách hiểu hiện tại; phương án đã loại: nền tảng thu tất cả vào tài khoản của mình rồi chi lại (có nguy cơ là thu hộ chi hộ không phép); nền tảng tự xin giấy phép trung gian thanh toán (vốn tối thiểu 50 tỷ đồng, không hợp giai đoạn này); nền tảng đứng ra bán lại dịch vụ dạy học (nền tảng thành cơ sở dạy thêm, gánh nghĩa vụ Thông tư 29 và thuế trên toàn bộ tiền học).
+- **`curriculum` trong trường khóa cứng không thu tiền:** đúng khoản 1 Điều 5 Thông tư 29; phương án đã loại: chỉ cảnh báo (dễ sai, trường chịu trách nhiệm).
+- **Loại nội dung `curriculum` hoặc `enrichment` thay cho danh sách môn cứng:** Thông tư 19/2026 phân định theo nội dung chương trình, một môn (ví dụ Tiếng Anh) có thể dạy theo chương trình hoặc tăng cường; người tạo chọn và quản trị duyệt.
+- **LiveKit tự host, bộ nối đổi được:** dữ liệu trẻ em ở trong nước, chi phí theo máy; phương án đã loại: Jitsi (khó tách theo trường, ghi hình nặng), dịch vụ video ngoài làm mặc định (chuyển dữ liệu trẻ em ra nước ngoài, giá theo phút cao ở quy mô lớn), mediasoup (nhiều việc tự viết).
+- **Chợ mở dùng cơ sở dữ liệu `marketplace` riêng và ứng dụng `apps/market`:** người dùng chợ không thuộc trường nào, trang công khai cần tên miền chung; phương án đã loại: đặt chợ trong ứng dụng phụ huynh (gắn tên miền con của từng trường), đặt bảng chợ trong `platform` (trộn dữ liệu người dùng cuối với dữ liệu vận hành, khó cách ly và xóa).
+- **Ghi hình bắt buộc ở chợ với trẻ vị thành niên, tắt mặc định trong trường:** ở chợ người dạy là người lạ, bản ghi là biện pháp bảo vệ và bằng chứng tranh chấp; trong trường đã có quan hệ quản lý của nhà trường; phương án đã loại: ghi mọi buổi mọi nơi (vượt mức cần thiết), không ghi ở chợ (không có bằng chứng khi có sự cố).
+- **Hồ sơ con thay vì tài khoản riêng của trẻ ở chợ:** trẻ không tự ký hợp đồng, phụ huynh kiểm soát; phương án đã loại: trẻ tự đăng ký (vướng đồng ý và độ tuổi).
+- **AI gợi ý chỉ cho giáo viên, không gửi ảnh:** giữ nguyên nguyên tắc 23d; phương án đã loại: AI trả lời thẳng học sinh (DT-23 15.5 đã loại), gửi ảnh bài làm cho AI (dữ liệu trẻ em).
+- **Không làm ở DT-27:** dạy trực tiếp tại nhà hay trung tâm (chỉ trực tuyến); gói tài khoản cá nhân cho giáo viên ngoài chợ; quảng cáo; ví điện tử của nền tảng; tiền tệ ngoài đồng Việt Nam; chấm điểm hay xếp hạng gia sư bằng AI; nhận diện khuôn mặt trong lớp video.
+
+### 19.7 Rủi ro và cách kiểm
+
+| Rủi ro | Cách kiểm |
+|---|---|
+| Nền tảng giữ tiền rồi chi lại bị coi là trung gian thanh toán không phép | Không nhận tiền học vào tài khoản nền tảng; trong trường tiền vào tài khoản trường; chợ mở qua tổ chức có phép hoặc trả thẳng gia sư; luật sư kết luận trước khi bật (E-03); không bật chợ có tiền thật trước đó |
+| Trường thu tiền dạy thêm `curriculum` trái Thông tư 29 | Khóa ở máy chủ, kiểm thử đơn vị và e2e thử tạo khoản thu bị từ chối; quản trị duyệt loại nội dung |
+| Giáo viên nhận dạy có thu tiền học sinh mình đang dạy | So khớp phân công với trẻ đã liên kết, chặn; cam kết khi không so khớp được; báo cáo Mẫu 03 cho Hiệu trưởng; báo cáo vi phạm |
+| Văn bản dạy thêm, thuế đổi hoặc Claude hiểu sai bản gốc (Thông tư 29, Nghị định 117 chưa đọc bản gốc) | Ngưỡng và tỷ lệ là dữ liệu có ngày hiệu lực; luật sư rà (E-07); phần đọc trước khi làm mỗi phần ghi vào YCTD |
+| Trẻ bị tiếp cận, dụ dỗ qua lớp video hoặc tin nhắn | Phụ huynh luôn thấy, không kênh riêng, lọc liên lạc ngoài, ghi hình ở chợ, xác minh và lý lịch tư pháp, báo cáo và khóa ngay, chỉ số an toàn |
+| Bản ghi video của trẻ bị lộ | Lưu mã hóa theo trường, đường dẫn ký ngắn hạn, không tải xuống, nhật ký xem, xóa theo hạn bằng việc nền, kiểm thử trường khác không xem được bản ghi (spec 190) |
+| Chi phí băng thông vượt doanh thu | Giới hạn phút và dung lượng theo gói, đo từ sự kiện, cảnh báo ở bảng điều khiển, giảm độ phân giải tự động, đo thật ở 27a trước khi chốt giá (E-05) |
+| Chất lượng video kém ở mạng di động | Simulcast và tự giảm chất lượng, TURN qua TCP, thử trên mạng 4G giả lập độ trễ |
+| Gian lận đánh giá, né hoa hồng | Chỉ người đã học mới đánh giá, lọc liên lạc ngoài, gắn cờ lặp, báo cáo |
+| Tranh chấp không có bằng chứng | Bản ghi giữ đến khi xong tranh chấp, điểm danh từ nhật ký phòng, tin nhắn trong nền tảng |
+| Lộ dữ liệu giữa chợ và các trường | Cơ sở dữ liệu và vai trò riêng, chợ chỉ đọc trường qua API có đồng ý và mã băm, spec 195 mở rộng ma trận cách ly, kiểm tĩnh |
+| Nền tảng phải có Giấy chứng nhận dịch vụ xử lý dữ liệu cá nhân vì ghi hình, điểm danh (Nghị định 356/2025 Điều 21 khoản 5) | Bổ sung câu hỏi vào PL-15 (E-06); luật sư kết luận trước khi bật ghi hình ở trường thật |
+| Hai phần cùng đợt sửa chung tệp lõi | Phân tệp ở 19.4; thêm cuối tệp; gộp `origin/main` trước khi mở PR |
+| Va số với DT-23, DT-24, DT-25, DT-26 chạy song song | Dải bắt đầu sau các số đã thấy và chừa khoảng; va thì đánh lại theo nhánh chính lúc gộp |
+
+**Cổng kiểm của mỗi phần DT-27:** kiểm thử đơn vị toàn kho đạt không sửa kỳ vọng; e2e `single` hiện có đạt cộng e2e mới của phần (giữ khóa `e2e.lock`); kiểm thử cách ly 14.7 ở cả hai bố cục `database` và `schema`; kiểm tĩnh đa thuê bao đạt; typecheck, lint, build đạt; CI xanh toàn bộ; phiên bản phần mềm tăng theo từng phần, riêng bản kế hoạch này (YCTD-250) chỉ đổi tài liệu.
+
+### 19.8 Quy ước chung của DT-27
+
+- Mỗi phần ghi YCTD giữ sẵn ở 19.4, cập nhật tài liệu theo quy ước của kho (02, 07, 08, 10, 11, 12, 14, 16, 17, 21, 22, 23, 24, 32, 34, `index.md`), **đọc lại văn bản gốc liên quan trước khi làm** (27b, 27c: Thông tư 29/2024 bản gốc; 27h: Nghị định 52/2024, Thông tư 40/2024, Nghị định 117/2025, Luật 122/2025 bản gốc; 27a, 27i: Luật Trẻ em, Luật 91/2025 Điều 24) và ghi số hiệu, ngày đọc vào YCTD.
+- Kiểm thử và dữ liệu mẫu chỉ dùng người, trường, gia sư bịa; video, thanh toán, xác minh, AI qua bộ giả lập; không in `.env`, không dán khóa.
+- Tuyệt đối không chạy `migrate` lên cơ sở dữ liệu dùng chung; kiểm thử dùng cơ sở dữ liệu riêng của phiên.
+- Điểm chi tiết không nêu ở đây Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11 và ghi vào YCTD của phần; giả định ở 19.11 làm cấu hình được, Eric chốt thì đổi giá trị bằng YCTD.
+
+### 19.9 Tiến độ
+
+| Phần | Đợt | Tiến độ |
+|---|---|---|
+| 27a | 1 | Chưa làm; YCTD-251 giữ sẵn; chờ 23a gộp |
+| 27b | 1 | Chưa làm; YCTD-252 giữ sẵn |
+| 27c | 2 | Chưa làm; YCTD-253 giữ sẵn; chờ 27b |
+| 27d | 2 | Chưa làm; YCTD-254 giữ sẵn |
+| 27e | 2 | Chưa làm; YCTD-255 giữ sẵn; chờ 23d gộp |
+| 27f | 3 | Chưa làm; YCTD-256 giữ sẵn; chờ mốc 2, DT-24, DT-25 |
+| 27g | 4 | Chưa làm; YCTD-257 giữ sẵn |
+| 27h | 4 | Chưa làm; YCTD-258 giữ sẵn; bật tiền thật chờ E-01 đến E-04 |
+| 27i | 4 | Chưa làm; YCTD-259 giữ sẵn |
+
+Bản kế hoạch này là YCTD-250, chỉ đổi tài liệu (không tăng phiên bản phần mềm).
+
+### 19.10 Việc Eric phải quyết hoặc làm
+
+| Mã | Việc | Cần trước | Ghi chú |
+|---|---|---|---|
+| E-01 | Chốt tỷ lệ hoa hồng của chợ (theo phần trăm, tối thiểu, có khác nhau theo `curriculum` và `enrichment` không) và phí với trường ở mốc 1 (gói có phân hệ gia sư trực tuyến giá bao nhiêu) | 27h bật tiền thật; S5a cấu hình gói | Là dữ liệu, không chặn làm mã |
+| E-02 | Chọn tổ chức có giấy phép cung cấp chia tiền hoặc giữ tiền có điều kiện (phương án A) hoặc quyết dùng phương án B; ký hợp đồng | 27h viết bộ nối thật | Claude chưa xác minh được tổ chức nào có dịch vụ này; Eric hỏi báo giá ở ngân hàng, cổng thanh toán đang dùng |
+| E-03 | Luật sư rà mô hình tiền của chợ (Nghị định 52/2024, Thông tư 40/2024), nghĩa vụ khấu trừ thuế (Nghị định 117/2025), nghĩa vụ nền tảng trung gian (Luật 122/2025, Nghị định 248/2026) | Mở chợ có tiền thật | |
+| E-04 | Pháp nhân vận hành chợ (doanh nghiệp hiện có hay pháp nhân mới), ngành nghề đăng ký, thông báo hoặc đăng ký với Bộ Công Thương nếu luật yêu cầu (**chưa xác minh**) | Mở chợ | |
+| E-05 | Báo giá VPS trong nước có cổng 1 Gbit/s và giá băng thông; chốt có tự host video ở hồ sơ vận hành không | 27a lên môi trường thật | Bảng ước lượng ở 19.2 mục 4 |
+| E-06 | Luật sư kết luận PL-15 thêm câu hỏi ghi hình, điểm danh lớp video (Nghị định 356/2025 Điều 21 khoản 5) | Bật ghi hình ở trường thật | |
+| E-07 | Luật sư xác nhận cách hiểu Thông tư 29/2024 (bản gốc) và Thông tư 19/2026 áp cho dạy trực tuyến, giáo viên công lập ở chợ, ranh giới `curriculum` và `enrichment` | Mốc 1 ở trường thật | |
+| E-08 | Rà và ký các hồ sơ PL-16 đến PL-21 (`33_HO_SO_PHAP_LY/16_DANH_SACH_HO_SO_GIA_SU.md`) | Mốc 1 (PL-17, PL-18 phần trong trường), mốc 3 (tất cả) | |
+| E-09 | Chọn nhà cung cấp hóa đơn điện tử thật (đã treo từ S5b) | 27h xuất hóa đơn hoa hồng thật | |
+| E-10 | Chốt các giả định GD-130 đến GD-138 ở 19.11 nếu muốn khác giá trị Claude đặt | Khi làm từng phần | |
+
+### 19.11 Giả định chưa chốt, làm cấu hình được
+
+Số GD và RR của DT-27 bắt đầu từ GD-130 và RR-28: DT-26 dùng GD-120 đến GD-127 và RR-25 đến RR-27; GD-109 đến GD-119, GD-128, GD-129 và RR-21 đến RR-24 để cho DT-23e, DT-24, DT-25. Va thì đánh lại khi gộp.
+
+| Mã | Mục chưa chốt | Giả định để làm | Cấu hình ở | Cần ai trả lời |
+|---|---|---|---|---|
+| GD-130 | Số người tối đa một lớp video nhóm nhỏ | 8 (cả gia sư) | `video_settings` của trường, cấu hình chợ | Eric |
+| GD-131 | Ghi hình | Trong trường tắt mặc định, bật theo chương trình khi có đồng ý; ở chợ bắt buộc với buổi có trẻ vị thành niên | `video_settings`, cấu hình chợ | Eric |
+| GD-132 | Thời hạn giữ bản ghi | 30 ngày (cùng 23e), kéo dài khi có tranh chấp hoặc báo cáo đang mở | `video_settings`, cấu hình chợ | Eric |
+| GD-133 | Thời hạn khiếu nại trước khi giải ngân | 48 giờ sau buổi | cấu hình chợ | Eric |
+| GD-134 | Chính sách hủy và hoàn | Hủy trước 24 giờ hoàn đủ; trong 24 giờ hoàn 50%; gia sư hủy hoặc vắng hoàn đủ; trong trường theo cấu hình trường | cấu hình chợ, chương trình | Eric |
+| GD-135 | Tuổi có tài khoản riêng ở chợ | Không có tài khoản riêng dưới 16 tuổi; trẻ vào lớp qua đường dẫn của phụ huynh | cấu hình chợ | Eric, luật sư |
+| GD-136 | Hạn của phiếu lý lịch tư pháp khi xác minh gia sư | Phiếu cấp trong 6 tháng, xác minh lại mỗi 12 tháng | cấu hình chợ | Eric |
+| GD-137 | Thư viện bảng trắng | Thư viện mã nguồn mở có giấy phép dùng thương mại, chọn và ghi giấy phép lúc làm | mã 27a | Claude (theo ủy quyền) |
+| GD-138 | Khấu trừ thuế ở chợ | Công tắc tắt đến khi luật sư kết luận (E-03); tỷ lệ là dữ liệu có ngày hiệu lực | cấu hình chợ | Eric, luật sư |

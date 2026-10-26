@@ -37,6 +37,7 @@ import {
 } from './platform/platform-schools.js';
 import { PlatformPlansController, PlatformPlansService } from './platform/platform-plans.js';
 import { PlatformBillingController, PlatformBillingService } from './platform/platform-billing.js';
+import { PlatformAiController, PlatformAiService } from './platform/platform-ai.js';
 import { PlatformDashboardController, PlatformDashboardService } from './platform/platform-dashboard.js';
 import { ParentOrgAuthController, ParentOrgsService, PlatformParentOrgsController } from './platform/parent-orgs.js';
 import {
@@ -44,6 +45,15 @@ import {
   SupportExchangeController,
   SupportSessionsService,
 } from './platform/support-sessions.js';
+import {
+  DirectoryRateLimiter,
+  LoginHandoffController,
+  UnitDirectoryController,
+  UnitDirectoryService,
+} from './directory/unit-directory.js';
+import { PlatformCatalogController, PlatformCatalogService } from './platform/platform-catalog.js';
+import { ExternalIdentityController } from './external-identity/external-identity.controller.js';
+import { ExternalIdentityService } from './external-identity/external-identity.service.js';
 
 @Module({})
 export class ApplicationModule {
@@ -73,6 +83,13 @@ export class ApplicationModule {
         ParentOrgAuthController,
         PlatformSupportController,
         SupportExchangeController,
+        // Trợ lý AI (DT-23 phần 23d)
+        PlatformAiController,
+        // Danh mục đơn vị, đăng nhập theo đơn vị (DT-24)
+        UnitDirectoryController,
+        LoginHandoffController,
+        PlatformCatalogController,
+        ExternalIdentityController,
       ],
       providers: [
         { provide: IDENTITY_CONFIGURATION, useValue: configuration },
@@ -115,10 +132,15 @@ export class ApplicationModule {
         SchoolActivationService,
         PlatformPlansService,
         PlatformBillingService,
+        PlatformAiService,
         PlatformDashboardService,
         ParentOrgsService,
         SupportSessionsService,
         StudentAccountsService,
+        DirectoryRateLimiter,
+        UnitDirectoryService,
+        PlatformCatalogService,
+        ExternalIdentityService,
       ],
     };
   }

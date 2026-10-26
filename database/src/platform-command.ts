@@ -1,5 +1,8 @@
 import { randomBytes } from 'node:crypto';
+import { existsSync } from 'node:fs';
 import { readFile } from 'node:fs/promises';
+import { basename } from 'node:path';
+import { CATALOG_QUALITY_FLAGS, importSchoolCatalog } from './school-catalog.js';
 import { adoptExistingSchool, hostFromSiteSetting } from './adopt-existing.js';
 import { createDatabase } from './connection.js';
 import { readConnectionString } from './environment.js';
@@ -83,6 +86,11 @@ import type { PlatformDatabase } from '../platform/schema.js';
 //   move-school --school <mã> [--drop-source]
 //                                      chuyển trường sang cụm đặt bằng TARGET_CLUSTER_ADMIN_URL (TARGET_CLUSTER_LAYOUT,
 //                                      TARGET_CLUSTER_SHARED_DATABASE); tạm dừng trong lúc chép, so số dòng, tổng kiểm
+// Danh mục đơn vị toàn quốc (DT-24, YCTD-220; tài liệu 32 mục 16.6):
+//   catalog-import --units <tệp.csv> [--communes <tệp.csv>] [--source <tên nguồn>] [--dry-run] [--deactivate-missing]
+//                                      nhập hoặc cập nhật danh mục (so theo mã Bộ), in báo cáo thêm, sửa, giữ nguyên, bỏ qua
+//   catalog-seed                       máy phát triển: nạp từ CATALOG_UNITS_FILE, CATALOG_COMMUNES_FILE (mặc định tệp khảo sát ở
+//                                      ../.claude/logs-khaosat-csdl-moet và ../.claude/logs-khaosat-smis); không có tệp thì bỏ qua
 
 function readOption(args: string[], name: string): string | undefined {
   const index = args.indexOf(`--${name}`);
@@ -449,6 +457,66 @@ async function lifecycleCommand(): Promise<boolean> {
   }
 }
 
+async function readOptionalFile(path: string | undefined): Promise<string | null> {
+  if (!path) {
+    return null;
+  }
+  return existsSync(path) ? readFile(path, 'utf8') : null;
+}
+
+async function catalogCommand(): Promise<void> {
+  let unitsPath: string | undefined;
+  let communesPath: string | undefined;
+  if (command === 'catalog-seed') {
+    unitsPath =
+      process.env.CATALOG_UNITS_FILE?.trim() || '../.claude/logs-khaosat-csdl-moet/danh_sach_truong_csdl_moet.csv';
+    communesPath =
+      process.env.CATALOG_COMMUNES_FILE?.trim() || '../.claude/logs-khaosat-smis/danh_muc_phuong_xa_smis.csv';
+  } else {
+    unitsPath = readOption(args, 'units');
+    communesPath = readOption(args, 'communes');
+    if (!unitsPath && !communesPath) {
+      throw new Error('Cần --units <tệp đơn vị.csv> hoặc --communes <tệp phường, xã.csv>');
+    }
+  }
+  const unitsCsv = await readOptionalFile(unitsPath);
+  const communesCsv = await readOptionalFile(communesPath);
+  if (command === 'catalog-seed' && !unitsCsv && !communesCsv) {
+    console.log(`Không có tệp danh mục ở ${unitsPath} hoặc ${communesPath}: bỏ qua nạp danh mục`);
+    return;
+  }
+  if (command === 'catalog-import' && ((unitsPath && !unitsCsv) || (communesPath && !communesCsv))) {
+    throw new Error('Không đọc được tệp danh mục đã chỉ');
+  }
+  const platform = createDatabase<PlatformDatabase>(readConnectionString('platform'), { max: 2 });
+  try {
+    const report = await importSchoolCatalog(platform, {
+      unitsCsv,
+      communesCsv,
+      source: readOption(args, 'source') ?? (command === 'catalog-seed' ? 'catalog-seed' : 'catalog-import'),
+      fileName: unitsPath ? basename(unitsPath) : communesPath ? basename(communesPath) : null,
+      dryRun: args.includes('--dry-run'),
+      deactivateMissing: args.includes('--deactivate-missing'),
+      actor: CLI_ACTOR,
+    });
+    const totals = report.totals;
+    console.log(
+      `${report.dry_run ? 'Chạy thử (chưa ghi): ' : ''}đọc ${totals.rows_read} dòng; sở thêm ${totals.departments_inserted}, sửa ${totals.departments_updated}; phường xã thêm ${totals.communes_inserted}, sửa ${totals.communes_updated}; đơn vị thêm ${totals.units_inserted}, sửa ${totals.units_updated}, giữ nguyên ${totals.units_unchanged}, bỏ qua ${totals.units_skipped}, gắn cờ ${totals.units_flagged}, không còn trong tệp ${totals.units_missing}, chuyển ngừng hoạt động ${totals.units_deactivated}`,
+    );
+    for (const [flag, count] of Object.entries(report.flags)) {
+      console.log(`  cờ ${flag}: ${count} (${CATALOG_QUALITY_FLAGS[flag] ?? ''})`);
+    }
+    for (const row of report.skipped.slice(0, 20)) {
+      console.log(`  bỏ qua dòng ${row.line}: ${row.reason}${row.code ? ` [${row.code}]` : ''}`);
+    }
+    if (report.skipped.length > 20) {
+      console.log(`  ... và ${report.skipped.length - 20} dòng bỏ qua khác (xem catalog_import_runs ${report.run_id})`);
+    }
+  } finally {
+    await platform.destroy();
+  }
+}
+
 async function main(): Promise<void> {
   if (command === 'generate-master-key') {
     console.log(randomBytes(32).toString('base64'));
@@ -463,6 +531,10 @@ async function main(): Promise<void> {
       throw error;
     }
     console.log('platform: đã ở phiên bản cấu trúc mới nhất');
+    return;
+  }
+  if (command === 'catalog-import' || command === 'catalog-seed') {
+    await catalogCommand();
     return;
   }
   if (command === 'plan-lifecycle') {
@@ -518,7 +590,7 @@ async function main(): Promise<void> {
     return;
   }
   throw new Error(
-    'Lệnh: generate-master-key | migrate | adopt-existing | provision | provision-resume | provision-rollback | suspend | resume | request-deletion | cancel-deletion | purge-due | reissue-invitation | verify-domain | migrate-schools | relayout | backup-school | verify-backup | restore-school | restore-drill | move-school',
+    'Lệnh: generate-master-key | migrate | adopt-existing | provision | provision-resume | provision-rollback | suspend | resume | request-deletion | cancel-deletion | purge-due | reissue-invitation | verify-domain | migrate-schools | relayout | backup-school | verify-backup | restore-school | restore-drill | move-school | catalog-import | catalog-seed',
   );
 }
 

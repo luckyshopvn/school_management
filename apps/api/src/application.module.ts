@@ -495,6 +495,10 @@ import { OnlineExamsController } from './online-exams/online-exams.controller.js
 import { OnlineExamsService } from './online-exams/online-exams.js';
 import { StudentExamsController } from './online-exams/student-exams.controller.js';
 import { StudentExamsService } from './online-exams/student-exams.js';
+import { AiAssistantController, AiUsageJob } from './ai-assistant/ai-assistant.controller.js';
+import { AI_PROVIDERS, AiAssistantService } from './ai-assistant/ai-assistant.js';
+import { AiProviderRegistry } from './ai-assistant/ai-provider.js';
+import { ClassroomToolsController, ClassroomToolsService } from './classroom-tools/classroom-tools.js';
 
 @Module({})
 export class ApplicationModule {
@@ -772,6 +776,9 @@ export class ApplicationModule {
         ChildGroupsController,
         AccountExportsController,
         ProfessionalStandardsController,
+        // Trợ lý AI (DT-23 phần 23d)
+        AiAssistantController,
+        ClassroomToolsController,
         ...(options.additionalControllers ?? []),
         // Thi trực tuyến cho học sinh (DT-23 phần 23a)
         OnlineExamsController,
@@ -1152,11 +1159,16 @@ export class ApplicationModule {
         PublicRateLimiter,
         SchoolSettings,
         SchoolSettingsService,
+        // Trợ lý AI (DT-23 phần 23d)
+        AiAssistantService,
+        AiUsageJob,
+        { provide: AI_PROVIDERS, useValue: new AiProviderRegistry({ mock: configuration.aiMock === true }) },
         RecruitmentRequestsService,
         JobPostingsService,
         PublicRecruitmentService,
         CandidatesService,
         SchoolCalendar,
+        ClassroomToolsService,
         {
           provide: FileStorage,
           inject: [SchoolSettings],

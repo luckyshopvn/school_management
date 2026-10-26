@@ -4,7 +4,8 @@
 //   /quan-ly, /giao-vien, /phu-huynh là ba ứng dụng tĩnh (dựng với APP_BASE_PATH tương ứng), /api/v1 chuyển về máy chủ, phần
 //   còn lại là website công khai của trường (chuyển về /api/v1/public/site như Caddy của hồ sơ vận hành);
 // - tên miền cổng nền tảng (CONSOLE_HOST): ứng dụng `apps/platform` ở gốc, /api/v1 chuyển về máy chủ;
-// - tên miền hệ thống (ROOT_DOMAIN): trang chọn trường của S1b ở gốc.
+// - tên miền hệ thống (ROOT_DOMAIN): trang đăng nhập theo đơn vị (DT-24: ứng dụng cổng quản trị ở /quan-ly, gốc chuyển về đó);
+//   trang chọn trường cũ của S1b vẫn ở /api/v1/public/schools/picker.
 // Khi chuyển về máy chủ, Worker xóa tiêu đề do người dùng tự đặt rồi đặt tên miền gốc vào EDGE_HOST_HEADER kèm bí mật
 // `x-edge-auth` (máy chủ chạy TENANT_HOST_SOURCE=header:<tên>, EDGE_SHARED_SECRET): máy chủ có địa chỉ công khai nên gọi thẳng
 // không có bí mật thì không nhận ra trường nào. Máy chủ ngủ khi rảnh (Render sau 15 phút, Koyeb sau 1 giờ): quá thời gian chờ
@@ -181,8 +182,12 @@ export async function handleRequest(request, env, context) {
     return serveApp(request, env, CONSOLE_DIRECTORY, path);
   }
   if (rootDomain && host === rootDomain) {
-    return path === '/'
-      ? forwardToOrigin(request, env, context, { path: '/api/v1/public/schools/picker' })
+    const portal = APPS[0];
+    if (path === '/' || path === portal.prefix) {
+      return Response.redirect(`${url.origin}${portal.prefix}/${url.search}`, 308);
+    }
+    return path.startsWith(`${portal.prefix}/`)
+      ? serveApp(request, env, portal.directory, path.slice(portal.prefix.length))
       : new Response('Không tìm thấy', { status: 404 });
   }
   for (const app of APPS) {

@@ -1,8 +1,8 @@
 # 20. KẾ HOẠCH KIỂM THỬ
 
 - Mô tả: Phạm vi kiểm thử, các lớp kiểm thử, môi trường kiểm thử, dữ liệu kiểm thử, tiêu chí đạt.
-- Phiên bản: 1.3
-- Ngày cập nhật: 2026-10-09
+- Phiên bản: 1.4
+- Ngày cập nhật: 2026-10-26
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
 
@@ -56,6 +56,23 @@
 | Thiết bị thật | Dữ liệu của môi trường thử nghiệm, chạy trên điện thoại Android và iPhone phổ biến (Q-103) | Nhóm kiểm thử |
 
 Không dùng dữ liệu thật của trẻ trên môi trường thử nghiệm.
+
+### 4.1. Chạy kiểm thử tự động
+
+1. **Kiểm thử đơn vị và tích hợp** (`pnpm test` ở gốc kho mã): các gói chạy lần lượt (`--workspace-concurrency=1`). Gói máy chủ API chạy song song nhiều tệp kiểm thử (`--test-concurrency=3`); dịch vụ định danh vẫn chạy từng tệp vì các tệp dùng chung cơ sở dữ liệu định danh.
+2. **Môi trường riêng của mỗi tệp kiểm thử máy chủ API** (`apps/api/src/test-support.ts`): cơ sở dữ liệu hệ thống, cơ sở dữ liệu định danh và các cơ sở dữ liệu năm học tạm, gỡ khi đóng. Các tệp không dùng chung dữ liệu nên chạy song song được.
+3. **Cơ sở dữ liệu mẫu** (`database/src/migration-templates.ts`): chạy hết tệp thay đổi cấu trúc của cơ sở dữ liệu năm học mất 25 đến 40 giây, nên kiểm thử không tạo cơ sở dữ liệu rỗng rồi chạy tệp mỗi lần. Lần đầu cần một loại cơ sở dữ liệu, bộ kiểm thử dựng mẫu `school_tpl_<loại>_<dấu vân tay>` bằng `migrateToLatest`; các lần sau sao bằng `CREATE DATABASE ... TEMPLATE` (dưới một giây), chép thiết lập mức cơ sở dữ liệu (múi giờ) và thu quyền kết nối của PUBLIC. Cơ sở dữ liệu sao xong vẫn qua `migrateToLatest` như mã chạy thật, khi đó không còn tệp nào chưa chạy. Dấu vân tay tính từ mã đã dịch của tệp thay đổi cấu trúc, nên sửa hoặc thêm tệp là có mẫu mới. Mở năm học trong kiểm thử dùng mẫu nhờ cấu hình `schoolYearDatabasesFromTemplate`, chỉ đặt ở môi trường kiểm thử. Bản thân các tệp thay đổi cấu trúc vẫn được kiểm ở `database/src/migrate.test.ts`, ở kiểm thử nhiều trường và kiểm thử giao diện (chạy tệp trên cơ sở dữ liệu rỗng như cũ).
+4. **Trên máy phát triển:**
+   - Cần tài khoản quản trị PostgreSQL để tạo cơ sở dữ liệu định danh tạm thuộc `identity_service`: `PLATFORM_ADMIN_DATABASE_URL`, hoặc `POSTGRES_PASSWORD` trong `.env`, hoặc `PGPASSWORD`.
+   - Khi chạy song song nhiều nhánh, đặt `IDENTITY_DATABASE_URL` tới cơ sở dữ liệu định danh riêng của nhánh (ví dụ `school_identity_ci`) cho gói dịch vụ định danh và kiểm thử giao diện.
+   - Mẫu cũ không tự gỡ (các nhánh khác có thể đang dùng). Gỡ khi không có kiểm thử nào đang chạy: `psql -U postgres -Atc "select 'drop database ' || quote_ident(datname) || ';' from pg_database where datname like 'school_tpl_%'" | psql -U postgres`.
+5. **Trên CI** (`.github/workflows/ci.yml`), các việc chạy song song:
+   - `kiem-thu`: kiểm tra định dạng, lint, build, kiểm tra kiểu, `pnpm test`;
+   - `kiem-thu-giao-dien`: `pnpm test:e2e`;
+   - `kiem-thu-nhieu-truong`: giao diện nhiều trường ở hai bố cục cơ sở dữ liệu;
+   - `quet-phu-thuoc`, `dung-anh-docker`.
+
+   Thời gian đo trước và sau khi tối ưu ghi ở yêu cầu gộp "Tối ưu thời gian CI".
 
 ## 5. Dữ liệu kiểm thử
 

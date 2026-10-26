@@ -3,7 +3,7 @@ import { randomBytes, randomUUID } from 'node:crypto';
 import { after, before, beforeEach, describe, it } from 'node:test';
 import {
   createDatabase,
-  createEmptyDatabase,
+  createMigratedTestDatabase,
   dropDatabaseIfExists,
   migrateToLatest,
   readConnectionString,
@@ -35,7 +35,7 @@ describe('Kết nối thật Fanpage và Zalo Official Account', () => {
   let now = new Date('2026-10-13T08:00:00Z');
 
   before(async () => {
-    await createEmptyDatabase(baseSystemUrl, databaseName);
+    await createMigratedTestDatabase(baseSystemUrl, databaseName, 'system');
     const url = replaceDatabaseName(baseSystemUrl, databaseName);
     const migration = await migrateToLatest('system', url);
     if (migration.error) {

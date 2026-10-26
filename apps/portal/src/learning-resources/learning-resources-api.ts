@@ -87,6 +87,8 @@ export interface LearningResource {
   current_version: number;
   published_version: number | null;
   return_note: string | null;
+  // Học liệu do trợ lý AI soạn nháp (DT-23 phần 23d)
+  ai_generated?: boolean;
   can_review: boolean;
   is_owner: boolean;
 }

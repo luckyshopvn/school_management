@@ -1,8 +1,8 @@
 # 14. ĐẶC TẢ GIAO DIỆN
 
 - Mô tả: Danh sách màn hình, điều hướng, bố cục, thành phần, dữ liệu hiển thị, thao tác, trạng thái, thông báo, xử lý lỗi, quyền hiển thị, khả năng thích ứng màn hình.
-- Phiên bản: 1.114
-- Ngày cập nhật: 2026-10-25
+- Phiên bản: 1.115
+- Ngày cập nhật: 2026-10-26
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
 
@@ -216,6 +216,7 @@ Từ YCTD-107 (DT-15 phần 15a), cổng quản trị dùng menu ngang nhiều c
 | Quản trị hệ thống | 3.5. | Tệp đã tạo | `/generated-files` |
 | Quản trị hệ thống | 3.6. | Thông báo hệ thống | `/system-announcements` |
 | Quản trị hệ thống | 3.7. | Ứng dụng liên kết | `/app-links` |
+| Quản trị hệ thống | 3.8. | Trợ lý AI | `/ai-assistant` |
 | Quản trị hệ thống | 4. | Quản trị và trình diễn | (nhóm) |
 | Quản trị hệ thống | 4.1. | Đăng nhập thay | `/impersonations` |
 | Quản trị hệ thống | 4.2. | Xuất toàn bộ dữ liệu | `/school-data-export` |
@@ -704,6 +705,11 @@ Từ YCTD-184 (DT-22 phần 22h2), phân hệ "Kho học liệu" thêm 8. Câu h
 | MH-334 | Cổng vận hành nền tảng: Đơn vị cấp trên (YCTD-202, mục menu "Đơn vị cấp trên"): nút Nạp bộ nút mặc định; biểu mẫu Thêm đơn vị (cấp, thuộc, mã, tên); bảng Cây đơn vị (thụt lề theo cấp, cấp, mã, trạng thái, số trường, số tài khoản, Đổi tên, Gộp vào…); bảng Trường và đơn vị quản lý (chọn đơn vị cho từng trường); biểu mẫu Thêm tài khoản cấp trên (tên đăng nhập, họ tên, mật khẩu ban đầu, đơn vị) và hộp Khóa xác thực hai lớp hiện một lần (khóa TOTP, mã khôi phục); bảng tài khoản (Cấp lại xác thực hai lớp, Khóa, Mở khóa) | P01-82 |
 | MH-335 | Cổng nền tảng, trang Đơn vị cấp trên (`/cap-tren`, YCTD-202): đăng nhập (tên đăng nhập, mật khẩu, mã xác thực hai lớp); thanh đầu trang tên đơn vị, cấp, người dùng, Đăng xuất; menu sáu nhóm số liệu; chọn đơn vị trong phạm vi; Xuất Excel, Xuất PDF; bảng Tổng hợp theo đơn vị (nút đang chọn và nút con, "—" khi tổng bị ẩn), bảng So sánh trường (trường đã đồng ý, ô ít người ghi "ẩn"); khối Đề nghị xem chi tiết (trường, nhóm dữ liệu, lý do, thời hạn; bảng đề nghị kèm Mở xem chi tiết khi đã duyệt, đường liên kết một lần) | P01-83, P01-85 |
 | MH-336 | Cổng: Chia sẻ số liệu cấp trên (YCTD-202, mục 4.6 của phân hệ Quản trị hệ thống, `/parent-org-consents`, P01.setting.manage): chuỗi đơn vị quản lý; bảng ô đánh dấu nhóm số liệu × cấp (Bộ, Sở, Phòng) kèm Lưu đồng ý; bảng Đề nghị xem chi tiết (Duyệt, Từ chối, Rút); Lịch sử đồng ý | P01-84, P01-85 |
+| MH-337 | Ứng dụng giáo viên: Công cụ lớp học (YCTD-212, nút "Công cụ lớp học" ở Lớp của tôi): chọn lớp; bốn thẻ Gọi tên, Chia nhóm, Đồng hồ, Bảng điểm. Gọi tên: ô chọn "Không gọi lặp lại trong một lượt", "Loại học sinh vắng hôm nay", nút Gọi tên (hiệu ứng chọn, bỏ khi người dùng chọn giảm chuyển động), Lượt mới, số đã gọi, Lịch sử gọi (Xóa từng lượt, Xóa lịch sử của tôi). Chia nhóm: theo số nhóm hoặc số người mỗi nhóm, Chia nhóm, Chia lại, danh sách nhóm. Đồng hồ: đếm ngược 1, 2, 5, 10 phút hoặc số phút tự chọn, bấm giờ, Chạy, Dừng, Đặt lại, Xóa, giữ màn hình sáng, tiếng báo hết giờ. Bảng điểm: chấm theo nhóm hoặc theo học sinh (+1, +2, +5, −1), tổng điểm, khối Ghi vào nề nếp, thi đua (tiêu chí cùng chiều với tổng, nút Ghi vào nề nếp), Bỏ buổi này | P03-09, P03-10 |
+| MH-338 | Ứng dụng giáo viên: chế độ ngoại tuyến (YCTD-212, GD-108): dải "Đang dùng ngoại tuyến" khi mất mạng, số mục chờ gửi, dòng "Danh sách lớp lưu trên máy lúc ... , giữ tối đa N giờ", dải "Có bản mới của ứng dụng" kèm Tải lại; khi mở ứng dụng lúc mất mạng chỉ có công cụ lớp học với các lớp còn bản chụp (không có thì màn "Chưa có kết nối" kèm Thử kết nối lại), nút Xóa dữ liệu công cụ lớp học trên máy này; manifest cho phép thêm vào màn hình chính | P03-11 |
+| MH-339 | Cổng: 3.8. Trợ lý AI (YCTD-214, `/ai-assistant`, P01.integration.manage): dải trạng thái sẵn sàng hoặc lý do chưa dùng được; biểu mẫu Thiết lập (Bật trợ lý AI, thông báo bật và ô Đã đọc thông báo bật AI khi chuyển từ tắt sang bật, Cấu hình khóa: Trường tự nhập khóa hoặc Nền tảng cấp khóa kèm cảnh báo thiếu đơn giá hoặc khóa, Nhà cung cấp, Mã mô hình, Yêu cầu mỗi người mỗi ngày, Số tháng giữ nhật ký); khối Khóa nhà cung cấp AI của trường (ô mật khẩu, Lưu khóa, Kiểm tra kết nối, Xóa khóa, chỉ hiện bốn ký tự cuối); khối Mức dùng tháng này (yêu cầu, token, hạn mức còn lại, tạm tính phí kỳ); bảng Nhật ký yêu cầu lọc theo kết quả | P01-86 |
+| MH-340 | Hộp Soạn nháp bằng AI (YCTD-214): ở Ngân hàng câu hỏi (8.1) trên phần Soạn câu hỏi (chủ đề, mức nhận thức, dạng câu, số câu, yêu cầu cần đạt, mô tả thêm) và ở Học liệu của tôi (1.2, kho học liệu) (cấp, môn, khối, thời lượng, tên bài, yêu cầu cần đạt, mô tả thêm); nút chỉ hiện khi trường bật AI và đủ khóa; dòng thông báo chỉ gửi nội dung chương trình, không nhập thông tin cá nhân, kết quả là bản nháp; danh sách câu hỏi và học liệu ghi "Do AI soạn, cần giáo viên kiểm tra" | P01-87, P01-88 |
+| MH-341 | Cổng nền tảng: trang Trợ lý AI (YCTD-214): biểu mẫu Khóa AI dùng chung (ô mật khẩu, Bật khóa dùng chung, chỉ hiện bốn ký tự cuối), Nhà cung cấp và mô hình của nền tảng, khối Phí AI của gói ngay trang Gói dịch vụ khi sửa gói, cùng nơi đặt quy tắc tính phí (không có màn hình riêng; token miễn phí, đơn giá token vào và ra theo 1.000 token, phí tối thiểu, bước làm tròn, đơn giá theo mô hình dạng JSON; gói chưa nhập hiện cảnh báo), bảng Token AI đã dùng theo trường; trang Gói dịch vụ thêm ô Tối đa yêu cầu AI mỗi tháng và Tối đa token AI mỗi tháng | P01-89 |
 
 Từ YCTD-128 (DT-16 phần 16i): MH-80 có nút "Nhập từ Excel" mở công cụ nhập chung "Nhập phòng từ Excel"; biểu mẫu phòng chỉ hiện thuộc tính khai báo được cho loại phòng đang chọn, bốn ô nhà vệ sinh (Đối tượng sử dụng nhà vệ sinh, Nhà vệ sinh đạt chuẩn, Riêng nam nữ, Số chỗ) chỉ hiện với Phòng vệ sinh; MH-80 cũng mở ở mục 6.2 (`/facility-input`) với tiêu đề "6.2. Nhập liệu cơ sở vật chất". MH-81 bỏ thẻ 2.2 (chuyển sang MH-129), thẻ Danh mục tối thiểu có nút "Nhập từ Excel". MH-20 thẻ Tài sản có khối "Gắn thiết bị dạy học" (Tài sản cần gắn, Thiết bị dạy học, Gắn thiết bị dạy học, Bỏ gắn) và cột Thiết bị dạy học khi người dùng có `P13.equipment.manage`.
 

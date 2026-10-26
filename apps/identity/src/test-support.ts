@@ -17,6 +17,7 @@ import type { OrganizationDirectory } from './accounts/organization-directory.js
 import { RecordingSmsSender } from './messaging/sms-sender.js';
 import { Infrastructure } from './common/infrastructure.js';
 import { Redis } from 'ioredis';
+import type { ExternalProviderDefinition } from './external-identity/provider-profiles.js';
 
 // Hỗ trợ kiểm thử tích hợp trên cơ sở dữ liệu định danh và Redis thật
 // Tạo tài khoản vận hành nền tảng cho kiểm thử giao diện cổng nền tảng (DT-SaaS phần S2, spec 132)
@@ -26,6 +27,10 @@ export {
   enrollOperatorTotp,
 } from './platform/platform-operators.js';
 export { OPERATOR_TEST_PASSWORD, operatorOtp, totpCode } from './platform/operator-test-helpers.js';
+// Nhà cung cấp OIDC giả lập cho kiểm thử đăng nhập bằng nhà cung cấp ngoài (DT-25, spec 165)
+export { MockOidcServer, type MockIdentity, type MockTamper } from './external-identity/mock-oidc-server.js';
+export { clearOidcCaches } from './external-identity/oidc-provider.js';
+export { parseProviderDefinition, type ExternalProviderDefinition } from './external-identity/provider-profiles.js';
 
 export class AdjustableClock extends Clock {
   private offsetMilliseconds = 0;
@@ -57,7 +62,13 @@ export interface TestContext {
 }
 
 export async function startTestApplication(
-  options: { loginRequestsPerMinutePerAddress?: number; organizationDirectory?: OrganizationDirectory } = {},
+  options: {
+    loginRequestsPerMinutePerAddress?: number;
+    organizationDirectory?: OrganizationDirectory;
+    externalIdentityProviders?: ExternalProviderDefinition[];
+    // Cơ sở dữ liệu định danh riêng của bộ kiểm thử (máy chủ API chạy song song nhiều tệp); trống là IDENTITY_DATABASE_URL
+    databaseUrl?: string;
+  } = {},
 ): Promise<TestContext> {
   const redisUrl = process.env.REDIS_URL;
   if (!redisUrl) {
@@ -65,7 +76,7 @@ export async function startTestApplication(
   }
   const keys = await generateTokenKeyPair();
   const configuration: IdentityConfiguration = {
-    databaseUrl: readConnectionString('identity'),
+    databaseUrl: options.databaseUrl ?? readConnectionString('identity'),
     redisUrl,
     redisKeyPrefix: `identity-test-${randomUUID()}`,
     tokenPrivateKeyPem: keys.privateKeyPem,
@@ -75,6 +86,7 @@ export async function startTestApplication(
     apiBaseUrl: 'http://127.0.0.1:9',
     smsProvider: { provider: 'log' },
     totpEncryptionKey: randomBytes(32),
+    externalIdentityProviders: options.externalIdentityProviders ?? [],
   };
   const clock = new AdjustableClock();
   const smsSender = new RecordingSmsSender();
@@ -188,15 +200,16 @@ export async function solvedCaptcha(context: TestContext): Promise<{ captcha_id:
   return { captcha_id: captchaId, captcha_text: text };
 }
 
-// Kiểm thử giao diện chạy dịch vụ định danh thật (tiền tố khóa Redis "identity"); đọc đáp án mã xác nhận theo mã ảnh
-export async function readCaptchaAnswerForTesting(captchaId: string): Promise<string | null> {
+// Kiểm thử giao diện chạy dịch vụ định danh thật (tiền tố khóa Redis "identity"); đọc đáp án mã xác nhận theo mã ảnh. Ở chế độ
+// nhiều trường, khóa có thêm tiền tố của trường (DT-24: đăng nhập theo đơn vị ở tên miền chung)
+export async function readCaptchaAnswerForTesting(captchaId: string, tenantKeyPrefix?: string): Promise<string | null> {
   const redisUrl = process.env.REDIS_URL;
   if (!redisUrl) {
     throw new Error('Thiếu biến môi trường REDIS_URL');
   }
   const redis = new Redis(redisUrl, { maxRetriesPerRequest: 3 });
   try {
-    return await redis.get(`identity:captcha:${captchaId}`);
+    return await redis.get(`identity${tenantKeyPrefix ? `:t:${tenantKeyPrefix}` : ''}:captcha:${captchaId}`);
   } finally {
     redis.disconnect();
   }
@@ -277,7 +290,7 @@ export interface TenantTestContext {
 // nhận diện trường theo tên miền; Redis thật với tiền tố khóa riêng của lần chạy
 export async function startTenantTestApplication(
   tenancy: TenancyRuntime,
-  options: { loginRequestsPerMinutePerAddress?: number } = {},
+  options: { loginRequestsPerMinutePerAddress?: number; externalIdentityProviders?: ExternalProviderDefinition[] } = {},
 ): Promise<TenantTestContext> {
   const redisUrl = process.env.REDIS_URL;
   if (!redisUrl) {
@@ -293,6 +306,7 @@ export async function startTenantTestApplication(
     loginRequestsPerMinutePerAddress: options.loginRequestsPerMinutePerAddress ?? 1000,
     apiBaseUrl: 'http://127.0.0.1:9',
     smsProvider: { provider: 'log' },
+    externalIdentityProviders: options.externalIdentityProviders ?? [],
   };
   const clock = new AdjustableClock();
   const smsSender = new RecordingSmsSender();

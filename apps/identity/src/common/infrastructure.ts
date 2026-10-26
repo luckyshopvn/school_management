@@ -6,6 +6,14 @@ import type { Kysely } from 'kysely';
 import { IDENTITY_CONFIGURATION, TENANCY_RUNTIME, type IdentityConfiguration } from './configuration.js';
 import { MEMORY_STORE_URL, MemoryStore, type CacheStore } from './memory-store.js';
 
+export interface ScopedCache {
+  get(name: string): Promise<string | null>;
+  set(name: string, value: string, seconds: number): Promise<void>;
+  // Đọc và xóa trong một giao dịch: giá trị chỉ dùng được một lần
+  take(name: string): Promise<string | null>;
+  delete(name: string): Promise<void>;
+}
+
 // Kết nối cơ sở dữ liệu định danh và Redis, đóng khi dịch vụ dừng. REDIS_URL=memory:// dùng kho trong bộ nhớ (một bản dịch vụ, hồ
 // sơ thử nghiệm DT-SaaS S9)
 @Injectable()
@@ -41,6 +49,26 @@ export class Infrastructure implements OnModuleDestroy {
     return tenant?.keyPrefix
       ? `${this.configuration.redisKeyPrefix}:t:${tenant.keyPrefix}`
       : this.configuration.redisKeyPrefix;
+  }
+
+  // Kho tạm theo trường cho một nhóm khóa (DT-25): khóa luôn là `<keyPrefix()>:<nhóm>:<tên>`, mã nghiệp vụ không tự ghép khóa Redis
+  scopedCache(namespace: string): ScopedCache {
+    const store = this.redis;
+    const key = (name: string) => `${this.keyPrefix()}:${namespace}:${name}`;
+    return {
+      get: (name) => store.get(key(name)),
+      set: async (name, value, seconds) => {
+        await store.set(key(name), value, 'EX', seconds);
+      },
+      take: async (name) => {
+        const results = await store.multi().get(key(name)).del(key(name)).exec();
+        const value = results?.[0]?.[1];
+        return typeof value === 'string' ? value : null;
+      },
+      delete: async (name) => {
+        await store.del(key(name));
+      },
+    };
   }
 
   async onModuleDestroy(): Promise<void> {

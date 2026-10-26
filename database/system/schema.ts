@@ -1203,7 +1203,7 @@ export interface TermsAcceptancesTable {
 }
 
 export type IntegrationSecretConnector =
-  'payos' | 'sepay' | 'casso' | 'vnpay' | 'vietqr' | 'esms' | 'zalo' | 'facebook' | 'storage';
+  'payos' | 'sepay' | 'casso' | 'vnpay' | 'vietqr' | 'esms' | 'zalo' | 'facebook' | 'storage' | 'ai';
 
 // Cấu hình kết nối ngoài riêng từng trường, mã hóa bằng khóa của trường (DT-SaaS phần S3, YCTD-195)
 export interface IntegrationSecretsTable {
@@ -1216,6 +1216,48 @@ export interface IntegrationSecretsTable {
   updated_at: UpdatedTimestamp;
   updated_by: string | null;
   updated_by_name: string | null;
+}
+
+// Trợ lý AI của trường (DT-23 phần 23d, YCTD-214)
+export type AiKeyMode = 'school' | 'platform';
+export type AiRequestKind = 'questions' | 'lesson_plan' | 'check';
+export type AiRequestStatus = 'success' | 'failed' | 'rejected' | 'blocked';
+
+export interface AiSettingsTable {
+  id: number;
+  enabled: Generated<boolean>;
+  key_mode: Generated<AiKeyMode>;
+  provider: Generated<string>;
+  model: string | null;
+  per_user_daily_requests: number | null;
+  log_retention_months: Generated<number>;
+  updated_at: UpdatedTimestamp;
+  updated_by_name: string | null;
+}
+
+export interface AiRequestsTable {
+  id: Generated<string>;
+  created_at: ColumnType<Date, Date | undefined, never>;
+  user_id: string;
+  user_name: string;
+  kind: AiRequestKind;
+  school_level: string | null;
+  grade_level_code: string | null;
+  subject_name: string | null;
+  topic: string | null;
+  status: AiRequestStatus;
+  key_mode: AiKeyMode;
+  provider: string;
+  model: string;
+  prompt_sha256: string;
+  prompt_chars: Generated<number>;
+  response_chars: Generated<number>;
+  input_tokens: Generated<number>;
+  output_tokens: Generated<number>;
+  result_count: Generated<number>;
+  result_ids: ColumnType<string[], string | undefined, string>;
+  error: string | null;
+  duration_ms: Generated<number>;
 }
 
 // Nhận diện thương hiệu của trường: một dòng (DT-SaaS phần S3)
@@ -1350,6 +1392,9 @@ export interface LearningResourcesTable {
   submitted_at: Date | null;
   published_at: Date | null;
   return_note: string | null;
+  // Học liệu do trợ lý AI soạn nháp (DT-23 phần 23d)
+  ai_generated: Generated<boolean>;
+  ai_request_id: string | null;
   created_at: Generated<Date>;
   updated_at: Generated<Date>;
 }
@@ -1515,5 +1560,7 @@ export interface SystemDatabase {
   terms_acceptances: TermsAcceptancesTable;
   integration_secrets: IntegrationSecretsTable;
   school_branding: SchoolBrandingTable;
+  ai_settings: AiSettingsTable;
+  ai_requests: AiRequestsTable;
   support_access_grants: SupportAccessGrantsTable;
 }

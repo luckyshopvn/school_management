@@ -291,6 +291,23 @@ export class AuthenticationService {
     return verifyPassword(effectiveHash, password);
   }
 
+  // Đăng nhập theo đơn vị ở tên miền chung (DT-24): phiên đã mở ở đúng trường lúc đăng nhập; khi trình duyệt sang tên miền của
+  // trường thì cấp mã làm mới mới cho phiên đó (mã cũ chưa từng gửi ra ngoài) rồi đi qua đúng luồng làm mới
+  async reissueForSession(sessionId: string, origin: RequestOrigin): Promise<IssuedTokens> {
+    const refreshToken = createRefreshToken(sessionId);
+    const updated = await this.database
+      .updateTable('sessions')
+      .set({ refresh_token_hash: refreshToken.hash })
+      .where('id', '=', sessionId)
+      .where('channel', '=', 'portal')
+      .where('revoked_at', 'is', null)
+      .executeTakeFirst();
+    if (Number(updated.numUpdatedRows) !== 1) {
+      throw unauthenticatedError();
+    }
+    return this.refresh(refreshToken.token, 'portal', origin);
+  }
+
   // Mỗi lần làm mới cấp mã làm mới mới; dùng lại mã cũ thì thu hồi cả phiên
   async refresh(refreshTokenValue: string, channel: SessionChannel, origin: RequestOrigin): Promise<IssuedTokens> {
     const now = this.clock.now();
@@ -312,8 +329,8 @@ export class AuthenticationService {
       throw unauthenticatedError();
     }
     const user = await this.findActiveUser(session.user_id, now);
-    // Phiên đăng nhập bằng mã một lần luôn là phiên đầy đủ (Q-147)
-    const oneTimeCodeSession = session.login_method === 'one_time_code';
+    // Phiên đăng nhập bằng mã một lần hoặc nhà cung cấp định danh ngoài (DT-25) luôn là phiên đầy đủ (Q-147)
+    const oneTimeCodeSession = session.login_method === 'one_time_code' || session.login_method === 'external_provider';
     const expiry = oneTimeCodeSession ? NO_PASSWORD_EXPIRY : await this.passwordExpiry(user, now);
     // Phiên hỗ trợ (DT-SaaS phần S4): chỉ làm mới khi phiên hỗ trợ còn hiệu lực và trường chưa rút cho phép
     let support: SupportScope | undefined;
