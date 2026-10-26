@@ -32,7 +32,7 @@
 
 #### Thay đổi
 
-- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-233, `21_KICH_BAN_KIEM_THU.md` CT-1108 đến CT-1110, `23_LICH_SU_PHIEN_BAN.md` 0.146.0.
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-233, `21_KICH_BAN_KIEM_THU.md` CT-1112 đến CT-1114, `23_LICH_SU_PHIEN_BAN.md` 0.146.0.
 
 #### Vấn đề tồn đọng
 

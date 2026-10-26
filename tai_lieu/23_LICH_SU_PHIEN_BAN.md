@@ -35,7 +35,7 @@
 - Lỗi đã sửa: vùng chạm của hai liên kết ở màn hình đăng nhập ứng dụng phụ huynh (Học sinh làm bài thi trực tuyến, Tuyển dụng giáo viên và nhân viên) dưới 44 px, bộ kiểm 26c bắt được; nay tối thiểu 44 px chiều cao.
 - Thay đổi dữ liệu: không.
 - Thay đổi API: không.
-- Kiểm thử: CT-1108 đến CT-1110. Kết quả ở PR 188.
+- Kiểm thử: CT-1112 đến CT-1114. Kết quả ở PR 188.
 - Rủi ro: việc CI thêm thời gian chạy song song (không nối đuôi); ảnh chụp tham chiếu chưa có tệp gốc; vi phạm ở đường cơ sở chờ 26d, 26e.
 - Khả năng tương thích: mặc định không đổi (dự án chromium); thêm thư viện kiểm thử `@axe-core/playwright` (MPL-2.0, chỉ ở kiểm thử).
 - Phương án quay lui: hoàn lại commit gộp của nhánh 26c.
