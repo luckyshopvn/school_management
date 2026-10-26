@@ -1,7 +1,7 @@
 # 02. NHẬT KÝ DỰ ÁN
 
 - Mô tả: Ghi nhận công việc, quyết định, thay đổi và vấn đề tồn đọng theo ngày, ngày mới nhất ở trên cùng.
-- Phiên bản: 0.71
+- Phiên bản: 0.72
 - Ngày cập nhật: 2026-10-26
 - Trạng thái: Đang cập nhật
 
@@ -13,6 +13,35 @@
 - Không ghi thông tin tạm thời như kết quả tra cứu, đường dẫn tạm, thông báo lỗi của công cụ.
 
 ## Nhật ký theo ngày
+
+### 2026-10-26 — DT-24: danh mục đơn vị toàn quốc, đăng nhập theo đơn vị, quyền quản trị nền tảng
+
+#### Công việc đã thực hiện
+
+- Đọc báo cáo của ba phiên khảo sát (lưu ngoài kho mã), mã S1a, S1b, S2, S3, S4, S6, S8b; đếm thử bản khảo sát bằng bộ đọc mới (không in dữ liệu): 39.658 đơn vị nhập được, 11 dòng loại vì mã trùng khuôn số căn cước, 4.333 mã không chuẩn, 314 tên rỗng, 366 thiếu phường xã; nhập thử vào cơ sở dữ liệu tạm 16 giây, nhập lại 3 giây, rồi xóa cơ sở dữ liệu tạm.
+- Viết mục 16 của `32` (kế hoạch DT-24) và làm trọn mã trong cùng một PR: danh mục, công cụ nhập, trang đăng nhập theo đơn vị, chuyển phiên, quyền vào mọi trường của quản trị nền tảng, trang Danh mục đơn vị của cổng nền tảng; sửa PL-02 (Điều 5a).
+
+#### Quyết định
+
+- Eric quyết định ngày 2026-10-26: quản trị nền tảng vào mọi trường mặc định không cần trường đồng ý, bắt buộc xác thực hai lớp, lý do, nhật ký, có hạn, biểu ngữ, chính sách cấu hình được; không commit dữ liệu thu thập; không dùng quốc huy, tên của Bộ.
+- Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11: một PR; đăng nhập ở tên miền chung chuyển phiên bằng mã một lần lưu ở cơ sở dữ liệu định danh của trường; danh sách ô chọn không đánh dấu đơn vị đã dùng nền tảng; nhập lại mã xác thực hai lớp ngay lúc mở phiên không cần đồng ý; ứng dụng giáo viên, phụ huynh không đổi (màn hình đăng nhập riêng).
+
+#### Thay đổi
+
+- Tệp: xem YCTD-220 ở `24_YEU_CAU_THAY_DOI.md`. Phiên bản 0.140.0.
+
+#### Kết quả kiểm thử
+
+- `database`: `school-catalog.test.ts` 5/5 (CT-24-1 đến CT-24-4).
+- `apps/identity`: `directory/unit-directory.test.ts` 4/4 (CT-24-5 đến CT-24-8), `platform/support-sessions.test.ts` 4/4 (CT-S4-1 đến CT-S4-4, không sửa kỳ vọng), `tenancy-matrix.test.ts` 4/4.
+- `tests/trial/edge-worker.test.mjs`: đạt (sửa kỳ vọng ca tên miền hệ thống theo hành vi mới).
+- Typecheck, lint, định dạng: đạt.
+- e2e: ghi ở mục kết quả bổ sung dưới đây.
+
+#### Vấn đề tồn đọng
+
+- Luật sư rà PL-02 Điều 5a trước khi nhận dữ liệu thật (GD-110); quyền dùng lại danh mục lấy từ trang công khai (GD-109); tên sản phẩm cho tiêu đề trang đăng nhập (GD-111).
+- Đăng nhập theo đơn vị cho ứng dụng giáo viên, phụ huynh: chưa làm, chờ Eric cần.
 
 ### 2026-10-26 — Kế hoạch DT-23: thi trực tuyến, công cụ lớp học, trò chơi kiến thức, trợ lý AI
 

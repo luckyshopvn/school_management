@@ -312,7 +312,7 @@ Ngoài ra nhóm 3 có 3.1 Khóa API cho đối tác (MH-42), 3.3 Nhật ký thao
 
 Nguồn: `apps/portal/src/pages/AppShell.tsx`, `workspaces.tsx`, `menu-permissions.ts`, `MainMenu.tsx`, `QuickAccess.tsx`, `AcademicYearSwitcher.tsx`, `UserMenu.tsx`, `HomePage.tsx`, `apps/portal/src/portal-shell/*`, `apps/api/src/portal-shell/portal-shell.ts`.
 
-**Trang đăng nhập cổng quản trị** (`LoginPage.tsx`): hiện tên, mã trường và năm học đang dùng (`GET /public/login-info`, không cần đăng nhập; sau đăng nhập thanh đầu trang đọc `GET /portal-context`), đường dây nóng (`login_hotline`), ô mã xác nhận ảnh khi cần, liên kết Quên mật khẩu.
+**Trang đăng nhập cổng quản trị** (`LoginPage.tsx`, bố cục "Đăng nhập hệ thống" với phần Thông tin đơn vị và Thông tin tài khoản từ DT-24; ở tên miền chung của nền tảng có ô chọn Sở → Cấp → Trường, xem mục "DT-24" ở phần 4): hiện tên, mã trường và năm học đang dùng (`GET /public/login-info`, không cần đăng nhập; sau đăng nhập thanh đầu trang đọc `GET /portal-context`), đường dây nóng (`login_hotline`), ô mã xác nhận ảnh khi cần, liên kết Quên mật khẩu.
 
 **Thanh đầu trang** (màu xanh, theo Sở, DT-15 phần 15a, DT-16 phần 16c):
 
@@ -594,6 +594,7 @@ Một nền tảng chạy nhiều trường, mỗi trường một đường d�
 | S5b Thu phí tự động | YCTD-196, PR 174, 0.137.0 | Quy tắc tính phí cấu hình được (mặc định theo học sinh, kết hợp theo trường, theo phân hệ), chốt số liệu kỳ và hóa đơn bằng việc nền theo trường, thu qua mã QR và cổng thanh toán của nền tảng, đối soát, gia hạn và mở lại trường, nhắc gia hạn, điều chỉnh tay có lý do, hóa đơn điện tử qua bộ nối; trang Thu phí ở cổng nền tảng, Hóa đơn dịch vụ ở cổng quản trị |
 | S4 Bảng điều khiển nền tảng | YCTD-197, PR 172, 0.138.0 | Số liệu theo trường thu mỗi giờ (nền tảng 0060), lỗi 5xx theo trường, cảnh báo; thông báo bảo trì; đăng nhập hỗ trợ có đồng ý của trường (hệ thống 0053, phiên chỉ đọc hoặc toàn quyền, đường liên kết một lần, ghi nhật ký hai phía); trang Bảng điều khiển, Bảo trì ở cổng nền tảng, Cho phép hỗ trợ ở cổng quản trị; e2e spec 136 |
 | S6 Đơn vị cấp trên | YCTD-202, PR 175, 0.139.0 | Nền tảng 0090: cây `admin_units` (Bộ, Sở, Phòng Văn hóa – Xã hội; thêm, gộp, tách, nạp bộ nút mặc định TP.HCM), `schools.admin_unit_id`, tài khoản cấp trên `parent_org_users` (xác thực hai lớp bắt buộc, phạm vi cây con, đăng nhập ở cổng nền tảng trang `/cap-tren`); đồng ý của trường theo cấp và sáu nhóm số liệu (cổng quản trị, mục 4.6 Chia sẻ số liệu cấp trên); bản chụp tổng hợp mỗi 6 giờ, chỉ số đếm; tổng theo nút, so sánh trường đã đồng ý, xuất Excel, PDF, ẩn nhóm nhỏ; xem chi tiết qua phiên hỗ trợ chỉ đọc khi trường duyệt; e2e spec 139 |
+| DT-24 Danh mục đơn vị, đăng nhập theo đơn vị, quyền quản trị nền tảng | YCTD-220, 0.140.0 | Nền tảng 0210, 0211, định danh 0130: danh mục đơn vị toàn quốc nạp từ CSV (mã Bộ, sở, cấp, phường xã), gắn trường với mã Bộ; trang đăng nhập chọn Sở → Cấp → Trường ở tên miền chung, chuyển phiên một lần sang tên miền của trường; chính sách vào mọi trường của quản trị nền tảng (mặc định bật, xác thực hai lớp lúc mở, lý do, có hạn, biểu ngữ, nhật ký trường xem được); e2e spec 160 (chi tiết ở mục "DT-24" dưới đây) |
 
 ### Phần ĐANG LÀM hoặc KẾ HOẠCH (chưa có trong mã)
 
@@ -622,6 +623,20 @@ Không có nút xóa vĩnh viễn ở cổng: xóa vĩnh viễn chạy bằng l�
 **Lệnh dòng lệnh `platform`**: `generate-master-key`, `migrate`, `adopt-existing`, `provision --file`, `provision-resume --job`, `provision-rollback --job`, `suspend`, `resume`, `request-deletion`, `cancel-deletion` (kèm `--reason`), `purge-due`, `reissue-invitation`, `verify-domain --host`, `migrate-schools [--canary] [--continue]`, `relayout --school <mã> --to database|schema` (S9), `rotate-child-key --code <mã>`, `rewrap-master-key` (S3), `plan-lifecycle` (S5a).
 
 Ở bước 3 của Khởi tạo trường, khi `PLATFORM_DATA_POLICY` khác `any`, cổng hiện ghi chú: `synthetic-only` chỉ nhận dữ liệu giả; `consent-required` nhận dữ liệu thật khi đủ hồ sơ đồng ý, không nhận loại vận hành chính thức. Khối Tên miền hiện hướng dẫn xác nhận theo bộ nối: `dns-check` ghi bản ghi TXT, bộ nối khác ghi mã xác nhận của nhà cung cấp.
+
+### DT-24: danh mục đơn vị toàn quốc, đăng nhập theo đơn vị, quyền quản trị nền tảng
+
+Nguồn: YCTD-220, tài liệu 32 mục 16, phiên bản 0.140.0.
+
+| Chức năng | Ở đâu | Quy tắc chính |
+|---|---|---|
+| Danh mục đơn vị | Cơ sở dữ liệu `platform` (nền tảng 0210): `catalog_departments` (sở, mã 2 số), `catalog_levels` (MN, TH, THCS, THPT, GDTX), `catalog_communes` (mã xã 5 số), `catalog_units` (mã Bộ là chuỗi bất biến, cờ chất lượng), `catalog_unit_levels` (trường liên cấp), `catalog_import_runs` | Không suy ra tỉnh từ mã trường; mã trùng khuôn số căn cước không nhập, báo cáo ghi `[đã che]`; tên rỗng, mã không chuẩn, thiếu xã gắn cờ chứ không bỏ; kho mã chỉ có tệp mẫu giả |
+| Nhập danh mục | Lệnh `platform catalog-import`, `platform catalog-seed`; trang **Danh mục đơn vị** của cổng nền tảng (nhập CSV, chạy thử, báo cáo, tra cứu, các lần nhập) | Nhập lặp lại được theo mã Bộ, báo cáo thêm, sửa, giữ nguyên, bỏ qua; tùy chọn chuyển ngừng hoạt động đơn vị không còn trong tệp |
+| Gắn trường với danh mục | `schools.moet_code` (nền tảng 0211); bước setup của S2 chọn từ danh mục (gợi ý mã trường theo mã Bộ); chi tiết trường gắn, gỡ; `PUT /auth/platform/schools/:code/catalog-unit` | Mỗi mã Bộ một trường |
+| Đăng nhập theo đơn vị | Trang đăng nhập cổng quản trị ở tên miền chung (`PLATFORM_ROOT_DOMAIN`): Sở GD&ĐT → Cấp học, Phường/Xã → Trường, ô chọn có tìm kiếm; `/auth/directory/*` ở dịch vụ định danh | Danh sách phân trang tối đa 50 dòng, chỉ ở tên miền chung, 120 yêu cầu đọc và 20 lần đăng nhập mỗi phút mỗi địa chỉ; đơn vị chưa dùng nền tảng báo rõ; đăng nhập chạy trong ngữ cảnh của trường (khóa tạm, mật khẩu, hai lớp, mã xác nhận luôn bắt buộc), đúng thì chuyển phiên bằng mã một lần 2 phút (định danh 0130, `login_handoffs`) sang `/sign-in-handoff` của tên miền trường |
+| Tên miền của trường, một trường | Trang đăng nhập ẩn ô chọn, khung "Thông tin đơn vị" khóa vào trường (sở, cấp, mã Bộ nếu đã gắn) | Hành vi đăng nhập như cũ |
+| Quyền vào mọi trường của quản trị nền tảng | Chính sách `platform_settings.support_access_policy` (mặc định `any_school`, 2 giờ, tối đa 8); trang chi tiết trường của cổng nền tảng có khung "Truy cập với quyền quản trị nền tảng"; trang Danh mục đơn vị đổi chính sách | Nhập lại mã xác thực hai lớp lúc mở, lý do, phạm vi, số giờ; phiên dùng lại phiên hỗ trợ của S4 (`support_sessions.access_basis = 'platform_policy'`); biểu ngữ "Đang truy cập với quyền quản trị nền tảng"; trường xem phiên, lý do, thao tác ở trang Cho phép hỗ trợ; chuyển sang `school_grant` thì phiên đang mở kết thúc |
+| Trang đăng nhập ở tên miền chung | Trang Danh mục đơn vị: tiêu đề, dòng phụ, tối đa 6 dòng thông tin hỗ trợ (`platform_settings.login_page`) | Không dùng tên, biểu trưng của cơ quan nhà nước |
 
 ### Hồ sơ triển khai thử nghiệm (S9)
 
