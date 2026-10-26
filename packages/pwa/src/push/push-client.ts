@@ -9,13 +9,25 @@ import { decodeBase64Url, detectPushState, deviceLabel, type PushState } from '.
 export type PushApplication = 'teacher' | 'parent' | 'student';
 export type PushRequest = <T>(path: string, init?: RequestInit) => Promise<T>;
 
+const REGISTRATION_WAIT_MILLISECONDS = 5_000;
 const IN_APP_BROWSER = /\b(Zalo|FBAN|FBAV|FB_IAB|Messenger|Instagram|musical_ly|TikTok|Line)\b/i;
 
 async function currentRegistration(base: string): Promise<ServiceWorkerRegistration | undefined> {
   if (typeof navigator === 'undefined' || !('serviceWorker' in navigator)) {
     return undefined;
   }
-  return navigator.serviceWorker.getRegistration(base);
+  const found = await navigator.serviceWorker.getRegistration(base);
+  if (found) {
+    return found;
+  }
+  // Ứng dụng giáo viên đăng ký service worker ngay sau khi đăng nhập (theo cấu hình ngoại tuyến của trường): chờ tối đa 5 giây
+  const ready = await Promise.race([
+    navigator.serviceWorker.ready,
+    new Promise<undefined>((resolve) => setTimeout(() => resolve(undefined), REGISTRATION_WAIT_MILLISECONDS)),
+  ]);
+  return ready && ready.scope === new URL(base, location.origin).href
+    ? ready
+    : navigator.serviceWorker.getRegistration(base);
 }
 
 async function serverKey(): Promise<string | null> {

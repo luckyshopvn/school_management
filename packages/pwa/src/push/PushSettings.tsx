@@ -39,7 +39,7 @@ const STATE_TEXT: Record<Exclude<PushState, 'on' | 'off'>, string> = {
   'needs-install':
     'Trên iPhone, iPad, thông báo đẩy chỉ nhận được khi đã cài ứng dụng lên màn hình chính: chạm nút Chia sẻ, chọn "Thêm vào MH chính", rồi mở ứng dụng từ biểu tượng mới và bật ở đây.',
   'no-service-worker':
-    'Ứng dụng chưa sẵn sàng nhận thông báo đẩy trên máy này (trường đang tắt chế độ ngoại tuyến của ứng dụng). Thông báo vẫn hiện trong ứng dụng.',
+    'Ứng dụng chưa sẵn sàng nhận thông báo đẩy trên máy này (có thể trường đang tắt chế độ ngoại tuyến của ứng dụng giáo viên). Tải lại trang rồi thử lại; thông báo vẫn hiện trong ứng dụng.',
   'server-disabled': 'Hệ thống chưa bật thông báo đẩy. Thông báo vẫn hiện trong ứng dụng và qua tin nhắn như trước.',
   denied:
     'Trình duyệt đang chặn thông báo của trang này. Mở cài đặt của trình duyệt (biểu tượng ổ khóa cạnh địa chỉ trang), cho phép thông báo rồi tải lại trang.',
