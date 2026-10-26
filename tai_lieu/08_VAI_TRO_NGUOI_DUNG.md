@@ -1,7 +1,7 @@
 # 08. VAI TRÒ NGƯỜI DÙNG
 
 - Mô tả: Nhóm người dùng, vai trò, trách nhiệm, quyền hạn.
-- Phiên bản: 1.97
+- Phiên bản: 1.98
 - Ngày cập nhật: 2026-10-26
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -207,6 +207,7 @@ Ghi chú áp dụng cho bảng:
 | PQ-107 | Hóa đơn dịch vụ của trường (YCTD-196, DT-SaaS phần S5b): quyền `P01.billing.manage` cho Hiệu trưởng (VT-01) và quản trị trường (VT-02): xem, tải, thanh toán hóa đơn dịch vụ của trường mình, dùng được cả khi trường ở chế độ chỉ đọc; quy tắc tính phí, điều chỉnh, cấu hình thu phí chỉ ở cổng vận hành nền tảng (PQ-105) |
 | PQ-108 | Công cụ lớp học (YCTD-212, DT-23 phần 23b): không thêm quyền mới; dùng được cho người có phạm vi xem trẻ của lớp (giáo viên VT-07, VT-08 được phân công lớp, vai trò văn phòng trong đơn vị); phụ huynh và người ngoài lớp bị từ chối 403; ghi vào nề nếp, thi đua cần `P02.conduct.record` (VT-02, VT-15, VT-03, VT-07, VT-08); bật, tắt ngoại tuyến là cấu hình trường (`P01.setting.manage`) |
 | PQ-109 | Thi trực tuyến cho học sinh (YCTD-211): vai trò hệ thống mới VT-21 Học sinh (kênh `student`, quyền duy nhất `P02.exam.take`, không có phân hệ nào của cổng quản trị); quyền mới `P02.exam.assign` (VT-02, VT-07, VT-08, VT-15, VT-17) giao đề đã khoá, theo dõi, chấm tự luận, nộp thay, công bố kết quả (giáo viên chỉ với lớp mình chủ nhiệm hoặc dạy môn của đề, hoặc bài do mình giao); bật, tắt thi trực tuyến theo cấp dùng `P02.exam.manage`; phân hệ "Thi trực tuyến" không hiện cho VT-14; khoá điểm dùng `P02.exam.manage`, chuyển điểm theo quyền nhập điểm của lớp như 22g2 |
+| PQ-110 | Giám thị camera cho thi trực tuyến (YCTD-215), không thêm quyền mới: bật giám sát theo bài giao, xem camera trực tiếp, xem nhật ký người xem: `P02.exam.assign` và là người giao bài hoặc dạy lớp được giao (hoặc `P02.exam.manage`); xem lại bản ghi: người giao bài hoặc `P02.exam.manage`; bật cho trường (xem trực tiếp, ghi hình, thời hạn giữ) và ghi nhận văn bản đồng ý của cha mẹ: `P02.exam.manage`; phụ huynh đồng ý hoặc thu hồi cho con mình (không cần quyền, máy chủ kiểm quan hệ phụ huynh); học sinh (VT-21, `P02.exam.take`) chỉ trả lời phiên xem và tải bản ghi của chính lượt làm của mình; máy chủ kiểm quyền ở mọi yêu cầu |
 
 ## 5. Phân cấp phê duyệt
 

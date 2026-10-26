@@ -1,7 +1,7 @@
 # 02. NHẬT KÝ DỰ ÁN
 
 - Mô tả: Ghi nhận công việc, quyết định, thay đổi và vấn đề tồn đọng theo ngày, ngày mới nhất ở trên cùng.
-- Phiên bản: 0.80
+- Phiên bản: 0.81
 
 - Phiên bản: 0.78
 
@@ -16,6 +16,27 @@
 - Không ghi thông tin tạm thời như kết quả tra cứu, đường dẫn tạm, thông báo lỗi của công cụ.
 
 ## Nhật ký theo ngày
+
+### 2026-10-26 — DT-23 phần 23e: giám thị camera cho thi trực tuyến
+
+#### Công việc đã thực hiện
+
+- Đọc mục 15 của `32_KE_HOACH_THEO_HE_THONG_SO.md` (15.3, 15.4, 15.6 dòng "Học sinh gian lận khi thi ở nhà", GD-106, mục 19 về coturn dùng chung với 27a, GD-132) và mã 23a (`student-exams.ts`, `proctoring.ts`, `ExamRoom.tsx`, kho tệp, bộ lập lịch); viết mục 15.4 "23e".
+- Cơ sở dữ liệu: năm học `0129`. Máy chủ API: dịch vụ giám thị (phiên xem trực tiếp, báo hiệu, đồng ý, ghi hình mã hoá, xem lại, dọn quá hạn), cấu hình máy chủ ICE. Ứng dụng phụ huynh: thông báo, bộ trả lời WebRTC, bộ ghi hình, màn hình đồng ý của phụ huynh. Cổng quản trị: lưới camera, đồng ý của cha mẹ, nhật ký người xem, xem lại bản ghi, cấu hình. Hồ sơ vận hành: coturn.
+- Thêm quy tắc BR-238, chức năng P02-86 đến P02-89, quyền PQ-110, biện pháp BM-100 đến BM-102, màn hình MH-348 đến MH-350, kịch bản CT-1108 đến CT-1113, tiêu chí AC-880 đến AC-884. Kết quả ngày 26/10/2026: kiểm thử đơn vị `apps/api/src/online-exams/exam-proctoring.test.ts` (CT-23e-1a đến CT-23e-1c) và `online-exams.test.ts` (CT-23e-1 đến CT-23e-4) đạt; kiểm thử đơn vị toàn kho đạt (bộ 23e, 23a, 22g, định danh chạy riêng; toàn bộ để CI chạy); kiểm thử giao diện `tests/e2e/154-online-exam-proctoring.spec.ts` (CT-23e-5) cùng 02, 03, 06, 08, 150 đạt; toàn bộ kiểm thử giao diện để CI chạy toàn bộ; trên máy chạy riêng 02, 03, 06, 08, 101, 150 và 154; kiểm tĩnh đa thuê bao, ma trận cách ly, kiểm thử hai bố cục cơ sở dữ liệu `database` và `schema`, build, kiểm tra kiểu, lint, kiểm tra định dạng đạt.
+
+#### Quyết định
+
+- Thực hiện phần 23e theo đề xuất của phiên điều phối (Eric yêu cầu): hình xem trực tiếp đi thẳng giữa hai trình duyệt, không qua máy chủ API (nhẹ tải, ít rủi ro lộ hình); báo hiệu bằng hỏi định kỳ vì máy chủ chưa có kênh web socket; ghi hình do trình duyệt học sinh tải từng đoạn (không dựng máy chủ ghi hình riêng); đồng ý của cha mẹ kiểm cả lúc xem và lúc ghi; mặc định tắt và cần luật sư rà trước khi bật ở trường thật.
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-215, `07_QUY_TAC_NGHIEP_VU.md` BR-238, `08_VAI_TRO_NGUOI_DUNG.md` PQ-110, `10_YEU_CAU_CHUC_NANG.md` P02-86 đến P02-89, `11_TIEU_CHI_NGHIEM_THU.md` AC-880 đến AC-884, `14_DAC_TA_GIAO_DIEN.md` MH-348 đến MH-350, `16_CO_SO_DU_LIEU.md`, `17_DAC_TA_API.md`, `21_KICH_BAN_KIEM_THU.md` CT-1108 đến CT-1113, `22_BAO_MAT.md` BM-100 đến BM-102, `23_LICH_SU_PHIEN_BAN.md` 0.151.0, `33_HO_SO_PHAP_LY/` PL-13, PL-15.
+
+#### Vấn đề tồn đọng
+
+- Luật sư rà quy định dữ liệu trẻ em, ghi hình và giám sát (PL-15) trước khi bật ở trường thật; thử coturn và thử tải ở môi trường thật; ảnh chụp định kỳ, AI cảnh báo bất thường không làm.
+
 
 ### 2026-10-26 — DT-25 bước 25b: giao diện đăng nhập và liên kết bằng nhà cung cấp định danh
 

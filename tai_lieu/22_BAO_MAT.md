@@ -1,7 +1,7 @@
 # 22. BẢO MẬT
 
 - Mô tả: Xác thực, phân quyền, phiên làm việc, kiểm tra dữ liệu đầu vào, bảo mật API, truy cập dữ liệu.
-- Phiên bản: 1.19
+- Phiên bản: 1.20
 - Ngày cập nhật: 2026-10-26
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -40,6 +40,9 @@
 | BM-97 | Kênh phiên `student` của học sinh (YCTD-211): cookie làm mới riêng (`__Secure-refresh_token_student`, thêm mã trường ở chế độ nhiều trường), mã làm mới 12 giờ, mã xác nhận ảnh và khóa tạm như cổng quản trị; tài khoản học sinh (VT-21) chỉ vào kênh này, kênh này chỉ nhận VT-21; nhóm `/student/*` chỉ nhận mã phiên kênh `student`, mã phiên kênh `student` chỉ gọi nhóm này; học sinh chỉ thấy dữ liệu của chính mình, đáp án đúng không xuống máy học sinh, đồng hồ ở máy chủ; mật khẩu do trường cấp phải đổi ở lần đầu, cấp lại thu hồi mọi phiên |
 | BM-98 | Camera khi thi trực tuyến (YCTD-211, GD-106): hình chỉ vào bộ nhận diện chạy trong trình duyệt của học sinh để đếm khuôn mặt; không ghi hình, không tải hình hay video lên máy chủ; máy chủ chỉ nhận loại sự kiện, thời điểm, thời gian kéo dài, số khuôn mặt (từ chối mọi trường khác); học sinh được báo rõ trước khi vào bài; không có camera thì theo cấu hình của bài (chặn hoặc đánh dấu); sự kiện chỉ là căn cứ để giáo viên xét, không tự trừ điểm; ảnh chụp định kỳ chưa làm |
 | BM-99 | Chống gian lận khi thi trực tuyến (YCTD-211): khóa toàn màn hình, ghi thoát toàn màn hình, rời trang, đổi cửa sổ, phiên đăng nhập thứ hai; thời lượng cứng theo đồng hồ máy chủ; điểm vào sổ điểm chỉ qua giáo viên xác nhận (22g2); không chặn thao tác của máy, không hứa chống gian lận tuyệt đối, khuyến nghị thi chính thức ở phòng máy có giám thị |
+| BM-100 | Xem camera trực tiếp khi thi (YCTD-215): hình đi thẳng giữa trình duyệt giáo viên và học sinh (WebRTC mã hoá DTLS-SRTP), máy chủ API không nhận hay lưu hình, chỉ chuyển thông điệp báo hiệu sống ngắn (xoá khi kết thúc và sau 1 giờ); chỉ người giao bài, người dạy lớp được giao và người quản lý mở được phiên, chỉ người mở phiên đọc, gửi thông điệp của phiên đó; học sinh thấy dòng thông báo khi có người xem; mỗi phiên ghi nhật ký người xem; máy chủ kiểm lại đồng ý của cha mẹ và công tắc của trường ở mỗi lần mở; thông tin TURN là tên đăng nhập có hạn tính từ khoá dùng chung đặt ở biến môi trường |
+| BM-101 | Bản ghi camera khi thi (YCTD-215): mặc định tắt; mã hoá AES-256-GCM bằng khoá dữ liệu trẻ em trước khi vào kho tệp, mỗi đoạn một số dùng một lần; khoá lưu trữ không đoán được; chỉ người giao bài và người quản lý đề, kiểm tra xem lại, qua máy chủ có kiểm quyền (không có đường dẫn công khai, không lưu đệm, không có nút tải xuống, chặn nhấp phải), mỗi lần xem ghi nhật ký người xem và nhật ký thao tác; tự xoá theo hạn của trường (7 đến 90 ngày) bằng việc nền; không nhận diện danh tính sinh trắc; khuyến nghị đặt ngăn truy cập công khai và mã hoá phía kho tệp |
+| BM-102 | Thông báo và đồng ý khi giám sát bằng camera (YCTD-215): học sinh phải xác nhận thông báo (ghi thời điểm), học sinh dưới 16 tuổi hoặc chưa rõ ngày sinh cần cha mẹ đồng ý từng loại, đồng ý do phụ huynh thực hiện (kiểm quan hệ phụ huynh của từng con) hoặc người quản lý ghi nhận văn bản (ghi người đồng ý và người ghi nhận); thu hồi có hiệu lực ngay; mọi thay đổi đồng ý vào nhật ký thao tác; **cần luật sư rà (PL-15) trước khi bật ở trường thật** |
 
 ## 3. Phân quyền
 

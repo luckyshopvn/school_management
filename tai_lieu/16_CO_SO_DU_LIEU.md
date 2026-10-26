@@ -1,7 +1,7 @@
 # 16. CƠ SỞ DỮ LIỆU
 
 - Mô tả: Thực thể, trường, kiểu dữ liệu, khóa chính, khóa ngoại, quan hệ, ràng buộc, chỉ mục, trạng thái, lịch sử thay đổi, chính sách xóa dữ liệu.
-- Phiên bản: 1.126
+- Phiên bản: 1.127
 - Ngày cập nhật: 2026-10-26
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -296,6 +296,11 @@ Ràng buộc duy nhất: `attendance_records` trên bộ đôi trẻ, ngày; `ab
 | online_exam_school_settings (từ YCTD-211) | Cấu hình thi trực tuyến của trường, một dòng (P02-85) | id (luôn true), default_exam_mode, allow_remote, allowed_networks (JSON dải CIDR), room_code_minutes, người sửa |
 | exam_rooms (từ YCTD-211) | Phòng thi của bài giao tại trường (P02-84) | assignment_id (xóa theo), code (6 chữ số, duy nhất khi còn mở), opened_by, opened_at, expires_at, closed_at |
 | exam_room_students (từ YCTD-211) | Học sinh được vào phòng (P02-84) | room_id (xóa theo), child_id, entered_at |
+| exam_proctor_consents (từ YCTD-215; tệp năm học `0129_create_exam_proctoring`) | Đồng ý của cha mẹ cho giám sát bằng camera (P02-87, BR-238) | child_id, scope (`live`, `record`), source (`parent`, `school`), granted_by, granted_by_name, note, granted_at, revoked_at, revoked_by_name; duy nhất một đồng ý còn hiệu lực cho mỗi học sinh và loại |
+| exam_proctor_views (từ YCTD-215) | Nhật ký người xem camera và bản ghi (P02-88, P02-89) | attempt_id, kind (`live`, `recording`), viewer_id, viewer_name, started_at, last_seen_at, ended_at |
+| exam_proctor_signals (từ YCTD-215) | Thông điệp báo hiệu WebRTC sống ngắn (P02-88) | view_id (xóa theo), direction (`to_student`, `to_teacher`), kind (`offer`, `answer`, `ice`), payload, created_at; việc nền xoá sau 1 giờ |
+| exam_recording_chunks (từ YCTD-215) | Đoạn bản ghi đã mã hoá ở kho tệp (P02-89) | attempt_id, seq, storage_key (`exam-recordings/…`), size_bytes, expires_at; xoá khi quá hạn |
+| (ghi chú cột mới, YCTD-215) | `online_exam_school_settings`: `allow_live_proctoring`, `allow_recording` (mặc định tắt), `recording_retention_days` (7 đến 90, mặc định 30); `exam_assignments`: `proctor_live`, `proctor_record`; `exam_attempts`: `proctor_notice_at` |
 | (ghi chú cột mới, YCTD-211) | `exam_assignments`: `exam_mode` (`at-school` mặc định, `remote`); `exam_sheets`: nguồn thêm `online` và `attempt_id` (tệp `0122_extend_exam_sheets_for_online`); `student_learning_accounts`: `identity_user_id` nối người dùng định danh, duy nhất khi có (tệp `0123_link_learning_accounts_to_identity`); định danh: bảng `student_accounts` (user_id, learning_username; tệp `0121_create_student_accounts`), kênh `student` ở `sessions`, vai trò VT-21 (tệp `0120_add_student_channel`) | |
 | registration_periods | Trạng thái chốt danh sách đăng ký của kỳ theo đơn vị (YCTD-50) | org_unit_id, period_year, period_month (duy nhất cùng đơn vị), status (đang mở hoặc đã chốt), locked_by, locked_at |
 | summer_registrations | Đăng ký học hè theo tháng (P05-13, BR-92) | child_id, org_unit_id, period_year, period_month (duy nhất cùng trẻ), status (đang hiệu lực hoặc đã hủy), source, registered_by, registered_at, cancelled_by, cancelled_at |

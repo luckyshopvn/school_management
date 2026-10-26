@@ -1,7 +1,7 @@
 # 12. KIẾN TRÚC HỆ THỐNG
 
 - Mô tả: Kiến trúc tổng thể, thành phần, xác thực, phân quyền, lưu trữ tệp, ghi nhật ký, giám sát, sao lưu, phục hồi, triển khai.
-- Phiên bản: 1.23
+- Phiên bản: 1.24
 - Ngày cập nhật: 2026-10-26
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -257,6 +257,11 @@ Mô-đun `apps/api/src/ai-assistant/`: `ai-provider.ts` (giao diện `AiProvider
 ## 12G. Thi trực tuyến cho học sinh (DT-23 phần 23a, YCTD-211)
 
 Học sinh đăng nhập ở kênh phiên `student` (cùng cơ chế phiên và mã làm mới với ba kênh còn lại, cookie riêng, vai trò VT-21 nối một-một với tài khoản học và thi); màn hình học sinh nằm trong ứng dụng phụ huynh (`#hoc-sinh`), không dựng ứng dụng thứ tư. Máy chủ API chỉ cho mã phiên kênh `student` gọi nhóm `/student/*` và ngược lại. Máy chủ giữ đồng hồ và đáp án; lượt làm bài, sự kiện chống gian lận nằm ở cơ sở dữ liệu năm học; bài nộp vào phiếu chấm của 22g2. Camera chỉ xử lý trong trình duyệt của học sinh (mô hình nhận diện nhỏ đặt cùng ứng dụng), không có luồng hình hay video nào tới máy chủ; chỉ sự kiện (loại, thời điểm) được gửi.
+
+
+## 12G. Giám thị camera cho thi trực tuyến (DT-23 phần 23e, YCTD-215)
+
+Hình xem trực tiếp đi thẳng giữa trình duyệt giáo viên và trình duyệt học sinh bằng WebRTC; máy chủ API không nhận hay chuyển tiếp hình, chỉ chuyển thông điệp báo hiệu (offer, answer, ice) qua bảng `exam_proctor_signals` (giáo viên hỏi mỗi giây, học sinh mỗi hai giây, máy chủ API chưa có kênh web socket nên không thêm). Máy chủ chuyển tiếp coturn tự host (`deploy/docker-compose.production.yml`, `deploy/coturn/turnserver.conf`, xác thực bằng khoá dùng chung, máy chủ API cấp tên đăng nhập có hạn) giúp qua tường lửa và dùng chung về sau cho 27a. Bản ghi do trình duyệt học sinh ghi từng đoạn và tải lên máy chủ API; máy chủ mã hoá AES-256-GCM bằng khoá dữ liệu trẻ em của trường rồi lưu ở kho tệp (`exam-recordings/<mã lượt>/<số thứ tự>`, thêm tiền tố trường ở chế độ nhiều trường như mọi tệp), phát lại bằng cách giải mã và ghép đoạn. Việc nền `exam-proctoring-cleanup` (bộ lập lịch, mỗi giờ) xoá đoạn quá hạn và thông điệp báo hiệu cũ. Đồng ý của cha mẹ, thông báo của học sinh, nhật ký người xem ở cơ sở dữ liệu năm học.
 
 
 ## 13. Quyết định kiến trúc

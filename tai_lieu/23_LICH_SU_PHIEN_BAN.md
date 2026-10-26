@@ -1,7 +1,7 @@
 # 23. LỊCH SỬ PHIÊN BẢN
 
 - Mô tả: Mã phiên bản, ngày phát hành, danh sách thay đổi, chức năng mới, lỗi đã sửa, thay đổi dữ liệu, thay đổi API, rủi ro, khả năng tương thích, phương án quay lui.
-- Phiên bản: 0.64
+- Phiên bản: 0.65
 - Ngày cập nhật: 2026-10-26
 - Trạng thái: Đang cập nhật
 - Đã rà duyệt: Eric, ngày 2026-10-09
@@ -15,6 +15,18 @@
 5. Từ phiên bản 0.4.0, mỗi mục ghi theo mẫu của Vibecoding_Flow; các mục trước giữ nguyên dạng bảng và tên tệp cũ vì là ghi nhận lịch sử.
 
 ## 2. Danh sách phiên bản
+
+### Phiên bản 0.151.0 – 2026-10-26
+
+- Phạm vi thay đổi: DT-23 phần 23e, giám thị camera cho thi trực tuyến (YCTD-215).
+- Chức năng mới: cấu hình của trường (xem trực tiếp, ghi hình, thời hạn giữ), bật theo bài giao; thông báo trước khi vào thi; đồng ý của cha mẹ (ứng dụng phụ huynh, trường ghi nhận văn bản); giáo viên xem lưới camera trực tiếp qua WebRTC, nhật ký người xem; ghi hình mã hoá có thời hạn, xem lại có kiểm quyền; coturn trong hồ sơ vận hành.
+- Lỗi đã sửa: không có.
+- Thay đổi dữ liệu: tệp năm học `0129`.
+- Thay đổi API: `/online-exams/attempts/{id}/proctor…`, `/online-exams/proctor/…`, `/student/attempts/{id}/proctor…`, `/student/attempts/{id}/recording/chunks`, `/parent/exam-proctor-consents`.
+- Kiểm thử: kịch bản CT-1108 đến CT-1113. Kết quả ngày 26/10/2026: kiểm thử đơn vị `apps/api/src/online-exams/exam-proctoring.test.ts` (CT-23e-1a đến CT-23e-1c) và `online-exams.test.ts` (CT-23e-1 đến CT-23e-4) đạt; kiểm thử đơn vị toàn kho đạt (bộ 23e, 23a, 22g, định danh chạy riêng; toàn bộ để CI chạy); kiểm thử giao diện `tests/e2e/154-online-exam-proctoring.spec.ts` (CT-23e-5) cùng 02, 03, 06, 08, 150 đạt; toàn bộ kiểm thử giao diện để CI chạy toàn bộ; trên máy chạy riêng 02, 03, 06, 08, 101, 150 và 154; kiểm tĩnh đa thuê bao, ma trận cách ly, kiểm thử hai bố cục cơ sở dữ liệu `database` và `schema`, build, kiểm tra kiểu, lint, kiểm tra định dạng đạt.
+- Rủi ro: lộ hình ảnh trẻ em (hình xem trực tiếp không qua máy chủ API, bản ghi mã hoá và giới hạn người xem, có nhật ký; mặc định tắt; cần luật sư rà trước khi bật); giáo viên xem khi cha mẹ đã thu hồi (máy chủ kiểm lại mỗi lần); khoá TURN dùng chung bị lộ (chỉ cấp tên đăng nhập có hạn, khoá đặt ở biến môi trường).
+- Khả năng tương thích: không đổi hành vi cũ; máy chủ mới cần chạy tệp năm học `0129`; coturn là tuỳ chọn (không có thì chỉ kết nối trực tiếp trong cùng mạng).
+- Phương án quay lui: hoàn lại commit gộp của nhánh 23e; chạy phần quay lui của tệp năm học `0129`; bản ghi đã tải tự hết hạn hoặc xoá theo tiền tố `exam-recordings/` ở kho tệp.
 
 ### Phiên bản 0.147.0 – 2026-10-26
 
