@@ -1,7 +1,7 @@
 # 02. NHẬT KÝ DỰ ÁN
 
 - Mô tả: Ghi nhận công việc, quyết định, thay đổi và vấn đề tồn đọng theo ngày, ngày mới nhất ở trên cùng.
-- Phiên bản: 0.76
+- Phiên bản: 0.77
 - Ngày cập nhật: 2026-10-26
 - Trạng thái: Đang cập nhật
 
@@ -31,6 +31,23 @@
 #### Thay đổi
 
 - Xem `24_YEU_CAU_THAY_DOI.md` YCTD-290. Không tăng phiên bản phần mềm.
+
+### 2026-10-26 — Vá lỗ hổng phụ thuộc: fast-xml-parser, multer, body-parser
+
+#### Công việc đã thực hiện
+
+- Job quét phụ thuộc (`pnpm audit --prod --audit-level=high`) hỏng vì cảnh báo mới: fast-xml-parser 4.4.1 (critical GHSA-m7jm-9gc2-mpf2, high GHSA-jmr7-xgp7-cmfj) qua `apps/api` > `@aws-sdk/client-s3`; multer 2.4.0 (high GHSA-q7qp-rjg7-q26m) và body-parser 2.3.0 (high GHSA-27r3-jxmh-p828) qua `@nestjs/platform-express`, công bố ngày 23/10/2026.
+- Nâng `@aws-sdk/client-s3` từ 3.700.0 lên ^3.1156.0: bản mới không còn dùng fast-xml-parser. `@nestjs/platform-express` bản mới nhất vẫn khóa multer 2.4.0 nên thêm `pnpm.overrides` ở `package.json` gốc: multer ^2.5.0, body-parser ^2.4.0.
+- Job `quet-phu-thuoc` còn hỏng ở bước dọn của `actions/setup-node` ("Path Validation Error"): job có `cache: pnpm` nhưng không cài gói, nên khi lockfile đổi (cache trượt) bước lưu cache không thấy thư mục store. Bỏ `cache: pnpm` khỏi job này. Giữ `continue-on-error` của bước audit theo quyết định ở YCTD-201 (báo, không chặn gộp).
+- Kết quả: `pnpm audit --prod --audit-level=high` sạch (còn 6 cảnh báo mức trung bình, không chặn CI); typecheck đạt; thử thật kho tệp S3 (SeaweedFS cục bộ) ghi, đọc, xóa theo tiền tố đạt.
+
+#### Quyết định
+
+- Ưu tiên nâng gói gốc; chỉ dùng overrides cho gói mà bản mới nhất của gói gốc vẫn khóa bản có lỗ hổng. Gỡ overrides khi `@nestjs/platform-express` dùng multer từ 2.5.0.
+
+#### Thay đổi
+
+- `apps/api/package.json`, `package.json` (`pnpm.overrides`), `pnpm-lock.yaml`, `.github/workflows/ci.yml` (job `quet-phu-thuoc`). Không đổi mã nguồn, không tăng phiên bản phần mềm.
 
 #### Vấn đề tồn đọng
 
