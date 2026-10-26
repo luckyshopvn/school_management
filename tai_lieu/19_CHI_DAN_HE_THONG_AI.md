@@ -1,8 +1,8 @@
 # 19. CHỈ DẪN HỆ THỐNG AI
 
 - Mô tả: Ngữ cảnh và câu lệnh hệ thống cấp cho AI khi làm việc trong dự án.
-- Phiên bản: 1.1
-- Ngày cập nhật: 2026-10-09
+- Phiên bản: 1.2
+- Ngày cập nhật: 2026-10-26
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
 
@@ -23,7 +23,7 @@ Tài liệu này là ngữ cảnh cấp cho trí tuệ nhân tạo khi làm vi�
 **Thứ tự đọc bắt buộc khi bắt đầu phiên làm việc:**
 
 1. `tai_lieu/index.md` để biết bộ tài liệu hiện có và trạng thái từng tài liệu.
-2. `tai_lieu/02_NHAT_KY_DU_AN.md` để biết việc đã làm gần nhất.
+2. `tai_lieu/02_NHAT_KY_DU_AN.md` và các tệp mảnh ở `tai_lieu/thay_doi_cho_gom/` (thay đổi đã merge nhưng chưa gom, YCTD-291) để biết việc đã làm gần nhất. Khi ghi nhật ký, YCTD, phiên bản, theo `tai_lieu/thay_doi_cho_gom/README.md`.
 3. `tai_lieu/03_DANH_SACH_CONG_VIEC.md` để biết việc đang chờ xử lý.
 4. `tai_lieu/01_KE_HOACH_TONG_THE.md` để biết đang đứng ở giai đoạn nào, cổng nào chưa đạt và việc gì chặn việc gì.
 5. Tài liệu liên quan trực tiếp tới nhiệm vụ được giao.
