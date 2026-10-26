@@ -1,7 +1,7 @@
 # 01. KẾ HOẠCH TỔNG THỂ
 
 - Mô tả: Tài liệu điều phối cấp cao nhất của dự án: mười hai giai đoạn kèm cổng kiểm soát, các mốc phát hành, kế hoạch thực thi theo đợt, đường găng, tổ chức thực hiện, quản lý thay đổi và rủi ro.
-- Phiên bản: 1.75
+- Phiên bản: 1.76
 - Ngày cập nhật: 2026-10-26
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -543,6 +543,8 @@ Ngưỡng phê duyệt:
 | Sửa lỗi ngoài phạm vi đã duyệt | Eric | `02_NHAT_KY_DU_AN.md`, `23_LICH_SU_PHIEN_BAN.md` |
 
 Mỗi thay đổi ghi thành một mục `YCTD-nn` trong `24_YEU_CAU_THAY_DOI.md` trước khi triển khai.
+
+Từ YCTD-291 (ngày 2026-10-26), mỗi PR ghi mục nhật ký (`02`), mục YCTD (`24`), mục phiên bản (`23`), dòng bảng mốc phát hành (mục 3 của tệp này), số đếm ở `index.md` và các dòng bảng dùng chung vào một tệp mảnh `tai_lieu/thay_doi_cho_gom/YCTD-<số>-<ten-ngan>.md`, không sửa trực tiếp các tài liệu chung đó và không tăng số phiên bản đầu tài liệu; số phiên bản phần mềm trong tệp mảnh là đề xuất. Định kỳ, một PR gom (nhánh `gom-…`) chạy `node scripts/gom-thay-doi.mjs` để đổ các tệp mảnh vào tài liệu chung theo thứ tự merge, chốt số phiên bản và xoá tệp mảnh. CI kiểm định dạng tệp mảnh (`--kiem`) và cảnh báo PR thường sửa trực tiếp `02`, `23`, `24`, `index.md`. Quy ước đầy đủ ở `tai_lieu/thay_doi_cho_gom/README.md`.
 
 Thay đổi quan trọng phải được phê duyệt trước khi triển khai. Mọi thay đổi quay lại đúng quy trình: yêu cầu mới, phân tích, đánh giá ảnh hưởng, cập nhật đặc tả, thiết kế, xây dựng, kiểm thử, nghiệm thu, phát hành.
 

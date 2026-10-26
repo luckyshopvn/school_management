@@ -1,7 +1,7 @@
 # 24. YÊU CẦU THAY ĐỔI
 
 - Mô tả: Sổ quản lý yêu cầu thay đổi, ghi lý do, đánh giá ảnh hưởng và trạng thái của từng thay đổi trước khi triển khai.
-- Phiên bản: 0.78
+- Phiên bản: 0.79
 - Ngày cập nhật: 2026-10-26
 - Trạng thái: Đang cập nhật
 
@@ -10,6 +10,23 @@
 Mã yêu cầu thay đổi dạng `YCTD-nn`, đánh số tăng dần, không tái sử dụng. Mục mới nhất ở trên cùng. Trạng thái dùng bốn giá trị: Chờ phê duyệt, Đã phê duyệt, Từ chối, Đã triển khai.
 
 Các thay đổi trước phiên bản 0.4.0 chưa có sổ này; xem `23_LICH_SU_PHIEN_BAN.md` các phiên bản 0.1.0 đến 0.3.1.
+
+Từ YCTD-291 (ngày 2026-10-26), mục YCTD mới của mỗi PR nằm ở tệp mảnh `tai_lieu/thay_doi_cho_gom/YCTD-<số>-<ten-ngan>.md` cho tới lần gom; PR thường không sửa tệp này. Lần gom chép các mục vào đây theo thứ tự merge (quy ước ở `thay_doi_cho_gom/README.md`). Khi chọn số YCTD, kiểm cả các tệp ở thư mục đó.
+
+### YCTD-291: Đổi quy ước ghi tài liệu chung sang tệp mảnh theo từng PR – 2026-10-26
+
+- Lý do: nhiều phiên làm song song (DT-23 đến DT-28), mỗi PR đều sửa `02_NHAT_KY_DU_AN.md`, `24_YEU_CAU_THAY_DOI.md`, `23_LICH_SU_PHIEN_BAN.md`, bảng mốc phát hành ở `01_KE_HOACH_TONG_THE.md`, số đếm ở `index.md` và số phiên bản đầu các tài liệu này. Mỗi lần một PR merge, mọi PR khác xung đột tài liệu, phải gộp main và chạy lại CI khoảng 40 phút; `gh pr update-branch` không gộp được vì xung đột. Eric đồng ý ngày 2026-10-26 chuyển sang tệp mảnh theo từng PR, gom định kỳ.
+- Nội dung thay đổi (chi tiết Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11):
+  - **Thư mục tệp mảnh** `tai_lieu/thay_doi_cho_gom/`: mỗi PR thêm một tệp `YCTD-<số>-<ten-ngan>.md` có phần đầu tệp (`yctd`, `tieu_de`, `ngay`, `phien_ban_de_xuat`) và các mục `## 02` (mục nhật ký), `## 24` (mục YCTD), `## 23` (mục phiên bản, khi có), `## 01` (dòng bảng mốc phát hành), `## index` (cộng số đếm), `## Nối dòng` (nối nội dung vào dòng bảng dùng chung, ví dụ dòng phân hệ ở `03`). Số phiên bản phần mềm trong tệp mảnh là đề xuất, nội dung dùng chỗ giữ `{PHIEN_BAN}`.
+  - **Quy tắc**: PR thường không sửa `02`, `23`, `24`, `index.md`, bảng mốc phát hành ở `01`, không tăng số phiên bản đầu tài liệu; nội dung riêng của phần (dòng trạng thái ở `32`, dòng ở `34`, đặc tả `07`, `08`, `10`, `11`, `14`, `16`, `17`, `21`, `22`) vẫn sửa tại chỗ.
+  - **Tập lệnh gom** `scripts/gom-thay-doi.mjs` (Node, không thêm gói): kiểm mọi tệp mảnh (sai thì dừng, không ghi gì); xếp theo thứ tự merge (`git log --first-parent`); chèn mục 02, 24, 23 lên đầu, chốt số phiên bản phần mềm (đề xuất có số sửa khác 0 thì tăng số sửa, ngược lại tăng số phụ) và thay `{PHIEN_BAN}`; chèn dòng 01 trước dòng `1.0.0`; cộng số ở `index.md`, nối dòng; tính lại khoảng `BR`, `AC`, `CT`, `YCTD` và số "Yêu cầu thay đổi" ở `index.md`; tăng số phiên bản đầu mỗi tài liệu chung đã sửa đúng một lần; xoá tệp mảnh đã gom. Chế độ `--kiem` chỉ kiểm định dạng.
+  - **CI**: việc `kiem-thu` thêm bước `node scripts/gom-thay-doi.mjs --kiem` (sai định dạng thì hỏng) và bước cảnh báo, không chặn, khi PR có nhánh không bắt đầu bằng `gom-` sửa trực tiếp `02`, `23`, `24`, `index.md`.
+  - PR này sửa `02`, `24`, `index.md` theo cách cũ lần cuối.
+- Thành phần bị ảnh hưởng: `scripts/gom-thay-doi.mjs` (mới), `tests/tai-lieu/gom-thay-doi.test.mjs` (mới), `tests/package.json`, `.github/workflows/ci.yml`; tài liệu `tai_lieu/thay_doi_cho_gom/README.md` (mới), `01` mục 9, `02`, `19` mục 2, `23` mục 1, `24`, `index.md`.
+- Dữ liệu, API, giao diện, quyền bị ảnh hưởng: không.
+- Ảnh hưởng chức năng cũ: không đổi mã nghiệp vụ. Phiên bản phần mềm giữ nguyên.
+- Kiểm thử cần thực hiện: kiểm thử đơn vị `tests/tai-lieu/gom-thay-doi.test.mjs` (gom theo thứ tự merge, chốt phiên bản, tăng phiên bản tài liệu một lần, cộng số đếm, nối dòng, xoá tệp mảnh; dừng khi sai định dạng; các lỗi định dạng thường gặp; trùng YCTD); thử gom trên bản sao `tai_lieu`. Kết quả ngày 26/10/2026: đạt.
+- Trạng thái: Đã triển khai
 
 ### YCTD-226: DT-25 bước 25b: giao diện đăng nhập và liên kết bằng nhà cung cấp định danh – 2026-10-26
 
