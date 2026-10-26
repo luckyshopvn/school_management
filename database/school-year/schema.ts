@@ -6224,7 +6224,6 @@ export interface ExamVariantsTable {
   created_at: CreatedTimestamp;
 }
 
-
 // Gia sư trong trường (DT-27 phần 27b, YCTD-252)
 export type TutoringContentType = 'curriculum' | 'enrichment';
 export type TutoringAudience = 'below_standard' | 'gifted' | 'final_year_review';
