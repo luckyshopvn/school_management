@@ -1,7 +1,7 @@
 # 34.1. TỔNG QUAN, KIẾN TRÚC VÀ NỀN TẢNG CHUNG
 
 - Mô tả: Mục tiêu, đối tượng dùng, cấp học, kiến trúc, đăng nhập và phân quyền, chọn phân hệ, thông báo, DT-SaaS đa thuê bao, kế hoạch DT-23, DT-26, DT-27 và DT-28
-- Phiên bản: 1.1
+- Phiên bản: 1.0
 - Ngày cập nhật: 2026-10-26
 - Trạng thái: Chờ phê duyệt
 - Thuộc: [Tài liệu 34, tổng hợp chức năng hệ thống](00_MUC_LUC.md)

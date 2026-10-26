@@ -1,7 +1,7 @@
 # 21. KỊCH BẢN KIỂM THỬ
 
 - Mô tả: Danh sách ca kiểm thử theo chức năng, dữ liệu đầu vào, kết quả mong đợi, kết quả thực tế.
-- Phiên bản: 1.102
+- Phiên bản: 1.101
 - Ngày cập nhật: 2026-10-26
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09

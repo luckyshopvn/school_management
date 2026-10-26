@@ -268,7 +268,6 @@ Sản phẩm: School Management, hệ thống quản lý trường mầm non cho
 | 0.144.0 | DT-23 phần 23a: thi trực tuyến cho học sinh (kênh student, giao đề, làm bài, khóa toàn màn hình và camera trên máy, chấm, chuyển điểm theo luồng 22g2) | YCTD-211 |
 | 0.145.0 | DT-26 phần 26a: vỏ ứng dụng web cài được dùng chung (gói `packages/pwa` gom service worker của 23b, manifest và biểu tượng theo thương hiệu từng trường, ứng dụng phụ huynh có service worker, dải có bản mới, lời mời cài cho Android, iPhone, Zalo), YCTD-231 | 2026-10-26 |
 | 0.147.0 | DT-25 bước 25b: giao diện đăng nhập và liên kết bằng nhà cung cấp định danh (nút trên màn hình đăng nhập của ba ứng dụng, trang quay về có nhập mã hai lớp, liên kết và gỡ ở Tài khoản của tôi, cấu hình của trường), YCTD-226 | 2026-10-26 |
-| 0.154.0 | DT-28 phần 28b: lõi hệ thống quản lý học tập (lớp học trực tuyến tự sinh từ phân công giảng dạy, khoá tự chọn, khoá học mẫu của tổ chuyên môn qua duyệt tổ và Ban Giám hiệu rồi đẩy xuống lớp, chương và hoạt động trang nội dung, liên kết, học liệu đã công bố, điều kiện mở, kết quả hoạt động chung, tiến độ, kế hoạch dạy học trực tuyến theo tuần, nhật ký học tập dạng gần xAPI, quyết định dạy học trực tuyến thay thế và nội quy theo Thông tư 09/2021/TT-BGDĐT; phụ huynh xem việc học trực tuyến của con) (YCTD-272) | Đã triển khai |
 | 1.0.0 | Giai đoạn 1 chạy thật: nền tảng, trẻ, điểm danh, học phí, thanh toán mã QR, phiếu thu, phiếu chi, quỹ tiền mặt, nhân sự, lương cơ bản, hai ứng dụng, báo cáo cơ bản, nhập dữ liệu từ Excel, nhập mã định danh của Bộ, API đối tác | 09 đến 11 | Eric nghiệm thu ngày 13/10/2026, thẻ `v1.0.0` (tài liệu 0.31.0, YCTD-92); chờ triển khai ở việc T6 |
 | 1.1.0 | Giai đoạn 2: giảng dạy, y tế, bếp, kho, hoạt động, tương tác, công việc, tài khoản ngân hàng và công nợ phải trả, báo cáo hợp nhất | 09 đến 11 | Eric nghiệm thu ngày 13/10/2026, thẻ `v1.1.0` (tài liệu 0.42.0, YCTD-92) |
 | 1.2.0 | Giai đoạn 3: tuyển sinh, tuyển dụng, kết nối Facebook và Zalo, đối soát thanh toán, sổ kế toán kép | 09 đến 11 | Eric nghiệm thu ngày 13/10/2026, thẻ `v1.2.0` (tài liệu 0.48.0, YCTD-92) |
@@ -544,6 +543,8 @@ Ngưỡng phê duyệt:
 | Sửa lỗi ngoài phạm vi đã duyệt | Eric | `02_NHAT_KY_DU_AN.md`, `23_LICH_SU_PHIEN_BAN.md` |
 
 Mỗi thay đổi ghi thành một mục `YCTD-nn` trong `24_YEU_CAU_THAY_DOI.md` trước khi triển khai.
+
+Từ YCTD-291 (ngày 2026-10-26), mỗi PR ghi mục nhật ký (`02`), mục YCTD (`24`), mục phiên bản (`23`), dòng bảng mốc phát hành (mục 3 của tệp này), số đếm ở `index.md` và các dòng bảng dùng chung vào một tệp mảnh `tai_lieu/thay_doi_cho_gom/YCTD-<số>-<ten-ngan>.md`, không sửa trực tiếp các tài liệu chung đó và không tăng số phiên bản đầu tài liệu; số phiên bản phần mềm trong tệp mảnh là đề xuất. Định kỳ, một PR gom (nhánh `gom-…`) chạy `node scripts/gom-thay-doi.mjs` để đổ các tệp mảnh vào tài liệu chung theo thứ tự merge, chốt số phiên bản và xoá tệp mảnh. CI kiểm định dạng tệp mảnh (`--kiem`) và cảnh báo PR thường sửa trực tiếp `02`, `23`, `24`, `index.md`. Quy ước đầy đủ ở `tai_lieu/thay_doi_cho_gom/README.md`.
 
 Thay đổi quan trọng phải được phê duyệt trước khi triển khai. Mọi thay đổi quay lại đúng quy trình: yêu cầu mới, phân tích, đánh giá ảnh hưởng, cập nhật đặc tả, thiết kế, xây dựng, kiểm thử, nghiệm thu, phát hành.
 

@@ -7,6 +7,7 @@
 
 ## Quy ước ghi nhật ký
 
+- Từ YCTD-291 (ngày 2026-10-26), mục nhật ký mới của mỗi PR nằm ở tệp mảnh trong thư mục `tai_lieu/thay_doi_cho_gom/` cho tới lần gom; PR thường không sửa tệp này. Lần gom (`node scripts/gom-thay-doi.mjs`, nhánh `gom-…`) chép các mục vào đây theo thứ tự merge. Quy ước đầy đủ ở `thay_doi_cho_gom/README.md`. Muốn biết việc mới nhất thì đọc cả các tệp ở thư mục đó.
 - Mục mới ghi ở trên cùng; không sửa nội dung mục cũ.
 - Từ ngày 2026-10-09, mỗi mục ghi theo mẫu của Vibecoding_Flow: công việc đã thực hiện, quyết định, thay đổi, vấn đề tồn đọng. Các mục cũ giữ nguyên dạng và tên tệp cũ.
 - Mỗi mục ghi rõ ngày, người thực hiện, nội dung, tệp bị ảnh hưởng, kết quả kiểm thử.
@@ -14,25 +15,26 @@
 
 ## Nhật ký theo ngày
 
-### 2026-10-26 — DT-28 phần 28b: lõi hệ thống quản lý học tập
+### 2026-10-26 — Đổi quy ước ghi tài liệu chung sang tệp mảnh (YCTD-291)
 
 #### Công việc đã thực hiện
 
-- Làm phần 28b theo `32` mục 20.6, 20.7: lớp học trực tuyến tự sinh từ phân công giảng dạy, khoá tự chọn, khoá học mẫu của tổ qua duyệt hai bước, chương, hoạt động (trang, liên kết, học liệu), điều kiện mở, kết quả hoạt động chung, tiến độ, kế hoạch theo tuần, nhật ký học tập, quyết định dạy học trực tuyến thay thế và nội quy theo Thông tư 09/2021/TT-BGDĐT; cổng quản trị 9.1 đến 9.3, ứng dụng giáo viên, ứng dụng phụ huynh.
-- Kiểm thử: 14/14 ca API, 2/2 ca cách ly nhiều trường (hai bố cục), kiểm thử menu theo cấp và quyền menu; e2e 211 và 151 đạt (chạy kèm spec nền 01 đến 09; lần đầu hỏng vì ứng dụng phụ huynh đăng nhập bằng số điện thoại, đã sửa spec). Chạy với CSDL định danh, hệ thống riêng của phần (`school_identity_28b`, `school_system_28b`).
+- Các phiên làm song song (DT-23 đến DT-28) mỗi PR đều thêm mục vào `02`, `23`, `24`, bảng mốc phát hành ở `01`, số đếm ở `index.md` và tăng số phiên bản đầu các tài liệu này, nên mỗi lần một PR merge thì mọi PR khác xung đột tài liệu, phải gộp main và chạy lại CI (khoảng 40 phút); `gh pr update-branch` cũng không gộp được.
+- Thêm thư mục `tai_lieu/thay_doi_cho_gom/` kèm `README.md` mô tả quy ước và định dạng tệp mảnh; tập lệnh `scripts/gom-thay-doi.mjs` (Node, không thêm gói) có chế độ `--kiem` và chế độ gom; kiểm thử đơn vị `tests/tai-lieu/gom-thay-doi.test.mjs` (chạy trong `pnpm test` của gói `tests`); CI thêm bước `--kiem` và bước cảnh báo PR thường sửa trực tiếp `02`, `23`, `24`, `index.md`.
+- Thử gom trên bản sao `tai_lieu` với hai tệp mảnh mẫu: mục 02, 24, 23 chèn đúng chỗ theo thứ tự, phiên bản phần mềm chốt 0.145.0 rồi 0.145.1, dòng 01 chèn trước 1.0.0, số đếm và khoảng mã ở `index.md` đúng, phiên bản đầu tài liệu tăng một lần. Kết quả ngày 26/10/2026: kiểm thử đơn vị `tests/tai-lieu/gom-thay-doi.test.mjs` đạt 5/5; `node scripts/gom-thay-doi.mjs --kiem`, lint, kiểm tra định dạng đạt.
 
 #### Quyết định
 
-- Claude chọn theo ủy quyền: phân công giảng dạy là nguồn chính để sinh lớp học trực tuyến, thời khoá biểu là nguồn phụ; đồng bộ khi mở danh sách thay vì móc vào luồng ban hành thời khoá biểu; quy tắc duyệt khoá mẫu viết lại theo đúng quy tắc của 22h1 vì 28b không sửa tệp của 22h1; cách ly kiểm ở mức API cho cả hai bố cục thay vì e2e nhiều trường.
+- Eric đồng ý ngày 2026-10-26 chuyển sang tệp mảnh theo từng PR, gom định kỳ. Chi tiết (tên thư mục, định dạng, cách đánh số phiên bản khi gom, cảnh báo không chặn) Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11.
+- PR này là PR cuối cùng sửa trực tiếp `02`, `24`, `index.md` theo cách cũ. Không tăng phiên bản phần mềm (chỉ đổi quy trình tài liệu và CI).
 
 #### Thay đổi
 
-- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-272, phiên bản 0.154.0 ở `23`, tài liệu 01, 07, 08, 10, 11, 12, 14, 16, 17, 21, 22, 32, 34, `index.md`.
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-291, `thay_doi_cho_gom/README.md`, `01_KE_HOACH_TONG_THE.md` mục 9, `19_CHI_DAN_HE_THONG_AI.md` mục 2, đầu `23_LICH_SU_PHIEN_BAN.md`, `index.md`.
 
 #### Vấn đề tồn đọng
 
-- Sau khi 23a gộp: thêm học sinh tự học ở kênh `student` (`/student/learning`, quyền `P02.learning.study` cho VT-21, MH-354, CT-1119) trong cùng PR; sửa CI hỏng CT-S5a-8 (quy tắc menu khoá mẫu ghi quyền kho học liệu làm tuyến kho học liệu không còn bị chặn theo gói; tuyến nhân sự `/learning` nay chặn theo gói).
-- 23a (PR 189) gộp trước lấy 0.144.0 và các số BR-237, PQ-109, AC-874 đến AC-879, MH-342 đến MH-347, CT-1097 đến CT-1107, BM-97 đến BM-99; sau đó 26a (PR 185, 0.145.0, BR-238, AC-880 đến AC-882, QĐ-36, MH-348, CT-1108 đến CT-1111, BM-100, mục 12H) và 25b (PR 190, 0.147.0) gộp; 28b đánh lại sang 0.154.0 theo bảng phiên bản của phiên điều phối (0.148.0 dành cho 26b), cùng BR-239 đến BR-243, AC-883 đến AC-890, QĐ-37, MH-349 đến MH-354, CT-1112 đến CT-1119, BM-101, mục 12I). Phiên bản 0.154.0 có thể trùng với PR khác đang mở; PR nào gộp sau thì đánh lại.
+- Các PR đang mở (188, 191, 192, 193) đã sửa trực tiếp tài liệu chung theo cách cũ; phiên điều phối quyết định chuyển phần đó sang tệp mảnh hay để merge như cũ. Lần gom đầu tiên chưa chạy.
 
 ### 2026-10-26 — DT-26 phần 26a: vỏ ứng dụng web cài được dùng chung
 

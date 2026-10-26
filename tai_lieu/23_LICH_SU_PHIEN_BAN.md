@@ -13,21 +13,9 @@
 3. Phiên bản đánh số theo dạng chính.phụ.sửa. Tăng số chính khi thay đổi phá vỡ tương thích, tăng số phụ khi thêm chức năng, tăng số sửa khi sửa lỗi.
 4. Bản phần mềm 1.0.0, 1.1.0, 1.2.0 được Eric nghiệm thu ngày 13/10/2026, gắn thẻ `v1.0.0`, `v1.1.0`, `v1.2.0` (YCTD-92), ứng với phiên bản tài liệu 0.31.0, 0.42.0, 0.48.0. Các mục dưới đây ghi các mốc của bộ tài liệu.
 5. Từ phiên bản 0.4.0, mỗi mục ghi theo mẫu của Vibecoding_Flow; các mục trước giữ nguyên dạng bảng và tên tệp cũ vì là ghi nhận lịch sử.
+6. Từ YCTD-291 (ngày 2026-10-26), mục phiên bản mới của mỗi PR nằm ở tệp mảnh trong thư mục `tai_lieu/thay_doi_cho_gom/` cho tới lần gom, với số phiên bản đề xuất và chỗ giữ `{PHIEN_BAN}`; PR thường không sửa tệp này. Số chính thức chốt khi gom theo thứ tự merge (quy ước ở `thay_doi_cho_gom/README.md`).
 
 ## 2. Danh sách phiên bản
-
-### Phiên bản 0.154.0 – 2026-10-26
-
-- Phạm vi thay đổi: DT-28 phần 28b, lõi hệ thống quản lý học tập (YCTD-272).
-- Chức năng mới: lớp học trực tuyến theo lớp, môn tự sinh từ phân công giảng dạy và khoá tự chọn (P03-12, MH-349); chương, hoạt động trang nội dung, liên kết, học liệu, điều kiện mở, giao cho học sinh (P03-13); tiến độ, kết quả hoạt động, kế hoạch dạy học trực tuyến theo tuần, nhật ký học tập (P03-14); khoá học mẫu của tổ chuyên môn qua duyệt hai bước rồi đẩy xuống lớp (P03-15, MH-350); quyết định dạy học trực tuyến thay thế và nội quy theo Thông tư 09/2021/TT-BGDĐT (P03-16, MH-351); ứng dụng giáo viên Lớp học trực tuyến (MH-352); ứng dụng phụ huynh Học trực tuyến của con (P03-17, MH-353); học sinh tự học ở kênh `student` (MH-354).
-- Lỗi đã sửa: không có.
-- Thay đổi dữ liệu: hệ thống `0110`; năm học `0172` đến `0175`; định danh `0180` (bốn quyền `P02.learning.*`); xem `16_CO_SO_DU_LIEU.md` mục 18F.
-- Thay đổi API: nhóm `/learning` và `/student/learning` của học sinh (xem `17_DAC_TA_API.md` mục 17.2); tuyến nhân sự chặn theo gói của trường.
-- Kiểm thử: kịch bản CT-1112 đến CT-1118 (CT-28b-1 đến CT-28b-16 trong mã kiểm thử). Kết quả ngày 26/10/2026: `apps/api` 14/14 ca của `learning-rules.test.ts`, `learning.test.ts`; `learning-tenancy.test.ts` 2/2 (hai bố cục); `working-level.test.ts` 8/8, `menu-permissions.test.ts` và `secondary-class-records.test.ts` đạt; e2e: `211-online-classes` (CT-28b-16) và `151-classroom-tools` (CT-23b-14, có màn Lớp của tôi thêm nút mới) đạt, chạy kèm spec nền 01 đến 09.
-- Rủi ro: học sinh mới thấy tên, mô tả học liệu, chưa tải được tệp; tệp quyết định dạy thay thế chưa đính kèm được; báo cáo theo vai trò, sổ điểm, hồ sơ Thông tư 09 là phần 28d; trình soạn nội dung khoá mẫu ở cổng quản trị mới có chương và trang nội dung.
-- Khả năng tương thích: không đổi hành vi các phân hệ cũ; lớp học trực tuyến tự sinh ẩn với học sinh đến khi giáo viên mở; trường chỉ có Mầm non không thấy nhóm menu 9. Học tập trực tuyến.
-- Phương án quay lui: hoàn lại commit gộp của nhánh 28b; các tệp migration chỉ thêm bảng và quyền.
-
 
 ### Phiên bản 0.147.0 – 2026-10-26
 
