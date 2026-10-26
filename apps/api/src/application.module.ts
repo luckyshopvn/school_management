@@ -492,6 +492,7 @@ import { AiAssistantController, AiUsageJob } from './ai-assistant/ai-assistant.c
 import { AI_PROVIDERS, AiAssistantService } from './ai-assistant/ai-assistant.js';
 import { AiProviderRegistry } from './ai-assistant/ai-provider.js';
 import { ClassroomToolsController, ClassroomToolsService } from './classroom-tools/classroom-tools.js';
+import { GroupSetsController, GroupSetsReader, GroupSetsService } from './child-groups/group-sets.js';
 
 @Module({})
 export class ApplicationModule {
@@ -772,6 +773,8 @@ export class ApplicationModule {
         // Trợ lý AI (DT-23 phần 23d)
         AiAssistantController,
         ClassroomToolsController,
+        // Mô hình nhóm dùng chung (DT-28 phần 28a)
+        GroupSetsController,
         ...(options.additionalControllers ?? []),
       ],
       providers: [
@@ -1159,6 +1162,8 @@ export class ApplicationModule {
         CandidatesService,
         SchoolCalendar,
         ClassroomToolsService,
+        GroupSetsReader,
+        GroupSetsService,
         {
           provide: FileStorage,
           inject: [SchoolSettings],

@@ -1,7 +1,7 @@
 # 23. LỊCH SỬ PHIÊN BẢN
 
 - Mô tả: Mã phiên bản, ngày phát hành, danh sách thay đổi, chức năng mới, lỗi đã sửa, thay đổi dữ liệu, thay đổi API, rủi ro, khả năng tương thích, phương án quay lui.
-- Phiên bản: 0.62
+- Phiên bản: 0.63
 - Ngày cập nhật: 2026-10-26
 - Trạng thái: Đang cập nhật
 - Đã rà duyệt: Eric, ngày 2026-10-09
@@ -16,6 +16,17 @@
 
 ## 2. Danh sách phiên bản
 
+### Phiên bản 0.144.0 – 2026-10-26
+
+- Phạm vi thay đổi: DT-28 phần 28a, mô hình nhóm dùng chung (YCTD-271).
+- Chức năng mới: bộ nhóm của lớp (chia tay, ngẫu nhiên có hạt, trộn năng lực, gom tầng, cân bằng giới, ràng buộc cùng nhóm, không cùng nhóm, từ tiết nhóm 21b), nhóm trưởng (đặt, ngẫu nhiên, luân phiên), lịch sử đổi thành viên; công cụ lớp học dùng bộ nhóm, chọn bộ sẵn có; hàm đọc ổn định `GroupSetsReader` cho 28b, 28c, 28e.
+- Lỗi đã sửa: không có.
+- Thay đổi dữ liệu: năm học `0170`, `0171`; xem `16_CO_SO_DU_LIEU.md` mục 18F.
+- Thay đổi API: nhóm `/group-sets`; `PUT /classroom-tools/classes/{id}/grouping` nhận thêm `group_set_id`.
+- Kiểm thử: kịch bản CT-1097 đến CT-1103 (CT-28a-1 đến CT-28a-13 trong mã kiểm thử).
+- Rủi ro: chia theo năng lực dựa trên điểm chưa đầy đủ đầu năm (học sinh chưa có điểm xếp sau ở gom tầng); bảng `classroom_groupings` còn ghi song song một bản phát hành.
+- Khả năng tương thích: nhóm 4.1.6 không đổi; công cụ lớp học giữ dạng phản hồi; bản chia cũ của 23b chuyển thành bộ nhóm.
+- Phương án quay lui: hoàn lại commit gộp; tệp 0171 và 0170 có hàm `down` xóa bộ nhóm đã dời và các cột mới, `classroom_groupings` vẫn đủ dữ liệu vì được ghi song song.
 ### Phiên bản 0.143.0 – 2026-10-26
 
 - Phạm vi thay đổi: DT-23 phần 23d, trợ lý AI soạn câu hỏi nháp và kế hoạch bài dạy nháp (YCTD-214).

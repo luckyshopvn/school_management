@@ -1,7 +1,7 @@
 # 02. NHẬT KÝ DỰ ÁN
 
 - Mô tả: Ghi nhận công việc, quyết định, thay đổi và vấn đề tồn đọng theo ngày, ngày mới nhất ở trên cùng.
-- Phiên bản: 0.77
+- Phiên bản: 0.78
 - Ngày cập nhật: 2026-10-26
 - Trạng thái: Đang cập nhật
 
@@ -13,6 +13,29 @@
 - Không ghi thông tin tạm thời như kết quả tra cứu, đường dẫn tạm, thông báo lỗi của công cụ.
 
 ## Nhật ký theo ngày
+
+### 2026-10-26 — DT-28 phần 28a: mô hình nhóm dùng chung
+
+#### Công việc đã thực hiện
+
+- Đọc mục 20 của `32` (dòng 28a, phạm vi 20.7, ranh giới đợt 1), mã `child-groups/` (4.1.6), `classroom-tools/` và `apps/teacher/src/tools/` (23b), sổ điểm (21c), mức đạt Tiểu học (20c), tiết nhóm và tổ hợp môn (21a, 21b).
+- Thêm năm học 0170 (`group_sets`, cột bộ nhóm ở `child_groups`, `role` ở thành viên, `child_group_member_events`) và 0171 (dời `classroom_groupings` sang bộ nhóm `classroom`).
+- Viết hàm chia thuần `group-split.ts` (ngẫu nhiên có hạt, trộn năng lực, gom tầng, cân bằng giới, ràng buộc, nhóm trưởng, từ tiết nhóm 21b), dịch vụ và điểm cuối `/group-sets`, hàm đọc ổn định `GroupSetsReader` cho 28b, 28c, 28e; công cụ lớp học 23b đọc, lưu bộ `classroom`; thẻ Chia nhóm thêm Kiểu chia và Dùng bộ nhóm có sẵn.
+- Kiểm thử đơn vị CT-28a-1 đến CT-28a-12, e2e spec 210 (CT-28a-13); tài liệu 01, 07, 16, 17, 21, 23, 24, 32, `index.md`.
+
+#### Quyết định
+
+- Claude chọn theo ủy quyền: GD-140 như kế hoạch (điểm trung bình môn học kỳ gần nhất có điểm, chưa đủ điểm thì trung bình cộng điểm đã có; Tiểu học mức đạt môn kỳ gần nhất); nguồn kết quả hoạt động báo lỗi đến khi 28d gộp.
+- Bảng `classroom_groupings` của 23b còn được ghi song song một bản phát hành để spec 151, CT-23b-10 và bản ứng dụng cũ đọc được; máy chủ chỉ đọc bộ nhóm. Lưu bản chia không đổi thì giữ bộ cũ (tránh sinh bộ thừa).
+- Đích `group` cho đề 23a để sau vì 23a (PR 189) chưa vào nhánh chính.
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-271, phiên bản 0.144.0.
+
+#### Vấn đề tồn đọng
+
+- Đích `group` của đề 23a khi PR 189 gộp; màn hình nhóm của con ở ứng dụng phụ huynh, của học sinh; màn hình bộ nhóm ở cổng quản trị.
 
 ### 2026-10-26 — Kế hoạch DT-28: hệ thống quản lý học tập (LMS)
 

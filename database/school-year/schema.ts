@@ -3869,12 +3869,59 @@ export interface ChildGroupsTable {
   created_by: string;
   created_at: CreatedTimestamp;
   updated_at: UpdatedTimestamp;
+  // Bộ nhóm (DT-28 phần 28a, YCTD-271); nhóm của 4.1.6 để trống
+  group_set_id: ColumnType<string | null, string | null | undefined, string | null>;
+  class_id: ColumnType<string | null, string | null | undefined, string | null>;
+  position: ColumnType<number | null, number | null | undefined, number | null>;
+  leader_child_id: ColumnType<string | null, string | null | undefined, string | null>;
 }
+
+export type ChildGroupMemberRole = 'member' | 'leader';
 
 export interface ChildGroupMembersTable {
   group_id: string;
   child_id: string;
   added_by: string;
+  created_at: CreatedTimestamp;
+  role: Generated<ChildGroupMemberRole>;
+}
+
+// Bộ nhóm dùng chung của lớp (DT-28 phần 28a, YCTD-271): công cụ lớp học 23b, hoạt động, bài tập, đề 23a, học nhóm
+export type GroupSetPurpose = 'subject' | 'activity' | 'classroom';
+export type GroupSetMethod =
+  'manual' | 'random' | 'ability_mixed' | 'ability_tiered' | 'gender_balanced' | 'timetable_group';
+export type GroupSetStatus = 'active' | 'archived';
+
+export interface GroupSetsTable {
+  id: Generated<string>;
+  org_unit_id: string;
+  class_id: string;
+  subject_id: string | null;
+  name: string;
+  purpose: GroupSetPurpose;
+  method: GroupSetMethod;
+  // Tham số chia (số nhóm, hạt ngẫu nhiên, nguồn năng lực, ràng buộc); không chứa mức năng lực của học sinh (GD-140)
+  params: ColumnType<unknown, string | undefined, string>;
+  status: Generated<GroupSetStatus>;
+  owner_user_id: string;
+  owner_name: string;
+  replaces_id: string | null;
+  archived_at: Date | null;
+  created_at: CreatedTimestamp;
+  updated_at: UpdatedTimestamp;
+}
+
+export type ChildGroupMemberEvent = 'added' | 'removed' | 'moved' | 'leader_set' | 'leader_unset';
+
+export interface ChildGroupMemberEventsTable {
+  id: Generated<string>;
+  group_set_id: string | null;
+  group_id: string;
+  child_id: string;
+  event: ChildGroupMemberEvent;
+  from_group_id: string | null;
+  actor_user_id: string;
+  actor_name: string;
   created_at: CreatedTimestamp;
 }
 
@@ -6339,6 +6386,8 @@ export interface SchoolYearDatabase {
   program_completion_confirmations: ProgramCompletionConfirmationsTable;
   child_groups: ChildGroupsTable;
   child_group_members: ChildGroupMembersTable;
+  group_sets: GroupSetsTable;
+  child_group_member_events: ChildGroupMemberEventsTable;
   professional_standards: ProfessionalStandardsTable;
   professional_criteria: ProfessionalCriteriaTable;
   professional_evaluations: ProfessionalEvaluationsTable;

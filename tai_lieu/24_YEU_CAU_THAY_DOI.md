@@ -1,7 +1,7 @@
 # 24. YÊU CẦU THAY ĐỔI
 
 - Mô tả: Sổ quản lý yêu cầu thay đổi, ghi lý do, đánh giá ảnh hưởng và trạng thái của từng thay đổi trước khi triển khai.
-- Phiên bản: 0.74
+- Phiên bản: 0.75
 - Ngày cập nhật: 2026-10-26
 - Trạng thái: Đang cập nhật
 
@@ -10,6 +10,28 @@
 Mã yêu cầu thay đổi dạng `YCTD-nn`, đánh số tăng dần, không tái sử dụng. Mục mới nhất ở trên cùng. Trạng thái dùng bốn giá trị: Chờ phê duyệt, Đã phê duyệt, Từ chối, Đã triển khai.
 
 Các thay đổi trước phiên bản 0.4.0 chưa có sổ này; xem `23_LICH_SU_PHIEN_BAN.md` các phiên bản 0.1.0 đến 0.3.1.
+
+### YCTD-271: DT-28 phần 28a: mô hình nhóm dùng chung – 2026-10-26
+
+- Lý do: phần 28a của `32_KE_HOACH_THEO_HE_THONG_SO.md` mục 20.6, 20.7 (kế hoạch DT-28 ở YCTD-270, PR 183); Eric yêu cầu chia nhóm học sinh dùng chung cho công cụ lớp học, hoạt động, bài tập, đề thi, học nhóm. GD-140 (nguồn điểm khi chia theo năng lực, mức không lưu, không hiện cho học sinh, phụ huynh) Claude chọn theo ủy quyền.
+- Nội dung thay đổi (Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11 ở những chỗ kế hoạch chưa chốt):
+  - **Cơ sở dữ liệu năm học 0170:** bảng `group_sets` (lớp, môn tuỳ chọn, tên, mục đích `subject`, `activity`, `classroom`, cách chia `manual`, `random`, `ability_mixed`, `ability_tiered`, `gender_balanced`, `timetable_group`, tham số, trạng thái `active`, `archived`, người lập, bộ được thay); `child_groups` thêm `group_set_id`, `class_id`, `position`, `leader_child_id`; ràng buộc tên duy nhất tách hai chỉ mục riêng phần (trong đơn vị khi không thuộc bộ, trong bộ khi thuộc bộ); `child_group_members.role`; bảng `child_group_member_events` (thêm, bớt, chuyển nhóm, đặt, bỏ nhóm trưởng).
+  - **Cơ sở dữ liệu năm học 0171:** dời `classroom_groupings` của 23b sang bộ nhóm mục đích `classroom`, cách chia `manual`; học sinh đã rời lớp, tên trùng bị bỏ qua.
+  - **Cách chia (hàm thuần `apps/api/src/child-groups/group-split.ts`):** ngẫu nhiên có hạt (cùng hạt cùng kết quả để xem trước rồi lưu đúng bản đã xem); trộn năng lực và cân bằng giới bằng một vòng xếp tham lam (ít xung đột "không cùng nhóm", còn chỗ, ít người, ít bạn cùng giới, tổng năng lực thấp); gom tầng xếp theo năng lực giảm dần rồi cắt liên tiếp; ràng buộc "cùng nhóm" gom thành cụm, "không cùng nhóm" tách khi còn cách, không tách được thì báo; nhóm trưởng ngẫu nhiên hoặc luân phiên; bộ nhóm từ tiết nhóm 21b theo tổ hợp môn đang hiệu lực (một học sinh có thể ở nhiều nhóm, không đổi `group_no`).
+  - **Năng lực (GD-140):** THCS, THPT lấy điểm trung bình môn học kỳ gần nhất có điểm (chưa đủ điểm giữa kỳ, cuối kỳ thì trung bình cộng các điểm đã có); Tiểu học lấy mức đạt môn của kỳ đánh giá gần nhất quy thứ bậc ra số; nguồn kết quả hoạt động (28d) báo lỗi rõ cho đến khi 28d gộp. Mức chỉ tính trong yêu cầu, không lưu vào tham số, không trả ra.
+  - **Máy chủ** (`apps/api/src/child-groups/group-sets.ts`): nhóm điểm cuối `/group-sets` (danh sách, xem trước, lưu, xem, đổi tên, lưu trữ, chuyển nhóm, nhóm trưởng, đổi nhóm trưởng cả bộ, môn của lớp, nhóm của con); chia lại là bộ mới có `replaces_id`, bộ cũ lưu trữ và giữ nguyên nhóm; nhóm của bộ không hiện ở 4.1.6 (danh sách, xem nhóm của DT-14c lọc `group_set_id` trống).
+  - **Hàm đọc ổn định cho phần khác** `GroupSetsReader` (`activeSets`, `groupsOfSet`, `childIdsOfGroup`, `groupsOfChild`): 28b, 28c, 28e và đích nhóm của đề 23a chỉ đọc bộ nhóm qua đây; đổi chữ ký phải qua YCTD.
+  - **Công cụ lớp học 23b dùng bộ nhóm:** `/classroom-tools/classes/{id}/grouping` đọc bộ `classroom` mới nhất của giáo viên; lưu tạo bộ mới thay bộ đang dùng (bản chia không đổi thì giữ bộ cũ), gửi kèm `group_set_id` khi chọn bộ sẵn có; dạng phản hồi giữ nguyên. Bảng `classroom_groupings` còn được ghi song song một bản phát hành cho bản ứng dụng cũ, máy chủ không đọc nữa; bỏ ở bản sau. Hàng đợi ngoại tuyến của gọi tên, bảng điểm không đổi.
+  - **Ứng dụng giáo viên** (`apps/teacher/src/tools/GroupTool.tsx`): thêm Kiểu chia (Ngẫu nhiên trên máy, dùng được khi mất mạng; Cân bằng nam nữ, Trộn năng lực trong mỗi nhóm, Gom theo năng lực do máy chủ chia, cần mạng; chọn môn khi chia theo năng lực) và Dùng bộ nhóm có sẵn của lớp.
+- Thành phần bị ảnh hưởng: `apps/api` (`child-groups/`, phần nhóm của `classroom-tools/`), `apps/teacher` (phần chia nhóm của `tools/`), `database` (năm học, kiểu xuất), `tests` (spec 210); đăng ký mô-đun thêm cuối tệp `application.module.ts`; không sửa `MULTI_TENANT_SPEC`, `learning/`.
+- Dữ liệu bị ảnh hưởng: cơ sở dữ liệu năm học (tệp 0170, 0171).
+- API bị ảnh hưởng: thêm nhóm `/api/v1/group-sets`; `PUT /classroom-tools/classes/{id}/grouping` nhận thêm `group_set_id` tuỳ chọn (xem `17_DAC_TA_API.md`).
+- Giao diện bị ảnh hưởng: thẻ Chia nhóm của Công cụ lớp học (MH-337) thêm Kiểu chia, Môn lấy kết quả học tập, Dùng bộ nhóm có sẵn của lớp; không đổi cổng quản trị, ứng dụng phụ huynh.
+- Quyền bị ảnh hưởng: không thêm quyền. Giáo viên được phân công lớp (chủ nhiệm, bộ môn) hoặc dạy lớp trong bản thời khoá biểu đang áp dụng lập và xem bộ nhóm của lớp; sửa bộ do người lập hoặc vai trò đơn vị xem được lớp (Ban Giám hiệu, quản lý đơn vị); phụ huynh xem nhóm của con (tên nhóm, nhóm trưởng, bạn trong nhóm).
+- Ảnh hưởng chức năng cũ: nhóm học sinh 4.1.6 không đổi; công cụ lớp học giữ nguyên dạng phản hồi và hành vi (spec 151, CT-23b-10 đạt không sửa kỳ vọng).
+- Kiểm thử cần thực hiện: kiểm thử đơn vị toàn kho (CT-28a-1 đến CT-28a-12); e2e `single` (spec 210 cùng spec 151); kiểm tĩnh đa thuê bao và ma trận cách ly; typecheck, lint, build.
+- Chưa làm (YCTD sau): đích `group` cho đề thi 23a (chờ PR 189 của 23a vào nhánh chính; 28a là phần duy nhất sửa `online-exams/`); nguồn năng lực kết quả hoạt động (chờ 28d); màn hình nhóm của con ở ứng dụng phụ huynh và của học sinh (điểm cuối `/group-sets/children/{id}` đã có; giao diện làm ở phần sở hữu `apps/parent`, màn hình học sinh của 23a); màn hình bộ nhóm ở cổng quản trị.
+- Trạng thái: Đã triển khai
 
 ### YCTD-270: Kế hoạch DT-28: hệ thống quản lý học tập (LMS) – 2026-10-26
 

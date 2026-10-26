@@ -1,7 +1,7 @@
 # 16. CƠ SỞ DỮ LIỆU
 
 - Mô tả: Thực thể, trường, kiểu dữ liệu, khóa chính, khóa ngoại, quan hệ, ràng buộc, chỉ mục, trạng thái, lịch sử thay đổi, chính sách xóa dữ liệu.
-- Phiên bản: 1.125
+- Phiên bản: 1.126
 - Ngày cập nhật: 2026-10-26
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -836,6 +836,19 @@ Hai mục cấu hình theo trường ở bảng `settings` của Trường chín
 | ai_token_usage (từ YCTD-214) | Token AI theo trường, ngày, mô hình, cấu hình, để thu phí (BR-236; nền tảng `0201`) | school_id, usage_date, model, config, requests, input_tokens, output_tokens |
 | plan_ai_pricing (từ YCTD-214) | Đơn giá AI theo gói (BR-236; nền tảng `0202`) | plan_id, free_tokens, input_price_per_1k, output_price_per_1k (trống là chưa nhập), model_prices, minimum_fee, rounding_step |
 | invoice_lines (đổi ở YCTD-214) | Thêm loại dòng `ai` | kind = `ai` |
+
+## 18F. Bộ nhóm dùng chung (DT-28 phần 28a, YCTD-271)
+
+Ở cơ sở dữ liệu năm học (tệp `0170_create_group_sets`, `0171_move_classroom_groupings_to_group_sets`), chạy ở cả hai bố cục `database` và `schema`.
+
+| Bảng | Mục đích | Cột chính |
+|---|---|---|
+| group_sets (từ YCTD-271) | Bộ nhóm của một lớp (BR-237) | id, org_unit_id, class_id, subject_id (tuỳ chọn), name (1 đến 120 ký tự), purpose (`subject`, `activity`, `classroom`), method (`manual`, `random`, `ability_mixed`, `ability_tiered`, `gender_balanced`, `timetable_group`), params (JSON: cách chia theo số nhóm hoặc số người, hạt, nguồn năng lực, cân bằng giới, loại vắng, ràng buộc, cách chọn nhóm trưởng; không có mức năng lực), status (`active`, `archived`), owner_user_id, owner_name, replaces_id (bộ được thay), archived_at, created_at, updated_at; chỉ mục (class_id, status) |
+| child_groups (thêm cột từ YCTD-271) | Nhóm của bộ; nhóm 4.1.6 để trống các cột này | group_set_id, class_id, position, leader_child_id; chỉ mục riêng phần duy nhất (org_unit_id, name) khi `group_set_id` trống và (group_set_id, name) khi có |
+| child_group_members (thêm cột từ YCTD-271) | Thành viên nhóm | role (`member`, `leader`) |
+| child_group_member_events (từ YCTD-271) | Lịch sử đổi thành viên, nhóm trưởng của bộ (BR-238) | id, group_set_id, group_id, child_id, event (`added`, `removed`, `moved`, `leader_set`, `leader_unset`), from_group_id, actor_user_id, actor_name, created_at; chỉ mục (group_set_id, created_at) |
+
+`classroom_groupings` (YCTD-212) được dời sang bộ nhóm `classroom` bởi tệp 0171; máy chủ còn ghi song song bảng này một bản phát hành rồi bỏ.
 
 ## 19. Quan hệ chính giữa các bảng
 
