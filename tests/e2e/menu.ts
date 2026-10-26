@@ -56,9 +56,20 @@ export function menubar(page: Page, workspaceLabel: string): Locator {
   return page.getByRole('menubar', { name: workspaceLabel, exact: true });
 }
 
+// Chọn cấp đang làm việc ở thanh đầu trang rồi chờ ô ngữ cảnh hiện đúng cấp. Đổi cấp lưu lên máy chủ rồi mới đổi tên phân hệ theo
+// cấp ("Quản lý giáo dục" thành "Quản lý giáo dục Trung học phổ thông"); mở menu ngay sau khi chọn thì có thể bắt tên cũ
+export async function selectSchoolLevel(page: Page, code: string) {
+  await page.getByTestId('school-level-switcher').selectOption(code);
+  await expect(page.getByTestId('academic-year-context')).toContainText(`Cấp ${code} · `);
+}
+
 export async function openMenu(page: Page, target: string, options: { exact?: boolean } = {}) {
   const entry = findMenuEntry(target, options);
-  const bar = menubar(page, await selectWorkspace(page, workspaceName(entry.workspace)));
+  const name = workspaceName(entry.workspace);
+  await selectWorkspace(page, name);
+  // Tìm thanh menu theo tên gốc của phân hệ (có hoặc không có tên cấp), không theo tên đọc được lúc chọn: tên đổi khi cấp đang
+  // làm việc vừa đổi thì bộ chọn khớp đúng tên cũ không còn phần tử nào và lệnh bấm chờ tới hết thời gian (lỗi chập chờn của 103)
+  const bar = typeof name === 'string' ? menubar(page, name) : page.getByRole('menubar', { name });
   let scope: Locator = bar;
   for (const node of entry.trail) {
     const item = scope.getByRole('menuitem', { name: portalMenuText(node), exact: true });
