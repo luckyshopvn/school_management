@@ -1,10 +1,7 @@
 # 24. YÊU CẦU THAY ĐỔI
 
 - Mô tả: Sổ quản lý yêu cầu thay đổi, ghi lý do, đánh giá ảnh hưởng và trạng thái của từng thay đổi trước khi triển khai.
-- Phiên bản: 0.77
-
-- Phiên bản: 0.75
-
+- Phiên bản: 0.78
 - Ngày cập nhật: 2026-10-26
 - Trạng thái: Đang cập nhật
 
@@ -179,6 +176,24 @@ Các thay đổi trước phiên bản 0.4.0 chưa có sổ này; xem `23_LICH_S
 - Kiểm thử cần thực hiện: kiểm thử đơn vị toàn kho; e2e `single` (spec 151 cùng các spec hiện có); kiểm tĩnh đa thuê bao và ma trận cách ly; typecheck, lint, build.
 - Chưa làm (YCTD sau): trò chơi dùng lại nhóm, bảng điểm (23c); đồng bộ nền khi ứng dụng đóng (Background Sync); thông báo đẩy khi hết giờ; ngoại tuyến cho phân hệ khác.
 - Trạng thái: Đã triển khai (PR 180)
+
+### YCTD-231: DT-26 phần 26a: vỏ ứng dụng web cài được dùng chung – 2026-10-26
+
+- Lý do: phần 26a của `32_KE_HOACH_THEO_HE_THONG_SO.md` mục 18.3, 18.4 (kế hoạch DT-26 ở YCTD-230); Eric yêu cầu ngày 2026-10-26 làm ứng dụng web cài được trước bố cục máy tính bảng và ứng dụng cài đặt. Phụ thuộc 23b (YCTD-212, PR 180) đã gộp.
+- Nội dung thay đổi (Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11 ở những chỗ kế hoạch chưa chốt):
+  - **Gói `packages/pwa`** (mới): mẫu service worker `service-worker.js` dời từ `apps/teacher/public/sw.js` của 23b (giữ nguyên chiến lược: mạng trước, bộ nhớ đệm sau, không giữ `/api`, bản mới chờ người dùng đồng ý), thêm dòng đánh dấu tiền tố bộ nhớ đệm; plugin Vite `pwaServiceWorker` (thay plugin `serviceWorkerRelease` của ứng dụng giáo viên) phục vụ mẫu ở `<base>sw.js` khi phát triển và phát ra `dist/sw.js` khi dựng; thư viện đăng ký, kiểm bản mới mỗi 30 phút và khi quay lại ứng dụng, gỡ, xóa bộ nhớ đệm theo tiền tố; `applyBrandedManifest`; thành phần `InstallPrompt`, `UpdateBanner`; hàm thuần nhận biết cách cài theo trình duyệt (có kiểm thử đơn vị). Viết tay, không thêm thư viện dựng service worker (QĐ-36).
+  - **Ứng dụng giáo viên**: `classroom-offline.ts` gọi gói chung, giữ tiền tố `cong-cu-lop-hoc-v-` và công tắc ngoại tuyến của trường (BR-233, GD-108 không đổi); dải "Có bản mới" chuyển lên đầu ứng dụng; lời mời cài ở Lớp của tôi; manifest tĩnh thêm `id`.
+  - **Ứng dụng phụ huynh**: manifest tĩnh, biểu tượng PNG, SVG của sản phẩm, service worker chung (tiền tố `phu-huynh-v-`) đăng ký khi mở ứng dụng, dải "Có bản mới", lời mời cài ở trang chủ. Màn hình học sinh của 23a (gộp trước 26a, PR 189) dùng chung service worker của ứng dụng phụ huynh; manifest riêng `student` (tên "– Học sinh", tên ngắn "… HS", `start_url` là `<base>#hoc-sinh`, `id` riêng) được áp khi đang ở `#hoc-sinh` nên cài từ màn hình học sinh thì mở thẳng màn hình học sinh; lời mời cài và dải "Có bản mới" ở danh sách bài, không hiện trong phòng thi (tránh tải lại khi đang làm bài). Nhiều lần gọi `applyBrandedManifest` liên tiếp chỉ áp lần sau cùng.
+  - **Máy chủ**: `/api/v1/public/pwa/{teacher,parent,student}.webmanifest?base=`, `icon.svg`, `icon-maskable.svg` (công khai theo tên miền của trường, chính sách tuyến ghi ở `tenancy-route-policy.ts`); biểu tượng SVG dựng ở máy chủ (nền màu trường, biểu trưng nhúng nếu là ảnh dưới 512 KB, không thì chữ cái đầu của từ cuối trong tên trường), không thêm thư viện xử lý ảnh; tên ngắn `school_branding.app_short_name` (hệ thống 0090), sửa ở Thương hiệu của cổng quản trị.
+  - **Khác kế hoạch (18.4), ghi để phần sau làm**: chưa sinh ảnh PNG đúng cỡ và màn hình chờ iOS theo trường (cần thư viện xử lý ảnh gốc; Android lấy màn hình chờ từ manifest, iOS dùng màn hình trắng mặc định); chưa có "phiên bản tối thiểu" do máy chủ áp (để 26f, khi ứng dụng cài đặt cần); service worker không giữ biểu tượng của trường (không giữ mọi địa chỉ `/api`); chưa xóa thêm gì khi đăng xuất ngoài phần của 23b vì bộ nhớ đệm chỉ có vỏ ứng dụng.
+- Thành phần bị ảnh hưởng: `packages/pwa` (mới), `apps/teacher`, `apps/parent`, `apps/portal` (ô tên ngắn), `apps/api` (`school-settings`), `database` (hệ thống 0090), `tests` (spec 181); đăng ký bộ điều khiển thêm sau `PublicBrandingController` ở `application.module.ts`.
+- Dữ liệu bị ảnh hưởng: cơ sở dữ liệu hệ thống thêm cột `school_branding.app_short_name`; chạy được ở hai bố cục `database`, `schema`.
+- API bị ảnh hưởng: ba tuyến công khai `/api/v1/public/pwa/*`; `PUT /api/v1/school-settings/branding` nhận thêm `app_short_name`; `GET` trả thêm `app_short_name` (xem `17_DAC_TA_API.md`).
+- Giao diện bị ảnh hưởng: MH-348; ô tên ngắn ở Thương hiệu; dải "Có bản mới" của MH-338 nay ở đầu ứng dụng.
+- Quyền bị ảnh hưởng: không thêm quyền (tên ngắn dùng quyền Thương hiệu sẵn có `P01.integration.manage`).
+- Ảnh hưởng chức năng cũ: không đổi hành vi; spec 151 (23b) đạt không sửa kỳ vọng; trang đăng nhập, mọi màn hình khác như cũ ngoài khối mời cài.
+- Kiểm thử cần thực hiện: kiểm thử đơn vị toàn kho (`packages/pwa` CT-26a-1, `apps/api` CT-26a-2, CT-26a-3); e2e `single` spec 181 cùng spec 151; kiểm tĩnh đa thuê bao, ma trận cách ly (tuyến mới công khai theo tên miền).
+- Trạng thái: Đã triển khai
 
 ### YCTD-230: Kế hoạch DT-26: PWA, máy tính bảng, ứng dụng di động – 2026-10-26
 

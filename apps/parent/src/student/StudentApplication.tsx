@@ -1,3 +1,4 @@
+import { applyBrandedManifest } from '@school-management/pwa';
 import { useEffect, useState } from 'react';
 import { StudentActivationScreen } from './StudentActivationScreen.js';
 import { StudentHomeScreen } from './StudentHomeScreen.js';
@@ -33,6 +34,14 @@ function Screens() {
 }
 
 export function StudentApplication() {
+  // Cài từ màn hình học sinh thì ứng dụng mở thẳng #hoc-sinh, tên "– Học sinh" (DT-26 phần 26a); rời màn hình học sinh thì trả
+  // manifest của phụ huynh
+  useEffect(() => {
+    void applyBrandedManifest('student', import.meta.env.BASE_URL);
+    return () => {
+      void applyBrandedManifest('parent', import.meta.env.BASE_URL);
+    };
+  }, []);
   return (
     <StudentSessionProvider>
       <Screens />
