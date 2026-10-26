@@ -43,7 +43,7 @@ import {
   SchoolParentOrgController,
   SchoolParentOrgService,
 } from './parent-org/parent-org.js';
-import { Clock } from '@school-management/server';
+import { Clock, currentTenant } from '@school-management/server';
 import {
   ACADEMIC_YEAR_TRANSITION_STEPS,
   type AcademicYearTransitionStep,
@@ -417,6 +417,8 @@ import { AttendanceMealsController, AttendanceMealsService } from './reports/att
 import { PartnerController, PartnerService } from './partner/partner.js';
 import { NotificationsController, NotificationsService } from './notifications/notifications.js';
 import { NotificationDispatcher } from './notifications/notification-dispatcher.js';
+import { PublicPushController, PushController, PushSubscriptions } from './notifications/push/push-subscriptions.js';
+import { createPushSender, PUSH_SENDER } from './notifications/push/push-sender.js';
 import { SmsGateway } from './notifications/sms-gateway.js';
 import { JournalsController, JournalsService } from './journals/journals.js';
 import { OrgUnitsController } from './organization/org-units.controller.js';
@@ -772,6 +774,9 @@ export class ApplicationModule {
         // Trợ lý AI (DT-23 phần 23d)
         AiAssistantController,
         ClassroomToolsController,
+        // Thông báo đẩy Web Push (DT-26 phần 26b)
+        PushController,
+        PublicPushController,
         ...(options.additionalControllers ?? []),
       ],
       providers: [
@@ -1169,6 +1174,16 @@ export class ApplicationModule {
               options.fileStorage ??
                 (configuration.objectStorage ? new S3FileStorage(configuration.objectStorage) : null),
             ),
+        },
+        // Thông báo đẩy Web Push (DT-26 phần 26b): bộ nối chọn theo PUSH_PROVIDER, chưa đặt thì không gửi đẩy
+        PushSubscriptions,
+        {
+          provide: PUSH_SENDER,
+          useFactory: () =>
+            createPushSender(configuration.push?.provider, {
+              outbox: configuration.push?.developmentOutbox ?? null,
+              schoolOf: () => currentTenant()?.code ?? null,
+            }),
         },
       ],
     };

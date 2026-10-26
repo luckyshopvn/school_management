@@ -1,7 +1,7 @@
 # 16. CƠ SỞ DỮ LIỆU
 
 - Mô tả: Thực thể, trường, kiểu dữ liệu, khóa chính, khóa ngoại, quan hệ, ràng buộc, chỉ mục, trạng thái, lịch sử thay đổi, chính sách xóa dữ liệu.
-- Phiên bản: 1.125
+- Phiên bản: 1.126
 - Ngày cập nhật: 2026-10-26
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -836,6 +836,16 @@ Hai mục cấu hình theo trường ở bảng `settings` của Trường chín
 | ai_token_usage (từ YCTD-214) | Token AI theo trường, ngày, mô hình, cấu hình, để thu phí (BR-236; nền tảng `0201`) | school_id, usage_date, model, config, requests, input_tokens, output_tokens |
 | plan_ai_pricing (từ YCTD-214) | Đơn giá AI theo gói (BR-236; nền tảng `0202`) | plan_id, free_tokens, input_price_per_1k, output_price_per_1k (trống là chưa nhập), model_prices, minimum_fee, rounding_step |
 | invoice_lines (đổi ở YCTD-214) | Thêm loại dòng `ai` | kind = `ai` |
+
+## 18F. Thông báo đẩy Web Push (DT-26 phần 26b, YCTD-232)
+
+| Bảng | Mục đích | Cột chính |
+|---|---|---|
+| push_subscriptions (từ YCTD-232) | Đăng ký đẩy theo người dùng và máy, cơ sở dữ liệu hệ thống của trường (hệ thống `0091_create_push_subscriptions`) | id, user_id, app (`teacher`, `parent`, `student`), kind (`web_push`, `fcm`, `apns`), endpoint_hash (mã băm có khóa, duy nhất khi còn hiệu lực), endpoint_encrypted, keys_encrypted (mã hóa bằng khóa của trường), origin, device_label (tối đa 80 ký tự), created_at, last_seen_at, last_success_at, failure_count, revoked_at, revoked_reason |
+| notification_preferences (từ YCTD-232) | Tuỳ chọn đẩy theo nhóm loại (hệ thống `0092_create_notification_preferences`) | user_id, group_code, push_enabled, updated_at; khóa chính (user_id, group_code) |
+| notification_urgent_templates (từ YCTD-232) | Loại thông báo khẩn, không tắt được ở kênh đẩy | template_code (khóa chính), marked_by, marked_by_name, marked_at |
+| platform_push_keys (từ YCTD-232) | Khóa VAPID của nền tảng, cơ sở dữ liệu nền tảng (nền tảng `0230_create_push_keys`) | id, public_key, private_key_encrypted (khóa gốc), subject (`mailto:` hoặc `https://`), created_at, retired_at; một dòng còn dùng |
+| notification_recipients (đổi ở YCTD-232) | Kênh `push` (năm học `0140_add_push_channel`) | `channel`, `delivered_via` nhận thêm `push`; chỉ mục (user_id, sent_at) cho dòng `push` |
 
 ## 19. Quan hệ chính giữa các bảng
 

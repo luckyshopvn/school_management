@@ -1,4 +1,5 @@
 import { existsSync, readFileSync } from 'node:fs';
+import { fileURLToPath } from 'node:url';
 import { defineConfig, devices } from '@playwright/test';
 import { replaceDatabaseName, testAdminDatabaseUrl } from '@school-management/database';
 import {
@@ -10,6 +11,7 @@ import {
   E2E_MULTI_IDENTITY_PORT,
   E2E_MULTI_PORTAL_PORT,
   E2E_MULTI_STATE_FILE,
+  E2E_PUSH_OUTBOX_FILE,
   E2E_PLATFORM_DATABASE_NAME,
   E2E_SHARED_DATABASE_NAME,
   MULTI_TENANT_SPEC,
@@ -92,6 +94,9 @@ export default defineConfig({
         ZALO_SENDER: 'development',
         // Bộ giả lập nhà cung cấp AI (DT-23 phần 23d, spec 153): không gọi dịch vụ AI thật
         AI_MOCK: 'true',
+        // Thông báo đẩy qua bộ giả lập, ghi ra tệp cho spec 182 đọc (DT-26 phần 26b)
+        PUSH_PROVIDER: 'development',
+        PUSH_DEVELOPMENT_OUTBOX: fileURLToPath(E2E_PUSH_OUTBOX_FILE),
       },
     },
     {

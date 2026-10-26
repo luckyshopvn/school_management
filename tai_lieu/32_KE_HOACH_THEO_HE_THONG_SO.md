@@ -1,7 +1,7 @@
 # 32. KẾ HOẠCH ĐỒNG BỘ CHỨC NĂNG VÀ GIAO DIỆN THEO HỆ THỐNG CỦA SỞ (DT-15)
 
 - Mô tả: Kế hoạch điều chỉnh School Management theo kết quả khảo sát `31_KHAO_SAT_HE_THONG_SO.md`; từ mục 9 thêm kế hoạch DT-18 điều hành nhà trường, mục 10 thêm kế hoạch DT-19 nền đa cấp học, mục 11 thêm kế hoạch DT-20 Tiểu học (kèm 22c thời khoá biểu), mục 12 thêm kế hoạch DT-21 THCS và THPT (kèm 22g kiểm tra, đánh giá), mục 13 thêm kế hoạch DT-22 (22a thư viện, 22e hồ sơ bồi dưỡng, 22h kho học liệu số), mục 14 thêm kế hoạch DT-SaaS (Enterprise SaaS nhiều trường: S1a, S1b, S2, S3, S4, S5a, S5b, S6, S7a, S7b, S8a, S8b, S9; hai hồ sơ triển khai: thử nghiệm miễn phí và vận hành), mục 15 thêm kế hoạch DT-23 (thi trực tuyến cho học sinh, công cụ lớp học, trò chơi kiến thức và thẻ đáp án giấy, trợ lý AI; 23a đến 23d), mục 18 thêm kế hoạch DT-26 (ứng dụng web cài được, bố cục máy tính bảng, ứng dụng cài đặt iOS và Android; 26a đến 26h), mục 16 thêm DT-24 (danh mục đơn vị toàn quốc, đăng nhập theo đơn vị, quyền vào mọi trường của quản trị nền tảng), mục 19 thêm kế hoạch DT-27 (nền tảng gia sư trực tuyến: gia sư trong trường, khoá học ghi sẵn, hỏi đáp, chợ gia sư mở; 27a đến 27i); mục 17 thêm DT-25 bộ nối nhà cung cấp định danh OIDC, sẵn cho VNeID.
-- Phiên bản: 1.78
+- Phiên bản: 1.79
 - Ngày cập nhật: 2026-10-26
 - Trạng thái: Đã duyệt hướng làm
 - Căn cứ: yêu cầu của Eric ngày 2026-10-13 ("tính năng đã có thì ưu tiên phiên bản và giao diện của Sở; tính năng Sở không có thì giữ nguyên, chỉ đổi giao diện theo trang của Sở") và các lựa chọn của Eric cùng ngày ở mục 2.
@@ -2098,7 +2098,7 @@ Cỡ ước lượng (một phần của DT-16 là một đơn vị, chỉ để
 | Phần | Đợt | Tiến độ |
 |---|---|---|
 | 26a | 1 | Chưa làm; YCTD-231 giữ sẵn, bắt đầu khi 23b đã gộp |
-| 26b | 1 | Chưa làm; YCTD-232 giữ sẵn |
+| 26b | 1 | Phần máy chủ đã làm (YCTD-232, phiên bản 0.144.0): kênh push, bộ nối, đăng ký, tuỳ chọn theo nhóm, khóa VAPID, spec 182; phần giao diện (cài đặt thông báo ở ứng dụng giáo viên, phụ huynh, mã nhận đẩy ở service worker) nối sau khi 26a gộp |
 | 26c | 1 | Chưa làm; YCTD-233 giữ sẵn |
 | 26d | 2 | Chưa làm; YCTD-234 giữ sẵn |
 | 26e | 2 | Chưa làm; YCTD-235 giữ sẵn |

@@ -1,7 +1,7 @@
 # 02. NHẬT KÝ DỰ ÁN
 
 - Mô tả: Ghi nhận công việc, quyết định, thay đổi và vấn đề tồn đọng theo ngày, ngày mới nhất ở trên cùng.
-- Phiên bản: 0.76
+- Phiên bản: 0.77
 - Ngày cập nhật: 2026-10-26
 - Trạng thái: Đang cập nhật
 
@@ -13,6 +13,32 @@
 - Không ghi thông tin tạm thời như kết quả tra cứu, đường dẫn tạm, thông báo lỗi của công cụ.
 
 ## Nhật ký theo ngày
+
+### 2026-10-26 — DT-26 phần 26b: thông báo đẩy Web Push, phần máy chủ
+
+#### Công việc đã thực hiện
+
+- Đọc mục 18 của `32` (26b), mã hàng đợi thông báo (`queueNotification`, `notification-dispatcher.ts`), khóa theo trường (S1a, S3), bộ lập lịch (S1b).
+- Làm phần máy chủ: kênh `push`, bộ nối `PushSender`, đăng ký theo máy, tuỳ chọn theo nhóm, khóa VAPID, điểm cuối API, lệnh dòng lệnh, kiểm thử đơn vị và e2e 182.
+
+#### Quyết định
+
+- Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11: dùng thư viện `web-push` 3.6.7 thay vì tự viết mã hóa RFC 8291; tám nhóm loại ánh xạ theo tiền tố mã loại; loại khẩn lưu ở `notification_urgent_templates`; tối đa 20 máy mỗi người; kênh đẩy chỉ cho người nhận là tài khoản cụ thể ở phần này.
+- Phiên điều phối: mở PR phần máy chủ trước, phần giao diện sau khi 26a (PR 185) gộp.
+
+#### Thay đổi
+
+- Tệp: xem YCTD-232 ở `24_YEU_CAU_THAY_DOI.md`. Phiên bản 0.144.0.
+
+#### Kết quả kiểm thử
+
+- Xem mục kết quả bổ sung trong PR.
+
+#### Vấn đề tồn đọng
+
+- Giao diện cài đặt thông báo và mã nhận đẩy ở service worker: PR nối sau 26a.
+- Kênh đẩy cho người nhận theo vai trò (`role_code`): chưa làm.
+- Thử trên máy thật (iOS 16.4 trở lên đã cài, Android Chrome): điều kiện ra của đợt 1.
 
 ### 2026-10-26 — Vá lỗ hổng phụ thuộc: fast-xml-parser, multer, body-parser
 

@@ -1477,6 +1477,42 @@ export interface SupportAccessGrantsTable {
   created_at: CreatedTimestamp;
 }
 
+// Thông báo đẩy (DT-26 phần 26b, YCTD-232)
+export type PushSubscriptionApp = 'teacher' | 'parent' | 'student';
+export type PushSubscriptionKind = 'web_push' | 'fcm' | 'apns';
+
+export interface PushSubscriptionsTable {
+  id: Generated<string>;
+  user_id: string;
+  app: PushSubscriptionApp;
+  kind: Generated<PushSubscriptionKind>;
+  endpoint_hash: string;
+  endpoint_encrypted: string;
+  keys_encrypted: string;
+  origin: string | null;
+  device_label: string | null;
+  created_at: ColumnType<Date, Date | undefined, never>;
+  last_seen_at: ColumnType<Date, Date | undefined, Date>;
+  last_success_at: Date | null;
+  failure_count: Generated<number>;
+  revoked_at: Date | null;
+  revoked_reason: string | null;
+}
+
+export interface NotificationPreferencesTable {
+  user_id: string;
+  group_code: string;
+  push_enabled: boolean;
+  updated_at: ColumnType<Date, Date | undefined, Date>;
+}
+
+export interface NotificationUrgentTemplatesTable {
+  template_code: string;
+  marked_by: string;
+  marked_by_name: string;
+  marked_at: ColumnType<Date, Date | undefined, never>;
+}
+
 export interface SystemDatabase {
   academic_years: AcademicYearsTable;
   academic_terms: AcademicTermsTable;
@@ -1563,4 +1599,7 @@ export interface SystemDatabase {
   ai_settings: AiSettingsTable;
   ai_requests: AiRequestsTable;
   support_access_grants: SupportAccessGrantsTable;
+  push_subscriptions: PushSubscriptionsTable;
+  notification_preferences: NotificationPreferencesTable;
+  notification_urgent_templates: NotificationUrgentTemplatesTable;
 }
