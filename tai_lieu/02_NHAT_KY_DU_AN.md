@@ -7,6 +7,7 @@
 
 ## Quy ước ghi nhật ký
 
+- Từ YCTD-291 (ngày 2026-10-26), mục nhật ký mới của mỗi PR nằm ở tệp mảnh trong thư mục `tai_lieu/thay_doi_cho_gom/` cho tới lần gom; PR thường không sửa tệp này. Lần gom (`node scripts/gom-thay-doi.mjs`, nhánh `gom-…`) chép các mục vào đây theo thứ tự merge. Quy ước đầy đủ ở `thay_doi_cho_gom/README.md`. Muốn biết việc mới nhất thì đọc cả các tệp ở thư mục đó.
 - Mục mới ghi ở trên cùng; không sửa nội dung mục cũ.
 - Từ ngày 2026-10-09, mỗi mục ghi theo mẫu của Vibecoding_Flow: công việc đã thực hiện, quyết định, thay đổi, vấn đề tồn đọng. Các mục cũ giữ nguyên dạng và tên tệp cũ.
 - Mỗi mục ghi rõ ngày, người thực hiện, nội dung, tệp bị ảnh hưởng, kết quả kiểm thử.
@@ -14,26 +15,26 @@
 
 ## Nhật ký theo ngày
 
-### 2026-10-26 — DT-23 phần 23e: giám thị camera cho thi trực tuyến
+### 2026-10-26 — Đổi quy ước ghi tài liệu chung sang tệp mảnh (YCTD-291)
 
 #### Công việc đã thực hiện
 
-- Đọc mục 15 của `32_KE_HOACH_THEO_HE_THONG_SO.md` (15.3, 15.4, 15.6 dòng "Học sinh gian lận khi thi ở nhà", GD-106, mục 19 về coturn dùng chung với 27a, GD-132) và mã 23a (`student-exams.ts`, `proctoring.ts`, `ExamRoom.tsx`, kho tệp, bộ lập lịch); viết mục 15.4 "23e".
-- Cơ sở dữ liệu: năm học `0129`. Máy chủ API: dịch vụ giám thị (phiên xem trực tiếp, báo hiệu, đồng ý, ghi hình mã hoá, xem lại, dọn quá hạn), cấu hình máy chủ ICE. Ứng dụng phụ huynh: thông báo, bộ trả lời WebRTC, bộ ghi hình, màn hình đồng ý của phụ huynh. Cổng quản trị: lưới camera, đồng ý của cha mẹ, nhật ký người xem, xem lại bản ghi, cấu hình. Hồ sơ vận hành: coturn.
-- Thêm quy tắc BR-239, chức năng P02-86 đến P02-89, quyền PQ-110, biện pháp BM-101 đến BM-103, màn hình MH-349 đến MH-351, kịch bản CT-1112 đến CT-1117, tiêu chí AC-883 đến AC-887. Kết quả ngày 26/10/2026: kiểm thử đơn vị `apps/api/src/online-exams/exam-proctoring.test.ts` (CT-23e-1a đến CT-23e-1c) và `online-exams.test.ts` (CT-23e-1 đến CT-23e-4) đạt; kiểm thử đơn vị toàn kho đạt (bộ 23e, 23a, 22g, định danh chạy riêng; toàn bộ để CI chạy); kiểm thử giao diện `tests/e2e/154-online-exam-proctoring.spec.ts` (CT-23e-5) cùng 02, 03, 06, 08, 150 đạt; toàn bộ kiểm thử giao diện để CI chạy toàn bộ; trên máy chạy riêng 02, 03, 06, 08, 101, 150 và 154; kiểm tĩnh đa thuê bao, ma trận cách ly, kiểm thử hai bố cục cơ sở dữ liệu `database` và `schema`, build, kiểm tra kiểu, lint, kiểm tra định dạng đạt.
+- Các phiên làm song song (DT-23 đến DT-28) mỗi PR đều thêm mục vào `02`, `23`, `24`, bảng mốc phát hành ở `01`, số đếm ở `index.md` và tăng số phiên bản đầu các tài liệu này, nên mỗi lần một PR merge thì mọi PR khác xung đột tài liệu, phải gộp main và chạy lại CI (khoảng 40 phút); `gh pr update-branch` cũng không gộp được.
+- Thêm thư mục `tai_lieu/thay_doi_cho_gom/` kèm `README.md` mô tả quy ước và định dạng tệp mảnh; tập lệnh `scripts/gom-thay-doi.mjs` (Node, không thêm gói) có chế độ `--kiem` và chế độ gom; kiểm thử đơn vị `tests/tai-lieu/gom-thay-doi.test.mjs` (chạy trong `pnpm test` của gói `tests`); CI thêm bước `--kiem` và bước cảnh báo PR thường sửa trực tiếp `02`, `23`, `24`, `index.md`.
+- Thử gom trên bản sao `tai_lieu` với hai tệp mảnh mẫu: mục 02, 24, 23 chèn đúng chỗ theo thứ tự, phiên bản phần mềm chốt 0.145.0 rồi 0.145.1, dòng 01 chèn trước 1.0.0, số đếm và khoảng mã ở `index.md` đúng, phiên bản đầu tài liệu tăng một lần. Kết quả ngày 26/10/2026: kiểm thử đơn vị `tests/tai-lieu/gom-thay-doi.test.mjs` đạt 5/5; `node scripts/gom-thay-doi.mjs --kiem`, lint, kiểm tra định dạng đạt.
 
 #### Quyết định
 
-- Thực hiện phần 23e theo đề xuất của phiên điều phối (Eric yêu cầu): hình xem trực tiếp đi thẳng giữa hai trình duyệt, không qua máy chủ API (nhẹ tải, ít rủi ro lộ hình); báo hiệu bằng hỏi định kỳ vì máy chủ chưa có kênh web socket; ghi hình do trình duyệt học sinh tải từng đoạn (không dựng máy chủ ghi hình riêng); đồng ý của cha mẹ kiểm cả lúc xem và lúc ghi; mặc định tắt và cần luật sư rà trước khi bật ở trường thật.
+- Eric đồng ý ngày 2026-10-26 chuyển sang tệp mảnh theo từng PR, gom định kỳ. Chi tiết (tên thư mục, định dạng, cách đánh số phiên bản khi gom, cảnh báo không chặn) Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11.
+- PR này là PR cuối cùng sửa trực tiếp `02`, `24`, `index.md` theo cách cũ. Không tăng phiên bản phần mềm (chỉ đổi quy trình tài liệu và CI).
 
 #### Thay đổi
 
-- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-215, `07_QUY_TAC_NGHIEP_VU.md` BR-239, `08_VAI_TRO_NGUOI_DUNG.md` PQ-110, `10_YEU_CAU_CHUC_NANG.md` P02-86 đến P02-89, `11_TIEU_CHI_NGHIEM_THU.md` AC-883 đến AC-887, `14_DAC_TA_GIAO_DIEN.md` MH-349 đến MH-351, `16_CO_SO_DU_LIEU.md`, `17_DAC_TA_API.md`, `21_KICH_BAN_KIEM_THU.md` CT-1112 đến CT-1117, `22_BAO_MAT.md` BM-101 đến BM-103, `23_LICH_SU_PHIEN_BAN.md` 0.151.0, `33_HO_SO_PHAP_LY/` PL-13, PL-15.
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-291, `thay_doi_cho_gom/README.md`, `01_KE_HOACH_TONG_THE.md` mục 9, `19_CHI_DAN_HE_THONG_AI.md` mục 2, đầu `23_LICH_SU_PHIEN_BAN.md`, `index.md`.
 
 #### Vấn đề tồn đọng
 
-- Luật sư rà quy định dữ liệu trẻ em, ghi hình và giám sát (PL-15) trước khi bật ở trường thật; thử coturn và thử tải ở môi trường thật; ảnh chụp định kỳ, AI cảnh báo bất thường không làm.
-
+- Các PR đang mở (188, 191, 192, 193) đã sửa trực tiếp tài liệu chung theo cách cũ; phiên điều phối quyết định chuyển phần đó sang tệp mảnh hay để merge như cũ. Lần gom đầu tiên chưa chạy.
 
 ### 2026-10-26 — DT-26 phần 26a: vỏ ứng dụng web cài được dùng chung
 
