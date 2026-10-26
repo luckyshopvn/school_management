@@ -26,6 +26,9 @@ const DIRECTORY =
 const HANDOFF =
   'Đổi mã chuyển phiên sau đăng nhập theo đơn vị (DT-24): công khai theo tên miền của trường, cần mã một lần của đúng trường (chỉ lưu mã băm ở cơ sở dữ liệu định danh của trường, hạn 2 phút)';
 
+const EXTERNAL =
+  'Đăng nhập bằng nhà cung cấp định danh bên ngoài (DT-25): công khai theo tên miền của trường (cấu hình, liên kết và Redis của đúng trường), state và vé nhập mã dùng một lần có hạn, có giới hạn tần suất; lượt liên kết còn cần mã phiên của đúng phiên đã bắt đầu';
+
 export const PUBLIC_ROUTES: PublicRoute[] = [
   {
     method: 'GET',
@@ -125,4 +128,9 @@ export const PUBLIC_ROUTES: PublicRoute[] = [
   { method: 'PUT', path: '/api/v1/auth/platform/login-page', reason: PLATFORM },
   { method: 'GET', path: '/api/v1/auth/platform/support-policy', reason: PLATFORM },
   { method: 'PUT', path: '/api/v1/auth/platform/support-policy', reason: PLATFORM },
+  // Đăng nhập bằng nhà cung cấp định danh bên ngoài (DT-25): danh sách nút, bắt đầu, quay về, nhập mã hai lớp
+  { method: 'GET', path: '/api/v1/auth/external/providers', reason: EXTERNAL },
+  { method: 'POST', path: '/api/v1/auth/external/:provider/start', reason: EXTERNAL },
+  { method: 'POST', path: '/api/v1/auth/external/callback', reason: EXTERNAL },
+  { method: 'POST', path: '/api/v1/auth/external/complete', reason: EXTERNAL },
 ];

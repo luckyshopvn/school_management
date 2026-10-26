@@ -1,7 +1,7 @@
 # 24. YÊU CẦU THAY ĐỔI
 
 - Mô tả: Sổ quản lý yêu cầu thay đổi, ghi lý do, đánh giá ảnh hưởng và trạng thái của từng thay đổi trước khi triển khai.
-- Phiên bản: 0.72
+- Phiên bản: 0.73
 - Ngày cập nhật: 2026-10-26
 - Trạng thái: Đang cập nhật
 
@@ -11,6 +11,27 @@ Mã yêu cầu thay đổi dạng `YCTD-nn`, đánh số tăng dần, không tá
 
 Các thay đổi trước phiên bản 0.4.0 chưa có sổ này; xem `23_LICH_SU_PHIEN_BAN.md` các phiên bản 0.1.0 đến 0.3.1.
 
+### YCTD-225: DT-25: bộ nối nhà cung cấp định danh OIDC, sẵn cho VNeID (phần máy chủ) – 2026-10-26
+
+- Lý do: Eric yêu cầu ngày 2026-10-26 xây bộ nối nhà cung cấp định danh bên ngoài theo chuẩn OIDC để sau này cắm VNeID qua Trung tâm RAR (Cục C06) mà không sửa mã nghiệp vụ. Khảo sát cùng ngày cho thấy doanh nghiệp tư nhân chỉ dùng VNeID qua hợp đồng với RAR và chuẩn kỹ thuật của RAR chưa công bố, nên làm bộ nối OIDC chung, tham số chưa biết là cấu hình.
+- Nội dung thay đổi (Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11 ở những chỗ Eric chưa quyết):
+  - `32_KE_HOACH_THEO_HE_THONG_SO.md` phiên bản 1.78: thêm mục 17 "DT-25" (căn cứ, nguyên tắc, bước 25a máy chủ và 25b giao diện, thiết kế, quyết định, rủi ro, tiến độ, giả định GD-113 đến GD-115). Số giữ sẵn: YCTD-225, migration định danh 0140 (0141 dự phòng), e2e `165-` (166 dự phòng).
+  - **Lớp và bộ nối** (`apps/identity/src/external-identity/`): lớp trừu tượng `IdentityProvider`; `OidcIdentityProvider` (authorization code + PKCE S256, `state` và `nonce` dùng một lần, discovery có kiểm `issuer`, kiểm chữ ký `id_token` qua JWKS chỉ với thuật toán khóa bất đối xứng, kiểm `iss`, `aud`, `azp`, `exp`, `iat`, tải lại bộ khóa khi nhà cung cấp quay khóa); hồ sơ `oidc` và `vneid`; danh sách mục hồ sơ `vneid` "chờ tài liệu RAR" (`issuer`, `discovery`, `scopes`, `token_auth_method`, `subject_claim`, `assurance_claim`, `birthdate_claim`, `mfa_assurance_values`, `extra_authorization_parameters`).
+  - **Cấu hình:** nền tảng khai nhà cung cấp ở biến môi trường `EXTERNAL_IDENTITY_PROVIDERS` (JSON, không chứa bí mật) và `EXTERNAL_IDENTITY_<MÃ>_CLIENT_SECRET`; trường bật tắt (mặc định tắt), mã ứng dụng và khóa riêng (mã hóa bằng khóa của trường), nhóm vai trò được dùng (mặc định mọi vai trò trừ học sinh), "coi là đạt xác thực hai lớp" (mặc định tắt) ở `PUT /auth/external/settings/:provider`, quyền `P01.account.manage`, ghi `identity_audit_logs`.
+  - **Liên kết tài khoản:** không tự tạo tài khoản; người đã có tài khoản tự liên kết, gỡ liên kết sau khi nhập lại mật khẩu riêng và mã xác thực hai lớp (nếu đã bật), không trong phiên đăng nhập thay hay phiên hỗ trợ; lượt liên kết chỉ hoàn tất trong đúng phiên đã bắt đầu; mỗi subject một tài khoản, mỗi tài khoản một liên kết với mỗi nhà cung cấp. Chỉ lưu subject mã hóa AES-256-GCM bằng khóa của trường cùng băm HMAC bằng khóa băm của trường (chế độ một trường dùng `TOTP_ENCRYPTION_KEY`); không lưu số định danh, căn cước, ngày sinh; không gọi `userinfo`.
+  - **Đăng nhập:** nền tảng đã khai và trường đang bật (kiểm lại lúc quay về); tài khoản còn hiệu lực; vai trò thuộc nhóm được dùng; học sinh (VT-21 của 23a) chỉ khi trường cho và nhà cung cấp trả ngày sinh đủ 14 tuổi; ngày sinh dưới 14 tuổi luôn bị từ chối; người đã bật xác thực hai lớp nhận vé 5 phút và nhập mã ở `POST /auth/external/complete` (sai 3 lần làm lại), trừ khi trường bật "coi là đạt" và mức đảm bảo nằm trong danh sách nền tảng khai. Phiên có `login_method = 'external_provider'`, không bắt đổi mật khẩu ở phiên này.
+  - **Nhật ký:** `external_identity_events` (liên kết, gỡ, đăng nhập, từ chối kèm lý do, sửa cấu hình); người dùng xem nhật ký của mình ở `GET /auth/external/events`.
+  - **Mã chung:** `Infrastructure.scopedCache` (khóa Redis luôn qua `keyPrefix()` của trường) dùng cho `state` và vé nhập mã; `AuthenticationService.refresh` coi phiên `external_provider` như phiên mã một lần; bốn tuyến công khai khai ở `tenancy-route-policy.ts`.
+  - **Kiểm thử:** nhà cung cấp OIDC giả lập cục bộ `MockOidcServer` (khóa ký sinh mới mỗi lần chạy, cố ý làm hỏng chữ ký, nonce, đối tượng, bên phát hành, hạn; quay khóa), xuất ở `@school-management/identity/testing`; e2e `165-external-identity.spec.ts`; môi trường e2e khai nhà cung cấp giả lập ở cổng 3299 và sinh `TOTP_ENCRYPTION_KEY` ngẫu nhiên khi `.env` không có.
+  - Tài liệu: `22_BAO_MAT.md` 1.18 (BM-95, BM-96); `33_HO_SO_PHAP_LY/` PL-02 và PL-05 lên S8a-1.1 (nhà cung cấp định danh bên ngoài, chờ luật sư rà vai trò của nhà cung cấp); `34_TONG_HOP_CHUC_NANG_HE_THONG/` 1.1; `01` (đợt DT-25, RR-23, GD-113 đến GD-115), `02`, `23`.
+- Thành phần bị ảnh hưởng: `apps/identity` (phân hệ mới `external-identity`, `common/configuration.ts`, `common/infrastructure.ts`, `application.module.ts`, `tenancy-route-policy.ts`, `accounts/identity-audit-log.ts`, `authentication/authentication.service.ts`, `test-support.ts`); `database/identity` (migration 0140, `schema.ts`); `tests` (spec 165, `playwright.config.ts`, `e2e-environment.mjs`); tài liệu `01`, `02`, `22`, `23`, `24`, `32`, `33`, `34`.
+- Dữ liệu bị ảnh hưởng: cơ sở dữ liệu định danh của mỗi trường thêm `external_identity_providers`, `external_identities`, `external_identity_events`; ràng buộc `sessions_login_method_check` thêm `external_provider`. Không đổi dữ liệu cũ.
+- API bị ảnh hưởng: thêm nhóm `/auth/external/*` ở dịch vụ định danh (`providers`, `:provider/start`, `callback`, `complete` công khai; `links`, `events`, `:provider/link`, `:provider/unlink`, `settings`, `settings/:provider` cần mã phiên). Không đổi điểm cuối cũ.
+- Giao diện bị ảnh hưởng: chưa (bước 25b làm sau khi DT-24 gộp).
+- Quyền bị ảnh hưởng: không thêm quyền; cấu hình dùng `P01.account.manage`.
+- Ảnh hưởng chức năng cũ: không. Nền tảng không khai nhà cung cấp (mặc định) hoặc trường chưa bật thì mọi điểm cuối mới trả trống hoặc báo chưa bật, đăng nhập như cũ.
+- Kiểm thử cần thực hiện: kiểm thử đơn vị `external-identity` (khai báo, PKCE, tuổi; liên kết, đăng nhập, chữ ký sai, nonce sai, sai đối tượng, sai bên phát hành, hết hạn, state dùng lại, liên kết khác phiên, subject đã liên kết với người khác, quay khóa, nhóm vai trò, dưới 14 tuổi, xác thực hai lớp, trường tắt, gỡ liên kết, nhật ký); cách ly hai trường; ma trận cách ly; các ca đăng nhập, xác thực hai lớp, nhiều trường hiện có; kiểm tĩnh đa thuê bao; e2e 165 cùng spec đăng nhập.
+- Trạng thái: Đã triển khai (phần máy chủ); bước 25b chờ DT-24
 ### YCTD-250: Kế hoạch DT-27: nền tảng gia sư trực tuyến – 2026-10-26
 
 - Lý do: Eric quyết định ngày 2026-10-26 làm nền tảng gia sư trực tuyến theo hai mô hình (trước: gia sư trong từng trường; sau: chợ gia sư mở có hoa hồng), ba hình thức học (lớp video trực tiếp, khoá học ghi sẵn, hỏi đáp bài tập có gợi ý AI nháp) và thu phí qua nền tảng có hoàn tiền, tranh chấp. Phiên điều phối giao viết kế hoạch vào `32_KE_HOACH_THEO_HE_THONG_SO.md` như DT-23.

@@ -1,6 +1,6 @@
 # PL-02. MẪU THỎA THUẬN XỬ LÝ DỮ LIỆU CÁ NHÂN
 
-- Mã mẫu: PL-02; phiên bản mẫu: S8a-1.1 (2026-10-26, thêm Điều 5a theo DT-24, YCTD-220; bản S8a-1.0 ngày 2026-10-25, YCTD-200). Bằng chứng: `school_consents` loại `dpa`.
+- Mã mẫu: PL-02; phiên bản mẫu: S8a-1.2 (2026-10-26; YCTD-225 thêm khoản 5 Điều 7 về nhà cung cấp định danh bên ngoài), S8a-1.1 (2026-10-26, thêm Điều 5a theo DT-24, YCTD-220), S8a-1.0 (2026-10-25, YCTD-200). Bằng chứng: `school_consents` loại `dpa`.
 - Trạng thái: **bản nháp, cần luật sư rà trước khi dùng.**
 - Vai trò: **Nhà trường là bên kiểm soát dữ liệu cá nhân, Nền tảng là bên xử lý dữ liệu cá nhân** (khoản 1, khoản 2 Điều 37 Luật Bảo vệ dữ liệu cá nhân số 91/2025/QH15).
 - Căn cứ nội dung bắt buộc (đã đọc ngày 2026-10-25): khoản 2 Điều 37 Luật 91/2025 (bên xử lý chỉ nhận dữ liệu sau khi có thỏa thuận, xử lý đúng thỏa thuận); Điều 7 Nghị định 356/2025/NĐ-CP (nội dung thỏa thuận chuyển giao dữ liệu cá nhân); Điều 12 Nghị định 356/2025/NĐ-CP (hợp đồng có xử lý dữ liệu cá nhân với dịch vụ điện toán đám mây); điểm b khoản 2 Điều 19 Nghị định 356/2025/NĐ-CP (bản sao thỏa thuận là thành phần hồ sơ đánh giá tác động).
@@ -75,6 +75,12 @@ Nền tảng áp dụng tối thiểu:
 2. Nền tảng ký với bên xử lý phụ điều khoản bảo vệ dữ liệu không kém Thỏa thuận này, đề nghị bên xử lý phụ thực hiện nghĩa vụ bảo vệ dữ liệu theo pháp luật Việt Nam (điểm b khoản 3 Điều 12 Nghị định 356/2025/NĐ-CP), và chịu trách nhiệm trước Nhà trường về việc làm của bên xử lý phụ.
 3. Thêm, đổi bên xử lý phụ hoặc vùng máy chủ: báo trước `[30]` ngày; Nhà trường có quyền phản đối, chấm dứt không bị phạt.
 4. Nếu hồ sơ triển khai đặt máy chủ ngoài Việt Nam, việc lưu trữ đó là **chuyển dữ liệu cá nhân xuyên biên giới** (khoản 1 Điều 20 Luật 91/2025; điểm a khoản 1 Điều 17 Nghị định 356/2025/NĐ-CP); hai bên làm theo PL-03, PL-07, PL-10.
+5. **Nhà cung cấp định danh bên ngoài** (DT-25, YCTD-225; ví dụ VNeID qua tổ chức cung cấp dịch vụ xác thực điện tử, hiện là Trung tâm RAR thuộc Cục C06, Bộ Công an): chỉ dùng khi Nền tảng đã khai nhà cung cấp và **Nhà trường tự bật** (mặc định tắt). Khi bật:
+   - Nền tảng **không tự tạo tài khoản** từ nhà cung cấp; người dùng đã có tài khoản tự liên kết sau khi xác nhận lại bằng mật khẩu và mã xác thực hai lớp (nếu đã bật), và tự gỡ liên kết được;
+   - Nền tảng **chỉ nhận và lưu mã liên kết (subject)** do nhà cung cấp trả, mã hóa bằng khóa riêng của Nhà trường; **không nhận, không lưu số định danh cá nhân, căn cước, họ tên, ngày sinh** hay thông tin khác của chủ thể dữ liệu từ nhà cung cấp; ngày sinh, nếu nhà cung cấp trả, chỉ dùng tức thời để không cho người dưới 14 tuổi tự đăng nhập, không lưu;
+   - mọi lần liên kết, gỡ liên kết, đăng nhập, từ chối được ghi nhật ký và Nhà trường xem được;
+   - nhà cung cấp định danh xử lý dữ liệu đăng nhập của người dùng theo quy định và thỏa thuận riêng của nhà cung cấp với người dùng và với Nền tảng; `[luật sư xác định vai trò của nhà cung cấp định danh (bên kiểm soát độc lập hay bên xử lý phụ) và có cần ghi vào Phụ lục B không]`;
+   - Nhà trường quyết định nhóm người dùng được dùng (mặc định phụ huynh, giáo viên, cán bộ; không dùng cho học sinh dưới 14 tuổi); đăng nhập bằng mật khẩu luôn còn làm phương án dự phòng.
 
 ## Điều 8. Thông báo vi phạm
 
@@ -103,8 +109,8 @@ Thỏa thuận có hiệu lực từ ngày ký và chấm dứt cùng Hợp đ�
 | Nhóm chủ thể | Loại dữ liệu (ví dụ theo phân hệ) | Nhạy cảm? | Căn cứ xử lý do Nhà trường chọn |
 |---|---|---|---|
 | Học sinh (trẻ em) | Họ tên, ngày sinh, giới tính, lớp, mã định danh của Bộ, số định danh cá nhân (mã hóa), địa chỉ; điểm danh, đón trả; học tập, đánh giá, điểm; ảnh, hoạt động; sức khỏe, cân đo, dặn thuốc | Sức khỏe: có; số định danh: bảo mật | `[ ]` |
-| Cha mẹ, người giám hộ, người đưa đón | Họ tên, quan hệ, số điện thoại, thư điện tử, ảnh người đưa đón, tài khoản ứng dụng | Không, trừ ảnh dùng nhận diện | `[ ]` |
-| Cán bộ, giáo viên, nhân viên | Hồ sơ nhân sự, bằng cấp, chứng chỉ, phân công, chấm công, nghỉ phép, lương, bảo hiểm, tài khoản ngân hàng nhận lương | Thông tin tài khoản ngân hàng: có | `[ ]` |
+| Cha mẹ, người giám hộ, người đưa đón | Họ tên, quan hệ, số điện thoại, thư điện tử, ảnh người đưa đón, tài khoản ứng dụng; mã liên kết với nhà cung cấp định danh bên ngoài nếu người dùng tự liên kết (mã hóa, Điều 7 khoản 5) | Không, trừ ảnh dùng nhận diện | `[ ]` |
+| Cán bộ, giáo viên, nhân viên | Hồ sơ nhân sự, bằng cấp, chứng chỉ, phân công, chấm công, nghỉ phép, lương, bảo hiểm, tài khoản ngân hàng nhận lương; mã liên kết với nhà cung cấp định danh bên ngoài nếu người dùng tự liên kết (mã hóa, Điều 7 khoản 5) | Thông tin tài khoản ngân hàng: có | `[ ]` |
 | Người nộp hồ sơ tuyển sinh, ứng viên tuyển dụng | Theo biểu mẫu tuyển sinh, tuyển dụng | `[ ]` | `[ ]` |
 
 ## Phụ lục B. Bên xử lý phụ và vùng máy chủ

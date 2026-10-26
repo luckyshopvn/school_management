@@ -307,8 +307,8 @@ export class AuthenticationService {
       throw unauthenticatedError();
     }
     const user = await this.findActiveUser(session.user_id, now);
-    // Phiên đăng nhập bằng mã một lần luôn là phiên đầy đủ (Q-147)
-    const oneTimeCodeSession = session.login_method === 'one_time_code';
+    // Phiên đăng nhập bằng mã một lần hoặc nhà cung cấp định danh ngoài (DT-25) luôn là phiên đầy đủ (Q-147)
+    const oneTimeCodeSession = session.login_method === 'one_time_code' || session.login_method === 'external_provider';
     const expiry = oneTimeCodeSession ? NO_PASSWORD_EXPIRY : await this.passwordExpiry(user, now);
     // Phiên hỗ trợ (DT-SaaS phần S4): chỉ làm mới khi phiên hỗ trợ còn hiệu lực và trường chưa rút cho phép
     let support: SupportScope | undefined;
