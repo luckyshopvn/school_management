@@ -7,7 +7,7 @@ export const TOKEN_ISSUER = 'school-management-identity';
 export const TOKEN_AUDIENCE = 'school-management';
 export const TOKEN_SIGNING_ALGORITHM = 'EdDSA';
 
-export type SessionChannel = 'portal' | 'teacher' | 'parent';
+export type SessionChannel = 'portal' | 'teacher' | 'parent' | 'student';
 
 export interface AccessTokenClaims {
   userId: string;

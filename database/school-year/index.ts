@@ -90,6 +90,10 @@ import { migration as createTrainingRecords } from './migrations/0101_create_tra
 import { migration as widenAwardBasis } from './migrations/0089_widen_award_basis.js';
 import { migration as createGraduation } from './migrations/0091_create_graduation.js';
 import { migration as createLearningResourceActivity } from './migrations/0102_create_learning_resource_activity.js';
+import { migration as createOnlineExamAssignments } from './migrations/0120_create_online_exam_assignments.js';
+import { migration as createOnlineExamAttempts } from './migrations/0121_create_online_exam_attempts.js';
+import { migration as extendExamSheetsForOnline } from './migrations/0122_extend_exam_sheets_for_online.js';
+import { migration as linkLearningAccountsToIdentity } from './migrations/0123_link_learning_accounts_to_identity.js';
 import { migration as createResourceQuestionsAndRubrics } from './migrations/0103_create_resource_questions_and_rubrics.js';
 import { migration as addQuestionAiFlag } from './migrations/0128_add_question_ai_flag.js';
 import { migration as createClassroomTools } from './migrations/0124_create_classroom_tools.js';
@@ -189,6 +193,10 @@ export const schoolYearMigrations: Record<string, Migration> = {
   '0091_create_graduation': createGraduation,
   '0102_create_learning_resource_activity': createLearningResourceActivity,
   '0103_create_resource_questions_and_rubrics': createResourceQuestionsAndRubrics,
+  '0120_create_online_exam_assignments': createOnlineExamAssignments,
+  '0121_create_online_exam_attempts': createOnlineExamAttempts,
+  '0122_extend_exam_sheets_for_online': extendExamSheetsForOnline,
+  '0123_link_learning_accounts_to_identity': linkLearningAccountsToIdentity,
   // Trợ lý AI (DT-23 phần 23d): 0128
   '0128_add_question_ai_flag': addQuestionAiFlag,
   '0124_create_classroom_tools': createClassroomTools,

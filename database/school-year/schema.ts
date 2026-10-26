@@ -4299,6 +4299,8 @@ export interface StudentLearningAccountsTable extends CatalogRecordColumns {
   issued_at: Date;
   issued_by_name: string;
   reset_count: Generated<number>;
+  // Người dùng định danh của kênh student gắn một-một với tài khoản này (DT-23 phần 23a)
+  identity_user_id: string | null;
 }
 
 // Chuyển đi, tiếp nhận chuyển đến giữa các trường chạy nội bộ (mục 4.2 của Sở, DT-16 phần 16g)
@@ -5993,10 +5995,151 @@ export interface ExamSheetsTable {
   total_score: ColumnType<string | null, number | null | undefined, number | null>;
   results: DefaultJson;
   needs_review: Generated<boolean>;
-  source: ColumnType<'manual' | 'import', 'manual' | 'import' | undefined, 'manual' | 'import'>;
+  source: ColumnType<
+    'manual' | 'import' | 'online',
+    'manual' | 'import' | 'online' | undefined,
+    'manual' | 'import' | 'online'
+  >;
+  // Lượt làm trực tuyến đang được tính vào phiếu (DT-23 phần 23a)
+  attempt_id: string | null;
   updated_by: string | null;
   updated_by_name: string | null;
   updated_at: UpdatedTimestamp;
+}
+
+// Thi trực tuyến cho học sinh (DT-23 phần 23a, YCTD-211)
+export interface OnlineExamSettingsTable {
+  school_level: SchoolLevelCode;
+  student_login_enabled: Generated<boolean>;
+  updated_by: string | null;
+  updated_by_name: string | null;
+  updated_at: UpdatedTimestamp;
+}
+
+export type ExamMode = 'at-school' | 'remote';
+
+// Cấu hình thi trực tuyến của trường (DT-23 phần 23a, Eric chốt 2026-10-26: mặc định chỉ thi tại trường); một dòng duy nhất
+export interface OnlineExamSchoolSettingsTable {
+  id: Generated<boolean>;
+  default_exam_mode: Generated<ExamMode>;
+  allow_remote: Generated<boolean>;
+  allowed_networks: DefaultJson;
+  room_code_minutes: Generated<number>;
+  updated_by: string | null;
+  updated_by_name: string | null;
+  updated_at: UpdatedTimestamp;
+}
+
+export interface ExamRoomsTable {
+  id: Generated<string>;
+  assignment_id: string;
+  code: string;
+  opened_by: string;
+  opened_by_name: string;
+  opened_at: CreatedTimestamp;
+  expires_at: Date;
+  closed_at: Date | null;
+  closed_by_name: string | null;
+}
+
+export interface ExamRoomStudentsTable {
+  room_id: string;
+  child_id: string;
+  entered_at: Date | null;
+}
+
+export interface ExamAssignmentsTable {
+  id: Generated<string>;
+  exam_id: string;
+  school_level: SchoolLevelCode;
+  title: string;
+  opens_at: Date;
+  closes_at: Date;
+  duration_minutes: number;
+  max_attempts: Generated<number>;
+  attempt_policy: Generated<'best' | 'last'>;
+  shuffle_questions: Generated<boolean>;
+  shuffle_options: Generated<boolean>;
+  variant_mode: Generated<'random' | 'fixed'>;
+  fixed_variant_code: string | null;
+  result_mode: Generated<'immediate' | 'after_close' | 'teacher_release'>;
+  results_released_at: Date | null;
+  fullscreen_required: Generated<boolean>;
+  max_violations: Generated<number>;
+  violation_action: Generated<'flag' | 'auto_submit'>;
+  camera_enabled: Generated<boolean>;
+  camera_fallback: Generated<'block' | 'flag'>;
+  single_session_mode: Generated<'reject_new' | 'close_old'>;
+  exam_mode: Generated<ExamMode>;
+  term_type: Generated<'first_term' | 'second_term'>;
+  score_kind: Generated<'regular' | 'mid' | 'final'>;
+  score_seq: Generated<number>;
+  true_false_rule: Generated<'tiered' | 'proportional'>;
+  absent_policy: Generated<'skip' | 'zero'>;
+  status: Generated<'published' | 'cancelled'>;
+  created_by: string;
+  created_by_name: string;
+  created_at: CreatedTimestamp;
+  updated_at: UpdatedTimestamp;
+}
+
+export interface ExamAssignmentTargetsTable {
+  id: Generated<string>;
+  assignment_id: string;
+  kind: 'class' | 'student';
+  class_id: string | null;
+  child_id: string | null;
+}
+
+export interface ExamAttemptsTable {
+  id: Generated<string>;
+  assignment_id: string;
+  child_id: string;
+  attempt_no: number;
+  variant_code: string;
+  layout: JsonDocument;
+  started_at: Date;
+  deadline_at: Date;
+  submitted_at: Date | null;
+  submit_reason: 'manual' | 'timeout' | 'violation' | 'teacher' | null;
+  status: Generated<'in_progress' | 'submitted'>;
+  session_id: string;
+  answers: DefaultJson;
+  essay_marks: DefaultJson;
+  last_saved_at: Date | null;
+  objective_score: ColumnType<string | null, number | null | undefined, number | null>;
+  essay_score: ColumnType<string | null, number | null | undefined, number | null>;
+  total_score: ColumnType<string | null, number | null | undefined, number | null>;
+  max_score: ColumnType<string | null, number | null | undefined, number | null>;
+  results: DefaultJson;
+  needs_marking: Generated<boolean>;
+  flagged: Generated<boolean>;
+  flag_reasons: DefaultJson;
+  camera_state: Generated<'off' | 'granted' | 'denied' | 'unavailable'>;
+  sheet_synced: Generated<boolean>;
+  created_at: CreatedTimestamp;
+  updated_at: UpdatedTimestamp;
+}
+
+export type ExamAttemptEventType =
+  | 'fullscreen_exit'
+  | 'page_hidden'
+  | 'window_blur'
+  | 'camera_denied'
+  | 'camera_unavailable'
+  | 'camera_lost'
+  | 'no_face'
+  | 'multiple_faces'
+  | 'second_session';
+
+export interface ExamAttemptEventsTable {
+  id: Generated<string>;
+  attempt_id: string;
+  event_type: ExamAttemptEventType;
+  occurred_at: Date;
+  client_at: Date | null;
+  detail: DefaultJson;
+  created_at: CreatedTimestamp;
 }
 
 export interface ExamMatricesTable {
@@ -6092,6 +6235,14 @@ export interface SchoolYearDatabase {
   exam_variants: ExamVariantsTable;
   exam_sessions: ExamSessionsTable;
   exam_sheets: ExamSheetsTable;
+  online_exam_settings: OnlineExamSettingsTable;
+  online_exam_school_settings: OnlineExamSchoolSettingsTable;
+  exam_rooms: ExamRoomsTable;
+  exam_room_students: ExamRoomStudentsTable;
+  exam_assignments: ExamAssignmentsTable;
+  exam_assignment_targets: ExamAssignmentTargetsTable;
+  exam_attempts: ExamAttemptsTable;
+  exam_attempt_events: ExamAttemptEventsTable;
   org_units: OrgUnitsTable;
   audit_logs: AuditLogsTable;
   settings: SettingsTable;
