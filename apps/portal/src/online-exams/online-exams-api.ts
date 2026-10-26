@@ -71,7 +71,8 @@ export interface AssignmentDetail {
   proctor_live: boolean;
   proctor_record: boolean;
   rooms: ExamRoom[];
-  targets: Array<{ kind: 'class' | 'student'; label: string }>;
+  // `group`: nhóm của bộ nhóm (DT-28 phần 28a)
+  targets: Array<{ kind: 'class' | 'student' | 'group'; label: string }>;
   students: MonitorStudent[];
 }
 

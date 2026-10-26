@@ -508,6 +508,7 @@ import { AiAssistantController, AiUsageJob } from './ai-assistant/ai-assistant.c
 import { AI_PROVIDERS, AiAssistantService } from './ai-assistant/ai-assistant.js';
 import { AiProviderRegistry } from './ai-assistant/ai-provider.js';
 import { ClassroomToolsController, ClassroomToolsService } from './classroom-tools/classroom-tools.js';
+import { GroupSetsController, GroupSetsReader, GroupSetsService } from './child-groups/group-sets.js';
 
 @Module({})
 export class ApplicationModule {
@@ -793,6 +794,8 @@ export class ApplicationModule {
         // Thông báo đẩy Web Push (DT-26 phần 26b)
         PushController,
         PublicPushController,
+        // Mô hình nhóm dùng chung (DT-28 phần 28a)
+        GroupSetsController,
         ...(options.additionalControllers ?? []),
         // Thi trực tuyến cho học sinh (DT-23 phần 23a)
         OnlineExamsController,
@@ -1186,6 +1189,8 @@ export class ApplicationModule {
         CandidatesService,
         SchoolCalendar,
         ClassroomToolsService,
+        GroupSetsReader,
+        GroupSetsService,
         {
           provide: FileStorage,
           inject: [SchoolSettings],

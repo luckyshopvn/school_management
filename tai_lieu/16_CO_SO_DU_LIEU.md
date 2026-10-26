@@ -290,7 +290,7 @@ Ràng buộc duy nhất: `attendance_records` trên bộ đôi trẻ, ngày; `ab
 | exam_sheets (từ YCTD-173) | Bài làm của học sinh (P02-69) | session_id (xóa theo), child_id, variant_code, absent, answers (JSON theo số câu), essay (JSON theo câu: first, second), objective_score, essay_score, total_score, results (JSON: question_id, number, earned, correct), needs_review, source (`manual`, `import`), người, thời điểm; duy nhất theo bài kiểm tra, học sinh |
 | online_exam_settings (từ YCTD-211) | Công tắc cho học sinh đăng nhập làm bài theo cấp (P02-85; tệp năm học `0120_create_online_exam_assignments`) | school_level (khoá chính), student_login_enabled (chưa có dòng nghĩa là bật), người sửa, thời điểm |
 | exam_assignments (từ YCTD-211) | Bài thi giao cho lớp, học sinh (P02-82, BR-237) | exam_id, school_level, title, opens_at, closes_at, duration_minutes, max_attempts, attempt_policy (`best`, `last`), shuffle_questions, shuffle_options, variant_mode, fixed_variant_code, result_mode, results_released_at, fullscreen_required, max_violations, violation_action (`flag`, `auto_submit`), camera_enabled, camera_fallback (`block`, `flag`), single_session_mode (`reject_new`, `close_old`), term_type, score_kind, score_seq, true_false_rule, absent_policy (cấu hình bài kiểm tra lớp của 22g2), status (`published`, `cancelled`), người giao |
-| exam_assignment_targets (từ YCTD-211) | Đối tượng của bài giao (P02-82) | assignment_id (xóa theo), kind (`class`, `student`), class_id hoặc child_id |
+| exam_assignment_targets (từ YCTD-211) | Đối tượng của bài giao (P02-82) | assignment_id (xóa theo), kind (`class`, `student`, từ YCTD-271 thêm `group`), class_id hoặc child_id; từ YCTD-271 group_id (nhóm của bộ nhóm; dòng `student` có group_id là thành viên của nhóm lúc giao) |
 | exam_attempts (từ YCTD-211; tệp `0121_create_online_exam_attempts`) | Lượt làm bài (P02-83) | assignment_id, child_id, attempt_no, variant_code, layout (JSON: thứ tự câu, thứ tự lựa chọn), started_at, deadline_at (giờ máy chủ), submitted_at, submit_reason, status, session_id (phiên đăng nhập đang làm), answers (JSON theo số câu, khoá lựa chọn của mã đề), essay_marks (JSON theo câu), objective_score, essay_score, total_score, max_score, results, needs_marking, flagged, flag_reasons, camera_state, sheet_synced |
 | exam_attempt_events (từ YCTD-211) | Sự kiện của lượt (P02-83, P02-84) | attempt_id (xóa theo), event_type (`fullscreen_exit`, `page_hidden`, `window_blur`, `camera_denied`, `camera_unavailable`, `camera_lost`, `no_face`, `multiple_faces`, `second_session`), occurred_at (giờ máy chủ), client_at, detail (JSON: duration_ms, faces); không có hình hay video |
 | online_exam_school_settings (từ YCTD-211) | Cấu hình thi trực tuyến của trường, một dòng (P02-85) | id (luôn true), default_exam_mode, allow_remote, allowed_networks (JSON dải CIDR), room_code_minutes, người sửa |
@@ -860,6 +860,19 @@ Hai mục cấu hình theo trường ở bảng `settings` của Trường chín
 | notification_urgent_templates (từ YCTD-232) | Loại thông báo khẩn, không tắt được ở kênh đẩy | template_code (khóa chính), marked_by, marked_by_name, marked_at |
 | platform_push_keys (từ YCTD-232) | Khóa VAPID của nền tảng, cơ sở dữ liệu nền tảng (nền tảng `0230_create_push_keys`) | id, public_key, private_key_encrypted (khóa gốc), subject (`mailto:` hoặc `https://`), created_at, retired_at; một dòng còn dùng |
 | notification_recipients (đổi ở YCTD-232) | Kênh `push` (năm học `0140_add_push_channel`) | `channel`, `delivered_via` nhận thêm `push`; chỉ mục (user_id, sent_at) cho dòng `push` |
+
+## 18G. Bộ nhóm dùng chung (DT-28 phần 28a, YCTD-271)
+
+Ở cơ sở dữ liệu năm học (tệp `0170_create_group_sets`, `0171_move_classroom_groupings_to_group_sets`), chạy ở cả hai bố cục `database` và `schema`.
+
+| Bảng | Mục đích | Cột chính |
+|---|---|---|
+| group_sets (từ YCTD-271) | Bộ nhóm của một lớp (BR-239) | id, org_unit_id, class_id, subject_id (tuỳ chọn), name (1 đến 120 ký tự), purpose (`subject`, `activity`, `classroom`), method (`manual`, `random`, `ability_mixed`, `ability_tiered`, `gender_balanced`, `timetable_group`), params (JSON: cách chia theo số nhóm hoặc số người, hạt, nguồn năng lực, cân bằng giới, loại vắng, ràng buộc, cách chọn nhóm trưởng; không có mức năng lực), status (`active`, `archived`), owner_user_id, owner_name, replaces_id (bộ được thay), archived_at, created_at, updated_at; chỉ mục (class_id, status) |
+| child_groups (thêm cột từ YCTD-271) | Nhóm của bộ; nhóm 4.1.6 để trống các cột này | group_set_id, class_id, position, leader_child_id; chỉ mục riêng phần duy nhất (org_unit_id, name) khi `group_set_id` trống và (group_set_id, name) khi có |
+| child_group_members (thêm cột từ YCTD-271) | Thành viên nhóm | role (`member`, `leader`) |
+| child_group_member_events (từ YCTD-271) | Lịch sử đổi thành viên, nhóm trưởng của bộ (BR-240) | id, group_set_id, group_id, child_id, event (`added`, `removed`, `moved`, `leader_set`, `leader_unset`), from_group_id, actor_user_id, actor_name, created_at; chỉ mục (group_set_id, created_at) |
+
+`classroom_groupings` (YCTD-212) được dời sang bộ nhóm `classroom` bởi tệp 0171; máy chủ còn ghi song song bảng này một bản phát hành rồi bỏ.
 
 ## 19. Quan hệ chính giữa các bảng
 
