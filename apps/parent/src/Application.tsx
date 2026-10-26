@@ -4,6 +4,7 @@ import { AdmissionsScreen } from './screens/AdmissionsScreen.js';
 import { HomeScreen } from './screens/HomeScreen.js';
 import { LoginScreen } from './screens/LoginScreen.js';
 import { RecruitmentScreen, useRecruitmentRoute } from './screens/RecruitmentScreen.js';
+import { UpdateBanner } from '@school-management/pwa';
 import {
   DemoBanner,
   ExternalSignInCallback,
@@ -79,6 +80,8 @@ export function Application() {
       {/* Dải bản trình diễn (DT-18 phần 18h) */}
       <DemoBanner />
       <PlatformMaintenanceBanner />
+      {/* Có bản mới của ứng dụng: hỏi tải lại (DT-26 phần 26a) */}
+      <UpdateBanner />
       <Screens />
     </SessionProvider>
   );

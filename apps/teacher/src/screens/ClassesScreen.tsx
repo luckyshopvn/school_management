@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { hasLevelFeature, levelOf, SCHOOL_LEVELS, schoolLevelTerms } from '@school-management/shared';
 import { Alert, ApplicationHeader, Button } from '@school-management/ui';
+import { InstallPrompt } from '@school-management/pwa';
 import { ApiError, fetchCurrentUser, requestJson } from '../session/api-client.js';
 import { useSession } from '../session/session.js';
 import { CheckInCard } from './CheckInCard.js';
@@ -131,6 +132,8 @@ export function ClassesScreen({
     <div className="min-h-screen">
       <ApplicationHeader title="Ứng dụng giáo viên" />
       <main className="mx-auto flex max-w-md flex-col gap-4 px-4 py-6">
+        {/* Mời cài lên màn hình chính (DT-26 phần 26a) */}
+        <InstallPrompt applicationName="ứng dụng giáo viên" />
         <NotificationsPanel />
         <CheckInCard onOpenLeave={onOpenLeave} onOpenPayslips={onOpenPayslips} onOpenWork={onOpenWork} />
         <h1 className="text-page-title font-bold text-text">Lớp của tôi</h1>
