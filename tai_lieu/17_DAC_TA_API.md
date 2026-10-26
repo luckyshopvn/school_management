@@ -1614,6 +1614,22 @@ Giao kèo văn thư lưu trữ (YCTD-118):
 | POST | /api/v1/parent-org-consents/requests/{id}/{approve|reject|revoke} | Duyệt, từ chối, rút đề nghị xem chi tiết; rút kết thúc phiên đang mở |
 | GET | /api/v1/parent-org/aggregate?unit=<id>&category=<nhóm> | Số liệu tổng hợp cho tài khoản cấp trên (đường dẫn không cần trường, chỉ tên miền cổng nền tảng): tổng của nút (trống khi ít trường hơn ngưỡng), nút con, so sánh trường đã đồng ý, ô ẩn; nút ngoài phạm vi 403, nhóm sai 400 |
 | GET | /api/v1/parent-org/aggregate/export?unit=&category=&format=xlsx|pdf | Xuất Excel, PDF (trang So sánh trường, Tổng hợp) |
+| GET | /api/v1/auth/directory/context | Chế độ trang đăng nhập (YCTD-220): `{ mode: "single" }` chế độ một trường; `{ mode: "directory", page }` ở tên miền chung `PLATFORM_ROOT_DOMAIN`; `{ mode: "school", unit }` ở tên miền của trường (tên, mã Bộ, sở, xã, cấp); tên miền lạ 404 |
+| GET | /api/v1/auth/directory/departments, /levels | Danh sách sở, cấp học của danh mục; chỉ ở tên miền chung (khác 404); 120 yêu cầu mỗi phút mỗi địa chỉ |
+| GET | /api/v1/auth/directory/communes?department=&q=&limit=&offset= | Phường, xã của sở, tìm không dấu, tối đa 50 dòng, `{ items, has_more }`; thiếu sở 400 |
+| GET | /api/v1/auth/directory/units?department=&level=&commune=&q=&limit=&offset= | Trường của sở theo cấp, xã, chữ (tên hoặc đầu mã), tối đa 50 dòng; chỉ trả `moet_code`, `name`, `commune_name`, `levels` |
+| GET | /api/v1/auth/directory/unit?code= | Một đơn vị khi người dùng chọn: `available` (đã khởi tạo trên nền tảng và đang phục vụ), `login_host`, `message`; mã lạ 404 |
+| POST | /api/v1/auth/directory/captcha | `{ unit }`: ảnh mã xác nhận của trường đã chọn; đơn vị chưa dùng nền tảng 422 |
+| POST | /api/v1/auth/directory/login | `{ unit, login, password, captcha_id, captcha_text, otp_code }`: đăng nhập trong ngữ cảnh của trường (mã xác nhận luôn bắt buộc, sai như `/auth/login`), 20 lần mỗi phút mỗi địa chỉ; đúng thì trả `{ handoff: { host, path: "/sign-in-handoff#code=...", expires_in_seconds: 120 } }`, không đặt cookie |
+| POST | /api/v1/auth/handoff/exchange | `{ code }` ở tên miền của trường: đổi mã chuyển phiên một lần lấy mã phiên và cookie làm mới kênh cổng; sai trường, đã dùng, hết hạn 401 |
+| GET | /api/v1/auth/platform/catalog | Số liệu danh mục (sở, xã, đơn vị, theo cấp, theo cờ, số trường đã gắn), 10 lần nhập gần nhất, danh sách sở, nhãn cờ (YCTD-220) |
+| GET | /api/v1/auth/platform/catalog/units?department=&level=&commune=&q=&flag=&include_inactive=&offset= | Tra cứu đơn vị kèm cờ chất lượng, trạng thái, mã trường đã gắn |
+| GET | /api/v1/auth/platform/catalog/unit?code= | Chi tiết một đơn vị kèm trường đã gắn |
+| POST | /api/v1/auth/platform/catalog/import?kind=units (hoặc communes)&file_name=&dry_run=&deactivate_missing= | Nội dung `text/csv` (UTF-8, tối đa 20 MB): nhập hoặc cập nhật danh mục; trả báo cáo `{ run_id, dry_run, totals, flags, skipped }`; thiếu cột 400 |
+| PUT | /api/v1/auth/platform/schools/{mã}/catalog-unit | Gắn trường với mã Bộ `{ moet_code }` (trống là gỡ); mã không có trong danh mục hoặc đã gắn trường khác 400 |
+| GET, PUT | /api/v1/auth/platform/login-page | Tiêu đề, dòng phụ, tối đa 6 dòng thông tin hỗ trợ của trang đăng nhập ở tên miền chung |
+| GET, PUT | /api/v1/auth/platform/support-policy | Chính sách vào trường của quản trị nền tảng `{ mode, default_hours, max_hours }`; PUT cần `otp_code`; chuyển `school_grant` kết thúc phiên đang mở theo chính sách nền tảng |
+| POST | /api/v1/auth/platform/schools/{mã}/support-sessions (đổi ở YCTD-220) | Thêm `otp_code`, `scope` (`read` mặc định, `full`), `hours` (1 đến tối đa của chính sách): trường chưa cho phép mà chính sách là `any_school` thì mở phiên `access_basis: "platform_policy"` sau khi kiểm mã xác thực hai lớp (thiếu mã 422, sai 401, giờ sai 400); trả thêm `access_basis` |
 | GET | /api/v1/classroom-tools/config (từ YCTD-212) | Cấu hình công cụ lớp học của trường: `offline_enabled`, `roster_ttl_hours`, `conduct_enabled`; người đăng nhập nào cũng đọc được |
 | GET | /api/v1/classroom-tools/classes/{id}/roster (từ YCTD-212) | Danh sách lớp gọn: `students` (`id`, `order_no`, `full_name`, `code`, `absent_today`); chỉ người có phạm vi xem trẻ của lớp, không thì 403 (P03-09, BR-231) |
 | POST | /api/v1/classroom-tools/calls (từ YCTD-212) | Ghi lượt gọi (`class_id`, `calls` 1 đến 100 mục `client_id`, `child_id`, `called_at` tuỳ chọn); trả `saved`, `duplicates` (gửi lại cùng `client_id` không trùng); học sinh ngoài lớp 400 |

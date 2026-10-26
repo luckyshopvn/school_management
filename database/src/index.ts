@@ -453,3 +453,6 @@ export * from './school-data-copy.js';
 export * from './school-backup.js';
 export * from './school-cluster-move.js';
 export type { BackupRunKind, BackupRunStatus } from '../platform/schema.js';
+// Danh mục đơn vị toàn quốc, quyền truy cập của quản trị nền tảng (DT-24)
+export * from './school-catalog.js';
+export type { SupportAccessBasis } from '../platform/schema.js';

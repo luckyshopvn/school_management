@@ -16,7 +16,7 @@
 
 ## 2. Danh sách phiên bản
 
-### Phiên bản 0.141.0 – 2026-10-26
+### Phiên bản 0.142.0 – 2026-10-26
 
 - Phạm vi thay đổi: DT-26 phần 26a, vỏ ứng dụng web cài được dùng chung (YCTD-231).
 - Chức năng mới: ứng dụng giáo viên và phụ huynh cài được lên màn hình chính với tên, tên ngắn, màu, biểu tượng của trường (P19-07, MH-339); service worker dùng chung ở gói `packages/pwa` (gom từ 23b), ứng dụng phụ huynh có service worker giữ vỏ ứng dụng; dải "Có bản mới" dùng chung; lời mời cài theo trình duyệt (Android, iPhone, Zalo, Facebook); ô tên ngắn ở Thương hiệu của cổng quản trị.
@@ -27,6 +27,18 @@
 - Rủi ro: biểu tượng SVG chưa được mọi trình duyệt dùng làm biểu tượng cài đặt (đã có PNG của sản phẩm làm dự phòng); iOS chưa có màn hình chờ theo trường (chưa sinh ảnh PNG theo khổ máy, ghi ở YCTD-231).
 - Khả năng tương thích: không đổi hành vi các phân hệ cũ; công cụ lớp học (23b) giữ tiền tố bộ nhớ đệm và công tắc ngoại tuyến; dải "Có bản mới" chuyển từ trang công cụ lớp học lên đầu ứng dụng.
 - Phương án quay lui: hoàn lại commit gộp của nhánh 26a; cột `app_short_name` chỉ thêm nên giữ lại không ảnh hưởng.
+
+### Phiên bản 0.141.0 – 2026-10-26
+
+- Phạm vi thay đổi: DT-24, danh mục đơn vị toàn quốc, đăng nhập theo đơn vị, quyền vào mọi trường của quản trị nền tảng (YCTD-220).
+- Chức năng mới: danh mục đơn vị (sở, cấp học, phường xã, trường theo mã Bộ) nhập từ CSV bằng lệnh `platform catalog-import`, `catalog-seed` hoặc trang Danh mục đơn vị của cổng nền tảng, có chạy thử, báo cáo, cờ chất lượng; gắn trường với mã Bộ khi khởi tạo hoặc ở chi tiết trường; trang đăng nhập bố cục "Đăng nhập hệ thống" có ô chọn Sở → Cấp học, Phường/Xã → Trường ở tên miền chung và chuyển phiên một lần sang tên miền của trường; chính sách vào mọi trường của quản trị nền tảng (mặc định bật, nhập lại mã xác thực hai lớp, lý do, có hạn, biểu ngữ, nhật ký trường xem được).
+- Lỗi đã sửa: không có.
+- Thay đổi dữ liệu: nền tảng 0210 (`catalog_departments`, `catalog_levels`, `catalog_communes`, `catalog_units`, `catalog_unit_levels`, `catalog_import_runs`), 0211 (`schools.moet_code`, `support_sessions.access_basis`, cài đặt `support_access_policy`); định danh 0130 (`login_handoffs`).
+- Thay đổi API: nhóm `/auth/directory/*`, `/auth/handoff/exchange`, `/auth/platform/catalog*`, `/auth/platform/schools/:code/catalog-unit`, `/auth/platform/login-page`, `/auth/platform/support-policy`; `support-sessions` nhận `otp_code`, `scope`, `hours`; `/platform-notices`, `/support-access` trả thêm `access_basis`, `reason`.
+- Kiểm thử: CT-24-1 đến CT-24-10 trong mã kiểm thử. Kết quả ngày 26/10/2026 ghi ở `02_NHAT_KY_DU_AN.md` mục cùng ngày.
+- Rủi ro: quyền vào trường không cần đồng ý phải nằm trong thỏa thuận xử lý dữ liệu đã ký (PL-02 Điều 5a), luật sư rà trước khi nhận dữ liệu thật; danh mục lấy từ trang công khai chỉ dùng làm dữ liệu tham chiếu (GD-109).
+- Khả năng tương thích: tên miền của trường và chế độ một trường giữ hành vi đăng nhập; phiên hỗ trợ theo cho phép của S4 và phiên của cấp trên S6 không đổi; cổng biên thử nghiệm đổi gốc tên miền hệ thống từ trang chọn trường sang trang đăng nhập theo đơn vị (trang chọn trường vẫn ở đường dẫn cũ của API).
+- Phương án quay lui: đổi chính sách sang `school_grant` ở cổng nền tảng để ngừng quyền vào không cần đồng ý mà không cần quay lui mã; hoàn lại commit gộp của nhánh DT-24 để bỏ cả tính năng (bảng danh mục để lại không ảnh hưởng).
 
 ### Phiên bản 0.140.0 – 2026-10-26
 

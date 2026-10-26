@@ -1,7 +1,7 @@
 # 02. NHẬT KÝ DỰ ÁN
 
 - Mô tả: Ghi nhận công việc, quyết định, thay đổi và vấn đề tồn đọng theo ngày, ngày mới nhất ở trên cùng.
-- Phiên bản: 0.73
+- Phiên bản: 0.75
 - Ngày cập nhật: 2026-10-26
 - Trạng thái: Đang cập nhật
 
@@ -30,11 +30,63 @@
 
 #### Thay đổi
 
-- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-231, `23_LICH_SU_PHIEN_BAN.md` phiên bản 0.141.0; BR-234, P19-07, AC-869 đến AC-871, CT-1084 đến CT-1087, MH-339, BM-92, QĐ-35, mục 12H.
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-231, `23_LICH_SU_PHIEN_BAN.md` phiên bản 0.142.0; BR-234, P19-07, AC-869 đến AC-871, CT-1084 đến CT-1087, MH-339, BM-92, QĐ-35, mục 12H.
 
 #### Vấn đề tồn đọng
 
 - Nối màn hình học sinh của 23a khi 23a gộp; ảnh PNG và màn hình chờ iOS theo trường, phiên bản tối thiểu do máy chủ áp để phần sau (ghi ở YCTD-231).
+
+### 2026-10-26 — DT-24: danh mục đơn vị toàn quốc, đăng nhập theo đơn vị, quyền quản trị nền tảng
+
+#### Công việc đã thực hiện
+
+- Đọc báo cáo của ba phiên khảo sát (lưu ngoài kho mã), mã S1a, S1b, S2, S3, S4, S6, S8b; đếm thử bản khảo sát bằng bộ đọc mới (không in dữ liệu): 39.658 đơn vị nhập được, 11 dòng loại vì mã trùng khuôn số căn cước, 4.333 mã không chuẩn, 314 tên rỗng, 366 thiếu phường xã; nhập thử vào cơ sở dữ liệu tạm 16 giây, nhập lại 3 giây, rồi xóa cơ sở dữ liệu tạm.
+- Viết mục 16 của `32` (kế hoạch DT-24) và làm trọn mã trong cùng một PR: danh mục, công cụ nhập, trang đăng nhập theo đơn vị, chuyển phiên, quyền vào mọi trường của quản trị nền tảng, trang Danh mục đơn vị của cổng nền tảng; sửa PL-02 (Điều 5a).
+
+#### Quyết định
+
+- Eric quyết định ngày 2026-10-26: quản trị nền tảng vào mọi trường mặc định không cần trường đồng ý, bắt buộc xác thực hai lớp, lý do, nhật ký, có hạn, biểu ngữ, chính sách cấu hình được; không commit dữ liệu thu thập; không dùng quốc huy, tên của Bộ.
+- Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11: một PR; đăng nhập ở tên miền chung chuyển phiên bằng mã một lần lưu ở cơ sở dữ liệu định danh của trường; danh sách ô chọn không đánh dấu đơn vị đã dùng nền tảng; nhập lại mã xác thực hai lớp ngay lúc mở phiên không cần đồng ý; ứng dụng giáo viên, phụ huynh không đổi (màn hình đăng nhập riêng).
+
+#### Thay đổi
+
+- Tệp: xem YCTD-220 ở `24_YEU_CAU_THAY_DOI.md`. Phiên bản 0.141.0 (0.140.0 là của 23b, gộp trước).
+
+#### Kết quả kiểm thử
+
+- `database`: `school-catalog.test.ts` 5/5 (CT-24-1 đến CT-24-4).
+- `apps/identity`: `directory/unit-directory.test.ts` 4/4 (CT-24-5 đến CT-24-8), `platform/support-sessions.test.ts` 4/4 (CT-S4-1 đến CT-S4-4, không sửa kỳ vọng), `tenancy-matrix.test.ts` 4/4.
+- `tests/trial/edge-worker.test.mjs`: đạt (sửa kỳ vọng ca tên miền hệ thống theo hành vi mới).
+- Typecheck, lint, định dạng: đạt.
+- e2e nhiều trường (bố cục `database`, giữ khóa `e2e.lock`): 160 2/2 (CT-24-9, CT-24-10); 130, 131, 133, 134, 135, 136, 137, 138, 139, 140 đạt; 132 đạt sau khi đổi nhãn ô lý do ở khung truy cập của cổng nền tảng (nhãn cũ trùng chuỗi con với ô "Lý do" mà spec 132 dùng). e2e một trường (CSDL định danh riêng của phiên): 01-login 8/8, 59-portal-shell-login 5/5; 02, 03 hỏng ở bước mở năm học vượt 30 giây do máy đang chạy nhiều phiên (không liên quan đăng nhập), để CI chạy lại.
+
+#### Vấn đề tồn đọng
+
+- Luật sư rà PL-02 Điều 5a trước khi nhận dữ liệu thật (GD-110); quyền dùng lại danh mục lấy từ trang công khai (GD-109); tên sản phẩm cho tiêu đề trang đăng nhập (GD-111).
+- Đăng nhập theo đơn vị cho ứng dụng giáo viên, phụ huynh: chưa làm, chờ Eric cần.
+### 2026-10-26 — Kế hoạch DT-27: nền tảng gia sư trực tuyến
+
+#### Công việc đã thực hiện
+
+- Đọc mục 13 đến 15 của `32_KE_HOACH_THEO_HE_THONG_SO.md`, `33_HO_SO_PHAP_LY/`, `34_TONG_HOP_CHUC_NANG_HE_THONG/`; đối chiếu mã trên nhánh chính: thời khoá biểu và phân công, điểm danh, học phí và cổng thanh toán theo trường (S3), bảng lương có biểu thuế, thu phí nền tảng (S5b), nhắn tin, kiến trúc đa thuê bao (mỗi trường một bộ cơ sở dữ liệu, `platform` dùng chung). Xem dải số các phiên DT-24, DT-25 đang dùng để không va.
+- Tra văn bản ngày 2026-10-26: **đọc toàn văn bản gốc Thông tư 19/2026/TT-BGDĐT** (sửa Thông tư 29/2024, hiệu lực 15/05/2026; tệp quét ở Cổng thông tin điện tử Chính phủ); Thông tư 29/2024, Nghị định 52/2024, Thông tư 40/2024, Nghị định 117/2025, Luật Thương mại điện tử 122/2025 chỉ đọc được qua nguồn thứ cấp, ghi "chưa xác minh"; giá LiveKit Cloud, Cloudflare Realtime từ trang chính thức.
+- Viết mục 19 của `32`: căn cứ pháp lý và ràng buộc sản phẩm, ước lượng băng thông video, nguyên tắc, chín phần 27a đến 27i trong bốn đợt, phạm vi chi tiết, phương án đã loại, rủi ro, việc Eric phải quyết E-01 đến E-10, giả định GD-130 đến GD-138.
+- Thêm danh sách hồ sơ pháp lý PL-16 đến PL-21 vào `33_HO_SO_PHAP_LY/16_DANH_SACH_HO_SO_GIA_SU.md`; thêm đợt DT-27, RR-28 đến RR-31, GD-130 đến GD-138 vào `01`; mục kế hoạch DT-27 ở `34`.
+
+#### Quyết định
+
+- Eric (ngày 2026-10-26): làm cả gia sư trong trường (trước) và chợ gia sư mở (sau); cả ba hình thức học (video trực tiếp, khoá học ghi sẵn, hỏi đáp có gợi ý AI nháp); thu phí qua nền tảng có hoàn tiền và tranh chấp.
+- Claude chọn theo ủy quyền: trong trường tiền vào thẳng tài khoản của trường, thù lao qua bảng lương; dạy thêm thuộc chương trình môn học trong trường khóa cứng "không thu tiền" (Thông tư 29/2024); chợ mở giữ và chia tiền qua tổ chức có giấy phép trung gian thanh toán (phương án A) hoặc trả thẳng gia sư (phương án B), không để tiền học vào tài khoản nền tảng; video LiveKit tự host, bộ nối đổi được; chợ dùng cơ sở dữ liệu `marketplace` và ứng dụng `apps/market` mới.
+- Số giữ sẵn: YCTD-250 (kế hoạch), YCTD-251 đến YCTD-259, dự phòng đến YCTD-264; năm học 0150 đến 0169, hệ thống 0100 đến 0109, định danh 0170 đến 0179, nền tảng 0240 đến 0249, `marketplace` từ 0001; e2e `190-` đến `204-`. Dải đặt sau dải của DT-26 (PR 178); bản đầu của PR dùng YCTD-240, trùng DT-26, nên sau khi gộp nhánh chính đã đánh lại toàn bộ (YCTD, migration, e2e, GD, RR).
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-250, `32` mục 19 (phiên bản 1.76), `01` (1.69), `33_HO_SO_PHAP_LY/00_MUC_LUC.md`, `33_HO_SO_PHAP_LY/16_DANH_SACH_HO_SO_GIA_SU.md`, `34_TONG_HOP_CHUC_NANG_HE_THONG/01_TONG_QUAN_VA_NEN_TANG.md`, `index.md`. Chỉ đổi tài liệu, không tăng phiên bản phần mềm.
+
+#### Vấn đề tồn đọng
+
+- Chờ Eric: tỷ lệ hoa hồng, chọn tổ chức thanh toán có phép, pháp nhân vận hành chợ, báo giá VPS, luật sư rà (E-01 đến E-10 ở `32` mục 19.10).
+- Mục 16, 17 của `32` để cho DT-24, DT-25; mục 18 là DT-26 (đã gộp).
 
 ### 2026-10-26 — DT-23 phần 23b: công cụ lớp học trên ứng dụng giáo viên
 

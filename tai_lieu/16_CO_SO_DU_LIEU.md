@@ -794,6 +794,22 @@ Chính sách theo trường không có bảng riêng: ba mục mới (`password_
 
 Không thêm tệp định danh 0103, hệ thống 0055 (đã giữ dự phòng): bằng chứng đồng ý lưu ở cơ sở dữ liệu nền tảng cùng phạm vi của cấp trên.
 
+## 18E. Danh mục đơn vị toàn quốc, đăng nhập theo đơn vị, quyền quản trị nền tảng (DT-24, YCTD-220)
+
+| Bảng | Mục đích | Cột chính |
+|---|---|---|
+| catalog_departments (từ YCTD-220) | Sở GD&ĐT, cơ sở dữ liệu nền tảng (nền tảng `0210_create_school_catalog`) | code (khóa chính, 2 chữ số, mã tỉnh sau sáp nhập), name, status (`active`, `inactive`), updated_at |
+| catalog_levels (từ YCTD-220) | Cấp học theo mã của Bộ, nạp sẵn trong migration | code (`MN`, `TH`, `THCS`, `THPT`, `GDTX`), moet_code (`01` đến `05`, duy nhất), name, sort |
+| catalog_communes (từ YCTD-220) | Phường, xã | code (khóa chính, 5 chữ số), department_code (khóa ngoại), name, name_search (bỏ dấu), status, updated_at; chỉ mục (department_code, name_search) |
+| catalog_units (từ YCTD-220) | Đơn vị trường | id, moet_code (duy nhất, chuỗi 1 đến 40 ký tự, không ký tự điều khiển), name, name_search, department_code (khóa ngoại), commune_code (khóa ngoại, trống được), commune_name_raw, school_year (`yyyy-yyyy`), source, status, quality_flags (mảng chữ), first_seen_at, last_seen_at, updated_at; chỉ mục (department_code, name_search), commune_code |
+| catalog_unit_levels (từ YCTD-220) | Trường liên cấp (nhiều-nhiều) | unit_id, level_code; khóa chính (unit_id, level_code) |
+| catalog_import_runs (từ YCTD-220) | Mỗi lần nhập, kể cả chạy thử | id, source, file_name, dry_run, totals (JSON), skipped (JSON, tối đa 500 dòng, mã che `[đã che]`), actor_type, actor_id, actor_name, started_at, finished_at |
+| schools.moet_code (từ YCTD-220) | Mã Bộ của trường trong danh mục (nền tảng `0211_link_catalog_and_platform_access`) | chỉ mục duy nhất `schools_moet_code_unique` khi khác trống; không khóa ngoại |
+| support_sessions.access_basis (từ YCTD-220) | Căn cứ mở phiên | `school_grant` (mặc định), `platform_policy`, `access_request` |
+| platform_settings: `support_access_policy`, `login_page` (từ YCTD-220) | Chính sách vào trường của quản trị nền tảng; tiêu đề, chân trang trang đăng nhập ở tên miền chung | `{ mode, default_hours, max_hours }` (mode là `any_school` hoặc `school_grant`); `{ title, subtitle, support_lines }` |
+| login_handoffs (từ YCTD-220) | Mã chuyển phiên một lần sau đăng nhập theo đơn vị, ở cơ sở dữ liệu định danh của mỗi trường (định danh `0130_create_login_handoffs`) | id, token_hash (duy nhất), session_id (khóa ngoại `sessions`), user_id, ip_address, created_at, expires_at (2 phút), used_at |
+
+Kho mã không chứa dữ liệu danh mục thật; tệp mẫu giả ở `database/platform/catalog-sample/`.
 ## 18E. Công cụ lớp học (DT-23 phần 23b, YCTD-212)
 
 Ba bảng ở cơ sở dữ liệu năm học (tệp `0124_create_classroom_tools`, `0125_create_classroom_score_events`), chạy ở cả hai bố cục `database` và `schema`.
