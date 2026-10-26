@@ -1,7 +1,7 @@
 # 24. YÊU CẦU THAY ĐỔI
 
 - Mô tả: Sổ quản lý yêu cầu thay đổi, ghi lý do, đánh giá ảnh hưởng và trạng thái của từng thay đổi trước khi triển khai.
-- Phiên bản: 0.69
+- Phiên bản: 0.70
 - Ngày cập nhật: 2026-10-26
 - Trạng thái: Đang cập nhật
 
@@ -10,6 +10,24 @@
 Mã yêu cầu thay đổi dạng `YCTD-nn`, đánh số tăng dần, không tái sử dụng. Mục mới nhất ở trên cùng. Trạng thái dùng bốn giá trị: Chờ phê duyệt, Đã phê duyệt, Từ chối, Đã triển khai.
 
 Các thay đổi trước phiên bản 0.4.0 chưa có sổ này; xem `23_LICH_SU_PHIEN_BAN.md` các phiên bản 0.1.0 đến 0.3.1.
+
+### YCTD-230: Kế hoạch DT-26: PWA, máy tính bảng, ứng dụng di động – 2026-10-26
+
+- Lý do: Eric yêu cầu ngày 2026-10-26 lập kế hoạch theo thứ tự (1) ứng dụng web cài được (PWA), (2) bố cục máy tính bảng, (3) ứng dụng cài đặt iOS và Android. Ứng dụng giáo viên và phụ huynh hiện là web thiết kế cho điện thoại, chưa có manifest, service worker, thông báo đẩy; cổng quản trị, cổng nền tảng chưa có bố cục máy tính bảng; kiểm thử giao diện chỉ chạy ở khổ máy tính. Phiên điều phối giao viết kế hoạch vào `32_KE_HOACH_THEO_HE_THONG_SO.md` như đã làm cho DT-23.
+- Nội dung thay đổi (Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11 ở những chỗ Eric chưa quyết):
+  - `32_KE_HOACH_THEO_HE_THONG_SO.md` phiên bản 1.75: thêm mục 18 "DT-26" (mục 16, 17 dành cho DT-24, DT-25) gồm căn cứ và hiện trạng mã kèm phần đang làm song song của 23a, 23b, DT-24, DT-25 (18.1), nguyên tắc (18.2), tám phần 26a đến 26h chạy ba đợt, tối đa ba phiên một lúc, phân quyền sở hữu tệp lõi theo đợt, điều kiện ra từng đợt (18.3), phạm vi chi tiết (18.4), quyết định thiết kế và phương án đã loại (18.5), rủi ro và cổng kiểm (18.6), quy ước chung (18.7), tiến độ (18.8), giả định chưa chốt GD-120 đến GD-127 (18.9), việc Eric phải làm (18.10); đánh dấu cập nhật ở 14.6 và 15.5 (ứng dụng di động gốc không còn là phương án đã loại, làm ở DT-26 bằng cách đóng gói mã web).
+  - Số giữ sẵn: YCTD-230 cho chính bản kế hoạch này, 26a YCTD-231, 26b YCTD-232, 26c YCTD-233, 26d YCTD-234, 26e YCTD-235, 26f YCTD-236, 26g YCTD-237, 26h YCTD-238, YCTD-239 đến YCTD-244 dự phòng; migration hệ thống 0090 đến 0099, năm học 0140 đến 0149, định danh 0160 đến 0169, nền tảng 0230 đến 0239; e2e `180-` đến `186-` (187 đến 189 dự phòng). Dải này nằm sau DT-23 (YCTD-219, năm học 0129, hệ thống 0079, định danh 0129, nền tảng 0209, e2e 159) và sau các số DT-24, DT-25 đang dùng trên nhánh làm việc (YCTD-220, định danh 0130, 0140, nền tảng 0210, 0211), chừa YCTD-221 đến YCTD-229, định danh 0141 đến 0159, nền tảng 0212 đến 0229, e2e 160 đến 179, GD-109 đến GD-119, RR-21 đến RR-24 cho DT-24, DT-25; phiên điều phối kiểm lại lúc giao phần.
+  - Đợt 1 (PWA): 26a vỏ PWA dùng chung (gói `packages/pwa`, gom service worker và manifest của 23b, manifest, biểu tượng, màn hình chờ theo thương hiệu S3 của từng trường, hướng dẫn cài cho iOS và trình duyệt trong ứng dụng Zalo, Facebook), 26b thông báo đẩy Web Push (kênh `push` của hàng đợi thông báo chung, bộ nối `PushSender`, đăng ký theo người dùng và thiết bị lưu mã hóa theo trường, tắt theo nhóm loại, khóa VAPID của nền tảng), 26c khung kiểm thử theo khổ thiết bị (dự án Playwright 390 × 844, 820 × 1180, 1180 × 820, việc CI riêng `kiem-thu-thiet-bi` chạy song song với `kiem-thu-giao-dien`, yêu cầu kéo chạy tập con, nhánh chính và hằng đêm chạy đủ có chia mảnh). Đợt 2 (máy tính bảng): 26d ứng dụng giáo viên (chế độ lớp học, trình chiếu) và phụ huynh, 26e cổng quản trị và cổng nền tảng (`packages/ui`). Đợt 3 (ứng dụng cài đặt): 26f vỏ Capacitor một ứng dụng có chọn vai trò, chọn trường từ danh mục DT-24, mã làm mới ở Keychain, Keystore có sinh trắc học, OIDC của DT-25 qua trình duyệt hệ thống, liên kết sâu theo tên miền con; 26g đẩy native qua FCM và APNs dùng chung bộ phát 26b; 26h ký và dựng bản trên GitHub Actions (chỉ khi gắn thẻ hoặc chạy tay), quy trình phát hành, hồ sơ cửa hàng, chính sách quyền riêng tư (`33_HO_SO_PHAP_LY/`).
+  - Quyết định thiết kế: một mã web cho trình duyệt, PWA và ứng dụng cài đặt; Capacitor đóng gói bản dựng tĩnh (đã loại React Native viết lại, Flutter, bọc trang web từ xa, cập nhật mã qua mạng, TWA riêng cho Android); một ứng dụng có chọn vai trò (GD-121); không làm ứng dụng mang thương hiệu từng trường; học sinh dùng PWA, chưa vào ứng dụng cài đặt (GD-123); nội dung đẩy không có dữ liệu cá nhân (GD-122); bộ nhớ đệm không giữ phản hồi `/api`, đăng xuất xóa và hủy đăng ký; khóa ký, khóa đẩy chỉ ở secrets.
+  - `01_KE_HOACH_TONG_THE.md` phiên bản 1.68: thêm đợt DT-26 ở mục 5, rủi ro RR-25 đến RR-27 ở mục 10, giả định GD-120 đến GD-127 ở mục 15; `02_NHAT_KY_DU_AN.md`, `34_TONG_HOP_CHUC_NANG_HE_THONG/01_TONG_QUAN_VA_NEN_TANG.md` (mục 6 kế hoạch DT-26, ghi chú ở kênh thông báo đẩy), `index.md` cập nhật tương ứng.
+- Thành phần bị ảnh hưởng: tài liệu `01`, `02`, `24`, `32`, `34`, `index.md`. Không đổi mã nguồn.
+- Dữ liệu bị ảnh hưởng: không.
+- API bị ảnh hưởng: không.
+- Giao diện bị ảnh hưởng: không.
+- Quyền bị ảnh hưởng: không.
+- Ảnh hưởng chức năng cũ: không. Phiên bản phần mềm giữ nguyên (thay đổi chỉ tài liệu); số phiên bản tài liệu đặt trên số của nhánh chính lúc viết; phần gộp sau đánh lại số tài liệu theo nhánh chính lúc gộp.
+- Kiểm thử cần thực hiện: rà bảng không thiếu dấu `|` kết thúc; số YCTD, migration, e2e giữ sẵn không trùng DT-23, DT-24, DT-25 và không trùng giữa các phần; số GD, RR mới không trùng; kiểm tra định dạng tài liệu đạt.
+- Trạng thái: Đã triển khai
 
 ### YCTD-210: Kế hoạch DT-23: thi trực tuyến, công cụ lớp học, trò chơi kiến thức, trợ lý AI – 2026-10-26
 
