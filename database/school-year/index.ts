@@ -98,6 +98,7 @@ import { migration as createResourceQuestionsAndRubrics } from './migrations/010
 import { migration as addQuestionAiFlag } from './migrations/0128_add_question_ai_flag.js';
 import { migration as createClassroomTools } from './migrations/0124_create_classroom_tools.js';
 import { migration as createClassroomScoreEvents } from './migrations/0125_create_classroom_score_events.js';
+import { migration as addPushChannel } from './migrations/0140_add_push_channel.js';
 import { migration as createTutoringPrograms } from './migrations/0152_create_tutoring_programs.js';
 import { migration as createTutoringSessions } from './migrations/0153_create_tutoring_sessions.js';
 import { migration as createTutoringRegistrations } from './migrations/0154_create_tutoring_registrations.js';
@@ -204,6 +205,8 @@ export const schoolYearMigrations: Record<string, Migration> = {
   '0128_add_question_ai_flag': addQuestionAiFlag,
   '0124_create_classroom_tools': createClassroomTools,
   '0125_create_classroom_score_events': createClassroomScoreEvents,
+  // Thông báo đẩy Web Push (DT-26 phần 26b): 0140
+  '0140_add_push_channel': addPushChannel,
   // Gia sư trong trường (DT-27 phần 27b): 0152 đến 0154
   '0152_create_tutoring_programs': createTutoringPrograms,
   '0153_create_tutoring_sessions': createTutoringSessions,
