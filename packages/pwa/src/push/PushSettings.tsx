@@ -93,10 +93,13 @@ export function PushSettings({ application, base, request }: PushSettingsPropert
     }
   };
 
-  const toggleGroup = (code: string, value: boolean) =>
-    run(() =>
+  // Ô chọn đổi ngay khi bấm; lưu xong (hoặc lỗi) thì tải lại từ máy chủ
+  const toggleGroup = (code: string, value: boolean) => {
+    setGroups((current) => current?.map((group) => (group.code === code ? { ...group, push_enabled: value } : group)));
+    return run(() =>
       request('/api/v1/push/preferences', { method: 'PUT', body: JSON.stringify({ groups: { [code]: value } }) }),
     );
+  };
 
   return (
     <section
