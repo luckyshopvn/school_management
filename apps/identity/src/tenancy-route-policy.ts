@@ -84,6 +84,12 @@ export const PUBLIC_ROUTES: PublicRoute[] = [
   { method: 'POST', path: '/api/v1/auth/platform/schools/:code/support-sessions', reason: PLATFORM },
   { method: 'POST', path: '/api/v1/auth/platform/support-sessions/:id/end', reason: PLATFORM },
   { method: 'POST', path: '/api/v1/auth/support/exchange', reason: SUPPORT },
+  // Trợ lý AI của nền tảng (DT-23 phần 23d): khóa chung, nhà cung cấp, đơn giá theo gói, token đã dùng; cùng điều kiện tên miền cổng và mã phiên vận hành
+  { method: 'GET', path: '/api/v1/auth/platform/ai', reason: PLATFORM },
+  { method: 'PUT', path: '/api/v1/auth/platform/ai/settings', reason: PLATFORM },
+  { method: 'PUT', path: '/api/v1/auth/platform/ai/key', reason: PLATFORM },
+  { method: 'PUT', path: '/api/v1/auth/platform/ai/pricing/:planId', reason: PLATFORM },
+  { method: 'GET', path: '/api/v1/auth/platform/ai/usage', reason: PLATFORM },
   // Đơn vị cấp trên (DT-SaaS phần S6): cây đơn vị, tài khoản cấp trên ở cổng nền tảng; tài khoản cấp trên đăng nhập ở tên miền cổng
   { method: 'GET', path: '/api/v1/auth/platform/admin-units', reason: PLATFORM },
   { method: 'POST', path: '/api/v1/auth/platform/admin-units', reason: PLATFORM },
