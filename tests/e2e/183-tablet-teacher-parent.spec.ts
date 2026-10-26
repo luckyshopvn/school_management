@@ -19,6 +19,9 @@ const database = createDatabase<IdentityDatabase>(readConnectionString('identity
 const TEACHER_URL = `http://localhost:${E2E_TEACHER_PORT}`;
 const PARENT_URL = `http://localhost:${E2E_PARENT_PORT}`;
 
+// Yêu cầu do service worker của PWA gửi không qua page.route ở WebKit: chặn service worker để mọi yêu cầu API đi qua bản giả lập
+test.use({ serviceWorkers: 'block' });
+
 test.afterAll(async () => {
   await database.destroy();
 });
@@ -33,6 +36,17 @@ const fulfillJson = (body: unknown) => (route: Route) =>
 
 async function signInTeacher(page: Page) {
   const teacher = await createTestUser(database, { roles: [{ roleCode: 'VT-07', orgUnitId: null }] });
+  // WebKit chạy không giao diện có thể treo khi vào toàn màn hình thật: giả lập Fullscreen API để chỉ kiểm nội dung trình chiếu
+  // (viết dạng chuỗi vì gói kiểm thử không có kiểu DOM)
+  await page.addInitScript({
+    content: `(() => {
+      let current = null;
+      const change = () => document.dispatchEvent(new Event('fullscreenchange'));
+      Object.defineProperty(Document.prototype, 'fullscreenElement', { configurable: true, get: () => current });
+      Element.prototype.requestFullscreen = function () { current = this; change(); return Promise.resolve(); };
+      Document.prototype.exitFullscreen = () => { current = null; change(); return Promise.resolve(); };
+    })();`,
+  });
   await page.route(
     (url) => url.pathname === '/api/v1/classes' && url.searchParams.get('mine') === 'true',
     fulfillJson(CLASSES),
@@ -42,7 +56,7 @@ async function signInTeacher(page: Page) {
     new Intl.DateTimeFormat('en-GB', { timeZone: 'Asia/Ho_Chi_Minh', weekday: 'short' }).format(new Date()),
   );
   await page.route(
-    '**/api/v1/timetables/mine',
+    (url) => url.pathname === '/api/v1/timetables/mine',
     fulfillJson({
       versions: [{ school_level: 'THCS' }],
       slots: { THCS: [{ period_no: 1, start_time: '00:00', end_time: '23:59' }] },
