@@ -811,16 +811,19 @@ Nguồn: tài liệu 32 mục 19, YCTD-250. Mục này chỉ ghi để người 
 | 27h Đặt buổi, thanh toán, tranh chấp | 4 | Thanh toán qua tổ chức có giấy phép hoặc trả thẳng gia sư, hoa hồng, giải ngân, hoàn tiền, tranh chấp, khấu trừ thuế cấu hình | Chưa có |
 | 27i An toàn trẻ em ở chợ | 4 | Tin nhắn luôn có phụ huynh, lọc liên lạc ngoài, báo cáo vi phạm, kiểm duyệt | Chưa có |
 
-## 9. DT-28: kế hoạch (chưa có trong mã)
+## 9. DT-28: kế hoạch hệ thống quản lý học tập (chưa có trong mã)
 
-Nguồn: tài liệu 32 mục 20, YCTD-270. Mục này chỉ ghi để người đọc biết phần sắp làm; chưa có bảng, tuyến hay màn hình nào trong mã. Khi từng phần gộp, chuyển phần đó sang các mục mô tả theo mã.
+Nguồn: tài liệu 32 mục 20, YCTD-270. Mục này chỉ ghi để người đọc biết phần sắp làm; chưa có bảng, tuyến hay màn hình nào trong mã. Khi từng phần gộp, chuyển phần đó sang các mục mô tả theo mã. Khoá học ghi sẵn (27d) và hỏi đáp (27e) của DT-27 xây trên lõi này.
 
-| Phần | Đợt | Nội dung kế hoạch (tài liệu 32 mục 20.4) | Dấu hiệu trong mã |
+| Phần | Đợt | Nội dung kế hoạch (tài liệu 32 mục 20.6) | Dấu hiệu trong mã |
 |---|---|---|---|
-| 28a Mô hình nhóm dùng chung | 1 | Bộ nhóm theo lớp, môn, mục đích; chia tay, ngẫu nhiên, theo năng lực, cân bằng giới, ràng buộc; nhóm trưởng; lịch sử; công cụ lớp học 23b dùng bộ nhóm | `child_groups`, `child_group_members` (DT-14c), `classroom_groupings` (23b) có sẵn để mở rộng, dời dữ liệu |
-| 28b Bài tập trực tuyến | 1 | Trắc nghiệm từ ngân hàng 22g1 chấm bằng hàm 22g2, tự luận, ảnh, tệp, ghi âm, học liệu; phân hóa; bài nhóm; nộp muộn, nộp lại; thang tiêu chí; trả bài; đích nhóm cho đề 23a | `questions`, `grading-rules.ts`, `rubrics`, màn hình học sinh của 23a (đang làm) |
-| 28c Bài về nhà và phụ huynh | 2 | Giao từ tiết trong sổ đầu bài, giới hạn khối lượng theo cấp, khối, ngày; phụ huynh xem, nộp thay, nhận nhắc | `class_logs`, `timetable_lessons`, hàng đợi `notifications` có sẵn |
-| 28d Không gian học nhóm | 2 | Thảo luận, tệp chung, chia việc, ghi chú; giáo viên luôn thấy, giờ mở, lọc, báo cáo vi phạm | Chưa có |
-| 28e Phòng video nhóm, phòng chia nhỏ | 3 | Phòng nhóm và phòng con qua bộ nối video của 27a, giáo viên quan sát (luôn hiện) | Chưa có (chờ 27a) |
-| 28f Kết quả, sổ điểm, gợi ý nhận xét | 2 | Điểm thường xuyên qua `ScoresService` nguồn `assignment` khi giáo viên xác nhận; nhận xét Tiểu học vào `regular_comments`; thống kê; nhận xét nháp bằng AI 23d | `score_entries`, `regular_comments` có sẵn |
-| 28g Làm bài khi mạng yếu | 3 | Bản nháp và tệp chờ gửi của học sinh lưu trên máy, hàng đợi gửi lại (vỏ PWA 26a) | Chưa có (chờ 26a) |
+| 28a Mô hình nhóm dùng chung | 1 | Bộ nhóm theo lớp, môn, mục đích; chia tay, ngẫu nhiên, theo năng lực, cân bằng giới; nhóm trưởng; lịch sử; công cụ lớp học 23b dùng bộ nhóm | `child_groups`, `child_group_members` (DT-14c), `classroom_groupings` (23b) có sẵn để mở rộng, dời dữ liệu |
+| 28b Lõi LMS | 1 | Lớp học trực tuyến tự sinh từ phân công, khoá tự chọn, khoá học mẫu của tổ qua luồng duyệt 22h1, chương, hoạt động, điều kiện mở, kết quả hoạt động, quyết định hình thức theo Thông tư 09/2021, kế hoạch theo tuần, nhật ký học tập | `timetable_lessons`, `class_staff_assignments`, `subject_teams`, `learning_resources` có sẵn |
+| 28c Bài tập trực tuyến | 2 | Trắc nghiệm từ 22g1 chấm bằng hàm 22g2, tự luận, ảnh, ghi âm, phân hóa, bài nhóm, thang tiêu chí, trả bài, gợi ý nhận xét AI nháp | `questions`, `grading-rules.ts`, `rubrics` có sẵn |
+| 28d Tiến độ, bảng điểm, báo cáo | 2 | Tiến độ học sinh và lớp, bảng điểm hoạt động, điểm thường xuyên qua `ScoresService`, báo cáo cho chủ nhiệm, tổ, Hiệu trưởng, phụ huynh, báo cáo học kỳ và hồ sơ dạy học trực tuyến | `score_entries`, `regular_comments` có sẵn |
+| 28e Thông báo, diễn đàn, hỏi đáp, học nhóm | 2 | Một bộ máy thảo luận cho lớp và nhóm, giáo viên luôn thấy, không tin nhắn riêng giữa học sinh, giờ mở, lọc, báo cáo; lịch học tập | Chưa có |
+| 28f Bài về nhà và phụ huynh | 3 | Giao từ sổ đầu bài, giới hạn khối lượng, phụ huynh xem và nộp thay, nhắc | `class_logs`, hàng đợi `notifications` có sẵn |
+| 28g Giờ học trực tuyến, phòng nhóm, phòng chia nhỏ | 3 | Dùng phòng video của 27a | Chưa có (chờ 27a) |
+| 28h SCORM và gói khoá học | 3 | Phát SCORM 1.2, 2004 trong khung cô lập; nhập xuất khoá học giữa các trường (mở rộng gói 22h2) | Gói `school-management.resource-package/1` của 22h2 có sẵn |
+| 28i Huy hiệu, chứng nhận | 4 | Tuỳ chọn, tắt mặc định, không bảng xếp hạng | Chưa có |
+| 28j Học khi mạng yếu | 4 | Bản nháp và tệp chờ gửi của học sinh lưu trên máy (vỏ PWA 26a) | Chưa có (chờ 26a) |

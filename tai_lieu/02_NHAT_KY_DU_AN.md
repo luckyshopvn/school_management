@@ -14,26 +14,28 @@
 
 ## Nhật ký theo ngày
 
-### 2026-10-26 — Kế hoạch DT-28: nhóm học tập, học nhóm trực tuyến, bài tập và bài về nhà
+### 2026-10-26 — Kế hoạch DT-28: hệ thống quản lý học tập (LMS)
 
 #### Công việc đã thực hiện
 
-- Đọc mục 15, 18, 19 của `32_KE_HOACH_THEO_HE_THONG_SO.md` và mã trên nhánh chính sau PR 179, 180: nhóm học sinh DT-14c (`child_groups`, `child_group_members`), chia nhóm và bảng điểm nhanh của 23b (`classroom_groupings`, `classroom_score_events`), tiết nhóm 21b (`group_no`), sổ đầu bài `class_logs`, sổ điểm `score_entries` và `ScoresService.recordExamScores`, nhận xét `regular_comments`, thang tiêu chí `rubrics`, nhắn tin, thông báo; đọc nhánh làm việc chưa gộp của 23a (kênh `student`, `exam_assignments`, `exam_assignment_targets` chỉ có lớp và học sinh, `exam_attempts`) và 23d (`AiProvider`, bộ quét dữ liệu cá nhân). Toàn kho chưa có chỗ nào về bài tập về nhà.
-- Tra văn bản ngày 2026-10-26: **đọc bản gốc Thông tư 15/2026/TT-BGDĐT** (Điều lệ trường phổ thông, hiệu lực 10/05/2026, thay Thông tư 28/2020/TT-BGDĐT và 32/2020/TT-BGDĐT; tệp quét ở Cổng thông tin điện tử Chính phủ, đọc trang 11, 12, 18, 19: Điều 17, 19, 33); Thông tư 22/2021/TT-BGDĐT Điều 6, 7 qua bản đăng lại; Công văn 3977/BGDĐT-GDTH (không giao bài về nhà lớp 1) và quy định học 2 buổi/ngày chỉ qua báo, ghi "chưa xác minh".
-- Viết mục 20 của `32`: căn cứ và hiện trạng mã, căn cứ pháp lý và ràng buộc sản phẩm, nguyên tắc, bảy phần 28a đến 28g trong ba đợt, phạm vi chi tiết, phương án đã loại, rủi ro, việc Eric phải quyết E-01 đến E-04, giả định GD-140 đến GD-150. Thêm đợt DT-28, RR-32 đến RR-35, GD-140 đến GD-150 vào `01`; mục kế hoạch DT-28 ở `34`.
+- Đọc mục 15, 18, 19 của `32_KE_HOACH_THEO_HE_THONG_SO.md` và mã trên nhánh chính sau PR 179, 180: phân công giảng dạy (`timetable_lessons`, `class_staff_assignments`, tổ chuyên môn của 21a), nhóm học sinh DT-14c, chia nhóm và bảng điểm nhanh của 23b, tiết nhóm 21b, sổ đầu bài, kho học liệu 22h1 (luồng duyệt tổ rồi Ban Giám hiệu), gói chia sẻ 22h2, ngân hàng câu hỏi và hàm chấm 22g1, 22g2, thang tiêu chí, sổ điểm và `ScoresService`, nhận xét Tiểu học, nhắn tin, thông báo; nhánh làm việc chưa gộp của 23a (kênh `student`, `exam_assignment_targets` chỉ có lớp và học sinh) và 23d (`AiProvider`). Toàn kho chưa có khoá học hay bài tập về nhà.
+- Tra văn bản ngày 2026-10-26: **đọc toàn văn bản gốc Thông tư 09/2021/TT-BGDĐT** (dạy học trực tuyến; tệp quét ở Cổng thông tin điện tử Chính phủ, dựng ảnh từng trang để đọc) và **bản gốc một phần Thông tư 15/2026/TT-BGDĐT** (Điều lệ trường phổ thông mới, thay Thông tư 28/2020/TT-BGDĐT); Thông tư 22/2021 Điều 6, 7 qua bản đăng lại; Công văn 3977/BGDĐT-GDTH, quy định học 2 buổi/ngày, văn bản sửa Thông tư 09 năm 2025 ghi "chưa xác minh".
+- Đối chiếu tính năng công khai của Moodle, Google Classroom, Canvas, K12Online (chỉ trang công khai, không đăng nhập), VNPT E-Learning (chỉ có bài báo); không tìm thấy trang công khai của "Viettel MOET LMS".
+- Viết mục 20 của `32` (theo yêu cầu thứ hai của Eric cùng ngày, mở rộng từ bốn tính năng thành LMS): căn cứ, Thông tư 09/2021 ánh xạ vào sản phẩm, đối chiếu LMS và phạm vi chọn, đánh giá chuẩn SCORM 1.2, SCORM 2004, xAPI, cmi5, LTI 1.3, nguyên tắc, mười phần 28a đến 28j trong bốn đợt, phạm vi chi tiết, phương án đã loại, rủi ro, việc Eric phải quyết E-01 đến E-05, giả định GD-140 đến GD-157. Cập nhật mục 19: 27d, 27e của DT-27 xây trên lõi LMS. Thêm đợt DT-28, RR-32 đến RR-36, GD-140 đến GD-157 vào `01`; mục kế hoạch DT-28 ở `34`.
 
 #### Quyết định
 
-- Claude chọn theo ủy quyền: một mô hình nhóm bằng cách mở rộng `child_groups` thêm bộ nhóm (`group_sets`), chia lại tạo bộ mới, bộ cũ vào lịch sử; công cụ lớp học 23b chuyển sang bộ nhóm; bài tập có bảng giao và bài nộp riêng nhưng dùng câu đã duyệt của 22g1, hàm chấm của 22g2, thang tiêu chí của 22h2, màn hình học sinh của 23a; điểm bài tập chỉ vào điểm đánh giá thường xuyên qua `ScoresService` khi giáo viên xác nhận, mặc định tắt; không gian học nhóm thay cho nhắn tin giữa học sinh, giáo viên luôn thấy; video nhóm và phòng chia nhỏ dùng bộ nối của 27a; AI gợi ý nhận xét mặc định không đọc bài làm.
-- Số giữ sẵn: YCTD-270 (kế hoạch), YCTD-271 đến YCTD-277, dự phòng đến YCTD-284; năm học 0170 đến 0189, định danh 0180 đến 0189 (hệ thống 0110 đến 0114, nền tảng 0250 đến 0254 chỉ giữ chỗ); e2e `210-` đến `219-`; GD-140 đến GD-150, RR-32 đến RR-35.
+- Eric (ngày 2026-10-26): bốn tính năng chia nhóm, học nhóm trực tuyến, bài tập trực tuyến, bài về nhà; sau đó mở rộng thành hệ thống quản lý học tập, bốn tính năng là các phần.
+- Claude chọn theo ủy quyền: tự làm LMS gọn trong School Management (không nhúng Moodle); lớp học trực tuyến tự sinh từ phân công; khoá học mẫu ở cơ sở dữ liệu hệ thống, bản của lớp và kết quả ở năm học; khoá mẫu và học liệu qua luồng duyệt 22h1 (Thông tư 09 Điều 7 khoản 3); một bảng kết quả hoạt động chung; một mô hình nhóm mở rộng `child_groups`; điểm hoạt động chỉ vào điểm thường xuyên qua `ScoresService` khi giáo viên xác nhận; thảo luận, hỏi đáp, không gian nhóm cùng một bộ máy, không tin nhắn riêng giữa học sinh; SCORM 1.2 và 2004 (không trình tự) làm, LTI 1.3, xAPI, cmi5 để sau; huy hiệu tắt mặc định, không bảng xếp hạng; 27d, 27e của DT-27 bắt đầu sau DT-28 đợt 2.
+- Số giữ sẵn: YCTD-270 (kế hoạch), YCTD-271 đến YCTD-280, dự phòng đến YCTD-289; năm học 0170 đến 0199, hệ thống 0110 đến 0119, định danh 0180 đến 0189 (nền tảng 0250 đến 0254 chỉ giữ chỗ); e2e `210-` đến `224-`; GD-140 đến GD-157, RR-32 đến RR-36.
 
 #### Thay đổi
 
-- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-270, `32` mục 20 (phiên bản 1.77), `01` (1.70), `34_TONG_HOP_CHUC_NANG_HE_THONG/01_TONG_QUAN_VA_NEN_TANG.md`, `index.md`. Chỉ đổi tài liệu, không tăng phiên bản phần mềm.
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-270, `32` mục 19 (dòng 27d, 27e), mục 20 (phiên bản 1.77), `01` (1.70), `34_TONG_HOP_CHUC_NANG_HE_THONG/01_TONG_QUAN_VA_NEN_TANG.md`, `index.md`. Chỉ đổi tài liệu, không tăng phiên bản phần mềm.
 
 #### Vấn đề tồn đọng
 
-- Chờ Eric: luật sư rà không gian nhóm có quan sát và chế độ AI đọc bài làm, xác nhận quy tắc bài về nhà Tiểu học, chốt GD-140 đến GD-150 (E-01 đến E-04 ở `32` mục 20.10).
+- Chờ Eric: luật sư rà theo dõi tiến độ, quan sát nhóm, chế độ AI đọc bài làm, LTI; xác nhận quy tắc bài về nhà Tiểu học và văn bản sửa Thông tư 09; chọn trường thử; xác nhận thứ tự 27d, 27e (E-01 đến E-05 ở `32` mục 20.12).
 - PR 181 (DT-25) dùng GD-128 đến GD-130 và RR-28, trùng với DT-27 đã gộp; phiên điều phối đánh lại khi gộp PR 181.
 
 ### 2026-10-26 — Kế hoạch DT-27: nền tảng gia sư trực tuyến
