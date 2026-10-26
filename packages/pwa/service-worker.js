@@ -1,4 +1,4 @@
-/* global self, caches, fetch, URL */
+/* global self, caches, fetch, URL, clients */
 // Service worker dùng chung của ứng dụng giáo viên và phụ huynh (DT-26 phần 26a, YCTD-231; gom từ DT-23 phần 23b, YCTD-212,
 // GD-108). Giữ vỏ ứng dụng (trang, tệp dựng) để mở được khi mất mạng sau lần tải đầu; KHÔNG bao giờ giữ lời gọi /api (dữ liệu,
 // điểm, học bạ, học phí vẫn cần mạng). Gặp mạng thì lấy bản mới nhất và cập nhật bộ nhớ đệm, mất mạng mới dùng bản đã giữ.
@@ -111,4 +111,58 @@ self.addEventListener('fetch', (event) => {
     return;
   }
   event.respondWith(networkFirst(request));
+});
+
+// Thông báo đẩy (DT-26 phần 26b, YCTD-239): máy chủ chỉ gửi tiêu đề theo nhóm, tên trường, một câu chung và mã thông báo, không có
+// dữ liệu cá nhân; nội dung đầy đủ chỉ thấy khi mở ứng dụng (đã đăng nhập). Nội dung không đọc được thì hiện câu chung
+self.addEventListener('push', (event) => {
+  let message;
+  try {
+    message = (event.data ? event.data.json() : null) ?? {};
+  } catch {
+    message = {};
+  }
+  const title = typeof message.title === 'string' && message.title ? message.title : 'Thông báo mới';
+  const body = typeof message.body === 'string' ? message.body : 'Mở ứng dụng để xem.';
+  const data = message.data && typeof message.data === 'object' ? message.data : {};
+  event.waitUntil(
+    self.registration.showNotification(title, {
+      body,
+      tag: typeof message.tag === 'string' ? message.tag : undefined,
+      icon: new URL('icon-192.png', self.registration.scope).href,
+      badge: new URL('icon-192.png', self.registration.scope).href,
+      data: { notification_id: typeof data.notification_id === 'string' ? data.notification_id : null },
+    }),
+  );
+});
+
+// Chạm thông báo: đưa cửa sổ ứng dụng đang mở (trong phạm vi của service worker) lên trước, không có thì mở ứng dụng ở trang đầu;
+// báo cho trang mã thông báo để trang tải lại danh sách thông báo. Không mở địa chỉ nào do nội dung đẩy gửi tới
+self.addEventListener('notificationclick', (event) => {
+  event.notification.close();
+  const notificationId = event.notification.data?.notification_id ?? null;
+  event.waitUntil(
+    (async () => {
+      const windows = await clients.matchAll({ type: 'window', includeUncontrolled: true });
+      const existing = windows.find((client) => client.url.startsWith(self.registration.scope));
+      if (existing) {
+        await existing.focus();
+        existing.postMessage({ type: 'PUSH_OPENED', notification_id: notificationId });
+        return;
+      }
+      await clients.openWindow(self.registration.scope);
+    })(),
+  );
+});
+
+// Trình duyệt tự đổi đăng ký: báo các trang đang mở đăng ký lại (service worker không có mã phiên để tự gọi máy chủ); trang không mở
+// thì lần mở ứng dụng sau sẽ đồng bộ lại đăng ký
+self.addEventListener('pushsubscriptionchange', (event) => {
+  event.waitUntil(
+    (async () => {
+      for (const client of await clients.matchAll({ type: 'window', includeUncontrolled: true })) {
+        client.postMessage({ type: 'PUSH_SUBSCRIPTION_CHANGED' });
+      }
+    })(),
+  );
 });
