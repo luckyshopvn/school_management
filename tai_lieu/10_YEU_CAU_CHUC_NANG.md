@@ -1,8 +1,8 @@
 # 10. YÊU CẦU CHỨC NĂNG
 
 - Mô tả: Mã chức năng, tên chức năng, mục đích, người sử dụng, điều kiện thực hiện, dữ liệu đầu vào, quy trình xử lý, kết quả đầu ra, quy tắc nghiệp vụ, trường hợp ngoại lệ, phân quyền, thông báo lỗi.
-- Phiên bản: 1.101
-- Ngày cập nhật: 2026-10-25
+- Phiên bản: 1.102
+- Ngày cập nhật: 2026-10-26
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
 
@@ -202,6 +202,9 @@
 | P03-06 | Tiến độ học tập của trẻ (G2) | VT-07 | Trẻ, chỉ số phát triển, nhận xét theo kỳ | Ghi nhận và công bố cho phụ huynh | Phiếu tiến độ của trẻ | BR-15 |
 | P03-07 | Lịch hoạt động lớp (G2) | VT-07 | Lớp, ngày, hoạt động | Lập lịch và công bố | Lịch hoạt động của lớp | BR-69 |
 | P03-08 | Lĩnh vực và nhóm bài học (G2) | VT-03, VT-07 | Tên lĩnh vực, tên nhóm bài học, thứ tự | Quản lý hai danh mục, gán bài học vào lĩnh vực và nhóm | Danh mục lĩnh vực và nhóm bài học | BR-01, BR-75 |
+| P03-09 | Công cụ lớp học: gọi tên ngẫu nhiên, chia nhóm, đếm ngược và bấm giờ (YCTD-212, DT-23 phần 23b) | VT-07, VT-08 được phân công lớp; vai trò xem trẻ trong đơn vị | Lớp; tuỳ chọn không lặp, loại học sinh vắng; số nhóm hoặc số người mỗi nhóm; đồng hồ | Bốc ngẫu nhiên từ danh sách lớp thật, ghi lượt gọi, giữ bản chia nhóm gần nhất, đồng hồ theo thời điểm tuyệt đối | Lượt gọi, bản chia nhóm, đồng hồ trên màn hình lớp | BR-231 |
+| P03-10 | Bảng điểm nhanh gắn nề nếp, thi đua (YCTD-212) | Giáo viên như P03-09; ghi nề nếp: `P02.conduct.record` | Nhóm hoặc học sinh, điểm cộng, trừ; tiêu chí nề nếp | Cộng, trừ điểm trong buổi, xác nhận mới ghi vào `conduct_entries`, bỏ buổi | Bảng điểm của buổi; dòng nề nếp của lớp | BR-232 |
+| P03-11 | Ngoại tuyến của công cụ lớp học (YCTD-212, GD-108) | Giáo viên; bật tắt: `P01.setting.manage` | Cấu hình `classroom_offline_enabled`, `classroom_roster_ttl_hours` | Service worker và manifest, bản chụp danh sách lớp gọn có hạn, hàng đợi lượt gọi và điểm đồng bộ khi có mạng | Công cụ lớp học mở được khi mất mạng | BR-233 |
 
 ## 5. Phân hệ P04 — Điểm danh và chăm sóc hằng ngày
 

@@ -259,8 +259,13 @@ describe('Điểm cuối công cụ lớp học', () => {
     await schoolYear
       .insertInto('settings')
       .values([
-        { org_unit_id: unitId, key: 'classroom_offline_enabled', value: JSON.stringify(false) },
-        { org_unit_id: unitId, key: 'classroom_roster_ttl_hours', value: JSON.stringify(6) },
+        { org_unit_id: unitId, key: 'classroom_offline_enabled', value_type: 'boolean', value: JSON.stringify(false) },
+        {
+          org_unit_id: unitId,
+          key: 'classroom_roster_ttl_hours',
+          value_type: 'positive_integer',
+          value: JSON.stringify(6),
+        },
       ])
       .execute();
     const changed = await api('GET', '/classroom-tools/config', teacher.accessToken);

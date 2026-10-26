@@ -214,11 +214,24 @@ export interface FlushResult {
 }
 
 let flushing: Promise<FlushResult> | undefined;
+let flushAgain = false;
 
 // Gửi hàng đợi lên máy chủ khi có mạng: lượt gọi, dòng điểm, lệnh bỏ buổi. Máy chủ chống trùng theo `client_id` nên gửi lại
-// không tạo dòng thừa; lỗi mạng thì dừng giữ nguyên, lỗi nghiệp vụ thì bỏ riêng nhóm lỗi để không chặn các nhóm khác
+// không tạo dòng thừa; lỗi mạng thì dừng giữ nguyên, lỗi nghiệp vụ thì bỏ riêng nhóm lỗi để không chặn các nhóm khác. Yêu cầu
+// đến khi một lượt gửi đang chạy thì lượt đó chạy lại một lần nữa sau khi xong (dòng mới thêm không bị bỏ sót)
 export function flushQueue(): Promise<FlushResult> {
-  flushing ??= doFlush().finally(() => {
+  if (flushing) {
+    flushAgain = true;
+    return flushing;
+  }
+  flushing = (async () => {
+    let result: FlushResult;
+    do {
+      flushAgain = false;
+      result = await doFlush();
+    } while (flushAgain);
+    return result;
+  })().finally(() => {
     flushing = undefined;
   });
   return flushing;

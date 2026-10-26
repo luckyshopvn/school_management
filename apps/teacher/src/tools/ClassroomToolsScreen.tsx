@@ -162,6 +162,7 @@ export function ClassroomToolsScreen({
         <label className="flex flex-col gap-1 text-label font-medium text-text">
           Lớp
           <select
+            aria-label="Lớp"
             value={classId}
             onChange={(event) => setClassId(event.target.value)}
             className="rounded-lg border border-border bg-card px-3 py-2 text-content text-text"

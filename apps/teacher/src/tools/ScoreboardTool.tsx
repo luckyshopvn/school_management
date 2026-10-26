@@ -210,6 +210,7 @@ export function ScoreboardTool({
             <label className="flex flex-col gap-1 text-label font-medium text-text">
               Tiêu chí
               <select
+                aria-label="Tiêu chí"
                 value={criterionId}
                 onChange={(event) => setCriterionId(event.target.value)}
                 className="rounded-lg border border-border bg-card px-3 py-2 text-content text-text"

@@ -575,17 +575,21 @@ export class ClassroomToolsService {
       )
       .returning(['id', 'target_kind', 'group_name', 'child_id', 'delta'])
       .execute();
-    const release = () =>
-      database
-        .updateTable('classroom_score_events')
-        .set({ confirmed_at: null })
-        .where(
-          'id',
-          'in',
-          claimed.map((event) => event.id),
-        )
-        .execute();
+    const release = async () => {
+      if (claimed.length > 0) {
+        await database
+          .updateTable('classroom_score_events')
+          .set({ confirmed_at: null })
+          .where(
+            'id',
+            'in',
+            claimed.map((event) => event.id),
+          )
+          .execute();
+      }
+    };
     const net = claimed.reduce((total, event) => total + event.delta, 0);
+    const entryIds: string[] = [];
     try {
       if (claimed.length === 0) {
         throw ruleViolationError(CLASSROOM_TOOLS_RULE_CODE, 'Không có điểm nào của buổi để chuyển vào nề nếp');
@@ -602,7 +606,6 @@ export class ClassroomToolsService {
         );
       }
       const note = await this.summaryNote(database, claimed);
-      const entryIds: string[] = [];
       for (const quantity of splitConductQuantity(Math.abs(net))) {
         const entry = await this.conduct.record(
           currentUser,
@@ -622,7 +625,20 @@ export class ClassroomToolsService {
         .execute();
       return { confirmed_events: claimed.length, net, quantity: Math.abs(net), conduct_entry_ids: entryIds };
     } catch (error) {
-      await release();
+      // Đã ghi một phần các dòng nề nếp (tổng quá 50 lần, một dòng sau lỗi) thì giữ các dòng điểm là đã chuyển để lần sau không ghi trùng
+      if (entryIds.length > 0) {
+        await database
+          .updateTable('classroom_score_events')
+          .set({ conduct_entry_id: entryIds[0] ?? null })
+          .where(
+            'id',
+            'in',
+            claimed.map((event) => event.id),
+          )
+          .execute();
+      } else {
+        await release();
+      }
       throw error;
     }
   }

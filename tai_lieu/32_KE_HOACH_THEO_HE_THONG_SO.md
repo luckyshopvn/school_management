@@ -1,7 +1,7 @@
 # 32. KẾ HOẠCH ĐỒNG BỘ CHỨC NĂNG VÀ GIAO DIỆN THEO HỆ THỐNG CỦA SỞ (DT-15)
 
 - Mô tả: Kế hoạch điều chỉnh School Management theo kết quả khảo sát `31_KHAO_SAT_HE_THONG_SO.md`; từ mục 9 thêm kế hoạch DT-18 điều hành nhà trường, mục 10 thêm kế hoạch DT-19 nền đa cấp học, mục 11 thêm kế hoạch DT-20 Tiểu học (kèm 22c thời khoá biểu), mục 12 thêm kế hoạch DT-21 THCS và THPT (kèm 22g kiểm tra, đánh giá), mục 13 thêm kế hoạch DT-22 (22a thư viện, 22e hồ sơ bồi dưỡng, 22h kho học liệu số), mục 14 thêm kế hoạch DT-SaaS (Enterprise SaaS nhiều trường: S1a, S1b, S2, S3, S4, S5a, S5b, S6, S7a, S7b, S8a, S8b, S9; hai hồ sơ triển khai: thử nghiệm miễn phí và vận hành), mục 15 thêm kế hoạch DT-23 (thi trực tuyến cho học sinh, công cụ lớp học, trò chơi kiến thức và thẻ đáp án giấy, trợ lý AI; 23a đến 23d).
-- Phiên bản: 1.74
+- Phiên bản: 1.75
 - Ngày cập nhật: 2026-10-26
 - Trạng thái: Đã duyệt hướng làm
 - Căn cứ: yêu cầu của Eric ngày 2026-10-13 ("tính năng đã có thì ưu tiên phiên bản và giao diện của Sở; tính năng Sở không có thì giữ nguyên, chỉ đổi giao diện theo trang của Sở") và các lựa chọn của Eric cùng ngày ở mục 2.
@@ -1653,7 +1653,7 @@ Cỡ ước lượng (một phần của DT-16 là một đơn vị, chỉ để
 | Phần | Đợt | Tiến độ |
 |---|---|---|
 | 23a | 1 | Chưa làm; YCTD-211 giữ sẵn |
-| 23b | 1 | Chưa làm; YCTD-212 giữ sẵn |
+| 23b | 1 | Đã làm (YCTD-212, phiên bản 0.140.0): công cụ lớp học, ngoại tuyến, bản chụp danh sách lớp 24 giờ; năm học 0124, 0125; e2e 151 |
 | 23d | 1 | Chưa làm; YCTD-214 giữ sẵn |
 | 23c | 2 | Chưa làm; YCTD-213 giữ sẵn, bắt đầu khi 23a và 23b đã gộp |
 

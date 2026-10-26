@@ -224,7 +224,7 @@ test('CT-23b-14: gọi tên, chia nhóm, đồng hồ, bảng điểm vào nề 
     (await schoolYear.selectFrom('conduct_entries').select('id').where('class_id', '=', classRow.id).execute()).length,
   ).toBe(0);
   await page.getByLabel('Tiêu chí', { exact: true }).selectOption(criterion.id);
-  await page.getByRole('button', { name: 'Ghi vào nề nếp' }).click();
+  await page.getByRole('button', { name: 'Ghi vào nề nếp', exact: true }).click();
   await expect(page.getByText('Đã ghi vào nề nếp, thi đua: 3 lần')).toBeVisible();
   const entry = await schoolYear
     .selectFrom('conduct_entries')
@@ -247,7 +247,8 @@ test('CT-23b-14: gọi tên, chia nhóm, đồng hồ, bảng điểm vào nề 
   await expect(page.getByRole('heading', { name: 'Lớp của tôi' })).toBeVisible();
   await page.context().setOffline(true);
   await page.reload();
-  await expect(page.getByRole('heading', { name: 'Công cụ lớp học' })).toBeVisible();
+  // Trang dựng từ bộ nhớ đệm của service worker, máy chậm có thể quá 5 giây mặc định
+  await expect(page.getByRole('heading', { name: 'Công cụ lớp học' })).toBeVisible({ timeout: 30_000 });
   await expect(page.getByText('Đang dùng ngoại tuyến')).toBeVisible();
   await page.getByLabel('Lớp', { exact: true }).selectOption({ label: className });
   await expect(page.getByText(/Danh sách lớp lưu trên máy lúc/)).toBeVisible();
@@ -288,7 +289,12 @@ test('CT-23b-14: gọi tên, chia nhóm, đồng hồ, bảng điểm vào nề 
   // Trường tắt ngoại tuyến: đăng nhập lại thì service worker, bộ nhớ đệm và bản chụp danh sách lớp bị gỡ
   await schoolYear
     .insertInto('settings')
-    .values({ org_unit_id: root.id, key: 'classroom_offline_enabled', value: JSON.stringify(false) })
+    .values({
+      org_unit_id: root.id,
+      key: 'classroom_offline_enabled',
+      value_type: 'boolean',
+      value: JSON.stringify(false),
+    })
     .onConflict((conflict) => conflict.columns(['org_unit_id', 'key']).doUpdateSet({ value: JSON.stringify(false) }))
     .execute();
   try {
