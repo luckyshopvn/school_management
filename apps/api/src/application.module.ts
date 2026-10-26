@@ -498,6 +498,8 @@ import { OnlineExamsController } from './online-exams/online-exams.controller.js
 import { OnlineExamsService } from './online-exams/online-exams.js';
 import { StudentExamsController } from './online-exams/student-exams.controller.js';
 import { StudentExamsService } from './online-exams/student-exams.js';
+import { ChildTutoringController, TutoringController } from './tutoring/tutoring.controller.js';
+import { TutoringService } from './tutoring/tutoring.js';
 import { AiAssistantController, AiUsageJob } from './ai-assistant/ai-assistant.controller.js';
 import { AI_PROVIDERS, AiAssistantService } from './ai-assistant/ai-assistant.js';
 import { AiProviderRegistry } from './ai-assistant/ai-provider.js';
@@ -794,6 +796,9 @@ export class ApplicationModule {
         // Thi trực tuyến cho học sinh (DT-23 phần 23a)
         OnlineExamsController,
         StudentExamsController,
+        // Gia sư trong trường (DT-27 phần 27b)
+        TutoringController,
+        ChildTutoringController,
       ],
       providers: [
         { provide: API_CONFIGURATION, useValue: configuration },
@@ -1208,6 +1213,8 @@ export class ApplicationModule {
               schoolOf: () => currentTenant()?.code ?? null,
             }),
         },
+        // Gia sư trong trường (DT-27 phần 27b)
+        TutoringService,
       ],
     };
   }

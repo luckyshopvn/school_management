@@ -1548,6 +1548,17 @@ Giao kèo văn thư lưu trữ (YCTD-118):
 | GET, PATCH | /api/v1/online-exams/assignments/{id} | Chi tiết, theo dõi; sửa tên, giờ, chế độ kết quả (P02-84) |
 | POST | /api/v1/online-exams/assignments/{id}/cancel, /release-results | Huỷ; công bố kết quả (P02-84) |
 | GET, PUT, POST | /api/v1/online-exams/attempts/{id}, /essay-marks, /force-submit | Xem bài; điểm tự luận; nộp thay (P02-84) |
+| GET | /api/v1/tutoring/meta, /tutoring/rules; POST /tutoring/rules | Danh mục cho biểu mẫu, quy định dạy thêm đang áp dụng và lịch sử; thêm quy định có ngày hiệu lực (P02.tutoring.manage) (YCTD-252) |
+| GET, POST | /api/v1/tutoring/programs; GET, PUT /tutoring/programs/{id} | Chương trình gia sư; vi phạm Thông tư 29 trả 422 `ERR_RULE_VIOLATION` mã YCTD-252, chi tiết mã từng dòng (`curriculum_fee`, `curriculum_audience`, `curriculum_subject`, `curriculum_level`) |
+| POST | /api/v1/tutoring/programs/{id}/submit, /approve, /reject, /close | Nộp (người dạy), duyệt, không duyệt (cần `reason`), đóng (Ban Giám hiệu) |
+| GET, PUT | /api/v1/tutoring/programs/{id}/candidate-suggestions, /candidates | Gợi ý học sinh chưa đạt môn từ sổ điểm; xác nhận danh sách học sinh được đăng ký |
+| POST | /api/v1/tutoring/programs/{id}/sessions | Xếp buổi lẻ (`session_date`) hoặc lặp theo tuần (`weekly`: from, to, weekdays 1 đến 7), `start_time`, `end_time`; trùng thời khoá biểu (`timetable_teacher`, `timetable_class`) hoặc quá giới hạn tiết (`weekly_periods`) trả 422 |
+| GET | /api/v1/tutoring/programs/{id}/registrations; POST /tutoring/registrations/{id}/approve, /reject | Đơn đăng ký; duyệt kiểm sĩ số và giới hạn tiết |
+| POST | /api/v1/tutoring/programs/{id}/messages | Nhắn cha mẹ của học sinh đã đăng ký qua luồng trao đổi |
+| GET | /api/v1/tutoring/sessions?from&to; POST /tutoring/sessions/{id}/cancel | Buổi của chương trình mình dạy (Ban Giám hiệu: mọi buổi); hủy buổi báo cha mẹ |
+| GET, PUT | /api/v1/tutoring/sessions/{id}/attendance; POST .../room-events | Điểm danh và xác nhận (vắng báo cha mẹ một lần); sự kiện vào, ra phòng giả lập đến khi 27a gộp |
+| GET, POST | /api/v1/tutoring/exemptions; GET .../{id}/file | Quyết định tăng thời lượng của Sở (biểu mẫu nhiều phần, tệp tùy chọn) |
+| GET | /api/v1/children/{id}/tutoring; POST .../registrations; POST .../registrations/{rid}/withdraw | Cha mẹ: chương trình mở cho con, đơn đã gửi, lịch học và điểm danh đã xác nhận; gửi đơn (`agree` bắt buộc), rút đơn |
 | GET | /api/v1/student/profile, /exams | Học sinh: thông tin, bài được giao (P02-83) |
 | POST | /api/v1/student/exams/{id}/start | Mở hoặc tiếp tục lượt (`camera_state`) (P02-83) |
 | GET, PUT | /api/v1/student/attempts/{id}, /answers | Đọc lượt; lưu nháp từng câu (P02-83) |

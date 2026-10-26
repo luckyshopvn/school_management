@@ -101,6 +101,9 @@ import { migration as createClassroomScoreEvents } from './migrations/0125_creat
 import { migration as addPushChannel } from './migrations/0140_add_push_channel.js';
 import { migration as createGroupSets } from './migrations/0170_create_group_sets.js';
 import { migration as moveClassroomGroupingsToGroupSets } from './migrations/0171_move_classroom_groupings_to_group_sets.js';
+import { migration as createTutoringPrograms } from './migrations/0152_create_tutoring_programs.js';
+import { migration as createTutoringSessions } from './migrations/0153_create_tutoring_sessions.js';
+import { migration as createTutoringRegistrations } from './migrations/0154_create_tutoring_registrations.js';
 
 // Danh sách tệp thay đổi cấu trúc của cơ sở dữ liệu năm học, theo số thứ tự (QU-01, QU-11)
 export const schoolYearMigrations: Record<string, Migration> = {
@@ -209,4 +212,8 @@ export const schoolYearMigrations: Record<string, Migration> = {
   // Mô hình nhóm dùng chung (DT-28 phần 28a): 0170, 0171
   '0170_create_group_sets': createGroupSets,
   '0171_move_classroom_groupings_to_group_sets': moveClassroomGroupingsToGroupSets,
+  // Gia sư trong trường (DT-27 phần 27b): 0152 đến 0154
+  '0152_create_tutoring_programs': createTutoringPrograms,
+  '0153_create_tutoring_sessions': createTutoringSessions,
+  '0154_create_tutoring_registrations': createTutoringRegistrations,
 };
