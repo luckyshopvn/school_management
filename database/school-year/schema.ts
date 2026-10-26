@@ -5891,6 +5891,9 @@ export interface QuestionsTable {
   reviewed_at: Date | null;
   last_used_at: ColumnType<string | null, string | null | undefined, string | null>;
   use_count: Generated<number>;
+  // Câu do trợ lý AI soạn nháp (DT-23 phần 23d)
+  ai_generated: Generated<boolean>;
+  ai_request_id: string | null;
   created_at: CreatedTimestamp;
   updated_at: UpdatedTimestamp;
 }

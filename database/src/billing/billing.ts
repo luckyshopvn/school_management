@@ -4,6 +4,8 @@ import { writeAudit } from '../provision-school.js';
 import { addDays, asDateText, daysBetween } from '../school-plans.js';
 import { createEInvoiceProvider } from './einvoice.js';
 import { nextPeriod, periodContaining, periodLabel, previousPeriod, type BillingRange } from './periods.js';
+import { aiPricingReady } from './ai-pricing.js';
+import { aiUsageBetween, readPlanAiPricing } from './platform-ai.js';
 import { computeCharges, ruleFromPlanPrices, type BillingUsage, type Charges, type PriceRule } from './pricing.js';
 
 // Thu phí tự động (DT-SaaS phần S5b, YCTD-196; tài liệu 32 mục 14.5): chốt số liệu kỳ, lập hóa đơn, nhận tiền và đối soát, gia hạn và mở
@@ -286,10 +288,16 @@ export async function issueInvoice(
   input: IssueInvoiceInput,
   pricing: PricingContext,
 ): Promise<IssuedInvoice> {
+  // Thành phần AI (DT-23 phần 23d): token của kỳ ở cấu hình `platform` nhân đơn giá của gói; gói chưa đặt đủ đơn giá thì không thu
+  const aiPricing = await readPlanAiPricing(platform, input.plan.planId);
+  const aiUsage = aiPricingReady(aiPricing)
+    ? await aiUsageBetween(platform, input.schoolId, input.range.start, input.range.end, 'platform')
+    : [];
   const charges = computeCharges(input.plan.rule, input.usage, {
     ...(input.discount ? { discount: input.discount } : {}),
     allModules: pricing.allModules,
     ...(pricing.moduleLabels ? { moduleLabels: pricing.moduleLabels } : {}),
+    ...(aiPricing && aiUsage.length > 0 ? { ai: { pricing: aiPricing, usage: aiUsage } } : {}),
   });
   const settings = await readBillingSettings(platform);
   const dueOn =
@@ -323,8 +331,8 @@ export async function issueInvoice(
         period_end: input.range.end,
         plan_id: input.plan.planId,
         plan_code: input.plan.planCode,
-        price_rule: JSON.stringify(input.plan.rule),
-        usage: JSON.stringify(input.usage),
+        price_rule: JSON.stringify(aiPricing && aiUsage.length > 0 ? { ...input.plan.rule, ai_pricing: aiPricing } : input.plan.rule),
+        usage: JSON.stringify(aiUsage.length > 0 ? { ...input.usage, ai: aiUsage } : input.usage),
         subtotal: charges.subtotal,
         discount_total: charges.discountTotal,
         vat_percent: charges.vatPercent,

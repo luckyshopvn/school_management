@@ -16,6 +16,9 @@ import { migration as createBilling } from './migrations/0050_create_billing.js'
 import { migration as createPlatformDashboard } from './migrations/0060_create_platform_dashboard.js';
 import { migration as createBackupRuns } from './migrations/0070_create_backup_runs.js';
 import { migration as addDatabaseLoginName } from './migrations/0100_add_database_login_name.js';
+import { migration as addAiPlanLimits } from './migrations/0200_add_ai_plan_limits.js';
+import { migration as createAiTokenUsage } from './migrations/0201_create_ai_token_usage.js';
+import { migration as createPlanAiPricing } from './migrations/0202_create_plan_ai_pricing.js';
 
 // Khối số giữ sẵn của phần S1a: 0001 đến 0009; S2: 0020 đến 0029 (tài liệu 32 mục 14.3)
 export const platformMigrations: Record<string, Migration> = {
@@ -45,4 +48,8 @@ export const platformMigrations: Record<string, Migration> = {
   '0070_create_backup_runs': createBackupRuns,
   // Khối 0100 đến 0109 của phần S9
   '0100_add_database_login_name': addDatabaseLoginName,
+  // Trợ lý AI (DT-23 phần 23d): 0200 đến 0202
+  '0200_add_ai_plan_limits': addAiPlanLimits,
+  '0201_create_ai_token_usage': createAiTokenUsage,
+  '0202_create_plan_ai_pricing': createPlanAiPricing,
 };

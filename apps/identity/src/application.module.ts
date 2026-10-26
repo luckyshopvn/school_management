@@ -36,6 +36,7 @@ import {
 } from './platform/platform-schools.js';
 import { PlatformPlansController, PlatformPlansService } from './platform/platform-plans.js';
 import { PlatformBillingController, PlatformBillingService } from './platform/platform-billing.js';
+import { PlatformAiController, PlatformAiService } from './platform/platform-ai.js';
 import { PlatformDashboardController, PlatformDashboardService } from './platform/platform-dashboard.js';
 import { ParentOrgAuthController, ParentOrgsService, PlatformParentOrgsController } from './platform/parent-orgs.js';
 import {
@@ -72,6 +73,8 @@ export class ApplicationModule {
         ParentOrgAuthController,
         PlatformSupportController,
         SupportExchangeController,
+        // Trợ lý AI (DT-23 phần 23d)
+        PlatformAiController,
       ],
       providers: [
         { provide: IDENTITY_CONFIGURATION, useValue: configuration },
@@ -114,6 +117,7 @@ export class ApplicationModule {
         SchoolActivationService,
         PlatformPlansService,
         PlatformBillingService,
+        PlatformAiService,
         PlatformDashboardService,
         ParentOrgsService,
         SupportSessionsService,
