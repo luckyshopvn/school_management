@@ -13,7 +13,7 @@ import {
 import { createTestUser, type TestUser } from '@school-management/identity/testing';
 import {
   E2E_MULTI_API_PORT,
-  E2E_MULTI_PORTAL_PORT,
+  E2E_MULTI_IDENTITY_PORT,
   E2E_PUSH_OUTBOX_FILE,
   E2E_SCHEDULER_SECRET,
   schoolHost,
@@ -25,6 +25,7 @@ import { expect, test } from './fixtures.js';
 // VAPID là khóa chung của nền tảng; thông báo của alpha (bộ giả lập, tệp ghi của máy chủ API) chỉ tới máy của alpha, nội dung không có
 // nội dung gốc của thông báo. Chỉ chạy ở dự án nhiều trường. Dữ liệu giả
 const API = `http://127.0.0.1:${E2E_MULTI_API_PORT}`;
+const IDENTITY = `http://127.0.0.1:${E2E_MULTI_IDENTITY_PORT}`;
 const today = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Ho_Chi_Minh' }).format(new Date());
 const addDays = (date: string, days: number) =>
   new Date(Date.parse(`${date}T00:00:00Z`) + days * 86_400_000).toISOString().slice(0, 10);
@@ -66,10 +67,9 @@ test.afterAll(async () => {
 });
 
 async function signedIn(code: string, user: TestUser, channel: 'portal' | 'teacher') {
-  const context = await playwrightRequest.newContext({
-    baseURL: `http://${schoolHost(code)}:${E2E_MULTI_PORTAL_PORT}`,
-  });
-  const response = await context.post('/api/v1/auth/login', {
+  // Kết nối thẳng 127.0.0.1 và đặt tiêu đề Host như spec 130: không phụ thuộc việc hệ điều hành phân giải `*.localhost`
+  const context = await playwrightRequest.newContext({ extraHTTPHeaders: { Host: schoolHost(code) } });
+  const response = await context.post(`${IDENTITY}/api/v1/auth/login`, {
     data: { login: user.username, password: user.password, channel },
   });
   expect(response.status(), await response.text()).toBe(200);
@@ -78,7 +78,7 @@ async function signedIn(code: string, user: TestUser, channel: 'portal' | 'teach
 }
 
 async function call(context: APIRequestContext, token: string, method: string, path: string, data?: unknown) {
-  const response = await context.fetch(`/api/v1${path}`, {
+  const response = await context.fetch(`${API}/api/v1${path}`, {
     method,
     headers: { authorization: `Bearer ${token}` },
     ...(data === undefined ? {} : { data }),
@@ -164,8 +164,10 @@ test('CT-26b-7: đăng ký đẩy của hai trường tách nhau; thông báo c�
     .select('academic_year_databases.database_name')
     .where('academic_years.status', '=', 'open')
     .executeTakeFirstOrThrow();
+  // Nạp lại ngữ cảnh của alpha để có cơ sở dữ liệu năm học vừa mở
+  const reloaded = await runtime.registry.loadSchool((tenants.alpha as TenantContext).schoolId);
   const year = runtime.connections.database<SchoolYearDatabase>(
-    tenants.alpha as TenantContext,
+    reloaded?.context ?? (tenants.alpha as TenantContext),
     'school-year',
     registry.database_name,
   );

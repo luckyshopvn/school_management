@@ -32,7 +32,9 @@
 
 #### Kết quả kiểm thử
 
-- Xem mục kết quả bổ sung trong PR.
+- `apps/api`: `notifications/push/push.test.ts` 6/6 (CT-26b-1 đến CT-26b-6); cùng `notification-dispatcher.test.ts`, `integrations.test.ts`, `notifications.test.ts`, ma trận cách ly (`tenancy-matrix.test.ts`, `tenancy.test.ts`): 27/27.
+- Kiểm tĩnh đa thuê bao, quét bí mật: đạt. Typecheck, lint, định dạng: đạt.
+- e2e nhiều trường (giữ khóa `e2e.lock`): 182 1/1 (CT-26b-7); 130, 131 đạt.
 
 #### Vấn đề tồn đọng
 
