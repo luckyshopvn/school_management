@@ -1,7 +1,7 @@
 # 02. NHẬT KÝ DỰ ÁN
 
 - Mô tả: Ghi nhận công việc, quyết định, thay đổi và vấn đề tồn đọng theo ngày, ngày mới nhất ở trên cùng.
-- Phiên bản: 0.76
+- Phiên bản: 0.77
 - Ngày cập nhật: 2026-10-26
 - Trạng thái: Đang cập nhật
 
@@ -37,6 +37,29 @@
 #### Vấn đề tồn đọng
 
 - Sửa các vi phạm ở đường cơ sở (26d, 26e); tạo ảnh chụp tham chiếu ở CI; đo thời gian việc `kiem-thu-thiet-bi`.
+### 2026-10-26 — Kế hoạch DT-28: hệ thống quản lý học tập (LMS)
+
+#### Công việc đã thực hiện
+
+- Đọc mục 15, 18, 19 của `32_KE_HOACH_THEO_HE_THONG_SO.md` và mã trên nhánh chính sau PR 179, 180: phân công giảng dạy (`timetable_lessons`, `class_staff_assignments`, tổ chuyên môn của 21a), nhóm học sinh DT-14c, chia nhóm và bảng điểm nhanh của 23b, tiết nhóm 21b, sổ đầu bài, kho học liệu 22h1 (luồng duyệt tổ rồi Ban Giám hiệu), gói chia sẻ 22h2, ngân hàng câu hỏi và hàm chấm 22g1, 22g2, thang tiêu chí, sổ điểm và `ScoresService`, nhận xét Tiểu học, nhắn tin, thông báo; nhánh làm việc chưa gộp của 23a (kênh `student`, `exam_assignment_targets` chỉ có lớp và học sinh) và 23d (`AiProvider`). Toàn kho chưa có khoá học hay bài tập về nhà.
+- Tra văn bản ngày 2026-10-26: **đọc toàn văn bản gốc Thông tư 09/2021/TT-BGDĐT** (dạy học trực tuyến; tệp quét ở Cổng thông tin điện tử Chính phủ, dựng ảnh từng trang để đọc) và **bản gốc một phần Thông tư 15/2026/TT-BGDĐT** (Điều lệ trường phổ thông mới, thay Thông tư 28/2020/TT-BGDĐT); Thông tư 22/2021 Điều 6, 7 qua bản đăng lại; Công văn 3977/BGDĐT-GDTH, quy định học 2 buổi/ngày, văn bản sửa Thông tư 09 năm 2025 ghi "chưa xác minh".
+- Đối chiếu tính năng công khai của Moodle, Google Classroom, Canvas, K12Online (chỉ trang công khai, không đăng nhập), VNPT E-Learning (chỉ có bài báo); không tìm thấy trang công khai của "Viettel MOET LMS".
+- Viết mục 20 của `32` (theo yêu cầu thứ hai của Eric cùng ngày, mở rộng từ bốn tính năng thành LMS): căn cứ, Thông tư 09/2021 ánh xạ vào sản phẩm, đối chiếu LMS và phạm vi chọn, đánh giá chuẩn SCORM 1.2, SCORM 2004, xAPI, cmi5, LTI 1.3, nguyên tắc, mười phần 28a đến 28j trong bốn đợt, phạm vi chi tiết, phương án đã loại, rủi ro, việc Eric phải quyết E-01 đến E-05, giả định GD-140 đến GD-157. Cập nhật mục 19: 27d, 27e của DT-27 xây trên lõi LMS. Thêm đợt DT-28, RR-32 đến RR-36, GD-140 đến GD-157 vào `01`; mục kế hoạch DT-28 ở `34`.
+
+#### Quyết định
+
+- Eric (ngày 2026-10-26): bốn tính năng chia nhóm, học nhóm trực tuyến, bài tập trực tuyến, bài về nhà; sau đó mở rộng thành hệ thống quản lý học tập, bốn tính năng là các phần.
+- Eric chốt bốn giả định của DT-28 (ngày 2026-10-26): GD-141 kết quả hoạt động vào sổ cho cả Tiểu học (THCS, THPT vào điểm thường xuyên qua `ScoresService`; Tiểu học làm căn cứ gợi ý nhận xét thường xuyên và mức đạt môn, giáo viên xác nhận, không điểm số; công tắc trường mặc định bật, giáo viên chọn từng hoạt động); GD-142 AI không đọc bài làm (bỏ chế độ gửi bài làm khỏi DT-28); GD-143 quy tắc bài về nhà do trường tự cấu hình, nền tảng không đặt giới hạn mặc định (E-02 thành tuỳ chọn); GD-145 phụ huynh xem không gian nhóm theo cấp như đề xuất.
+- Claude chọn theo ủy quyền: tự làm LMS gọn trong School Management (không nhúng Moodle); lớp học trực tuyến tự sinh từ phân công; khoá học mẫu ở cơ sở dữ liệu hệ thống, bản của lớp và kết quả ở năm học; khoá mẫu và học liệu qua luồng duyệt 22h1 (Thông tư 09 Điều 7 khoản 3); một bảng kết quả hoạt động chung; một mô hình nhóm mở rộng `child_groups`; điểm hoạt động chỉ vào điểm thường xuyên qua `ScoresService` khi giáo viên xác nhận; thảo luận, hỏi đáp, không gian nhóm cùng một bộ máy, không tin nhắn riêng giữa học sinh; SCORM 1.2 và 2004 (không trình tự) làm, LTI 1.3, xAPI, cmi5 để sau; huy hiệu tắt mặc định, không bảng xếp hạng; 27d, 27e của DT-27 bắt đầu sau DT-28 đợt 2.
+- Số giữ sẵn: YCTD-270 (kế hoạch), YCTD-271 đến YCTD-280, dự phòng đến YCTD-289; năm học 0170 đến 0199, hệ thống 0110 đến 0119, định danh 0180 đến 0189 (nền tảng 0250 đến 0254 chỉ giữ chỗ); e2e `210-` đến `224-`; GD-140 đến GD-157, RR-32 đến RR-36.
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-270, `32` mục 19 (dòng 27d, 27e), mục 20 (phiên bản 1.79), `01` (1.72), `34_TONG_HOP_CHUC_NANG_HE_THONG/01_TONG_QUAN_VA_NEN_TANG.md`, `index.md`. Chỉ đổi tài liệu, không tăng phiên bản phần mềm.
+
+#### Vấn đề tồn đọng
+
+- Chờ Eric: luật sư rà theo dõi tiến độ, quan sát nhóm, LTI; chọn trường thử; xác nhận thứ tự 27d, 27e; tuỳ chọn hỏi văn bản bài về nhà và văn bản sửa Thông tư 09 (E-01 đến E-05 ở `32` mục 20.12).
 ### 2026-10-26 — Vá lỗ hổng phụ thuộc: fast-xml-parser, multer, body-parser
 
 #### Công việc đã thực hiện
