@@ -57,7 +57,12 @@ export interface TestContext {
 }
 
 export async function startTestApplication(
-  options: { loginRequestsPerMinutePerAddress?: number; organizationDirectory?: OrganizationDirectory } = {},
+  options: {
+    loginRequestsPerMinutePerAddress?: number;
+    organizationDirectory?: OrganizationDirectory;
+    // Cơ sở dữ liệu định danh riêng của bộ kiểm thử (máy chủ API chạy song song nhiều tệp); trống là IDENTITY_DATABASE_URL
+    databaseUrl?: string;
+  } = {},
 ): Promise<TestContext> {
   const redisUrl = process.env.REDIS_URL;
   if (!redisUrl) {
@@ -65,7 +70,7 @@ export async function startTestApplication(
   }
   const keys = await generateTokenKeyPair();
   const configuration: IdentityConfiguration = {
-    databaseUrl: readConnectionString('identity'),
+    databaseUrl: options.databaseUrl ?? readConnectionString('identity'),
     redisUrl,
     redisKeyPrefix: `identity-test-${randomUUID()}`,
     tokenPrivateKeyPem: keys.privateKeyPem,
