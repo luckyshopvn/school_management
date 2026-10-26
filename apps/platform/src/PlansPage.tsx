@@ -104,6 +104,99 @@ const emptyForm = {
   price_rule_id: '',
 };
 
+interface AiPricingForm {
+  free_tokens: string;
+  input_price_per_1k: string;
+  output_price_per_1k: string;
+  minimum_fee: string;
+  rounding_step: string;
+  model_prices: string;
+}
+
+// Phí AI của gói (DT-23 phần 23d, GD-103): token miễn phí mỗi kỳ, đơn giá token vào và ra theo 1.000 token, phí tối thiểu, làm tròn; số
+// tiền để trống cho đến khi nhập lúc triển khai. Nằm cùng trang Gói dịch vụ, cùng quy tắc tính phí của S5a, S5b
+function AiPricingBlock({ accessToken, planId, planName }: { accessToken: string; planId: string; planName: string }) {
+  const [form, setForm] = useState<AiPricingForm | null>(null);
+  const [message, setMessage] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  useEffect(() => {
+    call<{ plans: Array<{ plan_id: string; pricing: Record<string, unknown> & { modelPrices: unknown } }> }>(
+      accessToken,
+      'GET',
+      'ai',
+    )
+      .then((overview) => {
+        const pricing = overview.plans.find((plan) => plan.plan_id === planId)?.pricing as
+          | {
+              freeTokens: number;
+              inputPricePer1k: number | null;
+              outputPricePer1k: number | null;
+              minimumFee: number;
+              roundingStep: number;
+              modelPrices: unknown;
+            }
+          | undefined;
+        setForm({
+          free_tokens: String(pricing?.freeTokens ?? 0),
+          input_price_per_1k: pricing?.inputPricePer1k?.toString() ?? '',
+          output_price_per_1k: pricing?.outputPricePer1k?.toString() ?? '',
+          minimum_fee: String(pricing?.minimumFee ?? 0),
+          rounding_step: String(pricing?.roundingStep ?? 1),
+          model_prices: JSON.stringify(pricing?.modelPrices ?? {}),
+        });
+      })
+      .catch(() => setError('Không đọc được phí AI của gói'));
+  }, [accessToken, planId]);
+  if (!form) {
+    return error ? <p role="alert">{error}</p> : null;
+  }
+  const field = (name: keyof AiPricingForm, label: string) => (
+    <label>
+      {label}
+      <input value={form[name]} onChange={(event) => setForm({ ...form, [name]: event.target.value })} />
+    </label>
+  );
+  const save = async (event: FormEvent) => {
+    event.preventDefault();
+    setError(null);
+    setMessage(null);
+    try {
+      await call(accessToken, 'PUT', `ai/pricing/${planId}`, {
+        free_tokens: numberOrNull(form.free_tokens) ?? 0,
+        input_price_per_1k: numberOrNull(form.input_price_per_1k),
+        output_price_per_1k: numberOrNull(form.output_price_per_1k),
+        minimum_fee: numberOrNull(form.minimum_fee) ?? 0,
+        rounding_step: numberOrNull(form.rounding_step) ?? 1,
+        model_prices: form.model_prices.trim() ? JSON.parse(form.model_prices) : {},
+      });
+      setMessage(`Đã lưu phí AI của gói ${planName}`);
+    } catch (caught) {
+      setError(
+        caught instanceof PlatformApiError ? caught.message : 'Không lưu được: kiểm tra đơn giá theo mô hình (JSON)',
+      );
+    }
+  };
+  return (
+    <form aria-label={`Phí AI của gói ${planName}`} onSubmit={save}>
+      <h3>Phí AI của gói {planName}</h3>
+      <p>
+        Trường chọn cấu hình nền tảng cấp khóa trả phí theo token: mỗi kỳ trừ token miễn phí, phần còn lại nhân đơn giá,
+        làm tròn lên, không thấp hơn phí tối thiểu. Đơn giá để trống thì trường thuộc gói này chưa dùng được cấu hình
+        đó.
+      </p>
+      {message ? <p role="status">{message}</p> : null}
+      {error ? <p role="alert">{error}</p> : null}
+      {field('free_tokens', 'Token miễn phí mỗi kỳ')}
+      {field('input_price_per_1k', 'Đơn giá token vào (đồng mỗi 1.000 token)')}
+      {field('output_price_per_1k', 'Đơn giá token ra (đồng mỗi 1.000 token)')}
+      {field('minimum_fee', 'Phí tối thiểu của thành phần AI (đồng)')}
+      {field('rounding_step', 'Làm tròn lên theo bội của (đồng)')}
+      {field('model_prices', 'Đơn giá riêng theo mô hình (JSON, trống là dùng đơn giá chung)')}
+      <button type="submit">Lưu phí AI</button>
+    </form>
+  );
+}
+
 export function PlansPage({ accessToken }: { accessToken: string }) {
   const [modules, setModules] = useState<PlanModule[]>([]);
   const [plans, setPlans] = useState<Plan[]>([]);
@@ -402,6 +495,10 @@ export function PlansPage({ accessToken }: { accessToken: string }) {
         </label>
         <button type="submit">Lưu gói</button>
       </form>
+
+      {form.id ? (
+        <AiPricingBlock key={form.id} accessToken={accessToken} planId={form.id} planName={form.name} />
+      ) : null}
 
       <h3>Gói của từng trường</h3>
       <button

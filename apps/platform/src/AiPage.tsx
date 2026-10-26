@@ -43,31 +43,11 @@ interface UsageRow {
   output_tokens: number;
 }
 
-interface PricingForm {
-  free_tokens: string;
-  input_price_per_1k: string;
-  output_price_per_1k: string;
-  minimum_fee: string;
-  rounding_step: string;
-  model_prices: string;
-}
-
-const numberOrNull = (text: string) => (text.trim() === '' ? null : Number(text));
-const formOf = (plan: PlanPricing): PricingForm => ({
-  free_tokens: String(plan.pricing.freeTokens),
-  input_price_per_1k: plan.pricing.inputPricePer1k?.toString() ?? '',
-  output_price_per_1k: plan.pricing.outputPricePer1k?.toString() ?? '',
-  minimum_fee: String(plan.pricing.minimumFee),
-  rounding_step: String(plan.pricing.roundingStep),
-  model_prices: JSON.stringify(plan.pricing.modelPrices),
-});
-
 export function AiPage({ accessToken }: { accessToken: string }) {
   const [overview, setOverview] = useState<Overview | null>(null);
   const [usage, setUsage] = useState<UsageRow[]>([]);
   const [settings, setSettings] = useState({ provider: 'anthropic', model: '', endpoint: '' });
   const [key, setKey] = useState({ enabled: true, api_key: '' });
-  const [forms, setForms] = useState<Record<string, PricingForm>>({});
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
@@ -84,7 +64,6 @@ export function AiPage({ accessToken }: { accessToken: string }) {
       endpoint: next.settings.endpoint ?? '',
     });
     setKey((current) => ({ ...current, enabled: next.key.configured ? next.key.enabled : true }));
-    setForms(Object.fromEntries(next.plans.map((plan) => [plan.plan_id, formOf(plan)])));
   }, [accessToken]);
 
   useEffect(() => {
@@ -125,32 +104,6 @@ export function AiPage({ accessToken }: { accessToken: string }) {
       return 'Đã lưu khóa AI dùng chung của nền tảng';
     });
   };
-
-  const savePricing = (plan: PlanPricing) =>
-    void run(async () => {
-      const form = forms[plan.plan_id] as PricingForm;
-      let modelPrices: unknown;
-      try {
-        modelPrices = form.model_prices.trim() ? JSON.parse(form.model_prices) : {};
-      } catch {
-        throw new PlatformApiError(
-          400,
-          'Đơn giá theo mô hình phải là JSON, ví dụ {"claude-sonnet-5-5":{"input":80,"output":400}}',
-        );
-      }
-      await call(accessToken, 'PUT', `ai/pricing/${plan.plan_id}`, {
-        free_tokens: numberOrNull(form.free_tokens) ?? 0,
-        input_price_per_1k: numberOrNull(form.input_price_per_1k),
-        output_price_per_1k: numberOrNull(form.output_price_per_1k),
-        minimum_fee: numberOrNull(form.minimum_fee) ?? 0,
-        rounding_step: numberOrNull(form.rounding_step) ?? 1,
-        model_prices: modelPrices,
-      });
-      return `Đã lưu đơn giá AI của gói ${plan.name}`;
-    });
-
-  const setField = (plan: PlanPricing, field: keyof PricingForm, value: string) =>
-    setForms({ ...forms, [plan.plan_id]: { ...(forms[plan.plan_id] as PricingForm), [field]: value } });
 
   return (
     <section aria-label="Trợ lý AI">
@@ -208,92 +161,7 @@ export function AiPage({ accessToken }: { accessToken: string }) {
         <button type="submit">Lưu nhà cung cấp</button>
       </form>
 
-      <h3>Đơn giá AI theo gói</h3>
-      <p>
-        Trường chọn cấu hình nền tảng cấp khóa trả phí theo số token: mỗi kỳ trừ token miễn phí, phần còn lại nhân đơn
-        giá theo một nghìn token vào và ra (đồng), làm tròn lên theo bước, không thấp hơn phí tối thiểu. Gói chưa nhập
-        đơn giá thì cấu hình nền tảng cấp khóa chưa dùng được ở trường thuộc gói đó. Dòng phí hiện trên hóa đơn dịch vụ
-        cùng kỳ.
-      </p>
-      {(overview?.plans ?? []).map((plan) => {
-        const form = forms[plan.plan_id];
-        if (!form) {
-          return null;
-        }
-        return (
-          <form
-            key={plan.plan_id}
-            aria-label={`Đơn giá AI gói ${plan.name}`}
-            onSubmit={(event) => {
-              event.preventDefault();
-              savePricing(plan);
-            }}
-          >
-            <h4>
-              Gói {plan.name} ({plan.code}){plan.status === 'archived' ? ' (ngừng dùng)' : ''}
-            </h4>
-            <p>
-              {plan.ready
-                ? 'Đã nhập đơn giá.'
-                : 'Chưa nhập đơn giá: trường thuộc gói này chưa dùng được cấu hình nền tảng cấp khóa.'}{' '}
-              Hạn mức của gói:{' '}
-              {[
-                plan.ai_max_requests === null ? 'yêu cầu không giới hạn' : `${plan.ai_max_requests} yêu cầu mỗi tháng`,
-                plan.ai_max_tokens === null ? 'token không giới hạn' : `${plan.ai_max_tokens} token mỗi tháng`,
-              ].join(', ')}
-              .
-            </p>
-            <label>
-              Token miễn phí mỗi kỳ
-              <input
-                inputMode="numeric"
-                value={form.free_tokens}
-                onChange={(event) => setField(plan, 'free_tokens', event.target.value)}
-              />
-            </label>
-            <label>
-              Đơn giá token vào (đồng mỗi 1.000 token)
-              <input
-                inputMode="numeric"
-                value={form.input_price_per_1k}
-                onChange={(event) => setField(plan, 'input_price_per_1k', event.target.value)}
-              />
-            </label>
-            <label>
-              Đơn giá token ra (đồng mỗi 1.000 token)
-              <input
-                inputMode="numeric"
-                value={form.output_price_per_1k}
-                onChange={(event) => setField(plan, 'output_price_per_1k', event.target.value)}
-              />
-            </label>
-            <label>
-              Phí tối thiểu của thành phần AI (đồng)
-              <input
-                inputMode="numeric"
-                value={form.minimum_fee}
-                onChange={(event) => setField(plan, 'minimum_fee', event.target.value)}
-              />
-            </label>
-            <label>
-              Làm tròn lên theo bội của (đồng)
-              <input
-                inputMode="numeric"
-                value={form.rounding_step}
-                onChange={(event) => setField(plan, 'rounding_step', event.target.value)}
-              />
-            </label>
-            <label>
-              Đơn giá riêng theo mô hình (JSON, trống là dùng đơn giá chung)
-              <input
-                value={form.model_prices}
-                onChange={(event) => setField(plan, 'model_prices', event.target.value)}
-              />
-            </label>
-            <button type="submit">Lưu đơn giá</button>
-          </form>
-        );
-      })}
+      <p>Đơn giá AI theo gói và giới hạn AI đặt ở trang Gói dịch vụ (mục Phí AI của gói).</p>
 
       <h3>Token đã dùng trong tháng</h3>
       <table aria-label="Token AI đã dùng">
