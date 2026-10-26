@@ -18,6 +18,8 @@ export interface ImpersonationInfo {
 export interface CurrentUserDescription {
   id: string;
   full_name: string;
+  // Tên đăng nhập; tài khoản học sinh (kênh student) dùng tên đăng nhập học và thi (DT-23 phần 23a)
+  username?: string | null;
   assignments: RoleAssignment[];
   impersonation?: ImpersonationInfo | null;
   // Phạm vi cấp học của tài khoản (DT-19 phần 19a): trống hoặc không có là mọi cấp
@@ -34,8 +36,17 @@ export interface OrganizationScope {
   orgUnitIds: string[];
 }
 
+// Phiên đang gọi: kênh đăng nhập và mã phiên (bài thi trực tuyến chỉ một phiên đang làm, DT-23 phần 23a)
+export interface CallingSession {
+  channel: string;
+  sessionId: string;
+}
+
 export class CurrentUser {
-  constructor(readonly description: CurrentUserDescription) {}
+  constructor(
+    readonly description: CurrentUserDescription,
+    readonly session: CallingSession | null = null,
+  ) {}
 
   get id(): string {
     return this.description.id;

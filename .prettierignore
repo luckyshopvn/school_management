@@ -3,3 +3,4 @@ pnpm-lock.yaml
 dist/
 test-results/
 playwright-report/
+apps/parent/public/models/

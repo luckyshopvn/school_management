@@ -3,6 +3,7 @@ import { Alert, Button, DemoAccountPicker, ExternalProviderButtons, TextField } 
 import { externalRequest } from '../session/external-request.js';
 import { ApiError, requestOneTimeCode } from '../session/api-client.js';
 import { useSession } from '../session/session.js';
+import { STUDENT_HASH } from '../student/StudentApplication.js';
 import { RECRUITMENT_HASH } from './RecruitmentScreen.js';
 
 // MH-47 Đăng nhập của ứng dụng phụ huynh: bằng mật khẩu hoặc bằng mã một lần gửi qua tin nhắn (XT-01, Q-24)
@@ -157,7 +158,10 @@ export function LoginScreen({ onAdmissions }: { onAdmissions?: () => void }) {
           });
         }}
       />
-      <nav aria-label="Trang công khai" className="fixed bottom-6 left-0 right-0 flex justify-center">
+      <nav aria-label="Trang công khai" className="fixed bottom-6 left-0 right-0 flex justify-center gap-6">
+        <a href={STUDENT_HASH} className="text-label font-medium text-text underline">
+          Học sinh làm bài thi trực tuyến
+        </a>
         <a href={RECRUITMENT_HASH} className="text-label font-medium text-text underline">
           Tuyển dụng giáo viên và nhân viên
         </a>
