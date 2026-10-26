@@ -54,6 +54,17 @@ Các thay đổi trước phiên bản 0.4.0 chưa có sổ này; xem `23_LICH_S
 - Ảnh hưởng chức năng cũ: không. Nền tảng không khai nhà cung cấp (mặc định) hoặc trường chưa bật thì mọi điểm cuối mới trả trống hoặc báo chưa bật, đăng nhập như cũ.
 - Kiểm thử cần thực hiện: kiểm thử đơn vị `external-identity` (khai báo, PKCE, tuổi; liên kết, đăng nhập, chữ ký sai, nonce sai, sai đối tượng, sai bên phát hành, hết hạn, state dùng lại, liên kết khác phiên, subject đã liên kết với người khác, quay khóa, nhóm vai trò, dưới 14 tuổi, xác thực hai lớp, trường tắt, gỡ liên kết, nhật ký); cách ly hai trường; ma trận cách ly; các ca đăng nhập, xác thực hai lớp, nhiều trường hiện có; kiểm tĩnh đa thuê bao; e2e 165 cùng spec đăng nhập.
 - Trạng thái: Đã triển khai (phần máy chủ); bước 25b chờ DT-24
+### YCTD-233: DT-26 phần 26c: khung kiểm thử theo khổ thiết bị – 2026-10-26
+
+- Lý do: phần 26c của `32_KE_HOACH_THEO_HE_THONG_SO.md` mục 18 (YCTD-230): có bộ kiểm cố định để 26d, 26e và các phần sau đo giao diện ở khổ điện thoại và máy tính bảng.
+- Nội dung thay đổi: dự án Playwright `dien-thoai`, `may-tinh-bang-doc`, `may-tinh-bang-ngang`, `dien-thoai-webkit` (biến `E2E_DEVICES`); nhãn `@thiet-bi`, `@thiet-bi-pr`; `tests/e2e/device-checks.ts` (vùng chạm 44 px, cỡ chữ ô nhập 16 px, không cuộn ngang cả trang, axe-core; đường cơ sở vi phạm đã biết); spec 180; việc CI `kiem-thu-thiet-bi` song song, yêu cầu kéo chạy tập con, nhánh chính và lịch hằng đêm chạy đủ chia hai mảnh có WebKit.
+- Thành phần bị ảnh hưởng: `tests/playwright.config.ts`, `tests/e2e/` (tệp mới), `tests/package.json` (thêm `@axe-core/playwright`), `pnpm-lock.yaml`, `.github/workflows/ci.yml` (thêm việc mới và lịch hằng đêm; việc `kiem-thu`, `kiem-thu-giao-dien`, `kiem-thu-nhieu-truong` bỏ qua khi chạy theo lịch).
+- Dữ liệu, API, giao diện, quyền bị ảnh hưởng: không (không sửa giao diện: các vi phạm đo được ghi ở đường cơ sở cho 26d, 26e).
+- Ảnh hưởng chức năng cũ: không; mặc định chỉ chạy `chromium` như trước.
+- Kiểm thử cần thực hiện: `pnpm typecheck`, `pnpm lint`, spec 180 ở `E2E_DEVICES=pr` (hai khổ) và `full`; e2e hiện có.
+- Chưa làm: tạo ảnh chụp tham chiếu ở Linux của CI; đo số phút việc mới (ghi vào mục này sau lần chạy đầu); sửa vi phạm ở đường cơ sở (26d, 26e).
+- Trạng thái: Đã triển khai (PR [số PR])
+
 ### YCTD-250: Kế hoạch DT-27: nền tảng gia sư trực tuyến – 2026-10-26
 
 - Lý do: Eric quyết định ngày 2026-10-26 làm nền tảng gia sư trực tuyến theo hai mô hình (trước: gia sư trong từng trường; sau: chợ gia sư mở có hoa hồng), ba hình thức học (lớp video trực tiếp, khoá học ghi sẵn, hỏi đáp bài tập có gợi ý AI nháp) và thu phí qua nền tảng có hoàn tiền, tranh chấp. Phiên điều phối giao viết kế hoạch vào `32_KE_HOACH_THEO_HE_THONG_SO.md` như DT-23.

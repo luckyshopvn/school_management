@@ -16,6 +16,18 @@
 
 ## 2. Danh sách phiên bản
 
+### Phiên bản 0.144.0 – 2026-10-26
+
+- Phạm vi thay đổi: DT-26 phần 26c, khung kiểm thử theo khổ thiết bị (YCTD-233).
+- Chức năng mới: không có chức năng cho người dùng; thêm dự án kiểm thử Playwright theo khổ điện thoại, máy tính bảng dọc, ngang, WebKit; bộ kiểm dùng chung (vùng chạm, cỡ chữ, cuộn ngang, axe-core); việc CI `kiem-thu-thiet-bi`.
+- Lỗi đã sửa: không có.
+- Thay đổi dữ liệu: không.
+- Thay đổi API: không.
+- Kiểm thử: CT-1097 đến CT-1099. Kết quả ở PR [số PR].
+- Rủi ro: việc CI thêm thời gian chạy song song (không nối đuôi); ảnh chụp tham chiếu chưa có tệp gốc; vi phạm ở đường cơ sở chờ 26d, 26e.
+- Khả năng tương thích: mặc định không đổi (dự án chromium); thêm thư viện kiểm thử `@axe-core/playwright` (MPL-2.0, chỉ ở kiểm thử).
+- Phương án quay lui: hoàn lại commit gộp của nhánh 26c.
+
 ### Phiên bản 0.143.0 – 2026-10-26
 
 - Phạm vi thay đổi: DT-23 phần 23d, trợ lý AI soạn câu hỏi nháp và kế hoạch bài dạy nháp (YCTD-214).

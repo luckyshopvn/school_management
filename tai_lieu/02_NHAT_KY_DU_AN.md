@@ -14,6 +14,30 @@
 
 ## Nhật ký theo ngày
 
+### 2026-10-26 — DT-26 phần 26c: khung kiểm thử theo khổ thiết bị
+
+#### Công việc đã thực hiện
+
+- Đọc mục 18 của `32_KE_HOACH_THEO_HE_THONG_SO.md` (26c, ranh giới tệp với 26a, 26b), `tests/playwright.config.ts`, `.github/workflows/ci.yml` sau PR 177.
+- `tests/playwright.config.ts`: biến `E2E_DEVICES` (`pr`, `full`); mặc định giữ dự án `chromium` như cũ. Thêm dự án `dien-thoai` (390 × 844), `may-tinh-bang-doc` (820 × 1180), `may-tinh-bang-ngang` (1180 × 820), `dien-thoai-webkit`; nhãn `@thiet-bi`, `@thiet-bi-pr`.
+- `tests/e2e/device-checks.ts` (vùng chạm, cỡ chữ ô nhập, cuộn ngang, axe-core, đường cơ sở vi phạm đã biết) và `device-baseline.json`; spec 180 (`180-device-frame.spec.ts`) đo trang đăng nhập của ba ứng dụng và trang chủ cổng quản trị, ảnh chụp tham chiếu bật bằng `E2E_SCREENSHOTS=1` ở Linux.
+- `.github/workflows/ci.yml`: việc `kiem-thu-thiet-bi` song song với `kiem-thu-giao-dien` (yêu cầu kéo: một mảnh, hai khổ, Chromium, nhãn `@thiet-bi-pr`; nhánh chính và lịch hằng đêm 19 giờ UTC: bốn dự án, chia hai mảnh, có WebKit); các việc nặng khác bỏ qua khi chạy theo lịch.
+- Thêm thư viện kiểm thử `@axe-core/playwright` (axe-core, giấy phép MPL-2.0, chỉ dùng ở kiểm thử).
+
+#### Quyết định
+
+- Bộ kiểm đã đo ra vi phạm thật ở trang đăng nhập (vùng chạm dưới 44 px, ô nhập 15 px, tương phản màu). Phần 26c không sửa giao diện (thuộc 26d cho ứng dụng giáo viên và phụ huynh, 26e cho cổng quản trị): các vi phạm đó ghi ở `device-baseline.json` kèm phần chịu trách nhiệm; spec chỉ hỏng khi có vi phạm mới ngoài đường cơ sở, xóa khỏi tệp khi đã sửa.
+- Ảnh chụp tham chiếu chưa có tệp gốc trong kho (kết xuất khác nhau giữa hệ điều hành): tạo bằng `--update-snapshots` ở Linux của CI rồi đưa vào kho.
+- Số phút đo của việc mới ở CI chưa có: ghi vào YCTD-233 sau lần chạy đầu của yêu cầu kéo.
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-233, `21_KICH_BAN_KIEM_THU.md` CT-1097 đến CT-1099, `23_LICH_SU_PHIEN_BAN.md` 0.144.0.
+
+#### Vấn đề tồn đọng
+
+- Sửa các vi phạm ở đường cơ sở (26d, 26e); tạo ảnh chụp tham chiếu ở CI; đo thời gian việc `kiem-thu-thiet-bi`.
+
 ### 2026-10-26 — DT-23 phần 23d: trợ lý AI soạn nháp
 
 #### Công việc đã thực hiện

@@ -10,6 +10,7 @@
     "e2e:multi": "node e2e-multi-setup.mjs && playwright test --config playwright.multi.config.ts"
   },
   "devDependencies": {
+    "@axe-core/playwright": "^4.14.0",
     "@playwright/test": "^1.64.0",
     "@school-management/config": "workspace:*",
     "@school-management/database": "workspace:*",
