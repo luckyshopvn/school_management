@@ -26,6 +26,7 @@
 #### Quyết định
 
 - Eric (ngày 2026-10-26): bốn tính năng chia nhóm, học nhóm trực tuyến, bài tập trực tuyến, bài về nhà; sau đó mở rộng thành hệ thống quản lý học tập, bốn tính năng là các phần.
+- Eric chốt bốn giả định của DT-28 (ngày 2026-10-26): GD-141 kết quả hoạt động vào sổ cho cả Tiểu học (THCS, THPT vào điểm thường xuyên qua `ScoresService`; Tiểu học làm căn cứ gợi ý nhận xét thường xuyên và mức đạt môn, giáo viên xác nhận, không điểm số; công tắc trường mặc định bật, giáo viên chọn từng hoạt động); GD-142 AI không đọc bài làm (bỏ chế độ gửi bài làm khỏi DT-28); GD-143 quy tắc bài về nhà do trường tự cấu hình, nền tảng không đặt giới hạn mặc định (E-02 thành tuỳ chọn); GD-145 phụ huynh xem không gian nhóm theo cấp như đề xuất.
 - Claude chọn theo ủy quyền: tự làm LMS gọn trong School Management (không nhúng Moodle); lớp học trực tuyến tự sinh từ phân công; khoá học mẫu ở cơ sở dữ liệu hệ thống, bản của lớp và kết quả ở năm học; khoá mẫu và học liệu qua luồng duyệt 22h1 (Thông tư 09 Điều 7 khoản 3); một bảng kết quả hoạt động chung; một mô hình nhóm mở rộng `child_groups`; điểm hoạt động chỉ vào điểm thường xuyên qua `ScoresService` khi giáo viên xác nhận; thảo luận, hỏi đáp, không gian nhóm cùng một bộ máy, không tin nhắn riêng giữa học sinh; SCORM 1.2 và 2004 (không trình tự) làm, LTI 1.3, xAPI, cmi5 để sau; huy hiệu tắt mặc định, không bảng xếp hạng; 27d, 27e của DT-27 bắt đầu sau DT-28 đợt 2.
 - Số giữ sẵn: YCTD-270 (kế hoạch), YCTD-271 đến YCTD-280, dự phòng đến YCTD-289; năm học 0170 đến 0199, hệ thống 0110 đến 0119, định danh 0180 đến 0189 (nền tảng 0250 đến 0254 chỉ giữ chỗ); e2e `210-` đến `224-`; GD-140 đến GD-157, RR-32 đến RR-36.
 
@@ -35,7 +36,7 @@
 
 #### Vấn đề tồn đọng
 
-- Chờ Eric: luật sư rà theo dõi tiến độ, quan sát nhóm, chế độ AI đọc bài làm, LTI; xác nhận quy tắc bài về nhà Tiểu học và văn bản sửa Thông tư 09; chọn trường thử; xác nhận thứ tự 27d, 27e (E-01 đến E-05 ở `32` mục 20.12).
+- Chờ Eric: luật sư rà theo dõi tiến độ, quan sát nhóm, LTI; chọn trường thử; xác nhận thứ tự 27d, 27e; tuỳ chọn hỏi văn bản bài về nhà và văn bản sửa Thông tư 09 (E-01 đến E-05 ở `32` mục 20.12).
 - PR 181 (DT-25) dùng GD-128 đến GD-130 và RR-28, trùng với DT-27 đã gộp; phiên điều phối đánh lại khi gộp PR 181.
 
 ### 2026-10-26 — Kế hoạch DT-27: nền tảng gia sư trực tuyến
