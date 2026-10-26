@@ -21,6 +21,7 @@ import {
   type LoginContext,
 } from '../portal-shell/unit-directory-api.js';
 import { DemoRolePicker } from '../administration/DemoRolePicker.js';
+import { ExternalLoginProviders } from '../portal-shell/ExternalLoginProviders.js';
 
 // MH-47 Đăng nhập; thông báo lỗi lấy nguyên từ máy chủ. Theo trang đăng nhập của Sở (DT-16 phần 16c): tên và mã trường,
 // năm học đang dùng, ghi nhớ tài khoản, mã xác nhận dạng ảnh có nút làm mới (hiện khi cấu hình luôn hiện hoặc sau lần nhập sai đầu
@@ -418,6 +419,10 @@ function LoginForm({ context, directory }: { context: LoginContext; directory: b
           <Button type="submit" variant="primary" disabled={submitting}>
             {submitting ? 'Đang đăng nhập…' : 'Đăng nhập'}
           </Button>
+          <ExternalLoginProviders
+            mode={directory ? 'directory' : context.mode === 'school' ? 'school' : 'single'}
+            unitCode={unitReady ? unitCode : null}
+          />
         </form>
         {directory ? null : <DemoRolePicker />}
       </div>
