@@ -43,6 +43,10 @@ import { ExamReportsPage } from './exam-grading/ExamReportsPage.js';
 import { OnlineExamsPage } from './online-exams/OnlineExamsPage.js';
 import { OnlineExamMonitorPage } from './online-exams/OnlineExamMonitorPage.js';
 import { OnlineExamSettingsPage } from './online-exams/OnlineExamSettingsPage.js';
+import { TutoringProgramsPage } from './tutoring/TutoringProgramsPage.js';
+import { TutoringSessionsPage } from './tutoring/TutoringSessionsPage.js';
+import { TutoringExemptionsPage } from './tutoring/TutoringExemptionsPage.js';
+import { TutoringRulesPage } from './tutoring/TutoringRulesPage.js';
 import { ChildrenPage } from './children/ChildrenPage.js';
 import { StudentMovementsPage } from './children/StudentMovementsPage.js';
 import { DefaultPasswordsPage } from './students/DefaultPasswordsPage.js';
@@ -798,6 +802,11 @@ const routeTree = rootRoute.addChildren([
   createRoute({ getParentRoute: () => rootRoute, path: '/online-exams', component: OnlineExamsPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/online-exams/monitor', component: OnlineExamMonitorPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/online-exams/settings', component: OnlineExamSettingsPage }),
+  // Gia sư trong trường (DT-27 phần 27b)
+  createRoute({ getParentRoute: () => rootRoute, path: '/tutoring', component: TutoringProgramsPage }),
+  createRoute({ getParentRoute: () => rootRoute, path: '/tutoring/sessions', component: TutoringSessionsPage }),
+  createRoute({ getParentRoute: () => rootRoute, path: '/tutoring/exemptions', component: TutoringExemptionsPage }),
+  createRoute({ getParentRoute: () => rootRoute, path: '/tutoring/rules', component: TutoringRulesPage }),
   // Trợ lý AI soạn nháp (DT-23 phần 23d)
   createRoute({ getParentRoute: () => rootRoute, path: '/ai-assistant', component: AiAssistantPage }),
   // Lõi hệ thống quản lý học tập (DT-28 phần 28b)

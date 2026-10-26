@@ -24,7 +24,7 @@ phien_ban_de_xuat: 0.154.0
 
 #### Vấn đề tồn đọng
 
-- Sau khi 23a gộp: thêm học sinh tự học ở kênh `student` (`/student/learning`, quyền `P02.learning.study` cho VT-21, MH-354, CT-1137) trong cùng PR; sửa CI hỏng CT-S5a-8 (quy tắc menu khoá mẫu ghi quyền kho học liệu làm tuyến kho học liệu không còn bị chặn theo gói; tuyến nhân sự `/learning` nay chặn theo gói).
+- Sau khi 23a gộp: thêm học sinh tự học ở kênh `student` (`/student/learning`, quyền `P02.learning.study` cho VT-21, MH-361, CT-1145) trong cùng PR; sửa CI hỏng CT-S5a-8 (quy tắc menu khoá mẫu ghi quyền kho học liệu làm tuyến kho học liệu không còn bị chặn theo gói; tuyến nhân sự `/learning` nay chặn theo gói).
 
 ## 24 Yêu cầu thay đổi
 
@@ -45,8 +45,8 @@ phien_ban_de_xuat: 0.154.0
 - Thành phần bị ảnh hưởng: `apps/api` (phân hệ mới `learning`, đăng ký thêm cuối `application.module.ts`, một danh sách trong `working-level.test.ts`), `apps/portal` (ba trang, `router.tsx`), `apps/teacher`, `apps/parent`, `packages/shared` (mã quyền, đường dẫn menu, quyền menu, nhóm menu 9, `online_learning`), `database` (hệ thống 0110, năm học 0172 đến 0175, định danh 0180, kiểu và xuất kiểu), `tests` (spec 211). Không sửa `child-groups/`, `learning-resources/`, `timetables/`, `online-exams/`.
 - Dữ liệu bị ảnh hưởng: hệ thống `0110`; năm học `0172` đến `0175`; định danh `0180`.
 - API bị ảnh hưởng: nhóm `/api/v1/learning` (xem `17_DAC_TA_API.md` mục 17.2).
-- Giao diện bị ảnh hưởng: MH-349 đến MH-354.
-- Quyền bị ảnh hưởng: PQ-110.
+- Giao diện bị ảnh hưởng: MH-356 đến MH-361.
+- Quyền bị ảnh hưởng: PQ-111.
 - Ảnh hưởng chức năng cũ: không đổi hành vi; trường chỉ có Mầm non không thấy gì mới.
 - Kiểm thử cần thực hiện: kiểm thử đơn vị toàn kho; e2e `single` (spec 211 cùng các spec hiện có); kiểm tĩnh đa thuê bao, ma trận cách ly; typecheck, lint, build.
 - Chưa làm (YCTD sau): học sinh xem tệp học liệu từ hoạt động (mới hiện tên, mô tả; tải tệp cần quyền kho học liệu); đính kèm tệp quyết định dạy thay thế; loại hoạt động `exam` (khi 23a gộp); đẩy khoá mẫu chọn nhiều lớp của người khác (chỉ lớp người đẩy dạy hoặc quản lý); trình soạn khoá mẫu đủ loại hoạt động ở cổng quản trị (mới có chương, trang nội dung); duyệt yêu cầu ghi danh của học sinh (`request`); báo cáo, sổ điểm, hồ sơ Thông tư 09 (28d).
@@ -57,11 +57,11 @@ phien_ban_de_xuat: 0.154.0
 ### Phiên bản {PHIEN_BAN} – 2026-10-26
 
 - Phạm vi thay đổi: DT-28 phần 28b, lõi hệ thống quản lý học tập (YCTD-272).
-- Chức năng mới: lớp học trực tuyến theo lớp, môn tự sinh từ phân công giảng dạy và khoá tự chọn (P03-12, MH-349); chương, hoạt động trang nội dung, liên kết, học liệu, điều kiện mở, giao cho học sinh (P03-13); tiến độ, kết quả hoạt động, kế hoạch dạy học trực tuyến theo tuần, nhật ký học tập (P03-14); khoá học mẫu của tổ chuyên môn qua duyệt hai bước rồi đẩy xuống lớp (P03-15, MH-350); quyết định dạy học trực tuyến thay thế và nội quy theo Thông tư 09/2021/TT-BGDĐT (P03-16, MH-351); ứng dụng giáo viên Lớp học trực tuyến (MH-352); ứng dụng phụ huynh Học trực tuyến của con (P03-17, MH-353); học sinh tự học ở kênh `student` (MH-354).
+- Chức năng mới: lớp học trực tuyến theo lớp, môn tự sinh từ phân công giảng dạy và khoá tự chọn (P03-12, MH-356); chương, hoạt động trang nội dung, liên kết, học liệu, điều kiện mở, giao cho học sinh (P03-13); tiến độ, kết quả hoạt động, kế hoạch dạy học trực tuyến theo tuần, nhật ký học tập (P03-14); khoá học mẫu của tổ chuyên môn qua duyệt hai bước rồi đẩy xuống lớp (P03-15, MH-357); quyết định dạy học trực tuyến thay thế và nội quy theo Thông tư 09/2021/TT-BGDĐT (P03-16, MH-358); ứng dụng giáo viên Lớp học trực tuyến (MH-359); ứng dụng phụ huynh Học trực tuyến của con (P03-17, MH-360); học sinh tự học ở kênh `student` (MH-361).
 - Lỗi đã sửa: không có.
 - Thay đổi dữ liệu: hệ thống `0110`; năm học `0172` đến `0175`; định danh `0180` (năm quyền `P02.learning.*`); xem `16_CO_SO_DU_LIEU.md` mục 18H.
 - Thay đổi API: nhóm `/learning` và `/student/learning` của học sinh (xem `17_DAC_TA_API.md` mục 17.2); tuyến nhân sự chặn theo gói của trường.
-- Kiểm thử: kịch bản CT-1130 đến CT-1137 (CT-28b-1 đến CT-28b-17 trong mã kiểm thử). Kết quả ngày 26/10/2026: `apps/api` 14/14 ca của `learning-rules.test.ts`, `learning.test.ts`; `learning-tenancy.test.ts` 2/2 (hai bố cục); `working-level.test.ts` 8/8, `menu-permissions.test.ts` và `secondary-class-records.test.ts` đạt; e2e: `211-online-classes` (CT-28b-16) và `151-classroom-tools` (CT-23b-14, có màn Lớp của tôi thêm nút mới) đạt, chạy kèm spec nền 01 đến 09.
+- Kiểm thử: kịch bản CT-1138 đến CT-1145 (CT-28b-1 đến CT-28b-17 trong mã kiểm thử). Kết quả ngày 26/10/2026: `apps/api` 14/14 ca của `learning-rules.test.ts`, `learning.test.ts`; `learning-tenancy.test.ts` 2/2 (hai bố cục); `working-level.test.ts` 8/8, `menu-permissions.test.ts` và `secondary-class-records.test.ts` đạt; e2e: `211-online-classes` (CT-28b-16) và `151-classroom-tools` (CT-23b-14, có màn Lớp của tôi thêm nút mới) đạt, chạy kèm spec nền 01 đến 09.
 - Rủi ro: học sinh mới thấy tên, mô tả học liệu, chưa tải được tệp; tệp quyết định dạy thay thế chưa đính kèm được; báo cáo theo vai trò, sổ điểm, hồ sơ Thông tư 09 là phần 28d; trình soạn nội dung khoá mẫu ở cổng quản trị mới có chương và trang nội dung.
 - Khả năng tương thích: không đổi hành vi các phân hệ cũ; lớp học trực tuyến tự sinh ẩn với học sinh đến khi giáo viên mở; trường chỉ có Mầm non không thấy nhóm menu 9. Học tập trực tuyến.
 - Phương án quay lui: hoàn lại commit gộp của nhánh 28b; các tệp migration chỉ thêm bảng và quyền.
@@ -86,4 +86,4 @@ phien_ban_de_xuat: 0.154.0
 
 ## Nối dòng
 
-| index.md | Màn hình dự kiến | MH-349 đến MH-354 (YCTD-272) |
+| index.md | Màn hình dự kiến | MH-356 đến MH-361 (YCTD-272) |

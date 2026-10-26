@@ -198,7 +198,7 @@ describe('Quản trị hệ thống đủ theo Sở', () => {
   it('CT-16d-3: phân hệ của nhóm quyết định phân hệ của tài khoản; Phụ huynh không có phân hệ nào', async () => {
     const first = await createRole(`T${tag.slice(-6).toUpperCase()}D`);
     const second = await createRole(`T${tag.slice(-6).toUpperCase()}E`);
-    assert.equal(first.workspaces.length, 22);
+    assert.equal(first.workspaces.length, 23);
     const saved = await sendJson('PUT', `${identityUrl}/roles/${first.id}/workspaces`, principal, {
       workspace_keys: ['system', 'education'],
     });
@@ -219,7 +219,7 @@ describe('Quản trị hệ thống đủ theo Sở', () => {
     createdUsers.push(parent.userId);
     assert.deepEqual((await sendJson('GET', `${identityUrl}/auth/me`, parent.accessToken)).body.workspaces, []);
     const principalMe = await sendJson('GET', `${identityUrl}/auth/me`, principal);
-    assert.equal((principalMe.body.workspaces as string[]).length, 22);
+    assert.equal((principalMe.body.workspaces as string[]).length, 23);
 
     const invalid = await sendJson('PUT', `${identityUrl}/roles/${first.id}/workspaces`, principal, {
       workspace_keys: ['khong-co'],
