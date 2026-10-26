@@ -44,6 +44,7 @@ import { TutoringProgramsPage } from './tutoring/TutoringProgramsPage.js';
 import { TutoringSessionsPage } from './tutoring/TutoringSessionsPage.js';
 import { TutoringExemptionsPage } from './tutoring/TutoringExemptionsPage.js';
 import { TutoringRulesPage } from './tutoring/TutoringRulesPage.js';
+import { TutoringFinancePage } from './tutoring/TutoringFinancePage.js';
 import { ChildrenPage } from './children/ChildrenPage.js';
 import { StudentMovementsPage } from './children/StudentMovementsPage.js';
 import { DefaultPasswordsPage } from './students/DefaultPasswordsPage.js';
@@ -804,6 +805,7 @@ const routeTree = rootRoute.addChildren([
   createRoute({ getParentRoute: () => rootRoute, path: '/tutoring/sessions', component: TutoringSessionsPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/tutoring/exemptions', component: TutoringExemptionsPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/tutoring/rules', component: TutoringRulesPage }),
+  createRoute({ getParentRoute: () => rootRoute, path: '/tutoring/finance', component: TutoringFinancePage }),
   // Trợ lý AI soạn nháp (DT-23 phần 23d)
   createRoute({ getParentRoute: () => rootRoute, path: '/ai-assistant', component: AiAssistantPage }),
 ]);
