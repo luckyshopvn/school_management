@@ -1,0 +1,80 @@
+{
+  "cổng quản trị": [
+    {
+      "key": "co-chu-o-nhap:input \"login\"",
+      "owner": "26e"
+    },
+    {
+      "key": "co-chu-o-nhap:input \"password\"",
+      "owner": "26e"
+    },
+    {
+      "key": "vung-cham:input \"\"",
+      "owner": "26e"
+    },
+    {
+      "key": "vung-cham:a \"Quên mật khẩu?\"",
+      "owner": "26e"
+    },
+    {
+      "key": "vung-cham:button \"Đăng nhập\"",
+      "owner": "26e"
+    },
+    {
+      "key": "axe:color-contrast",
+      "owner": "26e"
+    }
+  ],
+  "ứng dụng giáo viên": [
+    {
+      "key": "co-chu-o-nhap:input \"\"",
+      "owner": "26d"
+    },
+    {
+      "key": "vung-cham:input \"\"",
+      "owner": "26d"
+    },
+    {
+      "key": "vung-cham:button \"Đăng nhập\"",
+      "owner": "26d"
+    },
+    {
+      "key": "axe:color-contrast",
+      "owner": "26d"
+    }
+  ],
+  "ứng dụng phụ huynh": [
+    {
+      "key": "co-chu-o-nhap:input \"phone\"",
+      "owner": "26d"
+    },
+    {
+      "key": "co-chu-o-nhap:input \"password\"",
+      "owner": "26d"
+    },
+    {
+      "key": "vung-cham:button \"Mật khẩu\"",
+      "owner": "26d"
+    },
+    {
+      "key": "vung-cham:button \"Mã qua tin nhắn\"",
+      "owner": "26d"
+    },
+    {
+      "key": "vung-cham:input \"\"",
+      "owner": "26d"
+    },
+    {
+      "key": "vung-cham:button \"Đăng nhập\"",
+      "owner": "26d"
+    },
+    {
+      "key": "vung-cham:button \"Tuyển sinh trực tuyến\"",
+      "owner": "26d"
+    },
+    {
+      "key": "axe:color-contrast",
+      "owner": "26d"
+    }
+  ]
+}

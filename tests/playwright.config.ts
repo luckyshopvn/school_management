@@ -28,6 +28,37 @@ const identityBaseUrl = `http://localhost:${E2E_IDENTITY_PORT}`;
 const apiBaseUrl = `http://localhost:${E2E_API_PORT}`;
 const systemDatabaseUrl = replaceDatabaseName(process.env.SYSTEM_DATABASE_URL ?? '', E2E_SYSTEM_DATABASE_NAME);
 
+// Khung kiểm thử theo khổ thiết bị (DT-26 phần 26c, YCTD-233). Mặc định (biến E2E_DEVICES trống) chỉ chạy dự án `chromium` khổ máy tính cho mọi
+// spec như trước. E2E_DEVICES=pr (việc kiem-thu-thiet-bi ở yêu cầu kéo): `dien-thoai` và `may-tinh-bang-doc`, chỉ Chromium, chỉ spec có nhãn
+// @thiet-bi-pr. E2E_DEVICES=full (nhánh chính, hằng đêm): bốn dự án thiết bị (thêm `may-tinh-bang-ngang` và `dien-thoai-webkit`), mọi spec có
+// nhãn @thiet-bi. Spec cũ không tự chạy ở khổ mới; mỗi phần gắn nhãn cho spec mình rà
+const deviceMode =
+  process.env.E2E_DEVICES === 'pr' || process.env.E2E_DEVICES === 'full' ? process.env.E2E_DEVICES : null;
+const deviceGrep = deviceMode === 'pr' ? /@thiet-bi-pr/ : /@thiet-bi/;
+const phone = { ...devices['Pixel 7'], viewport: { width: 390, height: 844 } };
+const deviceProjects = [
+  { name: 'dien-thoai', grep: deviceGrep, use: phone },
+  {
+    name: 'may-tinh-bang-doc',
+    grep: deviceGrep,
+    use: { ...devices['Desktop Chrome'], viewport: { width: 820, height: 1180 }, hasTouch: true },
+  },
+  ...(deviceMode === 'full'
+    ? [
+        {
+          name: 'may-tinh-bang-ngang',
+          grep: deviceGrep,
+          use: { ...devices['Desktop Chrome'], viewport: { width: 1180, height: 820 }, hasTouch: true },
+        },
+        {
+          name: 'dien-thoai-webkit',
+          grep: deviceGrep,
+          use: { ...devices['iPhone 13'], viewport: { width: 390, height: 844 } },
+        },
+      ]
+    : []),
+];
+
 export default defineConfig({
   testDir: './e2e',
   // Spec nhiều trường (130 đến 140) chạy riêng bằng playwright.multi.config.ts (pnpm e2e:multi)
@@ -44,7 +75,7 @@ export default defineConfig({
     baseURL: `http://localhost:${E2E_PORTAL_PORT}`,
     trace: 'retain-on-failure',
   },
-  projects: [{ name: 'chromium', use: { ...devices['Desktop Chrome'] } }],
+  projects: deviceMode ? deviceProjects : [{ name: 'chromium', use: { ...devices['Desktop Chrome'] } }],
   webServer: [
     {
       command: 'node ../apps/identity/dist/main.js',

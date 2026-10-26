@@ -2107,8 +2107,8 @@ Cỡ ước lượng (một phần của DT-16 là một đơn vị, chỉ để
 | Phần | Đợt | Tiến độ |
 |---|---|---|
 | 26a | 1 | Đã làm, YCTD-231, phiên bản 0.145.0: gói `packages/pwa` (mẫu service worker gom từ 23b, plugin Vite, đăng ký, kiểm bản mới, gỡ theo tiền tố, `InstallPrompt`, `UpdateBanner`), manifest và biểu tượng SVG theo trường (`/api/v1/public/pwa/*`, hệ thống 0090 `app_short_name`), ứng dụng phụ huynh có service worker, màn hình học sinh của 23a cài được thành ứng dụng riêng (manifest `student` mở thẳng `#hoc-sinh`); e2e 181. Chưa làm: ảnh PNG và màn hình chờ iOS theo trường (cần thư viện xử lý ảnh, để phần sau) |
-| 26b | 1 | Phần máy chủ đã làm (YCTD-232, phiên bản 0.148.0): kênh push, bộ nối, đăng ký, tuỳ chọn theo nhóm, khóa VAPID, spec 182; phần giao diện (cài đặt thông báo ở ứng dụng giáo viên, phụ huynh, mã nhận đẩy ở service worker) nối sau khi 26a gộp |
-| 26c | 1 | Chưa làm; YCTD-233 giữ sẵn |
+| 26b | 1 | Phần máy chủ đã làm (YCTD-232, phiên bản 0.148.0): kênh push, bộ nối, đăng ký, tuỳ chọn theo nhóm, khóa VAPID, spec 182. Phần giao diện (YCTD-239, phiên bản đề xuất 0.153.0): service worker chung nhận đẩy, hiện thông báo, chạm mở ứng dụng; khối "Cài đặt thông báo" ở ứng dụng giáo viên, phụ huynh, màn hình học sinh (bật, tắt trên máy, tắt theo nhóm, gỡ máy, hướng dẫn cài cho iPhone); đồng bộ đăng ký khi mở ứng dụng, thu hồi khi đăng xuất; e2e 187 |
+| 26c | 1 | Đã làm, YCTD-233, phiên bản 0.146.0, PR 188: dự án Playwright theo khổ thiết bị, nhãn `@thiet-bi`, bộ kiểm dùng chung, spec 180, việc CI `kiem-thu-thiet-bi`; vi phạm đo được ghi ở đường cơ sở cho 26d, 26e |
 | 26d | 2 | Chưa làm; YCTD-234 giữ sẵn |
 | 26e | 2 | Chưa làm; YCTD-235 giữ sẵn |
 | 26f | 3 | Chưa làm; YCTD-236 giữ sẵn, bắt đầu khi DT-24, DT-25 đã gộp |

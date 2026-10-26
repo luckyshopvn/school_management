@@ -1,4 +1,5 @@
-import { applyBrandedManifest } from '@school-management/pwa';
+import { applyBrandedManifest, usePushSync } from '@school-management/pwa';
+import { requestStudentJson } from './student-api.js';
 import { useEffect, useState } from 'react';
 import { StudentActivationScreen } from './StudentActivationScreen.js';
 import { StudentHomeScreen } from './StudentHomeScreen.js';
@@ -21,6 +22,8 @@ export function useStudentRoute(): boolean {
 
 function Screens() {
   const session = useStudentSession();
+  // Đã đăng nhập: báo lại đăng ký đẩy của máy cho máy chủ (DT-26 phần 26b)
+  usePushSync('student', import.meta.env.BASE_URL, requestStudentJson, session.status === 'signed-in');
   if (session.status === 'checking') {
     return <div className="min-h-screen animate-pulse bg-page" aria-busy="true" />;
   }
