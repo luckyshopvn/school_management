@@ -64,6 +64,19 @@ jobs:
       - run: docker run -d -p 8333:8333 chrislusf/seaweedfs:3.80 server -s3 -dir=/data
       - run: sh docker/postgres/create-databases.sh
       - run: pnpm format:check
+      # Tệp mảnh thay đổi ở tai_lieu/thay_doi_cho_gom/ đúng định dạng để gom được (YCTD-291)
+      - run: node scripts/gom-thay-doi.mjs --kiem
+      # PR thường ghi tài liệu chung qua tệp mảnh; sửa trực tiếp 02, 23, 24, index chỉ cảnh báo, không chặn (nhánh gom-… được sửa)
+      - if: github.event_name == 'pull_request' && !startsWith(github.head_ref, 'gom-')
+        env:
+          GH_TOKEN: ${{ github.token }}
+          SO_PR: ${{ github.event.pull_request.number }}
+        run: |
+          gh pr diff "$SO_PR" --repo "$GITHUB_REPOSITORY" --name-only \
+            | grep -E '^tai_lieu/(02_NHAT_KY_DU_AN|23_LICH_SU_PHIEN_BAN|24_YEU_CAU_THAY_DOI|index)\.md$' \
+            | while read -r tep; do
+                echo "::warning file=$tep::PR thường không sửa trực tiếp $tep; ghi vào tệp mảnh ở tai_lieu/thay_doi_cho_gom/ (xem README ở đó)"
+              done || true
       - run: pnpm lint
       - run: pnpm build
       - run: pnpm typecheck
