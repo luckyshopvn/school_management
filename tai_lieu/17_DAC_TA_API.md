@@ -1,8 +1,8 @@
 # 17. ĐẶC TẢ API
 
 - Mô tả: Điểm cuối, phương thức, yêu cầu, phản hồi, xác thực, phân quyền, kiểm tra dữ liệu, xử lý lỗi, phân trang, lọc, sắp xếp, phiên bản.
-- Phiên bản: 1.128
-- Ngày cập nhật: 2026-10-25
+- Phiên bản: 1.129
+- Ngày cập nhật: 2026-10-26
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
 
@@ -1614,6 +1614,14 @@ Giao kèo văn thư lưu trữ (YCTD-118):
 | POST | /api/v1/parent-org-consents/requests/{id}/{approve|reject|revoke} | Duyệt, từ chối, rút đề nghị xem chi tiết; rút kết thúc phiên đang mở |
 | GET | /api/v1/parent-org/aggregate?unit=<id>&category=<nhóm> | Số liệu tổng hợp cho tài khoản cấp trên (đường dẫn không cần trường, chỉ tên miền cổng nền tảng): tổng của nút (trống khi ít trường hơn ngưỡng), nút con, so sánh trường đã đồng ý, ô ẩn; nút ngoài phạm vi 403, nhóm sai 400 |
 | GET | /api/v1/parent-org/aggregate/export?unit=&category=&format=xlsx|pdf | Xuất Excel, PDF (trang So sánh trường, Tổng hợp) |
+| GET | /api/v1/classroom-tools/config (từ YCTD-212) | Cấu hình công cụ lớp học của trường: `offline_enabled`, `roster_ttl_hours`, `conduct_enabled`; người đăng nhập nào cũng đọc được |
+| GET | /api/v1/classroom-tools/classes/{id}/roster (từ YCTD-212) | Danh sách lớp gọn: `students` (`id`, `order_no`, `full_name`, `code`, `absent_today`); chỉ người có phạm vi xem trẻ của lớp, không thì 403 (P03-09, BR-231) |
+| POST | /api/v1/classroom-tools/calls (từ YCTD-212) | Ghi lượt gọi (`class_id`, `calls` 1 đến 100 mục `client_id`, `child_id`, `called_at` tuỳ chọn); trả `saved`, `duplicates` (gửi lại cùng `client_id` không trùng); học sinh ngoài lớp 400 |
+| GET, DELETE | /api/v1/classroom-tools/classes/{id}/calls, /calls/{callId} (từ YCTD-212) | Xem 100 lượt gần nhất; xóa một lượt hoặc toàn bộ lượt của chính mình |
+| GET, PUT | /api/v1/classroom-tools/classes/{id}/grouping (từ YCTD-212) | Bản chia nhóm gần nhất của giáo viên (`groups`: `name`, `child_ids`; mỗi học sinh một nhóm, thuộc lớp) |
+| POST | /api/v1/classroom-tools/scores (từ YCTD-212) | Ghi dòng điểm (`class_id`, `session_key`, `events` 1 đến 200 mục `client_id`, `target_kind`, `group_name` hoặc `child_id`, `delta`, `note`, `occurred_at`); chống trùng theo `client_id` |
+| GET, DELETE | /api/v1/classroom-tools/classes/{id}/scores?session_key=, /scores/{sessionKey} (từ YCTD-212) | Dòng điểm và tổng theo đối tượng của buổi (chỉ của chính giáo viên); bỏ buổi xóa dòng chưa chuyển vào nề nếp |
+| POST | /api/v1/classroom-tools/classes/{id}/scores/{sessionKey}/confirm (từ YCTD-212) | Chuyển điểm vào nề nếp: `criterion_id`, `targets` (tuỳ chọn), `date` (tuỳ chọn); cần `P02.conduct.record`; trả `confirmed_events`, `net`, `quantity`, `conduct_entry_ids`; 422 khi tổng bằng 0, tiêu chí ngược chiều, nề nếp chưa bật (BR-232) |
 | POST | /api/v1/internal/jobs/tick | Điểm gọi của bộ hẹn giờ bên ngoài (YCTD-192, BR-204): tiêu đề `x-internal-job-token` bằng `INTERNAL_JOB_TOKEN` (so sánh thời gian hằng, sai 401, chưa đặt 404, có giới hạn tần suất); chạy việc nền đến hạn của mọi trường rồi trả `{ jobs, schools, failed }`; không cần trường (gọi bằng địa chỉ nội bộ) |
 | GET | /api/v1/public/schools/picker | Trang chọn trường ở tên miền gốc (YCTD-192, BR-205, MH-315): trang HTML tĩnh, 404 khi chưa đặt `PLATFORM_ROOT_DOMAIN`; không cần trường |
 | GET | /api/v1/public/schools/resolve?code=<mã> | Đổi mã trường thành `{ url }` của trường đang phục vụ (YCTD-192, BR-205); mã lạ, trường tạm dừng, đang khởi tạo hoặc đã xóa 404; có giới hạn tần suất theo địa chỉ mạng; không liệt kê trường |
