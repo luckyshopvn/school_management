@@ -31,7 +31,7 @@ Các thay đổi trước phiên bản 0.4.0 chưa có sổ này; xem `23_LICH_S
 - Ảnh hưởng chức năng cũ: không đổi hành vi; trường chỉ có Mầm non không thấy gì mới.
 - Kiểm thử cần thực hiện: kiểm thử đơn vị toàn kho; e2e `single` (spec 211 cùng các spec hiện có); kiểm tĩnh đa thuê bao, ma trận cách ly; typecheck, lint, build.
 - Chưa làm (YCTD sau): màn hình học sinh (`/student/learning`, chờ 23a); đính kèm tệp quyết định dạy thay thế; loại hoạt động `exam` (khi 23a gộp); đẩy khoá mẫu chọn nhiều lớp của người khác (chỉ lớp người đẩy dạy hoặc quản lý); trình soạn khoá mẫu đủ loại hoạt động ở cổng quản trị (mới có chương, trang nội dung); duyệt yêu cầu ghi danh của học sinh (`request`); báo cáo, sổ điểm, hồ sơ Thông tư 09 (28d).
-- Trạng thái: Đã triển khai (PR PR_NUMBER)
+- Trạng thái: Đã triển khai (PR 193)
 
 ### YCTD-290: Sửa kiểm thử chập chờn: thời khoá biểu, mở năm học, e2e 45, 151, 88, 103 – 2026-10-26
 
