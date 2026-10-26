@@ -3,6 +3,7 @@
   "short_name": "Giáo viên",
   "description": "Ứng dụng giáo viên, có công cụ lớp học dùng được khi mạng chập chờn",
   "lang": "vi",
+  "id": "./?ung-dung=teacher",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",

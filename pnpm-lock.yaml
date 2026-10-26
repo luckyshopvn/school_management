@@ -152,6 +152,9 @@ importers:
 
   apps/parent:
     dependencies:
+      '@school-management/pwa':
+        specifier: workspace:*
+        version: link:../../packages/pwa
       '@school-management/shared':
         specifier: workspace:*
         version: link:../../packages/shared
@@ -272,6 +275,9 @@ importers:
 
   apps/teacher:
     dependencies:
+      '@school-management/pwa':
+        specifier: workspace:*
+        version: link:../../packages/pwa
       '@school-management/shared':
         specifier: workspace:*
         version: link:../../packages/shared
@@ -340,6 +346,24 @@ importers:
         version: 8.23.1
 
   packages/config: {}
+
+  packages/pwa:
+    devDependencies:
+      '@school-management/config':
+        specifier: workspace:*
+        version: link:../config
+      '@types/node':
+        specifier: ^24.0.0
+        version: 24.19.1
+      '@types/react':
+        specifier: ^19.0.0
+        version: 19.3.0
+      react:
+        specifier: ^19.0.0
+        version: 19.3.0
+      vite:
+        specifier: ^8.3.4
+        version: 8.3.4(@types/node@24.19.1)(jiti@2.7.0)
 
   packages/server:
     dependencies:

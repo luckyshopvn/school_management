@@ -33,12 +33,14 @@ import {
 } from './school-settings.js';
 import { paymentSettingsOf } from './tenant-connectors.js';
 import { createPaymentGateway } from '../finance/payment-providers.js';
+import { revisionOf, type PwaBranding } from './pwa-branding.js';
 
 // Màn hình quản trị cấu hình riêng của trường (4. Quản trị hệ thống; DT-SaaS phần S3, YCTD-195): nhập khóa của các kết nối ngoài, kiểm tra
 // kết nối, xem địa chỉ gọi lại (webhook) của trường để dán vào cổng thanh toán, chọn màu và tên hiển thị. Không bao giờ trả lại giá trị bí mật đã
 // lưu (chỉ bốn ký tự cuối); nhật ký chỉ ghi tên kết nối và tên các trường đã đổi, không ghi giá trị
 
 const COLOR_PATTERN = /^#[0-9a-fA-F]{6}$/;
+const APP_SHORT_NAME_MAXIMUM = 9;
 const ESMS_BALANCE_URL = 'https://rest.esms.vn/MainService.svc/json/GetBalance';
 const TEST_TIMEOUT_MILLISECONDS = 10_000;
 
@@ -212,29 +214,71 @@ export class SchoolSettingsService {
       display_name: row?.display_name ?? null,
       school_name: identity.school_name,
       primary_color: row?.primary_color ?? website?.primary_color ?? null,
+      app_short_name: row?.app_short_name ?? null,
       has_logo: Boolean(website?.logo_file_id),
+      logo_file_id: website?.logo_file_id ?? null,
     };
   }
 
-  async updateBranding(input: { display_name: string | null; primary_color: string | null }, currentUser: CurrentUser) {
+  // Tên ngắn dưới biểu tượng khi cài lên màn hình chính (DT-26 phần 26a): `undefined` giữ giá trị đang có
+  async updateBranding(
+    input: { display_name: string | null; primary_color: string | null; app_short_name?: string | null },
+    currentUser: CurrentUser,
+  ) {
+    const appShortName =
+      input.app_short_name === undefined ? ((await this.branding()).app_short_name ?? null) : input.app_short_name;
     await this.databases.system
       .insertInto('school_branding')
       .values({
         id: 1,
         display_name: input.display_name,
         primary_color: input.primary_color,
+        app_short_name: appShortName,
         updated_by_name: currentUser.description.full_name,
       })
       .onConflict((conflict) =>
         conflict.column('id').doUpdateSet({
           display_name: input.display_name,
           primary_color: input.primary_color,
+          app_short_name: appShortName,
           updated_at: new Date(),
           updated_by_name: currentUser.description.full_name,
         }),
       )
       .execute();
-    return this.branding();
+    return this.adminBranding();
+  }
+
+  // Màn hình Thương hiệu của cổng quản trị: không trả mã tệp biểu trưng
+  async adminBranding() {
+    const branding = await this.branding();
+    return {
+      display_name: branding.display_name,
+      school_name: branding.school_name,
+      primary_color: branding.primary_color,
+      app_short_name: branding.app_short_name,
+      has_logo: branding.has_logo,
+    };
+  }
+
+  // Thương hiệu cho manifest và biểu tượng của ứng dụng web cài được (DT-26 phần 26a): công khai, không có dữ liệu cá nhân
+  async pwaBranding(): Promise<PwaBranding> {
+    const branding = await this.branding();
+    const logo = branding.logo_file_id
+      ? await this.databases.system
+          .selectFrom('website_files')
+          .select('content_type')
+          .where('id', '=', branding.logo_file_id)
+          .executeTakeFirst()
+      : undefined;
+    const displayName = branding.display_name ?? branding.school_name ?? 'Trường';
+    return {
+      display_name: displayName,
+      app_short_name: branding.app_short_name,
+      primary_color: branding.primary_color,
+      logo_content_type: logo?.content_type ?? null,
+      revision: revisionOf([displayName, branding.app_short_name, branding.primary_color, branding.logo_file_id]),
+    };
   }
 
   // Công khai: tên hiển thị, màu và có biểu trưng hay không (cho trang đăng nhập)
@@ -337,7 +381,7 @@ export class SchoolSettingsController {
   @Get('branding')
   @RequirePermission(PERMISSION_CODES.integrationManage)
   branding() {
-    return this.service.branding();
+    return this.service.adminBranding();
   }
 
   @Put('branding')
@@ -355,11 +399,23 @@ export class SchoolSettingsController {
     if (color !== '' && !COLOR_PATTERN.test(color)) {
       errors.push({ field: 'primary_color', message: 'Màu dạng #RRGGBB' });
     }
+    // Tên ngắn dưới biểu tượng khi cài lên màn hình chính (DT-26 phần 26a): tối đa 9 ký tự, ứng dụng thêm "GV", "PH"
+    const shortName = typeof body?.app_short_name === 'string' ? body.app_short_name.trim() : '';
+    if (body?.app_short_name !== undefined && body.app_short_name !== null && typeof body.app_short_name !== 'string') {
+      errors.push({ field: 'app_short_name', message: 'Tên ngắn phải là chuỗi' });
+    }
+    if (Array.from(shortName).length > APP_SHORT_NAME_MAXIMUM) {
+      errors.push({ field: 'app_short_name', message: `Tên ngắn tối đa ${APP_SHORT_NAME_MAXIMUM} ký tự` });
+    }
     if (errors.length > 0) {
       throw validationError(errors);
     }
     return this.service.updateBranding(
-      { display_name: name === '' ? null : name, primary_color: color === '' ? null : color },
+      {
+        display_name: name === '' ? null : name,
+        primary_color: color === '' ? null : color,
+        app_short_name: body?.app_short_name === undefined ? undefined : shortName === '' ? null : shortName,
+      },
       currentUser,
     );
   }

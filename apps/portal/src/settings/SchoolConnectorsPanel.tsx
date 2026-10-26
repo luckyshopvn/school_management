@@ -30,6 +30,7 @@ interface Branding {
   display_name: string | null;
   school_name: string | null;
   primary_color: string | null;
+  app_short_name: string | null;
   has_logo: boolean;
 }
 
@@ -149,13 +150,19 @@ function BrandingCard({ onSaved }: { onSaved(message: string): void }) {
   });
   const [displayName, setDisplayName] = useState('');
   const [color, setColor] = useState('');
+  const [shortName, setShortName] = useState('');
   useEffect(() => {
     setDisplayName(branding.data?.display_name ?? '');
     setColor(branding.data?.primary_color ?? '');
+    setShortName(branding.data?.app_short_name ?? '');
   }, [branding.data]);
   const save = useMutation({
     mutationFn: () =>
-      send('PUT', '/api/v1/school-settings/branding', { display_name: displayName, primary_color: color }),
+      send('PUT', '/api/v1/school-settings/branding', {
+        display_name: displayName,
+        primary_color: color,
+        app_short_name: shortName,
+      }),
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: ['school-branding'] });
       onSaved('Đã lưu thương hiệu');
@@ -183,6 +190,14 @@ function BrandingCard({ onSaved }: { onSaved(message: string): void }) {
           placeholder="#1D5FD1"
           value={color}
           onChange={(event) => setColor(event.target.value)}
+        />
+        {/* Tên dưới biểu tượng khi cài ứng dụng giáo viên, phụ huynh lên màn hình chính (DT-26 phần 26a) */}
+        <TextField
+          label="Tên ngắn trên màn hình chính (tối đa 9 ký tự)"
+          placeholder="Hoa Sen"
+          maxLength={9}
+          value={shortName}
+          onChange={(event) => setShortName(event.target.value)}
         />
       </div>
       <p className="text-label text-text-secondary">
