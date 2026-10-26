@@ -1614,6 +1614,22 @@ Giao kèo văn thư lưu trữ (YCTD-118):
 | POST | /api/v1/parent-org-consents/requests/{id}/{approve|reject|revoke} | Duyệt, từ chối, rút đề nghị xem chi tiết; rút kết thúc phiên đang mở |
 | GET | /api/v1/parent-org/aggregate?unit=<id>&category=<nhóm> | Số liệu tổng hợp cho tài khoản cấp trên (đường dẫn không cần trường, chỉ tên miền cổng nền tảng): tổng của nút (trống khi ít trường hơn ngưỡng), nút con, so sánh trường đã đồng ý, ô ẩn; nút ngoài phạm vi 403, nhóm sai 400 |
 | GET | /api/v1/parent-org/aggregate/export?unit=&category=&format=xlsx|pdf | Xuất Excel, PDF (trang So sánh trường, Tổng hợp) |
+Giao kèo trợ lý AI (DT-23 phần 23d, YCTD-214, BR-234 đến BR-236):
+
+1. Lỗi: tắt hoặc thiếu khóa hoặc gói chưa có đơn giá 422 (quy tắc YCTD-214, thông báo nêu lý do); có dữ liệu cá nhân trong mô tả 422 (không nhắc lại nội dung); vượt hạn mức 422 `PLAN_LIMIT_EXCEEDED`; nhà cung cấp lỗi 422 (không lộ khóa); kết quả không đúng định dạng 422.
+2. Biến môi trường máy chủ API: `AI_MOCK=true` bật bộ giả lập `mock` (chỉ kiểm thử; máy chủ không khởi động khi `NODE_ENV=production`).
+
+| GET | /api/v1/ai/status | Trạng thái cho nút Soạn nháp bằng AI `{ enabled, ready, reason }`; với P01.integration.manage thêm thiết lập, nhà cung cấp, khóa (gợi ý), cấu hình nền tảng, mức dùng tháng, hạn mức, tạm tính phí kỳ; quyền: soạn câu hỏi, kho học liệu hoặc quản lý kết nối |
+| PUT | /api/v1/ai/settings | `{ enabled, key_mode, provider, model, per_user_daily_requests, log_retention_months }` (P01.integration.manage); `platform` ở một trường 422; nhà cung cấp lạ 400 |
+| POST | /api/v1/ai/check | Kiểm tra kết nối bằng khóa của cấu hình đang chọn (P01.integration.manage); ghi nhật ký loại `check` |
+| GET | /api/v1/ai/requests, /api/v1/ai/requests/{id} | Nhật ký yêu cầu (`limit` đến 500, `status`); không có toàn văn lời nhắc |
+| POST | /api/v1/ai/question-drafts | Soạn câu hỏi nháp `{ school_level, subject_id, grade_level_code, topic_id, cognitive_level, question_type, count (1 đến 10), requirement, extra }` (P02.question.author); trả 201 `{ request_id, questions, skipped, tokens, notice }` |
+| POST | /api/v1/ai/lesson-plan-drafts | Soạn kế hoạch bài dạy nháp `{ school_level, subject_code, grade_level_code, topic_text, duration_minutes (10 đến 240), requirement, extra }` (P09.learning-resource.use); trả 201 `{ request_id, resource, tokens, notice }` |
+| PUT, DELETE | /api/v1/school-settings/integrations/ai | Nhập, xóa khóa AI của trường (kết nối `ai` của S3: `api_key`, `endpoint`); không trả lại giá trị |
+| GET | /api/v1/auth/platform/ai | Cổng nền tảng: thiết lập, gợi ý khóa chung, đơn giá AI từng gói |
+| PUT | /api/v1/auth/platform/ai/settings, /ai/key, /ai/pricing/{planId} | Lưu nhà cung cấp và mô hình; khóa chung `{ enabled, api_key }` (trống là giữ khóa cũ); đơn giá AI của gói `{ free_tokens, input_price_per_1k, output_price_per_1k, model_prices, minimum_fee, rounding_step }` |
+| GET | /api/v1/auth/platform/ai/usage?from=&to= | Token đã dùng theo trường, cấu hình, mô hình trong khoảng ngày (mặc định tháng hiện tại) |
+| POST, PUT | /api/v1/auth/platform/plans | Thêm `ai_max_requests`, `ai_max_tokens` (trống là không giới hạn, 0 là không dùng AI) |
 | GET | /api/v1/auth/directory/context | Chế độ trang đăng nhập (YCTD-220): `{ mode: "single" }` chế độ một trường; `{ mode: "directory", page }` ở tên miền chung `PLATFORM_ROOT_DOMAIN`; `{ mode: "school", unit }` ở tên miền của trường (tên, mã Bộ, sở, xã, cấp); tên miền lạ 404 |
 | GET | /api/v1/auth/directory/departments, /levels | Danh sách sở, cấp học của danh mục; chỉ ở tên miền chung (khác 404); 120 yêu cầu mỗi phút mỗi địa chỉ |
 | GET | /api/v1/auth/directory/communes?department=&q=&limit=&offset= | Phường, xã của sở, tìm không dấu, tối đa 50 dòng, `{ items, has_more }`; thiếu sở 400 |
@@ -2095,9 +2111,9 @@ Bỏ ngày 09/10/2026: trường không có xe đưa đón (Q-62). Mọi điểm
 | PUT | /api/v1/school-settings/integrations/:connector | Lưu một kết nối `{ enabled, values }`: giá trị mã hóa bằng khóa của trường, ô trống giữ giá trị đã lưu; thiếu ô bắt buộc khi bật 400 |
 | DELETE | /api/v1/school-settings/integrations/:connector | Xóa cấu hình một kết nối |
 | POST | /api/v1/school-settings/integrations/:connector/test | Kiểm tra kết nối bằng giá trị đã lưu (Facebook, Zalo, eSMS gọi nhà cung cấp; kho tệp ghi và xóa tệp thử; cổng thanh toán kiểm tra đủ khóa); chưa cấu hình 422 `G3-10` |
-| GET, PUT | /api/v1/school-settings/branding | Thương hiệu của trường: `display_name`, `primary_color` (#RRGGBB) (YCTD-195, BR-213); từ YCTD-231 thêm `app_short_name` (tối đa 9 ký tự, không gửi thì giữ giá trị cũ, BR-234) |
+| GET, PUT | /api/v1/school-settings/branding | Thương hiệu của trường: `display_name`, `primary_color` (#RRGGBB) (YCTD-195, BR-213); từ YCTD-231 thêm `app_short_name` (tối đa 9 ký tự, không gửi thì giữ giá trị cũ, BR-237) |
 | GET | /api/v1/public/branding, /api/v1/public/branding/logo | Công khai theo tên miền của trường: tên hiển thị, màu, địa chỉ và ảnh biểu trưng cho trang đăng nhập (YCTD-195, MH-322) |
-| GET | /api/v1/public/pwa/{teacher,parent}.webmanifest?base=, /api/v1/public/pwa/icon.svg, /api/v1/public/pwa/icon-maskable.svg (từ YCTD-231) | Công khai theo tên miền của trường: manifest (`application/manifest+json`: `id`, `name`, `short_name`, `theme_color`, `start_url`, `scope` theo `base` dạng `/…/`, sai dạng thì `/`; `icons`; `apple_touch_icon` ngoài chuẩn) và biểu tượng SVG 512 (nền màu trường, biểu trưng hoặc chữ cái đầu; `content-security-policy` chặn mã); ứng dụng lạ 404 (P19-07, BR-234) |
+| GET | /api/v1/public/pwa/{teacher,parent}.webmanifest?base=, /api/v1/public/pwa/icon.svg, /api/v1/public/pwa/icon-maskable.svg (từ YCTD-231) | Công khai theo tên miền của trường: manifest (`application/manifest+json`: `id`, `name`, `short_name`, `theme_color`, `start_url`, `scope` theo `base` dạng `/…/`, sai dạng thì `/`; `icons`; `apple_touch_icon` ngoài chuẩn) và biểu tượng SVG 512 (nền màu trường, biểu trưng hoặc chữ cái đầu; `content-security-policy` chặn mã); ứng dụng lạ 404 (P19-07, BR-237) |
 | GET | /api/v1/sync-accounts | Tài khoản đồng bộ của Bộ (`moet`), của Sở (`doet`): `username`, `password_configured`, `updated_at`, `sync_available`; không bao giờ trả mật khẩu; cần `P01.integration.manage` (P01-19, YCTD-120) |
 | PUT, DELETE | /api/v1/sync-accounts/{target} | Ghi `username` (bắt buộc, đến 100 ký tự), `password` (đến 200 ký tự; trống thì giữ mật khẩu đã lưu, lần đầu bắt buộc); xóa thông tin đã lưu |
 | GET | /api/v1/account-directory | Danh sách người dùng của 1.4 ghép hồ sơ nhân sự: tham số như `GET /users` (`q`, `status`, `role_code`, `login`, `full_name`, `must_change_password`, `password_expires_from`, `password_expires_to`, `page`, `page_size` 10, 20, 50, 100, 200) và `identifier` (mã nhân sự hoặc mã Bộ, khớp một phần); mỗi dòng thêm `staff_id`, `staff_code`, `moet_staff_code`; cần `P01.account.manage` hoặc `P01.account.manage-in-unit` (YCTD-120) |

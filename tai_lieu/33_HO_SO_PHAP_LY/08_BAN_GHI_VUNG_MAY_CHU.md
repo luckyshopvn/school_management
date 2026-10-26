@@ -28,6 +28,7 @@ Phiên bản bản ghi: `[ ]`  Ngày lập: `[ ]`  Người lập: `[ ]`
 | Sao lưu | `[ ]` | `[ ]` | `subprocessor` | Có (bản mã) | Bản sao lưu mã hóa AES-256 | Có | `[ ]` | `[ ]` |
 | Gửi thư điện tử | `[ ]` | `[ ]` | `subprocessor` | Có (địa chỉ, nội dung thư) | | | `[ ]` | `[ ]` |
 | Tin nhắn | `[ ]` | `[ ]` | `subprocessor` | Có (số điện thoại, nội dung) | | | `[ ]` | `[ ]` |
+| Trợ lý AI (DT-23 phần 23d, PL-22; chỉ khi trường chọn cấu hình do nền tảng cấp khóa; cấu hình trường tự nhập khóa thì nhà trường tự ký với nhà cung cấp) | `[ ]` | `[ ]` | `subprocessor` | Không theo thiết kế (chỉ nội dung chương trình; bộ quét chặn dữ liệu cá nhân) | Nội dung chương trình, yêu cầu của giáo viên | `[ ]` | `[ ]` | `[ ]` |
 | Cổng thanh toán (của nền tảng, thu phí trường) | `[ ]` | `[ ]` | `[bên kiểm soát độc lập / bên xử lý phụ: luật sư xác định]` | Có | | | `[ ]` | `[ ]` |
 
 Ghi chú hồ sơ Thử nghiệm theo kế hoạch (GD-100): mạng biên là Worker của Cloudflare (hoặc Vercel ở tổ hợp 3); cơ sở dữ liệu Neon hoặc Supabase; kho tệp R2 hoặc Supabase Storage; máy chủ ứng dụng Render, dự phòng Koyeb. Chọn vùng gần Việt Nam nhất mà nhà cung cấp có (thường là Singapore) khi tạo dịch vụ; **kiểm lại vùng thật trên bảng điều khiển của nhà cung cấp và ghi vào bảng**, không chép từ đây. Hồ sơ Vận hành: VPS trong nước `[nhà cung cấp chưa chốt]`, ghi vùng là `[Việt Nam, tỉnh/thành]`.

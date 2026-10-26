@@ -376,6 +376,8 @@ export const PORTAL_WORKSPACES: PortalWorkspace[] = [
         // Thông báo bật lên khi vào trang, lưới ứng dụng liên kết (DT-16 phần 16c)
         leaf('3.6.', 'Thông báo hệ thống', '/system-announcements'),
         leaf('3.7.', 'Ứng dụng liên kết', '/app-links'),
+        // Trợ lý AI soạn nháp (DT-23 phần 23d)
+        leaf('3.8.', 'Trợ lý AI', '/ai-assistant'),
       ]),
       // Quản trị và trình diễn (DT-18 phần 18h)
       group('4.', 'Quản trị và trình diễn', [

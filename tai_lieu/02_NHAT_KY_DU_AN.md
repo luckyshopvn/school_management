@@ -1,7 +1,7 @@
 # 02. NHẬT KÝ DỰ ÁN
 
 - Mô tả: Ghi nhận công việc, quyết định, thay đổi và vấn đề tồn đọng theo ngày, ngày mới nhất ở trên cùng.
-- Phiên bản: 0.76
+- Phiên bản: 0.77
 - Ngày cập nhật: 2026-10-26
 - Trạng thái: Đang cập nhật
 
@@ -25,17 +25,64 @@
 
 #### Quyết định
 
-- Viết tay service worker và plugin, không thêm thư viện; biểu tượng là SVG dựng ở máy chủ, PNG của sản phẩm làm dự phòng (QĐ-35).
+- Viết tay service worker và plugin, không thêm thư viện; biểu tượng là SVG dựng ở máy chủ, PNG của sản phẩm làm dự phòng (QĐ-36).
 - Ứng dụng phụ huynh luôn đăng ký service worker (chỉ giữ vỏ ứng dụng); ứng dụng giáo viên vẫn theo công tắc ngoại tuyến của trường.
 
 #### Thay đổi
 
-- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-231, `23_LICH_SU_PHIEN_BAN.md` phiên bản 0.143.0; BR-234, P19-07, AC-869 đến AC-871, CT-1084 đến CT-1087, MH-339, BM-97, QĐ-35, mục 12H.
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-231, `23_LICH_SU_PHIEN_BAN.md` phiên bản 0.144.0; BR-237, P19-07, AC-874 đến AC-876, CT-1097 đến CT-1100, MH-342, BM-97, QĐ-36, mục 12H.
 
 #### Vấn đề tồn đọng
 
 - Nối màn hình học sinh của 23a khi 23a gộp; ảnh PNG và màn hình chờ iOS theo trường, phiên bản tối thiểu do máy chủ áp để phần sau (ghi ở YCTD-231).
 
+### 2026-10-26 — Vá lỗ hổng phụ thuộc: fast-xml-parser, multer, body-parser
+
+#### Công việc đã thực hiện
+
+- Job quét phụ thuộc (`pnpm audit --prod --audit-level=high`) hỏng vì cảnh báo mới: fast-xml-parser 4.4.1 (critical GHSA-m7jm-9gc2-mpf2, high GHSA-jmr7-xgp7-cmfj) qua `apps/api` > `@aws-sdk/client-s3`; multer 2.4.0 (high GHSA-q7qp-rjg7-q26m) và body-parser 2.3.0 (high GHSA-27r3-jxmh-p828) qua `@nestjs/platform-express`, công bố ngày 23/10/2026.
+- Nâng `@aws-sdk/client-s3` từ 3.700.0 lên ^3.1156.0: bản mới không còn dùng fast-xml-parser. `@nestjs/platform-express` bản mới nhất vẫn khóa multer 2.4.0 nên thêm `pnpm.overrides` ở `package.json` gốc: multer ^2.5.0, body-parser ^2.4.0.
+- Job `quet-phu-thuoc` còn hỏng ở bước dọn của `actions/setup-node` ("Path Validation Error"): job có `cache: pnpm` nhưng không cài gói, nên khi lockfile đổi (cache trượt) bước lưu cache không thấy thư mục store. Bỏ `cache: pnpm` khỏi job này. Giữ `continue-on-error` của bước audit theo quyết định ở YCTD-201 (báo, không chặn gộp).
+- Kết quả: `pnpm audit --prod --audit-level=high` sạch (còn 6 cảnh báo mức trung bình, không chặn CI); typecheck đạt; thử thật kho tệp S3 (SeaweedFS cục bộ) ghi, đọc, xóa theo tiền tố đạt.
+
+#### Quyết định
+
+- Ưu tiên nâng gói gốc; chỉ dùng overrides cho gói mà bản mới nhất của gói gốc vẫn khóa bản có lỗ hổng. Gỡ overrides khi `@nestjs/platform-express` dùng multer từ 2.5.0.
+
+#### Thay đổi
+
+- `apps/api/package.json`, `package.json` (`pnpm.overrides`), `pnpm-lock.yaml`, `.github/workflows/ci.yml` (job `quet-phu-thuoc`). Không đổi mã nguồn, không tăng phiên bản phần mềm.
+
+#### Vấn đề tồn đọng
+
+- Không.
+
+### 2026-10-26 — DT-23 phần 23d: trợ lý AI soạn nháp
+
+#### Công việc đã thực hiện
+
+- Đọc mục 15.2 đến 15.6, GD-102 đến GD-104 của `32_KE_HOACH_THEO_HE_THONG_SO.md`; rà kho khóa kết nối của trường (S3), gói và giới hạn (S5a), quy tắc tính phí (S5b), ngân hàng câu hỏi (22g1), kho học liệu (22h1).
+- Thêm tệp năm học 0128 (cờ `questions.ai_generated`), hệ thống 0071 đến 0073 (`ai_settings`, `ai_requests`, mở `integration_secrets` cho `ai`, cờ ở `learning_resources`), nền tảng 0200 đến 0202 (hạn mức AI của gói, khóa AI nền tảng, `ai_token_usage`, `plan_ai_pricing`, dòng phí `ai`).
+- Mã: `apps/api/src/ai-assistant/` (bộ nối `AiProvider`: `anthropic`, `mock`; lời nhắc từ mẫu cố định và bộ quét dữ liệu cá nhân; dịch vụ, điểm cuối `/ai/*`, việc nền `ai-usage-sync`); `database/src/billing/ai-pricing.ts`, `platform-ai.ts`; thành phần AI trong `computeCharges` và `issueInvoice`; dịch vụ định danh `/auth/platform/ai`; cổng quản trị 3.8 Trợ lý AI, nút Soạn nháp bằng AI ở ngân hàng câu hỏi và kho học liệu; cổng nền tảng trang Trợ lý AI và giới hạn AI ở Gói dịch vụ; e2e spec 153.
+- Đọc toàn văn Luật Trí tuệ nhân tạo 134/2025/QH15 và viết bản nháp `33_HO_SO_PHAP_LY/22_TRO_LY_AI_SOAN_NHAP.md` (PL-22), bổ sung PL-02, PL-04, PL-05, PL-08, `00_MUC_LUC.md`.
+- Thêm quy tắc BR-234 đến BR-236, chức năng P01-86 đến P01-89, màn hình MH-339 đến MH-341, kịch bản CT-1084 đến CT-1096, tiêu chí AC-869 đến AC-873, bảo mật BM-92, quyết định QĐ-35, mục kiến trúc 12G, mục cơ sở dữ liệu 18E.
+
+#### Quyết định
+
+- Nhà cung cấp là bảng tra theo mã (`anthropic` mặc định, `mock` chỉ khi `AI_MOCK=true`, từ chối ở `NODE_ENV=production`); không có `if` theo nhà cung cấp ở mã nghiệp vụ.
+- Token miễn phí trừ theo tỷ lệ vào chi phí mọi mô hình; mỗi dòng làm tròn lên theo bước; dòng phí AI không tính vào phí tối thiểu chung của quy tắc; kỳ không dùng AI thì không có dòng AI; gói chưa nhập đơn giá thì cấu hình `platform` chưa dùng được (số tiền để trống theo GD-103).
+- Câu hỏi do AI soạn chỉ được duyệt khi đã gửi thẩm định và do người khác duyệt; kế hoạch bài dạy là học liệu nháp riêng tư, nội dung lưu thành tệp Markdown.
+- Yêu cầu nhà cung cấp đã trả lời nhưng kết quả không dùng được vẫn tính token (đã tốn); lỗi nhà cung cấp, bị chặn, bị từ chối thì không tính.
+- Hạn mức tháng của gói áp cho cả hai cấu hình (cấu hình `school` chỉ để chống lạm dụng, để trống là không giới hạn).
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-214, `07_QUY_TAC_NGHIEP_VU.md` BR-234 đến BR-236, `10_YEU_CAU_CHUC_NANG.md` P01-86 đến P01-89, `11_TIEU_CHI_NGHIEM_THU.md` AC-869 đến AC-873, `12_KIEN_TRUC_HE_THONG.md` QĐ-35 và mục 12G, `14_DAC_TA_GIAO_DIEN.md` MH-339 đến MH-341, `16_CO_SO_DU_LIEU.md` mục 18E, `17_DAC_TA_API.md`, `21_KICH_BAN_KIEM_THU.md` CT-1084 đến CT-1096, `22_BAO_MAT.md` BM-92, `23_LICH_SU_PHIEN_BAN.md` 0.143.0.
+
+#### Vấn đề tồn đọng
+
+- Bản nháp pháp lý PL-22 chờ luật sư của Eric rà (mức rủi ro theo phụ lục Quyết định 33/2026/QĐ-TTg, chuyển dữ liệu ra nước ngoài, tư cách các bên); nhà cung cấp AI, vùng máy chủ và số tiền thu để trống chờ Eric.
+- Bộ quét dữ liệu cá nhân so tên đầy đủ (từ hai chữ) và mẫu số, thư điện tử; không bắt được tên viết tắt hoặc thông tin định danh gián tiếp.
 ### 2026-10-26 — DT-25: bộ nối nhà cung cấp định danh OIDC, sẵn cho VNeID (phần máy chủ)
 
 #### Công việc đã thực hiện

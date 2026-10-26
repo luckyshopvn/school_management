@@ -24,7 +24,7 @@ export interface ConnectorField {
 
 export interface ConnectorSpec {
   label: string;
-  group: 'payment' | 'sms' | 'zalo' | 'facebook' | 'storage';
+  group: 'payment' | 'sms' | 'zalo' | 'facebook' | 'storage' | 'ai';
   fields: ConnectorField[];
   // Cổng nhận thông báo tiền vào: hiển thị địa chỉ gọi lại của trường để dán vào cổng thanh toán
   webhookPath?: string;
@@ -107,6 +107,15 @@ export const CONNECTOR_SPECS: Record<SecretConnector, ConnectorSpec> = {
     fields: [
       field('page_access_token', 'Khóa truy cập trang', { secret: true }),
       field('graph_version', 'Phiên bản Graph API (mặc định v21.0)', { required: false, max: 12 }),
+    ],
+  },
+  // Trợ lý AI cấu hình `school` (DT-23 phần 23d, GD-102): trường tự nhập khóa nhà cung cấp, tự trả chi phí, nền tảng không thu phí
+  ai: {
+    label: 'Trợ lý AI (khóa của trường)',
+    group: 'ai',
+    fields: [
+      field('api_key', 'Khóa API của nhà cung cấp AI', { secret: true }),
+      field('endpoint', 'Địa chỉ API (mặc định của nhà cung cấp)', { kind: 'url', required: false }),
     ],
   },
   storage: {

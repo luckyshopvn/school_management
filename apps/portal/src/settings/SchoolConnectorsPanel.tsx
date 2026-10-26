@@ -228,9 +228,11 @@ export function SchoolConnectorsPanel({ onSaved }: { onSaved(message: string): v
         Mỗi trường dùng khóa của chính mình; thiếu cấu hình thì kết nối tương ứng tắt, không dùng khóa của trường khác.
       </p>
       {connectors.error ? <Alert tone="danger">{messageOf(connectors.error)}</Alert> : null}
-      {(connectors.data ?? []).map((connector) => (
-        <ConnectorCard key={connector.connector} connector={connector} onSaved={onSaved} />
-      ))}
+      {(connectors.data ?? [])
+        .filter((connector) => connector.group !== 'ai')
+        .map((connector) => (
+          <ConnectorCard key={connector.connector} connector={connector} onSaved={onSaved} />
+        ))}
       <BrandingCard onSaved={onSaved} />
     </section>
   );

@@ -489,6 +489,9 @@ import { FacebookPostsController, FacebookPostsService } from './integrations/fa
 import { FacebookPublisher } from './integrations/facebook-publisher.js';
 import { ZaloSender } from './integrations/zalo-sender.js';
 import { ZaloTokenStore } from './integrations/zalo-token-store.js';
+import { AiAssistantController, AiUsageJob } from './ai-assistant/ai-assistant.controller.js';
+import { AI_PROVIDERS, AiAssistantService } from './ai-assistant/ai-assistant.js';
+import { AiProviderRegistry } from './ai-assistant/ai-provider.js';
 import { ClassroomToolsController, ClassroomToolsService } from './classroom-tools/classroom-tools.js';
 
 @Module({})
@@ -769,6 +772,8 @@ export class ApplicationModule {
         ChildGroupsController,
         AccountExportsController,
         ProfessionalStandardsController,
+        // Trợ lý AI (DT-23 phần 23d)
+        AiAssistantController,
         ClassroomToolsController,
         ...(options.additionalControllers ?? []),
       ],
@@ -1147,6 +1152,10 @@ export class ApplicationModule {
         PublicRateLimiter,
         SchoolSettings,
         SchoolSettingsService,
+        // Trợ lý AI (DT-23 phần 23d)
+        AiAssistantService,
+        AiUsageJob,
+        { provide: AI_PROVIDERS, useValue: new AiProviderRegistry({ mock: configuration.aiMock === true }) },
         RecruitmentRequestsService,
         JobPostingsService,
         PublicRecruitmentService,

@@ -1654,7 +1654,7 @@ Cỡ ước lượng (một phần của DT-16 là một đơn vị, chỉ để
 |---|---|---|
 | 23a | 1 | Chưa làm; YCTD-211 giữ sẵn |
 | 23b | 1 | Đã làm (YCTD-212, phiên bản 0.140.0, PR 180): công cụ lớp học, ngoại tuyến, bản chụp danh sách lớp 24 giờ; năm học 0124, 0125; e2e 151 |
-| 23d | 1 | Chưa làm; YCTD-214 giữ sẵn |
+| 23d | 1 | Đã làm, YCTD-214, phiên bản 0.143.0, PR 184: bộ nối `AiProvider` (`anthropic`, `mock`), hai cấu hình khóa, bật tắt theo trường, lời nhắc từ mẫu cố định và bộ quét dữ liệu cá nhân, bản nháp qua duyệt 22g1 và kiểm duyệt 22h1, nhật ký, hạn mức theo gói, phí theo token qua S5b, màn hình quản trị, e2e spec 153, bản nháp pháp lý PL-22 |
 | 23c | 2 | Chưa làm; YCTD-213 giữ sẵn, bắt đầu khi 23a và 23b đã gộp |
 
 Bản kế hoạch này là YCTD-210, chỉ đổi tài liệu (không tăng phiên bản phần mềm).
@@ -2097,7 +2097,7 @@ Cỡ ước lượng (một phần của DT-16 là một đơn vị, chỉ để
 
 | Phần | Đợt | Tiến độ |
 |---|---|---|
-| 26a | 1 | Đã làm, YCTD-231, phiên bản 0.143.0: gói `packages/pwa` (mẫu service worker gom từ 23b, plugin Vite, đăng ký, kiểm bản mới, gỡ theo tiền tố, `InstallPrompt`, `UpdateBanner`), manifest và biểu tượng SVG theo trường (`/api/v1/public/pwa/*`, hệ thống 0090 `app_short_name`), ứng dụng phụ huynh có service worker; e2e 181. Chưa làm: màn hình học sinh của 23a (nối khi 23a gộp), ảnh PNG và màn hình chờ iOS theo trường (cần thư viện xử lý ảnh, để phần sau) |
+| 26a | 1 | Đã làm, YCTD-231, phiên bản 0.144.0: gói `packages/pwa` (mẫu service worker gom từ 23b, plugin Vite, đăng ký, kiểm bản mới, gỡ theo tiền tố, `InstallPrompt`, `UpdateBanner`), manifest và biểu tượng SVG theo trường (`/api/v1/public/pwa/*`, hệ thống 0090 `app_short_name`), ứng dụng phụ huynh có service worker; e2e 181. Chưa làm: màn hình học sinh của 23a (nối khi 23a gộp), ảnh PNG và màn hình chờ iOS theo trường (cần thư viện xử lý ảnh, để phần sau) |
 | 26b | 1 | Chưa làm; YCTD-232 giữ sẵn |
 | 26c | 1 | Chưa làm; YCTD-233 giữ sẵn |
 | 26d | 2 | Chưa làm; YCTD-234 giữ sẵn |

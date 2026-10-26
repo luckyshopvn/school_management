@@ -157,6 +157,9 @@ export class SchoolSettingsService {
           await storage.delete(key);
           return { connector, ok: true, message: 'Ghi và xóa tệp thử thành công' };
         }
+        case 'ai':
+          // Kiểm tra kết nối AI ở màn hình Trợ lý AI (có ghi nhật ký yêu cầu và chọn cấu hình khóa), không ở đây
+          throw ruleViolationError('YCTD-214', 'Kiểm tra kết nối AI ở màn hình Trợ lý AI');
         case 'vietqr':
           return { connector, ok: true, message: 'Cổng VietQR tĩnh không cần khóa; đối soát qua sao kê ngân hàng' };
         default: {
