@@ -8,33 +8,19 @@ import {
   type SchoolYearDatabase,
 } from '@school-management/database';
 import { createTestUser } from '@school-management/identity/testing';
-import { E2E_PARENT_PORT, E2E_SCHOOL_YEAR_DATABASE_PREFIX, E2E_TEACHER_PORT } from '../e2e-environment.mjs';
+import { E2E_SCHOOL_YEAR_DATABASE_PREFIX, E2E_TEACHER_PORT } from '../e2e-environment.mjs';
 
 // Giao diện thông báo đẩy (DT-26 phần 26b, YCTD-232), kịch bản CT-26b-giao-dien: giáo viên mở "Cài đặt thông báo", thấy các nhóm
 // loại thông báo, tắt một nhóm thì tải lại vẫn tắt (máy chủ lưu); e2e một trường không bật đẩy nên máy báo "Hệ thống chưa bật";
-// iPhone mở bằng Safari được hướng dẫn cài lên màn hình chính thay cho nút bật; mở trong Zalo báo không nhận được đẩy. Service
-// worker chung của ứng dụng phụ huynh nhận một tin đẩy (gửi qua giao thức gỡ lỗi của Chromium) và hiện thông báo với tiêu đề theo
-// nhóm; tin hỏng hiện câu chung. Dữ liệu giả
+// iPhone mở bằng Safari được hướng dẫn cài lên màn hình chính thay cho nút bật; mở trong Zalo báo không nhận được đẩy. Phần nhận
+// đẩy của service worker kiểm ở packages/pwa/src/push/service-worker-push.test.ts (Chromium chạy ẩn không hiện thông báo). Dữ liệu giả
 const identity = createDatabase<IdentityDatabase>(readConnectionString('identity'));
 let schoolYear: ReturnType<typeof createDatabase<SchoolYearDatabase>>;
 const TEACHER_URL = `http://localhost:${E2E_TEACHER_PORT}`;
-const PARENT_URL = `http://localhost:${E2E_PARENT_PORT}`;
 const IPHONE_SAFARI =
   'Mozilla/5.0 (iPhone; CPU iPhone OS 17_5 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.5 Mobile/15E148 Safari/604.1';
 const ANDROID_ZALO =
   'Mozilla/5.0 (Linux; Android 14; SM-A546E) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/125.0.0.0 Mobile Safari/537.36 Zalo android/12100';
-
-// Mã chạy trong trang dùng kiểu của trình duyệt, gói kiểm thử không nạp thư viện kiểu DOM (ép kiểu ngay trong hàm)
-type BrowserGlobals = {
-  navigator: {
-    serviceWorker: {
-      ready: Promise<{
-        scope: string;
-        getNotifications(): Promise<Array<{ title: string; body: string; tag: string }>>;
-      }>;
-    };
-  };
-};
 
 test.beforeAll(async () => {
   const systemUrl = readConnectionString('system');
@@ -59,9 +45,7 @@ async function signInTeacher(browser: Browser, userAgent?: string): Promise<Page
   return page;
 }
 
-test('CT-26b-8: cài đặt thông báo đẩy theo nhóm, hướng dẫn theo máy, service worker hiện thông báo đẩy', async ({
-  browser,
-}) => {
+test('CT-26b-8: cài đặt thông báo đẩy theo nhóm, hướng dẫn theo máy', async ({ browser }) => {
   test.setTimeout(180_000);
 
   // Giáo viên: nhóm loại thông báo, tắt một nhóm thì máy chủ lưu
@@ -97,49 +81,4 @@ test('CT-26b-8: cài đặt thông báo đẩy theo nhóm, hướng dẫn theo m
     'Trình duyệt này không nhận được thông báo đẩy',
   );
   await zalo.context().close();
-
-  // Service worker chung (ứng dụng phụ huynh) hiện thông báo khi có tin đẩy
-  const context = await browser.newContext();
-  await context.grantPermissions(['notifications'], { origin: PARENT_URL });
-  const parent = await context.newPage();
-  await parent.goto(PARENT_URL);
-  await parent.evaluate(async () => {
-    await (globalThis as unknown as BrowserGlobals).navigator.serviceWorker.ready;
-  });
-  const cdp = await context.newCDPSession(parent);
-  const registrations: Array<{ registrationId: string; scopeURL: string; isDeleted: boolean }> = [];
-  cdp.on('ServiceWorker.workerRegistrationUpdated', (event) => {
-    registrations.push(...event.registrations);
-  });
-  await cdp.send('ServiceWorker.enable');
-  await expect
-    .poll(() => registrations.find((item) => item.scopeURL === `${PARENT_URL}/` && !item.isDeleted)?.registrationId)
-    .toBeTruthy();
-  const registrationId =
-    registrations.find((item) => item.scopeURL === `${PARENT_URL}/` && !item.isDeleted)?.registrationId ?? '';
-  const readNotifications = () =>
-    parent.evaluate(async () =>
-      (await (await (globalThis as unknown as BrowserGlobals).navigator.serviceWorker.ready).getNotifications()).map(
-        (item) => ({ title: item.title, body: item.body, tag: item.tag }),
-      ),
-    );
-  await cdp.send('ServiceWorker.deliverPushMessage', {
-    origin: PARENT_URL,
-    registrationId,
-    data: JSON.stringify({
-      title: 'Học phí · Trường thử',
-      body: 'Có thông báo mới về học phí và thanh toán. Mở ứng dụng để xem.',
-      tag: 'nhom-fees',
-      data: { notification_id: 'thu-1', group: 'fees', url: '/thong-bao?id=thu-1' },
-    }),
-  });
-  await expect.poll(readNotifications).toContainEqual({
-    title: 'Học phí · Trường thử',
-    body: 'Có thông báo mới về học phí và thanh toán. Mở ứng dụng để xem.',
-    tag: 'nhom-fees',
-  });
-  // Tin hỏng vẫn hiện câu chung, không làm hỏng service worker
-  await cdp.send('ServiceWorker.deliverPushMessage', { origin: PARENT_URL, registrationId, data: 'không phải JSON' });
-  await expect.poll(async () => (await readNotifications()).map((item) => item.title)).toContain('Thông báo mới');
-  await context.close();
 });
