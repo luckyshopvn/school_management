@@ -11,6 +11,23 @@ Mã yêu cầu thay đổi dạng `YCTD-nn`, đánh số tăng dần, không tá
 
 Các thay đổi trước phiên bản 0.4.0 chưa có sổ này; xem `23_LICH_SU_PHIEN_BAN.md` các phiên bản 0.1.0 đến 0.3.1.
 
+Từ YCTD-291 (ngày 2026-10-26), mục YCTD mới của mỗi PR nằm ở tệp mảnh `tai_lieu/thay_doi_cho_gom/YCTD-<số>-<ten-ngan>.md` cho tới lần gom; PR thường không sửa tệp này. Lần gom chép các mục vào đây theo thứ tự merge (quy ước ở `thay_doi_cho_gom/README.md`). Khi chọn số YCTD, kiểm cả các tệp ở thư mục đó.
+
+### YCTD-291: Đổi quy ước ghi tài liệu chung sang tệp mảnh theo từng PR – 2026-10-26
+
+- Lý do: nhiều phiên làm song song (DT-23 đến DT-28), mỗi PR đều sửa `02_NHAT_KY_DU_AN.md`, `24_YEU_CAU_THAY_DOI.md`, `23_LICH_SU_PHIEN_BAN.md`, bảng mốc phát hành ở `01_KE_HOACH_TONG_THE.md`, số đếm ở `index.md` và số phiên bản đầu các tài liệu này. Mỗi lần một PR merge, mọi PR khác xung đột tài liệu, phải gộp main và chạy lại CI khoảng 40 phút; `gh pr update-branch` không gộp được vì xung đột. Eric đồng ý ngày 2026-10-26 chuyển sang tệp mảnh theo từng PR, gom định kỳ.
+- Nội dung thay đổi (chi tiết Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11):
+  - **Thư mục tệp mảnh** `tai_lieu/thay_doi_cho_gom/`: mỗi PR thêm một tệp `YCTD-<số>-<ten-ngan>.md` có phần đầu tệp (`yctd`, `tieu_de`, `ngay`, `phien_ban_de_xuat`) và các mục `## 02` (mục nhật ký), `## 24` (mục YCTD), `## 23` (mục phiên bản, khi có), `## 01` (dòng bảng mốc phát hành), `## index` (cộng số đếm), `## Nối dòng` (nối nội dung vào dòng bảng dùng chung, ví dụ dòng phân hệ ở `03`). Số phiên bản phần mềm trong tệp mảnh là đề xuất, nội dung dùng chỗ giữ `{PHIEN_BAN}`.
+  - **Quy tắc**: PR thường không sửa `02`, `23`, `24`, `index.md`, bảng mốc phát hành ở `01`, không tăng số phiên bản đầu tài liệu; nội dung riêng của phần (dòng trạng thái ở `32`, dòng ở `34`, đặc tả `07`, `08`, `10`, `11`, `14`, `16`, `17`, `21`, `22`) vẫn sửa tại chỗ.
+  - **Tập lệnh gom** `scripts/gom-thay-doi.mjs` (Node, không thêm gói): kiểm mọi tệp mảnh (sai thì dừng, không ghi gì); xếp theo thứ tự merge (`git log --first-parent`); chèn mục 02, 24, 23 lên đầu, chốt số phiên bản phần mềm (đề xuất có số sửa khác 0 thì tăng số sửa, ngược lại tăng số phụ) và thay `{PHIEN_BAN}`; chèn dòng 01 trước dòng `1.0.0`; cộng số ở `index.md`, nối dòng; tính lại khoảng `BR`, `AC`, `CT`, `YCTD` và số "Yêu cầu thay đổi" ở `index.md`; tăng số phiên bản đầu mỗi tài liệu chung đã sửa đúng một lần; xoá tệp mảnh đã gom. Chế độ `--kiem` chỉ kiểm định dạng.
+  - **CI**: việc `kiem-thu` thêm bước `node scripts/gom-thay-doi.mjs --kiem` (sai định dạng thì hỏng) và bước cảnh báo, không chặn, khi PR có nhánh không bắt đầu bằng `gom-` sửa trực tiếp `02`, `23`, `24`, `index.md`.
+  - PR này sửa `02`, `24`, `index.md` theo cách cũ lần cuối.
+- Thành phần bị ảnh hưởng: `scripts/gom-thay-doi.mjs` (mới), `tests/tai-lieu/gom-thay-doi.test.mjs` (mới), `tests/package.json`, `.github/workflows/ci.yml`; tài liệu `tai_lieu/thay_doi_cho_gom/README.md` (mới), `01` mục 9, `02`, `19` mục 2, `23` mục 1, `24`, `index.md`.
+- Dữ liệu, API, giao diện, quyền bị ảnh hưởng: không.
+- Ảnh hưởng chức năng cũ: không đổi mã nghiệp vụ. Phiên bản phần mềm giữ nguyên.
+- Kiểm thử cần thực hiện: kiểm thử đơn vị `tests/tai-lieu/gom-thay-doi.test.mjs` (gom theo thứ tự merge, chốt phiên bản, tăng phiên bản tài liệu một lần, cộng số đếm, nối dòng, xoá tệp mảnh; dừng khi sai định dạng; các lỗi định dạng thường gặp; trùng YCTD); thử gom trên bản sao `tai_lieu`. Kết quả ngày 26/10/2026: đạt.
+- Trạng thái: Đã triển khai
+
 ### YCTD-226: DT-25 bước 25b: giao diện đăng nhập và liên kết bằng nhà cung cấp định danh – 2026-10-26
 
 - Lý do: bước 25b của kế hoạch DT-25 (`32` mục 17.3), làm sau khi DT-24 gộp màn hình đăng nhập mới (điểm gắn `ExternalLoginProviders.tsx`).
@@ -96,30 +113,6 @@ Các thay đổi trước phiên bản 0.4.0 chưa có sổ này; xem `23_LICH_S
 - Ảnh hưởng chức năng cũ: không. Phiên bản phần mềm giữ nguyên (thay đổi chỉ tài liệu); số phiên bản tài liệu đặt trên số của nhánh chính lúc viết; gộp sau thì đánh lại theo nhánh chính lúc gộp.
 - Kiểm thử cần thực hiện: rà bảng đủ cột; số YCTD, migration, e2e, GD, RR giữ sẵn không trùng DT-23, DT-26, DT-27 và các số của DT-24, DT-25 (PR 181, 182 đã gộp); kiểm tra định dạng tài liệu đạt.
 - Trạng thái: Đã triển khai
-
-### YCTD-232: DT-26 phần 26b: thông báo đẩy Web Push, phần máy chủ – 2026-10-26
-
-- Lý do: phần 26b của `32_KE_HOACH_THEO_HE_THONG_SO.md` mục 18 (kế hoạch DT-26, YCTD-230). Phiên điều phối giao làm phần máy chủ trước; phần giao diện (màn hình "Cài đặt thông báo" ở ứng dụng giáo viên, phụ huynh và mã nhận đẩy ở service worker `packages/pwa/src/push/`) nối sau khi 26a (PR 185) gộp, ở PR tiếp theo.
-- Nội dung thay đổi (Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11 ở những chỗ kế hoạch chưa chốt):
-  - **Kênh `push`** của hàng đợi thông báo chung (năm học 0140: `NotificationChannel`, ràng buộc `channel`, `delivered_via`): tiến trình `notification-dispatch` khi xử lý dòng `in_app` của một tài khoản cụ thể có máy đăng ký đẩy còn hiệu lực và chưa tắt nhóm của loại thì thêm dòng kênh `push`; dòng `push` gửi tới mọi máy của người đó qua `PushSender`, cùng khóa dòng, thử lại 15 phút tối đa 5 lần; không tính vào giới hạn 5 tin nhắn mỗi ngày; cùng người, cùng nhóm đã đẩy trong `PUSH_COALESCE_MINUTES` (mặc định 5) phút thì gộp (ghi `limited`). Người nhận theo vai trò (không phải tài khoản cụ thể) chưa có kênh đẩy ở phần này.
-  - **Bộ nối `PushSender`** (`apps/api/src/notifications/push/push-sender.ts`): `web-push` (thư viện `web-push` 3.6.7: RFC 8030, mã hóa RFC 8291, VAPID RFC 8292) và `development` (giả lập, ghi trong bộ nhớ và tệp `PUSH_DEVELOPMENT_OUTBOX`); chọn bằng `PUSH_PROVIDER` qua bảng ánh xạ, không có `if` theo nhà cung cấp trong mã nghiệp vụ; chừa `fcm`, `apns` cho 26g; dịch vụ đẩy báo 404, 410 thì thu hồi đăng ký.
-  - **Đăng ký theo máy** (hệ thống 0091 `push_subscriptions`): người dùng, ứng dụng (`teacher`, `parent`, `student`), loại (`web_push`, chừa `fcm`, `apns`), địa chỉ đăng ký và khóa nhận mã hóa bằng khóa của trường, mã băm có khóa chống trùng, nguồn gốc, nhãn máy ngắn, lần thấy gần nhất, số lần lỗi, thu hồi kèm lý do (`user`, `logout`, `reassigned`, `expired`, `stale`, `device-limit`); một địa chỉ còn hiệu lực chỉ thuộc một người (máy dùng chung đổi người thì thu hồi đăng ký cũ); tối đa 20 máy mỗi người; không thấy quá `PUSH_SUBSCRIPTION_RETENTION_DAYS` (mặc định 90, GD-126) ngày thì dọn.
-  - **Tuỳ chọn theo nhóm** (hệ thống 0092 `notification_preferences`, `notification_urgent_templates`): tám nhóm cố định ánh xạ từ `template_code` theo tiền tố (điểm danh và đón trả, học phí, sức khỏe và thuốc, học tập và điểm, thi trực tuyến, tin nhắn, công việc của cán bộ, thông báo chung); mặc định bật, chỉ áp cho kênh đẩy; loại do quản trị trường (P01.setting.manage) đánh dấu khẩn không tắt được.
-  - **Nội dung đẩy** (`push-groups.ts`): tiêu đề theo nhóm và tên trường, một câu chung, mã thông báo; không lấy tiêu đề, nội dung gốc (không có họ tên, số tiền, điểm, sức khỏe) (GD-122).
-  - **Khóa VAPID** (nền tảng 0230 `platform_push_keys`): một cặp khóa của nền tảng, khóa riêng mã hóa bằng khóa gốc; lệnh `platform generate-vapid-keys --subject mailto:<thư>` (thay khóa đang dùng, đăng ký cũ phải đăng ký lại) và `--print-only` cho bản một trường (`VAPID_PUBLIC_KEY`, `VAPID_PRIVATE_KEY`, `VAPID_SUBJECT`); không ghi khóa vào kho.
-  - **API:** `GET /public/push/vapid-public-key`; `GET, POST /push/subscriptions`, `POST /push/subscriptions/unsubscribe` (ứng dụng gọi khi đăng xuất), `DELETE /push/subscriptions/:id`; `GET, PUT /push/preferences`; `GET, PUT /push/urgent-templates`.
-  - Cấu hình: `PUSH_PROVIDER` (`development` bị chặn khi `NODE_ENV=production`), `VAPID_*`, `PUSH_DEVELOPMENT_OUTBOX`, `PUSH_COALESCE_MINUTES`, `PUSH_SUBSCRIPTION_RETENTION_DAYS`. Chưa đặt `PUSH_PROVIDER` thì không có kênh đẩy, mọi thứ như cũ.
-  - Tài liệu: `01` (dòng 0.148.0), `02`, `16` (mục 18F), `17` (điểm cuối mới), `23` (0.148.0), `32` (tiến độ 26b), `index.md`.
-  - Kiểm thử: e2e `182-push-isolation.spec.ts` ở dự án nhiều trường (`MULTI_TENANT_SPEC` thêm 182), `playwright.multi.config.ts` bật bộ giả lập đẩy ghi ra tệp.
-- Thành phần bị ảnh hưởng: `database/school-year` (0140, schema), `database/system` (0091, 0092, schema), `database/platform` (0230, schema), `database/src/push-keys.ts`, `platform-command.ts`; `apps/api` (`notifications/push/`, `notification-dispatcher.ts`, `application.module.ts`, `common/configuration.ts`, `tenancy-route-policy.ts`, `test-support.ts`, phụ thuộc `web-push`); `tests` (spec 182, `e2e-multi-environment.mjs`, `playwright.multi.config.ts`); `.gitignore`.
-- Dữ liệu bị ảnh hưởng: ba bảng mới ở cơ sở dữ liệu hệ thống của trường, một bảng ở nền tảng; ràng buộc kênh ở `notification_recipients`.
-- API bị ảnh hưởng: thêm các điểm cuối ở trên; không đổi điểm cuối cũ.
-- Giao diện bị ảnh hưởng: chưa (màn hình "Cài đặt thông báo" và mã nhận đẩy ở service worker ở PR nối sau 26a).
-- Quyền bị ảnh hưởng: `P01.setting.manage` đánh dấu loại khẩn; mỗi người chỉ đọc, gỡ máy của mình.
-- Ảnh hưởng chức năng cũ: không; người chưa đăng ký đẩy hoặc bản chưa đặt `PUSH_PROVIDER` không có dòng kênh `push`.
-- Kiểm thử cần thực hiện: `apps/api` `notifications/push/push.test.ts` (CT-26b-1 đến CT-26b-6), `notification-dispatcher.test.ts`, ma trận cách ly của API; e2e 182 (CT-26b-7) ở dự án nhiều trường; typecheck, lint, định dạng.
-- Trạng thái: Đã triển khai (phần máy chủ)
-
 ### YCTD-214: DT-23 phần 23d: trợ lý AI soạn câu hỏi và kế hoạch bài dạy – 2026-10-26
 
 - Lý do: phần 23d của `32_KE_HOACH_THEO_HE_THONG_SO.md` mục 15 (YCTD-210); Eric đồng ý đưa AI vào ngày 2026-10-26 và chốt GD-102 (hai cấu hình khóa), GD-103 (thu theo gói và token, số tiền để trống).

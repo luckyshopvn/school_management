@@ -13,20 +13,9 @@
 3. Phiên bản đánh số theo dạng chính.phụ.sửa. Tăng số chính khi thay đổi phá vỡ tương thích, tăng số phụ khi thêm chức năng, tăng số sửa khi sửa lỗi.
 4. Bản phần mềm 1.0.0, 1.1.0, 1.2.0 được Eric nghiệm thu ngày 13/10/2026, gắn thẻ `v1.0.0`, `v1.1.0`, `v1.2.0` (YCTD-92), ứng với phiên bản tài liệu 0.31.0, 0.42.0, 0.48.0. Các mục dưới đây ghi các mốc của bộ tài liệu.
 5. Từ phiên bản 0.4.0, mỗi mục ghi theo mẫu của Vibecoding_Flow; các mục trước giữ nguyên dạng bảng và tên tệp cũ vì là ghi nhận lịch sử.
+6. Từ YCTD-291 (ngày 2026-10-26), mục phiên bản mới của mỗi PR nằm ở tệp mảnh trong thư mục `tai_lieu/thay_doi_cho_gom/` cho tới lần gom, với số phiên bản đề xuất và chỗ giữ `{PHIEN_BAN}`; PR thường không sửa tệp này. Số chính thức chốt khi gom theo thứ tự merge (quy ước ở `thay_doi_cho_gom/README.md`).
 
 ## 2. Danh sách phiên bản
-
-### Phiên bản 0.148.0 – 2026-10-26
-
-- Phạm vi thay đổi: DT-26 phần 26b, thông báo đẩy Web Push, phần máy chủ (YCTD-232).
-- Chức năng mới: kênh `push` của hàng đợi thông báo chung; bộ nối `PushSender` (`web-push`, `development`); đăng ký đẩy theo máy mã hóa bằng khóa của trường; tuỳ chọn tắt theo tám nhóm loại, loại khẩn không tắt được; gộp đẩy cùng nhóm trong 5 phút; khóa VAPID của nền tảng và lệnh `platform generate-vapid-keys`.
-- Lỗi đã sửa: không có.
-- Thay đổi dữ liệu: năm học 0140 (kênh `push`); hệ thống 0091 `push_subscriptions`, 0092 `notification_preferences`, `notification_urgent_templates`; nền tảng 0230 `platform_push_keys`.
-- Thay đổi API: `/public/push/vapid-public-key`, `/push/subscriptions`, `/push/subscriptions/unsubscribe`, `/push/subscriptions/{id}`, `/push/preferences`, `/push/urgent-templates`; biến `PUSH_PROVIDER`, `VAPID_PUBLIC_KEY`, `VAPID_PRIVATE_KEY`, `VAPID_SUBJECT`, `PUSH_DEVELOPMENT_OUTBOX`, `PUSH_COALESCE_MINUTES`, `PUSH_SUBSCRIPTION_RETENTION_DAYS`.
-- Kiểm thử: CT-26b-1 đến CT-26b-7 trong mã kiểm thử. Kết quả ghi ở `02_NHAT_KY_DU_AN.md` mục cùng ngày.
-- Rủi ro: nội dung đẩy đi qua máy chủ của nhà cung cấp trình duyệt ở nước ngoài (chỉ tiêu đề nhóm và tên trường); người nhận theo vai trò chưa có kênh đẩy; giao diện bật đẩy chờ 26a.
-- Khả năng tương thích: chưa đặt `PUSH_PROVIDER` hoặc người chưa đăng ký đẩy thì như cũ.
-- Phương án quay lui: bỏ `PUSH_PROVIDER` để ngừng kênh đẩy không cần quay lui mã; hoàn lại commit gộp để bỏ cả tính năng.
 
 ### Phiên bản 0.147.0 – 2026-10-26
 
