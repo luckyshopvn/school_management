@@ -1,9 +1,14 @@
+import { randomBytes } from 'node:crypto';
 import { existsSync } from 'node:fs';
 import { defineConfig, devices } from '@playwright/test';
 import { replaceDatabaseName } from '@school-management/database';
 import {
   E2E_API_PORT,
   E2E_IDENTITY_PORT,
+  E2E_OIDC_CLIENT_ID,
+  E2E_OIDC_CLIENT_SECRET,
+  E2E_OIDC_MOCK_PORT,
+  E2E_OIDC_PROVIDER_CODE,
   E2E_PARENT_PORT,
   E2E_TEACHER_PORT,
   E2E_PORTAL_PORT,
@@ -44,7 +49,26 @@ export default defineConfig({
     {
       command: 'node ../apps/identity/dist/main.js',
       url: `${identityBaseUrl}/api/v1/health`,
-      env: { IDENTITY_PORT: String(E2E_IDENTITY_PORT), API_BASE_URL: apiBaseUrl, LOGIN_REQUESTS_PER_MINUTE: '60' },
+      env: {
+        IDENTITY_PORT: String(E2E_IDENTITY_PORT),
+        API_BASE_URL: apiBaseUrl,
+        LOGIN_REQUESTS_PER_MINUTE: '60',
+        // Nhà cung cấp OIDC giả lập của spec 165 (DT-25): nền tảng khai, mỗi trường vẫn tắt cho tới khi bật nên spec khác không đổi.
+        // Liên kết tài khoản cần khóa mã hóa ở chế độ một trường: dùng khóa của .env nếu có, không thì sinh khóa ngẫu nhiên cho lượt chạy
+        EXTERNAL_IDENTITY_PROVIDERS: JSON.stringify([
+          {
+            code: E2E_OIDC_PROVIDER_CODE,
+            profile: 'oidc',
+            display_name: 'Định danh giả lập',
+            issuer: `http://127.0.0.1:${E2E_OIDC_MOCK_PORT}/oidc-gia-lap`,
+            client_id: E2E_OIDC_CLIENT_ID,
+            jwks_cooldown_seconds: 0,
+          },
+        ]),
+        [`EXTERNAL_IDENTITY_${E2E_OIDC_PROVIDER_CODE.toUpperCase().replaceAll('-', '_')}_CLIENT_SECRET`]:
+          E2E_OIDC_CLIENT_SECRET,
+        TOTP_ENCRYPTION_KEY: process.env.TOTP_ENCRYPTION_KEY || randomBytes(32).toString('base64'),
+      },
     },
     {
       command: 'node ../apps/api/dist/main.js',

@@ -1,5 +1,6 @@
 import { lifecycleSettingsFrom, type LifecycleSettings } from '@school-management/database';
 import { decodeBase64Key, readSmsProviderSettings, type SmsProviderSettings } from '@school-management/server';
+import { readProviderDefinitions, type ExternalProviderDefinition } from '../external-identity/provider-profiles.js';
 
 // Cấu hình của dịch vụ định danh; bí mật đọc từ biến môi trường, không đặt trong mã nguồn (QU-05)
 export interface IdentityConfiguration {
@@ -25,6 +26,9 @@ export interface IdentityConfiguration {
   totpEncryptionKey?: Buffer | null;
   // Khóa công khai cũ của mã phiên, còn nhận trong thời gian xoay khóa ký (DT-SaaS phần S8b)
   tokenPreviousPublicKeyPem?: string | null;
+  // Nhà cung cấp định danh bên ngoài nền tảng khai (DT-25): EXTERNAL_IDENTITY_PROVIDERS và EXTERNAL_IDENTITY_<MÃ>_CLIENT_SECRET; trống là
+  // không có nhà cung cấp nào
+  externalIdentityProviders?: ExternalProviderDefinition[];
 }
 
 export const IDENTITY_CONFIGURATION = Symbol('IDENTITY_CONFIGURATION');
@@ -72,5 +76,6 @@ export function readConfigurationFromEnvironment(): IdentityConfiguration {
     platformLifecycle: lifecycleSettingsFrom(process.env),
     errorAlertPerHour:
       Number(process.env.PLATFORM_ERROR_ALERT_PER_HOUR) > 0 ? Number(process.env.PLATFORM_ERROR_ALERT_PER_HOUR) : 20,
+    externalIdentityProviders: readProviderDefinitions(process.env),
   };
 }

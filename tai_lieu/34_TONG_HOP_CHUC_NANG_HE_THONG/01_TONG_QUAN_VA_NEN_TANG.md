@@ -248,6 +248,7 @@ Nguồn: `apps/identity/src/authentication/*`, `apps/identity/src/settings/ident
 | Mã một lần (OTP) | `POST /auth/otp/request` (`phone`), `POST /auth/otp/login` (`phone`, `code`) | Chỉ tài khoản có duy nhất vai trò Phụ huynh (VT-14), kênh `parent` | Mã 6 chữ số gửi qua SMS; hạn 5 phút, nhập sai tối đa 5 lần thì mã hết hiệu lực, gửi tối đa 5 lần mỗi giờ mỗi số (cấu hình được, `identity_settings`); phản hồi như nhau dù số có hay không (BM-61); mã mới làm mã cũ hết hiệu lực; đăng nhập bằng mã cấp phiên đầy đủ kể cả khi chưa đổi mật khẩu mặc định (Q-147) |
 | Đăng nhập thay | `POST /auth/impersonation`, `POST /auth/impersonation/exit` | Cổng quản trị, quyền `P01.account.impersonate` (mặc định VT-02) | Xem mục Đăng nhập thay |
 | Vận hành nền tảng | `POST /auth/platform/login` | Chỉ ở tên miền cổng nền tảng khi bật nhiều trường | Tài khoản ở `platform_operators`, khóa 15 phút sau 5 lần sai, mã phiên có đối tượng riêng, hạn 8 giờ |
+| Nhà cung cấp định danh ngoài (OIDC, sẵn cho VNeID; DT-25, YCTD-225) | `GET /auth/external/providers`, `POST /auth/external/:provider/start`, `POST /auth/external/callback`, `POST /auth/external/complete` | Tài khoản đã tự liên kết, mọi kênh; chỉ khi nền tảng khai nhà cung cấp và trường bật (mặc định tắt) | Không tự tạo tài khoản; liên kết, gỡ liên kết ở `POST /auth/external/:provider/link`, `/unlink` cần mật khẩu và mã hai lớp; chỉ lưu subject mã hóa; người đã bật xác thực hai lớp vẫn nhập mã trừ khi trường bật "coi là đạt"; nhóm vai trò do trường chọn, mặc định trừ học sinh; dưới 14 tuổi bị từ chối. Nút trên màn hình đăng nhập làm sau DT-24 |
 
 **Mã phiên và mã làm mới** (XT-02, QĐ-22):
 
@@ -791,7 +792,7 @@ Nguồn: tài liệu 32 mục 18, YCTD-230 (Eric yêu cầu ngày 2026-10-26 the
 
 | Phần | Đợt | Nội dung kế hoạch (tài liệu 32 mục 18.3) | Dấu hiệu trong mã |
 |---|---|---|---|
-| 26a Vỏ PWA dùng chung | 1 | Gói `packages/pwa`, manifest, biểu tượng, màn hình chờ theo thương hiệu từng trường, cài lên màn hình chính, hướng dẫn cài cho iOS, gom service worker của 23b | **Đã có (YCTD-231, phiên bản 0.142.0):** `packages/pwa`, `/api/v1/public/pwa/*`, `school_branding.app_short_name`; còn thiếu màn hình học sinh của 23a, ảnh PNG và màn hình chờ iOS theo trường |
+| 26a Vỏ PWA dùng chung | 1 | Gói `packages/pwa`, manifest, biểu tượng, màn hình chờ theo thương hiệu từng trường, cài lên màn hình chính, hướng dẫn cài cho iOS, gom service worker của 23b | **Đã có (YCTD-231, phiên bản 0.143.0):** `packages/pwa`, `/api/v1/public/pwa/*`, `school_branding.app_short_name`; còn thiếu màn hình học sinh của 23a, ảnh PNG và màn hình chờ iOS theo trường |
 | 26b Thông báo đẩy Web Push | 1 | Kênh `push` của hàng đợi thông báo chung, đăng ký theo người dùng và thiết bị, tắt theo loại, khóa VAPID của nền tảng | `NotificationChannel` chỉ có `in_app`, `sms`, `zalo` |
 | 26c Khung kiểm thử theo khổ thiết bị | 1 | Dự án Playwright khổ điện thoại, máy tính bảng dọc và ngang, việc CI riêng, kiểm vùng chạm 44 px | Playwright chỉ có dự án `chromium` khổ máy tính |
 | 26d Máy tính bảng: giáo viên, phụ huynh | 2 | Chế độ lớp học (điểm danh, sổ đầu bài, công cụ lớp học) chia hai khung, chế độ trình chiếu; phụ huynh hai cột | Bố cục một cột `max-w-md`, `max-w-lg` |
@@ -825,3 +826,9 @@ Nguồn: tài liệu 32 mục 19, YCTD-250. Mục này chỉ ghi để người 
 | 27g Hồ sơ và xác minh gia sư | 4 | Xác minh danh tính (OIDC, VNeID), bằng cấp, lý lịch tư pháp, đăng ký kinh doanh, trang công khai theo Mẫu 02, tìm kiếm, đánh giá | Chưa có |
 | 27h Đặt buổi, thanh toán, tranh chấp | 4 | Thanh toán qua tổ chức có giấy phép hoặc trả thẳng gia sư, hoa hồng, giải ngân, hoàn tiền, tranh chấp, khấu trừ thuế cấu hình | Chưa có |
 | 27i An toàn trẻ em ở chợ | 4 | Tin nhắn luôn có phụ huynh, lọc liên lạc ngoài, báo cáo vi phạm, kiểm duyệt | Chưa có |
+
+## 9. DT-25: bộ nối nhà cung cấp định danh OIDC, sẵn cho VNeID
+
+Kế hoạch ở `32_KE_HOACH_THEO_HE_THONG_SO.md` mục 17, YCTD-225. **Phần máy chủ đã có trong mã** (`apps/identity/src/external-identity/`): lớp trừu tượng `IdentityProvider`, bộ nối OIDC chung (authorization code + PKCE, state, nonce, discovery, kiểm chữ ký `id_token` qua JWKS, tải lại khóa khi nhà cung cấp quay khóa), hồ sơ `vneid` với các tham số "chờ tài liệu RAR" là cấu hình; nền tảng khai nhà cung cấp ở `EXTERNAL_IDENTITY_PROVIDERS` và `EXTERNAL_IDENTITY_<MÃ>_CLIENT_SECRET`; trường bật tắt, chọn nhóm vai trò, mã ứng dụng và khóa riêng (mã hóa theo khóa của trường) ở `PUT /auth/external/settings/:provider` (quyền `P01.account.manage`); bảng định danh 0140 `external_identity_providers`, `external_identities` (chỉ subject mã hóa và băm), `external_identity_events`; nhà cung cấp OIDC giả lập cho kiểm thử; e2e spec 165.
+
+**Chưa có:** nút "Đăng nhập bằng VNeID" trên màn hình đăng nhập, trang quay về `/dang-nhap/ben-ngoai`, mục liên kết ở "Tài khoản của tôi", màn hình cấu hình của trường (bước 25b, làm sau khi DT-24 gộp); hợp đồng và tài liệu kỹ thuật của Trung tâm RAR (việc của Eric).

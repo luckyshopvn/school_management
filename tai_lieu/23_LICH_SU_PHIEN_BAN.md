@@ -1,7 +1,7 @@
 # 23. LỊCH SỬ PHIÊN BẢN
 
 - Mô tả: Mã phiên bản, ngày phát hành, danh sách thay đổi, chức năng mới, lỗi đã sửa, thay đổi dữ liệu, thay đổi API, rủi ro, khả năng tương thích, phương án quay lui.
-- Phiên bản: 0.62
+- Phiên bản: 0.63
 - Ngày cập nhật: 2026-10-26
 - Trạng thái: Đang cập nhật
 - Đã rà duyệt: Eric, ngày 2026-10-09
@@ -16,7 +16,7 @@
 
 ## 2. Danh sách phiên bản
 
-### Phiên bản 0.142.0 – 2026-10-26
+### Phiên bản 0.143.0 – 2026-10-26
 
 - Phạm vi thay đổi: DT-26 phần 26a, vỏ ứng dụng web cài được dùng chung (YCTD-231).
 - Chức năng mới: ứng dụng giáo viên và phụ huynh cài được lên màn hình chính với tên, tên ngắn, màu, biểu tượng của trường (P19-07, MH-339); service worker dùng chung ở gói `packages/pwa` (gom từ 23b), ứng dụng phụ huynh có service worker giữ vỏ ứng dụng; dải "Có bản mới" dùng chung; lời mời cài theo trình duyệt (Android, iPhone, Zalo, Facebook); ô tên ngắn ở Thương hiệu của cổng quản trị.
@@ -27,6 +27,18 @@
 - Rủi ro: biểu tượng SVG chưa được mọi trình duyệt dùng làm biểu tượng cài đặt (đã có PNG của sản phẩm làm dự phòng); iOS chưa có màn hình chờ theo trường (chưa sinh ảnh PNG theo khổ máy, ghi ở YCTD-231).
 - Khả năng tương thích: không đổi hành vi các phân hệ cũ; công cụ lớp học (23b) giữ tiền tố bộ nhớ đệm và công tắc ngoại tuyến; dải "Có bản mới" chuyển từ trang công cụ lớp học lên đầu ứng dụng.
 - Phương án quay lui: hoàn lại commit gộp của nhánh 26a; cột `app_short_name` chỉ thêm nên giữ lại không ảnh hưởng.
+
+### Phiên bản 0.142.0 – 2026-10-26
+
+- Phạm vi thay đổi: DT-25, bộ nối nhà cung cấp định danh OIDC sẵn cho VNeID, phần máy chủ (YCTD-225).
+- Chức năng mới: lớp `IdentityProvider` và bộ nối OIDC chung (PKCE, state, nonce, discovery, JWKS, quay khóa), hồ sơ `vneid` cấu hình được (mục chờ tài liệu RAR); nền tảng khai nhà cung cấp, trường bật tắt, chọn nhóm vai trò, mã ứng dụng và khóa riêng; liên kết, gỡ liên kết bằng mật khẩu và mã hai lớp; đăng nhập bằng nhà cung cấp ngoài có bước nhập mã hai lớp; nhật ký liên kết.
+- Lỗi đã sửa: không có.
+- Thay đổi dữ liệu: cơ sở dữ liệu định danh thêm `external_identity_providers`, `external_identities`, `external_identity_events` (migration 0140); `sessions.login_method` nhận thêm `external_provider`.
+- Thay đổi API: nhóm `/auth/external/*` ở dịch vụ định danh; biến môi trường `EXTERNAL_IDENTITY_PROVIDERS`, `EXTERNAL_IDENTITY_<MÃ>_CLIENT_SECRET`.
+- Kiểm thử: kiểm thử đơn vị `external-identity` 24 ca (khai báo 6, luồng một trường 13, cách ly hai trường 5); ma trận cách ly, các ca đăng nhập, xác thực hai lớp, nhiều trường hiện có đạt; kiểm tĩnh đa thuê bao đạt; e2e spec 165.
+- Rủi ro: tham số kỹ thuật của RAR có thể khác giả định (đổi cấu hình, hoặc viết bộ nối mới theo `IdentityProvider`); vai trò pháp lý của nhà cung cấp định danh trong PL-02, PL-05 chờ luật sư.
+- Khả năng tương thích: không khai nhà cung cấp hoặc trường chưa bật thì không có gì thay đổi; chưa có giao diện (bước 25b sau DT-24).
+- Phương án quay lui: tắt nhà cung cấp ở trường hoặc bỏ biến `EXTERNAL_IDENTITY_PROVIDERS`; hoàn lại commit gộp; migration 0140 có `down` (xóa ba bảng, trả ràng buộc cũ).
 
 ### Phiên bản 0.141.0 – 2026-10-26
 
