@@ -1,7 +1,7 @@
 # 23. LỊCH SỬ PHIÊN BẢN
 
 - Mô tả: Mã phiên bản, ngày phát hành, danh sách thay đổi, chức năng mới, lỗi đã sửa, thay đổi dữ liệu, thay đổi API, rủi ro, khả năng tương thích, phương án quay lui.
-- Phiên bản: 0.63
+- Phiên bản: 0.64
 - Ngày cập nhật: 2026-10-26
 - Trạng thái: Đang cập nhật
 - Đã rà duyệt: Eric, ngày 2026-10-09
@@ -16,17 +16,29 @@
 
 ## 2. Danh sách phiên bản
 
-### Phiên bản 0.144.0 – 2026-10-26
+### Phiên bản 0.145.0 – 2026-10-26
 
 - Phạm vi thay đổi: DT-26 phần 26a, vỏ ứng dụng web cài được dùng chung (YCTD-231).
-- Chức năng mới: ứng dụng giáo viên và phụ huynh cài được lên màn hình chính với tên, tên ngắn, màu, biểu tượng của trường (P19-07, MH-342); service worker dùng chung ở gói `packages/pwa` (gom từ 23b), ứng dụng phụ huynh có service worker giữ vỏ ứng dụng; dải "Có bản mới" dùng chung; lời mời cài theo trình duyệt (Android, iPhone, Zalo, Facebook); ô tên ngắn ở Thương hiệu của cổng quản trị.
+- Chức năng mới: ứng dụng giáo viên và phụ huynh cài được lên màn hình chính với tên, tên ngắn, màu, biểu tượng của trường (P19-07, MH-348); service worker dùng chung ở gói `packages/pwa` (gom từ 23b), ứng dụng phụ huynh có service worker giữ vỏ ứng dụng; dải "Có bản mới" dùng chung; lời mời cài theo trình duyệt (Android, iPhone, Zalo, Facebook); ô tên ngắn ở Thương hiệu của cổng quản trị.
 - Lỗi đã sửa: không có.
 - Thay đổi dữ liệu: cơ sở dữ liệu hệ thống thêm cột `school_branding.app_short_name` (tệp `0090`); xem `16_CO_SO_DU_LIEU.md`.
 - Thay đổi API: `GET /api/v1/public/pwa/{teacher,parent}.webmanifest`, `icon.svg`, `icon-maskable.svg`; `PUT /api/v1/school-settings/branding` nhận thêm `app_short_name` (xem `17_DAC_TA_API.md`).
-- Kiểm thử: kịch bản CT-1097 đến CT-1100 (CT-26a-1 đến CT-26a-4). Kết quả ngày 26/10/2026: `packages/pwa` 6/6 (CT-26a-1); `apps/teacher` 10/10; `apps/api` `school-settings.test.ts` 12/12 (CT-26a-2, CT-26a-3), ma trận cách ly và kiểm thử nhiều trường 27/27; kiểm tĩnh đa thuê bao, quét khóa 20/20; e2e `single` spec 01 đến 09, 151, 181 đạt 29/29 (spec 181 là CT-26a-4; trên máy chậm phải nới tạm thời gian chờ mở năm học của spec 02, không commit).
+- Kiểm thử: kịch bản CT-1108 đến CT-1111 (CT-26a-1 đến CT-26a-4). Kết quả ngày 26/10/2026: `packages/pwa` 6/6 (CT-26a-1); `apps/teacher` 10/10; `apps/api` `school-settings.test.ts` 12/12 (CT-26a-2, CT-26a-3), ma trận cách ly và kiểm thử nhiều trường 27/27; kiểm tĩnh đa thuê bao, quét khóa 20/20; e2e `single` spec 01 đến 09, 151, 181 đạt 29/29 (spec 181 là CT-26a-4; trên máy chậm phải nới tạm thời gian chờ mở năm học của spec 02, không commit).
 - Rủi ro: biểu tượng SVG chưa được mọi trình duyệt dùng làm biểu tượng cài đặt (đã có PNG của sản phẩm làm dự phòng); iOS chưa có màn hình chờ theo trường (chưa sinh ảnh PNG theo khổ máy, ghi ở YCTD-231).
 - Khả năng tương thích: không đổi hành vi các phân hệ cũ; công cụ lớp học (23b) giữ tiền tố bộ nhớ đệm và công tắc ngoại tuyến; dải "Có bản mới" chuyển từ trang công cụ lớp học lên đầu ứng dụng.
 - Phương án quay lui: hoàn lại commit gộp của nhánh 26a; cột `app_short_name` chỉ thêm nên giữ lại không ảnh hưởng.
+
+### Phiên bản 0.144.0 – 2026-10-26
+
+- Phạm vi thay đổi: DT-23 phần 23a, thi trực tuyến cho học sinh (YCTD-211).
+- Chức năng mới: kênh đăng nhập `student` và vai trò học sinh nối với tài khoản học và thi; giao đề đã khoá cho lớp, học sinh; làm bài có đồng hồ máy chủ, lưu nháp từng câu, chấm tự động; khóa toàn màn hình, camera kiểm tra có mặt và nhiều khuôn mặt ngay trên máy học sinh (chỉ gửi sự kiện); theo dõi, chấm tự luận, công bố kết quả; bài nộp vào phiếu chấm 22g2 để chuyển sổ điểm có giáo viên xác nhận; công tắc theo cấp; phân hệ "Thi trực tuyến".
+- Lỗi đã sửa: không có.
+- Thay đổi dữ liệu: tệp năm học `0120` đến `0123`; tệp định danh `0120`, `0121`.
+- Thay đổi API: `/online-exams/…`, `/student/…`, `POST /users/student-accounts/sync`, kênh `student` của `POST /auth/login`.
+- Kiểm thử: kịch bản CT-1097 đến CT-1107. Kết quả ngày 26/10/2026: kiểm thử đơn vị `apps/api/src/online-exams/online-exam-rules.test.ts` (CT-23a-1a đến CT-23a-1h) và `online-exams.test.ts` (CT-23a-2 đến CT-23a-9) đạt; kiểm thử đơn vị toàn kho đạt (lượt đầy đủ 1.441/1.441 trước khi gộp main; sau đó bộ 23a, 22g, tenancy-matrix, định danh đạt); kiểm thử giao diện `tests/e2e/150-online-exams.spec.ts` (CT-23a-10) cùng 02, 03, 07, 58, 101 đạt; toàn bộ kiểm thử giao diện để CI chạy toàn bộ; trên máy chạy riêng 02, 03, 06, 07, 08, 58, 83, 101 và 150 đạt; kiểm tĩnh đa thuê bao, ma trận cách ly, kiểm thử hai bố cục cơ sở dữ liệu `database` và `schema`, build, kiểm tra kiểu, lint, kiểm tra định dạng đạt.
+- Rủi ro: học sinh xem đáp án hoặc dữ liệu bạn khác (đáp án không xuống máy học sinh, tuyến `/student/*` chỉ trả dữ liệu của chính học sinh, mã phiên kênh `student` chỉ gọi nhóm này); lộ hình ảnh trẻ em (không có hình nào rời khỏi máy học sinh); mất bài khi mất mạng (đồng hồ máy chủ, lưu nháp từng câu, làm tiếp); gian lận (khóa toàn màn hình, camera, một phiên, điểm do giáo viên xác nhận; không hứa tuyệt đối).
+- Khả năng tương thích: không đổi hành vi cũ; tài khoản học và thi cấp trước cần cấp lại mật khẩu một lần để đăng nhập làm bài.
+- Phương án quay lui: hoàn lại commit gộp của nhánh 23a; chạy phần quay lui của tệp năm học `0123` đến `0120` và định danh `0121`, `0120`.
 
 ### Phiên bản 0.143.0 – 2026-10-26
 

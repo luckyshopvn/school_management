@@ -26,7 +26,8 @@ export type PortalWorkspaceKey =
   | 'emulation'
   | 'quality-assurance'
   | 'library'
-  | 'learning-resources';
+  | 'learning-resources'
+  | 'online-exam';
 
 export interface PortalMenuNode {
   // Số thứ bậc có dấu chấm cuối như của Sở, ví dụ "4.1.1."
@@ -656,6 +657,19 @@ export const PORTAL_WORKSPACES: PortalWorkspace[] = [
       leaf('8.', 'Câu hỏi, đề trong kho', '/learning-resources/questions'),
       leaf('9.', 'Rubric', '/learning-resources/rubrics'),
       leaf('10.', 'Gói chia sẻ liên trường', '/learning-resources/packages'),
+    ],
+  },
+  {
+    // Thi trực tuyến cho học sinh (DT-23 phần 23a): phân hệ riêng để gói dịch vụ bật, tắt được; học sinh làm bài ở ứng dụng phụ
+    // huynh (kênh đăng nhập student), phân hệ này là chỗ giáo viên giao đề, theo dõi, chấm. Tên mục do Claude tự đặt theo ủy
+    // quyền của Eric ngày 2026-10-11; từ Tiểu học trở lên (Mầm non không có bài thi)
+    key: 'online-exam',
+    label: 'Thi trực tuyến',
+    levels: ['TH', 'THCS', 'THPT'],
+    menu: [
+      leaf('1.', 'Giao đề thi trực tuyến', '/online-exams'),
+      leaf('2.', 'Theo dõi bài làm', '/online-exams/monitor'),
+      leaf('3.', 'Cấu hình thi trực tuyến', '/online-exams/settings'),
     ],
   },
 ];

@@ -781,7 +781,7 @@ Nguồn: tài liệu 32 mục 15, YCTD-210. Mục này chỉ ghi để người 
 
 | Phần | Đợt | Nội dung kế hoạch (tài liệu 32 mục 15.3) | Dấu hiệu trong mã |
 |---|---|---|---|
-| 23a Thi trực tuyến cho học sinh | 1 | Kênh đăng nhập `student`, giao đề, làm bài có đếm ngược theo đồng hồ máy chủ, chấm tự động câu trắc nghiệm, chuyển điểm vào sổ điểm theo luồng 22g2, ghi sự kiện rời trang | `SessionChannel` chỉ có `portal`, `teacher`, `parent`; `student_learning_accounts` chưa có đăng nhập |
+| 23a Thi trực tuyến cho học sinh | 1 | Kênh đăng nhập `student`, giao đề, làm bài có đếm ngược theo đồng hồ máy chủ, chấm tự động câu trắc nghiệm, chuyển điểm vào sổ điểm theo luồng 22g2, ghi sự kiện rời trang | Đã làm (YCTD-211, phiên bản 0.144.0): `SessionChannel` có `student`; bảng `exam_assignments`, `exam_attempts`, `exam_attempt_events`; nhóm `/student/*`; phân hệ `online-exam`; màn hình học sinh ở ứng dụng phụ huynh (`#hoc-sinh`); chưa làm ảnh chụp định kỳ |
 | 23b Công cụ lớp học | 1 | Đã có trong mã (YCTD-212, tài liệu 0.140.0): xem mục 7 bên dưới | `apps/teacher/src/tools`, `apps/teacher/public/sw.js`, `apps/api/src/classroom-tools` |
 | 23d Trợ lý AI (đã làm, YCTD-214, PR 184) | 1 | Soạn câu hỏi và kế hoạch bài dạy nháp bằng bộ nối `AiProvider` (`anthropic`, `mock`); tắt mặc định theo trường; hai cấu hình khóa (`school` miễn phí, `platform` thu theo gói và token); chỉ gửi nội dung chương trình, quét dữ liệu cá nhân ở máy chủ; bản nháp qua duyệt 22g1, 22h1; nhật ký, hạn mức theo gói | Mô-đun `apps/api/src/ai-assistant/`, màn hình 3.8 Trợ lý AI, trang Trợ lý AI ở cổng nền tảng, `plan_ai_pricing`, dòng phí `ai`, e2e spec 153 |
 | 23c Trò chơi kiến thức và thẻ đáp án giấy | 2 | Ô chữ, vòng quay, hỏi đáp theo vòng sinh từ ngân hàng câu hỏi; thẻ đáp án giấy đọc bằng camera | Chưa có |
@@ -792,7 +792,7 @@ Nguồn: tài liệu 32 mục 18, YCTD-230 (Eric yêu cầu ngày 2026-10-26 the
 
 | Phần | Đợt | Nội dung kế hoạch (tài liệu 32 mục 18.3) | Dấu hiệu trong mã |
 |---|---|---|---|
-| 26a Vỏ PWA dùng chung | 1 | Gói `packages/pwa`, manifest, biểu tượng, màn hình chờ theo thương hiệu từng trường, cài lên màn hình chính, hướng dẫn cài cho iOS, gom service worker của 23b | **Đã có (YCTD-231, phiên bản 0.144.0):** `packages/pwa`, `/api/v1/public/pwa/*`, `school_branding.app_short_name`; còn thiếu màn hình học sinh của 23a, ảnh PNG và màn hình chờ iOS theo trường |
+| 26a Vỏ PWA dùng chung | 1 | Gói `packages/pwa`, manifest, biểu tượng, màn hình chờ theo thương hiệu từng trường, cài lên màn hình chính, hướng dẫn cài cho iOS, gom service worker của 23b | **Đã có (YCTD-231, phiên bản 0.145.0):** `packages/pwa`, `/api/v1/public/pwa/*`, `school_branding.app_short_name`; còn thiếu màn hình học sinh của 23a, ảnh PNG và màn hình chờ iOS theo trường |
 | 26b Thông báo đẩy Web Push | 1 | Kênh `push` của hàng đợi thông báo chung, đăng ký theo người dùng và thiết bị, tắt theo loại, khóa VAPID của nền tảng | `NotificationChannel` chỉ có `in_app`, `sms`, `zalo` |
 | 26c Khung kiểm thử theo khổ thiết bị | 1 | Dự án Playwright khổ điện thoại, máy tính bảng dọc và ngang, việc CI riêng, kiểm vùng chạm 44 px | Playwright chỉ có dự án `chromium` khổ máy tính |
 | 26d Máy tính bảng: giáo viên, phụ huynh | 2 | Chế độ lớp học (điểm danh, sổ đầu bài, công cụ lớp học) chia hai khung, chế độ trình chiếu; phụ huynh hai cột | Bố cục một cột `max-w-md`, `max-w-lg` |

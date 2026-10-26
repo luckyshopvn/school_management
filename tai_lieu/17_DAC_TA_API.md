@@ -1,7 +1,7 @@
 # 17. ĐẶC TẢ API
 
 - Mô tả: Điểm cuối, phương thức, yêu cầu, phản hồi, xác thực, phân quyền, kiểm tra dữ liệu, xử lý lỗi, phân trang, lọc, sắp xếp, phiên bản.
-- Phiên bản: 1.130
+- Phiên bản: 1.131
 - Ngày cập nhật: 2026-10-26
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -84,6 +84,16 @@ Thay bảng phần bếp ở mục 15 của `17_DAC_TA_API.md`:
 
 
 |---|---|---|
+
+Giao kèo thi trực tuyến cho học sinh (DT-23 phần 23a, YCTD-211, BR-237):
+
+1. `POST /auth/login` nhận `channel` = `student`; tài khoản VT-21 chỉ vào kênh này và kênh này chỉ nhận VT-21 (sai trả 401 như sai mật khẩu). Nhóm `/student/*` chỉ nhận mã phiên kênh `student` (kênh khác trả 403), mã phiên kênh `student` chỉ gọi nhóm này (tuyến khác trả 403); học sinh không còn đang học, cấp bị tắt, chưa nối tài khoản trả 403; phân hệ ngoài gói trả 403 `MODULE_NOT_IN_PLAN`.
+2. `POST /online-exams/assignments` nhận `exam_mode` (`at-school` mặc định theo trường, `remote` chỉ khi trường bật, nếu không 422), `exam_id`, `class_ids`, `child_ids`, `opens_at`, `closes_at`, `duration_minutes` (5 đến 300), `max_attempts` (1 đến 5), `attempt_policy`, `shuffle_questions`, `shuffle_options`, `variant_mode`, `fixed_variant_code`, `result_mode`, `fullscreen_required`, `max_violations` (0 đến 20), `violation_action`, `camera_enabled`, `camera_fallback`, `single_session_mode`, `term_type`, `score_kind`, `score_seq`, `true_false_rule`, `absent_policy`; đề chưa khoá, đề có tự luận mà nhiều lần, cấp bị tắt, giờ đóng đã qua trả 422 hoặc 400; lớp khác cấp, khối trả 400; giáo viên giao lớp không dạy trả 403.
+3. `POST /student/exams/{id}/start` nhận `camera_state` (`off`, `granted`, `denied`, `unavailable`) và `room_code`: bài tại trường cần mã phòng đang mở có tên học sinh (sai, phòng đóng, hết hạn: 422 chi tiết `room_code`) và địa chỉ trong dải mạng của trường nếu trường khai (ngoài dải: 403 chi tiết `network`); bài từ xa không cần mã; đang có lượt dở thì trả lại lượt đó (phiên khác: 422 kèm chi tiết `session` = `replaced` hoặc đóng phiên cũ theo cấu hình); ngoài giờ, hết lượt, thiếu camera khi cấu hình chặn trả 422. Nội dung câu hỏi không có đáp án đúng, hướng dẫn chấm; `remaining_seconds` theo đồng hồ máy chủ.
+4. `PUT /student/attempts/{id}/answers` nhận `answers` theo số câu (nhãn hiển thị A, B, C, D; đúng sai `Đ`, `S` từng ý; đáp số; tự luận), chỉ ghi đè câu gửi lên, nhận đến hạn nộp cộng 10 giây; đã nộp trả 422.
+5. `POST /student/attempts/{id}/events` nhận tối đa 20 sự kiện (`fullscreen_exit`, `page_hidden`, `window_blur`, `camera_lost`, `no_face`, `multiple_faces`; `detail` chỉ `duration_ms`, `faces`) và trả `violations`, `outcome` (`none`, `warn`, `flag`, `auto_submit`); không nhận hình hay video.
+6. `GET /student/attempts/{id}/result`: `visible` theo `result_mode`; đáp án đúng (`correct_answer`) chỉ có sau giờ đóng.
+
 
 Giao kèo phần 10f (YCTD-79):
 
@@ -1530,6 +1540,20 @@ Giao kèo văn thư lưu trữ (YCTD-118):
 | GET | /api/v1/exam-grading/sessions/{id}/answer-sheet | Phiếu trả lời PDF (P02-69) |
 | POST | /api/v1/exam-grading/sessions/{id}/lock, /unlock, /transfer | Khoá điểm; mở khoá (`reason`); chuyển vào sổ điểm (trả `written`) (P02-69) |
 | GET | /api/v1/exam-grading/reports/{examId}, /export | Báo cáo theo câu, chủ đề, mức, lớp, phân bố điểm (`class_id` tuỳ chọn); xuất `format=xlsx` hoặc `pdf` (P02-70) |
+| GET, PUT | /api/v1/online-exams/settings, /settings/{level} | Công tắc học sinh đăng nhập làm bài theo cấp (P02-85, YCTD-211) |
+| GET, PUT | /api/v1/online-exams/school-settings | Cấu hình thi trực tuyến của trường: chế độ thi mặc định, thi từ xa, dải mạng, hạn mã phòng (P02-85) |
+| POST | /api/v1/online-exams/assignments/{id}/rooms, /api/v1/online-exams/rooms/{id}/close | Mở phòng thi (mã 6 chữ số, danh sách học sinh); đóng phòng (P02-84) |
+| GET | /api/v1/online-exams/exams, /classes | Đề đã khoá, lớp giao được (P02-82) |
+| GET, POST | /api/v1/online-exams/assignments | Danh sách, giao đề (P02-82) |
+| GET, PATCH | /api/v1/online-exams/assignments/{id} | Chi tiết, theo dõi; sửa tên, giờ, chế độ kết quả (P02-84) |
+| POST | /api/v1/online-exams/assignments/{id}/cancel, /release-results | Huỷ; công bố kết quả (P02-84) |
+| GET, PUT, POST | /api/v1/online-exams/attempts/{id}, /essay-marks, /force-submit | Xem bài; điểm tự luận; nộp thay (P02-84) |
+| GET | /api/v1/student/profile, /exams | Học sinh: thông tin, bài được giao (P02-83) |
+| POST | /api/v1/student/exams/{id}/start | Mở hoặc tiếp tục lượt (`camera_state`) (P02-83) |
+| GET, PUT | /api/v1/student/attempts/{id}, /answers | Đọc lượt; lưu nháp từng câu (P02-83) |
+| POST | /api/v1/student/attempts/{id}/events, /submit | Báo sự kiện; nộp (P02-83) |
+| GET | /api/v1/student/attempts/{id}/result | Kết quả theo chế độ (P02-83) |
+| POST | /api/v1/users/student-accounts/sync | Dịch vụ định danh: tạo, cấp lại người dùng kênh `student` (máy chủ API gọi) (P02-83) |
 | GET | /api/v1/public/student-awards/verify (từ YCTD-163) | Tra cứu công khai mã giấy khen học sinh (`code` 12 kí tự), giới hạn tần suất |
 | GET | /api/v1/primary-reports/enrollment, /assessments, /year-end, /attendance, /{report}/export (từ YCTD-165) | Thống kê Tiểu học (`org_unit_id`; `period_id`, `group` = `class`, `grade`, `school`; `from`, `to`); xuất `format` = `xlsx`, `pdf`; cần `P17.child-statistics.view` |
 | GET, PUT | /api/v1/primary-reports/emis, /{code}, /{code}/values, /{code}/rows, /{code}/export (từ YCTD-165) | Biểu EMIS Tiểu học cấu hình được: danh sách, biểu đã tính, lưu số nhập tay (`rows`: `code`, `values`), thay khung (`rows`: `code`, `label`, `unit`, `kind`, `formula`; cần `P17.report-form.manage`), xuất; biểu đã gửi trả 422 mã YCTD-165 |
@@ -2111,9 +2135,9 @@ Bỏ ngày 09/10/2026: trường không có xe đưa đón (Q-62). Mọi điểm
 | PUT | /api/v1/school-settings/integrations/:connector | Lưu một kết nối `{ enabled, values }`: giá trị mã hóa bằng khóa của trường, ô trống giữ giá trị đã lưu; thiếu ô bắt buộc khi bật 400 |
 | DELETE | /api/v1/school-settings/integrations/:connector | Xóa cấu hình một kết nối |
 | POST | /api/v1/school-settings/integrations/:connector/test | Kiểm tra kết nối bằng giá trị đã lưu (Facebook, Zalo, eSMS gọi nhà cung cấp; kho tệp ghi và xóa tệp thử; cổng thanh toán kiểm tra đủ khóa); chưa cấu hình 422 `G3-10` |
-| GET, PUT | /api/v1/school-settings/branding | Thương hiệu của trường: `display_name`, `primary_color` (#RRGGBB) (YCTD-195, BR-213); từ YCTD-231 thêm `app_short_name` (tối đa 9 ký tự, không gửi thì giữ giá trị cũ, BR-237) |
+| GET, PUT | /api/v1/school-settings/branding | Thương hiệu của trường: `display_name`, `primary_color` (#RRGGBB) (YCTD-195, BR-213); từ YCTD-231 thêm `app_short_name` (tối đa 9 ký tự, không gửi thì giữ giá trị cũ, BR-238) |
 | GET | /api/v1/public/branding, /api/v1/public/branding/logo | Công khai theo tên miền của trường: tên hiển thị, màu, địa chỉ và ảnh biểu trưng cho trang đăng nhập (YCTD-195, MH-322) |
-| GET | /api/v1/public/pwa/{teacher,parent}.webmanifest?base=, /api/v1/public/pwa/icon.svg, /api/v1/public/pwa/icon-maskable.svg (từ YCTD-231) | Công khai theo tên miền của trường: manifest (`application/manifest+json`: `id`, `name`, `short_name`, `theme_color`, `start_url`, `scope` theo `base` dạng `/…/`, sai dạng thì `/`; `icons`; `apple_touch_icon` ngoài chuẩn) và biểu tượng SVG 512 (nền màu trường, biểu trưng hoặc chữ cái đầu; `content-security-policy` chặn mã); ứng dụng lạ 404 (P19-07, BR-237) |
+| GET | /api/v1/public/pwa/{teacher,parent}.webmanifest?base=, /api/v1/public/pwa/icon.svg, /api/v1/public/pwa/icon-maskable.svg (từ YCTD-231) | Công khai theo tên miền của trường: manifest (`application/manifest+json`: `id`, `name`, `short_name`, `theme_color`, `start_url`, `scope` theo `base` dạng `/…/`, sai dạng thì `/`; `icons`; `apple_touch_icon` ngoài chuẩn) và biểu tượng SVG 512 (nền màu trường, biểu trưng hoặc chữ cái đầu; `content-security-policy` chặn mã); ứng dụng lạ 404 (P19-07, BR-238) |
 | GET | /api/v1/sync-accounts | Tài khoản đồng bộ của Bộ (`moet`), của Sở (`doet`): `username`, `password_configured`, `updated_at`, `sync_available`; không bao giờ trả mật khẩu; cần `P01.integration.manage` (P01-19, YCTD-120) |
 | PUT, DELETE | /api/v1/sync-accounts/{target} | Ghi `username` (bắt buộc, đến 100 ký tự), `password` (đến 200 ký tự; trống thì giữ mật khẩu đã lưu, lần đầu bắt buộc); xóa thông tin đã lưu |
 | GET | /api/v1/account-directory | Danh sách người dùng của 1.4 ghép hồ sơ nhân sự: tham số như `GET /users` (`q`, `status`, `role_code`, `login`, `full_name`, `must_change_password`, `password_expires_from`, `password_expires_to`, `page`, `page_size` 10, 20, 50, 100, 200) và `identifier` (mã nhân sự hoặc mã Bộ, khớp một phần); mỗi dòng thêm `staff_id`, `staff_code`, `moet_staff_code`; cần `P01.account.manage` hoặc `P01.account.manage-in-unit` (YCTD-120) |

@@ -1,7 +1,7 @@
 # 12. KIẾN TRÚC HỆ THỐNG
 
 - Mô tả: Kiến trúc tổng thể, thành phần, xác thực, phân quyền, lưu trữ tệp, ghi nhật ký, giám sát, sao lưu, phục hồi, triển khai.
-- Phiên bản: 1.23
+- Phiên bản: 1.24
 - Ngày cập nhật: 2026-10-26
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -253,6 +253,11 @@ Máy giáo viên bốc ngẫu nhiên, chia nhóm và giữ đồng hồ (hàm th
 ## 12G. Trợ lý AI (DT-23 phần 23d, YCTD-214)
 
 Mô-đun `apps/api/src/ai-assistant/`: `ai-provider.ts` (giao diện `AiProvider`, `AnthropicProvider` gọi `/v1/messages`, `MockAiProvider`, `AiProviderRegistry`), `ai-prompt.ts` (mẫu lời nhắc, bộ quét dữ liệu cá nhân, đọc kết quả), `ai-assistant.ts` (thiết lập, khóa, hạn mức, nhật ký, soạn câu hỏi và kế hoạch bài dạy, tổng hợp token, xóa nhật ký quá hạn), `ai-assistant.controller.ts` (`/api/v1/ai/*`, việc nền `ai-usage-sync` 15 phút). Soạn câu hỏi đi qua `ExamsService.createQuestion` (cờ `ai_generated`), kế hoạch bài dạy qua `LearningResourcesService.createAiLessonPlanDraft`. Phía nền tảng: `database/src/billing/ai-pricing.ts` (hàm tính thuần), `platform-ai.ts` (khóa, thiết lập, đơn giá theo gói, đo token), dịch vụ định danh `/auth/platform/ai`. Thu phí dùng lại `computeCharges` và `issueInvoice` của S5b.
+
+## 12G. Thi trực tuyến cho học sinh (DT-23 phần 23a, YCTD-211)
+
+Học sinh đăng nhập ở kênh phiên `student` (cùng cơ chế phiên và mã làm mới với ba kênh còn lại, cookie riêng, vai trò VT-21 nối một-một với tài khoản học và thi); màn hình học sinh nằm trong ứng dụng phụ huynh (`#hoc-sinh`), không dựng ứng dụng thứ tư. Máy chủ API chỉ cho mã phiên kênh `student` gọi nhóm `/student/*` và ngược lại. Máy chủ giữ đồng hồ và đáp án; lượt làm bài, sự kiện chống gian lận nằm ở cơ sở dữ liệu năm học; bài nộp vào phiếu chấm của 22g2. Camera chỉ xử lý trong trình duyệt của học sinh (mô hình nhận diện nhỏ đặt cùng ứng dụng), không có luồng hình hay video nào tới máy chủ; chỉ sự kiện (loại, thời điểm) được gửi.
+
 
 ## 12H. Ứng dụng web cài được (DT-26 phần 26a, YCTD-231)
 
