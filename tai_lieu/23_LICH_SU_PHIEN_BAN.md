@@ -13,20 +13,9 @@
 3. Phiên bản đánh số theo dạng chính.phụ.sửa. Tăng số chính khi thay đổi phá vỡ tương thích, tăng số phụ khi thêm chức năng, tăng số sửa khi sửa lỗi.
 4. Bản phần mềm 1.0.0, 1.1.0, 1.2.0 được Eric nghiệm thu ngày 13/10/2026, gắn thẻ `v1.0.0`, `v1.1.0`, `v1.2.0` (YCTD-92), ứng với phiên bản tài liệu 0.31.0, 0.42.0, 0.48.0. Các mục dưới đây ghi các mốc của bộ tài liệu.
 5. Từ phiên bản 0.4.0, mỗi mục ghi theo mẫu của Vibecoding_Flow; các mục trước giữ nguyên dạng bảng và tên tệp cũ vì là ghi nhận lịch sử.
+6. Từ YCTD-291 (ngày 2026-10-26), mục phiên bản mới của mỗi PR nằm ở tệp mảnh trong thư mục `tai_lieu/thay_doi_cho_gom/` cho tới lần gom, với số phiên bản đề xuất và chỗ giữ `{PHIEN_BAN}`; PR thường không sửa tệp này. Số chính thức chốt khi gom theo thứ tự merge (quy ước ở `thay_doi_cho_gom/README.md`).
 
 ## 2. Danh sách phiên bản
-
-### Phiên bản 0.152.0 – 2026-10-26
-
-- Phạm vi thay đổi: DT-27 phần 27b, chương trình gia sư trong trường, lịch và đặt buổi, điểm danh (YCTD-252).
-- Chức năng mới: chương trình gia sư theo Thông tư 29/2024 sửa bởi Thông tư 19/2026 (P02-86); buổi học lặp theo tuần không trùng thời khoá biểu, không quá 2 tiết/tuần/môn, quyết định tăng thời lượng của Sở (P02-87); đơn đăng ký của cha mẹ, điểm danh, báo vắng, tin nhắn qua cha mẹ, đường dây nóng (P02-88).
-- Lỗi đã sửa: không có.
-- Thay đổi dữ liệu: năm học `0152` đến `0154` (11 bảng `tutoring_*`), định danh `0172` (hai quyền).
-- Thay đổi API: nhóm `/tutoring`, `/children/{id}/tutoring` (xem `17_DAC_TA_API.md`).
-- Kiểm thử: kịch bản CT-1112 đến CT-1119 (CT-27b-1 đến CT-27b-8 trong mã kiểm thử): quy tắc thuần, luồng có cơ sở dữ liệu ở `apps/api`, e2e 191; e2e toàn bộ do CI chạy.
-- Rủi ro: Thông tư 29/2024 chưa đối chiếu bản gốc (E-07); trường chưa khai khung giờ tiết thì không so được giờ với thời khoá biểu; điểm danh tự động chờ 27a.
-- Khả năng tương thích: không đổi hành vi cũ.
-- Phương án quay lui: hoàn lại commit gộp của nhánh 27b; gói dịch vụ tắt phân hệ "Gia sư trực tuyến".
 
 ### Phiên bản 0.147.0 – 2026-10-26
 
