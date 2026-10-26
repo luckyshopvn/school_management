@@ -39,6 +39,20 @@ const COLUMNS: Array<DataGridColumn<LearningAccountRow>> = [
         <StatusBadge tone="neutral" label="Chưa khởi tạo" />
       ),
   },
+  {
+    id: 'sign_in',
+    header: 'Đăng nhập làm bài thi',
+    cell: (row) =>
+      row.username ? (
+        row.sign_in_ready ? (
+          <StatusBadge tone="success" label="Đã mở" />
+        ) : (
+          <StatusBadge tone="warning" label="Cần cấp lại mật khẩu" />
+        )
+      ) : (
+        ''
+      ),
+  },
   { id: 'issued_at', header: 'Ngày cấp mật khẩu', cell: (row) => formatDate(row.issued_at) },
   { id: 'issued_by', header: 'Người cấp', hiddenByDefault: true, cell: (row) => row.issued_by_name ?? '' },
   { id: 'reset_count', header: 'Số lần cấp lại', hiddenByDefault: true, cell: (row) => row.reset_count },

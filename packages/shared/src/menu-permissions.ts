@@ -138,6 +138,10 @@ export const MENU_PERMISSION_RULES: Partial<Record<PortalQuickLinkPath, MenuPerm
   // Chấm bài kiểm tra, báo cáo kết quả (DT-21 phần 22g2)
   '/exam-grading': anyOf('P02.exam.grade', 'P02.exam.manage'),
   '/exam-reports': anyOf('P02.exam.grade', 'P02.exam.review', 'P02.exam.manage'),
+  // Thi trực tuyến cho học sinh (DT-23 phần 23a): giao đề, theo dõi bài làm, cấu hình thi trực tuyến theo cấp
+  '/online-exams': 'P02.exam.assign',
+  '/online-exams/monitor': 'P02.exam.assign',
+  '/online-exams/settings': 'P02.exam.assign',
   // Khai báo tuần: ai xem được thiết lập thì xem, sửa cần quyền quản lý năm học như 2.1 Năm học (DT-16 phần 16e)
   '/school-weeks': anyOf('P01.view', 'P01.academic-year.manage'),
   '/staff': 'P07.staff.view',

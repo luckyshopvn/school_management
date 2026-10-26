@@ -1,7 +1,7 @@
 # 23. LỊCH SỬ PHIÊN BẢN
 
 - Mô tả: Mã phiên bản, ngày phát hành, danh sách thay đổi, chức năng mới, lỗi đã sửa, thay đổi dữ liệu, thay đổi API, rủi ro, khả năng tương thích, phương án quay lui.
-- Phiên bản: 0.62
+- Phiên bản: 0.63
 - Ngày cập nhật: 2026-10-26
 - Trạng thái: Đang cập nhật
 - Đã rà duyệt: Eric, ngày 2026-10-09
@@ -16,17 +16,28 @@
 
 ## 2. Danh sách phiên bản
 
-### Phiên bản 0.144.0 – 2026-10-26
+### Phiên bản 0.146.0 – 2026-10-26
 
 - Phạm vi thay đổi: DT-26 phần 26c, khung kiểm thử theo khổ thiết bị (YCTD-233).
 - Chức năng mới: không có chức năng cho người dùng; thêm dự án kiểm thử Playwright theo khổ điện thoại, máy tính bảng dọc, ngang, WebKit; bộ kiểm dùng chung (vùng chạm, cỡ chữ, cuộn ngang, axe-core); việc CI `kiem-thu-thiet-bi`.
 - Lỗi đã sửa: không có.
 - Thay đổi dữ liệu: không.
 - Thay đổi API: không.
-- Kiểm thử: CT-1097 đến CT-1099. Kết quả ở PR 188.
+- Kiểm thử: CT-1108 đến CT-1110. Kết quả ở PR 188.
 - Rủi ro: việc CI thêm thời gian chạy song song (không nối đuôi); ảnh chụp tham chiếu chưa có tệp gốc; vi phạm ở đường cơ sở chờ 26d, 26e.
 - Khả năng tương thích: mặc định không đổi (dự án chromium); thêm thư viện kiểm thử `@axe-core/playwright` (MPL-2.0, chỉ ở kiểm thử).
 - Phương án quay lui: hoàn lại commit gộp của nhánh 26c.
+### Phiên bản 0.144.0 – 2026-10-26
+
+- Phạm vi thay đổi: DT-23 phần 23a, thi trực tuyến cho học sinh (YCTD-211).
+- Chức năng mới: kênh đăng nhập `student` và vai trò học sinh nối với tài khoản học và thi; giao đề đã khoá cho lớp, học sinh; làm bài có đồng hồ máy chủ, lưu nháp từng câu, chấm tự động; khóa toàn màn hình, camera kiểm tra có mặt và nhiều khuôn mặt ngay trên máy học sinh (chỉ gửi sự kiện); theo dõi, chấm tự luận, công bố kết quả; bài nộp vào phiếu chấm 22g2 để chuyển sổ điểm có giáo viên xác nhận; công tắc theo cấp; phân hệ "Thi trực tuyến".
+- Lỗi đã sửa: không có.
+- Thay đổi dữ liệu: tệp năm học `0120` đến `0123`; tệp định danh `0120`, `0121`.
+- Thay đổi API: `/online-exams/…`, `/student/…`, `POST /users/student-accounts/sync`, kênh `student` của `POST /auth/login`.
+- Kiểm thử: kịch bản CT-1097 đến CT-1107. Kết quả ngày 26/10/2026: kiểm thử đơn vị `apps/api/src/online-exams/online-exam-rules.test.ts` (CT-23a-1a đến CT-23a-1h) và `online-exams.test.ts` (CT-23a-2 đến CT-23a-9) đạt; kiểm thử đơn vị toàn kho đạt (lượt đầy đủ 1.441/1.441 trước khi gộp main; sau đó bộ 23a, 22g, tenancy-matrix, định danh đạt); kiểm thử giao diện `tests/e2e/150-online-exams.spec.ts` (CT-23a-10) cùng 02, 03, 07, 58, 101 đạt; toàn bộ kiểm thử giao diện để CI chạy toàn bộ; trên máy chạy riêng 02, 03, 06, 07, 08, 58, 83, 101 và 150 đạt; kiểm tĩnh đa thuê bao, ma trận cách ly, kiểm thử hai bố cục cơ sở dữ liệu `database` và `schema`, build, kiểm tra kiểu, lint, kiểm tra định dạng đạt.
+- Rủi ro: học sinh xem đáp án hoặc dữ liệu bạn khác (đáp án không xuống máy học sinh, tuyến `/student/*` chỉ trả dữ liệu của chính học sinh, mã phiên kênh `student` chỉ gọi nhóm này); lộ hình ảnh trẻ em (không có hình nào rời khỏi máy học sinh); mất bài khi mất mạng (đồng hồ máy chủ, lưu nháp từng câu, làm tiếp); gian lận (khóa toàn màn hình, camera, một phiên, điểm do giáo viên xác nhận; không hứa tuyệt đối).
+- Khả năng tương thích: không đổi hành vi cũ; tài khoản học và thi cấp trước cần cấp lại mật khẩu một lần để đăng nhập làm bài.
+- Phương án quay lui: hoàn lại commit gộp của nhánh 23a; chạy phần quay lui của tệp năm học `0123` đến `0120` và định danh `0121`, `0120`.
 
 ### Phiên bản 0.143.0 – 2026-10-26
 

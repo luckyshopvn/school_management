@@ -16,7 +16,7 @@ import {
   validationError,
   type AccessTokenClaims,
 } from '@school-management/server';
-import { isSchoolLevelCode, PORTAL_WORKSPACES } from '@school-management/shared';
+import { isSchoolLevelCode, PORTAL_WORKSPACES, STUDENT_ROLE_CODE } from '@school-management/shared';
 import { Infrastructure } from '../common/infrastructure.js';
 import { IdentitySettingsService } from '../settings/identity-settings.service.js';
 import { OTP_REQUIRED_MESSAGE, TotpService } from './totp.service.js';
@@ -35,9 +35,11 @@ const REFRESH_LIFETIME_MILLISECONDS: Record<SessionChannel, number> = {
   portal: 8 * 60 * 60 * 1000,
   teacher: 30 * 24 * 60 * 60 * 1000,
   parent: 30 * 24 * 60 * 60 * 1000,
+  // Học sinh dùng chung máy ở phòng máy, ở nhà: mã làm mới ngắn hơn kênh phụ huynh (DT-23 phần 23a)
+  student: 12 * 60 * 60 * 1000,
 };
 
-export const SESSION_CHANNELS: SessionChannel[] = ['portal', 'teacher', 'parent'];
+export const SESSION_CHANNELS: SessionChannel[] = ['portal', 'teacher', 'parent', 'student'];
 
 export interface RequestOrigin {
   ipAddress: string;
@@ -65,6 +67,8 @@ const NO_PASSWORD_EXPIRY: PasswordExpiry = { expired: false, expiresInDays: null
 const DAY_MILLISECONDS = 24 * 60 * 60 * 1000;
 // Vai trò Phụ huynh không áp hạn mật khẩu; tài khoản có thêm vai trò khác là tài khoản nhân sự
 const PARENT_ROLE_CODE = 'VT-14';
+// Tài khoản học sinh (DT-23 phần 23a) cũng không áp hạn mật khẩu; chỉ đăng nhập ở kênh student, kênh student chỉ nhận học sinh
+const NON_STAFF_ROLE_CODES = [PARENT_ROLE_CODE, STUDENT_ROLE_CODE];
 
 // Mã làm mới không trả trong nội dung phản hồi; bộ điều khiển đặt vào cookie httpOnly (BM-71)
 export interface IssuedTokens {
@@ -145,6 +149,13 @@ export class AuthenticationService {
       throw unauthenticatedError(INVALID_CREDENTIALS_MESSAGE);
     }
 
+    // Tài khoản học sinh chỉ vào kênh student và kênh student chỉ nhận tài khoản học sinh; báo như sai mật khẩu để không lộ
+    // tên đăng nhập nào là của học sinh (DT-23 phần 23a)
+    if ((await this.isStudentAccount(user.id)) !== (channel === 'student')) {
+      await this.recordSecurityEvent('login_wrong_channel', user.id, loginIdentifier, origin.ipAddress);
+      throw unauthenticatedError(INVALID_CREDENTIALS_MESSAGE);
+    }
+
     // Xác thực hai lớp tuỳ chọn theo trường (DT-SaaS phần S8b): người đã đăng ký phải nhập thêm mã; mã sai tính như nhập sai mật khẩu
     if (await this.totp.isRequiredFor(user.id)) {
       if (!otpCode) {
@@ -174,6 +185,17 @@ export class AuthenticationService {
       now,
       expiry,
     );
+  }
+
+  async isStudentAccount(userId: string): Promise<boolean> {
+    const row = await this.database
+      .selectFrom('user_roles')
+      .innerJoin('roles', 'roles.id', 'user_roles.role_id')
+      .select('user_roles.id')
+      .where('user_roles.user_id', '=', userId)
+      .where('roles.code', '=', STUDENT_ROLE_CODE)
+      .executeTakeFirst();
+    return row !== undefined;
   }
 
   // Tài khoản còn hiệu lực, đang hoạt động và không bị tạm khóa do nhập sai
@@ -428,7 +450,7 @@ export class AuthenticationService {
       .innerJoin('roles', 'roles.id', 'user_roles.role_id')
       .select('roles.code')
       .where('user_roles.user_id', '=', user.id)
-      .where('roles.code', '!=', PARENT_ROLE_CODE)
+      .where('roles.code', 'not in', NON_STAFF_ROLE_CODES)
       .executeTakeFirst();
     if (!staffRole) {
       return NO_PASSWORD_EXPIRY;
@@ -681,5 +703,5 @@ export function assertChannel(value: unknown): SessionChannel {
   if (typeof value === 'string' && (SESSION_CHANNELS as string[]).includes(value)) {
     return value as SessionChannel;
   }
-  throw validationError([{ field: 'channel', message: 'Kênh đăng nhập phải là portal, teacher hoặc parent' }]);
+  throw validationError([{ field: 'channel', message: 'Kênh đăng nhập phải là portal, teacher, parent hoặc student' }]);
 }
