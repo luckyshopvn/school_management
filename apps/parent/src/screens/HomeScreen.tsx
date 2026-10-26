@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState, type FormEvent } from 'react';
-import { Alert, ApplicationHeader, Button, StatusBadge, TextField } from '@school-management/ui';
+import { Alert, ApplicationHeader, Button, ExternalLinksPanel, StatusBadge, TextField } from '@school-management/ui';
+import { externalRequest } from '../session/external-request.js';
 import { ApiError, fetchCurrentUser, requestJson, type CurrentUser } from '../session/api-client.js';
 import { useSession } from '../session/session.js';
 import { AuthorizedPickupsPanel, PickupConfirmations } from './PickupSections.js';
@@ -318,6 +319,7 @@ export function HomeScreen() {
             />
           ))}
         </ul>
+        <ExternalLinksPanel request={externalRequest} basePath={import.meta.env.BASE_URL} />
         <div>
           <Button onClick={() => void session.logout()}>Đăng xuất</Button>
         </div>

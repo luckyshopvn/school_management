@@ -1,7 +1,7 @@
 # 24. YÊU CẦU THAY ĐỔI
 
 - Mô tả: Sổ quản lý yêu cầu thay đổi, ghi lý do, đánh giá ảnh hưởng và trạng thái của từng thay đổi trước khi triển khai.
-- Phiên bản: 0.77
+- Phiên bản: 0.78
 - Ngày cập nhật: 2026-10-26
 - Trạng thái: Đang cập nhật
 
@@ -32,6 +32,20 @@ Các thay đổi trước phiên bản 0.4.0 chưa có sổ này; xem `23_LICH_S
 - Kiểm thử cần thực hiện: kiểm thử đơn vị `apps/api` (quy tắc thuần và luồng có cơ sở dữ liệu), `database`; kiểm tĩnh; e2e 191 và các spec bị ảnh hưởng (01, 58, 59, 83, 134 nhiều trường); CI chạy toàn bộ e2e.
 - Còn lại: điểm danh tự động khi 27a gộp (gọi `recordRoomEvents` từ nhật ký phòng); thu phí `enrichment` và thù lao ở 27c.
 - Trạng thái: Đã triển khai (PR …)
+
+### YCTD-226: DT-25 bước 25b: giao diện đăng nhập và liên kết bằng nhà cung cấp định danh – 2026-10-26
+
+- Lý do: bước 25b của kế hoạch DT-25 (`32` mục 17.3), làm sau khi DT-24 gộp màn hình đăng nhập mới (điểm gắn `ExternalLoginProviders.tsx`).
+- Nội dung thay đổi (Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11):
+  - Thành phần dùng chung ở `packages/ui/src/ExternalIdentity.tsx`: `ExternalProviderButtons` (đọc nhà cung cấp trường đã bật, bắt đầu lượt, chuyển sang nhà cung cấp), `ExternalSignInCallback` (trang quay về: chờ ứng dụng khôi phục phiên, gửi `state`, `code`, nhập mã hai lớp khi máy chủ đòi, đăng nhập xong tải lại trang gốc, liên kết xong về trang liên kết), `ExternalLinksPanel` (liên kết, gỡ liên kết cần mật khẩu và mã hai lớp nếu đã bật, nhật ký gần đây). Mỗi ứng dụng truyền hàm gọi giao diện lập trình của mình.
+  - Cổng quản trị: nút ở màn hình đăng nhập (điểm gắn của DT-24; ở tên miền chung không hiện vì cấu hình, liên kết, lượt đăng nhập đều theo trường), trang `/dang-nhap/ben-ngoai` mở được khi đã hay chưa đăng nhập, mục "Liên kết tài khoản" ở Tài khoản của tôi, khối "Đăng nhập bằng nhà cung cấp định danh" ở Danh sách người dùng cho người quản lý mọi tài khoản (bật tắt, coi là đạt xác thực hai lớp, nhóm vai trò, mã ứng dụng và khóa riêng; nhắc mục chờ tài liệu RAR với hồ sơ vneid).
+  - Ứng dụng giáo viên: nút ở màn hình đăng nhập, trang quay về. Ứng dụng phụ huynh: nút, trang quay về, mục liên kết ở màn hình chính.
+  - e2e spec 165 thêm ca giao diện.
+- Thành phần bị ảnh hưởng: `packages/ui`, `apps/portal` (`router.tsx`, `portal-shell/ExternalLoginProviders.tsx`, `portal-shell/external-identity.tsx`, `portal-shell/MyProfilePage.tsx`, `accounts/AccountsPage.tsx`, `accounts/ExternalProvidersSection.tsx`), `apps/teacher`, `apps/parent`, `tests/e2e/165-external-identity.spec.ts`; tài liệu `01`, `02`, `23`, `24`, `32`, `34`, `index.md`.
+- Dữ liệu, API, quyền bị ảnh hưởng: không.
+- Giao diện bị ảnh hưởng: như trên; trường chưa bật nhà cung cấp thì không đổi.
+- Ảnh hưởng chức năng cũ: không.
+- Kiểm thử cần thực hiện: typecheck, lint ba ứng dụng và `packages/ui`; e2e 165 (giao diện và máy chủ) cùng 01.
 
 ### YCTD-211: DT-23 phần 23a: thi trực tuyến cho học sinh – 2026-10-26
 

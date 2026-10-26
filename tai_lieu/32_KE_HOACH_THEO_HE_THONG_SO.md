@@ -1843,7 +1843,7 @@ DT-25 là một thành phần nhỏ, làm hai bước. Số giữ sẵn nằm **
 | Bước | Phạm vi | Phụ thuộc | Trạng thái |
 |---|---|---|---|
 | 25a | Phần máy chủ: lớp `IdentityProvider`, bộ nối OIDC chung, hồ sơ `vneid`, khai báo nền tảng, cấu hình của trường, liên kết, gỡ liên kết, đăng nhập, nhập mã hai lớp sau nhà cung cấp, nhật ký, nhà cung cấp OIDC giả lập, kiểm thử đơn vị, cách ly, e2e 165 (phần máy chủ), tài liệu | Không | Làm ở PR của YCTD-225 |
-| 25b | Giao diện: nút "Đăng nhập bằng VNeID" (và nhà cung cấp khác) trên màn hình đăng nhập của cổng quản trị, ứng dụng giáo viên, ứng dụng phụ huynh, chỉ hiện khi trường đã bật; trang quay về `/dang-nhap/ben-ngoai`; mục liên kết, gỡ liên kết, nhật ký ở "Tài khoản của tôi"; màn hình cấu hình của trường; mở rộng e2e 165 bằng trình duyệt | **Sau khi PR DT-24 gộp** (DT-24 đang sửa màn hình đăng nhập; không sửa song song cùng tệp) | Chờ |
+| 25b | Giao diện: nút "Đăng nhập bằng VNeID" (và nhà cung cấp khác) trên màn hình đăng nhập của cổng quản trị, ứng dụng giáo viên, ứng dụng phụ huynh, chỉ hiện khi trường đã bật; trang quay về `/dang-nhap/ben-ngoai`; mục liên kết, gỡ liên kết, nhật ký ở "Tài khoản của tôi"; màn hình cấu hình của trường; mở rộng e2e 165 bằng trình duyệt | **Sau khi PR DT-24 gộp** (DT-24 đang sửa màn hình đăng nhập; không sửa song song cùng tệp) | Đã làm (YCTD-226) |
 
 ### 17.4 Thiết kế
 
@@ -1901,7 +1901,7 @@ DT-25 là một thành phần nhỏ, làm hai bước. Số giữ sẵn nằm **
 | Bước | Tiến độ |
 |---|---|
 | 25a | Đã làm ở PR của YCTD-225 |
-| 25b | Chờ PR DT-24 gộp |
+| 25b | Đã làm ở PR của YCTD-226 (phiên bản 0.147.0) |
 
 ### 17.8 Giả định chưa chốt, làm cấu hình được
 
