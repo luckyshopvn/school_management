@@ -27,12 +27,12 @@
 
 #### Thay đổi
 
-- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-272, phiên bản 0.148.0 ở `23`, tài liệu 01, 07, 08, 10, 11, 12, 14, 16, 17, 21, 22, 32, 34, `index.md`.
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-272, phiên bản 0.154.0 ở `23`, tài liệu 01, 07, 08, 10, 11, 12, 14, 16, 17, 21, 22, 32, 34, `index.md`.
 
 #### Vấn đề tồn đọng
 
 - Sau khi 23a gộp: thêm học sinh tự học ở kênh `student` (`/student/learning`, quyền `P02.learning.study` cho VT-21, MH-354, CT-1119) trong cùng PR; sửa CI hỏng CT-S5a-8 (quy tắc menu khoá mẫu ghi quyền kho học liệu làm tuyến kho học liệu không còn bị chặn theo gói; tuyến nhân sự `/learning` nay chặn theo gói).
-- 23a (PR 189) gộp trước lấy 0.144.0 và các số BR-237, PQ-109, AC-874 đến AC-879, MH-342 đến MH-347, CT-1097 đến CT-1107, BM-97 đến BM-99; sau đó 26a (PR 185, 0.145.0, BR-238, AC-880 đến AC-882, QĐ-36, MH-348, CT-1108 đến CT-1111, BM-100, mục 12H) và 25b (PR 190, 0.147.0) gộp; 28b đánh lại sang số kế tiếp (0.148.0, BR-239 đến BR-243, AC-883 đến AC-890, QĐ-37, MH-349 đến MH-354, CT-1112 đến CT-1119, BM-101, mục 12I). Phiên bản 0.148.0 có thể trùng với PR khác đang mở; PR nào gộp sau thì đánh lại.
+- 23a (PR 189) gộp trước lấy 0.144.0 và các số BR-237, PQ-109, AC-874 đến AC-879, MH-342 đến MH-347, CT-1097 đến CT-1107, BM-97 đến BM-99; sau đó 26a (PR 185, 0.145.0, BR-238, AC-880 đến AC-882, QĐ-36, MH-348, CT-1108 đến CT-1111, BM-100, mục 12H) và 25b (PR 190, 0.147.0) gộp; 28b đánh lại sang 0.154.0 theo bảng phiên bản của phiên điều phối (0.148.0 dành cho 26b), cùng BR-239 đến BR-243, AC-883 đến AC-890, QĐ-37, MH-349 đến MH-354, CT-1112 đến CT-1119, BM-101, mục 12I). Phiên bản 0.154.0 có thể trùng với PR khác đang mở; PR nào gộp sau thì đánh lại.
 
 ### 2026-10-26 — DT-26 phần 26a: vỏ ứng dụng web cài được dùng chung
 

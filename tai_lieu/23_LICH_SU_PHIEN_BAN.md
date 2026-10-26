@@ -16,7 +16,7 @@
 
 ## 2. Danh sách phiên bản
 
-### Phiên bản 0.148.0 – 2026-10-26
+### Phiên bản 0.154.0 – 2026-10-26
 
 - Phạm vi thay đổi: DT-28 phần 28b, lõi hệ thống quản lý học tập (YCTD-272).
 - Chức năng mới: lớp học trực tuyến theo lớp, môn tự sinh từ phân công giảng dạy và khoá tự chọn (P03-12, MH-349); chương, hoạt động trang nội dung, liên kết, học liệu, điều kiện mở, giao cho học sinh (P03-13); tiến độ, kết quả hoạt động, kế hoạch dạy học trực tuyến theo tuần, nhật ký học tập (P03-14); khoá học mẫu của tổ chuyên môn qua duyệt hai bước rồi đẩy xuống lớp (P03-15, MH-350); quyết định dạy học trực tuyến thay thế và nội quy theo Thông tư 09/2021/TT-BGDĐT (P03-16, MH-351); ứng dụng giáo viên Lớp học trực tuyến (MH-352); ứng dụng phụ huynh Học trực tuyến của con (P03-17, MH-353); học sinh tự học ở kênh `student` (MH-354).
