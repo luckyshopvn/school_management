@@ -13,3 +13,4 @@ deploy/.env.*
 
 # Trạng thái kiểm thử giao diện nhiều trường (khóa gốc của lần chạy)
 tests/.e2e-multi.json
+tests/.e2e-push-outbox.jsonl
