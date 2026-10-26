@@ -30,6 +30,25 @@ Các thay đổi trước phiên bản 0.4.0 chưa có sổ này; xem `23_LICH_S
 - Kiểm thử cần thực hiện: rà bảng đủ cột; số YCTD, migration, e2e, GD, RR giữ sẵn không trùng DT-23 và các số đã thấy của DT-24, DT-25; kiểm tra định dạng tài liệu đạt.
 - Trạng thái: Đã triển khai
 
+### YCTD-212: DT-23 phần 23b: công cụ lớp học trên ứng dụng giáo viên – 2026-10-26
+
+- Lý do: phần 23b của `32_KE_HOACH_THEO_HE_THONG_SO.md` mục 15.3, 15.4 (kế hoạch DT-23 ở YCTD-210); Eric chọn đề xuất 2 của báo cáo khảo sát ngày 2026-10-26 (chỉ học ý tưởng tính năng, tên gọi, giao diện tự thiết kế) và chốt GD-108: ngoại tuyến chỉ cho trang công cụ lớp học, danh sách lớp lưu 24 giờ, xóa khi đăng xuất. Phụ thuộc DT-21 (nề nếp, thi đua) đã gộp.
+- Nội dung thay đổi (Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11 ở những chỗ kế hoạch chưa chốt):
+  - **Công cụ trên máy giáo viên** (`apps/teacher/src/tools`): gọi tên ngẫu nhiên từ danh sách lớp thật (không lặp, loại học sinh vắng, hiệu ứng chọn, ghi và xóa lượt gọi); chia nhóm theo số nhóm hoặc số người mỗi nhóm, giữ bản chia gần nhất; nhiều đồng hồ đếm ngược, bấm giờ theo thời điểm tuyệt đối, tiếng báo hết giờ, giữ màn hình sáng; bảng điểm nhanh theo nhóm hoặc học sinh. Hàm thuần (bốc, chia, tổng, hạn) tách riêng để kiểm thử với nguồn ngẫu nhiên cố định; thêm `test` cho `apps/teacher` (`node --test`).
+  - **Máy chủ** (`apps/api/src/classroom-tools`): danh sách lớp gọn (số thứ tự cố định rồi tên; mã học sinh là mã Bộ `moet_student_code`; cờ vắng hôm nay lấy từ điểm danh và báo vắng); ghi lượt gọi, dòng điểm theo lô có `client_id` chống trùng (gửi lại từ hàng đợi không tạo dòng thừa, giờ bấm kẹp trong khoảng 7 ngày trước đến 5 phút sau giờ máy chủ); bản chia nhóm; chuyển điểm vào nề nếp bằng `ConductService.record` (dòng điểm giữ chỗ trước, tổng đổi thành số lần của tiêu chí cùng chiều, tách dòng quá 50 lần). Quyền theo phạm vi xem trẻ của lớp (như điểm danh), ghi nề nếp cần `P02.conduct.record`; không thêm quyền.
+  - **Cơ sở dữ liệu năm học** 0124 (`classroom_call_logs`, `classroom_groupings`) và 0125 (`classroom_score_events`); hai mục cấu hình trường `classroom_offline_enabled` (mặc định bật), `classroom_roster_ttl_hours` (mặc định 24).
+  - **Ngoại tuyến**: `public/sw.js` (mạng trước, bộ nhớ đệm sau, không giữ `/api/`, phiên bản bộ nhớ đệm theo bản phát hành do `vite.config.ts` thay lúc dựng, bản mới chờ giáo viên đồng ý tải lại), `manifest.webmanifest` và biểu tượng; chỉ đăng ký khi đã đăng nhập và trường bật; bản chụp danh sách lớp (số thứ tự, họ tên, mã, cờ vắng) có hạn, xóa khi đăng xuất và khi phiên hết hạn; hàng đợi lượt gọi, điểm đồng bộ khi có mạng; mở ứng dụng lúc mất mạng vào chế độ chỉ có công cụ lớp học (`SessionStatus` thêm `offline`).
+  - Chọn: đăng xuất xóa cả hàng đợi chưa gửi (máy dùng chung, tránh gửi dưới tên người khác), gửi nốt trước khi xóa nếu có mạng; ghi vào nề nếp cần có mạng; nề nếp tính theo lớp nên điểm nhóm, học sinh gộp thành số lần của một tiêu chí cho cả lớp, ghi chú tóm tắt từng nhóm, học sinh.
+- Thành phần bị ảnh hưởng: `apps/teacher`, `apps/api`, `database` (năm học), `tests` (spec 151); đăng ký mô-đun thêm cuối tệp `application.module.ts`, không sửa `access-token.ts`, `MULTI_TENANT_SPEC`.
+- Dữ liệu bị ảnh hưởng: cơ sở dữ liệu năm học (tệp 0124, 0125); không đổi cơ sở dữ liệu hệ thống, nền tảng, định danh.
+- API bị ảnh hưởng: nhóm `/api/v1/classroom-tools` (xem `17_DAC_TA_API.md`).
+- Giao diện bị ảnh hưởng: ứng dụng giáo viên thêm nút Công cụ lớp học ở Lớp của tôi, màn hình Công cụ lớp học (MH-337) và chế độ ngoại tuyến (MH-338); không đổi cổng quản trị.
+- Quyền bị ảnh hưởng: không thêm quyền.
+- Ảnh hưởng chức năng cũ: không đổi hành vi; nề nếp, thi đua chỉ nhận thêm dòng ghi bởi giáo viên qua luồng sẵn có; đăng nhập của ứng dụng giáo viên không đổi, chỉ phân biệt lỗi mạng với phiên hết hạn lúc mở ứng dụng.
+- Kiểm thử cần thực hiện: kiểm thử đơn vị toàn kho; e2e `single` (spec 151 cùng các spec hiện có); kiểm tĩnh đa thuê bao và ma trận cách ly; typecheck, lint, build.
+- Chưa làm (YCTD sau): trò chơi dùng lại nhóm, bảng điểm (23c); đồng bộ nền khi ứng dụng đóng (Background Sync); thông báo đẩy khi hết giờ; ngoại tuyến cho phân hệ khác.
+- Trạng thái: Đã triển khai (PR 180)
+
 ### YCTD-230: Kế hoạch DT-26: PWA, máy tính bảng, ứng dụng di động – 2026-10-26
 
 - Lý do: Eric yêu cầu ngày 2026-10-26 lập kế hoạch theo thứ tự (1) ứng dụng web cài được (PWA), (2) bố cục máy tính bảng, (3) ứng dụng cài đặt iOS và Android. Ứng dụng giáo viên và phụ huynh hiện là web thiết kế cho điện thoại, chưa có manifest, service worker, thông báo đẩy; cổng quản trị, cổng nền tảng chưa có bố cục máy tính bảng; kiểm thử giao diện chỉ chạy ở khổ máy tính. Phiên điều phối giao viết kế hoạch vào `32_KE_HOACH_THEO_HE_THONG_SO.md` như đã làm cho DT-23.
