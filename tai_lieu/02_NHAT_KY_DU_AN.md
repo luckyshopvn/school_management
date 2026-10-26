@@ -1,7 +1,7 @@
 # 02. NHẬT KÝ DỰ ÁN
 
 - Mô tả: Ghi nhận công việc, quyết định, thay đổi và vấn đề tồn đọng theo ngày, ngày mới nhất ở trên cùng.
-- Phiên bản: 0.75
+- Phiên bản: 0.76
 - Ngày cập nhật: 2026-10-26
 - Trạng thái: Đang cập nhật
 
@@ -13,6 +13,28 @@
 - Không ghi thông tin tạm thời như kết quả tra cứu, đường dẫn tạm, thông báo lỗi của công cụ.
 
 ## Nhật ký theo ngày
+
+### 2026-10-26 — Sửa kiểm thử chập chờn (YCTD-290)
+
+#### Công việc đã thực hiện
+
+- Đọc nhật ký và ảnh chụp, vết chạy (trace) của các lượt CI hỏng trên nhánh chính và PR 181, PR 184; tìm nguyên nhân gốc từng ca (xem YCTD-290).
+- Tái hiện cuộc đua dựng cơ sở dữ liệu mẫu bằng ba tiến trình cùng lúc trên bản sao mã (tên mẫu riêng, không đụng mẫu đang dùng): mã cũ hỏng 2/5 vòng với `23505`, mã mới 0/10 vòng.
+- Sửa `migration-templates.ts` (khóa tư vấn), ca CT-22c2-12, thẻ "Nề nếp, thi đua lớp", trợ giúp menu e2e, spec 45, 97, 99, 103, 151.
+- Chạy lặp 10 lần ba tệp thời khoá biểu, năm học (`--test-concurrency=3` như CI): 24/24 ca đạt cả 10 lần.
+
+#### Quyết định
+
+- Sửa nguyên nhân, không tăng thời gian chờ hay số lần chạy lại, không bỏ kiểm thử.
+- Dòng "fetch failed" ở nhật ký CI là của ca cố ý tắt dịch vụ định danh, không cần sửa.
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-290. Không tăng phiên bản phần mềm.
+
+#### Vấn đề tồn đọng
+
+- Không.
 
 ### 2026-10-26 — DT-25: bộ nối nhà cung cấp định danh OIDC, sẵn cho VNeID (phần máy chủ)
 

@@ -259,6 +259,40 @@ test('CT-23b-14: gọi tên, chia nhóm, đồng hồ, bảng điểm vào nề 
   // Mất mạng sau lần tải đầu: nạp lại một lần có mạng để bộ nhớ đệm của service worker đủ, rồi ngắt mạng và tải lại
   await page.reload();
   await expect(page.getByRole('heading', { name: 'Lớp của tôi' })).toBeVisible();
+  // Service worker lưu bộ nhớ đệm sau khi trả phản hồi (không chờ), nên ngắt mạng ngay sau khi tải lại có thể còn tệp chưa lưu
+  // xong và trang không dựng được khi ngoại tuyến (lỗi chập chờn cũ ở CI). Chờ tới khi service worker kiểm soát trang và mọi tệp
+  // cùng nguồn trang đã tải (trừ /api) đều có trong bộ nhớ đệm
+  await expect
+    .poll(
+      () =>
+        page.evaluate(async () => {
+          const browser = globalThis as unknown as {
+            location: { href: string; origin: string };
+            navigator: { serviceWorker: { controller: unknown } };
+            performance: { getEntriesByType(type: string): Array<{ name: string }> };
+            caches: { match(url: string): Promise<unknown> };
+          };
+          if (!browser.navigator.serviceWorker.controller) {
+            return -1;
+          }
+          const urls = [
+            browser.location.href,
+            ...browser.performance
+              .getEntriesByType('resource')
+              .map((entry) => entry.name)
+              .filter((url) => url.startsWith(browser.location.origin) && !url.includes('/api/')),
+          ];
+          let missing = 0;
+          for (const url of urls) {
+            if (!(await browser.caches.match(url))) {
+              missing += 1;
+            }
+          }
+          return missing;
+        }),
+      { timeout: 30_000 },
+    )
+    .toBe(0);
   await page.context().setOffline(true);
   await page.reload();
   // Trang dựng từ bộ nhớ đệm của service worker, máy chậm có thể quá 5 giây mặc định

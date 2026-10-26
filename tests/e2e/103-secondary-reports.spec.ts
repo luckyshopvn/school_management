@@ -11,7 +11,7 @@ import {
 } from '@school-management/database';
 import { createTestUser } from '@school-management/identity/testing';
 import { E2E_SCHOOL_YEAR_DATABASE_PREFIX, E2E_SYSTEM_DATABASE_NAME } from '../e2e-environment.mjs';
-import { openMenu } from './menu.js';
+import { openMenu, selectSchoolLevel } from './menu.js';
 
 // Báo cáo, thống kê, EMIS THCS, THPT (DT-21 phần 21g, YCTD-175), kịch bản CT-21g-5: trường bật THPT, một lớp 10 có hai học
 // sinh (một học sinh tổ hợp riêng của kịch bản, xếp loại học tập Tốt, Xuất sắc); Hiệu trưởng xem kết quả cuối năm theo lớp,
@@ -149,7 +149,7 @@ test('CT-21g-5: kết quả cuối năm THPT theo lớp, xuất Excel; biểu EM
   await expect(portal.getByRole('heading', { name: /^Xin chào,/ })).toBeVisible();
   await setSecondaryEnabled(portal, true);
   try {
-    await portal.getByTestId('school-level-switcher').selectOption('THPT');
+    await selectSchoolLevel(portal, 'THPT');
     await openMenu(portal, '/secondary-reports');
     await portal.getByLabel('Đơn vị', { exact: true }).selectOption(unit.id);
     await expect(portal.getByRole('table', { name: 'Sĩ số theo khối' })).toContainText('Khối 10');
