@@ -1,3 +1,4 @@
+import { revokePushOnSignOut } from '@school-management/pwa';
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
 import { clearClassroomData } from '../tools/classroom-store.js';
 import {
@@ -6,6 +7,7 @@ import {
   loginWithPassword,
   logout as requestLogout,
   refreshSession,
+  requestJson,
   type TokenResponse,
 } from './api-client.js';
 
@@ -72,6 +74,8 @@ export function SessionProvider({ children }: { children: ReactNode }) {
       retry: check,
       async logout() {
         try {
+          // Máy dùng chung không nhận đẩy của người dùng trước (DT-26 phần 26b); cần mã phiên nên gọi trước khi đăng xuất
+          await revokePushOnSignOut(import.meta.env.BASE_URL, requestJson);
           await requestLogout();
         } finally {
           // Danh sách lớp lưu trên máy xóa khi đăng xuất (DT-23 phần 23b, GD-108)

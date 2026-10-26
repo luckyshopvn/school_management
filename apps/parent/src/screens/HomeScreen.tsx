@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState, type FormEvent } from 'react';
-import { InstallPrompt } from '@school-management/pwa';
+import { InstallPrompt, PushSettingsPanel } from '@school-management/pwa';
 import { Alert, ApplicationHeader, Button, ExternalLinksPanel, StatusBadge, TextField } from '@school-management/ui';
 import { externalRequest } from '../session/external-request.js';
 import { ApiError, fetchCurrentUser, requestJson, type CurrentUser } from '../session/api-client.js';
@@ -307,6 +307,8 @@ export function HomeScreen() {
         {/* Mời cài lên màn hình chính (DT-26 phần 26a) */}
         <InstallPrompt applicationName="ứng dụng phụ huynh" />
         <NotificationsPanel />
+        {/* Bật, tắt thông báo đẩy và chọn nhóm (DT-26 phần 26b) */}
+        <PushSettingsPanel application="parent" base={import.meta.env.BASE_URL} request={requestJson} />
         <PickupConfirmations />
         <PollsPanel />
         {children && children.length === 0 ? (

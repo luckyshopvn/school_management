@@ -13,7 +13,7 @@ phien_ban_de_xuat: 0.152.0
 
 - Đọc mục 19.2, 19.3, 19.4, 19.5 (27b), 19.11 của `32_KE_HOACH_THEO_HE_THONG_SO.md`; rà thời khoá biểu (`timetable_lessons`, `period_slots`, `applyingVersions`), sổ điểm (`subject_term_results`), quan hệ phụ huynh, luồng trao đổi, thông báo, góp ý, phân hệ của gói dịch vụ (S5a), mẫu phần 23a.
 - Thêm năm học 0152 đến 0154, định danh 0172, hàm thuần quy định dạy thêm, máy chủ API `tutoring/`, bốn trang ở cổng quản trị, màn hình ở ứng dụng giáo viên, mục Gia sư ở ứng dụng phụ huynh, kiểm thử đơn vị và e2e 191.
-- Thêm BR-239 đến BR-241, PQ-110, P02-86 đến P02-88, AC-883 đến AC-885, MH-349 đến MH-354, CT-1112 đến CT-1119; phiên bản {PHIEN_BAN}.
+- Thêm BR-239 đến BR-241, PQ-110, P02-86 đến P02-88, AC-883 đến AC-885, MH-349 đến MH-354, CT-1122 đến CT-1129; phiên bản {PHIEN_BAN}.
 
 #### Quyết định
 
@@ -25,7 +25,7 @@ phien_ban_de_xuat: 0.152.0
 
 #### Thay đổi
 
-- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-252, `07_QUY_TAC_NGHIEP_VU.md` BR-239 đến BR-241, `08_VAI_TRO_NGUOI_DUNG.md` PQ-110, `10_YEU_CAU_CHUC_NANG.md` P02-86 đến P02-88, `11_TIEU_CHI_NGHIEM_THU.md` AC-883 đến AC-885, `14_DAC_TA_GIAO_DIEN.md` MH-349 đến MH-354, `16_CO_SO_DU_LIEU.md`, `17_DAC_TA_API.md`, `21_KICH_BAN_KIEM_THU.md` CT-1112 đến CT-1119; phiên bản {PHIEN_BAN}.
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-252, `07_QUY_TAC_NGHIEP_VU.md` BR-239 đến BR-241, `08_VAI_TRO_NGUOI_DUNG.md` PQ-110, `10_YEU_CAU_CHUC_NANG.md` P02-86 đến P02-88, `11_TIEU_CHI_NGHIEM_THU.md` AC-883 đến AC-885, `14_DAC_TA_GIAO_DIEN.md` MH-349 đến MH-354, `16_CO_SO_DU_LIEU.md`, `17_DAC_TA_API.md`, `21_KICH_BAN_KIEM_THU.md` CT-1122 đến CT-1129; phiên bản {PHIEN_BAN}.
 
 #### Vấn đề tồn đọng
 
@@ -64,7 +64,7 @@ phien_ban_de_xuat: 0.152.0
 - Lỗi đã sửa: không có.
 - Thay đổi dữ liệu: năm học `0152` đến `0154` (11 bảng `tutoring_*`), định danh `0172` (hai quyền).
 - Thay đổi API: nhóm `/tutoring`, `/children/{id}/tutoring` (xem `17_DAC_TA_API.md`).
-- Kiểm thử: kịch bản CT-1112 đến CT-1119 (CT-27b-1 đến CT-27b-8 trong mã kiểm thử): quy tắc thuần, luồng có cơ sở dữ liệu ở `apps/api`, e2e 191; e2e toàn bộ do CI chạy.
+- Kiểm thử: kịch bản CT-1122 đến CT-1129 (CT-27b-1 đến CT-27b-8 trong mã kiểm thử): quy tắc thuần, luồng có cơ sở dữ liệu ở `apps/api`, e2e 191; e2e toàn bộ do CI chạy.
 - Rủi ro: Thông tư 29/2024 chưa đối chiếu bản gốc (E-07); trường chưa khai khung giờ tiết thì không so được giờ với thời khoá biểu; điểm danh tự động chờ 27a.
 - Khả năng tương thích: không đổi hành vi cũ.
 - Phương án quay lui: hoàn lại commit gộp của nhánh 27b; gói dịch vụ tắt phân hệ "Gia sư trực tuyến".
