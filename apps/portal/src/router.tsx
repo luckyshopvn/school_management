@@ -124,6 +124,7 @@ import { SettingsPage } from './settings/SettingsPage.js';
 import { ChangePasswordPage } from './pages/ChangePasswordPage.js';
 import { HomePage } from './pages/HomePage.js';
 import { LoginPage } from './pages/LoginPage.js';
+import { SignInHandoffPage } from './pages/SignInHandoffPage.js';
 import { useSession } from './session/session.js';
 import { WorkPage } from './work/WorkPage.js';
 import { EvaluationsPage } from './work/EvaluationsPage.js';
@@ -309,6 +310,8 @@ const OPEN_PATHS = [
   '/tra-cuu-thoi-khoa-bieu',
   '/tra-cuu-chung-nhan',
   '/support-login',
+  // Nhận phiên sau khi đăng nhập theo đơn vị ở tên miền chung (DT-24)
+  '/sign-in-handoff',
 ];
 
 // Chuyển hướng theo trạng thái phiên: chưa đăng nhập về MH-47; bắt buộc đổi mật khẩu về MH-48 (BM-07)
@@ -344,6 +347,7 @@ const routeTree = rootRoute.addChildren([
   createRoute({ getParentRoute: () => rootRoute, path: '/forgot-password', component: ForgotPasswordPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/activate', component: ActivatePage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/support-login', component: SupportLoginPage }),
+  createRoute({ getParentRoute: () => rootRoute, path: '/sign-in-handoff', component: SignInHandoffPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/support-access', component: SupportAccessPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/parent-org-consents', component: ParentOrgConsentsPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/my-profile', component: MyProfilePage }),

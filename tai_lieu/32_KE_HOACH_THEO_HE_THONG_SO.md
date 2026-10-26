@@ -1,7 +1,7 @@
 # 32. KẾ HOẠCH ĐỒNG BỘ CHỨC NĂNG VÀ GIAO DIỆN THEO HỆ THỐNG CỦA SỞ (DT-15)
 
-- Mô tả: Kế hoạch điều chỉnh School Management theo kết quả khảo sát `31_KHAO_SAT_HE_THONG_SO.md`; từ mục 9 thêm kế hoạch DT-18 điều hành nhà trường, mục 10 thêm kế hoạch DT-19 nền đa cấp học, mục 11 thêm kế hoạch DT-20 Tiểu học (kèm 22c thời khoá biểu), mục 12 thêm kế hoạch DT-21 THCS và THPT (kèm 22g kiểm tra, đánh giá), mục 13 thêm kế hoạch DT-22 (22a thư viện, 22e hồ sơ bồi dưỡng, 22h kho học liệu số), mục 14 thêm kế hoạch DT-SaaS (Enterprise SaaS nhiều trường: S1a, S1b, S2, S3, S4, S5a, S5b, S6, S7a, S7b, S8a, S8b, S9; hai hồ sơ triển khai: thử nghiệm miễn phí và vận hành), mục 15 thêm kế hoạch DT-23 (thi trực tuyến cho học sinh, công cụ lớp học, trò chơi kiến thức và thẻ đáp án giấy, trợ lý AI; 23a đến 23d), mục 18 thêm kế hoạch DT-26 (ứng dụng web cài được, bố cục máy tính bảng, ứng dụng cài đặt iOS và Android; 26a đến 26h; mục 16 dành cho DT-24), mục 17 thêm DT-25 bộ nối nhà cung cấp định danh OIDC, sẵn cho VNeID, mục 19 thêm kế hoạch DT-27 (nền tảng gia sư trực tuyến: gia sư trong trường, khoá học ghi sẵn, hỏi đáp, chợ gia sư mở; 27a đến 27i).
-- Phiên bản: 1.77
+- Mô tả: Kế hoạch điều chỉnh School Management theo kết quả khảo sát `31_KHAO_SAT_HE_THONG_SO.md`; từ mục 9 thêm kế hoạch DT-18 điều hành nhà trường, mục 10 thêm kế hoạch DT-19 nền đa cấp học, mục 11 thêm kế hoạch DT-20 Tiểu học (kèm 22c thời khoá biểu), mục 12 thêm kế hoạch DT-21 THCS và THPT (kèm 22g kiểm tra, đánh giá), mục 13 thêm kế hoạch DT-22 (22a thư viện, 22e hồ sơ bồi dưỡng, 22h kho học liệu số), mục 14 thêm kế hoạch DT-SaaS (Enterprise SaaS nhiều trường: S1a, S1b, S2, S3, S4, S5a, S5b, S6, S7a, S7b, S8a, S8b, S9; hai hồ sơ triển khai: thử nghiệm miễn phí và vận hành), mục 15 thêm kế hoạch DT-23 (thi trực tuyến cho học sinh, công cụ lớp học, trò chơi kiến thức và thẻ đáp án giấy, trợ lý AI; 23a đến 23d), mục 18 thêm kế hoạch DT-26 (ứng dụng web cài được, bố cục máy tính bảng, ứng dụng cài đặt iOS và Android; 26a đến 26h), mục 16 thêm DT-24 (danh mục đơn vị toàn quốc, đăng nhập theo đơn vị, quyền vào mọi trường của quản trị nền tảng), mục 19 thêm kế hoạch DT-27 (nền tảng gia sư trực tuyến: gia sư trong trường, khoá học ghi sẵn, hỏi đáp, chợ gia sư mở; 27a đến 27i); mục 17 thêm DT-25 bộ nối nhà cung cấp định danh OIDC, sẵn cho VNeID.
+- Phiên bản: 1.78
 - Ngày cập nhật: 2026-10-26
 - Trạng thái: Đã duyệt hướng làm
 - Căn cứ: yêu cầu của Eric ngày 2026-10-13 ("tính năng đã có thì ưu tiên phiên bản và giao diện của Sở; tính năng Sở không có thì giữ nguyên, chỉ đổi giao diện theo trang của Sở") và các lựa chọn của Eric cùng ngày ở mục 2.
@@ -1670,6 +1670,147 @@ Bản kế hoạch này là YCTD-210, chỉ đổi tài liệu (không tăng phi
 | GD-106 | Mức chống gian lận | **Eric đã chốt 2026-10-26:** khóa toàn màn hình và camera. Claude chọn cách làm tôn trọng dữ liệu trẻ em: camera xử lý ngay trên máy học sinh, chỉ gửi sự kiện, không gửi hình hay video; ảnh định kỳ tắt mặc định, chỉ bật khi có đồng ý của cha mẹ; sự kiện không tự trừ điểm; điểm cần giáo viên xác nhận mới vào sổ | cấu hình thi trực tuyến, theo bài | Eric (đã chốt hướng; chốt lại nếu muốn lưu hình mặc định) |
 | GD-107 | Thư viện đọc thẻ đáp án | Tự viết bộ đọc hoặc dùng thư viện mã nguồn mở có giấy phép cho phép dùng thương mại; chọn và ghi giấy phép lúc làm | mã 23c | Claude (theo ủy quyền) |
 | GD-108 | Phạm vi ngoại tuyến của ứng dụng giáo viên | **Eric đã chốt 2026-10-26:** chỉ trang công cụ lớp học (23b); danh sách lớp lưu 24 giờ, xóa khi đăng xuất | cấu hình theo trường | Eric (đã chốt) |
+
+## 16. DT-24: danh mục đơn vị toàn quốc, đăng nhập theo đơn vị, quyền quản trị nền tảng
+
+### 16.1 Căn cứ và mục tiêu
+
+1. **Yêu cầu của Eric ngày 2026-10-26**, ba việc làm thành một đợt nhỏ DT-24 (kế hoạch và mã trong cùng một PR):
+   - tự lập danh sách trường toàn quốc theo nguồn đầy đủ nhất;
+   - đổi màn hình đăng nhập theo bố cục trang đăng nhập của hệ thống ngành (chọn đơn vị rồi nhập tài khoản);
+   - tài khoản quản trị nền tảng vào được mọi trường; **mặc định không cần trường đồng ý** nhưng bắt buộc xác thực hai lớp, lý do, nhật ký đầy đủ trường xem được, phiên có hạn, biểu ngữ; chính sách để cấu hình được ở mức nền tảng.
+2. **Nguồn danh mục:** ba phiên khảo sát ngày 2026-10-26 chỉ đọc phần công khai, lưu kết quả **ngoài kho mã** (`.claude/logs-khaosat-csdl-moet`, `.claude/logs-khaosat-smis`, `.claude/logs-khaosat-truong-hcm`):
+   - trang đăng nhập cấp trường của CSDL ngành là nguồn đầy đủ nhất: 39.669 trường kèm mã Bộ (43.063 cặp trường, cấp học), 34 sở, 5 cấp học (Mầm non, Tiểu học, THCS, THPT, GDTX), năm học 2026-2027; 11 mã trùng khuôn số căn cước đã che ở nguồn;
+   - trang của hệ thống học bạ có đủ 3.321 phường, xã của 34 tỉnh, thành (mã đơn vị hành chính cấp xã 5 chữ số);
+   - dữ liệu của Sở TP.HCM (6.168 mã) dùng để đối chiếu: mã trường của Sở trùng mã Bộ.
+   - Đối chiếu bằng bộ đọc của DT-24 (chỉ đếm, không in dữ liệu): 39.658 đơn vị nhập được, 11 dòng bị loại vì mã trùng khuôn số căn cước, 4.333 mã không theo dạng 8 hoặc 10 chữ số, 314 tên rỗng, 366 thiếu phường, xã; mọi mã xã của trường đều có trong danh mục phường, xã.
+3. **Hiện trạng mã trước DT-24** (nhánh chính ngày 2026-10-26, sau PR 176):
+   - S1a nhận diện trường theo tên miền; S1b có trang chọn trường ở tên miền hệ thống (nhập mã trường, không liệt kê trường);
+   - S2 khởi tạo trường (mã trường do người vận hành gõ); S3 thương hiệu theo trường (tên hiển thị, màu, biểu trưng công khai ở `/public/branding`);
+   - S4 phiên hỗ trợ: nhân viên nền tảng chỉ mở được khi trường đang cho phép (`support_access_grants`), có lý do, đường liên kết một lần, biểu ngữ, nhật ký hai phía; S6 cây đơn vị hành chính do người vận hành tự dựng (`admin_units`) cho tài khoản cấp trên;
+   - S8b xác thực hai lớp, khóa tạm, chính sách mật khẩu theo trường; 16c mã xác nhận dạng ảnh do máy chủ sinh.
+   - Ứng dụng giáo viên và phụ huynh có màn hình đăng nhập riêng (`apps/teacher`, `apps/parent`), **không dùng chung** trang đăng nhập của cổng quản trị.
+4. **Mục tiêu:** danh mục đơn vị toàn quốc là dữ liệu tham chiếu của nền tảng, nạp lại được mỗi năm học; người dùng ở tên miền chung chọn Sở → Cấp học → Phường/Xã → Trường rồi đăng nhập vào đúng trường; quản trị nền tảng vào được mọi trường với các biện pháp bắt buộc; không đổi hành vi của tên miền riêng của trường và chế độ một trường.
+
+### 16.2 Nguyên tắc
+
+- **Kho mã công khai:** không commit tệp CSV toàn quốc hay bất kỳ dữ liệu thu thập nào từ trang của Bộ, Sở. Kho chỉ có mã, migration, công cụ nhập và một tệp mẫu nhỏ toàn dữ liệu giả (`database/platform/catalog-sample/`: mã sở 97, 98, phường xã 99xxx, tên bịa).
+- **Không mạo danh cơ quan nhà nước:** trang đăng nhập chỉ học bố cục và luồng chọn đơn vị; không dùng quốc huy, tên, biểu trưng của Bộ GD&ĐT hay tên của hệ thống ngành. Tiêu đề lấy từ cấu hình của nền tảng (tên miền chung) hoặc thương hiệu của trường (S3).
+- **Không lộ danh sách khách hàng:** ô chọn liệt kê cả danh mục, không đánh dấu đơn vị nào dùng nền tảng; chỉ khi người dùng chọn một đơn vị mới tra đơn vị đó (như trang chọn trường của S1b), có giới hạn tần suất.
+- **Không đổi hành vi cũ:** chế độ một trường và tên miền của trường giữ trang đăng nhập cũ (thêm khung "Thông tin đơn vị" đã khóa); nhãn ô, nút mà các e2e cũ dùng giữ nguyên ("Số điện thoại hoặc tên đăng nhập", "Mật khẩu", "Đăng nhập", "Ghi nhớ tài khoản", "Quên mật khẩu?"); phiên hỗ trợ theo cho phép của S4 giữ nguyên.
+- **Đăng nhập luôn chạy trong ngữ cảnh của đúng trường:** tài khoản, khóa tạm, chính sách mật khẩu, xác thực hai lớp, mã xác nhận, nhật ký là của trường được chọn; tên miền chung không nhận cookie phiên của trường nào.
+- **Nền tảng là bên xử lý** (Luật Bảo vệ dữ liệu cá nhân số 91/2025/QH15, Điều 37): quyền vào trường của quản trị nền tảng phải nằm trong thỏa thuận xử lý dữ liệu đã ký (PL-02), chỉ cho mục đích vận hành, hỗ trợ, xử lý sự cố, có biện pháp kiểm soát và trường xem được nhật ký.
+- Chạy được ở cả hai bố cục cơ sở dữ liệu `database` và `schema`; đạt kiểm tĩnh đa thuê bao và ma trận cách ly (14.7).
+
+### 16.3 Phần, số giữ sẵn
+
+Một phần duy nhất, **một PR** (Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11: ba việc dùng chung bảng danh mục, trang đăng nhập và phiên hỗ trợ; tách hai PR sẽ phải sửa trang đăng nhập hai lần). Số giữ sẵn bắt đầu sau dải của DT-23 (đến YCTD-219, năm học 0129, hệ thống 0079, định danh 0129, nền tảng 0209, e2e `159-`):
+
+| Mục | Số |
+|---|---|
+| YCTD | YCTD-220 (kế hoạch và mã); YCTD-221 đến YCTD-229 dự phòng cho bổ sung của DT-24 |
+| Migration nền tảng | 0210 (danh mục), 0211 (gắn mã Bộ cho trường, căn cứ phiên hỗ trợ, chính sách mặc định); giữ 0212 đến 0219 |
+| Migration định danh | 0130 (mã chuyển phiên); giữ 0131 đến 0139 |
+| Migration năm học, hệ thống | Không dùng |
+| e2e | `160-unit-directory-login.spec.ts` (dự án nhiều trường, `MULTI_TENANT_SPEC` thêm 160); `161-` đến `169-` dự phòng |
+| Kịch bản kiểm thử trong mã | CT-24-1 đến CT-24-10 |
+| Phiên bản phần mềm | 0.141.0 (0.140.0 của 23b gộp trước; phần gộp sau đánh lại số theo nhánh chính lúc gộp) |
+
+### 16.4 Phạm vi chi tiết
+
+**1. Danh mục đơn vị toàn quốc (cơ sở dữ liệu `platform`, migration 0210)**
+
+| Bảng | Nội dung |
+|---|---|
+| `catalog_departments` | Sở GD&ĐT: mã 2 chữ số là mã tỉnh, thành sau sáp nhập (theo cột mã sở của nguồn), tên tỉnh, thành, trạng thái |
+| `catalog_levels` | Cấp học theo mã của Bộ: `MN` 01, `TH` 02, `THCS` 03, `THPT` 04, `GDTX` 05 (nạp sẵn trong migration, là danh mục chuẩn) |
+| `catalog_communes` | Phường, xã: mã đơn vị hành chính cấp xã 5 chữ số, sở, tên, tên bỏ dấu để tìm |
+| `catalog_units` | Đơn vị trường: mã Bộ (chuỗi bất biến, giữ số 0 đầu, có thể có chữ, tối đa 40 ký tự, duy nhất), tên, tên bỏ dấu, sở, phường xã (có thể trống), tên xã ở nguồn khi không ghép được mã, năm học, nguồn, trạng thái `active`/`inactive`, cờ chất lượng, lần đầu và lần cuối thấy |
+| `catalog_unit_levels` | Trường liên cấp: nhiều dòng (nhiều-nhiều với cấp học) |
+| `catalog_import_runs` | Mỗi lần nhập (kể cả chạy thử) một dòng: nguồn, tệp, số thêm, sửa, giữ nguyên, bỏ qua, cờ; 500 dòng bỏ qua đầu kèm lý do; người nhập |
+
+- **Quy tắc làm sạch** (`database/src/school-catalog.ts`, Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11):
+  - đọc CSV theo RFC 4180 (ô có dấu phẩy, ngoặc kép), bỏ dấu BOM; nhận cả tệp một dòng mỗi trường và tệp một dòng mỗi cặp trường, cấp học (gộp cấp theo mã);
+  - **không suy ra tỉnh từ hai số đầu mã trường** (mã bất biến, hai số đầu là tỉnh lúc cấp mã trước sáp nhập): sở lấy theo cột `ma_so`;
+  - mã giữ nguyên chuỗi (chỉ bỏ khoảng trắng hai đầu); mã không theo dạng 8 hoặc 10 chữ số vẫn nhập, gắn cờ `code_nonstandard`;
+  - **mã đã che hoặc 12 chữ số bắt đầu bằng 0 (trùng khuôn số căn cước) không nhập**, ghi vào báo cáo là bị loại với mã `[đã che]`, không ghi giá trị mã;
+  - tên rỗng thì đặt tên tạm "Đơn vị mã <mã>", gắn cờ `name_missing`; thiếu xã gắn cờ `commune_missing`; mã xã sai hoặc không có trong danh mục gắn cờ `commune_invalid` và giữ tên xã ở nguồn; thiếu cấp gắn cờ `level_missing`, cấp lạ gắn cờ `level_unknown`;
+  - cùng mã ở hai sở khác nhau trong một tệp: giữ dòng đầu, ghi dòng sau vào báo cáo bỏ qua.
+- **Nhập lặp lại được:** so từng đơn vị theo mã, chỉ ghi phần đổi (thêm, sửa, giữ nguyên chỉ cập nhật lần cuối thấy); tùy chọn chuyển "ngừng hoạt động" các đơn vị của những sở có trong tệp mà không còn trong tệp (không xóa, vì mã bất biến); chạy thử chỉ tính báo cáo; mỗi lần nhập ghi `catalog_import_runs` và nhật ký nền tảng. Đo trên máy phát triển với bản khảo sát: nhập lần đầu khoảng 16 giây, nhập lại khoảng 3 giây, tìm một trang khoảng 17 ms.
+- **Công cụ nhập:** lệnh `platform catalog-import --units <tệp> [--communes <tệp>] [--source] [--dry-run] [--deactivate-missing]` và `platform catalog-seed` (máy phát triển, đọc `CATALOG_UNITS_FILE`, `CATALOG_COMMUNES_FILE`, mặc định tệp khảo sát ở `../.claude/logs-khaosat-*`, không có thì bỏ qua); trang **Danh mục đơn vị** ở cổng nền tảng: số liệu, nhập tệp CSV (gửi nguyên văn bản, tối đa 20 MB, chạy thử trước), báo cáo, tra cứu theo sở, cấp, cờ, chữ (thấy trường đã gắn), các lần nhập gần đây.
+- **Gắn với trường đã khởi tạo (S2):** cột `schools.moet_code` (migration 0211, duy nhất, liên kết mềm không khóa ngoại để nạp lại danh mục không vướng trường); bước setup của S2 có ô chọn đơn vị trong danh mục, chọn thì điền tên, cấp học và **mã trường gợi ý theo mã Bộ** (viết thường, khi đúng quy tắc mã trường của S1a); trang chi tiết trường gắn hoặc gỡ mã Bộ cho trường đã có; lệnh `provision --file` nhận thêm `moet_code`.
+
+**2. Màn hình đăng nhập theo đơn vị**
+
+- **Bố cục** (cổng quản trị, MH-47): đầu trang là tiêu đề, biểu trưng theo cấu hình; khung "Đăng nhập hệ thống" gồm phần **Thông tin đơn vị** (Sở GD&ĐT\*, Cấp học\*, Phường/Xã, Trường\*; ô chọn có tìm kiếm không phân biệt dấu, danh sách lấy theo trang từ máy chủ, "Xem thêm") và phần **Thông tin tài khoản** (tên đăng nhập, mật khẩu, mã xác thực hai lớp khi cần, mã xác nhận dạng ảnh do máy chủ sinh, "Ghi nhớ tài khoản" nhớ cả đơn vị đã chọn, "Quên mật khẩu?", nút Đăng nhập); chân trang là các dòng thông tin hỗ trợ cấu hình ở cổng nền tảng (`platform_settings.login_page`) hoặc đường dây nóng của trường.
+- **Ba chế độ** theo điểm cuối `GET /auth/directory/context`:
+  - **tên miền chung** (`PLATFORM_ROOT_DOMAIN`): hiện ô chọn đơn vị; chọn một trường thì tra `GET /auth/directory/unit`: đơn vị chưa khởi tạo trên nền tảng hiện "Đơn vị này chưa sử dụng hệ thống trên nền tảng..." và không gửi được; đơn vị đã khởi tạo thì lấy mã xác nhận của đúng trường, mã xác nhận luôn bắt buộc ở tên miền chung; đăng nhập `POST /auth/directory/login` chạy trong ngữ cảnh của trường (cùng bộ đếm sai, khóa tạm, chính sách mật khẩu, xác thực hai lớp như đăng nhập ở tên miền của trường); đúng thì phiên mở ở trường đó, trả **mã chuyển phiên một lần** (chỉ lưu mã băm ở `login_handoffs` của cơ sở dữ liệu định danh của trường, hạn 2 phút), trình duyệt sang `https://<tên miền của trường>/sign-in-handoff#code=...`, trang đó đổi mã lấy cookie phiên (`POST /auth/handoff/exchange`) rồi xóa mã khỏi thanh địa chỉ; "Quên mật khẩu?" dẫn sang trang quên mật khẩu ở tên miền của trường đã chọn;
+  - **tên miền của trường** (tên miền con hoặc tên miền riêng): ẩn ô chọn, khung "Thông tin đơn vị" khóa vào trường (Sở, tên trường, cấp, mã Bộ nếu đã gắn, năm học); đăng nhập như cũ;
+  - **chế độ một trường**: như tên miền của trường, dữ liệu lấy từ `login-info` như cũ.
+- **API danh mục cho ô chọn** (dịch vụ định danh, không thuộc trường nào, chỉ phục vụ ở tên miền chung, tên miền khác 404): `departments`, `levels`, `communes?department&q&limit&offset`, `units?department&level&commune&q&limit&offset` (bắt buộc chọn sở, tối đa 50 dòng mỗi trang, chỉ trả mã, tên, xã, cấp, không trả cờ chất lượng), `unit?code`; giới hạn 120 yêu cầu đọc và 20 lần đăng nhập mỗi phút trên một địa chỉ mạng, cộng giới hạn đăng nhập theo trường đã có.
+- **Ứng dụng giáo viên, phụ huynh** có màn hình đăng nhập riêng, không dùng chung trang này, nên **không đổi** ở DT-24 (ghi để không bị hỏi lại); đăng nhập theo đơn vị cho hai ứng dụng này là việc sau nếu Eric cần.
+- **Cổng biên, máy chủ web:** hồ sơ thử nghiệm chuyển gốc tên miền hệ thống về `/quan-ly/` (trang đăng nhập theo đơn vị); trang chọn trường cũ của S1b vẫn ở `/api/v1/public/schools/picker`. Hồ sơ vận hành nhiều trường đã mở `/quan-ly` trên mọi tên miền đang phục vụ (khối bắt chung, `TENANT_PATHS=on`), nên trang đăng nhập theo đơn vị ở `https://<tên miền hệ thống>/quan-ly/`.
+
+**3. Quyền vào mọi trường của quản trị nền tảng**
+
+- **Chính sách ở mức nền tảng** `platform_settings.support_access_policy` (migration 0211 đặt mặc định): `mode` = `any_school` (mặc định theo quyết định của Eric ngày 2026-10-26) hoặc `school_grant` (chỉ khi trường cho phép, như S4); `default_hours` 2, `max_hours` 8. Đổi ở trang Danh mục đơn vị của cổng nền tảng, bắt buộc nhập lại mã xác thực hai lớp, ghi nhật ký; chuyển sang `school_grant` thì mọi phiên đang mở theo chính sách nền tảng kết thúc ngay và mở mới bị từ chối.
+- **Mở phiên khi trường chưa cho phép** (dùng lại phiên hỗ trợ của S4): ở trang chi tiết trường, người vận hành ghi lý do (5 đến 500 ký tự), chọn phạm vi chỉ đọc hoặc toàn quyền, số giờ (1 đến tối đa), **nhập lại mã xác thực hai lớp ngay lúc mở** (ngoài lần đăng nhập cổng); thiếu mã thì từ chối 422, sai mã tính như nhập sai mật khẩu (khóa tạm). Phiên ghi `support_sessions.access_basis = 'platform_policy'`; đường liên kết một lần 5 phút; phiên tự hết hạn theo số giờ; mã phiên mang phạm vi như S4 (chỉ đọc thì chặn ghi).
+- **Nhật ký đầy đủ, trường xem được:** nhật ký nền tảng (`support.platform-access-requested`, `support.session-started` kèm căn cứ, lý do, hạn, địa chỉ mạng), nhật ký định danh của trường (`support_start` kèm căn cứ, lý do), từng thao tác trong phiên (`support_session_actions`); trang **Cho phép hỗ trợ** của cổng quản trị liệt kê mọi phiên kèm căn cứ ("quyền quản trị nền tảng, không cần trường cho phép"), lý do, thao tác.
+- **Biểu ngữ** ở mọi trang của cổng quản trị trong phiên: "Đang truy cập với quyền quản trị nền tảng: <tên> (phạm vi, đến <giờ>), lý do: ...", cho chính người vận hành và cho quản trị tài khoản của trường.
+- Phiên theo cho phép của trường (S4) và phiên xem chi tiết của cấp trên (S6) giữ nguyên; căn cứ ghi `school_grant`, `access_request`.
+
+### 16.5 Quyết định thiết kế và phương án đã loại
+
+- **Danh mục là bảng riêng ở cơ sở dữ liệu nền tảng, không dùng `admin_units` của S6:** `admin_units` là cây quản lý cấp trên do người vận hành tự dựng (gộp, tách nút, tài khoản cấp trên); danh mục là dữ liệu tham chiếu nạp từ nguồn, khóa theo mã của nguồn, nạp lại mỗi năm học. Phương án đã loại: ghi danh mục vào cây S6 (trộn dữ liệu nguồn với cấu hình của người vận hành, gộp, tách nút làm sai mã nguồn).
+- **Mã Bộ là chuỗi, không ràng buộc dạng 8 chữ số; không suy ra tỉnh từ mã:** theo báo cáo khảo sát, mã bất biến từ lần cấp đầu, có 4.333 mã không chuẩn. Phương án đã loại: chuẩn hóa hay bỏ mã lạ (mất đơn vị thật).
+- **Đăng nhập ở tên miền chung rồi chuyển phiên bằng mã một lần, không đặt cookie dùng chung các tên miền:** cookie phiên của S1a là cookie cùng tên miền (SameSite=Strict); tên miền riêng của trường không chung tên miền gốc. Phương án đã loại: chọn đơn vị xong chuyển hướng sang trang đăng nhập của trường để nhập lại (hai bước, khác luồng một khung của trang mẫu); đặt cookie miền gốc (không áp dụng được cho tên miền riêng, mở rộng phạm vi cookie).
+- **Mã chuyển phiên lưu ở cơ sở dữ liệu định danh của trường, không ở Redis:** kiểm tĩnh đa thuê bao cấm gọi Redis ngoài lớp hạ tầng; bảng của trường tự cách ly theo trường. Phương án đã loại: lưu mã làm mới ở Redis (lộ mã làm mới nếu Redis bị đọc).
+- **Danh sách không đánh dấu đơn vị đã dùng nền tảng:** tránh lộ danh sách khách hàng; tra từng đơn vị khi chọn, có giới hạn tần suất.
+- **Quyền quản trị nền tảng dùng lại phiên hỗ trợ của S4:** một đường duy nhất có đường liên kết một lần, tài khoản hỗ trợ riêng của trường (không đăng nhập bằng mật khẩu), phạm vi, nhật ký thao tác, biểu ngữ. Phương án đã loại: đăng nhập thẳng bằng tài khoản quản trị của trường (không phân biệt được người thao tác), tài khoản vận hành có quyền ở mọi cơ sở dữ liệu (vượt lớp cách ly theo trường).
+- **Bắt buộc nhập lại mã xác thực hai lớp lúc mở phiên không cần đồng ý,** dù cổng đã bắt buộc xác thực hai lớp khi đăng nhập: phiên cổng có thể đang mở trên máy để quên; bước xác thực lại cho mỗi lần vào trường là bằng chứng có chủ đích.
+- **Không làm ở DT-24:** đăng nhập theo đơn vị cho ứng dụng giáo viên, phụ huynh; kết nối API của hệ thống ngành (chưa có đặc tả công khai; căn cứ là Điều 14 Thông tư 42/2021/TT-BGDĐT, đầu mối Cục Công nghệ thông tin; việc này Eric quyết định); tự động cập nhật danh mục định kỳ (nạp tay mỗi năm học); cho trường tự xin đăng ký từ ô chọn.
+
+### 16.6 Nạp danh mục khi triển khai
+
+1. Lấy tệp danh mục ở máy của người vận hành (không qua kho mã), đúng cột: đơn vị `ma_so, ten_so, ma_cap_hoc, cap_hoc, ma_phuong_xa, ten_phuong_xa, ma_truong, ten_truong, nam_hoc`; phường xã `ma_so, ten_so, ma_phuong_xa, ten_phuong_xa`. Tệp phải giữ bước che mã trùng khuôn số căn cước như bản khảo sát.
+2. Chạy thử: `pnpm --filter @school-management/database platform catalog-import --units <tệp đơn vị> --communes <tệp phường xã> --dry-run`, đọc báo cáo (số thêm, bỏ qua, cờ).
+3. Nhập thật: bỏ `--dry-run`. Hoặc ở cổng nền tảng, trang Danh mục đơn vị: nạp tệp phường xã trước, rồi tệp đơn vị; chạy thử rồi nhập.
+4. Mỗi năm học nạp lại cùng cách; thêm `--deactivate-missing` (hoặc tích ô tương ứng) khi muốn chuyển ngừng hoạt động các đơn vị không còn trong tệp của các sở có trong tệp.
+5. Gắn trường đã khởi tạo với mã Bộ ở trang chi tiết trường (hoặc chọn từ danh mục khi khởi tạo trường mới).
+6. Đặt tiêu đề, chân trang của trang đăng nhập ở tên miền chung (trang Danh mục đơn vị); kiểm tra chính sách vào trường của quản trị nền tảng đúng thỏa thuận đã ký với các trường (PL-02 Điều 5a).
+7. Máy phát triển: `pnpm --filter @school-management/database platform catalog-seed` nạp từ thư mục khảo sát nếu có, không có thì bỏ qua.
+
+### 16.7 Rủi ro và cách kiểm
+
+| Rủi ro | Cách kiểm |
+|---|---|
+| Dữ liệu thu thập lọt vào kho công khai | Tệp mẫu chỉ có mã 97, 98, 99xxx và tên bịa; công cụ đọc tệp ở ngoài kho; người duyệt PR rà danh sách tệp; quét bí mật của S8b vẫn chạy |
+| Số căn cước của chủ nhóm trẻ lọt vào danh mục qua mã 12 chữ số | Bộ đọc loại mã đã che và mã khớp khuôn 12 chữ số bắt đầu bằng 0, báo cáo chỉ ghi `[đã che]`; kiểm thử CT-24-2 kiểm báo cáo không chứa giá trị mã |
+| Mạo danh cơ quan nhà nước | Tiêu đề, biểu trưng từ cấu hình; e2e 160 kiểm trang không có chữ "Bộ Giáo dục" hay "quốc gia"; người duyệt đối chiếu |
+| Lộ danh sách khách hàng qua ô chọn | Danh sách không có cờ đã dùng; tra từng đơn vị có giới hạn 120 yêu cầu mỗi phút mỗi địa chỉ; ô chọn chỉ ở tên miền chung |
+| Dò mật khẩu qua tên miền chung, lách giới hạn theo trường | Mã xác nhận luôn bắt buộc; giới hạn 20 lần đăng nhập mỗi phút mỗi địa chỉ trên mọi trường cộng giới hạn theo trường; khóa tạm theo tài khoản như cũ |
+| Mã chuyển phiên bị lộ hoặc dùng ở trường khác | Mã 32 byte ngẫu nhiên sau dấu `#`, chỉ lưu mã băm, hạn 2 phút, một lần, bảng ở cơ sở dữ liệu của đúng trường (trường khác không thấy), trang xóa mã khỏi lịch sử; kiểm thử CT-24-6 |
+| Trang đăng nhập đổi làm hỏng các e2e đang dùng | Giữ nhãn ô, nút, mã kiểm thử cũ; chạy 01, 59 (một trường) và 130 đến 140, 160 (nhiều trường) |
+| Quản trị nền tảng vào trường không đúng mục đích, trái thỏa thuận xử lý dữ liệu | Chỉ khi chính sách cho phép; xác thực hai lớp lúc mở, lý do, có hạn, phạm vi; nhật ký hai phía và từng thao tác; trường xem được; biểu ngữ; PL-02 Điều 5a ghi rõ quyền và giới hạn; chính sách đổi được sang `school_grant`; luật sư rà (GD-110) |
+| Chính sách đổi sang `school_grant` mà phiên cũ vẫn chạy | Đổi chính sách kết thúc mọi phiên `platform_policy` đang mở; đổi mã chuyển phiên kiểm lại chính sách; kiểm thử CT-24-7 |
+| Va số với DT-23 chạy song song | Dải DT-24 bắt đầu sau toàn bộ dải giữ của DT-23; sửa tệp chung (`application.module.ts`, `MULTI_TENANT_SPEC`, `platform-menu.ts`, schema nền tảng) theo kiểu thêm cuối; gộp `origin/main` khi PR khác gộp trước |
+
+**Cổng kiểm của DT-24:** kiểm thử đơn vị của gói đã sửa (`database` CT-24-1 đến CT-24-4; `apps/identity` CT-24-5 đến CT-24-8 cùng phiên hỗ trợ S4 và ma trận cách ly); e2e 160 và các spec đăng nhập (01, 59 ở dự án một trường; 130 đến 140 ở dự án nhiều trường) giữ khóa `e2e.lock`; kiểm tĩnh đa thuê bao; typecheck, lint, định dạng; CI xanh toàn bộ.
+
+### 16.8 Tiến độ
+
+| Phần | Tiến độ |
+|---|---|
+| DT-24 | Đã làm trong PR "DT-24: danh mục trường toàn quốc, đăng nhập theo đơn vị, quyền quản trị nền tảng" (YCTD-220, phiên bản 0.141.0) |
+
+### 16.9 Giả định chưa chốt, làm cấu hình được
+
+| Mã | Mục chưa chốt | Giả định để làm | Cấu hình ở | Cần ai trả lời |
+|---|---|---|---|---|
+| GD-109 | Được dùng lại danh mục lấy từ trang công khai của hệ thống ngành vào phần mềm thương mại không | Chỉ dùng làm dữ liệu tham chiếu nội bộ (tên, mã đơn vị, không có dữ liệu cá nhân), không công bố lại cả danh sách, không ghi tên nguồn trên giao diện; hướng lâu dài là xin kết nối chính thức theo Điều 14 Thông tư 42/2021/TT-BGDĐT | Không | Eric, luật sư |
+| GD-110 | Quản trị nền tảng vào mọi trường không cần trường đồng ý | **Eric đã chốt 2026-10-26:** mặc định `any_school`, bắt buộc xác thực hai lớp, lý do, nhật ký trường xem được, có hạn, biểu ngữ; ghi vào PL-02 Điều 5a; luật sư rà trước khi nhận dữ liệu thật | `platform_settings.support_access_policy` | Eric (đã chốt), luật sư |
+| GD-111 | Tiêu đề trang đăng nhập ở tên miền chung | "Hệ thống quản lý trường học" cho đến khi Eric chốt tên sản phẩm | `platform_settings.login_page` | Eric |
+| GD-112 | Cập nhật danh mục | Nạp tay mỗi năm học từ tệp người vận hành có được; chưa tự động | Không | Eric |
 
 ## 17. DT-25: bộ nối nhà cung cấp định danh bên ngoài theo chuẩn OIDC (sẵn cho VNeID)
 

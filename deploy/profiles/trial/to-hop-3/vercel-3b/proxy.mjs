@@ -25,8 +25,9 @@ export default function proxy(request) {
   if (host === process.env.CONSOLE_HOST) {
     return rewrite(new URL(`/nen-tang${url.pathname.includes('.') ? url.pathname : '/index.html'}`, request.url));
   }
-  if (host === process.env.ROOT_DOMAIN) {
-    return url.pathname === '/' ? originRequest(request, '/api/v1/public/schools/picker') : next();
+  // Tên miền hệ thống: trang đăng nhập theo đơn vị của cổng quản trị (DT-24); gốc chuyển về /quan-ly/
+  if (host === process.env.ROOT_DOMAIN && url.pathname === '/') {
+    return Response.redirect(new URL('/quan-ly/', request.url), 308);
   }
   if (APP_PREFIXES.some((prefix) => url.pathname.startsWith(prefix))) {
     // Đường dẫn của ứng dụng một trang không có tệp thì trả index.html của ứng dụng đó

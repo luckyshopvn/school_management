@@ -75,6 +75,7 @@ import { migration as addLearningResourceSharePermission } from './migrations/00
 import { migration as createUserTotp } from './migrations/0101_create_user_totp.js';
 import { migration as createUserRecoveryCodes } from './migrations/0102_create_user_recovery_codes.js';
 import { migration as addBillingPermission } from './migrations/0105_add_billing_permission.js';
+import { migration as createLoginHandoffs } from './migrations/0130_create_login_handoffs.js';
 import { migration as createExternalIdentities } from './migrations/0140_create_external_identities.js';
 
 // Danh sách tệp thay đổi cấu trúc của cơ sở dữ liệu định danh, theo số thứ tự (QU-01)
@@ -156,6 +157,8 @@ export const identityMigrations: Record<string, Migration> = {
   '0102_create_user_recovery_codes': createUserRecoveryCodes,
   // Hóa đơn dịch vụ của trường (DT-SaaS phần S5b)
   '0105_add_billing_permission': addBillingPermission,
+  // Đăng nhập theo đơn vị ở tên miền chung (DT-24): 0130 đến 0139
+  '0130_create_login_handoffs': createLoginHandoffs,
   // Bộ nối nhà cung cấp định danh OIDC, sẵn cho VNeID (DT-25)
   '0140_create_external_identities': createExternalIdentities,
 };

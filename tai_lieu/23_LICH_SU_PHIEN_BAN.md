@@ -16,7 +16,7 @@
 
 ## 2. Danh sách phiên bản
 
-### Phiên bản 0.141.0 – 2026-10-26
+### Phiên bản 0.142.0 – 2026-10-26
 
 - Phạm vi thay đổi: DT-25, bộ nối nhà cung cấp định danh OIDC sẵn cho VNeID, phần máy chủ (YCTD-225).
 - Chức năng mới: lớp `IdentityProvider` và bộ nối OIDC chung (PKCE, state, nonce, discovery, JWKS, quay khóa), hồ sơ `vneid` cấu hình được (mục chờ tài liệu RAR); nền tảng khai nhà cung cấp, trường bật tắt, chọn nhóm vai trò, mã ứng dụng và khóa riêng; liên kết, gỡ liên kết bằng mật khẩu và mã hai lớp; đăng nhập bằng nhà cung cấp ngoài có bước nhập mã hai lớp; nhật ký liên kết.
@@ -27,6 +27,18 @@
 - Rủi ro: tham số kỹ thuật của RAR có thể khác giả định (đổi cấu hình, hoặc viết bộ nối mới theo `IdentityProvider`); vai trò pháp lý của nhà cung cấp định danh trong PL-02, PL-05 chờ luật sư.
 - Khả năng tương thích: không khai nhà cung cấp hoặc trường chưa bật thì không có gì thay đổi; chưa có giao diện (bước 25b sau DT-24).
 - Phương án quay lui: tắt nhà cung cấp ở trường hoặc bỏ biến `EXTERNAL_IDENTITY_PROVIDERS`; hoàn lại commit gộp; migration 0140 có `down` (xóa ba bảng, trả ràng buộc cũ).
+
+### Phiên bản 0.141.0 – 2026-10-26
+
+- Phạm vi thay đổi: DT-24, danh mục đơn vị toàn quốc, đăng nhập theo đơn vị, quyền vào mọi trường của quản trị nền tảng (YCTD-220).
+- Chức năng mới: danh mục đơn vị (sở, cấp học, phường xã, trường theo mã Bộ) nhập từ CSV bằng lệnh `platform catalog-import`, `catalog-seed` hoặc trang Danh mục đơn vị của cổng nền tảng, có chạy thử, báo cáo, cờ chất lượng; gắn trường với mã Bộ khi khởi tạo hoặc ở chi tiết trường; trang đăng nhập bố cục "Đăng nhập hệ thống" có ô chọn Sở → Cấp học, Phường/Xã → Trường ở tên miền chung và chuyển phiên một lần sang tên miền của trường; chính sách vào mọi trường của quản trị nền tảng (mặc định bật, nhập lại mã xác thực hai lớp, lý do, có hạn, biểu ngữ, nhật ký trường xem được).
+- Lỗi đã sửa: không có.
+- Thay đổi dữ liệu: nền tảng 0210 (`catalog_departments`, `catalog_levels`, `catalog_communes`, `catalog_units`, `catalog_unit_levels`, `catalog_import_runs`), 0211 (`schools.moet_code`, `support_sessions.access_basis`, cài đặt `support_access_policy`); định danh 0130 (`login_handoffs`).
+- Thay đổi API: nhóm `/auth/directory/*`, `/auth/handoff/exchange`, `/auth/platform/catalog*`, `/auth/platform/schools/:code/catalog-unit`, `/auth/platform/login-page`, `/auth/platform/support-policy`; `support-sessions` nhận `otp_code`, `scope`, `hours`; `/platform-notices`, `/support-access` trả thêm `access_basis`, `reason`.
+- Kiểm thử: CT-24-1 đến CT-24-10 trong mã kiểm thử. Kết quả ngày 26/10/2026 ghi ở `02_NHAT_KY_DU_AN.md` mục cùng ngày.
+- Rủi ro: quyền vào trường không cần đồng ý phải nằm trong thỏa thuận xử lý dữ liệu đã ký (PL-02 Điều 5a), luật sư rà trước khi nhận dữ liệu thật; danh mục lấy từ trang công khai chỉ dùng làm dữ liệu tham chiếu (GD-109).
+- Khả năng tương thích: tên miền của trường và chế độ một trường giữ hành vi đăng nhập; phiên hỗ trợ theo cho phép của S4 và phiên của cấp trên S6 không đổi; cổng biên thử nghiệm đổi gốc tên miền hệ thống từ trang chọn trường sang trang đăng nhập theo đơn vị (trang chọn trường vẫn ở đường dẫn cũ của API).
+- Phương án quay lui: đổi chính sách sang `school_grant` ở cổng nền tảng để ngừng quyền vào không cần đồng ý mà không cần quay lui mã; hoàn lại commit gộp của nhánh DT-24 để bỏ cả tính năng (bảng danh mục để lại không ảnh hưởng).
 
 ### Phiên bản 0.140.0 – 2026-10-26
 

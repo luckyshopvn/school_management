@@ -201,6 +201,18 @@ export interface UserTotpTable {
   updated_at: UpdatedTimestamp;
 }
 
+// Mã chuyển phiên một lần sau khi đăng nhập theo đơn vị ở tên miền chung (DT-24, YCTD-220)
+export interface LoginHandoffsTable {
+  id: Generated<string>;
+  token_hash: string;
+  session_id: string;
+  user_id: string;
+  ip_address: string | null;
+  created_at: CreatedTimestamp;
+  expires_at: Date;
+  used_at: Date | null;
+}
+
 export interface UserRecoveryCodesTable {
   id: Generated<string>;
   user_id: string;
@@ -267,6 +279,7 @@ export interface IdentityDatabase {
   password_history: PasswordHistoryTable;
   user_school_levels: UserSchoolLevelsTable;
   user_preferences: UserPreferencesTable;
+  login_handoffs: LoginHandoffsTable;
   external_identity_providers: ExternalIdentityProvidersTable;
   external_identities: ExternalIdentitiesTable;
   external_identity_events: ExternalIdentityEventsTable;

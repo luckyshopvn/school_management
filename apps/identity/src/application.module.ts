@@ -43,6 +43,13 @@ import {
   SupportExchangeController,
   SupportSessionsService,
 } from './platform/support-sessions.js';
+import {
+  DirectoryRateLimiter,
+  LoginHandoffController,
+  UnitDirectoryController,
+  UnitDirectoryService,
+} from './directory/unit-directory.js';
+import { PlatformCatalogController, PlatformCatalogService } from './platform/platform-catalog.js';
 import { ExternalIdentityController } from './external-identity/external-identity.controller.js';
 import { ExternalIdentityService } from './external-identity/external-identity.service.js';
 
@@ -74,6 +81,10 @@ export class ApplicationModule {
         ParentOrgAuthController,
         PlatformSupportController,
         SupportExchangeController,
+        // Danh mục đơn vị, đăng nhập theo đơn vị (DT-24)
+        UnitDirectoryController,
+        LoginHandoffController,
+        PlatformCatalogController,
         ExternalIdentityController,
       ],
       providers: [
@@ -120,6 +131,9 @@ export class ApplicationModule {
         PlatformDashboardService,
         ParentOrgsService,
         SupportSessionsService,
+        DirectoryRateLimiter,
+        UnitDirectoryService,
+        PlatformCatalogService,
         ExternalIdentityService,
       ],
     };

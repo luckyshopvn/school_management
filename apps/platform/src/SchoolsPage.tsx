@@ -9,6 +9,8 @@ import {
   type SchoolSummary,
 } from './platform-api.js';
 import { SupportPanel } from './SupportPanel.js';
+import { CatalogUnitPicker } from './CatalogPage.js';
+import { catalogApi } from './catalog-api.js';
 
 // Trang Trường của cổng vận hành nền tảng (DT-SaaS phần S2, YCTD-193; tài liệu 32 mục 14.5): danh sách, bước setup năm bước,
 // chi tiết và thao tác vòng đời. Hồ sơ đồng ý dùng dữ liệu thật (PL-00 của S8a) nhập ở bước 3 khi chọn loại dữ liệu `consented`
@@ -79,6 +81,8 @@ function SetupWizard({
   const [name, setName] = useState('');
   const [address, setAddress] = useState('');
   const [levels, setLevels] = useState<string[]>([]);
+  // Đơn vị chọn từ danh mục toàn quốc (DT-24): mã trường gợi ý theo mã Bộ
+  const [moetCode, setMoetCode] = useState<string | null>(null);
   const [firstYear, setFirstYear] = useState(String(new Date().getFullYear()));
   const [domainMode, setDomainMode] = useState<'system' | 'custom'>(settings?.system_domain ? 'system' : 'custom');
   const [customHost, setCustomHost] = useState('');
@@ -110,6 +114,7 @@ function SetupWizard({
       name: name.trim(),
       address: address.trim() || null,
       levels,
+      moet_code: moetCode,
       first_year_start: firstYear ? Number(firstYear) : null,
       domain: domainMode === 'system' ? { mode: 'system' } : { mode: 'custom', host: customHost.trim() },
       data_class: dataClass,
@@ -182,6 +187,27 @@ function SetupWizard({
       {step === 0 ? (
         <fieldset>
           <legend>Thông tin trường</legend>
+          {moetCode ? (
+            <p className="notice" data-testid="setup-moet-code">
+              Đơn vị trong danh mục: mã Bộ {moetCode}{' '}
+              <button type="button" className="link" onClick={() => setMoetCode(null)}>
+                Bỏ chọn
+              </button>
+            </p>
+          ) : (
+            <CatalogUnitPicker
+              token={token}
+              onPick={(unit) => {
+                setMoetCode(unit.moet_code);
+                setName(unit.name);
+                setLevels(LEVELS.filter((level) => unit.levels.includes(level.code)).map((level) => level.code));
+                const suggested = unit.moet_code.toLowerCase();
+                if (/^[a-z0-9](?:[a-z0-9-]{1,30})[a-z0-9]$/.test(suggested)) {
+                  setCode(suggested);
+                }
+              }}
+            />
+          )}
           <label>
             Mã trường
             <input value={code} onChange={(event) => setCode(event.target.value.toLowerCase())} required />
@@ -495,6 +521,22 @@ function SchoolDetailView({ token, code, onBack }: { token: string; code: string
         <dd>{detail.school_levels.join(', ')}</dd>
         <dt>Năm học đầu</dt>
         <dd>{detail.first_academic_year ?? '—'}</dd>
+        <dt>Mã Bộ (danh mục đơn vị)</dt>
+        <dd data-testid="school-moet-code">
+          {detail.moet_code ?? 'Chưa gắn'}
+          {detail.moet_code ? (
+            <>
+              {' '}
+              <button
+                type="button"
+                className="link"
+                onClick={() => void act(() => catalogApi.linkSchool(token, code, null), 'Đã gỡ mã Bộ')}
+              >
+                Gỡ
+              </button>
+            </>
+          ) : null}
+        </dd>
         {detail.delete_after ? (
           <>
             <dt>Xóa vĩnh viễn sau</dt>
@@ -502,6 +544,15 @@ function SchoolDetailView({ token, code, onBack }: { token: string; code: string
           </>
         ) : null}
       </dl>
+      {!detail.moet_code && status !== 'deleted' ? (
+        <CatalogUnitPicker
+          token={token}
+          label="Gắn trường với đơn vị trong danh mục"
+          onPick={(unit) =>
+            void act(() => catalogApi.linkSchool(token, code, unit.moet_code), `Đã gắn mã Bộ ${unit.moet_code}`)
+          }
+        />
+      ) : null}
       {notice ? <p role="status">{notice}</p> : null}
       {error ? <p role="alert">{error}</p> : null}
       {!detail.legacy && status !== 'deleted' ? (

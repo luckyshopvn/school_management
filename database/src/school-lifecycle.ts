@@ -107,6 +107,8 @@ export interface SchoolSetupInput {
   hosting?: HostingInput[];
   admin: { full_name: string; login: string; phone?: string | null };
   terms: { version: string; accepted: boolean; accepted_by_name: string; accepted_by_title?: string | null };
+  // Mã Bộ của đơn vị chọn từ danh mục toàn quốc (DT-24); có thì mã trường gợi ý theo mã Bộ, đăng nhập theo đơn vị tìm được trường
+  moet_code?: string | null;
 }
 
 export interface LifecycleEnvironment {
@@ -404,6 +406,32 @@ export async function startProvisioning(
       'validation',
     );
   }
+  const moetCode = typeof input.moet_code === 'string' && input.moet_code.trim() ? input.moet_code.trim() : null;
+  if (moetCode) {
+    const unit = await platform
+      .selectFrom('catalog_units')
+      .select('id')
+      .where('moet_code', '=', moetCode)
+      .executeTakeFirst();
+    const linked = await platform
+      .selectFrom('schools')
+      .select('code')
+      .where('moet_code', '=', moetCode)
+      .where('status', '!=', 'deleted')
+      .executeTakeFirst();
+    if (!unit || linked) {
+      throw new LifecycleError(
+        'Đơn vị trong danh mục chưa hợp lệ',
+        [
+          {
+            field: 'moet_code',
+            message: unit ? `Đơn vị đã gắn với trường ${linked?.code ?? ''}` : 'Mã không có trong danh mục đơn vị',
+          },
+        ],
+        'validation',
+      );
+    }
+  }
   const slug = schoolSlug(code);
   return platform.transaction().execute(async (transaction) => {
     const school = await transaction
@@ -418,6 +446,7 @@ export async function startProvisioning(
         address: input.address?.trim() || null,
         school_levels: JSON.stringify(input.levels),
         first_academic_year: input.first_year_start ? `${input.first_year_start}-${input.first_year_start + 1}` : null,
+        moet_code: moetCode,
       })
       .returning('id')
       .executeTakeFirstOrThrow();
