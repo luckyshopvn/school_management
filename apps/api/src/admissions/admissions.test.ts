@@ -3,7 +3,7 @@ import { randomInt } from 'node:crypto';
 import { after, before, beforeEach, describe, it } from 'node:test';
 import {
   createDatabase,
-  createEmptyDatabase,
+  createMigratedTestDatabase,
   migrateToLatest,
   replaceDatabaseName,
   type SchoolYearDatabase,
@@ -479,7 +479,7 @@ describe('Tuyển sinh trực tuyến: đợt, tin, hồ sơ, xét duyệt, chuy
     const pending = await publicApi('POST', '/admission-applications', applicationBody());
     assert.equal(pending.status, 201);
     const nextName = `${environment.schoolYearDatabasePrefix}admissions_next`;
-    await createEmptyDatabase(environment.systemDatabaseUrl, nextName);
+    await createMigratedTestDatabase(environment.systemDatabaseUrl, nextName, 'school-year');
     const nextUrl = replaceDatabaseName(environment.systemDatabaseUrl, nextName);
     const migrated = await migrateToLatest('school-year', nextUrl);
     assert.equal(migrated.error, undefined);
