@@ -389,6 +389,18 @@ describe('Gia sư trong trường', () => {
       400,
       'cần lý do',
     );
+    // Tuần đầu đã có 3 tiết (buổi thứ Sáu theo quyết định cho An): duyệt đơn của Binh bị chặn đến khi có quyết định của Sở
+    const blocked = await api('POST', `/tutoring/registrations/${again.body.id as string}/approve`, homeroom);
+    assert.equal(blocked.status, 422, JSON.stringify(blocked.body));
+    assert.deepEqual(ruleCodes(blocked.body), ['weekly_periods']);
+    const exemption = await api('POST', '/tutoring/exemptions', principal, {
+      decision_no: '124/QĐ-SGDĐT',
+      decision_date: vietnamToday,
+      subject_id: mathId,
+      max_periods_per_week: 3,
+      child_ids: [children.Binh],
+    });
+    assert.equal(exemption.status, 201, JSON.stringify(exemption.body));
     assert.equal(
       (await api('POST', `/tutoring/registrations/${again.body.id as string}/approve`, homeroom)).status,
       200,
