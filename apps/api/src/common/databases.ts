@@ -2,6 +2,7 @@ import { Inject, Injectable, Optional, type OnModuleDestroy } from '@nestjs/comm
 import {
   createDatabase,
   createEmptyDatabase,
+  createMigratedTestDatabase,
   dropDatabaseIfExists,
   makeDatabaseReadOnly,
   makeDatabaseWritable,
@@ -76,7 +77,11 @@ export class Databases implements OnModuleDestroy {
     if (tenant) {
       return this.runtime().createYearDatabase(tenant, databaseName);
     }
-    await createEmptyDatabase(this.configuration.systemDatabaseUrl, databaseName);
+    if (this.configuration.schoolYearDatabasesFromTemplate) {
+      await createMigratedTestDatabase(this.configuration.systemDatabaseUrl, databaseName, 'school-year');
+    } else {
+      await createEmptyDatabase(this.configuration.systemDatabaseUrl, databaseName);
+    }
     return this.schoolYearConnectionString(databaseName);
   }
 

@@ -3,7 +3,7 @@ import { randomInt } from 'node:crypto';
 import { after, before, describe, it } from 'node:test';
 import {
   createDatabase,
-  createEmptyDatabase,
+  createMigratedTestDatabase,
   migrateToLatest,
   replaceDatabaseName,
   type SchoolYearDatabase,
@@ -542,7 +542,7 @@ describe('Kế hoạch giáo dục', () => {
 
   it('CT-22i-9: bước chuyển năm học chép thư viện mẫu; sao chép kế hoạch năm trước theo mẫu năm nay và so sánh với bản năm trước', async () => {
     const previousName = `${environment.schoolYearDatabasePrefix}education_plans_previous`;
-    await createEmptyDatabase(environment.systemDatabaseUrl, previousName);
+    await createMigratedTestDatabase(environment.systemDatabaseUrl, previousName, 'school-year');
     const previousUrl = replaceDatabaseName(environment.systemDatabaseUrl, previousName);
     assert.equal((await migrateToLatest('school-year', previousUrl)).error, undefined);
     const previous = createDatabase<SchoolYearDatabase>(previousUrl);
