@@ -3,7 +3,7 @@
 - Mã mẫu: PL-04; phiên bản mẫu: S8a-1.0 (2026-10-25); YCTD-200.
 - Trạng thái: **bản nháp, cần luật sư rà trước khi dùng.**
 - Cách hiển thị (S2 làm): hiện trong ứng dụng khi người dùng đăng nhập lần đầu và mỗi khi phiên bản điều khoản đổi; người dùng phải bấm "Đồng ý" mới dùng tiếp; ghi phiên bản, thời điểm, tài khoản, trường vào bảng ghi đồng ý của S2. Văn bản có số phiên bản ở đầu; đổi nội dung thì tăng phiên bản.
-- Người dùng ở đây là tài khoản của trường (quản trị trường, cán bộ, giáo viên, nhân viên, cha mẹ, người giám hộ). Học sinh không có tài khoản trong phạm vi hiện tại.
+- Người dùng ở đây là tài khoản của trường (quản trị trường, cán bộ, giáo viên, nhân viên, cha mẹ, người giám hộ). Học sinh có tài khoản đăng nhập làm bài thi trực tuyến do nhà trường cấp (từ YCTD-211), chỉ dùng cho bài thi được giao, không đổi thông tin hồ sơ; camera khi thi chỉ xử lý trên máy của học sinh, không gửi hình hay video lên máy chủ.
 
 ---
 
