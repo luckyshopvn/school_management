@@ -23,7 +23,7 @@
 - Lỗi đã sửa: không có.
 - Thay đổi dữ liệu: năm học `0128`; hệ thống `0071` đến `0073`; nền tảng `0200` đến `0202`; xem `16_CO_SO_DU_LIEU.md` mục 18E.
 - Thay đổi API: nhóm `/ai/*` ở máy chủ API, `/auth/platform/ai` ở dịch vụ định danh, kết nối `ai` ở `/school-settings/integrations`; biến `AI_MOCK`; câu hỏi trả thêm `ai_generated`.
-- Kiểm thử: kịch bản CT-1084 đến CT-1096 (CT-23d-1 đến CT-23d-16, CT-AI-1, CT-AI-2 trong mã kiểm thử). Kết quả ghi ở PR [số PR].
+- Kiểm thử: kịch bản CT-1084 đến CT-1096 (CT-23d-1 đến CT-23d-16, CT-AI-1, CT-AI-2 trong mã kiểm thử). Kết quả ghi ở PR 184.
 - Rủi ro: dữ liệu cá nhân lọt qua bộ quét ở mô tả tự do (đã nêu ở PL-22); đơn giá và nhà cung cấp chưa nhập; mức rủi ro theo Luật Trí tuệ nhân tạo chờ luật sư.
 - Khả năng tương thích: mặc định tắt nên trường hiện có không đổi; câu hỏi cũ có `ai_generated = false`.
 - Phương án quay lui: tắt AI theo trường hoặc hoàn lại commit gộp của nhánh 23d; các cột thêm có mặc định nên không cần quay lui dữ liệu.

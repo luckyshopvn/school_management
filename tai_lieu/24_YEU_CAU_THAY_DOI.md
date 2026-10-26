@@ -31,7 +31,7 @@ Các thay đổi trước phiên bản 0.4.0 chưa có sổ này; xem `23_LICH_S
 - Ảnh hưởng chức năng cũ: mặc định tắt nên không đổi; câu hỏi trả thêm `ai_generated`; duyệt câu do AI soạn chặt hơn; bước đầu việc `billing-cycle` tổng hợp token; hóa đơn có thể có dòng loại `ai`.
 - Kiểm thử cần thực hiện: kiểm thử đơn vị `database`, `apps/api` (hai bố cục), kiểm tra tĩnh nền đa thuê bao, ma trận cách ly, `pnpm typecheck`, `pnpm lint`, build, e2e một trường và nhiều trường (spec 153).
 - Chưa làm: chấm tự luận bằng AI, AI nhìn dữ liệu học sinh, trả lời học sinh bằng AI (không làm theo kế hoạch); nhà cung cấp AI cụ thể, đơn giá thật (chờ Eric); kết luận pháp lý (chờ luật sư).
-- Trạng thái: Đã triển khai (PR [số PR])
+- Trạng thái: Đã triển khai (PR 184)
 
 ### YCTD-250: Kế hoạch DT-27: nền tảng gia sư trực tuyến – 2026-10-26
 
