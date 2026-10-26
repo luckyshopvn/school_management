@@ -63,6 +63,7 @@ export function ClassesScreen({
   onOpenLibrary,
   onOpenClassLog,
   onOpenTraining,
+  onOpenClassroomTools,
 }: {
   onOpen(myClass: MyClass): void;
   onOpenPickup(myClass: MyClass): void;
@@ -85,6 +86,7 @@ export function ClassesScreen({
   onOpenLibrary(): void;
   onOpenClassLog(): void;
   onOpenTraining(): void;
+  onOpenClassroomTools(classes: MyClass[]): void;
 }) {
   const session = useSession();
   const [classes, setClasses] = useState<MyClass[]>();
@@ -143,6 +145,10 @@ export function ClassesScreen({
         {/* Lịch dạy theo thời khoá biểu (DT-20 phần 22c1): giáo viên có lớp cấp phổ thông */}
         {(classes ?? []).some((myClass) => hasLevelFeature(myClass.school_level, 'period_timetable')) ? (
           <Button onClick={onOpenTimetable}>Lịch dạy của tôi</Button>
+        ) : null}
+        {/* Gọi tên, chia nhóm, đếm ngược, bảng điểm nhanh; dùng được khi mất mạng (DT-23 phần 23b) */}
+        {(classes ?? []).length > 0 ? (
+          <Button onClick={() => onOpenClassroomTools(classes ?? [])}>Công cụ lớp học</Button>
         ) : null}
         {/* Sách đang mượn ở thư viện trường (DT-22 phần 22a) */}
         <Button onClick={onOpenLibrary}>Sách tôi đang mượn</Button>

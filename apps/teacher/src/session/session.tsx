@@ -1,5 +1,7 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
+import { clearClassroomData } from '../tools/classroom-store.js';
 import {
+  ApiError,
   changePassword as requestPasswordChange,
   loginWithPassword,
   logout as requestLogout,
@@ -7,7 +9,8 @@ import {
   type TokenResponse,
 } from './api-client.js';
 
-export type SessionStatus = 'checking' | 'signed-out' | 'signed-in';
+// 'offline': mất mạng lúc mở ứng dụng nên chưa xác nhận được phiên; chỉ công cụ lớp học dùng được (DT-23 phần 23b, GD-108)
+export type SessionStatus = 'checking' | 'signed-out' | 'signed-in' | 'offline';
 
 interface SessionValue {
   status: SessionStatus;
@@ -15,6 +18,8 @@ interface SessionValue {
   login(loginIdentifier: string, password: string, otpCode?: string): Promise<void>;
   changePassword(currentPassword: string, newPassword: string): Promise<void>;
   logout(): Promise<void>;
+  // Thử xác nhận lại phiên khi có mạng trở lại
+  retry(): void;
 }
 
 const SessionContext = createContext<SessionValue | undefined>(undefined);
@@ -29,11 +34,30 @@ export function SessionProvider({ children }: { children: ReactNode }) {
     setStatus('signed-in');
   }, []);
 
-  useEffect(() => {
+  // Máy chủ trả lời là phiên hết hạn hoặc không có: đăng xuất và xóa dữ liệu công cụ lớp học trên máy. Không có phản hồi
+  // (mất mạng, máy chủ lỗi) thì chưa kết luận gì: vào chế độ ngoại tuyến, có mạng lại thì xác nhận tiếp (DT-23 phần 23b)
+  const check = useCallback(() => {
     refreshSession()
       .then(applyTokens)
-      .catch(() => setStatus('signed-out'));
+      .catch((error: unknown) => {
+        if (error instanceof ApiError && error.status < 500) {
+          clearClassroomData();
+          setStatus('signed-out');
+        } else {
+          setStatus('offline');
+        }
+      });
   }, [applyTokens]);
+
+  useEffect(check, [check]);
+
+  useEffect(() => {
+    if (status !== 'offline') {
+      return;
+    }
+    window.addEventListener('online', check);
+    return () => window.removeEventListener('online', check);
+  }, [status, check]);
 
   const value = useMemo<SessionValue>(
     () => ({
@@ -45,16 +69,19 @@ export function SessionProvider({ children }: { children: ReactNode }) {
       async changePassword(currentPassword, newPassword) {
         applyTokens(await requestPasswordChange(currentPassword, newPassword));
       },
+      retry: check,
       async logout() {
         try {
           await requestLogout();
         } finally {
+          // Danh sách lớp lưu trên máy xóa khi đăng xuất (DT-23 phần 23b, GD-108)
+          clearClassroomData();
           setPasswordChangeRequired(false);
           setStatus('signed-out');
         }
       },
     }),
-    [status, passwordChangeRequired, applyTokens],
+    [status, passwordChangeRequired, applyTokens, check],
   );
 
   return <SessionContext.Provider value={value}>{children}</SessionContext.Provider>;
