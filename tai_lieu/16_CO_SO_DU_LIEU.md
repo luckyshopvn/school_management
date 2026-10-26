@@ -1,7 +1,7 @@
 # 16. CƠ SỞ DỮ LIỆU
 
 - Mô tả: Thực thể, trường, kiểu dữ liệu, khóa chính, khóa ngoại, quan hệ, ràng buộc, chỉ mục, trạng thái, lịch sử thay đổi, chính sách xóa dữ liệu.
-- Phiên bản: 1.127
+- Phiên bản: 1.128
 - Ngày cập nhật: 2026-10-26
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -296,7 +296,7 @@ Ràng buộc duy nhất: `attendance_records` trên bộ đôi trẻ, ngày; `ab
 | online_exam_school_settings (từ YCTD-211) | Cấu hình thi trực tuyến của trường, một dòng (P02-85) | id (luôn true), default_exam_mode, allow_remote, allowed_networks (JSON dải CIDR), room_code_minutes, người sửa |
 | exam_rooms (từ YCTD-211) | Phòng thi của bài giao tại trường (P02-84) | assignment_id (xóa theo), code (6 chữ số, duy nhất khi còn mở), opened_by, opened_at, expires_at, closed_at |
 | exam_room_students (từ YCTD-211) | Học sinh được vào phòng (P02-84) | room_id (xóa theo), child_id, entered_at |
-| exam_proctor_consents (từ YCTD-215; tệp năm học `0129_create_exam_proctoring`) | Đồng ý của cha mẹ cho giám sát bằng camera (P02-87, BR-238) | child_id, scope (`live`, `record`), source (`parent`, `school`), granted_by, granted_by_name, note, granted_at, revoked_at, revoked_by_name; duy nhất một đồng ý còn hiệu lực cho mỗi học sinh và loại |
+| exam_proctor_consents (từ YCTD-215; tệp năm học `0129_create_exam_proctoring`) | Đồng ý của cha mẹ cho giám sát bằng camera (P02-87, BR-239) | child_id, scope (`live`, `record`), source (`parent`, `school`), granted_by, granted_by_name, note, granted_at, revoked_at, revoked_by_name; duy nhất một đồng ý còn hiệu lực cho mỗi học sinh và loại |
 | exam_proctor_views (từ YCTD-215) | Nhật ký người xem camera và bản ghi (P02-88, P02-89) | attempt_id, kind (`live`, `recording`), viewer_id, viewer_name, started_at, last_seen_at, ended_at |
 | exam_proctor_signals (từ YCTD-215) | Thông điệp báo hiệu WebRTC sống ngắn (P02-88) | view_id (xóa theo), direction (`to_student`, `to_teacher`), kind (`offer`, `answer`, `ice`), payload, created_at; việc nền xoá sau 1 giờ |
 | exam_recording_chunks (từ YCTD-215) | Đoạn bản ghi đã mã hoá ở kho tệp (P02-89) | attempt_id, seq, storage_key (`exam-recordings/…`), size_bytes, expires_at; xoá khi quá hạn |
@@ -753,7 +753,7 @@ Từ YCTD-203 (tệp nền tảng `0100_add_database_login_name`), bảng `schoo
 | Bảng | Mục đích | Cột chính |
 |---|---|---|
 | integration_secrets (từ YCTD-195) | Cấu hình kết nối ngoài của trường, ở cơ sở dữ liệu hệ thống của trường (BR-211; hệ thống `0051_create_integration_secrets`) | connector (khóa chính: `payos`, `sepay`, `casso`, `vnpay`, `vietqr`, `esms`, `zalo`, `facebook`, `storage`), id, enabled, values_encrypted (JSON mã hóa bằng khóa của trường), hints, updated_at, updated_by |
-| school_branding (từ YCTD-195) | Thương hiệu của trường, một dòng (BR-213; hệ thống `0052_create_school_branding`) | id (luôn 1), display_name, primary_color (`#RRGGBB`), updated_at, updated_by_name |
+| school_branding (từ YCTD-195) | Thương hiệu của trường, một dòng (BR-213; hệ thống `0052_create_school_branding`) | id (luôn 1), display_name, primary_color (`#RRGGBB`), app_short_name (từ YCTD-231, hệ thống `0090_add_school_branding_app_short_name`: tên ngắn dưới biểu tượng khi cài lên màn hình chính, 1 đến 9 ký tự, BR-238), updated_at, updated_by_name |
 | school_key_rotations (từ YCTD-195) | Nhật ký đổi khóa mã hóa dữ liệu trẻ ở cơ sở dữ liệu nền tảng (BR-212; nền tảng `0030_create_key_rotations`, khối 0030 đến 0039 của S3) | school_id, status (`running`, `completed`, `failed`), new_encryption_key_encrypted, new_hash_key_encrypted (bọc bằng khóa gốc), progress (JSON), rows_done, started_by, started_at, finished_at, error; mỗi trường chỉ một lần `running` |
 | plans (từ YCTD-194) | Gói dịch vụ (BR-214, BR-215; tệp nền tảng `0040_create_plans`) | code (duy nhất), name, description, modules (JSON danh sách phân hệ, trống là mọi phân hệ), max_active_students, max_storage_mb, max_school_levels (trống là không giới hạn), trial_days, pricing_mode (`per_student` mặc định, `per_school`, `per_module`), unit_price, minimum_fee, module_prices (JSON), billing_cycle (`monthly`, `term`, `yearly`), status (`active`, `archived`); gói mặc định `full` |
 | school_plans (từ YCTD-194) | Gán gói cho trường có ngày hiệu lực, giữ lịch sử (BR-214) | school_id, plan_id, effective_from, effective_to (trống là còn hiệu lực), assigned_by, note |

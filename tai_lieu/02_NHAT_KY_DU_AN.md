@@ -1,10 +1,7 @@
 # 02. NHẬT KÝ DỰ ÁN
 
 - Mô tả: Ghi nhận công việc, quyết định, thay đổi và vấn đề tồn đọng theo ngày, ngày mới nhất ở trên cùng.
-- Phiên bản: 0.81
-
-- Phiên bản: 0.78
-
+- Phiên bản: 0.82
 - Ngày cập nhật: 2026-10-26
 - Trạng thái: Đang cập nhật
 
@@ -23,7 +20,7 @@
 
 - Đọc mục 15 của `32_KE_HOACH_THEO_HE_THONG_SO.md` (15.3, 15.4, 15.6 dòng "Học sinh gian lận khi thi ở nhà", GD-106, mục 19 về coturn dùng chung với 27a, GD-132) và mã 23a (`student-exams.ts`, `proctoring.ts`, `ExamRoom.tsx`, kho tệp, bộ lập lịch); viết mục 15.4 "23e".
 - Cơ sở dữ liệu: năm học `0129`. Máy chủ API: dịch vụ giám thị (phiên xem trực tiếp, báo hiệu, đồng ý, ghi hình mã hoá, xem lại, dọn quá hạn), cấu hình máy chủ ICE. Ứng dụng phụ huynh: thông báo, bộ trả lời WebRTC, bộ ghi hình, màn hình đồng ý của phụ huynh. Cổng quản trị: lưới camera, đồng ý của cha mẹ, nhật ký người xem, xem lại bản ghi, cấu hình. Hồ sơ vận hành: coturn.
-- Thêm quy tắc BR-238, chức năng P02-86 đến P02-89, quyền PQ-110, biện pháp BM-100 đến BM-102, màn hình MH-348 đến MH-350, kịch bản CT-1108 đến CT-1113, tiêu chí AC-880 đến AC-884. Kết quả ngày 26/10/2026: kiểm thử đơn vị `apps/api/src/online-exams/exam-proctoring.test.ts` (CT-23e-1a đến CT-23e-1c) và `online-exams.test.ts` (CT-23e-1 đến CT-23e-4) đạt; kiểm thử đơn vị toàn kho đạt (bộ 23e, 23a, 22g, định danh chạy riêng; toàn bộ để CI chạy); kiểm thử giao diện `tests/e2e/154-online-exam-proctoring.spec.ts` (CT-23e-5) cùng 02, 03, 06, 08, 150 đạt; toàn bộ kiểm thử giao diện để CI chạy toàn bộ; trên máy chạy riêng 02, 03, 06, 08, 101, 150 và 154; kiểm tĩnh đa thuê bao, ma trận cách ly, kiểm thử hai bố cục cơ sở dữ liệu `database` và `schema`, build, kiểm tra kiểu, lint, kiểm tra định dạng đạt.
+- Thêm quy tắc BR-239, chức năng P02-86 đến P02-89, quyền PQ-110, biện pháp BM-101 đến BM-103, màn hình MH-349 đến MH-351, kịch bản CT-1112 đến CT-1117, tiêu chí AC-883 đến AC-887. Kết quả ngày 26/10/2026: kiểm thử đơn vị `apps/api/src/online-exams/exam-proctoring.test.ts` (CT-23e-1a đến CT-23e-1c) và `online-exams.test.ts` (CT-23e-1 đến CT-23e-4) đạt; kiểm thử đơn vị toàn kho đạt (bộ 23e, 23a, 22g, định danh chạy riêng; toàn bộ để CI chạy); kiểm thử giao diện `tests/e2e/154-online-exam-proctoring.spec.ts` (CT-23e-5) cùng 02, 03, 06, 08, 150 đạt; toàn bộ kiểm thử giao diện để CI chạy toàn bộ; trên máy chạy riêng 02, 03, 06, 08, 101, 150 và 154; kiểm tĩnh đa thuê bao, ma trận cách ly, kiểm thử hai bố cục cơ sở dữ liệu `database` và `schema`, build, kiểm tra kiểu, lint, kiểm tra định dạng đạt.
 
 #### Quyết định
 
@@ -31,12 +28,34 @@
 
 #### Thay đổi
 
-- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-215, `07_QUY_TAC_NGHIEP_VU.md` BR-238, `08_VAI_TRO_NGUOI_DUNG.md` PQ-110, `10_YEU_CAU_CHUC_NANG.md` P02-86 đến P02-89, `11_TIEU_CHI_NGHIEM_THU.md` AC-880 đến AC-884, `14_DAC_TA_GIAO_DIEN.md` MH-348 đến MH-350, `16_CO_SO_DU_LIEU.md`, `17_DAC_TA_API.md`, `21_KICH_BAN_KIEM_THU.md` CT-1108 đến CT-1113, `22_BAO_MAT.md` BM-100 đến BM-102, `23_LICH_SU_PHIEN_BAN.md` 0.151.0, `33_HO_SO_PHAP_LY/` PL-13, PL-15.
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-215, `07_QUY_TAC_NGHIEP_VU.md` BR-239, `08_VAI_TRO_NGUOI_DUNG.md` PQ-110, `10_YEU_CAU_CHUC_NANG.md` P02-86 đến P02-89, `11_TIEU_CHI_NGHIEM_THU.md` AC-883 đến AC-887, `14_DAC_TA_GIAO_DIEN.md` MH-349 đến MH-351, `16_CO_SO_DU_LIEU.md`, `17_DAC_TA_API.md`, `21_KICH_BAN_KIEM_THU.md` CT-1112 đến CT-1117, `22_BAO_MAT.md` BM-101 đến BM-103, `23_LICH_SU_PHIEN_BAN.md` 0.151.0, `33_HO_SO_PHAP_LY/` PL-13, PL-15.
 
 #### Vấn đề tồn đọng
 
 - Luật sư rà quy định dữ liệu trẻ em, ghi hình và giám sát (PL-15) trước khi bật ở trường thật; thử coturn và thử tải ở môi trường thật; ảnh chụp định kỳ, AI cảnh báo bất thường không làm.
 
+
+### 2026-10-26 — DT-26 phần 26a: vỏ ứng dụng web cài được dùng chung
+
+#### Công việc đã thực hiện
+
+- Tạo gói `packages/pwa`: dời service worker của 23b thành mẫu dùng chung, plugin Vite phục vụ và phát `sw.js` theo tiền tố của từng ứng dụng, thư viện đăng ký, kiểm bản mới, gỡ; `applyBrandedManifest`, `InstallPrompt`, `UpdateBanner`; hàm nhận biết cách cài theo trình duyệt có kiểm thử đơn vị.
+- Máy chủ: manifest và biểu tượng SVG theo thương hiệu từng trường (`/api/v1/public/pwa/*`), cột `school_branding.app_short_name` (hệ thống 0090), ô tên ngắn ở cổng quản trị.
+- Ứng dụng giáo viên chuyển sang gói chung (giữ tiền tố và công tắc ngoại tuyến của 23b); ứng dụng phụ huynh có manifest, biểu tượng, service worker; lời mời cài ở trang đầu hai ứng dụng.
+- Kiểm thử: `packages/pwa` (CT-26a-1), `apps/api` `school-settings.test.ts` (CT-26a-2, CT-26a-3), e2e spec 181 (CT-26a-4) và spec 151.
+
+#### Quyết định
+
+- Viết tay service worker và plugin, không thêm thư viện; biểu tượng là SVG dựng ở máy chủ, PNG của sản phẩm làm dự phòng (QĐ-36).
+- Ứng dụng phụ huynh luôn đăng ký service worker (chỉ giữ vỏ ứng dụng); ứng dụng giáo viên vẫn theo công tắc ngoại tuyến của trường.
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-231, `23_LICH_SU_PHIEN_BAN.md` phiên bản 0.145.0; BR-238, P19-07, AC-880 đến AC-882, CT-1108 đến CT-1111, MH-348, BM-100, QĐ-36, mục 12H.
+
+#### Vấn đề tồn đọng
+
+- Đã nối màn hình học sinh của 23a sau khi 23a gộp (manifest `student` mở thẳng `#hoc-sinh`, lời mời cài và dải "Có bản mới" ở danh sách bài, không hiện trong phòng thi). Còn: ảnh PNG và màn hình chờ iOS theo trường, phiên bản tối thiểu do máy chủ áp để phần sau (ghi ở YCTD-231).
 
 ### 2026-10-26 — DT-25 bước 25b: giao diện đăng nhập và liên kết bằng nhà cung cấp định danh
 

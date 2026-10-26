@@ -26,6 +26,7 @@ COPY packages/config/package.json packages/config/
 COPY packages/server/package.json packages/server/
 COPY packages/shared/package.json packages/shared/
 COPY packages/ui/package.json packages/ui/
+COPY packages/pwa/package.json packages/pwa/
 COPY database/package.json database/
 COPY tests/package.json tests/
 

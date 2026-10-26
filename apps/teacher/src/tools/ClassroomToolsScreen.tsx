@@ -2,7 +2,6 @@ import { useCallback, useEffect, useState } from 'react';
 import { Alert, ApplicationHeader, Button } from '@school-management/ui';
 import type { MyClass } from '../screens/ClassesScreen.js';
 import { fetchRoster, messageOf } from './classroom-api.js';
-import { onUpdateAvailable, applyUpdate } from './classroom-offline.js';
 import { refreshPolicy } from './classroom-policy.js';
 import {
   clearClassroomData,
@@ -66,7 +65,6 @@ export function ClassroomToolsScreen({
   const [fromSaved, setFromSaved] = useState(false);
   const [tab, setTab] = useState<Tab>('call');
   const [pending, setPending] = useState(() => queuedCount());
-  const [updateReady, setUpdateReady] = useState(false);
   const [problem, setProblem] = useState<string>();
 
   const savedClasses = classes === null ? Object.values(readRosters(new Date())) : [];
@@ -74,8 +72,6 @@ export function ClassroomToolsScreen({
     classes === null
       ? savedClasses.map((item) => ({ id: item.class_id, name: item.class_name }))
       : classes.map((item) => ({ id: item.id, name: item.name }));
-
-  useEffect(() => onUpdateAvailable(setUpdateReady), []);
 
   // Có mạng: lấy cấu hình của trường (bật, tắt ngoại tuyến) rồi gửi nốt hàng đợi
   useEffect(() => {
@@ -144,14 +140,6 @@ export function ClassroomToolsScreen({
         {!online ? (
           <Alert tone="warning">
             Đang dùng ngoại tuyến: công cụ lớp học vẫn chạy với danh sách lớp đã lưu; các phân hệ khác cần có mạng
-          </Alert>
-        ) : null}
-        {updateReady ? (
-          <Alert tone="info">
-            Có bản mới của ứng dụng.{' '}
-            <button type="button" className="underline" onClick={applyUpdate}>
-              Tải lại để dùng bản mới
-            </button>
           </Alert>
         ) : null}
         {pending > 0 ? (

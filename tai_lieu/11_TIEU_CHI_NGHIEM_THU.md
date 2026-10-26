@@ -1,7 +1,7 @@
 # 11. TIÊU CHÍ NGHIỆM THU
 
 - Mô tả: Tiêu chí nghiệm thu cho từng chức năng, viết dạng Cho, Khi, Thì.
-- Phiên bản: 1.84
+- Phiên bản: 1.85
 - Ngày cập nhật: 2026-10-26
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -952,11 +952,14 @@ Các mã từ AC-94 đến AC-134 được viết trực tiếp trong mục 12 c
 | AC-877 | Cho bài nộp có câu tự luận / Khi giáo viên chấm, Hiệu trưởng khoá điểm, giáo viên xác nhận chuyển / Thì điểm vào sổ điểm đúng một lần theo luồng 22g2, phiếu đã khoá không bị ghi đè (CT-1103, CT-1107; YCTD-211) |
 | AC-878 | Cho bài thi tại trường (chế độ mặc định) / Khi học sinh vào bài không có mã phòng đang mở, ngoài dải mạng của trường, hoặc sau khi giám thị đóng phòng / Thì bị từ chối; chỉ vào được bằng mã phòng đang mở có tên mình; thi từ xa chỉ giao được khi trường bật (CT-1106, CT-1107; YCTD-211) |
 | AC-879 | Cho trường và gói dịch vụ / Khi tắt thi trực tuyến theo cấp hoặc gói không có phân hệ / Thì học sinh cấp đó không vào được và không giao đề mới; dữ liệu cũ giữ nguyên (CT-1104; YCTD-211) |
-| AC-880 | Cho bài thi mặc định / Khi trường chưa bật xem trực tiếp, ghi hình và giáo viên giao bài có giám sát / Thì bị từ chối; sau khi trường bật, giáo viên bật theo từng bài (cần bật camera); mặc định cả hai tắt (CT-1109; YCTD-215) |
-| AC-881 | Cho học sinh dưới 16 tuổi vào bài có giám sát / Khi chưa xác nhận thông báo hoặc cha mẹ chưa đồng ý từng loại / Thì không vào được; có đồng ý (phụ huynh trên ứng dụng hoặc trường ghi nhận văn bản) thì vào được; thu hồi có hiệu lực ngay (CT-1110, CT-1113; YCTD-215) |
-| AC-882 | Cho giáo viên xem camera trực tiếp / Khi mở phiên xem của học sinh đang làm bài / Thì chỉ người giao bài, người dạy lớp, người quản lý xem được; hình đi thẳng giữa trình duyệt; học sinh thấy thông báo; mỗi phiên ghi nhật ký người xem; tắt ở trường hay thu hồi đồng ý thì không mở được (CT-1111, CT-1113; YCTD-215) |
-| AC-883 | Cho bài bật ghi hình / Khi học sinh làm bài, nộp, hết hạn giữ / Thì đoạn bản ghi lưu mã hoá, chỉ người giao bài và người quản lý xem lại (phát qua máy chủ, không tải xuống, có nhật ký), không nhận thêm đoạn sau khi nộp hay khi thu hồi đồng ý, quá hạn thì xoá cả tệp (CT-1112, CT-1113; YCTD-215) |
-| AC-884 | Cho phát hiện, hàm thuần / Khi tính tuổi, mã hoá đoạn bản ghi, cấp thông tin TURN có hạn / Thì tuổi tròn đúng ngày; sai khoá hoặc sửa bản mã thì lỗi; tên đăng nhập TURN có hạn theo khoá dùng chung (CT-1108; YCTD-215) |
+| AC-880 | Cho hai trường có thương hiệu khác nhau / Khi lấy manifest của ứng dụng giáo viên, phụ huynh và biểu tượng theo tên miền của từng trường, đặt tên ngắn quá 9 ký tự, đường dẫn gốc lạ, ứng dụng lạ / Thì manifest có tên "<tên trường> – Giáo viên" hoặc "– Phụ huynh", tên ngắn "<tên ngắn> GV", "PH" (trống thì "Giáo viên", "Phụ huynh"), màu, `start_url`, `scope` theo đường dẫn gốc; trường kia không thấy thương hiệu của trường này; tên ngắn quá dài 400; đường dẫn gốc lạ thành `/`; ứng dụng lạ 404; manifest `student` có tên "– Học sinh", tên ngắn "… HS", `start_url` là `<base>#hoc-sinh` | P19-07 |
+| AC-881 | Cho người dùng mở ứng dụng phụ huynh, giáo viên (trường bật ngoại tuyến) / Khi tải trang, tải lại, phát hành bản mới / Thì service worker chung đăng ký ở `<base>sw.js`, bộ nhớ đệm có tiền tố riêng từng ứng dụng, chỉ có vỏ ứng dụng, không có địa chỉ `/api`; thẻ manifest trỏ sang manifest của trường; có bản mới thì dải "Có bản mới của ứng dụng" kèm Tải lại | P19-07 |
+| AC-882 | Cho ứng dụng chưa cài / Khi mở bằng Safari trên iPhone, trong Zalo, bằng Chrome có sự kiện cài đặt, ở chế độ đã cài, bấm "Để sau" / Thì iPhone thấy hướng dẫn "Thêm vào MH chính", Zalo thấy hướng dẫn mở bằng trình duyệt, Chrome thấy nút "Cài ứng dụng", đã cài không thấy lời mời; "Để sau" ẩn lời mời 30 ngày | P19-07 |
+| AC-883 | Cho bài thi mặc định / Khi trường chưa bật xem trực tiếp, ghi hình và giáo viên giao bài có giám sát / Thì bị từ chối; sau khi trường bật, giáo viên bật theo từng bài (cần bật camera); mặc định cả hai tắt (CT-1113; YCTD-215) |
+| AC-884 | Cho học sinh dưới 16 tuổi vào bài có giám sát / Khi chưa xác nhận thông báo hoặc cha mẹ chưa đồng ý từng loại / Thì không vào được; có đồng ý (phụ huynh trên ứng dụng hoặc trường ghi nhận văn bản) thì vào được; thu hồi có hiệu lực ngay (CT-1114, CT-1117; YCTD-215) |
+| AC-885 | Cho giáo viên xem camera trực tiếp / Khi mở phiên xem của học sinh đang làm bài / Thì chỉ người giao bài, người dạy lớp, người quản lý xem được; hình đi thẳng giữa trình duyệt; học sinh thấy thông báo; mỗi phiên ghi nhật ký người xem; tắt ở trường hay thu hồi đồng ý thì không mở được (CT-1115, CT-1117; YCTD-215) |
+| AC-886 | Cho bài bật ghi hình / Khi học sinh làm bài, nộp, hết hạn giữ / Thì đoạn bản ghi lưu mã hoá, chỉ người giao bài và người quản lý xem lại (phát qua máy chủ, không tải xuống, có nhật ký), không nhận thêm đoạn sau khi nộp hay khi thu hồi đồng ý, quá hạn thì xoá cả tệp (CT-1116, CT-1117; YCTD-215) |
+| AC-887 | Cho phát hiện, hàm thuần / Khi tính tuổi, mã hoá đoạn bản ghi, cấp thông tin TURN có hạn / Thì tuổi tròn đúng ngày; sai khoá hoặc sửa bản mã thì lỗi; tên đăng nhập TURN có hạn theo khoá dùng chung (CT-1112; YCTD-215) |
 
 ## 20. Chưa xác minh được
 
