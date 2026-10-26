@@ -488,6 +488,7 @@ import { FacebookPostsController, FacebookPostsService } from './integrations/fa
 import { FacebookPublisher } from './integrations/facebook-publisher.js';
 import { ZaloSender } from './integrations/zalo-sender.js';
 import { ZaloTokenStore } from './integrations/zalo-token-store.js';
+import { ClassroomToolsController, ClassroomToolsService } from './classroom-tools/classroom-tools.js';
 
 @Module({})
 export class ApplicationModule {
@@ -765,6 +766,7 @@ export class ApplicationModule {
         ChildGroupsController,
         AccountExportsController,
         ProfessionalStandardsController,
+        ClassroomToolsController,
         ...(options.additionalControllers ?? []),
       ],
       providers: [
@@ -1147,6 +1149,7 @@ export class ApplicationModule {
         PublicRecruitmentService,
         CandidatesService,
         SchoolCalendar,
+        ClassroomToolsService,
         {
           provide: FileStorage,
           inject: [SchoolSettings],

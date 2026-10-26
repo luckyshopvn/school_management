@@ -767,7 +767,7 @@ Nguồn: tài liệu 32 mục 15, YCTD-210. Mục này chỉ ghi để người 
 | Phần | Đợt | Nội dung kế hoạch (tài liệu 32 mục 15.3) | Dấu hiệu trong mã |
 |---|---|---|---|
 | 23a Thi trực tuyến cho học sinh | 1 | Kênh đăng nhập `student`, giao đề, làm bài có đếm ngược theo đồng hồ máy chủ, chấm tự động câu trắc nghiệm, chuyển điểm vào sổ điểm theo luồng 22g2, ghi sự kiện rời trang | `SessionChannel` chỉ có `portal`, `teacher`, `parent`; `student_learning_accounts` chưa có đăng nhập |
-| 23b Công cụ lớp học | 1 | Gọi tên ngẫu nhiên, chia nhóm, đếm ngược, bấm giờ, bảng điểm nhanh gắn nề nếp, ngoại tuyến | Ứng dụng giáo viên chưa có service worker, manifest |
+| 23b Công cụ lớp học | 1 | Đã có trong mã (YCTD-212, tài liệu 0.140.0): xem mục 7 bên dưới | `apps/teacher/src/tools`, `apps/teacher/public/sw.js`, `apps/api/src/classroom-tools` |
 | 23d Trợ lý AI | 1 | Soạn câu hỏi và kế hoạch bài dạy nháp, tắt mặc định theo trường, chỉ gửi nội dung chương trình, hạn mức theo gói | `IntegrationSecretConnector` chưa có `ai`; chưa có nơi nào gọi dịch vụ AI |
 | 23c Trò chơi kiến thức và thẻ đáp án giấy | 2 | Ô chữ, vòng quay, hỏi đáp theo vòng sinh từ ngân hàng câu hỏi; thẻ đáp án giấy đọc bằng camera | Chưa có |
 
@@ -786,7 +786,17 @@ Nguồn: tài liệu 32 mục 18, YCTD-230 (Eric yêu cầu ngày 2026-10-26 the
 | 26g Thông báo đẩy native | 3 | Bộ nối `fcm`, `apns` dùng chung bộ phát của 26b | Chưa có |
 | 26h Ký, dựng bản, phát hành | 3 | CI dựng và ký bản Android, iOS, quy trình phát hành, hồ sơ cửa hàng, chính sách quyền riêng tư; việc của Eric (tài khoản Apple, Google Play, pháp nhân, tên ứng dụng) | Chưa có |
 
-## 7. DT-25: bộ nối nhà cung cấp định danh OIDC, sẵn cho VNeID
+## 7. DT-23 phần 23b: công cụ lớp học trên ứng dụng giáo viên (YCTD-212)
+
+| Chức năng | Mô tả theo mã | Bảng, tuyến, màn hình |
+|---|---|---|
+| Gọi tên ngẫu nhiên | Bốc từ danh sách lớp thật, tuỳ chọn không lặp, loại học sinh vắng hôm nay, ghi và xóa lượt gọi | `classroom_call_logs`; `/classroom-tools/calls`; MH-337 |
+| Chia nhóm ngẫu nhiên | Theo số nhóm hoặc số người mỗi nhóm, chia lại, giữ bản chia gần nhất | `classroom_groupings`; `/classroom-tools/classes/{id}/grouping`; MH-337 |
+| Đếm ngược, bấm giờ | Nhiều đồng hồ theo thời điểm tuyệt đối, tiếng báo hết giờ, giữ màn hình sáng; chỉ trên máy | MH-337 |
+| Bảng điểm nhanh | Cộng, trừ điểm theo nhóm hoặc học sinh; giáo viên chọn tiêu chí và xác nhận mới ghi `conduct_entries`; bỏ buổi | `classroom_score_events`; `/classroom-tools/scores`, `/confirm`; MH-337 |
+| Ngoại tuyến | Service worker, manifest, bản chụp danh sách lớp gọn có hạn (mặc định 24 giờ, xóa khi đăng xuất), hàng đợi đồng bộ, công tắc tắt theo trường | `classroom_offline_enabled`, `classroom_roster_ttl_hours` ở `settings`; MH-338 |
+
+## 8. DT-25: bộ nối nhà cung cấp định danh OIDC, sẵn cho VNeID
 
 Kế hoạch ở `32_KE_HOACH_THEO_HE_THONG_SO.md` mục 17, YCTD-225. **Phần máy chủ đã có trong mã** (`apps/identity/src/external-identity/`): lớp trừu tượng `IdentityProvider`, bộ nối OIDC chung (authorization code + PKCE, state, nonce, discovery, kiểm chữ ký `id_token` qua JWKS, tải lại khóa khi nhà cung cấp quay khóa), hồ sơ `vneid` với các tham số "chờ tài liệu RAR" là cấu hình; nền tảng khai nhà cung cấp ở `EXTERNAL_IDENTITY_PROVIDERS` và `EXTERNAL_IDENTITY_<MÃ>_CLIENT_SECRET`; trường bật tắt, chọn nhóm vai trò, mã ứng dụng và khóa riêng (mã hóa theo khóa của trường) ở `PUT /auth/external/settings/:provider` (quyền `P01.account.manage`); bảng định danh 0140 `external_identity_providers`, `external_identities` (chỉ subject mã hóa và băm), `external_identity_events`; nhà cung cấp OIDC giả lập cho kiểm thử; e2e spec 165.
 

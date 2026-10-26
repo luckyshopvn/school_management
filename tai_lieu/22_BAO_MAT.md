@@ -1,7 +1,7 @@
 # 22. BẢO MẬT
 
 - Mô tả: Xác thực, phân quyền, phiên làm việc, kiểm tra dữ liệu đầu vào, bảo mật API, truy cập dữ liệu.
-- Phiên bản: 1.17
+- Phiên bản: 1.18
 - Ngày cập nhật: 2026-10-26
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -147,6 +147,7 @@ Các trường hợp trên phải đẩy cảnh báo cho quản trị nền tả
 | BM-88 | Thu phí của nền tảng (YCTD-196): khóa cổng thanh toán của nền tảng lưu mã hóa AES-256-GCM bằng khóa gốc của nền tảng, chỉ trả gợi ý bốn ký tự cuối, đổi khóa ghi nhật ký; điểm nhận tiền vào không cần trường nhưng xác thực bằng chữ ký hoặc khóa của cổng (so sánh thời gian hằng), cổng chưa bật trả 404; trùng mã giao dịch không ghi lại; trường chỉ thấy hóa đơn của mình; mọi điều chỉnh tay cần lý do và ghi nhật ký nền tảng |
 | BM-89 | Phiên hỗ trợ của nhân viên nền tảng (YCTD-197, BR-227, QĐ-32): chỉ khi trường đồng ý (lưu ở cơ sở dữ liệu của trường, có hạn, rút được); mã một lần chỉ lưu mã băm, hạn 5 phút, đánh dấu đã dùng nguyên tử, chỉ dùng ở tên miền của đúng trường; tài khoản hỗ trợ riêng không đăng nhập được bằng mật khẩu; kiểm phiên còn hiệu lực ở mỗi yêu cầu; phiên chỉ đọc chặn ghi ở cả hai dịch vụ; không đăng nhập thay, đổi mật khẩu, kí số, xuất toàn bộ, đổi cho phép; nhật ký hai phía. Số liệu và lỗi theo trường không chứa nội dung dữ liệu: lỗi chỉ ghi mẫu đường dẫn đã bỏ tham số, mã trạng thái, mã lỗi |
 | BM-90 | Đơn vị cấp trên (YCTD-202, BR-228 đến BR-230, QĐ-33): tài khoản cấp trên xác thực hai lớp bắt buộc (khóa TOTP mã hóa bằng khóa gốc, bọc lại khi đổi khóa gốc; mã khôi phục chỉ lưu bản băm; mỗi mã dùng một lần), mật khẩu tối thiểu 12 ký tự, khóa tạm khi sai 5 lần; chỉ phục vụ ở tên miền cổng nền tảng, mã phiên có đối tượng riêng; phạm vi là cây con của nút, kiểm ở mọi yêu cầu; chỉ số liệu tổng hợp có đồng ý của trường, không dữ liệu cá nhân, ẩn nhóm nhỏ; xem chi tiết chỉ qua phiên hỗ trợ chỉ đọc theo đề nghị trường duyệt, rút được; mọi đăng nhập, xem, xuất, đề nghị, duyệt ghi nhật ký nền tảng và nhật ký của trường | Kiểm thử CT-1069 đến CT-1077 |
+| BM-91 | Dữ liệu công cụ lớp học trên máy giáo viên (YCTD-212, BR-233, GD-108): bản chụp danh sách lớp chỉ gồm số thứ tự, họ tên, mã học sinh, cờ vắng, không điểm, nhận xét, thông tin phụ huynh; hết hạn theo cấu hình trường (mặc định 24 giờ) và bị xóa khi đăng xuất, phiên hết hạn, trường tắt ngoại tuyến; service worker không bao giờ giữ lời gọi API nên mã phiên và dữ liệu không nằm trong bộ nhớ đệm; tuyến `/classroom-tools` chỉ trả dữ liệu của lớp mà người gọi có phạm vi xem, ngoài phạm vi 403, và nằm trong ma trận cách ly giữa các trường; rủi ro còn lại: máy bị mất khi chưa hết hạn lộ họ tên và mã học sinh của lớp đã mở, giảm bằng hạn ngắn, xóa khi đăng xuất, công tắc tắt theo trường |
 
 Từ YCTD-200 (DT-SaaS phần S8a), quy trình xử lý sự cố và thông báo vi phạm dữ liệu cá nhân của nền tảng nhiều trường (thời hạn 72 giờ theo Điều 23 Luật Bảo vệ dữ liệu cá nhân số 91/2025/QH15, nội dung theo Điều 28 Nghị định 356/2025/NĐ-CP) ở `33_HO_SO_PHAP_LY/12_QUY_TRINH_SU_CO_VA_THONG_BAO.md` (bản nháp chờ luật sư rà).
 

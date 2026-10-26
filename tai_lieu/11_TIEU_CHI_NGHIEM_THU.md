@@ -1,8 +1,8 @@
 # 11. TIÊU CHÍ NGHIỆM THU
 
 - Mô tả: Tiêu chí nghiệm thu cho từng chức năng, viết dạng Cho, Khi, Thì.
-- Phiên bản: 1.81
-- Ngày cập nhật: 2026-10-25
+- Phiên bản: 1.82
+- Ngày cập nhật: 2026-10-26
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
 
@@ -936,6 +936,11 @@ Các mã từ AC-94 đến AC-134 được viết trực tiếp trong mục 12 c
 | AC-861 | Cho tài khoản cấp trên / Khi đăng nhập thiếu mã, sai mã, đúng mã, ở tên miền trường; dùng mã phiên vận hành thay mã phiên cấp trên / Thì thiếu hoặc sai mã 401, đúng mã vào được, tên miền trường 404; phạm vi chỉ gồm trường trong cây con; mã phiên khác đối tượng 401 | P01-82, P01-83 |
 | AC-862 | Cho hai trường, một đồng ý nhóm Quy mô cho cấp Sở / Khi tài khoản cấp Sở xem số liệu, xem nút ngoài phạm vi, trường rút đồng ý, xuất Excel, PDF / Thì chỉ trường đã đồng ý có mặt, tổng ẩn khi ít hơn ngưỡng trường, ô ít người ghi ẩn; nút ngoài phạm vi 403; rút đồng ý thì trường biến mất; tệp đúng loại; chạy được ở bố cục database và schema | P01-83, P01-84 |
 | AC-863 | Cho đề nghị xem chi tiết / Khi gửi cho trường ngoài phạm vi, mở khi chưa duyệt, trường duyệt rồi mở, trường rút / Thì ngoài phạm vi 403, chưa duyệt 422; đã duyệt nhận đường liên kết, vào phiên chỉ đọc (ghi bị 403); rút thì phiên hết hiệu lực (401) | P01-85 |
+| AC-864 | Cho lớp có học sinh, một em vắng hôm nay / Khi giáo viên chủ nhiệm lấy danh sách lớp; giáo viên khác, phụ huynh lấy / Thì giáo viên chủ nhiệm nhận danh sách theo số thứ tự cố định rồi theo tên, mỗi học sinh chỉ có số thứ tự, họ tên, mã, cờ vắng; giáo viên khác 403, phụ huynh 403, lớp không có 404 | P03-09 |
+| AC-865 | Cho giáo viên gọi tên không lặp, loại học sinh vắng / Khi gọi hết lớp, gọi thêm một lần, ghi lượt gọi và gửi lại cùng `client_id` / Thì mỗi em có mặt được gọi đúng một lần rồi báo hết, em vắng không được gọi; lượt gọi ghi một lần dù gửi lại; giáo viên xóa được lượt của mình, không xóa của người khác | P03-09 |
+| AC-866 | Cho giáo viên chia lớp thành nhóm / Khi chia theo số nhóm hoặc số người mỗi nhóm, chia lại, lưu / Thì mọi học sinh vào đúng một nhóm, nhóm chênh nhau tối đa một người, bản chia gần nhất được giữ; học sinh ngoài lớp bị 400 | P03-09 |
+| AC-867 | Cho bảng điểm nhanh và nề nếp, thi đua đã bật / Khi chấm điểm nhóm, chưa xác nhận, chọn tiêu chí trừ cho tổng dương, chọn tiêu chí cộng, bấm xác nhận lần hai, nề nếp tắt / Thì chưa xác nhận thì chưa có dòng nề nếp nào; tiêu chí ngược chiều bị 422 và dòng điểm được trả lại; tiêu chí đúng chiều ghi dòng nề nếp có số lần bằng tổng, điểm theo tiêu chí, người ghi là giáo viên; lần hai bị 422; tổng quá 50 lần tách nhiều dòng; nề nếp tắt thì 422 và dòng điểm còn nguyên | P03-10 |
+| AC-868 | Cho giáo viên đã mở ứng dụng có mạng một lần / Khi mất mạng rồi tải lại trang, gọi tên, có mạng lại, đăng xuất, trường tắt ngoại tuyến / Thì trang công cụ lớp học mở được với danh sách lớp đã lưu và dải báo ngoại tuyến, lượt gọi vào hàng đợi rồi tự gửi khi có mạng (máy chủ có đủ lượt, không trùng); đăng xuất xóa mọi dữ liệu công cụ lớp học trên máy; trường tắt thì gỡ service worker, bộ nhớ đệm, bản chụp danh sách lớp và công cụ vẫn chạy khi có mạng | P03-11 |
 
 ## 20. Chưa xác minh được
 

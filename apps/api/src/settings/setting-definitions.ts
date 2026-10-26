@@ -180,6 +180,24 @@ export const SETTING_DEFINITIONS: SettingDefinition[] = [
     rule: 'YCTD-127',
     school: true,
   },
+  // Công cụ lớp học ngoại tuyến trên ứng dụng giáo viên (DT-23 phần 23b, GD-108): công tắc theo trường và hạn lưu bản chụp
+  // danh sách lớp trên máy giáo viên (mặc định 24 giờ)
+  {
+    key: 'classroom_offline_enabled',
+    label: 'Cho công cụ lớp học dùng ngoại tuyến trên ứng dụng giáo viên',
+    valueType: 'boolean',
+    defaultValue: true,
+    rule: 'YCTD-212',
+    school: true,
+  },
+  {
+    key: 'classroom_roster_ttl_hours',
+    label: 'Số giờ lưu danh sách lớp trên máy giáo viên để dùng ngoại tuyến',
+    valueType: 'positive_integer',
+    defaultValue: 24,
+    rule: 'YCTD-212',
+    school: true,
+  },
 ];
 
 export function findDefinition(key: string): SettingDefinition | undefined {

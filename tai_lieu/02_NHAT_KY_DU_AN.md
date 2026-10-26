@@ -22,7 +22,7 @@
 - Viết mục 17 của `32`: căn cứ, nguyên tắc, hai bước 25a (máy chủ) và 25b (giao diện, sau DT-24), thiết kế, quyết định, rủi ro, giả định GD-128 đến GD-130.
 - Làm phần máy chủ ở `apps/identity/src/external-identity/`: lớp `IdentityProvider`, bộ nối OIDC chung, hồ sơ `vneid`, khai báo nền tảng bằng biến môi trường, cấu hình của trường, liên kết, gỡ liên kết, đăng nhập, nhập mã hai lớp sau nhà cung cấp, nhật ký; migration định danh 0140; `Infrastructure.scopedCache` cho khóa Redis theo trường.
 - Dựng nhà cung cấp OIDC giả lập cục bộ (`MockOidcServer`) cho kiểm thử đơn vị và e2e; spec 165.
-- Cập nhật `22` (BM-95, BM-96), `33_HO_SO_PHAP_LY/` PL-02 (Điều 7 khoản 5, Phụ lục A) và PL-05 (mục 2, mục 5) lên S8a-1.1, `34` (bảng cách đăng nhập, mục 7), `01`, `23`, `24`.
+- Cập nhật `22` (BM-95, BM-96), `33_HO_SO_PHAP_LY/` PL-02 (Điều 7 khoản 5, Phụ lục A) và PL-05 (mục 2, mục 5) lên S8a-1.1, `34` (bảng cách đăng nhập, mục 8), `01`, `23`, `24`.
 
 #### Quyết định
 
@@ -33,12 +33,39 @@
 
 #### Thay đổi
 
-- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-225, `23_LICH_SU_PHIEN_BAN.md` 0.140.0, `32_KE_HOACH_THEO_HE_THONG_SO.md` mục 17 (phiên bản 1.76).
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-225, `23_LICH_SU_PHIEN_BAN.md` 0.141.0, `32_KE_HOACH_THEO_HE_THONG_SO.md` mục 17 (phiên bản 1.76).
 
 #### Vấn đề tồn đọng
 
 - Bước 25b (giao diện) chờ PR DT-24 gộp.
 - Eric: ký hợp đồng và lấy tài liệu kỹ thuật, môi trường thử của Trung tâm RAR (văn bản gửi RAR đã soạn ở thư mục khảo sát); luật sư rà vai trò của nhà cung cấp định danh trong PL-02, PL-05 trước khi bật ở trường thật.
+
+### 2026-10-26 — DT-23 phần 23b: công cụ lớp học trên ứng dụng giáo viên
+
+#### Công việc đã thực hiện
+
+- Đọc mục 15.3, 15.4 (23b), 15.6, GD-108 của `32_KE_HOACH_THEO_HE_THONG_SO.md`; rà `ConductService` (DT-21), `ChildScope` của điểm danh, cấu hình trường (`settings`), đăng nhập và `api-client` của ứng dụng giáo viên, lớp hạ tầng kiểm tĩnh đa thuê bao.
+- Thêm tệp năm học 0124 (`classroom_call_logs`, `classroom_groupings`) và 0125 (`classroom_score_events`); mô-đun `apps/api/src/classroom-tools` (cấu hình, danh sách lớp gọn, lượt gọi, bản chia nhóm, dòng điểm chống trùng, chuyển vào nề nếp có xác nhận); hai mục cấu hình trường `classroom_offline_enabled`, `classroom_roster_ttl_hours`.
+- Ứng dụng giáo viên: màn hình Công cụ lớp học (gọi tên, chia nhóm, đồng hồ, bảng điểm nhanh), service worker `public/sw.js`, manifest, biểu tượng, bản chụp danh sách lớp gọn có hạn, hàng đợi đồng bộ, chế độ `offline` của phiên; `vite.config.ts` đặt phiên bản bộ nhớ đệm theo bản phát hành; thêm `test` cho `apps/teacher`.
+- Thêm quy tắc BR-231 đến BR-233, chức năng P03-09 đến P03-11, màn hình MH-337, MH-338, kịch bản CT-1078 đến CT-1083, tiêu chí AC-864 đến AC-868, bảo mật BM-91, QĐ-34, mục kiến trúc 12G, mục cơ sở dữ liệu 18E.
+- Gộp `origin/main` (PR 176) vào nhánh, không rebase; đánh số tài liệu theo nhánh chính lúc gộp.
+
+#### Quyết định
+
+- Máy giáo viên bốc ngẫu nhiên và giữ đồng hồ; máy chủ chỉ cấp danh sách lớp thật, ghi lượt gọi, dòng điểm và chuyển nề nếp (mọi dòng có `client_id` để gửi lại không trùng).
+- Bảng điểm nhanh là nháp của giáo viên; vào `conduct_entries` chỉ khi chọn tiêu chí cùng chiều với tổng điểm và xác nhận, tổng đổi thành số lần của tiêu chí, dòng điểm giữ chỗ trước để không chuyển đôi.
+- Service worker mạng trước, bộ nhớ đệm sau, không giữ `/api/`; dữ liệu ngoại tuyến là bản chụp gọn (số thứ tự, họ tên, mã, cờ vắng) có hạn 24 giờ mặc định và hàng đợi; đăng xuất, phiên hết hạn, trường tắt ngoại tuyến xóa hết.
+- Không thêm quyền, không đổi kênh đăng nhập (`access-token.ts` của 23a), không sửa `MULTI_TENANT_SPEC`; đăng ký mô-đun thêm cuối `application.module.ts`.
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-212, `07_QUY_TAC_NGHIEP_VU.md` BR-231 đến BR-233, `10_YEU_CAU_CHUC_NANG.md` P03-09 đến P03-11, `11_TIEU_CHI_NGHIEM_THU.md` AC-864 đến AC-868, `12_KIEN_TRUC_HE_THONG.md` QĐ-34 và mục 12G, `14_DAC_TA_GIAO_DIEN.md` MH-337, MH-338, `16_CO_SO_DU_LIEU.md` mục 18E, `17_DAC_TA_API.md` nhóm `/classroom-tools`, `21_KICH_BAN_KIEM_THU.md` CT-1078 đến CT-1083, `22_BAO_MAT.md` BM-91, `23_LICH_SU_PHIEN_BAN.md` 0.140.0, `index.md`.
+- Kết quả kiểm thử ngày 26/10/2026: `apps/teacher` 10/10 (`node --test`, CT-23b-1 đến CT-23b-4); `apps/api` 9/9 ca của `classroom-tools.test.ts` (CT-23b-5 đến CT-23b-13) và ma trận cách ly mọi tuyến 5/5; `database` 103/103 (tệp 0124, 0125 chạy ở cả hai bố cục `database`, `schema`); kiểm tĩnh đa thuê bao và quét bí mật đạt; `pnpm lint` đạt; typecheck, build `apps/teacher`, `apps/api` đạt; e2e spec 151 đạt (CT-23b-14) trên bố cục `database` sau chuỗi spec 02 đến 08; spec 121 (ứng dụng giáo viên) đạt, spec 09 trên máy phát triển hỏng ở bước tải tệp lên kho tệp (không liên quan phần này, CI chạy lại toàn bộ)
+
+#### Vấn đề tồn đọng
+
+- Tiếng báo hết giờ không vang khi màn hình tắt và trình duyệt tạm dừng trang (đồng hồ vẫn đúng); chưa có đồng bộ nền khi ứng dụng đóng (Background Sync).
+- Phần 23c (trò chơi) dùng lại nhóm, bảng điểm và vỏ ngoại tuyến của phần này.
 
 ### 2026-10-26 — Kế hoạch DT-26: PWA, máy tính bảng, ứng dụng di động
 

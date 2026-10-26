@@ -1,7 +1,7 @@
 # 23. LỊCH SỬ PHIÊN BẢN
 
 - Mô tả: Mã phiên bản, ngày phát hành, danh sách thay đổi, chức năng mới, lỗi đã sửa, thay đổi dữ liệu, thay đổi API, rủi ro, khả năng tương thích, phương án quay lui.
-- Phiên bản: 0.61
+- Phiên bản: 0.62
 - Ngày cập nhật: 2026-10-26
 - Trạng thái: Đang cập nhật
 - Đã rà duyệt: Eric, ngày 2026-10-09
@@ -16,7 +16,7 @@
 
 ## 2. Danh sách phiên bản
 
-### Phiên bản 0.140.0 – 2026-10-26
+### Phiên bản 0.141.0 – 2026-10-26
 
 - Phạm vi thay đổi: DT-25, bộ nối nhà cung cấp định danh OIDC sẵn cho VNeID, phần máy chủ (YCTD-225).
 - Chức năng mới: lớp `IdentityProvider` và bộ nối OIDC chung (PKCE, state, nonce, discovery, JWKS, quay khóa), hồ sơ `vneid` cấu hình được (mục chờ tài liệu RAR); nền tảng khai nhà cung cấp, trường bật tắt, chọn nhóm vai trò, mã ứng dụng và khóa riêng; liên kết, gỡ liên kết bằng mật khẩu và mã hai lớp; đăng nhập bằng nhà cung cấp ngoài có bước nhập mã hai lớp; nhật ký liên kết.
@@ -27,6 +27,18 @@
 - Rủi ro: tham số kỹ thuật của RAR có thể khác giả định (đổi cấu hình, hoặc viết bộ nối mới theo `IdentityProvider`); vai trò pháp lý của nhà cung cấp định danh trong PL-02, PL-05 chờ luật sư.
 - Khả năng tương thích: không khai nhà cung cấp hoặc trường chưa bật thì không có gì thay đổi; chưa có giao diện (bước 25b sau DT-24).
 - Phương án quay lui: tắt nhà cung cấp ở trường hoặc bỏ biến `EXTERNAL_IDENTITY_PROVIDERS`; hoàn lại commit gộp; migration 0140 có `down` (xóa ba bảng, trả ràng buộc cũ).
+
+### Phiên bản 0.140.0 – 2026-10-26
+
+- Phạm vi thay đổi: DT-23 phần 23b, công cụ lớp học trên ứng dụng giáo viên (YCTD-212).
+- Chức năng mới: gọi tên ngẫu nhiên, chia nhóm, đếm ngược và bấm giờ (P03-09, MH-337); bảng điểm nhanh gắn nề nếp, thi đua có xác nhận của giáo viên (P03-10); ngoại tuyến bằng service worker và manifest, bản chụp danh sách lớp gọn lưu 24 giờ, hàng đợi lượt gọi và điểm đồng bộ khi có mạng, công tắc tắt ngoại tuyến theo trường (P03-11, MH-338).
+- Lỗi đã sửa: không có.
+- Thay đổi dữ liệu: cơ sở dữ liệu năm học thêm `classroom_call_logs`, `classroom_groupings` (tệp `0124`), `classroom_score_events` (tệp `0125`); hai mục cấu hình trường `classroom_offline_enabled`, `classroom_roster_ttl_hours` ở bảng `settings`; xem `16_CO_SO_DU_LIEU.md` mục 18E.
+- Thay đổi API: nhóm `/classroom-tools` (cấu hình, danh sách lớp, lượt gọi, nhóm, dòng điểm, chuyển vào nề nếp) (xem `17_DAC_TA_API.md`).
+- Kiểm thử: kịch bản CT-1078 đến CT-1083 (CT-23b-1 đến CT-23b-14 trong mã kiểm thử). Kết quả ngày 26/10/2026: `apps/teacher` 10/10 (`node --test`, CT-23b-1 đến CT-23b-4); `apps/api` 9/9 ca của `classroom-tools.test.ts` (CT-23b-5 đến CT-23b-13) và ma trận cách ly mọi tuyến 5/5; `database` 103/103 (tệp 0124, 0125 chạy ở cả hai bố cục `database`, `schema`); kiểm tĩnh đa thuê bao và quét bí mật đạt; `pnpm lint` đạt; typecheck, build `apps/teacher`, `apps/api` đạt; e2e spec 151 đạt (CT-23b-14) trên bố cục `database` sau chuỗi spec 02 đến 08; spec 121 (ứng dụng giáo viên) đạt, spec 09 trên máy phát triển hỏng ở bước tải tệp lên kho tệp (không liên quan phần này, CI chạy lại toàn bộ)
+- Rủi ro: máy giáo viên bị mất khi bản chụp danh sách lớp chưa hết hạn (giảm bằng hạn ngắn, xóa khi đăng xuất, công tắc tắt theo trường); tiếng báo hết giờ không vang khi màn hình tắt và trình duyệt tạm dừng trang (đồng hồ vẫn đúng, tiếng báo khi mở lại hoặc khi giữ màn hình sáng); trình duyệt cũ không có service worker thì công cụ chỉ chạy khi có mạng.
+- Khả năng tương thích: không đổi hành vi các phân hệ cũ; trường không dùng công cụ lớp học không thấy khác biệt ngoài một nút ở Lớp của tôi; trường tắt ngoại tuyến thì ứng dụng gỡ service worker.
+- Phương án quay lui: hoàn lại commit gộp của nhánh 23b; hai tệp năm học 0124, 0125 chỉ thêm bảng nên giữ lại không ảnh hưởng.
 
 ### Phiên bản 0.139.0 – 2026-10-26
 
