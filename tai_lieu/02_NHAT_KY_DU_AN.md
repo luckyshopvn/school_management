@@ -27,7 +27,7 @@
 
 - Claude chọn theo ủy quyền: GD-140 như kế hoạch (điểm trung bình môn học kỳ gần nhất có điểm, chưa đủ điểm thì trung bình cộng điểm đã có; Tiểu học mức đạt môn kỳ gần nhất); nguồn kết quả hoạt động báo lỗi đến khi 28d gộp.
 - Bảng `classroom_groupings` của 23b còn được ghi song song một bản phát hành để spec 151, CT-23b-10 và bản ứng dụng cũ đọc được; máy chủ chỉ đọc bộ nhóm. Lưu bản chia không đổi thì giữ bộ cũ (tránh sinh bộ thừa).
-- Đích `group` cho đề 23a để sau vì 23a (PR 189) chưa vào nhánh chính.
+- Sau khi 23a (PR 189) gộp: thêm đích `group` cho đề thi trực tuyến; thành viên lúc giao ghi thành dòng học sinh mang `group_id` nguồn để màn hình học sinh, danh sách học sinh của 23a không phải đổi và đổi nhóm sau đó không đổi bài đã giao.
 
 #### Thay đổi
 
@@ -35,7 +35,7 @@
 
 #### Vấn đề tồn đọng
 
-- Đích `group` của đề 23a khi PR 189 gộp; màn hình nhóm của con ở ứng dụng phụ huynh, của học sinh; màn hình bộ nhóm ở cổng quản trị.
+- Màn hình nhóm của con ở ứng dụng phụ huynh, của học sinh; màn hình bộ nhóm ở cổng quản trị.
 ### 2026-10-26 — DT-23 phần 23a: thi trực tuyến cho học sinh
 
 #### Công việc đã thực hiện

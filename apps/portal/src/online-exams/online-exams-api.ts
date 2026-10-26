@@ -69,7 +69,8 @@ export interface AssignmentDetail {
   single_session_mode: string;
   exam_mode: 'at-school' | 'remote';
   rooms: ExamRoom[];
-  targets: Array<{ kind: 'class' | 'student'; label: string }>;
+  // `group`: nhóm của bộ nhóm (DT-28 phần 28a)
+  targets: Array<{ kind: 'class' | 'student' | 'group'; label: string }>;
   students: MonitorStudent[];
 }
 

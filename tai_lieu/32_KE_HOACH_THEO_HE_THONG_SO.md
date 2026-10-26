@@ -2712,7 +2712,7 @@ Cỡ ước lượng (một phần của DT-16 là một đơn vị): 28a 1,0; 2
 
 | Phần | Đợt | Tiến độ |
 |---|---|---|
-| 28a | 1 | Đã làm (YCTD-271, phiên bản 0.149.0): bộ nhóm, cách chia, nhóm trưởng, 23b dùng bộ nhóm, `GroupSetsReader`; năm học 0170, 0171; e2e 210. Còn đích `group` cho đề 23a (chờ PR 189) và nguồn kết quả hoạt động (chờ 28d) |
+| 28a | 1 | Đã làm (YCTD-271, phiên bản 0.149.0): bộ nhóm, cách chia, nhóm trưởng, 23b dùng bộ nhóm, `GroupSetsReader`, đích `group` cho đề 23a; năm học 0170, 0171; e2e 210. Còn nguồn kết quả hoạt động (chờ 28d) |
 | 28b | 1 | Chưa làm; YCTD-272 giữ sẵn; phần giáo viên làm được ngay, màn hình học sinh chờ 23a |
 | 28c | 2 | Chưa làm; YCTD-273 giữ sẵn; chờ 28b; phần AI chờ 23d |
 | 28d | 2 | Chưa làm; YCTD-274 giữ sẵn; chờ 28b |

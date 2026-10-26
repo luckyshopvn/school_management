@@ -7,7 +7,10 @@ import type { Migration } from 'kysely/migration';
 //   đề, không gian đã gắn bộ cũ giữ nguyên;
 // - `child_groups` thêm `group_set_id`, `class_id`, `position`, `leader_child_id`. Nhóm của 4.1.6 (DT-14c) giữ `group_set_id`
 //   trống. Ràng buộc tên duy nhất tách thành hai chỉ mục riêng phần: trong đơn vị khi không thuộc bộ, trong bộ khi thuộc bộ;
-// - `child_group_members.role` (`member`, `leader`); `child_group_member_events` ghi thêm, bớt, chuyển nhóm, đổi nhóm trưởng
+// - `child_group_members.role` (`member`, `leader`); `child_group_member_events` ghi thêm, bớt, chuyển nhóm, đổi nhóm trưởng;
+// - đích `group` cho đề thi trực tuyến 23a: `exam_assignment_targets` thêm `group_id`. Dòng `group` chỉ ghi nhóm được giao (không
+//   có lớp, học sinh); thành viên của nhóm lúc giao được ghi thành dòng `student` mang `group_id` nguồn, nên đổi nhóm sau này
+//   không đổi danh sách làm bài đã giao
 export const migration: Migration = {
   async up(database) {
     await database.schema
@@ -90,8 +93,45 @@ export const migration: Migration = {
       .on('child_group_member_events')
       .columns(['group_set_id', 'created_at'])
       .execute();
+
+    await database.schema
+      .alterTable('exam_assignment_targets')
+      .addColumn('group_id', 'uuid', (column) => column.references('child_groups.id'))
+      .execute();
+    await sql`alter table exam_assignment_targets drop constraint exam_assignment_targets_kind_check`.execute(database);
+    await database.schema
+      .alterTable('exam_assignment_targets')
+      .dropConstraint('exam_assignment_targets_shape_check')
+      .execute();
+    await database.schema
+      .alterTable('exam_assignment_targets')
+      .addCheckConstraint(
+        'exam_assignment_targets_shape_check',
+        sql`(kind = 'class' and class_id is not null and child_id is null and group_id is null)
+          or (kind = 'student' and child_id is not null and class_id is null)
+          or (kind = 'group' and group_id is not null and class_id is null and child_id is null)`,
+      )
+      .execute();
   },
   async down(database) {
+    await sql`delete from exam_assignment_targets where kind = 'group'`.execute(database);
+    await database.schema
+      .alterTable('exam_assignment_targets')
+      .dropConstraint('exam_assignment_targets_shape_check')
+      .execute();
+    await database.schema.alterTable('exam_assignment_targets').dropColumn('group_id').execute();
+    await database.schema
+      .alterTable('exam_assignment_targets')
+      .addCheckConstraint('exam_assignment_targets_kind_check', sql`kind in ('class', 'student')`)
+      .execute();
+    await database.schema
+      .alterTable('exam_assignment_targets')
+      .addCheckConstraint(
+        'exam_assignment_targets_shape_check',
+        sql`(kind = 'class' and class_id is not null and child_id is null)
+          or (kind = 'student' and child_id is not null and class_id is null)`,
+      )
+      .execute();
     await database.schema.dropTable('child_group_member_events').execute();
     await database.schema.alterTable('child_group_members').dropColumn('role').execute();
     await sql`delete from child_group_members where group_id in (select id from child_groups where group_set_id is not null)`.execute(

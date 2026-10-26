@@ -1544,7 +1544,7 @@ Giao kèo văn thư lưu trữ (YCTD-118):
 | GET, PUT | /api/v1/online-exams/school-settings | Cấu hình thi trực tuyến của trường: chế độ thi mặc định, thi từ xa, dải mạng, hạn mã phòng (P02-85) |
 | POST | /api/v1/online-exams/assignments/{id}/rooms, /api/v1/online-exams/rooms/{id}/close | Mở phòng thi (mã 6 chữ số, danh sách học sinh); đóng phòng (P02-84) |
 | GET | /api/v1/online-exams/exams, /classes | Đề đã khoá, lớp giao được (P02-82) |
-| GET, POST | /api/v1/online-exams/assignments | Danh sách, giao đề (P02-82) |
+| GET, POST | /api/v1/online-exams/assignments | Danh sách, giao đề (P02-82); từ YCTD-271 nhận thêm `group_ids` (nhóm của bộ nhóm đang dùng, thành viên lúc giao được giao như học sinh; nhóm của bộ đã lưu trữ 404, nhóm trống 400) |
 | GET, PATCH | /api/v1/online-exams/assignments/{id} | Chi tiết, theo dõi; sửa tên, giờ, chế độ kết quả (P02-84) |
 | POST | /api/v1/online-exams/assignments/{id}/cancel, /release-results | Huỷ; công bố kết quả (P02-84) |
 | GET, PUT, POST | /api/v1/online-exams/attempts/{id}, /essay-marks, /force-submit | Xem bài; điểm tự luận; nộp thay (P02-84) |

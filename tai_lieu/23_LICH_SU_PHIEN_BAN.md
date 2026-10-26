@@ -19,11 +19,11 @@
 ### Phiên bản 0.149.0 – 2026-10-26
 
 - Phạm vi thay đổi: DT-28 phần 28a, mô hình nhóm dùng chung (YCTD-271).
-- Chức năng mới: bộ nhóm của lớp (chia tay, ngẫu nhiên có hạt, trộn năng lực, gom tầng, cân bằng giới, ràng buộc cùng nhóm, không cùng nhóm, từ tiết nhóm 21b), nhóm trưởng (đặt, ngẫu nhiên, luân phiên), lịch sử đổi thành viên; công cụ lớp học dùng bộ nhóm, chọn bộ sẵn có; hàm đọc ổn định `GroupSetsReader` cho 28b, 28c, 28e.
+- Chức năng mới: bộ nhóm của lớp (chia tay, ngẫu nhiên có hạt, trộn năng lực, gom tầng, cân bằng giới, ràng buộc cùng nhóm, không cùng nhóm, từ tiết nhóm 21b), nhóm trưởng (đặt, ngẫu nhiên, luân phiên), lịch sử đổi thành viên; công cụ lớp học dùng bộ nhóm, chọn bộ sẵn có; hàm đọc ổn định `GroupSetsReader` cho 28b, 28c, 28e; giao đề thi trực tuyến 23a cho nhóm của bộ nhóm.
 - Lỗi đã sửa: không có.
 - Thay đổi dữ liệu: năm học `0170`, `0171`; xem `16_CO_SO_DU_LIEU.md` mục 18F.
 - Thay đổi API: nhóm `/group-sets`; `PUT /classroom-tools/classes/{id}/grouping` nhận thêm `group_set_id`.
-- Kiểm thử: kịch bản CT-1108 đến CT-1114 (CT-28a-1 đến CT-28a-13 trong mã kiểm thử).
+- Kiểm thử: kịch bản CT-1108 đến CT-1115 (CT-28a-1 đến CT-28a-14 trong mã kiểm thử).
 - Rủi ro: chia theo năng lực dựa trên điểm chưa đầy đủ đầu năm (học sinh chưa có điểm xếp sau ở gom tầng); bảng `classroom_groupings` còn ghi song song một bản phát hành.
 - Khả năng tương thích: nhóm 4.1.6 không đổi; công cụ lớp học giữ dạng phản hồi; bản chia cũ của 23b chuyển thành bộ nhóm.
 - Phương án quay lui: hoàn lại commit gộp; tệp 0171 và 0170 có hàm `down` xóa bộ nhóm đã dời và các cột mới, `classroom_groupings` vẫn đủ dữ liệu vì được ghi song song.

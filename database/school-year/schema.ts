@@ -6133,9 +6133,11 @@ export interface ExamAssignmentsTable {
 export interface ExamAssignmentTargetsTable {
   id: Generated<string>;
   assignment_id: string;
-  kind: 'class' | 'student';
+  // `group` (DT-28 phần 28a): nhóm của bộ nhóm; dòng `student` có `group_id` là thành viên của nhóm lúc giao
+  kind: 'class' | 'student' | 'group';
   class_id: string | null;
   child_id: string | null;
+  group_id: ColumnType<string | null, string | null | undefined, string | null>;
 }
 
 export interface ExamAttemptsTable {
