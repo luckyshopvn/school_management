@@ -471,42 +471,48 @@ describe('Điểm cuối máy xếp thời khoá biểu', () => {
     );
 
     // Đổi tiết: hai tiết khác môn của lớp 1B trong cùng ngày. Cặp nào giáo viên đang dạy lớp khác ở chỗ mới thì máy chủ chặn
-    // (422); thử lần lượt tới cặp đầu tiên được nhận để ca kiểm thử không phụ thuộc phương án ngẫu nhiên của máy xếp
-    const dayB = list(
-      (await api('GET', `/timetable-changes/day?date=${schoolDay}&class_id=${classes['1B']}`, viewer.accessToken)).body,
-    ).filter((lesson) => !lesson.change);
+    // (422); thử lần lượt tới cặp đầu tiên được nhận để ca kiểm thử không phụ thuộc phương án ngẫu nhiên của máy xếp. Có phương án
+    // mà mọi cặp của 1B trong ngày dạy thay đều bị chặn (lỗi chập chờn cũ ở CI), nên tìm trong cả 7 ngày, bắt đầu từ ngày dạy thay
+    let swapDay = schoolDay;
     let first: Record<string, unknown> | undefined;
     let second: Record<string, unknown> | undefined;
     let swap: Awaited<ReturnType<typeof api>> | undefined;
-    pairs: for (const left of dayB) {
-      for (const right of dayB) {
-        if ((left.period_no as number) >= (right.period_no as number) || left.subject_name === right.subject_name)
-          continue;
-        const attempt = await api('POST', '/timetable-changes', principal.accessToken, {
-          kind: 'swap',
-          date: schoolDay,
-          class_id: classes['1B'],
-          period_no: left.period_no,
-          target_date: schoolDay,
-          target_period_no: right.period_no,
-        });
-        if (attempt.status === 201) {
-          [first, second, swap] = [left, right, attempt];
-          break pairs;
+    days: for (let offset = 0; offset < 7; offset += 1) {
+      swapDay = addDays(schoolDay, offset);
+      const dayB = list(
+        (await api('GET', `/timetable-changes/day?date=${swapDay}&class_id=${classes['1B']}`, viewer.accessToken)).body,
+      ).filter((lesson) => !lesson.change);
+      for (const left of dayB) {
+        for (const right of dayB) {
+          if ((left.period_no as number) >= (right.period_no as number) || left.subject_name === right.subject_name)
+            continue;
+          const attempt = await api('POST', '/timetable-changes', principal.accessToken, {
+            kind: 'swap',
+            date: swapDay,
+            class_id: classes['1B'],
+            period_no: left.period_no,
+            target_date: swapDay,
+            target_period_no: right.period_no,
+          });
+          if (attempt.status === 201) {
+            [first, second, swap] = [left, right, attempt];
+            break days;
+          }
+          assert.equal(attempt.status, 422, JSON.stringify(attempt.body));
         }
-        assert.equal(attempt.status, 422, JSON.stringify(attempt.body));
       }
     }
     assert.ok(first && second && swap, 'không có cặp tiết đổi được');
     assert.equal(list(swap.body).length, 2);
     const swapped = list(
-      (await api('GET', `/timetable-changes/day?date=${schoolDay}&class_id=${classes['1B']}`, viewer.accessToken)).body,
+      (await api('GET', `/timetable-changes/day?date=${swapDay}&class_id=${classes['1B']}`, viewer.accessToken)).body,
     );
     assert.equal(swapped.find((lesson) => lesson.period_no === first.period_no)?.subject_name, second.subject_name);
     assert.equal(swapped.find((lesson) => lesson.period_no === second.period_no)?.subject_name, first.subject_name);
 
+    // Khoảng ngày chứa cả tiết dạy thay và cặp đổi tiết
     const changes = list(
-      (await api('GET', `/timetable-changes?from=${schoolDay}&to=${schoolDay}`, viewer.accessToken)).body,
+      (await api('GET', `/timetable-changes?from=${schoolDay}&to=${swapDay}`, viewer.accessToken)).body,
     );
     assert.equal(changes.length, 3);
 
@@ -536,7 +542,7 @@ describe('Điểm cuối máy xếp thời khoá biểu', () => {
     const swapRow = changes.find((change) => change.kind === 'swap') as Record<string, unknown>;
     assert.equal((await api('DELETE', `/timetable-changes/${swapRow.id}`, principal.accessToken)).status, 204);
     assert.equal(
-      list((await api('GET', `/timetable-changes?from=${schoolDay}&to=${schoolDay}`, viewer.accessToken)).body).length,
+      list((await api('GET', `/timetable-changes?from=${schoolDay}&to=${swapDay}`, viewer.accessToken)).body).length,
       1,
     );
   });

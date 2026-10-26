@@ -15,6 +15,7 @@ import { migrateToLatest, type DatabaseKind } from './migrate.js';
 const TEMPLATE_PREFIX = 'school_tpl_';
 const DUPLICATE_DATABASE = '42P04';
 const SOURCE_IN_USE = '55006';
+const UNIQUE_VIOLATION = '23505';
 
 const templateNames = new Map<string, Promise<string>>();
 
@@ -132,10 +133,23 @@ async function buildTemplate(target: TemplateTarget, kind: DatabaseKind, templat
     );
   } catch (error) {
     await dropDatabaseIfExists(target.creatorUrl, buildingName);
-    if ((error as { code?: string }).code !== DUPLICATE_DATABASE) {
+    if (!isDuplicateDatabase(error)) {
       throw error;
     }
   }
+}
+
+// Hai tiến trình cùng đổi tên về một tên: bên thua nhận 42P04, hoặc 23505 (vi phạm chỉ mục duy nhất pg_database_datname_index)
+// khi hai lệnh chạy chồng lên nhau qua bước kiểm tra trùng của máy chủ
+function isDuplicateDatabase(error: unknown): boolean {
+  const { code, constraint } = error as { code?: string; constraint?: string };
+  return code === DUPLICATE_DATABASE || (code === UNIQUE_VIOLATION && constraint === 'pg_database_datname_index');
+}
+
+async function templateExists(database: Kysely<unknown>, templateName: string): Promise<boolean> {
+  const result = await sql<{ found: boolean }>`
+    select exists(select 1 from pg_database where datname = ${templateName}) as found`.execute(database);
+  return result.rows[0]?.found === true;
 }
 
 async function templateFor(target: TemplateTarget, kind: DatabaseKind): Promise<string> {
@@ -144,14 +158,19 @@ async function templateFor(target: TemplateTarget, kind: DatabaseKind): Promise<
   if (!pending) {
     pending = (async () => {
       const templateName = `${TEMPLATE_PREFIX}${kind.replace('-', '_')}_${await templateFingerprint(kind, target.owner)}`;
-      const exists = await withConnection(target.creatorUrl, async (database) => {
-        const result = await sql<{ found: boolean }>`
-          select exists(select 1 from pg_database where datname = ${templateName}) as found`.execute(database);
-        return result.rows[0]?.found === true;
+      // Các tệp kiểm thử chạy song song (--test-concurrency) là các tiến trình riêng: giữ khóa tư vấn theo tên mẫu trên một kết
+      // nối trong lúc kiểm tra và dựng, để chỉ một tiến trình dựng, các tiến trình khác chờ rồi dùng mẫu đã có (lỗi chập chờn cũ:
+      // hai tiến trình cùng dựng, bên thua nhận 23505 và cả bộ kiểm thử năm học hỏng)
+      await withConnection(target.creatorUrl, async (database) => {
+        await sql`select pg_advisory_lock(hashtext(${templateName}))`.execute(database);
+        try {
+          if (!(await templateExists(database, templateName))) {
+            await buildTemplate(target, kind, templateName);
+          }
+        } finally {
+          await sql`select pg_advisory_unlock(hashtext(${templateName}))`.execute(database);
+        }
       });
-      if (!exists) {
-        await buildTemplate(target, kind, templateName);
-      }
       return templateName;
     })();
     templateNames.set(key, pending);

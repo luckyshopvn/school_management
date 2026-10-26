@@ -11,7 +11,7 @@ import {
 } from '@school-management/database';
 import { createTestUser } from '@school-management/identity/testing';
 import { E2E_PARENT_PORT, E2E_SCHOOL_YEAR_DATABASE_PREFIX, E2E_SYSTEM_DATABASE_NAME } from '../e2e-environment.mjs';
-import { openMenu } from './menu.js';
+import { openMenu, selectSchoolLevel } from './menu.js';
 
 // Thời khoá biểu THPT (DT-21 phần 21b, YCTD-169), kịch bản CT-21b-7: trường bật thêm THPT, chọn cấp THPT; Hiệu trưởng tạo bản
 // nháp, xếp tiết cả lớp và hai tiết học nhóm cùng ô (Vật lí, Địa lí), kiểm tra xung đột, ban hành; phụ huynh con học tổ hợp
@@ -249,7 +249,7 @@ test('CT-21b-7: tiết cả lớp và tiết nhóm cùng ô, kiểm tra xung đ�
   await expect(page.getByRole('heading', { name: /^Xin chào,/ })).toBeVisible();
   await setSecondaryEnabled(page, true);
   try {
-    await page.getByTestId('school-level-switcher').selectOption('THPT');
+    await selectSchoolLevel(page, 'THPT');
     await openMenu(page, '/timetables');
     const form = page.getByRole('form', { name: 'Tạo bản thời khoá biểu' });
     await form.getByLabel('Tên bản', { exact: true }).fill(`TKB THPT ${suffix}`);
