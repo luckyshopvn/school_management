@@ -25,7 +25,7 @@ import { ClassLogScreen } from './screens/ClassLogScreen.js';
 import { TrainingScreen } from './screens/TrainingScreen.js';
 import { TeachingScreen } from './screens/TeachingScreen.js';
 import { WorkScreen } from './screens/WorkScreen.js';
-import { UpdateBanner } from '@school-management/pwa';
+import { UpdateBanner, usePushSync } from '@school-management/pwa';
 import { Button, DemoBanner, MaintenanceBanner, type MaintenanceNoticeItem } from '@school-management/ui';
 import { requestJson } from './session/api-client.js';
 import { ClassroomOfflineManager } from './tools/ClassroomOfflineManager.js';
@@ -212,6 +212,13 @@ function Screens() {
   );
 }
 
+// Đã đăng nhập: báo lại đăng ký đẩy của máy cho máy chủ (DT-26 phần 26b)
+function PushSync() {
+  const session = useSession();
+  usePushSync('teacher', import.meta.env.BASE_URL, requestJson, session.status === 'signed-in');
+  return null;
+}
+
 // Giao diện chỉ gọi giao diện lập trình ứng dụng, không chứa quy tắc nghiệp vụ (QU-09)
 export function Application() {
   return (
@@ -222,6 +229,7 @@ export function Application() {
       {/* Có bản mới của ứng dụng: hỏi tải lại (DT-26 phần 26a) */}
       <UpdateBanner />
       <ClassroomOfflineManager />
+      <PushSync />
       <Screens />
     </SessionProvider>
   );
