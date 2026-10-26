@@ -13,7 +13,7 @@ phien_ban_de_xuat: 0.151.0
 
 - Đọc mục 15 của `32_KE_HOACH_THEO_HE_THONG_SO.md` (15.3, 15.4, 15.6 dòng "Học sinh gian lận khi thi ở nhà", GD-106, mục 19 về coturn dùng chung với 27a, GD-132) và mã 23a (`student-exams.ts`, `proctoring.ts`, `ExamRoom.tsx`, kho tệp, bộ lập lịch); viết mục 15.4 "23e".
 - Cơ sở dữ liệu: năm học `0129`. Máy chủ API: dịch vụ giám thị (phiên xem trực tiếp, báo hiệu, đồng ý, ghi hình mã hoá, xem lại, dọn quá hạn), cấu hình máy chủ ICE. Ứng dụng phụ huynh: thông báo, bộ trả lời WebRTC, bộ ghi hình, màn hình đồng ý của phụ huynh. Cổng quản trị: lưới camera, đồng ý của cha mẹ, nhật ký người xem, xem lại bản ghi, cấu hình. Hồ sơ vận hành: coturn.
-- Thêm quy tắc BR-239, chức năng P02-86 đến P02-89, quyền PQ-110, biện pháp BM-101 đến BM-103, màn hình MH-349 đến MH-351, kịch bản CT-1140 đến CT-1145, tiêu chí AC-883 đến AC-887. Kết quả ngày 26/10/2026: kiểm thử đơn vị `apps/api/src/online-exams/exam-proctoring.test.ts` (CT-23e-1a đến CT-23e-1c) và `online-exams.test.ts` (CT-23e-1 đến CT-23e-4) đạt; kiểm thử đơn vị toàn kho đạt (bộ 23e, 23a, 22g, định danh chạy riêng; toàn bộ để CI chạy); kiểm thử giao diện `tests/e2e/154-online-exam-proctoring.spec.ts` (CT-23e-5) cùng 02, 03, 06, 08, 150 đạt; toàn bộ kiểm thử giao diện để CI chạy toàn bộ; trên máy chạy riêng 02, 03, 06, 08, 101, 102, 103, 150 và 154 (14/14 đạt); kiểm tĩnh đa thuê bao, ma trận cách ly, kiểm thử hai bố cục cơ sở dữ liệu `database` và `schema`, build, kiểm tra kiểu, lint, kiểm tra định dạng đạt.
+- Thêm quy tắc BR-250, chức năng P02-95 đến P02-98, quyền PQ-115, biện pháp BM-101 đến BM-103, màn hình MH-360 đến MH-362, kịch bản CT-1140 đến CT-1145, tiêu chí AC-900 đến AC-904. Kết quả ngày 26/10/2026: kiểm thử đơn vị `apps/api/src/online-exams/exam-proctoring.test.ts` (CT-23e-1a đến CT-23e-1c) và `online-exams.test.ts` (CT-23e-1 đến CT-23e-4) đạt; kiểm thử đơn vị toàn kho đạt (bộ 23e, 23a, 22g, định danh chạy riêng; toàn bộ để CI chạy); kiểm thử giao diện `tests/e2e/154-online-exam-proctoring.spec.ts` (CT-23e-5) cùng 02, 03, 06, 08, 150 đạt; toàn bộ kiểm thử giao diện để CI chạy toàn bộ; trên máy chạy riêng 02, 03, 06, 08, 101, 102, 103, 150 và 154 (14/14 đạt); kiểm tĩnh đa thuê bao, ma trận cách ly, kiểm thử hai bố cục cơ sở dữ liệu `database` và `schema`, build, kiểm tra kiểu, lint, kiểm tra định dạng đạt.
 
 #### Quyết định
 
@@ -21,7 +21,7 @@ phien_ban_de_xuat: 0.151.0
 
 #### Thay đổi
 
-- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-215, `07_QUY_TAC_NGHIEP_VU.md` BR-239, `08_VAI_TRO_NGUOI_DUNG.md` PQ-110, `10_YEU_CAU_CHUC_NANG.md` P02-86 đến P02-89, `11_TIEU_CHI_NGHIEM_THU.md` AC-883 đến AC-887, `14_DAC_TA_GIAO_DIEN.md` MH-349 đến MH-351, `16_CO_SO_DU_LIEU.md`, `17_DAC_TA_API.md`, `21_KICH_BAN_KIEM_THU.md` CT-1140 đến CT-1145, `22_BAO_MAT.md` BM-101 đến BM-103, `23_LICH_SU_PHIEN_BAN.md` {PHIEN_BAN}, `33_HO_SO_PHAP_LY/` PL-13, PL-15.
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-215, `07_QUY_TAC_NGHIEP_VU.md` BR-250, `08_VAI_TRO_NGUOI_DUNG.md` PQ-115, `10_YEU_CAU_CHUC_NANG.md` P02-95 đến P02-98, `11_TIEU_CHI_NGHIEM_THU.md` AC-900 đến AC-904, `14_DAC_TA_GIAO_DIEN.md` MH-360 đến MH-362, `16_CO_SO_DU_LIEU.md`, `17_DAC_TA_API.md`, `21_KICH_BAN_KIEM_THU.md` CT-1140 đến CT-1145, `22_BAO_MAT.md` BM-101 đến BM-103, `23_LICH_SU_PHIEN_BAN.md` {PHIEN_BAN}, `33_HO_SO_PHAP_LY/` PL-13, PL-15.
 
 #### Vấn đề tồn đọng
 
@@ -42,8 +42,8 @@ phien_ban_de_xuat: 0.151.0
 - Thành phần bị ảnh hưởng: cơ sở dữ liệu (`database/school-year/migrations/0129_create_exam_proctoring.ts`, `schema.ts`), gói dùng chung (`packages/shared/src/online-exams.ts`: hằng, `ageOn`, `needsParentConsent`), máy chủ API (`apps/api/src/online-exams/exam-proctoring.ts`, `exam-proctoring.controller.ts`, `proctor-consent.ts`, `student-exams.ts`, `online-exams.ts`, `common/configuration.ts`), ứng dụng phụ huynh (`apps/parent/src/student/proctoring.ts`, `ExamRoom.tsx`, `screens/ProctorConsentPanel.tsx`), cổng quản trị (`apps/portal/src/online-exams/ProctorPanel.tsx` và trang giao đề, theo dõi, cấu hình), hồ sơ vận hành (`deploy/docker-compose.production.yml`, `deploy/coturn/`), hồ sơ pháp lý (PL-13, PL-15).
 - Dữ liệu bị ảnh hưởng: bốn bảng mới ở năm học (`exam_proctor_consents`, `exam_proctor_views`, `exam_proctor_signals`, `exam_recording_chunks`); cột mới `exam_assignments.proctor_live`, `proctor_record`, `exam_attempts.proctor_notice_at`, `online_exam_school_settings.allow_live_proctoring`, `allow_recording`, `recording_retention_days`; tệp bản ghi ở kho tệp (mã hoá). Không đổi dữ liệu cũ (mặc định tắt).
 - API bị ảnh hưởng: `/online-exams/…` (xem trực tiếp, báo hiệu, thông tin giám sát của lượt, xem lại bản ghi, đồng ý), `/student/…` (hỏi báo hiệu, trả lời, tải đoạn bản ghi, máy chủ ICE), `/parent/exam-proctor-consents`; `proctor_live`, `proctor_record` ở giao đề; `proctor_notice` ở `POST /student/exams/{id}/start`; biến môi trường `STUN_URLS`, `TURN_URLS`, `TURN_SHARED_SECRET`, `TURN_TTL_SECONDS`.
-- Giao diện bị ảnh hưởng: MH-349 đến MH-351; phòng làm bài của học sinh (thông báo, ô xác nhận, dòng thông báo có người xem).
-- Quyền bị ảnh hưởng: PQ-110 (không thêm quyền mới: dùng `P02.exam.assign`, `P02.exam.manage`, `P02.exam.take`). Máy chủ kiểm quyền ở mọi yêu cầu (AI-12).
+- Giao diện bị ảnh hưởng: MH-360 đến MH-362; phòng làm bài của học sinh (thông báo, ô xác nhận, dòng thông báo có người xem).
+- Quyền bị ảnh hưởng: PQ-115 (không thêm quyền mới: dùng `P02.exam.assign`, `P02.exam.manage`, `P02.exam.take`). Máy chủ kiểm quyền ở mọi yêu cầu (AI-12).
 - Ảnh hưởng chức năng cũ: không đổi hành vi (mặc định tắt); bài thi, camera kiểm tra có mặt của 23a chạy như trước.
 - Hạn chế:
   - chưa có ảnh chụp định kỳ, nhận diện cảm xúc, nhận diện danh tính, AI cảnh báo bất thường (không làm theo quyết định tách phần);

@@ -44,6 +44,7 @@ export const WORKSPACE_ICONS: Record<WorkspaceKey, IconName> = {
   library: 'book',
   'learning-resources': 'book',
   'online-exam': 'cap',
+  tutoring: 'people',
 };
 
 const WORKSPACE_KEY = 'portal.workspace';

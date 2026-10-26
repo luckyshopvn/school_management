@@ -94,7 +94,7 @@ Giao kèo thi trực tuyến cho học sinh (DT-23 phần 23a, YCTD-211, BR-237)
 5. `POST /student/attempts/{id}/events` nhận tối đa 20 sự kiện (`fullscreen_exit`, `page_hidden`, `window_blur`, `camera_lost`, `no_face`, `multiple_faces`; `detail` chỉ `duration_ms`, `faces`) và trả `violations`, `outcome` (`none`, `warn`, `flag`, `auto_submit`); không nhận hình hay video.
 6. `GET /student/attempts/{id}/result`: `visible` theo `result_mode`; đáp án đúng (`correct_answer`) chỉ có sau giờ đóng.
 
-Giao kèo giám thị camera cho thi trực tuyến (DT-23 phần 23e, YCTD-215, BR-239):
+Giao kèo giám thị camera cho thi trực tuyến (DT-23 phần 23e, YCTD-215, BR-250):
 
 1. `PUT /online-exams/school-settings` nhận thêm `allow_live_proctoring`, `allow_recording`, `recording_retention_days` (7 đến 90); thiếu trường thì giữ giá trị cũ. `POST /online-exams/assignments` nhận `proctor_live`, `proctor_record`: trường chưa bật thì 422 (chi tiết theo trường), bài tắt camera thì 400.
 2. `POST /student/exams/{id}/start` nhận `proctor_notice` (đã đọc thông báo): bài có giám sát mà thiếu thì 422 chi tiết `proctor_notice`; học sinh dưới 16 tuổi hoặc chưa rõ ngày sinh thiếu đồng ý của loại đang bật thì 422 chi tiết `proctor_consent`.
@@ -1559,19 +1559,30 @@ Giao kèo văn thư lưu trữ (YCTD-118):
 | GET, PATCH | /api/v1/online-exams/assignments/{id} | Chi tiết, theo dõi; sửa tên, giờ, chế độ kết quả (P02-84) |
 | POST | /api/v1/online-exams/assignments/{id}/cancel, /release-results | Huỷ; công bố kết quả (P02-84) |
 | GET, PUT, POST | /api/v1/online-exams/attempts/{id}, /essay-marks, /force-submit | Xem bài; điểm tự luận; nộp thay (P02-84) |
+| GET | /api/v1/tutoring/meta, /tutoring/rules; POST /tutoring/rules | Danh mục cho biểu mẫu, quy định dạy thêm đang áp dụng và lịch sử; thêm quy định có ngày hiệu lực (P02.tutoring.manage) (YCTD-252) |
+| GET, POST | /api/v1/tutoring/programs; GET, PUT /tutoring/programs/{id} | Chương trình gia sư; vi phạm Thông tư 29 trả 422 `ERR_RULE_VIOLATION` mã YCTD-252, chi tiết mã từng dòng (`curriculum_fee`, `curriculum_audience`, `curriculum_subject`, `curriculum_level`) |
+| POST | /api/v1/tutoring/programs/{id}/submit, /approve, /reject, /close | Nộp (người dạy), duyệt, không duyệt (cần `reason`), đóng (Ban Giám hiệu) |
+| GET, PUT | /api/v1/tutoring/programs/{id}/candidate-suggestions, /candidates | Gợi ý học sinh chưa đạt môn từ sổ điểm; xác nhận danh sách học sinh được đăng ký |
+| POST | /api/v1/tutoring/programs/{id}/sessions | Xếp buổi lẻ (`session_date`) hoặc lặp theo tuần (`weekly`: from, to, weekdays 1 đến 7), `start_time`, `end_time`; trùng thời khoá biểu (`timetable_teacher`, `timetable_class`) hoặc quá giới hạn tiết (`weekly_periods`) trả 422 |
+| GET | /api/v1/tutoring/programs/{id}/registrations; POST /tutoring/registrations/{id}/approve, /reject | Đơn đăng ký; duyệt kiểm sĩ số và giới hạn tiết |
+| POST | /api/v1/tutoring/programs/{id}/messages | Nhắn cha mẹ của học sinh đã đăng ký qua luồng trao đổi |
+| GET | /api/v1/tutoring/sessions?from&to; POST /tutoring/sessions/{id}/cancel | Buổi của chương trình mình dạy (Ban Giám hiệu: mọi buổi); hủy buổi báo cha mẹ |
+| GET, PUT | /api/v1/tutoring/sessions/{id}/attendance; POST .../room-events | Điểm danh và xác nhận (vắng báo cha mẹ một lần); sự kiện vào, ra phòng giả lập đến khi 27a gộp |
+| GET, POST | /api/v1/tutoring/exemptions; GET .../{id}/file | Quyết định tăng thời lượng của Sở (biểu mẫu nhiều phần, tệp tùy chọn) |
+| GET | /api/v1/children/{id}/tutoring; POST .../registrations; POST .../registrations/{rid}/withdraw | Cha mẹ: chương trình mở cho con, đơn đã gửi, lịch học và điểm danh đã xác nhận; gửi đơn (`agree` bắt buộc), rút đơn |
 | GET | /api/v1/student/profile, /exams | Học sinh: thông tin, bài được giao (P02-83) |
 | POST | /api/v1/student/exams/{id}/start | Mở hoặc tiếp tục lượt (`camera_state`) (P02-83) |
 | GET, PUT | /api/v1/student/attempts/{id}, /answers | Đọc lượt; lưu nháp từng câu (P02-83) |
 | POST | /api/v1/student/attempts/{id}/events, /submit | Báo sự kiện; nộp (P02-83) |
 | GET | /api/v1/student/attempts/{id}/result | Kết quả theo chế độ (P02-83) |
-| GET, POST, DELETE | /api/v1/online-exams/attempts/{id}/proctor/views, /proctor/views/{viewId}/signals, /proctor/views/{viewId} | Giáo viên mở phiên xem trực tiếp, hỏi và gửi thông điệp báo hiệu, kết thúc (P02-88, YCTD-215) |
-| GET | /api/v1/online-exams/proctor/ice, /api/v1/student/proctor/ice | Máy chủ ICE (STUN, TURN có hạn) cho trình duyệt (P02-88) |
-| GET | /api/v1/online-exams/attempts/{id}/proctor, /recording | Thông tin giám sát của lượt, nhật ký người xem; phát bản ghi (P02-89) |
-| GET, POST | /api/v1/student/attempts/{id}/proctor, /proctor/signals | Học sinh hỏi phiên xem và gửi trả lời (P02-88) |
-| POST | /api/v1/student/attempts/{id}/recording/chunks | Học sinh tải một đoạn bản ghi (P02-89) |
-| GET | /api/v1/online-exams/assignments/{id}/proctor/consents | Tình trạng đồng ý của học sinh trong bài giao (P02-87) |
-| PUT | /api/v1/online-exams/proctor/consents | Người quản lý ghi nhận hoặc thu hồi văn bản đồng ý (P02-87) |
-| GET, PUT | /api/v1/parent/exam-proctor-consents | Phụ huynh xem, đồng ý, thu hồi cho con mình (P02-87) |
+| GET, POST, DELETE | /api/v1/online-exams/attempts/{id}/proctor/views, /proctor/views/{viewId}/signals, /proctor/views/{viewId} | Giáo viên mở phiên xem trực tiếp, hỏi và gửi thông điệp báo hiệu, kết thúc (P02-97, YCTD-215) |
+| GET | /api/v1/online-exams/proctor/ice, /api/v1/student/proctor/ice | Máy chủ ICE (STUN, TURN có hạn) cho trình duyệt (P02-97) |
+| GET | /api/v1/online-exams/attempts/{id}/proctor, /recording | Thông tin giám sát của lượt, nhật ký người xem; phát bản ghi (P02-98) |
+| GET, POST | /api/v1/student/attempts/{id}/proctor, /proctor/signals | Học sinh hỏi phiên xem và gửi trả lời (P02-97) |
+| POST | /api/v1/student/attempts/{id}/recording/chunks | Học sinh tải một đoạn bản ghi (P02-98) |
+| GET | /api/v1/online-exams/assignments/{id}/proctor/consents | Tình trạng đồng ý của học sinh trong bài giao (P02-96) |
+| PUT | /api/v1/online-exams/proctor/consents | Người quản lý ghi nhận hoặc thu hồi văn bản đồng ý (P02-96) |
+| GET, PUT | /api/v1/parent/exam-proctor-consents | Phụ huynh xem, đồng ý, thu hồi cho con mình (P02-96) |
 | POST | /api/v1/users/student-accounts/sync | Dịch vụ định danh: tạo, cấp lại người dùng kênh `student` (máy chủ API gọi) (P02-83) |
 | GET | /api/v1/public/student-awards/verify (từ YCTD-163) | Tra cứu công khai mã giấy khen học sinh (`code` 12 kí tự), giới hạn tần suất |
 | GET | /api/v1/primary-reports/enrollment, /assessments, /year-end, /attendance, /{report}/export (từ YCTD-165) | Thống kê Tiểu học (`org_unit_id`; `period_id`, `group` = `class`, `grade`, `school`; `from`, `to`); xuất `format` = `xlsx`, `pdf`; cần `P17.child-statistics.view` |

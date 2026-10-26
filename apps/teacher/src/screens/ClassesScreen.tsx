@@ -65,6 +65,7 @@ export function ClassesScreen({
   onOpenClassLog,
   onOpenTraining,
   onOpenClassroomTools,
+  onOpenTutoring,
 }: {
   onOpen(myClass: MyClass): void;
   onOpenPickup(myClass: MyClass): void;
@@ -88,6 +89,7 @@ export function ClassesScreen({
   onOpenClassLog(): void;
   onOpenTraining(): void;
   onOpenClassroomTools(classes: MyClass[]): void;
+  onOpenTutoring(): void;
 }) {
   const session = useSession();
   const [classes, setClasses] = useState<MyClass[]>();
@@ -97,6 +99,8 @@ export function ClassesScreen({
   const [canStocktake, setCanStocktake] = useState(false);
   // Bồi dưỡng của tôi (DT-22 phần 22e)
   const [canTrain, setCanTrain] = useState(false);
+  // Gia sư trong trường (DT-27 phần 27b)
+  const [canTutor, setCanTutor] = useState(false);
 
   useEffect(() => {
     fetchCurrentUser()
@@ -111,6 +115,7 @@ export function ClassesScreen({
           user.assignments.some((assignment) => assignment.permissions.includes('P13.equipment.stocktake')),
         );
         setCanTrain(user.assignments.some((assignment) => assignment.permissions.includes('P09.training.use')));
+        setCanTutor(user.assignments.some((assignment) => assignment.permissions.includes('P02.tutoring.teach')));
       })
       .catch(() => setGateUnitIds([]));
     requestJson<MyClass[]>('/api/v1/classes?mine=true&status=active')
@@ -147,6 +152,7 @@ export function ClassesScreen({
         ) : null}
         {canStocktake ? <Button onClick={onOpenStocktake}>Kiểm kê thiết bị</Button> : null}
         {canTrain ? <Button onClick={onOpenTraining}>Bồi dưỡng của tôi</Button> : null}
+        {canTutor ? <Button onClick={onOpenTutoring}>Gia sư trong trường</Button> : null}
         {/* Lịch dạy theo thời khoá biểu (DT-20 phần 22c1): giáo viên có lớp cấp phổ thông */}
         {(classes ?? []).some((myClass) => hasLevelFeature(myClass.school_level, 'period_timetable')) ? (
           <Button onClick={onOpenTimetable}>Lịch dạy của tôi</Button>

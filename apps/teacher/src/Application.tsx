@@ -30,6 +30,7 @@ import { Button, DemoBanner, MaintenanceBanner, type MaintenanceNoticeItem } fro
 import { requestJson } from './session/api-client.js';
 import { ClassroomOfflineManager } from './tools/ClassroomOfflineManager.js';
 import { ClassroomToolsScreen } from './tools/ClassroomToolsScreen.js';
+import { TutoringScreen } from './screens/TutoringScreen.js';
 import { readRosters } from './tools/classroom-store.js';
 import { SessionProvider, useSession } from './session/session.js';
 
@@ -92,6 +93,7 @@ function Screens() {
     | { screen: 'class-log' }
     | { screen: 'training' }
     | { screen: 'classroom-tools'; classes: MyClass[] }
+    | { screen: 'tutoring' }
   >();
   const back = () => setOpened(undefined);
   // Quay về từ nhà cung cấp định danh bên ngoài (DT-25 bước 25b)
@@ -175,6 +177,9 @@ function Screens() {
   if (opened?.screen === 'training') {
     return <TrainingScreen onBack={back} />;
   }
+  if (opened?.screen === 'tutoring') {
+    return <TutoringScreen onBack={back} />;
+  }
   if (opened?.screen === 'classroom-tools') {
     return <ClassroomToolsScreen classes={opened.classes} onBack={back} />;
   }
@@ -208,6 +213,7 @@ function Screens() {
       onOpenClassLog={() => setOpened({ screen: 'class-log' })}
       onOpenTraining={() => setOpened({ screen: 'training' })}
       onOpenClassroomTools={(classes) => setOpened({ screen: 'classroom-tools', classes })}
+      onOpenTutoring={() => setOpened({ screen: 'tutoring' })}
     />
   );
 }
