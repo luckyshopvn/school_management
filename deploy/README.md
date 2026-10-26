@@ -6,15 +6,15 @@
 
 ## 1. Thành phần
 
-| Dịch vụ     | Ảnh                                                | Vai trò                                                                                                         | Cổng mở ra ngoài     |
-| ----------- | -------------------------------------------------- | --------------------------------------------------------------------------------------------------------------- | -------------------- |
-| `web`       | `deploy/docker/web.Dockerfile` (Caddy 2.10)        | Phục vụ ba giao diện, chuyển `/api/v1` sang hai dịch vụ, tự cấp chứng chỉ HTTPS                                 | 80, 443 (TCP và UDP) |
-| `identity`  | `deploy/docker/server.Dockerfile`, đích `identity` | Dịch vụ định danh                                                                                               | Không                |
-| `api`       | `deploy/docker/server.Dockerfile`, đích `api`      | Máy chủ API nghiệp vụ, tiến trình gửi thông báo                                                                 | Không                |
-| `migrate`   | Cùng ảnh `identity`                                | Chạy tệp thay đổi cấu trúc cho mọi cơ sở dữ liệu rồi dừng; `identity` và `api` chỉ chạy khi bước này thành công | Không                |
-| `postgres`  | `postgres:17-alpine`                               | `school_identity`, `school_system`, các `school_year_*`                                                         | Không                |
-| `redis`     | `redis:7-alpine`                                   | Giới hạn đăng nhập, mã OTP; bật `appendonly`, có mật khẩu                                                       | Không                |
-| `seaweedfs` | `chrislusf/seaweedfs:3.80`                         | Kho tệp tương thích S3, có kiểm tra khóa truy cập; bật bằng `COMPOSE_PROFILES=seaweedfs`                        | Không                |
+| Dịch vụ     | Ảnh                                                | Vai trò                                                                                                                                                 | Cổng mở ra ngoài                                        |
+| ----------- | -------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------- |
+| `web`       | `deploy/docker/web.Dockerfile` (Caddy 2.10)        | Phục vụ ba giao diện, chuyển `/api/v1` sang hai dịch vụ, tự cấp chứng chỉ HTTPS                                                                         | 80, 443 (TCP và UDP)                                    |
+| `identity`  | `deploy/docker/server.Dockerfile`, đích `identity` | Dịch vụ định danh                                                                                                                                       | Không                                                   |
+| `api`       | `deploy/docker/server.Dockerfile`, đích `api`      | Máy chủ API nghiệp vụ, tiến trình gửi thông báo                                                                                                         | Không                                                   |
+| `migrate`   | Cùng ảnh `identity`                                | Chạy tệp thay đổi cấu trúc cho mọi cơ sở dữ liệu rồi dừng; `identity` và `api` chỉ chạy khi bước này thành công                                         | Không                                                   |
+| `postgres`  | `postgres:17-alpine`                               | `school_identity`, `school_system`, các `school_year_*`                                                                                                 | Không                                                   |
+| `redis`     | `redis:7-alpine`                                   | Giới hạn đăng nhập, mã OTP; bật `appendonly`, có mật khẩu                                                                                               | Không                                                   |
+| `seaweedfs` | `chrislusf/seaweedfs:3.80`                         | Kho tệp tương thích S3, có kiểm tra khóa truy cập; bật bằng `COMPOSE_PROFILES=seaweedfs`                                                                | Không                                                   |
 | `coturn`    | `coturn/coturn:4.6.2`                              | Máy chủ chuyển tiếp WebRTC cho giám thị camera thi trực tuyến (DT-23 phần 23e), dùng chung về sau cho 27a; tuỳ chọn, bật bằng `COMPOSE_PROFILES=coturn` | UDP, TCP 3478 và UDP 49160 đến 49200 (mạng của máy chủ) |
 
 Định tuyến của Caddy:

@@ -1,7 +1,13 @@
 import { createHash } from 'node:crypto';
 import { Injectable } from '@nestjs/common';
 import type { SchoolYearDatabase } from '@school-management/database';
-import { ApplicationError, Clock, ruleViolationError, validationError, type FieldError } from '@school-management/server';
+import {
+  ApplicationError,
+  Clock,
+  ruleViolationError,
+  validationError,
+  type FieldError,
+} from '@school-management/server';
 import {
   PERMISSION_CODES,
   PROCTOR_EVENT_LABELS,

@@ -106,13 +106,14 @@ services:
     restart: unless-stopped
     network_mode: host
     environment:
-      TURN_SHARED_SECRET: ${TURN_SHARED_SECRET:?Thiếu TURN_SHARED_SECRET}
+      TURN_SHARED_SECRET: ${TURN_SHARED_SECRET:-}
       TURN_REALM: ${TURN_REALM:-school.local}
-      TURN_EXTERNAL_IP: ${TURN_EXTERNAL_IP:?Thiếu TURN_EXTERNAL_IP}
+      TURN_EXTERNAL_IP: ${TURN_EXTERNAL_IP:-}
     entrypoint:
       - /bin/sh
       - -c
       - >-
+        { [ -n "$$TURN_SHARED_SECRET" ] && [ -n "$$TURN_EXTERNAL_IP" ] || { echo "Cần đặt TURN_SHARED_SECRET và TURN_EXTERNAL_IP" >&2; exit 1; }; } &&
         exec turnserver -c /etc/coturn/turnserver.conf --static-auth-secret="$$TURN_SHARED_SECRET"
         --realm="$$TURN_REALM" --external-ip="$$TURN_EXTERNAL_IP"
     volumes:
