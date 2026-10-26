@@ -5,7 +5,8 @@ import { sql } from 'kysely';
 import { createDatabase } from './connection.js';
 import { createEmptyDatabase, dropDatabaseIfExists } from './database-administration.js';
 import { readConnectionString, replaceDatabaseName } from './environment.js';
-import { migrateToLatest, type DatabaseKind } from './migrate.js';
+import { platformMigrations } from '../platform/index.js';
+import { MIGRATIONS_PER_TRANSACTION, migrateToLatest, type DatabaseKind } from './migrate.js';
 import { VIETNAM_TIMEZONE } from './timezone.js';
 
 async function assertMigratesTwiceWithVietnamTimezone(kind: DatabaseKind, connectionString: string) {
@@ -56,6 +57,30 @@ describe('Tệp thay đổi cấu trúc trên bốn loại cơ sở dữ liệu'
         'platform',
         replaceDatabaseName(systemConnectionString, databaseName),
       );
+    } finally {
+      await dropDatabaseIfExists(systemConnectionString, databaseName);
+    }
+  });
+
+  // Chạy theo lô (YCTD-292): mỗi lô một giao dịch, đủ mọi tệp theo thứ tự tên; chạy lại không còn tệp nào
+  it('chạy theo lô: đủ tệp, đúng thứ tự tên, lô cuối thiếu vẫn chạy, chạy lại không còn tệp', async () => {
+    assert.ok(MIGRATIONS_PER_TRANSACTION > 1);
+    const systemConnectionString = readConnectionString('system');
+    const databaseName = `school_platform_lo_${randomUUID().replaceAll('-', '').slice(0, 12)}`;
+    await createEmptyDatabase(systemConnectionString, databaseName);
+    try {
+      const url = replaceDatabaseName(systemConnectionString, databaseName);
+      const names = Object.keys(platformMigrations).sort();
+      const batch = names.length > 3 ? 3 : 1;
+      const first = await migrateToLatest('platform', url, batch);
+      assert.equal(first.error, undefined);
+      assert.deepEqual(
+        first.results?.map((result) => result.migrationName),
+        names,
+      );
+      assert.ok(first.results?.every((result) => result.status === 'Success'));
+      const again = await migrateToLatest('platform', url, batch);
+      assert.deepEqual(again.results, []);
     } finally {
       await dropDatabaseIfExists(systemConnectionString, databaseName);
     }
