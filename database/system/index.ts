@@ -34,6 +34,7 @@ import { migration as createSupportAccessGrants } from './migrations/0053_create
 import { migration as createAiSettingsAndRequests } from './migrations/0071_create_ai_settings_and_requests.js';
 import { migration as addAiRequestUsageIndex } from './migrations/0072_add_ai_request_usage_index.js';
 import { migration as addLearningResourceAiFlag } from './migrations/0073_add_learning_resource_ai_flag.js';
+import { migration as addSchoolBrandingAppShortName } from './migrations/0090_add_school_branding_app_short_name.js';
 import { migration as createCourseTemplates } from './migrations/0110_create_course_templates.js';
 
 // Danh sách tệp thay đổi cấu trúc của cơ sở dữ liệu hệ thống, theo số thứ tự (QU-01, QĐ-17)
@@ -74,6 +75,7 @@ export const systemMigrations: Record<string, Migration> = {
   '0071_create_ai_settings_and_requests': createAiSettingsAndRequests,
   '0072_add_ai_request_usage_index': addAiRequestUsageIndex,
   '0073_add_learning_resource_ai_flag': addLearningResourceAiFlag,
-  // Lõi hệ thống quản lý học tập (DT-28 phần 28b): 0110 đến 0112
+  '0090_add_school_branding_app_short_name': addSchoolBrandingAppShortName,
+  // Lõi hệ thống quản lý học tập (DT-28 phần 28b): 0110
   '0110_create_course_templates': createCourseTemplates,
 };

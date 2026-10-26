@@ -1,7 +1,7 @@
 # 02. NHẬT KÝ DỰ ÁN
 
 - Mô tả: Ghi nhận công việc, quyết định, thay đổi và vấn đề tồn đọng theo ngày, ngày mới nhất ở trên cùng.
-- Phiên bản: 0.80
+- Phiên bản: 0.82
 - Ngày cập nhật: 2026-10-26
 - Trạng thái: Đang cập nhật
 
@@ -27,12 +27,54 @@
 
 #### Thay đổi
 
-- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-272, phiên bản 0.145.0 ở `23`, tài liệu 01, 07, 08, 10, 11, 12, 14, 16, 17, 21, 22, 32, 34, `index.md`.
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-272, phiên bản 0.148.0 ở `23`, tài liệu 01, 07, 08, 10, 11, 12, 14, 16, 17, 21, 22, 32, 34, `index.md`.
 
 #### Vấn đề tồn đọng
 
-- Sau khi 23a gộp: thêm học sinh tự học ở kênh `student` (`/student/learning`, quyền `P02.learning.study` cho VT-21, MH-353, CT-1115) trong cùng PR; sửa CI hỏng CT-S5a-8 (quy tắc menu khoá mẫu ghi quyền kho học liệu làm tuyến kho học liệu không còn bị chặn theo gói; tuyến nhân sự `/learning` nay chặn theo gói).
-- 23a (PR 189) gộp trước lấy 0.144.0 và các số BR-237, PQ-109, AC-874 đến AC-879, MH-342 đến MH-347, CT-1097 đến CT-1107, BM-97 đến BM-99; 28b đánh lại sang số kế tiếp (0.145.0). Phiên bản 0.145.0 có thể trùng với PR khác đang mở; PR nào gộp sau thì đánh lại.
+- Sau khi 23a gộp: thêm học sinh tự học ở kênh `student` (`/student/learning`, quyền `P02.learning.study` cho VT-21, MH-354, CT-1119) trong cùng PR; sửa CI hỏng CT-S5a-8 (quy tắc menu khoá mẫu ghi quyền kho học liệu làm tuyến kho học liệu không còn bị chặn theo gói; tuyến nhân sự `/learning` nay chặn theo gói).
+- 23a (PR 189) gộp trước lấy 0.144.0 và các số BR-237, PQ-109, AC-874 đến AC-879, MH-342 đến MH-347, CT-1097 đến CT-1107, BM-97 đến BM-99; sau đó 26a (PR 185, 0.145.0, BR-238, AC-880 đến AC-882, QĐ-36, MH-348, CT-1108 đến CT-1111, BM-100, mục 12H) và 25b (PR 190, 0.147.0) gộp; 28b đánh lại sang số kế tiếp (0.148.0, BR-239 đến BR-243, AC-883 đến AC-890, QĐ-37, MH-349 đến MH-354, CT-1112 đến CT-1119, BM-101, mục 12I). Phiên bản 0.148.0 có thể trùng với PR khác đang mở; PR nào gộp sau thì đánh lại.
+
+### 2026-10-26 — DT-26 phần 26a: vỏ ứng dụng web cài được dùng chung
+
+#### Công việc đã thực hiện
+
+- Tạo gói `packages/pwa`: dời service worker của 23b thành mẫu dùng chung, plugin Vite phục vụ và phát `sw.js` theo tiền tố của từng ứng dụng, thư viện đăng ký, kiểm bản mới, gỡ; `applyBrandedManifest`, `InstallPrompt`, `UpdateBanner`; hàm nhận biết cách cài theo trình duyệt có kiểm thử đơn vị.
+- Máy chủ: manifest và biểu tượng SVG theo thương hiệu từng trường (`/api/v1/public/pwa/*`), cột `school_branding.app_short_name` (hệ thống 0090), ô tên ngắn ở cổng quản trị.
+- Ứng dụng giáo viên chuyển sang gói chung (giữ tiền tố và công tắc ngoại tuyến của 23b); ứng dụng phụ huynh có manifest, biểu tượng, service worker; lời mời cài ở trang đầu hai ứng dụng.
+- Kiểm thử: `packages/pwa` (CT-26a-1), `apps/api` `school-settings.test.ts` (CT-26a-2, CT-26a-3), e2e spec 181 (CT-26a-4) và spec 151.
+
+#### Quyết định
+
+- Viết tay service worker và plugin, không thêm thư viện; biểu tượng là SVG dựng ở máy chủ, PNG của sản phẩm làm dự phòng (QĐ-36).
+- Ứng dụng phụ huynh luôn đăng ký service worker (chỉ giữ vỏ ứng dụng); ứng dụng giáo viên vẫn theo công tắc ngoại tuyến của trường.
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-231, `23_LICH_SU_PHIEN_BAN.md` phiên bản 0.145.0; BR-238, P19-07, AC-880 đến AC-882, CT-1108 đến CT-1111, MH-348, BM-100, QĐ-36, mục 12H.
+
+#### Vấn đề tồn đọng
+
+- Đã nối màn hình học sinh của 23a sau khi 23a gộp (manifest `student` mở thẳng `#hoc-sinh`, lời mời cài và dải "Có bản mới" ở danh sách bài, không hiện trong phòng thi). Còn: ảnh PNG và màn hình chờ iOS theo trường, phiên bản tối thiểu do máy chủ áp để phần sau (ghi ở YCTD-231).
+
+### 2026-10-26 — DT-25 bước 25b: giao diện đăng nhập và liên kết bằng nhà cung cấp định danh
+
+#### Công việc đã thực hiện
+
+- Thành phần dùng chung ở `packages/ui` cho nút đăng nhập, trang quay về `/dang-nhap/ben-ngoai`, mục liên kết tài khoản; nối vào cổng quản trị (điểm gắn của DT-24, Tài khoản của tôi, khối cấu hình ở Danh sách người dùng), ứng dụng giáo viên, ứng dụng phụ huynh.
+- e2e spec 165 thêm ca giao diện: liên kết ở Tài khoản của tôi, đăng nhập bằng nút, gỡ liên kết, nút ẩn khi trường tắt. Kết quả trên máy 13/13 cùng spec 01.
+
+#### Quyết định
+
+- Ở tên miền chung (đăng nhập theo đơn vị) không hiện nút: cấu hình, liên kết và lượt đăng nhập theo trường, người dùng mở trang đăng nhập riêng của trường.
+- Ứng dụng giáo viên chỉ có nút đăng nhập; giáo viên liên kết ở cổng quản trị. Phụ huynh liên kết ngay trong ứng dụng phụ huynh.
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-226, `23_LICH_SU_PHIEN_BAN.md` 0.147.0.
+
+#### Vấn đề tồn đọng
+
+- Hợp đồng và tài liệu kỹ thuật của Trung tâm RAR (việc của Eric).
 
 ### 2026-10-26 — DT-23 phần 23a: thi trực tuyến cho học sinh
 

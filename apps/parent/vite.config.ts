@@ -1,3 +1,4 @@
+import { pwaServiceWorker } from '@school-management/pwa/vite';
 import tailwindcss from '@tailwindcss/vite';
 import react from '@vitejs/plugin-react';
 import { defineConfig } from 'vite';
@@ -13,7 +14,8 @@ const base = process.env.APP_BASE_PATH?.trim() || '/';
 
 export default defineConfig({
   base,
-  plugins: [react(), tailwindcss()],
+  // Service worker dùng chung (DT-26 phần 26a, YCTD-231)
+  plugins: [react(), tailwindcss(), pwaServiceWorker({ cachePrefix: 'phu-huynh-v-' })],
   server: {
     port: 5175,
     proxy: {

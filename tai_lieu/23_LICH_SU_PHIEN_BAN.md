@@ -1,7 +1,7 @@
 # 23. LỊCH SỬ PHIÊN BẢN
 
 - Mô tả: Mã phiên bản, ngày phát hành, danh sách thay đổi, chức năng mới, lỗi đã sửa, thay đổi dữ liệu, thay đổi API, rủi ro, khả năng tương thích, phương án quay lui.
-- Phiên bản: 0.64
+- Phiên bản: 0.66
 - Ngày cập nhật: 2026-10-26
 - Trạng thái: Đang cập nhật
 - Đã rà duyệt: Eric, ngày 2026-10-09
@@ -16,18 +16,42 @@
 
 ## 2. Danh sách phiên bản
 
-### Phiên bản 0.145.0 – 2026-10-26
+### Phiên bản 0.148.0 – 2026-10-26
 
 - Phạm vi thay đổi: DT-28 phần 28b, lõi hệ thống quản lý học tập (YCTD-272).
-- Chức năng mới: lớp học trực tuyến theo lớp, môn tự sinh từ phân công giảng dạy và khoá tự chọn (P03-12, MH-348); chương, hoạt động trang nội dung, liên kết, học liệu, điều kiện mở, giao cho học sinh (P03-13); tiến độ, kết quả hoạt động, kế hoạch dạy học trực tuyến theo tuần, nhật ký học tập (P03-14); khoá học mẫu của tổ chuyên môn qua duyệt hai bước rồi đẩy xuống lớp (P03-15, MH-349); quyết định dạy học trực tuyến thay thế và nội quy theo Thông tư 09/2021/TT-BGDĐT (P03-16, MH-350); ứng dụng giáo viên Lớp học trực tuyến (MH-351); ứng dụng phụ huynh Học trực tuyến của con (P03-17, MH-352); học sinh tự học ở kênh `student` (MH-353).
+- Chức năng mới: lớp học trực tuyến theo lớp, môn tự sinh từ phân công giảng dạy và khoá tự chọn (P03-12, MH-349); chương, hoạt động trang nội dung, liên kết, học liệu, điều kiện mở, giao cho học sinh (P03-13); tiến độ, kết quả hoạt động, kế hoạch dạy học trực tuyến theo tuần, nhật ký học tập (P03-14); khoá học mẫu của tổ chuyên môn qua duyệt hai bước rồi đẩy xuống lớp (P03-15, MH-350); quyết định dạy học trực tuyến thay thế và nội quy theo Thông tư 09/2021/TT-BGDĐT (P03-16, MH-351); ứng dụng giáo viên Lớp học trực tuyến (MH-352); ứng dụng phụ huynh Học trực tuyến của con (P03-17, MH-353); học sinh tự học ở kênh `student` (MH-354).
 - Lỗi đã sửa: không có.
 - Thay đổi dữ liệu: hệ thống `0110`; năm học `0172` đến `0175`; định danh `0180` (bốn quyền `P02.learning.*`); xem `16_CO_SO_DU_LIEU.md` mục 18F.
 - Thay đổi API: nhóm `/learning` và `/student/learning` của học sinh (xem `17_DAC_TA_API.md` mục 17.2); tuyến nhân sự chặn theo gói của trường.
-- Kiểm thử: kịch bản CT-1108 đến CT-1114 (CT-28b-1 đến CT-28b-16 trong mã kiểm thử). Kết quả ngày 26/10/2026: `apps/api` 14/14 ca của `learning-rules.test.ts`, `learning.test.ts`; `learning-tenancy.test.ts` 2/2 (hai bố cục); `working-level.test.ts` 8/8, `menu-permissions.test.ts` và `secondary-class-records.test.ts` đạt; e2e: `211-online-classes` (CT-28b-16) và `151-classroom-tools` (CT-23b-14, có màn Lớp của tôi thêm nút mới) đạt, chạy kèm spec nền 01 đến 09.
+- Kiểm thử: kịch bản CT-1112 đến CT-1118 (CT-28b-1 đến CT-28b-16 trong mã kiểm thử). Kết quả ngày 26/10/2026: `apps/api` 14/14 ca của `learning-rules.test.ts`, `learning.test.ts`; `learning-tenancy.test.ts` 2/2 (hai bố cục); `working-level.test.ts` 8/8, `menu-permissions.test.ts` và `secondary-class-records.test.ts` đạt; e2e: `211-online-classes` (CT-28b-16) và `151-classroom-tools` (CT-23b-14, có màn Lớp của tôi thêm nút mới) đạt, chạy kèm spec nền 01 đến 09.
 - Rủi ro: học sinh mới thấy tên, mô tả học liệu, chưa tải được tệp; tệp quyết định dạy thay thế chưa đính kèm được; báo cáo theo vai trò, sổ điểm, hồ sơ Thông tư 09 là phần 28d; trình soạn nội dung khoá mẫu ở cổng quản trị mới có chương và trang nội dung.
 - Khả năng tương thích: không đổi hành vi các phân hệ cũ; lớp học trực tuyến tự sinh ẩn với học sinh đến khi giáo viên mở; trường chỉ có Mầm non không thấy nhóm menu 9. Học tập trực tuyến.
 - Phương án quay lui: hoàn lại commit gộp của nhánh 28b; các tệp migration chỉ thêm bảng và quyền.
 
+
+### Phiên bản 0.147.0 – 2026-10-26
+
+- Phạm vi thay đổi: DT-25 bước 25b, giao diện đăng nhập và liên kết bằng nhà cung cấp định danh bên ngoài (YCTD-226).
+- Chức năng mới: nút "Đăng nhập bằng <nhà cung cấp>" trên màn hình đăng nhập của cổng quản trị, ứng dụng giáo viên, ứng dụng phụ huynh (chỉ hiện khi trường đã bật); trang quay về `/dang-nhap/ben-ngoai` (có bước nhập mã hai lớp); mục "Liên kết tài khoản" ở Tài khoản của tôi (cổng quản trị) và màn hình chính của ứng dụng phụ huynh (liên kết, gỡ liên kết, nhật ký); khối cấu hình của trường ở Danh sách người dùng.
+- Lỗi đã sửa: không có.
+- Thay đổi dữ liệu: không.
+- Thay đổi API: không (dùng nhóm `/auth/external/*` của 0.142.0).
+- Kiểm thử: e2e spec 165 thêm ca giao diện (liên kết, đăng nhập bằng nút, gỡ liên kết, nút ẩn khi trường tắt); kết quả trên máy 13/13 cùng spec 01.
+- Rủi ro: thấp; ở tên miền chung (đăng nhập theo đơn vị của DT-24) không hiện nút, người dùng mở trang đăng nhập riêng của trường.
+- Khả năng tương thích: trường chưa bật nhà cung cấp thì không có gì thay đổi trên màn hình.
+- Phương án quay lui: tắt nhà cung cấp ở trường; hoàn lại commit gộp.
+
+### Phiên bản 0.145.0 – 2026-10-26
+
+- Phạm vi thay đổi: DT-26 phần 26a, vỏ ứng dụng web cài được dùng chung (YCTD-231).
+- Chức năng mới: ứng dụng giáo viên và phụ huynh cài được lên màn hình chính với tên, tên ngắn, màu, biểu tượng của trường (P19-07, MH-348); service worker dùng chung ở gói `packages/pwa` (gom từ 23b), ứng dụng phụ huynh có service worker giữ vỏ ứng dụng; dải "Có bản mới" dùng chung; lời mời cài theo trình duyệt (Android, iPhone, Zalo, Facebook); ô tên ngắn ở Thương hiệu của cổng quản trị.
+- Lỗi đã sửa: không có.
+- Thay đổi dữ liệu: cơ sở dữ liệu hệ thống thêm cột `school_branding.app_short_name` (tệp `0090`); xem `16_CO_SO_DU_LIEU.md`.
+- Thay đổi API: `GET /api/v1/public/pwa/{teacher,parent,student}.webmanifest`, `icon.svg`, `icon-maskable.svg`; `PUT /api/v1/school-settings/branding` nhận thêm `app_short_name` (xem `17_DAC_TA_API.md`).
+- Kiểm thử: kịch bản CT-1108 đến CT-1111 (CT-26a-1 đến CT-26a-4). Kết quả ngày 26/10/2026: `packages/pwa` 6/6 (CT-26a-1); `apps/teacher` 10/10; `apps/api` `school-settings.test.ts` 12/12 (CT-26a-2, CT-26a-3), ma trận cách ly và kiểm thử nhiều trường 27/27; kiểm tĩnh đa thuê bao, quét khóa 20/20; e2e `single` spec 01 đến 09, 151, 181 đạt 29/29 (spec 181 là CT-26a-4; trên máy chậm phải nới tạm thời gian chờ mở năm học của spec 02, không commit).
+- Rủi ro: biểu tượng SVG chưa được mọi trình duyệt dùng làm biểu tượng cài đặt (đã có PNG của sản phẩm làm dự phòng); iOS chưa có màn hình chờ theo trường (chưa sinh ảnh PNG theo khổ máy, ghi ở YCTD-231).
+- Khả năng tương thích: không đổi hành vi các phân hệ cũ; công cụ lớp học (23b) giữ tiền tố bộ nhớ đệm và công tắc ngoại tuyến; dải "Có bản mới" chuyển từ trang công cụ lớp học lên đầu ứng dụng.
+- Phương án quay lui: hoàn lại commit gộp của nhánh 26a; cột `app_short_name` chỉ thêm nên giữ lại không ảnh hưởng.
 
 ### Phiên bản 0.144.0 – 2026-10-26
 

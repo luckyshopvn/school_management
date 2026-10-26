@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
+import { InstallPrompt, UpdateBanner } from '@school-management/pwa';
 import { Alert, Button, StatusBadge, type StatusTone } from '@school-management/ui';
 import { ExamRoom } from './ExamRoom.js';
 import { StudentLearningPanel } from './StudentLearningPanel.js';
@@ -124,6 +125,9 @@ export function StudentHomeScreen() {
         </div>
         <Button onClick={() => void session.logout()}>Đăng xuất</Button>
       </header>
+      {/* Bản mới và mời cài lên màn hình chính chỉ ở danh sách bài, không hiện trong phòng thi (DT-26 phần 26a) */}
+      <UpdateBanner />
+      <InstallPrompt applicationName="ứng dụng học sinh" />
       {errorMessage ? <Alert tone="danger">{errorMessage}</Alert> : null}
       {result ? <ResultPanel result={result} onClose={() => setResult(undefined)} /> : null}
       <section aria-label="Bài thi được giao" className="flex flex-col gap-3">

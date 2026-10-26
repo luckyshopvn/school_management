@@ -15,6 +15,8 @@ import { AssessmentScreen } from './screens/AssessmentScreen.js';
 import { ScoreScreen } from './screens/ScoreScreen.js';
 import { PayslipsScreen } from './screens/PayslipsScreen.js';
 import { LoginScreen } from './screens/LoginScreen.js';
+import { ExternalSignInCallback, isExternalCallbackLocation } from '@school-management/ui';
+import { externalRequest } from './session/external-request.js';
 import { MedicationScreen } from './screens/MedicationScreen.js';
 import { PickupScreen } from './screens/PickupScreen.js';
 import { StocktakeScreen } from './screens/StocktakeScreen.js';
@@ -24,6 +26,7 @@ import { ClassLogScreen } from './screens/ClassLogScreen.js';
 import { TrainingScreen } from './screens/TrainingScreen.js';
 import { TeachingScreen } from './screens/TeachingScreen.js';
 import { WorkScreen } from './screens/WorkScreen.js';
+import { UpdateBanner } from '@school-management/pwa';
 import { Button, DemoBanner, MaintenanceBanner, type MaintenanceNoticeItem } from '@school-management/ui';
 import { requestJson } from './session/api-client.js';
 import { ClassroomOfflineManager } from './tools/ClassroomOfflineManager.js';
@@ -93,6 +96,17 @@ function Screens() {
     | { screen: 'online-classes' }
   >();
   const back = () => setOpened(undefined);
+  // Quay về từ nhà cung cấp định danh bên ngoài (DT-25 bước 25b)
+  if (isExternalCallbackLocation(import.meta.env.BASE_URL)) {
+    return (
+      <ExternalSignInCallback
+        request={externalRequest}
+        basePath={import.meta.env.BASE_URL}
+        ready={session.status !== 'checking'}
+        afterLink={import.meta.env.BASE_URL}
+      />
+    );
+  }
   if (session.status === 'checking') {
     return <div className="min-h-screen animate-pulse bg-page" aria-busy="true" />;
   }
@@ -211,6 +225,8 @@ export function Application() {
       {/* Dải bản trình diễn (DT-18 phần 18h) */}
       <DemoBanner />
       <PlatformMaintenanceBanner />
+      {/* Có bản mới của ứng dụng: hỏi tải lại (DT-26 phần 26a) */}
+      <UpdateBanner />
       <ClassroomOfflineManager />
       <Screens />
     </SessionProvider>
