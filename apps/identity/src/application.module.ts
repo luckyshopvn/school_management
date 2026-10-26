@@ -43,6 +43,8 @@ import {
   SupportExchangeController,
   SupportSessionsService,
 } from './platform/support-sessions.js';
+import { ExternalIdentityController } from './external-identity/external-identity.controller.js';
+import { ExternalIdentityService } from './external-identity/external-identity.service.js';
 
 @Module({})
 export class ApplicationModule {
@@ -72,6 +74,7 @@ export class ApplicationModule {
         ParentOrgAuthController,
         PlatformSupportController,
         SupportExchangeController,
+        ExternalIdentityController,
       ],
       providers: [
         { provide: IDENTITY_CONFIGURATION, useValue: configuration },
@@ -117,6 +120,7 @@ export class ApplicationModule {
         PlatformDashboardService,
         ParentOrgsService,
         SupportSessionsService,
+        ExternalIdentityService,
       ],
     };
   }

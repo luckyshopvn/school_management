@@ -1,7 +1,7 @@
 # 02. NHẬT KÝ DỰ ÁN
 
 - Mô tả: Ghi nhận công việc, quyết định, thay đổi và vấn đề tồn đọng theo ngày, ngày mới nhất ở trên cùng.
-- Phiên bản: 0.71
+- Phiên bản: 0.72
 - Ngày cập nhật: 2026-10-26
 - Trạng thái: Đang cập nhật
 
@@ -13,6 +13,32 @@
 - Không ghi thông tin tạm thời như kết quả tra cứu, đường dẫn tạm, thông báo lỗi của công cụ.
 
 ## Nhật ký theo ngày
+
+### 2026-10-26 — DT-25: bộ nối nhà cung cấp định danh OIDC, sẵn cho VNeID (phần máy chủ)
+
+#### Công việc đã thực hiện
+
+- Đọc báo cáo khảo sát tích hợp VNeID ngày 2026-10-26 (lưu ngoài `tai_lieu/`, mục 5 đến 7) và mã dịch vụ định danh (đăng nhập, xác thực hai lớp S8b, kho khóa S3, nhận diện trường S1a, kiểm tĩnh và ma trận cách ly).
+- Viết mục 17 của `32`: căn cứ, nguyên tắc, hai bước 25a (máy chủ) và 25b (giao diện, sau DT-24), thiết kế, quyết định, rủi ro, giả định GD-120 đến GD-122.
+- Làm phần máy chủ ở `apps/identity/src/external-identity/`: lớp `IdentityProvider`, bộ nối OIDC chung, hồ sơ `vneid`, khai báo nền tảng bằng biến môi trường, cấu hình của trường, liên kết, gỡ liên kết, đăng nhập, nhập mã hai lớp sau nhà cung cấp, nhật ký; migration định danh 0140; `Infrastructure.scopedCache` cho khóa Redis theo trường.
+- Dựng nhà cung cấp OIDC giả lập cục bộ (`MockOidcServer`) cho kiểm thử đơn vị và e2e; spec 165.
+- Cập nhật `22` (BM-95, BM-96), `33_HO_SO_PHAP_LY/` PL-02 (Điều 7 khoản 5, Phụ lục A) và PL-05 (mục 2, mục 5) lên S8a-1.1, `34` (bảng cách đăng nhập, mục 6), `01`, `23`, `24`.
+
+#### Quyết định
+
+- Không tự tạo tài khoản từ nhà cung cấp ngoài; người đã có tài khoản tự liên kết sau khi nhập lại mật khẩu và mã hai lớp; lượt liên kết gắn với phiên đã bắt đầu.
+- Chỉ lưu subject mã hóa bằng khóa của trường cùng băm có khóa (đổi khóa S3 tự xử lý); không lưu số định danh, căn cước, ngày sinh.
+- Nền tảng khai nhà cung cấp bằng biến môi trường; trường bật tắt (mặc định tắt), chọn nhóm vai trò (mặc định trừ học sinh); dưới 14 tuổi bị từ chối; đăng nhập bằng nhà cung cấp ngoài không thay xác thực hai lớp trừ khi trường bật và mức đảm bảo đạt.
+- Tham số của RAR chưa công bố nên để cấu hình, danh sách mục "chờ tài liệu RAR" trả ở màn hình cấu hình.
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-225, `23_LICH_SU_PHIEN_BAN.md` 0.140.0, `32_KE_HOACH_THEO_HE_THONG_SO.md` mục 17 (phiên bản 1.75).
+
+#### Vấn đề tồn đọng
+
+- Bước 25b (giao diện) chờ PR DT-24 gộp.
+- Eric: ký hợp đồng và lấy tài liệu kỹ thuật, môi trường thử của Trung tâm RAR (văn bản gửi RAR đã soạn ở thư mục khảo sát); luật sư rà vai trò của nhà cung cấp định danh trong PL-02, PL-05 trước khi bật ở trường thật.
 
 ### 2026-10-26 — Kế hoạch DT-23: thi trực tuyến, công cụ lớp học, trò chơi kiến thức, trợ lý AI
 

@@ -1,8 +1,8 @@
 # 34. TỔNG HỢP CHỨC NĂNG HỆ THỐNG SCHOOL MANAGEMENT
 
 - Mô tả: Mô tả chi tiết toàn bộ chức năng đang có của hệ thống School Management (Mầm non, Tiểu học, THCS, THPT): 21 phân hệ của cổng quản trị, ứng dụng giáo viên, ứng dụng phụ huynh, quản trị nền tảng DT-SaaS; kèm sơ đồ quy trình bằng Mermaid, ma trận vai trò × phân hệ, bảng tra nhanh, chỗ lệch giữa tài liệu và mã, thuật ngữ
-- Phiên bản: 1.0
-- Ngày cập nhật: 2026-10-25
+- Phiên bản: 1.1
+- Ngày cập nhật: 2026-10-26
 - Trạng thái: Chờ phê duyệt
 - Căn cứ: yêu cầu của Eric ngày 2026-10-25 viết tài liệu tổng hợp chức năng kèm sơ đồ quy trình
 - Nguồn: mã và tài liệu trên nhánh `main` ngày 2026-10-25, sau PR 165 (DT-SaaS phần S2), PR 166 (phần S1b), PR 167 (phần S9), PR 169 (phần S3) và PR 170 (phần S5a). Mô tả theo mã đang chạy, không theo kế hoạch chưa làm. Phần DT-SaaS chưa có mã ghi rõ là đang làm hoặc kế hoạch

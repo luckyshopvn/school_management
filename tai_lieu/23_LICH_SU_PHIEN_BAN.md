@@ -1,8 +1,8 @@
 # 23. LỊCH SỬ PHIÊN BẢN
 
 - Mô tả: Mã phiên bản, ngày phát hành, danh sách thay đổi, chức năng mới, lỗi đã sửa, thay đổi dữ liệu, thay đổi API, rủi ro, khả năng tương thích, phương án quay lui.
-- Phiên bản: 0.60
-- Ngày cập nhật: 2026-10-25
+- Phiên bản: 0.61
+- Ngày cập nhật: 2026-10-26
 - Trạng thái: Đang cập nhật
 - Đã rà duyệt: Eric, ngày 2026-10-09
 
@@ -15,6 +15,18 @@
 5. Từ phiên bản 0.4.0, mỗi mục ghi theo mẫu của Vibecoding_Flow; các mục trước giữ nguyên dạng bảng và tên tệp cũ vì là ghi nhận lịch sử.
 
 ## 2. Danh sách phiên bản
+
+### Phiên bản 0.140.0 – 2026-10-26
+
+- Phạm vi thay đổi: DT-25, bộ nối nhà cung cấp định danh OIDC sẵn cho VNeID, phần máy chủ (YCTD-225).
+- Chức năng mới: lớp `IdentityProvider` và bộ nối OIDC chung (PKCE, state, nonce, discovery, JWKS, quay khóa), hồ sơ `vneid` cấu hình được (mục chờ tài liệu RAR); nền tảng khai nhà cung cấp, trường bật tắt, chọn nhóm vai trò, mã ứng dụng và khóa riêng; liên kết, gỡ liên kết bằng mật khẩu và mã hai lớp; đăng nhập bằng nhà cung cấp ngoài có bước nhập mã hai lớp; nhật ký liên kết.
+- Lỗi đã sửa: không có.
+- Thay đổi dữ liệu: cơ sở dữ liệu định danh thêm `external_identity_providers`, `external_identities`, `external_identity_events` (migration 0140); `sessions.login_method` nhận thêm `external_provider`.
+- Thay đổi API: nhóm `/auth/external/*` ở dịch vụ định danh; biến môi trường `EXTERNAL_IDENTITY_PROVIDERS`, `EXTERNAL_IDENTITY_<MÃ>_CLIENT_SECRET`.
+- Kiểm thử: kiểm thử đơn vị `external-identity` 24 ca (khai báo 6, luồng một trường 13, cách ly hai trường 5); ma trận cách ly, các ca đăng nhập, xác thực hai lớp, nhiều trường hiện có đạt; kiểm tĩnh đa thuê bao đạt; e2e spec 165.
+- Rủi ro: tham số kỹ thuật của RAR có thể khác giả định (đổi cấu hình, hoặc viết bộ nối mới theo `IdentityProvider`); vai trò pháp lý của nhà cung cấp định danh trong PL-02, PL-05 chờ luật sư.
+- Khả năng tương thích: không khai nhà cung cấp hoặc trường chưa bật thì không có gì thay đổi; chưa có giao diện (bước 25b sau DT-24).
+- Phương án quay lui: tắt nhà cung cấp ở trường hoặc bỏ biến `EXTERNAL_IDENTITY_PROVIDERS`; hoàn lại commit gộp; migration 0140 có `down` (xóa ba bảng, trả ràng buộc cũ).
 
 ### Phiên bản 0.139.0 – 2026-10-26
 

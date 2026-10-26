@@ -20,6 +20,9 @@ const PARENT_ORG =
 const ACTIVATE =
   'Kích hoạt quản trị viên đầu tiên của trường mới (DT-SaaS S2): công khai theo tên miền của trường, cần mã kích hoạt một lần (chỉ lưu mã băm, hạn 72 giờ), có giới hạn tần suất';
 
+const EXTERNAL =
+  'Đăng nhập bằng nhà cung cấp định danh bên ngoài (DT-25): công khai theo tên miền của trường (cấu hình, liên kết và Redis của đúng trường), state và vé nhập mã dùng một lần có hạn, có giới hạn tần suất; lượt liên kết còn cần mã phiên của đúng phiên đã bắt đầu';
+
 export const PUBLIC_ROUTES: PublicRoute[] = [
   {
     method: 'GET',
@@ -100,4 +103,9 @@ export const PUBLIC_ROUTES: PublicRoute[] = [
   { method: 'GET', path: '/api/v1/auth/parent-org/access-requests', reason: PARENT_ORG },
   { method: 'POST', path: '/api/v1/auth/parent-org/access-requests', reason: PARENT_ORG },
   { method: 'POST', path: '/api/v1/auth/parent-org/access-requests/:id/open', reason: PARENT_ORG },
+  // Đăng nhập bằng nhà cung cấp định danh bên ngoài (DT-25): danh sách nút, bắt đầu, quay về, nhập mã hai lớp
+  { method: 'GET', path: '/api/v1/auth/external/providers', reason: EXTERNAL },
+  { method: 'POST', path: '/api/v1/auth/external/:provider/start', reason: EXTERNAL },
+  { method: 'POST', path: '/api/v1/auth/external/callback', reason: EXTERNAL },
+  { method: 'POST', path: '/api/v1/auth/external/complete', reason: EXTERNAL },
 ];
