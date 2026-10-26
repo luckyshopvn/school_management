@@ -127,6 +127,8 @@ export async function startMultiTenantApi(options: {
       facebookPublisher: 'development',
       zaloSender: 'development',
       schedulerIntervalSeconds: 0,
+      // Bộ giả lập nhà cung cấp AI (DT-23 phần 23d)
+      aiMock: true,
       ...options.configuration,
     };
     api = await createApplication(withTenantAccessors(base, apiRuntime), {

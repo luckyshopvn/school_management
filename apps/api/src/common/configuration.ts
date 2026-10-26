@@ -79,6 +79,8 @@ export interface ApiConfiguration {
   // Redis của hàng đợi máy xếp thời khoá biểu chạy nền (DT-20 phần 22c2); trống thì máy xếp chạy ngay trong máy chủ API (kiểm
   // thử)
   redisUrl?: string | null;
+  // Bộ giả lập nhà cung cấp AI `mock` (DT-23 phần 23d): chỉ cho kiểm thử, không gọi dịch vụ ngoài; không bật ở môi trường chạy thật
+  aiMock?: boolean;
 }
 
 type IntegrationConfiguration = Pick<
@@ -196,7 +198,19 @@ export function readConfigurationFromEnvironment(options: { multiTenant?: boolea
     ...readIntegrationConfiguration(process.env),
     smsProvider: readSmsProviderSettings(),
     redisUrl: process.env.REDIS_URL?.trim() || null,
+    aiMock: readAiMock(process.env),
   };
+}
+
+// AI_MOCK=true bật bộ giả lập nhà cung cấp AI; từ chối khi NODE_ENV=production để không lọt vào bản chạy thật
+export function readAiMock(environment: NodeJS.ProcessEnv): boolean {
+  if (environment.AI_MOCK?.trim() !== 'true') {
+    return false;
+  }
+  if (environment.NODE_ENV === 'production') {
+    throw new Error('AI_MOCK=true chỉ dùng cho kiểm thử, không bật ở môi trường chạy thật');
+  }
+  return true;
 }
 
 // Cấu hình của lệnh vòng đời trường (DT-SaaS phần S2): nền tảng nhiều trường, tên miền hệ thống và số ngày chờ xóa, tên người

@@ -1,4 +1,5 @@
 import type { BillingPeriod, InvoiceLineKind, PriceComponent, StudentTier } from '../../platform/schema.js';
+import { computeAiCharges, type AiModelUsage, type AiPricing } from './ai-pricing.js';
 
 // Hàm tính phí thuần của thu phí tự động (DT-SaaS phần S5b, YCTD-196, GD-94). Số tiền là số nguyên đồng; mọi phép tính trên số
 // nguyên, VAT làm tròn nửa lên. Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11:
@@ -6,7 +7,9 @@ import type { BillingPeriod, InvoiceLineKind, PriceComponent, StudentTier } from
 //   (`volume`, mọi học sinh tính theo đơn giá của bậc chứa tổng số học sinh);
 // - theo phân hệ: chỉ tính phân hệ có giá trong quy tắc và đang bật trong gói (gói bật mọi phân hệ thì tính mọi phân hệ có giá);
 // - phí tối thiểu so với tổng các thành phần trước giảm giá, thiếu thì thêm dòng bù; giảm giá không vượt tổng trước giảm giá;
-// - VAT tính trên số sau giảm giá.
+// - VAT tính trên số sau giảm giá;
+// - thành phần AI (DT-23 phần 23d, `ai-pricing.ts`) là thành phần riêng theo token của kỳ: dòng AI nằm sau phí tối thiểu chung, không
+//   tính vào phí tối thiểu chung, có trong tổng trước giảm giá.
 
 export interface PriceRule {
   code: string;
@@ -137,7 +140,13 @@ function studentLines(rule: PriceRule, students: number): ChargeLine[] {
 export function computeCharges(
   rule: PriceRule,
   usage: BillingUsage,
-  options: { discount?: number; allModules: string[]; moduleLabels?: Record<string, string> },
+  options: {
+    discount?: number;
+    allModules: string[];
+    moduleLabels?: Record<string, string>;
+    // Token AI của kỳ ở cấu hình `platform` và đơn giá của gói; thiếu thì không có dòng AI
+    ai?: { pricing: AiPricing; usage: AiModelUsage[] } | null;
+  },
 ): Charges {
   validatePriceRule(rule);
   if (!Number.isSafeInteger(usage.activeStudents) || usage.activeStudents < 0) {
@@ -181,6 +190,9 @@ export function computeCharges(
       unitPrice: gap,
       amount: gap,
     });
+  }
+  if (options.ai) {
+    lines.push(...computeAiCharges(options.ai.pricing, options.ai.usage).lines);
   }
   const subtotal = lines.reduce((sum, line) => sum + line.amount, 0);
   const discountTotal = Math.min(money(options.discount ?? 0, 'Giảm giá'), subtotal);

@@ -11,6 +11,28 @@ Mã yêu cầu thay đổi dạng `YCTD-nn`, đánh số tăng dần, không tá
 
 Các thay đổi trước phiên bản 0.4.0 chưa có sổ này; xem `23_LICH_SU_PHIEN_BAN.md` các phiên bản 0.1.0 đến 0.3.1.
 
+### YCTD-214: DT-23 phần 23d: trợ lý AI soạn câu hỏi và kế hoạch bài dạy – 2026-10-26
+
+- Lý do: phần 23d của `32_KE_HOACH_THEO_HE_THONG_SO.md` mục 15 (YCTD-210); Eric đồng ý đưa AI vào ngày 2026-10-26 và chốt GD-102 (hai cấu hình khóa), GD-103 (thu theo gói và token, số tiền để trống).
+- Nội dung thay đổi (Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11 ở những chỗ kế hoạch chưa chốt):
+  - **Bộ nối** `AiProvider` (`anthropic`, `mock`), nhà cung cấp tra theo mã, không `if` theo nhà cung cấp; kết nối `ai` thêm vào `IntegrationSecretConnector`.
+  - **Hai cấu hình khóa**: `school` (khóa của trường, miễn phí), `platform` (khóa chung ở cơ sở dữ liệu nền tảng, thu phí); `ai_settings` bật tắt theo trường, mặc định tắt.
+  - **Lời nhắc từ mẫu cố định**, bộ quét dữ liệu cá nhân và tên trong danh sách trường ở máy chủ; thử với chuỗi mồi, bộ giả lập không nhận được.
+  - **Bản nháp**: câu hỏi vào ngân hàng với cờ `ai_generated` (năm học 0128), chỉ duyệt khi đã gửi thẩm định và do người khác duyệt; kế hoạch bài dạy vào kho học liệu ở trạng thái nháp riêng tư.
+  - **Nhật ký** `ai_requests` (hệ thống 0071, 0072), chỉ mã băm lời nhắc; **hạn mức** `plans.ai_max_requests`, `ai_max_tokens` (nền tảng 0200) và mỗi người mỗi ngày; việc nền `ai-usage-sync` tổng hợp token lên `ai_token_usage` (nền tảng 0201).
+  - **Phí AI**: `plan_ai_pricing` (nền tảng 0202), hàm tính thuần `computeAiCharges`, thành phần AI trong `computeCharges` và `issueInvoice`, dòng loại `ai`; khối Phí AI của gói đặt ngay trang Gói dịch vụ của cổng nền tảng (điều phối chỉnh ngày 2026-10-26: không dựng màn hình riêng).
+  - **Giao diện**: cổng quản trị 3.8 Trợ lý AI; nút Soạn nháp bằng AI ở ngân hàng câu hỏi và kho học liệu; cổng nền tảng trang Trợ lý AI, giới hạn AI ở Gói dịch vụ.
+  - **Hồ sơ pháp lý** (bản nháp cho luật sư): `33_HO_SO_PHAP_LY/22_TRO_LY_AI_SOAN_NHAP.md` (PL-22), bổ sung PL-02, PL-04, PL-05, PL-08, `00_MUC_LUC.md`; văn bản đã đọc: Luật Trí tuệ nhân tạo 134/2025/QH15 toàn văn; Nghị định 142/2026/NĐ-CP và Quyết định 33/2026/QĐ-TTg chỉ tóm tắt.
+- Thành phần bị ảnh hưởng: `packages/server` (gói của trường có hạn mức AI), `packages/shared` (menu 3.8), `database`, `apps/api`, `apps/identity`, `apps/platform`, `apps/portal`, `tests` (spec 153, `MULTI_TENANT_SPEC`, `AI_MOCK` ở cấu hình e2e nhiều trường).
+- Dữ liệu bị ảnh hưởng: năm học 0128; hệ thống 0071 đến 0073; nền tảng 0200 đến 0202.
+- API bị ảnh hưởng: xem `17_DAC_TA_API.md` (nhóm `/ai/*`, `/auth/platform/ai`, kết nối `ai`).
+- Giao diện bị ảnh hưởng: MH-339 đến MH-341; câu hỏi và học liệu ghi dấu do AI soạn.
+- Quyền bị ảnh hưởng: không thêm quyền (dùng P02.question.author, P09.learning-resource.use, P01.integration.manage).
+- Ảnh hưởng chức năng cũ: mặc định tắt nên không đổi; câu hỏi trả thêm `ai_generated`; duyệt câu do AI soạn chặt hơn; bước đầu việc `billing-cycle` tổng hợp token; hóa đơn có thể có dòng loại `ai`.
+- Kiểm thử cần thực hiện: kiểm thử đơn vị `database`, `apps/api` (hai bố cục), kiểm tra tĩnh nền đa thuê bao, ma trận cách ly, `pnpm typecheck`, `pnpm lint`, build, e2e một trường và nhiều trường (spec 153).
+- Chưa làm: chấm tự luận bằng AI, AI nhìn dữ liệu học sinh, trả lời học sinh bằng AI (không làm theo kế hoạch); nhà cung cấp AI cụ thể, đơn giá thật (chờ Eric); kết luận pháp lý (chờ luật sư).
+- Trạng thái: Đã triển khai (PR 184)
+
 ### YCTD-225: DT-25: bộ nối nhà cung cấp định danh OIDC, sẵn cho VNeID (phần máy chủ) – 2026-10-26
 
 - Lý do: Eric yêu cầu ngày 2026-10-26 xây bộ nối nhà cung cấp định danh bên ngoài theo chuẩn OIDC để sau này cắm VNeID qua Trung tâm RAR (Cục C06) mà không sửa mã nghiệp vụ. Khảo sát cùng ngày cho thấy doanh nghiệp tư nhân chỉ dùng VNeID qua hợp đồng với RAR và chuẩn kỹ thuật của RAR chưa công bố, nên làm bộ nối OIDC chung, tham số chưa biết là cấu hình.

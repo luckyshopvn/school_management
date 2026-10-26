@@ -91,6 +91,7 @@ import { migration as widenAwardBasis } from './migrations/0089_widen_award_basi
 import { migration as createGraduation } from './migrations/0091_create_graduation.js';
 import { migration as createLearningResourceActivity } from './migrations/0102_create_learning_resource_activity.js';
 import { migration as createResourceQuestionsAndRubrics } from './migrations/0103_create_resource_questions_and_rubrics.js';
+import { migration as addQuestionAiFlag } from './migrations/0128_add_question_ai_flag.js';
 import { migration as createClassroomTools } from './migrations/0124_create_classroom_tools.js';
 import { migration as createClassroomScoreEvents } from './migrations/0125_create_classroom_score_events.js';
 
@@ -188,6 +189,8 @@ export const schoolYearMigrations: Record<string, Migration> = {
   '0091_create_graduation': createGraduation,
   '0102_create_learning_resource_activity': createLearningResourceActivity,
   '0103_create_resource_questions_and_rubrics': createResourceQuestionsAndRubrics,
+  // Trợ lý AI (DT-23 phần 23d): 0128
+  '0128_add_question_ai_flag': addQuestionAiFlag,
   '0124_create_classroom_tools': createClassroomTools,
   '0125_create_classroom_score_events': createClassroomScoreEvents,
 };

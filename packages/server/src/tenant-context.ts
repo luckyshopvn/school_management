@@ -17,6 +17,9 @@ export interface TenantPlan {
   maxActiveStudents: number | null;
   maxStorageMb: number | null;
   maxSchoolLevels: number | null;
+  // Hạn mức AI mỗi tháng (DT-23 phần 23d); thiếu hoặc null là không giới hạn, 0 là không dùng AI
+  aiMaxRequests?: number | null;
+  aiMaxTokens?: number | null;
 }
 
 export interface TenantContext {
