@@ -551,15 +551,8 @@ import { TutoringQuestionsService } from './tutoring/tutoring-questions.js';
 import { HomeworkController } from './learning/homework/homework.controller.js';
 import { HomeworkPolicyGate } from './learning/homework/homework-policy.js';
 import { HomeworkService } from './learning/homework/homework.js';
-import { CoursePackagesController } from './learning/content-packages/course-packages.controller.js';
-import { CoursePackagesService } from './learning/content-packages/course-packages.js';
-import {
-  ScormActivitiesController,
-  ScormContentController,
-  ScormResourcesController,
-  StudentScormController,
-} from './learning/content-packages/scorm.controller.js';
-import { ScormPackagesService } from './learning/content-packages/scorm.js';
+// Đăng ký của các phần làm song song: mỗi phần một tệp ở src/dang-ky/, không thêm dòng vào tệp này (YCTD-294)
+import { CAC_PHAN_DANG_KY } from './dang-ky.generated.js';
 
 @Module({})
 export class ApplicationModule {
@@ -890,12 +883,8 @@ export class ApplicationModule {
         StudentTutoringQuestionsController,
         // Bài về nhà và phụ huynh (DT-28 phần 28f)
         HomeworkController,
-        // Gói SCORM, gói khoá học (DT-28 phần 28h)
-        ScormResourcesController,
-        ScormActivitiesController,
-        StudentScormController,
-        ScormContentController,
-        CoursePackagesController,
+        // Các phần ở src/dang-ky/, theo thứ tự tên tệp (YCTD-294)
+        ...CAC_PHAN_DANG_KY.flatMap((phan) => phan.controllers ?? []),
       ],
       providers: [
         { provide: API_CONFIGURATION, useValue: configuration },
@@ -956,6 +945,7 @@ export class ApplicationModule {
             assessmentTransitionStep,
             libraryTransitionStep,
             learningRecordsTransitionStep,
+            ...CAC_PHAN_DANG_KY.flatMap((phan) => phan.transitionSteps ?? []),
             ...(options.transitionSteps ?? []),
           ],
         },
@@ -1335,9 +1325,8 @@ export class ApplicationModule {
         // Bài về nhà và phụ huynh (DT-28 phần 28f)
         HomeworkPolicyGate,
         HomeworkService,
-        // Gói SCORM, gói khoá học (DT-28 phần 28h)
-        ScormPackagesService,
-        CoursePackagesService,
+        // Các phần ở src/dang-ky/, theo thứ tự tên tệp (YCTD-294)
+        ...CAC_PHAN_DANG_KY.flatMap((phan) => phan.providers ?? []),
       ],
     };
   }

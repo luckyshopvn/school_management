@@ -1,8 +1,12 @@
 import type { ColumnType, Generated } from 'kysely';
 
 // Kiểu dữ liệu các bảng của cơ sở dữ liệu định danh, khớp với tệp thay đổi cấu trúc
-type CreatedTimestamp = ColumnType<Date, Date | undefined, never>;
-type UpdatedTimestamp = ColumnType<Date, Date | undefined, Date>;
+export type CreatedTimestamp = ColumnType<Date, Date | undefined, never>;
+export type UpdatedTimestamp = ColumnType<Date, Date | undefined, Date>;
+
+// Bảng của từng phần nằm ở schema-parts/<phần>.ts: mỗi tệp thêm bảng vào IdentityDatabase bằng declare module, không sửa tệp này
+// (YCTD-294); schema-parts.generated.ts do database/sinh-chi-muc.mjs sinh khi dựng
+export type * from './schema-parts.generated.js';
 
 export type UserStatus = 'active' | 'locked';
 // Kênh student của học sinh (DT-23 phần 23a)
