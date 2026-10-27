@@ -12,7 +12,7 @@ import {
   type LoggedInUser,
 } from '../../test-support.js';
 
-// Điểm cuối học khi mạng yếu (DT-28 phần 28j, YCTD-280; GD-148 chờ Eric chốt): tắt mặc định, chỉ Ban Giám hiệu bật; học sinh đọc
+// Điểm cuối học khi mạng yếu (DT-28 phần 28j, YCTD-280; GD-148 đã chốt 2026-10-27): tắt mặc định, chỉ Ban Giám hiệu bật; học sinh đọc
 // cấu hình; gửi lại tệp và lần nộp kèm mã chống trùng chỉ ghi một lần; thời điểm bấm nộp trên máy được ghi để giáo viên xét
 describe('Điểm cuối học khi mạng yếu', () => {
   let environment: ApiTestEnvironment;

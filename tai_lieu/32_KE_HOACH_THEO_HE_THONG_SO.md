@@ -2670,7 +2670,7 @@ Cỡ ước lượng (một phần của DT-16 là một đơn vị): 28a 1,0; 2
 - Chứng nhận hoàn thành cho **khoá tự chọn** (và khoá của 27d sau này): PDF theo mẫu của trường, mã kiểm tra; trang kiểm tra công khai chỉ hiện tên khoá, ngày cấp, tên trường, họ tên viết tắt; thu hồi được.
 
 **28j. Học khi mạng yếu**
-- Chỉ màn hình học tập của học sinh và nộp thay của phụ huynh: nội dung hoạt động đã mở (trừ video, gói SCORM), bản nháp câu trả lời, ảnh, ghi âm chờ gửi của **chính người dùng** ở IndexedDB theo nguồn gốc trường (26a); xóa khi nộp, đăng xuất, quá GD-148; hàng đợi gửi theo thứ tự, gửi tệp từng phần, mã chống trùng do máy sinh; ghi thời điểm bấm nộp trên máy để giáo viên xét khi muộn do mạng. Cần Eric chốt mở rộng GD-108 (GD-148).
+- Chỉ màn hình học tập của học sinh và nộp thay của phụ huynh: nội dung hoạt động đã mở (trừ video, gói SCORM), bản nháp câu trả lời, ảnh, ghi âm chờ gửi của **chính người dùng** ở IndexedDB theo nguồn gốc trường (26a); xóa khi nộp, đăng xuất, quá GD-148; hàng đợi gửi theo thứ tự, gửi tệp từng phần, mã chống trùng do máy sinh; ghi thời điểm bấm nộp trên máy để giáo viên xét khi muộn do mạng. Mở rộng GD-108 (GD-148, Eric đã chốt 2026-10-27).
 
 ### 20.8 Quyết định thiết kế và phương án đã loại
 
@@ -2731,7 +2731,7 @@ Cỡ ước lượng (một phần của DT-16 là một đơn vị): 28a 1,0; 2
 | 28g | 3 | Chưa làm; YCTD-277 giữ sẵn; chờ 27a |
 | 28h | 3 | Đã làm (YCTD-278, phiên bản đề xuất 0.167.0): gói SCORM 1.2, 2004 là học liệu loại `scorm` của kho 22h1 (kiểm bản kê, đường dẫn, loại tệp, cỡ; qua duyệt), phát cô lập (CSP sandbox, mã truy cập HMAC ngắn hạn theo trường, học sinh, hoạt động; nguồn gốc nội dung riêng cấu hình được), bộ chuyển API qua postMessage ghi kết quả hoạt động, nhiều SCO chạy tuần tự (GD-153); gói khoá học `school-management.course-package/1` xuất nhập khoá mẫu kèm học liệu, gói SCORM; hệ thống 0113, 0114, năm học 0189; e2e 217. Chưa làm: spec nhiều trường cho gói SCORM (mở rộng `MULTI_TENANT_SPEC`), cấu hình tên miền nội dung ở cổng biên |
 | 28i | 4 | Đã làm (YCTD-279, phiên bản đề xuất 0.168.0): tắt mặc định, Ban Giám hiệu bật (GD-155); huy hiệu nội bộ tự động (hoàn thành chương, khoá, nộp đúng hạn 5 lần liên tiếp) và do giáo viên trao kèm lý do, chỉ em, phụ huynh, giáo viên thấy, không bảng xếp hạng; chứng nhận PDF cho khoá tự chọn đã hoàn thành theo mẫu của trường, mã kiểm tra, trang kiểm tra công khai chỉ họ tên viết tắt, thu hồi; năm học 0191, 0192; e2e 218. Chưa làm: tra chứng nhận năm học đã đóng, chứng nhận cho khoá của 27d, Open Badges |
-| 28j | 4 | Đã làm (YCTD-280, phiên bản đề xuất 0.169.0; **GD-148 chờ Eric chốt**, làm theo đề xuất mặc định): tắt mặc định, Ban Giám hiệu bật; bản nháp, nội dung đã mở, thao tác chờ gửi của chính học sinh mã hoá trên máy tối đa 7 ngày, xoá khi nộp, đăng xuất, quá hạn; hàng đợi gửi lại có mã chống trùng; thời điểm bấm nộp trên máy; mô-đun riêng gỡ được; năm học 0193; e2e 219. Chưa làm: nộp thay ngoại tuyến của phụ huynh, gửi tệp từng phần |
+| 28j | 4 | Đã làm (YCTD-280, phiên bản đề xuất 0.169.0; GD-148 Eric đã chốt 2026-10-27): tắt mặc định, Ban Giám hiệu bật; bản nháp, nội dung đã mở, thao tác chờ gửi của chính học sinh mã hoá trên máy tối đa 7 ngày, xoá khi nộp, đăng xuất, quá hạn; hàng đợi gửi lại có mã chống trùng; thời điểm bấm nộp trên máy; mô-đun riêng gỡ được; năm học 0193; e2e 219. Chưa làm: nộp thay ngoại tuyến của phụ huynh, gửi tệp từng phần |
 
 Bản kế hoạch này là YCTD-270, chỉ đổi tài liệu (không tăng phiên bản phần mềm).
 
@@ -2761,7 +2761,7 @@ Số GD và RR của DT-28 bắt đầu từ GD-140 và RR-32 (DT-27 dùng GD-13
 | GD-145 | Phụ huynh xem không gian nhóm của con | **Eric chốt 2026-10-26 theo đề xuất:** Tiểu học đọc toàn bộ (chỉ đọc); THCS, THPT thấy việc, hạn, bài nộp, không đọc thảo luận trừ khi có báo cáo liên quan con | Theo cấp | Eric (đã chốt) |
 | GD-146 | Thời hạn lưu dữ liệu học tập (Thông tư 09 Điều 8 khoản 2 để trường quy định) | Kết quả, kế hoạch, báo cáo học kỳ theo PL-13 của trường; nhật ký học tập, bài nộp, thảo luận: hết năm học cộng 12 tháng | Cấu hình trường | Eric |
 | GD-147 | Nộp muộn mặc định | Cho nộp đến khi giáo viên đóng, đánh dấu muộn, không tự trừ điểm | Theo bài | Claude (theo ủy quyền) |
-| GD-148 | Bản nháp ngoại tuyến của học sinh (mở rộng GD-108) | Cho phép ở màn hình học tập của học sinh; tối đa 7 ngày; xóa khi nộp, đăng xuất | Cấu hình trường | Eric |
+| GD-148 | Bản nháp ngoại tuyến của học sinh (mở rộng GD-108) | **Eric đã chốt 2026-10-27 ("Đồng ý đề xuất"):** tắt mặc định, trường tự bật; cho phép ở màn hình học tập của học sinh; lưu trên máy tối đa 7 ngày; xóa khi nộp, đăng xuất | Cấu hình trường | Eric (đã chốt) |
 | GD-149 | Giáo viên quan sát phòng nhóm có hiện cho học sinh | Luôn hiện | Cố định | Eric |
 | GD-150 | Giới hạn tệp mỗi bài nộp, mỗi gói SCORM | Tối đa 10 ảnh, tổng 20 MB, ghi âm 5 phút, tài liệu 10 MB; gói SCORM 200 MB | Cấu hình trường, theo gói | Claude (theo ủy quyền) |
 | GD-151 | Nội dung nào của giáo viên cần duyệt theo Thông tư 09 Điều 7 khoản 3 | Khoá học mẫu, học liệu, gói SCORM qua duyệt 22h1; trang nội dung ngắn, hướng dẫn, thông báo, câu hỏi thảo luận của chính giáo viên không cần duyệt; trường bật được "mọi trang nội dung phải duyệt" | Cấu hình trường | Eric (trường thử xác nhận) |

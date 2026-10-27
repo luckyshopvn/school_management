@@ -11,11 +11,11 @@ phien_ban_de_xuat: 0.169.0
 
 #### Công việc đã thực hiện
 
-- Làm phần 28j theo `32` mục 20.6, 20.7. **GD-148 đang chờ Eric chốt**; làm theo đề xuất mặc định:
+- Làm phần 28j theo `32` mục 20.6, 20.7. **GD-148 Eric đã chốt 2026-10-27** ("Đồng ý đề xuất"):
   - Tắt mặc định, Ban Giám hiệu bật ở mục 9.3.
   - Dữ liệu chỉ ở trên máy tối đa 7 ngày (trường đặt 1 đến 7), xoá khi nộp xong, khi đăng xuất, khi quá hạn.
   - Khóa bản ghi không có tên học sinh; dữ liệu mã hoá AES-GCM khi trình duyệt có WebCrypto.
-- **Mô-đun riêng** `apps/parent/src/student/offline/` (quy tắc thuần, kho IndexedDB, cửa `offline.ts`), gọi từ ba chỗ: màn hình làm bài tập, danh sách học trực tuyến, đăng xuất. Nếu Eric không đồng ý GD-148 thì gỡ thư mục này và các dòng gọi; phía máy chủ chỉ là cấu hình và mã chống trùng, giữ lại không ảnh hưởng.
+- **Mô-đun riêng** `apps/parent/src/student/offline/` (quy tắc thuần, kho IndexedDB, cửa `offline.ts`), gọi từ ba chỗ: màn hình làm bài tập, danh sách học trực tuyến, đăng xuất. Khi cần gỡ thì bỏ thư mục này và các dòng gọi; phía máy chủ chỉ là cấu hình và mã chống trùng, giữ lại không ảnh hưởng.
 - **Màn hình học tập của học sinh** (khi trường bật):
   - Bản nháp câu trả lời tự lưu trên máy, mở lại thì khôi phục.
   - Nội dung hoạt động đã mở được giữ (trừ bài tập, video, gói SCORM); mất mạng thì mở lại bản đã giữ.
@@ -42,7 +42,6 @@ phien_ban_de_xuat: 0.169.0
 
 #### Vấn đề tồn đọng
 
-- **GD-148 chờ Eric chốt**; nếu không đồng ý thì gỡ mô-đun `offline` của ứng dụng học sinh trước khi merge.
 - Nộp thay ngoại tuyến của phụ huynh; gửi tệp từng phần.
 - Giáo viên chưa thấy thời điểm bấm nộp trên máy trong danh sách bài nộp (cột đã có ở cơ sở dữ liệu).
 
@@ -52,7 +51,7 @@ phien_ban_de_xuat: 0.169.0
 
 - Lý do: phần 28j của `32_KE_HOACH_THEO_HE_THONG_SO.md` mục 20.6, 20.7 (kế hoạch DT-28 ở YCTD-270): học sinh ở nơi mạng yếu vẫn làm, nộp được bài.
 - Căn cứ:
-  - GD-148 (mở rộng GD-108): **chờ Eric chốt**; làm theo đề xuất mặc định đã ghi ở 32.
+  - GD-148 (mở rộng GD-108): **Eric đã chốt 2026-10-27**, đồng ý đề xuất đã ghi ở 32.
   - Luật 91/2025 Điều 24 về dữ liệu cá nhân của trẻ theo phần tóm tắt ở 20.2: dữ liệu trên máy chỉ của chính em, tối thiểu, có hạn, xoá khi đăng xuất. Phiên này không đọc lại văn bản gốc.
 - Nội dung thay đổi (Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11 ở những chỗ kế hoạch chưa chốt):
   - **Cấu hình** `learning_offline`: `enabled` (mặc định tắt), `retention_days` 1 đến 7 (mặc định 7); chỉ Ban Giám hiệu ghi; học sinh đọc ở `/student/offline`.
@@ -81,13 +80,13 @@ phien_ban_de_xuat: 0.169.0
 - Ảnh hưởng chức năng cũ: tắt mặc định nên không đổi; tuyến nộp, gửi tệp cũ không gửi mã thì như trước.
 - Kiểm thử cần thực hiện: kiểm thử đơn vị toàn kho (cả `apps/parent`); e2e `single` (spec 219 cùng các spec hiện có); typecheck, lint, build.
 - Chưa làm (YCTD sau): nộp thay ngoại tuyến của phụ huynh; gửi tệp từng phần; hiện thời điểm bấm nộp trên máy cho giáo viên.
-- Trạng thái: Đã triển khai (PR chờ; GD-148 chờ Eric chốt)
+- Trạng thái: Đã triển khai (GD-148 đã chốt 2026-10-27)
 
 ## 23 Lịch sử phiên bản
 
 ### Phiên bản {PHIEN_BAN} – 2026-10-28
 
-- Phạm vi thay đổi: DT-28 phần 28j, học khi mạng yếu (YCTD-280; GD-148 chờ Eric chốt).
+- Phạm vi thay đổi: DT-28 phần 28j, học khi mạng yếu (YCTD-280; GD-148 đã chốt 2026-10-27).
 - Chức năng mới:
   - Giữ bản nháp, nội dung, thao tác chờ gửi của học sinh trên máy (P03-60, MH-505).
   - Cấu hình học khi mạng yếu của trường (P03-61, MH-506).
@@ -101,7 +100,7 @@ phien_ban_de_xuat: 0.169.0
 
 ## 01 Bảng phiên bản
 
-| {PHIEN_BAN} | DT-28 phần 28j: học khi mạng yếu (tắt mặc định; bản nháp, nội dung đã mở, thao tác chờ gửi của học sinh mã hoá trên máy tối đa 7 ngày, xoá khi nộp, đăng xuất; hàng đợi gửi lại có mã chống trùng; thời điểm bấm nộp trên máy; GD-148 chờ Eric chốt) (YCTD-280) | Đã triển khai |
+| {PHIEN_BAN} | DT-28 phần 28j: học khi mạng yếu (tắt mặc định; bản nháp, nội dung đã mở, thao tác chờ gửi của học sinh mã hoá trên máy tối đa 7 ngày, xoá khi nộp, đăng xuất; hàng đợi gửi lại có mã chống trùng; thời điểm bấm nộp trên máy; GD-148 đã chốt 2026-10-27) (YCTD-280) | Đã triển khai |
 
 ## index Số đếm
 
@@ -121,9 +120,9 @@ phien_ban_de_xuat: 0.169.0
 
 ## Thêm dòng
 
-| 10_YEU_CAU_CHUC_NANG.md | P03-17 | P03-60 | Giữ bài làm trên máy khi mạng yếu (YCTD-280, DT-28 phần 28j; GD-148 chờ Eric chốt) | Học sinh | Câu trả lời, ảnh, ghi âm, lần bấm nộp, nội dung đã mở | Khi trường bật: tự lưu bản nháp trên máy, giữ nội dung đã mở, mất mạng thì xếp hàng gửi lại có mã chống trùng; xoá khi nộp xong, đăng xuất, quá hạn | Bản ghi mã hoá trên máy, bài nộp một lần | BR-400, BR-401, BR-402 |
+| 10_YEU_CAU_CHUC_NANG.md | P03-17 | P03-60 | Giữ bài làm trên máy khi mạng yếu (YCTD-280, DT-28 phần 28j; GD-148 đã chốt 2026-10-27) | Học sinh | Câu trả lời, ảnh, ghi âm, lần bấm nộp, nội dung đã mở | Khi trường bật: tự lưu bản nháp trên máy, giữ nội dung đã mở, mất mạng thì xếp hàng gửi lại có mã chống trùng; xoá khi nộp xong, đăng xuất, quá hạn | Bản ghi mã hoá trên máy, bài nộp một lần | BR-400, BR-401, BR-402 |
 | 10_YEU_CAU_CHUC_NANG.md | P03-17 | P03-61 | Cấu hình học khi mạng yếu (YCTD-280) | Ban Giám hiệu | Bật, số ngày giữ (1 đến 7) | Tắt mặc định; học sinh đọc cấu hình khi vào màn hình học tập | Cấu hình của trường | BR-403 |
-| 07_QUY_TAC_NGHIEP_VU.md | BR-252 | BR-400 | Dữ liệu học tập trên máy (YCTD-280, DT-28 phần 28j, GD-148 chờ Eric chốt): chỉ khi trường bật; chỉ bản nháp câu trả lời, ảnh, ghi âm chờ gửi, lần bấm nộp và nội dung hoạt động đã mở (không bài tập, video, gói SCORM) của chính học sinh đang đăng nhập; khóa bản ghi chỉ có loại và mã hoạt động, mã thao tác, không có tên, mã học sinh; mã hoá AES-GCM bằng khóa sinh trên máy không xuất được khi trình duyệt có WebCrypto |
+| 07_QUY_TAC_NGHIEP_VU.md | BR-252 | BR-400 | Dữ liệu học tập trên máy (YCTD-280, DT-28 phần 28j, GD-148 đã chốt 2026-10-27): chỉ khi trường bật; chỉ bản nháp câu trả lời, ảnh, ghi âm chờ gửi, lần bấm nộp và nội dung hoạt động đã mở (không bài tập, video, gói SCORM) của chính học sinh đang đăng nhập; khóa bản ghi chỉ có loại và mã hoạt động, mã thao tác, không có tên, mã học sinh; mã hoá AES-GCM bằng khóa sinh trên máy không xuất được khi trình duyệt có WebCrypto |
 | 07_QUY_TAC_NGHIEP_VU.md | BR-252 | BR-401 | Xoá dữ liệu trên máy (YCTD-280): bản ghi quá số ngày của trường (tối đa 7) xoá khi mở màn hình học tập; nộp xong thì xoá bản nháp và thao tác chờ của hoạt động; đăng xuất thì xoá mọi bản ghi và khóa mã hoá, kể cả thao tác chưa gửi |
 | 07_QUY_TAC_NGHIEP_VU.md | BR-252 | BR-402 | Hàng đợi gửi lại và chống trùng (YCTD-280): thao tác gửi theo lúc tạo, tệp trước lần nộp; lỗi mạng thì dừng, gửi tiếp khi có mạng; máy chủ từ chối thì bỏ thao tác và báo em; lần nộp kèm `client_submit_key`, tệp kèm `client_key` do máy sinh, gửi lại cùng mã thì máy chủ trả bản đã nhận, không ghi lần hai; thời điểm bấm nộp trên máy chỉ nhận trong 7 ngày gần đây, không sau lúc nhận quá 5 phút; nộp muộn vẫn tính theo lúc máy chủ nhận |
 | 07_QUY_TAC_NGHIEP_VU.md | BR-252 | BR-403 | Cấu hình học khi mạng yếu (YCTD-280): chỉ Ban Giám hiệu bật, tắt và đặt số ngày giữ 1 đến 7 (mặc định 7, mặc định tắt); học sinh đọc ở kênh `student`; vi phạm: 403, 422 |
@@ -139,5 +138,5 @@ phien_ban_de_xuat: 0.169.0
 | 21_KICH_BAN_KIEM_THU.md | CT-1145 | CT-1362 | P03-61 | CT-28j-3: tắt mặc định; chỉ Ban Giám hiệu bật, tối đa 7 ngày; học sinh đọc cấu hình | Đúng | Đạt 28/10/2026; `apps/api/src/learning/offline/offline.test.ts`; AC-1062 | Cao |
 | 21_KICH_BAN_KIEM_THU.md | CT-1145 | CT-1363 | P03-60 | CT-28j-4: gửi lại tệp, lần nộp kèm mã chống trùng chỉ ghi một lần; thời điểm bấm nộp trên máy được ghi | Đúng | Đạt 28/10/2026; `offline.test.ts`; AC-1062 | Cao |
 | 21_KICH_BAN_KIEM_THU.md | CT-1145 | CT-1364 | P03-60, P03-61 | CT-28j-5: giao diện: mất mạng khi nộp bài, bài giữ trên máy, có mạng tự nộp một lần; đăng xuất xoá dữ liệu trên máy | Đúng | Đạt 28/10/2026; e2e `tests/e2e/219-offline-learning.spec.ts`; AC-1063 | Cao |
-| 22_BAO_MAT.md | BM-101 | BM-210 | Dữ liệu của học sinh trên máy (YCTD-280, BR-400, BR-401; GD-148 chờ Eric chốt): tắt mặc định; chỉ của chính em, tối thiểu (không lưu điểm, nhận xét, danh sách lớp), mã hoá AES-GCM bằng khóa không xuất được, khóa bản ghi không có tên; IndexedDB theo nguồn gốc của trường nên các trường tách nhau; xoá khi nộp xong, đăng xuất, quá hạn (tối đa 7 ngày) |
+| 22_BAO_MAT.md | BM-101 | BM-210 | Dữ liệu của học sinh trên máy (YCTD-280, BR-400, BR-401; GD-148 đã chốt 2026-10-27): tắt mặc định; chỉ của chính em, tối thiểu (không lưu điểm, nhận xét, danh sách lớp), mã hoá AES-GCM bằng khóa không xuất được, khóa bản ghi không có tên; IndexedDB theo nguồn gốc của trường nên các trường tách nhau; xoá khi nộp xong, đăng xuất, quá hạn (tối đa 7 ngày) |
 | 22_BAO_MAT.md | BM-101 | BM-211 | Chống trùng và thời điểm từ máy (YCTD-280, BR-402): mã chống trùng chỉ có giá trị trong bài của chính em (kiểm chủ bài nộp); thời điểm bấm nộp trên máy chỉ là thông tin cho giáo viên, không đổi cách tính muộn; nhận trong khoảng hợp lệ để máy không gửi thời điểm giả quá xa |

@@ -3,7 +3,7 @@ import { useMutation, useQuery } from '@tanstack/react-query';
 import { Alert, Button, FORM_CONTROL_CLASS } from '@school-management/ui';
 import { ApiError, requestJson } from '../session/api-client.js';
 
-// Học khi mạng yếu (DT-28 phần 28j, YCTD-280; GD-148 chờ Eric chốt): tắt mặc định; Ban Giám hiệu bật để màn hình học tập của học
+// Học khi mạng yếu (DT-28 phần 28j, YCTD-280; GD-148 đã chốt 2026-10-27): tắt mặc định; Ban Giám hiệu bật để màn hình học tập của học
 // sinh giữ bản nháp, ảnh, ghi âm chờ gửi, nội dung đã mở của chính em trên máy (tối đa 7 ngày, xoá khi nộp, đăng xuất)
 interface OfflineConfig {
   enabled: boolean;

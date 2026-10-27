@@ -5,11 +5,11 @@ import { CurrentSchoolYearResolver } from '../../common/current-school-year.js';
 import type { RequestBody } from '../../common/request-fields.js';
 import { LearningService } from '../learning.js';
 
-// Học khi mạng yếu (DT-28 phần 28j, YCTD-280; GD-148 **chờ Eric chốt**, làm theo đề xuất mặc định): tắt mặc định, Ban Giám hiệu
+// Học khi mạng yếu (DT-28 phần 28j, YCTD-280; GD-148 đã chốt 2026-10-27): tắt mặc định, Ban Giám hiệu
 // bật. Khi bật, màn hình học tập của học sinh giữ bản nháp câu trả lời, ảnh, ghi âm chờ gửi và nội dung hoạt động đã mở của chính
 // em trên máy (IndexedDB theo nguồn gốc của trường), tối đa `retention_days` ngày (mặc định và tối đa 7), xoá khi nộp xong hoặc
 // đăng xuất; hàng đợi gửi lại kèm mã chống trùng. Máy chủ chỉ giữ cấu hình; dữ liệu trên máy do mô-đun `offline` của ứng dụng
-// học sinh lo, gỡ được riêng nếu Eric không đồng ý GD-148
+// học sinh lo, gỡ được riêng
 export const OFFLINE_RULE_CODE = 'YCTD-280';
 const CONFIG_KEY = 'learning_offline';
 export const MAXIMUM_RETENTION_DAYS = 7;

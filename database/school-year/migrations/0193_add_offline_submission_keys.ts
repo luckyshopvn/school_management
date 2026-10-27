@@ -1,8 +1,8 @@
 import { sql } from 'kysely';
 import type { Migration } from 'kysely/migration';
 
-// DT-28 phần 28j (YCTD-280): học khi mạng yếu. Máy của học sinh giữ hàng đợi gửi lại (tắt mặc định, trường bật; GD-148 chờ Eric
-// chốt); mỗi lần nộp, mỗi tệp gửi kèm mã chống trùng do máy sinh để gửi lại nhiều lần chỉ ghi một lần. Lần nộp ghi thêm thời điểm em
+// DT-28 phần 28j (YCTD-280): học khi mạng yếu. Máy của học sinh giữ hàng đợi gửi lại (tắt mặc định, trường bật; GD-148 đã chốt
+// 2026-10-27); mỗi lần nộp, mỗi tệp gửi kèm mã chống trùng do máy sinh để gửi lại nhiều lần chỉ ghi một lần. Lần nộp ghi thêm thời điểm em
 // bấm nộp trên máy để giáo viên xét khi bài muộn do mạng (máy chủ vẫn tính muộn theo lúc nhận)
 export const migration: Migration = {
   async up(database) {

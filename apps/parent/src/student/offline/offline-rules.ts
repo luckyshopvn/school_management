@@ -1,4 +1,4 @@
-// Quy tắc thuần của học khi mạng yếu (DT-28 phần 28j, YCTD-280; GD-148 chờ Eric chốt, làm theo đề xuất mặc định). Không nhập mô-đun
+// Quy tắc thuần của học khi mạng yếu (DT-28 phần 28j, YCTD-280; GD-148 đã chốt 2026-10-27). Không nhập mô-đun
 // nào để chạy được bằng `node --test`. Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11, ghi ở YCTD-280:
 // - Khóa bản ghi trên máy chỉ gồm loại và mã (hoạt động, câu, mã chống trùng), không có tên hay thông tin khác của học sinh.
 // - Bản ghi quá số ngày giữ của trường (tối đa 7) thì xoá khi mở ứng dụng; hàng đợi gửi lần lượt theo lúc tạo, lỗi mạng thì dừng để

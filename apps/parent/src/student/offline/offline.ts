@@ -10,7 +10,7 @@ import {
   removeRecord,
 } from './offline-store.ts';
 
-// Cửa duy nhất của học khi mạng yếu cho các màn hình học sinh (DT-28 phần 28j, YCTD-280; GD-148 chờ Eric chốt). Mọi hàm không làm gì
+// Cửa duy nhất của học khi mạng yếu cho các màn hình học sinh (DT-28 phần 28j, YCTD-280; GD-148 đã chốt 2026-10-27). Mọi hàm không làm gì
 // khi trường chưa bật hoặc trình duyệt không có IndexedDB, nên gỡ mô-đun chỉ cần bỏ thư mục `offline` và các dòng gọi tới đây.
 // Giữ: bản nháp câu trả lời, nội dung hoạt động đã mở (không giữ video, gói SCORM), thao tác chờ gửi (tệp, lần nộp) của chính em
 export interface OfflineConfig {

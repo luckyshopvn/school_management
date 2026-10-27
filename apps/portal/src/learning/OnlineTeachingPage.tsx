@@ -266,7 +266,7 @@ export function OnlineTeachingPage() {
         <RulesPanel canDecide={canDecide} onSaved={setToastMessage} />
         {/* Huy hiệu, chứng nhận (DT-28 phần 28i): chỉ Ban Giám hiệu */}
         {canDecide ? <RecognitionSettings onSaved={setToastMessage} /> : null}
-        {/* Học khi mạng yếu (DT-28 phần 28j, GD-148 chờ Eric chốt): chỉ Ban Giám hiệu */}
+        {/* Học khi mạng yếu (DT-28 phần 28j, GD-148 đã chốt 2026-10-27): chỉ Ban Giám hiệu */}
         {canDecide ? <OfflineSettings onSaved={setToastMessage} /> : null}
       </div>
     </AppShell>
