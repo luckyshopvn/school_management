@@ -2,7 +2,7 @@
 yctd: YCTD-296
 tieu_de: Áp sáu màn mẫu giao diện đã duyệt vào cổng quản trị, ứng dụng giáo viên, ứng dụng phụ huynh
 ngay: 2026-10-28
-phien_ban_de_xuat: 0.174.0
+phien_ban_de_xuat: 0.177.0
 ---
 
 ## 02 Nhật ký
