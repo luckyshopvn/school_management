@@ -506,6 +506,8 @@ import { StudentExamsController } from './online-exams/student-exams.controller.
 import { StudentExamsService } from './online-exams/student-exams.js';
 import { ChildTutoringController, TutoringController } from './tutoring/tutoring.controller.js';
 import { TutoringService } from './tutoring/tutoring.js';
+import { TutoringFinanceController } from './tutoring/tutoring-finance.controller.js';
+import { TutoringFinanceService } from './tutoring/tutoring-finance.js';
 import { AiAssistantController, AiUsageJob } from './ai-assistant/ai-assistant.controller.js';
 import { AI_PROVIDERS, AiAssistantService } from './ai-assistant/ai-assistant.js';
 import { AiProviderRegistry } from './ai-assistant/ai-provider.js';
@@ -818,6 +820,8 @@ export class ApplicationModule {
         // Gia sư trong trường (DT-27 phần 27b)
         TutoringController,
         ChildTutoringController,
+        // Thu chi gia sư trong trường (DT-27 phần 27c)
+        TutoringFinanceController,
       ],
       providers: [
         { provide: API_CONFIGURATION, useValue: configuration },
@@ -1238,6 +1242,8 @@ export class ApplicationModule {
         },
         // Gia sư trong trường (DT-27 phần 27b)
         TutoringService,
+        // Thu chi gia sư trong trường (DT-27 phần 27c)
+        TutoringFinanceService,
       ],
     };
   }

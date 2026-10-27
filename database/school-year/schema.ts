@@ -1079,11 +1079,13 @@ export interface InvoicesTable {
 export interface InvoiceItemsTable {
   id: Generated<string>;
   invoice_id: string;
-  item_type: 'tuition' | 'service' | 'opening' | 'extracurricular';
+  item_type: 'tuition' | 'service' | 'opening' | 'extracurricular' | 'tutoring';
   service_id: string | null;
   service_registration_id: string | null;
   // Đăng ký ngoại khóa đã lập khoản thu (YCTD-78)
   extracurricular_registration_id: ColumnType<string | null, string | null | undefined, string | null>;
+  // Đăng ký chương trình gia sư đã lập khoản thu (YCTD-253)
+  tutoring_registration_id: ColumnType<string | null, string | null | undefined, string | null>;
   description: string;
   quantity: ColumnType<string, string | number, string | number>;
   unit_price: Money;
@@ -6575,12 +6577,76 @@ export interface TutoringProgramsTable {
   created_by_name: string;
   created_at: CreatedTimestamp;
   updated_at: UpdatedTimestamp;
+  // Thu phí và thù lao (YCTD-253)
+  fee_basis: ColumnType<TutoringFeeBasis | null, TutoringFeeBasis | null | undefined, TutoringFeeBasis | null>;
+  fee_amount: ColumnType<string | null, string | number | null | undefined, string | number | null>;
+  cancel_refund: Generated<TutoringCancelRefund>;
+  pay_rate_per_period: ColumnType<string | null, string | number | null | undefined, string | number | null>;
+  funding_source: Generated<TutoringFundingSource>;
 }
+
+export type TutoringFeeBasis = 'per_session' | 'per_program';
+export type TutoringCancelRefund = 'deduct_next' | 'adjust_invoice';
+export type TutoringFundingSource = 'school_budget' | 'tutoring_fees';
 
 export interface TutoringProgramTeachersTable {
   program_id: string;
   teacher_user_id: string;
   teacher_name: string;
+  pay_rate_per_period: ColumnType<string | null, string | number | null | undefined, string | number | null>;
+}
+
+// Buổi đã lập khoản thu ở dòng hóa đơn nào; trọn gói thì `session_id` trống (YCTD-253)
+export interface TutoringChargeSessionsTable {
+  id: Generated<string>;
+  invoice_item_id: string;
+  registration_id: string;
+  session_id: string | null;
+  amount: Money;
+  sessions_total: number | null;
+  created_at: CreatedTimestamp;
+}
+
+export interface TutoringCreditsTable {
+  id: Generated<string>;
+  child_id: string;
+  registration_id: string;
+  session_id: string;
+  charged_invoice_id: string;
+  amount: Money;
+  reason: string;
+  mode: TutoringCancelRefund;
+  status: Generated<'open' | 'adjusted' | 'closed'>;
+  invoice_adjustment_id: string | null;
+  closed_note: string | null;
+  closed_by_name: string | null;
+  closed_at: Date | null;
+  created_by_name: string;
+  created_at: CreatedTimestamp;
+}
+
+export interface TutoringCreditApplicationsTable {
+  credit_id: string;
+  invoice_item_id: string;
+  amount: Money;
+}
+
+export interface TutoringTeacherPayTable {
+  id: Generated<string>;
+  session_id: string;
+  program_id: string;
+  teacher_user_id: string;
+  teacher_name: string;
+  staff_id: string;
+  periods: number;
+  rate: Money;
+  amount: Money;
+  funding_source: TutoringFundingSource;
+  bonus_deduction_id: string;
+  target_year: number;
+  target_month: number;
+  pushed_by_name: string;
+  pushed_at: CreatedTimestamp;
 }
 
 export interface TutoringProgramClassesTable {
@@ -6612,6 +6678,9 @@ export interface TutoringSessionsTable {
   attendance_confirmed_by_name: string | null;
   created_by: string;
   created_at: CreatedTimestamp;
+  // Người dạy buổi, ghi khi xác nhận điểm danh (YCTD-253)
+  taught_by_user_id: ColumnType<string | null, string | null | undefined, string | null>;
+  taught_by_name: ColumnType<string | null, string | null | undefined, string | null>;
 }
 
 export interface TutoringExemptionsTable {
@@ -7090,5 +7159,9 @@ export interface SchoolYearDatabase {
   tutoring_exemption_children: TutoringExemptionChildrenTable;
   tutoring_registrations: TutoringRegistrationsTable;
   tutoring_attendance: TutoringAttendanceTable;
+  tutoring_charge_sessions: TutoringChargeSessionsTable;
+  tutoring_credits: TutoringCreditsTable;
+  tutoring_credit_applications: TutoringCreditApplicationsTable;
+  tutoring_teacher_pay: TutoringTeacherPayTable;
   tutoring_room_events: TutoringRoomEventsTable;
 }

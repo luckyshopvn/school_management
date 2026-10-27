@@ -20,6 +20,7 @@ import { pickSmsRecipients } from '../finance/receivables.js';
 import { OrganizationScopes } from '../organization/organization-scopes.js';
 import { extracurricularItems } from '../activities/extracurricular-fees.js';
 import { boardingMealDays, BOARDING_RULE_CODE, unclosedBoardingDays } from '../boarding/boarding-roster.js';
+import { dropCreditsOfRecomputedInvoice, recordTutoringCharges, tutoringItems } from '../tutoring/tutoring-fees.js';
 import { DiscountsService } from './discounts.service.js';
 import { invoiceAmounts, recalculatePendingDiscounts } from './invoice-amounts.js';
 import { formatPeriod, periodRange, RegistrationPeriods, type Period } from './registration-periods.js';
@@ -34,11 +35,13 @@ const CHANGE_FLAG_RATIO = 0.3;
 const INVOICE_SEQUENCE = 'invoice';
 
 export interface DraftItem {
-  item_type: 'tuition' | 'service' | 'extracurricular';
+  item_type: 'tuition' | 'service' | 'extracurricular' | 'tutoring';
   service_id: string | null;
   service_registration_id: string | null;
   // Phí hoạt động ngoại khóa (P14-11, YCTD-78)
   extracurricular_registration_id?: string | null;
+  // Chương trình gia sư bổ trợ có thu (YCTD-253)
+  tutoring_registration_id?: string | null;
   description: string;
   quantity: number;
   unit_price: number;
@@ -129,6 +132,11 @@ export class FeeCalculationService {
       children.map((child) => child.id),
       period,
     );
+    const tutoring = await tutoringItems(
+      database,
+      children.map((child) => child.id),
+      period,
+    );
 
     const missing: FieldError[] = [];
     const drafts = children.flatMap((child) => {
@@ -164,6 +172,8 @@ export class FeeCalculationService {
       }
       // Phí ngoại khóa theo tháng thu đủ, phí theo hoạt động thu một lần (BR-19, YCTD-78)
       items.push(...(extracurricular.get(child.id) ?? []));
+      // Gia sư bổ trợ có thu theo buổi hoặc trọn gói, đã trừ buổi bị hủy đã thu (YCTD-253)
+      items.push(...(tutoring.items.get(child.id) ?? []));
       const total = items.reduce((sum, item) => sum + item.amount, 0);
       const flags: string[] = [];
       // Lớp ngoài Mầm non không điểm danh theo ngày nên không đánh dấu nghỉ nhiều theo ngày ăn (YCTD-159)
@@ -225,6 +235,9 @@ export class FeeCalculationService {
           .execute();
         const staleIds = stale.filter((row) => !keep.has(row.child_id)).map((row) => row.id);
         if (staleIds.length > 0) {
+          for (const staleId of staleIds) {
+            await dropCreditsOfRecomputedInvoice(transaction, staleId);
+          }
           await transaction.deleteFrom('invoices').where('id', 'in', staleIds).execute();
         }
         for (const draft of drafts) {
@@ -257,6 +270,7 @@ export class FeeCalculationService {
             )
             .returning('id')
             .executeTakeFirstOrThrow();
+          await dropCreditsOfRecomputedInvoice(transaction, invoice.id);
           await transaction.deleteFrom('invoice_items').where('invoice_id', '=', invoice.id).execute();
           if (draft.items.length > 0) {
             await transaction
@@ -264,6 +278,7 @@ export class FeeCalculationService {
               .values(draft.items.map((item) => ({ ...item, invoice_id: invoice.id })))
               .execute();
           }
+          await recordTutoringCharges(transaction, invoice.id, tutoring.plans.get(draft.child.id) ?? []);
           // Miễn giảm chờ duyệt tính lại theo dòng mới; tổng miễn giảm vượt tổng hóa đơn thì đánh dấu để xem lại (BR-22)
           await recalculatePendingDiscounts(transaction, invoice.id);
           const discounted = await transaction
