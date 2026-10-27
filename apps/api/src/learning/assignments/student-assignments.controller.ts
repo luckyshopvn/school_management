@@ -7,6 +7,7 @@ import {
   Param,
   Post,
   Put,
+  Query,
   Res,
   UploadedFile,
   UseInterceptors,
@@ -52,9 +53,10 @@ export class StudentAssignmentsController {
     @Param('id', ACTIVITY_ID) id: string,
     @Param('itemId', uuidParameter('Mã câu không hợp lệ')) itemId: string,
     @UploadedFile() file: UploadedPart | undefined,
+    @Query('client_key') clientKey: string | undefined,
     @AuthenticatedUser() currentUser: CurrentUser,
   ) {
-    return this.assignments.studentUpload(currentUser, id, itemId, file);
+    return this.assignments.studentUpload(currentUser, id, itemId, file, clientKey);
   }
 
   @Post(':id/submit')

@@ -5,6 +5,7 @@ import { AppShell } from '../pages/AppShell.js';
 import { menuPageTitle } from '../pages/page-title.js';
 import { ApiError } from '../session/api-client.js';
 import { RecognitionSettings } from './RecognitionSettings.js';
+import { OfflineSettings } from './OfflineSettings.js';
 import {
   createDecision,
   listDecisions,
@@ -265,6 +266,8 @@ export function OnlineTeachingPage() {
         <RulesPanel canDecide={canDecide} onSaved={setToastMessage} />
         {/* Huy hiệu, chứng nhận (DT-28 phần 28i): chỉ Ban Giám hiệu */}
         {canDecide ? <RecognitionSettings onSaved={setToastMessage} /> : null}
+        {/* Học khi mạng yếu (DT-28 phần 28j, GD-148 chờ Eric chốt): chỉ Ban Giám hiệu */}
+        {canDecide ? <OfflineSettings onSaved={setToastMessage} /> : null}
       </div>
     </AppShell>
   );

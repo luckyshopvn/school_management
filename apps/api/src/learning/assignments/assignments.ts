@@ -8,7 +8,7 @@ import type { CurrentUser } from '../../authentication/current-user.js';
 import { GroupSetsReader } from '../../child-groups/group-sets.js';
 import { CurrentSchoolYearResolver } from '../../common/current-school-year.js';
 import { Databases } from '../../common/databases.js';
-import { notFoundError, type RequestBody } from '../../common/request-fields.js';
+import { isUuid, notFoundError, type RequestBody } from '../../common/request-fields.js';
 import { storageKey } from '../../common/resource-names.js';
 import type { QuestionSnapshot } from '../../exams/exams.js';
 import type { QuestionOption } from '../../exams/exam-inputs.js';
@@ -1380,11 +1380,30 @@ export class AssignmentsService {
   }
 
   // Tải tệp lên bản nháp: ảnh (đã bỏ siêu dữ liệu), tài liệu PDF cho câu "tải tệp", ghi âm cho câu "ghi âm"
-  async studentUpload(currentUser: CurrentUser, activityId: string, itemId: string, part: UploadedPart | undefined) {
-    return this.uploadTo(await this.studentWork(currentUser, activityId), currentUser, itemId, part);
+  // Học khi mạng yếu (DT-28 phần 28j): máy gửi lại tệp kèm mã chống trùng; tệp đã nhận với mã đó thì trả lại, không lưu lần hai
+  async studentUpload(
+    currentUser: CurrentUser,
+    activityId: string,
+    itemId: string,
+    part: UploadedPart | undefined,
+    clientKey?: string,
+  ) {
+    return this.uploadTo(
+      await this.studentWork(currentUser, activityId),
+      currentUser,
+      itemId,
+      part,
+      isUuid(clientKey) ? clientKey : null,
+    );
   }
 
-  private async uploadTo(work: ChildWork, currentUser: CurrentUser, itemId: string, part: UploadedPart | undefined) {
+  private async uploadTo(
+    work: ChildWork,
+    currentUser: CurrentUser,
+    itemId: string,
+    part: UploadedPart | undefined,
+    clientKey: string | null = null,
+  ) {
     const item = work.items.find((candidate) => candidate.id === itemId);
     if (!item || (item.kind !== 'upload' && item.kind !== 'audio' && item.kind !== 'essay')) {
       throw assignmentRule('Câu này không nhận tệp');
@@ -1400,6 +1419,15 @@ export class AssignmentsService {
       );
     }
     const draft = await this.ensureDraft(work);
+    if (clientKey) {
+      const received = await work.database
+        .selectFrom('submission_files')
+        .select(['id', 'item_id', 'kind', 'file_name', 'content_type', 'size_bytes', 'created_at'])
+        .where('submission_id', '=', draft.id)
+        .where('client_key', '=', clientKey)
+        .executeTakeFirst();
+      if (received) return received;
+    }
     const body = detected.contentType === 'image/jpeg' ? stripJpegMetadata(part.buffer) : part.buffer;
     const existing = await work.database
       .selectFrom('submission_files')
@@ -1426,6 +1454,7 @@ export class AssignmentsService {
         size_bytes: body.length,
         storage_key: key,
         uploaded_by: currentUser.id,
+        client_key: clientKey,
       })
       .returning(['id', 'item_id', 'kind', 'file_name', 'content_type', 'size_bytes', 'created_at'])
       .executeTakeFirstOrThrow();
@@ -1483,10 +1512,45 @@ export class AssignmentsService {
     return { id: file.id };
   }
 
+  // Mã chống trùng và thời điểm bấm nộp trên máy (DT-28 phần 28j): thời điểm chỉ nhận trong 7 ngày gần đây, không sau lúc nhận
+  // quá 5 phút (đồng hồ máy lệch); sai thì bỏ, máy chủ vẫn tính muộn theo lúc nhận
+  private clientSubmission(body: RequestBody) {
+    const key = isUuid(body?.client_submit_key) ? body.client_submit_key : null;
+    const raw = typeof body?.client_submitted_at === 'string' ? new Date(body.client_submitted_at) : null;
+    const now = this.clock.now().getTime();
+    const at =
+      raw && !Number.isNaN(raw.getTime()) && raw.getTime() <= now + 5 * 60_000 && raw.getTime() >= now - 7 * 86_400_000
+        ? raw
+        : null;
+    return { client_submit_key: key, client_submitted_at: key ? at : null };
+  }
+
   // Nộp: bài nhóm do nhóm trưởng nộp (nhóm chưa có nhóm trưởng thì em nào cũng nộp được); máy chấm phần trắc nghiệm ngay;
   // nộp muộn đánh dấu, không trừ điểm (GD-147); kết quả hoạt động của các em là đã nộp
   async studentSubmit(currentUser: CurrentUser, activityId: string, body: RequestBody) {
     const work = await this.studentWork(currentUser, activityId);
+    // Học khi mạng yếu (DT-28 phần 28j): máy gửi lại lần nộp kèm mã chống trùng; đã nhận thì trả lần nộp đó, không nộp lần hai
+    const clientKey = isUuid(body?.client_submit_key) ? body.client_submit_key : null;
+    if (clientKey) {
+      const received = await work.database
+        .selectFrom('assignment_submissions')
+        .select(['id', 'attempt_no', 'late', 'submitted_at', 'child_id', 'group_id'])
+        .where('assignment_id', '=', work.assignment.id)
+        .where('client_submit_key', '=', clientKey)
+        .executeTakeFirst();
+      const own =
+        received &&
+        (work.recipient.group_id ? received.group_id === work.recipient.group_id : received.child_id === work.childId);
+      if (own) {
+        return {
+          id: received.id,
+          attempt_no: received.attempt_no,
+          late: received.late,
+          submitted_at: received.submitted_at,
+          replayed: true,
+        };
+      }
+    }
     if (work.recipient.group_id) {
       const group = (await this.groupNames(work.database, [work.recipient.group_id])).get(work.recipient.group_id);
       if (group?.leader_child_id && group.leader_child_id !== work.childId) {
@@ -1520,6 +1584,7 @@ export class AssignmentsService {
         late: check.late,
         submitted_by: currentUser.id,
         submitted_by_kind: kind,
+        ...this.clientSubmission(body),
         submitted_at: now,
         auto_score: objective.objective,
         // Bài chỉ có câu máy chấm thì có điểm ngay (vẫn chờ giáo viên trả mới hiện cho học sinh)

@@ -6844,6 +6844,9 @@ export interface AssignmentSubmissionsTable {
   graded_at: Date | null;
   returned_by: string | null;
   returned_at: Date | null;
+  // Học khi mạng yếu (DT-28 phần 28j): mã chống trùng của lần nộp, thời điểm em bấm nộp trên máy
+  client_submit_key: string | null;
+  client_submitted_at: Date | null;
   created_at: CreatedTimestamp;
   updated_at: UpdatedTimestamp;
 }
@@ -6859,6 +6862,8 @@ export interface SubmissionFilesTable {
   storage_key: string;
   uploaded_by: string;
   created_at: CreatedTimestamp;
+  // Mã chống trùng do máy sinh khi gửi lại (DT-28 phần 28j)
+  client_key: string | null;
 }
 
 export interface SubmissionCommentsTable {

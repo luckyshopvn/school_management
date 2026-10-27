@@ -560,6 +560,8 @@ import {
   StudentRecognitionController,
 } from './learning/recognition/recognition.controller.js';
 import { RecognitionService } from './learning/recognition/recognition.js';
+import { OfflineLearningController, StudentOfflineController } from './learning/offline/offline.controller.js';
+import { OfflineLearningService } from './learning/offline/offline.js';
 
 @Module({})
 export class ApplicationModule {
@@ -896,6 +898,9 @@ export class ApplicationModule {
         RecognitionController,
         StudentRecognitionController,
         PublicCertificatesController,
+        // Học khi mạng yếu (DT-28 phần 28j)
+        OfflineLearningController,
+        StudentOfflineController,
       ],
       providers: [
         { provide: API_CONFIGURATION, useValue: configuration },
@@ -1338,6 +1343,8 @@ export class ApplicationModule {
         CoursePackagesService,
         // Huy hiệu, chứng nhận hoàn thành (DT-28 phần 28i)
         RecognitionService,
+        // Học khi mạng yếu (DT-28 phần 28j)
+        OfflineLearningService,
       ],
     };
   }

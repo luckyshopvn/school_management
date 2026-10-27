@@ -130,6 +130,7 @@ import { migration as createHomeworkReminders } from './migrations/0186_create_h
 import { migration as createScormAttempts } from './migrations/0189_create_scorm_attempts.js';
 import { migration as createLearningBadges } from './migrations/0191_create_learning_badges.js';
 import { migration as createCourseCertificates } from './migrations/0192_create_course_certificates.js';
+import { migration as addOfflineSubmissionKeys } from './migrations/0193_add_offline_submission_keys.js';
 
 // Danh sách tệp thay đổi cấu trúc của cơ sở dữ liệu năm học, theo số thứ tự (QU-01, QU-11)
 export const schoolYearMigrations: Record<string, Migration> = {
@@ -280,4 +281,6 @@ export const schoolYearMigrations: Record<string, Migration> = {
   // Huy hiệu, chứng nhận hoàn thành (DT-28 phần 28i): 0191, 0192
   '0191_create_learning_badges': createLearningBadges,
   '0192_create_course_certificates': createCourseCertificates,
+  // Học khi mạng yếu (DT-28 phần 28j): 0193
+  '0193_add_offline_submission_keys': addOfflineSubmissionKeys,
 };
