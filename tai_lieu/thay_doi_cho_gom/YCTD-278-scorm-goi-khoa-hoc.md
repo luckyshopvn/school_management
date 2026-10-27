@@ -38,7 +38,8 @@ phien_ban_de_xuat: 0.167.0
   - Học sinh `#hoc-sinh`: trình phát gói.
 - **Kiểm thử:**
   - 8/8 ca của `scorm-rules.test.ts`, `scorm.test.ts`.
-  - e2e `217-scorm-packages` (giáo viên tải gói và xem trước; học sinh học gói trong khung cô lập; gói không đọc được trang cha; kết quả "Đạt" ghi về máy chủ).
+  - Hồi quy `learning`, `assignments`, `learning-resources` (danh mục mặc định nay 9 loại), `school-levels`, `quick-links`, `school-plan`, ma trận cách ly nhiều trường (khai báo tuyến công khai `/scorm-content` ở `tenancy-route-policy.ts`); `migrate.test.ts`.
+  - e2e `217-scorm-packages` đạt, chạy kèm spec nền 01 đến 09; spec 04 hỏng vì tài khoản trùng tên trong cơ sở dữ liệu định danh riêng của phiên, do môi trường (giáo viên tải gói và xem trước; học sinh học gói trong khung cô lập; gói không đọc được trang cha; kết quả "Đạt" ghi về máy chủ).
 
 #### Quyết định
 
