@@ -121,7 +121,7 @@ export function AppShell({ children }: { children: ReactNode }) {
               onClose={closeMobile}
             />
           ) : null}
-          <main className="mx-auto w-full max-w-[1440px] min-w-0 flex-1 p-4 md:p-6">
+          <main className="w-full min-w-0 flex-1 p-4 md:p-6">
             {session.passwordExpiresInDays !== null ? (
               <div className="mb-4">
                 <Alert tone="warning">
