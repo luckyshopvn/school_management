@@ -270,6 +270,9 @@ test('CT-16g-16: 4.1.8 thu thập số định danh từ Excel, đánh dấu đ�
 
   await openMenu(page, '/national-id-progress');
   const progress = page.getByRole('region', { name: 'Tiến độ xác thực theo lớp' });
+  // Lưới chia trang ở máy và không có ô lọc: các spec chạy trước thêm lớp làm dòng cần tìm rơi sang trang sau (như 45, 54),
+  // nên hiện 200 dòng mỗi trang trước khi tìm lớp
+  await progress.getByLabel('Số dòng mỗi trang', { exact: true }).selectOption('200');
   await expect(progress.getByRole('row').filter({ hasText: classNames.first })).toContainText('33,3');
 
   await openMenu(page, '/learning-accounts');

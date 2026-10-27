@@ -513,10 +513,11 @@ export function AssignmentScreen({ activityId, onBack }: { activityId: string; o
       .catch((error: unknown) => setMessage({ tone: 'danger', text: messageOf(error) }));
   }, [activityId]);
   useEffect(load, [load]);
-  const run = async (action: () => Promise<unknown>, done: string) => {
+  // Thông báo khi xong: chữ cố định, hoặc hàm đọc kết quả của thao tác (số bài đã trả)
+  const run = async <T,>(action: () => Promise<T>, done: string | ((result: T) => string)) => {
     try {
-      await action();
-      setMessage({ tone: 'success', text: done });
+      const result = await action();
+      setMessage({ tone: 'success', text: typeof done === 'string' ? done : done(result) });
       load();
     } catch (error) {
       setMessage({ tone: 'danger', text: messageOf(error) });
@@ -579,10 +580,10 @@ export function AssignmentScreen({ activityId, onBack }: { activityId: string; o
                 <Button
                   variant="primary"
                   onClick={() =>
-                    void run(async () => {
-                      const result = await requestJson<{ returned: number }>(`${base(activityId)}/return`, post({}));
-                      setMessage({ tone: 'success', text: `Đã trả ${result.returned} bài` });
-                    }, 'Đã trả các bài đã chấm')
+                    void run(
+                      () => requestJson<{ returned: number }>(`${base(activityId)}/return`, post({})),
+                      (result) => `Đã trả ${result.returned} bài`,
+                    )
                   }
                 >
                   Trả các bài đã chấm
