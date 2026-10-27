@@ -1,4 +1,4 @@
-import { Controller, Get, Headers, HttpCode, Param, Post, Query, Req, Res } from '@nestjs/common';
+import { Body, Controller, Get, Headers, HttpCode, Param, Post, Query, Req, Res } from '@nestjs/common';
 import { PERMISSION_CODES } from '@school-management/shared';
 import type { Request, Response } from 'express';
 import {
@@ -13,7 +13,7 @@ import { VideoRoomsService } from '../video/video-rooms.js';
 import { TutoringCoursesService } from './tutoring-courses.js';
 
 // Điểm cuối khoá học ghi sẵn của chương trình gia sư (DT-27 phần 27d1, YCTD-254): giáo viên dạy, Ban Giám hiệu tạo và xem khoá; cha
-// mẹ, học sinh xem bài video; phát video theo đoạn bằng đường dẫn ký ngắn hạn
+// mẹ, học sinh xem bài video; phát video theo đoạn bằng đường dẫn ký ngắn hạn; tiến độ (27d2, YCTD-261)
 const TEACH = PERMISSION_CODES.tutoringTeach;
 const MANAGE = PERMISSION_CODES.tutoringManage;
 
@@ -32,6 +32,13 @@ export class TutoringCoursesController {
   @RequirePermission(TEACH, MANAGE)
   course(@Param('id') id: string, @AuthenticatedUser() currentUser: CurrentUser) {
     return this.courses.course(currentUser, id);
+  }
+
+  // Tiến độ từng học sinh của khoá (27d2)
+  @Get('programs/:id/course/progress')
+  @RequirePermission(TEACH, MANAGE)
+  progress(@Param('id') id: string, @AuthenticatedUser() currentUser: CurrentUser) {
+    return this.courses.courseProgress(currentUser, id);
   }
 
   @Post('course-media/:activityId/link')
@@ -132,5 +139,18 @@ export class StudentTutoringCoursesController {
   ) {
     const childId = await this.video.studentChild(currentUser);
     return this.courses.mediaLink(currentUser, activityId, { childId, student: true }, originOf(request, currentUser));
+  }
+
+  // Trình phát báo phần trăm đã xem video (27d2)
+  @Post('course-media/:activityId/progress')
+  @HttpCode(200)
+  @RequirePermission(PERMISSION_CODES.learningStudy)
+  async progress(
+    @Param('activityId') activityId: string,
+    @Body() body: { percent?: unknown } | undefined,
+    @AuthenticatedUser() currentUser: CurrentUser,
+  ) {
+    const childId = await this.video.studentChild(currentUser);
+    return this.courses.reportProgress(currentUser, childId, activityId, body?.percent);
   }
 }

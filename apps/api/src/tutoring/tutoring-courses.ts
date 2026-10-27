@@ -1,7 +1,7 @@
 import { createHmac, timingSafeEqual } from 'node:crypto';
 import { Inject, Injectable } from '@nestjs/common';
 import type { SchoolYearDatabase } from '@school-management/database';
-import { ApplicationError, Clock, currentTenant } from '@school-management/server';
+import { ApplicationError, Clock, currentTenant, validationError } from '@school-management/server';
 import { PERMISSION_CODES } from '@school-management/shared';
 import type { Kysely, Transaction } from 'kysely';
 import type { CurrentUser } from '../authentication/current-user.js';
@@ -11,6 +11,8 @@ import { CurrentSchoolYearResolver } from '../common/current-school-year.js';
 import { Databases } from '../common/databases.js';
 import { notFoundError } from '../common/request-fields.js';
 import { FileStorage } from '../files/file-storage.js';
+import { isDone, summarizeProgress, type ResultStatus } from '../learning/learning-rules.js';
+import { LearningService } from '../learning/learning.js';
 import { assertTutoringModule } from './tutoring.js';
 
 // Khoá học ghi sẵn của chương trình gia sư, phần riêng của gia sư (DT-27 phần 27d1, YCTD-254; tài liệu 32 mục 19.5, YCTD-270).
@@ -21,12 +23,19 @@ import { assertTutoringModule } from './tutoring.js';
 // - phát video bài học (hoạt động `resource` của khoá trỏ tới học liệu 22h1 là tệp video đã công bố) theo đoạn (HTTP Range) bằng đường
 //   dẫn ký 5 phút do điểm cuối có đăng nhập cấp; mỗi lần cấp đường dẫn ghi nhật ký xem; trả `content-disposition: inline`, không lưu
 //   đệm, giao diện không có nút tải. Chuyển mã nhiều độ phân giải là tuỳ chọn, mặc định tắt: phát tệp gốc.
+// Phần 27d2 (YCTD-261, sau khi 28d gộp): tiến độ dùng kết quả hoạt động của 28b, 28d, không có bảng riêng:
+// - học sinh (kênh student) xem video thì trình phát báo phần trăm đã xem; kết quả của em ghi `activity_results` (phần trăm chỉ tăng,
+//   xem từ 90% thì hoàn thành nếu cách tính là "xem xong") và nhật ký học tập; xem video phải theo điều kiện mở của 28b;
+// - cha mẹ, học sinh thấy tiến độ của em trong khoá (hoạt động bắt buộc xong, quá hạn, từng bài, điểm); giáo viên dạy, Ban Giám hiệu
+//   thấy tiến độ từng học sinh của khoá (cùng cách tính với bảng tiến độ của 28d ở Học trực tuyến).
 type Database = Kysely<SchoolYearDatabase>;
 type Executor = Database | Transaction<SchoolYearDatabase>;
 
 const MANAGE = PERMISSION_CODES.tutoringManage;
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const LINK_SECONDS = 300;
+// Xem từ chừng này phần trăm video thì coi là xem xong (bỏ qua đoạn kết, phần giới thiệu cuối bài)
+const WATCHED_PERCENT = 90;
 
 // Đồng bộ ghi danh khoá theo đơn của chương trình: đơn được duyệt thì đang học, đơn khác thì gỡ (giữ lịch sử ghi danh của 28b)
 export async function syncTutoringCourseEnrollments(executor: Executor, programId: string, actorUserId: string | null) {
@@ -89,6 +98,7 @@ export class TutoringCoursesService {
     private readonly fileStorage: FileStorage,
     private readonly clock: Clock,
     @Inject(API_CONFIGURATION) private readonly configuration: ApiConfiguration,
+    private readonly learning: LearningService,
   ) {}
 
   private async database(): Promise<Database> {
@@ -274,7 +284,153 @@ export class TutoringCoursesService {
     return this.courseView(database, programId);
   }
 
-  private async courseView(database: Executor, programId: string) {
+  // Tiến độ từng học sinh của khoá cho giáo viên dạy, Ban Giám hiệu: hoạt động bắt buộc xong, quá hạn, phần trăm đã xem từng video
+  async courseProgress(currentUser: CurrentUser, programId: string) {
+    const database = await this.database();
+    await this.program(database, programId);
+    if (!currentUser.hasPermission(MANAGE) && !(await this.teaches(database, currentUser.id, programId))) {
+      throw new ApplicationError(
+        'ERR_FORBIDDEN',
+        'Chỉ giáo viên dạy chương trình hoặc Ban Giám hiệu xem tiến độ khoá học',
+      );
+    }
+    const link = await database
+      .selectFrom('tutoring_program_courses')
+      .select('course_space_id')
+      .where('program_id', '=', programId)
+      .executeTakeFirst();
+    if (!link) {
+      return { course_id: null, videos: [], students: [] };
+    }
+    const spaceId = link.course_space_id;
+    const [activities, students, videos] = await Promise.all([
+      database
+        .selectFrom('course_activities')
+        .select(['id', 'section_id', 'required', 'due_at'])
+        .where('space_id', '=', spaceId)
+        .where('status', '=', 'published')
+        .execute(),
+      database
+        .selectFrom('course_enrollments')
+        .innerJoin('children', 'children.id', 'course_enrollments.child_id')
+        .select(['children.id', 'children.full_name'])
+        .where('course_enrollments.space_id', '=', spaceId)
+        .where('course_enrollments.status', '=', 'active')
+        .orderBy('children.full_name')
+        .execute(),
+      this.mediaOf(database, spaceId),
+    ]);
+    const results =
+      activities.length === 0 || students.length === 0
+        ? []
+        : await database
+            .selectFrom('activity_results')
+            .select(['activity_id', 'child_id', 'status', 'progress', 'score'])
+            .where(
+              'activity_id',
+              'in',
+              activities.map((activity) => activity.id),
+            )
+            .where(
+              'child_id',
+              'in',
+              students.map((student) => student.id),
+            )
+            .execute();
+    const now = this.clock.now();
+    return {
+      course_id: spaceId,
+      videos: videos.map((video) => ({ activity_id: video.activity_id, title: video.title })),
+      students: students.map((student) => {
+        const own = results.filter((row) => row.child_id === student.id);
+        const byActivity = new Map(
+          own.map((row) => [row.activity_id, { ...row, score: row.score === null ? null : Number(row.score) }]),
+        );
+        return {
+          child_id: student.id,
+          full_name: student.full_name,
+          summary: summarizeProgress(activities, byActivity, now),
+          videos: Object.fromEntries(
+            videos.map((video) => {
+              const row = byActivity.get(video.activity_id);
+              return [video.activity_id, { status: row?.status ?? 'not_started', progress: row?.progress ?? 0 }];
+            }),
+          ),
+        };
+      }),
+    };
+  }
+
+  // Tiến độ của một em trong khoá (cha mẹ, học sinh): cùng cách tính với danh sách học của em ở 28b, thêm phần trăm đã xem video
+  private async childProgress(database: Executor, childId: string, spaceId: string, videoIds: string[]) {
+    const learning = await this.learning.learningOfChild(database, childId);
+    const space = learning.spaces.find((row) => row.id === spaceId);
+    const watched =
+      videoIds.length === 0
+        ? []
+        : await database
+            .selectFrom('activity_results')
+            .select(['activity_id', 'status', 'progress'])
+            .where('child_id', '=', childId)
+            .where('activity_id', 'in', videoIds)
+            .execute();
+    const byVideo = new Map(watched.map((row) => [row.activity_id, row]));
+    return {
+      summary: space?.summary ?? { required: 0, done: 0, overdue: 0, percent: 0 },
+      activities: (space?.sections ?? []).flatMap((section) =>
+        section.activities.map((activity) => ({
+          id: activity.id,
+          section_title: section.title,
+          title: activity.title,
+          kind_label: activity.kind_label,
+          required: activity.required,
+          due_at: activity.due_at,
+          open: activity.open,
+          status: activity.status,
+          score: activity.score,
+        })),
+      ),
+      videos: Object.fromEntries(
+        videoIds.map((id) => {
+          const row = byVideo.get(id);
+          return [id, { status: row?.status ?? 'not_started', progress: row?.progress ?? 0 }];
+        }),
+      ),
+    };
+  }
+
+  // Học sinh xem video: trình phát báo phần trăm đã xem; chỉ tăng, xem từ 90% thì hoàn thành (cách tính "xem xong"), ghi nhật ký học tập
+  async reportProgress(currentUser: CurrentUser, childId: string, activityId: string, percentValue: unknown) {
+    if (typeof percentValue !== 'number' || !Number.isInteger(percentValue) || percentValue < 0 || percentValue > 100) {
+      throw validationError([{ field: 'percent', message: 'Phần trăm đã xem là số nguyên từ 0 đến 100' }]);
+    }
+    const database = await this.database();
+    await this.mediaActivity(database, activityId);
+    const activity = await this.learning.openActivityForChild(database, childId, activityId);
+    const current = await database
+      .selectFrom('activity_results')
+      .select(['status', 'progress', 'score', 'level'])
+      .where('activity_id', '=', activityId)
+      .where('child_id', '=', childId)
+      .executeTakeFirst();
+    const before = current?.progress ?? 0;
+    if (current && (isDone(current.status) || current.status === 'failed' || percentValue <= before)) {
+      return { status: current.status, progress: before };
+    }
+    const progress = Math.max(before, percentValue);
+    const status: ResultStatus =
+      progress >= WATCHED_PERCENT && activity.completion_rule === 'view' ? 'completed' : 'in_progress';
+    await this.learning.writeResult(
+      database,
+      activity,
+      childId,
+      { status, progress, score: current?.score === undefined ? null : Number(current.score), level: current?.level },
+      { userId: currentUser.id, kind: 'student', verb: status === 'completed' ? 'completed' : 'progressed' },
+    );
+    return { status, progress };
+  }
+
+  private async courseView(database: Executor, programId: string, childId?: string) {
     const link = await database
       .selectFrom('tutoring_program_courses')
       .innerJoin('course_spaces', 'course_spaces.id', 'tutoring_program_courses.course_space_id')
@@ -290,9 +446,20 @@ export class TutoringCoursesService {
       .where('space_id', '=', link.id)
       .where('status', '=', 'active')
       .executeTakeFirstOrThrow();
+    const videos = await this.mediaOf(database, link.id);
     return {
       course: { id: link.id, title: link.title, enrolled: Number(enrolled.count) },
-      videos: await this.mediaOf(database, link.id),
+      videos,
+      ...(childId
+        ? {
+            progress: await this.childProgress(
+              database,
+              childId,
+              link.id,
+              videos.map((video) => video.activity_id),
+            ),
+          }
+        : {}),
     };
   }
 
@@ -300,7 +467,7 @@ export class TutoringCoursesService {
   async childCourse(currentUser: CurrentUser, childId: string, programId: string) {
     const database = await this.database();
     await this.assertGuardianEnrolled(database, currentUser, childId, programId);
-    return this.courseView(database, programId);
+    return this.courseView(database, programId, childId);
   }
 
   // Học sinh (kênh student): các khoá gia sư mình được ghi danh
@@ -319,7 +486,7 @@ export class TutoringCoursesService {
       result.push({
         program_id: program.id,
         program_name: program.name,
-        ...(await this.courseView(database, program.id)),
+        ...(await this.courseView(database, program.id, childId)),
       });
     }
     return result;
@@ -404,6 +571,21 @@ export class TutoringCoursesService {
       if (!enrolled) {
         throw new ApplicationError('ERR_FORBIDDEN', 'Học sinh chưa được ghi danh khoá học này');
       }
+      // 27d2: bài còn khoá theo điều kiện mở của 28b thì chưa xem được; mở xem ghi nhật ký học tập (hoàn thành khi xem đủ, không phải khi
+      // mở)
+      await this.learning.openActivityForChild(database, access.childId, activityId);
+      await database
+        .insertInto('learning_events')
+        .values({
+          space_id: activity.space_id,
+          activity_id: activityId,
+          child_id: access.childId,
+          actor_user_id: currentUser.id,
+          actor_kind: 'student',
+          verb: 'opened',
+          result: null,
+        })
+        .execute();
     } else {
       await this.assertGuardianEnrolled(database, currentUser, access.childId, activity.program_id);
     }
