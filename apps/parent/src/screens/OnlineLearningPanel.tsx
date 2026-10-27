@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Alert, Button } from '@school-management/ui';
 import { ApiError, requestJson } from '../session/api-client.js';
+import { ChildCommunicationPanel } from './ChildCommunicationPanel.js';
 import { ChildHomeworkPanel } from './ChildHomeworkPanel.js';
 
 // Học trực tuyến của con (DT-28 phần 28b, YCTD-272): các lớp học trực tuyến đã mở cho học sinh, hoạt động đã giao kèm hạn, trạng
@@ -195,6 +196,8 @@ export function OnlineLearningPanel({ child }: { child: { id: string; full_name:
           ))}
         </div>
       ))}
+      {/* Thông báo lớp, nhóm của con, lịch học tập (DT-28 phần 28e) */}
+      <ChildCommunicationPanel child={child} />
     </section>
   );
 }

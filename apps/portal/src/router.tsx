@@ -12,6 +12,7 @@ import { CourseTemplatesPage } from './learning/CourseTemplatesPage.js';
 import { OnlineClassesPage } from './learning/OnlineClassesPage.js';
 import { OnlineTeachingPage } from './learning/OnlineTeachingPage.js';
 import { OnlineLearningReportsPage } from './learning/OnlineLearningReportsPage.js';
+import { DiscussionSafetyPage } from './learning/DiscussionSafetyPage.js';
 import { HomeworkPage } from './learning/HomeworkPage.js';
 import { NotificationsPage } from './notifications/NotificationsPage.js';
 import { ApprovalThresholdsPage } from './catalogs/ApprovalThresholdsPage.js';
@@ -823,6 +824,8 @@ const routeTree = rootRoute.addChildren([
     path: '/online-learning-reports',
     component: OnlineLearningReportsPage,
   }),
+  // An toàn thảo luận (DT-28 phần 28e)
+  createRoute({ getParentRoute: () => rootRoute, path: '/online-discussion-safety', component: DiscussionSafetyPage }),
   // Bài về nhà (DT-28 phần 28f)
   createRoute({ getParentRoute: () => rootRoute, path: '/online-homework', component: HomeworkPage }),
 ]);

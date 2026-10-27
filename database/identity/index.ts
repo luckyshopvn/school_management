@@ -82,6 +82,7 @@ import { migration as createExternalIdentities } from './migrations/0140_create_
 import { migration as addTutoringPermissions } from './migrations/0172_add_tutoring_permissions.js';
 import { migration as addLearningPermissions } from './migrations/0180_add_learning_permissions.js';
 import { migration as addAssignmentPermissions } from './migrations/0181_add_assignment_permissions.js';
+import { migration as addDiscussionPermissions } from './migrations/0182_add_discussion_permissions.js';
 
 // Danh sách tệp thay đổi cấu trúc của cơ sở dữ liệu định danh, theo số thứ tự (QU-01)
 export const identityMigrations: Record<string, Migration> = {
@@ -174,4 +175,6 @@ export const identityMigrations: Record<string, Migration> = {
   '0180_add_learning_permissions': addLearningPermissions,
   // Bài tập trực tuyến (DT-28 phần 28c): 0181
   '0181_add_assignment_permissions': addAssignmentPermissions,
+  // Giao tiếp trong lớp và nhóm (DT-28 phần 28e): 0182
+  '0182_add_discussion_permissions': addDiscussionPermissions,
 };

@@ -532,6 +532,9 @@ import { AssignmentsService } from './learning/assignments/assignments.js';
 import { StudentAssignmentsController } from './learning/assignments/student-assignments.controller.js';
 import { LearningProgressController } from './learning/progress/progress.controller.js';
 import { LearningProgressService } from './learning/progress/progress.js';
+import { DiscussionsController } from './learning/discussions/discussions.controller.js';
+import { DiscussionsService } from './learning/discussions/discussions.js';
+import { StudentDiscussionsController } from './learning/discussions/student-discussions.controller.js';
 import { HomeworkController } from './learning/homework/homework.controller.js';
 import { HomeworkPolicyGate } from './learning/homework/homework-policy.js';
 import { HomeworkService } from './learning/homework/homework.js';
@@ -851,6 +854,9 @@ export class ApplicationModule {
         VideoWebhookController,
         // Tiến độ, bảng điểm hoạt động, sổ điểm, báo cáo (DT-28 phần 28d)
         LearningProgressController,
+        // Giao tiếp trong lớp và nhóm (DT-28 phần 28e)
+        DiscussionsController,
+        StudentDiscussionsController,
         // Bài về nhà và phụ huynh (DT-28 phần 28f)
         HomeworkController,
       ],
@@ -1283,6 +1289,8 @@ export class ApplicationModule {
         VideoJobs,
         // Tiến độ, bảng điểm hoạt động, sổ điểm, báo cáo (DT-28 phần 28d)
         LearningProgressService,
+        // Giao tiếp trong lớp và nhóm (DT-28 phần 28e)
+        DiscussionsService,
         // Bài về nhà và phụ huynh (DT-28 phần 28f)
         HomeworkPolicyGate,
         HomeworkService,

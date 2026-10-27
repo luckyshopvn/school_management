@@ -40,6 +40,8 @@ export * from './online-exams.js';
 export * from './tutoring.js';
 export * from './tutoring-fees.js';
 export * from './video.js';
+// Lọc thông tin liên lạc ở thảo luận của học sinh (DT-28 phần 28e)
+export * from './contact-filter.js';
 
 export const API_VERSION_PREFIX = '/api/v1';
 
@@ -316,6 +318,8 @@ export const PERMISSION_CODES = {
   learningStudy: 'P02.learning.study',
   // Bài tập trực tuyến (DT-28 phần 28c)
   assignmentManage: 'P02.assignment.manage',
+  // Giao tiếp trong lớp và nhóm (DT-28 phần 28e)
+  discussionModerate: 'P02.discussion.moderate',
   // Thi trực tuyến cho học sinh (DT-23 phần 23a): giao đề, theo dõi, chấm (giáo viên); làm bài (học sinh, kênh student)
   examAssign: 'P02.exam.assign',
   examTake: 'P02.exam.take',
@@ -710,6 +714,8 @@ export const PORTAL_QUICK_LINK_PATHS = [
   '/online-teaching',
   // Tiến độ, báo cáo học tập trực tuyến (DT-28 phần 28d)
   '/online-learning-reports',
+  // An toàn thảo luận (DT-28 phần 28e)
+  '/online-discussion-safety',
   // Bài về nhà: quy tắc của trường, khối lượng theo lớp (DT-28 phần 28f)
   '/online-homework',
   // Gia sư trong trường (DT-27 phần 27b)

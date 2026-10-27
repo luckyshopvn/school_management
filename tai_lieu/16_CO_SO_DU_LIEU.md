@@ -936,6 +936,23 @@ Năm học `0180_add_activity_sources`: ràng buộc `score_entries_source_check
 
 Hai mục cấu hình của Trường chính ở `settings`: `learning_gradebook_enabled` (mặc định bật) và `learning_weekly_summary_enabled` (mặc định tắt).
 
+## 18K. Giao tiếp trong lớp và nhóm (DT-28 phần 28e, YCTD-275)
+
+Tám bảng ở cơ sở dữ liệu năm học (tệp `0182_create_discussions`, `0183_create_group_workspaces`, `0184_create_discussion_controls`); định danh `0182_add_discussion_permissions`.
+
+| Bảng | Mục đích | Cột chính |
+|---|---|---|
+| discussion_threads (từ YCTD-275) | Chủ đề: thông báo lớp, diễn đàn, hỏi đáp, bảng tin nhóm (BR-340, BR-341) | id, scope (`course_space`, `group`), space_id hoặc group_id, kind (`announcement`, `forum`, `question`, `group_board`), title (1 đến 200 ký tự), body (1 đến 5.000), section_id, activity_id, private, status (`open`, `locked`), accepted_post_id, author_user_id, author_name, author_kind (`teacher`, `student`, `staff`), author_child_id, flags (phát hiện của bộ lọc), hidden_at, hidden_by, last_post_at, created_at, updated_at |
+| discussion_posts (từ YCTD-275) | Trả lời một tầng | id, thread_id, body, author_user_id, author_name, author_kind, author_child_id, flags, hidden_at, hidden_by, created_at |
+| discussion_reports (từ YCTD-275) | Hàng chờ báo cáo vi phạm (BR-344) | id, thread_id, post_id, source (`report`, `filter`), reason, reporter_user_id, reporter_kind, status (`open`, `resolved`, `dismissed`), due_at, resolution, resolved_by, resolved_by_name, resolved_at, created_at |
+| group_tasks (từ YCTD-275) | Việc của nhóm (BR-342) | id, group_id, title, assignee_child_id, due_on, status (`todo`, `doing`, `done`), created_by, created_by_name, created_at, updated_at |
+| group_notes (từ YCTD-275) | Ghi chú chung có phiên bản | id, group_id, version (duy nhất theo nhóm), content (tối đa 20.000 ký tự), edited_by, edited_by_name, created_at |
+| group_files (từ YCTD-275) | Tệp chung của nhóm | id, group_id, file_name, content_type, size_bytes, storage_key, uploaded_by, uploaded_by_name, hidden_at, created_at |
+| discussion_space_settings (từ YCTD-275) | Cài đặt thảo luận của lớp học trực tuyến | space_id (khóa chính), students_can_post_topics, updated_by, updated_at |
+| discussion_write_bans (từ YCTD-275) | Tạm khóa quyền viết của học sinh | id, child_id, until, reason, report_id, created_by, created_by_name, created_at |
+
+Hai mục cấu hình của Trường chính ở `settings`: `discussion_open_hours` (khung giờ `school_days`, `weekend` dạng HH:MM; chưa đặt là không giới hạn, GD-144) và `discussion_blocked_words` (mảng từ ngữ).
+
 ## 18L. Bài về nhà và phụ huynh (DT-28 phần 28f, YCTD-276)
 
 Cơ sở dữ liệu năm học, tệp `0185_create_homework_policies`, `0186_create_homework_reminders`.
