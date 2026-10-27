@@ -74,6 +74,11 @@ x-api-environment: &api-environment
   S3_BUCKET: ${S3_BUCKET:-school-files}
   S3_ACCESS_KEY_ID: ${S3_ACCESS_KEY_ID:?Thiếu S3_ACCESS_KEY_ID}
   S3_SECRET_ACCESS_KEY: ${S3_SECRET_ACCESS_KEY:?Thiếu S3_SECRET_ACCESS_KEY}
+  # Giám thị camera cho thi trực tuyến (DT-23 phần 23e): máy chủ ICE cấp cho trình duyệt; trống thì chỉ kết nối trực tiếp
+  STUN_URLS: ${STUN_URLS:-}
+  TURN_URLS: ${TURN_URLS:-}
+  TURN_SHARED_SECRET: ${TURN_SHARED_SECRET:-}
+  TURN_TTL_SECONDS: ${TURN_TTL_SECONDS:-14400}
   PAYMENT_GATEWAY: ${PAYMENT_GATEWAY:-}
   PAYOS_CLIENT_ID: ${PAYOS_CLIENT_ID:-}
   PAYOS_API_KEY: ${PAYOS_API_KEY:-}
@@ -273,6 +278,30 @@ services:
       timeout: 5s
       retries: 10
       start_period: 20s
+    logging: *logging
+
+  # Máy chủ chuyển tiếp WebRTC coturn tự host (DT-23 phần 23e, YCTD-215; dùng chung về sau cho 27a): giúp trình duyệt giáo viên
+  # và học sinh nối với nhau khi tường lửa chặn kết nối trực tiếp. Hình xem trực tiếp đi qua đây ở dạng mã hoá (DTLS-SRTP),
+  # coturn không lưu hình. Tuỳ chọn: bật bằng COMPOSE_PROFILES=coturn và đặt STUN_URLS, TURN_URLS, TURN_SHARED_SECRET,
+  # TURN_EXTERNAL_IP; chạy ở mạng của máy chủ (network_mode host) để mở dải cổng chuyển tiếp UDP, xem deploy/coturn/turnserver.conf
+  coturn:
+    image: coturn/coturn:4.6.2
+    profiles: ['coturn']
+    restart: unless-stopped
+    network_mode: host
+    environment:
+      TURN_SHARED_SECRET: ${TURN_SHARED_SECRET:-}
+      TURN_REALM: ${TURN_REALM:-school.local}
+      TURN_EXTERNAL_IP: ${TURN_EXTERNAL_IP:-}
+    entrypoint:
+      - /bin/sh
+      - -c
+      - >-
+        { [ -n "$$TURN_SHARED_SECRET" ] && [ -n "$$TURN_EXTERNAL_IP" ] || { echo "Cần đặt TURN_SHARED_SECRET và TURN_EXTERNAL_IP" >&2; exit 1; }; } &&
+        exec turnserver -c /etc/coturn/turnserver.conf --static-auth-secret="$$TURN_SHARED_SECRET"
+        --realm="$$TURN_REALM" --external-ip="$$TURN_EXTERNAL_IP"
+    volumes:
+      - ${COTURN_CONFIG:-../../coturn/turnserver.conf}:/etc/coturn/turnserver.conf:ro
     logging: *logging
 
   # Thay đổi cấu trúc chạy trước, nối thẳng PostgreSQL (không qua PgBouncer); quy tắc tương thích lùi để bản cũ còn chạy

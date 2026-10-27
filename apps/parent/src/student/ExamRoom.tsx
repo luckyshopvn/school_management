@@ -1,7 +1,16 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { createFaceWatch, PROCTOR_EVENT_LABELS } from '@school-management/shared';
 import { Alert, Button } from '@school-management/ui';
-import { createFaceCounter, enterFullscreen, leaveFullscreen, openCamera, stopStream } from './proctoring.js';
+import {
+  createFaceCounter,
+  enterFullscreen,
+  leaveFullscreen,
+  openCamera,
+  startLiveResponder,
+  startRecorder,
+  stopStream,
+  type Recorder,
+} from './proctoring.js';
 import {
   readResult,
   reportEvents,
@@ -154,6 +163,8 @@ export function ExamRoom({
   const [submitting, setSubmitting] = useState(false);
   const [cameraNote, setCameraNote] = useState<string>();
   const [roomCode, setRoomCode] = useState('');
+  const [noticeRead, setNoticeRead] = useState(false);
+  const [watching, setWatching] = useState(0);
   const [result, setResult] = useState<AttemptResult | null>(null);
 
   const attemptRef = useRef<AttemptView | undefined>(undefined);
@@ -162,6 +173,7 @@ export function ExamRoom({
   const deadlineRef = useRef(0);
   const clockOffset = useRef(0);
   const streamRef = useRef<MediaStream | null>(null);
+  const recorderRef = useRef<Recorder | null>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const lastEvent = useRef<Record<string, number>>({});
   const finishing = useRef(false);
@@ -169,6 +181,8 @@ export function ExamRoom({
   const [saveTick, setSaveTick] = useState(0);
 
   const stopEverything = useCallback(() => {
+    void recorderRef.current?.stop();
+    recorderRef.current = null;
     stopStream(streamRef.current);
     streamRef.current = null;
     void leaveFullscreen();
@@ -206,6 +220,8 @@ export function ExamRoom({
   }, []);
 
   // Vào làm: xin toàn màn hình và camera ngay trong thao tác bấm nút (trình duyệt chỉ cho khi học sinh chủ động), rồi mở lượt
+  const proctored = assignment.proctor_live || assignment.proctor_record;
+
   async function begin() {
     setErrorMessage(undefined);
     setStage('starting');
@@ -219,6 +235,7 @@ export function ExamRoom({
         assignment.id,
         camera.state,
         assignment.exam_mode === 'at-school' ? roomCode.trim() : null,
+        proctored && noticeRead,
       );
       streamRef.current = camera.stream;
       applyAttempt(view);
@@ -256,6 +273,10 @@ export function ExamRoom({
       setSubmitting(true);
       setConfirmSubmit(false);
       try {
+        // Đoạn bản ghi cuối phải lên máy chủ trước khi nộp (nộp rồi máy chủ không nhận thêm)
+        const recorder = recorderRef.current;
+        recorderRef.current = null;
+        await recorder?.stop();
         const outcome = await submitAttempt(current.id, answersRef.current);
         dirty.current.clear();
         stopEverything();
@@ -402,6 +423,32 @@ export function ExamRoom({
     };
   }, [stage, report]);
 
+  // Giám thị camera (23e): trả lời phiên xem trực tiếp của giáo viên và ghi hình từng đoạn ngắn; hình đi thẳng tới giáo viên
+  // (WebRTC), máy chủ chỉ chuyển thông điệp báo hiệu
+  useEffect(() => {
+    const stream = streamRef.current;
+    if (stage !== 'running' || !stream || !attempt || !attempt.policy.proctor_live) {
+      return undefined;
+    }
+    const responder = startLiveResponder(attempt.id, stream, setWatching);
+    return () => {
+      responder.stop();
+      setWatching(0);
+    };
+  }, [stage, attempt]);
+
+  useEffect(() => {
+    const stream = streamRef.current;
+    if (stage !== 'running' || !stream || !attempt || !attempt.policy.proctor_record || recorderRef.current) {
+      return undefined;
+    }
+    const recorder = startRecorder(attempt.id, stream, () =>
+      setCameraNote('Không ghi hình được trên máy này hoặc đường truyền chưa ổn; giáo viên sẽ được báo để xem xét.'),
+    );
+    recorderRef.current = recorder;
+    return undefined;
+  }, [stage, attempt]);
+
   // Lưu nháp từng câu: gom các câu vừa sửa, gửi sau một nhịp ngắn; lỗi mạng thì giữ lại và thử lại, bài vẫn làm tiếp được
   useEffect(() => {
     if (stage !== 'running' || dirty.current.size === 0) {
@@ -509,12 +556,26 @@ export function ExamRoom({
                 xem; quá số lần cho phép, bài có thể bị đánh dấu hoặc tự nộp.
               </li>
             ) : null}
-            {assignment.camera_enabled ? (
+            {assignment.camera_enabled && !proctored ? (
               <li>
                 Camera được dùng để kiểm tra có em trong khung hình và không có người khác.{' '}
                 <strong>Hình chỉ được xử lý ngay trên máy của em, không gửi hình hay video lên máy chủ</strong>; máy chủ
                 chỉ ghi loại sự kiện (ví dụ không thấy mặt) và thời điểm. Giáo viên dùng sự kiện để xem xét, hệ thống
                 không tự trừ điểm.
+              </li>
+            ) : null}
+            {assignment.camera_enabled && proctored ? (
+              <li>
+                Bài thi này có giám sát bằng camera. Máy của em kiểm tra có em trong khung hình và không có người khác
+                (hình xử lý ngay trên máy, máy chủ chỉ ghi loại sự kiện và thời điểm)
+                {assignment.proctor_live
+                  ? '; giáo viên coi thi có thể xem hình camera của em trực tiếp trong lúc thi, mỗi lần xem đều được ghi lại, và khi có người xem em sẽ thấy dòng thông báo trên màn hình'
+                  : ''}
+                {assignment.proctor_record
+                  ? '; hình camera được ghi lại, lưu mã hoá và tự xoá sau thời hạn của nhà trường, chỉ giáo viên giao bài và người quản lý xem lại, không ai tải xuống được'
+                  : ''}
+                . Em không bị nhận diện danh tính bằng khuôn mặt. Hệ thống không tự trừ điểm vì sự kiện camera; giáo
+                viên xem xét.
               </li>
             ) : null}
             <li>Một bài chỉ làm ở một phiên đăng nhập; đăng nhập thêm ở máy khác sẽ bị ghi lại.</li>
@@ -540,10 +601,25 @@ export function ExamRoom({
             />
           </label>
         ) : null}
+        {proctored ? (
+          <label className="flex items-start gap-2 text-body text-text">
+            <input
+              type="checkbox"
+              aria-label="Em đã đọc thông báo giám sát bằng camera"
+              checked={noticeRead}
+              onChange={(event) => setNoticeRead(event.target.checked)}
+            />
+            <span>Em đã đọc thông báo giám sát bằng camera ở trên và đồng ý làm bài trong điều kiện đó.</span>
+          </label>
+        ) : null}
         <Button
           variant="primary"
           onClick={() => void begin()}
-          disabled={stage === 'starting' || (assignment.exam_mode === 'at-school' && roomCode.length !== 6)}
+          disabled={
+            stage === 'starting' ||
+            (assignment.exam_mode === 'at-school' && roomCode.length !== 6) ||
+            (proctored && !noticeRead)
+          }
         >
           {stage === 'starting' ? 'Đang vào bài…' : resume ? 'Làm tiếp bài' : 'Bắt đầu làm bài'}
         </Button>
@@ -587,6 +663,11 @@ export function ExamRoom({
         {notice ? <Alert tone="warning">{notice}</Alert> : null}
         {errorMessage ? <Alert tone="danger">{errorMessage}</Alert> : null}
         {cameraNote ? <Alert tone="info">{cameraNote}</Alert> : null}
+        {watching > 0 ? (
+          <p role="status" aria-live="polite" className="text-label font-medium text-text">
+            Giáo viên coi thi đang xem camera của em ({watching}).
+          </p>
+        ) : null}
         {violations > 0 ? (
           <p className="text-label text-text-secondary" aria-live="polite">
             Số lần rời bài đã ghi: {violations}/{attempt.policy.max_violations}
