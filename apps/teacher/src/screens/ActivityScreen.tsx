@@ -185,7 +185,7 @@ export function ActivityScreen({ myClass, onBack }: { myClass: MyClass & { org_u
   return (
     <div className="min-h-screen bg-page">
       <ApplicationHeader title={`Hoạt động lớp ${myClass.name}`} />
-      <main className="mx-auto flex max-w-xl flex-col gap-4 p-4">
+      <main className="mx-auto flex max-w-xl flex-col md:max-w-3xl gap-4 p-4">
         <div>
           <Button variant="text" onClick={onBack}>
             Quay lại

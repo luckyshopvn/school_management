@@ -266,7 +266,8 @@ function LessonForm({ lesson, date, onDone }: { lesson: MyLesson; date: string; 
   );
 }
 
-export function ClassLogScreen({ onBack }: { onBack(): void }) {
+// `embedded`: đặt trong khung phải của chế độ lớp học (DT-26 phần 26d), bỏ đầu trang
+export function ClassLogScreen({ onBack, embedded = false }: { onBack(): void; embedded?: boolean }) {
   const [date, setDate] = useState(todayInVietnam());
   const [lessons, setLessons] = useState<MyLesson[]>();
   const [opened, setOpened] = useState<MyLesson>();
@@ -281,14 +282,18 @@ export function ClassLogScreen({ onBack }: { onBack(): void }) {
   useEffect(load, [load]);
 
   return (
-    <div className="min-h-screen">
-      <ApplicationHeader title="Sổ đầu bài" />
-      <main className="mx-auto flex max-w-md flex-col gap-4 px-4 py-6">
-        <div>
-          <Button variant="text" onClick={opened ? () => setOpened(undefined) : onBack}>
-            Quay lại
-          </Button>
-        </div>
+    <div className={embedded ? undefined : 'min-h-screen'}>
+      {embedded ? null : <ApplicationHeader title="Sổ đầu bài" />}
+      <main
+        className={embedded ? 'flex flex-col gap-4' : 'mx-auto flex max-w-md flex-col md:max-w-3xl gap-4 px-4 py-6'}
+      >
+        {embedded && !opened ? null : (
+          <div>
+            <Button variant="text" onClick={opened ? () => setOpened(undefined) : onBack}>
+              Quay lại
+            </Button>
+          </div>
+        )}
         {doneMessage ? <Alert tone="success">{doneMessage}</Alert> : null}
         {errorMessage ? <Alert tone="danger">{errorMessage}</Alert> : null}
         {opened ? (

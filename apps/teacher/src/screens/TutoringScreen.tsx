@@ -84,7 +84,7 @@ export function TutoringScreen({ onBack }: { onBack(): void }) {
   return (
     <div className="min-h-screen">
       <ApplicationHeader title="Gia sư trong trường" />
-      <main className="mx-auto flex max-w-md flex-col gap-4 px-4 py-6">
+      <main className="mx-auto flex max-w-md flex-col gap-4 px-4 py-6 md:max-w-3xl">
         <div>
           <Button variant="text" onClick={open ? () => setOpen(undefined) : onBack}>
             Quay lại

@@ -312,37 +312,42 @@ export function HomeScreen() {
   return (
     <div className="min-h-screen">
       <ApplicationHeader title="Ứng dụng phụ huynh" />
-      <main className="mx-auto flex max-w-md flex-col gap-4 px-4 py-6">
-        {failed ? <Alert tone="danger">Không tải được thông tin, vui lòng thử lại</Alert> : null}
-        {user ? (
-          <h1 className="text-page-title font-bold text-text">Xin chào, {user.full_name}</h1>
-        ) : (
-          <div className="h-8 w-48 animate-pulse rounded bg-border" aria-hidden="true" />
-        )}
-        {notice ? <Alert tone="success">{notice}</Alert> : null}
-        {/* Mời cài lên màn hình chính (DT-26 phần 26a) */}
-        <InstallPrompt applicationName="ứng dụng phụ huynh" />
-        <NotificationsPanel />
-        {/* Bật, tắt thông báo đẩy và chọn nhóm (DT-26 phần 26b) */}
-        <PushSettingsPanel application="parent" base={import.meta.env.BASE_URL} request={requestJson} />
-        <PickupConfirmations />
-        <PollsPanel />
-        {children && children.length === 0 ? (
-          <p className="text-content text-text-secondary">Chưa có thông tin của con.</p>
-        ) : null}
-        <ul className="flex flex-col gap-3">
-          {(children ?? []).map((child) => (
-            <ChildCard
-              key={child.id}
-              child={child}
-              levelName={multiLevel ? levelName(child.school_level) : undefined}
-              onMessage={setNotice}
-            />
-          ))}
-        </ul>
-        <ExternalLinksPanel request={externalRequest} basePath={import.meta.env.BASE_URL} />
-        <div>
-          <Button onClick={() => void session.logout()}>Đăng xuất</Button>
+      {/* Máy tính bảng (DT-26 phần 26d): hai cột, trái là thông báo, đón trả, khảo sát; phải là thẻ của từng con; điện thoại một cột */}
+      <main className="mx-auto flex max-w-md flex-col gap-4 px-4 py-6 md:grid md:max-w-5xl md:grid-cols-2 md:items-start lg:max-w-6xl lg:grid-cols-[minmax(0,2fr)_minmax(0,3fr)]">
+        <div className="flex flex-col gap-4">
+          {failed ? <Alert tone="danger">Không tải được thông tin, vui lòng thử lại</Alert> : null}
+          {user ? (
+            <h1 className="text-page-title font-bold text-text">Xin chào, {user.full_name}</h1>
+          ) : (
+            <div className="h-8 w-48 animate-pulse rounded bg-border" aria-hidden="true" />
+          )}
+          {notice ? <Alert tone="success">{notice}</Alert> : null}
+          {/* Mời cài lên màn hình chính (DT-26 phần 26a) */}
+          <InstallPrompt applicationName="ứng dụng phụ huynh" />
+          <NotificationsPanel />
+          {/* Bật, tắt thông báo đẩy và chọn nhóm (DT-26 phần 26b) */}
+          <PushSettingsPanel application="parent" base={import.meta.env.BASE_URL} request={requestJson} />
+          <PickupConfirmations />
+          <PollsPanel />
+        </div>
+        <div className="flex flex-col gap-4">
+          {children && children.length === 0 ? (
+            <p className="text-content text-text-secondary">Chưa có thông tin của con.</p>
+          ) : null}
+          <ul className="flex flex-col gap-3">
+            {(children ?? []).map((child) => (
+              <ChildCard
+                key={child.id}
+                child={child}
+                levelName={multiLevel ? levelName(child.school_level) : undefined}
+                onMessage={setNotice}
+              />
+            ))}
+          </ul>
+          <ExternalLinksPanel request={externalRequest} basePath={import.meta.env.BASE_URL} />
+          <div>
+            <Button onClick={() => void session.logout()}>Đăng xuất</Button>
+          </div>
         </div>
       </main>
     </div>
