@@ -27,11 +27,13 @@ test.afterAll(async () => {
   await database.destroy();
 });
 
+// Vùng chạm 44 px, chữ ô nhập 16 px chỉ áp dưới 1280 px; từ 1280 px giữ bố cục máy tính nên chỉ kiểm cuộn ngang và axe
 async function deviceViolations(page: Page) {
+  const touchLayout = (page.viewportSize()?.width ?? 1280) < 1280;
   return [
     ...(await horizontalOverflowViolations(page)),
-    ...(await inputFontViolations(page)),
-    ...(await touchTargetViolations(page)),
+    ...(touchLayout ? await inputFontViolations(page) : []),
+    ...(touchLayout ? await touchTargetViolations(page) : []),
     ...(await accessibilityViolations(page)),
   ];
 }
