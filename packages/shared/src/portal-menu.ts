@@ -694,6 +694,7 @@ export const PORTAL_WORKSPACES: PortalWorkspace[] = [
       leaf('2.', 'Lịch buổi học, điểm danh', '/tutoring/sessions'),
       leaf('3.', 'Quyết định tăng thời lượng', '/tutoring/exemptions'),
       leaf('4.', 'Quy định dạy thêm', '/tutoring/rules'),
+      leaf('5.', 'Thu chi gia sư', '/tutoring/finance'),
     ],
   },
 ];

@@ -3,6 +3,7 @@ import { Injectable } from '@nestjs/common';
 import type { SchoolYearDatabase } from '@school-management/database';
 import { ApplicationError, Clock, currentTenant, validationError, type FieldError } from '@school-management/server';
 import {
+  feeRuleViolations,
   isModuleInPlan,
   isoWeekday,
   periodsForSession,
@@ -17,7 +18,10 @@ import {
   type TutoringAttendanceStatus,
   type TutoringAudience,
   type TutoringContentType,
+  type TutoringCancelRefund,
   type TutoringDelivery,
+  type TutoringFeeBasis,
+  type TutoringFundingSource,
   type TutoringRuleSet,
   type TutoringRuleViolation,
 } from '@school-management/shared';
@@ -30,6 +34,7 @@ import { notFoundError } from '../common/request-fields.js';
 import { storageKey } from '../common/resource-names.js';
 import { FileStorage } from '../files/file-storage.js';
 import { TimetablesService } from '../timetables/timetables.js';
+import { creditCancelledSession } from './tutoring-fees.js';
 
 // Gia sư trong trường (DT-27 phần 27b, YCTD-252; tài liệu 32 mục 19.2, 19.5): chương trình, buổi học lặp theo tuần, đơn đăng ký của
 // cha mẹ, điểm danh, quyết định tăng thời lượng của Sở, quy định dạy thêm có ngày hiệu lực. Mọi khóa của Thông tư 29/2024 sửa bởi
@@ -67,8 +72,8 @@ export function assertTutoringModule(): void {
   }
 }
 
-// Vi phạm quy định dạy thêm: báo lỗi quy tắc kèm mã từng dòng để giao diện và kiểm thử đối chiếu
-export function tutoringRuleError(violations: TutoringRuleViolation[]): ApplicationError {
+// Vi phạm quy định dạy thêm (và quy tắc thu phí, thù lao của 27c): báo lỗi quy tắc kèm mã từng dòng để giao diện và kiểm thử đối chiếu
+export function tutoringRuleError(violations: { code: string; message: string }[]): ApplicationError {
   return new ApplicationError(
     'ERR_RULE_VIOLATION',
     violations.map((violation) => violation.message).join('; '),
@@ -114,6 +119,30 @@ export interface ProgramInput {
   endsOn: string;
   classIds: string[];
   teacherUserIds: string[];
+  // Thu phí và thù lao (YCTD-253)
+  feeBasis: TutoringFeeBasis | null;
+  feeAmount: number | null;
+  cancelRefund: TutoringCancelRefund;
+  payRatePerPeriod: number | null;
+  fundingSource: TutoringFundingSource;
+  teacherPayRates: Record<string, number | null>;
+}
+
+const FEE_BASES: TutoringFeeBasis[] = ['per_session', 'per_program'];
+const CANCEL_REFUNDS: TutoringCancelRefund[] = ['deduct_next', 'adjust_invoice'];
+const FUNDING_SOURCES: TutoringFundingSource[] = ['school_budget', 'tutoring_fees'];
+
+// Số tiền tùy chọn: bỏ trống là không có; có thì là số (kiểm số nguyên dương ở hàm thuần)
+function optionalAmount(body: Body, field: string, errors: FieldError[]): number | null {
+  const value = body?.[field];
+  if (value === undefined || value === null || value === '') {
+    return null;
+  }
+  if (typeof value !== 'number' || !Number.isFinite(value)) {
+    errors.push({ field, message: 'Số tiền không hợp lệ' });
+    return null;
+  }
+  return value;
 }
 
 export function parseProgramInput(body: Body): ProgramInput {
@@ -168,7 +197,43 @@ export function parseProgramInput(body: Body): ProgramInput {
   ) {
     errors.push({ field: 'max_students', message: 'Sĩ số tối đa từ 1 đến 500' });
   }
+  const feeBasis =
+    body?.fee_basis === undefined || body.fee_basis === null || body.fee_basis === ''
+      ? null
+      : (body.fee_basis as TutoringFeeBasis);
+  if (feeBasis !== null && !FEE_BASES.includes(feeBasis)) {
+    errors.push({ field: 'fee_basis', message: 'Cách tính là theo buổi hoặc trọn gói' });
+  }
+  const cancelRefund = (body?.cancel_refund ?? 'deduct_next') as TutoringCancelRefund;
+  if (!CANCEL_REFUNDS.includes(cancelRefund)) {
+    errors.push({ field: 'cancel_refund', message: 'Cách xử lý buổi hủy không hợp lệ' });
+  }
+  const fundingSource = (body?.funding_source ?? 'school_budget') as TutoringFundingSource;
+  if (!FUNDING_SOURCES.includes(fundingSource)) {
+    errors.push({ field: 'funding_source', message: 'Nguồn chi thù lao không hợp lệ' });
+  }
+  const teacherPayRates: Record<string, number | null> = {};
+  const rawRates = body?.teacher_pay_rates;
+  if (rawRates !== undefined && rawRates !== null) {
+    if (typeof rawRates !== 'object' || Array.isArray(rawRates)) {
+      errors.push({ field: 'teacher_pay_rates', message: 'Đơn giá riêng của giáo viên không hợp lệ' });
+    } else {
+      for (const [teacherId, rate] of Object.entries(rawRates as Record<string, unknown>)) {
+        if (!UUID.test(teacherId) || (rate !== null && (typeof rate !== 'number' || !Number.isFinite(rate)))) {
+          errors.push({ field: 'teacher_pay_rates', message: 'Đơn giá riêng của giáo viên không hợp lệ' });
+          break;
+        }
+        teacherPayRates[teacherId] = rate as number | null;
+      }
+    }
+  }
   const input: ProgramInput = {
+    feeBasis,
+    feeAmount: optionalAmount(body, 'fee_amount', errors),
+    cancelRefund,
+    payRatePerPeriod: optionalAmount(body, 'pay_rate_per_period', errors),
+    fundingSource,
+    teacherPayRates,
     name,
     schoolLevel,
     subjectId,
@@ -404,6 +469,8 @@ export class TutoringService {
         'tutoring_programs.content_type',
         'tutoring_programs.audience',
         'tutoring_programs.charges_fee',
+        'tutoring_programs.fee_basis',
+        'tutoring_programs.fee_amount',
         'tutoring_programs.delivery',
         'tutoring_programs.status',
         'tutoring_programs.starts_on',
@@ -540,7 +607,13 @@ export class TutoringService {
   // Kiểm quy định của chương trình, lớp đúng cấp, giáo viên có trong phân công
   private async validateProgram(database: Executor, input: ProgramInput) {
     const rules = await this.ruleSet(database, input.startsOn);
-    const violations = programRuleViolations(input, rules);
+    // Nháp có thu được lưu khi chưa đặt giá; duyệt mới bắt buộc có giá (YCTD-253)
+    const violations = [
+      ...programRuleViolations(input, rules),
+      ...feeRuleViolations({ ...input, teacherPayRates: Object.values(input.teacherPayRates) }).filter(
+        (violation) => !(violation.code === 'fee_missing' && input.chargesFee),
+      ),
+    ];
     if (violations.length > 0) {
       throw tutoringRuleError(violations);
     }
@@ -603,6 +676,12 @@ export class TutoringService {
       audience: input.audience,
       // Dạy thêm môn học trong nhà trường luôn không thu tiền (đã kiểm ở trên, ghi lại cho chắc)
       charges_fee: input.contentType === 'curriculum' ? false : input.chargesFee,
+      // Giá chỉ có ở chương trình bổ trợ có thu; nguồn chi thù lao của `curriculum` luôn là kinh phí của trường (YCTD-253)
+      fee_basis: input.chargesFee ? input.feeBasis : null,
+      fee_amount: input.chargesFee ? input.feeAmount : null,
+      cancel_refund: input.cancelRefund,
+      pay_rate_per_period: input.payRatePerPeriod,
+      funding_source: input.contentType === 'curriculum' ? ('school_budget' as const) : input.fundingSource,
       delivery: input.delivery,
       description: input.description,
       registration_form: input.registrationForm,
@@ -631,6 +710,7 @@ export class TutoringService {
             program_id: saved.id,
             teacher_user_id: teacherId,
             teacher_name: names.get(teacherId) as string,
+            pay_rate_per_period: input.teacherPayRates[teacherId] ?? null,
           })),
         )
         .execute();
@@ -683,7 +763,7 @@ export class TutoringService {
     }
     if (action === 'approve') {
       // Duyệt lại theo quy định hiện hành (quy định có thể đổi sau khi lập)
-      const violations = programRuleViolations(
+      const violations: { code: string; message: string }[] = programRuleViolations(
         {
           contentType: program.content_type,
           chargesFee: program.charges_fee,
@@ -692,6 +772,22 @@ export class TutoringService {
           schoolLevel: program.school_level,
         },
         await this.ruleSet(database, dateText(program.starts_on)),
+      );
+      // Chương trình có thu phải có giá trước khi mở đăng ký; `curriculum` không có giá, nguồn chi là kinh phí trường (YCTD-253)
+      const money = await database
+        .selectFrom('tutoring_programs')
+        .select(['fee_basis', 'fee_amount', 'pay_rate_per_period', 'funding_source'])
+        .where('id', '=', id)
+        .executeTakeFirstOrThrow();
+      violations.push(
+        ...feeRuleViolations({
+          contentType: program.content_type,
+          chargesFee: program.charges_fee,
+          feeBasis: money.fee_basis,
+          feeAmount: money.fee_amount === null ? null : Number(money.fee_amount),
+          fundingSource: money.funding_source,
+          payRatePerPeriod: money.pay_rate_per_period === null ? null : Number(money.pay_rate_per_period),
+        }),
       );
       if (violations.length > 0) {
         throw tutoringRuleError(violations);
@@ -1095,17 +1191,35 @@ export class TutoringService {
     if (reason.length < 3) {
       throw validationError([{ field: 'reason', message: 'Ghi lý do hủy buổi' }]);
     }
+    // Buổi đã xác nhận điểm danh là buổi đã dạy (tính thù lao), không hủy được (YCTD-253)
+    const confirmed = await database
+      .selectFrom('tutoring_sessions')
+      .select('attendance_confirmed_at')
+      .where('id', '=', sessionId)
+      .executeTakeFirstOrThrow();
+    if (confirmed.attendance_confirmed_at) {
+      throw new ApplicationError('ERR_CONFLICT', 'Buổi đã xác nhận điểm danh là buổi đã dạy, không hủy được');
+    }
     await database.transaction().execute(async (transaction) => {
       await transaction
         .updateTable('tutoring_sessions')
         .set({ status: 'cancelled', cancel_reason: reason })
         .where('id', '=', sessionId)
         .execute();
+      // Buổi đã thu tiền thì lập khoản trừ: trừ kỳ sau hoặc kế toán điều chỉnh hóa đơn, hoàn theo cấu hình (YCTD-253)
+      const credited = await creditCancelledSession(transaction, {
+        sessionId,
+        programId: session.program_id,
+        reason: `Hủy buổi ${dateText(session.session_date)}: ${reason}`,
+        actorName: currentUser.description.full_name,
+      });
       await queueNotification(transaction, {
         orgUnitId: await this.rootOrgUnit(transaction),
         templateCode: 'tutoring_session_cancelled',
         title: `Hủy buổi ${session.program_name} ngày ${dateText(session.session_date)}`,
-        body: `${session.start_time}–${session.end_time}: ${reason}`,
+        body: `${session.start_time}–${session.end_time}: ${reason}${
+          credited > 0 ? '. Khoản đã thu cho buổi này được trừ vào kỳ sau hoặc hoàn theo quy định của trường' : ''
+        }`,
         targetType: 'tutoring_sessions',
         targetId: sessionId,
         recipients: await this.guardianRecipients(transaction, session.program_id),
@@ -1205,7 +1319,22 @@ export class TutoringService {
       database.selectFrom('tutoring_attendance').selectAll().where('session_id', '=', sessionId).execute(),
     ]);
     const byChild = new Map(rows.map((row) => [row.child_id, row]));
+    // Giáo viên của chương trình và người đã dạy buổi (chọn khi Ban Giám hiệu xác nhận thay, YCTD-253)
+    const [teachers, taught] = await Promise.all([
+      database
+        .selectFrom('tutoring_program_teachers')
+        .select(['teacher_user_id', 'teacher_name'])
+        .where('program_id', '=', session.program_id)
+        .execute(),
+      database
+        .selectFrom('tutoring_sessions')
+        .select('taught_by_user_id')
+        .where('id', '=', sessionId)
+        .executeTakeFirstOrThrow(),
+    ]);
     return {
+      teachers,
+      taught_by_user_id: taught.taught_by_user_id,
       session: { ...session, session_date: dateText(session.session_date) },
       students: registrants.map((child) => {
         const row = byChild.get(child.id);
@@ -1248,6 +1377,21 @@ export class TutoringService {
         });
         break;
       }
+    }
+    // Người dạy buổi (tính thù lao, YCTD-253): giáo viên của chương trình đang xác nhận; Ban Giám hiệu xác nhận thay thì chọn
+    // `taught_by_user_id`, chương trình chỉ có một giáo viên thì là giáo viên đó
+    const teachers = await database
+      .selectFrom('tutoring_program_teachers')
+      .select(['teacher_user_id', 'teacher_name'])
+      .where('program_id', '=', session.program_id)
+      .execute();
+    const requested = typeof body?.taught_by_user_id === 'string' ? body.taught_by_user_id : null;
+    const taughtBy =
+      teachers.find((teacher) => teacher.teacher_user_id === requested) ??
+      teachers.find((teacher) => teacher.teacher_user_id === currentUser.id) ??
+      (teachers.length === 1 ? teachers[0] : undefined);
+    if (!taughtBy) {
+      errors.push({ field: 'taught_by_user_id', message: 'Chọn giáo viên đã dạy buổi này' });
     }
     if (errors.length > 0) {
       throw validationError(errors);
@@ -1293,7 +1437,12 @@ export class TutoringService {
       }
       await transaction
         .updateTable('tutoring_sessions')
-        .set({ attendance_confirmed_at: now, attendance_confirmed_by_name: currentUser.description.full_name })
+        .set({
+          attendance_confirmed_at: now,
+          attendance_confirmed_by_name: currentUser.description.full_name,
+          taught_by_user_id: taughtBy?.teacher_user_id ?? null,
+          taught_by_name: taughtBy?.teacher_name ?? null,
+        })
         .where('id', '=', sessionId)
         .execute();
       if (notify.length > 0) {
@@ -1782,6 +1931,8 @@ export class TutoringService {
         'tutoring_programs.content_type',
         'tutoring_programs.audience',
         'tutoring_programs.charges_fee',
+        'tutoring_programs.fee_basis',
+        'tutoring_programs.fee_amount',
         'tutoring_programs.delivery',
         'tutoring_programs.description',
         'tutoring_programs.registration_form',

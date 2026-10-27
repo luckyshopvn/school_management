@@ -38,6 +38,7 @@ export * from './training.js';
 export * from './learning-resources.js';
 export * from './online-exams.js';
 export * from './tutoring.js';
+export * from './tutoring-fees.js';
 
 export const API_VERSION_PREFIX = '/api/v1';
 
@@ -711,6 +712,8 @@ export const PORTAL_QUICK_LINK_PATHS = [
   '/tutoring/sessions',
   '/tutoring/exemptions',
   '/tutoring/rules',
+  // Thu chi gia sư trong trường (DT-27 phần 27c)
+  '/tutoring/finance',
 ] as const;
 
 export type PortalQuickLinkPath = (typeof PORTAL_QUICK_LINK_PATHS)[number];
