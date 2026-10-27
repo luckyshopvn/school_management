@@ -59,7 +59,7 @@ export interface AiRequestRow {
   id: string;
   created_at: string;
   user_name: string;
-  kind: 'questions' | 'lesson_plan' | 'check';
+  kind: 'questions' | 'lesson_plan' | 'check' | 'feedback' | 'answer';
   school_level: string | null;
   grade_level_code: string | null;
   subject_name: string | null;
@@ -78,6 +78,8 @@ export const AI_KIND_LABELS: Record<AiRequestRow['kind'], string> = {
   questions: 'Soạn câu hỏi',
   lesson_plan: 'Soạn kế hoạch bài dạy',
   check: 'Kiểm tra kết nối',
+  feedback: 'Gợi ý nhận xét bài tập',
+  answer: 'Gợi ý trả lời câu hỏi (gia sư)',
 };
 export const AI_STATUS_LABELS: Record<AiRequestRow['status'], string> = {
   success: 'Thành công',

@@ -542,6 +542,12 @@ import { LearningProgressService } from './learning/progress/progress.js';
 import { DiscussionsController } from './learning/discussions/discussions.controller.js';
 import { DiscussionsService } from './learning/discussions/discussions.js';
 import { StudentDiscussionsController } from './learning/discussions/student-discussions.controller.js';
+import {
+  ChildTutoringQuestionsController,
+  StudentTutoringQuestionsController,
+  TutoringQuestionsController,
+} from './tutoring/tutoring-questions.controller.js';
+import { TutoringQuestionsService } from './tutoring/tutoring-questions.js';
 import { HomeworkController } from './learning/homework/homework.controller.js';
 import { HomeworkPolicyGate } from './learning/homework/homework-policy.js';
 import { HomeworkService } from './learning/homework/homework.js';
@@ -871,6 +877,10 @@ export class ApplicationModule {
         TutoringCourseMediaStreamController,
         ChildTutoringCoursesController,
         StudentTutoringCoursesController,
+        // Hỏi đáp bài tập của chương trình gia sư (DT-27 phần 27e)
+        TutoringQuestionsController,
+        ChildTutoringQuestionsController,
+        StudentTutoringQuestionsController,
         // Bài về nhà và phụ huynh (DT-28 phần 28f)
         HomeworkController,
         // Các phần ở src/dang-ky/, theo thứ tự tên tệp (YCTD-294)
@@ -1310,6 +1320,8 @@ export class ApplicationModule {
         DiscussionsService,
         // Khoá học ghi sẵn của chương trình gia sư (DT-27 phần 27d1)
         TutoringCoursesService,
+        // Hỏi đáp bài tập của chương trình gia sư (DT-27 phần 27e)
+        TutoringQuestionsService,
         // Bài về nhà và phụ huynh (DT-28 phần 28f)
         HomeworkPolicyGate,
         HomeworkService,

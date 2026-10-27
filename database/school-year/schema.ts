@@ -6591,6 +6591,8 @@ export interface TutoringProgramsTable {
   funding_source: Generated<TutoringFundingSource>;
   // Ghi hình lớp video của chương trình, cần đồng ý của cha mẹ (YCTD-251)
   recording_enabled: Generated<boolean>;
+  // Thời hạn trả lời câu hỏi bài tập (YCTD-255)
+  answer_hours: Generated<number>;
 }
 
 export type TutoringFeeBasis = 'per_session' | 'per_program';
@@ -7139,6 +7141,30 @@ export interface TutoringMediaViewsTable {
   viewed_at: CreatedTimestamp;
 }
 
+// Hỏi đáp bài tập của chương trình gia sư (DT-27 phần 27e, YCTD-255)
+export interface TutoringQuestionMarksTable {
+  thread_id: string;
+  child_id: string;
+  understood: boolean;
+  marked_at: Generated<Date>;
+}
+
+export interface TutoringAiAnswersTable {
+  post_id: string;
+  thread_id: string;
+  ai_request_id: string;
+  teacher_user_id: string;
+  created_at: CreatedTimestamp;
+}
+
+export interface TutoringAiConsentsTable {
+  child_id: string;
+  allowed: boolean;
+  decided_by_user_id: string;
+  decided_by_name: string;
+  decided_at: Generated<Date>;
+}
+
 // Bài về nhà và phụ huynh (DT-28 phần 28f, YCTD-276)
 export type HomeworkPolicyAction = 'warn' | 'block';
 export type HomeworkReminderKind = 'assigned' | 'due_soon' | 'missing' | 'returned';
@@ -7607,6 +7633,9 @@ export interface SchoolYearDatabase {
   video_recording_views: VideoRecordingViewsTable;
   tutoring_program_courses: TutoringProgramCoursesTable;
   tutoring_media_views: TutoringMediaViewsTable;
+  tutoring_question_marks: TutoringQuestionMarksTable;
+  tutoring_ai_answers: TutoringAiAnswersTable;
+  tutoring_ai_consents: TutoringAiConsentsTable;
   tutoring_room_events: TutoringRoomEventsTable;
   assignments: AssignmentsTable;
   assignment_variants: AssignmentVariantsTable;
