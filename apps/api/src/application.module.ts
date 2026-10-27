@@ -494,6 +494,12 @@ import { ZaloTokenStore } from './integrations/zalo-token-store.js';
 // Thi trực tuyến cho học sinh (DT-23 phần 23a)
 import { AttemptEngine } from './online-exams/attempt-engine.js';
 import { ExamRateLimiter } from './online-exams/exam-rate-limit.js';
+import { ExamProctoringJobs, ExamProctoringService } from './online-exams/exam-proctoring.js';
+import {
+  ExamProctoringController,
+  ParentProctorConsentsController,
+  StudentProctoringController,
+} from './online-exams/exam-proctoring.controller.js';
 import { OnlineExamsController } from './online-exams/online-exams.controller.js';
 import { OnlineExamsService } from './online-exams/online-exams.js';
 import { StudentExamsController } from './online-exams/student-exams.controller.js';
@@ -801,6 +807,9 @@ export class ApplicationModule {
         // Thi trực tuyến cho học sinh (DT-23 phần 23a)
         OnlineExamsController,
         StudentExamsController,
+        ExamProctoringController,
+        StudentProctoringController,
+        ParentProctorConsentsController,
         // Học sinh tự học ở lớp học trực tuyến (DT-28 phần 28b)
         StudentLearningController,
         // Gia sư trong trường (DT-27 phần 27b)
@@ -1211,6 +1220,8 @@ export class ApplicationModule {
         ExamRateLimiter,
         OnlineExamsService,
         StudentExamsService,
+        ExamProctoringService,
+        ExamProctoringJobs,
         // Thông báo đẩy Web Push (DT-26 phần 26b): bộ nối chọn theo PUSH_PROVIDER, chưa đặt thì không gửi đẩy
         PushSubscriptions,
         {

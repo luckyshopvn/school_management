@@ -26,6 +26,7 @@ import { AssessmentPanel } from './AssessmentPanel.js';
 import { ScorePanel } from './ScorePanel.js';
 import { PeriodAttendancePanel } from './PeriodAttendancePanel.js';
 import { LearningRecordPanel } from './LearningRecordPanel.js';
+import { ProctorConsentPanel } from './ProctorConsentPanel.js';
 import { TutoringPanel } from './TutoringPanel.js';
 import { hasLevelFeature, levelOf } from '@school-management/shared';
 import { useSchoolLevelNames } from './school-levels.js';
@@ -143,6 +144,7 @@ function ChildCard({
     | 'scores'
     | 'period-attendance'
     | 'learning-record'
+    | 'proctor-consent'
     | 'online-learning'
     | 'tutoring'
   >('none');
@@ -219,6 +221,11 @@ function ChildCard({
             Điểm danh theo tiết
           </Button>
         ) : null}
+        {has('learning_record') ? (
+          <Button onClick={() => setView(view === 'proctor-consent' ? 'none' : 'proctor-consent')}>
+            Giám sát thi trực tuyến
+          </Button>
+        ) : null}
         {has('online_learning') ? (
           <Button onClick={() => setView(view === 'online-learning' ? 'none' : 'online-learning')}>
             Học trực tuyến
@@ -252,6 +259,7 @@ function ChildCard({
       {view === 'scores' ? <ScorePanel child={child} /> : null}
       {view === 'period-attendance' ? <PeriodAttendancePanel child={child} month={month} /> : null}
       {view === 'learning-record' ? <LearningRecordPanel child={child} /> : null}
+      {view === 'proctor-consent' ? <ProctorConsentPanel child={child} /> : null}
       {view === 'online-learning' ? <OnlineLearningPanel child={child} /> : null}
       {errorMessage ? <Alert tone="danger">{errorMessage}</Alert> : null}
       {view === 'absence' ? (
