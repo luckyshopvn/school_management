@@ -34,6 +34,7 @@ import { notFoundError } from '../common/request-fields.js';
 import { storageKey } from '../common/resource-names.js';
 import { FileStorage } from '../files/file-storage.js';
 import { TimetablesService } from '../timetables/timetables.js';
+import { syncTutoringCourseEnrollments } from './tutoring-courses.js';
 import { creditCancelledSession } from './tutoring-fees.js';
 
 // Gia sư trong trường (DT-27 phần 27b, YCTD-252; tài liệu 32 mục 19.2, 19.5): chương trình, buổi học lặp theo tuần, đơn đăng ký của
@@ -1661,6 +1662,8 @@ export class TutoringService {
         before: { status: 'pending' },
         after: { status, reason },
       });
+      // Đơn được duyệt thì ghi danh vào khoá học ghi sẵn của chương trình (YCTD-254)
+      await syncTutoringCourseEnrollments(transaction, program.id, currentUser.id);
     });
     return { status };
   }
@@ -2125,6 +2128,13 @@ export class TutoringService {
         before: { status: registration.status },
         after: { status: 'withdrawn' },
       });
+      // Rút đơn thì gỡ học sinh khỏi khoá học ghi sẵn của chương trình (YCTD-254)
+      const program = await transaction
+        .selectFrom('tutoring_registrations')
+        .select('program_id')
+        .where('id', '=', registrationId)
+        .executeTakeFirstOrThrow();
+      await syncTutoringCourseEnrollments(transaction, program.program_id, currentUser.id);
     });
     return { status: 'withdrawn' };
   }

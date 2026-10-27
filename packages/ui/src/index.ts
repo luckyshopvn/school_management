@@ -39,3 +39,4 @@ export {
   type VideoJoinInfo,
   type VideoRecordingRow,
 } from './VideoRoom.js';
+export { LessonVideoList, type LessonVideo } from './LessonVideoList.js';
