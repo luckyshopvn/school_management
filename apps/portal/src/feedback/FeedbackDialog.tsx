@@ -1,6 +1,6 @@
 import { useEffect, useId, useRef, useState, type FormEvent, type ReactNode } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
-import { Alert, Button } from '@school-management/ui';
+import { Alert, Button, DIALOG_NARROW_FULL_SCREEN_CLASS } from '@school-management/ui';
 import { ApiError } from '../session/api-client.js';
 import { FEEDBACK_TYPE_LABELS, submitFeedback, type FeedbackInput, type FeedbackType } from './feedback-api.js';
 
@@ -110,7 +110,7 @@ export function FeedbackDialog({
         event.preventDefault();
         onClose();
       }}
-      className="m-auto w-full max-w-2xl rounded-xl border border-border bg-card p-6 text-text shadow-lg backdrop:bg-text/40"
+      className={`m-auto w-full max-w-2xl rounded-xl border border-border bg-card p-6 text-text shadow-lg backdrop:bg-text/40 ${DIALOG_NARROW_FULL_SCREEN_CLASS}`}
     >
       <form onSubmit={send} noValidate className="flex flex-col gap-4">
         <h2 id={titleId} className="text-section-title font-semibold">

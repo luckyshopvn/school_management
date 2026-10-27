@@ -2110,7 +2110,7 @@ Cỡ ước lượng (một phần của DT-16 là một đơn vị, chỉ để
 | 26b | 1 | Phần máy chủ đã làm (YCTD-232, phiên bản 0.148.0): kênh push, bộ nối, đăng ký, tuỳ chọn theo nhóm, khóa VAPID, spec 182. Phần giao diện (YCTD-239, phiên bản đề xuất 0.153.0): service worker chung nhận đẩy, hiện thông báo, chạm mở ứng dụng; khối "Cài đặt thông báo" ở ứng dụng giáo viên, phụ huynh, màn hình học sinh (bật, tắt trên máy, tắt theo nhóm, gỡ máy, hướng dẫn cài cho iPhone); đồng bộ đăng ký khi mở ứng dụng, thu hồi khi đăng xuất; e2e 187 |
 | 26c | 1 | Đã làm, YCTD-233, phiên bản 0.146.0, PR 188: dự án Playwright theo khổ thiết bị, nhãn `@thiet-bi`, bộ kiểm dùng chung, spec 180, việc CI `kiem-thu-thiet-bi`; vi phạm đo được ghi ở đường cơ sở cho 26d, 26e |
 | 26d | 2 | Đã làm, YCTD-234, phiên bản đề xuất 0.155.0: chế độ lớp học (lớp theo tiết đang dạy, điểm danh, sổ đầu bài, công cụ lớp học, trình chiếu, giữ màn hình sáng), trang chủ giáo viên hai khung, trang chủ phụ huynh hai cột, màn hình nới rộng từ 768 px; vùng chạm 44 px, chữ ô nhập 16 px, màu tương phản AA ở `index.css` của hai ứng dụng (không sửa `packages/ui`); e2e 183; gỡ vi phạm của 26d khỏi đường cơ sở của 26c |
-| 26e | 2 | Chưa làm; YCTD-235 giữ sẵn |
+| 26e | 2 | Đã làm, YCTD-235, phiên bản đề xuất 0.159.0: cổng quản trị dưới 1280 px menu ngăn kéo; cổng nền tảng thanh biểu tượng ở 768 đến 1279 px, ngăn kéo dưới 768 px; `DataGrid` cột đầu cố định và dạng thẻ dưới 768 px; hộp thoại toàn màn hình, nút Ghi dính đáy ở khổ hẹp; màu đủ tương phản ở bộ chủ đề; e2e 184; đường cơ sở của 26c rỗng |
 | 26f | 3 | Chưa làm; YCTD-236 giữ sẵn, bắt đầu khi DT-24, DT-25 đã gộp |
 | 26g | 3 | Chưa làm; YCTD-237 giữ sẵn |
 | 26h | 3 | Chưa làm; YCTD-238 giữ sẵn; phát hành cần các việc của Eric ở 18.10 |

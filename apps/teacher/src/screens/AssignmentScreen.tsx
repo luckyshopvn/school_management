@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { Alert, Button, FORM_CONTROL_CLASS, StatusBadge } from '@school-management/ui';
 import { ApiError, fetchWithSession, requestJson } from '../session/api-client.js';
 
@@ -317,9 +317,16 @@ function SubmissionView({
   const [note, setNote] = useState('');
   const [bank, setBank] = useState<Array<{ id: string; content: string }>>([]);
   const [message, setMessage] = useState<{ tone: 'success' | 'danger'; text: string }>();
+  // Chỉ nhận phản hồi của lần đọc mới nhất: hai lần đọc chồng nhau (StrictMode, đọc lại sau khi lưu) thì phản hồi đến muộn của lần
+  // trước không ghi đè điểm, nhận xét giáo viên vừa nhập
+  const loadToken = useRef(0);
   const load = useCallback(() => {
+    const token = ++loadToken.current;
     requestJson<SubmissionDetail>(`/api/v1/learning/submissions/${submissionId}`)
       .then((loaded) => {
+        if (token !== loadToken.current) {
+          return;
+        }
         setDetail(loaded);
         setMarks(loaded.submission.item_scores);
         setFeedback(loaded.submission.feedback ?? '');

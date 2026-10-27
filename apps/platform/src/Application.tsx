@@ -1,5 +1,6 @@
 import { useEffect, useState, type FormEvent } from 'react';
 import { PLATFORM_MENU } from './platform-menu.js';
+import { PlatformMenuIcon } from './platform-icons.js';
 import { SchoolsPage } from './SchoolsPage.js';
 import { PlansPage } from './PlansPage.js';
 import { BillingPage } from './BillingPage.js';
@@ -76,6 +77,31 @@ function Shell({ accessToken, onLogout }: { accessToken: string; onLogout: () =>
   const [profile, setProfile] = useState<OperatorProfile | null>(null);
   const [active, setActive] = useState(PLATFORM_MENU[0]?.key ?? 'overview');
   const [error, setError] = useState<string | null>(null);
+  const [menuOpen, setMenuOpen] = useState(false);
+  // Mục đang hiện tên sau khi chạm giữ (thanh biểu tượng ở khổ máy tính bảng)
+  const [hint, setHint] = useState<string>();
+
+  useEffect(() => {
+    if (!hint) {
+      return undefined;
+    }
+    const timer = window.setTimeout(() => setHint(undefined), 2000);
+    return () => window.clearTimeout(timer);
+  }, [hint]);
+
+  // Esc đóng ngăn kéo menu
+  useEffect(() => {
+    if (!menuOpen) {
+      return undefined;
+    }
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        setMenuOpen(false);
+      }
+    };
+    document.addEventListener('keydown', onKey);
+    return () => document.removeEventListener('keydown', onKey);
+  }, [menuOpen]);
 
   useEffect(() => {
     fetchProfile(accessToken)
@@ -90,8 +116,19 @@ function Shell({ accessToken, onLogout }: { accessToken: string; onLogout: () =>
   }, [accessToken, onLogout]);
 
   return (
-    <div className="shell">
+    <div className="shell shell-platform" data-menu-open={menuOpen}>
       <header>
+        {/* Dưới 768 px menu là ngăn kéo mở bằng nút này (DT-26 phần 26e) */}
+        <button
+          type="button"
+          className="menu-toggle"
+          aria-label="Menu"
+          aria-expanded={menuOpen}
+          aria-controls="menu-nen-tang"
+          onClick={() => setMenuOpen(!menuOpen)}
+        >
+          ☰
+        </button>
         <strong>Cổng vận hành nền tảng</strong>
         <span>
           {profile?.full_name ?? ''}
@@ -100,13 +137,33 @@ function Shell({ accessToken, onLogout }: { accessToken: string; onLogout: () =>
           </button>
         </span>
       </header>
-      <nav aria-label="Menu">
+      {/* Từ 1280 px thanh bên đầy đủ; 768 đến 1279 px chỉ còn biểu tượng, tên mục hiện khi rê chuột, đưa bàn phím tới hoặc chạm giữ; dưới
+          768 px ngăn kéo (DT-26 phần 26e). Thứ tự mục giữ theo PLATFORM_MENU */}
+      <nav id="menu-nen-tang" aria-label="Menu">
         {PLATFORM_MENU.map((item) => (
-          <button key={item.key} type="button" aria-current={item.key === active} onClick={() => setActive(item.key)}>
-            {item.label}
+          <button
+            key={item.key}
+            type="button"
+            aria-current={item.key === active}
+            // Tên đọc vẫn đủ khi thanh chỉ còn biểu tượng (chữ của mục bị ẩn)
+            aria-label={item.label}
+            data-hint={hint === item.key ? 'true' : undefined}
+            onClick={() => {
+              setActive(item.key);
+              setMenuOpen(false);
+            }}
+            onContextMenu={(event) => {
+              // Chạm giữ trên máy tính bảng: hiện tên mục một lúc thay cho menu ngữ cảnh
+              event.preventDefault();
+              setHint(item.key);
+            }}
+          >
+            <PlatformMenuIcon menuKey={item.key} label={item.label} />
+            <span className="menu-label">{item.label}</span>
           </button>
         ))}
       </nav>
+      {menuOpen ? <div className="menu-backdrop" aria-hidden="true" onClick={() => setMenuOpen(false)} /> : null}
       <main>
         {error ? <p role="alert">{error}</p> : null}
         {active === 'overview' && profile ? (
