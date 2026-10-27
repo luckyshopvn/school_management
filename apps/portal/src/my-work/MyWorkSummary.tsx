@@ -36,7 +36,10 @@ export function MyWorkSummary() {
     <section className="flex flex-col gap-3 rounded-xl border border-border bg-card p-5" aria-label="Việc cần xử lý">
       <div className="flex items-baseline justify-between gap-2">
         <h2 className="text-section-title font-semibold text-text">Việc cần xử lý</h2>
-        <Link to={MY_WORK_PATH} className="text-label font-medium text-link underline">
+        <Link
+          to={MY_WORK_PATH}
+          className="inline-flex items-center text-label font-medium text-link underline max-xl:min-h-11"
+        >
           Xem tất cả
         </Link>
       </div>
