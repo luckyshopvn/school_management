@@ -254,11 +254,11 @@ describe('manifest và biểu tượng của ứng dụng cài được (DT-26 p
     assert.equal(shortNameOf('teacher', null), 'Giáo viên');
     assert.equal(shortNameOf('parent', 'Hoa Sen'), 'Hoa Sen PH');
     assert.equal(shortNameOf('student', 'Hoa Sen'), 'Hoa Sen HS');
-    // Màn hình học sinh của 23a cài thành ứng dụng riêng, mở thẳng #hoc-sinh trong ứng dụng phụ huynh
-    const student = buildManifest('student', '/phu-huynh/', branding);
-    assert.equal(student.start_url, '/phu-huynh/#hoc-sinh');
-    assert.equal(student.scope, '/phu-huynh/');
-    assert.equal(student.id, '/phu-huynh/?ung-dung=student');
+    // Ứng dụng học sinh riêng ở /hoc-sinh/ (YCTD-300): mở thẳng gốc của ứng dụng, phạm vi riêng
+    const student = buildManifest('student', '/hoc-sinh/', branding);
+    assert.equal(student.start_url, '/hoc-sinh/');
+    assert.equal(student.scope, '/hoc-sinh/');
+    assert.equal(student.id, '/hoc-sinh/?ung-dung=student');
     assert.equal(student.name, 'Trường Mầm non Hoa Sen – Học sinh');
     const manifest = buildManifest('parent', '/', branding);
     assert.equal(manifest.theme_color, '#0a8be6');

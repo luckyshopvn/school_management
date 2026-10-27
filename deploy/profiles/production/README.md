@@ -89,7 +89,7 @@ Giới hạn đã biết:
 
 - Khối địa chỉ bắt chung (`CATCH_ALL_ADDRESS=https://`) nhận mọi tên miền và xin chứng chỉ theo yêu cầu. Trước khi xin, Caddy hỏi `DOMAIN_CHECK_URL?domain=<tên>`; chỉ khi trả 200 mới cấp, nên chứng chỉ chỉ cấp cho tên miền có trong danh sách của hệ thống. Hiện điểm cuối là danh sách tên miền website của trường (YCTD-144); khi có cơ sở dữ liệu nền tảng (S1b) đổi biến này sang điểm cuối kiểm tra tên miền của nền tảng, không sửa tệp.
 - Không ghi tên miền trong `Caddyfile`. Tên miền cố định để ở `caddy/sites.d/*.caddy` (không đưa lên kho mã).
-- `TENANT_PATHS=on` mở `/quan-ly`, `/giao-vien`, `/phu-huynh`, `/api/v1` trên tên miền của từng trường; chỉ bật sau S1b (giao diện dựng với đường dẫn gốc này). Gốc tên miền là website của trường.
+- `TENANT_PATHS=on` mở `/quan-ly`, `/giao-vien`, `/phu-huynh`, `/hoc-sinh` (ứng dụng học sinh, YCTD-300), `/api/v1` trên tên miền của từng trường; chỉ bật sau S1b (giao diện dựng với đường dẫn gốc này). Gốc tên miền là website của trường.
 - Hai bản `api`, `identity`: kiểm tra sức khỏe chủ động mỗi 5 giây; yêu cầu gặp bản đang khởi động lại được thử sang bản kia trong 15 giây.
 - Chỉ số của Caddy ở `:9180/metrics`, chỉ trong mạng nội bộ của Docker.
 

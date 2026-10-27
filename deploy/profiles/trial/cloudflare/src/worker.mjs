@@ -1,7 +1,7 @@
 // Cổng biên của hồ sơ thử nghiệm (DT-SaaS phần S9, YCTD-203; tài liệu 32 mục 14.5 "Thiết kế dùng chung"): một Cloudflare Worker
 // đứng trước máy chủ gộp (Render hoặc Koyeb) cho mọi tên miền của nền tảng:
 // - tên miền của trường (tên miền con `<mã>.<tên miền hệ thống>` hoặc tên miền riêng qua Cloudflare for SaaS):
-//   /quan-ly, /giao-vien, /phu-huynh là ba ứng dụng tĩnh (dựng với APP_BASE_PATH tương ứng), /api/v1 chuyển về máy chủ, phần
+//   /quan-ly, /giao-vien, /phu-huynh, /hoc-sinh là bốn ứng dụng tĩnh (dựng với APP_BASE_PATH tương ứng), /api/v1 chuyển về máy chủ, phần
 //   còn lại là website công khai của trường (chuyển về /api/v1/public/site như Caddy của hồ sơ vận hành);
 // - tên miền cổng nền tảng (CONSOLE_HOST): ứng dụng `apps/platform` ở gốc, /api/v1 chuyển về máy chủ;
 // - tên miền hệ thống (ROOT_DOMAIN): trang đăng nhập theo đơn vị (DT-24: ứng dụng cổng quản trị ở /quan-ly, gốc chuyển về đó);
@@ -19,6 +19,8 @@ export const APPS = [
   { prefix: '/quan-ly', directory: 'quan-ly' },
   { prefix: '/giao-vien', directory: 'giao-vien' },
   { prefix: '/phu-huynh', directory: 'phu-huynh' },
+  // Ứng dụng học sinh (YCTD-300)
+  { prefix: '/hoc-sinh', directory: 'hoc-sinh' },
 ];
 const CONSOLE_DIRECTORY = 'nen-tang';
 const WAKING_STATUSES = new Set([502, 504, 520, 521, 522, 523, 524]);

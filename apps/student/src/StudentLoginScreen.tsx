@@ -137,7 +137,7 @@ export function StudentLoginScreen() {
         <p className="text-label text-text-secondary">
           Tên đăng nhập và mật khẩu do nhà trường cấp. Lần đầu đăng nhập, em đặt mật khẩu mới cho riêng mình.
         </p>
-        <a href="#" className="text-label font-medium text-text underline">
+        <a href={import.meta.env.VITE_PARENT_APP_URL} className="text-label font-medium text-text underline">
           Ứng dụng phụ huynh
         </a>
       </form>
