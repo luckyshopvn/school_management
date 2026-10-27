@@ -1,11 +1,20 @@
 import { isIos } from '../install-state.js';
+import {
+  disableNativePush,
+  enableNativePush,
+  nativePush,
+  onNativePushMessage,
+  readNativePushState,
+  syncNativePush,
+} from './native-push.js';
 import { decodeBase64Url, detectPushState, deviceLabel, type PushState } from './push-state.js';
 
 // Đăng ký, hủy, đồng bộ thông báo đẩy trên trình duyệt (DT-26 phần 26b, YCTD-239), gọi các điểm cuối của phần máy chủ 26b:
 // `GET /api/v1/public/push/vapid-public-key`, `POST /api/v1/push/subscriptions`, `POST /api/v1/push/subscriptions/unsubscribe`.
 // Mỗi ứng dụng truyền hàm gọi máy chủ có mã phiên của mình (giáo viên, phụ huynh, học sinh) nên gói không giữ mã phiên.
 // Một trình duyệt chỉ có một đăng ký đẩy cho mỗi service worker: ứng dụng phụ huynh và màn hình học sinh dùng chung phạm vi, người
-// bật sau cùng trên máy là người nhận (máy chủ chuyển đăng ký theo địa chỉ)
+// bật sau cùng trên máy là người nhận (máy chủ chuyển đăng ký theo địa chỉ).
+// Trong ứng dụng cài đặt (vỏ Capacitor, DT-26 phần 26g) các hàm dưới dùng đẩy gốc FCM, APNs thay cho Web Push (native-push.ts)
 export type PushApplication = 'teacher' | 'parent' | 'student';
 export type PushRequest = <T>(path: string, init?: RequestInit) => Promise<T>;
 
@@ -44,6 +53,10 @@ async function serverKey(): Promise<string | null> {
 }
 
 export async function readPushState(base: string): Promise<PushState> {
+  const native = nativePush();
+  if (native) {
+    return readNativePushState(native);
+  }
   const registration = await currentRegistration(base);
   const subscription = registration ? await registration.pushManager?.getSubscription() : null;
   const pushApi =
@@ -78,6 +91,10 @@ function subscriptionBody(subscription: PushSubscription, application: PushAppli
 
 // Bật trên máy này: chỉ gọi khi người dùng bấm (trình duyệt chỉ hỏi quyền theo thao tác của người dùng)
 export async function enablePush(base: string, application: PushApplication, request: PushRequest): Promise<PushState> {
+  const native = nativePush();
+  if (native) {
+    return enableNativePush(native, base, application, request);
+  }
   const registration = await currentRegistration(base);
   const key = await serverKey();
   if (!registration || !key) {
@@ -96,6 +113,10 @@ export async function enablePush(base: string, application: PushApplication, req
 
 // Tắt trên máy này: thu hồi ở máy chủ rồi hủy đăng ký của trình duyệt
 export async function disablePush(base: string, request: PushRequest): Promise<PushState> {
+  const native = nativePush();
+  if (native) {
+    return disableNativePush(native, request);
+  }
   const registration = await currentRegistration(base);
   const subscription = registration ? await registration.pushManager?.getSubscription() : null;
   if (subscription) {
@@ -115,6 +136,11 @@ export async function disablePush(base: string, request: PushRequest): Promise<P
 // đang đăng nhập trên máy). Không hỏi quyền, không tự bật
 export async function syncPush(base: string, application: PushApplication, request: PushRequest): Promise<void> {
   try {
+    const native = nativePush();
+    if (native) {
+      await syncNativePush(native, base, application, request);
+      return;
+    }
     const registration = await currentRegistration(base);
     const subscription = registration ? await registration.pushManager?.getSubscription() : null;
     if (subscription && Notification.permission === 'granted') {
@@ -137,8 +163,13 @@ export async function revokePushOnSignOut(base: string, request: PushRequest): P
   }
 }
 
-// Trang nhận tin của service worker: chạm thông báo (PUSH_OPENED) hoặc trình duyệt đổi đăng ký (PUSH_SUBSCRIPTION_CHANGED)
+// Trang nhận tin của service worker: chạm thông báo (PUSH_OPENED) hoặc trình duyệt đổi đăng ký (PUSH_SUBSCRIPTION_CHANGED); trong ứng
+// dụng cài đặt: chạm thông báo (PUSH_OPENED), thông báo đến khi đang mở (PUSH_RECEIVED)
 export function onServiceWorkerMessage(listener: (message: { type: string; notification_id?: string | null }) => void) {
+  const native = nativePush();
+  if (native) {
+    return onNativePushMessage(native, listener);
+  }
   if (typeof navigator === 'undefined' || !('serviceWorker' in navigator)) {
     return () => undefined;
   }

@@ -16,12 +16,13 @@ export const E2E_LIFECYCLE_SCHOOL_CODES = ['gamma', 'alpha-kp'];
 export const E2E_PLATFORM_DATABASE_NAME = 'school_platform_e2e';
 export const E2E_SHARED_DATABASE_NAME = 'school_shared_e2e';
 export const E2E_MULTI_STATE_FILE = new URL('./.e2e-multi.json', import.meta.url);
-// Bộ giả lập thông báo đẩy của máy chủ API ghi từng lần gửi vào tệp này (DT-26 phần 26b, spec 182)
+// Bộ giả lập thông báo đẩy của máy chủ API ghi từng lần gửi vào tệp này (DT-26 phần 26b, spec 182; đẩy gốc 26g, spec 186)
 export const E2E_PUSH_OUTBOX_FILE = new URL('./.e2e-push-outbox.jsonl', import.meta.url);
 
 // Spec nhiều trường (số 130 đến 139 của các phần S1a đến S6, 140 của S9, 153 của DT-23 phần 23d và 160 của DT-24: đăng nhập theo đơn vị,
-// quyền quản trị nền tảng; 182 của DT-26 phần 26b: cách ly đăng ký đẩy) chỉ chạy ở dự án `multi`; dự án `single` (e2e hiện có) bỏ qua
-export const MULTI_TENANT_SPEC = /[\\/]1(?:3\d|40|53|60|82)-[^\\/]*\.spec\.ts$/;
+// quyền quản trị nền tảng; 182 của DT-26 phần 26b: cách ly đăng ký đẩy; 186 của phần 26g: cách ly mã thiết bị đẩy gốc) chỉ chạy ở dự
+// án `multi`; dự án `single` (e2e hiện có) bỏ qua
+export const MULTI_TENANT_SPEC = /[\\/]1(?:3\d|40|53|60|82|86)-[^\\/]*\.spec\.ts$/;
 
 export function schoolHost(code) {
   return `${code}.${E2E_ROOT_DOMAIN}`;

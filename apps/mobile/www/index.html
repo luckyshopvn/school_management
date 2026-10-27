@@ -222,6 +222,36 @@
       });
       document.getElementById('may-phat-trien').addEventListener('click', () => themTruong(MAY_PHAT_TRIEN));
       hienDanhSach();
+      // Chạm thông báo đẩy gốc (DT-26 phần 26g, YCTD-237): nội dung đẩy kèm `app_url` là địa chỉ gốc của ứng dụng web của trường lúc
+      // đăng ký. Vỏ chỉ mở địa chỉ trùng đúng một ứng dụng của trường đã lưu trên máy, không mở địa chỉ nào khác do nội dung đẩy gửi tới;
+      // không trùng thì ở lại trang khởi động. Nghe chạm thông báo khi vỏ đang ở trang này (mở ứng dụng từ thông báo khi ứng dụng chưa
+      // chạy: vỏ giữ sự kiện đến khi có nơi nghe) và địa chỉ do trang của trường chuyển về qua `#mo=` khi thông báo thuộc ứng dụng khác
+      const diaChiKhiCham = (appUrl) => {
+        if (typeof appUrl !== 'string' || !URL.canParse(appUrl)) {
+          return null;
+        }
+        const dich = new URL(appUrl).href;
+        const ungDung = docDanhSach().flatMap((truong) => [truong?.giaoVien, truong?.phuHuynh]);
+        return ungDung.some(
+          (diaChi) => typeof diaChi === 'string' && URL.canParse(diaChi) && new URL(diaChi).href === dich,
+        )
+          ? dich
+          : null;
+      };
+      const moTheoThongBao = (appUrl) => {
+        const dich = diaChiKhiCham(appUrl);
+        if (dich) {
+          window.location.assign(dich);
+        }
+      };
+      const diaChiChuyenVe = new URLSearchParams(window.location.hash.slice(1)).get('mo');
+      if (diaChiChuyenVe) {
+        history.replaceState(null, '', window.location.pathname);
+        moTheoThongBao(diaChiChuyenVe);
+      }
+      window.Capacitor?.Plugins?.PushNotifications?.addListener('pushNotificationActionPerformed', (hanhDong) =>
+        moTheoThongBao(hanhDong?.notification?.data?.app_url),
+      );
     </script>
   </body>
 </html>

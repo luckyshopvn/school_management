@@ -29,7 +29,7 @@ phien_ban_de_xuat: 0.165.0
 
 #### Vấn đề tồn đọng
 
-- Đã dựng và chạy trên máy giả lập Android ngày 2026-10-27 (Eric cho cài JDK, Android SDK, máy giả lập vào ổ D:); iOS Simulator cần máy Mac có Xcode, chưa chạy. Phần còn lại của 26f (đóng gói, đăng nhập gốc, sinh trắc học, liên kết sâu, chọn trường từ danh mục DT-24), 26g, 26h làm khi có tài khoản.
+- Đã dựng và chạy trên máy giả lập Android ngày 2026-10-27 (Eric cho cài JDK, Android SDK, máy giả lập vào ổ D:); iOS Simulator cần máy Mac có Xcode, chưa chạy. Phần còn lại của 26f (đóng gói, đăng nhập gốc, sinh trắc học, liên kết sâu, chọn trường từ danh mục DT-24), gửi đẩy thật của 26g (phần mã đã làm ở YCTD-237) và 26h làm khi có tài khoản.
 
 ## 24 Yêu cầu thay đổi
 
