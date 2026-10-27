@@ -2,7 +2,17 @@ import javascript from '@eslint/js';
 import typescript from 'typescript-eslint';
 
 export default typescript.config(
-  { ignores: ['**/dist/**', 'tai_lieu/**', '**/node_modules/**', '**/test-results/**', '**/playwright-report/**'] },
+  {
+    ignores: [
+      '**/dist/**',
+      'tai_lieu/**',
+      '**/node_modules/**',
+      '**/test-results/**',
+      '**/playwright-report/**',
+      'apps/mobile/android/**',
+      'apps/mobile/ios/**',
+    ],
+  },
   javascript.configs.recommended,
   ...typescript.configs.recommended,
   // Tệp JavaScript chạy trên Node
