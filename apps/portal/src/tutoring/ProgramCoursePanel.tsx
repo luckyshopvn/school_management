@@ -4,11 +4,24 @@ import { requestJson } from '../session/api-client.js';
 import { messageOf } from './TutoringProgramsPage.js';
 
 // Khoá học ghi sẵn của chương trình gia sư (DT-27 phần 27d1, YCTD-254): giáo viên dạy, Ban Giám hiệu tạo khoá (khoá tự chọn của lõi
-// LMS 28b, soạn chương và bài ở Học trực tuyến), học sinh có đơn được duyệt được ghi danh; xem bài video. Tiến độ ở 27d2
+// LMS 28b, soạn chương và bài ở Học trực tuyến), học sinh có đơn được duyệt được ghi danh; xem bài video. 27d2 (YCTD-261): tiến độ
+// từng học sinh (hoạt động bắt buộc xong, quá hạn, phần trăm đã xem từng video)
 interface CourseView {
   course: { id: string; title: string; enrolled: number } | null;
   videos: LessonVideo[];
 }
+
+interface ProgressView {
+  videos: Array<{ activity_id: string; title: string }>;
+  students: Array<{
+    child_id: string;
+    full_name: string;
+    summary: { required: number; done: number; overdue: number; percent: number };
+    videos: Record<string, { status: string; progress: number }>;
+  }>;
+}
+
+const DONE = new Set(['completed', 'passed', 'excused']);
 
 const post = <T,>(path: string) =>
   requestJson<T>(path, { method: 'POST', headers: { 'content-type': 'application/json' }, body: '{}' });
@@ -19,11 +32,17 @@ export function ProgramCoursePanel({ programId, notify }: { programId: string; n
     queryKey: ['tutoring-course', programId],
     queryFn: () => requestJson<CourseView>(`/api/v1/tutoring/programs/${programId}/course`),
   });
+  const progress = useQuery({
+    queryKey: ['tutoring-course-progress', programId],
+    queryFn: () => requestJson<ProgressView>(`/api/v1/tutoring/programs/${programId}/course/progress`),
+    enabled: Boolean(view.data?.course),
+  });
   const attach = useMutation({
     mutationFn: () => post<CourseView>(`/api/v1/tutoring/programs/${programId}/course`),
     onSuccess: async () => {
       notify('Đã tạo khoá học ghi sẵn');
       await queryClient.invalidateQueries({ queryKey: ['tutoring-course', programId] });
+      await queryClient.invalidateQueries({ queryKey: ['tutoring-course-progress', programId] });
     },
   });
   if (!view.data) {
@@ -46,6 +65,40 @@ export function ProgramCoursePanel({ programId, notify }: { programId: string; n
               (await post<{ url: string }>(`/api/v1/tutoring/course-media/${activityId}/link`)).url
             }
           />
+          {progress.error ? <Alert tone="danger">{messageOf(progress.error)}</Alert> : null}
+          {progress.data && progress.data.students.length > 0 ? (
+            <table aria-label="Tiến độ học sinh của khoá" className="w-full text-content">
+              <thead>
+                <tr className="text-left text-text-secondary">
+                  <th>Học sinh</th>
+                  <th>Hoạt động bắt buộc</th>
+                  <th>Quá hạn</th>
+                  {progress.data.videos.map((video) => (
+                    <th key={video.activity_id}>{video.title}</th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {progress.data.students.map((student) => (
+                  <tr key={student.child_id}>
+                    <td>{student.full_name}</td>
+                    <td>
+                      {student.summary.done}/{student.summary.required} ({student.summary.percent}%)
+                    </td>
+                    <td>{student.summary.overdue}</td>
+                    {progress.data.videos.map((video) => {
+                      const watched = student.videos[video.activity_id];
+                      return (
+                        <td key={video.activity_id}>
+                          {watched && DONE.has(watched.status) ? 'Xem xong' : `${watched?.progress ?? 0}%`}
+                        </td>
+                      );
+                    })}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          ) : null}
         </>
       ) : (
         <Button onClick={() => attach.mutate()} disabled={attach.isPending}>

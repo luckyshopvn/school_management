@@ -953,6 +953,29 @@ Tám bảng ở cơ sở dữ liệu năm học (tệp `0182_create_discussions`
 
 Hai mục cấu hình của Trường chính ở `settings`: `discussion_open_hours` (khung giờ `school_days`, `weekend` dạng HH:MM; chưa đặt là không giới hạn, GD-144) và `discussion_blocked_words` (mảng từ ngữ).
 
+## 18L. Bài về nhà và phụ huynh (DT-28 phần 28f, YCTD-276)
+
+Cơ sở dữ liệu năm học, tệp `0185_create_homework_policies`, `0186_create_homework_reminders`.
+
+| Bảng | Mục đích | Cột chính |
+|---|---|---|
+| assignments (thêm cột, từ YCTD-276) | Bài về nhà giao từ sổ đầu bài, Ban Giám hiệu cho vượt quy tắc chặn (BR-360, BR-362) | class_log_id (tiết của sổ đầu bài, xóa tiết thì để trống), group_no (nhóm của tiết, 0 là cả lớp), policy_override_reason (tối đa 500 ký tự), policy_override_by |
+| homework_policies (từ YCTD-276) | Quy tắc khối lượng bài về nhà của trường (BR-361, GD-143) | id, school_level (`TH`, `THCS`, `THPT`), grade (0 là chung của cấp; duy nhất theo cấp, khối), no_homework, max_items_per_day (1 đến 20), max_minutes_per_day (5 đến 600), blocked_weekdays (mảng 1 đến 7), skip_holidays, action (`warn`, `block`), basis (căn cứ, tối đa 1.000 ký tự), updated_by, updated_by_name, updated_at |
+| homework_acknowledgements (từ YCTD-276) | Phụ huynh "Đã xem cùng con" (BR-363) | assignment_id, child_id, guardian_user_id (khóa chính ba cột), guardian_name, acknowledged_at |
+| homework_reminders (từ YCTD-276) | Nhật ký nhắc, khóa chống gửi trùng (BR-364) | id, kind (`assigned`, `due_soon`, `missing`, `returned`), assignment_id, child_id (duy nhất theo loại, bài, em), created_at |
+
+Mục cấu hình của Trường chính ở `settings`: `homework_reminder_time` (giờ nhắc sắp đến hạn của hôm trước dạng HH:MM, mặc định 19:00).
+
+## 18M. Gói SCORM và gói khoá học (DT-28 phần 28h, YCTD-278)
+
+Cơ sở dữ liệu hệ thống (tệp `0113_create_scorm_packages`, `0114_create_course_package_transfers`; gói dùng qua nhiều năm học như học liệu) và năm học (tệp `0189_create_scorm_attempts`). Tệp 0113 thêm loại học liệu `scorm` (Gói bài giảng SCORM, cần Ban Giám hiệu duyệt) vào `resource_types`.
+
+| Bảng | Mục đích | Cột chính |
+|---|---|---|
+| scorm_packages (hệ thống, từ YCTD-278) | Gói SCORM của một phiên bản học liệu (BR-380, BR-381) | id, resource_id, version_id (duy nhất), standard (`1.2`, `2004`), title, scos (mã, tên, đường dẫn theo thứ tự chạy), files (đường dẫn trong gói, khóa kho tệp, kiểu, cỡ), file_count, total_bytes, created_by, created_at |
+| course_package_transfers (hệ thống, từ YCTD-278) | Nhật ký xuất, nhập gói khoá học (BR-385) | id, direction (`export`, `import`), package_code, source_school, template_id, template_title, resource_count, skipped (tên, lý do), actor_user_id, actor_name, created_at |
+| scorm_attempts (năm học, từ YCTD-278) | Lượt chạy gói của học sinh theo SCO (BR-383, BR-384) | id, activity_id, child_id, package_id, sco_identifier (duy nhất theo hoạt động, học sinh, SCO), completion (`unknown`, `not_attempted`, `incomplete`, `completed`), success (`unknown`, `passed`, `failed`), score (thang 10), total_seconds, session_count, location, suspend_data (tối đa 64.000 ký tự), updated_at |
+
 ## 19. Quan hệ chính giữa các bảng
 
 ```mermaid

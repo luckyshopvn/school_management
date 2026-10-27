@@ -1553,6 +1553,39 @@ export interface NotificationUrgentTemplatesTable {
   marked_at: ColumnType<Date, Date | undefined, never>;
 }
 
+// Gói SCORM, gói khoá học (DT-28 phần 28h, YCTD-278)
+export type ScormStandard = '1.2' | '2004';
+
+export interface ScormPackagesTable {
+  id: Generated<string>;
+  resource_id: string;
+  version_id: string;
+  standard: ScormStandard;
+  title: string;
+  // [{ identifier, title, href }] theo thứ tự chạy
+  scos: ColumnType<unknown, string, string>;
+  // { "<đường dẫn trong gói>": { key, type, size } }
+  files: ColumnType<unknown, string, string>;
+  file_count: number;
+  total_bytes: ColumnType<string, number, number>;
+  created_by: string;
+  created_at: CreatedTimestamp;
+}
+
+export interface CoursePackageTransfersTable {
+  id: Generated<string>;
+  direction: 'export' | 'import';
+  package_code: string;
+  source_school: string;
+  template_id: string | null;
+  template_title: string;
+  resource_count: Generated<number>;
+  skipped: ColumnType<unknown, string | undefined, string>;
+  actor_user_id: string;
+  actor_name: string;
+  created_at: CreatedTimestamp;
+}
+
 export interface SystemDatabase {
   academic_years: AcademicYearsTable;
   academic_terms: AcademicTermsTable;
@@ -1644,4 +1677,6 @@ export interface SystemDatabase {
   push_subscriptions: PushSubscriptionsTable;
   notification_preferences: NotificationPreferencesTable;
   notification_urgent_templates: NotificationUrgentTemplatesTable;
+  scorm_packages: ScormPackagesTable;
+  course_package_transfers: CoursePackageTransfersTable;
 }

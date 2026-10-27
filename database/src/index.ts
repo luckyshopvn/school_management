@@ -502,6 +502,8 @@ export type {
   PushSubscriptionKind,
   PushSubscriptionsTable,
 } from '../system/schema.js';
+// Gói SCORM (DT-28 phần 28h)
+export type { ScormStandard } from '../system/schema.js';
 // Bài tập trực tuyến (DT-28 phần 28c)
 export type {
   AssignmentContext,
@@ -512,3 +514,5 @@ export type {
 } from '../school-year/schema.js';
 // Giao tiếp trong lớp và nhóm (DT-28 phần 28e)
 export type { DiscussionAuthorKind, DiscussionKind } from '../school-year/schema.js';
+// Bài về nhà và phụ huynh (DT-28 phần 28f)
+export type { HomeworkPolicyAction, HomeworkReminderKind } from '../school-year/schema.js';

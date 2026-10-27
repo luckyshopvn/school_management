@@ -130,4 +130,10 @@ export const PUBLIC_ROUTES: PublicRoute[] = [
     '/api/v1/video/recordings/:id/stream',
     'Phát bản ghi video bằng đường dẫn ký 5 phút do điểm cuối có đăng nhập cấp (thẻ video không gửi được mã phiên), theo tên miền của trường; mỗi lần cấp đường dẫn đã ghi nhật ký xem',
   ),
+  // Gói bài giảng SCORM (DT-28 phần 28h): tệp của gói mở bằng mã truy cập ký HMAC 4 giờ trong đường dẫn (khung sandbox không gửi được
+  // mã phiên); mã gắn trường, sai hoặc của trường khác thì 404; tệp có CSP sandbox nên không đọc được phiên của ứng dụng
+  get(
+    '/api/v1/scorm-content/:token/*path',
+    'Tệp của gói SCORM theo mã truy cập ký trong đường dẫn, gắn trường, học sinh, hoạt động; theo tên miền của trường hoặc nguồn gốc nội dung riêng (DT-28 phần 28h)',
+  ),
 ];

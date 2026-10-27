@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { Alert, Button, StatusBadge, type StatusTone } from '@school-management/ui';
 import { StudentAssignmentView } from './StudentAssignmentView.js';
 import { StudentSpaceDiscussions } from './StudentDiscussions.js';
+import { ScormPlayer } from './ScormPlayer.js';
 import { requestStudentJson, StudentApiError } from './student-api.js';
 
 // Học sinh tự học ở lớp học trực tuyến (DT-28 phần 28b, YCTD-272, sau khi 23a gộp kênh student): các lớp đã mở cho em, hoạt
@@ -89,6 +90,8 @@ export function StudentLearningPanel() {
   const [assignmentId, setAssignmentId] = useState<string>();
   // Thông báo lớp, diễn đàn, hỏi đáp (DT-28 phần 28e)
   const [discussion, setDiscussion] = useState<{ id: string; title: string }>();
+  // Gói bài giảng SCORM (DT-28 phần 28h) mở trình phát trong khung cô lập
+  const [scorm, setScorm] = useState<{ id: string; title: string }>();
   const [errorMessage, setErrorMessage] = useState<string>();
 
   const load = useCallback(() => {
@@ -110,6 +113,8 @@ export function StudentLearningPanel() {
       );
       if (activity.kind === 'assignment') {
         setAssignmentId(activity.id);
+      } else if (activity.kind === 'scorm') {
+        setScorm({ id: activity.id, title: activity.title });
       } else {
         setOpened(content);
       }
@@ -140,6 +145,16 @@ export function StudentLearningPanel() {
         </div>
       ) : null}
       {opened ? <ActivityContent activity={opened} onClose={() => setOpened(undefined)} /> : null}
+      {scorm ? (
+        <ScormPlayer
+          activityId={scorm.id}
+          title={scorm.title}
+          onClose={() => {
+            setScorm(undefined);
+            load();
+          }}
+        />
+      ) : null}
       {discussion ? (
         <StudentSpaceDiscussions
           spaceId={discussion.id}

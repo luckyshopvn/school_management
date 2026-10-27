@@ -548,6 +548,18 @@ import {
   TutoringQuestionsController,
 } from './tutoring/tutoring-questions.controller.js';
 import { TutoringQuestionsService } from './tutoring/tutoring-questions.js';
+import { HomeworkController } from './learning/homework/homework.controller.js';
+import { HomeworkPolicyGate } from './learning/homework/homework-policy.js';
+import { HomeworkService } from './learning/homework/homework.js';
+import { CoursePackagesController } from './learning/content-packages/course-packages.controller.js';
+import { CoursePackagesService } from './learning/content-packages/course-packages.js';
+import {
+  ScormActivitiesController,
+  ScormContentController,
+  ScormResourcesController,
+  StudentScormController,
+} from './learning/content-packages/scorm.controller.js';
+import { ScormPackagesService } from './learning/content-packages/scorm.js';
 
 @Module({})
 export class ApplicationModule {
@@ -876,6 +888,14 @@ export class ApplicationModule {
         TutoringQuestionsController,
         ChildTutoringQuestionsController,
         StudentTutoringQuestionsController,
+        // Bài về nhà và phụ huynh (DT-28 phần 28f)
+        HomeworkController,
+        // Gói SCORM, gói khoá học (DT-28 phần 28h)
+        ScormResourcesController,
+        ScormActivitiesController,
+        StudentScormController,
+        ScormContentController,
+        CoursePackagesController,
       ],
       providers: [
         { provide: API_CONFIGURATION, useValue: configuration },
@@ -1312,6 +1332,12 @@ export class ApplicationModule {
         TutoringCoursesService,
         // Hỏi đáp bài tập của chương trình gia sư (DT-27 phần 27e)
         TutoringQuestionsService,
+        // Bài về nhà và phụ huynh (DT-28 phần 28f)
+        HomeworkPolicyGate,
+        HomeworkService,
+        // Gói SCORM, gói khoá học (DT-28 phần 28h)
+        ScormPackagesService,
+        CoursePackagesService,
       ],
     };
   }

@@ -6772,6 +6772,11 @@ export interface AssignmentsTable {
   estimated_minutes: number | null;
   released_at: Date | null;
   closed_at: Date | null;
+  // Bài về nhà (DT-28 phần 28f): tiết của sổ đầu bài đã giao bài, nhóm của tiết; lý do Ban Giám hiệu phát hành vượt quy tắc chặn
+  class_log_id: string | null;
+  group_no: number | null;
+  policy_override_reason: string | null;
+  policy_override_by: string | null;
   created_by: string;
   created_at: CreatedTimestamp;
   updated_at: UpdatedTimestamp;
@@ -7154,6 +7159,60 @@ export interface TutoringAiConsentsTable {
   decided_by_user_id: string;
   decided_by_name: string;
   decided_at: Generated<Date>;
+}
+
+// Bài về nhà và phụ huynh (DT-28 phần 28f, YCTD-276)
+export type HomeworkPolicyAction = 'warn' | 'block';
+export type HomeworkReminderKind = 'assigned' | 'due_soon' | 'missing' | 'returned';
+
+export interface HomeworkPoliciesTable {
+  id: Generated<string>;
+  school_level: 'TH' | 'THCS' | 'THPT';
+  // 0 là quy tắc chung của cấp
+  grade: Generated<number>;
+  no_homework: Generated<boolean>;
+  max_items_per_day: number | null;
+  max_minutes_per_day: number | null;
+  blocked_weekdays: Json;
+  skip_holidays: Generated<boolean>;
+  action: Generated<HomeworkPolicyAction>;
+  basis: string | null;
+  updated_by: string;
+  updated_by_name: string;
+  updated_at: UpdatedTimestamp;
+}
+
+export interface HomeworkAcknowledgementsTable {
+  assignment_id: string;
+  child_id: string;
+  guardian_user_id: string;
+  guardian_name: string;
+  acknowledged_at: CreatedTimestamp;
+}
+
+export interface HomeworkRemindersTable {
+  id: Generated<string>;
+  kind: HomeworkReminderKind;
+  assignment_id: string;
+  child_id: string;
+  created_at: CreatedTimestamp;
+}
+
+// Lượt chạy gói SCORM của học sinh (DT-28 phần 28h, YCTD-278)
+export interface ScormAttemptsTable {
+  id: Generated<string>;
+  activity_id: string;
+  child_id: string;
+  package_id: string;
+  sco_identifier: string;
+  completion: Generated<'unknown' | 'not_attempted' | 'incomplete' | 'completed'>;
+  success: Generated<'unknown' | 'passed' | 'failed'>;
+  score: ColumnType<string | null, string | number | null | undefined, string | number | null>;
+  total_seconds: Generated<number>;
+  session_count: Generated<number>;
+  location: string | null;
+  suspend_data: string | null;
+  updated_at: UpdatedTimestamp;
 }
 
 export interface SchoolYearDatabase {
@@ -7611,4 +7670,8 @@ export interface SchoolYearDatabase {
   group_files: GroupFilesTable;
   discussion_space_settings: DiscussionSpaceSettingsTable;
   discussion_write_bans: DiscussionWriteBansTable;
+  homework_policies: HomeworkPoliciesTable;
+  homework_acknowledgements: HomeworkAcknowledgementsTable;
+  homework_reminders: HomeworkRemindersTable;
+  scorm_attempts: ScormAttemptsTable;
 }

@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { Alert, Button, FORM_CONTROL_CLASS, StatusBadge } from '@school-management/ui';
 import { ApiError, fetchWithSession, requestJson } from '../session/api-client.js';
+import { HomeworkAbsences, HomeworkReleasePanel } from './HomeworkPanels.js';
 
 // Bài tập trực tuyến của giáo viên (DT-28 phần 28c, YCTD-273): soạn bài (câu đã duyệt của ngân hàng câu hỏi, tự luận, ảnh hoặc tệp,
 // ghi âm), giao cho cả lớp hoặc làm theo nhóm của bộ nhóm, phát hành, theo dõi bài nộp, chấm từng câu hoặc theo mức, nhận xét
@@ -20,6 +21,8 @@ interface EditorItem {
 interface Editor {
   activity: { id: string; title: string; status: string; due_at: string | null };
   assignment: {
+    context: 'in_class' | 'homework';
+    estimated_minutes: number | null;
     work_mode: 'individual' | 'group';
     group_set_id: string | null;
     late_policy: 'allow' | 'block';
@@ -102,6 +105,11 @@ function Composer({ activityId, editor, onSaved }: { activityId: string; editor:
   const [workMode, setWorkMode] = useState(editor.assignment?.work_mode ?? 'individual');
   const [groupSetId, setGroupSetId] = useState(editor.assignment?.group_set_id ?? editor.group_sets[0]?.id ?? '');
   const [latePolicy, setLatePolicy] = useState(editor.assignment?.late_policy ?? 'allow');
+  // Bài về nhà (DT-28 phần 28f): ngữ cảnh và số phút dự kiến để tính khối lượng theo quy tắc của trường
+  const [context, setContext] = useState(editor.assignment?.context ?? 'in_class');
+  const [minutes, setMinutes] = useState(
+    editor.assignment?.estimated_minutes ? String(editor.assignment.estimated_minutes) : '',
+  );
   const [prompt, setPrompt] = useState('');
   const [kind, setKind] = useState<ItemKind>('essay');
   const [search, setSearch] = useState('');
@@ -117,6 +125,8 @@ function Composer({ activityId, editor, onSaved }: { activityId: string; editor:
       await requestJson(base(activityId), {
         method: 'PUT',
         body: JSON.stringify({
+          context,
+          estimated_minutes: minutes ? Number(minutes) : null,
           grading,
           late_policy: latePolicy,
           work_mode: workMode,
@@ -137,6 +147,32 @@ function Composer({ activityId, editor, onSaved }: { activityId: string; editor:
   return (
     <section aria-label="Soạn bài tập" className="flex flex-col gap-3">
       {errorMessage ? <Alert tone="danger">{errorMessage}</Alert> : null}
+      <label className="text-label font-medium text-text">
+        Làm ở đâu
+        <select
+          aria-label="Làm ở đâu"
+          className={`mt-2 block w-full ${FORM_CONTROL_CLASS}`}
+          value={context}
+          onChange={(event) => setContext(event.target.value as typeof context)}
+        >
+          <option value="in_class">Trên lớp</option>
+          <option value="homework">Bài về nhà</option>
+        </select>
+      </label>
+      {context === 'homework' ? (
+        <label className="text-label font-medium text-text">
+          Số phút dự kiến
+          <input
+            type="number"
+            min={1}
+            max={600}
+            aria-label="Số phút dự kiến"
+            className={`mt-2 block w-full ${FORM_CONTROL_CLASS}`}
+            value={minutes}
+            onChange={(event) => setMinutes(event.target.value)}
+          />
+        </label>
+      ) : null}
       <label className="text-label font-medium text-text">
         Cách chấm
         <select
@@ -566,7 +602,15 @@ export function AssignmentScreen({ activityId, onBack }: { activityId: string; o
                   load();
                 }}
               />
-              {editor.assignment ? (
+              {editor.assignment?.context === 'homework' ? (
+                <HomeworkReleasePanel
+                  activityId={activityId}
+                  onReleased={(text) => {
+                    setMessage({ tone: 'success', text });
+                    load();
+                  }}
+                />
+              ) : editor.assignment ? (
                 <Button
                   variant="primary"
                   onClick={() =>
@@ -583,6 +627,16 @@ export function AssignmentScreen({ activityId, onBack }: { activityId: string; o
                 Đã giao cho {editor.recipient_count} học sinh
                 {editor.assignment?.closed_at ? ' · Đã đóng bài' : ''}
               </p>
+              {editor.assignment?.context === 'homework' ? (
+                <HomeworkAbsences
+                  activityId={activityId}
+                  dueAt={editor.activity.due_at}
+                  onChanged={(text) => {
+                    setMessage({ tone: 'success', text });
+                    load();
+                  }}
+                />
+              ) : null}
               <div className="flex flex-wrap gap-2">
                 <Button
                   variant="primary"
