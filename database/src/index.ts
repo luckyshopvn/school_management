@@ -502,8 +502,6 @@ export type {
   PushSubscriptionKind,
   PushSubscriptionsTable,
 } from '../system/schema.js';
-// Huy hiệu, chứng nhận hoàn thành (DT-28 phần 28i)
-export type { LearningBadgeKind } from '../school-year/schema.js';
 // Gói SCORM (DT-28 phần 28h)
 export type { ScormStandard } from '../system/schema.js';
 // Bài tập trực tuyến (DT-28 phần 28c)
@@ -518,3 +516,8 @@ export type {
 export type { DiscussionAuthorKind, DiscussionKind } from '../school-year/schema.js';
 // Bài về nhà và phụ huynh (DT-28 phần 28f)
 export type { HomeworkPolicyAction, HomeworkReminderKind } from '../school-year/schema.js';
+// Kiểu bảng của từng phần ở <loại>/schema-parts/ tự xuất ra ngoài gói, không cần thêm dòng vào tệp này (YCTD-294)
+export type * from '../identity/schema-parts.generated.js';
+export type * from '../system/schema-parts.generated.js';
+export type * from '../school-year/schema-parts.generated.js';
+export type * from '../platform/schema-parts.generated.js';

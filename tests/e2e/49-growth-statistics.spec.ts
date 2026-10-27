@@ -134,6 +134,8 @@ test('Y tế nhập cân đo, tính kênh tăng trưởng; quản lý xem tổng
   await expect(managerPage.getByRole('heading', { name: '5.8 Thống kê hồ sơ học sinh chưa nhập đủ' })).toBeVisible();
   await managerPage.getByRole('button', { name: /hồ sơ thiếu Tôn giáo$/ }).click();
   const list = managerPage.getByRole('region', { name: 'Danh sách hồ sơ thiếu' });
+  // Lưới có phân trang và cơ sở dữ liệu e2e dùng chung nhiều học sinh: tìm theo tên trước khi mở
+  await list.getByLabel('Tìm theo họ tên, lớp').fill(childName);
   await list.getByRole('button', { name: childName }).click();
   await expect(managerPage.getByRole('region', { name: 'Hồ sơ đang mở' })).toContainText(childName);
   await managerPage.getByRole('tab', { name: 'Hồ sơ nhân sự' }).click();

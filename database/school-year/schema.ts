@@ -1,9 +1,13 @@
 import type { ColumnType, Generated } from 'kysely';
 
 // Kiểu dữ liệu các bảng của cơ sở dữ liệu năm học, khớp với tệp thay đổi cấu trúc
-type CreatedTimestamp = ColumnType<Date, Date | undefined, never>;
-type UpdatedTimestamp = ColumnType<Date, Date | undefined, Date>;
-type JsonValue = ColumnType<unknown, string | null, string | null>;
+export type CreatedTimestamp = ColumnType<Date, Date | undefined, never>;
+export type UpdatedTimestamp = ColumnType<Date, Date | undefined, Date>;
+export type JsonValue = ColumnType<unknown, string | null, string | null>;
+
+// Bảng của từng phần nằm ở schema-parts/<phần>.ts: mỗi tệp thêm bảng vào SchoolYearDatabase bằng declare module, không sửa tệp này
+// (YCTD-294); schema-parts.generated.ts do database/sinh-chi-muc.mjs sinh khi dựng
+export type * from './schema-parts.generated.js';
 
 export type OrgUnitType = 'truong_chinh' | 'phan_hieu' | 'diem_truong';
 export type OrgUnitStatus = 'active' | 'inactive';
@@ -6587,6 +6591,8 @@ export interface TutoringProgramsTable {
   funding_source: Generated<TutoringFundingSource>;
   // Ghi hình lớp video của chương trình, cần đồng ý của cha mẹ (YCTD-251)
   recording_enabled: Generated<boolean>;
+  // Thời hạn trả lời câu hỏi bài tập (YCTD-255)
+  answer_hours: Generated<number>;
 }
 
 export type TutoringFeeBasis = 'per_session' | 'per_program';
@@ -6844,9 +6850,6 @@ export interface AssignmentSubmissionsTable {
   graded_at: Date | null;
   returned_by: string | null;
   returned_at: Date | null;
-  // Học khi mạng yếu (DT-28 phần 28j): mã chống trùng của lần nộp, thời điểm em bấm nộp trên máy
-  client_submit_key: string | null;
-  client_submitted_at: Date | null;
   created_at: CreatedTimestamp;
   updated_at: UpdatedTimestamp;
 }
@@ -6862,8 +6865,6 @@ export interface SubmissionFilesTable {
   storage_key: string;
   uploaded_by: string;
   created_at: CreatedTimestamp;
-  // Mã chống trùng do máy sinh khi gửi lại (DT-28 phần 28j)
-  client_key: string | null;
 }
 
 export interface SubmissionCommentsTable {
@@ -7140,6 +7141,30 @@ export interface TutoringMediaViewsTable {
   viewed_at: CreatedTimestamp;
 }
 
+// Hỏi đáp bài tập của chương trình gia sư (DT-27 phần 27e, YCTD-255)
+export interface TutoringQuestionMarksTable {
+  thread_id: string;
+  child_id: string;
+  understood: boolean;
+  marked_at: Generated<Date>;
+}
+
+export interface TutoringAiAnswersTable {
+  post_id: string;
+  thread_id: string;
+  ai_request_id: string;
+  teacher_user_id: string;
+  created_at: CreatedTimestamp;
+}
+
+export interface TutoringAiConsentsTable {
+  child_id: string;
+  allowed: boolean;
+  decided_by_user_id: string;
+  decided_by_name: string;
+  decided_at: Generated<Date>;
+}
+
 // Bài về nhà và phụ huynh (DT-28 phần 28f, YCTD-276)
 export type HomeworkPolicyAction = 'warn' | 'block';
 export type HomeworkReminderKind = 'assigned' | 'due_soon' | 'missing' | 'returned';
@@ -7175,60 +7200,6 @@ export interface HomeworkRemindersTable {
   assignment_id: string;
   child_id: string;
   created_at: CreatedTimestamp;
-}
-
-// Lượt chạy gói SCORM của học sinh (DT-28 phần 28h, YCTD-278)
-export interface ScormAttemptsTable {
-  id: Generated<string>;
-  activity_id: string;
-  child_id: string;
-  package_id: string;
-  sco_identifier: string;
-  completion: Generated<'unknown' | 'not_attempted' | 'incomplete' | 'completed'>;
-  success: Generated<'unknown' | 'passed' | 'failed'>;
-  score: ColumnType<string | null, string | number | null | undefined, string | number | null>;
-  total_seconds: Generated<number>;
-  session_count: Generated<number>;
-  location: string | null;
-  suspend_data: string | null;
-  updated_at: UpdatedTimestamp;
-}
-
-// Huy hiệu, chứng nhận hoàn thành (DT-28 phần 28i, YCTD-279)
-export type LearningBadgeKind = 'section_complete' | 'course_complete' | 'on_time_streak' | 'teacher_award';
-
-export interface LearningBadgesTable {
-  id: Generated<string>;
-  child_id: string;
-  space_id: string;
-  kind: LearningBadgeKind;
-  section_id: string | null;
-  criterion_key: string | null;
-  title: string;
-  reason: string | null;
-  awarded_by: string | null;
-  awarded_by_name: string | null;
-  awarded_at: CreatedTimestamp;
-  revoked_at: Date | null;
-  revoked_by: string | null;
-  revoke_reason: string | null;
-}
-
-export interface CourseCertificatesTable {
-  id: Generated<string>;
-  code: string;
-  child_id: string;
-  space_id: string;
-  course_title: string;
-  school_name: string;
-  holder_name: string;
-  holder_short_name: string;
-  issued_at: CreatedTimestamp;
-  issued_by: string;
-  issued_by_name: string;
-  revoked_at: Date | null;
-  revoked_by: string | null;
-  revoke_reason: string | null;
 }
 
 export interface SchoolYearDatabase {
@@ -7662,6 +7633,9 @@ export interface SchoolYearDatabase {
   video_recording_views: VideoRecordingViewsTable;
   tutoring_program_courses: TutoringProgramCoursesTable;
   tutoring_media_views: TutoringMediaViewsTable;
+  tutoring_question_marks: TutoringQuestionMarksTable;
+  tutoring_ai_answers: TutoringAiAnswersTable;
+  tutoring_ai_consents: TutoringAiConsentsTable;
   tutoring_room_events: TutoringRoomEventsTable;
   assignments: AssignmentsTable;
   assignment_variants: AssignmentVariantsTable;
@@ -7686,7 +7660,4 @@ export interface SchoolYearDatabase {
   homework_policies: HomeworkPoliciesTable;
   homework_acknowledgements: HomeworkAcknowledgementsTable;
   homework_reminders: HomeworkRemindersTable;
-  scorm_attempts: ScormAttemptsTable;
-  learning_badges: LearningBadgesTable;
-  course_certificates: CourseCertificatesTable;
 }

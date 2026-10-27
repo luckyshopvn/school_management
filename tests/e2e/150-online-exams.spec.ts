@@ -415,7 +415,9 @@ test('CT-23a-10: giao đề, học sinh làm bài toàn màn hình có camera, t
     const row = teacherPage
       .getByRole('table', { name: 'Học sinh được giao' })
       .getByRole('row', { name: new RegExp(childName) });
-    await expect(row).toContainText('Đã nộp');
+    // Trang theo dõi vẫn mở từ lúc mở phòng thi (mở lại menu cùng trang không tải lại) và tự tải lại 15 giây một lần: lần tải ngay
+    // trước khi nộp thì phải chờ lần kế tiếp
+    await expect(row).toContainText('Đã nộp', { timeout: 20_000 });
     await expect(row).toContainText(/Thoát toàn màn hình: [1-9]/);
     await expect(row).toContainText('Không thấy khuôn mặt trong khung hình');
     await row.getByRole('button', { name: `Xem bài ${childName} lần 1` }).click();
