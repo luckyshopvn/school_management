@@ -97,15 +97,22 @@ export function ChildVideoPanel({
               <input
                 type="checkbox"
                 checked={consents.includes(program.id)}
-                onChange={(event) =>
+                onChange={(event) => {
+                  // Đổi ngay trên màn hình, ghi lên máy chủ sau; máy chủ từ chối thì trả lại như cũ
+                  const agree = event.target.checked;
+                  const previous = consents;
+                  setConsents(agree ? [...previous, program.id] : previous.filter((id) => id !== program.id));
                   void requestJson(`/api/v1/children/${child.id}/video/consents/${program.id}`, {
                     method: 'PUT',
                     headers: { 'content-type': 'application/json' },
-                    body: JSON.stringify({ agree: event.target.checked }),
+                    body: JSON.stringify({ agree }),
                   })
                     .then(load)
-                    .catch((error: unknown) => setErrorMessage(messageOf(error)))
-                }
+                    .catch((error: unknown) => {
+                      setConsents(previous);
+                      setErrorMessage(messageOf(error));
+                    });
+                }}
               />
               Đồng ý ghi hình {program.name}
             </label>
