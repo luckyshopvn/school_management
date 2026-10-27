@@ -141,4 +141,47 @@ export const PUBLIC_ROUTES: PublicRoute[] = [
     '/api/v1/public/certificates/:code',
     'Trang kiểm tra chứng nhận theo mã in trên chứng nhận, theo tên miền của trường; có giới hạn tần suất (DT-28 phần 28i)',
   ),
+  // Chợ gia sư (DT-27 phần 27f): đường dẫn không cần trường, cơ sở dữ liệu marketplace riêng, không có ngữ cảnh trường nên không với tới
+  // dữ liệu của trường nào; phần người dùng chỉ ở tên miền dành riêng của chợ khi chợ bật, phần quản trị chỉ ở tên miền cổng nền tảng
+  ...(
+    [
+      ['GET', '/api/v1/market/public/site'],
+      ['GET', '/api/v1/market/public/documents/:kind'],
+      ['POST', '/api/v1/market/auth/register'],
+      ['POST', '/api/v1/market/auth/verify'],
+      ['POST', '/api/v1/market/auth/resend'],
+      ['POST', '/api/v1/market/auth/login'],
+      ['POST', '/api/v1/market/auth/logout'],
+      ['GET', '/api/v1/market/me'],
+      ['POST', '/api/v1/market/me/consents/:documentId'],
+      ['GET', '/api/v1/market/children'],
+      ['POST', '/api/v1/market/children'],
+      ['PUT', '/api/v1/market/children/:id'],
+      ['DELETE', '/api/v1/market/children/:id'],
+      ['POST', '/api/v1/market/children/:id/consent'],
+      ['POST', '/api/v1/market/children/:id/consent/withdraw'],
+      ['POST', '/api/v1/market/children/:id/school-link'],
+      ['DELETE', '/api/v1/market/children/:id/school-link'],
+      ['GET', '/api/v1/market/tutor/profile'],
+      ['PUT', '/api/v1/market/tutor/profile'],
+      ['PUT', '/api/v1/market/tutor/provider'],
+    ] as const
+  ).map(([method, path]) => ({
+    method,
+    path,
+    reason:
+      'Chợ gia sư (DT-27 phần 27f): không thuộc trường nào, phiên riêng của chợ (bảng market_sessions), chỉ ở tên miền dành riêng của chợ khi chợ bật (tên miền khác 404); cơ sở dữ liệu marketplace bằng vai trò riêng',
+  })),
+  ...(
+    [
+      ['GET', '/api/v1/market/admin'],
+      ['PUT', '/api/v1/market/admin/settings'],
+      ['POST', '/api/v1/market/admin/documents'],
+    ] as const
+  ).map(([method, path]) => ({
+    method,
+    path,
+    reason:
+      'Quản trị chợ gia sư ở cổng nền tảng (DT-27 phần 27f): mã phiên vận hành (đối tượng riêng), chỉ ở tên miền PLATFORM_CONSOLE_HOST (tên miền khác 404)',
+  })),
 ];
