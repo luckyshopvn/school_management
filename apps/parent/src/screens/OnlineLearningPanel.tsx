@@ -63,12 +63,22 @@ export function OnlineLearningPanel({ child }: { child: { id: string; full_name:
   const [data, setData] = useState<ChildLearning>();
   const [errorMessage, setErrorMessage] = useState<string>();
   const [assignments, setAssignments] = useState<Record<string, ChildAssignment>>({});
+  // Tóm tắt của con (DT-28 phần 28d): hoạt động đến hạn trong 7 ngày tới, nhận xét bài tập thầy cô đã trả gần đây
+  const [summary, setSummary] = useState<{
+    due_soon: Array<{ id: string; title: string; space: string; due_at: string }>;
+    feedback: string[];
+  }>();
   const load = useCallback(() => {
     requestJson<ChildLearning>(`/api/v1/learning/children/${child.id}`)
       .then(setData)
       .catch((error: unknown) => setErrorMessage(messageOf(error)));
   }, [child.id]);
   useEffect(load, [load]);
+  useEffect(() => {
+    requestJson<typeof summary>(`/api/v1/learning/children/${child.id}/summary`)
+      .then(setSummary)
+      .catch(() => setSummary(undefined));
+  }, [child.id]);
   const acknowledge = async () => {
     try {
       await requestJson(`/api/v1/learning/children/${child.id}/rules/acknowledge`, { method: 'POST', body: '{}' });
@@ -90,6 +100,28 @@ export function OnlineLearningPanel({ child }: { child: { id: string; full_name:
   return (
     <section className="flex flex-col gap-3" aria-label={`Học trực tuyến của ${child.full_name}`}>
       {errorMessage ? <Alert tone="danger">{errorMessage}</Alert> : null}
+      {summary && summary.due_soon.length > 0 ? (
+        <div className="flex flex-col gap-1 rounded-lg border border-border bg-card p-3" aria-label="Sắp đến hạn">
+          <span className="text-content font-semibold">Sắp đến hạn (7 ngày tới)</span>
+          <ul className="flex flex-col gap-1 text-label text-text">
+            {summary.due_soon.map((item) => (
+              <li key={item.id}>
+                {item.title} · {item.space} · hạn {new Date(item.due_at).toLocaleString('vi-VN')}
+              </li>
+            ))}
+          </ul>
+        </div>
+      ) : null}
+      {summary && summary.feedback.length > 0 ? (
+        <div className="flex flex-col gap-1 rounded-lg border border-border bg-card p-3" aria-label="Nhận xét gần đây">
+          <span className="text-content font-semibold">Nhận xét gần đây của thầy cô</span>
+          <ul className="flex flex-col gap-1 text-label text-text">
+            {summary.feedback.map((text, index) => (
+              <li key={index}>{text}</li>
+            ))}
+          </ul>
+        </div>
+      ) : null}
       {data?.rules && !data.rules.acknowledged_at ? (
         <div className="flex flex-col gap-2 rounded-lg border border-border bg-card p-3">
           <span className="text-content font-semibold">

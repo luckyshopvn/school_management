@@ -17,6 +17,7 @@ import type { RubricCriterion, RubricLevel } from '../../learning-resources/reso
 import { decodeFileName, type UploadedPart } from '../../activities/content-files.js';
 import type { CompletionRule } from '../learning-rules.js';
 import { LearningService } from '../learning.js';
+import { recordActivityQuestionUsages } from '../progress/progress.js';
 import {
   assignmentRule,
   checkUpload,
@@ -946,7 +947,48 @@ export class AssignmentsService {
       await this.writeReturned(database, activity, assignment, updated, context.userId);
       returned.push(submission.id);
     }
+    if (returned.length > 0) {
+      await this.recordQuestionUsages(database, activity.id, assignment);
+    }
     return { returned: returned.length, skipped };
+  }
+
+  // Lượt dùng câu hỏi của bài (28d): tỷ lệ đúng của lớp mỗi câu trắc nghiệm trên lần nộp mới nhất của từng em hoặc nhóm
+  private async recordQuestionUsages(database: YearExecutor, activityId: string, assignment: AssignmentRow) {
+    const [items, questionRows, submissions] = await Promise.all([
+      this.items(database, assignment.id),
+      database
+        .selectFrom('assignment_items')
+        .select(['id', 'question_id'])
+        .where('assignment_id', '=', assignment.id)
+        .where('question_id', 'is not', null)
+        .execute(),
+      database
+        .selectFrom('assignment_submissions')
+        .selectAll()
+        .where('assignment_id', '=', assignment.id)
+        .where('status', '<>', 'draft')
+        .orderBy('attempt_no', 'desc')
+        .execute(),
+    ]);
+    if (questionRows.length === 0) return;
+    const latest = new Map<string, SubmissionRow>();
+    for (const row of submissions) {
+      const key = row.child_id ?? row.group_id ?? row.id;
+      if (!latest.has(key)) latest.set(key, row);
+    }
+    const correctness: Array<Record<string, boolean>> = [];
+    for (const row of latest.values()) {
+      const variantId = await this.variantOf(database, assignment, row);
+      correctness.push(
+        gradeObjectiveItems(itemsForVariant(items, variantId), asRecord(row.answers) as Answers).correct,
+      );
+    }
+    await recordActivityQuestionUsages(database, activityId, {
+      questionItems: questionRows.map((row) => ({ id: row.id, question_id: row.question_id ?? '' })),
+      correctness,
+      today: new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Ho_Chi_Minh' }).format(this.clock.now()),
+    });
   }
 
   // Bài nhóm: giáo viên điều chỉnh điểm cá nhân của một em, bắt buộc ghi lý do; bỏ điều chỉnh bằng điểm rỗng

@@ -11,6 +11,7 @@ import { AiAssistantPage } from './ai-assistant/AiAssistantPage.js';
 import { CourseTemplatesPage } from './learning/CourseTemplatesPage.js';
 import { OnlineClassesPage } from './learning/OnlineClassesPage.js';
 import { OnlineTeachingPage } from './learning/OnlineTeachingPage.js';
+import { OnlineLearningReportsPage } from './learning/OnlineLearningReportsPage.js';
 import { NotificationsPage } from './notifications/NotificationsPage.js';
 import { ApprovalThresholdsPage } from './catalogs/ApprovalThresholdsPage.js';
 import { CommonCatalogPage } from './catalogs/CommonCatalogPage.js';
@@ -815,6 +816,12 @@ const routeTree = rootRoute.addChildren([
   createRoute({ getParentRoute: () => rootRoute, path: '/online-classes', component: OnlineClassesPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/course-templates', component: CourseTemplatesPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/online-teaching', component: OnlineTeachingPage }),
+  // Báo cáo học tập trực tuyến (DT-28 phần 28d)
+  createRoute({
+    getParentRoute: () => rootRoute,
+    path: '/online-learning-reports',
+    component: OnlineLearningReportsPage,
+  }),
 ]);
 
 // Đường dẫn gốc lúc dựng (APP_BASE_PATH của vite, DT-SaaS phần S9): /quan-ly/ ở hồ sơ thử nghiệm, / mặc định

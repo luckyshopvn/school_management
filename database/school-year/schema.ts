@@ -305,7 +305,7 @@ export interface TransferDossiersTable {
 // Sổ điểm THCS, THPT theo Thông tư 22/2021 (DT-21 phần 21c, YCTD-170)
 export type ScoreTermTypeValue = 'first_term' | 'second_term';
 export type ScoreKindValue = 'regular' | 'mid' | 'final';
-export type ScoreSourceValue = 'manual' | 'import' | 'exam';
+export type ScoreSourceValue = 'manual' | 'import' | 'exam' | 'activity';
 export type RatingTermValue = 'first_term' | 'second_term' | 'year';
 export type RatingValue = 'good' | 'fair' | 'pass' | 'fail';
 
@@ -6000,8 +6000,10 @@ export interface QuestionUsagesTable {
   difficulty: ColumnType<string | null, number | null | undefined, number | null>;
   discrimination: ColumnType<string | null, number | null | undefined, number | null>;
   // Lượt dùng trong trò chơi ở lớp (DT-23 phần 23c): nguồn, lượt chơi, tỷ lệ đúng của lớp (phần trăm)
-  source: Generated<'exam' | 'game'>;
+  source: Generated<'exam' | 'game' | 'activity'>;
   game_session_id: string | null;
+  // Câu dùng trong bài tập trực tuyến (DT-28 phần 28d)
+  activity_id: ColumnType<string | null, string | null | undefined, string | null>;
   correct_rate: ColumnType<string | null, number | null | undefined, number | null>;
 }
 
@@ -6883,6 +6885,33 @@ export interface AssignmentCommentBankTable {
   created_at: CreatedTimestamp;
 }
 
+// Tiến độ, bảng điểm hoạt động, sổ điểm, báo cáo (DT-28 phần 28d, YCTD-274)
+export interface OnlineTeachingTermReportsTable {
+  id: Generated<string>;
+  term_type: 'first_term' | 'second_term';
+  evaluation: string | null;
+  difficulties: string | null;
+  causes: string | null;
+  recommendations: string | null;
+  updated_by: string;
+  updated_by_name: string;
+  updated_at: UpdatedTimestamp;
+}
+
+export interface ActivityScoreTransfersTable {
+  id: Generated<string>;
+  space_id: string;
+  target: 'score_book' | 'comment_book';
+  activity_ids: ColumnType<unknown, string, string>;
+  method: 'single' | 'weighted';
+  term_type: 'first_term' | 'second_term';
+  seq: number | null;
+  written: number;
+  created_by: string;
+  created_by_name: string;
+  created_at: CreatedTimestamp;
+}
+
 // Lớp video trực tiếp (DT-27 phần 27a, YCTD-251)
 export type VideoRoomRole = 'host' | 'student' | 'guardian' | 'observer';
 
@@ -7429,4 +7458,6 @@ export interface SchoolYearDatabase {
   submission_comments: SubmissionCommentsTable;
   submission_contributions: SubmissionContributionsTable;
   assignment_comment_bank: AssignmentCommentBankTable;
+  online_teaching_term_reports: OnlineTeachingTermReportsTable;
+  activity_score_transfers: ActivityScoreTransfersTable;
 }

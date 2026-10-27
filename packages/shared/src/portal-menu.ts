@@ -214,6 +214,8 @@ export const PORTAL_WORKSPACES: PortalWorkspace[] = [
           leaf('9.1.', 'Lớp học trực tuyến', '/online-classes'),
           leaf('9.2.', 'Khoá học mẫu', '/course-templates'),
           leaf('9.3.', 'Hình thức và nội quy dạy học trực tuyến', '/online-teaching'),
+          // Tiến độ, báo cáo theo vai trò, tổng kết học kỳ (DT-28 phần 28d, Thông tư 09/2021 Điều 15 khoản 6)
+          leaf('9.4.', 'Báo cáo học tập trực tuyến', '/online-learning-reports'),
         ]),
         ['TH', 'THCS', 'THPT'],
       ),

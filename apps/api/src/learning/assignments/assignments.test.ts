@@ -448,6 +448,13 @@ describe('Điểm cuối bài tập trực tuyến', () => {
       .where('child_id', '=', children[0] ?? '')
       .executeTakeFirstOrThrow();
     assert.deepEqual(result, { status: 'passed', score: '8.00', source: 'assignment' });
+    // Lượt dùng câu hỏi (28d): câu trắc nghiệm của bài ghi tỷ lệ đúng của lớp khi trả bài
+    const usage = await schoolYear
+      .selectFrom('question_usages')
+      .select(['source', 'attempts', 'correct_rate'])
+      .where('activity_id', '=', activityId)
+      .executeTakeFirstOrThrow();
+    assert.deepEqual(usage, { source: 'activity', attempts: 1, correct_rate: '100.00' });
 
     const student = await api('GET', `/student/assignments/${activityId}`, studentTokens[0] ?? '');
     const attempt = (student.body.attempts as Array<Record<string, unknown>>)[0];
