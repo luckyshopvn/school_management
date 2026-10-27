@@ -125,6 +125,7 @@ import { migration as createDiscussions } from './migrations/0182_create_discuss
 import { migration as createGroupWorkspaces } from './migrations/0183_create_group_workspaces.js';
 import { migration as createDiscussionControls } from './migrations/0184_create_discussion_controls.js';
 import { migration as createTutoringProgramCourses } from './migrations/0200_create_tutoring_program_courses.js';
+import { migration as createTutoringQuestions } from './migrations/0201_create_tutoring_questions.js';
 
 // Danh sách tệp thay đổi cấu trúc của cơ sở dữ liệu năm học, theo số thứ tự (QU-01, QU-11)
 export const schoolYearMigrations: Record<string, Migration> = {
@@ -267,4 +268,6 @@ export const schoolYearMigrations: Record<string, Migration> = {
   '0184_create_discussion_controls': createDiscussionControls,
   // Khoá học ghi sẵn của chương trình gia sư (DT-27 phần 27d1): 0200, sau dải của DT-28 vì cần course_spaces, course_activities (0172, 0173)
   '0200_create_tutoring_program_courses': createTutoringProgramCourses,
+  // Hỏi đáp bài tập của chương trình gia sư (DT-27 phần 27e): 0201, sau dải của DT-28 vì cần bảng hỏi đáp của 28e (0182)
+  '0201_create_tutoring_questions': createTutoringQuestions,
 };

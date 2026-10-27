@@ -24,6 +24,7 @@ import { AppShell } from '../pages/AppShell.js';
 import { menuPageTitle } from '../pages/page-title.js';
 import { ApiError } from '../session/api-client.js';
 import { ProgramCoursePanel } from './ProgramCoursePanel.js';
+import { TutoringQuestionsPanel } from './TutoringQuestionsPanel.js';
 import { tutoringApi, type ProgramDetail } from './tutoring-api.js';
 
 // 1. Chương trình gia sư (DT-27 phần 27b, YCTD-252): giáo viên lập chương trình (loại nội dung bắt buộc, có giải thích ngay trên màn
@@ -483,6 +484,7 @@ export function TutoringProgramsPage() {
             onChanged={() => void queryClient.invalidateQueries({ queryKey: ['tutoring-programs'] })}
           />
         ) : null}
+        <TutoringQuestionsPanel notify={setToastMessage} />
 
         <form
           aria-label="Lập chương trình gia sư"

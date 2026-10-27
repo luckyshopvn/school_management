@@ -5,6 +5,7 @@ import { ExamRoom } from './ExamRoom.js';
 import { StudentLearningPanel } from './StudentLearningPanel.js';
 import { CalendarWeek, StudentGroupsPanel } from './StudentDiscussions.js';
 import { StudentTutoringCourses } from './StudentTutoringCourses.js';
+import { StudentTutoringQuestions } from './StudentTutoringQuestions.js';
 import { StudentVideoPanel } from './StudentVideoPanel.js';
 import {
   listStudentExams,
@@ -172,6 +173,7 @@ export function StudentHomeScreen() {
       {/* Lớp học trực tuyến (DT-28 phần 28b) */}
       <StudentVideoPanel />
       <StudentTutoringCourses />
+      <StudentTutoringQuestions />
       <StudentLearningPanel />
       {/* Không gian học nhóm, lịch học tập (DT-28 phần 28e) */}
       <StudentGroupsPanel />

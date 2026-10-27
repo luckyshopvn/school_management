@@ -542,6 +542,12 @@ import { LearningProgressService } from './learning/progress/progress.js';
 import { DiscussionsController } from './learning/discussions/discussions.controller.js';
 import { DiscussionsService } from './learning/discussions/discussions.js';
 import { StudentDiscussionsController } from './learning/discussions/student-discussions.controller.js';
+import {
+  ChildTutoringQuestionsController,
+  StudentTutoringQuestionsController,
+  TutoringQuestionsController,
+} from './tutoring/tutoring-questions.controller.js';
+import { TutoringQuestionsService } from './tutoring/tutoring-questions.js';
 
 @Module({})
 export class ApplicationModule {
@@ -866,6 +872,10 @@ export class ApplicationModule {
         TutoringCourseMediaStreamController,
         ChildTutoringCoursesController,
         StudentTutoringCoursesController,
+        // Hỏi đáp bài tập của chương trình gia sư (DT-27 phần 27e)
+        TutoringQuestionsController,
+        ChildTutoringQuestionsController,
+        StudentTutoringQuestionsController,
       ],
       providers: [
         { provide: API_CONFIGURATION, useValue: configuration },
@@ -1300,6 +1310,8 @@ export class ApplicationModule {
         DiscussionsService,
         // Khoá học ghi sẵn của chương trình gia sư (DT-27 phần 27d1)
         TutoringCoursesService,
+        // Hỏi đáp bài tập của chương trình gia sư (DT-27 phần 27e)
+        TutoringQuestionsService,
       ],
     };
   }

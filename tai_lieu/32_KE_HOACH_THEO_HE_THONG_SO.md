@@ -2389,7 +2389,7 @@ Cỡ ước lượng (một phần của DT-16 là một đơn vị): 27a 1,75; 
 | 27b | 1 | Đã làm, YCTD-252, phiên bản 0.152.0, PR 196: chương trình gia sư trong trường (loại nội dung bắt buộc, khóa của Thông tư 29 ở máy chủ, quy định có ngày hiệu lực), buổi lặp theo tuần không trùng thời khoá biểu, giới hạn 2 tiết/tuần/môn, quyết định của Sở, đơn của cha mẹ, điểm danh và báo vắng, tin nhắn qua cha mẹ, chỗ nối điểm danh tự động cho 27a; năm học 0152 đến 0154, định danh 0172, e2e 191 |
 | 27c | 2 | Đã làm, YCTD-253, phiên bản đề xuất 0.156.0, PR 201: `curriculum` khóa cứng không giá, nguồn chi kinh phí trường; giá của chương trình bổ trợ có thu, dòng gia sư trên hóa đơn của kỳ do lần tính học phí lập, khoản trừ buổi hủy (trừ kỳ sau, điều chỉnh hóa đơn qua luồng hiện có, đóng sau khi hoàn qua phiếu chi hoàn), thù lao theo tiết vào bảng lương tháng (khoản mục `THU_LAO_DAY_THEM`, chịu thuế thu nhập cá nhân), báo cáo thu chi và tệp Excel; năm học 0155, 0156, e2e 192 |
 | 27d | 2 | 27d1 đã làm (YCTD-254, phiên bản đề xuất 0.161.0, PR 208): khoá tự chọn của 28b gắn với chương trình gia sư, ghi danh theo đơn, phát video bài học theo đoạn bằng đường dẫn ký có nhật ký xem; năm học 0200 (sau dải của DT-28). 27d2 (tiến độ cho học sinh, giáo viên, phụ huynh; năm học 0201) làm tiếp ở PR riêng, 28d đã gộp (PR 206) |
-| 27e | 2 | Chưa làm; YCTD-255 giữ sẵn; chờ 23d gộp và 28e (YCTD-270) |
+| 27e | 2 | Đã làm (YCTD-255, phiên bản đề xuất 0.166.0, PR …): hàng chờ hỏi đáp theo chương trình trên 28e, gợi ý AI nháp qua 23d, dấu có AI hỗ trợ, đã hiểu, phụ huynh tắt AI; năm học 0201, hệ thống 0120 |
 | 27f | 3 | Chưa làm; YCTD-256 giữ sẵn; chờ mốc 2, DT-24, DT-25 |
 | 27g | 4 | Chưa làm; YCTD-257 giữ sẵn |
 | 27h | 4 | Chưa làm; YCTD-258 giữ sẵn; bật tiền thật chờ E-01 đến E-04 |
