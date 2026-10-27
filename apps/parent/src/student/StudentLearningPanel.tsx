@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Alert, Button, StatusBadge, type StatusTone } from '@school-management/ui';
 import { StudentAssignmentView } from './StudentAssignmentView.js';
+import { StudentSpaceDiscussions } from './StudentDiscussions.js';
 import { requestStudentJson, StudentApiError } from './student-api.js';
 
 // Học sinh tự học ở lớp học trực tuyến (DT-28 phần 28b, YCTD-272, sau khi 23a gộp kênh student): các lớp đã mở cho em, hoạt
@@ -86,6 +87,8 @@ export function StudentLearningPanel() {
   const [opened, setOpened] = useState<OpenedActivity>();
   // Bài tập trực tuyến (DT-28 phần 28c) mở màn hình làm bài
   const [assignmentId, setAssignmentId] = useState<string>();
+  // Thông báo lớp, diễn đàn, hỏi đáp (DT-28 phần 28e)
+  const [discussion, setDiscussion] = useState<{ id: string; title: string }>();
   const [errorMessage, setErrorMessage] = useState<string>();
 
   const load = useCallback(() => {
@@ -137,6 +140,13 @@ export function StudentLearningPanel() {
         </div>
       ) : null}
       {opened ? <ActivityContent activity={opened} onClose={() => setOpened(undefined)} /> : null}
+      {discussion ? (
+        <StudentSpaceDiscussions
+          spaceId={discussion.id}
+          title={discussion.title}
+          onClose={() => setDiscussion(undefined)}
+        />
+      ) : null}
       {assignmentId ? (
         <StudentAssignmentView
           activityId={assignmentId}
@@ -154,6 +164,15 @@ export function StudentLearningPanel() {
           className="flex flex-col gap-2 rounded-xl border border-border bg-card p-4 shadow-sm"
         >
           <h3 className="text-body font-semibold text-text">{space.title}</h3>
+          <div>
+            <Button
+              variant="secondary"
+              aria-label={`Thảo luận ${space.title}`}
+              onClick={() => setDiscussion({ id: space.id, title: space.title })}
+            >
+              Thông báo, thảo luận, hỏi đáp
+            </Button>
+          </div>
           <p className="text-label text-text-secondary">
             Đã xong {space.summary.done}/{space.summary.required} hoạt động bắt buộc ({space.summary.percent}%)
             {space.summary.overdue > 0 ? ` · ${space.summary.overdue} hoạt động quá hạn` : ''}

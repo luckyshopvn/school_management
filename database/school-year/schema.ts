@@ -6999,6 +6999,120 @@ export interface VideoRecordingViewsTable {
   viewed_at: CreatedTimestamp;
 }
 
+// Giao tiếp trong lớp và nhóm (DT-28 phần 28e, YCTD-275)
+export type DiscussionKind = 'announcement' | 'forum' | 'question' | 'group_board';
+export type DiscussionAuthorKind = 'teacher' | 'student' | 'staff';
+
+export interface DiscussionThreadsTable {
+  id: Generated<string>;
+  scope: 'course_space' | 'group';
+  space_id: string | null;
+  group_id: string | null;
+  kind: DiscussionKind;
+  title: string;
+  body: string;
+  section_id: string | null;
+  activity_id: string | null;
+  private: Generated<boolean>;
+  status: Generated<'open' | 'locked'>;
+  accepted_post_id: string | null;
+  author_user_id: string;
+  author_name: string;
+  author_kind: DiscussionAuthorKind;
+  author_child_id: string | null;
+  flags: ColumnType<unknown, string | undefined, string>;
+  hidden_at: Date | null;
+  hidden_by: string | null;
+  last_post_at: Generated<Date>;
+  created_at: CreatedTimestamp;
+  updated_at: UpdatedTimestamp;
+}
+
+export interface DiscussionPostsTable {
+  id: Generated<string>;
+  thread_id: string;
+  body: string;
+  author_user_id: string;
+  author_name: string;
+  author_kind: DiscussionAuthorKind;
+  author_child_id: string | null;
+  flags: ColumnType<unknown, string | undefined, string>;
+  hidden_at: Date | null;
+  hidden_by: string | null;
+  created_at: CreatedTimestamp;
+}
+
+export interface DiscussionReportsTable {
+  id: Generated<string>;
+  thread_id: string;
+  post_id: string | null;
+  source: 'report' | 'filter';
+  reason: string;
+  reporter_user_id: string | null;
+  reporter_kind: 'teacher' | 'student' | 'guardian' | 'staff' | null;
+  status: Generated<'open' | 'resolved' | 'dismissed'>;
+  due_at: Date;
+  resolution: string | null;
+  resolved_by: string | null;
+  resolved_by_name: string | null;
+  resolved_at: Date | null;
+  created_at: CreatedTimestamp;
+}
+
+export interface GroupTasksTable {
+  id: Generated<string>;
+  group_id: string;
+  title: string;
+  assignee_child_id: string | null;
+  due_on: ColumnType<string | null, string | null | undefined, string | null>;
+  status: Generated<'todo' | 'doing' | 'done'>;
+  created_by: string;
+  created_by_name: string;
+  created_at: CreatedTimestamp;
+  updated_at: UpdatedTimestamp;
+}
+
+export interface GroupNotesTable {
+  id: Generated<string>;
+  group_id: string;
+  version: number;
+  content: string;
+  edited_by: string;
+  edited_by_name: string;
+  created_at: CreatedTimestamp;
+}
+
+export interface GroupFilesTable {
+  id: Generated<string>;
+  group_id: string;
+  file_name: string;
+  content_type: string;
+  size_bytes: number;
+  storage_key: string;
+  uploaded_by: string;
+  uploaded_by_name: string;
+  hidden_at: Date | null;
+  created_at: CreatedTimestamp;
+}
+
+export interface DiscussionSpaceSettingsTable {
+  space_id: string;
+  students_can_post_topics: Generated<boolean>;
+  updated_by: string;
+  updated_at: UpdatedTimestamp;
+}
+
+export interface DiscussionWriteBansTable {
+  id: Generated<string>;
+  child_id: string;
+  until: Date;
+  reason: string;
+  report_id: string | null;
+  created_by: string;
+  created_by_name: string;
+  created_at: CreatedTimestamp;
+}
+
 export interface SchoolYearDatabase {
   question_topics: QuestionTopicsTable;
   questions: QuestionsTable;
@@ -7441,4 +7555,12 @@ export interface SchoolYearDatabase {
   assignment_comment_bank: AssignmentCommentBankTable;
   online_teaching_term_reports: OnlineTeachingTermReportsTable;
   activity_score_transfers: ActivityScoreTransfersTable;
+  discussion_threads: DiscussionThreadsTable;
+  discussion_posts: DiscussionPostsTable;
+  discussion_reports: DiscussionReportsTable;
+  group_tasks: GroupTasksTable;
+  group_notes: GroupNotesTable;
+  group_files: GroupFilesTable;
+  discussion_space_settings: DiscussionSpaceSettingsTable;
+  discussion_write_bans: DiscussionWriteBansTable;
 }
