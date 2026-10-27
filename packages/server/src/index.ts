@@ -28,6 +28,11 @@ export {
   ParentOrgTokenVerifier,
 } from './parent-org-token.js';
 export {
+  PLATFORM_OPERATOR_TOKEN_AUDIENCE,
+  PLATFORM_OPERATOR_TOKEN_KIND,
+  PlatformOperatorTokenVerifier,
+} from './platform-operator-token.js';
+export {
   ESMS_SEND_URL,
   EsmsClient,
   normalizeVietnamesePhone,

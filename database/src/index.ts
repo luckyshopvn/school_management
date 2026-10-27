@@ -522,3 +522,25 @@ export type * from '../identity/schema-parts.generated.js';
 export type * from '../system/schema-parts.generated.js';
 export type * from '../school-year/schema-parts.generated.js';
 export type * from '../platform/schema-parts.generated.js';
+// Chợ gia sư (DT-27 phần 27f): cơ sở dữ liệu chung `marketplace`, cấu hình chợ ở cổng nền tảng
+export type * from '../marketplace/schema.js';
+export type * from '../marketplace/schema-parts.generated.js';
+export {
+  canConnect,
+  createMarketplaceConnection,
+  DEFAULT_MARKETPLACE_ROLE,
+  dropMarketplaceDatabase,
+  provisionMarketplaceDatabase,
+  type ProvisionMarketplaceRequest,
+} from './marketplace/marketplace-database.js';
+export {
+  DEFAULT_MARKET_SETTINGS,
+  MARKET_SETTINGS_KEY,
+  MarketSettingsError,
+  parseMarketSettings,
+  readMarketSettings,
+  REAL_PAYMENTS_BLOCKED_MESSAGE,
+  saveMarketSettings,
+  type MarketSettings,
+} from './marketplace/market-settings.js';
+export { startMarketplaceTestDatabase, type MarketplaceTestDatabase } from './marketplace/marketplace-test-support.js';

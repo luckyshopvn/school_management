@@ -4,11 +4,13 @@ import { defineConfig, devices } from '@playwright/test';
 import { replaceDatabaseName, testAdminDatabaseUrl } from '@school-management/database';
 import {
   E2E_CONSOLE_HOST,
+  E2E_MARKET_LINK_SECRET,
   E2E_ROOT_DOMAIN,
   E2E_SCHEDULER_SECRET,
   E2E_MULTI_API_PORT,
   E2E_MULTI_CONSOLE_PORT,
   E2E_MULTI_IDENTITY_PORT,
+  E2E_MULTI_MARKET_PORT,
   E2E_MULTI_PORTAL_PORT,
   E2E_MULTI_STATE_FILE,
   E2E_PUSH_OUTBOX_FILE,
@@ -30,7 +32,11 @@ const apiBaseUrl = `http://localhost:${E2E_MULTI_API_PORT}`;
 
 // Trạng thái do e2e-multi-setup.mjs ghi (khóa gốc của lần chạy, bố cục); chưa có thì chưa chạy bước dựng
 const state = existsSync(E2E_MULTI_STATE_FILE)
-  ? (JSON.parse(readFileSync(E2E_MULTI_STATE_FILE, 'utf8')) as { masterKey: string; layout: 'database' | 'schema' })
+  ? (JSON.parse(readFileSync(E2E_MULTI_STATE_FILE, 'utf8')) as {
+      masterKey: string;
+      layout: 'database' | 'schema';
+      marketplaceUrl?: string;
+    })
   : { masterKey: '', layout: 'database' as const };
 const adminUrl = testAdminDatabaseUrl();
 const platformEnvironment: Record<string, string> = {
@@ -100,6 +106,9 @@ export default defineConfig({
         PUSH_PROVIDER: 'development',
         PUSH_NATIVE_PROVIDER: 'development',
         PUSH_DEVELOPMENT_OUTBOX: fileURLToPath(E2E_PUSH_OUTBOX_FILE),
+        // Chợ gia sư (DT-27 phần 27f, spec 195): vai trò riêng của chợ, bí mật ký mã liên kết của lần chạy kiểm thử
+        MARKETPLACE_DATABASE_URL: state.marketplaceUrl ?? '',
+        MARKET_LINK_SECRET: E2E_MARKET_LINK_SECRET,
       },
     },
     {
@@ -112,6 +121,11 @@ export default defineConfig({
       url: `http://localhost:${E2E_MULTI_CONSOLE_PORT}`,
       // Trang của tài khoản cấp trên (S6) đọc số liệu tổng hợp ở máy chủ API
       env: { IDENTITY_BASE_URL: identityBaseUrl, API_BASE_URL: apiBaseUrl },
+    },
+    {
+      command: `pnpm --filter @school-management/market exec vite --port ${E2E_MULTI_MARKET_PORT} --strictPort`,
+      url: `http://localhost:${E2E_MULTI_MARKET_PORT}`,
+      env: { API_BASE_URL: apiBaseUrl },
     },
   ],
 });

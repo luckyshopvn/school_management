@@ -4,5 +4,5 @@
     "rootDir": ".",
     "outDir": "dist"
   },
-  "include": ["src", "identity", "system", "school-year", "platform"]
+  "include": ["src", "identity", "system", "school-year", "platform", "marketplace"]
 }
