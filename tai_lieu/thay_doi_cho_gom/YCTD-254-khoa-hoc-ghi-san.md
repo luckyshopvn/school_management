@@ -13,7 +13,7 @@ phien_ban_de_xuat: 0.161.0
 
 - Đọc lại mục 19.4, 19.5 (27d) và 20 (28b, 28d) của `32_KE_HOACH_THEO_HE_THONG_SO.md`; 27d dựa trên lõi LMS của 28b và 28d (YCTD-270), 28d chưa gộp.
 - Theo đồng ý của phiên điều phối ngày 2026-10-27, tách 27d thành **27d1** (phần riêng của gia sư, chỉ cần 28b, làm ở đây) và **27d2** (tiến độ đã xem, bài đã nộp, điểm cho học sinh, giáo viên, phụ huynh; làm sau khi 28d gộp).
-- Năm học `0200` (sau dải 0170 đến 0199 của DT-28 vì khoá ngoại tới `course_spaces` 0172, `course_activities` 0173; dải 0150 đến 0169 của DT-27 chạy trước nên không dùng được; 27d2 dùng `0201`): `tutoring_program_courses`, `tutoring_media_views`.
+- Năm học `0200` (sau dải 0170 đến 0199 của DT-28 vì khoá ngoại tới `course_spaces` 0172, `course_activities` 0173; dải 0150 đến 0169 của DT-27 chạy trước nên không dùng được; 27d2 không thêm bảng): `tutoring_program_courses`, `tutoring_media_views`.
 - Máy chủ `apps/api/src/tutoring/tutoring-courses.ts`: gắn chương trình gia sư với khoá tự chọn của 28b, đồng bộ ghi danh khi duyệt hoặc rút đơn, bài video của khoá, đường dẫn xem ký 5 phút có nhật ký, phát theo đoạn (HTTP Range).
 - Giao diện: khối Khoá học ghi sẵn ở chi tiết chương trình (cổng quản trị), khoá học của con (ứng dụng phụ huynh), khoá học gia sư (kênh học sinh); thành phần dùng chung `LessonVideoList`.
 - Kiểm thử: CT-27d1-1 đến CT-27d1-3.
@@ -37,7 +37,7 @@ phien_ban_de_xuat: 0.161.0
 
 ### YCTD-254: DT-27 phần 27d1: khoá học ghi sẵn của chương trình gia sư (phần riêng của gia sư) – 2026-10-27
 
-- Lý do: phần 27d của `32_KE_HOACH_THEO_HE_THONG_SO.md` mục 19.4, 19.5, xây trên lõi LMS của DT-28 (YCTD-270). 27d cần 28b và 28d; 28d chưa gộp nên tách: **27d1** (phần này, chỉ cần 28b) và **27d2** (tiến độ cho học sinh, giáo viên, phụ huynh dùng 28d; làm sau khi 28d gộp; năm học `0201`). Phiên điều phối đồng ý ngày 2026-10-27.
+- Lý do: phần 27d của `32_KE_HOACH_THEO_HE_THONG_SO.md` mục 19.4, 19.5, xây trên lõi LMS của DT-28 (YCTD-270). 27d cần 28b và 28d; 28d chưa gộp nên tách: **27d1** (phần này, chỉ cần 28b) và **27d2** (tiến độ cho học sinh, giáo viên, phụ huynh dùng 28d; làm sau khi 28d gộp; không thêm bảng, YCTD-261). Phiên điều phối đồng ý ngày 2026-10-27.
 - Nội dung thay đổi (Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11 ở những chỗ kế hoạch chưa chốt):
   - **Gắn khoá** (năm học `0200`, sau dải của DT-28 vì khoá ngoại tới bảng của 28b; dải DT-27 chạy trước nên không dùng được): giáo viên dạy chương trình hoặc Ban Giám hiệu tạo khoá học ghi sẵn cho chương trình đã duyệt: một `course_spaces` loại `elective` (tên, mô tả của chương trình, hiện với học sinh, giáo viên ghi danh), giáo viên của chương trình là giáo viên của khoá; `tutoring_program_courses` (một chương trình một khoá). Tạo lại thì trả khoá đã có.
   - **Ghi danh**: học sinh có đơn được duyệt là học sinh của khoá (`course_enrollments` của 28b đang học); rút đơn hoặc không duyệt thì gỡ (giữ lịch sử); đồng bộ khi tạo khoá, khi duyệt đơn, khi rút đơn.
@@ -85,7 +85,7 @@ phien_ban_de_xuat: 0.161.0
 
 ## Nối dòng
 
-| 32_KE_HOACH_THEO_HE_THONG_SO.md | 27d | Tách ngày 2026-10-27 (YCTD-254): **27d1** phần riêng của gia sư chỉ cần 28b (gắn khoá tự chọn với chương trình, ghi danh theo đơn, phát video theo đoạn có đường dẫn ký; năm học 0200) đã làm; **27d2** tiến độ cho học sinh, giáo viên, phụ huynh làm sau khi 28d gộp (năm học 0201; số 0157 của kế hoạch không dùng được vì chạy trước bảng của 28b) |
+| 32_KE_HOACH_THEO_HE_THONG_SO.md | 27d | Tách ngày 2026-10-27 (YCTD-254): **27d1** phần riêng của gia sư chỉ cần 28b (gắn khoá tự chọn với chương trình, ghi danh theo đơn, phát video theo đoạn có đường dẫn ký; năm học 0200) đã làm; **27d2** tiến độ cho học sinh, giáo viên, phụ huynh làm sau khi 28d gộp (YCTD-261; dùng kết quả hoạt động của 28b, 28d, không thêm bảng; số 0157 của kế hoạch không dùng) |
 | 03_DANH_SACH_CONG_VIEC.md | P02 Trẻ, phụ huynh và lớp học | DT-27 phần 27d1 (YCTD-254: khoá học ghi sẵn của chương trình gia sư) |
 | 14_DAC_TA_GIAO_DIEN.md | MH-349 | YCTD-254: khối Khoá học ghi sẵn ở chi tiết chương trình đã duyệt (MH-470) |
 | 14_DAC_TA_GIAO_DIEN.md | MH-354 | YCTD-254: khoá học ghi sẵn của chương trình con có đơn được duyệt (MH-471) |

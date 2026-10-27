@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import { randomUUID } from 'node:crypto';
 import { after, before, describe, it } from 'node:test';
 import { createDatabase, replaceDatabaseName, type SchoolYearDatabase } from '@school-management/database';
+import { createTestUser, postJson } from '@school-management/identity/testing';
 import type { Kysely } from 'kysely';
 import { FileStorage } from '../files/file-storage.js';
 import {
@@ -14,7 +15,7 @@ import {
 
 // Khoá học ghi sẵn của chương trình gia sư (DT-27 phần 27d1, YCTD-254), kịch bản CT-27d1-1 đến CT-27d1-3: gắn chương trình với khoá tự
 // chọn của lõi LMS 28b, ghi danh theo đơn được duyệt, phát video bài học (học liệu 22h1) theo đoạn bằng đường dẫn ký có nhật ký xem.
-// Dữ liệu giả, cấp THCS
+// CT-27d2-1, CT-27d2-2 (YCTD-261): tiến độ xem video, tiến độ cho cha mẹ, giáo viên. Dữ liệu giả, cấp THCS
 const vietnamToday = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Ho_Chi_Minh' }).format(new Date());
 const addDays = (date: string, days: number) =>
   new Date(Date.parse(`${date}T00:00:00Z`) + days * 86_400_000).toISOString().slice(0, 10);
@@ -35,6 +36,7 @@ describe('Khoá học ghi sẵn của chương trình gia sư', () => {
   let registrationId = '';
   let spaceId = '';
   let videoActivityId = '';
+  let secondVideoId = '';
   const url = (path: string) => `${environment.baseUrl}${path}`;
   const api = (method: string, path: string, user: LoggedInUser, body?: unknown) =>
     sendJson(method, url(path), user.accessToken, body);
@@ -340,5 +342,118 @@ describe('Khoá học ghi sẵn của chương trình gia sư', () => {
       { viewer_user_id: parent.userId, child_id: childId },
       { viewer_user_id: teacher.userId, child_id: null },
     ]);
+  });
+
+  it('CT-27d2-1: học sinh xem video ở kênh student: theo điều kiện mở của 28b, phần trăm đã xem chỉ tăng, xem từ 90% thì hoàn thành', async () => {
+    const student = await createTestUser(environment.identity.database, {
+      roles: [{ roleCode: 'VT-21', orgUnitId: unitId }],
+    });
+    await schoolYear
+      .insertInto('student_learning_accounts')
+      .values({
+        child_id: childId,
+        username: student.username,
+        password_hash: 'khong-dung',
+        issued_at: new Date(),
+        issued_by_name: 'Hiệu trưởng thử',
+        identity_user_id: student.id,
+      })
+      .execute();
+    const login = await postJson(`${environment.identity.baseUrl}/auth/login`, {
+      login: student.username,
+      password: student.password,
+      channel: 'student',
+    });
+    assert.equal(login.status, 200, JSON.stringify(login.body));
+    const token = login.body.access_token as string;
+    const studentApi = (method: string, path: string, body?: unknown) =>
+      sendJson(method, url(`/student/tutoring${path}`), token, body);
+
+    // Bài 2 mở sau khi xem xong bài 1 (điều kiện mở của 28b)
+    const video = await schoolYear
+      .selectFrom('course_activities')
+      .select(['section_id', 'settings'])
+      .where('id', '=', videoActivityId)
+      .executeTakeFirstOrThrow();
+    secondVideoId = (
+      await schoolYear
+        .insertInto('course_activities')
+        .values({
+          space_id: spaceId,
+          section_id: video.section_id,
+          kind: 'resource',
+          title: 'Nghe bài 2',
+          position: 3,
+          status: 'published',
+          settings: JSON.stringify(video.settings),
+          open_rules: JSON.stringify({
+            mode: 'all',
+            rules: [{ type: 'after_activity', activity_id: videoActivityId }],
+          }),
+        })
+        .returning('id')
+        .executeTakeFirstOrThrow()
+    ).id;
+
+    const courses = await studentApi('GET', '/courses');
+    assert.equal(courses.status, 200, JSON.stringify(courses.body));
+    const progress = (courses.body as unknown as Json[])[0]?.progress as Json;
+    assert.deepEqual(progress.summary, { required: 3, done: 0, overdue: 0, percent: 0 });
+    assert.equal((await studentApi('POST', `/course-media/${secondVideoId}/link`)).status, 422, 'bài còn khoá');
+    assert.equal((await studentApi('POST', `/course-media/${videoActivityId}/link`)).status, 200);
+
+    const report = async (percent: unknown) =>
+      studentApi('POST', `/course-media/${videoActivityId}/progress`, { percent });
+    assert.equal((await report(150)).status, 400);
+    assert.deepEqual((await report(30)).body, { status: 'in_progress', progress: 30 });
+    assert.deepEqual((await report(20)).body, { status: 'in_progress', progress: 30 }, 'phần trăm đã xem chỉ tăng');
+    assert.deepEqual((await report(95)).body, { status: 'completed', progress: 95 });
+    assert.deepEqual((await report(100)).body, { status: 'completed', progress: 95 }, 'xem xong rồi thì giữ nguyên');
+    assert.equal(
+      (await studentApi('POST', `/course-media/${secondVideoId}/link`)).status,
+      200,
+      'xem xong bài 1 thì bài 2 mở',
+    );
+
+    const events = await schoolYear
+      .selectFrom('learning_events')
+      .select('verb')
+      .where('activity_id', '=', videoActivityId)
+      .where('actor_kind', '=', 'student')
+      .orderBy('occurred_at')
+      .execute();
+    assert.deepEqual(
+      events.map((event) => event.verb),
+      ['opened', 'progressed', 'completed'],
+    );
+  });
+
+  it('CT-27d2-2: cha mẹ thấy tiến độ của con trong khoá; giáo viên dạy thấy tiến độ từng học sinh, giáo viên khác bị chặn', async () => {
+    const course = await api('GET', `/children/${childId}/tutoring/programs/${programId}/course`, parent);
+    assert.equal(course.status, 200, JSON.stringify(course.body));
+    const progress = course.body.progress as Json;
+    assert.deepEqual(progress.summary, { required: 3, done: 1, overdue: 0, percent: 33 });
+    assert.deepEqual((progress.videos as Json)[videoActivityId], { status: 'completed', progress: 95 });
+    assert.deepEqual((progress.videos as Json)[secondVideoId], { status: 'not_started', progress: 0 });
+    assert.deepEqual(
+      (progress.activities as Json[]).map((activity) => [activity.title, activity.status]),
+      [
+        ['Nghe bài 1', 'completed'],
+        ['Đọc trước', 'not_started'],
+        ['Nghe bài 2', 'not_started'],
+      ],
+    );
+
+    assert.equal((await api('GET', `/tutoring/programs/${programId}/course/progress`, otherTeacher)).status, 403);
+    const board = await api('GET', `/tutoring/programs/${programId}/course/progress`, teacher);
+    assert.equal(board.status, 200, JSON.stringify(board.body));
+    assert.deepEqual(
+      (board.body.videos as Json[]).map((video) => video.title),
+      ['Nghe bài 1', 'Nghe bài 2'],
+    );
+    const row = (board.body.students as Json[])[0] as Json;
+    assert.equal(row.full_name, 'Học sinh Khoá Học');
+    assert.deepEqual(row.summary, { required: 3, done: 1, overdue: 0, percent: 33 });
+    assert.deepEqual((row.videos as Json)[videoActivityId], { status: 'completed', progress: 95 });
   });
 });
