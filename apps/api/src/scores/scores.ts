@@ -529,6 +529,38 @@ export class ScoresService {
     },
     transaction: Executor,
   ) {
+    return this.recordScores(currentUser, input, transaction, 'exam');
+  }
+
+  // Điểm từ kết quả hoạt động học trực tuyến (DT-28 phần 28d, YCTD-274; GD-141): chỉ điểm đánh giá thường xuyên, cùng cửa với
+  // điểm bài kiểm tra (quyền nhập môn của lớp, khoá sổ, hạn nhập của 21c); giáo viên chọn hoạt động và xác nhận ở phần 28d
+  async recordActivityScores(
+    currentUser: CurrentUser,
+    input: {
+      class_id: string;
+      subject_id: string;
+      term_type: TermType;
+      seq: number;
+      scores: Array<{ child_id: string; score: number }>;
+    },
+    transaction: Executor,
+  ) {
+    return this.recordScores(currentUser, { ...input, kind: 'regular' }, transaction, 'activity');
+  }
+
+  private async recordScores(
+    currentUser: CurrentUser,
+    input: {
+      class_id: string;
+      subject_id: string;
+      term_type: TermType;
+      kind: 'regular' | 'mid' | 'final';
+      seq: number;
+      scores: Array<{ child_id: string; score: number }>;
+    },
+    transaction: Executor,
+    source: 'exam' | 'activity',
+  ) {
     const classRow = await this.findClass(transaction, input.class_id);
     const config = await readScoreConfig(transaction, classRow.school_level);
     const subjects = await this.classSubjects(transaction, classRow, config);
@@ -558,13 +590,13 @@ export class ScoresService {
           kind: input.kind,
           seq,
           score: row.score,
-          source: 'exam',
+          source,
           ...base,
         })
         .onConflict((conflict) =>
           conflict
             .columns(['child_id', 'subject_id', 'term_type', 'kind', 'seq'])
-            .doUpdateSet({ score: row.score, source: 'exam', class_id: input.class_id, ...base }),
+            .doUpdateSet({ score: row.score, source, class_id: input.class_id, ...base }),
         )
         .execute();
     }

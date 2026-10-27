@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { Alert, ApplicationHeader, Button, FORM_CONTROL_CLASS } from '@school-management/ui';
 import { ApiError, requestJson } from '../session/api-client.js';
 import { AssignmentScreen } from './AssignmentScreen.js';
+import { LearningProgressScreen } from './LearningProgressScreen.js';
 
 // Lớp học trực tuyến của tôi (DT-28 phần 28b, YCTD-272): lớp học trực tuyến theo lớp, môn tự có từ phân công giảng dạy;
 // giáo viên mở lớp cho học sinh, giao hoạt động, thêm nhanh một trang nội dung vào chương, xem tiến độ. Soạn đầy đủ (liên
@@ -50,6 +51,8 @@ function SpaceView({ spaceId, onBack }: { spaceId: string; onBack(): void }) {
   const [assignmentTitle, setAssignmentTitle] = useState('');
   const [assignmentDue, setAssignmentDue] = useState('');
   const [assignmentId, setAssignmentId] = useState<string>();
+  // Tiến độ, bảng điểm hoạt động, đưa vào sổ (DT-28 phần 28d)
+  const [showProgress, setShowProgress] = useState(false);
   const load = useCallback(() => {
     requestJson<SpaceDetail>(`/api/v1/learning/spaces/${spaceId}`)
       .then(setDetail)
@@ -69,6 +72,17 @@ function SpaceView({ spaceId, onBack }: { spaceId: string; onBack(): void }) {
     }
   };
   const firstSection = detail?.sections[0];
+  if (showProgress) {
+    return (
+      <LearningProgressScreen
+        spaceId={spaceId}
+        onBack={() => {
+          setShowProgress(false);
+          load();
+        }}
+      />
+    );
+  }
   if (assignmentId) {
     return (
       <AssignmentScreen
@@ -244,6 +258,11 @@ function SpaceView({ spaceId, onBack }: { spaceId: string; onBack(): void }) {
           {progress ? (
             <section className="flex flex-col gap-1" aria-label="Tiến độ học sinh">
               <h2 className="text-section-title font-semibold text-text">Tiến độ học sinh</h2>
+              <div>
+                <Button variant="secondary" onClick={() => setShowProgress(true)}>
+                  Tiến độ và bảng điểm
+                </Button>
+              </div>
               <ul className="flex flex-col gap-1 text-content">
                 {progress.students.map((student) => (
                   <li key={student.child_id} className="rounded-lg border border-border bg-card p-3">
