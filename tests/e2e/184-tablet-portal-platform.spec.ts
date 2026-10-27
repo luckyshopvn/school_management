@@ -83,7 +83,8 @@ test('@thiet-bi @thiet-bi-pr CT-26e-2: lưới dữ liệu cuộn ngang có cộ
 }) => {
   await signInPortal(page);
   const width = page.viewportSize()?.width ?? 1280;
-  await page.goto('/accounts');
+  // Chuyển trang trong ứng dụng (tải lại trang thì WebKit mất phiên vì mã phiên chỉ ở bộ nhớ)
+  await page.evaluate("history.pushState({}, '', '/accounts'); dispatchEvent(new PopStateEvent('popstate'))");
   const grid = page.getByRole('region', { name: 'Danh sách người dùng' });
   await expect(grid).toBeVisible();
   if (width >= 768) {

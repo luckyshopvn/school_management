@@ -25,4 +25,8 @@ body {
     min-height: 44px;
     min-width: 44px;
   }
+  /* Ô chọn nhỏ: vùng chạm tính theo nhãn bao ngoài */
+  label:has(> input[type='checkbox'], > input[type='radio']) {
+    min-height: 44px;
+  }
 }

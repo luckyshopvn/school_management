@@ -402,7 +402,7 @@ function LoginForm({ context, directory }: { context: LoginContext; directory: b
                 forgotHost ? (
                   <a
                     href={schoolPageUrl(forgotHost, '/forgot-password')}
-                    className="text-label font-medium text-link hover:underline"
+                    className="text-label font-medium text-link hover:underline max-xl:inline-flex max-xl:min-h-11 max-xl:items-center"
                   >
                     Quên mật khẩu?
                   </a>
@@ -410,7 +410,10 @@ function LoginForm({ context, directory }: { context: LoginContext; directory: b
                   <span className="text-label text-text-secondary">Quên mật khẩu? Chọn trường trước</span>
                 )
               ) : (
-                <Link to="/forgot-password" className="text-label font-medium text-link hover:underline">
+                <Link
+                  to="/forgot-password"
+                  className="text-label font-medium text-link hover:underline max-xl:inline-flex max-xl:min-h-11 max-xl:items-center"
+                >
                   Quên mật khẩu?
                 </Link>
               )}

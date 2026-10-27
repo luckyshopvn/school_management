@@ -405,7 +405,7 @@ export function DataGrid<Row>({
   const primaryColumn = visibleColumns.find((column) => column.primary) ?? visibleColumns[0];
   // Cột đầu (sau ô chọn) dính bên trái khi bảng cuộn ngang; ô chọn rộng 2,5rem nên cột đầu dịch theo
   const stickyFirst = (index: number) =>
-    index === 0 ? `sticky z-[1] bg-inherit ${selectable ? 'left-10' : 'left-0'}` : '';
+    index === 0 ? `sticky z-[1] bg-inherit ${selectable ? 'left-10 max-xl:left-11' : 'left-0'}` : '';
   const pageSize = settings.pageSize;
   const total = serverPagination ? serverPagination.total : rows.length;
   const totalPages = Math.max(1, Math.ceil(total / pageSize));
@@ -474,7 +474,7 @@ export function DataGrid<Row>({
   };
 
   return (
-    <section className="flex flex-col gap-3 rounded-xl border border-border bg-card p-4" aria-label={label}>
+    <section className="flex min-w-0 flex-col gap-3 rounded-xl border border-border bg-card p-4" aria-label={label}>
       <div className="flex flex-wrap items-end gap-3">
         {search ? (
           <TextField
@@ -561,16 +561,18 @@ export function DataGrid<Row>({
             <thead className="bg-card text-left text-label font-medium text-text-secondary">
               <tr className="bg-card">
                 {selectable ? (
-                  <th scope="col" className="sticky left-0 z-[1] w-10 bg-inherit px-3 py-2">
-                    <input
-                      ref={selectAllReference}
-                      type="checkbox"
-                      className="h-4 w-4"
-                      aria-label="Chọn tất cả dòng trên trang"
-                      checked={allPageSelected}
-                      disabled={pageIds.length === 0}
-                      onChange={(event) => togglePage(event.target.checked)}
-                    />
+                  <th scope="col" className="sticky left-0 z-[1] w-10 bg-inherit px-3 py-2 max-xl:w-11 max-xl:p-0">
+                    <label className="flex items-center justify-center max-xl:h-11 max-xl:w-11">
+                      <input
+                        ref={selectAllReference}
+                        type="checkbox"
+                        className="h-4 w-4"
+                        aria-label="Chọn tất cả dòng trên trang"
+                        checked={allPageSelected}
+                        disabled={pageIds.length === 0}
+                        onChange={(event) => togglePage(event.target.checked)}
+                      />
+                    </label>
                   </th>
                 ) : null}
                 {visibleColumns.map((column, index) => (
@@ -606,16 +608,18 @@ export function DataGrid<Row>({
                     >
                       {selectable ? (
                         <td
-                          className="sticky left-0 z-[1] bg-inherit px-3 py-2"
+                          className="sticky left-0 z-[1] bg-inherit px-3 py-2 max-xl:p-0"
                           onClick={(event) => event.stopPropagation()}
                         >
-                          <input
-                            type="checkbox"
-                            className="h-4 w-4"
-                            aria-label={`Chọn ${getRowLabel(row)}`}
-                            checked={selectedIds.has(id)}
-                            onChange={(event) => toggleRow(id, event.target.checked)}
-                          />
+                          <label className="flex items-center justify-center max-xl:h-11 max-xl:w-11">
+                            <input
+                              type="checkbox"
+                              className="h-4 w-4"
+                              aria-label={`Chọn ${getRowLabel(row)}`}
+                              checked={selectedIds.has(id)}
+                              onChange={(event) => toggleRow(id, event.target.checked)}
+                            />
+                          </label>
                         </td>
                       ) : null}
                       {visibleColumns.map((column, index) => (
