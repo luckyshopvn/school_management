@@ -3,7 +3,8 @@ import type { Kysely } from 'kysely';
 import type { AcademicYearTransitionStep } from '../academic-years/academic-year-transition.js';
 
 // Mở năm học mới thì chuyển danh mục lương, khoản gán, biểu thuế và bảng lương sang, giữ nguyên mã định danh (QĐ-17,
-// YCTD-60). Biểu thuế mặc định đã có sẵn trong năm học mới nên bản của năm cũ ghi đè để giữ phần kế toán đã sửa
+// YCTD-60). Biểu thuế mặc định và khoản mục hệ thống (thù lao gia sư, YCTD-253) đã có sẵn trong năm học mới nên bản của năm cũ
+// ghi đè để giữ phần kế toán đã sửa
 export const payrollTransitionStep: AcademicYearTransitionStep = {
   name: 'payroll',
   async carryOver(context) {
@@ -13,7 +14,23 @@ export const payrollTransitionStep: AcademicYearTransitionStep = {
     const previous = context.previousDatabase as Kysely<SchoolYearDatabase>;
     const next = context.newDatabase as Kysely<SchoolYearDatabase>;
     for (const row of await previous.selectFrom('pay_item_types').selectAll().execute()) {
-      await next.insertInto('pay_item_types').values(row).execute();
+      await next
+        .insertInto('pay_item_types')
+        .values(row)
+        .onConflict((conflict) =>
+          conflict.column('id').doUpdateSet({
+            kind: row.kind,
+            code: row.code,
+            name: row.name,
+            calculation_method: row.calculation_method,
+            default_amount: row.default_amount,
+            rate_percent: row.rate_percent,
+            is_tax_exempt: row.is_tax_exempt,
+            is_mandatory_insurance: row.is_mandatory_insurance,
+            status: row.status,
+          }),
+        )
+        .execute();
     }
     for (const row of await previous.selectFrom('staff_pay_items').selectAll().execute()) {
       await next.insertInto('staff_pay_items').values(row).execute();

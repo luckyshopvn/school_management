@@ -2377,7 +2377,7 @@ Cỡ ước lượng (một phần của DT-16 là một đơn vị): 27a 1,75; 
 |---|---|---|
 | 27a | 1 | Chưa làm; YCTD-251 giữ sẵn; chờ 23a gộp |
 | 27b | 1 | Đã làm, YCTD-252, phiên bản 0.152.0, PR 196: chương trình gia sư trong trường (loại nội dung bắt buộc, khóa của Thông tư 29 ở máy chủ, quy định có ngày hiệu lực), buổi lặp theo tuần không trùng thời khoá biểu, giới hạn 2 tiết/tuần/môn, quyết định của Sở, đơn của cha mẹ, điểm danh và báo vắng, tin nhắn qua cha mẹ, chỗ nối điểm danh tự động cho 27a; năm học 0152 đến 0154, định danh 0172, e2e 191 |
-| 27c | 2 | Chưa làm; YCTD-253 giữ sẵn; chờ 27b |
+| 27c | 2 | Đã làm, YCTD-253, phiên bản đề xuất 0.156.0, PR …: `curriculum` khóa cứng không giá, nguồn chi kinh phí trường; giá của chương trình bổ trợ có thu, dòng gia sư trên hóa đơn của kỳ do lần tính học phí lập, khoản trừ buổi hủy (trừ kỳ sau, điều chỉnh hóa đơn qua luồng hiện có, đóng sau khi hoàn qua phiếu chi hoàn), thù lao theo tiết vào bảng lương tháng (khoản mục `THU_LAO_DAY_THEM`, chịu thuế thu nhập cá nhân), báo cáo thu chi và tệp Excel; năm học 0155, 0156, e2e 192 |
 | 27d | 2 | Chưa làm; YCTD-254 giữ sẵn; chờ 28b, 28d (lõi LMS, YCTD-270) |
 | 27e | 2 | Chưa làm; YCTD-255 giữ sẵn; chờ 23d gộp và 28e (YCTD-270) |
 | 27f | 3 | Chưa làm; YCTD-256 giữ sẵn; chờ mốc 2, DT-24, DT-25 |

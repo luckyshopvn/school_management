@@ -12,6 +12,8 @@ import type { Migration } from 'kysely/migration';
 //   sẵn có, không đóng bảo hiểm) trong bảng `staff_bonus_deductions` của tháng; `tutoring_teacher_pay` ghi buổi nào đã đẩy để không
 //   trả trùng; dòng thưởng bị hủy ở phân hệ lương thì buổi được đẩy lại.
 export const TUTORING_PAY_ITEM_CODE = 'THU_LAO_DAY_THEM';
+// Mã định danh cố định để bước chuyển năm học ghi đè đúng dòng (cùng cách biểu thuế mặc định)
+export const TUTORING_PAY_ITEM_ID = '00000000-0000-4000-8000-000000000253';
 
 export const migration: Migration = {
   async up(database) {
@@ -71,6 +73,7 @@ export const migration: Migration = {
     await database
       .insertInto('pay_item_types' as never)
       .values({
+        id: TUTORING_PAY_ITEM_ID,
         kind: 'allowance',
         code: TUTORING_PAY_ITEM_CODE,
         name: 'Thù lao dạy phụ đạo, bồi dưỡng',

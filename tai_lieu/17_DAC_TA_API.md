@@ -1559,6 +1559,9 @@ Giao kèo văn thư lưu trữ (YCTD-118):
 | GET, PUT | /api/v1/tutoring/sessions/{id}/attendance; POST .../room-events | Điểm danh và xác nhận (vắng báo cha mẹ một lần); sự kiện vào, ra phòng giả lập đến khi 27a gộp |
 | GET, POST | /api/v1/tutoring/exemptions; GET .../{id}/file | Quyết định tăng thời lượng của Sở (biểu mẫu nhiều phần, tệp tùy chọn) |
 | GET | /api/v1/children/{id}/tutoring; POST .../registrations; POST .../registrations/{rid}/withdraw | Cha mẹ: chương trình mở cho con, đơn đã gửi, lịch học và điểm danh đã xác nhận; gửi đơn (`agree` bắt buộc), rút đơn |
+| GET | /api/v1/tutoring/finance/report?from&to; GET .../report/export | Thu chi gia sư theo chương trình và khoảng tháng (tối đa 24 tháng): đã thu, trừ kỳ sau, điều chỉnh giảm, đã hoàn, thu thuần, thù lao đã đẩy và chưa đẩy, tổng thù lao theo nguồn chi; tệp Excel ghi nhật ký xuất (YCTD-253) |
+| GET, POST | /api/v1/tutoring/finance/teacher-pay?month; POST .../teacher-pay/push `{ month }` | Thù lao buổi đã dạy chưa đẩy đến hết tháng (lý do chưa đẩy được); đẩy vào bảng lương tháng, cần `P08.bonus-deduction.manage`; bảng lương đã gửi duyệt hoặc đã duyệt trả 422 `payroll_locked` (YCTD-253) |
+| GET, POST | /api/v1/tutoring/finance/credits; POST .../credits/{id}/adjust, /deduct-next, /close `{ note }` | Khoản trừ buổi hủy đã thu; lập điều chỉnh giảm hóa đơn qua luồng điều chỉnh hiện có (cần `P05.invoice-adjustment.create`), chuyển sang trừ kỳ sau, đóng sau khi hoàn (YCTD-253) |
 | GET | /api/v1/student/profile, /exams | Học sinh: thông tin, bài được giao (P02-83) |
 | POST | /api/v1/student/exams/{id}/start | Mở hoặc tiếp tục lượt (`camera_state`) (P02-83) |
 | GET, PUT | /api/v1/student/attempts/{id}, /answers | Đọc lượt; lưu nháp từng câu (P02-83) |
