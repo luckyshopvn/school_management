@@ -840,6 +840,9 @@ Ba bảng ở cơ sở dữ liệu năm học (tệp `0124_create_classroom_tool
 | classroom_call_logs (từ YCTD-212) | Lượt gọi tên ngẫu nhiên (BR-231) | id, client_id (duy nhất, máy giáo viên sinh), class_id, child_id, called_by, called_by_name, called_at (giờ bấm trên máy, đã kẹp), created_at; chỉ mục (class_id, called_at) |
 | classroom_groupings (từ YCTD-212) | Bản chia nhóm gần nhất của một giáo viên cho một lớp (BR-231) | id, class_id, owner_user_id, groups (JSON: [{ name, child_ids }], không lưu họ tên), created_at, updated_at; duy nhất (class_id, owner_user_id) |
 | classroom_score_events (từ YCTD-212) | Dòng điểm của bảng điểm nhanh (BR-232) | id, client_id (duy nhất), session_key (mã buổi), class_id, target_kind (`group`, `student`), group_name, child_id, delta (-50 đến 50, khác 0), note, recorded_by, recorded_by_name, occurred_at, conduct_entry_id (dòng nề nếp đã chuyển), confirmed_at, created_at; chỉ mục (class_id, session_key, occurred_at) |
+| classroom_game_sessions (từ YCTD-213; tệp năm học `0126_create_classroom_games`) | Lượt chơi trò chơi ở màn hình lớp (P02-100, BR-280) | client_id (duy nhất, chống gửi trùng), class_id, kind (`crossword`, `wheel`, `quiz_rounds`, `answer_cards`), title, config (JSON), group_scores (JSON), question_count, started_at, finished_at, recorded_by |
+| classroom_game_answers (từ YCTD-213) | Kết quả từng câu của lượt (P02-101) | session_id (xóa theo), question_id, child_id hoặc group_name, answer, correct; không lưu hình ảnh |
+| (ghi chú cột mới, YCTD-213) | `question_usages` (tệp `0127_add_game_question_usages`): `exam_id` cho phép trống, thêm `source` (`exam`, `game`), `game_session_id`, `correct_rate` (P02-102) |
 
 Hai mục cấu hình theo trường ở bảng `settings` của Trường chính (không có bảng riêng): `classroom_offline_enabled` (bật, mặc định bật) và `classroom_roster_ttl_hours` (1 đến 100, mặc định 24) (BR-233).
 

@@ -99,6 +99,8 @@ import { migration as createExamProctoring } from './migrations/0129_create_exam
 import { migration as addQuestionAiFlag } from './migrations/0128_add_question_ai_flag.js';
 import { migration as createClassroomTools } from './migrations/0124_create_classroom_tools.js';
 import { migration as createClassroomScoreEvents } from './migrations/0125_create_classroom_score_events.js';
+import { migration as createClassroomGames } from './migrations/0126_create_classroom_games.js';
+import { migration as addGameQuestionUsages } from './migrations/0127_add_game_question_usages.js';
 import { migration as createCourseSpaces } from './migrations/0172_create_course_spaces.js';
 import { migration as createCourseContent } from './migrations/0173_create_course_content.js';
 import { migration as createActivityResults } from './migrations/0174_create_activity_results.js';
@@ -216,6 +218,9 @@ export const schoolYearMigrations: Record<string, Migration> = {
   '0129_create_exam_proctoring': createExamProctoring,
   '0124_create_classroom_tools': createClassroomTools,
   '0125_create_classroom_score_events': createClassroomScoreEvents,
+  // Trò chơi kiến thức và thẻ đáp án giấy (DT-23 phần 23c): 0126, 0127
+  '0126_create_classroom_games': createClassroomGames,
+  '0127_add_game_question_usages': addGameQuestionUsages,
   // Lõi hệ thống quản lý học tập (DT-28 phần 28b): 0172 đến 0175
   '0172_create_course_spaces': createCourseSpaces,
   '0173_create_course_content': createCourseContent,

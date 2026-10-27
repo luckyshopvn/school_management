@@ -272,6 +272,11 @@ Thông báo đẩy (DT-26 phần 26b, YCTD-232 phần máy chủ, YCTD-239 phầ
 
 Phân hệ `apps/api/src/learning`: hàm thuần (`learning-rules.ts`: sinh lớp từ phân công, điều kiện mở, hoàn thành, tiến độ, kế hoạch theo tuần, quyết định thay thế; `learning-template-rules.ts`: nội dung khoá mẫu, cách đẩy xuống lớp; `learning-activity-kinds.ts`: danh mục loại hoạt động), dịch vụ `learning.ts`, tuyến `learning.controller.ts`. Khoá học mẫu ở cơ sở dữ liệu hệ thống (dùng qua nhiều năm như học liệu 22h1); lớp học trực tuyến, chương, hoạt động, kết quả, nhật ký, quyết định, nội quy ở năm học. Lõi chỉ đọc phân công (`class_staff_assignments`), thời khoá biểu (gọi `TimetablesService.applyingVersions`), tổ bộ môn, học liệu, nhóm học sinh (qua `GroupSetsReader.groupsOfChild` của 28a, chỉ tính nhóm thuộc bộ nhóm đang dùng); không sửa tệp của các phân hệ đó. Loại hoạt động là danh mục cắm được: phần sau (28c bài tập, 28e thảo luận, 28g giờ học trực tuyến, 28h SCORM, bài kiểm tra của 23a) thêm loại bằng một dòng ở cuối `ACTIVITY_KINDS`, ràng buộc của cột `kind` đã liệt kê sẵn mọi loại của kế hoạch DT-28. Học sinh tự học ở kênh `student` (của 23a) qua `student-learning.controller.ts`, dùng lại `learningOfChild`, `recordView`.
 
+## 12G. Trò chơi kiến thức và thẻ đáp án giấy (DT-23 phần 23c, YCTD-213)
+
+Trò chơi chạy hoàn toàn trên máy giáo viên (thẻ "Trò chơi" trong Công cụ lớp học của ứng dụng giáo viên): máy chủ API chỉ cấp câu hỏi đã duyệt (`/classroom-games/classes/{id}/questions`, không có đáp án gửi trước cho học sinh vì học sinh không dùng thiết bị) và ghi lượt chơi khi kết thúc. Lượt chơi nằm ở hàng đợi ngoại tuyến của 23b và gửi lại bằng `client_id` nên không trùng. Thẻ đáp án giấy do dự án tự thiết kế (mã thẻ gồm số thứ tự trong lớp và bốn ô chọn); bộ đọc thẻ tự viết, chạy trên máy giáo viên (canvas, không thư viện ngoài, không tải hình lên máy chủ), nên không có vấn đề giấy phép. Kết quả ghi vào `classroom_game_sessions`, `classroom_game_answers` và lịch sử sử dụng câu hỏi (`question_usages` nguồn `game`).
+
+
 ## 13. Quyết định kiến trúc
 
 | Mã | Quyết định | Trạng thái |
