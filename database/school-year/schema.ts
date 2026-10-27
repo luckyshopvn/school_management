@@ -6357,6 +6357,8 @@ export interface ClassroomGameAnswersTable {
   answer: string | null;
   correct: boolean;
   created_at: CreatedTimestamp;
+}
+
 // Lõi hệ thống quản lý học tập (DT-28 phần 28b, YCTD-272)
 export type CourseSpaceKind = 'class_subject' | 'elective';
 export type CourseActivityKind =
