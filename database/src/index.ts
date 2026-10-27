@@ -495,7 +495,7 @@ export type { CourseTemplateStatus } from '../system/schema.js';
 // Khóa VAPID của nền tảng cho thông báo đẩy (DT-26 phần 26b)
 export * from './push-keys.js';
 export * from './native-push-keys.js';
-export type { NativePushProvider, PlatformNativePushKeysTable, PlatformPushKeysTable } from '../platform/schema.js';
+export type { PlatformPushKeysTable } from '../platform/schema.js';
 export type {
   NotificationPreferencesTable,
   NotificationUrgentTemplatesTable,
@@ -517,3 +517,8 @@ export type {
 export type { DiscussionAuthorKind, DiscussionKind } from '../school-year/schema.js';
 // Bài về nhà và phụ huynh (DT-28 phần 28f)
 export type { HomeworkPolicyAction, HomeworkReminderKind } from '../school-year/schema.js';
+// Kiểu bảng của từng phần ở <loại>/schema-parts/ tự xuất ra ngoài gói, không cần thêm dòng vào tệp này (YCTD-294)
+export type * from '../identity/schema-parts.generated.js';
+export type * from '../system/schema-parts.generated.js';
+export type * from '../school-year/schema-parts.generated.js';
+export type * from '../platform/schema-parts.generated.js';

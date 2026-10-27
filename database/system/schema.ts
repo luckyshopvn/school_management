@@ -1,9 +1,13 @@
 import type { ColumnType, Generated } from 'kysely';
 
 // Kiểu dữ liệu các bảng của cơ sở dữ liệu hệ thống, khớp với tệp thay đổi cấu trúc
-type CreatedTimestamp = ColumnType<Date, Date | undefined, never>;
-type UpdatedTimestamp = ColumnType<Date, Date | undefined, Date>;
-type DateText = ColumnType<string, string, string>;
+export type CreatedTimestamp = ColumnType<Date, Date | undefined, never>;
+export type UpdatedTimestamp = ColumnType<Date, Date | undefined, Date>;
+export type DateText = ColumnType<string, string, string>;
+
+// Bảng của từng phần nằm ở schema-parts/<phần>.ts: mỗi tệp thêm bảng vào SystemDatabase bằng declare module, không sửa tệp này
+// (YCTD-294); schema-parts.generated.ts do database/sinh-chi-muc.mjs sinh khi dựng
+export type * from './schema-parts.generated.js';
 
 export type AcademicYearStatus = 'draft' | 'open' | 'closed';
 export type AcademicTermType = 'first_term' | 'second_term' | 'summer_term';
@@ -1220,7 +1224,7 @@ export interface IntegrationSecretsTable {
 
 // Trợ lý AI của trường (DT-23 phần 23d, YCTD-214)
 export type AiKeyMode = 'school' | 'platform';
-export type AiRequestKind = 'questions' | 'lesson_plan' | 'check' | 'feedback';
+export type AiRequestKind = 'questions' | 'lesson_plan' | 'check' | 'feedback' | 'answer';
 export type AiRequestStatus = 'success' | 'failed' | 'rejected' | 'blocked';
 
 export interface AiSettingsTable {

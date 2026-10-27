@@ -10,8 +10,8 @@
     }
   },
   "scripts": {
-    "build": "tsc -p tsconfig.json",
-    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "build": "node sinh-chi-muc.mjs && tsc -p tsconfig.json",
+    "typecheck": "node sinh-chi-muc.mjs && tsc -p tsconfig.json --noEmit",
     "migrate": "node --env-file-if-exists=../.env dist/src/migrate-command.js",
     "level-check": "node --env-file-if-exists=../.env dist/src/level-check-command.js",
     "test": "node --env-file-if-exists=../.env --test \"dist/**/*.test.js\"",

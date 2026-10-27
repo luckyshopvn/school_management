@@ -1,7 +1,8 @@
 import { createPrivateKey } from 'node:crypto';
 import { decryptSecret, encryptSecret } from '@school-management/server/tenancy';
 import type { Kysely } from 'kysely';
-import type { NativePushProvider, PlatformDatabase } from '../platform/schema.js';
+import type { PlatformDatabase } from '../platform/schema.js';
+import type { NativePushProvider } from '../platform/schema-parts/dt-26g-day-goc.js';
 
 // Khóa đẩy gốc của nền tảng (DT-26 phần 26g, YCTD-237): FCM (tài khoản dịch vụ Firebase, giao thức HTTP v1) cho Android, APNs (khóa
 // dạng mã thông báo `.p8`) cho iOS; một ứng dụng chung cho mọi trường nên khóa ở cơ sở dữ liệu nền tảng, mã hóa bằng khóa gốc.
