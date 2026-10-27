@@ -34,7 +34,7 @@ phien_ban_de_xuat: 0.164.0
   - Đã giao, sắp đến hạn (từ 19:00 hôm trước, trường đổi được), chưa nộp khi quá hạn, đã trả.
   - Giờ yên lặng 21:00 đến 6:00; nhiều bài của một em gộp một thông báo; mỗi bài, mỗi em, mỗi loại chỉ nhắc một lần.
 - Vắng có phép ngày giao: màn hình bài của giáo viên gợi ý "Gia hạn 2 ngày" hoặc "Miễn".
-- Kiểm thử: 9/9 ca của `homework-rules.test.ts`, `homework.test.ts`; e2e `215-homework-parents`.
+- Kiểm thử: 9/9 ca của `homework-rules.test.ts`, `homework.test.ts`; hồi quy 123/123 ca (`homework`, `assignments`, `discussions`, `progress`, `learning`, `school-levels`, `quick-links`, `school-plan`, `child-groups`, `class-logs`); `migrate.test.ts`; e2e `215-homework-parents` đạt (chạy kèm spec nền 01 đến 09; spec 04 hỏng vì tài khoản trùng tên trong cơ sở dữ liệu định danh riêng của phiên, do môi trường).
 
 #### Quyết định
 
@@ -133,7 +133,7 @@ phien_ban_de_xuat: 0.164.0
 - Lỗi đã sửa: không có.
 - Thay đổi dữ liệu: năm học `0185`, `0186`; xem `16_CO_SO_DU_LIEU.md` mục 18L.
 - Thay đổi API: xem `17_DAC_TA_API.md` mục 17.6.
-- Kiểm thử: kịch bản CT-1310 đến CT-1319 (CT-28f-1 đến CT-28f-10 trong mã kiểm thử).
+- Kiểm thử: kịch bản CT-1310 đến CT-1319 (CT-28f-1 đến CT-28f-10 trong mã kiểm thử); `apps/api` 9/9 ca của 28f, e2e 215 đạt ngày 28/10/2026.
 - Rủi ro: trường đặt quy tắc chặn quá chặt thì giáo viên phải chờ Ban Giám hiệu cho vượt; nhắc gửi theo lượt 15 phút nên có thể trễ tới 15 phút.
 - Khả năng tương thích: không đổi hành vi bài tập trên lớp.
 - Phương án quay lui: hoàn lại commit gộp của nhánh 28f; migration chỉ thêm cột, bảng.
