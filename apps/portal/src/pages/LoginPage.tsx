@@ -22,6 +22,7 @@ import {
 } from '../portal-shell/unit-directory-api.js';
 import { DemoRolePicker } from '../administration/DemoRolePicker.js';
 import { ExternalLoginProviders } from '../portal-shell/ExternalLoginProviders.js';
+import { LoginHero } from './LoginHero.js';
 
 // MH-47 Đăng nhập; thông báo lỗi lấy nguyên từ máy chủ. Theo trang đăng nhập của Sở (DT-16 phần 16c): tên và mã trường,
 // năm học đang dùng, ghi nhớ tài khoản, mã xác nhận dạng ảnh có nút làm mới (hiện khi cấu hình luôn hiện hoặc sau lần nhập sai đầu
@@ -32,6 +33,8 @@ import { ExternalLoginProviders } from '../portal-shell/ExternalLoginProviders.j
 // - Tên miền chung của nền tảng: chọn Sở GD&ĐT → Cấp học, Phường/Xã → Trường (ô chọn có tìm kiếm, danh sách lấy theo trang); đăng
 //   nhập đúng thì sang tên miền của trường bằng mã chuyển phiên một lần; đơn vị chưa dùng nền tảng thì báo, không cho gửi.
 // - Tên miền của trường và chế độ một trường: ẩn ô chọn, khóa vào trường của tên miền; hành vi đăng nhập giữ như cũ.
+// Bố cục hai cột theo mẫu thiết kế Login.dc.html: phần thương hiệu nền xanh bên trái (LoginHero), khung đăng nhập nền trắng bên phải;
+// trên điện thoại hai phần xếp chồng.
 export const REMEMBERED_LOGIN_KEY = 'portal.remembered-login';
 const REMEMBERED_UNIT_KEY = 'portal.remembered-unit';
 const LEVEL_NAMES: Record<string, string> = {
@@ -230,20 +233,17 @@ function LoginForm({ context, directory }: { context: LoginContext; directory: b
   const title = page?.title ?? branding.data?.display_name ?? schoolName ?? 'School Management';
   const forgotHost = unitDetail.data?.login_host ?? null;
   return (
-    <main className="touch-layout flex min-h-screen flex-col bg-page">
-      <header className="flex items-center justify-center gap-3 border-b border-border bg-card px-4 py-3">
-        {!directory && branding.data?.logo_url ? (
-          <img src={branding.data.logo_url} alt="Biểu trưng" className="h-10 w-10 rounded object-contain" />
-        ) : null}
-        <p className="text-section-title font-semibold text-text" data-testid="login-title">
-          {title}
-        </p>
-      </header>
-      <div className="flex flex-1 flex-col items-center justify-center gap-4 px-4 py-8">
+    <main className="touch-layout flex min-h-screen flex-col bg-page md:flex-row">
+      <LoginHero
+        title={title}
+        parentUnit={schoolUnit?.department_name ? `Sở GD&ĐT ${schoolUnit.department_name}` : null}
+        logoUrl={directory ? null : (branding.data?.logo_url ?? null)}
+      />
+      <div className="flex flex-1 flex-col items-center justify-center gap-4 px-4 py-8 md:px-6 md:py-12">
         <form
           onSubmit={submit}
           noValidate
-          className="flex w-full max-w-md flex-col gap-4 rounded-xl border border-border bg-card p-6 shadow-sm"
+          className="flex w-full max-w-md flex-col gap-4 rounded-2xl border border-border bg-card p-6 md:p-8"
         >
           <div className="flex flex-col gap-1">
             <h1 className="text-page-title font-bold text-text">Đăng nhập hệ thống</h1>
@@ -428,19 +428,20 @@ function LoginForm({ context, directory }: { context: LoginContext; directory: b
           />
         </form>
         {directory ? null : <DemoRolePicker />}
+        {/* Hỗ trợ (đường dây nóng, dòng hỗ trợ của tên miền chung) đặt dưới khung đăng nhập như dòng "Cần hỗ trợ?" của mẫu */}
+        <footer className="flex w-full max-w-md flex-col items-center gap-1 text-center">
+          {page?.support_lines.map((line) => (
+            <p key={line} className="text-label text-text-secondary" data-testid="login-support-line">
+              {line}
+            </p>
+          ))}
+          {options.data?.hotline ? (
+            <p className="text-label text-text-secondary" data-testid="login-hotline">
+              Đường dây nóng hỗ trợ: <span className="font-semibold text-text">{options.data.hotline}</span>
+            </p>
+          ) : null}
+        </footer>
       </div>
-      <footer className="flex flex-col items-center gap-1 border-t border-border bg-card px-4 py-3 text-center">
-        {page?.support_lines.map((line) => (
-          <p key={line} className="text-label text-text-secondary" data-testid="login-support-line">
-            {line}
-          </p>
-        ))}
-        {options.data?.hotline ? (
-          <p className="text-label text-text-secondary" data-testid="login-hotline">
-            Đường dây nóng hỗ trợ: <span className="font-semibold text-text">{options.data.hotline}</span>
-          </p>
-        ) : null}
-      </footer>
     </main>
   );
 }
