@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Bản demo (DT-26 phần 26f, YCTD-236): chỉ cho phép http tới máy chủ phát triển (localhost qua adb reverse, 10.0.2.2 là máy thật nhìn từ
+     máy giả lập); mọi máy chủ khác bắt buộc https -->
+<network-security-config>
+    <base-config cleartextTrafficPermitted="false" />
+    <domain-config cleartextTrafficPermitted="true">
+        <domain includeSubdomains="false">localhost</domain>
+        <domain includeSubdomains="false">10.0.2.2</domain>
+    </domain-config>
+</network-security-config>

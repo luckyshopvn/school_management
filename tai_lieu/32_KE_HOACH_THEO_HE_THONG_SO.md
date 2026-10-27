@@ -2111,9 +2111,9 @@ Cỡ ước lượng (một phần của DT-16 là một đơn vị, chỉ để
 | 26c | 1 | Đã làm, YCTD-233, phiên bản 0.146.0, PR 188: dự án Playwright theo khổ thiết bị, nhãn `@thiet-bi`, bộ kiểm dùng chung, spec 180, việc CI `kiem-thu-thiet-bi`; vi phạm đo được ghi ở đường cơ sở cho 26d, 26e |
 | 26d | 2 | Đã làm, YCTD-234, phiên bản đề xuất 0.155.0: chế độ lớp học (lớp theo tiết đang dạy, điểm danh, sổ đầu bài, công cụ lớp học, trình chiếu, giữ màn hình sáng), trang chủ giáo viên hai khung, trang chủ phụ huynh hai cột, màn hình nới rộng từ 768 px; vùng chạm 44 px, chữ ô nhập 16 px, màu tương phản AA ở `index.css` của hai ứng dụng (không sửa `packages/ui`); e2e 183; gỡ vi phạm của 26d khỏi đường cơ sở của 26c |
 | 26e | 2 | Đã làm, YCTD-235, phiên bản đề xuất 0.159.0: cổng quản trị dưới 1280 px menu ngăn kéo; cổng nền tảng thanh biểu tượng ở 768 đến 1279 px, ngăn kéo dưới 768 px; `DataGrid` cột đầu cố định và dạng thẻ dưới 768 px; hộp thoại toàn màn hình, nút Ghi dính đáy ở khổ hẹp; màu đủ tương phản ở bộ chủ đề; e2e 184; đường cơ sở của 26c rỗng |
-| 26f | 3 | Chưa làm; YCTD-236 giữ sẵn, bắt đầu khi DT-24, DT-25 đã gộp |
-| 26g | 3 | Chưa làm; YCTD-237 giữ sẵn |
-| 26h | 3 | Chưa làm; YCTD-238 giữ sẵn; phát hành cần các việc của Eric ở 18.10 |
+| 26f | 3 | Bản demo, YCTD-236, phiên bản đề xuất 0.165.0 (GD-158): `apps/mobile` vỏ Capacitor 8.5.3, trang khởi động chọn trường, vai trò, mở ứng dụng web của trường trong WebView; dự án Android, iOS; script dựng APK debug, chạy trên máy giả lập; hướng dẫn `apps/mobile/HUONG_DAN_DEMO.md`; e2e 185. Chưa chạy thử trên máy giả lập (máy chưa có Android SDK). Phần còn lại (đóng gói, đăng nhập gốc, sinh trắc học, liên kết sâu, danh mục trường) chờ tài khoản nhà phát triển |
+| 26g | 3 | Hoãn đến khi có tài khoản nhà phát triển Apple, Google (GD-158); YCTD-237 giữ sẵn |
+| 26h | 3 | Hoãn đến khi có tài khoản nhà phát triển Apple, Google (GD-158); YCTD-238 giữ sẵn; phát hành cần các việc của Eric ở 18.10 |
 
 Bản kế hoạch này là YCTD-230, chỉ đổi tài liệu (không tăng phiên bản phần mềm).
 
@@ -2131,6 +2131,7 @@ Mã GD-109 đến GD-119 chừa cho DT-24, DT-25; DT-26 dùng từ GD-120.
 | GD-125 | Thời gian chờ trước khi đòi mở khóa sinh trắc học; trường có được tắt "nhớ đăng nhập" | 5 phút; có công tắc theo trường, mặc định bật | Cấu hình của trường | Eric |
 | GD-126 | Thời hạn dọn đăng ký đẩy không dùng | 90 ngày | Cấu hình nền tảng | Claude (theo ủy quyền) |
 | GD-127 | Phiên bản iOS, Android thấp nhất hỗ trợ | Theo yêu cầu của phiên bản Capacitor chọn lúc làm; PWA đẩy trên iOS từ 16.4 | Cấu hình dự án | Claude (theo ủy quyền) |
+| GD-158 | Phạm vi đợt 3 (26f, 26g, 26h) khi chưa có tài khoản nhà phát triển Apple, Google | Bản demo chạy trên máy giả lập Android, iOS Simulator: vỏ Capacitor, trang khởi động chọn trường, vai trò, script dựng bản debug, hướng dẫn chạy; 26g, 26h và phần đăng nhập gốc, đóng gói, liên kết sâu của 26f hoãn đến khi có tài khoản | `apps/mobile` | Eric (đã trả lời 2026-10-27: chỉ làm demo, thử trên máy giả lập) |
 
 ### 18.10 Việc Eric phải làm
 
