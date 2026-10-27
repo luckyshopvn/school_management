@@ -354,6 +354,7 @@ export type {
   ExamSessionStatus,
   ExamAttemptEventType,
   ExamMode,
+  ClassroomGameKind,
   TutoringAttendanceStatus,
   TutoringAudience,
   TutoringContentType,
