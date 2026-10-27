@@ -14,3 +14,6 @@ deploy/.env.*
 # Trạng thái kiểm thử giao diện nhiều trường (khóa gốc của lần chạy)
 tests/.e2e-multi.json
 tests/.e2e-push-outbox.jsonl
+
+# Chỉ mục sinh khi dựng (YCTD-294): database/sinh-chi-muc.mjs, apps/api/sinh-dang-ky.mjs
+*.generated.ts

@@ -4,8 +4,8 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "build": "tsc -p tsconfig.json",
-    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "build": "node sinh-dang-ky.mjs && tsc -p tsconfig.json",
+    "typecheck": "node sinh-dang-ky.mjs && tsc -p tsconfig.json --noEmit",
     "start": "node --env-file-if-exists=../../.env dist/main.js",
     "generate-data-keys": "node dist/generate-data-keys.js",
     "test": "node --env-file-if-exists=../../.env --test --test-concurrency=3 \"dist/**/*.test.js\""
