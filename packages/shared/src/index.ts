@@ -306,6 +306,12 @@ export const PERMISSION_CODES = {
   examManage: 'P02.exam.manage',
   // Chấm bài kiểm tra (DT-21 phần 22g2)
   examGrade: 'P02.exam.grade',
+  // Lõi hệ thống quản lý học tập (DT-28 phần 28b)
+  learningTeach: 'P02.learning.teach',
+  learningTemplate: 'P02.learning.template',
+  learningDecide: 'P02.learning.decide',
+  learningView: 'P02.learning.view',
+  learningStudy: 'P02.learning.study',
   // Thi trực tuyến cho học sinh (DT-23 phần 23a): giao đề, theo dõi, chấm (giáo viên); làm bài (học sinh, kênh student)
   examAssign: 'P02.exam.assign',
   examTake: 'P02.exam.take',
@@ -694,6 +700,10 @@ export const PORTAL_QUICK_LINK_PATHS = [
   '/online-exams/settings',
   // Trợ lý AI soạn nháp (DT-23 phần 23d)
   '/ai-assistant',
+  // Lõi hệ thống quản lý học tập (DT-28 phần 28b)
+  '/online-classes',
+  '/course-templates',
+  '/online-teaching',
   // Gia sư trong trường (DT-27 phần 27b)
   '/tutoring',
   '/tutoring/sessions',

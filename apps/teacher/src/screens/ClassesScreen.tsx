@@ -64,6 +64,7 @@ export function ClassesScreen({
   onOpenLibrary,
   onOpenClassLog,
   onOpenTraining,
+  onOpenOnlineClasses,
   onOpenClassroomTools,
   onOpenClassroomMode,
   onOpenTutoring,
@@ -89,6 +90,7 @@ export function ClassesScreen({
   onOpenLibrary(): void;
   onOpenClassLog(): void;
   onOpenTraining(): void;
+  onOpenOnlineClasses(): void;
   onOpenClassroomTools(classes: MyClass[]): void;
   onOpenClassroomMode(classes: MyClass[]): void;
   onOpenTutoring(): void;
@@ -101,6 +103,8 @@ export function ClassesScreen({
   const [canStocktake, setCanStocktake] = useState(false);
   // Bồi dưỡng của tôi (DT-22 phần 22e)
   const [canTrain, setCanTrain] = useState(false);
+  // Lớp học trực tuyến (DT-28 phần 28b)
+  const [canTeachOnline, setCanTeachOnline] = useState(false);
   // Gia sư trong trường (DT-27 phần 27b)
   const [canTutor, setCanTutor] = useState(false);
 
@@ -117,6 +121,7 @@ export function ClassesScreen({
           user.assignments.some((assignment) => assignment.permissions.includes('P13.equipment.stocktake')),
         );
         setCanTrain(user.assignments.some((assignment) => assignment.permissions.includes('P09.training.use')));
+        setCanTeachOnline(user.assignments.some((assignment) => assignment.permissions.includes('P02.learning.teach')));
         setCanTutor(user.assignments.some((assignment) => assignment.permissions.includes('P02.tutoring.teach')));
       })
       .catch(() => setGateUnitIds([]));
@@ -159,6 +164,7 @@ export function ClassesScreen({
           ) : null}
           {canStocktake ? <Button onClick={onOpenStocktake}>Kiểm kê thiết bị</Button> : null}
           {canTrain ? <Button onClick={onOpenTraining}>Bồi dưỡng của tôi</Button> : null}
+          {canTeachOnline ? <Button onClick={onOpenOnlineClasses}>Lớp học trực tuyến</Button> : null}
           {canTutor ? <Button onClick={onOpenTutoring}>Gia sư trong trường</Button> : null}
           {/* Lịch dạy theo thời khoá biểu (DT-20 phần 22c1): giáo viên có lớp cấp phổ thông */}
           {(classes ?? []).some((myClass) => hasLevelFeature(myClass.school_level, 'period_timetable')) ? (

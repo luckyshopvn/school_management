@@ -51,6 +51,10 @@ const PRIMARY_ONLY_PATHS = [
   '/timetable-reports',
   // Báo cáo, thống kê, EMIS Tiểu học (DT-20 phần 20f)
   '/primary-reports',
+  // Học tập trực tuyến của Tiểu học, THCS, THPT (DT-28 phần 28b)
+  '/online-classes',
+  '/course-templates',
+  '/online-teaching',
 ];
 // Mục chỉ của THCS, THPT (DT-21 phần 21a; kiểm tra, đánh giá phần đề 22g1): trường chỉ có Mầm non hay Tiểu học không thấy
 const SECONDARY_ONLY_PATHS = [
