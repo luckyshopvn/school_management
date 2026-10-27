@@ -17,8 +17,14 @@ Chưa có trong bản demo: đóng gói sẵn mã của hai ứng dụng web tro
 ```bash
 pnpm --filter @school-management/identity start
 pnpm --filter @school-management/api start
-pnpm --filter @school-management/teacher dev
-pnpm --filter @school-management/parent dev
+pnpm --filter @school-management/teacher exec vite --host 127.0.0.1
+pnpm --filter @school-management/parent exec vite --host 127.0.0.1
+```
+
+`adb reverse` nối tới `127.0.0.1` của máy thật; trên Windows `vite` mặc định chỉ nghe `[::1]` nên WebView báo `ERR_EMPTY_RESPONSE`. Nếu máy chủ phát triển đang chạy không có `--host 127.0.0.1`, chạy kèm ở cửa sổ khác:
+
+```bash
+pnpm --filter @school-management/mobile may-chu:ipv4
 ```
 
 ## Android (Windows, macOS, Linux)
