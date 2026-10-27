@@ -120,7 +120,7 @@ test('CT-26b-7: đăng ký đẩy của hai trường tách nhau; thông báo c�
   const beta = await signedIn('beta', teachers.beta as TestUser, 'teacher');
   for (const side of [alpha, beta]) {
     const reply = await call(side.context, side.token, 'GET', '/public/push/vapid-public-key');
-    expect(reply.body).toEqual({ enabled: true, public_key: publicKey });
+    expect(reply.body).toEqual({ enabled: true, public_key: publicKey, native: { fcm: true, apns: true } });
   }
 
   const endpointA = `https://day.example.test/alpha/${randomUUID()}`;

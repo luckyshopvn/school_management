@@ -41,4 +41,14 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         config.delegateClass = SceneDelegate.self
         return config
     }
+
+    // Đẩy gốc APNs (DT-26 phần 26g, YCTD-237): chuyển mã thiết bị, lỗi đăng ký cho plugin PushNotifications của Capacitor. Cần bật
+    // năng lực Push Notifications ở Signing & Capabilities trong Xcode khi có tài khoản Apple Developer
+    func application(_ application: UIApplication, didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {
+        NotificationCenter.default.post(name: .capacitorDidRegisterForRemoteNotifications, object: deviceToken)
+    }
+
+    func application(_ application: UIApplication, didFailToRegisterForRemoteNotificationsWithError error: Error) {
+        NotificationCenter.default.post(name: .capacitorDidFailToRegisterForRemoteNotifications, object: error)
+    }
 }

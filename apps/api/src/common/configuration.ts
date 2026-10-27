@@ -92,12 +92,26 @@ export interface ApiConfiguration {
   aiMock?: boolean;
   // Thông báo đẩy (DT-26 phần 26b, YCTD-232): bộ nối `development` (giả lập, ghi lại để kiểm thử đọc) hoặc `web-push`; trống là
   // không gửi đẩy. Khóa VAPID: chế độ nhiều trường đọc ở cơ sở dữ liệu nền tảng, chế độ một trường lấy VAPID_PUBLIC_KEY,
-  // VAPID_PRIVATE_KEY, VAPID_SUBJECT
+  // VAPID_PRIVATE_KEY, VAPID_SUBJECT. Đẩy gốc FCM, APNs (phần 26g, YCTD-237): PUSH_NATIVE_PROVIDER; khóa ở cơ sở dữ liệu nền tảng
+  // (nhiều trường) hoặc tệp khóa (một trường)
   push?: PushConfiguration;
 }
 
 export interface PushConfiguration {
   provider: 'development' | 'web-push' | null;
+  // Đẩy gốc tới ứng dụng cài đặt: `native` (FCM, APNs thật) hoặc `development` (giả lập); trống là không gửi đẩy gốc
+  nativeProvider: 'development' | 'native' | null;
+  // Chế độ một trường: đường dẫn tệp tài khoản dịch vụ Firebase, khóa APNs .p8 và các mã đi kèm (không ghi vào kho mã)
+  fcmServiceAccountFile: string | null;
+  apnsKeyFile: string | null;
+  apnsKeyId: string | null;
+  apnsTeamId: string | null;
+  apnsBundleId: string | null;
+  apnsEnvironment: 'sandbox' | 'production';
+  // Địa chỉ dịch vụ FCM, APNs; chỉ đổi khi kiểm thử với máy chủ giả lập
+  fcmBaseUrl: string | null;
+  fcmTokenUrl: string | null;
+  apnsHost: string | null;
   vapidPublicKey: string | null;
   vapidPrivateKey: string | null;
   vapidSubject: string | null;
@@ -109,7 +123,7 @@ export interface PushConfiguration {
   subscriptionRetentionDays: number;
 }
 
-// PUSH_PROVIDER=development|web-push; web-push cần đủ khóa VAPID ở chế độ một trường. Bộ giả lập không bật ở môi trường chạy thật
+// PUSH_PROVIDER=development|web-push; web-push cần đủ khóa VAPID ở chế độ một trường. PUSH_NATIVE_PROVIDER=development|native. Bộ giả lập không bật ở môi trường chạy thật
 export function readPushConfiguration(environment: NodeJS.ProcessEnv, multiTenant: boolean): PushConfiguration {
   const value = (name: string) => environment[name]?.trim() || null;
   const provider = value('PUSH_PROVIDER');
@@ -118,6 +132,23 @@ export function readPushConfiguration(environment: NodeJS.ProcessEnv, multiTenan
   }
   if (provider === 'development' && environment.NODE_ENV === 'production') {
     throw new Error('PUSH_PROVIDER=development chỉ dùng cho phát triển và kiểm thử');
+  }
+  const nativeProvider = value('PUSH_NATIVE_PROVIDER');
+  if (nativeProvider && nativeProvider !== 'development' && nativeProvider !== 'native') {
+    throw new Error('PUSH_NATIVE_PROVIDER chỉ nhận development hoặc native');
+  }
+  if (nativeProvider === 'development' && environment.NODE_ENV === 'production') {
+    throw new Error('PUSH_NATIVE_PROVIDER=development chỉ dùng cho phát triển và kiểm thử');
+  }
+  const apnsEnvironment = value('APNS_ENVIRONMENT') ?? 'production';
+  if (apnsEnvironment !== 'sandbox' && apnsEnvironment !== 'production') {
+    throw new Error('APNS_ENVIRONMENT chỉ nhận sandbox hoặc production');
+  }
+  if (value('APNS_KEY_FILE')) {
+    const missing = ['APNS_KEY_ID', 'APNS_TEAM_ID', 'APNS_BUNDLE_ID'].filter((name) => !value(name));
+    if (missing.length > 0) {
+      throw new Error(`Thiếu biến môi trường ${missing.join(', ')} khi đặt APNS_KEY_FILE`);
+    }
   }
   if (provider === 'web-push' && !multiTenant) {
     const missing = ['VAPID_PUBLIC_KEY', 'VAPID_PRIVATE_KEY', 'VAPID_SUBJECT'].filter((name) => !value(name));
@@ -131,6 +162,16 @@ export function readPushConfiguration(environment: NodeJS.ProcessEnv, multiTenan
   };
   return {
     provider: provider === 'development' || provider === 'web-push' ? provider : null,
+    nativeProvider: nativeProvider === 'development' || nativeProvider === 'native' ? nativeProvider : null,
+    fcmServiceAccountFile: value('FCM_SERVICE_ACCOUNT_FILE'),
+    apnsKeyFile: value('APNS_KEY_FILE'),
+    apnsKeyId: value('APNS_KEY_ID'),
+    apnsTeamId: value('APNS_TEAM_ID'),
+    apnsBundleId: value('APNS_BUNDLE_ID'),
+    apnsEnvironment,
+    fcmBaseUrl: value('FCM_API_BASE_URL'),
+    fcmTokenUrl: value('FCM_TOKEN_URL'),
+    apnsHost: value('APNS_HOST'),
     vapidPublicKey: value('VAPID_PUBLIC_KEY'),
     vapidPrivateKey: value('VAPID_PRIVATE_KEY'),
     vapidSubject: value('VAPID_SUBJECT'),

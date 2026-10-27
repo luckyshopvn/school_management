@@ -494,6 +494,7 @@ export type {
 export type { CourseTemplateStatus } from '../system/schema.js';
 // Khóa VAPID của nền tảng cho thông báo đẩy (DT-26 phần 26b)
 export * from './push-keys.js';
+export * from './native-push-keys.js';
 export type { PlatformPushKeysTable } from '../platform/schema.js';
 export type {
   NotificationPreferencesTable,

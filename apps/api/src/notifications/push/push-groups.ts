@@ -105,7 +105,8 @@ export interface PushMessage {
   body: string;
   // Thông báo cùng nhóm thay nhau trên máy thay vì chồng nhiều dòng
   tag: string;
-  data: { notification_id: string; group: string; url: string };
+  // app_url: địa chỉ gốc của ứng dụng lúc đăng ký, chỉ kèm khi có (ứng dụng cài đặt dùng để mở đúng trường)
+  data: { notification_id: string; group: string; url: string; app_url?: string };
 }
 
 // Dựng nội dung đẩy chỉ từ nhóm, tên trường và mã thông báo

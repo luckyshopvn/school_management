@@ -4,6 +4,7 @@ import { readFile } from 'node:fs/promises';
 import { basename } from 'node:path';
 import { CATALOG_QUALITY_FLAGS, importSchoolCatalog } from './school-catalog.js';
 import { generateVapidKeyPair, rotateVapidKeys } from './push-keys.js';
+import { parseApnsKey, parseFcmServiceAccount, retireNativePushKey, storeNativePushKey } from './native-push-keys.js';
 import { adoptExistingSchool, hostFromSiteSetting } from './adopt-existing.js';
 import { createDatabase } from './connection.js';
 import { readConnectionString } from './environment.js';
@@ -95,6 +96,13 @@ import type { PlatformDatabase } from '../platform/schema.js';
 //                                      sinh cặp khóa VAPID của nền tảng, lưu khóa riêng mã hóa bằng khóa gốc ở cơ sở dữ liệu nền tảng
 //                                      (thay khóa đang dùng; đăng ký đẩy cũ phải đăng ký lại), in khóa công khai; --print-only in cả
 //                                      hai khóa để đặt vào VAPID_PUBLIC_KEY, VAPID_PRIVATE_KEY của bản một trường, không ghi cơ sở dữ liệu
+// Thông báo đẩy gốc FCM, APNs (DT-26 phần 26g, YCTD-237):
+//   set-native-push-key --provider fcm --file <tệp tài khoản dịch vụ Firebase .json>
+//   set-native-push-key --provider apns --file <tệp .p8> --key-id <mã khóa> --team-id <mã đội> --bundle-id <mã gói>
+//                       [--environment sandbox|production]
+//                                      lưu khóa của nền tảng mã hóa bằng khóa gốc (thay khóa đang dùng), in phần không bí mật
+//   retire-native-push-key --provider fcm|apns
+//                                      thôi dùng khóa: bộ nối đó tắt, kênh khác chạy như cũ
 //   catalog-seed                       máy phát triển: nạp từ CATALOG_UNITS_FILE, CATALOG_COMMUNES_FILE (mặc định tệp khảo sát ở
 //                                      ../.claude/logs-khaosat-csdl-moet và ../.claude/logs-khaosat-smis); không có tệp thì bỏ qua
 
@@ -555,6 +563,36 @@ async function main(): Promise<void> {
     }
     return;
   }
+  if (command === 'set-native-push-key' || command === 'retire-native-push-key') {
+    const provider = required('provider');
+    if (provider !== 'fcm' && provider !== 'apns') {
+      throw new Error('--provider là fcm hoặc apns');
+    }
+    const platform = createDatabase<PlatformDatabase>(readConnectionString('platform'), { max: 2 });
+    try {
+      if (command === 'retire-native-push-key') {
+        const retired = await retireNativePushKey(platform, provider);
+        console.log(retired ? `Đã thôi dùng khóa ${provider}` : `Không có khóa ${provider} đang dùng`);
+        return;
+      }
+      const text = await readFile(required('file'), 'utf8');
+      const credentials =
+        provider === 'fcm'
+          ? parseFcmServiceAccount(text)
+          : parseApnsKey({
+              privateKey: text,
+              keyId: required('key-id'),
+              teamId: required('team-id'),
+              bundleId: required('bundle-id'),
+              environment: readOption(args, 'environment') ?? 'production',
+            });
+      const summary = await storeNativePushKey(platform, readMasterKey(process.env), provider, credentials);
+      console.log(`Đã lưu khóa ${provider} của nền tảng: ${JSON.stringify(summary)}`);
+    } finally {
+      await platform.destroy();
+    }
+    return;
+  }
   if (command === 'catalog-import' || command === 'catalog-seed') {
     await catalogCommand();
     return;
@@ -612,7 +650,7 @@ async function main(): Promise<void> {
     return;
   }
   throw new Error(
-    'Lệnh: generate-master-key | migrate | adopt-existing | provision | provision-resume | provision-rollback | suspend | resume | request-deletion | cancel-deletion | purge-due | reissue-invitation | verify-domain | migrate-schools | relayout | backup-school | verify-backup | restore-school | restore-drill | move-school | catalog-import | catalog-seed | generate-vapid-keys',
+    'Lệnh: generate-master-key | migrate | adopt-existing | provision | provision-resume | provision-rollback | suspend | resume | request-deletion | cancel-deletion | purge-due | reissue-invitation | verify-domain | migrate-schools | relayout | backup-school | verify-backup | restore-school | restore-drill | move-school | catalog-import | catalog-seed | generate-vapid-keys | set-native-push-key | retire-native-push-key',
   );
 }
 
