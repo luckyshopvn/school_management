@@ -96,8 +96,9 @@ export default defineConfig({
         AI_MOCK: 'true',
         // Bộ giả lập lớp video (DT-27 phần 27a)
         VIDEO_PROVIDER: 'mock',
-        // Thông báo đẩy qua bộ giả lập, ghi ra tệp cho spec 182 đọc (DT-26 phần 26b)
+        // Thông báo đẩy qua bộ giả lập, ghi ra tệp cho spec 182, 186 đọc (DT-26 phần 26b, đẩy gốc 26g)
         PUSH_PROVIDER: 'development',
+        PUSH_NATIVE_PROVIDER: 'development',
         PUSH_DEVELOPMENT_OUTBOX: fileURLToPath(E2E_PUSH_OUTBOX_FILE),
       },
     },

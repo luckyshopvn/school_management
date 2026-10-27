@@ -13,7 +13,7 @@ import {
 } from '../../test-support.js';
 import { NotificationDispatcher } from '../notification-dispatcher.js';
 import { buildPushMessage, pushGroupOf } from './push-groups.js';
-import { createPushSender, DevelopmentPushSender, PUSH_SENDER } from './push-sender.js';
+import { createPushSender, DevelopmentPushSender, PUSH_SENDER, type PushSenderRouter } from './push-sender.js';
 
 // Thông báo đẩy Web Push (DT-26 phần 26b, YCTD-232), kịch bản CT-26b-1 đến CT-26b-6: nhóm loại, nội dung không có dữ liệu cá nhân,
 // đăng ký theo máy (mã hóa, chống trùng, thu hồi), tuỳ chọn tắt theo nhóm, loại khẩn, kênh push của tiến trình gửi, gộp, thu hồi khi
@@ -46,9 +46,12 @@ describe('nhóm loại và nội dung đẩy', () => {
     assert.equal(message.data.notification_id, '00000000-0000-4000-8000-000000000001');
     assert.ok(!/\d{3,}/.test(message.body), 'không có số tiền');
     assert.ok(!text.includes('Nguyễn'));
-    assert.equal(createPushSender(null, { outbox: null, schoolOf: () => null }), null);
-    assert.equal(createPushSender('development', { outbox: null, schoolOf: () => null })?.provider, 'development');
-    assert.equal(createPushSender('web-push', { outbox: null, schoolOf: () => null })?.provider, 'web-push');
+    assert.equal(createPushSender(null, null, { outbox: null, schoolOf: () => null }), null);
+    assert.equal(
+      createPushSender('development', null, { outbox: null, schoolOf: () => null })?.provider,
+      'development',
+    );
+    assert.equal(createPushSender('web-push', null, { outbox: null, schoolOf: () => null })?.provider, 'web-push');
   });
 });
 
@@ -88,7 +91,7 @@ describe('đăng ký đẩy và kênh push của tiến trình gửi', () => {
   before(async () => {
     environment = await startApiTestEnvironment();
     dispatcher = environment.api.get(NotificationDispatcher);
-    sender = environment.api.get(PUSH_SENDER) as DevelopmentPushSender;
+    sender = (environment.api.get(PUSH_SENDER) as PushSenderRouter).senderFor('web_push') as DevelopmentPushSender;
     principal = await environment.loginAs('VT-02', null);
     await openTestAcademicYear(environment, principal.accessToken, '2026–2027', {
       first_term: { start_date: addDays(vietnamToday, -60), end_date: addDays(vietnamToday, 90) },

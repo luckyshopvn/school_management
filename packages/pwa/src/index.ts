@@ -15,6 +15,7 @@ export {
 } from './push/push-client.js';
 export { PushSettings, PushSettingsPanel, usePushSync, type PushSettingsProperties } from './push/PushSettings.js';
 export { detectPushState, type PushState } from './push/push-state.js';
+export { detectNativePushState, nativePush, type NativePushKind } from './push/native-push.js';
 export {
   applyUpdate,
   clearCaches,

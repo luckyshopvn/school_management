@@ -106,9 +106,19 @@ export async function startApiTestEnvironment(
         options.video === null
           ? null
           : { provider: 'mock', apiUrl: '', clientUrl: 'mock://video', apiKey: 'mock', apiSecret: 'mock-video-secret' },
-      // Thông báo đẩy qua bộ giả lập (DT-26 phần 26b); người chưa đăng ký đẩy không có thêm dòng kênh push
+      // Thông báo đẩy qua bộ giả lập (DT-26 phần 26b, đẩy gốc 26g); người chưa đăng ký đẩy không có thêm dòng kênh push
       push: {
         provider: 'development',
+        nativeProvider: 'development',
+        fcmServiceAccountFile: null,
+        apnsKeyFile: null,
+        apnsKeyId: null,
+        apnsTeamId: null,
+        apnsBundleId: null,
+        apnsEnvironment: 'production',
+        fcmBaseUrl: null,
+        fcmTokenUrl: null,
+        apnsHost: null,
         vapidPublicKey: null,
         vapidPrivateKey: null,
         vapidSubject: null,
