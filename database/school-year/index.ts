@@ -121,6 +121,9 @@ import { migration as createVideoRooms } from './migrations/0160_create_video_ro
 import { migration as createVideoRecordings } from './migrations/0161_create_video_recordings.js';
 import { migration as addActivitySources } from './migrations/0180_add_activity_sources.js';
 import { migration as createOnlineTeachingReports } from './migrations/0181_create_online_teaching_reports.js';
+import { migration as createDiscussions } from './migrations/0182_create_discussions.js';
+import { migration as createGroupWorkspaces } from './migrations/0183_create_group_workspaces.js';
+import { migration as createDiscussionControls } from './migrations/0184_create_discussion_controls.js';
 import { migration as createTutoringProgramCourses } from './migrations/0200_create_tutoring_program_courses.js';
 
 // Danh sách tệp thay đổi cấu trúc của cơ sở dữ liệu năm học, theo số thứ tự (QU-01, QU-11)
@@ -258,6 +261,10 @@ export const schoolYearMigrations: Record<string, Migration> = {
   // Tiến độ, bảng điểm hoạt động, sổ điểm, báo cáo (DT-28 phần 28d): 0180, 0181
   '0180_add_activity_sources': addActivitySources,
   '0181_create_online_teaching_reports': createOnlineTeachingReports,
+  // Giao tiếp trong lớp và nhóm (DT-28 phần 28e): 0182 đến 0184
+  '0182_create_discussions': createDiscussions,
+  '0183_create_group_workspaces': createGroupWorkspaces,
+  '0184_create_discussion_controls': createDiscussionControls,
   // Khoá học ghi sẵn của chương trình gia sư (DT-27 phần 27d1): 0200, sau dải của DT-28 vì cần course_spaces, course_activities (0172, 0173)
   '0200_create_tutoring_program_courses': createTutoringProgramCourses,
 };

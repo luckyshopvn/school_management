@@ -84,7 +84,7 @@ export function AppShell({ children }: { children: ReactNode }) {
           <header className="sticky top-0 z-40 flex h-14 items-center gap-3 bg-header px-4 text-white shadow-sm">
             <button
               type="button"
-              className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg hover:bg-header-strong md:hidden"
+              className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg hover:bg-header-strong xl:hidden"
               aria-label="Menu chức năng"
               aria-expanded={mobileOpen}
               aria-controls="menu-gon"
@@ -94,7 +94,7 @@ export function AppShell({ children }: { children: ReactNode }) {
             </button>
             <Link
               to="/"
-              className="hidden max-w-80 truncate whitespace-nowrap text-section-title font-bold text-header-accent lg:inline"
+              className="hidden max-w-80 truncate whitespace-nowrap text-section-title font-bold text-header-accent lg:inline max-xl:lg:block max-xl:lg:py-2.5"
               title={schoolName}
               data-testid="school-name"
             >
