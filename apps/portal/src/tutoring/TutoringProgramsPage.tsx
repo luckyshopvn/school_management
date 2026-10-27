@@ -23,6 +23,7 @@ import { Alert, Button, FORM_CONTROL_CLASS, Toast } from '@school-management/ui'
 import { AppShell } from '../pages/AppShell.js';
 import { menuPageTitle } from '../pages/page-title.js';
 import { ApiError } from '../session/api-client.js';
+import { ProgramCoursePanel } from './ProgramCoursePanel.js';
 import { tutoringApi, type ProgramDetail } from './tutoring-api.js';
 
 // 1. Chương trình gia sư (DT-27 phần 27b, YCTD-252): giáo viên lập chương trình (loại nội dung bắt buộc, có giải thích ngay trên màn
@@ -162,6 +163,9 @@ function ProgramDetailPanel({
         ) : null}
       </div>
 
+      {program.status === 'approved' && (program.can_teach || program.can_manage) ? (
+        <ProgramCoursePanel programId={id} notify={notify} />
+      ) : null}
       <h3 className="font-semibold">Học sinh được đăng ký</h3>
       <p className="text-label text-text-secondary">
         Để trống là mọi học sinh của lớp đối tượng; có danh sách thì chỉ học sinh trong danh sách đăng ký được.

@@ -7113,6 +7113,23 @@ export interface DiscussionWriteBansTable {
   created_at: CreatedTimestamp;
 }
 
+// Khoá học ghi sẵn của chương trình gia sư (DT-27 phần 27d1, YCTD-254)
+export interface TutoringProgramCoursesTable {
+  program_id: string;
+  course_space_id: string;
+  created_by_name: string;
+  created_at: CreatedTimestamp;
+}
+
+export interface TutoringMediaViewsTable {
+  id: Generated<string>;
+  activity_id: string;
+  viewer_user_id: string;
+  viewer_name: string;
+  child_id: string | null;
+  viewed_at: CreatedTimestamp;
+}
+
 export interface SchoolYearDatabase {
   question_topics: QuestionTopicsTable;
   questions: QuestionsTable;
@@ -7542,6 +7559,8 @@ export interface SchoolYearDatabase {
   video_recording_consents: VideoRecordingConsentsTable;
   video_recordings: VideoRecordingsTable;
   video_recording_views: VideoRecordingViewsTable;
+  tutoring_program_courses: TutoringProgramCoursesTable;
+  tutoring_media_views: TutoringMediaViewsTable;
   tutoring_room_events: TutoringRoomEventsTable;
   assignments: AssignmentsTable;
   assignment_variants: AssignmentVariantsTable;

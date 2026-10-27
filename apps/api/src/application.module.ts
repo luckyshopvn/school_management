@@ -518,6 +518,13 @@ import {
   VideoWebhookController,
 } from './video/video.controller.js';
 import { VideoRoomsService } from './video/video-rooms.js';
+import {
+  ChildTutoringCoursesController,
+  StudentTutoringCoursesController,
+  TutoringCourseMediaStreamController,
+  TutoringCoursesController,
+} from './tutoring/tutoring-courses.controller.js';
+import { TutoringCoursesService } from './tutoring/tutoring-courses.js';
 import { AiAssistantController, AiUsageJob } from './ai-assistant/ai-assistant.controller.js';
 import { AI_PROVIDERS, AiAssistantService } from './ai-assistant/ai-assistant.js';
 import { AiProviderRegistry } from './ai-assistant/ai-provider.js';
@@ -854,6 +861,11 @@ export class ApplicationModule {
         // Giao tiếp trong lớp và nhóm (DT-28 phần 28e)
         DiscussionsController,
         StudentDiscussionsController,
+        // Khoá học ghi sẵn của chương trình gia sư (DT-27 phần 27d1)
+        TutoringCoursesController,
+        TutoringCourseMediaStreamController,
+        ChildTutoringCoursesController,
+        StudentTutoringCoursesController,
       ],
       providers: [
         { provide: API_CONFIGURATION, useValue: configuration },
@@ -1286,6 +1298,8 @@ export class ApplicationModule {
         LearningProgressService,
         // Giao tiếp trong lớp và nhóm (DT-28 phần 28e)
         DiscussionsService,
+        // Khoá học ghi sẵn của chương trình gia sư (DT-27 phần 27d1)
+        TutoringCoursesService,
       ],
     };
   }
