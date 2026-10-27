@@ -214,6 +214,10 @@ describe('Điểm cuối huy hiệu, chứng nhận', () => {
   });
 
   it('CT-28i-4: huy hiệu tự động khi xong chương, khoá; giáo viên trao kèm lý do, thu hồi; phụ huynh khác 403; không bảng xếp hạng', async () => {
+    // Giáo viên chỉ dạy khoá tự chọn (trường chưa phân công môn nào) vẫn xem được danh sách lớp học trực tuyến của mình
+    const spaces = await api('GET', '/learning/spaces', teacher.accessToken);
+    assert.equal(spaces.status, 200, JSON.stringify(spaces.body));
+    assert.ok(rows(spaces.body).some((space) => space.id === electiveId));
     const issueEarly = await api('POST', `/learning/spaces/${electiveId}/certificates`, teacher.accessToken, {
       child_id: childId,
     });
