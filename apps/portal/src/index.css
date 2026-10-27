@@ -30,3 +30,21 @@ body {
     min-height: 44px;
   }
 }
+
+/* Trang đăng nhập là lối vào chung của mọi thiết bị nên áp vùng chạm 44 px, chữ ô nhập 16 px ở mọi khổ, kể cả máy tính (DT-26 phần 26e) */
+.touch-layout input:not([type='checkbox'], [type='radio'], [type='range'], [type='hidden'], [type='color']),
+.touch-layout select,
+.touch-layout textarea {
+  font-size: max(16px, 1em);
+  min-height: 44px;
+}
+.touch-layout button,
+.touch-layout [role='button'],
+.touch-layout input[type='button'],
+.touch-layout input[type='submit'] {
+  min-height: 44px;
+  min-width: 44px;
+}
+.touch-layout label:has(> input[type='checkbox'], > input[type='radio']) {
+  min-height: 44px;
+}
