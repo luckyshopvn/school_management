@@ -27,6 +27,8 @@ pnpm --filter @school-management/parent exec vite --host 127.0.0.1
 pnpm --filter @school-management/mobile may-chu:ipv4
 ```
 
+Muốn đăng nhập thử mà không đụng dữ liệu phát triển: tạo cặp cơ sở dữ liệu trống riêng (định danh, hệ thống), migrate, chạy `node dist/demo/demo-command.js reset --confirm` trong `apps/api` với `IDENTITY_DATABASE_URL`, `SYSTEM_DATABASE_URL` trỏ tới cặp đó (lệnh từ chối chạy trên cơ sở dữ liệu đã có dữ liệu thật), rồi chạy dịch vụ định danh, máy chủ API cùng biến môi trường. Tài khoản trình diễn: giáo viên `demo.giaovien1`, phụ huynh `0900000001`, mật khẩu chung hiện ở trang đăng nhập. Nếu cổng 5174, 5175 của máy thật đã bận, chạy `vite` ở cổng khác rồi chuyển cổng của máy giả lập tới đó, ví dụ `adb reverse tcp:5175 tcp:5385`.
+
 ## Android (Windows, macOS, Linux)
 
 Cần cài (khoảng 3 GB tải về, 8 đến 12 GB trên đĩa):
