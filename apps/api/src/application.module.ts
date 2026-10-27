@@ -530,6 +530,8 @@ import { LearningService } from './learning/learning.js';
 import { AssignmentsController } from './learning/assignments/assignments.controller.js';
 import { AssignmentsService } from './learning/assignments/assignments.js';
 import { StudentAssignmentsController } from './learning/assignments/student-assignments.controller.js';
+import { LearningProgressController } from './learning/progress/progress.controller.js';
+import { LearningProgressService } from './learning/progress/progress.js';
 
 @Module({})
 export class ApplicationModule {
@@ -844,6 +846,8 @@ export class ApplicationModule {
         ChildVideoController,
         StudentVideoController,
         VideoWebhookController,
+        // Tiến độ, bảng điểm hoạt động, sổ điểm, báo cáo (DT-28 phần 28d)
+        LearningProgressController,
       ],
       providers: [
         { provide: API_CONFIGURATION, useValue: configuration },
@@ -1272,6 +1276,8 @@ export class ApplicationModule {
         { provide: VIDEO_PROVIDER, useValue: createVideoProvider(configuration.video, configuration.objectStorage) },
         VideoRoomsService,
         VideoJobs,
+        // Tiến độ, bảng điểm hoạt động, sổ điểm, báo cáo (DT-28 phần 28d)
+        LearningProgressService,
       ],
     };
   }

@@ -119,6 +119,8 @@ import { migration as createAssignmentSubmissions } from './migrations/0178_crea
 import { migration as createSubmissionFeedback } from './migrations/0179_create_submission_feedback.js';
 import { migration as createVideoRooms } from './migrations/0160_create_video_rooms.js';
 import { migration as createVideoRecordings } from './migrations/0161_create_video_recordings.js';
+import { migration as addActivitySources } from './migrations/0180_add_activity_sources.js';
+import { migration as createOnlineTeachingReports } from './migrations/0181_create_online_teaching_reports.js';
 
 // Danh sách tệp thay đổi cấu trúc của cơ sở dữ liệu năm học, theo số thứ tự (QU-01, QU-11)
 export const schoolYearMigrations: Record<string, Migration> = {
@@ -252,4 +254,7 @@ export const schoolYearMigrations: Record<string, Migration> = {
   // Lớp video trực tiếp (DT-27 phần 27a): 0160, 0161
   '0160_create_video_rooms': createVideoRooms,
   '0161_create_video_recordings': createVideoRecordings,
+  // Tiến độ, bảng điểm hoạt động, sổ điểm, báo cáo (DT-28 phần 28d): 0180, 0181
+  '0180_add_activity_sources': addActivitySources,
+  '0181_create_online_teaching_reports': createOnlineTeachingReports,
 };
