@@ -11,6 +11,7 @@ import {
   E2E_MULTI_CONSOLE_PORT,
   E2E_MULTI_IDENTITY_PORT,
   E2E_MULTI_MARKET_PORT,
+  E2E_MULTI_TUTOR_PORT,
   E2E_MULTI_PORTAL_PORT,
   E2E_MULTI_STATE_FILE,
   E2E_PUSH_OUTBOX_FILE,
@@ -125,6 +126,12 @@ export default defineConfig({
     {
       command: `pnpm --filter @school-management/market exec vite --port ${E2E_MULTI_MARKET_PORT} --strictPort`,
       url: `http://localhost:${E2E_MULTI_MARKET_PORT}`,
+      env: { API_BASE_URL: apiBaseUrl },
+    },
+    {
+      // Ứng dụng Gia sư (YCTD-262)
+      command: `pnpm --filter @school-management/tutor exec vite --port ${E2E_MULTI_TUTOR_PORT} --strictPort`,
+      url: `http://localhost:${E2E_MULTI_TUTOR_PORT}`,
       env: { API_BASE_URL: apiBaseUrl },
     },
   ],

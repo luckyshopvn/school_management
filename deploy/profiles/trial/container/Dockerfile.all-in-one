@@ -23,11 +23,14 @@ COPY apps/parent/package.json apps/parent/
 COPY apps/teacher/package.json apps/teacher/
 COPY apps/platform/package.json apps/platform/
 COPY apps/mobile/package.json apps/mobile/
+COPY apps/market/package.json apps/market/
+COPY apps/tutor/package.json apps/tutor/
 COPY packages/config/package.json packages/config/
 COPY packages/server/package.json packages/server/
 COPY packages/shared/package.json packages/shared/
 COPY packages/ui/package.json packages/ui/
 COPY packages/pwa/package.json packages/pwa/
+COPY packages/market-client/package.json packages/market-client/
 COPY database/package.json database/
 COPY tests/package.json tests/
 

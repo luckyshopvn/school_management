@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Alert, Button, FORM_CONTROL_CLASS } from '@school-management/ui';
-import { errorText, marketRequest } from './market-api.js';
+import { errorText, marketRequest } from '@school-management/market-client';
 
 // Khu gia sư của chợ (DT-27 phần 27f): hồ sơ tối thiểu (dòng giới thiệu, giới thiệu ngắn) và cơ sở dạy thêm đứng tên. Môn, cấp, giá, lịch,
 // xác minh danh tính, lý lịch tư pháp, trang công khai theo Mẫu 02 làm ở 27g

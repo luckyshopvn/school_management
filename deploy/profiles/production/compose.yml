@@ -474,6 +474,9 @@ services:
       PORTAL_SITE: ${PORTAL_SITE:-}
       PARENT_SITE: ${PARENT_SITE:-}
       TEACHER_SITE: ${TEACHER_SITE:-}
+      # Chợ gia sư (DT-27): ứng dụng phụ huynh, ứng dụng Gia sư; dùng với sites.d/marketplace.caddy
+      MARKET_SITE: ${MARKET_SITE:-}
+      TUTOR_SITE: ${TUTOR_SITE:-}
       API_SITE: ${API_SITE:-}
       STAGING_SITES: ${STAGING_SITES:-}
     ports:

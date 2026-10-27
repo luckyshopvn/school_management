@@ -27,6 +27,9 @@ routes = [
 ORIGIN_URL = "https://school-trial.onrender.com"
 ROOT_DOMAIN = "thu.example.test"
 CONSOLE_HOST = "platform.thu.example.test"
+# Chợ gia sư (DT-27): trùng tên miền đặt ở cổng nền tảng, trang Chợ gia sư
+MARKET_HOST = "cho-gia-su.thu.example.test"
+TUTOR_HOST = "gia-su.thu.example.test"
 EDGE_HOST_HEADER = "x-school-host"
 ORIGIN_TIMEOUT_MS = "10000"
 DATA_POLICY = "consent-required"

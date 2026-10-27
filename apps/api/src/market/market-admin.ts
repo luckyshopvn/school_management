@@ -21,6 +21,7 @@ function view(settings: MarketSettings) {
   return {
     enabled: settings.enabled,
     host: settings.host,
+    tutor_host: settings.tutorHost,
     record_retention_days: settings.recordRetentionDays,
     complaint_window_hours: settings.complaintWindowHours,
     default_commission_percent: settings.defaultCommissionPercent,

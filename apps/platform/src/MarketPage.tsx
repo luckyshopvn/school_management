@@ -8,6 +8,7 @@ interface Overview {
   settings: {
     enabled: boolean;
     host: string | null;
+    tutor_host: string | null;
     record_retention_days: number;
     complaint_window_hours: number;
     default_commission_percent: number | null;
@@ -54,7 +55,14 @@ const STATUS_LABELS: Record<string, string> = {
 
 export function MarketPage({ accessToken }: { accessToken: string }) {
   const [overview, setOverview] = useState<Overview | null>(null);
-  const [form, setForm] = useState({ enabled: false, host: '', retention: '30', window: '48', commission: '' });
+  const [form, setForm] = useState({
+    enabled: false,
+    host: '',
+    tutorHost: '',
+    retention: '30',
+    window: '48',
+    commission: '',
+  });
   const [document, setDocument] = useState({ kind: 'terms', title: '', body: '' });
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -65,6 +73,7 @@ export function MarketPage({ accessToken }: { accessToken: string }) {
     setForm({
       enabled: next.settings.enabled,
       host: next.settings.host ?? '',
+      tutorHost: next.settings.tutor_host ?? '',
       retention: String(next.settings.record_retention_days),
       window: String(next.settings.complaint_window_hours),
       commission:
@@ -95,6 +104,7 @@ export function MarketPage({ accessToken }: { accessToken: string }) {
       await marketCall(accessToken, 'PUT', '/settings', {
         enabled: form.enabled,
         host: form.host,
+        tutor_host: form.tutorHost,
         record_retention_days: Number(form.retention),
         complaint_window_hours: Number(form.window),
         default_commission_percent: form.commission.trim() === '' ? null : Number(form.commission),
@@ -136,6 +146,10 @@ export function MarketPage({ accessToken }: { accessToken: string }) {
         <label>
           Tên miền con dành riêng của chợ
           <input value={form.host} onChange={(event) => setForm({ ...form, host: event.target.value })} />
+        </label>
+        <label>
+          Tên miền con của ứng dụng Gia sư
+          <input value={form.tutorHost} onChange={(event) => setForm({ ...form, tutorHost: event.target.value })} />
         </label>
         <label>
           Hạn giữ bản ghi lớp video (ngày)
