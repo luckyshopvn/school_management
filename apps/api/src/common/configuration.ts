@@ -63,6 +63,9 @@ export interface ApiConfiguration {
   parentOrgMinGroup?: number;
   // Tên miền của cổng nền tảng: số liệu cho tài khoản cấp trên chỉ phục vụ ở đây (tên miền khác 404); trống thì tắt
   platformConsoleHost?: string | null;
+  // Nguồn gốc riêng phục vụ tệp gói SCORM (DT-28 phần 28h), ví dụ https://noi-dung.he-thong.example; trống thì phục vụ ở tên miền của
+  // trường (tệp vẫn ở nguồn gốc riêng nhờ CSP sandbox, không đọc được phiên, cookie của ứng dụng)
+  scormContentOrigin?: string | null;
   schedulerConcurrency?: number;
   schedulerSecret?: string;
   timetableMaxActiveRuns?: number;
@@ -308,6 +311,7 @@ export function readConfigurationFromEnvironment(options: { multiTenant?: boolea
     aggregateSnapshotIntervalSeconds: Number(process.env.AGGREGATE_SNAPSHOT_INTERVAL_SECONDS ?? 21_600),
     parentOrgMinGroup: Number(process.env.PARENT_ORG_MIN_GROUP) > 0 ? Number(process.env.PARENT_ORG_MIN_GROUP) : 5,
     platformConsoleHost: process.env.PLATFORM_CONSOLE_HOST?.trim() || null,
+    scormContentOrigin: process.env.SCORM_CONTENT_ORIGIN?.trim().replace(/\/+$/, '') || null,
     ...(process.env.INTERNAL_JOB_TOKEN?.trim() ? { schedulerSecret: process.env.INTERNAL_JOB_TOKEN.trim() } : {}),
     timetableMaxActiveRuns: Number(process.env.TIMETABLE_MAX_ACTIVE_RUNS ?? 2),
     ...readIntegrationConfiguration(process.env),

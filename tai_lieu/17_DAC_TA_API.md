@@ -2520,6 +2520,21 @@ Lỗi quy tắc 422 mã `YCTD-276`. Tuyến phát hành bài tập của 28c `PO
 | POST | /api/v1/learning/children/{childId}/homework/{id}/submit | Nộp thay `{ answers }`; bài ghi `submitted_by_kind = guardian` |
 | POST | /api/v1/learning/children/{childId}/homework/{id}/submissions/{submissionId}/comments | Phụ huynh trao đổi trên bài đã nộp `{ body }` |
 
+### 17.7. Gói SCORM và gói khoá học (DT-28 phần 28h, YCTD-278)
+
+Lỗi quy tắc 422 mã `YCTD-278`. Mở bài, xem trước cần tiêu đề `Origin` của trang mở (trình duyệt tự gửi).
+
+| Phương thức | Đường dẫn | Mô tả |
+|---|---|---|
+| POST; GET | /api/v1/learning-resources/{id}/scorm | Người soạn tải gói zip (multipart `file`, tối đa 200 MB) lên học liệu loại `scorm`, trả chuẩn, tên, SCO, số tệp; danh sách gói của các phiên bản người xem thấy được |
+| POST | /api/v1/learning-resources/{id}/scorm/{packageId}/preview | Xem trước: `scos` (mã, tên, `url` có mã truy cập), không ghi kết quả |
+| GET | /api/v1/learning/activities/{id}/scorm-attempts | Giáo viên: lượt chạy theo học sinh, SCO (trạng thái, điểm, thời gian) |
+| POST | /api/v1/student/scorm/activities/{id}/launch | Học sinh mở hoạt động gói SCORM: chuẩn, tên, `content_origin`, `scos` (kèm `url`, trạng thái đã có) |
+| POST | /api/v1/student/scorm/activities/{id}/commit | `{ sco, values: { "cmi....": "..." }, finished }`; trả kết quả hoạt động và trạng thái từng SCO |
+| GET | /api/v1/scorm-content/{mã truy cập}/{đường dẫn} | Tệp của gói (không cần mã phiên); CSP `sandbox allow-scripts`, trang SCO có bộ chuyển API; mã sai, hết hạn, của trường khác thì 404 |
+| GET | /api/v1/learning/templates/{id}/package | Tải gói khoá học `.khoahoc.gz`; tiêu đề `x-package-skipped` là số học liệu không đóng gói được |
+| POST; GET | /api/v1/learning/template-packages | Nhập gói khoá học (multipart `file`) thành khoá mẫu nháp, trả `template_id`, `created_resources`, `reused`, `skipped`; nhật ký xuất, nhập |
+
 ## 18. Quy tắc kiểm tra dữ liệu
 
 | Mã | Quy tắc |

@@ -15,6 +15,7 @@ import { AiLessonPlanPanel, useAiReady } from '../ai-assistant/AiDraftPanels.js'
 import { messageOf } from '../archives/archive-ui.js';
 import { Page, useToast } from '../directives/directive-ui.js';
 import { useHasPermission } from '../session/permissions.js';
+import { ScormPanel } from './ScormPanel.js';
 import {
   addResourceLink,
   createCollection,
@@ -255,6 +256,10 @@ function ResourceDetailPanel({ id, onMessage }: { id: string; onMessage(message:
           ))}
         </tbody>
       </table>
+      {/* Gói bài giảng SCORM (DT-28 phần 28h) */}
+      {(resource as { type_code?: string }).type_code === 'scorm' ? (
+        <ScormPanel resourceId={id} editable={editable} onMessage={onMessage} />
+      ) : null}
       {lessonPlan ? (
         <pre className="whitespace-pre-wrap rounded-lg border border-border p-3 text-content">
           {JSON.stringify(lessonPlan, null, 2)}

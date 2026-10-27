@@ -520,6 +520,46 @@ export class LearningResourcesService {
     }
   }
 
+  // Cửa cho gói SCORM (DT-28 phần 28h): tệp zip của học liệu loại `scorm` là một phiên bản tệp như mọi học liệu (người soạn,
+  // còn sửa được, rồi gửi duyệt như cũ); phần kiểm và giải nén gói do `ScormPackagesService` làm trước khi gọi
+  async addTypedFileVersion(
+    currentUser: CurrentUser,
+    id: string,
+    upload: { fileName: string; body: Buffer; contentType: string; storageKey: string },
+    typeCode: string,
+  ) {
+    const context = await this.context(currentUser);
+    const row = await this.findResource(id);
+    this.assertOwner(context, row);
+    this.assertEditable(row);
+    const type = await this.system
+      .selectFrom('resource_types')
+      .select('code')
+      .where('id', '=', row.type_id)
+      .executeTakeFirst();
+    if (type?.code !== typeCode) {
+      throw resourceRule('Loại học liệu không nhận tệp này');
+    }
+    await this.fileStorage.put(upload.storageKey, upload.body, upload.contentType);
+    try {
+      return await this.addVersion(
+        row,
+        {
+          kind: 'file',
+          storage_key: upload.storageKey,
+          file_name: normalizeFileName(upload.fileName),
+          content_type: upload.contentType,
+          size_bytes: upload.body.length,
+          sha256: createHash('sha256').update(upload.body).digest('hex'),
+        },
+        context.userId,
+      );
+    } catch (error) {
+      await this.fileStorage.delete(upload.storageKey).catch(() => undefined);
+      throw error;
+    }
+  }
+
   // Kế hoạch bài dạy nháp do trợ lý AI soạn (DT-23 phần 23d): học liệu riêng tư, trạng thái nháp, mang cờ `ai_generated`; nội dung lưu
   // thành tệp văn bản Markdown ở phiên bản 1. Muốn chia sẻ phải điền giấy phép rồi gửi duyệt như mọi học liệu (kiểm duyệt 22h1)
   async createAiLessonPlanDraft(

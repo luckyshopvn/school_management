@@ -98,7 +98,26 @@ const assignment: ActivityKindDefinition = {
   },
 };
 
-export const ACTIVITY_KINDS: readonly ActivityKindDefinition[] = [resource, page, link, assignment];
+// Gói bài giảng SCORM (DT-28 phần 28h, YCTD-278): học liệu loại `scorm` đã công bố của kho 22h1 (lõi kiểm đã công bố như học liệu
+// thường); gói chạy trong khung cô lập, kết quả ghi qua tuyến `/student/scorm`. Hoàn thành khi gói báo xong mọi SCO (`submit`),
+// khi đạt (`pass`) hoặc do giáo viên ghi (`teacher`); đặt được trong khoá mẫu vì chỉ trỏ tới học liệu
+const scorm: ActivityKindDefinition = {
+  code: 'scorm',
+  label: 'Gói bài giảng SCORM',
+  completionRules: ['submit', 'pass', 'teacher'],
+  defaultCompletion: 'submit',
+  allowedInTemplate: true,
+  parseSettings(raw, field, errors) {
+    const settings = asObject(raw);
+    if (!isUuid(settings.resource_id)) {
+      errors.push({ field: `${field}.resource_id`, message: 'Chọn một gói SCORM đã công bố của kho học liệu' });
+      return {};
+    }
+    return { resource_id: settings.resource_id };
+  },
+};
+
+export const ACTIVITY_KINDS: readonly ActivityKindDefinition[] = [resource, page, link, assignment, scorm];
 
 export function activityKind(code: unknown): ActivityKindDefinition | null {
   return ACTIVITY_KINDS.find((kind) => kind.code === code) ?? null;
