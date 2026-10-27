@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { hasLevelFeature, levelOf, SCHOOL_LEVELS, schoolLevelTerms } from '@school-management/shared';
 import { Alert, ApplicationHeader, Button } from '@school-management/ui';
+import { InstallPrompt, PushSettingsPanel } from '@school-management/pwa';
 import { ApiError, fetchCurrentUser, requestJson } from '../session/api-client.js';
 import { useSession } from '../session/session.js';
 import { CheckInCard } from './CheckInCard.js';
@@ -63,7 +64,9 @@ export function ClassesScreen({
   onOpenLibrary,
   onOpenClassLog,
   onOpenTraining,
+  onOpenOnlineClasses,
   onOpenClassroomTools,
+  onOpenTutoring,
 }: {
   onOpen(myClass: MyClass): void;
   onOpenPickup(myClass: MyClass): void;
@@ -86,7 +89,9 @@ export function ClassesScreen({
   onOpenLibrary(): void;
   onOpenClassLog(): void;
   onOpenTraining(): void;
+  onOpenOnlineClasses(): void;
   onOpenClassroomTools(classes: MyClass[]): void;
+  onOpenTutoring(): void;
 }) {
   const session = useSession();
   const [classes, setClasses] = useState<MyClass[]>();
@@ -96,6 +101,10 @@ export function ClassesScreen({
   const [canStocktake, setCanStocktake] = useState(false);
   // Bồi dưỡng của tôi (DT-22 phần 22e)
   const [canTrain, setCanTrain] = useState(false);
+  // Lớp học trực tuyến (DT-28 phần 28b)
+  const [canTeachOnline, setCanTeachOnline] = useState(false);
+  // Gia sư trong trường (DT-27 phần 27b)
+  const [canTutor, setCanTutor] = useState(false);
 
   useEffect(() => {
     fetchCurrentUser()
@@ -110,6 +119,8 @@ export function ClassesScreen({
           user.assignments.some((assignment) => assignment.permissions.includes('P13.equipment.stocktake')),
         );
         setCanTrain(user.assignments.some((assignment) => assignment.permissions.includes('P09.training.use')));
+        setCanTeachOnline(user.assignments.some((assignment) => assignment.permissions.includes('P02.learning.teach')));
+        setCanTutor(user.assignments.some((assignment) => assignment.permissions.includes('P02.tutoring.teach')));
       })
       .catch(() => setGateUnitIds([]));
     requestJson<MyClass[]>('/api/v1/classes?mine=true&status=active')
@@ -131,7 +142,11 @@ export function ClassesScreen({
     <div className="min-h-screen">
       <ApplicationHeader title="Ứng dụng giáo viên" />
       <main className="mx-auto flex max-w-md flex-col gap-4 px-4 py-6">
+        {/* Mời cài lên màn hình chính (DT-26 phần 26a) */}
+        <InstallPrompt applicationName="ứng dụng giáo viên" />
         <NotificationsPanel />
+        {/* Bật, tắt thông báo đẩy và chọn nhóm (DT-26 phần 26b) */}
+        <PushSettingsPanel application="teacher" base={import.meta.env.BASE_URL} request={requestJson} />
         <CheckInCard onOpenLeave={onOpenLeave} onOpenPayslips={onOpenPayslips} onOpenWork={onOpenWork} />
         <h1 className="text-page-title font-bold text-text">Lớp của tôi</h1>
         {errorMessage ? <Alert tone="danger">{errorMessage}</Alert> : null}
@@ -142,6 +157,8 @@ export function ClassesScreen({
         ) : null}
         {canStocktake ? <Button onClick={onOpenStocktake}>Kiểm kê thiết bị</Button> : null}
         {canTrain ? <Button onClick={onOpenTraining}>Bồi dưỡng của tôi</Button> : null}
+        {canTeachOnline ? <Button onClick={onOpenOnlineClasses}>Lớp học trực tuyến</Button> : null}
+        {canTutor ? <Button onClick={onOpenTutoring}>Gia sư trong trường</Button> : null}
         {/* Lịch dạy theo thời khoá biểu (DT-20 phần 22c1): giáo viên có lớp cấp phổ thông */}
         {(classes ?? []).some((myClass) => hasLevelFeature(myClass.school_level, 'period_timetable')) ? (
           <Button onClick={onOpenTimetable}>Lịch dạy của tôi</Button>

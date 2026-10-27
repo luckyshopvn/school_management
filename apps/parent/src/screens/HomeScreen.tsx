@@ -1,5 +1,7 @@
 import { useCallback, useEffect, useState, type FormEvent } from 'react';
-import { Alert, ApplicationHeader, Button, StatusBadge, TextField } from '@school-management/ui';
+import { InstallPrompt, PushSettingsPanel } from '@school-management/pwa';
+import { Alert, ApplicationHeader, Button, ExternalLinksPanel, StatusBadge, TextField } from '@school-management/ui';
+import { externalRequest } from '../session/external-request.js';
 import { ApiError, fetchCurrentUser, requestJson, type CurrentUser } from '../session/api-client.js';
 import { useSession } from '../session/session.js';
 import { AuthorizedPickupsPanel, PickupConfirmations } from './PickupSections.js';
@@ -18,11 +20,14 @@ import { ServicesPanel } from './ServicesPanel.js';
 import { FinalYearPanel } from './FinalYearPanel.js';
 import { BoardingPanel } from './BoardingPanel.js';
 import { LibraryPanel } from './LibraryPanel.js';
+import { OnlineLearningPanel } from './OnlineLearningPanel.js';
 import { TimetablePanel } from './TimetablePanel.js';
 import { AssessmentPanel } from './AssessmentPanel.js';
 import { ScorePanel } from './ScorePanel.js';
 import { PeriodAttendancePanel } from './PeriodAttendancePanel.js';
 import { LearningRecordPanel } from './LearningRecordPanel.js';
+import { ProctorConsentPanel } from './ProctorConsentPanel.js';
+import { TutoringPanel } from './TutoringPanel.js';
 import { hasLevelFeature, levelOf } from '@school-management/shared';
 import { useSchoolLevelNames } from './school-levels.js';
 
@@ -139,6 +144,9 @@ function ChildCard({
     | 'scores'
     | 'period-attendance'
     | 'learning-record'
+    | 'proctor-consent'
+    | 'online-learning'
+    | 'tutoring'
   >('none');
   const [attendance, setAttendance] = useState<MonthAttendance>();
   const [errorMessage, setErrorMessage] = useState<string>();
@@ -213,12 +221,27 @@ function ChildCard({
             Điểm danh theo tiết
           </Button>
         ) : null}
+        {has('learning_record') ? (
+          <Button onClick={() => setView(view === 'proctor-consent' ? 'none' : 'proctor-consent')}>
+            Giám sát thi trực tuyến
+          </Button>
+        ) : null}
+        {has('online_learning') ? (
+          <Button onClick={() => setView(view === 'online-learning' ? 'none' : 'online-learning')}>
+            Học trực tuyến
+          </Button>
+        ) : null}
+        {/* Gia sư trong trường (DT-27 phần 27b): từ Tiểu học trở lên */}
+        {has('period_timetable') ? (
+          <Button onClick={() => setView(view === 'tutoring' ? 'none' : 'tutoring')}>Gia sư</Button>
+        ) : null}
         {has('final_year_record') ? (
           <Button onClick={() => setView(view === 'final-year' ? 'none' : 'final-year')}>Hồ sơ cuối cấp</Button>
         ) : null}
       </div>
       {view === 'journal' ? <JournalPanel child={child} /> : null}
       {view === 'medication' ? <MedicationPanel child={child} /> : null}
+      {view === 'tutoring' ? <TutoringPanel child={child} /> : null}
       {view === 'consent' ? <PhotoConsentPanel child={child} /> : null}
       {view === 'health' ? <HealthPanel child={child} schoolLevel={child.school_level} /> : null}
       {view === 'learning' ? <LearningPanel child={child} /> : null}
@@ -236,6 +259,8 @@ function ChildCard({
       {view === 'scores' ? <ScorePanel child={child} /> : null}
       {view === 'period-attendance' ? <PeriodAttendancePanel child={child} month={month} /> : null}
       {view === 'learning-record' ? <LearningRecordPanel child={child} /> : null}
+      {view === 'proctor-consent' ? <ProctorConsentPanel child={child} /> : null}
+      {view === 'online-learning' ? <OnlineLearningPanel child={child} /> : null}
       {errorMessage ? <Alert tone="danger">{errorMessage}</Alert> : null}
       {view === 'absence' ? (
         <AbsenceForm
@@ -295,7 +320,11 @@ export function HomeScreen() {
           <div className="h-8 w-48 animate-pulse rounded bg-border" aria-hidden="true" />
         )}
         {notice ? <Alert tone="success">{notice}</Alert> : null}
+        {/* Mời cài lên màn hình chính (DT-26 phần 26a) */}
+        <InstallPrompt applicationName="ứng dụng phụ huynh" />
         <NotificationsPanel />
+        {/* Bật, tắt thông báo đẩy và chọn nhóm (DT-26 phần 26b) */}
+        <PushSettingsPanel application="parent" base={import.meta.env.BASE_URL} request={requestJson} />
         <PickupConfirmations />
         <PollsPanel />
         {children && children.length === 0 ? (
@@ -311,6 +340,7 @@ export function HomeScreen() {
             />
           ))}
         </ul>
+        <ExternalLinksPanel request={externalRequest} basePath={import.meta.env.BASE_URL} />
         <div>
           <Button onClick={() => void session.logout()}>Đăng xuất</Button>
         </div>

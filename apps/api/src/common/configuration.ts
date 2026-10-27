@@ -35,6 +35,9 @@ export interface ApiConfiguration {
   childDataHashKey: Buffer;
   // Kho tệp tương thích S3; trống khi kiểm thử dùng kho trong bộ nhớ
   objectStorage: ObjectStorageSettings | null;
+  // Máy chủ ICE cho giám thị camera của thi trực tuyến (DT-23 phần 23e): STUN, TURN (coturn tự host) và khóa dùng chung để cấp
+  // tên đăng nhập, mật khẩu TURN có hạn; trống thì trình duyệt chỉ dùng kết nối trực tiếp trong cùng mạng
+  webrtc?: WebrtcSettings;
   // Các cổng thanh toán trực tuyến được bật, cổng đầu là mặc định; trống là chưa nối (T1), `development` là bộ giả
   // lập (YCTD-57), `vietqr-static` là mã VietQR tĩnh đối soát qua sao kê (YCTD-89). Biến PAYMENT_GATEWAY ghi các mã
   // cách nhau bằng dấu phẩy; `payos`, `sepay`, `casso`, `vnpay` là nhà cung cấp thật (YCTD-92)
@@ -81,6 +84,54 @@ export interface ApiConfiguration {
   redisUrl?: string | null;
   // Bộ giả lập nhà cung cấp AI `mock` (DT-23 phần 23d): chỉ cho kiểm thử, không gọi dịch vụ ngoài; không bật ở môi trường chạy thật
   aiMock?: boolean;
+  // Thông báo đẩy (DT-26 phần 26b, YCTD-232): bộ nối `development` (giả lập, ghi lại để kiểm thử đọc) hoặc `web-push`; trống là
+  // không gửi đẩy. Khóa VAPID: chế độ nhiều trường đọc ở cơ sở dữ liệu nền tảng, chế độ một trường lấy VAPID_PUBLIC_KEY,
+  // VAPID_PRIVATE_KEY, VAPID_SUBJECT
+  push?: PushConfiguration;
+}
+
+export interface PushConfiguration {
+  provider: 'development' | 'web-push' | null;
+  vapidPublicKey: string | null;
+  vapidPrivateKey: string | null;
+  vapidSubject: string | null;
+  // Bộ giả lập ghi thêm từng lần gửi vào tệp này (một dòng JSON mỗi lần) cho kiểm thử giao diện đọc; trống thì chỉ giữ trong bộ nhớ
+  developmentOutbox: string | null;
+  // Gộp các thông báo cùng nhóm tới cùng người trong số phút này thành một lần đẩy; 0 là không gộp
+  coalesceMinutes: number;
+  // Đăng ký không thấy quá số ngày này thì dọn
+  subscriptionRetentionDays: number;
+}
+
+// PUSH_PROVIDER=development|web-push; web-push cần đủ khóa VAPID ở chế độ một trường. Bộ giả lập không bật ở môi trường chạy thật
+export function readPushConfiguration(environment: NodeJS.ProcessEnv, multiTenant: boolean): PushConfiguration {
+  const value = (name: string) => environment[name]?.trim() || null;
+  const provider = value('PUSH_PROVIDER');
+  if (provider && provider !== 'development' && provider !== 'web-push') {
+    throw new Error('PUSH_PROVIDER chỉ nhận development hoặc web-push');
+  }
+  if (provider === 'development' && environment.NODE_ENV === 'production') {
+    throw new Error('PUSH_PROVIDER=development chỉ dùng cho phát triển và kiểm thử');
+  }
+  if (provider === 'web-push' && !multiTenant) {
+    const missing = ['VAPID_PUBLIC_KEY', 'VAPID_PRIVATE_KEY', 'VAPID_SUBJECT'].filter((name) => !value(name));
+    if (missing.length > 0) {
+      throw new Error(`Thiếu biến môi trường ${missing.join(', ')} khi PUSH_PROVIDER=web-push`);
+    }
+  }
+  const number = (name: string, fallback: number) => {
+    const parsed = Number(value(name) ?? fallback);
+    return Number.isFinite(parsed) && parsed >= 0 ? parsed : fallback;
+  };
+  return {
+    provider: provider === 'development' || provider === 'web-push' ? provider : null,
+    vapidPublicKey: value('VAPID_PUBLIC_KEY'),
+    vapidPrivateKey: value('VAPID_PRIVATE_KEY'),
+    vapidSubject: value('VAPID_SUBJECT'),
+    developmentOutbox: value('PUSH_DEVELOPMENT_OUTBOX'),
+    coalesceMinutes: number('PUSH_COALESCE_MINUTES', 5),
+    subscriptionRetentionDays: number('PUSH_SUBSCRIPTION_RETENTION_DAYS', 90),
+  };
 }
 
 type IntegrationConfiguration = Pick<
@@ -129,6 +180,20 @@ export function readIntegrationConfiguration(environment: NodeJS.ProcessEnv): In
     zaloOaRefreshToken: value('ZALO_OA_REFRESH_TOKEN'),
     zaloOaAccessToken: value('ZALO_OA_ACCESS_TOKEN'),
   };
+}
+
+export interface WebrtcSettings {
+  stunUrls: string[];
+  turnUrls: string[];
+  turnSecret: string | null;
+  turnTtlSeconds: number;
+}
+
+function readList(value: string | undefined): string[] {
+  return (value ?? '')
+    .split(',')
+    .map((item) => item.trim())
+    .filter((item) => item !== '');
 }
 
 export interface ObjectStorageSettings {
@@ -181,6 +246,12 @@ export function readConfigurationFromEnvironment(options: { multiTenant?: boolea
       accessKeyId: readRequired('S3_ACCESS_KEY_ID'),
       secretAccessKey: readRequired('S3_SECRET_ACCESS_KEY'),
     },
+    webrtc: {
+      stunUrls: readList(process.env.STUN_URLS),
+      turnUrls: readList(process.env.TURN_URLS),
+      turnSecret: process.env.TURN_SHARED_SECRET?.trim() || null,
+      turnTtlSeconds: Number(process.env.TURN_TTL_SECONDS) > 0 ? Number(process.env.TURN_TTL_SECONDS) : 4 * 3600,
+    },
     paymentGateways,
     paymentProviders: readPaymentProviderSettings(paymentGateways),
     notificationDispatchIntervalSeconds: Number(process.env.NOTIFICATION_DISPATCH_INTERVAL_SECONDS ?? 60),
@@ -199,6 +270,7 @@ export function readConfigurationFromEnvironment(options: { multiTenant?: boolea
     smsProvider: readSmsProviderSettings(),
     redisUrl: process.env.REDIS_URL?.trim() || null,
     aiMock: readAiMock(process.env),
+    push: readPushConfiguration(process.env, multiTenant),
   };
 }
 

@@ -1265,6 +1265,8 @@ export interface SchoolBrandingTable {
   id: number;
   display_name: string | null;
   primary_color: string | null;
+  // Tên ngắn dưới biểu tượng khi cài lên màn hình chính (DT-26 phần 26a)
+  app_short_name: string | null;
   updated_at: UpdatedTimestamp;
   updated_by_name: string | null;
 }
@@ -1477,6 +1479,80 @@ export interface SupportAccessGrantsTable {
   created_at: CreatedTimestamp;
 }
 
+// Khoá học mẫu của tổ chuyên môn (DT-28 phần 28b, YCTD-272)
+export type CourseTemplateStatus = 'draft' | 'pending_unit' | 'pending_school' | 'published' | 'returned' | 'retired';
+
+export interface CourseTemplatesTable {
+  id: Generated<string>;
+  title: string;
+  description: string | null;
+  school_level: 'TH' | 'THCS' | 'THPT';
+  grade_level_code: string | null;
+  subject_code: string | null;
+  subject_name: string | null;
+  department_id: string | null;
+  department_name: string | null;
+  owner_user_id: string;
+  owner_name: string;
+  status: Generated<CourseTemplateStatus>;
+  version: Generated<number>;
+  // { sections: [{ key, title, planned_week, items: [...] }] }
+  content: ColumnType<unknown, string, string>;
+  published_version: number | null;
+  published_content: ColumnType<unknown, string | null | undefined, string | null>;
+  published_at: Date | null;
+  return_reason: string | null;
+  created_at: CreatedTimestamp;
+  updated_at: UpdatedTimestamp;
+}
+
+export interface CourseTemplateReviewsTable {
+  id: Generated<string>;
+  template_id: string;
+  version: number;
+  action: 'submit' | 'approve_unit' | 'approve_school' | 'return' | 'retire';
+  actor_user_id: string;
+  actor_name: string;
+  note: string | null;
+  created_at: CreatedTimestamp;
+}
+
+// Thông báo đẩy (DT-26 phần 26b, YCTD-232)
+export type PushSubscriptionApp = 'teacher' | 'parent' | 'student';
+export type PushSubscriptionKind = 'web_push' | 'fcm' | 'apns';
+
+export interface PushSubscriptionsTable {
+  id: Generated<string>;
+  user_id: string;
+  app: PushSubscriptionApp;
+  kind: Generated<PushSubscriptionKind>;
+  endpoint_hash: string;
+  endpoint_encrypted: string;
+  keys_encrypted: string;
+  origin: string | null;
+  device_label: string | null;
+  created_at: ColumnType<Date, Date | undefined, never>;
+  last_seen_at: ColumnType<Date, Date | undefined, Date>;
+  last_success_at: Date | null;
+  failure_count: Generated<number>;
+  revoked_at: Date | null;
+  revoked_reason: string | null;
+}
+
+export interface NotificationPreferencesTable {
+  user_id: string;
+  group_code: string;
+  push_enabled: boolean;
+  updated_at: ColumnType<Date, Date | undefined, Date>;
+}
+
+export interface NotificationUrgentTemplatesTable {
+  template_code: string;
+  marked_by: string;
+  marked_by_name: string;
+  marked_at: ColumnType<Date, Date | undefined, never>;
+}
+
 export interface SystemDatabase {
   academic_years: AcademicYearsTable;
   academic_terms: AcademicTermsTable;
@@ -1563,4 +1639,9 @@ export interface SystemDatabase {
   ai_settings: AiSettingsTable;
   ai_requests: AiRequestsTable;
   support_access_grants: SupportAccessGrantsTable;
+  course_templates: CourseTemplatesTable;
+  course_template_reviews: CourseTemplateReviewsTable;
+  push_subscriptions: PushSubscriptionsTable;
+  notification_preferences: NotificationPreferencesTable;
+  notification_urgent_templates: NotificationUrgentTemplatesTable;
 }

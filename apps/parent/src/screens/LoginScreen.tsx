@@ -1,5 +1,6 @@
 import { useState, type FormEvent } from 'react';
-import { Alert, Button, DemoAccountPicker, TextField } from '@school-management/ui';
+import { Alert, Button, DemoAccountPicker, ExternalProviderButtons, TextField } from '@school-management/ui';
+import { externalRequest } from '../session/external-request.js';
 import { ApiError, requestOneTimeCode } from '../session/api-client.js';
 import { useSession } from '../session/session.js';
 import { STUDENT_HASH } from '../student/StudentApplication.js';
@@ -144,6 +145,7 @@ export function LoginScreen({ onAdmissions }: { onAdmissions?: () => void }) {
           </Button>
         ) : null}
       </form>
+      <ExternalProviderButtons request={externalRequest} channel="parent" basePath={import.meta.env.BASE_URL} />
       {/* Bản trình diễn: chọn tài khoản phụ huynh giả để vào thử (DT-18 phần 18h) */}
       <DemoAccountPicker
         app="parent"
@@ -157,10 +159,16 @@ export function LoginScreen({ onAdmissions }: { onAdmissions?: () => void }) {
         }}
       />
       <nav aria-label="Trang công khai" className="fixed bottom-6 left-0 right-0 flex justify-center gap-6">
-        <a href={STUDENT_HASH} className="text-label font-medium text-text underline">
+        <a
+          href={STUDENT_HASH}
+          className="inline-flex min-h-11 items-center px-2 text-label font-medium text-text underline"
+        >
           Học sinh làm bài thi trực tuyến
         </a>
-        <a href={RECRUITMENT_HASH} className="text-label font-medium text-text underline">
+        <a
+          href={RECRUITMENT_HASH}
+          className="inline-flex min-h-11 items-center px-2 text-label font-medium text-text underline"
+        >
           Tuyển dụng giáo viên và nhân viên
         </a>
       </nav>

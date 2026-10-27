@@ -17,6 +17,7 @@
 |---|---|---|---|---|
 | Dữ liệu nghiệp vụ của trường | **Có thể tự xóa** sau `[30]` ngày kể từ khởi tạo (bật tắt theo trường) | **Không tự xóa**; xóa khi chuyển về trong nước xong (PL-10 bước 6), khi trường rút đồng ý và chọn xóa, hoặc khi chấm dứt hợp đồng | **Không tự xóa**; xóa khi chấm dứt hợp đồng theo mục 3 | Hợp đồng; `[quy định ngành: luật sư bổ sung]` |
 | Tệp đính kèm, ảnh | Như trên | Như trên | Như trên | |
+| Bản ghi camera khi thi trực tuyến (YCTD-215; mặc định tắt) | Tự xoá theo hạn của trường | Tự xoá theo hạn của trường (mặc định `[30]` ngày, 7 đến 90) | Như `consented` | Cần đồng ý của cha mẹ (học sinh dưới 16 tuổi); GD-132; luật sư kiểm (PL-15 câu 6 đến 8) |
 | Bản sao lưu | Theo vòng quay | Giữ tối thiểu `[30]` ngày (SL-01), xóa theo vòng quay | Như `consented` | SL-01 |
 | Nhật ký hệ thống, nhật ký truy cập | `[ ]` | Tối thiểu `[12]` tháng | Tối thiểu `[12]` tháng | Theo tóm tắt Nghị định 333/2026/NĐ-CP về nhật ký hệ thống (luật sư kiểm) |
 | Dữ liệu người dùng phải lưu theo pháp luật an ninh mạng (tài khoản, thời gian dùng dịch vụ, địa chỉ IP, ...) | `[ ]` | `[ ]` | Tối thiểu `[24]` tháng | Theo tóm tắt Nghị định 333/2026/NĐ-CP (luật sư kiểm phạm vi áp dụng) |

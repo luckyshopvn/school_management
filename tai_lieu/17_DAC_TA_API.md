@@ -1,7 +1,7 @@
 # 17. ĐẶC TẢ API
 
 - Mô tả: Điểm cuối, phương thức, yêu cầu, phản hồi, xác thực, phân quyền, kiểm tra dữ liệu, xử lý lỗi, phân trang, lọc, sắp xếp, phiên bản.
-- Phiên bản: 1.130
+- Phiên bản: 1.131
 - Ngày cập nhật: 2026-10-26
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
@@ -93,6 +93,17 @@ Giao kèo thi trực tuyến cho học sinh (DT-23 phần 23a, YCTD-211, BR-237)
 4. `PUT /student/attempts/{id}/answers` nhận `answers` theo số câu (nhãn hiển thị A, B, C, D; đúng sai `Đ`, `S` từng ý; đáp số; tự luận), chỉ ghi đè câu gửi lên, nhận đến hạn nộp cộng 10 giây; đã nộp trả 422.
 5. `POST /student/attempts/{id}/events` nhận tối đa 20 sự kiện (`fullscreen_exit`, `page_hidden`, `window_blur`, `camera_lost`, `no_face`, `multiple_faces`; `detail` chỉ `duration_ms`, `faces`) và trả `violations`, `outcome` (`none`, `warn`, `flag`, `auto_submit`); không nhận hình hay video.
 6. `GET /student/attempts/{id}/result`: `visible` theo `result_mode`; đáp án đúng (`correct_answer`) chỉ có sau giờ đóng.
+
+Giao kèo giám thị camera cho thi trực tuyến (DT-23 phần 23e, YCTD-215, BR-270):
+
+1. `PUT /online-exams/school-settings` nhận thêm `allow_live_proctoring`, `allow_recording`, `recording_retention_days` (7 đến 90); thiếu trường thì giữ giá trị cũ. `POST /online-exams/assignments` nhận `proctor_live`, `proctor_record`: trường chưa bật thì 422 (chi tiết theo trường), bài tắt camera thì 400.
+2. `POST /student/exams/{id}/start` nhận `proctor_notice` (đã đọc thông báo): bài có giám sát mà thiếu thì 422 chi tiết `proctor_notice`; học sinh dưới 16 tuổi hoặc chưa rõ ngày sinh thiếu đồng ý của loại đang bật thì 422 chi tiết `proctor_consent`.
+3. `POST /online-exams/attempts/{id}/proctor/views` (200, trả `view_id`): bài bật xem trực tiếp, trường còn bật, lượt đang làm, camera đã bật, còn đồng ý (dưới 16 tuổi), dưới 60 phiên đang mở; ngoài ra 422; không phải người quản lý bài giao 403. `GET …/proctor/views/{viewId}/signals?after=` trả `ended` và các thông điệp `answer`, `ice` mới (tối đa 100); `POST` gửi `offer` hoặc `ice` (`payload` tối đa 24.000 ký tự); `DELETE` kết thúc và xoá thông điệp. Chỉ người mở phiên dùng được (người khác 404).
+4. `GET /student/attempts/{id}/proctor?after=` trả `active`, `watching` (số phiên xem còn sống trong 30 giây), `active_view_ids`, `signals` (`offer`, `ice`), `cursor`; `POST …/proctor/signals` nhận `view_id`, `kind` (`answer`, `ice`), `payload`. Lượt của học sinh khác 404; đều tính vào giới hạn tần suất của học sinh.
+5. `POST /student/attempts/{id}/recording/chunks` (nhiều phần, trường `chunk` tối đa 8 MB, `seq` từ 0 đến 1999): bài phải bật ghi hình và học sinh đã xác nhận thông báo, trường còn bật ghi hình, còn đồng ý (dưới 16 tuổi), lượt đang làm (nộp rồi 422); đoạn 0 phải là WebM; gửi lại cùng `seq` trả `stored: false`.
+6. `GET /online-exams/attempts/{id}/recording`: video WebM ghép các đoạn đã giải mã (`cache-control: no-store, private`, `content-disposition: inline`); chỉ người giao bài và `P02.exam.manage` (người khác 403); không có đoạn chưa hết hạn thì 404; mỗi lần gọi ghi một dòng nhật ký người xem. `GET …/proctor` trả `notice_at`, `recording` (số đoạn, hạn), `can_watch_recording`, `views`.
+7. `PUT /online-exams/proctor/consents` (`P02.exam.manage`; `child_id`, `scope`, `granted`, `guardian_name` bắt buộc khi đồng ý) và `GET/PUT /parent/exam-proctor-consents` (`child_id`, `scope`, `granted`; phụ huynh không phải của học sinh 403) trả tình trạng đồng ý (`live`, `record` hoặc null).
+
 
 
 Giao kèo phần 10f (YCTD-79):
@@ -1544,15 +1555,34 @@ Giao kèo văn thư lưu trữ (YCTD-118):
 | GET, PUT | /api/v1/online-exams/school-settings | Cấu hình thi trực tuyến của trường: chế độ thi mặc định, thi từ xa, dải mạng, hạn mã phòng (P02-85) |
 | POST | /api/v1/online-exams/assignments/{id}/rooms, /api/v1/online-exams/rooms/{id}/close | Mở phòng thi (mã 6 chữ số, danh sách học sinh); đóng phòng (P02-84) |
 | GET | /api/v1/online-exams/exams, /classes | Đề đã khoá, lớp giao được (P02-82) |
-| GET, POST | /api/v1/online-exams/assignments | Danh sách, giao đề (P02-82) |
+| GET, POST | /api/v1/online-exams/assignments | Danh sách, giao đề (P02-82); từ YCTD-271 nhận thêm `group_ids` (nhóm của bộ nhóm đang dùng, thành viên lúc giao được giao như học sinh; nhóm của bộ đã lưu trữ 404, nhóm trống 400) |
 | GET, PATCH | /api/v1/online-exams/assignments/{id} | Chi tiết, theo dõi; sửa tên, giờ, chế độ kết quả (P02-84) |
 | POST | /api/v1/online-exams/assignments/{id}/cancel, /release-results | Huỷ; công bố kết quả (P02-84) |
 | GET, PUT, POST | /api/v1/online-exams/attempts/{id}, /essay-marks, /force-submit | Xem bài; điểm tự luận; nộp thay (P02-84) |
+| GET | /api/v1/tutoring/meta, /tutoring/rules; POST /tutoring/rules | Danh mục cho biểu mẫu, quy định dạy thêm đang áp dụng và lịch sử; thêm quy định có ngày hiệu lực (P02.tutoring.manage) (YCTD-252) |
+| GET, POST | /api/v1/tutoring/programs; GET, PUT /tutoring/programs/{id} | Chương trình gia sư; vi phạm Thông tư 29 trả 422 `ERR_RULE_VIOLATION` mã YCTD-252, chi tiết mã từng dòng (`curriculum_fee`, `curriculum_audience`, `curriculum_subject`, `curriculum_level`) |
+| POST | /api/v1/tutoring/programs/{id}/submit, /approve, /reject, /close | Nộp (người dạy), duyệt, không duyệt (cần `reason`), đóng (Ban Giám hiệu) |
+| GET, PUT | /api/v1/tutoring/programs/{id}/candidate-suggestions, /candidates | Gợi ý học sinh chưa đạt môn từ sổ điểm; xác nhận danh sách học sinh được đăng ký |
+| POST | /api/v1/tutoring/programs/{id}/sessions | Xếp buổi lẻ (`session_date`) hoặc lặp theo tuần (`weekly`: from, to, weekdays 1 đến 7), `start_time`, `end_time`; trùng thời khoá biểu (`timetable_teacher`, `timetable_class`) hoặc quá giới hạn tiết (`weekly_periods`) trả 422 |
+| GET | /api/v1/tutoring/programs/{id}/registrations; POST /tutoring/registrations/{id}/approve, /reject | Đơn đăng ký; duyệt kiểm sĩ số và giới hạn tiết |
+| POST | /api/v1/tutoring/programs/{id}/messages | Nhắn cha mẹ của học sinh đã đăng ký qua luồng trao đổi |
+| GET | /api/v1/tutoring/sessions?from&to; POST /tutoring/sessions/{id}/cancel | Buổi của chương trình mình dạy (Ban Giám hiệu: mọi buổi); hủy buổi báo cha mẹ |
+| GET, PUT | /api/v1/tutoring/sessions/{id}/attendance; POST .../room-events | Điểm danh và xác nhận (vắng báo cha mẹ một lần); sự kiện vào, ra phòng giả lập đến khi 27a gộp |
+| GET, POST | /api/v1/tutoring/exemptions; GET .../{id}/file | Quyết định tăng thời lượng của Sở (biểu mẫu nhiều phần, tệp tùy chọn) |
+| GET | /api/v1/children/{id}/tutoring; POST .../registrations; POST .../registrations/{rid}/withdraw | Cha mẹ: chương trình mở cho con, đơn đã gửi, lịch học và điểm danh đã xác nhận; gửi đơn (`agree` bắt buộc), rút đơn |
 | GET | /api/v1/student/profile, /exams | Học sinh: thông tin, bài được giao (P02-83) |
 | POST | /api/v1/student/exams/{id}/start | Mở hoặc tiếp tục lượt (`camera_state`) (P02-83) |
 | GET, PUT | /api/v1/student/attempts/{id}, /answers | Đọc lượt; lưu nháp từng câu (P02-83) |
 | POST | /api/v1/student/attempts/{id}/events, /submit | Báo sự kiện; nộp (P02-83) |
 | GET | /api/v1/student/attempts/{id}/result | Kết quả theo chế độ (P02-83) |
+| GET, POST, DELETE | /api/v1/online-exams/attempts/{id}/proctor/views, /proctor/views/{viewId}/signals, /proctor/views/{viewId} | Giáo viên mở phiên xem trực tiếp, hỏi và gửi thông điệp báo hiệu, kết thúc (P02-97, YCTD-215) |
+| GET | /api/v1/online-exams/proctor/ice, /api/v1/student/proctor/ice | Máy chủ ICE (STUN, TURN có hạn) cho trình duyệt (P02-97) |
+| GET | /api/v1/online-exams/attempts/{id}/proctor, /recording | Thông tin giám sát của lượt, nhật ký người xem; phát bản ghi (P02-98) |
+| GET, POST | /api/v1/student/attempts/{id}/proctor, /proctor/signals | Học sinh hỏi phiên xem và gửi trả lời (P02-97) |
+| POST | /api/v1/student/attempts/{id}/recording/chunks | Học sinh tải một đoạn bản ghi (P02-98) |
+| GET | /api/v1/online-exams/assignments/{id}/proctor/consents | Tình trạng đồng ý của học sinh trong bài giao (P02-96) |
+| PUT | /api/v1/online-exams/proctor/consents | Người quản lý ghi nhận hoặc thu hồi văn bản đồng ý (P02-96) |
+| GET, PUT | /api/v1/parent/exam-proctor-consents | Phụ huynh xem, đồng ý, thu hồi cho con mình (P02-96) |
 | POST | /api/v1/users/student-accounts/sync | Dịch vụ định danh: tạo, cấp lại người dùng kênh `student` (máy chủ API gọi) (P02-83) |
 | GET | /api/v1/public/student-awards/verify (từ YCTD-163) | Tra cứu công khai mã giấy khen học sinh (`code` 12 kí tự), giới hạn tần suất |
 | GET | /api/v1/primary-reports/enrollment, /assessments, /year-end, /attendance, /{report}/export (từ YCTD-165) | Thống kê Tiểu học (`org_unit_id`; `period_id`, `group` = `class`, `grade`, `school`; `from`, `to`); xuất `format` = `xlsx`, `pdf`; cần `P17.child-statistics.view` |
@@ -1674,10 +1704,24 @@ Giao kèo trợ lý AI (DT-23 phần 23d, YCTD-214, BR-234 đến BR-236):
 | GET | /api/v1/classroom-tools/classes/{id}/roster (từ YCTD-212) | Danh sách lớp gọn: `students` (`id`, `order_no`, `full_name`, `code`, `absent_today`); chỉ người có phạm vi xem trẻ của lớp, không thì 403 (P03-09, BR-231) |
 | POST | /api/v1/classroom-tools/calls (từ YCTD-212) | Ghi lượt gọi (`class_id`, `calls` 1 đến 100 mục `client_id`, `child_id`, `called_at` tuỳ chọn); trả `saved`, `duplicates` (gửi lại cùng `client_id` không trùng); học sinh ngoài lớp 400 |
 | GET, DELETE | /api/v1/classroom-tools/classes/{id}/calls, /calls/{callId} (từ YCTD-212) | Xem 100 lượt gần nhất; xóa một lượt hoặc toàn bộ lượt của chính mình |
-| GET, PUT | /api/v1/classroom-tools/classes/{id}/grouping (từ YCTD-212) | Bản chia nhóm gần nhất của giáo viên (`groups`: `name`, `child_ids`; mỗi học sinh một nhóm, thuộc lớp) |
+| GET, PUT | /api/v1/classroom-tools/classes/{id}/grouping (từ YCTD-212) | Bản chia nhóm gần nhất của giáo viên (`groups`: `name`, `child_ids`; mỗi học sinh một nhóm, thuộc lớp); từ YCTD-271 đọc và lưu bộ nhóm `classroom` của giáo viên, `PUT` nhận thêm `group_set_id` tuỳ chọn khi chọn bộ sẵn có |
+| GET | /api/v1/group-sets?class_id=&subject_id=&purpose=&include_archived= (từ YCTD-271) | Bộ nhóm của lớp, mới nhất trước: `id`, `name`, `purpose`, `method`, `status`, `subject_name`, `owner_name`, `group_count`, `replaces_id`; mặc định chỉ bộ đang dùng. Giáo viên được phân công hoặc dạy lớp, vai trò đơn vị xem được lớp; khác 403 |
+| POST | /api/v1/group-sets/preview (từ YCTD-271) | Xem trước, không lưu: `class_id`, `subject_id`, `method`, `by` (`count`, `size`), `value` (1 đến 50), `seed`, `ability_source` (`term_average`, `subject_level`; `activity` 400 đến khi có 28d), `balance_gender`, `exclude_absent`, `apart`, `together` (tối đa 100 cặp), `leader_mode` (`none`, `random`, `rotate`); trả `groups` (`name`, `child_ids`, `leader_child_id`), `violations`, `seed`, `excluded_absent`; không trả mức năng lực. Theo năng lực thiếu môn 400 |
+| POST | /api/v1/group-sets (từ YCTD-271) | Lưu bộ nhóm: như xem trước, thêm `purpose`, `name`, `groups` (lưu đúng danh sách đã xem hoặc chia tay), `replaces_id` (bộ cũ chuyển `archived`); học sinh ngoài lớp hoặc ở hai nhóm 400 (trừ `timetable_group`); trả bộ kèm `groups`, `violations` |
+| GET | /api/v1/group-sets/{id} (từ YCTD-271) | Bộ nhóm, `can_edit`, `groups` (`id`, `name`, `position`, `leader_child_id`, `child_ids`, `members`: `child_id`, `full_name`, `is_leader`) |
+| PATCH | /api/v1/group-sets/{id} (từ YCTD-271) | Đổi `name`, `status` = `archived`; bộ đã lưu trữ 400; không phải người lập hoặc vai trò đơn vị 403 |
+| POST | /api/v1/group-sets/{id}/move, /groups/{groupId}/leader, /leaders (từ YCTD-271) | Chuyển `child_id` sang `to_group_id` (trống là bỏ khỏi bộ); đặt hoặc bỏ nhóm trưởng (`child_id` phải trong nhóm); đổi nhóm trưởng cả bộ `mode` = `random` hoặc `rotate`; mỗi thay đổi ghi `child_group_member_events` |
+| GET | /api/v1/group-sets/subjects?class_id= (từ YCTD-271) | Môn đang dùng của cấp học của lớp, để chọn môn khi chia theo năng lực |
+| GET | /api/v1/group-sets/children/{childId} (từ YCTD-271) | Nhóm của con trong các bộ đang dùng: `set_name`, `purpose`, `subject_name`, `group_name`, `leader_name`, `members` (họ tên); không có cách chia, tham số. Phụ huynh của học sinh hoặc nhân sự xem được học sinh; khác 403 |
 | POST | /api/v1/classroom-tools/scores (từ YCTD-212) | Ghi dòng điểm (`class_id`, `session_key`, `events` 1 đến 200 mục `client_id`, `target_kind`, `group_name` hoặc `child_id`, `delta`, `note`, `occurred_at`); chống trùng theo `client_id` |
 | GET, DELETE | /api/v1/classroom-tools/classes/{id}/scores?session_key=, /scores/{sessionKey} (từ YCTD-212) | Dòng điểm và tổng theo đối tượng của buổi (chỉ của chính giáo viên); bỏ buổi xóa dòng chưa chuyển vào nề nếp |
 | POST | /api/v1/classroom-tools/classes/{id}/scores/{sessionKey}/confirm (từ YCTD-212) | Chuyển điểm vào nề nếp: `criterion_id`, `targets` (tuỳ chọn), `date` (tuỳ chọn); cần `P02.conduct.record`; trả `confirmed_events`, `net`, `quantity`, `conduct_entry_ids`; 422 khi tổng bằng 0, tiêu chí ngược chiều, nề nếp chưa bật (BR-232) |
+| GET | /api/v1/public/push/vapid-public-key | Khóa công khai VAPID của nền tảng cho đăng ký đẩy (YCTD-232): `{ enabled, public_key }`; chưa bật đẩy hoặc chưa có khóa thì `enabled: false` |
+| GET, POST | /api/v1/push/subscriptions | Máy đã đăng ký của chính người dùng; đăng ký `{ endpoint (https), keys: { p256dh, auth }, app, device_label, origin }`, cùng máy thì cập nhật (`created: false`), máy của người khác thì thu hồi đăng ký cũ; sai dữ liệu 400 |
+| POST | /api/v1/push/subscriptions/unsubscribe | `{ endpoint }`: ứng dụng gọi khi đăng xuất, thu hồi đăng ký của máy này |
+| DELETE | /api/v1/push/subscriptions/{id} | Gỡ một máy của mình; máy của người khác 404 |
+| GET, PUT | /api/v1/push/preferences | Tám nhóm loại và trạng thái bật đẩy; PUT `{ groups: { <mã nhóm>: true hoặc false } }`, nhóm lạ 400 |
+| GET, PUT | /api/v1/push/urgent-templates | Loại thông báo khẩn (P01.setting.manage): PUT `{ template_codes: [...] }` thay danh sách |
 | POST | /api/v1/internal/jobs/tick | Điểm gọi của bộ hẹn giờ bên ngoài (YCTD-192, BR-204): tiêu đề `x-internal-job-token` bằng `INTERNAL_JOB_TOKEN` (so sánh thời gian hằng, sai 401, chưa đặt 404, có giới hạn tần suất); chạy việc nền đến hạn của mọi trường rồi trả `{ jobs, schools, failed }`; không cần trường (gọi bằng địa chỉ nội bộ) |
 | GET | /api/v1/public/schools/picker | Trang chọn trường ở tên miền gốc (YCTD-192, BR-205, MH-315): trang HTML tĩnh, 404 khi chưa đặt `PLATFORM_ROOT_DOMAIN`; không cần trường |
 | GET | /api/v1/public/schools/resolve?code=<mã> | Đổi mã trường thành `{ url }` của trường đang phục vụ (YCTD-192, BR-205); mã lạ, trường tạm dừng, đang khởi tạo hoặc đã xóa 404; có giới hạn tần suất theo địa chỉ mạng; không liệt kê trường |
@@ -2135,8 +2179,9 @@ Bỏ ngày 09/10/2026: trường không có xe đưa đón (Q-62). Mọi điểm
 | PUT | /api/v1/school-settings/integrations/:connector | Lưu một kết nối `{ enabled, values }`: giá trị mã hóa bằng khóa của trường, ô trống giữ giá trị đã lưu; thiếu ô bắt buộc khi bật 400 |
 | DELETE | /api/v1/school-settings/integrations/:connector | Xóa cấu hình một kết nối |
 | POST | /api/v1/school-settings/integrations/:connector/test | Kiểm tra kết nối bằng giá trị đã lưu (Facebook, Zalo, eSMS gọi nhà cung cấp; kho tệp ghi và xóa tệp thử; cổng thanh toán kiểm tra đủ khóa); chưa cấu hình 422 `G3-10` |
-| GET, PUT | /api/v1/school-settings/branding | Thương hiệu của trường: `display_name`, `primary_color` (#RRGGBB) (YCTD-195, BR-213) |
+| GET, PUT | /api/v1/school-settings/branding | Thương hiệu của trường: `display_name`, `primary_color` (#RRGGBB) (YCTD-195, BR-213); từ YCTD-231 thêm `app_short_name` (tối đa 9 ký tự, không gửi thì giữ giá trị cũ, BR-238) |
 | GET | /api/v1/public/branding, /api/v1/public/branding/logo | Công khai theo tên miền của trường: tên hiển thị, màu, địa chỉ và ảnh biểu trưng cho trang đăng nhập (YCTD-195, MH-322) |
+| GET | /api/v1/public/pwa/{teacher,parent,student}.webmanifest?base=, /api/v1/public/pwa/icon.svg, /api/v1/public/pwa/icon-maskable.svg (từ YCTD-231) | Công khai theo tên miền của trường: manifest (`application/manifest+json`: `id`, `name`, `short_name`, `theme_color`, `start_url`, `scope` theo `base` dạng `/…/`, sai dạng thì `/`; `icons`; `apple_touch_icon` ngoài chuẩn) và biểu tượng SVG 512 (nền màu trường, biểu trưng hoặc chữ cái đầu; `content-security-policy` chặn mã); ứng dụng lạ 404 (P19-07, BR-238) |
 | GET | /api/v1/sync-accounts | Tài khoản đồng bộ của Bộ (`moet`), của Sở (`doet`): `username`, `password_configured`, `updated_at`, `sync_available`; không bao giờ trả mật khẩu; cần `P01.integration.manage` (P01-19, YCTD-120) |
 | PUT, DELETE | /api/v1/sync-accounts/{target} | Ghi `username` (bắt buộc, đến 100 ký tự), `password` (đến 200 ký tự; trống thì giữ mật khẩu đã lưu, lần đầu bắt buộc); xóa thông tin đã lưu |
 | GET | /api/v1/account-directory | Danh sách người dùng của 1.4 ghép hồ sơ nhân sự: tham số như `GET /users` (`q`, `status`, `role_code`, `login`, `full_name`, `must_change_password`, `password_expires_from`, `password_expires_to`, `page`, `page_size` 10, 20, 50, 100, 200) và `identifier` (mã nhân sự hoặc mã Bộ, khớp một phần); mỗi dòng thêm `staff_id`, `staff_code`, `moet_staff_code`; cần `P01.account.manage` hoặc `P01.account.manage-in-unit` (YCTD-120) |
@@ -2344,6 +2389,36 @@ Hướng dẫn dùng cho các phần sau (16b, 16e đến 16k):
 5. Xuất file lỗi (từ YCTD-129): mọi biểu mẫu đã đăng ký có sẵn `POST /upper-level-submissions/{form}/error-file`, dựng từ `completeness` của biểu (các mục `done` sai), không cần khai báo thêm; `UpperLevelSubmissionPanel` hiện nút "Xuất file lỗi" ở dòng biểu khi dữ liệu chưa hoàn thành, kể cả hai biểu của phần 16i (YCTD-128). Đặt `label` của mục hoàn thành là câu đọc được (ví dụ "Đã ghi thẻ Nhà vệ sinh") vì tệp in nguyên câu đó. Màn hình nhập số liệu của biểu cần khóa khi đã gửi thì gọi `UpperLevelSubmissions.statusOf(formCode)` rồi `isLocked(status)` (đúng khi đã gửi hoặc đang chờ mở khóa) trước khi ghi.
 6. Cách phần 16j dùng: `EmisForms` (`apps/api/src/emis/emis-forms.ts`) đăng ký bảy biểu trong một vòng lặp, `completeness` và `snapshot` gọi lại hàm xem biểu và hàm dựng tệp Excel của biểu nên tệp gửi trùng với tệp Xuất Excel; ghi, lấy dữ liệu kiểm tra `isLocked` và trả mã YCTD-129. Cổng quản trị đặt `<UpperLevelSubmissionPanel formCodes={EMIS_FORM_CODES} summary … />` ở 1.1 (bảy dòng kèm dòng tổng hợp số đã gửi, số cần gửi, lần gửi cuối) và `formCodes={[mã biểu]}` ở sáu màn hình còn lại.
 7. Tệp PDF dạng hồ sơ (từ YCTD-130): `buildPdf(sheets, createdAt, { orientation, closing, subject })` ở `apps/api/src/exports/table-file.ts` dựng PDF khổ dọc (`portrait`) và thêm phần cuối tài liệu (`closing`, ví dụ khối xác nhận kí kèm ảnh `data:image/png;base64,…`); `buildTableFile` không đổi. Phần 16k dùng cho hồ sơ kí.
+
+### 17.2. Lõi hệ thống quản lý học tập (DT-28 phần 28b, YCTD-272)
+
+| Phương thức | Đường dẫn | Mô tả |
+|---|---|---|
+| GET | /api/v1/learning/config | Quyền của người gọi (`can_teach`, `can_template`, `can_decide`, `can_view`, `can_review`), `link_domains`, danh mục loại hoạt động |
+| GET | /api/v1/learning/spaces?scope=mine\|all | Lớp học trực tuyến của tôi (đồng bộ phần của giáo viên trước) hoặc của trường (`P02.learning.view`); kèm tên lớp, môn, giáo viên, số hoạt động (P03-12, BR-248) |
+| POST | /api/v1/learning/spaces/sync | Đồng bộ lớp học trực tuyến từ phân công và thời khoá biểu (`P02.learning.view`); trả `created`, `teachers_added`, `teachers_removed` |
+| POST | /api/v1/learning/spaces | Tạo khoá tự chọn `{ title, school_level, description, enrollment_mode, capacity, teacher_user_ids }` (`P02.learning.view`) |
+| GET, PATCH | /api/v1/learning/spaces/{id} | Chi tiết (lớp, giáo viên, số học sinh, chương, hoạt động, `replace_allowed_today`, `can_teach`); sửa `title`, `description`, `visible_to_students`, `status` (giáo viên của lớp); người không dạy, không quản lý 403 |
+| POST, DELETE | /api/v1/learning/spaces/{id}/teachers, /teachers/{userId} | Thêm, bỏ giáo viên thêm tay (`P02.learning.view`) |
+| POST, DELETE | /api/v1/learning/spaces/{id}/enrollments, /enrollments/{childId} | Ghi danh `{ child_ids }`, bỏ ghi danh khoá tự chọn; lớp theo môn 422; quá số chỗ 422 |
+| GET | /api/v1/learning/spaces/{id}/progress, /plan, /events | Tiến độ (hoạt động đã giao, mỗi học sinh `summary` và `results`); kế hoạch theo tuần `weeks`; 200 dòng nhật ký gần nhất (P03-14) |
+| POST | /api/v1/learning/spaces/{id}/sections; PATCH, DELETE /api/v1/learning/sections/{id} | Thêm, sửa (`title`, `planned_week`, `position`), xóa chương (có kết quả thì 422) |
+| POST | /api/v1/learning/spaces/{id}/activities; PATCH, DELETE /api/v1/learning/activities/{id} | Thêm, sửa, xóa hoạt động `{ section_id, kind, title, lesson_label, instructions, required, teaching_mode, estimated_minutes, opens_at, due_at, closes_at, open_rules, completion_rule, graded, weight, pass_score, planned_week, settings }`; loại chưa đăng ký 400; học liệu chưa công bố, tên miền chưa cho phép, điều kiện mở trỏ ra ngoài lớp, thay thế khi chưa có quyết định 422 (P03-13, BR-249, BR-250, BR-252) |
+| POST | /api/v1/learning/activities/{id}/publish | Giao `{ published: true }` hoặc chuyển về nháp |
+| POST | /api/v1/learning/activities/{id}/exceptions | Mở riêng, gia hạn `{ child_id, reason, due_at, unlocked }`; học sinh ngoài lớp 422 |
+| POST | /api/v1/learning/activities/{id}/results | Giáo viên ghi kết quả `{ child_id, status, score, level }`; hoạt động chưa giao, học sinh ngoài lớp 422 |
+| GET, POST | /api/v1/learning/templates | Khoá mẫu người gọi được thấy; tạo `{ title, description, school_level, subject_id, grade_level_code, content }` (`P02.learning.template`) (P03-15) |
+| GET, PUT | /api/v1/learning/templates/{id} | Chi tiết kèm `reviews`; người soạn sửa `title`, `description`, `content` |
+| POST | /api/v1/learning/templates/{id}/submit, /review, /retire, /apply | Gửi duyệt; duyệt `{ decision: approve\|return, note }` (người duyệt của bước, không phải người soạn); ngừng dùng; đẩy bản đã duyệt `{ space_ids }` trả số hoạt động thêm, cập nhật, giữ (BR-251) |
+| GET, POST | /api/v1/learning/decisions; POST /api/v1/learning/decisions/{id}/revoke | Quyết định dạy học trực tuyến thay thế; ghi `{ decision_no, decision_date, reason, class_ids, starts_on, ends_on }`, thu hồi (`P02.learning.decide`) (P03-16) |
+| GET, POST | /api/v1/learning/rules | Nội quy hiện hành và số học sinh đã xác nhận; ban hành phiên bản mới `{ content }` (`P02.learning.decide`) |
+| GET | /api/v1/learning/children/{childId} | Phụ huynh xem việc học trực tuyến của con: `rules` (nội quy, đã xác nhận chưa), `spaces` (lớp đã mở, tiến độ, chương, hoạt động đã giao với `open`, `locked_reasons`, `status`, `score`); khác con 403 (P03-17) |
+| POST | /api/v1/learning/children/{childId}/rules/acknowledge | Phụ huynh xác nhận đã đọc nội quy thay con |
+| GET | /api/v1/student/learning | Học sinh (kênh `student`, `P02.learning.study`) xem lớp học trực tuyến đã mở cho mình: cùng dạng với tuyến của phụ huynh |
+| POST | /api/v1/student/learning/activities/{id}/open | Học sinh mở hoạt động đang mở với mình: ghi đã xem, cách tính "xem xong" thì hoàn thành; trả `{ id, kind, title, instructions, body, url, resource }`; hoạt động còn khóa trả 422 `YCTD-272` kèm lý do |
+| POST | /api/v1/student/learning/rules/acknowledge | Học sinh xác nhận đã đọc nội quy |
+
+Mọi tuyến nhân sự của `/learning` (trừ `children/...`) cần một trong `P02.learning.teach`, `template`, `decide`, `view`; ở nền tảng nhiều trường, gói không gồm phân hệ của nhóm menu 9 thì trả 403 `MODULE_NOT_IN_PLAN`.
 
 ## 18. Quy tắc kiểm tra dữ liệu
 

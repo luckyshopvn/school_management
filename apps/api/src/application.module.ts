@@ -43,7 +43,7 @@ import {
   SchoolParentOrgController,
   SchoolParentOrgService,
 } from './parent-org/parent-org.js';
-import { Clock } from '@school-management/server';
+import { Clock, currentTenant } from '@school-management/server';
 import {
   ACADEMIC_YEAR_TRANSITION_STEPS,
   type AcademicYearTransitionStep,
@@ -417,6 +417,8 @@ import { AttendanceMealsController, AttendanceMealsService } from './reports/att
 import { PartnerController, PartnerService } from './partner/partner.js';
 import { NotificationsController, NotificationsService } from './notifications/notifications.js';
 import { NotificationDispatcher } from './notifications/notification-dispatcher.js';
+import { PublicPushController, PushController, PushSubscriptions } from './notifications/push/push-subscriptions.js';
+import { createPushSender, PUSH_SENDER } from './notifications/push/push-sender.js';
 import { SmsGateway } from './notifications/sms-gateway.js';
 import { JournalsController, JournalsService } from './journals/journals.js';
 import { OrgUnitsController } from './organization/org-units.controller.js';
@@ -447,6 +449,7 @@ import {
   SchoolSettingsController,
   SchoolSettingsService,
 } from './school-settings/school-settings.controller.js';
+import { PublicPwaController } from './school-settings/pwa-manifest.js';
 import { SchoolSettings } from './school-settings/school-settings.js';
 import {
   TenantFacebookPublisher,
@@ -491,15 +494,27 @@ import { ZaloTokenStore } from './integrations/zalo-token-store.js';
 // Thi trực tuyến cho học sinh (DT-23 phần 23a)
 import { AttemptEngine } from './online-exams/attempt-engine.js';
 import { ExamRateLimiter } from './online-exams/exam-rate-limit.js';
+import { ExamProctoringJobs, ExamProctoringService } from './online-exams/exam-proctoring.js';
+import {
+  ExamProctoringController,
+  ParentProctorConsentsController,
+  StudentProctoringController,
+} from './online-exams/exam-proctoring.controller.js';
 import { OnlineExamsController } from './online-exams/online-exams.controller.js';
 import { OnlineExamsService } from './online-exams/online-exams.js';
 import { StudentExamsController } from './online-exams/student-exams.controller.js';
 import { StudentExamsService } from './online-exams/student-exams.js';
+import { ChildTutoringController, TutoringController } from './tutoring/tutoring.controller.js';
+import { TutoringService } from './tutoring/tutoring.js';
 import { AiAssistantController, AiUsageJob } from './ai-assistant/ai-assistant.controller.js';
 import { AI_PROVIDERS, AiAssistantService } from './ai-assistant/ai-assistant.js';
 import { AiProviderRegistry } from './ai-assistant/ai-provider.js';
 import { ClassroomToolsController, ClassroomToolsService } from './classroom-tools/classroom-tools.js';
 import { ClassroomGamesController, ClassroomGamesService } from './classroom-games/classroom-games.js';
+import { GroupSetsController, GroupSetsReader, GroupSetsService } from './child-groups/group-sets.js';
+import { LearningController } from './learning/learning.controller.js';
+import { StudentLearningController } from './learning/student-learning.controller.js';
+import { LearningService } from './learning/learning.js';
 
 @Module({})
 export class ApplicationModule {
@@ -570,6 +585,8 @@ export class ApplicationModule {
         SchoolPickerController,
         SchoolSettingsController,
         PublicBrandingController,
+        // Manifest, biểu tượng của ứng dụng web cài được theo trường (DT-26 phần 26a)
+        PublicPwaController,
         // Hồ sơ chuyên môn và Việc của tôi (DT-18 phần 18e)
         ProfessionalRecordsController,
         EducationPlansController,
@@ -780,12 +797,27 @@ export class ApplicationModule {
         // Trợ lý AI (DT-23 phần 23d)
         AiAssistantController,
         ClassroomToolsController,
+        // Lõi hệ thống quản lý học tập (DT-28 phần 28b)
+        LearningController,
+        // Thông báo đẩy Web Push (DT-26 phần 26b)
+        PushController,
+        PublicPushController,
+        // Mô hình nhóm dùng chung (DT-28 phần 28a)
+        GroupSetsController,
         ...(options.additionalControllers ?? []),
         // Thi trực tuyến cho học sinh (DT-23 phần 23a)
         OnlineExamsController,
         StudentExamsController,
         // Trò chơi kiến thức và thẻ đáp án giấy (DT-23 phần 23c)
         ClassroomGamesController,
+        ExamProctoringController,
+        StudentProctoringController,
+        ParentProctorConsentsController,
+        // Học sinh tự học ở lớp học trực tuyến (DT-28 phần 28b)
+        StudentLearningController,
+        // Gia sư trong trường (DT-27 phần 27b)
+        TutoringController,
+        ChildTutoringController,
       ],
       providers: [
         { provide: API_CONFIGURATION, useValue: configuration },
@@ -1172,6 +1204,9 @@ export class ApplicationModule {
         CandidatesService,
         SchoolCalendar,
         ClassroomToolsService,
+        GroupSetsReader,
+        GroupSetsService,
+        LearningService,
         {
           provide: FileStorage,
           inject: [SchoolSettings],
@@ -1189,6 +1224,20 @@ export class ApplicationModule {
         OnlineExamsService,
         StudentExamsService,
         ClassroomGamesService,
+        ExamProctoringService,
+        ExamProctoringJobs,
+        // Thông báo đẩy Web Push (DT-26 phần 26b): bộ nối chọn theo PUSH_PROVIDER, chưa đặt thì không gửi đẩy
+        PushSubscriptions,
+        {
+          provide: PUSH_SENDER,
+          useFactory: () =>
+            createPushSender(configuration.push?.provider, {
+              outbox: configuration.push?.developmentOutbox ?? null,
+              schoolOf: () => currentTenant()?.code ?? null,
+            }),
+        },
+        // Gia sư trong trường (DT-27 phần 27b)
+        TutoringService,
       ],
     };
   }

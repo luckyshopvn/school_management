@@ -8,6 +8,9 @@ import { SyncAccountsPage } from './accounts/SyncAccountsPage.js';
 import { ApiClientsPage } from './accounts/ApiClientsPage.js';
 import { IntegrationsPage } from './settings/IntegrationsPage.js';
 import { AiAssistantPage } from './ai-assistant/AiAssistantPage.js';
+import { CourseTemplatesPage } from './learning/CourseTemplatesPage.js';
+import { OnlineClassesPage } from './learning/OnlineClassesPage.js';
+import { OnlineTeachingPage } from './learning/OnlineTeachingPage.js';
 import { NotificationsPage } from './notifications/NotificationsPage.js';
 import { ApprovalThresholdsPage } from './catalogs/ApprovalThresholdsPage.js';
 import { CommonCatalogPage } from './catalogs/CommonCatalogPage.js';
@@ -40,6 +43,10 @@ import { ExamReportsPage } from './exam-grading/ExamReportsPage.js';
 import { OnlineExamsPage } from './online-exams/OnlineExamsPage.js';
 import { OnlineExamMonitorPage } from './online-exams/OnlineExamMonitorPage.js';
 import { OnlineExamSettingsPage } from './online-exams/OnlineExamSettingsPage.js';
+import { TutoringProgramsPage } from './tutoring/TutoringProgramsPage.js';
+import { TutoringSessionsPage } from './tutoring/TutoringSessionsPage.js';
+import { TutoringExemptionsPage } from './tutoring/TutoringExemptionsPage.js';
+import { TutoringRulesPage } from './tutoring/TutoringRulesPage.js';
 import { ChildrenPage } from './children/ChildrenPage.js';
 import { StudentMovementsPage } from './children/StudentMovementsPage.js';
 import { DefaultPasswordsPage } from './students/DefaultPasswordsPage.js';
@@ -128,6 +135,7 @@ import { SettingsPage } from './settings/SettingsPage.js';
 import { ChangePasswordPage } from './pages/ChangePasswordPage.js';
 import { HomePage } from './pages/HomePage.js';
 import { LoginPage } from './pages/LoginPage.js';
+import { ExternalSignInCallbackPage } from './portal-shell/external-identity.js';
 import { SignInHandoffPage } from './pages/SignInHandoffPage.js';
 import { useSession } from './session/session.js';
 import { WorkPage } from './work/WorkPage.js';
@@ -316,6 +324,8 @@ const OPEN_PATHS = [
   '/support-login',
   // Nhận phiên sau khi đăng nhập theo đơn vị ở tên miền chung (DT-24)
   '/sign-in-handoff',
+  // Quay về từ nhà cung cấp định danh bên ngoài, cả lượt đăng nhập lẫn lượt liên kết khi đang đăng nhập (DT-25)
+  '/dang-nhap/ben-ngoai',
 ];
 
 // Chuyển hướng theo trạng thái phiên: chưa đăng nhập về MH-47; bắt buộc đổi mật khẩu về MH-48 (BM-07)
@@ -352,6 +362,7 @@ const routeTree = rootRoute.addChildren([
   createRoute({ getParentRoute: () => rootRoute, path: '/activate', component: ActivatePage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/support-login', component: SupportLoginPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/sign-in-handoff', component: SignInHandoffPage }),
+  createRoute({ getParentRoute: () => rootRoute, path: '/dang-nhap/ben-ngoai', component: ExternalSignInCallbackPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/support-access', component: SupportAccessPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/parent-org-consents', component: ParentOrgConsentsPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/my-profile', component: MyProfilePage }),
@@ -791,8 +802,17 @@ const routeTree = rootRoute.addChildren([
   createRoute({ getParentRoute: () => rootRoute, path: '/online-exams', component: OnlineExamsPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/online-exams/monitor', component: OnlineExamMonitorPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/online-exams/settings', component: OnlineExamSettingsPage }),
+  // Gia sư trong trường (DT-27 phần 27b)
+  createRoute({ getParentRoute: () => rootRoute, path: '/tutoring', component: TutoringProgramsPage }),
+  createRoute({ getParentRoute: () => rootRoute, path: '/tutoring/sessions', component: TutoringSessionsPage }),
+  createRoute({ getParentRoute: () => rootRoute, path: '/tutoring/exemptions', component: TutoringExemptionsPage }),
+  createRoute({ getParentRoute: () => rootRoute, path: '/tutoring/rules', component: TutoringRulesPage }),
   // Trợ lý AI soạn nháp (DT-23 phần 23d)
   createRoute({ getParentRoute: () => rootRoute, path: '/ai-assistant', component: AiAssistantPage }),
+  // Lõi hệ thống quản lý học tập (DT-28 phần 28b)
+  createRoute({ getParentRoute: () => rootRoute, path: '/online-classes', component: OnlineClassesPage }),
+  createRoute({ getParentRoute: () => rootRoute, path: '/course-templates', component: CourseTemplatesPage }),
+  createRoute({ getParentRoute: () => rootRoute, path: '/online-teaching', component: OnlineTeachingPage }),
 ]);
 
 // Đường dẫn gốc lúc dựng (APP_BASE_PATH của vite, DT-SaaS phần S9): /quan-ly/ ở hồ sơ thử nghiệm, / mặc định

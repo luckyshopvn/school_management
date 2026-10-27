@@ -1,7 +1,7 @@
 # 32. KẾ HOẠCH ĐỒNG BỘ CHỨC NĂNG VÀ GIAO DIỆN THEO HỆ THỐNG CỦA SỞ (DT-15)
 
 - Mô tả: Kế hoạch điều chỉnh School Management theo kết quả khảo sát `31_KHAO_SAT_HE_THONG_SO.md`; từ mục 9 thêm kế hoạch DT-18 điều hành nhà trường, mục 10 thêm kế hoạch DT-19 nền đa cấp học, mục 11 thêm kế hoạch DT-20 Tiểu học (kèm 22c thời khoá biểu), mục 12 thêm kế hoạch DT-21 THCS và THPT (kèm 22g kiểm tra, đánh giá), mục 13 thêm kế hoạch DT-22 (22a thư viện, 22e hồ sơ bồi dưỡng, 22h kho học liệu số), mục 14 thêm kế hoạch DT-SaaS (Enterprise SaaS nhiều trường: S1a, S1b, S2, S3, S4, S5a, S5b, S6, S7a, S7b, S8a, S8b, S9; hai hồ sơ triển khai: thử nghiệm miễn phí và vận hành), mục 15 thêm kế hoạch DT-23 (thi trực tuyến cho học sinh, công cụ lớp học, trò chơi kiến thức và thẻ đáp án giấy, trợ lý AI; 23a đến 23d), mục 18 thêm kế hoạch DT-26 (ứng dụng web cài được, bố cục máy tính bảng, ứng dụng cài đặt iOS và Android; 26a đến 26h), mục 16 thêm DT-24 (danh mục đơn vị toàn quốc, đăng nhập theo đơn vị, quyền vào mọi trường của quản trị nền tảng), mục 19 thêm kế hoạch DT-27 (nền tảng gia sư trực tuyến: gia sư trong trường, khoá học ghi sẵn, hỏi đáp, chợ gia sư mở; 27a đến 27i); mục 17 thêm DT-25 bộ nối nhà cung cấp định danh OIDC, sẵn cho VNeID; mục 20 thêm kế hoạch DT-28 (hệ thống quản lý học tập LMS: lõi khoá học, lớp học trực tuyến, nhóm học tập, bài tập, bài về nhà, tiến độ, thảo luận, học nhóm, SCORM, huy hiệu; 28a đến 28j).
-- Phiên bản: 1.80
+- Phiên bản: 1.82
 - Ngày cập nhật: 2026-10-26
 - Trạng thái: Đã duyệt hướng làm
 - Căn cứ: yêu cầu của Eric ngày 2026-10-13 ("tính năng đã có thì ưu tiên phiên bản và giao diện của Sở; tính năng Sở không có thì giữ nguyên, chỉ đổi giao diện theo trang của Sở") và các lựa chọn của Eric cùng ngày ở mục 2.
@@ -1515,7 +1515,7 @@ Các lớp kiểm thử:
 | GD-100 | Hồ sơ thử nghiệm: nền tảng cụ thể | **Eric đã chốt 2026-10-25: dùng cả ba phương án, viết theo kiểu bộ nối chọn bằng cấu hình:** web tĩnh Cloudflare Worker hoặc Vercel (ràng buộc Vercel Hobby phi thương mại, tên miền con ký tự đại diện cần máy chủ tên Vercel: cách 3a sau Worker hoặc 3b qua Vercel); cơ sở dữ liệu Neon hoặc Supabase, kho tệp R2 hoặc Supabase Storage; máy chủ Render, dự phòng Koyeb; không Redis; số giới hạn tra ngày 2026-10-25, kiểm lại khi làm | `deploy/profiles/trial/` | Eric (đã chốt) |
 | GD-101 | Hồ sơ thử nghiệm: dữ liệu thật và thời hạn | **Eric đã chốt 2026-10-25:** trường thật được dùng thử với dữ liệu thật khi đã có văn bản đồng ý của trường; bỏ ràng buộc "chỉ dữ liệu giả" và bỏ tự xóa sau 30 ngày cho trường thật (trường dữ liệu giả vẫn có thể bật tự xóa, mặc định 30 ngày); biện pháp tuân thủ: hợp đồng hoặc thỏa thuận xử lý dữ liệu và văn bản đồng ý lưu ở `platform`, vùng Singapore ghi vào hồ sơ, mã hóa trường dữ liệu trẻ em bằng khóa riêng của trường, hồ sơ đánh giá tác động và chuyển dữ liệu ra nước ngoài theo Nghị định 13/2023/NĐ-CP, rủi ro Nghị định 53/2022/NĐ-CP do Eric chấp nhận, lộ trình và công cụ chuyển sang VPS trong nước bằng cấu hình | `school_consents`, `school_hosting`, `platform_settings` | Eric (đã chốt) |
 
-## 15. DT-23: thi trực tuyến, công cụ lớp học, trò chơi kiến thức và trợ lý AI (23a đến 23d)
+## 15. DT-23: thi trực tuyến, công cụ lớp học, trò chơi kiến thức và trợ lý AI (23a đến 23e)
 
 ### 15.1 Căn cứ và mục tiêu
 
@@ -1556,8 +1556,9 @@ Số giữ sẵn bắt đầu **sau dải của DT-SaaS và chừa dự phòng**
 | 23b | Công cụ lớp học trên ứng dụng giáo viên: gọi tên ngẫu nhiên từ danh sách lớp thật (tuỳ chọn không lặp), chia nhóm ngẫu nhiên, đếm ngược, bấm giờ, bảng điểm nhanh theo nhóm hoặc học sinh gắn được vào nề nếp, thi đua; chạy ngoại tuyến bằng service worker và manifest, bản chụp danh sách lớp gọn | 1 | DT-21 (nề nếp); chạy ngay | YCTD-212 | Năm học 0124, 0125 | 151 |
 | 23c | Trò chơi kiến thức và thẻ đáp án giấy: ô chữ, vòng quay, hỏi đáp theo vòng sinh từ ngân hàng câu hỏi chạy trên màn hình lớp; thẻ đáp án giấy tự thiết kế, in được, đọc bằng camera điện thoại của giáo viên; kết quả ghi vào lịch sử sử dụng câu hỏi của 22g2 | 2 | 23a (lưu kết quả lượt làm, màn hình), 23b (vỏ công cụ lớp học, ngoại tuyến) | YCTD-213 | Năm học 0126, 0127 | 152 |
 | 23d | Trợ lý AI soạn câu hỏi nháp và kế hoạch bài dạy nháp: bộ nối nhà cung cấp AI (mặc định Claude, mã mô hình cấu hình), khóa lưu mã hóa theo trường (bộ nối `ai` của S3), bật tắt theo trường (mặc định tắt), chỉ gửi nội dung chương trình, nhật ký yêu cầu, hai cấu hình (trường tự nhập khóa, miễn phí; nền tảng cấp khóa, thu phí theo gói và theo token qua S5b, có màn hình thiết lập riêng), hạn mức theo gói (S5a), kết quả vào nháp qua luồng duyệt 22g1 và kiểm duyệt 22h1, hồ sơ pháp lý | 1 | DT-SaaS (S3, S5a, S5b đã gộp); 22g1, 22h1 | YCTD-214 | Năm học 0128; hệ thống 0071 đến 0073; nền tảng 0200 đến 0202 | 153 (kiểm cách ly khóa AI ở nhiều trường: mở rộng `MULTI_TENANT_SPEC` trong `tests/e2e-multi-environment.mjs`, chỉ 23d sửa) |
+| 23e | Giám thị camera cho thi trực tuyến: giáo viên coi thi xem lưới camera của học sinh đang làm bài (WebRTC, coturn tự host trong hồ sơ vận hành), bật theo từng bài giao và theo trường (mặc định tắt), thông báo trước khi vào thi và đồng ý của cha mẹ (dưới 16 tuổi), ghi hình tuỳ chọn mã hoá giữ 30 ngày, nhật ký người xem; phát hiện vắng mặt, nhiều khuôn mặt, rời màn hình vẫn chạy trên máy học sinh (23a) | 1 | 23a (đã gộp) | YCTD-215 | Năm học 0129 | 154 |
 
-Giữ chỗ chưa giao: YCTD-215 đến YCTD-219, năm học 0129, hệ thống 0070 và 0074 đến 0079, định danh 0122 đến 0129, nền tảng 0203 đến 0209, e2e `154-` đến `159-` dự phòng cho bổ sung của DT-23.
+Giữ chỗ chưa giao: YCTD-216 đến YCTD-219, hệ thống 0070 và 0074 đến 0079, định danh 0122 đến 0129, nền tảng 0203 đến 0209, e2e `155-` đến `159-` dự phòng cho bổ sung của DT-23.
 
 Đợt làm, mỗi lúc tối đa ba phiên, **không hai phiên cùng sửa một tệp lõi trong cùng đợt**:
 - **Đợt 1: 23a, 23b, 23d.** 23a sửa kênh đăng nhập (`access-token.ts`, `database/identity/`), giao diện học sinh trong ứng dụng phụ huynh, và phân hệ thi ở cơ sở dữ liệu năm học; 23b chỉ sửa `apps/teacher` (service worker, manifest, trang công cụ) và bảng nhỏ ở năm học; 23d sửa `database/system/schema.ts` (bộ nối `ai`), `database/platform/` (hạn mức AI), phân hệ AI mới và màn hình quản trị trường. Đăng ký thêm mô-đun, tuyến, menu chỉ theo kiểu **thêm cuối tệp** (`application.module.ts`, `platform-menu.ts`, `PORTAL_WORKSPACES`).
@@ -1602,6 +1603,13 @@ Cỡ ước lượng (một phần của DT-16 là một đơn vị, chỉ để
 - **Thu phí (cấu hình `platform`, có thiết lập riêng):** phần mềm đếm token theo trường theo kỳ (bảng đo ở `platform`, nền tảng 0201, tổng hợp từ nhật ký của trường qua việc nền theo trường của S1b); **quy tắc tính phí của S5b mở rộng thêm thành phần AI** (nền tảng 0202): quản trị nền tảng đặt cho từng gói trong một màn hình thiết lập riêng số token miễn phí mỗi kỳ, đơn giá theo một nghìn token vào và ra (có thể khác nhau, tính theo mô hình), phí tối thiểu, làm tròn; dòng phí AI hiện trên hóa đơn dịch vụ cùng kỳ, dùng lại luồng chốt kỳ, hóa đơn, thu tiền, đối soát của S5b, không dựng luồng thu thứ hai; hàm tính thuần có kiểm thử đơn vị, số nguyên đồng; mô hình hay đơn giá nhà cung cấp đổi thì đổi dữ liệu thiết lập, không sửa mã; trường thấy số token đã dùng và tạm tính trước khi chốt kỳ.
 - **Hồ sơ pháp lý (tài liệu):** đọc văn bản gốc (15.2) rồi viết bản nháp cho `33_HO_SO_PHAP_LY/`: cập nhật chính sách bảo mật và thỏa thuận xử lý dữ liệu (nhà cung cấp AI là bên xử lý phụ, vùng máy chủ của nhà cung cấp, điều khoản không dùng dữ liệu để huấn luyện nếu nhà cung cấp cho chọn), ghi rõ **chỉ gửi nội dung chương trình, không gửi dữ liệu cá nhân**, nên không phát sinh chuyển dữ liệu cá nhân ra nước ngoài, nhưng vẫn ghi vào hồ sơ đánh giá tác động và hồ sơ chuyển dữ liệu ra nước ngoài (nếu nhà cung cấp ở nước ngoài) để luật sư của Eric kết luận; thêm câu thông báo cho giáo viên và quản trị trường khi bật AI.
 - **Màn hình:** nút "Soạn nháp bằng AI" ở ngân hàng câu hỏi (22g1) và ở kho học liệu (22h1); màn hình quản trị AI của trường (bật tắt, khóa, mã mô hình, hạn mức còn lại, nhật ký); phía nền tảng thêm giới hạn AI vào trang Gói dịch vụ.
+
+**23e. Giám thị camera cho thi trực tuyến (YCTD-215, Eric yêu cầu, tách khỏi 23a ngày 2026-10-26)**
+- **Xem trực tiếp:** giáo viên coi thi (người giao bài, người dạy lớp, người quản lý) xem lưới camera của học sinh đang làm bài ngay ở màn hình Theo dõi, bằng WebRTC: hình đi thẳng giữa hai trình duyệt, máy chủ API chỉ chuyển thông điệp báo hiệu ngắn hạn (hỏi định kỳ, không dựng web socket); máy chủ chuyển tiếp coturn tự host trong hồ sơ vận hành `deploy/` (dùng chung về sau cho 27a, thông tin TURN có hạn theo khoá dùng chung). Mặc định tắt: trường bật ở Cấu hình thi trực tuyến, giáo viên bật theo từng bài giao; mỗi bài xem tối đa 60 camera cùng lúc.
+- **Thông báo và đồng ý:** học sinh đọc thông báo và xác nhận trước khi vào bài có giám sát; học sinh dưới 16 tuổi (hoặc chưa rõ ngày sinh) cần cha mẹ đồng ý từng loại (xem trực tiếp, ghi hình) trên ứng dụng phụ huynh hoặc do người quản lý ghi nhận văn bản; thu hồi có hiệu lực ngay; học sinh thấy dòng thông báo khi có người xem; mỗi phiên xem ghi nhật ký người xem.
+- **Phát hiện trên máy:** vắng mặt, nhiều khuôn mặt, rời màn hình vẫn do 23a chạy trên máy học sinh và ghi thành sự kiện của lượt làm (chỉ là căn cứ, không tự trừ điểm); không gửi hình để phát hiện.
+- **Ghi hình tuỳ chọn, mặc định tắt:** trình duyệt học sinh ghi từng đoạn ngắn và tải lên, máy chủ mã hoá và lưu ở kho tệp theo khoá lưu trữ, giữ theo số ngày của trường (mặc định 30, 7 đến 90; GD-132), chỉ người giao bài và người quản lý xem lại (phát qua máy chủ, không tải xuống, mỗi lần xem ghi nhật ký), tự xoá khi hết hạn; không nhận diện danh tính sinh trắc.
+- **Số giữ sẵn:** YCTD-215, năm học 0129, e2e 154. **Pháp lý:** rủi ro và câu hỏi ghi ở PL-15 (Nghị định 356/2025 Điều 21 khoản 5; Điều 24 Luật 91/2025/QH15) và PL-13 (thời hạn giữ bản ghi); cần luật sư rà trước khi bật ở trường thật.
 
 ### 15.5 Quyết định thiết kế và phương án đã loại
 
@@ -1655,6 +1663,7 @@ Cỡ ước lượng (một phần của DT-16 là một đơn vị, chỉ để
 | 23a | 1 | Đã làm, YCTD-211, phiên bản 0.144.0, PR 189: kênh `student` và vai trò VT-21 nối tài khoản học và thi, giao đề đã khoá cho lớp hoặc học sinh, làm bài có đồng hồ máy chủ, lưu nháp từng câu, chấm tự động, bài nộp vào phiếu chấm 22g2 (chuyển sổ điểm có giáo viên xác nhận), khóa toàn màn hình và camera nhận diện trên máy học sinh (chỉ gửi sự kiện), theo dõi, chấm tự luận, công tắc theo cấp, phân hệ "Thi trực tuyến" (năm học 0120 đến 0123, định danh 0120, 0121, e2e 150); chưa làm: ảnh chụp định kỳ, chuyển điểm Tiểu học, việc nền chốt lượt quá hạn |
 | 23b | 1 | Đã làm (YCTD-212, phiên bản 0.140.0, PR 180): công cụ lớp học, ngoại tuyến, bản chụp danh sách lớp 24 giờ; năm học 0124, 0125; e2e 151 |
 | 23d | 1 | Đã làm, YCTD-214, phiên bản 0.143.0, PR 184: bộ nối `AiProvider` (`anthropic`, `mock`), hai cấu hình khóa, bật tắt theo trường, lời nhắc từ mẫu cố định và bộ quét dữ liệu cá nhân, bản nháp qua duyệt 22g1 và kiểm duyệt 22h1, nhật ký, hạn mức theo gói, phí theo token qua S5b, màn hình quản trị, e2e spec 153, bản nháp pháp lý PL-22 |
+| 23e | 1 | Đã làm, YCTD-215, phiên bản 0.151.0, PR 195: giám thị camera cho thi trực tuyến: cấu hình của trường (mặc định tắt), bật theo bài giao, thông báo và đồng ý của cha mẹ (dưới 16 tuổi, ứng dụng phụ huynh hoặc trường ghi nhận), xem lưới camera trực tiếp qua WebRTC (báo hiệu qua máy chủ API, coturn trong `deploy/`), nhật ký người xem, ghi hình mã hoá có hạn và xem lại có kiểm quyền; năm học 0129; e2e 154; cần luật sư rà (PL-15) trước khi bật ở trường thật |
 | 23c | 2 | Chưa làm; YCTD-213 giữ sẵn, bắt đầu khi 23a và 23b đã gộp |
 
 Bản kế hoạch này là YCTD-210, chỉ đổi tài liệu (không tăng phiên bản phần mềm).
@@ -1843,7 +1852,7 @@ DT-25 là một thành phần nhỏ, làm hai bước. Số giữ sẵn nằm **
 | Bước | Phạm vi | Phụ thuộc | Trạng thái |
 |---|---|---|---|
 | 25a | Phần máy chủ: lớp `IdentityProvider`, bộ nối OIDC chung, hồ sơ `vneid`, khai báo nền tảng, cấu hình của trường, liên kết, gỡ liên kết, đăng nhập, nhập mã hai lớp sau nhà cung cấp, nhật ký, nhà cung cấp OIDC giả lập, kiểm thử đơn vị, cách ly, e2e 165 (phần máy chủ), tài liệu | Không | Làm ở PR của YCTD-225 |
-| 25b | Giao diện: nút "Đăng nhập bằng VNeID" (và nhà cung cấp khác) trên màn hình đăng nhập của cổng quản trị, ứng dụng giáo viên, ứng dụng phụ huynh, chỉ hiện khi trường đã bật; trang quay về `/dang-nhap/ben-ngoai`; mục liên kết, gỡ liên kết, nhật ký ở "Tài khoản của tôi"; màn hình cấu hình của trường; mở rộng e2e 165 bằng trình duyệt | **Sau khi PR DT-24 gộp** (DT-24 đang sửa màn hình đăng nhập; không sửa song song cùng tệp) | Chờ |
+| 25b | Giao diện: nút "Đăng nhập bằng VNeID" (và nhà cung cấp khác) trên màn hình đăng nhập của cổng quản trị, ứng dụng giáo viên, ứng dụng phụ huynh, chỉ hiện khi trường đã bật; trang quay về `/dang-nhap/ben-ngoai`; mục liên kết, gỡ liên kết, nhật ký ở "Tài khoản của tôi"; màn hình cấu hình của trường; mở rộng e2e 165 bằng trình duyệt | **Sau khi PR DT-24 gộp** (DT-24 đang sửa màn hình đăng nhập; không sửa song song cùng tệp) | Đã làm (YCTD-226) |
 
 ### 17.4 Thiết kế
 
@@ -1901,7 +1910,7 @@ DT-25 là một thành phần nhỏ, làm hai bước. Số giữ sẵn nằm **
 | Bước | Tiến độ |
 |---|---|
 | 25a | Đã làm ở PR của YCTD-225 |
-| 25b | Chờ PR DT-24 gộp |
+| 25b | Đã làm ở PR của YCTD-226 (phiên bản 0.147.0) |
 
 ### 17.8 Giả định chưa chốt, làm cấu hình được
 
@@ -2097,9 +2106,9 @@ Cỡ ước lượng (một phần của DT-16 là một đơn vị, chỉ để
 
 | Phần | Đợt | Tiến độ |
 |---|---|---|
-| 26a | 1 | Chưa làm; YCTD-231 giữ sẵn, bắt đầu khi 23b đã gộp |
-| 26b | 1 | Chưa làm; YCTD-232 giữ sẵn |
-| 26c | 1 | Chưa làm; YCTD-233 giữ sẵn |
+| 26a | 1 | Đã làm, YCTD-231, phiên bản 0.145.0: gói `packages/pwa` (mẫu service worker gom từ 23b, plugin Vite, đăng ký, kiểm bản mới, gỡ theo tiền tố, `InstallPrompt`, `UpdateBanner`), manifest và biểu tượng SVG theo trường (`/api/v1/public/pwa/*`, hệ thống 0090 `app_short_name`), ứng dụng phụ huynh có service worker, màn hình học sinh của 23a cài được thành ứng dụng riêng (manifest `student` mở thẳng `#hoc-sinh`); e2e 181. Chưa làm: ảnh PNG và màn hình chờ iOS theo trường (cần thư viện xử lý ảnh, để phần sau) |
+| 26b | 1 | Phần máy chủ đã làm (YCTD-232, phiên bản 0.148.0): kênh push, bộ nối, đăng ký, tuỳ chọn theo nhóm, khóa VAPID, spec 182. Phần giao diện (YCTD-239, phiên bản đề xuất 0.153.0): service worker chung nhận đẩy, hiện thông báo, chạm mở ứng dụng; khối "Cài đặt thông báo" ở ứng dụng giáo viên, phụ huynh, màn hình học sinh (bật, tắt trên máy, tắt theo nhóm, gỡ máy, hướng dẫn cài cho iPhone); đồng bộ đăng ký khi mở ứng dụng, thu hồi khi đăng xuất; e2e 187 |
+| 26c | 1 | Đã làm, YCTD-233, phiên bản 0.146.0, PR 188: dự án Playwright theo khổ thiết bị, nhãn `@thiet-bi`, bộ kiểm dùng chung, spec 180, việc CI `kiem-thu-thiet-bi`; vi phạm đo được ghi ở đường cơ sở cho 26d, 26e |
 | 26d | 2 | Chưa làm; YCTD-234 giữ sẵn |
 | 26e | 2 | Chưa làm; YCTD-235 giữ sẵn |
 | 26f | 3 | Chưa làm; YCTD-236 giữ sẵn, bắt đầu khi DT-24, DT-25 đã gộp |
@@ -2376,7 +2385,7 @@ Cỡ ước lượng (một phần của DT-16 là một đơn vị): 27a 1,75; 
 | Phần | Đợt | Tiến độ |
 |---|---|---|
 | 27a | 1 | Chưa làm; YCTD-251 giữ sẵn; chờ 23a gộp |
-| 27b | 1 | Chưa làm; YCTD-252 giữ sẵn |
+| 27b | 1 | Đã làm, YCTD-252, phiên bản 0.152.0, PR 196: chương trình gia sư trong trường (loại nội dung bắt buộc, khóa của Thông tư 29 ở máy chủ, quy định có ngày hiệu lực), buổi lặp theo tuần không trùng thời khoá biểu, giới hạn 2 tiết/tuần/môn, quyết định của Sở, đơn của cha mẹ, điểm danh và báo vắng, tin nhắn qua cha mẹ, chỗ nối điểm danh tự động cho 27a; năm học 0152 đến 0154, định danh 0172, e2e 191 |
 | 27c | 2 | Chưa làm; YCTD-253 giữ sẵn; chờ 27b |
 | 27d | 2 | Chưa làm; YCTD-254 giữ sẵn; chờ 28b, 28d (lõi LMS, YCTD-270) |
 | 27e | 2 | Chưa làm; YCTD-255 giữ sẵn; chờ 23d gộp và 28e (YCTD-270) |
@@ -2712,8 +2721,8 @@ Cỡ ước lượng (một phần của DT-16 là một đơn vị): 28a 1,0; 2
 
 | Phần | Đợt | Tiến độ |
 |---|---|---|
-| 28a | 1 | Chưa làm; YCTD-271 giữ sẵn; làm được ngay (đích nhóm cho 23a khi 23a gộp) |
-| 28b | 1 | Chưa làm; YCTD-272 giữ sẵn; phần giáo viên làm được ngay, màn hình học sinh chờ 23a |
+| 28a | 1 | Đã làm (YCTD-271, phiên bản 0.149.0): bộ nhóm, cách chia, nhóm trưởng, 23b dùng bộ nhóm, `GroupSetsReader`, đích `group` cho đề 23a; năm học 0170, 0171; e2e 210. Còn nguồn kết quả hoạt động (chờ 28d) |
+| 28b | 1 | Đã làm (YCTD-272, phiên bản 0.154.0, PR 193): lớp học trực tuyến tự sinh từ phân công, khoá tự chọn, khoá mẫu qua duyệt, chương, hoạt động trang, liên kết, học liệu, điều kiện mở, kết quả, tiến độ, kế hoạch tuần, nhật ký, quyết định thay thế, nội quy; hệ thống 0110, năm học 0172 đến 0175, định danh 0180; học sinh tự học ở kênh `student` sau khi 23a gộp; e2e 211 |
 | 28c | 2 | Chưa làm; YCTD-273 giữ sẵn; chờ 28b; phần AI chờ 23d |
 | 28d | 2 | Chưa làm; YCTD-274 giữ sẵn; chờ 28b |
 | 28e | 2 | Chưa làm; YCTD-275 giữ sẵn; chờ 28b, 28a |

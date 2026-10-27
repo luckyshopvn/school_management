@@ -779,8 +779,8 @@ export interface NotificationsTable {
   created_at: CreatedTimestamp;
 }
 
-// Kênh thông báo: trong ứng dụng, tin nhắn, Zalo Official Account (YCTD-71, YCTD-90)
-export type NotificationChannel = 'in_app' | 'sms' | 'zalo';
+// Kênh thông báo: trong ứng dụng, tin nhắn, Zalo Official Account (YCTD-71, YCTD-90), thông báo đẩy (DT-26 phần 26b, YCTD-232)
+export type NotificationChannel = 'in_app' | 'sms' | 'zalo' | 'push';
 
 export interface NotificationRecipientsTable {
   id: Generated<string>;
@@ -3869,12 +3869,59 @@ export interface ChildGroupsTable {
   created_by: string;
   created_at: CreatedTimestamp;
   updated_at: UpdatedTimestamp;
+  // Bộ nhóm (DT-28 phần 28a, YCTD-271); nhóm của 4.1.6 để trống
+  group_set_id: ColumnType<string | null, string | null | undefined, string | null>;
+  class_id: ColumnType<string | null, string | null | undefined, string | null>;
+  position: ColumnType<number | null, number | null | undefined, number | null>;
+  leader_child_id: ColumnType<string | null, string | null | undefined, string | null>;
 }
+
+export type ChildGroupMemberRole = 'member' | 'leader';
 
 export interface ChildGroupMembersTable {
   group_id: string;
   child_id: string;
   added_by: string;
+  created_at: CreatedTimestamp;
+  role: Generated<ChildGroupMemberRole>;
+}
+
+// Bộ nhóm dùng chung của lớp (DT-28 phần 28a, YCTD-271): công cụ lớp học 23b, hoạt động, bài tập, đề 23a, học nhóm
+export type GroupSetPurpose = 'subject' | 'activity' | 'classroom';
+export type GroupSetMethod =
+  'manual' | 'random' | 'ability_mixed' | 'ability_tiered' | 'gender_balanced' | 'timetable_group';
+export type GroupSetStatus = 'active' | 'archived';
+
+export interface GroupSetsTable {
+  id: Generated<string>;
+  org_unit_id: string;
+  class_id: string;
+  subject_id: string | null;
+  name: string;
+  purpose: GroupSetPurpose;
+  method: GroupSetMethod;
+  // Tham số chia (số nhóm, hạt ngẫu nhiên, nguồn năng lực, ràng buộc); không chứa mức năng lực của học sinh (GD-140)
+  params: ColumnType<unknown, string | undefined, string>;
+  status: Generated<GroupSetStatus>;
+  owner_user_id: string;
+  owner_name: string;
+  replaces_id: string | null;
+  archived_at: Date | null;
+  created_at: CreatedTimestamp;
+  updated_at: UpdatedTimestamp;
+}
+
+export type ChildGroupMemberEvent = 'added' | 'removed' | 'moved' | 'leader_set' | 'leader_unset';
+
+export interface ChildGroupMemberEventsTable {
+  id: Generated<string>;
+  group_set_id: string | null;
+  group_id: string;
+  child_id: string;
+  event: ChildGroupMemberEvent;
+  from_group_id: string | null;
+  actor_user_id: string;
+  actor_name: string;
   created_at: CreatedTimestamp;
 }
 
@@ -6029,6 +6076,10 @@ export interface OnlineExamSchoolSettingsTable {
   allow_remote: Generated<boolean>;
   allowed_networks: DefaultJson;
   room_code_minutes: Generated<number>;
+  // Giám thị camera (DT-23 phần 23e): mặc định tắt
+  allow_live_proctoring: Generated<boolean>;
+  allow_recording: Generated<boolean>;
+  recording_retention_days: Generated<number>;
   updated_by: string | null;
   updated_by_name: string | null;
   updated_at: UpdatedTimestamp;
@@ -6075,6 +6126,8 @@ export interface ExamAssignmentsTable {
   camera_fallback: Generated<'block' | 'flag'>;
   single_session_mode: Generated<'reject_new' | 'close_old'>;
   exam_mode: Generated<ExamMode>;
+  proctor_live: Generated<boolean>;
+  proctor_record: Generated<boolean>;
   term_type: Generated<'first_term' | 'second_term'>;
   score_kind: Generated<'regular' | 'mid' | 'final'>;
   score_seq: Generated<number>;
@@ -6090,9 +6143,11 @@ export interface ExamAssignmentsTable {
 export interface ExamAssignmentTargetsTable {
   id: Generated<string>;
   assignment_id: string;
-  kind: 'class' | 'student';
+  // `group` (DT-28 phần 28a): nhóm của bộ nhóm; dòng `student` có `group_id` là thành viên của nhóm lúc giao
+  kind: 'class' | 'student' | 'group';
   class_id: string | null;
   child_id: string | null;
+  group_id: ColumnType<string | null, string | null | undefined, string | null>;
 }
 
 export interface ExamAttemptsTable {
@@ -6121,6 +6176,7 @@ export interface ExamAttemptsTable {
   flag_reasons: DefaultJson;
   camera_state: Generated<'off' | 'granted' | 'denied' | 'unavailable'>;
   sheet_synced: Generated<boolean>;
+  proctor_notice_at: Date | null;
   created_at: CreatedTimestamp;
   updated_at: UpdatedTimestamp;
 }
@@ -6144,6 +6200,51 @@ export interface ExamAttemptEventsTable {
   client_at: Date | null;
   detail: DefaultJson;
   created_at: CreatedTimestamp;
+}
+
+// Giám thị camera cho thi trực tuyến (DT-23 phần 23e, YCTD-215)
+export type ProctorConsentScope = 'live' | 'record';
+
+export interface ExamProctorConsentsTable {
+  id: Generated<string>;
+  child_id: string;
+  scope: ProctorConsentScope;
+  source: 'parent' | 'school';
+  granted_by: string;
+  granted_by_name: string;
+  note: string | null;
+  granted_at: CreatedTimestamp;
+  revoked_at: Date | null;
+  revoked_by_name: string | null;
+}
+
+export interface ExamProctorViewsTable {
+  id: Generated<string>;
+  attempt_id: string;
+  kind: 'live' | 'recording';
+  viewer_id: string;
+  viewer_name: string;
+  started_at: CreatedTimestamp;
+  last_seen_at: ColumnType<Date, Date | undefined, Date>;
+  ended_at: Date | null;
+}
+
+export interface ExamProctorSignalsTable {
+  id: Generated<string>;
+  view_id: string;
+  direction: 'to_student' | 'to_teacher';
+  kind: 'offer' | 'answer' | 'ice';
+  payload: string;
+  created_at: CreatedTimestamp;
+}
+
+export interface ExamRecordingChunksTable {
+  attempt_id: string;
+  seq: number;
+  storage_key: string;
+  size_bytes: number;
+  created_at: CreatedTimestamp;
+  expires_at: Date;
 }
 
 export interface ExamMatricesTable {
@@ -6256,6 +6357,317 @@ export interface ClassroomGameAnswersTable {
   answer: string | null;
   correct: boolean;
   created_at: CreatedTimestamp;
+// Lõi hệ thống quản lý học tập (DT-28 phần 28b, YCTD-272)
+export type CourseSpaceKind = 'class_subject' | 'elective';
+export type CourseActivityKind =
+  | 'resource'
+  | 'page'
+  | 'link'
+  | 'exam'
+  | 'live_session'
+  | 'assignment'
+  | 'discussion'
+  | 'question_board'
+  | 'group_work'
+  | 'scorm';
+export type CourseActivityCompletionRule = 'view' | 'submit' | 'pass' | 'teacher';
+export type ActivityResultStatus = 'not_started' | 'in_progress' | 'completed' | 'passed' | 'failed' | 'excused';
+export type ActivityResultLevel = 'excellent' | 'completed' | 'not_completed';
+export type TeachingMode = 'support' | 'replace';
+export type LearningEventVerb =
+  'opened' | 'viewed' | 'progressed' | 'completed' | 'submitted' | 'scored' | 'published' | 'unlocked' | 'acknowledged';
+
+export interface CourseSpacesTable {
+  id: Generated<string>;
+  kind: CourseSpaceKind;
+  class_id: string | null;
+  subject_id: string | null;
+  school_level: 'TH' | 'THCS' | 'THPT';
+  grade_level: string | null;
+  title: string;
+  description: string | null;
+  visible_to_students: Generated<boolean>;
+  status: Generated<'active' | 'archived'>;
+  enrollment_mode: Generated<'teacher' | 'request'>;
+  capacity: number | null;
+  source_template_id: string | null;
+  source_template_version: number | null;
+  created_by: string | null;
+  created_at: CreatedTimestamp;
+  updated_at: UpdatedTimestamp;
+}
+
+export interface CourseSpaceTeachersTable {
+  space_id: string;
+  user_id: string;
+  user_name: string;
+  source: 'assignment' | 'timetable' | 'manual';
+  created_at: CreatedTimestamp;
+}
+
+export interface CourseEnrollmentsTable {
+  space_id: string;
+  child_id: string;
+  status: Generated<'requested' | 'active' | 'removed'>;
+  requested_by: string | null;
+  decided_by: string | null;
+  decided_at: Date | null;
+  created_at: CreatedTimestamp;
+}
+
+export interface CourseSectionsTable {
+  id: Generated<string>;
+  space_id: string;
+  title: string;
+  position: number;
+  planned_week: number | null;
+  template_section_key: string | null;
+  created_at: CreatedTimestamp;
+  updated_at: UpdatedTimestamp;
+}
+
+export interface CourseActivitiesTable {
+  id: Generated<string>;
+  space_id: string;
+  section_id: string;
+  kind: CourseActivityKind;
+  title: string;
+  lesson_label: string | null;
+  instructions: string | null;
+  position: number;
+  status: Generated<'draft' | 'published'>;
+  required: Generated<boolean>;
+  teaching_mode: Generated<TeachingMode>;
+  estimated_minutes: number | null;
+  opens_at: Date | null;
+  due_at: Date | null;
+  closes_at: Date | null;
+  group_set_id: string | null;
+  // { mode: 'all' | 'any', rules: [...] }
+  open_rules: JsonValue;
+  completion_rule: Generated<CourseActivityCompletionRule>;
+  graded: Generated<boolean>;
+  // numeric đọc ra chuỗi
+  weight: ColumnType<string, string | number | undefined, string | number>;
+  pass_score: ColumnType<string | null, string | number | null | undefined, string | number | null>;
+  planned_week: number | null;
+  settings: ColumnType<unknown, string | undefined, string>;
+  template_item_key: string | null;
+  edited_locally: Generated<boolean>;
+  created_by: string | null;
+  created_at: CreatedTimestamp;
+  updated_at: UpdatedTimestamp;
+}
+
+export interface ActivityExceptionsTable {
+  activity_id: string;
+  child_id: string;
+  unlocked: Generated<boolean>;
+  due_at: Date | null;
+  reason: string;
+  granted_by: string;
+  granted_by_name: string;
+  created_at: CreatedTimestamp;
+}
+
+export interface ActivityResultsTable {
+  id: Generated<string>;
+  activity_id: string;
+  child_id: string;
+  status: ActivityResultStatus;
+  progress: number | null;
+  score: ColumnType<string | null, string | number | null | undefined, string | number | null>;
+  level: ActivityResultLevel | null;
+  source: string;
+  completed_at: Date | null;
+  recorded_by: string | null;
+  updated_at: UpdatedTimestamp;
+}
+
+export interface LearningEventsTable {
+  id: Generated<string>;
+  space_id: string;
+  activity_id: string | null;
+  child_id: string | null;
+  actor_user_id: string;
+  actor_kind: 'teacher' | 'student' | 'guardian' | 'staff';
+  verb: LearningEventVerb;
+  result: JsonValue;
+  occurred_at: CreatedTimestamp;
+}
+
+export interface OnlineTeachingDecisionsTable {
+  id: Generated<string>;
+  decision_no: string;
+  decision_date: string;
+  reason: string;
+  // Mã lớp áp dụng; mảng rỗng là toàn trường
+  class_ids: ColumnType<unknown, string | undefined, string>;
+  starts_on: string;
+  ends_on: string;
+  status: Generated<'active' | 'revoked'>;
+  created_by: string;
+  created_by_name: string;
+  revoked_by: string | null;
+  revoked_at: Date | null;
+  created_at: CreatedTimestamp;
+}
+
+export interface OnlineLearningRulesTable {
+  id: Generated<string>;
+  version: number;
+  content: string;
+  published_by: string;
+  published_by_name: string;
+  published_at: CreatedTimestamp;
+}
+
+export interface OnlineLearningRuleAcksTable {
+  rule_id: string;
+  child_id: string;
+  acknowledged_by: string;
+  acknowledged_as: 'student' | 'guardian';
+  acknowledged_at: CreatedTimestamp;
+}
+
+// Gia sư trong trường (DT-27 phần 27b, YCTD-252)
+export type TutoringContentType = 'curriculum' | 'enrichment';
+export type TutoringAudience = 'below_standard' | 'gifted' | 'final_year_review';
+export type TutoringDelivery = 'live_video' | 'course' | 'qa' | 'mixed';
+export type TutoringProgramStatus = 'draft' | 'submitted' | 'approved' | 'rejected' | 'closed';
+export type TutoringRegistrationStatus = 'pending' | 'approved' | 'rejected' | 'withdrawn';
+export type TutoringAttendanceStatus = 'present' | 'late' | 'left_early' | 'absent';
+
+export interface TutoringRulesTable {
+  id: Generated<string>;
+  effective_from: ColumnType<string, string, string>;
+  max_curriculum_periods_per_week: number;
+  curriculum_blocked_levels: ColumnType<SchoolLevelCode[], string | undefined, string>;
+  default_period_minutes: ColumnType<Partial<Record<SchoolLevelCode, number>>, string | undefined, string>;
+  legal_basis: string;
+  created_by_name: string | null;
+  created_at: CreatedTimestamp;
+}
+
+export interface TutoringProgramsTable {
+  id: Generated<string>;
+  name: string;
+  school_level: SchoolLevelCode;
+  subject_id: string | null;
+  topic: string | null;
+  content_type: TutoringContentType;
+  audience: TutoringAudience | null;
+  charges_fee: Generated<boolean>;
+  delivery: Generated<TutoringDelivery>;
+  description: string | null;
+  registration_form: string;
+  max_students: number | null;
+  starts_on: ColumnType<string, string, string>;
+  ends_on: ColumnType<string, string, string>;
+  status: Generated<TutoringProgramStatus>;
+  reject_reason: string | null;
+  decided_by: string | null;
+  decided_by_name: string | null;
+  decided_at: Date | null;
+  created_by: string;
+  created_by_name: string;
+  created_at: CreatedTimestamp;
+  updated_at: UpdatedTimestamp;
+}
+
+export interface TutoringProgramTeachersTable {
+  program_id: string;
+  teacher_user_id: string;
+  teacher_name: string;
+}
+
+export interface TutoringProgramClassesTable {
+  program_id: string;
+  class_id: string;
+}
+
+export interface TutoringProgramCandidatesTable {
+  program_id: string;
+  child_id: string;
+  source: Generated<'suggested' | 'manual'>;
+  confirmed_by_name: string;
+  confirmed_at: ColumnType<Date, Date | undefined, Date>;
+}
+
+export interface TutoringSessionsTable {
+  id: Generated<string>;
+  program_id: string;
+  series_id: string | null;
+  session_date: ColumnType<string, string, string>;
+  start_time: string;
+  end_time: string;
+  periods: number;
+  location: string | null;
+  status: Generated<'scheduled' | 'cancelled'>;
+  cancel_reason: string | null;
+  video_room_ref: string | null;
+  attendance_confirmed_at: Date | null;
+  attendance_confirmed_by_name: string | null;
+  created_by: string;
+  created_at: CreatedTimestamp;
+}
+
+export interface TutoringExemptionsTable {
+  id: Generated<string>;
+  decision_no: string;
+  decision_date: ColumnType<string, string, string>;
+  subject_id: string;
+  max_periods_per_week: number;
+  file_key: string | null;
+  file_name: string | null;
+  note: string | null;
+  created_by: string;
+  created_by_name: string;
+  created_at: CreatedTimestamp;
+}
+
+export interface TutoringExemptionChildrenTable {
+  exemption_id: string;
+  child_id: string;
+}
+
+export interface TutoringRegistrationsTable {
+  id: Generated<string>;
+  program_id: string;
+  child_id: string;
+  guardian_user_id: string;
+  guardian_name: string;
+  form_text: string;
+  form_hash: string;
+  note: string | null;
+  submitted_at: ColumnType<Date, Date | undefined, Date>;
+  status: Generated<TutoringRegistrationStatus>;
+  decided_by_name: string | null;
+  decided_at: Date | null;
+  reject_reason: string | null;
+  withdrawn_at: Date | null;
+}
+
+export interface TutoringAttendanceTable {
+  session_id: string;
+  child_id: string;
+  status: TutoringAttendanceStatus;
+  source: 'room_log' | 'teacher';
+  joined_at: Date | null;
+  left_at: Date | null;
+  note: string | null;
+  confirmed_by_name: string | null;
+  confirmed_at: Date | null;
+  guardian_notified_at: Date | null;
+}
+
+export interface TutoringRoomEventsTable {
+  id: Generated<string>;
+  session_id: string;
+  child_id: string;
+  kind: 'join' | 'leave';
+  at: Date;
+  source: string;
 }
 
 export interface SchoolYearDatabase {
@@ -6277,6 +6689,10 @@ export interface SchoolYearDatabase {
   exam_assignment_targets: ExamAssignmentTargetsTable;
   exam_attempts: ExamAttemptsTable;
   exam_attempt_events: ExamAttemptEventsTable;
+  exam_proctor_consents: ExamProctorConsentsTable;
+  exam_proctor_views: ExamProctorViewsTable;
+  exam_proctor_signals: ExamProctorSignalsTable;
+  exam_recording_chunks: ExamRecordingChunksTable;
   org_units: OrgUnitsTable;
   audit_logs: AuditLogsTable;
   settings: SettingsTable;
@@ -6524,6 +6940,8 @@ export interface SchoolYearDatabase {
   program_completion_confirmations: ProgramCompletionConfirmationsTable;
   child_groups: ChildGroupsTable;
   child_group_members: ChildGroupMembersTable;
+  group_sets: GroupSetsTable;
+  child_group_member_events: ChildGroupMemberEventsTable;
   professional_standards: ProfessionalStandardsTable;
   professional_criteria: ProfessionalCriteriaTable;
   professional_evaluations: ProfessionalEvaluationsTable;
@@ -6649,4 +7067,26 @@ export interface SchoolYearDatabase {
   classroom_score_events: ClassroomScoreEventsTable;
   classroom_game_sessions: ClassroomGameSessionsTable;
   classroom_game_answers: ClassroomGameAnswersTable;
+  course_spaces: CourseSpacesTable;
+  course_space_teachers: CourseSpaceTeachersTable;
+  course_enrollments: CourseEnrollmentsTable;
+  course_sections: CourseSectionsTable;
+  course_activities: CourseActivitiesTable;
+  activity_exceptions: ActivityExceptionsTable;
+  activity_results: ActivityResultsTable;
+  learning_events: LearningEventsTable;
+  online_teaching_decisions: OnlineTeachingDecisionsTable;
+  online_learning_rules: OnlineLearningRulesTable;
+  online_learning_rule_acks: OnlineLearningRuleAcksTable;
+  tutoring_rules: TutoringRulesTable;
+  tutoring_programs: TutoringProgramsTable;
+  tutoring_program_teachers: TutoringProgramTeachersTable;
+  tutoring_program_classes: TutoringProgramClassesTable;
+  tutoring_program_candidates: TutoringProgramCandidatesTable;
+  tutoring_sessions: TutoringSessionsTable;
+  tutoring_exemptions: TutoringExemptionsTable;
+  tutoring_exemption_children: TutoringExemptionChildrenTable;
+  tutoring_registrations: TutoringRegistrationsTable;
+  tutoring_attendance: TutoringAttendanceTable;
+  tutoring_room_events: TutoringRoomEventsTable;
 }

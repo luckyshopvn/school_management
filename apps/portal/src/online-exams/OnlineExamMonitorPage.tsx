@@ -33,6 +33,7 @@ import {
   type MonitorStudent,
 } from './online-exams-api.js';
 import { NO_ONLINE_LEVEL_MESSAGE, useOnlineExamLevel } from './OnlineExamsPage.js';
+import { AttemptProctorInfo, ProctorConsents, ProctorGrid } from './ProctorPanel.js';
 
 // 2. Theo dõi bài làm (DT-23 phần 23a, YCTD-211): từng học sinh đã vào, đã nộp, điểm, số lần rời bài, sự kiện camera, phiên thứ
 // hai; xem bài làm, chấm câu tự luận, nộp thay, công bố kết quả, huỷ bài. Sự kiện chỉ là căn cứ để giáo viên xét, không tự trừ
@@ -129,6 +130,7 @@ function AttemptPanel({
       ) : null}
       {mark.error ? <Alert tone="danger">{messageOf(mark.error)}</Alert> : null}
       {force.error ? <Alert tone="danger">{messageOf(force.error)}</Alert> : null}
+      <AttemptProctorInfo attemptId={attemptId} />
       <p className="text-label text-text-secondary">
         Sự kiện chống gian lận chỉ là căn cứ để giáo viên xét, không tự trừ điểm.{' '}
         {CAMERA_LABELS[data.camera_state] ?? ''}
@@ -327,6 +329,9 @@ export function OnlineExamMonitorPage() {
                     {data.camera_enabled
                       ? `bật, không có camera thì ${EXAM_CAMERA_FALLBACK_LABELS[data.camera_fallback as ExamCameraFallback].toLowerCase()}`
                       : 'tắt'}
+                    {data.proctor_live || data.proctor_record
+                      ? ` Giám sát bằng camera: ${[data.proctor_live ? 'xem trực tiếp' : '', data.proctor_record ? 'ghi hình' : ''].filter(Boolean).join(', ')}`
+                      : ''}
                     .
                   </p>
                   <div className="flex flex-wrap gap-2 pt-2">
@@ -389,6 +394,8 @@ export function OnlineExamMonitorPage() {
                 ) : (
                   <Alert tone="info">Bài thi từ xa: học sinh vào bài không cần mã phòng.</Alert>
                 )}
+                {data.proctor_live ? <ProctorGrid data={data} /> : null}
+                {data.proctor_live || data.proctor_record ? <ProctorConsents data={data} /> : null}
                 <div className="overflow-x-auto">
                   <table className="w-full text-content" aria-label="Học sinh được giao">
                     <thead className="text-left text-label font-medium text-text-secondary">

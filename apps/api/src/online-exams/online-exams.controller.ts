@@ -114,8 +114,10 @@ export function parseAssignmentInput(body: RequestBody): AssignmentInput {
   }
   const classIds = readIdList(body, 'class_ids', errors);
   const childIds = readIdList(body, 'child_ids', errors);
-  if (classIds.length + childIds.length === 0) {
-    errors.push({ field: 'targets', message: 'Chọn ít nhất một lớp hoặc một học sinh' });
+  // Nhóm của bộ nhóm (DT-28 phần 28a): thành viên lúc giao được giao như đích học sinh
+  const groupIds = readIdList(body, 'group_ids', errors);
+  if (classIds.length + childIds.length + groupIds.length === 0) {
+    errors.push({ field: 'targets', message: 'Chọn ít nhất một lớp, một nhóm hoặc một học sinh' });
   }
   const input: AssignmentInput = {
     exam_id: examId,
@@ -164,6 +166,8 @@ export function parseAssignmentInput(body: RequestBody): AssignmentInput {
       body?.exam_mode === undefined || body.exam_mode === null
         ? null
         : readChoice<ExamMode>(body, 'exam_mode', EXAM_MODES, 'at-school', errors),
+    proctor_live: readBoolean(body, 'proctor_live', false, errors),
+    proctor_record: readBoolean(body, 'proctor_record', false, errors),
     term_type: readChoice(body, 'term_type', ['first_term', 'second_term'] as const, 'first_term', errors),
     score_kind: readChoice(body, 'score_kind', ['regular', 'mid', 'final'] as const, 'regular', errors),
     score_seq: scoreSeq,
@@ -171,6 +175,7 @@ export function parseAssignmentInput(body: RequestBody): AssignmentInput {
     absent_policy: readChoice(body, 'absent_policy', ['skip', 'zero'] as const, 'skip', errors),
     class_ids: classIds,
     child_ids: childIds,
+    group_ids: groupIds,
   };
   if (errors.length > 0) {
     throw validationError(errors);
@@ -250,6 +255,12 @@ export class OnlineExamsController {
     const mode = readChoice<ExamMode>(body, 'default_exam_mode', EXAM_MODES, 'at-school', errors);
     const allowRemote = readBoolean(body, 'allow_remote', false, errors);
     const minutes = readInteger(body, 'room_code_minutes', errors, { min: 5, max: 720 }) ?? 60;
+    const allowLive = readBoolean(body, 'allow_live_proctoring', false, errors);
+    const allowRecording = readBoolean(body, 'allow_recording', false, errors);
+    const retention =
+      body?.recording_retention_days === undefined
+        ? undefined
+        : (readInteger(body, 'recording_retention_days', errors, { min: 7, max: 90 }) ?? undefined);
     const rawNetworks = body?.allowed_networks ?? [];
     let networks: string[] = [];
     if (
@@ -266,7 +277,15 @@ export class OnlineExamsController {
     }
     return this.service.updateSchoolSettings(
       currentUser,
-      { default_exam_mode: mode, allow_remote: allowRemote, allowed_networks: networks, room_code_minutes: minutes },
+      {
+        default_exam_mode: mode,
+        allow_remote: allowRemote,
+        allowed_networks: networks,
+        room_code_minutes: minutes,
+        allow_live_proctoring: body?.allow_live_proctoring === undefined ? undefined : allowLive,
+        allow_recording: body?.allow_recording === undefined ? undefined : allowRecording,
+        recording_retention_days: retention,
+      },
       originOf(request, currentUser),
     );
   }

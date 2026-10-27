@@ -53,20 +53,24 @@ export class ChildGroupsService {
   }
 
   private groupQuery(database: Executor) {
-    return database
-      .selectFrom('child_groups')
-      .leftJoin('staff', 'staff.id', 'child_groups.teacher_staff_id')
-      .selectAll('child_groups')
-      .select([
-        'staff.full_name as teacher_name',
-        'staff.user_id as teacher_user_id',
-        (expression) =>
-          expression
-            .selectFrom('child_group_members')
-            .select(expression.fn.countAll<string>().as('count'))
-            .whereRef('child_group_members.group_id', '=', 'child_groups.id')
-            .as('member_count'),
-      ]);
+    return (
+      database
+        .selectFrom('child_groups')
+        .leftJoin('staff', 'staff.id', 'child_groups.teacher_staff_id')
+        .selectAll('child_groups')
+        .select([
+          'staff.full_name as teacher_name',
+          'staff.user_id as teacher_user_id',
+          (expression) =>
+            expression
+              .selectFrom('child_group_members')
+              .select(expression.fn.countAll<string>().as('count'))
+              .whereRef('child_group_members.group_id', '=', 'child_groups.id')
+              .as('member_count'),
+        ])
+        // Nhóm thuộc bộ nhóm của lớp (DT-28 phần 28a) quản lý ở màn hình bộ nhóm, không hiện ở 4.1.6
+        .where('child_groups.group_set_id', 'is', null)
+    );
   }
 
   // Nhóm giáo viên được xem: nhóm mình phụ trách hoặc có trẻ thuộc lớp mình được phân công
@@ -75,6 +79,7 @@ export class ChildGroupsService {
       .selectFrom('child_groups')
       .leftJoin('staff', 'staff.id', 'child_groups.teacher_staff_id')
       .select('child_groups.id')
+      .where('child_groups.group_set_id', 'is', null)
       .where((expression) =>
         expression.or([
           expression('staff.user_id', '=', currentUser.id),

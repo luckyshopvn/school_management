@@ -1,7 +1,7 @@
 # 24. YÊU CẦU THAY ĐỔI
 
 - Mô tả: Sổ quản lý yêu cầu thay đổi, ghi lý do, đánh giá ảnh hưởng và trạng thái của từng thay đổi trước khi triển khai.
-- Phiên bản: 0.76
+- Phiên bản: 0.79
 - Ngày cập nhật: 2026-10-26
 - Trạng thái: Đang cập nhật
 
@@ -10,6 +10,37 @@
 Mã yêu cầu thay đổi dạng `YCTD-nn`, đánh số tăng dần, không tái sử dụng. Mục mới nhất ở trên cùng. Trạng thái dùng bốn giá trị: Chờ phê duyệt, Đã phê duyệt, Từ chối, Đã triển khai.
 
 Các thay đổi trước phiên bản 0.4.0 chưa có sổ này; xem `23_LICH_SU_PHIEN_BAN.md` các phiên bản 0.1.0 đến 0.3.1.
+
+Từ YCTD-291 (ngày 2026-10-26), mục YCTD mới của mỗi PR nằm ở tệp mảnh `tai_lieu/thay_doi_cho_gom/YCTD-<số>-<ten-ngan>.md` cho tới lần gom; PR thường không sửa tệp này. Lần gom chép các mục vào đây theo thứ tự merge (quy ước ở `thay_doi_cho_gom/README.md`). Khi chọn số YCTD, kiểm cả các tệp ở thư mục đó.
+
+### YCTD-291: Đổi quy ước ghi tài liệu chung sang tệp mảnh theo từng PR – 2026-10-26
+
+- Lý do: nhiều phiên làm song song (DT-23 đến DT-28), mỗi PR đều sửa `02_NHAT_KY_DU_AN.md`, `24_YEU_CAU_THAY_DOI.md`, `23_LICH_SU_PHIEN_BAN.md`, bảng mốc phát hành ở `01_KE_HOACH_TONG_THE.md`, số đếm ở `index.md` và số phiên bản đầu các tài liệu này. Mỗi lần một PR merge, mọi PR khác xung đột tài liệu, phải gộp main và chạy lại CI khoảng 40 phút; `gh pr update-branch` không gộp được vì xung đột. Eric đồng ý ngày 2026-10-26 chuyển sang tệp mảnh theo từng PR, gom định kỳ.
+- Nội dung thay đổi (chi tiết Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11):
+  - **Thư mục tệp mảnh** `tai_lieu/thay_doi_cho_gom/`: mỗi PR thêm một tệp `YCTD-<số>-<ten-ngan>.md` có phần đầu tệp (`yctd`, `tieu_de`, `ngay`, `phien_ban_de_xuat`) và các mục `## 02` (mục nhật ký), `## 24` (mục YCTD), `## 23` (mục phiên bản, khi có), `## 01` (dòng bảng mốc phát hành), `## index` (cộng số đếm), `## Nối dòng` (nối nội dung vào dòng bảng dùng chung, ví dụ dòng phân hệ ở `03`). Số phiên bản phần mềm trong tệp mảnh là đề xuất, nội dung dùng chỗ giữ `{PHIEN_BAN}`.
+  - **Quy tắc**: PR thường không sửa `02`, `23`, `24`, `index.md`, bảng mốc phát hành ở `01`, không tăng số phiên bản đầu tài liệu; nội dung riêng của phần (dòng trạng thái ở `32`, dòng ở `34`, đặc tả `07`, `08`, `10`, `11`, `14`, `16`, `17`, `21`, `22`) vẫn sửa tại chỗ.
+  - **Tập lệnh gom** `scripts/gom-thay-doi.mjs` (Node, không thêm gói): kiểm mọi tệp mảnh (sai thì dừng, không ghi gì); xếp theo thứ tự merge (`git log --first-parent`); chèn mục 02, 24, 23 lên đầu, chốt số phiên bản phần mềm (đề xuất có số sửa khác 0 thì tăng số sửa, ngược lại tăng số phụ) và thay `{PHIEN_BAN}`; chèn dòng 01 trước dòng `1.0.0`; cộng số ở `index.md`, nối dòng; tính lại khoảng `BR`, `AC`, `CT`, `YCTD` và số "Yêu cầu thay đổi" ở `index.md`; tăng số phiên bản đầu mỗi tài liệu chung đã sửa đúng một lần; xoá tệp mảnh đã gom. Chế độ `--kiem` chỉ kiểm định dạng.
+  - **CI**: việc `kiem-thu` thêm bước `node scripts/gom-thay-doi.mjs --kiem` (sai định dạng thì hỏng) và bước cảnh báo, không chặn, khi PR có nhánh không bắt đầu bằng `gom-` sửa trực tiếp `02`, `23`, `24`, `index.md`.
+  - PR này sửa `02`, `24`, `index.md` theo cách cũ lần cuối.
+- Thành phần bị ảnh hưởng: `scripts/gom-thay-doi.mjs` (mới), `tests/tai-lieu/gom-thay-doi.test.mjs` (mới), `tests/package.json`, `.github/workflows/ci.yml`; tài liệu `tai_lieu/thay_doi_cho_gom/README.md` (mới), `01` mục 9, `02`, `19` mục 2, `23` mục 1, `24`, `index.md`.
+- Dữ liệu, API, giao diện, quyền bị ảnh hưởng: không.
+- Ảnh hưởng chức năng cũ: không đổi mã nghiệp vụ. Phiên bản phần mềm giữ nguyên.
+- Kiểm thử cần thực hiện: kiểm thử đơn vị `tests/tai-lieu/gom-thay-doi.test.mjs` (gom theo thứ tự merge, chốt phiên bản, tăng phiên bản tài liệu một lần, cộng số đếm, nối dòng, xoá tệp mảnh; dừng khi sai định dạng; các lỗi định dạng thường gặp; trùng YCTD); thử gom trên bản sao `tai_lieu`. Kết quả ngày 26/10/2026: đạt.
+- Trạng thái: Đã triển khai
+
+### YCTD-226: DT-25 bước 25b: giao diện đăng nhập và liên kết bằng nhà cung cấp định danh – 2026-10-26
+
+- Lý do: bước 25b của kế hoạch DT-25 (`32` mục 17.3), làm sau khi DT-24 gộp màn hình đăng nhập mới (điểm gắn `ExternalLoginProviders.tsx`).
+- Nội dung thay đổi (Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11):
+  - Thành phần dùng chung ở `packages/ui/src/ExternalIdentity.tsx`: `ExternalProviderButtons` (đọc nhà cung cấp trường đã bật, bắt đầu lượt, chuyển sang nhà cung cấp), `ExternalSignInCallback` (trang quay về: chờ ứng dụng khôi phục phiên, gửi `state`, `code`, nhập mã hai lớp khi máy chủ đòi, đăng nhập xong tải lại trang gốc, liên kết xong về trang liên kết), `ExternalLinksPanel` (liên kết, gỡ liên kết cần mật khẩu và mã hai lớp nếu đã bật, nhật ký gần đây). Mỗi ứng dụng truyền hàm gọi giao diện lập trình của mình.
+  - Cổng quản trị: nút ở màn hình đăng nhập (điểm gắn của DT-24; ở tên miền chung không hiện vì cấu hình, liên kết, lượt đăng nhập đều theo trường), trang `/dang-nhap/ben-ngoai` mở được khi đã hay chưa đăng nhập, mục "Liên kết tài khoản" ở Tài khoản của tôi, khối "Đăng nhập bằng nhà cung cấp định danh" ở Danh sách người dùng cho người quản lý mọi tài khoản (bật tắt, coi là đạt xác thực hai lớp, nhóm vai trò, mã ứng dụng và khóa riêng; nhắc mục chờ tài liệu RAR với hồ sơ vneid).
+  - Ứng dụng giáo viên: nút ở màn hình đăng nhập, trang quay về. Ứng dụng phụ huynh: nút, trang quay về, mục liên kết ở màn hình chính.
+  - e2e spec 165 thêm ca giao diện.
+- Thành phần bị ảnh hưởng: `packages/ui`, `apps/portal` (`router.tsx`, `portal-shell/ExternalLoginProviders.tsx`, `portal-shell/external-identity.tsx`, `portal-shell/MyProfilePage.tsx`, `accounts/AccountsPage.tsx`, `accounts/ExternalProvidersSection.tsx`), `apps/teacher`, `apps/parent`, `tests/e2e/165-external-identity.spec.ts`; tài liệu `01`, `02`, `23`, `24`, `32`, `34`, `index.md`.
+- Dữ liệu, API, quyền bị ảnh hưởng: không.
+- Giao diện bị ảnh hưởng: như trên; trường chưa bật nhà cung cấp thì không đổi.
+- Ảnh hưởng chức năng cũ: không.
+- Kiểm thử cần thực hiện: typecheck, lint ba ứng dụng và `packages/ui`; e2e 165 (giao diện và máy chủ) cùng 01.
 
 ### YCTD-211: DT-23 phần 23a: thi trực tuyến cho học sinh – 2026-10-26
 
@@ -162,6 +193,24 @@ Các thay đổi trước phiên bản 0.4.0 chưa có sổ này; xem `23_LICH_S
 - Kiểm thử cần thực hiện: kiểm thử đơn vị toàn kho; e2e `single` (spec 151 cùng các spec hiện có); kiểm tĩnh đa thuê bao và ma trận cách ly; typecheck, lint, build.
 - Chưa làm (YCTD sau): trò chơi dùng lại nhóm, bảng điểm (23c); đồng bộ nền khi ứng dụng đóng (Background Sync); thông báo đẩy khi hết giờ; ngoại tuyến cho phân hệ khác.
 - Trạng thái: Đã triển khai (PR 180)
+
+### YCTD-231: DT-26 phần 26a: vỏ ứng dụng web cài được dùng chung – 2026-10-26
+
+- Lý do: phần 26a của `32_KE_HOACH_THEO_HE_THONG_SO.md` mục 18.3, 18.4 (kế hoạch DT-26 ở YCTD-230); Eric yêu cầu ngày 2026-10-26 làm ứng dụng web cài được trước bố cục máy tính bảng và ứng dụng cài đặt. Phụ thuộc 23b (YCTD-212, PR 180) đã gộp.
+- Nội dung thay đổi (Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11 ở những chỗ kế hoạch chưa chốt):
+  - **Gói `packages/pwa`** (mới): mẫu service worker `service-worker.js` dời từ `apps/teacher/public/sw.js` của 23b (giữ nguyên chiến lược: mạng trước, bộ nhớ đệm sau, không giữ `/api`, bản mới chờ người dùng đồng ý), thêm dòng đánh dấu tiền tố bộ nhớ đệm; plugin Vite `pwaServiceWorker` (thay plugin `serviceWorkerRelease` của ứng dụng giáo viên) phục vụ mẫu ở `<base>sw.js` khi phát triển và phát ra `dist/sw.js` khi dựng; thư viện đăng ký, kiểm bản mới mỗi 30 phút và khi quay lại ứng dụng, gỡ, xóa bộ nhớ đệm theo tiền tố; `applyBrandedManifest`; thành phần `InstallPrompt`, `UpdateBanner`; hàm thuần nhận biết cách cài theo trình duyệt (có kiểm thử đơn vị). Viết tay, không thêm thư viện dựng service worker (QĐ-36).
+  - **Ứng dụng giáo viên**: `classroom-offline.ts` gọi gói chung, giữ tiền tố `cong-cu-lop-hoc-v-` và công tắc ngoại tuyến của trường (BR-233, GD-108 không đổi); dải "Có bản mới" chuyển lên đầu ứng dụng; lời mời cài ở Lớp của tôi; manifest tĩnh thêm `id`.
+  - **Ứng dụng phụ huynh**: manifest tĩnh, biểu tượng PNG, SVG của sản phẩm, service worker chung (tiền tố `phu-huynh-v-`) đăng ký khi mở ứng dụng, dải "Có bản mới", lời mời cài ở trang chủ. Màn hình học sinh của 23a (gộp trước 26a, PR 189) dùng chung service worker của ứng dụng phụ huynh; manifest riêng `student` (tên "– Học sinh", tên ngắn "… HS", `start_url` là `<base>#hoc-sinh`, `id` riêng) được áp khi đang ở `#hoc-sinh` nên cài từ màn hình học sinh thì mở thẳng màn hình học sinh; lời mời cài và dải "Có bản mới" ở danh sách bài, không hiện trong phòng thi (tránh tải lại khi đang làm bài). Nhiều lần gọi `applyBrandedManifest` liên tiếp chỉ áp lần sau cùng.
+  - **Máy chủ**: `/api/v1/public/pwa/{teacher,parent,student}.webmanifest?base=`, `icon.svg`, `icon-maskable.svg` (công khai theo tên miền của trường, chính sách tuyến ghi ở `tenancy-route-policy.ts`); biểu tượng SVG dựng ở máy chủ (nền màu trường, biểu trưng nhúng nếu là ảnh dưới 512 KB, không thì chữ cái đầu của từ cuối trong tên trường), không thêm thư viện xử lý ảnh; tên ngắn `school_branding.app_short_name` (hệ thống 0090), sửa ở Thương hiệu của cổng quản trị.
+  - **Khác kế hoạch (18.4), ghi để phần sau làm**: chưa sinh ảnh PNG đúng cỡ và màn hình chờ iOS theo trường (cần thư viện xử lý ảnh gốc; Android lấy màn hình chờ từ manifest, iOS dùng màn hình trắng mặc định); chưa có "phiên bản tối thiểu" do máy chủ áp (để 26f, khi ứng dụng cài đặt cần); service worker không giữ biểu tượng của trường (không giữ mọi địa chỉ `/api`); chưa xóa thêm gì khi đăng xuất ngoài phần của 23b vì bộ nhớ đệm chỉ có vỏ ứng dụng.
+- Thành phần bị ảnh hưởng: `packages/pwa` (mới), `apps/teacher`, `apps/parent`, `apps/portal` (ô tên ngắn), `apps/api` (`school-settings`), `database` (hệ thống 0090), `tests` (spec 181); đăng ký bộ điều khiển thêm sau `PublicBrandingController` ở `application.module.ts`.
+- Dữ liệu bị ảnh hưởng: cơ sở dữ liệu hệ thống thêm cột `school_branding.app_short_name`; chạy được ở hai bố cục `database`, `schema`.
+- API bị ảnh hưởng: ba tuyến công khai `/api/v1/public/pwa/*`; `PUT /api/v1/school-settings/branding` nhận thêm `app_short_name`; `GET` trả thêm `app_short_name` (xem `17_DAC_TA_API.md`).
+- Giao diện bị ảnh hưởng: MH-348; ô tên ngắn ở Thương hiệu; dải "Có bản mới" của MH-338 nay ở đầu ứng dụng.
+- Quyền bị ảnh hưởng: không thêm quyền (tên ngắn dùng quyền Thương hiệu sẵn có `P01.integration.manage`).
+- Ảnh hưởng chức năng cũ: không đổi hành vi; spec 151 (23b) đạt không sửa kỳ vọng; trang đăng nhập, mọi màn hình khác như cũ ngoài khối mời cài.
+- Kiểm thử cần thực hiện: kiểm thử đơn vị toàn kho (`packages/pwa` CT-26a-1, `apps/api` CT-26a-2, CT-26a-3); e2e `single` spec 181 cùng spec 151; kiểm tĩnh đa thuê bao, ma trận cách ly (tuyến mới công khai theo tên miền).
+- Trạng thái: Đã triển khai
 
 ### YCTD-230: Kế hoạch DT-26: PWA, máy tính bảng, ứng dụng di động – 2026-10-26
 

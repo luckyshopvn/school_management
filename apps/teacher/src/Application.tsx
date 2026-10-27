@@ -15,18 +15,23 @@ import { AssessmentScreen } from './screens/AssessmentScreen.js';
 import { ScoreScreen } from './screens/ScoreScreen.js';
 import { PayslipsScreen } from './screens/PayslipsScreen.js';
 import { LoginScreen } from './screens/LoginScreen.js';
+import { ExternalSignInCallback, isExternalCallbackLocation } from '@school-management/ui';
+import { externalRequest } from './session/external-request.js';
 import { MedicationScreen } from './screens/MedicationScreen.js';
 import { PickupScreen } from './screens/PickupScreen.js';
 import { StocktakeScreen } from './screens/StocktakeScreen.js';
 import { MyTimetableScreen } from './screens/MyTimetableScreen.js';
+import { OnlineClassesScreen } from './screens/OnlineClassesScreen.js';
 import { ClassLogScreen } from './screens/ClassLogScreen.js';
 import { TrainingScreen } from './screens/TrainingScreen.js';
 import { TeachingScreen } from './screens/TeachingScreen.js';
 import { WorkScreen } from './screens/WorkScreen.js';
+import { UpdateBanner, usePushSync } from '@school-management/pwa';
 import { Button, DemoBanner, MaintenanceBanner, type MaintenanceNoticeItem } from '@school-management/ui';
 import { requestJson } from './session/api-client.js';
 import { ClassroomOfflineManager } from './tools/ClassroomOfflineManager.js';
 import { ClassroomToolsScreen } from './tools/ClassroomToolsScreen.js';
+import { TutoringScreen } from './screens/TutoringScreen.js';
 import { readRosters } from './tools/classroom-store.js';
 import { SessionProvider, useSession } from './session/session.js';
 
@@ -89,8 +94,21 @@ function Screens() {
     | { screen: 'class-log' }
     | { screen: 'training' }
     | { screen: 'classroom-tools'; classes: MyClass[] }
+    | { screen: 'online-classes' }
+    | { screen: 'tutoring' }
   >();
   const back = () => setOpened(undefined);
+  // Quay về từ nhà cung cấp định danh bên ngoài (DT-25 bước 25b)
+  if (isExternalCallbackLocation(import.meta.env.BASE_URL)) {
+    return (
+      <ExternalSignInCallback
+        request={externalRequest}
+        basePath={import.meta.env.BASE_URL}
+        ready={session.status !== 'checking'}
+        afterLink={import.meta.env.BASE_URL}
+      />
+    );
+  }
   if (session.status === 'checking') {
     return <div className="min-h-screen animate-pulse bg-page" aria-busy="true" />;
   }
@@ -161,8 +179,14 @@ function Screens() {
   if (opened?.screen === 'training') {
     return <TrainingScreen onBack={back} />;
   }
+  if (opened?.screen === 'tutoring') {
+    return <TutoringScreen onBack={back} />;
+  }
   if (opened?.screen === 'classroom-tools') {
     return <ClassroomToolsScreen classes={opened.classes} onBack={back} />;
+  }
+  if (opened?.screen === 'online-classes') {
+    return <OnlineClassesScreen onBack={back} />;
   }
   if (opened?.screen === 'stocktake') {
     return <StocktakeScreen onBack={back} />;
@@ -194,8 +218,17 @@ function Screens() {
       onOpenClassLog={() => setOpened({ screen: 'class-log' })}
       onOpenTraining={() => setOpened({ screen: 'training' })}
       onOpenClassroomTools={(classes) => setOpened({ screen: 'classroom-tools', classes })}
+      onOpenOnlineClasses={() => setOpened({ screen: 'online-classes' })}
+      onOpenTutoring={() => setOpened({ screen: 'tutoring' })}
     />
   );
+}
+
+// Đã đăng nhập: báo lại đăng ký đẩy của máy cho máy chủ (DT-26 phần 26b)
+function PushSync() {
+  const session = useSession();
+  usePushSync('teacher', import.meta.env.BASE_URL, requestJson, session.status === 'signed-in');
+  return null;
 }
 
 // Giao diện chỉ gọi giao diện lập trình ứng dụng, không chứa quy tắc nghiệp vụ (QU-09)
@@ -205,7 +238,10 @@ export function Application() {
       {/* Dải bản trình diễn (DT-18 phần 18h) */}
       <DemoBanner />
       <PlatformMaintenanceBanner />
+      {/* Có bản mới của ứng dụng: hỏi tải lại (DT-26 phần 26a) */}
+      <UpdateBanner />
       <ClassroomOfflineManager />
+      <PushSync />
       <Screens />
     </SessionProvider>
   );

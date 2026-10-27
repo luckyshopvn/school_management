@@ -42,6 +42,7 @@ export class StudentExamsController {
       {
         camera_state: readCameraState(body?.camera_state),
         room_code: typeof body?.room_code === 'string' ? body.room_code : null,
+        proctor_notice: body?.proctor_notice === true,
       },
       originOf(request, currentUser),
       request.ip,

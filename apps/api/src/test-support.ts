@@ -99,6 +99,16 @@ export async function startApiTestEnvironment(
       zaloSender: 'development',
       // Bộ giả lập nhà cung cấp AI (DT-23 phần 23d)
       aiMock: true,
+      // Thông báo đẩy qua bộ giả lập (DT-26 phần 26b); người chưa đăng ký đẩy không có thêm dòng kênh push
+      push: {
+        provider: 'development',
+        vapidPublicKey: null,
+        vapidPrivateKey: null,
+        vapidSubject: null,
+        developmentOutbox: null,
+        coalesceMinutes: 5,
+        subscriptionRetentionDays: 90,
+      },
     },
     { ...options, fileStorage: new MemoryFileStorage(), smsGateway },
   );

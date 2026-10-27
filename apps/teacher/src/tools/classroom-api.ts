@@ -84,10 +84,45 @@ export const deleteCalls = (classId: string, callId?: string) =>
 export const fetchGrouping = (classId: string) =>
   requestJson<{ groups: Group[]; updated_at: string | null }>(`${BASE}/classes/${classId}/grouping`);
 
-export const saveGrouping = (classId: string, groups: Group[]) =>
+// Lưu bản chia thành bộ nhóm của công cụ lớp học; chọn bộ sẵn có thì gửi kèm mã bộ nguồn (DT-28 phần 28a)
+export const saveGrouping = (classId: string, groups: Group[], groupSetId?: string) =>
   requestJson<{ groups: Group[] }>(`${BASE}/classes/${classId}/grouping`, {
     method: 'PUT',
-    body: JSON.stringify({ groups }),
+    body: JSON.stringify(groupSetId ? { groups, group_set_id: groupSetId } : { groups }),
+  });
+
+// Bộ nhóm dùng chung của lớp (DT-28 phần 28a, YCTD-271): chia theo năng lực, cân bằng giới tính trên máy chủ (cần mạng)
+export type ServerSplitMethod = 'gender_balanced' | 'ability_mixed' | 'ability_tiered';
+
+export interface GroupSetSummary {
+  id: string;
+  name: string;
+  purpose: 'subject' | 'activity' | 'classroom';
+  subject_name: string | null;
+  owner_name: string;
+  group_count: number;
+}
+
+export const fetchGroupSets = (classId: string) =>
+  requestJson<GroupSetSummary[]>(`/api/v1/group-sets?class_id=${classId}`);
+
+export const fetchGroupSet = (groupSetId: string) =>
+  requestJson<{ id: string; groups: Group[] }>(`/api/v1/group-sets/${groupSetId}`);
+
+export const fetchGroupSubjects = (classId: string) =>
+  requestJson<Array<{ id: string; name: string }>>(`/api/v1/group-sets/subjects?class_id=${classId}`);
+
+export const previewGroups = (body: {
+  class_id: string;
+  subject_id: string | null;
+  method: ServerSplitMethod;
+  by: 'count' | 'size';
+  value: number;
+  exclude_absent: boolean;
+}) =>
+  requestJson<{ groups: Group[]; violations: unknown[] }>('/api/v1/group-sets/preview', {
+    method: 'POST',
+    body: JSON.stringify(body),
   });
 
 export const sendScores = (

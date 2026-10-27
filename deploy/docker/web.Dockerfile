@@ -24,6 +24,7 @@ COPY packages/config/package.json packages/config/
 COPY packages/server/package.json packages/server/
 COPY packages/shared/package.json packages/shared/
 COPY packages/ui/package.json packages/ui/
+COPY packages/pwa/package.json packages/pwa/
 COPY database/package.json database/
 COPY tests/package.json tests/
 RUN --mount=type=cache,id=pnpm-store,target=/pnpm/store \
@@ -33,6 +34,7 @@ RUN --mount=type=cache,id=pnpm-store,target=/pnpm/store \
 COPY packages/config packages/config
 COPY packages/shared packages/shared
 COPY packages/ui packages/ui
+COPY packages/pwa packages/pwa
 COPY apps/portal apps/portal
 COPY apps/parent apps/parent
 COPY apps/teacher apps/teacher

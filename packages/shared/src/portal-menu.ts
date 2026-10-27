@@ -27,7 +27,8 @@ export type PortalWorkspaceKey =
   | 'quality-assurance'
   | 'library'
   | 'learning-resources'
-  | 'online-exam';
+  | 'online-exam'
+  | 'tutoring';
 
 export interface PortalMenuNode {
   // Số thứ bậc có dấu chấm cuối như của Sở, ví dụ "4.1.1."
@@ -206,6 +207,15 @@ export const PORTAL_WORKSPACES: PortalWorkspace[] = [
           leaf('8.5.', 'Chấm bài kiểm tra', '/exam-grading'),
           leaf('8.6.', 'Báo cáo kết quả kiểm tra', '/exam-reports'),
         ]),
+      ),
+      // Học tập trực tuyến (DT-28 phần 28b, Thông tư 09/2021/TT-BGDĐT): Tiểu học, THCS, THPT
+      secondary(
+        group('9.', 'Học tập trực tuyến', [
+          leaf('9.1.', 'Lớp học trực tuyến', '/online-classes'),
+          leaf('9.2.', 'Khoá học mẫu', '/course-templates'),
+          leaf('9.3.', 'Hình thức và nội quy dạy học trực tuyến', '/online-teaching'),
+        ]),
+        ['TH', 'THCS', 'THPT'],
       ),
     ],
   },
@@ -670,6 +680,20 @@ export const PORTAL_WORKSPACES: PortalWorkspace[] = [
       leaf('1.', 'Giao đề thi trực tuyến', '/online-exams'),
       leaf('2.', 'Theo dõi bài làm', '/online-exams/monitor'),
       leaf('3.', 'Cấu hình thi trực tuyến', '/online-exams/settings'),
+    ],
+  },
+  {
+    // Gia sư trong trường (DT-27 phần 27b): phân hệ riêng để gói dịch vụ bật, tắt được; cha mẹ đăng ký ở ứng dụng phụ huynh, giáo
+    // viên điểm danh ở ứng dụng giáo viên. Tên mục do Claude tự đặt theo ủy quyền của Eric ngày 2026-10-11; từ Tiểu học trở lên
+    // (Tiểu học chỉ có chương trình bổ trợ ngoài chương trình môn học)
+    key: 'tutoring',
+    label: 'Gia sư trực tuyến',
+    levels: ['TH', 'THCS', 'THPT'],
+    menu: [
+      leaf('1.', 'Chương trình gia sư', '/tutoring'),
+      leaf('2.', 'Lịch buổi học, điểm danh', '/tutoring/sessions'),
+      leaf('3.', 'Quyết định tăng thời lượng', '/tutoring/exemptions'),
+      leaf('4.', 'Quy định dạy thêm', '/tutoring/rules'),
     ],
   },
 ];

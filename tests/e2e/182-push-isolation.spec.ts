@@ -1,0 +1,230 @@
+import { randomBytes, randomUUID } from 'node:crypto';
+import { existsSync, readFileSync, rmSync } from 'node:fs';
+import { request as playwrightRequest, type APIRequestContext } from '@playwright/test';
+import {
+  readTenancyConfiguration,
+  rotateVapidKeys,
+  TenancyRuntime,
+  type IdentityDatabase,
+  type SchoolYearDatabase,
+  type SystemDatabase,
+  type TenantContext,
+} from '@school-management/database';
+import { createTestUser, type TestUser } from '@school-management/identity/testing';
+import {
+  E2E_MULTI_API_PORT,
+  E2E_MULTI_IDENTITY_PORT,
+  E2E_PUSH_OUTBOX_FILE,
+  E2E_SCHEDULER_SECRET,
+  schoolHost,
+} from '../e2e-multi-environment.mjs';
+import { expect, test } from './fixtures.js';
+
+// DT-26 phần 26b (YCTD-232, spec 182), kịch bản CT-26b-7: cách ly đăng ký thông báo đẩy giữa hai trường. Trường alpha và beta mỗi trường
+// một máy đăng ký; mã phiên của beta không đọc được đăng ký ở tên miền của alpha, không gỡ được đăng ký của alpha; khóa công khai
+// VAPID là khóa chung của nền tảng; thông báo của alpha (bộ giả lập, tệp ghi của máy chủ API) chỉ tới máy của alpha, nội dung không có
+// nội dung gốc của thông báo. Chỉ chạy ở dự án nhiều trường. Dữ liệu giả
+const API = `http://127.0.0.1:${E2E_MULTI_API_PORT}`;
+const IDENTITY = `http://127.0.0.1:${E2E_MULTI_IDENTITY_PORT}`;
+const today = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Ho_Chi_Minh' }).format(new Date());
+const addDays = (date: string, days: number) =>
+  new Date(Date.parse(`${date}T00:00:00Z`) + days * 86_400_000).toISOString().slice(0, 10);
+
+let runtime: TenancyRuntime;
+const tenants: Record<string, TenantContext> = {};
+const teachers: Record<string, TestUser> = {};
+let principal: TestUser;
+
+function fakeKeys() {
+  return {
+    p256dh: Buffer.concat([Buffer.from([4]), randomBytes(64)]).toString('base64url'),
+    auth: randomBytes(16).toString('base64url'),
+  };
+}
+
+test.beforeAll(async () => {
+  const configuration = readTenancyConfiguration(process.env);
+  if (!configuration) {
+    throw new Error('Thiếu cấu hình nền tảng nhiều trường: chạy bằng pnpm --filter @school-management/tests e2e:multi');
+  }
+  runtime = new TenancyRuntime(configuration);
+  for (const code of ['alpha', 'beta']) {
+    const tenant = await runtime.registry.resolveHost(schoolHost(code));
+    if (!tenant) {
+      throw new Error(`Chưa dựng trường ${code}`);
+    }
+    tenants[code] = tenant;
+    const identity = runtime.connections.database<IdentityDatabase>(tenant, 'identity', 'identity');
+    teachers[code] = await createTestUser(identity, { roles: [{ roleCode: 'VT-07', orgUnitId: null }] });
+    if (code === 'alpha') {
+      principal = await createTestUser(identity, { roles: [{ roleCode: 'VT-02', orgUnitId: null }] });
+    }
+  }
+});
+
+test.afterAll(async () => {
+  await runtime?.close();
+});
+
+async function signedIn(code: string, user: TestUser, channel: 'portal' | 'teacher') {
+  // Kết nối thẳng 127.0.0.1 và đặt tiêu đề Host như spec 130: không phụ thuộc việc hệ điều hành phân giải `*.localhost`
+  const context = await playwrightRequest.newContext({ extraHTTPHeaders: { Host: schoolHost(code) } });
+  const response = await context.post(`${IDENTITY}/api/v1/auth/login`, {
+    data: { login: user.username, password: user.password, channel },
+  });
+  expect(response.status(), await response.text()).toBe(200);
+  const token = ((await response.json()) as { access_token: string }).access_token;
+  return { context, token };
+}
+
+async function call(context: APIRequestContext, token: string, method: string, path: string, data?: unknown) {
+  const response = await context.fetch(`${API}/api/v1${path}`, {
+    method,
+    headers: { authorization: `Bearer ${token}` },
+    ...(data === undefined ? {} : { data }),
+  });
+  return { status: response.status(), body: (await response.json().catch(() => ({}))) as Record<string, unknown> };
+}
+
+// Năm học đang dùng của alpha: tiến trình gửi thông báo đọc hàng đợi ở cơ sở dữ liệu năm học
+async function ensureOpenYear(context: APIRequestContext, token: string) {
+  const list = await call(context, token, 'GET', '/academic-years');
+  const items = list.body as unknown as Array<{ id: string; name: string; status: string }>;
+  if (items.some((item) => item.status === 'open')) {
+    return;
+  }
+  let id = items.find((item) => item.name === '2026–2027' && item.status === 'draft')?.id;
+  if (!id) {
+    const created = await call(context, token, 'POST', '/academic-years', { name: '2026–2027' });
+    expect(created.status, JSON.stringify(created.body)).toBe(201);
+    id = created.body.id as string;
+  }
+  const saved = await call(context, token, 'PUT', `/academic-years/${id}/calendar`, {
+    first_term: { start_date: addDays(today, -60), end_date: addDays(today, 90) },
+    second_term: { start_date: addDays(today, 95), end_date: addDays(today, 200) },
+  });
+  expect(saved.status, JSON.stringify(saved.body)).toBe(200);
+  const opened = await call(context, token, 'POST', `/academic-years/${id}/open`);
+  expect(opened.status, JSON.stringify(opened.body)).toBe(200);
+}
+
+test('CT-26b-7: đăng ký đẩy của hai trường tách nhau; thông báo của alpha chỉ tới máy của alpha', async () => {
+  test.setTimeout(240_000);
+  // Khóa VAPID chung của nền tảng: hai trường nhận cùng khóa công khai
+  const { publicKey } = await rotateVapidKeys(
+    runtime.platform,
+    runtime.configuration.masterKey,
+    'mailto:e2e@example.test',
+  );
+  const alpha = await signedIn('alpha', teachers.alpha as TestUser, 'teacher');
+  const beta = await signedIn('beta', teachers.beta as TestUser, 'teacher');
+  for (const side of [alpha, beta]) {
+    const reply = await call(side.context, side.token, 'GET', '/public/push/vapid-public-key');
+    expect(reply.body).toEqual({ enabled: true, public_key: publicKey });
+  }
+
+  const endpointA = `https://day.example.test/alpha/${randomUUID()}`;
+  const endpointB = `https://day.example.test/beta/${randomUUID()}`;
+  const subscribedA = await call(alpha.context, alpha.token, 'POST', '/push/subscriptions', {
+    endpoint: endpointA,
+    keys: fakeKeys(),
+    app: 'teacher',
+  });
+  expect(subscribedA.status, JSON.stringify(subscribedA.body)).toBe(200);
+  const subscribedB = await call(beta.context, beta.token, 'POST', '/push/subscriptions', {
+    endpoint: endpointB,
+    keys: fakeKeys(),
+    app: 'teacher',
+  });
+  expect(subscribedB.status).toBe(200);
+
+  // Mã phiên của beta ở tên miền của alpha bị từ chối; ở tên miền của beta không thấy, không gỡ được đăng ký của alpha
+  expect((await call(alpha.context, beta.token, 'GET', '/push/subscriptions')).status).toBe(401);
+  const betaList = await call(beta.context, beta.token, 'GET', '/push/subscriptions');
+  expect((betaList.body.items as Array<{ id: string }>).map((item) => item.id)).toEqual([subscribedB.body.id]);
+  expect(
+    (await call(beta.context, beta.token, 'DELETE', `/push/subscriptions/${subscribedA.body.id as string}`)).status,
+  ).toBe(404);
+  const alphaSystem = runtime.connections.database<SystemDatabase>(tenants.alpha as TenantContext, 'system', 'system');
+  const betaSystem = runtime.connections.database<SystemDatabase>(tenants.beta as TenantContext, 'system', 'system');
+  expect(
+    await betaSystem
+      .selectFrom('push_subscriptions')
+      .select('id')
+      .where('id', '=', subscribedA.body.id as string)
+      .execute(),
+  ).toHaveLength(0);
+
+  // Thông báo của alpha qua tiến trình gửi: chỉ máy của alpha nhận, nội dung không có nội dung gốc
+  const admin = await signedIn('alpha', principal, 'portal');
+  await ensureOpenYear(admin.context, admin.token);
+  const registry = await alphaSystem
+    .selectFrom('academic_year_databases')
+    .innerJoin('academic_years', 'academic_years.id', 'academic_year_databases.academic_year_id')
+    .select('academic_year_databases.database_name')
+    .where('academic_years.status', '=', 'open')
+    .executeTakeFirstOrThrow();
+  // Nạp lại ngữ cảnh của alpha để có cơ sở dữ liệu năm học vừa mở
+  const reloaded = await runtime.registry.loadSchool((tenants.alpha as TenantContext).schoolId);
+  const year = runtime.connections.database<SchoolYearDatabase>(
+    reloaded?.context ?? (tenants.alpha as TenantContext),
+    'school-year',
+    registry.database_name,
+  );
+  const secret = `Nội dung riêng ${randomUUID()}`;
+  const notification = await year
+    .insertInto('notifications')
+    .values({
+      template_code: 'news_published',
+      title: 'Thông báo thử (e2e)',
+      body: secret,
+      target_type: 'test',
+      target_id: randomUUID(),
+    })
+    .returning('id')
+    .executeTakeFirstOrThrow();
+  await year
+    .insertInto('notification_recipients')
+    .values({ notification_id: notification.id, user_id: teachers.alpha?.id as string, channel: 'push' })
+    .execute();
+
+  rmSync(E2E_PUSH_OUTBOX_FILE, { force: true });
+  await runtime.platform.deleteFrom('scheduler_state').where('job', '=', 'notification-dispatch').execute();
+  const jobs = await playwrightRequest.newContext();
+  try {
+    const ticked = await jobs.post(`${API}/api/v1/internal/jobs/tick`, {
+      data: {},
+      headers: { 'x-internal-job-token': E2E_SCHEDULER_SECRET },
+    });
+    expect(ticked.status()).toBe(201);
+  } finally {
+    await jobs.dispose();
+  }
+  await expect
+    .poll(
+      async () =>
+        (
+          await year
+            .selectFrom('notification_recipients')
+            .select('channel_status')
+            .where('notification_id', '=', notification.id)
+            .executeTakeFirstOrThrow()
+        ).channel_status,
+    )
+    .toBe('sent');
+  const deliveries = existsSync(E2E_PUSH_OUTBOX_FILE)
+    ? readFileSync(E2E_PUSH_OUTBOX_FILE, 'utf8')
+        .split('\n')
+        .filter(Boolean)
+        .map((line) => JSON.parse(line) as { school: string; endpoint: string; message: unknown })
+    : [];
+  const mine = deliveries.filter((delivery) => JSON.stringify(delivery.message).includes(notification.id));
+  expect(mine.map((delivery) => delivery.endpoint)).toEqual([endpointA]);
+  expect(mine[0]?.school).toBe((tenants.alpha as TenantContext).code);
+  expect(deliveries.some((delivery) => delivery.endpoint === endpointB)).toBe(false);
+  expect(JSON.stringify(mine)).not.toContain(secret);
+
+  for (const side of [alpha, beta, admin]) {
+    await side.context.dispose();
+  }
+});

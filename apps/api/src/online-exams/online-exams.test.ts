@@ -4,6 +4,7 @@ import { after, before, describe, it } from 'node:test';
 import { createDatabase, replaceDatabaseName, type SchoolYearDatabase } from '@school-management/database';
 import { createTestUser, postJson } from '@school-management/identity/testing';
 import type { Kysely } from 'kysely';
+import { FileStorage } from '../files/file-storage.js';
 import {
   openTestAcademicYear,
   sendJson,
@@ -11,8 +12,10 @@ import {
   type ApiTestEnvironment,
   type LoggedInUser,
 } from '../test-support.js';
+import { ExamProctoringService } from './exam-proctoring.js';
 
-// Thi trực tuyến cho học sinh (DT-23 phần 23a, YCTD-211), kịch bản CT-23a-2 đến CT-23a-9 và CT-23a-11. Dữ liệu giả, cấp THCS
+// Thi trực tuyến cho học sinh (DT-23 phần 23a, YCTD-211), kịch bản CT-23a-2 đến CT-23a-9 và CT-23a-11; giám thị camera (phần 23e,
+// YCTD-215) CT-23e-1 đến CT-23e-4. Dữ liệu giả, cấp THCS
 const vietnamToday = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Ho_Chi_Minh' }).format(new Date());
 const addDays = (date: string, days: number) =>
   new Date(Date.parse(`${date}T00:00:00Z`) + days * 86_400_000).toISOString().slice(0, 10);
@@ -387,8 +390,8 @@ describe('Thi trực tuyến cho học sinh', () => {
     assert.deepEqual(me.body.workspaces, [], 'học sinh không có phân hệ nào của cổng quản trị');
     assert.deepEqual(
       (me.body.assignments as Json[]).map((assignment) => [assignment.role_code, assignment.permissions]),
-      [['VT-21', ['P02.exam.take']]],
-      'học sinh chỉ có quyền làm bài',
+      [['VT-21', ['P02.exam.take', 'P02.learning.study']]],
+      'học sinh chỉ có quyền làm bài thi, tự học ở lớp học trực tuyến (28b)',
     );
     // Học sinh không với tới tuyến của cán bộ; cán bộ, phụ huynh không vào tuyến của học sinh
     assert.equal((await api('GET', '/children', an.accessToken)).status, 403);
@@ -1086,5 +1089,452 @@ describe('Thi trực tuyến cho học sinh', () => {
     const remote = await createAssignment(plainExamId, { camera_enabled: false });
     assert.equal((await api('POST', `/online-exams/assignments/${remote}/rooms`, as(math), {})).status, 422);
     assert.equal((await startAttempt(binh.accessToken, remote, 'off')).status, 200, 'từ xa không cần mã phòng');
+  });
+
+  // ----- Giám thị camera (DT-23 phần 23e, YCTD-215): CT-23e-1 đến CT-23e-4 -----
+  let proctoredId = '';
+  let proctoredAttemptId = '';
+  const WEBM = Buffer.from([0x1a, 0x45, 0xdf, 0xa3, 0x01, 0x02, 0x03, 0x04]);
+  const settingsWith = (changes: Json) => ({
+    default_exam_mode: 'at-school',
+    allow_remote: true,
+    allowed_networks: [],
+    room_code_minutes: 60,
+    ...changes,
+  });
+  const authHeader = (token: string) => ({ authorization: `Bearer ${token}` });
+  const uploadChunk = async (token: string, attemptId: string, seq: number, body: Buffer) => {
+    const form = new FormData();
+    form.append('chunk', new Blob([new Uint8Array(body)]), 'chunk.webm');
+    form.append('seq', String(seq));
+    const response = await fetch(url(`/student/attempts/${attemptId}/recording/chunks`), {
+      method: 'POST',
+      headers: authHeader(token),
+      body: form,
+    });
+    return { status: response.status, body: (await response.json()) as Json };
+  };
+  const setConsentBody = (user: LoggedInUser, childId: string, scope: string, granted: boolean) =>
+    api('PUT', '/online-exams/proctor/consents', as(user), {
+      child_id: childId,
+      scope,
+      granted,
+      guardian_name: granted ? 'Nguyễn Thị Mẹ An' : undefined,
+    });
+  const proctoredStart = (token: string, notice: boolean) =>
+    studentApi('POST', `/exams/${proctoredId}/start`, token, { camera_state: 'granted', proctor_notice: notice });
+
+  it('CT-23e-1: giám sát bằng camera mặc định tắt: trường bật rồi giáo viên bật theo bài giao', async () => {
+    const before = await api('GET', '/online-exams/school-settings', as(principal));
+    assert.deepEqual(
+      [before.body.allow_live_proctoring, before.body.allow_recording, before.body.recording_retention_days],
+      [false, false, 30],
+    );
+    const blocked = await api(
+      'POST',
+      '/online-exams/assignments',
+      as(math),
+      assignmentBody(plainExamId, { proctor_live: true }),
+    );
+    assert.equal(blocked.status, 422, 'trường chưa bật xem camera trực tiếp');
+    assert.match(JSON.stringify(blocked.body), /proctor_live/);
+    assert.equal(
+      (await api('PUT', '/online-exams/school-settings', as(math), settingsWith({ allow_live_proctoring: true })))
+        .status,
+      403,
+    );
+    assert.equal(
+      (
+        await api(
+          'PUT',
+          '/online-exams/school-settings',
+          as(principal),
+          settingsWith({ allow_live_proctoring: true, recording_retention_days: 3 }),
+        )
+      ).status,
+      400,
+      'thời hạn giữ bản ghi từ 7 đến 90 ngày',
+    );
+    const enabled = await api(
+      'PUT',
+      '/online-exams/school-settings',
+      as(principal),
+      settingsWith({ allow_live_proctoring: true, allow_recording: true, recording_retention_days: 14 }),
+    );
+    assert.equal(enabled.status, 200, JSON.stringify(enabled.body));
+    assert.deepEqual(
+      [enabled.body.allow_live_proctoring, enabled.body.allow_recording, enabled.body.recording_retention_days],
+      [true, true, 14],
+    );
+    const noCamera = await api(
+      'POST',
+      '/online-exams/assignments',
+      as(math),
+      assignmentBody(plainExamId, { proctor_live: true, camera_enabled: false }),
+    );
+    assert.equal(noCamera.status, 400, 'giám sát cần bật camera');
+    proctoredId = await createAssignment(plainExamId, { proctor_live: true, proctor_record: true });
+    const detail = await api('GET', `/online-exams/assignments/${proctoredId}`, as(math));
+    assert.deepEqual([detail.body.proctor_live, detail.body.proctor_record], [true, true]);
+    const listed = list((await studentApi('GET', '/exams', await signInStudent('An'))).body.items) as Json[];
+    const mine = listed.find((row) => row.id === proctoredId);
+    assert.deepEqual([mine?.proctor_live, mine?.proctor_record], [true, true]);
+    // Tắt công tắc của trường thì cấu hình cũ giữ nguyên khi chỉ sửa chế độ thi
+    const kept = await api('PUT', '/online-exams/school-settings', as(principal), settingsWith({}));
+    assert.deepEqual([kept.body.allow_live_proctoring, kept.body.allow_recording], [true, true]);
+  });
+
+  it('CT-23e-2: thông báo trước khi vào thi, cha mẹ đồng ý theo từng loại (dưới 16 tuổi), trường ghi nhận, thu hồi', async () => {
+    const an = students.An as Student;
+    const binh = students.Binh as Student;
+    an.accessToken = await signInStudent('An');
+    binh.accessToken = await signInStudent('Binh');
+    const noNotice = await proctoredStart(an.accessToken, false);
+    assert.equal(noNotice.status, 422);
+    assert.match(JSON.stringify(noNotice.body), /proctor_notice/);
+    const noConsent = await proctoredStart(an.accessToken, true);
+    assert.equal(noConsent.status, 422);
+    assert.match(JSON.stringify(noConsent.body), /proctor_consent/);
+    // Giáo viên không quản lý đề không ghi nhận đồng ý thay cha mẹ; người quản lý ghi nhận văn bản
+    const consentBody = (scope: string, granted: boolean) => ({
+      child_id: children.An,
+      scope,
+      granted,
+      guardian_name: 'Nguyễn Thị Mẹ An',
+      note: 'Giấy đồng ý ngày 2026-10-20',
+    });
+    assert.equal((await api('PUT', '/online-exams/proctor/consents', as(math), consentBody('live', true))).status, 403);
+    assert.equal(
+      (
+        await api('PUT', '/online-exams/proctor/consents', as(principal), {
+          ...consentBody('live', true),
+          guardian_name: '',
+        })
+      ).status,
+      400,
+      'phải nêu người đồng ý',
+    );
+    const recorded = await api('PUT', '/online-exams/proctor/consents', as(principal), consentBody('live', true));
+    assert.equal(recorded.status, 200, JSON.stringify(recorded.body));
+    assert.ok((recorded.body.live as Json | null)?.granted_at);
+    assert.equal(recorded.body.record, null);
+    const stillMissing = await proctoredStart(an.accessToken, true);
+    assert.equal(stillMissing.status, 422, 'còn thiếu đồng ý ghi hình');
+    assert.match(JSON.stringify(stillMissing.body), /record/);
+    // Phụ huynh đồng ý trên ứng dụng: chỉ thấy và chỉ đặt được cho con mình
+    const relationship = await schoolYear
+      .insertInto('catalog_items')
+      .values({ catalog_type: 'parent_relationship', code: 'ME-23E', name: 'Mẹ' })
+      .returning('id')
+      .executeTakeFirstOrThrow();
+    const guardian = await schoolYear
+      .insertInto('guardians')
+      .values({ full_name: 'Nguyễn Thị Mẹ An', phone: '0901234567', user_id: parent.userId })
+      .returning('id')
+      .executeTakeFirstOrThrow();
+    await schoolYear
+      .insertInto('child_guardians')
+      .values({
+        child_id: children.An as string,
+        guardian_id: guardian.id,
+        relationship_item_id: relationship.id,
+        is_primary: true,
+      })
+      .execute();
+    const mine = await api('GET', '/parent/exam-proctor-consents', as(parent));
+    assert.equal(mine.status, 200);
+    assert.deepEqual(
+      list(mine.body.items).map((row) => row.child_id),
+      [children.An],
+    );
+    assert.equal(list(mine.body.items)[0]?.needs_parent_consent, true);
+    const setByParent = (token: string, childId: string, scope: string, granted: boolean) =>
+      api('PUT', '/parent/exam-proctor-consents', token, { child_id: childId, scope, granted });
+    assert.equal((await setByParent(as(parent), children.Binh as string, 'record', true)).status, 403);
+    assert.equal(
+      (await setByParent(as(math), children.An as string, 'record', true)).status,
+      403,
+      'không phải phụ huynh của học sinh',
+    );
+    assert.equal((await setByParent(as(parent), children.An as string, 'video', true)).status, 400);
+    const granted = await setByParent(as(parent), children.An as string, 'record', true);
+    assert.equal(granted.status, 200, JSON.stringify(granted.body));
+    assert.equal((granted.body.record as Json).source, 'parent');
+    // Binh chưa có đồng ý nên không vào được; An vào được và lượt làm ghi lúc xác nhận thông báo
+    assert.equal((await proctoredStart(binh.accessToken, true)).status, 422);
+    const started = await proctoredStart(an.accessToken, true);
+    assert.equal(started.status, 200, JSON.stringify(started.body));
+    proctoredAttemptId = started.body.id as string;
+    assert.deepEqual(
+      [(started.body.policy as Json).proctor_live, (started.body.policy as Json).proctor_record],
+      [true, true],
+    );
+    const row = await schoolYear
+      .selectFrom('exam_attempts')
+      .select('proctor_notice_at')
+      .where('id', '=', proctoredAttemptId)
+      .executeTakeFirstOrThrow();
+    assert.ok(row.proctor_notice_at);
+    // Bài không bật giám sát thì không cần thông báo, đồng ý
+    const plain = await createAssignment(plainExamId, { camera_enabled: false });
+    assert.equal((await startAttempt(binh.accessToken, plain, 'off')).status, 200);
+  });
+
+  it('CT-23e-3: xem trực tiếp: báo hiệu WebRTC qua máy chủ, phân quyền, nhật ký người xem, thu hồi đồng ý có hiệu lực ngay', async () => {
+    const an = students.An as Student;
+    const binh = students.Binh as Student;
+    const attemptId = proctoredAttemptId;
+    assert.equal((await api('POST', `/online-exams/attempts/${attemptId}/proctor/views`, as(other))).status, 403);
+    assert.equal((await api('POST', `/online-exams/attempts/${attemptId}/proctor/views`, as(parent))).status, 403);
+    const view = await api('POST', `/online-exams/attempts/${attemptId}/proctor/views`, as(math));
+    assert.equal(view.status, 200, JSON.stringify(view.body));
+    const viewId = view.body.view_id as string;
+    assert.equal((await api('GET', '/online-exams/proctor/ice', as(math))).status, 200);
+    assert.ok(Array.isArray((await studentApi('GET', '/proctor/ice', an.accessToken)).body.ice_servers));
+    // Giáo viên gửi offer; chỉ offer và ice, người khác không dùng được phiên này
+    assert.equal(
+      (await api('POST', `/online-exams/proctor/views/${viewId}/signals`, as(math), { kind: 'answer', payload: 'x' }))
+        .status,
+      400,
+    );
+    assert.equal(
+      (await api('POST', `/online-exams/proctor/views/${viewId}/signals`, as(other), { kind: 'offer', payload: 'x' }))
+        .status,
+      404,
+    );
+    assert.equal(
+      (
+        await api('POST', `/online-exams/proctor/views/${viewId}/signals`, as(math), {
+          kind: 'offer',
+          payload: 'sdp-offer',
+        })
+      ).status,
+      200,
+    );
+    // Học sinh hỏi định kỳ: thấy một người đang xem và nhận offer; học sinh khác không hỏi được bài này
+    const polled = await studentApi('GET', `/attempts/${attemptId}/proctor?after=0`, an.accessToken);
+    assert.equal(polled.status, 200, JSON.stringify(polled.body));
+    assert.deepEqual([polled.body.active, polled.body.watching], [true, 1]);
+    const signals = list(polled.body.signals);
+    assert.deepEqual([signals[0]?.kind, signals[0]?.payload, signals[0]?.view_id], ['offer', 'sdp-offer', viewId]);
+    assert.equal((await studentApi('GET', `/attempts/${attemptId}/proctor`, binh.accessToken)).status, 404);
+    const again = await studentApi('GET', `/attempts/${attemptId}/proctor?after=${polled.body.cursor}`, an.accessToken);
+    assert.equal(list(again.body.signals).length, 0, 'thông điệp đã nhận không gửi lại');
+    // Học sinh trả lời; không gửi được offer hay trả lời vào phiên không có thật
+    const answer = (kind: string, id = viewId) =>
+      studentApi('POST', `/attempts/${attemptId}/proctor/signals`, an.accessToken, {
+        view_id: id,
+        kind,
+        payload: 'sdp-answer',
+      });
+    assert.equal((await answer('offer')).status, 400);
+    assert.equal((await answer('answer', randomUUID())).status, 422);
+    assert.equal((await answer('answer')).status, 200);
+    const received = await api('GET', `/online-exams/proctor/views/${viewId}/signals?after=0`, as(math));
+    assert.equal(received.status, 200);
+    assert.equal(received.body.ended, false);
+    assert.deepEqual(
+      list(received.body.signals).map((signal) => [signal.kind, signal.payload]),
+      [['answer', 'sdp-answer']],
+    );
+    // Kết thúc phiên: giáo viên và học sinh cùng thấy đã ngắt
+    assert.equal((await api('DELETE', `/online-exams/proctor/views/${viewId}`, as(math))).status, 200);
+    assert.equal((await api('GET', `/online-exams/proctor/views/${viewId}/signals`, as(math))).body.ended, true);
+    assert.equal((await studentApi('GET', `/attempts/${attemptId}/proctor`, an.accessToken)).body.watching, 0);
+    assert.equal((await answer('answer')).status, 422);
+    // Nhật ký người xem
+    const log = await api('GET', `/online-exams/attempts/${attemptId}/proctor`, as(math));
+    assert.equal(log.status, 200);
+    const views = list(log.body.views);
+    assert.equal(views.length, 1);
+    assert.deepEqual([views[0]?.kind, views[0]?.viewer_name !== undefined], ['live', true]);
+    assert.equal((await api('GET', `/online-exams/attempts/${attemptId}/proctor`, as(other))).status, 403);
+    // Thu hồi đồng ý xem trực tiếp: không mở được phiên mới
+    const revoke = await api('PUT', '/online-exams/proctor/consents', as(principal), {
+      child_id: children.An,
+      scope: 'live',
+      granted: false,
+    });
+    assert.equal(revoke.status, 200);
+    const refused = await api('POST', `/online-exams/attempts/${attemptId}/proctor/views`, as(math));
+    assert.equal(refused.status, 422);
+    assert.match(JSON.stringify(refused.body), /đồng ý/);
+    // Người quản lý tắt xem trực tiếp cho cả trường cũng chặn
+    await api('PUT', '/online-exams/proctor/consents', as(principal), {
+      ...{ child_id: children.An, scope: 'live', granted: true, guardian_name: 'Nguyễn Thị Mẹ An' },
+    });
+    assert.equal(
+      (await api('PUT', '/online-exams/school-settings', as(principal), settingsWith({ allow_live_proctoring: false })))
+        .status,
+      200,
+    );
+    assert.equal((await api('POST', `/online-exams/attempts/${attemptId}/proctor/views`, as(math))).status, 422);
+    assert.equal(
+      (await api('PUT', '/online-exams/school-settings', as(principal), settingsWith({ allow_live_proctoring: true })))
+        .status,
+      200,
+    );
+    assert.equal((await api('POST', `/online-exams/attempts/${attemptId}/proctor/views`, as(math))).status, 200);
+  });
+
+  it('CT-23e-4: ghi hình: tải từng đoạn đã mã hoá, chỉ người giao bài và quản lý xem lại, nhật ký, hết hạn thì xoá', async () => {
+    const an = students.An as Student;
+    const binh = students.Binh as Student;
+    const attemptId = proctoredAttemptId;
+    const first = Buffer.concat([WEBM, Buffer.from('doan-dau')]);
+    const second = Buffer.from('doan-hai');
+    assert.equal((await uploadChunk(an.accessToken, attemptId, 0, Buffer.from('khong-phai-webm'))).status, 400);
+    assert.equal(
+      (await uploadChunk(binh.accessToken, attemptId, 0, first)).status,
+      404,
+      'không tải vào bài người khác',
+    );
+    const stored = await uploadChunk(an.accessToken, attemptId, 0, first);
+    assert.deepEqual([stored.status, stored.body.stored], [200, true]);
+    assert.equal((await uploadChunk(an.accessToken, attemptId, 0, first)).body.stored, false, 'gửi lại thì bỏ qua');
+    assert.equal((await uploadChunk(an.accessToken, attemptId, 1, second)).body.stored, true);
+    // Tệp ở kho đã mã hoá
+    const storage = environment.api.get(FileStorage);
+    const raw = await storage.get(`exam-recordings/${attemptId}/0`);
+    assert.ok(!raw.includes(Buffer.from('doan-dau')), 'bản ghi lưu dạng mã hoá');
+    // Xem lại: người giao bài xem được; giáo viên khác, phụ huynh không
+    const watch = (token: string) =>
+      fetch(url(`/online-exams/attempts/${attemptId}/recording`), { headers: authHeader(token) });
+    assert.equal((await watch(as(other))).status, 403);
+    assert.equal((await watch(as(parent))).status, 403);
+    const played = await watch(as(math));
+    assert.equal(played.status, 200);
+    assert.equal(played.headers.get('content-type'), 'video/webm');
+    assert.match(played.headers.get('cache-control') ?? '', /no-store/);
+    assert.equal(played.headers.get('content-disposition'), 'inline');
+    assert.deepEqual(Buffer.from(await played.arrayBuffer()), Buffer.concat([first, second]));
+    const principalWatch = await watch(as(principal));
+    assert.equal(principalWatch.status, 200, 'người quản lý xem được');
+    await principalWatch.arrayBuffer();
+    const info = await api('GET', `/online-exams/attempts/${attemptId}/proctor`, as(math));
+    assert.deepEqual([(info.body.recording as Json).chunks, info.body.can_watch_recording], [2, true]);
+    assert.equal(list(info.body.views).filter((row) => row.kind === 'recording').length, 2, 'mỗi lần xem ghi nhật ký');
+    // Thu hồi đồng ý ghi hình có hiệu lực ngay; trường tắt ghi hình cũng chặn
+    assert.equal((await setConsentBody(principal, children.An as string, 'record', false)).status, 200);
+    assert.equal((await uploadChunk(an.accessToken, attemptId, 2, second)).status, 422);
+    assert.equal((await setConsentBody(principal, children.An as string, 'record', true)).status, 200);
+    assert.equal((await uploadChunk(an.accessToken, attemptId, 2, second)).body.stored, true);
+    assert.equal(
+      (await api('PUT', '/online-exams/school-settings', as(principal), settingsWith({ allow_recording: false })))
+        .status,
+      200,
+    );
+    assert.equal((await uploadChunk(an.accessToken, attemptId, 3, second)).status, 422);
+    assert.equal(
+      (await api('PUT', '/online-exams/school-settings', as(principal), settingsWith({ allow_recording: true })))
+        .status,
+      200,
+    );
+    // Nộp bài rồi thì không nhận thêm đoạn; hết hạn thì xoá cả tệp ở kho
+    assert.equal((await studentApi('POST', `/attempts/${attemptId}/submit`, an.accessToken, {})).status, 200);
+    assert.equal((await uploadChunk(an.accessToken, attemptId, 3, second)).status, 422);
+    await schoolYear
+      .updateTable('exam_recording_chunks')
+      .set({ expires_at: new Date(Date.now() - 1000) })
+      .where('attempt_id', '=', attemptId)
+      .execute();
+    assert.equal((await watch(as(math))).status, 404, 'hết hạn giữ thì không xem lại được');
+    const purged = await environment.api.get(ExamProctoringService).purgeExpired();
+    assert.equal(purged.chunks, 3);
+    await assert.rejects(storage.get(`exam-recordings/${attemptId}/0`));
+    assert.equal(
+      (await schoolYear.selectFrom('exam_recording_chunks').select('seq').where('attempt_id', '=', attemptId).execute())
+        .length,
+      0,
+    );
+  });
+
+  // Đích nhóm của bộ nhóm (DT-28 phần 28a, YCTD-271): thành viên lúc giao được giao như học sinh, đổi nhóm sau đó không đổi bài
+  it('CT-28a-14: giao đề cho nhóm của bộ nhóm: chỉ thành viên lúc giao làm bài; nhóm của bộ đã lưu trữ bị từ chối', async () => {
+    const addSet = async (status: 'active' | 'archived') =>
+      (
+        await schoolYear
+          .insertInto('group_sets')
+          .values({
+            org_unit_id: unitId,
+            class_id: classId,
+            name: `Bộ nhóm thi ${status}`,
+            purpose: 'subject',
+            method: 'manual',
+            status,
+            owner_user_id: math.userId,
+            owner_name: 'Giáo viên Toán',
+            replaces_id: null,
+            archived_at: null,
+          })
+          .returning('id')
+          .executeTakeFirstOrThrow()
+      ).id;
+    const addGroup = async (setId: string, name: string, members: string[]) => {
+      const group = await schoolYear
+        .insertInto('child_groups')
+        .values({
+          org_unit_id: unitId,
+          name,
+          created_by: math.userId,
+          group_set_id: setId,
+          class_id: classId,
+          position: 1,
+        })
+        .returning('id')
+        .executeTakeFirstOrThrow();
+      await schoolYear
+        .insertInto('child_group_members')
+        .values(members.map((childId) => ({ group_id: group.id, child_id: childId, added_by: math.userId })))
+        .execute();
+      return group.id;
+    };
+    const star = await addGroup(await addSet('active'), 'Nhóm Sao', [children.An as string, children.Binh as string]);
+    const old = await addGroup(await addSet('archived'), 'Nhóm cũ', [children.Chi as string]);
+    const assignment = await createAssignment(plainExamId, {
+      title: 'Kiểm tra theo nhóm',
+      class_ids: [],
+      group_ids: [star],
+    });
+    const detail = await api('GET', `/online-exams/assignments/${assignment}`, as(math));
+    assert.equal(detail.status, 200, JSON.stringify(detail.body));
+    assert.deepEqual(detail.body.targets, [{ kind: 'group', label: 'Nhóm Sao' }]);
+    const rows = await schoolYear
+      .selectFrom('exam_assignment_targets')
+      .select(['kind', 'child_id', 'group_id'])
+      .where('assignment_id', '=', assignment)
+      .execute();
+    assert.equal(rows.filter((row) => row.kind === 'group').length, 1);
+    assert.deepEqual(
+      rows
+        .filter((row) => row.kind === 'student')
+        .map((row) => row.child_id)
+        .sort(),
+      [children.An, children.Binh].sort(),
+    );
+    assert.ok(rows.every((row) => row.group_id === star));
+    // Đổi nhóm sau khi giao không đổi danh sách làm bài
+    await schoolYear
+      .deleteFrom('child_group_members')
+      .where('group_id', '=', star)
+      .where('child_id', '=', children.Binh as string)
+      .execute();
+    const again = await api('GET', `/online-exams/assignments/${assignment}`, as(math));
+    assert.equal((again.body.students as unknown[]).length, 2);
+    const an = students.An as Student;
+    const mine = list((await studentApi('GET', '/exams', an.accessToken)).body.items);
+    assert.ok(mine.some((row) => row.title === 'Kiểm tra theo nhóm'));
+    assert.equal(
+      (
+        await api(
+          'POST',
+          '/online-exams/assignments',
+          as(math),
+          assignmentBody(plainExamId, { class_ids: [], group_ids: [old] }),
+        )
+      ).status,
+      404,
+      'nhóm của bộ đã lưu trữ',
+    );
   });
 });
