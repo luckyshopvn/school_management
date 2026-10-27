@@ -1,8 +1,9 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Alert, Button } from '@school-management/ui';
-import { ApiError, requestJson } from '../session/api-client.js';
+import { ApiError, fetchWithSession, requestJson } from '../session/api-client.js';
 import { ChildCommunicationPanel } from './ChildCommunicationPanel.js';
 import { ChildHomeworkPanel } from './ChildHomeworkPanel.js';
+import { RecognitionList, type RecognitionView } from './RecognitionList.js';
 
 // Học trực tuyến của con (DT-28 phần 28b, YCTD-272): các lớp học trực tuyến đã mở cho học sinh, hoạt động đã giao kèm hạn, trạng
 // thái và lý do khi hoạt động còn khóa, tiến độ; nội quy dạy học trực tuyến của trường (Thông tư 09/2021/TT-BGDĐT Điều 15) để
@@ -70,6 +71,15 @@ export function OnlineLearningPanel({ child }: { child: { id: string; full_name:
     due_soon: Array<{ id: string; title: string; space: string; due_at: string }>;
     feedback: string[];
   }>();
+  const loadRecognition = useCallback(
+    () => requestJson<RecognitionView>(`/api/v1/learning/children/${child.id}/recognition`),
+    [child.id],
+  );
+  const downloadCertificate = useCallback(async (certificateId: string) => {
+    const response = await fetchWithSession(`/api/v1/learning/certificates/${certificateId}/pdf`);
+    if (!response.ok) throw new Error('Không tải được chứng nhận');
+    return response.blob();
+  }, []);
   const load = useCallback(() => {
     requestJson<ChildLearning>(`/api/v1/learning/children/${child.id}`)
       .then(setData)
@@ -104,6 +114,12 @@ export function OnlineLearningPanel({ child }: { child: { id: string; full_name:
       {errorMessage ? <Alert tone="danger">{errorMessage}</Alert> : null}
       {/* Bài tập về nhà của con, nộp thay, đã xem cùng con (DT-28 phần 28f) */}
       <ChildHomeworkPanel child={child} />
+      {/* Huy hiệu, chứng nhận của con (DT-28 phần 28i), chỉ hiện khi trường bật */}
+      <RecognitionList
+        label={`Huy hiệu, chứng nhận của ${child.full_name}`}
+        load={loadRecognition}
+        download={downloadCertificate}
+      />
       {summary && summary.due_soon.length > 0 ? (
         <div className="flex flex-col gap-1 rounded-lg border border-border bg-card p-3" aria-label="Sắp đến hạn">
           <span className="text-content font-semibold">Sắp đến hạn (7 ngày tới)</span>

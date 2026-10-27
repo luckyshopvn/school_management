@@ -4,6 +4,7 @@ import { ApiError, requestJson } from '../session/api-client.js';
 import { AssignmentScreen } from './AssignmentScreen.js';
 import { LearningProgressScreen } from './LearningProgressScreen.js';
 import { DiscussionsScreen } from './DiscussionsScreen.js';
+import { RecognitionScreen } from './RecognitionScreen.js';
 
 // Lớp học trực tuyến của tôi (DT-28 phần 28b, YCTD-272): lớp học trực tuyến theo lớp, môn tự có từ phân công giảng dạy;
 // giáo viên mở lớp cho học sinh, giao hoạt động, thêm nhanh một trang nội dung vào chương, xem tiến độ. Soạn đầy đủ (liên
@@ -56,6 +57,8 @@ function SpaceView({ spaceId, onBack }: { spaceId: string; onBack(): void }) {
   const [showProgress, setShowProgress] = useState(false);
   // Thông báo lớp, diễn đàn, hỏi đáp (DT-28 phần 28e)
   const [showDiscussions, setShowDiscussions] = useState(false);
+  // Huy hiệu, chứng nhận (DT-28 phần 28i)
+  const [showRecognition, setShowRecognition] = useState(false);
   const load = useCallback(() => {
     requestJson<SpaceDetail>(`/api/v1/learning/spaces/${spaceId}`)
       .then(setDetail)
@@ -82,6 +85,18 @@ function SpaceView({ spaceId, onBack }: { spaceId: string; onBack(): void }) {
         title={detail.space.title}
         onBack={() => {
           setShowDiscussions(false);
+          load();
+        }}
+      />
+    );
+  }
+  if (showRecognition && detail) {
+    return (
+      <RecognitionScreen
+        spaceId={spaceId}
+        title={detail.space.title}
+        onBack={() => {
+          setShowRecognition(false);
           load();
         }}
       />
@@ -124,6 +139,11 @@ function SpaceView({ spaceId, onBack }: { spaceId: string; onBack(): void }) {
           <div>
             <Button variant="secondary" onClick={() => setShowDiscussions(true)}>
               Thông báo, thảo luận, hỏi đáp
+            </Button>
+          </div>
+          <div>
+            <Button variant="secondary" onClick={() => setShowRecognition(true)}>
+              Huy hiệu, chứng nhận
             </Button>
           </div>
           {detail.can_teach ? (

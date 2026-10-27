@@ -328,11 +328,11 @@ export class LearningService {
     const subjectIds = [
       ...new Set([...assignments.map((row) => row.subject_id ?? NO_ID), ...lessons.map((row) => row.subject_id)]),
     ];
-    const subjects = await database
-      .selectFrom('subjects')
-      .select(['id', 'name'])
-      .where('id', 'in', subjectIds)
-      .execute();
+    // Trường chưa có phân công môn, tiết nào (chỉ có khoá tự chọn): không truy vấn với danh sách rỗng (DT-28 phần 28i)
+    const subjects =
+      subjectIds.length === 0
+        ? []
+        : await database.selectFrom('subjects').select(['id', 'name']).where('id', 'in', subjectIds).execute();
     let planned = planClassSpaces(
       classes,
       subjects,

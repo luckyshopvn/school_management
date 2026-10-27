@@ -4,6 +4,7 @@ import { Alert, Button, FORM_CONTROL_CLASS, StatusBadge, Toast } from '@school-m
 import { AppShell } from '../pages/AppShell.js';
 import { menuPageTitle } from '../pages/page-title.js';
 import { ApiError } from '../session/api-client.js';
+import { RecognitionSettings } from './RecognitionSettings.js';
 import {
   createDecision,
   listDecisions,
@@ -262,6 +263,8 @@ export function OnlineTeachingPage() {
         {revoke.error ? <Alert tone="danger">{messageOf(revoke.error)}</Alert> : null}
         {canDecide ? <DecisionForm onSaved={setToastMessage} /> : null}
         <RulesPanel canDecide={canDecide} onSaved={setToastMessage} />
+        {/* Huy hiệu, chứng nhận (DT-28 phần 28i): chỉ Ban Giám hiệu */}
+        {canDecide ? <RecognitionSettings onSaved={setToastMessage} /> : null}
       </div>
     </AppShell>
   );
