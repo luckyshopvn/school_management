@@ -5,6 +5,7 @@
 //   node scripts/dung-android-debug.mjs --chay    dựng, chuyển cổng 5174, 5175 (adb reverse), cài và mở trên máy giả lập đang chạy
 import { spawnSync } from 'node:child_process';
 import { existsSync } from 'node:fs';
+import { createConnection } from 'node:net';
 import { homedir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -64,7 +65,8 @@ if (!existsSync(ANDROID)) {
   run('npx', ['cap', 'add', 'android'], { cwd: ROOT, env: environment });
 }
 run('npx', ['cap', 'sync', 'android'], { cwd: ROOT, env: environment });
-run(WINDOWS ? 'gradlew.bat' : './gradlew', ['assembleDebug'], { cwd: ANDROID, env: environment });
+// Gọi theo đường dẫn đầy đủ: cmd của Windows không phải lúc nào cũng tìm tệp lệnh trong thư mục hiện tại (NoDefaultCurrentDirectoryInExePath)
+run(join(ANDROID, WINDOWS ? 'gradlew.bat' : 'gradlew'), ['assembleDebug'], { cwd: ANDROID, env: environment });
 const apk = join(ANDROID, 'app', 'build', 'outputs', 'apk', 'debug', 'app-debug.apk');
 console.log(`Đã dựng ${apk}`);
 
@@ -78,6 +80,26 @@ if (process.argv.includes('--chay')) {
   // Máy giả lập gọi localhost:5174, 5175 tới máy chủ phát triển của máy thật (ngữ cảnh an toàn nên service worker chạy được)
   for (const port of DEV_PORTS) {
     run(adb, ['reverse', `tcp:${port}`, `tcp:${port}`], { shell: false });
+  }
+  // adb reverse nối tới 127.0.0.1 của máy thật; vite trên Windows mặc định chỉ nghe [::1] nên WebView nhận phản hồi rỗng
+  const reachable = (port) =>
+    new Promise((resolve) => {
+      const socket = createConnection({ host: '127.0.0.1', port }, () => {
+        socket.destroy();
+        resolve(true);
+      });
+      socket.on('error', () => resolve(false));
+    });
+  const unreachable = [];
+  for (const port of DEV_PORTS) {
+    if (!(await reachable(port))) {
+      unreachable.push(port);
+    }
+  }
+  if (unreachable.length > 0) {
+    console.warn(
+      `127.0.0.1:${unreachable.join(', ')} chưa có máy chủ: chạy máy chủ phát triển bằng \`vite --host 127.0.0.1\`, hoặc nếu máy chủ chỉ nghe [::1] thì chạy kèm \`node scripts/chuyen-cong-ipv4.mjs\` ở cửa sổ khác.`,
+    );
   }
   run(adb, ['install', '-r', apk], { shell: false });
   run(adb, ['shell', 'am', 'start', '-n', `${APP_ID}/.MainActivity`], { shell: false });

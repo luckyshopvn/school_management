@@ -7,6 +7,7 @@
     "typecheck": "tsc -p tsconfig.json",
     "android:debug": "node scripts/dung-android-debug.mjs",
     "android:run": "node scripts/dung-android-debug.mjs --chay",
+    "may-chu:ipv4": "node scripts/chuyen-cong-ipv4.mjs",
     "cap:sync": "cap sync"
   },
   "dependencies": {
