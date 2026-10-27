@@ -5,7 +5,8 @@ import { AssignmentScreen } from './AssignmentScreen.js';
 
 // Lớp học trực tuyến của tôi (DT-28 phần 28b, YCTD-272): lớp học trực tuyến theo lớp, môn tự có từ phân công giảng dạy;
 // giáo viên mở lớp cho học sinh, giao hoạt động, thêm nhanh một trang nội dung vào chương, xem tiến độ. Soạn đầy đủ (liên
-// kết, học liệu, điều kiện mở, khoá mẫu) ở cổng quản trị, mục 9. Học tập trực tuyến
+// kết, học liệu, điều kiện mở, khoá mẫu) ở cổng quản trị, mục 9. Học tập trực tuyến. Bài tập (DT-28 phần 28c, YCTD-273) tạo ở
+// đây rồi soạn, giao, chấm ở màn hình bài tập
 interface SpaceSummary {
   id: string;
   title: string;
