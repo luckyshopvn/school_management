@@ -24,7 +24,11 @@ phien_ban_de_xuat: 0.175.0
 - Mỗi ứng dụng một vai: tài khoản phụ huynh chỉ đăng ký, đăng nhập, dùng phiên ở Chợ gia sư; tài khoản gia sư chỉ ở ứng dụng Gia sư. Đăng nhập đúng mật khẩu ở sai ứng dụng thì 403 kèm chỉ dẫn, không mở phiên; phiên mang sang ứng dụng kia thì 401.
 - Gói `packages/market-client` dùng chung thay vì chép mã; không tách thêm gói giao diện.
 - Không đổi CORS, cookie: hai ứng dụng gọi `/api/v1` cùng tên miền của mình, phiên là mã trong `sessionStorage`, không có cookie. Chưa có máy khách OIDC (đăng nhập OIDC của gia sư làm ở 27g).
-- Giáo viên trong trường dạy kèm (27a đến 27e) vẫn dùng ứng dụng giáo viên; `apps/tutor` chỉ dành cho gia sư của chợ.
+- Phạm vi theo lời Eric làm rõ ngày 2026-10-28 (nguyên văn): "giáo viên dạy kèm cũng dùng ứng dụng gia sư như 1 kênh ngoài. đối với học sinh trong trường vẫn cho phép giáo viên sử dụng ứng dụng giáo viên". Do đó:
+  - giáo viên dạy kèm ngoài trường (kênh ngoài, chợ) dùng `apps/tutor` như mọi gia sư khác, đăng nhập bằng **tài khoản chợ riêng** (không dùng tài khoản của trường);
+  - dạy kèm học sinh trong trường của mình (27a đến 27e) vẫn làm ở ứng dụng giáo viên; không bỏ chức năng nào của ứng dụng giáo viên;
+  - liên kết tùy chọn tài khoản chợ với tài khoản trường để hiện nhãn "giáo viên trường X đã xác minh" làm ở 27g (cùng phần khai là giáo viên trường nào, báo cáo Mẫu 03); dữ liệu chợ và dữ liệu trường vẫn cách ly (chợ chỉ nhận kết quả xác minh, không đọc cơ sở dữ liệu trường);
+  - giữ các chặn theo Thông tư 29/2024 của kế hoạch: giáo viên công lập không đứng tên cơ sở dạy thêm cho nội dung `curriculum` (27g, khi gia sư khai loại nội dung); giáo viên đang được phân công dạy trẻ thì không nhận buổi `curriculum` có thu tiền của trẻ đó (27h, so khớp qua liên kết trường của hồ sơ con).
 
 #### Thay đổi
 
@@ -40,7 +44,7 @@ phien_ban_de_xuat: 0.175.0
 
 - Lý do: Eric yêu cầu ngày 2026-10-28 "làm thêm ứng dụng cho gia sư"; gia sư và phụ huynh dùng chợ theo hai cách khác nhau (hồ sơ, xác minh, lịch dạy, thu nhập so với tìm gia sư, đặt buổi).
 - Nội dung thay đổi:
-  - Ứng dụng mới `apps/tutor` (ứng dụng Gia sư) ở tên miền con riêng, PWA riêng; `apps/market` giữ phần phụ huynh.
+  - Ứng dụng mới `apps/tutor` (ứng dụng Gia sư) ở tên miền con riêng, PWA riêng, cho mọi gia sư của chợ kể cả giáo viên dạy kèm ngoài trường (tài khoản chợ riêng); `apps/market` giữ phần phụ huynh; dạy kèm trong trường vẫn ở ứng dụng giáo viên.
   - Gói dùng chung `packages/market-client`.
   - Cấu hình chợ thêm tên miền của ứng dụng Gia sư; máy chủ ràng vai tài khoản theo tên miền.
   - Ảnh dựng, Caddy hồ sơ vận hành, cổng biên hồ sơ thử nghiệm, e2e nhiều trường thêm hai ứng dụng.
@@ -84,7 +88,7 @@ phien_ban_de_xuat: 0.175.0
 
 ## Thêm dòng
 
-| 07_QUY_TAC_NGHIEP_VU.md | BR-280 | BR-411 | Ứng dụng của chợ gia sư theo vai (YCTD-262): phụ huynh dùng ứng dụng Chợ gia sư ở tên miền của chợ, gia sư dùng ứng dụng Gia sư ở tên miền riêng (đặt ở cổng nền tảng, bắt buộc khi bật chợ, khác tên miền của chợ); máy chủ chỉ nhận đăng ký, đăng nhập, phiên của tài khoản đúng vai với tên miền; đăng nhập đúng mật khẩu ở sai ứng dụng thì từ chối kèm chỉ dẫn, không mở phiên |
+| 07_QUY_TAC_NGHIEP_VU.md | BR-280 | BR-411 | Ứng dụng của chợ gia sư theo vai (YCTD-262): phụ huynh dùng ứng dụng Chợ gia sư ở tên miền của chợ, gia sư (kể cả giáo viên dạy kèm ngoài trường, bằng tài khoản chợ riêng; dạy kèm học sinh trong trường mình vẫn ở ứng dụng giáo viên) dùng ứng dụng Gia sư ở tên miền riêng (đặt ở cổng nền tảng, bắt buộc khi bật chợ, khác tên miền của chợ); máy chủ chỉ nhận đăng ký, đăng nhập, phiên của tài khoản đúng vai với tên miền; đăng nhập đúng mật khẩu ở sai ứng dụng thì từ chối kèm chỉ dẫn, không mở phiên |
 | 11_TIEU_CHI_NGHIEM_THU.md | AC-944 | AC-1075 | Cho chợ bật với tên miền của chợ và của ứng dụng Gia sư / Khi gia sư đăng ký ở Chợ gia sư, đăng nhập ở Chợ gia sư, dùng phiên gia sư ở tên miền của chợ, phụ huynh dùng phiên ở ứng dụng Gia sư / Thì đăng ký bị từ chối (400), đăng nhập bị từ chối kèm chỉ dẫn sang ứng dụng Gia sư (403), phiên bị từ chối (401) cả hai chiều; gia sư đăng ký, xác nhận, lưu hồ sơ ở ứng dụng Gia sư được (CT-1376; YCTD-262) |
 | 14_DAC_TA_GIAO_DIEN.md | MH-401 | MH-513 | Ứng dụng Gia sư (apps/tutor, YCTD-262): ứng dụng cài được "Chợ gia sư – Gia sư" ở tên miền riêng; giới thiệu, văn bản pháp lý, đăng ký gia sư (thêm điều khoản dành cho gia sư), xác nhận mã, đăng nhập, văn bản mới cần đồng ý, hồ sơ gia sư và cơ sở dạy thêm; 27g, 27h, 27i thêm xác minh, lịch dạy, buổi, thu nhập, báo cáo an toàn | Gia sư |
 | 12_KIEN_TRUC_HE_THONG.md | QĐ-43 | QĐ-45 | Ứng dụng Gia sư tách khỏi Chợ gia sư (YCTD-262): hai ứng dụng tĩnh ở hai tên miền con riêng của nền tảng, cùng nhóm điểm cuối `/api/v1/market`, máy chủ biết vai theo tên miền (`assertMarketHost`); phần dùng chung ở `packages/market-client`; phương án đã loại: một ứng dụng hai khu (PWA, tên, biểu tượng chung cho hai đối tượng), ứng dụng Gia sư ở đường dẫn con của tên miền chợ (chung phạm vi service worker, phiên), chép mã dùng chung vào từng ứng dụng | Đã chọn |
