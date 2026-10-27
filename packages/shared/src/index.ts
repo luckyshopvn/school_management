@@ -716,6 +716,8 @@ export const PORTAL_QUICK_LINK_PATHS = [
   '/online-learning-reports',
   // An toàn thảo luận (DT-28 phần 28e)
   '/online-discussion-safety',
+  // Bài về nhà: quy tắc của trường, khối lượng theo lớp (DT-28 phần 28f)
+  '/online-homework',
   // Gia sư trong trường (DT-27 phần 27b)
   '/tutoring',
   '/tutoring/sessions',
