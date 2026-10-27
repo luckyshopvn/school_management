@@ -8,11 +8,14 @@ import {
 } from '@school-management/shared';
 import { Alert, ApplicationHeader, Button, FORM_CONTROL_CLASS } from '@school-management/ui';
 import { ApiError, requestJson } from '../session/api-client.js';
+import { AssignmentScreen } from './AssignmentScreen.js';
+import { LessonHomework } from './HomeworkPanels.js';
 
 // Sổ đầu bài (DT-20 phần 20d, YCTD-162): các tiết tôi dạy trong ngày theo thời khoá biểu đang áp dụng; mở một tiết ghi tên
 // bài, nội dung, nhận xét, xếp loại tiết và điểm danh từng học sinh (mặc định có mặt, có báo vắng thì vắng có phép), rồi ký sổ.
 // THCS, THPT (DT-21 phần 21d, YCTD-171): tiết nhóm (21b) ghi riêng, danh sách là học sinh của nhóm; nhãn và quy tắc xếp loại
-// tiết theo cấp (bắt buộc khi ký, tiết C, D phải nhận xét); xem sơ đồ chỗ ngồi đang dùng của lớp
+// tiết theo cấp (bắt buộc khi ký, tiết C, D phải nhận xét); xem sơ đồ chỗ ngồi đang dùng của lớp. Bài về nhà (DT-28 phần 28f): tiết
+// đã ghi có phần bài về nhà của tiết, giao bài mới mở màn hình soạn bài tập
 interface MyLesson {
   class_id: string;
   class_name: string;
@@ -103,6 +106,7 @@ function LessonForm({ lesson, date, onDone }: { lesson: MyLesson; date: string; 
   const [marks, setMarks] = useState<Record<string, PeriodAttendanceStatus>>({});
   const [errorMessage, setErrorMessage] = useState<string>();
   const [busy, setBusy] = useState(false);
+  const [homeworkId, setHomeworkId] = useState<string>();
 
   // Effect chạy lại (đổi tiết, chế độ kiểm tra của React) thì bỏ kết quả của lần tải cũ để không ghi đè ô giáo viên đã nhập
   useEffect(() => {
@@ -158,6 +162,9 @@ function LessonForm({ lesson, date, onDone }: { lesson: MyLesson; date: string; 
 
   if (!detail) {
     return errorMessage ? <Alert tone="danger">{errorMessage}</Alert> : null;
+  }
+  if (homeworkId) {
+    return <AssignmentScreen activityId={homeworkId} onBack={() => setHomeworkId(undefined)} />;
   }
   const readOnly = !detail.can_edit;
   return (
@@ -224,6 +231,7 @@ function LessonForm({ lesson, date, onDone }: { lesson: MyLesson; date: string; 
         <Alert tone="info">Tiết xếp loại {rating} cần ghi nhận xét tiết.</Alert>
       ) : null}
       {detail.seating ? <SeatingView seating={detail.seating} /> : null}
+      {detail.log ? <LessonHomework classLogId={detail.log.id} onOpen={setHomeworkId} /> : null}
       <ul className="flex flex-col gap-2" aria-label="Điểm danh học sinh">
         {detail.students.map((student) => (
           <li key={student.child_id} className="flex flex-col gap-1 rounded-lg border border-border bg-card p-3">

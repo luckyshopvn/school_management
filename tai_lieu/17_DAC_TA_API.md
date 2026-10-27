@@ -2500,6 +2500,26 @@ Tuyến nhân sự cần một trong `P02.learning.teach`, `P02.learning.view`, 
 | POST; GET | /api/v1/student/groups/{id}/files; /student/group-files/{id} | Gửi tệp (multipart `file`); xem tệp |
 | GET | /api/v1/student/calendar?from= | Lịch học tập tuần của em |
 
+### 17.6. Bài về nhà và phụ huynh (DT-28 phần 28f, YCTD-276)
+
+Lỗi quy tắc 422 mã `YCTD-276`. Tuyến phát hành bài tập của 28c `POST /api/v1/learning/activities/{id}/assignment/release` nhận thêm `{ confirm_warnings }` và trả thêm `policy_warnings`; bài về nhà vượt quy tắc cảnh báo chưa xác nhận thì 422 có chi tiết ô `confirm_warnings`, vượt quy tắc chặn chưa được cho vượt thì 422 ô `override_reason`.
+
+| Phương thức | Đường dẫn | Mô tả |
+|---|---|---|
+| GET; POST | /api/v1/learning/homework/class-logs/{id} | Bài về nhà của tiết (`can_assign`); giáo viên tạo bài về nhà `{ title, instructions, estimated_minutes }`, trả `activity_id`, `due_at`, `due_basis` (`next_lesson`, `default`); cần `P02.assignment.manage` |
+| GET | /api/v1/learning/homework/activities/{id}/workload | Lịch 7 ngày của lớp quanh ngày đến hạn kèm bài đang soạn, `check` (vi phạm, cách xử lý), `override_reason` |
+| POST | /api/v1/learning/homework/activities/{id}/override | Ban Giám hiệu cho vượt quy tắc chặn `{ reason }` |
+| GET | /api/v1/learning/homework/activities/{id}/absences | Học sinh vắng có phép ngày phát hành, gợi ý `extend` hoặc `excuse` |
+| GET | /api/v1/learning/homework/workload?class_id=&from= | Khối lượng 7 ngày của lớp (giáo viên đang dạy, chủ nhiệm, Ban Giám hiệu) |
+| GET; PUT; DELETE | /api/v1/learning/homework/policies; /{id} | Ban Giám hiệu: danh sách quy tắc và `reminder_time`; lưu theo cấp, khối `{ school_level, grade, no_homework, max_items_per_day, max_minutes_per_day, blocked_weekdays, skip_holidays, action, basis }`; bỏ quy tắc |
+| PUT | /api/v1/learning/homework/reminder-time | Ban Giám hiệu: `{ reminder_time }` từ 06:00 đến 20:59 |
+| GET | /api/v1/learning/children/{childId}/homework | Phụ huynh: bài về nhà của con (`status`, kết quả khi đã trả, `acknowledged_by_me`, `can_proxy`), `has_student_account` |
+| POST | /api/v1/learning/children/{childId}/homework/{id}/acknowledge | "Đã xem cùng con" |
+| GET | /api/v1/learning/children/{childId}/homework/{id} | Bài để nộp thay: câu (không đáp án), bản nháp, các lần nộp, `can_proxy`, `proxy_blocked_reason` |
+| POST; DELETE | /api/v1/learning/children/{childId}/homework/{id}/items/{itemId}/files; /files/{fileId} | Nộp thay: gửi tệp (multipart `file`), xóa tệp của bản nháp |
+| POST | /api/v1/learning/children/{childId}/homework/{id}/submit | Nộp thay `{ answers }`; bài ghi `submitted_by_kind = guardian` |
+| POST | /api/v1/learning/children/{childId}/homework/{id}/submissions/{submissionId}/comments | Phụ huynh trao đổi trên bài đã nộp `{ body }` |
+
 ### 17.7. Gói SCORM và gói khoá học (DT-28 phần 28h, YCTD-278)
 
 Lỗi quy tắc 422 mã `YCTD-278`. Mở bài, xem trước cần tiêu đề `Origin` của trang mở (trình duyệt tự gửi).
