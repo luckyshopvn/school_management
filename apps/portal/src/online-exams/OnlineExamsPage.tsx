@@ -107,6 +107,8 @@ interface Form {
   violation_action: string;
   camera_enabled: boolean;
   camera_fallback: string;
+  proctor_live: boolean;
+  proctor_record: boolean;
   single_session_mode: string;
   term_type: string;
   score_kind: string;
@@ -133,6 +135,8 @@ const emptyForm = (): Form => ({
   violation_action: 'flag',
   camera_enabled: true,
   camera_fallback: 'flag',
+  proctor_live: false,
+  proctor_record: false,
   single_session_mode: 'reject_new',
   term_type: 'first_term',
   score_kind: 'regular',
@@ -186,6 +190,8 @@ export function OnlineExamsPage() {
         violation_action: form.violation_action,
         camera_enabled: form.camera_enabled,
         camera_fallback: form.camera_fallback,
+        proctor_live: form.camera_enabled && form.proctor_live,
+        proctor_record: form.camera_enabled && form.proctor_record,
         single_session_mode: form.single_session_mode,
         term_type: form.term_type,
         score_kind: form.score_kind,
@@ -200,7 +206,13 @@ export function OnlineExamsPage() {
   const set = <Key extends keyof Form>(key: Key, value: Form[Key]) => setForm({ ...form, [key]: value });
   const check = (
     label: string,
-    key: 'shuffle_questions' | 'shuffle_options' | 'fullscreen_required' | 'camera_enabled',
+    key:
+      | 'shuffle_questions'
+      | 'shuffle_options'
+      | 'fullscreen_required'
+      | 'camera_enabled'
+      | 'proctor_live'
+      | 'proctor_record',
   ) => (
     <label className="text-label font-medium text-text">
       <input type="checkbox" checked={form[key]} onChange={(event) => set(key, event.target.checked)} /> {label}
@@ -420,6 +432,15 @@ export function OnlineExamsPage() {
                     onChange={(value) => set('camera_fallback', value)}
                   />
                 ) : null}
+                {form.camera_enabled && schoolSettings.data?.allow_live_proctoring
+                  ? check(
+                      'Giáo viên xem camera trực tiếp (cần cha mẹ đồng ý với học sinh dưới 16 tuổi)',
+                      'proctor_live',
+                    )
+                  : null}
+                {form.camera_enabled && schoolSettings.data?.allow_recording
+                  ? check('Ghi hình camera (lưu mã hoá, tự xoá sau thời hạn của trường)', 'proctor_record')
+                  : null}
                 <Select
                   label="Phiên đăng nhập thứ hai"
                   value={form.single_session_mode}

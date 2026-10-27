@@ -94,6 +94,17 @@ Giao kèo thi trực tuyến cho học sinh (DT-23 phần 23a, YCTD-211, BR-237)
 5. `POST /student/attempts/{id}/events` nhận tối đa 20 sự kiện (`fullscreen_exit`, `page_hidden`, `window_blur`, `camera_lost`, `no_face`, `multiple_faces`; `detail` chỉ `duration_ms`, `faces`) và trả `violations`, `outcome` (`none`, `warn`, `flag`, `auto_submit`); không nhận hình hay video.
 6. `GET /student/attempts/{id}/result`: `visible` theo `result_mode`; đáp án đúng (`correct_answer`) chỉ có sau giờ đóng.
 
+Giao kèo giám thị camera cho thi trực tuyến (DT-23 phần 23e, YCTD-215, BR-270):
+
+1. `PUT /online-exams/school-settings` nhận thêm `allow_live_proctoring`, `allow_recording`, `recording_retention_days` (7 đến 90); thiếu trường thì giữ giá trị cũ. `POST /online-exams/assignments` nhận `proctor_live`, `proctor_record`: trường chưa bật thì 422 (chi tiết theo trường), bài tắt camera thì 400.
+2. `POST /student/exams/{id}/start` nhận `proctor_notice` (đã đọc thông báo): bài có giám sát mà thiếu thì 422 chi tiết `proctor_notice`; học sinh dưới 16 tuổi hoặc chưa rõ ngày sinh thiếu đồng ý của loại đang bật thì 422 chi tiết `proctor_consent`.
+3. `POST /online-exams/attempts/{id}/proctor/views` (200, trả `view_id`): bài bật xem trực tiếp, trường còn bật, lượt đang làm, camera đã bật, còn đồng ý (dưới 16 tuổi), dưới 60 phiên đang mở; ngoài ra 422; không phải người quản lý bài giao 403. `GET …/proctor/views/{viewId}/signals?after=` trả `ended` và các thông điệp `answer`, `ice` mới (tối đa 100); `POST` gửi `offer` hoặc `ice` (`payload` tối đa 24.000 ký tự); `DELETE` kết thúc và xoá thông điệp. Chỉ người mở phiên dùng được (người khác 404).
+4. `GET /student/attempts/{id}/proctor?after=` trả `active`, `watching` (số phiên xem còn sống trong 30 giây), `active_view_ids`, `signals` (`offer`, `ice`), `cursor`; `POST …/proctor/signals` nhận `view_id`, `kind` (`answer`, `ice`), `payload`. Lượt của học sinh khác 404; đều tính vào giới hạn tần suất của học sinh.
+5. `POST /student/attempts/{id}/recording/chunks` (nhiều phần, trường `chunk` tối đa 8 MB, `seq` từ 0 đến 1999): bài phải bật ghi hình và học sinh đã xác nhận thông báo, trường còn bật ghi hình, còn đồng ý (dưới 16 tuổi), lượt đang làm (nộp rồi 422); đoạn 0 phải là WebM; gửi lại cùng `seq` trả `stored: false`.
+6. `GET /online-exams/attempts/{id}/recording`: video WebM ghép các đoạn đã giải mã (`cache-control: no-store, private`, `content-disposition: inline`); chỉ người giao bài và `P02.exam.manage` (người khác 403); không có đoạn chưa hết hạn thì 404; mỗi lần gọi ghi một dòng nhật ký người xem. `GET …/proctor` trả `notice_at`, `recording` (số đoạn, hạn), `can_watch_recording`, `views`.
+7. `PUT /online-exams/proctor/consents` (`P02.exam.manage`; `child_id`, `scope`, `granted`, `guardian_name` bắt buộc khi đồng ý) và `GET/PUT /parent/exam-proctor-consents` (`child_id`, `scope`, `granted`; phụ huynh không phải của học sinh 403) trả tình trạng đồng ý (`live`, `record` hoặc null).
+
+
 
 Giao kèo phần 10f (YCTD-79):
 
@@ -1564,6 +1575,14 @@ Giao kèo văn thư lưu trữ (YCTD-118):
 | GET, PUT | /api/v1/student/attempts/{id}, /answers | Đọc lượt; lưu nháp từng câu (P02-83) |
 | POST | /api/v1/student/attempts/{id}/events, /submit | Báo sự kiện; nộp (P02-83) |
 | GET | /api/v1/student/attempts/{id}/result | Kết quả theo chế độ (P02-83) |
+| GET, POST, DELETE | /api/v1/online-exams/attempts/{id}/proctor/views, /proctor/views/{viewId}/signals, /proctor/views/{viewId} | Giáo viên mở phiên xem trực tiếp, hỏi và gửi thông điệp báo hiệu, kết thúc (P02-97, YCTD-215) |
+| GET | /api/v1/online-exams/proctor/ice, /api/v1/student/proctor/ice | Máy chủ ICE (STUN, TURN có hạn) cho trình duyệt (P02-97) |
+| GET | /api/v1/online-exams/attempts/{id}/proctor, /recording | Thông tin giám sát của lượt, nhật ký người xem; phát bản ghi (P02-98) |
+| GET, POST | /api/v1/student/attempts/{id}/proctor, /proctor/signals | Học sinh hỏi phiên xem và gửi trả lời (P02-97) |
+| POST | /api/v1/student/attempts/{id}/recording/chunks | Học sinh tải một đoạn bản ghi (P02-98) |
+| GET | /api/v1/online-exams/assignments/{id}/proctor/consents | Tình trạng đồng ý của học sinh trong bài giao (P02-96) |
+| PUT | /api/v1/online-exams/proctor/consents | Người quản lý ghi nhận hoặc thu hồi văn bản đồng ý (P02-96) |
+| GET, PUT | /api/v1/parent/exam-proctor-consents | Phụ huynh xem, đồng ý, thu hồi cho con mình (P02-96) |
 | POST | /api/v1/users/student-accounts/sync | Dịch vụ định danh: tạo, cấp lại người dùng kênh `student` (máy chủ API gọi) (P02-83) |
 | GET | /api/v1/public/student-awards/verify (từ YCTD-163) | Tra cứu công khai mã giấy khen học sinh (`code` 12 kí tự), giới hạn tần suất |
 | GET | /api/v1/primary-reports/enrollment, /assessments, /year-end, /attendance, /{report}/export (từ YCTD-165) | Thống kê Tiểu học (`org_unit_id`; `period_id`, `group` = `class`, `grade`, `school`; `from`, `to`); xuất `format` = `xlsx`, `pdf`; cần `P17.child-statistics.view` |
@@ -1697,6 +1716,10 @@ Giao kèo trợ lý AI (DT-23 phần 23d, YCTD-214, BR-234 đến BR-236):
 | POST | /api/v1/classroom-tools/scores (từ YCTD-212) | Ghi dòng điểm (`class_id`, `session_key`, `events` 1 đến 200 mục `client_id`, `target_kind`, `group_name` hoặc `child_id`, `delta`, `note`, `occurred_at`); chống trùng theo `client_id` |
 | GET, DELETE | /api/v1/classroom-tools/classes/{id}/scores?session_key=, /scores/{sessionKey} (từ YCTD-212) | Dòng điểm và tổng theo đối tượng của buổi (chỉ của chính giáo viên); bỏ buổi xóa dòng chưa chuyển vào nề nếp |
 | POST | /api/v1/classroom-tools/classes/{id}/scores/{sessionKey}/confirm (từ YCTD-212) | Chuyển điểm vào nề nếp: `criterion_id`, `targets` (tuỳ chọn), `date` (tuỳ chọn); cần `P02.conduct.record`; trả `confirmed_events`, `net`, `quantity`, `conduct_entry_ids`; 422 khi tổng bằng 0, tiêu chí ngược chiều, nề nếp chưa bật (BR-232) |
+| GET | /api/v1/classroom-games/classes/{classId}/catalog (từ YCTD-213) | Môn, chủ đề, mức nhận thức có câu đã duyệt của khối của lớp (P02-100); giáo viên không phụ trách lớp 403 |
+| GET | /api/v1/classroom-games/classes/{classId}/questions (từ YCTD-213) | Câu đã duyệt theo môn, chủ đề, mức, dạng (trắc nghiệm, đúng sai, trả lời ngắn), tối đa 60; có đáp án vì giáo viên điều khiển (P02-100) |
+| POST | /api/v1/classroom-games/sessions (từ YCTD-213) | Lưu lượt chơi (`client_id`, `class_id`, `kind`, `title`, `config`, `group_scores`, `question_ids`, `answers`): chấm lại trắc nghiệm, đúng sai theo ngân hàng; ghi lịch sử sử dụng câu hỏi kèm tỷ lệ đúng; gửi lại cùng `client_id` không trùng; câu nháp 400 (P02-100, P02-102) |
+| GET | /api/v1/classroom-games/classes/{classId}/sessions, /sessions/{id} (từ YCTD-213) | Lịch sử lượt chơi và chi tiết (P02-102) |
 | GET | /api/v1/public/push/vapid-public-key | Khóa công khai VAPID của nền tảng cho đăng ký đẩy (YCTD-232): `{ enabled, public_key }`; chưa bật đẩy hoặc chưa có khóa thì `enabled: false` |
 | GET, POST | /api/v1/push/subscriptions | Máy đã đăng ký của chính người dùng; đăng ký `{ endpoint (https), keys: { p256dh, auth }, app, device_label, origin }`, cùng máy thì cập nhật (`created: false`), máy của người khác thì thu hồi đăng ký cũ; sai dữ liệu 400 |
 | POST | /api/v1/push/subscriptions/unsubscribe | `{ endpoint }`: ứng dụng gọi khi đăng xuất, thu hồi đăng ký của máy này |

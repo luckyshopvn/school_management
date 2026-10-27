@@ -5990,13 +5990,17 @@ export interface QuestionsTable {
 export interface QuestionUsagesTable {
   id: Generated<string>;
   question_id: string;
-  exam_id: string;
+  exam_id: string | null;
   used_on: string;
   created_at: CreatedTimestamp;
   // Kết quả sử dụng ghi khi khoá bài kiểm tra (DT-21 phần 22g2)
   attempts: number | null;
   difficulty: ColumnType<string | null, number | null | undefined, number | null>;
   discrimination: ColumnType<string | null, number | null | undefined, number | null>;
+  // Lượt dùng trong trò chơi ở lớp (DT-23 phần 23c): nguồn, lượt chơi, tỷ lệ đúng của lớp (phần trăm)
+  source: Generated<'exam' | 'game'>;
+  game_session_id: string | null;
+  correct_rate: ColumnType<string | null, number | null | undefined, number | null>;
 }
 
 // Chấm bài kiểm tra (DT-21 phần 22g2, YCTD-173)
@@ -6072,6 +6076,10 @@ export interface OnlineExamSchoolSettingsTable {
   allow_remote: Generated<boolean>;
   allowed_networks: DefaultJson;
   room_code_minutes: Generated<number>;
+  // Giám thị camera (DT-23 phần 23e): mặc định tắt
+  allow_live_proctoring: Generated<boolean>;
+  allow_recording: Generated<boolean>;
+  recording_retention_days: Generated<number>;
   updated_by: string | null;
   updated_by_name: string | null;
   updated_at: UpdatedTimestamp;
@@ -6118,6 +6126,8 @@ export interface ExamAssignmentsTable {
   camera_fallback: Generated<'block' | 'flag'>;
   single_session_mode: Generated<'reject_new' | 'close_old'>;
   exam_mode: Generated<ExamMode>;
+  proctor_live: Generated<boolean>;
+  proctor_record: Generated<boolean>;
   term_type: Generated<'first_term' | 'second_term'>;
   score_kind: Generated<'regular' | 'mid' | 'final'>;
   score_seq: Generated<number>;
@@ -6166,6 +6176,7 @@ export interface ExamAttemptsTable {
   flag_reasons: DefaultJson;
   camera_state: Generated<'off' | 'granted' | 'denied' | 'unavailable'>;
   sheet_synced: Generated<boolean>;
+  proctor_notice_at: Date | null;
   created_at: CreatedTimestamp;
   updated_at: UpdatedTimestamp;
 }
@@ -6189,6 +6200,51 @@ export interface ExamAttemptEventsTable {
   client_at: Date | null;
   detail: DefaultJson;
   created_at: CreatedTimestamp;
+}
+
+// Giám thị camera cho thi trực tuyến (DT-23 phần 23e, YCTD-215)
+export type ProctorConsentScope = 'live' | 'record';
+
+export interface ExamProctorConsentsTable {
+  id: Generated<string>;
+  child_id: string;
+  scope: ProctorConsentScope;
+  source: 'parent' | 'school';
+  granted_by: string;
+  granted_by_name: string;
+  note: string | null;
+  granted_at: CreatedTimestamp;
+  revoked_at: Date | null;
+  revoked_by_name: string | null;
+}
+
+export interface ExamProctorViewsTable {
+  id: Generated<string>;
+  attempt_id: string;
+  kind: 'live' | 'recording';
+  viewer_id: string;
+  viewer_name: string;
+  started_at: CreatedTimestamp;
+  last_seen_at: ColumnType<Date, Date | undefined, Date>;
+  ended_at: Date | null;
+}
+
+export interface ExamProctorSignalsTable {
+  id: Generated<string>;
+  view_id: string;
+  direction: 'to_student' | 'to_teacher';
+  kind: 'offer' | 'answer' | 'ice';
+  payload: string;
+  created_at: CreatedTimestamp;
+}
+
+export interface ExamRecordingChunksTable {
+  attempt_id: string;
+  seq: number;
+  storage_key: string;
+  size_bytes: number;
+  created_at: CreatedTimestamp;
+  expires_at: Date;
 }
 
 export interface ExamMatricesTable {
@@ -6270,6 +6326,36 @@ export interface ExamVariantsTable {
   exam_id: string;
   code: string;
   items: JsonDocument;
+  created_at: CreatedTimestamp;
+}
+
+// Trò chơi kiến thức và thẻ đáp án giấy (DT-23 phần 23c, YCTD-213)
+export type ClassroomGameKind = 'crossword' | 'wheel' | 'quiz_rounds' | 'answer_cards';
+
+export interface ClassroomGameSessionsTable {
+  id: Generated<string>;
+  client_id: string;
+  class_id: string;
+  kind: ClassroomGameKind;
+  title: string;
+  config: ColumnType<Record<string, unknown>, string | undefined, string>;
+  group_scores: ColumnType<Record<string, number>, string | undefined, string>;
+  question_count: Generated<number>;
+  started_at: Date;
+  finished_at: Date;
+  recorded_by: string;
+  recorded_by_name: string;
+  created_at: CreatedTimestamp;
+}
+
+export interface ClassroomGameAnswersTable {
+  id: Generated<string>;
+  session_id: string;
+  question_id: string;
+  child_id: string | null;
+  group_name: string | null;
+  answer: string | null;
+  correct: boolean;
   created_at: CreatedTimestamp;
 }
 
@@ -6605,6 +6691,10 @@ export interface SchoolYearDatabase {
   exam_assignment_targets: ExamAssignmentTargetsTable;
   exam_attempts: ExamAttemptsTable;
   exam_attempt_events: ExamAttemptEventsTable;
+  exam_proctor_consents: ExamProctorConsentsTable;
+  exam_proctor_views: ExamProctorViewsTable;
+  exam_proctor_signals: ExamProctorSignalsTable;
+  exam_recording_chunks: ExamRecordingChunksTable;
   org_units: OrgUnitsTable;
   audit_logs: AuditLogsTable;
   settings: SettingsTable;
@@ -6977,6 +7067,8 @@ export interface SchoolYearDatabase {
   classroom_call_logs: ClassroomCallLogsTable;
   classroom_groupings: ClassroomGroupingsTable;
   classroom_score_events: ClassroomScoreEventsTable;
+  classroom_game_sessions: ClassroomGameSessionsTable;
+  classroom_game_answers: ClassroomGameAnswersTable;
   course_spaces: CourseSpacesTable;
   course_space_teachers: CourseSpaceTeachersTable;
   course_enrollments: CourseEnrollmentsTable;

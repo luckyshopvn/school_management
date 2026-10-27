@@ -1,10 +1,17 @@
 import { createHash } from 'node:crypto';
 import { Injectable } from '@nestjs/common';
 import type { SchoolYearDatabase } from '@school-management/database';
-import { ApplicationError, Clock, ruleViolationError, validationError } from '@school-management/server';
+import {
+  ApplicationError,
+  Clock,
+  ruleViolationError,
+  validationError,
+  type FieldError,
+} from '@school-management/server';
 import {
   PERMISSION_CODES,
   PROCTOR_EVENT_LABELS,
+  RECORDING_RETENTION_DEFAULT_DAYS,
   type ExamAttemptPolicy,
   type ExamCameraFallback,
   type ExamMode,
@@ -76,6 +83,9 @@ export interface AssignmentInput {
   single_session_mode: ExamSingleSessionMode;
   // Chế độ thi; để trống là mặc định của trường (at-school)
   exam_mode: ExamMode | null;
+  // Giám thị camera (DT-23 phần 23e): trường phải bật ở cấu hình thi trực tuyến
+  proctor_live: boolean;
+  proctor_record: boolean;
   term_type: 'first_term' | 'second_term';
   score_kind: 'regular' | 'mid' | 'final';
   score_seq: number;
@@ -174,6 +184,9 @@ export class OnlineExamsService {
       allow_remote: row?.allow_remote ?? false,
       allowed_networks: (row?.allowed_networks as string[] | undefined) ?? [],
       room_code_minutes: row?.room_code_minutes ?? 60,
+      allow_live_proctoring: row?.allow_live_proctoring ?? false,
+      allow_recording: row?.allow_recording ?? false,
+      recording_retention_days: row?.recording_retention_days ?? RECORDING_RETENTION_DEFAULT_DAYS,
       updated_by_name: row?.updated_by_name ?? null,
       updated_at: row?.updated_at ?? null,
     };
@@ -192,6 +205,9 @@ export class OnlineExamsService {
       allow_remote: boolean;
       allowed_networks: string[];
       room_code_minutes: number;
+      allow_live_proctoring?: boolean;
+      allow_recording?: boolean;
+      recording_retention_days?: number;
     },
     origin: ChangeOrigin,
   ) {
@@ -217,6 +233,9 @@ export class OnlineExamsService {
     const before = await this.readSchoolSettings(database);
     const now = this.clock.now();
     const values = {
+      allow_live_proctoring: input.allow_live_proctoring ?? before.allow_live_proctoring,
+      allow_recording: input.allow_recording ?? before.allow_recording,
+      recording_retention_days: input.recording_retention_days ?? before.recording_retention_days,
       default_exam_mode: input.default_exam_mode,
       allow_remote: input.allow_remote,
       allowed_networks: JSON.stringify(input.allowed_networks),
@@ -454,6 +473,27 @@ export class OnlineExamsService {
         'Trường chưa bật chế độ thi từ xa; mặc định chỉ thi tại trường, quản trị trường bật ở Cấu hình thi trực tuyến',
       );
     }
+    if (input.proctor_live || input.proctor_record) {
+      const missing: FieldError[] = [];
+      if (input.proctor_live && !schoolSettings.allow_live_proctoring) {
+        missing.push({ field: 'proctor_live', message: 'Trường chưa bật xem camera trực tiếp' });
+      }
+      if (input.proctor_record && !schoolSettings.allow_recording) {
+        missing.push({ field: 'proctor_record', message: 'Trường chưa bật ghi hình' });
+      }
+      if (missing.length > 0) {
+        throw ruleViolationError(
+          ONLINE_EXAM_RULE_CODE,
+          'Trường chưa bật giám sát bằng camera; quản trị trường bật ở Cấu hình thi trực tuyến',
+          missing,
+        );
+      }
+      if (!input.camera_enabled) {
+        throw validationError([
+          { field: 'camera_enabled', message: 'Giám sát bằng camera cần bật camera cho bài thi' },
+        ]);
+      }
+    }
     const scope = await this.teachableClassIds(database, currentUser, exam.subject_id);
     // Đích nhóm (DT-28 phần 28a): nhóm phải thuộc bộ nhóm đang dùng; thành viên lúc giao được kiểm và giao như học sinh
     const groups = input.group_ids.length
@@ -550,6 +590,8 @@ export class OnlineExamsService {
           camera_fallback: input.camera_fallback,
           single_session_mode: input.single_session_mode,
           exam_mode: examMode,
+          proctor_live: input.proctor_live,
+          proctor_record: input.proctor_record,
           term_type: input.term_type,
           score_kind: input.score_kind,
           score_seq: input.score_kind === 'regular' ? input.score_seq : 1,
@@ -674,7 +716,7 @@ export class OnlineExamsService {
   }
 
   // Người này xem, quản lý được bài giao không: người quản lý, người giao, hoặc người dạy một lớp được giao
-  private async assertCanManage(database: Database, currentUser: CurrentUser, assignmentId: string) {
+  async assertCanManage(database: Database, currentUser: CurrentUser, assignmentId: string) {
     const assignment = await database
       .selectFrom('exam_assignments')
       .innerJoin('exams', 'exams.id', 'exam_assignments.exam_id')
@@ -703,6 +745,8 @@ export class OnlineExamsService {
         'exam_assignments.camera_fallback',
         'exam_assignments.single_session_mode',
         'exam_assignments.exam_mode',
+        'exam_assignments.proctor_live',
+        'exam_assignments.proctor_record',
         'exam_assignments.term_type',
         'exam_assignments.score_kind',
         'exam_assignments.score_seq',
@@ -891,6 +935,8 @@ export class OnlineExamsService {
       camera_fallback: assignment.camera_fallback,
       single_session_mode: assignment.single_session_mode,
       exam_mode: assignment.exam_mode,
+      proctor_live: assignment.proctor_live,
+      proctor_record: assignment.proctor_record,
       rooms: await this.roomsOf(database, assignmentId),
       term_type: assignment.term_type,
       score_kind: assignment.score_kind,
