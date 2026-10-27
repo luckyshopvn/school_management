@@ -3,7 +3,8 @@ import { Alert, Button, StatusBadge, type StatusTone } from '@school-management/
 import { StudentAssignmentView } from './StudentAssignmentView.js';
 import { StudentSpaceDiscussions } from './StudentDiscussions.js';
 import { ScormPlayer } from './ScormPlayer.js';
-import { requestStudentJson, StudentApiError } from './student-api.js';
+import { fetchStudentFile, requestStudentJson, StudentApiError } from './student-api.js';
+import { RecognitionList, type RecognitionView } from '../screens/RecognitionList.js';
 
 // Học sinh tự học ở lớp học trực tuyến (DT-28 phần 28b, YCTD-272, sau khi 23a gộp kênh student): các lớp đã mở cho em, hoạt
 // động đã giao kèm hạn, trạng thái, lý do còn khóa; mở hoạt động thì máy chủ ghi đã xem (hoạt động "xem xong" thì hoàn thành);
@@ -94,6 +95,12 @@ export function StudentLearningPanel() {
   const [scorm, setScorm] = useState<{ id: string; title: string }>();
   const [errorMessage, setErrorMessage] = useState<string>();
 
+  // Huy hiệu, chứng nhận của em (DT-28 phần 28i)
+  const loadRecognition = useCallback(() => requestStudentJson<RecognitionView>('/api/v1/student/recognition'), []);
+  const downloadCertificate = useCallback(
+    (certificateId: string) => fetchStudentFile(`/api/v1/student/recognition/certificates/${certificateId}/pdf`),
+    [],
+  );
   const load = useCallback(() => {
     requestStudentJson<StudentLearning>('/api/v1/student/learning')
       .then(setData)
@@ -171,6 +178,7 @@ export function StudentLearningPanel() {
           }}
         />
       ) : null}
+      <RecognitionList label="Huy hiệu, chứng nhận của em" load={loadRecognition} download={downloadCertificate} />
       {data?.spaces.length === 0 ? <Alert tone="info">Hiện chưa có lớp học trực tuyến nào mở cho em.</Alert> : null}
       {data?.spaces.map((space) => (
         <article

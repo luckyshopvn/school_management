@@ -502,6 +502,8 @@ export type {
   PushSubscriptionKind,
   PushSubscriptionsTable,
 } from '../system/schema.js';
+// Huy hiệu, chứng nhận hoàn thành (DT-28 phần 28i)
+export type { LearningBadgeKind } from '../school-year/schema.js';
 // Gói SCORM (DT-28 phần 28h)
 export type { ScormStandard } from '../system/schema.js';
 // Bài tập trực tuyến (DT-28 phần 28c)

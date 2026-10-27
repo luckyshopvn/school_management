@@ -554,6 +554,12 @@ import {
   StudentScormController,
 } from './learning/content-packages/scorm.controller.js';
 import { ScormPackagesService } from './learning/content-packages/scorm.js';
+import {
+  PublicCertificatesController,
+  RecognitionController,
+  StudentRecognitionController,
+} from './learning/recognition/recognition.controller.js';
+import { RecognitionService } from './learning/recognition/recognition.js';
 
 @Module({})
 export class ApplicationModule {
@@ -886,6 +892,10 @@ export class ApplicationModule {
         StudentScormController,
         ScormContentController,
         CoursePackagesController,
+        // Huy hiệu, chứng nhận hoàn thành (DT-28 phần 28i)
+        RecognitionController,
+        StudentRecognitionController,
+        PublicCertificatesController,
       ],
       providers: [
         { provide: API_CONFIGURATION, useValue: configuration },
@@ -1326,6 +1336,8 @@ export class ApplicationModule {
         // Gói SCORM, gói khoá học (DT-28 phần 28h)
         ScormPackagesService,
         CoursePackagesService,
+        // Huy hiệu, chứng nhận hoàn thành (DT-28 phần 28i)
+        RecognitionService,
       ],
     };
   }

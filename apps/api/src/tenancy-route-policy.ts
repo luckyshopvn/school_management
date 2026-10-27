@@ -136,4 +136,9 @@ export const PUBLIC_ROUTES: PublicRoute[] = [
     '/api/v1/scorm-content/:token/*path',
     'Tệp của gói SCORM theo mã truy cập ký trong đường dẫn, gắn trường, học sinh, hoạt động; theo tên miền của trường hoặc nguồn gốc nội dung riêng (DT-28 phần 28h)',
   ),
+  // Trang kiểm tra chứng nhận hoàn thành khoá tự chọn (DT-28 phần 28i): chỉ tên khoá, ngày cấp, tên trường, họ tên viết tắt
+  get(
+    '/api/v1/public/certificates/:code',
+    'Trang kiểm tra chứng nhận theo mã in trên chứng nhận, theo tên miền của trường; có giới hạn tần suất (DT-28 phần 28i)',
+  ),
 ];
