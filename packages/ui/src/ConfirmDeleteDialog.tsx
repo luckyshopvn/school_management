@@ -1,5 +1,6 @@
 import { useEffect, useId, useRef, useState, type ReactNode } from 'react';
 import { Button } from './Button.js';
+import { DIALOG_NARROW_FULL_SCREEN_CLASS } from './dialog.js';
 
 // Hộp xác nhận xóa theo mẫu của Sở (DT-15 phần 15a): phải tích "Tôi đã đọc và đồng ý xóa …" thì nút Xóa mới bấm được
 export interface ConfirmDeleteDialogProperties {
@@ -51,7 +52,7 @@ export function ConfirmDeleteDialog({
         event.preventDefault();
         onCancel();
       }}
-      className="m-auto w-full max-w-md rounded-xl border border-border bg-card p-6 text-text shadow-lg backdrop:bg-text/40"
+      className={`m-auto w-full max-w-md rounded-xl border border-border bg-card p-6 text-text shadow-lg backdrop:bg-text/40 ${DIALOG_NARROW_FULL_SCREEN_CLASS}`}
     >
       <h2 id={titleId} className="text-section-title font-semibold">
         {title}

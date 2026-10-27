@@ -19,8 +19,9 @@ export function FormButtons({
   // Nút phụ của biểu mẫu, đặt giữa Ghi và Hủy (ví dụ Thêm mặt hàng)
   children?: ReactNode;
 }) {
+  // Dưới 768 px dải nút dính đáy màn hình để Ghi luôn trong tầm tay khi biểu mẫu dài (DT-26 phần 26e)
   return (
-    <div className="flex flex-wrap gap-2">
+    <div className="flex flex-wrap gap-2 max-md:sticky max-md:bottom-0 max-md:z-10 max-md:-mx-4 max-md:border-t max-md:border-border max-md:bg-card max-md:p-3">
       <Button type="submit" variant="primary" disabled={busy || disabled}>
         Ghi
       </Button>

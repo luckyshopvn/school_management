@@ -1,7 +1,7 @@
 import { useEffect, useId, useRef, useState } from 'react';
 import { useNavigate } from '@tanstack/react-router';
 import { IMPERSONATION_LIFETIME_MINUTES } from '@school-management/shared';
-import { Alert, Button, FORM_CONTROL_CLASS } from '@school-management/ui';
+import { Alert, Button, FORM_CONTROL_CLASS, DIALOG_NARROW_FULL_SCREEN_CLASS } from '@school-management/ui';
 import { ApiError } from '../session/api-client.js';
 import { useSession } from '../session/session.js';
 
@@ -50,7 +50,7 @@ export function ImpersonateDialog({
         event.preventDefault();
         onClose();
       }}
-      className="m-auto w-full max-w-md rounded-xl border border-border bg-card p-6 text-text shadow-lg backdrop:bg-text/40"
+      className={`m-auto w-full max-w-md rounded-xl border border-border bg-card p-6 text-text shadow-lg backdrop:bg-text/40 ${DIALOG_NARROW_FULL_SCREEN_CLASS}`}
     >
       <h2 id={`${reasonId}-title`} className="text-section-title font-semibold">
         Đăng nhập thay {account.full_name}

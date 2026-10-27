@@ -7,7 +7,7 @@ import type { WorkspaceKey } from './workspaces.js';
 // Menu ngang nhiều cấp đánh số theo hệ thống của Sở (DT-15 phần 15a): mỗi phân hệ một thanh menu; mục cấp một mở menu sổ
 // xuống, cấp sâu hơn bật sang bên phải. Dùng được bằng chuột và bàn phím theo mẫu menubar của WAI-ARIA: mũi tên trái,
 // phải giữa các mục cấp một; xuống, lên trong menu; Enter, Space mở hoặc chọn; Esc đóng một cấp; Tab đóng hết. Màn hình
-// hẹp dưới 768 điểm ảnh dùng cây menu gập (MobileMenu)
+// dưới 1280 điểm ảnh (DT-26 phần 26e) dùng ngăn kéo chứa cây menu gập (MobileMenu)
 
 const HOME_KEY = 'home';
 
@@ -348,7 +348,7 @@ export function MainMenu({
   current: WorkspaceKey | undefined;
 }) {
   return (
-    <nav aria-label="Menu chức năng" className="sticky top-14 z-30 hidden border-b border-border bg-card md:block">
+    <nav aria-label="Menu chức năng" className="sticky top-14 z-30 hidden border-b border-border bg-card xl:block">
       {workspaces.map((workspace) => (
         <Menubar key={workspace.key} workspace={workspace} hidden={workspace.key !== current} />
       ))}
@@ -356,13 +356,15 @@ export function MainMenu({
   );
 }
 
-// Màn hình hẹp: nút "☰" mở cây menu gập theo chiều dọc của phân hệ đang chọn
+// Dưới 1280 px (điện thoại, máy tính bảng dọc và ngang; DT-26 phần 26e): nút "☰" mở ngăn kéo bên trái chứa cây menu gập theo chiều dọc
+// của phân hệ đang chọn, đúng thứ tự và quyền như menu ngang; đóng bằng nút Đóng menu, chạm nền mờ, phím Esc hoặc khi chọn trang
 export function MobileMenu({ workspace, onClose }: { workspace: PortalWorkspace | undefined; onClose(): void }) {
   const { pathname } = useLocation();
   const [expanded, setExpanded] = useState<Set<string>>(
     () => new Set(workspace ? activeTrail(workspace.menu, pathname) : []),
   );
   const firstPath = useRef(pathname);
+  const closeReference = useRef<HTMLButtonElement>(null);
 
   // Chọn trang khác thì đóng menu
   useEffect(() => {
@@ -370,6 +372,18 @@ export function MobileMenu({ workspace, onClose }: { workspace: PortalWorkspace 
       onClose();
     }
   }, [pathname, onClose]);
+
+  // Mở ngăn kéo thì đưa con trỏ bàn phím vào ngăn; Esc đóng
+  useEffect(() => {
+    closeReference.current?.focus();
+    const onKey = (event: globalThis.KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        onClose();
+      }
+    };
+    document.addEventListener('keydown', onKey);
+    return () => document.removeEventListener('keydown', onKey);
+  }, [onClose]);
 
   if (!workspace) {
     return null;
@@ -412,7 +426,7 @@ export function MobileMenu({ workspace, onClose }: { workspace: PortalWorkspace 
                 to={node.path}
                 data-menu-path={node.path}
                 aria-current={isActivePath(pathname, node.path) ? 'page' : undefined}
-                className={`block rounded px-2 py-2 text-label text-text hover:bg-selected ${isActivePath(pathname, node.path) ? 'bg-selected font-semibold text-brand-strong' : ''}`}
+                className={`flex min-h-11 items-center gap-2 rounded px-2 py-2 text-label text-text hover:bg-selected ${isActivePath(pathname, node.path) ? 'bg-selected font-semibold text-brand-strong' : ''}`}
               >
                 {portalMenuText(node)}
                 <MenuBadge path={node.path} />
@@ -424,19 +438,35 @@ export function MobileMenu({ workspace, onClose }: { workspace: PortalWorkspace 
     </ul>
   );
   return (
-    <nav
-      id="menu-gon"
-      aria-label="Menu chức năng"
-      className="max-h-[calc(100vh-3.5rem)] overflow-y-auto border-b border-border bg-card p-3 md:hidden"
-    >
-      <Link
-        to="/"
-        aria-current={pathname === '/' ? 'page' : undefined}
-        className="block rounded px-2 py-2 text-label font-medium text-text hover:bg-selected"
+    <div className="fixed inset-0 z-50 flex xl:hidden">
+      <nav
+        id="menu-gon"
+        aria-label="Menu chức năng"
+        className="relative flex h-full w-80 max-w-[85vw] flex-col overflow-y-auto bg-card p-3 shadow-lg"
       >
-        Trang chủ
-      </Link>
-      {renderNodes(workspace.menu, '', 0)}
-    </nav>
+        <div className="mb-2 flex items-center justify-between gap-2">
+          <span className="px-2 text-content font-semibold text-text">{workspace.label}</span>
+          <button
+            ref={closeReference}
+            type="button"
+            aria-label="Đóng menu"
+            className="flex h-11 w-11 items-center justify-center rounded-lg text-section-title text-text hover:bg-selected"
+            onClick={onClose}
+          >
+            <span aria-hidden="true">×</span>
+          </button>
+        </div>
+        <Link
+          to="/"
+          aria-current={pathname === '/' ? 'page' : undefined}
+          className="flex min-h-11 items-center rounded px-2 py-2 text-label font-medium text-text hover:bg-selected"
+        >
+          Trang chủ
+        </Link>
+        {renderNodes(workspace.menu, '', 0)}
+      </nav>
+      {/* Nền mờ: chạm ra ngoài ngăn kéo thì đóng; người dùng bàn phím đóng bằng nút Đóng menu hoặc Esc */}
+      <div className="flex-1 bg-text/40" aria-hidden="true" onClick={onClose} />
+    </div>
   );
 }

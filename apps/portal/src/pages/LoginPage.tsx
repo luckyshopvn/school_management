@@ -230,7 +230,7 @@ function LoginForm({ context, directory }: { context: LoginContext; directory: b
   const title = page?.title ?? branding.data?.display_name ?? schoolName ?? 'School Management';
   const forgotHost = unitDetail.data?.login_host ?? null;
   return (
-    <main className="flex min-h-screen flex-col bg-page">
+    <main className="touch-layout flex min-h-screen flex-col bg-page">
       <header className="flex items-center justify-center gap-3 border-b border-border bg-card px-4 py-3">
         {!directory && branding.data?.logo_url ? (
           <img src={branding.data.logo_url} alt="Biểu trưng" className="h-10 w-10 rounded object-contain" />
@@ -402,7 +402,7 @@ function LoginForm({ context, directory }: { context: LoginContext; directory: b
                 forgotHost ? (
                   <a
                     href={schoolPageUrl(forgotHost, '/forgot-password')}
-                    className="text-label font-medium text-link hover:underline"
+                    className="text-label font-medium text-link hover:underline inline-flex min-h-11 items-center"
                   >
                     Quên mật khẩu?
                   </a>
@@ -410,7 +410,10 @@ function LoginForm({ context, directory }: { context: LoginContext; directory: b
                   <span className="text-label text-text-secondary">Quên mật khẩu? Chọn trường trước</span>
                 )
               ) : (
-                <Link to="/forgot-password" className="text-label font-medium text-link hover:underline">
+                <Link
+                  to="/forgot-password"
+                  className="text-label font-medium text-link hover:underline inline-flex min-h-11 items-center"
+                >
                   Quên mật khẩu?
                 </Link>
               )}
