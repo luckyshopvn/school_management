@@ -25,7 +25,7 @@ phien_ban_de_xuat: 0.168.0
   - Ứng dụng giáo viên: màn hình "Huy hiệu, chứng nhận" của lớp học trực tuyến.
   - Học sinh `#hoc-sinh` và ứng dụng phụ huynh: khối huy hiệu, chứng nhận của em.
   - Cổng quản trị: khối cấu hình ở mục 9.3.
-- **Kiểm thử:** 5/5 ca của `recognition-rules.test.ts`, `recognition.test.ts`; e2e `218-badges-certificates`.
+- **Kiểm thử:** 5/5 ca của `recognition-rules.test.ts`, `recognition.test.ts`; e2e `218-badges-certificates` đạt, chạy kèm spec nền 01 đến 09 (spec 04 hỏng vì tài khoản trùng tên trong cơ sở dữ liệu định danh riêng của phiên, do môi trường); hồi quy 64/64 ca (recognition, content-packages, learning, homework, progress, ma trận cách ly, school-levels), `migrate.test.ts`.
 
 - **Sửa lỗi của lõi 28b:** `LearningService.sync` truy vấn môn với danh sách rỗng (lỗi 500 ở danh sách lớp học trực tuyến) khi trường có lớp nhưng chưa có phân công môn, tiết nào, ví dụ giáo viên chỉ dạy khoá tự chọn; nay bỏ qua truy vấn khi danh sách rỗng, có ca kiểm thử ở `recognition.test.ts`.
 
