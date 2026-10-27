@@ -1,6 +1,7 @@
 import { Fragment, useEffect, useId, useMemo, useRef, useState, type ReactNode } from 'react';
 import { Button } from './Button.js';
 import { TextField } from './TextField.js';
+import { DIALOG_NARROW_FULL_SCREEN_CLASS } from './dialog.js';
 
 // Lưới dữ liệu dùng chung của cổng quản trị theo mẫu màn hình danh sách của Sở (DT-15 phần 15a): thanh công cụ có ô tìm
 // kiếm, "Mở rộng tìm kiếm", nút riêng của màn hình; ô chọn từng dòng và chọn cả trang; thao tác trên dòng; cấu hình cột
@@ -18,8 +19,36 @@ export interface DataGridColumn<Row> {
   alwaysVisible?: boolean;
   // Mặc định ẩn, người dùng tự bật trong Cấu hình cột hiển thị
   hiddenByDefault?: boolean;
+  // Cột chính (mã, tên) làm tiêu đề thẻ ở khổ hẹp (DT-26 phần 26e); không khai báo thì lấy cột đầu đang hiện
+  primary?: boolean;
   className?: string;
 }
+
+// Khổ từ 768 px hiện bảng (cuộn ngang trong khung, cột đầu cố định); hẹp hơn hiện dạng thẻ. Đọc theo matchMedia để chỉ dựng một
+// dạng (dựng cả hai rồi ẩn bằng CSS thì mỗi ô có hai bản trong trang)
+const WIDE_LAYOUT_QUERY = '(min-width: 768px)';
+
+function useWideLayout(): boolean {
+  const [wide, setWide] = useState(() =>
+    typeof window === 'undefined' || typeof window.matchMedia !== 'function'
+      ? true
+      : window.matchMedia(WIDE_LAYOUT_QUERY).matches,
+  );
+  useEffect(() => {
+    if (typeof window.matchMedia !== 'function') {
+      return undefined;
+    }
+    const media = window.matchMedia(WIDE_LAYOUT_QUERY);
+    const update = () => setWide(media.matches);
+    update();
+    media.addEventListener('change', update);
+    return () => media.removeEventListener('change', update);
+  }, []);
+  return wide;
+}
+
+// Ở dạng thẻ hiện ngay tối đa ngần này cột phụ, các cột còn lại thu vào "Xem thêm"
+const CARD_VISIBLE_SECONDARY_COLUMNS = 3;
 
 export interface DataGridViewSettings {
   // Mã cột hiển thị theo thứ tự; null là theo mặc định của lưới
@@ -138,7 +167,7 @@ function ColumnSettingsDialog<Row>({
         event.preventDefault();
         onCancel();
       }}
-      className="m-auto w-full max-w-lg rounded-xl border border-border bg-card p-6 text-text shadow-lg backdrop:bg-text/40"
+      className={`m-auto w-full max-w-lg rounded-xl border border-border bg-card p-6 text-text shadow-lg backdrop:bg-text/40 ${DIALOG_NARROW_FULL_SCREEN_CLASS}`}
     >
       <h2 id={titleId} className="text-section-title font-semibold">
         Cấu hình cột hiển thị
@@ -219,6 +248,126 @@ function ColumnSettingsDialog<Row>({
   );
 }
 
+// Dạng thẻ dưới 768 px (DT-26 phần 26e): mỗi dòng một thẻ, cột chính làm tiêu đề, vài cột phụ đầu tiên hiện ngay, các cột còn lại thu vào
+// "Xem thêm"; ô chọn, thao tác, dòng chi tiết giữ như ở bảng. Ô chọn bọc trong nhãn 44 × 44 px cho dễ chạm
+function GridCards<Row>({
+  label,
+  rows,
+  primaryColumn,
+  secondaryColumns,
+  emptyText,
+  getRowId,
+  getRowLabel,
+  getRowAriaLabel,
+  selectable,
+  selectedIds,
+  onToggleRow,
+  allPageSelected,
+  canSelectPage,
+  onTogglePage,
+  rowActions,
+  renderRowDetail,
+  onRowClick,
+  activeRowId,
+}: {
+  label: string;
+  rows: Row[];
+  primaryColumn: DataGridColumn<Row> | undefined;
+  secondaryColumns: Array<DataGridColumn<Row>>;
+  emptyText: string;
+  getRowId(row: Row): string;
+  getRowLabel(row: Row): string;
+  getRowAriaLabel?(row: Row): string;
+  selectable?: boolean;
+  selectedIds: Set<string>;
+  onToggleRow(id: string, checked: boolean): void;
+  allPageSelected: boolean;
+  canSelectPage: boolean;
+  onTogglePage(checked: boolean): void;
+  rowActions?(row: Row): ReactNode;
+  renderRowDetail?(row: Row): ReactNode;
+  onRowClick?(row: Row): void;
+  activeRowId?: string;
+}) {
+  const shown = secondaryColumns.slice(0, CARD_VISIBLE_SECONDARY_COLUMNS);
+  const more = secondaryColumns.slice(CARD_VISIBLE_SECONDARY_COLUMNS);
+  const fields = (row: Row, items: Array<DataGridColumn<Row>>) => (
+    <dl className="grid grid-cols-[minmax(0,8rem)_minmax(0,1fr)] gap-x-3 gap-y-1 text-label">
+      {items.map((column) => (
+        <Fragment key={column.id}>
+          <dt className="text-text-secondary">{column.header}</dt>
+          <dd className="min-w-0 break-words text-text">{column.cell(row)}</dd>
+        </Fragment>
+      ))}
+    </dl>
+  );
+  return (
+    <div className="flex flex-col gap-2">
+      {selectable && canSelectPage ? (
+        <label className="flex min-h-11 items-center gap-2 text-label text-text">
+          <input
+            type="checkbox"
+            className="h-4 w-4"
+            checked={allPageSelected}
+            onChange={(event) => onTogglePage(event.target.checked)}
+          />
+          Chọn tất cả dòng trên trang
+        </label>
+      ) : null}
+      {rows.length === 0 ? <p className="px-1 py-4 text-content text-text-secondary">{emptyText}</p> : null}
+      <ul aria-label={label} className="flex flex-col gap-2">
+        {rows.map((row) => {
+          const id = getRowId(row);
+          const detail = renderRowDetail?.(row);
+          return (
+            <li
+              key={id}
+              aria-label={getRowAriaLabel?.(row)}
+              onClick={onRowClick ? () => onRowClick(row) : undefined}
+              className={`flex flex-col gap-2 rounded-lg border border-border p-3 ${id === activeRowId ? 'bg-selected' : 'bg-card'} ${onRowClick ? 'cursor-pointer' : ''}`}
+            >
+              <div className="flex items-start gap-1">
+                {selectable ? (
+                  <label
+                    className="-my-2 -ml-2 flex h-11 w-11 shrink-0 items-center justify-center"
+                    onClick={(event) => event.stopPropagation()}
+                  >
+                    <input
+                      type="checkbox"
+                      className="h-4 w-4"
+                      aria-label={`Chọn ${getRowLabel(row)}`}
+                      checked={selectedIds.has(id)}
+                      onChange={(event) => onToggleRow(id, event.target.checked)}
+                    />
+                  </label>
+                ) : null}
+                <div className="min-w-0 flex-1 break-words text-content font-semibold text-text">
+                  {primaryColumn?.cell(row)}
+                </div>
+              </div>
+              {shown.length > 0 ? fields(row, shown) : null}
+              {more.length > 0 ? (
+                <details onClick={(event) => event.stopPropagation()}>
+                  <summary className="flex min-h-11 cursor-pointer items-center text-label font-medium text-link">
+                    Xem thêm {more.length} cột
+                  </summary>
+                  {fields(row, more)}
+                </details>
+              ) : null}
+              {rowActions ? (
+                <div className="flex flex-wrap gap-2" onClick={(event) => event.stopPropagation()}>
+                  {rowActions(row)}
+                </div>
+              ) : null}
+              {detail ? <div>{detail}</div> : null}
+            </li>
+          );
+        })}
+      </ul>
+    </div>
+  );
+}
+
 export function DataGrid<Row>({
   label,
   columns,
@@ -252,6 +401,11 @@ export function DataGrid<Row>({
   const selectAllReference = useRef<HTMLInputElement>(null);
 
   const visibleColumns = useMemo(() => resolveVisibleColumns(columns, settings.columns), [columns, settings.columns]);
+  const wide = useWideLayout();
+  const primaryColumn = visibleColumns.find((column) => column.primary) ?? visibleColumns[0];
+  // Cột đầu (sau ô chọn) dính bên trái khi bảng cuộn ngang; ô chọn rộng 2,5rem nên cột đầu dịch theo
+  const stickyFirst = (index: number) =>
+    index === 0 ? `sticky z-[1] bg-inherit ${selectable ? 'left-10' : 'left-0'}` : '';
   const pageSize = settings.pageSize;
   const total = serverPagination ? serverPagination.total : rows.length;
   const totalPages = Math.max(1, Math.ceil(total / pageSize));
@@ -379,14 +533,35 @@ export function DataGrid<Row>({
       ) : null}
       {loading ? (
         <div className="h-40 animate-pulse rounded bg-border" aria-hidden="true" />
+      ) : !wide ? (
+        <GridCards
+          label={label}
+          rows={pageRows}
+          primaryColumn={primaryColumn}
+          secondaryColumns={visibleColumns.filter((column) => column !== primaryColumn)}
+          emptyText={emptyText}
+          getRowId={getRowId}
+          getRowLabel={getRowLabel}
+          getRowAriaLabel={getRowAriaLabel}
+          selectable={selectable}
+          selectedIds={selectedIds}
+          onToggleRow={toggleRow}
+          allPageSelected={allPageSelected}
+          canSelectPage={pageIds.length > 0}
+          onTogglePage={togglePage}
+          rowActions={rowActions}
+          renderRowDetail={renderRowDetail}
+          onRowClick={onRowClick}
+          activeRowId={activeRowId}
+        />
       ) : (
         <div className="overflow-x-auto">
           <table className="w-full text-content">
             <caption className="sr-only">{label}</caption>
-            <thead className="text-left text-label font-medium text-text-secondary">
-              <tr>
+            <thead className="bg-card text-left text-label font-medium text-text-secondary">
+              <tr className="bg-card">
                 {selectable ? (
-                  <th scope="col" className="w-10 px-3 py-2">
+                  <th scope="col" className="sticky left-0 z-[1] w-10 bg-inherit px-3 py-2">
                     <input
                       ref={selectAllReference}
                       type="checkbox"
@@ -398,8 +573,8 @@ export function DataGrid<Row>({
                     />
                   </th>
                 ) : null}
-                {visibleColumns.map((column) => (
-                  <th key={column.id} scope="col" className="whitespace-nowrap px-3 py-2">
+                {visibleColumns.map((column, index) => (
+                  <th key={column.id} scope="col" className={`whitespace-nowrap px-3 py-2 ${stickyFirst(index)}`}>
                     {column.header}
                   </th>
                 ))}
@@ -427,10 +602,13 @@ export function DataGrid<Row>({
                       aria-label={getRowAriaLabel?.(row)}
                       aria-selected={selectable ? selectedIds.has(id) : undefined}
                       onClick={onRowClick ? () => onRowClick(row) : undefined}
-                      className={`border-t border-border ${onRowClick ? 'cursor-pointer hover:bg-selected' : ''} ${id === activeRowId ? 'bg-selected' : ''}`}
+                      className={`border-t border-border ${onRowClick ? 'cursor-pointer hover:bg-selected' : ''} ${id === activeRowId ? 'bg-selected' : 'bg-card'}`}
                     >
                       {selectable ? (
-                        <td className="px-3 py-2" onClick={(event) => event.stopPropagation()}>
+                        <td
+                          className="sticky left-0 z-[1] bg-inherit px-3 py-2"
+                          onClick={(event) => event.stopPropagation()}
+                        >
                           <input
                             type="checkbox"
                             className="h-4 w-4"
@@ -440,8 +618,8 @@ export function DataGrid<Row>({
                           />
                         </td>
                       ) : null}
-                      {visibleColumns.map((column) => (
-                        <td key={column.id} className={`px-3 py-2 ${column.className ?? ''}`}>
+                      {visibleColumns.map((column, index) => (
+                        <td key={column.id} className={`px-3 py-2 ${stickyFirst(index)} ${column.className ?? ''}`}>
                           {column.cell(row)}
                         </td>
                       ))}
@@ -557,7 +735,7 @@ export function GridDisplaySettingsDialog({
         event.preventDefault();
         onCancel();
       }}
-      className="m-auto w-full max-w-md rounded-xl border border-border bg-card p-6 text-text shadow-lg backdrop:bg-text/40"
+      className={`m-auto w-full max-w-md rounded-xl border border-border bg-card p-6 text-text shadow-lg backdrop:bg-text/40 ${DIALOG_NARROW_FULL_SCREEN_CLASS}`}
     >
       <h2 id={titleId} className="text-section-title font-semibold">
         Cấu hình hiển thị lưới

@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { Link } from '@tanstack/react-router';
 import { useQuery } from '@tanstack/react-query';
-import { Button } from '@school-management/ui';
+import { Button, DIALOG_NARROW_FULL_SCREEN_CLASS } from '@school-management/ui';
 import { useSession } from '../session/session.js';
 import { markStartupNoticesShown, startupNoticesShown } from '../pages/startup-notices-state.js';
 import { listActiveAnnouncements, readPortalContext } from './portal-shell-api.js';
@@ -62,7 +62,7 @@ export function StartupNotices() {
         event.preventDefault();
         close();
       }}
-      className="m-auto w-full max-w-xl rounded-xl border border-border bg-card p-6 text-text shadow-lg backdrop:bg-text/40"
+      className={`m-auto w-full max-w-xl rounded-xl border border-border bg-card p-6 text-text shadow-lg backdrop:bg-text/40 ${DIALOG_NARROW_FULL_SCREEN_CLASS}`}
     >
       <h2 id="thong-bao-khi-vao-trang" className="text-section-title font-semibold">
         Thông báo
