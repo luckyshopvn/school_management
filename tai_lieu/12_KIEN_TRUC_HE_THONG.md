@@ -300,6 +300,10 @@ Thư mục con `apps/api/src/learning/content-packages`: quy tắc thuần `scor
 
 Thư mục con `apps/api/src/learning/recognition`: quy tắc thuần `recognition-rules.ts` (cấu hình, tiêu chí huy hiệu tự động, chuỗi nộp đúng hạn, họ tên viết tắt, mã kiểm tra, trang kiểm tra), tệp PDF `certificate-pdf.ts` (pdfmake, phông chung của `exports/table-file.ts`), dịch vụ `recognition.ts` (`RecognitionService`), tuyến `recognition.controller.ts` (nhóm `/learning`, `/student/recognition`, trang công khai `/public/certificates`, dùng `AdmissionsRateLimiter`). Tiến độ lấy qua `LearningService.learningOfChild` của lõi 28b; quyền lớp học trực tuyến qua `spaceAccess`, `studentContext`, `guardianOrStaff`. Huy hiệu tự động ghi khi mở danh sách (chỉ mục duy nhất theo tiêu chí). Ứng dụng giáo viên: `RecognitionScreen.tsx`; học sinh, phụ huynh: `RecognitionList.tsx`; cổng quản trị: `RecognitionSettings.tsx` (mục 9.3).
 
+## 12P. Học khi mạng yếu (DT-28 phần 28j, YCTD-280)
+
+GD-148 chờ Eric chốt; tắt mặc định. Máy chủ: thư mục `apps/api/src/learning/offline` (`OfflineLearningService`: cấu hình `learning_offline`, tuyến `/learning/offline/config`, `/student/offline`); `AssignmentsService.studentSubmit`, `studentUpload` nhận mã chống trùng (`client_submit_key`, `client_key`), ghi thời điểm bấm nộp trên máy. Ứng dụng học sinh: mô-đun riêng `apps/parent/src/student/offline` gồm quy tắc thuần `offline-rules.ts` (chạy `node --test`), kho `offline-store.ts` (IndexedDB `hoc-khi-mang-yeu`, mã hoá AES-GCM bằng WebCrypto, khóa không xuất được) và cửa `offline.ts` (không làm gì khi trường tắt); gọi từ `StudentAssignmentView.tsx` (bản nháp, hàng đợi nộp, gửi tệp), `StudentLearningPanel.tsx` (đọc cấu hình, gửi hàng đợi khi có mạng, nội dung đã mở) và `student-session.tsx` (xoá khi đăng xuất). Gỡ mô-đun là bỏ thư mục và các dòng gọi. Cổng quản trị: `OfflineSettings.tsx` (mục 9.3).
+
 ## 13. Quyết định kiến trúc
 
 | Mã | Quyết định | Trạng thái |
