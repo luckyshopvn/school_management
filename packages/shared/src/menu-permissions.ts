@@ -144,12 +144,19 @@ export const MENU_PERMISSION_RULES: Partial<Record<PortalQuickLinkPath, MenuPerm
   // gắn quyền đó cả vào phân hệ này, trường không có kho học liệu trong gói vẫn gọi được tuyến kho học liệu
   // Bài tập trực tuyến (DT-28 phần 28c): quyền chấm bài gắn mục 9.1 để tuyến bài tập thuộc phân hệ học tập trực tuyến của gói;
   // vai trò có quyền này đều đã có quyền dạy nên menu hiện như cũ
-  '/online-classes': anyOf('P02.learning.teach', 'P02.learning.view', 'P02.assignment.manage'),
+  '/online-classes': anyOf(
+    'P02.learning.teach',
+    'P02.learning.view',
+    'P02.assignment.manage',
+    'P02.discussion.moderate',
+  ),
   '/course-templates': anyOf('P02.learning.template'),
   '/online-teaching': anyOf('P02.learning.decide', 'P02.learning.view'),
   // Báo cáo học tập trực tuyến (DT-28 phần 28d): chủ nhiệm (có quyền dạy), tổ trưởng, Ban Giám hiệu; báo cáo nào xem được do
   // máy chủ quyết theo vai trò
   '/online-learning-reports': anyOf('P02.learning.teach', 'P02.learning.view', 'P02.learning.decide'),
+  // An toàn thảo luận (DT-28 phần 28e): hàng chờ báo cáo vi phạm, cấu hình giờ mở và từ ngữ lọc
+  '/online-discussion-safety': anyOf('P02.discussion.moderate'),
   // Thi trực tuyến cho học sinh (DT-23 phần 23a): giao đề, theo dõi bài làm, cấu hình thi trực tuyến theo cấp
   '/online-exams': 'P02.exam.assign',
   '/online-exams/monitor': 'P02.exam.assign',
