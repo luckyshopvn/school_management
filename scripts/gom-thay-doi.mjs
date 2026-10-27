@@ -27,6 +27,7 @@ const MUC = {
   '01': 'bangPhienBan',
   index: 'soDem',
   Nối: 'noiDong',
+  Thêm: 'themDong',
 };
 
 const TEP = {
@@ -50,6 +51,51 @@ const DONG_SO_YCTD = 'Yêu cầu thay đổi';
 function oBang(dong) {
   const khop = /^\|(.*)\|\s*$/.exec(dong);
   return khop ? khop[1].split('|').map((o) => o.trim()) : null;
+}
+
+// Vị trí các dấu | không thoát (\|) trong một dòng bảng
+function viTriPhanCach(dong) {
+  const viTri = [];
+  for (let i = 0; i < dong.length; i += 1) {
+    if (dong[i] === '\\') i += 1;
+    else if (dong[i] === '|') viTri.push(i);
+  }
+  return viTri;
+}
+
+const NEO_CUOI_BANG = 'cuối bảng ';
+
+/** Đọc một dòng mục Thêm dòng: "| <tệp> | <neo> | <ô 1> | <ô 2> | … |" → { tep, neo, dongMoi } (dòng mới giữ nguyên văn). */
+export function docDongThem(dong) {
+  const viTri = viTriPhanCach(dong);
+  if (viTri[0] !== 0 || viTri.length < 5 || dong.slice(viTri.at(-1)).trim() !== '|') return null;
+  const tep = dong.slice(viTri[0] + 1, viTri[1]).trim();
+  const neo = dong.slice(viTri[1] + 1, viTri[2]).trim();
+  const dongMoi = dong.slice(viTri[2]).trimEnd();
+  return tep && neo ? { tep, neo, dongMoi } : null;
+}
+
+const soO = (dong) => viTriPhanCach(dong.trimEnd()).length - 1;
+
+// Dòng bảng cuối cùng của bảng đầu tiên sau tiêu đề "#… <tiêu đề>" (so khớp đầu chuỗi); -1 nếu không có
+function dongCuoiBang(dong, tieuDe) {
+  let i = dong.findIndex((d) => {
+    const khop = /^#+\s+(.*)$/.exec(d);
+    return khop !== null && khop[1].trim().startsWith(tieuDe);
+  });
+  if (i < 0) return -1;
+  i += 1;
+  while (i < dong.length && !dong[i].startsWith('|') && !/^#+\s/.test(dong[i])) i += 1;
+  if (i >= dong.length || !dong[i].startsWith('|')) return -1;
+  while (i + 1 < dong.length && dong[i + 1].startsWith('|')) i += 1;
+  return i;
+}
+
+/** Dòng neo của mục Thêm dòng: dòng bảng có ô đầu đúng bằng khoá, hoặc dòng cuối bảng sau tiêu đề ("cuối bảng <tiêu đề>"). */
+function timNeo(dong, neo) {
+  return neo.startsWith(NEO_CUOI_BANG)
+    ? dongCuoiBang(dong, neo.slice(NEO_CUOI_BANG.length).trim())
+    : timDongBang(dong, neo);
 }
 
 function catDongTrong(dong) {
@@ -126,7 +172,7 @@ export function kiemTepManh(manh, taiLieu) {
   if (deXuat === undefined || (coPhienBan && !PHIEN_BAN.test(deXuat))) {
     loi.push(`"phien_ban_de_xuat" phải là số dạng 0.145.0 hoặc "${KHONG_PHIEN_BAN}"`);
   }
-  const { nhatKy, yeuCau, phienBan, bangPhienBan, soDem, noiDong } = manh.muc;
+  const { nhatKy, yeuCau, phienBan, bangPhienBan, soDem, noiDong, themDong } = manh.muc;
   if (!nhatKy?.length) loi.push('thiếu mục "## 02"');
   else if (!/^### \d{4}-\d{2}-\d{2} — \S/.test(nhatKy[0]))
     loi.push('mục 02 phải bắt đầu bằng "### YYYY-MM-DD — <tên>"');
@@ -178,6 +224,37 @@ export function kiemTepManh(manh, taiLieu) {
     if (vanBan === undefined) loi.push(`Nối dòng: không có tệp tai_lieu/${o[0]}`);
     else if (timDongBang(vanBan.split('\n'), o[1]) < 0) loi.push(`Nối dòng: ${o[0]} không có dòng bảng "${o[1]}"`);
   }
+  for (const d of themDong ?? []) {
+    const them = docDongThem(d);
+    if (!them) {
+      loi.push(
+        `dòng mục Thêm dòng phải dạng "| <tệp> | <khoá dòng đứng trước hoặc ${NEO_CUOI_BANG}<tiêu đề>> | <ô 1> | <ô 2> | … |": "${d}"`,
+      );
+      continue;
+    }
+    if (!taiLieu) continue;
+    const vanBan = taiLieu[them.tep];
+    if (vanBan === undefined) {
+      loi.push(`Thêm dòng: không có tệp tai_lieu/${them.tep}`);
+      continue;
+    }
+    const dong = vanBan.split('\n');
+    const neo = timNeo(dong, them.neo);
+    if (neo < 0) {
+      loi.push(
+        `Thêm dòng: ${them.tep} không có ${them.neo.startsWith(NEO_CUOI_BANG) ? 'bảng sau tiêu đề' : 'dòng bảng'} "${them.neo}"`,
+      );
+      continue;
+    }
+    if (soO(dong[neo]) !== soO(them.dongMoi)) {
+      loi.push(
+        `Thêm dòng: dòng mới có ${soO(them.dongMoi)} ô, bảng ở ${them.tep} có ${soO(dong[neo])} ô: "${them.dongMoi}"`,
+      );
+    }
+    const khoaMoi = oBang(them.dongMoi)?.[0];
+    if (khoaMoi && timDongBang(dong, khoaMoi) >= 0)
+      loi.push(`Thêm dòng: ${them.tep} đã có dòng "${khoaMoi}": lấy mã khác`);
+  }
   if (yctd && taiLieu?.[TEP.yeuCau] && new RegExp(`^### ${yctd}:`, 'm').test(taiLieu[TEP.yeuCau])) {
     loi.push(`${yctd} đã có trong ${TEP.yeuCau}: lấy số khác`);
   }
@@ -200,7 +277,10 @@ function docTaiLieu(thuMuc, ten) {
 
 function taiLieuCanDoc(thuMuc, manh) {
   const ten = new Set([...Object.values(TEP), ...KHOANG_MA.map((k) => k.tep)]);
-  for (const m of manh) for (const d of m.muc.noiDong ?? []) ten.add(oBang(d)?.[0] ?? '');
+  for (const m of manh) {
+    for (const d of m.muc.noiDong ?? []) ten.add(oBang(d)?.[0] ?? '');
+    for (const d of m.muc.themDong ?? []) ten.add(docDongThem(d)?.tep ?? '');
+  }
   const taiLieu = {};
   for (const t of ten) {
     if (!t || t.includes('..')) continue;
@@ -222,6 +302,21 @@ export function kiemThuMuc(thuMuc) {
     if (daThay.has(yctd)) {
       ketQua.find((k) => k.tenTep === m.tenTep).loi.push(`${yctd} trùng với tệp ${daThay.get(yctd)}`);
     } else daThay.set(yctd, m.tenTep);
+  }
+  // Hai tệp mảnh thêm cùng một mã dòng vào cùng một tài liệu
+  const dongThem = new Map();
+  for (const m of manh) {
+    for (const d of m.muc.themDong ?? []) {
+      const them = docDongThem(d);
+      const khoa = them && oBang(them.dongMoi)?.[0];
+      if (!khoa) continue;
+      const ma = `${them.tep} ${khoa}`;
+      if (dongThem.has(ma) && dongThem.get(ma) !== m.tenTep) {
+        ketQua
+          .find((k) => k.tenTep === m.tenTep)
+          .loi.push(`Thêm dòng: "${khoa}" ở ${them.tep} trùng với tệp ${dongThem.get(ma)}`);
+      } else dongThem.set(ma, m.tenTep);
+    }
   }
   return { soTep: manh.length, loi: ketQua.filter((k) => k.loi.length > 0) };
 }
@@ -284,6 +379,18 @@ function noiDong(vanBan, khoa, noiDung) {
   return dong.join('\n');
 }
 
+// daThem đếm số dòng đã chèn sau mỗi neo trong lần gom này, để nhiều tệp cùng chèn sau một neo giữ thứ tự merge
+function themDongBang(vanBan, { tep, neo, dongMoi }, daThem) {
+  const dong = vanBan.split('\n');
+  const viTri = timNeo(dong, neo);
+  if (viTri < 0) throw new Error(`không tìm thấy neo "${neo}" trong ${tep}`);
+  const ma = `${tep} ${neo}`;
+  const truoc = neo.startsWith(NEO_CUOI_BANG) ? 0 : (daThem.get(ma) ?? 0);
+  dong.splice(viTri + 1 + truoc, 0, dongMoi);
+  daThem.set(ma, truoc + 1);
+  return dong.join('\n');
+}
+
 function congSo(vanBan, khoa, cum, them) {
   const dong = vanBan.split('\n');
   const viTri = timDongBang(dong, khoa);
@@ -315,6 +422,7 @@ export function gomThayDoi({ thuMuc, ngay, sapXep = thuTuTheoGit }) {
     daSua.add(ten);
   };
 
+  const daThem = new Map();
   let phienBanHienTai = /^### Phiên bản (\d+\.\d+\.\d+)/m.exec(taiLieu[TEP.phienBan])[1];
   const daGom = [];
   for (const m of thuTu) {
@@ -348,6 +456,10 @@ export function gomThayDoi({ thuMuc, ngay, sapXep = thuTuTheoGit }) {
     for (const d of muc.noiDong ?? []) {
       const [ten, khoa, noiDung] = oBang(d);
       sua(ten, (v) => noiDong(v, khoa, dien([noiDung])[0]));
+    }
+    for (const d of muc.themDong ?? []) {
+      const them = docDongThem(d);
+      sua(them.tep, (v) => themDongBang(v, { ...them, dongMoi: dien([them.dongMoi])[0] }, daThem));
     }
     sua(TEP.mucLuc, (v) => congSo(v, DONG_SO_YCTD, 'Số lượng', 1));
     daGom.push({ tenTep: m.tenTep, phienBan });
