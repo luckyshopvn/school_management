@@ -1220,7 +1220,7 @@ export interface IntegrationSecretsTable {
 
 // Trợ lý AI của trường (DT-23 phần 23d, YCTD-214)
 export type AiKeyMode = 'school' | 'platform';
-export type AiRequestKind = 'questions' | 'lesson_plan' | 'check';
+export type AiRequestKind = 'questions' | 'lesson_plan' | 'check' | 'feedback';
 export type AiRequestStatus = 'success' | 'failed' | 'rejected' | 'blocked';
 
 export interface AiSettingsTable {

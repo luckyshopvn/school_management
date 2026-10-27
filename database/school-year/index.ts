@@ -108,6 +108,10 @@ import { migration as moveClassroomGroupingsToGroupSets } from './migrations/017
 import { migration as createTutoringPrograms } from './migrations/0152_create_tutoring_programs.js';
 import { migration as createTutoringSessions } from './migrations/0153_create_tutoring_sessions.js';
 import { migration as createTutoringRegistrations } from './migrations/0154_create_tutoring_registrations.js';
+import { migration as createAssignments } from './migrations/0176_create_assignments.js';
+import { migration as createAssignmentRecipients } from './migrations/0177_create_assignment_recipients.js';
+import { migration as createAssignmentSubmissions } from './migrations/0178_create_assignment_submissions.js';
+import { migration as createSubmissionFeedback } from './migrations/0179_create_submission_feedback.js';
 
 // Danh sách tệp thay đổi cấu trúc của cơ sở dữ liệu năm học, theo số thứ tự (QU-01, QU-11)
 export const schoolYearMigrations: Record<string, Migration> = {
@@ -225,4 +229,9 @@ export const schoolYearMigrations: Record<string, Migration> = {
   '0152_create_tutoring_programs': createTutoringPrograms,
   '0153_create_tutoring_sessions': createTutoringSessions,
   '0154_create_tutoring_registrations': createTutoringRegistrations,
+  // Bài tập trực tuyến (DT-28 phần 28c): 0176 đến 0179
+  '0176_create_assignments': createAssignments,
+  '0177_create_assignment_recipients': createAssignmentRecipients,
+  '0178_create_assignment_submissions': createAssignmentSubmissions,
+  '0179_create_submission_feedback': createSubmissionFeedback,
 };
