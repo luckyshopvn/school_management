@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Alert, Button, StatusBadge, type StatusTone } from '@school-management/ui';
+import { StudentAssignmentView } from './StudentAssignmentView.js';
 import { requestStudentJson, StudentApiError } from './student-api.js';
 
 // Học sinh tự học ở lớp học trực tuyến (DT-28 phần 28b, YCTD-272, sau khi 23a gộp kênh student): các lớp đã mở cho em, hoạt
@@ -7,6 +8,7 @@ import { requestStudentJson, StudentApiError } from './student-api.js';
 // nội quy dạy học trực tuyến (Thông tư 09/2021/TT-BGDĐT Điều 15) để em xác nhận đã đọc. Nội dung trang hiện dạng chữ thuần
 interface ActivityView {
   id: string;
+  kind: string;
   kind_label: string;
   title: string;
   lesson_label: string | null;
@@ -82,6 +84,8 @@ function ActivityContent({ activity, onClose }: { activity: OpenedActivity; onCl
 export function StudentLearningPanel() {
   const [data, setData] = useState<StudentLearning>();
   const [opened, setOpened] = useState<OpenedActivity>();
+  // Bài tập trực tuyến (DT-28 phần 28c) mở màn hình làm bài
+  const [assignmentId, setAssignmentId] = useState<string>();
   const [errorMessage, setErrorMessage] = useState<string>();
 
   const load = useCallback(() => {
@@ -94,12 +98,18 @@ export function StudentLearningPanel() {
   async function open(activity: ActivityView) {
     try {
       setErrorMessage(undefined);
-      setOpened(
-        await requestStudentJson<OpenedActivity>(`/api/v1/student/learning/activities/${activity.id}/open`, {
+      const content = await requestStudentJson<OpenedActivity>(
+        `/api/v1/student/learning/activities/${activity.id}/open`,
+        {
           method: 'POST',
           body: '{}',
-        }),
+        },
       );
+      if (activity.kind === 'assignment') {
+        setAssignmentId(activity.id);
+      } else {
+        setOpened(content);
+      }
       load();
     } catch (error) {
       setErrorMessage(messageOf(error));
@@ -127,6 +137,15 @@ export function StudentLearningPanel() {
         </div>
       ) : null}
       {opened ? <ActivityContent activity={opened} onClose={() => setOpened(undefined)} /> : null}
+      {assignmentId ? (
+        <StudentAssignmentView
+          activityId={assignmentId}
+          onClose={() => {
+            setAssignmentId(undefined);
+            load();
+          }}
+        />
+      ) : null}
       {data?.spaces.length === 0 ? <Alert tone="info">Hiện chưa có lớp học trực tuyến nào mở cho em.</Alert> : null}
       {data?.spaces.map((space) => (
         <article

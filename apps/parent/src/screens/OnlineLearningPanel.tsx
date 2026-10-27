@@ -4,9 +4,10 @@ import { ApiError, requestJson } from '../session/api-client.js';
 
 // Học trực tuyến của con (DT-28 phần 28b, YCTD-272): các lớp học trực tuyến đã mở cho học sinh, hoạt động đã giao kèm hạn, trạng
 // thái và lý do khi hoạt động còn khóa, tiến độ; nội quy dạy học trực tuyến của trường (Thông tư 09/2021/TT-BGDĐT Điều 15) để
-// phụ huynh xác nhận đã đọc thay con chưa có tài khoản. Phụ huynh chỉ xem, không làm thay hoạt động
+// phụ huynh xác nhận đã đọc thay con chưa có tài khoản. Phụ huynh chỉ xem, không làm thay hoạt động (nộp thay bài về nhà ở 28f)
 interface ActivityView {
   id: string;
+  kind: string;
   kind_label: string;
   title: string;
   instructions: string | null;
@@ -36,11 +37,32 @@ const STATUS_LABELS: Record<string, string> = {
   excused: 'Được miễn',
 };
 
+// Bài tập trực tuyến của con (DT-28 phần 28c, YCTD-273): các lần nộp, nộp muộn, điểm hoặc mức và nhận xét khi giáo viên đã trả
+interface ChildAssignment {
+  excused: boolean;
+  attempts: Array<{
+    attempt_no: number;
+    status: 'submitted' | 'returned';
+    late: boolean;
+    score: number | null;
+    level: string | null;
+    feedback: string | null;
+    feedback_ai_assisted: boolean;
+  }>;
+}
+
+const LEVEL_LABELS: Record<string, string> = {
+  excellent: 'Hoàn thành tốt',
+  completed: 'Hoàn thành',
+  not_completed: 'Chưa hoàn thành',
+};
+
 const messageOf = (error: unknown) => (error instanceof ApiError ? error.message : 'Không kết nối được tới máy chủ');
 
 export function OnlineLearningPanel({ child }: { child: { id: string; full_name: string } }) {
   const [data, setData] = useState<ChildLearning>();
   const [errorMessage, setErrorMessage] = useState<string>();
+  const [assignments, setAssignments] = useState<Record<string, ChildAssignment>>({});
   const load = useCallback(() => {
     requestJson<ChildLearning>(`/api/v1/learning/children/${child.id}`)
       .then(setData)
@@ -51,6 +73,16 @@ export function OnlineLearningPanel({ child }: { child: { id: string; full_name:
     try {
       await requestJson(`/api/v1/learning/children/${child.id}/rules/acknowledge`, { method: 'POST', body: '{}' });
       load();
+    } catch (error) {
+      setErrorMessage(messageOf(error));
+    }
+  };
+  const viewAssignment = async (activityId: string) => {
+    try {
+      const loaded = await requestJson<ChildAssignment>(
+        `/api/v1/learning/children/${child.id}/assignments/${activityId}`,
+      );
+      setAssignments({ ...assignments, [activityId]: loaded });
     } catch (error) {
       setErrorMessage(messageOf(error));
     }
@@ -95,6 +127,31 @@ export function OnlineLearningPanel({ child }: { child: { id: string; full_name:
                     </span>
                     {!activity.open ? (
                       <p className="text-label text-text-secondary">{activity.locked_reasons.join('; ')}</p>
+                    ) : null}
+                    {activity.kind === 'assignment' && activity.open && !assignments[activity.id] ? (
+                      <div>
+                        <Button variant="text" onClick={() => void viewAssignment(activity.id)}>
+                          Xem bài và nhận xét
+                        </Button>
+                      </div>
+                    ) : null}
+                    {assignments[activity.id] ? (
+                      <ul className="flex flex-col gap-1 text-label text-text" aria-label={`Bài nộp ${activity.title}`}>
+                        {assignments[activity.id]?.excused ? <li>Con được miễn bài này</li> : null}
+                        {assignments[activity.id]?.attempts.length === 0 ? <li>Con chưa nộp bài</li> : null}
+                        {assignments[activity.id]?.attempts.map((attempt) => (
+                          <li key={attempt.attempt_no}>
+                            Lần {attempt.attempt_no}:{' '}
+                            {attempt.status === 'returned' ? 'đã trả bài' : 'đã nộp, chờ chấm'}
+                            {attempt.late ? ', nộp muộn' : ''}
+                            {attempt.score !== null ? ` · điểm ${attempt.score}` : ''}
+                            {attempt.level ? ` · ${LEVEL_LABELS[attempt.level] ?? attempt.level}` : ''}
+                            {attempt.feedback
+                              ? ` · nhận xét: ${attempt.feedback}${attempt.feedback_ai_assisted ? ' (có trợ lý AI hỗ trợ)' : ''}`
+                              : ''}
+                          </li>
+                        ))}
+                      </ul>
                     ) : null}
                   </li>
                 ))}

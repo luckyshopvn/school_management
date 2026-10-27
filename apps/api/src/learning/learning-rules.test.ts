@@ -239,7 +239,7 @@ describe('Lõi hệ thống quản lý học tập: hàm thuần', () => {
       activityKind(kind)?.parseSettings(settings, 'settings', kindErrors);
       assert.ok(kindErrors.length > 0, kind);
     }
-    assert.equal(activityKind('assignment'), null, 'loại của phần sau chưa đăng ký thì không dùng được');
+    assert.equal(activityKind('discussion'), null, 'loại của phần sau chưa đăng ký thì không dùng được');
     assert.equal(hostAllowed('hoc.example.vn', ['example.vn']), true);
     assert.equal(hostAllowed('example.vn.evil.com', ['example.vn']), false);
     assert.equal(hostAllowed('hoc.example.vn', []), false);

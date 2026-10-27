@@ -1,10 +1,12 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Alert, ApplicationHeader, Button, FORM_CONTROL_CLASS } from '@school-management/ui';
 import { ApiError, requestJson } from '../session/api-client.js';
+import { AssignmentScreen } from './AssignmentScreen.js';
 
 // Lớp học trực tuyến của tôi (DT-28 phần 28b, YCTD-272): lớp học trực tuyến theo lớp, môn tự có từ phân công giảng dạy;
 // giáo viên mở lớp cho học sinh, giao hoạt động, thêm nhanh một trang nội dung vào chương, xem tiến độ. Soạn đầy đủ (liên
-// kết, học liệu, điều kiện mở, khoá mẫu) ở cổng quản trị, mục 9. Học tập trực tuyến
+// kết, học liệu, điều kiện mở, khoá mẫu) ở cổng quản trị, mục 9. Học tập trực tuyến. Bài tập (DT-28 phần 28c, YCTD-273) tạo ở
+// đây rồi soạn, giao, chấm ở màn hình bài tập
 interface SpaceSummary {
   id: string;
   title: string;
@@ -21,6 +23,7 @@ interface SpaceDetail {
     id: string;
     section_id: string;
     title: string;
+    kind: string;
     kind_label: string;
     status: 'draft' | 'published';
   }>;
@@ -43,6 +46,10 @@ function SpaceView({ spaceId, onBack }: { spaceId: string; onBack(): void }) {
   const [errorMessage, setErrorMessage] = useState<string>();
   const [title, setTitle] = useState('');
   const [body, setBody] = useState('');
+  // Bài tập trực tuyến (DT-28 phần 28c): tạo hoạt động loại bài tập rồi soạn ở màn hình bài tập
+  const [assignmentTitle, setAssignmentTitle] = useState('');
+  const [assignmentDue, setAssignmentDue] = useState('');
+  const [assignmentId, setAssignmentId] = useState<string>();
   const load = useCallback(() => {
     requestJson<SpaceDetail>(`/api/v1/learning/spaces/${spaceId}`)
       .then(setDetail)
@@ -62,6 +69,17 @@ function SpaceView({ spaceId, onBack }: { spaceId: string; onBack(): void }) {
     }
   };
   const firstSection = detail?.sections[0];
+  if (assignmentId) {
+    return (
+      <AssignmentScreen
+        activityId={assignmentId}
+        onBack={() => {
+          setAssignmentId(undefined);
+          load();
+        }}
+      />
+    );
+  }
   return (
     <main className="mx-auto flex max-w-md flex-col gap-4 px-4 py-6 md:max-w-3xl">
       <div>
@@ -101,7 +119,16 @@ function SpaceView({ spaceId, onBack }: { spaceId: string; onBack(): void }) {
                       {activity.kind_label} · {activity.status === 'published' ? 'Đã giao' : 'Nháp'}
                     </span>
                     {detail.can_teach ? (
-                      <div>
+                      <div className="flex flex-wrap gap-2">
+                        {activity.kind === 'assignment' ? (
+                          <Button
+                            variant="text"
+                            aria-label={`Mở bài tập ${activity.title}`}
+                            onClick={() => setAssignmentId(activity.id)}
+                          >
+                            Mở bài tập
+                          </Button>
+                        ) : null}
                         <Button
                           variant="text"
                           onClick={() =>
@@ -163,6 +190,53 @@ function SpaceView({ spaceId, onBack }: { spaceId: string; onBack(): void }) {
               <div>
                 <Button type="submit" disabled={!title || !body}>
                   Thêm trang
+                </Button>
+              </div>
+            </form>
+          ) : null}
+          {detail.can_teach && firstSection ? (
+            <form
+              aria-label="Thêm bài tập"
+              className="flex flex-col gap-2"
+              onSubmit={(event) => {
+                event.preventDefault();
+                void run(async () => {
+                  const created = await requestJson<{ id: string }>(
+                    `/api/v1/learning/spaces/${spaceId}/activities`,
+                    post({
+                      section_id: firstSection.id,
+                      kind: 'assignment',
+                      title: assignmentTitle,
+                      due_at: assignmentDue ? new Date(assignmentDue).toISOString() : null,
+                    }),
+                  );
+                  setAssignmentTitle('');
+                  setAssignmentDue('');
+                  setAssignmentId(created.id);
+                });
+              }}
+            >
+              <h2 className="text-section-title font-semibold text-text">Thêm bài tập vào {firstSection.title}</h2>
+              <label className="text-label font-medium text-text">
+                Tên bài tập
+                <input
+                  className={`mt-2 block w-full ${FORM_CONTROL_CLASS}`}
+                  value={assignmentTitle}
+                  onChange={(event) => setAssignmentTitle(event.target.value)}
+                />
+              </label>
+              <label className="text-label font-medium text-text">
+                Hạn nộp
+                <input
+                  type="datetime-local"
+                  className={`mt-2 block w-full ${FORM_CONTROL_CLASS}`}
+                  value={assignmentDue}
+                  onChange={(event) => setAssignmentDue(event.target.value)}
+                />
+              </label>
+              <div>
+                <Button type="submit" disabled={!assignmentTitle}>
+                  Tạo bài tập
                 </Button>
               </div>
             </form>

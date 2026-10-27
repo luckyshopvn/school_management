@@ -2427,6 +2427,33 @@ Hướng dẫn dùng cho các phần sau (16b, 16e đến 16k):
 
 Mọi tuyến nhân sự của `/learning` (trừ `children/...`) cần một trong `P02.learning.teach`, `template`, `decide`, `view`; ở nền tảng nhiều trường, gói không gồm phân hệ của nhóm menu 9 thì trả 403 `MODULE_NOT_IN_PLAN`.
 
+### 17.3. Bài tập trực tuyến (DT-28 phần 28c, YCTD-273)
+
+Tuyến giáo viên cần `P02.assignment.manage` và là giáo viên của lớp học trực tuyến của hoạt động; lỗi quy tắc 422 mã `YCTD-273`.
+
+| Phương thức | Đường dẫn | Mô tả |
+|---|---|---|
+| GET, PUT, PATCH | /api/v1/learning/activities/{id}/assignment | Màn hình soạn (cài đặt, phiên bản, câu kèm đáp án, đích, số học sinh nhận, học sinh, bộ nhóm của lớp); lưu toàn bộ `{ context, work_mode, group_set_id, late_policy, max_attempts, grading, rubric_id, show_results, estimated_minutes, variants: [{ code, name }], items: [{ variant_code, kind, question_id, resource_id, prompt, score }], targets: [{ kind, group_id, child_id, variant_code }] }` (đã phát hành thì 422); PATCH sau phát hành chỉ `late_policy`, `max_attempts` (chỉ tăng), `show_results` |
+| GET | /api/v1/learning/activities/{id}/assignment/questions?search= | Câu đã duyệt cùng cấp, cùng môn của lớp (tối đa 100) |
+| POST | /api/v1/learning/activities/{id}/assignment/release, /close | Phát hành (chốt danh sách, giao hoạt động; trả `recipient_count`); đóng hoặc mở lại `{ closed }` |
+| PATCH | /api/v1/learning/activities/{id}/assignment/recipients/{childId} | Hạn riêng `due_at`, miễn `{ excused, excuse_reason }` |
+| GET | /api/v1/learning/activities/{id}/assignment/submissions | Theo học sinh hoặc theo nhóm: lần nộp mới nhất, có bản nháp, miễn |
+| POST | /api/v1/learning/activities/{id}/assignment/return | Trả bài `{ submission_ids? }` (không gửi là mọi bài đã chấm xong); trả `returned`, `skipped` |
+| GET; POST, DELETE | /api/v1/learning/activities/{id}/assignment/comment-bank; /api/v1/learning/assignment-comments, /{id} | Ngân hàng nhận xét (câu của trường theo cấp và câu của giáo viên); thêm, xóa câu của mình |
+| GET | /api/v1/learning/submissions/{id} | Bài nộp: câu, câu trả lời, điểm máy chấm, tệp, trao đổi, thành viên, đánh giá đóng góp |
+| POST | /api/v1/learning/submissions/{id}/grade | `{ item_scores, criteria_scores, level, feedback, feedback_ai_assisted }`; bài đã trả thì ghi lại kết quả hoạt động |
+| POST | /api/v1/learning/submissions/{id}/contributions/{childId} | Điều chỉnh điểm cá nhân bài nhóm `{ score, reason }` |
+| POST | /api/v1/learning/submissions/{id}/ai-feedback | Gợi ý nhận xét `{ note }`; trả `{ request_id, comment, notice }`; không lưu vào bài |
+| POST | /api/v1/learning/submissions/{id}/comments | Giáo viên trao đổi trên bài `{ body }` |
+| GET | /api/v1/learning/submission-files/{id} | Tệp của bài nộp (giáo viên) |
+| GET | /api/v1/learning/children/{childId}/assignments/{activityId} | Phụ huynh (hoặc cán bộ xem lớp học trực tuyến) xem các lần nộp, điểm, mức, nhận xét đã trả của con |
+| GET | /api/v1/student/assignments/{activityId} | Học sinh (kênh `student`, `P02.learning.study`): câu không đáp án, bản nháp, các lần nộp, `can_submit`, `submit_blocked_reason`, `will_be_late`, nhóm, giới hạn tệp |
+| PUT | /api/v1/student/assignments/{activityId}/draft | Lưu nháp `{ answers, version }`; khác phiên bản 409 |
+| POST | /api/v1/student/assignments/{activityId}/items/{itemId}/files | Gửi tệp (multipart `file`) vào bản nháp |
+| POST | /api/v1/student/assignments/{activityId}/submit, /contribution | Nộp `{ answers?, version? }` (trả `late`); đánh giá đóng góp `{ self_rating, self_note, peers }` |
+| POST | /api/v1/student/assignments/{activityId}/submissions/{submissionId}/comments | Học sinh trao đổi trên bài của mình |
+| GET, DELETE | /api/v1/student/assignments/files/{fileId} | Xem tệp của bài mình (hoặc nhóm mình), xóa tệp của bản nháp |
+
 ## 18. Quy tắc kiểm tra dữ liệu
 
 | Mã | Quy tắc |

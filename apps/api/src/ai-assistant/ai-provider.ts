@@ -5,7 +5,7 @@ import { createHash } from 'node:crypto';
 // hình là cấu hình (của nền tảng và của trường), không ghi cứng. `mock` chỉ để kiểm thử: cho kết quả cố định, không gọi ra ngoài, ghi
 // lại lời nhắc nhận được để kiểm thử khẳng định không có dữ liệu cá nhân; chỉ dựng khi cấu hình máy chủ cho phép (`AI_MOCK=true`)
 
-export type AiPromptKind = 'questions' | 'lesson_plan' | 'check';
+export type AiPromptKind = 'questions' | 'lesson_plan' | 'check' | 'feedback';
 
 export interface AiPrompt {
   kind: AiPromptKind;
@@ -191,7 +191,11 @@ export class MockAiProvider implements AiProvider {
         ? mockQuestions(prompt.user)
         : prompt.kind === 'lesson_plan'
           ? mockLessonPlan()
-          : 'ok';
+          : prompt.kind === 'feedback'
+            ? JSON.stringify({
+                comment: 'Em đã hoàn thành các yêu cầu chính của bài. Em cần trình bày rõ hơn các bước làm.',
+              })
+            : 'ok';
     return {
       text,
       inputTokens: tokensOf(prompt.system) + tokensOf(prompt.user),
