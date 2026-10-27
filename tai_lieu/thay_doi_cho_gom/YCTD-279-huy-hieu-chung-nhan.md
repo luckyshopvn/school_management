@@ -27,6 +27,8 @@ phien_ban_de_xuat: 0.168.0
   - Cổng quản trị: khối cấu hình ở mục 9.3.
 - **Kiểm thử:** 5/5 ca của `recognition-rules.test.ts`, `recognition.test.ts`; e2e `218-badges-certificates`.
 
+- **Sửa lỗi của lõi 28b:** `LearningService.sync` truy vấn môn với danh sách rỗng (lỗi 500 ở danh sách lớp học trực tuyến) khi trường có lớp nhưng chưa có phân công môn, tiết nào, ví dụ giáo viên chỉ dạy khoá tự chọn; nay bỏ qua truy vấn khi danh sách rỗng, có ca kiểm thử ở `recognition.test.ts`.
+
 #### Quyết định
 
 - Claude chọn theo ủy quyền (ghi ở YCTD-279):
@@ -99,7 +101,7 @@ phien_ban_de_xuat: 0.168.0
   - Huy hiệu nội bộ (P03-55, MH-500, MH-501).
   - Chứng nhận hoàn thành khoá tự chọn (P03-56, MH-500, MH-501).
   - Trang kiểm tra chứng nhận công khai, cấu hình của trường (P03-57, MH-502).
-- Lỗi đã sửa: không có.
+- Lỗi đã sửa: danh sách lớp học trực tuyến của giáo viên lỗi 500 khi trường chưa có phân công môn, tiết nào (`LearningService.sync`).
 - Thay đổi dữ liệu: năm học `0191`, `0192`; xem `16_CO_SO_DU_LIEU.md` mục 18N.
 - Thay đổi API: xem `17_DAC_TA_API.md` mục 17.8.
 - Kiểm thử: kịch bản CT-1350 đến CT-1355 (CT-28i-1 đến CT-28i-6 trong mã kiểm thử).
