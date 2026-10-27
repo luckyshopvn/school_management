@@ -11,6 +11,7 @@ import {
 } from '@school-management/shared';
 import { Alert, Button } from '@school-management/ui';
 import { ApiError, requestJson } from '../session/api-client.js';
+import { ChildTutoringCourses } from './ChildTutoringCourses.js';
 import { ChildVideoPanel } from './ChildVideoPanel.js';
 
 // Gia sư trong trường của con (DT-27 phần 27b, YCTD-252): chương trình nhà trường mở cho con, đọc nội dung và gửi đơn đăng ký (cha mẹ
@@ -98,6 +99,10 @@ export function TutoringPanel({ child }: { child: { id: string; full_name: strin
       {errorMessage ? <Alert tone="danger">{errorMessage}</Alert> : null}
       {notice ? <Alert tone="success">{notice}</Alert> : null}
       <ChildVideoPanel child={child} programs={overview?.programs ?? []} />
+      <ChildTutoringCourses
+        childId={child.id}
+        programIds={(overview?.programs ?? []).filter((program) => program.registered).map((program) => program.id)}
+      />
       <h3 className="text-content font-semibold">Chương trình nhà trường mở cho con</h3>
       {overview && overview.programs.length === 0 ? (
         <p className="text-label text-text-secondary">Hiện chưa có chương trình nào mở cho con.</p>

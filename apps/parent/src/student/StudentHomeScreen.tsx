@@ -3,6 +3,7 @@ import { InstallPrompt, PushSettingsPanel, UpdateBanner } from '@school-manageme
 import { Alert, Button, StatusBadge, type StatusTone } from '@school-management/ui';
 import { ExamRoom } from './ExamRoom.js';
 import { StudentLearningPanel } from './StudentLearningPanel.js';
+import { StudentTutoringCourses } from './StudentTutoringCourses.js';
 import { StudentVideoPanel } from './StudentVideoPanel.js';
 import {
   listStudentExams,
@@ -169,6 +170,7 @@ export function StudentHomeScreen() {
       </section>
       {/* Lớp học trực tuyến (DT-28 phần 28b) */}
       <StudentVideoPanel />
+      <StudentTutoringCourses />
       <StudentLearningPanel />
     </main>
   );
