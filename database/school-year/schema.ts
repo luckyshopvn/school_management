@@ -7130,6 +7130,23 @@ export interface TutoringMediaViewsTable {
   viewed_at: CreatedTimestamp;
 }
 
+// Lượt chạy gói SCORM của học sinh (DT-28 phần 28h, YCTD-278)
+export interface ScormAttemptsTable {
+  id: Generated<string>;
+  activity_id: string;
+  child_id: string;
+  package_id: string;
+  sco_identifier: string;
+  completion: Generated<'unknown' | 'not_attempted' | 'incomplete' | 'completed'>;
+  success: Generated<'unknown' | 'passed' | 'failed'>;
+  score: ColumnType<string | null, string | number | null | undefined, string | number | null>;
+  total_seconds: Generated<number>;
+  session_count: Generated<number>;
+  location: string | null;
+  suspend_data: string | null;
+  updated_at: UpdatedTimestamp;
+}
+
 export interface SchoolYearDatabase {
   question_topics: QuestionTopicsTable;
   questions: QuestionsTable;
@@ -7582,4 +7599,5 @@ export interface SchoolYearDatabase {
   group_files: GroupFilesTable;
   discussion_space_settings: DiscussionSpaceSettingsTable;
   discussion_write_bans: DiscussionWriteBansTable;
+  scorm_attempts: ScormAttemptsTable;
 }

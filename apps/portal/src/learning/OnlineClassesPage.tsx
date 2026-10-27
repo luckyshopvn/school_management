@@ -110,6 +110,8 @@ function ActivityForm({ detail, onSaved }: { detail: SpaceDetail; onSaved(messag
             <option value="page">Trang nội dung</option>
             <option value="link">Liên kết</option>
             <option value="resource">Học liệu</option>
+            {/* Gói bài giảng SCORM đã công bố ở kho học liệu (DT-28 phần 28h) */}
+            <option value="scorm">Gói bài giảng SCORM</option>
           </select>
         </label>
         <label className="text-label font-medium text-text">
@@ -135,7 +137,9 @@ function ActivityForm({ detail, onSaved }: { detail: SpaceDetail; onSaved(messag
           ? 'Nội dung trang'
           : kind === 'link'
             ? 'Địa chỉ liên kết (https://)'
-            : 'Mã học liệu đã công bố'}
+            : kind === 'scorm'
+              ? 'Mã học liệu gói SCORM đã công bố'
+              : 'Mã học liệu đã công bố'}
         {kind === 'page' ? (
           <textarea
             className={`mt-2 block w-full ${FORM_CONTROL_CLASS}`}

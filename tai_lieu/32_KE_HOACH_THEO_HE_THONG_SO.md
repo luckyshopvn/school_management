@@ -2729,7 +2729,7 @@ Cỡ ước lượng (một phần của DT-16 là một đơn vị): 28a 1,0; 2
 | 28e | 2 | Đã làm (YCTD-275, phiên bản đề xuất 0.162.0): thông báo lớp tới học sinh, phụ huynh, diễn đàn, hỏi đáp có câu hỏi riêng và xác nhận câu trả lời, không gian học nhóm (bảng tin, việc, ghi chú có phiên bản, tệp), lọc thông tin liên lạc, báo cáo vi phạm, hàng chờ của trường, tạm khóa quyền viết, giờ mở do trường đặt (GD-144 chưa chốt, mặc định không giới hạn), phụ huynh theo GD-145, lịch học tập; năm học 0182 đến 0184, định danh 0182; e2e 214. Chưa làm: ảnh trong câu hỏi, giờ học trực tuyến (28g) và bài về nhà (28f) trong lịch |
 | 28f | 3 | Chưa làm; YCTD-276 giữ sẵn; chờ 28c |
 | 28g | 3 | Chưa làm; YCTD-277 giữ sẵn; chờ 27a |
-| 28h | 3 | Chưa làm; YCTD-278 giữ sẵn; chờ 28b |
+| 28h | 3 | Đã làm (YCTD-278, phiên bản đề xuất 0.167.0): gói SCORM 1.2, 2004 là học liệu loại `scorm` của kho 22h1 (kiểm bản kê, đường dẫn, loại tệp, cỡ; qua duyệt), phát cô lập (CSP sandbox, mã truy cập HMAC ngắn hạn theo trường, học sinh, hoạt động; nguồn gốc nội dung riêng cấu hình được), bộ chuyển API qua postMessage ghi kết quả hoạt động, nhiều SCO chạy tuần tự (GD-153); gói khoá học `school-management.course-package/1` xuất nhập khoá mẫu kèm học liệu, gói SCORM; hệ thống 0113, 0114, năm học 0189; e2e 217. Chưa làm: spec nhiều trường cho gói SCORM (mở rộng `MULTI_TENANT_SPEC`), cấu hình tên miền nội dung ở cổng biên |
 | 28i | 4 | Chưa làm; YCTD-279 giữ sẵn |
 | 28j | 4 | Chưa làm; YCTD-280 giữ sẵn; chờ 26a |
 

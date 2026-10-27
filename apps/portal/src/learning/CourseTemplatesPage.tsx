@@ -4,6 +4,7 @@ import { Alert, Button, FORM_CONTROL_CLASS, StatusBadge, Toast } from '@school-m
 import { AppShell } from '../pages/AppShell.js';
 import { menuPageTitle } from '../pages/page-title.js';
 import { ApiError } from '../session/api-client.js';
+import { ExportPackageButton, ImportPackageForm } from './CoursePackagePanel.js';
 import {
   applyTemplate,
   createTemplate,
@@ -249,6 +250,8 @@ function TemplateCard({ template, onChanged }: { template: CourseTemplate; onCha
             </div>
           ) : null}
           {template.published_version !== null ? <ApplyPanel template={template} onApplied={onChanged} /> : null}
+          {/* Gói khoá học giữa các trường (DT-28 phần 28h) */}
+          <ExportPackageButton templateId={template.id} onDone={onChanged} />
         </div>
       ) : null}
       {error ? <Alert tone="danger">{messageOf(error)}</Alert> : null}
@@ -290,6 +293,7 @@ export function CourseTemplatesPage() {
         {templates.data && templates.data.length === 0 ? (
           <p className="text-content text-text-secondary">Chưa có khoá mẫu.</p>
         ) : null}
+        {config.data?.can_template ? <ImportPackageForm onImported={setToastMessage} /> : null}
         {config.data?.can_template ? (
           <form
             aria-label="Tạo khoá mẫu"

@@ -542,6 +542,15 @@ import { LearningProgressService } from './learning/progress/progress.js';
 import { DiscussionsController } from './learning/discussions/discussions.controller.js';
 import { DiscussionsService } from './learning/discussions/discussions.js';
 import { StudentDiscussionsController } from './learning/discussions/student-discussions.controller.js';
+import { CoursePackagesController } from './learning/content-packages/course-packages.controller.js';
+import { CoursePackagesService } from './learning/content-packages/course-packages.js';
+import {
+  ScormActivitiesController,
+  ScormContentController,
+  ScormResourcesController,
+  StudentScormController,
+} from './learning/content-packages/scorm.controller.js';
+import { ScormPackagesService } from './learning/content-packages/scorm.js';
 
 @Module({})
 export class ApplicationModule {
@@ -866,6 +875,12 @@ export class ApplicationModule {
         TutoringCourseMediaStreamController,
         ChildTutoringCoursesController,
         StudentTutoringCoursesController,
+        // Gói SCORM, gói khoá học (DT-28 phần 28h)
+        ScormResourcesController,
+        ScormActivitiesController,
+        StudentScormController,
+        ScormContentController,
+        CoursePackagesController,
       ],
       providers: [
         { provide: API_CONFIGURATION, useValue: configuration },
@@ -1300,6 +1315,9 @@ export class ApplicationModule {
         DiscussionsService,
         // Khoá học ghi sẵn của chương trình gia sư (DT-27 phần 27d1)
         TutoringCoursesService,
+        // Gói SCORM, gói khoá học (DT-28 phần 28h)
+        ScormPackagesService,
+        CoursePackagesService,
       ],
     };
   }
