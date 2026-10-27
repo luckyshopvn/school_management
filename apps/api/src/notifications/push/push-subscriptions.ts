@@ -1,4 +1,5 @@
 import { createHmac } from 'node:crypto';
+import { readFile } from 'node:fs/promises';
 import {
   Body,
   Controller,
@@ -13,7 +14,11 @@ import {
   Put,
 } from '@nestjs/common';
 import {
+  parseApnsKey,
+  parseFcmServiceAccount,
   readActiveVapidKeys,
+  readNativePushCredentials,
+  type NativePushCredentials,
   type PushSubscriptionApp,
   type SystemDatabase,
   type TenancyRuntime,
@@ -29,7 +34,7 @@ import { decryptSecret, encryptSecret } from '../../common/secret-encryption.js'
 import { notFoundError, type RequestBody } from '../../common/request-fields.js';
 import { uuidParameter } from '../../common/uuid-parameter.js';
 import { isPushGroupCode, PUSH_GROUPS, pushGroupOf } from './push-groups.js';
-import type { PushTarget, VapidCredentials } from './push-sender.js';
+import type { PushCredentials, PushTarget, VapidCredentials } from './push-transport.js';
 
 // Đăng ký thông báo đẩy và tuỳ chọn theo nhóm (DT-26 phần 26b, YCTD-232; tài liệu 32 mục 18):
 // - mỗi người dùng nhiều máy; địa chỉ đăng ký và khóa nhận lưu mã hóa bằng khóa của trường, mã băm có khóa để chống trùng; một địa
@@ -38,10 +43,25 @@ import type { PushTarget, VapidCredentials } from './push-sender.js';
 // - tuỳ chọn tắt theo nhóm chỉ áp cho kênh đẩy (thông báo trong ứng dụng vẫn có); loại do quản trị trường đánh dấu khẩn không tắt được;
 // - khóa công khai VAPID trả qua điểm cuối công khai: nhiều trường đọc ở cơ sở dữ liệu nền tảng (khóa của nền tảng), một trường lấy
 //   từ cấu hình.
+// Đẩy gốc (phần 26g, YCTD-237): ứng dụng cài đặt gửi mã thiết bị FCM (Android) hoặc APNs (iOS) qua cùng điểm cuối với `kind`, `token`;
+// mã thiết bị lưu mã hóa ở cột địa chỉ đăng ký, mã băm có khóa theo loại và mã; `origin` là địa chỉ gốc của ứng dụng web của trường
+// trên máy (gửi kèm trong nội dung đẩy để ứng dụng mở đúng trường khi chạm thông báo). Khóa FCM, APNs của nền tảng đọc ở cơ sở dữ liệu
+// nền tảng (giữ 5 phút) hoặc tệp khóa của bản một trường.
 const APPS: readonly PushSubscriptionApp[] = ['teacher', 'parent', 'student'];
 const MAXIMUM_ENDPOINT_LENGTH = 1024;
 const MAXIMUM_DEVICES = 20;
 const VAPID_CACHE_MILLISECONDS = 5 * 60_000;
+type NativeKind = 'fcm' | 'apns';
+const TOKEN_PATTERNS: Record<NativeKind, RegExp> = {
+  // Mã đăng ký FCM: chữ, số, dấu hai chấm, gạch dưới, gạch ngang (thường khoảng 160 ký tự)
+  fcm: /^[A-Za-z0-9_:-]{32,1024}$/,
+  // Mã thiết bị APNs: chuỗi thập lục phân (32 byte trở lên)
+  apns: /^[0-9a-f]{64,200}$/,
+};
+
+function nativeKind(value: unknown): NativeKind | null {
+  return value === 'fcm' || value === 'apns' ? value : null;
+}
 
 function base64UrlBytes(value: string): number {
   return /^[A-Za-z0-9_-]+={0,2}$/.test(value) ? Buffer.from(value, 'base64url').length : -1;
@@ -50,11 +70,24 @@ function base64UrlBytes(value: string): number {
 export interface ActiveSubscription {
   id: string;
   target: PushTarget;
+  // Địa chỉ gốc của ứng dụng lúc đăng ký (đẩy gốc dùng để mở đúng trường)
+  origin: string | null;
+}
+
+interface Registration {
+  kind: 'web_push' | NativeKind;
+  hash: string;
+  endpointEncrypted: string;
+  keysEncrypted: string;
+  app: PushSubscriptionApp;
+  label: string;
+  origin: string | null;
 }
 
 @Injectable()
 export class PushSubscriptions {
   private vapidCache: { at: number; keys: VapidCredentials | null } | null = null;
+  private nativeCache: { at: number; credentials: NativePushCredentials } | null = null;
 
   constructor(
     @Inject(API_CONFIGURATION) private readonly configuration: ApiConfiguration,
@@ -72,7 +105,58 @@ export class PushSubscriptions {
   }
 
   enabled(): boolean {
-    return Boolean(this.configuration.push?.provider);
+    return Boolean(this.configuration.push?.provider || this.configuration.push?.nativeProvider);
+  }
+
+  // Khóa FCM, APNs đang dùng; nhiều trường đọc ở cơ sở dữ liệu nền tảng (giữ 5 phút), một trường đọc tệp khóa một lần. Bộ giả lập
+  // không cần khóa: trả khóa giả để bộ nối giả lập nhận gửi
+  async native(): Promise<NativePushCredentials> {
+    const push = this.configuration.push;
+    if (!push?.nativeProvider) {
+      return { fcm: null, apns: null };
+    }
+    const now = this.clock.now().getTime();
+    if (this.nativeCache && (!this.tenancy || now - this.nativeCache.at < VAPID_CACHE_MILLISECONDS)) {
+      return this.nativeCache.credentials;
+    }
+    let credentials: NativePushCredentials;
+    if (push.nativeProvider === 'development') {
+      credentials = {
+        fcm: { projectId: 'gia-lap', clientEmail: 'gia-lap@example.test', privateKey: '' },
+        apns: {
+          keyId: 'GIALAP0000',
+          teamId: 'GIALAP0000',
+          bundleId: 'gia.lap',
+          privateKey: '',
+          environment: 'sandbox',
+        },
+      };
+    } else if (this.tenancy) {
+      credentials = await readNativePushCredentials(this.tenancy.platform, this.tenancy.configuration.masterKey);
+    } else {
+      credentials = {
+        fcm: push.fcmServiceAccountFile
+          ? parseFcmServiceAccount(await readFile(push.fcmServiceAccountFile, 'utf8'))
+          : null,
+        apns: push.apnsKeyFile
+          ? parseApnsKey({
+              privateKey: await readFile(push.apnsKeyFile, 'utf8'),
+              keyId: push.apnsKeyId ?? '',
+              teamId: push.apnsTeamId ?? '',
+              bundleId: push.apnsBundleId ?? '',
+              environment: push.apnsEnvironment,
+            })
+          : null,
+      };
+    }
+    this.nativeCache = { at: now, credentials };
+    return credentials;
+  }
+
+  // Khóa của mọi bộ nối cho tiến trình gửi
+  async credentials(): Promise<PushCredentials> {
+    const [vapid, native] = await Promise.all([this.configuration.push?.provider ? this.vapid() : null, this.native()]);
+    return { vapid, fcm: native.fcm, apns: native.apns };
   }
 
   // Khóa VAPID đang dùng; nhiều trường đọc ở cơ sở dữ liệu nền tảng (giữ 5 phút), một trường lấy từ cấu hình
@@ -93,8 +177,14 @@ export class PushSubscriptions {
   }
 
   async publicKey() {
-    const keys = this.enabled() ? await this.vapid() : null;
-    return { enabled: Boolean(keys), public_key: keys?.publicKey ?? null };
+    const keys = this.configuration.push?.provider ? await this.vapid() : null;
+    const native = await this.native();
+    return {
+      enabled: Boolean(keys),
+      public_key: keys?.publicKey ?? null,
+      // Ứng dụng cài đặt chỉ xin quyền, lấy mã thiết bị khi bộ nối của nền tảng máy đã có khóa
+      native: { fcm: Boolean(native.fcm), apns: Boolean(native.apns) },
+    };
   }
 
   async list(currentUser: CurrentUser) {
@@ -109,6 +199,10 @@ export class PushSubscriptions {
   }
 
   async subscribe(currentUser: CurrentUser, body: RequestBody) {
+    const kind = nativeKind(body?.kind);
+    if (kind) {
+      return this.subscribeNative(currentUser, body, kind);
+    }
     const errors: FieldError[] = [];
     const endpoint = typeof body?.endpoint === 'string' ? body.endpoint.trim() : '';
     const keys = (body?.keys ?? {}) as Record<string, unknown>;
@@ -129,10 +223,55 @@ export class PushSubscriptions {
     if (errors.length > 0) {
       throw validationError(errors);
     }
+    return this.register(currentUser, {
+      kind: 'web_push',
+      hash: this.hash(endpoint),
+      endpointEncrypted: encryptSecret(this.configuration.childDataEncryptionKey, endpoint),
+      keysEncrypted: encryptSecret(this.configuration.childDataEncryptionKey, JSON.stringify({ p256dh, auth })),
+      app: app as PushSubscriptionApp,
+      label,
+      origin: typeof body?.origin === 'string' ? body.origin.slice(0, 255) : null,
+    });
+  }
+
+  // Ứng dụng cài đặt: mã thiết bị FCM hoặc APNs; `origin` là địa chỉ gốc của ứng dụng web của trường đang mở trong ứng dụng
+  private async subscribeNative(currentUser: CurrentUser, body: RequestBody, kind: NativeKind) {
+    const errors: FieldError[] = [];
+    const raw = typeof body?.token === 'string' ? body.token.trim() : '';
+    const token = kind === 'apns' ? raw.toLowerCase() : raw;
+    const app = body?.app;
+    const label = typeof body?.device_label === 'string' ? body.device_label.trim().slice(0, 80) : '';
+    const origin = typeof body?.origin === 'string' ? body.origin.trim() : '';
+    if (!TOKEN_PATTERNS[kind].test(token)) {
+      errors.push({
+        field: 'token',
+        message: kind === 'fcm' ? 'Mã thiết bị FCM không đúng' : 'Mã thiết bị APNs không đúng',
+      });
+    }
+    if (typeof app !== 'string' || !APPS.includes(app as PushSubscriptionApp)) {
+      errors.push({ field: 'app', message: 'Ứng dụng là teacher, parent hoặc student' });
+    }
+    const url = URL.canParse(origin) ? new URL(origin) : null;
+    if (!url || !['https:', 'http:'].includes(url.protocol) || origin.length > 255) {
+      errors.push({ field: 'origin', message: 'Địa chỉ ứng dụng của trường là http hoặc https, tối đa 255 ký tự' });
+    }
+    if (errors.length > 0) {
+      throw validationError(errors);
+    }
+    return this.register(currentUser, {
+      kind,
+      hash: this.hash(`${kind}:${token}`),
+      endpointEncrypted: encryptSecret(this.configuration.childDataEncryptionKey, token),
+      keysEncrypted: encryptSecret(this.configuration.childDataEncryptionKey, '{}'),
+      app: app as PushSubscriptionApp,
+      label,
+      origin,
+    });
+  }
+
+  private async register(currentUser: CurrentUser, registration: Registration) {
     const now = this.clock.now();
-    const hash = this.hash(endpoint);
-    const encryptedKeys = encryptSecret(this.configuration.childDataEncryptionKey, JSON.stringify({ p256dh, auth }));
-    const origin = typeof body?.origin === 'string' ? body.origin.slice(0, 255) : null;
+    const { hash, label, origin } = registration;
     return this.system.transaction().execute(async (transaction) => {
       const existing = await transaction
         .selectFrom('push_subscriptions')
@@ -144,8 +283,8 @@ export class PushSubscriptions {
         await transaction
           .updateTable('push_subscriptions')
           .set({
-            keys_encrypted: encryptedKeys,
-            app: app as PushSubscriptionApp,
+            keys_encrypted: registration.keysEncrypted,
+            app: registration.app,
             last_seen_at: now,
             failure_count: 0,
             ...(label ? { device_label: label } : {}),
@@ -182,11 +321,11 @@ export class PushSubscriptions {
         .insertInto('push_subscriptions')
         .values({
           user_id: currentUser.id,
-          app: app as PushSubscriptionApp,
-          kind: 'web_push',
+          app: registration.app,
+          kind: registration.kind,
           endpoint_hash: hash,
-          endpoint_encrypted: encryptSecret(this.configuration.childDataEncryptionKey, endpoint),
-          keys_encrypted: encryptedKeys,
+          endpoint_encrypted: registration.endpointEncrypted,
+          keys_encrypted: registration.keysEncrypted,
           origin,
           device_label: label || null,
           last_seen_at: now,
@@ -211,9 +350,17 @@ export class PushSubscriptions {
     return { id, revoked: true };
   }
 
-  // Đăng xuất trên máy: thu hồi đăng ký của địa chỉ này (chỉ của chính người gọi)
+  // Đăng xuất trên máy: thu hồi đăng ký của địa chỉ (hoặc mã thiết bị `kind`, `token` của ứng dụng cài đặt) này, chỉ của chính
+  // người gọi
   async unsubscribe(currentUser: CurrentUser, body: RequestBody) {
-    const endpoint = typeof body?.endpoint === 'string' ? body.endpoint.trim() : '';
+    const kind = nativeKind(body?.kind);
+    const token = typeof body?.token === 'string' ? body.token.trim() : '';
+    const endpoint =
+      kind && token
+        ? `${kind}:${kind === 'apns' ? token.toLowerCase() : token}`
+        : typeof body?.endpoint === 'string'
+          ? body.endpoint.trim()
+          : '';
     if (!endpoint) {
       throw validationError([{ field: 'endpoint', message: 'Bắt buộc nhập' }]);
     }
@@ -231,19 +378,23 @@ export class PushSubscriptions {
   async activeFor(userId: string): Promise<ActiveSubscription[]> {
     const rows = await this.system
       .selectFrom('push_subscriptions')
-      .select(['id', 'endpoint_encrypted', 'keys_encrypted'])
+      .select(['id', 'kind', 'origin', 'endpoint_encrypted', 'keys_encrypted'])
       .where('user_id', '=', userId)
       .where('revoked_at', 'is', null)
       .execute();
-    return rows.map((row) => ({
-      id: row.id,
-      target: {
-        endpoint: decryptSecret(this.configuration.childDataEncryptionKey, row.endpoint_encrypted),
-        keys: JSON.parse(
-          decryptSecret(this.configuration.childDataEncryptionKey, row.keys_encrypted),
-        ) as PushTarget['keys'],
-      },
-    }));
+    const key = this.configuration.childDataEncryptionKey;
+    return rows.map((row): ActiveSubscription => {
+      const endpoint = decryptSecret(key, row.endpoint_encrypted);
+      const target: PushTarget =
+        row.kind === 'web_push'
+          ? {
+              kind: 'web_push',
+              endpoint,
+              keys: JSON.parse(decryptSecret(key, row.keys_encrypted)) as { p256dh: string; auth: string },
+            }
+          : { kind: row.kind, token: endpoint };
+      return { id: row.id, origin: row.origin, target };
+    });
   }
 
   async hasActive(userId: string): Promise<boolean> {

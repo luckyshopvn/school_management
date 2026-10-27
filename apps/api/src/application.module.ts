@@ -1294,14 +1294,17 @@ export class ApplicationModule {
         ClassroomGamesService,
         ExamProctoringService,
         ExamProctoringJobs,
-        // Thông báo đẩy Web Push (DT-26 phần 26b): bộ nối chọn theo PUSH_PROVIDER, chưa đặt thì không gửi đẩy
+        // Thông báo đẩy Web Push (DT-26 phần 26b), đẩy gốc FCM, APNs (26g): bộ nối chọn theo PUSH_PROVIDER, PUSH_NATIVE_PROVIDER, chưa đặt thì không gửi đẩy
         PushSubscriptions,
         {
           provide: PUSH_SENDER,
           useFactory: () =>
-            createPushSender(configuration.push?.provider, {
+            createPushSender(configuration.push?.provider, configuration.push?.nativeProvider, {
               outbox: configuration.push?.developmentOutbox ?? null,
               schoolOf: () => currentTenant()?.code ?? null,
+              fcmBaseUrl: configuration.push?.fcmBaseUrl,
+              fcmTokenUrl: configuration.push?.fcmTokenUrl,
+              apnsHost: configuration.push?.apnsHost,
             }),
         },
         // Gia sư trong trường (DT-27 phần 27b)

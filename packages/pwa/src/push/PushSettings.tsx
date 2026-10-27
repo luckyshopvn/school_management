@@ -8,6 +8,7 @@ import {
   type PushApplication,
   type PushRequest,
 } from './push-client.js';
+import { nativePush } from './native-push.js';
 import type { PushState } from './push-state.js';
 
 // Khối "Cài đặt thông báo" của ứng dụng giáo viên, phụ huynh, học sinh (DT-26 phần 26b, YCTD-239): bật, tắt đẩy trên máy này (chỉ
@@ -44,6 +45,10 @@ const STATE_TEXT: Record<Exclude<PushState, 'on' | 'off'>, string> = {
   denied:
     'Trình duyệt đang chặn thông báo của trang này. Mở cài đặt của trình duyệt (biểu tượng ổ khóa cạnh địa chỉ trang), cho phép thông báo rồi tải lại trang.',
 };
+
+// Trong ứng dụng cài đặt (26g): quyền thông báo mở lại ở cài đặt của máy, không phải của trình duyệt
+const NATIVE_DENIED_TEXT =
+  'Máy đang chặn thông báo của ứng dụng. Mở Cài đặt của máy, chọn Ứng dụng → School Management → Thông báo, cho phép rồi quay lại đây.';
 
 const BUTTON_CLASS = 'min-h-11 rounded-lg px-4 py-2 text-label font-medium disabled:opacity-60';
 
@@ -132,7 +137,11 @@ export function PushSettings({ application, base, request }: PushSettingsPropert
           )}
         </div>
       ) : null}
-      {state && state !== 'on' && state !== 'off' ? <p className="text-text-secondary">{STATE_TEXT[state]}</p> : null}
+      {state && state !== 'on' && state !== 'off' ? (
+        <p className="text-text-secondary">
+          {state === 'denied' && nativePush() ? NATIVE_DENIED_TEXT : STATE_TEXT[state]}
+        </p>
+      ) : null}
       {problem ? (
         <p role="alert" className="text-danger">
           {problem}

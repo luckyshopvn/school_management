@@ -741,6 +741,17 @@ export interface PlatformPushKeysTable {
   retired_at: Date | null;
 }
 
+export interface PlatformNativePushKeysTable {
+  id: Generated<string>;
+  provider: NativePushProvider;
+  credentials_encrypted: string;
+  summary: ColumnType<Record<string, string>, string | undefined, string>;
+  created_at: CreatedTimestamp;
+  retired_at: Date | null;
+}
+
+export type NativePushProvider = 'fcm' | 'apns';
+
 export interface PlatformDatabase {
   school_clusters: SchoolClustersTable;
   schools: SchoolsTable;
@@ -793,4 +804,5 @@ export interface PlatformDatabase {
   catalog_unit_levels: CatalogUnitLevelsTable;
   catalog_import_runs: CatalogImportRunsTable;
   platform_push_keys: PlatformPushKeysTable;
+  platform_native_push_keys: PlatformNativePushKeysTable;
 }

@@ -305,12 +305,22 @@ export class NotificationDispatcher implements OnApplicationBootstrap, OnModuleD
       templateCode: recipient.template_code,
       schoolName: this.pushSubscriptions.schoolName(),
     });
-    const vapid = await this.pushSubscriptions.vapid();
+    const credentials = await this.pushSubscriptions.credentials();
     let delivered = 0;
+    let available = 0;
     let lastError: string | null = null;
     for (const subscription of subscriptions) {
       try {
-        const outcome = await this.pushSender.send(subscription.target, message, vapid);
+        // Ứng dụng cài đặt mở đúng trường khi chạm thông báo: kèm địa chỉ gốc của ứng dụng lúc đăng ký
+        const outcome = await this.pushSender.send(
+          subscription.target,
+          subscription.origin ? { ...message, data: { ...message.data, app_url: subscription.origin } } : message,
+          credentials,
+        );
+        if (outcome === 'unavailable') {
+          continue;
+        }
+        available += 1;
         await this.pushSubscriptions.recordOutcome(subscription.id, outcome);
         if (outcome === 'sent') {
           delivered += 1;
@@ -332,7 +342,11 @@ export class NotificationDispatcher implements OnApplicationBootstrap, OnModuleD
       return 'sent';
     }
     if (!lastError) {
-      await mark({ channel_status: 'failed', attempt_count: attempts, last_error: 'Mọi máy đăng ký đẩy đã hết hạn' });
+      await mark({
+        channel_status: 'failed',
+        attempt_count: attempts,
+        last_error: available === 0 ? 'Chưa bật bộ nối đẩy cho các máy đã đăng ký' : 'Mọi máy đăng ký đẩy đã hết hạn',
+      });
       return 'failed';
     }
     if (attempts >= MAXIMUM_ATTEMPTS) {

@@ -22,6 +22,7 @@ import { migration as createPlanAiPricing } from './migrations/0202_create_plan_
 import { migration as createSchoolCatalog } from './migrations/0210_create_school_catalog.js';
 import { migration as linkCatalogAndPlatformAccess } from './migrations/0211_link_catalog_and_platform_access.js';
 import { migration as createPushKeys } from './migrations/0230_create_push_keys.js';
+import { migration as createNativePushKeys } from './migrations/0232_create_native_push_keys.js';
 import { migration as addVideoPlanLimits } from './migrations/0240_add_video_plan_limits.js';
 
 // Khối số giữ sẵn của phần S1a: 0001 đến 0009; S2: 0020 đến 0029 (tài liệu 32 mục 14.3)
@@ -61,6 +62,8 @@ export const platformMigrations: Record<string, Migration> = {
   '0211_link_catalog_and_platform_access': linkCatalogAndPlatformAccess,
   // Khóa VAPID của nền tảng cho thông báo đẩy (DT-26 phần 26b): 0230
   '0230_create_push_keys': createPushKeys,
+  // Khóa đẩy gốc FCM, APNs của nền tảng (DT-26 phần 26g): 0232
+  '0232_create_native_push_keys': createNativePushKeys,
   // Giới hạn lớp video của gói (DT-27 phần 27a): 0240
   '0240_add_video_plan_limits': addVideoPlanLimits,
 };

@@ -1,6 +1,6 @@
 # Vỏ ứng dụng cài đặt: hướng dẫn chạy bản demo
 
-DT-26 phần 26f, YCTD-236. Bản demo chạy trên máy giả lập Android (AVD) và iOS Simulator. Chưa ký bản phát hành, chưa có hồ sơ cửa hàng (26h), chưa có thông báo đẩy gốc FCM, APNs (26g).
+DT-26 phần 26f, YCTD-236. Bản demo chạy trên máy giả lập Android (AVD) và iOS Simulator. Chưa ký bản phát hành, chưa có hồ sơ cửa hàng (26h). Thông báo đẩy gốc FCM, APNs (26g, YCTD-237) có phần mã, chưa gửi thật: xem mục "Thông báo đẩy gốc" ở cuối.
 
 ## Bản demo làm gì
 
@@ -8,7 +8,7 @@ DT-26 phần 26f, YCTD-236. Bản demo chạy trên máy giả lập Android (AV
 - Chọn vai trò **Giáo viên** hoặc **Phụ huynh** để mở ứng dụng web tương ứng của trường trong WebView: trường chạy thật ở `/giao-vien/`, `/phu-huynh/`; máy chủ phát triển ở `http://localhost:5174/` (giáo viên), `http://localhost:5175/` (phụ huynh).
 - Đăng nhập, dùng như PWA. Muốn đổi trường hoặc vai trò thì đóng hẳn ứng dụng rồi mở lại.
 
-Chưa có trong bản demo: đóng gói sẵn mã của hai ứng dụng web trong ứng dụng, chọn trường từ danh mục DT-24, mã làm mới trong Keychain, Keystore, mở khóa sinh trắc học, liên kết sâu, thông báo đẩy. Web Push không chạy trong WebView của ứng dụng cài đặt; muốn thử thông báo đẩy thì dùng PWA trên trình duyệt (26b).
+Chưa có trong bản demo: đóng gói sẵn mã của hai ứng dụng web trong ứng dụng, chọn trường từ danh mục DT-24, mã làm mới trong Keychain, Keystore, mở khóa sinh trắc học, liên kết sâu. Web Push không chạy trong WebView của ứng dụng cài đặt; ứng dụng dùng đẩy gốc (26g).
 
 ## Chuẩn bị máy chủ phát triển
 
@@ -77,3 +77,15 @@ CAP_CHO_PHEP_MAY_CHU=truong-thu.example.vn npx cap sync
 ```
 
 (PowerShell: `$env:CAP_CHO_PHEP_MAY_CHU='truong-thu.example.vn'; npx cap sync`.) Địa chỉ ngoài danh sách được mở bằng trình duyệt của máy thay vì trong ứng dụng.
+
+## Thông báo đẩy gốc (26g)
+
+Trong ứng dụng, khối **Cài đặt thông báo** của ứng dụng giáo viên, phụ huynh dùng đẩy gốc: Android qua FCM, iOS qua APNs. Bấm "Bật thông báo trên máy này" thì máy hỏi quyền, ứng dụng lấy mã thiết bị và gửi về trường. Chạm thông báo thì ứng dụng mở đúng ứng dụng của trường đã lưu trên máy.
+
+- Máy chủ phát triển thử bằng bộ giả lập: chạy máy chủ API với `PUSH_NATIVE_PROVIDER=development` (thêm `PUSH_DEVELOPMENT_OUTBOX=<tệp>` để ghi từng lần gửi ra tệp).
+- Bản dựng chưa có `android/app/google-services.json` thì Firebase chưa khởi tạo: khối Cài đặt thông báo báo "Hệ thống chưa bật thông báo đẩy" và không lấy mã thiết bị.
+- Gửi thật cần Eric làm (không đưa tệp khóa vào kho):
+  1. Tạo dự án Firebase, thêm ứng dụng Android mã `vn.schoolmanagement.demo`, tải `google-services.json` đặt vào `apps/mobile/android/app/`, dựng lại APK.
+  2. Ở Cài đặt dự án Firebase → Tài khoản dịch vụ → Tạo khóa riêng mới, rồi nạp vào nền tảng: `pnpm --filter @school-management/database platform set-native-push-key --provider fcm --file <tệp .json>` (bản một trường: đặt `FCM_SERVICE_ACCOUNT_FILE`).
+  3. iOS: ở Apple Developer tạo khóa APNs `.p8`, nạp bằng `platform set-native-push-key --provider apns --file <tệp .p8> --key-id <mã khóa> --team-id <mã đội> --bundle-id vn.schoolmanagement.demo --environment sandbox`; trong Xcode bật năng lực Push Notifications. Simulator nhận đẩy giả lập bằng `xcrun simctl push`, mã thiết bị thật chỉ có trên máy thật.
+  4. Đặt `PUSH_NATIVE_PROVIDER=native` cho máy chủ API.
