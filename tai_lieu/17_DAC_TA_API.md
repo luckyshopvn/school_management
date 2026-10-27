@@ -2535,6 +2535,21 @@ Lỗi quy tắc 422 mã `YCTD-278`. Mở bài, xem trước cần tiêu đề `O
 | GET | /api/v1/learning/templates/{id}/package | Tải gói khoá học `.khoahoc.gz`; tiêu đề `x-package-skipped` là số học liệu không đóng gói được |
 | POST; GET | /api/v1/learning/template-packages | Nhập gói khoá học (multipart `file`) thành khoá mẫu nháp, trả `template_id`, `created_resources`, `reused`, `skipped`; nhật ký xuất, nhập |
 
+### 17.8. Huy hiệu và chứng nhận hoàn thành (DT-28 phần 28i, YCTD-279)
+
+Lỗi quy tắc 422 mã `YCTD-279`.
+
+| Phương thức | Đường dẫn | Mô tả |
+|---|---|---|
+| GET, PUT | /api/v1/learning/recognition/config | Ban Giám hiệu: `{ badges_enabled, certificates_enabled, certificate: { title, signer_title, signer_name } }` |
+| GET | /api/v1/learning/spaces/{id}/recognition | Giáo viên xem được lớp học trực tuyến: từng học sinh (theo tên) với `completed`, huy hiệu, chứng nhận; `can_teach` |
+| POST; DELETE | /api/v1/learning/spaces/{id}/badges; /api/v1/learning/badges/{id} | Trao huy hiệu `{ child_id, title, reason }`; thu hồi `{ reason }` |
+| POST; POST | /api/v1/learning/spaces/{id}/certificates; /api/v1/learning/certificates/{id}/revoke | Cấp chứng nhận `{ child_id }` (khoá tự chọn, đã hoàn thành); thu hồi `{ reason }` |
+| GET | /api/v1/learning/certificates/{id}/pdf | Tệp PDF cho giáo viên xem được lớp, phụ huynh của em |
+| GET | /api/v1/learning/children/{childId}/recognition | Phụ huynh: `badges_enabled`, `certificates_enabled`, huy hiệu, chứng nhận của con |
+| GET; GET | /api/v1/student/recognition; /certificates/{id}/pdf | Học sinh: huy hiệu, chứng nhận của em; tệp PDF |
+| GET | /api/v1/public/certificates/{mã} | Trang kiểm tra công khai (HTML): tên khoá, họ tên viết tắt, ngày cấp, tên trường, trạng thái; không có thì 404 |
+
 ## 18. Quy tắc kiểm tra dữ liệu
 
 | Mã | Quy tắc |
