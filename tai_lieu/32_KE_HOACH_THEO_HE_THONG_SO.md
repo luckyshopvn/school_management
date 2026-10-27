@@ -2109,7 +2109,7 @@ Cỡ ước lượng (một phần của DT-16 là một đơn vị, chỉ để
 | 26a | 1 | Đã làm, YCTD-231, phiên bản 0.145.0: gói `packages/pwa` (mẫu service worker gom từ 23b, plugin Vite, đăng ký, kiểm bản mới, gỡ theo tiền tố, `InstallPrompt`, `UpdateBanner`), manifest và biểu tượng SVG theo trường (`/api/v1/public/pwa/*`, hệ thống 0090 `app_short_name`), ứng dụng phụ huynh có service worker, màn hình học sinh của 23a cài được thành ứng dụng riêng (manifest `student` mở thẳng `#hoc-sinh`); e2e 181. Chưa làm: ảnh PNG và màn hình chờ iOS theo trường (cần thư viện xử lý ảnh, để phần sau) |
 | 26b | 1 | Phần máy chủ đã làm (YCTD-232, phiên bản 0.148.0): kênh push, bộ nối, đăng ký, tuỳ chọn theo nhóm, khóa VAPID, spec 182. Phần giao diện (YCTD-239, phiên bản đề xuất 0.153.0): service worker chung nhận đẩy, hiện thông báo, chạm mở ứng dụng; khối "Cài đặt thông báo" ở ứng dụng giáo viên, phụ huynh, màn hình học sinh (bật, tắt trên máy, tắt theo nhóm, gỡ máy, hướng dẫn cài cho iPhone); đồng bộ đăng ký khi mở ứng dụng, thu hồi khi đăng xuất; e2e 187 |
 | 26c | 1 | Đã làm, YCTD-233, phiên bản 0.146.0, PR 188: dự án Playwright theo khổ thiết bị, nhãn `@thiet-bi`, bộ kiểm dùng chung, spec 180, việc CI `kiem-thu-thiet-bi`; vi phạm đo được ghi ở đường cơ sở cho 26d, 26e |
-| 26d | 2 | Chưa làm; YCTD-234 giữ sẵn |
+| 26d | 2 | Đã làm, YCTD-234, phiên bản đề xuất 0.155.0: chế độ lớp học (lớp theo tiết đang dạy, điểm danh, sổ đầu bài, công cụ lớp học, trình chiếu, giữ màn hình sáng), trang chủ giáo viên hai khung, trang chủ phụ huynh hai cột, màn hình nới rộng từ 768 px; vùng chạm 44 px, chữ ô nhập 16 px, màu tương phản AA ở `index.css` của hai ứng dụng (không sửa `packages/ui`); e2e 183; gỡ vi phạm của 26d khỏi đường cơ sở của 26c |
 | 26e | 2 | Chưa làm; YCTD-235 giữ sẵn |
 | 26f | 3 | Chưa làm; YCTD-236 giữ sẵn, bắt đầu khi DT-24, DT-25 đã gộp |
 | 26g | 3 | Chưa làm; YCTD-237 giữ sẵn |
@@ -2723,7 +2723,7 @@ Cỡ ước lượng (một phần của DT-16 là một đơn vị): 28a 1,0; 2
 |---|---|---|
 | 28a | 1 | Đã làm (YCTD-271, phiên bản 0.149.0): bộ nhóm, cách chia, nhóm trưởng, 23b dùng bộ nhóm, `GroupSetsReader`, đích `group` cho đề 23a; năm học 0170, 0171; e2e 210. Còn nguồn kết quả hoạt động (chờ 28d) |
 | 28b | 1 | Đã làm (YCTD-272, phiên bản 0.154.0, PR 193): lớp học trực tuyến tự sinh từ phân công, khoá tự chọn, khoá mẫu qua duyệt, chương, hoạt động trang, liên kết, học liệu, điều kiện mở, kết quả, tiến độ, kế hoạch tuần, nhật ký, quyết định thay thế, nội quy; hệ thống 0110, năm học 0172 đến 0175, định danh 0180; học sinh tự học ở kênh `student` sau khi 23a gộp; e2e 211 |
-| 28c | 2 | Chưa làm; YCTD-273 giữ sẵn; chờ 28b; phần AI chờ 23d |
+| 28c | 2 | Đã làm (YCTD-273, phiên bản đề xuất 0.157.0): loại hoạt động `assignment`, câu đã duyệt của 22g1 chấm bằng hàm 22g2, tự luận, ảnh, tệp, ghi âm, phiên bản, giao lớp, nhóm, học sinh, nộp muộn, số lần nộp, miễn, đóng bài, bài nhóm (nhóm trưởng nộp, đóng góp, điều chỉnh điểm), chấm tay, thang tiêu chí, mức, ngân hàng nhận xét, trả bài, trao đổi, gợi ý nhận xét AI không gửi bài làm (GD-142); năm học 0176 đến 0179, định danh 0181, hệ thống 0111 (loại yêu cầu AI `feedback`); e2e 212. Chưa làm: màn hình soạn phiên bản, đích nhóm, thang tiêu chí ở giao diện (đã có ở máy chủ) |
 | 28d | 2 | Chưa làm; YCTD-274 giữ sẵn; chờ 28b |
 | 28e | 2 | Chưa làm; YCTD-275 giữ sẵn; chờ 28b, 28a |
 | 28f | 3 | Chưa làm; YCTD-276 giữ sẵn; chờ 28c |

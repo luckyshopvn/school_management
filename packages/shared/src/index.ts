@@ -314,6 +314,8 @@ export const PERMISSION_CODES = {
   learningDecide: 'P02.learning.decide',
   learningView: 'P02.learning.view',
   learningStudy: 'P02.learning.study',
+  // Bài tập trực tuyến (DT-28 phần 28c)
+  assignmentManage: 'P02.assignment.manage',
   // Thi trực tuyến cho học sinh (DT-23 phần 23a): giao đề, theo dõi, chấm (giáo viên); làm bài (học sinh, kênh student)
   examAssign: 'P02.exam.assign',
   examTake: 'P02.exam.take',

@@ -6743,6 +6743,146 @@ export interface TutoringRoomEventsTable {
   source: string;
 }
 
+// Bài tập trực tuyến (DT-28 phần 28c, YCTD-273)
+export type AssignmentContext = 'in_class' | 'homework';
+export type AssignmentWorkMode = 'individual' | 'group';
+export type AssignmentGrading = 'score' | 'rubric' | 'level' | 'completion' | 'none';
+export type AssignmentItemKind = 'question' | 'essay' | 'upload' | 'audio' | 'resource';
+export type SubmissionStatus = 'draft' | 'submitted' | 'returned';
+type Numeric = ColumnType<string, string | number | undefined, string | number>;
+type NullableNumeric = ColumnType<string | null, string | number | null | undefined, string | number | null>;
+type Json = ColumnType<unknown, string | undefined, string>;
+
+export interface AssignmentsTable {
+  id: Generated<string>;
+  activity_id: string;
+  context: Generated<AssignmentContext>;
+  work_mode: Generated<AssignmentWorkMode>;
+  group_set_id: string | null;
+  late_policy: Generated<'allow' | 'block'>;
+  max_attempts: Generated<number>;
+  grading: Generated<AssignmentGrading>;
+  rubric_id: string | null;
+  rubric_snapshot: JsonValue;
+  show_results: Generated<'after_submit' | 'after_return'>;
+  estimated_minutes: number | null;
+  released_at: Date | null;
+  closed_at: Date | null;
+  created_by: string;
+  created_at: CreatedTimestamp;
+  updated_at: UpdatedTimestamp;
+}
+
+export interface AssignmentVariantsTable {
+  id: Generated<string>;
+  assignment_id: string;
+  code: string;
+  name: string;
+}
+
+export interface AssignmentItemsTable {
+  id: Generated<string>;
+  assignment_id: string;
+  variant_id: string | null;
+  position: number;
+  kind: AssignmentItemKind;
+  question_id: string | null;
+  snapshot: JsonValue;
+  prompt: string | null;
+  score: Numeric;
+  settings: Json;
+}
+
+export interface AssignmentTargetsTable {
+  id: Generated<string>;
+  assignment_id: string;
+  target_kind: 'class' | 'group' | 'child';
+  group_id: string | null;
+  child_id: string | null;
+  variant_id: string | null;
+}
+
+export interface AssignmentRecipientsTable {
+  assignment_id: string;
+  child_id: string;
+  group_id: string | null;
+  variant_id: string | null;
+  due_at: Date | null;
+  excused: Generated<boolean>;
+  excuse_reason: string | null;
+  created_at: CreatedTimestamp;
+}
+
+export interface AssignmentSubmissionsTable {
+  id: Generated<string>;
+  assignment_id: string;
+  child_id: string | null;
+  group_id: string | null;
+  attempt_no: number;
+  status: Generated<SubmissionStatus>;
+  version: Generated<number>;
+  answers: Json;
+  late: Generated<boolean>;
+  submitted_by: string | null;
+  submitted_by_kind: 'student' | 'guardian' | 'teacher' | null;
+  submitted_at: Date | null;
+  auto_score: NullableNumeric;
+  item_scores: Json;
+  criteria_scores: JsonValue;
+  score: NullableNumeric;
+  level: 'excellent' | 'completed' | 'not_completed' | null;
+  feedback: string | null;
+  feedback_ai_assisted: Generated<boolean>;
+  graded_by: string | null;
+  graded_at: Date | null;
+  returned_by: string | null;
+  returned_at: Date | null;
+  created_at: CreatedTimestamp;
+  updated_at: UpdatedTimestamp;
+}
+
+export interface SubmissionFilesTable {
+  id: Generated<string>;
+  submission_id: string;
+  item_id: string;
+  kind: 'image' | 'document' | 'audio';
+  file_name: string;
+  content_type: string;
+  size_bytes: number;
+  storage_key: string;
+  uploaded_by: string;
+  created_at: CreatedTimestamp;
+}
+
+export interface SubmissionCommentsTable {
+  id: Generated<string>;
+  submission_id: string;
+  author_user_id: string;
+  author_name: string;
+  author_kind: 'teacher' | 'student' | 'guardian';
+  body: string;
+  created_at: CreatedTimestamp;
+}
+
+export interface SubmissionContributionsTable {
+  submission_id: string;
+  child_id: string;
+  self_rating: number | null;
+  self_note: string | null;
+  peer_ratings: Json;
+  adjusted_score: NullableNumeric;
+  adjust_reason: string | null;
+  adjusted_by: string | null;
+  updated_at: UpdatedTimestamp;
+}
+
+export interface AssignmentCommentBankTable {
+  id: Generated<string>;
+  owner_user_id: string;
+  content: string;
+  created_at: CreatedTimestamp;
+}
+
 // Lớp video trực tiếp (DT-27 phần 27a, YCTD-251)
 export type VideoRoomRole = 'host' | 'student' | 'guardian' | 'observer';
 
@@ -7260,4 +7400,14 @@ export interface SchoolYearDatabase {
   video_recordings: VideoRecordingsTable;
   video_recording_views: VideoRecordingViewsTable;
   tutoring_room_events: TutoringRoomEventsTable;
+  assignments: AssignmentsTable;
+  assignment_variants: AssignmentVariantsTable;
+  assignment_items: AssignmentItemsTable;
+  assignment_targets: AssignmentTargetsTable;
+  assignment_recipients: AssignmentRecipientsTable;
+  assignment_submissions: AssignmentSubmissionsTable;
+  submission_files: SubmissionFilesTable;
+  submission_comments: SubmissionCommentsTable;
+  submission_contributions: SubmissionContributionsTable;
+  assignment_comment_bank: AssignmentCommentBankTable;
 }

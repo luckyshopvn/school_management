@@ -113,6 +113,10 @@ import { migration as createTutoringSessions } from './migrations/0153_create_tu
 import { migration as createTutoringRegistrations } from './migrations/0154_create_tutoring_registrations.js';
 import { migration as addTutoringFees } from './migrations/0155_add_tutoring_fees.js';
 import { migration as addTutoringTeacherPay } from './migrations/0156_add_tutoring_teacher_pay.js';
+import { migration as createAssignments } from './migrations/0176_create_assignments.js';
+import { migration as createAssignmentRecipients } from './migrations/0177_create_assignment_recipients.js';
+import { migration as createAssignmentSubmissions } from './migrations/0178_create_assignment_submissions.js';
+import { migration as createSubmissionFeedback } from './migrations/0179_create_submission_feedback.js';
 import { migration as createVideoRooms } from './migrations/0160_create_video_rooms.js';
 import { migration as createVideoRecordings } from './migrations/0161_create_video_recordings.js';
 
@@ -240,6 +244,11 @@ export const schoolYearMigrations: Record<string, Migration> = {
   // Thu phí, hoàn và thù lao gia sư trong trường (DT-27 phần 27c): 0155, 0156
   '0155_add_tutoring_fees': addTutoringFees,
   '0156_add_tutoring_teacher_pay': addTutoringTeacherPay,
+  // Bài tập trực tuyến (DT-28 phần 28c): 0176 đến 0179
+  '0176_create_assignments': createAssignments,
+  '0177_create_assignment_recipients': createAssignmentRecipients,
+  '0178_create_assignment_submissions': createAssignmentSubmissions,
+  '0179_create_submission_feedback': createSubmissionFeedback,
   // Lớp video trực tiếp (DT-27 phần 27a): 0160, 0161
   '0160_create_video_rooms': createVideoRooms,
   '0161_create_video_recordings': createVideoRecordings,

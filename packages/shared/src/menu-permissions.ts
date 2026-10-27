@@ -142,7 +142,9 @@ export const MENU_PERMISSION_RULES: Partial<Record<PortalQuickLinkPath, MenuPerm
   // tổ trưởng; hình thức và nội quy dạy học trực tuyến do Hiệu trưởng quyết định, người xem mọi lớp xem được. Khoá mẫu chỉ ghi
   // quyền soạn khoá mẫu (người duyệt có sẵn quyền này): ghi thêm quyền của kho học liệu thì bảng quyền → phân hệ của gói (S5a)
   // gắn quyền đó cả vào phân hệ này, trường không có kho học liệu trong gói vẫn gọi được tuyến kho học liệu
-  '/online-classes': anyOf('P02.learning.teach', 'P02.learning.view'),
+  // Bài tập trực tuyến (DT-28 phần 28c): quyền chấm bài gắn mục 9.1 để tuyến bài tập thuộc phân hệ học tập trực tuyến của gói;
+  // vai trò có quyền này đều đã có quyền dạy nên menu hiện như cũ
+  '/online-classes': anyOf('P02.learning.teach', 'P02.learning.view', 'P02.assignment.manage'),
   '/course-templates': anyOf('P02.learning.template'),
   '/online-teaching': anyOf('P02.learning.decide', 'P02.learning.view'),
   // Thi trực tuyến cho học sinh (DT-23 phần 23a): giao đề, theo dõi bài làm, cấu hình thi trực tuyến theo cấp

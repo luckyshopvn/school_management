@@ -38,10 +38,14 @@ import { ExamsService } from '../exams/exams.js';
 import { LearningResourcesService } from '../learning-resources/learning-resources.js';
 import { SchoolSettings } from '../school-settings/school-settings.js';
 import {
+  AI_DRAFT_NOTICE,
   AI_RULE_CODE,
+  buildFeedbackPrompt,
   buildLessonPlanPrompt,
   buildNameIndex,
   buildQuestionPrompt,
+  feedbackFreeText,
+  feedbackOf,
   lessonPlanFreeText,
   lessonPlanMarkdown,
   lessonPlanOf,
@@ -52,6 +56,7 @@ import {
   questionFreeText,
   rawQuestionsOf,
   scanPersonalData,
+  type FeedbackDraftRequest,
 } from './ai-prompt.js';
 import {
   AiProviderError,
@@ -683,6 +688,39 @@ export class AiAssistantService {
     };
   }
 
+  // ---------- Gợi ý nhận xét bài tập (DT-28 phần 28c, YCTD-273)
+
+  // Bài tập 28c gọi sau khi đã kiểm giáo viên chấm được bài; yêu cầu chỉ có đề, thang tiêu chí, kết quả đã chấm, ghi chú (GD-142).
+  // Nháp chỉ trả cho giáo viên, không lưu vào bài; giáo viên sửa rồi mới ghi nhận xét
+  async draftFeedback(currentUser: CurrentUser, request: FeedbackDraftRequest) {
+    const settings = await this.settings();
+    const resolved = await this.resolve(settings);
+    const { database } = await this.currentSchoolYear.require();
+    const context: RequestContext = {
+      user: currentUser,
+      kind: 'feedback',
+      schoolLevel: request.school_level,
+      gradeLevelCode: request.grade_level_code,
+      subjectName: request.subject_name,
+      topic: null,
+    };
+    const { completion, logId } = await this.run(
+      context,
+      settings,
+      resolved,
+      buildFeedbackPrompt(request),
+      feedbackFreeText(request),
+      await this.nameIndex(database),
+    );
+    const comment = feedbackOf(completion.text);
+    if (!comment) {
+      await this.finishLog(logId, [], 'Kết quả của nhà cung cấp không đúng định dạng nhận xét');
+      throw ruleViolationError(AI_RULE_CODE, 'Trợ lý AI trả kết quả không dùng được, hãy thử lại');
+    }
+    await this.finishLog(logId, [], null);
+    return { request_id: logId, comment, notice: AI_DRAFT_NOTICE };
+  }
+
   // ---------- Kiểm tra kết nối, trạng thái, nhật ký
 
   async check(currentUser: CurrentUser) {
@@ -873,5 +911,6 @@ export class AiAssistantService {
 export const AI_PERMISSIONS = {
   questions: PERMISSION_CODES.questionAuthor,
   lessonPlans: PERMISSION_CODES.learningResourceUse,
+  feedback: PERMISSION_CODES.assignmentManage,
   manage: PERMISSION_CODES.integrationManage,
 };
