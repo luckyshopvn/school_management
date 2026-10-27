@@ -29,7 +29,7 @@ phien_ban_de_xuat: 0.165.0
 
 #### Vấn đề tồn đọng
 
-- Chưa dựng, chưa chạy thử trên máy giả lập: máy phát triển chưa có JDK, Android SDK, máy giả lập (cần khoảng 3 GB tải về, 8 đến 12 GB trên đĩa; Eric tự bật Windows Hypervisor Platform); iOS cần máy Mac có Xcode. Phần còn lại của 26f (đóng gói, đăng nhập gốc, sinh trắc học, liên kết sâu, chọn trường từ danh mục DT-24), 26g, 26h làm khi có tài khoản.
+- Đã dựng và chạy trên máy giả lập Android ngày 2026-10-27 (Eric cho cài JDK, Android SDK, máy giả lập vào ổ D:); iOS Simulator cần máy Mac có Xcode, chưa chạy. Phần còn lại của 26f (đóng gói, đăng nhập gốc, sinh trắc học, liên kết sâu, chọn trường từ danh mục DT-24), 26g, 26h làm khi có tài khoản.
 
 ## 24 Yêu cầu thay đổi
 
@@ -48,7 +48,7 @@ phien_ban_de_xuat: 0.165.0
 - Quyền bị ảnh hưởng: không.
 - Ảnh hưởng chức năng cũ: không.
 - Kiểm thử cần thực hiện: e2e spec 185 (CT-1320); typecheck, lint; dựng APK debug và chạy trên máy giả lập khi máy có Android SDK; iOS Simulator trên máy Mac.
-- Trạng thái: Đã triển khai (bản demo; chưa dựng, chạy trên máy giả lập)
+- Trạng thái: Đã triển khai (bản demo; đã chạy trên máy giả lập Android, chưa chạy iOS Simulator)
 
 ## 23 Lịch sử phiên bản
 
@@ -59,8 +59,8 @@ phien_ban_de_xuat: 0.165.0
 - Lỗi đã sửa: không.
 - Thay đổi dữ liệu: không.
 - Thay đổi API: không.
-- Kiểm thử: CT-1320. Kết quả: e2e spec 185 ở khổ máy tính 1/1 và bốn dự án thiết bị (`dien-thoai`, `may-tinh-bang-doc`, `may-tinh-bang-ngang`, `dien-thoai-webkit`) 4/4 đạt; typecheck `apps/mobile`, `tests`, lint, prettier đạt; `cap add android`, `cap add ios` sinh dự án được trên Windows; script dựng Android báo đúng các công cụ còn thiếu (mã thoát 2). Chưa dựng APK, chưa chạy trên máy giả lập Android, chưa chạy iOS Simulator (máy chưa có Android SDK, không có máy Mac).
-- Rủi ro: chưa chạy thật trên máy giả lập; ứng dụng chỉ tải trang web của trường nên mất mạng thì chỉ còn những gì service worker đã lưu.
+- Kiểm thử: CT-1320. Kết quả: e2e spec 185 ở khổ máy tính 1/1 và bốn dự án thiết bị (`dien-thoai`, `may-tinh-bang-doc`, `may-tinh-bang-ngang`, `dien-thoai-webkit`) 4/4 đạt; typecheck `apps/mobile`, `tests`, lint, prettier đạt; `cap add android`, `cap add ios` sinh dự án được trên Windows; script dựng Android báo đúng các công cụ còn thiếu (mã thoát 2). Chạy thật ngày 2026-10-27 trên máy phát triển (Windows, JDK Temurin 21.0.12.1, Android SDK build-tools 36.0.0, platforms;android-36, máy giả lập Pixel 7 với ảnh hệ thống android-36 google_apis x86_64, tăng tốc WHPX): `android:debug` dựng `app-debug.apk` (4,1 MB) thành công; `android:run` chuyển cổng, cài, mở ứng dụng; trang khởi động hiện đúng, "Máy chủ phát triển trên máy này" thêm trường, Giáo viên mở trang đăng nhập ứng dụng giáo viên, Phụ huynh mở trang đăng nhập ứng dụng phụ huynh trong ứng dụng (AC-1028 đạt). Hai lỗi tìm thấy khi chạy và đã sửa: script gọi `gradlew.bat` theo tên nên `cmd` không tìm thấy (nay gọi theo đường dẫn đầy đủ); `vite` trên Windows chỉ nghe [::1] còn `adb reverse` nối tới 127.0.0.1 nên WebView báo ERR_EMPTY_RESPONSE (thêm `scripts/chuyen-cong-ipv4.mjs`, `android:run` báo cách xử lý khi 127.0.0.1 chưa có máy chủ). Chưa chạy iOS Simulator (không có máy Mac); chưa đăng nhập thử trong ứng dụng.
+- Rủi ro: chưa chạy iOS Simulator, chưa thử trên máy thật; ứng dụng chỉ tải trang web của trường nên mất mạng thì chỉ còn những gì service worker đã lưu.
 - Khả năng tương thích: không đổi ứng dụng web, API, dữ liệu.
 - Phương án quay lui: hoàn lại commit gộp của nhánh; không có thay đổi dữ liệu.
 
@@ -81,4 +81,4 @@ phien_ban_de_xuat: 0.165.0
 | 11_TIEU_CHI_NGHIEM_THU.md | AC-892 | AC-1027 | Cho trang khởi động của ứng dụng cài đặt / Khi nhập địa chỉ sai, địa chỉ không phải http, https, rồi thêm `https://truong-thu.example.vn/bat-ky` và máy chủ phát triển, tải lại, chọn Phụ huynh, Giáo viên, Xóa trường / Thì báo "Địa chỉ trường chưa đúng", "Địa chỉ phải bắt đầu bằng https://"; danh sách có hai trường sau khi tải lại; Phụ huynh mở `https://truong-thu.example.vn/phu-huynh/`, Giáo viên mở `/giao-vien/`, máy chủ phát triển mở `http://localhost:5174/`; xóa còn một trường; trang đạt bộ kiểm theo khổ thiết bị của 26c | P19-11 |
 | 11_TIEU_CHI_NGHIEM_THU.md | AC-892 | AC-1028 | Cho máy có JDK 21, Android SDK, máy giả lập đang chạy và máy chủ phát triển / Khi chạy `pnpm --filter @school-management/mobile android:run` / Thì dựng `app-debug.apk`, cài, mở ứng dụng trên máy giả lập, chọn Máy chủ phát triển, Giáo viên thì mở được trang đăng nhập ứng dụng giáo viên; máy thiếu công cụ thì script in danh sách cần cài và thoát mã 2 | P19-11 |
 | 14_DAC_TA_GIAO_DIEN.md | cuối bảng 2.1 Cổng quản trị | MH-484 | Ứng dụng cài đặt: trang khởi động (YCTD-236, bản demo): tiêu đề "School Management", dòng giới thiệu; khối "Trường đã thêm" (mỗi trường: tên, nút Giáo viên, Phụ huynh, Xóa trường; chưa có thì dòng "Chưa có trường nào."); khối "Thêm trường" (ô Địa chỉ trường, nút Thêm trường, nút Máy chủ phát triển trên máy này, dòng báo lỗi); vùng chạm 44 px, chữ ô nhập 16 px, chừa vùng tai thỏ, thanh điều hướng của máy | P19-11 |
-| 21_KICH_BAN_KIEM_THU.md | cuối bảng 15. Ca kiểm thử chức năng bổ sung theo tám ảnh sơ đồ chức năng | CT-1320 | P19-11 | CT-26f-1: trang khởi động của ứng dụng cài đặt ở khổ máy tính và bốn khổ thiết bị: báo lỗi địa chỉ, thêm trường và máy chủ phát triển, giữ sau khi tải lại, mở đúng đường dẫn theo vai trò, xóa trường, bộ kiểm của 26c | Đúng | Đạt; e2e spec 185 (`tests/e2e/185-mobile-shell-launcher.spec.ts`); AC-1027. AC-1028 (dựng, chạy trên máy giả lập) chưa thực hiện được: máy chưa có Android SDK | Cao |
+| 21_KICH_BAN_KIEM_THU.md | cuối bảng 15. Ca kiểm thử chức năng bổ sung theo tám ảnh sơ đồ chức năng | CT-1320 | P19-11 | CT-26f-1: trang khởi động của ứng dụng cài đặt ở khổ máy tính và bốn khổ thiết bị: báo lỗi địa chỉ, thêm trường và máy chủ phát triển, giữ sau khi tải lại, mở đúng đường dẫn theo vai trò, xóa trường, bộ kiểm của 26c | Đúng | Đạt; e2e spec 185 (`tests/e2e/185-mobile-shell-launcher.spec.ts`); AC-1027. AC-1028 đạt khi chạy tay trên máy giả lập Android ngày 2026-10-27 (`android:run`, mở trang đăng nhập của hai ứng dụng) | Cao |
