@@ -502,6 +502,8 @@ export type {
   PushSubscriptionKind,
   PushSubscriptionsTable,
 } from '../system/schema.js';
+// Gói SCORM (DT-28 phần 28h)
+export type { ScormStandard } from '../system/schema.js';
 // Bài tập trực tuyến (DT-28 phần 28c)
 export type {
   AssignmentContext,

@@ -127,6 +127,7 @@ import { migration as createDiscussionControls } from './migrations/0184_create_
 import { migration as createTutoringProgramCourses } from './migrations/0200_create_tutoring_program_courses.js';
 import { migration as createHomeworkPolicies } from './migrations/0185_create_homework_policies.js';
 import { migration as createHomeworkReminders } from './migrations/0186_create_homework_reminders.js';
+import { migration as createScormAttempts } from './migrations/0189_create_scorm_attempts.js';
 
 // Danh sách tệp thay đổi cấu trúc của cơ sở dữ liệu năm học, theo số thứ tự (QU-01, QU-11)
 export const schoolYearMigrations: Record<string, Migration> = {
@@ -272,4 +273,6 @@ export const schoolYearMigrations: Record<string, Migration> = {
   // Bài về nhà và phụ huynh (DT-28 phần 28f): 0185, 0186
   '0185_create_homework_policies': createHomeworkPolicies,
   '0186_create_homework_reminders': createHomeworkReminders,
+  // Gói SCORM (DT-28 phần 28h): 0189
+  '0189_create_scorm_attempts': createScormAttempts,
 };

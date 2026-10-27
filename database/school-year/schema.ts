@@ -7172,6 +7172,23 @@ export interface HomeworkRemindersTable {
   created_at: CreatedTimestamp;
 }
 
+// Lượt chạy gói SCORM của học sinh (DT-28 phần 28h, YCTD-278)
+export interface ScormAttemptsTable {
+  id: Generated<string>;
+  activity_id: string;
+  child_id: string;
+  package_id: string;
+  sco_identifier: string;
+  completion: Generated<'unknown' | 'not_attempted' | 'incomplete' | 'completed'>;
+  success: Generated<'unknown' | 'passed' | 'failed'>;
+  score: ColumnType<string | null, string | number | null | undefined, string | number | null>;
+  total_seconds: Generated<number>;
+  session_count: Generated<number>;
+  location: string | null;
+  suspend_data: string | null;
+  updated_at: UpdatedTimestamp;
+}
+
 export interface SchoolYearDatabase {
   question_topics: QuestionTopicsTable;
   questions: QuestionsTable;
@@ -7627,4 +7644,5 @@ export interface SchoolYearDatabase {
   homework_policies: HomeworkPoliciesTable;
   homework_acknowledgements: HomeworkAcknowledgementsTable;
   homework_reminders: HomeworkRemindersTable;
+  scorm_attempts: ScormAttemptsTable;
 }

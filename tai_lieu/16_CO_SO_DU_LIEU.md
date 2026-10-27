@@ -966,6 +966,16 @@ Cơ sở dữ liệu năm học, tệp `0185_create_homework_policies`, `0186_cr
 
 Mục cấu hình của Trường chính ở `settings`: `homework_reminder_time` (giờ nhắc sắp đến hạn của hôm trước dạng HH:MM, mặc định 19:00).
 
+## 18M. Gói SCORM và gói khoá học (DT-28 phần 28h, YCTD-278)
+
+Cơ sở dữ liệu hệ thống (tệp `0113_create_scorm_packages`, `0114_create_course_package_transfers`; gói dùng qua nhiều năm học như học liệu) và năm học (tệp `0189_create_scorm_attempts`). Tệp 0113 thêm loại học liệu `scorm` (Gói bài giảng SCORM, cần Ban Giám hiệu duyệt) vào `resource_types`.
+
+| Bảng | Mục đích | Cột chính |
+|---|---|---|
+| scorm_packages (hệ thống, từ YCTD-278) | Gói SCORM của một phiên bản học liệu (BR-380, BR-381) | id, resource_id, version_id (duy nhất), standard (`1.2`, `2004`), title, scos (mã, tên, đường dẫn theo thứ tự chạy), files (đường dẫn trong gói, khóa kho tệp, kiểu, cỡ), file_count, total_bytes, created_by, created_at |
+| course_package_transfers (hệ thống, từ YCTD-278) | Nhật ký xuất, nhập gói khoá học (BR-385) | id, direction (`export`, `import`), package_code, source_school, template_id, template_title, resource_count, skipped (tên, lý do), actor_user_id, actor_name, created_at |
+| scorm_attempts (năm học, từ YCTD-278) | Lượt chạy gói của học sinh theo SCO (BR-383, BR-384) | id, activity_id, child_id, package_id, sco_identifier (duy nhất theo hoạt động, học sinh, SCO), completion (`unknown`, `not_attempted`, `incomplete`, `completed`), success (`unknown`, `passed`, `failed`), score (thang 10), total_seconds, session_count, location, suspend_data (tối đa 64.000 ký tự), updated_at |
+
 ## 19. Quan hệ chính giữa các bảng
 
 ```mermaid
