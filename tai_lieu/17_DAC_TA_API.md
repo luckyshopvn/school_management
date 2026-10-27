@@ -2454,6 +2454,22 @@ Tuyến giáo viên cần `P02.assignment.manage` và là giáo viên của lớ
 | POST | /api/v1/student/assignments/{activityId}/submissions/{submissionId}/comments | Học sinh trao đổi trên bài của mình |
 | GET, DELETE | /api/v1/student/assignments/files/{fileId} | Xem tệp của bài mình (hoặc nhóm mình), xóa tệp của bản nháp |
 
+### 17.4. Tiến độ, bảng điểm hoạt động, sổ điểm, báo cáo (DT-28 phần 28d, YCTD-274)
+
+Tuyến nhân sự cần một trong `P02.learning.teach`, `P02.learning.view`, `P02.learning.decide`, `P02.assignment.manage`; ai xem lớp nào, báo cáo nào kiểm ở máy chủ; lỗi quy tắc 422 mã `YCTD-274`.
+
+| Phương thức | Đường dẫn | Mô tả |
+|---|---|---|
+| GET | /api/v1/learning/spaces/{id}/progress-grid | Hoạt động, chương, từng em (`summary` có `pending_grading`, `sections`, `attention`, `results`), danh sách cần chú ý |
+| GET | /api/v1/learning/spaces/{id}/gradebook; /gradebook/file?format=xlsx\|pdf | Bảng điểm hoạt động (`notice`, `gradebook_enabled`, `can_transfer`, `activities`, `rows` có `average` hoặc `levels`); tệp |
+| POST | /api/v1/learning/spaces/{id}/score-book/preview, /score-book | THCS, THPT `{ activity_ids, method, term_type, seq }`: xem trước (`score`, `reason`, `current` từng em); ghi (`written`, `skipped`) |
+| POST | /api/v1/learning/spaces/{id}/comment-book/preview, /comment-book | Tiểu học: gợi ý `{ activity_ids? }` (kỳ đánh giá, thư viện câu nhận xét, `level_code`, `comment`, `feedback` từng em); ghi `{ period_id, activity_ids, items: [{ child_id, level_code, comment }] }` (`levels`, `comments`) |
+| GET | /api/v1/learning/spaces/{id}/record?term_type=&format= | Hồ sơ dạy học trực tuyến của lớp, môn theo học kỳ (Excel, PDF) |
+| GET | /api/v1/learning/reports/homeroom?class_id=, /department, /school, /teachers | Báo cáo chủ nhiệm, tổ chuyên môn, toàn trường, hoạt động dạy của giáo viên |
+| GET, PUT | /api/v1/learning/term-reports/{term} | Báo cáo tổng kết học kỳ (`range`, `stats`, `report`); lưu `{ evaluation, difficulties, causes, recommendations }` (Ban Giám hiệu) |
+| GET | /api/v1/learning/term-reports/{term}/file?format= | Tệp báo cáo tổng kết (PDF, Excel) |
+| GET | /api/v1/learning/children/{childId}/summary | Phụ huynh (hoặc cán bộ xem lớp học trực tuyến): tiến độ từng lớp, hạn trong 7 ngày tới, nhận xét bài tập đã trả |
+
 ## 18. Quy tắc kiểm tra dữ liệu
 
 | Mã | Quy tắc |

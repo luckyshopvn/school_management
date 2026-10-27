@@ -198,6 +198,25 @@ export const SETTING_DEFINITIONS: SettingDefinition[] = [
     rule: 'YCTD-212',
     school: true,
   },
+  // Tiến độ, bảng điểm hoạt động (DT-28 phần 28d, YCTD-274): cho giáo viên đưa kết quả hoạt động học trực tuyến vào sổ điểm (điểm
+  // thường xuyên THCS, THPT) và sổ nhận xét (Tiểu học); mặc định bật (GD-141), mỗi hoạt động vẫn do giáo viên chọn và xác nhận
+  {
+    key: 'learning_gradebook_enabled',
+    label: 'Cho đưa kết quả học trực tuyến vào sổ điểm, sổ nhận xét',
+    valueType: 'boolean',
+    defaultValue: true,
+    rule: 'YCTD-274',
+    school: true,
+  },
+  // Tóm tắt việc học trực tuyến hằng tuần gửi phụ huynh (sáng thứ Hai); mặc định tắt, trường tự bật
+  {
+    key: 'learning_weekly_summary_enabled',
+    label: 'Gửi phụ huynh tóm tắt học trực tuyến hằng tuần',
+    valueType: 'boolean',
+    defaultValue: false,
+    rule: 'YCTD-274',
+    school: true,
+  },
 ];
 
 export function findDefinition(key: string): SettingDefinition | undefined {

@@ -925,6 +925,17 @@ Mười bảng ở cơ sở dữ liệu năm học (tệp `0176_create_assignmen
 
 Một mục cấu hình tuỳ chọn ở bảng `settings` của Trường chính: `assignment_upload_limits` (`max_images`, `max_total_bytes`, `max_document_bytes`, `max_audio_bytes`, `max_audio_seconds`; thiếu hoặc sai thì dùng mặc định của GD-150, tối đa gấp năm lần mặc định).
 
+## 18J. Tiến độ, bảng điểm hoạt động, sổ điểm, báo cáo (DT-28 phần 28d, YCTD-274)
+
+Năm học `0180_add_activity_sources`: ràng buộc `score_entries_source_check` thêm `activity` (điểm thường xuyên từ kết quả hoạt động); `question_usages` thêm cột `activity_id` (tham chiếu hoạt động, xóa theo), nguồn `activity` trong `question_usages_source_check`, chỉ mục duy nhất (question_id, activity_id). Năm học `0181_create_online_teaching_reports`:
+
+| Bảng | Mục đích | Cột chính |
+|---|---|---|
+| online_teaching_term_reports (từ YCTD-274) | Báo cáo tổng kết dạy học trực tuyến theo học kỳ (BR-325) | id, term_type (`first_term`, `second_term`, duy nhất), evaluation, difficulties, causes, recommendations (mỗi ô tối đa 4.000 ký tự), updated_by, updated_by_name, updated_at |
+| activity_score_transfers (từ YCTD-274) | Nhật ký đưa kết quả hoạt động vào sổ (BR-322, BR-323) | id, space_id, target (`score_book`, `comment_book`), activity_ids, method (`single`, `weighted`), term_type, seq (lần đánh giá thường xuyên, trống khi sổ nhận xét), written, created_by, created_by_name, created_at |
+
+Hai mục cấu hình của Trường chính ở `settings`: `learning_gradebook_enabled` (mặc định bật) và `learning_weekly_summary_enabled` (mặc định tắt).
+
 ## 19. Quan hệ chính giữa các bảng
 
 ```mermaid

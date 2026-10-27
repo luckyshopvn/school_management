@@ -147,6 +147,9 @@ export const MENU_PERMISSION_RULES: Partial<Record<PortalQuickLinkPath, MenuPerm
   '/online-classes': anyOf('P02.learning.teach', 'P02.learning.view', 'P02.assignment.manage'),
   '/course-templates': anyOf('P02.learning.template'),
   '/online-teaching': anyOf('P02.learning.decide', 'P02.learning.view'),
+  // Báo cáo học tập trực tuyến (DT-28 phần 28d): chủ nhiệm (có quyền dạy), tổ trưởng, Ban Giám hiệu; báo cáo nào xem được do
+  // máy chủ quyết theo vai trò
+  '/online-learning-reports': anyOf('P02.learning.teach', 'P02.learning.view', 'P02.learning.decide'),
   // Thi trực tuyến cho học sinh (DT-23 phần 23a): giao đề, theo dõi bài làm, cấu hình thi trực tuyến theo cấp
   '/online-exams': 'P02.exam.assign',
   '/online-exams/monitor': 'P02.exam.assign',

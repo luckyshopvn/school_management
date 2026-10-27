@@ -2136,6 +2136,14 @@ export class LearningService {
     return this.activityOf(currentUser, activityId);
   }
 
+  // Người xem được lớp học trực tuyến (giáo viên của lớp, Ban Giám hiệu, tổ trưởng của môn) và có dạy được không (28d)
+  async spaceAccess(currentUser: CurrentUser, spaceId: string) {
+    const context = await this.context(currentUser);
+    const { database } = await this.currentSchoolYear.require();
+    const { space, canTeach } = await this.access(context, database, spaceId);
+    return { context, database, space, canTeach };
+  }
+
   // Học sinh của kênh student: tài khoản học nối đúng một học sinh đang học
   async studentContext(currentUser: CurrentUser) {
     return this.studentOf(currentUser);

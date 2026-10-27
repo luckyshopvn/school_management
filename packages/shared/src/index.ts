@@ -707,6 +707,8 @@ export const PORTAL_QUICK_LINK_PATHS = [
   '/online-classes',
   '/course-templates',
   '/online-teaching',
+  // Tiến độ, báo cáo học tập trực tuyến (DT-28 phần 28d)
+  '/online-learning-reports',
   // Gia sư trong trường (DT-27 phần 27b)
   '/tutoring',
   '/tutoring/sessions',
