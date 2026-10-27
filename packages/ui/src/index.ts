@@ -38,4 +38,10 @@ export {
   type VideoJoinInfo,
   type VideoRecordingRow,
 } from './VideoRoom.js';
-export { LessonVideoList, type LessonVideo } from './LessonVideoList.js';
+export {
+  LessonCourseProgress,
+  LessonVideoList,
+  type LessonCourseProgressData,
+  type LessonVideo,
+  type LessonVideoProgress,
+} from './LessonVideoList.js';
