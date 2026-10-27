@@ -41,6 +41,7 @@ import { migration as createNotificationPreferences } from './migrations/0092_cr
 import { migration as addAiFeedbackKind } from './migrations/0111_add_ai_feedback_kind.js';
 import { migration as createScormPackages } from './migrations/0113_create_scorm_packages.js';
 import { migration as createCoursePackageTransfers } from './migrations/0114_create_course_package_transfers.js';
+import { migration as addAiAnswerKind } from './migrations/0120_add_ai_answer_kind.js';
 
 // Danh sách tệp thay đổi cấu trúc của cơ sở dữ liệu hệ thống, theo số thứ tự (QU-01, QĐ-17)
 export const systemMigrations: Record<string, Migration> = {
@@ -91,4 +92,6 @@ export const systemMigrations: Record<string, Migration> = {
   // Gói SCORM, gói khoá học (DT-28 phần 28h): 0113, 0114
   '0113_create_scorm_packages': createScormPackages,
   '0114_create_course_package_transfers': createCoursePackageTransfers,
+  // Gợi ý trả lời câu hỏi bài tập bằng AI (DT-27 phần 27e): 0120, sau 0111 vì cùng ràng buộc loại yêu cầu
+  '0120_add_ai_answer_kind': addAiAnswerKind,
 };
