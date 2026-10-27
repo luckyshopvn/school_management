@@ -4,6 +4,7 @@ import { Alert, Button, StatusBadge, type StatusTone } from '@school-management/
 import { ExamRoom } from './ExamRoom.js';
 import { StudentLearningPanel } from './StudentLearningPanel.js';
 import { CalendarWeek, StudentGroupsPanel } from './StudentDiscussions.js';
+import { StudentTutoringCourses } from './StudentTutoringCourses.js';
 import { StudentVideoPanel } from './StudentVideoPanel.js';
 import {
   listStudentExams,
@@ -170,6 +171,7 @@ export function StudentHomeScreen() {
       </section>
       {/* Lớp học trực tuyến (DT-28 phần 28b) */}
       <StudentVideoPanel />
+      <StudentTutoringCourses />
       <StudentLearningPanel />
       {/* Không gian học nhóm, lịch học tập (DT-28 phần 28e) */}
       <StudentGroupsPanel />

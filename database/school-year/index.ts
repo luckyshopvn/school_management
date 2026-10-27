@@ -124,6 +124,7 @@ import { migration as createOnlineTeachingReports } from './migrations/0181_crea
 import { migration as createDiscussions } from './migrations/0182_create_discussions.js';
 import { migration as createGroupWorkspaces } from './migrations/0183_create_group_workspaces.js';
 import { migration as createDiscussionControls } from './migrations/0184_create_discussion_controls.js';
+import { migration as createTutoringProgramCourses } from './migrations/0200_create_tutoring_program_courses.js';
 import { migration as createHomeworkPolicies } from './migrations/0185_create_homework_policies.js';
 import { migration as createHomeworkReminders } from './migrations/0186_create_homework_reminders.js';
 
@@ -266,6 +267,8 @@ export const schoolYearMigrations: Record<string, Migration> = {
   '0182_create_discussions': createDiscussions,
   '0183_create_group_workspaces': createGroupWorkspaces,
   '0184_create_discussion_controls': createDiscussionControls,
+  // Khoá học ghi sẵn của chương trình gia sư (DT-27 phần 27d1): 0200, sau dải của DT-28 vì cần course_spaces, course_activities (0172, 0173)
+  '0200_create_tutoring_program_courses': createTutoringProgramCourses,
   // Bài về nhà và phụ huynh (DT-28 phần 28f): 0185, 0186
   '0185_create_homework_policies': createHomeworkPolicies,
   '0186_create_homework_reminders': createHomeworkReminders,
