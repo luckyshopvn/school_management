@@ -1,0 +1,227 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <title>School Management</title>
+    <!--
+      Trang khởi động của vỏ ứng dụng cài đặt, bản demo (DT-26 phần 26f, YCTD-236): chọn trường (địa chỉ máy chủ) và vai trò rồi mở ứng
+      dụng web giáo viên hoặc phụ huynh của trường trong WebView. Danh sách trường đã thêm lưu trên máy (localStorage của vỏ). Trường chạy
+      thật phục vụ hai ứng dụng ở /giao-vien/ và /phu-huynh/ trên tên miền của trường; máy chủ phát triển chạy hai ứng dụng ở cổng 5174
+      và 5175. Dữ liệu giả, không chứa địa chỉ trường thật
+    -->
+    <style>
+      :root {
+        color-scheme: light;
+        --mau-chinh: #0670c0;
+        --mau-chu: #0f172a;
+        --mau-phu: #475569;
+        --vien: #cbd5e1;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        padding: max(16px, env(safe-area-inset-top)) 16px max(16px, env(safe-area-inset-bottom));
+        font-family: system-ui, sans-serif;
+        font-size: 16px;
+        color: var(--mau-chu);
+        background: #f5f7fa;
+      }
+      main {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+        max-width: 32rem;
+        margin: 0 auto;
+      }
+      h1 {
+        margin: 8px 0 0;
+        font-size: 24px;
+      }
+      p {
+        margin: 0;
+        color: var(--mau-phu);
+      }
+      section {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        padding: 16px;
+        border: 1px solid #e2e8f0;
+        border-radius: 12px;
+        background: #fff;
+      }
+      h2 {
+        margin: 0;
+        font-size: 18px;
+      }
+      label {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        font-weight: 600;
+      }
+      input {
+        min-height: 44px;
+        padding: 8px 12px;
+        border: 1px solid var(--vien);
+        border-radius: 8px;
+        font-size: 16px;
+      }
+      button {
+        min-height: 44px;
+        padding: 8px 16px;
+        border: 1px solid var(--vien);
+        border-radius: 8px;
+        background: #fff;
+        color: var(--mau-chu);
+        font-size: 16px;
+        font-weight: 600;
+      }
+      button.chinh {
+        border-color: var(--mau-chinh);
+        background: var(--mau-chinh);
+        color: #fff;
+      }
+      .hang {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+      ul {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        margin: 0;
+        padding: 0;
+        list-style: none;
+      }
+      li {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        padding: 12px;
+        border: 1px solid #e2e8f0;
+        border-radius: 8px;
+      }
+      [role='alert'] {
+        color: #b91c1c;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <h1>School Management</h1>
+      <p>Chọn trường và vai trò để mở ứng dụng. Bản thử nghiệm chạy trên máy giả lập.</p>
+
+      <section aria-labelledby="tieu-de-truong">
+        <h2 id="tieu-de-truong">Trường đã thêm</h2>
+        <p id="chua-co-truong">Chưa có trường nào. Thêm trường ở mục bên dưới.</p>
+        <ul id="danh-sach-truong" aria-labelledby="tieu-de-truong"></ul>
+      </section>
+
+      <section aria-labelledby="tieu-de-them">
+        <h2 id="tieu-de-them">Thêm trường</h2>
+        <form id="them-truong" class="hang" novalidate>
+          <label style="flex: 1 1 100%">
+            Địa chỉ trường
+            <input
+              id="dia-chi"
+              name="dia-chi"
+              type="url"
+              inputmode="url"
+              autocomplete="url"
+              placeholder="https://truong-thu.example.vn"
+            />
+          </label>
+          <button type="submit" class="chinh">Thêm trường</button>
+          <button type="button" id="may-phat-trien">Máy chủ phát triển trên máy này</button>
+        </form>
+        <p id="loi" role="alert"></p>
+      </section>
+    </main>
+    <script type="module">
+      const KHOA = 'truong-da-them';
+      // Máy chủ phát triển: hai ứng dụng ở hai cổng; máy giả lập Android nhìn thấy cổng của máy thật qua `adb reverse`
+      const MAY_PHAT_TRIEN = {
+        ten: 'Máy chủ phát triển',
+        giaoVien: 'http://localhost:5174/',
+        phuHuynh: 'http://localhost:5175/',
+      };
+
+      const docDanhSach = () => {
+        try {
+          const giaTri = JSON.parse(localStorage.getItem(KHOA) ?? '[]');
+          return Array.isArray(giaTri) ? giaTri : [];
+        } catch {
+          return [];
+        }
+      };
+      const ghiDanhSach = (danhSach) => localStorage.setItem(KHOA, JSON.stringify(danhSach));
+
+      // Trường chạy thật: hai ứng dụng nằm dưới /giao-vien/ và /phu-huynh/ của tên miền trường
+      const truongTuDiaChi = (diaChi) => {
+        const url = new URL(diaChi);
+        if (url.protocol !== 'https:' && url.protocol !== 'http:') {
+          throw new Error('Địa chỉ phải bắt đầu bằng https://');
+        }
+        const goc = url.origin;
+        return { ten: url.host, giaoVien: `${goc}/giao-vien/`, phuHuynh: `${goc}/phu-huynh/` };
+      };
+
+      const hienDanhSach = () => {
+        const danhSach = docDanhSach();
+        const ul = document.getElementById('danh-sach-truong');
+        ul.replaceChildren();
+        document.getElementById('chua-co-truong').hidden = danhSach.length > 0;
+        danhSach.forEach((truong, viTri) => {
+          const li = document.createElement('li');
+          const ten = document.createElement('strong');
+          ten.textContent = truong.ten;
+          const hang = document.createElement('div');
+          hang.className = 'hang';
+          const nut = (nhan, lop, hanhDong) => {
+            const button = document.createElement('button');
+            button.type = 'button';
+            button.textContent = nhan;
+            if (lop) button.className = lop;
+            button.addEventListener('click', hanhDong);
+            return button;
+          };
+          hang.append(
+            nut('Giáo viên', 'chinh', () => window.location.assign(truong.giaoVien)),
+            nut('Phụ huynh', 'chinh', () => window.location.assign(truong.phuHuynh)),
+            nut('Xóa trường', '', () => {
+              ghiDanhSach(docDanhSach().filter((_, khac) => khac !== viTri));
+              hienDanhSach();
+            }),
+          );
+          li.append(ten, hang);
+          ul.append(li);
+        });
+      };
+
+      const themTruong = (truong) => {
+        const danhSach = docDanhSach().filter((khac) => khac.giaoVien !== truong.giaoVien);
+        ghiDanhSach([...danhSach, truong]);
+        hienDanhSach();
+      };
+
+      document.getElementById('them-truong').addEventListener('submit', (suKien) => {
+        suKien.preventDefault();
+        const loi = document.getElementById('loi');
+        loi.textContent = '';
+        try {
+          themTruong(truongTuDiaChi(document.getElementById('dia-chi').value.trim()));
+          document.getElementById('dia-chi').value = '';
+        } catch (error) {
+          loi.textContent = error instanceof TypeError ? 'Địa chỉ trường chưa đúng' : error.message;
+        }
+      });
+      document.getElementById('may-phat-trien').addEventListener('click', () => themTruong(MAY_PHAT_TRIEN));
+      hienDanhSach();
+    </script>
+  </body>
+</html>

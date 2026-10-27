@@ -1,0 +1,21 @@
+{
+  "name": "@school-management/mobile",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "typecheck": "tsc -p tsconfig.json",
+    "android:debug": "node scripts/dung-android-debug.mjs",
+    "android:run": "node scripts/dung-android-debug.mjs --chay",
+    "cap:sync": "cap sync"
+  },
+  "dependencies": {
+    "@capacitor/android": "8.5.3",
+    "@capacitor/core": "8.5.3",
+    "@capacitor/ios": "8.5.3"
+  },
+  "devDependencies": {
+    "@capacitor/cli": "8.5.3",
+    "@school-management/config": "workspace:*"
+  }
+}
