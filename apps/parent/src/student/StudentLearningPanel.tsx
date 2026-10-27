@@ -3,6 +3,14 @@ import { Alert, Button, StatusBadge, type StatusTone } from '@school-management/
 import { StudentAssignmentView } from './StudentAssignmentView.js';
 import { StudentSpaceDiscussions } from './StudentDiscussions.js';
 import { ScormPlayer } from './ScormPlayer.js';
+import {
+  flushPending,
+  isNetworkFailure,
+  loadOfflineConfig,
+  readContent,
+  saveContent,
+  type OfflineConfig,
+} from './offline/offline.ts';
 import { fetchStudentFile, requestStudentJson, StudentApiError } from './student-api.js';
 import { RecognitionList, type RecognitionView } from '../screens/RecognitionList.js';
 
@@ -107,6 +115,36 @@ export function StudentLearningPanel() {
       .catch((error: unknown) => setErrorMessage(messageOf(error)));
   }, []);
   useEffect(load, [load]);
+  // Học khi mạng yếu (DT-28 phần 28j): đọc cấu hình của trường, gửi các thao tác chờ khi có mạng
+  const [pendingNotice, setPendingNotice] = useState<string>();
+  useEffect(() => {
+    const flush = () =>
+      void flushPending(
+        async (activityId, itemId, file, fileName, clientKey) => {
+          const form = new FormData();
+          form.append('file', file, fileName);
+          await requestStudentJson(
+            `/api/v1/student/assignments/${activityId}/items/${itemId}/files?client_key=${clientKey}`,
+            { method: 'POST', body: form },
+          );
+        },
+        async (activityId, body) => {
+          await requestStudentJson(`/api/v1/student/assignments/${activityId}/submit`, {
+            method: 'POST',
+            body: JSON.stringify(body),
+          });
+        },
+      ).then((outcome) => {
+        if (!outcome) return;
+        if (outcome.sent > 0) setPendingNotice(`Đã gửi ${outcome.sent} phần bài làm lưu trên máy`);
+        if (outcome.dropped.length > 0)
+          setPendingNotice(`Có phần bài làm không gửi được: ${outcome.dropped.map((item) => item.reason).join('; ')}`);
+        load();
+      });
+    void loadOfflineConfig(() => requestStudentJson<OfflineConfig>('/api/v1/student/offline')).then(flush);
+    window.addEventListener('online', flush);
+    return () => window.removeEventListener('online', flush);
+  }, [load]);
 
   async function open(activity: ActivityView) {
     try {
@@ -118,6 +156,7 @@ export function StudentLearningPanel() {
           body: '{}',
         },
       );
+      void saveContent(activity.id, content);
       if (activity.kind === 'assignment') {
         setAssignmentId(activity.id);
       } else if (activity.kind === 'scorm') {
@@ -127,6 +166,13 @@ export function StudentLearningPanel() {
       }
       load();
     } catch (error) {
+      // Mất mạng: mở lại nội dung đã giữ trên máy (trừ bài tập, gói SCORM cần máy chủ)
+      const cached = isNetworkFailure(error) ? await readContent<OpenedActivity>(activity.id) : null;
+      if (cached && activity.kind !== 'assignment' && activity.kind !== 'scorm') {
+        setOpened(cached);
+        setErrorMessage('Đang mất mạng: đây là nội dung đã lưu trên máy');
+        return;
+      }
       setErrorMessage(messageOf(error));
     }
   }
@@ -144,6 +190,7 @@ export function StudentLearningPanel() {
     <section aria-label="Học trực tuyến" className="flex flex-col gap-3">
       <h2 className="text-label font-semibold text-text">Học trực tuyến</h2>
       {errorMessage ? <Alert tone="danger">{errorMessage}</Alert> : null}
+      {pendingNotice ? <Alert tone="info">{pendingNotice}</Alert> : null}
       {data?.rules && !data.rules.acknowledged_at ? (
         <div className="flex flex-col gap-2 rounded-xl border border-border bg-card p-4">
           <h3 className="text-body font-semibold text-text">Nội quy học trực tuyến (bản {data.rules.version})</h3>

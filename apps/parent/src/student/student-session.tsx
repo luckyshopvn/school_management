@@ -1,5 +1,6 @@
 import { revokePushOnSignOut } from '@school-management/pwa';
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
+import { forgetEverything } from './offline/offline.ts';
 import {
   changeStudentPassword,
   refreshStudentSession,
@@ -59,6 +60,8 @@ export function StudentSessionProvider({ children }: { children: ReactNode }) {
           // Máy dùng chung không nhận đẩy của học sinh trước (DT-26 phần 26b); cần mã phiên nên gọi trước khi đăng xuất
           await revokePushOnSignOut(import.meta.env.BASE_URL, requestStudentJson);
           await studentLogout();
+          // Học khi mạng yếu (DT-28 phần 28j): đăng xuất xoá hết dữ liệu của em trên máy
+          await forgetEverything();
         } finally {
           setLastPassword(undefined);
           setPasswordChangeRequired(false);
