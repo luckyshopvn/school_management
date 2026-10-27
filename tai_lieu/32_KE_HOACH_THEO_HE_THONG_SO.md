@@ -1664,7 +1664,7 @@ Cỡ ước lượng (một phần của DT-16 là một đơn vị, chỉ để
 | 23b | 1 | Đã làm (YCTD-212, phiên bản 0.140.0, PR 180): công cụ lớp học, ngoại tuyến, bản chụp danh sách lớp 24 giờ; năm học 0124, 0125; e2e 151 |
 | 23d | 1 | Đã làm, YCTD-214, phiên bản 0.143.0, PR 184: bộ nối `AiProvider` (`anthropic`, `mock`), hai cấu hình khóa, bật tắt theo trường, lời nhắc từ mẫu cố định và bộ quét dữ liệu cá nhân, bản nháp qua duyệt 22g1 và kiểm duyệt 22h1, nhật ký, hạn mức theo gói, phí theo token qua S5b, màn hình quản trị, e2e spec 153, bản nháp pháp lý PL-22 |
 | 23e | 1 | Đã làm, YCTD-215, phiên bản 0.151.0, PR 195: giám thị camera cho thi trực tuyến: cấu hình của trường (mặc định tắt), bật theo bài giao, thông báo và đồng ý của cha mẹ (dưới 16 tuổi, ứng dụng phụ huynh hoặc trường ghi nhận), xem lưới camera trực tiếp qua WebRTC (báo hiệu qua máy chủ API, coturn trong `deploy/`), nhật ký người xem, ghi hình mã hoá có hạn và xem lại có kiểm quyền; năm học 0129; e2e 154; cần luật sư rà (PL-15) trước khi bật ở trường thật |
-| 23c | 2 | Chưa làm; YCTD-213 giữ sẵn, bắt đầu khi 23a và 23b đã gộp |
+| 23c | 2 | Đã làm, YCTD-213, phiên bản 0.150.0, PR …: thẻ "Trò chơi" trong Công cụ lớp học (hỏi đáp theo vòng, vòng quay, ô chữ, thẻ đáp án giấy in và quét bằng camera trên máy), lượt chơi lưu qua máy chủ (chấm lại, gửi lại không trùng), lịch sử sử dụng câu hỏi kèm tỷ lệ đúng (`question_usages` nguồn `game`); năm học 0126, 0127; e2e 152 |
 
 Bản kế hoạch này là YCTD-210, chỉ đổi tài liệu (không tăng phiên bản phần mềm).
 

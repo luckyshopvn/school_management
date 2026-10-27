@@ -223,7 +223,7 @@ export class ClassroomGamesService {
       const subject = subjects.get(row.subject_id) ?? {
         id: row.subject_id,
         name: row.subject_name,
-        counts: {},
+        counts: {} as Record<string, number>,
         topics: new Map(),
       };
       subjects.set(row.subject_id, subject);
