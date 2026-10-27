@@ -48,7 +48,16 @@ function messageOf(error: unknown): string {
   return error instanceof ApiError ? error.message : 'Không kết nối được tới máy chủ';
 }
 
-export function AttendanceScreen({ myClass, onBack }: { myClass: MyClass; onBack(): void }) {
+// `embedded`: đặt trong khung phải của chế độ lớp học (DT-26 phần 26d), bỏ đầu trang và nút quay lại
+export function AttendanceScreen({
+  myClass,
+  onBack,
+  embedded = false,
+}: {
+  myClass: MyClass;
+  onBack(): void;
+  embedded?: boolean;
+}) {
   const [date, setDate] = useState(today());
   const [sheet, setSheet] = useState<Sheet>();
   const [marks, setMarks] = useState<Record<string, Status | null>>({});
@@ -176,13 +185,17 @@ export function AttendanceScreen({ myClass, onBack }: { myClass: MyClass; onBack
   const unmarked = sheet ? sheet.children.filter((child) => !marks[child.child_id]).length : 0;
 
   return (
-    <div className="min-h-screen">
-      <ApplicationHeader title={myClass.name} />
-      <main className="mx-auto flex max-w-md flex-col gap-4 px-4 py-6">
+    <div className={embedded ? undefined : 'min-h-screen'}>
+      {embedded ? null : <ApplicationHeader title={myClass.name} />}
+      <main
+        className={embedded ? 'flex flex-col gap-4' : 'mx-auto flex max-w-md flex-col md:max-w-3xl gap-4 px-4 py-6'}
+      >
         <div className="flex items-center gap-3">
-          <Button variant="text" onClick={onBack}>
-            Lớp của tôi
-          </Button>
+          {embedded ? null : (
+            <Button variant="text" onClick={onBack}>
+              Lớp của tôi
+            </Button>
+          )}
           <h1 className="text-section-title font-bold text-text">Bảng điểm danh</h1>
         </div>
         <label className="flex flex-col gap-2 text-label font-medium text-text">

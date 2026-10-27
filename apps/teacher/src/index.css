@@ -6,3 +6,35 @@
 body {
   @apply bg-page text-content text-text;
 }
+
+/* Truy cập trên điện thoại và máy tính bảng (DT-26 phần 26d, YCTD-234): vùng chạm tối thiểu 44 × 44 px, chữ trong ô nhập từ 16 px để iOS
+   không tự phóng to khi chạm vào ô. Viết ngoài lớp (cascade layer) nên thắng các lớp tiện ích cỡ nhỏ hơn của Tailwind và của
+   packages/ui mà không phải sửa gói dùng chung */
+input:not([type='checkbox'], [type='radio'], [type='range'], [type='hidden'], [type='color']),
+select,
+textarea {
+  font-size: max(16px, 1em);
+  min-height: 44px;
+}
+button,
+[role='button'],
+[role='tab'],
+input[type='button'],
+input[type='submit'] {
+  min-height: 44px;
+  min-width: 44px;
+}
+
+/* Tương phản chữ tối thiểu 4,5:1 (WCAG 2.1 AA) cho khối báo và chữ phụ trên nền nhạt (DT-26 phần 26d): ghi đè biến màu của bộ chủ đề
+   ngay trong ứng dụng, không sửa packages/ui */
+:root {
+  --color-danger: #b91c1c;
+  --color-warning: #92400e;
+  --color-info: #1d4ed8;
+  --color-success: #15803d;
+  --color-text-muted: #64748b;
+  /* Chữ liên kết và nút chính chữ trắng: màu thương hiệu đậm hơn một bậc */
+  --color-link: #0369a1;
+  --color-brand: #0670c0;
+  --color-brand-strong: #055a9a;
+}

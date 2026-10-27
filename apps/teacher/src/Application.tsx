@@ -23,6 +23,7 @@ import { StocktakeScreen } from './screens/StocktakeScreen.js';
 import { MyTimetableScreen } from './screens/MyTimetableScreen.js';
 import { OnlineClassesScreen } from './screens/OnlineClassesScreen.js';
 import { ClassLogScreen } from './screens/ClassLogScreen.js';
+import { ClassroomModeScreen } from './screens/ClassroomModeScreen.js';
 import { TrainingScreen } from './screens/TrainingScreen.js';
 import { TeachingScreen } from './screens/TeachingScreen.js';
 import { WorkScreen } from './screens/WorkScreen.js';
@@ -49,7 +50,7 @@ function OfflineScreen() {
   const [, refresh] = useState(0);
   if (Object.keys(readRosters(new Date())).length === 0) {
     return (
-      <main className="mx-auto flex max-w-md flex-col gap-4 px-4 py-6">
+      <main className="mx-auto flex max-w-md flex-col md:max-w-3xl gap-4 px-4 py-6">
         <h1 className="text-page-title font-bold text-text">Chưa có kết nối</h1>
         <p className="text-content text-text-secondary">
           Ứng dụng cần có mạng để đăng nhập. Công cụ lớp học dùng được khi mất mạng sau khi bạn đã mở lớp ít nhất một
@@ -94,6 +95,7 @@ function Screens() {
     | { screen: 'class-log' }
     | { screen: 'training' }
     | { screen: 'classroom-tools'; classes: MyClass[] }
+    | { screen: 'classroom-mode'; classes: MyClass[] }
     | { screen: 'online-classes' }
     | { screen: 'tutoring' }
   >();
@@ -179,6 +181,9 @@ function Screens() {
   if (opened?.screen === 'training') {
     return <TrainingScreen onBack={back} />;
   }
+  if (opened?.screen === 'classroom-mode') {
+    return <ClassroomModeScreen classes={opened.classes} onBack={back} />;
+  }
   if (opened?.screen === 'tutoring') {
     return <TutoringScreen onBack={back} />;
   }
@@ -218,6 +223,7 @@ function Screens() {
       onOpenClassLog={() => setOpened({ screen: 'class-log' })}
       onOpenTraining={() => setOpened({ screen: 'training' })}
       onOpenClassroomTools={(classes) => setOpened({ screen: 'classroom-tools', classes })}
+      onOpenClassroomMode={(classes) => setOpened({ screen: 'classroom-mode', classes })}
       onOpenOnlineClasses={() => setOpened({ screen: 'online-classes' })}
       onOpenTutoring={() => setOpened({ screen: 'tutoring' })}
     />

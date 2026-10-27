@@ -63,7 +63,7 @@ function SpaceView({ spaceId, onBack }: { spaceId: string; onBack(): void }) {
   };
   const firstSection = detail?.sections[0];
   return (
-    <main className="mx-auto flex max-w-md flex-col gap-4 px-4 py-6">
+    <main className="mx-auto flex max-w-md flex-col gap-4 px-4 py-6 md:max-w-3xl">
       <div>
         <Button variant="text" onClick={onBack}>
           Quay lại
@@ -204,7 +204,7 @@ export function OnlineClassesScreen({ onBack }: { onBack(): void }) {
       {openId ? (
         <SpaceView spaceId={openId} onBack={() => setOpenId(undefined)} />
       ) : (
-        <main className="mx-auto flex max-w-md flex-col gap-4 px-4 py-6">
+        <main className="mx-auto flex max-w-md flex-col gap-4 px-4 py-6 md:max-w-3xl">
           <div>
             <Button variant="text" onClick={onBack}>
               Quay lại
