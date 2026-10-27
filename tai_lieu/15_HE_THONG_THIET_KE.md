@@ -20,11 +20,11 @@
 
 | Mã | Tên | Giá trị | Dùng cho |
 |---|---|---|---|
-| M-01 | Xanh dương | #0A8BE6 | Màu chính, nền nút hành động chính (chữ trắng), nền thanh đầu trang của cổng quản trị (YCTD-99) |
-| M-02 | Xanh dương đậm | #0670C0 | Trạng thái nhấn của màu chính, chữ và gạch chân của mục đang chọn trên menu ngang của cổng quản trị (YCTD-107) |
-| M-03 | Xanh liên kết | #0A7FD4 | Màu phụ, liên kết, biểu tượng thông tin |
+| M-01 | Xanh dương | #0670C0 | Màu chính, nền nút hành động chính (chữ trắng), nền thanh đầu trang của cổng quản trị (YCTD-99); đậm hơn để chữ đạt tương phản 4,5:1 (YCTD-235) |
+| M-02 | Xanh dương đậm | #055A9A | Trạng thái nhấn của màu chính, chữ và gạch chân của mục đang chọn trên menu ngang của cổng quản trị (YCTD-107); đậm hơn để chữ đạt tương phản 4,5:1 (YCTD-235) |
+| M-03 | Xanh liên kết | #0369A1 | Màu phụ, liên kết, biểu tượng thông tin; đậm hơn để chữ đạt tương phản 4,5:1 (YCTD-235) |
 | M-04 | Xanh lá dịu | #10B981 | Màu phụ thứ hai, vùng tích cực |
-| M-05 | Vàng nhấn | #FFE600 | Tên hệ thống trên thanh đầu trang xanh (YCTD-99) |
+| M-05 | Vàng nhấn | #FFFF00 | Tên hệ thống trên thanh đầu trang xanh (YCTD-99); vàng thuần để đạt tương phản 4,5:1 trên nền thanh đầu trang (YCTD-235) |
 
 ### 2.2 Màu nền và chữ
 
@@ -35,7 +35,7 @@
 | N-03 | Nền vùng chọn | #E6F2FC | Dòng đang chọn, vùng được đánh dấu |
 | C-01 | Chữ chính | #0F172A | Tiêu đề và nội dung chính |
 | C-02 | Chữ phụ | #475569 | Nhãn, mô tả, ghi chú |
-| C-03 | Chữ mờ | #94A3B8 | Văn bản không hoạt động |
+| C-03 | Chữ mờ | #64748B | Văn bản không hoạt động; đậm hơn để chữ đạt tương phản 4,5:1 (YCTD-235) |
 | V-01 | Viền | #E2E8F0 | Viền thẻ, viền ô nhập |
 | V-02 | Viền nhấn | #CBD5E1 | Viền khi trỏ vào |
 
@@ -43,11 +43,11 @@
 
 | Mã | Tên | Giá trị | Dùng cho |
 |---|---|---|---|
-| T-01 | Thành công | #16A34A | Đã duyệt, đã thu đủ, đã hoàn thành |
-| T-02 | Cảnh báo | #D97706 | Chờ duyệt, sắp đến hạn, cần chú ý |
-| T-03 | Nguy hiểm | #DC2626 | Từ chối, quá hạn, lỗi, hành động phá hủy |
-| T-04 | Thông tin | #2563EB | Đang xử lý, ghi chú hệ thống |
-| T-05 | Trung tính | #64748B | Đã hủy, không hoạt động, nháp |
+| T-01 | Thành công | #166534 | Đã duyệt, đã thu đủ, đã hoàn thành; đậm hơn để chữ đạt tương phản 4,5:1 (YCTD-235) |
+| T-02 | Cảnh báo | #92400E | Chờ duyệt, sắp đến hạn, cần chú ý; đậm hơn để chữ đạt tương phản 4,5:1 (YCTD-235) |
+| T-03 | Nguy hiểm | #B91C1C | Từ chối, quá hạn, lỗi, hành động phá hủy; đậm hơn để chữ đạt tương phản 4,5:1 (YCTD-235) |
+| T-04 | Thông tin | #1D4ED8 | Đang xử lý, ghi chú hệ thống; đậm hơn để chữ đạt tương phản 4,5:1 (YCTD-235) |
+| T-05 | Trung tính | #475569 | Đã hủy, không hoạt động, nháp; đậm hơn để chữ trên nền nhạt cùng tông đạt tương phản 4,5:1 (YCTD-235) |
 
 ### 2.4 Màu quy ước tài chính
 

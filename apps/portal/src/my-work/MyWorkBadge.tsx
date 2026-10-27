@@ -45,7 +45,7 @@ export function MyWorkHeaderLink() {
   return (
     <Link
       to={MY_WORK_PATH}
-      className="relative flex h-9 items-center rounded-full px-2 text-label font-medium text-white hover:bg-header-strong"
+      className="relative flex h-9 items-center rounded-full px-2 text-label font-medium text-white hover:bg-header-strong max-xl:h-11 max-xl:min-w-11 max-xl:justify-center"
       aria-label={
         total ? `Việc của tôi, ${total} việc đang chờ${overdue ? `, ${overdue} quá hạn` : ''}` : 'Việc của tôi'
       }
