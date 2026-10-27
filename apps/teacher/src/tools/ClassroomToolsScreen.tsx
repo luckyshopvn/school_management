@@ -54,12 +54,15 @@ export function ClassroomToolsScreen({
   initialClassId,
   onBack,
   onCleared,
+  embedded = false,
 }: {
   // null: không có phiên (ngoại tuyến), lớp lấy từ các bản chụp còn hạn
   classes: MyClass[] | null;
   initialClassId?: string;
   onBack?(): void;
   onCleared?(): void;
+  // Đặt trong khung phải của chế độ lớp học (DT-26 phần 26d): bỏ đầu trang
+  embedded?: boolean;
 }) {
   const online = useOnline();
   const [config, setConfig] = useState(readConfig);
@@ -132,9 +135,11 @@ export function ClassroomToolsScreen({
   const myClass = classes?.find((item) => item.id === classId);
 
   return (
-    <div className="min-h-screen">
-      <ApplicationHeader title="Công cụ lớp học" />
-      <main className="mx-auto flex max-w-md flex-col gap-4 px-4 py-6">
+    <div className={embedded ? undefined : 'min-h-screen'}>
+      {embedded ? null : <ApplicationHeader title="Công cụ lớp học" />}
+      <main
+        className={embedded ? 'flex flex-col gap-4' : 'mx-auto flex max-w-md flex-col md:max-w-3xl gap-4 px-4 py-6'}
+      >
         {onBack ? (
           <div>
             <Button onClick={onBack}>Quay lại</Button>
