@@ -70,6 +70,8 @@ jobs:
       - run: pnpm format:check
       # Tệp mảnh thay đổi ở tai_lieu/thay_doi_cho_gom/ đúng định dạng để gom được (YCTD-291)
       - run: node scripts/gom-thay-doi.mjs --kiem
+      # Mỗi phần đăng ký bằng tệp riêng (YCTD-294): tên tệp đúng mẫu, bộ điều khiển đã đăng ký, chỉ mục sinh ra không lệch
+      - run: node database/sinh-chi-muc.mjs --kiem && node apps/api/sinh-dang-ky.mjs --kiem
       # PR thường ghi tài liệu chung qua tệp mảnh; sửa trực tiếp 02, 23, 24, index chỉ cảnh báo, không chặn (nhánh gom-… được sửa)
       - if: github.event_name == 'pull_request' && !startsWith(github.head_ref, 'gom-')
         env:
