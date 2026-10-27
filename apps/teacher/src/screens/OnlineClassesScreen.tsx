@@ -3,6 +3,7 @@ import { Alert, ApplicationHeader, Button, FORM_CONTROL_CLASS } from '@school-ma
 import { ApiError, requestJson } from '../session/api-client.js';
 import { AssignmentScreen } from './AssignmentScreen.js';
 import { LearningProgressScreen } from './LearningProgressScreen.js';
+import { DiscussionsScreen } from './DiscussionsScreen.js';
 
 // Lớp học trực tuyến của tôi (DT-28 phần 28b, YCTD-272): lớp học trực tuyến theo lớp, môn tự có từ phân công giảng dạy;
 // giáo viên mở lớp cho học sinh, giao hoạt động, thêm nhanh một trang nội dung vào chương, xem tiến độ. Soạn đầy đủ (liên
@@ -53,6 +54,8 @@ function SpaceView({ spaceId, onBack }: { spaceId: string; onBack(): void }) {
   const [assignmentId, setAssignmentId] = useState<string>();
   // Tiến độ, bảng điểm hoạt động, đưa vào sổ (DT-28 phần 28d)
   const [showProgress, setShowProgress] = useState(false);
+  // Thông báo lớp, diễn đàn, hỏi đáp (DT-28 phần 28e)
+  const [showDiscussions, setShowDiscussions] = useState(false);
   const load = useCallback(() => {
     requestJson<SpaceDetail>(`/api/v1/learning/spaces/${spaceId}`)
       .then(setDetail)
@@ -72,6 +75,18 @@ function SpaceView({ spaceId, onBack }: { spaceId: string; onBack(): void }) {
     }
   };
   const firstSection = detail?.sections[0];
+  if (showDiscussions && detail) {
+    return (
+      <DiscussionsScreen
+        spaceId={spaceId}
+        title={detail.space.title}
+        onBack={() => {
+          setShowDiscussions(false);
+          load();
+        }}
+      />
+    );
+  }
   if (showProgress) {
     return (
       <LearningProgressScreen
@@ -106,6 +121,11 @@ function SpaceView({ spaceId, onBack }: { spaceId: string; onBack(): void }) {
         <>
           <h1 className="text-page-title font-bold text-text">{detail.space.title}</h1>
           <p className="text-label text-text-secondary">{detail.student_count} học sinh</p>
+          <div>
+            <Button variant="secondary" onClick={() => setShowDiscussions(true)}>
+              Thông báo, thảo luận, hỏi đáp
+            </Button>
+          </div>
           {detail.can_teach ? (
             <Button
               variant="primary"

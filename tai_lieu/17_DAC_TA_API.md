@@ -2477,6 +2477,29 @@ Tuyến nhân sự cần một trong `P02.learning.teach`, `P02.learning.view`, 
 | GET | /api/v1/learning/term-reports/{term}/file?format= | Tệp báo cáo tổng kết (PDF, Excel) |
 | GET | /api/v1/learning/children/{childId}/summary | Phụ huynh (hoặc cán bộ xem lớp học trực tuyến): tiến độ từng lớp, hạn trong 7 ngày tới, nhận xét bài tập đã trả |
 
+### 17.5. Giao tiếp trong lớp và nhóm (DT-28 phần 28e, YCTD-275)
+
+Tuyến nhân sự cần một trong `P02.learning.teach`, `P02.learning.view`, `P02.learning.decide`, `P02.discussion.moderate`; hàng chờ báo cáo cần `P02.discussion.moderate`; lỗi quy tắc 422 mã `YCTD-275`.
+
+| Phương thức | Đường dẫn | Mô tả |
+|---|---|---|
+| GET, POST | /api/v1/learning/spaces/{id}/threads?kind= | Chủ đề của lớp (giáo viên thấy cả đã ẩn, câu hỏi riêng; `students_can_post_topics`); giáo viên tạo `{ kind, title, body, section_id, activity_id }` (thông báo thì gửi thông báo) |
+| PUT | /api/v1/learning/spaces/{id}/discussion-settings | `{ students_can_post_topics }` |
+| GET | /api/v1/learning/spaces/{id}/questions/pending | Câu hỏi chờ giáo viên trả lời (`overdue` sau 48 giờ) |
+| GET; POST | /api/v1/learning/threads/{id}; /posts, /accept, /lock, /hide, /reports | Chủ đề và mọi trả lời; trả lời `{ body }`; xác nhận `{ post_id }`; khoá `{ locked }`; ẩn `{ post_id?, hidden }`; báo cáo `{ post_id?, reason }` |
+| GET; POST | /api/v1/learning/groups/{id}/workspace; /threads | Không gian nhóm cho người lập bộ nhóm, giáo viên của lớp; đăng tin |
+| GET | /api/v1/learning/group-files/{id} | Tệp nhóm (nhân sự) |
+| GET, PUT | /api/v1/learning/discussion-config | Ban Giám hiệu: `{ open_hours, blocked_words }` |
+| GET, PATCH | /api/v1/learning/discussion-reports?status=closed, /{id} | Hàng chờ (chủ nhiệm chỉ lớp mình); xử lý `{ status, resolution, hide, ban_days }` |
+| GET | /api/v1/learning/children/{childId}/announcements, /groups, /calendar?from= | Phụ huynh: thông báo lớp, nhóm theo GD-145, lịch tuần của con |
+| GET; POST | /api/v1/student/discussions/spaces/{id}?kind=; /threads | Học sinh: chủ đề của lớp (`can_post_topics`, `open_now`); tạo `{ kind: forum\|question, title, body, private }` (trả `masked`) |
+| GET; POST | /api/v1/student/discussions/threads/{id}; /posts, /reports | Chủ đề và trả lời chưa ẩn; trả lời (trả `masked`); báo cáo |
+| DELETE | /api/v1/student/discussions/posts/{id} | Học sinh ẩn trả lời của mình |
+| GET | /api/v1/student/groups, /groups/{id} | Nhóm của em; không gian nhóm |
+| POST, PATCH, PUT | /api/v1/student/groups/{id}/threads, /tasks; /student/group-tasks/{id}; /student/groups/{id}/note | Đăng tin; thêm việc `{ title, assignee_child_id, due_on }`; đổi trạng thái `{ status }`; lưu ghi chú `{ content, version }` (409 khi bản cũ) |
+| POST; GET | /api/v1/student/groups/{id}/files; /student/group-files/{id} | Gửi tệp (multipart `file`); xem tệp |
+| GET | /api/v1/student/calendar?from= | Lịch học tập tuần của em |
+
 ## 18. Quy tắc kiểm tra dữ liệu
 
 | Mã | Quy tắc |
