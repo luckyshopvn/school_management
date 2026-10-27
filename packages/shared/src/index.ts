@@ -39,6 +39,7 @@ export * from './learning-resources.js';
 export * from './online-exams.js';
 export * from './tutoring.js';
 export * from './tutoring-fees.js';
+export * from './video.js';
 
 export const API_VERSION_PREFIX = '/api/v1';
 

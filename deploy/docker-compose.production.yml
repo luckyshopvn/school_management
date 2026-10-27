@@ -120,6 +120,67 @@ services:
       - ${COTURN_CONFIG:-./coturn/turnserver.conf}:/etc/coturn/turnserver.conf:ro
     logging: *logging
 
+  # Lớp video trực tiếp (DT-27 phần 27a, YCTD-251): máy chủ phòng video LiveKit tự host và Egress ghi hình vào kho tệp S3; TURN dùng
+  # chung coturn của 23e (bật thêm hồ sơ `coturn`). Tuỳ chọn: bật bằng COMPOSE_PROFILES=video và đặt VIDEO_PROVIDER=livekit,
+  # LIVEKIT_API_KEY, LIVEKIT_API_SECRET, LIVEKIT_PUBLIC_URL, LIVEKIT_WEBHOOK_URL, TURN_HOST, TURN_SHARED_SECRET. Cấu hình ở
+  # deploy/livekit/*.yaml, khoá thay vào lúc khởi động, không ghi vào tệp. Mở cổng TCP 7881 và dải UDP 50000 đến 50200 ở tường lửa;
+  # địa chỉ wss của LIVEKIT_PUBLIC_URL do bộ chuyển tiếp (Caddy) chuyển về cổng 7880
+  livekit:
+    image: livekit/livekit-server:v1.13.7
+    profiles: ['video']
+    restart: unless-stopped
+    environment:
+      LIVEKIT_API_KEY: ${LIVEKIT_API_KEY:-}
+      LIVEKIT_API_SECRET: ${LIVEKIT_API_SECRET:-}
+      LIVEKIT_WEBHOOK_URL: ${LIVEKIT_WEBHOOK_URL:-}
+      TURN_HOST: ${TURN_HOST:-}
+      TURN_SHARED_SECRET: ${TURN_SHARED_SECRET:-}
+      REDIS_PASSWORD: ${REDIS_PASSWORD:-}
+    entrypoint:
+      - /bin/sh
+      - -c
+      - >-
+        { [ -n "$LIVEKIT_API_KEY" ] && [ -n "$LIVEKIT_API_SECRET" ] && [ -n "$LIVEKIT_WEBHOOK_URL" ] &&
+        [ -n "$TURN_HOST" ] && [ -n "$TURN_SHARED_SECRET" ] ||
+        { echo "Cần đặt LIVEKIT_API_KEY, LIVEKIT_API_SECRET, LIVEKIT_WEBHOOK_URL, TURN_HOST, TURN_SHARED_SECRET" >&2; exit 1; }; } &&
+        sed -e "s|__LIVEKIT_API_KEY__|$$LIVEKIT_API_KEY|g" -e "s|__LIVEKIT_API_SECRET__|$$LIVEKIT_API_SECRET|g"
+        -e "s|__LIVEKIT_WEBHOOK_URL__|$$LIVEKIT_WEBHOOK_URL|g" -e "s|__TURN_HOST__|$$TURN_HOST|g"
+        -e "s|__TURN_SHARED_SECRET__|$$TURN_SHARED_SECRET|g" -e "s|__REDIS_PASSWORD__|$$REDIS_PASSWORD|g"
+        /etc/livekit/livekit.yaml > /tmp/livekit.yaml && exec /livekit-server --config /tmp/livekit.yaml
+    ports:
+      - '127.0.0.1:7880:7880'
+      - '7881:7881'
+      - '50000-50200:50000-50200/udp'
+    volumes:
+      - ${LIVEKIT_CONFIG_DIR:-./livekit}:/etc/livekit:ro
+    depends_on:
+      redis:
+        condition: service_healthy
+    logging: *logging
+
+  egress:
+    image: livekit/egress:v1.14.1
+    profiles: ['video']
+    restart: unless-stopped
+    environment:
+      LIVEKIT_API_KEY: ${LIVEKIT_API_KEY:-}
+      LIVEKIT_API_SECRET: ${LIVEKIT_API_SECRET:-}
+      REDIS_PASSWORD: ${REDIS_PASSWORD:-}
+    entrypoint:
+      - /bin/sh
+      - -c
+      - >-
+        sed -e "s|__LIVEKIT_API_KEY__|$$LIVEKIT_API_KEY|g" -e "s|__LIVEKIT_API_SECRET__|$$LIVEKIT_API_SECRET|g"
+        -e "s|__REDIS_PASSWORD__|$$REDIS_PASSWORD|g" /etc/livekit/egress.yaml > /tmp/egress.yaml &&
+        EGRESS_CONFIG_FILE=/tmp/egress.yaml exec egress
+    cap_add:
+      - SYS_ADMIN
+    volumes:
+      - ${LIVEKIT_CONFIG_DIR:-./livekit}:/etc/livekit:ro
+    depends_on:
+      - livekit
+    logging: *logging
+
   # Chạy tệp thay đổi cấu trúc cho cơ sở dữ liệu định danh, hệ thống và năm học đang dùng rồi dừng; dịch vụ định danh và
   # máy chủ API chỉ khởi động khi bước này thành công
   migrate:
@@ -224,6 +285,12 @@ services:
       TURN_URLS: ${TURN_URLS:-}
       TURN_SHARED_SECRET: ${TURN_SHARED_SECRET:-}
       TURN_TTL_SECONDS: ${TURN_TTL_SECONDS:-14400}
+      # Lớp video trực tiếp (DT-27 phần 27a): trống là tắt video; livekit cần LIVEKIT_URL nội bộ, khoá và địa chỉ wss công khai
+      VIDEO_PROVIDER: ${VIDEO_PROVIDER:-}
+      LIVEKIT_URL: ${LIVEKIT_URL:-http://livekit:7880}
+      LIVEKIT_PUBLIC_URL: ${LIVEKIT_PUBLIC_URL:-}
+      LIVEKIT_API_KEY: ${LIVEKIT_API_KEY:-}
+      LIVEKIT_API_SECRET: ${LIVEKIT_API_SECRET:-}
     depends_on:
       migrate:
         condition: service_completed_successfully

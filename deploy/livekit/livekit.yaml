@@ -1,0 +1,33 @@
+# Máy chủ phòng video LiveKit tự host (DT-27 phần 27a, YCTD-251; tài liệu 32 mục 19.5). Tệp mẫu: các chỗ __TÊN__ được thay từ biến
+# môi trường lúc khởi động (xem lệnh khởi động của dịch vụ `livekit` trong docker-compose), không ghi khoá vào tệp.
+# TURN: dùng chung coturn của 23e bằng khoá dùng chung (TURN REST API) — trình duyệt nhận tên đăng nhập có hạn do LiveKit cấp.
+# Cú pháp `turn_servers[].secret` theo tài liệu cấu hình của LiveKit, **chưa xác minh** trên máy thật (đo ở bước E-05).
+port: 7880
+log_level: info
+rtc:
+  tcp_port: 7881
+  port_range_start: 50000
+  port_range_end: 50200
+  use_external_ip: true
+  turn_servers:
+    - host: __TURN_HOST__
+      port: 3478
+      protocol: udp
+      secret: __TURN_SHARED_SECRET__
+    - host: __TURN_HOST__
+      port: 3478
+      protocol: tcp
+      secret: __TURN_SHARED_SECRET__
+redis:
+  address: redis:6379
+  password: __REDIS_PASSWORD__
+  db: 3
+keys:
+  __LIVEKIT_API_KEY__: __LIVEKIT_API_SECRET__
+webhook:
+  api_key: __LIVEKIT_API_KEY__
+  urls:
+    - __LIVEKIT_WEBHOOK_URL__
+room:
+  # Phòng trống 10 phút thì đóng; số người tối đa đặt theo từng phòng (cấu hình video của trường)
+  empty_timeout: 600
