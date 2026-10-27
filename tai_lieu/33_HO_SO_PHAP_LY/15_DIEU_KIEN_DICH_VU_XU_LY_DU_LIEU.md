@@ -31,6 +31,10 @@ Trách nhiệm khi đã là tổ chức kinh doanh dịch vụ (Điều 23, đã
 3. Giai đoạn thử nghiệm với số ít trường (miễn phí) có được coi là "kinh doanh" không?
 4. Miễn trừ cho doanh nghiệp nhỏ, khởi nghiệp (Điều 41 Nghị định) có áp dụng được không (Điều 41 loại trừ doanh nghiệp kinh doanh dịch vụ xử lý dữ liệu cá nhân, xử lý dữ liệu nhạy cảm hoặc từ 100 nghìn chủ thể)?
 5. Nếu thuộc diện: ảnh hưởng tới cấp độ hệ thống thông tin (PL-11) do là ngành nghề kinh doanh có điều kiện.
+6. Giám thị camera khi thi trực tuyến (DT-23 phần 23e, YCTD-215): xem camera trực tiếp và ghi hình học sinh có phải là "giám sát, ghi hình" của khoản 5 Điều 21 không; điều kiện cho phép với học sinh dưới 16 tuổi (đồng ý của cha mẹ theo Điều 24 Luật 91/2025/QH15: hình thức, lưu bằng chứng, thu hồi), có cần thêm đồng ý của học sinh từ 16 tuổi không.
+7. Thời hạn giữ bản ghi (mặc định 30 ngày, trường chỉnh 7 đến 90 ngày; GD-132) có phù hợp nguyên tắc tối thiểu hoá và có cần thời hạn riêng khi có khiếu nại gian lận; bản sao lưu của kho tệp giữ bản ghi lâu hơn hạn thì xử lý thế nào; quyền của học sinh, cha mẹ xem và yêu cầu xoá bản ghi.
+8. Việc xem trực tiếp cần thông báo gì trước khi thi (nội dung thông báo ở màn hình học sinh), có cần quy chế thi của trường ghi rõ không; hệ quả khi cha mẹ không đồng ý (học sinh thi bài không giám sát hoặc thi tại trường).
+9. Đặt máy chủ chuyển tiếp coturn ở nước ngoài có xử lý dữ liệu xuyên biên giới không (hình đi qua máy chủ chuyển tiếp ở dạng mã hoá, không lưu); ảnh hưởng tới PL-07, PL-08.
 
 ## 4. Kết luận
 

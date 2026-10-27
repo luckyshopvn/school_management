@@ -175,6 +175,9 @@ export interface StudentExamItem {
   camera_enabled: boolean;
   // Thi tại trường (mặc định): vào bài bằng mã phòng thi do giám thị mở
   exam_mode: 'at-school' | 'remote';
+  // Giám thị camera (DT-23 phần 23e): xem trực tiếp, ghi hình; học sinh đọc thông báo trước khi vào
+  proctor_live: boolean;
+  proctor_record: boolean;
   result_mode: string;
   result: { attempt_id: string; total_score: number | null; max_score: number | null; pending_marking: boolean } | null;
 }
@@ -197,7 +200,14 @@ export interface AttemptView {
   server_now: string;
   deadline_at: string;
   remaining_seconds: number;
-  policy: { fullscreen_required: boolean; max_violations: number; violation_action: string; camera_enabled: boolean };
+  policy: {
+    fullscreen_required: boolean;
+    max_violations: number;
+    violation_action: string;
+    camera_enabled: boolean;
+    proctor_live: boolean;
+    proctor_record: boolean;
+  };
   camera_state: string;
   violations: number;
   questions: QuestionView[];
@@ -239,11 +249,47 @@ export type ClientEventType =
 export const readStudentProfile = () => requestStudentJson<StudentProfile>('/api/v1/student/profile');
 export const listStudentExams = () =>
   requestStudentJson<{ server_now: string; items: StudentExamItem[] }>('/api/v1/student/exams');
-export const startAttempt = (assignmentId: string, cameraState: CameraState, roomCode: string | null) =>
+export const startAttempt = (
+  assignmentId: string,
+  cameraState: CameraState,
+  roomCode: string | null,
+  proctorNotice = false,
+) =>
   requestStudentJson<AttemptView>(`/api/v1/student/exams/${assignmentId}/start`, {
     method: 'POST',
-    body: JSON.stringify({ camera_state: cameraState, room_code: roomCode }),
+    body: JSON.stringify({ camera_state: cameraState, room_code: roomCode, proctor_notice: proctorNotice }),
   });
+
+// Giám thị camera: máy chủ ICE, hỏi định kỳ thông điệp báo hiệu, gửi trả lời, tải từng đoạn bản ghi
+export interface IceServer {
+  urls: string[];
+  username?: string;
+  credential?: string;
+}
+export interface ProctorPoll {
+  active: boolean;
+  watching: number;
+  active_view_ids: string[];
+  signals: Array<{ id: number; view_id: string; kind: 'offer' | 'ice'; payload: string }>;
+  cursor: number;
+}
+export const readProctorIce = () => requestStudentJson<{ ice_servers: IceServer[] }>('/api/v1/student/proctor/ice');
+export const pollProctor = (attemptId: string, after: number) =>
+  requestStudentJson<ProctorPoll>(`/api/v1/student/attempts/${attemptId}/proctor?after=${after}`);
+export const sendProctorSignal = (attemptId: string, viewId: string, kind: 'answer' | 'ice', payload: string) =>
+  requestStudentJson<{ sent: boolean }>(`/api/v1/student/attempts/${attemptId}/proctor/signals`, {
+    method: 'POST',
+    body: JSON.stringify({ view_id: viewId, kind, payload }),
+  });
+export function uploadRecordingChunk(attemptId: string, seq: number, chunk: Blob) {
+  const form = new FormData();
+  form.append('chunk', chunk, 'chunk.webm');
+  form.append('seq', String(seq));
+  return requestStudentJson<{ stored: boolean }>(`/api/v1/student/attempts/${attemptId}/recording/chunks`, {
+    method: 'POST',
+    body: form,
+  });
+}
 export const readAttempt = (attemptId: string) =>
   requestStudentJson<AttemptView>(`/api/v1/student/attempts/${attemptId}`);
 export const saveAnswers = (attemptId: string, answers: Record<string, string[]>) =>
