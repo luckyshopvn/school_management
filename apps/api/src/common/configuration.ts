@@ -38,6 +38,9 @@ export interface ApiConfiguration {
   // Máy chủ ICE cho giám thị camera của thi trực tuyến (DT-23 phần 23e): STUN, TURN (coturn tự host) và khóa dùng chung để cấp
   // tên đăng nhập, mật khẩu TURN có hạn; trống thì trình duyệt chỉ dùng kết nối trực tiếp trong cùng mạng
   webrtc?: WebrtcSettings;
+  // Lớp video trực tiếp (DT-27 phần 27a): nhà cung cấp phòng video (`livekit` tự host, `livekit-cloud` dự phòng, `mock` kiểm thử);
+  // trống là tắt video, các biến LIVEKIT_* không bắt buộc
+  video?: VideoSettings | null;
   // Các cổng thanh toán trực tuyến được bật, cổng đầu là mặc định; trống là chưa nối (T1), `development` là bộ giả
   // lập (YCTD-57), `vietqr-static` là mã VietQR tĩnh đối soát qua sao kê (YCTD-89). Biến PAYMENT_GATEWAY ghi các mã
   // cách nhau bằng dấu phẩy; `payos`, `sepay`, `casso`, `vnpay` là nhà cung cấp thật (YCTD-92)
@@ -182,6 +185,47 @@ export function readIntegrationConfiguration(environment: NodeJS.ProcessEnv): In
   };
 }
 
+export type VideoProviderCode = 'livekit' | 'livekit-cloud' | 'mock';
+
+export interface VideoSettings {
+  provider: VideoProviderCode;
+  // Địa chỉ API của máy chủ phòng (http/https) và địa chỉ trình duyệt kết nối (ws/wss); mock thì để trống
+  apiUrl: string;
+  clientUrl: string;
+  apiKey: string;
+  apiSecret: string;
+}
+
+// VIDEO_PROVIDER: trống là tắt; `livekit`, `livekit-cloud` cần LIVEKIT_URL, LIVEKIT_API_KEY, LIVEKIT_API_SECRET (LIVEKIT_PUBLIC_URL
+// là địa chỉ trình duyệt nối tới, mặc định theo LIVEKIT_URL); `mock` chỉ dùng cho kiểm thử
+export function readVideoConfiguration(environment: NodeJS.ProcessEnv): VideoSettings | null {
+  const provider = environment.VIDEO_PROVIDER?.trim() ?? '';
+  if (provider === '') {
+    return null;
+  }
+  if (provider === 'mock') {
+    if (environment.NODE_ENV === 'production') {
+      throw new Error('VIDEO_PROVIDER=mock chỉ dùng cho kiểm thử, không bật ở môi trường chạy thật');
+    }
+    return { provider, apiUrl: '', clientUrl: 'mock://video', apiKey: 'mock', apiSecret: 'mock-video-secret' };
+  }
+  if (provider !== 'livekit' && provider !== 'livekit-cloud') {
+    throw new Error(`VIDEO_PROVIDER không hỗ trợ: ${provider}`);
+  }
+  const missing = ['LIVEKIT_URL', 'LIVEKIT_API_KEY', 'LIVEKIT_API_SECRET'].filter((name) => !environment[name]?.trim());
+  if (missing.length > 0) {
+    throw new Error(`Thiếu biến môi trường ${missing.join(', ')} khi VIDEO_PROVIDER=${provider}`);
+  }
+  const apiUrl = (environment.LIVEKIT_URL as string).trim();
+  return {
+    provider,
+    apiUrl,
+    clientUrl: environment.LIVEKIT_PUBLIC_URL?.trim() || apiUrl.replace(/^http/, 'ws'),
+    apiKey: (environment.LIVEKIT_API_KEY as string).trim(),
+    apiSecret: (environment.LIVEKIT_API_SECRET as string).trim(),
+  };
+}
+
 export interface WebrtcSettings {
   stunUrls: string[];
   turnUrls: string[];
@@ -271,6 +315,7 @@ export function readConfigurationFromEnvironment(options: { multiTenant?: boolea
     redisUrl: process.env.REDIS_URL?.trim() || null,
     aiMock: readAiMock(process.env),
     push: readPushConfiguration(process.env, multiTenant),
+    video: readVideoConfiguration(process.env),
   };
 }
 

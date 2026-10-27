@@ -6583,6 +6583,8 @@ export interface TutoringProgramsTable {
   cancel_refund: Generated<TutoringCancelRefund>;
   pay_rate_per_period: ColumnType<string | null, string | number | null | undefined, string | number | null>;
   funding_source: Generated<TutoringFundingSource>;
+  // Ghi hình lớp video của chương trình, cần đồng ý của cha mẹ (YCTD-251)
+  recording_enabled: Generated<boolean>;
 }
 
 export type TutoringFeeBasis = 'per_session' | 'per_program';
@@ -6739,6 +6741,93 @@ export interface TutoringRoomEventsTable {
   kind: 'join' | 'leave';
   at: Date;
   source: string;
+}
+
+// Lớp video trực tiếp (DT-27 phần 27a, YCTD-251)
+export type VideoRoomRole = 'host' | 'student' | 'guardian' | 'observer';
+
+export interface VideoSettingsTable {
+  id: Generated<boolean>;
+  max_participants: Generated<number>;
+  recording_retention_days: Generated<number>;
+  lobby_enabled: Generated<boolean>;
+  updated_by_name: string | null;
+  updated_at: UpdatedTimestamp;
+}
+
+export interface VideoRoomsTable {
+  id: Generated<string>;
+  kind: 'session' | 'instant';
+  tutoring_session_id: string | null;
+  title: string;
+  host_user_id: string;
+  host_name: string;
+  status: Generated<'open' | 'ended'>;
+  provider: string;
+  max_participants: number;
+  lobby_enabled: boolean;
+  recording_allowed: Generated<boolean>;
+  created_at: CreatedTimestamp;
+  ended_at: Date | null;
+}
+
+export interface VideoRoomAdmissionsTable {
+  room_id: string;
+  identity: string;
+  role: VideoRoomRole;
+  display_name: string;
+  user_id: string;
+  child_id: string | null;
+  requested_at: ColumnType<Date, Date | undefined, Date>;
+  admitted_at: Date | null;
+  admitted_by_name: string | null;
+  can_speak: Generated<boolean>;
+  can_share: Generated<boolean>;
+}
+
+export interface VideoRoomEventsTable {
+  id: Generated<string>;
+  room_id: string;
+  identity: string;
+  role: VideoRoomRole;
+  kind: 'join' | 'leave';
+  at: Date;
+  source: string;
+}
+
+export interface VideoRecordingConsentsTable {
+  id: Generated<string>;
+  program_id: string;
+  child_id: string;
+  guardian_user_id: string;
+  guardian_name: string;
+  consent_text: string;
+  consent_hash: string;
+  consented_at: ColumnType<Date, Date | undefined, Date>;
+  withdrawn_at: Date | null;
+}
+
+export interface VideoRecordingsTable {
+  id: Generated<string>;
+  room_id: string;
+  egress_id: string | null;
+  storage_key: string;
+  status: Generated<'recording' | 'ready' | 'failed' | 'deleted'>;
+  started_by_name: string;
+  started_at: ColumnType<Date, Date | undefined, Date>;
+  ended_at: Date | null;
+  size_bytes: ColumnType<string, string | number | undefined, string | number>;
+  expires_at: Date;
+  hold_reason: string | null;
+  deleted_at: Date | null;
+}
+
+export interface VideoRecordingViewsTable {
+  id: Generated<string>;
+  recording_id: string;
+  viewer_user_id: string;
+  viewer_name: string;
+  viewed_at: CreatedTimestamp;
 }
 
 export interface SchoolYearDatabase {
@@ -7163,5 +7252,12 @@ export interface SchoolYearDatabase {
   tutoring_credits: TutoringCreditsTable;
   tutoring_credit_applications: TutoringCreditApplicationsTable;
   tutoring_teacher_pay: TutoringTeacherPayTable;
+  video_settings: VideoSettingsTable;
+  video_rooms: VideoRoomsTable;
+  video_room_admissions: VideoRoomAdmissionsTable;
+  video_room_events: VideoRoomEventsTable;
+  video_recording_consents: VideoRecordingConsentsTable;
+  video_recordings: VideoRecordingsTable;
+  video_recording_views: VideoRecordingViewsTable;
   tutoring_room_events: TutoringRoomEventsTable;
 }

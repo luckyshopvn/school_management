@@ -114,6 +114,8 @@ export default defineConfig({
         // Bộ giả lập đăng Fanpage và gửi Zalo (YCTD-90)
         FACEBOOK_PUBLISHER: 'development',
         ZALO_SENDER: 'development',
+        // Bộ giả lập lớp video (DT-27 phần 27a)
+        VIDEO_PROVIDER: 'mock',
       },
     },
     // Tiến trình chạy nền: máy xếp thời khoá biểu (DT-20 phần 22c2); không mở cổng nên chờ dòng báo đã nối Redis

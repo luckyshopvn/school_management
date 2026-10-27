@@ -60,6 +60,7 @@ const emptyForm = () => ({
   cancel_refund: 'deduct_next' as TutoringCancelRefund,
   pay_rate_per_period: '',
   funding_source: 'school_budget' as TutoringFundingSource,
+  recording_enabled: false,
 });
 
 const money = (amount: string | number) => `${Number(amount).toLocaleString('vi-VN')} đ`;
@@ -666,6 +667,14 @@ export function TutoringProgramsPage() {
                 </option>
               ))}
             </select>
+          </label>
+          <label className="flex items-center gap-2">
+            <input
+              type="checkbox"
+              checked={form.recording_enabled}
+              onChange={(event) => setForm({ ...form, recording_enabled: event.target.checked })}
+            />
+            Ghi hình các buổi lớp video (cần đồng ý của cha mẹ từng học sinh; trong trường tắt mặc định)
           </label>
           <fieldset className="flex flex-wrap gap-3">
             <legend className="text-label">Lớp đối tượng</legend>

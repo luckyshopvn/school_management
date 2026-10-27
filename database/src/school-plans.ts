@@ -91,6 +91,8 @@ export async function loadCurrentPlan(
       'plans.max_school_levels',
       'plans.ai_max_requests',
       'plans.ai_max_tokens',
+      'plans.video_max_minutes',
+      'plans.video_max_recording_mb',
     ])
     .where('school_plans.school_id', '=', schoolId)
     .where('school_plans.effective_from', '<=', today)
@@ -115,6 +117,8 @@ export async function loadCurrentPlan(
     maxSchoolLevels: row.max_school_levels,
     aiMaxRequests: row.ai_max_requests,
     aiMaxTokens: row.ai_max_tokens,
+    videoMaxMinutes: row.video_max_minutes,
+    videoMaxRecordingMb: row.video_max_recording_mb,
   };
 }
 

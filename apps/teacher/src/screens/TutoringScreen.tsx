@@ -1,10 +1,18 @@
 import { useEffect, useState } from 'react';
 import { TUTORING_ATTENDANCE_LABELS, type TutoringAttendanceStatus } from '@school-management/shared';
-import { Alert, ApplicationHeader, Button } from '@school-management/ui';
+import {
+  Alert,
+  ApplicationHeader,
+  Button,
+  VideoHostPanel,
+  VideoRoom,
+  type VideoAdmission,
+  type VideoJoinInfo,
+} from '@school-management/ui';
 import { ApiError, requestJson } from '../session/api-client.js';
 
 // Gia sư trong trường trên ứng dụng giáo viên (DT-27 phần 27b, YCTD-252): buổi dạy hai tuần tới của chương trình mình dạy, điểm danh
-// (gợi ý từ nhật ký phòng video khi 27a gộp), xác nhận; vắng thì máy chủ báo cha mẹ một lần
+// (gợi ý từ nhật ký phòng video), xác nhận; vắng thì máy chủ báo cha mẹ một lần; mở lớp video của buổi (27a)
 interface Session {
   id: string;
   program_name: string;
@@ -38,6 +46,44 @@ export function TutoringScreen({ onBack }: { onBack(): void }) {
   const [students, setStudents] = useState<Attendance['students']>([]);
   const [errorMessage, setErrorMessage] = useState<string>();
   const [notice, setNotice] = useState<string>();
+  // Lớp video của buổi (DT-27 phần 27a): giáo viên là chủ phòng
+  const [video, setVideo] = useState<VideoJoinInfo>();
+  const [room, setRoom] = useState<{ admissions: VideoAdmission[]; recording: unknown; status: string }>();
+  useEffect(() => {
+    if (!video) {
+      return undefined;
+    }
+    const refresh = () =>
+      requestJson<{ admissions: VideoAdmission[]; recording: unknown; status: string }>(
+        `/api/v1/video/rooms/${video.room_id}`,
+      )
+        .then(setRoom)
+        .catch(() => undefined);
+    void refresh();
+    const timer = setInterval(() => void refresh(), 5000);
+    return () => clearInterval(timer);
+  }, [video]);
+  const videoAction = async (path: string, method: string, body: object, done: string) => {
+    try {
+      await requestJson(path, { method, headers: { 'content-type': 'application/json' }, body: JSON.stringify(body) });
+      setNotice(done);
+    } catch (error) {
+      setErrorMessage(messageOf(error));
+    }
+  };
+  const openVideo = async (session: Session) => {
+    try {
+      setVideo(
+        await requestJson<VideoJoinInfo>(`/api/v1/video/sessions/${session.id}/room`, {
+          method: 'POST',
+          headers: { 'content-type': 'application/json' },
+          body: '{}',
+        }),
+      );
+    } catch (error) {
+      setErrorMessage(messageOf(error));
+    }
+  };
 
   const load = () =>
     requestJson<Session[]>(`/api/v1/tutoring/sessions?from=${today()}&to=${addDays(today(), 14)}`)
@@ -92,7 +138,48 @@ export function TutoringScreen({ onBack }: { onBack(): void }) {
         </div>
         {errorMessage ? <Alert tone="danger">{errorMessage}</Alert> : null}
         {notice ? <Alert tone="success">{notice}</Alert> : null}
-        {open ? (
+        {video ? (
+          <>
+            <VideoRoom
+              join={{ ...video, recording: Boolean(room?.recording) }}
+              onLeave={() => {
+                setVideo(undefined);
+                setRoom(undefined);
+              }}
+            />
+            {room ? (
+              <VideoHostPanel
+                admissions={room.admissions}
+                recording={Boolean(room.recording)}
+                minutesLeft={null}
+                onParticipant={(identity, change) =>
+                  void videoAction(
+                    `/api/v1/video/rooms/${video.room_id}/participants/${encodeURIComponent(identity)}`,
+                    'PATCH',
+                    change,
+                    'Đã cập nhật người dự',
+                  )
+                }
+                onRecording={(start) =>
+                  void videoAction(
+                    `/api/v1/video/rooms/${video.room_id}/recording/${start ? 'start' : 'stop'}`,
+                    'POST',
+                    {},
+                    start ? 'Đã bắt đầu ghi hình' : 'Đã dừng ghi hình',
+                  )
+                }
+                onEnd={() =>
+                  void videoAction(
+                    `/api/v1/video/rooms/${video.room_id}/end`,
+                    'POST',
+                    {},
+                    'Đã kết thúc lớp video',
+                  ).then(() => setVideo(undefined))
+                }
+              />
+            ) : null}
+          </>
+        ) : open ? (
           <section className="flex flex-col gap-3" aria-label={`Điểm danh ${open.program_name}`}>
             <h2 className="text-section-title font-semibold">
               {open.program_name} · {open.session_date} {open.start_time}
@@ -147,7 +234,10 @@ export function TutoringScreen({ onBack }: { onBack(): void }) {
                       : ''}
                 </span>
                 {session.status === 'scheduled' ? (
-                  <Button onClick={() => void openSession(session)}>Điểm danh</Button>
+                  <span className="flex flex-col gap-1">
+                    <Button onClick={() => void openSession(session)}>Điểm danh</Button>
+                    <Button onClick={() => void openVideo(session)}>Lớp video</Button>
+                  </span>
                 ) : null}
               </li>
             ))}

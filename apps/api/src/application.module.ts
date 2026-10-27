@@ -508,6 +508,16 @@ import { ChildTutoringController, TutoringController } from './tutoring/tutoring
 import { TutoringService } from './tutoring/tutoring.js';
 import { TutoringFinanceController } from './tutoring/tutoring-finance.controller.js';
 import { TutoringFinanceService } from './tutoring/tutoring-finance.js';
+import { createVideoProvider, VIDEO_PROVIDER } from './video/video-provider.js';
+import {
+  ChildVideoController,
+  StudentVideoController,
+  VideoController,
+  VideoJobs,
+  VideoRecordingStreamController,
+  VideoWebhookController,
+} from './video/video.controller.js';
+import { VideoRoomsService } from './video/video-rooms.js';
 import { AiAssistantController, AiUsageJob } from './ai-assistant/ai-assistant.controller.js';
 import { AI_PROVIDERS, AiAssistantService } from './ai-assistant/ai-assistant.js';
 import { AiProviderRegistry } from './ai-assistant/ai-provider.js';
@@ -822,6 +832,12 @@ export class ApplicationModule {
         ChildTutoringController,
         // Thu chi gia sư trong trường (DT-27 phần 27c)
         TutoringFinanceController,
+        // Lớp video trực tiếp (DT-27 phần 27a)
+        VideoController,
+        VideoRecordingStreamController,
+        ChildVideoController,
+        StudentVideoController,
+        VideoWebhookController,
       ],
       providers: [
         { provide: API_CONFIGURATION, useValue: configuration },
@@ -1244,6 +1260,10 @@ export class ApplicationModule {
         TutoringService,
         // Thu chi gia sư trong trường (DT-27 phần 27c)
         TutoringFinanceService,
+        // Lớp video trực tiếp (DT-27 phần 27a): bộ nối chọn theo VIDEO_PROVIDER, chưa đặt thì tắt video
+        { provide: VIDEO_PROVIDER, useValue: createVideoProvider(configuration.video, configuration.objectStorage) },
+        VideoRoomsService,
+        VideoJobs,
       ],
     };
   }

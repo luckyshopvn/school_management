@@ -86,6 +86,9 @@ export interface PlanInput {
   // Hạn mức AI mỗi tháng (DT-23 phần 23d); trống là không giới hạn, 0 là không dùng AI
   ai_max_requests: number | null;
   ai_max_tokens: number | null;
+  // Lớp video (DT-27 phần 27a): phút người dự mỗi tháng, dung lượng bản ghi (MB); trống là không giới hạn, 0 là không có
+  video_max_minutes: number | null;
+  video_max_recording_mb: number | null;
   trial_days: number;
   pricing_mode: PlanPricingMode;
   unit_price: number;
@@ -165,6 +168,8 @@ export function parsePlanInput(body: Body_): PlanInput {
     max_school_levels: maxSchoolLevels,
     ai_max_requests: optionalCount(body, 'ai_max_requests', errors, 2_000_000_000),
     ai_max_tokens: optionalCount(body, 'ai_max_tokens', errors, 2_000_000_000),
+    video_max_minutes: optionalCount(body, 'video_max_minutes', errors, 2_000_000_000),
+    video_max_recording_mb: optionalCount(body, 'video_max_recording_mb', errors, 2_000_000_000),
     trial_days: trialDays,
     pricing_mode: pricingMode,
     unit_price: money(body, 'unit_price', errors),
