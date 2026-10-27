@@ -17,6 +17,7 @@ import type { RubricCriterion, RubricLevel } from '../../learning-resources/reso
 import { decodeFileName, type UploadedPart } from '../../activities/content-files.js';
 import type { CompletionRule } from '../learning-rules.js';
 import { LearningService } from '../learning.js';
+import { HomeworkPolicyGate } from '../homework/homework-policy.js';
 import { recordActivityQuestionUsages } from '../progress/progress.js';
 import {
   assignmentRule,
@@ -56,6 +57,7 @@ type ActivityRow = Selectable<SchoolYearDatabase['course_activities']>;
 type SpaceRow = Selectable<SchoolYearDatabase['course_spaces']>;
 const NO_ID = '00000000-0000-0000-0000-000000000000';
 const MAX_COMMENT = 2000;
+type ChildWork = Awaited<ReturnType<AssignmentsService['workOf']>>;
 
 const numberOrNull = (value: string | null) => (value === null ? null : Number(value));
 const asRecord = (value: unknown): Record<string, unknown> =>
@@ -88,6 +90,7 @@ export class AssignmentsService {
     private readonly fileStorage: FileStorage,
     private readonly ai: AiAssistantService,
     private readonly clock: Clock,
+    private readonly homeworkGate: HomeworkPolicyGate,
   ) {}
 
   // ---------- Đọc chung
@@ -383,7 +386,8 @@ export class AssignmentsService {
     const now = this.clock.now();
     await database.transaction().execute(async (transaction) => {
       const values = {
-        context: input.context,
+        // Màn hình soạn không gửi ngữ cảnh thì giữ ngữ cảnh đã có (bài về nhà giao từ sổ đầu bài, 28f)
+        context: body?.context === undefined && existing ? existing.context : input.context,
         work_mode: input.work_mode,
         group_set_id: input.group_set_id,
         late_policy: input.late_policy,
@@ -502,13 +506,22 @@ export class AssignmentsService {
     return this.editor(currentUser, activityId);
   }
 
-  // Phát hành: chốt danh sách học sinh nhận bài (và nhóm khi bài nhóm), giao hoạt động cho học sinh
-  async release(currentUser: CurrentUser, activityId: string) {
-    const { database, space, activity } = await this.teacher(currentUser, activityId);
+  // Phát hành: chốt danh sách học sinh nhận bài (và nhóm khi bài nhóm), giao hoạt động cho học sinh. Bài về nhà (28f) qua quy tắc
+  // khối lượng của trường: cảnh báo cần `confirm_warnings`, chặn chỉ Ban Giám hiệu vượt được với `override_reason`
+  async release(currentUser: CurrentUser, activityId: string, body?: RequestBody) {
+    const { context, database, space, activity } = await this.teacher(currentUser, activityId);
     const assignment = await this.requireAssignment(database, activityId);
     if (assignment.released_at) {
       throw assignmentRule('Bài đã phát hành');
     }
+    const decision = await this.homeworkGate.beforeRelease(database, {
+      space,
+      activity,
+      assignment,
+      leadership: context.canDecide || (context.canView && context.canApprove),
+      confirmWarnings: body?.confirm_warnings === true,
+      overrideReason: typeof body?.override_reason === 'string' ? body.override_reason : null,
+    });
     const [targets, variants, students] = await Promise.all([
       database.selectFrom('assignment_targets').selectAll().where('assignment_id', '=', assignment.id).execute(),
       database.selectFrom('assignment_variants').selectAll().where('assignment_id', '=', assignment.id).execute(),
@@ -565,14 +578,24 @@ export class AssignmentsService {
         .execute();
       await transaction
         .updateTable('assignments')
-        .set({ released_at: now, updated_at: now })
+        .set({
+          released_at: now,
+          updated_at: now,
+          ...(decision.override_reason
+            ? { policy_override_reason: decision.override_reason, policy_override_by: context.userId }
+            : {}),
+        })
         .where('id', '=', assignment.id)
         .execute();
     });
     if (activity.status !== 'published') {
       await this.learning.publishActivity(currentUser, activityId, true);
     }
-    return { released_at: now, recipient_count: resolved.recipients.length };
+    return {
+      released_at: now,
+      recipient_count: resolved.recipients.length,
+      policy_warnings: decision.result.violations,
+    };
   }
 
   // Đóng bài: không nhận nộp thêm (kể cả nộp muộn); mở lại được
@@ -1166,6 +1189,11 @@ export class AssignmentsService {
   // Bài của học sinh: người nhận đã chốt, phần làm là của em (bài cá nhân) hoặc của nhóm em (bài nhóm)
   private async studentWork(currentUser: CurrentUser, activityId: string) {
     const { database, childId } = await this.learning.studentContext(currentUser);
+    return this.workOf(database, childId, activityId);
+  }
+
+  // Phần làm bài của một em (học sinh tự làm, hoặc phụ huynh nộp thay ở 28f)
+  private async workOf(database: YearExecutor, childId: string, activityId: string) {
     const activity = await this.learning.openActivityForChild(database, childId, activityId);
     if (activity.kind !== 'assignment') {
       throw assignmentRule('Hoạt động không phải bài tập');
@@ -1194,7 +1222,7 @@ export class AssignmentsService {
     return { database, childId, activity, assignment, recipient, owner, submissions, items };
   }
 
-  private window(work: Awaited<ReturnType<AssignmentsService['studentWork']>>): ReturnType<typeof submitCheck> {
+  private window(work: ChildWork): ReturnType<typeof submitCheck> {
     const used = work.submissions.filter((row) => row.status !== 'draft').length;
     return submitCheck({
       now: this.clock.now(),
@@ -1210,7 +1238,10 @@ export class AssignmentsService {
   // Bài cho học sinh xem, làm: câu (không đáp án), bản nháp, các lần nộp; điểm, nhận xét chỉ khi giáo viên đã trả; đúng sai của
   // câu trắc nghiệm khi đã trả hoặc khi giáo viên chọn hiện sau khi nộp
   async studentAssignment(currentUser: CurrentUser, activityId: string) {
-    const work = await this.studentWork(currentUser, activityId);
+    return this.presentWork(await this.studentWork(currentUser, activityId));
+  }
+
+  private async presentWork(work: ChildWork) {
     const { database, assignment, submissions, items } = work;
     const draft = submissions.find((row) => row.status === 'draft') ?? null;
     const group = work.recipient.group_id
@@ -1296,7 +1327,7 @@ export class AssignmentsService {
   }
 
   // Bản nháp của lần nộp kế tiếp: tạo khi chưa có; còn lượt nộp và bài chưa đóng mới làm tiếp được
-  private async ensureDraft(work: Awaited<ReturnType<AssignmentsService['studentWork']>>) {
+  private async ensureDraft(work: ChildWork) {
     const existing = work.submissions.find((row) => row.status === 'draft');
     if (existing) {
       return existing;
@@ -1350,7 +1381,10 @@ export class AssignmentsService {
 
   // Tải tệp lên bản nháp: ảnh (đã bỏ siêu dữ liệu), tài liệu PDF cho câu "tải tệp", ghi âm cho câu "ghi âm"
   async studentUpload(currentUser: CurrentUser, activityId: string, itemId: string, part: UploadedPart | undefined) {
-    const work = await this.studentWork(currentUser, activityId);
+    return this.uploadTo(await this.studentWork(currentUser, activityId), currentUser, itemId, part);
+  }
+
+  private async uploadTo(work: ChildWork, currentUser: CurrentUser, itemId: string, part: UploadedPart | undefined) {
     const item = work.items.find((candidate) => candidate.id === itemId);
     if (!item || (item.kind !== 'upload' && item.kind !== 'audio' && item.kind !== 'essay')) {
       throw assignmentRule('Câu này không nhận tệp');
@@ -1459,6 +1493,10 @@ export class AssignmentsService {
         throw assignmentRule('Bài nhóm do nhóm trưởng nộp');
       }
     }
+    return this.submitWork(work, currentUser, 'student', body);
+  }
+
+  private async submitWork(work: ChildWork, currentUser: CurrentUser, kind: 'student' | 'guardian', body: RequestBody) {
     const check = this.window(work);
     if (!check.allowed) {
       throw assignmentRule(check.reason ?? 'Không nộp được bài này');
@@ -1481,7 +1519,7 @@ export class AssignmentsService {
         answers: JSON.stringify(answers),
         late: check.late,
         submitted_by: currentUser.id,
-        submitted_by_kind: 'student',
+        submitted_by_kind: kind,
         submitted_at: now,
         auto_score: objective.objective,
         // Bài chỉ có câu máy chấm thì có điểm ngay (vẫn chờ giáo viên trả mới hiện cho học sinh)
@@ -1503,7 +1541,7 @@ export class AssignmentsService {
         work.activity,
         childId,
         { status: resultOnSubmit(work.activity.completion_rule as CompletionRule) },
-        { userId: currentUser.id, kind: 'student', verb: 'submitted' },
+        { userId: currentUser.id, kind, verb: 'submitted' },
       );
     }
     return { id: submitted.id, attempt_no: submitted.attempt_no, late: submitted.late, submitted_at: now };
@@ -1621,5 +1659,99 @@ export class AssignmentsService {
         };
       }),
     };
+  }
+  // ---------- Phụ huynh nộp thay bài về nhà (DT-28 phần 28f, YCTD-276)
+
+  // Nộp thay chỉ cho bài về nhà làm cá nhân của con chưa có tài khoản học (con có tài khoản thì con tự nộp); người gọi phải là phụ
+  // huynh của con, cán bộ xem được lớp không nộp thay
+  private async guardianWork(currentUser: CurrentUser, childId: string, activityId: string) {
+    const { database } = await this.currentSchoolYear.require();
+    if (!(await this.learning.guardianOrStaff(currentUser, database, childId))) {
+      throw new ApplicationError('ERR_FORBIDDEN', 'Chỉ phụ huynh của học sinh nộp thay bài về nhà');
+    }
+    const work = await this.workOf(database, childId, activityId);
+    const account = await database
+      .selectFrom('student_learning_accounts')
+      .select('identity_user_id')
+      .where('child_id', '=', childId)
+      .where('identity_user_id', 'is not', null)
+      .executeTakeFirst();
+    const problem =
+      work.assignment.context !== 'homework'
+        ? 'Phụ huynh chỉ nộp thay bài về nhà'
+        : work.assignment.work_mode !== 'individual'
+          ? 'Bài nhóm do các em trong nhóm nộp'
+          : account
+            ? 'Con đã có tài khoản học, con tự nộp bài'
+            : null;
+    return { work, problem };
+  }
+
+  private async proxyWork(currentUser: CurrentUser, childId: string, activityId: string) {
+    const { work, problem } = await this.guardianWork(currentUser, childId, activityId);
+    if (problem) {
+      throw assignmentRule(problem);
+    }
+    return work;
+  }
+
+  // Bài về nhà của con cho phụ huynh xem để nộp thay: câu (không đáp án), bản nháp, các lần nộp; `can_proxy` và lý do khi không
+  async guardianAssignment(currentUser: CurrentUser, childId: string, activityId: string) {
+    const { work, problem } = await this.guardianWork(currentUser, childId, activityId);
+    return { ...(await this.presentWork(work)), can_proxy: problem === null, proxy_blocked_reason: problem };
+  }
+
+  async guardianUpload(
+    currentUser: CurrentUser,
+    childId: string,
+    activityId: string,
+    itemId: string,
+    part: UploadedPart | undefined,
+  ) {
+    return this.uploadTo(await this.proxyWork(currentUser, childId, activityId), currentUser, itemId, part);
+  }
+
+  async guardianRemoveFile(currentUser: CurrentUser, childId: string, activityId: string, fileId: string) {
+    const work = await this.proxyWork(currentUser, childId, activityId);
+    const draft = work.submissions.find((row) => row.status === 'draft');
+    const file = draft
+      ? await work.database
+          .selectFrom('submission_files')
+          .select(['id', 'storage_key'])
+          .where('id', '=', fileId)
+          .where('submission_id', '=', draft.id)
+          .executeTakeFirst()
+      : undefined;
+    if (!file) {
+      throw notFoundError('Không tìm thấy tệp trong bản nháp của con', 'submission_file');
+    }
+    await work.database.deleteFrom('submission_files').where('id', '=', file.id).execute();
+    await this.fileStorage.delete(file.storage_key);
+    return { id: file.id };
+  }
+
+  async guardianSubmit(currentUser: CurrentUser, childId: string, activityId: string, body: RequestBody) {
+    return this.submitWork(await this.proxyWork(currentUser, childId, activityId), currentUser, 'guardian', body);
+  }
+
+  // Phụ huynh trao đổi với giáo viên trên bài đã nộp của con (con có hay chưa có tài khoản đều được)
+  async guardianComment(
+    currentUser: CurrentUser,
+    childId: string,
+    activityId: string,
+    submissionId: string,
+    body: RequestBody,
+  ) {
+    const { work } = await this.guardianWork(currentUser, childId, activityId);
+    const submission = work.submissions.find((row) => row.id === submissionId && row.status !== 'draft');
+    if (!submission) {
+      throw notFoundError('Không tìm thấy bài nộp của con', 'assignment_submission');
+    }
+    return this.addComment(
+      work.database,
+      submission.id,
+      { userId: currentUser.id, name: currentUser.description.full_name, kind: 'guardian' },
+      body,
+    );
   }
 }

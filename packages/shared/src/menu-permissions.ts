@@ -157,6 +157,8 @@ export const MENU_PERMISSION_RULES: Partial<Record<PortalQuickLinkPath, MenuPerm
   '/online-learning-reports': anyOf('P02.learning.teach', 'P02.learning.view', 'P02.learning.decide'),
   // An toàn thảo luận (DT-28 phần 28e): hàng chờ báo cáo vi phạm, cấu hình giờ mở và từ ngữ lọc
   '/online-discussion-safety': anyOf('P02.discussion.moderate'),
+  // Bài về nhà (DT-28 phần 28f): Ban Giám hiệu đặt quy tắc khối lượng; chủ nhiệm, giáo viên của lớp xem khối lượng theo tuần
+  '/online-homework': anyOf('P02.learning.teach', 'P02.learning.view', 'P02.learning.decide'),
   // Thi trực tuyến cho học sinh (DT-23 phần 23a): giao đề, theo dõi bài làm, cấu hình thi trực tuyến theo cấp
   '/online-exams': 'P02.exam.assign',
   '/online-exams/monitor': 'P02.exam.assign',
