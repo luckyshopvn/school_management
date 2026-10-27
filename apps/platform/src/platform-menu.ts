@@ -21,4 +21,6 @@ export const PLATFORM_MENU: readonly PlatformMenuItem[] = [
   { key: 'ai', label: 'Trợ lý AI' },
   // Danh mục đơn vị toàn quốc, trang đăng nhập theo đơn vị, chính sách vào trường (DT-24)
   { key: 'catalog', label: 'Danh mục đơn vị' },
+  // Chợ gia sư: cấu hình, văn bản pháp lý, số tài khoản (DT-27 phần 27f)
+  { key: 'market', label: 'Chợ gia sư' },
 ];
