@@ -29,12 +29,18 @@ export function OnlineExamSettingsPage() {
   const [allowRemote, setAllowRemote] = useState(false);
   const [networks, setNetworks] = useState('');
   const [minutes, setMinutes] = useState('60');
+  const [allowLive, setAllowLive] = useState(false);
+  const [allowRecording, setAllowRecording] = useState(false);
+  const [retention, setRetention] = useState('30');
   useEffect(() => {
     if (school.data) {
       setMode(school.data.default_exam_mode);
       setAllowRemote(school.data.allow_remote);
       setNetworks(school.data.allowed_networks.join('\n'));
       setMinutes(String(school.data.room_code_minutes));
+      setAllowLive(school.data.allow_live_proctoring);
+      setAllowRecording(school.data.allow_recording);
+      setRetention(String(school.data.recording_retention_days));
     }
   }, [school.data]);
   const saveSchool = useMutation({
@@ -47,6 +53,9 @@ export function OnlineExamSettingsPage() {
           .map((line) => line.trim())
           .filter((line) => line !== ''),
         room_code_minutes: Number(minutes),
+        allow_live_proctoring: allowLive,
+        allow_recording: allowRecording,
+        recording_retention_days: Number(retention),
       }),
     onSuccess: async (data) => {
       queryClient.setQueryData(['online-exam-school-settings'], data);
@@ -126,6 +135,35 @@ export function OnlineExamSettingsPage() {
               className={`mt-2 block w-24 ${FORM_CONTROL_CLASS}`}
               value={minutes}
               onChange={(event) => setMinutes(event.target.value)}
+            />
+          </label>
+          <h3 className="text-label font-semibold text-text">Giám sát bằng camera (mặc định tắt)</h3>
+          <Alert tone="info">
+            Khi bật, giáo viên chọn từng bài giao có xem camera trực tiếp hoặc ghi hình. Học sinh đọc thông báo trước
+            khi vào thi; học sinh dưới 16 tuổi cần cha mẹ đồng ý từng loại. Hình xem trực tiếp đi thẳng giữa trình
+            duyệt, không lưu ở máy chủ. Bản ghi lưu mã hoá, chỉ giáo viên giao bài và người quản lý xem, tự xoá sau thời
+            hạn. Nên có ý kiến pháp lý (PL-15) trước khi bật ở trường thật.
+          </Alert>
+          <label className="text-content text-text">
+            <input type="checkbox" checked={allowLive} onChange={(event) => setAllowLive(event.target.checked)} /> Cho
+            phép giáo viên xem camera trực tiếp
+          </label>
+          <label className="text-content text-text">
+            <input
+              type="checkbox"
+              checked={allowRecording}
+              onChange={(event) => setAllowRecording(event.target.checked)}
+            />{' '}
+            Cho phép ghi hình camera
+          </label>
+          <label className="text-label font-medium text-text">
+            Thời hạn giữ bản ghi (ngày, từ 7 đến 90)
+            <input
+              type="number"
+              aria-label="Thời hạn giữ bản ghi"
+              className={`mt-2 block w-24 ${FORM_CONTROL_CLASS}`}
+              value={retention}
+              onChange={(event) => setRetention(event.target.value)}
             />
           </label>
           <div>
