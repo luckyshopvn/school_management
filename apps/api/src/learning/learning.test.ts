@@ -225,7 +225,7 @@ describe('Điểm cuối lõi hệ thống quản lý học tập', () => {
     assert.equal(resource.status, 422, JSON.stringify(resource.body));
     const unknown = await api('POST', `/learning/spaces/${spaceA}/activities`, mathTeacher.accessToken, {
       section_id: sectionId,
-      kind: 'assignment',
+      kind: 'discussion',
       title: 'Bài tập',
     });
     assert.equal(unknown.status, 400, 'loại của phần sau chưa đăng ký');

@@ -83,7 +83,22 @@ const link: ActivityKindDefinition = {
   },
 };
 
-export const ACTIVITY_KINDS: readonly ActivityKindDefinition[] = [resource, page, link];
+// Bài tập trực tuyến (DT-28 phần 28c, YCTD-273): cài đặt riêng của bài (câu, phiên bản, đích giao, cách chấm) ở bảng
+// `assignments` của phần 28c, soạn qua tuyến `/learning/activities/:id/assignment`; hoạt động chỉ giữ tên, hướng dẫn, hạn.
+// Hoàn thành khi nộp (`submit`), khi đạt điểm (`pass`) hoặc khi giáo viên trả bài (`teacher`); không đặt trong khoá mẫu vì
+// bài gắn đích giao của lớp
+const assignment: ActivityKindDefinition = {
+  code: 'assignment',
+  label: 'Bài tập',
+  completionRules: ['submit', 'pass', 'teacher'],
+  defaultCompletion: 'submit',
+  allowedInTemplate: false,
+  parseSettings() {
+    return {};
+  },
+};
+
+export const ACTIVITY_KINDS: readonly ActivityKindDefinition[] = [resource, page, link, assignment];
 
 export function activityKind(code: unknown): ActivityKindDefinition | null {
   return ACTIVITY_KINDS.find((kind) => kind.code === code) ?? null;

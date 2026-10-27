@@ -501,3 +501,11 @@ export type {
   PushSubscriptionKind,
   PushSubscriptionsTable,
 } from '../system/schema.js';
+// Bài tập trực tuyến (DT-28 phần 28c)
+export type {
+  AssignmentContext,
+  AssignmentGrading,
+  AssignmentItemKind,
+  AssignmentWorkMode,
+  SubmissionStatus,
+} from '../school-year/schema.js';

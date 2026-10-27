@@ -1,5 +1,10 @@
 import { Injectable } from '@nestjs/common';
-import { vietnamDate, type SchoolYearDatabase, type SystemDatabase } from '@school-management/database';
+import {
+  vietnamDate,
+  type ActivityResultLevel,
+  type SchoolYearDatabase,
+  type SystemDatabase,
+} from '@school-management/database';
 import { ApplicationError, Clock, type FieldError } from '@school-management/server';
 import { PERMISSION_CODES } from '@school-management/shared';
 import { sql, type Kysely, type Selectable, type Transaction } from 'kysely';
@@ -2120,6 +2125,83 @@ export class LearningService {
         updated: plan.updateItems.length,
         kept_local: plan.keptLocal,
       };
+    });
+  }
+  // ---------- Cửa cho các phần sau của DT-28 (28c bài tập; 28d, 28e dùng cùng cửa) ----------
+  // Phần sau không tự quyết ai dạy, ai học, ai xem lớp học trực tuyến mà gọi các hàm dưới đây, nên quy tắc quyền chỉ ở một chỗ.
+  // Đổi chữ ký các hàm này phải qua YCTD vì phần khác đang dựa vào
+
+  // Giáo viên dạy được hoạt động (soạn, chấm): như khi sửa hoạt động của lõi
+  async teacherActivity(currentUser: CurrentUser, activityId: string) {
+    return this.activityOf(currentUser, activityId);
+  }
+
+  // Học sinh của kênh student: tài khoản học nối đúng một học sinh đang học
+  async studentContext(currentUser: CurrentUser) {
+    return this.studentOf(currentUser);
+  }
+
+  // Hoạt động đã giao, đang mở với học sinh (cùng cách tính với danh sách học của em); không có hoặc chưa mở thì báo lỗi
+  async openActivityForChild(database: YearExecutor, childId: string, activityId: string) {
+    const learning = await this.learningOfChild(database, childId);
+    const entry = learning.spaces
+      .flatMap((space) => space.sections.flatMap((section) => section.activities))
+      .find((activity) => activity.id === activityId);
+    if (!entry) {
+      throw notFoundError('Không tìm thấy hoạt động trong lớp học trực tuyến của em', 'course_activity');
+    }
+    if (!entry.open) {
+      throw learningRule(['Hoạt động chưa mở với em', ...entry.locked_reasons].join('. '));
+    }
+    return database.selectFrom('course_activities').selectAll().where('id', '=', activityId).executeTakeFirstOrThrow();
+  }
+
+  // Phụ huynh của học sinh (trả true) hoặc cán bộ có quyền xem lớp học trực tuyến (trả false); người khác bị chặn
+  async guardianOrStaff(currentUser: CurrentUser, database: YearExecutor, childId: string) {
+    return this.assertGuardianOrStaff(currentUser, database, childId);
+  }
+
+  // Ghi kết quả hoạt động của một học sinh và nhật ký học tập; nguồn là loại hoạt động
+  async writeResult(
+    database: YearExecutor,
+    activity: ActivityRow,
+    childId: string,
+    result: {
+      status: ResultStatus;
+      score?: number | null;
+      level?: ActivityResultLevel | null;
+      progress?: number | null;
+    },
+    actor: {
+      userId: string;
+      kind: 'teacher' | 'student' | 'guardian';
+      verb: SchoolYearDatabase['learning_events']['verb'];
+    },
+  ) {
+    const now = this.clock.now();
+    const values = {
+      status: result.status,
+      score: result.score ?? null,
+      level: result.level ?? null,
+      progress: result.progress ?? null,
+      source: activity.kind,
+      completed_at: isDone(result.status) ? now : null,
+      recorded_by: actor.kind === 'teacher' ? actor.userId : null,
+      updated_at: now,
+    };
+    await database
+      .insertInto('activity_results')
+      .values({ activity_id: activity.id, child_id: childId, ...values })
+      .onConflict((conflict) => conflict.columns(['activity_id', 'child_id']).doUpdateSet(values))
+      .execute();
+    await this.recordEvent(database, {
+      space_id: activity.space_id,
+      activity_id: activity.id,
+      child_id: childId,
+      actor_user_id: actor.userId,
+      actor_kind: actor.kind,
+      verb: actor.verb,
+      result: JSON.stringify({ status: values.status, score: values.score, level: values.level }),
     });
   }
 }

@@ -517,6 +517,9 @@ import { GroupSetsController, GroupSetsReader, GroupSetsService } from './child-
 import { LearningController } from './learning/learning.controller.js';
 import { StudentLearningController } from './learning/student-learning.controller.js';
 import { LearningService } from './learning/learning.js';
+import { AssignmentsController } from './learning/assignments/assignments.controller.js';
+import { AssignmentsService } from './learning/assignments/assignments.js';
+import { StudentAssignmentsController } from './learning/assignments/student-assignments.controller.js';
 
 @Module({})
 export class ApplicationModule {
@@ -822,6 +825,9 @@ export class ApplicationModule {
         ChildTutoringController,
         // Thu chi gia sư trong trường (DT-27 phần 27c)
         TutoringFinanceController,
+        // Bài tập trực tuyến (DT-28 phần 28c)
+        AssignmentsController,
+        StudentAssignmentsController,
       ],
       providers: [
         { provide: API_CONFIGURATION, useValue: configuration },
@@ -1244,6 +1250,8 @@ export class ApplicationModule {
         TutoringService,
         // Thu chi gia sư trong trường (DT-27 phần 27c)
         TutoringFinanceService,
+        // Bài tập trực tuyến (DT-28 phần 28c)
+        AssignmentsService,
       ],
     };
   }

@@ -906,6 +906,25 @@ Hai bảng ở cơ sở dữ liệu hệ thống (tệp `0110_create_course_temp
 
 Một mục cấu hình tuỳ chọn ở bảng `settings` của Trường chính: `learning_link_domains` (mảng tên miền cho liên kết ngoài; không có thì cho mọi liên kết https).
 
+## 18I. Bài tập trực tuyến (DT-28 phần 28c, YCTD-273)
+
+Mười bảng ở cơ sở dữ liệu năm học (tệp `0176_create_assignments`, `0177_create_assignment_recipients`, `0178_create_assignment_submissions`, `0179_create_submission_feedback`); hệ thống `0111_add_ai_feedback_kind` thêm loại `feedback` vào ràng buộc `ai_requests_kind_check`; định danh `0181_add_assignment_permissions`.
+
+| Bảng | Mục đích | Cột chính |
+|---|---|---|
+| assignments (từ YCTD-273) | Cài đặt riêng của hoạt động bài tập (BR-300 đến BR-302) | id, activity_id (duy nhất, xóa theo hoạt động), context (`in_class`, `homework`), work_mode (`individual`, `group`), group_set_id (bắt buộc khi bài nhóm), late_policy (`allow`, `block`), max_attempts (1 đến 5), grading (`score`, `rubric`, `level`, `completion`, `none`), rubric_id, rubric_snapshot (bắt buộc khi chấm theo tiêu chí), show_results (`after_submit`, `after_return`), estimated_minutes, released_at, closed_at, created_by, created_at, updated_at |
+| assignment_variants (từ YCTD-273) | Phiên bản bài (phân hóa) | id, assignment_id, code (một chữ cái in hoa, duy nhất trong bài), name |
+| assignment_items (từ YCTD-273) | Câu của bài | id, assignment_id, variant_id (trống là câu chung), position, kind (`question`, `essay`, `upload`, `audio`, `resource`), question_id, snapshot (bản chụp câu 22g1; bắt buộc khi `question`), prompt (tối đa 5.000 ký tự), score (0 đến 10), settings (`resource_id`) |
+| assignment_targets (từ YCTD-273) | Đích giao giáo viên chọn | id, assignment_id, target_kind (`class`, `group`, `child`), group_id, child_id, variant_id |
+| assignment_recipients (từ YCTD-273) | Danh sách nhận bài chốt khi phát hành (BR-301) | assignment_id, child_id (khóa chính cùng nhau), group_id (bài nhóm), variant_id, due_at (hạn riêng), excused, excuse_reason, created_at |
+| assignment_submissions (từ YCTD-273) | Bản nháp và các lần nộp (BR-302, BR-303) | id, assignment_id, child_id hoặc group_id (đúng một), attempt_no (1 đến 5; duy nhất theo bài và người, nhóm), status (`draft`, `submitted`, `returned`), version (khóa lạc quan), answers, late, submitted_by, submitted_by_kind (`student`, `guardian`, `teacher`), submitted_at, auto_score, item_scores, criteria_scores, score (0 đến 10), level, feedback (tối đa 4.000 ký tự), feedback_ai_assisted, graded_by, graded_at, returned_by, returned_at, created_at, updated_at |
+| submission_files (từ YCTD-273) | Tệp của bài nộp (BR-304) | id, submission_id, item_id, kind (`image`, `document`, `audio`), file_name, content_type, size_bytes, storage_key, uploaded_by, created_at |
+| submission_comments (từ YCTD-273) | Trao đổi trên bài | id, submission_id, author_user_id, author_name, author_kind (`teacher`, `student`, `guardian`), body (1 đến 2.000 ký tự), created_at |
+| submission_contributions (từ YCTD-273) | Đánh giá đóng góp bài nhóm, điều chỉnh điểm cá nhân (BR-303) | submission_id, child_id (khóa chính cùng nhau), self_rating (1 đến 5), self_note, peer_ratings, adjusted_score, adjust_reason (bắt buộc khi điều chỉnh), adjusted_by, updated_at |
+| assignment_comment_bank (từ YCTD-273) | Câu nhận xét riêng của giáo viên | id, owner_user_id, content (1 đến 500 ký tự), created_at |
+
+Một mục cấu hình tuỳ chọn ở bảng `settings` của Trường chính: `assignment_upload_limits` (`max_images`, `max_total_bytes`, `max_document_bytes`, `max_audio_bytes`, `max_audio_seconds`; thiếu hoặc sai thì dùng mặc định của GD-150, tối đa gấp năm lần mặc định).
+
 ## 19. Quan hệ chính giữa các bảng
 
 ```mermaid

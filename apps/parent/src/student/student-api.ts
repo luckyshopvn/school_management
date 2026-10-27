@@ -104,6 +104,24 @@ export async function requestStudentJson<T>(path: string, init: RequestInit = {}
   }
 }
 
+// Tải tệp của bài nộp (ảnh, tài liệu, ghi âm) kèm mã phiên để hiện lại cho học sinh (DT-28 phần 28c); hết hạn thì làm mới một lần
+export async function fetchStudentFile(path: string): Promise<Blob> {
+  const attempt = () =>
+    fetch(path, {
+      headers: accessToken ? { authorization: `Bearer ${accessToken}` } : {},
+      credentials: 'same-origin',
+    });
+  let response = await attempt();
+  if (response.status === 401 && accessToken) {
+    await refreshStudentSession();
+    response = await attempt();
+  }
+  if (!response.ok) {
+    throw await readError(response);
+  }
+  return response.blob();
+}
+
 export function issueCaptcha(): Promise<CaptchaChallenge> {
   return send<CaptchaChallenge>('/api/v1/auth/captcha', { method: 'POST', body: JSON.stringify({}) });
 }
