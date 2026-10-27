@@ -77,8 +77,14 @@ const SECONDARY_ONLY_PATHS = [
 
 // Phân hệ Thi trực tuyến (DT-23 phần 23a) có từ Tiểu học trở lên: trường chỉ có Mầm non không thấy
 const ONLINE_EXAM_PATHS = ['/online-exams', '/online-exams/monitor', '/online-exams/settings'];
-// Phân hệ Gia sư trực tuyến (DT-27 phần 27b) cũng từ Tiểu học trở lên
-const TUTORING_PATHS = ['/tutoring', '/tutoring/sessions', '/tutoring/exemptions', '/tutoring/rules'];
+// Phân hệ Gia sư trực tuyến (DT-27 phần 27b, thu chi ở 27c) cũng từ Tiểu học trở lên
+const TUTORING_PATHS = [
+  '/tutoring',
+  '/tutoring/sessions',
+  '/tutoring/exemptions',
+  '/tutoring/rules',
+  '/tutoring/finance',
+];
 
 describe('Cây menu và nhãn theo cấp học', () => {
   it('CT-19c-1: trường chỉ có Mầm non giữ y hệt cây menu (tên phân hệ, số thứ bậc, thứ tự, mục)', () => {

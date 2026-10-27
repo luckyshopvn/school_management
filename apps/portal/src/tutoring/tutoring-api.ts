@@ -2,12 +2,17 @@ import type {
   SchoolLevelCode,
   TutoringAttendanceStatus,
   TutoringAudience,
+  TutoringCancelRefund,
   TutoringContentType,
+  TutoringCreditStatus,
   TutoringDelivery,
+  TutoringFeeBasis,
+  TutoringFundingSource,
   TutoringProgramStatus,
   TutoringRegistrationStatus,
   TutoringRuleSet,
 } from '@school-management/shared';
+import { downloadFile } from '../growth/growth-api.js';
 import { fetchWithSession, readError, requestJson } from '../session/api-client.js';
 
 // Gia sư trong trường, phía nhà trường (DT-27 phần 27b, YCTD-252)
@@ -26,6 +31,8 @@ export interface ProgramSummary {
   content_type: TutoringContentType;
   audience: TutoringAudience | null;
   charges_fee: boolean;
+  fee_basis: TutoringFeeBasis | null;
+  fee_amount: string | null;
   delivery: TutoringDelivery;
   status: TutoringProgramStatus;
   starts_on: string;
@@ -58,6 +65,10 @@ export interface ProgramRegistration {
 }
 
 export interface ProgramDetail extends ProgramSummary {
+  // Thu phí và thù lao (YCTD-253); số tiền là chuỗi số đồng
+  cancel_refund: TutoringCancelRefund;
+  pay_rate_per_period: string | null;
+  funding_source: TutoringFundingSource;
   description: string | null;
   topic: string | null;
   registration_form: string;
@@ -81,6 +92,9 @@ export interface SessionRow extends ProgramSession {
 }
 
 export interface AttendanceView {
+  // Người dạy buổi để tính thù lao (YCTD-253)
+  teachers: Array<{ teacher_user_id: string; teacher_name: string }>;
+  taught_by_user_id: string | null;
   session: {
     id: string;
     program_name: string;
@@ -162,10 +176,14 @@ export const tutoringApi = {
   cancelSession: (id: string, reason: string) =>
     requestJson(`/api/v1/tutoring/sessions/${id}/cancel`, json('POST', { reason })),
   attendance: (id: string) => requestJson<AttendanceView>(`/api/v1/tutoring/sessions/${id}/attendance`),
-  confirmAttendance: (id: string, entries: Array<{ child_id: string; status: TutoringAttendanceStatus }>) =>
+  confirmAttendance: (
+    id: string,
+    entries: Array<{ child_id: string; status: TutoringAttendanceStatus }>,
+    taughtByUserId?: string,
+  ) =>
     requestJson<{ confirmed: number; notified: number }>(
       `/api/v1/tutoring/sessions/${id}/attendance`,
-      json('PUT', { entries }),
+      json('PUT', taughtByUserId ? { entries, taught_by_user_id: taughtByUserId } : { entries }),
     ),
   exemptions: () => requestJson<ExemptionRow[]>('/api/v1/tutoring/exemptions'),
   async createExemption(form: FormData): Promise<{ id: string }> {
@@ -177,4 +195,92 @@ export const tutoringApi = {
   },
   rules: () => requestJson<RulesView>('/api/v1/tutoring/rules'),
   addRule: (body: unknown) => requestJson('/api/v1/tutoring/rules', json('POST', body)),
+  // Thu chi gia sư (DT-27 phần 27c, YCTD-253)
+  financeReport: (from: string, to: string) =>
+    requestJson<FinanceReport>(`/api/v1/tutoring/finance/report?from=${from}&to=${to}`),
+  exportFinance: (from: string, to: string) =>
+    downloadFile(`/api/v1/tutoring/finance/report/export?from=${from}&to=${to}`, `thu-chi-gia-su-${from}-${to}.xlsx`),
+  teacherPay: (month: string) => requestJson<TeacherPayPreview>(`/api/v1/tutoring/finance/teacher-pay?month=${month}`),
+  pushTeacherPay: (month: string) =>
+    requestJson<{ pushed: Array<{ teacher_name: string; sessions: number; amount: number }>; skipped: PendingPay[] }>(
+      '/api/v1/tutoring/finance/teacher-pay/push',
+      json('POST', { month }),
+    ),
+  credits: () => requestJson<CreditRow[]>('/api/v1/tutoring/finance/credits'),
+  creditAction: (id: string, action: 'adjust' | 'deduct-next' | 'close', note?: string) =>
+    requestJson(`/api/v1/tutoring/finance/credits/${id}/${action}`, json('POST', note ? { note } : {})),
 };
+
+export interface PendingPay {
+  session_id: string;
+  session_date: string;
+  program_name: string;
+  teacher_name: string | null;
+  periods: number;
+  rate: number | null;
+  amount: number | null;
+  funding_source: TutoringFundingSource;
+  problem: string | null;
+}
+
+export interface TeacherPayPreview {
+  month: string;
+  payroll_status: string | null;
+  rows: PendingPay[];
+  total: number;
+}
+
+export interface CreditRow {
+  id: string;
+  amount: number;
+  reason: string;
+  mode: TutoringCancelRefund;
+  status: TutoringCreditStatus;
+  program_name: string;
+  child_name: string;
+  invoice_code: string | null;
+  adjustment_code: string | null;
+  adjustment_rejected: boolean;
+  deducted: number;
+  remaining: number;
+  deducted_on: string[];
+  closed_note: string | null;
+  actionable: boolean;
+}
+
+export interface FinanceProgramRow {
+  program_id: string;
+  name: string;
+  content_type: TutoringContentType;
+  charges_fee: boolean;
+  fee_basis: TutoringFeeBasis | null;
+  fee_amount: number | null;
+  funding_source: TutoringFundingSource;
+  billed: number;
+  billed_draft: number;
+  deducted: number;
+  adjusted: number;
+  refunded: number;
+  credit_open: number;
+  net_income: number;
+  teacher_pay: number;
+  teacher_periods: number;
+  teacher_pay_pending: number;
+}
+
+export interface FinanceReport {
+  from: string;
+  to: string;
+  programs: FinanceProgramRow[];
+  totals: {
+    billed: number;
+    deducted: number;
+    adjusted: number;
+    refunded: number;
+    net_income: number;
+    teacher_pay: number;
+    teacher_pay_school_budget: number;
+    teacher_pay_tutoring_fees: number;
+  };
+  credits: CreditRow[];
+}

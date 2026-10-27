@@ -21,6 +21,9 @@ interface Program {
   content_type: TutoringContentType;
   audience: TutoringAudience | null;
   charges_fee: boolean;
+  // Mức thu của chương trình bổ trợ có thu, thu trên hóa đơn của trường (YCTD-253)
+  fee_basis: 'per_session' | 'per_program' | null;
+  fee_amount: string | null;
   description: string | null;
   registration_form: string;
   starts_on: string;
@@ -109,7 +112,11 @@ export function TutoringPanel({ child }: { child: { id: string; full_name: strin
               {program.content_type === 'curriculum'
                 ? 'Không thu tiền (dạy thêm trong nhà trường không thu tiền của học sinh)'
                 : program.charges_fee
-                  ? 'Có thu tiền theo thông báo của nhà trường'
+                  ? program.fee_amount
+                    ? `Thu ${Number(program.fee_amount).toLocaleString('vi-VN')} đ ${
+                        program.fee_basis === 'per_session' ? 'mỗi buổi học' : 'trọn gói'
+                      } trên hóa đơn học phí của trường; buổi do trường hủy được trừ hoặc hoàn`
+                    : 'Có thu tiền theo thông báo của nhà trường'
                   : 'Không thu tiền'}
             </span>
             {program.registered ? (

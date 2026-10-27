@@ -2,7 +2,14 @@ import { useCallback, useEffect, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import {
   TUTORING_AUDIENCE_LABELS,
+  TUTORING_CANCEL_REFUND_LABELS,
   TUTORING_CONTENT_TYPE_HELP,
+  TUTORING_FEE_BASIS_LABELS,
+  TUTORING_FUNDING_SOURCE_LABELS,
+  TUTORING_NO_FEE_BASIS,
+  type TutoringCancelRefund,
+  type TutoringFeeBasis,
+  type TutoringFundingSource,
   TUTORING_CONTENT_TYPE_LABELS,
   TUTORING_DELIVERY_LABELS,
   TUTORING_PROGRAM_STATUS_LABELS,
@@ -48,7 +55,14 @@ const emptyForm = () => ({
   starts_on: today(),
   ends_on: today(),
   class_ids: [] as string[],
+  fee_basis: 'per_session' as TutoringFeeBasis,
+  fee_amount: '',
+  cancel_refund: 'deduct_next' as TutoringCancelRefund,
+  pay_rate_per_period: '',
+  funding_source: 'school_budget' as TutoringFundingSource,
 });
+
+const money = (amount: string | number) => `${Number(amount).toLocaleString('vi-VN')} đ`;
 
 function ProgramDetailPanel({
   id,
@@ -118,8 +132,16 @@ function ProgramDetailPanel({
         {program.content_type === 'curriculum'
           ? ' · Không thu tiền (Thông tư 29)'
           : program.charges_fee
-            ? ' · Có thu tiền'
+            ? program.fee_basis && program.fee_amount
+              ? ` · Thu ${money(program.fee_amount)} ${program.fee_basis === 'per_session' ? 'mỗi buổi' : 'trọn gói'}`
+              : ' · Có thu tiền, chưa đặt giá'
             : ' · Không thu tiền'}
+      </p>
+      <p className="text-label text-text-secondary">
+        Thù lao giáo viên:{' '}
+        {program.pay_rate_per_period ? `${money(program.pay_rate_per_period)} mỗi tiết` : 'chưa đặt đơn giá'} · Nguồn
+        chi: {TUTORING_FUNDING_SOURCE_LABELS[program.funding_source]}
+        {program.charges_fee ? ` · Buổi hủy: ${TUTORING_CANCEL_REFUND_LABELS[program.cancel_refund]}` : ''}
       </p>
       {program.reject_reason ? <Alert tone="warning">Lý do không duyệt: {program.reject_reason}</Alert> : null}
       <div className="flex flex-wrap gap-2">
@@ -385,6 +407,7 @@ export function TutoringProgramsPage() {
   const programs = useQuery({ queryKey: ['tutoring-programs'], queryFn: tutoringApi.programs });
   const [form, setForm] = useState(emptyForm());
   const [open, setOpen] = useState<string>();
+  const charging = form.content_type === 'enrichment' && form.charges_fee;
   const create = useMutation({
     mutationFn: () =>
       tutoringApi.createProgram({
@@ -393,6 +416,11 @@ export function TutoringProgramsPage() {
         audience: form.audience || null,
         charges_fee: form.content_type === 'curriculum' ? false : form.charges_fee,
         max_students: form.max_students ? Number(form.max_students) : null,
+        // Giá chỉ gửi khi chương trình bổ trợ có thu; môn học trong trường luôn chi từ kinh phí của trường (YCTD-253)
+        fee_basis: charging ? form.fee_basis : null,
+        fee_amount: charging && form.fee_amount ? Number(form.fee_amount) : null,
+        pay_rate_per_period: form.pay_rate_per_period ? Number(form.pay_rate_per_period) : null,
+        funding_source: form.content_type === 'curriculum' ? 'school_budget' : form.funding_source,
       }),
     onSuccess: async (created) => {
       setToastMessage('Đã lập chương trình (nháp)');
@@ -552,9 +580,78 @@ export function TutoringProgramsPage() {
             </label>
           )}
           {form.content_type === 'curriculum' ? (
-            <p className="text-label text-text-secondary">
-              Dạy thêm môn học trong nhà trường không được thu tiền của học sinh.
-            </p>
+            <p className="text-label text-text-secondary">{TUTORING_NO_FEE_BASIS}</p>
+          ) : null}
+          {form.content_type === 'enrichment' && form.charges_fee ? (
+            <fieldset className="flex flex-col gap-3 rounded border border-border p-3">
+              <legend className="text-label font-medium">Mức thu (thu trên hóa đơn của trường)</legend>
+              <label className="flex flex-col text-label">
+                Cách tính
+                <select
+                  className={FORM_CONTROL_CLASS}
+                  value={form.fee_basis}
+                  onChange={(event) => setForm({ ...form, fee_basis: event.target.value as TutoringFeeBasis })}
+                >
+                  {(Object.keys(TUTORING_FEE_BASIS_LABELS) as TutoringFeeBasis[]).map((basis) => (
+                    <option key={basis} value={basis}>
+                      {TUTORING_FEE_BASIS_LABELS[basis]}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <label className="flex flex-col text-label">
+                Số tiền (đồng)
+                <input
+                  type="number"
+                  min={1}
+                  step={1}
+                  className={FORM_CONTROL_CLASS}
+                  value={form.fee_amount}
+                  onChange={(event) => setForm({ ...form, fee_amount: event.target.value })}
+                />
+              </label>
+              <label className="flex flex-col text-label">
+                Buổi bị hủy sau khi đã thu
+                <select
+                  className={FORM_CONTROL_CLASS}
+                  value={form.cancel_refund}
+                  onChange={(event) => setForm({ ...form, cancel_refund: event.target.value as TutoringCancelRefund })}
+                >
+                  {(Object.keys(TUTORING_CANCEL_REFUND_LABELS) as TutoringCancelRefund[]).map((mode) => (
+                    <option key={mode} value={mode}>
+                      {TUTORING_CANCEL_REFUND_LABELS[mode]}
+                    </option>
+                  ))}
+                </select>
+              </label>
+            </fieldset>
+          ) : null}
+          <label className="flex flex-col text-label">
+            Thù lao giáo viên mỗi tiết (đồng)
+            <input
+              type="number"
+              min={1}
+              step={1}
+              className={FORM_CONTROL_CLASS}
+              value={form.pay_rate_per_period}
+              onChange={(event) => setForm({ ...form, pay_rate_per_period: event.target.value })}
+            />
+          </label>
+          {form.content_type === 'enrichment' ? (
+            <label className="flex flex-col text-label">
+              Nguồn chi thù lao
+              <select
+                className={FORM_CONTROL_CLASS}
+                value={form.funding_source}
+                onChange={(event) => setForm({ ...form, funding_source: event.target.value as TutoringFundingSource })}
+              >
+                {(Object.keys(TUTORING_FUNDING_SOURCE_LABELS) as TutoringFundingSource[]).map((source) => (
+                  <option key={source} value={source}>
+                    {TUTORING_FUNDING_SOURCE_LABELS[source]}
+                  </option>
+                ))}
+              </select>
+            </label>
           ) : null}
           <label className="flex flex-col text-label">
             Hình thức

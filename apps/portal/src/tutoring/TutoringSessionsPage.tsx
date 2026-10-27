@@ -21,11 +21,13 @@ function AttendancePanel({ sessionId, notify }: { sessionId: string; notify: (te
     queryFn: () => tutoringApi.attendance(sessionId),
   });
   const [marks, setMarks] = useState<Record<string, TutoringAttendanceStatus>>({});
+  const [taughtBy, setTaughtBy] = useState('');
   useEffect(() => {
     if (view.data) {
       setMarks(
         Object.fromEntries(view.data.students.map((student) => [student.child_id, student.status ?? 'present'])),
       );
+      setTaughtBy(view.data.taught_by_user_id ?? '');
     }
   }, [view.data]);
   const confirm = useMutation({
@@ -33,6 +35,7 @@ function AttendancePanel({ sessionId, notify }: { sessionId: string; notify: (te
       tutoringApi.confirmAttendance(
         sessionId,
         Object.entries(marks).map(([child_id, status]) => ({ child_id, status })),
+        taughtBy || undefined,
       ),
     onSuccess: async (result) => {
       notify(`Đã xác nhận điểm danh ${result.confirmed} học sinh, báo vắng ${result.notified} cha mẹ`);
@@ -85,6 +88,19 @@ function AttendancePanel({ sessionId, notify }: { sessionId: string; notify: (te
           ))}
         </tbody>
       </table>
+      {view.data.teachers.length > 1 ? (
+        <label className="flex flex-col text-label">
+          Giáo viên đã dạy buổi (tính thù lao)
+          <select className={FORM_CONTROL_CLASS} value={taughtBy} onChange={(event) => setTaughtBy(event.target.value)}>
+            <option value="">Người đang xác nhận</option>
+            {view.data.teachers.map((teacher) => (
+              <option key={teacher.teacher_user_id} value={teacher.teacher_user_id}>
+                {teacher.teacher_name}
+              </option>
+            ))}
+          </select>
+        </label>
+      ) : null}
       <Button
         variant="primary"
         disabled={view.data.students.length === 0 || confirm.isPending}
