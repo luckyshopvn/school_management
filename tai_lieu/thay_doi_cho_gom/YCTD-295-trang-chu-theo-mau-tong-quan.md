@@ -2,7 +2,7 @@
 yctd: YCTD-295
 tieu_de: Trang chủ cổng quản trị theo mẫu giao diện Tổng quan
 ngay: 2026-10-28
-phien_ban_de_xuat: 0.172.0
+phien_ban_de_xuat: 0.176.0
 ---
 
 ## 02 Nhật ký
