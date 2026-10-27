@@ -985,6 +985,15 @@ Cơ sở dữ liệu năm học, tệp `0191_create_learning_badges`, `0192_crea
 | learning_badges (từ YCTD-279) | Huy hiệu nội bộ (BR-391, BR-392) | id, child_id, space_id, kind (`section_complete`, `course_complete`, `on_time_streak`, `teacher_award`), section_id, criterion_key (duy nhất theo em, lớp học trực tuyến khi có), title (1 đến 120 ký tự), reason (bắt buộc với huy hiệu giáo viên trao), awarded_by, awarded_by_name, awarded_at, revoked_at, revoked_by, revoke_reason |
 | course_certificates (từ YCTD-279) | Chứng nhận hoàn thành khoá tự chọn (BR-393, BR-394) | id, code (`CN-` cộng 10 ký tự, duy nhất), child_id, space_id (một chứng nhận còn hiệu lực mỗi em, mỗi khoá), course_title, school_name, holder_name, holder_short_name, issued_at, issued_by, issued_by_name, revoked_at, revoked_by, revoke_reason |
 
+## 18O. Học khi mạng yếu (DT-28 phần 28j, YCTD-280)
+
+Cơ sở dữ liệu năm học, tệp `0193_add_offline_submission_keys`. Cấu hình ở `settings` khóa `learning_offline` (`enabled`, `retention_days`). Dữ liệu của học sinh trên máy không lưu ở máy chủ.
+
+| Bảng | Mục đích | Cột chính |
+|---|---|---|
+| assignment_submissions (thêm cột, từ YCTD-280) | Chống trùng khi gửi lại lần nộp, thời điểm bấm nộp trên máy (BR-402) | client_submit_key (duy nhất khi có), client_submitted_at |
+| submission_files (thêm cột, từ YCTD-280) | Chống trùng khi gửi lại tệp | client_key (duy nhất theo bản nháp khi có) |
+
 ## 19. Quan hệ chính giữa các bảng
 
 ```mermaid

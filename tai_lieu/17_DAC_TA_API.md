@@ -2550,6 +2550,15 @@ Lỗi quy tắc 422 mã `YCTD-279`.
 | GET; GET | /api/v1/student/recognition; /certificates/{id}/pdf | Học sinh: huy hiệu, chứng nhận của em; tệp PDF |
 | GET | /api/v1/public/certificates/{mã} | Trang kiểm tra công khai (HTML): tên khoá, họ tên viết tắt, ngày cấp, tên trường, trạng thái; không có thì 404 |
 
+### 17.9. Học khi mạng yếu (DT-28 phần 28j, YCTD-280)
+
+Lỗi quy tắc 422 mã `YCTD-280`. Tuyến nộp bài của học sinh `POST /api/v1/student/assignments/{id}/submit` nhận thêm `client_submit_key` (uuid), `client_submitted_at`; gửi lại cùng mã thì trả lần nộp đã nhận kèm `replayed: true`. Tuyến gửi tệp `POST /api/v1/student/assignments/{id}/items/{itemId}/files?client_key=` gửi lại cùng mã thì trả tệp đã nhận.
+
+| Phương thức | Đường dẫn | Mô tả |
+|---|---|---|
+| GET, PUT | /api/v1/learning/offline/config | Ban Giám hiệu: `{ enabled, retention_days }` (1 đến 7) |
+| GET | /api/v1/student/offline | Học sinh: cấu hình học khi mạng yếu của trường |
+
 ## 18. Quy tắc kiểm tra dữ liệu
 
 | Mã | Quy tắc |

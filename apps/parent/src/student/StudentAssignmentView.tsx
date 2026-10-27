@@ -1,6 +1,15 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { Alert, Button, FORM_CONTROL_CLASS, StatusBadge } from '@school-management/ui';
 import { fetchStudentFile, requestStudentJson, StudentApiError } from './student-api.js';
+import {
+  forgetActivity,
+  isNetworkFailure,
+  offlineEnabled,
+  queueSubmit,
+  queueUpload,
+  readDraft,
+  saveDraft as saveLocalDraft,
+} from './offline/offline.ts';
 
 // Học sinh làm bài tập trực tuyến (DT-28 phần 28c, YCTD-273): câu trắc nghiệm (không có đáp án trên máy), tự luận, ảnh hoặc tệp
 // bài làm, ghi âm; lưu nháp, nộp, xem nhận xét khi giáo viên trả. Bài nhóm: cả nhóm cùng một bản nháp (máy chủ khóa lạc quan, sửa
@@ -65,8 +74,13 @@ const LEVEL_LABELS: Record<string, string> = {
   not_completed: 'Chưa hoàn thành',
 };
 
+// Thao tác đã xếp vào hàng đợi trên máy khi mất mạng (DT-28 phần 28j)
+class OfflineQueued extends Error {}
+
 const messageOf = (error: unknown) =>
-  error instanceof StudentApiError ? error.message : 'Không kết nối được tới máy chủ, vui lòng thử lại';
+  error instanceof StudentApiError || error instanceof OfflineQueued
+    ? error.message
+    : 'Không kết nối được tới máy chủ, vui lòng thử lại';
 
 // Vẽ lại ảnh lên khung để bỏ siêu dữ liệu (EXIF, vị trí), thu nhỏ cạnh dài về 1600 điểm ảnh, lưu JPEG chất lượng 0,85
 async function cleanImage(file: File): Promise<Blob> {
@@ -134,15 +148,24 @@ export function StudentAssignmentView({ activityId, onClose }: { activityId: str
   const [selfRating, setSelfRating] = useState(3);
   const [message, setMessage] = useState<{ tone: 'success' | 'danger' | 'info'; text: string }>();
   const path = `/api/v1/student/assignments/${activityId}`;
+  // Học khi mạng yếu (DT-28 phần 28j): mã chống trùng của lần nộp đang soạn, giữ cùng bản nháp trên máy
+  const submitKey = useRef<string>(crypto.randomUUID());
   const load = useCallback(() => {
     requestStudentJson<AssignmentView>(path)
-      .then((loaded) => {
+      .then(async (loaded) => {
         setView(loaded);
-        setAnswers(loaded.draft?.answers ?? {});
         setVersion(loaded.draft?.version);
+        const local = loaded.can_submit ? await readDraft(activityId) : null;
+        if (local) {
+          submitKey.current = local.value.submit_key;
+          setAnswers(local.value.answers);
+          setMessage({ tone: 'info', text: 'Đã khôi phục bản nháp lưu trên máy' });
+        } else {
+          setAnswers(loaded.draft?.answers ?? {});
+        }
       })
       .catch((error: unknown) => setMessage({ tone: 'danger', text: messageOf(error) }));
-  }, [path]);
+  }, [path, activityId]);
   useEffect(load, [load]);
 
   const act = async (action: () => Promise<unknown>, done: string) => {
@@ -151,7 +174,7 @@ export function StudentAssignmentView({ activityId, onClose }: { activityId: str
       setMessage({ tone: 'success', text: done });
       load();
     } catch (error) {
-      setMessage({ tone: 'danger', text: messageOf(error) });
+      setMessage({ tone: error instanceof OfflineQueued ? 'info' : 'danger', text: messageOf(error) });
     }
   };
   const saveDraft = () =>
@@ -168,7 +191,18 @@ export function StudentAssignmentView({ activityId, onClose }: { activityId: str
       await requestStudentJson(`${path}/draft`, { method: 'PUT', body: JSON.stringify({ answers, version }) });
       const form = new FormData();
       form.append('file', blob, name);
-      await requestStudentJson(`${path}/items/${itemId}/files`, { method: 'POST', body: form });
+      try {
+        await requestStudentJson(`${path}/items/${itemId}/files?client_key=${crypto.randomUUID()}`, {
+          method: 'POST',
+          body: form,
+        });
+      } catch (error) {
+        // Mất mạng: giữ tệp trên máy, gửi lại khi có mạng
+        if (isNetworkFailure(error) && (await queueUpload(activityId, itemId, blob, name))) {
+          throw new OfflineQueued('Chưa có mạng: tệp đã lưu trên máy và sẽ tự gửi khi có mạng');
+        }
+        throw error;
+      }
     }, 'Đã gửi tệp vào bài');
   const pickFile = async (itemId: string, file: File | undefined) => {
     if (!file) return;
@@ -187,7 +221,38 @@ export function StudentAssignmentView({ activityId, onClose }: { activityId: str
       setMessage({ tone: 'danger', text: messageOf(error) });
     }
   };
-  const setChoice = (itemId: string, value: Choice) => setAnswers({ ...answers, [itemId]: value });
+  const setChoice = (itemId: string, value: Choice) => {
+    const next = { ...answers, [itemId]: value };
+    setAnswers(next);
+    void saveLocalDraft(activityId, { answers: next, submit_key: submitKey.current });
+  };
+  const submit = () =>
+    act(
+      async () => {
+        const body = {
+          answers,
+          version,
+          client_submit_key: submitKey.current,
+          client_submitted_at: new Date().toISOString(),
+        };
+        try {
+          await requestStudentJson(`${path}/submit`, { method: 'POST', body: JSON.stringify(body) });
+        } catch (error) {
+          if (
+            isNetworkFailure(error) &&
+            (await queueSubmit(activityId, { answers, submit_key: submitKey.current }, version))
+          ) {
+            throw new OfflineQueued(
+              'Chưa có mạng: bài đã lưu trên máy và sẽ tự nộp khi có mạng (ghi lại lúc em bấm nộp)',
+            );
+          }
+          throw error;
+        }
+        await forgetActivity(activityId);
+        submitKey.current = crypto.randomUUID();
+      },
+      view?.will_be_late ? 'Đã nộp bài (nộp muộn)' : 'Đã nộp bài',
+    );
 
   if (!view) {
     return message ? <Alert tone={message.tone}>{message.text}</Alert> : null;
@@ -317,25 +382,18 @@ export function StudentAssignmentView({ activityId, onClose }: { activityId: str
             </div>
           ))
         : null}
+      {canEdit && offlineEnabled() ? (
+        <p className="text-label text-text-secondary">
+          Bản nháp tự lưu trên máy này; mất mạng thì bài nộp, tệp được giữ lại và tự gửi khi có mạng.
+        </p>
+      ) : null}
       {canEdit ? (
         <div className="flex flex-wrap gap-2">
           <Button variant="secondary" onClick={() => void saveDraft()}>
             Lưu nháp
           </Button>
           {view.can_submit && (!view.group || view.group.is_leader) ? (
-            <Button
-              variant="primary"
-              onClick={() =>
-                void act(
-                  () =>
-                    requestStudentJson(`${path}/submit`, {
-                      method: 'POST',
-                      body: JSON.stringify({ answers, version }),
-                    }),
-                  view.will_be_late ? 'Đã nộp bài (nộp muộn)' : 'Đã nộp bài',
-                )
-              }
-            >
+            <Button variant="primary" onClick={() => void submit()}>
               {view.will_be_late ? 'Nộp bài (muộn)' : 'Nộp bài'}
             </Button>
           ) : null}
