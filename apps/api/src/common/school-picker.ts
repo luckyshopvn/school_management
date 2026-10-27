@@ -17,6 +17,8 @@ export const TENANT_FREE_PATHS = new Set([
   '/api/v1/platform-billing/webhooks/payos',
   '/api/v1/platform-billing/webhooks/sepay',
   '/api/v1/platform-billing/webhooks/casso',
+  // Sự kiện của máy chủ video (DT-27 phần 27a): một địa chỉ cho mọi trường, trường lấy từ tên phòng
+  '/api/v1/video/webhook',
 ]);
 
 const PICKER_PAGE = `<!doctype html>

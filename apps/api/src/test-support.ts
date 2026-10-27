@@ -56,6 +56,8 @@ export async function startApiTestEnvironment(
     paymentProviders?: PaymentProviderSettings;
     // Số dòng tối đa của một lần xuất trực tiếp, đặt nhỏ để kiểm thử tác vụ xuất nền (DT-16 phần 16a)
     syncExportRowLimit?: number;
+    // Lớp video (DT-27 phần 27a): mặc định bộ giả lập; null là tắt video
+    video?: null;
   } = {},
 ): Promise<ApiTestEnvironment> {
   const suffix = randomUUID().replaceAll('-', '').slice(0, 10);
@@ -99,6 +101,11 @@ export async function startApiTestEnvironment(
       zaloSender: 'development',
       // Bộ giả lập nhà cung cấp AI (DT-23 phần 23d)
       aiMock: true,
+      // Bộ giả lập lớp video (DT-27 phần 27a)
+      video:
+        options.video === null
+          ? null
+          : { provider: 'mock', apiUrl: '', clientUrl: 'mock://video', apiKey: 'mock', apiSecret: 'mock-video-secret' },
       // Thông báo đẩy qua bộ giả lập (DT-26 phần 26b); người chưa đăng ký đẩy không có thêm dòng kênh push
       push: {
         provider: 'development',

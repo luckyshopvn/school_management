@@ -30,3 +30,11 @@ export {
   type ExternalRequest,
   type ExternalRequestError,
 } from './ExternalIdentity.js';
+export {
+  VideoHostPanel,
+  VideoRecordingList,
+  VideoRoom,
+  type VideoAdmission,
+  type VideoJoinInfo,
+  type VideoRecordingRow,
+} from './VideoRoom.js';

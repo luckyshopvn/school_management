@@ -5,6 +5,7 @@ import { AppShell } from '../pages/AppShell.js';
 import { menuPageTitle } from '../pages/page-title.js';
 import { tutoringApi } from './tutoring-api.js';
 import { messageOf } from './TutoringProgramsPage.js';
+import { VideoSettingsCard } from './VideoSettingsCard.js';
 
 // 4. Quy định dạy thêm (DT-27 phần 27b, YCTD-252): số liệu của quy định là dữ liệu có ngày hiệu lực; văn bản đổi thì Ban Giám hiệu
 // (hoặc YCTD) thêm dòng mới, không sửa mã. Mọi người dạy xem được quy định đang áp dụng
@@ -111,6 +112,7 @@ export function TutoringRulesPage() {
             </Button>
           </form>
         ) : null}
+        <VideoSettingsCard notify={setToastMessage} />
       </div>
     </AppShell>
   );

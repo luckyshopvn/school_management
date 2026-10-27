@@ -69,6 +69,7 @@ export interface ProgramDetail extends ProgramSummary {
   cancel_refund: TutoringCancelRefund;
   pay_rate_per_period: string | null;
   funding_source: TutoringFundingSource;
+  recording_enabled: boolean;
   description: string | null;
   topic: string | null;
   registration_form: string;
