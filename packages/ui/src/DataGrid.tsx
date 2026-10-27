@@ -555,7 +555,8 @@ export function DataGrid<Row>({
           activeRowId={activeRowId}
         />
       ) : (
-        <div className="overflow-x-auto">
+        <div className="relative overflow-x-auto">
+          {/* relative: phần tử ẩn định vị tuyệt đối trong bảng (sr-only) nhận khung cuộn làm khối chứa, không kéo rộng cả trang */}
           <table className="w-full text-content">
             <caption className="sr-only">{label}</caption>
             <thead className="bg-card text-left text-label font-medium text-text-secondary">

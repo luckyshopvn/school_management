@@ -94,7 +94,7 @@ export function AppShell({ children }: { children: ReactNode }) {
             </button>
             <Link
               to="/"
-              className="hidden max-w-80 truncate whitespace-nowrap text-section-title font-bold text-header-accent lg:inline"
+              className="hidden max-w-80 truncate whitespace-nowrap text-section-title font-bold text-header-accent lg:inline max-xl:lg:block max-xl:lg:py-2.5"
               title={schoolName}
               data-testid="school-name"
             >
