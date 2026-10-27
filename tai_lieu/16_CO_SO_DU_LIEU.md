@@ -976,6 +976,15 @@ Cơ sở dữ liệu hệ thống (tệp `0113_create_scorm_packages`, `0114_cre
 | course_package_transfers (hệ thống, từ YCTD-278) | Nhật ký xuất, nhập gói khoá học (BR-385) | id, direction (`export`, `import`), package_code, source_school, template_id, template_title, resource_count, skipped (tên, lý do), actor_user_id, actor_name, created_at |
 | scorm_attempts (năm học, từ YCTD-278) | Lượt chạy gói của học sinh theo SCO (BR-383, BR-384) | id, activity_id, child_id, package_id, sco_identifier (duy nhất theo hoạt động, học sinh, SCO), completion (`unknown`, `not_attempted`, `incomplete`, `completed`), success (`unknown`, `passed`, `failed`), score (thang 10), total_seconds, session_count, location, suspend_data (tối đa 64.000 ký tự), updated_at |
 
+## 18N. Huy hiệu và chứng nhận hoàn thành (DT-28 phần 28i, YCTD-279)
+
+Cơ sở dữ liệu năm học, tệp `0191_create_learning_badges`, `0192_create_course_certificates`. Cấu hình ở `settings` khóa `learning_recognition` (bật huy hiệu, bật chứng nhận, mẫu chứng nhận).
+
+| Bảng | Mục đích | Cột chính |
+|---|---|---|
+| learning_badges (từ YCTD-279) | Huy hiệu nội bộ (BR-391, BR-392) | id, child_id, space_id, kind (`section_complete`, `course_complete`, `on_time_streak`, `teacher_award`), section_id, criterion_key (duy nhất theo em, lớp học trực tuyến khi có), title (1 đến 120 ký tự), reason (bắt buộc với huy hiệu giáo viên trao), awarded_by, awarded_by_name, awarded_at, revoked_at, revoked_by, revoke_reason |
+| course_certificates (từ YCTD-279) | Chứng nhận hoàn thành khoá tự chọn (BR-393, BR-394) | id, code (`CN-` cộng 10 ký tự, duy nhất), child_id, space_id (một chứng nhận còn hiệu lực mỗi em, mỗi khoá), course_title, school_name, holder_name, holder_short_name, issued_at, issued_by, issued_by_name, revoked_at, revoked_by, revoke_reason |
+
 ## 19. Quan hệ chính giữa các bảng
 
 ```mermaid
