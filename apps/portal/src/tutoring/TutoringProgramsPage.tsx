@@ -604,7 +604,7 @@ export function TutoringProgramsPage() {
                 <input
                   type="number"
                   min={1}
-                  step={1000}
+                  step={1}
                   className={FORM_CONTROL_CLASS}
                   value={form.fee_amount}
                   onChange={(event) => setForm({ ...form, fee_amount: event.target.value })}
@@ -631,7 +631,7 @@ export function TutoringProgramsPage() {
             <input
               type="number"
               min={1}
-              step={1000}
+              step={1}
               className={FORM_CONTROL_CLASS}
               value={form.pay_rate_per_period}
               onChange={(event) => setForm({ ...form, pay_rate_per_period: event.target.value })}
