@@ -510,3 +510,5 @@ export type {
   AssignmentWorkMode,
   SubmissionStatus,
 } from '../school-year/schema.js';
+// Bài về nhà và phụ huynh (DT-28 phần 28f)
+export type { HomeworkPolicyAction, HomeworkReminderKind } from '../school-year/schema.js';

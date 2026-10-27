@@ -12,6 +12,7 @@ import { CourseTemplatesPage } from './learning/CourseTemplatesPage.js';
 import { OnlineClassesPage } from './learning/OnlineClassesPage.js';
 import { OnlineTeachingPage } from './learning/OnlineTeachingPage.js';
 import { OnlineLearningReportsPage } from './learning/OnlineLearningReportsPage.js';
+import { HomeworkPage } from './learning/HomeworkPage.js';
 import { NotificationsPage } from './notifications/NotificationsPage.js';
 import { ApprovalThresholdsPage } from './catalogs/ApprovalThresholdsPage.js';
 import { CommonCatalogPage } from './catalogs/CommonCatalogPage.js';
@@ -822,6 +823,8 @@ const routeTree = rootRoute.addChildren([
     path: '/online-learning-reports',
     component: OnlineLearningReportsPage,
   }),
+  // Bài về nhà (DT-28 phần 28f)
+  createRoute({ getParentRoute: () => rootRoute, path: '/online-homework', component: HomeworkPage }),
 ]);
 
 // Đường dẫn gốc lúc dựng (APP_BASE_PATH của vite, DT-SaaS phần S9): /quan-ly/ ở hồ sơ thử nghiệm, / mặc định

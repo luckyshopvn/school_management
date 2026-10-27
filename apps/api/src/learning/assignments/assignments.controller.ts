@@ -53,8 +53,8 @@ export class AssignmentsController {
   @RequirePermission(PERMISSION_CODES.assignmentManage)
   @Post('activities/:id/assignment/release')
   @HttpCode(200)
-  release(@Param('id', ACTIVITY_ID) id: string, @AuthenticatedUser() user: CurrentUser) {
-    return this.assignments.release(user, id);
+  release(@Param('id', ACTIVITY_ID) id: string, @Body() body: RequestBody, @AuthenticatedUser() user: CurrentUser) {
+    return this.assignments.release(user, id, body);
   }
 
   @RequirePermission(PERMISSION_CODES.assignmentManage)

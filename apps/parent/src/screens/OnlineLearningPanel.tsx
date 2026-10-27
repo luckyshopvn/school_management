@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Alert, Button } from '@school-management/ui';
 import { ApiError, requestJson } from '../session/api-client.js';
+import { ChildHomeworkPanel } from './ChildHomeworkPanel.js';
 
 // Học trực tuyến của con (DT-28 phần 28b, YCTD-272): các lớp học trực tuyến đã mở cho học sinh, hoạt động đã giao kèm hạn, trạng
 // thái và lý do khi hoạt động còn khóa, tiến độ; nội quy dạy học trực tuyến của trường (Thông tư 09/2021/TT-BGDĐT Điều 15) để
@@ -100,6 +101,8 @@ export function OnlineLearningPanel({ child }: { child: { id: string; full_name:
   return (
     <section className="flex flex-col gap-3" aria-label={`Học trực tuyến của ${child.full_name}`}>
       {errorMessage ? <Alert tone="danger">{errorMessage}</Alert> : null}
+      {/* Bài tập về nhà của con, nộp thay, đã xem cùng con (DT-28 phần 28f) */}
+      <ChildHomeworkPanel child={child} />
       {summary && summary.due_soon.length > 0 ? (
         <div className="flex flex-col gap-1 rounded-lg border border-border bg-card p-3" aria-label="Sắp đến hạn">
           <span className="text-content font-semibold">Sắp đến hạn (7 ngày tới)</span>

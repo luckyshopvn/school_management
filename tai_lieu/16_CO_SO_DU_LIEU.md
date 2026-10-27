@@ -936,6 +936,19 @@ Năm học `0180_add_activity_sources`: ràng buộc `score_entries_source_check
 
 Hai mục cấu hình của Trường chính ở `settings`: `learning_gradebook_enabled` (mặc định bật) và `learning_weekly_summary_enabled` (mặc định tắt).
 
+## 18L. Bài về nhà và phụ huynh (DT-28 phần 28f, YCTD-276)
+
+Cơ sở dữ liệu năm học, tệp `0185_create_homework_policies`, `0186_create_homework_reminders`.
+
+| Bảng | Mục đích | Cột chính |
+|---|---|---|
+| assignments (thêm cột, từ YCTD-276) | Bài về nhà giao từ sổ đầu bài, Ban Giám hiệu cho vượt quy tắc chặn (BR-360, BR-362) | class_log_id (tiết của sổ đầu bài, xóa tiết thì để trống), group_no (nhóm của tiết, 0 là cả lớp), policy_override_reason (tối đa 500 ký tự), policy_override_by |
+| homework_policies (từ YCTD-276) | Quy tắc khối lượng bài về nhà của trường (BR-361, GD-143) | id, school_level (`TH`, `THCS`, `THPT`), grade (0 là chung của cấp; duy nhất theo cấp, khối), no_homework, max_items_per_day (1 đến 20), max_minutes_per_day (5 đến 600), blocked_weekdays (mảng 1 đến 7), skip_holidays, action (`warn`, `block`), basis (căn cứ, tối đa 1.000 ký tự), updated_by, updated_by_name, updated_at |
+| homework_acknowledgements (từ YCTD-276) | Phụ huynh "Đã xem cùng con" (BR-363) | assignment_id, child_id, guardian_user_id (khóa chính ba cột), guardian_name, acknowledged_at |
+| homework_reminders (từ YCTD-276) | Nhật ký nhắc, khóa chống gửi trùng (BR-364) | id, kind (`assigned`, `due_soon`, `missing`, `returned`), assignment_id, child_id (duy nhất theo loại, bài, em), created_at |
+
+Mục cấu hình của Trường chính ở `settings`: `homework_reminder_time` (giờ nhắc sắp đến hạn của hôm trước dạng HH:MM, mặc định 19:00).
+
 ## 19. Quan hệ chính giữa các bảng
 
 ```mermaid

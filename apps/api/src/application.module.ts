@@ -532,6 +532,9 @@ import { AssignmentsService } from './learning/assignments/assignments.js';
 import { StudentAssignmentsController } from './learning/assignments/student-assignments.controller.js';
 import { LearningProgressController } from './learning/progress/progress.controller.js';
 import { LearningProgressService } from './learning/progress/progress.js';
+import { HomeworkController } from './learning/homework/homework.controller.js';
+import { HomeworkPolicyGate } from './learning/homework/homework-policy.js';
+import { HomeworkService } from './learning/homework/homework.js';
 
 @Module({})
 export class ApplicationModule {
@@ -848,6 +851,8 @@ export class ApplicationModule {
         VideoWebhookController,
         // Tiến độ, bảng điểm hoạt động, sổ điểm, báo cáo (DT-28 phần 28d)
         LearningProgressController,
+        // Bài về nhà và phụ huynh (DT-28 phần 28f)
+        HomeworkController,
       ],
       providers: [
         { provide: API_CONFIGURATION, useValue: configuration },
@@ -1278,6 +1283,9 @@ export class ApplicationModule {
         VideoJobs,
         // Tiến độ, bảng điểm hoạt động, sổ điểm, báo cáo (DT-28 phần 28d)
         LearningProgressService,
+        // Bài về nhà và phụ huynh (DT-28 phần 28f)
+        HomeworkPolicyGate,
+        HomeworkService,
       ],
     };
   }
