@@ -126,6 +126,8 @@ export interface ProgramInput {
   payRatePerPeriod: number | null;
   fundingSource: TutoringFundingSource;
   teacherPayRates: Record<string, number | null>;
+  // Ghi hình lớp video của chương trình, cần đồng ý của cha mẹ (YCTD-251)
+  recordingEnabled: boolean;
 }
 
 const FEE_BASES: TutoringFeeBasis[] = ['per_session', 'per_program'];
@@ -234,6 +236,7 @@ export function parseProgramInput(body: Body): ProgramInput {
     payRatePerPeriod: optionalAmount(body, 'pay_rate_per_period', errors),
     fundingSource,
     teacherPayRates,
+    recordingEnabled: body?.recording_enabled === true,
     name,
     schoolLevel,
     subjectId,
@@ -682,6 +685,7 @@ export class TutoringService {
       cancel_refund: input.cancelRefund,
       pay_rate_per_period: input.payRatePerPeriod,
       funding_source: input.contentType === 'curriculum' ? ('school_budget' as const) : input.fundingSource,
+      recording_enabled: input.recordingEnabled,
       delivery: input.delivery,
       description: input.description,
       registration_form: input.registrationForm,
@@ -1933,6 +1937,7 @@ export class TutoringService {
         'tutoring_programs.charges_fee',
         'tutoring_programs.fee_basis',
         'tutoring_programs.fee_amount',
+        'tutoring_programs.recording_enabled',
         'tutoring_programs.delivery',
         'tutoring_programs.description',
         'tutoring_programs.registration_form',

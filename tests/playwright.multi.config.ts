@@ -94,6 +94,8 @@ export default defineConfig({
         ZALO_SENDER: 'development',
         // Bộ giả lập nhà cung cấp AI (DT-23 phần 23d, spec 153): không gọi dịch vụ AI thật
         AI_MOCK: 'true',
+        // Bộ giả lập lớp video (DT-27 phần 27a)
+        VIDEO_PROVIDER: 'mock',
         // Thông báo đẩy qua bộ giả lập, ghi ra tệp cho spec 182 đọc (DT-26 phần 26b)
         PUSH_PROVIDER: 'development',
         PUSH_DEVELOPMENT_OUTBOX: fileURLToPath(E2E_PUSH_OUTBOX_FILE),

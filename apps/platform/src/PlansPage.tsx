@@ -20,6 +20,9 @@ interface Plan {
   // Hạn mức AI mỗi tháng (DT-23 phần 23d): trống là không giới hạn, 0 là không dùng AI
   ai_max_requests: number | null;
   ai_max_tokens: number | null;
+  // Lớp video (DT-27 phần 27a): trống là không giới hạn, 0 là không có video hoặc không ghi hình
+  video_max_minutes: number | null;
+  video_max_recording_mb: number | null;
   trial_days: number;
   pricing_mode: 'per_student' | 'per_school' | 'per_module';
   unit_price: number;
@@ -96,6 +99,8 @@ const emptyForm = {
   max_school_levels: '',
   ai_max_requests: '',
   ai_max_tokens: '',
+  video_max_minutes: '',
+  video_max_recording_mb: '',
   trial_days: '30',
   pricing_mode: 'per_student' as Plan['pricing_mode'],
   unit_price: '0',
@@ -249,6 +254,8 @@ export function PlansPage({ accessToken }: { accessToken: string }) {
         max_school_levels: numberOrNull(form.max_school_levels),
         ai_max_requests: numberOrNull(form.ai_max_requests),
         ai_max_tokens: numberOrNull(form.ai_max_tokens),
+        video_max_minutes: numberOrNull(form.video_max_minutes),
+        video_max_recording_mb: numberOrNull(form.video_max_recording_mb),
         trial_days: Number(form.trial_days),
         pricing_mode: form.pricing_mode,
         unit_price: Number(form.unit_price),
@@ -279,6 +286,8 @@ export function PlansPage({ accessToken }: { accessToken: string }) {
       max_school_levels: plan.max_school_levels?.toString() ?? '',
       ai_max_requests: plan.ai_max_requests?.toString() ?? '',
       ai_max_tokens: plan.ai_max_tokens?.toString() ?? '',
+      video_max_minutes: plan.video_max_minutes?.toString() ?? '',
+      video_max_recording_mb: plan.video_max_recording_mb?.toString() ?? '',
       trial_days: String(plan.trial_days),
       pricing_mode: plan.pricing_mode,
       unit_price: String(plan.unit_price),
@@ -340,6 +349,8 @@ export function PlansPage({ accessToken }: { accessToken: string }) {
                   plan.max_school_levels !== null ? `${plan.max_school_levels} cấp học` : null,
                   plan.ai_max_requests !== null ? `${plan.ai_max_requests} yêu cầu AI mỗi tháng` : null,
                   plan.ai_max_tokens !== null ? `${plan.ai_max_tokens} token AI mỗi tháng` : null,
+                  plan.video_max_minutes !== null ? `${plan.video_max_minutes} phút video mỗi tháng` : null,
+                  plan.video_max_recording_mb !== null ? `${plan.video_max_recording_mb} MB bản ghi video` : null,
                 ]
                   .filter(Boolean)
                   .join(', ') || 'Không giới hạn'}
@@ -438,6 +449,22 @@ export function PlansPage({ accessToken }: { accessToken: string }) {
             inputMode="numeric"
             value={form.ai_max_tokens}
             onChange={(event) => setForm({ ...form, ai_max_tokens: event.target.value })}
+          />
+        </label>
+        <label>
+          Tối đa phút người dự lớp video mỗi tháng (trống là không giới hạn, 0 là không có video)
+          <input
+            inputMode="numeric"
+            value={form.video_max_minutes}
+            onChange={(event) => setForm({ ...form, video_max_minutes: event.target.value })}
+          />
+        </label>
+        <label>
+          Tối đa dung lượng bản ghi video (MB; trống là không giới hạn, 0 là không ghi hình)
+          <input
+            inputMode="numeric"
+            value={form.video_max_recording_mb}
+            onChange={(event) => setForm({ ...form, video_max_recording_mb: event.target.value })}
           />
         </label>
         <label>

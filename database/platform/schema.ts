@@ -148,6 +148,9 @@ export interface PlansTable {
   // Hạn mức AI mỗi tháng (DT-23 phần 23d); null là không giới hạn, 0 là không dùng AI
   ai_max_requests: number | null;
   ai_max_tokens: number | null;
+  // Giới hạn lớp video mỗi tháng và dung lượng bản ghi (DT-27 phần 27a); null là không giới hạn, 0 là không có
+  video_max_minutes: ColumnType<number | null, number | null | undefined, number | null>;
+  video_max_recording_mb: ColumnType<number | null, number | null | undefined, number | null>;
   trial_days: Generated<number>;
   pricing_mode: Generated<PlanPricingModeValue>;
   unit_price: ColumnType<string, number | undefined, number>;

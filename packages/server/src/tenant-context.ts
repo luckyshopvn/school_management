@@ -20,6 +20,9 @@ export interface TenantPlan {
   // Hạn mức AI mỗi tháng (DT-23 phần 23d); thiếu hoặc null là không giới hạn, 0 là không dùng AI
   aiMaxRequests?: number | null;
   aiMaxTokens?: number | null;
+  // Lớp video (DT-27 phần 27a): phút người dự mỗi tháng, dung lượng bản ghi còn giữ (MB); thiếu hoặc null là không giới hạn
+  videoMaxMinutes?: number | null;
+  videoMaxRecordingMb?: number | null;
 }
 
 export interface TenantContext {

@@ -23,6 +23,7 @@
     "react": "^19.0.0"
   },
   "dependencies": {
-    "jsqr": "1.4.0"
+    "jsqr": "1.4.0",
+    "livekit-client": "2.22.3"
   }
 }

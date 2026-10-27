@@ -6,6 +6,7 @@ import { AppShell } from '../pages/AppShell.js';
 import { menuPageTitle } from '../pages/page-title.js';
 import { tutoringApi } from './tutoring-api.js';
 import { messageOf } from './TutoringProgramsPage.js';
+import { VideoSessionPanel } from './VideoSessionPanel.js';
 
 // 2. Lịch buổi học, điểm danh (DT-27 phần 27b, YCTD-252): buổi của chương trình mình dạy (Ban Giám hiệu thấy mọi buổi); điểm danh
 // gợi ý từ nhật ký vào ra phòng video (27a, chưa có thì trống), giáo viên xác nhận; vắng báo cha mẹ một lần; hủy buổi báo cha mẹ
@@ -119,6 +120,7 @@ export function TutoringSessionsPage() {
   const [from, setFrom] = useState(today());
   const [to, setTo] = useState(addDays(today(), 13));
   const [open, setOpen] = useState<string>();
+  const [video, setVideo] = useState<string>();
   const sessions = useQuery({
     queryKey: ['tutoring-sessions', from, to],
     queryFn: () => tutoringApi.sessions(from, to),
@@ -190,6 +192,9 @@ export function TutoringSessionsPage() {
                       <Button onClick={() => setOpen(open === session.id ? undefined : session.id)}>
                         Điểm danh {session.session_date}
                       </Button>
+                      <Button onClick={() => setVideo(video === session.id ? undefined : session.id)}>
+                        Lớp video {session.session_date}
+                      </Button>
                       <Button
                         onClick={() => {
                           const reason = window.prompt('Lý do hủy buổi');
@@ -208,6 +213,7 @@ export function TutoringSessionsPage() {
           </tbody>
         </table>
         {open ? <AttendancePanel sessionId={open} notify={setToastMessage} /> : null}
+        {video ? <VideoSessionPanel key={video} sessionId={video} notify={setToastMessage} /> : null}
       </div>
     </AppShell>
   );

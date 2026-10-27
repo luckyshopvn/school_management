@@ -11,6 +11,7 @@ import {
 } from '@school-management/shared';
 import { Alert, Button } from '@school-management/ui';
 import { ApiError, requestJson } from '../session/api-client.js';
+import { ChildVideoPanel } from './ChildVideoPanel.js';
 
 // Gia sư trong trường của con (DT-27 phần 27b, YCTD-252): chương trình nhà trường mở cho con, đọc nội dung và gửi đơn đăng ký (cha mẹ
 // xác nhận văn bản đơn, nhà trường lưu bản chụp), rút đơn, lịch học và điểm danh đã xác nhận; đường dây nóng của trường và nút phản
@@ -24,6 +25,8 @@ interface Program {
   // Mức thu của chương trình bổ trợ có thu, thu trên hóa đơn của trường (YCTD-253)
   fee_basis: 'per_session' | 'per_program' | null;
   fee_amount: string | null;
+  // Ghi hình lớp video của chương trình (YCTD-251)
+  recording_enabled?: boolean;
   description: string | null;
   registration_form: string;
   starts_on: string;
@@ -94,6 +97,7 @@ export function TutoringPanel({ child }: { child: { id: string; full_name: strin
     <section className="flex flex-col gap-3" aria-label={`Gia sư của ${child.full_name}`}>
       {errorMessage ? <Alert tone="danger">{errorMessage}</Alert> : null}
       {notice ? <Alert tone="success">{notice}</Alert> : null}
+      <ChildVideoPanel child={child} programs={overview?.programs ?? []} />
       <h3 className="text-content font-semibold">Chương trình nhà trường mở cho con</h3>
       {overview && overview.programs.length === 0 ? (
         <p className="text-label text-text-secondary">Hiện chưa có chương trình nào mở cho con.</p>
