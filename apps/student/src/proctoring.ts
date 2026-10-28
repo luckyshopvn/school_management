@@ -126,7 +126,11 @@ export function startLiveResponder(attemptId: string, stream: MediaStream, onWat
         }
         for (const signal of reply.signals) {
           if (signal.kind === 'offer') {
-            await respond(signal.view_id, signal.payload, servers);
+            // Phiên xem vừa bị đóng (giáo viên mở lại) thì trả lời lỗi; không để lỗi đó bỏ qua lời mời của phiên mới cùng lượt hỏi
+            await respond(signal.view_id, signal.payload, servers).catch(() => {
+              connections.get(signal.view_id)?.close();
+              connections.delete(signal.view_id);
+            });
           } else {
             await connections
               .get(signal.view_id)

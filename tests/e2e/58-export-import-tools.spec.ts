@@ -187,16 +187,27 @@ test('CT-16a-10: 3.5 Tệp đã tạo chỉ liệt kê tác vụ xuất nền c�
       })),
     )
     .execute();
-  await openMenu(page, 'Tệp đã tạo', { exact: true });
-  await expect(page.getByRole('heading', { name: '3.5. Tệp đã tạo', exact: true })).toBeVisible();
-  const grid = page.getByRole('region', { name: 'Tệp đã tạo' });
-  const failed = grid.getByRole('row', { name: `Tệp Danh sách học sinh lỗi ${suffix}` });
-  await expect(failed).toContainText('Lỗi');
-  await expect(failed).toContainText('Không tạo được tệp, vui lòng thử xuất lại');
-  await expect(failed.getByRole('button', { name: 'Tải về' })).toHaveCount(0);
-  await expect(grid.getByRole('row', { name: `Tệp Danh sách học sinh chờ ${suffix}` })).toContainText('Đang chờ');
-  // Không để tác vụ giả chờ tiến trình nền của các ca sau
-  await system.deleteFrom('export_jobs').where('user_id', '=', user.id).execute();
+  // Tiến trình xuất nền của máy chủ API lấy tác vụ đang chờ bằng `for update skip locked` và chạy ngay (tác vụ giả không có tham số nên
+  // thành "Lỗi" trước khi trang kịp hiện): giữ khóa dòng tác vụ chờ trong một giao dịch suốt lúc kiểm để tiến trình nền bỏ qua; nếu
+  // tiến trình nền đã lấy trước khi khóa thì trả lại trạng thái chờ (lệnh cập nhật của tiến trình nền đợi khóa, sau đó dòng đã xóa)
+  await system.transaction().execute(async (transaction) => {
+    await transaction
+      .updateTable('export_jobs')
+      .set({ status: 'pending', started_at: null, finished_at: null, error_message: null })
+      .where('user_id', '=', user.id)
+      .where('title', '=', `Danh sách học sinh chờ ${suffix}`)
+      .execute();
+    await openMenu(page, 'Tệp đã tạo', { exact: true });
+    await expect(page.getByRole('heading', { name: '3.5. Tệp đã tạo', exact: true })).toBeVisible();
+    const grid = page.getByRole('region', { name: 'Tệp đã tạo' });
+    const failed = grid.getByRole('row', { name: `Tệp Danh sách học sinh lỗi ${suffix}` });
+    await expect(failed).toContainText('Lỗi');
+    await expect(failed).toContainText('Không tạo được tệp, vui lòng thử xuất lại');
+    await expect(failed.getByRole('button', { name: 'Tải về' })).toHaveCount(0);
+    await expect(grid.getByRole('row', { name: `Tệp Danh sách học sinh chờ ${suffix}` })).toContainText('Đang chờ');
+    // Không để tác vụ giả chờ tiến trình nền của các ca sau
+    await transaction.deleteFrom('export_jobs').where('user_id', '=', user.id).execute();
+  });
 });
 
 // 1.1 gửi ở trang 1.1.2 từ DT-17 phần 17a nên mẫu gửi chung kiểm thử trên 1.3

@@ -65,8 +65,8 @@ test('@thiet-bi Trang chủ cổng quản trị sau đăng nhập: không cuộn
   expect(violations, describeViolations(violations)).toEqual([]);
 });
 
-// Ảnh chụp tham chiếu chỉ so ở Linux của CI (kết xuất chữ khác nhau giữa hệ điều hành): bật bằng E2E_SCREENSHOTS=1; tạo ảnh gốc bằng
-// `playwright test --update-snapshots` ở CI rồi đưa vào kho
+// Ảnh chụp tham chiếu chỉ so ở Linux của CI (kết xuất chữ khác nhau giữa hệ điều hành): bật bằng E2E_SCREENSHOTS=1. Ảnh mẫu
+// `*-linux.png` lấy từ chính CI (YCTD-306): khi cần đổi, tải artifact ket-qua-kiem-thu-thiet-bi-* của lần chạy hỏng, lấy `*-actual.png`
 test('@thiet-bi Ảnh chụp tham chiếu trang đăng nhập cổng quản trị', async ({ page }) => {
   test.skip(
     process.platform !== 'linux' || process.env.E2E_SCREENSHOTS !== '1',
