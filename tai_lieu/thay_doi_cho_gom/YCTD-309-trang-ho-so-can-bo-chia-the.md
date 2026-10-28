@@ -1,5 +1,5 @@
 ---
-yctd: YCTD-308
+yctd: YCTD-309
 tieu_de: Hồ sơ cán bộ, giáo viên mở ở trang riêng chia thẻ
 ngay: 2026-10-28
 phien_ban_de_xuat: 0.185.0
@@ -26,7 +26,7 @@ phien_ban_de_xuat: 0.185.0
 
 #### Thay đổi
 
-- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-308, `23_LICH_SU_PHIEN_BAN.md` {PHIEN_BAN}.
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-309, `23_LICH_SU_PHIEN_BAN.md` {PHIEN_BAN}.
 
 #### Vấn đề tồn đọng
 
@@ -34,7 +34,7 @@ phien_ban_de_xuat: 0.185.0
 
 ## 24 Yêu cầu thay đổi
 
-### YCTD-308: Hồ sơ cán bộ, giáo viên mở ở trang riêng chia thẻ – 2026-10-28
+### YCTD-309: Hồ sơ cán bộ, giáo viên mở ở trang riêng chia thẻ – 2026-10-28
 
 - Lý do: Eric yêu cầu "thiết lập lại màn hình chi tiết của giáo viên, mở sang một trang mới, sử dụng dạng thẻ để bớt rối"; khung hồ sơ dưới dòng của lưới dồn nhiều phần vào một chỗ.
 - Nội dung thay đổi: trang `/staff/$staffId` có đầu trang và năm thẻ, thẻ đang mở ở `?tab=`, ẩn thẻ không có quyền xem; danh sách cán bộ dùng toàn chiều rộng, bấm dòng mở trang hồ sơ.
@@ -48,9 +48,9 @@ phien_ban_de_xuat: 0.185.0
 
 ### Phiên bản {PHIEN_BAN} – 2026-10-28
 
-- Phạm vi thay đổi: hồ sơ cán bộ, giáo viên mở ở trang riêng `/staff/$staffId` chia thẻ, thẻ đang mở ở địa chỉ (YCTD-308).
+- Phạm vi thay đổi: hồ sơ cán bộ, giáo viên mở ở trang riêng `/staff/$staffId` chia thẻ, thẻ đang mở ở địa chỉ (YCTD-309).
 - Không đổi dữ liệu, API, quyền.
 
 ## 01 Bảng phiên bản
 
-| {PHIEN_BAN} | Hồ sơ cán bộ, giáo viên mở ở trang riêng chia thẻ | YCTD-308 |
+| {PHIEN_BAN} | Hồ sơ cán bộ, giáo viên mở ở trang riêng chia thẻ | YCTD-309 |

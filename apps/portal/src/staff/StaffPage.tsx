@@ -391,7 +391,7 @@ export function StaffPage() {
   const [filter, setFilter] = useState<StaffFilter>({});
   const [page, setPage] = useState(1);
   const navigate = useNavigate();
-  // Hồ sơ một người mở ở trang riêng chia thẻ (YCTD-308), lưới dùng toàn chiều rộng
+  // Hồ sơ một người mở ở trang riêng chia thẻ (YCTD-309), lưới dùng toàn chiều rộng
   const openProfile = (staffId: string) => void navigate({ to: '/staff/$staffId', params: { staffId } });
   const [creating, setCreating] = useState(false);
   const [toastMessage, setToastMessage] = useState<string>();

@@ -38,7 +38,7 @@ import {
 import { StaffProfileForm, staffProfileValues } from './StaffProfileForm.js';
 
 // Trang hồ sơ cán bộ, giáo viên `/staff/$staffId` (MH-12; P07-01, P07-02; YCTD-58, YCTD-112; tách khỏi khung dưới dòng của
-// lưới ở YCTD-308): đầu trang có họ tên, chức danh, phòng ban và nút quay lại danh sách; mỗi phần một thẻ, thẻ đang mở
+// lưới ở YCTD-309): đầu trang có họ tên, chức danh, phòng ban và nút quay lại danh sách; mỗi phần một thẻ, thẻ đang mở
 // lưu ở `?tab=`. Thẻ Hợp đồng chỉ hiện với người xem được hợp đồng (BR-46, máy chủ trả `contracts` là null); thẻ Lương và
 // phụ cấp, Quá trình công tác ẩn khi máy chủ từ chối quyền xem
 function messageOf(error: unknown): string {
