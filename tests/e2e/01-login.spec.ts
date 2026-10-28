@@ -103,7 +103,7 @@ test('CT-15a-7 (YCTD-330): thanh bên bằng chuột: nhóm đánh số gập, m
   const tree = workspaceMenu(page, EDUCATION);
   await expect(tree.getByRole('link', { name: 'Trang chủ' })).toHaveAttribute('aria-current', 'page');
 
-  // Giữ số thứ bậc theo hệ thống của Sở (GD-160)
+  // Giữ số thứ bậc theo hệ thống của Sở (GD-171)
   const students = tree.getByRole('button', { name: '4. Học sinh', exact: true });
   await expect(students).toHaveAttribute('aria-expanded', 'false');
   await students.click();

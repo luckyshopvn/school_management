@@ -19,7 +19,7 @@ import {
   type SchoolLevelCode,
 } from '@school-management/shared';
 import type { Request } from 'express';
-import { AuthenticatedUser, RequirePermission } from '../authentication/authentication.guard.js';
+import { AuthenticatedUser, RequirePermission, RequirePlanModule } from '../authentication/authentication.guard.js';
 import type { CurrentUser } from '../authentication/current-user.js';
 import { originOf } from '../common/audit-log.js';
 import { isUuid, readInteger, readRequiredUuid, type RequestBody } from '../common/request-fields.js';
@@ -211,6 +211,7 @@ export function parseAssignmentChanges(body: RequestBody): AssignmentChanges {
   return changes;
 }
 
+@RequirePlanModule('online-exam')
 @Controller('online-exams')
 export class OnlineExamsController {
   constructor(private readonly service: OnlineExamsService) {}

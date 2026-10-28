@@ -4,8 +4,8 @@ import { portalMenuText, type PortalMenuNode, type PortalWorkspace } from '@scho
 import { MenuBadge } from '../my-work/MyWorkBadge.js';
 import type { WorkspaceKey } from './workspaces.js';
 
-// Thanh bên trái theo phân hệ (YCTD-330, quyết định GD-159 thay menu ngang của DT-15 phần 15a): cây menu đánh số của phân hệ
-// đang chọn theo chiều dọc, giữ số thứ bậc theo hệ thống của Sở (GD-160). Mục cha là nút gập, mở ra các mục con; nhóm chứa
+// Thanh bên trái theo phân hệ (YCTD-330, quyết định GD-170 thay menu ngang của DT-15 phần 15a): cây menu đánh số của phân hệ
+// đang chọn theo chiều dọc, giữ số thứ bậc theo hệ thống của Sở (GD-171). Mục cha là nút gập, mở ra các mục con; nhóm chứa
 // trang đang mở tự mở. Cùng một thanh dùng cho mọi khổ màn hình: từ 1280 px luôn hiện bên trái, dưới 1280 px (DT-26 phần 26e)
 // là ngăn kéo mở bằng nút "☰" ở thanh đầu trang
 

@@ -1,7 +1,12 @@
 import { Body, Controller, Get, HttpCode, Param, Post, Put, Req } from '@nestjs/common';
 import { PERMISSION_CODES } from '@school-management/shared';
 import type { Request } from 'express';
-import { AuthenticatedUser, RequirePermission, StudentEndpoint } from '../authentication/authentication.guard.js';
+import {
+  AuthenticatedUser,
+  RequirePermission,
+  StudentEndpoint,
+  RequirePlanModule,
+} from '../authentication/authentication.guard.js';
 import type { CurrentUser } from '../authentication/current-user.js';
 import { originOf } from '../common/audit-log.js';
 import type { RequestBody } from '../common/request-fields.js';
@@ -12,6 +17,7 @@ import { readCameraState, readEvents, StudentExamsService } from './student-exam
 // chính học sinh đang đăng nhập; đáp án đúng không đi qua nhóm này trước khi nộp
 const idPipe = () => uuidParameter('Mã không hợp lệ');
 
+@RequirePlanModule('online-exam')
 @Controller('student')
 @StudentEndpoint()
 @RequirePermission(PERMISSION_CODES.examTake)

@@ -19,7 +19,7 @@ import { AppLauncher } from '../portal-shell/AppLauncher.js';
 import { StartupNotices } from '../portal-shell/StartupNotices.js';
 import { readPortalContext } from '../portal-shell/portal-shell-api.js';
 import { DemoBanner, ImpersonationBanner } from '../administration/AdministrationBanners.js';
-import { SchoolPlanBanner } from '../school-plan/school-plan.js';
+import { PaidFeatureNotice, SchoolPlanBanner, usePaidFeatureFor } from '../school-plan/school-plan.js';
 import { PlatformNoticeBanner } from '../support/support.js';
 
 function MenuIcon() {
@@ -38,8 +38,8 @@ function MenuIcon() {
   );
 }
 
-// Khung trang của cổng quản trị (YCTD-330, thay khung menu ngang của DT-15 phần 15a theo GD-159): thanh bên trái xanh đậm có
-// tên trường màu vàng (DT-16 phần 16c), ô chọn phân hệ và cây menu đánh số của phân hệ đang chọn (GD-160 giữ số thứ bậc);
+// Khung trang của cổng quản trị (YCTD-330, thay khung menu ngang của DT-15 phần 15a theo GD-170): thanh bên trái xanh đậm có
+// tên trường màu vàng (DT-16 phần 16c), ô chọn phân hệ và cây menu đánh số của phân hệ đang chọn (GD-171 giữ số thứ bậc);
 // thanh đầu trang có cấp học, năm học, Việc của tôi, chuông thông báo, lưới ứng dụng liên kết, menu người dùng. Dưới 1280 px
 // thanh bên thành ngăn kéo mở bằng nút "☰". Bỏ chân trang: "Gửi phản hồi" (DT-15 phần 15g) chuyển vào menu người dùng. Mật
 // khẩu sắp hết hạn vẫn báo ở đầu trang (YCTD-110)
@@ -60,6 +60,7 @@ export function AppShell({ children }: { children: ReactNode }) {
   const closeToast = useCallback(() => setToastMessage(undefined), []);
   const { pathname } = useLocation();
   const { ensure } = workspaces;
+  const paidModule = usePaidFeatureFor(pathname);
 
   // Mở trang thuộc phân hệ khác (đường dẫn, chuông thông báo, truy cập nhanh) thì menu chuyển sang phân hệ của trang. Trang
   // có ở cả phân hệ đang chọn thì giữ phân hệ đang chọn, để vừa chuyển phân hệ xong menu không bị kéo về phân hệ cũ
@@ -179,7 +180,7 @@ export function AppShell({ children }: { children: ReactNode }) {
                     </Alert>
                   </div>
                 ) : null}
-                {children}
+                {paidModule ? <PaidFeatureNotice module={paidModule} /> : children}
               </main>
             </div>
           </div>

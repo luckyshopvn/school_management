@@ -17,7 +17,7 @@ phien_ban_de_xuat: 0.206.0
 
 #### Quyết định
 
-- GD-159: thanh bên trái thay menu ngang của DT-15 phần 15a. GD-160: giữ số thứ bậc theo Sở trên menu. Ghi ở `32_KE_HOACH_THEO_HE_THONG_SO.md` mục 21.
+- GD-170: thanh bên trái thay menu ngang của DT-15 phần 15a. GD-171: giữ số thứ bậc theo Sở trên menu. Ghi ở `32_KE_HOACH_THEO_HE_THONG_SO.md` mục 21.
 
 #### Thay đổi
 
@@ -33,7 +33,7 @@ phien_ban_de_xuat: 0.206.0
 ### YCTD-330: Thiết kế lại cổng quản trị trường, phần khung chung – 2026-10-28
 
 - Lý do: Eric yêu cầu thiết kế lại cổng quản trị cho gọn, bỏ yếu tố thừa (menu ngang ba cấp, chân trang chỉ chứa một nút, khối Lối tắt trùng menu, tiêu đề chồng nhau ở trang chủ); Eric duyệt bản thiết kế ngày 2026-10-28, chọn giữ số thứ bậc.
-- Nội dung thay đổi: thanh bên trái thay menu ngang (GD-159), giữ số thứ bậc (GD-160); ô chọn phân hệ ở thanh bên có ô lọc; bỏ chân trang, Gửi phản hồi ở menu người dùng; bỏ khối Lối tắt, tiêu đề "Tổng quan phân hệ"; màu xanh đậm. Kịch bản CT-15a-7, CT-15a-8 đổi sang thao tác thanh bên bằng chuột, bàn phím; CT-15a-11 thêm mục Gửi phản hồi; CT-26e-1 kiểm thanh bên từ 1280 px.
+- Nội dung thay đổi: thanh bên trái thay menu ngang (GD-170), giữ số thứ bậc (GD-171); ô chọn phân hệ ở thanh bên có ô lọc; bỏ chân trang, Gửi phản hồi ở menu người dùng; bỏ khối Lối tắt, tiêu đề "Tổng quan phân hệ"; màu xanh đậm. Kịch bản CT-15a-7, CT-15a-8 đổi sang thao tác thanh bên bằng chuột, bàn phím; CT-15a-11 thêm mục Gửi phản hồi; CT-26e-1 kiểm thanh bên từ 1280 px.
 - Thành phần bị ảnh hưởng: `apps/portal/src/pages/AppShell.tsx`, `MainMenu.tsx`, `workspaces.tsx`, `UserMenu.tsx`, `WorkspaceDashboard.tsx`, `apps/portal/src/index.css`; `tests/e2e/menu.ts`, `01-login`, `53-feedback-password-expiry`, `83-school-level-menu`, `184-tablet-portal-platform`.
 - Trạng thái: Đã triển khai
 

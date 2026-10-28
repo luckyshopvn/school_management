@@ -42,6 +42,8 @@ export async function selectWorkspace(page: Page, label: string | RegExp): Promi
   const switcher = page.getByRole('button', { name: /^Phân hệ: / });
   // Dưới 1280 px ô chọn phân hệ nằm trong ngăn kéo thanh bên (YCTD-330): mở ngăn kéo trước
   const toggle = page.getByRole('button', { name: 'Menu chức năng' });
+  // Chờ khung trang dựng xong (một trong hai nút hiện) rồi mới quyết định, vì isVisible không chờ
+  await expect(switcher.or(toggle).first()).toBeVisible();
   if (!(await switcher.isVisible()) && (await toggle.isVisible())) {
     await toggle.click();
   }

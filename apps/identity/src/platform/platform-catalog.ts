@@ -30,7 +30,9 @@ import type { Request } from 'express';
 import type { Kysely } from 'kysely';
 import { TENANCY_RUNTIME } from '../common/configuration.js';
 import { readLoginPageSettings } from '../directory/unit-directory.js';
+import { CatalogProvisioningService } from './catalog-provisioning.js';
 import { PlatformSchoolsService } from './platform-schools.js';
+import { DIRECT_ENTRY_ROLE, SupportSessionsService } from './support-sessions.js';
 
 // Danh mục đơn vị toàn quốc ở cổng nền tảng (DT-24, YCTD-220; tài liệu 32 mục 16): xem số liệu và lần nhập, tìm đơn vị (kèm cờ chất
 // lượng, trường đã gắn), nhập hoặc cập nhật từ CSV (gửi nguyên văn bản tệp, tối đa 20 MB, chạy thử được), gắn trường đã khởi tạo
@@ -207,6 +209,8 @@ export class PlatformCatalogController {
   constructor(
     private readonly catalog: PlatformCatalogService,
     private readonly schools: PlatformSchoolsService,
+    private readonly provisioning: CatalogProvisioningService,
+    private readonly support: SupportSessionsService,
   ) {}
 
   private async actor(request: Request) {
@@ -236,6 +240,25 @@ export class PlatformCatalogController {
   @HttpCode(200)
   async import(@Query() query: Record<string, unknown>, @Req() request: Request) {
     return this.catalog.import(request, query, await this.actor(request));
+  }
+
+  // Mở một đơn vị bằng một lần bấm (YCTD-314): chưa có trường thì khởi tạo ở nền và trả `provisioning` (giao diện hỏi lại); trường
+  // đã sẵn sàng thì mở phiên quản trị nền tảng vào thẳng và trả đường liên kết một lần tới cổng quản trị của trường
+  @Post('catalog/units/:moet/open')
+  @HttpCode(200)
+  async open(@Param('moet') moet: string, @Req() request: Request) {
+    const actor = await this.schools.actor(request, [DIRECT_ENTRY_ROLE]);
+    const opened = await this.provisioning.open(text(moet, 40), actor);
+    if (opened.state !== 'ready' || !opened.school_code) {
+      return { ...opened, session: null };
+    }
+    const session = await this.support.start(
+      opened.school_code,
+      {},
+      { id: actor.id ?? '', name: actor.name, role: actor.role },
+      request.ip ?? null,
+    );
+    return { ...opened, session };
   }
 
   @Put('schools/:code/catalog-unit')

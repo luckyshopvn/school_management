@@ -22,7 +22,12 @@ import {
   type ProctorConsentScope,
 } from '@school-management/shared';
 import type { Request, Response } from 'express';
-import { AuthenticatedUser, RequirePermission, StudentEndpoint } from '../authentication/authentication.guard.js';
+import {
+  AuthenticatedUser,
+  RequirePermission,
+  StudentEndpoint,
+  RequirePlanModule,
+} from '../authentication/authentication.guard.js';
 import type { CurrentUser } from '../authentication/current-user.js';
 import { originOf } from '../common/audit-log.js';
 import type { RequestBody } from '../common/request-fields.js';
@@ -60,6 +65,7 @@ function readChildId(body: RequestBody): string {
   return body.child_id;
 }
 
+@RequirePlanModule('online-exam')
 @Controller('online-exams')
 export class ExamProctoringController {
   constructor(private readonly service: ExamProctoringService) {}
@@ -160,6 +166,7 @@ export class ExamProctoringController {
   }
 }
 
+@RequirePlanModule('online-exam')
 @Controller('student')
 @StudentEndpoint()
 @RequirePermission(PERMISSION_CODES.examTake)
@@ -212,6 +219,7 @@ export class StudentProctoringController {
 }
 
 // Phụ huynh đồng ý cho con thi có xem trực tiếp, ghi hình: không cần quyền, máy chủ kiểm tra quan hệ phụ huynh với từng học sinh
+@RequirePlanModule('online-exam')
 @Controller('parent/exam-proctor-consents')
 export class ParentProctorConsentsController {
   constructor(private readonly service: ExamProctoringService) {}
