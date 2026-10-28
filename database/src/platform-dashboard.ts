@@ -161,6 +161,9 @@ export interface ActiveSupportSession {
   scope: SupportScope;
   operatorName: string;
   expiresAt: Date;
+  // Phiên Admin vào thẳng (YCTD-315): quản trị nền tảng (vai trò `quan_tri` hiện hành của nhân viên) theo chính sách nền tảng, toàn
+  // quyền; dịch vụ định danh cấp mọi mã quyền của trường cho phiên này
+  fullAccess: boolean;
 }
 
 // Phiên hỗ trợ đang mở gắn với một phiên đăng nhập của trường (mã phiên `sid`); hết hạn hoặc đã kết thúc thì null
@@ -171,10 +174,21 @@ export async function activeSupportSession(
 ): Promise<ActiveSupportSession | null> {
   const row = await platform
     .selectFrom('support_sessions')
-    .select(['id', 'school_id', 'scope', 'operator_name', 'expires_at'])
-    .where('identity_session_id', '=', identitySessionId)
-    .where('ended_at', 'is', null)
-    .where('expires_at', '>', now)
+    .leftJoin('platform_operators', 'platform_operators.id', 'support_sessions.operator_id')
+    .select([
+      'support_sessions.id',
+      'support_sessions.school_id',
+      'support_sessions.scope',
+      'support_sessions.operator_name',
+      'support_sessions.expires_at',
+      'support_sessions.access_basis',
+      'support_sessions.requester_kind',
+      'platform_operators.role as operator_role',
+      'platform_operators.status as operator_status',
+    ])
+    .where('support_sessions.identity_session_id', '=', identitySessionId)
+    .where('support_sessions.ended_at', 'is', null)
+    .where('support_sessions.expires_at', '>', now)
     .executeTakeFirst();
   return row
     ? {
@@ -183,6 +197,12 @@ export async function activeSupportSession(
         scope: row.scope,
         operatorName: row.operator_name,
         expiresAt: row.expires_at,
+        fullAccess:
+          row.requester_kind === 'operator' &&
+          row.access_basis === 'platform_policy' &&
+          row.scope === 'full' &&
+          row.operator_role === 'quan_tri' &&
+          row.operator_status === 'active',
       }
     : null;
 }

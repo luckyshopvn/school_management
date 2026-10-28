@@ -1,8 +1,10 @@
-import { useQueries, useQuery } from '@tanstack/react-query';
+import { useQueries, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useEffect, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { listAcademicYears, readCalendar, type Calendar } from '../academic-years/academic-years-api.js';
 import { readPortalContext } from '../portal-shell/portal-shell-api.js';
 import { SchoolLevelSwitcher, useWorkingSchoolLevels } from '../school-levels/working-level.js';
+import { setViewedAcademicYear, useViewedAcademicYear } from '../session/viewed-year.js';
 
 type TermKey = 'first_term' | 'second_term' | 'summer_term';
 
@@ -51,9 +53,9 @@ function CalendarIcon() {
   );
 }
 
-// Năm học và học kỳ đang dùng ở thanh đầu trang (YCTD-102). Máy chủ API chỉ đọc và ghi năm học đang dùng (BR-93), chưa có
-// cách đọc cơ sở dữ liệu năm học đã đóng, nên năm học cũ chỉ hiện trong danh sách và không chọn được. Học kỳ chỉ để hiển
-// thị vì chưa trang nào lọc theo học kỳ
+// Năm học và học kỳ đang dùng ở thanh đầu trang (YCTD-102). Từ YCTD-342 chọn được năm học đã đóng để xem: mọi yêu cầu mang mã
+// năm đó, máy chủ đọc cơ sở dữ liệu năm đó và từ chối ghi (BR-93); dải báo "chỉ xem" ở cuối màn hình có nút về năm đang dùng.
+// Học kỳ chỉ để hiển thị vì chưa trang nào lọc theo học kỳ
 export function AcademicYearSwitcher() {
   const [open, setOpen] = useState(false);
   const container = useRef<HTMLDivElement>(null);
@@ -66,6 +68,26 @@ export function AcademicYearSwitcher() {
     : (context.data?.education_level ?? DEFAULT_EDUCATION_LEVEL);
   const listed = (years.data ?? []).filter((year) => year.status !== 'draft');
   const currentYear = listed.find((year) => year.status === 'open');
+  const queryClient = useQueryClient();
+  const viewed = useViewedAcademicYear();
+  const viewedYear = viewed ? listed.find((year) => year.id === viewed.id && year.status === 'closed') : undefined;
+  // Đổi năm thì dữ liệu đã tải thuộc năm khác: tải lại mọi truy vấn đang hiện
+  const chooseYear = (year: { id: string; name: string } | null) => {
+    setOpen(false);
+    if ((year?.id ?? null) === (viewed?.id ?? null)) {
+      return;
+    }
+    setViewedAcademicYear(year);
+    void queryClient.resetQueries();
+  };
+  // Năm đang xem không còn ở danh sách đã đóng (năm học mở lại, trường khác) thì về năm đang dùng
+  const viewedGone = Boolean(years.data && viewed && !viewedYear);
+  useEffect(() => {
+    if (viewedGone) {
+      setViewedAcademicYear(null);
+      void queryClient.resetQueries();
+    }
+  }, [viewedGone, queryClient]);
   const currentCalendar = useQuery({
     queryKey: ['academic-year-calendar', currentYear?.id],
     queryFn: () => readCalendar(currentYear?.id ?? ''),
@@ -118,19 +140,23 @@ export function AcademicYearSwitcher() {
     return <span className="hidden h-4 w-36 animate-pulse rounded bg-header-strong md:inline" aria-hidden="true" />;
   }
   // Ô ngữ cảnh "Cấp MN · năm học · học kỳ" như của Sở (DT-16 phần 16c)
-  const buttonText = currentYear
-    ? `${educationLevel} · ${currentYear.name} · ${termLabel}`
-    : 'Chưa có năm học đang dùng';
+  const buttonText = viewedYear
+    ? `${educationLevel} · ${viewedYear.name} · Chỉ xem`
+    : currentYear
+      ? `${educationLevel} · ${currentYear.name} · ${termLabel}`
+      : 'Chưa có năm học đang dùng';
 
   return (
     <div className="relative hidden md:block" ref={container}>
       <button
         type="button"
-        className="flex h-9 items-center gap-2 rounded-md border border-white/60 px-2.5 text-label font-semibold text-white hover:bg-header-strong"
+        className={`flex h-9 items-center gap-2 rounded-md border px-2.5 text-label font-semibold hover:bg-header-strong ${viewedYear ? 'border-warning bg-warning text-white' : 'border-white/60 text-white'}`}
         aria-label={
-          currentYear
-            ? `${educationLevel}, năm học đang dùng: ${currentYear.name}, ${termLabel}`
-            : 'Chưa có năm học đang dùng'
+          viewedYear
+            ? `${educationLevel}, đang xem năm học đã đóng: ${viewedYear.name}, chỉ xem`
+            : currentYear
+              ? `${educationLevel}, năm học đang dùng: ${currentYear.name}, ${termLabel}`
+              : 'Chưa có năm học đang dùng'
         }
         aria-haspopup="dialog"
         aria-expanded={open}
@@ -154,24 +180,20 @@ export function AcademicYearSwitcher() {
             <ul className="flex flex-col gap-1">
               {listed.map((year) => {
                 const isCurrent = year.id === currentYear?.id;
+                const isViewed = year.id === viewedYear?.id;
+                const selected = viewedYear ? isViewed : isCurrent;
                 const terms = termsOf(calendarOf(year.id));
                 return (
                   <li key={year.id}>
                     <button
                       type="button"
-                      className={`flex w-full items-center justify-between gap-2 px-3 py-1.5 text-left text-label ${isCurrent ? 'bg-selected font-semibold' : 'cursor-not-allowed text-text-secondary'}`}
-                      aria-current={isCurrent ? 'true' : undefined}
-                      aria-disabled={!isCurrent}
-                      title={isCurrent ? undefined : 'Chưa hỗ trợ xem năm học cũ'}
-                      onClick={() => {
-                        if (isCurrent) {
-                          setOpen(false);
-                        }
-                      }}
+                      className={`flex w-full items-center justify-between gap-2 px-3 py-1.5 text-left text-label hover:bg-selected ${selected ? 'bg-selected font-semibold' : ''}`}
+                      aria-current={selected ? 'true' : undefined}
+                      onClick={() => chooseYear(isCurrent ? null : { id: year.id, name: year.name })}
                     >
                       <span>Năm học {year.name}</span>
                       <span className="text-label text-text-secondary">
-                        {isCurrent ? 'Đang dùng' : 'Đã đóng · chưa hỗ trợ xem'}
+                        {isCurrent ? 'Đang dùng' : isViewed ? 'Đang xem · chỉ xem' : 'Đã đóng · bấm để xem'}
                       </span>
                     </button>
                     {terms.length > 0 ? (
@@ -202,6 +224,27 @@ export function AcademicYearSwitcher() {
           )}
         </div>
       ) : null}
+      {viewedYear
+        ? createPortal(
+            <div
+              role="status"
+              data-testid="viewed-year-banner"
+              className="fixed inset-x-0 bottom-0 z-40 flex flex-wrap items-center justify-center gap-3 border-t border-warning bg-warning px-4 py-2 text-label font-semibold text-white"
+            >
+              <span>
+                Đang xem năm học {viewedYear.name} (đã đóng): chỉ xem, không nhập, sửa được dữ liệu của năm này
+              </span>
+              <button
+                type="button"
+                className="rounded-md border border-white px-2 py-0.5 hover:bg-white/20"
+                onClick={() => chooseYear(null)}
+              >
+                {currentYear ? `Về năm học ${currentYear.name}` : 'Thoát xem năm cũ'}
+              </button>
+            </div>,
+            document.body,
+          )
+        : null}
     </div>
   );
 }
