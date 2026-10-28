@@ -486,7 +486,7 @@
 |---|---|---|---|---|---|---|
 | P16-01 | Đợt tuyển sinh (G3) | VT-12, VT-03 | Tên đợt, đơn vị, chỉ tiêu, thời gian nhận hồ sơ | Mở và đóng đợt tuyển sinh | Danh sách đợt | BR-01 |
 | P16-02 | Hồ sơ tuyển sinh (G3) | VT-12 | Thông tin trẻ, phụ huynh, giấy tờ đính kèm | Tiếp nhận hồ sơ, kiểm tra đủ điều kiện | Hồ sơ ở trạng thái tiếp nhận | BR-06 |
-| P16-03 | Xét duyệt hồ sơ (G3) | VT-03 | Hồ sơ, kết quả xét | Duyệt hoặc từ chối kèm lý do | Hồ sơ đạt hoặc không đạt | BR-01 |
+| P16-03 | Xét duyệt hồ sơ (G3) | VT-03; VT-02, VT-15 (YCTD-341) | Hồ sơ, kết quả xét | Duyệt hoặc từ chối kèm lý do | Hồ sơ đạt hoặc không đạt | BR-01 |
 | P16-04 | Chuyển thành hồ sơ trẻ (G3) | VT-12, VT-03 | Hồ sơ đã đạt, lớp dự kiến | Sinh hồ sơ trẻ, gắn phụ huynh, phân lớp | Hồ sơ trẻ ở trạng thái đang học | QT-01 |
 | P16-05 | Tin tuyển sinh (G3) | VT-12 | Tiêu đề, nội dung, đợt tuyển sinh, thời hạn | Soạn và công bố tin tuyển sinh gắn với đợt tuyển sinh | Danh sách tin tuyển sinh | BR-69 |
 
