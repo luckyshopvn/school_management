@@ -26,7 +26,7 @@ import type { RequestBody } from '../common/request-fields.js';
 import { FileStorage } from '../files/file-storage.js';
 import { MarketAccountsService } from './market-accounts.js';
 import { MarketContext, marketNotFound } from './market-context.js';
-import { encryptFile, marketFileKey, marketStorage } from './market-files.js';
+import { encryptFile, hasMarketStorage, marketFileKey, marketStorage } from './market-files.js';
 import {
   badgesOf,
   criminalRecordIssueProblem,
@@ -152,7 +152,7 @@ export class MarketListingService {
       badges: badgesOf(state, Boolean(schoolRole)),
       school_role: schoolRole ?? null,
       submit_blockers: submitBlockers(listing, state),
-      uploads_enabled: Boolean(this.configuration.marketFilesKey),
+      uploads_enabled: Boolean(this.configuration.marketFilesKey) && hasMarketStorage(this.files),
     };
   }
 
@@ -236,7 +236,7 @@ export class MarketListingService {
       throw marketNotFound();
     }
     const key = this.configuration.marketFilesKey;
-    if (!key) {
+    if (!key || !hasMarketStorage(this.files)) {
       throw new ApplicationError('ERR_CONFLICT', 'Chợ chưa bật nhận tệp giấy tờ');
     }
     const errors: FieldError[] = [];

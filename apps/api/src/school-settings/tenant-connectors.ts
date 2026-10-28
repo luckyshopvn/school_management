@@ -345,6 +345,10 @@ export class TenantFileStorage extends FileStorage {
 
   // Kho chung của bản triển khai, không qua cấu hình của trường: dùng cho phần không thuộc trường nào (tệp giấy tờ của gia sư ở chợ,
   // DT-27 phần 27g), nơi không có ngữ cảnh trường để đọc cấu hình kho riêng
+  hasDeploymentStorage(): boolean {
+    return this.shared !== null;
+  }
+
   deploymentStorage(): FileStorage {
     if (!this.shared) {
       throw new Error('Thiếu cấu hình kho tệp');

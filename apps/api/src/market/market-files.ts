@@ -28,6 +28,11 @@ export function marketFileKey(accountId: string, documentId: string): string {
 }
 
 // Kho tệp của chợ: kho chung của bản triển khai (chợ không có ngữ cảnh trường nên không đọc cấu hình kho riêng của trường được)
+// Có kho chung để nhận tệp của chợ không (bản triển khai không đặt S3_* thì không có)
+export function hasMarketStorage(files: FileStorage): boolean {
+  return files instanceof TenantFileStorage ? files.hasDeploymentStorage() : true;
+}
+
 export function marketStorage(files: FileStorage): FileStorage {
   return files instanceof TenantFileStorage ? files.deploymentStorage() : files;
 }
