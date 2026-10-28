@@ -1,6 +1,6 @@
 import { lifecycleSettingsFrom, type LifecycleSettings } from '@school-management/database';
 import { decodeBase64Key, readSmsProviderSettings, type SmsProviderSettings } from '@school-management/server';
-import { readProviderDefinitions, type ExternalProviderDefinition } from '../external-identity/provider-profiles.js';
+import { readProviderDefinitions, type ExternalProviderDefinition } from '@school-management/server/external-identity';
 
 // Cấu hình của dịch vụ định danh; bí mật đọc từ biến môi trường, không đặt trong mã nguồn (QU-05)
 export interface IdentityConfiguration {

@@ -31,6 +31,10 @@
     "./access-token": {
       "types": "./dist/access-token.d.ts",
       "default": "./dist/access-token.js"
+    },
+    "./external-identity": {
+      "types": "./dist/external-identity/index.d.ts",
+      "default": "./dist/external-identity/index.js"
     }
   },
   "scripts": {

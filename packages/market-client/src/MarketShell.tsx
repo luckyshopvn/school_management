@@ -16,9 +16,11 @@ export interface MarketShellProperties {
   intro: (site: Site | null) => ReactNode;
   // Khu riêng của vai khi tài khoản đã xác nhận và đồng ý đủ văn bản
   children: ReactNode;
+  // Cách đăng nhập thêm dưới biểu mẫu mật khẩu (ứng dụng Gia sư: đăng nhập bằng định danh đã xác minh, DT-27 phần 27g)
+  loginExtras?: ReactNode;
 }
 
-export function MarketShell({ kind, title, intro, children }: MarketShellProperties) {
+export function MarketShell({ kind, title, intro, children, loginExtras }: MarketShellProperties) {
   const [site, setSite] = useState<Site | null>(null);
   const [me, setMe] = useState<Me | null>(null);
   const [view, setView] = useState<View>('home');
@@ -106,6 +108,7 @@ export function MarketShell({ kind, title, intro, children }: MarketShellPropert
         <RegisterForm kind={kind} site={site} onRegistered={signedIn} onOpenDocument={openDocument} />
       ) : null}
       {view === 'login' ? <LoginForm onSignedIn={signedIn} /> : null}
+      {view === 'login' ? loginExtras : null}
 
       {view === 'home' && me?.status === 'pending' ? <VerifyForm onVerified={() => void loadMe()} /> : null}
       {view === 'home' && me?.status === 'active' && me.consents_needed.length > 0 ? (

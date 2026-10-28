@@ -1,9 +1,10 @@
 import { MarketShell } from '@school-management/market-client';
 import { ParentArea } from './ParentArea.js';
+import { TutorSearch } from './TutorSearch.js';
 
 // Chợ gia sư cho phụ huynh (DT-27 phần 27f, YCTD-256; tài liệu 32 mục 19.5): trang công khai, đăng ký, đăng nhập phụ huynh, khu phụ
 // huynh (hồ sơ con, đồng ý, liên kết với trường). Gia sư dùng ứng dụng riêng apps/tutor (YCTD-262, quyết định của Eric ngày 2026-10-28).
-// Tìm gia sư, trang gia sư theo Mẫu 02 là của 27g; đặt buổi, thanh toán giả lập là của 27h
+// Tìm gia sư, trang gia sư theo Mẫu 02 (27g, TutorSearch); đặt buổi, thanh toán giả lập là của 27h
 export function MarketApplication() {
   return (
     <MarketShell
@@ -15,15 +16,16 @@ export function MarketApplication() {
             Phụ huynh tìm gia sư trực tuyến cho con; gia sư được xác minh trước khi nhận học sinh. Mọi tin nhắn giữa gia
             sư và học sinh luôn có phụ huynh.
           </p>
-          <p className="text-text-secondary">Tìm gia sư sẽ mở khi có gia sư đã xác minh.</p>
           {site?.tutor_url ? (
             <p>
               Bạn là gia sư? <a href={site.tutor_url}>Mở ứng dụng Gia sư</a>
             </p>
           ) : null}
+          <TutorSearch />
         </section>
       )}
     >
+      <TutorSearch />
       <ParentArea />
     </MarketShell>
   );

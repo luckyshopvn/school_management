@@ -165,6 +165,19 @@ export const PUBLIC_ROUTES: PublicRoute[] = [
       ['GET', '/api/v1/market/tutor/profile'],
       ['PUT', '/api/v1/market/tutor/profile'],
       ['PUT', '/api/v1/market/tutor/provider'],
+      // Hồ sơ, xác minh gia sư, tìm gia sư (DT-27 phần 27g)
+      ['GET', '/api/v1/market/tutor/listing'],
+      ['PUT', '/api/v1/market/tutor/listing'],
+      ['POST', '/api/v1/market/tutor/listing/submit'],
+      ['POST', '/api/v1/market/tutor/verifications/:kind'],
+      ['PUT', '/api/v1/market/tutor/school-role'],
+      ['DELETE', '/api/v1/market/tutor/school-role'],
+      ['GET', '/api/v1/market/tutor/form-03'],
+      ['GET', '/api/v1/market/identity/providers'],
+      ['POST', '/api/v1/market/identity/start'],
+      ['POST', '/api/v1/market/identity/complete'],
+      ['GET', '/api/v1/market/public/tutors'],
+      ['GET', '/api/v1/market/public/tutors/:id'],
     ] as const
   ).map(([method, path]) => ({
     method,
@@ -177,6 +190,11 @@ export const PUBLIC_ROUTES: PublicRoute[] = [
       ['GET', '/api/v1/market/admin'],
       ['PUT', '/api/v1/market/admin/settings'],
       ['POST', '/api/v1/market/admin/documents'],
+      ['GET', '/api/v1/market/admin/reviews'],
+      ['GET', '/api/v1/market/admin/reviews/tutors/:id'],
+      ['GET', '/api/v1/market/admin/reviews/documents/:id'],
+      ['POST', '/api/v1/market/admin/reviews/tutors/:id/profile'],
+      ['POST', '/api/v1/market/admin/reviews/tutors/:id/verifications/:kind'],
     ] as const
   ).map(([method, path]) => ({
     method,

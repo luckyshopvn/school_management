@@ -299,6 +299,9 @@ jobs:
           psql -h localhost -U postgres -c "alter system set max_locks_per_transaction = 256"
           docker restart "$(docker ps -q --filter ancestor=postgres:17-alpine)"
           until pg_isready -h localhost -U postgres; do sleep 1; done
+      # Kho tệp tương thích S3 như các việc khác (biến S3_* đã đặt ở trên): tệp giấy tờ của gia sư ở chợ đi vào kho chung của bản triển
+      # khai (DT-27 phần 27g, spec 196)
+      - run: docker run -d -p 8333:8333 chrislusf/seaweedfs:3.80 server -s3 -dir=/data
       - run: pnpm build
       # Khóa ký mã phiên chỉ dùng cho lần chạy kiểm thử này
       - run: node apps/identity/dist/generate-token-keys.js >> "$GITHUB_ENV"

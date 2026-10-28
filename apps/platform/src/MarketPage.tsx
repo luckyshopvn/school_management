@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState, type FormEvent } from 'react';
+import { MarketReviews } from './MarketReviews.js';
 import { PlatformApiError } from './platform-api.js';
 
 // Trang "Chợ gia sư" của cổng vận hành nền tảng (DT-27 phần 27f, YCTD-256): bật tắt chợ, tên miền con dành riêng, hạn giữ bản ghi (GD-132),
@@ -261,6 +262,7 @@ export function MarketPage({ accessToken }: { accessToken: string }) {
         ))}
         <li>Hồ sơ con: {overview?.children ?? 0}</li>
       </ul>
+      <MarketReviews token={accessToken} />
     </section>
   );
 }

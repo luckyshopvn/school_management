@@ -232,13 +232,18 @@ export function parseProviderDefinition(
   };
 }
 
-export function secretVariableName(code: string): string {
-  return `EXTERNAL_IDENTITY_${code.toUpperCase().replaceAll('-', '_')}_CLIENT_SECRET`;
+export function secretVariableName(code: string, prefix = 'EXTERNAL_IDENTITY'): string {
+  return `${prefix}_${code.toUpperCase().replaceAll('-', '_')}_CLIENT_SECRET`;
 }
 
-// Đọc khai báo của nền tảng từ biến môi trường; trống là không có nhà cung cấp nào (mặc định, hành vi như trước DT-25)
-export function readProviderDefinitions(environment: NodeJS.ProcessEnv): ExternalProviderDefinition[] {
-  const text = environment.EXTERNAL_IDENTITY_PROVIDERS?.trim();
+// Đọc khai báo của nền tảng từ biến môi trường; trống là không có nhà cung cấp nào (mặc định, hành vi như trước DT-25). Chợ gia sư
+// (DT-27 phần 27g) dùng tiền tố riêng MARKET_IDENTITY: ứng dụng đăng ký ở nhà cung cấp là của chợ, địa chỉ quay về là của chợ
+export function readProviderDefinitions(
+  environment: NodeJS.ProcessEnv,
+  prefix = 'EXTERNAL_IDENTITY',
+): ExternalProviderDefinition[] {
+  const variable = `${prefix}_PROVIDERS`;
+  const text = environment[variable]?.trim();
   if (!text) {
     return [];
   }
@@ -246,14 +251,14 @@ export function readProviderDefinitions(environment: NodeJS.ProcessEnv): Externa
   try {
     raw = JSON.parse(text);
   } catch {
-    throw new ProviderConfigurationError('EXTERNAL_IDENTITY_PROVIDERS phải là JSON');
+    throw new ProviderConfigurationError(`${variable} phải là JSON`);
   }
   if (!Array.isArray(raw)) {
-    throw new ProviderConfigurationError('EXTERNAL_IDENTITY_PROVIDERS phải là danh sách');
+    throw new ProviderConfigurationError(`${variable} phải là danh sách`);
   }
   const definitions = raw.map((item: unknown) => {
     const code = typeof item === 'object' && item !== null ? (item as { code?: unknown }).code : undefined;
-    const secrets = typeof code === 'string' ? { [code]: environment[secretVariableName(code)] } : {};
+    const secrets = typeof code === 'string' ? { [code]: environment[secretVariableName(code, prefix)] } : {};
     return parseProviderDefinition(item, secrets);
   });
   const codes = new Set<string>();
