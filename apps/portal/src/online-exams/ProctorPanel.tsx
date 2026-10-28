@@ -119,17 +119,21 @@ function LiveTile({ attemptId, name, onClose }: { attemptId: string; name: strin
   useEffect(() => {
     let stop: (() => void) | undefined;
     let cancelled = false;
+    // Lượt mở đã hủy (ô đóng, hoặc StrictMode gắn hiệu ứng hai lần) không được ghi đè trạng thái của lượt mở sau: máy chủ đóng phiên xem
+    // cũ khi mở phiên mới nên lượt cũ có thể báo "Phiên xem đã kết thúc"
     connectLive(
       attemptId,
       (stream) => {
-        if (videoRef.current) {
+        if (!cancelled && videoRef.current) {
           videoRef.current.srcObject = stream;
           void videoRef.current.play().catch(() => undefined);
         }
       },
       (next, message) => {
-        setState(next);
-        setDetail(message);
+        if (!cancelled) {
+          setState(next);
+          setDetail(message);
+        }
       },
     )
       .then((close) => {
@@ -140,8 +144,10 @@ function LiveTile({ attemptId, name, onClose }: { attemptId: string; name: strin
         }
       })
       .catch((error) => {
-        setState('failed');
-        setDetail(messageOf(error));
+        if (!cancelled) {
+          setState('failed');
+          setDetail(messageOf(error));
+        }
       });
     return () => {
       cancelled = true;

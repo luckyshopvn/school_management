@@ -162,12 +162,13 @@ jobs:
   kiem-thu-thiet-bi:
     runs-on: ubuntu-latest
     timeout-minutes: 45
-    # Yêu cầu kéo: một mảnh, tập con nhãn @thiet-bi-pr ở dien-thoai và may-tinh-bang-doc, chỉ Chromium. Nhánh chính và hằng đêm: hai mảnh,
-    # mọi spec @thiet-bi ở bốn dự án thiết bị (thêm WebKit). Hằng đêm hỏng thì xem bản tóm tắt của lần chạy, không chặn yêu cầu kéo
+    # Yêu cầu kéo: một mảnh, tập con nhãn @thiet-bi-pr ở dien-thoai và may-tinh-bang-doc, chỉ Chromium. Nhánh chính, hằng đêm và yêu cầu kéo
+    # gắn nhãn thiet-bi-day-du (YCTD-306, đẩy thêm commit sau khi gắn): hai mảnh, mọi spec @thiet-bi ở bốn dự án thiết bị (thêm WebKit).
+    # Hằng đêm hỏng thì xem bản tóm tắt của lần chạy, không chặn yêu cầu kéo
     strategy:
       fail-fast: false
       matrix:
-        shard: ${{ github.event_name == 'pull_request' && fromJSON('["1/1"]') || fromJSON('["1/2","2/2"]') }}
+        shard: ${{ github.event_name == 'pull_request' && !contains(github.event.pull_request.labels.*.name, 'thiet-bi-day-du') && fromJSON('["1/1"]') || fromJSON('["1/2","2/2"]') }}
     services:
       postgres:
         image: postgres:17-alpine
@@ -225,7 +226,7 @@ jobs:
       - run: node apps/api/dist/generate-data-keys.js >> "$GITHUB_ENV"
       - name: Cài trình duyệt
         run: |
-          if [ "${{ github.event_name }}" = "pull_request" ]; then
+          if [ "${{ github.event_name == 'pull_request' && !contains(github.event.pull_request.labels.*.name, 'thiet-bi-day-du') }}" = "true" ]; then
             pnpm --filter @school-management/tests exec playwright install --with-deps chromium
           else
             pnpm --filter @school-management/tests exec playwright install --with-deps chromium webkit
@@ -233,7 +234,7 @@ jobs:
       - name: Kiểm thử theo khổ thiết bị
         run: pnpm --filter @school-management/tests e2e -- --shard=${{ matrix.shard }}
         env:
-          E2E_DEVICES: ${{ github.event_name == 'pull_request' && 'pr' || 'full' }}
+          E2E_DEVICES: ${{ github.event_name == 'pull_request' && !contains(github.event.pull_request.labels.*.name, 'thiet-bi-day-du') && 'pr' || 'full' }}
           E2E_SCREENSHOTS: '1'
       # Giữ dấu vết và ảnh chụp của ca hỏng để chẩn đoán
       - uses: actions/upload-artifact@v4
