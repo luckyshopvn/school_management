@@ -240,6 +240,8 @@ test('CT-27h-7: đặt buổi, thanh toán giả lập, gia sư đánh dấu đ�
   );
   const booking = market.getByRole('form', { name: `Đặt buổi với ${tutorName}` });
   await booking.getByLabel('Giờ học (giờ Việt Nam)').fill(`${day}T18:00`);
+  // Buổi với trẻ dưới 18 tuổi phải đồng ý ghi hình (27i)
+  await booking.getByLabel(/Tôi đồng ý buổi học được ghi hình/).check();
   await booking.getByRole('button', { name: 'Giữ chỗ buổi học' }).click();
   await expect(booking).toContainText('Đã giữ chỗ buổi');
   await market.getByRole('button', { name: 'Quay lại danh sách' }).click();

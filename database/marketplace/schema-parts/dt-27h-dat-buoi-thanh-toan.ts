@@ -32,6 +32,9 @@ export interface MarketBookingsTable {
   cancelled_by: Nullable<'parent' | 'tutor' | 'system'>;
   cancelled_at: Nullable<Date>;
   cancel_reason: Nullable<string>;
+  // Ghi hình bắt buộc với trẻ vị thành niên, đồng ý của phụ huynh khi đặt (27i, marketplace 0030)
+  recording_required: Generated<boolean>;
+  recording_consented: Generated<boolean>;
   created_at: CreatedTimestamp;
   updated_at: UpdatedTimestamp;
 }

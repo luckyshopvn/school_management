@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Alert, Button, FORM_CONTROL_CLASS } from '@school-management/ui';
-import { errorText, marketRequest } from '@school-management/market-client';
+import { errorText, marketRequest, MessageThread, readSession, ReportForm } from '@school-management/market-client';
 import { BookingForm, type BookableSubject } from './ParentBookings.js';
 
 // Tìm gia sư và trang công khai của gia sư theo Mẫu 02 (DT-27 phần 27g, YCTD-257): chỉ gia sư đã duyệt, đã xác minh danh tính và lý lịch
@@ -148,7 +148,38 @@ function TutorDetail({ id, onBack }: { id: string; onBack: () => void }) {
         subjects={page.subjects}
         schoolTeacher={Boolean(page.badges.school_teacher)}
       />
+      <TutorContact tutorId={page.id} tutorName={page.display_name} />
     </article>
+  );
+}
+
+// Nhắn tin và báo cáo hồ sơ gia sư (27i): chỉ phụ huynh đã đăng nhập; tin nhắn luôn giữa phụ huynh và gia sư
+function TutorContact({ tutorId, tutorName }: { tutorId: string; tutorName: string }) {
+  const [thread, setThread] = useState<string>();
+  const [reporting, setReporting] = useState(false);
+  const [error, setError] = useState<string>();
+  if (!readSession()) return null;
+  return (
+    <section aria-label={`Liên hệ ${tutorName}`} className="flex flex-col gap-2">
+      {error ? <Alert tone="danger">{error}</Alert> : null}
+      <div className="flex flex-wrap gap-2">
+        <Button
+          onClick={() =>
+            void marketRequest<{ id: string }>('POST', '/messages/threads', { tutor_id: tutorId })
+              .then((result) => {
+                setError(undefined);
+                setThread(result.id);
+              })
+              .catch((caught: unknown) => setError(errorText(caught)))
+          }
+        >
+          Nhắn tin cho gia sư
+        </Button>
+        <Button onClick={() => setReporting(true)}>Báo cáo hồ sơ</Button>
+      </div>
+      {thread ? <MessageThread id={thread} role="parent" /> : null}
+      {reporting ? <ReportForm subjectId={tutorId} subjectName={tutorName} targetKind="profile" /> : null}
+    </section>
   );
 }
 

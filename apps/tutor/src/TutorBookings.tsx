@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Alert, Button, FORM_CONTROL_CLASS } from '@school-management/ui';
-import { errorText, marketRequest } from '@school-management/market-client';
+import { errorText, marketRequest, RecordingPlayer, ReportForm } from '@school-management/market-client';
 
 // Buổi dạy và thu nhập của gia sư (DT-27 phần 27h, YCTD-258): buổi đã trả tiền, đánh dấu đã dạy sau giờ kết thúc, hủy (phụ huynh được
 // hoàn đủ), trình bày khi có tranh chấp, khiếu nại lại quyết định; thu nhập đã giải ngân, đang chờ (sau hạn khiếu nại), hoa hồng của nền
@@ -26,6 +26,8 @@ interface Booking {
   commission: number;
   status: string;
   released_amount: number | null;
+  parent_id: string;
+  recording_required: boolean;
 }
 
 interface Dispute {
@@ -86,6 +88,57 @@ function DisputeBox({ id, onChange }: { id: string; onChange: () => void }) {
           </label>
           <Button onClick={() => void send(`/disputes/${id}/appeal`, { reason: text })}>Khiếu nại lại</Button>
         </div>
+      ) : null}
+    </div>
+  );
+}
+
+// Phòng học của buổi (27i): mở phòng từ 15 phút trước giờ học (buổi có trẻ vị thành niên bắt đầu ghi hình, không ghi được thì không
+// mở), kết thúc phòng, xem bản ghi, báo cáo phụ huynh
+function SessionRoom({ booking }: { booking: Booking }) {
+  const [state, setState] = useState<{ recording: string | null; open: boolean }>({ recording: null, open: false });
+  const [reporting, setReporting] = useState(false);
+  const [error, setError] = useState<string>();
+  useEffect(() => {
+    marketRequest<{ status: string | null }>('GET', `/tutor/bookings/${booking.id}/recording`)
+      .then((result) => setState((current) => ({ ...current, recording: result.status })))
+      .catch(() => undefined);
+  }, [booking.id]);
+  const act = (path: string, open: boolean) =>
+    marketRequest<{ recording: boolean | string | null }>('POST', path)
+      .then((result) => {
+        setError(undefined);
+        const recording =
+          typeof result.recording === 'string' ? result.recording : result.recording ? 'recording' : state.recording;
+        setState({ recording, open });
+      })
+      .catch((caught: unknown) => setError(errorText(caught)));
+  return (
+    <div className="flex flex-col gap-1">
+      {booking.recording_required ? <span>Buổi học với trẻ dưới 18 tuổi: luôn ghi hình.</span> : null}
+      {error ? <Alert tone="danger">{error}</Alert> : null}
+      {state.open ? (
+        <Alert tone="info">Phòng học đang mở{state.recording === 'recording' ? ' · Đang ghi hình' : ''}.</Alert>
+      ) : null}
+      <div className="flex flex-wrap gap-2">
+        {booking.status === 'paid' && !state.open ? (
+          <Button onClick={() => void act(`/tutor/bookings/${booking.id}/session/start`, true)}>Mở phòng học</Button>
+        ) : null}
+        {state.open ? (
+          <Button onClick={() => void act(`/tutor/bookings/${booking.id}/session/end`, false)}>
+            Kết thúc phòng học
+          </Button>
+        ) : null}
+        {booking.status !== 'expired' ? <Button onClick={() => setReporting(true)}>Báo cáo phụ huynh</Button> : null}
+      </div>
+      {state.recording === 'ready' ? (
+        <RecordingPlayer
+          path={`/tutor/bookings/${booking.id}/recording/stream`}
+          label={`Bản ghi buổi ${booking.subject}`}
+        />
+      ) : null}
+      {reporting ? (
+        <ReportForm subjectId={booking.parent_id} subjectName="phụ huynh" targetKind="session" targetId={booking.id} />
       ) : null}
     </div>
   );
@@ -156,6 +209,7 @@ export function TutorBookings() {
               {booking.status === 'disputed' || booking.status === 'disbursed' || booking.status === 'refunded' ? (
                 <DisputeBox id={booking.id} onChange={load} />
               ) : null}
+              <SessionRoom booking={booking} />
             </li>
           );
         })}

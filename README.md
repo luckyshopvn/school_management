@@ -107,6 +107,7 @@ Cổng mặc định lấy từ cấu hình trong kho mã:
 | Dịch vụ định danh               | 3001 (`IDENTITY_PORT`) |
 | portal / teacher / parent       | 5173 / 5174 / 5175     |
 | platform / market               | 5177 / 5178            |
+| student / tutor                 | 5179 / 5181            |
 | PostgreSQL / Redis / kho tệp S3 | 5432 / 6379 / 8333     |
 
 Các lệnh có sẵn ở thư mục gốc: `pnpm build`, `pnpm typecheck`, `pnpm lint`, `pnpm format`, `pnpm format:check`, `pnpm test`, `pnpm test:e2e`, `pnpm database:migrate`, `pnpm environment:start`, `pnpm environment:stop`.
