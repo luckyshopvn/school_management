@@ -312,7 +312,7 @@ describe('chợ gia sư: an toàn trẻ em và kiểm duyệt (27i)', () => {
     assert.match(JSON.stringify(detail.body), /0912345678/, 'nhân viên kiểm duyệt xem được chữ gốc');
   });
 
-  it('CT-27i-3: báo cáo nghiêm trọng tạm khóa gia sư ngay: hủy buổi sắp tới hoàn đủ, ẩn khỏi chợ, báo phụ huynh, giữ tiền', async () => {
+  it('CT-27i-3: báo cáo nghiêm trọng tạm khóa gia sư ngay, giữ tiền; nhân viên xác nhận thì hủy buổi hoàn đủ, báo phụ huynh một lần', async () => {
     const parent = await registerParent();
     const other = await registerParent();
     const tutor = await seedTutor();
@@ -345,13 +345,35 @@ describe('chợ gia sư: an toàn trẻ em và kiểm duyệt (27i)', () => {
     assert.equal(report.status, 201, JSON.stringify(report.body));
     assert.equal(report.body.suspended, true);
     assert.match(String(report.body.hotline), /111/);
-    const bookings = await call(MARKET_HOST, 'GET', '/bookings', undefined, parent.token);
-    const cancelled = (bookings.body.bookings as Array<{ id: string; status: string; refunded_amount: number }>).find(
-      (row) => row.id === upcoming,
-    );
+    const bookingOf = async () => {
+      const bookings = await call(MARKET_HOST, 'GET', '/bookings', undefined, parent.token);
+      return (bookings.body.bookings as Array<{ id: string; status: string; refunded_amount: number }>).find(
+        (row) => row.id === upcoming,
+      );
+    };
+    // Hệ thống tự khóa chỉ giữ: chưa hủy buổi, chưa báo phụ huynh khác, chờ nhân viên xác nhận (YCTD-322)
+    assert.equal((await bookingOf())?.status, 'paid');
+    assert.doesNotMatch(environment.api.get(MarketMessenger).lastTo(other.email)?.text ?? '', /tạm ngừng hoạt động/);
+    const confirmed = await admin('POST', `/safety/reports/${report.body.id as string}/suspend`, {
+      note: 'Xác nhận tạm khóa trong lúc xét',
+    });
+    assert.equal(confirmed.status, 200, JSON.stringify(confirmed.body));
+    const cancelled = await bookingOf();
     assert.equal(cancelled?.status, 'refunded');
     assert.equal(cancelled?.refunded_amount, 150_000);
     assert.ok(provider.ledger.some((entry) => entry.action === 'refund' && entry.amount === 150_000));
+    // Quyết định tạm khóa sau đó không báo phụ huynh lần nữa
+    await admin('POST', `/safety/reports/${report.body.id as string}/decide`, {
+      decision: 'suspend',
+      note: 'Có bằng chứng',
+    });
+    const notices = await database
+      .selectFrom('market_moderation_log')
+      .select('id')
+      .where('subject_account_id', '=', tutor.id)
+      .where('action', '=', 'tutor.suspend.notify')
+      .execute();
+    assert.equal(notices.length, 1);
     assert.equal((await call(MARKET_HOST, 'GET', `/public/tutors/${tutor.id}`)).status, 404, 'ẩn khỏi chợ');
     const rebook = await call(
       MARKET_HOST,
@@ -378,6 +400,77 @@ describe('chợ gia sư: an toàn trẻ em và kiểm duyệt (27i)', () => {
       .where('id', '=', taught)
       .executeTakeFirstOrThrow();
     assert.equal(held.status, 'completed');
+  });
+
+  it('CT-27i-7: báo cáo nghiêm trọng của phụ huynh chưa học với gia sư chỉ vào hàng chờ 4 giờ, không tạm khóa (YCTD-322)', async () => {
+    const tutor = await seedTutor();
+    const critical = (token: string) =>
+      call(
+        MARKET_HOST,
+        'POST',
+        '/reports',
+        {
+          subject_id: tutor.id,
+          target_kind: 'profile',
+          category: 'harassment',
+          severity: 'critical',
+          description: 'Báo cáo thử',
+        },
+        token,
+      );
+    // Người lạ: không buổi, không tin nhắn
+    const stranger = await registerParent();
+    const queued = await critical(stranger.token);
+    assert.equal(queued.status, 201, JSON.stringify(queued.body));
+    assert.equal(queued.body.suspended, false);
+    assert.equal(queued.body.severity, 'critical');
+    assert.ok(new Date(queued.body.due_at as string).getTime() - Date.now() <= 4 * HOUR, 'hạn xử lý 4 giờ');
+    assert.equal((await call(MARKET_HOST, 'GET', `/public/tutors/${tutor.id}`)).status, 200, 'vẫn hiện ở chợ');
+    // Tự mở luồng nhưng gia sư chưa trả lời, hoặc chỉ giữ chỗ chưa trả tiền: ai cũng tự tạo được nên không tính
+    const opener = await registerParent();
+    const thread = await call(MARKET_HOST, 'POST', '/messages/threads', { tutor_id: tutor.id }, opener.token);
+    assert.equal(thread.status, 201);
+    await call(
+      MARKET_HOST,
+      'POST',
+      `/messages/threads/${thread.body.id as string}`,
+      { body: 'Chào thầy' },
+      opener.token,
+    );
+    const unpaid = await call(
+      MARKET_HOST,
+      'POST',
+      '/bookings',
+      {
+        tutor_id: tutor.id,
+        child_id: opener.childId,
+        subject_id: tutor.subject,
+        starts_at: new Date(Math.ceil((Date.now() + 80 * HOUR) / HOUR) * HOUR).toISOString(),
+        recording_consented: true,
+      },
+      opener.token,
+    );
+    assert.equal(unpaid.status, 201, JSON.stringify(unpaid.body));
+    assert.equal((await critical(opener.token)).body.suspended, false);
+    assert.equal(
+      await database
+        .selectFrom('market_tutor_suspensions')
+        .select('id')
+        .where('tutor_account_id', '=', tutor.id)
+        .executeTakeFirst(),
+      undefined,
+    );
+    // Gia sư đã trả lời trong luồng: có quan hệ thật nên tạm khóa ngay
+    await call(TUTOR_HOST, 'POST', `/messages/threads/${thread.body.id as string}`, { body: 'Chào anh' }, tutor.token);
+    const related = await critical(opener.token);
+    assert.equal(related.body.suspended, true);
+    // Nhân viên bác thì gỡ khóa của hệ thống
+    const dismissed = await admin('POST', `/safety/reports/${related.body.id as string}/decide`, {
+      decision: 'dismiss',
+      note: 'Không có căn cứ',
+    });
+    assert.equal(dismissed.status, 200, JSON.stringify(dismissed.body));
+    assert.equal((await call(MARKET_HOST, 'GET', `/public/tutors/${tutor.id}`)).status, 200);
   });
 
   it('CT-27i-4: quyết định có lý do, kháng nghị do nhân viên khác xét, xuất hồ sơ cho cơ quan có nhật ký', async () => {

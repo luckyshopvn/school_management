@@ -50,8 +50,9 @@ test('CT-23c-7: hỏi đáp theo vòng, thẻ đáp án giấy, ô chữ; kết 
     .select(['org_unit_id', 'academic_year_id', 'grade_level', 'school_level'])
     .executeTakeFirstOrThrow();
   const grade = `TC${suffix}`;
-  // Trò chơi kiến thức chỉ có ở lớp cấp phổ thông (Hộp công cụ giảng dạy, DT-29, YCTD-325): lớp thử là lớp Tiểu học
-  const level = 'TH';
+  // Trò chơi kiến thức chỉ có ở lớp cấp phổ thông (Hộp công cụ giảng dạy, DT-29, YCTD-325): lớp thử là lớp THCS (không dùng Tiểu học
+  // để kịch bản 84 vẫn thấy trường chưa có lớp Tiểu học)
+  const level = 'THCS';
   const className = `Lớp trò chơi ${suffix}`;
   const classRow = await schoolYear
     .insertInto('classes')

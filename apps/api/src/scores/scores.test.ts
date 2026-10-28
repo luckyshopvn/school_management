@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import ExcelJS from 'exceljs';
 import { randomUUID } from 'node:crypto';
 import { after, before, describe, it } from 'node:test';
 import { createDatabase, replaceDatabaseName, type SchoolYearDatabase } from '@school-management/database';
@@ -393,6 +394,69 @@ describe('Điểm cuối sổ điểm THCS', () => {
     assert.equal(view.body.can_edit, false);
     assert.equal((await api('GET', sheetPath('THCS-TOAN', ''), token('math'))).status, 400);
     assert.equal((await api('GET', sheetPath('THCS-TOAN', 'third_term'), token('math'))).status, 400);
+  });
+
+  it('YCTD-318: tải tệp mẫu kèm học sinh; nhập từ Excel ghi điểm, có dòng lỗi thì không ghi; in sổ ra PDF; môn khác bị chặn', async () => {
+    const filePath = (code: string, kind: 'template' | 'print') =>
+      `${environment.baseUrl}/scores/classes/${classId}/subjects/${subjects[code]}/${kind}?term_type=second_term`;
+    const download = async (code: string, kind: 'template' | 'print') => {
+      const response = await fetch(filePath(code, kind), { headers: { authorization: `Bearer ${token('math')}` } });
+      return {
+        status: response.status,
+        type: response.headers.get('content-type') ?? '',
+        body: Buffer.from(await response.arrayBuffer()),
+      };
+    };
+    const template = await download('THCS-TOAN', 'template');
+    assert.equal(template.status, 200);
+    const book = new ExcelJS.Workbook();
+    await book.xlsx.load(template.body as unknown as ArrayBuffer);
+    const sheet = book.worksheets[0] as ExcelJS.Worksheet;
+    assert.deepEqual((sheet.getRow(1).values as unknown[]).slice(1, 5), ['Mã hệ thống', 'STT', 'Họ và tên', 'TX1']);
+    const anRow = sheet.getRows(2, sheet.rowCount - 1)?.find((row) => row.getCell(1).text === children.An);
+    assert.ok(anRow, 'tệp mẫu có dòng của học sinh An');
+    const upload = async (file: Buffer, code = 'THCS-TOAN') => {
+      const form = new FormData();
+      form.set('term_type', 'second_term');
+      form.set('file', new Blob([file]), 'so-diem.xlsx');
+      const response = await fetch(
+        `${environment.baseUrl}/scores/classes/${classId}/subjects/${subjects[code]}/import`,
+        {
+          method: 'POST',
+          headers: { authorization: `Bearer ${token('math')}` },
+          body: form,
+        },
+      );
+      return { status: response.status, body: (await response.json()) as Record<string, unknown> };
+    };
+    const headers = (sheet.getRow(1).values as unknown[]).map((value) => String(value ?? ''));
+    const column = (header: string) => headers.indexOf(header);
+    // Dòng lỗi: điểm ngoài 0–10; không ghi dòng nào
+    anRow.getCell(column('TX1')).value = '11';
+    const rejected = await upload(Buffer.from(await book.xlsx.writeBuffer()));
+    assert.equal(rejected.status, 200, JSON.stringify(rejected.body));
+    assert.equal(rejected.body.saved, 0);
+    assert.deepEqual(
+      (rejected.body.errors as Array<Record<string, unknown>>).map((error) => error.column),
+      ['TX1'],
+    );
+    anRow.getCell(column('TX1')).value = '7,5';
+    anRow.getCell(column('Giữa kỳ')).value = 8;
+    const imported = await upload(Buffer.from(await book.xlsx.writeBuffer()));
+    assert.equal(imported.status, 200, JSON.stringify(imported.body));
+    assert.deepEqual(imported.body.errors, []);
+    const reread = await api('GET', sheetPath('THCS-TOAN', 'second_term'), token('math'));
+    const an = (reread.body.rows as Array<Record<string, unknown>>).find((row) => row.child_id === children.An);
+    assert.deepEqual([an?.regular, an?.mid], [[7.5], 8]);
+    // Giáo viên không được phân công môn khác thì nhập bị chặn
+    const otherTemplate = await download('THCS-NV', 'template');
+    assert.equal(otherTemplate.status, 200);
+    assert.equal((await upload(otherTemplate.body, 'THCS-NV')).status, 403);
+
+    const printed = await download('THCS-TOAN', 'print');
+    assert.equal(printed.status, 200);
+    assert.match(printed.type, /application\/pdf/);
+    assert.equal(printed.body.subarray(0, 4).toString(), '%PDF');
   });
 
   it('CT-21c-4: tổng hợp học kỳ, cả năm: gợi ý xếp loại; chủ nhiệm xác nhận; giáo viên môn không xác nhận', async () => {
