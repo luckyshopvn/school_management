@@ -1,7 +1,7 @@
 import { ApiError, fetchWithSession, requestJson } from '../session/api-client.js';
 
-// Gọi các điểm cuối thuốc và dặn thuốc (P10-02 đến P10-05, P10-09; YCTD-75)
-export type MedicationStatus = 'pending' | 'administering' | 'completed' | 'rejected';
+// Gọi các điểm cuối thuốc và dặn thuốc (P10-02 đến P10-05, P10-09; YCTD-75). Trạng thái dặn thuốc theo QT-07 mục 7 (YCTD-344)
+export type MedicationStatus = 'pending' | 'received' | 'administering' | 'completed' | 'rejected';
 export type PurchaseStatus = 'pending' | 'approved' | 'rejected' | 'ordered';
 
 export interface Dose {
@@ -33,6 +33,7 @@ export interface MedicationRequest {
   assigned_role: 'nurse' | 'homeroom';
   status: MedicationStatus;
   received_quantity: string | null;
+  received_note: string | null;
   reject_reason: string | null;
   administrations: Dose[];
 }
@@ -108,7 +109,8 @@ export interface MedicineIssue {
 }
 
 export const MEDICATION_STATUS_LABELS: Record<MedicationStatus, string> = {
-  pending: 'Chờ nhận',
+  pending: 'Chờ nhận thuốc',
+  received: 'Đã nhận thuốc',
   administering: 'Đang cho uống',
   completed: 'Hoàn thành',
   rejected: 'Từ chối',

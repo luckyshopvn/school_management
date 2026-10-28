@@ -195,6 +195,10 @@ function RequestsTab({ onDone }: { onDone(message: string): void }) {
   const [search, setSearch] = useState('');
   const [rejecting, setRejecting] = useState<string>();
   const [reason, setReason] = useState('');
+  // QT-07 bước 4: người nhận thuốc ghi số lượng và tình trạng thuốc thực nhận khi xác nhận đã nhận
+  const [receiving, setReceiving] = useState<string>();
+  const [receivedQuantity, setReceivedQuantity] = useState('');
+  const [receivedNote, setReceivedNote] = useState('');
   const [failure, setFailure] = useState<string>();
   const requests = useQuery({
     queryKey: ['medication-requests', orgUnitId, status],
@@ -210,8 +214,15 @@ function RequestsTab({ onDone }: { onDone(message: string): void }) {
     onDone(message);
   };
   const receive = useMutation({
-    mutationFn: (requestId: string) => postJson(`/api/v1/medication-requests/${requestId}/receive`, {}),
-    onSuccess: () => refresh('Đã nhận thuốc, thuốc vào danh sách cần cho uống'),
+    mutationFn: (requestId: string) =>
+      postJson(`/api/v1/medication-requests/${requestId}/receive`, {
+        received_quantity: receivedQuantity.trim() || null,
+        received_note: receivedNote.trim() || null,
+      }),
+    onSuccess: () => {
+      setReceiving(undefined);
+      return refresh('Đã nhận thuốc, thuốc vào danh sách cần cho uống và phụ huynh đã được báo');
+    },
   });
   const reject = useMutation({
     mutationFn: (requestId: string) => postJson(`/api/v1/medication-requests/${requestId}/reject`, { reason }),
@@ -263,8 +274,16 @@ function RequestsTab({ onDone }: { onDone(message: string): void }) {
     {
       id: 'status',
       header: 'Trạng thái',
-      cell: (row) =>
-        `${MEDICATION_STATUS_LABELS[row.status]}${row.assigned_role === 'homeroom' ? ' (giáo viên chủ nhiệm nhận)' : ''}${row.reject_reason ? `: ${row.reject_reason}` : ''}`,
+      cell: (row) => (
+        <>
+          {`${MEDICATION_STATUS_LABELS[row.status]}${row.assigned_role === 'homeroom' ? ' (giáo viên chủ nhiệm nhận)' : ''}${row.reject_reason ? `: ${row.reject_reason}` : ''}`}
+          {row.received_quantity || row.received_note ? (
+            <div className="text-text-secondary">
+              Thực nhận: {[row.received_quantity, row.received_note].filter(Boolean).join(', ')}
+            </div>
+          ) : null}
+        </>
+      ),
     },
     {
       id: 'administrations',
@@ -306,11 +325,20 @@ function RequestsTab({ onDone }: { onDone(message: string): void }) {
           <div className="flex flex-wrap justify-end gap-2">
             {row.status === 'pending' ? (
               <>
-                <Button variant="primary" onClick={() => receive.mutate(row.id)} disabled={receive.isPending}>
+                <Button
+                  variant="primary"
+                  onClick={() => {
+                    setRejecting(undefined);
+                    setReceiving(row.id);
+                    setReceivedQuantity('');
+                    setReceivedNote('');
+                  }}
+                >
                   Nhận thuốc
                 </Button>
                 <Button
                   onClick={() => {
+                    setReceiving(undefined);
                     setRejecting(row.id);
                     setReason('');
                   }}
@@ -319,7 +347,7 @@ function RequestsTab({ onDone }: { onDone(message: string): void }) {
                 </Button>
               </>
             ) : null}
-            {row.status === 'administering' ? (
+            {row.status === 'received' || row.status === 'administering' ? (
               <Button onClick={() => complete.mutate(row.id)} disabled={complete.isPending}>
                 Kết thúc
               </Button>
@@ -327,7 +355,26 @@ function RequestsTab({ onDone }: { onDone(message: string): void }) {
           </div>
         )}
         renderRowDetail={(row) =>
-          rejecting === row.id && row.status === 'pending' ? (
+          receiving === row.id && row.status === 'pending' ? (
+            <div className="flex flex-wrap items-end gap-2" role="group" aria-label={`Nhận thuốc của ${row.full_name}`}>
+              <TextField
+                label="Số lượng thực nhận"
+                value={receivedQuantity}
+                onChange={(event) => setReceivedQuantity(event.target.value)}
+              />
+              <TextField
+                label="Tình trạng thuốc"
+                value={receivedNote}
+                onChange={(event) => setReceivedNote(event.target.value)}
+              />
+              <Button variant="primary" onClick={() => receive.mutate(row.id)} disabled={receive.isPending}>
+                Xác nhận đã nhận thuốc
+              </Button>
+              <Button variant="text" onClick={() => setReceiving(undefined)}>
+                Hủy
+              </Button>
+            </div>
+          ) : rejecting === row.id && row.status === 'pending' ? (
             <div
               className="flex flex-wrap items-end gap-2"
               role="group"
@@ -343,7 +390,7 @@ function RequestsTab({ onDone }: { onDone(message: string): void }) {
             </div>
           ) : null
         }
-        activeRowId={rejecting}
+        activeRowId={receiving ?? rejecting}
         settings={grid.settings}
         onSettingsChange={grid.update}
       />
