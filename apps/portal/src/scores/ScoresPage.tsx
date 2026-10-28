@@ -18,6 +18,8 @@ import { menuPageTitle } from '../pages/page-title.js';
 import { useHasPermission } from '../session/permissions.js';
 import {
   lockScores,
+  downloadScoreFile,
+  importScoreSheet,
   messageOf,
   readScoreConfig,
   readScoreLocks,
@@ -146,6 +148,24 @@ function EntryTab({ overview, term, onSaved }: { overview: ScoreOverview; term: 
       onSaved('Đã ghi điểm');
     },
   });
+  // Nhập từ Excel, tải mẫu, in sổ (YCTD-318): tệp mẫu là bảng điểm đang có của môn; nhập ghi như nút Ghi điểm
+  const [fileError, setFileError] = useState<string>();
+  const [importErrors, setImportErrors] = useState<Array<{ row: number; column: string | null; message: string }>>([]);
+  const fileAction = (run: () => Promise<void>) => {
+    setFileError(undefined);
+    run().catch((error: unknown) => setFileError(messageOf(error)));
+  };
+  const importFile = useMutation({
+    mutationFn: (file: File) => importScoreSheet(classId, subjectId, term, file),
+    onSuccess: async (result) => {
+      setImportErrors(result.errors);
+      if (result.errors.length === 0) {
+        await queryClient.invalidateQueries({ queryKey: ['score-sheet'] });
+        await queryClient.invalidateQueries({ queryKey: ['score-summary'] });
+        onSaved(`Đã nhập điểm của ${result.saved} học sinh`);
+      }
+    },
+  });
   const change = (childId: string, patch: Partial<Draft>) =>
     setDrafts((current) => ({ ...current, [childId]: { ...(current[childId] as Draft), ...patch } }));
   const data = sheet.data;
@@ -192,6 +212,38 @@ function EntryTab({ overview, term, onSaved }: { overview: ScoreOverview; term: 
             {chips}
           </div>
         ) : null}
+        {data ? (
+          <div className="flex flex-wrap gap-2">
+            {data.can_edit ? (
+              <>
+                <Button onClick={() => fileAction(() => downloadScoreFile(classId, subjectId, term, 'template'))}>
+                  Tải mẫu Excel
+                </Button>
+                <label className="relative inline-flex min-h-11 cursor-pointer items-center rounded-lg border border-border bg-card px-4 text-content font-medium text-text hover:bg-selected focus-within:outline focus-within:outline-2 focus-within:outline-brand">
+                  Nhập từ Excel
+                  <input
+                    type="file"
+                    accept=".xlsx"
+                    aria-label="Tệp điểm từ Excel"
+                    className="absolute inset-0 cursor-pointer opacity-0"
+                    disabled={importFile.isPending}
+                    onChange={(event) => {
+                      const file = event.target.files?.[0];
+                      event.target.value = '';
+                      if (file) {
+                        setImportErrors([]);
+                        importFile.mutate(file);
+                      }
+                    }}
+                  />
+                </label>
+              </>
+            ) : null}
+            <Button onClick={() => fileAction(() => downloadScoreFile(classId, subjectId, term, 'print'))}>
+              In sổ
+            </Button>
+          </div>
+        ) : null}
         {data?.can_edit ? (
           <Button variant="primary" disabled={invalid || save.isPending} onClick={() => save.mutate()}>
             Ghi điểm
@@ -200,6 +252,21 @@ function EntryTab({ overview, term, onSaved }: { overview: ScoreOverview; term: 
       </div>
       {sheet.error ? <Alert tone="danger">{messageOf(sheet.error)}</Alert> : null}
       {save.error ? <Alert tone="danger">{messageOf(save.error)}</Alert> : null}
+      {fileError ? <Alert tone="danger">{fileError}</Alert> : null}
+      {importFile.error ? <Alert tone="danger">{messageOf(importFile.error)}</Alert> : null}
+      {importErrors.length > 0 ? (
+        <Alert tone="danger">
+          <p>Tệp có {importErrors.length} lỗi, chưa ghi điểm nào. Sửa tệp rồi nhập lại:</p>
+          <ul className="mt-1 list-disc pl-5" aria-label="Lỗi trong tệp điểm">
+            {importErrors.slice(0, 20).map((error) => (
+              <li key={`${error.row}-${error.column ?? ''}`}>
+                Dòng {error.row}
+                {error.column ? `, cột ${error.column}` : ''}: {error.message}
+              </li>
+            ))}
+          </ul>
+        </Alert>
+      ) : null}
       {data ? (
         <>
           <p className="text-label text-text-secondary">
