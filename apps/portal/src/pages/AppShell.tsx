@@ -6,7 +6,6 @@ import { WorkspaceContext, WorkspaceSwitcher, useWorkspaceState } from './worksp
 import { MyWorkHeaderLink } from '../my-work/MyWorkBadge.js';
 import { NotificationBell } from '../notifications/NotificationBell.js';
 import { AcademicYearSwitcher } from './AcademicYearSwitcher.js';
-import { SchoolLevelSwitcher } from '../school-levels/working-level.js';
 import { NavigationRegistryContext, useNavigationRegistryState } from './navigation-registry.js';
 import { fetchCurrentUser } from '../session/api-client.js';
 import { useSession } from '../session/session.js';
@@ -153,7 +152,6 @@ export function AppShell({ children }: { children: ReactNode }) {
                   <MenuIcon />
                 </button>
                 <div className="ml-auto flex shrink-0 items-center gap-3 whitespace-nowrap">
-                  <SchoolLevelSwitcher />
                   <AcademicYearSwitcher />
                   <MyWorkHeaderLink />
                   <NotificationBell />
@@ -180,6 +178,8 @@ export function AppShell({ children }: { children: ReactNode }) {
                     </Alert>
                   </div>
                 ) : null}
+                {/* Dải thông báo khi vào trang (YCTD-331, thay hộp bật lên của DT-16 phần 16c) */}
+                <StartupNotices />
                 {paidModule ? <PaidFeatureNotice module={paidModule} /> : children}
               </main>
             </div>
@@ -195,7 +195,6 @@ export function AppShell({ children }: { children: ReactNode }) {
             />
           ) : null}
           <Toast message={toastMessage} onClose={closeToast} />
-          <StartupNotices />
         </div>
       </NavigationRegistryContext.Provider>
     </WorkspaceContext.Provider>

@@ -209,10 +209,10 @@ test.describe.serial('Thông báo bật lên khi vào trang', () => {
     await expect(link).toHaveAttribute('target', '_blank');
     await page.keyboard.press('Escape');
 
-    // Đăng nhập lại thì hộp Thông báo hiện thông báo; đóng rồi tải lại trang thì không hiện nữa
+    // Đăng nhập lại thì dải Thông báo hiện thông báo (YCTD-331, trước là hộp bật lên); đóng rồi tải lại trang thì không hiện nữa
     await logout(page);
     await fillLogin(page, administrator.username, administrator.password);
-    const notices = page.getByRole('dialog', { name: 'Thông báo' });
+    const notices = page.getByRole('region', { name: 'Thông báo', exact: true });
     await expect(notices).toBeVisible();
     await expect(notices.getByRole('heading', { name: title })).toBeVisible();
     await expect(notices).toContainText('Hệ thống tạm dừng từ 22 giờ');
@@ -225,7 +225,7 @@ test.describe.serial('Thông báo bật lên khi vào trang', () => {
 
   test('CT-16c-20: xóa thông báo cần tích đồng ý; bỏ ứng dụng liên kết thì nút lưới ứng dụng ẩn', async ({ page }) => {
     await loginWith(page, administrator);
-    await page.getByRole('dialog', { name: 'Thông báo' }).getByRole('button', { name: 'Đóng' }).click();
+    await page.getByRole('region', { name: 'Thông báo', exact: true }).getByRole('button', { name: 'Đóng' }).click();
     await openMenu(page, '/system-announcements');
     const grid = page.getByRole('region', { name: 'Danh sách thông báo hệ thống' });
     await grid
@@ -254,7 +254,7 @@ test.describe.serial('Thông báo bật lên khi vào trang', () => {
     test.skip(!info.school_name, 'Chưa có Trường chính trong cây đơn vị của năm học đang dùng');
     const principal = await createTestUser(identity, { roles: [{ roleCode: 'VT-02', orgUnitId: null }] });
     await loginWith(page, principal);
-    const notices = page.getByRole('dialog', { name: 'Thông báo' });
+    const notices = page.getByRole('region', { name: 'Thông báo', exact: true });
     await expect(notices.getByRole('heading', { name: 'Cập nhật mã định danh điện tử của tổ chức' })).toBeVisible();
     await notices.getByRole('link', { name: 'Cập nhật hồ sơ trường' }).click();
     await expect(notices).toHaveCount(0);

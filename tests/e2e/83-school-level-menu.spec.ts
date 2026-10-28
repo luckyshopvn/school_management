@@ -1,7 +1,7 @@
 import { expect, test, type Browser, type Page } from './fixtures.js';
 import { createDatabase, readConnectionString, type IdentityDatabase } from '@school-management/database';
 import { createTestUser } from '@school-management/identity/testing';
-import { openGroup, openMenu, selectWorkspace, workspaceMenu } from './menu.js';
+import { openGroup, openMenu, openWorkingContext, selectSchoolLevel, selectWorkspace, workspaceMenu } from './menu.js';
 
 // Menu và phân hệ theo cấp học (DT-19 phần 19c, YCTD-153), kịch bản CT-19c-9: trường mầm non giữ y hệt menu, không có bộ
 // chọn cấp; Hiệu trưởng bật Tiểu học thì phân hệ thành "Quản lý giáo dục" và có bộ chọn cấp ("Tất cả" mặc định); chọn Tiểu
@@ -54,13 +54,17 @@ test('CT-19c-9: trường mầm non giữ menu; bật Tiểu học có bộ ch�
 
   // Trường chỉ có Mầm non: không có bộ chọn cấp, phân hệ và mục 4.3 như của Sở
   await expect(context).toContainText('Cấp MN · ');
+  // Bộ chọn cấp nằm trong hộp ngữ cảnh (YCTD-331): mở hộp rồi mới kiểm tra
+  await openWorkingContext(page);
   await expect(switcher).toHaveCount(0);
+  await page.keyboard.press('Escape');
   await expect(page.getByText('Trẻ đang học', { exact: true })).toBeVisible();
   await openMenu(page, '/growth');
 
   try {
     // Bật Tiểu học: phân hệ thành "Quản lý giáo dục", bộ chọn cấp hiện, mặc định "Tất cả" nên mục Mầm non vẫn còn
     await setPrimaryEnabled(page, true);
+    await openWorkingContext(page);
     await expect(switcher).toBeVisible();
     await expect(switcher).toHaveValue('all');
     await expect(context).toContainText('Cấp MN, Cấp TH · ');
@@ -70,8 +74,7 @@ test('CT-19c-9: trường mầm non giữ menu; bật Tiểu học có bộ ch�
     await expect(education.getByRole('button', { name: '4.3. Cân nặng, chiều cao', exact: true })).toBeVisible();
 
     // Chọn Tiểu học: mục chỉ của Mầm non ẩn, tên phân hệ, ô ngữ cảnh và nhãn đổi theo cấp
-    await switcher.selectOption('TH');
-    await expect(context).toContainText('Cấp TH · ');
+    await selectSchoolLevel(page, 'TH');
     await expect(context).not.toContainText('Cấp MN');
     await selectWorkspace(page, 'Quản lý giáo dục Tiểu học');
     const primary = workspaceMenu(page, 'Quản lý giáo dục Tiểu học');
@@ -84,6 +87,7 @@ test('CT-19c-9: trường mầm non giữ menu; bật Tiểu học có bộ ch�
 
     // Lựa chọn lưu theo tài khoản: tải lại vẫn là Tiểu học
     await page.reload();
+    await openWorkingContext(page);
     await expect(switcher).toHaveValue('TH');
     await expect(context).toContainText('Cấp TH · ');
     await expect
@@ -100,6 +104,7 @@ test('CT-19c-9: trường mầm non giữ menu; bật Tiểu học có bộ ch�
       .toBe('TH');
 
     // Về "Tất cả"
+    await openWorkingContext(page);
     await switcher.selectOption('all');
     await expect(context).toContainText('Cấp MN, Cấp TH · ');
     await expect(page.getByText('Trẻ đang học', { exact: true })).toHaveCount(0);
@@ -109,7 +114,10 @@ test('CT-19c-9: trường mầm non giữ menu; bật Tiểu học có bộ ch�
     await identity.deleteFrom('user_preferences').where('user_id', '=', principal.id).execute();
   }
   await page.reload();
+  // Bộ chọn cấp nằm trong hộp ngữ cảnh (YCTD-331): mở hộp rồi mới kiểm tra
+  await openWorkingContext(page);
   await expect(switcher).toHaveCount(0);
+  await page.keyboard.press('Escape');
   await expect(context).toContainText('Cấp MN · ');
   await expect(page.getByRole('button', { name: 'Phân hệ: Quản lý giáo dục Mầm non', exact: true })).toBeVisible();
 });

@@ -2,7 +2,7 @@ import { useQueries, useQuery } from '@tanstack/react-query';
 import { useEffect, useRef, useState } from 'react';
 import { listAcademicYears, readCalendar, type Calendar } from '../academic-years/academic-years-api.js';
 import { readPortalContext } from '../portal-shell/portal-shell-api.js';
-import { useWorkingSchoolLevels } from '../school-levels/working-level.js';
+import { SchoolLevelSwitcher, useWorkingSchoolLevels } from '../school-levels/working-level.js';
 
 type TermKey = 'first_term' | 'second_term' | 'summer_term';
 
@@ -147,6 +147,7 @@ export function AcademicYearSwitcher() {
           aria-label="Năm học và học kỳ"
           className="absolute right-0 top-10 z-30 w-80 max-w-[calc(100vw-32px)] whitespace-normal rounded-md border border-border bg-card py-2 text-text shadow-lg"
         >
+          <SchoolLevelSwitcher />
           {listed.length === 0 ? (
             <p className="px-3 py-1 text-label text-text-secondary">Chưa có năm học nào được mở</p>
           ) : (
