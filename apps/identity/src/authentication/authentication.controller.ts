@@ -113,8 +113,9 @@ export class AuthenticationController {
       throw validationError(errors);
     }
     const channel = assertChannel(body?.channel);
-    // Mã xác nhận áp dụng cho cổng quản trị (DT-16 phần 16c) và kênh học sinh (DT-23 phần 23a, cùng cơ chế của S8b)
-    const portal = channel === 'portal' || channel === 'student';
+    // Mã xác nhận áp dụng cho cổng quản trị (DT-16 phần 16c), kênh học sinh (DT-23 phần 23a, cùng cơ chế của S8b) và kênh giáo viên
+    // (YCTD-353): tài khoản cán bộ đăng nhập được ở kênh giáo viên nên phải cùng quy tắc, không thì thử mật khẩu ở đó không gặp mã
+    const portal = channel === 'portal' || channel === 'student' || channel === 'teacher';
     if (portal && (await this.captchaService.requiredForLogin(login))) {
       await this.captchaService.assertSolved(readCaptcha(body));
     }

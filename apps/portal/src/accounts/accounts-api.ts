@@ -116,6 +116,11 @@ export function updateAccount(
   return requestJson(`/api/v1/users/${userId}`, { method: 'PATCH', body: JSON.stringify(changes) });
 }
 
+// Xem đủ tên đăng nhập (số CCCD) của tài khoản; máy chủ ghi nhật ký mỗi lần xem (YCTD-353)
+export function viewLoginIdentifier(userId: string): Promise<{ username: string | null }> {
+  return requestJson(`/api/v1/users/${userId}/login-identifier`);
+}
+
 export function resetPassword(userId: string): Promise<{ temporary_password: string }> {
   return requestJson(`/api/v1/users/${userId}/reset-password`, { method: 'POST' });
 }

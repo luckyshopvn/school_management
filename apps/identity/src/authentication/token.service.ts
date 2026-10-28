@@ -18,6 +18,8 @@ import { currentTenant, isMultiTenantMode, unauthenticatedError } from '@school-
 import { IDENTITY_CONFIGURATION, type IdentityConfiguration } from '../common/configuration.js';
 
 export const OPERATOR_TOKEN_AUDIENCE = 'school-management-platform';
+// Phiên vận hành nền tảng tối đa 8 giờ, không có mã làm mới; "Ghi nhớ" ở trang đăng nhập cổng vận hành chỉ nhớ tên đăng nhập trên trình
+// duyệt, không kéo dài phiên (Eric chốt, YCTD-353, GD-172)
 export const OPERATOR_TOKEN_LIFETIME_SECONDS = 8 * 3600;
 
 // Mã phiên ký bằng Ed25519 (QĐ-22); hết hạn sau 15 phút (XT-02)

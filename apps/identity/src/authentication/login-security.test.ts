@@ -1,5 +1,7 @@
 import assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
+import { portalRememberMilliseconds } from './authentication.service.js';
+import { OPERATOR_TOKEN_LIFETIME_SECONDS } from './token.service.js';
 import {
   createTestUser,
   errorCode,
@@ -90,21 +92,39 @@ describe('Dịch vụ định danh: bảo mật đăng nhập cổng quản tr�
     assert.equal((await login(staff.username, staff.password)).status, 200);
   });
 
-  it('CT-16c-3: tên đăng nhập không tồn tại cũng phải nhập mã sau 3 lần sai; ứng dụng giáo viên không áp dụng mã', async () => {
+  it('CT-16c-3: tên đăng nhập không tồn tại cũng phải nhập mã sau 3 lần sai; ứng dụng giáo viên cùng quy tắc, lần sai ở hai kênh cộng chung (YCTD-353)', async () => {
     for (let attempt = 0; attempt < 3; attempt++) {
       assert.equal((await login('khong_co_tai_khoan_16c', 'SaiMatKhau1')).status, 401);
     }
     assert.deepEqual(fieldsOf((await login('khong_co_tai_khoan_16c', 'SaiMatKhau1')).body), ['captcha']);
 
+    const teacherLogin = (loginIdentifier: string, password: string, extra: Record<string, unknown> = {}) =>
+      postJson(`${context.baseUrl}/auth/login`, { login: loginIdentifier, password, channel: 'teacher', ...extra });
     const teacher = await createTestUser(context.database, { roles: [{ roleCode: 'VT-07', orgUnitId: null }] });
-    for (let attempt = 0; attempt < 4; attempt++) {
-      const response = await postJson(`${context.baseUrl}/auth/login`, {
-        login: teacher.username,
-        password: 'SaiMatKhau1',
-        channel: 'teacher',
-      });
-      assert.equal(response.status, 401);
+    for (let attempt = 0; attempt < 3; attempt++) {
+      assert.equal((await teacherLogin(teacher.username, 'SaiMatKhau1')).status, 401);
     }
+    const missing = await teacherLogin(teacher.username, teacher.password);
+    assert.equal(missing.status, 400);
+    assert.deepEqual(fieldsOf(missing.body), ['captcha']);
+    assert.equal((await teacherLogin(teacher.username, teacher.password, await solvedCaptcha(context))).status, 200);
+
+    // Cán bộ đăng nhập được ở cả cổng quản trị và ứng dụng giáo viên: sai ở cổng rồi chuyển sang kênh giáo viên vẫn phải nhập mã
+    const staff = await createTestUser(context.database, { roles: [{ roleCode: 'VT-06', orgUnitId: null }] });
+    for (let attempt = 0; attempt < 2; attempt++) {
+      assert.equal((await login(staff.username, 'SaiMatKhau1')).status, 401);
+    }
+    assert.equal((await teacherLogin(staff.username, 'SaiMatKhau1')).status, 401);
+    assert.deepEqual(fieldsOf((await teacherLogin(staff.username, staff.password)).body), ['captcha']);
+  });
+
+  it('CT-1528: "Ghi nhớ" giữ phiên cổng quản trị tối đa 30 ngày dù cấu hình cao hơn; phiên vận hành nền tảng 8 giờ (YCTD-353)', () => {
+    const day = 24 * 60 * 60 * 1000;
+    assert.equal(portalRememberMilliseconds(undefined), 30 * day);
+    assert.equal(portalRememberMilliseconds(90), 30 * day);
+    assert.equal(portalRememberMilliseconds(7), 7 * day);
+    assert.equal(portalRememberMilliseconds(0), day);
+    assert.equal(OPERATOR_TOKEN_LIFETIME_SECONDS, 8 * 3600);
   });
 
   it('CT-16c-4: cấu hình đường dây nóng, luôn hiện mã xác nhận; trang đăng nhập đọc được không cần đăng nhập', async () => {
