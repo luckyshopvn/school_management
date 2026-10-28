@@ -53,6 +53,7 @@ import {
   UnitDirectoryService,
 } from './directory/unit-directory.js';
 import { PlatformCatalogController, PlatformCatalogService } from './platform/platform-catalog.js';
+import { CatalogProvisioningService } from './platform/catalog-provisioning.js';
 import { ExternalIdentityController } from './external-identity/external-identity.controller.js';
 import { ExternalIdentityService } from './external-identity/external-identity.service.js';
 
@@ -143,6 +144,7 @@ export class ApplicationModule {
         DirectoryRateLimiter,
         UnitDirectoryService,
         PlatformCatalogService,
+        CatalogProvisioningService,
         ExternalIdentityService,
       ],
     };

@@ -5,8 +5,8 @@ import type { MyClass } from './ClassesScreen.js';
 
 // MG-09 phần dặn thuốc của lớp (P10-03, P10-04; BR-49, BR-50, BR-86; YCTD-75): giáo viên chủ nhiệm xem yêu cầu dặn thuốc
 // của lớp; khi đơn vị bật "không có nhân viên y tế" thì nhận thuốc, từ chối, ghi liều hoặc bỏ liều kèm lý do; khi tắt thì máy
-// chủ trả lỗi không có quyền và màn hình chỉ để xem
-type RequestStatus = 'pending' | 'administering' | 'completed' | 'rejected';
+// chủ trả lỗi không có quyền và màn hình chỉ để xem. Trạng thái theo QT-07 mục 7 (YCTD-344): có Đã nhận thuốc
+type RequestStatus = 'pending' | 'received' | 'administering' | 'completed' | 'rejected';
 
 interface MedicationRequest {
   id: string;
@@ -41,6 +41,7 @@ interface ScheduleRow {
 
 const STATUS_LABELS: Record<RequestStatus, string> = {
   pending: 'Chờ nhận thuốc',
+  received: 'Đã nhận thuốc',
   administering: 'Đang cho uống',
   completed: 'Hoàn thành',
   rejected: 'Từ chối',
@@ -203,7 +204,7 @@ export function MedicationScreen({ myClass, onBack }: { myClass: MyClass; onBack
     void load();
   };
 
-  const active = requests.filter((request) => request.status === 'pending' || request.status === 'administering');
+  const active = requests.filter((request) => ['pending', 'received', 'administering'].includes(request.status));
 
   return (
     <div className="min-h-screen">

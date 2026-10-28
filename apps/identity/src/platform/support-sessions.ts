@@ -22,6 +22,7 @@ import {
   type ActiveSupportSession,
   type IdentityDatabase,
   type PlatformDatabase,
+  type PlatformOperatorRole,
   type SupportAccessBasis,
   type SupportScope,
   type SystemDatabase,
@@ -81,6 +82,15 @@ export const DEFAULT_SUPPORT_ACCESS_POLICY: SupportAccessPolicy = {
 };
 const PLATFORM_ACCESS_RULE_CODE = 'YCTD-220';
 const MAX_POLICY_HOURS = 8;
+// Quản trị nền tảng vào thẳng mọi trường (YCTD-314, Eric yêu cầu ngày 2026-10-28, sửa GD-110): tài khoản vận hành vai trò
+// `quan_tri` (tài khoản Admin) khi chính sách là `any_school` mở phiên bằng một lần bấm: không hỏi mục đích, không hỏi lại mã xác thực
+// hai lớp (đã bắt buộc lúc đăng nhập cổng vận hành), mặc định toàn quyền, không giới hạn theo giờ (phiên có hạn kỹ thuật 30 ngày,
+// kết thúc khi Admin bấm Kết thúc, đăng xuất ở trường hoặc chính sách đổi sang `school_grant`). Vẫn ghi nhật ký hai phía: nền tảng
+// (`support.platform-admin-entry`, ai, trường nào, lúc nào, địa chỉ mạng) và trường (nhật ký định danh `support_start`), trường
+// xem ở trang Cho phép hỗ trợ, cổng quản trị hiện biểu ngữ. Vai trò hỗ trợ, kỹ thuật giữ luồng cũ (mã hai lớp, lý do, có hạn giờ)
+export const DIRECT_ENTRY_ROLE: PlatformOperatorRole = 'quan_tri';
+const DIRECT_ENTRY_DAYS = 30;
+const DIRECT_ENTRY_REASON = 'Quản trị nền tảng vào trường';
 
 function validHours(value: unknown): value is number {
   return typeof value === 'number' && Number.isInteger(value) && value >= 1 && value <= MAX_POLICY_HOURS;
@@ -113,6 +123,9 @@ function notFound(): ApplicationError {
 function hashToken(token: string): string {
   return createHash('sha256').update(token).digest('hex');
 }
+
+export const SUPPORT_CHANNELS = ['portal', 'teacher', 'parent'] as const;
+export type SupportChannel = (typeof SUPPORT_CHANNELS)[number];
 
 export interface SupportGrantView {
   id: string;
@@ -173,7 +186,7 @@ export class SupportSessionsService {
   }
 
   // Cổng nền tảng: cho phép của trường và các phiên hỗ trợ gần đây
-  async overview(code: string) {
+  async overview(code: string, role: PlatformOperatorRole | null = null) {
     const tenant = await this.contextOf(code);
     const grants = await this.system(tenant)
       .selectFrom('support_access_grants')
@@ -200,11 +213,13 @@ export class SupportSessionsService {
       .limit(20)
       .execute();
     const now = this.clock.now();
+    const policy = await readSupportAccessPolicy(this.platform);
     return {
       active_grant: grants.find((grant) => !grant.revoked_at && grant.expires_at > now) ?? null,
       grants,
       sessions,
-      policy: await readSupportAccessPolicy(this.platform),
+      policy,
+      direct_entry: role === DIRECT_ENTRY_ROLE && policy.mode === 'any_school',
     };
   }
 
@@ -213,11 +228,14 @@ export class SupportSessionsService {
   async start(
     code: string,
     body: Record<string, unknown> | undefined,
-    actor: { id: string; name: string },
+    actor: { id: string; name: string; role?: PlatformOperatorRole },
     ipAddress: string | null = null,
   ) {
     const reasonInput = body?.reason;
-    const reason = typeof reasonInput === 'string' ? reasonInput.trim() : '';
+    const typedReason = typeof reasonInput === 'string' ? reasonInput.trim() : '';
+    const direct =
+      actor.role === DIRECT_ENTRY_ROLE && (await readSupportAccessPolicy(this.platform)).mode === 'any_school';
+    const reason = direct && typedReason === '' ? DIRECT_ENTRY_REASON : typedReason;
     if (reason.length < 5 || reason.length > 500) {
       throw validationError([{ field: 'reason', message: 'Ghi lý do hỗ trợ (5 đến 500 ký tự)' }]);
     }
@@ -226,11 +244,18 @@ export class SupportSessionsService {
       throw ruleViolationError(SUPPORT_RULE_CODE, 'Trường không đang phục vụ nên không mở phiên hỗ trợ được');
     }
     const now = this.clock.now();
-    const grant = await this.activeGrant(tenant, now);
+    const grant = direct ? undefined : await this.activeGrant(tenant, now);
     let basis: SupportAccessBasis = 'school_grant';
     let scope: SupportScope;
     let expiresAt: Date;
-    if (grant) {
+    if (direct) {
+      if (body?.scope !== undefined && body.scope !== 'read' && body.scope !== 'full') {
+        throw validationError([{ field: 'scope', message: 'Phạm vi là chỉ đọc hoặc toàn quyền' }]);
+      }
+      basis = 'platform_policy';
+      scope = body?.scope === 'read' ? 'read' : 'full';
+      expiresAt = new Date(now.getTime() + DIRECT_ENTRY_DAYS * 86_400_000);
+    } else if (grant) {
       scope = grant.scope;
       expiresAt = new Date(Math.min(grant.expires_at.getTime(), now.getTime() + MAX_SESSION_HOURS * 3_600_000));
     } else {
@@ -276,7 +301,11 @@ export class SupportSessionsService {
     await writeAudit(this.platform, {
       actorType: 'operator',
       actorId: actor.id,
-      action: basis === 'platform_policy' ? 'support.platform-access-requested' : 'support.session-requested',
+      action: direct
+        ? 'support.platform-admin-entry'
+        : basis === 'platform_policy'
+          ? 'support.platform-access-requested'
+          : 'support.session-requested',
       schoolId: tenant.schoolId,
       details: {
         support_session_id: session.id,
@@ -285,7 +314,11 @@ export class SupportSessionsService {
         grant_id: grant?.id ?? null,
         access_basis: basis,
         expires_at: session.expires_at,
-        ...(basis === 'platform_policy' ? { second_factor: 'totp-step-up', ip: ipAddress } : {}),
+        ...(direct
+          ? { second_factor: 'totp-console-login', direct_entry: true, ip: ipAddress }
+          : basis === 'platform_policy'
+            ? { second_factor: 'totp-step-up', ip: ipAddress }
+            : {}),
       },
     });
     const domain = await this.platform
@@ -440,11 +473,13 @@ export class SupportSessionsService {
     return { id, ended_at: now };
   }
 
-  // Cổng quản trị của trường: đổi đường liên kết một lần lấy phiên đăng nhập của tài khoản hỗ trợ
+  // Ứng dụng của trường: đổi đường liên kết một lần lấy phiên đăng nhập của tài khoản hỗ trợ ở kênh của ứng dụng đó (cổng quản trị,
+  // ứng dụng giáo viên, phụ huynh; YCTD-315). Kênh học sinh không nhận phiên hỗ trợ (phiên học sinh gắn với một học sinh cụ thể)
   async exchange(
     token: string,
     ipAddress: string | null,
     userAgent: string | null,
+    channel: SupportChannel = 'portal',
   ): Promise<IssuedTokens & { scope: SupportScope }> {
     const tenant = currentTenant();
     if (!this.tenancy || !tenant || !token) {
@@ -506,7 +541,7 @@ export class SupportSessionsService {
         .values({
           id: sessionId,
           user_id: userId,
-          channel: 'portal',
+          channel,
           refresh_token_hash: refreshToken.hash,
           issued_at: now,
           expires_at: session.expires_at,
@@ -530,6 +565,7 @@ export class SupportSessionsService {
           grant_id: grant?.id ?? null,
           access_request_id: session.access_request_id,
           expires_at: session.expires_at.toISOString(),
+          channel,
         },
         ipAddress,
       });
@@ -548,6 +584,7 @@ export class SupportSessionsService {
         support_session_id: session.id,
         scope: session.scope,
         access_basis: session.access_basis,
+        channel,
         ip: ipAddress,
       },
     });
@@ -557,7 +594,7 @@ export class SupportSessionsService {
         access_token: await this.tokenService.signAccessToken({
           userId,
           sessionId,
-          channel: 'portal',
+          channel,
           passwordChangeRequired: false,
           support: session.scope,
         }),
@@ -694,8 +731,8 @@ export class PlatformSupportController {
 
   @Get('schools/:code/support')
   async overview(@Param('code') code: string, @Req() request: Request) {
-    await this.schools.actor(request);
-    return this.support.overview(code);
+    const actor = await this.schools.actor(request);
+    return this.support.overview(code, actor.role);
   }
 
   @Post('schools/:code/support-sessions')
@@ -703,7 +740,12 @@ export class PlatformSupportController {
   async start(@Param('code') code: string, @Body() body: Record<string, unknown> | undefined, @Req() request: Request) {
     // Kế toán không mở phiên hỗ trợ vào dữ liệu trường (YCTD-311)
     const actor = await this.schools.actor(request, SUPPORT_ROLES);
-    return this.support.start(code, body, { id: actor.id ?? '', name: actor.name }, request.ip ?? null);
+    return this.support.start(
+      code,
+      body,
+      { id: actor.id ?? '', name: actor.name, role: actor.role },
+      request.ip ?? null,
+    );
   }
 
   @Get('support-policy')
@@ -744,8 +786,23 @@ export class SupportExchangeController {
     if (!code) {
       throw validationError([{ field: 'code', message: 'Bắt buộc nhập' }]);
     }
-    const issued = await this.support.exchange(code, request.ip ?? null, request.header('user-agent') ?? null);
-    setRefreshTokenCookie(response, 'portal', issued.refreshToken, issued.refreshExpiresAt, this.clock);
+    const channel = body?.channel === undefined ? 'portal' : body.channel;
+    if (!SUPPORT_CHANNELS.includes(channel as SupportChannel)) {
+      throw validationError([{ field: 'channel', message: 'Kênh là portal, teacher hoặc parent' }]);
+    }
+    const issued = await this.support.exchange(
+      code,
+      request.ip ?? null,
+      request.header('user-agent') ?? null,
+      channel as SupportChannel,
+    );
+    setRefreshTokenCookie(
+      response,
+      channel as SupportChannel,
+      issued.refreshToken,
+      issued.refreshExpiresAt,
+      this.clock,
+    );
     return { ...issued.response, support_scope: issued.scope };
   }
 }

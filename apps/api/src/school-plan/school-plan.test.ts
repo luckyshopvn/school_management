@@ -4,7 +4,13 @@ import http from 'node:http';
 import { after, before, describe, it } from 'node:test';
 import type { SchoolYearDatabase } from '@school-management/database';
 import { ApplicationError, runAsSchool } from '@school-management/server';
-import { isModuleInPlan, isPermissionInPlan, PLAN_MODULES, permissionPlanModules } from '@school-management/shared';
+import {
+  isModuleInPlan,
+  isPermissionInPlan,
+  PLAN_MODULES,
+  permissionPlanModules,
+  FREE_PLAN_CODE,
+} from '@school-management/shared';
 import { assertStudentCapacity } from '../common/plan-limits.js';
 import { startMultiTenantApi, type MultiTenantApi } from '../tenant-test-support.js';
 
@@ -94,6 +100,57 @@ describe('gói dịch vụ ở máy chủ API nhiều trường', () => {
     await setPlan('alpha', { modules: null });
     assert.equal((await call('alpha', 'GET', '/learning-resources/catalog')).status, 200);
     assert.ok(planId);
+  });
+
+  it('CT-314-7: gói cơ bản miễn phí: tính năng trả phí trả 403 MODULE_NOT_IN_PLAN kèm lời báo; bật riêng cho trường thì dùng được', async () => {
+    const tenant = await environment.tenantOf('alpha');
+    const platform = environment.platform.platform;
+    const free = await platform
+      .selectFrom('plans')
+      .select('id')
+      .where('code', '=', FREE_PLAN_CODE)
+      .executeTakeFirstOrThrow();
+    await platform.deleteFrom('school_plans').where('school_id', '=', tenant.schoolId).execute();
+    await platform
+      .insertInto('school_plans')
+      .values({ school_id: tenant.schoolId, plan_id: free.id, effective_from: '2020-01-01' })
+      .execute();
+    environment.apiRuntime.registry.invalidate();
+    for (const [path, module] of [
+      ['/ai/status', 'ai-assistant'],
+      ['/learning/config', 'online-learning'],
+    ] as const) {
+      const refused = await call('alpha', 'GET', path);
+      assert.equal(refused.status, 403, `${path} ${JSON.stringify(refused.body)}`);
+      const error = refused.body.error as {
+        code: string;
+        message: string;
+        details: Array<{ field: string; message: string }>;
+      };
+      assert.equal(error.code, 'MODULE_NOT_IN_PLAN');
+      assert.match(error.message, /tính năng trả phí.*Liên hệ bộ phận hỗ trợ/);
+      assert.ok(error.details.some((detail) => detail.field === 'module' && detail.message === module));
+    }
+    // Phân hệ miễn phí (văn bản đi) dùng bình thường; trường beta không gán gói không bị ảnh hưởng
+    assert.equal((await call('alpha', 'GET', '/outgoing-documents')).status, 200);
+    assert.notEqual((await call('beta', 'GET', '/ai/status')).status, 403);
+    // Nền tảng bật riêng trợ lý AI cho trường alpha: hết chặn theo gói, học trực tuyến vẫn chặn
+    await platform
+      .updateTable('schools')
+      .set({ addon_modules: JSON.stringify(['ai-assistant']) })
+      .where('id', '=', tenant.schoolId)
+      .execute();
+    environment.apiRuntime.registry.invalidate();
+    const allowed = await call('alpha', 'GET', '/ai/status');
+    assert.notEqual(
+      (allowed.body.error as { code?: string } | undefined)?.code,
+      'MODULE_NOT_IN_PLAN',
+      JSON.stringify(allowed.body),
+    );
+    assert.equal((await call('alpha', 'GET', '/learning/config')).status, 403);
+    await platform.updateTable('schools').set({ addon_modules: '[]' }).where('id', '=', tenant.schoolId).execute();
+    await platform.deleteFrom('school_plans').where('school_id', '=', tenant.schoolId).execute();
+    environment.apiRuntime.registry.invalidate();
   });
 
   it('CT-S5a-5: vượt giới hạn cấp học, dung lượng tệp, học sinh đang học thì chặn thêm mới, không chặn xem', async () => {

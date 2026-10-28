@@ -18,7 +18,12 @@ import { hashPassword } from '../authentication/password.js';
 import { IdentitySettingsService } from '../settings/identity-settings.service.js';
 import { Infrastructure } from '../common/infrastructure.js';
 import { IDENTITY_CONFIGURATION, type IdentityConfiguration } from '../common/configuration.js';
-import { isNationalIdShaped, maskLoginIdentifier } from './national-id.js';
+import {
+  isNationalIdShaped,
+  isSchoolAdminRole,
+  maskLoginIdentifier,
+  schoolAdminIdentityProblems,
+} from './national-id.js';
 import {
   canGrantOnCreate,
   canManageAccount,
@@ -396,6 +401,17 @@ export class AccountsService {
     for (const grant of input.roles) {
       if (!canGrantOnCreate(authority, grant.role_code, grant.org_unit_id)) {
         throw forbidden(`Bạn không được cấp vai trò ${grant.role_code} ở đơn vị này`);
+      }
+    }
+    // Tài khoản quản trị trường (YCTD-314, Eric chốt ngày 2026-10-28): luôn đủ số CCCD, họ tên, số điện thoại; kiểm sau quyền
+    if (input.roles.some((grant) => isSchoolAdminRole(grant.role_code))) {
+      const problems = schoolAdminIdentityProblems({
+        fullName: input.full_name,
+        phone: input.phone,
+        username: input.username,
+      });
+      if (problems.length > 0) {
+        throw validationError(problems);
       }
     }
     await this.assertUnique(input.phone, input.username, null);
@@ -784,6 +800,16 @@ export class AccountsService {
       throw forbidden('Chỉ Hiệu trưởng và quản trị nền tảng gán được vai trò');
     }
     const { view, assignments } = await this.findAccount(userId);
+    if (isSchoolAdminRole(grant.role_code)) {
+      const problems = schoolAdminIdentityProblems({
+        fullName: view.full_name,
+        phone: view.phone,
+        username: view.username,
+      });
+      if (problems.length > 0) {
+        throw validationError(problems);
+      }
+    }
     const roles = await this.validateGrants([grant], view.valid_until, units, 'role');
     if (
       assignments.some(

@@ -21,6 +21,7 @@ import type { Request, Response } from 'express';
 import type { Kysely, Transaction } from 'kysely';
 import { AuthenticatedUser, RequirePermission } from '../authentication/authentication.guard.js';
 import type { CurrentUser } from '../authentication/current-user.js';
+import { periodDefault } from './period-defaults.js';
 import { readSchoolLevel } from '../catalogs/school-level-fields.js';
 import { originOf, writeAuditLog, type ChangeOrigin } from '../common/audit-log.js';
 import { CurrentSchoolYearResolver } from '../common/current-school-year.js';
@@ -430,11 +431,20 @@ export class ClassLogsService {
       .leftJoin('absence_records', (join) =>
         join.onRef('absence_records.child_id', '=', 'children.id').on('absence_records.absence_date', '=', date),
       )
+      // Điểm danh đầu ngày của học sinh ở lớp (YCTD-350) làm mặc định cho tiết chưa ghi điểm danh
+      .leftJoin('attendance_records', (join) =>
+        join
+          .onRef('attendance_records.child_id', '=', 'children.id')
+          .on('attendance_records.class_id', '=', classId)
+          .on('attendance_records.attendance_date', '=', date),
+      )
       .select([
         'children.id',
         'children.full_name',
         'absence_records.reason as absence_reason',
         'absence_records.id as absence_id',
+        'attendance_records.status as daily_status',
+        'attendance_records.note as daily_note',
       ])
       .where('class_enrollments.class_id', '=', classId)
       .where('class_enrollments.is_current', '=', true)
@@ -469,12 +479,16 @@ export class ClassLogsService {
       seating,
       students: students.map((student) => {
         const mark = marks.find((item) => item.child_id === student.id);
+        const fallback = periodDefault(student.daily_status, student.absence_id !== null);
         return {
           child_id: student.id,
           full_name: student.full_name,
           absence_reason: student.absence_id ? (student.absence_reason ?? '') : null,
-          status: mark?.status ?? (student.absence_id ? 'absent_excused' : 'present'),
-          note: mark?.note ?? null,
+          status: mark?.status ?? fallback.status,
+          note: mark?.note ?? (student.daily_status ? student.daily_note : null),
+          // Nguồn của trạng thái: tiết đã ghi, điểm danh đầu ngày, báo vắng của phụ huynh hoặc mặc định có mặt
+          status_source: mark ? 'period' : fallback.source,
+          daily_status: student.daily_status ?? null,
         };
       }),
     };

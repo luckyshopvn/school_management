@@ -339,6 +339,7 @@ describe('Y tế học đường: hồ sơ, khám, sự kiện, chăm sóc', () 
       .innerJoin('notifications', 'notifications.id', 'notification_recipients.notification_id')
       .select(['notification_recipients.user_id', 'notification_recipients.channel'])
       .where('notifications.target_id', '=', event.body.id as string)
+      .where('notifications.template_code', '=', 'medical_event')
       .execute();
     assert.deepEqual(recipients.map((row) => row.channel).sort(), ['in_app', 'sms']);
     assert.ok(recipients.every((row) => row.user_id === users.parentA?.userId));
@@ -367,8 +368,52 @@ describe('Y tế học đường: hồ sơ, khám, sự kiện, chăm sóc', () 
       .selectFrom('notifications')
       .select('id')
       .where('target_id', '=', eventId)
+      .where('template_code', '=', 'medical_event')
       .execute();
     assert.equal(reminders.length, 1);
+  });
+
+  it('CT-1667: sự kiện y tế báo quản lý đơn vị; sự kiện nặng leo thang Ban Giám hiệu (QT-07 bước 8, YCTD-344)', async () => {
+    const managementOf = async (eventId: string) =>
+      (
+        await schoolYear
+          .selectFrom('notification_recipients')
+          .innerJoin('notifications', 'notifications.id', 'notification_recipients.notification_id')
+          .select([
+            'notifications.template_code',
+            'notification_recipients.role_code',
+            'notification_recipients.org_unit_id',
+            'notification_recipients.channel',
+          ])
+          .where('notifications.target_id', '=', eventId)
+          .where('notification_recipients.role_code', 'is not', null)
+          .execute()
+      ).sort((left, right) => (left.role_code ?? '').localeCompare(right.role_code ?? ''));
+    const mild = await api('POST', '/medical-events', token('homeroom'), {
+      child_id: children.B,
+      occurred_at: new Date(Date.now() - 60_000).toISOString(),
+      symptoms: 'Trầy gối',
+      handling: 'Sát khuẩn, dán băng',
+      severity: 'mild',
+    });
+    assert.equal(mild.status, 201, JSON.stringify(mild.body));
+    assert.deepEqual(await managementOf(mild.body.id as string), [
+      { template_code: 'medical_event_manager', role_code: 'VT-03', org_unit_id: units['ĐT-A1'], channel: 'in_app' },
+    ]);
+    const severe = await api('POST', '/medical-events', token('nurse'), {
+      child_id: children.B,
+      occurred_at: new Date(Date.now() - 60_000).toISOString(),
+      symptoms: 'Khó thở',
+      handling: 'Sơ cứu, gọi cấp cứu 115',
+      severity: 'severe',
+    });
+    assert.equal(severe.status, 201, JSON.stringify(severe.body));
+    const escalated = await managementOf(severe.body.id as string);
+    assert.deepEqual(
+      escalated.map((row) => `${row.template_code}:${row.role_code}:${row.channel}`),
+      ['medical_event_severe:VT-02:in_app', 'medical_event_severe:VT-03:in_app', 'medical_event_severe:VT-15:in_app'],
+    );
+    assert.ok(escalated.every((row) => row.org_unit_id === units['ĐT-A1']));
   });
 
   it('P10-12, CT-174: giáo viên chủ nhiệm ghi nhiệt độ trẻ A; phụ huynh trẻ A thấy, phụ huynh trẻ B không thấy', async () => {
