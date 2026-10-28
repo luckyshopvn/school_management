@@ -11,6 +11,7 @@ import {
   type TenancyRuntime,
   type TenantTestPlatform,
 } from '@school-management/database';
+import { PERMISSION_CODES } from '@school-management/shared';
 import { OrganizationDirectory } from '../accounts/organization-directory.js';
 import { startTenantTestApplication, type TenantTestContext } from '../test-support.js';
 import { CatalogProvisioningService } from './catalog-provisioning.js';
@@ -333,5 +334,56 @@ describe('mở mọi trường trong danh mục và quản trị nền tảng v�
       .where('action', '=', 'school.addon-modules-changed')
       .execute();
     assert.equal(audit.length, 1);
+  });
+
+  // YCTD-315: phiên Admin vào thẳng mang mọi mã quyền của trường ở mọi kênh của nhân viên; quét toàn bộ mã quyền đã khai (gói dùng
+  // chung) và mọi mã trong bảng permissions của trường, nên quyền thêm sau này tự được kiểm
+  it('CT-315-1: Admin vào thẳng có đủ mọi mã quyền của trường ở cổng quản trị, ứng dụng giáo viên, phụ huynh; kênh học sinh bị từ chối', async () => {
+    const host = `dv-98000202.${ROOT}`;
+    const tenant = await runtime.registry.resolveHost(host);
+    assert.ok(tenant);
+    const identity = runtime.connections.database<IdentityDatabase>(tenant, 'identity', 'identity');
+    const stored = (await identity.selectFrom('permissions').select('code').execute()).map((row) => row.code);
+    const registered = Object.values(PERMISSION_CODES);
+    assert.ok(registered.length > 100, 'đã khai đủ mã quyền');
+    for (const code of registered) {
+      assert.ok(stored.includes(code), `mã quyền ${code} có trong bảng permissions của trường`);
+    }
+    for (const channel of ['portal', 'teacher', 'parent'] as const) {
+      const opened = await operator('admin', 'POST', 'schools/dv-98000202/support-sessions', {});
+      assert.equal(opened.status, 200, JSON.stringify(opened.body));
+      const code = new URL((opened.body.handoff as { path: string }).path, 'http://x').searchParams.get('code');
+      const exchanged = await send(context, { path: '/auth/support/exchange', host, body: { code, channel } });
+      assert.equal(exchanged.status, 200, `${channel} ${JSON.stringify(exchanged.body)}`);
+      const me = await send(context, { path: '/auth/me', host, token: exchanged.body.access_token as string });
+      assert.equal(me.status, 200, JSON.stringify(me.body));
+      const granted = new Set(
+        (me.body.assignments as Array<{ permissions: string[] }>).flatMap((assignment) => assignment.permissions),
+      );
+      const missing = [...new Set([...stored, ...registered])].filter((permission) => !granted.has(permission));
+      assert.deepEqual(missing, [], `${channel}: thiếu quyền`);
+      assert.equal((me.body.support as { full_access: boolean }).full_access, true);
+      assert.equal((me.body.workspaces as string[]).length > 10, true);
+    }
+    const student = await operator('admin', 'POST', 'schools/dv-98000202/support-sessions', {});
+    const studentCode = new URL((student.body.handoff as { path: string }).path, 'http://x').searchParams.get('code');
+    const refused = await send(context, {
+      path: '/auth/support/exchange',
+      host,
+      body: { code: studentCode, channel: 'student' },
+    });
+    assert.equal(refused.status, 400);
+    // Mỗi lần vào đều ghi nhật ký ở trường với kênh của ứng dụng, thao tác là của tài khoản hỗ trợ
+    const starts = await identity
+      .selectFrom('identity_audit_logs')
+      .select('after_data')
+      .where('action', '=', 'support_start')
+      .execute();
+    for (const channel of ['portal', 'teacher', 'parent']) {
+      assert.ok(
+        starts.some((row) => JSON.stringify(row.after_data).includes(`"channel":"${channel}"`)),
+        channel,
+      );
+    }
   });
 });

@@ -198,6 +198,8 @@ describe('bảng điều khiển nền tảng và phiên hỗ trợ', () => {
     const description = me.body as { username: string; support: { scope: string; operator_name: string } | null };
     assert.equal(description.username, SUPPORT_USERNAME);
     assert.equal(description.support?.scope, 'read');
+    // Phiên theo cho phép của trường không mang quyền đầy đủ của Admin (YCTD-315)
+    assert.equal((description.support as { full_access?: boolean } | null)?.full_access, false);
     assert.equal(description.support?.operator_name, 'Nhân viên hỗ trợ giả');
 
     // Phiên chỉ đọc: không ghi; phiên hỗ trợ nào cũng không đăng nhập thay

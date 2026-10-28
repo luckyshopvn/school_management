@@ -124,6 +124,9 @@ function hashToken(token: string): string {
   return createHash('sha256').update(token).digest('hex');
 }
 
+export const SUPPORT_CHANNELS = ['portal', 'teacher', 'parent'] as const;
+export type SupportChannel = (typeof SUPPORT_CHANNELS)[number];
+
 export interface SupportGrantView {
   id: string;
   granted_by_name: string;
@@ -470,11 +473,13 @@ export class SupportSessionsService {
     return { id, ended_at: now };
   }
 
-  // Cổng quản trị của trường: đổi đường liên kết một lần lấy phiên đăng nhập của tài khoản hỗ trợ
+  // Ứng dụng của trường: đổi đường liên kết một lần lấy phiên đăng nhập của tài khoản hỗ trợ ở kênh của ứng dụng đó (cổng quản trị,
+  // ứng dụng giáo viên, phụ huynh; YCTD-315). Kênh học sinh không nhận phiên hỗ trợ (phiên học sinh gắn với một học sinh cụ thể)
   async exchange(
     token: string,
     ipAddress: string | null,
     userAgent: string | null,
+    channel: SupportChannel = 'portal',
   ): Promise<IssuedTokens & { scope: SupportScope }> {
     const tenant = currentTenant();
     if (!this.tenancy || !tenant || !token) {
@@ -536,7 +541,7 @@ export class SupportSessionsService {
         .values({
           id: sessionId,
           user_id: userId,
-          channel: 'portal',
+          channel,
           refresh_token_hash: refreshToken.hash,
           issued_at: now,
           expires_at: session.expires_at,
@@ -560,6 +565,7 @@ export class SupportSessionsService {
           grant_id: grant?.id ?? null,
           access_request_id: session.access_request_id,
           expires_at: session.expires_at.toISOString(),
+          channel,
         },
         ipAddress,
       });
@@ -578,6 +584,7 @@ export class SupportSessionsService {
         support_session_id: session.id,
         scope: session.scope,
         access_basis: session.access_basis,
+        channel,
         ip: ipAddress,
       },
     });
@@ -587,7 +594,7 @@ export class SupportSessionsService {
         access_token: await this.tokenService.signAccessToken({
           userId,
           sessionId,
-          channel: 'portal',
+          channel,
           passwordChangeRequired: false,
           support: session.scope,
         }),
@@ -779,8 +786,23 @@ export class SupportExchangeController {
     if (!code) {
       throw validationError([{ field: 'code', message: 'Bắt buộc nhập' }]);
     }
-    const issued = await this.support.exchange(code, request.ip ?? null, request.header('user-agent') ?? null);
-    setRefreshTokenCookie(response, 'portal', issued.refreshToken, issued.refreshExpiresAt, this.clock);
+    const channel = body?.channel === undefined ? 'portal' : body.channel;
+    if (!SUPPORT_CHANNELS.includes(channel as SupportChannel)) {
+      throw validationError([{ field: 'channel', message: 'Kênh là portal, teacher hoặc parent' }]);
+    }
+    const issued = await this.support.exchange(
+      code,
+      request.ip ?? null,
+      request.header('user-agent') ?? null,
+      channel as SupportChannel,
+    );
+    setRefreshTokenCookie(
+      response,
+      channel as SupportChannel,
+      issued.refreshToken,
+      issued.refreshExpiresAt,
+      this.clock,
+    );
     return { ...issued.response, support_scope: issued.scope };
   }
 }
