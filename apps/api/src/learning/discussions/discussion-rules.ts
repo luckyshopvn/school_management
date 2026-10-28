@@ -3,7 +3,7 @@ import type { RequestBody } from '../../common/request-fields.js';
 
 // Quy tắc thuần của giao tiếp trong lớp và nhóm (DT-28 phần 28e, YCTD-275; tài liệu 32 mục 20.7). Claude tự chọn theo ủy quyền
 // của Eric ngày 2026-10-11, ghi ở YCTD-275:
-// - Giờ mở thảo luận (GD-144, Eric chưa chốt): mặc định không giới hạn, trường tự đặt ở cấu hình `discussion_open_hours`
+// - Giờ mở thảo luận (GD-144, Eric đã chốt 2026-10-28: trường tự cấu hình): mặc định không giới hạn, trường tự đặt ở cấu hình `discussion_open_hours`
 //   (khung giờ ngày học và cuối tuần); ngoài giờ học sinh chỉ đọc, giáo viên vẫn viết.
 // - Câu hỏi chưa có giáo viên trả lời quá 48 giờ là quá hạn trong hàng chờ của giáo viên.
 // - Báo cáo vi phạm có hạn xử lý 2 ngày; tạm khóa quyền viết từ 1 đến 30 ngày.
@@ -50,7 +50,7 @@ export interface OpenHours {
 
 const TIME = /^([01]\d|2[0-3]):[0-5]\d$/;
 
-// Đọc cấu hình giờ mở; sai dạng hoặc chưa đặt thì không giới hạn (GD-144 chưa chốt: trường tự cấu hình)
+// Đọc cấu hình giờ mở; sai dạng hoặc chưa đặt thì không giới hạn (GD-144 đã chốt 2026-10-28: trường tự cấu hình)
 export function openHoursOf(value: unknown): OpenHours | null {
   if (value === null || typeof value !== 'object' || Array.isArray(value)) return null;
   const raw = value as Record<string, unknown>;

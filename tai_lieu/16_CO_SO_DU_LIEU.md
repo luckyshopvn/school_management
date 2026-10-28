@@ -994,6 +994,20 @@ Cơ sở dữ liệu năm học, tệp `0193_add_offline_submission_keys`. Cấu
 | assignment_submissions (thêm cột, từ YCTD-280) | Chống trùng khi gửi lại lần nộp, thời điểm bấm nộp trên máy (BR-402) | client_submit_key (duy nhất khi có), client_submitted_at |
 | submission_files (thêm cột, từ YCTD-280) | Chống trùng khi gửi lại tệp | client_key (duy nhất theo bản nháp khi có) |
 
+## 18P. Giờ học trực tuyến, phòng nhóm, phòng chia nhỏ (DT-28 phần 28g, YCTD-277)
+
+Cơ sở dữ liệu năm học, tệp `0187_create_learning_live_rooms`, `0188_create_learning_breakouts`. Giờ mở phòng nhóm đọc `settings` khóa `discussion_open_hours` của 28e.
+
+| Bảng | Mục đích | Cột chính |
+|---|---|---|
+| learning_live_rooms (từ YCTD-277) | Phòng giờ học, phòng nhóm, phòng chia nhỏ; mỗi hoạt động, mỗi nhóm một phòng đang mở | kind, space_id, activity_id, group_id, parent_room_id, title, opened_by_kind, status, provider, max_participants, ends_at |
+| learning_live_participants (từ YCTD-277) | Người đang trong phòng (hiện "giáo viên đang xem") | room_id, identity, role, user_id, child_id, joined_at, left_at |
+| learning_live_events (từ YCTD-277) | Nhật ký vào ra từ sự kiện gọi lại: điểm danh gợi ý, phút của gói | room_id, identity, role, kind, at, source |
+| learning_group_room_settings (từ YCTD-277) | Học sinh tự mở phòng nhóm theo bộ nhóm (tắt mặc định) | group_set_id, student_open |
+| learning_breakout_members (từ YCTD-277) | Học sinh ở phòng chia nhỏ nào của phòng giờ học | parent_room_id, child_id, room_id |
+| learning_live_notices (từ YCTD-277) | Thông báo giáo viên gửi tới mọi phòng chia nhỏ | room_id, body, sent_by_name |
+| learning_live_help_requests (từ YCTD-277) | Học sinh "gọi giáo viên" từ phòng chia nhỏ | room_id, child_id, resolved_at |
+
 ## 19. Quan hệ chính giữa các bảng
 
 ```mermaid

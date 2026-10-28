@@ -122,7 +122,16 @@ function Whiteboard({ room, editable }: { room: Room | null; editable: boolean }
   );
 }
 
-export function VideoRoom({ join, onLeave }: { join: VideoJoinInfo; onLeave: () => void }) {
+// roleLabel (DT-28 phần 28g): nhãn vai thay cho nhãn mặc định, ví dụ "Giáo viên" ở giờ học của trường thay cho "Gia sư"
+export function VideoRoom({
+  join,
+  onLeave,
+  roleLabel,
+}: {
+  join: VideoJoinInfo;
+  onLeave: () => void;
+  roleLabel?: string;
+}) {
   const mock = join.url?.startsWith('mock://') ?? false;
   const [room, setRoom] = useState<Room | null>(null);
   const [error, setError] = useState<string>();
@@ -188,7 +197,7 @@ export function VideoRoom({ join, onLeave }: { join: VideoJoinInfo; onLeave: () 
     <section aria-label={`Lớp video ${join.title}`} className="flex flex-col gap-3 rounded-lg border border-border p-4">
       <div className="flex flex-wrap items-center gap-3">
         <h2 className="text-section-title font-semibold">{join.title}</h2>
-        <span className="text-label text-text-secondary">{ROLE_LABELS[join.role]}</span>
+        <span className="text-label text-text-secondary">{roleLabel ?? ROLE_LABELS[join.role]}</span>
         {join.recording ? (
           <span role="status" className="rounded-full bg-red-600 px-3 py-1 text-label font-medium text-white">
             ● Đang ghi

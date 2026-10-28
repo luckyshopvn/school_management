@@ -1,6 +1,7 @@
 import type { FieldError } from '@school-management/server';
 import { isUuid } from '../common/request-fields.js';
 import type { CompletionRule } from './learning-rules.js';
+import { parseLiveSettings } from './live/live-rules.js';
 
 // Danh mục loại hoạt động của lõi hệ thống quản lý học tập (DT-28 phần 28b, YCTD-272; tài liệu 32 mục 20.5, 20.7). Mỗi loại
 // khai báo nhãn, cách tính hoàn thành được phép và cách đọc phần cài đặt riêng; lõi chỉ tra danh mục, không rẽ nhánh theo
@@ -117,7 +118,18 @@ const scorm: ActivityKindDefinition = {
   },
 };
 
-export const ACTIVITY_KINDS: readonly ActivityKindDefinition[] = [resource, page, link, assignment, scorm];
+// Giờ học trực tuyến (DT-28 phần 28g, YCTD-277): giờ bắt đầu là `opens_at` của hoạt động, cài đặt là thời lượng; điểm danh từ nhật
+// ký phòng, giáo viên xác nhận nên hoàn thành do giáo viên. Gắn lớp, học sinh nên không đặt trong khoá mẫu
+const liveSession: ActivityKindDefinition = {
+  code: 'live_session',
+  label: 'Giờ học trực tuyến',
+  completionRules: ['teacher'],
+  defaultCompletion: 'teacher',
+  allowedInTemplate: false,
+  parseSettings: parseLiveSettings,
+};
+
+export const ACTIVITY_KINDS: readonly ActivityKindDefinition[] = [resource, page, link, assignment, scorm, liveSession];
 
 export function activityKind(code: unknown): ActivityKindDefinition | null {
   return ACTIVITY_KINDS.find((kind) => kind.code === code) ?? null;
