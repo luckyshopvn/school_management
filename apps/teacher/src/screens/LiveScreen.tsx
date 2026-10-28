@@ -138,7 +138,8 @@ export function LiveScreen({
             Thời lượng (phút)
             <input
               type="number"
-              min={1}
+              min={5}
+              max={240}
               className={`mt-2 block w-full ${FORM_CONTROL_CLASS}`}
               value={duration}
               onChange={(event) => setDuration(event.target.value)}
@@ -168,14 +169,23 @@ export function LiveScreen({
               <input
                 type="checkbox"
                 checked={set.student_open}
-                onChange={(event) =>
-                  void run(() =>
-                    requestJson(
-                      `/api/v1/learning/live/group-sets/${set.id}`,
-                      json('PUT', { student_open: event.target.checked }),
-                    ),
-                  )
-                }
+                onChange={(event) => {
+                  const studentOpen = event.target.checked;
+                  // Đổi ngay trên màn hình; lỗi thì tải lại giá trị đã lưu
+                  setGroups(
+                    (current) =>
+                      current && {
+                        ...current,
+                        sets: current.sets.map((item) =>
+                          item.id === set.id ? { ...item, student_open: studentOpen } : item,
+                        ),
+                      },
+                  );
+                  setErrorMessage(undefined);
+                  requestJson(`/api/v1/learning/live/group-sets/${set.id}`, json('PUT', { student_open: studentOpen }))
+                    .catch((error: unknown) => setErrorMessage(messageOf(error)))
+                    .finally(load);
+                }}
               />
               Cho học sinh tự mở phòng của {set.name}
             </label>

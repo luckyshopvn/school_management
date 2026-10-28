@@ -751,13 +751,11 @@ export class LiveLearningService implements OnModuleInit, VideoRoomExtension {
         moved_by_name: currentUser.description.full_name,
       })
       .onConflict((conflict) =>
-        conflict
-          .columns(['parent_room_id', 'child_id'])
-          .doUpdateSet({
-            room_id: target,
-            moved_by_name: currentUser.description.full_name,
-            updated_at: this.clock.now(),
-          }),
+        conflict.columns(['parent_room_id', 'child_id']).doUpdateSet({
+          room_id: target,
+          moved_by_name: currentUser.description.full_name,
+          updated_at: this.clock.now(),
+        }),
       )
       .execute();
     return { moved: true };

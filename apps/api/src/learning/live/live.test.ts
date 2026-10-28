@@ -216,13 +216,18 @@ describe('Điểm cuối giờ học trực tuyến, phòng nhóm', () => {
       title: 'Luyện nói trước lớp',
       settings: { duration_minutes: 500 },
     });
-    assert.equal(invalid.status, 422, JSON.stringify(invalid.body));
+    // Thiết lập sai của loại hoạt động là lỗi kiểm tra dữ liệu của lõi (400), như các loại khác
+    assert.equal(invalid.status, 400, JSON.stringify(invalid.body));
+    assert.equal(
+      (invalid.body.error as { details: Array<{ field: string }> }).details[0]?.field,
+      'settings.duration_minutes',
+    );
     const created = await api('POST', `/learning/spaces/${electiveId}/activities`, teacher.accessToken, {
       section_id: sectionId,
       kind: 'live_session',
       title: 'Luyện nói trước lớp',
       opens_at: new Date(Date.now() - 60_000).toISOString(),
-      settings: { duration_minutes: 2 },
+      settings: { duration_minutes: 5 },
     });
     assert.equal(created.status, 201, JSON.stringify(created.body));
     liveId = created.body.id as string;
@@ -253,20 +258,20 @@ describe('Điểm cuối giờ học trực tuyến, phòng nhóm', () => {
     assert.equal(joined.body.role, 'student');
     assert.equal(joined.body.identity, `s:${childId}`);
     const room = `local--${roomId}`;
-    const start = Date.now() - 90_000;
+    const start = Date.now() - 300_000;
     assert.equal(
       await webhook({ kind: 'join', room, identity: `s:${childId}`, at: new Date(start).toISOString() }),
       200,
     );
     assert.equal(
-      await webhook({ kind: 'leave', room, identity: `s:${childId}`, at: new Date(start + 75_000).toISOString() }),
+      await webhook({ kind: 'leave', room, identity: `s:${childId}`, at: new Date(start + 240_000).toISOString() }),
       200,
     );
     const session = await api('GET', `/learning/activities/${liveId}/live`, teacher.accessToken);
     assert.equal(session.status, 200, JSON.stringify(session.body));
     const attendance = session.body.attendance as Array<Record<string, unknown>>;
     assert.equal(attendance[0]?.child_id, childId);
-    assert.equal(attendance[0]?.minutes, 2);
+    assert.equal(attendance[0]?.minutes, 4);
     assert.equal(attendance[0]?.suggestion, 'present');
     const confirmed = await api('POST', `/learning/activities/${liveId}/live/attendance`, teacher.accessToken, {
       entries: [{ child_id: childId, status: 'present' }],

@@ -248,8 +248,8 @@ test('CT-28g-9: giờ học trực tuyến có phòng chia nhỏ, điểm danh t
     const sessionTitle = `Luyện nói ${suffix}`;
     const form = teacherPage.getByRole('form', { name: 'Thêm giờ học trực tuyến' });
     await form.getByLabel('Tên giờ học').fill(sessionTitle);
-    await form.getByLabel('Bắt đầu lúc').fill(localInput(new Date(Date.now() - 5 * 60_000)));
-    await form.getByLabel('Thời lượng (phút)').fill('2');
+    await form.getByLabel('Bắt đầu lúc').fill(localInput(new Date(Date.now() - 10 * 60_000)));
+    await form.getByLabel('Thời lượng (phút)').fill('5');
     await form.getByRole('button', { name: 'Tạo giờ học' }).click();
     await expect(teacherPage.getByRole('heading', { name: sessionTitle })).toBeVisible();
     await teacherPage.getByRole('button', { name: 'Mở phòng giờ học' }).click();
@@ -284,8 +284,8 @@ test('CT-28g-9: giờ học trực tuyến có phòng chia nhỏ, điểm danh t
     await expect(student.getByRole('status').filter({ hasText: 'Giáo viên đang xem phòng này' })).toBeVisible({
       timeout: 15_000,
     });
-    // Máy chủ video báo học sinh vào phòng giờ học (đủ nửa thời lượng 2 phút)
-    const start = Date.now() - 90_000;
+    // Máy chủ video báo học sinh vào phòng giờ học (4 phút, đủ nửa thời lượng 5 phút)
+    const start = Date.now() - 300_000;
     expect(
       await videoEvent({
         kind: 'join',
@@ -299,7 +299,7 @@ test('CT-28g-9: giờ học trực tuyến có phòng chia nhỏ, điểm danh t
         kind: 'leave',
         room: `local--${mainRoom.id}`,
         identity: `s:${child.id}`,
-        at: new Date(start + 70_000).toISOString(),
+        at: new Date(start + 240_000).toISOString(),
       }),
     ).toBe(200);
 
