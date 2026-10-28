@@ -276,6 +276,10 @@ test('CT-27i-6: tin nhắn bị che, báo cáo nghiêm trọng tạm khóa gia s
   });
   const tutor = await tutorContext.newPage();
   await tutor.goto('/');
+  await tutor
+    .getByRole('navigation', { name: 'Điều hướng ứng dụng Gia sư' })
+    .getByRole('button', { name: 'An toàn, kiểm duyệt' })
+    .click();
   await expect(tutor.getByRole('region', { name: 'Kiểm duyệt và an toàn' })).toContainText('Tài khoản đang tạm khóa');
   await tutorContext.close();
 

@@ -154,7 +154,11 @@ test('CT-27g-5: gia sư xác minh, khai hồ sơ, nộp lý lịch; nền tảng
   await expect(tutor).toHaveURL(/\/$/);
   await expect(identity).toContainText('Đã xác minh');
 
-  // Hồ sơ dạy: một môn năng khiếu, một khung giờ
+  // Hồ sơ dạy: một môn năng khiếu, một khung giờ (khu gia sư chia trang theo cột điều hướng, YCTD-361)
+  await tutor
+    .getByRole('navigation', { name: 'Điều hướng ứng dụng Gia sư' })
+    .getByRole('button', { name: 'Hồ sơ và môn dạy' })
+    .click();
   const listing = tutor.getByRole('region', { name: 'Hồ sơ dạy' });
   await listing.getByRole('button', { name: 'Thêm môn' }).click();
   const subject = listing.getByRole('group', { name: 'Môn 1' });
@@ -166,6 +170,10 @@ test('CT-27g-5: gia sư xác minh, khai hồ sơ, nộp lý lịch; nền tảng
 
   // Phiếu lý lịch tư pháp cấp hôm nay
   const today = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Ho_Chi_Minh' }).format(new Date());
+  await tutor
+    .getByRole('navigation', { name: 'Điều hướng ứng dụng Gia sư' })
+    .getByRole('button', { name: 'Xác minh' })
+    .click();
   const record = tutor.getByRole('form', { name: 'Phiếu lý lịch tư pháp' });
   await record.getByLabel('Ngày cấp').fill(today);
   await record.getByLabel('Tệp (PDF, JPEG, PNG, tối đa 10 MB)').setInputFiles({
@@ -175,6 +183,10 @@ test('CT-27g-5: gia sư xác minh, khai hồ sơ, nộp lý lịch; nền tảng
   });
   await record.getByRole('button', { name: 'Nộp phiếu lý lịch tư pháp' }).click();
   await expect(record).toContainText('Đang chờ duyệt');
+  await tutor
+    .getByRole('navigation', { name: 'Điều hướng ứng dụng Gia sư' })
+    .getByRole('button', { name: 'Hồ sơ và môn dạy' })
+    .click();
   await tutor.getByRole('region', { name: 'Hồ sơ dạy' }).getByRole('button', { name: 'Gửi nền tảng duyệt' }).click();
   await expect(tutor.getByRole('region', { name: 'Hồ sơ dạy' })).toContainText('Đang chờ nền tảng duyệt');
   await tutorContext.close();

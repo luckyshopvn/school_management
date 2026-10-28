@@ -40,14 +40,17 @@ export function TutorSchoolRole({ listing, onChange }: { listing: Listing; onCha
       .catch((caught: unknown) => setError(errorText(caught)));
 
   return (
-    <section aria-label="Giáo viên đang dạy ở trường" className="flex flex-col gap-3">
+    <section
+      aria-label="Giáo viên đang dạy ở trường"
+      className="rounded-2xl border border-border bg-card flex flex-col gap-3 p-6"
+    >
       <h2 className="text-section-title font-semibold">Giáo viên đang dạy ở trường</h2>
       <p className="text-label text-text-secondary">
         Chỉ khai khi bạn đang là giáo viên của một trường. Dạy kèm học sinh của chính trường mình vẫn làm ở ứng dụng
         giáo viên của trường.
       </p>
       {error ? <Alert tone="danger">{error}</Alert> : null}
-      <label className="flex flex-col">
+      <label className="flex flex-col gap-1 text-label font-medium">
         Tên trường
         <input
           className={FORM_CONTROL_CLASS}
@@ -63,7 +66,7 @@ export function TutorSchoolRole({ listing, onChange }: { listing: Listing; onCha
         />{' '}
         Trường công lập
       </label>
-      <label className="flex flex-col">
+      <label className="flex flex-col gap-1 text-label font-medium">
         Môn đang dạy ở trường
         <input
           className={FORM_CONTROL_CLASS}
@@ -71,7 +74,7 @@ export function TutorSchoolRole({ listing, onChange }: { listing: Listing; onCha
           onChange={(event) => setForm({ ...form, subjects: event.target.value })}
         />
       </label>
-      <label className="flex flex-col">
+      <label className="flex flex-col gap-1 text-label font-medium">
         Lớp đang dạy ở trường
         <input
           className={FORM_CONTROL_CLASS}
@@ -81,6 +84,23 @@ export function TutorSchoolRole({ listing, onChange }: { listing: Listing; onCha
       </label>
       <div className="flex flex-wrap gap-2">
         <Button onClick={() => void declare()}>Lưu khai báo</Button>
+        {role ? (
+          <Button
+            className="text-danger"
+            onClick={() =>
+              void marketRequest<Listing>('DELETE', '/tutor/school-role')
+                .then((next) => {
+                  setError(undefined);
+                  setReport(undefined);
+                  setForm({ school_name: '', is_public: true, subjects: '', grades: '' });
+                  onChange(next);
+                })
+                .catch((caught: unknown) => setError(errorText(caught)))
+            }
+          >
+            Bỏ khai báo
+          </Button>
+        ) : null}
         {role ? (
           <Button
             onClick={() =>
@@ -94,7 +114,10 @@ export function TutorSchoolRole({ listing, onChange }: { listing: Listing; onCha
         ) : null}
       </div>
       {report ? (
-        <article aria-label="Báo cáo Mẫu 03" className="flex flex-col gap-1 rounded-lg border p-3 print:border-0">
+        <article
+          aria-label="Báo cáo Mẫu 03"
+          className="flex flex-col gap-1 rounded-xl border border-border p-4 print:border-0"
+        >
           <h3 className="font-semibold">Báo cáo về việc tham gia dạy thêm ngoài nhà trường (Mẫu 03)</h3>
           <p>Kính gửi: Hiệu trưởng {report.school_name}</p>
           <p>Người báo cáo: {report.teacher_name}</p>

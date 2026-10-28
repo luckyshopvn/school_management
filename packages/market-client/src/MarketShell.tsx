@@ -18,8 +18,9 @@ export interface MarketShellProperties {
   intro: (site: Site | null) => ReactNode;
   // Khu riêng của vai khi tài khoản đã xác nhận và đồng ý đủ văn bản
   children: ReactNode;
-  // Thanh điều hướng của vai, hiện ở đầu trang khi đã vào khu riêng (YCTD-360)
+  // Thanh điều hướng của vai khi đã vào khu riêng: ở đầu trang (Chợ gia sư, YCTD-360) hoặc cột bên trái (ứng dụng Gia sư, YCTD-361)
   navigation?: ReactNode;
+  navigationPlacement?: 'top' | 'side';
   // Cách đăng nhập thêm dưới biểu mẫu mật khẩu (ứng dụng Gia sư: đăng nhập bằng định danh đã xác minh, DT-27 phần 27g)
   loginExtras?: ReactNode;
 }
@@ -44,7 +45,15 @@ function BrandMark() {
   );
 }
 
-export function MarketShell({ kind, title, intro, children, navigation, loginExtras }: MarketShellProperties) {
+export function MarketShell({
+  kind,
+  title,
+  intro,
+  children,
+  navigation,
+  navigationPlacement = 'top',
+  loginExtras,
+}: MarketShellProperties) {
   const [site, setSite] = useState<Site | null>(null);
   const [me, setMe] = useState<Me | null>(null);
   const [view, setView] = useState<View>('home');
@@ -94,6 +103,7 @@ export function MarketShell({ kind, title, intro, children, navigation, loginExt
   };
 
   const ready = view === 'home' && me?.status === 'active' && me.consents_needed.length === 0;
+  const side = navigationPlacement === 'side' && Boolean(navigation);
 
   return (
     <div className="flex min-h-screen flex-col">
@@ -107,7 +117,7 @@ export function MarketShell({ kind, title, intro, children, navigation, loginExt
             <BrandMark />
             <span className="text-section-title font-bold">{title}</span>
           </button>
-          <div className="min-w-0 flex-1">{ready ? navigation : null}</div>
+          <div className="min-w-0 flex-1">{ready && !side ? navigation : null}</div>
           {site && !site.real_payments ? (
             <span className="rounded-full bg-warning/10 px-3 py-1 text-label font-medium text-warning">
               Thanh toán giả lập
@@ -195,7 +205,15 @@ export function MarketShell({ kind, title, intro, children, navigation, loginExt
             ))}
           </section>
         ) : null}
-        {ready ? children : null}
+        {ready && side ? (
+          <div className="flex flex-wrap items-start gap-6">
+            <div className="w-full max-w-64 flex-[1_1_200px] rounded-2xl border border-border bg-card p-3">
+              {navigation}
+            </div>
+            <div className="flex min-w-0 flex-[999_1_560px] flex-col gap-4">{children}</div>
+          </div>
+        ) : null}
+        {ready && !side ? children : null}
 
         {view === 'home' && !me ? intro(site) : null}
       </main>

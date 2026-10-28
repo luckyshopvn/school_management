@@ -24,7 +24,8 @@ interface SafetyView {
   }>;
 }
 
-export function TutorSafety() {
+// alwaysShow: trang An toàn, kiểm duyệt luôn hiện khối này (kể cả khi chưa có gì); trang Buổi dạy chỉ hiện khi có tạm khóa hoặc báo cáo
+export function TutorSafety({ alwaysShow = false }: { alwaysShow?: boolean }) {
   const [view, setView] = useState<SafetyView>();
   const [reasons, setReasons] = useState<Record<string, string>>({});
   const [error, setError] = useState<string>();
@@ -35,10 +36,16 @@ export function TutorSafety() {
   }, []);
   useEffect(load, [load]);
   if (!view) return error ? <Alert tone="danger">{error}</Alert> : null;
-  if (!view.suspension && view.reports.length === 0) return null;
+  if (!alwaysShow && !view.suspension && view.reports.length === 0) return null;
   return (
-    <section aria-label="Kiểm duyệt và an toàn" className="flex flex-col gap-2">
+    <section
+      aria-label="Kiểm duyệt và an toàn"
+      className="rounded-2xl border border-border bg-card flex flex-col gap-3 p-6"
+    >
       <h2 className="text-section-title font-semibold">Kiểm duyệt và an toàn</h2>
+      {!view.suspension && view.reports.length === 0 ? (
+        <p className="text-text-secondary">Không có báo cáo nào về bạn, tài khoản không bị tạm khóa.</p>
+      ) : null}
       {error ? <Alert tone="danger">{error}</Alert> : null}
       {view.suspension ? (
         <Alert tone="danger">
@@ -49,7 +56,7 @@ export function TutorSafety() {
       ) : null}
       <ul className="flex flex-col gap-2">
         {view.reports.map((report) => (
-          <li key={report.id} className="flex flex-col gap-1 rounded-lg border p-2">
+          <li key={report.id} className="flex flex-col gap-1 rounded-xl border border-border p-3">
             <span>
               Báo cáo {REPORT_CATEGORY_LABELS[report.category] ?? report.category}: quyết định{' '}
               {REPORT_DECISION_LABELS[report.final_decision ?? report.decision ?? ''] ?? 'đang xét'}
@@ -58,7 +65,7 @@ export function TutorSafety() {
             </span>
             {report.can_appeal ? (
               <div className="flex flex-wrap items-end gap-2">
-                <label className="flex flex-col">
+                <label className="flex flex-col gap-1 text-label font-medium">
                   Lý do kháng nghị
                   <input
                     className={FORM_CONTROL_CLASS}
