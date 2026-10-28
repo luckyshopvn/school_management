@@ -17,16 +17,18 @@ import type { FacilityImportType, SchoolYearDatabase } from '@school-management/
 import { ApplicationError, Clock, ruleViolationError, validationError } from '@school-management/server';
 import {
   DEVELOPMENT_AREAS,
-  EQUIPMENT_AGE_GROUPS,
+  EQUIPMENT_ALL_GROUPS,
   EQUIPMENT_GROUPS,
   EQUIPMENT_NORM_BASES,
   EQUIPMENT_TARGET_USERS,
+  equipmentLevelOfGroup,
   PERMISSION_CODES,
   ROOM_ATTRIBUTES,
   ROOM_BLOCKS,
   ROOM_CONDITIONS,
   ROOM_TYPES,
   type CodeLabel,
+  type EquipmentSchoolLevel,
 } from '@school-management/shared';
 import type { Request, Response } from 'express';
 import { sql, type Kysely } from 'kysely';
@@ -35,6 +37,7 @@ import { AuthenticatedUser } from '../authentication/authentication.guard.js';
 import type { CurrentUser } from '../authentication/current-user.js';
 import { originOf, writeAuditLog, type ChangeOrigin } from '../common/audit-log.js';
 import { notFoundError, type RequestBody } from '../common/request-fields.js';
+import { SchoolLevelResolver } from '../common/school-levels.js';
 import { uuidParameter } from '../common/uuid-parameter.js';
 import { FileStorage } from '../files/file-storage.js';
 import {
@@ -113,7 +116,11 @@ export const EQUIPMENT_IMPORT_COLUMNS: ImportColumn[] = [
   { key: 'unit', header: 'Đơn vị tính', note: 'Bắt buộc với thiết bị mới, tối đa 30 ký tự' },
   { key: 'equipment_group', header: 'Nhóm thiết bị', note: 'Mã hoặc tên nhóm thiết bị; bắt buộc với thiết bị mới' },
   { key: 'development_area', header: 'Lĩnh vực phát triển', note: 'Mã hoặc tên lĩnh vực; không bắt buộc' },
-  { key: 'age_group', header: 'Nhóm tuổi', note: 'Mã hoặc tên nhóm tuổi; bắt buộc với thiết bị mới' },
+  {
+    key: 'age_group',
+    header: 'Nhóm tuổi',
+    note: 'Mã hoặc tên nhóm tuổi (Mầm non) hoặc khối (Khối 1 đến Khối 12, cấp phổ thông); bắt buộc với thiết bị mới',
+  },
   {
     key: 'quantity',
     header: 'Số lượng',
@@ -376,6 +383,8 @@ export interface ImportEquipmentContext {
     status: string;
     note: string | null;
   }>;
+  // Cấp học đang bật của trường (YCTD-345); không gửi thì nhận mọi cấp
+  enabledLevels?: EquipmentSchoolLevel[];
 }
 
 export interface ParsedEquipmentItem {
@@ -387,6 +396,8 @@ export interface ParsedEquipmentItem {
   equipment_group: string;
   development_area: string | null;
   age_group: string;
+  // Suy từ nhóm tuổi (Mầm non) hoặc khối (cấp phổ thông)
+  school_level: EquipmentSchoolLevel;
   quantity: number;
   norm_basis: string;
   target_users: string;
@@ -448,9 +459,17 @@ export function parseEquipmentRows(rows: SheetRow[], context: ImportEquipmentCon
       'lĩnh vực phát triển',
       existing?.development_area ?? null,
     );
-    const ageGroup = code_('age_group', EQUIPMENT_AGE_GROUPS, 'nhóm tuổi', existing?.age_group ?? null);
+    const ageGroup = code_('age_group', EQUIPMENT_ALL_GROUPS, 'nhóm tuổi, khối', existing?.age_group ?? null);
     if (!ageGroup && !values.age_group) {
-      add('age_group', 'Bắt buộc nhập nhóm tuổi với thiết bị mới');
+      add('age_group', 'Bắt buộc nhập nhóm tuổi (Mầm non) hoặc khối (cấp phổ thông) với thiết bị mới');
+    }
+    // Cấp học suy từ nhóm tuổi hoặc khối; cấp chưa bật ở trường thì không nhận (YCTD-345)
+    const schoolLevel = ageGroup ? equipmentLevelOfGroup(ageGroup) : null;
+    if (schoolLevel && context.enabledLevels && !context.enabledLevels.includes(schoolLevel)) {
+      add('age_group', `Cấp ${schoolLevel} của "${values.age_group ?? ageGroup}" chưa bật ở trường`);
+    }
+    if (schoolLevel && schoolLevel !== 'MN' && area) {
+      add('development_area', 'Lĩnh vực phát triển chỉ dùng cho Mầm non');
     }
     let quantity = existing?.quantity ?? null;
     if (values.quantity) {
@@ -480,7 +499,17 @@ export function parseEquipmentRows(rows: SheetRow[], context: ImportEquipmentCon
     if (note && note.length > 500) {
       add('note', 'Ghi chú tối đa 500 ký tự');
     }
-    if (errors.length > before || !group || !ageGroup || quantity === null || !basis || !target || !kind || !status) {
+    if (
+      errors.length > before ||
+      !group ||
+      !ageGroup ||
+      !schoolLevel ||
+      quantity === null ||
+      !basis ||
+      !target ||
+      !kind ||
+      !status
+    ) {
       continue;
     }
     items.push({
@@ -492,6 +521,7 @@ export function parseEquipmentRows(rows: SheetRow[], context: ImportEquipmentCon
       equipment_group: group,
       development_area: area,
       age_group: ageGroup,
+      school_level: schoolLevel,
       quantity,
       norm_basis: basis,
       target_users: target,
@@ -519,6 +549,7 @@ export class FacilityImportsService {
     private readonly data: FacilitiesData,
     private readonly fileStorage: FileStorage,
     private readonly clock: Clock,
+    private readonly schoolLevels: SchoolLevelResolver,
   ) {}
 
   private type(type: string): FacilityImportType {
@@ -598,7 +629,7 @@ export class FacilityImportsService {
     return [
       list('equipment_groups', 'Nhóm thiết bị', 'Nhóm thiết bị', EQUIPMENT_GROUPS),
       list('development_areas', 'Lĩnh vực phát triển', 'Lĩnh vực phát triển', DEVELOPMENT_AREAS),
-      list('age_groups', 'Nhóm tuổi', 'Nhóm tuổi', EQUIPMENT_AGE_GROUPS),
+      list('age_groups', 'Nhóm tuổi, khối', 'Nhóm tuổi, khối', EQUIPMENT_ALL_GROUPS),
       list('norm_bases', 'Tính theo', 'Tính theo', EQUIPMENT_NORM_BASES),
       list('target_users', 'Đối tượng sử dụng', 'Đối tượng sử dụng', EQUIPMENT_TARGET_USERS),
       list('kinds', 'Danh mục', 'Danh mục', EQUIPMENT_KINDS),
@@ -650,7 +681,7 @@ export class FacilityImportsService {
           ...item,
           equipment_group: labelOf(EQUIPMENT_GROUPS, item.equipment_group),
           development_area: labelOf(DEVELOPMENT_AREAS, item.development_area),
-          age_group: labelOf(EQUIPMENT_AGE_GROUPS, item.age_group),
+          age_group: labelOf(EQUIPMENT_ALL_GROUPS, item.age_group),
           norm_basis: labelOf(EQUIPMENT_NORM_BASES, item.norm_basis),
           target_users: labelOf(EQUIPMENT_TARGET_USERS, item.target_users),
           kind: item.is_minimum ? 'Tối thiểu' : 'Ngoài danh mục',
@@ -720,7 +751,10 @@ export class FacilityImportsService {
       .orderBy('order_no')
       .orderBy('code')
       .execute();
-    return { items: items.map((item) => ({ ...item, quantity: Number(item.quantity) })) };
+    return {
+      items: items.map((item) => ({ ...item, quantity: Number(item.quantity) })),
+      enabledLevels: await this.schoolLevels.enabled(),
+    };
   }
 
   private view(job: {
@@ -907,6 +941,7 @@ export class FacilityImportsService {
       equipment_group: item.equipment_group,
       development_area: item.development_area,
       age_group: item.age_group,
+      school_level: item.school_level,
       quantity: item.quantity,
       norm_basis: item.norm_basis,
       target_users: item.target_users,

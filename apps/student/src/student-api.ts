@@ -39,6 +39,40 @@ export interface CaptchaAnswer {
 
 let accessToken: string | undefined;
 
+// Chế độ xem của nhân viên hỗ trợ (YCTD-315b): học sinh quản trị nền tảng đang chọn để xem, gửi ở tiêu đề của mọi yêu cầu; máy chủ
+// chỉ nhận ở phiên quản trị nền tảng vào thẳng, phiên này chỉ đọc. Lưu trong phiên trình duyệt để tải lại trang vẫn giữ
+const SUPPORT_VIEW_KEY = 'hoc-sinh.xem-ho-tro';
+let supportViewChildId: string | null = readSupportViewChild();
+
+function readSupportViewChild(): string | null {
+  try {
+    return sessionStorage.getItem(SUPPORT_VIEW_KEY);
+  } catch {
+    return null;
+  }
+}
+
+export function supportViewChild(): string | null {
+  return supportViewChildId;
+}
+
+export function setSupportViewChild(childId: string | null): void {
+  supportViewChildId = childId;
+  try {
+    if (childId) {
+      sessionStorage.setItem(SUPPORT_VIEW_KEY, childId);
+    } else {
+      sessionStorage.removeItem(SUPPORT_VIEW_KEY);
+    }
+  } catch {
+    // Trình duyệt chặn bộ nhớ phiên thì chỉ giữ trong bộ nhớ của trang
+  }
+}
+
+function supportViewHeaders(): Record<string, string> {
+  return supportViewChildId ? { 'x-support-view-child': supportViewChildId } : {};
+}
+
 async function readError(response: Response): Promise<StudentApiError> {
   try {
     const body = (await response.json()) as { error?: { code?: string; message?: string; details?: FieldError[] } };
@@ -60,6 +94,9 @@ async function send<T>(path: string, init: RequestInit = {}): Promise<T> {
   }
   if (accessToken) {
     headers.set('authorization', `Bearer ${accessToken}`);
+  }
+  for (const [name, value] of Object.entries(supportViewHeaders())) {
+    headers.set(name, value);
   }
   const response = await fetch(path, { ...init, headers, credentials: 'same-origin' });
   if (!response.ok) {
@@ -108,7 +145,7 @@ export async function requestStudentJson<T>(path: string, init: RequestInit = {}
 export async function fetchStudentFile(path: string): Promise<Blob> {
   const attempt = () =>
     fetch(path, {
-      headers: accessToken ? { authorization: `Bearer ${accessToken}` } : {},
+      headers: { ...(accessToken ? { authorization: `Bearer ${accessToken}` } : {}), ...supportViewHeaders() },
       credentials: 'same-origin',
     });
   let response = await attempt();
