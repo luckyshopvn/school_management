@@ -79,7 +79,7 @@ Phân hệ chọn ở ô phân hệ trên thanh đầu trang; mỗi phân hệ m
 
 | Đợt | Nội dung | Phụ thuộc |
 |---|---|---|
-| 15a | Khung chung: menu ngang đánh số, menu người dùng, lưới dữ liệu dùng chung, hộp xác nhận xóa, cấu hình lưới theo người dùng; đổi bộ trợ giúp điều hướng của kiểm thử e2e | Sau khi gộp DT-14a–d |
+| 15a | Khung chung: menu ngang đánh số, menu người dùng, lưới dữ liệu dùng chung, hộp xác nhận xóa, cấu hình lưới theo người dùng; đổi bộ trợ giúp điều hướng của kiểm thử e2e | Sau khi gộp DT-14a–d. Menu ngang thay bằng thanh bên trái từ YCTD-330 (GD-170), vẫn giữ số thứ bậc (GD-171) |
 | 15b | Trường học, Lớp học (1.x, 2.x, 3.3) | 15a |
 | 15c | Học sinh: đổi tên, cột, tìm kiếm mở rộng, A–Z, điện thoại nhận tin, học 2 buổi và bán trú hàng loạt, biến động, hồ sơ chưa đủ | 15a |
 | 15d | Nhân sự: cột, tìm kiếm mở rộng, hồ sơ chưa đủ | 15a |
@@ -2824,3 +2824,27 @@ Số GD và RR của DT-28 bắt đầu từ GD-140 và RR-32 (DT-27 dùng GD-13
 | GD-155 | Huy hiệu, chứng nhận | Tắt mặc định; không bảng xếp hạng; chứng nhận chỉ cho khoá tự chọn | Cấu hình trường | Eric |
 | GD-156 | Ghi danh khoá tự chọn | Học sinh đăng ký, người phụ trách duyệt; Tiểu học cần phụ huynh xác nhận trên ứng dụng phụ huynh; khoá có thu tiền không làm ở DT-28 (thuộc 27b, 27c) | Theo khoá | Eric |
 | GD-157 | Xuất lịch học tập ra lịch ngoài (iCal) | Không làm (đường dẫn lịch chứa dữ liệu trẻ em) | — | Claude (theo ủy quyền) |
+
+## 21. Thiết kế lại cổng quản trị trường (YCTD-330 trở đi)
+
+Eric yêu cầu ngày 2026-10-28: thiết kế lại toàn bộ cổng quản trị trường cho gọn, bỏ bớt yếu tố thừa về hình thức, không bỏ chức năng. Bản thiết kế 14 màn (canvas "Cổng quản trị trường") Eric đã duyệt ngày 2026-10-28. Làm theo nhiều PR: PR đầu (YCTD-330) là khung chung; các trang làm ở PR sau (YCTD-331 trở đi).
+
+### 21.1 Quyết định
+
+Hai quyết định dưới đây thay quyết định ở DT-15 phần 15a (menu ngang đánh số theo hệ thống của Sở).
+
+| Mã | Nội dung | Quyết định | Áp dụng ở | Người quyết |
+|---|---|---|---|---|
+| GD-170 | Kiểu điều hướng chính của cổng quản trị | Đổi menu ngang đánh số nhiều cấp sang thanh bên trái theo phân hệ: tên trường, ô chọn phân hệ, cây menu gập mở; nhóm chứa trang đang mở tự mở. Dưới 1280 px thanh bên là ngăn kéo mở bằng nút "☰". **Thay quyết định DT-15 phần 15a** | `AppShell`, `MainMenu` (`SideMenu`), trợ giúp e2e `tests/e2e/menu.ts` | Eric (2026-10-28) |
+| GD-171 | Số thứ bậc trên menu | Giữ số thứ bậc theo hệ thống của Sở trên menu (kiểu "1.4. Cấu hình trường"); bản thiết kế đề xuất bỏ số nhưng Eric chọn giữ. **Thay phần đề xuất bỏ số của thiết kế, giữ đúng cách đánh số của DT-15 phần 15a** | `PORTAL_WORKSPACES` ở `packages/shared` (không đổi) | Eric (2026-10-28) |
+
+Các điểm còn lại của thiết kế làm đúng như bản vẽ (Eric duyệt 2026-10-28): gom cấp học, năm học, học kỳ vào một nút; thông báo khi vào trang thành dải một dòng; giữ dải nhắc mật khẩu sắp hết hạn; danh sách học sinh mở sẵn tab "Đang học"; nhóm phân hệ "Hay dùng" theo vai trò; tên trường giữ màu vàng.
+
+### 21.2 Các phần
+
+| Phần | YCTD | Nội dung | Phụ thuộc |
+|---|---|---|---|
+| Khung chung | YCTD-330 | Thanh bên trái, thanh đầu trang, ô chọn phân hệ có ô lọc, bỏ chân trang (Gửi phản hồi vào menu người dùng), bỏ khối Lối tắt và tiêu đề "Tổng quan phân hệ" ở trang chủ, màu xanh đậm | Gộp sau PR 239 (bỏ khối "Vai trò của bạn") |
+| Các trang hồ sơ, dạy học | YCTD-331 trở đi | Cán bộ, học sinh, thời khóa biểu, sổ điểm theo thiết kế: menu "Thêm", cột mặc định ít hơn, thao tác hàng loạt chỉ hiện khi chọn dòng | Sau khi phiên đang sửa các trang này xong phần C (sổ điểm), D (danh sách học sinh) |
+| Các trang khác | YCTD-331 trở đi | Văn bản đến, đi và "Công văn của tôi", thu phí, cài đặt trường, điểm danh, lớp | Làm song song được |
+| Đăng nhập | — | Giữ bố cục PR 233 | — |

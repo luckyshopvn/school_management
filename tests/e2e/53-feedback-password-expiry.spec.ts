@@ -43,7 +43,9 @@ test.describe.serial('Ý kiến phản hồi', () => {
     await loginWith(page, teacher);
     await expect(page.getByRole('heading', { name: /^Xin chào,/ })).toBeVisible();
 
-    await page.getByRole('contentinfo').getByRole('button', { name: 'Gửi phản hồi' }).click();
+    // YCTD-330 bỏ chân trang: Gửi phản hồi ở menu người dùng
+    const userMenu = await openUserMenu(page);
+    await userMenu.getByRole('menuitem', { name: 'Gửi phản hồi' }).click();
     const dialog = page.getByRole('dialog', { name: 'Gửi phản hồi' });
     await expect(dialog.getByLabel('Đường dẫn trang')).toHaveValue('/');
     // Thiếu loại, tiêu đề, nội dung thì máy chủ báo lỗi từng ô
