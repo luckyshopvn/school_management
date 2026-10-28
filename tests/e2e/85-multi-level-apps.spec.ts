@@ -148,13 +148,14 @@ test('CT-19e-5: phụ huynh có con ở hai cấp, giáo viên dạy hai cấp t
     const primaryCard = parentPage.getByRole('listitem', { name: childNames.TH });
     await expect(preschoolCard).toContainText(`Mầm non · ${preschoolClass}`);
     await expect(primaryCard).toContainText(`Tiểu học · ${primaryClass}`);
-    // Báo vắng theo ngày hiện ở mọi cấp có điểm danh (DT-20 phần 20d); điểm danh tháng theo ngày chỉ ở Mầm non
-    await expect(primaryCard.getByRole('button', { name: 'Báo vắng', exact: true })).toBeVisible();
-    for (const label of ['Báo vắng', 'Điểm danh tháng này', 'Nhật ký', 'Hồ sơ cuối cấp']) {
+    // Báo vắng, điểm danh tháng theo ngày hiện ở mọi cấp (DT-20 phần 20d; cấp khác Mầm non điểm danh đầu ngày từ YCTD-350)
+    for (const label of ['Báo vắng', 'Điểm danh tháng này']) {
       await expect(preschoolCard.getByRole('button', { name: label, exact: true })).toBeVisible();
-      if (label !== 'Báo vắng') {
-        await expect(primaryCard.getByRole('button', { name: label, exact: true })).toHaveCount(0);
-      }
+      await expect(primaryCard.getByRole('button', { name: label, exact: true })).toBeVisible();
+    }
+    for (const label of ['Nhật ký', 'Hồ sơ cuối cấp']) {
+      await expect(preschoolCard.getByRole('button', { name: label, exact: true })).toBeVisible();
+      await expect(primaryCard.getByRole('button', { name: label, exact: true })).toHaveCount(0);
     }
     await expect(primaryCard.getByRole('button', { name: 'Học phí', exact: true })).toBeVisible();
     await primaryCard.getByRole('button', { name: 'Sức khỏe', exact: true }).click();

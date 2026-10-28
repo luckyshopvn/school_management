@@ -16,9 +16,13 @@ import {
 // danh sách con, tin tức có cấp nhận (người xem, người nhận, số người nhận trước khi công bố)
 describe('Chức năng và tin tức theo cấp', () => {
   it('CT-19e-1: chức năng chỉ của Mầm non; cấp trống là Mầm non; tin không ghi cấp là mọi cấp, nhân sự không lọc cấp', () => {
-    for (const feature of ['daily_attendance', 'daily_journal', 'daily_care', 'meal_report', 'growth'] as const) {
+    for (const feature of ['daily_journal', 'daily_care', 'meal_report', 'growth'] as const) {
       assert.equal(hasLevelFeature('MN', feature), true, feature);
       assert.equal(hasLevelFeature('TH', feature), false, feature);
+    }
+    // Điểm danh theo ngày ở mọi cấp: Mầm non cả ngày, cấp khác đầu ngày làm mặc định cho điểm danh theo tiết
+    for (const level of ['MN', 'TH', 'THCS', 'THPT'] as const) {
+      assert.equal(hasLevelFeature(level, 'daily_attendance'), true, level);
     }
     assert.equal(hasLevelFeature(null, 'final_year_record'), true);
     assert.equal(hasLevelFeature('THPT', 'final_year_record'), false);
