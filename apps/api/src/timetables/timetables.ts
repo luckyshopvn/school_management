@@ -50,6 +50,8 @@ import {
   type RowError,
 } from '../imports/excel.js';
 import { findTimetableConflicts, type TimetableConflict, type TimetableLessonInput } from './timetable-rules.js';
+import { timetableSheets, type TimetableExportGroup } from './timetable-export.js';
+import { buildTableFile, CONTENT_TYPES } from '../exports/table-file.js';
 
 // Thời khoá biểu phần khung (DT-20 phần 22c1, YCTD-160): khung giờ tiết học theo cấp (cơ sở dữ liệu hệ thống), bản thời khoá
 // biểu theo cấp có ngày áp dụng, tiết của lớp (môn, giáo viên theo phân công của 20a, phòng), nhập Excel, kiểm tra xung đột,
@@ -909,6 +911,27 @@ export class TimetablesService {
     return { ...view, lessons: view.lessons.filter((lesson) => lesson.group_no === 0 || mine.has(lesson.subject_id)) };
   }
 
+  // Xuất Excel một bản thời khoá biểu (YCTD-317): lọc theo lớp, giáo viên hoặc phòng như màn hình xem; không lọc thì mọi lớp
+  async exportVersion(versionId: string, filter: { classId?: string; teacherUserId?: string; roomId?: string }) {
+    const { database } = await this.currentSchoolYear.require();
+    const version = await this.findVersion(database, versionId);
+    const group: TimetableExportGroup = filter.teacherUserId ? 'teacher' : filter.roomId ? 'room' : 'class';
+    const sheets = timetableSheets({
+      versionName: version.name,
+      effectiveFrom: version.effective_from,
+      group,
+      slots: await this.periodSlots(version.school_level),
+      lessons: await this.lessons(database, [versionId], filter),
+    });
+    return buildTableFile(
+      'xlsx',
+      sheets.length > 0
+        ? sheets
+        : [{ title: 'Thời khoá biểu', heading: [version.name, 'Chưa có tiết nào'], columns: [], rows: [] }],
+      new Date(),
+    );
+  }
+
   // Tệp mẫu nhập thời khoá biểu kèm danh mục lớp, môn, phòng của cấp
   async importTemplate(versionId: string): Promise<Buffer> {
     const { database } = await this.currentSchoolYear.require();
@@ -1234,6 +1257,19 @@ export class TimetableVersionsController {
     @AuthenticatedUser() currentUser: CurrentUser,
   ) {
     return this.timetables.publish(currentUser, versionId, originOf(request, currentUser));
+  }
+
+  // Xuất Excel bản thời khoá biểu theo lớp, giáo viên, phòng đang xem (YCTD-317); ai xem được thời khoá biểu đều xuất được
+  @Get(':id/export')
+  async exportVersion(
+    @Param('id', uuidParameter('Mã bản thời khoá biểu không hợp lệ')) versionId: string,
+    @Query() query: Record<string, string | undefined>,
+    @AuthenticatedUser() currentUser: CurrentUser,
+    @Res() response: Response,
+  ) {
+    this.timetables.assertCanView(currentUser);
+    const file = await this.timetables.exportVersion(versionId, readViewFilter(query));
+    response.type(CONTENT_TYPES.xlsx).attachment('thoi-khoa-bieu.xlsx').send(file);
   }
 
   @Get(':id/import-template')

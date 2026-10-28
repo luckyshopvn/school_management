@@ -946,7 +946,7 @@ Giao kèo của nhóm điểm cuối tài khoản, vai trò, quyền (DT-01 ph�
 | GET, PUT | /api/v1/period-slots | Khung giờ tiết học của cấp ở năm học đang dùng; thay cả khung (cần `P02.timetable.manage`) (P02-39, YCTD-160) |
 | GET, POST | /api/v1/timetable-versions | Bản thời khoá biểu theo cấp kèm `is_current`; tạo bản nháp, chép từ bản khác (P02-40) |
 | PATCH, DELETE | /api/v1/timetable-versions/{id} | Sửa tên, ngày áp dụng, ghi chú; xoá bản nháp (P02-40) |
-| GET | /api/v1/timetable-versions/{id}/lessons | Tiết của bản kèm khung giờ; lọc `class_id`, `teacher_user_id`, `room_id` (P02-40) |
+| GET | /api/v1/timetable-versions/{id}/lessons | Tiết của bản kèm khung giờ; lọc `class_id`, `teacher_user_id`, `room_id` (P02-40). Từ YCTD-317 `GET /api/v1/timetable-versions/{id}/export` cùng bộ lọc trả tệp `thoi-khoa-bieu.xlsx`: mỗi lớp, giáo viên hoặc phòng một trang dạng lưới tiết theo thứ; không lọc thì mọi lớp; quyền như xem thời khoá biểu |
 | PUT | /api/v1/timetable-versions/{id}/classes/{classId}/lessons | Thay tiết của một lớp trong bản nháp (P02-40) |
 | GET | /api/v1/timetable-versions/{id}/conflicts | Xung đột cứng, mềm của bản (P02-40) |
 | POST | /api/v1/timetable-versions/{id}/publish | Ban hành bản nháp (P02-40) |

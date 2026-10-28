@@ -115,6 +115,22 @@ export async function downloadTimetableTemplate(id: string): Promise<void> {
   link.click();
   setTimeout(() => URL.revokeObjectURL(link.href), 10_000);
 }
+// Xuất Excel bản thời khoá biểu (YCTD-317): theo lớp, giáo viên, phòng đang chọn; không chọn thì mọi lớp, mỗi lớp một trang
+export async function exportTimetableVersion(
+  id: string,
+  filter: { class_id?: string; teacher_user_id?: string; room_id?: string },
+): Promise<void> {
+  const query = new URLSearchParams(Object.entries(filter).filter(([, value]) => value) as Array<[string, string]>);
+  const response = await fetchWithSession(`/api/v1/timetable-versions/${id}/export?${query.toString()}`);
+  if (!response.ok) {
+    throw new ApiError(response.status, 'ERR_FORBIDDEN', 'Không xuất được thời khoá biểu');
+  }
+  const link = document.createElement('a');
+  link.href = URL.createObjectURL(await response.blob());
+  link.download = 'thoi-khoa-bieu.xlsx';
+  link.click();
+  setTimeout(() => URL.revokeObjectURL(link.href), 10_000);
+}
 export const readTimetableView = (filter: {
   class_id?: string;
   teacher_user_id?: string;
