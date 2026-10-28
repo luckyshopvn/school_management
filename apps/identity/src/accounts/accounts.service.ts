@@ -13,7 +13,7 @@ import {
   SCHOOL_LEVEL_CODES,
   WHOLE_SCHOOL_ROLE_CODES,
 } from '@school-management/shared';
-import { sql, type Kysely, type Transaction } from 'kysely';
+import { sql, type ExpressionBuilder, type Kysely, type Transaction } from 'kysely';
 import { hashPassword } from '../authentication/password.js';
 import { IdentitySettingsService } from '../settings/identity-settings.service.js';
 import { Infrastructure } from '../common/infrastructure.js';
@@ -125,6 +125,15 @@ function escapeLike(value: string): string {
   return value.replace(/[\\%_]/g, (character) => `\\${character}`);
 }
 
+// Tìm theo tên đăng nhập (YCTD-353): từ khóa toàn chữ số chỉ khớp đủ cả tên đăng nhập, để không dò được từng chữ số của số CCCD; từ
+// khóa có chữ cái tìm gần đúng như trước
+function usernameMatches(expression: ExpressionBuilder<IdentityDatabase, 'users'>, text: string) {
+  const value = text.trim().toLowerCase();
+  return /^\d+$/.test(value)
+    ? expression('users.username', '=', value)
+    : expression(expression.fn('lower', ['users.username']), 'like', `%${escapeLike(value)}%`);
+}
+
 function notFound(): ApplicationError {
   return new ApplicationError('ERR_NOT_FOUND', 'Không tìm thấy tài khoản', [{ field: 'entity', message: 'user' }]);
 }
@@ -175,23 +184,22 @@ export class AccountsService {
     const { authority } = await this.authority(caller);
     let selection = this.database.selectFrom('users');
     if (query.q) {
-      const pattern = `%${escapeLike(query.q.toLowerCase())}%`;
+      const text = query.q;
+      const pattern = `%${escapeLike(text.toLowerCase())}%`;
       selection = selection.where((expression) =>
         expression.or([
           expression(expression.fn('lower', ['users.full_name']), 'like', pattern),
           expression('users.phone', 'like', pattern),
-          expression(expression.fn('lower', ['users.username']), 'like', pattern),
+          usernameMatches(expression, text),
         ]),
       );
     }
     // Bộ lọc của danh sách người dùng theo Sở: tên đăng nhập (tên đăng nhập hoặc số điện thoại), tên nhân sự
     if (query.login) {
-      const pattern = `%${escapeLike(query.login.toLowerCase())}%`;
+      const text = query.login;
+      const pattern = `%${escapeLike(text.toLowerCase())}%`;
       selection = selection.where((expression) =>
-        expression.or([
-          expression('users.phone', 'like', pattern),
-          expression(expression.fn('lower', ['users.username']), 'like', pattern),
-        ]),
+        expression.or([expression('users.phone', 'like', pattern), usernameMatches(expression, text)]),
       );
     }
     if (query.full_name) {
@@ -376,13 +384,34 @@ export class AccountsService {
     };
   }
 
+  // Chi tiết tài khoản trả tên đăng nhập dạng che như danh sách (YCTD-353); xem đủ số CCCD qua viewLoginIdentifier, có ghi nhật ký
   async get(caller: CallerContext, userId: string): Promise<AccountView> {
     const { authority } = await this.authority(caller);
     const { view, assignments } = await this.findAccount(userId);
     if (!canManageAccount(authority, assignments)) {
       throw forbidden('Tài khoản này nằm ngoài phạm vi của bạn');
     }
-    return view;
+    return { ...view, username: maskLoginIdentifier(view.username) };
+  }
+
+  // Xem đủ tên đăng nhập (số CCCD) của một tài khoản (YCTD-353, BM-19): chỉ người quản lý được tài khoản đó; mỗi lần xem ghi nhật ký
+  // tài khoản (người xem, tài khoản được xem, địa chỉ), nhật ký chỉ ghi dạng che
+  async viewLoginIdentifier(caller: CallerContext, userId: string): Promise<{ username: string | null }> {
+    const { authority } = await this.authority(caller);
+    const { view, assignments } = await this.findAccount(userId);
+    if (!canManageAccount(authority, assignments)) {
+      throw forbidden('Tài khoản này nằm ngoài phạm vi của bạn');
+    }
+    await writeIdentityAuditLog(this.database, {
+      actorUserId: caller.claims.userId,
+      entityName: 'users',
+      entityId: userId,
+      action: 'view_login_identifier',
+      before: null,
+      after: { username: maskLoginIdentifier(view.username) },
+      ipAddress: caller.ipAddress,
+    });
+    return { username: view.username };
   }
 
   // Tạo tài khoản kèm vai trò; hệ thống sinh mật khẩu tạm, bắt buộc đổi ở lần đăng nhập đầu (PQ-13, PQ-14).

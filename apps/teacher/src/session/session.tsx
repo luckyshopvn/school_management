@@ -8,6 +8,7 @@ import {
   logout as requestLogout,
   refreshSession,
   requestJson,
+  type CaptchaAnswer,
   type TokenResponse,
 } from './api-client.js';
 
@@ -17,7 +18,7 @@ export type SessionStatus = 'checking' | 'signed-out' | 'signed-in' | 'offline';
 interface SessionValue {
   status: SessionStatus;
   passwordChangeRequired: boolean;
-  login(loginIdentifier: string, password: string, otpCode?: string): Promise<void>;
+  login(loginIdentifier: string, password: string, otpCode?: string, captcha?: CaptchaAnswer): Promise<void>;
   changePassword(currentPassword: string, newPassword: string): Promise<void>;
   logout(): Promise<void>;
   // Thử xác nhận lại phiên khi có mạng trở lại
@@ -65,8 +66,8 @@ export function SessionProvider({ children }: { children: ReactNode }) {
     () => ({
       status,
       passwordChangeRequired,
-      async login(loginIdentifier, password, otpCode) {
-        applyTokens(await loginWithPassword(loginIdentifier, password, otpCode));
+      async login(loginIdentifier, password, otpCode, captcha) {
+        applyTokens(await loginWithPassword(loginIdentifier, password, otpCode, captcha));
       },
       async changePassword(currentPassword, newPassword) {
         applyTokens(await requestPasswordChange(currentPassword, newPassword));

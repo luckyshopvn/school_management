@@ -47,12 +47,21 @@ const REFRESH_LIFETIME_MILLISECONDS: Record<SessionChannel, number> = {
   student: 12 * 60 * 60 * 1000,
 };
 
-// "Ghi nhớ" ở trang đăng nhập cổng quản trị (YCTD-310): phiên kéo dài PORTAL_REMEMBER_DAYS ngày (mặc định 30, từ 1 đến 90) và cookie
-// mã làm mới giữ qua lần đóng trình duyệt; không tích thì hạn 8 giờ như cũ và cookie chỉ sống đến khi đóng trình duyệt. Mật khẩu không
-// bao giờ lưu ở trình duyệt (trình quản lý mật khẩu của trình duyệt tự đề nghị lưu nhờ autocomplete của biểu mẫu)
+// "Ghi nhớ" ở trang đăng nhập cổng quản trị (YCTD-310): phiên kéo dài PORTAL_REMEMBER_DAYS ngày và cookie mã làm mới giữ qua lần đóng
+// trình duyệt; không tích thì hạn 8 giờ như cũ và cookie chỉ sống đến khi đóng trình duyệt. Eric chốt tối đa 30 ngày (YCTD-353, GD-172):
+// mặc định 30, đặt thấp hơn được, không cao hơn. Mật khẩu không bao giờ lưu ở trình duyệt (trình quản lý mật khẩu của trình duyệt tự đề
+// nghị lưu nhờ autocomplete của biểu mẫu)
+export const PORTAL_REMEMBER_MAXIMUM_DAYS = 30;
+
 export function portalRememberMilliseconds(days: number | undefined): number {
   const value = Number(days ?? 30);
-  return (Number.isFinite(value) ? Math.min(90, Math.max(1, Math.trunc(value))) : 30) * 24 * 60 * 60 * 1000;
+  return (
+    (Number.isFinite(value) ? Math.min(PORTAL_REMEMBER_MAXIMUM_DAYS, Math.max(1, Math.trunc(value))) : 30) *
+    24 *
+    60 *
+    60 *
+    1000
+  );
 }
 
 // Cookie mã làm mới bền (giữ qua lần đóng trình duyệt): kênh ứng dụng luôn bền; cổng quản trị chỉ khi phiên dài hơn hạn mặc định (đã tích
