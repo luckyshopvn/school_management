@@ -36,7 +36,7 @@ Tài liệu này giữ vai trò tệp "Kết quả kiểm thử và danh sách l
 | Lệnh | Kết quả | Thời gian | Ghi chú |
 |---|---|---|---|
 | `pnpm format:check` | Hỏng trên máy, đạt trên CI | 297 giây | Chỉ một tệp cục bộ không theo dõi (`.claude/tai-khoan-test-local.md`, bỏ qua bằng `.git/info/exclude`) chưa định dạng; mọi tệp của kho đạt. Không phải lỗi của kho |
-| `node scripts/gom-thay-doi.mjs --kiem` | Đạt | 2 giây | 44 tệp mảnh, 0 lỗi (45 tệp sau khi thêm tệp của YCTD-321) |
+| `node scripts/gom-thay-doi.mjs --kiem` | Đạt | 2 giây | 44 tệp mảnh, 0 lỗi (49 tệp sau khi thêm tệp của YCTD-321 và gộp nhánh chính `5bb5e025`, 0 lỗi) |
 | `node database/sinh-chi-muc.mjs --kiem && node apps/api/sinh-dang-ky.mjs --kiem` | Đạt | 1 giây | Lần đầu hỏng vì tệp `*.generated.ts` cũ của worktree (bị bỏ qua khỏi git); chạy lại sau build thì đạt |
 | `pnpm lint` | Đạt | 123 giây | |
 | `pnpm build` | Đạt | 1142 giây | |
@@ -50,7 +50,7 @@ Tài liệu này giữ vai trò tệp "Kết quả kiểm thử và danh sách l
 |---|---|---|---|
 | Giao diện, lần 1 và 2 | `node e2e-setup.mjs && playwright test` (thư mục `tests`) | Không dùng được | Chạy cùng lúc với `typecheck` và `pnpm test`: lần 1 máy chủ web không lên trong 60 giây; lần 2 từ ca 10 API báo "Không liên lạc được với dịch vụ định danh", 101 ca hỏng. Đã dừng, không tính (L-22) |
 | Giao diện, lần 3 (chạy riêng, có khoá) | như trên | 217 ca: 197 đạt, 18 hỏng, 1 bỏ qua, 1 không chạy; 56 phút | Ca gốc hỏng là `09-children.spec.ts:84`: `POST /api/v1/files` (tải giấy tờ) không có phản hồi; các ca 11, 12, 14 đến 18 dùng trẻ và phụ huynh do ca 09 tạo nên hỏng theo. Các ca hỏng khác: 165 (liên kết định danh giả lập), 67, 69, 76, 86, 90. Cùng bộ này đạt trên CI nhánh chính (mục 3.3) |
-| Thiết bị, tập con yêu cầu kéo | `E2E_DEVICES=pr playwright test` | Đang chạy | |
+| Thiết bị, tập con yêu cầu kéo | `E2E_DEVICES=pr playwright test` | 20 ca: 17 đạt, 3 hỏng; 6 phút | `183-tablet-teacher-parent.spec.ts:90` (`may-tinh-bang-doc`) không thấy "Đang dạy: tiết 1": lượt chạy rơi đúng nửa đêm (23:53 đến 00:01) và spec tính thứ trong tuần theo giờ thật lúc chuẩn bị dữ liệu (L-23). `184-tablet-portal-platform.spec.ts:84` (`dien-thoai`, `may-tinh-bang-doc`) không thấy danh sách người dùng: cùng loại với các ca phụ thuộc dữ liệu ở bộ giao diện, cùng bộ đạt trên CI của PR |
 | Nhiều trường, bố cục database | `node e2e-multi-setup.mjs && playwright test --config playwright.multi.config.ts` | Đang chạy | |
 | Giao diện, lần 4 (kho tệp qua `127.0.0.1`) | như lần 3, thêm `S3_ENDPOINT=http://127.0.0.1:8333` | Đang chạy | Để tách lỗi môi trường IPv6 của máy khỏi lỗi mã |
 
@@ -128,7 +128,7 @@ Không có.
 | L-06 | Tài khoản nhân viên vận hành: mật khẩu tạm không bị bắt đổi, không có điểm cuối tự đổi mật khẩu; người tạo nhận cùng lúc mật khẩu, khóa TOTP, mã khôi phục (đã xác minh) | `platform-operator-admin.ts:132` (chú thích "bắt đổi" nhưng không đặt `must_change_password`), `:146` | Đặt `must_change_password` khi tạo và kiểm ở đăng nhập; thêm đổi mật khẩu (tối thiểu 12 ký tự, BM-85); cho nhân viên tự đăng ký TOTP lần đầu |
 | L-07 | Vượt mã xác nhận của tài khoản cán bộ bằng `channel: "teacher"` (đã xác minh) | `authentication.controller.ts:117`: mã xác nhận chỉ áp cho `portal`, `student`; tài khoản cán bộ được nhận ở kênh `teacher` | Đếm lần sai và đòi mã xác nhận theo tài khoản ở mọi kênh, thêm ô mã ở ứng dụng giáo viên |
 | L-08 | Số CCCD của nhân sự lưu dạng rõ ở `users.username` của cơ sở dữ liệu định danh; chi tiết tài khoản trả đủ số; tìm kiếm `like` dò được từng chữ số (phần nhật ký truy cập là nghi ngờ) | `accounts.service.ts` (chi tiết khoảng dòng 306, tìm kiếm dòng 176) | Ghi nhật ký truy cập dữ liệu nhạy cảm khi trả đủ số (BM-19); chỉ cho tìm khớp đủ 12 số; hoặc chấp nhận rủi ro và ghi vào `22` |
-| L-09 | Chưa gom 44 tệp mảnh từ 2026-10-26: `02`, `23`, `24`, `index.md`, `01` mục 3 dừng ở YCTD-291, phiên bản 0.147.0 | `tai_lieu/thay_doi_cho_gom/` | Chạy `node scripts/gom-thay-doi.mjs` trên nhánh `gom-2026-10-28` khi không có PR sắp merge (đã thử trên bản sao: gom được 45 tệp, không lỗi) |
+| L-09 | Chưa gom tệp mảnh từ 2026-10-26 (44 tệp tại `8123bf4d`, 48 tệp tại `5bb5e025`): `02`, `23`, `24`, `index.md`, `01` mục 3 dừng ở YCTD-291, phiên bản 0.147.0 | `tai_lieu/thay_doi_cho_gom/` | Chạy `node scripts/gom-thay-doi.mjs` trên nhánh `gom-2026-10-28` khi không có PR sắp merge (đã thử trên bản sao: gom được 49 tệp, không lỗi) |
 | L-10 | `03` không ghi các việc YCTD-292 đến YCTD-313 (không có "Nối dòng") | `03_DANH_SACH_CONG_VIEC.md` | Đã ghi bù YCTD-295 đến YCTD-313 qua tệp mảnh YCTD-321; nhắc trong bản giao việc: PR nào cũng có dòng "Nối dòng" cho `03` |
 | L-11 | YCTD-307, YCTD-295: AC-392, CT-348, MH-01 tả hành vi cũ | `11` dòng 467, `21` dòng 433, `14` dòng 373 | Sửa tại chỗ theo hành vi mới (về `/`, "Tổng quan phân hệ", năm thẻ, khối "Việc cần xử lý") |
 | L-12 | YCTD-296, 300, 309, 312, 313 có hành vi mới hoặc hành vi theo quyền mà không có AC, CT | Mục 5 | Thêm AC, CT cho: ẩn thẻ Hợp đồng theo BR-46 (309), chuyển hướng `#hoc-sinh` (300), đăng nhập hai bước cổng vận hành (312), mã xác nhận cổng vận hành (313, gắn mã CT vào `platform-operators.test.ts:200`) |
@@ -146,6 +146,7 @@ Không có.
 | L-19 | Bộ tài liệu lệch danh sách của quy trình: số 25, 26 không phải "Kết quả kiểm thử", "Triển khai"; biên bản triển khai không nằm trong `tai_lieu/` | Eric chọn: giữ số hiện tại và ghi ánh xạ ở `index.md` (25 → 35, 26 → `deploy/README.md`), hoặc thêm `36_TRIEN_KHAI.md` cho phương án quay lui và biên bản |
 | L-20 | Quét bí mật trong CI (`tests/tenancy/secret-scan.test.mjs`) bỏ sót khóa PEM dạng base64 (dạng của `IDENTITY_TOKEN_PRIVATE_KEY`), JWT, chuỗi kết nối có mật khẩu, khóa cổng thanh toán Việt Nam, số CCCD, tệp `.xlsx`, lịch sử git. Quét tay lượt này không thấy bí mật thật: tệp env theo dõi chỉ là tệp mẫu, CSV chỉ là dữ liệu "Mẫu", số CCCD trong kiểm thử là số mẫu | Bổ sung mẫu; chạy thêm gitleaks hoặc trufflehog trên lịch sử |
 | L-21 | PR 225 (YCTD-305) merge khi `kiem-thu-giao-dien` còn hỏng (run 40615239236) | Nhắc lại quy tắc merge; kiểm `gh pr checks` trước khi merge |
+| L-23 | Spec 183 (CT-26d-2) tính thứ trong tuần bằng `new Date()` lúc chuẩn bị dữ liệu, trang lại tính lúc hiển thị; chạy qua nửa đêm giờ Việt Nam thì hỏng (`183-tablet-teacher-parent.spec.ts:55`) | Cố định giờ bằng `page.clock` hoặc tính thứ một lần rồi truyền cho trang |
 | L-22 | `pnpm test` và e2e không chạy song song được trên cùng máy: API báo "Không liên lạc được với dịch vụ định danh" khi bộ kiểm thử máy chủ đang chạy cùng Redis và máy (mục 3.2) | Ghi vào hướng dẫn kiểm thử ở `20`: trên máy chạy e2e sau khi `pnpm test` xong, hoặc tách Redis cho e2e |
 
 ### 6.5 Điểm đã kiểm và đạt
