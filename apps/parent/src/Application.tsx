@@ -15,7 +15,6 @@ import {
 import { externalRequest } from './session/external-request.js';
 import { requestJson } from './session/api-client.js';
 import { SessionProvider, useSession } from './session/session.js';
-import { StudentApplication, useStudentRoute } from './student/StudentApplication.js';
 
 // Thông báo bảo trì của nhà vận hành nền tảng khi đã đăng nhập (DT-SaaS phần S4)
 const readPlatformNotices = () => requestJson<{ maintenance: MaintenanceNoticeItem[] }>('/api/v1/platform-notices');
@@ -77,11 +76,6 @@ function PushSync() {
 
 // Giao diện chỉ gọi giao diện lập trình ứng dụng, không chứa quy tắc nghiệp vụ (QU-09)
 export function Application() {
-  // Học sinh làm bài thi trực tuyến ở kênh đăng nhập riêng (DT-23 phần 23a)
-  const student = useStudentRoute();
-  if (student) {
-    return <StudentApplication />;
-  }
   return (
     <SessionProvider>
       {/* Dải bản trình diễn (DT-18 phần 18h) */}

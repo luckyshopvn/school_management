@@ -307,9 +307,10 @@ export function OnlineExamsPage() {
             <section className="flex flex-col gap-3" aria-label="Giao đề thi trực tuyến">
               <h2 className="text-section-title font-semibold text-text">Giao đề thi trực tuyến</h2>
               <Alert tone="info">
-                Học sinh làm bài ở ứng dụng phụ huynh (địa chỉ có #hoc-sinh) bằng tài khoản ở 4.1.10 Tài khoản học và
-                thi. Camera chỉ xử lý ngay trên máy học sinh, không gửi hình hay video lên máy chủ; sự kiện chỉ để giáo
-                viên xét, không tự trừ điểm. Chỉ giao được đề đã khoá; đề có câu tự luận chỉ cho làm một lần.
+                Học sinh làm bài ở ứng dụng học sinh (/hoc-sinh/ trên tên miền của ứng dụng phụ huynh) bằng tài khoản ở
+                4.1.10 Tài khoản học và thi. Camera chỉ xử lý ngay trên máy học sinh, không gửi hình hay video lên máy
+                chủ; sự kiện chỉ để giáo viên xét, không tự trừ điểm. Chỉ giao được đề đã khoá; đề có câu tự luận chỉ
+                cho làm một lần.
               </Alert>
               {create.error ? <Alert tone="danger">{messageOf(create.error)}</Alert> : null}
               <div className="flex flex-wrap items-end gap-3">

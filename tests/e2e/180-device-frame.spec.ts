@@ -1,6 +1,6 @@
 import { createDatabase, readConnectionString, type IdentityDatabase } from '@school-management/database';
 import { createTestUser } from '@school-management/identity/testing';
-import { E2E_PARENT_PORT, E2E_TEACHER_PORT } from '../e2e-environment.mjs';
+import { E2E_PARENT_PORT, E2E_STUDENT_PORT, E2E_TEACHER_PORT } from '../e2e-environment.mjs';
 import {
   accessibilityViolations,
   describeViolations,
@@ -13,7 +13,7 @@ import { expect, test } from './fixtures.js';
 
 // DT-26 phần 26c (YCTD-233, spec 180): khung kiểm thử theo khổ thiết bị. Spec gắn nhãn @thiet-bi (chạy ở bốn dự án thiết bị khi chạy đủ) và
 // @thiet-bi-pr (tập con chạy ở yêu cầu kéo). Chạy bằng E2E_DEVICES=pr hoặc E2E_DEVICES=full; ở dự án `chromium` mặc định các ca này vẫn chạy như
-// ca thường nên không thay đổi cách chạy hiện có. Đo ở các trang đăng nhập của ba ứng dụng và trang chủ cổng quản trị (dữ liệu giả)
+// ca thường nên không thay đổi cách chạy hiện có. Đo ở các trang đăng nhập của bốn ứng dụng và trang chủ cổng quản trị (dữ liệu giả)
 const database = createDatabase<IdentityDatabase>(readConnectionString('identity'));
 
 test.afterAll(async () => {
@@ -24,6 +24,8 @@ const LOGIN_PAGES = [
   { name: 'cổng quản trị', url: '/', heading: 'Đăng nhập' },
   { name: 'ứng dụng giáo viên', url: `http://localhost:${E2E_TEACHER_PORT}/`, heading: 'Đăng nhập' },
   { name: 'ứng dụng phụ huynh', url: `http://localhost:${E2E_PARENT_PORT}/`, heading: 'Đăng nhập' },
+  // Ứng dụng học sinh tách riêng (YCTD-300)
+  { name: 'ứng dụng học sinh', url: `http://localhost:${E2E_STUDENT_PORT}/`, heading: 'Đăng nhập học sinh' },
 ];
 
 for (const target of LOGIN_PAGES) {

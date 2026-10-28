@@ -7,9 +7,11 @@
 	import spa /srv/portal
 }
 
+# Ứng dụng học sinh ở /hoc-sinh/ của tên miền phụ huynh (YCTD-300)
 {$PARENT_SITE} {
 	import common
 	import backend
+	import student-app
 	import spa /srv/parent
 }
 

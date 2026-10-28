@@ -1,5 +1,12 @@
 import { useCallback, useEffect, useState } from 'react';
-import { Alert, Button, StatusBadge, type StatusTone } from '@school-management/ui';
+import {
+  Alert,
+  Button,
+  RecognitionList,
+  StatusBadge,
+  type RecognitionView,
+  type StatusTone,
+} from '@school-management/ui';
 import { StudentAssignmentView } from './StudentAssignmentView.js';
 import { StudentSpaceDiscussions } from './StudentDiscussions.js';
 import { ScormPlayer } from './ScormPlayer.js';
@@ -12,7 +19,6 @@ import {
   type OfflineConfig,
 } from './offline/offline.ts';
 import { fetchStudentFile, requestStudentJson, StudentApiError } from './student-api.js';
-import { RecognitionList, type RecognitionView } from '../screens/RecognitionList.js';
 
 // Học sinh tự học ở lớp học trực tuyến (DT-28 phần 28b, YCTD-272, sau khi 23a gộp kênh student): các lớp đã mở cho em, hoạt
 // động đã giao kèm hạn, trạng thái, lý do còn khóa; mở hoạt động thì máy chủ ghi đã xem (hoạt động "xem xong" thì hoàn thành);

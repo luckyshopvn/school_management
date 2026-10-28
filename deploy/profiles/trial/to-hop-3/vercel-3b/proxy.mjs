@@ -2,9 +2,9 @@ import { next, rewrite } from '@vercel/functions';
 
 // Cổng biên tổ hợp 3b (DT-SaaS phần S9, YCTD-203): Vercel Routing Middleware viết lại /api/v1 và website công khai về máy chủ, thêm
 // tên miền gốc (x-school-host) và bí mật cổng biên (x-edge-auth) như Cloudflare Worker ở tổ hợp 1. Tệp tĩnh của ba ứng dụng nằm ở
-// thư mục public (quan-ly, giao-vien, phu-huynh, nen-tang) và đi tiếp `next()`. Kiểm theo README tổ hợp 3 bước 1 trước khi dùng:
+// thư mục public (quan-ly, giao-vien, phu-huynh, hoc-sinh, nen-tang) và đi tiếp `next()`. Kiểm theo README tổ hợp 3 bước 1 trước khi dùng:
 // không thêm được tiêu đề thì không dùng tổ hợp này. Biến dự án: ORIGIN_URL, EDGE_SHARED_SECRET, CONSOLE_HOST, ROOT_DOMAIN
-const APP_PREFIXES = ['/quan-ly/', '/giao-vien/', '/phu-huynh/'];
+const APP_PREFIXES = ['/quan-ly/', '/giao-vien/', '/phu-huynh/', '/hoc-sinh/'];
 
 function originRequest(request, path) {
   const url = new URL(request.url);

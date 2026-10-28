@@ -13,7 +13,6 @@
     "@school-management/pwa": "workspace:*",
     "@school-management/shared": "workspace:*",
     "@school-management/ui": "workspace:*",
-    "@vladmandic/face-api": "1.7.15",
     "qrcode": "1.5.4",
     "react": "^19.2.0",
     "react-dom": "^19.2.0"

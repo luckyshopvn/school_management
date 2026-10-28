@@ -11,7 +11,7 @@ import { createTestUser } from '@school-management/identity/testing';
 import {
   E2E_API_PORT,
   E2E_IDENTITY_PORT,
-  E2E_PARENT_PORT,
+  E2E_STUDENT_PORT,
   E2E_SCHOOL_YEAR_DATABASE_PREFIX,
   E2E_TEACHER_PORT,
 } from '../e2e-environment.mjs';
@@ -21,7 +21,8 @@ import {
 // chỉ hiện họ tên viết tắt. Dữ liệu giả
 const identity = createDatabase<IdentityDatabase>(readConnectionString('identity'));
 let schoolYear: ReturnType<typeof createDatabase<SchoolYearDatabase>>;
-const PARENT_URL = `http://localhost:${E2E_PARENT_PORT}`;
+// Ứng dụng học sinh riêng (YCTD-300)
+const STUDENT_URL = `http://localhost:${E2E_STUDENT_PORT}`;
 const TEACHER_URL = `http://localhost:${E2E_TEACHER_PORT}`;
 const IDENTITY_API = `http://localhost:${E2E_IDENTITY_PORT}/api/v1`;
 const MAIN_API = `http://localhost:${E2E_API_PORT}/api/v1`;
@@ -199,7 +200,7 @@ test('CT-28i-6: bật huy hiệu, chứng nhận; học sinh có huy hiệu hoà
 
     // Học sinh mở bài, học xong khoá, thấy huy hiệu
     const student = await (await browser.newContext()).newPage();
-    await student.goto(`${PARENT_URL}/#hoc-sinh`);
+    await student.goto(`${STUDENT_URL}/`);
     await student.getByLabel('Tên đăng nhập').fill(account.username);
     await student.getByLabel('Mật khẩu', { exact: true }).fill(account.password);
     await student.getByRole('button', { name: 'Đăng nhập' }).click();

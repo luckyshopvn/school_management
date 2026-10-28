@@ -5,8 +5,22 @@ import { fetchCurrentUser } from '../session/api-client.js';
 import { useHasPermission } from '../session/permissions.js';
 import { BirthdayList, DashboardCards } from '../reports/DashboardCards.js';
 import { listExpiringContracts } from '../staff/staff-api.js';
+import { MyWorkSummary } from '../my-work/MyWorkSummary.js';
 import { AppShell } from './AppShell.js';
 import { QuickAccess } from './QuickAccess.js';
+
+// Dòng ngày trên tiêu đề trang chủ theo giờ Việt Nam, ví dụ "Thứ Tư, 28/10/2026"
+const todayText = () => {
+  const now = new Date();
+  const weekday = new Intl.DateTimeFormat('vi-VN', { weekday: 'long', timeZone: 'Asia/Ho_Chi_Minh' }).format(now);
+  const date = new Intl.DateTimeFormat('vi-VN', {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
+    timeZone: 'Asia/Ho_Chi_Minh',
+  }).format(now);
+  return `${weekday.charAt(0).toUpperCase()}${weekday.slice(1)}, ${date}`;
+};
 
 // Cảnh báo hợp đồng lao động sắp hết hạn theo số ngày cấu hình của đơn vị (BR-38, AC-38, YCTD-58)
 function ExpiringContracts() {
@@ -15,7 +29,7 @@ function ExpiringContracts() {
     return null;
   }
   return (
-    <section className="rounded-xl border border-border bg-card p-4" aria-label="Hợp đồng sắp hết hạn">
+    <section className="rounded-xl border border-border bg-card p-5" aria-label="Hợp đồng sắp hết hạn">
       <h2 className="text-section-title font-semibold text-text">Hợp đồng sắp hết hạn</h2>
       <ul className="mt-2 flex flex-col gap-1 text-content">
         {contracts.data.map((contract) => (
@@ -43,13 +57,19 @@ export function HomePage() {
       ) : currentUser.isError ? (
         <Alert tone="danger">{currentUser.error.message}</Alert>
       ) : (
-        <section className="flex flex-col gap-4">
-          <h1 className="text-page-title font-bold text-text">Xin chào, {currentUser.data.full_name}</h1>
-          <QuickAccess />
+        <section className="flex flex-col gap-5">
+          <div>
+            <p className="mb-1 text-label text-text-secondary">{todayText()}</p>
+            <h1 className="text-page-title font-bold text-text">Xin chào, {currentUser.data.full_name}</h1>
+          </div>
           <DashboardCards />
-          <BirthdayList />
-          {canViewStaff ? <ExpiringContracts /> : null}
-          <div className="rounded-xl border border-border bg-card p-4">
+          <div className="grid grid-cols-[repeat(auto-fit,minmax(min(360px,100%),1fr))] items-start gap-4">
+            <MyWorkSummary />
+            <BirthdayList />
+            {canViewStaff ? <ExpiringContracts /> : null}
+          </div>
+          <QuickAccess />
+          <div className="rounded-xl border border-border bg-card p-5">
             <h2 className="text-section-title font-semibold text-text">Vai trò của bạn</h2>
             <ul className="mt-2 flex flex-col gap-1" data-testid="role-list">
               {currentUser.data.assignments.map((assignment) => (

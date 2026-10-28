@@ -91,6 +91,7 @@ Pnpm monorepo, TypeScript. Máy chủ NestJS, giao diện React kèm Vite, cơ s
 | Cổng quản trị | `apps/portal` | Giao diện web cho cán bộ quản lý, 21 phân hệ, 284 tuyến trong `router.tsx` | 5173 | 5373 |
 | Ứng dụng giáo viên | `apps/teacher` | Web chạy trên điện thoại | 5174 | 5375 |
 | Ứng dụng phụ huynh | `apps/parent` | Web chạy trên điện thoại | 5175 | 5376 |
+| Ứng dụng học sinh | `apps/student` | Web chạy trên điện thoại: thi trực tuyến, bài tập, lớp học trực tuyến, học khi mạng yếu; tách khỏi ứng dụng phụ huynh (YCTD-300), chạy thật ở `/hoc-sinh/` | 5179 | 5379 |
 | Cổng vận hành nền tảng | `apps/platform` | Quản lý trường của DT-SaaS (Tổng quan, Trường) | 5177 | Theo cấu hình e2e nhiều trường |
 
 Gói dùng chung: `packages/shared` (cây menu, mã quyền, điều kiện quyền theo menu, cấp học), `packages/server` (mã phiên, ngữ cảnh trường, tên khóa, máy xếp thời khóa biểu, eSMS), `packages/ui` (thành phần giao diện), `packages/config`. Thư mục `database/` chứa migration và lệnh quản trị cơ sở dữ liệu.

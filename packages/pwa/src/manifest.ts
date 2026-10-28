@@ -1,7 +1,7 @@
 // Manifest theo thương hiệu của trường (DT-26 phần 26a, YCTD-231): trỏ thẻ manifest của trang sang manifest do máy chủ sinh
 // theo trường đang phục vụ (tên, màu, biểu tượng của trường, S3), rồi đặt các thẻ iOS đọc thay manifest (tên dưới biểu tượng,
 // biểu tượng Apple, màu thanh trạng thái). Manifest tĩnh trong public/ vẫn là bản dự phòng khi không gọi được máy chủ
-// `student`: màn hình học sinh của 23a trong ứng dụng phụ huynh (#hoc-sinh)
+// `student`: ứng dụng học sinh (apps/student, YCTD-300)
 export type PwaApplication = 'teacher' | 'parent' | 'student';
 
 interface BrandedManifest {
@@ -43,7 +43,7 @@ function setLink(rel: string, href: string) {
   link.setAttribute('href', href);
 }
 
-// Nhiều lần gọi liên tiếp (ứng dụng phụ huynh rồi màn hình học sinh): chỉ lần gọi sau cùng được áp, dù phản hồi về theo thứ tự nào
+// Nhiều lần gọi liên tiếp: chỉ lần gọi sau cùng được áp, dù phản hồi về theo thứ tự nào
 let latestCall = 0;
 
 export async function applyBrandedManifest(application: PwaApplication, base: string): Promise<void> {
