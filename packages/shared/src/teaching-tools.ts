@@ -28,6 +28,7 @@ export interface TeachingTool {
 
 const ALL: readonly SchoolLevelCode[] = ['MN', 'TH', 'THCS', 'THPT'];
 const GENERAL: readonly SchoolLevelCode[] = ['TH', 'THCS', 'THPT'];
+const PRIMARY_AND_BELOW: readonly SchoolLevelCode[] = ['MN', 'TH'];
 
 export const TEACHING_TOOLS: readonly TeachingTool[] = [
   // Công cụ lớp học đã có (DT-23 phần 23b, 23c)
@@ -71,6 +72,71 @@ export const TEACHING_TOOLS: readonly TeachingTool[] = [
     section: 'games',
     levels: GENERAL,
     offline: false,
+  },
+  // Công cụ chung và Mầm non (DT-29 phần 29b, YCTD-326): chạy hoàn toàn trên máy giáo viên
+  {
+    key: 'whiteboard',
+    label: 'Bảng trắng',
+    description: 'Viết, vẽ bằng ngón tay hoặc bút cảm ứng',
+    section: 'classroom',
+    levels: ALL,
+    offline: true,
+  },
+  {
+    key: 'dice',
+    label: 'Xúc xắc, bốc số',
+    description: 'Tung xúc xắc, bốc số trong khoảng tự đặt',
+    section: 'classroom',
+    levels: ALL,
+    offline: true,
+  },
+  {
+    key: 'visual-timer',
+    label: 'Đồng hồ hình ảnh',
+    description: 'Đĩa màu vơi dần, trẻ nhìn là hiểu còn bao lâu',
+    section: 'classroom',
+    levels: PRIMARY_AND_BELOW,
+    offline: true,
+  },
+  {
+    key: 'noise-light',
+    label: 'Đèn giữ trật tự',
+    description: 'Đo độ ồn bằng micro trên máy, không ghi âm',
+    section: 'classroom',
+    levels: PRIMARY_AND_BELOW,
+    offline: true,
+  },
+  {
+    key: 'star-board',
+    label: 'Bảng thưởng sao',
+    description: 'Gắn sao cho nhóm, không xếp hạng',
+    section: 'classroom',
+    levels: PRIMARY_AND_BELOW,
+    offline: true,
+  },
+  {
+    key: 'shapes-colors',
+    label: 'Hình và màu',
+    description: 'Nhận biết hình, gọi tên màu, chữ to',
+    section: 'subject',
+    levels: ['MN'],
+    offline: true,
+  },
+  {
+    key: 'counting',
+    label: 'Đếm và số',
+    description: 'Chạm để đếm đồ vật từ 1 đến 10',
+    section: 'subject',
+    levels: ['MN'],
+    offline: true,
+  },
+  {
+    key: 'alphabet',
+    label: 'Làm quen chữ cái',
+    description: '29 chữ cái tiếng Việt cỡ lớn',
+    section: 'subject',
+    levels: ['MN'],
+    offline: true,
   },
   // Lối vào các màn đã có của ứng dụng giáo viên
   {
