@@ -12,7 +12,7 @@ import {
 import { SupportPanel } from './SupportPanel.js';
 import { CatalogUnitPicker } from './CatalogPage.js';
 import { catalogApi } from './catalog-api.js';
-import { DATA_CLASS_LABELS, SchoolDataGovernance } from './SchoolDataGovernance.js';
+import { SchoolDataGovernance } from './SchoolDataGovernance.js';
 
 // Trang Trường của cổng vận hành nền tảng (DT-SaaS phần S2, YCTD-193; tài liệu 32 mục 14.5): danh sách, bước setup năm bước,
 // chi tiết và thao tác vòng đời. Hồ sơ đồng ý dùng dữ liệu thật (PL-00 của S8a) nhập ở bước 3 khi chọn loại dữ liệu `consented`
@@ -24,6 +24,11 @@ const STATUS_LABELS: Record<string, string> = {
   suspended: 'Tạm dừng',
   pending_deletion: 'Chờ xóa',
   deleted: 'Đã xóa',
+};
+const DATA_CLASS_LABELS: Record<string, string> = {
+  synthetic: 'Dữ liệu giả',
+  consented: 'Dữ liệu thật có đồng ý',
+  production: 'Vận hành chính thức',
 };
 const LEVELS = [
   { code: 'MN', label: 'Mầm non' },
