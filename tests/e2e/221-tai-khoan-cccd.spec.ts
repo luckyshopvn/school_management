@@ -30,7 +30,8 @@ test('CT-1520: tài khoản theo số CCCD đăng nhập lần đầu bằng m�
     data: {
       full_name: 'Nhân viên CCCD e2e',
       national_id: nationalId,
-      roles: [{ role_code: 'VT-06', org_unit_id: null }],
+      // Vai trò toàn trường (WHOLE_SCHOOL_ROLE_CODES) không cần đơn vị
+      roles: [{ role_code: 'VT-19', org_unit_id: null }],
     },
   });
   expect(created.status()).toBe(201);
