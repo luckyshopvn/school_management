@@ -26,6 +26,8 @@ export interface CurrentUser {
   id: string;
   full_name: string;
   phone: string | null;
+  // Phiên quản trị nền tảng vào thẳng (YCTD-315b): chế độ xem của nhân viên hỗ trợ, chỉ đọc
+  support?: { full_access?: boolean; operator_name: string } | null;
 }
 
 // Mã phiên chỉ giữ trong bộ nhớ; mã làm mới nằm trong cookie httpOnly (BM-71)
