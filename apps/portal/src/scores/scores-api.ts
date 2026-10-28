@@ -1,5 +1,5 @@
 import type { RatingCode, ScoreConfig, SchoolLevelCode } from '@school-management/shared';
-import { ApiError, requestJson } from '../session/api-client.js';
+import { ApiError, fetchWithSession, requestJson } from '../session/api-client.js';
 
 // Gọi các điểm cuối sổ điểm THCS, THPT theo Thông tư 22/2021 (DT-21 phần 21c, YCTD-170)
 export type TermType = 'first_term' | 'second_term';
@@ -94,6 +94,40 @@ export const saveScoreSheet = (
   entries: ScoreEntryInput[],
 ): Promise<ScoreSheet> =>
   requestJson(`/api/v1/scores/classes/${classId}/subjects/${subjectId}`, json('PUT', { term_type: term, entries }));
+// Tệp của sổ điểm (YCTD-318): tệp mẫu nhập kèm học sinh, điểm đang có; in sổ ra PDF; nhập từ tệp mẫu đã điền
+export async function downloadScoreFile(
+  classId: string,
+  subjectId: string,
+  term: TermType,
+  kind: 'template' | 'print',
+): Promise<void> {
+  const response = await fetchWithSession(
+    `/api/v1/scores/classes/${classId}/subjects/${subjectId}/${kind}?term_type=${term}`,
+  );
+  if (!response.ok) {
+    throw new ApiError(
+      response.status,
+      'ERR_FORBIDDEN',
+      kind === 'print' ? 'Không in được sổ điểm' : 'Không tải được mẫu',
+    );
+  }
+  const link = document.createElement('a');
+  link.href = URL.createObjectURL(await response.blob());
+  link.download = kind === 'print' ? 'so-diem.pdf' : 'so-diem.xlsx';
+  link.click();
+  setTimeout(() => URL.revokeObjectURL(link.href), 10_000);
+}
+export const importScoreSheet = (
+  classId: string,
+  subjectId: string,
+  term: TermType,
+  file: File,
+): Promise<{ saved: number; errors: Array<{ row: number; column: string | null; message: string }> }> => {
+  const form = new FormData();
+  form.set('term_type', term);
+  form.set('file', file);
+  return requestJson(`/api/v1/scores/classes/${classId}/subjects/${subjectId}/import`, { method: 'POST', body: form });
+};
 export const readScoreSummary = (classId: string, term: RatingTerm): Promise<ScoreSummary> =>
   requestJson(`/api/v1/scores/classes/${classId}/summary?term_type=${term}`);
 export const saveScoreRatings = (
