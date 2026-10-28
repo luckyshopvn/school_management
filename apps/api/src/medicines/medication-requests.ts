@@ -17,15 +17,19 @@ import { CurrentSchoolYearResolver } from '../common/current-school-year.js';
 import { queueNotification } from '../common/notification-queue.js';
 import { isUuid, notFoundError, readRequiredUuid, type RequestBody } from '../common/request-fields.js';
 import { uuidParameter } from '../common/uuid-parameter.js';
-import { guardianUserIds, isGuardianOf } from '../finance/receivables.js';
+import { guardianUserIds, isGuardianOf, smsGuardianUserIds } from '../finance/receivables.js';
 import { readHealthDate, readNote } from '../health/health-fields.js';
 import { MedicationAccess } from './medication-access.js';
 
 // Yêu cầu dặn thuốc, nhận thuốc và cho uống thuốc (P10-03, P10-04; BR-48, BR-49, BR-50, BR-86, BR-88; YCTD-75).
-// Trạng thái: Chờ nhận (pending) → Đang cho uống (administering) → Hoàn thành (completed), hoặc Từ chối (rejected).
+// Trạng thái theo QT-07 mục 7 (YCTD-344): Phụ huynh gửi (pending) → Đã nhận thuốc (received) → Đang cho uống (administering,
+// từ liều đầu tiên) → Hoàn thành (completed, hệ thống chuyển khi hết thời gian dùng hoặc đủ liều), hoặc Từ chối (rejected).
 // Phụ huynh gửi đủ tên thuốc, liều, giờ, thời gian dùng, dị ứng và ít nhất một ảnh thuốc; người nhận thuốc xác nhận nhận
-// rồi mới ghi liều; mỗi liều theo ngày và giờ chỉ ghi một lần; bỏ liều phải có lý do và báo phụ huynh xác nhận đã biết
-const STATUSES: MedicationRequestStatus[] = ['pending', 'administering', 'completed', 'rejected'];
+// rồi mới ghi liều; mỗi liều theo ngày và giờ chỉ ghi một lần; cho uống thì báo phụ huynh trong ứng dụng; bỏ liều phải có lý do,
+// báo phụ huynh trong ứng dụng và tin nhắn để phụ huynh xác nhận đã biết
+const STATUSES: MedicationRequestStatus[] = ['pending', 'received', 'administering', 'completed', 'rejected'];
+// Phiếu đã nhận thuốc hoặc đang cho uống: thuốc nằm trong danh sách cần cho uống (BR-49)
+const ACTIVE_STATUSES: MedicationRequestStatus[] = ['received', 'administering'];
 const TIME_PATTERN = /^([01]\d|2[0-3]):[0-5]\d$/;
 const MAXIMUM_TIMES = 6;
 const MAXIMUM_PHOTOS = 5;
@@ -139,27 +143,28 @@ export class MedicationRequestsService {
         })
         .returningAll()
         .executeTakeFirstOrThrow();
-      const homeroomUsers =
-        assignedRole === 'homeroom' && child.class_id
-          ? await transaction
-              .selectFrom('class_staff_assignments')
-              .select('staff_user_id')
-              .where('class_id', '=', child.class_id)
-              .where('assignment_role', '=', 'homeroom')
-              .where('status', '=', 'active')
-              .execute()
-          : [];
+      // QT-07 bước 3: thông báo cả y tế và giáo viên chủ nhiệm, ghi rõ ai là người nhận thuốc
+      const homeroomUsers = child.class_id
+        ? await transaction
+            .selectFrom('class_staff_assignments')
+            .select('staff_user_id')
+            .where('class_id', '=', child.class_id)
+            .where('assignment_role', '=', 'homeroom')
+            .where('status', '=', 'active')
+            .execute()
+        : [];
+      const receiverLabel = assignedRole === 'homeroom' ? 'giáo viên chủ nhiệm' : 'nhân viên y tế';
       await queueNotification(transaction, {
         orgUnitId: child.org_unit_id,
         templateCode: 'medication_requested',
         title: 'Yêu cầu dặn thuốc mới',
-        body: `Phụ huynh của ${child.full_name} dặn thuốc ${input.medicine_name}, ${input.dosage}, lúc ${created.times.join(', ')}`,
+        body: `Phụ huynh của ${child.full_name} dặn thuốc ${input.medicine_name}, ${input.dosage}, lúc ${created.times.join(', ')}. Người nhận thuốc: ${receiverLabel}`,
         targetType: 'medication_requests',
         targetId: created.id,
-        recipients:
-          assignedRole === 'homeroom'
-            ? homeroomUsers.map((row) => ({ userId: row.staff_user_id, channel: 'in_app' as const }))
-            : [{ roleCode: 'VT-09', orgUnitId: child.org_unit_id, channel: 'in_app' as const }],
+        recipients: [
+          { roleCode: 'VT-09', orgUnitId: child.org_unit_id, channel: 'in_app' as const },
+          ...homeroomUsers.map((row) => ({ userId: row.staff_user_id, channel: 'in_app' as const })),
+        ],
       });
       await writeAuditLog(transaction, {
         origin,
@@ -174,8 +179,20 @@ export class MedicationRequestsService {
     });
   }
 
+  // QT-07 mục 7: hết thời gian dùng thuốc thì hệ thống chuyển phiếu đã nhận hoặc đang cho uống sang hoàn thành. Chạy khi đọc
+  // danh sách, chi tiết, lịch cho uống (mọi nơi trạng thái hiện ra), không cần việc nền theo giờ
+  private async completeExpired(database: Kysely<SchoolYearDatabase>) {
+    await database
+      .updateTable('medication_requests')
+      .set({ status: 'completed', completed_at: this.clock.now() })
+      .where('status', 'in', ACTIVE_STATUSES)
+      .where('to_date', '<', this.today())
+      .execute();
+  }
+
   async list(currentUser: CurrentUser, filter: ListFilter) {
     const { database } = await this.currentSchoolYear.require();
+    await this.completeExpired(database);
     let query = this.requestQuery(database);
     if (filter.childId) {
       await this.access.assertCanRead(currentUser, database, filter.childId);
@@ -213,6 +230,7 @@ export class MedicationRequestsService {
 
   async read(currentUser: CurrentUser, requestId: string) {
     const { database } = await this.currentSchoolYear.require();
+    await this.completeExpired(database);
     const row = await this.requestQuery(database).where('medication_requests.id', '=', requestId).executeTakeFirst();
     if (!row) {
       throw notFoundError('Không tìm thấy yêu cầu dặn thuốc', 'medication_request');
@@ -241,7 +259,7 @@ export class MedicationRequestsService {
     return database.transaction().execute(async (transaction) => {
       const updated = await transaction
         .updateTable('medication_requests')
-        .set({ ...input, status: 'administering', received_by: currentUser.id, received_at: this.clock.now() })
+        .set({ ...input, status: 'received', received_by: currentUser.id, received_at: this.clock.now() })
         .where('id', '=', requestId)
         .where('status', '=', 'pending')
         .returningAll()
@@ -261,7 +279,7 @@ export class MedicationRequestsService {
         entityId: requestId,
         action: 'update',
         before: { status: 'pending' },
-        after: { status: 'administering', ...input },
+        after: { status: 'received', ...input },
       });
       return updated;
     });
@@ -286,6 +304,7 @@ export class MedicationRequestsService {
         templateCode: 'medication_rejected',
         title: 'Nhà trường không nhận thuốc',
         body: `Không nhận thuốc ${request.medicine_name} của ${child.full_name}. Lý do: ${reason}`,
+        sms: true,
       });
       await writeAuditLog(transaction, {
         origin,
@@ -300,7 +319,8 @@ export class MedicationRequestsService {
     });
   }
 
-  // Kết thúc sớm (phụ huynh dặn ngừng thuốc); hết liều theo lịch thì hệ thống tự chuyển hoàn thành
+  // Kết thúc sớm (phụ huynh dặn ngừng thuốc) từ đã nhận thuốc hoặc đang cho uống; hết liều hoặc hết thời gian dùng thì hệ thống
+  // tự chuyển hoàn thành
   async complete(currentUser: CurrentUser, requestId: string, origin: ChangeOrigin) {
     const { database } = await this.currentSchoolYear.require();
     const request = await this.load(database, requestId);
@@ -310,11 +330,11 @@ export class MedicationRequestsService {
         .updateTable('medication_requests')
         .set({ status: 'completed', completed_at: this.clock.now() })
         .where('id', '=', requestId)
-        .where('status', '=', 'administering')
+        .where('status', 'in', ACTIVE_STATUSES)
         .returningAll()
         .executeTakeFirst();
       if (!updated) {
-        throw ruleViolationError('P10-04', 'Chỉ hoàn thành được yêu cầu đang cho uống');
+        throw ruleViolationError('P10-04', 'Chỉ hoàn thành được yêu cầu đã nhận thuốc hoặc đang cho uống');
       }
       await writeAuditLog(transaction, {
         origin,
@@ -322,7 +342,7 @@ export class MedicationRequestsService {
         entityName: 'medication_requests',
         entityId: requestId,
         action: 'update',
-        before: { status: 'administering' },
+        before: { status: request.status },
         after: { status: 'completed' },
       });
       return updated;
@@ -335,9 +355,9 @@ export class MedicationRequestsService {
     const request = await this.load(database, input.request_id);
     const child = await this.access.assertCanAdminister(currentUser, database, request.child_id);
     if (request.status === 'pending') {
-      throw ruleViolationError('BR-49', 'Chưa xác nhận nhận thuốc nên chưa ghi được liều');
+      throw ruleViolationError('BR-49', 'Cần xác nhận đã nhận thuốc trước khi ghi nhận liều');
     }
-    if (request.status !== 'administering') {
+    if (!ACTIVE_STATUSES.includes(request.status)) {
       throw ruleViolationError('P10-04', 'Yêu cầu dặn thuốc đã kết thúc, không ghi thêm liều');
     }
     const scheduledDate = input.scheduled_date ?? this.today();
@@ -373,13 +393,34 @@ export class MedicationRequestsService {
           })
           .returningAll()
           .executeTakeFirstOrThrow();
-        if (input.is_skipped) {
-          await this.notifyGuardians(transaction, child, row.id, {
-            templateCode: 'medication_dose_skipped',
-            title: 'Bỏ liều thuốc của con',
-            body: `${child.full_name} bỏ liều ${request.medicine_name} lúc ${input.scheduled_time} ngày ${scheduledDate}. Lý do: ${input.skip_reason ?? ''}`,
-            targetType: 'medication_administrations',
-          });
+        // QT-07 mục 9: cho uống báo phụ huynh trong ứng dụng; bỏ liều báo trong ứng dụng và tin nhắn
+        await this.notifyGuardians(
+          transaction,
+          child,
+          row.id,
+          input.is_skipped
+            ? {
+                templateCode: 'medication_dose_skipped',
+                title: 'Bỏ liều thuốc của con',
+                body: `${child.full_name} bỏ liều ${request.medicine_name} lúc ${input.scheduled_time} ngày ${scheduledDate}. Lý do: ${input.skip_reason ?? ''}`,
+                targetType: 'medication_administrations',
+                sms: true,
+              }
+            : {
+                templateCode: 'medication_dose_given',
+                title: 'Con đã được cho uống thuốc',
+                body: `${child.full_name} đã được cho uống ${request.medicine_name}, ${request.dosage}, liều ${input.scheduled_time} ngày ${scheduledDate}`,
+                targetType: 'medication_administrations',
+              },
+        );
+        // QT-07 mục 7: ghi liều đầu tiên chuyển đã nhận thuốc sang đang cho uống
+        if (request.status === 'received') {
+          await transaction
+            .updateTable('medication_requests')
+            .set({ status: 'administering' })
+            .where('id', '=', request.id)
+            .where('status', '=', 'received')
+            .execute();
         }
         const recorded = await transaction
           .selectFrom('medication_administrations')
@@ -457,6 +498,7 @@ export class MedicationRequestsService {
     input: { date: string | undefined; orgUnitId: string | null; classId: string | null },
   ) {
     const { database } = await this.currentSchoolYear.require();
+    await this.completeExpired(database);
     const filter = { ...input, date: input.date ?? this.today() };
     const requests = (
       await this.list(currentUser, {
@@ -468,7 +510,7 @@ export class MedicationRequestsService {
     ).filter(
       // Yêu cầu tự hoàn thành sau liều cuối vẫn hiện trong lịch của ngày để thấy liều đã ghi
       (request) =>
-        (request.status === 'administering' || request.status === 'completed') &&
+        (ACTIVE_STATUSES.includes(request.status) || request.status === 'completed') &&
         request.from_date <= filter.date &&
         request.to_date >= filter.date,
     );
@@ -499,7 +541,7 @@ export class MedicationRequestsService {
             request.administrations.find(
               (dose) => dose.scheduled_date === filter.date && dose.scheduled_time === time,
             ) ?? null,
-          can_administer: request.status === 'administering' && (allowed.get(key) ?? false),
+          can_administer: ACTIVE_STATUSES.includes(request.status) && (allowed.get(key) ?? false),
         });
       }
     }
@@ -582,7 +624,7 @@ export class MedicationRequestsService {
   private async load(database: Kysely<SchoolYearDatabase>, requestId: string) {
     const request = await database
       .selectFrom('medication_requests')
-      .select(['id', 'child_id', 'medicine_name', 'times', 'from_date', 'to_date', 'status'])
+      .select(['id', 'child_id', 'medicine_name', 'dosage', 'times', 'from_date', 'to_date', 'status'])
       .where('id', '=', requestId)
       .executeTakeFirst();
     if (!request) {
@@ -623,9 +665,11 @@ export class MedicationRequestsService {
     executor: Kysely<SchoolYearDatabase>,
     child: { id: string; org_unit_id: string },
     targetId: string,
-    message: { templateCode: string; title: string; body: string; targetType?: string },
+    message: { templateCode: string; title: string; body: string; targetType?: string; sms?: boolean },
   ) {
     const guardians = await guardianUserIds(executor, child.id);
+    // Tin nhắn chỉ gửi phụ huynh nhận tin nhắn của trẻ, như thông báo sự kiện y tế nặng
+    const smsGuardians = message.sms ? await smsGuardianUserIds(executor, child.id) : [];
     await queueNotification(executor, {
       orgUnitId: child.org_unit_id,
       templateCode: message.templateCode,
@@ -633,7 +677,10 @@ export class MedicationRequestsService {
       body: message.body,
       targetType: message.targetType ?? 'medication_requests',
       targetId,
-      recipients: guardians.map((userId) => ({ userId, channel: 'in_app' as const })),
+      recipients: [
+        ...guardians.map((userId) => ({ userId, channel: 'in_app' as const })),
+        ...smsGuardians.map((userId) => ({ userId, channel: 'sms' as const })),
+      ],
     });
   }
 }
@@ -720,7 +767,7 @@ export class MedicationRequestsController {
     const status = query.status as MedicationRequestStatus | undefined;
     if (status !== undefined && !STATUSES.includes(status)) {
       throw validationError([
-        { field: 'status', message: 'Trạng thái là pending, administering, completed hoặc rejected' },
+        { field: 'status', message: 'Trạng thái là pending, received, administering, completed hoặc rejected' },
       ]);
     }
     return this.requests.list(currentUser, {

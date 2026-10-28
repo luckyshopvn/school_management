@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
-import { Alert, Button, FORM_CONTROL_CLASS } from '@school-management/ui';
+import { Alert, Button, FORM_CONTROL_CLASS, StatusBadge, type StatusTone } from '@school-management/ui';
 import {
   errorText,
   marketRequest,
@@ -8,24 +8,32 @@ import {
   ReportForm,
   type Child,
 } from '@school-management/market-client';
+import { CARD_CLASS, money, when } from './styles.js';
 
 // Đặt buổi và buổi học của con ở Chợ gia sư (DT-27 phần 27h, YCTD-258): chọn con, môn, giờ (giờ Việt Nam), trả tiền qua nhà cung cấp
-// (bản này là thanh toán giả lập, không có tiền thật), hủy theo chính sách hủy, mở tranh chấp trong hạn khiếu nại, trình bày, khiếu nại lại
-const STATUS_LABELS: Record<string, string> = {
-  held: 'Đang giữ chỗ, chờ trả tiền',
-  paid: 'Đã trả tiền',
-  completed: 'Gia sư đã dạy, trong hạn khiếu nại',
-  disputed: 'Đang tranh chấp',
-  disbursed: 'Đã hoàn tất',
-  refunded: 'Đã hoàn tiền',
-  cancelled: 'Đã hủy',
-  expired: 'Hết hạn giữ chỗ',
+// (bản này là thanh toán giả lập, không có tiền thật), hủy theo chính sách hủy, mở tranh chấp trong hạn khiếu nại, trình bày, khiếu nại lại.
+// Bố cục theo bản thiết kế duyệt ngày 2026-10-28 (YCTD-360): thẻ đặt buổi có tóm tắt giá và hạn giữ chỗ; buổi học chia nhóm sắp tới, cần
+// xử lý, đã xong; khung thanh toán giả lập ghi rõ không có tiền thật
+const STATUS: Record<string, { label: string; tone: StatusTone }> = {
+  held: { label: 'Đang giữ chỗ, chờ trả tiền', tone: 'warning' },
+  paid: { label: 'Đã trả tiền', tone: 'success' },
+  completed: { label: 'Gia sư đã dạy, trong hạn khiếu nại', tone: 'info' },
+  disputed: { label: 'Đang tranh chấp', tone: 'danger' },
+  disbursed: { label: 'Đã hoàn tất', tone: 'neutral' },
+  refunded: { label: 'Đã hoàn tiền', tone: 'neutral' },
+  cancelled: { label: 'Đã hủy', tone: 'neutral' },
+  expired: { label: 'Hết hạn giữ chỗ', tone: 'neutral' },
 };
 const DECISION_LABELS: Record<string, string> = {
   refund_full: 'hoàn đủ',
   refund_partial: 'hoàn một phần',
   release: 'giải ngân cho gia sư',
 };
+const GROUPS: Array<{ label: string; statuses: string[] }> = [
+  { label: 'Sắp tới', statuses: ['held', 'paid'] },
+  { label: 'Cần bạn xem', statuses: ['completed', 'disputed'] },
+  { label: 'Đã xong', statuses: ['disbursed', 'refunded', 'cancelled', 'expired'] },
+];
 
 export interface BookableSubject {
   id: string;
@@ -56,9 +64,6 @@ interface Booking {
   final_note: string | null;
 }
 
-const money = (value: number) => `${value.toLocaleString('vi-VN')} đồng`;
-const when = (value: string) => new Date(value).toLocaleString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh' });
-
 // Ô ngày giờ của trình duyệt không có múi giờ: hiểu là giờ Việt Nam (UTC+7)
 export function vietnamInputToIso(value: string): string {
   return new Date(`${value}:00+07:00`).toISOString();
@@ -69,11 +74,13 @@ export function BookingForm({
   tutorName,
   subjects,
   schoolTeacher,
+  onBooked,
 }: {
   tutorId: string;
   tutorName: string;
   subjects: BookableSubject[];
   schoolTeacher: boolean;
+  onBooked?: () => void;
 }) {
   const [children, setChildren] = useState<Child[]>([]);
   const [form, setForm] = useState({
@@ -94,14 +101,29 @@ export function BookingForm({
       })
       .catch(() => setChildren([]));
   }, []);
-  if (!readSession()) return <p className="text-text-secondary">Đăng nhập tài khoản phụ huynh để đặt buổi.</p>;
-  if (children.length === 0) return <p className="text-text-secondary">Thêm hồ sơ con trước khi đặt buổi.</p>;
+  const shell = `${CARD_CLASS} flex flex-col gap-3 p-5`;
+  if (!readSession()) {
+    return (
+      <section aria-label="Đặt buổi học" className={shell}>
+        <h3 className="text-section-title font-semibold">Đặt buổi học</h3>
+        <p className="text-text-secondary">Đăng nhập tài khoản phụ huynh để đặt buổi.</p>
+      </section>
+    );
+  }
+  if (children.length === 0) {
+    return (
+      <section aria-label="Đặt buổi học" className={shell}>
+        <h3 className="text-section-title font-semibold">Đặt buổi học</h3>
+        <p className="text-text-secondary">Thêm hồ sơ con trước khi đặt buổi.</p>
+      </section>
+    );
+  }
   const subject = subjects.find((item) => item.id === form.subject_id);
   const needsAttest = schoolTeacher && subject?.content_kind === 'curriculum';
   return (
     <form
       aria-label={`Đặt buổi với ${tutorName}`}
-      className="flex flex-col gap-2 rounded-lg border p-3"
+      className={shell}
       onSubmit={(event) => {
         event.preventDefault();
         marketRequest<Booking>('POST', '/bookings', {
@@ -119,15 +141,22 @@ export function BookingForm({
           .catch((caught: unknown) => setError(errorText(caught)));
       }}
     >
-      <h3 className="font-semibold">Đặt buổi</h3>
+      <h3 className="text-section-title font-semibold">Đặt buổi học</h3>
       {error ? <Alert tone="danger">{error}</Alert> : null}
       {booked ? (
-        <Alert tone="success">
-          Đã giữ chỗ buổi {booked.subject} lúc {when(booked.starts_at)}, {money(booked.price)}. Trả tiền ở mục Buổi học
-          của con trong 30 phút.
-        </Alert>
+        <div className="flex flex-col gap-2">
+          <Alert tone="success">
+            Đã giữ chỗ buổi {booked.subject} lúc {when(booked.starts_at)}, {money(booked.price)}. Trả tiền ở mục Buổi
+            học của con trong 30 phút.
+          </Alert>
+          {onBooked ? (
+            <Button variant="primary" onClick={onBooked}>
+              Sang thanh toán giả lập
+            </Button>
+          ) : null}
+        </div>
       ) : null}
-      <label className="flex flex-col">
+      <label className="flex flex-col gap-1 text-label font-medium">
         Con
         <select
           className={FORM_CONTROL_CLASS}
@@ -141,7 +170,7 @@ export function BookingForm({
           ))}
         </select>
       </label>
-      <label className="flex flex-col">
+      <label className="flex flex-col gap-1 text-label font-medium">
         Môn
         <select
           className={FORM_CONTROL_CLASS}
@@ -155,7 +184,7 @@ export function BookingForm({
           ))}
         </select>
       </label>
-      <label className="flex flex-col">
+      <label className="flex flex-col gap-1 text-label font-medium">
         Giờ học (giờ Việt Nam)
         <input
           className={FORM_CONTROL_CLASS}
@@ -165,28 +194,96 @@ export function BookingForm({
         />
       </label>
       {needsAttest ? (
-        <label>
+        <label className="flex items-start gap-2 rounded-lg bg-warning/10 p-3 text-label">
           <input
             type="checkbox"
+            className="mt-1"
             checked={form.attest}
             onChange={(event) => setForm({ ...form, attest: event.target.checked })}
-          />{' '}
-          Tôi cam kết con không học lớp do gia sư này được phân công dạy ở trường
+          />
+          <span>Tôi cam kết con không học lớp do gia sư này được phân công dạy ở trường</span>
         </label>
       ) : null}
-      <label>
+      <label className="flex items-start gap-2 text-label">
         <input
           type="checkbox"
+          className="mt-1"
           checked={form.recording}
           onChange={(event) => setForm({ ...form, recording: event.target.checked })}
-        />{' '}
-        Tôi đồng ý buổi học được ghi hình (bắt buộc với trẻ dưới 18 tuổi; bản ghi giữ 30 ngày, chỉ phụ huynh, gia sư của
-        buổi và nhân viên nền tảng xem được, không tải xuống)
+        />
+        <span>
+          Tôi đồng ý buổi học được ghi hình (bắt buộc với trẻ dưới 18 tuổi; bản ghi giữ 30 ngày, chỉ phụ huynh, gia sư
+          của buổi và nhân viên nền tảng xem được, không tải xuống)
+        </span>
       </label>
+      {subject ? (
+        <dl className="grid grid-cols-[1fr_auto] gap-x-3 gap-y-1 border-t border-border pt-3 text-label">
+          <dt className="text-text-secondary">Học phí buổi</dt>
+          <dd>{money(subject.price_per_session)}</dd>
+          <dt className="text-text-secondary">Thời lượng</dt>
+          <dd>{subject.session_minutes} phút</dd>
+        </dl>
+      ) : null}
+      <p className="rounded-lg bg-warning/10 p-3 text-label text-warning">
+        Giữ chỗ 30 phút. Chưa trả trong thời gian này thì chỗ được nhả.
+      </p>
       <Button type="submit" variant="primary">
         Giữ chỗ buổi học
       </Button>
     </form>
+  );
+}
+
+// Khung thanh toán giả lập của một buổi đang giữ chỗ: nói rõ không có tiền thật, mã QR chỉ là chỗ đặt, nút giả lập trả thành công
+function MockPayment({ booking, onPaid, onClose }: { booking: Booking; onPaid: () => void; onClose: () => void }) {
+  const [error, setError] = useState<string>();
+  return (
+    <section
+      aria-label={`Thanh toán giả lập buổi ${booking.subject}`}
+      className="flex flex-col gap-3 rounded-xl border border-warning/30 bg-warning/5 p-4"
+    >
+      <div role="note" className="flex flex-col gap-1 text-warning">
+        <strong>Đây là thanh toán giả lập</strong>
+        <span className="text-label">
+          Chợ gia sư chưa thu tiền thật. Không có tiền nào rời tài khoản của bạn; khung này chỉ để chạy thử luồng đặt
+          buổi.
+        </span>
+      </div>
+      {error ? <Alert tone="danger">{error}</Alert> : null}
+      <div className="flex flex-wrap items-center gap-4">
+        <div
+          role="img"
+          aria-label="Chỗ đặt mã QR giả lập"
+          className="flex size-32 items-center justify-center rounded-xl border-2 border-dashed border-border-strong bg-card text-center text-label text-text-secondary"
+        >
+          Mã QR giả lập
+          <br />
+          không quét được
+        </div>
+        <dl className="grid flex-1 grid-cols-[auto_1fr] gap-x-4 gap-y-1 text-label">
+          <dt className="text-text-secondary">Số tiền</dt>
+          <dd className="font-semibold">{money(booking.price)}</dd>
+          <dt className="text-text-secondary">Người nhận</dt>
+          <dd>Bộ giả lập của chợ (không phải tài khoản thật)</dd>
+        </dl>
+      </div>
+      <div className="flex flex-wrap gap-2">
+        <Button
+          variant="primary"
+          onClick={() =>
+            void marketRequest('POST', `/bookings/${booking.id}/mock-pay`)
+              .then(onPaid)
+              .catch((caught: unknown) => setError(errorText(caught)))
+          }
+        >
+          Giả lập: đã trả thành công
+        </Button>
+        <Button onClick={onClose}>Để sau</Button>
+      </div>
+      <p className="text-label text-text-secondary">
+        Tiền được giữ đến hết hạn khiếu nại sau buổi học, rồi mới giải ngân cho gia sư.
+      </p>
+    </section>
   );
 }
 
@@ -204,12 +301,12 @@ function DisputePanel({ booking, onChange }: { booking: Booking; onChange: () =>
       })
       .catch((caught: unknown) => setError(errorText(caught)));
   return (
-    <div className="flex flex-col gap-1">
+    <div className="flex flex-col gap-2">
       {error ? <Alert tone="danger">{error}</Alert> : null}
       {(booking.status === 'paid' || booking.status === 'completed') &&
       new Date(booking.starts_at).getTime() <= Date.now() ? (
         <div className="flex flex-wrap items-end gap-2">
-          <label className="flex flex-col">
+          <label className="flex flex-col gap-1 text-label font-medium">
             Lý do khiếu nại
             <input className={FORM_CONTROL_CLASS} value={reason} onChange={(event) => setReason(event.target.value)} />
           </label>
@@ -220,7 +317,7 @@ function DisputePanel({ booking, onChange }: { booking: Booking; onChange: () =>
       ) : null}
       {booking.dispute_status === 'open' || booking.dispute_status === 'appealed' ? (
         <div className="flex flex-wrap items-end gap-2">
-          <label className="flex flex-col">
+          <label className="flex flex-col gap-1 text-label font-medium">
             Trình bày thêm
             <input
               className={FORM_CONTROL_CLASS}
@@ -240,7 +337,7 @@ function DisputePanel({ booking, onChange }: { booking: Booking; onChange: () =>
           <span>
             Quyết định: {DECISION_LABELS[booking.decision ?? ''] ?? booking.decision} – {booking.decision_note}
           </span>
-          <label className="flex flex-col">
+          <label className="flex flex-col gap-1 text-label font-medium">
             Lý do khiếu nại lại
             <input className={FORM_CONTROL_CLASS} value={reason} onChange={(event) => setReason(event.target.value)} />
           </label>
@@ -272,14 +369,17 @@ function SessionPanel({ booking }: { booking: Booking }) {
       .catch(() => setRecording(undefined));
   }, [booking.id, booking.status]);
   return (
-    <div className="flex flex-col gap-1">
-      {recording?.recording_required ? <span>Buổi học được ghi hình để bảo vệ trẻ.</span> : null}
+    <div className="flex flex-col gap-2">
+      {recording?.recording_required ? (
+        <span className="text-label text-text-secondary">Buổi học được ghi hình để bảo vệ trẻ.</span>
+      ) : null}
       {error ? <Alert tone="danger">{error}</Alert> : null}
       {room ? (
         <Alert tone="info">Đã vào phòng học{room.recording ? ' · Đang ghi hình' : ''}.</Alert>
       ) : booking.status === 'paid' ? (
         <div>
           <Button
+            variant="primary"
             onClick={() =>
               void marketRequest<{ recording: boolean }>('POST', `/bookings/${booking.id}/session/join`)
                 .then((result) => {
@@ -306,7 +406,9 @@ function SessionPanel({ booking }: { booking: Booking }) {
           />
         ) : (
           <div>
-            <Button onClick={() => setReporting(true)}>Báo cáo vi phạm</Button>
+            <Button variant="text" className="text-danger" onClick={() => setReporting(true)}>
+              Báo cáo vi phạm
+            </Button>
           </div>
         )
       ) : null}
@@ -314,8 +416,26 @@ function SessionPanel({ booking }: { booking: Booking }) {
   );
 }
 
+function DateBlock({ value, active }: { value: string; active: boolean }) {
+  const date = new Date(value);
+  const day = date.toLocaleDateString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh', day: '2-digit', month: '2-digit' });
+  const hour = date.toLocaleTimeString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh', hour: '2-digit', minute: '2-digit' });
+  return (
+    <div
+      aria-hidden="true"
+      className={`flex size-20 shrink-0 flex-col items-center justify-center rounded-2xl ${
+        active ? 'bg-brand text-white' : 'bg-page text-text-secondary'
+      }`}
+    >
+      <span className="text-label">{day}</span>
+      <strong className="text-section-title">{hour}</strong>
+    </div>
+  );
+}
+
 export function ParentBookings() {
   const [bookings, setBookings] = useState<Booking[]>([]);
+  const [paying, setPaying] = useState<string>();
   const [error, setError] = useState<string>();
   const load = useCallback(() => {
     marketRequest<{ bookings: Booking[] }>('GET', '/bookings')
@@ -331,48 +451,82 @@ export function ParentBookings() {
       })
       .catch((caught: unknown) => setError(errorText(caught)));
   return (
-    <section aria-label="Buổi học của con" className="flex flex-col gap-3">
-      <h2 className="text-section-title font-semibold">Buổi học của con</h2>
-      <Button onClick={load}>Tải lại</Button>
+    <section aria-label="Buổi học của con" className="flex flex-col gap-4">
+      <div className="flex flex-wrap items-end justify-between gap-3">
+        <div>
+          <h2 className="text-page-title font-bold">Buổi học của con</h2>
+          <p className="text-text-secondary">Trả tiền giả lập, vào phòng học, xem bản ghi, khiếu nại.</p>
+        </div>
+        <Button onClick={load}>Tải lại</Button>
+      </div>
       {error ? <Alert tone="danger">{error}</Alert> : null}
       {bookings.length === 0 ? <p className="text-text-secondary">Chưa có buổi học nào.</p> : null}
-      <ul className="flex flex-col gap-2">
-        {bookings.map((booking) => (
-          <li
-            key={booking.id}
-            aria-label={`Buổi ${booking.subject} ${when(booking.starts_at)}`}
-            className="flex flex-col gap-1 rounded-lg border p-2"
-          >
-            <strong>
-              {booking.subject} với {booking.tutor_name} – {booking.child_name}
-            </strong>
-            <span>
-              {when(booking.starts_at)}, {booking.minutes} phút, {money(booking.price)}
-            </span>
-            <span>
-              Trạng thái: {STATUS_LABELS[booking.status] ?? booking.status}
-              {booking.refunded_amount ? ` (đã hoàn ${money(booking.refunded_amount)})` : ''}
-            </span>
-            <div className="flex flex-wrap gap-2">
-              {booking.status === 'held' ? (
-                <Button
-                  variant="primary"
-                  onClick={() => void run(marketRequest('POST', `/bookings/${booking.id}/mock-pay`))}
-                >
-                  Thanh toán giả lập
-                </Button>
-              ) : null}
-              {booking.status === 'held' || booking.status === 'paid' ? (
-                <Button onClick={() => void run(marketRequest('POST', `/bookings/${booking.id}/cancel`, {}))}>
-                  Hủy buổi
-                </Button>
-              ) : null}
-            </div>
-            <DisputePanel booking={booking} onChange={load} />
-            <SessionPanel booking={booking} />
-          </li>
-        ))}
-      </ul>
+      {GROUPS.map((group) => {
+        const rows = bookings.filter((booking) => group.statuses.includes(booking.status));
+        if (rows.length === 0) return null;
+        return (
+          <div key={group.label} className="flex flex-col gap-3">
+            <h3 className="text-section-title font-semibold">{group.label}</h3>
+            <ul className="flex flex-col gap-3">
+              {rows.map((booking) => {
+                const status = STATUS[booking.status];
+                return (
+                  <li
+                    key={booking.id}
+                    aria-label={`Buổi ${booking.subject} ${when(booking.starts_at)}`}
+                    className={`${CARD_CLASS} flex flex-col gap-3 p-5`}
+                  >
+                    <div className="flex flex-wrap items-center gap-4">
+                      <DateBlock value={booking.starts_at} active={booking.status === 'paid'} />
+                      <div className="flex min-w-0 flex-[1_1_280px] flex-col gap-1">
+                        <div className="flex flex-wrap items-center gap-2">
+                          <strong className="text-section-title">
+                            {booking.subject} với {booking.tutor_name} – {booking.child_name}
+                          </strong>
+                          <StatusBadge
+                            tone={status?.tone ?? 'neutral'}
+                            label={`${status?.label ?? booking.status}${
+                              booking.refunded_amount ? ` (đã hoàn ${money(booking.refunded_amount)})` : ''
+                            }`}
+                          />
+                        </div>
+                        <span className="text-text-secondary">
+                          {when(booking.starts_at)}, {booking.minutes} phút, {money(booking.price)}
+                        </span>
+                      </div>
+                      <div className="flex flex-wrap gap-2">
+                        {booking.status === 'held' && paying !== booking.id ? (
+                          <Button variant="primary" onClick={() => setPaying(booking.id)}>
+                            Thanh toán giả lập
+                          </Button>
+                        ) : null}
+                        {booking.status === 'held' || booking.status === 'paid' ? (
+                          <Button onClick={() => void run(marketRequest('POST', `/bookings/${booking.id}/cancel`, {}))}>
+                            Hủy buổi
+                          </Button>
+                        ) : null}
+                      </div>
+                    </div>
+                    {booking.status === 'held' && paying === booking.id ? (
+                      <MockPayment
+                        booking={booking}
+                        onPaid={() => {
+                          setPaying(undefined);
+                          setError(undefined);
+                          load();
+                        }}
+                        onClose={() => setPaying(undefined)}
+                      />
+                    ) : null}
+                    <DisputePanel booking={booking} onChange={load} />
+                    <SessionPanel booking={booking} />
+                  </li>
+                );
+              })}
+            </ul>
+          </div>
+        );
+      })}
     </section>
   );
 }
