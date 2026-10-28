@@ -8,22 +8,28 @@ import { writeAudit } from './provision-school.js';
 // này giữ phần logic kiểm thử được của lệnh `nhieu-truong-cuc-bo` (local-multi-school-command.ts): ghi tệp môi trường riêng, gắn trường
 // demo vào danh mục đơn vị để ô chọn Sở → Cấp, Phường / Xã → Trường tìm thấy.
 
-// Cập nhật tệp môi trường dạng KEY=VALUE: giữ nguyên dòng chú thích và biến khác, thay giá trị biến đã có, thêm biến chưa có ở cuối
-export function updateEnvironmentText(text: string, updates: Record<string, string>): string {
+// Cập nhật tệp môi trường dạng KEY=VALUE: giữ nguyên dòng chú thích và biến khác, thay giá trị biến đã có, thêm biến chưa có ở cuối;
+// giá trị null thì bỏ dòng của biến đó
+export function updateEnvironmentText(text: string, updates: Record<string, string | null>): string {
   const pending = new Map(Object.entries(updates));
   const lines = text === '' ? [] : text.replace(/\r\n/g, '\n').replace(/\n$/, '').split('\n');
-  const result = lines.map((line) => {
-    const match = /^\s*([A-Za-z_][A-Za-z0-9_]*)\s*=/.exec(line);
-    const key = match?.[1];
+  const result: string[] = [];
+  for (const line of lines) {
+    const key = /^\s*([A-Za-z_][A-Za-z0-9_]*)\s*=/.exec(line)?.[1];
     if (key && pending.has(key)) {
-      const value = pending.get(key) as string;
+      const value = pending.get(key);
       pending.delete(key);
-      return `${key}=${value}`;
+      if (value !== null && value !== undefined) {
+        result.push(`${key}=${value}`);
+      }
+      continue;
     }
-    return line;
-  });
+    result.push(line);
+  }
   for (const [key, value] of pending) {
-    result.push(`${key}=${value}`);
+    if (value !== null) {
+      result.push(`${key}=${value}`);
+    }
   }
   return `${result.join('\n')}\n`;
 }

@@ -1,10 +1,12 @@
-// Chạy bản nhiều trường trên máy phát triển, song song với bản một trường (YCTD-310; tài liệu 32 mục 16.10): dịch vụ định danh, máy
-// chủ API (đã dựng ở apps/*/dist), cổng quản trị và cổng nền tảng (vite) với biến của .env đè bởi tệp môi trường riêng do lệnh
-// `pnpm --filter @school-management/database nhieu-truong-cuc-bo` sinh. Ctrl+C dừng cả bốn.
+// Chạy đủ bản nhiều trường trên máy phát triển (YCTD-310; tài liệu 32 mục 16.10): dịch vụ định danh, máy chủ API, tiến trình nền (đã
+// dựng ở apps/*/dist) và bảy ứng dụng web (vite): cổng quản trị trường, cổng vận hành nền tảng, ứng dụng giáo viên, phụ huynh, học sinh,
+// chợ gia sư, ứng dụng Gia sư. Biến của .env bị đè bởi tệp môi trường riêng do lệnh
+// `pnpm --filter @school-management/database nhieu-truong-cuc-bo` sinh. Mọi ứng dụng trỏ về định danh, API của bản nhiều trường và
+// phục vụ ở tên miền *.localhost (trình duyệt tự đưa về máy, không sửa tệp hosts). Ctrl+C dừng tất cả.
 //
 // Cách dùng (ở thư mục gốc kho):
-//   node scripts/chay-nhieu-truong.mjs [--env-out .env.nhieu-truong] [--portal-port 5190] [--console-port 5191]
-// Không in giá trị biến môi trường.
+//   node scripts/chay-nhieu-truong.mjs [--env-out .env.nhieu-truong]
+// Không in giá trị bí mật.
 import { spawn } from 'node:child_process';
 import { existsSync, readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
@@ -32,27 +34,42 @@ if (!merged.PLATFORM_DATABASE_URL || !merged.PLATFORM_ROOT_DOMAIN) {
   console.error(`${multiFile} thiếu PLATFORM_DATABASE_URL hoặc PLATFORM_ROOT_DOMAIN`);
   process.exit(1);
 }
-const portalPort = option('portal-port', '5190');
-const consolePort = option('console-port', '5191');
-// Cổng nền tảng tạo đường liên kết vào trường bằng http ở cổng của cổng quản trị (VITE_SCHOOL_PORTAL_PORT)
-const environment = { ...process.env, ...merged, VITE_SCHOOL_PORTAL_PORT: portalPort };
+
+// Cổng của các ứng dụng web: dải 519x riêng, không đụng cổng chuẩn 5173… của bản một trường
+const WEB = [
+  { name: 'cong-quan-tri', filter: '@school-management/portal', port: 5190 },
+  { name: 'cong-van-hanh', filter: '@school-management/platform', port: 5191 },
+  { name: 'giao-vien', filter: '@school-management/teacher', port: 5192 },
+  { name: 'phu-huynh', filter: '@school-management/parent', port: 5193 },
+  { name: 'hoc-sinh', filter: '@school-management/student', port: 5194 },
+  { name: 'cho-gia-su', filter: '@school-management/market', port: 5195 },
+  { name: 'gia-su', filter: '@school-management/tutor', port: 5196 },
+];
+const port = (name) => WEB.find((app) => app.name === name).port;
+const root = merged.PLATFORM_ROOT_DOMAIN;
+const school = merged.NHIEU_TRUONG_TEN_MIEN_TRUONG_DEMO || `<mã trường>.${root}`;
+const schoolHost = merged.NHIEU_TRUONG_TEN_MIEN_TRUONG_DEMO || root;
+const environment = {
+  ...process.env,
+  ...merged,
+  // Cổng vận hành tạo đường liên kết vào trường bằng http ở cổng của cổng quản trị
+  VITE_SCHOOL_PORTAL_PORT: String(port('cong-quan-tri')),
+  // Liên kết qua lại giữa ứng dụng phụ huynh và học sinh (cùng tên miền của trường, khác cổng khi phát triển)
+  STUDENT_APP_URL: `http://${schoolHost}:${port('hoc-sinh')}/`,
+  PARENT_APP_URL: `http://${schoolHost}:${port('phu-huynh')}/`,
+};
 
 const processes = [
   { name: 'dinh-danh', command: process.execPath, args: [resolve(GOC, 'apps/identity/dist/main.js')] },
   { name: 'api', command: process.execPath, args: [resolve(GOC, 'apps/api/dist/main.js')] },
-  {
-    name: 'cong-quan-tri',
+  // Máy xếp thời khóa biểu chờ hàng đợi Redis, không gắn với trường nào
+  { name: 'tien-trinh-nen', command: process.execPath, args: [resolve(GOC, 'apps/worker/dist/main.js')] },
+  ...WEB.map(({ name, filter, port }) => ({
+    name,
     command: 'pnpm',
-    args: ['--filter', '@school-management/portal', 'exec', 'vite', '--port', portalPort, '--strictPort'],
+    args: ['--filter', filter, 'exec', 'vite', '--port', String(port), '--strictPort'],
     shell: process.platform === 'win32',
-  },
-  {
-    // Cổng nền tảng: tài khoản vận hành mở phiên quản trị vào trường bất kỳ (DT-24, chính sách any_school)
-    name: 'cong-nen-tang',
-    command: 'pnpm',
-    args: ['--filter', '@school-management/platform', 'exec', 'vite', '--port', consolePort, '--strictPort'],
-    shell: process.platform === 'win32',
-  },
+  })),
 ];
 
 const children = processes.map(({ name, command, args: commandArgs, shell }) => {
@@ -77,9 +94,15 @@ process.on('SIGINT', stop);
 process.on('SIGTERM', stop);
 
 console.log(
-  `Trang đăng nhập theo đơn vị: http://${merged.PLATFORM_ROOT_DOMAIN}:${portalPort}/ ` +
-    `(định danh cổng ${merged.IDENTITY_PORT}, API cổng ${merged.API_PORT})`,
+  [
+    `Bản nhiều trường (định danh cổng ${merged.IDENTITY_PORT}, API cổng ${merged.API_PORT}):`,
+    `  Đăng nhập chọn đơn vị        http://${root}:${port('cong-quan-tri')}/`,
+    `  Cổng quản trị trường demo    http://${school}:${port('cong-quan-tri')}/`,
+    `  Ứng dụng giáo viên           http://${school}:${port('giao-vien')}/`,
+    `  Ứng dụng phụ huynh           http://${school}:${port('phu-huynh')}/`,
+    `  Ứng dụng học sinh            http://${school}:${port('hoc-sinh')}/`,
+    `  Cổng vận hành nền tảng       http://${merged.PLATFORM_CONSOLE_HOST || `platform.${root}`}:${port('cong-van-hanh')}/`,
+    `  Chợ gia sư                   http://cho-gia-su.${root}:${port('cho-gia-su')}/`,
+    `  Ứng dụng Gia sư              http://gia-su.${root}:${port('gia-su')}/`,
+  ].join('\n'),
 );
-if (merged.PLATFORM_CONSOLE_HOST) {
-  console.log(`Cổng nền tảng (quản trị vào mọi trường): http://${merged.PLATFORM_CONSOLE_HOST}:${consolePort}/`);
-}

@@ -10,7 +10,7 @@ import { startTenantTestPlatform, type TenantTestPlatform } from './tenant-test-
 const sample = (name: string) => readFile(new URL(`../../platform/catalog-sample/${name}`, import.meta.url), 'utf8');
 
 describe('bản nhiều trường trên máy: tệp môi trường', () => {
-  it('CT-310-1: thay giá trị biến đã có, thêm biến mới ở cuối, giữ chú thích và biến khác', () => {
+  it('CT-310-1: thay giá trị biến đã có, thêm biến mới ở cuối, bỏ biến đặt null, giữ chú thích và biến khác', () => {
     const text = '# chú thích\r\nAPI_PORT=3000\r\nOTHER="giữ"\r\n';
     const updated = updateEnvironmentText(text, { API_PORT: '3100', PLATFORM_ROOT_DOMAIN: 'truong.localhost' });
     assert.equal(updated, '# chú thích\nAPI_PORT=3100\nOTHER="giữ"\nPLATFORM_ROOT_DOMAIN=truong.localhost\n');
@@ -18,6 +18,8 @@ describe('bản nhiều trường trên máy: tệp môi trường', () => {
     assert.equal(readEnvironmentValue(updated, 'API_PORT'), '3100');
     assert.equal(readEnvironmentValue(updated, 'MISSING'), undefined);
     assert.equal(updateEnvironmentText('', { A: '1' }), 'A=1\n');
+    // null: bỏ biến (bật lại việc nền thì bỏ SCHEDULER_MODE)
+    assert.equal(updateEnvironmentText('A=1\nB=2\n', { A: null, C: null }), 'B=2\n');
   });
 });
 
