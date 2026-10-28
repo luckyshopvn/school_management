@@ -258,7 +258,8 @@ test('CT-23b-14: gọi tên, chia nhóm, đồng hồ, bảng điểm vào nề 
 
   // Mất mạng sau lần tải đầu: nạp lại một lần có mạng để bộ nhớ đệm của service worker đủ, rồi ngắt mạng và tải lại
   await page.reload();
-  await expect(page.getByRole('heading', { name: 'Lớp của tôi' })).toBeVisible();
+  // Đường dẫn ?man=hop-cong-cu giữ giáo viên ở Hộp công cụ khi tải lại (DT-29, YCTD-325)
+  await expect(page.getByRole('heading', { name: 'Hộp công cụ giảng dạy' })).toBeVisible();
   // Service worker lưu bộ nhớ đệm sau khi trả phản hồi (không chờ), nên ngắt mạng ngay sau khi tải lại có thể còn tệp chưa lưu
   // xong và trang không dựng được khi ngoại tuyến (lỗi chập chờn cũ ở CI). Chờ tới khi service worker kiểm soát trang và mọi tệp
   // cùng nguồn trang đã tải (trừ /api) đều có trong bộ nhớ đệm
@@ -311,7 +312,8 @@ test('CT-23b-14: gọi tên, chia nhóm, đồng hồ, bảng điểm vào nề 
 
   // Có mạng lại: phiên được xác nhận, hàng đợi gửi lên, máy chủ chống trùng
   await page.context().setOffline(false);
-  await expect(page.getByRole('heading', { name: 'Lớp của tôi' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Hộp công cụ giảng dạy' })).toBeVisible();
+  await expect(page.getByText('Đang dùng ngoại tuyến')).toHaveCount(0);
   await expect
     .poll(
       async () =>
@@ -331,6 +333,8 @@ test('CT-23b-14: gọi tên, chia nhóm, đồng hồ, bảng điểm vào nề 
 
   // Đăng xuất xóa mọi dữ liệu công cụ lớp học trên máy
   expect((await storedKeys(page)).length).toBeGreaterThan(0);
+  await page.getByRole('button', { name: 'Quay lại' }).click();
+  await expect(page.getByRole('heading', { name: 'Lớp của tôi' })).toBeVisible();
   await page.getByRole('button', { name: 'Đăng xuất' }).click();
   await expect(page.getByLabel('Số điện thoại hoặc tên đăng nhập')).toBeVisible();
   expect(await storedKeys(page)).toEqual([]);
