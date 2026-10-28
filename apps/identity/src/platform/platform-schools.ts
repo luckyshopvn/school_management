@@ -4,6 +4,7 @@ import {
   addHosting,
   cancelDeletion,
   changeDataClass,
+  consentGaps,
   DEFAULT_LIFECYCLE_SETTINGS,
   findInvitation,
   lifecycleEnvironmentOf,
@@ -76,6 +77,17 @@ async function mapped<T>(work: () => Promise<T>): Promise<T> {
   } catch (error) {
     throw toApplicationError(error);
   }
+}
+
+// Đổi loại dữ liệu, ghi hồ sơ đồng ý, vùng máy chủ của trường đã tạo (YCTD-343): chỉ quản trị và kỹ thuật; hỗ trợ, kế toán bị 403.
+// Cổng nền tảng ẩn các nút này theo cùng danh sách (apps/platform/src/SchoolsPage.tsx)
+export const DATA_GOVERNANCE_ROLES: readonly PlatformOperatorRole[] = ['quan_tri', 'ky_thuat'];
+
+function dateText(value: unknown): string | null {
+  if (value === null || value === undefined) {
+    return null;
+  }
+  return value instanceof Date ? value.toISOString().slice(0, 10) : String(value).slice(0, 10);
 }
 
 function reasonOf(body: Record<string, unknown> | undefined): string | null {
@@ -246,6 +258,18 @@ export class PlatformSchoolsService {
         .limit(20)
         .execute(),
     ]);
+    // Còn thiếu gì để chuyển sang `consented` (YCTD-343): cùng quy tắc với changeDataClass, chỉ tính vùng máy chủ chưa kết thúc
+    const now = new Date();
+    const consent_gaps = consentGaps(
+      consents.map((row) => ({
+        kind: row.kind,
+        valid_from: dateText(row.valid_from) ?? '',
+        valid_until: dateText(row.valid_until),
+        withdrawn_on: dateText(row.withdrawn_on),
+      })),
+      hosting.filter((row) => !row.ended_on).length,
+      now.toISOString().slice(0, 10),
+    );
     return {
       id: school.id,
       code: school.code,
@@ -267,6 +291,7 @@ export class PlatformSchoolsService {
       domains,
       consents,
       hosting,
+      consent_gaps,
       jobs,
       events,
       invitations,
@@ -489,23 +514,26 @@ export class PlatformSchoolsController {
   @Post(':code/consents')
   @HttpCode(200)
   async addConsent(@Param('code') code: string, @Body() body: Body, @Req() request: Request) {
-    return this.schools.addConsent(code, (body ?? {}) as unknown as ConsentInput, await this.schools.actor(request));
+    const actor = await this.schools.actor(request, DATA_GOVERNANCE_ROLES);
+    return this.schools.addConsent(code, (body ?? {}) as unknown as ConsentInput, actor);
   }
 
   @Post(':code/hosting')
   @HttpCode(200)
   async addHosting(@Param('code') code: string, @Body() body: Body, @Req() request: Request) {
-    return this.schools.addHosting(code, (body ?? {}) as unknown as HostingInput, await this.schools.actor(request));
+    const actor = await this.schools.actor(request, DATA_GOVERNANCE_ROLES);
+    return this.schools.addHosting(code, (body ?? {}) as unknown as HostingInput, actor);
   }
 
   @Post(':code/data-class')
   @HttpCode(200)
   async changeDataClass(@Param('code') code: string, @Body() body: Body, @Req() request: Request) {
+    const actor = await this.schools.actor(request, DATA_GOVERNANCE_ROLES);
     const value = body?.data_class;
     if (value !== 'synthetic' && value !== 'consented' && value !== 'production') {
       throw validationError([{ field: 'data_class', message: 'Loại dữ liệu là synthetic, consented hoặc production' }]);
     }
-    return this.schools.changeDataClass(code, value, await this.schools.actor(request));
+    return this.schools.changeDataClass(code, value, actor);
   }
 
   @Post(':code/domains')

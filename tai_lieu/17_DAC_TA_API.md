@@ -1745,7 +1745,7 @@ Giao kèo trợ lý AI (DT-23 phần 23d, YCTD-214, BR-234 đến BR-236):
 | POST | /api/v1/auth/platform/schools/jobs/{mã việc}/resume, /jobs/{mã việc}/rollback | Chạy tiếp, hoàn tác việc khởi tạo lỗi (P01-54) |
 | POST | /api/v1/auth/platform/schools/{mã}/suspend, /resume, /request-deletion, /cancel-deletion | Tạm dừng, mở lại, yêu cầu xóa, hủy yêu cầu xóa; thân `{ reason }` (P01-55, BR-208) |
 | POST | /api/v1/auth/platform/schools/{mã}/invitation | Cấp lại đường kích hoạt quản trị viên đầu tiên (P01-57) |
-| POST | /api/v1/auth/platform/schools/{mã}/consents, /hosting, /data-class | Ghi hồ sơ đồng ý, vùng máy chủ; đổi loại dữ liệu (P01-56, BR-207) |
+| POST | /api/v1/auth/platform/schools/{mã}/consents, /hosting, /data-class | Ghi hồ sơ đồng ý, vùng máy chủ; đổi loại dữ liệu (P01-56, BR-207); trả chi tiết trường. Chỉ vai trò vận hành `quan_tri`, `ky_thuat`, vai trò khác 403 (YCTD-343). Chi tiết trường `GET /auth/platform/schools/{mã}` có thêm `consent_gaps`: các mục còn thiếu để chuyển sang `consented`, rỗng là đủ |
 | POST | /api/v1/auth/platform/schools/{mã}/domains, /domains/{tên miền}/verify | Thêm tên miền riêng (chờ kiểm tra), kiểm tra DNS (P01-56) |
 | GET, POST | /api/v1/auth/activate | Xem lời mời, kích hoạt quản trị viên đầu tiên ở tên miền của trường (P01-57, BM-77) |
 | GET, POST | /api/v1/school-data-exports; GET /api/v1/users/data-export | Gói ZIP toàn bộ dữ liệu; phần dữ liệu tài khoản của dịch vụ định danh (P01-33, YCTD-145) |
