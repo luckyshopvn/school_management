@@ -19,17 +19,17 @@ phien_ban_de_xuat: 0.204.0
 
 #### Thay đổi
 
-- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-328, `32_KE_HOACH_THEO_HE_THONG_SO.md` mục 21, `14_DAC_TA_GIAO_DIEN.md` MH-563, `21_KICH_BAN_KIEM_THU.md` CT-1555 đến CT-1560, `11_TIEU_CHI_NGHIEM_THU.md` AC-1136, `23_LICH_SU_PHIEN_BAN.md` {PHIEN_BAN}.
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-328, `32_KE_HOACH_THEO_HE_THONG_SO.md` mục 22, `14_DAC_TA_GIAO_DIEN.md` MH-563, `21_KICH_BAN_KIEM_THU.md` CT-1555 đến CT-1560, `11_TIEU_CHI_NGHIEM_THU.md` AC-1136, `23_LICH_SU_PHIEN_BAN.md` {PHIEN_BAN}.
 
 #### Vấn đề tồn đọng
 
-- Mô phỏng vật lí, hoá học để đợt sau (32 mục 21). Hình học động mới có tam giác; chưa có đường tròn, đa giác tự dựng.
+- Mô phỏng vật lí, hoá học để đợt sau (32 mục 22). Hình học động mới có tam giác; chưa có đường tròn, đa giác tự dựng.
 
 ## 24 Yêu cầu thay đổi
 
 ### YCTD-328: DT-29 phần 29d: mini app THCS, THPT của Hộp công cụ giảng dạy – 2026-10-28
 
-- Lý do: phần 29d của `32_KE_HOACH_THEO_HE_THONG_SO.md` mục 21 (Eric duyệt ngày 2026-10-28).
+- Lý do: phần 29d của `32_KE_HOACH_THEO_HE_THONG_SO.md` mục 22 (Eric duyệt ngày 2026-10-28).
 - Nội dung thay đổi:
   - Máy tính khoa học: + − × ÷ ^, ngoặc, nhân ngầm, π, e, sin cos tan và hàm ngược (theo độ hoặc radian), căn bậc hai, căn bậc ba, ln, log, giai thừa, phần trăm; dấu phẩy thập phân; kết quả theo cách viết Việt Nam; lịch sử phép tính trong buổi; lỗi rõ ràng (chia cho 0, căn số âm, tan 90°).
   - Vẽ đồ thị: tối đa ba hàm y = f(x), lưới và số trên trục tự chọn bước, phóng to, thu nhỏ, ngắt nét ở điểm không xác định.
