@@ -3,8 +3,20 @@
 export { LoginForm, RegisterForm, VerifyForm } from './AccountForms.js';
 export { MarketShell, type MarketShellProperties } from './MarketShell.js';
 export {
+  ChildSafetyPolicy,
+  MessageInbox,
+  MessageThread,
+  RecordingPlayer,
+  REPORT_CATEGORY_LABELS,
+  REPORT_DECISION_LABELS,
+  REPORT_SEVERITY_LABELS,
+  ReportForm,
+  SAFETY_HOTLINE,
+} from './SafetyWidgets.js';
+export {
   errorText,
   MarketApiError,
+  marketBlob,
   marketRequest,
   readSession,
   writeSession,

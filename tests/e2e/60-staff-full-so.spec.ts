@@ -78,9 +78,14 @@ test('CT-16f-11: 3.1.1 Thay đổi mở hồ sơ dòng đã chọn, Xóa có h�
   await expect(change).toBeDisabled();
   await grid.getByRole('checkbox', { name: `Chọn ${names.verify}` }).check();
   await change.click();
-  await expect(page.getByRole('group', { name: `Hồ sơ của ${names.verify}` })).toBeVisible();
-  await expect(page.getByLabel('Dân tộc').first()).toHaveJSProperty('tagName', 'SELECT');
-  await grid.getByRole('checkbox', { name: `Chọn ${names.verify}` }).uncheck();
+  // Hồ sơ mở ở trang riêng chia thẻ (YCTD-309); ô Dân tộc ở thẻ Hồ sơ CSDL Bộ
+  const profile = page.getByRole('group', { name: `Hồ sơ của ${names.verify}` });
+  await expect(profile).toBeVisible();
+  await profile.getByRole('tab', { name: 'Hồ sơ CSDL Bộ' }).click();
+  await expect(profile.getByLabel('Dân tộc').first()).toHaveJSProperty('tagName', 'SELECT');
+  await page.getByRole('link', { name: /^Quay lại/ }).click();
+  await page.getByLabel('Tìm theo tên hoặc mã').fill(token);
+  await expect(grid.getByRole('row').filter({ hasText: token })).toHaveCount(3);
 
   // Xóa hồ sơ nhập nhầm
   await grid.getByRole('checkbox', { name: `Chọn ${names.delete}` }).check();

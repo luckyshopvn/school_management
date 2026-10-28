@@ -47,7 +47,7 @@ test('Phòng nhân sự tạo hồ sơ, liên kết tài khoản, lập và ch�
   await page.getByLabel('Mật khẩu', { exact: true }).fill(personnel.password);
   await page.getByRole('button', { name: 'Đăng nhập' }).click();
   await openMenu(page, '/staff');
-  // Thêm mới theo khối của Sở, nút Ghi; hồ sơ vừa tạo mở ngay (DT-15 phần 15d)
+  // Thêm mới theo khối của Sở, nút Ghi; hồ sơ vừa tạo mở ngay ở trang riêng chia thẻ (DT-15 phần 15d, YCTD-309)
   await page.getByRole('button', { name: 'Thêm mới' }).click();
   const form = page.getByRole('form', { name: 'Thêm hồ sơ nhân sự' });
   await form.getByRole('combobox', { name: 'Đơn vị' }).selectOption({ label: unit.name });
@@ -56,17 +56,25 @@ test('Phòng nhân sự tạo hồ sơ, liên kết tài khoản, lập và ch�
   await form.getByLabel('Số định danh cá nhân').fill('079190005678');
   await form.getByLabel('Ngày vào làm').fill('2026-08-01');
   await form.getByRole('button', { name: 'Ghi' }).click();
-  await page.getByLabel('Tìm theo tên hoặc mã').fill(code);
-  const row = page.getByRole('row', { name: 'Nhân sự Đỗ Thị Hạnh' });
-  await expect(row).toContainText(code);
-
+  await expect(page).toHaveURL(/\/staff\/[0-9a-f-]{36}$/);
   const panel = page.getByRole('group', { name: 'Hồ sơ của Đỗ Thị Hạnh' });
+  await expect(panel.getByRole('heading', { name: 'Đỗ Thị Hạnh', level: 1 })).toBeVisible();
+  await expect(panel.getByRole('tab', { name: 'Thông tin chung' })).toHaveAttribute('aria-selected', 'true');
+  await expect(panel.getByLabel('Mã nhân sự')).toHaveValue(code);
+
+  await panel.getByRole('tab', { name: 'Hồ sơ CSDL Bộ' }).click();
+  await expect(page).toHaveURL(/\?tab=moet$/);
   await expect(panel.getByLabel('Số định danh cá nhân')).toHaveAttribute('placeholder', '********5678');
-  await panel.getByRole('tab', { name: 'Thông tin riêng của trường' }).click();
+  await panel.getByRole('tab', { name: 'Thông tin chung' }).click();
   await panel.getByLabel('Tên đăng nhập hoặc số điện thoại').fill(teacher.username);
   await panel.getByRole('button', { name: 'Liên kết tài khoản' }).click();
   await expect(panel).toContainText('Tài khoản: đã liên kết');
 
+  // Thẻ đang mở lưu ở địa chỉ: tải lại trang vẫn ở thẻ Hợp đồng
+  await panel.getByRole('tab', { name: 'Hợp đồng' }).click();
+  await expect(page).toHaveURL(/\?tab=contracts$/);
+  await page.reload();
+  await expect(panel.getByRole('tab', { name: 'Hợp đồng' })).toHaveAttribute('aria-selected', 'true');
   const contract = panel.getByRole('form', { name: 'Lập hợp đồng' });
   await contract.getByLabel('Số hợp đồng').fill(`HDLD-${code}`);
   await contract.getByLabel('Lương thỏa thuận').fill('12000000');
@@ -81,6 +89,12 @@ test('Phòng nhân sự tạo hồ sơ, liên kết tài khoản, lập và ch�
   await panel.getByLabel('Lý do chấm dứt').fill('Xin nghỉ việc');
   await panel.getByRole('button', { name: 'Chấm dứt hợp đồng' }).click();
   await expect(panel).toContainText('Đã chấm dứt');
+
+  // Quay lại danh sách toàn chiều rộng: dòng của hồ sơ có mã và trạng thái đã nghỉ
+  await page.getByRole('link', { name: /^Quay lại/ }).click();
+  await page.getByLabel('Tìm theo tên hoặc mã').fill(code);
+  const row = page.getByRole('row', { name: 'Nhân sự Đỗ Thị Hạnh' });
+  await expect(row).toContainText(code);
   await expect(row).toContainText('Đã nghỉ');
   const account = await identity
     .selectFrom('users')
