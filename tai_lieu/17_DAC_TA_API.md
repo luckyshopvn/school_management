@@ -2452,7 +2452,7 @@ Tuyến giáo viên cần `P02.assignment.manage` và là giáo viên của lớ
 | POST | /api/v1/learning/submissions/{id}/grade | `{ item_scores, criteria_scores, level, feedback, feedback_ai_assisted }`; bài đã trả thì ghi lại kết quả hoạt động |
 | POST | /api/v1/learning/submissions/{id}/contributions/{childId} | Điều chỉnh điểm cá nhân bài nhóm `{ score, reason }` |
 | POST | /api/v1/learning/submissions/{id}/ai-feedback | Gợi ý nhận xét `{ note }`; trả `{ request_id, comment, notice }`; không lưu vào bài |
-| POST | /api/v1/learning/submissions/{id}/comments | Giáo viên trao đổi trên bài `{ body }` |
+| POST | /api/v1/learning/submissions/{id}/comments | Giáo viên trả lời trao đổi trên bài `{ body }` (1 đến 2000 ký tự sau khi bỏ khoảng trắng hai đầu, sai 422); chỉ giáo viên của lớp học trực tuyến có hoạt động (giáo viên khác, phụ huynh, học sinh 403; bài không có 404); trả `201 { id, author_name, author_kind: "teacher", body, created_at }` để màn hình hiện ngay (YCTD-346) |
 | GET | /api/v1/learning/submission-files/{id} | Tệp của bài nộp (giáo viên) |
 | GET | /api/v1/learning/children/{childId}/assignments/{activityId} | Phụ huynh (hoặc cán bộ xem lớp học trực tuyến) xem các lần nộp, điểm, mức, nhận xét đã trả của con |
 | GET | /api/v1/student/assignments/{activityId} | Học sinh (kênh `student`, `P02.learning.study`): câu không đáp án, bản nháp, các lần nộp, `can_submit`, `submit_blocked_reason`, `will_be_late`, nhóm, giới hạn tệp |
