@@ -27,9 +27,9 @@ import { expect, test } from './fixtures.js';
 import { signInConsole } from './platform-console.js';
 
 // DT-27 phần 27i (YCTD-259, spec 198): phụ huynh nhắn tin cho gia sư (số điện thoại bị che, có cảnh báo), đặt buổi có đồng ý ghi hình,
-// trả tiền giả lập, báo cáo mức nghiêm trọng; gia sư bị tạm khóa ngay, buổi được hoàn đủ; gia sư thấy tạm khóa ở ứng dụng Gia sư; nhân
-// viên nền tảng thấy chỉ số, chữ gốc của tin nhắn, ghi quyết định có lý do. Gia sư đã duyệt dựng thẳng trong cơ sở dữ liệu chợ. Chỉ chạy
-// ở dự án nhiều trường. Dữ liệu giả, không có tiền thật
+// trả tiền giả lập, báo cáo mức nghiêm trọng; gia sư bị tạm khóa ngay; gia sư thấy tạm khóa ở ứng dụng Gia sư; nhân viên nền tảng thấy
+// chỉ số, chữ gốc của tin nhắn, ghi quyết định tạm khóa có lý do thì buổi mới được hoàn đủ (YCTD-322). Gia sư đã duyệt dựng thẳng trong
+// cơ sở dữ liệu chợ. Chỉ chạy ở dự án nhiều trường. Dữ liệu giả, không có tiền thật
 const IDENTITY = `http://127.0.0.1:${E2E_MULTI_IDENTITY_PORT}`;
 const API = `http://127.0.0.1:${E2E_MULTI_API_PORT}`;
 const suffix = Math.random().toString(36).slice(2, 8);
@@ -247,17 +247,17 @@ test('CT-27i-6: tin nhắn bị che, báo cáo nghiêm trọng tạm khóa gia s
   await expect(lesson).toContainText('Đã trả tiền');
   await expect(lesson).toContainText('Buổi học được ghi hình để bảo vệ trẻ');
 
-  // Báo cáo mức nghiêm trọng: gia sư bị tạm khóa ngay, buổi được hoàn đủ
+  // Báo cáo mức nghiêm trọng của phụ huynh đã trả tiền: gia sư bị tạm khóa ngay; buổi chờ nhân viên xác nhận mới hủy
   await lesson.getByRole('button', { name: 'Báo cáo vi phạm' }).click();
   const report = lesson.getByRole('form', { name: `Báo cáo vi phạm ${tutorName}` });
   await expect(report).toContainText('111');
   await report.getByLabel('Loại vi phạm').selectOption({ label: 'An toàn trẻ em' });
-  await report.getByLabel('Mức độ').selectOption({ label: 'Nghiêm trọng (tạm khóa gia sư ngay)' });
+  await report.getByLabel('Mức độ').selectOption({ label: 'Nghiêm trọng (xử lý trong 4 giờ)' });
   await report.getByLabel('Mô tả sự việc').fill('Gia sư rủ con gặp riêng ngoài giờ');
   await report.getByRole('button', { name: 'Gửi báo cáo' }).click();
   await expect(report).toContainText('Gia sư đã bị tạm khóa');
   await lessons.getByRole('button', { name: 'Tải lại' }).click();
-  await expect(lesson).toContainText('Đã hoàn tiền');
+  await expect(lesson).toContainText('Đã trả tiền');
 
   // Gia sư thấy tài khoản đang tạm khóa
   const tutorContext = await browser.newContext({ baseURL: `http://${E2E_TUTOR_HOST}:${E2E_MULTI_TUTOR_PORT}` });
@@ -290,5 +290,8 @@ test('CT-27i-6: tin nhắn bị che, báo cáo nghiêm trọng tạm khóa gia s
   await expect(review).toContainText('đã quyết định');
   await expect(review.getByRole('list', { name: 'Nhật ký kiểm duyệt' })).toContainText('report.decide');
   await consoleContext.close();
+  // Nhân viên quyết định tạm khóa: buổi sắp tới được hủy, hoàn đủ
+  await lessons.getByRole('button', { name: 'Tải lại' }).click();
+  await expect(lesson).toContainText('Đã hoàn tiền');
   await marketContext.close();
 });
