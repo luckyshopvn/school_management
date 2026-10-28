@@ -90,6 +90,29 @@ export interface ExpiringContract {
 export const listStaff = (orgUnitId: string, search: string): Promise<Staff[]> =>
   requestJson(`/api/v1/staff?org_unit_id=${orgUnitId}${search ? `&search=${encodeURIComponent(search)}` : ''}`);
 export const readStaff = (staffId: string): Promise<StaffDetail> => requestJson(`/api/v1/staff/${staffId}`);
+
+// Phân công giảng dạy, chủ nhiệm đang hiệu lực của một nhân sự ở năm học hiện tại (thẻ Phân công giảng dạy)
+export interface StaffTeachingAssignment {
+  id: string;
+  assignment_role: 'homeroom' | 'subject';
+  class_id: string;
+  class_code: string;
+  class_name: string;
+  grade_level: string;
+  school_level: string;
+  subject_id: string | null;
+  subject_name: string | null;
+  periods_per_week: number | null;
+  from_date: string;
+  to_date: string | null;
+}
+export interface StaffTeachingAssignments {
+  has_account: boolean;
+  items: StaffTeachingAssignment[];
+  total_periods: number;
+}
+export const readStaffTeachingAssignments = (staffId: string): Promise<StaffTeachingAssignments> =>
+  requestJson(`/api/v1/staff/${staffId}/teaching-assignments`);
 export const createStaff = (input: StaffInput) =>
   requestJson<StaffDetail>('/api/v1/staff', { method: 'POST', body: JSON.stringify(input) });
 export const linkAccount = (staffId: string, login: string) =>
