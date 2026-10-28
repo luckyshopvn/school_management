@@ -1,4 +1,5 @@
 // Gọi giao diện lập trình ứng dụng; giao diện không chứa quy tắc nghiệp vụ, chỉ hiển thị kết quả (QU-09)
+import { setViewedAcademicYear, VIEWED_ACADEMIC_YEAR_HEADER, viewedAcademicYear } from './viewed-year.js';
 
 export interface FieldError {
   field: string;
@@ -70,6 +71,14 @@ export async function readError(response: Response): Promise<ApiError> {
   }
 }
 
+// Đang xem năm học đã đóng (YCTD-342) thì mọi yêu cầu mang mã năm đó; máy chủ đọc năm đó và từ chối ghi
+function withViewedYear(headers: Headers): void {
+  const year = viewedAcademicYear();
+  if (year) {
+    headers.set(VIEWED_ACADEMIC_YEAR_HEADER, year.id);
+  }
+}
+
 async function send<T>(path: string, init: RequestInit = {}): Promise<T> {
   const headers = new Headers(init.headers);
   // Biểu mẫu nhiều phần để trình duyệt tự đặt kiểu nội dung kèm ranh giới
@@ -79,6 +88,7 @@ async function send<T>(path: string, init: RequestInit = {}): Promise<T> {
   if (accessToken) {
     headers.set('authorization', `Bearer ${accessToken}`);
   }
+  withViewedYear(headers);
   const response = await fetch(path, { ...init, headers, credentials: 'same-origin' });
   if (!response.ok) {
     throw await readError(response);
@@ -131,6 +141,7 @@ export async function fetchWithSession(path: string, init: RequestInit = {}): Pr
     if (accessToken) {
       headers.set('authorization', `Bearer ${accessToken}`);
     }
+    withViewedYear(headers);
     return fetch(path, { ...init, headers, credentials: 'same-origin' });
   };
   const response = await attempt();
@@ -199,6 +210,7 @@ export async function logout(): Promise<void> {
     await requestJson<void>('/api/v1/auth/logout', { method: 'POST' });
   } finally {
     setAccessToken(undefined);
+    setViewedAcademicYear(null);
   }
 }
 

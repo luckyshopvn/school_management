@@ -93,7 +93,9 @@ test('@thiet-bi @thiet-bi-pr CT-26d-2: trang chủ và chế độ lớp học c
   test.setTimeout(120_000);
   await signInTeacher(page);
   const width = page.viewportSize()?.width ?? 1280;
-  await expect(page.getByRole('button', { name: 'Đón trả lớp Lớp 6A1 thử' })).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Sổ điểm lớp Lớp 6A1 thử' })).toBeVisible();
+  // Đón trả, dặn thuốc chỉ ở lớp Mầm non, Tiểu học (DT-29, YCTD-325)
+  await expect(page.getByRole('button', { name: 'Đón trả lớp Lớp 6A1 thử' })).toHaveCount(0);
   const home = await deviceViolations(page);
   expect(home, describeViolations(home)).toEqual([]);
 
@@ -113,8 +115,8 @@ test('@thiet-bi @thiet-bi-pr CT-26d-2: trang chủ và chế độ lớp học c
   await expect(page.getByRole('button', { name: 'Lớp 7B2 thử' })).toHaveAttribute('aria-pressed', 'true');
   const tabs = page.getByRole('tablist', { name: 'Việc trên lớp' });
   await expect(tabs.getByRole('tab', { name: 'Sổ đầu bài' })).toBeVisible();
-  await tabs.getByRole('tab', { name: 'Công cụ lớp học' }).click();
-  await expect(tabs.getByRole('tab', { name: 'Công cụ lớp học' })).toHaveAttribute('aria-selected', 'true');
+  await tabs.getByRole('tab', { name: 'Hộp công cụ giảng dạy' }).click();
+  await expect(tabs.getByRole('tab', { name: 'Hộp công cụ giảng dạy' })).toHaveAttribute('aria-selected', 'true');
   const nav = await boxOf(page, 'nav[aria-label="Lớp của tiết"]');
   const section = await boxOf(page, 'section[aria-label="Lớp Lớp 7B2 thử"]');
   if (width >= 1024) {

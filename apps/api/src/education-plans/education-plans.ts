@@ -9,6 +9,7 @@ import type {
 import { ApplicationError, Clock, ruleViolationError, validationError } from '@school-management/server';
 import {
   diffEducationPlans,
+  EDUCATION_PLAN_DEFAULT_KIND,
   EDUCATION_PLAN_DEFAULT_TEMPLATES,
   EDUCATION_PLAN_PERIOD_LABELS,
   EDUCATION_PLAN_RULE_CODE,
@@ -30,6 +31,8 @@ import type { CurrentUser, OrganizationScope } from '../authentication/current-u
 import { writeAuditLog, type ChangeOrigin } from '../common/audit-log.js';
 import { CurrentSchoolYearResolver } from '../common/current-school-year.js';
 import { Databases } from '../common/databases.js';
+import { SchoolLevelResolver } from '../common/school-levels.js';
+import { assertLevelEnabled } from '../catalogs/school-level-fields.js';
 import { queueNotification, type NotificationRecipient } from '../common/notification-queue.js';
 import { notFoundError } from '../common/request-fields.js';
 import { storageKey } from '../common/resource-names.js';
@@ -124,6 +127,7 @@ export class EducationPlansService {
     private readonly signer: DossierSigner,
     private readonly workPlans: PlansService,
     private readonly clock: Clock,
+    private readonly schoolLevels: SchoolLevelResolver,
   ) {}
 
   today(): string {
@@ -285,7 +289,17 @@ export class EducationPlansService {
     return template;
   }
 
-  private async checkTemplate(database: Executor, input: TemplateInput, id: string | null): Promise<void> {
+  private async checkTemplate(
+    database: Executor,
+    input: TemplateInput,
+    id: string | null,
+    previousLevel: string | null = null,
+  ): Promise<void> {
+    // Cấp học của mẫu phải là cấp đang bật của trường (YCTD-345); mẫu dùng chung mọi cấp để trống. Sửa mẫu cũ mà không đổi
+    // cấp thì không kiểm, để cấp đã tắt vẫn sửa được mẫu cũ
+    if (input.school_level && input.school_level !== previousLevel) {
+      await assertLevelEnabled(this.schoolLevels, input.school_level);
+    }
     const duplicate = await database
       .selectFrom('education_plan_templates')
       .select('id')
@@ -352,7 +366,7 @@ export class EducationPlansService {
     this.assertManage(context);
     return context.database.transaction().execute(async (transaction) => {
       const before = await this.template(transaction, id);
-      await this.checkTemplate(transaction, input, id);
+      await this.checkTemplate(transaction, input, id, before.school_level);
       const changed = JSON.stringify(before.sections) !== JSON.stringify(input.sections);
       const updated = await transaction
         .updateTable('education_plan_templates')
@@ -407,6 +421,7 @@ export class EducationPlansService {
   async loadDefaults(currentUser: CurrentUser, level: KpiSchoolLevelCode, origin: ChangeOrigin) {
     const context = await this.context(currentUser);
     this.assertManage(context);
+    await assertLevelEnabled(this.schoolLevels, level);
     const seeds = EDUCATION_PLAN_DEFAULT_TEMPLATES[level];
     if (seeds.length === 0) {
       throw educationPlanRule('Chưa có mẫu mặc định cho cấp học này; trường tự thêm mẫu');
@@ -460,7 +475,7 @@ export class EducationPlansService {
         created += 1;
       }
     });
-    return { created, skipped };
+    return { created, skipped, kind: EDUCATION_PLAN_DEFAULT_KIND[level] };
   }
 
   // ---- Quyền trên một kế hoạch ----

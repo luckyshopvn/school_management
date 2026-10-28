@@ -1,6 +1,7 @@
 import { useCallback, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { EQUIPMENT_AGE_GROUPS, EQUIPMENT_SCHOOL_LEVELS, PERMISSION_CODES } from '@school-management/shared';
+import { Link } from '@tanstack/react-router';
+import { EQUIPMENT_ALL_GROUPS, EQUIPMENT_SCHOOL_LEVELS, PERMISSION_CODES } from '@school-management/shared';
 import {
   Alert,
   Button,
@@ -15,14 +16,23 @@ import { AppShell } from '../pages/AppShell.js';
 import { matchesSearch } from '../pages/grid-search.js';
 import { useGridSettings } from '../pages/grid-settings.js';
 import { menuPageTitle } from '../pages/page-title.js';
+import { useEnabledSchoolLevels } from '../school-levels/enabled-levels.js';
 import { useHasPermission } from '../session/permissions.js';
-import { downloadFile, listTemplates, loadTemplate, readComparison, type ComparisonRow } from './equipment-18g-api.js';
+import {
+  downloadFile,
+  listCatalogLevels,
+  listTemplates,
+  loadTemplate,
+  readComparison,
+  type ComparisonRow,
+} from './equipment-18g-api.js';
 import { formatNumber, messageOf } from './facilities-api.js';
 import { SelectBox } from './facilities-ui.js';
 
 // 2.6 Đối sánh danh mục tối thiểu (DT-18 phần 18g, YCTD-143): danh mục thiết bị tối thiểu là cấu hình theo cấp học; nạp
 // danh mục mẫu (bản Mầm non theo Thông tư 02/2010, sửa đổi bởi Thông tư 34/2013); đối sánh định mức với hiện có của đơn vị,
-// báo đủ, thiếu, chưa có. Sửa định mức từng thiết bị ở 2.1, thẻ "Danh mục tối thiểu"
+// báo đủ, thiếu, chưa có. Sửa định mức từng thiết bị ở 2.1, thẻ "Danh mục tối thiểu". Tiểu học, THCS, THPT chưa có danh
+// mục chuẩn trong tài liệu dự án: màn hình ghi rõ trường tự nhập, đối sánh theo khối (YCTD-345)
 const labelOf = (values: ReadonlyArray<{ value: string; label: string }>, value: string | null) =>
   values.find((item) => item.value === value)?.label ?? '';
 
@@ -41,7 +51,7 @@ const COLUMNS: Array<DataGridColumn<ComparisonRow>> = [
     cell: (row) => <span className="font-medium">{row.name}</span>,
   },
   { id: 'unit', header: 'Đơn vị tính', cell: (row) => row.unit },
-  { id: 'age_group', header: 'Nhóm tuổi', cell: (row) => labelOf(EQUIPMENT_AGE_GROUPS, row.age_group) },
+  { id: 'age_group', header: 'Nhóm tuổi, khối', cell: (row) => labelOf(EQUIPMENT_ALL_GROUPS, row.age_group) },
   { id: 'norm', header: 'Định mức', cell: (row) => formatNumber(row.norm) },
   { id: 'available', header: 'Hiện có', cell: (row) => formatNumber(row.available) },
   { id: 'shortage', header: 'Thiếu', cell: (row) => formatNumber(row.shortage) },
@@ -51,6 +61,31 @@ const COLUMNS: Array<DataGridColumn<ComparisonRow>> = [
     cell: (row) => <StatusBadge tone={STATUS[row.status].tone} label={STATUS[row.status].label} />,
   },
 ];
+
+// Nguồn danh mục của từng cấp đang bật (YCTD-345): cấp chưa có danh mục chuẩn trong tài liệu dự án thì trường tự nhập ở 2.1
+function LevelSources() {
+  const levels = useQuery({ queryKey: ['equipment-minimum', 'levels'], queryFn: listCatalogLevels });
+  if (levels.error) {
+    return <Alert tone="danger">{messageOf(levels.error)}</Alert>;
+  }
+  const own = (levels.data ?? []).filter((level) => !level.standard);
+  if (own.length === 0) {
+    return null;
+  }
+  return (
+    <ul className="flex flex-col gap-1 text-content text-text" aria-label="Cấp học chưa có danh mục chuẩn">
+      {own.map((level) => (
+        <li key={level.school_level}>
+          <span className="font-medium">{labelOf(EQUIPMENT_SCHOOL_LEVELS, level.school_level)}</span>: chưa có danh mục
+          chuẩn, trường tự nhập (căn cứ {level.legal_basis}); đang có {level.catalog_count} thiết bị.{' '}
+          <Link to="/equipment" className="text-primary underline">
+            Nhập danh mục ở 2.1, thẻ Danh mục tối thiểu
+          </Link>
+        </li>
+      ))}
+    </ul>
+  );
+}
 
 function TemplatePanel({ onLoaded }: { onLoaded(message: string): void }) {
   const queryClient = useQueryClient();
@@ -91,8 +126,9 @@ function TemplatePanel({ onLoaded }: { onLoaded(message: string): void }) {
       </label>
       <p className="text-label text-text-secondary">
         Nạp chỉ thêm thiết bị có mã chưa có, không sửa thiết bị đã có. Danh mục chép từ văn bản đăng trên trang văn bản
-        pháp luật, cần đối chiếu bản gốc trên Công báo; các cấp học khác thêm mẫu sau.
+        pháp luật, cần đối chiếu bản gốc trên Công báo.
       </p>
+      <LevelSources />
       {load.error ? <Alert tone="danger">{messageOf(load.error)}</Alert> : null}
     </section>
   );
@@ -103,7 +139,10 @@ export function EquipmentMinimumPage() {
   const unitChoice = useUnitChoice();
   const grid = useGridSettings('equipment-minimum');
   const [orgUnitId, setOrgUnitId] = useState('');
-  const [level, setLevel] = useState('MN');
+  // Cấp học theo các cấp đang bật của trường (YCTD-345); chưa chọn hoặc cấp đã tắt thì lấy cấp đầu tiên
+  const { levels } = useEnabledSchoolLevels();
+  const [chosenLevel, setLevel] = useState('');
+  const level = levels.some((item) => item.value === chosenLevel) ? chosenLevel : (levels[0]?.value ?? 'MN');
   const [status, setStatus] = useState('');
   const [search, setSearch] = useState('');
   const [toastMessage, setToastMessage] = useState<string>();
@@ -134,7 +173,7 @@ export function EquipmentMinimumPage() {
             emptyLabel="Mọi đơn vị trong phạm vi"
             onChange={setOrgUnitId}
           />
-          <SelectBox label="Cấp học" value={level} options={EQUIPMENT_SCHOOL_LEVELS} onChange={setLevel} />
+          <SelectBox label="Cấp học" value={level} options={levels} onChange={setLevel} />
           <SelectBox
             label="Kết quả"
             value={status}
@@ -151,15 +190,27 @@ export function EquipmentMinimumPage() {
               Đủ <strong>{totals.enough}</strong>, thiếu <strong>{totals.short}</strong>, chưa có{' '}
               <strong>{totals.none}</strong> trên {totals.item_count} thiết bị áp dụng (
               {formatNumber(totals.rate_percent ?? 0)}% đủ). Danh mục có {comparison.data.catalog_count} thiết bị,{' '}
-              {comparison.data.not_applicable_count} thiết bị không áp dụng vì nhóm tuổi không có lớp.
+              {comparison.data.not_applicable_count} thiết bị không áp dụng vì nhóm tuổi, khối không có lớp.
             </p>
-            {comparison.data.catalog_count === 0 ? (
-              <Alert tone="info">Cấp học này chưa có danh mục tối thiểu. Nạp danh mục mẫu hoặc thêm ở 2.1.</Alert>
-            ) : null}
+            {comparison.data.catalog_source.standard ? (
+              comparison.data.catalog_count === 0 ? (
+                <Alert tone="info">Cấp học này chưa có danh mục tối thiểu. Nạp danh mục mẫu hoặc thêm ở 2.1.</Alert>
+              ) : null
+            ) : (
+              <Alert tone="info">
+                Chưa có danh mục chuẩn, trường tự nhập. Tài liệu của dự án chỉ ghi văn bản căn cứ (
+                {comparison.data.catalog_source.legal_basis}), chưa có nội dung danh mục; thêm thiết bị theo khối hoặc
+                nhập từ Excel ở{' '}
+                <Link to="/equipment" className="text-primary underline">
+                  2.1, thẻ Danh mục tối thiểu
+                </Link>
+                . Danh mục của trường hiện có {comparison.data.catalog_count} thiết bị.
+              </Alert>
+            )}
             {comparison.data.unclassified_classes.length > 0 ? (
               <Alert tone="warning">
-                Lớp chưa xếp được nhóm tuổi (khối không có trong danh mục bậc học):{' '}
-                {comparison.data.unclassified_classes.join(', ')}
+                Lớp chưa xếp được nhóm tuổi hoặc khối (khối không có trong danh mục bậc học, cấp phổ thông dùng mã khối
+                K1 đến K12): {comparison.data.unclassified_classes.join(', ')}
               </Alert>
             ) : null}
           </>

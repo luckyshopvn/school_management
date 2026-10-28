@@ -224,6 +224,10 @@ test('CT-27f-6: cổng nền tảng bật chợ, phụ huynh đăng ký và tạ
   const tutorVerify = tutor.getByRole('form', { name: 'Xác nhận tài khoản' });
   await tutorVerify.getByLabel('Mã xác nhận').fill(CODE);
   await tutorVerify.getByRole('button', { name: 'Xác nhận' }).click();
+  await tutor
+    .getByRole('navigation', { name: 'Điều hướng ứng dụng Gia sư' })
+    .getByRole('button', { name: 'Hồ sơ và môn dạy' })
+    .click();
   const tutorProfile = tutor.getByRole('region', { name: 'Hồ sơ gia sư' });
   await tutorProfile.getByLabel('Dòng giới thiệu').fill('Dạy Toán THCS');
   await tutorProfile.getByRole('button', { name: 'Lưu giới thiệu' }).click();

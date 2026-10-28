@@ -216,8 +216,8 @@ describe('chợ gia sư: hồ sơ và xác minh gia sư (27g)', () => {
       first.token,
     );
     assert.equal(badReturn.status, 400);
-    // Ứng dụng phụ huynh không có xác minh gia sư
-    assert.equal((await call(MARKET_HOST, 'GET', '/identity/providers')).status, 404);
+    // Ứng dụng phụ huynh có đăng nhập định danh (YCTD-364) nhưng không có xác minh gia sư: địa chỉ quay về của phụ huynh là /dinh-danh
+    assert.equal((await call(MARKET_HOST, 'GET', '/identity/providers')).status, 200);
 
     const minor = await oidc(
       'verify',
@@ -491,5 +491,70 @@ describe('chợ gia sư: hồ sơ và xác minh gia sư (27g)', () => {
       tutor.token,
     );
     assert.equal((await call(MARKET_HOST, 'GET', `/public/tutors/${tutor.id}`)).status, 404);
+  });
+  it('CT-364-3: phụ huynh liên kết định danh rồi đăng nhập bằng định danh; định danh của phụ huynh không đăng nhập được ứng dụng Gia sư (YCTD-364)', async () => {
+    const email = `phu-huynh-dd-${Date.now()}@example.test`;
+    const registered = await call(MARKET_HOST, 'POST', '/auth/register', {
+      kind: 'parent',
+      email,
+      display_name: 'Phụ huynh định danh',
+      password: 'matkhau123',
+      accepted_document_ids: [documents.terms, documents.privacy],
+    });
+    assert.equal(registered.status, 201, JSON.stringify(registered.body));
+    const token = registered.body.session_token as string;
+    const code = /(\d{6})/.exec(environment.api.get(MarketMessenger).lastTo(email)?.text ?? '')?.[1];
+    assert.equal((await call(MARKET_HOST, 'POST', '/auth/verify', { code }, token)).status, 200);
+    const parentReturn = `http://${MARKET_HOST}:5387/dinh-danh`;
+    // Địa chỉ quay về của phụ huynh phải là /dinh-danh trên tên miền của chợ
+    assert.equal(
+      (
+        await call(
+          MARKET_HOST,
+          'POST',
+          '/identity/start',
+          { provider: 'gia-lap', purpose: 'link', return_url: RETURN_URL },
+          token,
+        )
+      ).status,
+      400,
+    );
+    const subject = `phu-huynh-${Date.now()}`;
+    const run = async (purpose: 'link' | 'login', bearer?: string) => {
+      const started = await call(
+        MARKET_HOST,
+        'POST',
+        '/identity/start',
+        { provider: 'gia-lap', purpose, return_url: parentReturn },
+        bearer,
+      );
+      assert.equal(started.status, 200, JSON.stringify(started.body));
+      const cookie = started.cookies?.find((value) => value.startsWith('__Secure-market_oidc_state='));
+      const granted = mock.authorize(started.body.authorization_url as string, {
+        subject,
+        birthdate: adultBirthdate(),
+      });
+      return call(
+        MARKET_HOST,
+        'POST',
+        '/identity/complete',
+        { state: granted.state, code: granted.code },
+        bearer,
+        cookie,
+      );
+    };
+    const linked = await run('link', token);
+    assert.equal(linked.body.status, 'linked', JSON.stringify(linked.body));
+    assert.equal(
+      ((await call(MARKET_HOST, 'GET', '/identity/linked', undefined, token)).body.identities as unknown[]).length,
+      1,
+    );
+    const login = await run('login');
+    assert.equal(login.status, 200, JSON.stringify(login.body));
+    const me = await call(MARKET_HOST, 'GET', '/me', undefined, login.body.session_token as string);
+    assert.equal(me.body.kind, 'parent');
+    // Cùng định danh ở ứng dụng Gia sư: không có tài khoản gia sư gắn định danh này
+    const tutorLogin = await oidc('login', { subject, birthdate: adultBirthdate() });
+    assert.equal(tutorLogin.reply.status, 403);
   });
 });

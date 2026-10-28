@@ -32,6 +32,7 @@ import { Button, DemoBanner, MaintenanceBanner, type MaintenanceNoticeItem } fro
 import { requestJson } from './session/api-client.js';
 import { ClassroomOfflineManager } from './tools/ClassroomOfflineManager.js';
 import { ClassroomToolsScreen } from './tools/ClassroomToolsScreen.js';
+import { toolboxLinkSearch, withToolboxSearch } from './tools/toolbox-link.js';
 import { TutoringScreen } from './screens/TutoringScreen.js';
 import { readRosters } from './tools/classroom-store.js';
 import { SessionProvider, useSession } from './session/session.js';
@@ -53,8 +54,8 @@ function OfflineScreen() {
       <main className="mx-auto flex max-w-md flex-col md:max-w-3xl gap-4 px-4 py-6">
         <h1 className="text-page-title font-bold text-text">Chưa có kết nối</h1>
         <p className="text-content text-text-secondary">
-          Ứng dụng cần có mạng để đăng nhập. Công cụ lớp học dùng được khi mất mạng sau khi bạn đã mở lớp ít nhất một
-          lần có mạng trong thời gian lưu danh sách lớp.
+          Ứng dụng cần có mạng để đăng nhập. Hộp công cụ giảng dạy dùng được khi mất mạng sau khi bạn đã mở lớp ít nhất
+          một lần có mạng trong thời gian lưu danh sách lớp.
         </p>
         <Button variant="primary" onClick={session.retry}>
           Thử kết nối lại
@@ -65,41 +66,93 @@ function OfflineScreen() {
   return <ClassroomToolsScreen classes={null} onCleared={() => refresh((value) => value + 1)} />;
 }
 
+type Opened =
+  | {
+      screen:
+        | 'attendance'
+        | 'pickup'
+        | 'journal'
+        | 'care'
+        | 'messages'
+        | 'activity'
+        | 'meal'
+        | 'boarding'
+        | 'assessment'
+        | 'scores'
+        | 'medication'
+        | 'teaching';
+      myClass: MyClass;
+    }
+  | { screen: 'gate'; orgUnitIds: string[] }
+  | { screen: 'leave' }
+  | { screen: 'payslips' }
+  | { screen: 'work' }
+  | { screen: 'stocktake' }
+  | { screen: 'timetable' }
+  | { screen: 'library' }
+  | { screen: 'class-log' }
+  | { screen: 'training' }
+  // classes undefined: mở bằng đường dẫn, màn tự tải lớp của tôi
+  | { screen: 'classroom-tools'; classes: MyClass[] | undefined; classId?: string }
+  | { screen: 'classroom-mode'; classes: MyClass[] }
+  | { screen: 'online-classes' }
+  | { screen: 'tutoring' };
+
+// Đường dẫn mở thẳng Hộp công cụ (DT-29, YCTD-325): tên cũ đổi sang tên mới ngay khi mở ứng dụng
+function initialOpened(): Opened | undefined {
+  const search = toolboxLinkSearch(window.location.search);
+  if (search === null) {
+    return undefined;
+  }
+  if (search !== window.location.search) {
+    window.history.replaceState(
+      window.history.state,
+      '',
+      `${window.location.pathname}${search}${window.location.hash}`,
+    );
+  }
+  return { screen: 'classroom-tools', classes: undefined };
+}
+
+function setToolboxLocation(open: boolean) {
+  const search = withToolboxSearch(window.location.search, open);
+  if (search !== window.location.search) {
+    window.history.replaceState(
+      window.history.state,
+      '',
+      `${window.location.pathname}${search}${window.location.hash}`,
+    );
+  }
+}
+
 // Chọn màn hình theo trạng thái phiên: chưa đăng nhập về MH-47; bắt buộc đổi mật khẩu về MH-48 (BM-07)
 function Screens() {
   const session = useSession();
-  const [opened, setOpened] = useState<
-    | {
-        screen:
-          | 'attendance'
-          | 'pickup'
-          | 'journal'
-          | 'care'
-          | 'messages'
-          | 'activity'
-          | 'meal'
-          | 'boarding'
-          | 'assessment'
-          | 'scores'
-          | 'medication'
-          | 'teaching';
-        myClass: MyClass;
-      }
-    | { screen: 'gate'; orgUnitIds: string[] }
-    | { screen: 'leave' }
-    | { screen: 'payslips' }
-    | { screen: 'work' }
-    | { screen: 'stocktake' }
-    | { screen: 'timetable' }
-    | { screen: 'library' }
-    | { screen: 'class-log' }
-    | { screen: 'training' }
-    | { screen: 'classroom-tools'; classes: MyClass[] }
-    | { screen: 'classroom-mode'; classes: MyClass[] }
-    | { screen: 'online-classes' }
-    | { screen: 'tutoring' }
-  >();
-  const back = () => setOpened(undefined);
+  const [opened, setOpenedState] = useState<Opened | undefined>(initialOpened);
+  // Màn mở từ Hộp công cụ quay lại Hộp công cụ
+  const [returnTo, setReturnTo] = useState<Opened>();
+  const setOpened = (next: Opened | undefined) => {
+    setToolboxLocation(next?.screen === 'classroom-tools');
+    setOpenedState(next);
+  };
+  const back = () => {
+    setOpened(returnTo);
+    setReturnTo(undefined);
+  };
+  const openFromToolbox = (toolKey: string, myClass: MyClass) => {
+    const next: Opened | undefined =
+      toolKey === 'lesson-plans'
+        ? { screen: 'teaching', myClass }
+        : toolKey === 'class-log'
+          ? { screen: 'class-log' }
+          : toolKey === 'online-classes'
+            ? { screen: 'online-classes' }
+            : undefined;
+    if (next && opened?.screen === 'classroom-tools') {
+      setReturnTo({ ...opened, classId: myClass.id });
+      setOpened(next);
+    }
+  };
   // Quay về từ nhà cung cấp định danh bên ngoài (DT-25 bước 25b)
   if (isExternalCallbackLocation(import.meta.env.BASE_URL)) {
     return (
@@ -188,7 +241,14 @@ function Screens() {
     return <TutoringScreen onBack={back} />;
   }
   if (opened?.screen === 'classroom-tools') {
-    return <ClassroomToolsScreen classes={opened.classes} onBack={back} />;
+    return (
+      <ClassroomToolsScreen
+        classes={opened.classes}
+        initialClassId={opened.classId}
+        onBack={back}
+        onOpenLink={openFromToolbox}
+      />
+    );
   }
   if (opened?.screen === 'online-classes') {
     return <OnlineClassesScreen onBack={back} />;

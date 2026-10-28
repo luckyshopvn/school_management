@@ -11,12 +11,13 @@ const MAX_POLLS = 150;
 // Máy phát triển (YCTD-310): cổng quản trị của trường chạy http ở cổng riêng, đặt bằng VITE_SCHOOL_PORTAL_PORT; bản chạy thật dùng https
 // Ứng dụng của trường (YCTD-315): máy phát triển chạy mỗi ứng dụng ở một cổng (VITE_SCHOOL_*_PORT do tập lệnh chạy đặt); bản chạy thật
 // đặt ứng dụng giáo viên, phụ huynh dưới đường dẫn riêng của tên miền trường (VITE_SCHOOL_*_PATH, mặc định /giao-vien, /phu-huynh)
-export type SchoolApp = 'portal' | 'teacher' | 'parent';
+export type SchoolApp = 'portal' | 'teacher' | 'parent' | 'student';
 
 export const SCHOOL_APPS: ReadonlyArray<{ app: SchoolApp; label: string }> = [
   { app: 'portal', label: 'Cổng quản trị' },
   { app: 'teacher', label: 'Ứng dụng giáo viên' },
   { app: 'parent', label: 'Ứng dụng phụ huynh' },
+  { app: 'student', label: 'Ứng dụng học sinh' },
 ];
 
 function appLocation(app: SchoolApp): { port: string | undefined; path: string } {
@@ -26,6 +27,9 @@ function appLocation(app: SchoolApp): { port: string | undefined; path: string }
   }
   if (app === 'parent') {
     return { port: env.VITE_SCHOOL_PARENT_PORT, path: env.VITE_SCHOOL_PARENT_PATH ?? '/phu-huynh' };
+  }
+  if (app === 'student') {
+    return { port: env.VITE_SCHOOL_STUDENT_PORT, path: env.VITE_SCHOOL_STUDENT_PATH ?? '/hoc-sinh' };
   }
   return { port: env.VITE_SCHOOL_PORTAL_PORT, path: '' };
 }

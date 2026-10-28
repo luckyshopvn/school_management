@@ -18,6 +18,7 @@ import { MedicationPanel } from './MedicationPanel.js';
 import { PhotoConsentPanel } from './PhotoConsentPanel.js';
 import { NotificationsPanel } from './NotificationsPanel.js';
 import { ServicesPanel } from './ServicesPanel.js';
+import { SupportViewPicker } from './SupportViewPicker.js';
 import { FinalYearPanel } from './FinalYearPanel.js';
 import { BoardingPanel } from './BoardingPanel.js';
 import { LibraryPanel } from './LibraryPanel.js';
@@ -426,14 +427,27 @@ export function HomeScreen() {
   const levelName = useSchoolLevelNames();
   const multiLevel = new Set((children ?? []).map((child) => levelOf(child.school_level))).size > 1;
 
+  // Phiên quản trị nền tảng vào thẳng (YCTD-315b): không tải "con của tôi" mà chọn lớp, học sinh để xem
+  const supportView = user?.support?.full_access === true;
   useEffect(() => {
     fetchCurrentUser()
-      .then(setUser)
-      .catch(() => setFailed(true));
-    requestJson<{ items: Child[] }>('/api/v1/children?page_size=50&status=active')
-      .then((page) => setChildren(page.items))
+      .then((current) => {
+        setUser(current);
+        if (current.support?.full_access) {
+          setChildren([]);
+          return;
+        }
+        return requestJson<{ items: Child[] }>('/api/v1/children?page_size=50&status=active').then((page) =>
+          setChildren(page.items),
+        );
+      })
       .catch(() => setFailed(true));
   }, []);
+  const viewChild = (classId: string, childId: string) => {
+    requestJson<{ items: Child[] }>(`/api/v1/children?page_size=200&status=active&class_id=${classId}`)
+      .then((page) => setChildren(page.items.filter((child) => child.id === childId)))
+      .catch(() => setFailed(true));
+  };
 
   return (
     <div className="min-h-screen">
@@ -459,7 +473,8 @@ export function HomeScreen() {
         <div className="relative -mt-10 flex flex-col gap-4">
           {failed ? <Alert tone="danger">Không tải được thông tin, vui lòng thử lại</Alert> : null}
           {notice ? <Alert tone="success">{notice}</Alert> : null}
-          {children && children.length === 0 ? (
+          {supportView ? <SupportViewPicker onPick={viewChild} /> : null}
+          {!supportView && children && children.length === 0 ? (
             <p className="rounded-2xl border border-border bg-card p-4 text-content text-text-secondary">
               Chưa có thông tin của con.
             </p>

@@ -125,8 +125,12 @@ function hashToken(token: string): string {
   return createHash('sha256').update(token).digest('hex');
 }
 
-export const SUPPORT_CHANNELS = ['portal', 'teacher', 'parent'] as const;
+export const SUPPORT_CHANNELS = ['portal', 'teacher', 'parent', 'student'] as const;
 export type SupportChannel = (typeof SUPPORT_CHANNELS)[number];
+// Ứng dụng phụ huynh, học sinh (YCTD-315b): chế độ xem của nhân viên hỗ trợ, luôn chỉ đọc dù phiên toàn quyền
+export function supportScopeForChannel(scope: SupportScope, channel: string): SupportScope {
+  return channel === 'parent' || channel === 'student' ? 'read' : scope;
+}
 
 export interface SupportGrantView {
   id: string;
@@ -475,7 +479,8 @@ export class SupportSessionsService {
   }
 
   // Ứng dụng của trường: đổi đường liên kết một lần lấy phiên đăng nhập của tài khoản hỗ trợ ở kênh của ứng dụng đó (cổng quản trị,
-  // ứng dụng giáo viên, phụ huynh; YCTD-315). Kênh học sinh không nhận phiên hỗ trợ (phiên học sinh gắn với một học sinh cụ thể)
+  // ứng dụng giáo viên, phụ huynh, học sinh; YCTD-315, 315b). Ở ứng dụng phụ huynh, học sinh phiên chỉ đọc, Admin chọn lớp rồi học sinh
+  // để xem; không đăng nhập thành một phụ huynh, học sinh cụ thể
   async exchange(
     token: string,
     ipAddress: string | null,
@@ -590,14 +595,14 @@ export class SupportSessionsService {
       },
     });
     return {
-      scope: session.scope,
+      scope: supportScopeForChannel(session.scope, channel),
       response: {
         access_token: await this.tokenService.signAccessToken({
           userId,
           sessionId,
           channel,
           passwordChangeRequired: false,
-          support: session.scope,
+          support: supportScopeForChannel(session.scope, channel),
         }),
         token_type: 'Bearer',
         expires_in: ACCESS_TOKEN_LIFETIME_SECONDS,
@@ -787,7 +792,7 @@ export class SupportExchangeController {
     }
     const channel = body?.channel === undefined ? 'portal' : body.channel;
     if (!SUPPORT_CHANNELS.includes(channel as SupportChannel)) {
-      throw validationError([{ field: 'channel', message: 'Kênh là portal, teacher hoặc parent' }]);
+      throw validationError([{ field: 'channel', message: 'Kênh là portal, teacher, parent hoặc student' }]);
     }
     const issued = await this.support.exchange(
       code,

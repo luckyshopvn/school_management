@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState, type ReactNode } from 'react';
 import { Alert, Button } from '@school-management/ui';
 import { LoginForm, RegisterForm, VerifyForm } from './AccountForms.js';
+import { ForgotPasswordForm } from './AccountSecurity.js';
 import { errorText, marketRequest, readSession, writeSession, type Me, type Site } from './market-api.js';
 import { SAFETY_HOTLINE } from './SafetyWidgets.js';
 
@@ -9,7 +10,7 @@ import { SAFETY_HOTLINE } from './SafetyWidgets.js';
 // khu gia sư) do ứng dụng truyền vào. Mỗi ứng dụng một vai: máy chủ chỉ nhận tài khoản phụ huynh ở tên miền của chợ, tài khoản gia sư
 // ở tên miền của ứng dụng Gia sư. Bố cục theo bản thiết kế "Chợ gia sư, Gia sư, Cấp trên" Eric duyệt ngày 2026-10-28 (YCTD-360): thanh
 // đầu trang trắng có thanh điều hướng của vai, nhãn "Thanh toán giả lập", nội dung rộng, chân trang có văn bản pháp lý và đường dây nóng
-type View = 'home' | 'register' | 'login' | 'document';
+type View = 'home' | 'register' | 'login' | 'forgot' | 'document';
 
 export interface MarketShellProperties {
   kind: 'parent' | 'tutor';
@@ -18,8 +19,9 @@ export interface MarketShellProperties {
   intro: (site: Site | null) => ReactNode;
   // Khu riêng của vai khi tài khoản đã xác nhận và đồng ý đủ văn bản
   children: ReactNode;
-  // Thanh điều hướng của vai, hiện ở đầu trang khi đã vào khu riêng (YCTD-360)
+  // Thanh điều hướng của vai khi đã vào khu riêng: ở đầu trang (Chợ gia sư, YCTD-360) hoặc cột bên trái (ứng dụng Gia sư, YCTD-361)
   navigation?: ReactNode;
+  navigationPlacement?: 'top' | 'side';
   // Cách đăng nhập thêm dưới biểu mẫu mật khẩu (ứng dụng Gia sư: đăng nhập bằng định danh đã xác minh, DT-27 phần 27g)
   loginExtras?: ReactNode;
 }
@@ -44,7 +46,15 @@ function BrandMark() {
   );
 }
 
-export function MarketShell({ kind, title, intro, children, navigation, loginExtras }: MarketShellProperties) {
+export function MarketShell({
+  kind,
+  title,
+  intro,
+  children,
+  navigation,
+  navigationPlacement = 'top',
+  loginExtras,
+}: MarketShellProperties) {
   const [site, setSite] = useState<Site | null>(null);
   const [me, setMe] = useState<Me | null>(null);
   const [view, setView] = useState<View>('home');
@@ -94,6 +104,7 @@ export function MarketShell({ kind, title, intro, children, navigation, loginExt
   };
 
   const ready = view === 'home' && me?.status === 'active' && me.consents_needed.length === 0;
+  const side = navigationPlacement === 'side' && Boolean(navigation);
 
   return (
     <div className="flex min-h-screen flex-col">
@@ -107,7 +118,7 @@ export function MarketShell({ kind, title, intro, children, navigation, loginExt
             <BrandMark />
             <span className="text-section-title font-bold">{title}</span>
           </button>
-          <div className="min-w-0 flex-1">{ready ? navigation : null}</div>
+          <div className="min-w-0 flex-1">{ready && !side ? navigation : null}</div>
           {site && !site.real_payments ? (
             <span className="rounded-full bg-warning/10 px-3 py-1 text-label font-medium text-warning">
               Thanh toán giả lập
@@ -162,10 +173,18 @@ export function MarketShell({ kind, title, intro, children, navigation, loginExt
         {view === 'login' ? (
           <div className="mx-auto flex w-full max-w-md flex-col gap-4 rounded-2xl border border-border bg-card p-6">
             <LoginForm onSignedIn={signedIn} />
+            <button type="button" className="min-h-11 self-start text-link underline" onClick={() => setView('forgot')}>
+              Quên mật khẩu?
+            </button>
             {loginExtras}
           </div>
         ) : null}
 
+        {view === 'forgot' ? (
+          <div className="mx-auto w-full max-w-md rounded-2xl border border-border bg-card p-6">
+            <ForgotPasswordForm onDone={() => setView('login')} />
+          </div>
+        ) : null}
         {view === 'home' && me?.status === 'pending' ? (
           <div className="mx-auto w-full max-w-md rounded-2xl border border-border bg-card p-6">
             <VerifyForm onVerified={() => void loadMe()} />
@@ -195,7 +214,15 @@ export function MarketShell({ kind, title, intro, children, navigation, loginExt
             ))}
           </section>
         ) : null}
-        {ready ? children : null}
+        {ready && side ? (
+          <div className="flex flex-wrap items-start gap-6">
+            <div className="w-full max-w-64 flex-[1_1_200px] rounded-2xl border border-border bg-card p-3">
+              {navigation}
+            </div>
+            <div className="flex min-w-0 flex-[999_1_560px] flex-col gap-4">{children}</div>
+          </div>
+        ) : null}
+        {ready && !side ? children : null}
 
         {view === 'home' && !me ? intro(site) : null}
       </main>

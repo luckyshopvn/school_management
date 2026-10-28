@@ -32,6 +32,8 @@ export interface RosterSnapshot {
   saved_at: string;
   // Ngày (giờ Việt Nam) của lần lưu: đánh dấu vắng chỉ đúng trong ngày đó
   day: string;
+  // Cấp của lớp để Hộp công cụ giảng dạy lọc công cụ khi mất mạng (DT-29, YCTD-325); bản chụp lưu trước DT-29 không có
+  school_level?: string;
   students: Array<RosterStudent & { absent: boolean }>;
 }
 
@@ -90,12 +92,13 @@ export function vietnamDay(now: Date): string {
   return new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Ho_Chi_Minh' }).format(now);
 }
 
-export function snapshotFrom(roster: RosterResponse, now: Date): RosterSnapshot {
+export function snapshotFrom(roster: RosterResponse, now: Date, schoolLevel?: string): RosterSnapshot {
   return {
     class_id: roster.class_id,
     class_name: roster.class_name,
     saved_at: now.toISOString(),
     day: vietnamDay(now),
+    ...(schoolLevel ? { school_level: schoolLevel } : {}),
     students: roster.students.map((student) => ({
       id: student.id,
       order_no: student.order_no,
@@ -106,8 +109,8 @@ export function snapshotFrom(roster: RosterResponse, now: Date): RosterSnapshot 
   };
 }
 
-export function saveRoster(roster: RosterResponse, now: Date): RosterSnapshot {
-  const snapshot = snapshotFrom(roster, now);
+export function saveRoster(roster: RosterResponse, now: Date, schoolLevel?: string): RosterSnapshot {
+  const snapshot = snapshotFrom(roster, now, schoolLevel);
   if (offlineAllowed()) {
     const all = readRosters(now);
     all[snapshot.class_id] = snapshot;

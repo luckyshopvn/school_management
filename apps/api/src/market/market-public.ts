@@ -14,8 +14,8 @@ import { badgesOf, verificationState, type VerificationRow } from './market-tuto
 // của chợ (ứng dụng phụ huynh), không cần đăng nhập. Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11:
 // - chỉ hiện gia sư có hồ sơ đã duyệt, danh tính đã xác minh, phiếu lý lịch tư pháp đã duyệt còn hiệu lực, tài khoản đang dùng;
 // - không trả thư điện tử, số điện thoại, địa chỉ của gia sư, không trả giấy tờ; chỉ trả huy hiệu theo bậc xác minh;
-// - lọc theo môn, cấp, khối, loại nội dung, giá tối đa, thứ có giờ trống; sắp xếp theo giá thấp nhất, giá cao nhất, mới duyệt. Sắp xếp theo
-//   đánh giá thêm khi có đánh giá sau buổi học (27h)
+// - lọc theo môn, cấp, khối, loại nội dung, giá tối đa, thứ có giờ trống; sắp xếp theo giá thấp nhất, giá cao nhất, mới duyệt, đánh giá cao trước
+//   (đánh giá sau buổi học đã duyệt, YCTD-364)
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const PAGE_SIZE = 20;
 
@@ -110,7 +110,18 @@ export class MarketPublicService {
     const maxPrice = optionalInteger(query.max_price, 'max_price', 0, 10_000_000);
     const weekday = optionalInteger(query.weekday, 'weekday', 1, 7);
     const subject = (query.subject ?? '').trim().slice(0, 60);
-    const sort = query.sort === 'price_desc' || query.sort === 'newest' ? query.sort : 'price_asc';
+    const sort =
+      query.sort === 'price_desc' || query.sort === 'newest' || query.sort === 'rating_desc' ? query.sort : 'price_asc';
+    // Điểm đánh giá đã hiện (YCTD-364): trung bình và số đánh giá, để hiện ở thẻ và sắp "đánh giá cao trước"
+    const ratings = database
+      .selectFrom('market_reviews')
+      .select([
+        'tutor_account_id',
+        sql<string>`round(avg(rating), 1)::text`.as('rating_average'),
+        sql<number>`count(*)::int`.as('rating_count'),
+      ])
+      .where('status', '=', 'published')
+      .groupBy('tutor_account_id');
     // Môn khớp điều kiện lọc; gia sư hiện khi có ít nhất một môn khớp
     let matching = database
       .selectFrom('market_tutor_subjects')
@@ -123,7 +134,10 @@ export class MarketPublicService {
     if (maxPrice !== null) matching = matching.where('price_per_session', '<=', maxPrice);
     let tutors = visibleTutors(database, today)
       .innerJoin(matching.as('matching'), 'matching.account_id', 'market_tutor_profiles.account_id')
+      .leftJoin(ratings.as('ratings'), 'ratings.tutor_account_id', 'market_tutor_profiles.account_id')
       .select([
+        'ratings.rating_average',
+        'ratings.rating_count',
         'market_accounts.id',
         'market_accounts.display_name',
         'market_tutor_profiles.headline',
@@ -145,7 +159,11 @@ export class MarketPublicService {
     tutors =
       sort === 'newest'
         ? tutors.orderBy('market_tutor_profiles.published_at', 'desc')
-        : tutors.orderBy(sql`min_price::int`, sort === 'price_desc' ? 'desc' : 'asc');
+        : sort === 'rating_desc'
+          ? tutors
+              .orderBy(sql`coalesce(ratings.rating_average::numeric, 0)`, 'desc')
+              .orderBy(sql`coalesce(ratings.rating_count, 0)`, 'desc')
+          : tutors.orderBy(sql`min_price::int`, sort === 'price_desc' ? 'desc' : 'asc');
     const rows = await tutors.orderBy('market_accounts.id').limit(PAGE_SIZE).execute();
     const ids = rows.map((row) => row.id);
     const [subjects, badges] = await Promise.all([
@@ -173,6 +191,10 @@ export class MarketPublicService {
         headline: row.headline,
         teaching_language: row.teaching_language,
         min_price: Number(row.min_price),
+        rating: {
+          average: row.rating_average === null ? null : Number(row.rating_average),
+          count: row.rating_count ?? 0,
+        },
         subjects: subjects
           .filter((item) => item.account_id === row.id)
           .map((item) => ({

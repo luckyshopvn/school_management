@@ -15,6 +15,7 @@ import {
   startProctorView,
   type AssignmentDetail,
 } from './online-exams-api.js';
+import { createSingleFlight } from './proctor-single-flight.js';
 
 // Giám thị camera (DT-23 phần 23e, YCTD-215): lưới camera trực tiếp của học sinh đang làm bài (WebRTC, hình đi thẳng từ trình duyệt
 // học sinh tới trình duyệt giáo viên, máy chủ chỉ chuyển thông điệp báo hiệu), tình trạng đồng ý của cha mẹ, nhật ký người xem và xem
@@ -31,13 +32,16 @@ const formatTime = (iso: string | null) =>
 
 type LiveState = 'connecting' | 'live' | 'ended' | 'failed';
 
+// Máy chủ đóng phiên xem cũ của cùng bài làm khi mở phiên mới, nên mỗi bài làm chỉ gửi một yêu cầu mở phiên tại một thời điểm (YCTD-355)
+const openProctorView = createSingleFlight<{ view_id: string }>();
+
 // Mở một phiên xem: giáo viên là bên gọi (offer, chỉ nhận hình), học sinh trả lời; trả hàm dừng
 async function connectLive(
   attemptId: string,
   onStream: (stream: MediaStream) => void,
   onState: (state: LiveState, detail?: string) => void,
 ): Promise<() => void> {
-  const { view_id: viewId } = await startProctorView(attemptId);
+  const { view_id: viewId } = await openProctorView(attemptId, () => startProctorView(attemptId));
   let servers: RTCIceServer[] = [];
   try {
     servers = (await readProctorIce()).ice_servers;
@@ -112,45 +116,63 @@ async function connectLive(
   };
 }
 
-function LiveTile({ attemptId, name, onClose }: { attemptId: string; name: string; onClose(): void }) {
+function LiveTile({
+  attemptId,
+  name,
+  onClose,
+  onOpening,
+}: {
+  attemptId: string;
+  name: string;
+  onClose(): void;
+  onOpening(attemptId: string, opening: boolean): void;
+}) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const [state, setState] = useState<LiveState>('connecting');
   const [detail, setDetail] = useState<string>();
+  const onOpeningRef = useRef(onOpening);
+  onOpeningRef.current = onOpening;
   useEffect(() => {
     let stop: (() => void) | undefined;
     let cancelled = false;
-    // Lượt mở đã hủy (ô đóng, hoặc StrictMode gắn hiệu ứng hai lần) không được ghi đè trạng thái của lượt mở sau: máy chủ đóng phiên xem
-    // cũ khi mở phiên mới nên lượt cũ có thể báo "Phiên xem đã kết thúc"
-    connectLive(
-      attemptId,
-      (stream) => {
-        if (!cancelled && videoRef.current) {
-          videoRef.current.srcObject = stream;
-          void videoRef.current.play().catch(() => undefined);
-        }
-      },
-      (next, message) => {
-        if (!cancelled) {
-          setState(next);
-          setDetail(message);
-        }
-      },
-    )
-      .then((close) => {
-        if (cancelled) {
-          close();
-        } else {
-          stop = close;
-        }
-      })
-      .catch((error) => {
-        if (!cancelled) {
-          setState('failed');
-          setDetail(messageOf(error));
-        }
-      });
+    // Hoãn một nhịp rồi mới mở phiên (YCTD-355): StrictMode gắn hiệu ứng rồi gỡ ngay, lượt gỡ xoá hẹn giờ nên chỉ một yêu cầu mở phiên
+    // tới máy chủ. Trước đây hai yêu cầu song song làm máy chủ đóng phiên của lượt còn sống ("Phiên xem đã kết thúc"). Lượt mở đã hủy
+    // vẫn không được ghi đè trạng thái của lượt mở sau
+    const timer = window.setTimeout(() => {
+      onOpeningRef.current(attemptId, true);
+      connectLive(
+        attemptId,
+        (stream) => {
+          if (!cancelled && videoRef.current) {
+            videoRef.current.srcObject = stream;
+            void videoRef.current.play().catch(() => undefined);
+          }
+        },
+        (next, message) => {
+          if (!cancelled) {
+            setState(next);
+            setDetail(message);
+          }
+        },
+      )
+        .then((close) => {
+          if (cancelled) {
+            close();
+          } else {
+            stop = close;
+          }
+        })
+        .catch((error) => {
+          if (!cancelled) {
+            setState('failed');
+            setDetail(messageOf(error));
+          }
+        })
+        .finally(() => onOpeningRef.current(attemptId, false));
+    }, 0);
     return () => {
       cancelled = true;
+      window.clearTimeout(timer);
       stop?.();
     };
   }, [attemptId]);
@@ -183,6 +205,16 @@ function LiveTile({ attemptId, name, onClose }: { attemptId: string; name: strin
 // Lưới camera: chọn từng học sinh đang làm bài hoặc xem tất cả; mỗi phiên xem được ghi vào nhật ký người xem
 export function ProctorGrid({ data }: { data: AssignmentDetail }) {
   const [watching, setWatching] = useState<string[]>([]);
+  // Bài làm đang có yêu cầu mở phiên xem: tắt nút "Xem camera" của bài đó tới khi máy chủ trả lời (YCTD-355)
+  const [opening, setOpening] = useState<string[]>([]);
+  const markOpening = (attemptId: string, value: boolean) =>
+    setOpening((current) =>
+      value
+        ? current.includes(attemptId)
+          ? current
+          : [...current, attemptId]
+        : current.filter((id) => id !== attemptId),
+    );
   const running = data.students.flatMap((student) =>
     student.attempts
       .filter((attempt) => attempt.status === 'in_progress' && attempt.camera_state === 'granted')
@@ -215,6 +247,7 @@ export function ProctorGrid({ data }: { data: AssignmentDetail }) {
               key={item.attemptId}
               variant={watching.includes(item.attemptId) ? 'primary' : 'secondary'}
               aria-label={`Xem camera của ${item.name}`}
+              disabled={opening.includes(item.attemptId)}
               onClick={() => toggle(item.attemptId)}
             >
               {item.name}
@@ -231,6 +264,7 @@ export function ProctorGrid({ data }: { data: AssignmentDetail }) {
               attemptId={attemptId}
               name={item?.name ?? 'Học sinh'}
               onClose={() => setWatching((current) => current.filter((id) => id !== attemptId))}
+              onOpening={markOpening}
             />
           );
         })}

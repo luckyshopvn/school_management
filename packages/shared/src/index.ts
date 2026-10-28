@@ -1027,3 +1027,4 @@ export const DATA_GRID_KEYS = [
 export type DataGridKey = (typeof DATA_GRID_KEYS)[number];
 export const DATA_GRID_PAGE_SIZES = [10, 20, 50, 100, 200] as const;
 export const DEFAULT_DATA_GRID_PAGE_SIZE = 20;
+export * from './teaching-tools.js';

@@ -6,6 +6,7 @@ import {
   errorCode,
   getJson,
   postJson,
+  solvedCaptcha,
   startTestApplication,
   TEST_PASSWORD,
   type TestContext,
@@ -161,8 +162,13 @@ describe('Dịch vụ định danh: xác thực hai lớp tuỳ chọn và chín
     assert.equal((await login(other, undefined, 'sai-1', 'teacher')).status, 401);
     assert.equal((await login(other, undefined, 'sai-2', 'teacher')).status, 401);
     assert.equal((await login(other, undefined, 'sai-3', 'teacher')).status, 401);
-    // Kênh giáo viên không có mã xác nhận ảnh nên đếm lần nhập sai thuần túy
-    const locked = await login(other, undefined, undefined, 'teacher');
+    // Kênh giáo viên đòi mã xác nhận sau 3 lần sai (YCTD-353): gửi kèm mã đúng để thấy riêng việc tạm khóa
+    const locked = await postJson(`${context.baseUrl}/auth/login`, {
+      login: other.username,
+      password: other.password,
+      channel: 'teacher',
+      ...(await solvedCaptcha(context)),
+    });
     assert.equal(locked.status, 401);
     assert.match(JSON.stringify(locked.body), /khóa/);
     const row = await context.database

@@ -537,12 +537,15 @@ export {
 } from './marketplace/marketplace-database.js';
 export {
   DEFAULT_MARKET_SETTINGS,
+  DEFAULT_ROOM_TIMINGS,
   MARKET_SETTINGS_KEY,
   MarketSettingsError,
   parseMarketSettings,
   readMarketSettings,
   REAL_PAYMENTS_BLOCKED_MESSAGE,
+  roomTimingsJson,
   saveMarketSettings,
+  type MarketRoomTimings,
   type MarketSettings,
 } from './marketplace/market-settings.js';
 export { startMarketplaceTestDatabase, type MarketplaceTestDatabase } from './marketplace/marketplace-test-support.js';

@@ -2,6 +2,7 @@ import { Body, Controller, Get, Injectable, Post, Put, Req } from '@nestjs/commo
 import {
   MarketSettingsError,
   parseMarketSettings,
+  roomTimingsJson,
   saveMarketSettings,
   type MarketLegalDocumentKind,
   type MarketSettings,
@@ -27,6 +28,8 @@ function view(settings: MarketSettings) {
     complaint_window_hours: settings.complaintWindowHours,
     default_commission_percent: settings.defaultCommissionPercent,
     real_payments_enabled: settings.realPaymentsEnabled,
+    // Mốc phòng học video (YCTD-362)
+    ...roomTimingsJson(settings.room),
   };
 }
 

@@ -608,8 +608,35 @@ describe('chợ gia sư: an toàn trẻ em và kiểm duyệt (27i)', () => {
     const started = await call(TUTOR_HOST, 'POST', `/tutor/bookings/${id}/session/start`, undefined, tutor.token);
     assert.equal(started.status, 200, JSON.stringify(started.body));
     assert.equal(started.body.recording, true);
+    // Phòng học video (YCTD-362): cần đồng ý ghi hình với gia sư (con từ đủ 7 tuổi cùng xác nhận), vào phòng chờ, gia sư cho vào
+    assert.equal(
+      (await call(MARKET_HOST, 'POST', `/bookings/${id}/room/consent`, { parent_confirmed: true }, parent.token))
+        .status,
+      400,
+      'con từ đủ 7 tuổi phải cùng xác nhận',
+    );
+    const consented = await call(
+      MARKET_HOST,
+      'POST',
+      `/bookings/${id}/room/consent`,
+      { parent_confirmed: true, child_confirmed: true },
+      parent.token,
+    );
+    assert.equal(consented.status, 200, JSON.stringify(consented.body));
+    const waiting = await call(MARKET_HOST, 'POST', `/bookings/${id}/session/join`, undefined, parent.token);
+    assert.equal(waiting.status, 200);
+    assert.equal(waiting.body.status, 'waiting');
+    const admitted = await call(
+      TUTOR_HOST,
+      'POST',
+      `/tutor/bookings/${id}/room/participants/student:${parent.id}`,
+      { admit: true },
+      tutor.token,
+    );
+    assert.equal(admitted.status, 200, JSON.stringify(admitted.body));
     const joined = await call(MARKET_HOST, 'POST', `/bookings/${id}/session/join`, undefined, parent.token);
     assert.equal(joined.status, 200);
+    assert.equal(joined.body.status, 'ready');
     assert.match(String(joined.body.token), /^mock\./);
     const ended = await call(TUTOR_HOST, 'POST', `/tutor/bookings/${id}/session/end`, undefined, tutor.token);
     assert.equal(ended.body.recording, 'ready');
@@ -649,5 +676,251 @@ describe('chợ gia sư: an toàn trẻ em và kiểm duyệt (27i)', () => {
     await database.updateTable('market_bookings').set({ status: 'disbursed' }).where('id', '=', id).execute();
     assert.equal((await admin('POST', '/safety/run-due')).body.purged, 1);
     assert.equal((await raw(MARKET_HOST, `/bookings/${id}/recording/stream`, parent.token)).status, 404);
+  });
+
+  it('CT-27j-2: phòng học video: gia sư vắng thì hoàn đủ; điểm danh khi kết thúc; gia sư không xác nhận thì tự xác nhận sau 24 giờ', async () => {
+    const parent = await registerParent();
+    const tutor = await seedTutor();
+    // Gia sư không vào phòng: chưa quá 10 phút thì chưa báo được, quá 10 phút thì buổi hủy, hoàn đủ
+    const absent = await paidBooking(parent, tutor, 48);
+    await database
+      .updateTable('market_bookings')
+      .set({ starts_at: new Date(Date.now() - 5 * 60_000) })
+      .where('id', '=', absent)
+      .execute();
+    assert.equal((await call(MARKET_HOST, 'POST', `/bookings/${absent}/tutor-no-show`, {}, parent.token)).status, 409);
+    await database
+      .updateTable('market_bookings')
+      .set({ starts_at: new Date(Date.now() - 11 * 60_000) })
+      .where('id', '=', absent)
+      .execute();
+    const noShow = await call(MARKET_HOST, 'POST', `/bookings/${absent}/tutor-no-show`, {}, parent.token);
+    assert.equal(noShow.status, 200, JSON.stringify(noShow.body));
+    assert.equal(noShow.body.status, 'refunded');
+
+    // Buổi có gia sư mở phòng, con vào, kết thúc: điểm danh có gia sư và con
+    const taught = await paidBooking(parent, tutor, 48);
+    await database
+      .updateTable('market_bookings')
+      .set({ starts_at: new Date(Date.now() - 5 * 60_000) })
+      .where('id', '=', taught)
+      .execute();
+    const room = await call(MARKET_HOST, 'GET', `/bookings/${taught}/room`, undefined, parent.token);
+    assert.equal(room.body.window_open, true);
+    assert.equal(room.body.child_must_confirm, true);
+    assert.equal(room.body.tutor_opened, false);
+    assert.equal(
+      (await call(TUTOR_HOST, 'POST', `/tutor/bookings/${taught}/session/start`, {}, tutor.token)).status,
+      200,
+    );
+    await call(
+      MARKET_HOST,
+      'POST',
+      `/bookings/${taught}/room/consent`,
+      { parent_confirmed: true, child_confirmed: true },
+      parent.token,
+    );
+    assert.equal(
+      (await call(MARKET_HOST, 'POST', `/bookings/${taught}/room/enter`, { as: 'guardian' }, parent.token)).body.status,
+      'waiting',
+    );
+    const pending = await call(TUTOR_HOST, 'GET', `/tutor/bookings/${taught}/room`, undefined, tutor.token);
+    assert.deepEqual(
+      (pending.body.participants as Array<{ role: string }>).map((row) => row.role),
+      ['guardian'],
+      'phụ huynh vào xem đang ở phòng chờ',
+    );
+    await call(
+      TUTOR_HOST,
+      'POST',
+      `/tutor/bookings/${taught}/room/participants/guardian:${parent.id}`,
+      { admit: true },
+      tutor.token,
+    );
+    const guardian = await call(
+      MARKET_HOST,
+      'POST',
+      `/bookings/${taught}/room/enter`,
+      { as: 'guardian' },
+      parent.token,
+    );
+    assert.equal(guardian.body.status, 'ready');
+    assert.equal(guardian.body.can_speak, false, 'phụ huynh vào xem tắt micro');
+    assert.equal(
+      (await call(TUTOR_HOST, 'POST', `/tutor/bookings/${taught}/session/end`, {}, tutor.token)).status,
+      200,
+    );
+    const after = await call(MARKET_HOST, 'GET', `/bookings/${taught}/room`, undefined, parent.token);
+    assert.equal(after.body.closed, true);
+    const roles = (after.body.attendance as Array<{ role: string; result: string | null }>)
+      .map((row) => row.role)
+      .sort();
+    assert.deepEqual(roles, ['guardian', 'host']);
+
+    // Rút đồng ý: buổi sau với gia sư này phải đồng ý lại
+    const consents = await call(MARKET_HOST, 'GET', '/recording-consents', undefined, parent.token);
+    const consentId = (consents.body.consents as Array<{ id: string }>)[0]?.id ?? '';
+    assert.equal(
+      (await call(MARKET_HOST, 'POST', `/recording-consents/${consentId}/withdraw`, {}, parent.token)).status,
+      200,
+    );
+    assert.equal(
+      (await call(MARKET_HOST, 'GET', `/bookings/${taught}/room`, undefined, parent.token)).body.consent,
+      null,
+    );
+
+    // Gia sư không xác nhận đã dạy: quá 24 giờ sau giờ kết thúc thì việc định kỳ tự xác nhận
+    await database
+      .updateTable('market_bookings')
+      .set({ starts_at: new Date(Date.now() - 26 * HOUR) })
+      .where('id', '=', taught)
+      .execute();
+    const due = await admin('POST', '/payments/run-due');
+    assert.ok((due.body.autoConfirmed as number) >= 1, JSON.stringify(due.body));
+    const confirmed = await database
+      .selectFrom('market_session_rooms')
+      .select('confirmed_by')
+      .where('booking_id', '=', taught)
+      .executeTakeFirstOrThrow();
+    assert.equal(confirmed.confirmed_by, 'auto');
+  });
+  it('CT-364-1: đánh giá sau buổi chờ duyệt rồi mới hiện; gia sư trả lời một lần; sắp theo đánh giá; con đọc tin nhắn chỉ đọc', async () => {
+    const parent = await registerParent();
+    const tutor = await seedTutor();
+    const id = await paidBooking(parent, tutor, 48);
+    // Chưa dạy thì chưa đánh giá được
+    assert.equal((await call(MARKET_HOST, 'POST', `/bookings/${id}/review`, { rating: 5 }, parent.token)).status, 409);
+    await database.updateTable('market_bookings').set({ status: 'completed' }).where('id', '=', id).execute();
+    assert.equal((await call(MARKET_HOST, 'POST', `/bookings/${id}/review`, { rating: 6 }, parent.token)).status, 400);
+    const created = await call(
+      MARKET_HOST,
+      'POST',
+      `/bookings/${id}/review`,
+      { rating: 5, clarity: 4, body: 'Cô dạy dễ hiểu, gọi cô số 0912 345 678' },
+      parent.token,
+    );
+    assert.equal(created.status, 201, JSON.stringify(created.body));
+    assert.equal(created.body.status, 'pending');
+    assert.ok(created.body.warning, 'số điện thoại bị che');
+    assert.equal((await call(MARKET_HOST, 'POST', `/bookings/${id}/review`, { rating: 4 }, parent.token)).status, 409);
+    const hidden = await call(MARKET_HOST, 'GET', `/public/reviews/${tutor.id}`);
+    assert.equal((hidden.body.summary as { count: number }).count, 0, 'chưa duyệt thì chưa hiện');
+    const queue = await admin('GET', '/reviews-moderation');
+    const pending = (queue.body.reviews as Array<{ id: string; body: string }>).find(
+      (row) => row.id === created.body.id,
+    );
+    assert.ok(pending && !pending.body.includes('0912'));
+    assert.equal(
+      (await admin('POST', `/reviews-moderation/${created.body.id as string}`, { decision: 'reject' })).status,
+      400,
+      'từ chối cần lý do',
+    );
+    assert.equal(
+      (await admin('POST', `/reviews-moderation/${created.body.id as string}`, { decision: 'publish' })).status,
+      200,
+    );
+    const shown = await call(MARKET_HOST, 'GET', `/public/reviews/${tutor.id}`);
+    assert.equal((shown.body.summary as { count: number }).count, 1);
+    assert.equal((shown.body.summary as { average: number }).average, 5);
+    const search = await call(MARKET_HOST, 'GET', '/public/tutors?sort=rating_desc');
+    const card = (search.body.tutors as Array<{ id: string; rating: { count: number } }>).find(
+      (row) => row.id === tutor.id,
+    );
+    assert.equal(card?.rating.count, 1);
+    const reviewId = created.body.id as string;
+    assert.equal(
+      (await call(TUTOR_HOST, 'POST', `/tutor/reviews/${reviewId}/reply`, { body: 'Cảm ơn phụ huynh' }, tutor.token))
+        .status,
+      200,
+    );
+    assert.equal(
+      (await call(TUTOR_HOST, 'POST', `/tutor/reviews/${reviewId}/reply`, { body: 'Lần hai' }, tutor.token)).status,
+      409,
+    );
+
+    // Con đọc tin nhắn: chưa bật thì không đọc được; bật rồi chỉ có luồng với gia sư đã dạy con, không có điểm cuối gửi
+    const thread = await call(MARKET_HOST, 'POST', '/messages/threads', { tutor_id: tutor.id }, parent.token);
+    await call(MARKET_HOST, 'POST', `/messages/threads/${thread.body.id as string}`, { body: 'Chào cô' }, parent.token);
+    assert.equal(
+      (await call(MARKET_HOST, 'GET', `/children/${parent.childId}/messages`, undefined, parent.token)).status,
+      403,
+    );
+    assert.equal(
+      (await call(MARKET_HOST, 'POST', `/children/${parent.childId}/reads-messages`, { enabled: true }, parent.token))
+        .status,
+      200,
+    );
+    const read = await call(MARKET_HOST, 'GET', `/children/${parent.childId}/messages`, undefined, parent.token);
+    assert.equal(read.status, 200);
+    const threads = read.body.threads as Array<{ messages: Array<{ body: string }> }>;
+    assert.equal(threads.length, 1);
+    assert.equal(threads[0]?.messages[0]?.body, 'Chào cô');
+  });
+
+  it('CT-364-2: quên mật khẩu đặt lại bằng mã, thu hồi phiên cũ; đổi mật khẩu cần mật khẩu hiện tại; sửa tên hiển thị', async () => {
+    const parent = await registerParent();
+    assert.equal(
+      (
+        await call(
+          MARKET_HOST,
+          'POST',
+          '/auth/password/change',
+          { current_password: 'sai', new_password: 'moi12345' },
+          parent.token,
+        )
+      ).status,
+      400,
+    );
+    assert.equal(
+      (
+        await call(
+          MARKET_HOST,
+          'POST',
+          '/auth/password/change',
+          { current_password: 'matkhau123', new_password: 'moi12345' },
+          parent.token,
+        )
+      ).status,
+      200,
+    );
+    assert.equal((await call(MARKET_HOST, 'GET', '/me', undefined, parent.token)).status, 200, 'phiên đang dùng còn');
+    // Quên mật khẩu: câu trả lời như nhau dù tài khoản không có
+    assert.equal(
+      (await call(MARKET_HOST, 'POST', '/auth/password/forgot', { login: 'khong-co@example.test' })).status,
+      200,
+    );
+    assert.equal((await call(MARKET_HOST, 'POST', '/auth/password/forgot', { login: parent.email })).status, 200);
+    const code = /(\d{6})/.exec(environment.api.get(MarketMessenger).lastTo(parent.email)?.text ?? '')?.[1];
+    assert.equal(
+      (
+        await call(MARKET_HOST, 'POST', '/auth/password/reset', {
+          login: parent.email,
+          code: '000000' === code ? '111111' : '000000',
+          new_password: 'datlai123',
+        })
+      ).status,
+      400,
+    );
+    assert.equal(
+      (
+        await call(MARKET_HOST, 'POST', '/auth/password/reset', {
+          login: parent.email,
+          code,
+          new_password: 'datlai123',
+        })
+      ).status,
+      200,
+    );
+    assert.equal((await call(MARKET_HOST, 'GET', '/me', undefined, parent.token)).status, 401, 'phiên cũ bị thu hồi');
+    const login = await call(MARKET_HOST, 'POST', '/auth/login', { login: parent.email, password: 'datlai123' });
+    assert.equal(login.status, 200);
+    const token = login.body.session_token as string;
+    assert.equal((await call(MARKET_HOST, 'POST', '/auth/password/confirm', { password: 'sai' }, token)).status, 401);
+    assert.equal(
+      (await call(MARKET_HOST, 'POST', '/auth/password/confirm', { password: 'datlai123' }, token)).status,
+      200,
+    );
+    assert.equal((await call(MARKET_HOST, 'PUT', '/me', { display_name: 'Mẹ của Bé' }, token)).status, 200);
+    assert.equal((await call(MARKET_HOST, 'GET', '/me', undefined, token)).body.display_name, 'Mẹ của Bé');
   });
 });

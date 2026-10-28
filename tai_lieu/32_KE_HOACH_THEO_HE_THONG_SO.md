@@ -1,6 +1,6 @@
 # 32. KẾ HOẠCH ĐỒNG BỘ CHỨC NĂNG VÀ GIAO DIỆN THEO HỆ THỐNG CỦA SỞ (DT-15)
 
-- Mô tả: Kế hoạch điều chỉnh School Management theo kết quả khảo sát `31_KHAO_SAT_HE_THONG_SO.md`; từ mục 9 thêm kế hoạch DT-18 điều hành nhà trường, mục 10 thêm kế hoạch DT-19 nền đa cấp học, mục 11 thêm kế hoạch DT-20 Tiểu học (kèm 22c thời khoá biểu), mục 12 thêm kế hoạch DT-21 THCS và THPT (kèm 22g kiểm tra, đánh giá), mục 13 thêm kế hoạch DT-22 (22a thư viện, 22e hồ sơ bồi dưỡng, 22h kho học liệu số), mục 14 thêm kế hoạch DT-SaaS (Enterprise SaaS nhiều trường: S1a, S1b, S2, S3, S4, S5a, S5b, S6, S7a, S7b, S8a, S8b, S9; hai hồ sơ triển khai: thử nghiệm miễn phí và vận hành), mục 15 thêm kế hoạch DT-23 (thi trực tuyến cho học sinh, công cụ lớp học, trò chơi kiến thức và thẻ đáp án giấy, trợ lý AI; 23a đến 23d), mục 18 thêm kế hoạch DT-26 (ứng dụng web cài được, bố cục máy tính bảng, ứng dụng cài đặt iOS và Android; 26a đến 26h), mục 16 thêm DT-24 (danh mục đơn vị toàn quốc, đăng nhập theo đơn vị, quyền vào mọi trường của quản trị nền tảng), mục 19 thêm kế hoạch DT-27 (nền tảng gia sư trực tuyến: gia sư trong trường, khoá học ghi sẵn, hỏi đáp, chợ gia sư mở; 27a đến 27i); mục 17 thêm DT-25 bộ nối nhà cung cấp định danh OIDC, sẵn cho VNeID; mục 20 thêm kế hoạch DT-28 (hệ thống quản lý học tập LMS: lõi khoá học, lớp học trực tuyến, nhóm học tập, bài tập, bài về nhà, tiến độ, thảo luận, học nhóm, SCORM, huy hiệu; 28a đến 28j).
+- Mô tả: Kế hoạch điều chỉnh School Management theo kết quả khảo sát `31_KHAO_SAT_HE_THONG_SO.md`; từ mục 9 thêm kế hoạch DT-18 điều hành nhà trường, mục 10 thêm kế hoạch DT-19 nền đa cấp học, mục 11 thêm kế hoạch DT-20 Tiểu học (kèm 22c thời khoá biểu), mục 12 thêm kế hoạch DT-21 THCS và THPT (kèm 22g kiểm tra, đánh giá), mục 13 thêm kế hoạch DT-22 (22a thư viện, 22e hồ sơ bồi dưỡng, 22h kho học liệu số), mục 14 thêm kế hoạch DT-SaaS (Enterprise SaaS nhiều trường: S1a, S1b, S2, S3, S4, S5a, S5b, S6, S7a, S7b, S8a, S8b, S9; hai hồ sơ triển khai: thử nghiệm miễn phí và vận hành), mục 15 thêm kế hoạch DT-23 (thi trực tuyến cho học sinh, công cụ lớp học, trò chơi kiến thức và thẻ đáp án giấy, trợ lý AI; 23a đến 23d), mục 18 thêm kế hoạch DT-26 (ứng dụng web cài được, bố cục máy tính bảng, ứng dụng cài đặt iOS và Android; 26a đến 26h), mục 16 thêm DT-24 (danh mục đơn vị toàn quốc, đăng nhập theo đơn vị, quyền vào mọi trường của quản trị nền tảng), mục 19 thêm kế hoạch DT-27 (nền tảng gia sư trực tuyến: gia sư trong trường, khoá học ghi sẵn, hỏi đáp, chợ gia sư mở; 27a đến 27i); mục 17 thêm DT-25 bộ nối nhà cung cấp định danh OIDC, sẵn cho VNeID; mục 20 thêm kế hoạch DT-28 (hệ thống quản lý học tập LMS: lõi khoá học, lớp học trực tuyến, nhóm học tập, bài tập, bài về nhà, tiến độ, thảo luận, học nhóm, SCORM, huy hiệu; 28a đến 28j); mục 22 thêm kế hoạch DT-29 (Hộp công cụ giảng dạy theo cấp học; 29a đến 29e).
 - Phiên bản: 1.82
 - Ngày cập nhật: 2026-10-26
 - Trạng thái: Đã duyệt hướng làm
@@ -372,7 +372,7 @@ Thứ tự gộp để đánh số tài liệu (phiên bản, CT, AC, BR, MH) kh
 | 18b | 2 | Đã triển khai (YCTD-140, PR18B_SO, phiên bản 0.91.0): nhóm 3. Văn bản đi; dự thảo theo biểu mẫu iOffice, lấy ý kiến, cho ý kiến, trình ký, ký nội bộ qua `DossierSigner` có mã QR tra cứu, không ký, trả lại; cấp số và phát hành theo sổ văn bản đi, sổ đăng ký văn bản đi; liên thông nội bộ thành văn bản đến chờ vào sổ của phân hiệu, điểm trường; liên thông ra ngoài đánh dấu tay (chỗ nối `DocumentExchange.send`); public lên cổng (cột `published` cho 18f), đóng băng, lưu hồ sơ; trang tra cứu mã QR công khai |
 | 18c | 2 | Đã làm, YCTD-141, phiên bản 0.92.0, PR 120: giao việc theo cây đơn vị mở rộng bảng việc đã có, phê duyệt, nhắc việc định kì, tạo việc từ văn bản đến; lịch đơn vị, phòng họp có duyệt, mẫu lịch, lịch họp; hồ sơ công việc nối văn thư lưu trữ; báo cáo xử lý văn bản đến, tổng hợp, thống kê |
 | 18e | 3 | Đã triển khai (YCTD-142, PR 121, phiên bản 0.95.0): phân hệ Hồ sơ chuyên môn; Việc của tôi gom việc chờ của văn bản đến, đi, giao việc, phòng họp, KPI, hồ sơ, kế hoạch bài dạy, kí hồ sơ, nghỉ phép qua giao diện `MyWorkSource`, số đếm trên menu và đầu trang; kho ba nhánh theo năm học, danh mục mặc định theo cấp học; đợt nộp có hạn, ai chưa nộp, nhắc; luồng tổ trưởng rồi Ban Giám hiệu, trả lại, phiên bản, kí nội bộ qua `DossierSigner`; thống kê đúng hạn, trễ; nhóm công tác; khóa năm học |
-| 18g | 3 | Đã triển khai (YCTD-143, PR 119, phiên bản 0.93.0): 2.4 Nơi để và tem QR thiết bị (phòng, kho, vị trí; tem PDF A4 3 × 8, mã tem không có tên miền); 2.5 Kiểm kê thiết bị (chụp sổ, quét QR trên ứng dụng giáo viên hoặc web di động, đối chiếu, tỷ lệ sử dụng được, nộp, duyệt, trả lại, chốt chênh lệch, biên bản); 2.6 Đối sánh danh mục tối thiểu (cột cấp học, nạp mẫu Mầm non 515 thiết bị theo TT 02/2010 sửa đổi bởi TT 34/2013, Đủ, Thiếu, Chưa có). Mẫu Tiểu học, THCS, THPT thêm sau DT-19 |
+| 18g | 3 | Đã triển khai (YCTD-143, PR 119, phiên bản 0.93.0): 2.4 Nơi để và tem QR thiết bị (phòng, kho, vị trí; tem PDF A4 3 × 8, mã tem không có tên miền); 2.5 Kiểm kê thiết bị (chụp sổ, quét QR trên ứng dụng giáo viên hoặc web di động, đối chiếu, tỷ lệ sử dụng được, nộp, duyệt, trả lại, chốt chênh lệch, biên bản); 2.6 Đối sánh danh mục tối thiểu (cột cấp học, nạp mẫu Mầm non 515 thiết bị theo TT 02/2010 sửa đổi bởi TT 34/2013, Đủ, Thiếu, Chưa có). Mẫu Tiểu học, THCS, THPT thêm sau DT-19; YCTD-345: tài liệu dự án không có nội dung danh mục ba cấp này nên không nạp mẫu, trường tự nhập theo khối K1 đến K12 |
 | 18f | 4 | Đã làm, YCTD-144, phiên bản 0.94.0, PR 122: phân hệ Website trường; tên miền lưu ở cơ sở dữ liệu, nhận diện trường theo Host, Caddy cấp chứng chỉ theo yêu cầu chỉ cho tên miền đã đăng ký; trang công khai (giới thiệu, cơ cấu tổ chức, tin tức, thông báo, văn bản công khai từ 18b, tuyển sinh, công khai theo Thông tư 09/2024/TT-BGDĐT, thư viện ảnh, liên hệ; thời khóa biểu chờ 22c); soạn, duyệt, đăng, gỡ, lọc HTML; chế độ trình diễn, nội dung mẫu. Đăng ký sự kiện qua QR để phần sau |
 | 18h | 4 | Đã làm, YCTD-145, phiên bản 0.96.0, PR 123: nhóm 4. Quản trị và trình diễn của Quản trị hệ thống; đăng nhập thay (quyền riêng VT-02, lý do, thanh báo và nút thoát ở mọi trang, phiên 60 phút, không vào tài khoản quyền cao hơn, không thao tác mật khẩu, kí số, nhật ký bắt đầu, kết thúc và mọi thao tác); gói ZIP toàn bộ dữ liệu (tác vụ xuất nền của 16a, CSV mọi bảng, tệp đính kèm, manifest, hạn tải 48 giờ, nhật ký xuất và tải; hàm dựng gói dùng lại cho DT-SaaS S2); bản trình diễn (dấu ở cơ sở dữ liệu, dữ liệu giả phủ các phân hệ cũ và 18a đến 18g, trang chọn vai, dải trình diễn, chặn SMS, Zalo, Fanpage, thanh toán thật, lệnh tạo và dịch vụ tự đặt lại; dùng cho dùng thử của DT-SaaS S5) |
 | 22b | 5 | Đã làm, YCTD-146, phiên bản 0.98.0, PR 125: nhóm 3. Bán trú và an toàn thực phẩm của Bếp – kho, mua hàng; lô hàng nhập (tạo khi nhập phiếu đi chợ, nhập tay, số lô, hạn dùng, chứng từ, cảnh báo sắp hết hạn, đóng lô); hồ sơ an toàn thực phẩm của nhà cung cấp (hiệu lực, cảnh báo 30 ngày ở trang, Việc của tôi, phiếu đi chợ); kiểm thực ba bước theo Quyết định 1246/QĐ-BYT (gợi ý dòng từ lô, thực đơn, số suất; lô đạt mới dùng cho món; xác nhận khóa phiếu); lưu và hủy mẫu (100 g, 150 ml, 2–8 °C, 24 giờ, giữ mẫu khi có phản ánh); truy xuất món ra lô, nhà cung cấp, giấy tờ, mẫu; sổ kiểm thực, sổ lưu mẫu, nhãn mẫu. Rà tiền ăn: tính theo ngày có mặt, số dư có chuyển năm; chưa có chi trả lại số dư |
@@ -1880,10 +1880,10 @@ Eric yêu cầu ngày 2026-10-29: "cấp quyền cho user admin vào tất cả 
 
 1. **Đủ quyền.** Phiên Admin vào thẳng (nhân viên vận hành vai trò `quan_tri` hiện hành, chính sách `any_school`, toàn quyền) nhận ở `/auth/me` thêm vai trò tổng hợp "Quản trị nền tảng (toàn quyền)": mọi mã quyền có ở bảng `permissions` của trường, toàn trường (mã vai trò Hiệu trưởng để lớp phạm vi dữ liệu là toàn trường), mọi phân hệ của cổng quản trị. Vai trò này không lưu ở cơ sở dữ liệu; kiểm lại ở mỗi yêu cầu (phiên kết thúc, nhân viên đổi vai trò hoặc bị khóa thì mất). Phân hệ ngoài gói của trường vẫn bị chặn theo gói (tính năng trả phí trường đã bật thì dùng được). Phiên theo cho phép của trường, phiên kỹ thuật, hỗ trợ giữ quyền của tài khoản hỗ trợ như cũ.
 2. **Mọi ứng dụng của nhân viên.** Đổi đường liên kết hỗ trợ nhận `channel` `portal`, `teacher`, `parent`; ứng dụng giáo viên, phụ huynh có trang `/support-login`. Cổng vận hành có nhóm nút "Ứng dụng của trường" (Ứng dụng giáo viên, Ứng dụng phụ huynh) cạnh "Vào trường"; mỗi lần bấm là một phiên vào thẳng riêng, ghi nhật ký hai phía kèm kênh. Máy phát triển: `VITE_SCHOOL_TEACHER_PORT`, `VITE_SCHOOL_PARENT_PORT` do `scripts/chay-nhieu-truong.mjs` đặt; bản chạy thật dùng đường dẫn `/giao-vien`, `/phu-huynh` của tên miền trường (đổi bằng `VITE_SCHOOL_TEACHER_PATH`, `VITE_SCHOOL_PARENT_PATH`).
-3. **Không đăng nhập thành phụ huynh, học sinh cụ thể.** Kênh học sinh không nhận phiên hỗ trợ (400). Ở ứng dụng phụ huynh, tài khoản hỗ trợ không có con nên chưa có nội dung; chế độ xem của nhân viên hỗ trợ (chọn lớp rồi học sinh, chỉ đọc) làm ở phần sau.
+3. **Chế độ xem của nhân viên hỗ trợ ở ứng dụng phụ huynh, học sinh (phần 315b).** Không đăng nhập thành một phụ huynh, học sinh cụ thể. Ở kênh `parent`, `student` phiên Admin luôn chỉ đọc (phạm vi `read` ở mã phiên và ở `/auth/me`; máy chủ API chặn mọi yêu cầu ghi). Ứng dụng phụ huynh: thay cho "con của tôi", ô chọn lớp rồi học sinh (`GET /api/v1/support-view/classes`, `…/classes/:id/students`), hiện thẻ của học sinh đó như phụ huynh thấy. Ứng dụng học sinh: màn hình chọn lớp, học sinh (`/api/v1/student/support-view/…`), rồi xem ứng dụng như học sinh đó thấy, thanh "Đổi học sinh"; học sinh đang xem gửi ở tiêu đề `x-support-view-child`, máy chủ chỉ nhận ở phiên Admin vào thẳng kênh `student` và dùng thay cho học sinh của tài khoản ở ba chỗ tra học sinh (học trực tuyến, thi trực tuyến, phòng video). Hồ sơ ở trang đầu ứng dụng học sinh (`GET /student/profile`) không còn chặn theo gói thi trực tuyến để trường gói miễn phí vẫn mở được ứng dụng. Cổng vận hành thêm nút "Ứng dụng học sinh" (`VITE_SCHOOL_STUDENT_PORT`, mặc định đường dẫn `/hoc-sinh`).
 4. **Chợ gia sư, ứng dụng Gia sư.** Kiểm duyệt, thanh toán, xác minh của chợ chạy ở cổng vận hành bằng mã phiên vận hành nên Admin đã có; ứng dụng Gia sư là ứng dụng của gia sư, không có vai trò kiểm duyệt. Giới hạn theo vai trò vận hành làm ở YCTD-323.
 5. **Nhật ký.** Mọi thao tác là của tài khoản hỗ trợ `ho-tro-nen-tang` của trường, ghi vào nhật ký phiên hỗ trợ (`support_session_actions`) với tên nhân viên vận hành; không ghi như người dùng của trường.
-6. **Kiểm thử:** `apps/identity` CT-1551 (quét mọi mã quyền của gói dùng chung và bảng `permissions` ở ba kênh, kênh học sinh bị từ chối, nhật ký kèm kênh), CT-1552 (phiên theo cho phép của trường không có quyền đầy đủ).
+6. **Kiểm thử:** `apps/identity` CT-1551 (quét mọi mã quyền của gói dùng chung và bảng `permissions` ở bốn kênh, phụ huynh, học sinh chỉ đọc, nhật ký kèm kênh), CT-1552 (phiên theo cho phép của trường không có quyền đầy đủ); `apps/api` CT-1553 (chế độ xem ở kênh phụ huynh, học sinh: chọn lớp, chỉ đọc, người khác không dùng được).
 
 ## 17. DT-25: bộ nối nhà cung cấp định danh bên ngoài theo chuẩn OIDC (sẵn cho VNeID)
 
@@ -2491,6 +2491,44 @@ Số GD và RR của DT-27 bắt đầu từ GD-130 và RR-28: DT-26 dùng GD-12
 | GD-136 | Hạn của phiếu lý lịch tư pháp khi xác minh gia sư | Phiếu cấp trong 6 tháng, xác minh lại mỗi 12 tháng | cấu hình chợ | Eric |
 | GD-137 | Thư viện bảng trắng | Thư viện mã nguồn mở có giấy phép dùng thương mại, chọn và ghi giấy phép lúc làm | mã 27a | Claude (theo ủy quyền) |
 | GD-138 | Khấu trừ thuế ở chợ | Công tắc tắt đến khi luật sư kết luận (E-03); tỷ lệ là dữ liệu có ngày hiệu lực | cấu hình chợ | Eric, luật sư |
+| GD-164 | Mốc của phòng học video ở chợ (quyết định của Eric ngày 2026-10-29) | Mở phòng trước giờ học 10 phút; vào muộn quá 15 phút tính vắng; gia sư vắng quá 10 phút thì phụ huynh báo và được hoàn đủ; có mặt từ 80% thời lượng là đủ buổi; gia sư không xác nhận thì tự xác nhận sau 24 giờ; phụ huynh vào xem luôn tắt micro trừ khi gia sư cho nói | cấu hình chợ (`platform_settings.market`) | Eric (đã chốt; cổng vận hành chỉnh được) |
+
+### 19.12 Phần 27j: phòng học video của chợ (YCTD-362)
+
+Eric duyệt bản thiết kế "Chợ gia sư, Gia sư, Cấp trên" ngày 2026-10-28 và chốt các quyết định về phòng học ngày 2026-10-29. Phần này làm thành một phần riêng của DT-27, cỡ khoảng 2 đến 3 đơn vị, sau 27f đến 27i.
+
+- **Ghi hình:** luôn ghi hình buổi có trẻ dưới 18 tuổi. Phụ huynh từ chối thì hủy buổi, hoàn đủ tiền. Bản ghi chỉ phụ huynh, gia sư và nhân viên xử lý tranh chấp được xem, giữ có hạn (GD-131, GD-132).
+- **Đồng ý ghi hình:** hỏi một lần cho mọi buổi của một con với một gia sư, rút lại được bất cứ lúc nào (`market_recording_consents`). Con từ đủ 7 tuổi cùng xác nhận. **Cần luật sư xem lại trước khi mở thật** (Luật 91/2025 Điều 24).
+- **Vào phòng:** chỉ buổi đã trả tiền (giả lập), từ lúc mở phòng đến hết giờ học. Gia sư mở phòng (`session/start` của 27i, bắt đầu ghi hình). Người của buổi vào phòng chờ (`market_session_participants`); gia sư cho vào, cho nói, cho chia sẻ màn hình, mời ra. Phụ huynh chọn "Con học" (vai học sinh) hoặc "Tôi vào xem" (vai cha mẹ, luôn tắt micro trừ khi gia sư cho nói).
+- **Điểm danh:** mỗi lần vào, ra ghi một dòng (`market_session_attendance`), từ ứng dụng và từ sự kiện của máy chủ video (địa chỉ gọi lại chung `/video/webhook` chuyển phòng `market-*` sang chợ). Điểm danh cộng các khoảng có mặt trong giờ học, bỏ phần trùng khi vào lại; vào lần đầu muộn quá mốc thì tính vắng; đủ tỉ lệ thì đủ buổi. Phụ huynh vào xem không tính.
+- **Gia sư vắng:** gia sư chưa vào phòng quá mốc sau giờ học thì phụ huynh bấm "Báo gia sư vắng"; buổi hủy, hoàn đủ.
+- **Xác nhận buổi:** gia sư xác nhận đã dạy kèm nhận xét gửi phụ huynh và sự cố trong buổi (`market_session_rooms`). Không xác nhận thì việc định kỳ của chợ tự xác nhận sau mốc; hạn khiếu nại tính từ lúc xác nhận.
+- **Mốc:** cấu hình chợ, mặc định theo GD-164. Biểu mẫu chỉnh mốc ở cổng vận hành làm cùng YCTD-363 (đụng `apps/platform`, xếp lượt với phiên đổi giao diện cổng vận hành).
+- **Dùng lại:** `VideoRoomProvider` (livekit, mock), `VideoRoom`, `VideoHostPanel` (thêm `recordingLocked`: không có nút dừng ghi), bảng trắng của `packages/ui`.
+- **Lưu ở đâu:** marketplace 0040 (`market_recording_consents`, `market_session_rooms`, `market_session_participants`, `market_session_attendance`).
+- **Kiểm thử:** quy tắc thuần CT-27j-1 (`market-room-rules.test.ts`); máy chủ CT-27i-5 (sửa theo phòng chờ), CT-27j-2 (gia sư vắng, điểm danh, rút đồng ý, tự xác nhận); giao diện CT-27j-3 (spec 199, bộ giả lập lớp video).
+
+### 19.13 Đánh giá, tài khoản, đăng nhập định danh của phụ huynh, con đọc tin nhắn (YCTD-364)
+
+Các chức năng còn lại trong bản thiết kế Eric duyệt ngày 2026-10-28 mà máy chủ chưa có API. Phiên điều phối xếp thành YCTD-364.
+
+- **Đánh giá sau buổi** (`market_reviews`, marketplace 0050):
+  - mỗi buổi đã dạy có một đánh giá của phụ huynh của buổi: 1 đến 5 sao, bốn tiêu chí không bắt buộc, nhận xét; thông tin liên lạc ngoài bị che như tin nhắn;
+  - đánh giá chờ nhân viên nền tảng duyệt rồi mới hiện, với tên "Phụ huynh học sinh lớp N"; từ chối phải ghi lý do;
+  - gia sư trả lời một lần đánh giá đã hiện; trang tìm gia sư có điểm trung bình, sắp "đánh giá cao trước";
+  - báo cáo vi phạm từ đánh giá dùng loại `review` của 27i.
+- **Mật khẩu và tài khoản:**
+  - đổi mật khẩu phải nhập mật khẩu hiện tại; đổi xong thì các phiên khác bị thu hồi;
+  - quên mật khẩu: mã 6 số mục đích `reset`, câu trả lời không cho biết tài khoản có tồn tại hay không; đặt lại xong thì mọi phiên bị thu hồi;
+  - sửa tên hiển thị. Đổi thư điện tử, số điện thoại chưa làm.
+- **Đăng nhập định danh của phụ huynh:** phụ huynh đang đăng nhập liên kết định danh (mục đích `link`, quay về `/dinh-danh` trên tên miền của chợ), rồi đăng nhập bằng định danh đó. Giữ cách gắn lượt với trình duyệt và với tài khoản của YCTD-322 (PR 242). Định danh chỉ đăng nhập được ứng dụng của đúng vai.
+- **Con đọc tin nhắn** (`market_children.reads_messages`):
+  - phụ huynh bật cho từng con; con chỉ đọc các luồng tin của phụ huynh với gia sư có buổi với con, trên máy và bằng phiên của phụ huynh;
+  - không có điểm cuối gửi tin cho con, không có kênh riêng giữa gia sư và trẻ;
+  - thoát chế độ con đọc phải nhập lại mật khẩu của phụ huynh; mỗi lần mở ghi nhật ký.
+- **Gói buổi:** chưa làm, chờ Eric chốt quy tắc hạn dùng và hoàn tiền phần chưa học.
+- **Giao diện duyệt đánh giá ở cổng vận hành:** làm cùng YCTD-363.
+
 
 ## 20. DT-28: hệ thống quản lý học tập (LMS) cho trường phổ thông (28a đến 28j)
 
@@ -2859,3 +2897,55 @@ Các điểm còn lại của thiết kế làm đúng như bản vẽ (Eric duy
 | Các trang hồ sơ, dạy học | YCTD-331 trở đi | Cán bộ, học sinh, thời khóa biểu, sổ điểm theo thiết kế: menu "Thêm", cột mặc định ít hơn, thao tác hàng loạt chỉ hiện khi chọn dòng | Sau khi phiên đang sửa các trang này xong phần C (sổ điểm), D (danh sách học sinh) |
 | Các trang khác | YCTD-331 trở đi | Văn bản đến, đi và "Công văn của tôi", thu phí, cài đặt trường, điểm danh, lớp | Làm song song được |
 | Đăng nhập | — | Giữ bố cục PR 233 | — |
+
+## 22. DT-29: Hộp công cụ giảng dạy theo cấp học (29a đến 29e)
+
+### 22.1 Căn cứ và mục tiêu
+
+1. **Yêu cầu của Eric ngày 2026-10-28:** "trong giao diện giảng dạy của giáo viên, tập hợp các công cụ/ mini app hỗ trợ việc giảng dạy phù hợp với bậc học". Bản khảo sát và đề xuất (danh sách công cụ đã có, mini app mới theo bậc, bản vẽ "Hộp công cụ giảng dạy") Eric duyệt cùng ngày: làm cả 29a đến 29e, danh sách mini app theo bậc như đề xuất; Mầm non ẩn trò chơi kiến thức và lớp học trực tuyến; lọc tương tự các mục không hợp cấp (lớp THCS, THPT bỏ Đón trả, Dặn thuốc); đổi tên "Công cụ lớp học" thành "Hộp công cụ giảng dạy", giữ đường dẫn cũ và chuyển về chỗ mới; công tắc theo trường dùng cơ chế phân hệ theo gói (YCTD-314).
+2. Hiện trạng trước DT-29: công cụ lớp học 23b (gọi tên, chia nhóm, đếm ngược và bấm giờ, bảng điểm nhanh), trò chơi kiến thức và thẻ đáp án giấy 23c nằm chung một màn "Công cụ lớp học", hiện ở mọi cấp; học trực tuyến DT-28 ở màn riêng; thi trực tuyến 23a và trợ lý AI 23d ở cổng quản trị. Cấp của lớp đọc qua `levelOf`, `hasLevelFeature` (`packages/shared/src/level-features.ts`, DT-19 phần 19e).
+3. Mục tiêu: một màn Hộp công cụ giảng dạy gom công cụ của lớp đang chọn, lọc theo cấp của lớp, trường bật tắt từng công cụ, công cụ thuộc tính năng trả phí theo gói; thêm mini app chạy hoàn toàn trên máy giáo viên cho từng cấp.
+
+### 22.2 Nguyên tắc
+
+- Danh mục công cụ khai báo một nơi (`packages/shared/src/teaching-tools.ts`): mã, tên, mô tả, nhóm, cấp, chạy ngoại tuyến không, tính năng gói. Mỗi phần thêm công cụ của mình vào cuối danh mục.
+- Mini app mới chạy trên máy giáo viên, không gọi máy chủ, dùng được khi mất mạng (vỏ ứng dụng của 23b), không gửi danh sách lớp, ảnh, tiếng ra ngoài; không ghi âm; không dùng bài hát, truyện, phông chữ có bản quyền (chữ cái, khung ô li tự vẽ; bài hát, truyện do trường tải lên qua kho học liệu 22h1).
+- Không bỏ chức năng đã có: bảng điểm nhanh giữ ở mọi cấp (nề nếp, thi đua có tiêu chí Mầm non); khoá lưu trên máy (`cong-cu-lop-hoc:`) và tiền tố bộ nhớ đệm của 23b giữ nguyên tên.
+
+### 22.3 Các phần
+
+Số do phiên điều phối cấp ngày 2026-10-28; mỗi phần một PR, làm tuần tự trong một phiên.
+
+| Phần | Phạm vi | YCTD | Phiên bản đề xuất |
+|---|---|---|---|
+| 29a | Vỏ Hộp công cụ: danh mục theo cấp, màn Hộp công cụ (thay Công cụ lớp học), lọc theo cấp của lớp, công tắc từng công cụ theo trường, công cụ thuộc tính năng gói, lối vào màn đã có (giáo án, sổ đầu bài, lớp học trực tuyến), đường dẫn `?man=hop-cong-cu` và chuyển đường dẫn cũ, lọc mục không hợp cấp ở trang chủ | YCTD-325 | 0.201.0 |
+| 29b | Công cụ chung và Mầm non: bảng trắng, xúc xắc và bốc số, đồng hồ hình ảnh, đèn giữ trật tự, bảng thưởng sao; hình và màu, đếm và số, làm quen chữ cái | YCTD-326 | 0.202.0 |
+| 29c | Tiểu học: bảng cửu chương, khung ô li, học xem đồng hồ, phân số trực quan | YCTD-327 | 0.203.0 |
+| 29d | THCS, THPT: máy tính khoa học, vẽ đồ thị hàm số, bảng tuần hoàn, hình học động, bảng hằng số và đơn vị | YCTD-328 | 0.204.0 |
+| 29e | Nội dung của trường: bài hát, câu chuyện do trường tải lên kho học liệu, phát trên lớp | YCTD-329 | 0.205.0 |
+
+Cỡ ước lượng (một phần của DT-16 là một đơn vị, chỉ để so sánh): 29a 0,75; 29b 0,75; 29c 0,5; 29d 1,0; 29e 0,5; tổng khoảng 3,5 đơn vị.
+
+### 22.4 Phạm vi chi tiết của 29a
+
+- **Danh mục:** nhóm Trên lớp (gọi tên, chia nhóm, đếm ngược và bấm giờ, bảng điểm nhanh), Trò chơi và câu hỏi (trò chơi kiến thức của 23c, chỉ cấp phổ thông), Mini app theo môn (29b đến 29e), Giao bài và học trực tuyến (giáo án, kế hoạch bài dạy ở mọi cấp; sổ đầu bài và bài về nhà, lớp học trực tuyến ở cấp phổ thông; lớp học trực tuyến thuộc tính năng gói `online-learning`).
+- **Màn Hộp công cụ:** chọn lớp, công cụ theo cấp của lớp; bản chụp danh sách lớp lưu thêm cấp của lớp để lọc khi mất mạng (bản chụp cũ chưa có cấp thì không lọc theo cấp); mở được trong Chế độ lớp học (DT-26 phần 26d). Mở màn đã có từ Hộp công cụ thì nút quay lại trở về Hộp công cụ.
+- **Công tắc theo trường:** cấu hình `teaching_tools_disabled` (danh sách mã công cụ tắt, đặt ở Trường chính) ở trang Cấu hình của cổng quản trị, khối "Hộp công cụ giảng dạy"; máy chủ trả trong `GET /classroom-tools/config` (`disabled_tools`). Công cụ thuộc tính năng gói chưa bật (đọc `GET /school-plan`) ẩn.
+- **Đường dẫn:** `?man=hop-cong-cu` mở thẳng Hộp công cụ (lối tắt trong `manifest.webmanifest`); `?man=cong-cu-lop-hoc` đổi sang tên mới.
+- **Lọc mục không hợp cấp ở trang chủ:** Đón trả, Dặn thuốc chỉ ở lớp Mầm non, Tiểu học; Lớp học trực tuyến và Gia sư trong trường ẩn khi mọi lớp của giáo viên là lớp Mầm non.
+
+### 22.5 Quyết định thiết kế và phương án đã loại
+
+- Công tắc từng công cụ là cấu hình của trường; tính năng trả phí theo gói (YCTD-314) là lớp chặn thứ hai. Đã loại: thêm mỗi công cụ một phân hệ của gói (danh sách phân hệ của gói dài ra theo từng mini app, nền tảng phải bật từng mục cho mỗi trường).
+- Bảng điểm nhanh giữ ở Mầm non (bản đề xuất ghi chỉ cấp phổ thông): Mầm non đang dùng để ghi nề nếp, thi đua; bảng thưởng sao của 29b thêm cho Mầm non, Tiểu học. Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11.
+- Gia sư trong trường lọc như lớp học trực tuyến (ẩn khi mọi lớp là Mầm non). Ứng dụng phụ huynh chưa đổi (đón trả, dặn thuốc vẫn ở mọi cấp phía phụ huynh).
+
+### 22.6 Tiến độ
+
+| Phần | Tiến độ |
+|---|---|
+| 29a | Đang làm (YCTD-325) |
+| 29b | Chưa làm |
+| 29c | Chưa làm |
+| 29d | Chưa làm |
+| 29e | Chưa làm |

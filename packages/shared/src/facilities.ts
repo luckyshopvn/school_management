@@ -1,3 +1,4 @@
+import { GRADE_LEVEL_TEMPLATES } from './level-structure.js';
 import { SCHOOL_LEVELS } from './school-levels.js';
 
 // Danh mục cố định của cơ sở vật chất, thiết bị dạy học tối thiểu và hồ sơ trường (DT-14 phần 14d, YCTD-102). Máy chủ
@@ -398,6 +399,60 @@ export type EquipmentLocationType = (typeof EQUIPMENT_LOCATION_TYPES)[number]['v
 export const EQUIPMENT_SCHOOL_LEVELS = SCHOOL_LEVELS satisfies ReadonlyArray<CodeLabel>;
 
 export type EquipmentSchoolLevel = (typeof EQUIPMENT_SCHOOL_LEVELS)[number]['value'];
+
+// Nhóm áp dụng định mức của cấp phổ thông là khối lớp (YCTD-345): mã khối mẫu K1 đến K12 của DT-19 (YCTD-152), dùng chung
+// cột age_group với nhóm tuổi Mầm non. Lớp của cấp phổ thông khớp thiết bị theo mã khối. Claude tự chọn theo ủy quyền của
+// Eric ngày 2026-10-11: không thêm cột môn học; trường ghi môn ở ô Loại thiết bị
+export const EQUIPMENT_GRADE_GROUPS: Record<Exclude<EquipmentSchoolLevel, 'MN'>, ReadonlyArray<CodeLabel>> = {
+  TH: GRADE_LEVEL_TEMPLATES.TH.map((grade) => ({ value: grade.code, label: grade.name })),
+  THCS: GRADE_LEVEL_TEMPLATES.THCS.map((grade) => ({ value: grade.code, label: grade.name })),
+  THPT: GRADE_LEVEL_TEMPLATES.THPT.map((grade) => ({ value: grade.code, label: grade.name })),
+};
+
+// Nhóm tuổi (Mầm non) hoặc khối (cấp phổ thông) của một cấp học
+export function equipmentGroupsOf(level: EquipmentSchoolLevel): ReadonlyArray<CodeLabel> {
+  return level === 'MN' ? EQUIPMENT_AGE_GROUPS : EQUIPMENT_GRADE_GROUPS[level];
+}
+
+// Mọi nhóm tuổi và khối, để đọc nhãn
+export const EQUIPMENT_ALL_GROUPS: ReadonlyArray<CodeLabel> = [
+  ...EQUIPMENT_AGE_GROUPS,
+  ...EQUIPMENT_GRADE_GROUPS.TH,
+  ...EQUIPMENT_GRADE_GROUPS.THCS,
+  ...EQUIPMENT_GRADE_GROUPS.THPT,
+];
+
+// Cấp học của một nhóm tuổi hoặc khối; mã lạ trả null
+export function equipmentLevelOfGroup(group: string): EquipmentSchoolLevel | null {
+  return (
+    EQUIPMENT_SCHOOL_LEVELS.map((level) => level.value).find((level) =>
+      equipmentGroupsOf(level).some((item) => item.value === group),
+    ) ?? null
+  );
+}
+
+// Nguồn danh mục tối thiểu của từng cấp (YCTD-345). Chỉ Mầm non có danh mục chép vào mã (YCTD-143). Tiểu học, THCS, THPT:
+// tài liệu dự án chỉ nêu số văn bản (tài liệu 32 mục 18g), không có nội dung danh mục, nên không nạp mẫu; trường tự nhập
+// danh mục ở 2.1 (thêm từng thiết bị hoặc nhập từ Excel)
+export interface EquipmentCatalogSource {
+  standard: boolean;
+  legal_basis: string;
+  note: string;
+}
+
+const SELF_ENTRY_NOTE =
+  'Chưa có danh mục chuẩn trong tài liệu dự án, trường tự nhập danh mục tối thiểu theo văn bản hiện hành (thêm thiết bị hoặc nhập từ Excel ở 2.1, thẻ Danh mục tối thiểu)';
+
+export const EQUIPMENT_CATALOG_SOURCES: Record<EquipmentSchoolLevel, EquipmentCatalogSource> = {
+  MN: {
+    standard: true,
+    legal_basis: 'Thông tư 02/2010/TT-BGDĐT, sửa đổi bởi Thông tư 34/2013/TT-BGDĐT',
+    note: 'Có danh mục mẫu để nạp; cần đối chiếu bản gốc trên Công báo',
+  },
+  TH: { standard: false, legal_basis: 'Thông tư 37/2021/TT-BGDĐT', note: SELF_ENTRY_NOTE },
+  THCS: { standard: false, legal_basis: 'Thông tư 38/2021/TT-BGDĐT', note: SELF_ENTRY_NOTE },
+  THPT: { standard: false, legal_basis: 'Thông tư 39/2021/TT-BGDĐT', note: SELF_ENTRY_NOTE },
+};
 
 // Đợt kiểm kê thiết bị: đang kiểm kê → chờ duyệt → đã duyệt → đã chốt chênh lệch; trả lại thì về đang kiểm kê; hủy khi
 // đang kiểm kê
