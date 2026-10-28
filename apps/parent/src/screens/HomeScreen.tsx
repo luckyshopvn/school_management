@@ -1,6 +1,6 @@
-import { useCallback, useEffect, useState, type FormEvent } from 'react';
+import { useCallback, useEffect, useState, type FormEvent, type ReactNode } from 'react';
 import { InstallPrompt, PushSettingsPanel } from '@school-management/pwa';
-import { Alert, ApplicationHeader, Button, ExternalLinksPanel, StatusBadge, TextField } from '@school-management/ui';
+import { Alert, Button, ExternalLinksPanel, StatusBadge, TextField } from '@school-management/ui';
 import { externalRequest } from '../session/external-request.js';
 import { ApiError, fetchCurrentUser, requestJson, type CurrentUser } from '../session/api-client.js';
 import { useSession } from '../session/session.js';
@@ -55,6 +55,57 @@ const STATUS_LABELS: Record<string, string> = {
   early_leave: 'Về sớm',
   late_and_early_leave: 'Đi muộn và về sớm',
 };
+
+// Chữ viết tắt trên ảnh đại diện của con: chữ đầu của hai tiếng cuối trong họ tên, ví dụ "Nguyễn Minh Anh" thành "MA"
+function initialsOf(fullName: string): string {
+  return fullName
+    .trim()
+    .split(/\s+/)
+    .slice(-2)
+    .map((word) => word.charAt(0).toLocaleUpperCase('vi'))
+    .join('');
+}
+
+// Biểu tượng nét của lối tắt (mẫu giao diện phụ huynh); chỉ để trang trí, tên nút là chữ bên dưới
+function ShortcutIcon({ path }: { path: string }) {
+  return (
+    <svg
+      width="22"
+      height="22"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      <path d={path} />
+    </svg>
+  );
+}
+
+const SHORTCUT_ICONS = {
+  absence: 'M8 2v4M16 2v4M3 9h18M5 4h14a2 2 0 0 1 2 2v13a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2ZM9 15l2 2 4-4',
+  timetable: 'M12 7v5l3 2M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z',
+  menu: 'M7 2v9a2 2 0 0 0 2 2v9M11 2v7M3 2v7a4 4 0 0 0 4 4M17 22V2c-2 2-3 5-3 8h3',
+  invoices: 'M3 6h18v12H3ZM3 10h18M7 15h3',
+};
+
+function ShortcutButton({ icon, onClick, children }: { icon: string; onClick(): void; children: ReactNode }) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className="flex flex-col items-center gap-1.5 rounded-lg text-center text-xs font-medium text-text-secondary"
+    >
+      <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-selected text-brand">
+        <ShortcutIcon path={icon} />
+      </span>
+      {children}
+    </button>
+  );
+}
 
 function messageOf(error: unknown): string {
   return error instanceof ApiError
@@ -150,7 +201,38 @@ function ChildCard({
   >('none');
   const [attendance, setAttendance] = useState<MonthAttendance>();
   const [errorMessage, setErrorMessage] = useState<string>();
+  // Điểm danh hôm nay của con học lớp có điểm danh theo ngày, lấy từ điểm danh tháng này; lỗi thì chỉ không hiện dòng hôm nay
+  const [todayStatus, setTodayStatus] = useState<{ tone: 'success' | 'warning'; text: string }>();
   const month = vietnamToday().slice(0, 7);
+  const dailyAttendance = has('daily_attendance');
+
+  const loadToday = useCallback(async () => {
+    const day = vietnamToday();
+    try {
+      const loaded = await requestJson<MonthAttendance>(
+        `/api/v1/children/${child.id}/attendance?month=${day.slice(0, 7)}`,
+      );
+      const record = loaded.records.find((item) => item.attendance_date === day);
+      const absence = loaded.absences.find((item) => item.absence_date === day);
+      if (record) {
+        const absent = record.status === 'absent_notified' || record.status === 'absent_unnotified';
+        setTodayStatus({
+          tone: absent ? 'warning' : 'success',
+          text: `Hôm nay: ${STATUS_LABELS[record.status] ?? record.status}`,
+        });
+      } else {
+        setTodayStatus(absence ? { tone: 'warning', text: 'Hôm nay: phụ huynh đã báo vắng' } : undefined);
+      }
+    } catch {
+      setTodayStatus(undefined);
+    }
+  }, [child.id]);
+
+  useEffect(() => {
+    if (dailyAttendance) {
+      void loadToday();
+    }
+  }, [dailyAttendance, loadToday]);
 
   const loadAttendance = useCallback(async () => {
     try {
@@ -161,18 +243,60 @@ function ChildCard({
   }, [child.id, month]);
 
   return (
-    <li className="flex flex-col gap-3 rounded-xl border border-border bg-card p-4" aria-label={child.full_name}>
-      <div className="flex items-center justify-between">
-        <span className="text-content font-semibold">{child.full_name}</span>
-        <span className="text-label text-text-secondary">
-          {[levelName, child.class_name].filter(Boolean).join(' · ')}
+    <li className="flex flex-col gap-3.5 rounded-2xl border border-border bg-card p-4" aria-label={child.full_name}>
+      <div className="flex items-center gap-3">
+        <span
+          className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-selected font-bold text-brand-strong"
+          aria-hidden="true"
+        >
+          {initialsOf(child.full_name)}
+        </span>
+        <span className="flex min-w-0 flex-1 flex-col">
+          <span className="text-base font-semibold text-text">{child.full_name}</span>
+          <span className="text-label text-text-secondary">
+            {[levelName, child.class_name].filter(Boolean).join(' · ')}
+          </span>
         </span>
       </div>
-      <div className="flex flex-wrap gap-2">
+      {todayStatus ? (
+        <p
+          className={`rounded-lg px-3 py-2.5 text-label font-medium ${
+            todayStatus.tone === 'success' ? 'bg-success/10 text-success' : 'bg-warning/10 text-warning'
+          }`}
+        >
+          {todayStatus.text}
+        </p>
+      ) : null}
+      {/* Lối tắt bốn ô (mẫu giao diện phụ huynh): báo vắng, thời khoá biểu, thực đơn, học phí; ô nào cấp của con không có thì ẩn */}
+      <div className="grid grid-cols-4 gap-2">
         {/* Báo vắng theo ngày dùng chung cho mọi cấp có điểm danh (DT-20 phần 20d) */}
         {has('daily_attendance') || has('period_attendance') ? (
-          <Button onClick={() => setView(view === 'absence' ? 'none' : 'absence')}>Báo vắng</Button>
+          <ShortcutButton
+            icon={SHORTCUT_ICONS.absence}
+            onClick={() => setView(view === 'absence' ? 'none' : 'absence')}
+          >
+            Báo vắng
+          </ShortcutButton>
         ) : null}
+        {has('period_timetable') ? (
+          <ShortcutButton
+            icon={SHORTCUT_ICONS.timetable}
+            onClick={() => setView(view === 'timetable' ? 'none' : 'timetable')}
+          >
+            Thời khoá biểu
+          </ShortcutButton>
+        ) : null}
+        <ShortcutButton icon={SHORTCUT_ICONS.menu} onClick={() => setView(view === 'menu' ? 'none' : 'menu')}>
+          Thực đơn
+        </ShortcutButton>
+        <ShortcutButton
+          icon={SHORTCUT_ICONS.invoices}
+          onClick={() => setView(view === 'invoices' ? 'none' : 'invoices')}
+        >
+          Học phí
+        </ShortcutButton>
+      </div>
+      <div className="flex flex-wrap gap-2">
         {has('daily_attendance') ? (
           <>
             <Button
@@ -190,13 +314,11 @@ function ChildCard({
         ) : null}
         <Button onClick={() => setView(view === 'pickups' ? 'none' : 'pickups')}>Người đón</Button>
         <Button onClick={() => setView(view === 'services' ? 'none' : 'services')}>Dịch vụ</Button>
-        <Button onClick={() => setView(view === 'invoices' ? 'none' : 'invoices')}>Học phí</Button>
         <Button onClick={() => setView(view === 'consent' ? 'none' : 'consent')}>Hình ảnh</Button>
         <Button onClick={() => setView(view === 'health' ? 'none' : 'health')}>Sức khỏe</Button>
         <Button onClick={() => setView(view === 'learning' ? 'none' : 'learning')}>Học tập</Button>
         <Button onClick={() => setView(view === 'interactions' ? 'none' : 'interactions')}>Trao đổi</Button>
         <Button onClick={() => setView(view === 'activities' ? 'none' : 'activities')}>Hoạt động</Button>
-        <Button onClick={() => setView(view === 'menu' ? 'none' : 'menu')}>Thực đơn</Button>
         {has('learning_record') ? (
           <Button onClick={() => setView(view === 'learning-record' ? 'none' : 'learning-record')}>Học bạ</Button>
         ) : null}
@@ -213,9 +335,6 @@ function ChildCard({
           <Button onClick={() => setView(view === 'library' ? 'none' : 'library')}>Sách thư viện</Button>
         ) : null}
         <Button onClick={() => setView(view === 'medication' ? 'none' : 'medication')}>Dặn thuốc</Button>
-        {has('period_timetable') ? (
-          <Button onClick={() => setView(view === 'timetable' ? 'none' : 'timetable')}>Thời khoá biểu</Button>
-        ) : null}
         {has('period_attendance') ? (
           <Button onClick={() => setView(view === 'period-attendance' ? 'none' : 'period-attendance')}>
             Điểm danh theo tiết
@@ -268,6 +387,9 @@ function ChildCard({
           onDone={(message) => {
             setView('none');
             onMessage(message);
+            if (dailyAttendance) {
+              void loadToday();
+            }
           }}
         />
       ) : null}
@@ -311,28 +433,32 @@ export function HomeScreen() {
 
   return (
     <div className="min-h-screen">
-      <ApplicationHeader title="Ứng dụng phụ huynh" />
-      {/* Máy tính bảng (DT-26 phần 26d): hai cột, trái là thông báo, đón trả, khảo sát; phải là thẻ của từng con; điện thoại một cột */}
-      <main className="mx-auto flex max-w-md flex-col gap-4 px-4 py-6 md:grid md:max-w-5xl md:grid-cols-2 md:items-start lg:max-w-6xl lg:grid-cols-[minmax(0,2fr)_minmax(0,3fr)]">
-        <div className="flex flex-col gap-4">
-          {failed ? <Alert tone="danger">Không tải được thông tin, vui lòng thử lại</Alert> : null}
+      {/* Thanh chào xanh (mẫu giao diện phụ huynh); thẻ của con ở cột đầu đè lên mép dưới của thanh */}
+      <header className="bg-header text-white">
+        <div className="mx-auto max-w-md px-4 pb-14 pt-6 md:max-w-5xl lg:max-w-6xl">
           {user ? (
-            <h1 className="text-page-title font-bold text-text">Xin chào, {user.full_name}</h1>
+            <h1 className="flex flex-col gap-1">
+              <span className="text-label font-normal text-selected">Xin chào,</span>{' '}
+              <span className="text-xl font-bold">{user.full_name}</span>
+            </h1>
           ) : (
-            <div className="h-8 w-48 animate-pulse rounded bg-border" aria-hidden="true" />
+            <div className="flex flex-col gap-2" aria-hidden="true">
+              <div className="h-4 w-20 animate-pulse rounded bg-header-strong" />
+              <div className="h-6 w-48 animate-pulse rounded bg-header-strong" />
+            </div>
           )}
-          {notice ? <Alert tone="success">{notice}</Alert> : null}
-          {/* Mời cài lên màn hình chính (DT-26 phần 26a) */}
-          <InstallPrompt applicationName="ứng dụng phụ huynh" />
-          <NotificationsPanel />
-          {/* Bật, tắt thông báo đẩy và chọn nhóm (DT-26 phần 26b) */}
-          <PushSettingsPanel application="parent" base={import.meta.env.BASE_URL} request={requestJson} />
-          <PickupConfirmations />
-          <PollsPanel />
         </div>
-        <div className="flex flex-col gap-4">
+      </header>
+      {/* Máy tính bảng (DT-26 phần 26d): hai cột, trái là thẻ của từng con; phải là thông báo, đón trả, khảo sát; điện thoại một cột,
+          thẻ của con lên đầu theo mẫu giao diện phụ huynh */}
+      <main className="mx-auto flex max-w-md flex-col gap-4 px-4 pb-6 md:grid md:max-w-5xl md:grid-cols-2 md:items-start lg:max-w-6xl lg:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]">
+        <div className="relative -mt-10 flex flex-col gap-4">
+          {failed ? <Alert tone="danger">Không tải được thông tin, vui lòng thử lại</Alert> : null}
+          {notice ? <Alert tone="success">{notice}</Alert> : null}
           {children && children.length === 0 ? (
-            <p className="text-content text-text-secondary">Chưa có thông tin của con.</p>
+            <p className="rounded-2xl border border-border bg-card p-4 text-content text-text-secondary">
+              Chưa có thông tin của con.
+            </p>
           ) : null}
           <ul className="flex flex-col gap-3">
             {(children ?? []).map((child) => (
@@ -344,6 +470,15 @@ export function HomeScreen() {
               />
             ))}
           </ul>
+        </div>
+        <div className="flex flex-col gap-4 md:mt-4">
+          {/* Mời cài lên màn hình chính (DT-26 phần 26a) */}
+          <InstallPrompt applicationName="ứng dụng phụ huynh" />
+          <NotificationsPanel />
+          {/* Bật, tắt thông báo đẩy và chọn nhóm (DT-26 phần 26b) */}
+          <PushSettingsPanel application="parent" base={import.meta.env.BASE_URL} request={requestJson} />
+          <PickupConfirmations />
+          <PollsPanel />
           <ExternalLinksPanel request={externalRequest} basePath={import.meta.env.BASE_URL} />
           <div>
             <Button onClick={() => void session.logout()}>Đăng xuất</Button>
