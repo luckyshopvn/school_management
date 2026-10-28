@@ -1,12 +1,39 @@
-import { useState, type FormEvent } from 'react';
-import { loginOperator, PlatformApiError } from './platform-api.js';
+import { useCallback, useEffect, useRef, useState, type FormEvent } from 'react';
+import { issueCaptcha, loginOperator, PlatformApiError, type CaptchaChallenge } from './platform-api.js';
 
 // Trang đăng nhập cổng vận hành nền tảng theo mẫu đăng nhập Eric duyệt ngày 2026-10-28 (YCTD-312): thẻ trắng giữa nền xanh nhạt,
 // mục "Thông tin tài khoản", nút xanh toàn chiều rộng, hàng Ghi nhớ và Quên mật khẩu. Không có mục thông tin đơn vị (cổng vận
 // hành không thuộc Sở, trường). Hai bước: tên đăng nhập, mật khẩu; máy chủ đòi mã xác thực hai lớp thì sang bước nhập mã TOTP
 // hoặc mã khôi phục. Ghi nhớ chỉ lưu tên đăng nhập trên trình duyệt; mật khẩu để trình duyệt tự lưu qua autocomplete.
-// Mã xác nhận dạng ảnh chưa có ở dịch vụ định danh cho tài khoản vận hành: khi có thì đặt ô mã ngay trên hàng Ghi nhớ
+// Mã xác nhận dạng ảnh (YCTD-313) ở bước 1, có nút làm mới; mỗi ảnh dùng một lần nên gửi lỗi thì lấy ảnh mới. Bước mã hai lớp
+// gửi lại mã ảnh của bước 1, máy chủ nhận vì bước 1 đã đúng mã ảnh và mật khẩu
 const REMEMBER_KEY = 'platform.login.remembered';
+
+// Chỉ nhận ảnh của lần lấy mới nhất để ảnh đang hiện luôn khớp mã gửi đi
+function useCaptcha() {
+  const [challenge, setChallenge] = useState<CaptchaChallenge>();
+  const [text, setText] = useState('');
+  const [loadError, setLoadError] = useState(false);
+  const latest = useRef(0);
+  const refresh = useCallback(() => {
+    const request = ++latest.current;
+    setText('');
+    setLoadError(false);
+    issueCaptcha()
+      .then((issued) => {
+        if (request === latest.current) {
+          setChallenge(issued);
+        }
+      })
+      .catch(() => {
+        if (request === latest.current) {
+          setLoadError(true);
+        }
+      });
+  }, []);
+  useEffect(() => refresh(), [refresh]);
+  return { challenge, text, setText, refresh, loadError };
+}
 
 function readRemembered(): string {
   try {
@@ -37,22 +64,45 @@ export function LoginPage({ onLoggedIn }: { onLoggedIn: (accessToken: string) =>
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [forgotOpen, setForgotOpen] = useState(false);
+  const captcha = useCaptcha();
+  // Mã ảnh đã dùng đúng ở bước 1, gửi lại ở bước mã hai lớp
+  const [passedCaptchaId, setPassedCaptchaId] = useState<string>();
+
+  function backToAccount(message: string | null) {
+    setStep('account');
+    setOtpCode('');
+    setPassedCaptchaId(undefined);
+    setError(message);
+    captcha.refresh();
+  }
 
   async function submit(event: FormEvent) {
     event.preventDefault();
     setBusy(true);
     setError(null);
+    const captchaId = step === 'otp' ? passedCaptchaId : captcha.challenge?.captcha_id;
     try {
-      const result = await loginOperator(login, password, step === 'otp' ? otpCode : '');
+      const result = await loginOperator(
+        login,
+        password,
+        step === 'otp' ? otpCode : '',
+        captchaId ? { captcha_id: captchaId, ...(step === 'account' ? { captcha_text: captcha.text } : {}) } : null,
+      );
       writeRemembered(remember ? login.trim() : null);
       onLoggedIn(result.accessToken);
     } catch (caught) {
+      const message = caught instanceof PlatformApiError ? caught.message : 'Không đăng nhập được, vui lòng thử lại';
       if (caught instanceof PlatformApiError && step === 'account' && caught.fields.includes('otp_code')) {
-        // Mật khẩu đúng, tài khoản bật xác thực hai lớp: sang bước nhập mã
+        // Mã ảnh và mật khẩu đúng, tài khoản bật xác thực hai lớp: sang bước nhập mã
         setStep('otp');
         setOtpCode('');
+        setPassedCaptchaId(captchaId);
+      } else if (step === 'otp') {
+        // Sai mã hai lớp: lượt mã ảnh đã dùng, quay lại bước 1 với ảnh mới
+        backToAccount(message);
       } else {
-        setError(caught instanceof PlatformApiError ? caught.message : 'Không đăng nhập được, vui lòng thử lại');
+        setError(message);
+        captcha.refresh();
       }
     } finally {
       setBusy(false);
@@ -93,6 +143,41 @@ export function LoginPage({ onLoggedIn }: { onLoggedIn: (accessToken: string) =>
                 required
               />
             </label>
+            <div className="login-captcha">
+              <label className="login-field">
+                <span className="visually-hidden">Mã xác nhận</span>
+                <input
+                  value={captcha.text}
+                  onChange={(event) => captcha.setText(event.target.value)}
+                  placeholder="nhập mã xác nhận"
+                  autoComplete="off"
+                  autoCapitalize="characters"
+                  spellCheck={false}
+                  required
+                />
+              </label>
+              {captcha.challenge ? (
+                <img src={captcha.challenge.image} alt="Ảnh mã xác nhận" width={150} height={46} />
+              ) : (
+                <span className="login-captcha-empty">{captcha.loadError ? 'Không tải được ảnh' : 'Đang tải ảnh'}</span>
+              )}
+              <button type="button" className="login-refresh" aria-label="Làm mới mã" onClick={captcha.refresh}>
+                <svg
+                  viewBox="0 0 24 24"
+                  width="20"
+                  height="20"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  aria-hidden="true"
+                >
+                  <path
+                    d="M20 11a8 8 0 0 0-14.6-4.5M4 4v4h4M4 13a8 8 0 0 0 14.6 4.5M20 20v-4h-4"
+                    strokeLinecap="round"
+                  />
+                </svg>
+              </button>
+            </div>
             <div className="login-row">
               <label className="login-check">
                 <input type="checkbox" checked={remember} onChange={(event) => setRemember(event.target.checked)} />
@@ -147,15 +232,7 @@ export function LoginPage({ onLoggedIn }: { onLoggedIn: (accessToken: string) =>
           {step === 'account' ? 'Đăng nhập' : 'Xác nhận'}
         </button>
         {step === 'otp' ? (
-          <button
-            type="button"
-            className="login-link login-back"
-            onClick={() => {
-              setStep('account');
-              setOtpCode('');
-              setError(null);
-            }}
-          >
+          <button type="button" className="login-link login-back" onClick={() => backToAccount(null)}>
             Quay lại
           </button>
         ) : null}
