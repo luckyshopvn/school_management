@@ -15,6 +15,7 @@ import {
   schoolHost,
 } from '../e2e-multi-environment.mjs';
 import { expect, test } from './fixtures.js';
+import { signInConsole } from './platform-console.js';
 
 // DT-SaaS phần S2 (YCTD-193, spec 132): người vận hành khởi tạo trường gamma ở cổng nền tảng qua bước setup năm bước, quản trị
 // viên đầu tiên kích hoạt bằng đường liên kết một lần ở tên miền của trường rồi đăng nhập; tạm dừng thì trường trả 503, mở lại thì
@@ -77,12 +78,9 @@ test('Khởi tạo trường ở cổng nền tảng, kích hoạt quản trị 
   const consoleContext = await browser.newContext({ baseURL: `http://${E2E_CONSOLE_HOST}:${E2E_MULTI_CONSOLE_PORT}` });
   const consolePage = await consoleContext.newPage();
   await consolePage.goto('/');
-  await consolePage.getByLabel('Tên đăng nhập').fill(operatorLogin);
-  await consolePage.getByLabel('Mật khẩu').fill(PASSWORD);
-  await consolePage
-    .getByLabel('Mã xác thực hai lớp')
-    .fill(await operatorOtp(runtime.platform, operator.id, operator.secret));
-  await consolePage.getByRole('button', { name: 'Đăng nhập' }).click();
+  await signInConsole(consolePage, operatorLogin, PASSWORD, () =>
+    operatorOtp(runtime.platform, operator.id, operator.secret),
+  );
   await consolePage.getByRole('navigation', { name: 'Menu' }).getByRole('button', { name: 'Trường' }).click();
   await expect(consolePage.getByRole('row', { name: /alpha/ })).toBeVisible();
 

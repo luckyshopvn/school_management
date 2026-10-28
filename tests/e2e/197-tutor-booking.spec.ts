@@ -24,6 +24,7 @@ import {
   E2E_TUTOR_HOST,
 } from '../e2e-multi-environment.mjs';
 import { expect, test } from './fixtures.js';
+import { signInConsole } from './platform-console.js';
 
 // DT-27 phần 27h (YCTD-258, spec 197): phụ huynh ở Chợ gia sư đặt buổi với gia sư đã duyệt, thanh toán giả lập; gia sư đánh dấu đã dạy ở
 // ứng dụng Gia sư; phụ huynh mở tranh chấp; nhân viên nền tảng quyết định hoàn đủ ở cổng nền tảng, chốt; phụ huynh thấy đã hoàn tiền. Gia
@@ -288,12 +289,9 @@ test('CT-27h-7: đặt buổi, thanh toán giả lập, gia sư đánh dấu đ�
   const consoleContext = await browser.newContext({ baseURL: `http://${E2E_CONSOLE_HOST}:${E2E_MULTI_CONSOLE_PORT}` });
   const consolePage = await consoleContext.newPage();
   await consolePage.goto('/');
-  await consolePage.getByLabel('Tên đăng nhập').fill(operatorLogin);
-  await consolePage.getByLabel('Mật khẩu').fill(OPERATOR_TEST_PASSWORD);
-  await consolePage
-    .getByLabel('Mã xác thực hai lớp')
-    .fill(await operatorOtp(runtime.platform, operator.id, operator.secret));
-  await consolePage.getByRole('button', { name: 'Đăng nhập' }).click();
+  await signInConsole(consolePage, operatorLogin, OPERATOR_TEST_PASSWORD, () =>
+    operatorOtp(runtime.platform, operator.id, operator.secret),
+  );
   await consolePage.getByRole('navigation', { name: 'Menu' }).getByRole('button', { name: 'Chợ gia sư' }).click();
   const payments = consolePage.getByRole('region', { name: 'Buổi học và thanh toán của chợ' });
   await payments.getByRole('button', { name: `Xem tranh chấp ${subjectName}` }).click();
