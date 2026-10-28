@@ -19,6 +19,7 @@ import { menuPageTitle } from '../pages/page-title.js';
 import { useHasPermission } from '../session/permissions.js';
 import { SchoolLevelsBlock } from '../school-levels/SchoolLevelsBlock.js';
 import { ConductSettingsBlock } from '../conduct/ConductSettingsBlock.js';
+import { TeachingToolsSettingsBlock } from './TeachingToolsSettingsBlock.js';
 import {
   readIdentitySettings,
   readSettings,
@@ -81,6 +82,8 @@ function fromText(setting: EffectiveSetting, text: string): unknown {
       return trimmed;
     case 'boolean':
       return trimmed === 'bat';
+    case 'teaching_tool_list':
+      return trimmed.split(',').map((part) => part.trim());
   }
 }
 
@@ -542,6 +545,13 @@ export function SettingsPage() {
         <h1 className="text-page-title font-bold text-text">{menuPageTitle('/settings')}</h1>
         {rootId ? (
           <SchoolSettingsBlock
+            rootId={rootId}
+            editable={canManage && wholeSchoolSettingManager}
+            onSaved={setToastMessage}
+          />
+        ) : null}
+        {rootId ? (
+          <TeachingToolsSettingsBlock
             rootId={rootId}
             editable={canManage && wholeSchoolSettingManager}
             onSaved={setToastMessage}

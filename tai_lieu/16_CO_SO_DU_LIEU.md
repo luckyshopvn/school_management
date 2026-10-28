@@ -846,7 +846,7 @@ Ba bảng ở cơ sở dữ liệu năm học (tệp `0124_create_classroom_tool
 | classroom_game_answers (từ YCTD-213) | Kết quả từng câu của lượt (P02-101) | session_id (xóa theo), question_id, child_id hoặc group_name, answer, correct; không lưu hình ảnh |
 | (ghi chú cột mới, YCTD-213) | `question_usages` (tệp `0127_add_game_question_usages`): `exam_id` cho phép trống, thêm `source` (`exam`, `game`), `game_session_id`, `correct_rate` (P02-102) |
 
-Hai mục cấu hình theo trường ở bảng `settings` của Trường chính (không có bảng riêng): `classroom_offline_enabled` (bật, mặc định bật) và `classroom_roster_ttl_hours` (1 đến 100, mặc định 24) (BR-233).
+Hai mục cấu hình theo trường ở bảng `settings` của Trường chính (không có bảng riêng): `classroom_offline_enabled` (bật, mặc định bật) và `classroom_roster_ttl_hours` (1 đến 100, mặc định 24) (BR-233). Từ YCTD-325 thêm `teaching_tools_disabled` (kiểu `teaching_tool_list`: danh sách mã công cụ tắt ở Hộp công cụ giảng dạy, mặc định trống).
 
 ## 18E. Trợ lý AI (DT-23 phần 23d, YCTD-214)
 
