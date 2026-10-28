@@ -1,9 +1,11 @@
-export type ServiceDatabaseKind = 'identity' | 'system' | 'platform';
+export type ServiceDatabaseKind = 'identity' | 'system' | 'platform' | 'marketplace';
 
 const environmentVariableByKind: Record<ServiceDatabaseKind, string> = {
   identity: 'IDENTITY_DATABASE_URL',
   system: 'SYSTEM_DATABASE_URL',
   platform: 'PLATFORM_DATABASE_URL',
+  // Chợ gia sư (DT-27 phần 27f): vai trò marketplace, không có quyền trên cơ sở dữ liệu của trường
+  marketplace: 'MARKETPLACE_DATABASE_URL',
 };
 
 export function readConnectionString(kind: ServiceDatabaseKind): string {
