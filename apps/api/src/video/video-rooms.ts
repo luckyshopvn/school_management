@@ -64,6 +64,13 @@ interface RoomRow {
   recording_allowed: boolean;
 }
 
+// Phòng của phần khác dùng chung bộ nối, tên phòng và giới hạn phút của 27a (DT-28 phần 28g: giờ học trực tuyến, phòng nhóm):
+// sự kiện gọi lại của phòng không thuộc bảng `video_rooms` chuyển cho phần đã đăng ký; phút người dự của phần đó cộng vào phút của gói
+export interface VideoRoomExtension {
+  handleEvent(database: Executor, roomId: string, event: VideoRoomEvent): Promise<boolean>;
+  usageEvents(database: Executor, since: Date): Promise<Array<{ identity: string; kind: 'join' | 'leave'; at: Date }>>;
+}
+
 export interface JoinResult {
   status: 'ready' | 'waiting';
   room_id: string;
@@ -87,6 +94,12 @@ export class VideoRoomsService {
     @Inject(API_CONFIGURATION) private readonly configuration: ApiConfiguration,
     @Optional() @Inject(VIDEO_PROVIDER) private readonly provider: VideoRoomProvider | null = null,
   ) {}
+
+  private readonly extensions: VideoRoomExtension[] = [];
+
+  registerExtension(extension: VideoRoomExtension) {
+    this.extensions.push(extension);
+  }
 
   // Video chưa bật ở máy chủ thì báo rõ; phân hệ gia sư ngoài gói thì chặn như 27b
   private requireProvider(): VideoRoomProvider {
@@ -173,8 +186,14 @@ export class VideoRoomsService {
       .where('at', '>=', this.monthStart())
       .orderBy('at')
       .execute();
+    const extensionEvents = (
+      await Promise.all(this.extensions.map((extension) => extension.usageEvents(executor, this.monthStart())))
+    ).flat();
     const minutes = participantMinutes(
-      events.map((event) => ({ identity: `${event.room_id}/${event.identity}`, kind: event.kind, at: event.at })),
+      [
+        ...events.map((event) => ({ identity: `${event.room_id}/${event.identity}`, kind: event.kind, at: event.at })),
+        ...extensionEvents,
+      ],
       now,
     );
     const stored = await executor
@@ -679,6 +698,11 @@ export class VideoRoomsService {
       .where('id', '=', parsed.roomId)
       .executeTakeFirst();
     if (!room) {
+      for (const extension of this.extensions) {
+        if (await extension.handleEvent(database, parsed.roomId, event)) {
+          return { handled: true };
+        }
+      }
       return { handled: false };
     }
     if (event.kind === 'room_ended') {

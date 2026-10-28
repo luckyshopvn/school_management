@@ -352,7 +352,7 @@ describe('Điểm cuối giao tiếp trong lớp và nhóm', () => {
       201,
     );
     await setSetting('discussion_open_hours', null);
-    // Ban Giám hiệu tự cấu hình giờ mở và từ ngữ lọc (GD-144 chưa chốt); giáo viên không đổi được
+    // Ban Giám hiệu tự cấu hình giờ mở và từ ngữ lọc (GD-144 đã chốt 2026-10-28); giáo viên không đổi được
     const saved = await api('PUT', '/learning/discussion-config', principal.accessToken, {
       open_hours: { school_days: { from: '06:00', to: '21:00' } },
       blocked_words: ['đồ ngốc', 'x'],

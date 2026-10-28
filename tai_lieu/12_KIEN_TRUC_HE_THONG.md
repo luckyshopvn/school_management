@@ -304,6 +304,10 @@ Thư mục con `apps/api/src/learning/recognition`: quy tắc thuần `recogniti
 
 GD-148 đã chốt 2026-10-27; tắt mặc định. Máy chủ: thư mục `apps/api/src/learning/offline` (`OfflineLearningService`: cấu hình `learning_offline`, tuyến `/learning/offline/config`, `/student/offline`); `AssignmentsService.studentSubmit`, `studentUpload` nhận mã chống trùng (`client_submit_key`, `client_key`), ghi thời điểm bấm nộp trên máy. Ứng dụng học sinh: mô-đun riêng `apps/parent/src/student/offline` gồm quy tắc thuần `offline-rules.ts` (chạy `node --test`), kho `offline-store.ts` (IndexedDB `hoc-khi-mang-yeu`, mã hoá AES-GCM bằng WebCrypto, khóa không xuất được) và cửa `offline.ts` (không làm gì khi trường tắt); gọi từ `StudentAssignmentView.tsx` (bản nháp, hàng đợi nộp, gửi tệp), `StudentLearningPanel.tsx` (đọc cấu hình, gửi hàng đợi khi có mạng, nội dung đã mở) và `student-session.tsx` (xoá khi đăng xuất). Gỡ mô-đun là bỏ thư mục và các dòng gọi. Cổng quản trị: `OfflineSettings.tsx` (mục 9.3).
 
+## 12Q. Giờ học trực tuyến, phòng nhóm, phòng chia nhỏ (DT-28 phần 28g, YCTD-277)
+
+Dùng lại phân hệ video của 27a, không thêm dịch vụ video: `LiveLearningService` (thư mục `apps/api/src/learning/live`) gọi bộ nối `VideoRoomProvider`, đặt tên phòng bằng `VideoRoomsService.roomNameOf` và đăng ký vào cửa `VideoRoomExtension` của `VideoRoomsService` để nhận sự kiện gọi lại của phòng không thuộc bảng `video_rooms` và cộng phút người dự vào phút của gói. Loại hoạt động `live_session` thêm cuối danh mục `learning-activity-kinds.ts`; quyền lớp học trực tuyến qua cửa của lõi 28b, nhóm lấy từ `GroupSetsReader` (28a), giờ mở dùng chung `discussion_open_hours` (GD-144, Eric đã chốt 2026-10-28), báo cáo ghi vào `discussion_reports` của 28e. Đăng ký ở `apps/api/src/dang-ky/dt-28g-hoc-truc-tuyen-truc-tiep.ts`, kiểu bảng ở `database/school-year/schema-parts/dt-28g-hoc-truc-tuyen-truc-tiep.ts`. Giao diện: ứng dụng giáo viên `LiveScreen.tsx`, `LiveSessionScreen.tsx`; ứng dụng học sinh (`apps/student`, YCTD-300) `StudentLivePanel.tsx`; thành phần `VideoRoom` của `packages/ui` dùng chung với 27a.
+
 ## 13. Quyết định kiến trúc
 
 | Mã | Quyết định | Trạng thái |

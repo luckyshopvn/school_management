@@ -2559,6 +2559,29 @@ Lỗi quy tắc 422 mã `YCTD-280`. Tuyến nộp bài của học sinh `POST /a
 | GET, PUT | /api/v1/learning/offline/config | Ban Giám hiệu: `{ enabled, retention_days }` (1 đến 7) |
 | GET | /api/v1/student/offline | Học sinh: cấu hình học khi mạng yếu của trường |
 
+### 17.10. Giờ học trực tuyến, phòng nhóm, phòng chia nhỏ (DT-28 phần 28g, YCTD-277)
+
+Lỗi quy tắc 422 mã `YCTD-277`. Vào phòng trả `{ status, room_id, title, role, identity, url, token, can_speak, can_share }` như 27a. Hoạt động loại `live_session` tạo qua tuyến hoạt động của lõi với `opens_at` và `settings.duration_minutes`.
+
+| Phương thức | Đường dẫn | Mô tả |
+|---|---|---|
+| GET | /api/v1/learning/activities/{id}/live | Giáo viên: phòng, phòng chia nhỏ, lượt gọi giáo viên, thông báo, điểm danh gợi ý, bộ nhóm |
+| POST | /api/v1/learning/activities/{id}/live/open | Giáo viên mở phòng giờ học và vào |
+| POST | /api/v1/learning/activities/{id}/live/attendance | Xác nhận điểm danh `{ entries: [{ child_id, status: present \| absent \| excused }] }` |
+| POST | /api/v1/learning/live/rooms/{id}/join, /leave, /end | Cán bộ vào, rời, kết thúc phòng |
+| POST | /api/v1/learning/live/rooms/{id}/breakouts | Chia phòng `{ count \| group_set_id, minutes, seed? }` |
+| POST | /api/v1/learning/live/rooms/{id}/breakouts/close | Gọi tất cả về phòng chính |
+| POST | /api/v1/learning/live/rooms/{id}/notices, /move | Thông báo tới mọi phòng; chuyển học sinh `{ child_id, room_id }` |
+| POST | /api/v1/learning/live/help/{id}/resolve | Đã hỗ trợ lượt gọi giáo viên |
+| GET | /api/v1/learning/spaces/{id}/live-groups | Bộ nhóm, nhóm, phòng nhóm đang mở |
+| PUT | /api/v1/learning/live/group-sets/{id} | Bật, tắt học sinh tự mở phòng `{ student_open }` |
+| POST | /api/v1/learning/live/groups/{id}/open | Giáo viên mở phòng nhóm và vào |
+| GET | /api/v1/student/live | Học sinh: giờ học đang mở, phòng chia nhỏ của em, phòng nhóm |
+| POST | /api/v1/student/live/activities/{id}/join | Học sinh vào giờ học |
+| POST | /api/v1/student/live/groups/{id}/open | Học sinh mở phòng nhóm (khi được bật, trong giờ mở) |
+| GET | /api/v1/student/live/rooms/{id} | Trạng thái phòng: `teacher_watching`, thông báo, phòng chia nhỏ, `moved_to` |
+| POST | /api/v1/student/live/rooms/{id}/join, /leave, /help, /report | Vào, rời phòng; gọi giáo viên; báo cáo `{ reason }` |
+
 ## 18. Quy tắc kiểm tra dữ liệu
 
 | Mã | Quy tắc |
