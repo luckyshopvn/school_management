@@ -815,7 +815,7 @@ Từ YCTD-122: MH-95 có cột Đơn vị, nhãn "Sắp đến hạn" cạnh th�
 
 | Mã | Màn hình | Vai trò chính |
 |---|---|---|
-| MP-01 | Trang của con; mục hình ảnh để đồng ý hoặc rút đồng ý sử dụng hình ảnh, xem lịch sử (YCTD-67) | VT-14 |
+| MP-01 | Trang của con; mục hình ảnh để đồng ý hoặc rút đồng ý sử dụng hình ảnh, xem lịch sử (YCTD-67). Từ YCTD-320 thẻ của con có hai thẻ tóm tắt trên lưới lối tắt: "Khoản cần nộp" (tối đa ba hóa đơn còn phải nộp, nhãn hạn gần nhất, nút "Xem và thanh toán" mở bảng Học phí) và "Điểm mới" (con học THCS, THPT: tối đa ba môn có điểm ở học kỳ đã khoá gần nhất, nút "Xem sổ điểm" mở bảng Điểm học tập); không có dữ liệu thì ẩn thẻ | VT-14 |
 | MP-02 | Điểm danh của con | VT-14 |
 | MP-03 | Nhật ký của con theo tháng, chỉ nhật ký đã công bố (YCTD-65) | VT-14 |
 | MP-04 | Thời khóa biểu và lịch hoạt động lớp: bảng Học tập trên thẻ của trẻ, chỉ bản đã công bố (YCTD-80) | VT-14 |
