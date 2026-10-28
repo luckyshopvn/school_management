@@ -20,6 +20,11 @@ import { ScoreboardTool } from './ScoreboardTool.js';
 import { TimerTool } from './TimerTool.js';
 import { GamesTool } from './games/GamesTool.js';
 import { AlphabetTool } from './mini/AlphabetTool.js';
+import { CalculatorTool } from './mini/CalculatorTool.js';
+import { ConstantsTool } from './mini/ConstantsTool.js';
+import { GeometryTool } from './mini/GeometryTool.js';
+import { GraphTool } from './mini/GraphTool.js';
+import { PeriodicTableTool } from './mini/PeriodicTableTool.js';
 import { ClockTool } from './mini/ClockTool.js';
 import { FractionTool } from './mini/FractionTool.js';
 import { MultiplicationTool } from './mini/MultiplicationTool.js';
@@ -297,6 +302,11 @@ export function ClassroomToolsScreen({
                 {active === 'ruled-board' ? <WhiteboardTool ruled /> : null}
                 {active === 'clock-reading' ? <ClockTool /> : null}
                 {active === 'fractions' ? <FractionTool /> : null}
+                {active === 'calculator' ? <CalculatorTool /> : null}
+                {active === 'graph' ? <GraphTool /> : null}
+                {active === 'periodic-table' ? <PeriodicTableTool /> : null}
+                {active === 'geometry' ? <GeometryTool /> : null}
+                {active === 'constants' ? <ConstantsTool /> : null}
                 {active === 'games' ? <GamesTool snapshot={snapshot} online={online && classes !== null} /> : null}
                 {active === 'scoreboard' ? (
                   <ScoreboardTool

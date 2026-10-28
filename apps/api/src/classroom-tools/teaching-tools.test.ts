@@ -31,6 +31,11 @@ describe('Hộp công cụ giảng dạy: danh mục công cụ', () => {
       'games',
       'whiteboard',
       'dice',
+      'calculator',
+      'graph',
+      'periodic-table',
+      'geometry',
+      'constants',
       'lesson-plans',
       'class-log',
       'online-classes',
@@ -54,6 +59,14 @@ describe('Hộp công cụ giảng dạy: danh mục công cụ', () => {
       assert.equal(keys('TH').includes(key), true, key);
       assert.equal(keys('MN').includes(key), false, key);
       assert.equal(keys('THCS').includes(key), false, key);
+    }
+  });
+
+  it('CT-29d-5: mini app THCS, THPT chỉ ở lớp THCS, THPT', () => {
+    for (const key of ['calculator', 'graph', 'periodic-table', 'geometry', 'constants']) {
+      assert.equal(keys('THPT').includes(key), true, key);
+      assert.equal(keys('TH').includes(key), false, key);
+      assert.equal(keys('MN').includes(key), false, key);
     }
   });
 
