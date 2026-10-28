@@ -19,7 +19,7 @@ phien_ban_de_xuat: 0.203.0
 
 #### Thay đổi
 
-- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-327, `32_KE_HOACH_THEO_HE_THONG_SO.md` mục 22, `14_DAC_TA_GIAO_DIEN.md` MH-562, `21_KICH_BAN_KIEM_THU.md` CT-1550 đến CT-1554, `11_TIEU_CHI_NGHIEM_THU.md` AC-1135, `23_LICH_SU_PHIEN_BAN.md` {PHIEN_BAN}.
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-327, `32_KE_HOACH_THEO_HE_THONG_SO.md` mục 22, `14_DAC_TA_GIAO_DIEN.md` MH-562, `21_KICH_BAN_KIEM_THU.md` CT-1668 đến CT-1672, `11_TIEU_CHI_NGHIEM_THU.md` AC-1135, `23_LICH_SU_PHIEN_BAN.md` {PHIEN_BAN}.
 
 #### Vấn đề tồn đọng
 
@@ -40,7 +40,7 @@ phien_ban_de_xuat: 0.203.0
 - API bị ảnh hưởng: không.
 - Giao diện bị ảnh hưởng: MH-337 (ô công cụ của lớp Tiểu học), MH-562.
 - Quyền bị ảnh hưởng: không.
-- Kiểm thử cần thực hiện: CT-1550 đến CT-1554 (trong mã là CT-29c-1 đến CT-29c-5); `apps/teacher/src/tools/mini/primary.test.ts`, `apps/api/src/classroom-tools/teaching-tools.test.ts`, `tests/e2e/232-teaching-primary-apps.spec.ts`.
+- Kiểm thử cần thực hiện: CT-1668 đến CT-1672 (trong mã là CT-29c-1 đến CT-29c-5); `apps/teacher/src/tools/mini/primary.test.ts`, `apps/api/src/classroom-tools/teaching-tools.test.ts`, `tests/e2e/232-teaching-primary-apps.spec.ts`.
 - Trạng thái: Đã triển khai
 
 ## 23 Lịch sử phiên bản
@@ -57,9 +57,9 @@ phien_ban_de_xuat: 0.203.0
 ## Thêm dòng
 
 | 14_DAC_TA_GIAO_DIEN.md | MH-337 | MH-562 | Ứng dụng giáo viên: mini app Tiểu học của Hộp công cụ giảng dạy (YCTD-327): Bảng cửu chương (Bảng 2 đến 9, Hỏi trong bảng, Trộn bảng, Hiện đáp án, Câu khác), Khung ô li, Học xem đồng hồ (kéo kim phút, bước đổi phút, Lùi, Tiến, đọc kiểu "kém", Giờ ngẫu nhiên, Ẩn giờ để hỏi), Phân số trực quan (Hình tròn, Hình chữ nhật, Tử số, Mẫu số) | P03-09, P03-10 |
-| 11_TIEU_CHI_NGHIEM_THU.md | cuối bảng 19. Chức năng bổ sung theo tám ảnh sơ đồ chức năng | AC-1135 | Cho giáo viên lớp Tiểu học / Khi mở Hộp công cụ / Thì có bảng cửu chương, khung ô li, học xem đồng hồ, phân số trực quan cho kết quả đúng; lớp Mầm non, THCS không có các mini app này (CT-1550 đến CT-1554; YCTD-327) |
-| 21_KICH_BAN_KIEM_THU.md | cuối bảng 15. Ca kiểm thử chức năng bổ sung | CT-1550 | P03-09 | Bảng nhân 7, 9; câu hỏi trong bảng và trộn bảng | Mười dòng đúng tích; thừa số trong khoảng | Kiểm thử tự động `apps/teacher/src/tools/mini/primary.test.ts` CT-29c-1 | Chưa chạy |
-| 21_KICH_BAN_KIEM_THU.md | cuối bảng 15. Ca kiểm thử chức năng bổ sung | CT-1551 | P03-09 | Góc kim giờ, kim phút; phút theo bước khi kéo; đọc giờ, giờ rưỡi, giờ kém | Góc và cách đọc đúng | Kiểm thử tự động `apps/teacher/src/tools/mini/primary.test.ts` CT-29c-2 | Chưa chạy |
-| 21_KICH_BAN_KIEM_THU.md | cuối bảng 15. Ca kiểm thử chức năng bổ sung | CT-1552 | P03-09 | Phân số sai tử, mẫu; tối giản 6/8; chia hình tròn; kẻ ô li | Báo lỗi; 3/4; phần tư đúng; dòng đậm mỗi bốn ô li | Kiểm thử tự động `apps/teacher/src/tools/mini/primary.test.ts` CT-29c-3 | Chưa chạy |
-| 21_KICH_BAN_KIEM_THU.md | cuối bảng 15. Ca kiểm thử chức năng bổ sung | CT-1553 | P03-09 | Danh mục: mini app Tiểu học ở lớp Mầm non, THCS | Không hiện | Kiểm thử tự động `apps/api/src/classroom-tools/teaching-tools.test.ts` CT-29c-4 | Chưa chạy |
-| 21_KICH_BAN_KIEM_THU.md | cuối bảng 15. Ca kiểm thử chức năng bổ sung | CT-1554 | P03-09 | Giao diện: giáo viên lớp Tiểu học dùng bảng cửu chương, đồng hồ, phân số, khung ô li; đổi sang lớp Mầm non | Kết quả đúng; lớp Mầm non không có | Kiểm thử giao diện `tests/e2e/232-teaching-primary-apps.spec.ts` CT-29c-5 | Chưa chạy |
+| 11_TIEU_CHI_NGHIEM_THU.md | cuối bảng 19. Chức năng bổ sung theo tám ảnh sơ đồ chức năng | AC-1135 | Cho giáo viên lớp Tiểu học / Khi mở Hộp công cụ / Thì có bảng cửu chương, khung ô li, học xem đồng hồ, phân số trực quan cho kết quả đúng; lớp Mầm non, THCS không có các mini app này (CT-1668 đến CT-1672; YCTD-327) |
+| 21_KICH_BAN_KIEM_THU.md | cuối bảng 15. Ca kiểm thử chức năng bổ sung | CT-1668 | P03-09 | Bảng nhân 7, 9; câu hỏi trong bảng và trộn bảng | Mười dòng đúng tích; thừa số trong khoảng | Kiểm thử tự động `apps/teacher/src/tools/mini/primary.test.ts` CT-29c-1 | Chưa chạy |
+| 21_KICH_BAN_KIEM_THU.md | cuối bảng 15. Ca kiểm thử chức năng bổ sung | CT-1669 | P03-09 | Góc kim giờ, kim phút; phút theo bước khi kéo; đọc giờ, giờ rưỡi, giờ kém | Góc và cách đọc đúng | Kiểm thử tự động `apps/teacher/src/tools/mini/primary.test.ts` CT-29c-2 | Chưa chạy |
+| 21_KICH_BAN_KIEM_THU.md | cuối bảng 15. Ca kiểm thử chức năng bổ sung | CT-1670 | P03-09 | Phân số sai tử, mẫu; tối giản 6/8; chia hình tròn; kẻ ô li | Báo lỗi; 3/4; phần tư đúng; dòng đậm mỗi bốn ô li | Kiểm thử tự động `apps/teacher/src/tools/mini/primary.test.ts` CT-29c-3 | Chưa chạy |
+| 21_KICH_BAN_KIEM_THU.md | cuối bảng 15. Ca kiểm thử chức năng bổ sung | CT-1671 | P03-09 | Danh mục: mini app Tiểu học ở lớp Mầm non, THCS | Không hiện | Kiểm thử tự động `apps/api/src/classroom-tools/teaching-tools.test.ts` CT-29c-4 | Chưa chạy |
+| 21_KICH_BAN_KIEM_THU.md | cuối bảng 15. Ca kiểm thử chức năng bổ sung | CT-1672 | P03-09 | Giao diện: giáo viên lớp Tiểu học dùng bảng cửu chương, đồng hồ, phân số, khung ô li; đổi sang lớp Mầm non | Kết quả đúng; lớp Mầm non không có | Kiểm thử giao diện `tests/e2e/232-teaching-primary-apps.spec.ts` CT-29c-5 | Chưa chạy |
