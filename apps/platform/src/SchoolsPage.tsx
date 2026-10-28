@@ -3,6 +3,7 @@ import {
   PlatformValidationError,
   schoolsApi,
   type FieldProblem,
+  type Operator,
   type PlatformSettings,
   type ProvisionReply,
   type SchoolDetail,
@@ -11,6 +12,7 @@ import {
 import { SupportPanel } from './SupportPanel.js';
 import { CatalogUnitPicker } from './CatalogPage.js';
 import { catalogApi } from './catalog-api.js';
+import { SchoolDataGovernance } from './SchoolDataGovernance.js';
 
 // Trang Trường của cổng vận hành nền tảng (DT-SaaS phần S2, YCTD-193; tài liệu 32 mục 14.5): danh sách, bước setup năm bước,
 // chi tiết và thao tác vòng đời. Hồ sơ đồng ý dùng dữ liệu thật (PL-00 của S8a) nhập ở bước 3 khi chọn loại dữ liệu `consented`
@@ -469,7 +471,19 @@ function ActivationNotice({ reply }: { reply: ProvisionReply }) {
   );
 }
 
-function SchoolDetailView({ token, code, onBack }: { token: string; code: string; onBack: () => void }) {
+function SchoolDetailView({
+  token,
+  code,
+  role,
+  settings,
+  onBack,
+}: {
+  token: string;
+  code: string;
+  role: Operator['role'] | undefined;
+  settings: PlatformSettings | null;
+  onBack: () => void;
+}) {
   const [detail, setDetail] = useState<SchoolDetail | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
@@ -698,22 +712,50 @@ function SchoolDetailView({ token, code, onBack }: { token: string; code: string
           <button type="submit">Thêm</button>
         </form>
       ) : null}
-      <h3>Hồ sơ đồng ý và vùng máy chủ</h3>
-      <ul>
-        {detail.consents.map((consent) => (
-          <li key={consent.id}>
-            {consent.kind} ({consent.template_code}), {consent.signer_name}, hiệu lực từ{' '}
-            {consent.valid_from.slice(0, 10)}
-            {consent.valid_until ? ` đến ${consent.valid_until.slice(0, 10)}` : ''}
-          </li>
-        ))}
-        {detail.hosting.map((item) => (
-          <li key={item.id}>
-            {item.provider}, {item.service}, {item.region} ({item.role})
-          </li>
-        ))}
-        {detail.consents.length + detail.hosting.length === 0 ? <li>Chưa có</li> : null}
-      </ul>
+      <SchoolDataGovernance token={token} detail={detail} role={role} settings={settings} onChanged={setDetail} />
+      {detail.paid_modules ? (
+        <section aria-label="Tính năng trả phí">
+          <h3>Gói dịch vụ và tính năng trả phí</h3>
+          <p>
+            Gói hiện hành: {detail.plan ? `${detail.plan.name} (${detail.plan.code})` : 'chưa gán gói (không giới hạn)'}
+            .
+            {detail.plan?.modules === null || !detail.plan
+              ? ' Gói không giới hạn phân hệ nên mọi tính năng đều bật.'
+              : ' Bật thêm từng tính năng trả phí cho riêng trường này:'}
+          </p>
+          {detail.plan && detail.plan.modules !== null ? (
+            <ul>
+              {detail.paid_modules.map((module) => {
+                const addons = detail.addon_modules ?? [];
+                const on = addons.includes(module.key);
+                return (
+                  <li key={module.key}>
+                    <label>
+                      <input
+                        type="checkbox"
+                        checked={on}
+                        onChange={() =>
+                          void act(
+                            () =>
+                              catalogApi.setAddonModules(
+                                token,
+                                code,
+                                on ? addons.filter((key) => key !== module.key) : [...addons, module.key],
+                              ),
+                            on ? `Đã tắt ${module.label}` : `Đã bật ${module.label}`,
+                          )
+                        }
+                      />{' '}
+                      {module.label}
+                      {!on && detail.plan?.modules?.includes(module.key) ? ' (đã có trong gói)' : ''}
+                    </label>
+                  </li>
+                );
+              })}
+            </ul>
+          ) : null}
+        </section>
+      ) : null}
       <SupportPanel token={token} code={code} />
       <h3>Sao lưu và khôi phục</h3>
       {detail.backups.length === 0 ? (
@@ -767,7 +809,8 @@ function SchoolDetailView({ token, code, onBack }: { token: string; code: string
   );
 }
 
-export function SchoolsPage({ token }: { token: string }) {
+// role: vai trò nhân viên vận hành đang đăng nhập, để ẩn nút máy chủ không cho phép (YCTD-343)
+export function SchoolsPage({ token, role }: { token: string; role?: Operator['role'] | undefined }) {
   const [view, setView] = useState<'list' | 'setup' | { code: string }>('list');
   const [schools, setSchools] = useState<SchoolSummary[]>([]);
   const [settings, setSettings] = useState<PlatformSettings | null>(null);
@@ -806,6 +849,8 @@ export function SchoolsPage({ token }: { token: string }) {
       <SchoolDetailView
         token={token}
         code={view.code}
+        role={role}
+        settings={settings}
         onBack={() => {
           setView('list');
           load();

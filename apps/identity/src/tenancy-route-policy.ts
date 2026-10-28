@@ -23,6 +23,9 @@ const ACTIVATE =
 const DIRECTORY =
   'Ô chọn đơn vị và đăng nhập theo đơn vị ở tên miền chung (DT-24): không thuộc trường nào, chỉ phục vụ ở PLATFORM_ROOT_DOMAIN (tên miền khác 404), chỉ đọc danh mục công khai có phân trang và giới hạn tần suất; đăng nhập chạy trong ngữ cảnh của đúng trường đã chọn';
 
+const PREPARE =
+  'Khởi tạo đơn vị ở lần chọn đầu tiên trên trang đăng nhập (YCTD-314): chỉ phục vụ ở PLATFORM_ROOT_DOMAIN (tên miền khác 404), chỉ nhận mã Bộ có trong danh mục, không trả dữ liệu của trường; giới hạn theo địa chỉ mạng và số trường tự khởi tạo mỗi giờ trên toàn nền tảng';
+
 const HANDOFF =
   'Đổi mã chuyển phiên sau đăng nhập theo đơn vị (DT-24): công khai theo tên miền của trường, cần mã một lần của đúng trường (chỉ lưu mã băm ở cơ sở dữ liệu định danh của trường, hạn 2 phút)';
 
@@ -128,12 +131,15 @@ export const PUBLIC_ROUTES: PublicRoute[] = [
   { method: 'GET', path: '/api/v1/auth/directory/unit', reason: DIRECTORY },
   { method: 'POST', path: '/api/v1/auth/directory/captcha', reason: DIRECTORY },
   { method: 'POST', path: '/api/v1/auth/directory/login', reason: DIRECTORY },
+  { method: 'POST', path: '/api/v1/auth/directory/prepare', reason: PREPARE },
   { method: 'POST', path: '/api/v1/auth/handoff/exchange', reason: HANDOFF },
   { method: 'GET', path: '/api/v1/auth/platform/catalog', reason: PLATFORM },
   { method: 'GET', path: '/api/v1/auth/platform/catalog/units', reason: PLATFORM },
   { method: 'GET', path: '/api/v1/auth/platform/catalog/unit', reason: PLATFORM },
   { method: 'POST', path: '/api/v1/auth/platform/catalog/import', reason: PLATFORM },
   { method: 'PUT', path: '/api/v1/auth/platform/schools/:code/catalog-unit', reason: PLATFORM },
+  { method: 'POST', path: '/api/v1/auth/platform/catalog/units/:moet/open', reason: PLATFORM },
+  { method: 'PUT', path: '/api/v1/auth/platform/schools/:code/addon-modules', reason: PLATFORM },
   { method: 'POST', path: '/api/v1/auth/platform/captcha', reason: PLATFORM },
   { method: 'GET', path: '/api/v1/auth/platform/login-page', reason: PLATFORM },
   { method: 'PUT', path: '/api/v1/auth/platform/login-page', reason: PLATFORM },

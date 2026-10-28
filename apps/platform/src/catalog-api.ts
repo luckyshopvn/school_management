@@ -1,4 +1,9 @@
-import { PlatformValidationError, type FieldProblem, type SupportAccessPolicy } from './platform-api.js';
+import {
+  PlatformValidationError,
+  type FieldProblem,
+  type SupportAccessPolicy,
+  type SupportStartReply,
+} from './platform-api.js';
 
 // Danh mục đơn vị toàn quốc, trang đăng nhập ở tên miền chung, chính sách vào trường của quản trị nền tảng (DT-24, YCTD-220)
 export interface CatalogImportTotals {
@@ -56,6 +61,13 @@ export interface CatalogUnitRow {
   school_code: string | null;
 }
 
+// Vào trường từ danh mục (YCTD-314): trạng thái trường của đơn vị và phiên quản trị nền tảng khi trường đã sẵn sàng
+export interface CatalogOpenReply {
+  state: 'not_provisioned' | 'provisioning' | 'ready' | 'unavailable';
+  school_code: string | null;
+  session: SupportStartReply | null;
+}
+
 export interface LoginPageSettings {
   title: string;
   subtitle: string;
@@ -104,6 +116,11 @@ function query(values: Record<string, string | number | boolean | null | undefin
 
 export const catalogApi = {
   overview: (token: string) => send<CatalogOverview>(token, 'GET', '/catalog'),
+  // Tính năng trả phí bật riêng cho một trường (YCTD-314)
+  setAddonModules: (token: string, code: string, modules: string[]) =>
+    send<{ addon_modules: string[] }>(token, 'PUT', `/schools/${encodeURIComponent(code)}/addon-modules`, { modules }),
+  open: (token: string, moetCode: string) =>
+    send<CatalogOpenReply>(token, 'POST', `/catalog/units/${encodeURIComponent(moetCode)}/open`, {}),
   units: (
     token: string,
     filter: {

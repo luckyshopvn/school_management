@@ -19,7 +19,7 @@ phien_ban_de_xuat: 0.203.0
 
 #### Thay đổi
 
-- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-327, `32_KE_HOACH_THEO_HE_THONG_SO.md` mục 21, `14_DAC_TA_GIAO_DIEN.md` MH-562, `21_KICH_BAN_KIEM_THU.md` CT-1550 đến CT-1554, `11_TIEU_CHI_NGHIEM_THU.md` AC-1135, `23_LICH_SU_PHIEN_BAN.md` {PHIEN_BAN}.
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-327, `32_KE_HOACH_THEO_HE_THONG_SO.md` mục 22, `14_DAC_TA_GIAO_DIEN.md` MH-562, `21_KICH_BAN_KIEM_THU.md` CT-1550 đến CT-1554, `11_TIEU_CHI_NGHIEM_THU.md` AC-1135, `23_LICH_SU_PHIEN_BAN.md` {PHIEN_BAN}.
 
 #### Vấn đề tồn đọng
 
@@ -29,7 +29,7 @@ phien_ban_de_xuat: 0.203.0
 
 ### YCTD-327: DT-29 phần 29c: mini app Tiểu học của Hộp công cụ giảng dạy – 2026-10-28
 
-- Lý do: phần 29c của `32_KE_HOACH_THEO_HE_THONG_SO.md` mục 21 (Eric duyệt ngày 2026-10-28).
+- Lý do: phần 29c của `32_KE_HOACH_THEO_HE_THONG_SO.md` mục 22 (Eric duyệt ngày 2026-10-28).
 - Nội dung thay đổi:
   - Bảng cửu chương: bảng 2 đến 9, hỏi trong bảng đang chọn hoặc trộn bảng, Hiện đáp án, Câu khác, số câu đã hỏi trong buổi.
   - Khung ô li: bảng trắng có kẻ dòng ô li để viết mẫu.

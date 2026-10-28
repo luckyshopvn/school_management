@@ -26,9 +26,11 @@ import { expect, test, type Page } from './fixtures.js';
 import { signInConsole } from './platform-console.js';
 
 // DT-24 (YCTD-220, spec 160), kịch bản CT-24-9, CT-24-10: trang đăng nhập ở tên miền chung có ô chọn Sở → Cấp, Phường / Xã → Trường (YCTD-310) đọc danh
-// mục mẫu giả; đơn vị chưa dùng nền tảng báo rõ; đăng nhập đúng thì sang tên miền của trường alpha; tên miền của trường khóa đơn vị.
-// Quản trị nền tảng vào trường alpha khi trường chưa cho phép: nhập lại mã xác thực hai lớp, lý do; cổng quản trị hiện biểu ngữ "đang
-// truy cập với quyền quản trị nền tảng"; quản trị trường thấy phiên trong nhật ký. Chỉ chạy ở dự án nhiều trường. Dữ liệu giả
+// mục mẫu giả; mọi đơn vị đều mở (YCTD-314): đơn vị chưa có trường thì khởi tạo ở lần chọn đầu tiên, không báo "chưa sử dụng"; đăng nhập
+// đúng thì sang tên miền của trường alpha; tên miền của trường khóa đơn vị. Tài khoản Admin (vai trò quan_tri) vào trường alpha bằng một
+// lần bấm (không hỏi mục đích, mã hai lớp, số giờ; YCTD-314 sửa GD-110), khởi tạo và vào một đơn vị mới từ danh mục; cổng quản trị hiện
+// biểu ngữ "đang truy cập với quyền quản trị nền tảng"; quản trị trường thấy phiên trong nhật ký. Chỉ chạy ở dự án nhiều trường. Dữ liệu
+// giả
 const OPERATOR_PASSWORD = 'MatKhauVanHanh2026';
 const operatorLogin = `vh-dm-${Math.random().toString(36).slice(2, 8)}`;
 const ALPHA_MOET_CODE = '98000301';
@@ -104,7 +106,7 @@ async function choose(page: Page, label: string, text: string, option: string) {
 test('CT-24-9: đăng nhập theo đơn vị ở tên miền chung sang đúng trường; tên miền của trường khóa đơn vị', async ({
   browser,
 }) => {
-  test.setTimeout(120_000);
+  test.setTimeout(240_000);
   const rootContext = await browser.newContext({ baseURL: `http://${E2E_ROOT_DOMAIN}:${E2E_MULTI_PORTAL_PORT}` });
   const page = await rootContext.newPage();
   await page.goto('/');
@@ -113,11 +115,14 @@ test('CT-24-9: đăng nhập theo đơn vị ở tên miền chung sang đúng t
   // Không dùng tên, biểu trưng của cơ quan nhà nước
   await expect(page.getByText(/Bộ Giáo dục|quốc gia/i)).toHaveCount(0);
 
-  // Đơn vị chỉ có trong danh mục: báo chưa dùng nền tảng
+  // Đơn vị chỉ có trong danh mục (YCTD-314): không báo "chưa sử dụng"; trường khởi tạo ở lần chọn đầu tiên ("đang khởi tạo"), xong thì
+  // hiện mã xác nhận của trường mới
   await choose(page, 'Sở Giáo dục và Đào tạo', 'mau bac', 'Sở GD&ĐT Tỉnh Mẫu Bắc');
   await choose(page, 'Cấp', 'tieu', 'Tiểu học');
   await choose(page, 'Trường', 'binh minh', 'Trường Tiểu học Mẫu Bình Minh');
-  await expect(page.getByRole('status').filter({ hasText: 'chưa sử dụng hệ thống' })).toBeVisible();
+  await expect(page.getByText('chưa sử dụng hệ thống')).toHaveCount(0);
+  await expect(page.getByAltText('Ảnh mã xác nhận')).toBeVisible({ timeout: 120_000 });
+  await expect(page.getByTestId('unit-preparing')).toHaveCount(0);
 
   // Đơn vị đã khởi tạo (trường alpha gắn mã Bộ mẫu): mã xác nhận của đúng trường, đăng nhập rồi sang tên miền của trường
   await choose(page, 'Sở Giáo dục và Đào tạo', 'nam', 'Sở GD&ĐT Thành phố Mẫu Nam');
@@ -178,10 +183,10 @@ test('CT-24-9: đăng nhập theo đơn vị ở tên miền chung sang đúng t
   await schoolContext.close();
 });
 
-test('CT-24-10: quản trị nền tảng vào trường chưa cho phép: mã xác thực hai lớp, lý do, biểu ngữ, nhật ký của trường', async ({
+test('CT-24-10: Admin vào trường chưa cho phép bằng một lần bấm, khởi tạo và vào đơn vị mới; biểu ngữ, nhật ký của trường', async ({
   browser,
 }) => {
-  test.setTimeout(120_000);
+  test.setTimeout(240_000);
   const schoolBase = `http://${schoolHost('alpha')}:${E2E_MULTI_PORTAL_PORT}`;
   const consoleContext = await browser.newContext({ baseURL: `http://${E2E_CONSOLE_HOST}:${E2E_MULTI_CONSOLE_PORT}` });
   const consolePage = await consoleContext.newPage();
@@ -198,18 +203,40 @@ test('CT-24-10: quản trị nền tảng vào trường chưa cho phép: mã x�
   await expect(consolePage.getByTestId('school-moet-code')).toContainText(ALPHA_MOET_CODE);
   const support = consolePage.getByRole('region', { name: 'Phiên hỗ trợ' });
   await expect(support).toContainText('Trường chưa cho phép hỗ trợ');
-  const access = support.getByRole('form', { name: 'Truy cập với quyền quản trị nền tảng' });
-  await access.getByLabel('Mục đích truy cập').fill('Xử lý sự cố đồng bộ (e2e)');
-  await access.getByLabel('Số giờ').fill('1');
-  await access
-    .getByLabel('Mã xác thực hai lớp')
-    .fill(await operatorOtp(runtime.platform, operator.id, operator.secret));
-  await access.getByRole('button', { name: 'Truy cập với quyền quản trị nền tảng' }).click();
+  // Không còn ô mục đích, mã hai lớp, số giờ cho tài khoản Admin
+  await expect(support.getByLabel('Mã xác thực hai lớp')).toHaveCount(0);
+  await support.getByRole('button', { name: 'Vào trường (quản trị nền tảng)' }).click();
   const link = support.getByTestId('support-handoff');
   await expect(link).toBeVisible();
   const handoff = new URL((await link.textContent()) ?? '', schoolBase);
   await expect(support.getByRole('table', { name: 'Lịch sử phiên hỗ trợ' })).toContainText('quyền quản trị nền tảng');
+
+  // Đơn vị mới từ danh mục: khởi tạo ở nền ("Đang khởi tạo…") rồi mở phiên vào thẳng trường mới
+  await menu.getByRole('button', { name: 'Danh mục đơn vị' }).click();
+  const search = consolePage.getByRole('form', { name: 'Tra cứu đơn vị' });
+  // Nhãn bọc ô chọn nên tên truy cập gồm cả lựa chọn đang chọn; ô Sở là ô chọn đầu tiên của biểu mẫu
+  await search.locator('select').first().selectOption('98');
+  await search.getByLabel('Tên hoặc mã').fill('98000202');
+  await search.getByRole('button', { name: 'Tìm' }).click();
+  const row = consolePage.getByRole('table', { name: 'Kết quả tra cứu đơn vị' }).getByRole('row', { name: /98000202/ });
+  await row.getByRole('button', { name: /vào trường/i }).click();
+  const fresh = row.getByTestId('open-school-link');
+  await expect(fresh).toBeVisible({ timeout: 150_000 });
+  const freshHandoff = new URL((await fresh.getAttribute('href')) ?? '');
+  expect(freshHandoff.hostname).toBe(`dv-98000202.${E2E_ROOT_DOMAIN}`);
   await consoleContext.close();
+  // Cổng vận hành trong e2e không đặt VITE_SCHOOL_PORTAL_PORT nên liên kết là https; như các trường khác, lấy đường dẫn rồi mở ở
+  // cổng quản trị của môi trường e2e (http, cổng riêng)
+  const freshContext = await browser.newContext({
+    baseURL: `http://${freshHandoff.hostname}:${E2E_MULTI_PORTAL_PORT}`,
+  });
+  const freshPage = await freshContext.newPage();
+  await freshPage.goto(`${freshHandoff.pathname}${freshHandoff.search}`);
+  await expect(freshPage.getByRole('heading', { name: /^Xin chào,/ })).toBeVisible();
+  await expect(freshPage.getByRole('status', { name: 'Phiên hỗ trợ' })).toContainText(
+    'Đang truy cập với quyền quản trị nền tảng',
+  );
+  await freshContext.close();
 
   const operatorContext = await browser.newContext({ baseURL: schoolBase });
   const operatorPage = await operatorContext.newPage();
@@ -229,7 +256,7 @@ test('CT-24-10: quản trị nền tảng vào trường chưa cho phép: mã x�
   await expect(adminPage.getByRole('heading', { name: /^Xin chào,/ })).toBeVisible();
   await expect(adminPage.getByRole('status', { name: 'Phiên hỗ trợ' })).toContainText('quyền quản trị nền tảng');
   await adminPage.goto('/support-access');
-  const entry = adminPage.locator('summary').filter({ hasText: 'Xử lý sự cố đồng bộ (e2e)' });
+  const entry = adminPage.locator('summary').filter({ hasText: 'Quản trị nền tảng vào trường' }).first();
   await expect(entry).toContainText('quyền quản trị nền tảng, không cần trường cho phép');
   await adminContext.close();
   await operatorContext.close();

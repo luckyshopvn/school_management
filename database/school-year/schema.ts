@@ -2809,7 +2809,7 @@ export interface MarketPurchaseItemsTable {
 
 // Thuốc: danh mục, nhà thuốc, dặn thuốc, cho uống thuốc, đề nghị mua, phiếu mua, phiếu cấp (P10-02 đến P10-05, P10-09;
 // YCTD-75)
-export type MedicationRequestStatus = 'pending' | 'administering' | 'completed' | 'rejected';
+export type MedicationRequestStatus = 'pending' | 'received' | 'administering' | 'completed' | 'rejected';
 export type MedicationAssignedRole = 'nurse' | 'homeroom';
 export type MedicinePurchaseRequestStatus = 'pending' | 'approved' | 'rejected' | 'ordered';
 
