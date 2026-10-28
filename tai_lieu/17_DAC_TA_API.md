@@ -1031,7 +1031,7 @@ Giao kèo của nhóm điểm cuối tài khoản, vai trò, quyền (DT-01 ph�
 
 | Phương thức | Đường dẫn | Mô tả |
 |---|---|---|
-| GET | /api/v1/children | Danh sách trẻ có lọc và phân trang; lọc theo nhóm học sinh `group_id` (YCTD-104); bộ lọc, cột theo Sở, thứ tự A–Z, cỡ trang đến 200 (YCTD-108) |
+| GET | /api/v1/children | Danh sách trẻ có lọc và phân trang; lọc theo nhóm học sinh `group_id` (YCTD-104); bộ lọc, cột theo Sở, thứ tự A–Z, cỡ trang đến 200 (YCTD-108). Từ YCTD-319 mỗi dòng có thêm `guardian_name` (người liên hệ chính), `attendance_rate` (phần trăm ngày có mặt kể cả đi muộn, về sớm trên số ngày đã điểm danh ở năm học, null khi chưa điểm danh); `POST /children/export` nhận thêm mã cột `guardian_name`, `attendance_rate` |
 | POST | /api/v1/children/export | Xuất Excel danh sách học sinh theo bộ lọc và cột đang hiện; cần `P17.data.export`, ghi nhật ký xuất (YCTD-108) |
 | POST | /api/v1/children/bulk-update | Cập nhật hàng loạt học 2 buổi/ngày, bán trú (BR-106, YCTD-108) |
 | POST | /api/v1/children | Tạo hồ sơ trẻ |

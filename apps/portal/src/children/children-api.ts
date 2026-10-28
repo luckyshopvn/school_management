@@ -46,6 +46,9 @@ export interface ChildListItem {
   can_swim: boolean | null;
   contact_phone: string | null;
   sms_phone: string | null;
+  // Người liên hệ chính, tỷ lệ phần trăm ngày có mặt ở năm học; chưa điểm danh là null (YCTD-319)
+  guardian_name: string | null;
+  attendance_rate: number | null;
   // Xác thực số định danh, biến động cư trú (DT-16 phần 16g)
   national_id_verified_at?: string | null;
   national_id_verified_by_name?: string | null;
