@@ -60,10 +60,14 @@ export function AppShell({ children }: { children: ReactNode }) {
   const { pathname } = useLocation();
   const { ensure } = workspaces;
 
-  // Mở trang thuộc phân hệ khác (đường dẫn, chuông thông báo, truy cập nhanh) thì menu chuyển sang phân hệ của trang
-  const pageWorkspace = listPortalMenuEntries(menu).find(
+  // Mở trang thuộc phân hệ khác (đường dẫn, chuông thông báo, truy cập nhanh) thì menu chuyển sang phân hệ của trang. Trang
+  // có ở cả phân hệ đang chọn thì giữ phân hệ đang chọn, để vừa chuyển phân hệ xong menu không bị kéo về phân hệ cũ
+  const pageEntries = listPortalMenuEntries(menu).filter(
     (entry) => pathname === entry.node.path || pathname.startsWith(`${entry.node.path}/`),
-  )?.workspace.key;
+  );
+  const pageWorkspace = pageEntries.some((entry) => entry.workspace.key === workspaces.current)
+    ? workspaces.current
+    : pageEntries[0]?.workspace.key;
   useEffect(() => {
     if (pageWorkspace) {
       ensure(pageWorkspace);

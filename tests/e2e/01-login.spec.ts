@@ -1,6 +1,7 @@
 import { expect, test } from './fixtures.js';
 import { createDatabase, readConnectionString, type IdentityDatabase } from '@school-management/database';
 import { createTestUser } from '@school-management/identity/testing';
+import { listPortalMenuEntries } from '@school-management/shared';
 import { logout, menuLink, menubar, openMenu, openUserMenu, selectWorkspace } from './menu.js';
 
 // MH-47 Đăng nhập, MH-48 Đổi mật khẩu trên cổng quản trị (YCTD-36); khung trang theo Sở: menu ngang đánh số, menu người
@@ -163,6 +164,11 @@ test('CT-15a-9: chọn phân hệ đổi bộ menu, tải lại vẫn giữ; m�
   await selectWorkspace(page, SYSTEM);
   await expect(menubar(page, SYSTEM).getByRole('menuitem', { name: '2. Thiết lập', exact: true })).toBeVisible();
   await expect(menubar(page, EDUCATION)).toBeHidden();
+  // Chọn phân hệ thì vùng nội dung chuyển sang một trang của phân hệ đó, không còn ở trang chủ
+  const systemPaths: string[] = listPortalMenuEntries()
+    .filter((entry) => entry.workspace.key === 'system')
+    .map((entry) => entry.node.path);
+  await expect.poll(() => systemPaths.includes(new URL(page.url()).pathname)).toBe(true);
   await page.reload();
   await expect(page.getByRole('button', { name: `Phân hệ: ${SYSTEM}` })).toBeVisible();
 
