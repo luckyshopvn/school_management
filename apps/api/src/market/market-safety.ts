@@ -46,8 +46,9 @@ import {
 // - tin nhắn: chỉ có luồng phụ huynh với gia sư, phụ huynh mở luồng; thông tin liên lạc ngoài bị che bằng hàm thuần của 28e, người gửi
 //   được cảnh báo; lần thứ 3 thì gắn cờ luồng và tự tạo báo cáo né hoa hồng; gia sư đang bị tạm khóa không nhắn được;
 // - báo cáo vi phạm: phụ huynh báo gia sư (hồ sơ, tin nhắn, buổi học, đánh giá), gia sư báo phụ huynh đã có buổi hoặc tin nhắn với mình;
-//   an toàn trẻ em không thấp hơn mức cao; mức nghiêm trọng thì tạm khóa gia sư ngay, hủy mọi buổi sắp tới (hoàn đủ), báo phụ huynh có
-//   buổi với gia sư, giữ tiền chưa giải ngân; mọi trả lời có hướng dẫn gọi Tổng đài 111;
+//   an toàn trẻ em không thấp hơn mức cao; mức nghiêm trọng từ phụ huynh đã học với gia sư thì tạm khóa gia sư ngay (ẩn, chặn đặt buổi,
+//   giữ tiền chưa giải ngân), nhân viên xác nhận mới hủy mọi buổi sắp tới (hoàn đủ) và báo phụ huynh có buổi với gia sư (YCTD-322);
+//   mọi trả lời có hướng dẫn gọi Tổng đài 111;
 // - kiểm duyệt: hàng chờ theo hạn, nhận xử lý, quyết định (tạm khóa, cảnh cáo, bác) có lý do; một lần kháng nghị trong 7 ngày (gia sư
 //   kháng nghị tạm khóa, cảnh cáo; người báo kháng nghị bác), nhân viên khác xét; nhật ký kiểm duyệt; xuất hồ sơ cho cơ quan có thẩm
 //   quyền phải ghi cơ quan và số văn bản yêu cầu, có nhật ký;
@@ -384,11 +385,41 @@ export class MarketSafetyService implements OnApplicationBootstrap, OnModuleDest
       action: 'report.create',
       note: `${category}, ${severity}`,
     });
+    // Mức nghiêm trọng chỉ tạm khóa ngay khi người báo thực sự đã học với gia sư (YCTD-322); không thì vào hàng chờ 4 giờ như mọi báo cáo
+    // nghiêm trọng. Tạm khóa tự động chỉ ẩn gia sư, chặn đặt buổi, giữ tiền; hủy buổi và báo phụ huynh chờ nhân viên xác nhận
     let suspended = false;
-    if (subject.kind === 'tutor' && suspendsImmediately(severity)) {
+    if (
+      subject.kind === 'tutor' &&
+      suspendsImmediately(severity) &&
+      (await this.studiedWith(database, account.id, subjectId))
+    ) {
       suspended = await this.suspend(subjectId, report.id, { type: 'system', id: null }, 'Báo cáo mức nghiêm trọng');
     }
     return { id: report.id, severity, due_at: reportDueAt(severity, now), suspended, hotline: HOTLINE };
+  }
+
+  // Phụ huynh đã thực sự học với gia sư: có buổi đã nhận tiền (kể cả đã xong, đã hoàn, đã hủy sau khi trả), hoặc luồng tin nhắn gia sư
+  // đã trả lời. Luồng chỉ phụ huynh nhắn và buổi giữ chỗ chưa trả tiền thì ai cũng tự tạo được nên không tính
+  private async studiedWith(executor: Executor, parentId: string, tutorId: string): Promise<boolean> {
+    const [booking, reply] = await Promise.all([
+      executor
+        .selectFrom('market_bookings')
+        .innerJoin('market_payments', 'market_payments.booking_id', 'market_bookings.id')
+        .select('market_bookings.id')
+        .where('market_bookings.tutor_account_id', '=', tutorId)
+        .where('market_bookings.parent_account_id', '=', parentId)
+        .where('market_payments.status', 'not in', ['pending', 'failed'])
+        .executeTakeFirst(),
+      executor
+        .selectFrom('market_messages')
+        .innerJoin('market_message_threads', 'market_message_threads.id', 'market_messages.thread_id')
+        .select('market_messages.id')
+        .where('market_message_threads.tutor_account_id', '=', tutorId)
+        .where('market_message_threads.parent_account_id', '=', parentId)
+        .where('market_messages.author_account_id', '=', tutorId)
+        .executeTakeFirst(),
+    ]);
+    return Boolean(booking || reply);
   }
 
   async myReports(request: Request) {
@@ -493,8 +524,9 @@ export class MarketSafetyService implements OnApplicationBootstrap, OnModuleDest
 
   // ---------- Tạm khóa gia sư
 
-  // Tạm khóa: chặn hiện công khai, đặt buổi, nhắn tin, giải ngân; hủy buổi sắp tới (hoàn đủ); báo phụ huynh có buổi với gia sư.
-  // Trả false khi gia sư đã đang bị tạm khóa
+  // Tạm khóa: chặn hiện công khai, đặt buổi, nhắn tin, giải ngân. Nhân viên tạm khóa (hoặc quyết định tạm khóa sau khi hệ thống đã tự
+  // khóa) thì hủy buổi sắp tới (hoàn đủ) và báo phụ huynh có buổi với gia sư, một lần cho mỗi lần khóa; hệ thống tự khóa thì chỉ giữ,
+  // chờ nhân viên xác nhận (YCTD-322). Trả false khi gia sư đã đang bị tạm khóa
   private async suspend(
     tutorId: string,
     reportId: string | null,
@@ -508,15 +540,28 @@ export class MarketSafetyService implements OnApplicationBootstrap, OnModuleDest
       .onConflict((conflict) => conflict.column('tutor_account_id').where('lifted_at', 'is', null).doNothing())
       .returning('id')
       .executeTakeFirst();
-    if (!created) return false;
-    await this.log(database, {
-      reportId,
-      subjectId: tutorId,
-      actorType: actor.type,
-      actorId: actor.id,
-      action: 'tutor.suspend',
-      note: reason,
-    });
+    if (created) {
+      await this.log(database, {
+        reportId,
+        subjectId: tutorId,
+        actorType: actor.type,
+        actorId: actor.id,
+        action: 'tutor.suspend',
+        note: actor.type === 'system' ? `${reason}; chờ nhân viên xác nhận mới hủy buổi, báo phụ huynh` : reason,
+      });
+    }
+    if (actor.type === 'system') return Boolean(created);
+    const active = await this.activeSuspension(database, tutorId);
+    const notified = active
+      ? await database
+          .selectFrom('market_moderation_log')
+          .select('id')
+          .where('subject_account_id', '=', tutorId)
+          .where('action', '=', 'tutor.suspend.notify')
+          .where('created_at', '>=', active.started_at)
+          .executeTakeFirst()
+      : undefined;
+    if (!active || notified) return Boolean(created);
     const cancelled = await this.bookings.cancelForSuspension(
       tutorId,
       'Gia sư tạm ngừng hoạt động trên chợ; hoàn đủ tiền',
@@ -553,7 +598,7 @@ export class MarketSafetyService implements OnApplicationBootstrap, OnModuleDest
       action: 'tutor.suspend.notify',
       note: `Hủy ${cancelled.length} buổi, báo ${parents.length} phụ huynh`,
     });
-    return true;
+    return Boolean(created);
   }
 
   private async lift(tutorId: string, operatorId: string, note: string, reportId: string | null) {
