@@ -252,10 +252,12 @@ export interface VideoAdmission {
   can_share: boolean;
 }
 
-// Bảng của chủ phòng: phòng chờ (cho vào), cho nói, cho chia sẻ màn hình, mời ra; bắt đầu, dừng ghi; kết thúc phòng; phút còn lại
+// Bảng của chủ phòng: phòng chờ (cho vào), cho nói, cho chia sẻ màn hình, mời ra; bắt đầu, dừng ghi; kết thúc phòng; phút còn lại.
+// recordingLocked (phòng học của chợ gia sư, YCTD-362): buổi có trẻ vị thành niên luôn ghi hình, không có nút dừng ghi
 export function VideoHostPanel({
   admissions,
   recording,
+  recordingLocked = false,
   minutesLeft,
   onParticipant,
   onRecording,
@@ -263,6 +265,7 @@ export function VideoHostPanel({
 }: {
   admissions: VideoAdmission[];
   recording: boolean;
+  recordingLocked?: boolean;
   minutesLeft: number | null;
   onParticipant: (
     identity: string,
@@ -307,7 +310,11 @@ export function VideoHostPanel({
         ))}
       </ul>
       <div className="flex flex-wrap gap-2">
-        <Button onClick={() => onRecording(!recording)}>{recording ? 'Dừng ghi hình' : 'Bắt đầu ghi hình'}</Button>
+        {recordingLocked ? (
+          <span className="text-label text-text-secondary">Buổi với trẻ dưới 18 tuổi luôn ghi hình</span>
+        ) : (
+          <Button onClick={() => onRecording(!recording)}>{recording ? 'Dừng ghi hình' : 'Bắt đầu ghi hình'}</Button>
+        )}
         <Button variant="danger" onClick={onEnd}>
           Kết thúc phòng
         </Button>

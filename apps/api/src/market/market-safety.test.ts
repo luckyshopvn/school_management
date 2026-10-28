@@ -592,8 +592,35 @@ describe('chợ gia sư: an toàn trẻ em và kiểm duyệt (27i)', () => {
     const started = await call(TUTOR_HOST, 'POST', `/tutor/bookings/${id}/session/start`, undefined, tutor.token);
     assert.equal(started.status, 200, JSON.stringify(started.body));
     assert.equal(started.body.recording, true);
+    // Phòng học video (YCTD-362): cần đồng ý ghi hình với gia sư (con từ đủ 7 tuổi cùng xác nhận), vào phòng chờ, gia sư cho vào
+    assert.equal(
+      (await call(MARKET_HOST, 'POST', `/bookings/${id}/room/consent`, { parent_confirmed: true }, parent.token))
+        .status,
+      400,
+      'con từ đủ 7 tuổi phải cùng xác nhận',
+    );
+    const consented = await call(
+      MARKET_HOST,
+      'POST',
+      `/bookings/${id}/room/consent`,
+      { parent_confirmed: true, child_confirmed: true },
+      parent.token,
+    );
+    assert.equal(consented.status, 200, JSON.stringify(consented.body));
+    const waiting = await call(MARKET_HOST, 'POST', `/bookings/${id}/session/join`, undefined, parent.token);
+    assert.equal(waiting.status, 200);
+    assert.equal(waiting.body.status, 'waiting');
+    const admitted = await call(
+      TUTOR_HOST,
+      'POST',
+      `/tutor/bookings/${id}/room/participants/student:${parent.id}`,
+      { admit: true },
+      tutor.token,
+    );
+    assert.equal(admitted.status, 200, JSON.stringify(admitted.body));
     const joined = await call(MARKET_HOST, 'POST', `/bookings/${id}/session/join`, undefined, parent.token);
     assert.equal(joined.status, 200);
+    assert.equal(joined.body.status, 'ready');
     assert.match(String(joined.body.token), /^mock\./);
     const ended = await call(TUTOR_HOST, 'POST', `/tutor/bookings/${id}/session/end`, undefined, tutor.token);
     assert.equal(ended.body.recording, 'ready');
@@ -633,5 +660,112 @@ describe('chợ gia sư: an toàn trẻ em và kiểm duyệt (27i)', () => {
     await database.updateTable('market_bookings').set({ status: 'disbursed' }).where('id', '=', id).execute();
     assert.equal((await admin('POST', '/safety/run-due')).body.purged, 1);
     assert.equal((await raw(MARKET_HOST, `/bookings/${id}/recording/stream`, parent.token)).status, 404);
+  });
+
+  it('CT-27j-2: phòng học video: gia sư vắng thì hoàn đủ; điểm danh khi kết thúc; gia sư không xác nhận thì tự xác nhận sau 24 giờ', async () => {
+    const parent = await registerParent();
+    const tutor = await seedTutor();
+    // Gia sư không vào phòng: chưa quá 10 phút thì chưa báo được, quá 10 phút thì buổi hủy, hoàn đủ
+    const absent = await paidBooking(parent, tutor, 48);
+    await database
+      .updateTable('market_bookings')
+      .set({ starts_at: new Date(Date.now() - 5 * 60_000) })
+      .where('id', '=', absent)
+      .execute();
+    assert.equal((await call(MARKET_HOST, 'POST', `/bookings/${absent}/tutor-no-show`, {}, parent.token)).status, 409);
+    await database
+      .updateTable('market_bookings')
+      .set({ starts_at: new Date(Date.now() - 11 * 60_000) })
+      .where('id', '=', absent)
+      .execute();
+    const noShow = await call(MARKET_HOST, 'POST', `/bookings/${absent}/tutor-no-show`, {}, parent.token);
+    assert.equal(noShow.status, 200, JSON.stringify(noShow.body));
+    assert.equal(noShow.body.status, 'refunded');
+
+    // Buổi có gia sư mở phòng, con vào, kết thúc: điểm danh có gia sư và con
+    const taught = await paidBooking(parent, tutor, 48);
+    await database
+      .updateTable('market_bookings')
+      .set({ starts_at: new Date(Date.now() - 5 * 60_000) })
+      .where('id', '=', taught)
+      .execute();
+    const room = await call(MARKET_HOST, 'GET', `/bookings/${taught}/room`, undefined, parent.token);
+    assert.equal(room.body.window_open, true);
+    assert.equal(room.body.child_must_confirm, true);
+    assert.equal(room.body.tutor_opened, false);
+    assert.equal(
+      (await call(TUTOR_HOST, 'POST', `/tutor/bookings/${taught}/session/start`, {}, tutor.token)).status,
+      200,
+    );
+    await call(
+      MARKET_HOST,
+      'POST',
+      `/bookings/${taught}/room/consent`,
+      { parent_confirmed: true, child_confirmed: true },
+      parent.token,
+    );
+    assert.equal(
+      (await call(MARKET_HOST, 'POST', `/bookings/${taught}/room/enter`, { as: 'guardian' }, parent.token)).body.status,
+      'waiting',
+    );
+    const pending = await call(TUTOR_HOST, 'GET', `/tutor/bookings/${taught}/room`, undefined, tutor.token);
+    assert.deepEqual(
+      (pending.body.participants as Array<{ role: string }>).map((row) => row.role),
+      ['guardian'],
+      'phụ huynh vào xem đang ở phòng chờ',
+    );
+    await call(
+      TUTOR_HOST,
+      'POST',
+      `/tutor/bookings/${taught}/room/participants/guardian:${parent.id}`,
+      { admit: true },
+      tutor.token,
+    );
+    const guardian = await call(
+      MARKET_HOST,
+      'POST',
+      `/bookings/${taught}/room/enter`,
+      { as: 'guardian' },
+      parent.token,
+    );
+    assert.equal(guardian.body.status, 'ready');
+    assert.equal(guardian.body.can_speak, false, 'phụ huynh vào xem tắt micro');
+    assert.equal(
+      (await call(TUTOR_HOST, 'POST', `/tutor/bookings/${taught}/session/end`, {}, tutor.token)).status,
+      200,
+    );
+    const after = await call(MARKET_HOST, 'GET', `/bookings/${taught}/room`, undefined, parent.token);
+    assert.equal(after.body.closed, true);
+    const roles = (after.body.attendance as Array<{ role: string; result: string | null }>)
+      .map((row) => row.role)
+      .sort();
+    assert.deepEqual(roles, ['guardian', 'host']);
+
+    // Rút đồng ý: buổi sau với gia sư này phải đồng ý lại
+    const consents = await call(MARKET_HOST, 'GET', '/recording-consents', undefined, parent.token);
+    const consentId = (consents.body.consents as Array<{ id: string }>)[0]?.id ?? '';
+    assert.equal(
+      (await call(MARKET_HOST, 'POST', `/recording-consents/${consentId}/withdraw`, {}, parent.token)).status,
+      200,
+    );
+    assert.equal(
+      (await call(MARKET_HOST, 'GET', `/bookings/${taught}/room`, undefined, parent.token)).body.consent,
+      null,
+    );
+
+    // Gia sư không xác nhận đã dạy: quá 24 giờ sau giờ kết thúc thì việc định kỳ tự xác nhận
+    await database
+      .updateTable('market_bookings')
+      .set({ starts_at: new Date(Date.now() - 26 * HOUR) })
+      .where('id', '=', taught)
+      .execute();
+    const due = await admin('POST', '/payments/run-due');
+    assert.ok((due.body.autoConfirmed as number) >= 1, JSON.stringify(due.body));
+    const confirmed = await database
+      .selectFrom('market_session_rooms')
+      .select('confirmed_by')
+      .where('booking_id', '=', taught)
+      .executeTakeFirstOrThrow();
+    assert.equal(confirmed.confirmed_by, 'auto');
   });
 });

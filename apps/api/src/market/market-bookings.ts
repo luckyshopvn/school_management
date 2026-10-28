@@ -519,12 +519,24 @@ export class MarketBookingsService implements OnApplicationBootstrap, OnModuleDe
     return upcoming;
   }
 
+  // Phòng học video (YCTD-362, GD-159): gia sư vắng (phụ huynh báo khi gia sư chưa vào phòng quá mốc), hoặc phụ huynh không đồng ý ghi
+  // hình buổi có trẻ vị thành niên: hủy và hoàn đủ
+  async cancelForTutorNoShow(id: string, parentId: string) {
+    return this.cancel(id, 'system', 'parent_account_id', parentId, {}, 'Gia sư vắng: hoàn đủ');
+  }
+
+  async cancelForRecordingDeclined(id: string, parentId: string) {
+    return this.cancel(id, 'parent', 'parent_account_id', parentId, {}, 'Phụ huynh không đồng ý ghi hình: hoàn đủ');
+  }
+
   private async cancel(
     id: string,
     by: 'parent' | 'tutor' | 'system',
     field: 'parent_account_id' | 'tutor_account_id',
     accountId: string,
     body: RequestBody,
+    // Hoàn đủ theo quy tắc riêng (gia sư vắng, không đồng ý ghi hình), kể cả khi buổi đã tới giờ; null thì theo chính sách hủy
+    fullRefundRule: string | null = null,
   ) {
     const reason = typeof body?.reason === 'string' ? body.reason.trim().slice(0, 500) : '';
     const now = this.market.now();
@@ -554,7 +566,9 @@ export class MarketBookingsService implements OnApplicationBootstrap, OnModuleDe
       if (booking.status !== 'paid') {
         throw new ApplicationError('ERR_CONFLICT', 'Chỉ hủy được buổi đã trả tiền và chưa học');
       }
-      const policy = cancellationRefund(booking.price, booking.starts_at, now, by === 'parent' ? 'parent' : 'tutor');
+      const policy = fullRefundRule
+        ? { refund: booking.price, allowed: true, rule: fullRefundRule }
+        : cancellationRefund(booking.price, booking.starts_at, now, by === 'parent' ? 'parent' : 'tutor');
       if (!policy.allowed) throw new ApplicationError('ERR_CONFLICT', policy.rule);
       const split = settlement(booking.price, booking.commission, policy.refund);
       const payment = await trx
@@ -803,11 +817,12 @@ export class MarketBookingsService implements OnApplicationBootstrap, OnModuleDe
   }
 
   // Giải ngân buổi đã dạy, hết hạn khiếu nại, không có tranh chấp
-  async runDue(): Promise<{ expired: number; disbursed: number; finalized: number }> {
-    if (!this.market.available) return { expired: 0, disbursed: 0, finalized: 0 };
+  async runDue(): Promise<{ expired: number; autoConfirmed: number; disbursed: number; finalized: number }> {
+    if (!this.market.available) return { expired: 0, autoConfirmed: 0, disbursed: 0, finalized: 0 };
     const now = this.market.now();
     const database = this.market.database;
     const expired = await this.expireHolds(database, now);
+    const autoConfirmed = await this.autoConfirm(now);
     const due = await database
       .selectFrom('market_bookings')
       .select('id')
@@ -858,7 +873,43 @@ export class MarketBookingsService implements OnApplicationBootstrap, OnModuleDe
       }
     }
     const finalized = await this.finalizeDecided(null);
-    return { expired, disbursed, finalized };
+    return { expired, autoConfirmed, disbursed, finalized };
+  }
+
+  // Gia sư không xác nhận đã dạy (phòng học video, YCTD-362, GD-159): quá mốc sau giờ kết thúc thì hệ thống tự xác nhận; hạn khiếu nại
+  // của phụ huynh tính từ lúc tự xác nhận
+  private async autoConfirm(now: Date): Promise<number> {
+    const settings = await this.market.settings();
+    const hours = settings.room.autoConfirmHours;
+    const due = await this.market.database
+      .updateTable('market_bookings')
+      .set({
+        status: 'completed',
+        completed_at: now,
+        complaint_deadline: new Date(now.getTime() + settings.complaintWindowHours * 3_600_000),
+        updated_at: now,
+      })
+      .where('status', '=', 'paid')
+      .where(sql<boolean>`starts_at + make_interval(mins => minutes) + make_interval(hours => ${hours}) <= ${now}`)
+      .returning(['id', 'starts_at', 'minutes'])
+      .execute();
+    for (const booking of due) {
+      await this.market.database
+        .insertInto('market_session_rooms')
+        .values({
+          booking_id: booking.id,
+          opened_at: booking.starts_at,
+          closed_at: new Date(booking.starts_at.getTime() + booking.minutes * 60_000),
+          confirmed_at: now,
+          confirmed_by: 'auto',
+        })
+        .onConflict((conflict) =>
+          conflict.column('booking_id').doUpdateSet({ confirmed_at: now, confirmed_by: 'auto' }),
+        )
+        .execute();
+      await this.market.audit({ actorType: 'system', action: 'booking.auto-confirm', target: booking.id });
+    }
+    return due.length;
   }
 
   // Quyết định tranh chấp: lần đầu (đang mở) hoặc xét lại (đã khiếu nại lại, phải là nhân viên khác người quyết định lần đầu)

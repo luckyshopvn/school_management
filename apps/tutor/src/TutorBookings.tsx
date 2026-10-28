@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { Alert, Button, FORM_CONTROL_CLASS, StatusBadge, type StatusTone } from '@school-management/ui';
 import { errorText, marketRequest, RecordingPlayer, ReportForm } from '@school-management/market-client';
 import { CARD_CLASS, money, when } from './styles.js';
+import { TeachingRoom } from './TeachingRoom.js';
 
 // Buổi dạy và thu nhập của gia sư (DT-27 phần 27h, YCTD-258): buổi đã trả tiền, đánh dấu đã dạy sau giờ kết thúc, hủy (phụ huynh được
 // hoàn đủ), trình bày khi có tranh chấp, khiếu nại lại quyết định; thu nhập đã giải ngân, đang chờ (sau hạn khiếu nại), hoa hồng của nền
@@ -117,44 +118,25 @@ function DisputeBox({ id, onChange }: { id: string; onChange: () => void }) {
   );
 }
 
-// Phòng học của buổi (27i): mở phòng từ 15 phút trước giờ học (buổi có trẻ vị thành niên bắt đầu ghi hình, không ghi được thì không
-// mở), kết thúc phòng, xem bản ghi, báo cáo phụ huynh
-function SessionRoom({ booking }: { booking: TutorBooking }) {
-  const [state, setState] = useState<{ recording: string | null; open: boolean }>({ recording: null, open: false });
+// Phòng học của buổi (27i): nút mở phòng dạy (TeachingRoom: điều kiện, lớp video, phòng chờ, điểm danh, xác nhận, YCTD-362), xem bản
+// ghi, báo cáo phụ huynh
+function SessionRoom({ booking, onOpen }: { booking: TutorBooking; onOpen: () => void }) {
+  const [recording, setRecording] = useState<string | null>(null);
   const [reporting, setReporting] = useState(false);
-  const [error, setError] = useState<string>();
   useEffect(() => {
     marketRequest<{ status: string | null }>('GET', `/tutor/bookings/${booking.id}/recording`)
-      .then((result) => setState((current) => ({ ...current, recording: result.status })))
+      .then((result) => setRecording(result.status))
       .catch(() => undefined);
   }, [booking.id]);
-  const act = (path: string, open: boolean) =>
-    marketRequest<{ recording: boolean | string | null }>('POST', path)
-      .then((result) => {
-        setError(undefined);
-        const recording =
-          typeof result.recording === 'string' ? result.recording : result.recording ? 'recording' : state.recording;
-        setState({ recording, open });
-      })
-      .catch((caught: unknown) => setError(errorText(caught)));
   return (
     <div className="flex flex-col gap-2">
       {booking.recording_required ? (
         <span className="text-label text-text-secondary">Buổi học với trẻ dưới 18 tuổi: luôn ghi hình.</span>
       ) : null}
-      {error ? <Alert tone="danger">{error}</Alert> : null}
-      {state.open ? (
-        <Alert tone="info">Phòng học đang mở{state.recording === 'recording' ? ' · Đang ghi hình' : ''}.</Alert>
-      ) : null}
       <div className="flex flex-wrap gap-2">
-        {booking.status === 'paid' && !state.open ? (
-          <Button variant="primary" onClick={() => void act(`/tutor/bookings/${booking.id}/session/start`, true)}>
-            Mở phòng học
-          </Button>
-        ) : null}
-        {state.open ? (
-          <Button onClick={() => void act(`/tutor/bookings/${booking.id}/session/end`, false)}>
-            Kết thúc phòng học
+        {booking.status === 'paid' || booking.status === 'completed' ? (
+          <Button variant={booking.status === 'paid' ? 'primary' : 'secondary'} onClick={onOpen}>
+            {booking.status === 'paid' ? 'Mở phòng học' : 'Xem điểm danh buổi dạy'}
           </Button>
         ) : null}
         {booking.status !== 'expired' ? (
@@ -163,7 +145,7 @@ function SessionRoom({ booking }: { booking: TutorBooking }) {
           </Button>
         ) : null}
       </div>
-      {state.recording === 'ready' ? (
+      {recording === 'ready' ? (
         <RecordingPlayer
           path={`/tutor/bookings/${booking.id}/recording/stream`}
           label={`Bản ghi buổi ${booking.subject}`}
@@ -195,6 +177,7 @@ function DateBlock({ value, active }: { value: string; active: boolean }) {
 
 export function TutorBookings() {
   const { view, error, setError, load } = useTutorBookings();
+  const [roomFor, setRoomFor] = useState<string>();
   const run = (work: Promise<unknown>) =>
     work
       .then(() => {
@@ -203,13 +186,24 @@ export function TutorBookings() {
       })
       .catch((caught: unknown) => setError(errorText(caught)));
   const bookings = view?.bookings ?? [];
+  if (roomFor) {
+    return (
+      <TeachingRoom
+        bookingId={roomFor}
+        onClose={() => {
+          setRoomFor(undefined);
+          load();
+        }}
+      />
+    );
+  }
   return (
     <section aria-label="Buổi dạy" className="flex flex-col gap-4">
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
           <h2 className="text-page-title font-bold">Buổi dạy</h2>
           <p className="text-text-secondary">
-            Buổi với trẻ dưới 18 tuổi luôn ghi hình. Phòng mở trước giờ học 15 phút.
+            Buổi với trẻ dưới 18 tuổi luôn ghi hình. Phòng mở trước giờ học theo cấu hình của chợ (mặc định 10 phút).
           </p>
         </div>
         <Button onClick={load}>Tải lại</Button>
@@ -269,7 +263,7 @@ export function TutorBookings() {
                     booking.status === 'refunded' ? (
                       <DisputeBox id={booking.id} onChange={load} />
                     ) : null}
-                    <SessionRoom booking={booking} />
+                    <SessionRoom booking={booking} onOpen={() => setRoomFor(booking.id)} />
                   </li>
                 );
               })}

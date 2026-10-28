@@ -51,3 +51,26 @@ describe('parseMarketSettings (CT-27f-1)', () => {
     assert.equal(parseMarketSettings({ default_commission_percent: 12.345 }).defaultCommissionPercent, 12.35);
   });
 });
+
+describe('mốc phòng học video (YCTD-362, GD-159)', () => {
+  test('mặc định theo quyết định của Eric ngày 2026-10-29', () => {
+    assert.deepEqual(parseMarketSettings({}).room, {
+      opensBeforeMinutes: 10,
+      lateAbsentMinutes: 15,
+      tutorNoShowMinutes: 10,
+      fullAttendancePercent: 80,
+      autoConfirmHours: 24,
+    });
+  });
+
+  test('chỉnh được trong khoảng, ngoài khoảng bị từ chối', () => {
+    const settings = parseMarketSettings({ room_opens_before_minutes: 5, full_attendance_percent: 90 });
+    assert.equal(settings.room.opensBeforeMinutes, 5);
+    assert.equal(settings.room.fullAttendancePercent, 90);
+    assert.throws(
+      () => parseMarketSettings({ full_attendance_percent: 30 }),
+      (error: unknown) => error instanceof MarketSettingsError && error.field === 'full_attendance_percent',
+    );
+    assert.throws(() => parseMarketSettings({ auto_confirm_hours: 0 }), MarketSettingsError);
+  });
+});

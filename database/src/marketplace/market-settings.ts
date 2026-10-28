@@ -11,7 +11,35 @@ import { writeAudit } from '../provision-school.js';
 //   là dữ liệu, 27h dùng;
 // - **thu tiền thật luôn tắt** ở bản này: lưu `real_payments_enabled = true` bị từ chối cho đến khi xong E-01 đến E-07 (luật sư, tổ
 //   chức có giấy phép, pháp nhân), không có đường nào khác để bật. Bỏ chặn là một thay đổi mã có YCTD riêng, không phải một công tắc
+// - mốc của phòng học video (YCTD-362, GD-159; quyết định của Eric ngày 2026-10-29): mở phòng trước giờ học 10 phút, vào muộn quá 15 phút
+//   tính vắng, gia sư vắng quá 10 phút thì phụ huynh báo và được hoàn đủ, có mặt từ 80% thời lượng là đủ buổi, gia sư không xác nhận
+//   thì tự xác nhận sau 24 giờ; cổng vận hành chỉnh được
 export const MARKET_SETTINGS_KEY = 'market';
+
+export interface MarketRoomTimings {
+  opensBeforeMinutes: number;
+  lateAbsentMinutes: number;
+  tutorNoShowMinutes: number;
+  fullAttendancePercent: number;
+  autoConfirmHours: number;
+}
+
+export const DEFAULT_ROOM_TIMINGS: MarketRoomTimings = {
+  opensBeforeMinutes: 10,
+  lateAbsentMinutes: 15,
+  tutorNoShowMinutes: 10,
+  fullAttendancePercent: 80,
+  autoConfirmHours: 24,
+};
+
+// Tên trường ở JSON lưu và ở API, cận dưới, cận trên, nhãn trong thông báo lỗi
+const ROOM_TIMING_FIELDS: Array<[keyof MarketRoomTimings, string, number, number, string]> = [
+  ['opensBeforeMinutes', 'room_opens_before_minutes', 0, 60, 'Mở phòng trước giờ học là số phút từ 0 đến 60'],
+  ['lateAbsentMinutes', 'late_absent_minutes', 1, 60, 'Vào muộn tính vắng là số phút từ 1 đến 60'],
+  ['tutorNoShowMinutes', 'tutor_no_show_minutes', 1, 60, 'Gia sư vắng là số phút từ 1 đến 60'],
+  ['fullAttendancePercent', 'full_attendance_percent', 50, 100, 'Tỉ lệ có mặt để đủ buổi từ 50 đến 100 phần trăm'],
+  ['autoConfirmHours', 'auto_confirm_hours', 1, 168, 'Tự xác nhận buổi sau số giờ từ 1 đến 168'],
+];
 
 export interface MarketSettings {
   enabled: boolean;
@@ -21,6 +49,7 @@ export interface MarketSettings {
   complaintWindowHours: number;
   defaultCommissionPercent: number | null;
   realPaymentsEnabled: false;
+  room: MarketRoomTimings;
 }
 
 export const DEFAULT_MARKET_SETTINGS: MarketSettings = {
@@ -31,6 +60,7 @@ export const DEFAULT_MARKET_SETTINGS: MarketSettings = {
   complaintWindowHours: 48,
   defaultCommissionPercent: null,
   realPaymentsEnabled: false,
+  room: DEFAULT_ROOM_TIMINGS,
 };
 
 export const REAL_PAYMENTS_BLOCKED_MESSAGE =
@@ -68,6 +98,9 @@ export async function readMarketSettings(platform: Kysely<PlatformDatabase>): Pr
       typeof value.default_commission_percent === 'number' ? value.default_commission_percent : null,
     // Giá trị lưu ở cơ sở dữ liệu không mở được thu tiền thật: luôn đọc là tắt
     realPaymentsEnabled: false,
+    room: Object.fromEntries(
+      ROOM_TIMING_FIELDS.map(([key, field]) => [key, integerOr(value[field], DEFAULT_ROOM_TIMINGS[key])]),
+    ) as unknown as MarketRoomTimings,
   };
 }
 
@@ -112,6 +145,14 @@ export function parseMarketSettings(body: Record<string, unknown> | undefined): 
       'Tỷ lệ hoa hồng từ 0 đến 50 phần trăm, để trống khi chưa chốt',
     );
   }
+  const room = { ...DEFAULT_ROOM_TIMINGS };
+  for (const [key, field, min, max, message] of ROOM_TIMING_FIELDS) {
+    const input = body?.[field] ?? DEFAULT_ROOM_TIMINGS[key];
+    if (typeof input !== 'number' || !Number.isInteger(input) || input < min || input > max) {
+      throw new MarketSettingsError(field, message);
+    }
+    room[key] = input;
+  }
   return {
     enabled,
     host: host || null,
@@ -120,6 +161,7 @@ export function parseMarketSettings(body: Record<string, unknown> | undefined): 
     complaintWindowHours: window,
     defaultCommissionPercent: commission === null ? null : Math.round(commission * 100) / 100,
     realPaymentsEnabled: false,
+    room,
   };
 }
 
@@ -136,6 +178,7 @@ export async function saveMarketSettings(
     complaint_window_hours: settings.complaintWindowHours,
     default_commission_percent: settings.defaultCommissionPercent,
     real_payments_enabled: false,
+    ...roomTimingsJson(settings.room),
   });
   await platform
     .insertInto('platform_settings')
@@ -149,4 +192,9 @@ export async function saveMarketSettings(
     details: JSON.parse(value) as unknown,
   });
   return settings;
+}
+
+// Mốc phòng học dưới dạng tên trường của JSON lưu và của API cổng nền tảng
+export function roomTimingsJson(room: MarketRoomTimings): Record<string, number> {
+  return Object.fromEntries(ROOM_TIMING_FIELDS.map(([key, field]) => [field, room[key]]));
 }
