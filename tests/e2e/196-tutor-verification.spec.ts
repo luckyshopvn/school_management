@@ -146,12 +146,13 @@ test('CT-27g-5: gia sư xác minh, khai hồ sơ, nộp lý lịch; nền tảng
   await verify.getByLabel('Mã xác nhận').fill(CODE);
   await verify.getByRole('button', { name: 'Xác nhận' }).click();
 
-  // Xác minh danh tính: sang nhà cung cấp giả lập rồi quay về /xac-minh
+  // Xác minh danh tính: sang nhà cung cấp giả lập rồi quay về /xac-minh; ứng dụng bỏ đường dẫn quay về và mở trang Xác minh của tài
+  // khoản chưa duyệt (`#xac-minh`, YCTD-361)
   mock.nextIdentity = { subject: `gia-su-e2e-${suffix}`, birthdate: `${new Date().getFullYear() - 30}-03-08` };
   const identity = tutor.getByRole('region', { name: 'Danh tính' });
   await tutor.getByRole('button', { name: 'Xác minh bằng Định danh giả lập' }).click();
   await expect(tutor.getByText('Đã xác minh danh tính')).toBeVisible();
-  await expect(tutor).toHaveURL(/\/$/);
+  await expect(tutor).toHaveURL(/\/(#xac-minh)?$/);
   await expect(identity).toContainText('Đã xác minh');
 
   // Hồ sơ dạy: một môn năng khiếu, một khung giờ (khu gia sư chia trang theo cột điều hướng, YCTD-361)
