@@ -210,6 +210,27 @@ describe('Hồ sơ trường, cơ sở vật chất, thiết bị dạy học, E
     users.vice = await environment.loginAs('VT-15', null);
     users.viceBranch = await environment.loginAs('VT-15', unit('PH-A'));
     users.storekeeper = await environment.loginAs('VT-11', unit('PH-A'));
+    // Vai trò tự tạo chỉ có quyền quản lý thiết bị, hoặc chỉ có quyền xem báo cáo EMIS (YCTD-340)
+    for (const [name, code] of [
+      ['equipmentOnly', 'P13.equipment.manage'],
+      ['emisOnly', 'P17.report.emis'],
+    ] as const) {
+      const role = await environment.identity.database
+        .insertInto('roles')
+        .values({ code: `KT340-${randomUUID().slice(0, 8)}`, name: `Vai trò thử ${name}` })
+        .returning(['id', 'code'])
+        .executeTakeFirstOrThrow();
+      const permission = await environment.identity.database
+        .selectFrom('permissions')
+        .select('id')
+        .where('code', '=', code)
+        .executeTakeFirstOrThrow();
+      await environment.identity.database
+        .insertInto('role_permissions')
+        .values({ role_id: role.id, permission_id: permission.id })
+        .execute();
+      users[name] = await environment.loginAs(role.code, null);
+    }
     await schoolYear
       .insertInto('grade_levels')
       .values([
@@ -421,6 +442,14 @@ describe('Hồ sơ trường, cơ sở vật chất, thiết bị dạy học, E
     assert.equal((managerA.body.rooms as Row[]).length, 0);
     assert.equal((await call('GET', `/facilities/rooms?org_unit_id=${unit('ĐT-A1')}`, token('managerA'))).status, 403);
     assert.equal((await call('GET', '/facilities/rooms', token('teacher'))).status, 403);
+    // YCTD-340: người chỉ có quyền thiết bị mở được 1.1 như menu hiện; quyền không liên quan vẫn bị chặn, kể cả xuất
+    const equipmentOnly = await call('GET', '/facilities/rooms', token('equipmentOnly'));
+    assert.equal(equipmentOnly.status, 200, JSON.stringify(equipmentOnly.body));
+    assert.equal((equipmentOnly.body.rooms as Row[]).length, 4);
+    assert.equal((await call('GET', '/facilities/rooms?condition=moi', token('equipmentOnly'))).status, 400);
+    assert.equal((await call('GET', '/facilities/rooms', token('emisOnly'))).status, 403);
+    assert.equal((await download('/facilities/rooms/export', token('emisOnly'))).status, 403);
+    assert.equal((await download('/facilities/rooms/export', token('equipmentOnly'))).status, 200);
 
     const exported = await download('/facilities/rooms/export', principal.accessToken, {
       room_block: 'care_education',
