@@ -67,7 +67,7 @@ function AllFunctions() {
           placeholder="Lọc theo tên hoặc số"
           value={filter}
           onChange={(event) => setFilter(event.target.value)}
-          className="h-10 w-full max-w-xs rounded-md border border-border-strong bg-card px-3 text-label"
+          className="h-10 w-full max-w-xs rounded-md border border-border-strong bg-card px-3 text-base"
         />
       </div>
       {sections.length === 0 ? <p className="text-content text-text-secondary">Không có chức năng phù hợp</p> : null}

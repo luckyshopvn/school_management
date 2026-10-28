@@ -5,7 +5,8 @@ import { searchFunctions } from './function-search.js';
 
 // Ô tìm chức năng ở thanh đầu trang (YCTD-332): gõ tên hoặc số thứ bậc, mũi tên lên, xuống chọn, Enter mở trang, Esc đóng.
 // Theo mẫu combobox có danh sách gợi ý của WAI-ARIA. Kết quả lấy từ cây menu đã lọc theo quyền của mọi phân hệ người dùng được
-// thấy; mở trang thuộc phân hệ khác thì thanh bên tự chuyển phân hệ như khi mở bằng đường dẫn
+// thấy; mở trang thuộc phân hệ khác thì thanh bên tự chuyển phân hệ như khi mở bằng đường dẫn. Chữ trong ô 16 px ở mọi khổ
+// để Safari trên iOS không tự phóng to khi chạm vào ô (quy tắc thiết bị DT-26 phần 26e)
 function SearchIcon() {
   return (
     <svg
@@ -100,7 +101,7 @@ export function FunctionSearch({ workspaces }: { workspaces: PortalWorkspace[] }
         }}
         onFocus={() => setOpen(true)}
         onKeyDown={onKeyDown}
-        className="h-9 w-full rounded-md border border-white/30 bg-white pl-9 pr-3 text-label text-text placeholder:text-text-secondary"
+        className="h-9 w-full rounded-md border border-white/30 bg-white pl-9 pr-3 text-base text-text placeholder:text-text-secondary"
       />
       <ul
         id={listId}
