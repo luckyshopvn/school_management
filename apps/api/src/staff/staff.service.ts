@@ -198,6 +198,95 @@ export class StaffService {
     };
   }
 
+  // Phân công giảng dạy, chủ nhiệm đang hiệu lực của một nhân sự ở năm học hiện tại cho thẻ Phân công giảng dạy của trang
+  // hồ sơ: cùng quyền xem với hồ sơ; phân công gắn với tài khoản nên hồ sơ chưa liên kết tài khoản thì danh sách trống.
+  // Số tiết trống ở phân công thì lấy số tiết của chương trình theo khối
+  async teachingAssignments(currentUser: CurrentUser, staffId: string) {
+    const { database } = await this.currentSchoolYear.require();
+    const staff = await database
+      .selectFrom('staff')
+      .select(['id', 'org_unit_id', 'user_id'])
+      .where('id', '=', staffId)
+      .executeTakeFirst();
+    if (!staff) {
+      throw notFoundError('Không tìm thấy hồ sơ nhân sự', 'staff');
+    }
+    if (
+      staff.user_id !== currentUser.id &&
+      !(await this.inScope(currentUser, PERMISSION_CODES.staffView, staff.org_unit_id))
+    ) {
+      throw new ApplicationError('ERR_FORBIDDEN', 'Bạn không có quyền xem hồ sơ nhân sự này');
+    }
+    if (!staff.user_id) {
+      return { has_account: false, items: [], total_periods: 0 };
+    }
+    const rows = await database
+      .selectFrom('class_staff_assignments')
+      .innerJoin('classes', 'classes.id', 'class_staff_assignments.class_id')
+      .leftJoin('subjects', 'subjects.id', 'class_staff_assignments.subject_id')
+      .leftJoin('curricula', (join) =>
+        join.on((expression) =>
+          expression.or([
+            expression('curricula.id', '=', expression.ref('classes.curriculum_id')),
+            expression.and([
+              expression('classes.curriculum_id', 'is', null),
+              expression('curricula.school_level', '=', expression.ref('classes.school_level')),
+              expression('curricula.is_default', '=', true),
+            ]),
+          ]),
+        ),
+      )
+      .leftJoin('curriculum_subjects', (join) =>
+        join
+          .onRef('curriculum_subjects.curriculum_id', '=', 'curricula.id')
+          .onRef('curriculum_subjects.subject_id', '=', 'class_staff_assignments.subject_id')
+          .onRef('curriculum_subjects.grade_level_code', '=', 'classes.grade_level'),
+      )
+      .select([
+        'class_staff_assignments.id',
+        'class_staff_assignments.assignment_role',
+        'class_staff_assignments.from_date',
+        'class_staff_assignments.to_date',
+        'class_staff_assignments.periods_per_week',
+        'class_staff_assignments.subject_id',
+        'class_staff_assignments.subject_name',
+        'subjects.name as catalog_subject_name',
+        'curriculum_subjects.periods_per_week as planned_periods',
+        'classes.id as class_id',
+        'classes.code as class_code',
+        'classes.name as class_name',
+        'classes.grade_level',
+        'classes.school_level',
+      ])
+      .where('class_staff_assignments.staff_user_id', '=', staff.user_id)
+      .where('class_staff_assignments.status', '=', 'active')
+      .orderBy('classes.grade_level')
+      .orderBy('classes.name')
+      .execute();
+    const items = rows.map((row) => {
+      const periods = row.periods_per_week ?? row.planned_periods;
+      return {
+        id: row.id,
+        assignment_role: row.assignment_role,
+        class_id: row.class_id,
+        class_code: row.class_code,
+        class_name: row.class_name,
+        grade_level: row.grade_level,
+        school_level: row.school_level,
+        subject_id: row.subject_id,
+        subject_name: row.catalog_subject_name ?? row.subject_name,
+        periods_per_week: periods === null ? null : Number(periods),
+        from_date: row.from_date,
+        to_date: row.to_date,
+      };
+    });
+    return {
+      has_account: true,
+      items,
+      total_periods: items.reduce((sum, item) => sum + (item.periods_per_week ?? 0), 0),
+    };
+  }
+
   // Danh sách cán bộ, giáo viên theo mục 3.1.1, 3.1.4 của Sở (YCTD-112): phân trang ở máy chủ, bộ lọc mở rộng, A–Z
   async search(currentUser: CurrentUser, filter: StaffListFilter & { page: number; pageSize: number }) {
     const current = await this.currentSchoolYear.find();
