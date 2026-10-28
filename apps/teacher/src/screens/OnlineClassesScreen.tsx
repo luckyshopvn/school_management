@@ -4,6 +4,8 @@ import { ApiError, requestJson } from '../session/api-client.js';
 import { AssignmentScreen } from './AssignmentScreen.js';
 import { LearningProgressScreen } from './LearningProgressScreen.js';
 import { DiscussionsScreen } from './DiscussionsScreen.js';
+import { LiveScreen } from './LiveScreen.js';
+import { LiveSessionScreen } from './LiveSessionScreen.js';
 import { RecognitionScreen } from './RecognitionScreen.js';
 
 // Lớp học trực tuyến của tôi (DT-28 phần 28b, YCTD-272): lớp học trực tuyến theo lớp, môn tự có từ phân công giảng dạy;
@@ -59,6 +61,9 @@ function SpaceView({ spaceId, onBack }: { spaceId: string; onBack(): void }) {
   const [showDiscussions, setShowDiscussions] = useState(false);
   // Huy hiệu, chứng nhận (DT-28 phần 28i)
   const [showRecognition, setShowRecognition] = useState(false);
+  // Giờ học trực tuyến, phòng nhóm, phòng chia nhỏ (DT-28 phần 28g)
+  const [showLive, setShowLive] = useState(false);
+  const [liveSessionId, setLiveSessionId] = useState<string>();
   const load = useCallback(() => {
     requestJson<SpaceDetail>(`/api/v1/learning/spaces/${spaceId}`)
       .then(setDetail)
@@ -97,6 +102,30 @@ function SpaceView({ spaceId, onBack }: { spaceId: string; onBack(): void }) {
         title={detail.space.title}
         onBack={() => {
           setShowRecognition(false);
+          load();
+        }}
+      />
+    );
+  }
+  if (showLive && detail) {
+    return (
+      <LiveScreen
+        spaceId={spaceId}
+        title={detail.space.title}
+        sectionId={firstSection?.id}
+        onBack={() => {
+          setShowLive(false);
+          load();
+        }}
+      />
+    );
+  }
+  if (liveSessionId) {
+    return (
+      <LiveSessionScreen
+        activityId={liveSessionId}
+        onBack={() => {
+          setLiveSessionId(undefined);
           load();
         }}
       />
@@ -146,6 +175,11 @@ function SpaceView({ spaceId, onBack }: { spaceId: string; onBack(): void }) {
               Huy hiệu, chứng nhận
             </Button>
           </div>
+          <div>
+            <Button variant="secondary" onClick={() => setShowLive(true)}>
+              Giờ học trực tuyến, phòng nhóm
+            </Button>
+          </div>
           {detail.can_teach ? (
             <Button
               variant="primary"
@@ -181,6 +215,15 @@ function SpaceView({ spaceId, onBack }: { spaceId: string; onBack(): void }) {
                             onClick={() => setAssignmentId(activity.id)}
                           >
                             Mở bài tập
+                          </Button>
+                        ) : null}
+                        {activity.kind === 'live_session' ? (
+                          <Button
+                            variant="text"
+                            aria-label={`Mở giờ học ${activity.title}`}
+                            onClick={() => setLiveSessionId(activity.id)}
+                          >
+                            Mở giờ học
                           </Button>
                         ) : null}
                         <Button

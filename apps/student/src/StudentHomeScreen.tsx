@@ -6,6 +6,7 @@ import { StudentLearningPanel } from './StudentLearningPanel.js';
 import { CalendarWeek, StudentGroupsPanel } from './StudentDiscussions.js';
 import { StudentTutoringCourses } from './StudentTutoringCourses.js';
 import { StudentTutoringQuestions } from './StudentTutoringQuestions.js';
+import { StudentLivePanel } from './StudentLivePanel.js';
 import { StudentVideoPanel } from './StudentVideoPanel.js';
 import {
   listStudentExams,
@@ -171,6 +172,8 @@ export function StudentHomeScreen() {
         })}
       </section>
       {/* Lớp học trực tuyến (DT-28 phần 28b) */}
+      {/* Giờ học trực tuyến, phòng nhóm, phòng chia nhỏ (DT-28 phần 28g) */}
+      <StudentLivePanel />
       <StudentVideoPanel />
       <StudentTutoringCourses />
       <StudentTutoringQuestions />

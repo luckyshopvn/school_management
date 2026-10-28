@@ -19,7 +19,7 @@ phien_ban_de_xuat: 0.162.0
 - An toàn trẻ em:
   - Giáo viên của lớp và người lập bộ nhóm luôn thấy mọi nội dung; không có nhắn riêng giữa hai học sinh.
   - Lọc che số điện thoại, thư điện tử, liên kết, mạng xã hội, từ ngữ của trường (hàm thuần `scanContactInfo` ở `packages/shared`, 27i dùng lại).
-  - Giờ mở do trường tự đặt (GD-144 chưa chốt, mặc định không giới hạn); xóa của học sinh là ẩn, vẫn lưu.
+  - Giờ mở do trường tự đặt (GD-144 Eric đã chốt 2026-10-28: trường tự cấu hình, mặc định không giới hạn); xóa của học sinh là ẩn, vẫn lưu.
   - Báo cáo vi phạm, hàng chờ của trường có hạn 2 ngày; tạm khóa quyền viết.
 - Phụ huynh: thông báo lớp, không gian nhóm của con theo GD-145, lịch học tập của con. Học sinh có lịch học tập tuần (thời khoá biểu, ngày mở, hạn hoạt động; không iCal, GD-157).
 - Giao diện:
@@ -73,7 +73,7 @@ phien_ban_de_xuat: 0.162.0
     - Giáo viên của lớp, người lập bộ nhóm luôn thấy; không có tuyến nhắn riêng giữa hai học sinh.
     - Chữ học sinh viết được che số điện thoại, thư điện tử, liên kết ngoài, tài khoản mạng xã hội và từ ngữ của trường (`discussion_blocked_words`).
     - Xóa của học sinh là ẩn.
-  - **Giờ mở (GD-144, Eric chưa chốt)**: Ban Giám hiệu đặt ở mục 9.5 (`discussion_open_hours`: khung giờ ngày học, cuối tuần). Chưa đặt là không giới hạn; ngoài giờ học sinh chỉ đọc, giáo viên vẫn viết.
+  - **Giờ mở (GD-144, Eric đã chốt 2026-10-28: trường tự cấu hình)**: Ban Giám hiệu đặt ở mục 9.5 (`discussion_open_hours`: khung giờ ngày học, cuối tuần). Chưa đặt là không giới hạn; ngoài giờ học sinh chỉ đọc, giáo viên vẫn viết.
   - **Hàng chờ báo cáo**:
     - Học sinh, giáo viên báo cáo; bộ lọc từ ngữ tự gửi; hạn xử lý 2 ngày.
     - Người xử lý (`P02.discussion.moderate`) ghi kết quả, ẩn nội dung, tạm khóa quyền viết 1 đến 30 ngày.

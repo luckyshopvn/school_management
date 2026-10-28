@@ -164,7 +164,9 @@ function ConfigForm({ onSaved }: { onSaved(message: string): void }) {
     <section aria-label="Cấu hình thảo luận" className="flex flex-col gap-3">
       <h2 className="text-section-title font-semibold text-text">Giờ mở thảo luận và từ ngữ lọc</h2>
       <p className="text-label text-text-secondary">
-        Chưa đặt giờ là học sinh viết được cả ngày. Ngoài giờ mở học sinh chỉ đọc; giáo viên vẫn viết được.
+        Giờ mở áp dụng chung cho thảo luận và phòng nhóm video. Mặc định không giới hạn: chưa đặt giờ là học sinh viết
+        và tự mở phòng nhóm được cả ngày. Ngoài giờ mở học sinh chỉ đọc, chỉ vào được phòng giáo viên mở; giáo viên vẫn
+        viết được.
       </p>
       {errorMessage ? <Alert tone="danger">{errorMessage}</Alert> : null}
       <div className="flex flex-wrap gap-3">

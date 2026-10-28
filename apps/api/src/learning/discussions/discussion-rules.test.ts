@@ -31,7 +31,7 @@ describe('Quy tắc thảo luận, không gian nhóm, lịch học tập', () =>
     assert.deepEqual(scanContactInfo('Nguyễn Văn An', ['ngu']).findings, [], 'chỉ khớp nguyên từ');
   });
 
-  it('CT-28e-2: giờ mở theo giờ Việt Nam (ngày học, cuối tuần); chưa cấu hình là luôn mở (GD-144 chưa chốt)', () => {
+  it('CT-28e-2: giờ mở theo giờ Việt Nam (ngày học, cuối tuần); chưa cấu hình là luôn mở (GD-144 đã chốt 2026-10-28: trường tự cấu hình)', () => {
     assert.equal(openHoursOf(null), null);
     assert.equal(openHoursOf({ school_days: { from: '6:00', to: '21:00' } }), null, 'giờ sai dạng bị bỏ');
     const hours = openHoursOf({ school_days: { from: '06:00', to: '21:00' }, weekend: { from: '08:00', to: '20:00' } });
