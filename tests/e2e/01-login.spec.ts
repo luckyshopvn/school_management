@@ -19,15 +19,14 @@ async function fillLogin(page: import('@playwright/test').Page, loginIdentifier:
   await page.getByRole('button', { name: 'Đăng nhập' }).click();
 }
 
-test('Đăng nhập đúng thì vào trang chủ thấy tên và vai trò; tải lại trang vẫn giữ phiên; đăng xuất về màn hình đăng nhập', async ({
+test('Đăng nhập đúng thì vào trang chủ thấy tên, không còn khối vai trò; tải lại trang vẫn giữ phiên; đăng xuất về màn hình đăng nhập', async ({
   page,
 }) => {
   const user = await createTestUser(database, { roles: [{ roleCode: 'VT-02', orgUnitId: null }] });
   await fillLogin(page, user.username, user.password);
 
   await expect(page.getByRole('heading', { name: /^Xin chào,/ })).toBeVisible();
-  await expect(page.getByTestId('role-list')).toContainText('Hiệu trưởng');
-  await expect(page.getByTestId('role-list')).toContainText('Toàn trường');
+  await expect(page.getByRole('heading', { name: 'Vai trò của bạn' })).toHaveCount(0);
 
   await page.reload();
   await expect(page.getByRole('heading', { name: /^Xin chào,/ })).toBeVisible();
