@@ -39,6 +39,23 @@ const REFRESH_LIFETIME_MILLISECONDS: Record<SessionChannel, number> = {
   student: 12 * 60 * 60 * 1000,
 };
 
+// "Ghi nhớ" ở trang đăng nhập cổng quản trị (YCTD-310): phiên kéo dài PORTAL_REMEMBER_DAYS ngày (mặc định 30, từ 1 đến 90) và cookie
+// mã làm mới giữ qua lần đóng trình duyệt; không tích thì hạn 8 giờ như cũ và cookie chỉ sống đến khi đóng trình duyệt. Mật khẩu không
+// bao giờ lưu ở trình duyệt (trình quản lý mật khẩu của trình duyệt tự đề nghị lưu nhờ autocomplete của biểu mẫu)
+export function portalRememberMilliseconds(env: NodeJS.ProcessEnv = process.env): number {
+  const days = Number(env.PORTAL_REMEMBER_DAYS ?? 30);
+  return (Number.isFinite(days) ? Math.min(90, Math.max(1, Math.trunc(days))) : 30) * 24 * 60 * 60 * 1000;
+}
+
+// Cookie mã làm mới bền (giữ qua lần đóng trình duyệt): kênh ứng dụng luôn bền; cổng quản trị chỉ khi phiên dài hơn hạn mặc định (đã tích
+// "Ghi nhớ")
+export function isPersistentSession(session: { channel: SessionChannel; issued_at: Date; expires_at: Date }): boolean {
+  return (
+    session.channel !== 'portal' ||
+    session.expires_at.getTime() - session.issued_at.getTime() > REFRESH_LIFETIME_MILLISECONDS.portal
+  );
+}
+
 export const SESSION_CHANNELS: SessionChannel[] = ['portal', 'teacher', 'parent', 'student'];
 
 export interface RequestOrigin {
@@ -75,6 +92,8 @@ export interface IssuedTokens {
   response: TokenResponse;
   refreshToken: string;
   refreshExpiresAt: Date;
+  // false: cookie chỉ sống đến khi đóng trình duyệt (cổng quản trị không tích "Ghi nhớ"); không có thì bền như trước
+  refreshPersistent?: boolean;
 }
 
 export interface CurrentUserResponse {
@@ -121,6 +140,7 @@ export class AuthenticationService {
     channel: SessionChannel,
     origin: RequestOrigin,
     otpCode?: string,
+    remember = false,
   ): Promise<IssuedTokens> {
     const now = this.clock.now();
     const user = await this.database
@@ -184,6 +204,7 @@ export class AuthenticationService {
       requiresPasswordChange(user) || expiry.expired,
       now,
       expiry,
+      remember,
     );
   }
 
@@ -233,6 +254,7 @@ export class AuthenticationService {
     passwordChangeRequired: boolean,
     now: Date,
     expiry: PasswordExpiry = NO_PASSWORD_EXPIRY,
+    remember = false,
   ): Promise<IssuedTokens> {
     // Không đăng nhập quá số ngày cấu hình thì tạm khóa, phải được mở khóa lại (PQ-07, BM-09)
     const lockDays = await this.identitySettings.accountInactivityLockDays();
@@ -257,7 +279,9 @@ export class AuthenticationService {
 
     const sessionId = randomUUID();
     const refreshToken = createRefreshToken(sessionId);
-    const expiresAt = new Date(now.getTime() + REFRESH_LIFETIME_MILLISECONDS[channel]);
+    const rememberPortal = channel === 'portal' && remember;
+    const lifetime = rememberPortal ? portalRememberMilliseconds() : REFRESH_LIFETIME_MILLISECONDS[channel];
+    const expiresAt = new Date(now.getTime() + lifetime);
     await this.database
       .insertInto('sessions')
       .values({
@@ -278,6 +302,7 @@ export class AuthenticationService {
       refreshToken.token,
       expiresAt,
       expiry,
+      channel !== 'portal' || rememberPortal,
     );
   }
 
@@ -365,6 +390,7 @@ export class AuthenticationService {
       refreshToken.token,
       session.expires_at,
       expiry,
+      isPersistentSession(session),
     );
   }
 
@@ -588,6 +614,7 @@ export class AuthenticationService {
     refreshToken: string,
     refreshExpiresAt: Date,
     expiry: PasswordExpiry,
+    refreshPersistent = true,
   ): Promise<IssuedTokens> {
     return {
       response: {
@@ -600,6 +627,7 @@ export class AuthenticationService {
       },
       refreshToken,
       refreshExpiresAt,
+      refreshPersistent,
     };
   }
 

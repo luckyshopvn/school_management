@@ -122,38 +122,50 @@ export function SearchSelect({
         {label}
         {required ? <span className="text-danger"> *</span> : null}
       </label>
-      <input
-        id={inputId}
-        role="combobox"
-        aria-expanded={open}
-        aria-controls={listId}
-        aria-autocomplete="list"
-        aria-required={required ? true : undefined}
-        aria-invalid={error ? true : undefined}
-        aria-describedby={error ? errorId : undefined}
-        aria-activedescendant={open && options[active] ? `${listId}-${active}` : undefined}
-        autoComplete="off"
-        disabled={disabled}
-        placeholder={placeholder}
-        value={text}
-        onChange={(event) => {
-          setText(event.target.value);
-          setOpen(true);
-          if (value && event.target.value !== value.label) {
-            onChange(null);
-          }
-        }}
-        onFocus={() => setOpen(true)}
-        onBlur={() => {
-          // Chờ lượt bấm vào một dòng của danh sách xong mới đóng
-          setTimeout(() => {
-            setOpen(false);
-            setText((current) => (value && current !== value.label ? value.label : current));
-          }, 150);
-        }}
-        onKeyDown={onKeyDown}
-        className={`rounded-lg border bg-card px-3 py-2 text-content text-text outline-none focus:border-border-strong focus:ring-2 focus:ring-selected disabled:bg-page disabled:text-text-secondary ${error ? 'border-danger' : 'border-border'}`}
-      />
+      <div className="relative">
+        <input
+          id={inputId}
+          role="combobox"
+          aria-expanded={open}
+          aria-controls={listId}
+          aria-autocomplete="list"
+          aria-required={required ? true : undefined}
+          aria-invalid={error ? true : undefined}
+          aria-describedby={error ? errorId : undefined}
+          aria-activedescendant={open && options[active] ? `${listId}-${active}` : undefined}
+          autoComplete="off"
+          disabled={disabled}
+          placeholder={placeholder}
+          value={text}
+          onChange={(event) => {
+            setText(event.target.value);
+            setOpen(true);
+            if (value && event.target.value !== value.label) {
+              onChange(null);
+            }
+          }}
+          onFocus={() => setOpen(true)}
+          onBlur={() => {
+            // Chờ lượt bấm vào một dòng của danh sách xong mới đóng
+            setTimeout(() => {
+              setOpen(false);
+              setText((current) => (value && current !== value.label ? value.label : current));
+            }, 150);
+          }}
+          onKeyDown={onKeyDown}
+          className={`w-full rounded-lg border bg-page py-2 pl-3 pr-9 text-content text-text outline-none placeholder:text-text-secondary focus:border-border-strong focus:bg-card focus:ring-2 focus:ring-selected disabled:cursor-not-allowed disabled:opacity-70 ${error ? 'border-danger' : 'border-border'}`}
+        />
+        {/* Mũi tên như ô chọn của mẫu trang đăng nhập (YCTD-310); bấm vào ô nhập mở danh sách */}
+        <svg
+          width="12"
+          height="12"
+          viewBox="0 0 12 12"
+          aria-hidden="true"
+          className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-text-secondary"
+        >
+          <path d="M2 4h8L6 9z" fill="currentColor" />
+        </svg>
+      </div>
       {open && !disabled ? (
         <ul
           id={listId}

@@ -160,7 +160,7 @@ describe('đăng nhập theo đơn vị và quyền quản trị nền tảng', 
       (communes.body.items as Array<{ code: string }>).map((item) => item.code),
       ['99102'],
     );
-    // Thứ tự Sở → Phường/Xã → Cấp học → Trường (YCTD-310): cấp học lọc theo phạm vi đã chọn
+    // Ô Cấp lọc theo sở, phường đã chọn (YCTD-310)
     const levelCodes = async (path: string) =>
       ((await send(context, { path, host: ROOT })).body.items as Array<{ code: string }>).map((item) => item.code);
     assert.equal((await levelCodes('/auth/directory/levels')).length, 5);

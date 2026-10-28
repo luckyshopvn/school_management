@@ -1,7 +1,7 @@
 import { publicJson } from '../session/api-client.js';
 import type { CaptchaChallenge } from './portal-shell-api.js';
 
-// Đăng nhập theo đơn vị (DT-24, YCTD-220): chế độ trang đăng nhập theo tên miền và ô chọn Sở → Phường/Xã → Cấp học → Trường
+// Đăng nhập theo đơn vị (DT-24, YCTD-220): chế độ trang đăng nhập theo tên miền và ô chọn Sở → Cấp, Phường / Xã → Trường
 // (YCTD-310) đọc danh mục của nền tảng (phân trang, tìm kiếm ở máy chủ)
 export interface LoginPageSettings {
   title: string;
@@ -54,6 +54,8 @@ export interface DirectoryLoginInput {
   captcha_id?: string;
   captcha_text?: string;
   otp_code?: string;
+  // "Ghi nhớ" (YCTD-310): phiên mở ở trường kéo dài, cookie bền sau khi đổi mã chuyển phiên
+  remember?: boolean;
 }
 
 export interface DirectoryLoginReply {

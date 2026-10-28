@@ -6,7 +6,7 @@ import { writeAudit } from './provision-school.js';
 // Bản nhiều trường trên máy phát triển (YCTD-310): chạy song song với bản một trường đang có, dùng cơ sở dữ liệu nền tảng riêng và cổng
 // riêng; trường demo của bản một trường được nhận làm trường của nền tảng (adopt-existing, trỏ tới cơ sở dữ liệu cũ, không chép). Tệp
 // này giữ phần logic kiểm thử được của lệnh `nhieu-truong-cuc-bo` (local-multi-school-command.ts): ghi tệp môi trường riêng, gắn trường
-// demo vào danh mục đơn vị để ô chọn Sở → Phường/Xã → Cấp học → Trường tìm thấy.
+// demo vào danh mục đơn vị để ô chọn Sở → Cấp, Phường / Xã → Trường tìm thấy.
 
 // Cập nhật tệp môi trường dạng KEY=VALUE: giữ nguyên dòng chú thích và biến khác, thay giá trị biến đã có, thêm biến chưa có ở cuối
 export function updateEnvironmentText(text: string, updates: Record<string, string>): string {

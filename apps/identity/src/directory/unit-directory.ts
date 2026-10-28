@@ -35,7 +35,7 @@ import { Infrastructure } from '../common/infrastructure.js';
 
 // Đăng nhập theo đơn vị (DT-24, YCTD-220; tài liệu 32 mục 16). Học bố cục và luồng chọn đơn vị của trang đăng nhập hệ thống ngành,
 // không dùng tên, biểu trưng của cơ quan nhà nước; tiêu đề lấy từ cấu hình của nền tảng (platform_settings.login_page).
-// - Trên tên miền chung của nền tảng (PLATFORM_ROOT_DOMAIN): trang đăng nhập có ô chọn Sở → Phường/Xã → Cấp học → Trường (YCTD-310) đọc danh
+// - Trên tên miền chung của nền tảng (PLATFORM_ROOT_DOMAIN): trang đăng nhập có ô chọn Sở → Cấp, Phường / Xã → Trường (YCTD-310) đọc danh
 //   mục ở cơ sở dữ liệu nền tảng (phân trang, tìm kiếm, giới hạn tần suất; không trả cả danh mục một lượt). Đăng nhập chạy trong
 //   ngữ cảnh của đúng trường (cùng tài khoản, khóa tạm, chính sách mật khẩu, xác thực hai lớp, mã xác nhận của trường); đúng thì
 //   phiên mở ở trường đó và trình duyệt nhận mã chuyển phiên một lần (chỉ lưu mã băm, hạn 2 phút) để sang tên miền của trường.
@@ -377,7 +377,14 @@ export class UnitDirectoryService {
       let issued;
       try {
         const otp = text(body?.otp_code, 40);
-        issued = await this.authentication.login(login, password, 'portal', origin, otp || undefined);
+        issued = await this.authentication.login(
+          login,
+          password,
+          'portal',
+          origin,
+          otp || undefined,
+          body?.remember === true,
+        );
       } catch (error) {
         if (!isTotpRequiredError(error)) {
           await this.captcha.registerFailure(login);
@@ -510,7 +517,14 @@ export class LoginHandoffController {
     @Res({ passthrough: true }) response: Response,
   ) {
     const issued = await this.directory.exchange(request, body?.code);
-    setRefreshTokenCookie(response, 'portal', issued.refreshToken, issued.refreshExpiresAt, this.clock);
+    setRefreshTokenCookie(
+      response,
+      'portal',
+      issued.refreshToken,
+      issued.refreshExpiresAt,
+      this.clock,
+      issued.refreshPersistent,
+    );
     return issued.response;
   }
 }

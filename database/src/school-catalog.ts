@@ -685,8 +685,8 @@ export async function catalogDepartments(platform: Kysely<PlatformDatabase>) {
     .orderBy('code')
     .execute();
 }
-
-// Có sở (và phường, xã) thì chỉ trả cấp học có đơn vị đang hoạt động trong phạm vi đó: ô chọn theo thứ tự Sở → Phường/Xã → Cấp
+// Có sở (và phường, xã) thì chỉ trả cấp học có đơn vị đang hoạt động trong phạm vi đó: ô Cấp của trang đăng nhập không đưa ra
+// cấp học dẫn tới danh sách trường rỗng (YCTD-310)
 // học → Trường không đưa ra cấp học dẫn tới danh sách trường rỗng (YCTD-310, đăng nhập kiểu SMIS)
 export async function catalogLevels(
   platform: Kysely<PlatformDatabase>,

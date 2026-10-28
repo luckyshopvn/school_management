@@ -152,6 +152,8 @@ export async function login(
   password: string,
   captcha?: CaptchaAnswer,
   otpCode?: string,
+  // "Ghi nhớ" (YCTD-310): máy chủ giữ phiên lâu và cookie bền; mật khẩu không lưu ở trình duyệt
+  remember = false,
 ): Promise<TokenResponse> {
   const tokens = await send<TokenResponse>('/api/v1/auth/login', {
     method: 'POST',
@@ -161,6 +163,7 @@ export async function login(
       channel: 'portal',
       ...captcha,
       ...(otpCode ? { otp_code: otpCode } : {}),
+      ...(remember ? { remember: true } : {}),
     }),
   });
   setAccessToken(tokens.access_token);
