@@ -136,6 +136,7 @@ test('CT-29e-3: bài hát, câu chuyện của trường chỉ hiện học li�
     { title: `Bài hát nháp ${suffix}`, level: 'MN', published: false },
     { title: `Bài hát Tiểu học ${suffix}`, level: 'TH', published: true },
   ];
+  const resourceIds: string[] = [];
   for (const song of songs) {
     const row = await system
       .insertInto('learning_resources')
@@ -170,6 +171,7 @@ test('CT-29e-3: bài hát, câu chuyện của trường chỉ hiện học li�
       })
       .returning('id')
       .executeTakeFirstOrThrow();
+    resourceIds.push(row.id);
     await system
       .insertInto('learning_resource_versions')
       .values({
@@ -210,6 +212,10 @@ test('CT-29e-3: bài hát, câu chuyện của trường chỉ hiện học li�
   await expect(page.getByRole('tab', { name: /Gọi tên ngẫu nhiên/ })).toBeVisible();
   await expect(page.getByRole('tab', { name: /Bài hát, câu chuyện của trường/ })).toHaveCount(0);
   await page.context().close();
+  await schoolYear.deleteFrom('learning_resource_usage').where('resource_id', 'in', resourceIds).execute();
+  await schoolYear.deleteFrom('learning_resource_events').where('resource_id', 'in', resourceIds).execute();
+  await system.deleteFrom('learning_resource_versions').where('resource_id', 'in', resourceIds).execute();
+  await system.deleteFrom('learning_resources').where('id', 'in', resourceIds).execute();
   for (const { classId, childId } of created) {
     await schoolYear.deleteFrom('class_staff_assignments').where('class_id', '=', classId).execute();
     await schoolYear.deleteFrom('class_enrollments').where('class_id', '=', classId).execute();
