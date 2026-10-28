@@ -69,7 +69,7 @@ export function MissingView({ tab, orgUnitId }: { tab: Tab; orgUnitId: string })
   const [field, setField] = useState('');
   const [openId, setOpenId] = useState<string>();
   const navigate = useNavigate();
-  // Hồ sơ nhân sự mở ở trang riêng, thẻ Hồ sơ CSDL Bộ chứa các ô theo Sở (YCTD-297); hồ sơ học sinh vẫn mở tại chỗ
+  // Hồ sơ nhân sự mở ở trang riêng, thẻ Hồ sơ CSDL Bộ chứa các ô theo Sở (YCTD-309); hồ sơ học sinh vẫn mở tại chỗ
   const openRecord = (record: ListedRecord) =>
     tab === 'staff'
       ? void navigate({ to: '/staff/$staffId', params: { staffId: record.id }, search: { tab: 'moet' } })
