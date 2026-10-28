@@ -21,7 +21,7 @@ phien_ban_de_xuat: 0.205.0
 
 #### Thay đổi
 
-- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-329, `32_KE_HOACH_THEO_HE_THONG_SO.md` mục 21, `07_QUY_TAC_NGHIEP_VU.md` BR-196, `14_DAC_TA_GIAO_DIEN.md` MH-564, `16_CO_SO_DU_LIEU.md`, `21_KICH_BAN_KIEM_THU.md` CT-1561 đến CT-1563, `11_TIEU_CHI_NGHIEM_THU.md` AC-1137, `23_LICH_SU_PHIEN_BAN.md` {PHIEN_BAN}.
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-329, `32_KE_HOACH_THEO_HE_THONG_SO.md` mục 22, `07_QUY_TAC_NGHIEP_VU.md` BR-196, `14_DAC_TA_GIAO_DIEN.md` MH-564, `16_CO_SO_DU_LIEU.md`, `21_KICH_BAN_KIEM_THU.md` CT-1561 đến CT-1563, `11_TIEU_CHI_NGHIEM_THU.md` AC-1137, `23_LICH_SU_PHIEN_BAN.md` {PHIEN_BAN}.
 
 #### Vấn đề tồn đọng
 
@@ -31,7 +31,7 @@ phien_ban_de_xuat: 0.205.0
 
 ### YCTD-329: DT-29 phần 29e: bài hát, câu chuyện của trường trong Hộp công cụ giảng dạy – 2026-10-28
 
-- Lý do: phần 29e của `32_KE_HOACH_THEO_HE_THONG_SO.md` mục 21 (Eric duyệt ngày 2026-10-28). Giáo viên Mầm non cần nhạc, bài hát, kể chuyện trên lớp; dự án không dùng tài nguyên có bản quyền, nội dung do trường tải lên.
+- Lý do: phần 29e của `32_KE_HOACH_THEO_HE_THONG_SO.md` mục 22 (Eric duyệt ngày 2026-10-28). Giáo viên Mầm non cần nhạc, bài hát, kể chuyện trên lớp; dự án không dùng tài nguyên có bản quyền, nội dung do trường tải lên.
 - Nội dung thay đổi:
   - Hai loại học liệu mới Bài hát, Câu chuyện ở kho học liệu số; qua Ban Giám hiệu duyệt.
   - Kho học liệu nhận thêm tệp âm thanh MP3 (thẻ ID3 hoặc khung MPEG lớp III), M4A (hộp ftyp nhãn M4A), WAV, OGG.
