@@ -42,7 +42,7 @@ phien_ban_de_xuat: 0.233.0
 
 #### Vấn đề tồn đọng
 
-- Ứng dụng phụ huynh chưa có mã xác nhận ở đăng nhập bằng mật khẩu (tài khoản phụ huynh theo số CCCD); lần sai vẫn được đếm chung theo tên đăng nhập.
+- Ứng dụng phụ huynh chưa có mã xác nhận ở đăng nhập bằng mật khẩu (tài khoản phụ huynh theo số CCCD); lần sai vẫn được đếm chung theo tên đăng nhập. Đã làm ở YCTD-354.
 
 ## 24 Yêu cầu thay đổi
 

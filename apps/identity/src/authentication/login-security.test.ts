@@ -118,6 +118,20 @@ describe('Dịch vụ định danh: bảo mật đăng nhập cổng quản tr�
     assert.deepEqual(fieldsOf((await teacherLogin(staff.username, staff.password)).body), ['captcha']);
   });
 
+  it('CT-1529: ứng dụng phụ huynh đăng nhập bằng mật khẩu cũng phải nhập mã sau 3 lần sai; đăng nhập đúng thì xóa bộ đếm (YCTD-354)', async () => {
+    const parentLogin = (loginIdentifier: string, password: string, extra: Record<string, unknown> = {}) =>
+      postJson(`${context.baseUrl}/auth/login`, { login: loginIdentifier, password, channel: 'parent', ...extra });
+    const parent = await createTestUser(context.database, { roles: [{ roleCode: 'VT-14', orgUnitId: null }] });
+    for (let attempt = 0; attempt < 3; attempt++) {
+      assert.equal((await parentLogin(parent.username, 'SaiMatKhau1')).status, 401);
+    }
+    const missing = await parentLogin(parent.username, parent.password);
+    assert.equal(missing.status, 400);
+    assert.deepEqual(fieldsOf(missing.body), ['captcha']);
+    assert.equal((await parentLogin(parent.username, parent.password, await solvedCaptcha(context))).status, 200);
+    assert.equal((await parentLogin(parent.username, parent.password)).status, 200);
+  });
+
   it('CT-1528: "Ghi nhớ" giữ phiên cổng quản trị tối đa 30 ngày dù cấu hình cao hơn; phiên vận hành nền tảng 8 giờ (YCTD-353)', () => {
     const day = 24 * 60 * 60 * 1000;
     assert.equal(portalRememberMilliseconds(undefined), 30 * day);
