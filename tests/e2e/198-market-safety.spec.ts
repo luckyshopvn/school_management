@@ -24,6 +24,7 @@ import {
   E2E_TUTOR_HOST,
 } from '../e2e-multi-environment.mjs';
 import { expect, test } from './fixtures.js';
+import { signInConsole } from './platform-console.js';
 
 // DT-27 phần 27i (YCTD-259, spec 198): phụ huynh nhắn tin cho gia sư (số điện thoại bị che, có cảnh báo), đặt buổi có đồng ý ghi hình,
 // trả tiền giả lập, báo cáo mức nghiêm trọng; gia sư bị tạm khóa ngay, buổi được hoàn đủ; gia sư thấy tạm khóa ở ứng dụng Gia sư; nhân
@@ -272,12 +273,9 @@ test('CT-27i-6: tin nhắn bị che, báo cáo nghiêm trọng tạm khóa gia s
   const consoleContext = await browser.newContext({ baseURL: `http://${E2E_CONSOLE_HOST}:${E2E_MULTI_CONSOLE_PORT}` });
   const consolePage = await consoleContext.newPage();
   await consolePage.goto('/');
-  await consolePage.getByLabel('Tên đăng nhập').fill(operatorLogin);
-  await consolePage.getByLabel('Mật khẩu').fill(OPERATOR_TEST_PASSWORD);
-  await consolePage
-    .getByLabel('Mã xác thực hai lớp')
-    .fill(await operatorOtp(runtime.platform, operator.id, operator.secret));
-  await consolePage.getByRole('button', { name: 'Đăng nhập' }).click();
+  await signInConsole(consolePage, operatorLogin, OPERATOR_TEST_PASSWORD, () =>
+    operatorOtp(runtime.platform, operator.id, operator.secret),
+  );
   await consolePage.getByRole('navigation', { name: 'Menu' }).getByRole('button', { name: 'Chợ gia sư' }).click();
   const safety = consolePage.getByRole('region', { name: 'Kiểm duyệt và an toàn trẻ em của chợ' });
   await expect(safety.getByRole('list', { name: 'Gia sư đang tạm khóa' })).toContainText(tutorName);
