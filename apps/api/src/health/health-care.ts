@@ -102,6 +102,26 @@ export class HealthCareService {
           })),
         ],
       });
+      // QT-07 bước 8, mục 9 (YCTD-344): quản lý đơn vị nhận thông báo mọi sự kiện y tế; sự kiện nặng leo thang thêm Ban Giám hiệu
+      // (Hiệu trưởng, Phó Hiệu trưởng phụ trách đơn vị); gửi theo vai trò nên chỉ trong ứng dụng (tin nhắn cần tài khoản cụ thể)
+      const severe = input.severity === 'severe';
+      await queueNotification(transaction, {
+        orgUnitId: child.org_unit_id,
+        templateCode: severe ? 'medical_event_severe' : 'medical_event_manager',
+        title: severe ? 'Sự kiện y tế nặng cần xử lý' : 'Sự kiện y tế tại đơn vị',
+        body: `${child.full_name} (${SEVERITY_LABELS[input.severity]}): ${input.symptoms}. Người xử lý: ${created.handler_name}. Đã xử lý: ${input.handling}`,
+        targetType: 'medical_events',
+        targetId: created.id,
+        recipients: [
+          { roleCode: 'VT-03', orgUnitId: child.org_unit_id, channel: 'in_app' as const },
+          ...(severe
+            ? [
+                { roleCode: 'VT-02', orgUnitId: child.org_unit_id, channel: 'in_app' as const },
+                { roleCode: 'VT-15', orgUnitId: child.org_unit_id, channel: 'in_app' as const },
+              ]
+            : []),
+        ],
+      });
       await writeAuditLog(transaction, {
         origin,
         orgUnitId: child.org_unit_id,
