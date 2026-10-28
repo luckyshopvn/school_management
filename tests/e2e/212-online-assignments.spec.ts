@@ -300,6 +300,27 @@ test('CT-28c-16: giáo viên soạn, giao bài; học sinh làm, nộp; giáo vi
     await expect(returned).toContainText('Điểm: 8');
     await expect(returned).toContainText('Em chọn đúng và giải thích rõ ràng.');
 
+    // Trao đổi trên bài (YCTD-346): học sinh hỏi, giáo viên trả lời ngay trên bài nộp, lời trả lời hiện ngay, học sinh thấy
+    await returned.getByLabel('Trao đổi với thầy cô về bài này').fill('Em cảm ơn cô, câu 2 em cần thêm ý gì ạ?');
+    await returned.getByRole('button', { name: 'Gửi', exact: true }).click();
+    await expect(returned).toContainText('Em cảm ơn cô, câu 2 em cần thêm ý gì ạ?');
+    await page.getByRole('button', { name: `Chấm bài của ${childName}` }).click();
+    const thread = page.getByRole('region', { name: 'Trao đổi trên bài' });
+    await expect(thread).toContainText('Em cảm ơn cô, câu 2 em cần thêm ý gì ạ?');
+    await expect(thread.getByRole('button', { name: 'Gửi trả lời' })).toBeDisabled();
+    await thread.getByLabel('Trả lời học sinh, phụ huynh').fill('Em nêu thêm 7 chỉ có hai ước là 1 và 7 nhé.');
+    await thread.getByRole('button', { name: 'Gửi trả lời' }).click();
+    await expect(thread.getByText('Đã gửi trả lời')).toBeVisible();
+    await expect(thread.getByRole('list', { name: 'Các lời trao đổi' })).toContainText(
+      'Em nêu thêm 7 chỉ có hai ước là 1 và 7 nhé.',
+    );
+    await expect(thread.getByLabel('Trả lời học sinh, phụ huynh')).toHaveValue('');
+    await student.reload();
+    await student.getByRole('button', { name: `Mở ${assignmentTitle}` }).click();
+    await expect(student.getByRole('region', { name: `Bài tập ${assignmentTitle}` })).toContainText(
+      'Em nêu thêm 7 chỉ có hai ước là 1 và 7 nhé.',
+    );
+
     // Phụ huynh xem nhận xét của con
     const home = await (await browser.newContext()).newPage();
     await home.goto(PARENT_URL);

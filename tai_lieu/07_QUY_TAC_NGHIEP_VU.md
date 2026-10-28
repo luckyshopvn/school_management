@@ -95,7 +95,7 @@ Quy tắc nghiệp vụ đánh mã `BR-xx`, đánh số tăng dần, không tái
 | BR-49 | Người nhận thuốc phải xác nhận đã nhận thuốc trước khi thuốc được đưa vào danh sách cần cho uống. Người nhận thuốc là y tế, hoặc giáo viên chủ nhiệm khi đơn vị bật cấu hình không có nhân viên y tế (BR-86) |
 | BR-50 | Mỗi lần cho trẻ uống thuốc, người nhận thuốc theo BR-49 ghi nhận thời điểm và người thực hiện. Bỏ liều phải ghi lý do |
 | BR-51 | Hồ sơ sức khỏe của trẻ gồm: chiều cao, cân nặng, dị ứng, bệnh nền, kết quả khám định kỳ, sự kiện y tế phát sinh tại trường, nhu cầu đặc biệt và lưu ý chăm sóc |
-| BR-52 | Sự kiện y tế tại trường phải được ghi nhận ngay, thông báo cho phụ huynh, và ghi rõ ai xử lý, xử lý như thế nào |
+| BR-52 | Sự kiện y tế tại trường phải được ghi nhận ngay, thông báo cho phụ huynh và quản lý đơn vị, và ghi rõ ai xử lý, xử lý như thế nào. Sự kiện nặng báo thêm Ban Giám hiệu (YCTD-344, QT-07 bước 8) |
 | BR-53 | Dữ liệu sức khỏe của trẻ là dữ liệu cá nhân nhạy cảm; chỉ giáo viên chủ nhiệm, y tế, Ban Giám hiệu, quản lý đơn vị, kế toán (VT-04, không gồm kế toán trưởng, YCTD-74) và chính phụ huynh của trẻ được xem; nhu cầu đặc biệt và lưu ý chăm sóc của trẻ cũng thuộc nhóm dữ liệu này |
 
 ## 9. Quy tắc về đưa đón và bàn giao trẻ
@@ -336,7 +336,7 @@ Chỉ Ban Giám hiệu phê duyệt chứng từ thuộc danh mục trên theo B
 | Hóa đơn học phí | Nháp → Đã phát hành → Đã thu đủ, hoặc Quá hạn |
 | Phiếu thu, phiếu chi | Nháp → Đã phát hành → Đã đảo |
 | Đơn nghỉ phép | Chờ duyệt → Đã duyệt → Đã hủy, hoặc Từ chối |
-| Yêu cầu dặn thuốc | Phụ huynh gửi → Y tế nhận thuốc → Đang cho uống → Hoàn thành, hoặc Từ chối |
+| Yêu cầu dặn thuốc | Phụ huynh gửi → Đã nhận thuốc (người nhận thuốc xác nhận, ghi thuốc thực nhận) → Đang cho uống (từ liều đầu tiên) → Hoàn thành (hệ thống chuyển khi hết thời gian dùng hoặc đủ liều; người nhận thuốc kết thúc sớm được), hoặc Từ chối khi chưa nhận (YCTD-344, theo QT-07 mục 7) |
 | Hoạt động của lớp | Nháp → Chờ duyệt → Đã công bố → Đã ẩn |
 | Đề nghị mua hàng | Chờ duyệt → Đã duyệt → Đã mua → Đã nhập kho, hoặc Từ chối |
 | Hồ sơ tuyển sinh | Tiếp nhận → Đang xét → Đạt → Đã nhập học, hoặc Không đạt |

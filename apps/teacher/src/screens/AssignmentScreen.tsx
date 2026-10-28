@@ -2,6 +2,13 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { Alert, Button, FORM_CONTROL_CLASS, StatusBadge } from '@school-management/ui';
 import { ApiError, fetchWithSession, requestJson } from '../session/api-client.js';
 import { HomeworkAbsences, HomeworkReleasePanel } from './HomeworkPanels.js';
+import {
+  AUTHOR_KIND_LABELS,
+  MAX_SUBMISSION_COMMENT,
+  appendComment,
+  replyProblem,
+  type SubmissionComment,
+} from './submission-thread-logic.js';
 
 // Bài tập trực tuyến của giáo viên (DT-28 phần 28c, YCTD-273): soạn bài (câu đã duyệt của ngân hàng câu hỏi, tự luận, ảnh hoặc tệp,
 // ghi âm), giao cho cả lớp hoặc làm theo nhóm của bộ nhóm, phát hành, theo dõi bài nộp, chấm từng câu hoặc theo mức, nhận xét
@@ -77,7 +84,7 @@ interface SubmissionDetail {
   answers: Record<string, { choices?: string[]; text?: string }>;
   objective: { earned: Record<string, number>; correct: Record<string, boolean> };
   files: Array<{ id: string; item_id: string; kind: string; file_name: string }>;
-  comments: Array<{ id: string; author_name: string; body: string }>;
+  comments: SubmissionComment[];
   members: Array<{ child_id: string; full_name: string }>;
   contributions: Array<{ child_id: string; self_rating: number | null; adjusted_score: number | null }>;
 }
@@ -525,15 +532,86 @@ function SubmissionView({
           Lưu điểm, nhận xét
         </Button>
       </div>
-      {detail.comments.length > 0 ? (
-        <ul className="flex flex-col gap-1 text-label" aria-label="Trao đổi trên bài">
-          {detail.comments.map((comment) => (
-            <li key={comment.id}>
-              <strong>{comment.author_name}:</strong> {comment.body}
+      <SubmissionThread
+        submissionId={submissionId}
+        comments={detail.comments}
+        onAdded={(added) =>
+          setDetail((current) => (current ? { ...current, comments: appendComment(current.comments, added) } : current))
+        }
+      />
+    </section>
+  );
+}
+
+// Trao đổi trên bài nộp (YCTD-346, MH-421): học sinh, phụ huynh hỏi; giáo viên của lớp học trực tuyến trả lời ngay trên bài.
+// Lời vừa gửi hiện ngay ở cuối luồng (lấy từ phản hồi của máy chủ), không đọc lại cả bài để không ghi đè điểm đang chấm dở
+function SubmissionThread({
+  submissionId,
+  comments,
+  onAdded,
+}: {
+  submissionId: string;
+  comments: SubmissionComment[];
+  onAdded(comment: SubmissionComment): void;
+}) {
+  const [reply, setReply] = useState('');
+  const [sending, setSending] = useState(false);
+  const [notice, setNotice] = useState<{ tone: 'success' | 'danger'; text: string }>();
+  const send = async () => {
+    const problem = replyProblem(reply);
+    if (problem) {
+      setNotice({ tone: 'danger', text: problem });
+      return;
+    }
+    setSending(true);
+    try {
+      const added = await requestJson<SubmissionComment>(
+        `/api/v1/learning/submissions/${submissionId}/comments`,
+        post({ body: reply.trim() }),
+      );
+      onAdded(added);
+      setReply('');
+      setNotice({ tone: 'success', text: 'Đã gửi trả lời' });
+    } catch (error) {
+      setNotice({ tone: 'danger', text: `Chưa gửi được trả lời: ${messageOf(error)}` });
+    } finally {
+      setSending(false);
+    }
+  };
+  return (
+    <section aria-label="Trao đổi trên bài" className="flex flex-col gap-2 rounded-lg border border-border bg-card p-3">
+      <h3 className="text-label font-semibold text-text">Trao đổi trên bài</h3>
+      {comments.length > 0 ? (
+        <ul className="flex flex-col gap-1 text-label" aria-label="Các lời trao đổi">
+          {comments.map((comment) => (
+            <li key={comment.id} className="whitespace-pre-wrap">
+              <strong>
+                {comment.author_name}
+                {comment.author_kind ? ` (${AUTHOR_KIND_LABELS[comment.author_kind]})` : ''}:
+              </strong>{' '}
+              {comment.body}
             </li>
           ))}
         </ul>
-      ) : null}
+      ) : (
+        <p className="text-label text-text-secondary">Chưa có lời trao đổi nào trên bài này.</p>
+      )}
+      {notice ? <Alert tone={notice.tone}>{notice.text}</Alert> : null}
+      <label className="text-label font-medium text-text">
+        Trả lời học sinh, phụ huynh
+        <textarea
+          className={`mt-2 block w-full ${FORM_CONTROL_CLASS}`}
+          rows={2}
+          maxLength={MAX_SUBMISSION_COMMENT}
+          value={reply}
+          onChange={(event) => setReply(event.target.value)}
+        />
+      </label>
+      <div>
+        <Button variant="secondary" disabled={sending || reply.trim() === ''} onClick={() => void send()}>
+          {sending ? 'Đang gửi…' : 'Gửi trả lời'}
+        </Button>
+      </div>
     </section>
   );
 }

@@ -17,8 +17,9 @@ import { buildFacilitiesWorkbook, fileStamp, sendWorkbook } from './facilities-w
 
 // Khai báo cơ sở vật chất (khảo sát mục 4, dòng 1.1 và 1.2; YCTD-102): danh sách phòng của các đơn vị trong phạm vi theo
 // năm khối phòng, lọc loại phòng và hiện trạng, kèm tổng hợp số phòng, diện tích theo khối và hiện trạng; xuất Excel. Thêm,
-// sửa phòng vẫn qua danh mục phòng học (/rooms, quyền P01.room.manage)
-const VIEW = [PERMISSION_CODES.facilitiesReport, PERMISSION_CODES.roomManage];
+// sửa phòng vẫn qua danh mục phòng học (/rooms, quyền P01.room.manage). Người quản lý thiết bị cũng xem được vì menu 1.1 hiện
+// cho P13.equipment.manage và MH-80 cho VT-11 xem (YCTD-340)
+const VIEW = [PERMISSION_CODES.facilitiesReport, PERMISSION_CODES.roomManage, PERMISSION_CODES.equipmentManage];
 
 export interface FacilityRoomFilter {
   orgUnitId: string | null;
