@@ -13,20 +13,21 @@ import { deflateRawSync, crc32 } from 'node:zlib';
 import {
   E2E_API_PORT,
   E2E_IDENTITY_PORT,
-  E2E_PARENT_PORT,
+  E2E_STUDENT_PORT,
   E2E_SCHOOL_YEAR_DATABASE_PREFIX,
   E2E_SYSTEM_DATABASE_NAME,
 } from '../e2e-environment.mjs';
 
 // Gói SCORM (DT-28 phần 28h, YCTD-278), kịch bản CT-28h-9: giáo viên tải gói SCORM lên học liệu ở cổng quản trị và xem trước
-// trong khung cô lập; học sinh mở hoạt động gói SCORM ở `#hoc-sinh`, gói chạy trong khung sandbox, gọi API SCORM 1.2 qua bộ chuyển
+// trong khung cô lập; học sinh mở hoạt động gói SCORM ở ứng dụng học sinh, gói chạy trong khung sandbox, gọi API SCORM 1.2 qua bộ chuyển
 // (postMessage), không đọc được trang cha; kết quả "Đạt" và điểm ghi về máy chủ. Dữ liệu giả
 const identity = createDatabase<IdentityDatabase>(readConnectionString('identity'));
 const system = createDatabase<SystemDatabase>(
   replaceDatabaseName(readConnectionString('system'), E2E_SYSTEM_DATABASE_NAME),
 );
 let schoolYear: ReturnType<typeof createDatabase<SchoolYearDatabase>>;
-const PARENT_URL = `http://localhost:${E2E_PARENT_PORT}`;
+// Ứng dụng học sinh riêng (YCTD-300)
+const STUDENT_URL = `http://localhost:${E2E_STUDENT_PORT}`;
 const IDENTITY_API = `http://localhost:${E2E_IDENTITY_PORT}/api/v1`;
 const MAIN_API = `http://localhost:${E2E_API_PORT}/api/v1`;
 
@@ -318,7 +319,7 @@ test('CT-28h-9: giáo viên tải gói SCORM và xem trước; học sinh học 
 
     // Học sinh: mở hoạt động, gói chạy trong khung sandbox, báo đạt qua bộ chuyển API
     const student = await (await browser.newContext()).newPage();
-    await student.goto(`${PARENT_URL}/#hoc-sinh`);
+    await student.goto(`${STUDENT_URL}/`);
     await student.getByLabel('Tên đăng nhập').fill(account.username);
     await student.getByLabel('Mật khẩu', { exact: true }).fill(account.password);
     await student.getByRole('button', { name: 'Đăng nhập' }).click();

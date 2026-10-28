@@ -22,7 +22,7 @@
 | Tên miền (biến trong `.env`)                | Nội dung                                                                                                                    |
 | ------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------- |
 | `PORTAL_SITE`, ví dụ `portal.<tên miền>`    | Trang quản lý cho cán bộ                                                                                                    |
-| `PARENT_SITE`, ví dụ `phuhuynh.<tên miền>`  | Ứng dụng phụ huynh                                                                                                          |
+| `PARENT_SITE`, ví dụ `phuhuynh.<tên miền>`  | Ứng dụng phụ huynh; ứng dụng học sinh ở `/hoc-sinh/` (YCTD-300)                                                             |
 | `TEACHER_SITE`, ví dụ `giaovien.<tên miền>` | Ứng dụng giáo viên                                                                                                          |
 | `API_SITE`, ví dụ `api.<tên miền>`          | API chỉ đọc cho đối tác (YCTD-63), địa chỉ cổng thanh toán gọi về, kiểm tra sức khỏe từ bên ngoài                           |
 | Mọi tên miền khác (khối `https://`)         | Website công khai của trường (YCTD-144): chỉ tên miền đã thêm ở màn hình "Website trường → 1.2. Tên miền" của cổng quản trị |

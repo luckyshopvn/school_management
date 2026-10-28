@@ -3,7 +3,7 @@ pnpm-lock.yaml
 dist/
 test-results/
 playwright-report/
-apps/parent/public/models/
+apps/student/public/models/
 # Dự án Android, iOS do Capacitor sinh (DT-26 phần 26f)
 apps/mobile/android/
 apps/mobile/ios/

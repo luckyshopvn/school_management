@@ -31,7 +31,7 @@ Ba tổ hợp có tệp mẫu và các bước riêng:
 
 1. Người dùng gọi `https://<mã>.<tên miền hệ thống>/quan-ly/…`.
 2. Worker xử lý theo đường dẫn:
-   - `/quan-ly`, `/giao-vien`, `/phu-huynh`: trả tệp tĩnh.
+   - `/quan-ly`, `/giao-vien`, `/phu-huynh`, `/hoc-sinh`: trả tệp tĩnh.
    - `/api/v1/*`: chuyển về máy chủ. Worker xóa tiêu đề do người dùng tự đặt, ghi tên miền gốc vào `x-school-host` và kèm bí mật `x-edge-auth`.
 3. Máy chủ (`TENANT_HOST_SOURCE=header:x-school-host`, `EDGE_SHARED_SECRET`) nhận ra trường. Thiếu hoặc sai bí mật thì máy chủ không nhận ra trường nào, nên gọi thẳng địa chỉ công khai của Render không đọc được dữ liệu.
 4. Bộ định tuyến trong container (`container/router.mjs`) chia tuyến như Caddy ở hồ sơ vận hành:
@@ -84,7 +84,7 @@ Các bước làm trên máy của người vận hành, có kho mã nguồn và
 2. Tạo cơ sở dữ liệu `school_platform` và cơ sở dữ liệu dùng chung (theo tổ hợp). Đặt `PLATFORM_DATABASE_URL` trỏ tới địa chỉ trực tiếp, rồi chạy `node database/dist/src/platform-command.js migrate`. Máy chủ cũng tự chạy lệnh này khi khởi động (`MIGRATE_ON_START=true`).
 3. Tạo tài khoản vận hành nền tảng đầu tiên từ máy của người vận hành: `PLATFORM_DATABASE_URL=… node apps/identity/dist/create-platform-operator.js`. Lệnh hỏi họ tên, tên đăng nhập, mật khẩu. Render miễn phí không có cửa sổ lệnh vào container.
 4. Dựng ảnh: `docker build -f deploy/profiles/trial/container/Dockerfile.all-in-one -t <kho ảnh>/school-trial .`. Đẩy lên kho ảnh, hoặc để Render dựng từ kho Git.
-5. Dựng tệp tĩnh: `sh deploy/profiles/trial/cloudflare/build-assets.sh`. Lệnh dựng ba ứng dụng với `APP_BASE_PATH` `/quan-ly/`, `/giao-vien/`, `/phu-huynh/`, và cổng nền tảng ở `/`.
+5. Dựng tệp tĩnh: `sh deploy/profiles/trial/cloudflare/build-assets.sh`. Lệnh dựng bốn ứng dụng với `APP_BASE_PATH` `/quan-ly/`, `/giao-vien/`, `/phu-huynh/`, `/hoc-sinh/`, và cổng nền tảng ở `/`.
 6. Làm các bước của tổ hợp đã chọn.
 7. Kiểm tra sau khi dựng:
    - Đăng nhập cổng nền tảng; khởi tạo một trường dữ liệu giả ở menu "Trường"; kích hoạt quản trị viên.

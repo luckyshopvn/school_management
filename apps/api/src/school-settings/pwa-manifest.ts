@@ -9,18 +9,13 @@ import { SchoolSettingsService } from './school-settings.controller.js';
 // Công khai theo tên miền của trường: tên hiển thị, tên ngắn, màu chủ đạo, biểu trưng (S3). Không có dữ liệu cá nhân. Biểu tượng là
 // ảnh SVG dựng ở máy chủ (nền màu của trường, biểu trưng ở giữa hoặc chữ cái đầu khi chưa có biểu trưng), không cần thư viện xử lý
 // ảnh; ảnh PNG 192, 512 của sản phẩm trong thư mục public của ứng dụng là bản dự phòng để trình duyệt nào cũng cài được
-// `student`: màn hình học sinh của 23a nằm trong ứng dụng phụ huynh (#hoc-sinh), cài thành ứng dụng riêng mở thẳng màn hình học sinh
+// `student`: ứng dụng học sinh (apps/student, tách khỏi ứng dụng phụ huynh ngày 2026-10-28, YCTD-300), phục vụ ở /hoc-sinh/
 export type PwaApplication = 'teacher' | 'parent' | 'student';
 
-const APPLICATIONS: Record<PwaApplication, { label: string; suffix: string; description: string; hash: string }> = {
-  teacher: { label: 'Giáo viên', suffix: 'GV', description: 'Ứng dụng giáo viên của trường', hash: '' },
-  parent: { label: 'Phụ huynh', suffix: 'PH', description: 'Ứng dụng phụ huynh của trường', hash: '' },
-  student: {
-    label: 'Học sinh',
-    suffix: 'HS',
-    description: 'Thi trực tuyến cho học sinh của trường',
-    hash: '#hoc-sinh',
-  },
+const APPLICATIONS: Record<PwaApplication, { label: string; suffix: string; description: string }> = {
+  teacher: { label: 'Giáo viên', suffix: 'GV', description: 'Ứng dụng giáo viên của trường' },
+  parent: { label: 'Phụ huynh', suffix: 'PH', description: 'Ứng dụng phụ huynh của trường' },
+  student: { label: 'Học sinh', suffix: 'HS', description: 'Ứng dụng học sinh của trường' },
 };
 
 export const DEFAULT_THEME_COLOR = '#0a8be6';
@@ -57,7 +52,7 @@ export function buildManifest(application: PwaApplication, base: string, brandin
     description: `${meta.description} ${branding.display_name}`,
     lang: 'vi',
     dir: 'ltr',
-    start_url: `${base}${meta.hash}`,
+    start_url: base,
     scope: base,
     display: 'standalone',
     orientation: 'any',

@@ -12,8 +12,14 @@ const apiTarget = process.env.API_BASE_URL ?? 'http://localhost:3000';
 // cùng tên miền của trường; mặc định / như trước
 const base = process.env.APP_BASE_PATH?.trim() || '/';
 
-export default defineConfig({
+// Ứng dụng học sinh tách riêng (YCTD-300): địa chỉ cũ `#hoc-sinh` và liên kết ở màn hình đăng nhập chuyển sang ứng dụng này. Ảnh `web`
+// và hồ sơ thử nghiệm phục vụ nó ở /hoc-sinh/ cùng tên miền; khi phát triển là máy chủ của apps/student (cổng 5179)
+const studentAppUrl = (command: string) =>
+  process.env.STUDENT_APP_URL?.trim() || (command === 'serve' ? 'http://localhost:5179/' : '/hoc-sinh/');
+
+export default defineConfig(({ command }) => ({
   base,
+  define: { 'import.meta.env.VITE_STUDENT_APP_URL': JSON.stringify(studentAppUrl(command)) },
   // Service worker dùng chung (DT-26 phần 26a, YCTD-231)
   plugins: [react(), tailwindcss(), pwaServiceWorker({ cachePrefix: 'phu-huynh-v-' })],
   server: {
@@ -23,4 +29,4 @@ export default defineConfig({
       '/api/v1': { target: apiTarget },
     },
   },
-});
+}));
