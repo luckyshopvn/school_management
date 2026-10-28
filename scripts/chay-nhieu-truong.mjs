@@ -46,6 +46,14 @@ const WEB = [
   { name: 'gia-su', filter: '@school-management/tutor', port: 5196 },
 ];
 const port = (name) => WEB.find((app) => app.name === name).port;
+// Khởi tạo trường ở lần mở đầu tiên (YCTD-314) cần tài khoản tạo cơ sở dữ liệu, vai trò: chưa đặt PLATFORM_ADMIN_DATABASE_URL thì suy
+// từ POSTGRES_PASSWORD của .env và máy chủ của PLATFORM_DATABASE_URL; chỉ truyền cho tiến trình, không ghi ra tệp
+if (!merged.PLATFORM_ADMIN_DATABASE_URL && merged.POSTGRES_PASSWORD) {
+  const platformUrl = new URL(merged.PLATFORM_DATABASE_URL);
+  merged.PLATFORM_ADMIN_DATABASE_URL = `postgres://${merged.POSTGRES_USER || 'postgres'}:${encodeURIComponent(
+    merged.POSTGRES_PASSWORD,
+  )}@${platformUrl.hostname}:${platformUrl.port || '5432'}/postgres`;
+}
 const root = merged.PLATFORM_ROOT_DOMAIN;
 const school = merged.NHIEU_TRUONG_TEN_MIEN_TRUONG_DEMO || `<mã trường>.${root}`;
 const schoolHost = merged.NHIEU_TRUONG_TEN_MIEN_TRUONG_DEMO || root;

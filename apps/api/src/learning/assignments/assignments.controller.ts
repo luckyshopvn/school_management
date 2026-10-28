@@ -2,7 +2,7 @@ import { Body, Controller, Delete, Get, HttpCode, Param, Patch, Post, Put, Query
 import { PERMISSION_CODES } from '@school-management/shared';
 import type { Response } from 'express';
 import { sendStoredFile } from '../../activities/content-files.js';
-import { AuthenticatedUser, RequirePermission } from '../../authentication/authentication.guard.js';
+import { AuthenticatedUser, RequirePermission, RequirePlanModule } from '../../authentication/authentication.guard.js';
 import type { CurrentUser } from '../../authentication/current-user.js';
 import type { RequestBody } from '../../common/request-fields.js';
 import { uuidParameter } from '../../common/uuid-parameter.js';
@@ -14,6 +14,7 @@ import { AssignmentsService } from './assignments.js';
 const ACTIVITY_ID = uuidParameter('Mã hoạt động không hợp lệ');
 const SUBMISSION_ID = uuidParameter('Mã bài nộp không hợp lệ');
 
+@RequirePlanModule('online-learning')
 @Controller('learning')
 export class AssignmentsController {
   constructor(private readonly assignments: AssignmentsService) {}

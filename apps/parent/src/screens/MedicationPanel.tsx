@@ -3,8 +3,9 @@ import { Alert, Button, TextField } from '@school-management/ui';
 import { ApiError, fetchWithSession, requestJson } from '../session/api-client.js';
 
 // MP-07 Dặn thuốc (P10-03, P10-04; BR-48, BR-88; YCTD-75): phụ huynh gửi yêu cầu dặn thuốc kèm ít nhất một ảnh thuốc, ảnh đơn
-// thuốc nếu có; xem trạng thái, các liều đã cho uống hoặc bỏ liều; xác nhận đã biết thông báo bỏ liều một lần
-type RequestStatus = 'pending' | 'administering' | 'completed' | 'rejected';
+// thuốc nếu có; xem trạng thái (QT-07 mục 7, YCTD-344: có Nhà trường đã nhận thuốc), các liều đã cho uống hoặc bỏ liều; xác
+// nhận đã biết thông báo bỏ liều một lần
+type RequestStatus = 'pending' | 'received' | 'administering' | 'completed' | 'rejected';
 
 interface Dose {
   id: string;
@@ -32,6 +33,7 @@ interface MedicationRequest {
 
 const STATUS_LABELS: Record<RequestStatus, string> = {
   pending: 'Chờ nhận thuốc',
+  received: 'Nhà trường đã nhận thuốc',
   administering: 'Đang cho uống',
   completed: 'Hoàn thành',
   rejected: 'Từ chối',

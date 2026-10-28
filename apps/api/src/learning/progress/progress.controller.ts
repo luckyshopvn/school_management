@@ -1,7 +1,7 @@
 import { Body, Controller, Get, HttpCode, Param, Post, Put, Query, Req, Res } from '@nestjs/common';
 import { validationError } from '@school-management/server';
 import type { Request, Response } from 'express';
-import { AuthenticatedUser, RequirePermission } from '../../authentication/authentication.guard.js';
+import { AuthenticatedUser, RequirePermission, RequirePlanModule } from '../../authentication/authentication.guard.js';
 import type { CurrentUser } from '../../authentication/current-user.js';
 import { originOf } from '../../common/audit-log.js';
 import { isUuid, type RequestBody } from '../../common/request-fields.js';
@@ -29,6 +29,7 @@ function sendFile(response: Response, file: { buffer: Buffer; contentType: strin
   response.send(file.buffer);
 }
 
+@RequirePlanModule('online-learning')
 @Controller('learning')
 export class LearningProgressController {
   constructor(private readonly progress: LearningProgressService) {}

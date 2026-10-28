@@ -1,7 +1,12 @@
 import { Body, Controller, Get, HttpCode, Param, Post, Put, Req } from '@nestjs/common';
 import { PERMISSION_CODES } from '@school-management/shared';
 import type { Request } from 'express';
-import { AuthenticatedUser, RequirePermission, StudentEndpoint } from '../../authentication/authentication.guard.js';
+import {
+  AuthenticatedUser,
+  RequirePermission,
+  StudentEndpoint,
+  RequirePlanModule,
+} from '../../authentication/authentication.guard.js';
 import type { CurrentUser } from '../../authentication/current-user.js';
 import { originOf } from '../../common/audit-log.js';
 import type { RequestBody } from '../../common/request-fields.js';
@@ -19,6 +24,7 @@ const STAFF_PERMISSIONS = [
 ];
 const ID = uuidParameter('Mã không hợp lệ');
 
+@RequirePlanModule('online-learning')
 @Controller('learning')
 @RequirePermission(...STAFF_PERMISSIONS)
 export class LiveLearningController {
@@ -109,6 +115,7 @@ export class LiveLearningController {
   }
 }
 
+@RequirePlanModule('online-learning')
 @Controller('student/live')
 @StudentEndpoint()
 @RequirePermission(PERMISSION_CODES.learningStudy)
