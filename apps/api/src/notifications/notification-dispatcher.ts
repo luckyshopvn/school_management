@@ -1,3 +1,4 @@
+import { isModuleInPlan, paidFeatureMessage } from '@school-management/shared';
 import {
   Inject,
   Injectable,
@@ -180,6 +181,18 @@ export class NotificationDispatcher implements OnApplicationBootstrap, OnModuleD
             .execute();
           result.failed += 1;
         };
+        // Tin nhắn SMS, Zalo là tính năng trả phí tính theo tin cho trường (YCTD-314, GD-162): gói chưa có thì không gửi, thông báo vẫn
+        // đến người nhận qua ứng dụng và thông báo đẩy
+        const plan = currentTenant()?.plan;
+        if (plan && !isModuleInPlan('sms-zalo', plan.modules)) {
+          await transaction
+            .updateTable('notification_recipients')
+            .set({ channel_status: 'limited', last_error: paidFeatureMessage('sms-zalo') })
+            .where('id', '=', recipient.id)
+            .execute();
+          result.limited += 1;
+          continue;
+        }
         const phone = recipient.user_id ? await this.phoneOf(transaction, recipient.user_id) : null;
         if (!phone) {
           await fail('Người nhận không có số điện thoại');

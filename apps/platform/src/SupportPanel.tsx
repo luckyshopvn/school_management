@@ -7,11 +7,13 @@ import {
   type SupportSessionRow,
   type SupportStartReply,
 } from './platform-api.js';
+import { supportLink } from './OpenSchoolButton.js';
 
 // Phiên hỗ trợ ở trang chi tiết trường (DT-SaaS phần S4, YCTD-197): mở khi quản trị của trường đang cho phép; mở phiên nhận đường
 // liên kết một lần (5 phút) tới cổng quản trị của trường; mọi phiên ghi lý do và ghi nhật ký hai phía.
 // Quyền quản trị nền tảng (DT-24, YCTD-220): khi chính sách nền tảng là "vào mọi trường", trường chưa cho phép vẫn mở được phiên,
-// bắt buộc nhập lại mã xác thực hai lớp, ghi lý do, chọn phạm vi và số giờ
+// bắt buộc nhập lại mã xác thực hai lớp, ghi lý do, chọn phạm vi và số giờ.
+// Tài khoản Admin (vai trò quan_tri, YCTD-314): một nút "Vào trường", không hỏi mục đích, mã hai lớp, số giờ; vẫn ghi nhật ký hai phía
 function messageOf(caught: unknown): string {
   if (caught instanceof PlatformValidationError && caught.problems.length) {
     return caught.problems.map((problem) => problem.message).join('; ');
@@ -27,6 +29,7 @@ export function SupportPanel({ token, code }: { token: string; code: string }) {
   const [grant, setGrant] = useState<SupportGrant | null>(null);
   const [sessions, setSessions] = useState<SupportSessionRow[]>([]);
   const [policy, setPolicy] = useState<SupportAccessPolicy | null>(null);
+  const [directEntry, setDirectEntry] = useState(false);
   const [reason, setReason] = useState('');
   const [accessScope, setAccessScope] = useState<'read' | 'full'>('read');
   const [hours, setHours] = useState('');
@@ -41,6 +44,7 @@ export function SupportPanel({ token, code }: { token: string; code: string }) {
         setGrant(reply.active_grant);
         setSessions(reply.sessions);
         setPolicy(reply.policy ?? null);
+        setDirectEntry(reply.direct_entry === true);
       })
       .catch((caught: unknown) => setError(messageOf(caught)));
   }, [token, code]);
@@ -77,6 +81,18 @@ export function SupportPanel({ token, code }: { token: string; code: string }) {
     }
   }
 
+  async function enterDirectly() {
+    setError(null);
+    try {
+      const reply = await dashboardApi.startSupport(token, code, '');
+      setStarted(reply);
+      window.open(supportLink(reply), '_blank', 'noopener');
+      load();
+    } catch (caught) {
+      setError(messageOf(caught));
+    }
+  }
+
   async function end(id: string) {
     setError(null);
     try {
@@ -87,15 +103,7 @@ export function SupportPanel({ token, code }: { token: string; code: string }) {
     }
   }
 
-  // Máy phát triển (YCTD-310): cổng quản trị của trường chạy http ở cổng riêng, đặt bằng VITE_SCHOOL_PORTAL_PORT; bản chạy thật dùng https
-  const portalPort = import.meta.env.VITE_SCHOOL_PORTAL_PORT as string | undefined;
-  const schoolOrigin = (host: string) =>
-    portalPort ? `${window.location.protocol}//${host}:${portalPort}` : `https://${host}`;
-  const link = started
-    ? started.handoff.host
-      ? `${schoolOrigin(started.handoff.host)}${started.handoff.path}`
-      : started.handoff.path
-    : null;
+  const link = started ? supportLink(started) : null;
   return (
     <section aria-label="Phiên hỗ trợ">
       <h3>Phiên hỗ trợ</h3>
@@ -110,7 +118,15 @@ export function SupportPanel({ token, code }: { token: string; code: string }) {
           Trường chưa cho phép hỗ trợ. Đề nghị quản trị của trường bật ở cổng quản trị (Tài khoản, Cho phép hỗ trợ).
         </p>
       )}
-      {grant ? (
+      {directEntry ? (
+        <p>
+          <button type="button" onClick={() => void enterDirectly()}>
+            Vào trường (quản trị nền tảng)
+          </button>{' '}
+          Tài khoản quản trị nền tảng vào mọi trường không cần hỏi thêm; mỗi lần vào được ghi nhật ký ở nền tảng và ở
+          trường, cổng quản trị của trường hiện biểu ngữ.
+        </p>
+      ) : grant ? (
         <form className="inline-form" onSubmit={(event) => void start(event)}>
           <label>
             Lý do hỗ trợ

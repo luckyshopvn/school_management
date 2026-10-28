@@ -144,6 +144,10 @@ export interface SchoolDetail {
   first_academic_year: string | null;
   // Mã Bộ của đơn vị trong danh mục toàn quốc (DT-24)
   moet_code?: string | null;
+  // Gói hiện hành, tính năng trả phí bật riêng cho trường (YCTD-314)
+  plan?: { code: string; name: string; modules: string[] | null } | null;
+  addon_modules?: string[];
+  paid_modules?: Array<{ key: string; label: string }>;
   suspended_at: string | null;
   deletion_requested_at: string | null;
   delete_after: string | null;
@@ -427,6 +431,8 @@ export const dashboardApi = {
       grants: SupportGrant[];
       sessions: SupportSessionRow[];
       policy?: SupportAccessPolicy;
+      // Tài khoản Admin (vai trò quan_tri) vào thẳng mọi trường bằng một lần bấm (YCTD-314)
+      direct_entry?: boolean;
     }>(token, `/schools/${encodeURIComponent(code)}/support`),
   // Quyền quản trị nền tảng (DT-24): không có cho phép của trường thì gửi kèm mã xác thực hai lớp, phạm vi, số giờ
   startSupport: (

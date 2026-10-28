@@ -25,8 +25,9 @@ import {
   validationError,
   type FieldError,
 } from '@school-management/server';
-import { PERMISSION_CODES } from '@school-management/shared';
+import { isModuleInPlan, PERMISSION_CODES } from '@school-management/shared';
 import { sql, type Kysely } from 'kysely';
+import { planModuleError } from '../authentication/authentication.guard.js';
 import type { CurrentUser } from '../authentication/current-user.js';
 import { actorNameOf, writeAuditLog, type ChangeOrigin } from '../common/audit-log.js';
 import { CurrentSchoolYearResolver } from '../common/current-school-year.js';
@@ -381,6 +382,10 @@ export class AiAssistantService {
 
   private async assertQuota(settings: AiSettingsView, currentUser: CurrentUser): Promise<void> {
     const plan = currentTenant()?.plan;
+    // Trợ lý AI là tính năng trả phí (YCTD-314): mọi lời gọi AI (kể cả từ bài tập, hỏi đáp gia sư) đi qua đây
+    if (plan && !isModuleInPlan('ai-assistant', plan.modules)) {
+      throw planModuleError('ai-assistant', plan.code);
+    }
     const month = await this.monthUsage();
     const limits: Array<[number | null | undefined, number, string]> = [
       [plan?.aiMaxRequests, month.requests, 'yêu cầu'],

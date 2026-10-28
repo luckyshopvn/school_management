@@ -713,6 +713,49 @@ function SchoolDetailView({
         </form>
       ) : null}
       <SchoolDataGovernance token={token} detail={detail} role={role} settings={settings} onChanged={setDetail} />
+      {detail.paid_modules ? (
+        <section aria-label="Tính năng trả phí">
+          <h3>Gói dịch vụ và tính năng trả phí</h3>
+          <p>
+            Gói hiện hành: {detail.plan ? `${detail.plan.name} (${detail.plan.code})` : 'chưa gán gói (không giới hạn)'}
+            .
+            {detail.plan?.modules === null || !detail.plan
+              ? ' Gói không giới hạn phân hệ nên mọi tính năng đều bật.'
+              : ' Bật thêm từng tính năng trả phí cho riêng trường này:'}
+          </p>
+          {detail.plan && detail.plan.modules !== null ? (
+            <ul>
+              {detail.paid_modules.map((module) => {
+                const addons = detail.addon_modules ?? [];
+                const on = addons.includes(module.key);
+                return (
+                  <li key={module.key}>
+                    <label>
+                      <input
+                        type="checkbox"
+                        checked={on}
+                        onChange={() =>
+                          void act(
+                            () =>
+                              catalogApi.setAddonModules(
+                                token,
+                                code,
+                                on ? addons.filter((key) => key !== module.key) : [...addons, module.key],
+                              ),
+                            on ? `Đã tắt ${module.label}` : `Đã bật ${module.label}`,
+                          )
+                        }
+                      />{' '}
+                      {module.label}
+                      {!on && detail.plan?.modules?.includes(module.key) ? ' (đã có trong gói)' : ''}
+                    </label>
+                  </li>
+                );
+              })}
+            </ul>
+          ) : null}
+        </section>
+      ) : null}
       <SupportPanel token={token} code={code} />
       <h3>Sao lưu và khôi phục</h3>
       {detail.backups.length === 0 ? (

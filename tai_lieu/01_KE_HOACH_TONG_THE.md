@@ -693,7 +693,7 @@ Không còn mục chưa xác minh. Các mục trước đây đã được trả
 | GD-107 | DT-23: thư viện đọc thẻ đáp án giấy, chọn và ghi giấy phép lúc làm | Claude (theo ủy quyền) |
 | GD-108 | Eric đã chốt ngày 2026-10-26 (DT-23): ngoại tuyến của ứng dụng giáo viên chỉ cho công cụ lớp học, danh sách lớp lưu 24 giờ | Eric (đã chốt) |
 | GD-109 | DT-24: danh mục lấy từ trang công khai của hệ thống ngành chỉ dùng làm dữ liệu tham chiếu nội bộ, không công bố lại cả danh sách; hướng lâu dài là kết nối chính thức theo Điều 14 Thông tư 42/2021/TT-BGDĐT (`32` mục 16.9) | Eric, luật sư |
-| GD-110 | Eric đã chốt ngày 2026-10-26 (DT-24): quản trị nền tảng vào mọi trường mặc định không cần trường đồng ý, bắt buộc xác thực hai lớp, lý do, nhật ký, có hạn, biểu ngữ; chính sách cấu hình được; luật sư rà PL-02 Điều 5a | Eric (đã chốt), luật sư |
+| GD-110 | Eric đã chốt ngày 2026-10-26 (DT-24): quản trị nền tảng vào mọi trường mặc định không cần trường đồng ý, bắt buộc xác thực hai lớp, lý do, nhật ký, có hạn, biểu ngữ; chính sách cấu hình được; luật sư rà PL-02 Điều 5a. Eric sửa ngày 2026-10-28 (GD-159, YCTD-314): tài khoản Admin vào thẳng, không hỏi lý do, mã hai lớp, số giờ; vẫn ghi nhật ký hai phía | Eric (đã chốt), luật sư |
 | GD-111 | DT-24: tiêu đề trang đăng nhập ở tên miền chung "Hệ thống quản lý trường học" đến khi chốt tên sản phẩm | Eric |
 | GD-112 | DT-24: danh mục nạp tay mỗi năm học, chưa tự động | Eric |
 | GD-120 | DT-26: tên ứng dụng trên cửa hàng, mã gói, tên miền hệ thống cho liên kết sâu; tạm dùng tên sản phẩm của cấu hình nền tảng, đổi trước lần nộp đầu | Eric |

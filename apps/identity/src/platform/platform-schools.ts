@@ -1,4 +1,17 @@
-import { Body, Controller, Get, HttpCode, Inject, Injectable, Optional, Param, Post, Query, Req } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  HttpCode,
+  Inject,
+  Injectable,
+  Optional,
+  Param,
+  Post,
+  Put,
+  Query,
+  Req,
+} from '@nestjs/common';
 import {
   addConsent,
   addHosting,
@@ -9,6 +22,7 @@ import {
   findInvitation,
   lifecycleEnvironmentOf,
   LifecycleError,
+  loadCurrentPlan,
   markInvitationUsed,
   reissueInvitation,
   requestCustomDomain,
@@ -20,6 +34,7 @@ import {
   startProvisioning,
   suspendSchool,
   verifyCustomDomain,
+  vietnamDate,
   writeAudit,
   type Actor,
   type ConsentInput,
@@ -41,6 +56,7 @@ import {
   validationError,
   type FieldError,
 } from '@school-management/server';
+import { isPlanModuleKey, PAID_PLAN_MODULES, planModuleLabel } from '@school-management/shared';
 import type { Request } from 'express';
 import type { Kysely } from 'kysely';
 import { checkPasswordPolicy, hashPassword } from '../authentication/password.js';
@@ -71,7 +87,7 @@ function toApplicationError(error: unknown): unknown {
   return ruleViolationError(SCHOOL_LIFECYCLE_RULE_CODE, error.message, error.problems);
 }
 
-async function mapped<T>(work: () => Promise<T>): Promise<T> {
+export async function mapped<T>(work: () => Promise<T>): Promise<T> {
   try {
     return await work();
   } catch (error) {
@@ -121,7 +137,7 @@ export class PlatformSchoolsService {
     return this.tenancy;
   }
 
-  private environment(): LifecycleEnvironment {
+  environment(): LifecycleEnvironment {
     try {
       return lifecycleEnvironmentOf(this.runtime(), this.lifecycleSettings());
     } catch (error) {
@@ -135,7 +151,10 @@ export class PlatformSchoolsService {
 
   // Cổng nền tảng và mã phiên vận hành còn hiệu lực; roles (YCTD-311) giới hạn thao tác theo vai trò nhân viên vận hành, trống là
   // mọi vai trò
-  async actor(request: Request, roles?: readonly PlatformOperatorRole[]): Promise<Actor> {
+  async actor(
+    request: Request,
+    roles?: readonly PlatformOperatorRole[],
+  ): Promise<Actor & { role: PlatformOperatorRole }> {
     this.operators.assertConsoleHost(request);
     const operatorId = await this.tokenService.verifyOperatorToken(readBearerToken(request.header('authorization')));
     const row = await this.platform
@@ -149,11 +168,11 @@ export class PlatformSchoolsService {
     if (roles && !roles.includes(row.role)) {
       throw new ApplicationError('ERR_FORBIDDEN', 'Vai trò vận hành của bạn không được làm thao tác này');
     }
-    return { type: 'operator', id: row.id, name: row.full_name };
+    return { type: 'operator', id: row.id, name: row.full_name, role: row.role };
   }
 
   // Trạng thái trường đổi thì bộ phân giải của tiến trình này đọc lại ngay; tiến trình khác đọc lại sau TENANT_CACHE_SECONDS
-  private refresh(): void {
+  refresh(): void {
     this.runtime().registry.invalidate();
   }
 
@@ -288,6 +307,10 @@ export class PlatformSchoolsService {
       created_at: school.created_at,
       // Mã Bộ của đơn vị trong danh mục toàn quốc (DT-24)
       moet_code: school.moet_code,
+      // Gói hiện hành và tính năng trả phí bật riêng cho trường (YCTD-314)
+      plan: await this.planSummary(school.id),
+      addon_modules: school.addon_modules,
+      paid_modules: PAID_PLAN_MODULES.map((key) => ({ key, label: planModuleLabel(key) })),
       domains,
       consents,
       hosting,
@@ -418,6 +441,43 @@ export class PlatformSchoolsService {
     return row;
   }
 
+  private async planSummary(schoolId: string) {
+    const plan = await loadCurrentPlan(this.platform, schoolId, vietnamDate(new Date()));
+    return plan ? { code: plan.code, name: plan.name, modules: plan.modules } : null;
+  }
+
+  // Bật, tắt tính năng trả phí riêng cho một trường (YCTD-314): cộng vào phân hệ của gói hiện hành; trường chưa gán gói (không giới
+  // hạn) không bị ảnh hưởng. Ghi nhật ký nền tảng; bộ phân giải trường đọc lại ngay
+  async setAddonModules(code: string, body: Body, actor: Actor) {
+    const modules = body?.modules;
+    if (!Array.isArray(modules) || modules.some((module) => !isPlanModuleKey(module))) {
+      throw validationError([{ field: 'modules', message: 'Danh sách mã phân hệ, tính năng không hợp lệ' }]);
+    }
+    const school = await this.platform
+      .selectFrom('schools')
+      .select(['id', 'addon_modules'])
+      .where('code', '=', code)
+      .executeTakeFirst();
+    if (!school) {
+      throw notFound();
+    }
+    const after = [...new Set(modules as string[])].sort();
+    await this.platform
+      .updateTable('schools')
+      .set({ addon_modules: JSON.stringify(after), updated_at: new Date() })
+      .where('id', '=', school.id)
+      .execute();
+    await writeAudit(this.platform, {
+      actorType: 'operator',
+      ...(actor.id ? { actorId: actor.id } : {}),
+      action: 'school.addon-modules-changed',
+      schoolId: school.id,
+      details: { before: school.addon_modules, after },
+    });
+    this.refresh();
+    return { addon_modules: after, plan: await this.planSummary(school.id) };
+  }
+
   async verifyDomain(code: string, host: string, actor: Actor) {
     const school = await this.platform.selectFrom('schools').select('id').where('code', '=', code).executeTakeFirst();
     const domain = school
@@ -466,6 +526,12 @@ export class PlatformSchoolsController {
   async provision(@Body() body: Body, @Req() request: Request) {
     const actor = await this.schools.actor(request);
     return this.schools.provision((body ?? {}) as unknown as SchoolSetupInput, actor);
+  }
+
+  @Put(':code/addon-modules')
+  async setAddonModules(@Param('code') code: string, @Body() body: Body, @Req() request: Request) {
+    const actor = await this.schools.actor(request, ['quan_tri', 'ke_toan']);
+    return this.schools.setAddonModules(code, body, actor);
   }
 
   @Post('jobs/:id/resume')

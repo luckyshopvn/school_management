@@ -16,7 +16,12 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { PERMISSION_CODES } from '@school-management/shared';
 import type { Response } from 'express';
 import { sendStoredFile, type UploadedPart } from '../../activities/content-files.js';
-import { AuthenticatedUser, RequirePermission, StudentEndpoint } from '../../authentication/authentication.guard.js';
+import {
+  AuthenticatedUser,
+  RequirePermission,
+  StudentEndpoint,
+  RequirePlanModule,
+} from '../../authentication/authentication.guard.js';
 import type { CurrentUser } from '../../authentication/current-user.js';
 import type { RequestBody } from '../../common/request-fields.js';
 import { uuidParameter } from '../../common/uuid-parameter.js';
@@ -27,6 +32,7 @@ import { AssignmentsService } from './assignments.js';
 const ACTIVITY_ID = uuidParameter('Mã hoạt động không hợp lệ');
 const MAXIMUM_PART_BYTES = 25 * 1024 * 1024;
 
+@RequirePlanModule('online-learning')
 @Controller('student/assignments')
 @StudentEndpoint()
 @RequirePermission(PERMISSION_CODES.learningStudy)
