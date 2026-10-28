@@ -15,6 +15,7 @@ import {
   createTimetableVersion,
   deleteTimetableVersion,
   downloadTimetableTemplate,
+  exportTimetableVersion,
   importTimetable,
   listTimetableVersions,
   publishTimetable,
@@ -630,6 +631,8 @@ export function TimetablesPage() {
   });
   const [mode, setMode] = useState<ViewMode>('class');
   const [target, setTarget] = useState('');
+  const [exporting, setExporting] = useState(false);
+  const [exportError, setExportError] = useState<string>();
   const all = useQuery({
     queryKey: ['version-lessons', version?.id, 'all'],
     queryFn: () => readVersionLessons(version?.id ?? ''),
@@ -922,7 +925,27 @@ export function TimetablesPage() {
                         ))}
                       </select>
                     </label>
+                    {/* Xuất Excel đối tượng đang chọn; chưa chọn thì mọi lớp, mỗi lớp một trang (YCTD-317) */}
+                    <Button
+                      disabled={exporting}
+                      onClick={() => {
+                        setExportError(undefined);
+                        setExporting(true);
+                        exportTimetableVersion(version.id, {
+                          ...(mode === 'class' && target ? { class_id: target } : {}),
+                          ...(mode === 'teacher' && target ? { teacher_user_id: target } : {}),
+                          ...(mode === 'room' && target ? { room_id: target } : {}),
+                        })
+                          .catch((error: unknown) =>
+                            setExportError(error instanceof Error ? error.message : 'Không xuất được thời khoá biểu'),
+                          )
+                          .finally(() => setExporting(false));
+                      }}
+                    >
+                      {target ? 'Xuất Excel' : 'Xuất Excel mọi lớp'}
+                    </Button>
                   </div>
+                  {exportError ? <Alert tone="danger">{exportError}</Alert> : null}
                   {target && all.data ? (
                     canManage && isDraft && mode === 'class' ? (
                       <ClassEditor
