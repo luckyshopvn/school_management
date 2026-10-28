@@ -167,6 +167,8 @@ test('CT-15d-11: phòng nhân sự ghi hồ sơ theo khối của Sở; lưới 
   await form.getByRole('button', { name: 'Ghi', exact: true }).click();
   await expect(page.getByText('Đã ghi hồ sơ cán bộ, giáo viên')).toBeVisible();
   await expect(form.getByLabel('Ngày tuyển dụng')).toHaveValue('2015-09-01');
+  // Cột Dân tộc ẩn mặc định ở lưới từ YCTD-333 nên kiểm giá trị vừa ghi ngay ở biểu mẫu
+  await expect(form.getByLabel('Dân tộc').locator('option:checked')).toHaveText('Kinh');
 
   // Thẻ Thông tin chung: thông tin riêng của trường; người xem được hợp đồng thấy thẻ Hợp đồng
   await panel.getByRole('tab', { name: 'Thông tin chung' }).click();
@@ -182,7 +184,6 @@ test('CT-15d-11: phòng nhân sự ghi hồ sơ theo khối của Sở; lưới 
   grid = await openStaff(page);
   const row = grid.getByRole('row').filter({ hasText: names.an }).first();
   await expect(row).toContainText('Giáo viên nhà trẻ');
-  await expect(row).toContainText('Kinh');
 
   // Hợp đồng và lương thỏa thuận của nhân sự có hợp đồng
   await grid.getByRole('row').filter({ hasText: names.bao }).getByRole('link', { name: 'Hồ sơ' }).click();
