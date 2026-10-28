@@ -33,6 +33,7 @@ import {
   type CommissionRule,
 } from './market-booking-rules.js';
 import { MarketContext, marketNotFound } from './market-context.js';
+import { isMinor, notSuspended } from './market-safety-rules.js';
 import { vietnamToday } from './market-listing.js';
 import {
   MarketplacePaymentProvider,
@@ -130,6 +131,7 @@ export class MarketBookingsService implements OnApplicationBootstrap, OnModuleDe
     const subjectId = typeof body?.subject_id === 'string' && UUID.test(body.subject_id) ? body.subject_id : '';
     const startsAt = typeof body?.starts_at === 'string' ? new Date(body.starts_at) : new Date(Number.NaN);
     const attested = body?.no_assignment_attested === true;
+    const recordingConsented = body?.recording_consented === true;
     if (!tutorId) errors.push({ field: 'tutor_id', message: 'Chọn gia sư' });
     if (!childId) errors.push({ field: 'child_id', message: 'Chọn hồ sơ con' });
     if (!subjectId) errors.push({ field: 'subject_id', message: 'Chọn môn' });
@@ -142,7 +144,7 @@ export class MarketBookingsService implements OnApplicationBootstrap, OnModuleDe
     const [child, consent, subject, tutor, role, slots] = await Promise.all([
       database
         .selectFrom('market_children')
-        .select(['id', 'display_name', 'school_level', 'grade'])
+        .select(['id', 'display_name', 'school_level', 'grade', 'birth_year'])
         .where('id', '=', childId)
         .where('parent_account_id', '=', account.id)
         .executeTakeFirst(),
@@ -201,6 +203,16 @@ export class MarketBookingsService implements OnApplicationBootstrap, OnModuleDe
       attestedNoAssignment: attested,
     });
     if (problems.length > 0) throw validationError(problems);
+    // Buổi có trẻ vị thành niên luôn ghi hình (27i, tài liệu 32 mục 19.2); không đồng ý thì không đặt được
+    const recordingRequired = isMinor(child.birth_year, now);
+    if (recordingRequired && !recordingConsented) {
+      throw validationError([
+        {
+          field: 'recording_consented',
+          message: 'Buổi học với trẻ dưới 18 tuổi luôn được ghi hình để bảo vệ trẻ; đồng ý ghi hình để đặt buổi',
+        },
+      ]);
+    }
     if (!fitsAvailability(startsAt, subject.session_minutes, slots)) {
       throw validationError([
         { field: 'starts_at', message: 'Giờ học không nằm trong giờ trống của gia sư (giờ Việt Nam)' },
@@ -252,6 +264,8 @@ export class MarketBookingsService implements OnApplicationBootstrap, OnModuleDe
           status: 'held',
           hold_expires_at: new Date(now.getTime() + HOLD_MINUTES * 60_000),
           no_assignment_attested: attested,
+          recording_required: recordingRequired,
+          recording_consented: recordingRequired && recordingConsented,
         })
         .returning(['id', 'price'])
         .executeTakeFirstOrThrow();
@@ -290,6 +304,7 @@ export class MarketBookingsService implements OnApplicationBootstrap, OnModuleDe
       .where('market_tutor_profiles.account_id', '=', tutorId)
       .where('market_tutor_profiles.status', '=', 'approved')
       .where('market_accounts.status', '=', 'active')
+      .where(notSuspended('market_tutor_profiles.account_id'))
       .where((eb) =>
         eb.exists(
           eb
@@ -326,7 +341,9 @@ export class MarketBookingsService implements OnApplicationBootstrap, OnModuleDe
         'market_bookings.complaint_deadline',
         'market_bookings.cancelled_by',
         'market_bookings.cancel_reason',
+        'market_bookings.recording_required',
         'tutor.display_name as tutor_name',
+        'market_bookings.tutor_account_id as tutor_id',
         'market_payments.status as payment_status',
         'market_payments.refunded_amount',
         'market_payments.released_amount',
@@ -487,9 +504,24 @@ export class MarketBookingsService implements OnApplicationBootstrap, OnModuleDe
     return this.cancel(id, 'tutor', 'tutor_account_id', account.id, body);
   }
 
+  // Tạm khóa gia sư (27i): hủy mọi buổi sắp tới của gia sư, phụ huynh được hoàn đủ như khi gia sư hủy; trả danh sách buổi đã hủy
+  async cancelForSuspension(tutorId: string, reason: string) {
+    const upcoming = await this.market.database
+      .selectFrom('market_bookings')
+      .select(['id', 'parent_account_id', 'subject', 'starts_at'])
+      .where('tutor_account_id', '=', tutorId)
+      .where('status', 'in', ['held', 'paid'])
+      .where('starts_at', '>', this.market.now())
+      .execute();
+    for (const booking of upcoming) {
+      await this.cancel(booking.id, 'system', 'tutor_account_id', tutorId, { reason });
+    }
+    return upcoming;
+  }
+
   private async cancel(
     id: string,
-    by: 'parent' | 'tutor',
+    by: 'parent' | 'tutor' | 'system',
     field: 'parent_account_id' | 'tutor_account_id',
     accountId: string,
     body: RequestBody,
@@ -522,7 +554,7 @@ export class MarketBookingsService implements OnApplicationBootstrap, OnModuleDe
       if (booking.status !== 'paid') {
         throw new ApplicationError('ERR_CONFLICT', 'Chỉ hủy được buổi đã trả tiền và chưa học');
       }
-      const policy = cancellationRefund(booking.price, booking.starts_at, now, by);
+      const policy = cancellationRefund(booking.price, booking.starts_at, now, by === 'parent' ? 'parent' : 'tutor');
       if (!policy.allowed) throw new ApplicationError('ERR_CONFLICT', policy.rule);
       const split = settlement(booking.price, booking.commission, policy.refund);
       const payment = await trx
@@ -562,8 +594,8 @@ export class MarketBookingsService implements OnApplicationBootstrap, OnModuleDe
       }
     }
     await this.market.audit({
-      actorType: 'account',
-      actorId: accountId,
+      actorType: by === 'system' ? 'system' : 'account',
+      ...(by === 'system' ? {} : { actorId: accountId }),
       action: 'booking.cancel',
       target: id,
       details: { by },
@@ -700,6 +732,8 @@ export class MarketBookingsService implements OnApplicationBootstrap, OnModuleDe
         'market_bookings.commission',
         'market_bookings.status',
         'market_bookings.complaint_deadline',
+        'market_bookings.parent_account_id as parent_id',
+        'market_bookings.recording_required',
         'market_payments.released_amount',
         'market_payments.commission_taken',
       ])
@@ -779,6 +813,8 @@ export class MarketBookingsService implements OnApplicationBootstrap, OnModuleDe
       .select('id')
       .where('status', '=', 'completed')
       .where('complaint_deadline', '<=', now)
+      // Gia sư đang bị tạm khóa (27i): giữ tiền đến khi nhân viên kiểm duyệt gỡ khóa
+      .where(notSuspended('market_bookings.tutor_account_id'))
       .execute();
     let disbursed = 0;
     for (const { id } of due) {

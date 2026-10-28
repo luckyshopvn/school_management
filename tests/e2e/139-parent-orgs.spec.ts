@@ -21,6 +21,7 @@ import {
   schoolHost,
 } from '../e2e-multi-environment.mjs';
 import { expect, test, type Page } from './fixtures.js';
+import { signInConsole } from './platform-console.js';
 
 // DT-SaaS phần S6 (YCTD-202, spec 139), kịch bản CT-S6-9: người vận hành tạo tài khoản cấp Sở (khóa xác thực hai lớp hiện một lần);
 // quản trị trường alpha đồng ý chia sẻ nhóm Quy mô với cấp Sở; tài khoản Sở đăng nhập trang Đơn vị cấp trên bằng mã TOTP, thấy
@@ -139,12 +140,9 @@ test('CT-S6-9: tài khoản cấp Sở có xác thực hai lớp; trường đ�
   const consoleContext = await browser.newContext({ baseURL: `http://${E2E_CONSOLE_HOST}:${E2E_MULTI_CONSOLE_PORT}` });
   const consolePage = await consoleContext.newPage();
   await consolePage.goto('/');
-  await consolePage.getByLabel('Tên đăng nhập').fill(operatorLogin);
-  await consolePage.getByLabel('Mật khẩu').fill(PASSWORD);
-  await consolePage
-    .getByLabel('Mã xác thực hai lớp')
-    .fill(await operatorOtp(runtime.platform, operator.id, operator.secret));
-  await consolePage.getByRole('button', { name: 'Đăng nhập' }).click();
+  await signInConsole(consolePage, operatorLogin, PASSWORD, () =>
+    operatorOtp(runtime.platform, operator.id, operator.secret),
+  );
   await consolePage.getByRole('navigation', { name: 'Menu' }).getByRole('button', { name: 'Đơn vị cấp trên' }).click();
   await expect(consolePage.getByRole('table', { name: 'Cây đơn vị' })).toContainText(`Sở giả ${suffix}`);
   const form = consolePage.getByRole('form', { name: 'Thêm tài khoản cấp trên' });

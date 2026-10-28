@@ -15,7 +15,8 @@ export default defineConfig({
   // Service worker dùng chung (DT-26 phần 26a), tiền tố bộ nhớ đệm riêng của ứng dụng Gia sư
   plugins: [react(), tailwindcss(), pwaServiceWorker({ cachePrefix: 'gia-su-v-' })],
   server: {
-    port: 5179,
+    // 5179 là của apps/student (YCTD-300), 5180 dành cho portal chạy nhanh; ứng dụng Gia sư dùng 5181 (YCTD-259)
+    port: 5181,
     allowedHosts: ['.localhost'],
     proxy: {
       '/api/v1/market': { target: apiTarget },

@@ -191,6 +191,22 @@ export const PUBLIC_ROUTES: PublicRoute[] = [
       ['POST', '/api/v1/market/tutor/bookings/:id/complete'],
       ['POST', '/api/v1/market/tutor/bookings/:id/cancel'],
       ['GET', '/api/v1/market/tutor/bookings/:id/dispute'],
+      // Tin nhắn, báo cáo vi phạm, phòng học có ghi hình (DT-27 phần 27i)
+      ['GET', '/api/v1/market/messages/threads'],
+      ['POST', '/api/v1/market/messages/threads'],
+      ['GET', '/api/v1/market/messages/threads/:id'],
+      ['POST', '/api/v1/market/messages/threads/:id'],
+      ['POST', '/api/v1/market/reports'],
+      ['GET', '/api/v1/market/reports'],
+      ['POST', '/api/v1/market/reports/:id/appeal'],
+      ['GET', '/api/v1/market/tutor/safety'],
+      ['POST', '/api/v1/market/tutor/bookings/:id/session/start'],
+      ['POST', '/api/v1/market/tutor/bookings/:id/session/end'],
+      ['POST', '/api/v1/market/bookings/:id/session/join'],
+      ['GET', '/api/v1/market/bookings/:id/recording'],
+      ['GET', '/api/v1/market/bookings/:id/recording/stream'],
+      ['GET', '/api/v1/market/tutor/bookings/:id/recording'],
+      ['GET', '/api/v1/market/tutor/bookings/:id/recording/stream'],
     ] as const
   ).map(([method, path]) => ({
     method,
@@ -218,6 +234,14 @@ export const PUBLIC_ROUTES: PublicRoute[] = [
       ['POST', '/api/v1/market/admin/payments/disputes/:id/finalize'],
       ['POST', '/api/v1/market/admin/payments/commission-rules'],
       ['POST', '/api/v1/market/admin/payments/run-due'],
+      ['GET', '/api/v1/market/admin/safety'],
+      ['GET', '/api/v1/market/admin/safety/reports/:id'],
+      ['POST', '/api/v1/market/admin/safety/reports/:id/assign'],
+      ['POST', '/api/v1/market/admin/safety/reports/:id/decide'],
+      ['POST', '/api/v1/market/admin/safety/reports/:id/suspend'],
+      ['POST', '/api/v1/market/admin/safety/reports/:id/export'],
+      ['GET', '/api/v1/market/admin/safety/recordings/:bookingId'],
+      ['POST', '/api/v1/market/admin/safety/run-due'],
     ] as const
   ).map(([method, path]) => ({
     method,

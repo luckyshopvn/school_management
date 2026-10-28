@@ -107,7 +107,12 @@ Cổng mặc định lấy từ cấu hình trong kho mã:
 | Dịch vụ định danh               | 3001 (`IDENTITY_PORT`) |
 | portal / teacher / parent       | 5173 / 5174 / 5175     |
 | platform / market               | 5177 / 5178            |
+| student / tutor                 | 5179 / 5181            |
 | PostgreSQL / Redis / kho tệp S3 | 5432 / 6379 / 8333     |
+
+Bản nhiều trường trên máy (đăng nhập chọn Sở → Cấp, Phường / Xã → Trường ở `http://truong.localhost:5190/`, cổng vận hành nền tảng `http://platform.truong.localhost:5191/`, đủ ứng dụng giáo viên, phụ huynh, học sinh, chợ gia sư), chạy song song với
+bản một trường ở trên: dựng bằng `pnpm --filter @school-management/database nhieu-truong-cuc-bo …` rồi chạy
+`node scripts/chay-nhieu-truong.mjs`; hướng dẫn đầy đủ ở `tai_lieu/32_KE_HOACH_THEO_HE_THONG_SO.md` mục 16.10.
 
 Các lệnh có sẵn ở thư mục gốc: `pnpm build`, `pnpm typecheck`, `pnpm lint`, `pnpm format`, `pnpm format:check`, `pnpm test`, `pnpm test:e2e`, `pnpm database:migrate`, `pnpm environment:start`, `pnpm environment:stop`.
 

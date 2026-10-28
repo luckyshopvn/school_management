@@ -24,6 +24,7 @@ import {
   schoolHost,
 } from '../e2e-multi-environment.mjs';
 import { expect, test } from './fixtures.js';
+import { signInConsole } from './platform-console.js';
 
 // DT-SaaS phần S7b (YCTD-199, spec 137): sao lưu logic trường alpha, khôi phục thành trường mới alpha-kp (bản để xem lại) ở bố cục
 // đang chạy (database hoặc schema theo E2E_TENANT_LAYOUT), mở lại; người dùng của alpha đăng nhập được ở tên miền của bản khôi
@@ -136,12 +137,9 @@ test('Sao lưu một trường, khôi phục thành trường mới; người d�
   const consoleContext = await browser.newContext({ baseURL: `http://${E2E_CONSOLE_HOST}:${E2E_MULTI_CONSOLE_PORT}` });
   const consolePage = await consoleContext.newPage();
   await consolePage.goto('/');
-  await consolePage.getByLabel('Tên đăng nhập').fill(operatorLogin);
-  await consolePage.getByLabel('Mật khẩu').fill(PASSWORD);
-  await consolePage
-    .getByLabel('Mã xác thực hai lớp')
-    .fill(await operatorOtp(runtime.platform, operator.id, operator.secret));
-  await consolePage.getByRole('button', { name: 'Đăng nhập' }).click();
+  await signInConsole(consolePage, operatorLogin, PASSWORD, () =>
+    operatorOtp(runtime.platform, operator.id, operator.secret),
+  );
   await consolePage.getByRole('navigation', { name: 'Menu' }).getByRole('button', { name: 'Trường' }).click();
   await consolePage.getByRole('button', { name: 'alpha', exact: true }).click();
   const alphaHistory = consolePage.getByRole('table', { name: 'Sao lưu và khôi phục' });

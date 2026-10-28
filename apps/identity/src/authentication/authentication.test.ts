@@ -87,6 +87,47 @@ describe('Dịch vụ định danh: đăng nhập và phiên', () => {
     assert.match(logout.setCookie ?? '', /__Secure-refresh_token=;/);
   });
 
+  it('CT-310-5: "Ghi nhớ" giữ phiên cổng quản trị 30 ngày, cookie bền qua lần đóng trình duyệt; không tích thì 8 giờ, cookie phiên', async () => {
+    const staff = await createTestUser(context.database);
+    const sessionHours = async (accessToken: string) => {
+      const me = await getJson(`${context.baseUrl}/auth/me`, accessToken);
+      assert.equal(me.status, 200);
+      const row = await context.database
+        .selectFrom('sessions')
+        .select(['issued_at', 'expires_at'])
+        .where('user_id', '=', staff.id)
+        .orderBy('issued_at', 'desc')
+        .executeTakeFirstOrThrow();
+      return Math.round((row.expires_at.getTime() - row.issued_at.getTime()) / 3_600_000);
+    };
+
+    const short = await postJson(`${context.baseUrl}/auth/login`, {
+      login: staff.username,
+      password: staff.password,
+      channel: 'portal',
+    });
+    assert.equal(short.status, 200);
+    assert.doesNotMatch((short.setCookie ?? '').toLowerCase(), /max-age|expires=/);
+    assert.equal(await sessionHours(readTokens(short).accessToken), 8);
+    const shortRefreshed = await refresh(context, readTokens(short).refreshToken);
+    assert.equal(shortRefreshed.status, 200);
+    assert.doesNotMatch((shortRefreshed.setCookie ?? '').toLowerCase(), /max-age|expires=/);
+
+    const remembered = await postJson(`${context.baseUrl}/auth/login`, {
+      login: staff.username,
+      password: staff.password,
+      channel: 'portal',
+      remember: true,
+    });
+    assert.equal(remembered.status, 200);
+    assert.match((remembered.setCookie ?? '').toLowerCase(), /max-age=/);
+    assert.equal(await sessionHours(readTokens(remembered).accessToken), 30 * 24);
+    // Làm mới vẫn giữ cookie bền, hạn phiên không đổi
+    const refreshed = await refresh(context, readTokens(remembered).refreshToken);
+    assert.equal(refreshed.status, 200);
+    assert.match((refreshed.setCookie ?? '').toLowerCase(), /max-age=/);
+  });
+
   it('CTC-DD-003: sai mật khẩu bị từ chối, phản hồi không chứa thông tin nội bộ', async () => {
     const staff = await createTestUser(context.database);
     const response = await login(context, staff.phone, 'SaiMatKhau1');

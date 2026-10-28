@@ -10,6 +10,8 @@ export interface IdentityConfiguration {
   tokenPrivateKeyPem: string;
   tokenPublicKeyPem: string;
   loginRequestsPerMinutePerAddress: number;
+  // "Ghi nhớ" ở trang đăng nhập cổng quản trị (YCTD-310): số ngày giữ phiên (PORTAL_REMEMBER_DAYS, mặc định 30, từ 1 đến 90)
+  portalRememberDays?: number;
   // Máy chủ API, để đọc cây đơn vị khi quản lý tài khoản (YCTD-39)
   apiBaseUrl: string;
   // Nhà cung cấp tin nhắn: 'log' chỉ ghi ra nhật ký, không dùng được ở môi trường chạy thật (YCTD-43); 'esms' là
@@ -81,6 +83,7 @@ export function readConfigurationFromEnvironment(): IdentityConfiguration {
     tokenPrivateKeyPem: decodeBase64Key(readRequired('IDENTITY_TOKEN_PRIVATE_KEY')),
     tokenPublicKeyPem: decodeBase64Key(readRequired('TOKEN_PUBLIC_KEY')),
     loginRequestsPerMinutePerAddress: Number(process.env.LOGIN_REQUESTS_PER_MINUTE ?? 10),
+    portalRememberDays: Number(process.env.PORTAL_REMEMBER_DAYS ?? 30),
     apiBaseUrl: readRequired('API_BASE_URL'),
     smsProvider: readSmsProviderSettings(),
     platformConsoleHost: process.env.PLATFORM_CONSOLE_HOST?.trim() || null,

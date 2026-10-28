@@ -35,7 +35,7 @@ import { Infrastructure } from '../common/infrastructure.js';
 
 // Đăng nhập theo đơn vị (DT-24, YCTD-220; tài liệu 32 mục 16). Học bố cục và luồng chọn đơn vị của trang đăng nhập hệ thống ngành,
 // không dùng tên, biểu trưng của cơ quan nhà nước; tiêu đề lấy từ cấu hình của nền tảng (platform_settings.login_page).
-// - Trên tên miền chung của nền tảng (PLATFORM_ROOT_DOMAIN): trang đăng nhập có ô chọn Sở → Cấp học, Phường/Xã → Trường đọc danh
+// - Trên tên miền chung của nền tảng (PLATFORM_ROOT_DOMAIN): trang đăng nhập có ô chọn Sở → Cấp, Phường / Xã → Trường (YCTD-310) đọc danh
 //   mục ở cơ sở dữ liệu nền tảng (phân trang, tìm kiếm, giới hạn tần suất; không trả cả danh mục một lượt). Đăng nhập chạy trong
 //   ngữ cảnh của đúng trường (cùng tài khoản, khóa tạm, chính sách mật khẩu, xác thực hai lớp, mã xác nhận của trường); đúng thì
 //   phiên mở ở trường đó và trình duyệt nhận mã chuyển phiên một lần (chỉ lưu mã băm, hạn 2 phút) để sang tên miền của trường.
@@ -210,10 +210,23 @@ export class UnitDirectoryService {
     return { items: await catalogDepartments(platform) };
   }
 
-  async levels(request: Request) {
+  // Không có sở thì trả mọi cấp học; có sở (và phường, xã) thì chỉ cấp học có trường trong phạm vi đó (YCTD-310)
+  async levels(request: Request, query: Record<string, unknown> = {}) {
     const platform = this.assertDirectoryHost(request);
     this.limiter.hit('read', request.ip);
-    return { items: await catalogLevels(platform) };
+    const department = text(query.department, 2);
+    const commune = this.commune(query.commune);
+    return {
+      items: await catalogLevels(platform, department ? { department: this.department(department), commune } : {}),
+    };
+  }
+
+  private commune(value: unknown): string | null {
+    const commune = text(value, 5);
+    if (commune && !/^\d{5}$/.test(commune)) {
+      throw validationError([{ field: 'commune', message: 'Mã phường, xã gồm 5 chữ số' }]);
+    }
+    return commune || null;
   }
 
   private department(value: unknown): string {
@@ -242,14 +255,10 @@ export class UnitDirectoryService {
     if (level && !CATALOG_LEVELS.some((item) => item.code === level)) {
       throw validationError([{ field: 'level', message: 'Cấp học không có trong danh mục' }]);
     }
-    const commune = text(query.commune, 5);
-    if (commune && !/^\d{5}$/.test(commune)) {
-      throw validationError([{ field: 'commune', message: 'Mã phường, xã gồm 5 chữ số' }]);
-    }
     const page = await searchCatalogUnits(platform, {
       department: this.department(query.department),
       level: level || null,
-      commune: commune || null,
+      commune: this.commune(query.commune),
       q: text(query.q),
       ...(integer(query.limit) !== undefined ? { limit: integer(query.limit) as number } : {}),
       ...(integer(query.offset) !== undefined ? { offset: integer(query.offset) as number } : {}),
@@ -368,7 +377,14 @@ export class UnitDirectoryService {
       let issued;
       try {
         const otp = text(body?.otp_code, 40);
-        issued = await this.authentication.login(login, password, 'portal', origin, otp || undefined);
+        issued = await this.authentication.login(
+          login,
+          password,
+          'portal',
+          origin,
+          otp || undefined,
+          body?.remember === true,
+        );
       } catch (error) {
         if (!isTotpRequiredError(error)) {
           await this.captcha.registerFailure(login);
@@ -454,8 +470,8 @@ export class UnitDirectoryController {
   }
 
   @Get('levels')
-  levels(@Req() request: Request) {
-    return this.directory.levels(request);
+  levels(@Query() query: Record<string, unknown>, @Req() request: Request) {
+    return this.directory.levels(request, query);
   }
 
   @Get('communes')
@@ -501,7 +517,14 @@ export class LoginHandoffController {
     @Res({ passthrough: true }) response: Response,
   ) {
     const issued = await this.directory.exchange(request, body?.code);
-    setRefreshTokenCookie(response, 'portal', issued.refreshToken, issued.refreshExpiresAt, this.clock);
+    setRefreshTokenCookie(
+      response,
+      'portal',
+      issued.refreshToken,
+      issued.refreshExpiresAt,
+      this.clock,
+      issued.refreshPersistent,
+    );
     return issued.response;
   }
 }

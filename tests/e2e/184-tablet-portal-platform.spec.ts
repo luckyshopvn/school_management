@@ -11,6 +11,7 @@ import {
   touchTargetViolations,
 } from './device-checks.js';
 import { expect, test } from './fixtures.js';
+import { signInConsole } from './platform-console.js';
 
 // DT-26 phần 26e (YCTD-235, spec 184): bố cục máy tính bảng của cổng quản trị và cổng nền tảng, chạy ở các dự án thiết bị của 26c
 // (E2E_DEVICES=pr hoặc full; ở dự án `chromium` mặc định chạy như ca thường ở khổ máy tính 1280 px). Cổng quản trị: dưới 1280 px menu là
@@ -143,16 +144,32 @@ test.describe('cổng nền tảng', () => {
   test('@thiet-bi @thiet-bi-pr CT-26e-3: cổng nền tảng: thanh bên đầy đủ từ 1280 px, biểu tượng ở 768 đến 1279 px, ngăn kéo dưới 768 px', async ({
     page,
   }) => {
-    await page.route('**/api/v1/auth/platform/login', (route) =>
-      route.fulfill({
-        status: 200,
-        contentType: 'application/json',
-        body: JSON.stringify({
-          access_token: 'ma-thu-e2e',
-          operator: { id: 'van-hanh-thu', login: 'van-hanh-thu', full_name: 'Người vận hành thử' },
-        }),
-      }),
-    );
+    // Như máy chủ thật: chưa gửi mã xác thực hai lớp thì trả lỗi đòi mã, cổng sang bước nhập mã (YCTD-312)
+    await page.route('**/api/v1/auth/platform/login', (route) => {
+      const body = route.request().postDataJSON() as { otp_code?: string };
+      return route.fulfill(
+        body.otp_code
+          ? {
+              status: 200,
+              contentType: 'application/json',
+              body: JSON.stringify({
+                access_token: 'ma-thu-e2e',
+                operator: { id: 'van-hanh-thu', login: 'van-hanh-thu', full_name: 'Người vận hành thử' },
+              }),
+            }
+          : {
+              status: 401,
+              contentType: 'application/json',
+              body: JSON.stringify({
+                error: {
+                  code: 'ERR_UNAUTHENTICATED',
+                  message: 'Cần mã xác thực hai lớp',
+                  details: [{ field: 'otp_code', message: 'Nhập mã xác thực hai lớp hoặc mã khôi phục' }],
+                },
+              }),
+            },
+      );
+    });
     await page.route('**/api/v1/auth/platform/me', (route) =>
       route.fulfill({
         status: 200,
@@ -166,14 +183,17 @@ test.describe('cổng nền tảng', () => {
       }),
     );
     await page.goto(PLATFORM_URL);
-    await expect(page.getByRole('heading', { name: 'Cổng vận hành nền tảng' })).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Đăng nhập hệ thống' })).toBeVisible();
+    await expect(page.getByText('Cổng vận hành nền tảng')).toBeVisible();
     const login = await deviceViolations(page);
     expect(login, describeViolations(login)).toEqual([]);
-    await page.getByLabel('Tên đăng nhập').fill('van-hanh-thu');
-    await page.getByLabel('Mật khẩu').fill('mat-khau-thu');
-    await page.getByLabel('Mã xác thực hai lớp').fill('123456');
-    await page.getByRole('button', { name: 'Đăng nhập' }).click();
+    // Ghi nhớ chỉ giữ tên đăng nhập; Quên Mật Khẩu? mở lời dặn liên hệ quản trị viên nền tảng
+    await page.getByRole('button', { name: 'Quên Mật Khẩu?' }).click();
+    await expect(page.getByText('Liên hệ quản trị viên nền tảng')).toBeVisible();
+    await page.getByLabel('Ghi nhớ').check();
+    await signInConsole(page, 'van-hanh-thu', 'mat-khau-thu', () => '123456');
     await expect(page.getByText('Số trường đang quản lý')).toBeVisible();
+    expect(await page.evaluate(() => localStorage.getItem('platform.login.remembered'))).toBe('van-hanh-thu');
 
     const width = page.viewportSize()?.width ?? 1280;
     const menu = page.getByRole('navigation', { name: 'Menu' });

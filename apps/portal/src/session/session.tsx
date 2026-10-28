@@ -21,7 +21,13 @@ interface SessionValue {
   // Mật khẩu đã hết hạn nên phải đổi; số ngày còn lại khi sắp hết hạn (YCTD-110)
   passwordExpired: boolean;
   passwordExpiresInDays: number | null;
-  login(loginIdentifier: string, password: string, captcha?: CaptchaAnswer, otpCode?: string): Promise<void>;
+  login(
+    loginIdentifier: string,
+    password: string,
+    captcha?: CaptchaAnswer,
+    otpCode?: string,
+    remember?: boolean,
+  ): Promise<void>;
   changePassword(currentPassword: string, newPassword: string): Promise<void>;
   logout(): Promise<void>;
   // Đăng nhập thay và thoát (DT-18 phần 18h); dữ liệu đã tải của phiên trước bị xóa khỏi bộ nhớ đệm
@@ -58,8 +64,8 @@ export function SessionProvider({ children }: { children: ReactNode }) {
       passwordChangeRequired,
       passwordExpired,
       passwordExpiresInDays,
-      async login(loginIdentifier, password, captcha, otpCode) {
-        applyTokens(await requestLogin(loginIdentifier, password, captcha, otpCode));
+      async login(loginIdentifier, password, captcha, otpCode, remember) {
+        applyTokens(await requestLogin(loginIdentifier, password, captcha, otpCode, remember));
       },
       async changePassword(currentPassword, newPassword) {
         applyTokens(await requestPasswordChange(currentPassword, newPassword));

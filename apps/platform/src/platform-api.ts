@@ -15,6 +15,8 @@ export class PlatformApiError extends Error {
   constructor(
     readonly status: number,
     message: string,
+    // Trường máy chủ báo lỗi (details[].field), ví dụ otp_code khi cần mã xác thực hai lớp
+    readonly fields: string[] = [],
   ) {
     super(message);
   }
@@ -22,13 +24,17 @@ export class PlatformApiError extends Error {
 
 async function readError(response: Response): Promise<PlatformApiError> {
   let message = 'Không thực hiện được, vui lòng thử lại';
+  let fields: string[] = [];
   try {
-    const body = (await response.json()) as { error?: { message?: string } };
+    const body = (await response.json()) as {
+      error?: { message?: string; details?: Array<{ field?: string }> };
+    };
     message = body.error?.message ?? message;
+    fields = (body.error?.details ?? []).flatMap((detail) => (detail.field ? [detail.field] : []));
   } catch {
     // Phản hồi không phải JSON: giữ thông điệp mặc định
   }
-  return new PlatformApiError(response.status, message);
+  return new PlatformApiError(response.status, message, fields);
 }
 
 // Xác thực hai lớp bắt buộc (DT-SaaS phần S8b): mã TOTP 6 số hoặc mã khôi phục gửi kèm

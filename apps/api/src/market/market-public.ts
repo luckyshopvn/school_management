@@ -6,6 +6,7 @@ import { sql, type Kysely } from 'kysely';
 import { PublicEndpoint } from '../authentication/authentication.guard.js';
 import { MarketContext, marketNotFound } from './market-context.js';
 import { vietnamToday } from './market-listing.js';
+import { notSuspended } from './market-safety-rules.js';
 import { badgesOf, verificationState, type VerificationRow } from './market-tutor-rules.js';
 
 // Tìm gia sư và trang công khai của gia sư theo Mẫu 02 (DT-27 phần 27g, YCTD-257; tài liệu 32 mục 19.5; Thông tư 29/2024 sửa bởi Thông
@@ -26,6 +27,7 @@ function visibleTutors(database: Database, today: string) {
     .innerJoin('market_accounts', 'market_accounts.id', 'market_tutor_profiles.account_id')
     .where('market_tutor_profiles.status', '=', 'approved')
     .where('market_accounts.status', '=', 'active')
+    .where(notSuspended('market_tutor_profiles.account_id'))
     .where((eb) =>
       eb.exists(
         eb
