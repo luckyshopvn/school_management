@@ -1,6 +1,8 @@
 import { useCallback, useEffect, useState } from 'react';
 import { OPERATOR_MENU_CAPABILITIES, operatorCan } from '@school-management/shared';
-import { PLATFORM_MENU } from './platform-menu.js';
+import { OPERATOR_ROLE_LABELS, PLATFORM_MENU, PLATFORM_MENU_GROUPS } from './platform-menu.js';
+import { OverviewPage } from './OverviewPage.js';
+import { AuditLogPage } from './AuditLogPage.js';
 import { PlatformMenuIcon } from './platform-icons.js';
 import { SchoolsPage } from './SchoolsPage.js';
 import { PlansPage } from './PlansPage.js';
@@ -18,7 +20,9 @@ import { LoginPage } from './LoginPage.js';
 import { OperatorPasswordPage } from './OperatorPasswordPage.js';
 
 // Khung cổng vận hành nền tảng (DT-SaaS phần S1a): đăng nhập (LoginPage), menu theo dữ liệu, trang tổng quan; các trang sau do S2,
-// S4, S5 thêm. Mã phiên chỉ giữ trong bộ nhớ của trang; tải lại trang thì đăng nhập lại
+// S4, S5 thêm. Mã phiên chỉ giữ trong bộ nhớ của trang; tải lại trang thì đăng nhập lại.
+// Giao diện theo thiết kế cổng vận hành Eric duyệt ngày 2026-10-29 (YCTD-324): thanh bên màu xanh đậm, mục chia ba nhóm, tên và vai trò
+// của nhân viên, Đổi mật khẩu, Đăng xuất ở chân thanh bên; trang đăng nhập giữ nguyên (YCTD-312, YCTD-313)
 
 function Shell({ accessToken, onLogout }: { accessToken: string; onLogout: () => void }) {
   const [profile, setProfile] = useState<OperatorProfile | null>(null);
@@ -88,43 +92,83 @@ function Shell({ accessToken, onLogout }: { accessToken: string; onLogout: () =>
           ☰
         </button>
         <strong>Cổng vận hành nền tảng</strong>
-        <span>
-          {profile?.full_name ?? ''}
+      </header>
+      {/* Từ 1280 px thanh bên đầy đủ; 768 đến 1279 px chỉ còn biểu tượng, tên mục hiện khi rê chuột, đưa bàn phím tới hoặc chạm giữ; dưới
+          768 px ngăn kéo (DT-26 phần 26e). Thứ tự mục giữ theo PLATFORM_MENU */}
+      <nav id="menu-nen-tang" aria-label="Menu">
+        <div className="brand" aria-hidden="true">
+          <svg
+            width="28"
+            height="28"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.8"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <path d="M3 10l9-6 9 6" />
+            <path d="M5 10v9h14v-9" />
+            <path d="M10 19v-5h4v5" />
+          </svg>
+          <span className="menu-label">
+            <strong>Cổng vận hành</strong>
+            <small>Hệ thống quản lý trường học</small>
+          </span>
+        </div>
+        {PLATFORM_MENU_GROUPS.map((group) => {
+          const items = (mustChange ? [] : menu).filter((item) => item.group === group.key);
+          return items.length === 0 ? null : (
+            <div key={group.key} className="menu-group" role="group" aria-label={group.label}>
+              <span className="menu-group-label menu-label" aria-hidden="true">
+                {group.label}
+              </span>
+              {items.map((item) => (
+                <button
+                  key={item.key}
+                  type="button"
+                  aria-current={item.key === active}
+                  // Tên đọc vẫn đủ khi thanh chỉ còn biểu tượng (chữ của mục bị ẩn)
+                  aria-label={item.label}
+                  data-hint={hint === item.key ? 'true' : undefined}
+                  onClick={() => {
+                    setActive(item.key);
+                    setMenuOpen(false);
+                  }}
+                  onContextMenu={(event) => {
+                    // Chạm giữ trên máy tính bảng: hiện tên mục một lúc thay cho menu ngữ cảnh
+                    event.preventDefault();
+                    setHint(item.key);
+                  }}
+                >
+                  <PlatformMenuIcon menuKey={item.key} label={item.label} />
+                  <span className="menu-label">{item.label}</span>
+                </button>
+              ))}
+            </div>
+          );
+        })}
+        <div className="operator">
+          <span className="menu-label operator-name">{profile?.full_name ?? ''}</span>
+          <span className="menu-label operator-role">
+            {profile ? (OPERATOR_ROLE_LABELS[profile.role] ?? profile.role) : ''}
+          </span>
           {profile && !mustChange ? (
-            <button type="button" aria-current={active === 'password'} onClick={() => setActive('password')}>
+            <button
+              type="button"
+              aria-current={active === 'password'}
+              onClick={() => {
+                setActive('password');
+                setMenuOpen(false);
+              }}
+            >
               Đổi mật khẩu
             </button>
           ) : null}
           <button type="button" onClick={onLogout}>
             Đăng xuất
           </button>
-        </span>
-      </header>
-      {/* Từ 1280 px thanh bên đầy đủ; 768 đến 1279 px chỉ còn biểu tượng, tên mục hiện khi rê chuột, đưa bàn phím tới hoặc chạm giữ; dưới
-          768 px ngăn kéo (DT-26 phần 26e). Thứ tự mục giữ theo PLATFORM_MENU */}
-      <nav id="menu-nen-tang" aria-label="Menu">
-        {(mustChange ? [] : menu).map((item) => (
-          <button
-            key={item.key}
-            type="button"
-            aria-current={item.key === active}
-            // Tên đọc vẫn đủ khi thanh chỉ còn biểu tượng (chữ của mục bị ẩn)
-            aria-label={item.label}
-            data-hint={hint === item.key ? 'true' : undefined}
-            onClick={() => {
-              setActive(item.key);
-              setMenuOpen(false);
-            }}
-            onContextMenu={(event) => {
-              // Chạm giữ trên máy tính bảng: hiện tên mục một lúc thay cho menu ngữ cảnh
-              event.preventDefault();
-              setHint(item.key);
-            }}
-          >
-            <PlatformMenuIcon menuKey={item.key} label={item.label} />
-            <span className="menu-label">{item.label}</span>
-          </button>
-        ))}
+        </div>
       </nav>
       {menuOpen ? <div className="menu-backdrop" aria-hidden="true" onClick={() => setMenuOpen(false)} /> : null}
       <main>
@@ -135,13 +179,14 @@ function Shell({ accessToken, onLogout }: { accessToken: string; onLogout: () =>
         {mustChange || !profile || !menu.some((item) => item.key === active) ? null : (
           <>
             {active === 'overview' && profile ? (
-              <section>
-                <h2>Tổng quan</h2>
-                <p>
-                  Số trường đang quản lý: <strong>{profile.school_count}</strong>
-                </p>
-              </section>
+              <OverviewPage
+                token={accessToken}
+                role={profile.role}
+                schoolCount={profile.school_count}
+                onNavigate={setActive}
+              />
             ) : null}
+            {active === 'audit' ? <AuditLogPage token={accessToken} /> : null}
             {active === 'schools' ? <SchoolsPage token={accessToken} role={profile.role} /> : null}
             {active === 'plans' ? <PlansPage accessToken={accessToken} /> : null}
             {active === 'billing' ? <BillingPage accessToken={accessToken} /> : null}

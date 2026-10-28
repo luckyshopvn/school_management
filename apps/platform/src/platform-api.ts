@@ -160,6 +160,8 @@ export interface SchoolSummary {
   legacy: boolean;
   created_at: string;
   delete_after: string | null;
+  // Mã Bộ của đơn vị trong danh mục (DT-24), để vào trường từ danh sách (YCTD-324)
+  moet_code?: string | null;
   domains: Array<{ host: string; status: string }>;
 }
 

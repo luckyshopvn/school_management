@@ -201,6 +201,7 @@ test.describe('cổng nền tảng', () => {
           id: 'van-hanh-thu',
           login: 'van-hanh-thu',
           full_name: 'Người vận hành thử',
+          role: 'quan_tri',
           school_count: 3,
         }),
       }),
@@ -215,7 +216,9 @@ test.describe('cổng nền tảng', () => {
     await expect(page.getByText('Liên hệ quản trị viên nền tảng')).toBeVisible();
     await page.getByLabel('Ghi nhớ').check();
     await signInConsole(page, 'van-hanh-thu', 'mat-khau-thu', () => '123456', { captcha: () => 'ABCDE' });
-    await expect(page.getByText('Số trường đang quản lý')).toBeVisible();
+    // Trang Tổng quan theo thiết kế cổng vận hành (YCTD-324): ô Đã khởi tạo lấy số trường của tài khoản khi chưa có số liệu tổng quan
+    await expect(page.getByRole('heading', { name: 'Tổng quan nền tảng' })).toBeVisible();
+    await expect(page.getByTestId('tile-schools')).toHaveText('3');
     expect(await page.evaluate(() => localStorage.getItem('platform.login.remembered'))).toBe('van-hanh-thu');
 
     const width = page.viewportSize()?.width ?? 1280;

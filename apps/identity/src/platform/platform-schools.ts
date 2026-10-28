@@ -177,7 +177,7 @@ export class PlatformSchoolsService {
   async list() {
     const schools = await this.platform
       .selectFrom('schools')
-      .select(['id', 'code', 'name', 'status', 'data_class', 'legacy', 'created_at', 'delete_after'])
+      .select(['id', 'code', 'name', 'status', 'data_class', 'legacy', 'created_at', 'delete_after', 'moet_code'])
       .orderBy('code')
       .execute();
     const domains = await this.platform.selectFrom('school_domains').select(['school_id', 'host', 'status']).execute();
