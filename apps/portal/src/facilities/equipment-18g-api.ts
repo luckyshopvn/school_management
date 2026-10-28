@@ -139,6 +139,7 @@ export interface ComparisonRow {
 }
 
 export interface Comparison {
+  catalog_source: { standard: boolean; legal_basis: string; note: string };
   school_level: string;
   catalog_count: number;
   not_applicable_count: number;
@@ -216,3 +217,15 @@ export async function downloadFile(path: string, body: unknown, fallbackName: st
   link.click();
   setTimeout(() => URL.revokeObjectURL(link.href), 10_000);
 }
+
+// Nguồn danh mục tối thiểu của từng cấp đang bật (YCTD-345)
+export interface CatalogLevelInfo {
+  school_level: string;
+  standard: boolean;
+  legal_basis: string;
+  note: string;
+  template_codes: string[];
+  catalog_count: number;
+}
+
+export const listCatalogLevels = (): Promise<CatalogLevelInfo[]> => requestJson('/api/v1/equipment-minimum/levels');

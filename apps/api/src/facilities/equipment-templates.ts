@@ -2,6 +2,10 @@
 // equipment_items (cấu hình, Hiệu trưởng sửa trên màn hình); mẫu ở đây chỉ dùng khi bấm "Nạp danh mục mẫu": thêm dòng có
 // mã chưa có, không sửa dòng đã có. Mỗi mẫu ghi văn bản gốc; cấp khác thêm mẫu mới ở đây, không đổi mã.
 //
+// Tiểu học, THCS, THPT (YCTD-345): tài liệu dự án chỉ nêu số văn bản (Thông tư 37, 38, 39/2021/TT-BGDĐT, tài liệu 32 mục
+// 18g), không có nội dung danh mục, nên chưa có mẫu ở đây; trường tự nhập danh mục (EQUIPMENT_CATALOG_SOURCES của gói dùng
+// chung). Chỉ thêm mẫu khi danh mục được đưa vào tài liệu của dự án, không chép lại từ trí nhớ.
+//
 // Mẫu Mầm non: Danh mục đồ dùng, đồ chơi, thiết bị dạy học tối thiểu dùng cho giáo dục mầm non ban hành kèm Thông tư
 // 02/2010/TT-BGDĐT, đã bỏ 47 thiết bị bị bãi bỏ và đổi tên hai thiết bị (MN122047, MN232079) theo Thông tư
 // 34/2013/TT-BGDĐT. Mã số, tên, đơn vị tính, số lượng, đối tượng sử dụng chép từ văn bản (bản đăng trên trang văn bản pháp

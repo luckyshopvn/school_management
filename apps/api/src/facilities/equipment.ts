@@ -8,12 +8,14 @@ import {
 } from '@school-management/server';
 import {
   DEVELOPMENT_AREAS,
-  EQUIPMENT_AGE_GROUPS,
+  EQUIPMENT_ALL_GROUPS,
   EQUIPMENT_GROUPS,
   EQUIPMENT_NORM_BASES,
   EQUIPMENT_TARGET_USERS,
+  equipmentLevelOfGroup,
   PERMISSION_CODES,
   type CodeLabel,
+  type EquipmentSchoolLevel,
 } from '@school-management/shared';
 import type { Request, Response } from 'express';
 import { sql } from 'kysely';
@@ -28,8 +30,10 @@ import {
   readRequiredUuid,
   type RequestBody,
 } from '../common/request-fields.js';
+import { SchoolLevelResolver } from '../common/school-levels.js';
 import { uuidParameter } from '../common/uuid-parameter.js';
-import { buildEquipmentReport } from './equipment-report-calc.js';
+import { assertLevelEnabled, readSchoolLevel } from '../catalogs/school-level-fields.js';
+import { buildEquipmentReport, normGroupOf } from './equipment-report-calc.js';
 import { FacilitiesData } from './facilities-data.js';
 import { buildFacilitiesWorkbook, fileStamp, sendWorkbook } from './facilities-workbook.js';
 
@@ -61,9 +65,13 @@ const ITEM_COLUMNS = [
   'order_no',
   'status',
   'note',
+  'school_level',
+  'template_code',
 ] as const;
 
 export interface EquipmentItemInput {
+  // Cấp học của thiết bị (YCTD-345): không gửi thì suy từ nhóm tuổi hoặc khối
+  school_level?: EquipmentSchoolLevel;
   code?: string;
   name?: string;
   unit?: string;
@@ -174,9 +182,24 @@ export function readItemInput(body: RequestBody, errors: FieldError[], creating:
   if (area !== undefined) {
     input.development_area = area;
   }
-  const age = readCode(body, 'age_group', EQUIPMENT_AGE_GROUPS, errors, creating);
+  const age = readCode(body, 'age_group', EQUIPMENT_ALL_GROUPS, errors, creating);
   if (age) {
     input.age_group = age;
+  }
+  const level = readSchoolLevel(body, 'school_level', errors);
+  if (level) {
+    input.school_level = level;
+  }
+  // Nhóm tuổi chỉ có ở Mầm non, khối K1–K5 ở Tiểu học, K6–K9 ở THCS, K10–K12 ở THPT (YCTD-345)
+  if (age && level && equipmentLevelOfGroup(age) !== level) {
+    errors.push({ field: 'age_group', message: 'Nhóm tuổi, khối không thuộc cấp học đã chọn' });
+  }
+  if (age && !level) {
+    input.school_level = equipmentLevelOfGroup(age) ?? undefined;
+  }
+  // Lĩnh vực phát triển chỉ dùng cho Mầm non
+  if (input.development_area && input.school_level && input.school_level !== 'MN') {
+    errors.push({ field: 'development_area', message: 'Lĩnh vực phát triển chỉ dùng cho Mầm non' });
   }
   const quantity = readQuantity(body?.quantity, 'quantity', errors, creating);
   if (quantity !== undefined) {
@@ -301,7 +324,7 @@ export function readEquipmentFilter(query: Record<string, string | undefined>): 
   const filter: EquipmentFilter = {
     orgUnitId: readUuidQuery(query.org_unit_id, 'org_unit_id', errors),
     classId: readUuidQuery(query.class_id, 'class_id', errors),
-    ageGroup: readCodeQuery(query.age_group, 'age_group', EQUIPMENT_AGE_GROUPS, errors),
+    ageGroup: readCodeQuery(query.age_group, 'age_group', EQUIPMENT_ALL_GROUPS, errors),
     equipmentGroup: readCodeQuery(query.equipment_group, 'equipment_group', EQUIPMENT_GROUPS, errors),
     developmentArea: readCodeQuery(query.development_area, 'development_area', DEVELOPMENT_AREAS, errors),
     isMinimum: readBooleanQuery(query.is_minimum, 'is_minimum', errors),
@@ -317,9 +340,13 @@ export class EquipmentService {
   constructor(
     private readonly data: FacilitiesData,
     private readonly clock: Clock,
+    private readonly schoolLevels: SchoolLevelResolver,
   ) {}
 
-  async listItems(currentUser: CurrentUser, filter: { ageGroup: string | null; isMinimum: boolean | null }) {
+  async listItems(
+    currentUser: CurrentUser,
+    filter: { ageGroup: string | null; isMinimum: boolean | null; schoolLevel?: EquipmentSchoolLevel | null },
+  ) {
     await this.data.units(currentUser, [MANAGE, REPORT], null);
     const database = await this.data.database();
     let query = database.selectFrom('equipment_items').select(ITEM_COLUMNS).orderBy('order_no').orderBy('code');
@@ -329,7 +356,18 @@ export class EquipmentService {
     if (filter.isMinimum !== null) {
       query = query.where('is_minimum', '=', filter.isMinimum);
     }
+    if (filter.schoolLevel) {
+      query = query.where('school_level', '=', filter.schoolLevel);
+    }
     return (await query.execute()).map(formatItem);
+  }
+
+  // Cấp của thiết bị phải đang bật ở trường; nhóm tuổi, khối phải thuộc cấp đó (YCTD-345)
+  private async checkLevel(level: EquipmentSchoolLevel, ageGroup: string) {
+    if (equipmentLevelOfGroup(ageGroup) !== level) {
+      throw validationError([{ field: 'age_group', message: 'Nhóm tuổi, khối không thuộc cấp học đã chọn' }]);
+    }
+    await assertLevelEnabled(this.schoolLevels, level);
   }
 
   async createItem(currentUser: CurrentUser, input: EquipmentItemInput, origin: ChangeOrigin) {
@@ -338,6 +376,8 @@ export class EquipmentService {
       [MANAGE],
       'Chỉ người quản lý thiết bị toàn trường sửa được danh mục thiết bị',
     );
+    const schoolLevel = input.school_level ?? 'MN';
+    await this.checkLevel(schoolLevel, input.age_group ?? '');
     const database = await this.data.database();
     return database.transaction().execute(async (transaction) => {
       const last = await transaction
@@ -363,6 +403,7 @@ export class EquipmentService {
             is_minimum: input.is_minimum ?? false,
             note: input.note ?? null,
             order_no: orderNo,
+            school_level: schoolLevel,
             created_by: origin.actorUserId,
           })
           .returning(ITEM_COLUMNS)
@@ -397,6 +438,17 @@ export class EquipmentService {
       .executeTakeFirst();
     if (!existing) {
       throw notFoundError('Không tìm thấy thiết bị', 'equipment_item');
+    }
+    if (input.school_level !== undefined || input.age_group !== undefined) {
+      const level = input.school_level ?? existing.school_level;
+      const group = input.age_group ?? existing.age_group;
+      if (level !== existing.school_level || group !== existing.age_group) {
+        await this.checkLevel(level, group);
+      }
+      const area = input.development_area !== undefined ? input.development_area : existing.development_area;
+      if (level !== 'MN' && area) {
+        throw validationError([{ field: 'development_area', message: 'Lĩnh vực phát triển chỉ dùng cho Mầm non' }]);
+      }
     }
     return database.transaction().execute(async (transaction) => {
       const updated = await conflictOnDuplicate(
@@ -606,11 +658,11 @@ export class EquipmentService {
         (!filter.developmentArea || item.development_area === filter.developmentArea) &&
         (filter.isMinimum === null || item.is_minimum === filter.isMinimum),
     );
-    const classes = filter.ageGroup ? allClasses.filter((row) => row.age_group === filter.ageGroup) : allClasses;
+    const classes = filter.ageGroup ? allClasses.filter((row) => normGroupOf(row) === filter.ageGroup) : allClasses;
     return {
       org_unit_ids: unitIds,
       // Lớp chưa xếp được nhóm tuổi (khối không có trong danh mục bậc học) không tính định mức
-      unclassified_classes: allClasses.filter((row) => row.age_group === null).map((row) => row.name),
+      unclassified_classes: allClasses.filter((row) => normGroupOf(row) === null).map((row) => row.name),
       ...buildEquipmentReport({ items, classes, holdings, assets, classId: filter.classId }),
     };
   }
@@ -652,7 +704,7 @@ export class EquipmentService {
           ],
           rows: report.rows.map((row) => ({
             ...row,
-            age_group: labelOf(EQUIPMENT_AGE_GROUPS, row.age_group),
+            age_group: labelOf(EQUIPMENT_ALL_GROUPS, row.age_group),
             equipment_group: labelOf(EQUIPMENT_GROUPS, row.equipment_group),
             kind: row.is_minimum ? 'Tối thiểu' : 'Ngoài danh mục',
           })),
@@ -667,7 +719,7 @@ export class EquipmentService {
             { key: 'covered', label: 'Đáp ứng' },
             { key: 'rate_percent', label: 'Tỷ lệ đáp ứng (%)' },
           ],
-          rows: report.classes.map((row) => ({ ...row, age_group: labelOf(EQUIPMENT_AGE_GROUPS, row.age_group) })),
+          rows: report.classes.map((row) => ({ ...row, age_group: labelOf(EQUIPMENT_ALL_GROUPS, row.age_group) })),
         },
       ],
     });
@@ -683,8 +735,9 @@ export class EquipmentController {
   listItems(@Query() query: Record<string, string | undefined>, @AuthenticatedUser() currentUser: CurrentUser) {
     const errors: FieldError[] = [];
     const filter = {
-      ageGroup: readCodeQuery(query.age_group, 'age_group', EQUIPMENT_AGE_GROUPS, errors),
+      ageGroup: readCodeQuery(query.age_group, 'age_group', EQUIPMENT_ALL_GROUPS, errors),
       isMinimum: readBooleanQuery(query.is_minimum, 'is_minimum', errors),
+      schoolLevel: readSchoolLevel(query, 'school_level', errors) ?? null,
     };
     if (errors.length > 0) {
       throw validationError(errors);
