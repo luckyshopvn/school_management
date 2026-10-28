@@ -80,6 +80,7 @@ import { PayablesPage } from './finance/PayablesPage.js';
 import { FiscalPeriodsPage } from './finance/FiscalPeriodsPage.js';
 import { LedgerPage } from './ledger/LedgerPage.js';
 import { StaffPage } from './staff/StaffPage.js';
+import { StaffDetailPage } from './staff/StaffDetailPage.js';
 import { StaffBranchesPage } from './staff/StaffBranchesPage.js';
 import { StaffIdentityPage } from './staff/StaffIdentityPage.js';
 import { StaffImportsPage } from './staff/StaffImportsPage.js';
@@ -578,6 +579,8 @@ const routeTree = rootRoute.addChildren([
   createRoute({ getParentRoute: () => rootRoute, path: '/fiscal-periods', component: FiscalPeriodsPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/ledger', component: LedgerPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/staff', component: StaffPage }),
+  // Trang hồ sơ một cán bộ, giáo viên chia thẻ, thẻ đang mở ở ?tab= (YCTD-297)
+  createRoute({ getParentRoute: () => rootRoute, path: '/staff/$staffId', component: StaffDetailPage }),
   // Nhân sự đủ theo Sở (DT-16 phần 16f)
   createRoute({ getParentRoute: () => rootRoute, path: '/staff-branches', component: StaffBranchesPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/staff-imports', component: StaffImportsPage }),

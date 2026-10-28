@@ -1,5 +1,6 @@
 import { useCallback, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
+import { useNavigate } from '@tanstack/react-router';
 import { PERMISSION_CODES } from '@school-management/shared';
 import { Alert, Button, DataGrid, Toast, type DataGridColumn } from '@school-management/ui';
 import { UnitSelect, useUnitChoice } from '../catalogs/UnitSelect.js';
@@ -9,7 +10,6 @@ import { AppShell } from '../pages/AppShell.js';
 import { matchesSearch } from '../pages/grid-search.js';
 import { useGridSettings } from '../pages/grid-settings.js';
 import { useHasPermission } from '../session/permissions.js';
-import { StaffDetailPanel } from '../staff/StaffDetailPanel.js';
 import { readMissingChildFields, readMissingStaffFields, type MissingFields } from './statistics-api.js';
 
 // 5.8, 5.9 Thống kê hồ sơ chưa nhập đủ (DT-14 phần 14a, YCTD-102): số học sinh, nhân sự thiếu từng trường thông tin; bấm
@@ -68,6 +68,12 @@ function recordColumns(tab: Tab, openRecord: (record: ListedRecord) => void): Ar
 export function MissingView({ tab, orgUnitId }: { tab: Tab; orgUnitId: string }) {
   const [field, setField] = useState('');
   const [openId, setOpenId] = useState<string>();
+  const navigate = useNavigate();
+  // Hồ sơ nhân sự mở ở trang riêng, thẻ Hồ sơ CSDL Bộ chứa các ô theo Sở (YCTD-297); hồ sơ học sinh vẫn mở tại chỗ
+  const openRecord = (record: ListedRecord) =>
+    tab === 'staff'
+      ? void navigate({ to: '/staff/$staffId', params: { staffId: record.id }, search: { tab: 'moet' } })
+      : setOpenId(openId === record.id ? undefined : record.id);
   const [search, setSearch] = useState('');
   const [unitName, setUnitName] = useState('');
   const grid = useGridSettings(tab === 'children' ? 'missing-child-profiles' : 'missing-staff-profiles');
@@ -157,7 +163,7 @@ export function MissingView({ tab, orgUnitId }: { tab: Tab; orgUnitId: string })
           <h2 className="text-section-title font-semibold text-text">Thiếu {selected.label}</h2>
           <DataGrid
             label="Danh sách hồ sơ thiếu"
-            columns={recordColumns(tab, (record) => setOpenId(openId === record.id ? undefined : record.id))}
+            columns={recordColumns(tab, openRecord)}
             rows={rows}
             getRowId={(row) => row.id}
             getRowLabel={(row) => row.full_name}
@@ -204,13 +210,9 @@ export function MissingView({ tab, orgUnitId }: { tab: Tab; orgUnitId: string })
           />
         </>
       ) : null}
-      {openId ? (
+      {openId && tab === 'children' ? (
         <section className="rounded-xl border border-border bg-card p-4" aria-label="Hồ sơ đang mở">
-          {tab === 'children' ? (
-            <ChildDetailPanel key={openId} childId={openId} onChanged={setToastMessage} />
-          ) : (
-            <StaffDetailPanel key={openId} staffId={openId} onChanged={setToastMessage} />
-          )}
+          <ChildDetailPanel key={openId} childId={openId} onChanged={setToastMessage} />
         </section>
       ) : null}
     </>

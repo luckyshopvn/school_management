@@ -1,5 +1,6 @@
 import { useCallback, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { Link, useNavigate } from '@tanstack/react-router';
 import { PERMISSION_CODES } from '@school-management/shared';
 import {
   Alert,
@@ -31,7 +32,6 @@ import {
   type StaffFilter,
   type StaffListItem,
 } from './staff-api.js';
-import { StaffDetailPanel } from './StaffDetailPanel.js';
 import {
   deleteStaff,
   exportMinistryErrors,
@@ -390,7 +390,9 @@ export function StaffPage() {
   const [search, setSearch] = useState('');
   const [filter, setFilter] = useState<StaffFilter>({});
   const [page, setPage] = useState(1);
-  const [openId, setOpenId] = useState<string>();
+  const navigate = useNavigate();
+  // Hồ sơ một người mở ở trang riêng chia thẻ (YCTD-297), lưới dùng toàn chiều rộng
+  const openProfile = (staffId: string) => void navigate({ to: '/staff/$staffId', params: { staffId } });
   const [creating, setCreating] = useState(false);
   const [toastMessage, setToastMessage] = useState<string>();
   const [exportError, setExportError] = useState<string>();
@@ -457,7 +459,6 @@ export function StaffPage() {
       setDeleteResult(result);
       if (result.deleted_count > 0) {
         setToastMessage(`Đã xóa ${result.deleted_count} hồ sơ`);
-        setOpenId(undefined);
       }
       await queryClient.invalidateQueries({ queryKey: ['staff'] });
     },
@@ -564,9 +565,8 @@ export function StaffPage() {
               onCancel={() => setCreating(false)}
               onCreated={(created) => {
                 setCreating(false);
-                setOpenId(created.id);
-                setToastMessage(`Đã tạo hồ sơ ${created.full_name}`);
                 void queryClient.invalidateQueries({ queryKey: ['staff'] });
+                openProfile(created.id);
               }}
             />
           </section>
@@ -624,13 +624,7 @@ export function StaffPage() {
           toolbar={(selectedRows) => (
             <>
               {canManage ? (
-                <Button
-                  variant="primary"
-                  onClick={() => {
-                    setCreating(true);
-                    setOpenId(undefined);
-                  }}
-                >
+                <Button variant="primary" onClick={() => setCreating(true)}>
                   Thêm mới
                 </Button>
               ) : null}
@@ -638,8 +632,10 @@ export function StaffPage() {
                 disabled={selectedRows.length !== 1}
                 title={selectedRows.length !== 1 ? 'Chọn một hồ sơ để thay đổi' : undefined}
                 onClick={() => {
-                  setCreating(false);
-                  setOpenId(selectedRows[0]?.id);
+                  const selected = selectedRows[0];
+                  if (selected) {
+                    openProfile(selected.id);
+                  }
                 }}
               >
                 Thay đổi
@@ -677,28 +673,20 @@ export function StaffPage() {
           )}
           selectable
           rowActions={(row) => (
-            <Button variant="text" onClick={() => setOpenId(openId === row.id ? undefined : row.id)}>
-              {openId === row.id ? 'Ẩn' : 'Hồ sơ'}
-            </Button>
+            <Link
+              to="/staff/$staffId"
+              params={{ staffId: row.id }}
+              className="flex min-h-11 items-center px-2 text-content font-medium text-link hover:underline"
+            >
+              Hồ sơ
+            </Link>
           )}
-          onRowClick={(row) => {
-            setOpenId(row.id);
-            setCreating(false);
-          }}
-          activeRowId={openId}
-          renderRowDetail={(row) =>
-            openId === row.id ? <StaffDetailPanel key={row.id} staffId={row.id} onChanged={setToastMessage} /> : null
-          }
+          onRowClick={(row) => openProfile(row.id)}
           settings={grid.settings}
           onSettingsChange={grid.update}
           exportPdf={canExport ? (columnIds) => exportStaff(activeFilter, columnIds, 'pdf') : undefined}
           serverPagination={{ page, total: staff.data?.total ?? 0, onPageChange: setPage }}
         />
-        {openId && !(staff.data?.items ?? []).some((row) => row.id === openId) ? (
-          <section className="rounded-xl border border-border bg-card p-4">
-            <StaffDetailPanel key={openId} staffId={openId} onChanged={setToastMessage} />
-          </section>
-        ) : null}
       </div>
     </AppShell>
   );
