@@ -1,5 +1,5 @@
 import { createHash } from 'node:crypto';
-import { Body, Controller, Get, HttpCode, Inject, Injectable, Post, Req } from '@nestjs/common';
+import { Body, Controller, Get, HttpCode, Inject, Injectable, Post, Req, Res } from '@nestjs/common';
 import { ApplicationError, validationError } from '@school-management/server';
 import {
   IdentityProviderError,
@@ -8,7 +8,8 @@ import {
   type ExternalIdentityResult,
   type ExternalProviderDefinition,
 } from '@school-management/server/external-identity';
-import type { Request } from 'express';
+import { API_VERSION_PREFIX } from '@school-management/shared';
+import type { Request, Response } from 'express';
 import { PublicEndpoint } from '../authentication/authentication.guard.js';
 import { API_CONFIGURATION, type ApiConfiguration } from '../common/configuration.js';
 import type { RequestBody } from '../common/request-fields.js';
@@ -24,9 +25,34 @@ import { MarketContext, marketNotFound } from './market-context.js';
 // - xác minh: nhà cung cấp phải trả ngày sinh và đủ 18 tuổi; một người (mã đối tượng của nhà cung cấp) chỉ gắn một tài khoản gia sư;
 //   chợ chỉ lưu băm của mã đối tượng, không lưu ngày sinh, chỉ lưu "đủ 18 tuổi";
 // - đăng nhập: chỉ tài khoản gia sư đã xác minh danh tính bằng đúng nhà cung cấp đó; không tự tạo tài khoản
+// - lượt chuyển hướng gắn với trình duyệt đã bắt đầu (YCTD-322): lúc bắt đầu đặt cookie httpOnly chứa state, lúc hoàn tất phải khớp;
+//   xác minh còn phải có phiên của đúng tài khoản đã bắt đầu
 const REQUEST_LIFETIME_MS = 10 * 60 * 1000;
 const RETURN_PATH = '/xac-minh';
 const ADULT_AGE = 18;
+// Tiền tố __Secure-: trình duyệt chỉ nhận cookie có Secure từ trang an toàn, tên miền anh em không đặt đè được
+const STATE_COOKIE = '__Secure-market_oidc_state';
+const STATE_COOKIE_OPTIONS = {
+  httpOnly: true,
+  secure: true,
+  // Lax: ứng dụng gọi hoàn tất cùng nguồn gốc sau khi nhà cung cấp chuyển về /xac-minh nên vẫn gửi; trang khác không gửi được
+  sameSite: 'lax',
+  path: `${API_VERSION_PREFIX}/market/identity`,
+} as const;
+
+function readStateCookie(request: Request): string {
+  for (const part of (request.header('cookie') ?? '').split(';')) {
+    const separator = part.indexOf('=');
+    if (separator > 0 && part.slice(0, separator).trim() === STATE_COOKIE) {
+      return decodeURIComponent(part.slice(separator + 1).trim());
+    }
+  }
+  return '';
+}
+
+function staleRequest(): never {
+  throw validationError([{ field: 'state', message: 'Lượt xác minh đã hết hạn hoặc đã dùng, hãy bắt đầu lại' }]);
+}
 
 function hashState(state: string): string {
   return createHash('sha256').update(`market-oidc-state:${state}`).digest('hex');
@@ -103,7 +129,7 @@ export class MarketIdentityService {
     return `${url.origin}${RETURN_PATH}`;
   }
 
-  async start(request: Request, body: RequestBody) {
+  async start(request: Request, body: RequestBody, response: Response) {
     const settings = await this.assertTutorApp(request);
     const purpose = body?.purpose === 'login' ? 'login' : 'verify';
     const accountId = purpose === 'verify' ? (await this.market.account(request)).id : null;
@@ -124,6 +150,7 @@ export class MarketIdentityService {
         used_at: null,
       })
       .execute();
+    response.cookie(STATE_COOKIE, parameters.state, { ...STATE_COOKIE_OPTIONS, maxAge: REQUEST_LIFETIME_MS });
     try {
       return { authorization_url: await provider.authorizationUrl(parameters) };
     } catch (error) {
@@ -134,10 +161,14 @@ export class MarketIdentityService {
     }
   }
 
-  async complete(request: Request, body: RequestBody) {
+  async complete(request: Request, body: RequestBody, response: Response) {
     await this.assertTutorApp(request);
     const state = typeof body?.state === 'string' ? body.state : '';
     const code = typeof body?.code === 'string' ? body.code : '';
+    // Trình duyệt hoàn tất phải là trình duyệt đã bắt đầu (cookie không có hoặc khác thì không dùng lượt này)
+    const bound = readStateCookie(request);
+    response.clearCookie(STATE_COOKIE, STATE_COOKIE_OPTIONS);
+    if (!state || bound !== state) staleRequest();
     const now = this.market.now();
     const row = state
       ? await this.market.database
@@ -149,9 +180,9 @@ export class MarketIdentityService {
           .returningAll()
           .executeTakeFirst()
       : undefined;
-    if (!row || !code) {
-      throw validationError([{ field: 'state', message: 'Lượt xác minh đã hết hạn hoặc đã dùng, hãy bắt đầu lại' }]);
-    }
+    if (!row || !code) staleRequest();
+    // Kết quả xác minh chỉ ghi cho tài khoản đang đăng nhập, đúng tài khoản đã bắt đầu
+    if (row.purpose === 'verify' && (await this.market.account(request)).id !== row.account_id) staleRequest();
     let identity: ExternalIdentityResult;
     try {
       identity = await this.provider(row.provider).exchange(
@@ -300,13 +331,13 @@ export class MarketIdentityController {
 
   @Post('start')
   @HttpCode(200)
-  start(@Req() request: Request, @Body() body: RequestBody) {
-    return this.identity.start(request, body);
+  start(@Req() request: Request, @Body() body: RequestBody, @Res({ passthrough: true }) response: Response) {
+    return this.identity.start(request, body, response);
   }
 
   @Post('complete')
   @HttpCode(200)
-  complete(@Req() request: Request, @Body() body: RequestBody) {
-    return this.identity.complete(request, body);
+  complete(@Req() request: Request, @Body() body: RequestBody, @Res({ passthrough: true }) response: Response) {
+    return this.identity.complete(request, body, response);
   }
 }
