@@ -28,19 +28,23 @@ import {
   createContract,
   linkAccount,
   readStaff,
+  readStaffTeachingAssignments,
   STAFF_STATUS_LABELS,
   terminateContract,
   unlinkAccount,
   updateStaffProfile,
   type ContractType,
   type StaffDetail,
+  type StaffTeachingAssignments,
 } from './staff-api.js';
+import { ASSIGNMENT_ROLE_LABELS } from '../classes/classes-api.js';
 import { StaffProfileForm, staffProfileValues } from './StaffProfileForm.js';
 
 // Trang hồ sơ cán bộ, giáo viên `/staff/$staffId` (MH-12; P07-01, P07-02; YCTD-58, YCTD-112; tách khỏi khung dưới dòng của
 // lưới ở YCTD-309): đầu trang có họ tên, chức danh, phòng ban và nút quay lại danh sách; mỗi phần một thẻ, thẻ đang mở
 // lưu ở `?tab=`. Thẻ Hợp đồng chỉ hiện với người xem được hợp đồng (BR-46, máy chủ trả `contracts` là null); thẻ Lương và
-// phụ cấp, Quá trình công tác ẩn khi máy chủ từ chối quyền xem
+// phụ cấp, Quá trình công tác ẩn khi máy chủ từ chối quyền xem; thẻ Phân công giảng dạy hiện khi nhân sự có phân công đang
+// hiệu lực hoặc hồ sơ chưa liên kết tài khoản
 function messageOf(error: unknown): string {
   return error instanceof ApiError
     ? [error.message, ...error.details.map((detail) => detail.message)].join('. ')
@@ -382,7 +386,52 @@ function ContractsSection({
   );
 }
 
-type StaffTab = 'general' | 'moet' | 'contracts' | 'pay' | 'history';
+// Phân công giảng dạy, chủ nhiệm đang hiệu lực ở năm học hiện tại; phân công gắn với tài khoản liên kết của hồ sơ
+function TeachingSection({ assignments }: { assignments: StaffTeachingAssignments }) {
+  if (!assignments.has_account) {
+    return (
+      <p className="text-content text-text-secondary">
+        Hồ sơ chưa liên kết tài khoản nên chưa có phân công. Liên kết tài khoản ở thẻ Thông tin chung.
+      </p>
+    );
+  }
+  if (assignments.items.length === 0) {
+    return <p className="text-content text-text-secondary">Chưa được phân công lớp nào trong năm học hiện tại.</p>;
+  }
+  return (
+    <section className="flex flex-col gap-3" aria-label="Phân công giảng dạy">
+      <p className="text-content text-text">
+        Tổng <span className="font-semibold tabular-nums">{assignments.total_periods}</span> tiết mỗi tuần
+      </p>
+      <div className="overflow-x-auto rounded-lg border border-border">
+        <table className="w-full min-w-[36rem] border-collapse text-content">
+          <thead>
+            <tr className="bg-page text-left text-label text-text-secondary">
+              <th className="px-3 py-2 font-semibold">Lớp</th>
+              <th className="px-3 py-2 font-semibold">Vai trò</th>
+              <th className="px-3 py-2 font-semibold">Môn</th>
+              <th className="px-3 py-2 text-right font-semibold">Số tiết/tuần</th>
+              <th className="px-3 py-2 font-semibold">Từ ngày</th>
+            </tr>
+          </thead>
+          <tbody>
+            {assignments.items.map((item) => (
+              <tr key={item.id} className="border-t border-border">
+                <td className="px-3 py-2 font-medium">{item.class_name}</td>
+                <td className="px-3 py-2">{ASSIGNMENT_ROLE_LABELS[item.assignment_role]}</td>
+                <td className="px-3 py-2">{item.subject_name ?? ''}</td>
+                <td className="px-3 py-2 text-right tabular-nums">{item.periods_per_week ?? ''}</td>
+                <td className="px-3 py-2 tabular-nums">{item.from_date.split('-').reverse().join('/')}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </section>
+  );
+}
+
+type StaffTab = 'general' | 'moet' | 'contracts' | 'pay' | 'history' | 'teaching';
 
 const TAB_LABELS: Record<StaffTab, string> = {
   general: 'Thông tin chung',
@@ -390,6 +439,7 @@ const TAB_LABELS: Record<StaffTab, string> = {
   contracts: 'Hợp đồng',
   pay: 'Lương và phụ cấp',
   history: 'Quá trình công tác',
+  teaching: 'Phân công giảng dạy',
 };
 
 // Thẻ ngang cuộn được trên màn hình hẹp; phím mũi tên chuyển thẻ như mẫu tablist của WAI-ARIA
@@ -489,10 +539,17 @@ export function StaffDetailPage() {
     queryFn: () => readWorkHistory(staffId),
     retry: false,
   });
+  const teaching = useQuery({
+    queryKey: ['staff-teaching-assignments', staffId],
+    queryFn: () => readStaffTeachingAssignments(staffId),
+    retry: false,
+  });
 
   const refresh = async (message: string) => {
     await queryClient.invalidateQueries({ queryKey: ['staff-detail', staffId] });
     await queryClient.invalidateQueries({ queryKey: ['staff'] });
+    // Liên kết, bỏ liên kết tài khoản đổi danh sách phân công
+    await queryClient.invalidateQueries({ queryKey: ['staff-teaching-assignments', staffId] });
     setToastMessage(message);
   };
 
@@ -503,6 +560,8 @@ export function StaffDetailPage() {
     ...(data?.contracts ? (['contracts'] as const) : []),
     ...(payItems.isError ? [] : (['pay'] as const)),
     ...(workHistory.isError ? [] : (['history'] as const)),
+    // Chỉ hiện khi hồ sơ có phân công hoặc chưa liên kết tài khoản (để nhắc liên kết); nhân sự không dạy lớp nào thì ẩn
+    ...(teaching.data && (teaching.data.items.length > 0 || !teaching.data.has_account) ? (['teaching'] as const) : []),
   ];
   const current: StaffTab = tabs.includes(search.tab as StaffTab) ? (search.tab as StaffTab) : 'general';
   const select = (tab: StaffTab) =>
@@ -574,6 +633,11 @@ export function StaffDetailPage() {
               <TabPanel tab="history" current={current} idPrefix={tabIdPrefix}>
                 <WorkHistorySection staffId={staffId} />
               </TabPanel>
+              {teaching.data ? (
+                <TabPanel tab="teaching" current={current} idPrefix={tabIdPrefix}>
+                  <TeachingSection assignments={teaching.data} />
+                </TabPanel>
+              ) : null}
             </section>
           </div>
         ) : null}
