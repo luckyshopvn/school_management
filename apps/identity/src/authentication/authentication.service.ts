@@ -612,13 +612,7 @@ export class AuthenticationService {
     }
 
     if (fullAccess) {
-      const permissions = await this.database.selectFrom('permissions').select('code').orderBy('code').execute();
-      assignments.set(FULL_ACCESS_ASSIGNMENT_ID, {
-        role_code: FULL_ACCESS_ROLE_CODE,
-        role_name: FULL_ACCESS_ROLE_NAME,
-        org_unit_id: null,
-        permissions: permissions.map((permission) => permission.code),
-      });
+      assignments.set(FULL_ACCESS_ASSIGNMENT_ID, await this.fullAccessAssignment());
     }
 
     return {
@@ -648,6 +642,17 @@ export class AuthenticationService {
             full_access: fullAccess,
           }
         : null,
+    };
+  }
+
+  // Vai trò tổng hợp của phiên Admin vào thẳng (YCTD-315): mọi mã quyền ở bảng permissions của trường, toàn trường
+  private async fullAccessAssignment(): Promise<CurrentUserResponse['assignments'][number]> {
+    const permissions = await this.database.selectFrom('permissions').select('code').orderBy('code').execute();
+    return {
+      role_code: FULL_ACCESS_ROLE_CODE,
+      role_name: FULL_ACCESS_ROLE_NAME,
+      org_unit_id: null,
+      permissions: permissions.map((permission) => permission.code),
     };
   }
 
