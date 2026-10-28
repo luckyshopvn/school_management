@@ -2906,7 +2906,7 @@ Cỡ ước lượng (một phần của DT-16 là một đơn vị, chỉ để
 
 | Phần | Tiến độ |
 |---|---|
-| 29a | Đang làm (YCTD-325) |
+| 29a | Đã làm (YCTD-325, PR 246): danh mục công cụ theo cấp, màn Hộp công cụ giảng dạy, công tắc theo trường, công cụ thuộc gói, lối vào giáo án, sổ đầu bài, lớp học trực tuyến, đường dẫn mới và chuyển đường dẫn cũ |
 | 29b | Đã làm (YCTD-326): bảng trắng, xúc xắc và bốc số, đồng hồ hình ảnh, đèn giữ trật tự, bảng thưởng sao, hình và màu, đếm và số, làm quen chữ cái |
 | 29c | Đã làm (YCTD-327): bảng cửu chương, khung ô li, học xem đồng hồ, phân số trực quan |
 | 29d | Chưa làm |
