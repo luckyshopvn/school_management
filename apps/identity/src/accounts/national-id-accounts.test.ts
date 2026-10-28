@@ -272,6 +272,46 @@ describe('Dịch vụ định danh: tài khoản theo số CCCD', () => {
     );
   });
 
+  it('CT-1527: chi tiết tài khoản che số CCCD; xem đủ phải gọi riêng và có nhật ký; tìm theo chữ số chỉ khớp đủ số (YCTD-353)', async () => {
+    const nationalId = randomNationalId();
+    const created = await createAccount({
+      full_name: 'Nhân viên xem số',
+      national_id: nationalId,
+      roles: [{ role_code: 'VT-07', org_unit_id: branchA }],
+    });
+    assert.equal(created.status, 201, JSON.stringify(created.body));
+    const userId = (created.body.account as { id: string }).id;
+
+    const detail = await getJson(`${context.baseUrl}/users/${userId}`, principalToken);
+    assert.equal(detail.status, 200);
+    assert.equal(detail.body.username, `********${nationalId.slice(-4)}`);
+
+    const revealed = await getJson(`${context.baseUrl}/users/${userId}/login-identifier`, principalToken);
+    assert.equal(revealed.status, 200, JSON.stringify(revealed.body));
+    assert.equal(revealed.body.username, nationalId);
+    const audit = await context.database
+      .selectFrom('identity_audit_logs')
+      .select('after_data')
+      .where('entity_id', '=', userId)
+      .where('action', '=', 'view_login_identifier')
+      .execute();
+    assert.equal(audit.length, 1);
+    assert.ok(!JSON.stringify(audit[0]?.after_data).includes(nationalId));
+
+    // Người không quản lý tài khoản không xem được
+    const teacher = await createTestUser(context.database, { roles: [{ roleCode: 'VT-07', orgUnitId: branchA }] });
+    const teacherToken = (await login(teacher.username, TEST_PASSWORD, 'teacher')).body.access_token as string;
+    assert.equal((await getJson(`${context.baseUrl}/users/${userId}/login-identifier`, teacherToken)).status, 403);
+
+    // Tìm theo một phần chữ số không ra, đủ 12 số thì ra
+    const found = async (q: string) => {
+      const list = await getJson(`${context.baseUrl}/users?q=${encodeURIComponent(q)}`, principalToken);
+      return (list.body.items as Array<{ id: string }>).some((item) => item.id === userId);
+    };
+    assert.equal(await found(nationalId.slice(0, 8)), false);
+    assert.equal(await found(nationalId), true);
+  });
+
   it('CT-1517: loại tài khoản theo ứng dụng: phụ huynh không vào cổng quản trị, cán bộ không vào ứng dụng phụ huynh, người có cả hai vào được cả hai', async () => {
     const parent = await createTestUser(context.database, { roles: [{ roleCode: 'VT-14', orgUnitId: branchA }] });
     const teacher = await createTestUser(context.database, { roles: [{ roleCode: 'VT-07', orgUnitId: branchA }] });

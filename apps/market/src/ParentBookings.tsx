@@ -8,6 +8,8 @@ import {
   ReportForm,
   type Child,
 } from '@school-management/market-client';
+import { ReviewPanel } from './ReviewForm.js';
+import { SessionRoom } from './SessionRoom.js';
 import { CARD_CLASS, money, when } from './styles.js';
 
 // Đặt buổi và buổi học của con ở Chợ gia sư (DT-27 phần 27h, YCTD-258): chọn con, môn, giờ (giờ Việt Nam), trả tiền qua nhà cung cấp
@@ -356,12 +358,10 @@ function DisputePanel({ booking, onChange }: { booking: Booking; onChange: () =>
   );
 }
 
-// Phòng học, bản ghi, báo cáo vi phạm của một buổi (27i): vào phòng khi gia sư đã mở (buổi có trẻ vị thành niên chỉ mở khi đang ghi)
-function SessionPanel({ booking }: { booking: Booking }) {
-  const [room, setRoom] = useState<{ recording: boolean }>();
+// Phòng học, bản ghi, báo cáo vi phạm của một buổi (27i): nút vào phòng mở trang phòng học video (SessionRoom, YCTD-362)
+function SessionPanel({ booking, onEnter }: { booking: Booking; onEnter: () => void }) {
   const [recording, setRecording] = useState<{ recording_required: boolean; status: string | null }>();
   const [reporting, setReporting] = useState(false);
-  const [error, setError] = useState<string>();
   useEffect(() => {
     if (booking.status === 'held' || booking.status === 'expired') return;
     marketRequest<{ recording_required: boolean; status: string | null }>('GET', `/bookings/${booking.id}/recording`)
@@ -373,23 +373,10 @@ function SessionPanel({ booking }: { booking: Booking }) {
       {recording?.recording_required ? (
         <span className="text-label text-text-secondary">Buổi học được ghi hình để bảo vệ trẻ.</span>
       ) : null}
-      {error ? <Alert tone="danger">{error}</Alert> : null}
-      {room ? (
-        <Alert tone="info">Đã vào phòng học{room.recording ? ' · Đang ghi hình' : ''}.</Alert>
-      ) : booking.status === 'paid' ? (
+      {booking.status === 'paid' || booking.status === 'completed' ? (
         <div>
-          <Button
-            variant="primary"
-            onClick={() =>
-              void marketRequest<{ recording: boolean }>('POST', `/bookings/${booking.id}/session/join`)
-                .then((result) => {
-                  setError(undefined);
-                  setRoom(result);
-                })
-                .catch((caught: unknown) => setError(errorText(caught)))
-            }
-          >
-            Vào phòng học
+          <Button variant={booking.status === 'paid' ? 'primary' : 'secondary'} onClick={onEnter}>
+            {booking.status === 'paid' ? 'Vào phòng học' : 'Xem điểm danh buổi học'}
           </Button>
         </div>
       ) : null}
@@ -436,6 +423,7 @@ function DateBlock({ value, active }: { value: string; active: boolean }) {
 export function ParentBookings() {
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [paying, setPaying] = useState<string>();
+  const [roomFor, setRoomFor] = useState<string>();
   const [error, setError] = useState<string>();
   const load = useCallback(() => {
     marketRequest<{ bookings: Booking[] }>('GET', '/bookings')
@@ -450,6 +438,17 @@ export function ParentBookings() {
         load();
       })
       .catch((caught: unknown) => setError(errorText(caught)));
+  if (roomFor) {
+    return (
+      <SessionRoom
+        bookingId={roomFor}
+        onClose={() => {
+          setRoomFor(undefined);
+          load();
+        }}
+      />
+    );
+  }
   return (
     <section aria-label="Buổi học của con" className="flex flex-col gap-4">
       <div className="flex flex-wrap items-end justify-between gap-3">
@@ -519,7 +518,10 @@ export function ParentBookings() {
                       />
                     ) : null}
                     <DisputePanel booking={booking} onChange={load} />
-                    <SessionPanel booking={booking} />
+                    <SessionPanel booking={booking} onEnter={() => setRoomFor(booking.id)} />
+                    {booking.status === 'completed' || booking.status === 'disbursed' ? (
+                      <ReviewPanel bookingId={booking.id} tutorName={booking.tutor_name} />
+                    ) : null}
                   </li>
                 );
               })}

@@ -22,6 +22,17 @@ export interface TokenResponse {
   password_change_required: boolean;
 }
 
+// Ảnh mã xác nhận ở đăng nhập (YCTD-353): máy chủ đòi khi tài khoản đã nhập sai nhiều lần
+export interface CaptchaChallenge {
+  captcha_id: string;
+  image: string;
+}
+
+export interface CaptchaAnswer {
+  captcha_id: string;
+  captcha_text: string;
+}
+
 export interface CurrentUser {
   id: string;
   full_name: string;
@@ -116,6 +127,7 @@ export async function loginWithPassword(
   loginIdentifier: string,
   password: string,
   otpCode?: string,
+  captcha?: CaptchaAnswer,
 ): Promise<TokenResponse> {
   return remember(
     await send<TokenResponse>('/api/v1/auth/login', {
@@ -125,9 +137,14 @@ export async function loginWithPassword(
         password,
         channel: 'teacher',
         ...(otpCode ? { otp_code: otpCode } : {}),
+        ...captcha,
       }),
     }),
   );
+}
+
+export function issueCaptcha(): Promise<CaptchaChallenge> {
+  return send<CaptchaChallenge>('/api/v1/auth/captcha', { method: 'POST', body: JSON.stringify({}) });
 }
 
 export async function changePassword(

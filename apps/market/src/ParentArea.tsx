@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Alert, Button, ConfirmDialog, FORM_CONTROL_CLASS, StatusBadge } from '@school-management/ui';
-import { errorText, marketRequest, type Child, type Me } from '@school-management/market-client';
+import { errorText, marketRequest, type Child } from '@school-management/market-client';
+import { ChildReadMode, ParentAccount } from './ParentAccount.js';
 import { CARD_CLASS, Initials } from './styles.js';
 
 // Khu phụ huynh của chợ gia sư (DT-27 phần 27f): hồ sơ con tối thiểu (tên hiển thị, năm sinh, cấp, lớp), đồng ý của cha mẹ theo phiên bản
@@ -87,25 +88,61 @@ const toBody = (fields: ChildFields) => ({
   grade: Number(fields.grade),
 });
 
-function AccountInfo() {
-  const [me, setMe] = useState<Me>();
+// Đồng ý ghi hình theo gia sư (phòng học video, YCTD-362): một lần cho mọi buổi của một con với một gia sư, rút lại được bất cứ lúc nào;
+// rút rồi thì buổi sau với gia sư đó phải đồng ý lại mới vào được phòng
+interface RecordingConsent {
+  id: string;
+  child_name: string;
+  tutor_name: string;
+  child_confirmed: boolean;
+  consented_at: string;
+}
+
+function RecordingConsents() {
+  const [rows, setRows] = useState<RecordingConsent[]>();
+  const [error, setError] = useState<string>();
   useEffect(() => {
-    marketRequest<Me>('GET', '/me')
-      .then(setMe)
-      .catch(() => setMe(undefined));
+    marketRequest<{ consents: RecordingConsent[] }>('GET', '/recording-consents')
+      .then((view) => setRows(view.consents))
+      .catch((caught: unknown) => setError(errorText(caught)));
   }, []);
-  if (!me) return null;
   return (
-    <section aria-label="Thông tin tài khoản" className={`${CARD_CLASS} flex flex-col gap-3 p-6`}>
-      <h2 className="text-section-title font-semibold">Thông tin tài khoản</h2>
-      <dl className="grid grid-cols-1 gap-x-6 gap-y-2 sm:grid-cols-[10rem_1fr]">
-        <dt className="text-text-secondary">Tên hiển thị</dt>
-        <dd>{me.display_name}</dd>
-        <dt className="text-text-secondary">Thư điện tử</dt>
-        <dd>{me.email ?? 'Chưa khai'}</dd>
-        <dt className="text-text-secondary">Số điện thoại</dt>
-        <dd>{me.phone ?? 'Chưa khai'}</dd>
-      </dl>
+    <section aria-label="Đồng ý ghi hình" className={`${CARD_CLASS} flex flex-col gap-3 p-6`}>
+      <h2 className="text-section-title font-semibold">Đồng ý ghi hình theo gia sư</h2>
+      <p className="text-label text-text-secondary">
+        Buổi học với trẻ dưới 18 tuổi luôn ghi hình. Rút đồng ý thì buổi sau với gia sư đó phải đồng ý lại mới vào được
+        phòng.
+      </p>
+      {error ? <Alert tone="danger">{error}</Alert> : null}
+      {rows && rows.length === 0 ? <p className="text-text-secondary">Chưa có đồng ý nào.</p> : null}
+      <ul className="flex flex-col gap-2">
+        {(rows ?? []).map((row) => (
+          <li
+            key={row.id}
+            aria-label={`Đồng ý ghi hình ${row.child_name} với ${row.tutor_name}`}
+            className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-border p-3"
+          >
+            <span className="flex flex-col">
+              <strong>
+                {row.child_name} với {row.tutor_name}
+              </strong>
+              <span className="text-label text-text-secondary">
+                Đồng ý {new Date(row.consented_at).toLocaleDateString('vi-VN')}
+                {row.child_confirmed ? ', con cùng xác nhận' : ''}
+              </span>
+            </span>
+            <Button
+              onClick={() =>
+                void marketRequest<{ consents: RecordingConsent[] }>('POST', `/recording-consents/${row.id}/withdraw`)
+                  .then((view) => setRows(view.consents))
+                  .catch((caught: unknown) => setError(errorText(caught)))
+              }
+            >
+              Rút đồng ý
+            </Button>
+          </li>
+        ))}
+      </ul>
     </section>
   );
 }
@@ -116,6 +153,7 @@ export function ParentArea() {
   const [consentChecked, setConsentChecked] = useState(false);
   const [editing, setEditing] = useState<{ id: string; fields: ChildFields }>();
   const [removing, setRemoving] = useState<Child>();
+  const [reading, setReading] = useState<string>();
   const [codes, setCodes] = useState<Record<string, string>>({});
   const [error, setError] = useState<string>();
   const load = useCallback(() => {
@@ -239,6 +277,31 @@ export function ParentArea() {
                   </Button>
                 ) : null}
               </div>
+              <div className="flex flex-wrap items-center gap-3 rounded-xl border border-border p-3">
+                <label className="flex min-w-0 flex-[1_1_280px] items-start gap-2">
+                  <input
+                    type="checkbox"
+                    className="mt-1"
+                    checked={child.reads_messages}
+                    onChange={(event) =>
+                      void run(
+                        marketRequest('POST', `/children/${child.id}/reads-messages`, {
+                          enabled: event.target.checked,
+                        }),
+                      )
+                    }
+                  />
+                  <span className="flex flex-col">
+                    <span>Con đọc tin nhắn với gia sư khi tôi cho phép</span>
+                    <span className="text-label text-text-secondary">
+                      Con chỉ đọc trên máy này, không nhắn riêng với gia sư. Thoát phải nhập mật khẩu của bạn.
+                    </span>
+                  </span>
+                </label>
+                {child.reads_messages ? (
+                  <Button onClick={() => setReading(child.id)}>Mở chế độ con đọc tin nhắn</Button>
+                ) : null}
+              </div>
               <div className="flex flex-wrap items-end gap-2 rounded-xl bg-selected/60 p-3">
                 <label className="flex min-w-0 flex-[1_1_240px] flex-col gap-1 text-label font-medium">
                   Mã liên kết lấy ở ứng dụng phụ huynh của trường
@@ -312,7 +375,9 @@ export function ParentArea() {
         </form>
       </section>
 
-      <AccountInfo />
+      <RecordingConsents />
+      <ParentAccount />
+      {reading ? <ChildReadMode childId={reading} onExit={() => setReading(undefined)} /> : null}
 
       <ConfirmDialog
         open={Boolean(removing)}

@@ -269,18 +269,24 @@ export class ClassroomToolsService {
     private readonly clock: Clock,
   ) {}
 
-  // Cấu hình theo trường của công cụ lớp học: công tắc ngoại tuyến, hạn lưu danh sách lớp (GD-108), nề nếp có bật không
+  // Cấu hình theo trường của công cụ lớp học: công tắc ngoại tuyến, hạn lưu danh sách lớp (GD-108), nề nếp có bật không, công cụ
+  // trường tắt ở Hộp công cụ giảng dạy (DT-29, YCTD-325)
   async config() {
     const current = await this.currentSchoolYear.find();
     let offlineEnabled = true;
     let ttlHours = DEFAULT_ROSTER_TTL_HOURS;
+    let disabledTools: string[] = [];
     if (current) {
       const rows = await current.database
         .selectFrom('settings')
         .innerJoin('org_units', 'org_units.id', 'settings.org_unit_id')
         .select(['settings.key', 'settings.value'])
         .where('org_units.unit_type', '=', 'truong_chinh')
-        .where('settings.key', 'in', ['classroom_offline_enabled', 'classroom_roster_ttl_hours'])
+        .where('settings.key', 'in', [
+          'classroom_offline_enabled',
+          'classroom_roster_ttl_hours',
+          'teaching_tools_disabled',
+        ])
         .execute();
       for (const row of rows) {
         if (row.key === 'classroom_offline_enabled' && typeof row.value === 'boolean') {
@@ -289,6 +295,9 @@ export class ClassroomToolsService {
         if (row.key === 'classroom_roster_ttl_hours' && Number.isInteger(row.value)) {
           ttlHours = row.value as number;
         }
+        if (row.key === 'teaching_tools_disabled' && Array.isArray(row.value)) {
+          disabledTools = row.value.filter((code): code is string => typeof code === 'string');
+        }
       }
     }
     const conduct = await this.conduct.settings();
@@ -296,6 +305,7 @@ export class ClassroomToolsService {
       offline_enabled: offlineEnabled,
       roster_ttl_hours: ttlHours,
       conduct_enabled: conduct.enabled,
+      disabled_tools: disabledTools,
     };
   }
 

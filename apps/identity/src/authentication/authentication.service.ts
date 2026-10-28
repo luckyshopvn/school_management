@@ -31,7 +31,7 @@ import {
 import { assertPasswordNotReused, recordPasswordHistory } from './password-history.js';
 import { ImpersonationService, type ImpersonationDescription } from './impersonation.service.js';
 import { createRefreshToken, hashRefreshToken, readSessionIdFromRefreshToken, TokenService } from './token.service.js';
-import { SupportSessionsService } from '../platform/support-sessions.js';
+import { SupportSessionsService, supportScopeForChannel } from '../platform/support-sessions.js';
 import { accountKindsOf, kindForChannel, maskLoginIdentifier } from '../accounts/national-id.js';
 import { InitialPasswordCodeService } from './initial-password-code.service.js';
 
@@ -48,12 +48,21 @@ const REFRESH_LIFETIME_MILLISECONDS: Record<SessionChannel, number> = {
   student: 12 * 60 * 60 * 1000,
 };
 
-// "Ghi nhớ" ở trang đăng nhập cổng quản trị (YCTD-310): phiên kéo dài PORTAL_REMEMBER_DAYS ngày (mặc định 30, từ 1 đến 90) và cookie
-// mã làm mới giữ qua lần đóng trình duyệt; không tích thì hạn 8 giờ như cũ và cookie chỉ sống đến khi đóng trình duyệt. Mật khẩu không
-// bao giờ lưu ở trình duyệt (trình quản lý mật khẩu của trình duyệt tự đề nghị lưu nhờ autocomplete của biểu mẫu)
+// "Ghi nhớ" ở trang đăng nhập cổng quản trị (YCTD-310): phiên kéo dài PORTAL_REMEMBER_DAYS ngày và cookie mã làm mới giữ qua lần đóng
+// trình duyệt; không tích thì hạn 8 giờ như cũ và cookie chỉ sống đến khi đóng trình duyệt. Eric chốt tối đa 30 ngày (YCTD-353, GD-172):
+// mặc định 30, đặt thấp hơn được, không cao hơn. Mật khẩu không bao giờ lưu ở trình duyệt (trình quản lý mật khẩu của trình duyệt tự đề
+// nghị lưu nhờ autocomplete của biểu mẫu)
+export const PORTAL_REMEMBER_MAXIMUM_DAYS = 30;
+
 export function portalRememberMilliseconds(days: number | undefined): number {
   const value = Number(days ?? 30);
-  return (Number.isFinite(value) ? Math.min(90, Math.max(1, Math.trunc(value))) : 30) * 24 * 60 * 60 * 1000;
+  return (
+    (Number.isFinite(value) ? Math.min(PORTAL_REMEMBER_MAXIMUM_DAYS, Math.max(1, Math.trunc(value))) : 30) *
+    24 *
+    60 *
+    60 *
+    1000
+  );
 }
 
 // Cookie mã làm mới bền (giữ qua lần đóng trình duyệt): kênh ứng dụng luôn bền; cổng quản trị chỉ khi phiên dài hơn hạn mặc định (đã tích
@@ -121,8 +130,16 @@ export interface CurrentUserResponse {
   // Cấp đang làm việc người dùng chọn ở thanh đầu trang (DT-19 phần 19c): null là "Tất cả"
   working_school_level: string | null;
   // Phiên hỗ trợ của nhân viên nền tảng (DT-SaaS phần S4): phạm vi, tên nhân viên, hạn; phiên thường là null
-  support: { id: string; scope: SupportScope; operator_name: string; expires_at: Date } | null;
+  support: { id: string; scope: SupportScope; operator_name: string; expires_at: Date; full_access?: boolean } | null;
 }
+
+// Vai trò tổng hợp của phiên Admin vào thẳng (YCTD-315, Eric yêu cầu ngày 2026-10-29 "cấp quyền cho user admin vào tất cả hệ thống,
+// đảm bảo đầy đủ phân quyền"): mọi mã quyền có ở bảng permissions của trường, toàn trường; mã vai trò Hiệu trưởng để lớp phạm vi dữ
+// liệu (toàn trường) như Ban Giám hiệu. Không lưu ở cơ sở dữ liệu, chỉ có khi phiên hỗ trợ còn là phiên Admin vào thẳng; mọi thao tác
+// vẫn của tài khoản hỗ trợ `ho-tro-nen-tang` và ghi vào nhật ký phiên hỗ trợ
+const FULL_ACCESS_ASSIGNMENT_ID = 'platform-admin-full-access';
+const FULL_ACCESS_ROLE_CODE = 'VT-02';
+const FULL_ACCESS_ROLE_NAME = 'Quản trị nền tảng (toàn quyền)';
 
 const INVALID_CREDENTIALS_MESSAGE = 'Số điện thoại, tên đăng nhập hoặc mật khẩu không đúng';
 const LOCKED_ACCOUNT_MESSAGE = 'Tài khoản đã bị khóa, vui lòng liên hệ nhà trường';
@@ -584,8 +601,13 @@ export class AuthenticationService {
           .where('roles.code', 'in', roleCodes)
           .execute()
       : [];
-    const workspaces = PORTAL_WORKSPACES.map((workspace) => workspace.key).filter((key) =>
-      roleCodes.some((code) => !exclusions.some((item) => item.code === code && item.workspace_key === key)),
+    // Phiên Admin vào thẳng (YCTD-315): mọi phân hệ, cộng một vai trò tổng hợp có mọi mã quyền của trường ở toàn trường
+    const supportSession = claims.support ? await this.support.requireActive(claims.sessionId) : null;
+    const fullAccess = supportSession?.fullAccess === true;
+    const workspaces = PORTAL_WORKSPACES.map((workspace) => workspace.key).filter(
+      (key) =>
+        fullAccess ||
+        roleCodes.some((code) => !exclusions.some((item) => item.code === code && item.workspace_key === key)),
     );
 
     const assignments = new Map<string, CurrentUserResponse['assignments'][number]>();
@@ -603,6 +625,10 @@ export class AuthenticationService {
       if (row.permission_code) {
         assignment.permissions.push(row.permission_code);
       }
+    }
+
+    if (fullAccess) {
+      assignments.set(FULL_ACCESS_ASSIGNMENT_ID, await this.fullAccessAssignment());
     }
 
     return {
@@ -623,7 +649,26 @@ export class AuthenticationService {
           .execute()
       ).map((row) => row.school_level),
       working_school_level: await this.readWorkingSchoolLevel(user.id),
-      support: claims.support ? await this.support.describe(claims.sessionId) : null,
+      support: supportSession
+        ? {
+            id: supportSession.id,
+            scope: supportScopeForChannel(supportSession.scope, claims.channel),
+            operator_name: supportSession.operatorName,
+            expires_at: supportSession.expiresAt,
+            full_access: fullAccess,
+          }
+        : null,
+    };
+  }
+
+  // Vai trò tổng hợp của phiên Admin vào thẳng (YCTD-315): mọi mã quyền ở bảng permissions của trường, toàn trường
+  private async fullAccessAssignment(): Promise<CurrentUserResponse['assignments'][number]> {
+    const permissions = await this.database.selectFrom('permissions').select('code').orderBy('code').execute();
+    return {
+      role_code: FULL_ACCESS_ROLE_CODE,
+      role_name: FULL_ACCESS_ROLE_NAME,
+      org_unit_id: null,
+      permissions: permissions.map((permission) => permission.code),
     };
   }
 

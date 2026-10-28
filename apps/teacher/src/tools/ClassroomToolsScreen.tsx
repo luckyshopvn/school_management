@@ -1,7 +1,9 @@
 import { useCallback, useEffect, useState } from 'react';
+import { TEACHING_TOOL_SECTIONS, teachingToolsFor, type TeachingTool } from '@school-management/shared';
 import { Alert, ApplicationHeader, Button } from '@school-management/ui';
+import { requestJson } from '../session/api-client.js';
 import type { MyClass } from '../screens/ClassesScreen.js';
-import { fetchRoster, messageOf } from './classroom-api.js';
+import { fetchPlanModules, fetchRoster, messageOf } from './classroom-api.js';
 import { refreshPolicy } from './classroom-policy.js';
 import {
   clearClassroomData,
@@ -18,19 +20,10 @@ import { ScoreboardTool } from './ScoreboardTool.js';
 import { TimerTool } from './TimerTool.js';
 import { GamesTool } from './games/GamesTool.js';
 
-// Công cụ lớp học trên ứng dụng giáo viên (DT-23 phần 23b, YCTD-212; tài liệu 32 mục 15.4): gọi tên ngẫu nhiên, chia nhóm, đếm
-// ngược và bấm giờ, bảng điểm nhanh. Mở được khi mất mạng sau lần tải đầu nhờ service worker và bản chụp danh sách lớp gọn
-// (hết hạn theo cấu hình của trường, xóa khi đăng xuất); các phân hệ khác của ứng dụng vẫn cần mạng (GD-108)
-type Tab = 'call' | 'group' | 'timer' | 'score' | 'game';
-
-const TABS: Array<{ key: Tab; label: string }> = [
-  { key: 'call', label: 'Gọi tên' },
-  { key: 'group', label: 'Chia nhóm' },
-  { key: 'timer', label: 'Đồng hồ' },
-  { key: 'score', label: 'Bảng điểm' },
-  // Trò chơi kiến thức và thẻ đáp án giấy (DT-23 phần 23c)
-  { key: 'game', label: 'Trò chơi' },
-];
+// Hộp công cụ giảng dạy (DT-29, YCTD-325; trước đây là Công cụ lớp học của DT-23 phần 23b, YCTD-212; tài liệu 32 mục 15.4, 21):
+// gom công cụ, mini app hỗ trợ giảng dạy của lớp đang chọn, lọc theo cấp của lớp (danh mục `TEACHING_TOOLS` ở gói chung), bỏ công
+// cụ trường đã tắt và công cụ thuộc tính năng gói chưa bật. Công cụ chạy trên lớp mở được khi mất mạng sau lần tải đầu nhờ service
+// worker và bản chụp danh sách lớp gọn (hết hạn theo cấu hình của trường, xóa khi đăng xuất); các phân hệ khác vẫn cần mạng (GD-108)
 
 function useOnline(): boolean {
   const [online, setOnline] = useState(() => navigator.onLine);
@@ -49,27 +42,71 @@ function useOnline(): boolean {
 
 const timeOf = (iso: string) => new Date(iso).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' });
 
+const NO_CLASSES: MyClass[] = [];
+
+// Ô công cụ: nút chọn công cụ trên lớp (thẻ, công cụ hiện ở dưới) hoặc lối vào màn khác
+function ToolTile({
+  tool,
+  selected,
+  onSelect,
+  asTab,
+}: {
+  tool: TeachingTool;
+  selected: boolean;
+  onSelect(): void;
+  asTab: boolean;
+}) {
+  return (
+    <button
+      type="button"
+      {...(asTab ? { role: 'tab', 'aria-selected': selected } : {})}
+      onClick={onSelect}
+      className={`flex min-h-16 flex-col items-start gap-1 rounded-lg px-3 py-2 text-left ${
+        selected ? 'bg-brand text-white' : 'border border-border-strong bg-card text-text'
+      }`}
+    >
+      <span className="text-label font-semibold">{tool.label}</span>
+      <span className={`text-label ${selected ? 'text-white' : 'text-text-secondary'}`}>{tool.description}</span>
+    </button>
+  );
+}
+
 export function ClassroomToolsScreen({
-  classes,
+  classes: givenClasses,
   initialClassId,
   onBack,
   onCleared,
+  onOpenLink,
   embedded = false,
 }: {
-  // null: không có phiên (ngoại tuyến), lớp lấy từ các bản chụp còn hạn
-  classes: MyClass[] | null;
+  // null: không có phiên (ngoại tuyến), lớp lấy từ các bản chụp còn hạn; undefined: màn tự tải lớp của tôi (mở thẳng bằng
+  // đường dẫn ?man=hop-cong-cu)
+  classes: MyClass[] | null | undefined;
   initialClassId?: string;
   onBack?(): void;
   onCleared?(): void;
+  // Mở màn đã có của ứng dụng giáo viên từ nhóm "Giao bài và học trực tuyến"; không truyền thì nhóm đó ẩn
+  onOpenLink?(toolKey: string, myClass: MyClass): void;
   // Đặt trong khung phải của chế độ lớp học (DT-26 phần 26d): bỏ đầu trang
   embedded?: boolean;
 }) {
   const online = useOnline();
+  const [loadedClasses, setLoadedClasses] = useState<MyClass[]>();
+  useEffect(() => {
+    if (givenClasses !== undefined) {
+      return;
+    }
+    requestJson<MyClass[]>('/api/v1/classes?mine=true&status=active')
+      .then(setLoadedClasses)
+      .catch(() => setLoadedClasses([]));
+  }, [givenClasses]);
+  const classes = givenClasses === undefined ? (loadedClasses ?? NO_CLASSES) : givenClasses;
+  const [planModules, setPlanModules] = useState<string[] | null>(null);
   const [config, setConfig] = useState(readConfig);
   const [classId, setClassId] = useState(initialClassId ?? '');
   const [snapshot, setSnapshot] = useState<RosterSnapshot>();
   const [fromSaved, setFromSaved] = useState(false);
-  const [tab, setTab] = useState<Tab>('call');
+  const [tab, setTab] = useState('call');
   const [pending, setPending] = useState(() => queuedCount());
   const [problem, setProblem] = useState<string>();
 
@@ -84,6 +121,9 @@ export function ClassroomToolsScreen({
     if (!online || classes === null) {
       return;
     }
+    fetchPlanModules()
+      .then(setPlanModules)
+      .catch(() => undefined);
     refreshPolicy()
       .then(setConfig)
       .catch(() => undefined)
@@ -110,7 +150,7 @@ export function ClassroomToolsScreen({
         if (cancelled) {
           return;
         }
-        setSnapshot(saveRoster(roster, new Date()));
+        setSnapshot(saveRoster(roster, new Date(), classes.find((item) => item.id === classId)?.school_level));
         setFromSaved(false);
       })
       .catch((error: unknown) => {
@@ -133,10 +173,18 @@ export function ClassroomToolsScreen({
   const onQueueChanged = useCallback(() => setPending(queuedCount()), []);
   const students = snapshot?.students ?? [];
   const myClass = classes?.find((item) => item.id === classId);
+  // Cấp của lớp: lớp của tôi (có mạng) hoặc bản chụp; bản chụp cũ không có cấp thì không lọc theo cấp
+  const level = myClass?.school_level ?? snapshot?.school_level ?? null;
+  const tools = snapshot ? teachingToolsFor({ level, disabled: config?.disabled_tools ?? [], planModules }) : [];
+  const onClassTools = tools.filter((tool) => tool.section !== 'online');
+  const linkTools = online && myClass && onOpenLink ? tools.filter((tool) => tool.section === 'online') : [];
+  const activeTool = onClassTools.find((tool) => tool.key === tab) ?? onClassTools[0];
+  const active = activeTool?.key;
+  const loading = givenClasses === undefined && loadedClasses === undefined;
 
   return (
     <div className={embedded ? undefined : 'min-h-screen'}>
-      {embedded ? null : <ApplicationHeader title="Công cụ lớp học" />}
+      {embedded ? null : <ApplicationHeader title="Hộp công cụ giảng dạy" />}
       <main
         className={embedded ? 'flex flex-col gap-4' : 'mx-auto flex max-w-md flex-col md:max-w-3xl gap-4 px-4 py-6'}
       >
@@ -147,7 +195,7 @@ export function ClassroomToolsScreen({
         ) : null}
         {!online ? (
           <Alert tone="warning">
-            Đang dùng ngoại tuyến: công cụ lớp học vẫn chạy với danh sách lớp đã lưu; các phân hệ khác cần có mạng
+            Đang dùng ngoại tuyến: công cụ dùng trên lớp vẫn chạy với danh sách lớp đã lưu; các phân hệ khác cần có mạng
           </Alert>
         ) : null}
         {pending > 0 ? (
@@ -171,7 +219,7 @@ export function ClassroomToolsScreen({
             ))}
           </select>
         </label>
-        {options.length === 0 ? (
+        {options.length === 0 && !loading ? (
           <p className="text-content text-text-secondary">
             {classes === null
               ? 'Chưa có danh sách lớp nào được lưu trên máy hoặc đã hết hạn. Cần có mạng để mở lớp lần đầu.'
@@ -187,49 +235,78 @@ export function ClassroomToolsScreen({
         ) : null}
         {snapshot ? (
           <>
-            <div role="tablist" aria-label="Công cụ" className="grid grid-cols-5 gap-1">
-              {TABS.map((item) => (
-                <button
-                  key={item.key}
-                  type="button"
-                  role="tab"
-                  aria-selected={tab === item.key}
-                  onClick={() => setTab(item.key)}
-                  className={`rounded-lg px-2 py-2 text-label font-medium ${
-                    tab === item.key ? 'bg-brand text-white' : 'border border-border-strong bg-card text-text'
-                  }`}
-                >
-                  {item.label}
-                </button>
-              ))}
-            </div>
-            {tab === 'call' ? (
-              <CallTool
-                classId={snapshot.class_id}
-                students={students}
-                online={online}
-                onQueueChanged={onQueueChanged}
-              />
-            ) : null}
-            {tab === 'group' ? (
-              <GroupTool
-                classId={snapshot.class_id}
-                students={students}
-                online={online}
-                onQueueChanged={onQueueChanged}
-              />
-            ) : null}
-            {tab === 'timer' ? <TimerTool /> : null}
-            {tab === 'game' ? <GamesTool snapshot={snapshot} online={online && classes !== null} /> : null}
-            {tab === 'score' ? (
-              <ScoreboardTool
-                classId={snapshot.class_id}
-                students={students}
-                online={online}
-                onQueueChanged={onQueueChanged}
-                schoolLevel={myClass?.school_level ?? null}
-                conductEnabled={config?.conduct_enabled === true}
-              />
+            {TEACHING_TOOL_SECTIONS.filter((section) => section.key !== 'online').map((section) => {
+              const items = onClassTools.filter((tool) => tool.section === section.key);
+              return items.length > 0 ? (
+                <section key={section.key} aria-label={section.label} className="flex flex-col gap-2">
+                  <h2 className="text-content font-semibold text-text">{section.label}</h2>
+                  <div role="tablist" aria-label={section.label} className="grid grid-cols-2 gap-2 md:grid-cols-3">
+                    {items.map((tool) => (
+                      <ToolTile
+                        key={tool.key}
+                        tool={tool}
+                        asTab
+                        selected={tool.key === active}
+                        onSelect={() => setTab(tool.key)}
+                      />
+                    ))}
+                  </div>
+                </section>
+              ) : null;
+            })}
+            {activeTool ? (
+              <section aria-label={activeTool.label} className="flex flex-col gap-3 border-t border-border pt-4">
+                <h2 className="text-section-title font-semibold text-text">{activeTool.label}</h2>
+                {active === 'call' ? (
+                  <CallTool
+                    classId={snapshot.class_id}
+                    students={students}
+                    online={online}
+                    onQueueChanged={onQueueChanged}
+                  />
+                ) : null}
+                {active === 'group' ? (
+                  <GroupTool
+                    classId={snapshot.class_id}
+                    students={students}
+                    online={online}
+                    onQueueChanged={onQueueChanged}
+                  />
+                ) : null}
+                {active === 'timer' ? <TimerTool /> : null}
+                {active === 'games' ? <GamesTool snapshot={snapshot} online={online && classes !== null} /> : null}
+                {active === 'scoreboard' ? (
+                  <ScoreboardTool
+                    classId={snapshot.class_id}
+                    students={students}
+                    online={online}
+                    onQueueChanged={onQueueChanged}
+                    schoolLevel={myClass?.school_level ?? null}
+                    conductEnabled={config?.conduct_enabled === true}
+                  />
+                ) : null}
+              </section>
+            ) : (
+              <p className="text-content text-text-secondary">Trường đã tắt mọi công cụ dùng trên lớp.</p>
+            )}
+            {linkTools.length > 0 && myClass && onOpenLink ? (
+              <section
+                aria-label="Giao bài và học trực tuyến"
+                className="flex flex-col gap-2 border-t border-border pt-4"
+              >
+                <h2 className="text-content font-semibold text-text">Giao bài và học trực tuyến</h2>
+                <div className="grid grid-cols-2 gap-2 md:grid-cols-3">
+                  {linkTools.map((tool) => (
+                    <ToolTile
+                      key={tool.key}
+                      tool={tool}
+                      asTab={false}
+                      selected={false}
+                      onSelect={() => onOpenLink(tool.key, myClass)}
+                    />
+                  ))}
+                </div>
+              </section>
             ) : null}
           </>
         ) : null}

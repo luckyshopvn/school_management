@@ -1,5 +1,7 @@
 // Danh mục cấu hình theo đơn vị (P01-08, YCTD-40); giờ bắt đầu học mặc định 07:30 (YCTD-47). Ngày chốt công cố định mùng 1 tháng sau nên không có trong danh mục (YCTD-41). Chỉ mục tài liệu đã ghi mặc định mới có mặc định;
 // mục khác trống cho tới khi nhà trường cấu hình. Không có mục tắt kiểm tra quỹ tiền mặt vì BR-34 bắt buộc.
+import { isTeachingToolKey } from '@school-management/shared';
+
 export type SettingValueType =
   | 'closing_day'
   | 'day_of_month'
@@ -9,7 +11,9 @@ export type SettingValueType =
   | 'time_of_day'
   | 'minutes'
   | 'percent'
-  | 'text';
+  | 'text'
+  // Danh sách mã công cụ của Hộp công cụ giảng dạy (DT-29, YCTD-325); danh sách trống là không tắt công cụ nào
+  | 'teaching_tool_list';
 
 export interface SettingDefinition {
   key: string;
@@ -198,6 +202,15 @@ export const SETTING_DEFINITIONS: SettingDefinition[] = [
     rule: 'YCTD-212',
     school: true,
   },
+  // Hộp công cụ giảng dạy (DT-29, YCTD-325): công cụ trường tắt thì giáo viên không thấy ở ứng dụng giáo viên
+  {
+    key: 'teaching_tools_disabled',
+    label: 'Công cụ tắt ở Hộp công cụ giảng dạy',
+    valueType: 'teaching_tool_list',
+    defaultValue: [],
+    rule: 'YCTD-325',
+    school: true,
+  },
   // Tiến độ, bảng điểm hoạt động (DT-28 phần 28d, YCTD-274): cho giáo viên đưa kết quả hoạt động học trực tuyến vào sổ điểm (điểm
   // thường xuyên THCS, THPT) và sổ nhận xét (Tiểu học); mặc định bật (GD-141), mỗi hoạt động vẫn do giáo viên chọn và xác nhận
   {
@@ -267,5 +280,9 @@ export function validateSettingValue(definition: SettingDefinition, value: unkno
       return typeof value === 'string' && value.trim() !== '' && value.trim().length <= 200
         ? null
         : 'Nhập chữ, tối đa 200 ký tự';
+    case 'teaching_tool_list':
+      return Array.isArray(value) && value.every(isTeachingToolKey) && new Set(value).size === value.length
+        ? null
+        : 'Danh sách mã công cụ của Hộp công cụ giảng dạy, không trùng';
   }
 }

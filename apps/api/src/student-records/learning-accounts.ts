@@ -343,15 +343,15 @@ export class LearningAccountsService {
           username,
           password,
         });
-        // Nhật ký không ghi mật khẩu
+        // Nhật ký không ghi mật khẩu; tên đăng nhập là số định danh của học sinh thì chỉ ghi dạng che (YCTD-353)
         await writeAuditLog(transaction, {
           origin,
           orgUnitId: child.org_unit_id,
           entityName: 'student_learning_accounts',
           entityId: child.id,
           action: existing ? 'update' : 'create',
-          before: existing ? { username, reset_count: existing.reset_count } : null,
-          after: { username, password_issued: true, mode },
+          before: existing ? { username: maskLoginIdentifier(username), reset_count: existing.reset_count } : null,
+          after: { username: maskLoginIdentifier(username), password_issued: true, mode },
         });
       }
       // Người dùng định danh của kênh student gắn một-một với tài khoản (DT-23 phần 23a, GD-105): gọi trong giao dịch để lỗi

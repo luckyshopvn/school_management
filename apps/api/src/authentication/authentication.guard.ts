@@ -32,6 +32,8 @@ const PUBLIC_ENDPOINT = 'publicEndpoint';
 const REQUIRED_PERMISSIONS = 'requiredPermissions';
 const STUDENT_ENDPOINT = 'studentEndpoint';
 const REQUIRED_PLAN_MODULE = 'requiredPlanModule';
+export const SUPPORT_VIEW_CHILD_HEADER = 'x-support-view-child';
+const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 // Điểm cuối không cần mã phiên, ví dụ kiểm tra sức khỏe
 export const PublicEndpoint = () => SetMetadata(PUBLIC_ENDPOINT, true);
@@ -103,10 +105,18 @@ export class AuthenticationGuard implements CanActivate {
     if ((claims.channel === 'student') !== studentEndpoint) {
       throw new ApplicationError('ERR_FORBIDDEN', 'Mã phiên này không dùng được cho chức năng này');
     }
-    const currentUser = new CurrentUser(await this.identityClient.describeCurrentUser(accessToken), {
-      channel: claims.channel,
-      sessionId: claims.sessionId,
-    });
+    const description = await this.identityClient.describeCurrentUser(accessToken);
+    // Admin xem ứng dụng học sinh (YCTD-315b): học sinh đang xem gửi ở tiêu đề, chỉ nhận ở phiên Admin vào thẳng kênh student
+    const viewing = request.header(SUPPORT_VIEW_CHILD_HEADER)?.trim() ?? '';
+    const supportViewChildId =
+      claims.channel === 'student' && description.support?.full_access === true && UUID_PATTERN.test(viewing)
+        ? viewing
+        : null;
+    const currentUser = new CurrentUser(
+      description,
+      { channel: claims.channel, sessionId: claims.sessionId },
+      supportViewChildId,
+    );
     request.currentUser = currentUser;
 
     const plan = currentTenant()?.plan;

@@ -50,6 +50,9 @@ test('CT-23c-7: hỏi đáp theo vòng, thẻ đáp án giấy, ô chữ; kết 
     .select(['org_unit_id', 'academic_year_id', 'grade_level', 'school_level'])
     .executeTakeFirstOrThrow();
   const grade = `TC${suffix}`;
+  // Trò chơi kiến thức chỉ có ở lớp cấp phổ thông (Hộp công cụ giảng dạy, DT-29, YCTD-325): lớp thử là lớp THCS (không dùng Tiểu học
+  // để kịch bản 84 vẫn thấy trường chưa có lớp Tiểu học)
+  const level = 'THCS';
   const className = `Lớp trò chơi ${suffix}`;
   const classRow = await schoolYear
     .insertInto('classes')
@@ -59,7 +62,7 @@ test('CT-23c-7: hỏi đáp theo vòng, thẻ đáp án giấy, ô chữ; kết 
       code: `TC-${suffix}`,
       name: className,
       grade_level: grade,
-      school_level: reference.school_level,
+      school_level: level,
       max_size: 30,
     })
     .returning('id')
@@ -106,7 +109,7 @@ test('CT-23c-7: hỏi đáp theo vòng, thẻ đáp án giấy, ô chữ; kết 
   // Ngân hàng câu hỏi đã duyệt của khối giả: ba câu nhiều lựa chọn (đáp án B), hai câu trả lời ngắn; một câu nháp không được dùng
   const subject = await schoolYear
     .insertInto('subjects')
-    .values({ code: `TC-${suffix}`, name: `Môn trò chơi ${suffix}`, school_level: reference.school_level })
+    .values({ code: `TC-${suffix}`, name: `Môn trò chơi ${suffix}`, school_level: level })
     .returning('id')
     .executeTakeFirstOrThrow();
   const questionIds: string[] = [];
@@ -119,7 +122,7 @@ test('CT-23c-7: hỏi đáp theo vòng, thẻ đáp án giấy, ô chữ; kết 
     const row = await schoolYear
       .insertInto('questions')
       .values({
-        school_level: reference.school_level,
+        school_level: level,
         subject_id: subject.id,
         grade_level_code: grade,
         cognitive_level: 'recognition',
@@ -145,9 +148,9 @@ test('CT-23c-7: hỏi đáp theo vòng, thẻ đáp án giấy, ô chữ; kết 
   await insertQuestion('multiple_choice', `Câu nháp ${suffix}`, ['A'], 'draft');
 
   const page = await signIn(browser, teacher);
-  await page.getByRole('button', { name: 'Công cụ lớp học' }).click();
+  await page.getByRole('button', { name: 'Hộp công cụ giảng dạy' }).click();
   await page.getByLabel('Lớp', { exact: true }).selectOption({ label: className });
-  await page.getByRole('tab', { name: 'Trò chơi' }).click();
+  await page.getByRole('tab', { name: 'Trò chơi kiến thức' }).click();
   const games = page.getByRole('region', { name: 'Trò chơi' });
   await expect(games.getByLabel('Môn')).toContainText(`Môn trò chơi ${suffix}`);
 

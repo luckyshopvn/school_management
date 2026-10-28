@@ -28,6 +28,8 @@ import { MarketBookingsService } from './market-bookings.js';
 import { MarketContext, marketNotFound, type MarketAccount } from './market-context.js';
 import { decryptFile, encryptFile, hasMarketStorage, marketStorage } from './market-files.js';
 import { MarketMessenger } from './market-messenger.js';
+import { roomWindowOpen } from './market-room-rules.js';
+import { MarketRoomsService } from './market-rooms.js';
 import {
   CONTACT_STRIKE_LIMIT,
   effectiveSeverity,
@@ -37,7 +39,6 @@ import {
   REPORT_CATEGORIES,
   REPORT_SEVERITIES,
   reportDueAt,
-  roomOpen,
   suspendsImmediately,
 } from './market-safety-rules.js';
 
@@ -88,6 +89,7 @@ export class MarketSafetyService implements OnApplicationBootstrap, OnModuleDest
     private readonly messenger: MarketMessenger,
     private readonly files: FileStorage,
     @Inject(API_CONFIGURATION) private readonly configuration: ApiConfiguration,
+    private readonly rooms: MarketRoomsService,
     @Optional() @Inject(VIDEO_PROVIDER) private readonly video: VideoRoomProvider | null = null,
   ) {}
 
@@ -645,15 +647,17 @@ export class MarketSafetyService implements OnApplicationBootstrap, OnModuleDest
       .executeTakeFirst();
   }
 
-  // Gia sư mở phòng: buổi đã trả tiền, trong giờ mở phòng; buổi có trẻ vị thành niên phải bắt đầu ghi được, không thì không mở
+  // Gia sư mở phòng: buổi đã trả tiền, trong giờ mở phòng (mốc ở cấu hình chợ, mặc định 10 phút trước giờ học, YCTD-362); buổi có trẻ
+  // vị thành niên phải bắt đầu ghi được, không thì không mở. Trả thông tin vào phòng của chủ phòng (phòng chờ, điểm danh ở market-rooms)
   async startSession(request: Request, id: string) {
     const account = await this.accounts.requireReady(request, 'tutor');
     const booking = await this.bookingFor(account, id);
     const now = this.market.now();
-    if (booking.status !== 'paid' || !roomOpen(booking.starts_at, booking.minutes, now)) {
+    const timings = (await this.market.settings()).room;
+    if (booking.status !== 'paid' || !roomWindowOpen(booking.starts_at, booking.minutes, now, timings)) {
       throw new ApplicationError(
         'ERR_CONFLICT',
-        'Phòng chỉ mở cho buổi đã trả tiền, từ 15 phút trước giờ học đến hết giờ',
+        `Phòng chỉ mở cho buổi đã trả tiền, từ ${timings.opensBeforeMinutes} phút trước giờ học đến hết giờ`,
       );
     }
     if (await this.activeSuspension(this.market.database, account.id)) {
@@ -697,41 +701,25 @@ export class MarketSafetyService implements OnApplicationBootstrap, OnModuleDest
         target: booking.id,
       });
     }
+    const host = await this.rooms.opened(booking, account);
     const token = await video.issueToken({
       roomName,
-      identity: `tutor:${account.id}`,
+      identity: host.identity,
       displayName: account.display_name,
       grants: videoGrantsFor('host'),
     });
-    return { room: roomName, token, client_url: video.clientUrl, recording: recording?.status === 'recording' };
+    const recordingOn = recording?.status === 'recording';
+    return {
+      ...this.rooms.hostJoinInfo(booking, host, token, recordingOn),
+      room: roomName,
+      client_url: video.clientUrl,
+    };
   }
 
-  // Phụ huynh (con học trên máy của phụ huynh) vào phòng: buổi bắt buộc ghi hình thì chỉ vào khi đang ghi
+  // Phụ huynh (con học trên máy của phụ huynh) vào phòng: chuyển sang phòng chờ của market-rooms (YCTD-362): cần đồng ý ghi hình với
+  // buổi bắt buộc ghi, gia sư đã mở và đang ghi, gia sư cho vào; chưa đủ thì trả `status: 'waiting'`
   async joinSession(request: Request, id: string) {
-    const account = await this.accounts.requireReady(request, 'parent');
-    const booking = await this.bookingFor(account, id);
-    if (booking.status !== 'paid' || !roomOpen(booking.starts_at, booking.minutes, this.market.now())) {
-      throw new ApplicationError(
-        'ERR_CONFLICT',
-        'Phòng chỉ mở cho buổi đã trả tiền, từ 15 phút trước giờ học đến hết giờ',
-      );
-    }
-    const video = this.video;
-    if (!video) throw new ApplicationError('ERR_CONFLICT', 'Phòng video chưa bật ở bản triển khai này');
-    const recording = await this.recordingFor(booking.id);
-    if (booking.recording_required && recording?.status !== 'recording') {
-      throw new ApplicationError(
-        'ERR_CONFLICT',
-        'Gia sư chưa mở phòng (buổi học được ghi hình, phòng mở khi bắt đầu ghi)',
-      );
-    }
-    const token = await video.issueToken({
-      roomName: `market-${booking.id}`,
-      identity: `parent:${account.id}`,
-      displayName: booking.child_name,
-      grants: videoGrantsFor('student', { speak: true }),
-    });
-    return { room: `market-${booking.id}`, token, client_url: video.clientUrl, recording: Boolean(recording) };
+    return this.rooms.enter(request, id, { as: 'student' });
   }
 
   // Gia sư kết thúc phòng: dừng ghi; nhà cung cấp trả tệp ngay thì mã hóa, lưu, đặt hạn giữ 30 ngày
@@ -770,6 +758,7 @@ export class MarketSafetyService implements OnApplicationBootstrap, OnModuleDest
       });
     }
     await video.endRoom(`market-${booking.id}`);
+    await this.rooms.closed(booking.id);
     return { recording: (await this.recordingFor(booking.id))?.status ?? null };
   }
 

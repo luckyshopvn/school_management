@@ -67,7 +67,7 @@ function useWakeLock() {
 const TAB_LABELS: Record<Tab, string> = {
   attendance: 'Điểm danh',
   'class-log': 'Sổ đầu bài',
-  tools: 'Công cụ lớp học',
+  tools: 'Hộp công cụ giảng dạy',
 };
 
 export function ClassroomModeScreen({ classes, onBack }: { classes: MyClass[]; onBack(): void }) {
@@ -136,7 +136,7 @@ export function ClassroomModeScreen({ classes, onBack }: { classes: MyClass[]; o
   return (
     <div ref={rootRef} className={presenting ? 'min-h-screen bg-card' : 'min-h-screen'}>
       {presenting ? (
-        <div aria-label="Trình chiếu công cụ lớp học">
+        <div aria-label="Trình chiếu hộp công cụ giảng dạy">
           <div className="flex items-center justify-between gap-3 px-4 py-3">
             <p className="text-section-title font-semibold text-text">{selected.name}</p>
             <Button onClick={stopPresenting}>Thoát trình chiếu</Button>

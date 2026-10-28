@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import {
   EDUCATION_PLAN_ACTION_LABELS,
+  EDUCATION_PLAN_DEFAULT_KIND,
   EDUCATION_PLAN_PERIOD_LABELS,
   EDUCATION_PLAN_SCOPE_LABELS,
   EDUCATION_PLAN_STATUS_LABELS,
@@ -31,6 +32,7 @@ import {
 import { fieldErrorsOf, formatDate, messageOf, selectClass } from '../archives/archive-ui.js';
 import { formatDateTime, Page, Tabs, useToast } from '../directives/directive-ui.js';
 import { useGridSettings } from '../pages/grid-settings.js';
+import { useEnabledSchoolLevels } from '../school-levels/enabled-levels.js';
 import { listProfessionalFolders } from '../professional-records/professional-api.js';
 import {
   copyPreviousPlan,
@@ -1166,6 +1168,11 @@ function TemplateForm({
   onSaved(template: EducationPlanTemplate): void;
   onCancel(): void;
 }) {
+  // Chỉ cấp đang bật của trường (YCTD-345); mẫu cũ của cấp đã tắt vẫn giữ cấp của nó
+  const enabledLevels = useEnabledSchoolLevels().levels;
+  const levelChoices = KPI_SCHOOL_LEVELS.filter(
+    (level) => enabledLevels.some((item) => item.value === level.value) || level.value === template?.school_level,
+  );
   const folders = useQuery({ queryKey: ['professional-folders', 'all'], queryFn: () => listProfessionalFolders() });
   const [values, setValues] = useState<TemplateInput>({
     code: template?.code ?? '',
@@ -1242,7 +1249,7 @@ function TemplateForm({
             onChange={(event) => set('school_level', (event.target.value || null) as KpiSchoolLevelCode | null)}
           >
             <option value="">Mọi cấp</option>
-            {KPI_SCHOOL_LEVELS.map((level) => (
+            {levelChoices.map((level) => (
               <option key={level.value} value={level.value}>
                 {level.label}
               </option>
@@ -1439,7 +1446,13 @@ export function PlanTemplatesPage() {
   const overview = useOverview();
   const { toast, setToast, close } = useToast();
   const grid = useGridSettings('education-plan-templates');
-  const [level, setLevel] = useState<KpiSchoolLevelCode>('MN');
+  // Cấp học theo các cấp đang bật của trường (YCTD-345); chưa chọn thì lấy cấp đầu tiên
+  const enabledLevels = useEnabledSchoolLevels().levels;
+  const [chosenLevel, setLevel] = useState<KpiSchoolLevelCode>();
+  const level: KpiSchoolLevelCode =
+    chosenLevel && enabledLevels.some((item) => item.value === chosenLevel)
+      ? chosenLevel
+      : (enabledLevels[0]?.value ?? 'MN');
   const [editing, setEditing] = useState<EducationPlanTemplate | 'new'>();
   const [deleting, setDeleting] = useState<EducationPlanTemplate>();
   const canManage = overview.data?.can_manage ?? false;
@@ -1452,7 +1465,11 @@ export function PlanTemplatesPage() {
     mutationFn: () => loadDefaultTemplates(level),
     onSuccess: async (result) => {
       await refresh();
-      setToast(`Đã thêm ${result.created} mẫu, bỏ qua ${result.skipped} mẫu đã có`);
+      setToast(
+        result.kind === 'frame'
+          ? `Đã thêm ${result.created} khung rỗng, bỏ qua ${result.skipped} khung đã có; trường tự thêm mục cho từng khung`
+          : `Đã thêm ${result.created} mẫu, bỏ qua ${result.skipped} mẫu đã có`,
+      );
     },
   });
   const remove = useMutation({
@@ -1497,7 +1514,7 @@ export function PlanTemplatesPage() {
               value={level}
               onChange={(event) => setLevel(event.target.value as KpiSchoolLevelCode)}
             >
-              {KPI_SCHOOL_LEVELS.map((item) => (
+              {enabledLevels.map((item) => (
                 <option key={item.value} value={item.value}>
                   {item.label}
                 </option>
@@ -1505,9 +1522,17 @@ export function PlanTemplatesPage() {
             </select>
           </label>
           <Button variant="secondary" disabled={defaults.isPending} onClick={() => defaults.mutate()}>
-            Nạp mẫu mặc định
+            {EDUCATION_PLAN_DEFAULT_KIND[level] === 'frame' ? 'Nạp khung rỗng' : 'Nạp mẫu mặc định'}
           </Button>
         </div>
+      ) : null}
+      {canManage && EDUCATION_PLAN_DEFAULT_KIND[level] === 'frame' ? (
+        <Alert tone="info">
+          Chưa có mẫu chuẩn cho cấp học này, trường tự nhập. Tài liệu của dự án chưa có nội dung mẫu kế hoạch của cấp
+          phổ thông; &quot;Nạp khung rỗng&quot; chỉ thêm các loại kế hoạch (nhà trường, tổ chuyên môn, dự giờ, thao
+          giảng, giáo viên, chủ nhiệm, bài dạy), mỗi khung một mục trống. Bấm Sửa để thêm mục, cột theo hướng dẫn hiện
+          hành, hoặc &quot;Thêm mẫu&quot; để tạo mẫu riêng.
+        </Alert>
       ) : null}
       {defaults.error ? <Alert tone="danger">{messageOf(defaults.error)}</Alert> : null}
       {templates.error ? <Alert tone="danger">{messageOf(templates.error)}</Alert> : null}

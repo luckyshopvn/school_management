@@ -79,7 +79,7 @@ export class MarketFamilyService {
     const database = this.market.database;
     const children = await database
       .selectFrom('market_children')
-      .select(['id', 'display_name', 'birth_year', 'school_level', 'grade', 'created_at'])
+      .select(['id', 'display_name', 'birth_year', 'school_level', 'grade', 'reads_messages', 'created_at'])
       .where('parent_account_id', '=', account.id)
       .orderBy('created_at')
       .execute();

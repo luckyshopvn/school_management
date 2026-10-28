@@ -109,8 +109,8 @@ test('CT-28a-13: chia nhóm cân bằng nam nữ thành bộ nhóm, chọn bộ 
     .execute();
 
   const page = await signIn(browser, teacher);
-  await page.getByRole('button', { name: 'Công cụ lớp học' }).click();
-  await expect(page.getByRole('heading', { name: 'Công cụ lớp học' })).toBeVisible();
+  await page.getByRole('button', { name: 'Hộp công cụ giảng dạy' }).click();
+  await expect(page.getByRole('heading', { name: 'Hộp công cụ giảng dạy' })).toBeVisible();
   await page.getByLabel('Lớp', { exact: true }).selectOption({ label: className });
   await page.getByRole('tab', { name: 'Chia nhóm' }).click();
 

@@ -224,7 +224,9 @@ export const savePlanTemplate = (id: string | null, input: TemplateInput): Promi
   );
 export const deletePlanTemplate = (id: string): Promise<void> =>
   requestJson(`${API}/education-plan-templates/${id}`, json('DELETE'));
-export const loadDefaultTemplates = (level: KpiSchoolLevelCode): Promise<{ created: number; skipped: number }> =>
+export const loadDefaultTemplates = (
+  level: KpiSchoolLevelCode,
+): Promise<{ created: number; skipped: number; kind: 'project' | 'frame' }> =>
   requestJson(`${API}/education-plan-templates/defaults`, json('POST', { school_level: level }));
 
 export const listPlans = (filter: {
