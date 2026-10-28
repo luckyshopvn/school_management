@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState, type ReactNode } from 'react';
+import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react';
 import { listPortalMenuEntries } from '@school-management/shared';
 import { Link, useLocation } from '@tanstack/react-router';
 import { useQuery } from '@tanstack/react-query';
@@ -10,7 +10,7 @@ import { SchoolLevelSwitcher } from '../school-levels/working-level.js';
 import { NavigationRegistryContext, useNavigationRegistryState } from './navigation-registry.js';
 import { fetchCurrentUser } from '../session/api-client.js';
 import { useSession } from '../session/session.js';
-import { MainMenu, MobileMenu } from './MainMenu.js';
+import { SideMenu } from './MainMenu.js';
 import { usePortalMenu } from './menu-permissions.js';
 import { UserMenu } from './UserMenu.js';
 import { Alert, Toast } from '@school-management/ui';
@@ -38,11 +38,11 @@ function MenuIcon() {
   );
 }
 
-// Khung trang của cổng quản trị theo hệ thống của Sở (DT-15 phần 15a, thay thanh điều hướng bên trái của YCTD-99): thanh
-// đầu trang màu xanh (tên phần mềm, ô chọn phân hệ, năm học, chuông thông báo, menu người dùng), dưới là menu ngang đánh
-// số của phân hệ đang chọn; màn hình hẹp dùng nút "☰" mở cây menu gập. Chân trang có nút "Gửi phản hồi"; mật khẩu sắp
-// hết hạn thì báo ở đầu trang (DT-15 phần 15g, YCTD-110). DT-16 phần 16c: tên trường màu vàng thay tên phần mềm, lưới
-// ứng dụng liên kết, hộp thông báo bật lên khi vào trang
+// Khung trang của cổng quản trị (YCTD-330, thay khung menu ngang của DT-15 phần 15a theo GD-159): thanh bên trái xanh đậm có
+// tên trường màu vàng (DT-16 phần 16c), ô chọn phân hệ và cây menu đánh số của phân hệ đang chọn (GD-160 giữ số thứ bậc);
+// thanh đầu trang có cấp học, năm học, Việc của tôi, chuông thông báo, lưới ứng dụng liên kết, menu người dùng. Dưới 1280 px
+// thanh bên thành ngăn kéo mở bằng nút "☰". Bỏ chân trang: "Gửi phản hồi" (DT-15 phần 15g) chuyển vào menu người dùng. Mật
+// khẩu sắp hết hạn vẫn báo ở đầu trang (YCTD-110)
 export function AppShell({ children }: { children: ReactNode }) {
   const session = useSession();
   const currentUser = useQuery({ queryKey: ['current-user'], queryFn: fetchCurrentUser });
@@ -53,6 +53,7 @@ export function AppShell({ children }: { children: ReactNode }) {
   const workspaces = useWorkspaceState(menu);
   const navigationRegistry = useNavigationRegistryState(menu);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const closeMenuButton = useRef<HTMLButtonElement>(null);
   const closeMobile = useCallback(() => setMobileOpen(false), []);
   const [feedbackOpen, setFeedbackOpen] = useState(false);
   const [toastMessage, setToastMessage] = useState<string>();
@@ -74,6 +75,25 @@ export function AppShell({ children }: { children: ReactNode }) {
     }
   }, [pathname, pageWorkspace, ensure]);
 
+  // Ngăn kéo menu dưới 1280 px: đóng khi chọn trang khác hoặc bấm Esc
+  useEffect(() => {
+    closeMobile();
+  }, [pathname, closeMobile]);
+  useEffect(() => {
+    if (!mobileOpen) {
+      return undefined;
+    }
+    // Mở ngăn kéo thì đưa con trỏ bàn phím vào nút Đóng menu
+    closeMenuButton.current?.focus();
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        closeMobile();
+      }
+    };
+    document.addEventListener('keydown', onKey);
+    return () => document.removeEventListener('keydown', onKey);
+  }, [mobileOpen, closeMobile]);
+
   return (
     <WorkspaceContext.Provider value={workspaces}>
       <NavigationRegistryContext.Provider value={navigationRegistry}>
@@ -85,69 +105,84 @@ export function AppShell({ children }: { children: ReactNode }) {
           <SchoolPlanBanner />
           {/* Thông báo bảo trì, phiên hỗ trợ của nhân viên nền tảng (DT-SaaS phần S4) */}
           <PlatformNoticeBanner />
-          <header className="sticky top-0 z-40 flex h-14 items-center gap-3 bg-header px-4 text-white shadow-sm">
-            <button
-              type="button"
-              className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg hover:bg-header-strong xl:hidden"
-              aria-label="Menu chức năng"
-              aria-expanded={mobileOpen}
-              aria-controls="menu-gon"
-              onClick={() => setMobileOpen(!mobileOpen)}
+          <div className="flex min-h-0 flex-1">
+            {/* Thanh bên: luôn hiện từ 1280 px; dưới 1280 px là ngăn kéo phủ lên trang */}
+            <aside
+              aria-label="Thanh bên"
+              className={`w-64 shrink-0 flex-col gap-2 overflow-y-auto bg-nav px-3 py-4 text-nav-text xl:sticky xl:top-0 xl:flex xl:h-screen ${mobileOpen ? 'fixed inset-y-0 left-0 z-50 flex shadow-lg max-xl:w-80 max-xl:max-w-[85vw]' : 'hidden'}`}
             >
-              <MenuIcon />
-            </button>
-            <Link
-              to="/"
-              className="hidden max-w-80 truncate whitespace-nowrap text-section-title font-bold text-header-accent lg:inline max-xl:lg:block max-xl:lg:py-2.5"
-              title={schoolName}
-              data-testid="school-name"
-            >
-              {schoolName}
-            </Link>
-            <WorkspaceSwitcher state={workspaces} />
-            <div className="ml-auto flex shrink-0 items-center gap-3 whitespace-nowrap">
-              <SchoolLevelSwitcher />
-              <AcademicYearSwitcher />
-              <MyWorkHeaderLink />
-              <NotificationBell />
-              <AppLauncher />
-              {currentUser.isPending ? (
-                <span className="h-4 w-32 animate-pulse rounded bg-header-strong" aria-hidden="true" />
-              ) : (
-                <UserMenu fullName={currentUser.data?.full_name} onLogout={() => void session.logout()} />
-              )}
-            </div>
-          </header>
-          <MainMenu workspaces={menu} current={workspaces.current} />
-          {mobileOpen ? (
-            <MobileMenu
-              workspace={menu.find((workspace) => workspace.key === workspaces.current)}
-              onClose={closeMobile}
-            />
-          ) : null}
-          <main className="w-full min-w-0 flex-1 p-4 md:p-6">
-            {session.passwordExpiresInDays !== null ? (
-              <div className="mb-4">
-                <Alert tone="warning">
-                  Mật khẩu sẽ hết hạn sau {session.passwordExpiresInDays} ngày.{' '}
-                  <Link to="/change-password" className="underline">
-                    Đổi mật khẩu
-                  </Link>
-                </Alert>
+              <div className="flex items-start justify-between gap-2">
+                <Link
+                  to="/"
+                  className="flex min-h-11 min-w-0 items-center px-3 text-section-title font-bold leading-snug text-header-accent"
+                  title={schoolName}
+                  data-testid="school-name"
+                >
+                  {schoolName}
+                </Link>
+                {mobileOpen ? (
+                  <button
+                    ref={closeMenuButton}
+                    type="button"
+                    aria-label="Đóng menu"
+                    className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg text-section-title text-white hover:bg-nav-hover"
+                    onClick={closeMobile}
+                  >
+                    <span aria-hidden="true">×</span>
+                  </button>
+                ) : null}
               </div>
+              <WorkspaceSwitcher state={workspaces} />
+              <SideMenu workspaces={menu} current={workspaces.current} />
+            </aside>
+            {mobileOpen ? (
+              // Nền mờ: chạm ra ngoài ngăn kéo thì đóng; người dùng bàn phím đóng bằng nút Đóng menu hoặc Esc
+              <div className="fixed inset-0 z-40 bg-text/40 xl:hidden" aria-hidden="true" onClick={closeMobile} />
             ) : null}
-            {children}
-          </main>
-          <footer className="flex flex-wrap items-center justify-between gap-2 border-t border-border bg-card px-4 py-3 text-label text-text-secondary">
-            <span>School Management</span>
-            <button
-              type="button"
-              className="font-medium text-link hover:underline"
-              onClick={() => setFeedbackOpen(true)}
-            >
-              Gửi phản hồi
-            </button>
-          </footer>
+            <div className="flex min-w-0 flex-1 flex-col">
+              <header className="sticky top-0 z-30 flex h-14 items-center gap-3 bg-header px-4 text-white shadow-sm">
+                <button
+                  type="button"
+                  className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg hover:bg-header-strong xl:hidden"
+                  aria-label="Menu chức năng"
+                  aria-expanded={mobileOpen}
+                  aria-controls="menu-gon"
+                  onClick={() => setMobileOpen(!mobileOpen)}
+                >
+                  <MenuIcon />
+                </button>
+                <div className="ml-auto flex shrink-0 items-center gap-3 whitespace-nowrap">
+                  <SchoolLevelSwitcher />
+                  <AcademicYearSwitcher />
+                  <MyWorkHeaderLink />
+                  <NotificationBell />
+                  <AppLauncher />
+                  {currentUser.isPending ? (
+                    <span className="h-4 w-32 animate-pulse rounded bg-header-strong" aria-hidden="true" />
+                  ) : (
+                    <UserMenu
+                      fullName={currentUser.data?.full_name}
+                      onFeedback={() => setFeedbackOpen(true)}
+                      onLogout={() => void session.logout()}
+                    />
+                  )}
+                </div>
+              </header>
+              <main className="w-full min-w-0 flex-1 p-4 md:p-6">
+                {session.passwordExpiresInDays !== null ? (
+                  <div className="mb-4">
+                    <Alert tone="warning">
+                      Mật khẩu sẽ hết hạn sau {session.passwordExpiresInDays} ngày.{' '}
+                      <Link to="/change-password" className="underline">
+                        Đổi mật khẩu
+                      </Link>
+                    </Alert>
+                  </div>
+                ) : null}
+                {children}
+              </main>
+            </div>
+          </div>
           {feedbackOpen ? (
             <FeedbackDialog
               pageUrl={pathname}

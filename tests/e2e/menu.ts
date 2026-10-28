@@ -6,9 +6,9 @@ import {
   type PortalWorkspace,
 } from '@school-management/shared';
 
-// Trợ giúp mở trang của cổng quản trị qua menu ngang đánh số (DT-15 phần 15a): tìm mục theo đường dẫn ("/children") hoặc
-// theo tên mục ("Quản lý hồ sơ học sinh"; mặc định khớp một phần, exact để khớp đúng), chọn phân hệ chứa mục ở ô Phân hệ,
-// rồi bấm lần lượt mục cấp một, các mục cha và mục cần mở. Cây menu lấy từ @school-management/shared nên đổi menu không
+// Trợ giúp mở trang của cổng quản trị qua cây menu đánh số ở thanh bên (YCTD-330; trước là menu ngang của DT-15 phần 15a):
+// tìm mục theo đường dẫn ("/children") hoặc theo tên mục ("Quản lý hồ sơ học sinh"; mặc định khớp một phần, exact để khớp
+// đúng), chọn phân hệ chứa mục ở ô Phân hệ, rồi mở lần lượt các nhóm cha và bấm mục cần mở. Cây menu lấy từ @school-management/shared nên đổi menu không
 // phải sửa kiểm thử
 export function findMenuEntry(target: string, options: { exact?: boolean } = {}): PortalMenuEntry {
   const entries = listPortalMenuEntries();
@@ -51,9 +51,26 @@ export async function selectWorkspace(page: Page, label: string | RegExp): Promi
   return shownName();
 }
 
-// Thanh menu đang hiện của một phân hệ
-export function menubar(page: Page, workspaceLabel: string): Locator {
-  return page.getByRole('menubar', { name: workspaceLabel, exact: true });
+// Thanh bên chứa cây menu (YCTD-330, thay menu ngang của DT-15 phần 15a)
+export function sideMenu(page: Page): Locator {
+  return page.getByRole('navigation', { name: 'Menu chức năng' });
+}
+
+// Cây menu đang hiện của một phân hệ ở thanh bên
+export function workspaceMenu(page: Page, workspaceLabel: string | RegExp): Locator {
+  return sideMenu(page).getByRole('group', {
+    name: workspaceLabel,
+    exact: typeof workspaceLabel === 'string' ? true : undefined,
+  });
+}
+
+// Mở một nhóm của cây menu nếu đang gập
+export async function openGroup(tree: Locator, name: string) {
+  const group = tree.getByRole('button', { name, exact: true });
+  if ((await group.getAttribute('aria-expanded')) !== 'true') {
+    await group.click();
+  }
+  await expect(group).toHaveAttribute('aria-expanded', 'true');
 }
 
 // Chọn cấp đang làm việc ở thanh đầu trang rồi chờ ô ngữ cảnh hiện đúng cấp. Đổi cấp lưu lên máy chủ rồi mới đổi tên phân hệ theo
@@ -67,29 +84,24 @@ export async function openMenu(page: Page, target: string, options: { exact?: bo
   const entry = findMenuEntry(target, options);
   const name = workspaceName(entry.workspace);
   await selectWorkspace(page, name);
-  // Tìm thanh menu theo tên gốc của phân hệ (có hoặc không có tên cấp), không theo tên đọc được lúc chọn: tên đổi khi cấp đang
+  // Tìm cây menu theo tên gốc của phân hệ (có hoặc không có tên cấp), không theo tên đọc được lúc chọn: tên đổi khi cấp đang
   // làm việc vừa đổi thì bộ chọn khớp đúng tên cũ không còn phần tử nào và lệnh bấm chờ tới hết thời gian (lỗi chập chờn của 103)
-  const bar = typeof name === 'string' ? menubar(page, name) : page.getByRole('menubar', { name });
-  let scope: Locator = bar;
+  const tree = workspaceMenu(page, name);
   for (const node of entry.trail) {
-    const item = scope.getByRole('menuitem', { name: portalMenuText(node), exact: true });
     if (node.children) {
-      if ((await item.getAttribute('aria-expanded')) !== 'true') {
-        await item.click();
-      }
-      await expect(item).toHaveAttribute('aria-expanded', 'true');
-      scope = bar.getByRole('menu', { name: node.label, exact: true });
+      // Nút gập của mục cha; mở nếu đang gập (nhóm chứa trang đang mở đã mở sẵn)
+      await openGroup(tree, portalMenuText(node));
     } else {
-      await item.click();
+      await tree.locator(`[data-menu-path="${node.path}"]`).click();
     }
   }
   await page.waitForURL((url) => url.pathname === entry.node.path);
 }
 
-// Mục menu dẫn tới một trang, kể cả khi menu đang đóng hoặc thuộc phân hệ khác; dùng để kiểm tra người dùng không có
+// Mục menu dẫn tới một trang, kể cả khi nhóm đang gập hoặc thuộc phân hệ khác; dùng để kiểm tra người dùng không có
 // quyền thì không có mục (toHaveCount(0))
 export function menuLink(page: Page, path: string): Locator {
-  return page.locator(`[role="menubar"] [data-menu-path="${path}"]`);
+  return page.locator(`#menu-gon [data-menu-path="${path}"]`);
 }
 
 // Menu người dùng ở thanh đầu trang (bấm tên người dùng)
@@ -107,6 +119,6 @@ export async function logout(page: Page) {
 
 // Người dùng không có mục menu dẫn tới trang: chờ menu dựng xong theo quyền rồi mới kiểm tra
 export async function expectNoMenuLink(page: Page, path: string) {
-  await expect(page.getByRole('menubar').first()).toBeVisible();
+  await expect(sideMenu(page)).toBeVisible();
   await expect(menuLink(page, path)).toHaveCount(0);
 }
