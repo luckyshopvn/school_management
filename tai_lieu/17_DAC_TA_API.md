@@ -699,6 +699,7 @@ Giao kèo của hồ sơ nhân sự và hợp đồng (DT-06 phần 6a, YCTD-58)
 2. `POST /staff/{id}/account` nhận `login` (tên đăng nhập hoặc số điện thoại); không có tài khoản trả `ERR_NOT_FOUND`; tài khoản chỉ là phụ huynh hoặc đã gắn hồ sơ khác trả `ERR_RULE_VIOLATION` mã BR-37.
 3. `POST /staff/{id}/contracts` nhận `contract_no`, `contract_type` (`probation`, `fixed_term`, `indefinite`), `start_date`, `end_date`, `base_salary`, `allowances` (danh sách `name`, `amount`); trùng thời gian với hợp đồng còn hiệu lực trả mã BR-38.
 4. `POST /employment-contracts/{id}/terminate` nhận `terminated_on`, `reason` bắt buộc; dịch vụ định danh khóa tài khoản liên kết qua `POST /users/{id}/terminate-employment` bằng mã phiên của người thao tác.
+5. `GET /staff/{id}/teaching-assignments` (YCTD-316) trả `has_account`, `items` (phân công đang hiệu lực ở năm học hiện tại: `id`, `assignment_role` `homeroom` hoặc `subject`, `class_id`, `class_code`, `class_name`, `grade_level`, `school_level`, `subject_id`, `subject_name`, `periods_per_week` là số tiết của phân công hoặc của chương trình theo khối khi trống, `from_date`, `to_date`), `total_periods`. Cần `P07.staff.view` trong phạm vi đơn vị của nhân sự hoặc là chính nhân sự, ngược lại trả `ERR_FORBIDDEN`; hồ sơ chưa liên kết tài khoản trả `has_account: false`, `items` trống.
 
 Giao kèo của nhân sự theo hệ thống của Sở (DT-15 phần 15d, YCTD-112):
 

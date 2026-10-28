@@ -281,6 +281,15 @@ export class StaffController {
     return this.staff.read(currentUser, staffId);
   }
 
+  // Phân công giảng dạy, chủ nhiệm đang hiệu lực của nhân sự cho thẻ Phân công giảng dạy của trang hồ sơ
+  @Get('staff/:id/teaching-assignments')
+  teachingAssignments(
+    @Param('id', uuidParameter('Mã nhân sự không hợp lệ')) staffId: string,
+    @AuthenticatedUser() currentUser: CurrentUser,
+  ) {
+    return this.staff.teachingAssignments(currentUser, staffId);
+  }
+
   @Post('staff')
   @HttpCode(201)
   create(@Body() body: RequestBody, @Req() request: Request, @AuthenticatedUser() currentUser: CurrentUser) {
