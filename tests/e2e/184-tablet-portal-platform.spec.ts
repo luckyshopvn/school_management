@@ -12,6 +12,7 @@ import {
 } from './device-checks.js';
 import { expect, test } from './fixtures.js';
 import { signInConsole } from './platform-console.js';
+import { clickGridMoreItem } from './grid.js';
 
 // DT-26 phần 26e (YCTD-235, spec 184): bố cục máy tính bảng của cổng quản trị và cổng nền tảng, chạy ở các dự án thiết bị của 26c
 // (E2E_DEVICES=pr hoặc full; ở dự án `chromium` mặc định chạy như ca thường ở khổ máy tính 1280 px). Cổng quản trị: dưới 1280 px menu là
@@ -106,7 +107,7 @@ test('@thiet-bi @thiet-bi-pr CT-26e-2: lưới dữ liệu cuộn ngang có cộ
   expect(violations, describeViolations(violations)).toEqual([]);
 
   // Hộp thoại: dưới 768 px rộng bằng màn hình, từ 768 px là hộp giữa màn hình
-  await grid.getByRole('button', { name: 'Cấu hình cột hiển thị' }).click();
+  await clickGridMoreItem(grid, 'Cấu hình cột hiển thị');
   const dialog = page.getByRole('dialog', { name: 'Cấu hình cột hiển thị' });
   await expect(dialog).toBeVisible();
   const box = await dialog.boundingBox();

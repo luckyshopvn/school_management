@@ -11,6 +11,7 @@ import ExcelJS from 'exceljs';
 import { readFile } from 'node:fs/promises';
 import { E2E_SYSTEM_DATABASE_NAME } from '../e2e-environment.mjs';
 import { openMenu } from './menu.js';
+import { clickGridMoreItem } from './grid.js';
 
 // Công cụ xuất, nhập dùng chung và mẫu gửi lên cấp trên chạy nội bộ (DT-16 phần 16a, YCTD-121): Xuất PDF trên lưới, 3.5 Tệp
 // đã tạo, 2.2 Nhập lớp học từ Excel với tải file mẫu kèm dữ liệu, tra cứu danh mục, chọn cột để nhập, xuất file lỗi; gửi
@@ -67,13 +68,13 @@ test('CT-16a-8: lưới dữ liệu dùng chung có nút Xuất PDF; tệp PDF t
   await signIn(page, 'VT-02', null);
   await openMenu(page, '/classes');
   const grid = page.getByRole('region', { name: 'Danh sách lớp' });
-  const download = await downloadOf(page, () => grid.getByRole('button', { name: 'Xuất PDF' }).click());
+  const download = await downloadOf(page, () => clickGridMoreItem(grid, 'Xuất PDF'));
   expect(download.suggestedFilename()).toMatch(/^danh-sach-lop-\d{8}-\d{4}\.pdf$/);
   expect((await readFile(await download.path())).subarray(0, 5).toString()).toBe('%PDF-');
 
   await openMenu(page, '/children');
   const students = page.getByRole('region', { name: 'Danh sách học sinh' });
-  const studentPdf = await downloadOf(page, () => students.getByRole('button', { name: 'Xuất PDF' }).click());
+  const studentPdf = await downloadOf(page, () => clickGridMoreItem(students, 'Xuất PDF'));
   expect(studentPdf.suggestedFilename()).toMatch(/^danh-sach-hoc-sinh-\d{8}-\d{4}\.pdf$/);
 });
 

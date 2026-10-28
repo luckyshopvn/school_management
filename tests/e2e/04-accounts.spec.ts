@@ -2,6 +2,7 @@ import { expect, test, type Page } from './fixtures.js';
 import { createDatabase, readConnectionString, type IdentityDatabase } from '@school-management/database';
 import { createTestUser } from '@school-management/identity/testing';
 import { expectNoMenuLink, openMenu } from './menu.js';
+import { clickGridMoreItem } from './grid.js';
 
 // MH-30 Tài khoản, vai trò và quyền (P01-06, P01-07, PQ-13). Chạy sau 03-org-units.spec.ts, khi đã có cây đơn vị.
 const database = createDatabase<IdentityDatabase>(readConnectionString('identity'));
@@ -135,7 +136,7 @@ test('CT-15a-12: lưới dữ liệu ở Tài khoản: cấu hình cột, số d
   await expect(grid.getByRole('row')).toHaveCount(12, slow);
 
   // Cấu hình cột hiển thị: ẩn Nhóm quyền, hiện Số điện thoại, đưa Trạng thái lên trước
-  await grid.getByRole('button', { name: 'Cấu hình cột hiển thị' }).click();
+  await clickGridMoreItem(grid, 'Cấu hình cột hiển thị');
   const columns = page.getByRole('dialog', { name: 'Cấu hình cột hiển thị' });
   await expect(columns.getByRole('checkbox', { name: 'Tên hiển thị' })).toBeDisabled();
   await columns.getByRole('checkbox', { name: 'Nhóm quyền' }).uncheck();
