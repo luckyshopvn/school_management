@@ -9,11 +9,15 @@ import { formatNumber, readBirthdays, readDashboard } from './reports-api.js';
 const vietnamMonth = () =>
   new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Ho_Chi_Minh' }).format(new Date()).slice(0, 7);
 
-function Card({ label, value }: { label: string; value: string }) {
+const percent = (value: number) => `${String(value).replace('.', ',')}%`;
+
+// Thẻ chỉ số theo mẫu giao diện Tổng quan: nhãn, số lớn, một dòng ghi chú; ghi chú cảnh báo tô màu warning
+function Card({ label, value, note, warn }: { label: string; value: string; note?: string; warn?: boolean }) {
   return (
-    <div className="rounded-xl border border-border bg-card p-4">
+    <div className="flex flex-col gap-1.5 rounded-xl border border-border bg-card px-5 py-4">
       <p className="text-label text-text-secondary">{label}</p>
-      <p className="text-section-title font-semibold text-text">{value}</p>
+      <p className="text-[30px] font-bold leading-tight tracking-tight text-text">{value}</p>
+      {note ? <p className={`text-[13px] ${warn ? 'text-warning' : 'text-text-secondary'}`}>{note}</p> : null}
     </div>
   );
 }
@@ -33,25 +37,41 @@ export function DashboardCards() {
   if (!data) {
     return null;
   }
+  const { tuition, debt, attendance } = data;
+  const paidPercent =
+    tuition.payable_amount > 0 ? Math.round((tuition.paid_amount / tuition.payable_amount) * 1000) / 10 : null;
   return (
     <section className="flex flex-col gap-3" aria-label="Bảng điều khiển">
       <h2 className="text-section-title font-semibold text-text">Bảng điều khiển tháng {Number(month.slice(5))}</h2>
-      <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
-        <Card label={`${terms.learner} đang học`} value={formatNumber(data.children_count)} />
-        <Card label="Lớp đang hoạt động" value={formatNumber(data.classes_count)} />
-        <Card label="Nhân sự đang làm" value={formatNumber(data.staff_count)} />
+      <div className="grid grid-cols-[repeat(auto-fit,minmax(220px,1fr))] gap-4">
+        <Card
+          label={`${terms.learner} đang học`}
+          value={formatNumber(data.children_count)}
+          note={`${formatNumber(data.classes_count)} lớp đang hoạt động`}
+        />
         <Card
           label="Tỷ lệ đi học trong tháng"
-          value={
-            data.attendance.rate_percent === null
-              ? 'Chưa có số liệu'
-              : `${String(data.attendance.rate_percent).replace('.', ',')}%`
+          value={attendance.rate_percent === null ? 'Chưa có số liệu' : percent(attendance.rate_percent)}
+          note={
+            attendance.record_count
+              ? `${formatNumber(attendance.present_count)} / ${formatNumber(attendance.record_count)} lượt có mặt`
+              : undefined
           }
         />
-        <Card label="Học phí phải thu tháng này" value={formatNumber(data.tuition.payable_amount)} />
-        <Card label="Đã thu" value={formatNumber(data.tuition.paid_amount)} />
-        <Card label="Công nợ còn phải thu" value={formatNumber(data.debt.outstanding_amount)} />
-        <Card label="Trong đó quá hạn" value={formatNumber(data.debt.overdue_amount)} />
+        <Card label="Nhân sự đang làm" value={formatNumber(data.staff_count)} />
+        <Card
+          label="Học phí đã thu tháng này"
+          value={paidPercent === null ? 'Chưa có khoản thu' : percent(paidPercent)}
+          note={`Đã thu ${formatNumber(tuition.paid_amount)} / ${formatNumber(tuition.payable_amount)}`}
+        />
+        <Card
+          label="Công nợ còn phải thu"
+          value={formatNumber(debt.outstanding_amount)}
+          note={
+            debt.overdue_amount ? `Trong đó quá hạn ${formatNumber(debt.overdue_amount)}` : 'Không có khoản quá hạn'
+          }
+          warn={debt.overdue_amount > 0}
+        />
       </div>
     </section>
   );
@@ -64,7 +84,7 @@ export function BirthdayList() {
     return null;
   }
   return (
-    <section className="rounded-xl border border-border bg-card p-4" aria-label="Sinh nhật trong tháng">
+    <section className="rounded-xl border border-border bg-card p-5" aria-label="Sinh nhật trong tháng">
       <h2 className="text-section-title font-semibold text-text">Sinh nhật trẻ trong tháng</h2>
       <ul className="mt-2 flex flex-col gap-1 text-content">
         {birthdays.data.map((child) => (
