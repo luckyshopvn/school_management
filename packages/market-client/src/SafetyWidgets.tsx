@@ -32,9 +32,12 @@ export const REPORT_DECISION_LABELS: Record<string, string> = {
 // Chính sách an toàn trẻ em (tóm tắt; văn bản đầy đủ là PL-19 trong hồ sơ pháp lý, luật sư của Eric rà trước khi mở chợ, E-08)
 export function ChildSafetyPolicy() {
   return (
-    <section aria-label="Chính sách an toàn trẻ em" className="flex flex-col gap-1 rounded-lg border p-3">
+    <section
+      aria-label="Chính sách an toàn trẻ em"
+      className="flex flex-col gap-2 rounded-2xl border border-border bg-card p-6"
+    >
       <h2 className="text-section-title font-semibold">Chính sách an toàn trẻ em</h2>
-      <ul className="list-disc pl-5">
+      <ul className="flex list-disc flex-col gap-1 pl-5">
         <li>Trẻ không tự đăng ký; mọi hồ sơ con do phụ huynh tạo và đồng ý.</li>
         <li>Tin nhắn chỉ giữa phụ huynh và gia sư; số điện thoại, thư điện tử, liên kết, mạng xã hội bị che.</li>
         <li>
@@ -83,24 +86,37 @@ export function MessageThread({ id, role }: { id: string; role: 'parent' | 'tuto
   if (!view) return error ? <Alert tone="danger">{error}</Alert> : null;
   const other = role === 'parent' ? view.tutor_name : view.parent_name;
   return (
-    <section aria-label={`Tin nhắn với ${other}`} className="flex flex-col gap-2 rounded-lg border p-3">
+    <section
+      aria-label={`Tin nhắn với ${other}`}
+      className="flex flex-col gap-3 rounded-2xl border border-border bg-card p-5"
+    >
       <h3 className="font-semibold">Tin nhắn với {other}</h3>
-      <p className="text-text-secondary">
+      <p className="text-label text-text-secondary">
         Tin nhắn trên chợ được lưu để bảo vệ trẻ; số điện thoại, thư điện tử, liên kết, mạng xã hội sẽ bị che.
       </p>
       {view.notice ? <Alert tone="warning">{view.notice}</Alert> : null}
       {warning ? <Alert tone="warning">{warning}</Alert> : null}
       {error ? <Alert tone="danger">{error}</Alert> : null}
-      <ul aria-label="Các tin nhắn" className="flex flex-col gap-1">
+      <ul aria-label="Các tin nhắn" className="flex flex-col gap-2">
         {view.messages.map((message) => (
-          <li key={message.id}>
-            <strong>{message.role === role ? 'Bạn' : other}</strong> ({when(message.created_at)}): {message.body}
+          <li
+            key={message.id}
+            className={`flex max-w-[80%] flex-col gap-0.5 ${message.role === role ? 'self-end items-end' : 'self-start'}`}
+          >
+            <span className="text-label text-text-secondary">
+              <strong>{message.role === role ? 'Bạn' : other}</strong> ({when(message.created_at)}):
+            </span>
+            <span
+              className={`rounded-2xl px-3 py-2 ${message.role === role ? 'bg-brand text-white' : 'bg-page text-text'}`}
+            >
+              {message.body}
+            </span>
           </li>
         ))}
       </ul>
       {view.can_send ? (
         <form
-          className="flex flex-wrap items-end gap-2"
+          className="flex flex-wrap items-end gap-2 border-t border-border pt-3"
           onSubmit={(event) => {
             event.preventDefault();
             marketRequest<{ thread: ThreadView; warning: string | null }>('POST', `/messages/threads/${id}`, {
@@ -115,7 +131,7 @@ export function MessageThread({ id, role }: { id: string; role: 'parent' | 'tuto
               .catch((caught: unknown) => setError(errorText(caught)));
           }}
         >
-          <label className="flex flex-col">
+          <label className="flex min-w-0 flex-1 flex-col gap-1 text-label font-medium">
             Nội dung
             <input className={FORM_CONTROL_CLASS} value={text} onChange={(event) => setText(event.target.value)} />
           </label>
@@ -139,18 +155,42 @@ export function MessageInbox({ role }: { role: 'parent' | 'tutor' }) {
   }, []);
   useEffect(load, [load]);
   return (
-    <section aria-label="Tin nhắn" className="flex flex-col gap-2">
-      <h2 className="text-section-title font-semibold">Tin nhắn</h2>
+    <section aria-label="Tin nhắn" className="flex flex-col gap-3">
+      <div>
+        <h2 className="text-page-title font-bold">Tin nhắn</h2>
+        <p className="text-text-secondary">
+          {role === 'parent'
+            ? 'Tin nhắn chỉ giữa bạn và gia sư; con không nhắn riêng với gia sư.'
+            : 'Bạn chỉ nhắn với phụ huynh; học sinh không nhắn riêng với bạn.'}
+        </p>
+      </div>
       {error ? <Alert tone="danger">{error}</Alert> : null}
-      {threads.length === 0 ? <p className="text-text-secondary">Chưa có tin nhắn.</p> : null}
-      <ul className="flex flex-wrap gap-2">
-        {threads.map((thread) => (
-          <li key={thread.id}>
-            <Button onClick={() => setOpen(thread.id)}>Mở tin nhắn với {thread.other_name}</Button>
-          </li>
-        ))}
-      </ul>
-      {open ? <MessageThread key={open} id={open} role={role} /> : null}
+      <div className="flex flex-wrap items-start gap-4">
+        <ul
+          aria-label="Hộp thư"
+          className="flex w-full max-w-xs flex-[1_1_240px] flex-col overflow-hidden rounded-2xl border border-border bg-card"
+        >
+          {threads.length === 0 ? <li className="p-4 text-text-secondary">Chưa có tin nhắn.</li> : null}
+          {threads.map((thread) => (
+            <li key={thread.id} className="border-b border-border last:border-0">
+              <button
+                type="button"
+                aria-current={open === thread.id ? 'true' : undefined}
+                className={`flex min-h-14 w-full flex-col items-start px-4 py-2 text-left ${
+                  open === thread.id ? 'bg-selected' : 'hover:bg-page'
+                }`}
+                onClick={() => setOpen(thread.id)}
+              >
+                <span className="font-semibold">Mở tin nhắn với {thread.other_name}</span>
+                <span className="text-label text-text-secondary">{when(thread.last_message_at)}</span>
+              </button>
+            </li>
+          ))}
+        </ul>
+        <div className="min-w-0 flex-[999_1_420px]">
+          {open ? <MessageThread key={open} id={open} role={role} /> : null}
+        </div>
+      </div>
     </section>
   );
 }
@@ -172,7 +212,7 @@ export function ReportForm({
   return (
     <form
       aria-label={`Báo cáo vi phạm ${subjectName}`}
-      className="flex flex-col gap-2 rounded-lg border p-3"
+      className="flex flex-col gap-2 rounded-2xl border border-danger/30 bg-card p-4"
       onSubmit={(event) => {
         event.preventDefault();
         marketRequest<{ suspended: boolean; hotline: string }>('POST', '/reports', {
@@ -190,7 +230,9 @@ export function ReportForm({
       }}
     >
       <h3 className="font-semibold">Báo cáo vi phạm</h3>
-      <p role="note">{SAFETY_HOTLINE}</p>
+      <p role="note" className="rounded-lg bg-danger/10 p-3 text-label font-medium text-danger">
+        {SAFETY_HOTLINE}
+      </p>
       {error ? <Alert tone="danger">{error}</Alert> : null}
       {sent ? (
         <Alert tone="success">

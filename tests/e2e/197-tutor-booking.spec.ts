@@ -227,7 +227,8 @@ test('CT-27h-7: đặt buổi, thanh toán giả lập, gia sư đánh dấu đ�
   await add.getByRole('button', { name: 'Thêm hồ sơ con' }).click();
   await expect(market.getByRole('listitem', { name: 'Hồ sơ Bé Minh' })).toContainText('Đã đồng ý cho hồ sơ con');
 
-  // Tìm gia sư, đặt buổi 3 ngày tới lúc 18:00 giờ Việt Nam
+  // Tìm gia sư, đặt buổi 3 ngày tới lúc 18:00 giờ Việt Nam (khu phụ huynh chia trang theo thanh điều hướng, YCTD-360)
+  await market.getByRole('navigation', { name: 'Điều hướng chợ' }).getByRole('button', { name: 'Tìm gia sư' }).click();
   const search = market.getByRole('form', { name: 'Lọc gia sư' });
   await search.getByLabel('Môn').fill(subjectName);
   await search.getByRole('button', { name: 'Tìm' }).click();
@@ -244,12 +245,17 @@ test('CT-27h-7: đặt buổi, thanh toán giả lập, gia sư đánh dấu đ�
   await booking.getByLabel(/Tôi đồng ý buổi học được ghi hình/).check();
   await booking.getByRole('button', { name: 'Giữ chỗ buổi học' }).click();
   await expect(booking).toContainText('Đã giữ chỗ buổi');
-  await market.getByRole('button', { name: 'Quay lại danh sách' }).click();
+  await market
+    .getByRole('navigation', { name: 'Điều hướng chợ' })
+    .getByRole('button', { name: 'Buổi học của con' })
+    .click();
   const lessons = market.getByRole('region', { name: 'Buổi học của con' });
   await lessons.getByRole('button', { name: 'Tải lại' }).click();
   const lesson = lessons.getByRole('listitem').filter({ hasText: subjectName });
   await expect(lesson).toContainText('Đang giữ chỗ, chờ trả tiền');
   await lesson.getByRole('button', { name: 'Thanh toán giả lập' }).click();
+  await expect(lesson).toContainText('Đây là thanh toán giả lập');
+  await lesson.getByRole('button', { name: 'Giả lập: đã trả thành công' }).click();
   await expect(lesson).toContainText('Đã trả tiền');
 
   // Giả lập buổi đã diễn ra: dời giờ học về 2 giờ trước

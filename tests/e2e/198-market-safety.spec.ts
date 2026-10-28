@@ -211,9 +211,12 @@ test('CT-27i-6: tin nhắn bị che, báo cáo nghiêm trọng tạm khóa gia s
   await add.getByLabel(new RegExp(`đồng ý Văn bản parent_consent ${suffix} \\(phiên bản \\d+\\)`)).check();
   await add.getByRole('button', { name: 'Thêm hồ sơ con' }).click();
   await expect(market.getByRole('listitem', { name: 'Hồ sơ Bé An' })).toContainText('Đã đồng ý cho hồ sơ con');
+  await market.getByRole('navigation', { name: 'Điều hướng chợ' }).getByRole('button', { name: 'An toàn' }).click();
   await expect(market.getByRole('region', { name: 'Chính sách an toàn trẻ em' }).first()).toContainText('111');
+  await expect(market.getByRole('region', { name: 'Báo cáo tôi đã gửi' })).toContainText('Bạn chưa gửi báo cáo nào');
 
   // Mở trang gia sư: nhắn tin có số điện thoại thì bị che và có cảnh báo
+  await market.getByRole('navigation', { name: 'Điều hướng chợ' }).getByRole('button', { name: 'Tìm gia sư' }).click();
   const search = market.getByRole('form', { name: 'Lọc gia sư' });
   await search.getByLabel('Môn').fill(subjectName);
   await search.getByRole('button', { name: 'Tìm' }).click();
@@ -239,11 +242,15 @@ test('CT-27i-6: tin nhắn bị che, báo cáo nghiêm trọng tạm khóa gia s
   await booking.getByLabel(/Tôi đồng ý buổi học được ghi hình/).check();
   await booking.getByRole('button', { name: 'Giữ chỗ buổi học' }).click();
   await expect(booking).toContainText('Đã giữ chỗ buổi');
-  await market.getByRole('button', { name: 'Quay lại danh sách' }).click();
+  await market
+    .getByRole('navigation', { name: 'Điều hướng chợ' })
+    .getByRole('button', { name: 'Buổi học của con' })
+    .click();
   const lessons = market.getByRole('region', { name: 'Buổi học của con' });
   await lessons.getByRole('button', { name: 'Tải lại' }).click();
   const lesson = lessons.getByRole('listitem').filter({ hasText: subjectName });
   await lesson.getByRole('button', { name: 'Thanh toán giả lập' }).click();
+  await lesson.getByRole('button', { name: 'Giả lập: đã trả thành công' }).click();
   await expect(lesson).toContainText('Đã trả tiền');
   await expect(lesson).toContainText('Buổi học được ghi hình để bảo vệ trẻ');
 
@@ -258,6 +265,9 @@ test('CT-27i-6: tin nhắn bị che, báo cáo nghiêm trọng tạm khóa gia s
   await expect(report).toContainText('Gia sư đã bị tạm khóa');
   await lessons.getByRole('button', { name: 'Tải lại' }).click();
   await expect(lesson).toContainText('Đã hoàn tiền');
+  // Phụ huynh theo dõi báo cáo đã gửi ở trang An toàn (YCTD-360)
+  await market.getByRole('navigation', { name: 'Điều hướng chợ' }).getByRole('button', { name: 'An toàn' }).click();
+  await expect(market.getByRole('listitem', { name: `Báo cáo về ${tutorName}` })).toContainText('Đang xử lý');
 
   // Gia sư thấy tài khoản đang tạm khóa
   const tutorContext = await browser.newContext({ baseURL: `http://${E2E_TUTOR_HOST}:${E2E_MULTI_TUTOR_PORT}` });
