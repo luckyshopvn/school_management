@@ -17,17 +17,26 @@ import { readCameraState, readEvents, StudentExamsService } from './student-exam
 // chính học sinh đang đăng nhập; đáp án đúng không đi qua nhóm này trước khi nộp
 const idPipe = () => uuidParameter('Mã không hợp lệ');
 
-@RequirePlanModule('online-exam')
+// Hồ sơ hiện ở trang đầu ứng dụng học sinh: không thuộc thi trực tuyến nên không chặn theo gói (YCTD-315b; gói cơ bản miễn phí không
+// có thi trực tuyến nhưng ứng dụng học sinh vẫn mở được)
 @Controller('student')
 @StudentEndpoint()
 @RequirePermission(PERMISSION_CODES.examTake)
-export class StudentExamsController {
+export class StudentProfileController {
   constructor(private readonly service: StudentExamsService) {}
 
   @Get('profile')
   profile(@AuthenticatedUser() currentUser: CurrentUser) {
     return this.service.profile(currentUser);
   }
+}
+
+@RequirePlanModule('online-exam')
+@Controller('student')
+@StudentEndpoint()
+@RequirePermission(PERMISSION_CODES.examTake)
+export class StudentExamsController {
+  constructor(private readonly service: StudentExamsService) {}
 
   @Get('exams')
   list(@AuthenticatedUser() currentUser: CurrentUser) {

@@ -1,7 +1,8 @@
 import { Body, Controller, Get, HttpCode, Injectable, Param, Post, Query, Req, Res } from '@nestjs/common';
 import { Clock, validationError, type FieldError } from '@school-management/server';
 import {
-  EQUIPMENT_AGE_GROUPS,
+  EQUIPMENT_ALL_GROUPS,
+  EQUIPMENT_CATALOG_SOURCES,
   EQUIPMENT_GROUPS,
   EQUIPMENT_SCHOOL_LEVELS,
   PERMISSION_CODES,
@@ -13,8 +14,10 @@ import { AuthenticatedUser, RequirePermission } from '../authentication/authenti
 import type { CurrentUser } from '../authentication/current-user.js';
 import { originOf, writeAuditLog, type ChangeOrigin } from '../common/audit-log.js';
 import { isUuid, notFoundError, type RequestBody } from '../common/request-fields.js';
+import { SchoolLevelResolver } from '../common/school-levels.js';
+import { assertLevelEnabled } from '../catalogs/school-level-fields.js';
 import { readTableFileFormat } from '../exports/table-file.js';
-import { buildEquipmentReport } from './equipment-report-calc.js';
+import { buildEquipmentReport, normGroupOf } from './equipment-report-calc.js';
 import { compareMinimum, type ComparisonStatus } from './equipment-stocktake-calc.js';
 import { EQUIPMENT_TEMPLATES } from './equipment-templates.js';
 import { FacilitiesData } from './facilities-data.js';
@@ -34,20 +37,21 @@ const STATUS_LABELS: Record<ComparisonStatus, string> = { enough: 'Đủ', short
 const labelOf = (values: ReadonlyArray<{ value: string; label: string }>, value: string | null) =>
   values.find((item) => item.value === value)?.label ?? value ?? '';
 
-function readLevel(value: unknown, errors: FieldError[]): EquipmentSchoolLevel {
+// Không gửi cấp học thì lấy cấp mặc định của trường (cấp đầu tiên đang bật) khi đối sánh (YCTD-345)
+function readLevel(value: unknown, errors: FieldError[]): EquipmentSchoolLevel | null {
   if (value === undefined || value === null || value === '') {
-    return 'MN';
+    return null;
   }
   if (typeof value !== 'string' || !EQUIPMENT_SCHOOL_LEVELS.some((item) => item.value === value)) {
     errors.push({ field: 'school_level', message: 'Cấp học là MN, TH, THCS hoặc THPT' });
-    return 'MN';
+    return null;
   }
   return value as EquipmentSchoolLevel;
 }
 
 export interface ComparisonFilter {
   orgUnitId: string | null;
-  schoolLevel: EquipmentSchoolLevel;
+  schoolLevel: EquipmentSchoolLevel | null;
   status: ComparisonStatus | null;
 }
 
@@ -73,7 +77,29 @@ export class EquipmentMinimumService {
   constructor(
     private readonly data: FacilitiesData,
     private readonly clock: Clock,
+    private readonly schoolLevels: SchoolLevelResolver,
   ) {}
+
+  // Nguồn danh mục tối thiểu của từng cấp đang bật (YCTD-345): cấp có danh mục mẫu, cấp chưa có danh mục chuẩn (trường tự
+  // nhập), số thiết bị tối thiểu đang dùng của trường ở cấp đó
+  async levels(currentUser: CurrentUser) {
+    await this.data.units(currentUser, [MANAGE, REPORT], null);
+    const database = await this.data.database();
+    const counts = await database
+      .selectFrom('equipment_items')
+      .select(['school_level', sql<string>`count(*)`.as('count')])
+      .where('is_minimum', '=', true)
+      .where('status', '=', 'active')
+      .groupBy('school_level')
+      .execute();
+    const countOf = new Map(counts.map((row) => [row.school_level, Number(row.count)]));
+    return (await this.schoolLevels.enabled()).map((level) => ({
+      school_level: level,
+      ...EQUIPMENT_CATALOG_SOURCES[level],
+      template_codes: EQUIPMENT_TEMPLATES.filter((item) => item.school_level === level).map((item) => item.code),
+      catalog_count: countOf.get(level) ?? 0,
+    }));
+  }
 
   async templates(currentUser: CurrentUser) {
     await this.data.units(currentUser, [MANAGE, REPORT], null);
@@ -101,6 +127,7 @@ export class EquipmentMinimumService {
     if (!template) {
       throw notFoundError('Không có danh mục mẫu này', 'equipment_template');
     }
+    await assertLevelEnabled(this.schoolLevels, template.school_level);
     const database = await this.data.database();
     return database.transaction().execute(async (transaction) => {
       const existing = new Set(
@@ -204,8 +231,11 @@ export class EquipmentMinimumService {
 
   async compare(currentUser: CurrentUser, filter: ComparisonFilter) {
     const unitIds = await this.data.units(currentUser, [REPORT, MANAGE], filter.orgUnitId);
+    // Cấp học phải đang bật ở trường; không chọn thì lấy cấp mặc định (YCTD-345)
+    const schoolLevel = filter.schoolLevel ?? (await this.schoolLevels.defaultLevel());
+    await assertLevelEnabled(this.schoolLevels, schoolLevel);
     const database = await this.data.database();
-    const [classes, allItems, levels, holdings, assets] = await Promise.all([
+    const [allClasses, allItems, levels, holdings, assets] = await Promise.all([
       this.data.classes(database, unitIds),
       this.data.items(database),
       database.selectFrom('equipment_items').select(['id', 'school_level']).execute(),
@@ -213,14 +243,17 @@ export class EquipmentMinimumService {
       this.data.assets(database, unitIds),
     ]);
     const levelOf = new Map(levels.map((row) => [row.id, row.school_level]));
-    const items = allItems.filter((item) => item.is_minimum && levelOf.get(item.id) === filter.schoolLevel);
+    const items = allItems.filter((item) => item.is_minimum && levelOf.get(item.id) === schoolLevel);
+    // Chỉ lớp của cấp đang đối sánh; lớp chưa gắn khối tính vào Mầm non như trước
+    const classes = allClasses.filter((row) => (row.school_level ?? 'MN') === schoolLevel);
     const comparison = compareMinimum(buildEquipmentReport({ items, classes, holdings, assets, classId: null }).rows);
     return {
       org_unit_ids: unitIds,
-      school_level: filter.schoolLevel,
+      school_level: schoolLevel,
+      catalog_source: EQUIPMENT_CATALOG_SOURCES[schoolLevel],
       catalog_count: items.length,
       not_applicable_count: items.length - comparison.rows.length,
-      unclassified_classes: classes.filter((row) => row.age_group === null).map((row) => row.name),
+      unclassified_classes: classes.filter((row) => normGroupOf(row) === null).map((row) => row.name),
       rows: filter.status ? comparison.rows.filter((row) => row.status === filter.status) : comparison.rows,
       totals: comparison.totals,
     };
@@ -235,7 +268,7 @@ export class EquipmentMinimumService {
       currentUser,
       reportCode: 'equipment-minimum',
       fileName: `doi-sanh-danh-muc-toi-thieu-${fileStamp(createdAt)}.xlsx`,
-      filters: { ...filter },
+      filters: { ...filter, schoolLevel: report.school_level },
       orgUnitIds: report.org_unit_ids,
       ipAddress,
       createdAt,
@@ -251,7 +284,7 @@ export class EquipmentMinimumService {
             { key: 'code', label: 'Mã', width: 12 },
             { key: 'name', label: 'Tên thiết bị', width: 40 },
             { key: 'unit', label: 'Đơn vị tính', width: 10 },
-            { key: 'age_group', label: 'Nhóm tuổi', width: 20 },
+            { key: 'age_group', label: 'Nhóm tuổi, khối', width: 20 },
             { key: 'equipment_group', label: 'Nhóm thiết bị', width: 24 },
             { key: 'norm', label: 'Định mức tối thiểu' },
             { key: 'available', label: 'Hiện có' },
@@ -260,7 +293,7 @@ export class EquipmentMinimumService {
           ],
           rows: report.rows.map((row) => ({
             ...row,
-            age_group: labelOf(EQUIPMENT_AGE_GROUPS, row.age_group),
+            age_group: labelOf(EQUIPMENT_ALL_GROUPS, row.age_group),
             equipment_group: labelOf(EQUIPMENT_GROUPS, row.equipment_group),
             status: STATUS_LABELS[row.status],
           })),
@@ -273,6 +306,12 @@ export class EquipmentMinimumService {
 @Controller()
 export class EquipmentMinimumController {
   constructor(private readonly minimum: EquipmentMinimumService) {}
+
+  @Get('equipment-minimum/levels')
+  @RequirePermission(MANAGE, REPORT)
+  levels(@AuthenticatedUser() currentUser: CurrentUser) {
+    return this.minimum.levels(currentUser);
+  }
 
   @Get('equipment-templates')
   @RequirePermission(MANAGE, REPORT)

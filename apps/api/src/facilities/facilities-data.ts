@@ -1,12 +1,30 @@
 import { Injectable } from '@nestjs/common';
 import type { SchoolYearDatabase } from '@school-management/database';
 import { ApplicationError, validationError } from '@school-management/server';
+import { equipmentLevelOfGroup } from '@school-management/shared';
 import { sql, type Kysely } from 'kysely';
 import type { CurrentUser } from '../authentication/current-user.js';
 import { CurrentSchoolYearResolver } from '../common/current-school-year.js';
 import { OrganizationScopes } from '../organization/organization-scopes.js';
 import type { CalcAsset, CalcClass, CalcHolding, CalcItem } from './equipment-report-calc.js';
 import { ageGroupOfMonths } from './facility-rules.js';
+
+// Nhóm áp dụng định mức của một lớp theo khối: Mầm non suy nhóm tuổi từ tháng tuổi của khối; cấp phổ thông lấy mã khối mẫu
+// K1 đến K12 (YCTD-345), khối mã khác hoặc không khớp cấp thì chưa xếp được
+export function classGroupOf(
+  grade:
+    { code: string; age_from_months: number | null; age_to_months: number | null; school_level: string } | undefined,
+): string | null {
+  if (!grade) {
+    return null;
+  }
+  if (grade.school_level !== 'MN') {
+    return equipmentLevelOfGroup(grade.code) === grade.school_level ? grade.code : null;
+  }
+  return grade.age_from_months !== null && grade.age_to_months !== null
+    ? ageGroupOfMonths(grade.age_from_months, grade.age_to_months)
+    : null;
+}
 
 // Đọc dữ liệu dùng chung cho thiết bị dạy học, cơ sở vật chất và báo cáo EMIS (YCTD-102)
 @Injectable()
@@ -67,7 +85,8 @@ export class FacilitiesData {
     return root;
   }
 
-  // Lớp đang hoạt động kèm nhóm tuổi suy từ khối và sĩ số hiện tại (học sinh đang học)
+  // Lớp đang hoạt động kèm nhóm tuổi suy từ khối và sĩ số hiện tại (học sinh đang học). age_group giữ nghĩa cũ (nhóm tuổi Mầm
+  // non, báo cáo EMIS đọc); norm_group là nhóm áp định mức thiết bị, có cả mã khối của cấp phổ thông (YCTD-345)
   async classes(database: Kysely<SchoolYearDatabase>, orgUnitIds: string[]): Promise<CalcClass[]> {
     if (orgUnitIds.length === 0) {
       return [];
@@ -80,7 +99,10 @@ export class FacilitiesData {
         .where('org_unit_id', 'in', orgUnitIds)
         .orderBy('name')
         .execute(),
-      database.selectFrom('grade_levels').select(['code', 'age_from_months', 'age_to_months']).execute(),
+      database
+        .selectFrom('grade_levels')
+        .select(['code', 'age_from_months', 'age_to_months', 'school_level'])
+        .execute(),
       database
         .selectFrom('class_enrollments')
         .innerJoin('children', 'children.id', 'class_enrollments.child_id')
@@ -102,6 +124,8 @@ export class FacilitiesData {
           grade && grade.age_from_months !== null && grade.age_to_months !== null
             ? ageGroupOfMonths(grade.age_from_months, grade.age_to_months)
             : null,
+        school_level: grade?.school_level ?? null,
+        norm_group: classGroupOf(grade),
         child_count: countByClass.get(row.id) ?? 0,
       };
     });

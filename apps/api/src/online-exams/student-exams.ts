@@ -1,3 +1,4 @@
+import { studentChildOf } from '../common/student-account.js';
 import { randomInt } from 'node:crypto';
 import { Injectable } from '@nestjs/common';
 import type { ExamAttemptEventType, SchoolYearDatabase } from '@school-management/database';
@@ -105,14 +106,14 @@ export class StudentExamsService {
   ) {}
 
   // Học sinh của người gọi: tài khoản nối đúng một học sinh đang học, đã xếp lớp, cấp học còn bật thi trực tuyến
-  async resolve(currentUser: CurrentUser): Promise<StudentContext> {
-    assertOnlineExamModule();
+  async resolve(currentUser: CurrentUser, options: { exam?: boolean } = {}): Promise<StudentContext> {
+    const exam = options.exam !== false;
+    if (exam) {
+      assertOnlineExamModule();
+    }
     const { database } = await this.currentSchoolYear.require();
-    const account = await database
-      .selectFrom('student_learning_accounts')
-      .select('child_id')
-      .where('identity_user_id', '=', currentUser.id)
-      .executeTakeFirst();
+    // Chế độ xem của nhân viên hỗ trợ (YCTD-315b): học sinh Admin đang xem thay cho học sinh của tài khoản
+    const account = await studentChildOf(database, currentUser);
     if (!account) {
       throw new ApplicationError(
         'ERR_FORBIDDEN',
@@ -122,7 +123,7 @@ export class StudentExamsService {
     const child = await database
       .selectFrom('children')
       .select(['id', 'full_name', 'status', 'deleted_at'])
-      .where('id', '=', account.child_id)
+      .where('id', '=', account.id)
       .executeTakeFirst();
     if (!child || child.status !== 'active' || child.deleted_at !== null) {
       throw new ApplicationError('ERR_FORBIDDEN', 'Tài khoản học sinh đã tắt vì học sinh không còn đang học ở trường');
@@ -142,7 +143,7 @@ export class StudentExamsService {
       .select('student_login_enabled')
       .where('school_level', '=', enrollment.school_level)
       .executeTakeFirst();
-    if (setting && !setting.student_login_enabled) {
+    if (exam && setting && !setting.student_login_enabled) {
       throw new ApplicationError('ERR_FORBIDDEN', 'Nhà trường chưa mở thi trực tuyến cho học sinh cấp học này');
     }
     return {
@@ -156,7 +157,7 @@ export class StudentExamsService {
   }
 
   async profile(currentUser: CurrentUser) {
-    const student = await this.resolve(currentUser);
+    const student = await this.resolve(currentUser, { exam: false });
     return { full_name: student.fullName, class_name: student.className, school_level: student.level };
   }
 

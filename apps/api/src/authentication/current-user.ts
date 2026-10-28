@@ -27,7 +27,14 @@ export interface CurrentUserDescription {
   // Cấp đang làm việc người dùng chọn ở thanh đầu trang (DT-19 phần 19c): null hoặc không có là "Tất cả"
   working_school_level?: string | null;
   // Phiên hỗ trợ của nhân viên nền tảng (DT-SaaS phần S4): null hoặc không có là phiên thường
-  support?: { id: string; scope: 'read' | 'full'; operator_name: string; expires_at: string } | null;
+  // full_access (YCTD-315): phiên Admin vào thẳng có mọi mã quyền của trường
+  support?: {
+    id: string;
+    scope: 'read' | 'full';
+    operator_name: string;
+    expires_at: string;
+    full_access?: boolean;
+  } | null;
 }
 
 // Phạm vi đơn vị của một quyền: toàn trường hoặc danh sách đơn vị được gán (lớp 2 của BM-10)
@@ -46,7 +53,14 @@ export class CurrentUser {
   constructor(
     readonly description: CurrentUserDescription,
     readonly session: CallingSession | null = null,
+    // Chế độ xem của nhân viên hỗ trợ ở ứng dụng học sinh (YCTD-315b): học sinh Admin đang chọn để xem, chỉ có ở phiên Admin vào
+    // thẳng kênh student; các điểm cuối của học sinh dùng học sinh này thay cho học sinh của tài khoản
+    readonly supportViewChildId: string | null = null,
   ) {}
+
+  get isPlatformAdminSupport(): boolean {
+    return this.description.support?.full_access === true;
+  }
 
   get id(): string {
     return this.description.id;

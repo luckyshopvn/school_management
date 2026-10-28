@@ -264,7 +264,7 @@ Trúng tuyển 5.11: xem mục 2.3 (quy tắc chuyển hồ sơ).
   - Quản lý thiết bị: `P13.equipment.manage` (VT-02, VT-03, VT-11).
   - Kiểm kê: `P13.equipment.stocktake` (VT-02, VT-15, VT-03, VT-11, VT-07, VT-08).
   - Khai báo phòng: `P01.room.manage`; mức đạt chuẩn, mở khóa biểu: `P01.school-profile.manage` (VT-02).
-- Căn cứ pháp lý: Thông tư 02/2010/TT-BGDĐT sửa đổi bởi Thông tư 34/2013/TT-BGDĐT (danh mục đồ dùng, đồ chơi, thiết bị dạy học tối thiểu mầm non); Thông tư 13/2020/TT-BGDĐT (tiêu chuẩn cơ sở vật chất mức độ 1, mức độ 2; ghi chú trong mã cần đối chiếu văn bản hiện hành); Thông tư 19/2018/TT-BGDĐT (mức chuẩn quốc gia trong hồ sơ trường). Kế hoạch 32 mục 18g nêu TT 37/2021, 38/2021, 39/2021 cho Tiểu học, THCS, THPT nhưng mã chưa có mẫu.
+- Căn cứ pháp lý: Thông tư 02/2010/TT-BGDĐT sửa đổi bởi Thông tư 34/2013/TT-BGDĐT (danh mục đồ dùng, đồ chơi, thiết bị dạy học tối thiểu mầm non); Thông tư 13/2020/TT-BGDĐT (tiêu chuẩn cơ sở vật chất mức độ 1, mức độ 2; ghi chú trong mã cần đối chiếu văn bản hiện hành); Thông tư 19/2018/TT-BGDĐT (mức chuẩn quốc gia trong hồ sơ trường). Kế hoạch 32 mục 18g nêu TT 37/2021, 38/2021, 39/2021 cho Tiểu học, THCS, THPT nhưng tài liệu dự án không có nội dung danh mục, nên mã không có mẫu; từ YCTD-345 ba cấp này chọn được ở 2.1, 2.6, định mức theo khối (K1 đến K12), màn hình ghi "Chưa có danh mục chuẩn, trường tự nhập" và trường tự thêm thiết bị hoặc nhập Excel.
 
 ### Chức năng và màn hình
 

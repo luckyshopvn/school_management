@@ -219,13 +219,14 @@ describe('Kế hoạch giáo dục', () => {
     assert.equal(forbidden.status, 403);
     assert.equal((await api('GET', '/education-plan-templates', 'parent')).status, 403);
     const empty = await api('POST', '/education-plan-templates/defaults', 'principal', { school_level: 'TH' });
-    assert.equal(errorOf(empty.body).rule_code, 'YCTD-147');
+    // Trường chỉ có Mầm non: cấp Tiểu học chưa bật nên không nạp được (YCTD-345)
+    assert.equal(errorOf(empty.body).rule_code, 'YCTD-152');
     const loaded = await api('POST', '/education-plan-templates/defaults', 'principal', { school_level: 'MN' });
-    assert.deepEqual(loaded.body, { created: EDUCATION_PLAN_DEFAULT_TEMPLATES.MN.length, skipped: 0 });
+    assert.deepEqual(loaded.body, { created: EDUCATION_PLAN_DEFAULT_TEMPLATES.MN.length, skipped: 0, kind: 'project' });
     // Thư viện mẫu dùng chung toàn trường: Phó Hiệu trưởng chỉ được gán một điểm trường không sửa được
     assert.equal((await api('POST', '/education-plan-templates/defaults', 'vice', { school_level: 'MN' })).status, 403);
     const again = await api('POST', '/education-plan-templates/defaults', 'principal', { school_level: 'MN' });
-    assert.deepEqual(again.body, { created: 0, skipped: EDUCATION_PLAN_DEFAULT_TEMPLATES.MN.length });
+    assert.deepEqual(again.body, { created: 0, skipped: EDUCATION_PLAN_DEFAULT_TEMPLATES.MN.length, kind: 'project' });
     const list = (await api('GET', '/education-plan-templates?school_level=MN', 'teacher')).body as unknown as Array<{
       id: string;
       code: string;
