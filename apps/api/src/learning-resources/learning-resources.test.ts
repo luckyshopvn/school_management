@@ -214,7 +214,7 @@ describe('Điểm cuối kho học liệu', () => {
     await environment.close();
   });
 
-  it('CT-22h1-2: danh mục mặc định 9 loại (thêm gói SCORM của 28h), 10 giấy phép; chỉ thủ kho sửa loại, giấy phép; giáo viên thêm chủ đề', async () => {
+  it('CT-22h1-2: danh mục mặc định 11 loại (thêm gói SCORM của 28h, Bài hát và Câu chuyện của 29e), 10 giấy phép; chỉ thủ kho sửa loại, giấy phép; giáo viên thêm chủ đề', async () => {
     const catalog = await api('GET', '/learning-resources/catalog', 'teacher');
     assert.equal(catalog.status, 200, JSON.stringify(catalog.body));
     for (const row of list(catalog.body.types)) {
@@ -223,8 +223,9 @@ describe('Điểm cuối kho học liệu', () => {
     for (const row of list(catalog.body.licenses)) {
       licenses[row.code as string] = row.id as string;
     }
-    assert.equal(Object.keys(types).length, 9);
+    assert.equal(Object.keys(types).length, 11);
     assert.equal(Object.keys(licenses).length, 10);
+    assert.equal(list(catalog.body.types).find((row) => row.code === 'song')?.requires_school_review, true);
     assert.equal(list(catalog.body.types).find((row) => row.code === 'video')?.requires_school_review, true);
     assert.equal(list(catalog.body.licenses).find((row) => row.code === 'UNKNOWN')?.private_only, true);
     assert.equal((await api('GET', '/learning-resources/catalog', 'parent')).status, 403);
