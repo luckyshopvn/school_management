@@ -1,5 +1,6 @@
 import { MarketShell } from '@school-management/market-client';
 import { ParentArea } from './ParentArea.js';
+import { ParentBookings } from './ParentBookings.js';
 import { TutorSearch } from './TutorSearch.js';
 
 // Chợ gia sư cho phụ huynh (DT-27 phần 27f, YCTD-256; tài liệu 32 mục 19.5): trang công khai, đăng ký, đăng nhập phụ huynh, khu phụ
@@ -26,6 +27,7 @@ export function MarketApplication() {
       )}
     >
       <TutorSearch />
+      <ParentBookings />
       <ParentArea />
     </MarketShell>
   );

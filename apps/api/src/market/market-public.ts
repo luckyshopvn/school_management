@@ -209,6 +209,8 @@ export class MarketPublicService {
       database
         .selectFrom('market_tutor_subjects')
         .select([
+          // Mã môn để đặt buổi (DT-27 phần 27h)
+          'id',
           'subject',
           'school_level',
           'grade_from',

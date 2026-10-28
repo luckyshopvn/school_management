@@ -86,6 +86,9 @@ export interface ApiConfiguration {
   // base64); trống thì chưa nhận tệp
   marketIdentityProviders?: ExternalProviderDefinition[];
   marketFilesKey?: Buffer | null;
+  // Việc định kỳ của chợ gia sư (DT-27 phần 27h): nhả chỗ giữ quá hạn, giải ngân buổi hết hạn khiếu nại, chốt quyết định tranh chấp
+  // (giây, mặc định 300; 0 là tắt, kiểm thử tự gọi)
+  marketJobIntervalSeconds?: number;
   // Nguồn gốc riêng phục vụ tệp gói SCORM (DT-28 phần 28h), ví dụ https://noi-dung.he-thong.example; trống thì phục vụ ở tên miền của
   // trường (tệp vẫn ở nguồn gốc riêng nhờ CSP sandbox, không đọc được phiên, cookie của ứng dụng)
   scormContentOrigin?: string | null;
@@ -379,6 +382,9 @@ export function readConfigurationFromEnvironment(options: { multiTenant?: boolea
     marketLinkSecret: process.env.MARKET_LINK_SECRET?.trim() || null,
     marketIdentityProviders: readProviderDefinitions(process.env, 'MARKET_IDENTITY'),
     marketFilesKey: readMarketFilesKey(process.env.MARKET_FILES_KEY),
+    marketJobIntervalSeconds: process.env.MARKET_JOB_INTERVAL_SECONDS?.trim()
+      ? Number(process.env.MARKET_JOB_INTERVAL_SECONDS)
+      : 300,
     scormContentOrigin: process.env.SCORM_CONTENT_ORIGIN?.trim().replace(/\/+$/, '') || null,
     ...(process.env.INTERNAL_JOB_TOKEN?.trim() ? { schedulerSecret: process.env.INTERNAL_JOB_TOKEN.trim() } : {}),
     timetableMaxActiveRuns: Number(process.env.TIMETABLE_MAX_ACTIVE_RUNS ?? 2),

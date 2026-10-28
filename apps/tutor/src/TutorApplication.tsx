@@ -3,6 +3,7 @@ import { errorText, marketRequest, MarketShell, writeSession } from '@school-man
 import { UpdateBanner } from '@school-management/pwa';
 import { Alert, Button } from '@school-management/ui';
 import { TutorArea } from './TutorArea.js';
+import { TutorBookings } from './TutorBookings.js';
 import { TutorListing } from './TutorListing.js';
 import { TutorSchoolRole } from './TutorSchoolRole.js';
 import { TutorVerification } from './TutorVerification.js';
@@ -62,6 +63,7 @@ function TutorHome() {
   if (!listing) return <p>Đang tải hồ sơ…</p>;
   return (
     <div className="flex flex-col gap-6">
+      <TutorBookings />
       <TutorVerification listing={listing} onChange={setListing} />
       <TutorListing key={listing.status} listing={listing} onChange={setListing} />
       <TutorArea />
