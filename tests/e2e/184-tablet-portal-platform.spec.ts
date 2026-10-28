@@ -48,25 +48,27 @@ async function signInPortal(page: Page) {
   await expect(page.getByRole('heading', { name: /^Xin chào,/ })).toBeVisible();
 }
 
-test('@thiet-bi @thiet-bi-pr CT-26e-1: cổng quản trị: menu ngang từ 1280 px, ngăn kéo dưới 1280 px; trang chủ đạt yêu cầu truy cập', async ({
+test('@thiet-bi @thiet-bi-pr CT-26e-1: cổng quản trị: thanh bên từ 1280 px, ngăn kéo dưới 1280 px; trang chủ đạt yêu cầu truy cập', async ({
   page,
 }) => {
   await signInPortal(page);
   const width = page.viewportSize()?.width ?? 1280;
   const toggle = page.getByRole('button', { name: 'Menu chức năng' });
+  const menu = page.getByRole('navigation', { name: 'Menu chức năng' });
   if (width >= 1280) {
-    await expect(page.getByRole('menubar').first()).toBeVisible();
+    // Thanh bên luôn hiện từ 1280 px (YCTD-330)
+    await expect(menu).toBeVisible();
     await expect(toggle).toBeHidden();
   } else {
-    await expect(page.getByRole('menubar')).toHaveCount(0);
+    await expect(menu).toHaveCount(0);
     await expect(toggle).toBeVisible();
     const home = await deviceViolations(page);
     expect(home, describeViolations(home)).toEqual([]);
 
     // Ngăn kéo bên trái, phủ trên nội dung; Esc đóng, nút Đóng menu đóng
     await toggle.click();
-    const drawer = page.getByRole('navigation', { name: 'Menu chức năng' });
-    await expect(drawer).toBeVisible();
+    const drawer = page.getByRole('complementary', { name: 'Thanh bên' });
+    await expect(menu).toBeVisible();
     const box = await drawer.boundingBox();
     expect(box?.x).toBe(0);
     expect(box?.width ?? 0).toBeLessThanOrEqual(Math.min(320, width * 0.85) + 1);

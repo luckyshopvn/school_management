@@ -138,11 +138,12 @@ export function WorkspaceIcon({ name }: { name: IconName }) {
   );
 }
 
-// Ô chọn phân hệ ở thanh đầu trang. Chọn phân hệ khác thì về trang chủ, nơi bảng điều khiển đổi theo phân hệ vừa chọn,
+// Ô chọn phân hệ ở đầu thanh bên (YCTD-330; trước ở thanh đầu trang). Chọn phân hệ khác thì về trang chủ, nơi bảng điều khiển đổi theo phân hệ vừa chọn,
 // để vùng nội dung không còn trang của phân hệ cũ (Eric báo ngày 2026-10-28, YCTD-307); chọn lại phân hệ đang mở thì giữ
 // nguyên trang
 export function WorkspaceSwitcher({ state }: { state: WorkspaceState }) {
   const [open, setOpen] = useState(false);
+  const [filter, setFilter] = useState('');
   const container = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
   const current = state.workspaces.find((workspace) => workspace.key === state.current);
@@ -172,50 +173,72 @@ export function WorkspaceSwitcher({ state }: { state: WorkspaceState }) {
   if (!current) {
     return null;
   }
+  const keyword = filter.trim().toLocaleLowerCase('vi');
+  const shown = keyword
+    ? state.workspaces.filter((workspace) => workspace.label.toLocaleLowerCase('vi').includes(keyword))
+    : state.workspaces;
   return (
     <div className="relative min-w-0" ref={container}>
       <button
         type="button"
-        className="flex h-9 w-72 max-w-[52vw] items-center gap-2 rounded-md border border-white/60 bg-card pl-1.5 pr-2 text-left text-label text-text shadow-sm"
+        className="flex min-h-11 w-full items-center gap-2 rounded-md border border-white/25 bg-nav-hover px-2 text-left text-white hover:border-white/50"
         aria-label={`Phân hệ: ${current.label}`}
         aria-haspopup="menu"
         aria-expanded={open}
-        onClick={() => setOpen(!open)}
+        onClick={() => {
+          setFilter('');
+          setOpen(!open);
+        }}
       >
         <WorkspaceIcon name={WORKSPACE_ICONS[current.key]} />
-        <span className="min-w-0 flex-1 truncate">{current.label}</span>
-        <span className="border-l border-border pl-2 text-text-secondary" aria-hidden="true">
+        <span className="flex min-w-0 flex-1 flex-col leading-tight">
+          <span className="text-[12px] text-nav-muted">Phân hệ</span>
+          <span className="truncate text-label font-medium">{current.label}</span>
+        </span>
+        <span className="text-nav-muted" aria-hidden="true">
           ▾
         </span>
       </button>
       {open ? (
-        <ul
-          role="menu"
-          aria-label="Chọn phân hệ"
-          className="absolute left-0 top-10 z-40 max-h-[calc(100vh-64px)] w-72 max-w-[calc(100vw-32px)] overflow-y-auto rounded-md border border-border bg-card py-1 shadow-lg"
-        >
-          {state.workspaces.map((workspace) => (
-            <li key={workspace.key} role="none">
-              <button
-                type="button"
-                role="menuitemradio"
-                aria-checked={workspace.key === state.current}
-                className={`flex w-full items-center gap-2 px-3 py-1.5 text-left text-label text-text hover:bg-selected ${workspace.key === state.current ? 'bg-selected font-semibold' : ''}`}
-                onClick={() => {
-                  setOpen(false);
-                  if (workspace.key === state.current) {
-                    return;
-                  }
-                  state.select(workspace.key);
-                  void navigate({ to: '/' });
-                }}
-              >
-                <WorkspaceIcon name={WORKSPACE_ICONS[workspace.key]} />
-                {workspace.label}
-              </button>
-            </li>
-          ))}
-        </ul>
+        <div className="absolute left-0 top-12 z-40 w-72 max-w-[calc(100vw-32px)] rounded-md border border-border bg-card p-1 text-text shadow-lg">
+          {/* Nhiều phân hệ thì có ô lọc theo tên (YCTD-330) */}
+          {state.workspaces.length > 8 ? (
+            <input
+              type="search"
+              aria-label="Tìm phân hệ"
+              placeholder="Tìm phân hệ"
+              value={filter}
+              onChange={(event) => setFilter(event.target.value)}
+              className="mb-1 h-9 w-full rounded-md border border-border-strong px-2 text-label"
+            />
+          ) : null}
+          <ul role="menu" aria-label="Chọn phân hệ" className="max-h-[calc(100vh-140px)] overflow-y-auto py-1">
+            {shown.map((workspace) => (
+              <li key={workspace.key} role="none">
+                <button
+                  type="button"
+                  role="menuitemradio"
+                  aria-checked={workspace.key === state.current}
+                  className={`flex w-full items-center gap-2 px-3 py-1.5 text-left text-label text-text hover:bg-selected ${workspace.key === state.current ? 'bg-selected font-semibold' : ''}`}
+                  onClick={() => {
+                    setOpen(false);
+                    if (workspace.key === state.current) {
+                      return;
+                    }
+                    state.select(workspace.key);
+                    void navigate({ to: '/' });
+                  }}
+                >
+                  <WorkspaceIcon name={WORKSPACE_ICONS[workspace.key]} />
+                  {workspace.label}
+                </button>
+              </li>
+            ))}
+            {shown.length === 0 ? (
+              <li className="px-3 py-1.5 text-label text-text-secondary">Không có phân hệ phù hợp</li>
+            ) : null}
+          </ul>
+        </div>
       ) : null}
     </div>
   );
