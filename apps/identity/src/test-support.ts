@@ -17,7 +17,7 @@ import type { OrganizationDirectory } from './accounts/organization-directory.js
 import { RecordingSmsSender } from './messaging/sms-sender.js';
 import { Infrastructure } from './common/infrastructure.js';
 import { Redis } from 'ioredis';
-import type { ExternalProviderDefinition } from './external-identity/provider-profiles.js';
+import type { ExternalProviderDefinition } from '@school-management/server/external-identity';
 
 // Hỗ trợ kiểm thử tích hợp trên cơ sở dữ liệu định danh và Redis thật
 // Tạo tài khoản vận hành nền tảng cho kiểm thử giao diện cổng nền tảng (DT-SaaS phần S2, spec 132)
@@ -29,8 +29,11 @@ export {
 export { OPERATOR_TEST_PASSWORD, operatorOtp, totpCode } from './platform/operator-test-helpers.js';
 // Nhà cung cấp OIDC giả lập cho kiểm thử đăng nhập bằng nhà cung cấp ngoài (DT-25, spec 165)
 export { MockOidcServer, type MockIdentity, type MockTamper } from './external-identity/mock-oidc-server.js';
-export { clearOidcCaches } from './external-identity/oidc-provider.js';
-export { parseProviderDefinition, type ExternalProviderDefinition } from './external-identity/provider-profiles.js';
+export {
+  clearOidcCaches,
+  parseProviderDefinition,
+  type ExternalProviderDefinition,
+} from '@school-management/server/external-identity';
 
 export class AdjustableClock extends Clock {
   private offsetMilliseconds = 0;

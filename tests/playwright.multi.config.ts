@@ -4,7 +4,12 @@ import { defineConfig, devices } from '@playwright/test';
 import { replaceDatabaseName, testAdminDatabaseUrl } from '@school-management/database';
 import {
   E2E_CONSOLE_HOST,
+  E2E_MARKET_FILES_KEY,
   E2E_MARKET_LINK_SECRET,
+  E2E_MARKET_OIDC_CLIENT_ID,
+  E2E_MARKET_OIDC_CLIENT_SECRET,
+  E2E_MARKET_OIDC_CODE,
+  E2E_MARKET_OIDC_PORT,
   E2E_ROOT_DOMAIN,
   E2E_SCHEDULER_SECRET,
   E2E_MULTI_API_PORT,
@@ -110,6 +115,21 @@ export default defineConfig({
         // Chợ gia sư (DT-27 phần 27f, spec 195): vai trò riêng của chợ, bí mật ký mã liên kết của lần chạy kiểm thử
         MARKETPLACE_DATABASE_URL: state.marketplaceUrl ?? '',
         MARKET_LINK_SECRET: E2E_MARKET_LINK_SECRET,
+        // Xác minh danh tính gia sư bằng nhà cung cấp OIDC giả lập do spec 196 chạy (DT-27 phần 27g); tệp giấy tờ mã hóa bằng khóa kiểm thử
+        MARKET_IDENTITY_PROVIDERS: JSON.stringify([
+          {
+            code: E2E_MARKET_OIDC_CODE,
+            profile: 'oidc',
+            display_name: 'Định danh giả lập',
+            issuer: `http://127.0.0.1:${E2E_MARKET_OIDC_PORT}/oidc-gia-lap`,
+            client_id: E2E_MARKET_OIDC_CLIENT_ID,
+            birthdate_claim: 'birthdate',
+            jwks_cooldown_seconds: 0,
+          },
+        ]),
+        [`MARKET_IDENTITY_${E2E_MARKET_OIDC_CODE.toUpperCase().replaceAll('-', '_')}_CLIENT_SECRET`]:
+          E2E_MARKET_OIDC_CLIENT_SECRET,
+        MARKET_FILES_KEY: E2E_MARKET_FILES_KEY,
       },
     },
     {

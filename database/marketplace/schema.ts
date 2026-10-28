@@ -98,11 +98,19 @@ export interface MarketSchoolLinksTable {
   revoked_at: Date | null;
 }
 
+// Trạng thái duyệt hồ sơ: 27f có nháp, chờ duyệt; 27g thêm đã duyệt, bị từ chối và các cột duyệt (marketplace 0010)
+export type MarketTutorProfileStatus = 'draft' | 'submitted' | 'approved' | 'rejected';
+
 export interface MarketTutorProfilesTable {
   account_id: string;
   headline: Generated<string>;
   bio: Generated<string>;
-  status: Generated<'draft' | 'submitted'>;
+  status: Generated<MarketTutorProfileStatus>;
+  teaching_language: Generated<string>;
+  review_note: ColumnType<string | null, string | null | undefined, string | null>;
+  reviewed_at: ColumnType<Date | null, Date | null | undefined, Date | null>;
+  reviewed_by: ColumnType<string | null, string | null | undefined, string | null>;
+  published_at: ColumnType<Date | null, Date | null | undefined, Date | null>;
   updated_at: UpdatedTimestamp;
 }
 

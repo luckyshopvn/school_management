@@ -151,7 +151,8 @@ export class MarketAccountsService {
       }));
   }
 
-  private async openSession(accountId: string) {
+  // Mở phiên cho tài khoản (đăng nhập mật khẩu; đăng nhập OIDC của 27g gọi từ MarketIdentityService)
+  async openSession(accountId: string) {
     const token = newSessionToken();
     const expiresAt = new Date(this.market.now().getTime() + MARKET_SESSION_LIFETIME_MS);
     await this.market.database

@@ -29,17 +29,16 @@ import { Infrastructure } from '../common/infrastructure.js';
 import {
   IdentityProvider,
   IdentityProviderError,
+  isLocalHostname,
   newAuthorizationParameters,
+  OidcIdentityProvider,
+  PENDING_RAR_DOCUMENTATION,
   type AuthorizationParameters,
   type ExternalIdentityResult,
-} from './identity-provider.js';
-import { OidcIdentityProvider, type OidcClientCredentials } from './oidc-provider.js';
-import {
-  isLocalHostname,
-  PENDING_RAR_DOCUMENTATION,
   type ExternalProviderDefinition,
+  type OidcClientCredentials,
   type ProviderProfile,
-} from './provider-profiles.js';
+} from '@school-management/server/external-identity';
 
 // Liên kết tài khoản và đăng nhập bằng nhà cung cấp định danh bên ngoài (DT-25, YCTD-225, tài liệu 32 mục 17). Nguyên tắc:
 // - Không tự tạo tài khoản: chỉ người đã có tài khoản tự liên kết sau khi xác nhận lại bằng mật khẩu và mã xác thực hai lớp (nếu đã bật).
