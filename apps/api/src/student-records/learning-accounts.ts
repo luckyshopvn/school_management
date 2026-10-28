@@ -1,4 +1,4 @@
-import { Body, Controller, Get, HttpCode, Injectable, Post, Query, Req, Res } from '@nestjs/common';
+import { Body, Controller, Get, HttpCode, Inject, Injectable, Post, Query, Req, Res } from '@nestjs/common';
 import type { SchoolYearDatabase } from '@school-management/database';
 import {
   ApplicationError,
@@ -21,6 +21,7 @@ import { findStudents, readStudentListFilter, type StudentListFilter } from '../
 import { buildStudentWorkbook, fileStamp, sendWorkbook } from '../children/student-workbook.js';
 import { originOf, writeAuditLog, type ChangeOrigin } from '../common/audit-log.js';
 import { ChildDataProtection } from '../common/child-data-protection.js';
+import { API_CONFIGURATION, type ApiConfiguration } from '../common/configuration.js';
 import { CurrentSchoolYearResolver } from '../common/current-school-year.js';
 import { isUuid, notFoundError, type RequestBody } from '../common/request-fields.js';
 import { buildTableFile } from '../exports/table-file.js';
@@ -65,10 +66,8 @@ export type IssueMode = 'create' | 'reset';
 
 // Quy tắc tài khoản trường (YCTD-311): tên đăng nhập của học sinh là số định danh cá nhân 12 chữ số (học sinh chưa có thẻ CCCD vẫn
 // có số định danh từ khi đăng ký khai sinh). Số thiếu, sai rõ ràng hoặc đã dùng thì dùng phương án dự phòng: "hs" kèm mã định danh Bộ
-// GD&ĐT (CSDL ngành), rồi "hs" kèm số thứ tự. Đặt STUDENT_USERNAME_RULE=ma_hoc_sinh để bỏ qua số định danh, dùng thẳng dự phòng
-export function studentUsernameRule(): 'cccd' | 'ma_hoc_sinh' {
-  return process.env.STUDENT_USERNAME_RULE?.trim() === 'ma_hoc_sinh' ? 'ma_hoc_sinh' : 'cccd';
-}
+// GD&ĐT (CSDL ngành), rồi "hs" kèm số thứ tự. Đặt STUDENT_USERNAME_RULE=ma_hoc_sinh (cấu hình studentUsernameRule) để bỏ qua số
+// định danh, dùng thẳng dự phòng
 
 @Injectable()
 export class LearningAccountsService {
@@ -78,6 +77,7 @@ export class LearningAccountsService {
     private readonly protection: ChildDataProtection,
     private readonly clock: Clock,
     private readonly identityClient: IdentityClient,
+    @Inject(API_CONFIGURATION) private readonly configuration: ApiConfiguration,
   ) {}
 
   private async accountsOf(database: Executor, childIds: string[]) {
@@ -174,7 +174,7 @@ export class LearningAccountsService {
 
   // Số định danh của học sinh chỉ giải mã ở máy chủ để làm tên đăng nhập; không khớp năm sinh hoặc sai mã tỉnh thì bỏ qua
   private studentNationalId(child: { national_id_encrypted: string; dob: string }): string | null {
-    if (studentUsernameRule() !== 'cccd') {
+    if ((this.configuration.studentUsernameRule ?? 'cccd') !== 'cccd') {
       return null;
     }
     try {

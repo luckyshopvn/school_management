@@ -4,10 +4,10 @@ import type { FieldError } from '@school-management/server';
 // Tham số argon2id tường minh (YCTD-311), không dựa vào mặc định của thư viện: mặc định là m=19 MiB, t=2, p=1 (mức tối thiểu
 // OWASP). Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11 mức khuyến nghị thứ hai của RFC 9106: m=64 MiB, t=3, p=4, đo trên
 // máy phát triển khoảng 75 ms mỗi lần băm (mục tiêu dưới 250 ms). Máy chủ yếu hơn thì hạ bằng biến môi trường PASSWORD_HASH_MEMORY_KIB,
-// PASSWORD_HASH_TIME_COST, PASSWORD_HASH_PARALLELISM nhưng không thấp hơn mức tối thiểu OWASP
+// PASSWORD_HASH_TIME_COST, PASSWORD_HASH_PARALLELISM (đọc ở configuration.ts, đặt lúc khởi động) nhưng không thấp hơn mức tối thiểu OWASP
 const ARGON2ID = 2;
-const MINIMUM_MEMORY_KIB = 19_456;
-const MINIMUM_TIME_COST = 2;
+export const MINIMUM_PASSWORD_HASH_MEMORY_KIB = 19_456;
+export const MINIMUM_PASSWORD_HASH_TIME_COST = 2;
 
 export interface PasswordHashParameters {
   memoryCost: number;
@@ -15,24 +15,28 @@ export interface PasswordHashParameters {
   parallelism: number;
 }
 
-function readInteger(name: string, fallback: number, minimum: number): number {
-  const raw = process.env[name]?.trim();
-  if (!raw) {
-    return fallback;
+export const DEFAULT_PASSWORD_HASH_PARAMETERS: PasswordHashParameters = {
+  memoryCost: 65_536,
+  timeCost: 3,
+  parallelism: 4,
+};
+
+let currentParameters: PasswordHashParameters = DEFAULT_PASSWORD_HASH_PARAMETERS;
+
+// Gọi một lần lúc dựng ứng dụng với tham số đã đọc từ cấu hình
+export function configurePasswordHashing(parameters: PasswordHashParameters): void {
+  if (
+    parameters.memoryCost < MINIMUM_PASSWORD_HASH_MEMORY_KIB ||
+    parameters.timeCost < MINIMUM_PASSWORD_HASH_TIME_COST ||
+    parameters.parallelism < 1
+  ) {
+    throw new Error('Tham số băm mật khẩu thấp hơn mức tối thiểu (m=19456 KiB, t=2, p=1)');
   }
-  const value = Number(raw);
-  if (!Number.isInteger(value) || value < minimum) {
-    throw new Error(`Biến môi trường ${name} phải là số nguyên từ ${minimum} trở lên`);
-  }
-  return value;
+  currentParameters = { ...parameters };
 }
 
 export function passwordHashParameters(): PasswordHashParameters {
-  return {
-    memoryCost: readInteger('PASSWORD_HASH_MEMORY_KIB', 65_536, MINIMUM_MEMORY_KIB),
-    timeCost: readInteger('PASSWORD_HASH_TIME_COST', 3, MINIMUM_TIME_COST),
-    parallelism: readInteger('PASSWORD_HASH_PARALLELISM', 4, 1),
-  };
+  return currentParameters;
 }
 
 function hashOptions(): Options {

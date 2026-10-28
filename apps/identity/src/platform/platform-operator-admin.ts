@@ -10,7 +10,7 @@ import type { Request } from 'express';
 import type { Kysely } from 'kysely';
 import { checkNationalId, maskLoginIdentifier } from '../accounts/national-id.js';
 import { generateTemporaryPassword } from '../accounts/temporary-password.js';
-import { TENANCY_RUNTIME } from '../common/configuration.js';
+import { IDENTITY_CONFIGURATION, TENANCY_RUNTIME, type IdentityConfiguration } from '../common/configuration.js';
 import { createPlatformOperatorWithTotp, enrollOperatorTotp, PlatformOperatorsService } from './platform-operators.js';
 import { PlatformSchoolsService } from './platform-schools.js';
 
@@ -28,12 +28,8 @@ export const OPERATOR_ROLE_LABELS: Record<PlatformOperatorRole, string> = {
 };
 
 // Tên đăng nhập của nhân viên vận hành: số CCCD cho thống nhất với tài khoản trường (mặc định), hoặc thư điện tử công ty khi đặt
-// PLATFORM_OPERATOR_LOGIN_RULE=email. Tài khoản đã có (tạo bằng lệnh) giữ tên đăng nhập cũ
+// PLATFORM_OPERATOR_LOGIN_RULE=email (cấu hình platformOperatorLoginRule). Tài khoản đã có (tạo bằng lệnh) giữ tên đăng nhập cũ
 export type OperatorLoginRule = 'cccd' | 'email';
-
-export function operatorLoginRule(): OperatorLoginRule {
-  return process.env.PLATFORM_OPERATOR_LOGIN_RULE?.trim() === 'email' ? 'email' : 'cccd';
-}
 
 const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const EMAIL_PATTERN = /^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$/;
@@ -61,12 +57,17 @@ function notFound(): ApplicationError {
 export class PlatformOperatorAdminService {
   constructor(
     @Optional() @Inject(TENANCY_RUNTIME) private readonly tenancy: TenancyRuntime | null,
+    @Inject(IDENTITY_CONFIGURATION) private readonly configuration: IdentityConfiguration,
     private readonly operators: PlatformOperatorsService,
     private readonly clock: Clock,
   ) {}
 
   private get platform(): Kysely<PlatformDatabase> {
     return this.operators.platformDatabase();
+  }
+
+  private loginRule(): OperatorLoginRule {
+    return this.configuration.platformOperatorLoginRule ?? 'cccd';
   }
 
   private masterKey(): Buffer {
@@ -95,7 +96,7 @@ export class PlatformOperatorAdminService {
       .orderBy('platform_operators.full_name')
       .execute();
     return {
-      login_rule: operatorLoginRule(),
+      login_rule: this.loginRule(),
       items: rows.map(({ totp_operator_id: totpOperatorId, ...row }) => ({
         ...row,
         // Số CCCD chỉ hiện dạng che ở danh sách (YCTD-311)
@@ -112,7 +113,7 @@ export class PlatformOperatorAdminService {
     if (!fullName) {
       errors.push({ field: 'full_name', message: 'Bắt buộc nhập họ tên' });
     }
-    errors.push(...checkOperatorLogin(login, operatorLoginRule()));
+    errors.push(...checkOperatorLogin(login, this.loginRule()));
     const role = readRole(body?.role, errors);
     if (errors.length > 0) {
       throw validationError(errors);

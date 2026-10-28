@@ -8,6 +8,7 @@ import { PLATFORM_OPERATOR_LOGIN_PATH } from './platform/platform-operators.js';
 import { DIRECTORY_PATH_PREFIX } from './directory/unit-directory.js';
 import type { OrganizationDirectory } from './accounts/organization-directory.js';
 import type { IdentityConfiguration } from './common/configuration.js';
+import { configurePasswordHashing } from './authentication/password.js';
 import type { SmsSender } from './messaging/sms-sender.js';
 import { ErrorCountBuffer, type TenancyRuntime } from '@school-management/database';
 import {
@@ -30,6 +31,9 @@ export async function createApplication(
   // Nền tảng nhiều trường (DT-SaaS phần S1a): có thì mỗi yêu cầu nhận diện trường theo tên miền; không có là chế độ một trường
   tenancy: TenancyRuntime | null = null,
 ): Promise<INestApplication> {
+  if (configuration.passwordHash) {
+    configurePasswordHashing(configuration.passwordHash);
+  }
   const application = await NestFactory.create<NestExpressApplication>(
     ApplicationModule.register(configuration, clock, organizationDirectory, smsSender, tenancy),
     { logger: ['error', 'warn'] },
