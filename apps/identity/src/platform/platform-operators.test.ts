@@ -11,6 +11,7 @@ import { createTestUser, startTenantTestApplication, TEST_PASSWORD, type TenantT
 import { generateRecoveryCodes, totpCode } from '@school-management/server';
 import { OPERATOR_TEST_PASSWORD, operatorOtp } from './operator-test-helpers.js';
 import { createPlatformOperator, createPlatformOperatorWithTotp } from './platform-operators.js';
+import { Infrastructure } from '../common/infrastructure.js';
 
 // Đăng nhập vận hành nền tảng (DT-SaaS phần S1a): chỉ ở tên miền của cổng nền tảng, tách hẳn đăng nhập của trường
 
@@ -85,6 +86,20 @@ describe('đăng nhập vận hành nền tảng', () => {
     await platform?.close();
   });
 
+  // Ảnh mã xác nhận của cổng vận hành và đáp án đọc ở Redis (YCTD-313); tên miền khác không có cổng nên không lấy được ảnh
+  const platformCaptcha = async (host: string | undefined): Promise<Record<string, string>> => {
+    const issued = await send(context, { path: '/auth/platform/captcha', host, body: {} });
+    if (issued.status !== 200) {
+      return {};
+    }
+    const captchaId = issued.body.captcha_id as string;
+    const text = await context.application
+      .get(Infrastructure)
+      .redis.get(`${context.configuration.redisKeyPrefix}:platform:captcha:${captchaId}`);
+    assert.ok(text);
+    return { captcha_id: captchaId, captcha_text: text };
+  };
+
   const operatorLogin = async (host: string | undefined, password = OPERATOR_TEST_PASSWORD, otp?: string | null) =>
     send(context, {
       path: '/auth/platform/login',
@@ -92,6 +107,7 @@ describe('đăng nhập vận hành nền tảng', () => {
       body: {
         login,
         password,
+        ...(await platformCaptcha(host)),
         ...(otp === null
           ? {}
           : { otp_code: otp ?? (await operatorOtp(platform.platform, operatorId, totpSecret, context.clock.now())) }),
@@ -179,6 +195,58 @@ describe('đăng nhập vận hành nền tảng', () => {
     for (const expected of ['operator.create', 'operator.login', 'operator.login-failed', 'operator.login-locked']) {
       assert.ok(names.has(expected), expected);
     }
+  });
+
+  it('mã xác nhận: gửi sai bị từ chối; sai mật khẩu ba lần thì bắt buộc mã; bước mã hai lớp dùng lượt đã qua (YCTD-313)', async () => {
+    const wrong = await send(context, {
+      path: '/auth/platform/login',
+      host: CONSOLE_HOST,
+      body: {
+        login,
+        password: OPERATOR_TEST_PASSWORD,
+        ...(await platformCaptcha(CONSOLE_HOST)),
+        captcha_text: 'SAI00',
+      },
+    });
+    assert.equal(wrong.status, 400);
+    assert.match(JSON.stringify(wrong.body), /Mã xác nhận không đúng/);
+
+    const other = `khong-co-${Math.random().toString(36).slice(2, 8)}`;
+    for (let attempt = 0; attempt < 3; attempt += 1) {
+      const failed = await send(context, {
+        path: '/auth/platform/login',
+        host: CONSOLE_HOST,
+        body: { login: other, password: 'sai-mat-khau-1' },
+      });
+      assert.equal(failed.status, 401);
+    }
+    const needsCaptcha = await send(context, {
+      path: '/auth/platform/login',
+      host: CONSOLE_HOST,
+      body: { login: other, password: 'sai-mat-khau-1' },
+    });
+    assert.equal(needsCaptcha.status, 400);
+    assert.match(JSON.stringify(needsCaptcha.body), /Nhập mã xác nhận/);
+
+    // Bước 1: đúng mã ảnh, đúng mật khẩu, chưa có mã hai lớp; bước 2: chỉ gửi mã ảnh cũ kèm mã hai lớp
+    const captcha = await platformCaptcha(CONSOLE_HOST);
+    const first = await send(context, {
+      path: '/auth/platform/login',
+      host: CONSOLE_HOST,
+      body: { login, password: OPERATOR_TEST_PASSWORD, ...captcha },
+    });
+    assert.equal(first.status, 401);
+    const second = await send(context, {
+      path: '/auth/platform/login',
+      host: CONSOLE_HOST,
+      body: {
+        login,
+        password: OPERATOR_TEST_PASSWORD,
+        captcha_id: captcha.captcha_id,
+        otp_code: await operatorOtp(platform.platform, operatorId, totpSecret, context.clock.now()),
+      },
+    });
+    assert.equal(second.status, 200);
   });
 
   it('tạo tài khoản: trùng tên đăng nhập và mật khẩu yếu bị từ chối', async () => {

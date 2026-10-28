@@ -104,6 +104,58 @@ body {
   outline-offset: 2px;
 }
 
+/* Ô mã xác nhận, ảnh, nút làm mới cùng một hàng như mẫu; điện thoại hẹp thì ô nhập xuống hàng riêng (YCTD-313) */
+.login-captcha {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.login-captcha .login-field {
+  flex: 1 1 140px;
+}
+
+.login-captcha img,
+.login-captcha-empty {
+  width: 150px;
+  height: 46px;
+  box-sizing: border-box;
+  border: 1px solid var(--login-border);
+  border-radius: 10px;
+  background: #fff;
+}
+
+.login-captcha-empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--login-muted);
+  font-size: 13px;
+}
+
+.login-refresh {
+  width: 46px;
+  height: 46px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--login-border);
+  border-radius: 10px;
+  background: #fff;
+  color: var(--login-brand);
+  cursor: pointer;
+}
+
+.login-refresh:hover {
+  background: #e6f2fc;
+}
+
+.login-refresh:focus-visible {
+  outline: 3px solid rgb(6 112 192 / 45%);
+  outline-offset: 2px;
+}
+
 .login-row {
   display: flex;
   flex-wrap: wrap;
