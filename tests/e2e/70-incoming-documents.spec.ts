@@ -9,7 +9,7 @@ import {
 } from '@school-management/database';
 import { createTestUser } from '@school-management/identity/testing';
 import { E2E_SCHOOL_YEAR_DATABASE_PREFIX } from '../e2e-environment.mjs';
-import { openMenu } from './menu.js';
+import { openMenu, selectWorkspace } from './menu.js';
 
 // Văn bản đến theo VNPT iOffice (DT-18 phần 18a, YCTD-138): văn thư khai báo đơn vị bên ngoài, sổ văn bản đến, lãnh đạo nhận
 // văn bản; vào sổ văn bản kèm tệp quét, trình lãnh đạo; lãnh đạo chuyển xử lý chính; chuyên viên lọc theo vai trò, xử lý
@@ -167,6 +167,11 @@ test('Văn thư vào sổ, trình lãnh đạo; lãnh đạo chuyển xử lý; 
 
   // Lãnh đạo: 1.1 Văn bản đến, chuyển xử lý chính
   const leaderPage = await signIn(browser, principal);
+  // Chọn phân hệ văn bản thì trang chủ tự hiện văn bản vừa trình trong khối Công văn đến của tôi (YCTD-307)
+  await selectWorkspace(leaderPage, 'Quản lý văn bản và điều hành');
+  const incomingBlock = leaderPage.getByRole('region', { name: 'Công văn đến của tôi' });
+  await expect(incomingBlock).toContainText(symbol);
+  await expect(incomingBlock).toContainText('Chờ xử lý:');
   await openMenu(leaderPage, '/incoming-documents');
   await expect(leaderPage.getByRole('heading', { name: '1.1. Văn bản đến' })).toBeVisible();
   await openDocument(leaderPage, symbol);

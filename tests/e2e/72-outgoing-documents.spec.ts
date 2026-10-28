@@ -10,7 +10,7 @@ import {
 } from '@school-management/database';
 import { createTestUser } from '@school-management/identity/testing';
 import { E2E_SCHOOL_YEAR_DATABASE_PREFIX, E2E_SYSTEM_DATABASE_NAME } from '../e2e-environment.mjs';
-import { openMenu } from './menu.js';
+import { openMenu, selectWorkspace } from './menu.js';
 
 // Văn bản đi theo VNPT iOffice (DT-18 phần 18b, YCTD-140): chuyên viên soạn dự thảo kèm tệp, lấy ý kiến; người được hỏi cho
 // ý kiến; kết thúc lấy ý kiến, trình ký; hiệu trưởng ký nội bộ (mã QR); văn thư khai báo sổ văn bản đi, cấp số và phát hành
@@ -175,6 +175,9 @@ test('Soạn dự thảo, lấy ý kiến, trình ký, ký nội bộ, cấp s�
 
   // Người được hỏi: Chờ xử lý, Cho ý kiến
   const reviewerPage = await signIn(browser, reviewer);
+  // Chọn phân hệ văn bản thì trang chủ tự hiện dự thảo đang chờ cho ý kiến trong khối Công văn đi của tôi (YCTD-307)
+  await selectWorkspace(reviewerPage, 'Quản lý văn bản và điều hành');
+  await expect(reviewerPage.getByRole('region', { name: 'Công văn đi của tôi' })).toContainText(draftLabel);
   await openMenu(reviewerPage, '/outgoing-documents');
   await openTab(reviewerPage, 'Chờ xử lý');
   await openDocument(reviewerPage, draftLabel);

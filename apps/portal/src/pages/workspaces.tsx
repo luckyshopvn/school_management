@@ -1,6 +1,6 @@
 import { createContext, useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import { useNavigate } from '@tanstack/react-router';
-import { listPortalMenuEntries, type PortalWorkspace, type PortalWorkspaceKey } from '@school-management/shared';
+import type { PortalWorkspace, PortalWorkspaceKey } from '@school-management/shared';
 
 // Phân hệ của cổng quản trị (YCTD-101, DT-15 phần 15a): ô chọn phân hệ ở thanh đầu trang chọn bộ menu ngang đánh số
 // đang hiện; danh sách phân hệ và cây menu ở @school-management/shared (PORTAL_WORKSPACES)
@@ -138,13 +138,9 @@ export function WorkspaceIcon({ name }: { name: IconName }) {
   );
 }
 
-// Trang đầu của phân hệ: mục menu có đường dẫn đầu tiên trong cây menu đã lọc theo quyền
-export function firstWorkspacePath(workspace: PortalWorkspace): string | undefined {
-  return listPortalMenuEntries([workspace])[0]?.node.path;
-}
-
-// Ô chọn phân hệ ở thanh đầu trang. Chọn phân hệ khác thì mở luôn trang đầu của phân hệ đó để vùng nội dung không còn
-// trang của phân hệ cũ (Eric báo ngày 2026-10-28); chọn lại phân hệ đang mở thì giữ nguyên trang
+// Ô chọn phân hệ ở thanh đầu trang. Chọn phân hệ khác thì về trang chủ, nơi bảng điều khiển đổi theo phân hệ vừa chọn,
+// để vùng nội dung không còn trang của phân hệ cũ (Eric báo ngày 2026-10-28, YCTD-307); chọn lại phân hệ đang mở thì giữ
+// nguyên trang
 export function WorkspaceSwitcher({ state }: { state: WorkspaceState }) {
   const [open, setOpen] = useState(false);
   const container = useRef<HTMLDivElement>(null);
@@ -211,10 +207,7 @@ export function WorkspaceSwitcher({ state }: { state: WorkspaceState }) {
                     return;
                   }
                   state.select(workspace.key);
-                  const path = firstWorkspacePath(workspace);
-                  if (path) {
-                    void navigate({ to: path });
-                  }
+                  void navigate({ to: '/' });
                 }}
               >
                 <WorkspaceIcon name={WORKSPACE_ICONS[workspace.key]} />

@@ -44,7 +44,7 @@ export function MyWorkSummary() {
         </Link>
       </div>
       {rows.length === 0 ? (
-        <p className="text-content text-text-secondary">Không có việc nào đang chờ.</p>
+        <p className="text-content text-text-secondary">Trống</p>
       ) : (
         <ul className="flex flex-col">
           {rows.map((row) => (

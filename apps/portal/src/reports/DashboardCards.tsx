@@ -80,12 +80,13 @@ export function DashboardCards() {
 export function BirthdayList() {
   const month = vietnamMonth();
   const birthdays = useQuery({ queryKey: ['birthdays', month], queryFn: () => readBirthdays(month), retry: false });
-  if (!birthdays.data || birthdays.data.length === 0) {
+  if (!birthdays.data) {
     return null;
   }
   return (
     <section className="rounded-xl border border-border bg-card p-5" aria-label="Sinh nhật trong tháng">
       <h2 className="text-section-title font-semibold text-text">Sinh nhật trẻ trong tháng</h2>
+      {birthdays.data.length === 0 ? <p className="mt-2 text-content text-text-secondary">Trống</p> : null}
       <ul className="mt-2 flex flex-col gap-1 text-content">
         {birthdays.data.map((child) => (
           <li key={child.id}>
