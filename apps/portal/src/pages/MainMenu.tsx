@@ -260,7 +260,7 @@ function Menubar({ workspace, hidden }: { workspace: PortalWorkspace; hidden: bo
       role="menubar"
       aria-label={workspace.label}
       hidden={hidden}
-      className="mx-auto flex w-full max-w-[1440px] flex-wrap items-stretch px-4"
+      className="flex w-full flex-wrap items-stretch px-4"
     >
       <li role="none">
         <Link
