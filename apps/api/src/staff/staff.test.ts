@@ -161,6 +161,76 @@ describe('Hồ sơ nhân sự và hợp đồng lao động', () => {
     });
   });
 
+  describe('Phân công giảng dạy theo nhân sự', () => {
+    it('hồ sơ đã liên kết tài khoản trả phân công đang hiệu lực kèm tổng số tiết; chưa liên kết thì trống; người ngoài phạm vi bị từ chối', async () => {
+      const academicYearId = (
+        await environment.system.selectFrom('academic_years').select('id').executeTakeFirstOrThrow()
+      ).id;
+      const subjectId = (
+        await schoolYear
+          .insertInto('subjects')
+          .values({ code: randomCode('MON'), name: 'Toán', school_level: 'TH' })
+          .returning('id')
+          .executeTakeFirstOrThrow()
+      ).id;
+      const classId = (
+        await schoolYear
+          .insertInto('classes')
+          .values({
+            org_unit_id: units['ĐT-A1'] ?? '',
+            academic_year_id: academicYearId,
+            code: randomCode('LOP'),
+            name: '1A9',
+            grade_level: '1',
+            school_level: 'TH',
+            max_size: 35,
+          })
+          .returning('id')
+          .executeTakeFirstOrThrow()
+      ).id;
+      const assignment = {
+        class_id: classId,
+        staff_user_id: users.teacher?.userId ?? '',
+        staff_name: 'Nguyễn Thị Lan',
+        from_date: '2026-09-05',
+      };
+      await schoolYear
+        .insertInto('class_staff_assignments')
+        .values([
+          { ...assignment, assignment_role: 'subject', subject_id: subjectId, periods_per_week: 4 },
+          { ...assignment, assignment_role: 'homeroom' },
+          { ...assignment, assignment_role: 'subject', subject_name: 'Môn đã thôi', status: 'ended' },
+        ])
+        .execute();
+
+      const listed = await api('GET', `/staff/${staffIds.teacher}/teaching-assignments`, token('personnel'));
+      assert.equal(listed.status, 200, JSON.stringify(listed.body));
+      assert.equal(listed.body.has_account, true);
+      const items = listed.body.items as Array<Record<string, unknown>>;
+      assert.equal(items.length, 2);
+      assert.deepEqual(
+        items.map((item) => [item.assignment_role, item.class_name, item.subject_name, item.periods_per_week]).sort(),
+        [
+          ['homeroom', '1A9', null, null],
+          ['subject', '1A9', 'Toán', 4],
+        ],
+      );
+      assert.equal(listed.body.total_periods, 4);
+
+      // Chính giáo viên xem được phân công của mình
+      const self = await api('GET', `/staff/${staffIds.teacher}/teaching-assignments`, token('teacher'));
+      assert.equal(self.status, 200);
+      // Hồ sơ chưa liên kết tài khoản: danh sách trống
+      const unlinked = await api('GET', `/staff/${staffIds.other}/teaching-assignments`, token('personnel'));
+      assert.equal(unlinked.status, 200);
+      assert.equal(unlinked.body.has_account, false);
+      assert.deepEqual(unlinked.body.items, []);
+      // Giáo viên khác không có quyền xem hồ sơ nhân sự
+      const outsider = await api('GET', `/staff/${staffIds.teacher}/teaching-assignments`, token('otherTeacher'));
+      assert.equal(outsider.status, 403);
+    });
+  });
+
   describe('P07-02 Hợp đồng lao động', () => {
     it('hợp đồng có thời hạn thiếu ngày kết thúc bị chặn; lập được hợp đồng; trùng thời gian hoặc trùng số hợp đồng bị chặn', async () => {
       const missingEnd = await api('POST', `/staff/${staffIds.teacher}/contracts`, token('personnel'), {
