@@ -29,6 +29,7 @@ import { PasswordResetService } from './authentication/password-reset.service.js
 import { ImpersonationService } from './authentication/impersonation.service.js';
 import { IdentityDataExportService } from './accounts/identity-data-export.js';
 import { PlatformAuthController, PlatformOperatorsService } from './platform/platform-operators.js';
+import { PlatformOperatorAdminController, PlatformOperatorAdminService } from './platform/platform-operator-admin.js';
 import {
   PlatformSchoolsController,
   PlatformSchoolsService,
@@ -74,6 +75,7 @@ export class ApplicationModule {
         RolesController,
         ApiClientsController,
         PlatformAuthController,
+        PlatformOperatorAdminController,
         PlatformSchoolsController,
         SchoolActivationController,
         PlatformPlansController,
@@ -128,6 +130,7 @@ export class ApplicationModule {
         StaffAccountsService,
         IdentitySettingsService,
         PlatformOperatorsService,
+        PlatformOperatorAdminService,
         PlatformSchoolsService,
         SchoolActivationService,
         PlatformPlansService,

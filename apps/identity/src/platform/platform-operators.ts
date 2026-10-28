@@ -1,5 +1,10 @@
 import { Body, Controller, Get, HttpCode, Inject, Injectable, Optional, Post, Req } from '@nestjs/common';
-import { writeAudit, type PlatformDatabase, type TenancyRuntime } from '@school-management/database';
+import {
+  writeAudit,
+  type PlatformDatabase,
+  type PlatformOperatorRole,
+  type TenancyRuntime,
+} from '@school-management/database';
 import {
   ApplicationError,
   Clock,
@@ -21,6 +26,7 @@ import type { Kysely } from 'kysely';
 import {
   checkPasswordPolicy,
   hashPassword,
+  passwordNeedsRehash,
   placeholderPasswordHash,
   verifyPassword,
 } from '../authentication/password.js';
@@ -54,6 +60,8 @@ export interface PlatformOperatorSummary {
   id: string;
   login: string;
   full_name: string;
+  // Vai trò nhân viên vận hành (YCTD-311): cổng nền tảng ẩn trang không thuộc vai trò
+  role: PlatformOperatorRole;
 }
 
 @Injectable()
@@ -137,9 +145,11 @@ export class PlatformOperatorsService {
     }
     // Xác thực hai lớp bắt buộc (DT-SaaS phần S8b, GD-97): thiếu hoặc sai mã thì không vào được; sai mã tính như nhập sai mật khẩu
     await this.assertSecondFactor(row.id, otpCode, ipAddress, now);
+    // Giá trị băm dùng tham số cũ yếu hơn thì băm lại khi đăng nhập đúng (YCTD-311)
+    const rehashed = passwordNeedsRehash(row.password_hash) ? { password_hash: await hashPassword(password) } : {};
     await platform
       .updateTable('platform_operators')
-      .set({ failed_login_count: 0, locked_until: null, last_login_at: now, updated_at: now })
+      .set({ ...rehashed, failed_login_count: 0, locked_until: null, last_login_at: now, updated_at: now })
       .where('id', '=', row.id)
       .execute();
     await writeAudit(platform, {
@@ -150,7 +160,7 @@ export class PlatformOperatorsService {
     });
     return {
       token: await this.tokenService.signOperatorToken(row.id),
-      operator: { id: row.id, login: row.login, full_name: row.full_name },
+      operator: { id: row.id, login: row.login, full_name: row.full_name, role: row.role },
     };
   }
 
@@ -234,7 +244,7 @@ export class PlatformOperatorsService {
     const operatorId = await this.tokenService.verifyOperatorToken(accessToken);
     const row = await platform
       .selectFrom('platform_operators')
-      .select(['id', 'login', 'full_name', 'status'])
+      .select(['id', 'login', 'full_name', 'status', 'role'])
       .where('id', '=', operatorId)
       .executeTakeFirst();
     if (!row || row.status !== 'active') {
@@ -245,7 +255,13 @@ export class PlatformOperatorsService {
       .select((builder) => builder.fn.countAll<string>().as('count'))
       .where('status', '!=', 'deleted')
       .executeTakeFirstOrThrow();
-    return { id: row.id, login: row.login, full_name: row.full_name, school_count: Number(count.count) };
+    return {
+      id: row.id,
+      login: row.login,
+      full_name: row.full_name,
+      role: row.role,
+      school_count: Number(count.count),
+    };
   }
 }
 
@@ -320,7 +336,7 @@ export class PlatformAuthController {
 // Tạo tài khoản vận hành nền tảng (lệnh dòng lệnh và kiểm thử); mật khẩu theo chính sách của hệ thống (BM-03)
 export async function createPlatformOperator(
   platform: Kysely<PlatformDatabase>,
-  input: { login: string; fullName: string; password: string },
+  input: { login: string; fullName: string; password: string; role?: PlatformOperatorRole },
 ): Promise<string> {
   const login = input.login.trim().toLowerCase();
   if (login.length < 3 || login.length > 64) {
@@ -340,7 +356,12 @@ export async function createPlatformOperator(
   }
   const created = await platform
     .insertInto('platform_operators')
-    .values({ login, full_name: input.fullName, password_hash: await hashPassword(input.password) })
+    .values({
+      login,
+      full_name: input.fullName,
+      password_hash: await hashPassword(input.password),
+      ...(input.role ? { role: input.role } : {}),
+    })
     .returning('id')
     .executeTakeFirstOrThrow();
   await writeAudit(platform, { actorType: 'cli', action: 'operator.create', details: { login } });
@@ -380,7 +401,7 @@ export const OPERATOR_MINIMUM_PASSWORD_LENGTH = 12;
 export async function createPlatformOperatorWithTotp(
   platform: Kysely<PlatformDatabase>,
   masterKey: Buffer,
-  input: { login: string; fullName: string; password: string },
+  input: { login: string; fullName: string; password: string; role?: PlatformOperatorRole },
 ): Promise<{ id: string; secret: string; otpauthUri: string; recoveryCodes: string[] }> {
   const id = await createPlatformOperator(platform, input);
   return { id, ...(await enrollOperatorTotp(platform, masterKey, id, input.login.trim().toLowerCase())) };

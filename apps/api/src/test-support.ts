@@ -142,7 +142,8 @@ export async function startApiTestEnvironment(
     const response = await postJson(`${identity.baseUrl}/auth/login`, {
       login: user.username,
       password: user.password,
-      channel: 'portal',
+      // Tài khoản chỉ có vai trò Phụ huynh đăng nhập ở ứng dụng phụ huynh (YCTD-311); máy chủ API chỉ phân biệt kênh học sinh
+      channel: roles.length > 0 && roles.every((role) => role.roleCode === 'VT-14') ? 'parent' : 'portal',
     });
     if (response.status !== 200) {
       throw new Error(`Đăng nhập kiểm thử thất bại: ${response.status}`);

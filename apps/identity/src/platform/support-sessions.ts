@@ -683,6 +683,8 @@ export class SupportSessionsService {
   }
 }
 
+const SUPPORT_ROLES = ['quan_tri', 'ho_tro', 'ky_thuat'] as const;
+
 @Controller('auth/platform')
 export class PlatformSupportController {
   constructor(
@@ -699,7 +701,8 @@ export class PlatformSupportController {
   @Post('schools/:code/support-sessions')
   @HttpCode(200)
   async start(@Param('code') code: string, @Body() body: Record<string, unknown> | undefined, @Req() request: Request) {
-    const actor = await this.schools.actor(request);
+    // Kế toán không mở phiên hỗ trợ vào dữ liệu trường (YCTD-311)
+    const actor = await this.schools.actor(request, SUPPORT_ROLES);
     return this.support.start(code, body, { id: actor.id ?? '', name: actor.name }, request.ip ?? null);
   }
 
@@ -711,7 +714,7 @@ export class PlatformSupportController {
 
   @Put('support-policy')
   async updatePolicy(@Body() body: Record<string, unknown> | undefined, @Req() request: Request) {
-    const actor = await this.schools.actor(request);
+    const actor = await this.schools.actor(request, ['quan_tri']);
     return this.support.updatePolicy(body, { id: actor.id ?? '', name: actor.name }, request.ip ?? null);
   }
 

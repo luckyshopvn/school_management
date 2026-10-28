@@ -184,12 +184,11 @@ export class IdentityClient {
       roles: Array<{ role_code: string; org_unit_id: string | null }>;
     },
   ) {
-    return this.postJson<{ account: { id: string }; temporary_password: string | null }>(
-      accessToken,
-      '/users',
-      input,
-      'tạo tài khoản',
-    );
+    return this.postJson<{
+      account: { id: string };
+      temporary_password: string | null;
+      uses_initial_password?: boolean;
+    }>(accessToken, '/users', input, 'tạo tài khoản');
   }
 
   // Tạo hoặc cấp lại người dùng của kênh student cho tài khoản học và thi vừa khởi tạo, cấp lại mật khẩu (DT-23 phần 23a); băm

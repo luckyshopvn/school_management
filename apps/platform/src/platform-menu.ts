@@ -23,4 +23,6 @@ export const PLATFORM_MENU: readonly PlatformMenuItem[] = [
   { key: 'catalog', label: 'Danh mục đơn vị' },
   // Chợ gia sư: cấu hình, văn bản pháp lý, số tài khoản (DT-27 phần 27f)
   { key: 'market', label: 'Chợ gia sư' },
+  // Nhân viên vận hành của công ty: chỉ vai trò quản trị thấy (YCTD-311)
+  { key: 'operators', label: 'Nhân viên vận hành' },
 ];

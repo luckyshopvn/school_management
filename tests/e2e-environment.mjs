@@ -14,3 +14,5 @@ export const E2E_OIDC_MOCK_PORT = 3299;
 export const E2E_OIDC_PROVIDER_CODE = 'oidc-gia-lap';
 export const E2E_OIDC_CLIENT_ID = 'ung-dung-thu-e2e';
 export const E2E_OIDC_CLIENT_SECRET = 'gia-tri-kiem-thu-e2e';
+// Mật khẩu mặc định khi tạo tài khoản theo số CCCD (YCTD-311) của lượt e2e; giá trị thử, không phải giá trị của máy chủ thật
+export const E2E_DEFAULT_INITIAL_PASSWORD = 'E2eMacDinh2026';

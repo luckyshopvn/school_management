@@ -375,6 +375,7 @@ export type {
   SchedulerStateTable,
   PlatformAuditActorType,
   PlatformDatabase,
+  PlatformOperatorRole,
   PlatformOperatorStatus,
   PlanBillingCycleValue,
   PlanPricingModeValue,

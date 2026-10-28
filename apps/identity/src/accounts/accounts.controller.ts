@@ -30,12 +30,14 @@ import { GuardianAccountsService } from './guardian-accounts.service.js';
 import { StaffAccountsService } from './staff-accounts.service.js';
 import { StudentAccountsService, type StudentAccountInput } from './student-accounts.service.js';
 import { IdentityDataExportService } from './identity-data-export.js';
+import { checkNationalId, isNationalIdShaped } from './national-id.js';
 import { ImpersonationService } from '../authentication/impersonation.service.js';
 
 type RequestBody = Record<string, unknown> | undefined;
 
 const PHONE_PATTERN = /^0\d{9}$/;
 const USERNAME_PATTERN = /^[a-z0-9_.]{3,50}$/;
+const NATIONAL_ID_INPUT_PATTERN = /^\d{12}$/;
 const DATE_PATTERN = /^\d{4}-\d{2}-\d{2}$/;
 const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
@@ -372,7 +374,22 @@ export class AccountsController {
       errors.push({ field: 'full_name', message: 'Bắt buộc nhập họ tên' });
     }
     const phone = readNullableText(body, 'phone', errors, PHONE_RULE) ?? null;
-    const username = readNullableText(body, 'username', errors, USERNAME_RULE) ?? null;
+    let username = readNullableText(body, 'username', errors, USERNAME_RULE) ?? null;
+    // Quy tắc tài khoản trường (YCTD-311): tên đăng nhập là số CCCD. Nhận ở trường national_id hoặc gõ thẳng 12 chữ số vào tên đăng nhập
+    const nationalId =
+      readNullableText(body, 'national_id', errors, {
+        regex: NATIONAL_ID_INPUT_PATTERN,
+        message: 'Số CCCD (số định danh cá nhân) gồm đúng 12 chữ số',
+      }) ?? null;
+    if (nationalId) {
+      if (username && username !== nationalId) {
+        errors.push({ field: 'username', message: 'Tài khoản theo số CCCD dùng chính số CCCD làm tên đăng nhập' });
+      }
+      username = nationalId;
+    }
+    if (isNationalIdShaped(username)) {
+      errors.push(...checkNationalId(nationalId ? 'national_id' : 'username', username));
+    }
     if (!phone && !username && !errors.some((error) => error.field === 'phone' || error.field === 'username')) {
       errors.push({ field: 'phone', message: 'Cần số điện thoại hoặc tên đăng nhập' });
     }
@@ -412,6 +429,9 @@ export class AccountsController {
     }
     changes.phone = readNullableText(body, 'phone', errors, PHONE_RULE);
     changes.username = readNullableText(body, 'username', errors, USERNAME_RULE);
+    if (isNationalIdShaped(changes.username)) {
+      errors.push(...checkNationalId('username', changes.username));
+    }
     changes.valid_until = readNullableText(body, 'valid_until', errors, DATE_RULE);
     if (body?.status !== undefined) {
       if (body.status !== 'active' && body.status !== 'locked') {

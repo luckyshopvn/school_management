@@ -22,7 +22,8 @@ type NumericSettingKey =
   | 'one_time_code_maximum_attempts'
   | 'one_time_code_maximum_sends_per_hour'
   | 'captcha_failure_threshold'
-  | 'password_history_count';
+  | 'password_history_count'
+  | 'initial_password_lifetime_days';
 
 // Mặc định của mã một lần theo tham số ở 27_BO_CA_KIEM_THU_CHI_TIET/01_DINH_DANH_VA_P01.md mục 3 (YCTD-43)
 const NUMERIC_SETTINGS: Record<
@@ -42,6 +43,8 @@ const NUMERIC_SETTINGS: Record<
   // lần với một tài khoản thì hiện mã xác nhận; không cho dùng lại 5 mật khẩu gần nhất (0 là không kiểm tra)
   captcha_failure_threshold: { defaultValue: 3, minimum: 1, maximum: 10, label: 'Số lần nhập sai' },
   password_history_count: { defaultValue: 5, minimum: 0, maximum: 24, label: 'Số mật khẩu gần nhất' },
+  // Hạn của mật khẩu mặc định khi tạo tài khoản theo số CCCD (YCTD-311): quá số ngày mà chưa đổi thì quản trị trường phải đặt lại
+  initial_password_lifetime_days: { defaultValue: 7, minimum: 1, maximum: 90, label: 'Số ngày' },
 };
 
 const CAPTCHA_ALWAYS_KEY = 'captcha_always';
@@ -101,6 +104,10 @@ export class IdentitySettingsService {
 
   private get database() {
     return this.infrastructure.database;
+  }
+
+  async initialPasswordLifetimeDays(): Promise<number> {
+    return this.numeric('initial_password_lifetime_days');
   }
 
   async accountInactivityLockDays(): Promise<number> {

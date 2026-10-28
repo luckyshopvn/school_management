@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import type { IdentityDatabase } from '@school-management/database';
 import {
   ApplicationError,
@@ -17,6 +17,8 @@ import { sql, type Kysely, type Transaction } from 'kysely';
 import { hashPassword } from '../authentication/password.js';
 import { IdentitySettingsService } from '../settings/identity-settings.service.js';
 import { Infrastructure } from '../common/infrastructure.js';
+import { IDENTITY_CONFIGURATION, type IdentityConfiguration } from '../common/configuration.js';
+import { isNationalIdShaped, maskLoginIdentifier } from './national-id.js';
 import {
   canGrantOnCreate,
   canManageAccount,
@@ -141,6 +143,7 @@ export class AccountsService {
     private readonly organizationDirectory: OrganizationDirectory,
     private readonly clock: Clock,
     private readonly identitySettings: IdentitySettingsService,
+    @Inject(IDENTITY_CONFIGURATION) private readonly configuration: IdentityConfiguration,
   ) {}
 
   private get database() {
@@ -300,6 +303,8 @@ export class AccountsService {
         userAssignments.some((assignment) => assignment.role_code !== PARENT_ROLE_CODE);
       return {
         ...toView(user, userAssignments),
+        // Danh sách chỉ hiện số CCCD dạng che (YCTD-311); xem đủ ở chi tiết tài khoản
+        username: maskLoginIdentifier(user.username),
         password_expires_at: expires
           ? new Date(user.password_changed_at.getTime() + policy.password_max_age_days * DAY_MILLISECONDS)
           : null,
@@ -380,7 +385,12 @@ export class AccountsService {
   async create(
     caller: CallerContext,
     input: AccountInput,
-  ): Promise<{ account: AccountView; temporary_password: string | null; uses_default_password: boolean }> {
+  ): Promise<{
+    account: AccountView;
+    temporary_password: string | null;
+    uses_default_password: boolean;
+    uses_initial_password: boolean;
+  }> {
     const { authority, units } = await this.authority(caller);
     const roles = await this.validateGrants(input.roles, input.valid_until, units, 'roles');
     for (const grant of input.roles) {
@@ -390,16 +400,26 @@ export class AccountsService {
     }
     await this.assertUnique(input.phone, input.username, null);
 
+    // Quy tắc số CCCD (YCTD-311): tên đăng nhập là số CCCD thì nhận mật khẩu mặc định của hệ thống (DEFAULT_INITIAL_PASSWORD), có hạn
+    // theo cấu hình, kể cả tài khoản phụ huynh; chưa cấu hình mật khẩu mặc định thì sinh mật khẩu tạm như trước
+    const nationalIdLogin = isNationalIdShaped(input.username);
+    const initialPassword = nationalIdLogin ? (this.configuration.defaultInitialPassword ?? null) : null;
     const usesDefaultPassword =
-      input.roles.length > 0 && input.roles.every((grant) => grant.role_code === PARENT_ROLE_CODE);
+      !nationalIdLogin && input.roles.length > 0 && input.roles.every((grant) => grant.role_code === PARENT_ROLE_CODE);
     if (usesDefaultPassword && (await this.identitySettings.parentDefaultPasswordHash()) === null) {
       throw ruleViolationError(
         'PQ-06',
         'Chưa đặt mật khẩu mặc định của phụ huynh; Hiệu trưởng đặt ở màn hình Cấu hình, phần Tài khoản',
       );
     }
-    const temporaryPassword = usesDefaultPassword ? null : generateTemporaryPassword();
-    const passwordHash = temporaryPassword === null ? null : await hashPassword(temporaryPassword);
+    const temporaryPassword = usesDefaultPassword || initialPassword !== null ? null : generateTemporaryPassword();
+    const passwordSource = initialPassword ?? temporaryPassword;
+    const passwordHash = passwordSource === null ? null : await hashPassword(passwordSource);
+    const initialPasswordExpiresAt = nationalIdLogin
+      ? new Date(
+          this.clock.now().getTime() + (await this.identitySettings.initialPasswordLifetimeDays()) * DAY_MILLISECONDS,
+        )
+      : null;
     const userId = await this.database.transaction().execute(async (transaction) => {
       const user = await transaction
         .insertInto('users')
@@ -410,6 +430,7 @@ export class AccountsService {
           valid_until: input.valid_until,
           password_hash: passwordHash,
           must_change_password: true,
+          initial_password_expires_at: initialPasswordExpiresAt,
           created_by: caller.claims.userId,
         })
         .returning(USER_COLUMNS)
@@ -431,7 +452,8 @@ export class AccountsService {
         entityId: user.id,
         action: 'create',
         before: null,
-        after: { ...user, roles: input.roles },
+        // Số CCCD chỉ ghi dạng che (YCTD-311)
+        after: { ...user, username: maskLoginIdentifier(user.username), roles: input.roles },
         ipAddress: caller.ipAddress,
       });
       return user.id;
@@ -440,6 +462,7 @@ export class AccountsService {
       account: (await this.findAccount(userId)).view,
       temporary_password: temporaryPassword,
       uses_default_password: usesDefaultPassword,
+      uses_initial_password: initialPassword !== null,
     };
   }
 
@@ -581,6 +604,7 @@ export class AccountsService {
           password_hash: passwordHash,
           password_changed_at: now,
           must_change_password: true,
+          initial_password_expires_at: null,
           failed_login_count: 0,
           locked_until: null,
           updated_at: now,
@@ -626,7 +650,7 @@ export class AccountsService {
         results.push({
           user_id: userId,
           full_name: user?.full_name ?? null,
-          login: user ? (user.username ?? user.phone) : null,
+          login: user ? maskLoginIdentifier(user.username ?? user.phone) : null,
           temporary_password: null,
           skipped_reason: reason,
         });
@@ -651,6 +675,7 @@ export class AccountsService {
             password_hash: passwordHash,
             password_changed_at: now,
             must_change_password: true,
+            initial_password_expires_at: null,
             failed_login_count: 0,
             locked_until: null,
             updated_at: now,
@@ -671,7 +696,7 @@ export class AccountsService {
       results.push({
         user_id: userId,
         full_name: user.full_name,
-        login: user.username ?? user.phone,
+        login: maskLoginIdentifier(user.username ?? user.phone),
         temporary_password: temporaryPassword,
         skipped_reason: null,
       });

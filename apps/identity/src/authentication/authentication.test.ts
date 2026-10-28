@@ -242,7 +242,10 @@ describe('Dịch vụ định danh: đăng nhập và phiên', () => {
 
   for (const channel of ['teacher', 'parent']) {
     it(`CTC-DD-033: kênh ${channel} làm mới được sau 29 ngày, bị từ chối sau 30 ngày 1 phút`, async () => {
-      const user = await createTestUser(context.database);
+      // Kênh phụ huynh chỉ nhận tài khoản có vai trò Phụ huynh (YCTD-311)
+      const user = await createTestUser(context.database, {
+        roles: channel === 'parent' ? [{ roleCode: 'VT-14', orgUnitId: null }] : [],
+      });
       let { refreshToken } = readTokens(await login(context, user.phone, user.password, channel));
       context.clock.advanceMinutes(29 * 24 * 60);
       const first = await refresh(context, refreshToken, channel);

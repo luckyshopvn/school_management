@@ -7,6 +7,7 @@ import { BillingPage } from './BillingPage.js';
 import { AiPage } from './AiPage.js';
 import { DashboardPage } from './DashboardPage.js';
 import { MaintenancePage } from './MaintenancePage.js';
+import { OperatorsPage } from './OperatorsPage.js';
 import { AdminUnitsPage } from './AdminUnitsPage.js';
 import { CatalogPage } from './CatalogPage.js';
 import { MarketPage } from './MarketPage.js';
@@ -84,7 +85,7 @@ function Shell({ accessToken, onLogout }: { accessToken: string; onLogout: () =>
       {/* Từ 1280 px thanh bên đầy đủ; 768 đến 1279 px chỉ còn biểu tượng, tên mục hiện khi rê chuột, đưa bàn phím tới hoặc chạm giữ; dưới
           768 px ngăn kéo (DT-26 phần 26e). Thứ tự mục giữ theo PLATFORM_MENU */}
       <nav id="menu-nen-tang" aria-label="Menu">
-        {PLATFORM_MENU.map((item) => (
+        {PLATFORM_MENU.filter((item) => item.key !== 'operators' || profile?.role === 'quan_tri').map((item) => (
           <button
             key={item.key}
             type="button"
@@ -127,6 +128,9 @@ function Shell({ accessToken, onLogout }: { accessToken: string; onLogout: () =>
         {active === 'ai' ? <AiPage accessToken={accessToken} /> : null}
         {active === 'catalog' ? <CatalogPage token={accessToken} /> : null}
         {active === 'market' ? <MarketPage accessToken={accessToken} /> : null}
+        {active === 'operators' && profile?.role === 'quan_tri' ? (
+          <OperatorsPage token={accessToken} currentOperatorId={profile.id} />
+        ) : null}
       </main>
     </div>
   );

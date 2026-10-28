@@ -1,4 +1,4 @@
-import { Body, Controller, Get, HttpCode, Injectable, Post, Query, Req, Res } from '@nestjs/common';
+import { Body, Controller, Get, HttpCode, Inject, Injectable, Post, Query, Req, Res } from '@nestjs/common';
 import type { SchoolYearDatabase } from '@school-management/database';
 import {
   ApplicationError,
@@ -8,7 +8,7 @@ import {
   validationError,
   type FieldError,
 } from '@school-management/server';
-import { PERMISSION_CODES } from '@school-management/shared';
+import { maskLoginIdentifier, nationalIdProblem, PERMISSION_CODES } from '@school-management/shared';
 import type { Request, Response } from 'express';
 import type { Kysely, Transaction } from 'kysely';
 import { randomBytes, randomInt, scrypt, timingSafeEqual } from 'node:crypto';
@@ -21,6 +21,7 @@ import { findStudents, readStudentListFilter, type StudentListFilter } from '../
 import { buildStudentWorkbook, fileStamp, sendWorkbook } from '../children/student-workbook.js';
 import { originOf, writeAuditLog, type ChangeOrigin } from '../common/audit-log.js';
 import { ChildDataProtection } from '../common/child-data-protection.js';
+import { API_CONFIGURATION, type ApiConfiguration } from '../common/configuration.js';
 import { CurrentSchoolYearResolver } from '../common/current-school-year.js';
 import { isUuid, notFoundError, type RequestBody } from '../common/request-fields.js';
 import { buildTableFile } from '../exports/table-file.js';
@@ -63,6 +64,11 @@ export async function verifyLearningPassword(password: string, stored: string): 
 
 export type IssueMode = 'create' | 'reset';
 
+// Quy tắc tài khoản trường (YCTD-311): tên đăng nhập của học sinh là số định danh cá nhân 12 chữ số (học sinh chưa có thẻ CCCD vẫn
+// có số định danh từ khi đăng ký khai sinh). Số thiếu, sai rõ ràng hoặc đã dùng thì dùng phương án dự phòng: "hs" kèm mã định danh Bộ
+// GD&ĐT (CSDL ngành), rồi "hs" kèm số thứ tự. Đặt STUDENT_USERNAME_RULE=ma_hoc_sinh (cấu hình studentUsernameRule) để bỏ qua số
+// định danh, dùng thẳng dự phòng
+
 @Injectable()
 export class LearningAccountsService {
   constructor(
@@ -71,6 +77,7 @@ export class LearningAccountsService {
     private readonly protection: ChildDataProtection,
     private readonly clock: Clock,
     private readonly identityClient: IdentityClient,
+    @Inject(API_CONFIGURATION) private readonly configuration: ApiConfiguration,
   ) {}
 
   private async accountsOf(database: Executor, childIds: string[]) {
@@ -105,7 +112,8 @@ export class LearningAccountsService {
           dob: row.dob,
           status: row.status,
           class_name: row.class_name,
-          username: account?.username ?? null,
+          // Tên đăng nhập là số định danh thì danh sách chỉ hiện dạng che (YCTD-311); tệp mật khẩu vừa cấp vẫn ghi đủ để phát cho học sinh
+          username: account?.username ? maskLoginIdentifier(account.username) : null,
           issued_at: account?.issued_at ?? null,
           issued_by_name: account?.issued_by_name ?? null,
           reset_count: account?.reset_count ?? 0,
@@ -164,7 +172,35 @@ export class LearningAccountsService {
     });
   }
 
-  private async nextUsername(database: Executor, moetCode: string | null, taken: Set<string>): Promise<string> {
+  // Số định danh của học sinh chỉ giải mã ở máy chủ để làm tên đăng nhập; không khớp năm sinh hoặc sai mã tỉnh thì bỏ qua
+  private studentNationalId(child: { national_id_encrypted: string; dob: string }): string | null {
+    if ((this.configuration.studentUsernameRule ?? 'cccd') !== 'cccd') {
+      return null;
+    }
+    try {
+      const value = this.protection.decrypt(child.national_id_encrypted).trim();
+      return nationalIdProblem(value, Number(child.dob.slice(0, 4))) === null ? value : null;
+    } catch {
+      return null;
+    }
+  }
+
+  private async nextUsername(
+    database: Executor,
+    moetCode: string | null,
+    taken: Set<string>,
+    nationalId: string | null = null,
+  ): Promise<string> {
+    if (nationalId && !taken.has(nationalId)) {
+      const used = await database
+        .selectFrom('student_learning_accounts')
+        .select('id')
+        .where('username', '=', nationalId)
+        .executeTakeFirst();
+      if (!used) {
+        return nationalId;
+      }
+    }
     const base = moetCode ? `hs${moetCode.toLowerCase().replace(/[^a-z0-9]/g, '')}` : '';
     if (base && !taken.has(base)) {
       const used = await database
@@ -220,6 +256,8 @@ export class LearningAccountsService {
         'children.full_name',
         'children.status',
         'children.moet_student_code',
+        'children.national_id_encrypted',
+        'children.dob',
         'classes.name as class_name',
       ])
       .where('children.id', 'in', childIds)
@@ -279,7 +317,12 @@ export class LearningAccountsService {
             .where('child_id', '=', child.id)
             .execute();
         } else {
-          username = await this.nextUsername(transaction, child.moet_student_code, taken);
+          username = await this.nextUsername(
+            transaction,
+            child.moet_student_code,
+            taken,
+            this.studentNationalId(child),
+          );
           await transaction
             .insertInto('student_learning_accounts')
             .values({

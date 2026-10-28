@@ -7,6 +7,7 @@ import {
   E2E_IDENTITY_PORT,
   E2E_OIDC_CLIENT_ID,
   E2E_OIDC_CLIENT_SECRET,
+  E2E_DEFAULT_INITIAL_PASSWORD,
   E2E_OIDC_MOCK_PORT,
   E2E_OIDC_PROVIDER_CODE,
   E2E_PARENT_PORT,
@@ -100,6 +101,7 @@ export default defineConfig({
         [`EXTERNAL_IDENTITY_${E2E_OIDC_PROVIDER_CODE.toUpperCase().replaceAll('-', '_')}_CLIENT_SECRET`]:
           E2E_OIDC_CLIENT_SECRET,
         TOTP_ENCRYPTION_KEY: process.env.TOTP_ENCRYPTION_KEY || randomBytes(32).toString('base64'),
+        DEFAULT_INITIAL_PASSWORD: E2E_DEFAULT_INITIAL_PASSWORD,
       },
     },
     {

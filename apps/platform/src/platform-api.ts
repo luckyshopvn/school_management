@@ -3,6 +3,8 @@ export interface Operator {
   id: string;
   login: string;
   full_name: string;
+  // Vai trò nhân viên vận hành (YCTD-311)
+  role: 'quan_tri' | 'ho_tro' | 'ky_thuat' | 'ke_toan';
 }
 
 export interface OperatorProfile extends Operator {

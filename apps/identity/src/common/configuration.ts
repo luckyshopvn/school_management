@@ -1,6 +1,7 @@
 import { lifecycleSettingsFrom, type LifecycleSettings } from '@school-management/database';
 import { decodeBase64Key, readSmsProviderSettings, type SmsProviderSettings } from '@school-management/server';
 import { readProviderDefinitions, type ExternalProviderDefinition } from '@school-management/server/external-identity';
+import { DEFAULT_PASSWORD_HASH_PARAMETERS, type PasswordHashParameters } from '../authentication/password.js';
 
 // Cấu hình của dịch vụ định danh; bí mật đọc từ biến môi trường, không đặt trong mã nguồn (QU-05)
 export interface IdentityConfiguration {
@@ -31,6 +32,13 @@ export interface IdentityConfiguration {
   // Nhà cung cấp định danh bên ngoài nền tảng khai (DT-25): EXTERNAL_IDENTITY_PROVIDERS và EXTERNAL_IDENTITY_<MÃ>_CLIENT_SECRET; trống là
   // không có nhà cung cấp nào
   externalIdentityProviders?: ExternalProviderDefinition[];
+  // Mật khẩu mặc định của tài khoản tạo theo số CCCD (YCTD-311), đọc từ DEFAULT_INITIAL_PASSWORD, không đặt trong mã nguồn vì kho mã
+  // công khai. Trống thì tài khoản mới nhận mật khẩu tạm ngẫu nhiên như trước. Luôn phải đổi ở lần đăng nhập đầu
+  defaultInitialPassword?: string | null;
+  // Tham số băm argon2id (YCTD-311); trống là mặc định trong password.ts
+  passwordHash?: PasswordHashParameters;
+  // Tên đăng nhập của nhân viên vận hành nền tảng: số CCCD (mặc định) hoặc thư điện tử công ty (YCTD-311)
+  platformOperatorLoginRule?: 'cccd' | 'email';
 }
 
 export const IDENTITY_CONFIGURATION = Symbol('IDENTITY_CONFIGURATION');
@@ -58,6 +66,39 @@ function readOptionalKey(name: string): Buffer | null {
   return key;
 }
 
+function readPositiveInteger(name: string, fallback: number): number {
+  const raw = process.env[name]?.trim();
+  if (!raw) {
+    return fallback;
+  }
+  const value = Number(raw);
+  if (!Number.isInteger(value) || value < 1) {
+    throw new Error(`Biến môi trường ${name} phải là số nguyên dương`);
+  }
+  return value;
+}
+
+// Mức tối thiểu kiểm ở configurePasswordHashing khi dựng ứng dụng
+function readPasswordHashParameters(): PasswordHashParameters {
+  return {
+    memoryCost: readPositiveInteger('PASSWORD_HASH_MEMORY_KIB', DEFAULT_PASSWORD_HASH_PARAMETERS.memoryCost),
+    timeCost: readPositiveInteger('PASSWORD_HASH_TIME_COST', DEFAULT_PASSWORD_HASH_PARAMETERS.timeCost),
+    parallelism: readPositiveInteger('PASSWORD_HASH_PARALLELISM', DEFAULT_PASSWORD_HASH_PARAMETERS.parallelism),
+  };
+}
+
+// Mật khẩu mặc định phải theo chính sách mật khẩu tối thiểu (BM-03); sai thì dừng khởi động để không cấp mật khẩu yếu
+function readDefaultInitialPassword(): string | null {
+  const value = process.env.DEFAULT_INITIAL_PASSWORD;
+  if (!value) {
+    return null;
+  }
+  if (value.length < 8 || !/\p{L}/u.test(value) || !/\p{Nd}/u.test(value)) {
+    throw new Error('Biến môi trường DEFAULT_INITIAL_PASSWORD phải có ít nhất 8 ký tự, có cả chữ và số');
+  }
+  return value;
+}
+
 // Ở chế độ nhiều trường (có PLATFORM_DATABASE_URL) cơ sở dữ liệu định danh là của từng trường nên không đọc ở đây
 export function readConfigurationFromEnvironment(): IdentityConfiguration {
   const multiTenant = Boolean(process.env.PLATFORM_DATABASE_URL?.trim());
@@ -80,5 +121,8 @@ export function readConfigurationFromEnvironment(): IdentityConfiguration {
     errorAlertPerHour:
       Number(process.env.PLATFORM_ERROR_ALERT_PER_HOUR) > 0 ? Number(process.env.PLATFORM_ERROR_ALERT_PER_HOUR) : 20,
     externalIdentityProviders: readProviderDefinitions(process.env),
+    defaultInitialPassword: readDefaultInitialPassword(),
+    passwordHash: readPasswordHashParameters(),
+    platformOperatorLoginRule: process.env.PLATFORM_OPERATOR_LOGIN_RULE?.trim() === 'email' ? 'email' : 'cccd',
   };
 }

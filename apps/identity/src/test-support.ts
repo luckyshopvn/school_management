@@ -71,6 +71,8 @@ export async function startTestApplication(
     externalIdentityProviders?: ExternalProviderDefinition[];
     // Cơ sở dữ liệu định danh riêng của bộ kiểm thử (máy chủ API chạy song song nhiều tệp); trống là IDENTITY_DATABASE_URL
     databaseUrl?: string;
+    // Mật khẩu mặc định khi tạo tài khoản theo số CCCD (YCTD-311); giá trị thử do bộ kiểm thử tự sinh
+    defaultInitialPassword?: string;
   } = {},
 ): Promise<TestContext> {
   const redisUrl = process.env.REDIS_URL;
@@ -90,6 +92,7 @@ export async function startTestApplication(
     smsProvider: { provider: 'log' },
     totpEncryptionKey: randomBytes(32),
     externalIdentityProviders: options.externalIdentityProviders ?? [],
+    defaultInitialPassword: options.defaultInitialPassword ?? null,
   };
   const clock = new AdjustableClock();
   const smsSender = new RecordingSmsSender();

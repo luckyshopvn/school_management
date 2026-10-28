@@ -34,6 +34,8 @@ export function readPaymentGateways(text: string | undefined): PaymentProviderCo
 
 // Cấu hình của máy chủ API nghiệp vụ; máy chủ API chỉ giữ khóa công khai để kiểm tra mã phiên (QĐ-22)
 export interface ApiConfiguration {
+  // Tên đăng nhập học và thi (YCTD-311): cccd là số định danh, thiếu thì "hs" kèm mã Bộ; ma_hoc_sinh bỏ qua số định danh. Trống là cccd
+  studentUsernameRule?: 'cccd' | 'ma_hoc_sinh';
   tokenPublicKeyPem: string;
   // Khóa công khai cũ còn nhận trong thời gian xoay khóa ký (DT-SaaS phần S8b)
   tokenPreviousPublicKeyPem?: string | null;
@@ -394,6 +396,7 @@ export function readConfigurationFromEnvironment(options: { multiTenant?: boolea
     aiMock: readAiMock(process.env),
     push: readPushConfiguration(process.env, multiTenant),
     video: readVideoConfiguration(process.env),
+    studentUsernameRule: process.env.STUDENT_USERNAME_RULE?.trim() === 'ma_hoc_sinh' ? 'ma_hoc_sinh' : 'cccd',
   };
 }
 

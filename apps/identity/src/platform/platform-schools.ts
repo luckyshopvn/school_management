@@ -25,6 +25,7 @@ import {
   type HostingInput,
   type LifecycleEnvironment,
   type PlatformDatabase,
+  type PlatformOperatorRole,
   type SchoolDataClassValue,
   type SchoolSetupInput,
   type TenancyRuntime,
@@ -120,17 +121,21 @@ export class PlatformSchoolsService {
     return this.runtime().platform;
   }
 
-  // Cổng nền tảng và mã phiên vận hành còn hiệu lực
-  async actor(request: Request): Promise<Actor> {
+  // Cổng nền tảng và mã phiên vận hành còn hiệu lực; roles (YCTD-311) giới hạn thao tác theo vai trò nhân viên vận hành, trống là
+  // mọi vai trò
+  async actor(request: Request, roles?: readonly PlatformOperatorRole[]): Promise<Actor> {
     this.operators.assertConsoleHost(request);
     const operatorId = await this.tokenService.verifyOperatorToken(readBearerToken(request.header('authorization')));
     const row = await this.platform
       .selectFrom('platform_operators')
-      .select(['id', 'full_name', 'status'])
+      .select(['id', 'full_name', 'status', 'role'])
       .where('id', '=', operatorId)
       .executeTakeFirst();
     if (!row || row.status !== 'active') {
       throw unauthenticatedError();
+    }
+    if (roles && !roles.includes(row.role)) {
+      throw new ApplicationError('ERR_FORBIDDEN', 'Vai trò vận hành của bạn không được làm thao tác này');
     }
     return { type: 'operator', id: row.id, name: row.full_name };
   }

@@ -35,6 +35,7 @@ import type { Kysely } from 'kysely';
 import {
   checkPasswordPolicy,
   hashPassword,
+  passwordNeedsRehash,
   placeholderPasswordHash,
   verifyPassword,
 } from '../authentication/password.js';
@@ -437,9 +438,11 @@ export class ParentOrgsService {
       throw unauthenticatedError('Tên đăng nhập hoặc mật khẩu không đúng');
     }
     await this.assertSecondFactor(row.id, otpCode, ipAddress, now);
+    // Giá trị băm dùng tham số cũ yếu hơn thì băm lại khi đăng nhập đúng (YCTD-311)
+    const rehashed = passwordNeedsRehash(row.password_hash) ? { password_hash: await hashPassword(password) } : {};
     await platform
       .updateTable('parent_org_users')
-      .set({ failed_login_count: 0, locked_until: null, last_login_at: now, updated_at: now })
+      .set({ ...rehashed, failed_login_count: 0, locked_until: null, last_login_at: now, updated_at: now })
       .where('id', '=', row.id)
       .execute();
     await writeAudit(platform, {
