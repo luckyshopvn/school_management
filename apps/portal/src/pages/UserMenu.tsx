@@ -6,7 +6,7 @@ import { useDefaultGridPageSize } from './grid-settings.js';
 
 // Menu người dùng theo Sở (DT-15 phần 15a): bấm tên người dùng ở thanh đầu trang mở Thông báo, Đổi mật khẩu, Cấu hình
 // hiển thị lưới, Danh sách ý kiến đã gửi (phần 15g), Thoát. DT-16 phần 16c thêm Hồ sơ nhân sự cá nhân và Hướng dẫn cho đủ
-// các mục như của Sở
+// các mục như của Sở. YCTD-330 bỏ chân trang nên "Gửi phản hồi" chuyển vào đây
 function UserIcon() {
   return (
     <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor" aria-hidden="true">
@@ -18,7 +18,15 @@ function UserIcon() {
 const itemClass =
   'block w-full px-3 py-1.5 text-left text-label text-text hover:bg-selected focus:bg-selected focus:outline-none';
 
-export function UserMenu({ fullName, onLogout }: { fullName: string | undefined; onLogout(): void }) {
+export function UserMenu({
+  fullName,
+  onFeedback,
+  onLogout,
+}: {
+  fullName: string | undefined;
+  onFeedback(): void;
+  onLogout(): void;
+}) {
   const [open, setOpen] = useState(false);
   const [gridDialogOpen, setGridDialogOpen] = useState(false);
   const container = useRef<HTMLDivElement>(null);
@@ -173,6 +181,20 @@ export function UserMenu({ fullName, onLogout }: { fullName: string | undefined;
             }}
           >
             Cấu hình hiển thị lưới
+          </button>
+        </li>
+        <li role="none">
+          <button
+            type="button"
+            role="menuitem"
+            tabIndex={-1}
+            className={itemClass}
+            onClick={() => {
+              setOpen(false);
+              onFeedback();
+            }}
+          >
+            Gửi phản hồi
           </button>
         </li>
         <li role="none">
