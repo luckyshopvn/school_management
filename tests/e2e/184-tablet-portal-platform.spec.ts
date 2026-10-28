@@ -144,11 +144,32 @@ test.describe('cổng nền tảng', () => {
   test('@thiet-bi @thiet-bi-pr CT-26e-3: cổng nền tảng: thanh bên đầy đủ từ 1280 px, biểu tượng ở 768 đến 1279 px, ngăn kéo dưới 768 px', async ({
     page,
   }) => {
-    // Như máy chủ thật: chưa gửi mã xác thực hai lớp thì trả lỗi đòi mã, cổng sang bước nhập mã (YCTD-312)
+    // Ảnh mã xác nhận giả (YCTD-313): ảnh PNG 1×1, đáp án cố định
+    const captchaImage =
+      'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==';
+    await page.route('**/api/v1/auth/platform/captcha', (route) =>
+      route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify({
+          captcha_id: '00000000-0000-4000-8000-000000000000',
+          image: captchaImage,
+          expires_in_seconds: 300,
+        }),
+      }),
+    );
+    // Như máy chủ thật: bước 1 gửi kèm mã ảnh; chưa gửi mã xác thực hai lớp thì trả lỗi đòi mã, cổng sang bước nhập mã (YCTD-312)
     await page.route('**/api/v1/auth/platform/login', (route) => {
-      const body = route.request().postDataJSON() as { otp_code?: string };
+      const body = route.request().postDataJSON() as { otp_code?: string; captcha_id?: string; captcha_text?: string };
+      if (!body.otp_code && body.captcha_text !== 'ABCDE') {
+        return route.fulfill({
+          status: 400,
+          contentType: 'application/json',
+          body: JSON.stringify({ error: { code: 'ERR_VALIDATION', message: 'Mã xác nhận không đúng', details: [] } }),
+        });
+      }
       return route.fulfill(
-        body.otp_code
+        body.otp_code && body.captcha_id
           ? {
               status: 200,
               contentType: 'application/json',
@@ -191,7 +212,7 @@ test.describe('cổng nền tảng', () => {
     await page.getByRole('button', { name: 'Quên Mật Khẩu?' }).click();
     await expect(page.getByText('Liên hệ quản trị viên nền tảng')).toBeVisible();
     await page.getByLabel('Ghi nhớ').check();
-    await signInConsole(page, 'van-hanh-thu', 'mat-khau-thu', () => '123456');
+    await signInConsole(page, 'van-hanh-thu', 'mat-khau-thu', () => '123456', { captcha: () => 'ABCDE' });
     await expect(page.getByText('Số trường đang quản lý')).toBeVisible();
     expect(await page.evaluate(() => localStorage.getItem('platform.login.remembered'))).toBe('van-hanh-thu');
 
