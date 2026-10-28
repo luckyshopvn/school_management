@@ -418,6 +418,75 @@ function ChildCard({
   );
 }
 
+type ParentTab = 'home' | 'schedule' | 'messages' | 'account';
+
+const TAB_TITLES: Record<ParentTab, string> = {
+  home: 'Trang chủ',
+  schedule: 'Lịch học',
+  messages: 'Tin nhắn',
+  account: 'Tài khoản',
+};
+
+const TAB_ICONS: Record<ParentTab, ReactNode> = {
+  home: <path d="M3 11 12 4l9 7v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1Z" />,
+  schedule: (
+    <>
+      <rect x="3" y="4" width="18" height="17" rx="2" />
+      <path d="M3 9h18M8 2v4M16 2v4" />
+    </>
+  ),
+  messages: <path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12Z" />,
+  account: (
+    <>
+      <circle cx="12" cy="8" r="4" />
+      <path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6" />
+    </>
+  ),
+};
+
+// Thanh điều hướng dưới cố định (YCTD-351): bốn mục, mỗi mục cao 52 px; mục đang mở có aria-current
+function BottomNav({ current, onSelect }: { current: ParentTab; onSelect(tab: ParentTab): void }) {
+  return (
+    <nav
+      aria-label="Điều hướng chính"
+      className="fixed inset-x-0 bottom-0 z-30 border-t border-border bg-card pb-[env(safe-area-inset-bottom)]"
+    >
+      <ul className="mx-auto grid max-w-md grid-cols-4 md:max-w-3xl">
+        {(Object.keys(TAB_TITLES) as ParentTab[]).map((tab) => (
+          <li key={tab}>
+            <button
+              type="button"
+              aria-current={current === tab ? 'page' : undefined}
+              onClick={() => {
+                onSelect(tab);
+                window.scrollTo({ top: 0 });
+              }}
+              className={`flex min-h-[3.25rem] w-full flex-col items-center justify-center gap-0.5 text-xs ${
+                current === tab ? 'font-semibold text-brand-strong' : 'font-medium text-text-secondary'
+              }`}
+            >
+              <svg
+                width="22"
+                height="22"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                aria-hidden="true"
+              >
+                {TAB_ICONS[tab]}
+              </svg>
+              {TAB_TITLES[tab]}
+            </button>
+          </li>
+        ))}
+      </ul>
+    </nav>
+  );
+}
+
 export function HomeScreen() {
   const session = useSession();
   const [user, setUser] = useState<CurrentUser>();
@@ -448,17 +517,113 @@ export function HomeScreen() {
       .then((page) => setChildren(page.items.filter((child) => child.id === childId)))
       .catch(() => setFailed(true));
   };
+  // Thanh điều hướng dưới và nút Đổi con theo mẫu giao diện phụ huynh (YCTD-351): mặc định hiện mọi con; chọn một con thì
+  // trang chủ, lịch học, tin nhắn chỉ của con đó
+  const [tab, setTab] = useState<ParentTab>('home');
+  const [selectedId, setSelectedId] = useState('');
+  const shown = (children ?? []).filter((child) => selectedId === '' || child.id === selectedId);
+  const childPicker =
+    children && children.length > 1 ? (
+      <label className="flex items-center gap-2 text-label font-medium text-white">
+        Đổi con
+        <select
+          aria-label="Đổi con"
+          value={selectedId}
+          onChange={(event) => setSelectedId(event.target.value)}
+          className="min-h-11 rounded-lg border border-selected bg-header-strong px-3 text-content text-white"
+        >
+          <option value="">Tất cả các con</option>
+          {children.map((child) => (
+            <option key={child.id} value={child.id}>
+              {child.full_name}
+            </option>
+          ))}
+        </select>
+      </label>
+    ) : null;
+
+  if (tab !== 'home') {
+    return (
+      <div className="min-h-screen pb-24">
+        <header className="bg-header text-white">
+          <div className="mx-auto flex max-w-md flex-wrap items-center justify-between gap-3 px-4 py-4 md:max-w-3xl">
+            <h1 className="text-section-title font-bold">{TAB_TITLES[tab]}</h1>
+            {tab === 'account' ? null : childPicker}
+          </div>
+        </header>
+        <main className="mx-auto flex max-w-md flex-col gap-4 px-4 py-4 md:max-w-3xl">
+          {tab === 'schedule'
+            ? shown.map((child) => (
+                <section
+                  key={child.id}
+                  className="flex flex-col gap-3 rounded-2xl border border-border bg-card p-4"
+                  aria-label={`Lịch học của ${child.full_name}`}
+                >
+                  <h2 className="text-content font-semibold text-text">{child.full_name}</h2>
+                  {/* Cấp phổ thông xem thời khoá biểu theo tiết; Mầm non xem lịch hoạt động ở bảng Học tập */}
+                  {hasLevelFeature(child.school_level, 'period_timetable') ? (
+                    <TimetablePanel child={child} />
+                  ) : (
+                    <LearningPanel child={child} />
+                  )}
+                </section>
+              ))
+            : null}
+          {tab === 'messages' ? (
+            <>
+              <NotificationsPanel />
+              {shown.map((child) => (
+                <section
+                  key={child.id}
+                  className="flex flex-col gap-3 rounded-2xl border border-border bg-card p-4"
+                  aria-label={`Trao đổi về ${child.full_name}`}
+                >
+                  <h2 className="text-content font-semibold text-text">{child.full_name}</h2>
+                  <InteractionsPanel child={child} />
+                </section>
+              ))}
+            </>
+          ) : null}
+          {tab === 'account' ? (
+            <>
+              <section
+                className="flex flex-col gap-1 rounded-2xl border border-border bg-card p-4"
+                aria-label="Tài khoản"
+              >
+                <span className="text-content font-semibold text-text">{user?.full_name ?? ''}</span>
+                {children && children.length > 0 ? (
+                  <span className="text-label text-text-secondary">
+                    Phụ huynh của {children.map((child) => child.full_name).join(', ')}
+                  </span>
+                ) : null}
+              </section>
+              <InstallPrompt applicationName="ứng dụng phụ huynh" />
+              <PushSettingsPanel application="parent" base={import.meta.env.BASE_URL} request={requestJson} />
+              <ExternalLinksPanel request={externalRequest} basePath={import.meta.env.BASE_URL} />
+              <div>
+                <Button onClick={() => void session.logout()}>Đăng xuất</Button>
+              </div>
+            </>
+          ) : null}
+        </main>
+        <BottomNav current={tab} onSelect={setTab} />
+      </div>
+    );
+  }
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen pb-24">
       {/* Thanh chào xanh (mẫu giao diện phụ huynh); thẻ của con ở cột đầu đè lên mép dưới của thanh */}
       <header className="bg-header text-white">
         <div className="mx-auto max-w-md px-4 pb-14 pt-6 md:max-w-5xl lg:max-w-6xl">
           {user ? (
-            <h1 className="flex flex-col gap-1">
-              <span className="text-label font-normal text-selected">Xin chào,</span>{' '}
-              <span className="text-xl font-bold">{user.full_name}</span>
-            </h1>
+            <div className="flex flex-wrap items-end justify-between gap-3">
+              <h1 className="flex flex-col gap-1">
+                <span className="text-label font-normal text-selected">Xin chào,</span>{' '}
+                <span className="text-xl font-bold">{user.full_name}</span>
+              </h1>
+              {childPicker}
+            </div>
           ) : (
             <div className="flex flex-col gap-2" aria-hidden="true">
               <div className="h-4 w-20 animate-pulse rounded bg-header-strong" />
@@ -480,7 +645,7 @@ export function HomeScreen() {
             </p>
           ) : null}
           <ul className="flex flex-col gap-3">
-            {(children ?? []).map((child) => (
+            {shown.map((child) => (
               <ChildCard
                 key={child.id}
                 child={child}
@@ -504,6 +669,7 @@ export function HomeScreen() {
           </div>
         </div>
       </main>
+      <BottomNav current={tab} onSelect={setTab} />
     </div>
   );
 }

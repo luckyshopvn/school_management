@@ -163,6 +163,19 @@ test('CT-19e-5: phụ huynh có con ở hai cấp, giáo viên dạy hai cấp t
     await expect(health.getByRole('heading', { name: 'Sự kiện y tế' })).toBeVisible();
     await expect(health.getByRole('heading', { name: 'Chăm sóc hằng ngày' })).toHaveCount(0);
 
+    // Thanh điều hướng dưới (YCTD-351): Lịch học theo cấp của con (Tiểu học là thời khoá biểu, Mầm non là bảng Học tập);
+    // Đổi con lọc còn một con; về Trang chủ vẫn giữ con đã chọn
+    const nav = parentPage.getByRole('navigation', { name: 'Điều hướng chính' });
+    await nav.getByRole('button', { name: 'Lịch học' }).click();
+    await expect(nav.getByRole('button', { name: 'Lịch học' })).toHaveAttribute('aria-current', 'page');
+    await expect(parentPage.getByRole('region', { name: `Thời khoá biểu của ${childNames.TH}` })).toBeVisible();
+    await expect(parentPage.getByRole('region', { name: `Học tập của ${childNames.MN}` })).toBeVisible();
+    await parentPage.getByRole('combobox', { name: 'Đổi con' }).selectOption({ label: childNames.TH });
+    await expect(parentPage.getByRole('region', { name: `Học tập của ${childNames.MN}` })).toHaveCount(0);
+    await nav.getByRole('button', { name: 'Trang chủ' }).click();
+    await expect(parentPage.getByRole('listitem', { name: childNames.TH })).toBeVisible();
+    await expect(parentPage.getByRole('listitem', { name: childNames.MN })).toHaveCount(0);
+
     // Ứng dụng giáo viên: hai lớp ở hai cấp; lớp Tiểu học không có nhật ký, chăm sóc, báo cơm
     const teacherPage = await (await browser.newContext()).newPage();
     await teacherPage.goto(`http://localhost:${E2E_TEACHER_PORT}`);
