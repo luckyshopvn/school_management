@@ -27,11 +27,13 @@ import { RecordingSmsGateway } from './notifications/sms-gateway.js';
 export interface Reply {
   status: number;
   body: Record<string, unknown>;
+  // Cookie máy chủ đặt (tên=giá trị, bỏ thuộc tính), để kiểm thử gửi lại như trình duyệt
+  cookies?: string[];
 }
 
 export function sendWithHost(
   origin: string,
-  options: { method?: string; path: string; host?: string; token?: string; body?: unknown },
+  options: { method?: string; path: string; host?: string; token?: string; body?: unknown; cookie?: string },
 ): Promise<Reply> {
   const url = new URL(`${origin}${options.path}`);
   const payload = options.body === undefined ? undefined : JSON.stringify(options.body);
@@ -46,6 +48,7 @@ export function sendWithHost(
           ...(options.host ? { host: options.host } : {}),
           ...(payload ? { 'content-type': 'application/json' } : {}),
           ...(options.token ? { authorization: `Bearer ${options.token}` } : {}),
+          ...(options.cookie ? { cookie: options.cookie } : {}),
         },
       },
       (response) => {
@@ -59,7 +62,8 @@ export function sendWithHost(
           } catch {
             body = { raw: text.slice(0, 200) };
           }
-          resolve({ status: response.statusCode ?? 0, body });
+          const cookies = (response.headers['set-cookie'] ?? []).map((value) => value.split(';')[0] ?? '');
+          resolve({ status: response.statusCode ?? 0, body, ...(cookies.length > 0 ? { cookies } : {}) });
         });
       },
     );

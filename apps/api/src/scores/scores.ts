@@ -1,5 +1,20 @@
 import { randomUUID } from 'node:crypto';
-import { Body, Controller, Get, HttpCode, Injectable, Param, Post, Put, Query, Req } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  HttpCode,
+  Injectable,
+  Param,
+  Post,
+  Put,
+  Query,
+  Req,
+  Res,
+  UploadedFile,
+  UseInterceptors,
+} from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
 import type { RatingTermValue, RatingValue, SchoolYearDatabase, ScoreTermTypeValue } from '@school-management/database';
 import {
   ApplicationError,
@@ -14,6 +29,7 @@ import {
   PERMISSION_CODES,
   requiredRegularCount,
   SCORE_DEFAULTS,
+  SCORE_TERM_LABELS,
   suggestLearningRating,
   termAverage,
   validateScoreConfig,
@@ -22,7 +38,7 @@ import {
   type SchoolLevelCode,
   type ScoreConfig,
 } from '@school-management/shared';
-import type { Request } from 'express';
+import type { Request, Response } from 'express';
 import type { Kysely, Transaction } from 'kysely';
 import { AuthenticatedUser, RequirePermission } from '../authentication/authentication.guard.js';
 import type { CurrentUser } from '../authentication/current-user.js';
@@ -33,6 +49,16 @@ import { isUuid, notFoundError, type RequestBody } from '../common/request-field
 import { uuidParameter } from '../common/uuid-parameter.js';
 import { OrganizationScopes } from '../organization/organization-scopes.js';
 import { readCurriculumSubjects } from '../subjects/subjects.js';
+import type { UploadedPart } from '../activities/content-files.js';
+import { buildTableFile, CONTENT_TYPES } from '../exports/table-file.js';
+import { buildTemplate, MAXIMUM_IMPORT_BYTES, readHeaders, readSheet } from '../imports/excel.js';
+import {
+  readScoreRows,
+  regularColumnCount,
+  scoreImportColumns,
+  scorePrintSheet,
+  scoreTemplateRows,
+} from './score-files.js';
 
 // Sổ điểm THCS, THPT theo Thông tư 22/2021 (DT-21 phần 21c, YCTD-170): điểm đánh giá thường xuyên, giữa kỳ, cuối kỳ; kết quả
 // môn đánh giá bằng nhận xét; điểm trung bình môn học kỳ, cả năm (tính khi đọc); xếp loại học tập (gợi ý của máy, giáo viên
@@ -403,6 +429,66 @@ export class ScoresService {
         };
       }),
     };
+  }
+
+  // Tệp của sổ điểm (YCTD-318): tệp mẫu nhập kèm học sinh, điểm đang có (`xlsx`) hoặc bảng in sổ (`pdf`); quyền như xem sổ
+  async sheetFile(
+    currentUser: CurrentUser,
+    classId: string,
+    subjectId: string,
+    term: TermType,
+    kind: 'template' | 'print',
+  ): Promise<Buffer> {
+    const sheet = await this.sheet(currentUser, classId, subjectId, term);
+    const { database } = await this.currentSchoolYear.require();
+    const classRow = await this.findClass(database, classId);
+    const regularCount = regularColumnCount(sheet.rows, sheet.subject.required_regular);
+    if (kind === 'template') {
+      return buildTemplate('Sổ điểm', scoreImportColumns(sheet.subject.mode, regularCount), {
+        rows: scoreTemplateRows(sheet.rows, regularCount),
+      });
+    }
+    return buildTableFile(
+      'pdf',
+      [
+        scorePrintSheet({
+          className: classRow.name,
+          subjectName: sheet.subject.subject_name,
+          termLabel: SCORE_TERM_LABELS[term],
+          mode: sheet.subject.mode,
+          regularCount,
+          rows: sheet.rows,
+        }),
+      ],
+      new Date(),
+    );
+  }
+
+  // Nhập sổ điểm từ tệp mẫu đã điền (YCTD-318): có dòng lỗi thì không ghi dòng nào; hợp lệ thì ghi như nút Ghi điểm (cùng
+  // quyền, khoá sổ, hạn nhập)
+  async importSheet(
+    currentUser: CurrentUser,
+    classId: string,
+    subjectId: string,
+    term: TermType,
+    body: Buffer,
+    origin: ChangeOrigin,
+  ) {
+    const sheet = await this.sheet(currentUser, classId, subjectId, term);
+    // Số cột TX lấy theo tệp: tệp tải về trước khi lớp có thêm điểm vẫn nhập được
+    const headers = await readHeaders(body);
+    const regularCount = [...headers].filter((header) => /^TX\d+$/.test(header)).length;
+    const columns = scoreImportColumns(sheet.subject.mode, regularCount);
+    const { entries, errors } = readScoreRows(await readSheet(body, columns), {
+      mode: sheet.subject.mode,
+      regularCount,
+      studentIds: new Set(sheet.rows.map((row) => row.child_id)),
+    });
+    if (errors.length > 0) {
+      return { saved: 0, errors };
+    }
+    await this.saveSheet(currentUser, classId, subjectId, term, entries, origin);
+    return { saved: entries.length, errors: [] };
   }
 
   async saveSheet(
@@ -1107,6 +1193,63 @@ export class ScoresController {
       entries.map((entry) => ({ ...entry, result: entry.result as 'pass' | 'fail' | null })),
       originOf(request, currentUser),
     );
+  }
+
+  // Tệp mẫu nhập sổ điểm kèm học sinh và điểm đang có (YCTD-318)
+  @Get('classes/:id/subjects/:subjectId/template')
+  async template(
+    @Param('id', uuidParameter('Mã lớp không hợp lệ')) classId: string,
+    @Param('subjectId', uuidParameter('Mã môn không hợp lệ')) subjectId: string,
+    @Query('term_type') term: string | undefined,
+    @AuthenticatedUser() currentUser: CurrentUser,
+    @Res() response: Response,
+  ) {
+    const file = await this.scores.sheetFile(
+      currentUser,
+      classId,
+      subjectId,
+      readTermType(term, false) as TermType,
+      'template',
+    );
+    response.type(CONTENT_TYPES.xlsx).attachment('so-diem.xlsx').send(file);
+  }
+
+  // In sổ điểm của môn ở lớp, một học kỳ, tệp PDF (YCTD-318)
+  @Get('classes/:id/subjects/:subjectId/print')
+  async print(
+    @Param('id', uuidParameter('Mã lớp không hợp lệ')) classId: string,
+    @Param('subjectId', uuidParameter('Mã môn không hợp lệ')) subjectId: string,
+    @Query('term_type') term: string | undefined,
+    @AuthenticatedUser() currentUser: CurrentUser,
+    @Res() response: Response,
+  ) {
+    const file = await this.scores.sheetFile(
+      currentUser,
+      classId,
+      subjectId,
+      readTermType(term, false) as TermType,
+      'print',
+    );
+    response.type(CONTENT_TYPES.pdf).attachment('so-diem.pdf').send(file);
+  }
+
+  // Nhập sổ điểm từ tệp mẫu đã điền (YCTD-318); trường `term_type` trong biểu mẫu
+  @Post('classes/:id/subjects/:subjectId/import')
+  @HttpCode(200)
+  @UseInterceptors(FileInterceptor('file', { limits: { fileSize: MAXIMUM_IMPORT_BYTES, files: 1 } }))
+  importSheet(
+    @Param('id', uuidParameter('Mã lớp không hợp lệ')) classId: string,
+    @Param('subjectId', uuidParameter('Mã môn không hợp lệ')) subjectId: string,
+    @Body() body: RequestBody,
+    @UploadedFile() file: UploadedPart | undefined,
+    @Req() request: Request,
+    @AuthenticatedUser() currentUser: CurrentUser,
+  ) {
+    const term = readTermType(body?.term_type, false) as TermType;
+    if (!file || file.size === 0) {
+      throw validationError([{ field: 'file', message: 'Bắt buộc chọn tệp' }]);
+    }
+    return this.scores.importSheet(currentUser, classId, subjectId, term, file.buffer, originOf(request, currentUser));
   }
 
   @Get('classes/:id/summary')
