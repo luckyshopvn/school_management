@@ -32,6 +32,11 @@ function randomNationalId(): string {
   return `001085${randomInt(0, 1_000_000).toString().padStart(6, '0')}`;
 }
 
+// Số điện thoại thử ngẫu nhiên (đầu 09); mật khẩu mặc định chỉ cấp cho tài khoản có số điện thoại (YCTD-323)
+function randomPhone(): string {
+  return `09${randomInt(0, 100_000_000).toString().padStart(8, '0')}`;
+}
+
 describe('Quy tắc số CCCD và nhận diện (thuần)', () => {
   it('CT-1511: kiểm 12 chữ số, mã tỉnh, năm sinh; che 4 số cuối', () => {
     assert.equal(nationalIdProblem('001085123456'), null);
@@ -85,11 +90,12 @@ describe('Dịch vụ định danh: tài khoản theo số CCCD', () => {
     await context.close();
   });
 
-  it('CT-1514: tạo tài khoản bằng số CCCD: tên đăng nhập là số CCCD, mật khẩu mặc định có hạn 7 ngày, nhật ký và danh sách chỉ hiện dạng che', async () => {
+  it('CT-1514: tạo tài khoản bằng số CCCD: tên đăng nhập là số CCCD, mật khẩu mặc định có hạn 24 giờ, nhật ký và danh sách chỉ hiện dạng che', async () => {
     const nationalId = randomNationalId();
     const created = await createAccount({
       full_name: 'Giáo viên CCCD',
       national_id: nationalId,
+      phone: randomPhone(),
       roles: [{ role_code: 'VT-07', org_unit_id: branchA }],
     });
     assert.equal(created.status, 201, JSON.stringify(created.body));
@@ -103,8 +109,8 @@ describe('Dịch vụ định danh: tài khoản theo số CCCD', () => {
       .where('id', '=', account.id)
       .executeTakeFirstOrThrow();
     assert.equal(row.must_change_password, true);
-    const days = ((row.initial_password_expires_at?.getTime() ?? 0) - context.clock.now().getTime()) / 86_400_000;
-    assert.ok(days > 6.9 && days <= 7, String(days));
+    const hours = ((row.initial_password_expires_at?.getTime() ?? 0) - context.clock.now().getTime()) / 3_600_000;
+    assert.ok(hours > 23.9 && hours <= 24, String(hours));
     // Băm bằng tham số hiện hành, không lưu mật khẩu thô
     assert.equal(parseOptions(row.password_hash ?? '').memoryCost, passwordHashParameters().memoryCost);
     assert.ok(!(row.password_hash ?? '').includes(DEFAULT_INITIAL_PASSWORD));
@@ -124,10 +130,27 @@ describe('Dịch vụ định danh: tài khoản theo số CCCD', () => {
     const typed = await createAccount({
       full_name: 'Cán bộ gõ CCCD',
       username: randomNationalId(),
+      phone: randomPhone(),
       roles: [{ role_code: 'VT-07', org_unit_id: branchA }],
     });
     assert.equal(typed.status, 201, JSON.stringify(typed.body));
     assert.equal(typed.body.uses_initial_password, true);
+
+    // Không có số điện thoại thì không nhận mật khẩu mặc định: mật khẩu tạm ngẫu nhiên, không có hạn của mật khẩu mặc định (YCTD-323)
+    const noPhone = await createAccount({
+      full_name: 'Cán bộ chưa có số điện thoại',
+      national_id: randomNationalId(),
+      roles: [{ role_code: 'VT-07', org_unit_id: branchA }],
+    });
+    assert.equal(noPhone.status, 201, JSON.stringify(noPhone.body));
+    assert.equal(noPhone.body.uses_initial_password, false);
+    assert.equal(typeof noPhone.body.temporary_password, 'string');
+    const noPhoneRow = await context.database
+      .selectFrom('users')
+      .select('initial_password_expires_at')
+      .where('id', '=', (noPhone.body.account as { id: string }).id)
+      .executeTakeFirstOrThrow();
+    assert.equal(noPhoneRow.initial_password_expires_at, null);
   });
 
   it('CT-1515: số CCCD sai rõ ràng bị từ chối; trùng số CCCD báo trùng', async () => {
@@ -155,6 +178,7 @@ describe('Dịch vụ định danh: tài khoản theo số CCCD', () => {
     const created = await createAccount({
       full_name: 'Phụ huynh CCCD',
       national_id: nationalId,
+      phone: randomPhone(),
       roles: [{ role_code: 'VT-14', org_unit_id: branchA }],
     });
     assert.equal(created.status, 201, JSON.stringify(created.body));
@@ -199,6 +223,53 @@ describe('Dịch vụ định danh: tài khoản theo số CCCD', () => {
       .where('id', '=', userId)
       .executeTakeFirstOrThrow();
     assert.deepEqual(row, { must_change_password: false, initial_password_expires_at: null });
+  });
+
+  it('CT-1524: đổi mật khẩu mặc định lần đầu phải kèm mã gửi tới số điện thoại; biết số CCCD và mật khẩu mặc định không đủ (YCTD-323)', async () => {
+    const nationalId = randomNationalId();
+    const phone = randomPhone();
+    const created = await createAccount({
+      full_name: 'Giáo viên đổi lần đầu',
+      national_id: nationalId,
+      phone,
+      roles: [{ role_code: 'VT-07', org_unit_id: branchA }],
+    });
+    assert.equal(created.status, 201, JSON.stringify(created.body));
+    const first = await login(nationalId, DEFAULT_INITIAL_PASSWORD);
+    assert.equal(first.status, 200, JSON.stringify(first.body));
+    const token = first.body.access_token as string;
+    const change = (body: Record<string, unknown>) =>
+      postJson(
+        `${context.baseUrl}/auth/change-password`,
+        { current_password: DEFAULT_INITIAL_PASSWORD, ...body },
+        token,
+      );
+
+    // Không có mã: không đổi được, báo ở ô mã
+    const missing = await change({ new_password: 'MatKhauMoi2027' });
+    assert.equal(missing.status, 400, JSON.stringify(missing.body));
+    assert.match(JSON.stringify(missing.body), /otp_code/);
+    // Gửi mã: tới đúng số điện thoại của tài khoản, phản hồi chỉ hiện số đã che
+    const sent = await postJson(`${context.baseUrl}/auth/change-password/code`, {}, token);
+    assert.equal(sent.status, 200, JSON.stringify(sent.body));
+    assert.equal(sent.body.phone, `*******${phone.slice(-3)}`);
+    const message = context.smsSender.messages.at(-1);
+    assert.equal(message?.phone, phone);
+    const code = /(\d{6})/.exec(message?.text ?? '')?.[1] ?? '';
+    // Sai mã: không đổi được
+    const wrong = await change({ new_password: 'MatKhauMoi2027', otp_code: code === '000000' ? '111111' : '000000' });
+    assert.equal(wrong.status, 400);
+    assert.match(JSON.stringify(wrong.body), /otp_code/);
+    // Đúng mã: đổi được
+    const changed = await change({ new_password: 'MatKhauMoi2027', otp_code: code });
+    assert.equal(changed.status, 200, JSON.stringify(changed.body));
+    assert.equal(changed.body.password_change_required, false);
+    // Tài khoản không còn mật khẩu mặc định thì không cần mã
+    const again = await login(nationalId, 'MatKhauMoi2027');
+    assert.equal(
+      (await postJson(`${context.baseUrl}/auth/change-password/code`, {}, again.body.access_token as string)).status,
+      409,
+    );
   });
 
   it('CT-1517: loại tài khoản theo ứng dụng: phụ huynh không vào cổng quản trị, cán bộ không vào ứng dụng phụ huynh, người có cả hai vào được cả hai', async () => {

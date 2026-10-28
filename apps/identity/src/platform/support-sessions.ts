@@ -49,6 +49,7 @@ import { TENANCY_RUNTIME } from '../common/configuration.js';
 import { Infrastructure } from '../common/infrastructure.js';
 import { PlatformOperatorsService } from './platform-operators.js';
 import { PlatformSchoolsService } from './platform-schools.js';
+import { operatorRolesFor } from '@school-management/shared';
 
 // Đăng nhập hỗ trợ của nhân viên nền tảng (DT-SaaS phần S4, YCTD-197; tài liệu 32 mục 14.5 "S4"), mở rộng đăng nhập thay của 18h.
 // Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11:
@@ -720,8 +721,6 @@ export class SupportSessionsService {
   }
 }
 
-const SUPPORT_ROLES = ['quan_tri', 'ho_tro', 'ky_thuat'] as const;
-
 @Controller('auth/platform')
 export class PlatformSupportController {
   constructor(
@@ -731,7 +730,7 @@ export class PlatformSupportController {
 
   @Get('schools/:code/support')
   async overview(@Param('code') code: string, @Req() request: Request) {
-    const actor = await this.schools.actor(request);
+    const actor = await this.schools.actor(request, operatorRolesFor('support.view'));
     return this.support.overview(code, actor.role);
   }
 
@@ -739,7 +738,7 @@ export class PlatformSupportController {
   @HttpCode(200)
   async start(@Param('code') code: string, @Body() body: Record<string, unknown> | undefined, @Req() request: Request) {
     // Kế toán không mở phiên hỗ trợ vào dữ liệu trường (YCTD-311)
-    const actor = await this.schools.actor(request, SUPPORT_ROLES);
+    const actor = await this.schools.actor(request, operatorRolesFor('support.open'));
     return this.support.start(
       code,
       body,
@@ -750,20 +749,20 @@ export class PlatformSupportController {
 
   @Get('support-policy')
   async policy(@Req() request: Request) {
-    await this.schools.actor(request);
+    await this.schools.actor(request, operatorRolesFor('support.view'));
     return this.support.policy();
   }
 
   @Put('support-policy')
   async updatePolicy(@Body() body: Record<string, unknown> | undefined, @Req() request: Request) {
-    const actor = await this.schools.actor(request, ['quan_tri']);
+    const actor = await this.schools.actor(request, operatorRolesFor('support.policy'));
     return this.support.updatePolicy(body, { id: actor.id ?? '', name: actor.name }, request.ip ?? null);
   }
 
   @Post('support-sessions/:id/end')
   @HttpCode(200)
   async end(@Param('id') id: string, @Req() request: Request) {
-    const actor = await this.schools.actor(request);
+    const actor = await this.schools.actor(request, operatorRolesFor('support.open'));
     return this.support.end(id, 'operator', { type: 'operator', id: actor.id ?? null, name: actor.name });
   }
 }

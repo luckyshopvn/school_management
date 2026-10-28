@@ -47,6 +47,7 @@ export const PUBLIC_ROUTES: PublicRoute[] = [
   { method: 'POST', path: '/api/v1/auth/password-reset/request', reason: SIGN_IN },
   { method: 'POST', path: '/api/v1/auth/platform/login', reason: PLATFORM },
   { method: 'GET', path: '/api/v1/auth/platform/me', reason: PLATFORM },
+  { method: 'POST', path: '/api/v1/auth/platform/password', reason: PLATFORM },
   { method: 'GET', path: '/api/v1/auth/platform/operators', reason: PLATFORM },
   { method: 'POST', path: '/api/v1/auth/platform/operators', reason: PLATFORM },
   { method: 'PATCH', path: '/api/v1/auth/platform/operators/:id', reason: PLATFORM },

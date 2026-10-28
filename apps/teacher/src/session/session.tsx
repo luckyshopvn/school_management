@@ -18,7 +18,7 @@ interface SessionValue {
   status: SessionStatus;
   passwordChangeRequired: boolean;
   login(loginIdentifier: string, password: string, otpCode?: string): Promise<void>;
-  changePassword(currentPassword: string, newPassword: string): Promise<void>;
+  changePassword(currentPassword: string, newPassword: string, otpCode?: string): Promise<void>;
   logout(): Promise<void>;
   // Thử xác nhận lại phiên khi có mạng trở lại
   retry(): void;
@@ -68,8 +68,8 @@ export function SessionProvider({ children }: { children: ReactNode }) {
       async login(loginIdentifier, password, otpCode) {
         applyTokens(await loginWithPassword(loginIdentifier, password, otpCode));
       },
-      async changePassword(currentPassword, newPassword) {
-        applyTokens(await requestPasswordChange(currentPassword, newPassword));
+      async changePassword(currentPassword, newPassword, otpCode) {
+        applyTokens(await requestPasswordChange(currentPassword, newPassword, otpCode));
       },
       retry: check,
       async logout() {

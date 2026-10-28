@@ -5,6 +5,7 @@ import {
   startMarketplaceTestDatabase,
   type MarketplaceDatabase,
   type MarketplaceTestDatabase,
+  type PlatformOperatorRole,
 } from '@school-management/database';
 import {
   createPlatformOperatorWithTotp,
@@ -63,12 +64,12 @@ describe('chợ gia sư: an toàn trẻ em và kiểm duyệt (27i)', () => {
     });
   }
 
-  async function operatorToken(name: string): Promise<string> {
+  async function operatorToken(name: string, role?: PlatformOperatorRole): Promise<string> {
     const login = `kiem-duyet-${name}-${Math.random().toString(36).slice(2, 8)}`;
     const created = await createPlatformOperatorWithTotp(
       environment.platform.platform,
       environment.platform.masterKey,
-      { login, fullName: `Nhân viên ${name}`, password: OPERATOR_TEST_PASSWORD },
+      { login, fullName: `Nhân viên ${name}`, password: OPERATOR_TEST_PASSWORD, ...(role ? { role } : {}) },
     );
     const reply = await sendWithHost(environment.identityOrigin, {
       path: '/api/v1/auth/platform/login',
@@ -471,6 +472,21 @@ describe('chợ gia sư: an toàn trẻ em và kiểm duyệt (27i)', () => {
     });
     assert.equal(dismissed.status, 200, JSON.stringify(dismissed.body));
     assert.equal((await call(MARKET_HOST, 'GET', `/public/tutors/${tutor.id}`)).status, 200);
+  });
+
+  it('CT-1526: phần quản trị chợ theo vai trò vận hành: hỗ trợ kiểm duyệt, kế toán xem thanh toán, cấu hình chỉ quản trị (YCTD-323)', async () => {
+    const support = await operatorToken('ho-tro', 'ho_tro');
+    const accountant = await operatorToken('ke-toan', 'ke_toan');
+    const as = (token: string, method: string, path: string, body?: unknown) =>
+      call(CONSOLE_HOST, method, `/admin${path}`, body, token);
+    assert.equal((await as(support, 'GET', '')).status, 200, 'mọi vai trò xem tổng quan chợ');
+    assert.equal((await as(accountant, 'GET', '')).status, 200);
+    assert.equal((await as(support, 'GET', '/safety')).status, 200);
+    assert.equal((await as(accountant, 'GET', '/safety')).status, 403);
+    assert.equal((await as(accountant, 'GET', '/payments')).status, 200);
+    assert.equal((await as(support, 'GET', '/payments')).status, 403);
+    assert.equal((await as(support, 'PUT', '/settings', { enabled: true })).status, 403);
+    assert.equal((await as(accountant, 'PUT', '/settings', { enabled: true })).status, 403);
   });
 
   it('CT-27i-4: quyết định có lý do, kháng nghị do nhân viên khác xét, xuất hồ sơ cho cơ quan có nhật ký', async () => {

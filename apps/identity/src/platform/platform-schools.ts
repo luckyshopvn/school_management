@@ -50,13 +50,12 @@ import {
   ApplicationError,
   Clock,
   currentTenant,
-  readBearerToken,
   ruleViolationError,
   unauthenticatedError,
   validationError,
   type FieldError,
 } from '@school-management/server';
-import { isPlanModuleKey, PAID_PLAN_MODULES, planModuleLabel } from '@school-management/shared';
+import { isPlanModuleKey, PAID_PLAN_MODULES, planModuleLabel, operatorRolesFor } from '@school-management/shared';
 import type { Request } from 'express';
 import type { Kysely } from 'kysely';
 import { checkPasswordPolicy, hashPassword } from '../authentication/password.js';
@@ -96,8 +95,8 @@ export async function mapped<T>(work: () => Promise<T>): Promise<T> {
 }
 
 // Đổi loại dữ liệu, ghi hồ sơ đồng ý, vùng máy chủ của trường đã tạo (YCTD-343): chỉ quản trị và kỹ thuật; hỗ trợ, kế toán bị 403.
-// Cổng nền tảng ẩn các nút này theo cùng danh sách (apps/platform/src/SchoolsPage.tsx)
-export const DATA_GOVERNANCE_ROLES: readonly PlatformOperatorRole[] = ['quan_tri', 'ky_thuat'];
+// Cổng nền tảng ẩn các nút này theo cùng danh sách (apps/platform/src/SchoolsPage.tsx). Lấy từ bảng quyền vận hành dùng chung (YCTD-323)
+export const DATA_GOVERNANCE_ROLES: readonly PlatformOperatorRole[] = operatorRolesFor('schools.data-governance');
 
 function dateText(value: unknown): string | null {
   if (value === null || value === undefined) {
@@ -149,26 +148,14 @@ export class PlatformSchoolsService {
     return this.runtime().platform;
   }
 
-  // Cổng nền tảng và mã phiên vận hành còn hiệu lực; roles (YCTD-311) giới hạn thao tác theo vai trò nhân viên vận hành, trống là
-  // mọi vai trò
+  // Cổng nền tảng và mã phiên vận hành còn hiệu lực; roles giới hạn thao tác theo vai trò nhân viên vận hành, không truyền là chỉ quản
+  // trị (YCTD-323, bảng OPERATOR_PERMISSIONS của packages/shared)
   async actor(
     request: Request,
     roles?: readonly PlatformOperatorRole[],
   ): Promise<Actor & { role: PlatformOperatorRole }> {
-    this.operators.assertConsoleHost(request);
-    const operatorId = await this.tokenService.verifyOperatorToken(readBearerToken(request.header('authorization')));
-    const row = await this.platform
-      .selectFrom('platform_operators')
-      .select(['id', 'full_name', 'status', 'role'])
-      .where('id', '=', operatorId)
-      .executeTakeFirst();
-    if (!row || row.status !== 'active') {
-      throw unauthenticatedError();
-    }
-    if (roles && !roles.includes(row.role)) {
-      throw new ApplicationError('ERR_FORBIDDEN', 'Vai trò vận hành của bạn không được làm thao tác này');
-    }
-    return { type: 'operator', id: row.id, name: row.full_name, role: row.role };
+    const operator = await this.operators.authorize(request, roles);
+    return { type: 'operator', id: operator.id, name: operator.full_name, role: operator.role };
   }
 
   // Trạng thái trường đổi thì bộ phân giải của tiến trình này đọc lại ngay; tiến trình khác đọc lại sau TENANT_CACHE_SECONDS
@@ -505,76 +492,96 @@ export class PlatformSchoolsController {
 
   @Get()
   async list(@Req() request: Request) {
-    await this.schools.actor(request);
+    await this.schools.actor(request, operatorRolesFor('schools.view'));
     return this.schools.list();
   }
 
   @Get('settings')
   async settings(@Req() request: Request) {
-    await this.schools.actor(request);
+    await this.schools.actor(request, operatorRolesFor('schools.view'));
     return this.schools.settings();
   }
 
   @Get(':code')
   async detail(@Param('code') code: string, @Req() request: Request) {
-    await this.schools.actor(request);
+    await this.schools.actor(request, operatorRolesFor('schools.view'));
     return this.schools.detail(code);
   }
 
   @Post()
   @HttpCode(200)
   async provision(@Body() body: Body, @Req() request: Request) {
-    const actor = await this.schools.actor(request);
+    const actor = await this.schools.actor(request, operatorRolesFor('schools.provision'));
     return this.schools.provision((body ?? {}) as unknown as SchoolSetupInput, actor);
   }
 
   @Put(':code/addon-modules')
   async setAddonModules(@Param('code') code: string, @Body() body: Body, @Req() request: Request) {
-    const actor = await this.schools.actor(request, ['quan_tri', 'ke_toan']);
+    const actor = await this.schools.actor(request, operatorRolesFor('schools.addons'));
     return this.schools.setAddonModules(code, body, actor);
   }
 
   @Post('jobs/:id/resume')
   @HttpCode(200)
   async resumeJob(@Param('id') id: string, @Req() request: Request) {
-    await this.schools.actor(request);
+    await this.schools.actor(request, operatorRolesFor('schools.provision'));
     return this.schools.resumeJob(id);
   }
 
   @Post('jobs/:id/rollback')
   @HttpCode(200)
   async rollbackJob(@Param('id') id: string, @Req() request: Request) {
-    return this.schools.rollbackJob(id, await this.schools.actor(request));
+    return this.schools.rollbackJob(id, await this.schools.actor(request, operatorRolesFor('schools.provision')));
   }
 
   @Post(':code/suspend')
   @HttpCode(200)
   async suspend(@Param('code') code: string, @Body() body: Body, @Req() request: Request) {
-    return this.schools.changeStatus(code, 'suspend', body, await this.schools.actor(request));
+    return this.schools.changeStatus(
+      code,
+      'suspend',
+      body,
+      await this.schools.actor(request, operatorRolesFor('schools.lifecycle')),
+    );
   }
 
   @Post(':code/resume')
   @HttpCode(200)
   async resume(@Param('code') code: string, @Body() body: Body, @Req() request: Request) {
-    return this.schools.changeStatus(code, 'resume', body, await this.schools.actor(request));
+    return this.schools.changeStatus(
+      code,
+      'resume',
+      body,
+      await this.schools.actor(request, operatorRolesFor('schools.lifecycle')),
+    );
   }
 
   @Post(':code/request-deletion')
   @HttpCode(200)
   async requestDeletion(@Param('code') code: string, @Body() body: Body, @Req() request: Request) {
-    return this.schools.changeStatus(code, 'request-deletion', body, await this.schools.actor(request));
+    return this.schools.changeStatus(
+      code,
+      'request-deletion',
+      body,
+      await this.schools.actor(request, operatorRolesFor('schools.lifecycle')),
+    );
   }
 
   @Post(':code/cancel-deletion')
   @HttpCode(200)
   async cancelDeletion(@Param('code') code: string, @Body() body: Body, @Req() request: Request) {
-    return this.schools.changeStatus(code, 'cancel-deletion', body, await this.schools.actor(request));
+    return this.schools.changeStatus(
+      code,
+      'cancel-deletion',
+      body,
+      await this.schools.actor(request, operatorRolesFor('schools.lifecycle')),
+    );
   }
 
   @Post(':code/invitation')
   @HttpCode(200)
   async reissue(@Param('code') code: string, @Req() request: Request) {
-    return this.schools.reissue(code, await this.schools.actor(request));
+    return this.schools.reissue(code, await this.schools.actor(request, operatorRolesFor('schools.invitation')));
   }
 
   @Post(':code/consents')
@@ -606,13 +613,17 @@ export class PlatformSchoolsController {
   @HttpCode(200)
   async addDomain(@Param('code') code: string, @Body() body: Body, @Req() request: Request) {
     const host = typeof body?.host === 'string' ? body.host : '';
-    return this.schools.addDomain(code, host, await this.schools.actor(request));
+    return this.schools.addDomain(code, host, await this.schools.actor(request, operatorRolesFor('schools.domains')));
   }
 
   @Post(':code/domains/:host/verify')
   @HttpCode(200)
   async verifyDomain(@Param('code') code: string, @Param('host') host: string, @Req() request: Request) {
-    return this.schools.verifyDomain(code, host, await this.schools.actor(request));
+    return this.schools.verifyDomain(
+      code,
+      host,
+      await this.schools.actor(request, operatorRolesFor('schools.domains')),
+    );
   }
 }
 
