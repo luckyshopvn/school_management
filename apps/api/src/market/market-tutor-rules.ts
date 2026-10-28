@@ -25,6 +25,9 @@ export interface SubjectInput {
   content_kind: ContentKind;
   price_per_session: number;
   session_minutes: number;
+  // Gói buổi (YCTD-365, GD-165): cả hai trống là không bán gói
+  package_sessions: number | null;
+  package_price: number | null;
 }
 
 export interface SlotInput {
@@ -74,6 +77,17 @@ export function parseListing(
     const kind = item.content_kind;
     const price = integer(item.price_per_session, 0, 10_000_000);
     const minutes = integer(item.session_minutes, 30, 180);
+    const wantsPackage =
+      (item.package_sessions !== undefined && item.package_sessions !== null && item.package_sessions !== '') ||
+      (item.package_price !== undefined && item.package_price !== null && item.package_price !== '');
+    const packageSessions = wantsPackage ? integer(item.package_sessions, 2, 50) : null;
+    const packagePrice = wantsPackage ? integer(item.package_price, 1, 100_000_000) : null;
+    if (wantsPackage && (packageSessions === null || packagePrice === null)) {
+      errors.push({
+        field,
+        message: 'Gói buổi từ 2 đến 50 buổi, giá cả gói lớn hơn 0; để trống cả hai nếu không bán gói',
+      });
+    }
     if (subject.length < 1 || subject.length > 60) errors.push({ field, message: 'Tên môn từ 1 đến 60 ký tự' });
     if (!range) errors.push({ field, message: 'Chọn cấp học' });
     if (range && (gradeFrom === null || gradeTo === null || gradeTo < gradeFrom)) {
@@ -112,6 +126,8 @@ export function parseListing(
         content_kind: kind,
         price_per_session: price,
         session_minutes: minutes,
+        package_sessions: packageSessions,
+        package_price: packagePrice,
       });
     }
   });

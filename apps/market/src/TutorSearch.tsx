@@ -29,6 +29,7 @@ interface SubjectRow {
   grade_to: number;
   content_kind: string;
   price_per_session: number;
+  package_sessions?: number | null;
 }
 
 interface TutorCard {
@@ -581,6 +582,9 @@ export function TutorSearch({ onBooked }: { onBooked?: () => void }) {
                     <strong className="text-section-title">Từ {money(tutor.min_price)}</strong>
                     <span className="text-label text-text-secondary">mỗi buổi</span>
                   </span>
+                  {tutor.subjects.some((item) => item.package_sessions) ? (
+                    <span className="text-label font-medium text-brand-strong">Có giá theo gói buổi</span>
+                  ) : null}
                   <Button variant="primary" onClick={() => setOpen(tutor.id)}>
                     Xem gia sư {tutor.display_name}
                   </Button>
