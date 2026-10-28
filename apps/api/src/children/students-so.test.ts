@@ -226,6 +226,32 @@ describe('Học sinh theo hệ thống của Sở (YCTD-108)', () => {
       assert.equal(anh?.two_sessions_per_day, false);
     });
 
+    it('YCTD-319: cột Phụ huynh là người liên hệ chính; Chuyên cần là tỷ lệ ngày có mặt, chưa điểm danh thì trống', async () => {
+      const day = (offset: number) => new Date(Date.UTC(2026, 9, 1 + offset)).toISOString().slice(0, 10);
+      const record = (offset: number, status: 'present' | 'late' | 'absent_notified' | 'absent_unnotified') => ({
+        child_id: children.Anh ?? '',
+        class_id: classes.C1 ?? '',
+        org_unit_id: units.A ?? '',
+        attendance_date: day(offset),
+        status,
+        source: 'teacher' as const,
+        recorded_by: principal.userId,
+        recorded_at: new Date(),
+      });
+      await schoolYear
+        .insertInto('attendance_records')
+        .values([record(0, 'present'), record(1, 'late'), record(2, 'present'), record(3, 'absent_notified')])
+        .execute();
+      const response = await api('GET', `/children?org_unit_id=${units.A}&page_size=50`, principal.accessToken);
+      assert.equal(response.status, 200, JSON.stringify(response.body));
+      const anh = items(response.body).find((item) => item.id === children.Anh);
+      assert.equal(anh?.guardian_name, 'Mẹ của Nguyễn Minh Ánh');
+      // Có mặt, đi muộn tính là có mặt: 3 trên 4 ngày
+      assert.equal(anh?.attendance_rate, 75);
+      const bao = items(response.body).find((item) => item.id === children.Bao);
+      assert.equal(bao?.attendance_rate, null);
+    });
+
     it('CT-15c-2: lọc theo khối, giới tính, dân tộc, diện chính sách, biết bơi, số định danh; cỡ trang 200', async () => {
       const names = async (query: string) => {
         const response = await api(

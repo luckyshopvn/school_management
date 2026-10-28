@@ -485,7 +485,72 @@ describe('Điểm cuối bài tập trực tuyến', () => {
     );
   });
 
-  it('CT-28c-14: bài nhóm: nhóm trưởng nộp, nháp chung của nhóm, đánh giá đóng góp chỉ giáo viên thấy, điều chỉnh điểm cá nhân có lý do', async () => {
+  it('CT-28c-18: giáo viên của lớp trả lời trao đổi trên bài nộp; giáo viên khác lớp, phụ huynh, học sinh 403; lời rỗng, quá dài 422 (YCTD-346)', async () => {
+    const list = await api('GET', `/learning/activities/${activityId}/assignment/submissions`, teacher.accessToken);
+    const row = rows(list.body.rows).find((candidate) => candidate.child_id === children[0]);
+    const submissionId = (row?.latest as Record<string, unknown>).id as string;
+    const path = `/learning/submissions/${submissionId}/comments`;
+
+    const reply = await api('POST', path, teacher.accessToken, {
+      body: '  Cô đã xem, em trình bày kỹ hơn ở câu 2 nhé  ',
+    });
+    assert.equal(reply.status, 201, JSON.stringify(reply.body));
+    assert.equal(reply.body.author_kind, 'teacher');
+    assert.equal(reply.body.body, 'Cô đã xem, em trình bày kỹ hơn ở câu 2 nhé', 'bỏ khoảng trắng hai đầu');
+    assert.ok(typeof reply.body.id === 'string' && String(reply.body.author_name).length > 0);
+
+    const forbidden = await api('POST', path, otherTeacher.accessToken, { body: 'Giáo viên khác lớp chen vào' });
+    assert.equal(forbidden.status, 403, 'giáo viên không dạy lớp học trực tuyến này bị chặn');
+    assert.equal(
+      (await api('POST', path, parent.accessToken, { body: 'Phụ huynh gửi qua tuyến giáo viên' })).status,
+      403,
+    );
+    assert.equal(
+      (await api('POST', path, studentTokens[0] ?? '', { body: 'Học sinh gửi qua tuyến giáo viên' })).status,
+      403,
+    );
+
+    const empty = await api('POST', path, teacher.accessToken, { body: '   ' });
+    assert.equal(empty.status, 422);
+    assert.match(String(errorOf(empty.body).message), /từ 1 đến 2000 ký tự/);
+    assert.equal((await api('POST', path, teacher.accessToken, {})).status, 422, 'thiếu nội dung');
+    assert.equal(
+      (await api('POST', path, teacher.accessToken, { body: 'a'.repeat(2001) })).status,
+      422,
+      'quá 2000 ký tự',
+    );
+    assert.equal(
+      (await api('POST', path, teacher.accessToken, { body: 'a'.repeat(2000) })).status,
+      201,
+      'đúng 2000 ký tự',
+    );
+    assert.equal(
+      (
+        await api('POST', `/learning/submissions/${randomUUID()}/comments`, teacher.accessToken, {
+          body: 'Bài không có',
+        })
+      ).status,
+      404,
+    );
+
+    // Luồng hai chiều: giáo viên thấy lời trả lời trong bài nộp; học sinh thấy ở lần nộp; chỉ lời hợp lệ được ghi
+    const thread = (await api('GET', `/learning/submissions/${submissionId}`, teacher.accessToken)).body
+      .comments as Array<Record<string, unknown>>;
+    const teacherComments = thread.filter((comment) => comment.author_kind === 'teacher');
+    assert.equal(teacherComments.length, 2);
+    assert.equal(thread.at(-2)?.id, reply.body.id, 'lời trả lời nối sau lời của học sinh theo thời gian');
+    const student = await api('GET', `/student/assignments/${activityId}`, studentTokens[0] ?? '');
+    const attempt = (student.body.attempts as Array<Record<string, unknown>>).find(
+      (candidate) => candidate.id === submissionId,
+    );
+    const seen = (attempt?.comments ?? []) as Array<Record<string, unknown>>;
+    assert.ok(
+      seen.some((comment) => comment.id === reply.body.id),
+      'học sinh thấy lời trả lời của giáo viên',
+    );
+  });
+
+  it('CT-28c-14:bài nhóm: nhóm trưởng nộp, nháp chung của nhóm, đánh giá đóng góp chỉ giáo viên thấy, điều chỉnh điểm cá nhân có lý do', async () => {
     const set = await schoolYear
       .insertInto('group_sets')
       .values({

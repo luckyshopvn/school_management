@@ -108,10 +108,17 @@ export async function loadCurrentPlan(
   if (!row) {
     return null;
   }
+  // Tính năng trả phí bật riêng cho trường (YCTD-314) cộng vào danh sách phân hệ của gói; gói không giới hạn phân hệ giữ nguyên
+  const school = await platform
+    .selectFrom('schools')
+    .select('addon_modules')
+    .where('id', '=', schoolId)
+    .executeTakeFirst();
+  const addons = Array.isArray(school?.addon_modules) ? school.addon_modules : [];
   return {
     code: row.code,
     name: row.name,
-    modules: Array.isArray(row.modules) ? row.modules : null,
+    modules: Array.isArray(row.modules) ? [...new Set([...row.modules, ...addons])] : null,
     maxActiveStudents: row.max_active_students,
     maxStorageMb: row.max_storage_mb,
     maxSchoolLevels: row.max_school_levels,

@@ -1,3 +1,4 @@
+import { OpenSchoolButton } from './OpenSchoolButton.js';
 import { useCallback, useEffect, useState, type FormEvent } from 'react';
 import {
   catalogApi,
@@ -295,6 +296,7 @@ function UnitSearch({ token, overview }: { token: string; overview: CatalogOverv
               <th>Cấp</th>
               <th>Cờ</th>
               <th>Trường đã khởi tạo</th>
+              <th>Vào trường</th>
             </tr>
           </thead>
           <tbody>
@@ -309,6 +311,15 @@ function UnitSearch({ token, overview }: { token: string; overview: CatalogOverv
                 <td>{item.levels.join(', ')}</td>
                 <td>{item.quality_flags.map((value) => overview.flag_labels[value] ?? value).join('; ')}</td>
                 <td>{item.school_code ?? ''}</td>
+                <td>
+                  {item.status === 'inactive' ? null : (
+                    <OpenSchoolButton
+                      token={token}
+                      moetCode={item.moet_code}
+                      label={item.school_code ? 'Vào trường' : 'Khởi tạo và vào trường'}
+                    />
+                  )}
+                </td>
               </tr>
             ))}
           </tbody>

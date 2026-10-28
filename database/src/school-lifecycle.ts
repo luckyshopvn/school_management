@@ -373,6 +373,7 @@ export const PROVISION_STEPS = [
   'seed:year',
   'admin',
   'domain',
+  'plan',
   'activate',
 ] as const;
 export type ProvisionStep = (typeof PROVISION_STEPS)[number];
@@ -499,15 +500,19 @@ export async function startProvisioning(
   });
 }
 
-interface ProvisionJobInput {
+// Trường tự khởi tạo từ danh mục (YCTD-314) không có quản trị viên đầu tiên, đồng ý điều khoản: quản trị nền tảng vào trường rồi
+// tạo tài khoản đầu tiên; `plan_code` là gói gán ngay trước khi trường phục vụ
+export interface ProvisionJobInput {
   levels: string[];
   first_year_start: number | null;
   domain: { mode: 'system' | 'custom'; host: string | null };
   status: 'trial' | 'active';
-  admin: { full_name: string; login: string; phone: string | null };
-  terms: { version: string; accepted_by_name: string; accepted_by_title: string | null; recorded_by: string };
+  admin: { full_name: string; login: string; phone: string | null } | null;
+  terms: { version: string; accepted_by_name: string; accepted_by_title: string | null; recorded_by: string } | null;
   school_name: string;
   address: string | null;
+  source?: 'setup' | 'catalog';
+  plan_code?: string | null;
 }
 
 export interface ProvisionResult {
@@ -663,7 +668,7 @@ export async function runProvisioningJob(environment: LifecycleEnvironment, jobI
           .select('id')
           .where('source', '=', 'platform-setup')
           .executeTakeFirst();
-        if (!accepted) {
+        if (!accepted && input.terms) {
           await database
             .insertInto('terms_acceptances')
             .values({
@@ -737,6 +742,10 @@ export async function runProvisioningJob(environment: LifecycleEnvironment, jobI
     },
     // Quản trị viên đầu tiên (Hiệu trưởng, toàn trường) chưa có mật khẩu dùng được; lời mời kích hoạt một lần
     admin: async () => {
+      const admin = input.admin;
+      if (!admin) {
+        return;
+      }
       const descriptor = await descriptorFor('identity', 'identity');
       if (!descriptor) {
         throw new Error('Chưa có cơ sở dữ liệu định danh');
@@ -745,7 +754,7 @@ export async function runProvisioningJob(environment: LifecycleEnvironment, jobI
         const existing = await database
           .selectFrom('users')
           .select('id')
-          .where('username', '=', input.admin.login)
+          .where('username', '=', admin.login)
           .executeTakeFirst();
         if (existing) {
           return existing.id;
@@ -758,9 +767,9 @@ export async function runProvisioningJob(environment: LifecycleEnvironment, jobI
         const user = await database
           .insertInto('users')
           .values({
-            full_name: input.admin.full_name,
-            username: input.admin.login,
-            phone: input.admin.phone,
+            full_name: admin.full_name,
+            username: admin.login,
+            phone: admin.phone,
             password_hash: UNUSABLE_PASSWORD_HASH,
           })
           .returning('id')
@@ -784,8 +793,8 @@ export async function runProvisioningJob(environment: LifecycleEnvironment, jobI
           .values({
             school_id: schoolId,
             user_id: userId,
-            login: input.admin.login,
-            full_name: input.admin.full_name,
+            login: admin.login,
+            full_name: admin.full_name,
             token_hash: hashActivationToken(activationToken),
             expires_at: new Date(nowOf(environment).getTime() + ADMIN_INVITATION_HOURS * 3_600_000),
           })
@@ -813,6 +822,36 @@ export async function runProvisioningJob(environment: LifecycleEnvironment, jobI
           .execute();
       } else {
         await requestCustomDomain(environment, schoolId, host);
+      }
+    },
+    // Gói gán sẵn của trường tự khởi tạo (YCTD-314): chưa có bản gán thì gán từ hôm nay, không hạn
+    plan: async () => {
+      if (!input.plan_code) {
+        return;
+      }
+      const plan = await platform
+        .selectFrom('plans')
+        .select('id')
+        .where('code', '=', input.plan_code)
+        .executeTakeFirst();
+      if (!plan) {
+        throw new Error(`Chưa có gói dịch vụ ${input.plan_code}`);
+      }
+      const assigned = await platform
+        .selectFrom('school_plans')
+        .select('id')
+        .where('school_id', '=', schoolId)
+        .executeTakeFirst();
+      if (!assigned) {
+        await platform
+          .insertInto('school_plans')
+          .values({
+            school_id: schoolId,
+            plan_id: plan.id,
+            effective_from: vietnamDate(nowOf(environment)),
+            note: 'Gán khi tự khởi tạo từ danh mục',
+          })
+          .execute();
       }
     },
     activate: async () => {
@@ -851,7 +890,7 @@ export async function runProvisioningJob(environment: LifecycleEnvironment, jobI
     await recordEvent(platform, schoolId, 'provisioned', 'provisioning', input.status, {
       type: job.actor_type,
       id: job.actor_id,
-      name: input.terms.recorded_by,
+      name: input.terms?.recorded_by ?? 'Khởi tạo tự động',
     });
     return { jobId, status: 'done', error: null, activationToken };
   } catch (error) {

@@ -16,7 +16,12 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { PERMISSION_CODES } from '@school-management/shared';
 import type { Response } from 'express';
 import { sendStoredFile, type UploadedPart } from '../../activities/content-files.js';
-import { AuthenticatedUser, RequirePermission, StudentEndpoint } from '../../authentication/authentication.guard.js';
+import {
+  AuthenticatedUser,
+  RequirePermission,
+  StudentEndpoint,
+  RequirePlanModule,
+} from '../../authentication/authentication.guard.js';
 import type { CurrentUser } from '../../authentication/current-user.js';
 import type { RequestBody } from '../../common/request-fields.js';
 import { uuidParameter } from '../../common/uuid-parameter.js';
@@ -29,6 +34,7 @@ const SPACE_ID = uuidParameter('Mã lớp học trực tuyến không hợp lệ
 const THREAD_ID = uuidParameter('Mã chủ đề không hợp lệ');
 const GROUP_ID = uuidParameter('Mã nhóm không hợp lệ');
 
+@RequirePlanModule('online-learning')
 @Controller('student')
 @StudentEndpoint()
 @RequirePermission(PERMISSION_CODES.learningStudy)
