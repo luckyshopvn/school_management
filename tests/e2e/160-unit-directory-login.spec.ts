@@ -225,7 +225,11 @@ test('CT-24-10: Admin vào trường chưa cho phép bằng một lần bấm, k
   const freshHandoff = new URL((await fresh.getAttribute('href')) ?? '');
   expect(freshHandoff.hostname).toBe(`dv-98000202.${E2E_ROOT_DOMAIN}`);
   await consoleContext.close();
-  const freshContext = await browser.newContext({ baseURL: freshHandoff.origin });
+  // Cổng vận hành trong e2e không đặt VITE_SCHOOL_PORTAL_PORT nên liên kết là https; như các trường khác, lấy đường dẫn rồi mở ở
+  // cổng quản trị của môi trường e2e (http, cổng riêng)
+  const freshContext = await browser.newContext({
+    baseURL: `http://${freshHandoff.hostname}:${E2E_MULTI_PORTAL_PORT}`,
+  });
   const freshPage = await freshContext.newPage();
   await freshPage.goto(`${freshHandoff.pathname}${freshHandoff.search}`);
   await expect(freshPage.getByRole('heading', { name: /^Xin chào,/ })).toBeVisible();
