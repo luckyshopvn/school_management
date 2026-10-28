@@ -20,7 +20,7 @@ export const REPORT_SEVERITY_LABELS: Record<string, string> = {
   low: 'Thấp',
   medium: 'Trung bình',
   high: 'Cao',
-  critical: 'Nghiêm trọng (tạm khóa gia sư ngay)',
+  critical: 'Nghiêm trọng (xử lý trong 4 giờ)',
 };
 
 export const REPORT_DECISION_LABELS: Record<string, string> = {
