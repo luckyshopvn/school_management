@@ -205,9 +205,9 @@ test('CT-15a-10: màn hình hẹp dùng nút menu mở cây menu gập', async (
   await page.setViewportSize({ width: 375, height: 800 });
   const user = await createTestUser(database, { roles: [{ roleCode: 'VT-02', orgUnitId: null }] });
   await fillLogin(page, user.username, user.password);
+  // Ô chọn phân hệ nằm trong ngăn kéo: trợ giúp mở ngăn kéo rồi chọn phân hệ
   await selectWorkspace(page, EDUCATION);
   const toggle = page.getByRole('button', { name: 'Menu chức năng' });
-  await toggle.click();
   await expect(toggle).toHaveAttribute('aria-expanded', 'true');
   const tree = page.getByRole('navigation', { name: 'Menu chức năng' });
   const students = tree.getByRole('button', { name: '4. Học sinh' });

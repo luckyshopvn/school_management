@@ -40,6 +40,11 @@ function workspaceName(workspace: PortalWorkspace): string | RegExp {
 // Chọn phân hệ ở ô Phân hệ trên thanh đầu trang nếu đang chọn phân hệ khác; trả tên phân hệ đang hiện
 export async function selectWorkspace(page: Page, label: string | RegExp): Promise<string> {
   const switcher = page.getByRole('button', { name: /^Phân hệ: / });
+  // Dưới 1280 px ô chọn phân hệ nằm trong ngăn kéo thanh bên (YCTD-330): mở ngăn kéo trước
+  const toggle = page.getByRole('button', { name: 'Menu chức năng' });
+  if (!(await switcher.isVisible()) && (await toggle.isVisible())) {
+    await toggle.click();
+  }
   await expect(switcher).toBeVisible();
   const shownName = async () => ((await switcher.getAttribute('aria-label')) ?? '').replace(/^Phân hệ: /, '');
   const matches = (name: string) => (typeof label === 'string' ? name === label : label.test(name));
