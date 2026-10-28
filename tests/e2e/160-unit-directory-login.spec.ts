@@ -147,9 +147,11 @@ test('CT-24-9: đăng nhập theo đơn vị ở tên miền chung sang đúng t
   expect(page.url()).not.toContain('code=');
   // Ghi nhớ (YCTD-310): phiên ở trường kéo dài, cookie mã làm mới bền (khoảng 30 ngày); mở lại tên miền chung thì đơn vị và tên đăng
   // nhập đã chọn còn, mật khẩu không
-  const refreshCookie = (await rootContext.cookies(page.url())).find((cookie) =>
-    cookie.name.startsWith('__Secure-refresh_token'),
+  // Cookie mã làm mới nằm ở đường dẫn /api/v1/auth của tên miền trường: lọc theo tên miền, không theo địa chỉ trang
+  const refreshCookie = (await rootContext.cookies()).find(
+    (cookie) => cookie.name.startsWith('__Secure-refresh_token') && cookie.domain.includes(schoolHost('alpha')),
   );
+  expect(refreshCookie, 'cookie mã làm mới của trường alpha').toBeTruthy();
   expect(refreshCookie?.expires ?? -1).toBeGreaterThan(Date.now() / 1000 + 29 * 24 * 3600);
   await page.goto(`http://${E2E_ROOT_DOMAIN}:${E2E_MULTI_PORTAL_PORT}/`);
   await expect(page.getByRole('combobox', { name: 'Sở Giáo dục và Đào tạo' })).toHaveValue(
