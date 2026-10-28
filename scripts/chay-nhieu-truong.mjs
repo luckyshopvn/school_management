@@ -62,6 +62,9 @@ const environment = {
   ...merged,
   // Cổng vận hành tạo đường liên kết vào trường bằng http ở cổng của cổng quản trị
   VITE_SCHOOL_PORTAL_PORT: String(port('cong-quan-tri')),
+  // Ứng dụng giáo viên, phụ huynh của trường khi quản trị nền tảng mở từ cổng vận hành (YCTD-315)
+  VITE_SCHOOL_TEACHER_PORT: String(port('giao-vien')),
+  VITE_SCHOOL_PARENT_PORT: String(port('phu-huynh')),
   // Liên kết qua lại giữa ứng dụng phụ huynh và học sinh (cùng tên miền của trường, khác cổng khi phát triển)
   STUDENT_APP_URL: `http://${schoolHost}:${port('hoc-sinh')}/`,
   PARENT_APP_URL: `http://${schoolHost}:${port('phu-huynh')}/`,

@@ -1874,6 +1874,17 @@ Eric yêu cầu ngày 2026-10-28: "mặc định cấp quyền admin cho tất c
 4. **Tài khoản quản trị trường (GD-163).** Tài khoản có vai trò quản trị trường (VT-01, VT-02) luôn đủ số CCCD (làm tên đăng nhập), họ tên, số điện thoại: dịch vụ định danh từ chối tạo tài khoản và gán vai trò này khi thiếu (400, chỉ rõ ô thiếu); áp cho tài khoản quản trị đầu tiên của trường tự khởi tạo. Không đặt ràng buộc NOT NULL ở cơ sở dữ liệu vì điều kiện theo vai trò. Bước setup của S2 (quản trị viên đầu tiên theo tên đăng nhập, lời mời kích hoạt) và tài khoản hỗ trợ `ho-tro-nen-tang` chưa đổi.
 5. **Kiểm thử:** `database` CT-1531 đến CT-1533 (`src/catalog-provisioning.test.ts`); `apps/identity` CT-1534 đến CT-1536 (`src/platform/catalog-open.test.ts`), CT-24-6, CT-24-7 sửa theo luồng mới; `apps/api` CT-1537 (`src/school-plan/school-plan.test.ts`); e2e 160 (CT-24-9 khởi tạo đơn vị ở trang đăng nhập, CT-24-10 Admin vào thẳng, khởi tạo và vào đơn vị mới), 136 (nhân viên vai trò hỗ trợ).
 
+### 16.12 Admin đủ quyền ở mọi ứng dụng của trường (YCTD-315)
+
+Eric yêu cầu ngày 2026-10-29: "cấp quyền cho user admin vào tất cả hệ thống, đảm bảo đầy đủ phân quyền" (thuộc GD-159).
+
+1. **Đủ quyền.** Phiên Admin vào thẳng (nhân viên vận hành vai trò `quan_tri` hiện hành, chính sách `any_school`, toàn quyền) nhận ở `/auth/me` thêm vai trò tổng hợp "Quản trị nền tảng (toàn quyền)": mọi mã quyền có ở bảng `permissions` của trường, toàn trường (mã vai trò Hiệu trưởng để lớp phạm vi dữ liệu là toàn trường), mọi phân hệ của cổng quản trị. Vai trò này không lưu ở cơ sở dữ liệu; kiểm lại ở mỗi yêu cầu (phiên kết thúc, nhân viên đổi vai trò hoặc bị khóa thì mất). Phân hệ ngoài gói của trường vẫn bị chặn theo gói (tính năng trả phí trường đã bật thì dùng được). Phiên theo cho phép của trường, phiên kỹ thuật, hỗ trợ giữ quyền của tài khoản hỗ trợ như cũ.
+2. **Mọi ứng dụng của nhân viên.** Đổi đường liên kết hỗ trợ nhận `channel` `portal`, `teacher`, `parent`; ứng dụng giáo viên, phụ huynh có trang `/support-login`. Cổng vận hành có nhóm nút "Ứng dụng của trường" (Ứng dụng giáo viên, Ứng dụng phụ huynh) cạnh "Vào trường"; mỗi lần bấm là một phiên vào thẳng riêng, ghi nhật ký hai phía kèm kênh. Máy phát triển: `VITE_SCHOOL_TEACHER_PORT`, `VITE_SCHOOL_PARENT_PORT` do `scripts/chay-nhieu-truong.mjs` đặt; bản chạy thật dùng đường dẫn `/giao-vien`, `/phu-huynh` của tên miền trường (đổi bằng `VITE_SCHOOL_TEACHER_PATH`, `VITE_SCHOOL_PARENT_PATH`).
+3. **Không đăng nhập thành phụ huynh, học sinh cụ thể.** Kênh học sinh không nhận phiên hỗ trợ (400). Ở ứng dụng phụ huynh, tài khoản hỗ trợ không có con nên chưa có nội dung; chế độ xem của nhân viên hỗ trợ (chọn lớp rồi học sinh, chỉ đọc) làm ở phần sau.
+4. **Chợ gia sư, ứng dụng Gia sư.** Kiểm duyệt, thanh toán, xác minh của chợ chạy ở cổng vận hành bằng mã phiên vận hành nên Admin đã có; ứng dụng Gia sư là ứng dụng của gia sư, không có vai trò kiểm duyệt. Giới hạn theo vai trò vận hành làm ở YCTD-323.
+5. **Nhật ký.** Mọi thao tác là của tài khoản hỗ trợ `ho-tro-nen-tang` của trường, ghi vào nhật ký phiên hỗ trợ (`support_session_actions`) với tên nhân viên vận hành; không ghi như người dùng của trường.
+6. **Kiểm thử:** `apps/identity` CT-1551 (quét mọi mã quyền của gói dùng chung và bảng `permissions` ở ba kênh, kênh học sinh bị từ chối, nhật ký kèm kênh), CT-1552 (phiên theo cho phép của trường không có quyền đầy đủ).
+
 ## 17. DT-25: bộ nối nhà cung cấp định danh bên ngoài theo chuẩn OIDC (sẵn cho VNeID)
 
 ### 17.1 Căn cứ và mục tiêu
