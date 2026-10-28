@@ -4,7 +4,7 @@ import { Alert } from './Alert.js';
 // Vào ứng dụng của trường bằng đường liên kết hỗ trợ một lần (YCTD-315): quản trị nền tảng bấm "Ứng dụng của trường" ở cổng vận
 // hành, nhận /support-login?code=… của từng ứng dụng; trang đổi mã lấy phiên của kênh này (cookie mã làm mới của kênh) rồi mở trang
 // đầu của ứng dụng. Mọi thao tác vẫn là của tài khoản hỗ trợ của trường và ghi vào nhật ký phiên hỗ trợ
-export type SupportChannel = 'teacher' | 'parent';
+export type SupportChannel = 'teacher' | 'parent' | 'student';
 
 export function isSupportSignInLocation(basePath: string): boolean {
   return window.location.pathname === `${basePath.replace(/\/$/, '')}/support-login`;

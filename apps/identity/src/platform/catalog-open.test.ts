@@ -338,7 +338,7 @@ describe('mở mọi trường trong danh mục và quản trị nền tảng v�
 
   // YCTD-315: phiên Admin vào thẳng mang mọi mã quyền của trường ở mọi kênh của nhân viên; quét toàn bộ mã quyền đã khai (gói dùng
   // chung) và mọi mã trong bảng permissions của trường, nên quyền thêm sau này tự được kiểm
-  it('CT-315-1: Admin vào thẳng có đủ mọi mã quyền của trường ở cổng quản trị, ứng dụng giáo viên, phụ huynh; kênh học sinh bị từ chối', async () => {
+  it('CT-315-1: Admin vào thẳng có đủ mọi mã quyền của trường ở cổng quản trị, ứng dụng giáo viên, phụ huynh, học sinh; phụ huynh, học sinh chỉ đọc', async () => {
     const host = `dv-98000202.${ROOT}`;
     const tenant = await runtime.registry.resolveHost(host);
     assert.ok(tenant);
@@ -349,7 +349,7 @@ describe('mở mọi trường trong danh mục và quản trị nền tảng v�
     for (const code of registered) {
       assert.ok(stored.includes(code), `mã quyền ${code} có trong bảng permissions của trường`);
     }
-    for (const channel of ['portal', 'teacher', 'parent'] as const) {
+    for (const channel of ['portal', 'teacher', 'parent', 'student'] as const) {
       const opened = await operator('admin', 'POST', 'schools/dv-98000202/support-sessions', {});
       assert.equal(opened.status, 200, JSON.stringify(opened.body));
       const code = new URL((opened.body.handoff as { path: string }).path, 'http://x').searchParams.get('code');
@@ -362,24 +362,19 @@ describe('mở mọi trường trong danh mục và quản trị nền tảng v�
       );
       const missing = [...new Set([...stored, ...registered])].filter((permission) => !granted.has(permission));
       assert.deepEqual(missing, [], `${channel}: thiếu quyền`);
-      assert.equal((me.body.support as { full_access: boolean }).full_access, true);
+      const support = me.body.support as { full_access: boolean; scope: string };
+      assert.equal(support.full_access, true);
+      // YCTD-315b: ứng dụng phụ huynh, học sinh là chế độ xem của nhân viên hỗ trợ, luôn chỉ đọc
+      assert.equal(support.scope, channel === 'parent' || channel === 'student' ? 'read' : 'full');
       assert.equal((me.body.workspaces as string[]).length > 10, true);
     }
-    const student = await operator('admin', 'POST', 'schools/dv-98000202/support-sessions', {});
-    const studentCode = new URL((student.body.handoff as { path: string }).path, 'http://x').searchParams.get('code');
-    const refused = await send(context, {
-      path: '/auth/support/exchange',
-      host,
-      body: { code: studentCode, channel: 'student' },
-    });
-    assert.equal(refused.status, 400);
     // Mỗi lần vào đều ghi nhật ký ở trường với kênh của ứng dụng, thao tác là của tài khoản hỗ trợ
     const starts = await identity
       .selectFrom('identity_audit_logs')
       .select('after_data')
       .where('action', '=', 'support_start')
       .execute();
-    for (const channel of ['portal', 'teacher', 'parent']) {
+    for (const channel of ['portal', 'teacher', 'parent', 'student']) {
       assert.ok(
         starts.some((row) => JSON.stringify(row.after_data).includes(`"channel":"${channel}"`)),
         channel,

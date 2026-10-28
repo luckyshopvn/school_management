@@ -65,6 +65,7 @@ const environment = {
   // Ứng dụng giáo viên, phụ huynh của trường khi quản trị nền tảng mở từ cổng vận hành (YCTD-315)
   VITE_SCHOOL_TEACHER_PORT: String(port('giao-vien')),
   VITE_SCHOOL_PARENT_PORT: String(port('phu-huynh')),
+  VITE_SCHOOL_STUDENT_PORT: String(port('hoc-sinh')),
   // Liên kết qua lại giữa ứng dụng phụ huynh và học sinh (cùng tên miền của trường, khác cổng khi phát triển)
   STUDENT_APP_URL: `http://${schoolHost}:${port('hoc-sinh')}/`,
   PARENT_APP_URL: `http://${schoolHost}:${port('phu-huynh')}/`,

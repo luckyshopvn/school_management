@@ -31,7 +31,7 @@ import {
 import { assertPasswordNotReused, recordPasswordHistory } from './password-history.js';
 import { ImpersonationService, type ImpersonationDescription } from './impersonation.service.js';
 import { createRefreshToken, hashRefreshToken, readSessionIdFromRefreshToken, TokenService } from './token.service.js';
-import { SupportSessionsService } from '../platform/support-sessions.js';
+import { SupportSessionsService, supportScopeForChannel } from '../platform/support-sessions.js';
 import { accountKindsOf, kindForChannel, maskLoginIdentifier } from '../accounts/national-id.js';
 
 // Sai mật khẩu 5 lần liên tiếp thì tạm khóa 15 phút rồi tự mở (BM-04, XT-05)
@@ -636,7 +636,7 @@ export class AuthenticationService {
       support: supportSession
         ? {
             id: supportSession.id,
-            scope: supportSession.scope,
+            scope: supportScopeForChannel(supportSession.scope, claims.channel),
             operator_name: supportSession.operatorName,
             expires_at: supportSession.expiresAt,
             full_access: fullAccess,

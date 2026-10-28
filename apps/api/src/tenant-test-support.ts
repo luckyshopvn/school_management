@@ -33,7 +33,15 @@ export interface Reply {
 
 export function sendWithHost(
   origin: string,
-  options: { method?: string; path: string; host?: string; token?: string; body?: unknown; cookie?: string },
+  options: {
+    method?: string;
+    path: string;
+    host?: string;
+    token?: string;
+    body?: unknown;
+    cookie?: string;
+    headers?: Record<string, string>;
+  },
 ): Promise<Reply> {
   const url = new URL(`${origin}${options.path}`);
   const payload = options.body === undefined ? undefined : JSON.stringify(options.body);
@@ -49,6 +57,7 @@ export function sendWithHost(
           ...(payload ? { 'content-type': 'application/json' } : {}),
           ...(options.token ? { authorization: `Bearer ${options.token}` } : {}),
           ...(options.cookie ? { cookie: options.cookie } : {}),
+          ...(options.headers ?? {}),
         },
       },
       (response) => {
