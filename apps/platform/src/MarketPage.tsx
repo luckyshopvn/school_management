@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState, type FormEvent } from 'react';
+import { operatorCan, type OperatorRole } from '@school-management/shared';
 import { MarketPayments } from './MarketPayments.js';
 import { MarketSafety } from './MarketSafety.js';
 import { MarketReviews } from './MarketReviews.js';
@@ -56,7 +57,10 @@ const STATUS_LABELS: Record<string, string> = {
   closed: 'đã đóng',
 };
 
-export function MarketPage({ accessToken }: { accessToken: string }) {
+// Phần nào hiện theo vai trò nhân viên vận hành (YCTD-323): cấu hình và văn bản chỉ quản trị, duyệt hồ sơ và kiểm duyệt cho hỗ trợ,
+// thanh toán cho kế toán (bảng OPERATOR_PERMISSIONS)
+export function MarketPage({ accessToken, role }: { accessToken: string; role: OperatorRole }) {
+  const canSettings = operatorCan(role, 'market.settings');
   const [overview, setOverview] = useState<Overview | null>(null);
   const [form, setForm] = useState({
     enabled: false,
@@ -152,7 +156,7 @@ export function MarketPage({ accessToken }: { accessToken: string }) {
         đến E-07 (tài liệu 32 mục 19.10).
       </p>
 
-      {overview ? (
+      {overview && canSettings ? (
         <form aria-label="Cấu hình chợ gia sư" onSubmit={saveSettings}>
           <h3>Cấu hình</h3>
           <label>
@@ -204,36 +208,41 @@ export function MarketPage({ accessToken }: { accessToken: string }) {
           </label>
           <button type="submit">Lưu cấu hình chợ</button>
         </form>
-      ) : (
+      ) : overview ? null : (
         <p>Đang tải cấu hình chợ…</p>
       )}
 
-      <form aria-label="Đăng văn bản pháp lý của chợ" onSubmit={publish}>
-        <h3>Văn bản pháp lý</h3>
-        <label>
-          Loại văn bản
-          <select value={document.kind} onChange={(event) => setDocument({ ...document, kind: event.target.value })}>
-            {Object.entries(kinds).map(([kind, label]) => (
-              <option key={kind} value={kind}>
-                {label}
-              </option>
-            ))}
-          </select>
-        </label>
-        <label>
-          Tiêu đề
-          <input value={document.title} onChange={(event) => setDocument({ ...document, title: event.target.value })} />
-        </label>
-        <label>
-          Nội dung
-          <textarea
-            rows={6}
-            value={document.body}
-            onChange={(event) => setDocument({ ...document, body: event.target.value })}
-          />
-        </label>
-        <button type="submit">Đăng phiên bản mới</button>
-      </form>
+      {canSettings ? (
+        <form aria-label="Đăng văn bản pháp lý của chợ" onSubmit={publish}>
+          <h3>Văn bản pháp lý</h3>
+          <label>
+            Loại văn bản
+            <select value={document.kind} onChange={(event) => setDocument({ ...document, kind: event.target.value })}>
+              {Object.entries(kinds).map(([kind, label]) => (
+                <option key={kind} value={kind}>
+                  {label}
+                </option>
+              ))}
+            </select>
+          </label>
+          <label>
+            Tiêu đề
+            <input
+              value={document.title}
+              onChange={(event) => setDocument({ ...document, title: event.target.value })}
+            />
+          </label>
+          <label>
+            Nội dung
+            <textarea
+              rows={6}
+              value={document.body}
+              onChange={(event) => setDocument({ ...document, body: event.target.value })}
+            />
+          </label>
+          <button type="submit">Đăng phiên bản mới</button>
+        </form>
+      ) : null}
       <table aria-label="Văn bản pháp lý đã đăng">
         <thead>
           <tr>
@@ -264,9 +273,9 @@ export function MarketPage({ accessToken }: { accessToken: string }) {
         ))}
         <li>Hồ sơ con: {overview?.children ?? 0}</li>
       </ul>
-      <MarketReviews token={accessToken} />
-      <MarketPayments token={accessToken} />
-      <MarketSafety token={accessToken} />
+      {operatorCan(role, 'market.review') ? <MarketReviews token={accessToken} /> : null}
+      {operatorCan(role, 'market.payments') ? <MarketPayments token={accessToken} /> : null}
+      {operatorCan(role, 'market.safety') ? <MarketSafety token={accessToken} /> : null}
     </section>
   );
 }

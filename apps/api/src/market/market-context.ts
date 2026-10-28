@@ -6,6 +6,7 @@ import {
   type MarketplaceDatabase,
   type MarketSettings,
   type PlatformDatabase,
+  type PlatformOperatorRole,
   type TenancyRuntime,
 } from '@school-management/database';
 import {
@@ -128,8 +129,9 @@ export class MarketContext implements OnModuleDestroy {
     throw marketNotFound();
   }
 
-  // Phần quản trị: tên miền của cổng nền tảng và mã phiên vận hành; trả mã người vận hành
-  async operator(request: Request): Promise<string> {
+  // Phần quản trị: tên miền của cổng nền tảng và mã phiên vận hành; trả mã người vận hành. roles là vai trò được làm việc này theo
+  // OPERATOR_PERMISSIONS, không truyền là chỉ quản trị; còn mật khẩu tạm thì phải đổi trước (YCTD-323)
+  async operator(request: Request, roles: readonly PlatformOperatorRole[] = ['quan_tri']): Promise<string> {
     const consoleHost = normalizeHost(this.configuration.platformConsoleHost ?? undefined);
     if (!this.available || !consoleHost || this.hostOf(request) !== consoleHost) {
       throw marketNotFound();
@@ -137,11 +139,17 @@ export class MarketContext implements OnModuleDestroy {
     const operatorId = await this.operators.verify(readBearerToken(request.header('authorization')), this.clock.now());
     const row = await this.platform
       .selectFrom('platform_operators')
-      .select('status')
+      .select(['status', 'role', 'must_change_password'])
       .where('id', '=', operatorId)
       .executeTakeFirst();
     if (row?.status !== 'active') {
       throw unauthenticatedError();
+    }
+    if (row.must_change_password) {
+      throw new ApplicationError('ERR_FORBIDDEN', 'Bạn cần đổi mật khẩu tạm trước khi tiếp tục');
+    }
+    if (!roles.includes(row.role)) {
+      throw new ApplicationError('ERR_FORBIDDEN', 'Vai trò vận hành của bạn không được làm thao tác này');
     }
     return operatorId;
   }

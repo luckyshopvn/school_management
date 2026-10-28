@@ -17,6 +17,7 @@ import {
   type VerificationKind,
   type VerificationRow,
 } from './market-tutor-rules.js';
+import { operatorRolesFor } from '@school-management/shared';
 
 // Hàng chờ duyệt gia sư của nhân viên nền tảng (DT-27 phần 27g, YCTD-257; tài liệu 32 mục 19.5 "hàng chờ duyệt của nhân viên nền tảng có
 // nhật ký; tệp giấy tờ lưu mã hóa, chỉ nhân viên duyệt xem"). Ở cổng nền tảng, mã phiên vận hành. Mỗi lần xem tệp, mỗi quyết định ghi nhật
@@ -46,7 +47,7 @@ export class MarketReviewService {
   ) {}
 
   async queue(request: Request) {
-    await this.market.operator(request);
+    await this.market.operator(request, operatorRolesFor('market.review'));
     const database = this.market.database;
     const [profiles, verifications] = await Promise.all([
       database
@@ -86,7 +87,7 @@ export class MarketReviewService {
   }
 
   async tutor(request: Request, id: string) {
-    await this.market.operator(request);
+    await this.market.operator(request, operatorRolesFor('market.review'));
     const accountId = await this.tutorId(id);
     const database = this.market.database;
     const [account, profile, listing, verifications, documents, schoolRole, provider] = await Promise.all([
@@ -134,7 +135,7 @@ export class MarketReviewService {
   }
 
   async document(request: Request, id: string, response: Response) {
-    const operatorId = await this.market.operator(request);
+    const operatorId = await this.market.operator(request, operatorRolesFor('market.review'));
     const key = this.configuration.marketFilesKey;
     const row = UUID.test(id)
       ? await this.market.database
@@ -156,7 +157,7 @@ export class MarketReviewService {
   }
 
   async decideVerification(request: Request, id: string, kindInput: string, body: RequestBody) {
-    const operatorId = await this.market.operator(request);
+    const operatorId = await this.market.operator(request, operatorRolesFor('market.review'));
     const accountId = await this.tutorId(id);
     const kind = kindInput as VerificationKind;
     if (!REVIEWED_KINDS.has(kind)) throw marketNotFound();
@@ -190,7 +191,7 @@ export class MarketReviewService {
   }
 
   async decideProfile(request: Request, id: string, body: RequestBody) {
-    const operatorId = await this.market.operator(request);
+    const operatorId = await this.market.operator(request, operatorRolesFor('market.review'));
     const accountId = await this.tutorId(id);
     const { approve, note } = decisionOf(body);
     const database = this.market.database;

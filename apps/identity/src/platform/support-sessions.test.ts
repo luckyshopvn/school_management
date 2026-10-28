@@ -70,6 +70,7 @@ describe('bảng điều khiển nền tảng và phiên hỗ trợ', () => {
   let runtime: TenancyRuntime;
   let context: TenantTestContext;
   let token = '';
+  let technicianToken = '';
   let alphaSystem: Kysely<SystemDatabase>;
   let alphaIdentity: Kysely<IdentityDatabase>;
   const login = `ho-tro-${Math.random().toString(36).slice(2, 8)}`;
@@ -96,6 +97,32 @@ describe('bảng điều khiển nền tảng và phiên hỗ trợ', () => {
       },
     });
     token = (reply.body as { access_token: string }).access_token;
+    // Thông báo bảo trì do kỹ thuật hoặc quản trị làm (YCTD-323, bảng quyền vận hành)
+    const technicianLogin = `ky-thuat-${Math.random().toString(36).slice(2, 8)}`;
+    const technicianAccount = await createPlatformOperatorWithTotp(platform.platform, platform.masterKey, {
+      login: technicianLogin,
+      fullName: 'Nhân viên kỹ thuật giả',
+      password: OPERATOR_TEST_PASSWORD,
+      role: 'ky_thuat',
+    });
+    technicianToken = (
+      (
+        await send(context, {
+          path: '/auth/platform/login',
+          host: CONSOLE_HOST,
+          body: {
+            login: technicianLogin,
+            password: OPERATOR_TEST_PASSWORD,
+            otp_code: await operatorOtp(
+              platform.platform,
+              technicianAccount.id,
+              technicianAccount.secret,
+              context.clock.now(),
+            ),
+          },
+        })
+      ).body as { access_token: string }
+    ).access_token;
     const tenant = await runtime.registry.resolveHost(platform.school('alpha').host);
     assert.ok(tenant);
     alphaSystem = runtime.connections.database<SystemDatabase>(tenant, 'system', 'system');
@@ -113,6 +140,14 @@ describe('bảng điều khiển nền tảng và phiên hỗ trợ', () => {
       path: `/auth/platform/${path}`,
       host: CONSOLE_HOST,
       token,
+      ...(body !== undefined ? { body } : {}),
+    });
+  const technician = (method: string, path: string, body?: unknown) =>
+    send(context, {
+      method,
+      path: `/auth/platform/${path}`,
+      host: CONSOLE_HOST,
+      token: technicianToken,
       ...(body !== undefined ? { body } : {}),
     });
 
@@ -373,14 +408,15 @@ describe('bảng điều khiển nền tảng và phiên hỗ trợ', () => {
     assert.equal(errors.status, 200);
     assert.equal((errors.body as { items: unknown[] }).items.length, 1);
 
-    const invalid = await operator('POST', 'maintenance-notices', {
+    assert.equal((await operator('POST', 'maintenance-notices', {})).status, 403, 'hỗ trợ không tạo thông báo bảo trì');
+    const invalid = await technician('POST', 'maintenance-notices', {
       title: '',
       body: 'x',
       starts_at: 'sai',
       ends_at: 'sai',
     });
     assert.equal(invalid.status, 400);
-    const unknownSchool = await operator('POST', 'maintenance-notices', {
+    const unknownSchool = await technician('POST', 'maintenance-notices', {
       title: 'Bảo trì',
       body: 'Nâng cấp máy chủ',
       starts_at: new Date(Date.now() + 3_600_000).toISOString(),
@@ -389,7 +425,7 @@ describe('bảng điều khiển nền tảng và phiên hỗ trợ', () => {
       school_codes: ['khong-co'],
     });
     assert.equal(unknownSchool.status, 400);
-    const created = await operator('POST', 'maintenance-notices', {
+    const created = await technician('POST', 'maintenance-notices', {
       title: 'Bảo trì',
       body: 'Nâng cấp máy chủ',
       severity: 'warning',
@@ -404,7 +440,7 @@ describe('bảng điều khiển nền tảng và phiên hỗ trợ', () => {
       items: Array<{ id: string; state: string }>;
     };
     assert.equal(listed.items.find((item) => item.id === noticeId)?.state, 'scheduled');
-    assert.equal((await operator('POST', `maintenance-notices/${noticeId}/cancel`, {})).status, 200);
+    assert.equal((await technician('POST', `maintenance-notices/${noticeId}/cancel`, {})).status, 200);
     const afterCancel = (await operator('GET', 'maintenance-notices')).body as {
       items: Array<{ id: string; state: string }>;
     };

@@ -1,14 +1,17 @@
 import { useState, type FormEvent } from 'react';
-import { Alert, Button, TextField } from '@school-management/ui';
-import { ApiError } from '../session/api-client.js';
+import { Alert, Button, PhoneCodeField, TextField } from '@school-management/ui';
+import { ApiError, sendChangePasswordCode } from '../session/api-client.js';
 import { useSession } from '../session/session.js';
 
-// MH-48 Đặt mật khẩu mới khi kích hoạt tài khoản bằng mật khẩu mặc định (PQ-06, AC-89, AC-203)
+// MH-48 Đặt mật khẩu mới khi kích hoạt tài khoản bằng mật khẩu mặc định (PQ-06, AC-89, AC-203). Tài khoản theo số CCCD còn mật khẩu
+// mặc định thì máy chủ đòi mã gửi tới số điện thoại: hiện ô mã khi máy chủ báo lỗi ở ô otp_code (YCTD-323)
 export function ActivationScreen() {
   const session = useSession();
   const [currentPassword, setCurrentPassword] = useState(session.lastPassword ?? '');
   const [newPassword, setNewPassword] = useState('');
   const [confirmation, setConfirmation] = useState('');
+  const [otpCode, setOtpCode] = useState('');
+  const [codeNeeded, setCodeNeeded] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string>();
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const [submitting, setSubmitting] = useState(false);
@@ -24,11 +27,14 @@ export function ActivationScreen() {
     }
     setSubmitting(true);
     try {
-      await session.changePassword(currentPassword, newPassword);
+      await session.changePassword(currentPassword, newPassword, otpCode.trim() || undefined);
     } catch (error) {
       if (error instanceof ApiError) {
         setErrorMessage(error.message);
         setFieldErrors(Object.fromEntries(error.details.map((detail) => [detail.field, detail.message])));
+        if (error.details.some((detail) => detail.field === 'otp_code')) {
+          setCodeNeeded(true);
+        }
       } else {
         setErrorMessage('Không kết nối được tới máy chủ, vui lòng thử lại');
       }
@@ -77,6 +83,14 @@ export function ActivationScreen() {
           onChange={(event) => setConfirmation(event.target.value)}
           error={fieldErrors.confirmation}
         />
+        {codeNeeded ? (
+          <PhoneCodeField
+            value={otpCode}
+            onChange={setOtpCode}
+            onSend={sendChangePasswordCode}
+            error={fieldErrors.otp_code}
+          />
+        ) : null}
         <Button type="submit" variant="primary" disabled={submitting}>
           {submitting ? 'Đang lưu…' : 'Lưu mật khẩu'}
         </Button>
