@@ -8,6 +8,7 @@ interface Overview {
   settings: {
     enabled: boolean;
     host: string | null;
+    tutor_host: string | null;
     record_retention_days: number;
     complaint_window_hours: number;
     default_commission_percent: number | null;
@@ -54,29 +55,53 @@ const STATUS_LABELS: Record<string, string> = {
 
 export function MarketPage({ accessToken }: { accessToken: string }) {
   const [overview, setOverview] = useState<Overview | null>(null);
-  const [form, setForm] = useState({ enabled: false, host: '', retention: '30', window: '48', commission: '' });
+  const [form, setForm] = useState({
+    enabled: false,
+    host: '',
+    tutorHost: '',
+    retention: '30',
+    window: '48',
+    commission: '',
+  });
   const [document, setDocument] = useState({ kind: 'terms', title: '', body: '' });
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  const reload = useCallback(async () => {
-    const next = await marketCall<Overview>(accessToken, 'GET', '');
+  // Đổ cấu hình từ máy chủ vào biểu mẫu: chỉ khi tải lần đầu (lần tải bị huỷ của StrictMode bỏ qua) và sau khi lưu, để lần tải về muộn
+  // không ghi đè ô người vận hành vừa sửa
+  const apply = useCallback((next: Overview) => {
     setOverview(next);
     setForm({
       enabled: next.settings.enabled,
       host: next.settings.host ?? '',
+      tutorHost: next.settings.tutor_host ?? '',
       retention: String(next.settings.record_retention_days),
       window: String(next.settings.complaint_window_hours),
       commission:
         next.settings.default_commission_percent === null ? '' : String(next.settings.default_commission_percent),
     });
-  }, [accessToken]);
+  }, []);
+
+  const reload = useCallback(
+    async () => apply(await marketCall<Overview>(accessToken, 'GET', '')),
+    [accessToken, apply],
+  );
 
   useEffect(() => {
-    reload().catch((caught: unknown) =>
-      setError(caught instanceof PlatformApiError ? caught.message : 'Không đọc được cấu hình chợ gia sư'),
-    );
-  }, [reload]);
+    let active = true;
+    marketCall<Overview>(accessToken, 'GET', '')
+      .then((next) => {
+        if (active) apply(next);
+      })
+      .catch((caught: unknown) => {
+        if (active) {
+          setError(caught instanceof PlatformApiError ? caught.message : 'Không đọc được cấu hình chợ gia sư');
+        }
+      });
+    return () => {
+      active = false;
+    };
+  }, [accessToken, apply]);
 
   const run = async (work: () => Promise<string>) => {
     setError(null);
@@ -95,6 +120,7 @@ export function MarketPage({ accessToken }: { accessToken: string }) {
       await marketCall(accessToken, 'PUT', '/settings', {
         enabled: form.enabled,
         host: form.host,
+        tutor_host: form.tutorHost,
         record_retention_days: Number(form.retention),
         complaint_window_hours: Number(form.window),
         default_commission_percent: form.commission.trim() === '' ? null : Number(form.commission),
@@ -123,53 +149,61 @@ export function MarketPage({ accessToken }: { accessToken: string }) {
         đến E-07 (tài liệu 32 mục 19.10).
       </p>
 
-      <form aria-label="Cấu hình chợ gia sư" onSubmit={saveSettings}>
-        <h3>Cấu hình</h3>
-        <label>
-          <input
-            type="checkbox"
-            checked={form.enabled}
-            onChange={(event) => setForm({ ...form, enabled: event.target.checked })}
-          />{' '}
-          Bật chợ gia sư
-        </label>
-        <label>
-          Tên miền con dành riêng của chợ
-          <input value={form.host} onChange={(event) => setForm({ ...form, host: event.target.value })} />
-        </label>
-        <label>
-          Hạn giữ bản ghi lớp video (ngày)
-          <input
-            type="number"
-            min={7}
-            max={365}
-            value={form.retention}
-            onChange={(event) => setForm({ ...form, retention: event.target.value })}
-          />
-        </label>
-        <label>
-          Hạn khiếu nại trước khi giải ngân (giờ)
-          <input
-            type="number"
-            min={1}
-            max={720}
-            value={form.window}
-            onChange={(event) => setForm({ ...form, window: event.target.value })}
-          />
-        </label>
-        <label>
-          Tỷ lệ hoa hồng mặc định (%), để trống khi chưa chốt
-          <input
-            type="number"
-            min={0}
-            max={50}
-            step={0.01}
-            value={form.commission}
-            onChange={(event) => setForm({ ...form, commission: event.target.value })}
-          />
-        </label>
-        <button type="submit">Lưu cấu hình chợ</button>
-      </form>
+      {overview ? (
+        <form aria-label="Cấu hình chợ gia sư" onSubmit={saveSettings}>
+          <h3>Cấu hình</h3>
+          <label>
+            <input
+              type="checkbox"
+              checked={form.enabled}
+              onChange={(event) => setForm({ ...form, enabled: event.target.checked })}
+            />{' '}
+            Bật chợ gia sư
+          </label>
+          <label>
+            Tên miền con dành riêng của chợ
+            <input value={form.host} onChange={(event) => setForm({ ...form, host: event.target.value })} />
+          </label>
+          <label>
+            Tên miền con của ứng dụng Gia sư
+            <input value={form.tutorHost} onChange={(event) => setForm({ ...form, tutorHost: event.target.value })} />
+          </label>
+          <label>
+            Hạn giữ bản ghi lớp video (ngày)
+            <input
+              type="number"
+              min={7}
+              max={365}
+              value={form.retention}
+              onChange={(event) => setForm({ ...form, retention: event.target.value })}
+            />
+          </label>
+          <label>
+            Hạn khiếu nại trước khi giải ngân (giờ)
+            <input
+              type="number"
+              min={1}
+              max={720}
+              value={form.window}
+              onChange={(event) => setForm({ ...form, window: event.target.value })}
+            />
+          </label>
+          <label>
+            Tỷ lệ hoa hồng mặc định (%), để trống khi chưa chốt
+            <input
+              type="number"
+              min={0}
+              max={50}
+              step={0.01}
+              value={form.commission}
+              onChange={(event) => setForm({ ...form, commission: event.target.value })}
+            />
+          </label>
+          <button type="submit">Lưu cấu hình chợ</button>
+        </form>
+      ) : (
+        <p>Đang tải cấu hình chợ…</p>
+      )}
 
       <form aria-label="Đăng văn bản pháp lý của chợ" onSubmit={publish}>
         <h3>Văn bản pháp lý</h3>

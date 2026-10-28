@@ -18,10 +18,12 @@ import {
 import {
   E2E_CONSOLE_HOST,
   E2E_MARKET_HOST,
+  E2E_TUTOR_HOST,
   E2E_MULTI_API_PORT,
   E2E_MULTI_CONSOLE_PORT,
   E2E_MULTI_IDENTITY_PORT,
   E2E_MULTI_MARKET_PORT,
+  E2E_MULTI_TUTOR_PORT,
   E2E_MULTI_STATE_FILE,
   schoolHost,
 } from '../e2e-multi-environment.mjs';
@@ -36,6 +38,8 @@ const API = `http://127.0.0.1:${E2E_MULTI_API_PORT}`;
 const suffix = Math.random().toString(36).slice(2, 8);
 const operatorLogin = `van-hanh-cho-${suffix}`;
 const parentEmail = `phu-huynh-${suffix}@example.test`;
+const tutorEmail = `gia-su-${suffix}@example.test`;
+const CODE = '246810';
 
 let runtime: TenancyRuntime;
 let marketplace: ReturnType<typeof createDatabase<MarketplaceDatabase>>;
@@ -55,6 +59,26 @@ async function hostCall(host: string, method: string, path: string, token?: stri
   } finally {
     await context.dispose();
   }
+}
+
+// Mã gửi qua hộp thư giả lập trong bộ nhớ máy chủ: kiểm thử đặt mã đã biết vào bản ghi mã mới nhất (cơ sở dữ liệu chỉ giữ băm)
+async function setKnownCode(email: string): Promise<void> {
+  const account = await marketplace
+    .selectFrom('market_accounts')
+    .select('id')
+    .where('email', '=', email)
+    .executeTakeFirstOrThrow();
+  const latest = await marketplace
+    .selectFrom('market_verification_codes')
+    .select('id')
+    .where('account_id', '=', account.id)
+    .orderBy('created_at', 'desc')
+    .executeTakeFirstOrThrow();
+  await marketplace
+    .updateTable('market_verification_codes')
+    .set({ code_hash: createHash('sha256').update(`market-code:${account.id}:${CODE}`).digest('hex') })
+    .where('id', '=', latest.id)
+    .execute();
 }
 
 test.beforeAll(async () => {
@@ -117,6 +141,7 @@ test('CT-27f-6: cổng nền tảng bật chợ, phụ huynh đăng ký và tạ
   const settings = page.getByRole('form', { name: 'Cấu hình chợ gia sư' });
   await settings.getByLabel('Bật chợ gia sư').check();
   await settings.getByLabel('Tên miền con dành riêng của chợ').fill(E2E_MARKET_HOST);
+  await settings.getByLabel('Tên miền con của ứng dụng Gia sư').fill(E2E_TUTOR_HOST);
   await settings.getByRole('button', { name: 'Lưu cấu hình chợ' }).click();
   await expect(page.getByRole('status')).toHaveText('Đã lưu cấu hình chợ gia sư');
   const publish = page.getByRole('form', { name: 'Đăng văn bản pháp lý của chợ' });
@@ -124,6 +149,7 @@ test('CT-27f-6: cổng nền tảng bật chợ, phụ huynh đăng ký và tạ
     ['Điều khoản sử dụng', `Điều khoản giả ${suffix}`],
     ['Chính sách dữ liệu cá nhân', `Chính sách giả ${suffix}`],
     ['Đồng ý của cha mẹ cho hồ sơ con', `Đồng ý của cha mẹ giả ${suffix}`],
+    ['Điều khoản dành cho gia sư', `Điều khoản gia sư giả ${suffix}`],
   ] as const) {
     await publish.getByLabel('Loại văn bản').selectOption({ label: kind });
     await publish.getByLabel('Tiêu đề').fill(title);
@@ -152,26 +178,9 @@ test('CT-27f-6: cổng nền tảng bật chợ, phụ huynh đăng ký và tạ
   await register.getByRole('button', { name: 'Tạo tài khoản' }).click();
   await expect(market.getByRole('form', { name: 'Xác nhận tài khoản' })).toBeVisible();
 
-  // Mã gửi qua hộp thư giả lập trong bộ nhớ máy chủ: kiểm thử đặt mã đã biết vào bản ghi mã mới nhất (cơ sở dữ liệu chỉ giữ băm)
-  const account = await marketplace
-    .selectFrom('market_accounts')
-    .select('id')
-    .where('email', '=', parentEmail)
-    .executeTakeFirstOrThrow();
-  const code = '246810';
-  const latest = await marketplace
-    .selectFrom('market_verification_codes')
-    .select('id')
-    .where('account_id', '=', account.id)
-    .orderBy('created_at', 'desc')
-    .executeTakeFirstOrThrow();
-  await marketplace
-    .updateTable('market_verification_codes')
-    .set({ code_hash: createHash('sha256').update(`market-code:${account.id}:${code}`).digest('hex') })
-    .where('id', '=', latest.id)
-    .execute();
+  await setKnownCode(parentEmail);
   const verify = market.getByRole('form', { name: 'Xác nhận tài khoản' });
-  await verify.getByLabel('Mã xác nhận').fill(code);
+  await verify.getByLabel('Mã xác nhận').fill(CODE);
   await verify.getByRole('button', { name: 'Xác nhận' }).click();
 
   // Hồ sơ con tối thiểu, có đồng ý của cha mẹ; rút đồng ý
@@ -196,6 +205,32 @@ test('CT-27f-6: cổng nền tảng bật chợ, phụ huynh đăng ký và tạ
   expect(await hostCall(E2E_MARKET_HOST, 'GET', '/market/me', schoolToken)).toBe(401);
   expect(await hostCall(E2E_MARKET_HOST, 'GET', '/market/me', session ?? '')).toBe(200);
   await marketContext.close();
+
+  // Ứng dụng Gia sư (YCTD-262): ứng dụng riêng ở tên miền riêng, chỉ nhận tài khoản gia sư; phiên phụ huynh không dùng được ở đây
+  expect(await hostCall(E2E_TUTOR_HOST, 'GET', '/market/me', session ?? '')).toBe(401);
+  const tutorContext = await browser.newContext({ baseURL: `http://${E2E_TUTOR_HOST}:${E2E_MULTI_TUTOR_PORT}` });
+  const tutor = await tutorContext.newPage();
+  await tutor.goto('/');
+  await expect(tutor.locator('link[rel="manifest"]')).toHaveAttribute('href', './manifest.webmanifest');
+  await tutor.getByRole('button', { name: 'Đăng ký' }).click();
+  const tutorRegister = tutor.getByRole('form', { name: 'Đăng ký tài khoản gia sư' });
+  await tutorRegister.getByLabel('Thư điện tử hoặc số điện thoại').fill(tutorEmail);
+  await tutorRegister.getByLabel('Tên hiển thị').fill('Gia sư giả');
+  await tutorRegister.getByLabel('Mật khẩu (ít nhất 8 ký tự, có chữ và số)').fill('matkhau123');
+  await tutorRegister.getByLabel(`Tôi đồng ý Điều khoản giả ${suffix}`).check();
+  await tutorRegister.getByLabel(`Tôi đồng ý Chính sách giả ${suffix}`).check();
+  await tutorRegister.getByLabel(`Tôi đồng ý Điều khoản gia sư giả ${suffix}`).check();
+  await tutorRegister.getByRole('button', { name: 'Tạo tài khoản' }).click();
+  await expect(tutor.getByRole('form', { name: 'Xác nhận tài khoản' })).toBeVisible();
+  await setKnownCode(tutorEmail);
+  const tutorVerify = tutor.getByRole('form', { name: 'Xác nhận tài khoản' });
+  await tutorVerify.getByLabel('Mã xác nhận').fill(CODE);
+  await tutorVerify.getByRole('button', { name: 'Xác nhận' }).click();
+  const tutorProfile = tutor.getByRole('region', { name: 'Hồ sơ gia sư' });
+  await tutorProfile.getByLabel('Dòng giới thiệu').fill('Dạy Toán THCS');
+  await tutorProfile.getByRole('button', { name: 'Lưu giới thiệu' }).click();
+  await expect(tutorProfile.getByText('Đã lưu giới thiệu')).toBeVisible();
+  await tutorContext.close();
 
   // Vai trò cơ sở dữ liệu của chợ không vào được cơ sở dữ liệu của trường
   const tenant = await runtime.registry.resolveHost(schoolHost('alpha'));

@@ -3,36 +3,38 @@ import { Alert, Button, FORM_CONTROL_CLASS } from '@school-management/ui';
 import { errorText, marketRequest, type Site } from './market-api.js';
 
 // Đăng ký, xác nhận mã, đăng nhập của chợ gia sư (DT-27 phần 27f): đăng ký phải tích đồng ý từng văn bản bắt buộc của vai (phiên bản
-// mới nhất); tài khoản chờ xác nhận đến khi nhập mã 6 số gửi tới thư điện tử hoặc số điện thoại
+// mới nhất); tài khoản chờ xác nhận đến khi nhập mã 6 số gửi tới thư điện tử hoặc số điện thoại. Dùng chung cho ứng dụng Chợ gia sư
+// (phụ huynh) và ứng dụng Gia sư (YCTD-262): mỗi ứng dụng một vai, truyền qua `kind`
 const REQUIRED: Record<'parent' | 'tutor', string[]> = {
   parent: ['terms', 'privacy'],
   tutor: ['terms', 'privacy', 'tutor_terms'],
 };
 
 export function RegisterForm({
+  kind,
   site,
   onRegistered,
   onOpenDocument,
 }: {
+  kind: 'parent' | 'tutor';
   site: Site;
   onRegistered: (token: string) => void;
   onOpenDocument: (kind: string) => void;
 }) {
   const [form, setForm] = useState({
-    kind: 'parent' as 'parent' | 'tutor',
     contact: '',
     display_name: '',
     password: '',
   });
   const [accepted, setAccepted] = useState<string[]>([]);
   const [error, setError] = useState<string>();
-  const documents = site.documents.filter((row) => REQUIRED[form.kind].includes(row.kind));
+  const documents = site.documents.filter((row) => REQUIRED[kind].includes(row.kind));
 
   const submit = (event: FormEvent) => {
     event.preventDefault();
     const contact = form.contact.trim();
     marketRequest<{ session_token: string }>('POST', '/auth/register', {
-      kind: form.kind,
+      kind,
       ...(contact.includes('@') ? { email: contact } : { phone: contact }),
       display_name: form.display_name,
       password: form.password,
@@ -43,30 +45,13 @@ export function RegisterForm({
   };
 
   return (
-    <form aria-label="Đăng ký tài khoản chợ gia sư" className="flex flex-col gap-2" onSubmit={submit}>
+    <form
+      aria-label={kind === 'tutor' ? 'Đăng ký tài khoản gia sư' : 'Đăng ký tài khoản chợ gia sư'}
+      className="flex flex-col gap-2"
+      onSubmit={submit}
+    >
       <h2 className="text-section-title font-semibold">Đăng ký</h2>
       {error ? <Alert tone="danger">{error}</Alert> : null}
-      <fieldset className="flex gap-4">
-        <legend>Tôi là</legend>
-        <label>
-          <input
-            type="radio"
-            name="kind"
-            checked={form.kind === 'parent'}
-            onChange={() => setForm({ ...form, kind: 'parent' })}
-          />{' '}
-          Phụ huynh
-        </label>
-        <label>
-          <input
-            type="radio"
-            name="kind"
-            checked={form.kind === 'tutor'}
-            onChange={() => setForm({ ...form, kind: 'tutor' })}
-          />{' '}
-          Gia sư
-        </label>
-      </fieldset>
       <label className="flex flex-col">
         Thư điện tử hoặc số điện thoại
         <input

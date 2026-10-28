@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Alert, Button, FORM_CONTROL_CLASS } from '@school-management/ui';
-import { errorText, marketRequest, type Child } from './market-api.js';
+import { errorText, marketRequest, type Child } from '@school-management/market-client';
 
 // Khu phụ huynh của chợ gia sư (DT-27 phần 27f): hồ sơ con tối thiểu (tên hiển thị, năm sinh, cấp, lớp), đồng ý của cha mẹ theo phiên bản
 // cho từng con, rút đồng ý, liên kết với trường bằng mã lấy ở ứng dụng phụ huynh của trường

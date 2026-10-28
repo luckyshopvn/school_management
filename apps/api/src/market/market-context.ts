@@ -2,6 +2,7 @@ import { Inject, Injectable, Optional, type OnModuleDestroy } from '@nestjs/comm
 import {
   createMarketplaceConnection,
   readMarketSettings,
+  type MarketAccountKind,
   type MarketplaceDatabase,
   type MarketSettings,
   type PlatformDatabase,
@@ -105,17 +106,26 @@ export class MarketContext implements OnModuleDestroy {
     );
   }
 
-  // Phần của người dùng chợ: chợ bật và đúng tên miền dành riêng; trả cấu hình để bên gọi dùng tiếp
-  async assertMarketHost(request: Request): Promise<MarketSettings> {
+  // Phần của người dùng chợ: chợ bật và đúng một trong hai tên miền dành riêng; tên miền của chợ là ứng dụng phụ huynh, tên miền của
+  // ứng dụng Gia sư là của gia sư (YCTD-262). Trả cấu hình và vai của tên miền để bên gọi dùng tiếp
+  async assertMarketHost(request: Request): Promise<{ settings: MarketSettings; kind: MarketAccountKind }> {
     if (!this.available) {
       throw marketNotFound();
     }
     const settings = await this.settings();
-    const marketHost = normalizeHost(settings.host ?? undefined);
-    if (!settings.enabled || !marketHost || this.hostOf(request) !== marketHost) {
+    if (!settings.enabled) {
       throw marketNotFound();
     }
-    return settings;
+    const host = this.hostOf(request);
+    const marketHost = normalizeHost(settings.host ?? undefined);
+    const tutorHost = normalizeHost(settings.tutorHost ?? undefined);
+    if (marketHost && host === marketHost) {
+      return { settings, kind: 'parent' };
+    }
+    if (tutorHost && host === tutorHost) {
+      return { settings, kind: 'tutor' };
+    }
+    throw marketNotFound();
   }
 
   // Phần quản trị: tên miền của cổng nền tảng và mã phiên vận hành; trả mã người vận hành
@@ -137,8 +147,9 @@ export class MarketContext implements OnModuleDestroy {
   }
 
   // Tài khoản của phiên chợ đang dùng; tài khoản chưa xác nhận chỉ gọi được điểm cuối cho phép trạng thái chờ
+  // Phiên chỉ dùng được ở ứng dụng của vai: tài khoản phụ huynh ở tên miền của chợ, tài khoản gia sư ở tên miền của ứng dụng Gia sư
   async account(request: Request, options: { allowPending?: boolean } = {}): Promise<MarketAccount> {
-    await this.assertMarketHost(request);
+    const { kind } = await this.assertMarketHost(request);
     const token = readBearerToken(request.header('authorization'));
     const row = await this.database
       .selectFrom('market_sessions')
@@ -153,7 +164,7 @@ export class MarketContext implements OnModuleDestroy {
       ])
       .where('market_sessions.token_hash', '=', hashSessionToken(token))
       .executeTakeFirst();
-    if (!row || row.revoked_at || row.expires_at.getTime() <= this.clock.now().getTime()) {
+    if (!row || row.revoked_at || row.expires_at.getTime() <= this.clock.now().getTime() || row.kind !== kind) {
       throw unauthenticatedError();
     }
     if (row.status === 'locked' || row.status === 'closed' || (row.status === 'pending' && !options.allowPending)) {

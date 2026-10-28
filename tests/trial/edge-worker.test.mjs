@@ -56,6 +56,8 @@ const files = {
   '/quan-ly/assets/app-1.js': ['text/javascript', 'console.log(1)'],
   '/giao-vien/index.html': ['text/html', '<html><body>Giáo viên</body></html>'],
   '/nen-tang/index.html': ['text/html', '<html><body>Cổng nền tảng</body></html>'],
+  '/cho-gia-su/index.html': ['text/html', '<html><body>Chợ gia sư</body></html>'],
+  '/gia-su/index.html': ['text/html', '<html><body>Ứng dụng Gia sư</body></html>'],
 };
 
 const assets = {
@@ -72,6 +74,8 @@ function environment(extra = {}) {
     ORIGIN_URL: originUrl,
     ROOT_DOMAIN: 'thu.example.test',
     CONSOLE_HOST: 'platform.thu.example.test',
+    MARKET_HOST: 'cho-gia-su.thu.example.test',
+    TUTOR_HOST: 'gia-su.thu.example.test',
     EDGE_HOST_HEADER: 'x-school-host',
     EDGE_SHARED_SECRET: 'bi-mat-canh-gia',
     INTERNAL_JOB_TOKEN: 'ma-tick-gia',
@@ -138,6 +142,9 @@ describe('cổng biên Cloudflare Worker', () => {
 
   it('cổng nền tảng ở tên miền riêng; tên miền hệ thống là trang đăng nhập theo đơn vị (DT-24)', async () => {
     assert.match(await (await call('https://platform.thu.example.test/truong')).text(), /Cổng nền tảng/);
+    // Chợ gia sư và ứng dụng Gia sư ở tên miền riêng, ứng dụng ở gốc (DT-27, YCTD-262)
+    assert.match(await (await call('https://cho-gia-su.thu.example.test/ho-so')).text(), /Chợ gia sư/);
+    assert.match(await (await call('https://gia-su.thu.example.test/')).text(), /Ứng dụng Gia sư/);
     const root = await call('https://thu.example.test/');
     assert.equal(root.status, 308);
     assert.equal(root.headers.get('location'), 'https://thu.example.test/quan-ly/');

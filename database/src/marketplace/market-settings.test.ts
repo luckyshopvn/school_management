@@ -16,7 +16,13 @@ describe('parseMarketSettings (CT-27f-1)', () => {
 
   test('bật thu tiền thật bị chặn kể cả khi mọi trường khác hợp lệ', () => {
     assert.throws(
-      () => parseMarketSettings({ enabled: true, host: 'cho.example.vn', real_payments_enabled: true }),
+      () =>
+        parseMarketSettings({
+          enabled: true,
+          host: 'cho.example.vn',
+          tutor_host: 'gia-su.example.vn',
+          real_payments_enabled: true,
+        }),
       (error: unknown) =>
         error instanceof MarketSettingsError &&
         error.field === 'real_payments_enabled' &&
@@ -24,9 +30,15 @@ describe('parseMarketSettings (CT-27f-1)', () => {
     );
   });
 
-  test('bật chợ cần tên miền, tên miền chuẩn hóa chữ thường', () => {
+  test('bật chợ cần tên miền của chợ và của ứng dụng Gia sư (khác nhau), tên miền chuẩn hóa chữ thường', () => {
     assert.throws(() => parseMarketSettings({ enabled: true }), MarketSettingsError);
-    const settings = parseMarketSettings({ enabled: true, host: ' Cho.Example.VN ' });
+    assert.throws(() => parseMarketSettings({ enabled: true, host: 'cho.example.vn' }), MarketSettingsError);
+    assert.throws(
+      () => parseMarketSettings({ enabled: true, host: 'cho.example.vn', tutor_host: 'cho.example.vn' }),
+      MarketSettingsError,
+    );
+    const settings = parseMarketSettings({ enabled: true, host: ' Cho.Example.VN ', tutor_host: 'Gia-Su.Example.VN' });
+    assert.equal(settings.tutorHost, 'gia-su.example.vn');
     assert.equal(settings.host, 'cho.example.vn');
     assert.equal(settings.realPaymentsEnabled, false);
   });

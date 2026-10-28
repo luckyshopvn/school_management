@@ -16,6 +16,8 @@ import { hashStudentForMarket } from './market-tokens.js';
 // liên kết với trường bằng mã ký, tài khoản gia sư. Hai trường giả, dữ liệu giả, không gọi dịch vụ thật
 const CONSOLE_HOST = 'platform.e2e.localhost';
 const MARKET_HOST = 'cho-gia-su.e2e.localhost';
+// Ứng dụng Gia sư (YCTD-262): tên miền riêng, chỉ nhận tài khoản gia sư
+const TUTOR_HOST = 'gia-su.e2e.localhost';
 const LINK_SECRET = 'bi-mat-lien-ket-kiem-thu-khong-dung-that';
 
 describe('chợ gia sư: nền (27f)', () => {
@@ -43,19 +45,26 @@ describe('chợ gia sư: nền (27f)', () => {
 
   async function register(kind: 'parent' | 'tutor', email: string, extra: string[] = []) {
     const accepted = [documents.terms, documents.privacy, ...extra];
-    const reply = await marketCall('POST', '/auth/register', {
-      kind,
-      email,
-      display_name: kind === 'parent' ? 'Phụ huynh giả' : 'Gia sư giả',
-      password: 'matkhau123',
-      accepted_document_ids: accepted,
-    });
+    const host = kind === 'tutor' ? TUTOR_HOST : MARKET_HOST;
+    const reply = await marketCall(
+      'POST',
+      '/auth/register',
+      {
+        kind,
+        email,
+        display_name: kind === 'parent' ? 'Phụ huynh giả' : 'Gia sư giả',
+        password: 'matkhau123',
+        accepted_document_ids: accepted,
+      },
+      undefined,
+      host,
+    );
     assert.equal(reply.status, 201, JSON.stringify(reply.body));
     const token = reply.body.session_token as string;
     const message = environment.api.get(MarketMessenger).lastTo(email);
     const code = /(\d{6})/.exec(message?.text ?? '')?.[1];
     assert.ok(code, 'đã gửi mã xác nhận vào hộp thư giả lập');
-    const verified = await marketCall('POST', '/auth/verify', { code }, token);
+    const verified = await marketCall('POST', '/auth/verify', { code }, token, host);
     assert.equal(verified.status, 200, JSON.stringify(verified.body));
     return token;
   }
@@ -113,10 +122,20 @@ describe('chợ gia sư: nền (27f)', () => {
     assert.equal((await marketCall('GET', '/admin', undefined, operatorToken)).status, 404);
     assert.equal((await marketCall('GET', '/admin', undefined, environment.tokens.alpha, CONSOLE_HOST)).status, 401);
 
-    const blocked = await admin('PUT', '/settings', { enabled: true, host: MARKET_HOST, real_payments_enabled: true });
+    const blocked = await admin('PUT', '/settings', {
+      enabled: true,
+      host: MARKET_HOST,
+      tutor_host: TUTOR_HOST,
+      real_payments_enabled: true,
+    });
     assert.equal(blocked.status, 400, JSON.stringify(blocked.body));
     assert.match(JSON.stringify(blocked.body), /E-01 đến E-07/);
-    const saved = await admin('PUT', '/settings', { enabled: true, host: MARKET_HOST, default_commission_percent: 10 });
+    const saved = await admin('PUT', '/settings', {
+      enabled: true,
+      host: MARKET_HOST,
+      tutor_host: TUTOR_HOST,
+      default_commission_percent: 10,
+    });
     assert.equal(saved.status, 200, JSON.stringify(saved.body));
     const settings = saved.body.settings as Record<string, unknown>;
     assert.equal(settings.enabled, true);
@@ -293,7 +312,18 @@ describe('chợ gia sư: nền (27f)', () => {
 
   it('CT-27f-5: gia sư: thêm điều khoản của gia sư, hồ sơ và cơ sở dạy thêm tối thiểu; phiên bản văn bản mới cần đồng ý lại', async () => {
     const email = `gia-su-${Date.now()}@example.test`;
-    const noTutorTerms = await marketCall('POST', '/auth/register', {
+    const tutorCall = (method: string, path: string, body?: unknown, token?: string) =>
+      marketCall(method, path, body, token, TUTOR_HOST);
+    // Mỗi ứng dụng một vai (YCTD-262): gia sư không đăng ký ở Chợ gia sư
+    const onMarket = await marketCall('POST', '/auth/register', {
+      kind: 'tutor',
+      email,
+      display_name: 'Gia sư giả',
+      password: 'matkhau123',
+      accepted_document_ids: [documents.terms, documents.privacy, documents.tutor_terms],
+    });
+    assert.equal(onMarket.status, 400, JSON.stringify(onMarket.body));
+    const noTutorTerms = await tutorCall('POST', '/auth/register', {
       kind: 'tutor',
       email,
       display_name: 'Gia sư giả',
@@ -302,15 +332,15 @@ describe('chợ gia sư: nền (27f)', () => {
     });
     assert.equal(noTutorTerms.status, 400);
     const token = await register('tutor', email, [documents.tutor_terms as string]);
-    assert.equal((await marketCall('GET', '/children', undefined, token)).status, 403);
-    const profile = await marketCall(
+    assert.equal((await tutorCall('GET', '/children', undefined, token)).status, 403);
+    const profile = await tutorCall(
       'PUT',
       '/tutor/profile',
       { headline: 'Dạy Toán THCS', bio: 'Giới thiệu giả' },
       token,
     );
     assert.equal(profile.status, 200, JSON.stringify(profile.body));
-    const provider = await marketCall('PUT', '/tutor/provider', { kind: 'individual', name: 'Gia sư giả' }, token);
+    const provider = await tutorCall('PUT', '/tutor/provider', { kind: 'individual', name: 'Gia sư giả' }, token);
     assert.equal(provider.status, 200, JSON.stringify(provider.body));
     assert.equal((provider.body.provider as { business_registration_no: unknown }).business_registration_no, null);
 
@@ -321,20 +351,26 @@ describe('chợ gia sư: nền (27f)', () => {
       body: 'Nội dung giả 2',
     });
     assert.equal(v2.body.version, 2);
-    assert.equal((await marketCall('GET', '/tutor/profile', undefined, token)).status, 409);
-    const me = await marketCall('GET', '/me', undefined, token);
+    assert.equal((await tutorCall('GET', '/tutor/profile', undefined, token)).status, 409);
+    const me = await tutorCall('GET', '/me', undefined, token);
     assert.deepEqual(
       (me.body.consents_needed as Array<{ id: string }>).map((row) => row.id),
       [v2.body.id],
     );
-    assert.equal((await marketCall('POST', `/me/consents/${v2.body.id as string}`, {}, token)).status, 200);
-    assert.equal((await marketCall('GET', '/tutor/profile', undefined, token)).status, 200);
+    assert.equal((await tutorCall('POST', `/me/consents/${v2.body.id as string}`, {}, token)).status, 200);
+    assert.equal((await tutorCall('GET', '/tutor/profile', undefined, token)).status, 200);
+
+    // Phiên gia sư không dùng được ở tên miền của chợ; đăng nhập đúng mật khẩu ở chợ chỉ được dẫn sang ứng dụng Gia sư
+    assert.equal((await marketCall('GET', '/me', undefined, token)).status, 401);
+    const wrongApp = await marketCall('POST', '/auth/login', { login: email, password: 'matkhau123' });
+    assert.equal(wrongApp.status, 403, JSON.stringify(wrongApp.body));
+    assert.match(JSON.stringify(wrongApp.body), /ứng dụng Gia sư/);
 
     // Đăng nhập lại; sai mật khẩu 5 lần thì khóa 15 phút
-    assert.equal((await marketCall('POST', '/auth/login', { login: email, password: 'matkhau123' })).status, 200);
+    assert.equal((await tutorCall('POST', '/auth/login', { login: email, password: 'matkhau123' })).status, 200);
     for (let attempt = 0; attempt < 5; attempt += 1) {
-      assert.equal((await marketCall('POST', '/auth/login', { login: email, password: 'sai12345' })).status, 401);
+      assert.equal((await tutorCall('POST', '/auth/login', { login: email, password: 'sai12345' })).status, 401);
     }
-    assert.equal((await marketCall('POST', '/auth/login', { login: email, password: 'matkhau123' })).status, 403);
+    assert.equal((await tutorCall('POST', '/auth/login', { login: email, password: 'matkhau123' })).status, 403);
   });
 });

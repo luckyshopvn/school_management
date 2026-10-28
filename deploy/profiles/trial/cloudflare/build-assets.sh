@@ -1,6 +1,7 @@
 #!/bin/sh
-# Dựng tệp tĩnh cho cổng biên của hồ sơ thử nghiệm (DT-SaaS phần S9, YCTD-203): bốn ứng dụng dưới đường dẫn gốc riêng và cổng nền
-# tảng ở gốc, chép vào ./public theo thư mục mà src/worker.mjs đọc (quan-ly, giao-vien, phu-huynh, hoc-sinh, nen-tang). Chạy từ thư mục
+# Dựng tệp tĩnh cho cổng biên của hồ sơ thử nghiệm (DT-SaaS phần S9, YCTD-203): bốn ứng dụng dưới đường dẫn gốc riêng, cổng nền tảng
+# và hai ứng dụng của chợ gia sư ở gốc tên miền riêng, chép vào ./public theo thư mục mà src/worker.mjs đọc (quan-ly, giao-vien,
+# phu-huynh, hoc-sinh, nen-tang; chợ gia sư cho-gia-su, ứng dụng Gia sư gia-su). Chạy từ thư mục
 # deploy/profiles/trial/cloudflare; cần pnpm và thư viện đã cài ở gốc kho mã nguồn. Tổ hợp 3a đưa thư mục ./public lên Vercel
 set -eu
 here=$(cd "$(dirname "$0")" && pwd)
@@ -26,4 +27,6 @@ build parent /phu-huynh/ phu-huynh
 export PARENT_APP_URL=/phu-huynh/
 build student /hoc-sinh/ hoc-sinh
 build platform / nen-tang
+build market / cho-gia-su
+build tutor / gia-su
 echo "Đã dựng tệp tĩnh vào $public"
