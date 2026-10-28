@@ -15,7 +15,9 @@ export interface EffectiveSetting {
     | 'time_of_day'
     | 'minutes'
     | 'percent'
-    | 'text';
+    | 'text'
+    // Danh sách mã công cụ tắt của Hộp công cụ giảng dạy (DT-29, YCTD-325)
+    | 'teaching_tool_list';
   value: unknown;
   source: SettingSource;
   unit_value: unknown;

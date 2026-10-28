@@ -161,8 +161,8 @@ test('CT-23b-14: gọi tên, chia nhóm, đồng hồ, bảng điểm vào nề 
   expect(manifest.ok()).toBe(true);
   expect((await manifest.json()).display).toBe('standalone');
 
-  await page.getByRole('button', { name: 'Công cụ lớp học' }).click();
-  await expect(page.getByRole('heading', { name: 'Công cụ lớp học' })).toBeVisible();
+  await page.getByRole('button', { name: 'Hộp công cụ giảng dạy' }).click();
+  await expect(page.getByRole('heading', { name: 'Hộp công cụ giảng dạy' })).toBeVisible();
   await page.getByLabel('Lớp', { exact: true }).selectOption({ label: className });
 
   // Gọi tên ngẫu nhiên, không lặp, loại học sinh vắng: ba em có mặt được gọi đủ rồi báo hết
@@ -211,7 +211,7 @@ test('CT-23b-14: gọi tên, chia nhóm, đồng hồ, bảng điểm vào nề 
   expect((grouping.groups as unknown as unknown[]).length).toBe(2);
 
   // Đồng hồ: đếm ngược chạy
-  await page.getByRole('tab', { name: 'Đồng hồ' }).click();
+  await page.getByRole('tab', { name: 'Đếm ngược, bấm giờ' }).click();
   await page.getByRole('button', { name: 'Đếm ngược 1 phút' }).click();
   await page.getByRole('button', { name: 'Chạy Đếm ngược 1' }).click();
   await expect(page.getByRole('timer', { name: /Đếm ngược 1: 00:5\d/ })).toBeVisible();
@@ -297,7 +297,7 @@ test('CT-23b-14: gọi tên, chia nhóm, đồng hồ, bảng điểm vào nề 
   await page.context().setOffline(true);
   await page.reload();
   // Trang dựng từ bộ nhớ đệm của service worker, máy chậm có thể quá 5 giây mặc định
-  await expect(page.getByRole('heading', { name: 'Công cụ lớp học' })).toBeVisible({ timeout: 30_000 });
+  await expect(page.getByRole('heading', { name: 'Hộp công cụ giảng dạy' })).toBeVisible({ timeout: 30_000 });
   await expect(page.getByText('Đang dùng ngoại tuyến')).toBeVisible();
   await page.getByLabel('Lớp', { exact: true }).selectOption({ label: className });
   await expect(page.getByText(/Danh sách lớp lưu trên máy lúc/)).toBeVisible();
@@ -366,7 +366,7 @@ test('CT-23b-14: gọi tên, chia nhóm, đồng hồ, bảng điểm vào nề 
         ),
       ),
     ).toEqual([]);
-    await page.getByRole('button', { name: 'Công cụ lớp học' }).click();
+    await page.getByRole('button', { name: 'Hộp công cụ giảng dạy' }).click();
     await page.getByLabel('Lớp', { exact: true }).selectOption({ label: className });
     await expect(page.getByRole('button', { name: 'Gọi tên', exact: true })).toBeVisible();
     expect(await page.evaluate((prefix) => localStorage.getItem(`${prefix}danh-sach`), STORAGE_PREFIX)).toBeNull();

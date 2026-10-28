@@ -1,5 +1,11 @@
 import { useEffect, useState } from 'react';
-import { hasLevelFeature, levelOf, SCHOOL_LEVELS, schoolLevelTerms } from '@school-management/shared';
+import {
+  hasLevelFeature,
+  levelOf,
+  SCHOOL_LEVELS,
+  schoolLevelTerms,
+  type LevelFeature,
+} from '@school-management/shared';
 import { Alert, ApplicationHeader, Button } from '@school-management/ui';
 import { InstallPrompt, PushSettingsPanel } from '@school-management/pwa';
 import { ApiError, fetchCurrentUser, requestJson } from '../session/api-client.js';
@@ -133,6 +139,9 @@ export function ClassesScreen({
   }, []);
 
   const levels = new Set((classes ?? []).map((myClass) => levelOf(myClass.school_level)));
+  // Mục không hợp cấp (DT-29, YCTD-325): giáo viên có lớp mà không lớp nào ở cấp của mục thì ẩn; chưa có lớp thì theo quyền như cũ
+  const fitsSomeClass = (feature: LevelFeature) =>
+    !classes || classes.length === 0 || classes.some((myClass) => hasLevelFeature(myClass.school_level, feature));
   const multiLevel = levels.size > 1;
   // Trường nhiều cấp: lớp xếp theo thứ tự cấp, giữ thứ tự máy chủ trả trong cùng cấp
   const order = (myClass: MyClass) => SCHOOL_LEVELS.findIndex((item) => item.value === levelOf(myClass.school_level));
@@ -164,15 +173,19 @@ export function ClassesScreen({
           ) : null}
           {canStocktake ? <Button onClick={onOpenStocktake}>Kiểm kê thiết bị</Button> : null}
           {canTrain ? <Button onClick={onOpenTraining}>Bồi dưỡng của tôi</Button> : null}
-          {canTeachOnline ? <Button onClick={onOpenOnlineClasses}>Lớp học trực tuyến</Button> : null}
-          {canTutor ? <Button onClick={onOpenTutoring}>Gia sư trong trường</Button> : null}
+          {canTeachOnline && fitsSomeClass('online_learning') ? (
+            <Button onClick={onOpenOnlineClasses}>Lớp học trực tuyến</Button>
+          ) : null}
+          {canTutor && fitsSomeClass('school_tutoring') ? (
+            <Button onClick={onOpenTutoring}>Gia sư trong trường</Button>
+          ) : null}
           {/* Lịch dạy theo thời khoá biểu (DT-20 phần 22c1): giáo viên có lớp cấp phổ thông */}
           {(classes ?? []).some((myClass) => hasLevelFeature(myClass.school_level, 'period_timetable')) ? (
             <Button onClick={onOpenTimetable}>Lịch dạy của tôi</Button>
           ) : null}
-          {/* Gọi tên, chia nhóm, đếm ngược, bảng điểm nhanh; dùng được khi mất mạng (DT-23 phần 23b) */}
+          {/* Hộp công cụ giảng dạy theo cấp của lớp (DT-29, YCTD-325; trước là Công cụ lớp học của DT-23 phần 23b) */}
           {(classes ?? []).length > 0 ? (
-            <Button onClick={() => onOpenClassroomTools(classes ?? [])}>Công cụ lớp học</Button>
+            <Button onClick={() => onOpenClassroomTools(classes ?? [])}>Hộp công cụ giảng dạy</Button>
           ) : null}
           {/* Chế độ lớp học trên máy tính bảng, màn hình lớn: lớp theo tiết đang dạy, điểm danh, sổ đầu bài, công cụ (DT-26 phần 26d) */}
           {(classes ?? []).length > 0 ? (
@@ -203,9 +216,11 @@ export function ClassesScreen({
                     <ClassSummary myClass={myClass} showLevel={multiLevel} />
                   </div>
                 )}
-                <Button aria-label={`Đón trả lớp ${myClass.name}`} onClick={() => onOpenPickup(myClass)}>
-                  Đón trả
-                </Button>
+                {hasLevelFeature(myClass.school_level, 'class_pickup') ? (
+                  <Button aria-label={`Đón trả lớp ${myClass.name}`} onClick={() => onOpenPickup(myClass)}>
+                    Đón trả
+                  </Button>
+                ) : null}
                 {hasLevelFeature(myClass.school_level, 'daily_journal') ? (
                   <Button aria-label={`Nhật ký lớp ${myClass.name}`} onClick={() => onOpenJournal(myClass)}>
                     Nhật ký
@@ -242,9 +257,11 @@ export function ClassesScreen({
                     Bán trú
                   </Button>
                 ) : null}
-                <Button aria-label={`Dặn thuốc lớp ${myClass.name}`} onClick={() => onOpenMedication(myClass)}>
-                  Dặn thuốc
-                </Button>
+                {hasLevelFeature(myClass.school_level, 'class_medication') ? (
+                  <Button aria-label={`Dặn thuốc lớp ${myClass.name}`} onClick={() => onOpenMedication(myClass)}>
+                    Dặn thuốc
+                  </Button>
+                ) : null}
                 <Button aria-label={`Giảng dạy lớp ${myClass.name}`} onClick={() => onOpenTeaching(myClass)}>
                   Giảng dạy
                 </Button>

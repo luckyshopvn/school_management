@@ -814,6 +814,7 @@ Nguồn: tài liệu 32 mục 18, YCTD-230 (Eric yêu cầu ngày 2026-10-26 the
 | Đếm ngược, bấm giờ | Nhiều đồng hồ theo thời điểm tuyệt đối, tiếng báo hết giờ, giữ màn hình sáng; chỉ trên máy | MH-337 |
 | Bảng điểm nhanh | Cộng, trừ điểm theo nhóm hoặc học sinh; giáo viên chọn tiêu chí và xác nhận mới ghi `conduct_entries`; bỏ buổi | `classroom_score_events`; `/classroom-tools/scores`, `/confirm`; MH-337 |
 | Ngoại tuyến | Service worker, manifest, bản chụp danh sách lớp gọn có hạn (mặc định 24 giờ, xóa khi đăng xuất), hàng đợi đồng bộ, công tắc tắt theo trường | `classroom_offline_enabled`, `classroom_roster_ttl_hours` ở `settings`; MH-338 |
+| Hộp công cụ giảng dạy (YCTD-325, DT-29 phần 29a) | Màn Công cụ lớp học đổi tên và gom công cụ theo cấp của lớp (danh mục `TEACHING_TOOLS` ở `packages/shared/src/teaching-tools.ts`), trường tắt từng công cụ, công cụ thuộc tính năng gói chưa bật ẩn, lối vào giáo án, sổ đầu bài, lớp học trực tuyến; trang chủ lọc Đón trả, Dặn thuốc, Lớp học trực tuyến, Gia sư trong trường theo cấp | cấu hình `teaching_tools_disabled`; `/classroom-tools/config`; MH-337; khối Hộp công cụ giảng dạy ở trang Cấu hình |
 
 ## 8. DT-27: kế hoạch (chưa có trong mã)
 

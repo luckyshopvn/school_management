@@ -1,6 +1,6 @@
 # 32. KẾ HOẠCH ĐỒNG BỘ CHỨC NĂNG VÀ GIAO DIỆN THEO HỆ THỐNG CỦA SỞ (DT-15)
 
-- Mô tả: Kế hoạch điều chỉnh School Management theo kết quả khảo sát `31_KHAO_SAT_HE_THONG_SO.md`; từ mục 9 thêm kế hoạch DT-18 điều hành nhà trường, mục 10 thêm kế hoạch DT-19 nền đa cấp học, mục 11 thêm kế hoạch DT-20 Tiểu học (kèm 22c thời khoá biểu), mục 12 thêm kế hoạch DT-21 THCS và THPT (kèm 22g kiểm tra, đánh giá), mục 13 thêm kế hoạch DT-22 (22a thư viện, 22e hồ sơ bồi dưỡng, 22h kho học liệu số), mục 14 thêm kế hoạch DT-SaaS (Enterprise SaaS nhiều trường: S1a, S1b, S2, S3, S4, S5a, S5b, S6, S7a, S7b, S8a, S8b, S9; hai hồ sơ triển khai: thử nghiệm miễn phí và vận hành), mục 15 thêm kế hoạch DT-23 (thi trực tuyến cho học sinh, công cụ lớp học, trò chơi kiến thức và thẻ đáp án giấy, trợ lý AI; 23a đến 23d), mục 18 thêm kế hoạch DT-26 (ứng dụng web cài được, bố cục máy tính bảng, ứng dụng cài đặt iOS và Android; 26a đến 26h), mục 16 thêm DT-24 (danh mục đơn vị toàn quốc, đăng nhập theo đơn vị, quyền vào mọi trường của quản trị nền tảng), mục 19 thêm kế hoạch DT-27 (nền tảng gia sư trực tuyến: gia sư trong trường, khoá học ghi sẵn, hỏi đáp, chợ gia sư mở; 27a đến 27i); mục 17 thêm DT-25 bộ nối nhà cung cấp định danh OIDC, sẵn cho VNeID; mục 20 thêm kế hoạch DT-28 (hệ thống quản lý học tập LMS: lõi khoá học, lớp học trực tuyến, nhóm học tập, bài tập, bài về nhà, tiến độ, thảo luận, học nhóm, SCORM, huy hiệu; 28a đến 28j).
+- Mô tả: Kế hoạch điều chỉnh School Management theo kết quả khảo sát `31_KHAO_SAT_HE_THONG_SO.md`; từ mục 9 thêm kế hoạch DT-18 điều hành nhà trường, mục 10 thêm kế hoạch DT-19 nền đa cấp học, mục 11 thêm kế hoạch DT-20 Tiểu học (kèm 22c thời khoá biểu), mục 12 thêm kế hoạch DT-21 THCS và THPT (kèm 22g kiểm tra, đánh giá), mục 13 thêm kế hoạch DT-22 (22a thư viện, 22e hồ sơ bồi dưỡng, 22h kho học liệu số), mục 14 thêm kế hoạch DT-SaaS (Enterprise SaaS nhiều trường: S1a, S1b, S2, S3, S4, S5a, S5b, S6, S7a, S7b, S8a, S8b, S9; hai hồ sơ triển khai: thử nghiệm miễn phí và vận hành), mục 15 thêm kế hoạch DT-23 (thi trực tuyến cho học sinh, công cụ lớp học, trò chơi kiến thức và thẻ đáp án giấy, trợ lý AI; 23a đến 23d), mục 18 thêm kế hoạch DT-26 (ứng dụng web cài được, bố cục máy tính bảng, ứng dụng cài đặt iOS và Android; 26a đến 26h), mục 16 thêm DT-24 (danh mục đơn vị toàn quốc, đăng nhập theo đơn vị, quyền vào mọi trường của quản trị nền tảng), mục 19 thêm kế hoạch DT-27 (nền tảng gia sư trực tuyến: gia sư trong trường, khoá học ghi sẵn, hỏi đáp, chợ gia sư mở; 27a đến 27i); mục 17 thêm DT-25 bộ nối nhà cung cấp định danh OIDC, sẵn cho VNeID; mục 20 thêm kế hoạch DT-28 (hệ thống quản lý học tập LMS: lõi khoá học, lớp học trực tuyến, nhóm học tập, bài tập, bài về nhà, tiến độ, thảo luận, học nhóm, SCORM, huy hiệu; 28a đến 28j); mục 21 thêm kế hoạch DT-29 (Hộp công cụ giảng dạy theo cấp học; 29a đến 29e).
 - Phiên bản: 1.82
 - Ngày cập nhật: 2026-10-26
 - Trạng thái: Đã duyệt hướng làm
@@ -2810,3 +2810,55 @@ Số GD và RR của DT-28 bắt đầu từ GD-140 và RR-32 (DT-27 dùng GD-13
 | GD-155 | Huy hiệu, chứng nhận | Tắt mặc định; không bảng xếp hạng; chứng nhận chỉ cho khoá tự chọn | Cấu hình trường | Eric |
 | GD-156 | Ghi danh khoá tự chọn | Học sinh đăng ký, người phụ trách duyệt; Tiểu học cần phụ huynh xác nhận trên ứng dụng phụ huynh; khoá có thu tiền không làm ở DT-28 (thuộc 27b, 27c) | Theo khoá | Eric |
 | GD-157 | Xuất lịch học tập ra lịch ngoài (iCal) | Không làm (đường dẫn lịch chứa dữ liệu trẻ em) | — | Claude (theo ủy quyền) |
+
+## 21. DT-29: Hộp công cụ giảng dạy theo cấp học (29a đến 29e)
+
+### 21.1 Căn cứ và mục tiêu
+
+1. **Yêu cầu của Eric ngày 2026-10-28:** "trong giao diện giảng dạy của giáo viên, tập hợp các công cụ/ mini app hỗ trợ việc giảng dạy phù hợp với bậc học". Bản khảo sát và đề xuất (danh sách công cụ đã có, mini app mới theo bậc, bản vẽ "Hộp công cụ giảng dạy") Eric duyệt cùng ngày: làm cả 29a đến 29e, danh sách mini app theo bậc như đề xuất; Mầm non ẩn trò chơi kiến thức và lớp học trực tuyến; lọc tương tự các mục không hợp cấp (lớp THCS, THPT bỏ Đón trả, Dặn thuốc); đổi tên "Công cụ lớp học" thành "Hộp công cụ giảng dạy", giữ đường dẫn cũ và chuyển về chỗ mới; công tắc theo trường dùng cơ chế phân hệ theo gói (YCTD-314).
+2. Hiện trạng trước DT-29: công cụ lớp học 23b (gọi tên, chia nhóm, đếm ngược và bấm giờ, bảng điểm nhanh), trò chơi kiến thức và thẻ đáp án giấy 23c nằm chung một màn "Công cụ lớp học", hiện ở mọi cấp; học trực tuyến DT-28 ở màn riêng; thi trực tuyến 23a và trợ lý AI 23d ở cổng quản trị. Cấp của lớp đọc qua `levelOf`, `hasLevelFeature` (`packages/shared/src/level-features.ts`, DT-19 phần 19e).
+3. Mục tiêu: một màn Hộp công cụ giảng dạy gom công cụ của lớp đang chọn, lọc theo cấp của lớp, trường bật tắt từng công cụ, công cụ thuộc tính năng trả phí theo gói; thêm mini app chạy hoàn toàn trên máy giáo viên cho từng cấp.
+
+### 21.2 Nguyên tắc
+
+- Danh mục công cụ khai báo một nơi (`packages/shared/src/teaching-tools.ts`): mã, tên, mô tả, nhóm, cấp, chạy ngoại tuyến không, tính năng gói. Mỗi phần thêm công cụ của mình vào cuối danh mục.
+- Mini app mới chạy trên máy giáo viên, không gọi máy chủ, dùng được khi mất mạng (vỏ ứng dụng của 23b), không gửi danh sách lớp, ảnh, tiếng ra ngoài; không ghi âm; không dùng bài hát, truyện, phông chữ có bản quyền (chữ cái, khung ô li tự vẽ; bài hát, truyện do trường tải lên qua kho học liệu 22h1).
+- Không bỏ chức năng đã có: bảng điểm nhanh giữ ở mọi cấp (nề nếp, thi đua có tiêu chí Mầm non); khoá lưu trên máy (`cong-cu-lop-hoc:`) và tiền tố bộ nhớ đệm của 23b giữ nguyên tên.
+
+### 21.3 Các phần
+
+Số do phiên điều phối cấp ngày 2026-10-28; mỗi phần một PR, làm tuần tự trong một phiên.
+
+| Phần | Phạm vi | YCTD | Phiên bản đề xuất |
+|---|---|---|---|
+| 29a | Vỏ Hộp công cụ: danh mục theo cấp, màn Hộp công cụ (thay Công cụ lớp học), lọc theo cấp của lớp, công tắc từng công cụ theo trường, công cụ thuộc tính năng gói, lối vào màn đã có (giáo án, sổ đầu bài, lớp học trực tuyến), đường dẫn `?man=hop-cong-cu` và chuyển đường dẫn cũ, lọc mục không hợp cấp ở trang chủ | YCTD-325 | 0.201.0 |
+| 29b | Công cụ chung và Mầm non: bảng trắng, xúc xắc và bốc số, đồng hồ hình ảnh, đèn giữ trật tự, bảng thưởng sao; hình và màu, đếm và số, làm quen chữ cái | YCTD-326 | 0.202.0 |
+| 29c | Tiểu học: bảng cửu chương, khung ô li, học xem đồng hồ, phân số trực quan | YCTD-327 | 0.203.0 |
+| 29d | THCS, THPT: máy tính khoa học, vẽ đồ thị hàm số, bảng tuần hoàn, hình học động, bảng hằng số và đơn vị | YCTD-328 | 0.204.0 |
+| 29e | Nội dung của trường: bài hát, câu chuyện do trường tải lên kho học liệu, phát trên lớp | YCTD-329 | 0.205.0 |
+
+Cỡ ước lượng (một phần của DT-16 là một đơn vị, chỉ để so sánh): 29a 0,75; 29b 0,75; 29c 0,5; 29d 1,0; 29e 0,5; tổng khoảng 3,5 đơn vị.
+
+### 21.4 Phạm vi chi tiết của 29a
+
+- **Danh mục:** nhóm Trên lớp (gọi tên, chia nhóm, đếm ngược và bấm giờ, bảng điểm nhanh), Trò chơi và câu hỏi (trò chơi kiến thức của 23c, chỉ cấp phổ thông), Mini app theo môn (29b đến 29e), Giao bài và học trực tuyến (giáo án, kế hoạch bài dạy ở mọi cấp; sổ đầu bài và bài về nhà, lớp học trực tuyến ở cấp phổ thông; lớp học trực tuyến thuộc tính năng gói `online-learning`).
+- **Màn Hộp công cụ:** chọn lớp, công cụ theo cấp của lớp; bản chụp danh sách lớp lưu thêm cấp của lớp để lọc khi mất mạng (bản chụp cũ chưa có cấp thì không lọc theo cấp); mở được trong Chế độ lớp học (DT-26 phần 26d). Mở màn đã có từ Hộp công cụ thì nút quay lại trở về Hộp công cụ.
+- **Công tắc theo trường:** cấu hình `teaching_tools_disabled` (danh sách mã công cụ tắt, đặt ở Trường chính) ở trang Cấu hình của cổng quản trị, khối "Hộp công cụ giảng dạy"; máy chủ trả trong `GET /classroom-tools/config` (`disabled_tools`). Công cụ thuộc tính năng gói chưa bật (đọc `GET /school-plan`) ẩn.
+- **Đường dẫn:** `?man=hop-cong-cu` mở thẳng Hộp công cụ (lối tắt trong `manifest.webmanifest`); `?man=cong-cu-lop-hoc` đổi sang tên mới.
+- **Lọc mục không hợp cấp ở trang chủ:** Đón trả, Dặn thuốc chỉ ở lớp Mầm non, Tiểu học; Lớp học trực tuyến và Gia sư trong trường ẩn khi mọi lớp của giáo viên là lớp Mầm non.
+
+### 21.5 Quyết định thiết kế và phương án đã loại
+
+- Công tắc từng công cụ là cấu hình của trường; tính năng trả phí theo gói (YCTD-314) là lớp chặn thứ hai. Đã loại: thêm mỗi công cụ một phân hệ của gói (danh sách phân hệ của gói dài ra theo từng mini app, nền tảng phải bật từng mục cho mỗi trường).
+- Bảng điểm nhanh giữ ở Mầm non (bản đề xuất ghi chỉ cấp phổ thông): Mầm non đang dùng để ghi nề nếp, thi đua; bảng thưởng sao của 29b thêm cho Mầm non, Tiểu học. Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11.
+- Gia sư trong trường lọc như lớp học trực tuyến (ẩn khi mọi lớp là Mầm non). Ứng dụng phụ huynh chưa đổi (đón trả, dặn thuốc vẫn ở mọi cấp phía phụ huynh).
+
+### 21.6 Tiến độ
+
+| Phần | Tiến độ |
+|---|---|
+| 29a | Đang làm (YCTD-325) |
+| 29b | Chưa làm |
+| 29c | Chưa làm |
+| 29d | Chưa làm |
+| 29e | Chưa làm |

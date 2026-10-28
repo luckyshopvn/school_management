@@ -10,6 +10,7 @@ import {
   type ApiTestEnvironment,
   type LoggedInUser,
 } from '../test-support.js';
+import { findDefinition, validateSettingValue } from '../settings/setting-definitions.js';
 import {
   clampClientTime,
   parseCallsInput,
@@ -255,7 +256,12 @@ describe('Điểm cuối công cụ lớp học', () => {
   it('CT-23b-7: cấu hình công cụ: ngoại tuyến bật, giữ 24 giờ mặc định; trường đổi thì theo trường', async () => {
     const initial = await api('GET', '/classroom-tools/config', teacher.accessToken);
     assert.equal(initial.status, 200);
-    assert.deepEqual(initial.body, { offline_enabled: true, roster_ttl_hours: 24, conduct_enabled: true });
+    assert.deepEqual(initial.body, {
+      offline_enabled: true,
+      roster_ttl_hours: 24,
+      conduct_enabled: true,
+      disabled_tools: [],
+    });
     await schoolYear
       .insertInto('settings')
       .values([
@@ -269,11 +275,38 @@ describe('Điểm cuối công cụ lớp học', () => {
       ])
       .execute();
     const changed = await api('GET', '/classroom-tools/config', teacher.accessToken);
-    assert.deepEqual(changed.body, { offline_enabled: false, roster_ttl_hours: 6, conduct_enabled: true });
+    assert.deepEqual(changed.body, {
+      offline_enabled: false,
+      roster_ttl_hours: 6,
+      conduct_enabled: true,
+      disabled_tools: [],
+    });
     await schoolYear
       .deleteFrom('settings')
       .where('key', 'in', ['classroom_offline_enabled', 'classroom_roster_ttl_hours'])
       .execute();
+  });
+
+  it('CT-29a-1: Hộp công cụ giảng dạy: công cụ trường tắt trả về trong cấu hình; giá trị sai mã bị từ chối', async () => {
+    const definition = findDefinition('teaching_tools_disabled');
+    assert.ok(definition);
+    assert.equal(validateSettingValue(definition, ['games', 'call']), null);
+    assert.ok(validateSettingValue(definition, ['khong-co']));
+    assert.ok(validateSettingValue(definition, ['call', 'call']));
+    assert.ok(validateSettingValue(definition, 'call'));
+    await schoolYear
+      .insertInto('settings')
+      .values({
+        org_unit_id: unitId,
+        key: 'teaching_tools_disabled',
+        value_type: 'teaching_tool_list',
+        value: JSON.stringify(['games', 'timer']),
+      })
+      .execute();
+    const config = await api('GET', '/classroom-tools/config', teacher.accessToken);
+    assert.equal(config.status, 200);
+    assert.deepEqual(config.body.disabled_tools, ['games', 'timer']);
+    await schoolYear.deleteFrom('settings').where('key', '=', 'teaching_tools_disabled').execute();
   });
 
   it('CT-23b-8: danh sách lớp gọn theo số thứ tự, kèm mã; vắng hôm nay đánh dấu; người ngoài lớp bị chặn', async () => {

@@ -6,6 +6,8 @@ export interface ToolsConfig {
   offline_enabled: boolean;
   roster_ttl_hours: number;
   conduct_enabled: boolean;
+  // Công cụ trường tắt ở Hộp công cụ giảng dạy (DT-29, YCTD-325); cấu hình lưu trên máy trước DT-29 không có
+  disabled_tools?: string[];
 }
 
 export interface RosterResponse {
@@ -65,6 +67,10 @@ export function messageOf(error: unknown): string {
 }
 
 export const fetchToolsConfig = () => requestJson<ToolsConfig>(`${BASE}/config`);
+
+// Phân hệ, tính năng của gói dịch vụ của trường (null là không giới hạn) để ẩn công cụ thuộc tính năng chưa bật
+export const fetchPlanModules = () =>
+  requestJson<{ modules: string[] | null }>('/api/v1/school-plan').then((plan) => plan.modules);
 
 export const fetchRoster = (classId: string) => requestJson<RosterResponse>(`${BASE}/classes/${classId}/roster`);
 
