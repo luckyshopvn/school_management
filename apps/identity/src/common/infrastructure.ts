@@ -12,6 +12,8 @@ export interface ScopedCache {
   // Đọc và xóa trong một giao dịch: giá trị chỉ dùng được một lần
   take(name: string): Promise<string | null>;
   delete(name: string): Promise<void>;
+  // Tăng bộ đếm, đặt hạn ở lần đầu; trả giá trị sau khi tăng (đếm số lần gửi mã mỗi giờ, YCTD-323)
+  increment(name: string, seconds: number): Promise<number>;
 }
 
 // Kết nối cơ sở dữ liệu định danh và Redis, đóng khi dịch vụ dừng. REDIS_URL=memory:// dùng kho trong bộ nhớ (một bản dịch vụ, hồ
@@ -67,6 +69,13 @@ export class Infrastructure implements OnModuleDestroy {
       },
       delete: async (name) => {
         await store.del(key(name));
+      },
+      increment: async (name, seconds) => {
+        const count = await store.incr(key(name));
+        if (count === 1) {
+          await store.expire(key(name), seconds);
+        }
+        return count;
       },
     };
   }

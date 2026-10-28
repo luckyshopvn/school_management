@@ -44,11 +44,8 @@ export class InitialPasswordCodeService {
     }
     const rules = await this.identitySettings.oneTimeCodeRules();
     const hour = Math.floor(now.getTime() / 3_600_000);
-    const counterKey = `${this.infrastructure.keyPrefix()}:initial-password-codes:${user.id}:${hour}`;
-    const count = await this.infrastructure.redis.incr(counterKey);
-    if (count === 1) {
-      await this.infrastructure.redis.expire(counterKey, 7200);
-    }
+    // Đếm số lần gửi mỗi giờ qua kho tạm theo trường của lớp hạ tầng (khóa có tiền tố của trường)
+    const count = await this.infrastructure.scopedCache('initial-password-codes').increment(`${user.id}:${hour}`, 7200);
     if (count > rules.maximumSendsPerHour) {
       throw new ApplicationError(
         'ERR_RATE_LIMIT',
