@@ -30,7 +30,7 @@ import { GuardianAccountsService } from './guardian-accounts.service.js';
 import { StaffAccountsService } from './staff-accounts.service.js';
 import { StudentAccountsService, type StudentAccountInput } from './student-accounts.service.js';
 import { IdentityDataExportService } from './identity-data-export.js';
-import { checkNationalId, isNationalIdShaped, isSchoolAdminRole, schoolAdminIdentityProblems } from './national-id.js';
+import { checkNationalId, isNationalIdShaped } from './national-id.js';
 import { ImpersonationService } from '../authentication/impersonation.service.js';
 
 type RequestBody = Record<string, unknown> | undefined;
@@ -405,10 +405,6 @@ export class AccountsController {
           roles.push(grant);
         }
       });
-    }
-    // Tài khoản quản trị trường (YCTD-314, Eric chốt ngày 2026-10-28): luôn đủ số CCCD, họ tên, số điện thoại
-    if (roles.some((grant) => isSchoolAdminRole(grant.role_code))) {
-      errors.push(...schoolAdminIdentityProblems({ fullName, phone, username }));
     }
     if (errors.length > 0) {
       throw validationError(errors);

@@ -403,6 +403,17 @@ export class AccountsService {
         throw forbidden(`Bạn không được cấp vai trò ${grant.role_code} ở đơn vị này`);
       }
     }
+    // Tài khoản quản trị trường (YCTD-314, Eric chốt ngày 2026-10-28): luôn đủ số CCCD, họ tên, số điện thoại; kiểm sau quyền
+    if (input.roles.some((grant) => isSchoolAdminRole(grant.role_code))) {
+      const problems = schoolAdminIdentityProblems({
+        fullName: input.full_name,
+        phone: input.phone,
+        username: input.username,
+      });
+      if (problems.length > 0) {
+        throw validationError(problems);
+      }
+    }
     await this.assertUnique(input.phone, input.username, null);
 
     // Quy tắc số CCCD (YCTD-311): tên đăng nhập là số CCCD thì nhận mật khẩu mặc định của hệ thống (DEFAULT_INITIAL_PASSWORD), có hạn

@@ -214,7 +214,8 @@ test('CT-24-10: Admin vào trường chưa cho phép bằng một lần bấm, k
   // Đơn vị mới từ danh mục: khởi tạo ở nền ("Đang khởi tạo…") rồi mở phiên vào thẳng trường mới
   await menu.getByRole('button', { name: 'Danh mục đơn vị' }).click();
   const search = consolePage.getByRole('form', { name: 'Tra cứu đơn vị' });
-  await search.getByLabel('Sở', { exact: true }).selectOption('98');
+  // Nhãn bọc ô chọn nên tên truy cập gồm cả lựa chọn đang chọn; ô Sở là ô chọn đầu tiên của biểu mẫu
+  await search.locator('select').first().selectOption('98');
   await search.getByLabel('Tên hoặc mã').fill('98000202');
   await search.getByRole('button', { name: 'Tìm' }).click();
   const row = consolePage.getByRole('table', { name: 'Kết quả tra cứu đơn vị' }).getByRole('row', { name: /98000202/ });
