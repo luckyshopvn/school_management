@@ -109,6 +109,10 @@ Default ports, taken from the repository's configuration:
 | platform / market                    | 5177 / 5178            |
 | PostgreSQL / Redis / S3 file storage | 5432 / 6379 / 8333     |
 
+Local multi-school setup (unit login with Department → Ward/Commune → Level → School at `http://truong.localhost:5190/`), running
+alongside the single-school setup above: build it with `pnpm --filter @school-management/database nhieu-truong-cuc-bo …`, then run
+`node scripts/chay-nhieu-truong.mjs`; full steps (Vietnamese) in `tai_lieu/32_KE_HOACH_THEO_HE_THONG_SO.md` section 16.10.
+
 Root scripts: `pnpm build`, `pnpm typecheck`, `pnpm lint`, `pnpm format`, `pnpm format:check`, `pnpm test`, `pnpm test:e2e`, `pnpm database:migrate`, `pnpm environment:start`, `pnpm environment:stop`.
 
 ## Testing

@@ -1,8 +1,8 @@
 import { publicJson } from '../session/api-client.js';
 import type { CaptchaChallenge } from './portal-shell-api.js';
 
-// Đăng nhập theo đơn vị (DT-24, YCTD-220): chế độ trang đăng nhập theo tên miền và ô chọn Sở → Cấp học, Phường/Xã → Trường đọc danh
-// mục của nền tảng (phân trang, tìm kiếm ở máy chủ)
+// Đăng nhập theo đơn vị (DT-24, YCTD-220): chế độ trang đăng nhập theo tên miền và ô chọn Sở → Phường/Xã → Cấp học → Trường
+// (YCTD-310) đọc danh mục của nền tảng (phân trang, tìm kiếm ở máy chủ)
 export interface LoginPageSettings {
   title: string;
   subtitle: string;
@@ -85,8 +85,12 @@ export function listDepartments(): Promise<{ items: DirectoryOption[] }> {
   return publicJson(`${DIRECTORY}/departments`);
 }
 
-export function listLevels(): Promise<{ items: Array<DirectoryOption & { moet_code: string }> }> {
-  return publicJson(`${DIRECTORY}/levels`);
+// Có sở, phường thì máy chủ chỉ trả cấp học có trường trong phạm vi đó (YCTD-310)
+export function listLevels(
+  scope: { department?: string | null; commune?: string | null } = {},
+): Promise<{ items: Array<DirectoryOption & { moet_code: string }> }> {
+  const parameters = query(scope);
+  return publicJson(`${DIRECTORY}/levels${parameters ? `?${parameters}` : ''}`);
 }
 
 export function listCommunes(department: string, q: string, offset: number): Promise<DirectoryPage<DirectoryOption>> {

@@ -160,6 +160,17 @@ describe('đăng nhập theo đơn vị và quyền quản trị nền tảng', 
       (communes.body.items as Array<{ code: string }>).map((item) => item.code),
       ['99102'],
     );
+    // Thứ tự Sở → Phường/Xã → Cấp học → Trường (YCTD-310): cấp học lọc theo phạm vi đã chọn
+    const levelCodes = async (path: string) =>
+      ((await send(context, { path, host: ROOT })).body.items as Array<{ code: string }>).map((item) => item.code);
+    assert.equal((await levelCodes('/auth/directory/levels')).length, 5);
+    assert.deepEqual(await levelCodes('/auth/directory/levels?department=98'), ['TH', 'THCS', 'THPT']);
+    assert.deepEqual(await levelCodes('/auth/directory/levels?department=98&commune=99101'), ['THCS', 'THPT']);
+    assert.deepEqual(await levelCodes('/auth/directory/levels?department=97&commune=99002'), ['TH', 'THCS']);
+    assert.equal(
+      (await send(context, { path: '/auth/directory/levels?department=97&commune=9900', host: ROOT })).status,
+      400,
+    );
   });
 
   it('CT-24-6: đơn vị chưa dùng nền tảng báo rõ; đăng nhập đúng trường, chuyển phiên một lần ở tên miền của trường', async () => {

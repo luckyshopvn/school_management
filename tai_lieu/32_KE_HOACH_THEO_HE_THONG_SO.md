@@ -1821,6 +1821,36 @@ Một phần duy nhất, **một PR** (Claude tự chọn theo ủy quyền củ
 | GD-111 | Tiêu đề trang đăng nhập ở tên miền chung | "Hệ thống quản lý trường học" cho đến khi Eric chốt tên sản phẩm | `platform_settings.login_page` | Eric |
 | GD-112 | Cập nhật danh mục | Nạp tay mỗi năm học từ tệp người vận hành có được; chưa tự động | Không | Eric |
 
+### 16.10 Đăng nhập kiểu SMIS và bản nhiều trường trên máy (YCTD-310)
+
+Eric yêu cầu ngày 2026-10-28: trang đăng nhập làm tương tự trang đăng nhập của hệ thống ngành, chọn Sở → Phường → Cấp học → Trường rồi nhập tài khoản; giữ trường demo hiện có; nạp danh mục trường toàn quốc vào bản nhiều trường trên máy.
+
+1. **Phân cấp:** danh mục của DT-24 đã là Sở → Phường/Xã (mã đơn vị hành chính cấp xã 5 chữ số sau sắp xếp năm 2025, không có cấp huyện) → Trường, cấp học là quan hệ nhiều-nhiều của trường; không phải đổi cấu trúc. Danh mục `administrative_units` trong cơ sở dữ liệu của từng trường (địa chỉ, có thời kỳ cũ và mới) là danh mục khác, không dùng cho ô chọn đơn vị.
+2. **Trang đăng nhập ở tên miền chung (MH-47):** bốn ô chọn có tìm kiếm xếp dọc theo thứ tự Sở GD&ĐT → Phường/Xã → Cấp học → Trường; ô sau chỉ mở khi đã chọn ô trước, đổi ô trước thì xoá các ô sau. Ô Phường/Xã có lựa chọn đầu "Tất cả phường, xã" để vẫn tìm được trường mà nguồn danh mục không ghi phường (cờ `commune_missing`). Ô Cấp học chỉ hiện cấp có trường đang hoạt động trong sở, phường đã chọn (`GET /api/v1/auth/directory/levels?department=&commune=`; không có tham số thì trả đủ năm cấp như trước). Trang hệ thống ngành xếp Cấp học trước Phường/Xã; ở đây theo thứ tự Eric yêu cầu. Không dùng quốc huy, biểu trưng, tên cơ quan nhà nước. Ứng dụng giáo viên, phụ huynh chưa có đăng nhập theo đơn vị (DT-24 chỉ làm ở cổng quản trị) nên không đổi.
+3. **Bản nhiều trường trên máy:** chạy song song bản một trường, không đụng cổng 3000, 3001, 5173…:
+
+| Thành phần | Giá trị mặc định |
+|---|---|
+| Cơ sở dữ liệu nền tảng, vai trò | `school_platform`, `platform_local` (mật khẩu sinh ngẫu nhiên) |
+| Tệp môi trường | `.env.nhieu-truong` ở gốc kho (nằm trong `.gitignore`), đè biến cùng tên của `.env` |
+| Dịch vụ định danh, máy chủ API | 3101, 3100 |
+| Cổng quản trị | 5190 |
+| Tên miền chung (ô chọn đơn vị) | `truong.localhost` |
+| Tên miền của trường demo | `tc.truong.localhost` (Chromium tự đưa `*.localhost` về máy, không sửa tệp hosts) |
+
+   - Trường demo được **nhận** làm trường của nền tảng bằng `adopt-existing` (mã nền tảng `tc-demo` vì mã nền tảng cần 3 đến 32 ký tự chữ thường): dùng lại cơ sở dữ liệu định danh, hệ thống, năm học của bản một trường, không chép, không đổi tên; tài khoản, mật khẩu như bản một trường. Hai bản cùng ghi vào một bộ cơ sở dữ liệu, cùng phiên bản mã nên cùng cấu trúc; bản nhiều trường tắt việc nền chạy theo giờ (`SCHEDULER_MODE=external`, thu số liệu, bản chụp tổng hợp đặt 0) để không chạy trùng với bản một trường.
+   - Trường demo không có trong danh mục của Bộ: lệnh gắn một đơn vị nguồn `demo-local` (mã `DEMO-TC`, cấp Mầm non) ở sở, phường chỉ định. Nạp lại danh mục với `--deactivate-missing` sẽ chuyển đơn vị này sang ngừng hoạt động: chạy lại lệnh dựng để gắn lại.
+4. **Cách dựng** (ở gốc kho, sau `pnpm build`; chạy lại được, giữ khoá và mật khẩu đã sinh):
+
+```bash
+pnpm --filter @school-management/database nhieu-truong-cuc-bo --school-code tc-demo --school-domain tc.truong.localhost --school-name "Trường Mầm non Trình Diễn" --units <tệp đơn vị theo cấp.csv> --communes <tệp phường xã.csv> --demo-moet-code DEMO-TC --demo-department 01 --demo-commune 00004 --demo-levels MN
+```
+
+   Tệp danh mục đọc từ đường dẫn tham số (đường dẫn tuyệt đối hoặc tính từ thư mục `database/`), không nằm trong kho (mục 16.6); tệp môi trường mặc định `../.env.nhieu-truong`, đổi bằng `--env-out`. Lệnh cần quyền tạo vai trò, cơ sở dữ liệu (`PLATFORM_ADMIN_DATABASE_URL` hoặc `POSTGRES_PASSWORD` trong `.env`), từ chối ghi tệp môi trường không nằm trong `.gitignore` và không in mật khẩu, khoá.
+5. **Cách chạy:** `node scripts/chay-nhieu-truong.mjs` (Ctrl+C dừng cả ba tiến trình), rồi mở `http://truong.localhost:5190/`, chọn Sở GD&ĐT Thành phố Hà Nội → Phường Ba Đình → Mầm non → Trường Mầm non Trình Diễn, nhập tài khoản của trường demo và mã xác nhận; đăng nhập đúng thì sang `http://tc.truong.localhost:5190/`.
+6. **Gỡ:** dừng tiến trình, xoá `.env.nhieu-truong`, `drop database school_platform`, `drop role platform_local`; bản một trường không bị ảnh hưởng.
+7. **Kiểm thử:** `database` CT-310-1 đến CT-310-3 (`src/local-multi-school.test.ts`), `apps/identity` CT-24-5 bổ sung ô cấp học theo phạm vi, e2e 160 chọn theo thứ tự mới (có "Tất cả phường, xã").
+
 ## 17. DT-25: bộ nối nhà cung cấp định danh bên ngoài theo chuẩn OIDC (sẵn cho VNeID)
 
 ### 17.1 Căn cứ và mục tiêu

@@ -1,8 +1,8 @@
 import { sql, type Kysely } from 'kysely';
 import type { MarketplaceDatabase } from '../../marketplace/schema.js';
 import { createDatabase } from '../connection.js';
-import { replaceDatabaseName } from '../environment.js';
 import { assertIdentifier } from '../school-database-layout.js';
+import { provisionOwnedDatabase } from '../owned-database.js';
 
 // Cơ sở dữ liệu chung của chợ gia sư (DT-27 phần 27f, YCTD-256; tài liệu 32 mục 19.3 "hai sản phẩm, một mã nguồn"): một cơ sở dữ liệu
 // riêng `marketplace` (cả hai bố cục `database`, `schema` của trường đều để chợ ở cơ sở dữ liệu riêng như `platform`), vai trò riêng chỉ
@@ -25,37 +25,7 @@ export interface ProvisionMarketplaceRequest {
 // Tạo vai trò và cơ sở dữ liệu của chợ (chạy một lần khi dựng môi trường, bằng tài khoản quản trị); trả chuỗi kết nối bằng vai trò của
 // chợ để đặt vào MARKETPLACE_DATABASE_URL. Chạy lại khi đã có thì giữ nguyên, chỉ đặt lại mật khẩu
 export async function provisionMarketplaceDatabase(request: ProvisionMarketplaceRequest): Promise<string> {
-  const roleName = request.roleName ?? DEFAULT_MARKETPLACE_ROLE;
-  assertIdentifier(roleName, 'Tên vai trò');
-  assertIdentifier(request.databaseName, 'Tên cơ sở dữ liệu');
-  const admin = createDatabase<unknown>(request.adminUrl, { max: 1 });
-  try {
-    const role = await sql<{
-      exists: boolean;
-    }>`select exists(select 1 from pg_roles where rolname = ${roleName}) as exists`.execute(admin);
-    if (role.rows[0]?.exists) {
-      await sql`alter role ${sql.id(roleName)} login password ${sql.lit(request.rolePassword)}`.execute(admin);
-    } else {
-      await sql`create role ${sql.id(roleName)} login password ${sql.lit(request.rolePassword)} nocreatedb nocreaterole nosuperuser`.execute(
-        admin,
-      );
-    }
-    const database = await sql<{
-      exists: boolean;
-    }>`select exists(select 1 from pg_database where datname = ${request.databaseName}) as exists`.execute(admin);
-    if (!database.rows[0]?.exists) {
-      await sql`create database ${sql.id(request.databaseName)} owner ${sql.id(roleName)}`.execute(admin);
-    }
-    // Chỉ vai trò của chợ (và quản trị) kết nối được
-    await sql`revoke connect on database ${sql.id(request.databaseName)} from public`.execute(admin);
-    await sql`grant connect on database ${sql.id(request.databaseName)} to ${sql.id(roleName)}`.execute(admin);
-  } finally {
-    await admin.destroy();
-  }
-  const url = new URL(replaceDatabaseName(request.adminUrl, request.databaseName));
-  url.username = roleName;
-  url.password = request.rolePassword;
-  return url.toString();
+  return provisionOwnedDatabase({ ...request, roleName: request.roleName ?? DEFAULT_MARKETPLACE_ROLE });
 }
 
 export async function dropMarketplaceDatabase(

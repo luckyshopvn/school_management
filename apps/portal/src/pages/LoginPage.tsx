@@ -30,7 +30,8 @@ import { LoginHero } from './LoginHero.js';
 // Bố cục "Đăng nhập hệ thống" với hai phần Thông tin đơn vị và Thông tin tài khoản (DT-24, YCTD-220), học bố cục và luồng chọn đơn vị
 // của trang đăng nhập hệ thống ngành nhưng không dùng tên, biểu trưng của cơ quan nhà nước: tiêu đề, biểu trưng lấy từ cấu hình
 // thương hiệu của trường (S3) hoặc của nền tảng.
-// - Tên miền chung của nền tảng: chọn Sở GD&ĐT → Cấp học, Phường/Xã → Trường (ô chọn có tìm kiếm, danh sách lấy theo trang); đăng
+// - Tên miền chung của nền tảng: chọn Sở GD&ĐT → Phường/Xã → Cấp học → Trường như trang đăng nhập hệ thống ngành (YCTD-310; ô chọn
+//   có tìm kiếm, danh sách lấy theo trang, cấp học chỉ hiện cấp có trường ở phường, xã đã chọn); đăng
 //   nhập đúng thì sang tên miền của trường bằng mã chuyển phiên một lần; đơn vị chưa dùng nền tảng thì báo, không cho gửi.
 // - Tên miền của trường và chế độ một trường: ẩn ô chọn, khóa vào trường của tên miền; hành vi đăng nhập giữ như cũ.
 // Bố cục hai cột theo mẫu thiết kế Login.dc.html: phần thương hiệu nền xanh bên trái (LoginHero), khung đăng nhập nền trắng bên phải;
@@ -53,6 +54,8 @@ interface RememberedUnit {
 }
 
 const EMPTY_UNIT: RememberedUnit = { department: null, level: null, commune: null, unit: null };
+// Lựa chọn đầu của ô Phường/Xã: trường thiếu phường, xã ở nguồn danh mục vẫn tìm được (YCTD-310)
+const ALL_COMMUNES: SearchSelectOption = { code: '*', label: 'Tất cả phường, xã' };
 
 function readStored(key: string): string {
   try {
@@ -78,7 +81,14 @@ function store(key: string, value: string | null): void {
 function readRememberedUnit(): RememberedUnit {
   try {
     const value = JSON.parse(readStored(REMEMBERED_UNIT_KEY) || 'null') as RememberedUnit | null;
-    return value && typeof value === 'object' ? { ...EMPTY_UNIT, ...value } : EMPTY_UNIT;
+    if (!value || typeof value !== 'object') {
+      return EMPTY_UNIT;
+    }
+    // Ghi nhớ từ bố cục cũ (cấp học chọn trước phường, xã, phường để trống): coi là tất cả phường, xã
+    const remembered = { ...EMPTY_UNIT, ...value };
+    return remembered.department && remembered.level && !remembered.commune
+      ? { ...remembered, commune: ALL_COMMUNES }
+      : remembered;
   } catch {
     return EMPTY_UNIT;
   }
@@ -147,12 +157,8 @@ function LoginForm({ context, directory }: { context: LoginContext; directory: b
     enabled: directory,
     staleTime: Infinity,
   });
-  const levels = useQuery({
-    queryKey: ['directory-levels'],
-    queryFn: listLevels,
-    enabled: directory,
-    staleTime: Infinity,
-  });
+  const departmentCode = selection.department?.code ?? '';
+  const communeCode = selection.commune && selection.commune.code !== ALL_COMMUNES.code ? selection.commune.code : null;
   const unitCode = selection.unit?.code ?? '';
   const unitDetail = useQuery({
     queryKey: ['directory-unit', unitCode],
@@ -259,7 +265,7 @@ function LoginForm({ context, directory }: { context: LoginContext; directory: b
                     label="Sở GD&ĐT"
                     required
                     value={selection.department}
-                    onChange={(department) => select({ department, commune: null, unit: null })}
+                    onChange={(department) => select({ department, commune: null, level: null, unit: null })}
                     load={(query) =>
                       Promise.resolve(
                         filterLocal(
@@ -274,51 +280,46 @@ function LoginForm({ context, directory }: { context: LoginContext; directory: b
                     reloadKey={String(departments.data?.items.length ?? 0)}
                     placeholder="Gõ để tìm tỉnh, thành phố"
                   />
-                  <div className="grid gap-3 sm:grid-cols-2">
-                    <SearchSelect
-                      label="Cấp học"
-                      required
-                      value={selection.level}
-                      onChange={(level) => select({ level, unit: null })}
-                      load={(query) =>
-                        Promise.resolve(
-                          filterLocal(
-                            (levels.data?.items ?? []).map((item) => ({ code: item.code, label: item.name })),
-                            query,
-                          ),
-                        )
-                      }
-                      reloadKey={String(levels.data?.items.length ?? 0)}
-                    />
-                    <SearchSelect
-                      label="Phường/Xã"
-                      disabled={!selection.department}
-                      value={selection.commune}
-                      onChange={(commune) => select({ commune, unit: null })}
-                      load={async (query, offset) => {
-                        const result = await listCommunes(selection.department?.code ?? '', query, offset);
-                        return {
-                          items: result.items.map((item) => ({ code: item.code, label: item.name })),
-                          has_more: result.has_more,
-                        };
-                      }}
-                      reloadKey={selection.department?.code ?? ''}
-                      placeholder="Tất cả phường, xã"
-                    />
-                  </div>
+                  {/* Thứ tự Sở → Phường/Xã → Cấp học → Trường (YCTD-310): mỗi ô mở khi đã chọn ô trước, đổi ô trước thì xóa ô sau */}
+                  <SearchSelect
+                    label="Phường/Xã"
+                    required
+                    disabled={!selection.department}
+                    value={selection.commune}
+                    onChange={(commune) => select({ commune, level: null, unit: null })}
+                    load={async (query, offset) => {
+                      const result = await listCommunes(departmentCode, query, offset);
+                      const items = result.items.map((item) => ({ code: item.code, label: item.name }));
+                      const showAll = offset === 0 && filterLocal([ALL_COMMUNES], query).items.length > 0;
+                      return { items: showAll ? [ALL_COMMUNES, ...items] : items, has_more: result.has_more };
+                    }}
+                    reloadKey={departmentCode}
+                    placeholder="Gõ để tìm phường, xã"
+                  />
+                  <SearchSelect
+                    label="Cấp học"
+                    required
+                    disabled={!selection.commune}
+                    value={selection.level}
+                    onChange={(level) => select({ level, unit: null })}
+                    load={async (query) => {
+                      const result = await listLevels({ department: departmentCode, commune: communeCode });
+                      return filterLocal(
+                        result.items.map((item) => ({ code: item.code, label: item.name })),
+                        query,
+                      );
+                    }}
+                    reloadKey={`${departmentCode}|${selection.commune?.code ?? ''}`}
+                  />
                   <SearchSelect
                     label="Trường"
                     required
-                    disabled={!selection.department || !selection.level}
+                    disabled={!selection.department || !selection.commune || !selection.level}
                     value={selection.unit}
                     onChange={(unit) => select({ unit })}
                     load={async (query, offset) => {
                       const result = await listUnits(
-                        {
-                          department: selection.department?.code ?? '',
-                          level: selection.level?.code ?? null,
-                          commune: selection.commune?.code ?? null,
-                        },
+                        { department: departmentCode, level: selection.level?.code ?? null, commune: communeCode },
                         query,
                         offset,
                       );
@@ -331,7 +332,7 @@ function LoginForm({ context, directory }: { context: LoginContext; directory: b
                         has_more: result.has_more,
                       };
                     }}
-                    reloadKey={`${selection.department?.code ?? ''}|${selection.level?.code ?? ''}|${selection.commune?.code ?? ''}`}
+                    reloadKey={`${departmentCode}|${selection.commune?.code ?? ''}|${selection.level?.code ?? ''}`}
                     placeholder="Gõ tên hoặc mã trường"
                     error={fieldErrors.unit || undefined}
                   />

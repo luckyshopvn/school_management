@@ -24,7 +24,7 @@ import {
 } from '../e2e-multi-environment.mjs';
 import { expect, test, type Page } from './fixtures.js';
 
-// DT-24 (YCTD-220, spec 160), kịch bản CT-24-9, CT-24-10: trang đăng nhập ở tên miền chung có ô chọn Sở → Cấp học → Trường đọc danh
+// DT-24 (YCTD-220, spec 160), kịch bản CT-24-9, CT-24-10: trang đăng nhập ở tên miền chung có ô chọn Sở → Phường/Xã → Cấp học → Trường (YCTD-310) đọc danh
 // mục mẫu giả; đơn vị chưa dùng nền tảng báo rõ; đăng nhập đúng thì sang tên miền của trường alpha; tên miền của trường khóa đơn vị.
 // Quản trị nền tảng vào trường alpha khi trường chưa cho phép: nhập lại mã xác thực hai lớp, lý do; cổng quản trị hiện biểu ngữ "đang
 // truy cập với quyền quản trị nền tảng"; quản trị trường thấy phiên trong nhật ký. Chỉ chạy ở dự án nhiều trường. Dữ liệu giả
@@ -114,12 +114,14 @@ test('CT-24-9: đăng nhập theo đơn vị ở tên miền chung sang đúng t
 
   // Đơn vị chỉ có trong danh mục: báo chưa dùng nền tảng
   await choose(page, 'Sở GD&ĐT', 'mau bac', 'Sở GD&ĐT Tỉnh Mẫu Bắc');
+  await choose(page, 'Phường/Xã', 'tat ca', 'Tất cả phường, xã');
   await choose(page, 'Cấp học', 'tieu', 'Tiểu học');
   await choose(page, 'Trường', 'binh minh', 'Trường Tiểu học Mẫu Bình Minh');
   await expect(page.getByRole('status').filter({ hasText: 'chưa sử dụng hệ thống' })).toBeVisible();
 
   // Đơn vị đã khởi tạo (trường alpha gắn mã Bộ mẫu): mã xác nhận của đúng trường, đăng nhập rồi sang tên miền của trường
   await choose(page, 'Sở GD&ĐT', 'nam', 'Sở GD&ĐT Thành phố Mẫu Nam');
+  await choose(page, 'Phường/Xã', 'nam mot', 'Phường Mẫu Nam Một');
   await choose(page, 'Cấp học', 'trung hoc co', 'Trung học cơ sở');
   const captchas: Array<Promise<{ captcha_id: string }>> = [];
   const listener = (response: Response) => {

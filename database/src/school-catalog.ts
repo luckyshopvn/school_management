@@ -686,8 +686,29 @@ export async function catalogDepartments(platform: Kysely<PlatformDatabase>) {
     .execute();
 }
 
-export async function catalogLevels(platform: Kysely<PlatformDatabase>) {
-  return platform.selectFrom('catalog_levels').select(['code', 'moet_code', 'name']).orderBy('sort').execute();
+// Có sở (và phường, xã) thì chỉ trả cấp học có đơn vị đang hoạt động trong phạm vi đó: ô chọn theo thứ tự Sở → Phường/Xã → Cấp
+// học → Trường không đưa ra cấp học dẫn tới danh sách trường rỗng (YCTD-310, đăng nhập kiểu SMIS)
+export async function catalogLevels(
+  platform: Kysely<PlatformDatabase>,
+  scope: { department?: string | null; commune?: string | null } = {},
+) {
+  let query = platform.selectFrom('catalog_levels').select(['code', 'moet_code', 'name']);
+  const { department, commune } = scope;
+  if (department) {
+    query = query.where((builder) =>
+      builder.exists(
+        builder
+          .selectFrom('catalog_unit_levels')
+          .innerJoin('catalog_units', 'catalog_units.id', 'catalog_unit_levels.unit_id')
+          .select('catalog_unit_levels.unit_id')
+          .whereRef('catalog_unit_levels.level_code', '=', 'catalog_levels.code')
+          .where('catalog_units.department_code', '=', department)
+          .where('catalog_units.status', '=', 'active')
+          .$if(Boolean(commune), (inner) => inner.where('catalog_units.commune_code', '=', commune as string)),
+      ),
+    );
+  }
+  return query.orderBy('sort').execute();
 }
 
 export async function catalogCommunes(
