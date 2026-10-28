@@ -2483,6 +2483,27 @@ Eric duyệt bản thiết kế "Chợ gia sư, Gia sư, Cấp trên" ngày 2026
 - **Lưu ở đâu:** marketplace 0040 (`market_recording_consents`, `market_session_rooms`, `market_session_participants`, `market_session_attendance`).
 - **Kiểm thử:** quy tắc thuần CT-27j-1 (`market-room-rules.test.ts`); máy chủ CT-27i-5 (sửa theo phòng chờ), CT-27j-2 (gia sư vắng, điểm danh, rút đồng ý, tự xác nhận); giao diện CT-27j-3 (spec 199, bộ giả lập lớp video).
 
+### 19.13 Đánh giá, tài khoản, đăng nhập định danh của phụ huynh, con đọc tin nhắn (YCTD-364)
+
+Các chức năng còn lại trong bản thiết kế Eric duyệt ngày 2026-10-28 mà máy chủ chưa có API. Phiên điều phối xếp thành YCTD-364.
+
+- **Đánh giá sau buổi** (`market_reviews`, marketplace 0050):
+  - mỗi buổi đã dạy có một đánh giá của phụ huynh của buổi: 1 đến 5 sao, bốn tiêu chí không bắt buộc, nhận xét; thông tin liên lạc ngoài bị che như tin nhắn;
+  - đánh giá chờ nhân viên nền tảng duyệt rồi mới hiện, với tên "Phụ huynh học sinh lớp N"; từ chối phải ghi lý do;
+  - gia sư trả lời một lần đánh giá đã hiện; trang tìm gia sư có điểm trung bình, sắp "đánh giá cao trước";
+  - báo cáo vi phạm từ đánh giá dùng loại `review` của 27i.
+- **Mật khẩu và tài khoản:**
+  - đổi mật khẩu phải nhập mật khẩu hiện tại; đổi xong thì các phiên khác bị thu hồi;
+  - quên mật khẩu: mã 6 số mục đích `reset`, câu trả lời không cho biết tài khoản có tồn tại hay không; đặt lại xong thì mọi phiên bị thu hồi;
+  - sửa tên hiển thị. Đổi thư điện tử, số điện thoại chưa làm.
+- **Đăng nhập định danh của phụ huynh:** phụ huynh đang đăng nhập liên kết định danh (mục đích `link`, quay về `/dinh-danh` trên tên miền của chợ), rồi đăng nhập bằng định danh đó. Giữ cách gắn lượt với trình duyệt và với tài khoản của YCTD-322 (PR 242). Định danh chỉ đăng nhập được ứng dụng của đúng vai.
+- **Con đọc tin nhắn** (`market_children.reads_messages`):
+  - phụ huynh bật cho từng con; con chỉ đọc các luồng tin của phụ huynh với gia sư có buổi với con, trên máy và bằng phiên của phụ huynh;
+  - không có điểm cuối gửi tin cho con, không có kênh riêng giữa gia sư và trẻ;
+  - thoát chế độ con đọc phải nhập lại mật khẩu của phụ huynh; mỗi lần mở ghi nhật ký.
+- **Gói buổi:** chưa làm, chờ Eric chốt quy tắc hạn dùng và hoàn tiền phần chưa học.
+- **Giao diện duyệt đánh giá ở cổng vận hành:** làm cùng YCTD-363.
+
 
 ## 20. DT-28: hệ thống quản lý học tập (LMS) cho trường phổ thông (28a đến 28j)
 
