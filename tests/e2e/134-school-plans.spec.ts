@@ -107,6 +107,19 @@ test('CT-S5a-8: phân hệ ngoài gói không hiện, máy chủ chặn; trườ
     }
   });
   await signIn(alpha, users.alpha as TestUser);
+  // Máy chủ API giữ ngữ cảnh trường (kèm gói) trong bộ đệm 30 giây: gói vừa gán ở beforeAll có thể chưa có hiệu lực nếu ca khác vừa
+  // nạp trường alpha. Chờ máy chủ báo gói giới hạn rồi tải lại trang (YCTD-366)
+  await expect
+    .poll(
+      async () => {
+        const plan = await apiCall('alpha', 'GET', '/school-plan', tokens.at(-1) ?? '');
+        return (plan.body as { restricted?: boolean }).restricted === true;
+      },
+      { timeout: 45_000, intervals: [2_000] },
+    )
+    .toBe(true);
+  await alpha.reload();
+  await expect(alpha.getByRole('heading', { name: /^Xin chào,/ })).toBeVisible();
   await alpha.getByRole('button', { name: /^Phân hệ: / }).click();
   const workspaces = alpha.getByRole('menu', { name: 'Chọn phân hệ' });
   await expect(workspaces).toBeVisible();
@@ -130,6 +143,16 @@ test('CT-S5a-8: phân hệ ngoài gói không hiện, máy chủ chặn; trườ
     }
   });
   await signIn(beta, users.beta as TestUser);
+  await expect
+    .poll(
+      async () => {
+        const plan = await apiCall('beta', 'GET', '/school-plan', betaTokens.at(-1) ?? '');
+        return (plan.body as { read_only?: boolean }).read_only === true;
+      },
+      { timeout: 45_000, intervals: [2_000] },
+    )
+    .toBe(true);
+  await beta.reload();
   await expect(beta.getByRole('alert', { name: 'Chế độ chỉ đọc' })).toContainText('chế độ chỉ đọc');
   const betaToken = betaTokens.at(-1) ?? '';
   expect((await apiCall('beta', 'GET', '/org-units', betaToken)).status).toBe(200);
