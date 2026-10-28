@@ -32,7 +32,7 @@ phien_ban_de_xuat: 0.175.0
 
 #### Thay đổi
 
-- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-262, `23_LICH_SU_PHIEN_BAN.md` {PHIEN_BAN}; BR-411, AC-1075, MH-513, CT-1376, QĐ-45.
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-262, `23_LICH_SU_PHIEN_BAN.md` {PHIEN_BAN}; BR-411, AC-1075, MH-513, CT-1376, QĐ-46 (QĐ-45 đã là của YCTD-300 khi gộp main).
 
 #### Vấn đề tồn đọng
 
@@ -91,5 +91,5 @@ phien_ban_de_xuat: 0.175.0
 | 07_QUY_TAC_NGHIEP_VU.md | BR-280 | BR-411 | Ứng dụng của chợ gia sư theo vai (YCTD-262): phụ huynh dùng ứng dụng Chợ gia sư ở tên miền của chợ, gia sư (kể cả giáo viên dạy kèm ngoài trường, bằng tài khoản chợ riêng; dạy kèm học sinh trong trường mình vẫn ở ứng dụng giáo viên) dùng ứng dụng Gia sư ở tên miền riêng (đặt ở cổng nền tảng, bắt buộc khi bật chợ, khác tên miền của chợ); máy chủ chỉ nhận đăng ký, đăng nhập, phiên của tài khoản đúng vai với tên miền; đăng nhập đúng mật khẩu ở sai ứng dụng thì từ chối kèm chỉ dẫn, không mở phiên |
 | 11_TIEU_CHI_NGHIEM_THU.md | AC-944 | AC-1075 | Cho chợ bật với tên miền của chợ và của ứng dụng Gia sư / Khi gia sư đăng ký ở Chợ gia sư, đăng nhập ở Chợ gia sư, dùng phiên gia sư ở tên miền của chợ, phụ huynh dùng phiên ở ứng dụng Gia sư / Thì đăng ký bị từ chối (400), đăng nhập bị từ chối kèm chỉ dẫn sang ứng dụng Gia sư (403), phiên bị từ chối (401) cả hai chiều; gia sư đăng ký, xác nhận, lưu hồ sơ ở ứng dụng Gia sư được (CT-1376; YCTD-262) |
 | 14_DAC_TA_GIAO_DIEN.md | MH-401 | MH-513 | Ứng dụng Gia sư (apps/tutor, YCTD-262): ứng dụng cài được "Chợ gia sư – Gia sư" ở tên miền riêng; giới thiệu, văn bản pháp lý, đăng ký gia sư (thêm điều khoản dành cho gia sư), xác nhận mã, đăng nhập, văn bản mới cần đồng ý, hồ sơ gia sư và cơ sở dạy thêm; 27g, 27h, 27i thêm xác minh, lịch dạy, buổi, thu nhập, báo cáo an toàn | Gia sư |
-| 12_KIEN_TRUC_HE_THONG.md | QĐ-43 | QĐ-45 | Ứng dụng Gia sư tách khỏi Chợ gia sư (YCTD-262): hai ứng dụng tĩnh ở hai tên miền con riêng của nền tảng, cùng nhóm điểm cuối `/api/v1/market`, máy chủ biết vai theo tên miền (`assertMarketHost`); phần dùng chung ở `packages/market-client`; phương án đã loại: một ứng dụng hai khu (PWA, tên, biểu tượng chung cho hai đối tượng), ứng dụng Gia sư ở đường dẫn con của tên miền chợ (chung phạm vi service worker, phiên), chép mã dùng chung vào từng ứng dụng | Đã chọn |
+| 12_KIEN_TRUC_HE_THONG.md | QĐ-43 | QĐ-46 | Ứng dụng Gia sư tách khỏi Chợ gia sư (YCTD-262): hai ứng dụng tĩnh ở hai tên miền con riêng của nền tảng, cùng nhóm điểm cuối `/api/v1/market`, máy chủ biết vai theo tên miền (`assertMarketHost`); phần dùng chung ở `packages/market-client`; phương án đã loại: một ứng dụng hai khu (PWA, tên, biểu tượng chung cho hai đối tượng), ứng dụng Gia sư ở đường dẫn con của tên miền chợ (chung phạm vi service worker, phiên), chép mã dùng chung vào từng ứng dụng | Đã chọn |
 | 21_KICH_BAN_KIEM_THU.md | CT-1204 | CT-1376 | P02-125 | CT-YCTD262-1: hai ứng dụng: gia sư đăng ký, đăng nhập ở Chợ gia sư; phiên dùng chéo; gia sư đăng ký, xác nhận, lưu hồ sơ ở ứng dụng Gia sư (e2e 195) | 400; 403 kèm chỉ dẫn; 401 hai chiều; lưu được | `apps/api/src/market/market.test.ts` (CT-27f-5), `tests/e2e/195-marketplace-isolation.spec.ts`; 1075 | Cao |
