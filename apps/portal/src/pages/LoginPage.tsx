@@ -1,4 +1,4 @@
-import { useState, type FormEvent } from 'react';
+import { useEffect, useState, type FormEvent } from 'react';
 import { Link } from '@tanstack/react-router';
 import { useQuery } from '@tanstack/react-query';
 import { Alert, Button, TextField } from '@school-management/ui';
@@ -15,6 +15,7 @@ import {
   listDepartments,
   listLevels,
   listUnits,
+  prepareUnit,
   readLoginContext,
   readUnit,
   schoolPageUrl,
@@ -31,8 +32,9 @@ import { ExternalLoginProviders } from '../portal-shell/ExternalLoginProviders.j
 // Ghi nhớ, Quên Mật Khẩu?, nút Đăng nhập toàn chiều rộng. Không dùng tên, biểu trưng của cơ quan nhà nước: tiêu đề, biểu trưng lấy từ
 // cấu hình thương hiệu của trường (S3) hoặc của nền tảng.
 // - Tên miền chung của nền tảng (DT-24): Sở Giáo dục và Đào tạo → Cấp và Phường / Xã (lọc, không bắt buộc) → Trường; cấp học chỉ hiện
-//   cấp có trường trong sở (và phường nếu chọn); đăng nhập đúng thì sang tên miền của trường bằng mã chuyển phiên một lần; đơn vị chưa
-//   dùng nền tảng thì báo, không cho gửi. Mã xác nhận luôn hiện.
+//   cấp có trường trong sở (và phường nếu chọn); đăng nhập đúng thì sang tên miền của trường bằng mã chuyển phiên một lần. Mọi đơn vị
+//   trong danh mục đều mở (YCTD-314): đơn vị chưa có trường thì khởi tạo ở lần chọn đầu tiên, trang hiện "Đang khởi tạo đơn vị" và hỏi
+//   lại tới khi sẵn sàng; chỉ trường đang tạm ngưng mới báo không đăng nhập được. Mã xác nhận luôn hiện.
 // - Tên miền của trường và chế độ một trường: mục THÔNG TIN ĐƠN VỊ chỉ đọc, khóa vào trường của tên miền; mã xác nhận hiện theo cấu hình
 //   hoặc sau lần nhập sai đầu tiên như cũ.
 // - Ghi nhớ: nhớ đơn vị đã chọn và tên đăng nhập ở máy (localStorage), máy chủ giữ phiên lâu (PORTAL_REMEMBER_DAYS) với cookie bền; không
@@ -160,7 +162,25 @@ function LoginForm({ context, directory }: { context: LoginContext; directory: b
     queryFn: () => readUnit(unitCode),
     enabled: directory && unitCode !== '',
     retry: false,
+    // Đang khởi tạo: hỏi lại mỗi 2 giây tới khi trường sẵn sàng
+    refetchInterval: (query) =>
+      query.state.data?.state === 'provisioning' || query.state.data?.state === 'not_provisioned' ? 2000 : false,
   });
+  const unitState = unitDetail.data?.state;
+  const [prepareError, setPrepareError] = useState<string>();
+  // Lần chọn đầu tiên một đơn vị chưa có trường: nhờ máy chủ khởi tạo (chạy nền), trang chờ ở trạng thái "đang khởi tạo"
+  useEffect(() => {
+    if (!directory || unitState !== 'not_provisioned' || !unitCode) {
+      return;
+    }
+    setPrepareError(undefined);
+    prepareUnit(unitCode)
+      .then(() => unitDetail.refetch())
+      .catch((error: unknown) =>
+        setPrepareError(error instanceof ApiError ? error.message : 'Không kết nối được tới máy chủ, vui lòng thử lại'),
+      );
+  }, [directory, unitCode, unitState]);
+  const unitPreparing = directory && (unitState === 'not_provisioned' || unitState === 'provisioning') && !prepareError;
   const unitReady = directory && unitDetail.data?.available === true;
   const captchaShown = directory ? unitReady : Boolean(options.data?.captcha_always) || failedOnce;
   const captcha = useCaptcha(
@@ -180,7 +200,13 @@ function LoginForm({ context, directory }: { context: LoginContext; directory: b
     setErrorMessage(undefined);
     setFieldErrors({});
     if (directory && !unitReady) {
-      setFieldErrors({ unit: selection.unit ? 'Đơn vị chưa dùng hệ thống trên nền tảng' : 'Chọn trường' });
+      setFieldErrors({
+        unit: !selection.unit
+          ? 'Chọn trường'
+          : unitPreparing
+            ? 'Đơn vị đang được khởi tạo, vui lòng chờ trong giây lát'
+            : (unitDetail.data?.message ?? prepareError ?? 'Đơn vị chưa sẵn sàng'),
+      });
       return;
     }
     setSubmitting(true);
@@ -349,9 +375,18 @@ function LoginForm({ context, directory }: { context: LoginContext; directory: b
                   placeholder="Chọn trường"
                   error={fieldErrors.unit || undefined}
                 />
-                {unitDetail.data && !unitDetail.data.available ? (
-                  <Alert tone="warning">{unitDetail.data.message}</Alert>
+                {unitPreparing ? (
+                  <p
+                    role="status"
+                    aria-live="polite"
+                    className="text-label text-text-muted"
+                    data-testid="unit-preparing"
+                  >
+                    Đang khởi tạo đơn vị trên hệ thống, vui lòng chờ trong giây lát…
+                  </p>
                 ) : null}
+                {prepareError ? <Alert tone="warning">{prepareError}</Alert> : null}
+                {unitDetail.data?.message ? <Alert tone="warning">{unitDetail.data.message}</Alert> : null}
               </>
             ) : (
               <div className="rounded-lg border border-border bg-page px-3 py-2" data-testid="login-school">

@@ -460,6 +460,7 @@ export {
 } from './adopt-existing.js';
 export type { ProvisioningJobKind, ProvisioningJobStatus, SchoolConsentKind } from '../platform/schema.js';
 export * from './school-lifecycle.js';
+export * from './catalog-provisioning.js';
 export * from './domain-provider.js';
 export {
   DEFAULT_LIFECYCLE_SETTINGS,

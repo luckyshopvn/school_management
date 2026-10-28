@@ -6,6 +6,7 @@ import {
   PublicEndpoint,
   RequirePermission,
   StudentEndpoint,
+  RequirePlanModule,
 } from '../authentication/authentication.guard.js';
 import type { CurrentUser } from '../authentication/current-user.js';
 import { originOf } from '../common/audit-log.js';
@@ -17,6 +18,7 @@ import { TutoringCoursesService } from './tutoring-courses.js';
 const TEACH = PERMISSION_CODES.tutoringTeach;
 const MANAGE = PERMISSION_CODES.tutoringManage;
 
+@RequirePlanModule('tutoring')
 @Controller('tutoring')
 export class TutoringCoursesController {
   constructor(private readonly courses: TutoringCoursesService) {}
@@ -59,6 +61,7 @@ export class TutoringCoursesController {
 }
 
 // Phát video bài học bằng đường dẫn ký 5 phút (thẻ video không gửi được mã phiên), theo đoạn (Range), không lưu đệm
+@RequirePlanModule('tutoring')
 @Controller('tutoring/course-media')
 @PublicEndpoint()
 export class TutoringCourseMediaStreamController {
@@ -89,6 +92,7 @@ export class TutoringCourseMediaStreamController {
 }
 
 // Cha mẹ: khoá học ghi sẵn của chương trình mà con có đơn được duyệt, xem bài video
+@RequirePlanModule('tutoring')
 @Controller('children/:id/tutoring')
 export class ChildTutoringCoursesController {
   constructor(private readonly courses: TutoringCoursesService) {}
@@ -115,6 +119,7 @@ export class ChildTutoringCoursesController {
 }
 
 // Học sinh (kênh student): khoá gia sư mình được ghi danh, xem bài video
+@RequirePlanModule('tutoring')
 @Controller('student/tutoring')
 @StudentEndpoint()
 export class StudentTutoringCoursesController {

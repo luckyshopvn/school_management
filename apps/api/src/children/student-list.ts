@@ -265,6 +265,21 @@ function selectStudentColumns(selection: ReturnType<typeof filteredStudents>) {
       .where('child_guardians.receives_sms', '=', true)
       .limit(1)
       .as('sms_phone'),
+    // Cột Phụ huynh, Chuyên cần của lưới theo mẫu giao diện (YCTD-319): họ tên người liên hệ chính; tỷ lệ phần trăm ngày có
+    // mặt (kể cả đi muộn, về sớm) trên số ngày đã điểm danh ở năm học, chưa điểm danh ngày nào là trống
+    expression
+      .selectFrom('child_guardians')
+      .innerJoin('guardians', 'guardians.id', 'child_guardians.guardian_id')
+      .select('guardians.full_name')
+      .whereRef('child_guardians.child_id', '=', 'children.id')
+      .where('child_guardians.is_primary', '=', true)
+      .limit(1)
+      .as('guardian_name'),
+    sql<
+      number | null
+    >`(select round(100.0 * count(*) filter (where attendance_records.status not in ('absent_notified', 'absent_unnotified')) / nullif(count(*), 0))::int from attendance_records where attendance_records.child_id = children.id)`.as(
+      'attendance_rate',
+    ),
   ]);
 }
 
@@ -301,6 +316,8 @@ export interface StudentRecord {
   can_swim: boolean | null;
   contact_phone: string | null;
   sms_phone: string | null;
+  guardian_name: string | null;
+  attendance_rate: number | null;
 }
 
 // Đếm và đọc một trang (hoặc tất cả khi không truyền trang) học sinh trong phạm vi theo bộ lọc
@@ -338,6 +355,8 @@ export interface StudentRow {
   status: ChildStatus;
   contact_phone: string | null;
   sms_phone: string | null;
+  guardian_name: string | null;
+  attendance_rate: number | null;
   grade_name: string | null;
   grade_level: string | null;
   class_name: string | null;
@@ -361,6 +380,12 @@ export const STUDENT_EXPORT_COLUMNS: Array<{ id: string; label: string; value(ro
   { id: 'ethnicity', label: 'Dân tộc', value: (row) => row.ethnicity ?? '' },
   { id: 'status', label: 'Trạng thái', value: (row) => CHILD_STATUS_LABELS[row.status] },
   { id: 'contact_phone', label: 'Số điện thoại liên hệ', value: (row) => row.contact_phone ?? '' },
+  { id: 'guardian_name', label: 'Phụ huynh', value: (row) => row.guardian_name ?? '' },
+  {
+    id: 'attendance_rate',
+    label: 'Chuyên cần',
+    value: (row) => (row.attendance_rate === null ? '' : `${row.attendance_rate}%`),
+  },
   { id: 'grade', label: 'Khối', value: (row) => row.grade_name ?? row.grade_level ?? '' },
   { id: 'class', label: 'Lớp', value: (row) => row.class_name ?? '' },
   { id: 'sms_phone', label: 'Điện thoại nhận tin', value: (row) => row.sms_phone ?? '' },

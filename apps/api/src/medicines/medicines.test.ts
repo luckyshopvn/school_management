@@ -286,7 +286,29 @@ describe('Thuốc: dặn thuốc, cho uống, mua và cấp thuốc', () => {
       received_quantity: '1 lọ 60 ml',
     });
     assert.equal(received.status, 200, JSON.stringify(received.body));
-    assert.equal(received.body.status, 'administering');
+    assert.equal(
+      received.body.status,
+      'received',
+      'QT-07: nhận thuốc chuyển sang Đã nhận thuốc, chưa phải Đang cho uống',
+    );
+    assert.equal(
+      (await api('POST', `/medication-requests/${requestA}/receive`, token('nurse'), {})).status,
+      422,
+      'nhận lại phiếu đã nhận bị chặn',
+    );
+    assert.equal(
+      (await api('POST', `/medication-requests/${requestA}/reject`, token('nurse'), { reason: 'Sai thuốc' })).status,
+      422,
+      'đã nhận thuốc thì không từ chối được',
+    );
+    const receivedNotice = await schoolYear
+      .selectFrom('notifications')
+      .innerJoin('notification_recipients', 'notification_recipients.notification_id', 'notifications.id')
+      .select(['notification_recipients.user_id', 'notification_recipients.channel'])
+      .where('notifications.template_code', '=', 'medication_received')
+      .where('notifications.target_id', '=', requestA)
+      .execute();
+    assert.deepEqual(receivedNotice, [{ user_id: users.parentA?.userId, channel: 'in_app' }]);
 
     const first = await api('POST', '/medication-administrations', token('nurse'), {
       request_id: requestA,
@@ -294,6 +316,23 @@ describe('Thuốc: dặn thuốc, cho uống, mua và cấp thuốc', () => {
       dose_note: 'Uống hết',
     });
     assert.equal(first.status, 201, JSON.stringify(first.body));
+    const afterFirst = await api('GET', `/medication-requests/${requestA}`, token('nurse'));
+    assert.equal(afterFirst.body.status, 'administering', 'liều đầu tiên chuyển sang Đang cho uống');
+    // CT-1663, QT-07 mục 9: cho uống báo phụ huynh của trẻ trong ứng dụng
+    const given = await schoolYear
+      .selectFrom('notifications')
+      .innerJoin('notification_recipients', 'notification_recipients.notification_id', 'notifications.id')
+      .select(['notifications.title', 'notification_recipients.user_id', 'notification_recipients.channel'])
+      .where('notifications.template_code', '=', 'medication_dose_given')
+      .where('notifications.target_id', '=', first.body.id as string)
+      .execute();
+    assert.deepEqual(given, [
+      { title: 'Con đã được cho uống thuốc', user_id: users.parentA?.userId, channel: 'in_app' },
+    ]);
+    const parentInbox = await api('GET', '/notifications?unread_only=true', token('parentA'));
+    assert.ok(JSON.stringify(parentInbox.body).includes('Con đã được cho uống thuốc'));
+    const otherInbox = await api('GET', '/notifications?unread_only=true', token('parentB'));
+    assert.ok(!JSON.stringify(otherInbox.body).includes('Con đã được cho uống thuốc'), 'phụ huynh khác không nhận');
     const duplicate = await api('POST', '/medication-administrations', token('nurse'), {
       request_id: requestA,
       scheduled_date: vietnamToday,
@@ -329,13 +368,12 @@ describe('Thuốc: dặn thuốc, cho uống, mua và cấp thuốc', () => {
     const notified = await schoolYear
       .selectFrom('notifications')
       .innerJoin('notification_recipients', 'notification_recipients.notification_id', 'notifications.id')
-      .select('notification_recipients.user_id')
+      .select(['notification_recipients.user_id', 'notification_recipients.channel'])
       .where('notifications.template_code', '=', 'medication_dose_skipped')
       .execute();
-    assert.deepEqual(
-      notified.map((row) => row.user_id),
-      [users.parentA?.userId],
-    );
+    // QT-07 mục 9: bỏ liều báo trong ứng dụng và tin nhắn
+    assert.deepEqual(notified.map((row) => row.channel).sort(), ['in_app', 'sms']);
+    assert.ok(notified.every((row) => row.user_id === users.parentA?.userId));
 
     // Đủ liều theo lịch thì yêu cầu tự hoàn thành; phụ huynh thấy liều đã cho uống và liều bỏ
     const detail = await api('GET', `/medication-requests/${requestA}`, token('parentA'));
@@ -405,13 +443,15 @@ describe('Thuốc: dặn thuốc, cho uống, mua và cấp thuốc', () => {
     const notified = await schoolYear
       .selectFrom('notifications')
       .innerJoin('notification_recipients', 'notification_recipients.notification_id', 'notifications.id')
-      .select('notification_recipients.user_id')
+      .select(['notification_recipients.user_id', 'notification_recipients.role_code', 'notifications.body'])
       .where('notifications.target_id', '=', requestId)
       .execute();
+    // CT-1666, QT-07 bước 3: báo cả y tế và giáo viên chủ nhiệm, ghi rõ người nhận thuốc
     assert.deepEqual(
-      notified.map((row) => row.user_id),
-      [users.homeroomB?.userId],
+      notified.map((row) => row.user_id ?? row.role_code).sort(),
+      [users.homeroomB?.userId, 'VT-09'].sort(),
     );
+    assert.ok(notified[0]?.body.includes('Người nhận thuốc: giáo viên chủ nhiệm'));
 
     const schedule = await api('GET', '/medication-schedules', token('homeroomB'));
     assert.equal(schedule.status, 200);
@@ -453,6 +493,130 @@ describe('Thuốc: dặn thuốc, cho uống, mua và cấp thuốc', () => {
       scheduled_date: addDays(vietnamToday, -1),
     });
     assert.equal(blocked.status, 403, JSON.stringify(blocked.body));
+  });
+
+  it('CT-1660 đến CT-1666: trạng thái Đã nhận thuốc, vai trò, từ chối gửi tin nhắn, tự hoàn thành khi hết thời gian dùng (QT-07, YCTD-344)', async () => {
+    const submit = async (overrides: Record<string, unknown> = {}) => {
+      const response = await api(
+        'POST',
+        '/medication-requests',
+        token('parentA'),
+        requestBody(children.A ?? '', { medicine_photo_ids: [photoA], times: ['09:00'], ...overrides }),
+      );
+      assert.equal(response.status, 201, JSON.stringify(response.body));
+      return response.body.id as string;
+    };
+    const statusOf = async (requestId: string) =>
+      (await api('GET', `/medication-requests/${requestId}`, token('nurse'))).body.status;
+
+    // CT-1660: phụ huynh, giáo viên không phải người nhận thuốc, y tế đơn vị khác không xác nhận nhận thuốc được
+    const requestId = await submit({ to_date: addDays(vietnamToday, 1) });
+    for (const name of ['parentA', 'parentB', 'homeroomA', 'accountant']) {
+      const response = await api('POST', `/medication-requests/${requestId}/receive`, token(name), {});
+      assert.equal(response.status, 403, `${name}: ${JSON.stringify(response.body)}`);
+    }
+    // CT-1661: phiếu chưa nhận thì không hoàn thành, không ghi liều; lịch cho uống chưa có phiếu này
+    assert.equal((await api('POST', `/medication-requests/${requestId}/complete`, token('nurse'))).status, 422);
+    const pendingSchedule = await api('GET', `/medication-schedules?date=${vietnamToday}`, token('nurse'));
+    assert.ok(
+      !(pendingSchedule.body as unknown as Array<{ request_id: string }>).some((row) => row.request_id === requestId),
+    );
+    // CT-1662: y tế nhận thuốc → Đã nhận thuốc, vào lịch cho uống; phụ huynh thấy trạng thái, phụ huynh khác bị chặn
+    const received = await api('POST', `/medication-requests/${requestId}/receive`, token('nurse'), {
+      received_quantity: '1 vỉ 10 viên',
+    });
+    assert.equal(received.status, 200, JSON.stringify(received.body));
+    assert.equal(received.body.status, 'received');
+    const listedReceived = await api('GET', '/medication-requests?status=received', token('parentA'));
+    assert.equal(listedReceived.status, 200, JSON.stringify(listedReceived.body));
+    assert.ok((listedReceived.body as unknown as Array<{ id: string }>).some((row) => row.id === requestId));
+    assert.equal((await api('GET', `/medication-requests/${requestId}`, token('parentB'))).status, 403);
+    const receivedSchedule = await api('GET', `/medication-schedules?date=${vietnamToday}`, token('nurse'));
+    const row = (receivedSchedule.body as unknown as Array<{ request_id: string; can_administer: boolean }>).find(
+      (item) => item.request_id === requestId,
+    );
+    assert.equal(row?.can_administer, true);
+    for (const name of ['parentA', 'homeroomA']) {
+      const response = await api('POST', '/medication-administrations', token(name), {
+        request_id: requestId,
+        scheduled_time: '09:00',
+      });
+      assert.equal(response.status, 403, `${name} không ghi liều được: ${JSON.stringify(response.body)}`);
+    }
+    // CT-1663: kết thúc sớm được từ Đã nhận thuốc; sau đó không ghi liều
+    const completed = await api('POST', `/medication-requests/${requestId}/complete`, token('nurse'));
+    assert.equal(completed.status, 200, JSON.stringify(completed.body));
+    assert.equal(completed.body.status, 'completed');
+    const late = await api('POST', '/medication-administrations', token('nurse'), {
+      request_id: requestId,
+      scheduled_time: '09:00',
+    });
+    assert.equal(late.status, 422, JSON.stringify(late.body));
+
+    // CT-1664: từ chối nhận thuốc báo phụ huynh trong ứng dụng và tin nhắn kèm lý do
+    const rejectedId = await submit({ from_date: addDays(vietnamToday, 1), to_date: addDays(vietnamToday, 1) });
+    assert.equal(
+      (await api('POST', `/medication-requests/${rejectedId}/reject`, token('nurse'), {})).status,
+      400,
+      'từ chối phải có lý do',
+    );
+    const rejected = await api('POST', `/medication-requests/${rejectedId}/reject`, token('nurse'), {
+      reason: 'Thuốc không có nhãn',
+    });
+    assert.equal(rejected.status, 200, JSON.stringify(rejected.body));
+    const rejectNotice = await schoolYear
+      .selectFrom('notifications')
+      .innerJoin('notification_recipients', 'notification_recipients.notification_id', 'notifications.id')
+      .select(['notifications.body', 'notification_recipients.user_id', 'notification_recipients.channel'])
+      .where('notifications.template_code', '=', 'medication_rejected')
+      .where('notifications.target_id', '=', rejectedId)
+      .execute();
+    assert.deepEqual(rejectNotice.map((item) => item.channel).sort(), ['in_app', 'sms']);
+    assert.ok(rejectNotice.every((item) => item.user_id === users.parentA?.userId));
+    assert.ok(rejectNotice[0]?.body.includes('Thuốc không có nhãn'));
+    assert.equal(
+      (await api('POST', `/medication-requests/${rejectedId}/receive`, token('nurse'), {})).status,
+      422,
+      'đã từ chối thì không nhận lại',
+    );
+
+    // CT-1665: hết thời gian dùng thuốc thì hệ thống chuyển phiếu đã nhận, đang cho uống sang hoàn thành; phiếu chờ nhận giữ nguyên
+    const expired: Record<string, string> = {};
+    for (const status of ['received', 'administering', 'pending'] as const) {
+      expired[status] = (
+        await schoolYear
+          .insertInto('medication_requests')
+          .values({
+            child_id: children.A ?? '',
+            org_unit_id: units['ĐT-A1'] ?? '',
+            class_id: classes['MAM-1'] ?? null,
+            requested_by: users.parentA?.userId ?? '',
+            medicine_name: `Thuốc cũ ${status}`,
+            dosage: '1 gói',
+            times: ['08:00'],
+            from_date: addDays(vietnamToday, -5),
+            to_date: addDays(vietnamToday, -2),
+            allergy_note: 'Không',
+            medicine_photo_ids: [photoA],
+            assigned_role: 'nurse',
+            status,
+          })
+          .returning('id')
+          .executeTakeFirstOrThrow()
+      ).id;
+    }
+    const listed = await api('GET', `/medication-requests?child_id=${children.A}`, token('nurse'));
+    assert.equal(listed.status, 200);
+    const statuses = new Map(
+      (listed.body as unknown as Array<{ id: string; status: string }>).map((item) => [item.id, item.status]),
+    );
+    assert.equal(statuses.get(expired.received ?? ''), 'completed');
+    assert.equal(statuses.get(expired.administering ?? ''), 'completed');
+    assert.equal(statuses.get(expired.pending ?? ''), 'pending');
+    assert.equal(await statusOf(expired.pending ?? ''), 'pending');
+
+    // CT-1666: lọc trạng thái lạ bị từ chối
+    assert.equal((await api('GET', '/medication-requests?status=waiting', token('nurse'))).status, 400);
   });
 
   it('P10-02, P10-05, BR-63, CT-116: danh mục thuốc, đề nghị mua duyệt theo hạn mức, ghi thuốc đã mua mười hộp tăng tồn mười', async () => {

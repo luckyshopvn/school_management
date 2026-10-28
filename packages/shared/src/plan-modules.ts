@@ -6,7 +6,10 @@ import { listPortalMenuEntries, PORTAL_WORKSPACES, type PortalWorkspaceKey } fro
 // (MENU_PERMISSION_RULES): quyền dùng ở mục menu của phân hệ nào thì thuộc phân hệ đó. Quyền thuộc nhiều phân hệ thì dùng được khi
 // gói bật một trong các phân hệ đó; quyền không gắn mục menu nào (quyền nền, quyền của ứng dụng giáo viên, phụ huynh) luôn dùng
 // được. Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11
-export type PlanModuleKey = PortalWorkspaceKey;
+// Tính năng không phải phân hệ của cây menu (YCTD-314): trợ lý AI và học trực tuyến, lớp trực tiếp chạy ở nhiều ứng dụng (cổng quản
+// trị, giáo viên, học sinh) nên gói bật, tắt bằng mã riêng; máy chủ API chặn theo khai báo RequirePlanModule ở bộ điều khiển
+export type PlanFeatureKey = 'ai-assistant' | 'online-learning' | 'sms-zalo';
+export type PlanModuleKey = PortalWorkspaceKey | PlanFeatureKey;
 
 // Phân hệ luôn bật ở mọi gói: quản trị hệ thống (tài khoản, phân quyền, cấu hình trường) để trường còn đăng nhập, quản trị được
 export const CORE_PLAN_MODULES: readonly PlanModuleKey[] = ['system'];
@@ -17,11 +20,44 @@ export interface PlanModule {
   core: boolean;
 }
 
-export const PLAN_MODULES: readonly PlanModule[] = PORTAL_WORKSPACES.map((workspace) => ({
-  key: workspace.key,
-  label: workspace.levelTitle ?? workspace.label,
-  core: CORE_PLAN_MODULES.includes(workspace.key),
-}));
+const PLAN_FEATURES: readonly PlanModule[] = [
+  { key: 'ai-assistant', label: 'Trợ lý AI', core: false },
+  { key: 'online-learning', label: 'Học trực tuyến, lớp học trực tiếp', core: false },
+  // Sổ liên lạc điện tử (tin trong ứng dụng, thông báo điểm, điểm danh, đẩy) miễn phí; tin nhắn SMS, Zalo gửi ra ngoài trả phí theo
+  // tin, tính cho trường, không thu của phụ huynh (Eric chốt ngày 2026-10-28, GD-162)
+  { key: 'sms-zalo', label: 'Tin nhắn SMS, Zalo', core: false },
+];
+
+export const PLAN_MODULES: readonly PlanModule[] = [
+  ...PORTAL_WORKSPACES.map((workspace) => ({
+    key: workspace.key,
+    label: workspace.levelTitle ?? workspace.label,
+    core: CORE_PLAN_MODULES.includes(workspace.key),
+  })),
+  ...PLAN_FEATURES,
+];
+
+// Gói cơ bản miễn phí và tính năng trả phí (YCTD-314, Eric yêu cầu ngày 2026-10-28): trường tự khởi tạo từ danh mục nhận gói
+// `co-ban-mien-phi` (mọi phân hệ trừ các mã dưới); nền tảng bật riêng từng tính năng cho một trường (schools.addon_modules)
+export const FREE_PLAN_CODE = 'co-ban-mien-phi';
+export const PAID_PLAN_MODULES: readonly PlanModuleKey[] = [
+  'ai-assistant',
+  'online-exam',
+  'online-learning',
+  'tutoring',
+  'reports',
+  'kpi',
+  'sms-zalo',
+];
+
+export function planModuleLabel(key: string): string {
+  return PLAN_MODULES.find((module) => module.key === key)?.label ?? key;
+}
+
+// Lời báo thống nhất khi trường chưa có tính năng (mã lỗi MODULE_NOT_IN_PLAN): giao diện hiện nguyên văn
+export function paidFeatureMessage(key: string | null): string {
+  return `${key ? planModuleLabel(key) : 'Tính năng này'} là tính năng trả phí, trường chưa đăng ký. Liên hệ bộ phận hỗ trợ để bật.`;
+}
 
 export function isPlanModuleKey(value: unknown): value is PlanModuleKey {
   return typeof value === 'string' && PLAN_MODULES.some((module) => module.key === value);

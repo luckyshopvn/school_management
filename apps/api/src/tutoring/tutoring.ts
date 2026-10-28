@@ -5,6 +5,7 @@ import { ApplicationError, Clock, currentTenant, validationError, type FieldErro
 import {
   feeRuleViolations,
   isModuleInPlan,
+  paidFeatureMessage,
   isoWeekday,
   periodsForSession,
   PERMISSION_CODES,
@@ -67,8 +68,9 @@ const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 export function assertTutoringModule(): void {
   const plan = currentTenant()?.plan;
   if (plan && !isModuleInPlan('tutoring', plan.modules)) {
-    throw new ApplicationError('MODULE_NOT_IN_PLAN', 'Phân hệ này không có trong gói dịch vụ của trường', [
+    throw new ApplicationError('MODULE_NOT_IN_PLAN', paidFeatureMessage('tutoring'), [
       { field: 'plan', message: plan.code },
+      { field: 'module', message: 'tutoring' },
     ]);
   }
 }
