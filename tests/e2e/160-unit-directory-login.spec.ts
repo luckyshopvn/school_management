@@ -23,6 +23,7 @@ import {
   schoolHost,
 } from '../e2e-multi-environment.mjs';
 import { expect, test, type Page } from './fixtures.js';
+import { signInConsole } from './platform-console.js';
 
 // DT-24 (YCTD-220, spec 160), kịch bản CT-24-9, CT-24-10: trang đăng nhập ở tên miền chung có ô chọn Sở → Cấp học → Trường đọc danh
 // mục mẫu giả; đơn vị chưa dùng nền tảng báo rõ; đăng nhập đúng thì sang tên miền của trường alpha; tên miền của trường khóa đơn vị.
@@ -166,12 +167,9 @@ test('CT-24-10: quản trị nền tảng vào trường chưa cho phép: mã x�
   const consoleContext = await browser.newContext({ baseURL: `http://${E2E_CONSOLE_HOST}:${E2E_MULTI_CONSOLE_PORT}` });
   const consolePage = await consoleContext.newPage();
   await consolePage.goto('/');
-  await consolePage.getByLabel('Tên đăng nhập').fill(operatorLogin);
-  await consolePage.getByLabel('Mật khẩu').fill(OPERATOR_PASSWORD);
-  await consolePage
-    .getByLabel('Mã xác thực hai lớp')
-    .fill(await operatorOtp(runtime.platform, operator.id, operator.secret));
-  await consolePage.getByRole('button', { name: 'Đăng nhập' }).click();
+  await signInConsole(consolePage, operatorLogin, OPERATOR_PASSWORD, () =>
+    operatorOtp(runtime.platform, operator.id, operator.secret),
+  );
   const menu = consolePage.getByRole('navigation', { name: 'Menu' });
   await menu.getByRole('button', { name: 'Danh mục đơn vị' }).click();
   await expect(consolePage.getByRole('heading', { name: 'Danh mục đơn vị' })).toBeVisible();

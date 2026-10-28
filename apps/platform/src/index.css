@@ -5,19 +5,200 @@ body {
   color: #1c2430;
 }
 
-.login {
-  max-width: 22rem;
-  margin: 4rem auto;
-  padding: 1.5rem;
-  background: #fff;
-  border-radius: 0.5rem;
+/* Trang đăng nhập theo mẫu Eric duyệt ngày 2026-10-28 (YCTD-312). Màu lấy theo token của packages/ui/src/theme.css (brand-strong,
+   link, text, text-secondary, border, danger); chữ đạt tương phản 4,5:1 trên nền của nó. Ô nhập 16 px, vùng chạm 44 px ở mọi khổ */
+.login-page {
+  --login-brand: #055a9a;
+  --login-link: #0369a1;
+  --login-text: #0f172a;
+  --login-muted: #475569;
+  --login-border: #cbd5e1;
+  --login-field: #f8fafc;
+  --login-danger: #b91c1c;
+  min-height: 100vh;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px 16px;
+  background-color: #e8f1fb;
+  background-image: radial-gradient(circle, rgb(6 112 192 / 12%) 1px, transparent 1.5px);
+  background-size: 18px 18px;
+  color: var(--login-text);
 }
 
-.login form,
-.login label {
+.login-card {
+  width: 100%;
+  max-width: 440px;
+  box-sizing: border-box;
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
+  gap: 16px;
+  padding: 28px 24px 24px;
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  box-shadow: 0 8px 24px rgb(15 23 42 / 8%);
+}
+
+.login-heading {
+  text-align: center;
+}
+
+.login-heading h1 {
+  margin: 0;
+  font-size: 22px;
+  font-weight: 700;
+}
+
+.login-heading p {
+  margin: 4px 0 0;
+  color: var(--login-muted);
+  font-size: 14px;
+}
+
+.login-section {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  min-width: 0;
+}
+
+.login-section legend {
+  margin-bottom: 12px;
+  padding: 0 0 0 10px;
+  border-left: 3px solid var(--login-brand);
+  color: var(--login-brand);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  line-height: 1.2;
+  text-transform: uppercase;
+}
+
+.login-field input {
+  width: 100%;
+  box-sizing: border-box;
+  min-height: 46px;
+  padding: 0 14px;
+  border: 1px solid var(--login-border);
+  border-radius: 10px;
+  background: var(--login-field);
+  color: var(--login-text);
+  font: inherit;
+  font-size: 16px;
+}
+
+.login-field input::placeholder {
+  color: #64748b;
+}
+
+.login-field input:focus-visible,
+.login-check input:focus-visible,
+.login-link:focus-visible,
+.login-submit:focus-visible {
+  outline: 3px solid rgb(6 112 192 / 45%);
+  outline-offset: 2px;
+}
+
+.login-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 4px 12px;
+}
+
+.login-check {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  font-size: 15px;
+  cursor: pointer;
+}
+
+.login-check input {
+  width: 18px;
+  height: 18px;
+  margin: 0;
+  accent-color: var(--login-brand);
+}
+
+.login-link {
+  min-height: 44px;
+  padding: 0 4px;
+  border: 0;
+  background: none;
+  color: var(--login-link);
+  font: inherit;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.login-link:hover {
+  color: var(--login-brand);
+  text-decoration: underline;
+}
+
+.login-note {
+  margin: 0;
+  padding: 10px 12px;
+  border-radius: 8px;
+  background: #f1f5f9;
+  color: var(--login-muted);
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.login-error {
+  margin: 0;
+  padding: 10px 12px;
+  border-radius: 8px;
+  background: #fee2e2;
+  color: var(--login-danger);
+  font-size: 14px;
+}
+
+.login-submit {
+  min-height: 48px;
+  border: 0;
+  border-radius: 10px;
+  background: var(--login-brand);
+  color: #fff;
+  font: inherit;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.login-submit:hover {
+  background: #044a80;
+}
+
+.login-submit:disabled {
+  opacity: 0.7;
+  cursor: progress;
+}
+
+.login-back {
+  align-self: center;
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
 }
 
 .shell {

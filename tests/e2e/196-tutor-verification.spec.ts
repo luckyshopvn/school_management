@@ -28,6 +28,7 @@ import {
   E2E_TUTOR_HOST,
 } from '../e2e-multi-environment.mjs';
 import { expect, test } from './fixtures.js';
+import { signInConsole } from './platform-console.js';
 
 // DT-27 phần 27g (YCTD-257, spec 196): gia sư ở ứng dụng Gia sư xác minh danh tính qua nhà cung cấp OIDC giả lập (đủ 18 tuổi), khai hồ sơ
 // dạy, nộp phiếu lý lịch tư pháp (mã hóa ở máy chủ), gửi duyệt; nhân viên nền tảng duyệt ở cổng nền tảng; phụ huynh thấy gia sư ở Chợ
@@ -182,12 +183,9 @@ test('CT-27g-5: gia sư xác minh, khai hồ sơ, nộp lý lịch; nền tảng
   const consoleContext = await browser.newContext({ baseURL: `http://${E2E_CONSOLE_HOST}:${E2E_MULTI_CONSOLE_PORT}` });
   const consolePage = await consoleContext.newPage();
   await consolePage.goto('/');
-  await consolePage.getByLabel('Tên đăng nhập').fill(operatorLogin);
-  await consolePage.getByLabel('Mật khẩu').fill(OPERATOR_TEST_PASSWORD);
-  await consolePage
-    .getByLabel('Mã xác thực hai lớp')
-    .fill(await operatorOtp(runtime.platform, operator.id, operator.secret));
-  await consolePage.getByRole('button', { name: 'Đăng nhập' }).click();
+  await signInConsole(consolePage, operatorLogin, OPERATOR_TEST_PASSWORD, () =>
+    operatorOtp(runtime.platform, operator.id, operator.secret),
+  );
   await consolePage.getByRole('navigation', { name: 'Menu' }).getByRole('button', { name: 'Chợ gia sư' }).click();
   const queue = consolePage.getByRole('region', { name: 'Hàng chờ duyệt gia sư' });
   await queue.getByRole('button', { name: `Mở ${tutorName}` }).click();

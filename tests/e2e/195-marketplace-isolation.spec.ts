@@ -28,6 +28,7 @@ import {
   schoolHost,
 } from '../e2e-multi-environment.mjs';
 import { expect, test } from './fixtures.js';
+import { signInConsole } from './platform-console.js';
 
 // DT-27 phần 27f (YCTD-256, spec 195): nền chợ gia sư và cách ly chợ với các trường. Người vận hành bật chợ ở cổng nền tảng (tên miền
 // dành riêng, văn bản pháp lý có phiên bản; thu tiền thật không có công tắc), phụ huynh đăng ký ở ứng dụng chợ, xác nhận mã, tạo hồ sơ
@@ -129,12 +130,9 @@ test('CT-27f-6: cổng nền tảng bật chợ, phụ huynh đăng ký và tạ
   const consoleContext = await browser.newContext({ baseURL: `http://${E2E_CONSOLE_HOST}:${E2E_MULTI_CONSOLE_PORT}` });
   const consolePage = await consoleContext.newPage();
   await consolePage.goto('/');
-  await consolePage.getByLabel('Tên đăng nhập').fill(operatorLogin);
-  await consolePage.getByLabel('Mật khẩu').fill(OPERATOR_TEST_PASSWORD);
-  await consolePage
-    .getByLabel('Mã xác thực hai lớp')
-    .fill(await operatorOtp(runtime.platform, operator.id, operator.secret));
-  await consolePage.getByRole('button', { name: 'Đăng nhập' }).click();
+  await signInConsole(consolePage, operatorLogin, OPERATOR_TEST_PASSWORD, () =>
+    operatorOtp(runtime.platform, operator.id, operator.secret),
+  );
   await consolePage.getByRole('navigation', { name: 'Menu' }).getByRole('button', { name: 'Chợ gia sư' }).click();
   const page = consolePage.getByRole('region', { name: 'Chợ gia sư' });
   await expect(page).toContainText('Thu tiền thật ở chợ: tắt');
