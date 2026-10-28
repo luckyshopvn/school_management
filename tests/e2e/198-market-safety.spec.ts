@@ -265,9 +265,6 @@ test('CT-27i-6: tin nhắn bị che, báo cáo nghiêm trọng tạm khóa gia s
   await expect(report).toContainText('Gia sư đã bị tạm khóa');
   await lessons.getByRole('button', { name: 'Tải lại' }).click();
   await expect(lesson).toContainText('Đã trả tiền');
-  // Phụ huynh theo dõi báo cáo đã gửi ở trang An toàn (YCTD-360)
-  await market.getByRole('navigation', { name: 'Điều hướng chợ' }).getByRole('button', { name: 'An toàn' }).click();
-  await expect(market.getByRole('listitem', { name: `Báo cáo về ${tutorName}` })).toContainText('Đang xử lý');
 
   // Gia sư thấy tài khoản đang tạm khóa
   const tutorContext = await browser.newContext({ baseURL: `http://${E2E_TUTOR_HOST}:${E2E_MULTI_TUTOR_PORT}` });
@@ -307,5 +304,8 @@ test('CT-27i-6: tin nhắn bị che, báo cáo nghiêm trọng tạm khóa gia s
   // Nhân viên quyết định tạm khóa: buổi sắp tới được hủy, hoàn đủ
   await lessons.getByRole('button', { name: 'Tải lại' }).click();
   await expect(lesson).toContainText('Đã hoàn tiền');
+  // Phụ huynh theo dõi báo cáo đã gửi ở trang An toàn (YCTD-360)
+  await market.getByRole('navigation', { name: 'Điều hướng chợ' }).getByRole('button', { name: 'An toàn' }).click();
+  await expect(market.getByRole('listitem', { name: `Báo cáo về ${tutorName}` })).toContainText('Đã quyết định');
   await marketContext.close();
 });
