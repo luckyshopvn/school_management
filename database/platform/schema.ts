@@ -60,6 +60,8 @@ export interface SchoolsTable {
   admin_unit_id: ColumnType<string | null, string | null | undefined, string | null>;
   // Mã Bộ của đơn vị trong danh mục toàn quốc (DT-24)
   moet_code: ColumnType<string | null, string | null | undefined, string | null>;
+  // Tính năng trả phí bật riêng cho trường, cộng vào phân hệ của gói hiện hành (YCTD-314)
+  addon_modules: ColumnType<string[], string | undefined, string>;
 }
 
 export interface SchoolDomainsTable {

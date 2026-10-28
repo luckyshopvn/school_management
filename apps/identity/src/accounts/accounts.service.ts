@@ -18,7 +18,12 @@ import { hashPassword } from '../authentication/password.js';
 import { IdentitySettingsService } from '../settings/identity-settings.service.js';
 import { Infrastructure } from '../common/infrastructure.js';
 import { IDENTITY_CONFIGURATION, type IdentityConfiguration } from '../common/configuration.js';
-import { isNationalIdShaped, maskLoginIdentifier } from './national-id.js';
+import {
+  isNationalIdShaped,
+  isSchoolAdminRole,
+  maskLoginIdentifier,
+  schoolAdminIdentityProblems,
+} from './national-id.js';
 import {
   canGrantOnCreate,
   canManageAccount,
@@ -784,6 +789,16 @@ export class AccountsService {
       throw forbidden('Chỉ Hiệu trưởng và quản trị nền tảng gán được vai trò');
     }
     const { view, assignments } = await this.findAccount(userId);
+    if (isSchoolAdminRole(grant.role_code)) {
+      const problems = schoolAdminIdentityProblems({
+        fullName: view.full_name,
+        phone: view.phone,
+        username: view.username,
+      });
+      if (problems.length > 0) {
+        throw validationError(problems);
+      }
+    }
     const roles = await this.validateGrants([grant], view.valid_until, units, 'role');
     if (
       assignments.some(
