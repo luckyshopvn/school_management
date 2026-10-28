@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
-import { teachingToolsFor } from '@school-management/shared';
+import { TEACHING_TOOLS, teachingToolsFor } from '@school-management/shared';
 
 // Danh mục Hộp công cụ giảng dạy ở gói chung (DT-29, YCTD-325): lọc theo cấp, công cụ trường tắt, tính năng của gói
 describe('Hộp công cụ giảng dạy: danh mục công cụ', () => {
@@ -42,7 +42,7 @@ describe('Hộp công cụ giảng dạy: danh mục công cụ', () => {
       'online-classes',
     ]);
     // Bản chụp danh sách lớp cũ chưa có cấp: không lọc theo cấp
-    assert.equal(keys(null).length, keys('TH').length);
+    assert.equal(keys(null).length, TEACHING_TOOLS.length);
   });
 
   it('CT-29b-4: mini app Mầm non chỉ ở lớp Mầm non; đồng hồ hình ảnh, đèn trật tự, bảng sao ở Mầm non và Tiểu học', () => {
