@@ -544,3 +544,11 @@ export {
   type MarketSettings,
 } from './marketplace/market-settings.js';
 export { startMarketplaceTestDatabase, type MarketplaceTestDatabase } from './marketplace/marketplace-test-support.js';
+export { provisionOwnedDatabase, type ProvisionOwnedDatabaseRequest } from './owned-database.js';
+export {
+  DemoCatalogError,
+  linkDemoCatalogUnit,
+  readEnvironmentValue,
+  updateEnvironmentText,
+  type DemoCatalogUnitOptions,
+} from './local-multi-school.js';

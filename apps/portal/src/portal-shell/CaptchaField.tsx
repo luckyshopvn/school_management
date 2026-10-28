@@ -46,21 +46,85 @@ export function useCaptcha(enabled: boolean, issue: () => Promise<CaptchaChallen
   return { challenge, text, setText, refresh, answer, loadError };
 }
 
-export function CaptchaField({ captcha, error }: { captcha: ReturnType<typeof useCaptcha>; error?: string }) {
+const LOAD_ERROR = 'Không tải được ảnh mã xác nhận, bấm Làm mới mã';
+
+function RefreshIcon() {
+  return (
+    <svg
+      width="20"
+      height="20"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      aria-hidden="true"
+    >
+      <path d="M21 12a9 9 0 0 1-15.5 6.2M3 12a9 9 0 0 1 15.5-6.2" strokeLinecap="round" />
+      <path d="M21 4v5h-5M3 20v-5h5" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
+// compact: một hàng ô nhập, ảnh, nút làm mới dạng biểu tượng như mẫu trang đăng nhập (YCTD-310); nhãn "Mã xác nhận" và tên nút "Làm mới
+// mã" vẫn có cho trình đọc màn hình
+export function CaptchaField({
+  captcha,
+  error,
+  compact = false,
+}: {
+  captcha: ReturnType<typeof useCaptcha>;
+  error?: string;
+  compact?: boolean;
+}) {
+  const image = captcha.challenge ? (
+    <img
+      src={captcha.challenge.image}
+      alt="Ảnh mã xác nhận"
+      width={compact ? 132 : 170}
+      height={compact ? 44 : 56}
+      className={`rounded-md border border-border ${compact ? 'h-11 w-[104px] shrink-0 bg-card object-cover sm:w-[132px]' : ''}`}
+    />
+  ) : (
+    <span
+      className={`animate-pulse rounded-md bg-page ${compact ? 'h-11 w-[104px] shrink-0 sm:w-[132px]' : 'h-14 w-[170px]'}`}
+      aria-hidden="true"
+    />
+  );
+  if (compact) {
+    return (
+      <div className="flex flex-col gap-2">
+        <div className="flex items-start gap-2">
+          <TextField
+            label="Mã xác nhận"
+            hideLabel
+            name="captcha"
+            placeholder="nhập mã xác nhận"
+            autoComplete="off"
+            autoCapitalize="characters"
+            className="min-w-0 flex-1"
+            inputClassName="bg-page placeholder:text-text-secondary"
+            value={captcha.text}
+            onChange={(event) => captcha.setText(event.target.value)}
+            error={error ?? (captcha.loadError ? LOAD_ERROR : undefined)}
+          />
+          {image}
+          <button
+            type="button"
+            aria-label="Làm mới mã"
+            title="Làm mới mã"
+            className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg border border-border bg-card text-link hover:bg-selected focus:outline-none focus:ring-2 focus:ring-selected"
+            onClick={captcha.refresh}
+          >
+            <RefreshIcon />
+          </button>
+        </div>
+      </div>
+    );
+  }
   return (
     <div className="flex flex-col gap-2">
       <div className="flex items-center gap-2">
-        {captcha.challenge ? (
-          <img
-            src={captcha.challenge.image}
-            alt="Ảnh mã xác nhận"
-            width={170}
-            height={56}
-            className="rounded-md border border-border"
-          />
-        ) : (
-          <span className="h-14 w-[170px] animate-pulse rounded-md bg-page" aria-hidden="true" />
-        )}
+        {image}
         <button
           type="button"
           className="rounded-md px-2 py-1 text-label font-medium text-link hover:underline"
@@ -76,7 +140,7 @@ export function CaptchaField({ captcha, error }: { captcha: ReturnType<typeof us
         autoCapitalize="characters"
         value={captcha.text}
         onChange={(event) => captcha.setText(event.target.value)}
-        error={error ?? (captcha.loadError ? 'Không tải được ảnh mã xác nhận, bấm Làm mới mã' : undefined)}
+        error={error ?? (captcha.loadError ? LOAD_ERROR : undefined)}
       />
     </div>
   );

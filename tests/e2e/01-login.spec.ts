@@ -38,6 +38,29 @@ test('Đăng nhập đúng thì vào trang chủ thấy tên và vai trò; tải
   await expect(page.getByRole('heading', { name: 'Đăng nhập' })).toBeVisible();
 });
 
+test('CT-310-6: Ghi nhớ giữ phiên lâu bằng cookie bền; không tích thì cookie hết khi đóng trình duyệt; mật khẩu không lưu ở trang', async ({
+  page,
+  context,
+}) => {
+  const refreshCookie = async () =>
+    (await context.cookies()).find((cookie) => cookie.name.startsWith('__Secure-refresh_token'));
+  const user = await createTestUser(database, { roles: [{ roleCode: 'VT-02', orgUnitId: null }] });
+  await fillLogin(page, user.username, user.password);
+  await expect(page.getByRole('heading', { name: /^Xin chào,/ })).toBeVisible();
+  // Cookie phiên: không có hạn (Playwright báo -1)
+  expect((await refreshCookie())?.expires).toBe(-1);
+  await logout(page);
+
+  await page.getByLabel('Số điện thoại hoặc tên đăng nhập').fill(user.username);
+  await page.getByLabel('Mật khẩu', { exact: true }).fill(user.password);
+  await page.getByLabel('Ghi nhớ tài khoản').check();
+  await page.getByRole('button', { name: 'Đăng nhập' }).click();
+  await expect(page.getByRole('heading', { name: /^Xin chào,/ })).toBeVisible();
+  expect((await refreshCookie())?.expires ?? -1).toBeGreaterThan(Date.now() / 1000 + 29 * 24 * 3600);
+  const stored = await page.evaluate(() => JSON.stringify({ ...localStorage, ...sessionStorage }));
+  expect(stored).not.toContain(user.password);
+});
+
 test('Sai mật khẩu thì hiện thông báo của máy chủ, không vào được trang chủ', async ({ page }) => {
   const user = await createTestUser(database);
   await fillLogin(page, user.phone, 'SaiMatKhau1');

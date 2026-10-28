@@ -1821,6 +1821,45 @@ Một phần duy nhất, **một PR** (Claude tự chọn theo ủy quyền củ
 | GD-111 | Tiêu đề trang đăng nhập ở tên miền chung | "Hệ thống quản lý trường học" cho đến khi Eric chốt tên sản phẩm | `platform_settings.login_page` | Eric |
 | GD-112 | Cập nhật danh mục | Nạp tay mỗi năm học từ tệp người vận hành có được; chưa tự động | Không | Eric |
 
+### 16.10 Đăng nhập kiểu SMIS và bản nhiều trường trên máy (YCTD-310)
+
+Eric yêu cầu ngày 2026-10-28: trang đăng nhập làm tương tự trang đăng nhập của hệ thống ngành, chọn Sở → Phường → Cấp học → Trường rồi nhập tài khoản; giữ trường demo hiện có; nạp danh mục trường toàn quốc vào bản nhiều trường trên máy.
+
+1. **Phân cấp:** danh mục của DT-24 đã là Sở → Phường/Xã (mã đơn vị hành chính cấp xã 5 chữ số sau sắp xếp năm 2025, không có cấp huyện) → Trường, cấp học là quan hệ nhiều-nhiều của trường; không phải đổi cấu trúc. Danh mục `administrative_units` trong cơ sở dữ liệu của từng trường (địa chỉ, có thời kỳ cũ và mới) là danh mục khác, không dùng cho ô chọn đơn vị.
+2. **Trang đăng nhập (MH-47), thiết kế lại theo ảnh mẫu của Eric:** một thẻ trắng giữa nền xanh nhạt có chấm, tiêu đề "Đăng nhập hệ thống", mục THÔNG TIN ĐƠN VỊ và THÔNG TIN TÀI KHOẢN, hàng mã xác nhận (ô, ảnh, nút làm mới), Ghi nhớ, Quên Mật Khẩu?, nút Đăng nhập. Ở tên miền chung: Sở Giáo dục và Đào tạo → Cấp và Phường / Xã cùng hàng (phường chỉ lọc, có "Tất cả phường, xã" để bỏ lọc; điện thoại xếp dọc) → Trường; ô Cấp chỉ hiện cấp có trường trong sở (và phường nếu chọn) (`GET /api/v1/auth/directory/levels?department=&commune=`; không có tham số thì trả đủ năm cấp). Yêu cầu đầu (Sở → Phường → Cấp) được thay bằng thứ tự của ảnh mẫu. Ở tên miền của trường và chế độ một trường, mục THÔNG TIN ĐƠN VỊ chỉ đọc; mã xác nhận ở chế độ một trường vẫn hiện theo cấu hình hoặc sau lần nhập sai đầu tiên. Ô tài khoản dùng chữ gợi ý, nhãn ẩn cho trình đọc màn hình (ngoại lệ TD-02). **Ghi nhớ:** nhớ đơn vị và tên đăng nhập ở máy; máy chủ giữ phiên cổng quản trị `PORTAL_REMEMBER_DAYS` ngày (mặc định 30) bằng cookie bền, không tích thì cookie phiên; trình quản lý mật khẩu của trình duyệt đề nghị lưu mật khẩu nhờ autocomplete, trang không tự lưu mật khẩu. Không dùng quốc huy, biểu trưng, tên cơ quan nhà nước. Ứng dụng giáo viên, phụ huynh chưa có đăng nhập theo đơn vị (DT-24 chỉ làm ở cổng quản trị) nên không đổi.
+3. **Bản nhiều trường trên máy:** từ ngày 2026-10-28 Eric dừng bản một trường và dùng bản nhiều trường. Cổng dải 31xx, 519x riêng, không đụng cổng chuẩn 3000, 3001, 5173… của bản một trường. Bảng địa chỉ duy nhất:
+
+| Thành phần | Địa chỉ |
+|---|---|
+| Đăng nhập chọn đơn vị (tên miền chung) | `http://truong.localhost:5190/` |
+| Cổng quản trị của trường demo | `http://tc.truong.localhost:5190/` |
+| Ứng dụng giáo viên | `http://tc.truong.localhost:5192/` |
+| Ứng dụng phụ huynh | `http://tc.truong.localhost:5193/` |
+| Ứng dụng học sinh | `http://tc.truong.localhost:5194/` |
+| Cổng vận hành nền tảng | `http://platform.truong.localhost:5191/` |
+| Chợ gia sư | `http://cho-gia-su.truong.localhost:5195/` |
+| Ứng dụng Gia sư | `http://gia-su.truong.localhost:5196/` |
+| Dịch vụ định danh, máy chủ API | `127.0.0.1:3101`, `127.0.0.1:3100` |
+| Tiến trình nền (xếp thời khóa biểu) | hàng đợi Redis `127.0.0.1:6379` |
+| Cơ sở dữ liệu nền tảng, chợ | `school_platform` (vai trò `platform_local`), `school_marketplace` (vai trò `marketplace_local`), mật khẩu sinh ngẫu nhiên |
+| Tệp môi trường | `.env.nhieu-truong` ở gốc kho (nằm trong `.gitignore`), đè biến cùng tên của `.env` |
+
+   Chromium tự đưa mọi `*.localhost` về máy, không sửa tệp hosts. Trường mới khởi tạo ở cổng vận hành có tên miền `<mã>.truong.localhost`, dùng cùng các cổng trên. Cổng vận hành 5177 (`apps/platform` mặc định) trỏ dịch vụ định danh 3001 của bản một trường, không có nền tảng: cổng vận hành chỉ dùng ở bản nhiều trường, địa chỉ 5191.
+   - Trường demo được **nhận** làm trường của nền tảng bằng `adopt-existing` (mã nền tảng `tc-demo` vì mã nền tảng cần 3 đến 32 ký tự chữ thường): dùng lại cơ sở dữ liệu định danh, hệ thống, năm học của bản một trường, không chép, không đổi tên; tài khoản, mật khẩu như bản một trường. Việc nền chạy theo giờ bật mặc định; nếu chạy lại bản một trường trên cùng cơ sở dữ liệu thì dựng lại với `--tat-viec-nen` để không chạy trùng.
+   - Trường demo không có trong danh mục của Bộ: lệnh gắn một đơn vị nguồn `demo-local` (mã `DEMO-TC`, cấp Mầm non) ở sở, phường chỉ định. Nạp lại danh mục với `--deactivate-missing` sẽ chuyển đơn vị này sang ngừng hoạt động: chạy lại lệnh dựng để gắn lại.
+   - Chợ gia sư: lệnh dựng tạo cơ sở dữ liệu chợ, khóa ký mã liên kết, khóa mã hóa tệp giấy tờ và bật chợ ở `cho-gia-su.truong.localhost`, ứng dụng Gia sư ở `gia-su.truong.localhost`; thu tiền thật luôn tắt (thanh toán giả lập).
+4. **Cách dựng** (ở gốc kho, sau `pnpm build`; chạy lại được, giữ khoá và mật khẩu đã sinh):
+
+```bash
+pnpm --filter @school-management/database nhieu-truong-cuc-bo --school-code tc-demo --school-domain tc.truong.localhost --school-name "Trường Mầm non Trình Diễn" --units <tệp đơn vị theo cấp.csv> --communes <tệp phường xã.csv> --demo-moet-code DEMO-TC --demo-department 01 --demo-commune 00004 --demo-levels MN
+```
+
+   Tệp danh mục đọc từ đường dẫn tham số (đường dẫn tuyệt đối hoặc tính từ thư mục `database/`), không nằm trong kho (mục 16.6); tệp môi trường mặc định `../.env.nhieu-truong`, đổi bằng `--env-out`. Lệnh cần quyền tạo vai trò, cơ sở dữ liệu (`PLATFORM_ADMIN_DATABASE_URL` hoặc `POSTGRES_PASSWORD` trong `.env`), từ chối ghi tệp môi trường không nằm trong `.gitignore` và không in mật khẩu, khoá.
+5. **Cách chạy:** `node scripts/chay-nhieu-truong.mjs` ở gốc kho (cần `pnpm build` trước; Ctrl+C dừng tất cả) chạy định danh, API, tiến trình nền và bảy ứng dụng web ở bảng trên, in bảng địa chỉ khi khởi động. Mở `http://truong.localhost:5190/`, chọn Sở GD&ĐT Thành phố Hà Nội → Cấp Mầm non (Phường / Xã để trống hoặc Phường Ba Đình) → Trường Mầm non Trình Diễn, nhập tài khoản của trường demo và mã xác nhận; đăng nhập đúng thì sang `http://tc.truong.localhost:5190/`.
+   **Quản trị vào mọi trường:** dùng cơ chế sẵn có của DT-24, không tạo tài khoản ở từng trường. Một tài khoản vận hành nền tảng duy nhất, tên đăng nhập `Admin` (không phân biệt hoa thường; ghi ở `PLATFORM_SUPERADMIN_LOGIN` trong `.env.nhieu-truong`, mật khẩu, khóa xác thực hai lớp và mã khôi phục cũng ở tệp này), đăng nhập ở cổng vận hành `http://platform.truong.localhost:5191/` bằng mật khẩu và mã xác thực hai lớp (bắt buộc với tài khoản vận hành; khóa 15 phút sau 5 lần sai). Vào Trường, chọn trường, ở khung "Truy cập với quyền quản trị nền tảng" nhập mục đích, số giờ (tối đa 8), mã xác thực hai lớp rồi mở đường liên kết một lần sang trường. Chính sách `any_school` áp cho mọi trường, kể cả trường tạo sau; mỗi lần vào trường vẫn hỏi mã hai lớp và lý do, có hạn, ghi nhật ký ở cả hai phía (GD-110). Trên máy, cổng vận hành tạo liên kết `http://<tên miền trường>:5190/…` nhờ `VITE_SCHOOL_PORTAL_PORT` do tập lệnh chạy đặt; bản chạy thật giữ `https://`. Mật khẩu tài khoản vận hành phải từ 12 ký tự (chính sách tài khoản vận hành).
+6. **Gỡ:** dừng tiến trình, xoá `.env.nhieu-truong`, `drop database school_platform`, `drop database school_marketplace`, `drop role platform_local`, `drop role marketplace_local`; cơ sở dữ liệu của trường demo không bị ảnh hưởng.
+7. **Kiểm thử:** `database` CT-310-1 đến CT-310-3 (`src/local-multi-school.test.ts`); `apps/identity` CT-24-5 bổ sung ô cấp học theo phạm vi, CT-310-5 Ghi nhớ; e2e 160 (thứ tự mới, Ghi nhớ đơn vị, cookie bền), 01 (CT-310-6), 59.
+
 ## 17. DT-25: bộ nối nhà cung cấp định danh bên ngoài theo chuẩn OIDC (sẵn cho VNeID)
 
 ### 17.1 Căn cứ và mục tiêu
