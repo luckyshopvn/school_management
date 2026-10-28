@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Alert, Button, FORM_CONTROL_CLASS } from '@school-management/ui';
 import { errorText, marketRequest } from '@school-management/market-client';
+import { BookingForm, type BookableSubject } from './ParentBookings.js';
 
 // Tìm gia sư và trang công khai của gia sư theo Mẫu 02 (DT-27 phần 27g, YCTD-257): chỉ gia sư đã duyệt, đã xác minh danh tính và lý lịch
 // tư pháp; không có số điện thoại, địa chỉ của gia sư. Đặt buổi là của 27h
@@ -38,6 +39,7 @@ interface TutorCard {
 }
 
 interface TutorPage {
+  subjects: BookableSubject[];
   id: string;
   display_name: string;
   headline: string;
@@ -140,7 +142,12 @@ function TutorDetail({ id, onBack }: { id: string; onBack: () => void }) {
             .join('; ')}
         </p>
       </section>
-      <p className="text-text-secondary">Đặt buổi học sẽ mở ở bước tiếp theo của chợ.</p>
+      <BookingForm
+        tutorId={page.id}
+        tutorName={page.display_name}
+        subjects={page.subjects}
+        schoolTeacher={Boolean(page.badges.school_teacher)}
+      />
     </article>
   );
 }

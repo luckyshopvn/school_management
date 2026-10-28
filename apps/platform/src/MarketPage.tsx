@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState, type FormEvent } from 'react';
+import { MarketPayments } from './MarketPayments.js';
 import { MarketReviews } from './MarketReviews.js';
 import { PlatformApiError } from './platform-api.js';
 
@@ -263,6 +264,7 @@ export function MarketPage({ accessToken }: { accessToken: string }) {
         <li>Hồ sơ con: {overview?.children ?? 0}</li>
       </ul>
       <MarketReviews token={accessToken} />
+      <MarketPayments token={accessToken} />
     </section>
   );
 }

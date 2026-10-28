@@ -178,6 +178,19 @@ export const PUBLIC_ROUTES: PublicRoute[] = [
       ['POST', '/api/v1/market/identity/complete'],
       ['GET', '/api/v1/market/public/tutors'],
       ['GET', '/api/v1/market/public/tutors/:id'],
+      // Đặt buổi, thanh toán, tranh chấp (DT-27 phần 27h)
+      ['POST', '/api/v1/market/bookings'],
+      ['GET', '/api/v1/market/bookings'],
+      ['POST', '/api/v1/market/bookings/:id/mock-pay'],
+      ['POST', '/api/v1/market/bookings/:id/cancel'],
+      ['POST', '/api/v1/market/bookings/:id/dispute'],
+      ['GET', '/api/v1/market/bookings/:id/dispute'],
+      ['POST', '/api/v1/market/disputes/:id/statements'],
+      ['POST', '/api/v1/market/disputes/:id/appeal'],
+      ['GET', '/api/v1/market/tutor/bookings'],
+      ['POST', '/api/v1/market/tutor/bookings/:id/complete'],
+      ['POST', '/api/v1/market/tutor/bookings/:id/cancel'],
+      ['GET', '/api/v1/market/tutor/bookings/:id/dispute'],
     ] as const
   ).map(([method, path]) => ({
     method,
@@ -185,6 +198,10 @@ export const PUBLIC_ROUTES: PublicRoute[] = [
     reason:
       'Chợ gia sư (DT-27 phần 27f): không thuộc trường nào, phiên riêng của chợ (bảng market_sessions), chỉ ở tên miền dành riêng của chợ khi chợ bật (tên miền khác 404); cơ sở dữ liệu marketplace bằng vai trò riêng',
   })),
+  post(
+    '/api/v1/market/payments/webhooks/:provider',
+    'Sự kiện của nhà cung cấp thanh toán của chợ gia sư (DT-27 phần 27h): không thuộc trường nào, đi qua đường dẫn không cần trường; xác thực bằng chữ ký của nhà cung cấp, ghi một lần theo mã sự kiện; chợ chưa nối thì 404',
+  ),
   ...(
     [
       ['GET', '/api/v1/market/admin'],
@@ -195,6 +212,12 @@ export const PUBLIC_ROUTES: PublicRoute[] = [
       ['GET', '/api/v1/market/admin/reviews/documents/:id'],
       ['POST', '/api/v1/market/admin/reviews/tutors/:id/profile'],
       ['POST', '/api/v1/market/admin/reviews/tutors/:id/verifications/:kind'],
+      ['GET', '/api/v1/market/admin/payments'],
+      ['GET', '/api/v1/market/admin/payments/disputes/:id'],
+      ['POST', '/api/v1/market/admin/payments/disputes/:id/decide'],
+      ['POST', '/api/v1/market/admin/payments/disputes/:id/finalize'],
+      ['POST', '/api/v1/market/admin/payments/commission-rules'],
+      ['POST', '/api/v1/market/admin/payments/run-due'],
     ] as const
   ).map(([method, path]) => ({
     method,

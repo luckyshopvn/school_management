@@ -87,6 +87,13 @@ export function parseListing(
           'Giáo viên trường công lập không đứng tên dạy thêm có thu tiền môn của chương trình phổ thông (Thông tư 29/2024)',
       });
     }
+    // Không dạy thêm có thu tiền môn của chương trình phổ thông cho học sinh Tiểu học (Thông tư 29/2024 khoản 1 Điều 4; DT-27 phần 27h)
+    if (kind === 'curriculum' && level === 'TH') {
+      errors.push({
+        field,
+        message: 'Không dạy thêm môn của chương trình phổ thông cho học sinh Tiểu học (Thông tư 29/2024)',
+      });
+    }
     if (price === null) errors.push({ field, message: 'Giá mỗi buổi từ 0 đến 10 000 000 đồng' });
     if (minutes === null) errors.push({ field, message: 'Thời lượng buổi từ 30 đến 180 phút' });
     if (
