@@ -1,5 +1,12 @@
 import { useQuery } from '@tanstack/react-query';
-import { isModuleInPlan, type PlanModuleKey, type SchoolPlanView } from '@school-management/shared';
+import {
+  isModuleInPlan,
+  listPortalMenuEntries,
+  paidFeatureMessage,
+  type PlanModuleKey,
+  type SchoolPlanView,
+} from '@school-management/shared';
+import { Alert } from '@school-management/ui';
 import { requestJson } from '../session/api-client.js';
 
 // Gói dịch vụ của trường (DT-SaaS phần S5a, YCTD-194): cổng quản trị ẩn phân hệ ngoài gói, nhắc hạn dùng thử hoặc hạn đã trả phí,
@@ -18,6 +25,30 @@ export function usePlanModules(): readonly string[] | null {
 
 export function isWorkspaceInPlan(key: PlanModuleKey, modules: readonly string[] | null): boolean {
   return isModuleInPlan(key, modules);
+}
+
+// Trang thuộc phân hệ ngoài gói (mở bằng đường dẫn, dấu trang, liên kết cũ): trả mã phân hệ để khung trang hiện lời báo tính năng
+// trả phí thay cho nội dung (YCTD-314); trang có ở nhiều phân hệ thì chỉ báo khi mọi phân hệ đó đều ngoài gói
+export function usePaidFeatureFor(pathname: string): PlanModuleKey | null {
+  const modules = usePlanModules();
+  if (!modules) {
+    return null;
+  }
+  const owners = listPortalMenuEntries()
+    .filter((entry) => pathname === entry.node.path || pathname.startsWith(`${entry.node.path}/`))
+    .map((entry) => entry.workspace.key);
+  if (owners.length === 0 || owners.some((key) => isModuleInPlan(key, modules))) {
+    return null;
+  }
+  return owners[0] ?? null;
+}
+
+export function PaidFeatureNotice({ module }: { module: PlanModuleKey }) {
+  return (
+    <div aria-label="Tính năng trả phí" data-testid="paid-feature">
+      <Alert tone="warning">{paidFeatureMessage(module)}</Alert>
+    </div>
+  );
 }
 
 // Số ngày còn lại để nhắc (giả định GD-99: từ 15 ngày trở xuống)

@@ -11,6 +11,7 @@ import {
 } from '@school-management/server';
 import {
   isModuleInPlan,
+  paidFeatureMessage,
   PROCTOR_EVENT_TYPES,
   type ExamCameraState,
   type ExamSubmitReason,
@@ -59,8 +60,9 @@ export const ONLINE_EXAM_RULE_CODE = 'YCTD-211';
 export function assertOnlineExamModule(): void {
   const plan = currentTenant()?.plan;
   if (plan && !isModuleInPlan('online-exam', plan.modules)) {
-    throw new ApplicationError('MODULE_NOT_IN_PLAN', 'Phân hệ này không có trong gói dịch vụ của trường', [
+    throw new ApplicationError('MODULE_NOT_IN_PLAN', paidFeatureMessage('online-exam'), [
       { field: 'plan', message: plan.code },
+      { field: 'module', message: 'online-exam' },
     ]);
   }
 }

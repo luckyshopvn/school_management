@@ -1,6 +1,11 @@
 import { Body, Controller, Get, HttpCode, Param, Post, Put } from '@nestjs/common';
 import { PERMISSION_CODES } from '@school-management/shared';
-import { AuthenticatedUser, RequirePermission, StudentEndpoint } from '../authentication/authentication.guard.js';
+import {
+  AuthenticatedUser,
+  RequirePermission,
+  StudentEndpoint,
+  RequirePlanModule,
+} from '../authentication/authentication.guard.js';
 import type { CurrentUser } from '../authentication/current-user.js';
 import type { RequestBody } from '../common/request-fields.js';
 import { VideoRoomsService } from '../video/video-rooms.js';
@@ -12,6 +17,7 @@ import { TutoringQuestionsService } from './tutoring-questions.js';
 const TEACH = PERMISSION_CODES.tutoringTeach;
 const MANAGE = PERMISSION_CODES.tutoringManage;
 
+@RequirePlanModule('tutoring')
 @Controller('tutoring')
 export class TutoringQuestionsController {
   constructor(private readonly questions: TutoringQuestionsService) {}
@@ -49,6 +55,7 @@ export class TutoringQuestionsController {
 }
 
 // Cha mẹ: câu hỏi của con ở các chương trình gia sư, bật tắt trợ lý AI cho câu hỏi của con
+@RequirePlanModule('tutoring')
 @Controller('children/:id/tutoring')
 export class ChildTutoringQuestionsController {
   constructor(private readonly questions: TutoringQuestionsService) {}
@@ -65,6 +72,7 @@ export class ChildTutoringQuestionsController {
 }
 
 // Học sinh (kênh student): câu hỏi của em ở các khoá gia sư, đánh dấu đã hiểu hoặc chưa hiểu
+@RequirePlanModule('tutoring')
 @Controller('student/tutoring')
 @StudentEndpoint()
 export class StudentTutoringQuestionsController {

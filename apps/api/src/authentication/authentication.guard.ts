@@ -16,7 +16,13 @@ import {
   readBearerToken,
   unauthenticatedError,
 } from '@school-management/server';
-import { isPermissionInPlan } from '@school-management/shared';
+import {
+  isModuleInPlan,
+  isPermissionInPlan,
+  permissionPlanModules,
+  paidFeatureMessage,
+  type PlanModuleKey,
+} from '@school-management/shared';
 import type { Request } from 'express';
 import { API_CONFIGURATION, type ApiConfiguration } from '../common/configuration.js';
 import { CurrentUser } from './current-user.js';
@@ -25,6 +31,7 @@ import { IdentityClient } from './identity-client.js';
 const PUBLIC_ENDPOINT = 'publicEndpoint';
 const REQUIRED_PERMISSIONS = 'requiredPermissions';
 const STUDENT_ENDPOINT = 'studentEndpoint';
+const REQUIRED_PLAN_MODULE = 'requiredPlanModule';
 
 // Điểm cuối không cần mã phiên, ví dụ kiểm tra sức khỏe
 export const PublicEndpoint = () => SetMetadata(PUBLIC_ENDPOINT, true);
@@ -35,6 +42,17 @@ export const StudentEndpoint = () => SetMetadata(STUDENT_ENDPOINT, true);
 
 // Lớp 1 của phân quyền: điểm cuối khai báo quyền cần có; có một trong các quyền là đủ (BM-10)
 export const RequirePermission = (...permissionCodes: string[]) => SetMetadata(REQUIRED_PERMISSIONS, permissionCodes);
+
+// Tính năng thuộc gói dịch vụ (YCTD-314): trường có gói mà gói (cộng tính năng bật riêng) không có mã này thì mọi điểm cuối của bộ
+// điều khiển trả 403 MODULE_NOT_IN_PLAN kèm lời báo tính năng trả phí; trường chưa gán gói, chế độ một trường không giới hạn
+export const RequirePlanModule = (module: PlanModuleKey) => SetMetadata(REQUIRED_PLAN_MODULE, module);
+
+export function planModuleError(module: string | null, planCode: string): ApplicationError {
+  return new ApplicationError('MODULE_NOT_IN_PLAN', paidFeatureMessage(module), [
+    { field: 'plan', message: planCode },
+    ...(module ? [{ field: 'module', message: module }] : []),
+  ]);
+}
 
 interface AuthenticatedRequest extends Request {
   currentUser?: CurrentUser;
@@ -91,6 +109,12 @@ export class AuthenticationGuard implements CanActivate {
     });
     request.currentUser = currentUser;
 
+    const plan = currentTenant()?.plan;
+    const planModule = this.reflector.getAllAndOverride<PlanModuleKey | undefined>(REQUIRED_PLAN_MODULE, targets);
+    if (plan && planModule && !isModuleInPlan(planModule, plan.modules)) {
+      throw planModuleError(planModule, plan.code);
+    }
+
     const requiredPermissions = this.reflector.getAllAndOverride<string[] | undefined>(REQUIRED_PERMISSIONS, targets);
     if (requiredPermissions && !requiredPermissions.some((code) => currentUser.hasPermission(code))) {
       throw new ApplicationError('ERR_FORBIDDEN', 'Bạn không có quyền thực hiện thao tác này', [
@@ -99,15 +123,13 @@ export class AuthenticationGuard implements CanActivate {
     }
     // Gói dịch vụ của trường (DT-SaaS phần S5a): quyền đủ nhưng mọi quyền đáp ứng đều thuộc phân hệ ngoài gói thì 403
     // MODULE_NOT_IN_PLAN; dữ liệu của phân hệ bị tắt được giữ nguyên
-    const plan = currentTenant()?.plan;
     if (
       plan &&
       requiredPermissions &&
       !requiredPermissions.some((code) => currentUser.hasPermission(code) && isPermissionInPlan(code, plan.modules))
     ) {
-      throw new ApplicationError('MODULE_NOT_IN_PLAN', 'Phân hệ này không có trong gói dịch vụ của trường', [
-        { field: 'plan', message: plan.code },
-      ]);
+      const owners = requiredPermissions.flatMap((code) => [...(permissionPlanModules().get(code) ?? [])]);
+      throw planModuleError(owners[0] ?? null, plan.code);
     }
     return true;
   }

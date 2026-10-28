@@ -40,8 +40,12 @@ export interface DirectoryUnit {
   levels: string[];
 }
 
+// Trạng thái trường của đơn vị (YCTD-314): chưa khởi tạo thì trang gọi prepareUnit để khởi tạo ở lần chọn đầu tiên
+export type DirectoryUnitState = 'not_provisioned' | 'provisioning' | 'ready' | 'unavailable';
+
 export interface DirectoryUnitDetail extends DirectoryUnit {
   department_name: string;
+  state: DirectoryUnitState;
   available: boolean;
   login_host: string | null;
   message: string | null;
@@ -109,6 +113,12 @@ export function listUnits(
 
 export function readUnit(code: string): Promise<DirectoryUnitDetail> {
   return publicJson(`${DIRECTORY}/unit?${query({ code })}`);
+}
+
+export function prepareUnit(
+  unit: string,
+): Promise<{ state: DirectoryUnitState; available: boolean; message: string | null }> {
+  return publicJson(`${DIRECTORY}/prepare`, { method: 'POST', body: JSON.stringify({ unit }) });
 }
 
 export function issueDirectoryCaptcha(unit: string): Promise<CaptchaChallenge> {

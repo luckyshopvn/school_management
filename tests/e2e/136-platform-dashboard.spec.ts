@@ -50,6 +50,8 @@ test.beforeAll(async () => {
     login: operatorLogin,
     fullName: 'Nhân viên hỗ trợ giả',
     password: PASSWORD,
+    // Vai trò hỗ trợ đi theo cho phép của trường; tài khoản quan_tri vào thẳng mọi trường (YCTD-314)
+    role: 'ho_tro',
   });
   const notice = await runtime.platform
     .insertInto('maintenance_notices')
