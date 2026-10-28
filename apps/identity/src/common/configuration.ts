@@ -29,6 +29,9 @@ export interface IdentityConfiguration {
   // Nhà cung cấp định danh bên ngoài nền tảng khai (DT-25): EXTERNAL_IDENTITY_PROVIDERS và EXTERNAL_IDENTITY_<MÃ>_CLIENT_SECRET; trống là
   // không có nhà cung cấp nào
   externalIdentityProviders?: ExternalProviderDefinition[];
+  // Mật khẩu mặc định của tài khoản tạo theo số CCCD (YCTD-311), đọc từ DEFAULT_INITIAL_PASSWORD, không đặt trong mã nguồn vì kho mã
+  // công khai. Trống thì tài khoản mới nhận mật khẩu tạm ngẫu nhiên như trước. Luôn phải đổi ở lần đăng nhập đầu
+  defaultInitialPassword?: string | null;
 }
 
 export const IDENTITY_CONFIGURATION = Symbol('IDENTITY_CONFIGURATION');
@@ -56,6 +59,18 @@ function readOptionalKey(name: string): Buffer | null {
   return key;
 }
 
+// Mật khẩu mặc định phải theo chính sách mật khẩu tối thiểu (BM-03); sai thì dừng khởi động để không cấp mật khẩu yếu
+function readDefaultInitialPassword(): string | null {
+  const value = process.env.DEFAULT_INITIAL_PASSWORD;
+  if (!value) {
+    return null;
+  }
+  if (value.length < 8 || !/\p{L}/u.test(value) || !/\p{Nd}/u.test(value)) {
+    throw new Error('Biến môi trường DEFAULT_INITIAL_PASSWORD phải có ít nhất 8 ký tự, có cả chữ và số');
+  }
+  return value;
+}
+
 // Ở chế độ nhiều trường (có PLATFORM_DATABASE_URL) cơ sở dữ liệu định danh là của từng trường nên không đọc ở đây
 export function readConfigurationFromEnvironment(): IdentityConfiguration {
   const multiTenant = Boolean(process.env.PLATFORM_DATABASE_URL?.trim());
@@ -77,5 +92,6 @@ export function readConfigurationFromEnvironment(): IdentityConfiguration {
     errorAlertPerHour:
       Number(process.env.PLATFORM_ERROR_ALERT_PER_HOUR) > 0 ? Number(process.env.PLATFORM_ERROR_ALERT_PER_HOUR) : 20,
     externalIdentityProviders: readProviderDefinitions(process.env),
+    defaultInitialPassword: readDefaultInitialPassword(),
   };
 }

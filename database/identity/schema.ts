@@ -30,6 +30,8 @@ export interface UsersTable {
   valid_until: ColumnType<string | null, string | null | undefined, string | null>;
   // Thời điểm đặt mật khẩu gần nhất, dùng tính hạn mật khẩu (YCTD-110)
   password_changed_at: ColumnType<Date, Date | undefined, Date>;
+  // Hạn của mật khẩu mặc định khi tạo tài khoản theo số CCCD (YCTD-311); trống là không có hạn
+  initial_password_expires_at: ColumnType<Date | null, Date | null | undefined, Date | null>;
   created_at: CreatedTimestamp;
   updated_at: UpdatedTimestamp;
   created_by: string | null;

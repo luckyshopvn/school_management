@@ -26,7 +26,8 @@ export interface StudentAccountResult {
   created: boolean;
 }
 
-const HASH_CHUNK = 16;
+// Mỗi lần băm argon2id dùng 64 MiB (YCTD-311) nên chỉ băm song song 4 mật khẩu một lúc
+const HASH_CHUNK = 4;
 
 @Injectable()
 export class StudentAccountsService {

@@ -23,8 +23,9 @@ import { studentRecordErrors } from './student-records.js';
 const PNG = Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a, 1, 2, 3, 4]);
 const randomPhone = () => `09${randomInt(0, 100_000_000).toString().padStart(8, '0')}`;
 let nationalIdCounter = randomInt(0, 1_000_000);
+// Số thứ 4 là 0 (thế kỷ 20) nên không khớp năm sinh của trẻ: tên đăng nhập học và thi dùng phương án dự phòng "hs" kèm mã Bộ (YCTD-311)
 const nextNationalId = () =>
-  `079${String(Date.now() % 1_000_000).padStart(6, '0')}${String(++nationalIdCounter % 1000).padStart(3, '0')}`;
+  `0790${String(Date.now() % 100_000).padStart(5, '0')}${String(++nationalIdCounter % 1000).padStart(3, '0')}`;
 const errorOf = (body: Record<string, unknown>) =>
   (body.error ?? {}) as { code?: string; rule_code?: string; details?: Array<{ field: string; message: string }> };
 type Item = Record<string, unknown> & { id: string; full_name: string };
@@ -97,7 +98,14 @@ describe('Hồ sơ học sinh đủ theo hệ thống của Sở (DT-16 phần 1
   }
 
   // Lập, gửi trình duyệt và duyệt vào lớp; mẹ có số điện thoại (liên hệ chính), bố không có số
-  async function enrol(key: string, fullName: string, classCode: string, approve = true, dob = '2022-04-18') {
+  async function enrol(
+    key: string,
+    fullName: string,
+    classCode: string,
+    approve = true,
+    dob = '2022-04-18',
+    nationalId?: string,
+  ) {
     const form = new FormData();
     form.set('org_unit_id', units.A ?? '');
     form.set('purpose', 'birth_certificate');
@@ -109,7 +117,7 @@ describe('Hồ sơ học sinh đủ theo hệ thống của Sở (DT-16 phần 1
         body: form,
       })
     ).json()) as { id: string };
-    nationalIds[key] = nextNationalId();
+    nationalIds[key] = nationalId ?? nextNationalId();
     motherPhones[key] = randomPhone();
     const created = await api('POST', '/children', principal.accessToken, {
       org_unit_id: units.A,
@@ -477,6 +485,22 @@ describe('Hồ sơ học sinh đủ theo hệ thống của Sở (DT-16 phần 1
     const row = items(list.body).find((item) => item.id === children.Yen);
     assert.equal(row?.reset_count, 1);
     assert.equal(row?.username, 'hshs16g01');
+  });
+
+  it('CT-1519: Tên đăng nhập học và thi là số định danh 12 số khi hợp lệ, danh sách chỉ hiện dạng che (YCTD-311)', async () => {
+    // Mã tỉnh 079, số thứ 4 là 3 (nữ, thế kỷ 21), số thứ 5, 6 là 22 khớp năm sinh 2022
+    const nationalId = `079322${String(Date.now() % 1_000_000).padStart(6, '0')}`;
+    await enrol('Cccd', 'Đỗ Thị Cúc', 'M1', true, '2022-04-18', nationalId);
+    const created = await api('POST', '/learning-accounts/issue', principal.accessToken, {
+      child_ids: [children.Cccd],
+      mode: 'create',
+    });
+    assert.equal(created.status, 200, JSON.stringify(created.body));
+    const issued = created.body.items as Array<{ child_id: string; username: string }>;
+    assert.equal(issued[0]?.username, nationalId);
+    const list = await api('GET', `/learning-accounts?org_unit_id=${units.A}`, principal.accessToken);
+    const row = items(list.body).find((item) => item.id === children.Cccd);
+    assert.equal(row?.username, `********${nationalId.slice(-4)}`);
   });
 
   it('CT-16g-10: Chuyển lớp hàng loạt; học sinh không đang học làm hỏng cả lần chuyển', async () => {

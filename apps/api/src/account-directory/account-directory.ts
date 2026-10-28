@@ -8,7 +8,12 @@ import {
   validationError,
   type FieldError,
 } from '@school-management/server';
-import { PERMISSION_CODES, WHOLE_SCHOOL_ROLE_CODES } from '@school-management/shared';
+import {
+  maskLoginIdentifier,
+  nationalIdProblem,
+  PERMISSION_CODES,
+  WHOLE_SCHOOL_ROLE_CODES,
+} from '@school-management/shared';
 import type { Request, Response } from 'express';
 import type { Kysely } from 'kysely';
 import { AuthenticatedUser, RequirePermission } from '../authentication/authentication.guard.js';
@@ -16,6 +21,7 @@ import type { CurrentUser } from '../authentication/current-user.js';
 import { IdentityClient, type IdentityAccount, type IdentityAccountPage } from '../authentication/identity-client.js';
 import { buildStudentWorkbook, fileStamp, sendWorkbook } from '../children/student-workbook.js';
 import { originOf, writeAuditLog, type ChangeOrigin } from '../common/audit-log.js';
+import { ChildDataProtection } from '../common/child-data-protection.js';
 import { CurrentSchoolYearResolver } from '../common/current-school-year.js';
 import { isUuid, type RequestBody } from '../common/request-fields.js';
 import { OrganizationScopes } from '../organization/organization-scopes.js';
@@ -198,7 +204,22 @@ export class AccountDirectoryService {
     private readonly currentSchoolYear: CurrentSchoolYearResolver,
     private readonly organizationScopes: OrganizationScopes,
     private readonly clock: Clock,
+    private readonly protection: ChildDataProtection,
   ) {}
+
+  // Quy tắc tài khoản trường (YCTD-311): tên đăng nhập là số CCCD của hồ sơ nhân sự; hồ sơ chưa có số CCCD hợp lệ thì dùng mã
+  // nhân sự như trước. Số CCCD chỉ giải mã ở máy chủ, không trả ra trình duyệt
+  private staffNationalId(encrypted: string | null): string | null {
+    if (!encrypted) {
+      return null;
+    }
+    try {
+      const value = this.protection.decrypt(encrypted).trim();
+      return nationalIdProblem(value) === null ? value : null;
+    } catch {
+      return null;
+    }
+  }
 
   async list(accessToken: string, filter: AccountDirectoryFilter, page: number, pageSize: number) {
     const current = await this.currentSchoolYear.find();
@@ -276,6 +297,7 @@ export class AccountDirectoryService {
         'staff.full_name',
         'staff.phone',
         'staff.org_unit_id',
+        'staff.id_number_encrypted',
         'org_units.name as org_unit_name',
       ])
       .where('staff.status', '=', 'active')
@@ -287,11 +309,16 @@ export class AccountDirectoryService {
           : selection.where('staff.id', 'is', null);
     }
     const rows = await selection.orderBy('staff.full_name').orderBy('staff.code').execute();
-    return rows.map((row) => ({
-      ...row,
-      suggested_username: suggestUsername(row.code),
-      phone: row.phone && PHONE_PATTERN.test(row.phone) ? row.phone : null,
-    }));
+    return rows.map(({ id_number_encrypted: encrypted, ...row }) => {
+      const nationalId = this.staffNationalId(encrypted);
+      return {
+        ...row,
+        // Số CCCD chỉ hiện dạng che (YCTD-311)
+        suggested_username: nationalId ? maskLoginIdentifier(nationalId) : suggestUsername(row.code),
+        login_rule: nationalId ? ('cccd' as const) : ('ma_nhan_su' as const),
+        phone: row.phone && PHONE_PATTERN.test(row.phone) ? row.phone : null,
+      };
+    });
   }
 
   // Tạo tài khoản cho nhân sự được chọn, nhóm quyền chọn chung; vai trò theo đơn vị gán ở đơn vị chính của nhân sự. Mỗi
@@ -307,7 +334,7 @@ export class AccountDirectoryService {
     const unitIds = await this.accountUnits(currentUser);
     const staff = await database
       .selectFrom('staff')
-      .select(['id', 'code', 'full_name', 'phone', 'org_unit_id', 'status', 'user_id'])
+      .select(['id', 'code', 'full_name', 'phone', 'org_unit_id', 'status', 'user_id', 'id_number_encrypted'])
       .where('id', 'in', staffIds)
       .execute();
     const wholeSchoolRole = (WHOLE_SCHOOL_ROLE_CODES as readonly string[]).includes(roleCode);
@@ -317,6 +344,7 @@ export class AccountDirectoryService {
       full_name: string | null;
       login: string | null;
       temporary_password: string | null;
+      uses_initial_password: boolean;
       error: string | null;
     }> = [];
     for (const staffId of staffIds) {
@@ -328,6 +356,7 @@ export class AccountDirectoryService {
           full_name: row?.full_name ?? null,
           login: null,
           temporary_password: null,
+          uses_initial_password: false,
           error: message,
         });
       if (!row) {
@@ -346,7 +375,7 @@ export class AccountDirectoryService {
         fail('Nhân sự nằm ngoài phạm vi của bạn');
         continue;
       }
-      const username = suggestUsername(row.code);
+      const username = this.staffNationalId(row.id_number_encrypted) ?? suggestUsername(row.code);
       const phone = row.phone && PHONE_PATTERN.test(row.phone) ? row.phone : null;
       if (!username && !phone) {
         fail('Mã nhân sự không dùng làm tên đăng nhập được và chưa có số điện thoại hợp lệ');
@@ -359,7 +388,7 @@ export class AccountDirectoryService {
         valid_until: null,
         roles: [{ role_code: roleCode, org_unit_id: wholeSchoolRole ? null : row.org_unit_id }],
       };
-      let created: { account: { id: string }; temporary_password: string | null };
+      let created: { account: { id: string }; temporary_password: string | null; uses_initial_password?: boolean };
       try {
         try {
           created = await this.identityClient.createAccount(accessToken, input);
@@ -394,15 +423,16 @@ export class AccountDirectoryService {
           entityId: staffId,
           action: 'update',
           before: { user_id: null },
-          after: { user_id: created.account.id, login: username ?? phone, role_code: roleCode },
+          after: { user_id: created.account.id, login: maskLoginIdentifier(username ?? phone), role_code: roleCode },
         });
       });
       results.push({
         staff_id: staffId,
         code: row.code,
         full_name: row.full_name,
-        login: username ?? phone,
+        login: maskLoginIdentifier(username ?? phone),
         temporary_password: created.temporary_password,
+        uses_initial_password: created.uses_initial_password === true,
         error: null,
       });
     }

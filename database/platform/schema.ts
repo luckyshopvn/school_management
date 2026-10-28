@@ -17,6 +17,8 @@ export type SchoolDatabaseKind = 'identity' | 'system' | 'school-year';
 export type SchoolDatabaseLayoutValue = 'database' | 'schema';
 export type SchoolDatabaseStatus = 'active' | 'read_only' | 'dropped';
 export type PlatformOperatorStatus = 'active' | 'locked';
+// Vai trò nhân viên vận hành (YCTD-311): quản trị, hỗ trợ, kỹ thuật, kế toán
+export type PlatformOperatorRole = 'quan_tri' | 'ho_tro' | 'ky_thuat' | 'ke_toan';
 export type PlatformAuditActorType = 'operator' | 'system' | 'cli';
 
 export interface SchoolClustersTable {
@@ -120,6 +122,7 @@ export interface PlatformOperatorsTable {
   locked_until: Date | null;
   last_login_at: Date | null;
   must_change_password: Generated<boolean>;
+  role: Generated<PlatformOperatorRole>;
   created_at: CreatedTimestamp;
   updated_at: UpdatedTimestamp;
 }

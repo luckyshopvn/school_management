@@ -1,5 +1,6 @@
 // Gói dùng chung chỉ chứa kiểu dữ liệu và hằng số, không chứa truy vấn cơ sở dữ liệu và quy tắc nghiệp vụ
 export * from './facilities.js';
+export * from './national-id.js';
 export * from './portal-menu.js';
 export * from './menu-permissions.js';
 export * from './plan-modules.js';

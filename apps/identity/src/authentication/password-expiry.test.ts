@@ -165,7 +165,12 @@ describe('Dịch vụ định danh: hết hạn mật khẩu', () => {
   it('CT-15g-12: tài khoản chỉ có vai trò Phụ huynh không áp hạn mật khẩu; tài khoản có thêm vai trò nhân sự thì áp', async () => {
     const parent = await createTestUser(context.database, { roles: [{ roleCode: 'VT-14', orgUnitId: null }] });
     await setPasswordAge(parent, 400);
-    const parentLogin = await login(parent);
+    // Tài khoản chỉ có vai trò Phụ huynh đăng nhập ở ứng dụng phụ huynh (YCTD-311)
+    const parentLogin = await postJson(`${context.baseUrl}/auth/login`, {
+      login: parent.username,
+      password: parent.password,
+      channel: 'parent',
+    });
     assert.equal(parentLogin.body.password_change_required, false);
     assert.equal(parentLogin.body.password_expired, false);
 

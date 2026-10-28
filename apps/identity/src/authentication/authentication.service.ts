@@ -20,11 +20,18 @@ import { isSchoolLevelCode, PORTAL_WORKSPACES, STUDENT_ROLE_CODE } from '@school
 import { Infrastructure } from '../common/infrastructure.js';
 import { IdentitySettingsService } from '../settings/identity-settings.service.js';
 import { OTP_REQUIRED_MESSAGE, TotpService } from './totp.service.js';
-import { checkPasswordPolicy, hashPassword, placeholderPasswordHash, verifyPassword } from './password.js';
+import {
+  checkPasswordPolicy,
+  hashPassword,
+  passwordNeedsRehash,
+  placeholderPasswordHash,
+  verifyPassword,
+} from './password.js';
 import { assertPasswordNotReused, recordPasswordHistory } from './password-history.js';
 import { ImpersonationService, type ImpersonationDescription } from './impersonation.service.js';
 import { createRefreshToken, hashRefreshToken, readSessionIdFromRefreshToken, TokenService } from './token.service.js';
 import { SupportSessionsService } from '../platform/support-sessions.js';
+import { accountKindsOf, kindForChannel, maskLoginIdentifier } from '../accounts/national-id.js';
 
 // Sai mật khẩu 5 lần liên tiếp thì tạm khóa 15 phút rồi tự mở (BM-04, XT-05)
 export const MAXIMUM_FAILED_LOGIN_COUNT = 5;
@@ -98,6 +105,8 @@ export interface CurrentUserResponse {
 
 const INVALID_CREDENTIALS_MESSAGE = 'Số điện thoại, tên đăng nhập hoặc mật khẩu không đúng';
 const LOCKED_ACCOUNT_MESSAGE = 'Tài khoản đã bị khóa, vui lòng liên hệ nhà trường';
+const INITIAL_PASSWORD_EXPIRED_MESSAGE =
+  'Mật khẩu mặc định đã hết hạn vì chưa đổi trong thời gian quy định; vui lòng liên hệ quản trị nhà trường để đặt lại';
 
 @Injectable()
 export class AuthenticationService {
@@ -149,11 +158,20 @@ export class AuthenticationService {
       throw unauthenticatedError(INVALID_CREDENTIALS_MESSAGE);
     }
 
-    // Tài khoản học sinh chỉ vào kênh student và kênh student chỉ nhận tài khoản học sinh; báo như sai mật khẩu để không lộ
-    // tên đăng nhập nào là của học sinh (DT-23 phần 23a)
-    if ((await this.isStudentAccount(user.id)) !== (channel === 'student')) {
+    // Loại tài khoản theo ứng dụng đang đăng nhập (YCTD-311): báo như sai mật khẩu để không lộ tên đăng nhập thuộc loại nào
+    if (!(await this.acceptsChannel(user.id, channel))) {
       await this.recordSecurityEvent('login_wrong_channel', user.id, loginIdentifier, origin.ipAddress);
       throw unauthenticatedError(INVALID_CREDENTIALS_MESSAGE);
+    }
+
+    // Mật khẩu mặc định khi tạo tài khoản hết hạn sau số ngày cấu hình nếu chưa đổi (YCTD-311); quản trị trường đặt lại
+    if (
+      user.must_change_password &&
+      user.initial_password_expires_at !== null &&
+      user.initial_password_expires_at.getTime() <= now.getTime()
+    ) {
+      await this.recordSecurityEvent('login_initial_password_expired', user.id, loginIdentifier, origin.ipAddress);
+      throw unauthenticatedError(INITIAL_PASSWORD_EXPIRED_MESSAGE);
     }
 
     // Xác thực hai lớp tuỳ chọn theo trường (DT-SaaS phần S8b): người đã đăng ký phải nhập thêm mã; mã sai tính như nhập sai mật khẩu
@@ -176,6 +194,7 @@ export class AuthenticationService {
     if (expiry.expired) {
       await this.recordSecurityEvent('login_password_expired', user.id, loginIdentifier, origin.ipAddress);
     }
+    await this.rehashIfWeak(user.id, user.password_hash, password);
     return this.completeSignIn(
       user,
       channel,
@@ -187,15 +206,39 @@ export class AuthenticationService {
     );
   }
 
-  async isStudentAccount(userId: string): Promise<boolean> {
-    const row = await this.database
+  // Cán bộ, giáo viên vào cổng quản trị và ứng dụng giáo viên; phụ huynh vào ứng dụng phụ huynh; học sinh chỉ vào kênh student
+  // và kênh student chỉ nhận học sinh (DT-23 phần 23a). Một số CCCD vừa là giáo viên vừa là phụ huynh là một tài khoản có hai
+  // loại, mỗi ứng dụng mở phiên đúng loại của nó. Tài khoản chưa có vai trò nào (vừa tạo) chỉ vào cổng quản trị, ứng dụng giáo viên
+  async acceptsChannel(userId: string, channel: SessionChannel): Promise<boolean> {
+    const roles = await this.database
       .selectFrom('user_roles')
       .innerJoin('roles', 'roles.id', 'user_roles.role_id')
-      .select('user_roles.id')
+      .select('roles.code')
       .where('user_roles.user_id', '=', userId)
-      .where('roles.code', '=', STUDENT_ROLE_CODE)
-      .executeTakeFirst();
-    return row !== undefined;
+      .execute();
+    const kinds = accountKindsOf(
+      roles.map((row) => row.code),
+      STUDENT_ROLE_CODE,
+    );
+    if (kinds.has('student') || channel === 'student') {
+      return kinds.has('student') && channel === 'student';
+    }
+    const wanted = kindForChannel(channel);
+    return kinds.has(wanted) || (wanted === 'staff' && kinds.size === 0);
+  }
+
+  // Giá trị băm dùng tham số cũ yếu hơn thì băm lại bằng tham số hiện hành ngay khi người dùng nhập đúng (YCTD-311). Tài khoản
+  // còn dùng mật khẩu mặc định chung của phụ huynh (giá trị băm null) không có giá trị băm riêng để thay
+  private async rehashIfWeak(userId: string, passwordHash: string | null, password: string): Promise<void> {
+    if (passwordHash === null || !passwordNeedsRehash(passwordHash)) {
+      return;
+    }
+    await this.database
+      .updateTable('users')
+      .set({ password_hash: await hashPassword(password) })
+      .where('id', '=', userId)
+      .where('password_hash', '=', passwordHash)
+      .execute();
   }
 
   // Tài khoản còn hiệu lực, đang hoạt động và không bị tạm khóa do nhập sai
@@ -408,7 +451,13 @@ export class AuthenticationService {
     await this.database.transaction().execute(async (transaction) => {
       await transaction
         .updateTable('users')
-        .set({ password_hash: newHash, password_changed_at: now, must_change_password: false, updated_at: now })
+        .set({
+          password_hash: newHash,
+          password_changed_at: now,
+          must_change_password: false,
+          initial_password_expires_at: null,
+          updated_at: now,
+        })
         .where('id', '=', user.id)
         .execute();
       await recordPasswordHistory(transaction, user.id, newHash, now);
@@ -677,7 +726,8 @@ export class AuthenticationService {
       .values({
         event_type: eventType,
         user_id: userId,
-        login_identifier: loginIdentifier,
+        // Tên đăng nhập là số CCCD thì chỉ ghi dạng che (YCTD-311)
+        login_identifier: maskLoginIdentifier(loginIdentifier),
         ip_address: ipAddress,
         created_at: this.clock.now(),
       })
