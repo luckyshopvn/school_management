@@ -197,7 +197,14 @@ describe('Hồ sơ nhân sự và hợp đồng lao động', () => {
       await schoolYear
         .insertInto('class_staff_assignments')
         .values([
-          { ...assignment, assignment_role: 'subject', subject_id: subjectId, periods_per_week: 4 },
+          // Ràng buộc class_staff_assignments_subject_check: phân công bộ môn phải có subject_name
+          {
+            ...assignment,
+            assignment_role: 'subject',
+            subject_id: subjectId,
+            subject_name: 'Toán',
+            periods_per_week: 4,
+          },
           { ...assignment, assignment_role: 'homeroom' },
           { ...assignment, assignment_role: 'subject', subject_name: 'Môn đã thôi', status: 'ended' },
         ])
