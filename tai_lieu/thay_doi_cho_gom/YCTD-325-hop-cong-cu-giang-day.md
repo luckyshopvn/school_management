@@ -11,7 +11,7 @@ phien_ban_de_xuat: 0.201.0
 
 #### Công việc đã thực hiện
 
-- Khảo sát công cụ hỗ trợ giảng dạy đã có (23b, 23c, 23a, 23d, DT-28), đăng nhập thử ba tài khoản giáo viên ở trường trình diễn, vẽ bản thiết kế Hộp công cụ giảng dạy; Eric duyệt ngày 2026-10-28 (32 mục 21).
+- Khảo sát công cụ hỗ trợ giảng dạy đã có (23b, 23c, 23a, 23d, DT-28), đăng nhập thử ba tài khoản giáo viên ở trường trình diễn, vẽ bản thiết kế Hộp công cụ giảng dạy; Eric duyệt ngày 2026-10-28 (32 mục 22).
 - Gói chung: danh mục công cụ `TEACHING_TOOLS` (`packages/shared/src/teaching-tools.ts`), ba mục cấp mới `class_pickup`, `class_medication`, `school_tutoring` ở `level-features.ts`.
 - Máy chủ API: cấu hình `teaching_tools_disabled` (kiểu `teaching_tool_list`), `GET /classroom-tools/config` trả thêm `disabled_tools`.
 - Ứng dụng giáo viên: màn Công cụ lớp học đổi thành Hộp công cụ giảng dạy (ô công cụ theo cấp của lớp, công cụ trường tắt, tính năng gói, lối vào giáo án, sổ đầu bài, lớp học trực tuyến), đường dẫn `?man=hop-cong-cu` và chuyển đường dẫn cũ, lối tắt trong `manifest.webmanifest`; trang chủ lọc Đón trả, Dặn thuốc, Lớp học trực tuyến, Gia sư trong trường theo cấp.
@@ -24,7 +24,7 @@ phien_ban_de_xuat: 0.201.0
 
 #### Thay đổi
 
-- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-325, `32_KE_HOACH_THEO_HE_THONG_SO.md` mục 21, `07_QUY_TAC_NGHIEP_VU.md` BR-460, `11_TIEU_CHI_NGHIEM_THU.md` AC-1130 đến AC-1132, `14_DAC_TA_GIAO_DIEN.md` MH-337, `16_CO_SO_DU_LIEU.md`, `17_DAC_TA_API.md`, `21_KICH_BAN_KIEM_THU.md` CT-1540 đến CT-1544, `23_LICH_SU_PHIEN_BAN.md` {PHIEN_BAN}.
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-325, `32_KE_HOACH_THEO_HE_THONG_SO.md` mục 22, `07_QUY_TAC_NGHIEP_VU.md` BR-460, `11_TIEU_CHI_NGHIEM_THU.md` AC-1130 đến AC-1132, `14_DAC_TA_GIAO_DIEN.md` MH-337, `16_CO_SO_DU_LIEU.md`, `17_DAC_TA_API.md`, `21_KICH_BAN_KIEM_THU.md` CT-1540 đến CT-1544, `23_LICH_SU_PHIEN_BAN.md` {PHIEN_BAN}.
 
 #### Vấn đề tồn đọng
 
@@ -34,7 +34,7 @@ phien_ban_de_xuat: 0.201.0
 
 ### YCTD-325: DT-29 phần 29a: Hộp công cụ giảng dạy theo cấp học – 2026-10-28
 
-- Lý do: Eric yêu cầu ngày 2026-10-28 tập hợp các công cụ, mini app hỗ trợ giảng dạy phù hợp với bậc học trong giao diện giáo viên; duyệt đề xuất cùng ngày (32 mục 21).
+- Lý do: Eric yêu cầu ngày 2026-10-28 tập hợp các công cụ, mini app hỗ trợ giảng dạy phù hợp với bậc học trong giao diện giáo viên; duyệt đề xuất cùng ngày (32 mục 22).
 - Nội dung thay đổi:
   - Danh mục công cụ một nơi ở gói chung: mã, tên, mô tả, nhóm (Trên lớp, Trò chơi và câu hỏi, Mini app theo môn, Giao bài và học trực tuyến), cấp áp dụng, chạy ngoại tuyến, tính năng gói.
   - Màn Hộp công cụ giảng dạy thay Công cụ lớp học: công cụ theo cấp của lớp đang chọn (Mầm non không có trò chơi kiến thức, sổ đầu bài, lớp học trực tuyến); bản chụp danh sách lớp lưu thêm cấp để lọc khi mất mạng (bản chụp cũ chưa có cấp thì không lọc); lối vào giáo án, sổ đầu bài và bài về nhà, lớp học trực tuyến, quay lại trở về Hộp công cụ; tab trong Chế độ lớp học đổi tên theo.

@@ -1,21 +1,19 @@
-import { useEffect, useRef, useState, type KeyboardEvent } from 'react';
+import { useEffect, useState } from 'react';
 import { Link, useLocation } from '@tanstack/react-router';
 import { portalMenuText, type PortalMenuNode, type PortalWorkspace } from '@school-management/shared';
 import { MenuBadge } from '../my-work/MyWorkBadge.js';
 import type { WorkspaceKey } from './workspaces.js';
 
-// Menu ngang nhiều cấp đánh số theo hệ thống của Sở (DT-15 phần 15a): mỗi phân hệ một thanh menu; mục cấp một mở menu sổ
-// xuống, cấp sâu hơn bật sang bên phải. Dùng được bằng chuột và bàn phím theo mẫu menubar của WAI-ARIA: mũi tên trái,
-// phải giữa các mục cấp một; xuống, lên trong menu; Enter, Space mở hoặc chọn; Esc đóng một cấp; Tab đóng hết. Màn hình
-// dưới 1280 điểm ảnh (DT-26 phần 26e) dùng ngăn kéo chứa cây menu gập (MobileMenu)
-
-const HOME_KEY = 'home';
+// Thanh bên trái theo phân hệ (YCTD-330, quyết định GD-170 thay menu ngang của DT-15 phần 15a): cây menu đánh số của phân hệ
+// đang chọn theo chiều dọc, giữ số thứ bậc theo hệ thống của Sở (GD-171). Mục cha là nút gập, mở ra các mục con; nhóm chứa
+// trang đang mở tự mở. Cùng một thanh dùng cho mọi khổ màn hình: từ 1280 px luôn hiện bên trái, dưới 1280 px (DT-26 phần 26e)
+// là ngăn kéo mở bằng nút "☰" ở thanh đầu trang
 
 function isActivePath(pathname: string, path: string | undefined): boolean {
   return path !== undefined && (pathname === path || pathname.startsWith(`${path}/`));
 }
 
-// Số thứ bậc của các mục cha chứa trang đang mở, để tô sáng cả nhánh
+// Số thứ bậc của các mục cha chứa trang đang mở, để mở sẵn và tô sáng cả nhánh
 function activeTrail(nodes: PortalMenuNode[], pathname: string): string[] {
   for (const node of nodes) {
     if (isActivePath(pathname, node.path)) {
@@ -31,316 +29,121 @@ function activeTrail(nodes: PortalMenuNode[], pathname: string): string[] {
   return [];
 }
 
-const itemId = (workspace: WorkspaceKey, key: string) => `menu-${workspace}-${key.replace(/\./g, '-')}`;
+const groupKey = (workspace: WorkspaceKey, number: string) => `${workspace}:${number}`;
 
-function Menubar({ workspace, hidden }: { workspace: PortalWorkspace; hidden: boolean }) {
+function WorkspaceTree({ workspace, hidden }: { workspace: PortalWorkspace; hidden: boolean }) {
   const { pathname } = useLocation();
-  // Chuỗi số thứ bậc của các menu đang mở, cấp một trước
-  const [openTrail, setOpenTrail] = useState<string[]>([]);
-  const [focusedTop, setFocusedTop] = useState(HOME_KEY);
-  const [pendingFocus, setPendingFocus] = useState<string>();
-  const container = useRef<HTMLUListElement>(null);
-  // Menu cấp một vừa mở do rê chuột: cú bấm ngay sau đó giữ menu mở thay vì đóng lại
-  const hoverOpened = useRef<string | undefined>(undefined);
-  const active = activeTrail(workspace.menu, pathname);
-  const topKeys = [HOME_KEY, ...workspace.menu.map((node) => node.number)];
+  const trail = activeTrail(workspace.menu, pathname);
+  const [expanded, setExpanded] = useState<Set<string>>(
+    () => new Set(trail.map((number) => groupKey(workspace.key, number))),
+  );
+  const trailKey = trail.join('|');
 
-  // Đổi trang thì đóng menu
+  // Mở trang thuộc nhóm đang gập (đường dẫn, chuông thông báo, truy cập nhanh) thì mở nhóm đó, giữ các nhóm người dùng đã mở
   useEffect(() => {
-    setOpenTrail([]);
-  }, [pathname]);
-
-  // Đưa con trỏ bàn phím tới mục sau khi menu chứa nó đã hiện
-  useEffect(() => {
-    if (pendingFocus) {
-      document.getElementById(itemId(workspace.key, pendingFocus))?.focus();
-      setPendingFocus(undefined);
+    if (!trailKey) {
+      return;
     }
-  }, [pendingFocus, workspace.key]);
-
-  // Bấm ra ngoài thanh menu thì đóng
-  useEffect(() => {
-    if (openTrail.length === 0) {
-      return undefined;
-    }
-    const onPointer = (event: MouseEvent) => {
-      if (container.current && !container.current.contains(event.target as Node)) {
-        setOpenTrail([]);
+    setExpanded((previous) => {
+      const keys = trailKey.split('|').map((number) => groupKey(workspace.key, number));
+      if (keys.every((key) => previous.has(key))) {
+        return previous;
       }
-    };
-    document.addEventListener('mousedown', onPointer);
-    return () => document.removeEventListener('mousedown', onPointer);
-  }, [openTrail.length]);
+      return new Set([...previous, ...keys]);
+    });
+  }, [trailKey, workspace.key]);
 
-  const focusTop = (key: string, openIt: boolean, into: 'first' | 'last' | 'none' = 'first') => {
-    setFocusedTop(key);
-    const node = workspace.menu.find((item) => item.number === key);
-    if (openIt && node?.children && into !== 'none') {
-      setOpenTrail([key]);
-      const target = into === 'first' ? node.children[0] : node.children.at(-1);
-      setPendingFocus(target?.number ?? key);
-    } else {
-      setOpenTrail([]);
-      setPendingFocus(key);
-    }
-  };
-  const neighbourTop = (key: string, offset: number) =>
-    topKeys[(topKeys.indexOf(key) + offset + topKeys.length) % topKeys.length] ?? HOME_KEY;
-
-  const onTopKeyDown = (event: KeyboardEvent, node: PortalMenuNode | undefined, key: string) => {
-    const hasChildren = Boolean(node?.children);
-    switch (event.key) {
-      case 'ArrowRight':
-        focusTop(neighbourTop(key, 1), false);
-        break;
-      case 'ArrowLeft':
-        focusTop(neighbourTop(key, -1), false);
-        break;
-      case 'Home':
-        focusTop(topKeys[0] ?? HOME_KEY, false);
-        break;
-      case 'End':
-        focusTop(topKeys.at(-1) ?? HOME_KEY, false);
-        break;
-      case 'ArrowDown':
-      case 'Enter':
-      case ' ':
-        if (hasChildren) {
-          focusTop(key, true, 'first');
-        } else if (event.key === ' ') {
-          (event.currentTarget as HTMLElement).click();
-        } else {
-          return;
-        }
-        break;
-      case 'ArrowUp':
-        if (!hasChildren) {
-          return;
-        }
-        focusTop(key, true, 'last');
-        break;
-      case 'Escape':
-        setOpenTrail([]);
-        break;
-      default:
-        return;
-    }
-    event.preventDefault();
-  };
-
-  // Phím trong menu sổ xuống; trail là chuỗi số của các mục cha, siblings là các mục cùng menu
-  const onItemKeyDown = (event: KeyboardEvent, node: PortalMenuNode, siblings: PortalMenuNode[], trail: string[]) => {
-    const index = siblings.indexOf(node);
-    const focusSibling = (next: number) => {
-      const target = siblings[(next + siblings.length) % siblings.length];
-      if (target) {
-        setOpenTrail(trail);
-        setPendingFocus(target.number);
+  const toggle = (key: string) => {
+    setExpanded((previous) => {
+      const next = new Set(previous);
+      if (next.has(key)) {
+        next.delete(key);
+      } else {
+        next.add(key);
       }
-    };
-    const topKey = trail[0] ?? HOME_KEY;
-    switch (event.key) {
-      case 'ArrowDown':
-        focusSibling(index + 1);
-        break;
-      case 'ArrowUp':
-        focusSibling(index - 1);
-        break;
-      case 'Home':
-        focusSibling(0);
-        break;
-      case 'End':
-        focusSibling(siblings.length - 1);
-        break;
-      case 'ArrowRight':
-        if (node.children) {
-          setOpenTrail([...trail, node.number]);
-          setPendingFocus(node.children[0]?.number);
-        } else {
-          focusTop(neighbourTop(topKey, 1), true);
-        }
-        break;
-      case 'ArrowLeft':
-        if (trail.length > 1) {
-          setOpenTrail(trail.slice(0, -1));
-          setPendingFocus(trail.at(-1));
-        } else {
-          focusTop(neighbourTop(topKey, -1), true);
-        }
-        break;
-      case 'Escape':
-        setOpenTrail(trail.slice(0, -1));
-        setPendingFocus(trail.at(-1));
-        break;
-      case 'Enter':
-      case ' ':
-        if (node.children) {
-          setOpenTrail([...trail, node.number]);
-          setPendingFocus(node.children[0]?.number);
-        } else if (event.key === ' ') {
-          (event.currentTarget as HTMLElement).click();
-        } else {
-          return;
-        }
-        break;
-      case 'Tab':
-        setOpenTrail([]);
-        return;
-      default:
-        return;
-    }
-    event.preventDefault();
+      return next;
+    });
   };
 
-  const renderSubmenu = (parent: PortalMenuNode, trail: string[]) => {
-    const children = parent.children ?? [];
-    const open = openTrail.length >= trail.length && trail.every((number, index) => openTrail[index] === number);
-    const nested = trail.length > 1;
-    return (
-      <ul
-        role="menu"
-        aria-label={parent.label}
-        hidden={!open}
-        className={`absolute z-40 min-w-64 rounded-md border border-border bg-card py-1 text-text shadow-lg ${nested ? 'left-full top-0 -mt-1' : 'left-0 top-full'}`}
-      >
-        {children.map((node) => {
-          const isActive = active.includes(node.number) && active.length > trail.length;
-          const expanded = openTrail[trail.length] === node.number;
-          const className = `flex w-full items-center justify-between gap-3 whitespace-nowrap px-3 py-1.5 text-left text-label hover:bg-selected focus:bg-selected focus:outline-none ${isActive ? 'font-semibold text-brand-strong' : ''}`;
+  const renderNodes = (nodes: PortalMenuNode[], depth: number) => (
+    <ul className={`flex flex-col gap-0.5 ${depth > 0 ? 'mt-0.5 pl-3' : ''}`}>
+      {nodes.map((node) => {
+        const key = groupKey(workspace.key, node.number);
+        const open = expanded.has(key);
+        const inTrail = trail.includes(node.number);
+        const listId = `menu-${key.replace(/[:.]/g, '-')}`;
+        if (node.children) {
           return (
-            <li key={node.number} role="none" className="relative">
-              {node.children ? (
-                <>
-                  <button
-                    type="button"
-                    role="menuitem"
-                    id={itemId(workspace.key, node.number)}
-                    tabIndex={-1}
-                    aria-haspopup="menu"
-                    aria-expanded={expanded}
-                    className={className}
-                    onClick={() => setOpenTrail([...trail, node.number])}
-                    onMouseEnter={() => setOpenTrail([...trail, node.number])}
-                    onKeyDown={(event) => onItemKeyDown(event, node, children, trail)}
-                  >
-                    <span>{portalMenuText(node)}</span>
-                    <span aria-hidden="true">›</span>
-                  </button>
-                  {renderSubmenu(node, [...trail, node.number])}
-                </>
-              ) : (
-                <Link
-                  to={node.path}
-                  role="menuitem"
-                  id={itemId(workspace.key, node.number)}
-                  tabIndex={-1}
-                  data-menu-path={node.path}
-                  aria-current={isActivePath(pathname, node.path) ? 'page' : undefined}
-                  className={className}
-                  onMouseEnter={() => setOpenTrail(trail)}
-                  onKeyDown={(event) => onItemKeyDown(event, node, children, trail)}
+            <li key={key}>
+              <button
+                type="button"
+                className={`flex min-h-10 w-full items-center justify-between gap-2 rounded-md px-3 text-left max-xl:min-h-11 text-label hover:bg-nav-hover ${depth === 0 ? 'font-medium text-white' : 'text-nav-text'} ${inTrail && !open ? 'bg-nav-hover' : ''}`}
+                aria-expanded={open}
+                aria-controls={listId}
+                onClick={() => toggle(key)}
+              >
+                <span>{portalMenuText(node)}</span>
+                <svg
+                  viewBox="0 0 24 24"
+                  width="14"
+                  height="14"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  aria-hidden="true"
+                  className={`shrink-0 transition-transform ${open ? 'rotate-90' : ''}`}
                 >
-                  {portalMenuText(node)}
-                  <MenuBadge path={node.path} />
-                </Link>
-              )}
+                  <path d="m9 6 6 6-6 6" />
+                </svg>
+              </button>
+              {/* Mục con luôn có trong cây giao diện (ẩn khi gập) để biết người dùng có quyền mở trang nào */}
+              <div id={listId} hidden={!open}>
+                {renderNodes(node.children, depth + 1)}
+              </div>
             </li>
           );
-        })}
-      </ul>
-    );
-  };
-
-  const topClass = (isActive: boolean, expanded: boolean) =>
-    `flex h-10 items-center gap-1 whitespace-nowrap border-b-2 px-3 text-label font-medium hover:bg-selected focus:bg-selected focus:outline-none ${isActive ? 'border-brand text-brand-strong' : 'border-transparent text-text'} ${expanded ? 'bg-selected' : ''}`;
-
-  return (
-    <ul
-      ref={container}
-      role="menubar"
-      aria-label={workspace.label}
-      hidden={hidden}
-      className="flex w-full flex-wrap items-stretch px-4"
-    >
-      <li role="none">
-        <Link
-          to="/"
-          role="menuitem"
-          id={itemId(workspace.key, HOME_KEY)}
-          tabIndex={focusedTop === HOME_KEY ? 0 : -1}
-          aria-current={pathname === '/' ? 'page' : undefined}
-          className={topClass(pathname === '/', false)}
-          onFocus={() => setFocusedTop(HOME_KEY)}
-          onKeyDown={(event) => onTopKeyDown(event, undefined, HOME_KEY)}
-        >
-          Trang chủ
-        </Link>
-      </li>
-      {workspace.menu.map((node) => {
-        const isActive = active[0] === node.number;
-        const expanded = openTrail[0] === node.number;
+        }
+        const current = isActivePath(pathname, node.path);
         return (
-          <li key={node.number} role="none" className="relative">
-            {node.children ? (
-              <>
-                <button
-                  type="button"
-                  role="menuitem"
-                  id={itemId(workspace.key, node.number)}
-                  tabIndex={focusedTop === node.number ? 0 : -1}
-                  aria-haspopup="menu"
-                  aria-expanded={expanded}
-                  className={topClass(isActive, expanded)}
-                  onClick={() => {
-                    const keepOpen = expanded && hoverOpened.current === node.number;
-                    hoverOpened.current = undefined;
-                    setOpenTrail(expanded && !keepOpen ? [] : [node.number]);
-                  }}
-                  onMouseEnter={() => {
-                    if (openTrail.length > 0 && !expanded) {
-                      hoverOpened.current = node.number;
-                      setOpenTrail([node.number]);
-                    }
-                  }}
-                  onMouseLeave={() => {
-                    hoverOpened.current = undefined;
-                  }}
-                  onFocus={() => setFocusedTop(node.number)}
-                  onKeyDown={(event) => onTopKeyDown(event, node, node.number)}
-                >
-                  {portalMenuText(node)}
-                  <span aria-hidden="true" className="text-text-secondary">
-                    ▾
-                  </span>
-                </button>
-                {renderSubmenu(node, [node.number])}
-              </>
-            ) : (
-              <Link
-                to={node.path}
-                role="menuitem"
-                id={itemId(workspace.key, node.number)}
-                tabIndex={focusedTop === node.number ? 0 : -1}
-                data-menu-path={node.path}
-                aria-current={isActivePath(pathname, node.path) ? 'page' : undefined}
-                className={topClass(isActive, false)}
-                onFocus={() => setFocusedTop(node.number)}
-                onKeyDown={(event) => onTopKeyDown(event, node, node.number)}
-              >
-                {portalMenuText(node)}
-                <MenuBadge path={node.path} />
-              </Link>
-            )}
+          <li key={key}>
+            <Link
+              to={node.path}
+              data-menu-path={node.path}
+              aria-current={current ? 'page' : undefined}
+              className={`flex min-h-9 items-center gap-2 rounded-md px-3 py-1.5 text-label hover:bg-nav-hover max-xl:min-h-11 ${current ? 'bg-nav-active font-semibold text-white' : 'text-nav-text'}`}
+            >
+              <span className="min-w-0 flex-1">{portalMenuText(node)}</span>
+              <MenuBadge path={node.path} />
+            </Link>
           </li>
         );
       })}
     </ul>
   );
+
+  return (
+    <div
+      role="group"
+      aria-label={workspace.label}
+      hidden={hidden}
+      data-workspace={workspace.key}
+      className="flex flex-col gap-0.5"
+    >
+      <Link
+        to="/"
+        aria-current={pathname === '/' ? 'page' : undefined}
+        className={`flex min-h-10 items-center rounded-md px-3 text-label font-medium hover:bg-nav-hover max-xl:min-h-11 ${pathname === '/' ? 'bg-nav-active text-white' : 'text-white'}`}
+      >
+        Trang chủ
+      </Link>
+      {renderNodes(workspace.menu, 0)}
+    </div>
+  );
 }
 
-// Thanh menu dưới thanh đầu trang: mỗi phân hệ người dùng được thấy có một thanh, chỉ thanh của phân hệ đang chọn hiện ra;
-// các thanh khác vẫn giữ trong cây giao diện (ẩn) để kiểm thử và trang chủ biết mục nào người dùng được mở
-export function MainMenu({
+// Cây menu của mọi phân hệ người dùng được thấy; chỉ cây của phân hệ đang chọn hiện ra, các cây khác vẫn giữ (ẩn) để kiểm thử
+// và trang chủ biết mục nào người dùng được mở
+export function SideMenu({
   workspaces,
   current,
 }: {
@@ -348,125 +151,10 @@ export function MainMenu({
   current: WorkspaceKey | undefined;
 }) {
   return (
-    <nav aria-label="Menu chức năng" className="sticky top-14 z-30 hidden border-b border-border bg-card xl:block">
+    <nav id="menu-gon" aria-label="Menu chức năng" className="flex flex-col">
       {workspaces.map((workspace) => (
-        <Menubar key={workspace.key} workspace={workspace} hidden={workspace.key !== current} />
+        <WorkspaceTree key={workspace.key} workspace={workspace} hidden={workspace.key !== current} />
       ))}
     </nav>
-  );
-}
-
-// Dưới 1280 px (điện thoại, máy tính bảng dọc và ngang; DT-26 phần 26e): nút "☰" mở ngăn kéo bên trái chứa cây menu gập theo chiều dọc
-// của phân hệ đang chọn, đúng thứ tự và quyền như menu ngang; đóng bằng nút Đóng menu, chạm nền mờ, phím Esc hoặc khi chọn trang
-export function MobileMenu({ workspace, onClose }: { workspace: PortalWorkspace | undefined; onClose(): void }) {
-  const { pathname } = useLocation();
-  const [expanded, setExpanded] = useState<Set<string>>(
-    () => new Set(workspace ? activeTrail(workspace.menu, pathname) : []),
-  );
-  const firstPath = useRef(pathname);
-  const closeReference = useRef<HTMLButtonElement>(null);
-
-  // Chọn trang khác thì đóng menu
-  useEffect(() => {
-    if (pathname !== firstPath.current) {
-      onClose();
-    }
-  }, [pathname, onClose]);
-
-  // Mở ngăn kéo thì đưa con trỏ bàn phím vào ngăn; Esc đóng
-  useEffect(() => {
-    closeReference.current?.focus();
-    const onKey = (event: globalThis.KeyboardEvent) => {
-      if (event.key === 'Escape') {
-        onClose();
-      }
-    };
-    document.addEventListener('keydown', onKey);
-    return () => document.removeEventListener('keydown', onKey);
-  }, [onClose]);
-
-  if (!workspace) {
-    return null;
-  }
-  const toggle = (key: string) => {
-    const next = new Set(expanded);
-    if (next.has(key)) {
-      next.delete(key);
-    } else {
-      next.add(key);
-    }
-    setExpanded(next);
-  };
-  const renderNodes = (nodes: PortalMenuNode[], parentKey: string, depth: number) => (
-    <ul className={`flex flex-col gap-0.5 ${depth > 0 ? 'ml-3 border-l border-border pl-2' : ''}`}>
-      {nodes.map((node) => {
-        const key = `${parentKey}${node.number}`;
-        const open = expanded.has(node.number);
-        const listId = `menu-gon-${key.replace(/\./g, '-')}`;
-        return (
-          <li key={key}>
-            {node.children ? (
-              <>
-                <button
-                  type="button"
-                  className="flex w-full items-center justify-between rounded px-2 py-2 text-left text-label font-medium text-text hover:bg-selected"
-                  aria-expanded={open}
-                  aria-controls={listId}
-                  onClick={() => toggle(node.number)}
-                >
-                  <span>{portalMenuText(node)}</span>
-                  <span aria-hidden="true">{open ? '▾' : '▸'}</span>
-                </button>
-                <div id={listId} hidden={!open}>
-                  {renderNodes(node.children, key, depth + 1)}
-                </div>
-              </>
-            ) : (
-              <Link
-                to={node.path}
-                data-menu-path={node.path}
-                aria-current={isActivePath(pathname, node.path) ? 'page' : undefined}
-                className={`flex min-h-11 items-center gap-2 rounded px-2 py-2 text-label text-text hover:bg-selected ${isActivePath(pathname, node.path) ? 'bg-selected font-semibold text-brand-strong' : ''}`}
-              >
-                {portalMenuText(node)}
-                <MenuBadge path={node.path} />
-              </Link>
-            )}
-          </li>
-        );
-      })}
-    </ul>
-  );
-  return (
-    <div className="fixed inset-0 z-50 flex xl:hidden">
-      <nav
-        id="menu-gon"
-        aria-label="Menu chức năng"
-        className="relative flex h-full w-80 max-w-[85vw] flex-col overflow-y-auto bg-card p-3 shadow-lg"
-      >
-        <div className="mb-2 flex items-center justify-between gap-2">
-          <span className="px-2 text-content font-semibold text-text">{workspace.label}</span>
-          <button
-            ref={closeReference}
-            type="button"
-            aria-label="Đóng menu"
-            className="flex h-11 w-11 items-center justify-center rounded-lg text-section-title text-text hover:bg-selected"
-            onClick={onClose}
-          >
-            <span aria-hidden="true">×</span>
-          </button>
-        </div>
-        <Link
-          to="/"
-          aria-current={pathname === '/' ? 'page' : undefined}
-          className="flex min-h-11 items-center rounded px-2 py-2 text-label font-medium text-text hover:bg-selected"
-        >
-          Trang chủ
-        </Link>
-        {renderNodes(workspace.menu, '', 0)}
-      </nav>
-      {/* Nền mờ: chạm ra ngoài ngăn kéo thì đóng; người dùng bàn phím đóng bằng nút Đóng menu hoặc Esc */}
-      <div className="flex-1 bg-text/40" aria-hidden="true" onClick={onClose} />
-    </div>
   );
 }

@@ -1,6 +1,6 @@
 import { useCallback, useState, type ReactNode } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { Link } from '@tanstack/react-router';
+import { Link, useNavigate } from '@tanstack/react-router';
 import { PERMISSION_CODES } from '@school-management/shared';
 import {
   Alert,
@@ -33,7 +33,13 @@ import {
   type StudentFilter,
 } from './children-api.js';
 import { CreateChildForm } from './CreateChildForm.js';
-import { assignMoetCodes, deleteChild, downloadErrorFile, downloadMoetFile } from '../students/students-api.js';
+import {
+  assignMoetCodes,
+  deleteChild,
+  downloadErrorFile,
+  downloadMoetFile,
+  downloadMoetTemplate,
+} from '../students/students-api.js';
 
 // MH-02 4.1.1. Quản lý hồ sơ học sinh theo hệ thống của Sở (DT-15 phần 15c, YCTD-108; trước là Hồ sơ trẻ, P02-01, P02-02,
 // QT-01): lưới dữ liệu chung có tìm theo họ tên, mở rộng tìm kiếm theo các bộ lọc của mục 4.1.4, cột theo danh sách của
@@ -143,6 +149,13 @@ function studentColumns(): Array<DataGridColumn<ChildListItem>> {
       ),
     },
     { id: 'contact_phone', header: 'Số điện thoại liên hệ', cell: (row) => row.contact_phone ?? '' },
+    // Người liên hệ chính và tỷ lệ ngày có mặt ở năm học (YCTD-319)
+    { id: 'guardian_name', header: 'Phụ huynh', cell: (row) => row.guardian_name ?? '' },
+    {
+      id: 'attendance_rate',
+      header: 'Chuyên cần',
+      cell: (row) => (row.attendance_rate === null ? '' : `${row.attendance_rate}%`),
+    },
     { id: 'grade', header: 'Khối', cell: (row) => row.grade_name ?? row.grade_level ?? '' },
     { id: 'class', header: 'Lớp', cell: (row) => row.class_name ?? '' },
     { id: 'sms_phone', header: 'Điện thoại nhận tin', hiddenByDefault: true, cell: (row) => row.sms_phone ?? '' },
@@ -159,6 +172,46 @@ function studentColumns(): Array<DataGridColumn<ChildListItem>> {
     { id: 'national_id', header: 'Số định danh', hiddenByDefault: true, cell: (row) => row.national_id_masked },
     { id: 'org_unit', header: 'Đơn vị', hiddenByDefault: true, cell: (row) => row.org_unit_name },
   ];
+}
+
+// Đồng bộ CSDL ngành bản chạy nội bộ (YCTD-319, theo quyết định ngày 2026-10-16 của Eric về tích hợp bên ngoài): tải tệp
+// CSDL ngành 82 cột kèm dữ liệu để trường tự nộp, nhập tệp tải từ CSDL ngành ở 4.1.2; hệ thống không gửi dữ liệu đi
+function MoetSyncDialog({ onClose }: { onClose(): void }) {
+  const navigate = useNavigate();
+  const [error, setError] = useState<string>();
+  const [busy, setBusy] = useState(false);
+  return (
+    <ConfirmDialog
+      open
+      title="Đồng bộ CSDL ngành"
+      confirmLabel="Nhập tệp từ CSDL ngành"
+      onCancel={onClose}
+      onConfirm={() => void navigate({ to: '/student-imports' })}
+    >
+      <div className="flex flex-col gap-3">
+        <p>Bản này chưa kết nối trực tiếp CSDL ngành. Đồng bộ bằng tệp 82 cột theo mẫu của Bộ:</p>
+        <ol className="list-decimal pl-5">
+          <li>Gửi lên: tải tệp kèm dữ liệu học sinh rồi nộp lên CSDL ngành.</li>
+          <li>Nhận về: tải tệp từ CSDL ngành rồi nhập ở mục 4.1.2 (nút bên dưới).</li>
+        </ol>
+        <div>
+          <Button
+            disabled={busy}
+            onClick={() => {
+              setError(undefined);
+              setBusy(true);
+              downloadMoetTemplate(true)
+                .catch((cause: unknown) => setError(messageOf(cause)))
+                .finally(() => setBusy(false));
+            }}
+          >
+            Tải tệp kèm dữ liệu để nộp
+          </Button>
+        </div>
+        {error ? <Alert tone="danger">{error}</Alert> : null}
+      </div>
+    </ConfirmDialog>
+  );
 }
 
 // Hộp cập nhật hàng loạt (mục 4.1.12 của Sở): mỗi thông tin chọn giữ nguyên, có hoặc không
@@ -316,6 +369,7 @@ export function ChildrenPage() {
   const [openId, setOpenId] = useState<string>();
   const [creating, setCreating] = useState(false);
   const [bulkRows, setBulkRows] = useState<ChildListItem[]>();
+  const [syncing, setSyncing] = useState(false);
   const [deleting, setDeleting] = useState<ChildListItem>();
   const [codeRows, setCodeRows] = useState<ChildListItem[]>();
   const [toastMessage, setToastMessage] = useState<string>();
@@ -541,6 +595,7 @@ export function ChildrenPage() {
                 Nhập từ Excel
               </Link>
             ) : null}
+            {canImport ? <Button onClick={() => setSyncing(true)}>Đồng bộ CSDL ngành</Button> : null}
             {canManage ? (
               <Button
                 variant="primary"
@@ -708,6 +763,7 @@ export function ChildrenPage() {
           }}
         />
       ) : null}
+      {syncing ? <MoetSyncDialog onClose={() => setSyncing(false)} /> : null}
       {bulkRows ? (
         <BulkUpdateDialog
           rows={bulkRows}

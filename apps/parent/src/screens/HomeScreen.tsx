@@ -6,6 +6,7 @@ import { ApiError, fetchCurrentUser, requestJson, type CurrentUser } from '../se
 import { useSession } from '../session/session.js';
 import { AuthorizedPickupsPanel, PickupConfirmations } from './PickupSections.js';
 import { InvoicesPanel } from './InvoicesPanel.js';
+import { DueInvoicesCard, RecentScoresCard } from './ChildSummaryCards.js';
 import { JournalPanel } from './JournalPanel.js';
 import { ActivitiesPanel } from './ActivitiesPanel.js';
 import { HealthPanel } from './HealthPanel.js';
@@ -267,6 +268,9 @@ function ChildCard({
           {todayStatus.text}
         </p>
       ) : null}
+      {/* Thẻ tóm tắt Khoản cần nộp, Điểm mới (YCTD-320); không có dữ liệu thì ẩn */}
+      <DueInvoicesCard childId={child.id} onOpen={() => setView('invoices')} />
+      {has('student_scores') ? <RecentScoresCard childId={child.id} onOpen={() => setView('scores')} /> : null}
       {/* Lối tắt bốn ô (mẫu giao diện phụ huynh): báo vắng, thời khoá biểu, thực đơn, học phí; ô nào cấp của con không có thì ẩn */}
       <div className="grid grid-cols-4 gap-2">
         {/* Báo vắng theo ngày dùng chung cho mọi cấp có điểm danh (DT-20 phần 20d) */}
