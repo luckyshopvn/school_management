@@ -1,3 +1,8 @@
+import {
+  StudentSupportViewController,
+  SupportViewController,
+  SupportViewService,
+} from './support-view/support-view.controller.js';
 import { AdmissionAccess } from './admissions/admission-access.js';
 import { AdmissionApplicationsController, AdmissionApplicationsService } from './admissions/admission-applications.js';
 import { AdmissionCampaignsController, AdmissionCampaignsService } from './admissions/admission-campaigns.js';
@@ -502,7 +507,7 @@ import {
 } from './online-exams/exam-proctoring.controller.js';
 import { OnlineExamsController } from './online-exams/online-exams.controller.js';
 import { OnlineExamsService } from './online-exams/online-exams.js';
-import { StudentExamsController } from './online-exams/student-exams.controller.js';
+import { StudentExamsController, StudentProfileController } from './online-exams/student-exams.controller.js';
 import { StudentExamsService } from './online-exams/student-exams.js';
 import { ChildTutoringController, TutoringController } from './tutoring/tutoring.controller.js';
 import { TutoringService } from './tutoring/tutoring.js';
@@ -572,6 +577,9 @@ export class ApplicationModule {
     return {
       module: ApplicationModule,
       controllers: [
+        // Chế độ xem của nhân viên hỗ trợ (YCTD-315b)
+        SupportViewController,
+        StudentSupportViewController,
         SchoolPlanController,
         SchoolBillingController,
         PlatformBillingWebhooksController,
@@ -845,6 +853,7 @@ export class ApplicationModule {
         ...(options.additionalControllers ?? []),
         // Thi trực tuyến cho học sinh (DT-23 phần 23a)
         OnlineExamsController,
+        StudentProfileController,
         StudentExamsController,
         // Trò chơi kiến thức và thẻ đáp án giấy (DT-23 phần 23c)
         ClassroomGamesController,
@@ -887,6 +896,7 @@ export class ApplicationModule {
         ...CAC_PHAN_DANG_KY.flatMap((phan) => phan.controllers ?? []),
       ],
       providers: [
+        SupportViewService,
         { provide: API_CONFIGURATION, useValue: configuration },
         { provide: TENANCY_RUNTIME, useValue: options.tenancy ?? null },
         { provide: Clock, useValue: clock },

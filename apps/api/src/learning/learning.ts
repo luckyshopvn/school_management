@@ -1,3 +1,4 @@
+import { studentChildOf } from '../common/student-account.js';
 import { Injectable } from '@nestjs/common';
 import {
   vietnamDate,
@@ -1381,12 +1382,7 @@ export class LearningService {
   // như phía thi của 23a: công tắc đó chỉ cho thi
   private async studentOf(currentUser: CurrentUser) {
     const { database } = await this.currentSchoolYear.require();
-    const account = await database
-      .selectFrom('student_learning_accounts')
-      .innerJoin('children', 'children.id', 'student_learning_accounts.child_id')
-      .select(['children.id', 'children.status', 'children.deleted_at'])
-      .where('student_learning_accounts.identity_user_id', '=', currentUser.id)
-      .executeTakeFirst();
+    const account = await studentChildOf(database, currentUser);
     if (!account || account.status !== 'active' || account.deleted_at !== null) {
       throw new ApplicationError(
         'ERR_FORBIDDEN',

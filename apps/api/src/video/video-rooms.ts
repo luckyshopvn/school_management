@@ -1,3 +1,4 @@
+import { studentChildOf } from '../common/student-account.js';
 import { createHash, createHmac, randomUUID, timingSafeEqual } from 'node:crypto';
 import { Inject, Injectable, Optional } from '@nestjs/common';
 import type { SchoolYearDatabase } from '@school-management/database';
@@ -1170,12 +1171,7 @@ export class VideoRoomsService {
   // Học sinh ở kênh student: tài khoản học nối đúng một học sinh đang học
   async studentChild(currentUser: CurrentUser): Promise<string> {
     const database = await this.database();
-    const account = await database
-      .selectFrom('student_learning_accounts')
-      .innerJoin('children', 'children.id', 'student_learning_accounts.child_id')
-      .select(['children.id', 'children.status', 'children.deleted_at'])
-      .where('student_learning_accounts.identity_user_id', '=', currentUser.id)
-      .executeTakeFirst();
+    const account = await studentChildOf(database, currentUser);
     if (!account || account.status !== 'active' || account.deleted_at !== null) {
       throw new ApplicationError(
         'ERR_FORBIDDEN',
