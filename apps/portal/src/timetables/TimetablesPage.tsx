@@ -1,4 +1,5 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { Fragment, useCallback, useEffect, useMemo, useState } from 'react';
+import { Link } from '@tanstack/react-router';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { PERMISSION_CODES, TIMETABLE_WEEKDAY_LABELS, type SchoolLevelCode } from '@school-management/shared';
 import { Alert, Button, FORM_CONTROL_CLASS, StatusBadge, Toast } from '@school-management/ui';
@@ -9,6 +10,7 @@ import { useHasPermission } from '../session/permissions.js';
 import { useEnabledSchoolLevels } from '../school-levels/enabled-levels.js';
 import { readClassTeaching } from '../subjects/subjects-api.js';
 import { checkClassLessons } from './timetable-generator-api.js';
+import { lessonTone } from './lesson-tone.js';
 import {
   createTimetableVersion,
   deleteTimetableVersion,
@@ -137,51 +139,88 @@ export function ReadOnlyGrid({
 }) {
   const periods =
     slots.length > 0 ? slots.map((slot) => slot.period_no) : [...new Set(lessons.map((lesson) => lesson.period_no))];
+  const firstAfternoon = slots.find((slot) => slot.session === 'afternoon')?.period_no;
+  const hasMorning = slots.some((slot) => slot.session === 'morning');
   return (
-    <div className="overflow-x-auto">
-      <table className="text-content" aria-label="Lưới thời khoá biểu">
-        <thead className="text-left text-label font-medium text-text-secondary">
-          <tr>
-            <th className="px-3 py-2">Tiết</th>
-            {DAYS.map((day) => (
-              <th key={day} className="px-3 py-2">
-                {TIMETABLE_WEEKDAY_LABELS[day]}
-              </th>
-            ))}
-          </tr>
-        </thead>
+    <div className={GRID_FRAME_CLASS}>
+      <table className="w-full min-w-[48rem] border-collapse text-content" aria-label="Lưới thời khoá biểu">
+        <GridHead />
         <tbody>
           {periods.map((period) => {
             const slot = slots.find((item) => item.period_no === period);
             return (
-              <tr key={period} className="border-t border-border">
-                <th scope="row" className="px-3 py-2 text-left font-medium">
-                  Tiết {period}
-                  {slot ? <span className="block text-label text-text-secondary">{slot.start_time}</span> : null}
-                </th>
-                {DAYS.map((day) => (
-                  <td key={day} className="px-3 py-2 align-top">
-                    {lessons
-                      .filter((lesson) => lesson.weekday === day && lesson.period_no === period)
-                      .map((lesson) => (
-                        <span key={lesson.id} className="block">
-                          {lesson.group_no > 0 ? `Nhóm ${lesson.group_no} · ` : ''}
-                          {mode === 'class' ? lesson.subject_name : `${lesson.class_name} · ${lesson.subject_name}`}
-                          <span className="block text-label text-text-secondary">
-                            {mode === 'teacher'
-                              ? (lesson.room_name ?? '')
-                              : (lesson.teacher_name ?? 'Chưa có giáo viên')}
-                          </span>
-                        </span>
-                      ))}
-                  </td>
-                ))}
-              </tr>
+              <Fragment key={period}>
+                {/* Dải "Buổi chiều" ngăn hai buổi khi khung giờ có cả buổi sáng (mẫu thiết kế) */}
+                {hasMorning && period === firstAfternoon ? <SessionBreak /> : null}
+                <tr className="border-b border-border last:border-b-0">
+                  <th scope="row" className="w-24 px-3 py-2.5 text-left align-top font-semibold">
+                    Tiết {period}
+                    {slot ? (
+                      <span className="block text-label font-normal text-text-secondary">{slot.start_time}</span>
+                    ) : null}
+                  </th>
+                  {DAYS.map((day) => (
+                    <td key={day} className="border-l border-border p-1.5 align-top">
+                      <div className="flex flex-col gap-1">
+                        {lessons
+                          .filter((lesson) => lesson.weekday === day && lesson.period_no === period)
+                          .map((lesson) => (
+                            <span
+                              key={lesson.id}
+                              className={`flex min-h-13 flex-col gap-0.5 rounded-lg px-2.5 py-1.5 ${lessonTone(lesson.subject_id)}`}
+                            >
+                              <span className="text-label font-semibold">
+                                {lesson.group_no > 0 ? `Nhóm ${lesson.group_no} · ` : ''}
+                                {mode === 'class'
+                                  ? lesson.subject_name
+                                  : `${lesson.class_name} · ${lesson.subject_name}`}
+                              </span>
+                              <span className="text-xs text-text">
+                                {mode === 'teacher'
+                                  ? (lesson.room_name ?? '')
+                                  : (lesson.teacher_name ?? 'Chưa có giáo viên')}
+                              </span>
+                            </span>
+                          ))}
+                      </div>
+                    </td>
+                  ))}
+                </tr>
+              </Fragment>
             );
           })}
         </tbody>
       </table>
     </div>
+  );
+}
+
+// Khung, đầu cột và dải ngăn buổi dùng chung cho lưới xem và lưới sửa (mẫu thiết kế Timetable.dc.html: thẻ trắng viền mảnh, đầu cột
+// nền nhạt, kẻ dọc giữa các thứ, cuộn ngang khi màn hình hẹp)
+const GRID_FRAME_CLASS = 'overflow-x-auto rounded-xl border border-border bg-card';
+
+function GridHead() {
+  return (
+    <thead className="border-b border-border bg-page text-left">
+      <tr>
+        <th className="w-24 px-3 py-3 text-label font-semibold text-text-secondary">Tiết</th>
+        {DAYS.map((day) => (
+          <th key={day} className="border-l border-border px-3 py-3 text-label font-semibold text-text">
+            {TIMETABLE_WEEKDAY_LABELS[day]}
+          </th>
+        ))}
+      </tr>
+    </thead>
+  );
+}
+
+function SessionBreak() {
+  return (
+    <tr className="border-b border-border bg-page">
+      <td colSpan={DAYS.length + 1} className="px-3 py-1.5 text-xs font-semibold text-text-secondary">
+        Buổi chiều
+      </td>
+    </tr>
   );
 }
 
@@ -427,46 +466,45 @@ function ClassEditor({
       {slots.length === 0 ? (
         <Alert tone="info">Chưa có khung giờ tiết học của cấp; khai báo ở 7.3 Khung giờ tiết học.</Alert>
       ) : null}
-      <div className="overflow-x-auto">
-        <table className="text-content" aria-label="Lưới sửa thời khoá biểu">
-          <thead className="text-left text-label font-medium text-text-secondary">
-            <tr>
-              <th className="px-3 py-2">Tiết</th>
-              {DAYS.map((day) => (
-                <th key={day} className="px-3 py-2">
-                  {TIMETABLE_WEEKDAY_LABELS[day]}
-                </th>
-              ))}
-            </tr>
-          </thead>
+      <div className={GRID_FRAME_CLASS}>
+        <table className="w-full min-w-[48rem] border-collapse text-content" aria-label="Lưới sửa thời khoá biểu">
+          <GridHead />
           <tbody>
-            {slots.map((slot) => (
-              <tr key={slot.period_no} className="border-t border-border">
-                <th scope="row" className="px-3 py-2 text-left font-medium">
-                  Tiết {slot.period_no}
-                </th>
-                {DAYS.map((day) => {
-                  const key = `${day}:${slot.period_no}`;
-                  return (
-                    <td key={day} className="px-2 py-1">
-                      <select
-                        className={`${FORM_CONTROL_CLASS}${hardCells.has(key) ? ' border-danger' : ''}`}
-                        aria-invalid={hardCells.has(key) || undefined}
-                        aria-label={`${TIMETABLE_WEEKDAY_LABELS[day]} tiết ${slot.period_no}`}
-                        value={cells[key] ?? ''}
-                        onChange={(event) => setCells((current) => ({ ...current, [key]: event.target.value }))}
+            {slots.map((slot, index) => (
+              <Fragment key={slot.period_no}>
+                {slot.session === 'afternoon' && slots[index - 1]?.session === 'morning' ? <SessionBreak /> : null}
+                <tr className="border-b border-border last:border-b-0">
+                  <th scope="row" className="w-24 px-3 py-2 text-left align-top font-semibold">
+                    Tiết {slot.period_no}
+                    <span className="block text-label font-normal text-text-secondary">{slot.start_time}</span>
+                  </th>
+                  {DAYS.map((day) => {
+                    const key = `${day}:${slot.period_no}`;
+                    // Ô có xung đột phải sửa: nền đỏ nhạt, viền đỏ như ô trùng lịch của mẫu thiết kế
+                    return (
+                      <td
+                        key={day}
+                        className={`border-l border-border p-1.5${hardCells.has(key) ? ' bg-danger/10' : ''}`}
                       >
-                        <option value="">—</option>
-                        {subjects.map((subject) => (
-                          <option key={subject.subject_id} value={subject.subject_id}>
-                            {subject.subject_name}
-                          </option>
-                        ))}
-                      </select>
-                    </td>
-                  );
-                })}
-              </tr>
+                        <select
+                          className={`${FORM_CONTROL_CLASS}${hardCells.has(key) ? ' border-danger' : ''}`}
+                          aria-invalid={hardCells.has(key) || undefined}
+                          aria-label={`${TIMETABLE_WEEKDAY_LABELS[day]} tiết ${slot.period_no}`}
+                          value={cells[key] ?? ''}
+                          onChange={(event) => setCells((current) => ({ ...current, [key]: event.target.value }))}
+                        >
+                          <option value="">—</option>
+                          {subjects.map((subject) => (
+                            <option key={subject.subject_id} value={subject.subject_id}>
+                              {subject.subject_name}
+                            </option>
+                          ))}
+                        </select>
+                      </td>
+                    );
+                  })}
+                </tr>
+              </Fragment>
             ))}
           </tbody>
         </table>
@@ -512,6 +550,60 @@ function ClassEditor({
   );
 }
 
+type ViewMode = 'class' | 'teacher' | 'room';
+const VIEW_MODES: Array<{ value: ViewMode; label: string }> = [
+  { value: 'class', label: 'Theo lớp' },
+  { value: 'teacher', label: 'Theo giáo viên' },
+  { value: 'room', label: 'Theo phòng' },
+];
+const VIEW_PANEL_ID = 'timetable-view';
+
+// Cách xem dạng nút chuyển (mẫu thiết kế, thay ô chọn "Xem theo"): mũi tên trái, phải chuyển giữa các cách xem theo mẫu thẻ của ARIA
+function ViewModeTabs({ mode, onChange }: { mode: ViewMode; onChange(mode: ViewMode): void }) {
+  const move = (step: number) => {
+    const index = VIEW_MODES.findIndex((item) => item.value === mode);
+    const next = VIEW_MODES[(index + step + VIEW_MODES.length) % VIEW_MODES.length];
+    if (next) {
+      onChange(next.value);
+      document.getElementById(`${VIEW_PANEL_ID}-${next.value}`)?.focus();
+    }
+  };
+  return (
+    <div
+      role="tablist"
+      aria-label="Xem theo"
+      className="flex gap-1 rounded-xl bg-border p-1"
+      onKeyDown={(event) => {
+        if (event.key === 'ArrowRight' || event.key === 'ArrowLeft') {
+          event.preventDefault();
+          move(event.key === 'ArrowRight' ? 1 : -1);
+        }
+      }}
+    >
+      {VIEW_MODES.map((item) => {
+        const selected = item.value === mode;
+        return (
+          <button
+            key={item.value}
+            type="button"
+            role="tab"
+            id={`${VIEW_PANEL_ID}-${item.value}`}
+            aria-selected={selected}
+            aria-controls={VIEW_PANEL_ID}
+            tabIndex={selected ? 0 : -1}
+            className={`rounded-lg px-3.5 py-2 text-label ${
+              selected ? 'bg-card font-semibold text-brand-strong' : 'font-medium text-text-secondary hover:text-text'
+            }`}
+            onClick={() => onChange(item.value)}
+          >
+            {item.label}
+          </button>
+        );
+      })}
+    </div>
+  );
+}
+
 export function TimetablesPage() {
   const canManage = useHasPermission(PERMISSION_CODES.timetableManage);
   const enabled = useEnabledSchoolLevels();
@@ -536,7 +628,7 @@ export function TimetablesPage() {
     queryFn: () => requestJson<ClassOption[]>(`/api/v1/classes?school_level=${level ?? 'TH'}&status=active`),
     enabled: Boolean(level),
   });
-  const [mode, setMode] = useState<'class' | 'teacher' | 'room'>('class');
+  const [mode, setMode] = useState<ViewMode>('class');
   const [target, setTarget] = useState('');
   const all = useQuery({
     queryKey: ['version-lessons', version?.id, 'all'],
@@ -602,12 +694,38 @@ export function TimetablesPage() {
     },
   });
   const isDraft = version?.status === 'draft';
+  const targetName =
+    mode === 'class'
+      ? classes.data?.find((item) => item.id === target)?.name
+      : (mode === 'teacher' ? teachers : rooms).find(([id]) => id === target)?.[1];
+  const hardConflicts = (conflicts.data ?? []).filter((conflict) => conflict.severity === 'hard').length;
+  // Dòng mô tả dưới tiêu đề (mẫu thiết kế): bản đang mở, ngày áp dụng, đối tượng đang xem và số tiết mỗi tuần
+  const summary = version
+    ? [
+        version.name,
+        `Áp dụng từ ${version.effective_from.split('-').reverse().join('/')}`,
+        ...(target && targetName && all.data ? [targetName, `${filtered.length} tiết mỗi tuần`] : []),
+      ].join(' · ')
+    : null;
 
   return (
     <AppShell>
       <Toast message={toastMessage} onClose={closeToast} />
       <div className="flex flex-col gap-6">
-        <h1 className="text-page-title font-bold text-text">{menuPageTitle('/timetables')}</h1>
+        <div className="flex flex-wrap items-end justify-between gap-3">
+          <div className="flex flex-col gap-1">
+            <h1 className="text-page-title font-bold text-text">{menuPageTitle('/timetables')}</h1>
+            {summary ? <p className="text-label text-text-secondary">{summary}</p> : null}
+          </div>
+          {canManage && level ? (
+            <Link
+              to="/timetable-generator"
+              className="inline-flex items-center rounded-lg border border-border-strong bg-card px-4 py-2 text-label font-medium text-text hover:bg-selected max-xl:min-h-11"
+            >
+              Xếp tự động
+            </Link>
+          ) : null}
+        </div>
         {!level ? (
           <Alert tone="info">Trường chưa bật cấp Tiểu học, THCS hoặc THPT; bật cấp học ở 1.4 Cấu hình trường.</Alert>
         ) : (
@@ -631,46 +749,48 @@ export function TimetablesPage() {
             ) : null}
             <section className="flex flex-col gap-3" aria-label="Các bản thời khoá biểu">
               <h2 className="text-section-title font-semibold text-text">Các bản thời khoá biểu</h2>
-              <table className="w-full text-content" aria-label="Bản thời khoá biểu">
-                <thead className="text-left text-label font-medium text-text-secondary">
-                  <tr>
-                    <th className="px-3 py-2">Tên bản</th>
-                    <th className="px-3 py-2">Áp dụng từ</th>
-                    <th className="px-3 py-2">Trạng thái</th>
-                    <th className="px-3 py-2">Nguồn</th>
-                    <th className="px-3 py-2" />
-                  </tr>
-                </thead>
-                <tbody>
-                  {(versions.data ?? []).map((item) => (
-                    <tr key={item.id} className="border-t border-border" aria-current={item.id === version?.id}>
-                      <td className="px-3 py-2">{item.name}</td>
-                      <td className="px-3 py-2">{item.effective_from.split('-').reverse().join('/')}</td>
-                      <td className="px-3 py-2">
-                        <StatusBadge
-                          tone={item.status === 'published' ? 'success' : 'neutral'}
-                          label={
-                            item.status === 'published' ? (item.is_current ? 'Đang áp dụng' : 'Đã ban hành') : 'Nháp'
-                          }
-                        />
-                      </td>
-                      <td className="px-3 py-2">{SOURCE_LABELS[item.source]}</td>
-                      <td className="px-3 py-2 text-right">
-                        <Button variant="text" onClick={() => setVersionId(item.id)}>
-                          Mở
-                        </Button>
-                      </td>
-                    </tr>
-                  ))}
-                  {versions.data && versions.data.length === 0 ? (
+              <div className={GRID_FRAME_CLASS}>
+                <table className="w-full text-content" aria-label="Bản thời khoá biểu">
+                  <thead className="border-b border-border bg-page text-left text-label font-semibold text-text-secondary">
                     <tr>
-                      <td colSpan={5} className="px-3 py-2 text-text-secondary">
-                        Chưa có bản thời khoá biểu nào.
-                      </td>
+                      <th className="px-3 py-2">Tên bản</th>
+                      <th className="px-3 py-2">Áp dụng từ</th>
+                      <th className="px-3 py-2">Trạng thái</th>
+                      <th className="px-3 py-2">Nguồn</th>
+                      <th className="px-3 py-2" />
                     </tr>
-                  ) : null}
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody>
+                    {(versions.data ?? []).map((item) => (
+                      <tr key={item.id} className="border-t border-border" aria-current={item.id === version?.id}>
+                        <td className="px-3 py-2">{item.name}</td>
+                        <td className="px-3 py-2">{item.effective_from.split('-').reverse().join('/')}</td>
+                        <td className="px-3 py-2">
+                          <StatusBadge
+                            tone={item.status === 'published' ? 'success' : 'neutral'}
+                            label={
+                              item.status === 'published' ? (item.is_current ? 'Đang áp dụng' : 'Đã ban hành') : 'Nháp'
+                            }
+                          />
+                        </td>
+                        <td className="px-3 py-2">{SOURCE_LABELS[item.source]}</td>
+                        <td className="px-3 py-2 text-right">
+                          <Button variant="text" onClick={() => setVersionId(item.id)}>
+                            Mở
+                          </Button>
+                        </td>
+                      </tr>
+                    ))}
+                    {versions.data && versions.data.length === 0 ? (
+                      <tr>
+                        <td colSpan={5} className="px-3 py-2 text-text-secondary">
+                          Chưa có bản thời khoá biểu nào.
+                        </td>
+                      </tr>
+                    ) : null}
+                  </tbody>
+                </table>
+              </div>
               {canManage ? (
                 <VersionForm
                   level={level}
@@ -689,7 +809,7 @@ export function TimetablesPage() {
                   {version.name} {isDraft ? '(nháp)' : '(đã ban hành)'}
                 </h2>
                 {canManage && isDraft ? (
-                  <div className="flex flex-wrap items-end gap-2">
+                  <div className="flex flex-wrap items-end gap-2 rounded-xl border border-border bg-card p-3">
                     <Button onClick={() => void conflicts.refetch()}>Kiểm tra xung đột</Button>
                     <Button variant="primary" disabled={publish.isPending} onClick={() => publish.mutate()}>
                       Ban hành
@@ -743,60 +863,82 @@ export function TimetablesPage() {
                     )}
                   </section>
                 ) : null}
-                <div className="flex flex-wrap items-end gap-3">
-                  <label className="text-label font-medium text-text">
-                    Xem theo
-                    <select
-                      aria-label="Xem theo"
-                      className={`mt-2 block ${FORM_CONTROL_CLASS}`}
-                      value={mode}
-                      onChange={(event) => {
-                        setMode(event.target.value as typeof mode);
-                        setTarget('');
-                      }}
-                    >
-                      <option value="class">Lớp</option>
-                      <option value="teacher">Giáo viên</option>
-                      <option value="room">Phòng</option>
-                    </select>
-                  </label>
-                  <label className="text-label font-medium text-text">
-                    {mode === 'class' ? 'Lớp' : mode === 'teacher' ? 'Giáo viên' : 'Phòng'}
-                    <select
-                      aria-label={mode === 'class' ? 'Chọn lớp' : mode === 'teacher' ? 'Chọn giáo viên' : 'Chọn phòng'}
-                      className={`mt-2 block ${FORM_CONTROL_CLASS}`}
-                      value={target}
-                      onChange={(event) => setTarget(event.target.value)}
-                    >
-                      <option value="">Chọn</option>
-                      {(mode === 'class'
-                        ? (classes.data ?? []).map((item) => [item.id, item.name] as const)
-                        : mode === 'teacher'
-                          ? teachers
-                          : rooms
-                      ).map(([id, name]) => (
-                        <option key={id} value={id}>
-                          {name}
-                        </option>
-                      ))}
-                    </select>
-                  </label>
+                <div className="flex flex-wrap items-center justify-between gap-3">
+                  <ViewModeTabs
+                    mode={mode}
+                    onChange={(next) => {
+                      setMode(next);
+                      setTarget('');
+                    }}
+                  />
+                  {/* Tóm tắt xung đột phải sửa của lần kiểm tra gần nhất, cạnh cách xem như mẫu thiết kế; chi tiết ở vùng Xung đột */}
+                  {hardConflicts > 0 ? (
+                    <p className="flex items-center gap-2 rounded-lg bg-danger/10 px-3 py-2 text-label font-medium text-danger">
+                      <svg
+                        width="18"
+                        height="18"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        aria-hidden="true"
+                      >
+                        <path d="M12 9v4M12 17h.01" />
+                        <path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z" />
+                      </svg>
+                      {hardConflicts} xung đột phải sửa
+                    </p>
+                  ) : null}
                 </div>
-                {target && all.data ? (
-                  canManage && isDraft && mode === 'class' ? (
-                    <ClassEditor
-                      versionId={version.id}
-                      classId={target}
-                      className={classes.data?.find((item) => item.id === target)?.name ?? ''}
-                      slots={all.data.slots}
-                      lessons={filtered}
-                      allowGroups={level === 'THCS' || level === 'THPT'}
-                      onSaved={setToastMessage}
-                    />
-                  ) : (
-                    <ReadOnlyGrid slots={all.data.slots} lessons={filtered} mode={mode} />
-                  )
-                ) : null}
+                <div
+                  role="tabpanel"
+                  id={VIEW_PANEL_ID}
+                  aria-labelledby={`${VIEW_PANEL_ID}-${mode}`}
+                  className="flex flex-col gap-3"
+                >
+                  <div className="flex flex-wrap items-end gap-3">
+                    <label className="text-label font-medium text-text">
+                      {mode === 'class' ? 'Lớp' : mode === 'teacher' ? 'Giáo viên' : 'Phòng'}
+                      <select
+                        aria-label={
+                          mode === 'class' ? 'Chọn lớp' : mode === 'teacher' ? 'Chọn giáo viên' : 'Chọn phòng'
+                        }
+                        className={`mt-2 block ${FORM_CONTROL_CLASS}`}
+                        value={target}
+                        onChange={(event) => setTarget(event.target.value)}
+                      >
+                        <option value="">Chọn</option>
+                        {(mode === 'class'
+                          ? (classes.data ?? []).map((item) => [item.id, item.name] as const)
+                          : mode === 'teacher'
+                            ? teachers
+                            : rooms
+                        ).map(([id, name]) => (
+                          <option key={id} value={id}>
+                            {name}
+                          </option>
+                        ))}
+                      </select>
+                    </label>
+                  </div>
+                  {target && all.data ? (
+                    canManage && isDraft && mode === 'class' ? (
+                      <ClassEditor
+                        versionId={version.id}
+                        classId={target}
+                        className={classes.data?.find((item) => item.id === target)?.name ?? ''}
+                        slots={all.data.slots}
+                        lessons={filtered}
+                        allowGroups={level === 'THCS' || level === 'THPT'}
+                        onSaved={setToastMessage}
+                      />
+                    ) : (
+                      <ReadOnlyGrid slots={all.data.slots} lessons={filtered} mode={mode} />
+                    )
+                  ) : null}
+                </div>
               </section>
             ) : null}
           </>
