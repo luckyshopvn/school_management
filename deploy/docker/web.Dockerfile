@@ -34,7 +34,8 @@ COPY tests/package.json tests/
 RUN --mount=type=cache,id=pnpm-store,target=/pnpm/store \
     pnpm install --frozen-lockfile --store-dir /pnpm/store \
       --filter "@school-management/portal..." --filter "@school-management/parent..." \
-      --filter "@school-management/teacher..." \n      --filter "@school-management/market..." --filter "@school-management/tutor..."
+      --filter "@school-management/teacher..." \
+      --filter "@school-management/market..." --filter "@school-management/tutor..."
 COPY packages/config packages/config
 COPY packages/shared packages/shared
 COPY packages/ui packages/ui
@@ -48,7 +49,8 @@ COPY apps/market apps/market
 COPY apps/tutor apps/tutor
 # Giao diện gọi /api/v1 cùng tên miền nên không cần biến địa chỉ máy chủ lúc dựng
 RUN pnpm --filter "@school-management/portal..." --filter "@school-management/parent..." \
-      --filter "@school-management/teacher..." \n      --filter "@school-management/market..." --filter "@school-management/tutor..." build
+      --filter "@school-management/teacher..." \
+      --filter "@school-management/market..." --filter "@school-management/tutor..." build
 
 FROM ${CADDY_IMAGE} AS web
 COPY deploy/caddy/Caddyfile /etc/caddy/Caddyfile
