@@ -1,4 +1,5 @@
 import { createContext, useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
+import { useNavigate } from '@tanstack/react-router';
 import type { PortalWorkspace, PortalWorkspaceKey } from '@school-management/shared';
 
 // Phân hệ của cổng quản trị (YCTD-101, DT-15 phần 15a): ô chọn phân hệ ở thanh đầu trang chọn bộ menu ngang đánh số
@@ -137,10 +138,13 @@ export function WorkspaceIcon({ name }: { name: IconName }) {
   );
 }
 
-// Ô chọn phân hệ ở thanh đầu trang
+// Ô chọn phân hệ ở thanh đầu trang. Chọn phân hệ khác thì về trang chủ, nơi bảng điều khiển đổi theo phân hệ vừa chọn,
+// để vùng nội dung không còn trang của phân hệ cũ (Eric báo ngày 2026-10-28, YCTD-307); chọn lại phân hệ đang mở thì giữ
+// nguyên trang
 export function WorkspaceSwitcher({ state }: { state: WorkspaceState }) {
   const [open, setOpen] = useState(false);
   const container = useRef<HTMLDivElement>(null);
+  const navigate = useNavigate();
   const current = state.workspaces.find((workspace) => workspace.key === state.current);
 
   useEffect(() => {
@@ -198,8 +202,12 @@ export function WorkspaceSwitcher({ state }: { state: WorkspaceState }) {
                 aria-checked={workspace.key === state.current}
                 className={`flex w-full items-center gap-2 px-3 py-1.5 text-left text-label text-text hover:bg-selected ${workspace.key === state.current ? 'bg-selected font-semibold' : ''}`}
                 onClick={() => {
-                  state.select(workspace.key);
                   setOpen(false);
+                  if (workspace.key === state.current) {
+                    return;
+                  }
+                  state.select(workspace.key);
+                  void navigate({ to: '/' });
                 }}
               >
                 <WorkspaceIcon name={WORKSPACE_ICONS[workspace.key]} />

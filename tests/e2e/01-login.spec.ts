@@ -93,6 +93,7 @@ test('Tài khoản bắt buộc đổi mật khẩu được chuyển tới MH-4
 
 const EDUCATION = 'Quản lý giáo dục Mầm non';
 const SYSTEM = 'Quản trị hệ thống';
+const DOCUMENTS = 'Quản lý văn bản và điều hành';
 
 test('CT-15a-7: menu ngang bằng chuột: mở menu sổ xuống, menu cấp hai bật sang phải, mở trang thì tô sáng mục; bấm ra ngoài thì đóng', async ({
   page,
@@ -186,13 +187,25 @@ test('CT-15a-9: chọn phân hệ đổi bộ menu, tải lại vẫn giữ; m�
   await selectWorkspace(page, SYSTEM);
   await expect(menubar(page, SYSTEM).getByRole('menuitem', { name: '2. Thiết lập', exact: true })).toBeVisible();
   await expect(menubar(page, EDUCATION)).toBeHidden();
+  // Chọn phân hệ thì về trang chủ, bảng điều khiển đổi theo phân hệ (YCTD-307)
+  await expect(page).toHaveURL(/\/$/);
+  await expect(page.getByRole('region', { name: `Tổng quan phân hệ ${SYSTEM}` })).toBeVisible();
   await page.reload();
   await expect(page.getByRole('button', { name: `Phân hệ: ${SYSTEM}` })).toBeVisible();
+  await expect(page.getByRole('region', { name: `Tổng quan phân hệ ${SYSTEM}` })).toBeVisible();
 
   await page.goto('/children');
   await expect(page.getByRole('button', { name: `Phân hệ: ${EDUCATION}` })).toBeVisible();
   await expect(menubar(page, EDUCATION)).toBeVisible();
   await expect(menuLink(page, '/children')).toHaveAttribute('aria-current', 'page');
+
+  // Đang ở trang của phân hệ khác, chọn Quản lý văn bản và điều hành thì về trang chủ, tự hiện công văn đến, đi của tôi;
+  // tài khoản mới chưa có văn bản nào nên mỗi khối ghi "Trống"
+  await selectWorkspace(page, DOCUMENTS);
+  await expect(page).toHaveURL(/\/$/);
+  const documents = page.getByRole('region', { name: `Tổng quan phân hệ ${DOCUMENTS}` });
+  await expect(documents.getByRole('region', { name: 'Công văn đến của tôi' })).toContainText('Trống');
+  await expect(documents.getByRole('region', { name: 'Công văn đi của tôi' })).toContainText('Trống');
 
   // Giáo viên chỉ thấy phân hệ có mục được mở; không có mục Danh sách người dùng
   const teacher = await createTestUser(database, { roles: [{ roleCode: 'VT-07', orgUnitId: null }] });
