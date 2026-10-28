@@ -1,7 +1,7 @@
 import { Body, Controller, Get, HttpCode, Param, Post, Query, Req, Res } from '@nestjs/common';
 import { PERMISSION_CODES } from '@school-management/shared';
 import type { Request, Response } from 'express';
-import { AuthenticatedUser, RequirePermission } from '../authentication/authentication.guard.js';
+import { AuthenticatedUser, RequirePermission, RequirePlanModule } from '../authentication/authentication.guard.js';
 import type { CurrentUser } from '../authentication/current-user.js';
 import { originOf } from '../common/audit-log.js';
 import type { RequestBody } from '../common/request-fields.js';
@@ -15,6 +15,7 @@ const CREDIT_HANDLERS = [MANAGE, PERMISSION_CODES.invoiceAdjustmentCreate, PERMI
 // Báo cáo và thù lao: Ban Giám hiệu và kế toán (nhập thưởng, khấu trừ của lương; lập phiếu chi)
 const FINANCE_VIEWERS = [MANAGE, PERMISSION_CODES.bonusDeductionManage, PERMISSION_CODES.paymentManage];
 
+@RequirePlanModule('tutoring')
 @Controller('tutoring/finance')
 export class TutoringFinanceController {
   constructor(private readonly finance: TutoringFinanceService) {}

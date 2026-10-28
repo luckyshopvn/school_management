@@ -6,6 +6,7 @@ import {
   catalogDepartments,
   catalogLevels,
   catalogUnitByCode,
+  readCatalogSchool,
   searchCatalogUnits,
   type PlatformDatabase,
   type TenancyRuntime,
@@ -32,6 +33,7 @@ import { setRefreshTokenCookie } from '../authentication/refresh-token-cookie.js
 import { readSessionIdFromRefreshToken } from '../authentication/token.service.js';
 import { TENANCY_RUNTIME } from '../common/configuration.js';
 import { Infrastructure } from '../common/infrastructure.js';
+import { CatalogProvisioningService } from '../platform/catalog-provisioning.js';
 
 // Đăng nhập theo đơn vị (DT-24, YCTD-220; tài liệu 32 mục 16). Học bố cục và luồng chọn đơn vị của trang đăng nhập hệ thống ngành,
 // không dùng tên, biểu trưng của cơ quan nhà nước; tiêu đề lấy từ cấu hình của nền tảng (platform_settings.login_page).
@@ -41,6 +43,9 @@ import { Infrastructure } from '../common/infrastructure.js';
 //   phiên mở ở trường đó và trình duyệt nhận mã chuyển phiên một lần (chỉ lưu mã băm, hạn 2 phút) để sang tên miền của trường.
 // - Danh sách không đánh dấu đơn vị nào đã dùng nền tảng (không lộ danh sách khách hàng); chỉ khi chọn một đơn vị mới tra đơn vị
 //   đó có dùng hay không, như trang chọn trường của S1b.
+// - Mở mọi đơn vị (YCTD-314, Eric yêu cầu ngày 2026-10-28): không còn báo "chưa sử dụng hệ thống"; đơn vị chưa có trường thì trang
+//   gọi `prepare` để khởi tạo trường ở lần chọn đầu tiên (gói cơ bản miễn phí), hiện "đang khởi tạo" và hỏi lại tới khi sẵn sàng.
+//   Trường đang tạm ngưng, chờ xóa vẫn báo không đăng nhập được.
 // - Tên miền riêng hoặc tên miền con của trường: trang ẩn phần chọn đơn vị và khóa vào trường đó (điểm cuối context); chế độ một
 //   trường giữ nguyên trang đăng nhập cũ.
 // Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11: luôn hỏi mã xác nhận ở tên miền chung; giới hạn 120 yêu cầu đọc và 20 lần
@@ -49,6 +54,9 @@ export const DIRECTORY_RULE_CODE = 'YCTD-220';
 export const DIRECTORY_PATH_PREFIX = '/api/v1/auth/directory/';
 const HANDOFF_SECONDS = 120;
 const SERVING_STATUSES = new Set(['trial', 'active', 'read_only']);
+const UNAVAILABLE_MESSAGE =
+  'Đơn vị này đang tạm ngưng sử dụng hệ thống. Liên hệ nhà trường hoặc bộ phận hỗ trợ ở cuối trang.';
+const PROVISIONING_MESSAGE = 'Đơn vị đang được khởi tạo trên hệ thống, vui lòng chờ trong giây lát rồi đăng nhập lại';
 const DEFAULT_LOGIN_PAGE = {
   title: 'Hệ thống quản lý trường học',
   subtitle: 'Đăng nhập hệ thống',
@@ -147,6 +155,7 @@ export class UnitDirectoryService {
     private readonly loginRateLimiter: LoginRateLimiter,
     private readonly limiter: DirectoryRateLimiter,
     private readonly clock: Clock,
+    private readonly provisioning: CatalogProvisioningService,
   ) {}
 
   private runtime(): TenancyRuntime {
@@ -297,7 +306,8 @@ export class UnitDirectoryService {
     return domain?.host ?? null;
   }
 
-  // Tra một đơn vị khi người dùng chọn: có dùng nền tảng không, tên miền đăng nhập (cho "Quên mật khẩu?")
+  // Tra một đơn vị khi người dùng chọn: trạng thái trường (chưa khởi tạo, đang khởi tạo, sẵn sàng, tạm ngưng), tên miền đăng nhập
+  // (cho "Quên mật khẩu?"). Không tự khởi tạo: việc ghi chỉ ở `prepare`
   async unit(request: Request, codeInput: unknown) {
     const platform = this.assertDirectoryHost(request);
     this.limiter.hit('read', request.ip);
@@ -306,18 +316,34 @@ export class UnitDirectoryService {
     if (!unit) {
       throw notFound();
     }
-    const school = await this.servingSchool(code);
+    const school = await readCatalogSchool(platform, code);
     return {
       moet_code: unit.moet_code,
       name: unit.name,
       department_name: unit.department_name,
       commune_name: unit.commune_name,
       levels: unit.levels,
-      available: Boolean(school),
-      login_host: school ? await this.loginHost(school.id) : null,
-      message: school
-        ? null
-        : 'Đơn vị này chưa sử dụng hệ thống trên nền tảng. Liên hệ nhà trường hoặc bộ phận hỗ trợ ở cuối trang.',
+      state: school.state,
+      available: school.state === 'ready',
+      login_host: school.state === 'ready' && school.schoolId ? await this.loginHost(school.schoolId) : null,
+      message: school.state === 'unavailable' ? UNAVAILABLE_MESSAGE : null,
+    };
+  }
+
+  // Lần chọn đầu tiên một đơn vị chưa có trường: khởi tạo trường ở nền (YCTD-314); trả trạng thái để trang hỏi lại
+  async prepare(request: Request, codeInput: unknown) {
+    const platform = this.assertDirectoryHost(request);
+    this.limiter.hit('login', request.ip);
+    const code = text(codeInput, 40);
+    const unit = code ? await catalogUnitByCode(platform, code) : null;
+    if (!unit || unit.status !== 'active') {
+      throw notFound();
+    }
+    const opened = await this.provisioning.open(code, { type: 'system', name: 'Trang đăng nhập theo đơn vị' });
+    return {
+      state: opened.state,
+      available: opened.state === 'ready',
+      message: opened.state === 'unavailable' ? UNAVAILABLE_MESSAGE : null,
     };
   }
 
@@ -329,9 +355,11 @@ export class UnitDirectoryService {
     const school = await this.servingSchool(code);
     const record = school ? await this.runtime().registry.loadSchool(school.id) : null;
     if (!school || !record) {
+      const state = (await readCatalogSchool(this.runtime().platform, code)).state;
       throw ruleViolationError(
         DIRECTORY_RULE_CODE,
-        'Đơn vị này chưa sử dụng hệ thống trên nền tảng nên chưa đăng nhập được',
+        state === 'unavailable' ? UNAVAILABLE_MESSAGE : PROVISIONING_MESSAGE,
+        [{ field: 'unit', message: state }],
       );
     }
     return { tenant: record.context, host: await this.loginHost(school.id) };
@@ -493,6 +521,12 @@ export class UnitDirectoryController {
   @HttpCode(200)
   captcha(@Body() body: Record<string, unknown> | undefined, @Req() request: Request) {
     return this.directory.issueCaptcha(request, body?.unit);
+  }
+
+  @Post('prepare')
+  @HttpCode(200)
+  prepare(@Body() body: Record<string, unknown> | undefined, @Req() request: Request) {
+    return this.directory.prepare(request, body?.unit);
   }
 
   @Post('login')

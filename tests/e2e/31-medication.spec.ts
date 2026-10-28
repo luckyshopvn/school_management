@@ -13,7 +13,7 @@ import { E2E_PARENT_PORT, E2E_SCHOOL_YEAR_DATABASE_PREFIX } from '../e2e-environ
 import { openMenu } from './menu.js';
 
 // Dặn thuốc (DT-10 phần 10b, YCTD-75): phụ huynh gửi yêu cầu dặn thuốc kèm ảnh thuốc trên ứng dụng phụ huynh; y tế nhận
-// thuốc và ghi liều trên cổng quản trị; phụ huynh thấy liều đã cho uống
+// thuốc (trạng thái Đã nhận thuốc theo QT-07, YCTD-344) và ghi liều trên cổng quản trị; phụ huynh thấy liều đã cho uống
 const identity = createDatabase<IdentityDatabase>(readConnectionString('identity'));
 let schoolYear: ReturnType<typeof createDatabase<SchoolYearDatabase>>;
 const PNG = Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a, 1, 2, 3, 4]);
@@ -119,7 +119,14 @@ test('Phụ huynh gửi dặn thuốc kèm ảnh; y tế nhận thuốc và ghi 
   const requestRow = nursePage.getByRole('row').filter({ hasText: medicineName });
   await expect(requestRow).toContainText(childName);
   await requestRow.getByRole('button', { name: 'Nhận thuốc' }).click();
+  // QT-07 bước 4 (YCTD-344): ghi thuốc thực nhận rồi xác nhận; phiếu sang Đã nhận thuốc
+  const receiveForm = nursePage.getByRole('group', { name: `Nhận thuốc của ${childName}` });
+  await receiveForm.getByLabel('Số lượng thực nhận').fill('1 lọ 60 ml');
+  await receiveForm.getByRole('button', { name: 'Xác nhận đã nhận thuốc' }).click();
   await expect(nursePage.getByText('Đã nhận thuốc, thuốc vào danh sách cần cho uống')).toBeVisible();
+  await childCard.getByRole('button', { name: 'Dặn thuốc', exact: true }).click();
+  await childCard.getByRole('button', { name: 'Dặn thuốc', exact: true }).click();
+  await expect(panel.getByRole('article', { name: `Thuốc ${medicineName}` })).toContainText('Nhà trường đã nhận thuốc');
   await nursePage.getByRole('tab', { name: 'Cho uống hôm nay' }).click();
   const doseRow = nursePage.getByRole('row').filter({ hasText: medicineName });
   await doseRow.getByRole('button', { name: 'Đã cho uống' }).click();

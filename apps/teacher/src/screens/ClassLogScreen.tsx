@@ -52,8 +52,20 @@ interface LessonDetail {
     absence_reason: string | null;
     status: PeriodAttendanceStatus;
     note: string | null;
+    // Nguồn của trạng thái (YCTD-350): tiết đã ghi, điểm danh đầu ngày, báo vắng hoặc mặc định có mặt
+    status_source?: 'period' | 'daily' | 'absence' | 'default';
+    daily_status?: string | null;
   }>;
 }
+
+const DAILY_STATUS_TEXT: Record<string, string> = {
+  present: 'có mặt',
+  late: 'đi muộn',
+  early_leave: 'về sớm',
+  late_and_early_leave: 'đi muộn, về sớm',
+  absent_notified: 'nghỉ có báo',
+  absent_unnotified: 'nghỉ không báo',
+};
 
 const STATUSES = Object.keys(PERIOD_ATTENDANCE_LABELS) as PeriodAttendanceStatus[];
 const groupText = (groupNo: number) => (groupNo > 0 ? ` · Nhóm ${groupNo}` : '');
@@ -239,6 +251,17 @@ function LessonForm({ lesson, date, onDone }: { lesson: MyLesson; date: string; 
             {student.absence_reason !== null ? (
               <span className="text-label text-text-secondary">
                 Phụ huynh báo vắng{student.absence_reason ? `: ${student.absence_reason}` : ''}
+              </span>
+            ) : null}
+            {/* Tiết chưa ghi thì trạng thái lấy theo điểm danh đầu ngày; về sớm nhắc giáo viên kiểm tra lại (YCTD-350) */}
+            {student.status_source === 'daily' && student.daily_status ? (
+              <span
+                className={`text-label ${
+                  student.daily_status.includes('early_leave') ? 'font-medium text-warning' : 'text-text-secondary'
+                }`}
+              >
+                Theo điểm danh đầu ngày: {DAILY_STATUS_TEXT[student.daily_status] ?? student.daily_status}
+                {student.daily_status.includes('early_leave') ? '. Về sớm có phép thì chọn vắng có phép' : ''}
               </span>
             ) : null}
             <select

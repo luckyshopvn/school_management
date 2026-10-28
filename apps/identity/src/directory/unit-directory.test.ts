@@ -74,6 +74,9 @@ describe('đăng nhập theo đơn vị và quyền quản trị nền tảng', 
   let staff: { username: string };
   let operatorToken = '';
   let operator: Awaited<ReturnType<typeof createPlatformOperatorWithTotp>>;
+  // Nhân viên kỹ thuật: vào trường theo chính sách nền tảng vẫn phải nhập lại mã hai lớp, lý do, số giờ (YCTD-314 chỉ bỏ cho Admin)
+  let engineerToken = '';
+  let engineer: Awaited<ReturnType<typeof createPlatformOperatorWithTotp>>;
 
   before(async () => {
     platform = await startTenantTestPlatform({ schools: ['alpha', 'beta'], label: 'dir' });
@@ -114,6 +117,23 @@ describe('đăng nhập theo đơn vị và quyền quản trị nền tảng', 
     });
     operatorToken = login.body.access_token as string;
     assert.ok(operatorToken);
+    engineer = await createPlatformOperatorWithTotp(platform.platform, platform.masterKey, {
+      login: `kt-${platform.suffix}`,
+      fullName: 'Kỹ thuật nền tảng giả',
+      password: OPERATOR_TEST_PASSWORD,
+      role: 'ky_thuat',
+    });
+    const engineerLogin = await send(context, {
+      path: '/auth/platform/login',
+      host: CONSOLE_HOST,
+      body: {
+        login: `kt-${platform.suffix}`,
+        password: OPERATOR_TEST_PASSWORD,
+        otp_code: await operatorOtp(platform.platform, engineer.id, engineer.secret, context.clock.now()),
+      },
+    });
+    engineerToken = engineerLogin.body.access_token as string;
+    assert.ok(engineerToken);
   });
 
   after(async () => {
@@ -173,10 +193,12 @@ describe('đăng nhập theo đơn vị và quyền quản trị nền tảng', 
     );
   });
 
-  it('CT-24-6: đơn vị chưa dùng nền tảng báo rõ; đăng nhập đúng trường, chuyển phiên một lần ở tên miền của trường', async () => {
+  it('CT-24-6: đơn vị chưa có trường không báo "chưa sử dụng"; đăng nhập đúng trường, chuyển phiên một lần ở tên miền của trường', async () => {
+    // YCTD-314: chỉ đọc trạng thái, không tự khởi tạo; việc khởi tạo ở POST prepare (kiểm ở catalog-open.test.ts)
     const unknown = await send(context, { path: '/auth/directory/unit?code=97000201', host: ROOT });
     assert.equal(unknown.body.available, false);
-    assert.match(String(unknown.body.message), /chưa sử dụng/);
+    assert.equal(unknown.body.state, 'not_provisioned');
+    assert.equal(unknown.body.message, null);
     const known = await send(context, { path: '/auth/directory/unit?code=98000301', host: ROOT });
     assert.equal(known.body.available, true);
     assert.equal(known.body.login_host, platform.school('alpha').host);
@@ -240,13 +262,13 @@ describe('đăng nhập theo đơn vị và quyền quản trị nền tảng', 
     assert.equal(reused.status, 401);
   });
 
-  it('CT-24-7: quản trị nền tảng vào trường chưa cho phép: bắt buộc mã xác thực hai lớp, lý do, có hạn, ghi nhật ký', async () => {
+  it('CT-24-7: nhân viên kỹ thuật vào trường chưa cho phép: bắt buộc mã xác thực hai lớp, lý do, có hạn, ghi nhật ký', async () => {
     const operatorCall = (method: string, path: string, body?: unknown) =>
       send(context, {
         method,
         path: `/auth/platform/${path}`,
         host: CONSOLE_HOST,
-        token: operatorToken,
+        token: path.includes('support-sessions') ? engineerToken : operatorToken,
         ...(body !== undefined ? { body } : {}),
       });
     const policy = await operatorCall('GET', 'support-policy');
@@ -263,13 +285,13 @@ describe('đăng nhập theo đơn vị và quyền quản trị nền tảng', 
     const tooLong = await operatorCall('POST', `schools/${alpha.code}/support-sessions`, {
       reason: 'Kiểm tra số liệu',
       hours: 24,
-      otp_code: await operatorOtp(platform.platform, operator.id, operator.secret, context.clock.now()),
+      otp_code: await operatorOtp(platform.platform, engineer.id, engineer.secret, context.clock.now()),
     });
     assert.equal(tooLong.status, 400);
     const started = await operatorCall('POST', `schools/${alpha.code}/support-sessions`, {
       reason: 'Kiểm tra số liệu',
       scope: 'read',
-      otp_code: await operatorOtp(platform.platform, operator.id, operator.secret, context.clock.now()),
+      otp_code: await operatorOtp(platform.platform, engineer.id, engineer.secret, context.clock.now()),
     });
     assert.equal(started.status, 200, JSON.stringify(started.body));
     assert.equal(started.body.access_basis, 'platform_policy');
@@ -314,7 +336,7 @@ describe('đăng nhập theo đơn vị và quyền quản trị nền tảng', 
     assert.equal(session.end_reason, 'policy-changed');
     const refused = await operatorCall('POST', `schools/${alpha.code}/support-sessions`, {
       reason: 'Kiểm tra số liệu',
-      otp_code: await operatorOtp(platform.platform, operator.id, operator.secret, context.clock.now()),
+      otp_code: await operatorOtp(platform.platform, engineer.id, engineer.secret, context.clock.now()),
     });
     assert.equal(refused.status, 422);
     await operatorCall('PUT', 'support-policy', {
