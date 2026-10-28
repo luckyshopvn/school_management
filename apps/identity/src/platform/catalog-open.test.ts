@@ -273,7 +273,7 @@ describe('mở mọi trường trong danh mục và quản trị nền tảng v�
       host,
       token: exchanged.body.access_token as string,
       body: {
-        username: 'hieu-truong',
+        username: 'hieu_truong',
         full_name: 'Hiệu trưởng giả',
         roles: [{ role_code: 'VT-02', org_unit_id: null }],
       },
