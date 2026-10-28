@@ -1,8 +1,10 @@
 import { useEffect, useRef, useState, type PointerEvent } from 'react';
 import { Button } from '@school-management/ui';
+import { ruledLines } from './primary-logic.ts';
 
 // Bảng trắng (DT-29 phần 29b, YCTD-326): viết, vẽ bằng ngón tay, bút cảm ứng hoặc chuột; chọn màu, nét, tẩy, xóa bảng. Nét vẽ chỉ
-// nằm trên máy trong lúc mở công cụ, không lưu, không gửi đi
+// nằm trên máy trong lúc mở công cụ, không lưu, không gửi đi. Khung ô li (DT-29 phần 29c, YCTD-327; Tiểu học) là bảng trắng có kẻ
+// dòng như vở ô li nằm dưới lớp vẽ để giáo viên viết mẫu
 const COLORS = [
   { name: 'Đen', value: '#0f172a' },
   { name: 'Xanh dương', value: '#1d4ed8' },
@@ -16,7 +18,10 @@ const WIDTHS = [
   { name: 'Nét đậm', value: 12 },
 ];
 
-export function WhiteboardTool() {
+// Kẻ ô li trên khổ 160 × 100 (đúng tỉ lệ 16:10 của bảng), mỗi ô li 2,5 đơn vị
+const RULED = ruledLines(160, 100, 2.5);
+
+export function WhiteboardTool({ ruled = false }: { ruled?: boolean }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const last = useRef<{ x: number; y: number } | null>(null);
   const [color, setColor] = useState(COLORS[0]?.value ?? '#0f172a');
@@ -101,30 +106,52 @@ export function WhiteboardTool() {
         </Button>
         <Button onClick={clear}>Xóa bảng</Button>
       </div>
-      <canvas
-        ref={canvasRef}
-        aria-label="Bảng trắng"
-        className="aspect-[16/10] w-full touch-none rounded-xl border border-border bg-white"
-        onPointerDown={(event) => {
-          event.currentTarget.setPointerCapture(event.pointerId);
-          last.current = point(event);
-          stroke(last.current, last.current);
-        }}
-        onPointerMove={(event) => {
-          if (!last.current) {
-            return;
-          }
-          const next = point(event);
-          stroke(last.current, next);
-          last.current = next;
-        }}
-        onPointerUp={() => {
-          last.current = null;
-        }}
-        onPointerCancel={() => {
-          last.current = null;
-        }}
-      />
+      <div className="relative">
+        {ruled ? (
+          <svg
+            aria-hidden="true"
+            viewBox="0 0 160 100"
+            preserveAspectRatio="none"
+            className="absolute inset-0 h-full w-full rounded-xl bg-white"
+          >
+            {RULED.map((line, index) => (
+              <line
+                key={index}
+                x1={line.x1}
+                y1={line.y1}
+                x2={line.x2}
+                y2={line.y2}
+                stroke={line.bold ? '#7c3aed' : '#c4b5fd'}
+                strokeWidth={line.bold ? 0.35 : 0.15}
+              />
+            ))}
+          </svg>
+        ) : null}
+        <canvas
+          ref={canvasRef}
+          aria-label={ruled ? 'Khung ô li' : 'Bảng trắng'}
+          className={`relative aspect-[16/10] w-full touch-none rounded-xl border border-border ${ruled ? 'bg-transparent' : 'bg-white'}`}
+          onPointerDown={(event) => {
+            event.currentTarget.setPointerCapture(event.pointerId);
+            last.current = point(event);
+            stroke(last.current, last.current);
+          }}
+          onPointerMove={(event) => {
+            if (!last.current) {
+              return;
+            }
+            const next = point(event);
+            stroke(last.current, next);
+            last.current = next;
+          }}
+          onPointerUp={() => {
+            last.current = null;
+          }}
+          onPointerCancel={() => {
+            last.current = null;
+          }}
+        />
+      </div>
     </div>
   );
 }
