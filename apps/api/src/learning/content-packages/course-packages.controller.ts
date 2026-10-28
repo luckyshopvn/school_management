@@ -3,7 +3,7 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { PERMISSION_CODES } from '@school-management/shared';
 import type { Response } from 'express';
 import type { UploadedPart } from '../../activities/content-files.js';
-import { AuthenticatedUser, RequirePermission } from '../../authentication/authentication.guard.js';
+import { AuthenticatedUser, RequirePermission, RequirePlanModule } from '../../authentication/authentication.guard.js';
 import type { CurrentUser } from '../../authentication/current-user.js';
 import { uuidParameter } from '../../common/uuid-parameter.js';
 import { MAXIMUM_COURSE_PACKAGE_BYTES } from './course-package-rules.js';
@@ -18,6 +18,7 @@ const STAFF_PERMISSIONS = [
   PERMISSION_CODES.learningView,
 ];
 
+@RequirePlanModule('online-learning')
 @Controller('learning')
 @RequirePermission(...STAFF_PERMISSIONS)
 export class CoursePackagesController {

@@ -1,6 +1,11 @@
 import { Body, Controller, Get, Put } from '@nestjs/common';
 import { PERMISSION_CODES } from '@school-management/shared';
-import { AuthenticatedUser, RequirePermission, StudentEndpoint } from '../../authentication/authentication.guard.js';
+import {
+  AuthenticatedUser,
+  RequirePermission,
+  StudentEndpoint,
+  RequirePlanModule,
+} from '../../authentication/authentication.guard.js';
 import type { CurrentUser } from '../../authentication/current-user.js';
 import type { RequestBody } from '../../common/request-fields.js';
 import { OfflineLearningService } from './offline.js';
@@ -13,6 +18,7 @@ const STAFF_PERMISSIONS = [
   PERMISSION_CODES.learningView,
 ];
 
+@RequirePlanModule('online-learning')
 @Controller('learning/offline')
 @RequirePermission(...STAFF_PERMISSIONS)
 export class OfflineLearningController {
@@ -29,6 +35,7 @@ export class OfflineLearningController {
   }
 }
 
+@RequirePlanModule('online-learning')
 @Controller('student/offline')
 @StudentEndpoint()
 @RequirePermission(PERMISSION_CODES.learningStudy)

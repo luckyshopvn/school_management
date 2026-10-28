@@ -16,7 +16,7 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { validationError } from '@school-management/server';
 import { PERMISSION_CODES } from '@school-management/shared';
 import type { Request, Response } from 'express';
-import { AuthenticatedUser, RequirePermission } from '../authentication/authentication.guard.js';
+import { AuthenticatedUser, RequirePermission, RequirePlanModule } from '../authentication/authentication.guard.js';
 import type { CurrentUser } from '../authentication/current-user.js';
 import { originOf } from '../common/audit-log.js';
 import type { RequestBody } from '../common/request-fields.js';
@@ -37,6 +37,7 @@ interface UploadedPart {
 
 const reasonOf = (body: RequestBody) => (typeof body?.reason === 'string' ? body.reason.trim().slice(0, 500) : null);
 
+@RequirePlanModule('tutoring')
 @Controller('tutoring')
 export class TutoringController {
   constructor(private readonly tutoring: TutoringService) {}
@@ -300,6 +301,7 @@ export class TutoringController {
 }
 
 // Cha mẹ xem chương trình mở cho con, gửi và rút đơn đăng ký, xem lịch học và điểm danh đã xác nhận
+@RequirePlanModule('tutoring')
 @Controller('children/:id/tutoring')
 export class ChildTutoringController {
   constructor(private readonly tutoring: TutoringService) {}

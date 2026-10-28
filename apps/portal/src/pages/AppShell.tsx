@@ -19,7 +19,7 @@ import { AppLauncher } from '../portal-shell/AppLauncher.js';
 import { StartupNotices } from '../portal-shell/StartupNotices.js';
 import { readPortalContext } from '../portal-shell/portal-shell-api.js';
 import { DemoBanner, ImpersonationBanner } from '../administration/AdministrationBanners.js';
-import { SchoolPlanBanner } from '../school-plan/school-plan.js';
+import { PaidFeatureNotice, SchoolPlanBanner, usePaidFeatureFor } from '../school-plan/school-plan.js';
 import { PlatformNoticeBanner } from '../support/support.js';
 
 function MenuIcon() {
@@ -59,6 +59,7 @@ export function AppShell({ children }: { children: ReactNode }) {
   const closeToast = useCallback(() => setToastMessage(undefined), []);
   const { pathname } = useLocation();
   const { ensure } = workspaces;
+  const paidModule = usePaidFeatureFor(pathname);
 
   // Mở trang thuộc phân hệ khác (đường dẫn, chuông thông báo, truy cập nhanh) thì menu chuyển sang phân hệ của trang. Trang
   // có ở cả phân hệ đang chọn thì giữ phân hệ đang chọn, để vừa chuyển phân hệ xong menu không bị kéo về phân hệ cũ
@@ -136,7 +137,7 @@ export function AppShell({ children }: { children: ReactNode }) {
                 </Alert>
               </div>
             ) : null}
-            {children}
+            {paidModule ? <PaidFeatureNotice module={paidModule} /> : children}
           </main>
           <footer className="flex flex-wrap items-center justify-between gap-2 border-t border-border bg-card px-4 py-3 text-label text-text-secondary">
             <span>School Management</span>

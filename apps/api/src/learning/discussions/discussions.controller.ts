@@ -2,7 +2,7 @@ import { Body, Controller, Get, HttpCode, Param, Patch, Post, Put, Query, Res } 
 import { PERMISSION_CODES } from '@school-management/shared';
 import type { Response } from 'express';
 import { sendStoredFile } from '../../activities/content-files.js';
-import { AuthenticatedUser, RequirePermission } from '../../authentication/authentication.guard.js';
+import { AuthenticatedUser, RequirePermission, RequirePlanModule } from '../../authentication/authentication.guard.js';
 import type { CurrentUser } from '../../authentication/current-user.js';
 import type { RequestBody } from '../../common/request-fields.js';
 import { uuidParameter } from '../../common/uuid-parameter.js';
@@ -22,6 +22,7 @@ const THREAD_ID = uuidParameter('Mã chủ đề không hợp lệ');
 const GROUP_ID = uuidParameter('Mã nhóm không hợp lệ');
 const CHILD_ID = uuidParameter('Mã học sinh không hợp lệ');
 
+@RequirePlanModule('online-learning')
 @Controller('learning')
 export class DiscussionsController {
   constructor(private readonly discussions: DiscussionsService) {}
