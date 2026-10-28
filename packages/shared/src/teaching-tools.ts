@@ -213,6 +213,15 @@ export const TEACHING_TOOLS: readonly TeachingTool[] = [
     levels: SECONDARY,
     offline: true,
   },
+  // Nội dung của trường (DT-29 phần 29e, YCTD-329): học liệu loại Bài hát, Câu chuyện của kho học liệu số (22h1)
+  {
+    key: 'school-media',
+    label: 'Bài hát, câu chuyện của trường',
+    description: 'Phát tệp trường tải lên kho học liệu',
+    section: 'subject',
+    levels: ['MN'],
+    offline: false,
+  },
   // Lối vào các màn đã có của ứng dụng giáo viên
   {
     key: 'lesson-plans',
