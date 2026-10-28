@@ -47,3 +47,4 @@ export {
   type LessonVideoProgress,
 } from './LessonVideoList.js';
 export { RecognitionList, type RecognitionView } from './RecognitionList.js';
+export { isSupportSignInLocation, SupportSignIn, type SupportChannel } from './SupportSignIn.js';

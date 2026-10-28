@@ -17,7 +17,7 @@ import {
 import { isMultiTenantMode, validationError } from '@school-management/server';
 import { PERMISSION_CODES } from '@school-management/shared';
 import type { Request } from 'express';
-import { AuthenticatedUser, RequirePermission } from '../authentication/authentication.guard.js';
+import { AuthenticatedUser, RequirePermission, RequirePlanModule } from '../authentication/authentication.guard.js';
 import type { CurrentUser } from '../authentication/current-user.js';
 import { originOf } from '../common/audit-log.js';
 import { JobScheduler } from '../common/job-scheduler.js';
@@ -34,6 +34,7 @@ const USE = PERMISSION_CODES.learningResourceUse;
 const MANAGE = PERMISSION_CODES.integrationManage;
 const AI_JOB_SECONDS = 900;
 
+@RequirePlanModule('ai-assistant')
 @Controller('ai')
 export class AiAssistantController {
   constructor(

@@ -102,11 +102,10 @@ describe('gói dịch vụ ở cổng vận hành nền tảng', () => {
     assert.equal(modules.status, 200);
     assert.ok((modules.body as Array<{ key: string }>).some((module) => module.key === 'learning-resources'));
     const initial = (await operator('GET', 'plans')).body as Array<{ id: string; code: string; modules: unknown }>;
-    assert.deepEqual(
-      initial.map((plan) => [plan.code, plan.modules]),
-      [['full', null]],
-      'gói mặc định mọi phân hệ',
-    );
+    // Gói mặc định mọi phân hệ và gói cơ bản miễn phí của trường tự khởi tạo (YCTD-314)
+    assert.deepEqual(initial.find((plan) => plan.code === 'full')?.modules, null, 'gói mặc định mọi phân hệ');
+    const free = initial.find((plan) => plan.code === 'co-ban-mien-phi')?.modules as string[] | undefined;
+    assert.ok(free?.includes('documents') && !free.includes('ai-assistant'), 'gói cơ bản miễn phí');
 
     const bad = await operator('POST', 'plans', {
       code: 'Sai Ma',

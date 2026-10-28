@@ -2,6 +2,20 @@
 @import '@school-management/ui/theme.css';
 @source '../../../packages/ui/src';
 
+/* Khung trang mới của cổng quản trị (YCTD-330): thanh bên và thanh đầu trang xanh đậm, nút chính xanh #1f4e8c như thiết kế cổng
+   vận hành; tên trường vẫn vàng như DT-16 phần 16c. Ghi đè màu chung của packages/ui chỉ trong cổng quản trị */
+@theme {
+  --color-brand: #1f4e8c;
+  --color-brand-strong: #163a69;
+  --color-header: #12304f;
+  --color-header-strong: #1f4e8c;
+  --color-nav: #12304f;
+  --color-nav-hover: #1b416a;
+  --color-nav-active: #1f4e8c;
+  --color-nav-text: #dbe6f3;
+  --color-nav-muted: #9fb3cb;
+}
+
 body {
   @apply bg-page text-content text-text;
 }

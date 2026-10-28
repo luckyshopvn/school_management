@@ -29,6 +29,8 @@ describe('bảng điều khiển nền tảng ở máy chủ API nhiều trườ
         login,
         fullName: 'Nhân viên hỗ trợ giả',
         password: OPERATOR_TEST_PASSWORD,
+        // Vai trò hỗ trợ đi theo cho phép của trường; quan_tri vào thẳng mọi trường (YCTD-314)
+        role: 'ho_tro',
       },
     );
     const reply = await sendWithHost(environment.identityOrigin, {
