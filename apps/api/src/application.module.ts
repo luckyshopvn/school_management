@@ -60,6 +60,7 @@ import { IdentityClient } from './authentication/identity-client.js';
 import type { TenancyRuntime } from '@school-management/database';
 import { API_CONFIGURATION, TENANCY_RUNTIME, type ApiConfiguration } from './common/configuration.js';
 import { CurrentSchoolYearResolver } from './common/current-school-year.js';
+import { ViewedSchoolYearInterceptor } from './common/viewed-school-year.js';
 import { SchoolLevelResolver } from './common/school-levels.js';
 import { SchoolLevelsController, SchoolLevelsService } from './school-levels/school-levels.js';
 import { Databases } from './common/databases.js';
@@ -916,6 +917,8 @@ export class ApplicationModule {
         SchoolParentOrgService,
         ParentOrgDataService,
         { provide: APP_INTERCEPTOR, useClass: SupportSessionInterceptor },
+        // Lỗi cơ sở dữ liệu khi xem năm học đã đóng thành lỗi nghiệp vụ (YCTD-342)
+        { provide: APP_INTERCEPTOR, useClass: ViewedSchoolYearInterceptor },
         // Ghi thao tác, chặn kí số trong lúc đăng nhập thay (DT-18 phần 18h)
         { provide: APP_INTERCEPTOR, useClass: ImpersonationInterceptor },
         DemoMode,

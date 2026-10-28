@@ -18,6 +18,7 @@ import type { AcademicYearTransitionStep } from './academic-years/academic-year-
 import { ApplicationModule } from './application.module.js';
 import type { ApiConfiguration } from './common/configuration.js';
 import { TENANT_FREE_PATHS } from './common/school-picker.js';
+import { viewedSchoolYearMiddleware } from './common/viewed-school-year.js';
 import { MARKET_PATH_PREFIX } from './market/market-context.js';
 import { PARENT_ORG_PATH_PREFIX } from './parent-org/parent-org.js';
 import { scormAwareResolver } from './learning/content-packages/scorm-tenant.js';
@@ -90,6 +91,8 @@ export async function createApplication(
       void flush();
     });
   }
+  // Năm học đang xem ở tiêu đề yêu cầu (YCTD-342), đặt sau ngữ cảnh trường để bộ giải năm học đọc đúng trường
+  application.use(viewedSchoolYearMiddleware);
   application.setGlobalPrefix(API_VERSION_PREFIX.slice(1));
   application.useGlobalFilters(new ErrorFilter());
   application.enableShutdownHooks();
