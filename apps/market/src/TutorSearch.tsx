@@ -32,6 +32,7 @@ interface SubjectRow {
 }
 
 interface TutorCard {
+  rating?: { average: number | null; count: number };
   id: string;
   display_name: string;
   headline: string;
@@ -87,6 +88,116 @@ function Badges({ badges }: { badges: Record<string, boolean> }) {
           </li>
         ))}
     </ul>
+  );
+}
+
+// Điểm đánh giá đã duyệt (YCTD-364): trung bình trên 5 và số đánh giá
+function Stars({ rating }: { rating?: { average: number | null; count: number } }) {
+  if (!rating || rating.count === 0 || rating.average === null) {
+    return <span className="text-label text-text-secondary">Chưa có đánh giá</span>;
+  }
+  return (
+    <span className="text-label font-semibold text-warning">
+      <span aria-hidden="true">★ </span>
+      {rating.average.toLocaleString('vi-VN')} trên 5 · {rating.count} đánh giá
+    </span>
+  );
+}
+
+interface ReviewsView {
+  summary: {
+    count: number;
+    average: number | null;
+    punctuality: number | null;
+    clarity: number | null;
+    progress: number | null;
+    communication: number | null;
+  };
+  reviews: Array<{
+    id: string;
+    grade: number;
+    rating: number;
+    body: string;
+    reply_body: string | null;
+    created_at: string;
+  }>;
+}
+
+const CRITERIA_LABELS = {
+  punctuality: 'Đúng giờ',
+  clarity: 'Giảng dễ hiểu',
+  progress: 'Con tiến bộ',
+  communication: 'Trao đổi với phụ huynh',
+} as const;
+
+// Đánh giá của phụ huynh đã học, đã được nhân viên nền tảng duyệt; gia sư trả lời một lần (YCTD-364)
+function TutorReviews({ tutorId, tutorName }: { tutorId: string; tutorName: string }) {
+  const [view, setView] = useState<ReviewsView>();
+  const [reporting, setReporting] = useState<string>();
+  useEffect(() => {
+    marketRequest<ReviewsView>('GET', `/public/reviews/${tutorId}`)
+      .then(setView)
+      .catch(() => setView(undefined));
+  }, [tutorId]);
+  if (!view) return null;
+  return (
+    <section aria-label="Đánh giá của phụ huynh" className={`${CARD_CLASS} flex flex-col gap-4 p-5`}>
+      <div className="flex flex-wrap items-baseline justify-between gap-2">
+        <h3 className="text-section-title font-semibold">Đánh giá của phụ huynh đã học</h3>
+        <span className="text-label text-text-secondary">
+          Chỉ phụ huynh có buổi đã học mới đánh giá được; đánh giá được duyệt trước khi hiện.
+        </span>
+      </div>
+      {view.summary.count === 0 ? (
+        <p className="text-text-secondary">Chưa có đánh giá.</p>
+      ) : (
+        <div className="flex flex-wrap gap-6">
+          <div className="flex flex-col">
+            <strong className="text-page-title">{view.summary.average?.toLocaleString('vi-VN')}</strong>
+            <span className="text-label text-text-secondary">trên 5 · {view.summary.count} đánh giá</span>
+          </div>
+          <dl className="grid flex-1 grid-cols-2 gap-x-6 gap-y-1 text-label">
+            {(Object.keys(CRITERIA_LABELS) as Array<keyof typeof CRITERIA_LABELS>).map((key) =>
+              view.summary[key] === null ? null : (
+                <div key={key} className="flex gap-2">
+                  <dt>{CRITERIA_LABELS[key]}:</dt>
+                  <dd className="font-semibold">{view.summary[key]?.toLocaleString('vi-VN')}</dd>
+                </div>
+              ),
+            )}
+          </dl>
+        </div>
+      )}
+      <ul className="flex flex-col gap-3">
+        {view.reviews.map((review) => (
+          <li key={review.id} className="flex flex-col gap-1 border-t border-border pt-3">
+            <div className="flex flex-wrap items-center gap-3">
+              <strong>Phụ huynh học sinh lớp {review.grade}</strong>
+              <span className="font-semibold text-warning">{review.rating} sao</span>
+              <span className="text-label text-text-secondary">
+                {new Date(review.created_at).toLocaleDateString('vi-VN')}
+              </span>
+            </div>
+            {review.body ? <p className="whitespace-pre-wrap">{review.body}</p> : null}
+            {review.reply_body ? (
+              <div className="ml-4 flex flex-col rounded-xl bg-page p-3">
+                <span className="text-label font-semibold">Gia sư trả lời</span>
+                <span className="whitespace-pre-wrap">{review.reply_body}</span>
+              </div>
+            ) : null}
+            {readSession() ? (
+              reporting === review.id ? (
+                <ReportForm subjectId={tutorId} subjectName={tutorName} targetKind="review" targetId={review.id} />
+              ) : (
+                <Button variant="text" className="self-start text-danger" onClick={() => setReporting(review.id)}>
+                  Báo cáo đánh giá này
+                </Button>
+              )
+            ) : null}
+          </li>
+        ))}
+      </ul>
+    </section>
   );
 }
 
@@ -201,6 +312,7 @@ function TutorDetail({ id, onBack, onBooked }: { id: string; onBack: () => void;
             </div>
           </section>
           <WeeklySchedule schedule={form.schedule} />
+          <TutorReviews tutorId={page.id} tutorName={page.display_name} />
         </div>
         <aside className="flex w-full max-w-sm flex-[1_1_300px] flex-col gap-4">
           <BookingForm
@@ -436,6 +548,7 @@ export function TutorSearch({ onBooked }: { onBooked?: () => void }) {
                 <option value="price_asc">Giá thấp trước</option>
                 <option value="price_desc">Giá cao trước</option>
                 <option value="newest">Mới duyệt</option>
+                <option value="rating_desc">Đánh giá cao trước</option>
               </select>
             </label>
           </div>
@@ -460,6 +573,7 @@ export function TutorSearch({ onBooked }: { onBooked?: () => void }) {
                       )
                       .join('; ')}
                   </span>
+                  <Stars rating={tutor.rating} />
                   <Badges badges={tutor.badges} />
                 </div>
                 <div className="flex flex-[0_1_220px] flex-col gap-2">

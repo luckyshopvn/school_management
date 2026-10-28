@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState, type ReactNode } from 'react';
 import { Alert, Button } from '@school-management/ui';
 import { LoginForm, RegisterForm, VerifyForm } from './AccountForms.js';
+import { ForgotPasswordForm } from './AccountSecurity.js';
 import { errorText, marketRequest, readSession, writeSession, type Me, type Site } from './market-api.js';
 import { SAFETY_HOTLINE } from './SafetyWidgets.js';
 
@@ -9,7 +10,7 @@ import { SAFETY_HOTLINE } from './SafetyWidgets.js';
 // khu gia sư) do ứng dụng truyền vào. Mỗi ứng dụng một vai: máy chủ chỉ nhận tài khoản phụ huynh ở tên miền của chợ, tài khoản gia sư
 // ở tên miền của ứng dụng Gia sư. Bố cục theo bản thiết kế "Chợ gia sư, Gia sư, Cấp trên" Eric duyệt ngày 2026-10-28 (YCTD-360): thanh
 // đầu trang trắng có thanh điều hướng của vai, nhãn "Thanh toán giả lập", nội dung rộng, chân trang có văn bản pháp lý và đường dây nóng
-type View = 'home' | 'register' | 'login' | 'document';
+type View = 'home' | 'register' | 'login' | 'forgot' | 'document';
 
 export interface MarketShellProperties {
   kind: 'parent' | 'tutor';
@@ -172,10 +173,18 @@ export function MarketShell({
         {view === 'login' ? (
           <div className="mx-auto flex w-full max-w-md flex-col gap-4 rounded-2xl border border-border bg-card p-6">
             <LoginForm onSignedIn={signedIn} />
+            <button type="button" className="min-h-11 self-start text-link underline" onClick={() => setView('forgot')}>
+              Quên mật khẩu?
+            </button>
             {loginExtras}
           </div>
         ) : null}
 
+        {view === 'forgot' ? (
+          <div className="mx-auto w-full max-w-md rounded-2xl border border-border bg-card p-6">
+            <ForgotPasswordForm onDone={() => setView('login')} />
+          </div>
+        ) : null}
         {view === 'home' && me?.status === 'pending' ? (
           <div className="mx-auto w-full max-w-md rounded-2xl border border-border bg-card p-6">
             <VerifyForm onVerified={() => void loadMe()} />

@@ -8,6 +8,7 @@ import {
   ReportForm,
   type Child,
 } from '@school-management/market-client';
+import { ReviewPanel } from './ReviewForm.js';
 import { SessionRoom } from './SessionRoom.js';
 import { CARD_CLASS, money, when } from './styles.js';
 
@@ -518,6 +519,9 @@ export function ParentBookings() {
                     ) : null}
                     <DisputePanel booking={booking} onChange={load} />
                     <SessionPanel booking={booking} onEnter={() => setRoomFor(booking.id)} />
+                    {booking.status === 'completed' || booking.status === 'disbursed' ? (
+                      <ReviewPanel bookingId={booking.id} tutorName={booking.tutor_name} />
+                    ) : null}
                   </li>
                 );
               })}

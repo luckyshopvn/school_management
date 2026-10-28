@@ -12,6 +12,7 @@ import { Alert, Button } from '@school-management/ui';
 import { TutorArea } from './TutorArea.js';
 import { TutorBookings, TutorEarnings } from './TutorBookings.js';
 import { TutorListing } from './TutorListing.js';
+import { TutorAccount, TutorReviews } from './TutorReviews.js';
 import { TutorSafety } from './TutorSafety.js';
 import { TutorSchedule } from './TutorSchedule.js';
 import { TutorSchoolRole } from './TutorSchoolRole.js';
@@ -30,6 +31,7 @@ const PAGES = [
   { key: 'ho-so', label: 'Hồ sơ và môn dạy' },
   { key: 'thu-nhap', label: 'Thu nhập' },
   { key: 'tin-nhan', label: 'Tin nhắn' },
+  { key: 'danh-gia', label: 'Đánh giá' },
   { key: 'xac-minh', label: 'Xác minh' },
   { key: 'an-toan', label: 'An toàn, kiểm duyệt' },
 ] as const;
@@ -106,11 +108,13 @@ function TutorHome({ page, onPage }: { page: Page | null; onPage: (next: Page) =
         <TutorArea />
         <TutorListing key={listing.status} listing={listing} onChange={setListing} />
         <TutorSchoolRole listing={listing} onChange={setListing} />
+        <TutorAccount />
       </>
     );
   }
   if (page === 'thu-nhap') return <TutorEarnings />;
   if (page === 'tin-nhan') return <MessageInbox role="tutor" />;
+  if (page === 'danh-gia') return <TutorReviews />;
   if (page === 'xac-minh') return <TutorVerification listing={listing} onChange={setListing} />;
   if (page === 'an-toan') {
     return (

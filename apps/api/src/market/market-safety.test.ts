@@ -768,4 +768,143 @@ describe('chợ gia sư: an toàn trẻ em và kiểm duyệt (27i)', () => {
       .executeTakeFirstOrThrow();
     assert.equal(confirmed.confirmed_by, 'auto');
   });
+  it('CT-364-1: đánh giá sau buổi chờ duyệt rồi mới hiện; gia sư trả lời một lần; sắp theo đánh giá; con đọc tin nhắn chỉ đọc', async () => {
+    const parent = await registerParent();
+    const tutor = await seedTutor();
+    const id = await paidBooking(parent, tutor, 48);
+    // Chưa dạy thì chưa đánh giá được
+    assert.equal((await call(MARKET_HOST, 'POST', `/bookings/${id}/review`, { rating: 5 }, parent.token)).status, 409);
+    await database.updateTable('market_bookings').set({ status: 'completed' }).where('id', '=', id).execute();
+    assert.equal((await call(MARKET_HOST, 'POST', `/bookings/${id}/review`, { rating: 6 }, parent.token)).status, 400);
+    const created = await call(
+      MARKET_HOST,
+      'POST',
+      `/bookings/${id}/review`,
+      { rating: 5, clarity: 4, body: 'Cô dạy dễ hiểu, gọi cô số 0912 345 678' },
+      parent.token,
+    );
+    assert.equal(created.status, 201, JSON.stringify(created.body));
+    assert.equal(created.body.status, 'pending');
+    assert.ok(created.body.warning, 'số điện thoại bị che');
+    assert.equal((await call(MARKET_HOST, 'POST', `/bookings/${id}/review`, { rating: 4 }, parent.token)).status, 409);
+    const hidden = await call(MARKET_HOST, 'GET', `/public/reviews/${tutor.id}`);
+    assert.equal((hidden.body.summary as { count: number }).count, 0, 'chưa duyệt thì chưa hiện');
+    const queue = await admin('GET', '/reviews-moderation');
+    const pending = (queue.body.reviews as Array<{ id: string; body: string }>).find(
+      (row) => row.id === created.body.id,
+    );
+    assert.ok(pending && !pending.body.includes('0912'));
+    assert.equal(
+      (await admin('POST', `/reviews-moderation/${created.body.id as string}`, { decision: 'reject' })).status,
+      400,
+      'từ chối cần lý do',
+    );
+    assert.equal(
+      (await admin('POST', `/reviews-moderation/${created.body.id as string}`, { decision: 'publish' })).status,
+      200,
+    );
+    const shown = await call(MARKET_HOST, 'GET', `/public/reviews/${tutor.id}`);
+    assert.equal((shown.body.summary as { count: number }).count, 1);
+    assert.equal((shown.body.summary as { average: number }).average, 5);
+    const search = await call(MARKET_HOST, 'GET', '/public/tutors?sort=rating_desc');
+    const card = (search.body.tutors as Array<{ id: string; rating: { count: number } }>).find(
+      (row) => row.id === tutor.id,
+    );
+    assert.equal(card?.rating.count, 1);
+    const reviewId = created.body.id as string;
+    assert.equal(
+      (await call(TUTOR_HOST, 'POST', `/tutor/reviews/${reviewId}/reply`, { body: 'Cảm ơn phụ huynh' }, tutor.token))
+        .status,
+      200,
+    );
+    assert.equal(
+      (await call(TUTOR_HOST, 'POST', `/tutor/reviews/${reviewId}/reply`, { body: 'Lần hai' }, tutor.token)).status,
+      409,
+    );
+
+    // Con đọc tin nhắn: chưa bật thì không đọc được; bật rồi chỉ có luồng với gia sư đã dạy con, không có điểm cuối gửi
+    const thread = await call(MARKET_HOST, 'POST', '/messages/threads', { tutor_id: tutor.id }, parent.token);
+    await call(MARKET_HOST, 'POST', `/messages/threads/${thread.body.id as string}`, { body: 'Chào cô' }, parent.token);
+    assert.equal(
+      (await call(MARKET_HOST, 'GET', `/children/${parent.childId}/messages`, undefined, parent.token)).status,
+      403,
+    );
+    assert.equal(
+      (await call(MARKET_HOST, 'POST', `/children/${parent.childId}/reads-messages`, { enabled: true }, parent.token))
+        .status,
+      200,
+    );
+    const read = await call(MARKET_HOST, 'GET', `/children/${parent.childId}/messages`, undefined, parent.token);
+    assert.equal(read.status, 200);
+    const threads = read.body.threads as Array<{ messages: Array<{ body: string }> }>;
+    assert.equal(threads.length, 1);
+    assert.equal(threads[0]?.messages[0]?.body, 'Chào cô');
+  });
+
+  it('CT-364-2: quên mật khẩu đặt lại bằng mã, thu hồi phiên cũ; đổi mật khẩu cần mật khẩu hiện tại; sửa tên hiển thị', async () => {
+    const parent = await registerParent();
+    assert.equal(
+      (
+        await call(
+          MARKET_HOST,
+          'POST',
+          '/auth/password/change',
+          { current_password: 'sai', new_password: 'moi12345' },
+          parent.token,
+        )
+      ).status,
+      400,
+    );
+    assert.equal(
+      (
+        await call(
+          MARKET_HOST,
+          'POST',
+          '/auth/password/change',
+          { current_password: 'matkhau123', new_password: 'moi12345' },
+          parent.token,
+        )
+      ).status,
+      200,
+    );
+    assert.equal((await call(MARKET_HOST, 'GET', '/me', undefined, parent.token)).status, 200, 'phiên đang dùng còn');
+    // Quên mật khẩu: câu trả lời như nhau dù tài khoản không có
+    assert.equal(
+      (await call(MARKET_HOST, 'POST', '/auth/password/forgot', { login: 'khong-co@example.test' })).status,
+      200,
+    );
+    assert.equal((await call(MARKET_HOST, 'POST', '/auth/password/forgot', { login: parent.email })).status, 200);
+    const code = /(\d{6})/.exec(environment.api.get(MarketMessenger).lastTo(parent.email)?.text ?? '')?.[1];
+    assert.equal(
+      (
+        await call(MARKET_HOST, 'POST', '/auth/password/reset', {
+          login: parent.email,
+          code: '000000' === code ? '111111' : '000000',
+          new_password: 'datlai123',
+        })
+      ).status,
+      400,
+    );
+    assert.equal(
+      (
+        await call(MARKET_HOST, 'POST', '/auth/password/reset', {
+          login: parent.email,
+          code,
+          new_password: 'datlai123',
+        })
+      ).status,
+      200,
+    );
+    assert.equal((await call(MARKET_HOST, 'GET', '/me', undefined, parent.token)).status, 401, 'phiên cũ bị thu hồi');
+    const login = await call(MARKET_HOST, 'POST', '/auth/login', { login: parent.email, password: 'datlai123' });
+    assert.equal(login.status, 200);
+    const token = login.body.session_token as string;
+    assert.equal((await call(MARKET_HOST, 'POST', '/auth/password/confirm', { password: 'sai' }, token)).status, 401);
+    assert.equal(
+      (await call(MARKET_HOST, 'POST', '/auth/password/confirm', { password: 'datlai123' }, token)).status,
+      200,
+    );
+    assert.equal((await call(MARKET_HOST, 'PUT', '/me', { display_name: 'Mẹ của Bé' }, token)).status, 200);
+    assert.equal((await call(MARKET_HOST, 'GET', '/me', undefined, token)).body.display_name, 'Mẹ của Bé');
+  });
 });
