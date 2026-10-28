@@ -1,5 +1,6 @@
 import { useCallback, useState, type ReactNode } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { Link } from '@tanstack/react-router';
 import { PERMISSION_CODES } from '@school-management/shared';
 import {
   Alert,
@@ -80,6 +81,25 @@ const YES_NO = [
   { value: 'false', label: 'Không' },
 ];
 
+// Chữ viết tắt trên ảnh đại diện: chữ đầu của họ và của tên
+function initialsOf(fullName: string): string {
+  const words = fullName.trim().split(/\s+/).filter(Boolean);
+  const first = words[0]?.[0] ?? '';
+  const last = words.length > 1 ? (words[words.length - 1]?.[0] ?? '') : '';
+  return (first + last).toUpperCase();
+}
+
+// Thẻ trạng thái phía trên lưới theo mẫu thiết kế: cùng bộ lọc "Trạng thái" ở Mở rộng tìm kiếm; số lượng chỉ hiện ở thẻ đang
+// chọn vì máy chủ chỉ trả tổng số dòng của bộ lọc hiện tại
+const STATUS_TABS: Array<{ value: ChildStatus | ''; label: string }> = [
+  { value: '', label: 'Tất cả' },
+  ...(Object.keys(CHILD_STATUS_LABELS) as ChildStatus[]).map((key) => ({
+    value: key,
+    label: CHILD_STATUS_LABELS[key],
+  })),
+];
+const formatCount = (value: number) => value.toLocaleString('vi-VN');
+
 // Cột theo danh sách học sinh của Sở (4.1.1: mã định danh Bộ, họ tên, ngày sinh, giới tính, dân tộc, trạng thái, số điện
 // thoại liên hệ; 4.1.4: khối, lớp); cột còn lại ẩn mặc định. Mã cột trùng mã cột của tệp Excel ở máy chủ
 function studentColumns(): Array<DataGridColumn<ChildListItem>> {
@@ -93,7 +113,22 @@ function studentColumns(): Array<DataGridColumn<ChildListItem>> {
         </span>
       ),
     },
-    { id: 'full_name', header: 'Họ tên', alwaysVisible: true, className: 'font-medium', cell: (row) => row.full_name },
+    {
+      id: 'full_name',
+      header: 'Họ tên',
+      alwaysVisible: true,
+      cell: (row) => (
+        <span className="flex items-center gap-2.5">
+          <span
+            aria-hidden="true"
+            className="flex h-8 w-8 flex-none items-center justify-center rounded-full bg-selected text-xs font-bold text-brand-strong"
+          >
+            {initialsOf(row.full_name)}
+          </span>
+          <span className="font-semibold text-text">{row.full_name}</span>
+        </span>
+      ),
+    },
     { id: 'dob', header: 'Ngày sinh', cell: (row) => formatDate(row.dob) },
     { id: 'gender', header: 'Giới tính', cell: (row) => (row.gender === 'male' ? 'Nam' : 'Nữ') },
     { id: 'ethnicity', header: 'Dân tộc', cell: (row) => row.ethnicity ?? '' },
@@ -271,6 +306,7 @@ export function ChildrenPage() {
   const canManage = useHasPermission(PERMISSION_CODES.childManage);
   const canApprove = useHasPermission(PERMISSION_CODES.childApprove);
   const canExport = useHasPermission(PERMISSION_CODES.dataExport);
+  const canImport = useHasPermission(PERMISSION_CODES.importChildren);
   const queryClient = useQueryClient();
   const unitChoice = useUnitChoice();
   const grid = useGridSettings('children');
@@ -302,6 +338,17 @@ export function ChildrenPage() {
   });
   const healthVisible = children.data?.health_fields_visible === true;
   const columns = studentColumns();
+  // Dòng phụ dưới tiêu đề: tổng số hồ sơ theo bộ lọc đang chọn (máy chủ trả)
+  const otherFilters = search !== '' || Object.entries(filter).some(([key, value]) => key !== 'status' && value);
+  const subtitle = children.data
+    ? [
+        `${formatCount(children.data.total)} học sinh`,
+        filter.status ? CHILD_STATUS_LABELS[filter.status as ChildStatus].toLowerCase() : '',
+        otherFilters ? 'theo bộ lọc đang chọn' : '',
+      ]
+        .filter(Boolean)
+        .join(' · ')
+    : 'Đang tải…';
 
   const change = (key: keyof StudentFilter, value: string | boolean) => {
     setFilter((current) => ({
@@ -479,8 +526,34 @@ export function ChildrenPage() {
   return (
     <AppShell>
       <Toast message={toastMessage} onClose={closeToast} />
-      <div className="flex flex-col gap-6">
-        <h1 className="text-page-title font-bold text-text">{menuPageTitle('/children')}</h1>
+      <div className="flex flex-col gap-4">
+        <div className="flex flex-wrap items-end justify-between gap-3">
+          <div>
+            <h1 className="text-page-title font-bold text-text">{menuPageTitle('/children')}</h1>
+            <p className="mt-1 text-label text-text-secondary">{subtitle}</p>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            {canImport ? (
+              <Link
+                to="/student-imports"
+                className="inline-flex items-center rounded-lg border border-border-strong bg-card px-4 py-2 text-label font-medium text-text hover:bg-selected max-xl:min-h-11"
+              >
+                Nhập từ Excel
+              </Link>
+            ) : null}
+            {canManage ? (
+              <Button
+                variant="primary"
+                onClick={() => {
+                  setCreating(true);
+                  setOpenId(undefined);
+                }}
+              >
+                Thêm mới
+              </Button>
+            ) : null}
+          </div>
+        </div>
         {creating ? (
           <section className="rounded-xl border border-border bg-card p-4" aria-label="Thêm mới học sinh">
             <CreateChildForm
@@ -499,89 +572,109 @@ export function ChildrenPage() {
         {children.isError ? <Alert tone="danger">{messageOf(children.error)}</Alert> : null}
         {grid.error ? <Alert tone="danger">{messageOf(grid.error)}</Alert> : null}
         {exportError ? <Alert tone="danger">{exportError}</Alert> : null}
-        <DataGrid
-          label="Danh sách học sinh"
-          columns={columns}
-          rows={children.data?.items ?? []}
-          getRowId={(row) => row.id}
-          getRowLabel={(row) => row.full_name}
-          getRowAriaLabel={(row) => `Học sinh ${row.full_name}`}
-          loading={!children.data && !children.isError}
-          emptyText="Không có hồ sơ nào."
-          search={{
-            label: 'Tìm theo họ tên',
-            value: search,
-            onChange: (value) => {
-              setSearch(value);
-              setPage(1);
-            },
-          }}
-          advancedSearch={advancedSearch}
-          toolbar={(selected) => (
-            <>
-              {canManage ? (
-                <Button
-                  variant="primary"
-                  onClick={() => {
-                    setCreating(true);
-                    setOpenId(undefined);
-                  }}
+        {/* Thẻ trạng thái và lưới chung một khung trắng: bỏ viền, nền riêng của lưới */}
+        <div className="flex min-w-0 flex-col rounded-xl border border-border bg-card [&>section]:rounded-none [&>section]:border-0 [&>section]:bg-transparent">
+          <div
+            role="tablist"
+            aria-label="Lọc theo trạng thái hồ sơ"
+            className="flex flex-wrap gap-1 border-b border-border px-3 pt-2"
+          >
+            {STATUS_TABS.map((item) => {
+              const active = (filter.status ?? '') === item.value;
+              return (
+                <button
+                  key={item.value || 'all'}
+                  type="button"
+                  role="tab"
+                  aria-selected={active}
+                  onClick={() => change('status', item.value)}
+                  className={`-mb-px min-h-11 border-b-2 px-3.5 text-label ${
+                    active
+                      ? 'border-brand font-semibold text-brand-strong'
+                      : 'border-transparent font-medium text-text-secondary hover:text-text'
+                  }`}
                 >
-                  Thêm mới
-                </Button>
-              ) : null}
-              {canManage || canApprove ? (
-                <Button
-                  disabled={selected.length !== 1}
-                  onClick={() => {
-                    setOpenId(selected[0]?.id);
-                    setCreating(false);
-                  }}
-                >
-                  Thay đổi
-                </Button>
-              ) : null}
-              {canManage ? (
-                <Button
-                  disabled={selected.length !== 1 || selected[0]?.status !== 'draft'}
-                  onClick={() => setDeleting(selected[0])}
-                >
-                  Xóa
-                </Button>
-              ) : null}
-              {canManage || canApprove ? (
-                <Button disabled={selected.length === 0} onClick={() => setBulkRows(selected)}>
-                  Cập nhật hàng loạt
-                </Button>
-              ) : null}
-              {canManage ? <Button onClick={() => setCodeRows(selected)}>Cấp mã định danh Bộ</Button> : null}
-              {canExport ? (
-                <Button disabled={exporting} onClick={() => void runExport()}>
-                  Xuất Excel
-                </Button>
-              ) : null}
-              {canExport ? <Button onClick={() => void runErrorFile()}>Xuất file lỗi</Button> : null}
-            </>
-          )}
-          selectable
-          rowActions={(row) => (
-            <Button variant="text" onClick={() => setOpenId(openId === row.id ? undefined : row.id)}>
-              {openId === row.id ? 'Ẩn' : 'Hồ sơ'}
-            </Button>
-          )}
-          onRowClick={(row) => {
-            setOpenId(row.id);
-            setCreating(false);
-          }}
-          activeRowId={openId}
-          renderRowDetail={(row) =>
-            openId === row.id ? <ChildDetailPanel key={row.id} childId={row.id} onChanged={setToastMessage} /> : null
-          }
-          settings={grid.settings}
-          onSettingsChange={grid.update}
-          serverPagination={{ page, total: children.data?.total ?? 0, onPageChange: setPage }}
-          exportPdf={canExport ? (columnIds) => exportChildren(activeFilter, columnIds, 'pdf') : undefined}
-        />
+                  {item.label}
+                  {active && children.data ? (
+                    <span className="ml-1.5 font-medium text-text-secondary">{formatCount(children.data.total)}</span>
+                  ) : null}
+                </button>
+              );
+            })}
+          </div>
+          <DataGrid
+            label="Danh sách học sinh"
+            columns={columns}
+            rows={children.data?.items ?? []}
+            getRowId={(row) => row.id}
+            getRowLabel={(row) => row.full_name}
+            getRowAriaLabel={(row) => `Học sinh ${row.full_name}`}
+            loading={!children.data && !children.isError}
+            emptyText="Không có hồ sơ nào."
+            search={{
+              label: 'Tìm theo họ tên',
+              value: search,
+              onChange: (value) => {
+                setSearch(value);
+                setPage(1);
+              },
+            }}
+            advancedSearch={advancedSearch}
+            toolbar={(selected) => (
+              <>
+                {canManage || canApprove ? (
+                  <Button
+                    disabled={selected.length !== 1}
+                    onClick={() => {
+                      setOpenId(selected[0]?.id);
+                      setCreating(false);
+                    }}
+                  >
+                    Thay đổi
+                  </Button>
+                ) : null}
+                {canManage ? (
+                  <Button
+                    disabled={selected.length !== 1 || selected[0]?.status !== 'draft'}
+                    onClick={() => setDeleting(selected[0])}
+                  >
+                    Xóa
+                  </Button>
+                ) : null}
+                {canManage || canApprove ? (
+                  <Button disabled={selected.length === 0} onClick={() => setBulkRows(selected)}>
+                    Cập nhật hàng loạt
+                  </Button>
+                ) : null}
+                {canManage ? <Button onClick={() => setCodeRows(selected)}>Cấp mã định danh Bộ</Button> : null}
+                {canExport ? (
+                  <Button disabled={exporting} onClick={() => void runExport()}>
+                    Xuất Excel
+                  </Button>
+                ) : null}
+                {canExport ? <Button onClick={() => void runErrorFile()}>Xuất file lỗi</Button> : null}
+              </>
+            )}
+            selectable
+            rowActions={(row) => (
+              <Button variant="text" onClick={() => setOpenId(openId === row.id ? undefined : row.id)}>
+                {openId === row.id ? 'Ẩn' : 'Hồ sơ'}
+              </Button>
+            )}
+            onRowClick={(row) => {
+              setOpenId(row.id);
+              setCreating(false);
+            }}
+            activeRowId={openId}
+            renderRowDetail={(row) =>
+              openId === row.id ? <ChildDetailPanel key={row.id} childId={row.id} onChanged={setToastMessage} /> : null
+            }
+            settings={grid.settings}
+            onSettingsChange={grid.update}
+            serverPagination={{ page, total: children.data?.total ?? 0, onPageChange: setPage }}
+            exportPdf={canExport ? (columnIds) => exportChildren(activeFilter, columnIds, 'pdf') : undefined}
+          />
+        </div>
         {openId && !(children.data?.items ?? []).some((row) => row.id === openId) ? (
           <section className="rounded-xl border border-border bg-card p-4">
             <ChildDetailPanel key={openId} childId={openId} onChanged={setToastMessage} />
