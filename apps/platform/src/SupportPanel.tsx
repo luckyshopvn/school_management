@@ -87,9 +87,13 @@ export function SupportPanel({ token, code }: { token: string; code: string }) {
     }
   }
 
+  // Máy phát triển (YCTD-310): cổng quản trị của trường chạy http ở cổng riêng, đặt bằng VITE_SCHOOL_PORTAL_PORT; bản chạy thật dùng https
+  const portalPort = import.meta.env.VITE_SCHOOL_PORTAL_PORT as string | undefined;
+  const schoolOrigin = (host: string) =>
+    portalPort ? `${window.location.protocol}//${host}:${portalPort}` : `https://${host}`;
   const link = started
     ? started.handoff.host
-      ? `https://${started.handoff.host}${started.handoff.path}`
+      ? `${schoolOrigin(started.handoff.host)}${started.handoff.path}`
       : started.handoff.path
     : null;
   return (

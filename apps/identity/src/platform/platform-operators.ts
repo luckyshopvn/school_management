@@ -24,7 +24,8 @@ import {
   placeholderPasswordHash,
   verifyPassword,
 } from '../authentication/password.js';
-import { OTP_REQUIRED_MESSAGE } from '../authentication/totp.service.js';
+import { isTotpRequiredError, OTP_REQUIRED_MESSAGE } from '../authentication/totp.service.js';
+import { CaptchaService } from '../authentication/captcha.service.js';
 import { TokenService } from '../authentication/token.service.js';
 import { IDENTITY_CONFIGURATION, TENANCY_RUNTIME, type IdentityConfiguration } from '../common/configuration.js';
 
@@ -252,11 +253,24 @@ interface LoginBody {
   login?: unknown;
   password?: unknown;
   otp_code?: unknown;
+  captcha_id?: unknown;
+  captcha_text?: unknown;
 }
 
 @Controller('auth/platform')
 export class PlatformAuthController {
-  constructor(private readonly operators: PlatformOperatorsService) {}
+  constructor(
+    private readonly operators: PlatformOperatorsService,
+    private readonly captcha: CaptchaService,
+  ) {}
+
+  // Ảnh mã xác nhận của trang đăng nhập cổng vận hành (YCTD-313); nút làm mới gọi lại điểm cuối này
+  @Post('captcha')
+  @HttpCode(200)
+  async issueCaptcha(@Req() request: Request) {
+    this.operators.assertConsoleHost(request);
+    return this.captcha.issuePlatform(request.ip ?? 'unknown');
+  }
 
   @Post('login')
   @HttpCode(200)
@@ -268,14 +282,32 @@ export class PlatformAuthController {
     if (errors.length > 0) {
       throw validationError(errors);
     }
+    // Mã xác nhận kiểm trước mật khẩu (YCTD-313); quy tắc khi nào bắt buộc ở CaptchaService.assertPlatformSolved
+    const captchaId = typeof body?.captcha_id === 'string' ? body.captcha_id : undefined;
+    const captchaText =
+      typeof body?.captcha_text === 'string' && body.captcha_text.trim() !== '' ? body.captcha_text : undefined;
+    await this.captcha.assertPlatformSolved({ captchaId, captchaText }, login);
     const otp = body?.otp_code;
-    const result = await this.operators.login(
-      login,
-      password,
-      typeof otp === 'string' && otp.trim() !== '' ? otp.trim() : undefined,
-      request.ip ?? null,
-    );
-    return { access_token: result.token, token_type: 'Bearer', operator: result.operator };
+    try {
+      const result = await this.operators.login(
+        login,
+        password,
+        typeof otp === 'string' && otp.trim() !== '' ? otp.trim() : undefined,
+        request.ip ?? null,
+      );
+      await this.captcha.clearPlatformFailures(login);
+      return { access_token: result.token, token_type: 'Bearer', operator: result.operator };
+    } catch (error) {
+      if (isTotpRequiredError(error)) {
+        // Đúng mật khẩu, chỉ còn thiếu mã hai lớp: không tính là nhập sai; bước nhập mã dùng lượt đã qua thay cho ảnh mới
+        if (captchaId) {
+          await this.captcha.grantPlatformPass(captchaId, login);
+        }
+      } else {
+        await this.captcha.registerPlatformFailure(login);
+      }
+      throw error;
+    }
   }
 
   @Get('me')

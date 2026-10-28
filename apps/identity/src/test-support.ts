@@ -218,6 +218,20 @@ export async function readCaptchaAnswerForTesting(captchaId: string, tenantKeyPr
   }
 }
 
+// Đáp án mã xác nhận của đăng nhập cổng vận hành nền tảng: khóa ở nhóm "platform", không theo trường (YCTD-313)
+export async function readPlatformCaptchaAnswerForTesting(captchaId: string): Promise<string | null> {
+  const redisUrl = process.env.REDIS_URL;
+  if (!redisUrl) {
+    throw new Error('Thiếu biến môi trường REDIS_URL');
+  }
+  const redis = new Redis(redisUrl, { maxRetriesPerRequest: 3 });
+  try {
+    return await redis.get(`identity:platform:captcha:${captchaId}`);
+  } finally {
+    redis.disconnect();
+  }
+}
+
 export interface JsonResponse {
   status: number;
   body: Record<string, unknown>;

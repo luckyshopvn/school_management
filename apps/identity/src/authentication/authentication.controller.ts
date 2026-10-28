@@ -127,6 +127,8 @@ export class AuthenticationController {
         channel,
         origin,
         typeof otp === 'string' && otp.trim() !== '' ? otp.trim() : undefined,
+        // "Ghi nhớ" (YCTD-310): phiên cổng quản trị kéo dài, cookie giữ qua lần đóng trình duyệt
+        body?.remember === true,
       );
     } catch (error) {
       // Đúng mật khẩu nhưng chưa nhập mã xác thực hai lớp: chưa phải lần nhập sai
@@ -138,7 +140,14 @@ export class AuthenticationController {
     if (portal) {
       await this.captchaService.clearFailures(login);
     }
-    setRefreshTokenCookie(response, channel, issued.refreshToken, issued.refreshExpiresAt, this.clock);
+    setRefreshTokenCookie(
+      response,
+      channel,
+      issued.refreshToken,
+      issued.refreshExpiresAt,
+      this.clock,
+      issued.refreshPersistent,
+    );
     return issued.response;
   }
 
@@ -187,7 +196,14 @@ export class AuthenticationController {
     }
     try {
       const issued = await this.authenticationService.refresh(refreshToken, channel, readOrigin(request));
-      setRefreshTokenCookie(response, channel, issued.refreshToken, issued.refreshExpiresAt, this.clock);
+      setRefreshTokenCookie(
+        response,
+        channel,
+        issued.refreshToken,
+        issued.refreshExpiresAt,
+        this.clock,
+        issued.refreshPersistent,
+      );
       return issued.response;
     } catch (error) {
       clearRefreshTokenCookie(response, channel);

@@ -23,8 +23,9 @@ import {
   schoolHost,
 } from '../e2e-multi-environment.mjs';
 import { expect, test, type Page } from './fixtures.js';
+import { signInConsole } from './platform-console.js';
 
-// DT-24 (YCTD-220, spec 160), kịch bản CT-24-9, CT-24-10: trang đăng nhập ở tên miền chung có ô chọn Sở → Cấp học → Trường đọc danh
+// DT-24 (YCTD-220, spec 160), kịch bản CT-24-9, CT-24-10: trang đăng nhập ở tên miền chung có ô chọn Sở → Cấp, Phường / Xã → Trường (YCTD-310) đọc danh
 // mục mẫu giả; đơn vị chưa dùng nền tảng báo rõ; đăng nhập đúng thì sang tên miền của trường alpha; tên miền của trường khóa đơn vị.
 // Quản trị nền tảng vào trường alpha khi trường chưa cho phép: nhập lại mã xác thực hai lớp, lý do; cổng quản trị hiện biểu ngữ "đang
 // truy cập với quyền quản trị nền tảng"; quản trị trường thấy phiên trong nhật ký. Chỉ chạy ở dự án nhiều trường. Dữ liệu giả
@@ -113,14 +114,15 @@ test('CT-24-9: đăng nhập theo đơn vị ở tên miền chung sang đúng t
   await expect(page.getByText(/Bộ Giáo dục|quốc gia/i)).toHaveCount(0);
 
   // Đơn vị chỉ có trong danh mục: báo chưa dùng nền tảng
-  await choose(page, 'Sở GD&ĐT', 'mau bac', 'Sở GD&ĐT Tỉnh Mẫu Bắc');
-  await choose(page, 'Cấp học', 'tieu', 'Tiểu học');
+  await choose(page, 'Sở Giáo dục và Đào tạo', 'mau bac', 'Sở GD&ĐT Tỉnh Mẫu Bắc');
+  await choose(page, 'Cấp', 'tieu', 'Tiểu học');
   await choose(page, 'Trường', 'binh minh', 'Trường Tiểu học Mẫu Bình Minh');
   await expect(page.getByRole('status').filter({ hasText: 'chưa sử dụng hệ thống' })).toBeVisible();
 
   // Đơn vị đã khởi tạo (trường alpha gắn mã Bộ mẫu): mã xác nhận của đúng trường, đăng nhập rồi sang tên miền của trường
-  await choose(page, 'Sở GD&ĐT', 'nam', 'Sở GD&ĐT Thành phố Mẫu Nam');
-  await choose(page, 'Cấp học', 'trung hoc co', 'Trung học cơ sở');
+  await choose(page, 'Sở Giáo dục và Đào tạo', 'nam', 'Sở GD&ĐT Thành phố Mẫu Nam');
+  await choose(page, 'Cấp', 'trung hoc co', 'Trung học cơ sở');
+  await choose(page, 'Phường / Xã', 'nam mot', 'Phường Mẫu Nam Một');
   const captchas: Array<Promise<{ captcha_id: string }>> = [];
   const listener = (response: Response) => {
     if (response.url().endsWith('/api/v1/auth/directory/captcha') && response.request().method() === 'POST') {
@@ -139,10 +141,28 @@ test('CT-24-9: đăng nhập theo đơn vị ở tên miền chung sang đúng t
   await page.getByLabel('Số điện thoại hoặc tên đăng nhập').fill(staff.username);
   await page.getByLabel('Mật khẩu', { exact: true }).fill(staff.password);
   await page.getByLabel('Mã xác nhận').fill(answer ?? '');
+  await page.getByLabel('Ghi nhớ tài khoản').check();
   await page.getByRole('button', { name: 'Đăng nhập' }).click();
   await page.waitForURL(new RegExp(`^http://${schoolHost('alpha').replaceAll('.', '\\.')}:${E2E_MULTI_PORTAL_PORT}/`));
   await expect(page.getByRole('heading', { name: /^Xin chào,/ })).toBeVisible();
   expect(page.url()).not.toContain('code=');
+  // Ghi nhớ (YCTD-310): phiên ở trường kéo dài, cookie mã làm mới bền (khoảng 30 ngày); mở lại tên miền chung thì đơn vị và tên đăng
+  // nhập đã chọn còn, mật khẩu không
+  // Cookie mã làm mới nằm ở đường dẫn /api/v1/auth của tên miền trường: lọc theo tên miền, không theo địa chỉ trang
+  const refreshCookie = (await rootContext.cookies()).find(
+    (cookie) => cookie.name.startsWith('__Secure-refresh_token') && cookie.domain.includes(schoolHost('alpha')),
+  );
+  expect(refreshCookie, 'cookie mã làm mới của trường alpha').toBeTruthy();
+  expect(refreshCookie?.expires ?? -1).toBeGreaterThan(Date.now() / 1000 + 29 * 24 * 3600);
+  await page.goto(`http://${E2E_ROOT_DOMAIN}:${E2E_MULTI_PORTAL_PORT}/`);
+  await expect(page.getByRole('combobox', { name: 'Sở Giáo dục và Đào tạo' })).toHaveValue(
+    'Sở GD&ĐT Thành phố Mẫu Nam',
+  );
+  await expect(page.getByRole('combobox', { name: 'Cấp' })).toHaveValue('Trung học cơ sở');
+  await expect(page.getByRole('combobox', { name: 'Phường / Xã' })).toHaveValue('Phường Mẫu Nam Một');
+  await expect(page.getByRole('combobox', { name: 'Trường' })).toHaveValue('Trường THCS Mẫu Alpha');
+  await expect(page.getByLabel('Số điện thoại hoặc tên đăng nhập')).toHaveValue(staff.username);
+  await expect(page.getByLabel('Mật khẩu', { exact: true })).toHaveValue('');
   await rootContext.close();
 
   // Tên miền của trường: không có ô chọn đơn vị, hiện đơn vị đã khóa
@@ -154,7 +174,7 @@ test('CT-24-9: đăng nhập theo đơn vị ở tên miền chung sang đúng t
   await expect(schoolPage.getByRole('heading', { name: 'Đăng nhập' })).toBeVisible();
   await expect(schoolPage.getByTestId('login-school')).toContainText('Sở GD&ĐT Thành phố Mẫu Nam');
   await expect(schoolPage.getByTestId('login-school')).toContainText(`Mã Bộ: ${ALPHA_MOET_CODE}`);
-  await expect(schoolPage.getByRole('combobox', { name: 'Sở GD&ĐT' })).toHaveCount(0);
+  await expect(schoolPage.getByRole('combobox', { name: 'Sở Giáo dục và Đào tạo' })).toHaveCount(0);
   await schoolContext.close();
 });
 
@@ -166,12 +186,9 @@ test('CT-24-10: quản trị nền tảng vào trường chưa cho phép: mã x�
   const consoleContext = await browser.newContext({ baseURL: `http://${E2E_CONSOLE_HOST}:${E2E_MULTI_CONSOLE_PORT}` });
   const consolePage = await consoleContext.newPage();
   await consolePage.goto('/');
-  await consolePage.getByLabel('Tên đăng nhập').fill(operatorLogin);
-  await consolePage.getByLabel('Mật khẩu').fill(OPERATOR_PASSWORD);
-  await consolePage
-    .getByLabel('Mã xác thực hai lớp')
-    .fill(await operatorOtp(runtime.platform, operator.id, operator.secret));
-  await consolePage.getByRole('button', { name: 'Đăng nhập' }).click();
+  await signInConsole(consolePage, operatorLogin, OPERATOR_PASSWORD, () =>
+    operatorOtp(runtime.platform, operator.id, operator.secret),
+  );
   const menu = consolePage.getByRole('navigation', { name: 'Menu' });
   await menu.getByRole('button', { name: 'Danh mục đơn vị' }).click();
   await expect(consolePage.getByRole('heading', { name: 'Danh mục đơn vị' })).toBeVisible();

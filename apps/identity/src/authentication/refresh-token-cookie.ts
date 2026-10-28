@@ -29,13 +29,15 @@ export function setRefreshTokenCookie(
   refreshToken: string,
   expiresAt: Date,
   clock: Clock,
+  // false: cookie phiên (không có hạn), mất khi đóng trình duyệt (YCTD-310, không tích "Ghi nhớ")
+  persistent = true,
 ): void {
   response.cookie(cookieName(channel), refreshToken, {
     httpOnly: true,
     secure: true,
     sameSite: 'strict',
     path: COOKIE_PATH,
-    maxAge: Math.max(0, expiresAt.getTime() - clock.now().getTime()),
+    ...(persistent ? { maxAge: Math.max(0, expiresAt.getTime() - clock.now().getTime()) } : {}),
   });
 }
 

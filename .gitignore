@@ -2,6 +2,9 @@ node_modules/
 dist/
 *.tsbuildinfo
 .env
+# Tệp môi trường riêng trên máy, ví dụ .env.nhieu-truong của bản nhiều trường (YCTD-310); chỉ đưa tệp mẫu lên kho
+.env.*
+!.env.example
 .workbuddy-ai/
 coverage/
 test-results/

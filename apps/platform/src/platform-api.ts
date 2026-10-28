@@ -13,6 +13,8 @@ export class PlatformApiError extends Error {
   constructor(
     readonly status: number,
     message: string,
+    // Trường máy chủ báo lỗi (details[].field), ví dụ otp_code khi cần mã xác thực hai lớp
+    readonly fields: string[] = [],
   ) {
     super(message);
   }
@@ -20,13 +22,17 @@ export class PlatformApiError extends Error {
 
 async function readError(response: Response): Promise<PlatformApiError> {
   let message = 'Không thực hiện được, vui lòng thử lại';
+  let fields: string[] = [];
   try {
-    const body = (await response.json()) as { error?: { message?: string } };
+    const body = (await response.json()) as {
+      error?: { message?: string; details?: Array<{ field?: string }> };
+    };
     message = body.error?.message ?? message;
+    fields = (body.error?.details ?? []).flatMap((detail) => (detail.field ? [detail.field] : []));
   } catch {
     // Phản hồi không phải JSON: giữ thông điệp mặc định
   }
-  return new PlatformApiError(response.status, message);
+  return new PlatformApiError(response.status, message, fields);
 }
 
 // Xác thực hai lớp bắt buộc (DT-SaaS phần S8b): mã TOTP 6 số hoặc mã khôi phục gửi kèm
@@ -34,17 +40,34 @@ export async function loginOperator(
   login: string,
   password: string,
   otpCode: string,
+  // Mã xác nhận (YCTD-313): bước 1 gửi mã ảnh và chữ đã nhập; bước mã hai lớp chỉ gửi lại mã ảnh của bước 1
+  captcha: { captcha_id: string; captcha_text?: string } | null = null,
 ): Promise<{ accessToken: string; operator: Operator }> {
   const response = await fetch('/api/v1/auth/platform/login', {
     method: 'POST',
     headers: { 'content-type': 'application/json' },
-    body: JSON.stringify({ login, password, otp_code: otpCode }),
+    body: JSON.stringify({ login, password, otp_code: otpCode, ...captcha }),
   });
   if (!response.ok) {
     throw await readError(response);
   }
   const body = (await response.json()) as { access_token: string; operator: Operator };
   return { accessToken: body.access_token, operator: body.operator };
+}
+
+export interface CaptchaChallenge {
+  captcha_id: string;
+  image: string;
+  expires_in_seconds: number;
+}
+
+// Ảnh mã xác nhận mới cho trang đăng nhập (YCTD-313); nút làm mới gọi lại
+export async function issueCaptcha(): Promise<CaptchaChallenge> {
+  const response = await fetch('/api/v1/auth/platform/captcha', { method: 'POST' });
+  if (!response.ok) {
+    throw await readError(response);
+  }
+  return (await response.json()) as CaptchaChallenge;
 }
 
 export async function fetchProfile(accessToken: string): Promise<OperatorProfile> {

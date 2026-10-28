@@ -18,6 +18,7 @@ import {
   schoolHost,
 } from '../e2e-multi-environment.mjs';
 import { expect, test, type Page } from './fixtures.js';
+import { signInConsole } from './platform-console.js';
 
 // DT-SaaS phần S4 (YCTD-197, spec 136), kịch bản CT-S4-9: quản trị trường alpha thấy biểu ngữ bảo trì, bật cho phép hỗ trợ chỉ
 // đọc; người vận hành xem bảng điều khiển, mở phiên hỗ trợ ở trang chi tiết trường; đường liên kết một lần đưa vào cổng quản trị
@@ -110,12 +111,9 @@ test('CT-S4-9: bảo trì, cho phép hỗ trợ, phiên hỗ trợ chỉ đọc 
   const consoleContext = await browser.newContext({ baseURL: `http://${E2E_CONSOLE_HOST}:${E2E_MULTI_CONSOLE_PORT}` });
   const consolePage = await consoleContext.newPage();
   await consolePage.goto('/');
-  await consolePage.getByLabel('Tên đăng nhập').fill(operatorLogin);
-  await consolePage.getByLabel('Mật khẩu').fill(PASSWORD);
-  await consolePage
-    .getByLabel('Mã xác thực hai lớp')
-    .fill(await operatorOtp(runtime.platform, operator.id, operator.secret));
-  await consolePage.getByRole('button', { name: 'Đăng nhập' }).click();
+  await signInConsole(consolePage, operatorLogin, PASSWORD, () =>
+    operatorOtp(runtime.platform, operator.id, operator.secret),
+  );
   const menu = consolePage.getByRole('navigation', { name: 'Menu' });
   await menu.getByRole('button', { name: 'Bảng điều khiển' }).click();
   await expect(consolePage.getByRole('heading', { name: 'Bảng điều khiển' })).toBeVisible();
