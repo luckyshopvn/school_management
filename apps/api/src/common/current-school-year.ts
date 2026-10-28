@@ -69,7 +69,12 @@ export class CurrentSchoolYearResolver {
     const year = await this.databases.system
       .selectFrom('academic_years')
       .leftJoin('academic_year_databases', 'academic_year_databases.academic_year_id', 'academic_years.id')
-      .select(['academic_years.id', 'academic_years.name', 'academic_years.status', 'academic_year_databases.database_name'])
+      .select([
+        'academic_years.id',
+        'academic_years.name',
+        'academic_years.status',
+        'academic_year_databases.database_name',
+      ])
       .where('academic_years.id', '=', academicYearId)
       .executeTakeFirst();
     if (!year || year.status === 'draft' || !year.database_name) {
