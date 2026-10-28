@@ -33,7 +33,7 @@ phien_ban_de_xuat: 0.172.0
   - Báo cáo từ phòng vào hàng chờ của 28e.
 - **Giao diện:**
   - Ứng dụng giáo viên: `LiveScreen.tsx`, `LiveSessionScreen.tsx`.
-  - Học sinh (`#hoc-sinh`): `StudentLivePanel.tsx`.
+  - Ứng dụng học sinh (`apps/student`, YCTD-300): `StudentLivePanel.tsx`.
   - `VideoRoom` của `packages/ui` nhận nhãn vai trò.
   - Cổng quản trị: dòng giải thích giờ mở ở 9.5 nói rõ áp dụng cho cả phòng nhóm.
 - **Đăng ký theo cơ chế của YCTD-294:**

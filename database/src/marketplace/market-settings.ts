@@ -5,7 +5,8 @@ import { writeAudit } from '../provision-school.js';
 // Cấu hình chợ gia sư ở cổng nền tảng (DT-27 phần 27f, YCTD-256; tài liệu 32 mục 19.5, 19.10, 19.11): lưu ở `platform_settings` khóa
 // `market` như cấu hình AI của 23d. Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11 và quyết định ngày 2026-10-28 ("làm mã, tiền
 // giả lập"):
-// - chợ tắt mặc định; bật thì máy chủ API phục vụ `/api/v1/market/*` ở tên miền con dành riêng của chợ (`host`);
+// - chợ tắt mặc định; bật thì máy chủ API phục vụ `/api/v1/market/*` ở tên miền con dành riêng của chợ (`host`, ứng dụng phụ huynh) và
+//   của ứng dụng Gia sư (`tutor_host`, YCTD-262); hai tên miền phải khác nhau;
 // - hạn giữ bản ghi (GD-132), hạn khiếu nại trước khi giải ngân (GD-133), tỷ lệ hoa hồng mặc định (E-01, để trống đến khi Eric chốt)
 //   là dữ liệu, 27h dùng;
 // - **thu tiền thật luôn tắt** ở bản này: lưu `real_payments_enabled = true` bị từ chối cho đến khi xong E-01 đến E-07 (luật sư, tổ
@@ -15,6 +16,7 @@ export const MARKET_SETTINGS_KEY = 'market';
 export interface MarketSettings {
   enabled: boolean;
   host: string | null;
+  tutorHost: string | null;
   recordRetentionDays: number;
   complaintWindowHours: number;
   defaultCommissionPercent: number | null;
@@ -24,6 +26,7 @@ export interface MarketSettings {
 export const DEFAULT_MARKET_SETTINGS: MarketSettings = {
   enabled: false,
   host: null,
+  tutorHost: null,
   recordRetentionDays: 30,
   complaintWindowHours: 48,
   defaultCommissionPercent: null,
@@ -58,6 +61,7 @@ export async function readMarketSettings(platform: Kysely<PlatformDatabase>): Pr
   return {
     enabled: value.enabled === true,
     host: typeof value.host === 'string' && value.host ? value.host : null,
+    tutorHost: typeof value.tutor_host === 'string' && value.tutor_host ? value.tutor_host : null,
     recordRetentionDays: integerOr(value.record_retention_days, DEFAULT_MARKET_SETTINGS.recordRetentionDays),
     complaintWindowHours: integerOr(value.complaint_window_hours, DEFAULT_MARKET_SETTINGS.complaintWindowHours),
     defaultCommissionPercent:
@@ -80,6 +84,16 @@ export function parseMarketSettings(body: Record<string, unknown> | undefined): 
   if (enabled && !host) {
     throw new MarketSettingsError('host', 'Bật chợ cần tên miền con dành riêng của chợ');
   }
+  const tutorHost = typeof body?.tutor_host === 'string' ? body.tutor_host.trim().toLowerCase() : '';
+  if (tutorHost && !HOST_PATTERN.test(tutorHost)) {
+    throw new MarketSettingsError('tutor_host', 'Tên miền chỉ gồm chữ thường, số, gạch ngang, dấu chấm');
+  }
+  if (enabled && !tutorHost) {
+    throw new MarketSettingsError('tutor_host', 'Bật chợ cần tên miền con dành riêng của ứng dụng Gia sư');
+  }
+  if (tutorHost && tutorHost === host) {
+    throw new MarketSettingsError('tutor_host', 'Ứng dụng Gia sư cần tên miền khác tên miền của chợ');
+  }
   const retention = body?.record_retention_days ?? DEFAULT_MARKET_SETTINGS.recordRetentionDays;
   if (typeof retention !== 'number' || !Number.isInteger(retention) || retention < 7 || retention > 365) {
     throw new MarketSettingsError('record_retention_days', 'Hạn giữ bản ghi là số ngày từ 7 đến 365');
@@ -101,6 +115,7 @@ export function parseMarketSettings(body: Record<string, unknown> | undefined): 
   return {
     enabled,
     host: host || null,
+    tutorHost: tutorHost || null,
     recordRetentionDays: retention,
     complaintWindowHours: window,
     defaultCommissionPercent: commission === null ? null : Math.round(commission * 100) / 100,
@@ -116,6 +131,7 @@ export async function saveMarketSettings(
   const value = JSON.stringify({
     enabled: settings.enabled,
     host: settings.host,
+    tutor_host: settings.tutorHost,
     record_retention_days: settings.recordRetentionDays,
     complaint_window_hours: settings.complaintWindowHours,
     default_commission_percent: settings.defaultCommissionPercent,

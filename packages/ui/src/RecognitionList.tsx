@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
-import { Alert, Button } from '@school-management/ui';
+import { Alert } from './Alert.js';
+import { Button } from './Button.js';
 
-// Huy hiệu, chứng nhận của một em (DT-28 phần 28i, YCTD-279): dùng chung cho học sinh (`#hoc-sinh`) và phụ huynh. Chỉ hiện khi
+// Huy hiệu, chứng nhận của một em (DT-28 phần 28i, YCTD-279): dùng chung cho ứng dụng học sinh và ứng dụng phụ huynh. Chỉ hiện khi
 // trường đã bật; không so sánh với bạn khác. Chứng nhận tải dạng PDF, có mã kiểm tra
 export interface RecognitionView {
   badges_enabled: boolean;

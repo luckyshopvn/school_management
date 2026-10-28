@@ -26,7 +26,7 @@ const config: CapacitorConfig = {
     androidScheme: 'https',
     // Máy chủ phát triển chạy http; bản phát hành chỉ dùng https
     cleartext: true,
-    // Hai địa chỉ http của máy chủ phát triển ghi đủ giao thức, cổng để cầu nối gốc nhận tin từ trang ở đó (đẩy gốc, 26g); tên miền
+    // Các địa chỉ http của máy chủ phát triển ghi đủ giao thức, cổng để cầu nối gốc nhận tin từ trang ở đó (đẩy gốc, 26g); tên miền
     // không có giao thức được hiểu là https
     allowNavigation: [
       'localhost',
@@ -34,6 +34,8 @@ const config: CapacitorConfig = {
       '*.localhost',
       'http://localhost:5174',
       'http://localhost:5175',
+      // Ứng dụng học sinh (YCTD-300): liên kết ở màn hình đăng nhập phụ huynh mở máy chủ phát triển của apps/student
+      'http://localhost:5179',
       ...extraHosts,
     ],
   },

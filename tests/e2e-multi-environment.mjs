@@ -8,11 +8,14 @@ export const E2E_MULTI_PORTAL_PORT = 5383;
 export const E2E_MULTI_CONSOLE_PORT = 5384;
 // Chợ gia sư (DT-27 phần 27f, spec 195): ứng dụng apps/market ở tên miền con dành riêng, cơ sở dữ liệu marketplace và vai trò riêng
 export const E2E_MULTI_MARKET_PORT = 5387;
+// Ứng dụng Gia sư của chợ (YCTD-262, spec 195)
+export const E2E_MULTI_TUTOR_PORT = 5388;
 export const E2E_ROOT_DOMAIN = 'e2e.localhost';
 // Bí mật dùng chung của điểm tick bộ lập lịch (phần S1b); chỉ cho môi trường kiểm thử cục bộ
 export const E2E_SCHEDULER_SECRET = 'e2e-scheduler-secret';
 export const E2E_CONSOLE_HOST = `platform.${E2E_ROOT_DOMAIN}`;
 export const E2E_MARKET_HOST = `cho-gia-su.${E2E_ROOT_DOMAIN}`;
+export const E2E_TUTOR_HOST = `gia-su.${E2E_ROOT_DOMAIN}`;
 export const E2E_MARKETPLACE_DATABASE_NAME = 'school_marketplace_e2e';
 export const E2E_MARKETPLACE_ROLE = 'marketplace_e2e';
 // Bí mật ký mã liên kết hồ sơ con với trường; chỉ cho môi trường kiểm thử cục bộ

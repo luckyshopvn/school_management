@@ -1,5 +1,5 @@
-# Caddy của hồ sơ "Vận hành" (DT-SaaS phần S7a, YCTD-198). Dùng ảnh `web` sẵn có (ba giao diện ở /srv/portal, /srv/parent,
-# /srv/teacher); tệp này gắn đè /etc/caddy/Caddyfile, các tệp *.caddy trong sites.d/ gắn vào /etc/caddy/sites.d/.
+# Caddy của hồ sơ "Vận hành" (DT-SaaS phần S7a, YCTD-198). Dùng ảnh `web` sẵn có (bốn giao diện ở /srv/portal, /srv/parent,
+# /srv/teacher, /srv/student); tệp này gắn đè /etc/caddy/Caddyfile, các tệp *.caddy trong sites.d/ gắn vào /etc/caddy/sites.d/.
 #
 # - Không ghi tên miền nào trong tệp: khối địa chỉ bắt chung nhận mọi tên miền và xin chứng chỉ theo yêu cầu (on_demand_tls),
 #   trước khi xin hỏi điểm cuối kiểm tra tên miền (DOMAIN_CHECK_URL); chỉ tên miền có trong danh sách của hệ thống được cấp.
@@ -38,7 +38,8 @@
 		X-Content-Type-Options "nosniff"
 		X-Frame-Options "DENY"
 		Referrer-Policy "strict-origin-when-cross-origin"
-		Permissions-Policy "geolocation=(), microphone=()"
+		# Giá trị mặc định (?): trang học sinh tự đặt chính sách (student-app) thì giữ chính sách đó
+		?Permissions-Policy "geolocation=(), microphone=()"
 		-Server
 	}
 	request_body {
@@ -96,6 +97,23 @@
 	}
 }
 
+# Ứng dụng học sinh (YCTD-300) ở /hoc-sinh/ trên tên miền của ứng dụng phụ huynh: địa chỉ cũ `#hoc-sinh` của ứng dụng phụ huynh
+# chuyển sang đây trong cùng tên miền, cookie của kênh student vẫn là cookie cùng tên miền. Giám thị camera (DT-23 phần 23e) và
+# lớp video trực tiếp (DT-27 phần 27a) cần camera, micro của chính trang nên chính sách quyền của trang học sinh mở hai quyền này
+(student-app) {
+	redir /hoc-sinh /hoc-sinh/ 308
+	handle_path /hoc-sinh/* {
+		header Permissions-Policy "geolocation=(), microphone=(self), camera=(self)"
+		root * /srv/student
+		@hashed path /assets/*
+		header @hashed Cache-Control "public, max-age=31536000, immutable"
+		@other not path /assets/*
+		header @other Cache-Control "no-cache"
+		try_files {path} /index.html
+		file_server
+	}
+}
+
 (website) {
 	handle {
 		rewrite * /api/v1/public/site{path}?{query}
@@ -106,12 +124,13 @@
 	}
 }
 
-# Ba lối vào theo đường dẫn trên tên miền của trường (nhiều trường, sau DT-SaaS S1b dựng giao diện với đường dẫn gốc này)
+# Các lối vào theo đường dẫn trên tên miền của trường (thêm /hoc-sinh, YCTD-300) (nhiều trường, sau DT-SaaS S1b dựng giao diện với đường dẫn gốc này)
 (tenant-paths-on) {
 	import backend
 	import spa-under /quan-ly /srv/portal
 	import spa-under /giao-vien /srv/teacher
 	import spa-under /phu-huynh /srv/parent
+	import student-app
 }
 (tenant-paths-off) {
 }

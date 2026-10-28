@@ -1,0 +1,18 @@
+{
+  "name": "Chợ gia sư – Gia sư",
+  "short_name": "Gia sư",
+  "description": "Ứng dụng dành cho gia sư của Chợ gia sư: hồ sơ, xác minh, lịch dạy, buổi học, thu nhập",
+  "lang": "vi",
+  "id": "./?ung-dung=tutor",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#ffffff",
+  "theme_color": "#0f766e",
+  "icons": [
+    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }
+  ]
+}

@@ -1,5 +1,6 @@
 # syntax=docker/dockerfile:1.7
-# Ảnh máy chủ web: Caddy phục vụ ba giao diện (portal, ứng dụng phụ huynh, ứng dụng giáo viên) dạng tệp tĩnh và chuyển
+# Ảnh máy chủ web: Caddy phục vụ bốn giao diện (portal, ứng dụng phụ huynh, ứng dụng giáo viên, ứng dụng học sinh ở /hoc-sinh/ của
+# tên miền phụ huynh, YCTD-300) dạng tệp tĩnh và chuyển
 # /api/v1 sang dịch vụ định danh hoặc máy chủ API, tự cấp chứng chỉ HTTPS (YCTD-92).
 # Dựng từ thư mục gốc kho mã nguồn: docker build -f deploy/docker/web.Dockerfile .
 
@@ -19,32 +20,48 @@ COPY apps/worker/package.json apps/worker/
 COPY apps/portal/package.json apps/portal/
 COPY apps/parent/package.json apps/parent/
 COPY apps/teacher/package.json apps/teacher/
+COPY apps/student/package.json apps/student/
 COPY apps/platform/package.json apps/platform/
 COPY apps/mobile/package.json apps/mobile/
+COPY apps/market/package.json apps/market/
+COPY apps/tutor/package.json apps/tutor/
 COPY packages/config/package.json packages/config/
 COPY packages/server/package.json packages/server/
 COPY packages/shared/package.json packages/shared/
 COPY packages/ui/package.json packages/ui/
 COPY packages/pwa/package.json packages/pwa/
+COPY packages/market-client/package.json packages/market-client/
 COPY database/package.json database/
 COPY tests/package.json tests/
 RUN --mount=type=cache,id=pnpm-store,target=/pnpm/store \
     pnpm install --frozen-lockfile --store-dir /pnpm/store \
       --filter "@school-management/portal..." --filter "@school-management/parent..." \
-      --filter "@school-management/teacher..."
+      --filter "@school-management/teacher..." --filter "@school-management/student..." \
+      --filter "@school-management/market..." --filter "@school-management/tutor..."
 COPY packages/config packages/config
 COPY packages/shared packages/shared
 COPY packages/ui packages/ui
 COPY packages/pwa packages/pwa
+COPY packages/market-client packages/market-client
 COPY apps/portal apps/portal
 COPY apps/parent apps/parent
 COPY apps/teacher apps/teacher
+COPY apps/student apps/student
+# Chợ gia sư: ứng dụng phụ huynh và ứng dụng Gia sư (DT-27, YCTD-256, YCTD-262), chỉ phục vụ ở hồ sơ nhiều trường
+COPY apps/market apps/market
+COPY apps/tutor apps/tutor
 # Giao diện gọi /api/v1 cùng tên miền nên không cần biến địa chỉ máy chủ lúc dựng
 RUN pnpm --filter "@school-management/portal..." --filter "@school-management/parent..." \
-      --filter "@school-management/teacher..." build
+      --filter "@school-management/teacher..." \
+      --filter "@school-management/market..." --filter "@school-management/tutor..." build
+# Ứng dụng học sinh luôn nằm dưới /hoc-sinh/ (tên miền phụ huynh hoặc tên miền của trường, YCTD-300)
+RUN APP_BASE_PATH=/hoc-sinh/ pnpm --filter "@school-management/student" build
 
 FROM ${CADDY_IMAGE} AS web
 COPY deploy/caddy/Caddyfile /etc/caddy/Caddyfile
 COPY --from=build /app/apps/portal/dist /srv/portal
 COPY --from=build /app/apps/parent/dist /srv/parent
 COPY --from=build /app/apps/teacher/dist /srv/teacher
+COPY --from=build /app/apps/student/dist /srv/student
+COPY --from=build /app/apps/market/dist /srv/market
+COPY --from=build /app/apps/tutor/dist /srv/tutor

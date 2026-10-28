@@ -1,5 +1,5 @@
 # Máy chủ web và chuyển tiếp của môi trường chạy thật (YCTD-92).
-# Mỗi giao diện một tên miền con; giao diện gọi /api/v1 cùng tên miền (không cần CORS) và Caddy chuyển nhóm điểm cuối của
+# Mỗi giao diện một tên miền con (ứng dụng học sinh ở /hoc-sinh/ của tên miền phụ huynh, YCTD-300); giao diện gọi /api/v1 cùng tên miền (không cần CORS) và Caddy chuyển nhóm điểm cuối của
 # dịch vụ định danh sang dịch vụ định danh, phần còn lại sang máy chủ API, giống cấu hình chuyển tiếp khi phát triển
 # (17_DAC_TA_API.md quy ước 8). Cookie mã làm mới (SameSite=Strict, Secure, đường dẫn /api/v1/auth, BM-71) vì vậy luôn là
 # cookie cùng tên miền, không cần đặt Domain chung cho các tên miền con.
@@ -36,7 +36,8 @@
 		X-Content-Type-Options "nosniff"
 		X-Frame-Options "DENY"
 		Referrer-Policy "strict-origin-when-cross-origin"
-		Permissions-Policy "geolocation=(), microphone=(), camera=(), payment=(), usb=()"
+		# Giá trị mặc định (?): trang học sinh tự đặt chính sách (student-app) thì giữ chính sách đó
+		?Permissions-Policy "geolocation=(), microphone=(), camera=(), payment=(), usb=()"
 		-Server
 	}
 	request_body {
@@ -75,6 +76,23 @@
 	}
 }
 
+# Ứng dụng học sinh (YCTD-300) ở /hoc-sinh/ trên tên miền của ứng dụng phụ huynh: địa chỉ cũ `#hoc-sinh` của ứng dụng phụ huynh
+# chuyển sang đây trong cùng tên miền, cookie của kênh student vẫn là cookie cùng tên miền. Giám thị camera (DT-23 phần 23e) và
+# lớp video trực tiếp (DT-27 phần 27a) cần camera, micro của chính trang nên chính sách quyền của trang học sinh mở hai quyền này
+(student-app) {
+	redir /hoc-sinh /hoc-sinh/ 308
+	handle_path /hoc-sinh/* {
+		header Permissions-Policy "geolocation=(), microphone=(self), camera=(self), payment=(), usb=()"
+		root * /srv/student
+		@hashed path /assets/*
+		header @hashed Cache-Control "public, max-age=31536000, immutable"
+		@other not path /assets/*
+		header @other Cache-Control "no-cache"
+		try_files {path} /index.html
+		file_server
+	}
+}
+
 # Website công khai của trường: mọi đường dẫn chuyển sang trang do máy chủ API dựng; X-Website-Root báo máy chủ API tính
 # liên kết từ gốc tên miền. Các điểm cuối khác của /api/v1 không mở trên tên miền website
 (website) {
@@ -93,10 +111,11 @@
 	import spa /srv/portal
 }
 
-# Ứng dụng phụ huynh
+# Ứng dụng phụ huynh, ứng dụng học sinh ở /hoc-sinh/
 {$PARENT_SITE} {
 	import common
 	import backend
+	import student-app
 	import spa /srv/parent
 }
 

@@ -69,6 +69,9 @@ export interface LegalDocument {
 export interface Site {
   name: string;
   real_payments: boolean;
+  // Địa chỉ ứng dụng Chợ gia sư (phụ huynh) và ứng dụng Gia sư; null khi nền tảng chưa đặt tên miền (YCTD-262)
+  market_url: string | null;
+  tutor_url: string | null;
   documents: LegalDocument[];
 }
 

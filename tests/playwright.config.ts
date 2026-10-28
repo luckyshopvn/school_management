@@ -10,6 +10,7 @@ import {
   E2E_OIDC_MOCK_PORT,
   E2E_OIDC_PROVIDER_CODE,
   E2E_PARENT_PORT,
+  E2E_STUDENT_PORT,
   E2E_TEACHER_PORT,
   E2E_PORTAL_PORT,
   E2E_SCHOOL_YEAR_DATABASE_PREFIX,
@@ -136,7 +137,21 @@ export default defineConfig({
     {
       command: `pnpm --filter @school-management/parent exec vite --port ${E2E_PARENT_PORT} --strictPort`,
       url: `http://localhost:${E2E_PARENT_PORT}`,
-      env: { IDENTITY_BASE_URL: identityBaseUrl, API_BASE_URL: apiBaseUrl },
+      env: {
+        IDENTITY_BASE_URL: identityBaseUrl,
+        API_BASE_URL: apiBaseUrl,
+        STUDENT_APP_URL: `http://localhost:${E2E_STUDENT_PORT}/`,
+      },
+    },
+    // Ứng dụng học sinh (YCTD-300)
+    {
+      command: `pnpm --filter @school-management/student exec vite --port ${E2E_STUDENT_PORT} --strictPort`,
+      url: `http://localhost:${E2E_STUDENT_PORT}`,
+      env: {
+        IDENTITY_BASE_URL: identityBaseUrl,
+        API_BASE_URL: apiBaseUrl,
+        PARENT_APP_URL: `http://localhost:${E2E_PARENT_PORT}/`,
+      },
     },
   ],
 });

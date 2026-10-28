@@ -11,7 +11,7 @@ import { createTestUser } from '@school-management/identity/testing';
 import {
   E2E_API_PORT,
   E2E_IDENTITY_PORT,
-  E2E_PARENT_PORT,
+  E2E_STUDENT_PORT,
   E2E_SCHOOL_YEAR_DATABASE_PREFIX,
 } from '../e2e-environment.mjs';
 
@@ -19,7 +19,8 @@ import {
 // nộp được giữ trên máy kèm thời điểm bấm nộp; có mạng lại tự nộp đúng một lần; đăng xuất xoá dữ liệu trên máy. Dữ liệu giả
 const identity = createDatabase<IdentityDatabase>(readConnectionString('identity'));
 let schoolYear: ReturnType<typeof createDatabase<SchoolYearDatabase>>;
-const PARENT_URL = `http://localhost:${E2E_PARENT_PORT}`;
+// Ứng dụng học sinh riêng (YCTD-300)
+const STUDENT_URL = `http://localhost:${E2E_STUDENT_PORT}`;
 const IDENTITY_API = `http://localhost:${E2E_IDENTITY_PORT}/api/v1`;
 const MAIN_API = `http://localhost:${E2E_API_PORT}/api/v1`;
 
@@ -195,7 +196,7 @@ test('CT-28j-5: mất mạng khi nộp bài: bài giữ trên máy, có mạng t
 
     const context = await browser.newContext();
     const student = await context.newPage();
-    await student.goto(`${PARENT_URL}/#hoc-sinh`);
+    await student.goto(`${STUDENT_URL}/`);
     await student.getByLabel('Tên đăng nhập').fill(account.username);
     await student.getByLabel('Mật khẩu', { exact: true }).fill(account.password);
     await student.getByRole('button', { name: 'Đăng nhập' }).click();

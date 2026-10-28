@@ -12,6 +12,7 @@ import { createTestUser } from '@school-management/identity/testing';
 import {
   E2E_PARENT_PORT,
   E2E_SCHOOL_YEAR_DATABASE_PREFIX,
+  E2E_STUDENT_PORT,
   E2E_SYSTEM_DATABASE_NAME,
   E2E_TEACHER_PORT,
 } from '../e2e-environment.mjs';
@@ -26,6 +27,7 @@ const system = createDatabase<SystemDatabase>(replaceDatabaseName(systemUrl, E2E
 let schoolYear: ReturnType<typeof createDatabase<SchoolYearDatabase>>;
 const PARENT_URL = `http://localhost:${E2E_PARENT_PORT}`;
 const TEACHER_URL = `http://localhost:${E2E_TEACHER_PORT}`;
+const STUDENT_URL = `http://localhost:${E2E_STUDENT_PORT}`;
 const IPHONE_SAFARI =
   'Mozilla/5.0 (iPhone; CPU iPhone OS 17_5 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.5 Mobile/15E148 Safari/604.1';
 const ANDROID_ZALO =
@@ -135,13 +137,16 @@ test('CT-26a-01: service worker chung, manifest theo thương hiệu trường, 
     expect(parentManifest.theme_color).toBe('#127A3E');
     expect(parentManifest.display).toBe('standalone');
     expect(parentManifest.start_url).toBe('/');
-    // Màn hình học sinh (23a) cài thành ứng dụng riêng mở thẳng #hoc-sinh
+    // Ứng dụng học sinh riêng (YCTD-300): manifest "– Học sinh" mở thẳng gốc của ứng dụng; địa chỉ cũ #hoc-sinh của ứng dụng phụ
+    // huynh (thẻ QR, lối tắt đã cài) chuyển sang ứng dụng học sinh, ứng dụng này trỏ manifest sang bản của trường
     const studentManifest = await (
-      await parent.request.get(`${PARENT_URL}/api/v1/public/pwa/student.webmanifest?base=%2F`)
+      await parent.request.get(`${STUDENT_URL}/api/v1/public/pwa/student.webmanifest?base=%2F`)
     ).json();
-    expect(studentManifest.start_url).toBe('/#hoc-sinh');
+    expect(studentManifest.name).toBe(`Trường thử PWA ${suffix} – Học sinh`);
+    expect(studentManifest.start_url).toBe('/');
     expect(studentManifest.short_name).toBe(`${shortName} HS`);
     await parent.goto(`${PARENT_URL}/#hoc-sinh`);
+    await expect(parent).toHaveURL(`${STUDENT_URL}/`);
     await expect
       .poll(() =>
         parent.evaluate(
@@ -160,6 +165,9 @@ test('CT-26a-01: service worker chung, manifest theo thương hiệu trường, 
     // Ứng dụng giáo viên: manifest của trường, service worker chung ở /sw.js với tiền tố của công cụ lớp học (23b)
     const serviceWorker = await (await browser.newContext()).request.get(`${TEACHER_URL}/sw.js`);
     expect(await serviceWorker.text()).toContain("const CACHE_PREFIX = 'cong-cu-lop-hoc-v-'");
+    // Ứng dụng học sinh: service worker riêng, tiền tố bộ nhớ đệm riêng (YCTD-300)
+    const studentWorker = await (await browser.newContext()).request.get(`${STUDENT_URL}/sw.js`);
+    expect(await studentWorker.text()).toContain("const CACHE_PREFIX = 'hoc-sinh-v-'");
 
     // iPhone mở bằng Safari: hướng dẫn thêm vào màn hình chính; "Để sau" thì không mời lại
     const iphone = await signInTeacher(browser, IPHONE_SAFARI);

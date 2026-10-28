@@ -46,3 +46,4 @@ export {
   type LessonVideo,
   type LessonVideoProgress,
 } from './LessonVideoList.js';
+export { RecognitionList, type RecognitionView } from './RecognitionList.js';

@@ -2,7 +2,7 @@
 // Cần JDK 21 và Android SDK (platform-tools, build-tools, platforms;android-36); thiếu thì in danh sách cần cài rồi dừng, không tự tải.
 // Bản debug ký bằng khóa debug tự sinh của Android SDK trên máy (~/.android/debug.keystore), không có khóa nào trong kho.
 //   node scripts/dung-android-debug.mjs           dựng app-debug.apk
-//   node scripts/dung-android-debug.mjs --chay    dựng, chuyển cổng 5174, 5175 (adb reverse), cài và mở trên máy giả lập đang chạy
+//   node scripts/dung-android-debug.mjs --chay    dựng, chuyển cổng 5174, 5175, 5179 (adb reverse), cài và mở trên máy giả lập đang chạy
 import { spawnSync } from 'node:child_process';
 import { existsSync } from 'node:fs';
 import { createConnection } from 'node:net';
@@ -15,7 +15,7 @@ const ANDROID = join(ROOT, 'android');
 const APP_ID = 'vn.schoolmanagement.demo';
 const WINDOWS = process.platform === 'win32';
 // Cổng máy chủ phát triển của ứng dụng giáo viên, phụ huynh (vite.config.ts của từng ứng dụng)
-const DEV_PORTS = [5174, 5175];
+const DEV_PORTS = [5174, 5175, 5179];
 const run = (command, args, options = {}) => {
   const result = spawnSync(command, args, { stdio: 'inherit', shell: WINDOWS, ...options });
   if (result.status !== 0) {

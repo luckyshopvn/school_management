@@ -47,6 +47,36 @@ const TAB_LABELS: Record<Tab, string> = {
 const SELECT_CLASS = 'rounded-lg border border-border bg-card px-3 py-2 text-content font-normal';
 const CELL_INPUT = 'w-16 rounded border border-border bg-card px-2 py-1 text-content';
 const RATING_OPTIONS = Object.entries(RATING_LABELS) as Array<[RatingCode, string]>;
+// Ô điểm trong sổ: căn giữa; ô bắt buộc còn trống viền cam (theo mẫu thiết kế sổ điểm)
+const scoreInputClass = (missing: boolean) =>
+  `w-14 rounded border px-2 py-1 text-center text-content tabular-nums ${missing ? 'border-warning bg-warning/10' : 'border-border bg-card'}`;
+// Viền ô tiêu đề, ô dữ liệu của bảng sổ điểm
+const HEAD_CELL = 'border-b border-border py-2 font-semibold';
+const GROUP_CELL = 'border-b border-l border-border py-2 font-semibold';
+const BODY_CELL = 'border-b border-l border-border px-1.5 py-1.5 text-center';
+const isBlank = (text: string) => text.trim() === '';
+const formatWeight = (value: number) => String(value).replace('.', ',');
+
+// Chú thích công thức điểm trung bình môn học kỳ theo hệ số đang cấu hình (cùng công thức termAverage)
+function averageFormula(config: ScoreConfig): string {
+  const { regular, mid, final } = config.weights;
+  const times = (label: string, weight: number) => (weight === 1 ? label : `${label} × ${formatWeight(weight)}`);
+  return (
+    `TB môn học kỳ = (${times('tổng điểm TX', regular)} + ${times('Giữa kỳ', mid)} + ${times('Cuối kỳ', final)}) ÷ ` +
+    `(${times('số cột TX', regular)} + ${formatWeight(mid + final)}). Tự tính khi đủ điểm giữa kỳ, cuối kỳ.`
+  );
+}
+
+// Thẻ tiến độ nhập điểm: đếm học sinh còn thiếu điểm theo bản nháp đang nhập
+function progressChip(label: string, missing: number, doneText: string) {
+  return (
+    <StatusBadge
+      key={label}
+      tone={missing === 0 ? 'success' : 'warning'}
+      label={missing === 0 ? `${label}: ${doneText}` : `${label}: còn ${missing} học sinh`}
+    />
+  );
+}
 
 interface Draft {
   regular: string[];
@@ -120,25 +150,56 @@ function EntryTab({ overview, term, onSaved }: { overview: ScoreOverview; term: 
     setDrafts((current) => ({ ...current, [childId]: { ...(current[childId] as Draft), ...patch } }));
   const data = sheet.data;
   const isScore = data?.subject.mode === 'score';
+  // Số cột thường xuyên: tối thiểu theo môn, thêm cột nếu đã có học sinh nhiều điểm hơn
+  const width = Math.max(slots, ...Object.values(drafts).map((d) => d.regular.length));
+  const headRows = isScore ? 2 : 1;
+  const rowDrafts = (data?.rows ?? []).flatMap((row) => (drafts[row.child_id] ? [drafts[row.child_id] as Draft] : []));
+  const chips =
+    rowDrafts.length === 0
+      ? []
+      : isScore
+        ? [
+            progressChip(
+              'Thường xuyên',
+              rowDrafts.filter((draft) => draft.regular.filter((text) => !isBlank(text)).length < slots).length,
+              `đã nhập đủ ${slots} cột`,
+            ),
+            progressChip('Giữa kỳ', rowDrafts.filter((draft) => isBlank(draft.mid)).length, 'đã nhập đủ'),
+            progressChip('Cuối kỳ', rowDrafts.filter((draft) => isBlank(draft.final)).length, 'đã nhập đủ'),
+          ]
+        : [progressChip('Kết quả', rowDrafts.filter((draft) => draft.result === '').length, 'đã nhập đủ')];
   return (
-    <section className="flex flex-col gap-3" aria-label="Nhập điểm">
-      <label className="flex max-w-sm flex-col gap-2 text-label font-medium text-text">
-        Môn
-        <select
-          aria-label="Môn"
-          value={subjectId}
-          onChange={(event) => setSubjectId(event.target.value)}
-          className={SELECT_CLASS}
-        >
-          {overview.subjects.map((item) => (
-            <option key={item.subject_id} value={item.subject_id}>
-              {item.subject_name}
-              {overview.access.subject_ids.includes(item.subject_id) ? '' : ' (chỉ xem)'}
-            </option>
-          ))}
-        </select>
-      </label>
+    <section className="flex flex-col gap-4" aria-label="Nhập điểm">
+      <div className="flex flex-wrap items-end gap-3 rounded-xl border border-border bg-card p-4">
+        <label className="flex min-w-48 flex-1 flex-col gap-2 text-label font-medium text-text sm:max-w-sm">
+          Môn
+          <select
+            aria-label="Môn"
+            value={subjectId}
+            onChange={(event) => setSubjectId(event.target.value)}
+            className={SELECT_CLASS}
+          >
+            {overview.subjects.map((item) => (
+              <option key={item.subject_id} value={item.subject_id}>
+                {item.subject_name}
+                {overview.access.subject_ids.includes(item.subject_id) ? '' : ' (chỉ xem)'}
+              </option>
+            ))}
+          </select>
+        </label>
+        {chips.length > 0 ? (
+          <div className="flex flex-[3_1_20rem] flex-wrap justify-end gap-2" aria-label="Tiến độ nhập điểm">
+            {chips}
+          </div>
+        ) : null}
+        {data?.can_edit ? (
+          <Button variant="primary" disabled={invalid || save.isPending} onClick={() => save.mutate()}>
+            Ghi điểm
+          </Button>
+        ) : null}
+      </div>
       {sheet.error ? <Alert tone="danger">{messageOf(sheet.error)}</Alert> : null}
+      {save.error ? <Alert tone="danger">{messageOf(save.error)}</Alert> : null}
       {data ? (
         <>
           <p className="text-label text-text-secondary">
@@ -148,132 +209,158 @@ function EntryTab({ overview, term, onSaved }: { overview: ScoreOverview; term: 
             {data.deadline ? ` Hạn nhập: ${data.deadline}.` : ''}
             {data.locked ? ` Đã khoá bởi ${data.locked.locked_by_name}.` : ''}
           </p>
-          <div className="overflow-x-auto">
-            <table className="w-full text-content" aria-label="Bảng điểm">
-              <thead className="text-left text-label font-medium text-text-secondary">
-                <tr>
-                  <th className="px-2 py-2">Học sinh</th>
+          {data.can_edit ? null : (
+            <Alert tone="info">Bạn không nhập được môn này ở học kỳ này (chưa được phân công hoặc đã khoá).</Alert>
+          )}
+          <div className="overflow-hidden rounded-xl border border-border bg-card">
+            <div className="overflow-x-auto">
+              <table className="w-full text-content tabular-nums" aria-label="Bảng điểm">
+                <thead className="bg-page text-label text-text-secondary">
+                  <tr>
+                    <th rowSpan={headRows} className={`${HEAD_CELL} w-12 pr-2 pl-4 text-left`}>
+                      STT
+                    </th>
+                    <th rowSpan={headRows} className={`${HEAD_CELL} px-2 text-left`}>
+                      Học sinh
+                    </th>
+                    {isScore ? (
+                      <>
+                        <th colSpan={width} className={`${GROUP_CELL} px-2 text-center`}>
+                          Đánh giá thường xuyên
+                        </th>
+                        <th rowSpan={headRows} className={`${GROUP_CELL} px-2 text-center`}>
+                          Giữa kỳ
+                        </th>
+                        <th rowSpan={headRows} className={`${GROUP_CELL} px-2 text-center`}>
+                          Cuối kỳ
+                        </th>
+                        <th rowSpan={headRows} className={`${GROUP_CELL} px-2 text-center`}>
+                          TB môn HK
+                        </th>
+                      </>
+                    ) : (
+                      <th rowSpan={headRows} className={`${GROUP_CELL} px-2 text-center`}>
+                        Kết quả
+                      </th>
+                    )}
+                    <th rowSpan={headRows} className={`${GROUP_CELL} pr-4 pl-2 text-left`}>
+                      Nhận xét
+                    </th>
+                  </tr>
                   {isScore ? (
-                    <>
-                      {Array.from({
-                        length: Math.max(slots, ...Object.values(drafts).map((d) => d.regular.length)),
-                      }).map((_unused, index) => (
-                        <th key={index} className="px-2 py-2">
+                    <tr>
+                      {Array.from({ length: width }).map((_unused, index) => (
+                        <th key={index} className="border-b border-l border-border px-2 py-1.5 font-medium">
                           TX{index + 1}
                         </th>
                       ))}
-                      <th className="px-2 py-2">Giữa kỳ</th>
-                      <th className="px-2 py-2">Cuối kỳ</th>
-                      <th className="px-2 py-2">Trung bình</th>
-                    </>
-                  ) : (
-                    <th className="px-2 py-2">Kết quả</th>
-                  )}
-                  <th className="px-2 py-2">Nhận xét</th>
-                </tr>
-              </thead>
-              <tbody>
-                {data.rows.map((row) => {
-                  const draft = drafts[row.child_id];
-                  if (!draft) {
-                    return null;
-                  }
-                  const width = Math.max(slots, ...Object.values(drafts).map((d) => d.regular.length));
-                  const values = draft.regular.map(parse);
-                  const mid = parse(draft.mid);
-                  const final = parse(draft.final);
-                  const average =
-                    values.some((v) => v === undefined) || mid === undefined || final === undefined
-                      ? null
-                      : termAverage(
-                          { regular: values.filter((v): v is number => v !== null), mid, final },
-                          overview.config as ScoreConfig,
-                        );
-                  return (
-                    <tr key={row.child_id} className="border-t border-border">
-                      <td className="px-2 py-2">{row.full_name}</td>
-                      {isScore ? (
-                        <>
-                          {Array.from({ length: width }).map((_unused, index) => (
-                            <td key={index} className="px-2 py-2">
+                    </tr>
+                  ) : null}
+                </thead>
+                <tbody>
+                  {data.rows.map((row, position) => {
+                    const draft = drafts[row.child_id];
+                    if (!draft) {
+                      return null;
+                    }
+                    const values = draft.regular.map(parse);
+                    const mid = parse(draft.mid);
+                    const final = parse(draft.final);
+                    const average =
+                      values.some((v) => v === undefined) || mid === undefined || final === undefined
+                        ? null
+                        : termAverage(
+                            { regular: values.filter((v): v is number => v !== null), mid, final },
+                            overview.config as ScoreConfig,
+                          );
+                    return (
+                      <tr key={row.child_id}>
+                        <td className="border-b border-border py-2 pr-2 pl-4 text-text-secondary">{position + 1}</td>
+                        <td className="whitespace-nowrap border-b border-border px-2 py-2 font-medium">
+                          {row.full_name}
+                        </td>
+                        {isScore ? (
+                          <>
+                            {Array.from({ length: width }).map((_unused, index) => (
+                              <td key={index} className={BODY_CELL}>
+                                <input
+                                  aria-label={`Điểm thường xuyên ${index + 1} ${row.full_name}`}
+                                  inputMode="decimal"
+                                  className={scoreInputClass(index < slots && isBlank(draft.regular[index] ?? ''))}
+                                  disabled={!data.can_edit}
+                                  value={draft.regular[index] ?? ''}
+                                  onChange={(event) => {
+                                    const next = [...draft.regular];
+                                    next[index] = event.target.value;
+                                    change(row.child_id, { regular: next });
+                                  }}
+                                />
+                              </td>
+                            ))}
+                            <td className={BODY_CELL}>
                               <input
-                                aria-label={`Điểm thường xuyên ${index + 1} ${row.full_name}`}
-                                className={CELL_INPUT}
+                                aria-label={`Giữa kỳ ${row.full_name}`}
+                                inputMode="decimal"
+                                className={scoreInputClass(isBlank(draft.mid))}
                                 disabled={!data.can_edit}
-                                value={draft.regular[index] ?? ''}
-                                onChange={(event) => {
-                                  const next = [...draft.regular];
-                                  next[index] = event.target.value;
-                                  change(row.child_id, { regular: next });
-                                }}
+                                value={draft.mid}
+                                onChange={(event) => change(row.child_id, { mid: event.target.value })}
                               />
                             </td>
-                          ))}
-                          <td className="px-2 py-2">
-                            <input
-                              aria-label={`Giữa kỳ ${row.full_name}`}
-                              className={CELL_INPUT}
+                            <td className={BODY_CELL}>
+                              <input
+                                aria-label={`Cuối kỳ ${row.full_name}`}
+                                inputMode="decimal"
+                                className={scoreInputClass(isBlank(draft.final))}
+                                disabled={!data.can_edit}
+                                value={draft.final}
+                                onChange={(event) => change(row.child_id, { final: event.target.value })}
+                              />
+                            </td>
+                            <td className={`${BODY_CELL} font-semibold`} data-testid={`average-${row.child_id}`}>
+                              {average === null ? '' : average}
+                            </td>
+                          </>
+                        ) : (
+                          <td className={BODY_CELL}>
+                            <select
+                              aria-label={`Kết quả ${row.full_name}`}
+                              className={SELECT_CLASS}
                               disabled={!data.can_edit}
-                              value={draft.mid}
-                              onChange={(event) => change(row.child_id, { mid: event.target.value })}
-                            />
+                              value={draft.result}
+                              onChange={(event) => change(row.child_id, { result: event.target.value })}
+                            >
+                              <option value="">Chưa nhập</option>
+                              {Object.entries(SUBJECT_PASS_LABELS).map(([value, label]) => (
+                                <option key={value} value={value}>
+                                  {label}
+                                </option>
+                              ))}
+                            </select>
                           </td>
-                          <td className="px-2 py-2">
-                            <input
-                              aria-label={`Cuối kỳ ${row.full_name}`}
-                              className={CELL_INPUT}
-                              disabled={!data.can_edit}
-                              value={draft.final}
-                              onChange={(event) => change(row.child_id, { final: event.target.value })}
-                            />
-                          </td>
-                          <td className="px-2 py-2 font-semibold" data-testid={`average-${row.child_id}`}>
-                            {average === null ? '' : average}
-                          </td>
-                        </>
-                      ) : (
-                        <td className="px-2 py-2">
-                          <select
-                            aria-label={`Kết quả ${row.full_name}`}
-                            className={SELECT_CLASS}
+                        )}
+                        <td className="border-b border-l border-border py-1.5 pr-4 pl-2">
+                          <input
+                            aria-label={`Nhận xét ${row.full_name}`}
+                            className={`${FORM_CONTROL_CLASS} min-w-40`}
                             disabled={!data.can_edit}
-                            value={draft.result}
-                            onChange={(event) => change(row.child_id, { result: event.target.value })}
-                          >
-                            <option value="">Chưa nhập</option>
-                            {Object.entries(SUBJECT_PASS_LABELS).map(([value, label]) => (
-                              <option key={value} value={value}>
-                                {label}
-                              </option>
-                            ))}
-                          </select>
+                            value={draft.comment}
+                            onChange={(event) => change(row.child_id, { comment: event.target.value })}
+                          />
                         </td>
-                      )}
-                      <td className="px-2 py-2">
-                        <input
-                          aria-label={`Nhận xét ${row.full_name}`}
-                          className={`${FORM_CONTROL_CLASS} min-w-40`}
-                          disabled={!data.can_edit}
-                          value={draft.comment}
-                          onChange={(event) => change(row.child_id, { comment: event.target.value })}
-                        />
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
-          {save.error ? <Alert tone="danger">{messageOf(save.error)}</Alert> : null}
-          {data.can_edit ? (
-            <div>
-              <Button variant="primary" disabled={invalid || save.isPending} onClick={() => save.mutate()}>
-                Ghi điểm
-              </Button>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
             </div>
-          ) : (
-            <Alert tone="info">Bạn không nhập được môn này ở học kỳ này (chưa được phân công hoặc đã khoá).</Alert>
-          )}
+            {isScore ? (
+              <div className="flex flex-wrap justify-between gap-3 px-4 py-3 text-label text-text-secondary">
+                <span>{averageFormula(overview.config)}</span>
+                <span>Ô viền cam: chưa nhập điểm</span>
+              </div>
+            ) : null}
+          </div>
         </>
       ) : null}
     </section>
@@ -619,9 +706,20 @@ export function ScoresPage() {
   return (
     <AppShell>
       <Toast message={toastMessage} onClose={closeToast} />
-      <div className="flex flex-col gap-6">
-        <h1 className="text-page-title font-bold text-text">{menuPageTitle('/scores')}</h1>
-        <div className="flex flex-wrap items-end gap-4">
+      <div className="flex flex-col gap-4">
+        <div>
+          <h1 className="text-page-title font-bold text-text">{menuPageTitle('/scores')}</h1>
+          <p className="mt-1 text-label text-text-secondary">
+            {[
+              overview.data ? `Sổ điểm lớp ${overview.data.class.name}` : '',
+              SCORE_TERM_LABELS[term],
+              'đánh giá theo Thông tư 22/2021',
+            ]
+              .filter(Boolean)
+              .join(' · ')}
+          </p>
+        </div>
+        <div className="flex flex-wrap items-end gap-4 rounded-xl border border-border bg-card p-4">
           <UnitSelect units={unitChoice.units} selectedId={orgUnitId} onSelect={unitChoice.select} />
           <label className="flex flex-col gap-2 text-label font-medium text-text">
             Lớp
@@ -651,17 +749,23 @@ export function ScoresPage() {
           <Alert tone="info">Đơn vị chưa có lớp THCS, THPT đang hoạt động.</Alert>
         ) : null}
         {overview.error ? <Alert tone="danger">{messageOf(overview.error)}</Alert> : null}
-        <div role="tablist" className="flex flex-wrap gap-2">
+        {/* Thẻ chức năng dạng gạch chân theo mẫu thiết kế; nút chính của màn hình là Ghi điểm */}
+        <div role="tablist" className="flex flex-wrap gap-1 border-b border-border">
           {tabs.map((code) => (
-            <Button
+            <button
               key={code}
+              type="button"
               role="tab"
               aria-selected={tab === code}
-              variant={tab === code ? 'primary' : 'secondary'}
               onClick={() => setTab(code)}
+              className={`-mb-px min-h-11 border-b-2 px-3.5 text-label ${
+                tab === code
+                  ? 'border-brand font-semibold text-brand-strong'
+                  : 'border-transparent font-medium text-text-secondary hover:text-text'
+              }`}
             >
               {TAB_LABELS[code]}
-            </Button>
+            </button>
           ))}
         </div>
         {tab === 'entry' && overview.data ? (

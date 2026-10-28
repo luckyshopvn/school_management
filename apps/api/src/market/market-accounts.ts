@@ -93,10 +93,15 @@ export class MarketAccountsService {
   }
 
   async site(request: Request) {
-    await this.market.assertMarketHost(request);
+    const { settings, kind } = await this.market.assertMarketHost(request);
     const documents = await this.latestDocuments();
+    // Địa chỉ hai ứng dụng để dẫn qua lại (YCTD-262); không kèm giao thức, theo giao thức của trang đang mở
+    const urlOf = (host: string | null) => (host ? `//${host}/` : null);
     return {
       name: 'Chợ gia sư',
+      application: kind,
+      market_url: urlOf(settings.host),
+      tutor_url: urlOf(settings.tutorHost),
       // Bản này chỉ chạy thanh toán giả lập (quyết định của Eric ngày 2026-10-28)
       real_payments: false,
       documents: documents.map((row) => ({ id: row.id, kind: row.kind, version: row.version, title: row.title })),
@@ -178,11 +183,16 @@ export class MarketAccountsService {
   }
 
   async register(request: Request, body: RequestBody) {
-    await this.market.assertMarketHost(request);
+    const { kind: hostKind } = await this.market.assertMarketHost(request);
     const errors: FieldError[] = [];
     const kind = body?.kind;
-    if (kind !== 'parent' && kind !== 'tutor') {
-      errors.push({ field: 'kind', message: 'Chọn tài khoản phụ huynh hoặc gia sư' });
+    // Mỗi ứng dụng một vai (YCTD-262): phụ huynh đăng ký ở Chợ gia sư, gia sư ở ứng dụng Gia sư
+    if (kind !== hostKind) {
+      errors.push({
+        field: 'kind',
+        message:
+          hostKind === 'tutor' ? 'Ứng dụng Gia sư chỉ nhận tài khoản gia sư' : 'Gia sư đăng ký ở ứng dụng Gia sư',
+      });
     }
     const email = text(body, 'email').toLowerCase();
     const phone = normalizePhone(text(body, 'phone'));
@@ -328,7 +338,7 @@ export class MarketAccountsService {
   }
 
   async login(request: Request, body: RequestBody) {
-    await this.market.assertMarketHost(request);
+    const { kind: hostKind } = await this.market.assertMarketHost(request);
     const login = text(body, 'login');
     const password = typeof body?.password === 'string' ? body.password : '';
     const email = login.includes('@') ? login.toLowerCase() : null;
@@ -336,7 +346,7 @@ export class MarketAccountsService {
     const row = login
       ? await this.market.database
           .selectFrom('market_accounts')
-          .select(['id', 'password_hash', 'status', 'failed_login_count', 'locked_until'])
+          .select(['id', 'kind', 'password_hash', 'status', 'failed_login_count', 'locked_until'])
           .where(email ? 'email' : 'phone', '=', (email ?? phone) as string)
           .executeTakeFirst()
       : undefined;
@@ -360,6 +370,15 @@ export class MarketAccountsService {
           .execute();
       }
       throw unauthenticatedError();
+    }
+    // Mật khẩu đúng nhưng tài khoản của vai kia: chỉ dẫn sang đúng ứng dụng, không mở phiên
+    if (row.kind !== hostKind) {
+      throw new ApplicationError(
+        'ERR_FORBIDDEN',
+        row.kind === 'tutor'
+          ? 'Tài khoản gia sư đăng nhập ở ứng dụng Gia sư'
+          : 'Tài khoản phụ huynh đăng nhập ở Chợ gia sư',
+      );
     }
     if (row.status === 'locked') {
       throw new ApplicationError('ERR_FORBIDDEN', 'Tài khoản đã bị khóa, liên hệ bộ phận hỗ trợ của chợ');
