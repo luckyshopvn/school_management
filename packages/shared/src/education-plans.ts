@@ -3,7 +3,7 @@ import type { KpiSchoolLevelCode } from './kpi.js';
 // Kế hoạch giáo dục (DT-18 phần 22i, YCTD-147) theo mô tả công khai của trang kế hoạch đã khảo sát (tài liệu 32 mục 9.4):
 // thư viện mẫu theo cấp học, kế hoạch theo năm học có phiên bản và sao chép từ năm trước, duyệt nhiều cấp (tổ trưởng, Phó
 // Hiệu trưởng, Hiệu trưởng), kí nội bộ, bảng tiến độ duyệt, xuất Word, PDF. Mẫu là cấu hình lưu ở cơ sở dữ liệu; danh mục
-// dưới đây chỉ là bản nạp mặc định (Mầm non trước, các cấp khác thêm sau DT-19). Tên mẫu, mục, cột và luồng duyệt mặc định do
+// dưới đây chỉ là bản nạp mặc định (Mầm non; cấp phổ thông là khung rỗng, YCTD-345). Tên mẫu, mục, cột và luồng duyệt mặc định do
 // Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11, không chép nguyên văn văn bản hướng dẫn nào
 export const EDUCATION_PLAN_RULE_CODE = 'YCTD-147';
 
@@ -275,11 +275,80 @@ const MN_TEMPLATES: EducationPlanTemplateSeed[] = [
   },
 ];
 
+// Khung rỗng của Tiểu học, THCS, THPT (YCTD-345). Tài liệu dự án không có nội dung mẫu kế hoạch của cấp phổ thông; tài
+// liệu 32 mục 22i chỉ nêu các loại mẫu cần có (năm học, tổ chuyên môn gồm dự giờ, thao giảng, giáo viên, chủ nhiệm, bài
+// dạy). Mỗi khung là một loại đó với một mục văn bản trống để trường tự thêm mục, cột theo hướng dẫn hiện hành; không có
+// mục, chỉ tiêu nào tự soạn. Thư mục lưu kho lấy theo tên thư mục mặc định của cấp phổ thông ở kho hồ sơ chuyên môn (18e).
+// Loại kế hoạch, kì, luồng duyệt của từng khung do Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11, theo mẫu Mầm non
+// cùng loại
+export const EDUCATION_PLAN_FRAME_HINT =
+  'Khung rỗng: tài liệu dự án chưa có mẫu chuẩn cho cấp học này. Trường sửa mẫu, thêm mục, cột theo hướng dẫn hiện hành';
+
+const frameSection = (): EducationPlanSection[] => [text('noi_dung', 'Nội dung kế hoạch', EDUCATION_PLAN_FRAME_HINT)];
+
+function generalFrames(level: Exclude<KpiSchoolLevelCode, 'MN'>): EducationPlanTemplateSeed[] {
+  const frame = (
+    suffix: string,
+    name: string,
+    scope: EducationPlanScopeCode,
+    period: EducationPlanPeriodCode,
+    approvalSteps: EducationPlanStepCode[],
+    archiveFolderName: string | null,
+  ): EducationPlanTemplateSeed => ({
+    code: `${level}-KHUNG-${suffix}`,
+    name,
+    scope,
+    period,
+    description: EDUCATION_PLAN_FRAME_HINT,
+    approval_steps: approvalSteps,
+    requires_signing: false,
+    archive_folder_name: archiveFolderName,
+    sections: frameSection(),
+  });
+  return [
+    frame(
+      'TRUONG-NAM',
+      'Kế hoạch giáo dục nhà trường',
+      'school',
+      'year',
+      ['vice_principal', 'principal'],
+      'Kế hoạch giáo dục nhà trường',
+    ),
+    frame(
+      'TO',
+      'Kế hoạch của tổ chuyên môn',
+      'group',
+      'year',
+      ['vice_principal', 'principal'],
+      'Kế hoạch dạy học của tổ chuyên môn',
+    ),
+    frame('DU-GIO', 'Kế hoạch dự giờ, thao giảng của tổ chuyên môn', 'group', 'semester', ['vice_principal'], null),
+    frame(
+      'GIAO-VIEN',
+      'Kế hoạch giáo dục của giáo viên',
+      'personal',
+      'year',
+      ['leader', 'vice_principal'],
+      'Kế hoạch giáo dục của giáo viên',
+    ),
+    frame('CHU-NHIEM', 'Kế hoạch chủ nhiệm', 'class', 'year', ['leader', 'vice_principal'], 'Sổ chủ nhiệm'),
+    frame('BAI-DAY', 'Kế hoạch bài dạy', 'personal', 'none', ['leader'], 'Kế hoạch bài dạy (giáo án)'),
+  ];
+}
+
 export const EDUCATION_PLAN_DEFAULT_TEMPLATES: Record<KpiSchoolLevelCode, EducationPlanTemplateSeed[]> = {
   MN: MN_TEMPLATES,
-  TH: [],
-  THCS: [],
-  THPT: [],
+  TH: generalFrames('TH'),
+  THCS: generalFrames('THCS'),
+  THPT: generalFrames('THPT'),
+};
+
+// Bộ nạp mặc định của từng cấp là mẫu dự án soạn (Mầm non, YCTD-147) hay khung rỗng (cấp phổ thông, YCTD-345)
+export const EDUCATION_PLAN_DEFAULT_KIND: Record<KpiSchoolLevelCode, 'project' | 'frame'> = {
+  MN: 'project',
+  TH: 'frame',
+  THCS: 'frame',
+  THPT: 'frame',
 };
 
 // ---- So sánh khác biệt ----

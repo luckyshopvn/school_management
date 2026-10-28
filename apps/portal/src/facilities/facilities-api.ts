@@ -73,6 +73,9 @@ export interface EquipmentItem {
   is_seeded: boolean;
   status: 'active' | 'inactive';
   note: string | null;
+  // Cấp học của thiết bị (YCTD-345)
+  school_level: string;
+  template_code: string | null;
 }
 
 export interface EquipmentHolding {

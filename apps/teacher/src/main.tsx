@@ -1,5 +1,6 @@
 import { applyBrandedManifest } from '@school-management/pwa';
 import { StrictMode } from 'react';
+import { isSupportSignInLocation, SupportSignIn } from '@school-management/ui';
 import { createRoot } from 'react-dom/client';
 import { Application } from './Application.js';
 import './index.css';
@@ -15,6 +16,11 @@ if (!rootElement) {
 
 createRoot(rootElement).render(
   <StrictMode>
-    <Application />
+    {/* Đường liên kết hỗ trợ của quản trị nền tảng (YCTD-315) */}
+    {isSupportSignInLocation(import.meta.env.BASE_URL) ? (
+      <SupportSignIn channel="teacher" basePath={import.meta.env.BASE_URL} />
+    ) : (
+      <Application />
+    )}
   </StrictMode>,
 );

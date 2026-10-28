@@ -27,7 +27,13 @@ export interface CalcClass {
   org_unit_id: string;
   age_group: string | null;
   child_count: number;
+  // Nhóm áp định mức (YCTD-345): nhóm tuổi Mầm non hoặc mã khối của cấp phổ thông; không có thì dùng age_group
+  norm_group?: string | null;
+  school_level?: string | null;
 }
+
+export const normGroupOf = (row: Pick<CalcClass, 'age_group' | 'norm_group'>) =>
+  row.norm_group !== undefined ? row.norm_group : row.age_group;
 
 export interface CalcHolding {
   equipment_item_id: string;
@@ -107,7 +113,7 @@ export function buildEquipmentReport(input: {
     (left, right) => left.order_no - right.order_no || left.code.localeCompare(right.code),
   );
   for (const item of sortedItems) {
-    const matching = classes.filter((row) => row.age_group === item.age_group);
+    const matching = classes.filter((row) => normGroupOf(row) === item.age_group);
     const holdings = input.holdings.filter((row) => row.equipment_item_id === item.id && inScope(row));
     const manual = round2(holdings.reduce((sum, row) => sum + row.quantity, 0));
     const assetQuantity = input.assets.filter((row) => row.equipment_item_id === item.id && inScope(row)).length;
@@ -181,7 +187,7 @@ export function buildEquipmentReport(input: {
         class_id: row.id,
         class_name: row.name,
         org_unit_id: row.org_unit_id,
-        age_group: row.age_group,
+        age_group: normGroupOf(row),
         child_count: row.child_count,
         norm: round2(total.norm),
         covered: round2(total.covered),
