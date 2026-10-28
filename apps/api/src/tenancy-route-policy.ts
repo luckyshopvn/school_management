@@ -207,6 +207,18 @@ export const PUBLIC_ROUTES: PublicRoute[] = [
       ['GET', '/api/v1/market/bookings/:id/recording/stream'],
       ['GET', '/api/v1/market/tutor/bookings/:id/recording'],
       ['GET', '/api/v1/market/tutor/bookings/:id/recording/stream'],
+      // Phòng học video: đồng ý ghi hình, phòng chờ, vào ra, gia sư vắng, xác nhận buổi (DT-27 phần 27j, YCTD-362)
+      ['GET', '/api/v1/market/bookings/:id/room'],
+      ['POST', '/api/v1/market/bookings/:id/room/consent'],
+      ['POST', '/api/v1/market/bookings/:id/room/decline-recording'],
+      ['POST', '/api/v1/market/bookings/:id/room/enter'],
+      ['POST', '/api/v1/market/bookings/:id/room/leave'],
+      ['POST', '/api/v1/market/bookings/:id/tutor-no-show'],
+      ['GET', '/api/v1/market/recording-consents'],
+      ['POST', '/api/v1/market/recording-consents/:id/withdraw'],
+      ['GET', '/api/v1/market/tutor/bookings/:id/room'],
+      ['POST', '/api/v1/market/tutor/bookings/:id/room/participants/:identity'],
+      ['POST', '/api/v1/market/tutor/bookings/:id/room/confirm'],
     ] as const
   ).map(([method, path]) => ({
     method,

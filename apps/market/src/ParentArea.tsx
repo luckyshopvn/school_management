@@ -87,6 +87,65 @@ const toBody = (fields: ChildFields) => ({
   grade: Number(fields.grade),
 });
 
+// Đồng ý ghi hình theo gia sư (phòng học video, YCTD-362): một lần cho mọi buổi của một con với một gia sư, rút lại được bất cứ lúc nào;
+// rút rồi thì buổi sau với gia sư đó phải đồng ý lại mới vào được phòng
+interface RecordingConsent {
+  id: string;
+  child_name: string;
+  tutor_name: string;
+  child_confirmed: boolean;
+  consented_at: string;
+}
+
+function RecordingConsents() {
+  const [rows, setRows] = useState<RecordingConsent[]>();
+  const [error, setError] = useState<string>();
+  useEffect(() => {
+    marketRequest<{ consents: RecordingConsent[] }>('GET', '/recording-consents')
+      .then((view) => setRows(view.consents))
+      .catch((caught: unknown) => setError(errorText(caught)));
+  }, []);
+  return (
+    <section aria-label="Đồng ý ghi hình" className={`${CARD_CLASS} flex flex-col gap-3 p-6`}>
+      <h2 className="text-section-title font-semibold">Đồng ý ghi hình theo gia sư</h2>
+      <p className="text-label text-text-secondary">
+        Buổi học với trẻ dưới 18 tuổi luôn ghi hình. Rút đồng ý thì buổi sau với gia sư đó phải đồng ý lại mới vào được
+        phòng.
+      </p>
+      {error ? <Alert tone="danger">{error}</Alert> : null}
+      {rows && rows.length === 0 ? <p className="text-text-secondary">Chưa có đồng ý nào.</p> : null}
+      <ul className="flex flex-col gap-2">
+        {(rows ?? []).map((row) => (
+          <li
+            key={row.id}
+            aria-label={`Đồng ý ghi hình ${row.child_name} với ${row.tutor_name}`}
+            className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-border p-3"
+          >
+            <span className="flex flex-col">
+              <strong>
+                {row.child_name} với {row.tutor_name}
+              </strong>
+              <span className="text-label text-text-secondary">
+                Đồng ý {new Date(row.consented_at).toLocaleDateString('vi-VN')}
+                {row.child_confirmed ? ', con cùng xác nhận' : ''}
+              </span>
+            </span>
+            <Button
+              onClick={() =>
+                void marketRequest<{ consents: RecordingConsent[] }>('POST', `/recording-consents/${row.id}/withdraw`)
+                  .then((view) => setRows(view.consents))
+                  .catch((caught: unknown) => setError(errorText(caught)))
+              }
+            >
+              Rút đồng ý
+            </Button>
+          </li>
+        ))}
+      </ul>
+    </section>
+  );
+}
+
 function AccountInfo() {
   const [me, setMe] = useState<Me>();
   useEffect(() => {
@@ -312,6 +371,7 @@ export function ParentArea() {
         </form>
       </section>
 
+      <RecordingConsents />
       <AccountInfo />
 
       <ConfirmDialog

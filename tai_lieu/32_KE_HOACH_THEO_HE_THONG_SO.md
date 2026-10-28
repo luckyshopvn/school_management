@@ -2491,6 +2491,23 @@ Số GD và RR của DT-27 bắt đầu từ GD-130 và RR-28: DT-26 dùng GD-12
 | GD-136 | Hạn của phiếu lý lịch tư pháp khi xác minh gia sư | Phiếu cấp trong 6 tháng, xác minh lại mỗi 12 tháng | cấu hình chợ | Eric |
 | GD-137 | Thư viện bảng trắng | Thư viện mã nguồn mở có giấy phép dùng thương mại, chọn và ghi giấy phép lúc làm | mã 27a | Claude (theo ủy quyền) |
 | GD-138 | Khấu trừ thuế ở chợ | Công tắc tắt đến khi luật sư kết luận (E-03); tỷ lệ là dữ liệu có ngày hiệu lực | cấu hình chợ | Eric, luật sư |
+| GD-164 | Mốc của phòng học video ở chợ (quyết định của Eric ngày 2026-10-29) | Mở phòng trước giờ học 10 phút; vào muộn quá 15 phút tính vắng; gia sư vắng quá 10 phút thì phụ huynh báo và được hoàn đủ; có mặt từ 80% thời lượng là đủ buổi; gia sư không xác nhận thì tự xác nhận sau 24 giờ; phụ huynh vào xem luôn tắt micro trừ khi gia sư cho nói | cấu hình chợ (`platform_settings.market`) | Eric (đã chốt; cổng vận hành chỉnh được) |
+
+### 19.12 Phần 27j: phòng học video của chợ (YCTD-362)
+
+Eric duyệt bản thiết kế "Chợ gia sư, Gia sư, Cấp trên" ngày 2026-10-28 và chốt các quyết định về phòng học ngày 2026-10-29. Phần này làm thành một phần riêng của DT-27, cỡ khoảng 2 đến 3 đơn vị, sau 27f đến 27i.
+
+- **Ghi hình:** luôn ghi hình buổi có trẻ dưới 18 tuổi. Phụ huynh từ chối thì hủy buổi, hoàn đủ tiền. Bản ghi chỉ phụ huynh, gia sư và nhân viên xử lý tranh chấp được xem, giữ có hạn (GD-131, GD-132).
+- **Đồng ý ghi hình:** hỏi một lần cho mọi buổi của một con với một gia sư, rút lại được bất cứ lúc nào (`market_recording_consents`). Con từ đủ 7 tuổi cùng xác nhận. **Cần luật sư xem lại trước khi mở thật** (Luật 91/2025 Điều 24).
+- **Vào phòng:** chỉ buổi đã trả tiền (giả lập), từ lúc mở phòng đến hết giờ học. Gia sư mở phòng (`session/start` của 27i, bắt đầu ghi hình). Người của buổi vào phòng chờ (`market_session_participants`); gia sư cho vào, cho nói, cho chia sẻ màn hình, mời ra. Phụ huynh chọn "Con học" (vai học sinh) hoặc "Tôi vào xem" (vai cha mẹ, luôn tắt micro trừ khi gia sư cho nói).
+- **Điểm danh:** mỗi lần vào, ra ghi một dòng (`market_session_attendance`), từ ứng dụng và từ sự kiện của máy chủ video (địa chỉ gọi lại chung `/video/webhook` chuyển phòng `market-*` sang chợ). Điểm danh cộng các khoảng có mặt trong giờ học, bỏ phần trùng khi vào lại; vào lần đầu muộn quá mốc thì tính vắng; đủ tỉ lệ thì đủ buổi. Phụ huynh vào xem không tính.
+- **Gia sư vắng:** gia sư chưa vào phòng quá mốc sau giờ học thì phụ huynh bấm "Báo gia sư vắng"; buổi hủy, hoàn đủ.
+- **Xác nhận buổi:** gia sư xác nhận đã dạy kèm nhận xét gửi phụ huynh và sự cố trong buổi (`market_session_rooms`). Không xác nhận thì việc định kỳ của chợ tự xác nhận sau mốc; hạn khiếu nại tính từ lúc xác nhận.
+- **Mốc:** cấu hình chợ, mặc định theo GD-164. Biểu mẫu chỉnh mốc ở cổng vận hành làm cùng YCTD-363 (đụng `apps/platform`, xếp lượt với phiên đổi giao diện cổng vận hành).
+- **Dùng lại:** `VideoRoomProvider` (livekit, mock), `VideoRoom`, `VideoHostPanel` (thêm `recordingLocked`: không có nút dừng ghi), bảng trắng của `packages/ui`.
+- **Lưu ở đâu:** marketplace 0040 (`market_recording_consents`, `market_session_rooms`, `market_session_participants`, `market_session_attendance`).
+- **Kiểm thử:** quy tắc thuần CT-27j-1 (`market-room-rules.test.ts`); máy chủ CT-27i-5 (sửa theo phòng chờ), CT-27j-2 (gia sư vắng, điểm danh, rút đồng ý, tự xác nhận); giao diện CT-27j-3 (spec 199, bộ giả lập lớp video).
+
 
 ## 20. DT-28: hệ thống quản lý học tập (LMS) cho trường phổ thông (28a đến 28j)
 
