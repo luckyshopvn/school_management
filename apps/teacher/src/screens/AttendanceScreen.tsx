@@ -9,6 +9,7 @@ import {
   type PendingAttendance,
 } from '../attendance/offline-queue.js';
 import { ApiError, requestJson } from '../session/api-client.js';
+import { levelOf } from '@school-management/shared';
 import type { MyClass } from './ClassesScreen.js';
 
 // MG-02 Bảng điểm danh của lớp (P04-01, P04-06, QT-02): đánh dấu từng trẻ, lưu, chốt ngày; mất mạng thì lưu tạm
@@ -90,6 +91,8 @@ export function AttendanceScreen({
   embedded?: boolean;
 }) {
   const [date, setDate] = useState(today());
+  // Mầm non điểm danh cả ngày; cấp khác điểm danh đầu ngày, làm mặc định cho điểm danh theo tiết (YCTD-350)
+  const kindLabel = levelOf(myClass.school_level) === 'MN' ? 'Điểm danh cả ngày' : 'Điểm danh đầu ngày';
   const [sheet, setSheet] = useState<Sheet>();
   const [marks, setMarks] = useState<Record<string, Status | null>>({});
   const [notes, setNotes] = useState<Record<string, string>>({});
@@ -274,7 +277,9 @@ export function AttendanceScreen({
               </button>
               <div className="flex min-w-0 flex-1 flex-col">
                 <h1 className="truncate text-section-title font-bold">{myClass.name}</h1>
-                <span className="text-label text-selected">Bảng điểm danh · {dayLabel(date)}</span>
+                <span className="text-label text-selected">
+                  {kindLabel} · {dayLabel(date)}
+                </span>
               </div>
             </div>
             {counterGrid}

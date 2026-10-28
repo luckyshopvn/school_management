@@ -2,7 +2,7 @@ import { Body, Controller, Delete, Get, HttpCode, Param, Patch, Post, Put, Query
 import { validationError } from '@school-management/server';
 import type { Request } from 'express';
 import { PERMISSION_CODES } from '@school-management/shared';
-import { AuthenticatedUser, RequirePermission } from '../authentication/authentication.guard.js';
+import { AuthenticatedUser, RequirePermission, RequirePlanModule } from '../authentication/authentication.guard.js';
 import type { CurrentUser } from '../authentication/current-user.js';
 import { originOf } from '../common/audit-log.js';
 import { isUuid, type RequestBody } from '../common/request-fields.js';
@@ -28,6 +28,7 @@ function readUuidList(value: unknown, field: string): string[] {
   return value as string[];
 }
 
+@RequirePlanModule('online-learning')
 @Controller('learning')
 export class LearningController {
   constructor(private readonly learning: LearningService) {}

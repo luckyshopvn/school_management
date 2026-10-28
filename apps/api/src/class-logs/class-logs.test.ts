@@ -287,6 +287,51 @@ describe('Điểm cuối sổ đầu bài', () => {
     assert.equal(missing.status, 404);
   });
 
+  it('YCTD-350: tiết chưa ghi lấy trạng thái theo điểm danh đầu ngày, đứng trước báo vắng; chưa điểm danh thì như cũ', async () => {
+    const daily = (childId: string, status: 'late' | 'absent_unnotified') => ({
+      child_id: childId,
+      class_id: classes['1A'] ?? '',
+      org_unit_id: unitId,
+      attendance_date: monday,
+      status,
+      note: status === 'late' ? 'Đến lúc 7 giờ 20' : null,
+      source: 'teacher' as const,
+      recorded_by: teachers[0]?.userId ?? '',
+      recorded_at: new Date(),
+    });
+    await schoolYear
+      .insertInto('attendance_records')
+      .values([daily(children[0] ?? '', 'late'), daily(children[1] ?? '', 'absent_unnotified')])
+      .execute();
+    try {
+      const detail = await api(
+        'GET',
+        `/class-logs/lesson?class_id=${classes['1A']}&date=${monday}&period_no=1`,
+        teachers[0]?.accessToken ?? '',
+      );
+      assert.equal(detail.status, 200, JSON.stringify(detail.body));
+      assert.deepEqual(
+        (detail.body.students as Array<Record<string, unknown>>).map((student) => [
+          student.full_name,
+          student.status,
+          student.status_source,
+          student.daily_status,
+          student.note,
+        ]),
+        [
+          ['Học sinh An', 'late', 'daily', 'late', 'Đến lúc 7 giờ 20'],
+          ['Học sinh Bình', 'absent_unexcused', 'daily', 'absent_unnotified', null],
+        ],
+      );
+    } finally {
+      await schoolYear
+        .deleteFrom('attendance_records')
+        .where('class_id', '=', classes['1A'] ?? '')
+        .where('attendance_date', '=', monday)
+        .execute();
+    }
+  });
+
   it('CT-20d-3: chỉ giáo viên dạy tiết ghi, ký; không ghi trước ngày dạy; học sinh phải thuộc lớp; ký rồi không sửa', async () => {
     const other = await api('PUT', '/class-logs', teachers[1]?.accessToken ?? '', lessonBody());
     assert.equal(other.status, 403);

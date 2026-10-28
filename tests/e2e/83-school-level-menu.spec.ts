@@ -1,7 +1,7 @@
 import { expect, test, type Browser, type Page } from './fixtures.js';
 import { createDatabase, readConnectionString, type IdentityDatabase } from '@school-management/database';
 import { createTestUser } from '@school-management/identity/testing';
-import { menubar, openMenu, selectWorkspace } from './menu.js';
+import { openGroup, openMenu, selectWorkspace, workspaceMenu } from './menu.js';
 
 // Menu và phân hệ theo cấp học (DT-19 phần 19c, YCTD-153), kịch bản CT-19c-9: trường mầm non giữ y hệt menu, không có bộ
 // chọn cấp; Hiệu trưởng bật Tiểu học thì phân hệ thành "Quản lý giáo dục" và có bộ chọn cấp ("Tất cả" mặc định); chọn Tiểu
@@ -65,22 +65,20 @@ test('CT-19c-9: trường mầm non giữ menu; bật Tiểu học có bộ ch�
     await expect(switcher).toHaveValue('all');
     await expect(context).toContainText('Cấp MN, Cấp TH · ');
     await selectWorkspace(page, 'Quản lý giáo dục');
-    const education = menubar(page, 'Quản lý giáo dục');
-    await education.getByRole('menuitem', { name: '4. Học sinh', exact: true }).click();
-    await expect(page.getByRole('menuitem', { name: '4.3. Cân nặng, chiều cao', exact: true })).toBeVisible();
-    await page.keyboard.press('Escape');
+    const education = workspaceMenu(page, 'Quản lý giáo dục');
+    await openGroup(education, '4. Học sinh');
+    await expect(education.getByRole('button', { name: '4.3. Cân nặng, chiều cao', exact: true })).toBeVisible();
 
     // Chọn Tiểu học: mục chỉ của Mầm non ẩn, tên phân hệ, ô ngữ cảnh và nhãn đổi theo cấp
     await switcher.selectOption('TH');
     await expect(context).toContainText('Cấp TH · ');
     await expect(context).not.toContainText('Cấp MN');
     await selectWorkspace(page, 'Quản lý giáo dục Tiểu học');
-    const primary = menubar(page, 'Quản lý giáo dục Tiểu học');
-    await primary.getByRole('menuitem', { name: '4. Học sinh', exact: true }).click();
-    await expect(page.getByRole('menuitem', { name: '4.2. Biến động học sinh', exact: true })).toBeVisible();
-    await expect(page.getByRole('menuitem', { name: '4.3. Cân nặng, chiều cao', exact: true })).toHaveCount(0);
-    await expect(page.getByRole('menuitem', { name: '4.4. Hoàn thành chương trình', exact: true })).toHaveCount(0);
-    await page.keyboard.press('Escape');
+    const primary = workspaceMenu(page, 'Quản lý giáo dục Tiểu học');
+    await openGroup(primary, '4. Học sinh');
+    await expect(primary.getByRole('link', { name: '4.2. Biến động học sinh', exact: true })).toBeVisible();
+    await expect(primary.getByRole('button', { name: '4.3. Cân nặng, chiều cao', exact: true })).toHaveCount(0);
+    await expect(primary.getByRole('link', { name: '4.4. Hoàn thành chương trình', exact: true })).toHaveCount(0);
     await page.goto('/');
     await expect(page.getByText('Học sinh đang học', { exact: true })).toBeVisible();
 

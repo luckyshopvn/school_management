@@ -96,6 +96,9 @@ function CreateAccountForm({
   const [grant, setGrant] = useState<RoleGrant>({ role_code: '', org_unit_id: null });
   const create = useMutation({ mutationFn: createAccount, onSuccess: onCreated });
   const fieldErrors = fieldErrorsOf(create.error);
+  // Tài khoản quản trị trường (YCTD-314, GD-163): bắt buộc đủ số CCCD (làm tên đăng nhập), họ tên, số điện thoại
+  const schoolAdmin = grant.role_code === 'VT-01' || grant.role_code === 'VT-02';
+  const required = (label: string) => (schoolAdmin ? `${label} (bắt buộc)` : label);
 
   function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -111,23 +114,28 @@ function CreateAccountForm({
   return (
     <form onSubmit={submit} noValidate className="flex flex-col gap-3">
       {create.error ? <Alert tone="danger">{messageOf(create.error)}</Alert> : null}
+      {schoolAdmin ? (
+        <Alert tone="info">
+          Tài khoản quản trị trường cần đủ số CCCD (nhập ở ô tên đăng nhập), họ tên và số điện thoại.
+        </Alert>
+      ) : null}
       <TextField
-        label="Họ tên"
+        label={required('Họ tên')}
         value={fullName}
         onChange={(event) => setFullName(event.target.value)}
         error={fieldErrors.full_name}
       />
       <TextField
-        label="Số điện thoại"
+        label={required('Số điện thoại')}
         value={phone}
         onChange={(event) => setPhone(event.target.value)}
         error={fieldErrors.phone}
       />
       <TextField
-        label="Tên đăng nhập"
+        label={schoolAdmin ? 'Số CCCD làm tên đăng nhập (bắt buộc)' : 'Tên đăng nhập'}
         value={username}
         onChange={(event) => setUsername(event.target.value)}
-        error={fieldErrors.username}
+        error={fieldErrors.username ?? fieldErrors.national_id}
       />
       <TextField
         label="Ngày hết hiệu lực"

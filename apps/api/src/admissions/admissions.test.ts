@@ -328,6 +328,44 @@ describe('Tuyển sinh trực tuyến: đợt, tin, hồ sơ, xét duyệt, chuy
     assert.equal(found.body.reject_reason, 'Trẻ chưa đủ tuổi nhận');
   });
 
+  it('CT-1610 P16-03: Ban Giám hiệu xem đợt, hồ sơ và xét duyệt; không lập đợt, không tiếp nhận hồ sơ (YCTD-341)', async () => {
+    const vice = await environment.loginAs('VT-15', null);
+    const campaigns = await api('GET', '/admission-campaigns', principal.accessToken);
+    assert.equal(campaigns.status, 200, JSON.stringify(campaigns.body));
+    assert.ok((campaigns.body as unknown as Array<{ id: string }>).some((row) => row.id === campaignId));
+    assert.equal((await api('GET', '/admission-campaigns', vice.accessToken)).status, 200);
+    const submitted = await publicApi('POST', '/admission-applications', applicationBody());
+    assert.equal(submitted.status, 201, JSON.stringify(submitted.body));
+    const listed = await api('GET', `/admission-applications?q=${submitted.body.code}`, principal.accessToken);
+    assert.equal(listed.status, 200, JSON.stringify(listed.body));
+    const id = (listed.body as unknown as Array<{ id: string }>)[0]?.id;
+    assert.ok(id);
+    // Lập đợt và tiếp nhận hồ sơ không thuộc Ban Giám hiệu
+    assert.equal(
+      (
+        await api('POST', '/admission-campaigns', principal.accessToken, {
+          org_unit_id: units['ĐT-A1'],
+          name: 'Đợt do Hiệu trưởng lập',
+          quota: 1,
+          open_from: addDays(vietnamToday, 1),
+          open_to: addDays(vietnamToday, 10),
+        })
+      ).status,
+      403,
+    );
+    assert.equal((await api('POST', `/admission-applications/${id}/receive`, principal.accessToken)).status, 403);
+    assert.equal((await api('POST', `/admission-applications/${id}/receive`, token('admissions'))).status, 200);
+    // Xét không đạt phải kèm lý do; Phó Hiệu trưởng xét được
+    assert.equal((await api('POST', `/admission-applications/${id}/reject`, vice.accessToken, {})).status, 400);
+    const rejected = await api('POST', `/admission-applications/${id}/reject`, vice.accessToken, {
+      reason: 'Hồ sơ thiếu giấy khai sinh',
+    });
+    assert.equal(rejected.status, 200, JSON.stringify(rejected.body));
+    assert.equal(rejected.body.status, 'rejected');
+    // Giáo viên vẫn không vào được tuyển sinh
+    assert.equal((await api('GET', '/admission-campaigns', token('teacher'))).status, 403);
+  });
+
   it('CT-077: chuyển hồ sơ tuyển sinh chưa đạt bị từ chối', async () => {
     const body = applicationBody();
     const submitted = await publicApi('POST', '/admission-applications', body);

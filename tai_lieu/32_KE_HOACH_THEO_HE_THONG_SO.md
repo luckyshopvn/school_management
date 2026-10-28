@@ -1,6 +1,6 @@
 # 32. KẾ HOẠCH ĐỒNG BỘ CHỨC NĂNG VÀ GIAO DIỆN THEO HỆ THỐNG CỦA SỞ (DT-15)
 
-- Mô tả: Kế hoạch điều chỉnh School Management theo kết quả khảo sát `31_KHAO_SAT_HE_THONG_SO.md`; từ mục 9 thêm kế hoạch DT-18 điều hành nhà trường, mục 10 thêm kế hoạch DT-19 nền đa cấp học, mục 11 thêm kế hoạch DT-20 Tiểu học (kèm 22c thời khoá biểu), mục 12 thêm kế hoạch DT-21 THCS và THPT (kèm 22g kiểm tra, đánh giá), mục 13 thêm kế hoạch DT-22 (22a thư viện, 22e hồ sơ bồi dưỡng, 22h kho học liệu số), mục 14 thêm kế hoạch DT-SaaS (Enterprise SaaS nhiều trường: S1a, S1b, S2, S3, S4, S5a, S5b, S6, S7a, S7b, S8a, S8b, S9; hai hồ sơ triển khai: thử nghiệm miễn phí và vận hành), mục 15 thêm kế hoạch DT-23 (thi trực tuyến cho học sinh, công cụ lớp học, trò chơi kiến thức và thẻ đáp án giấy, trợ lý AI; 23a đến 23d), mục 18 thêm kế hoạch DT-26 (ứng dụng web cài được, bố cục máy tính bảng, ứng dụng cài đặt iOS và Android; 26a đến 26h), mục 16 thêm DT-24 (danh mục đơn vị toàn quốc, đăng nhập theo đơn vị, quyền vào mọi trường của quản trị nền tảng), mục 19 thêm kế hoạch DT-27 (nền tảng gia sư trực tuyến: gia sư trong trường, khoá học ghi sẵn, hỏi đáp, chợ gia sư mở; 27a đến 27i); mục 17 thêm DT-25 bộ nối nhà cung cấp định danh OIDC, sẵn cho VNeID; mục 20 thêm kế hoạch DT-28 (hệ thống quản lý học tập LMS: lõi khoá học, lớp học trực tuyến, nhóm học tập, bài tập, bài về nhà, tiến độ, thảo luận, học nhóm, SCORM, huy hiệu; 28a đến 28j); mục 21 thêm kế hoạch DT-29 (Hộp công cụ giảng dạy theo cấp học; 29a đến 29e).
+- Mô tả: Kế hoạch điều chỉnh School Management theo kết quả khảo sát `31_KHAO_SAT_HE_THONG_SO.md`; từ mục 9 thêm kế hoạch DT-18 điều hành nhà trường, mục 10 thêm kế hoạch DT-19 nền đa cấp học, mục 11 thêm kế hoạch DT-20 Tiểu học (kèm 22c thời khoá biểu), mục 12 thêm kế hoạch DT-21 THCS và THPT (kèm 22g kiểm tra, đánh giá), mục 13 thêm kế hoạch DT-22 (22a thư viện, 22e hồ sơ bồi dưỡng, 22h kho học liệu số), mục 14 thêm kế hoạch DT-SaaS (Enterprise SaaS nhiều trường: S1a, S1b, S2, S3, S4, S5a, S5b, S6, S7a, S7b, S8a, S8b, S9; hai hồ sơ triển khai: thử nghiệm miễn phí và vận hành), mục 15 thêm kế hoạch DT-23 (thi trực tuyến cho học sinh, công cụ lớp học, trò chơi kiến thức và thẻ đáp án giấy, trợ lý AI; 23a đến 23d), mục 18 thêm kế hoạch DT-26 (ứng dụng web cài được, bố cục máy tính bảng, ứng dụng cài đặt iOS và Android; 26a đến 26h), mục 16 thêm DT-24 (danh mục đơn vị toàn quốc, đăng nhập theo đơn vị, quyền vào mọi trường của quản trị nền tảng), mục 19 thêm kế hoạch DT-27 (nền tảng gia sư trực tuyến: gia sư trong trường, khoá học ghi sẵn, hỏi đáp, chợ gia sư mở; 27a đến 27i); mục 17 thêm DT-25 bộ nối nhà cung cấp định danh OIDC, sẵn cho VNeID; mục 20 thêm kế hoạch DT-28 (hệ thống quản lý học tập LMS: lõi khoá học, lớp học trực tuyến, nhóm học tập, bài tập, bài về nhà, tiến độ, thảo luận, học nhóm, SCORM, huy hiệu; 28a đến 28j); mục 22 thêm kế hoạch DT-29 (Hộp công cụ giảng dạy theo cấp học; 29a đến 29e).
 - Phiên bản: 1.82
 - Ngày cập nhật: 2026-10-26
 - Trạng thái: Đã duyệt hướng làm
@@ -79,7 +79,7 @@ Phân hệ chọn ở ô phân hệ trên thanh đầu trang; mỗi phân hệ m
 
 | Đợt | Nội dung | Phụ thuộc |
 |---|---|---|
-| 15a | Khung chung: menu ngang đánh số, menu người dùng, lưới dữ liệu dùng chung, hộp xác nhận xóa, cấu hình lưới theo người dùng; đổi bộ trợ giúp điều hướng của kiểm thử e2e | Sau khi gộp DT-14a–d |
+| 15a | Khung chung: menu ngang đánh số, menu người dùng, lưới dữ liệu dùng chung, hộp xác nhận xóa, cấu hình lưới theo người dùng; đổi bộ trợ giúp điều hướng của kiểm thử e2e | Sau khi gộp DT-14a–d. Menu ngang thay bằng thanh bên trái từ YCTD-330 (GD-170), vẫn giữ số thứ bậc (GD-171) |
 | 15b | Trường học, Lớp học (1.x, 2.x, 3.3) | 15a |
 | 15c | Học sinh: đổi tên, cột, tìm kiếm mở rộng, A–Z, điện thoại nhận tin, học 2 buổi và bán trú hàng loạt, biến động, hồ sơ chưa đủ | 15a |
 | 15d | Nhân sự: cột, tìm kiếm mở rộng, hồ sơ chưa đủ | 15a |
@@ -1817,7 +1817,7 @@ Một phần duy nhất, **một PR** (Claude tự chọn theo ủy quyền củ
 | Mã | Mục chưa chốt | Giả định để làm | Cấu hình ở | Cần ai trả lời |
 |---|---|---|---|---|
 | GD-109 | Được dùng lại danh mục lấy từ trang công khai của hệ thống ngành vào phần mềm thương mại không | Chỉ dùng làm dữ liệu tham chiếu nội bộ (tên, mã đơn vị, không có dữ liệu cá nhân), không công bố lại cả danh sách, không ghi tên nguồn trên giao diện; hướng lâu dài là xin kết nối chính thức theo Điều 14 Thông tư 42/2021/TT-BGDĐT | Không | Eric, luật sư |
-| GD-110 | Quản trị nền tảng vào mọi trường không cần trường đồng ý | **Eric đã chốt 2026-10-26:** mặc định `any_school`, bắt buộc xác thực hai lớp, lý do, nhật ký trường xem được, có hạn, biểu ngữ; ghi vào PL-02 Điều 5a; luật sư rà trước khi nhận dữ liệu thật | `platform_settings.support_access_policy` | Eric (đã chốt), luật sư |
+| GD-110 | Quản trị nền tảng vào mọi trường không cần trường đồng ý | **Eric đã chốt 2026-10-26:** mặc định `any_school`, bắt buộc xác thực hai lớp, lý do, nhật ký trường xem được, có hạn, biểu ngữ; ghi vào PL-02 Điều 5a; luật sư rà trước khi nhận dữ liệu thật. **Eric sửa 2026-10-28 (GD-159, YCTD-314):** tài khoản Admin (vai trò `quan_tri`) vào thẳng bằng một lần bấm, không hỏi lý do, không hỏi lại mã hai lớp (đã bắt buộc lúc đăng nhập cổng vận hành), không giới hạn giờ (hạn kỹ thuật 30 ngày); vẫn ghi nhật ký hai phía và biểu ngữ; vai trò hỗ trợ, kỹ thuật giữ quy tắc cũ | `platform_settings.support_access_policy` | Eric (đã chốt), luật sư |
 | GD-111 | Tiêu đề trang đăng nhập ở tên miền chung | "Hệ thống quản lý trường học" cho đến khi Eric chốt tên sản phẩm | `platform_settings.login_page` | Eric |
 | GD-112 | Cập nhật danh mục | Nạp tay mỗi năm học từ tệp người vận hành có được; chưa tự động | Không | Eric |
 
@@ -1856,9 +1856,23 @@ pnpm --filter @school-management/database nhieu-truong-cuc-bo --school-code tc-d
 
    Tệp danh mục đọc từ đường dẫn tham số (đường dẫn tuyệt đối hoặc tính từ thư mục `database/`), không nằm trong kho (mục 16.6); tệp môi trường mặc định `../.env.nhieu-truong`, đổi bằng `--env-out`. Lệnh cần quyền tạo vai trò, cơ sở dữ liệu (`PLATFORM_ADMIN_DATABASE_URL` hoặc `POSTGRES_PASSWORD` trong `.env`), từ chối ghi tệp môi trường không nằm trong `.gitignore` và không in mật khẩu, khoá.
 5. **Cách chạy:** `node scripts/chay-nhieu-truong.mjs` ở gốc kho (cần `pnpm build` trước; Ctrl+C dừng tất cả) chạy định danh, API, tiến trình nền và bảy ứng dụng web ở bảng trên, in bảng địa chỉ khi khởi động. Mở `http://truong.localhost:5190/`, chọn Sở GD&ĐT Thành phố Hà Nội → Cấp Mầm non (Phường / Xã để trống hoặc Phường Ba Đình) → Trường Mầm non Trình Diễn, nhập tài khoản của trường demo và mã xác nhận; đăng nhập đúng thì sang `http://tc.truong.localhost:5190/`.
-   **Quản trị vào mọi trường:** dùng cơ chế sẵn có của DT-24, không tạo tài khoản ở từng trường. Một tài khoản vận hành nền tảng duy nhất, tên đăng nhập `Admin` (không phân biệt hoa thường; ghi ở `PLATFORM_SUPERADMIN_LOGIN` trong `.env.nhieu-truong`, mật khẩu, khóa xác thực hai lớp và mã khôi phục cũng ở tệp này), đăng nhập ở cổng vận hành `http://platform.truong.localhost:5191/` bằng mật khẩu và mã xác thực hai lớp (bắt buộc với tài khoản vận hành; khóa 15 phút sau 5 lần sai). Vào Trường, chọn trường, ở khung "Truy cập với quyền quản trị nền tảng" nhập mục đích, số giờ (tối đa 8), mã xác thực hai lớp rồi mở đường liên kết một lần sang trường. Chính sách `any_school` áp cho mọi trường, kể cả trường tạo sau; mỗi lần vào trường vẫn hỏi mã hai lớp và lý do, có hạn, ghi nhật ký ở cả hai phía (GD-110). Trên máy, cổng vận hành tạo liên kết `http://<tên miền trường>:5190/…` nhờ `VITE_SCHOOL_PORTAL_PORT` do tập lệnh chạy đặt; bản chạy thật giữ `https://`. Mật khẩu tài khoản vận hành phải từ 12 ký tự (chính sách tài khoản vận hành).
+   **Quản trị vào mọi trường:** dùng cơ chế sẵn có của DT-24, không tạo tài khoản ở từng trường. Một tài khoản vận hành nền tảng duy nhất, tên đăng nhập `Admin` (không phân biệt hoa thường; ghi ở `PLATFORM_SUPERADMIN_LOGIN` trong `.env.nhieu-truong`, mật khẩu, khóa xác thực hai lớp và mã khôi phục cũng ở tệp này), đăng nhập ở cổng vận hành `http://platform.truong.localhost:5191/` bằng mật khẩu và mã xác thực hai lớp (bắt buộc với tài khoản vận hành; khóa 15 phút sau 5 lần sai). Vào Trường, chọn trường, bấm "Vào trường (quản trị nền tảng)" (hoặc ở Danh mục đơn vị bấm "Vào trường" / "Khởi tạo và vào trường" cho đơn vị chưa có trường) rồi mở đường liên kết một lần sang trường. Từ YCTD-314 (mục 16.11, GD-159) tài khoản Admin không còn bị hỏi mục đích, số giờ, mã hai lớp ở từng lần vào; mỗi lần vào vẫn ghi nhật ký ở cả hai phía. Chính sách `any_school` áp cho mọi trường, kể cả trường tạo sau. Trên máy, cổng vận hành tạo liên kết `http://<tên miền trường>:5190/…` nhờ `VITE_SCHOOL_PORTAL_PORT` do tập lệnh chạy đặt; bản chạy thật giữ `https://`. Mật khẩu tài khoản vận hành phải từ 12 ký tự (chính sách tài khoản vận hành).
 6. **Gỡ:** dừng tiến trình, xoá `.env.nhieu-truong`, `drop database school_platform`, `drop database school_marketplace`, `drop role platform_local`, `drop role marketplace_local`; cơ sở dữ liệu của trường demo không bị ảnh hưởng.
 7. **Kiểm thử:** `database` CT-310-1 đến CT-310-3 (`src/local-multi-school.test.ts`); `apps/identity` CT-24-5 bổ sung ô cấp học theo phạm vi, CT-310-5 Ghi nhớ; e2e 160 (thứ tự mới, Ghi nhớ đơn vị, cookie bền), 01 (CT-310-6), 59.
+
+### 16.11 Mở mọi trường, quản trị nền tảng vào thẳng, gói cơ bản miễn phí (YCTD-314)
+
+Eric yêu cầu ngày 2026-10-28: "mặc định cấp quyền admin cho tất cả trường học. không giới hạn, không thông báo 'Đơn vị này chưa sử dụng hệ thống trên nền tảng. Liên hệ nhà trường hoặc bộ phận hỗ trợ ở cuối trang'. Mở tất cả trường học. Cho phép sử dụng miễn phí 1 số tính năng." Eric chốt các quyết định GD-159 đến GD-163 (mục 16.9).
+
+1. **Admin vào mọi trường (GD-159, sửa GD-110).** Tài khoản vận hành vai trò `quan_tri` (tài khoản `Admin`) khi chính sách là `any_school` mở phiên quản trị nền tảng bằng một lần bấm: không ô mục đích (ghi sẵn "Quản trị nền tảng vào trường"), không hỏi lại mã xác thực hai lớp, mặc định toàn quyền, không giới hạn giờ (hạn kỹ thuật 30 ngày; kết thúc khi bấm Kết thúc, đăng xuất ở trường, hoặc chính sách đổi sang `school_grant`). Giữ: mã hai lớp bắt buộc lúc đăng nhập cổng vận hành; nhật ký nền tảng `support.platform-admin-entry` (ai, trường nào, lúc nào, địa chỉ mạng, `direct_entry`), nhật ký của trường `support_start` (trường xem ở trang Cho phép hỗ trợ), biểu ngữ "đang truy cập với quyền quản trị nền tảng". Vai trò `ho_tro`, `ky_thuat` giữ luồng cũ (cho phép của trường, hoặc mã hai lớp, lý do, tối đa 8 giờ); `ke_toan` không vào trường.
+2. **Mở mọi đơn vị, khởi tạo ở lần mở đầu tiên (GD-160).** Trang đăng nhập ở tên miền chung không còn báo "chưa sử dụng hệ thống": `GET directory/unit` trả `state` (`not_provisioned`, `provisioning`, `ready`, `unavailable`); đơn vị chưa có trường thì trang gọi `POST directory/prepare`, hiện "Đang khởi tạo đơn vị" và hỏi lại mỗi 2 giây. Cổng vận hành có nút "Khởi tạo và vào trường" ở Danh mục đơn vị (`POST catalog/units/:moet/open`, chỉ `quan_tri`). Không dựng sẵn cả danh mục. Trường tạo lần đầu: mã `dv-<mã Bộ>`, tên miền `dv-<mã Bộ>.<PLATFORM_ROOT_DOMAIN>` (trên máy `dv-….truong.localhost`), cơ sở dữ liệu định danh, hệ thống, năm học hiện tại (từ tháng 8 là năm học mới), khóa dữ liệu trẻ; trạng thái hoạt động, không hạn; loại dữ liệu `synthetic` (người vận hành đổi khi nhập dữ liệu thật); cấp học theo danh mục (GDTX dùng THPT). Không có tài khoản nào: Admin vào trường rồi tạo tài khoản quản trị đầu tiên theo YCTD-311 (tên đăng nhập là số CCCD, mật khẩu mặc định `DEFAULT_INITIAL_PASSWORD`, bắt đổi lần đầu).
+   - Chống trùng khi hai lần mở đầu cùng lúc: mã trường suy ra cố định từ mã Bộ nên ràng buộc duy nhất của `schools.code`, `schools.moet_code` chỉ cho một lần ghi; việc khởi tạo chỉ một bên nhận (đổi trạng thái có điều kiện); việc chạy quá 10 phút không cập nhật coi là bỏ dở, nhận lại được; việc lỗi nhận lại ở lần mở sau. Các bước khởi tạo vốn chạy lại được.
+   - Chống lạm dụng từ trang công khai: giới hạn theo địa chỉ mạng của ô chọn đơn vị (20 lần mỗi phút), tối đa 60 trường tự khởi tạo mỗi giờ trên toàn nền tảng.
+   - Trường đang tạm ngưng, chờ xóa vẫn báo "đang tạm ngưng sử dụng hệ thống".
+   - Dịch vụ định danh cần tài khoản tạo cơ sở dữ liệu (`PLATFORM_ADMIN_DATABASE_URL`). Bản nhiều trường trên máy: `scripts/chay-nhieu-truong.mjs` suy biến này từ `POSTGRES_PASSWORD` của `.env` khi chưa đặt (chỉ truyền cho tiến trình, không ghi tệp); sau khi cập nhật mã cần `pnpm build`, chạy tệp thay đổi cấu trúc nền tảng (0242) rồi khởi động lại.
+3. **Gói cơ bản miễn phí và tính năng trả phí (GD-161).** Dùng lại gói dịch vụ của S5a (`plans.modules`, `school_plans`): thêm gói `co-ban-mien-phi` (mọi phân hệ trừ tính năng trả phí) gán cho trường tự khởi tạo; tính năng trả phí: trợ lý AI (`ai-assistant`), thi trực tuyến (`online-exam`), học trực tuyến và lớp trực tiếp (`online-learning`), gia sư (`tutoring`), báo cáo nâng cao (`reports`, `kpi`), tin nhắn SMS, Zalo (`sms-zalo`, GD-162). Sổ liên lạc điện tử (tin trong ứng dụng, thông báo điểm, điểm danh, thông báo đẩy) thuộc phân hệ Tương tác, miễn phí; chuyển sang trả phí sau này chỉ cần sửa gói. Không có `sms-zalo` thì bộ gửi thông báo không gửi SMS, Zalo (ghi `limited` kèm lời báo), thông báo vẫn đến qua ứng dụng và đẩy. Ba mã mới `ai-assistant`, `online-learning`, `sms-zalo` không phải phân hệ của cây menu; gói đã có danh sách phân hệ được thêm ba mã này để trường đang dùng không mất tính năng. Nền tảng bật riêng từng tính năng cho một trường (`schools.addon_modules`, `PUT schools/:code/addon-modules`, vai trò `quan_tri`, `ke_toan`, ghi nhật ký `school.addon-modules-changed`) ở trang chi tiết trường. Máy chủ API chặn: khai báo `RequirePlanModule` ở bộ điều khiển (trợ lý AI, học trực tuyến, thi trực tuyến, gia sư), mọi lời gọi AI kiểm ở dịch vụ trợ lý AI, quyền của Báo cáo, Đánh giá KPI chặn theo phân hệ như S5a; trả 403 `MODULE_NOT_IN_PLAN` với lời báo "… là tính năng trả phí, trường chưa đăng ký. Liên hệ bộ phận hỗ trợ để bật." Cổng quản trị ẩn phân hệ ngoài gói ở menu và hiện lời báo đó khi mở trang của phân hệ chưa bật; nút soạn bằng AI tự ẩn. Trường chưa gán gói (như trường demo `tc-demo`) không bị giới hạn. Máy chủ API đọc lại gói sau tối đa 30 giây (bộ đệm của bộ phân giải trường).
+4. **Tài khoản quản trị trường (GD-163).** Tài khoản có vai trò quản trị trường (VT-01, VT-02) luôn đủ số CCCD (làm tên đăng nhập), họ tên, số điện thoại: dịch vụ định danh từ chối tạo tài khoản và gán vai trò này khi thiếu (400, chỉ rõ ô thiếu); áp cho tài khoản quản trị đầu tiên của trường tự khởi tạo. Không đặt ràng buộc NOT NULL ở cơ sở dữ liệu vì điều kiện theo vai trò. Bước setup của S2 (quản trị viên đầu tiên theo tên đăng nhập, lời mời kích hoạt) và tài khoản hỗ trợ `ho-tro-nen-tang` chưa đổi.
+5. **Kiểm thử:** `database` CT-1531 đến CT-1533 (`src/catalog-provisioning.test.ts`); `apps/identity` CT-1534 đến CT-1536 (`src/platform/catalog-open.test.ts`), CT-24-6, CT-24-7 sửa theo luồng mới; `apps/api` CT-1537 (`src/school-plan/school-plan.test.ts`); e2e 160 (CT-24-9 khởi tạo đơn vị ở trang đăng nhập, CT-24-10 Admin vào thẳng, khởi tạo và vào đơn vị mới), 136 (nhân viên vai trò hỗ trợ).
 
 ## 17. DT-25: bộ nối nhà cung cấp định danh bên ngoài theo chuẩn OIDC (sẵn cho VNeID)
 
@@ -2811,21 +2825,45 @@ Số GD và RR của DT-28 bắt đầu từ GD-140 và RR-32 (DT-27 dùng GD-13
 | GD-156 | Ghi danh khoá tự chọn | Học sinh đăng ký, người phụ trách duyệt; Tiểu học cần phụ huynh xác nhận trên ứng dụng phụ huynh; khoá có thu tiền không làm ở DT-28 (thuộc 27b, 27c) | Theo khoá | Eric |
 | GD-157 | Xuất lịch học tập ra lịch ngoài (iCal) | Không làm (đường dẫn lịch chứa dữ liệu trẻ em) | — | Claude (theo ủy quyền) |
 
-## 21. DT-29: Hộp công cụ giảng dạy theo cấp học (29a đến 29e)
+## 21. Thiết kế lại cổng quản trị trường (YCTD-330 trở đi)
 
-### 21.1 Căn cứ và mục tiêu
+Eric yêu cầu ngày 2026-10-28: thiết kế lại toàn bộ cổng quản trị trường cho gọn, bỏ bớt yếu tố thừa về hình thức, không bỏ chức năng. Bản thiết kế 14 màn (canvas "Cổng quản trị trường") Eric đã duyệt ngày 2026-10-28. Làm theo nhiều PR: PR đầu (YCTD-330) là khung chung; các trang làm ở PR sau (YCTD-331 trở đi).
+
+### 21.1 Quyết định
+
+Hai quyết định dưới đây thay quyết định ở DT-15 phần 15a (menu ngang đánh số theo hệ thống của Sở).
+
+| Mã | Nội dung | Quyết định | Áp dụng ở | Người quyết |
+|---|---|---|---|---|
+| GD-170 | Kiểu điều hướng chính của cổng quản trị | Đổi menu ngang đánh số nhiều cấp sang thanh bên trái theo phân hệ: tên trường, ô chọn phân hệ, cây menu gập mở; nhóm chứa trang đang mở tự mở. Dưới 1280 px thanh bên là ngăn kéo mở bằng nút "☰". **Thay quyết định DT-15 phần 15a** | `AppShell`, `MainMenu` (`SideMenu`), trợ giúp e2e `tests/e2e/menu.ts` | Eric (2026-10-28) |
+| GD-171 | Số thứ bậc trên menu | Giữ số thứ bậc theo hệ thống của Sở trên menu (kiểu "1.4. Cấu hình trường"); bản thiết kế đề xuất bỏ số nhưng Eric chọn giữ. **Thay phần đề xuất bỏ số của thiết kế, giữ đúng cách đánh số của DT-15 phần 15a** | `PORTAL_WORKSPACES` ở `packages/shared` (không đổi) | Eric (2026-10-28) |
+
+Các điểm còn lại của thiết kế làm đúng như bản vẽ (Eric duyệt 2026-10-28): gom cấp học, năm học, học kỳ vào một nút; thông báo khi vào trang thành dải một dòng; giữ dải nhắc mật khẩu sắp hết hạn; danh sách học sinh mở sẵn tab "Đang học"; nhóm phân hệ "Hay dùng" theo vai trò; tên trường giữ màu vàng.
+
+### 21.2 Các phần
+
+| Phần | YCTD | Nội dung | Phụ thuộc |
+|---|---|---|---|
+| Khung chung | YCTD-330 | Thanh bên trái, thanh đầu trang, ô chọn phân hệ có ô lọc, bỏ chân trang (Gửi phản hồi vào menu người dùng), bỏ khối Lối tắt và tiêu đề "Tổng quan phân hệ" ở trang chủ, màu xanh đậm | Gộp sau PR 239 (bỏ khối "Vai trò của bạn") |
+| Các trang hồ sơ, dạy học | YCTD-331 trở đi | Cán bộ, học sinh, thời khóa biểu, sổ điểm theo thiết kế: menu "Thêm", cột mặc định ít hơn, thao tác hàng loạt chỉ hiện khi chọn dòng | Sau khi phiên đang sửa các trang này xong phần C (sổ điểm), D (danh sách học sinh) |
+| Các trang khác | YCTD-331 trở đi | Văn bản đến, đi và "Công văn của tôi", thu phí, cài đặt trường, điểm danh, lớp | Làm song song được |
+| Đăng nhập | — | Giữ bố cục PR 233 | — |
+
+## 22. DT-29: Hộp công cụ giảng dạy theo cấp học (29a đến 29e)
+
+### 22.1 Căn cứ và mục tiêu
 
 1. **Yêu cầu của Eric ngày 2026-10-28:** "trong giao diện giảng dạy của giáo viên, tập hợp các công cụ/ mini app hỗ trợ việc giảng dạy phù hợp với bậc học". Bản khảo sát và đề xuất (danh sách công cụ đã có, mini app mới theo bậc, bản vẽ "Hộp công cụ giảng dạy") Eric duyệt cùng ngày: làm cả 29a đến 29e, danh sách mini app theo bậc như đề xuất; Mầm non ẩn trò chơi kiến thức và lớp học trực tuyến; lọc tương tự các mục không hợp cấp (lớp THCS, THPT bỏ Đón trả, Dặn thuốc); đổi tên "Công cụ lớp học" thành "Hộp công cụ giảng dạy", giữ đường dẫn cũ và chuyển về chỗ mới; công tắc theo trường dùng cơ chế phân hệ theo gói (YCTD-314).
 2. Hiện trạng trước DT-29: công cụ lớp học 23b (gọi tên, chia nhóm, đếm ngược và bấm giờ, bảng điểm nhanh), trò chơi kiến thức và thẻ đáp án giấy 23c nằm chung một màn "Công cụ lớp học", hiện ở mọi cấp; học trực tuyến DT-28 ở màn riêng; thi trực tuyến 23a và trợ lý AI 23d ở cổng quản trị. Cấp của lớp đọc qua `levelOf`, `hasLevelFeature` (`packages/shared/src/level-features.ts`, DT-19 phần 19e).
 3. Mục tiêu: một màn Hộp công cụ giảng dạy gom công cụ của lớp đang chọn, lọc theo cấp của lớp, trường bật tắt từng công cụ, công cụ thuộc tính năng trả phí theo gói; thêm mini app chạy hoàn toàn trên máy giáo viên cho từng cấp.
 
-### 21.2 Nguyên tắc
+### 22.2 Nguyên tắc
 
 - Danh mục công cụ khai báo một nơi (`packages/shared/src/teaching-tools.ts`): mã, tên, mô tả, nhóm, cấp, chạy ngoại tuyến không, tính năng gói. Mỗi phần thêm công cụ của mình vào cuối danh mục.
 - Mini app mới chạy trên máy giáo viên, không gọi máy chủ, dùng được khi mất mạng (vỏ ứng dụng của 23b), không gửi danh sách lớp, ảnh, tiếng ra ngoài; không ghi âm; không dùng bài hát, truyện, phông chữ có bản quyền (chữ cái, khung ô li tự vẽ; bài hát, truyện do trường tải lên qua kho học liệu 22h1).
 - Không bỏ chức năng đã có: bảng điểm nhanh giữ ở mọi cấp (nề nếp, thi đua có tiêu chí Mầm non); khoá lưu trên máy (`cong-cu-lop-hoc:`) và tiền tố bộ nhớ đệm của 23b giữ nguyên tên.
 
-### 21.3 Các phần
+### 22.3 Các phần
 
 Số do phiên điều phối cấp ngày 2026-10-28; mỗi phần một PR, làm tuần tự trong một phiên.
 
@@ -2839,7 +2877,7 @@ Số do phiên điều phối cấp ngày 2026-10-28; mỗi phần một PR, là
 
 Cỡ ước lượng (một phần của DT-16 là một đơn vị, chỉ để so sánh): 29a 0,75; 29b 0,75; 29c 0,5; 29d 1,0; 29e 0,5; tổng khoảng 3,5 đơn vị.
 
-### 21.4 Phạm vi chi tiết của 29a
+### 22.4 Phạm vi chi tiết của 29a
 
 - **Danh mục:** nhóm Trên lớp (gọi tên, chia nhóm, đếm ngược và bấm giờ, bảng điểm nhanh), Trò chơi và câu hỏi (trò chơi kiến thức của 23c, chỉ cấp phổ thông), Mini app theo môn (29b đến 29e), Giao bài và học trực tuyến (giáo án, kế hoạch bài dạy ở mọi cấp; sổ đầu bài và bài về nhà, lớp học trực tuyến ở cấp phổ thông; lớp học trực tuyến thuộc tính năng gói `online-learning`).
 - **Màn Hộp công cụ:** chọn lớp, công cụ theo cấp của lớp; bản chụp danh sách lớp lưu thêm cấp của lớp để lọc khi mất mạng (bản chụp cũ chưa có cấp thì không lọc theo cấp); mở được trong Chế độ lớp học (DT-26 phần 26d). Mở màn đã có từ Hộp công cụ thì nút quay lại trở về Hộp công cụ.
@@ -2847,13 +2885,13 @@ Cỡ ước lượng (một phần của DT-16 là một đơn vị, chỉ để
 - **Đường dẫn:** `?man=hop-cong-cu` mở thẳng Hộp công cụ (lối tắt trong `manifest.webmanifest`); `?man=cong-cu-lop-hoc` đổi sang tên mới.
 - **Lọc mục không hợp cấp ở trang chủ:** Đón trả, Dặn thuốc chỉ ở lớp Mầm non, Tiểu học; Lớp học trực tuyến và Gia sư trong trường ẩn khi mọi lớp của giáo viên là lớp Mầm non.
 
-### 21.5 Quyết định thiết kế và phương án đã loại
+### 22.5 Quyết định thiết kế và phương án đã loại
 
 - Công tắc từng công cụ là cấu hình của trường; tính năng trả phí theo gói (YCTD-314) là lớp chặn thứ hai. Đã loại: thêm mỗi công cụ một phân hệ của gói (danh sách phân hệ của gói dài ra theo từng mini app, nền tảng phải bật từng mục cho mỗi trường).
 - Bảng điểm nhanh giữ ở Mầm non (bản đề xuất ghi chỉ cấp phổ thông): Mầm non đang dùng để ghi nề nếp, thi đua; bảng thưởng sao của 29b thêm cho Mầm non, Tiểu học. Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11.
 - Gia sư trong trường lọc như lớp học trực tuyến (ẩn khi mọi lớp là Mầm non). Ứng dụng phụ huynh chưa đổi (đón trả, dặn thuốc vẫn ở mọi cấp phía phụ huynh).
 
-### 21.6 Tiến độ
+### 22.6 Tiến độ
 
 | Phần | Tiến độ |
 |---|---|

@@ -1,7 +1,7 @@
 import { useContext, type ReactNode } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Link } from '@tanstack/react-router';
-import { listPortalMenuEntries, portalMenuText, type PortalWorkspace } from '@school-management/shared';
+import { listPortalMenuEntries } from '@school-management/shared';
 import { BirthdayList, DashboardCards } from '../reports/DashboardCards.js';
 import { listIncoming } from '../incoming-documents/incoming-api.js';
 import { listOutgoing } from '../outgoing-documents/outgoing-api.js';
@@ -11,8 +11,7 @@ import { WorkspaceContext } from './workspaces.js';
 
 // Bảng điều khiển theo phân hệ đang chọn trên trang chủ (Eric yêu cầu ngày 2026-10-28, YCTD-307): chọn phân hệ ở thanh đầu
 // trang thì về trang chủ và bảng điều khiển đổi theo phân hệ. Khối chỉ hiện khi menu đã lọc theo quyền có trang tương ứng;
-// khối không có số liệu thì ghi "Trống". Phân hệ chưa có khối số liệu riêng vẫn có Việc cần xử lý và Lối tắt
-const SHORTCUT_COUNT = 8;
+// khối không có số liệu thì ghi "Trống". Phân hệ chưa có khối số liệu riêng vẫn có Việc cần xử lý
 const LATEST_COUNT = 5;
 // Máy chủ văn bản đến, đi chỉ nhận số dòng mỗi trang 10, 20, 50, 100, 200: lấy trang 10 dòng rồi hiện LATEST_COUNT dòng đầu
 const FETCH_PAGE_SIZE = 10;
@@ -135,29 +134,6 @@ function ExpiringContracts() {
   );
 }
 
-// Lối tắt tới các trang của phân hệ theo thứ tự menu, chỉ các trang người dùng có quyền
-function Shortcuts({ workspace }: { workspace: PortalWorkspace }) {
-  const entries = listPortalMenuEntries([workspace]).slice(0, SHORTCUT_COUNT);
-  return (
-    <section className="flex flex-col gap-3 rounded-xl border border-border bg-card p-5" aria-label="Lối tắt">
-      <h2 className="text-section-title font-semibold text-text">Lối tắt</h2>
-      {entries.length === 0 ? (
-        <EmptyText />
-      ) : (
-        <ul className="grid grid-cols-[repeat(auto-fill,minmax(min(240px,100%),1fr))] gap-x-4">
-          {entries.map((entry) => (
-            <li key={entry.node.path}>
-              <Link to={entry.node.path} className={linkClass}>
-                {portalMenuText(entry.node)}
-              </Link>
-            </li>
-          ))}
-        </ul>
-      )}
-    </section>
-  );
-}
-
 export function WorkspaceDashboard() {
   const { current, workspaces } = useContext(WorkspaceContext);
   const workspace = workspaces.find((item) => item.key === current);
@@ -187,11 +163,10 @@ export function WorkspaceDashboard() {
   }
   return (
     // Tên vùng tránh chữ "Bảng điều khiển" để không trùng vùng MH-01 bên trong (kiểm thử tìm vùng theo tên)
+    // YCTD-330: bỏ tiêu đề "Tổng quan phân hệ" (tên phân hệ đã có ở thanh bên) và khối Lối tắt (trùng cây menu ở thanh bên)
     <section className="flex flex-col gap-4" aria-label={`Tổng quan phân hệ ${workspace.label}`}>
-      <h2 className="text-section-title font-semibold text-text">Tổng quan phân hệ: {workspace.label}</h2>
       {blocks}
       <div className="grid grid-cols-[repeat(auto-fit,minmax(min(360px,100%),1fr))] items-start gap-4">{panels}</div>
-      <Shortcuts workspace={workspace} />
     </section>
   );
 }
