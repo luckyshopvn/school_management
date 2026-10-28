@@ -11,7 +11,7 @@ import { writeAudit } from '../provision-school.js';
 //   là dữ liệu, 27h dùng;
 // - **thu tiền thật luôn tắt** ở bản này: lưu `real_payments_enabled = true` bị từ chối cho đến khi xong E-01 đến E-07 (luật sư, tổ
 //   chức có giấy phép, pháp nhân), không có đường nào khác để bật. Bỏ chặn là một thay đổi mã có YCTD riêng, không phải một công tắc
-// - mốc của phòng học video (YCTD-362, GD-159; quyết định của Eric ngày 2026-10-29): mở phòng trước giờ học 10 phút, vào muộn quá 15 phút
+// - mốc của phòng học video (YCTD-362, GD-164; quyết định của Eric ngày 2026-10-29): mở phòng trước giờ học 10 phút, vào muộn quá 15 phút
 //   tính vắng, gia sư vắng quá 10 phút thì phụ huynh báo và được hoàn đủ, có mặt từ 80% thời lượng là đủ buổi, gia sư không xác nhận
 //   thì tự xác nhận sau 24 giờ; cổng vận hành chỉnh được
 export const MARKET_SETTINGS_KEY = 'market';

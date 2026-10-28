@@ -519,7 +519,7 @@ export class MarketBookingsService implements OnApplicationBootstrap, OnModuleDe
     return upcoming;
   }
 
-  // Phòng học video (YCTD-362, GD-159): gia sư vắng (phụ huynh báo khi gia sư chưa vào phòng quá mốc), hoặc phụ huynh không đồng ý ghi
+  // Phòng học video (YCTD-362, GD-164): gia sư vắng (phụ huynh báo khi gia sư chưa vào phòng quá mốc), hoặc phụ huynh không đồng ý ghi
   // hình buổi có trẻ vị thành niên: hủy và hoàn đủ
   async cancelForTutorNoShow(id: string, parentId: string) {
     return this.cancel(id, 'system', 'parent_account_id', parentId, {}, 'Gia sư vắng: hoàn đủ');
@@ -876,7 +876,7 @@ export class MarketBookingsService implements OnApplicationBootstrap, OnModuleDe
     return { expired, autoConfirmed, disbursed, finalized };
   }
 
-  // Gia sư không xác nhận đã dạy (phòng học video, YCTD-362, GD-159): quá mốc sau giờ kết thúc thì hệ thống tự xác nhận; hạn khiếu nại
+  // Gia sư không xác nhận đã dạy (phòng học video, YCTD-362, GD-164): quá mốc sau giờ kết thúc thì hệ thống tự xác nhận; hạn khiếu nại
   // của phụ huynh tính từ lúc tự xác nhận
   private async autoConfirm(now: Date): Promise<number> {
     const settings = await this.market.settings();

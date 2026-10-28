@@ -1,6 +1,6 @@
 import type { MarketRoomTimings } from '@school-management/database';
 
-// Quy tắc thuần của phòng học video ở chợ gia sư (DT-27 phần 27j, YCTD-362; GD-159, quyết định của Eric ngày 2026-10-29). Mốc là cấu hình
+// Quy tắc thuần của phòng học video ở chợ gia sư (DT-27 phần 27j, YCTD-362; GD-164, quyết định của Eric ngày 2026-10-29). Mốc là cấu hình
 // chợ ở cổng vận hành (`MarketRoomTimings`): mở phòng trước giờ học, vào muộn tính vắng, gia sư vắng, tỉ lệ có mặt để đủ buổi, tự xác
 // nhận buổi
 const MINUTE = 60_000;
@@ -95,7 +95,7 @@ export function parseRoomIdentity(
   return null;
 }
 
-// Con từ đủ 7 tuổi cùng xác nhận đồng ý ghi hình (Luật 91/2025 Điều 24, GD-159; cần luật sư xem lại trước khi mở thật). Chợ chỉ có năm
+// Con từ đủ 7 tuổi cùng xác nhận đồng ý ghi hình (Luật 91/2025 Điều 24, GD-164; cần luật sư xem lại trước khi mở thật). Chợ chỉ có năm
 // sinh nên tính theo năm, nghiêng về hỏi con
 export function childMustConfirm(birthYear: number, now: Date): boolean {
   const year = Number(new Date(now.getTime() + 7 * 3_600_000).toISOString().slice(0, 4));

@@ -11,7 +11,7 @@ phien_ban_de_xuat: 0.242.0
 
 #### Công việc đã thực hiện
 
-- Thêm phần 27j vào tài liệu 32 (mục 19.12) và GD-159 (mốc của phòng học, quyết định của Eric ngày 2026-10-29).
+- Thêm phần 27j vào tài liệu 32 (mục 19.12) và GD-164 (mốc của phòng học, quyết định của Eric ngày 2026-10-29).
 - Cơ sở dữ liệu chợ marketplace 0040: `market_recording_consents` (đồng ý ghi hình theo con và gia sư, rút được), `market_session_rooms` (mở, đóng, xác nhận buổi), `market_session_participants` (phòng chờ, quyền nói, chia sẻ, mời ra), `market_session_attendance` (nhật ký vào ra).
 - Cấu hình chợ thêm năm mốc (mở phòng trước giờ học, vào muộn tính vắng, gia sư vắng, tỉ lệ đủ buổi, tự xác nhận); API cổng vận hành đọc, ghi được; mặc định 10 phút, 15 phút, 10 phút, 80%, 24 giờ.
 - Máy chủ API `apps/api/src/market/market-rooms.ts`: trạng thái phòng của buổi, đồng ý ghi hình (con từ đủ 7 tuổi cùng xác nhận), không đồng ý thì hủy buổi và hoàn đủ, vào phòng chờ, rời phòng, báo gia sư vắng (hoàn đủ), phòng của gia sư (người trong phòng chờ, điểm danh), cho vào, cho nói, cho chia sẻ màn hình, mời ra, xác nhận đã dạy kèm nhận xét. Quy tắc thuần ở `market-room-rules.ts`.
@@ -24,7 +24,7 @@ phien_ban_de_xuat: 0.242.0
 
 #### Quyết định
 
-- Quyết định của Eric ngày 2026-10-29 ghi ở GD-159 và mục 19.12.
+- Quyết định của Eric ngày 2026-10-29 ghi ở GD-164 và mục 19.12.
 - Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11: đồng ý ghi hình lúc đặt buổi (27i) vẫn giữ; vào phòng cần thêm đồng ý theo gia sư. Gia sư mời ra được cả phụ huynh vào xem. Gia sư rời lớp video là kết thúc phòng.
 - Spec 199 dùng học sinh đủ 18 tuổi (không bắt buộc ghi hình) để không phụ thuộc kho lưu bản ghi của môi trường kiểm thử; luồng đồng ý và ghi hình bắt buộc có kiểm thử máy chủ.
 

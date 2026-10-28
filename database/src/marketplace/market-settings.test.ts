@@ -52,7 +52,7 @@ describe('parseMarketSettings (CT-27f-1)', () => {
   });
 });
 
-describe('mốc phòng học video (YCTD-362, GD-159)', () => {
+describe('mốc phòng học video (YCTD-362, GD-164)', () => {
   test('mặc định theo quyết định của Eric ngày 2026-10-29', () => {
     assert.deepEqual(parseMarketSettings({}).room, {
       opensBeforeMinutes: 10,

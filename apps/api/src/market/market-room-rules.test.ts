@@ -11,7 +11,7 @@ import {
   tutorNoShowAllowed,
 } from './market-room-rules.js';
 
-// Quy tắc thuần của phòng học video ở chợ (DT-27 phần 27j, YCTD-362, CT-27j-1): mốc mặc định 10, 15, 10 phút, 80%, 24 giờ (GD-159)
+// Quy tắc thuần của phòng học video ở chợ (DT-27 phần 27j, YCTD-362, CT-27j-1): mốc mặc định 10, 15, 10 phút, 80%, 24 giờ (GD-164)
 const MINUTE = 60_000;
 const START = new Date('2026-11-02T12:00:00.000Z');
 const at = (minutes: number) => new Date(START.getTime() + minutes * MINUTE);
