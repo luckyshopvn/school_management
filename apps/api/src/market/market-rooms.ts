@@ -4,6 +4,7 @@ import { ApplicationError } from '@school-management/server';
 import { videoGrantsFor } from '@school-management/shared';
 import type { Request } from 'express';
 import type { Kysely, Selectable, Transaction } from 'kysely';
+import { PublicEndpoint } from '../authentication/authentication.guard.js';
 import type { RequestBody } from '../common/request-fields.js';
 import { VIDEO_PROVIDER, type VideoRoomEvent, type VideoRoomProvider } from '../video/video-provider.js';
 import { MarketAccountsService } from './market-accounts.js';
@@ -625,6 +626,7 @@ export class MarketRoomsService {
 }
 
 @Controller('market')
+@PublicEndpoint()
 export class MarketRoomsController {
   constructor(private readonly rooms: MarketRoomsService) {}
 
