@@ -154,7 +154,7 @@ test('CT-15d-11: phòng nhân sự ghi hồ sơ theo khối của Sở; lưới 
 }) => {
   await signIn(page, 'VT-06', orgUnitId);
   let grid = await openStaff(page);
-  // Hồ sơ mở ở trang riêng chia thẻ (YCTD-309); các khối của Sở ở thẻ Hồ sơ CSDL Bộ
+  // Hồ sơ mở ở trang riêng chia thẻ (YCTD-308); các khối của Sở ở thẻ Hồ sơ CSDL Bộ
   await grid.getByRole('row').filter({ hasText: names.an }).getByRole('link', { name: 'Hồ sơ' }).click();
   const panel = page.getByRole('group', { name: `Hồ sơ của ${names.an}` });
   await panel.getByRole('tab', { name: 'Hồ sơ CSDL Bộ' }).click();

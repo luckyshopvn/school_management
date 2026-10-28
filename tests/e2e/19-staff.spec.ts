@@ -47,7 +47,7 @@ test('Phòng nhân sự tạo hồ sơ, liên kết tài khoản, lập và ch�
   await page.getByLabel('Mật khẩu', { exact: true }).fill(personnel.password);
   await page.getByRole('button', { name: 'Đăng nhập' }).click();
   await openMenu(page, '/staff');
-  // Thêm mới theo khối của Sở, nút Ghi; hồ sơ vừa tạo mở ngay ở trang riêng chia thẻ (DT-15 phần 15d, YCTD-309)
+  // Thêm mới theo khối của Sở, nút Ghi; hồ sơ vừa tạo mở ngay ở trang riêng chia thẻ (DT-15 phần 15d, YCTD-308)
   await page.getByRole('button', { name: 'Thêm mới' }).click();
   const form = page.getByRole('form', { name: 'Thêm hồ sơ nhân sự' });
   await form.getByRole('combobox', { name: 'Đơn vị' }).selectOption({ label: unit.name });

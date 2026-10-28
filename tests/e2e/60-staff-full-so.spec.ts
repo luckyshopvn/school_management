@@ -78,7 +78,7 @@ test('CT-16f-11: 3.1.1 Thay đổi mở hồ sơ dòng đã chọn, Xóa có h�
   await expect(change).toBeDisabled();
   await grid.getByRole('checkbox', { name: `Chọn ${names.verify}` }).check();
   await change.click();
-  // Hồ sơ mở ở trang riêng chia thẻ (YCTD-309); ô Dân tộc ở thẻ Hồ sơ CSDL Bộ
+  // Hồ sơ mở ở trang riêng chia thẻ (YCTD-308); ô Dân tộc ở thẻ Hồ sơ CSDL Bộ
   const profile = page.getByRole('group', { name: `Hồ sơ của ${names.verify}` });
   await expect(profile).toBeVisible();
   await profile.getByRole('tab', { name: 'Hồ sơ CSDL Bộ' }).click();
