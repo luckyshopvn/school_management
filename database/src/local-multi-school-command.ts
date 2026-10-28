@@ -115,6 +115,8 @@ async function main(): Promise<void> {
       PLATFORM_DATABASE_URL: platformUrl,
       PLATFORM_MASTER_KEY: masterKey,
       PLATFORM_ROOT_DOMAIN: rootDomain,
+      // Cổng nền tảng: đăng nhập tài khoản vận hành, mở phiên quản trị vào trường bất kỳ
+      PLATFORM_CONSOLE_HOST: `platform.${rootDomain}`,
       TENANT_HOST_SOURCE: 'host',
       TENANT_CACHE_SECONDS: '5',
       API_PORT: String(apiPort),

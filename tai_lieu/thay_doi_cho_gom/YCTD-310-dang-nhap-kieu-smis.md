@@ -14,6 +14,7 @@ phien_ban_de_xuat: 0.183.0
 - Trang đăng nhập cổng quản trị ở tên miền chung: bốn ô chọn xếp dọc theo thứ tự Sở GD&ĐT → Phường/Xã → Cấp học → Trường như trang đăng nhập của hệ thống ngành; ô sau mở khi đã chọn ô trước; ô Phường/Xã có "Tất cả phường, xã"; ô Cấp học chỉ hiện cấp có trường trong sở, phường đã chọn (điểm cuối `GET /api/v1/auth/directory/levels` nhận thêm `department`, `commune`).
 - Lệnh `pnpm --filter @school-management/database nhieu-truong-cuc-bo` dựng bản nhiều trường trên máy song song bản một trường: vai trò, cơ sở dữ liệu nền tảng riêng, khoá gốc và mật khẩu sinh mới chỉ ghi vào tệp môi trường đã nằm trong `.gitignore`, nạp danh mục từ CSV theo tham số, nhận trường demo hiện có (adopt-existing, dùng lại cơ sở dữ liệu cũ), gắn trường demo vào danh mục. Tập lệnh `scripts/chay-nhieu-truong.mjs` chạy dịch vụ định danh, máy chủ API, cổng quản trị ở cổng 3101, 3100, 5190.
 - `.gitignore` bỏ qua `.env.*` (trừ `.env.example`). Hướng dẫn ở tài liệu 32 mục 16.10 và README.
+- Quản trị vào mọi trường trên bản nhiều trường: một tài khoản vận hành nền tảng (cơ chế DT-24, chính sách `any_school`) đăng nhập ở cổng nền tảng 5191 rồi mở phiên quản trị sang trường bất kỳ; tập lệnh chạy thêm cổng nền tảng, cổng nền tảng tạo liên kết `http` ở cổng của cổng quản trị khi đặt `VITE_SCHOOL_PORTAL_PORT` (máy phát triển).
 
 #### Quyết định
 
@@ -36,7 +37,7 @@ phien_ban_de_xuat: 0.183.0
 
 - Lý do: Eric yêu cầu trang đăng nhập làm tương tự trang đăng nhập của hệ thống ngành (chọn Sở → Phường → Cấp học → Trường), giữ trường demo hiện có, nạp danh mục trường toàn quốc vào bản nhiều trường trên máy.
 - Nội dung thay đổi: thứ tự và cách mở các ô chọn đơn vị ở MH-47; lọc cấp học theo sở, phường; lệnh dựng và tập lệnh chạy bản nhiều trường trên máy; bỏ qua `.env.*` trong `.gitignore`.
-- Thành phần bị ảnh hưởng: `apps/portal` (trang đăng nhập), `apps/identity` (điểm cuối cấp học của ô chọn đơn vị), `database` (truy vấn cấp học, lệnh `nhieu-truong-cuc-bo`, hàm tạo cơ sở dữ liệu có vai trò riêng dùng chung với chợ gia sư), `scripts/chay-nhieu-truong.mjs`.
+- Thành phần bị ảnh hưởng: `apps/portal` (trang đăng nhập), `apps/platform` (đường liên kết phiên hỗ trợ khi đặt `VITE_SCHOOL_PORTAL_PORT`), `apps/identity` (điểm cuối cấp học của ô chọn đơn vị), `database` (truy vấn cấp học, lệnh `nhieu-truong-cuc-bo`, hàm tạo cơ sở dữ liệu có vai trò riêng dùng chung với chợ gia sư), `scripts/chay-nhieu-truong.mjs`.
 - Dữ liệu, API, giao diện, quyền bị ảnh hưởng: API thêm tham số tuỳ chọn `department`, `commune` cho `GET /api/v1/auth/directory/levels`; không đổi cấu trúc dữ liệu, không đổi quyền.
 - Ảnh hưởng chức năng cũ: chế độ một trường và tên miền của trường giữ nguyên; người đã ghi nhớ đơn vị theo bố cục cũ (có cấp học, chưa chọn phường) được coi là "Tất cả phường, xã".
 - Kiểm thử cần thực hiện: `database` CT-310-1 đến CT-310-3; `apps/identity` CT-24-5 (cấp học theo phạm vi); e2e 160, 01, 59; typecheck, lint, định dạng; `node scripts/gom-thay-doi.mjs --kiem`.

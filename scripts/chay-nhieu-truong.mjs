@@ -1,9 +1,9 @@
 // Chạy bản nhiều trường trên máy phát triển, song song với bản một trường (YCTD-310; tài liệu 32 mục 16.10): dịch vụ định danh, máy
-// chủ API (đã dựng ở apps/*/dist) và cổng quản trị (vite) với biến của .env đè bởi tệp môi trường riêng do lệnh
-// `pnpm --filter @school-management/database nhieu-truong-cuc-bo` sinh. Ctrl+C dừng cả ba.
+// chủ API (đã dựng ở apps/*/dist), cổng quản trị và cổng nền tảng (vite) với biến của .env đè bởi tệp môi trường riêng do lệnh
+// `pnpm --filter @school-management/database nhieu-truong-cuc-bo` sinh. Ctrl+C dừng cả bốn.
 //
 // Cách dùng (ở thư mục gốc kho):
-//   node scripts/chay-nhieu-truong.mjs [--env-out .env.nhieu-truong] [--portal-port 5190]
+//   node scripts/chay-nhieu-truong.mjs [--env-out .env.nhieu-truong] [--portal-port 5190] [--console-port 5191]
 // Không in giá trị biến môi trường.
 import { spawn } from 'node:child_process';
 import { existsSync, readFileSync } from 'node:fs';
@@ -33,7 +33,9 @@ if (!merged.PLATFORM_DATABASE_URL || !merged.PLATFORM_ROOT_DOMAIN) {
   process.exit(1);
 }
 const portalPort = option('portal-port', '5190');
-const environment = { ...process.env, ...merged };
+const consolePort = option('console-port', '5191');
+// Cổng nền tảng tạo đường liên kết vào trường bằng http ở cổng của cổng quản trị (VITE_SCHOOL_PORTAL_PORT)
+const environment = { ...process.env, ...merged, VITE_SCHOOL_PORTAL_PORT: portalPort };
 
 const processes = [
   { name: 'dinh-danh', command: process.execPath, args: [resolve(GOC, 'apps/identity/dist/main.js')] },
@@ -42,6 +44,13 @@ const processes = [
     name: 'cong-quan-tri',
     command: 'pnpm',
     args: ['--filter', '@school-management/portal', 'exec', 'vite', '--port', portalPort, '--strictPort'],
+    shell: process.platform === 'win32',
+  },
+  {
+    // Cổng nền tảng: tài khoản vận hành mở phiên quản trị vào trường bất kỳ (DT-24, chính sách any_school)
+    name: 'cong-nen-tang',
+    command: 'pnpm',
+    args: ['--filter', '@school-management/platform', 'exec', 'vite', '--port', consolePort, '--strictPort'],
     shell: process.platform === 'win32',
   },
 ];
@@ -71,3 +80,6 @@ console.log(
   `Trang đăng nhập theo đơn vị: http://${merged.PLATFORM_ROOT_DOMAIN}:${portalPort}/ ` +
     `(định danh cổng ${merged.IDENTITY_PORT}, API cổng ${merged.API_PORT})`,
 );
+if (merged.PLATFORM_CONSOLE_HOST) {
+  console.log(`Cổng nền tảng (quản trị vào mọi trường): http://${merged.PLATFORM_CONSOLE_HOST}:${consolePort}/`);
+}
