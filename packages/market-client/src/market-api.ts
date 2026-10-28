@@ -55,6 +55,17 @@ export async function marketRequest<T>(method: string, path: string, body?: unkn
   return response.status === 204 ? (undefined as T) : ((await response.json()) as T);
 }
 
+// Tải nội dung nhị phân có phiên (bản ghi buổi học, 27i): thẻ <video> không gửi được tiêu đề xác thực nên tải về bộ nhớ rồi phát
+export async function marketBlob(path: string): Promise<Blob> {
+  const token = readSession();
+  const response = await fetch(`/api/v1/market${path}`, {
+    headers: token ? { authorization: `Bearer ${token}` } : {},
+    cache: 'no-store',
+  });
+  if (!response.ok) throw new MarketApiError(response.status, 'Không xem được bản ghi');
+  return response.blob();
+}
+
 export function errorText(error: unknown): string {
   return error instanceof MarketApiError ? error.message : 'Không kết nối được tới máy chủ';
 }

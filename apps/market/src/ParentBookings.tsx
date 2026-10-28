@@ -1,6 +1,13 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Alert, Button, FORM_CONTROL_CLASS } from '@school-management/ui';
-import { errorText, marketRequest, readSession, type Child } from '@school-management/market-client';
+import {
+  errorText,
+  marketRequest,
+  readSession,
+  RecordingPlayer,
+  ReportForm,
+  type Child,
+} from '@school-management/market-client';
 
 // Đặt buổi và buổi học của con ở Chợ gia sư (DT-27 phần 27h, YCTD-258): chọn con, môn, giờ (giờ Việt Nam), trả tiền qua nhà cung cấp
 // (bản này là thanh toán giả lập, không có tiền thật), hủy theo chính sách hủy, mở tranh chấp trong hạn khiếu nại, trình bày, khiếu nại lại
@@ -33,6 +40,7 @@ export interface BookableSubject {
 
 interface Booking {
   id: string;
+  tutor_id: string;
   tutor_name: string;
   child_name: string;
   subject: string;
@@ -68,7 +76,13 @@ export function BookingForm({
   schoolTeacher: boolean;
 }) {
   const [children, setChildren] = useState<Child[]>([]);
-  const [form, setForm] = useState({ child_id: '', subject_id: subjects[0]?.id ?? '', starts_at: '', attest: false });
+  const [form, setForm] = useState({
+    child_id: '',
+    subject_id: subjects[0]?.id ?? '',
+    starts_at: '',
+    attest: false,
+    recording: false,
+  });
   const [booked, setBooked] = useState<Booking>();
   const [error, setError] = useState<string>();
   useEffect(() => {
@@ -96,6 +110,7 @@ export function BookingForm({
           subject_id: form.subject_id,
           starts_at: form.starts_at ? vietnamInputToIso(form.starts_at) : '',
           no_assignment_attested: form.attest,
+          recording_consented: form.recording,
         })
           .then((result) => {
             setError(undefined);
@@ -159,6 +174,15 @@ export function BookingForm({
           Tôi cam kết con không học lớp do gia sư này được phân công dạy ở trường
         </label>
       ) : null}
+      <label>
+        <input
+          type="checkbox"
+          checked={form.recording}
+          onChange={(event) => setForm({ ...form, recording: event.target.checked })}
+        />{' '}
+        Tôi đồng ý buổi học được ghi hình (bắt buộc với trẻ dưới 18 tuổi; bản ghi giữ 30 ngày, chỉ phụ huynh, gia sư của
+        buổi và nhân viên nền tảng xem được, không tải xuống)
+      </label>
       <Button type="submit" variant="primary">
         Giữ chỗ buổi học
       </Button>
@@ -235,6 +259,61 @@ function DisputePanel({ booking, onChange }: { booking: Booking; onChange: () =>
   );
 }
 
+// Phòng học, bản ghi, báo cáo vi phạm của một buổi (27i): vào phòng khi gia sư đã mở (buổi có trẻ vị thành niên chỉ mở khi đang ghi)
+function SessionPanel({ booking }: { booking: Booking }) {
+  const [room, setRoom] = useState<{ recording: boolean }>();
+  const [recording, setRecording] = useState<{ recording_required: boolean; status: string | null }>();
+  const [reporting, setReporting] = useState(false);
+  const [error, setError] = useState<string>();
+  useEffect(() => {
+    if (booking.status === 'held' || booking.status === 'expired') return;
+    marketRequest<{ recording_required: boolean; status: string | null }>('GET', `/bookings/${booking.id}/recording`)
+      .then(setRecording)
+      .catch(() => setRecording(undefined));
+  }, [booking.id, booking.status]);
+  return (
+    <div className="flex flex-col gap-1">
+      {recording?.recording_required ? <span>Buổi học được ghi hình để bảo vệ trẻ.</span> : null}
+      {error ? <Alert tone="danger">{error}</Alert> : null}
+      {room ? (
+        <Alert tone="info">Đã vào phòng học{room.recording ? ' · Đang ghi hình' : ''}.</Alert>
+      ) : booking.status === 'paid' ? (
+        <div>
+          <Button
+            onClick={() =>
+              void marketRequest<{ recording: boolean }>('POST', `/bookings/${booking.id}/session/join`)
+                .then((result) => {
+                  setError(undefined);
+                  setRoom(result);
+                })
+                .catch((caught: unknown) => setError(errorText(caught)))
+            }
+          >
+            Vào phòng học
+          </Button>
+        </div>
+      ) : null}
+      {recording?.status === 'ready' ? (
+        <RecordingPlayer path={`/bookings/${booking.id}/recording/stream`} label={`Bản ghi buổi ${booking.subject}`} />
+      ) : null}
+      {booking.status !== 'held' && booking.status !== 'expired' ? (
+        reporting ? (
+          <ReportForm
+            subjectId={booking.tutor_id}
+            subjectName={booking.tutor_name}
+            targetKind="session"
+            targetId={booking.id}
+          />
+        ) : (
+          <div>
+            <Button onClick={() => setReporting(true)}>Báo cáo vi phạm</Button>
+          </div>
+        )
+      ) : null}
+    </div>
+  );
+}
+
 export function ParentBookings() {
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [error, setError] = useState<string>();
@@ -290,6 +369,7 @@ export function ParentBookings() {
               ) : null}
             </div>
             <DisputePanel booking={booking} onChange={load} />
+            <SessionPanel booking={booking} />
           </li>
         ))}
       </ul>

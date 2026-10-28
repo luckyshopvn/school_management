@@ -245,7 +245,14 @@ describe('chợ gia sư: đặt buổi, thanh toán, tranh chấp (27h)', () => 
       MARKET_HOST,
       'POST',
       '/bookings',
-      { tutor_id: tutor.id, child_id: parent.childId, subject_id: subjectId, starts_at: slotIn(hours), ...extra },
+      {
+        tutor_id: tutor.id,
+        child_id: parent.childId,
+        subject_id: subjectId,
+        starts_at: slotIn(hours),
+        recording_consented: true,
+        ...extra,
+      },
       parent.token,
     );
   }
@@ -342,6 +349,10 @@ describe('chợ gia sư: đặt buổi, thanh toán, tranh chấp (27h)', () => 
     const parent = await registerParent();
     const tutor = await seedTutor({ schoolTeacher: true });
     assert.equal((await book(parent, tutor, tutor.chess, 1)).status, 400, 'đặt trước ít nhất 2 giờ');
+    // Trẻ dưới 18 tuổi: không đồng ý ghi hình thì không đặt được (27i)
+    const noRecording = await book(parent, tutor, tutor.chess, 30, { recording_consented: false });
+    assert.equal(noRecording.status, 400);
+    assert.match(JSON.stringify(noRecording.body), /ghi hình/);
     const noAttest = await book(parent, tutor, tutor.math, 48);
     assert.equal(noAttest.status, 400);
     assert.match(JSON.stringify(noAttest.body), /cam kết/);

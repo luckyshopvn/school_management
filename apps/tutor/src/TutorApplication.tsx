@@ -1,10 +1,18 @@
 import { useCallback, useEffect, useState } from 'react';
-import { errorText, marketRequest, MarketShell, writeSession } from '@school-management/market-client';
+import {
+  ChildSafetyPolicy,
+  errorText,
+  marketRequest,
+  MarketShell,
+  MessageInbox,
+  writeSession,
+} from '@school-management/market-client';
 import { UpdateBanner } from '@school-management/pwa';
 import { Alert, Button } from '@school-management/ui';
 import { TutorArea } from './TutorArea.js';
 import { TutorBookings } from './TutorBookings.js';
 import { TutorListing } from './TutorListing.js';
+import { TutorSafety } from './TutorSafety.js';
 import { TutorSchoolRole } from './TutorSchoolRole.js';
 import { TutorVerification } from './TutorVerification.js';
 import type { Listing } from './tutor-api.js';
@@ -63,11 +71,14 @@ function TutorHome() {
   if (!listing) return <p>Đang tải hồ sơ…</p>;
   return (
     <div className="flex flex-col gap-6">
+      <TutorSafety />
       <TutorBookings />
+      <MessageInbox role="tutor" />
       <TutorVerification listing={listing} onChange={setListing} />
       <TutorListing key={listing.status} listing={listing} onChange={setListing} />
       <TutorArea />
       <TutorSchoolRole listing={listing} onChange={setListing} />
+      <ChildSafetyPolicy />
     </div>
   );
 }
