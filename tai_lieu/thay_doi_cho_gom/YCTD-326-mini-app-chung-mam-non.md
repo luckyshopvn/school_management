@@ -20,7 +20,7 @@ phien_ban_de_xuat: 0.202.0
 
 #### Thay đổi
 
-- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-326, `32_KE_HOACH_THEO_HE_THONG_SO.md` mục 21, `14_DAC_TA_GIAO_DIEN.md` MH-561, `21_KICH_BAN_KIEM_THU.md` CT-1545 đến CT-1549, `11_TIEU_CHI_NGHIEM_THU.md` AC-1133, AC-1134, `23_LICH_SU_PHIEN_BAN.md` {PHIEN_BAN}.
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-326, `32_KE_HOACH_THEO_HE_THONG_SO.md` mục 22, `14_DAC_TA_GIAO_DIEN.md` MH-561, `21_KICH_BAN_KIEM_THU.md` CT-1545 đến CT-1549, `11_TIEU_CHI_NGHIEM_THU.md` AC-1133, AC-1134, `23_LICH_SU_PHIEN_BAN.md` {PHIEN_BAN}.
 
 #### Vấn đề tồn đọng
 
@@ -30,7 +30,7 @@ phien_ban_de_xuat: 0.202.0
 
 ### YCTD-326: DT-29 phần 29b: mini app chung và Mầm non của Hộp công cụ giảng dạy – 2026-10-28
 
-- Lý do: phần 29b của `32_KE_HOACH_THEO_HE_THONG_SO.md` mục 21 (Eric duyệt ngày 2026-10-28).
+- Lý do: phần 29b của `32_KE_HOACH_THEO_HE_THONG_SO.md` mục 22 (Eric duyệt ngày 2026-10-28).
 - Nội dung thay đổi:
   - Bảng trắng: màu bút, độ dày nét, tẩy, xóa bảng; vẽ bằng ngón tay, bút cảm ứng, chuột; không lưu.
   - Xúc xắc một đến ba con và tổng; bốc số trong khoảng (tối đa 10 000 số), tuỳ chọn không lặp.
