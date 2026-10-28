@@ -430,6 +430,40 @@ describe('Điểm cuối thời khoá biểu', () => {
     assert.equal((await api('GET', `/children/${childId}/timetable`, parents[1]?.accessToken ?? '')).status, 403);
   });
 
+  it('YCTD-317: xuất Excel bản thời khoá biểu theo lớp, theo giáo viên; phụ huynh không xuất được', async () => {
+    const download = async (query: string, token: string) => {
+      const response = await fetch(url(`/timetable-versions/${versionId}/export${query}`), {
+        headers: { authorization: `Bearer ${token}` },
+      });
+      return { status: response.status, body: Buffer.from(await response.arrayBuffer()) };
+    };
+    const all = await download('', viewer.accessToken);
+    assert.equal(all.status, 200);
+    const book = new ExcelJS.Workbook();
+    await book.xlsx.load(all.body as unknown as ArrayBuffer);
+    assert.deepEqual(
+      book.worksheets.map((sheet) => sheet.name),
+      ['Lớp 1A', 'Lớp 1B'],
+    );
+    const text = (sheet: ExcelJS.Worksheet) =>
+      sheet
+        .getSheetValues()
+        .flat()
+        .filter((value): value is string => typeof value === 'string')
+        .join('\n');
+    assert.match(text(book.worksheets[0] as ExcelJS.Worksheet), /Thứ Hai/);
+    assert.match(text(book.worksheets[0] as ExcelJS.Worksheet), /Toán/);
+
+    const byTeacher = await download(`?teacher_user_id=${teachers[0]?.userId}`, viewer.accessToken);
+    assert.equal(byTeacher.status, 200);
+    const teacherBook = new ExcelJS.Workbook();
+    await teacherBook.xlsx.load(byTeacher.body as unknown as ArrayBuffer);
+    assert.equal(teacherBook.worksheets.length, 1);
+    assert.match(text(teacherBook.worksheets[0] as ExcelJS.Worksheet), /Lớp 1A/);
+
+    assert.equal((await download('', parents[0]?.accessToken ?? '')).status, 403);
+  });
+
   it('CT-22c1-5: nhập Excel vào bản nháp: dòng lỗi báo theo dòng, không ghi; tệp đúng thay tiết của lớp có trong tệp', async () => {
     const draft = await api('POST', '/timetable-versions', principal.accessToken, {
       school_level: 'TH',

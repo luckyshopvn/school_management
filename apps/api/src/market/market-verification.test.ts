@@ -37,16 +37,24 @@ describe('chợ gia sư: hồ sơ và xác minh gia sư (27g)', () => {
   let operatorToken = '';
   const documents: Record<string, string> = {};
 
-  const call = (host: string, method: string, path: string, body?: unknown, token?: string): Promise<Reply> =>
+  const call = (
+    host: string,
+    method: string,
+    path: string,
+    body?: unknown,
+    token?: string,
+    cookie?: string,
+  ): Promise<Reply> =>
     sendWithHost(environment.apiOrigin, {
       method,
       path: `/api/v1/market${path}`,
       host,
       ...(token ? { token } : {}),
       ...(body !== undefined ? { body } : {}),
+      ...(cookie ? { cookie } : {}),
     });
-  const tutorCall = (method: string, path: string, body?: unknown, token?: string) =>
-    call(TUTOR_HOST, method, path, body, token);
+  const tutorCall = (method: string, path: string, body?: unknown, token?: string, cookie?: string) =>
+    call(TUTOR_HOST, method, path, body, token, cookie);
   const admin = (method: string, path: string, body?: unknown) =>
     call(CONSOLE_HOST, method, `/admin${path}`, body, operatorToken);
 
@@ -112,8 +120,8 @@ describe('chợ gia sư: hồ sơ và xác minh gia sư (27g)', () => {
     return { token, id: me.body.id as string };
   }
 
-  // Một lượt OIDC: bắt đầu ở máy chủ, nhà cung cấp giả cấp mã cho danh tính đã chọn, ứng dụng gửi mã và state về máy chủ
-  async function oidc(purpose: 'verify' | 'login', identity: { subject: string; birthdate?: string }, token?: string) {
+  // Bắt đầu một lượt OIDC rồi để nhà cung cấp giả cấp mã cho danh tính đã chọn; cookie là cookie trình duyệt đã bắt đầu nhận
+  async function begin(purpose: 'verify' | 'login', identity: { subject: string; birthdate?: string }, token?: string) {
     const started = await tutorCall(
       'POST',
       '/identity/start',
@@ -121,8 +129,15 @@ describe('chợ gia sư: hồ sơ và xác minh gia sư (27g)', () => {
       token,
     );
     assert.equal(started.status, 200, JSON.stringify(started.body));
-    const { code, state } = mock.authorize(started.body.authorization_url as string, identity);
-    return { state, reply: await tutorCall('POST', '/identity/complete', { state, code }, token) };
+    const cookie = started.cookies?.find((value) => value.startsWith('__Secure-market_oidc_state='));
+    assert.ok(cookie, 'bắt đầu đặt cookie gắn lượt với trình duyệt');
+    return { cookie, ...mock.authorize(started.body.authorization_url as string, identity) };
+  }
+
+  // Một lượt OIDC trọn vẹn trên cùng trình duyệt: ứng dụng gửi mã và state về máy chủ kèm cookie
+  async function oidc(purpose: 'verify' | 'login', identity: { subject: string; birthdate?: string }, token?: string) {
+    const { cookie, code, state } = await begin(purpose, identity, token);
+    return { state, reply: await tutorCall('POST', '/identity/complete', { state, code }, token, cookie) };
   }
 
   before(async () => {
@@ -218,7 +233,15 @@ describe('chợ gia sư: hồ sơ và xác minh gia sư (27g)', () => {
     assert.equal(adult.reply.body.status, 'approved', JSON.stringify(adult.reply.body));
     // State chỉ dùng một lần
     assert.equal(
-      (await tutorCall('POST', '/identity/complete', { state: adult.state, code: 'x' }, first.token)).status,
+      (
+        await tutorCall(
+          'POST',
+          '/identity/complete',
+          { state: adult.state, code: 'x' },
+          first.token,
+          `__Secure-market_oidc_state=${adult.state}`,
+        )
+      ).status,
       400,
     );
     const listing = await tutorCall('GET', '/tutor/listing', undefined, first.token);
@@ -238,6 +261,90 @@ describe('chợ gia sư: hồ sơ và xác minh gia sư (27g)', () => {
     assert.equal(me.body.id, first.id);
     const stranger = await oidc('login', { subject: `nguoi-la-${Date.now()}`, birthdate: adultBirthdate() });
     assert.equal(stranger.reply.status, 403);
+  });
+
+  it('CT-27g-6: lượt OIDC chỉ hoàn tất ở trình duyệt đã bắt đầu và cho đúng tài khoản đã bắt đầu (YCTD-322)', async () => {
+    const owner = await registerTutor(`gia-su-bat-dau-${Date.now()}@example.test`);
+    const other = await registerTutor(`gia-su-khac-${Date.now()}@example.test`);
+    const identityState = async (token: string) =>
+      ((await tutorCall('GET', '/tutor/listing', undefined, token)).body.verification_state as Record<string, string>)
+        .identity;
+
+    // Người khác mở liên kết của chủ tài khoản và đăng nhập ở nhà cung cấp: trình duyệt của họ không có cookie của lượt
+    const shared = await begin(
+      'verify',
+      { subject: `nan-nhan-${Date.now()}`, birthdate: adultBirthdate() },
+      owner.token,
+    );
+    const noCookie = await tutorCall('POST', '/identity/complete', { state: shared.state, code: shared.code });
+    assert.equal(noCookie.status, 400, JSON.stringify(noCookie.body));
+    const noCookieWithSession = await tutorCall(
+      'POST',
+      '/identity/complete',
+      { state: shared.state, code: shared.code },
+      other.token,
+    );
+    assert.equal(noCookieWithSession.status, 400);
+    assert.notEqual(
+      await identityState(owner.token),
+      'approved',
+      'không gắn danh tính người khác vào tài khoản đã bắt đầu',
+    );
+
+    // Có cookie nhưng phiên là tài khoản khác: không ghi kết quả cho tài khoản nào
+    const swapped = await begin(
+      'verify',
+      { subject: `doi-phien-${Date.now()}`, birthdate: adultBirthdate() },
+      owner.token,
+    );
+    const wrongAccount = await tutorCall(
+      'POST',
+      '/identity/complete',
+      { state: swapped.state, code: swapped.code },
+      other.token,
+      swapped.cookie,
+    );
+    assert.equal(wrongAccount.status, 400);
+    assert.notEqual(await identityState(owner.token), 'approved');
+    assert.notEqual(await identityState(other.token), 'approved');
+    // Có cookie nhưng không có phiên: phải đăng nhập
+    const signedOut = await begin(
+      'verify',
+      { subject: `chua-dang-nhap-${Date.now()}`, birthdate: adultBirthdate() },
+      owner.token,
+    );
+    assert.equal(
+      (
+        await tutorCall(
+          'POST',
+          '/identity/complete',
+          { state: signedOut.state, code: signedOut.code },
+          undefined,
+          signedOut.cookie,
+        )
+      ).status,
+      401,
+    );
+
+    // Đăng nhập bằng định danh: liên kết của người khác không ép được trình duyệt khác đăng nhập
+    const forced = await begin('login', { subject: `ep-dang-nhap-${Date.now()}`, birthdate: adultBirthdate() });
+    assert.equal(
+      (await tutorCall('POST', '/identity/complete', { state: forced.state, code: forced.code })).status,
+      400,
+    );
+    // Cookie của lượt khác cũng không dùng được
+    const mismatched = await tutorCall(
+      'POST',
+      '/identity/complete',
+      { state: forced.state, code: forced.code },
+      undefined,
+      swapped.cookie,
+    );
+    assert.equal(mismatched.status, 400);
+
+    // Đúng trình duyệt, đúng tài khoản: xác minh được
+    const own = await oidc('verify', { subject: `chinh-chu-${Date.now()}`, birthdate: adultBirthdate() }, owner.token);
+    assert.equal(own.reply.body.status, 'approved', JSON.stringify(own.reply.body));
   });
 
   it('CT-27g-3: giáo viên công lập không có môn của chương trình; hồ sơ gửi duyệt cần danh tính, giờ trống, đăng ký kinh doanh', async () => {
