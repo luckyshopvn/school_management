@@ -5,6 +5,8 @@ export interface Operator {
   full_name: string;
   // Vai trò nhân viên vận hành (YCTD-311)
   role: 'quan_tri' | 'ho_tro' | 'ky_thuat' | 'ke_toan';
+  // Còn mật khẩu tạm do quản trị cấp: cổng chỉ hiện màn đổi mật khẩu (YCTD-323)
+  must_change_password: boolean;
 }
 
 export interface OperatorProfile extends Operator {
@@ -80,6 +82,35 @@ export async function fetchProfile(accessToken: string): Promise<OperatorProfile
   return (await response.json()) as OperatorProfile;
 }
 
+// Nhân viên vận hành tự đổi mật khẩu (YCTD-323): mật khẩu hiện tại, mã hai lớp, mật khẩu mới từ 12 ký tự
+export async function changeOperatorPassword(
+  accessToken: string,
+  input: { current_password: string; new_password: string; otp_code: string },
+): Promise<void> {
+  const response = await fetch('/api/v1/auth/platform/password', {
+    method: 'POST',
+    headers: { authorization: `Bearer ${accessToken}`, 'content-type': 'application/json' },
+    body: JSON.stringify(input),
+  });
+  if (!response.ok) {
+    // Báo đủ lý do từng ô (mật khẩu hiện tại sai, mật khẩu mới ngắn, thiếu mã) để người dùng sửa đúng chỗ
+    let message = 'Không đổi được mật khẩu, vui lòng thử lại';
+    let fields: string[] = [];
+    try {
+      const body = (await response.json()) as {
+        error?: { message?: string; details?: Array<{ field?: string; message?: string }> };
+      };
+      const details = body.error?.details ?? [];
+      message =
+        details.length > 0 ? details.map((detail) => detail.message).join('. ') : (body.error?.message ?? message);
+      fields = details.flatMap((detail) => (detail.field ? [detail.field] : []));
+    } catch {
+      // Phản hồi không phải JSON: giữ thông điệp mặc định
+    }
+    throw new PlatformApiError(response.status, message, fields);
+  }
+}
+
 // Quản lý trường (DT-SaaS phần S2, YCTD-193)
 export interface FieldProblem {
   field: string;
@@ -129,6 +160,8 @@ export interface SchoolSummary {
   legacy: boolean;
   created_at: string;
   delete_after: string | null;
+  // Mã Bộ của đơn vị trong danh mục (DT-24), để vào trường từ danh sách (YCTD-324)
+  moet_code?: string | null;
   domains: Array<{ host: string; status: string }>;
 }
 

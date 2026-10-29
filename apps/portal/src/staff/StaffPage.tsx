@@ -46,7 +46,9 @@ import {
 // dưới dòng. Ô mã định danh Bộ tô đỏ khi trống như danh sách học sinh. Cột hợp đồng, lương chỉ hiện cho người xem được
 // hợp đồng (BR-46). DT-16 phần 16f thêm Thay đổi (mở hồ sơ dòng đã chọn), Xóa (chỉ hồ sơ chưa có dữ liệu liên quan), Xuất tệp
 // theo mẫu Bộ kèm kiểm tra dữ liệu, Xuất file lỗi (bản chạy nội bộ của "Đồng bộ hồ sơ lên CSDL Bộ", không gửi đi), lọc xã
-// ĐBKK, trạng thái xác thực số định danh
+// ĐBKK, trạng thái xác thực số định danh. YCTD-333 (thiết kế lại cổng quản trị): thanh công cụ chỉ còn Nhập từ Excel, Thêm
+// mới; Thay đổi, Xóa hiện ở thanh "Đã chọn" khi chọn dòng; xuất tệp ở menu Thêm; cột ít dùng ẩn mặc định (bật ở Cấu hình
+// cột hiển thị); ô mã định danh Bộ trống ghi chữ xám thay nhãn đỏ
 function messageOf(error: unknown): string {
   return error instanceof ApiError
     ? [error.message, ...error.details.map((detail) => detail.message)].join('. ')
@@ -115,17 +117,16 @@ function staffColumns(contractVisible: boolean): Array<DataGridColumn<StaffListI
       id: 'moet_staff_code',
       header: 'Mã định danh Bộ GD&ĐT',
       cell: (row) => (
-        <span className={row.moet_staff_code ? '' : 'rounded bg-danger/10 px-2 text-danger'}>
-          {row.moet_staff_code ?? 'Chưa có'}
-        </span>
+        <span className={row.moet_staff_code ? '' : 'text-text-secondary'}>{row.moet_staff_code ?? 'Chưa có'}</span>
       ),
     },
     { id: 'code', header: 'Mã nhân sự', cell: (row) => row.code },
     { id: 'full_name', header: 'Họ tên', alwaysVisible: true, className: 'font-medium', cell: (row) => row.full_name },
-    { id: 'dob', header: 'Ngày sinh', cell: (row) => formatDate(row.dob) },
+    { id: 'dob', header: 'Ngày sinh', hiddenByDefault: true, cell: (row) => formatDate(row.dob) },
     {
       id: 'gender',
       header: 'Giới tính',
+      hiddenByDefault: true,
       cell: (row) => (row.gender === 'male' ? 'Nam' : row.gender === 'female' ? 'Nữ' : ''),
     },
     {
@@ -135,14 +136,25 @@ function staffColumns(contractVisible: boolean): Array<DataGridColumn<StaffListI
         <StatusBadge tone={row.status === 'active' ? 'success' : 'neutral'} label={STAFF_STATUS_LABELS[row.status]} />
       ),
     },
-    { id: 'ethnicity', header: 'Dân tộc', cell: (row) => row.ethnicity ?? '' },
+    { id: 'ethnicity', header: 'Dân tộc', hiddenByDefault: true, cell: (row) => row.ethnicity ?? '' },
     { id: 'phone', header: 'Điện thoại', cell: (row) => row.phone ?? '' },
     { id: 'job_position', header: 'Vị trí việc làm', cell: (row) => row.job_position ?? '' },
-    { id: 'position_group', header: 'Nhóm chức vụ', cell: (row) => row.position_group ?? '' },
-    { id: 'contract_form', header: 'Hình thức hợp đồng', cell: (row) => row.contract_form ?? '' },
+    {
+      id: 'position_group',
+      header: 'Nhóm chức vụ',
+      hiddenByDefault: true,
+      cell: (row) => row.position_group ?? '',
+    },
+    {
+      id: 'contract_form',
+      header: 'Hình thức hợp đồng',
+      hiddenByDefault: true,
+      cell: (row) => row.contract_form ?? '',
+    },
     {
       id: 'professional_qualification',
       header: 'Trình độ chuyên môn',
+      hiddenByDefault: true,
       cell: (row) => row.professional_qualification ?? '',
     },
     { id: 'department', header: 'Phòng ban', hiddenByDefault: true, cell: (row) => row.department_name ?? '' },
@@ -621,13 +633,23 @@ export function StaffPage() {
             },
           }}
           advancedSearch={advancedSearch}
-          toolbar={(selectedRows) => (
-            <>
-              {canManage ? (
+          toolbar={
+            canManage ? (
+              <>
+                <Link
+                  to="/staff-imports"
+                  className="rounded-lg border border-border-strong bg-card px-4 py-2 text-label font-medium text-text hover:bg-selected"
+                >
+                  Nhập từ Excel
+                </Link>
                 <Button variant="primary" onClick={() => setCreating(true)}>
                   Thêm mới
                 </Button>
-              ) : null}
+              </>
+            ) : null
+          }
+          selectionActions={(selectedRows) => (
+            <>
               <Button
                 disabled={selectedRows.length !== 1}
                 title={selectedRows.length !== 1 ? 'Chọn một hồ sơ để thay đổi' : undefined}
@@ -643,7 +665,6 @@ export function StaffPage() {
               {canManage ? (
                 <Button
                   variant="danger"
-                  disabled={selectedRows.length === 0}
                   onClick={() => {
                     setDeleteResult(undefined);
                     setDeleting(selectedRows);
@@ -652,25 +673,23 @@ export function StaffPage() {
                   Xóa
                 </Button>
               ) : null}
-              {canExport ? (
-                <>
-                  <Button disabled={exporting} onClick={() => void runExport()}>
-                    Xuất Excel
-                  </Button>
-                  <Button
-                    disabled={exporting}
-                    title="Tệp 75 cột theo mẫu CSDL ngành kèm trang kiểm tra dữ liệu; trường tự nộp tệp, hệ thống không gửi đi"
-                    onClick={() => void runFile(exportMinistryFile)}
-                  >
-                    Xuất tệp theo mẫu Bộ
-                  </Button>
-                  <Button disabled={exporting} onClick={() => void runFile(exportMinistryErrors)}>
-                    Xuất file lỗi
-                  </Button>
-                </>
-              ) : null}
             </>
           )}
+          moreActions={
+            canExport
+              ? [
+                  { label: 'Xuất Excel', disabled: exporting, onSelect: () => void runExport() },
+                  {
+                    label: 'Xuất tệp theo mẫu Bộ',
+                    disabled: exporting,
+                    title:
+                      'Tệp 75 cột theo mẫu CSDL ngành kèm trang kiểm tra dữ liệu; trường tự nộp tệp, hệ thống không gửi đi',
+                    onSelect: () => void runFile(exportMinistryFile),
+                  },
+                  { label: 'Xuất file lỗi', disabled: exporting, onSelect: () => void runFile(exportMinistryErrors) },
+                ]
+              : undefined
+          }
           selectable
           rowActions={(row) => (
             <Link

@@ -7,6 +7,7 @@ import {
   logout as requestLogout,
   requestJson,
   refreshSession,
+  type CaptchaAnswer,
   type TokenResponse,
 } from './api-client.js';
 
@@ -17,9 +18,9 @@ interface SessionValue {
   passwordChangeRequired: boolean;
   // Mật khẩu vừa dùng để đăng nhập, giữ trong bộ nhớ để màn hình kích hoạt điền sẵn mật khẩu hiện tại
   lastPassword: string | undefined;
-  loginWithPassword(phone: string, password: string): Promise<void>;
+  loginWithPassword(phone: string, password: string, captcha?: CaptchaAnswer): Promise<void>;
   loginWithOneTimeCode(phone: string, code: string): Promise<void>;
-  changePassword(currentPassword: string, newPassword: string): Promise<void>;
+  changePassword(currentPassword: string, newPassword: string, otpCode?: string): Promise<void>;
   logout(): Promise<void>;
 }
 
@@ -47,16 +48,16 @@ export function SessionProvider({ children }: { children: ReactNode }) {
       status,
       passwordChangeRequired,
       lastPassword,
-      async loginWithPassword(phone, password) {
-        const tokens = await loginWithPassword(phone, password);
+      async loginWithPassword(phone, password, captcha) {
+        const tokens = await loginWithPassword(phone, password, captcha);
         setLastPassword(tokens.password_change_required ? password : undefined);
         applyTokens(tokens);
       },
       async loginWithOneTimeCode(phone, code) {
         applyTokens(await loginWithOneTimeCode(phone, code));
       },
-      async changePassword(currentPassword, newPassword) {
-        applyTokens(await requestPasswordChange(currentPassword, newPassword));
+      async changePassword(currentPassword, newPassword, otpCode) {
+        applyTokens(await requestPasswordChange(currentPassword, newPassword, otpCode));
         setLastPassword(undefined);
       },
       async logout() {

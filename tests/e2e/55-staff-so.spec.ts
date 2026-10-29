@@ -11,6 +11,7 @@ import { createTestUser } from '@school-management/identity/testing';
 import ExcelJS from 'exceljs';
 import { E2E_SCHOOL_YEAR_DATABASE_PREFIX } from '../e2e-environment.mjs';
 import { openMenu } from './menu.js';
+import { clickGridMoreItem } from './grid.js';
 
 // Nhân sự theo hệ thống của Sở (DT-15 phần 15d, YCTD-112): 3.1.1 lưới cán bộ, giáo viên có cột của Sở, A–Z, mở rộng tìm
 // kiếm, xuất Excel; hồ sơ theo khối của Sở có nút Ghi, thẻ thông tin riêng của trường; cột và hợp đồng theo quyền (BR-46)
@@ -105,19 +106,17 @@ test('CT-15d-10: lưới cán bộ, giáo viên theo Sở: cột, A–Z, mở r�
   const headers = grid.getByRole('columnheader');
   for (const header of [
     'Mã định danh Bộ GD&ĐT',
+    'Mã nhân sự',
     'Họ tên',
-    'Ngày sinh',
-    'Giới tính',
     'Trạng thái',
-    'Dân tộc',
     'Điện thoại',
     'Vị trí việc làm',
-    'Nhóm chức vụ',
-    'Hình thức hợp đồng',
-    'Trình độ chuyên môn',
   ]) {
     await expect(headers.filter({ hasText: header }).first()).toBeVisible();
   }
+  // Cột ít dùng ẩn mặc định, bật lại ở Cấu hình cột hiển thị (YCTD-333)
+  await expect(headers.filter({ hasText: 'Dân tộc' })).toHaveCount(0);
+  await expect(headers.filter({ hasText: 'Trình độ chuyên môn' })).toHaveCount(0);
   await expect(headers.filter({ hasText: 'Lương thỏa thuận' })).toHaveCount(0);
   // Sắp xếp theo tên rồi theo họ: An, Ánh, Bảo
   const rows = grid.getByRole('row').filter({ hasText: token });
@@ -125,8 +124,6 @@ test('CT-15d-10: lưới cán bộ, giáo viên theo Sở: cột, A–Z, mở r�
   await expect(rows.nth(1)).toContainText(names.anh);
   await expect(rows.nth(2)).toContainText(names.bao);
   await expect(rows.nth(1)).toContainText('Giáo viên mẫu giáo');
-  await expect(rows.nth(1)).toContainText('Tày');
-  await expect(rows.nth(2)).toContainText('Không thời hạn');
 
   // Mở rộng tìm kiếm: Đảng viên
   await grid.getByRole('button', { name: 'Mở rộng tìm kiếm' }).click();
@@ -136,7 +133,7 @@ test('CT-15d-10: lưới cán bộ, giáo viên theo Sở: cột, A–Z, mở r�
 
   // Xuất Excel đúng các cột đang hiện, theo bộ lọc đang chọn
   const downloading = page.waitForEvent('download');
-  await grid.getByRole('button', { name: 'Xuất Excel' }).click();
+  await clickGridMoreItem(grid, 'Xuất Excel');
   const download = await downloading;
   expect(download.suggestedFilename()).toMatch(/^danh-sach-can-bo-giao-vien-.*\.xlsx$/);
   const workbook = new ExcelJS.Workbook();
@@ -144,7 +141,7 @@ test('CT-15d-10: lưới cán bộ, giáo viên theo Sở: cột, A–Z, mở r�
   const sheet = workbook.worksheets[0];
   const header = Array.from((sheet?.getRow(1).values as unknown[]).slice(1), (value) => String(value ?? ''));
   expect(header.slice(0, 4)).toEqual(['STT', 'Mã định danh Bộ GD&ĐT', 'Mã nhân sự', 'Họ tên']);
-  expect(header).toContain('Trình độ chuyên môn');
+  expect(header).toContain('Vị trí việc làm');
   expect(sheet?.rowCount).toBe(2);
   expect(String(sheet?.getRow(2).getCell(4).value)).toBe(names.anh);
 });
@@ -170,6 +167,8 @@ test('CT-15d-11: phòng nhân sự ghi hồ sơ theo khối của Sở; lưới 
   await form.getByRole('button', { name: 'Ghi', exact: true }).click();
   await expect(page.getByText('Đã ghi hồ sơ cán bộ, giáo viên')).toBeVisible();
   await expect(form.getByLabel('Ngày tuyển dụng')).toHaveValue('2015-09-01');
+  // Cột Dân tộc ẩn mặc định ở lưới từ YCTD-333 nên kiểm giá trị vừa ghi ngay ở biểu mẫu
+  await expect(form.getByLabel('Dân tộc').locator('option:checked')).toHaveText('Kinh');
 
   // Thẻ Thông tin chung: thông tin riêng của trường; người xem được hợp đồng thấy thẻ Hợp đồng
   await panel.getByRole('tab', { name: 'Thông tin chung' }).click();
@@ -185,7 +184,6 @@ test('CT-15d-11: phòng nhân sự ghi hồ sơ theo khối của Sở; lưới 
   grid = await openStaff(page);
   const row = grid.getByRole('row').filter({ hasText: names.an }).first();
   await expect(row).toContainText('Giáo viên nhà trẻ');
-  await expect(row).toContainText('Kinh');
 
   // Hợp đồng và lương thỏa thuận của nhân sự có hợp đồng
   await grid.getByRole('row').filter({ hasText: names.bao }).getByRole('link', { name: 'Hồ sơ' }).click();
@@ -201,10 +199,10 @@ test('CT-15d-12: quản lý đơn vị xem được lưới và hồ sơ nhưng 
   await signIn(page, 'VT-03', orgUnitId);
   const grid = await openStaff(page);
   await expect(grid.getByRole('button', { name: 'Thêm mới' })).toHaveCount(0);
-  await expect(grid.getByRole('button', { name: 'Xuất Excel' })).toHaveCount(0);
+  await expect(grid.getByRole('menuitem', { name: 'Xuất Excel' })).toHaveCount(0);
   const row = grid.getByRole('row').filter({ hasText: names.bao });
   await expect(row).not.toContainText('Không thời hạn');
-  await grid.getByRole('button', { name: 'Cấu hình cột hiển thị' }).click();
+  await clickGridMoreItem(grid, 'Cấu hình cột hiển thị');
   const dialog = page.getByRole('dialog', { name: 'Cấu hình cột hiển thị' });
   await expect(dialog.getByRole('checkbox', { name: 'Phòng ban', exact: true })).toBeVisible();
   await expect(dialog.getByRole('checkbox', { name: 'Lương thỏa thuận', exact: true })).toHaveCount(0);

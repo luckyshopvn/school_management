@@ -1,4 +1,5 @@
 import { useState, type FormEvent } from 'react';
+import { operatorRolesFor } from '@school-management/shared';
 import {
   PlatformValidationError,
   schoolsApi,
@@ -14,7 +15,7 @@ import {
 // `consented` đi qua cùng cổng hồ sơ đồng ý như bước setup, `production` chỉ sau khi đã chuyển về máy chủ trong nước. Máy chủ
 // quyết định (đủ hồ sơ, chính sách môi trường); trang chỉ hỏi xác nhận rồi hiện lỗi nghiệp vụ máy chủ trả về. Nút chỉ hiện cho vai
 // trò máy chủ cho phép (DATA_GOVERNANCE_ROLES ở apps/identity/src/platform/platform-schools.ts)
-export const DATA_GOVERNANCE_ROLES: ReadonlyArray<Operator['role']> = ['quan_tri', 'ky_thuat'];
+export const DATA_GOVERNANCE_ROLES: ReadonlyArray<Operator['role']> = operatorRolesFor('schools.data-governance');
 
 export const DATA_CLASS_LABELS: Record<string, string> = {
   synthetic: 'Dữ liệu giả',

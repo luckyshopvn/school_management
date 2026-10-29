@@ -45,6 +45,7 @@ import { TENANCY_RUNTIME } from '../common/configuration.js';
 import { OPERATOR_MINIMUM_PASSWORD_LENGTH, PlatformOperatorsService } from './platform-operators.js';
 import { PlatformSchoolsService } from './platform-schools.js';
 import { SupportSessionsService } from './support-sessions.js';
+import { operatorRolesFor, type OperatorCapability } from '@school-management/shared';
 
 // Đơn vị cấp trên ở dịch vụ định danh (DT-SaaS phần S6, YCTD-202; tài liệu 32 mục 14.5 "S6"). Claude tự chọn theo ủy quyền của Eric
 // ngày 2026-10-11:
@@ -711,14 +712,15 @@ export class PlatformParentOrgsController {
     private readonly schools: PlatformSchoolsService,
   ) {}
 
-  private async actor(request: Request) {
-    const actor = await this.schools.actor(request);
+  // Mặc định chỉ việc sửa cây đơn vị và tài khoản cấp trên (YCTD-323)
+  private async actor(request: Request, capability: OperatorCapability = 'parent-orgs.manage') {
+    const actor = await this.schools.actor(request, operatorRolesFor(capability));
     return { id: actor.id ?? '', name: actor.name };
   }
 
   @Get('admin-units')
   async units(@Req() request: Request) {
-    await this.actor(request);
+    await this.actor(request, 'parent-orgs.view');
     return this.parentOrgs.units();
   }
 

@@ -12,6 +12,7 @@ import {
 } from './device-checks.js';
 import { expect, test } from './fixtures.js';
 import { signInConsole } from './platform-console.js';
+import { clickGridMoreItem } from './grid.js';
 
 // DT-26 phần 26e (YCTD-235, spec 184): bố cục máy tính bảng của cổng quản trị và cổng nền tảng, chạy ở các dự án thiết bị của 26c
 // (E2E_DEVICES=pr hoặc full; ở dự án `chromium` mặc định chạy như ca thường ở khổ máy tính 1280 px). Cổng quản trị: dưới 1280 px menu là
@@ -106,7 +107,7 @@ test('@thiet-bi @thiet-bi-pr CT-26e-2: lưới dữ liệu cuộn ngang có cộ
   expect(violations, describeViolations(violations)).toEqual([]);
 
   // Hộp thoại: dưới 768 px rộng bằng màn hình, từ 768 px là hộp giữa màn hình
-  await grid.getByRole('button', { name: 'Cấu hình cột hiển thị' }).click();
+  await clickGridMoreItem(grid, 'Cấu hình cột hiển thị');
   const dialog = page.getByRole('dialog', { name: 'Cấu hình cột hiển thị' });
   await expect(dialog).toBeVisible();
   const box = await dialog.boundingBox();
@@ -201,6 +202,9 @@ test.describe('cổng nền tảng', () => {
           id: 'van-hanh-thu',
           login: 'van-hanh-thu',
           full_name: 'Người vận hành thử',
+          // Menu lọc theo vai trò (YCTD-323): máy chủ thật luôn trả vai trò và cờ mật khẩu tạm
+          role: 'quan_tri',
+          must_change_password: false,
           school_count: 3,
         }),
       }),
@@ -215,7 +219,9 @@ test.describe('cổng nền tảng', () => {
     await expect(page.getByText('Liên hệ quản trị viên nền tảng')).toBeVisible();
     await page.getByLabel('Ghi nhớ').check();
     await signInConsole(page, 'van-hanh-thu', 'mat-khau-thu', () => '123456', { captcha: () => 'ABCDE' });
-    await expect(page.getByText('Số trường đang quản lý')).toBeVisible();
+    // Trang Tổng quan theo thiết kế cổng vận hành (YCTD-324): ô Đã khởi tạo lấy số trường của tài khoản khi chưa có số liệu tổng quan
+    await expect(page.getByRole('heading', { name: 'Tổng quan nền tảng' })).toBeVisible();
+    await expect(page.getByTestId('tile-schools')).toHaveText('3');
     expect(await page.evaluate(() => localStorage.getItem('platform.login.remembered'))).toBe('van-hanh-thu');
 
     const width = page.viewportSize()?.width ?? 1280;

@@ -15,7 +15,7 @@ import {
 } from '@nestjs/common';
 import type { MarketplaceDatabase, MarketReportDecision, MarketReportTarget } from '@school-management/database';
 import { ApplicationError, validationError, type FieldError } from '@school-management/server';
-import { videoGrantsFor } from '@school-management/shared';
+import { operatorRolesFor, videoGrantsFor } from '@school-management/shared';
 import type { Request, Response } from 'express';
 import type { Kysely, Transaction } from 'kysely';
 import { PublicEndpoint } from '../authentication/authentication.guard.js';
@@ -846,7 +846,7 @@ export class MarketSafetyService implements OnApplicationBootstrap, OnModuleDest
   // ---------- Nhân viên nền tảng
 
   async adminOverview(request: Request) {
-    await this.market.operator(request);
+    await this.market.operator(request, operatorRolesFor('market.safety'));
     const database = this.market.database;
     const now = this.market.now();
     const [reports, suspensions, flagged, recordings] = await Promise.all([
@@ -1004,14 +1004,14 @@ export class MarketSafetyService implements OnApplicationBootstrap, OnModuleDest
   }
 
   async adminReport(request: Request, id: string) {
-    const operatorId = await this.market.operator(request);
+    const operatorId = await this.market.operator(request, operatorRolesFor('market.safety'));
     const detail = await this.reportDetail(id);
     await this.market.audit({ actorType: 'operator', actorId: operatorId, action: 'report.view', target: id });
     return detail;
   }
 
   async assign(request: Request, id: string) {
-    const operatorId = await this.market.operator(request);
+    const operatorId = await this.market.operator(request, operatorRolesFor('market.safety'));
     const report = await this.reportRow(id);
     await this.market.database
       .updateTable('market_reports')
@@ -1031,7 +1031,7 @@ export class MarketSafetyService implements OnApplicationBootstrap, OnModuleDest
   // Quyết định: lần đầu khi đang mở; xét lại khi đã kháng nghị, phải là nhân viên khác người quyết định lần đầu. Tạm khóa thì khóa gia sư
   // (nếu chưa); cảnh cáo hoặc bác thì gỡ khóa đang có
   async decide(request: Request, id: string, body: RequestBody) {
-    const operatorId = await this.market.operator(request);
+    const operatorId = await this.market.operator(request, operatorRolesFor('market.safety'));
     const errors: FieldError[] = [];
     const decision = pick(body?.decision, DECISIONS);
     const note = text(body, 'note', 2000, errors);
@@ -1098,7 +1098,7 @@ export class MarketSafetyService implements OnApplicationBootstrap, OnModuleDest
 
   // Tạm khóa ngay trong lúc xét (không cần chờ quyết định)
   async suspendNow(request: Request, id: string, body: RequestBody) {
-    const operatorId = await this.market.operator(request);
+    const operatorId = await this.market.operator(request, operatorRolesFor('market.safety'));
     const errors: FieldError[] = [];
     const note = text(body, 'note', 2000, errors);
     if (errors.length > 0) throw validationError(errors);
@@ -1116,7 +1116,7 @@ export class MarketSafetyService implements OnApplicationBootstrap, OnModuleDest
   // Xuất hồ sơ cho cơ quan có thẩm quyền: phải ghi cơ quan và số văn bản yêu cầu; có nhật ký. Bản ghi hình không nằm trong tệp xuất
   // (bàn giao theo thủ tục riêng của cơ quan, E-08)
   async exportEvidence(request: Request, id: string, body: RequestBody) {
-    const operatorId = await this.market.operator(request);
+    const operatorId = await this.market.operator(request, operatorRolesFor('market.safety'));
     const errors: FieldError[] = [];
     const authority = text(body, 'authority', 300, errors);
     const reference = text(body, 'request_reference', 200, errors);
@@ -1144,13 +1144,13 @@ export class MarketSafetyService implements OnApplicationBootstrap, OnModuleDest
   }
 
   async streamForOperator(request: Request, bookingId: string, response: Response) {
-    const operatorId = await this.market.operator(request);
+    const operatorId = await this.market.operator(request, operatorRolesFor('market.safety'));
     if (!UUID.test(bookingId)) throw marketNotFound();
     await this.stream(bookingId, { type: 'operator', id: operatorId }, response);
   }
 
   async runDue(request: Request) {
-    await this.market.operator(request);
+    await this.market.operator(request, operatorRolesFor('market.safety'));
     return { purged: await this.purgeRecordings() };
   }
 }

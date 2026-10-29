@@ -41,13 +41,14 @@ import {
   type BillingPeriod,
   type BillingSettings,
   type PlatformDatabase,
+  type PlatformOperatorRole,
   type PriceComponent,
   type PriceRule,
   type StudentTier,
   type TenancyRuntime,
 } from '@school-management/database';
-import { ApplicationError, Clock, readBearerToken, validationError, type FieldError } from '@school-management/server';
-import { isPlanModuleKey, PLAN_MODULES } from '@school-management/shared';
+import { ApplicationError, Clock, validationError, type FieldError } from '@school-management/server';
+import { isPlanModuleKey, PLAN_MODULES, operatorRolesFor } from '@school-management/shared';
 import type { Request } from 'express';
 import type { Kysely } from 'kysely';
 import { TENANCY_RUNTIME } from '../common/configuration.js';
@@ -264,9 +265,12 @@ export class PlatformBillingService {
     @Optional() @Inject(TENANCY_RUNTIME) private readonly tenancy: TenancyRuntime | null = null,
   ) {}
 
-  async authorize(request: Request): Promise<{ platform: Kysely<PlatformDatabase>; operatorId: string }> {
-    this.operators.assertConsoleHost(request);
-    const operator = await this.operators.me(readBearerToken(request.header('authorization')));
+  // Vai trò được làm việc này theo OPERATOR_PERMISSIONS (YCTD-323)
+  async authorize(
+    request: Request,
+    roles: readonly PlatformOperatorRole[],
+  ): Promise<{ platform: Kysely<PlatformDatabase>; operatorId: string }> {
+    const operator = await this.operators.authorize(request, roles);
     return { platform: this.operators.platformDatabase(), operatorId: operator.id };
   }
 
@@ -547,76 +551,76 @@ export class PlatformBillingController {
 
   @Get()
   async overview(@Req() request: Request) {
-    const { platform } = await this.billing.authorize(request);
+    const { platform } = await this.billing.authorize(request, operatorRolesFor('billing.view'));
     return this.billing.overview(platform);
   }
 
   @Put('settings')
   async settings(@Body() body: Body_, @Req() request: Request) {
-    const { platform, operatorId } = await this.billing.authorize(request);
+    const { platform, operatorId } = await this.billing.authorize(request, operatorRolesFor('billing.manage'));
     return this.billing.saveSettings(platform, operatorId, body);
   }
 
   @Put('connectors/:connector')
   async connector(@Param('connector') connector: string, @Body() body: Body_, @Req() request: Request) {
-    const { platform, operatorId } = await this.billing.authorize(request);
+    const { platform, operatorId } = await this.billing.authorize(request, operatorRolesFor('billing.connectors'));
     return this.billing.saveConnector(platform, operatorId, connector, body);
   }
 
   @Get('price-rules')
   async rules(@Req() request: Request) {
-    const { platform } = await this.billing.authorize(request);
+    const { platform } = await this.billing.authorize(request, operatorRolesFor('billing.view'));
     return this.billing.listRules(platform);
   }
 
   @Post('price-rules')
   async createRule(@Body() body: Body_, @Req() request: Request) {
-    const { platform, operatorId } = await this.billing.authorize(request);
+    const { platform, operatorId } = await this.billing.authorize(request, operatorRolesFor('billing.manage'));
     return this.billing.saveRule(platform, operatorId, null, parsePriceRuleInput(body));
   }
 
   @Put('price-rules/:id')
   async updateRule(@Param('id') id: string, @Body() body: Body_, @Req() request: Request) {
-    const { platform, operatorId } = await this.billing.authorize(request);
+    const { platform, operatorId } = await this.billing.authorize(request, operatorRolesFor('billing.manage'));
     return this.billing.saveRule(platform, operatorId, assertId(id), parsePriceRuleInput(body));
   }
 
   @Get('invoices')
   async invoices(@Query() query: Record<string, string | undefined>, @Req() request: Request) {
-    const { platform } = await this.billing.authorize(request);
+    const { platform } = await this.billing.authorize(request, operatorRolesFor('billing.view'));
     return this.billing.invoices(platform, query);
   }
 
   @Post('invoices')
   async createInvoice(@Body() body: Body_, @Req() request: Request) {
-    const { platform, operatorId } = await this.billing.authorize(request);
+    const { platform, operatorId } = await this.billing.authorize(request, operatorRolesFor('billing.manage'));
     return this.billing.createInvoice(platform, operatorId, body);
   }
 
   @Get('invoices/:id')
   async invoice(@Param('id') id: string, @Req() request: Request) {
-    const { platform } = await this.billing.authorize(request);
+    const { platform } = await this.billing.authorize(request, operatorRolesFor('billing.view'));
     return this.billing.invoice(platform, id);
   }
 
   @Post('invoices/:id/:action')
   @HttpCode(200)
   async adjust(@Param('id') id: string, @Param('action') action: string, @Body() body: Body_, @Req() request: Request) {
-    const { platform, operatorId } = await this.billing.authorize(request);
+    const { platform, operatorId } = await this.billing.authorize(request, operatorRolesFor('billing.manage'));
     return this.billing.adjust(platform, operatorId, id, action, body);
   }
 
   @Post('payments/:id/assign')
   @HttpCode(200)
   async assign(@Param('id') id: string, @Body() body: Body_, @Req() request: Request) {
-    const { platform, operatorId } = await this.billing.authorize(request);
+    const { platform, operatorId } = await this.billing.authorize(request, operatorRolesFor('billing.manage'));
     return this.billing.assign(platform, operatorId, id, body);
   }
 
   @Post('schools/:id/free-period')
   @HttpCode(200)
   async freePeriod(@Param('id') id: string, @Body() body: Body_, @Req() request: Request) {
-    const { platform, operatorId } = await this.billing.authorize(request);
+    const { platform, operatorId } = await this.billing.authorize(request, operatorRolesFor('billing.manage'));
     return this.billing.freePeriod(platform, operatorId, id, body);
   }
 }
