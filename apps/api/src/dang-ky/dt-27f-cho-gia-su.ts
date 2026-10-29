@@ -26,7 +26,7 @@ export default {
     MarketTutorsService,
     MarketAdminService,
     SchoolMarketLinkService,
-    // Giới hạn số yêu cầu tới market/* theo địa chỉ mạng (YCTD-376)
+    // Giới hạn số yêu cầu tới market/* theo địa chỉ mạng (YCTD-379)
     MarketRateLimiter,
     { provide: APP_INTERCEPTOR, useExisting: MarketRateLimiter },
   ],

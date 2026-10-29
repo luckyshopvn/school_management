@@ -601,7 +601,7 @@ export class MarketRoomsService {
   }
 
   // Dịch vụ an toàn trẻ em đăng ký cách xử lý bản ghi đã ghi xong (mã hóa, lưu); đăng ký thay vì nhận vào hàm dựng để không phụ thuộc
-  // vòng giữa hai dịch vụ (YCTD-376)
+  // vòng giữa hai dịch vụ (YCTD-379)
   private recordingEndedHandler: ((recording: RecordingResult, at: Date) => Promise<boolean>) | null = null;
 
   onRecordingEnded(handler: (recording: RecordingResult, at: Date) => Promise<boolean>): void {

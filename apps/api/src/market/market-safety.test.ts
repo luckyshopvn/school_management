@@ -682,7 +682,7 @@ describe('chợ gia sư: an toàn trẻ em và kiểm duyệt (27i)', () => {
     assert.equal((await raw(MARKET_HOST, `/bookings/${id}/recording/stream`, parent.token)).status, 404);
   });
 
-  it('CT-1716: nhà cung cấp video báo ghi xong qua sự kiện gọi lại (như LiveKit): bản ghi được mã hóa, chuyển sang xem được, tệp thô bị xóa (YCTD-376)', async () => {
+  it('CT-1716: nhà cung cấp video báo ghi xong qua sự kiện gọi lại (như LiveKit): bản ghi được mã hóa, chuyển sang xem được, tệp thô bị xóa (YCTD-379)', async () => {
     const video = environment.api.get(VIDEO_PROVIDER) as MockVideoProvider;
     const storage = marketStorage(environment.api.get(FileStorage));
     const parent = await registerParent();
@@ -995,7 +995,7 @@ describe('chợ gia sư: an toàn trẻ em và kiểm duyệt (27i)', () => {
     assert.equal((await call(MARKET_HOST, 'GET', '/me', undefined, token)).body.display_name, 'Mẹ của Bé');
   });
 
-  it('CT-1717: mã đặt lại mật khẩu: gửi đồng thời vẫn chỉ được 5 lần thử; lấy mã mới không làm mới số lần thử trong ngày; mã lưu bằng hàm băm chậm (YCTD-376)', async () => {
+  it('CT-1717: mã đặt lại mật khẩu: gửi đồng thời vẫn chỉ được 5 lần thử; lấy mã mới không làm mới số lần thử trong ngày; mã lưu bằng hàm băm chậm (YCTD-379)', async () => {
     environment.api.get(MarketRateLimiter).reset();
     const parent = await registerParent();
     const messenger = environment.api.get(MarketMessenger);
@@ -1045,7 +1045,7 @@ describe('chợ gia sư: an toàn trẻ em và kiểm duyệt (27i)', () => {
     assert.notEqual(login.status, 200, 'mật khẩu không bị đổi');
   });
 
-  it('CT-1718: điểm cuối của chợ giới hạn số yêu cầu theo địa chỉ mạng (YCTD-376)', async () => {
+  it('CT-1718: điểm cuối của chợ giới hạn số yêu cầu theo địa chỉ mạng (YCTD-379)', async () => {
     const limiter = environment.api.get(MarketRateLimiter);
     limiter.reset();
     try {

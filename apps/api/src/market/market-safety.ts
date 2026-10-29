@@ -769,7 +769,7 @@ export class MarketSafetyService implements OnApplicationBootstrap, OnModuleDest
   }
 
   // Nhà cung cấp video báo ghi xong (LiveKit gửi sự kiện sau khi dừng ghi; tệp thô đã ở kho tại khóa đã giao): mã hóa sang khóa mới, xóa
-  // tệp thô, bản ghi xem được; ghi lỗi hoặc không đọc được tệp thì đặt `failed`. Sự kiện gửi lại thì bỏ qua (YCTD-376)
+  // tệp thô, bản ghi xem được; ghi lỗi hoặc không đọc được tệp thì đặt `failed`. Sự kiện gửi lại thì bỏ qua (YCTD-379)
   async finishRecording(
     result: { egressId: string; succeeded: boolean; sizeBytes: number },
     at: Date,

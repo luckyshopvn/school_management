@@ -3,7 +3,7 @@ import { ApplicationError, Clock } from '@school-management/server';
 import type { Request } from 'express';
 import { throwError, type Observable } from 'rxjs';
 
-// Giới hạn số yêu cầu tới chợ gia sư theo địa chỉ mạng (YCTD-376), cửa sổ cố định như bộ giới hạn công khai của tuyển sinh: mọi điểm
+// Giới hạn số yêu cầu tới chợ gia sư theo địa chỉ mạng (YCTD-379), cửa sổ cố định như bộ giới hạn công khai của tuyển sinh: mọi điểm
 // cuối `market/*` tối đa 600 yêu cầu mỗi phút; các điểm cuối nhận hoặc gửi mã, mật khẩu (xác nhận tài khoản, quên, đặt lại, đổi,
 // xác nhận lại mật khẩu) tối đa 30 yêu cầu mỗi phút. Sự kiện gọi lại của cổng thanh toán không tính. Bộ đếm giữ trong bộ nhớ của
 // tiến trình; khởi động lại thì đếm lại

@@ -237,7 +237,7 @@ export class MockVideoProvider extends VideoRoomProvider {
     return { completed: { sizeBytes: contents.length, contents } };
   }
 
-  // Bật thì dừng ghi không trả tệp, như LiveKit: tệp ghi xong báo qua sự kiện `recording_ended` (YCTD-376)
+  // Bật thì dừng ghi không trả tệp, như LiveKit: tệp ghi xong báo qua sự kiện `recording_ended` (YCTD-379)
   deferRecordingCompletion = false;
 
   async receiveWebhook(body: string, authorization: string | undefined): Promise<VideoRoomEvent | null> {

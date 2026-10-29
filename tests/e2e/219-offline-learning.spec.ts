@@ -15,7 +15,7 @@ import {
   E2E_SCHOOL_YEAR_DATABASE_PREFIX,
 } from '../e2e-environment.mjs';
 
-// Học khi mạng yếu (DT-28 phần 28j, YCTD-280; GD-148 đã chốt 2026-10-27), kịch bản CT-28j-5, CT-1719 (YCTD-376): trường bật; học sinh làm bài, mất mạng thì bấm
+// Học khi mạng yếu (DT-28 phần 28j, YCTD-280; GD-148 đã chốt 2026-10-27), kịch bản CT-28j-5, CT-1719 (YCTD-379): trường bật; học sinh làm bài, mất mạng thì bấm
 // nộp được giữ trên máy kèm thời điểm bấm nộp; có mạng lại tự nộp đúng một lần; đăng xuất xoá dữ liệu trên máy. Dữ liệu giả
 const identity = createDatabase<IdentityDatabase>(readConnectionString('identity'));
 let schoolYear: ReturnType<typeof createDatabase<SchoolYearDatabase>>;
@@ -254,7 +254,7 @@ test('CT-28j-5: mất mạng khi nộp bài: bài giữ trên máy, có mạng t
   }
 });
 
-test('CT-1719: máy dùng chung: đăng xuất lúc mất mạng vẫn xoá bài chờ gửi trên máy, em sau không gửi được bài của em trước (YCTD-376)', async ({
+test('CT-1719: máy dùng chung: đăng xuất lúc mất mạng vẫn xoá bài chờ gửi trên máy, em sau không gửi được bài của em trước (YCTD-379)', async ({
   browser,
 }) => {
   test.setTimeout(300_000);

@@ -31,7 +31,7 @@ export function StudentSessionProvider({ children }: { children: ReactNode }) {
   const [lastPassword, setLastPassword] = useState<string>();
 
   const applyTokens = useCallback((tokens: TokenResponse) => {
-    // Dữ liệu học khi mạng yếu gắn với em đang đăng nhập (YCTD-376)
+    // Dữ liệu học khi mạng yếu gắn với em đang đăng nhập (YCTD-379)
     setOfflineOwner(tokens.access_token);
     setPasswordChangeRequired(tokens.password_change_required);
     setStatus('signed-in');
@@ -69,7 +69,7 @@ export function StudentSessionProvider({ children }: { children: ReactNode }) {
           await revokePushOnSignOut(import.meta.env.BASE_URL, requestStudentJson);
           await studentLogout();
         } finally {
-          // Học khi mạng yếu (DT-28 phần 28j): đăng xuất xoá hết dữ liệu của em trên máy, kể cả khi mất mạng (YCTD-376)
+          // Học khi mạng yếu (DT-28 phần 28j): đăng xuất xoá hết dữ liệu của em trên máy, kể cả khi mất mạng (YCTD-379)
           await forgetEverything();
           setLastPassword(undefined);
           setPasswordChangeRequired(false);

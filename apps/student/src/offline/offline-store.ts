@@ -3,7 +3,7 @@ import { isExpired, ownedKey } from './offline-rules.ts';
 // Kho trên máy của học khi mạng yếu (DT-28 phần 28j, YCTD-280): IndexedDB theo nguồn gốc của trường (mỗi trường một nguồn gốc nên
 // dữ liệu tự tách). Mỗi bản ghi mã hoá AES-GCM bằng khóa sinh trên máy, không xuất được (CryptoKey lưu trong chính IndexedDB);
 // trình duyệt không có WebCrypto thì lưu không mã hoá. Khóa bản ghi chỉ có loại và mã, không có tên học sinh. Xoá hết khi đăng xuất.
-// Từ YCTD-376 mỗi bản ghi và khóa mã hoá gắn với một người dùng (chủ): đọc, ghi, liệt kê chỉ trong phần của chủ
+// Từ YCTD-379 mỗi bản ghi và khóa mã hoá gắn với một người dùng (chủ): đọc, ghi, liệt kê chỉ trong phần của chủ
 const DATABASE = 'hoc-khi-mang-yeu';
 const RECORDS = 'records';
 const KEYS = 'keys';
@@ -142,7 +142,7 @@ export async function removePrefix(owner: string, prefix: string): Promise<void>
   }
 }
 
-// Xoá bản ghi quá hạn của mọi người dùng và bản ghi cũ chưa gắn người dùng (trước YCTD-376)
+// Xoá bản ghi quá hạn của mọi người dùng và bản ghi cũ chưa gắn người dùng (trước YCTD-379)
 export async function purgeExpired(retentionDays: number): Promise<void> {
   const db = await database();
   const records = (await request(db.transaction(RECORDS).objectStore(RECORDS).getAll())) as StoredRecord[];

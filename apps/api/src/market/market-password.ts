@@ -22,7 +22,7 @@ import {
 //   phải lấy mã mới; câu trả lời không cho biết tài khoản có tồn tại hay không; đặt lại xong thì mọi phiên bị thu hồi, gỡ khóa đăng nhập;
 // - xác nhận lại mật khẩu (thoát chế độ con đọc tin nhắn của phụ huynh);
 // - sửa tên hiển thị. Đổi thư điện tử, số điện thoại cần xác nhận kênh mới nên chưa làm
-// Mã đặt lại mật khẩu (YCTD-376): lưu bằng argon2; mỗi lần nhập mã giành một lượt thử bằng một câu lệnh cập nhật có điều kiện trước khi
+// Mã đặt lại mật khẩu (YCTD-379): lưu bằng argon2; mỗi lần nhập mã giành một lượt thử bằng một câu lệnh cập nhật có điều kiện trước khi
 // so mã, nên gửi đồng thời vẫn không quá số lượt; trong 24 giờ một tài khoản có tối đa 10 lượt thử và 10 mã, lấy mã mới không làm
 // mới số lượt thử
 const RESEND_INTERVAL_MS = 60 * 1000;
