@@ -1,12 +1,27 @@
 import { useEffect, useId, useRef, useState, type KeyboardEvent } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { useNavigate } from '@tanstack/react-router';
-import type { PortalWorkspace } from '@school-management/shared';
+import { listPortalMenuEntries, portalMenuText, type PortalWorkspace } from '@school-management/shared';
 import { searchFunctions } from './function-search.js';
+import { listRecentPages, searchPeople } from './recent-pages-api.js';
 
-// Ô tìm chức năng ở thanh đầu trang (YCTD-332): gõ tên hoặc số thứ bậc, mũi tên lên, xuống chọn, Enter mở trang, Esc đóng.
-// Theo mẫu combobox có danh sách gợi ý của WAI-ARIA. Kết quả lấy từ cây menu đã lọc theo quyền của mọi phân hệ người dùng được
-// thấy; mở trang thuộc phân hệ khác thì thanh bên tự chuyển phân hệ như khi mở bằng đường dẫn. Chữ trong ô 16 px ở mọi khổ
-// để Safari trên iOS không tự phóng to khi chạm vào ô (quy tắc thiết bị DT-26 phần 26e)
+// Ô tìm chung ở thanh đầu trang (YCTD-332, YCTD-337): gõ tên hoặc số thứ bậc để tìm chức năng (theo cây menu đã lọc theo quyền
+// của mọi phân hệ người dùng được thấy), gõ từ 2 ký tự thì tìm thêm học sinh, cán bộ theo tên ở máy chủ (kết quả theo phạm vi
+// xem của người dùng, chỉ tên, lớp hoặc đơn vị). Bấm vào ô khi chưa gõ thì hiện nhóm "Hay dùng" (trang mở gần nhất). Mũi tên
+// lên, xuống chọn, Enter mở, Esc đóng, theo mẫu combobox có danh sách gợi ý của WAI-ARIA. Mở trang thuộc phân hệ khác thì
+// thanh bên tự chuyển phân hệ như khi mở bằng đường dẫn. Chữ trong ô 16 px ở mọi khổ để Safari trên iOS không tự phóng to
+// khi chạm vào ô (quy tắc thiết bị DT-26 phần 26e)
+const PEOPLE_MIN_LENGTH = 2;
+const PEOPLE_DELAY_MS = 250;
+
+interface Option {
+  key: string;
+  group: string;
+  title: string;
+  detail: string;
+  path: string;
+}
+
 function SearchIcon() {
   return (
     <svg
@@ -25,6 +40,16 @@ function SearchIcon() {
   );
 }
 
+// Từ khóa gửi máy chủ chậm lại một chút để không gửi mỗi lần gõ một chữ
+function useDelayed(value: string): string {
+  const [delayed, setDelayed] = useState(value);
+  useEffect(() => {
+    const timer = setTimeout(() => setDelayed(value), PEOPLE_DELAY_MS);
+    return () => clearTimeout(timer);
+  }, [value]);
+  return delayed;
+}
+
 export function FunctionSearch({ workspaces }: { workspaces: PortalWorkspace[] }) {
   const [query, setQuery] = useState('');
   const [open, setOpen] = useState(false);
@@ -32,8 +57,57 @@ export function FunctionSearch({ workspaces }: { workspaces: PortalWorkspace[] }
   const container = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
   const listId = useId();
-  const matches = searchFunctions(workspaces, query);
-  const showList = open && query.trim().length > 0;
+  const text = query.trim();
+  const peopleText = useDelayed(text);
+  const people = useQuery({
+    queryKey: ['global-search', peopleText],
+    queryFn: () => searchPeople(peopleText),
+    enabled: open && peopleText.length >= PEOPLE_MIN_LENGTH,
+    staleTime: 30_000,
+  });
+  const recent = useQuery({ queryKey: ['recent-pages'], queryFn: listRecentPages, enabled: open && text === '' });
+
+  // Nhãn trang theo cây menu người dùng thấy; trang không còn trên menu (đổi quyền, tắt cấp) thì không hiện
+  const menuEntries = listPortalMenuEntries(workspaces);
+  const labelOf = (path: string) => {
+    const entry = menuEntries.find((candidate) => candidate.node.path === path);
+    return entry ? { title: portalMenuText(entry.node), detail: entry.workspace.label } : undefined;
+  };
+  const options: Option[] =
+    text === ''
+      ? (recent.data ?? []).flatMap((page) => {
+          const label = labelOf(page.path);
+          return label ? [{ key: `recent:${page.path}`, group: 'Hay dùng', ...label, path: page.path }] : [];
+        })
+      : [
+          ...searchFunctions(workspaces, query).map((match) => ({
+            key: `page:${match.entry.node.path}`,
+            group: 'Chức năng',
+            title: match.text,
+            detail: match.entry.workspace.label,
+            path: match.entry.node.path,
+          })),
+          ...(peopleText === text && text.length >= PEOPLE_MIN_LENGTH
+            ? [
+                ...(people.data?.students ?? []).map((hit) => ({
+                  key: `student:${hit.id}`,
+                  group: 'Học sinh',
+                  title: hit.name,
+                  detail: hit.detail ?? '',
+                  path: hit.path,
+                })),
+                ...(people.data?.staff ?? []).map((hit) => ({
+                  key: `staff:${hit.id}`,
+                  group: 'Cán bộ, giáo viên',
+                  title: hit.name,
+                  detail: hit.detail ?? '',
+                  path: hit.path,
+                })),
+              ]
+            : []),
+        ];
+  const showList = open && (text.length > 0 || options.length > 0);
+  const activeIndex = options.length === 0 ? 0 : Math.min(active, options.length - 1);
 
   useEffect(() => {
     if (!open) {
@@ -58,16 +132,16 @@ export function FunctionSearch({ workspaces }: { workspaces: PortalWorkspace[] }
     switch (event.key) {
       case 'ArrowDown':
         setOpen(true);
-        setActive((index) => (matches.length === 0 ? 0 : (index + 1) % matches.length));
+        setActive(options.length === 0 ? 0 : (activeIndex + 1) % options.length);
         break;
       case 'ArrowUp':
         setOpen(true);
-        setActive((index) => (matches.length === 0 ? 0 : (index - 1 + matches.length) % matches.length));
+        setActive(options.length === 0 ? 0 : (activeIndex - 1 + options.length) % options.length);
         break;
       case 'Enter': {
-        const match = matches[active];
-        if (showList && match) {
-          go(match.entry.node.path);
+        const option = options[activeIndex];
+        if (showList && option) {
+          go(option.path);
         }
         break;
       }
@@ -81,6 +155,7 @@ export function FunctionSearch({ workspaces }: { workspaces: PortalWorkspace[] }
   };
 
   const optionId = (index: number) => `${listId}-${index}`;
+  const searching = text.length >= PEOPLE_MIN_LENGTH && (peopleText !== text || people.isFetching);
   return (
     <div className="relative min-w-0 flex-[1_1_16rem] max-w-md" ref={container}>
       <SearchIcon />
@@ -91,8 +166,8 @@ export function FunctionSearch({ workspaces }: { workspaces: PortalWorkspace[] }
         aria-autocomplete="list"
         aria-expanded={showList}
         aria-controls={listId}
-        aria-activedescendant={showList && matches[active] ? optionId(active) : undefined}
-        placeholder="Tìm chức năng"
+        aria-activedescendant={showList && options[activeIndex] ? optionId(activeIndex) : undefined}
+        placeholder="Tìm chức năng, học sinh, cán bộ"
         value={query}
         onChange={(event) => {
           setQuery(event.target.value);
@@ -107,35 +182,41 @@ export function FunctionSearch({ workspaces }: { workspaces: PortalWorkspace[] }
         id={listId}
         role="listbox"
         aria-label="Chức năng tìm thấy"
+        aria-busy={searching}
         hidden={!showList}
         className="absolute left-0 top-11 z-40 max-h-96 w-[min(28rem,calc(100vw-32px))] overflow-y-auto rounded-md border border-border bg-card py-1 text-text shadow-lg"
       >
-        {matches.map((match, index) => (
+        {options.map((option, index) => (
           <li
-            key={match.entry.node.path}
+            key={option.key}
             id={optionId(index)}
             role="option"
-            aria-selected={index === active}
-            className={`flex cursor-pointer flex-col px-3 py-1.5 text-label ${index === active ? 'bg-selected' : ''}`}
+            aria-selected={index === activeIndex}
+            className={`flex cursor-pointer flex-col px-3 py-1.5 text-label ${index === activeIndex ? 'bg-selected' : ''} ${index > 0 && options[index - 1]?.group !== option.group ? 'border-t border-border' : ''}`}
             onMouseEnter={() => setActive(index)}
             onMouseDown={(event) => {
               // Giữ con trỏ ở ô tìm để không đóng danh sách trước khi mở trang
               event.preventDefault();
-              go(match.entry.node.path);
+              go(option.path);
             }}
           >
-            <span className="font-medium">{match.text}</span>
-            <span className="text-text-secondary">{match.entry.workspace.label}</span>
+            {index === 0 || options[index - 1]?.group !== option.group ? (
+              <span className="text-[12px] font-semibold uppercase tracking-wide text-text-secondary">
+                {option.group}
+              </span>
+            ) : null}
+            <span className="font-medium">{option.title}</span>
+            {option.detail ? <span className="text-text-secondary">{option.detail}</span> : null}
           </li>
         ))}
-        {matches.length === 0 ? (
+        {options.length === 0 && text.length > 0 ? (
           <li
             role="option"
             aria-selected={false}
             aria-disabled="true"
             className="px-3 py-1.5 text-label text-text-secondary"
           >
-            Không có chức năng phù hợp
+            {searching ? 'Đang tìm…' : 'Không có chức năng phù hợp'}
           </li>
         ) : null}
       </ul>
