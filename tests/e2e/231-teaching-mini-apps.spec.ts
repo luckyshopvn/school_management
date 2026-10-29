@@ -15,6 +15,8 @@ import { E2E_SCHOOL_YEAR_DATABASE_PREFIX, E2E_TEACHER_PORT } from '../e2e-enviro
 // Mầm non. Dữ liệu giả
 const identity = createDatabase<IdentityDatabase>(readConnectionString('identity'));
 let schoolYear: ReturnType<typeof createDatabase<SchoolYearDatabase>>;
+// Lớp, trẻ thử xoá ở afterAll (kể cả khi kịch bản hỏng giữa chừng) để kịch bản đếm lớp theo cấp (84) không lệch
+const created: Array<{ classId: string; childId: string }> = [];
 const TEACHER_URL = `http://localhost:${E2E_TEACHER_PORT}`;
 
 test.beforeAll(async () => {
@@ -24,6 +26,12 @@ test.beforeAll(async () => {
 });
 
 test.afterAll(async () => {
+  for (const { classId, childId } of created) {
+    await schoolYear.deleteFrom('class_staff_assignments').where('class_id', '=', classId).execute();
+    await schoolYear.deleteFrom('class_enrollments').where('class_id', '=', classId).execute();
+    await schoolYear.deleteFrom('children').where('id', '=', childId).execute();
+    await schoolYear.deleteFrom('classes').where('id', '=', classId).execute();
+  }
   await schoolYear.destroy();
   await identity.destroy();
 });
@@ -72,8 +80,6 @@ test('CT-29b-5: mini app chung và Mầm non: hình và màu, đếm và số, c
     { name: preschool, level: 'MN', grade: reference.grade_level },
     { name: primary, level: 'TH', grade: 'T230' },
   ] as const;
-  // Lớp, trẻ thử xoá khi xong để kịch bản đếm lớp theo cấp (84) không lệch
-  const created: Array<{ classId: string; childId: string }> = [];
   for (const [index, { name, level, grade }] of classes.entries()) {
     const classRow = await schoolYear
       .insertInto('classes')
@@ -170,10 +176,4 @@ test('CT-29b-5: mini app chung và Mầm non: hình và màu, đếm và số, c
   await expect(page.getByRole('tab', { name: /Bảng thưởng sao/ })).toBeVisible();
   await expect(page.getByRole('tab', { name: /Hình và màu/ })).toHaveCount(0);
   await page.context().close();
-  for (const { classId, childId } of created) {
-    await schoolYear.deleteFrom('class_staff_assignments').where('class_id', '=', classId).execute();
-    await schoolYear.deleteFrom('class_enrollments').where('class_id', '=', classId).execute();
-    await schoolYear.deleteFrom('children').where('id', '=', childId).execute();
-    await schoolYear.deleteFrom('classes').where('id', '=', classId).execute();
-  }
 });

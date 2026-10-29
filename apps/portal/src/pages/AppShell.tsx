@@ -6,11 +6,11 @@ import { WorkspaceContext, WorkspaceSwitcher, useWorkspaceState } from './worksp
 import { MyWorkHeaderLink } from '../my-work/MyWorkBadge.js';
 import { NotificationBell } from '../notifications/NotificationBell.js';
 import { AcademicYearSwitcher } from './AcademicYearSwitcher.js';
-import { SchoolLevelSwitcher } from '../school-levels/working-level.js';
 import { NavigationRegistryContext, useNavigationRegistryState } from './navigation-registry.js';
 import { fetchCurrentUser } from '../session/api-client.js';
 import { useSession } from '../session/session.js';
 import { SideMenu } from './MainMenu.js';
+import { FunctionSearch } from './FunctionSearch.js';
 import { usePortalMenu } from './menu-permissions.js';
 import { UserMenu } from './UserMenu.js';
 import { Alert, Toast } from '@school-management/ui';
@@ -135,6 +135,14 @@ export function AppShell({ children }: { children: ReactNode }) {
               </div>
               <WorkspaceSwitcher state={workspaces} />
               <SideMenu workspaces={menu} current={workspaces.current} />
+              {/* Đường vào mọi mục của mọi phân hệ (YCTD-332) */}
+              <Link
+                to="/all-functions"
+                aria-current={pathname === '/all-functions' ? 'page' : undefined}
+                className={`mt-2 flex min-h-10 items-center rounded-md border-t border-white/15 px-3 pt-2 text-label hover:bg-nav-hover max-xl:min-h-11 ${pathname === '/all-functions' ? 'bg-nav-active text-white' : 'text-nav-text'}`}
+              >
+                Tất cả chức năng
+              </Link>
             </aside>
             {mobileOpen ? (
               // Nền mờ: chạm ra ngoài ngăn kéo thì đóng; người dùng bàn phím đóng bằng nút Đóng menu hoặc Esc
@@ -152,8 +160,8 @@ export function AppShell({ children }: { children: ReactNode }) {
                 >
                   <MenuIcon />
                 </button>
+                <FunctionSearch workspaces={menu} />
                 <div className="ml-auto flex shrink-0 items-center gap-3 whitespace-nowrap">
-                  <SchoolLevelSwitcher />
                   <AcademicYearSwitcher />
                   <MyWorkHeaderLink />
                   <NotificationBell />
@@ -180,6 +188,8 @@ export function AppShell({ children }: { children: ReactNode }) {
                     </Alert>
                   </div>
                 ) : null}
+                {/* Dải thông báo khi vào trang (YCTD-331, thay hộp bật lên của DT-16 phần 16c) */}
+                <StartupNotices />
                 {paidModule ? <PaidFeatureNotice module={paidModule} /> : children}
               </main>
             </div>
@@ -195,7 +205,6 @@ export function AppShell({ children }: { children: ReactNode }) {
             />
           ) : null}
           <Toast message={toastMessage} onClose={closeToast} />
-          <StartupNotices />
         </div>
       </NavigationRegistryContext.Provider>
     </WorkspaceContext.Provider>

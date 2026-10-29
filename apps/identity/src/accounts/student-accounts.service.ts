@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { ruleViolationError } from '@school-management/server';
-import { PERMISSION_CODES, STUDENT_ROLE_CODE } from '@school-management/shared';
+import { maskLoginIdentifier, PERMISSION_CODES, STUDENT_ROLE_CODE } from '@school-management/shared';
 import { hashPassword } from '../authentication/password.js';
 import { Infrastructure } from '../common/infrastructure.js';
 import type { CallerContext } from './accounts.service.js';
@@ -82,7 +82,10 @@ export class StudentAccountsService {
             .where('learning_username', '=', input.username)
             .executeTakeFirst();
           if (!link || link.user_id !== existing.id) {
-            throw ruleViolationError('YCTD-211', `Tên đăng nhập ${input.username} đã thuộc tài khoản khác của trường`);
+            throw ruleViolationError(
+              'YCTD-211',
+              `Tên đăng nhập ${maskLoginIdentifier(input.username)} đã thuộc tài khoản khác của trường`,
+            );
           }
           await transaction
             .updateTable('users')
@@ -140,7 +143,7 @@ export class StudentAccountsService {
           .execute();
         output.push({ username: input.username, user_id: user.id, created: true });
       }
-      // Nhật ký chỉ ghi số lượng và tên đăng nhập, không ghi mật khẩu
+      // Nhật ký chỉ ghi số lượng và tên đăng nhập dạng che (số định danh của học sinh, YCTD-353), không ghi mật khẩu
       await writeIdentityAuditLog(transaction, {
         actorUserId: caller.claims.userId,
         entityName: 'users',
@@ -150,7 +153,7 @@ export class StudentAccountsService {
         after: {
           count: output.length,
           created: output.filter((item) => item.created).length,
-          usernames: output.map((item) => item.username).slice(0, 50),
+          usernames: output.map((item) => maskLoginIdentifier(item.username)).slice(0, 50),
         },
         ipAddress: caller.ipAddress,
       });

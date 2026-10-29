@@ -146,15 +146,20 @@ test('CT-27g-5: gia sư xác minh, khai hồ sơ, nộp lý lịch; nền tảng
   await verify.getByLabel('Mã xác nhận').fill(CODE);
   await verify.getByRole('button', { name: 'Xác nhận' }).click();
 
-  // Xác minh danh tính: sang nhà cung cấp giả lập rồi quay về /xac-minh
+  // Xác minh danh tính: sang nhà cung cấp giả lập rồi quay về /xac-minh; ứng dụng bỏ đường dẫn quay về và mở trang Xác minh của tài
+  // khoản chưa duyệt (`#xac-minh`, YCTD-361)
   mock.nextIdentity = { subject: `gia-su-e2e-${suffix}`, birthdate: `${new Date().getFullYear() - 30}-03-08` };
   const identity = tutor.getByRole('region', { name: 'Danh tính' });
   await tutor.getByRole('button', { name: 'Xác minh bằng Định danh giả lập' }).click();
   await expect(tutor.getByText('Đã xác minh danh tính')).toBeVisible();
-  await expect(tutor).toHaveURL(/\/$/);
+  await expect(tutor).toHaveURL(/\/(#xac-minh)?$/);
   await expect(identity).toContainText('Đã xác minh');
 
-  // Hồ sơ dạy: một môn năng khiếu, một khung giờ
+  // Hồ sơ dạy: một môn năng khiếu, một khung giờ (khu gia sư chia trang theo cột điều hướng, YCTD-361)
+  await tutor
+    .getByRole('navigation', { name: 'Điều hướng ứng dụng Gia sư' })
+    .getByRole('button', { name: 'Hồ sơ và môn dạy' })
+    .click();
   const listing = tutor.getByRole('region', { name: 'Hồ sơ dạy' });
   await listing.getByRole('button', { name: 'Thêm môn' }).click();
   const subject = listing.getByRole('group', { name: 'Môn 1' });
@@ -166,6 +171,10 @@ test('CT-27g-5: gia sư xác minh, khai hồ sơ, nộp lý lịch; nền tảng
 
   // Phiếu lý lịch tư pháp cấp hôm nay
   const today = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Ho_Chi_Minh' }).format(new Date());
+  await tutor
+    .getByRole('navigation', { name: 'Điều hướng ứng dụng Gia sư' })
+    .getByRole('button', { name: 'Xác minh' })
+    .click();
   const record = tutor.getByRole('form', { name: 'Phiếu lý lịch tư pháp' });
   await record.getByLabel('Ngày cấp').fill(today);
   await record.getByLabel('Tệp (PDF, JPEG, PNG, tối đa 10 MB)').setInputFiles({
@@ -175,6 +184,10 @@ test('CT-27g-5: gia sư xác minh, khai hồ sơ, nộp lý lịch; nền tảng
   });
   await record.getByRole('button', { name: 'Nộp phiếu lý lịch tư pháp' }).click();
   await expect(record).toContainText('Đang chờ duyệt');
+  await tutor
+    .getByRole('navigation', { name: 'Điều hướng ứng dụng Gia sư' })
+    .getByRole('button', { name: 'Hồ sơ và môn dạy' })
+    .click();
   await tutor.getByRole('region', { name: 'Hồ sơ dạy' }).getByRole('button', { name: 'Gửi nền tảng duyệt' }).click();
   await expect(tutor.getByRole('region', { name: 'Hồ sơ dạy' })).toContainText('Đang chờ nền tảng duyệt');
   await tutorContext.close();
