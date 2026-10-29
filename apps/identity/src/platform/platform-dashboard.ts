@@ -12,7 +12,7 @@ import { IDENTITY_CONFIGURATION, TENANCY_RUNTIME, type IdentityConfiguration } f
 import { PlatformSchoolsService } from './platform-schools.js';
 import { operatorRolesFor } from '@school-management/shared';
 
-// Bảng điều khiển nền tảng (DT-SaaS phần S4, YCTD-197; tài liệu 32 mục 14.5 "S4"). Claude tự chọn theo ủy quyền của Eric ngày
+// Bảng điều khiển nền tảng (DT-SaaS phần S4, YCTD-197; tài liệu 47 mục 14.5 "S4"). Claude tự chọn theo ủy quyền của Eric ngày
 // 2026-10-11:
 // - danh sách trường kèm trạng thái, gói dịch vụ đang áp dụng (S5a), dung lượng, số tài khoản, số học sinh đang học, lần đăng nhập
 //   gần nhất, phiên bản cấu trúc dữ liệu: đọc lần thu số liệu mới nhất (school_metrics, máy chủ API thu mỗi giờ), không truy vấn cơ

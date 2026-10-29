@@ -2,7 +2,7 @@ import type { SchoolLevelCode } from '@school-management/shared';
 import { saveResponseFile } from '../exports/export-api.js';
 import { ApiError, fetchWithSession, readError, requestJson } from '../session/api-client.js';
 
-// Gọi các điểm cuối thư viện trường học (DT-22 phần 22a, YCTD-181; tài liệu 32 mục 13.4)
+// Gọi các điểm cuối thư viện trường học (DT-22 phần 22a, YCTD-181; tài liệu 47 mục 13.4)
 export type CopyCondition = 'good' | 'damaged' | 'lost' | 'disposed';
 export type ReturnCondition = 'good' | 'damaged' | 'lost';
 export type CopySource = 'purchase' | 'donation' | 'supplied';

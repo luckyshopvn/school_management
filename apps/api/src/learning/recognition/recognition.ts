@@ -20,7 +20,7 @@ import {
   type SectionProgress,
 } from './recognition-rules.js';
 
-// Huy hiệu và chứng nhận hoàn thành (DT-28 phần 28i, YCTD-279; tài liệu 32 mục 20.7; GD-155: tắt mặc định, không bảng xếp hạng,
+// Huy hiệu và chứng nhận hoàn thành (DT-28 phần 28i, YCTD-279; tài liệu 47 mục 20.7; GD-155: tắt mặc định, không bảng xếp hạng,
 // chứng nhận chỉ cho khoá tự chọn). Huy hiệu tự động tính khi học sinh, phụ huynh, giáo viên mở danh sách (ghi một lần mỗi tiêu
 // chí); giáo viên của lớp học trực tuyến trao, thu hồi huy hiệu kèm lý do; giáo viên của khoá tự chọn cấp, thu hồi chứng nhận cho học
 // sinh đã hoàn thành khoá. Trang kiểm tra công khai của trường tra theo mã. Quyền lớp học trực tuyến qua cửa của lõi 28b

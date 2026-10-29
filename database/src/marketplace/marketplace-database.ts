@@ -4,7 +4,7 @@ import { createDatabase } from '../connection.js';
 import { assertIdentifier } from '../school-database-layout.js';
 import { provisionOwnedDatabase } from '../owned-database.js';
 
-// Cơ sở dữ liệu chung của chợ gia sư (DT-27 phần 27f, YCTD-256; tài liệu 32 mục 19.3 "hai sản phẩm, một mã nguồn"): một cơ sở dữ liệu
+// Cơ sở dữ liệu chung của chợ gia sư (DT-27 phần 27f, YCTD-256; tài liệu 47 mục 19.3 "hai sản phẩm, một mã nguồn"): một cơ sở dữ liệu
 // riêng `marketplace` (cả hai bố cục `database`, `schema` của trường đều để chợ ở cơ sở dữ liệu riêng như `platform`), vai trò riêng chỉ
 // là chủ của cơ sở dữ liệu đó. Cơ sở dữ liệu của trường đã thu quyền kết nối của PUBLIC (bố cục `database`) hoặc chỉ cấp cho vai trò
 // của trường (bố cục `schema`), nên vai trò của chợ không kết nối được vào dữ liệu của trường nào

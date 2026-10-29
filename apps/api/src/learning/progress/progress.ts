@@ -34,7 +34,7 @@ import {
   type SubjectLevelCode,
 } from './progress-rules.js';
 
-// Tiến độ, bảng điểm hoạt động, sổ điểm, báo cáo (DT-28 phần 28d, YCTD-274; tài liệu 32 mục 20.7). Quyền lớp học trực tuyến lấy qua
+// Tiến độ, bảng điểm hoạt động, sổ điểm, báo cáo (DT-28 phần 28d, YCTD-274; tài liệu 47 mục 20.7). Quyền lớp học trực tuyến lấy qua
 // cửa của lõi 28b (`spaceAccess`, `guardianOrStaff`); điểm thường xuyên ghi qua `ScoresService.recordActivityScores` (cùng quyền
 // nhập, khoá sổ, hạn của 21c); mức đạt môn và nhận xét thường xuyên của Tiểu học ghi qua `AssessmentsService` (cùng quyền, khoá,
 // hạn của 20c). Không có gì tự ghi vào sổ (GD-141): giáo viên chọn hoạt động, xem trước, xác nhận

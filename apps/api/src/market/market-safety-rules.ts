@@ -2,7 +2,7 @@ import type { MarketReportCategory, MarketReportSeverity } from '@school-managem
 import { scanContactInfo, type ContactFinding } from '@school-management/shared';
 import { sql } from 'kysely';
 
-// Quy tắc thuần của an toàn trẻ em ở chợ gia sư (DT-27 phần 27i, YCTD-259; tài liệu 32 mục 19.2, 19.5). Claude tự chọn theo ủy quyền
+// Quy tắc thuần của an toàn trẻ em ở chợ gia sư (DT-27 phần 27i, YCTD-259; tài liệu 47 mục 19.2, 19.5). Claude tự chọn theo ủy quyền
 // của Eric ngày 2026-10-11; các mốc là giả định làm cấu hình được sau (19.11)
 export const REPORT_CATEGORIES: readonly MarketReportCategory[] = [
   'child_safety',
@@ -29,7 +29,7 @@ export function effectiveSeverity(
   return severity;
 }
 
-// Tạm khóa ngay khi báo cáo mức nghiêm trọng, không chờ nhân viên xét (tài liệu 32 mục 19.5, 27i)
+// Tạm khóa ngay khi báo cáo mức nghiêm trọng, không chờ nhân viên xét (tài liệu 47 mục 19.5, 27i)
 export function suspendsImmediately(severity: MarketReportSeverity): boolean {
   return severity === 'critical';
 }

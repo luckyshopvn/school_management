@@ -1,7 +1,7 @@
 import { sql } from 'kysely';
 import type { Migration } from 'kysely/migration';
 
-// Cấp học của trường (DT-19 phần 19a, YCTD-151; tài liệu 32 mục 10.4): một nguồn duy nhất cho "trường này có những cấp
+// Cấp học của trường (DT-19 phần 19a, YCTD-151; tài liệu 47 mục 10.4): một nguồn duy nhất cho "trường này có những cấp
 // nào". Bốn mã cố định theo Luật Giáo dục (MN, TH, THCS, THPT), thêm cấp phải sửa mã, không thêm dòng; trường liên cấp là
 // trường bật nhiều mã. Mỗi dòng lưu bật hay tắt, thứ tự, tên hiển thị, thuật ngữ gọi người học và nhãn ô ngữ cảnh ở thanh
 // đầu trang. Nạp sẵn Mầm non bật, ba cấp còn lại tắt: trường hiện có tự nhận cấp Mầm non, không cần thao tác. Cột

@@ -1,7 +1,7 @@
 import { sql } from 'kysely';
 import type { Migration } from 'kysely/migration';
 
-// Gói dịch vụ và giới hạn (DT-SaaS phần S5a, YCTD-194; tài liệu 32 mục 14.5). Khối số giữ sẵn 0040 đến 0049. Claude tự chọn theo
+// Gói dịch vụ và giới hạn (DT-SaaS phần S5a, YCTD-194; tài liệu 47 mục 14.5). Khối số giữ sẵn 0040 đến 0049. Claude tự chọn theo
 // ủy quyền của Eric ngày 2026-10-11:
 // - `plans`: gói có mã, tên, phân hệ được bật (mã phân hệ của cây menu, phân hệ quản trị hệ thống luôn bật), giới hạn (học sinh đang
 //   học, dung lượng tệp theo MB, số cấp học bật; trống là không giới hạn), số ngày dùng thử; giá niêm yết chừa sẵn cho S5b: cách tính

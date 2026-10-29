@@ -40,7 +40,7 @@ import {
   type SplitViolation,
 } from './group-split.js';
 
-// Bộ nhóm dùng chung của lớp (DT-28 phần 28a, YCTD-271; tài liệu 32 mục 20.7). Một bộ nhóm là một cách chia một lớp (môn tuỳ
+// Bộ nhóm dùng chung của lớp (DT-28 phần 28a, YCTD-271; tài liệu 47 mục 20.7). Một bộ nhóm là một cách chia một lớp (môn tuỳ
 // chọn) thành các nhóm `child_groups` có `group_set_id`; công cụ lớp học 23b, hoạt động, bài tập, đề 23a, học nhóm của DT-28
 // đều dùng bộ nhóm thay vì giữ danh sách nhóm riêng. Chia lại là bộ mới, bộ cũ lưu trữ. Mức năng lực khi chia theo năng lực
 // chỉ tính tạm trong yêu cầu, không lưu, không trả ra; học sinh, phụ huynh chỉ thấy nhóm của mình (GD-140).

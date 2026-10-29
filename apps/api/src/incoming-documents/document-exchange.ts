@@ -1,4 +1,4 @@
-// Chỗ nối của trục liên thông văn bản (DT-18 phần 18a, YCTD-138). Bản chạy nội bộ (tài liệu 32 mục 9.2): phần mềm không kết
+// Chỗ nối của trục liên thông văn bản (DT-18 phần 18a, YCTD-138). Bản chạy nội bộ (tài liệu 47 mục 9.2): phần mềm không kết
 // nối trục, văn thư nhập tay văn bản nhận được hoặc tải tệp nhận được rồi đánh dấu tiếp nhận; trạng thái ghi ngày, người
 // đánh dấu. Khi có kết nối thật, cắm lớp con gửi báo nhận lên trục ở acknowledge và đăng ký lớp đó ở mô đun ứng dụng
 export interface ExchangeAcknowledgement {

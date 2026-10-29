@@ -19,7 +19,7 @@ import {
   type LoggedInUser,
 } from '../test-support.js';
 
-// Miễn giảm và phiếu điều chỉnh hóa đơn, duyệt theo hạn mức; ca kiểm thử theo 27_BO_CA_KIEM_THU_CHI_TIET/03_P05.md
+// Miễn giảm và phiếu điều chỉnh hóa đơn, duyệt theo hạn mức; ca kiểm thử theo 42_BO_CA_KIEM_THU_CHI_TIET/03_P05.md
 // mục 8, 9, 10. Hóa đơn ghi sẵn theo dữ liệu dùng chung của tệp đó (học phí 2 200 000, bán trú 35 000 một ngày, STEM
 // 440 000, Anh văn 550 000; hạn mức miễn giảm và phiếu điều chỉnh của đơn vị A đều là 1 000 000)
 const randomPhone = () => `09${randomInt(0, 100_000_000).toString().padStart(8, '0')}`;

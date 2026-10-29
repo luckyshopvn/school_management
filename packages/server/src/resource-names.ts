@@ -1,4 +1,4 @@
-// Tên khóa ở kho tệp (S3) và ở bộ nhớ đệm (Redis) tạo qua một chỗ (tài liệu 32 mục 9.2, viết sẵn cho đa thuê bao): khi
+// Tên khóa ở kho tệp (S3) và ở bộ nhớ đệm (Redis) tạo qua một chỗ (tài liệu 47 mục 9.2, viết sẵn cho đa thuê bao): khi
 // chạy nhiều trường (DT-SaaS) chỉ cần thêm tiền tố của trường ở đây, mã nghiệp vụ không tự ghép đường dẫn. Mỗi phần là một
 // đoạn không rỗng, không có dấu "/" hay ":" để hai phần ghép không thành khóa của chỗ khác. Các phân hệ cũ ghép tay sẽ
 // chuyển dần sang hàm này

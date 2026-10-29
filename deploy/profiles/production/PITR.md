@@ -1,6 +1,6 @@
 # Sao lưu theo trường, khôi phục về một thời điểm, chuyển cụm (hồ sơ vận hành)
 
-DT-SaaS phần S7b, YCTD-199; kế hoạch ở `tai_lieu/32_KE_HOACH_THEO_HE_THONG_SO.md` mục 14.5 "S7b". Mọi giá trị trong tệp mẫu là giả.
+DT-SaaS phần S7b, YCTD-199; kế hoạch ở `tai_lieu/47_KE_HOACH_THEO_HE_THONG_SO.md` mục 14.5 "S7b". Mọi giá trị trong tệp mẫu là giả.
 
 ## 1. Ba lớp sao lưu
 

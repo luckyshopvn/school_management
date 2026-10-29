@@ -71,7 +71,7 @@ import {
   type AiProviderSettings,
 } from './ai-provider.js';
 
-// Trợ lý AI soạn câu hỏi nháp và kế hoạch bài dạy nháp (DT-23 phần 23d, YCTD-214; tài liệu 32 mục 15). Claude tự chọn theo ủy quyền của
+// Trợ lý AI soạn câu hỏi nháp và kế hoạch bài dạy nháp (DT-23 phần 23d, YCTD-214; tài liệu 47 mục 15). Claude tự chọn theo ủy quyền của
 // Eric ngày 2026-10-11 (Eric chốt hai cấu hình và thu phí theo token ngày 2026-10-26, GD-102, GD-103):
 // - bật tắt theo trường (`ai_settings.enabled`, mặc định tắt); thiếu khóa hoặc tắt thì điểm cuối soạn trả lỗi rõ ràng, phần còn lại của
 //   hệ thống chạy như cũ;

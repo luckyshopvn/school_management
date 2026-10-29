@@ -11,7 +11,7 @@ phien_ban_de_xuat: 0.248.0
 
 #### Công việc đã thực hiện
 
-- Thêm GD-181, E-11 và mục 19.15 vào tài liệu 32; sửa bảng địa chỉ ở 16.10 và dòng Chợ gia sư ở tài liệu 34.
+- Thêm GD-181, E-11 và mục 19.15 vào tài liệu 47; sửa bảng địa chỉ ở 16.10 và dòng Chợ gia sư ở tài liệu 49.
 - Gộp `apps/tutor` vào `apps/market`, xóa `apps/tutor`:
   - các màn của gia sư chuyển sang `apps/market/src/tutor/`;
   - ứng dụng chung hiện bộ màn theo loại tài khoản của phiên: phụ huynh có thanh điều hướng ở đầu trang, gia sư có cột bên trái;
@@ -61,7 +61,7 @@ phien_ban_de_xuat: 0.248.0
 
 - Lý do: Eric yêu cầu ngày 2026-10-29 một ứng dụng dùng chung cho giáo viên (gia sư) và phụ huynh, phân quyền theo loại tài khoản (GD-181).
 - Nội dung thay đổi: gộp `apps/tutor` vào `apps/market`, xóa `apps/tutor`; ứng dụng hiện bộ màn theo `kind`; máy chủ bỏ quy tắc chặn theo tên miền, giữ kiểm loại tài khoản ở từng điểm cuối; tên miền cũ chuyển hướng về chợ.
-- Thành phần bị ảnh hưởng: `apps/market/*` (thêm `src/tutor/`, `public/`), `apps/tutor` (xóa), `packages/market-client/src/MarketShell.tsx`, `AccountForms.tsx`, `market-api.ts`, `apps/api/src/market/market-context.ts`, `market-accounts.ts`, `market-identity.ts`, `market-password.ts`, `market-public.ts` và kiểm thử, `database/src/marketplace/market-settings.ts`, `apps/platform/src/MarketPage.tsx`, `scripts/chay-nhieu-truong.mjs`, `scripts/chuyen-huong-gia-su.mjs` (mới), `deploy/docker/*.Dockerfile`, `deploy/profiles/production/*`, `deploy/profiles/trial/*`, `tests/playwright.multi.config.ts`, `tests/e2e-multi-environment.mjs`, `tests/e2e/195` đến `199`, `tests/trial/edge-worker.test.mjs`, README, tài liệu 32, 34.
+- Thành phần bị ảnh hưởng: `apps/market/*` (thêm `src/tutor/`, `public/`), `apps/tutor` (xóa), `packages/market-client/src/MarketShell.tsx`, `AccountForms.tsx`, `market-api.ts`, `apps/api/src/market/market-context.ts`, `market-accounts.ts`, `market-identity.ts`, `market-password.ts`, `market-public.ts` và kiểm thử, `database/src/marketplace/market-settings.ts`, `apps/platform/src/MarketPage.tsx`, `scripts/chay-nhieu-truong.mjs`, `scripts/chuyen-huong-gia-su.mjs` (mới), `deploy/docker/*.Dockerfile`, `deploy/profiles/production/*`, `deploy/profiles/trial/*`, `tests/playwright.multi.config.ts`, `tests/e2e-multi-environment.mjs`, `tests/e2e/195` đến `199`, `tests/trial/edge-worker.test.mjs`, README, tài liệu 47, 49.
 - Dữ liệu, API, quyền bị ảnh hưởng: không có migration. `GET /market/public/site` bỏ `tutor_url`, `application`. `POST /market/auth/register` nhận `kind` do người dùng chọn ở mọi tên miền của chợ. `POST /market/auth/login`, `POST /market/identity/complete` (đăng nhập) không còn chặn theo tên miền. `POST /market/identity/start` lấy mục đích theo loại tài khoản. Máy chủ API không phục vụ tên miền cũ của ứng dụng Gia sư (404). Quyền theo loại tài khoản ở từng điểm cuối không đổi.
 - Ảnh hưởng chức năng cũ: tài khoản gia sư đăng nhập ở tên miền của chợ; liên kết cũ ở tên miền `gia-su.` chuyển hướng về chợ. Phiên gia sư cũ phải đăng nhập lại.
 - Kiểm thử cần thực hiện: kiểm kiểu `apps/api`, `apps/market`, `packages/market-client`, `apps/platform`, `tests`; kiểm thử máy chủ chợ; kiểm thử cấu hình chợ; kiểm thử Worker; e2e 195 đến 199.

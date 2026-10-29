@@ -1,7 +1,7 @@
 import { sql } from 'kysely';
 import type { Migration } from 'kysely/migration';
 
-// Danh mục đơn vị giáo dục toàn quốc (DT-24, YCTD-220; tài liệu 32 mục 16): dữ liệu tham chiếu của nền tảng, không thuộc trường nào.
+// Danh mục đơn vị giáo dục toàn quốc (DT-24, YCTD-220; tài liệu 47 mục 16): dữ liệu tham chiếu của nền tảng, không thuộc trường nào.
 // - catalog_departments: Sở GD&ĐT theo tỉnh sau sáp nhập, mã 2 chữ số là mã tỉnh (không suy ra từ mã trường);
 // - catalog_levels: cấp học theo mã của Bộ (01 Mầm non, 02 Tiểu học, 03 THCS, 04 THPT, 05 GDTX), nạp sẵn ở đây vì là danh mục
 //   chuẩn, không phải dữ liệu thu thập;

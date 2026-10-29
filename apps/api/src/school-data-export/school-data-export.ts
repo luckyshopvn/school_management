@@ -12,7 +12,7 @@ import { ExportJobs, type ExportJobView } from '../exports/export-jobs.js';
 import { FileStorage } from '../files/file-storage.js';
 import { buildSchoolDataArchive, schoolArchiveSources } from './school-data-archive.js';
 
-// Xuất toàn bộ dữ liệu của trường thành gói ZIP (DT-18 phần 18h, YCTD-145; tài liệu 32 mục 9.4: tác vụ xuất nền của 16a,
+// Xuất toàn bộ dữ liệu của trường thành gói ZIP (DT-18 phần 18h, YCTD-145; tài liệu 47 mục 9.4: tác vụ xuất nền của 16a,
 // ghi export_logs). Bấm xuất thì lấy ngay phần dữ liệu của dịch vụ định danh bằng mã phiên của người bấm (lưu tạm ở kho
 // tệp), rồi tạo tác vụ nền; tiến trình nền dựng gói và lưu ở kho tệp. Chỉ người tạo tải được, hạn tải 48 giờ, mỗi lần tải
 // ghi export_job_downloads. Màn hình hỏi lại danh sách tác vụ và báo khi gói đã xong. Mỗi người chỉ một gói đang tạo

@@ -250,7 +250,7 @@ jobs:
           path: tests/test-results/
           retention-days: 7
 
-  # Nền tảng nhiều trường (DT-SaaS phần S1a, tài liệu 32 mục 14.7): một dịch vụ định danh, một máy chủ API phục vụ nhiều trường theo
+  # Nền tảng nhiều trường (DT-SaaS phần S1a, tài liệu 47 mục 14.7): một dịch vụ định danh, một máy chủ API phục vụ nhiều trường theo
   # tên miền con *.e2e.localhost; kiểm thử giao diện nhiều trường ở cả hai bố cục cơ sở dữ liệu (database, schema). Kiểm tĩnh và
   # kiểm thử đơn vị cách ly chạy ở việc kiem-thu (pnpm test)
   kiem-thu-nhieu-truong:

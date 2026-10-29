@@ -3,7 +3,7 @@ import { isUuid } from '../common/request-fields.js';
 import type { CompletionRule } from './learning-rules.js';
 import { parseLiveSettings } from './live/live-rules.js';
 
-// Danh mục loại hoạt động của lõi hệ thống quản lý học tập (DT-28 phần 28b, YCTD-272; tài liệu 32 mục 20.5, 20.7). Mỗi loại
+// Danh mục loại hoạt động của lõi hệ thống quản lý học tập (DT-28 phần 28b, YCTD-272; tài liệu 47 mục 20.5, 20.7). Mỗi loại
 // khai báo nhãn, cách tính hoàn thành được phép và cách đọc phần cài đặt riêng; lõi chỉ tra danh mục, không rẽ nhánh theo
 // loại. Phần sau đăng ký loại của mình bằng cách thêm một dòng vào cuối `ACTIVITY_KINDS` (bài tập 28c, thảo luận và hỏi đáp
 // 28e, giờ học trực tuyến 28g, gói SCORM 28h, bài kiểm tra của 23a khi 23a gộp). Loại chưa đăng ký thì không tạo được

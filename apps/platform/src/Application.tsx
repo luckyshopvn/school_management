@@ -18,6 +18,7 @@ import { ParentOrgApp } from './ParentOrgApp.js';
 import { fetchProfile, PlatformApiError, type OperatorProfile } from './platform-api.js';
 import { LoginPage } from './LoginPage.js';
 import { OperatorPasswordPage } from './OperatorPasswordPage.js';
+import { NoAccess } from './platform-ui.js';
 
 // Khung cổng vận hành nền tảng (DT-SaaS phần S1a): đăng nhập (LoginPage), menu theo dữ liệu, trang tổng quan; các trang sau do S2,
 // S4, S5 thêm. Mã phiên chỉ giữ trong bộ nhớ của trang; tải lại trang thì đăng nhập lại.
@@ -29,6 +30,8 @@ function Shell({ accessToken, onLogout }: { accessToken: string; onLogout: () =>
   const [active, setActive] = useState(PLATFORM_MENU[0]?.key ?? 'overview');
   const [error, setError] = useState<string | null>(null);
   const [menuOpen, setMenuOpen] = useState(false);
+  // Gói mở sẵn khi đi từ trang Trợ lý AI sang Gói dịch vụ (YCTD-370)
+  const [focusPlan, setFocusPlan] = useState<string | null>(null);
   // Mục đang hiện tên sau khi chạm giữ (thanh biểu tượng ở khổ máy tính bảng)
   const [hint, setHint] = useState<string>();
 
@@ -176,6 +179,10 @@ function Shell({ accessToken, onLogout }: { accessToken: string; onLogout: () =>
         {profile && (mustChange || active === 'password') ? (
           <OperatorPasswordPage token={accessToken} forced={mustChange} onChanged={loadProfile} />
         ) : null}
+        {/* Trang không thuộc vai trò: báo không có quyền thay khoảng trắng (YCTD-370) */}
+        {profile && !mustChange && active !== 'password' && !menu.some((item) => item.key === active) ? (
+          <NoAccess />
+        ) : null}
         {mustChange || !profile || !menu.some((item) => item.key === active) ? null : (
           <>
             {active === 'overview' && profile ? (
@@ -188,13 +195,26 @@ function Shell({ accessToken, onLogout }: { accessToken: string; onLogout: () =>
             ) : null}
             {active === 'audit' ? <AuditLogPage token={accessToken} /> : null}
             {active === 'schools' ? <SchoolsPage token={accessToken} role={profile.role} /> : null}
-            {active === 'plans' ? <PlansPage accessToken={accessToken} /> : null}
-            {active === 'billing' ? <BillingPage accessToken={accessToken} /> : null}
-            {active === 'dashboard' ? <DashboardPage token={accessToken} /> : null}
-            {active === 'maintenance' ? <MaintenancePage token={accessToken} /> : null}
+            {active === 'plans' ? (
+              <PlansPage accessToken={accessToken} role={profile.role} focusPlanId={focusPlan} />
+            ) : null}
+            {active === 'billing' ? <BillingPage accessToken={accessToken} role={profile.role} /> : null}
+            {active === 'dashboard' ? <DashboardPage token={accessToken} role={profile.role} /> : null}
+            {active === 'maintenance' ? <MaintenancePage token={accessToken} role={profile.role} /> : null}
             {active === 'parent-orgs' ? <AdminUnitsPage token={accessToken} /> : null}
-            {active === 'ai' ? <AiPage accessToken={accessToken} /> : null}
-            {active === 'catalog' ? <CatalogPage token={accessToken} /> : null}
+            {active === 'ai' ? (
+              <AiPage
+                accessToken={accessToken}
+                role={profile.role}
+                onOpenPlan={(planId) => {
+                  setFocusPlan(planId);
+                  setActive('plans');
+                }}
+              />
+            ) : null}
+            {active === 'catalog' ? (
+              <CatalogPage token={accessToken} role={profile.role} onNavigate={setActive} />
+            ) : null}
             {active === 'market' ? <MarketPage accessToken={accessToken} role={profile.role} /> : null}
             {active === 'operators' ? <OperatorsPage token={accessToken} currentOperatorId={profile.id} /> : null}
           </>

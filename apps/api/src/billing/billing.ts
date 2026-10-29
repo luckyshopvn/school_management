@@ -55,7 +55,7 @@ import { createPaymentGateway, isWebhookGateway, WebhookAuthenticationError } fr
 import type { StoredConnector } from '../school-settings/school-settings.js';
 import { paymentSettingsOf } from '../school-settings/tenant-connectors.js';
 
-// Thu phí tự động ở máy chủ API (DT-SaaS phần S5b, YCTD-196; tài liệu 32 mục 14.5):
+// Thu phí tự động ở máy chủ API (DT-SaaS phần S5b, YCTD-196; tài liệu 47 mục 14.5):
 // - trang hóa đơn dịch vụ của trường cho quản trị trường (P01.billing.manage): xem, tải, trả tiền bằng mã QR hoặc liên kết thanh toán
 //   qua cổng của nền tảng (khóa cổng lưu mã hóa ở cơ sở dữ liệu nền tảng; chưa có khóa thì dùng bộ giả lập đặt ở cấu hình máy chủ);
 // - điểm nhận thông báo tiền vào của cổng nền tảng: không theo tên miền trường, xác thực bằng chữ ký hoặc khóa của cổng;

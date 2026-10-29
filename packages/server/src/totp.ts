@@ -1,7 +1,7 @@
 import { createHmac, randomBytes, timingSafeEqual } from 'node:crypto';
 
 // Mật khẩu một lần theo thời gian (TOTP, RFC 6238, HMAC-SHA1, 30 giây, 6 chữ số) cho xác thực hai lớp (DT-SaaS phần S8b, YCTD-201, tài
-// liệu 32 mục 14.5): tương thích Google Authenticator, Microsoft Authenticator, Authy. Mã hóa khóa bí mật khi lưu do nơi dùng đảm nhiệm
+// liệu 47 mục 14.5): tương thích Google Authenticator, Microsoft Authenticator, Authy. Mã hóa khóa bí mật khi lưu do nơi dùng đảm nhiệm
 // (`secret-encryption`); ở đây chỉ sinh khóa, tính mã, kiểm tra mã (có cửa sổ lệch giờ) và dựng địa chỉ cấu hình cho ứng dụng xác thực
 export const TOTP_STEP_SECONDS = 30;
 export const TOTP_DIGITS = 6;

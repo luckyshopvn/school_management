@@ -1,8 +1,8 @@
 # 13. CÔNG NGHỆ SỬ DỤNG
 
 - Mô tả: Ngôn ngữ lập trình, khuôn khổ, cơ sở dữ liệu, thư viện, công cụ xây dựng, công cụ kiểm thử, môi trường triển khai.
-- Phiên bản: 1.6
-- Ngày cập nhật: 2026-10-10
+- Phiên bản: 1.7
+- Ngày cập nhật: 2026-10-29
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
 
@@ -93,6 +93,7 @@ Quản lý gói theo không gian làm việc, một kho mã nguồn cho toàn b�
 | QU-09 | Giao diện không truy cập cơ sở dữ liệu và không chứa quy tắc nghiệp vụ; mọi thao tác dữ liệu đi qua máy chủ API nghiệp vụ |
 | QU-10 | Dịch vụ định danh là nơi duy nhất xử lý mật khẩu và cấp phiên; máy chủ API nghiệp vụ không lưu mật khẩu |
 | QU-11 | Thay đổi cấu trúc dữ liệu năm học chạy trên cơ sở dữ liệu năm học đang dùng; cơ sở dữ liệu năm đã đóng giữ nguyên cấu trúc và ghi số phiên bản cấu trúc; báo cáo nhiều năm đọc theo số phiên bản đó để đọc được cấu trúc cũ (QĐ-15, RR-13) |
+| QU-12 | Mỗi phần đăng ký bằng tệp riêng, không thêm dòng vào danh sách chung: tệp thay đổi cấu trúc ở `database/<loại>/migrations/<số>_<tên>.ts` (xuất `migration`), bảng mới ở `database/<loại>/schema-parts/<phần>.ts` (`declare module '../schema.js'` thêm bảng vào giao diện cơ sở dữ liệu), bộ điều khiển, dịch vụ, bước chuyển năm học của máy chủ API ở `apps/api/src/dang-ky/<phần>.ts` (`export default { … } satisfies PhanDangKy`). Chỉ mục `*.generated.ts` sinh khi dựng, không đưa lên kho; CI chạy `node database/sinh-chi-muc.mjs --kiem`, `node apps/api/sinh-dang-ky.mjs --kiem` (YCTD-294) |
 
 ## 6. Chưa xác minh được
 

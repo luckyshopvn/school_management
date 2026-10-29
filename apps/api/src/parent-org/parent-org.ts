@@ -56,7 +56,7 @@ import { Databases } from '../common/databases.js';
 import { JobScheduler } from '../common/job-scheduler.js';
 import { buildTableFile, CONTENT_TYPES, readTableFileFormat, type TableFileSheet } from '../exports/table-file.js';
 
-// Đơn vị cấp trên ở máy chủ API (DT-SaaS phần S6, YCTD-202; tài liệu 32 mục 14.5 "S6"). Claude tự chọn theo ủy quyền của Eric
+// Đơn vị cấp trên ở máy chủ API (DT-SaaS phần S6, YCTD-202; tài liệu 47 mục 14.5 "S6"). Claude tự chọn theo ủy quyền của Eric
 // ngày 2026-10-11:
 // - việc định kỳ `aggregate-snapshots` (mặc định 6 giờ, AGGREGATE_SNAPSHOT_INTERVAL_SECONDS) chạy trong ngữ cảnh từng trường, đọc
 //   năm học đang dùng và tính bản chụp sáu nhóm (quy mô, chuyên cần 30 ngày, kết quả học tập, cơ sở vật chất, nhân sự, EMIS): chỉ

@@ -10,7 +10,7 @@ import type { Kysely, Transaction } from 'kysely';
 import type { DraftItem } from '../fees/fee-calculation.service.js';
 import { periodRange, type Period } from '../fees/registration-periods.js';
 
-// Khoản thu của chương trình gia sư bổ trợ có thu trong lần tính học phí của kỳ (DT-27 phần 27c, YCTD-253; tài liệu 32 mục 19.5).
+// Khoản thu của chương trình gia sư bổ trợ có thu trong lần tính học phí của kỳ (DT-27 phần 27c, YCTD-253; tài liệu 47 mục 19.5).
 // Chương trình `curriculum` không bao giờ có dòng thu (ràng buộc của bảng và hàm thuần). Theo buổi: thu các buổi chưa hủy từ ngày đơn
 // được duyệt đến hết kỳ (cả buổi của kỳ trước chưa thu), đơn đã rút thì chỉ đến ngày rút; trọn gói: thu một lần ở kỳ đầu tiên tính
 // sau khi đơn được duyệt. Khoản trừ của buổi bị hủy sau khi đã thu (chế độ trừ kỳ sau) trừ vào các dòng gia sư của học sinh trong kỳ,

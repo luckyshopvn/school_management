@@ -16,7 +16,7 @@ import {
   type TestUser,
 } from '../test-support.js';
 
-// Bộ nối nhà cung cấp định danh OIDC, sẵn cho VNeID (DT-25, YCTD-225; tài liệu 32 mục 17). Nhà cung cấp là máy chủ OIDC giả lập chạy
+// Bộ nối nhà cung cấp định danh OIDC, sẵn cho VNeID (DT-25, YCTD-225; tài liệu 47 mục 17). Nhà cung cấp là máy chủ OIDC giả lập chạy
 // cục bộ, khóa ký sinh mới mỗi lần chạy; không gọi dịch vụ thật
 const CODE = 'vneid';
 const PROVIDER_KEYS = ['totp_enabled'];

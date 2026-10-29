@@ -30,7 +30,7 @@ import {
   useToast,
 } from './library-common.js';
 
-// Phát và thu sách giáo khoa (DT-22 phần 22a, tài liệu 32 mục 13.4, YCTD-181): bộ sách theo khối, phát cả bộ cho học sinh
+// Phát và thu sách giáo khoa (DT-22 phần 22a, tài liệu 47 mục 13.4, YCTD-181): bộ sách theo khối, phát cả bộ cho học sinh
 // một lớp (mỗi học sinh một bản mỗi đầu sách, hạn trả là ngày kết thúc năm học), thu hàng loạt cuối năm kèm tình trạng.
 // Học sinh chưa có thẻ và đầu sách thiếu bản được báo lại sau khi phát
 type Tab = 'issue' | 'collect' | 'sets';

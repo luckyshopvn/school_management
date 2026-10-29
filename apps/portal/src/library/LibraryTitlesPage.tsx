@@ -43,7 +43,7 @@ import {
   useToast,
 } from './library-common.js';
 
-// Ấn phẩm và bản sao của thư viện (DT-22 phần 22a, tài liệu 32 mục 13.4, YCTD-181): tra cứu theo từ khóa, phân loại, khối;
+// Ấn phẩm và bản sao của thư viện (DT-22 phần 22a, tài liệu 47 mục 13.4, YCTD-181): tra cứu theo từ khóa, phân loại, khối;
 // cán bộ có quyền quản lý thêm, sửa ấn phẩm, thêm bản sao có số đăng ký cá biệt, đổi tình trạng, thanh lý, in tem mã, đính
 // tệp tài liệu số và xuất sổ đăng ký cá biệt; người chỉ có quyền xem thì chỉ tra cứu
 

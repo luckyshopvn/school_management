@@ -1,7 +1,7 @@
 import { sql } from 'kysely';
 import type { Migration } from 'kysely/migration';
 
-// Cấu hình kết nối ngoài riêng từng trường (DT-SaaS phần S3, YCTD-195, tài liệu 32 mục 14.5): thay các khóa ở biến môi trường của
+// Cấu hình kết nối ngoài riêng từng trường (DT-SaaS phần S3, YCTD-195, tài liệu 47 mục 14.5): thay các khóa ở biến môi trường của
 // cả bản triển khai. Mỗi kết nối một dòng; toàn bộ giá trị (cả giá trị không bí mật) là một đối tượng JSON mã hóa AES-256-GCM bằng
 // khóa mã hóa của trường; `hints` giữ gợi ý hiển thị (bốn ký tự cuối của giá trị bí mật, giá trị không bí mật), không bao giờ trả lại
 // giá trị đã lưu. Nằm ở cơ sở dữ liệu hệ thống của chính trường nên đi theo dữ liệu của trường khi xuất, chuyển cụm và được mã hóa

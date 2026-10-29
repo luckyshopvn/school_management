@@ -1,4 +1,4 @@
-# Hồ sơ "Vận hành" (b) trên VPS trong nước (DT-SaaS phần S7a, YCTD-198; tài liệu 32 mục 14.4, 14.5).
+# Hồ sơ "Vận hành" (b) trên VPS trong nước (DT-SaaS phần S7a, YCTD-198; tài liệu 47 mục 14.4, 14.5).
 # Một bộ tệp cho ba cách đặt máy, chọn dịch vụ bằng COMPOSE_PROFILES trong production.env:
 #   T1 một VPS:            COMPOSE_PROFILES=db,app,seaweedfs,monitoring
 #   T2 hai VPS:            máy cơ sở dữ liệu  COMPOSE_PROFILES=db,monitoring-agent

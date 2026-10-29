@@ -14,7 +14,7 @@ import {
 } from './school-database-layout.js';
 import type { Actor } from './school-lifecycle.js';
 
-// Chuyển một trường sang cụm cơ sở dữ liệu khác trong cùng nền tảng (DT-SaaS phần S7b, YCTD-199; tài liệu 32 mục 14.5): dùng khi
+// Chuyển một trường sang cụm cơ sở dữ liệu khác trong cùng nền tảng (DT-SaaS phần S7b, YCTD-199; tài liệu 47 mục 14.5): dùng khi
 // một máy cơ sở dữ liệu đầy. Các bước, ghi ở `backup_runs` (loại cluster-move):
 // 1. tạm dừng trường (dừng ghi; người dùng nhận 503) nếu chưa tạm dừng, ghi sự kiện vòng đời;
 // 2. tạo từng cơ sở dữ liệu (hoặc lược đồ) ở cụm đích theo bố cục đích, chạy migrate, chép dữ liệu bằng vai trò của trường,

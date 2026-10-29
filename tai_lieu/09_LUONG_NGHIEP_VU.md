@@ -1,6 +1,6 @@
 # 09. LUỒNG NGHIỆP VỤ
 
-- Mô tả: Tổng quan các luồng nghiệp vụ chính, luồng phụ, luồng ngoại lệ. Liên kết tới thư mục 25_QUY_TRINH_NGHIEP_VU cho phần chi tiết từng quy trình.
+- Mô tả: Tổng quan các luồng nghiệp vụ chính, luồng phụ, luồng ngoại lệ. Liên kết tới thư mục 40_QUY_TRINH_NGHIEP_VU cho phần chi tiết từng quy trình.
 - Phiên bản: 1.3
 - Ngày cập nhật: 2026-10-09
 - Trạng thái: Đã phê duyệt
@@ -44,16 +44,16 @@ flowchart TD
 
 | Mã | Tên luồng | Vai trò khởi động | Đầu ra | Đặc tả chi tiết |
 |---|---|---|---|---|
-| LN-01 | Tiếp nhận trẻ mới và lập hồ sơ trẻ | Nhân viên tuyển sinh | Hồ sơ trẻ ở trạng thái đang học, đã phân lớp | `25_QUY_TRINH_NGHIEP_VU/QT-01_TIEP_NHAN_TRE_MOI.md` |
-| LN-02 | Điểm danh, báo vắng và đón trả trẻ | Giáo viên chủ nhiệm, phụ huynh | Bản ghi điểm danh trong ngày, số trẻ có mặt thực tế | `25_QUY_TRINH_NGHIEP_VU/QT-02_DIEM_DANH_BAO_VANG.md` |
-| LN-03 | Đăng ký dịch vụ và tính học phí theo tháng | Kế toán | Hóa đơn học phí của kỳ cho từng trẻ | `25_QUY_TRINH_NGHIEP_VU/QT-03_DANG_KY_DICH_VU_VA_TINH_HOC_PHI.md` |
-| LN-04 | Thu học phí và quản lý công nợ phải thu | Kế toán | Phiếu thu đã phân bổ, số dư công nợ của trẻ; thủ quỹ lập phiếu thu tiền mặt, thanh toán mã QR tự lập phiếu thu | `25_QUY_TRINH_NGHIEP_VU/QT-04_THU_HOC_PHI_VA_CONG_NO.md` |
-| LN-05 | Lập phiếu chi và quản lý quỹ, tài khoản ngân hàng | Kế toán, kế toán trưởng, thủ quỹ | Phiếu chi đã duyệt, số dư quỹ và ngân hàng | `25_QUY_TRINH_NGHIEP_VU/QT-05_PHIEU_CHI_VA_QUY.md` |
-| LN-06 | Chấm công, nghỉ phép và tính lương | Nhân sự, kế toán | Bảng công đã chốt, bảng lương của kỳ | `25_QUY_TRINH_NGHIEP_VU/QT-06_CHAM_CONG_VA_TINH_LUONG.md` |
-| LN-07 | Dặn thuốc, cấp thuốc và chăm sóc sức khỏe trẻ | Phụ huynh, nhân viên y tế | Phiếu dặn thuốc đã nhận, nhật ký cho uống thuốc | `25_QUY_TRINH_NGHIEP_VU/QT-07_DAN_THUOC_VA_CHAM_SOC_SUC_KHOE.md` |
+| LN-01 | Tiếp nhận trẻ mới và lập hồ sơ trẻ | Nhân viên tuyển sinh | Hồ sơ trẻ ở trạng thái đang học, đã phân lớp | `40_QUY_TRINH_NGHIEP_VU/QT-01_TIEP_NHAN_TRE_MOI.md` |
+| LN-02 | Điểm danh, báo vắng và đón trả trẻ | Giáo viên chủ nhiệm, phụ huynh | Bản ghi điểm danh trong ngày, số trẻ có mặt thực tế | `40_QUY_TRINH_NGHIEP_VU/QT-02_DIEM_DANH_BAO_VANG.md` |
+| LN-03 | Đăng ký dịch vụ và tính học phí theo tháng | Kế toán | Hóa đơn học phí của kỳ cho từng trẻ | `40_QUY_TRINH_NGHIEP_VU/QT-03_DANG_KY_DICH_VU_VA_TINH_HOC_PHI.md` |
+| LN-04 | Thu học phí và quản lý công nợ phải thu | Kế toán | Phiếu thu đã phân bổ, số dư công nợ của trẻ; thủ quỹ lập phiếu thu tiền mặt, thanh toán mã QR tự lập phiếu thu | `40_QUY_TRINH_NGHIEP_VU/QT-04_THU_HOC_PHI_VA_CONG_NO.md` |
+| LN-05 | Lập phiếu chi và quản lý quỹ, tài khoản ngân hàng | Kế toán, kế toán trưởng, thủ quỹ | Phiếu chi đã duyệt, số dư quỹ và ngân hàng | `40_QUY_TRINH_NGHIEP_VU/QT-05_PHIEU_CHI_VA_QUY.md` |
+| LN-06 | Chấm công, nghỉ phép và tính lương | Nhân sự, kế toán | Bảng công đã chốt, bảng lương của kỳ | `40_QUY_TRINH_NGHIEP_VU/QT-06_CHAM_CONG_VA_TINH_LUONG.md` |
+| LN-07 | Dặn thuốc, cấp thuốc và chăm sóc sức khỏe trẻ | Phụ huynh, nhân viên y tế | Phiếu dặn thuốc đã nhận, nhật ký cho uống thuốc | `40_QUY_TRINH_NGHIEP_VU/QT-07_DAN_THUOC_VA_CHAM_SOC_SUC_KHOE.md` |
 | LN-08 | Tổ chức đưa đón trẻ — Bỏ ngày 09/10/2026: trường không có xe đưa đón (Q-62) | — | — | — |
-| LN-09 | Ghi nhật ký của bé và trao đổi với phụ huynh | Giáo viên chủ nhiệm | Nhật ký trong ngày, luồng trao đổi đã ghi nhận | `25_QUY_TRINH_NGHIEP_VU/QT-09_NHAT_KY_VA_TRAO_DOI.md` |
-| LN-10 | Đăng hoạt động của lớp, duyệt và công bố cho phụ huynh | Giáo viên chủ nhiệm, quản lý đơn vị | Hoạt động đã công bố kèm hình ảnh | `25_QUY_TRINH_NGHIEP_VU/QT-10_HOAT_DONG_VA_CONG_BO.md` |
+| LN-09 | Ghi nhật ký của bé và trao đổi với phụ huynh | Giáo viên chủ nhiệm | Nhật ký trong ngày, luồng trao đổi đã ghi nhận | `40_QUY_TRINH_NGHIEP_VU/QT-09_NHAT_KY_VA_TRAO_DOI.md` |
+| LN-10 | Đăng hoạt động của lớp, duyệt và công bố cho phụ huynh | Giáo viên chủ nhiệm, quản lý đơn vị | Hoạt động đã công bố kèm hình ảnh | `40_QUY_TRINH_NGHIEP_VU/QT-10_HOAT_DONG_VA_CONG_BO.md` |
 
 ## 3. Điểm nối giữa các luồng
 

@@ -4,7 +4,7 @@ import { readFileSync } from 'node:fs';
 import { describe, it } from 'node:test';
 import { fileURLToPath } from 'node:url';
 
-// Quét bí mật trong mã nguồn (DT-SaaS phần S8b, YCTD-201, tài liệu 32 mục 14.5 "Kiểm tra trong CI"): mọi tệp đang được theo dõi bằng git
+// Quét bí mật trong mã nguồn (DT-SaaS phần S8b, YCTD-201, tài liệu 47 mục 14.5 "Kiểm tra trong CI"): mọi tệp đang được theo dõi bằng git
 // không được chứa khóa riêng, khóa truy cập của nhà cung cấp hay mã thông báo dạng thật. Chỉ quét mẫu có định dạng đặc trưng (ít nhầm);
 // chỗ cố ý (ví dụ khóa mẫu trong tài liệu) khai ở ALLOWED kèm lý do. Chạy ở bước `pnpm test` của gói tests nên CI luôn chạy
 const root = fileURLToPath(new URL('../../', import.meta.url));

@@ -1,7 +1,7 @@
 import { sql } from 'kysely';
 import type { Migration } from 'kysely/migration';
 
-// Phòng học video của chợ gia sư (DT-27 phần 27j, YCTD-362; tài liệu 32 mục 19.12). Quyết định của Eric ngày 2026-10-29:
+// Phòng học video của chợ gia sư (DT-27 phần 27j, YCTD-362; tài liệu 47 mục 19.12). Quyết định của Eric ngày 2026-10-29:
 // - đồng ý ghi hình hỏi một lần cho mọi buổi của một con với một gia sư, rút lại được bất cứ lúc nào; con từ đủ 7 tuổi cùng xác nhận
 //   (`market_recording_consents`, mỗi lần đồng ý một dòng, rút thì ghi `withdrawn_at`, không xóa);
 // - phòng của một buổi (`market_session_rooms`): lúc gia sư mở, lúc đóng, gia sư xác nhận đã dạy hay hệ thống tự xác nhận sau hạn;

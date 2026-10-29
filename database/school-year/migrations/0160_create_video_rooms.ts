@@ -1,7 +1,7 @@
 import { sql } from 'kysely';
 import type { Migration } from 'kysely/migration';
 
-// Lớp video trực tiếp (DT-27 phần 27a, YCTD-251; tài liệu 32 mục 19.5). Số 0160, 0161 thay số giữ sẵn 0150, 0151 vì phải chạy sau
+// Lớp video trực tiếp (DT-27 phần 27a, YCTD-251; tài liệu 47 mục 19.5). Số 0160, 0161 thay số giữ sẵn 0150, 0151 vì phải chạy sau
 // bảng buổi gia sư của 27b (0153). Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11 ở chỗ
 // kế hoạch chưa chốt:
 // - `video_settings` một dòng của trường: số người dự tối đa một phòng (GD-130, mặc định 8 cả gia sư), thời hạn giữ bản ghi

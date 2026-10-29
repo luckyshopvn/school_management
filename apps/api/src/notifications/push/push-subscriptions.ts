@@ -36,7 +36,7 @@ import { uuidParameter } from '../../common/uuid-parameter.js';
 import { isPushGroupCode, PUSH_GROUPS, pushGroupOf } from './push-groups.js';
 import type { PushCredentials, PushTarget, VapidCredentials } from './push-transport.js';
 
-// Đăng ký thông báo đẩy và tuỳ chọn theo nhóm (DT-26 phần 26b, YCTD-232; tài liệu 32 mục 18):
+// Đăng ký thông báo đẩy và tuỳ chọn theo nhóm (DT-26 phần 26b, YCTD-232; tài liệu 47 mục 18):
 // - mỗi người dùng nhiều máy; địa chỉ đăng ký và khóa nhận lưu mã hóa bằng khóa của trường, mã băm có khóa để chống trùng; một địa
 //   chỉ còn hiệu lực chỉ thuộc một người (máy dùng chung đổi người thì đăng ký của người trước bị thu hồi);
 // - đăng xuất: ứng dụng gọi `POST /push/subscriptions/unsubscribe` với địa chỉ của máy trước khi đăng xuất;

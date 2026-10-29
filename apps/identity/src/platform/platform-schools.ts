@@ -66,7 +66,7 @@ import { IDENTITY_CONFIGURATION, TENANCY_RUNTIME, type IdentityConfiguration } f
 import { Infrastructure } from '../common/infrastructure.js';
 import { PlatformOperatorsService } from './platform-operators.js';
 
-// Quản lý trường ở cổng vận hành nền tảng (DT-SaaS phần S2, YCTD-193; tài liệu 32 mục 14.5): danh sách, bước setup khởi tạo,
+// Quản lý trường ở cổng vận hành nền tảng (DT-SaaS phần S2, YCTD-193; tài liệu 47 mục 14.5): danh sách, bước setup khởi tạo,
 // tạm dừng, mở lại, yêu cầu xóa, hồ sơ đồng ý, vùng máy chủ, tên miền riêng. Chỉ phục vụ ở tên miền của cổng nền tảng và cần mã
 // phiên vận hành. Xóa vĩnh viễn chạy bằng lệnh theo lịch sau thời gian chờ, không có nút ở cổng
 function notFound(): ApplicationError {

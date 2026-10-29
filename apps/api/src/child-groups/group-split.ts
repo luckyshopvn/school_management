@@ -1,4 +1,4 @@
-// Hàm thuần chia nhóm của bộ nhóm (DT-28 phần 28a, YCTD-271; tài liệu 32 mục 20.7). Không đọc cơ sở dữ liệu, không giữ
+// Hàm thuần chia nhóm của bộ nhóm (DT-28 phần 28a, YCTD-271; tài liệu 47 mục 20.7). Không đọc cơ sở dữ liệu, không giữ
 // trạng thái; cùng đầu vào và cùng hạt cho cùng kết quả để kiểm thử đơn vị và để giáo viên xem trước rồi lưu đúng bản đã xem.
 // Mức năng lực chỉ là số tạm trong lúc chia, không lưu, không trả ra (GD-140)
 

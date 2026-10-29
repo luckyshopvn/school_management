@@ -45,7 +45,7 @@ import { OrganizationScopes } from '../organization/organization-scopes.js';
 import { readRatingSettings } from '../class-logs/class-logs.js';
 import { conductPeriod, defaultConductCriteria, rankClasses } from './conduct-calc.js';
 
-// Nề nếp và thi đua lớp (DT-20 phần 20b, YCTD-159; tài liệu 32 mục 11.4), tuỳ trường: Ban Giám hiệu bật ở 1.4 Cấu hình trường,
+// Nề nếp và thi đua lớp (DT-20 phần 20b, YCTD-159; tài liệu 47 mục 11.4), tuỳ trường: Ban Giám hiệu bật ở 1.4 Cấu hình trường,
 // đặt điểm nền mỗi tuần, khai báo tiêu chí cộng hoặc trừ điểm (nạp bộ mặc định của Tiểu học được). Giáo viên trực tuần ghi
 // điểm theo lớp và ngày, ghi thay đội cờ đỏ (học sinh không có tài khoản) ở ô "Người báo". Tổng hợp, xếp hạng theo tuần, tháng,
 // học kỳ tính khi xem. Chưa bật thì chỉ đọc, sửa được cấu hình. Không dùng bảng thi đua cán bộ của 22d.

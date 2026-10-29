@@ -1,6 +1,6 @@
 import type { KpiSchoolLevelCode } from './kpi.js';
 
-// Kế hoạch giáo dục (DT-18 phần 22i, YCTD-147) theo mô tả công khai của trang kế hoạch đã khảo sát (tài liệu 32 mục 9.4):
+// Kế hoạch giáo dục (DT-18 phần 22i, YCTD-147) theo mô tả công khai của trang kế hoạch đã khảo sát (tài liệu 47 mục 9.4):
 // thư viện mẫu theo cấp học, kế hoạch theo năm học có phiên bản và sao chép từ năm trước, duyệt nhiều cấp (tổ trưởng, Phó
 // Hiệu trưởng, Hiệu trưởng), kí nội bộ, bảng tiến độ duyệt, xuất Word, PDF. Mẫu là cấu hình lưu ở cơ sở dữ liệu; danh mục
 // dưới đây chỉ là bản nạp mặc định (Mầm non; cấp phổ thông là khung rỗng, YCTD-345). Tên mẫu, mục, cột và luồng duyệt mặc định do
@@ -276,7 +276,7 @@ const MN_TEMPLATES: EducationPlanTemplateSeed[] = [
 ];
 
 // Khung rỗng của Tiểu học, THCS, THPT (YCTD-345). Tài liệu dự án không có nội dung mẫu kế hoạch của cấp phổ thông; tài
-// liệu 32 mục 22i chỉ nêu các loại mẫu cần có (năm học, tổ chuyên môn gồm dự giờ, thao giảng, giáo viên, chủ nhiệm, bài
+// liệu 47 mục 22i chỉ nêu các loại mẫu cần có (năm học, tổ chuyên môn gồm dự giờ, thao giảng, giáo viên, chủ nhiệm, bài
 // dạy). Mỗi khung là một loại đó với một mục văn bản trống để trường tự thêm mục, cột theo hướng dẫn hiện hành; không có
 // mục, chỉ tiêu nào tự soạn. Thư mục lưu kho lấy theo tên thư mục mặc định của cấp phổ thông ở kho hồ sơ chuyên môn (18e).
 // Loại kế hoạch, kì, luồng duyệt của từng khung do Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11, theo mẫu Mầm non

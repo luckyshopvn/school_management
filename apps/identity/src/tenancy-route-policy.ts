@@ -1,4 +1,4 @@
-// Chính sách trường của các tuyến công khai của dịch vụ định danh (DT-SaaS phần S1a, tài liệu 32 mục 14.7 lớp 3): tuyến không đòi mã
+// Chính sách trường của các tuyến công khai của dịch vụ định danh (DT-SaaS phần S1a, tài liệu 47 mục 14.7 lớp 3): tuyến không đòi mã
 // phiên của đúng trường phải khai ở đây kèm lý do; kiểm thử ma trận cách ly tự liệt kê tuyến và đối chiếu danh sách này
 export interface PublicRoute {
   method: string;

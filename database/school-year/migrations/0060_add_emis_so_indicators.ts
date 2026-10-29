@@ -7,7 +7,7 @@ import type { Migration } from 'kysely/migration';
 // - phòng: xây dựng mới trong năm (cột "Xây dựng mới" của 1.2.1 Báo cáo cơ sở vật chất của TP.HCM);
 // - đánh dấu đã gửi từng hồ sơ ở 1.1.2 Gửi báo cáo đầu năm (bản chạy nội bộ: xuất tệp và đánh dấu, không truyền đi).
 // Số liệu nhập tay theo mã cũ của thẻ Ngân sách nhà nước (6.01–6.06), thẻ 1 của 1.2.1 (CS.x.yy) và 2.3 Đề án ngoại ngữ không
-// đổi được sang mã của Sở nên xóa (chưa có đơn vị nào nộp thật, tài liệu 32 mục 8.3)
+// đổi được sang mã của Sở nên xóa (chưa có đơn vị nào nộp thật, tài liệu 47 mục 8.3)
 const POLICY_BENEFITS = [
   'nd238_learning_cost',
   'nd66_nursery_boarding',

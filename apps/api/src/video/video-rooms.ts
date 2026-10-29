@@ -26,7 +26,7 @@ import { assertTutoringModule } from '../tutoring/tutoring.js';
 import { TutoringService } from '../tutoring/tutoring.js';
 import { VIDEO_PROVIDER, type VideoRoomEvent, type VideoRoomProvider } from './video-provider.js';
 
-// Lớp video trực tiếp (DT-27 phần 27a, YCTD-251; tài liệu 32 mục 19.2 phần 3, 4 và 19.5). Claude tự chọn theo ủy quyền của Eric ngày
+// Lớp video trực tiếp (DT-27 phần 27a, YCTD-251; tài liệu 47 mục 19.2 phần 3, 4 và 19.5). Claude tự chọn theo ủy quyền của Eric ngày
 // 2026-10-11 ở chỗ kế hoạch chưa chốt:
 // - phòng của buổi gia sư do giáo viên dạy chương trình (hoặc Ban Giám hiệu) mở; phòng tức thời do giáo viên mở;
 // - vai trò và quyền: giáo viên dạy là chủ phòng; học sinh có đơn được duyệt (kênh student) nói, chia sẻ màn hình khi được cho; cha mẹ

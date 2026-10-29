@@ -176,7 +176,7 @@ export function MarketPage({ accessToken, role }: { accessToken: string; role: O
       {error ? <p role="alert">{error}</p> : null}
       <p>
         Thu tiền thật ở chợ: <strong>tắt</strong>. Bản này chỉ chạy thanh toán giả lập; bật thu tiền thật cần xong E-01
-        đến E-07 (tài liệu 32 mục 19.10).
+        đến E-07 (tài liệu 47 mục 19.10).
       </p>
 
       {overview && canSettings ? (

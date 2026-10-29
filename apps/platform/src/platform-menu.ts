@@ -1,4 +1,4 @@
-// Menu của cổng vận hành nền tảng theo dữ liệu (DT-SaaS phần S1a, tài liệu 32 mục 14.5): mỗi phần sau thêm mục của mình vào mảng này
+// Menu của cổng vận hành nền tảng theo dữ liệu (DT-SaaS phần S1a, tài liệu 47 mục 14.5): mỗi phần sau thêm mục của mình vào mảng này
 // cùng một trang, không sửa khung. Từ YCTD-324 mục xếp theo ba nhóm của thiết kế cổng vận hành Eric duyệt ngày 2026-10-29 (Điều hành,
 // Kinh doanh, Hệ thống); thứ tự trong mảng là thứ tự hiện
 export type PlatformMenuGroup = 'dieu-hanh' | 'kinh-doanh' | 'he-thong';

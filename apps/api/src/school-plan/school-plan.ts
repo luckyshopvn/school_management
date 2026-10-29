@@ -6,7 +6,7 @@ import { CurrentSchoolYearResolver } from '../common/current-school-year.js';
 import { Databases } from '../common/databases.js';
 import { assertStorageCapacity, countActiveStudents, usedStorageMb } from '../common/plan-limits.js';
 
-// Gói dịch vụ của trường ở máy chủ API (DT-SaaS phần S5a, YCTD-194; tài liệu 32 mục 14.5): ứng dụng của trường đọc gói hiện hành,
+// Gói dịch vụ của trường ở máy chủ API (DT-SaaS phần S5a, YCTD-194; tài liệu 47 mục 14.5): ứng dụng của trường đọc gói hiện hành,
 // phân hệ được bật, giới hạn, mức đang dùng, trạng thái và hạn để ẩn mục menu ngoài gói, nhắc hạn, báo chế độ chỉ đọc. Chế độ một
 // trường và trường chưa gán gói trả `restricted: false`
 const DAY = 86_400_000;

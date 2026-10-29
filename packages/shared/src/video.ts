@@ -1,4 +1,4 @@
-// Lớp video trực tiếp (DT-27 phần 27a, YCTD-251; tài liệu 32 mục 19.5): vai trò trong phòng và quyền tương ứng, tên phòng có mã
+// Lớp video trực tiếp (DT-27 phần 27a, YCTD-251; tài liệu 47 mục 19.5): vai trò trong phòng và quyền tương ứng, tên phòng có mã
 // trường, mã người dự, đo phút người dự từ nhật ký vào ra. Hàm thuần dùng chung cho máy chủ API (cấp mã vào phòng, đo theo gói) và
 // giao diện (hiện quyền, phút còn lại)
 export type VideoRoomRole = 'host' | 'student' | 'guardian' | 'observer';
@@ -21,7 +21,7 @@ export const VIDEO_RECORDING_STATUS_LABELS: Record<VideoRecordingStatus, string>
   deleted: 'Đã xóa theo hạn',
 };
 
-// Mã vào phòng chỉ dùng để vào trong 10 phút (tài liệu 32 mục 19.5)
+// Mã vào phòng chỉ dùng để vào trong 10 phút (tài liệu 47 mục 19.5)
 export const VIDEO_JOIN_TOKEN_SECONDS = 600;
 
 // Văn bản đồng ý ghi hình cha mẹ xác nhận cho con (lưu bản chụp và mã băm khi đồng ý)

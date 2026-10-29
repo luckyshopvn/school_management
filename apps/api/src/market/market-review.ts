@@ -19,7 +19,7 @@ import {
 } from './market-tutor-rules.js';
 import { operatorRolesFor } from '@school-management/shared';
 
-// Hàng chờ duyệt gia sư của nhân viên nền tảng (DT-27 phần 27g, YCTD-257; tài liệu 32 mục 19.5 "hàng chờ duyệt của nhân viên nền tảng có
+// Hàng chờ duyệt gia sư của nhân viên nền tảng (DT-27 phần 27g, YCTD-257; tài liệu 47 mục 19.5 "hàng chờ duyệt của nhân viên nền tảng có
 // nhật ký; tệp giấy tờ lưu mã hóa, chỉ nhân viên duyệt xem"). Ở cổng nền tảng, mã phiên vận hành. Mỗi lần xem tệp, mỗi quyết định ghi nhật
 // ký của chợ. Duyệt hồ sơ chỉ khi đủ điều kiện hiện công khai (danh tính, lý lịch tư pháp còn hiệu lực, đăng ký kinh doanh nếu có môn
 // `curriculum`); từ chối phải có lý do

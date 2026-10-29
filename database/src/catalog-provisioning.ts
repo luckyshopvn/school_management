@@ -15,7 +15,7 @@ import {
 } from './school-lifecycle.js';
 import { vietnamDate } from './school-plans.js';
 
-// Mở mọi đơn vị trong danh mục, khởi tạo trường ở lần mở đầu tiên (YCTD-314, Eric yêu cầu ngày 2026-10-28; tài liệu 32 mục
+// Mở mọi đơn vị trong danh mục, khởi tạo trường ở lần mở đầu tiên (YCTD-314, Eric yêu cầu ngày 2026-10-28; tài liệu 47 mục
 // 16.11). Không dựng sẵn cả danh mục: trường chỉ được tạo (cơ sở dữ liệu định danh, hệ thống, năm học hiện tại, khóa, tên miền
 // `<mã>.<tên miền hệ thống>`) khi quản trị nền tảng mở ở cổng vận hành hoặc người dùng chọn đơn vị ở trang đăng nhập.
 // - Mã trường suy ra cố định từ mã Bộ (`dv-<mã Bộ>`), nên hai lần mở đầu cùng lúc đụng ràng buộc duy nhất của `schools.code` và

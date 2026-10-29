@@ -1,4 +1,4 @@
-// Môi trường kiểm thử nhiều trường (DT-SaaS phần S1a, tài liệu 32 mục 14.7): cổng, cơ sở dữ liệu nền tảng riêng, các trường giả với
+// Môi trường kiểm thử nhiều trường (DT-SaaS phần S1a, tài liệu 47 mục 14.7): cổng, cơ sở dữ liệu nền tảng riêng, các trường giả với
 // tên miền con `*.e2e.localhost` (trình duyệt Chromium tự đưa mọi `*.localhost` về 127.0.0.1, không cần sửa tệp hosts). Cổng khác
 // môi trường một trường nên hai bộ chạy không đụng nhau
 export const E2E_MULTI_IDENTITY_PORT = 3211;

@@ -38,7 +38,7 @@ import {
   type VerificationRow,
 } from './market-tutor-rules.js';
 
-// Hồ sơ dạy, xác minh từng bậc, khai giáo viên đang dạy ở trường và báo cáo Mẫu 03 của gia sư (DT-27 phần 27g, YCTD-257; tài liệu 32 mục
+// Hồ sơ dạy, xác minh từng bậc, khai giáo viên đang dạy ở trường và báo cáo Mẫu 03 của gia sư (DT-27 phần 27g, YCTD-257; tài liệu 47 mục
 // 19.5). Chỉ ở ứng dụng Gia sư. Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11 (quy tắc ở market-tutor-rules.ts):
 // - lưu hồ sơ đã duyệt thì hồ sơ về chờ duyệt (ẩn khỏi tìm kiếm đến khi duyệt lại) để giá, môn hiện công khai luôn đã qua duyệt;
 // - nộp giấy tờ: bằng cấp (tên văn bằng, nơi cấp), phiếu lý lịch tư pháp (ngày cấp trong 6 tháng), đăng ký kinh doanh (số đăng ký); tệp

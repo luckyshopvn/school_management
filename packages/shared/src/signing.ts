@@ -15,7 +15,7 @@ export const SIGNING_OBJECT_TYPES: ReadonlyArray<{ value: SigningObjectType; lab
   { value: 'class_log', label: 'Sổ đầu bài', tab: 'Sổ đầu bài' },
 ];
 
-// Cấp Mầm non của Sở ẩn "Ký sổ đầu bài", "Xuất dữ liệu sổ đầu bài" (tài liệu 31 mục 10.3.2) nên không tạo hồ sơ sổ đầu bài
+// Cấp Mầm non của Sở ẩn "Ký sổ đầu bài", "Xuất dữ liệu sổ đầu bài" (tài liệu 46 mục 10.3.2) nên không tạo hồ sơ sổ đầu bài
 // mới; loại class_log giữ lại cho cấp học khác sau này, hồ sơ sổ đầu bài đã có vẫn xem, tải, xác nhận được (DT-17 phần 17b)
 export const SIGNING_HIDDEN_OBJECT_TYPES: ReadonlyArray<SigningObjectType> = ['class_log'];
 export const SIGNING_VISIBLE_OBJECT_TYPES = SIGNING_OBJECT_TYPES.filter(

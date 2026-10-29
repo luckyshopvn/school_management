@@ -4,7 +4,7 @@ import { identityMigrations } from '../identity/index.js';
 import { schoolYearMigrations } from '../school-year/index.js';
 import { systemMigrations } from '../system/index.js';
 
-// Bảng điều khiển nền tảng (DT-SaaS phần S4, YCTD-197; tài liệu 32 mục 14.5 "S4"): hàm dùng chung cho máy chủ API (thu số liệu, gom
+// Bảng điều khiển nền tảng (DT-SaaS phần S4, YCTD-197; tài liệu 47 mục 14.5 "S4"): hàm dùng chung cho máy chủ API (thu số liệu, gom
 // lỗi, thông báo bảo trì, ghi thao tác trong phiên hỗ trợ) và dịch vụ định danh (cổng nền tảng, phiên hỗ trợ). Không đọc nội dung
 // dữ liệu của trường: chỉ đếm, đo dung lượng, tên tệp thay đổi cấu trúc mới nhất.
 export const SUPPORT_USERNAME = 'ho-tro-nen-tang';

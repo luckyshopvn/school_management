@@ -4,7 +4,7 @@ import type { PlatformDatabase } from '../../platform/schema.js';
 import { writeAudit } from '../provision-school.js';
 import { aiPricingReady, validateAiPricing, type AiModelUsage, type AiPricing } from './ai-pricing.js';
 
-// Phần của nền tảng cho trợ lý AI (DT-23 phần 23d, YCTD-214; tài liệu 32 mục 15): khóa nhà cung cấp AI của nền tảng (cấu hình
+// Phần của nền tảng cho trợ lý AI (DT-23 phần 23d, YCTD-214; tài liệu 47 mục 15): khóa nhà cung cấp AI của nền tảng (cấu hình
 // `platform`, GD-102) lưu như khóa cổng thanh toán của S5b (mã hóa AES-256-GCM bằng khóa gốc của nền tảng, chỉ trả bốn ký tự cuối),
 // thiết lập nhà cung cấp và mô hình của nền tảng, đơn giá AI theo gói (GD-103), đo token theo trường theo ngày
 type Executor = Kysely<PlatformDatabase> | Transaction<PlatformDatabase>;

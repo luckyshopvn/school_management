@@ -5,7 +5,7 @@ import type { RequestBody } from '../../common/request-fields.js';
 import { escapeHtml } from '../../website/website-html.js';
 import { isDone, type ResultStatus } from '../learning-rules.js';
 
-// Quy tắc thuần của huy hiệu, chứng nhận hoàn thành (DT-28 phần 28i, YCTD-279; tài liệu 32 mục 20.7). Tắt mặc định, Ban Giám
+// Quy tắc thuần của huy hiệu, chứng nhận hoàn thành (DT-28 phần 28i, YCTD-279; tài liệu 47 mục 20.7). Tắt mặc định, Ban Giám
 // hiệu bật (GD-155). Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11, ghi ở YCTD-279:
 // - Tiêu chí tự động có sẵn: hoàn thành chương (mọi hoạt động bắt buộc của chương xong), hoàn thành khoá (mọi chương có hoạt động
 //   bắt buộc xong), nộp bài đúng hạn 5 lần liên tiếp trong một lớp học trực tuyến; giáo viên trao huy hiệu kèm lý do.

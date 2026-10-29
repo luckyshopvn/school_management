@@ -11,7 +11,7 @@ import { isUuid, notFoundError, type RequestBody } from '../common/request-field
 import { DiscussionsService } from '../learning/discussions/discussions.js';
 import { assertTutoringModule } from './tutoring.js';
 
-// Hỏi đáp bài tập của chương trình gia sư (DT-27 phần 27e, YCTD-255; tài liệu 32 mục 19.5, YCTD-270). Câu hỏi, trả lời, xác nhận câu
+// Hỏi đáp bài tập của chương trình gia sư (DT-27 phần 27e, YCTD-255; tài liệu 47 mục 19.5, YCTD-270). Câu hỏi, trả lời, xác nhận câu
 // trả lời, lọc thông tin liên lạc, báo cáo là của bộ máy hỏi đáp 28e: học sinh hỏi ở khoá học ghi sẵn của chương trình (27d1) như ở mọi
 // lớp học trực tuyến. Phần này thêm phần riêng của gia sư:
 // - hàng chờ câu hỏi theo chương trình của giáo viên dạy (Ban Giám hiệu xem mọi chương trình), thời hạn trả lời theo chương trình;

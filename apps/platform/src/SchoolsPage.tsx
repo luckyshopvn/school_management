@@ -19,7 +19,7 @@ import { AuditLogTable } from './AuditLogPage.js';
 import { schoolStatusLabel } from './audit-api.js';
 import { OpenSchoolButton, supportLink } from './OpenSchoolButton.js';
 
-// Trang Trường của cổng vận hành nền tảng (DT-SaaS phần S2, YCTD-193; tài liệu 32 mục 14.5): danh sách, bước setup năm bước,
+// Trang Trường của cổng vận hành nền tảng (DT-SaaS phần S2, YCTD-193; tài liệu 47 mục 14.5): danh sách, bước setup năm bước,
 // chi tiết và thao tác vòng đời. Hồ sơ đồng ý dùng dữ liệu thật (PL-00 của S8a) nhập ở bước 3 khi chọn loại dữ liệu `consented`
 const STATUS_LABELS: Record<string, string> = {
   provisioning: 'Đang khởi tạo',
@@ -297,7 +297,7 @@ function SetupWizard({
             <p role="note">
               {settings.data_policy === 'synthetic-only'
                 ? 'Môi trường thử nghiệm, máy chủ ngoài Việt Nam: chỉ nhận dữ liệu giả.'
-                : 'Môi trường thử nghiệm, máy chủ ngoài Việt Nam: dữ liệu thật chỉ khi đủ hồ sơ đồng ý (PL-00, tài liệu 33); không nhận loại vận hành chính thức.'}
+                : 'Môi trường thử nghiệm, máy chủ ngoài Việt Nam: dữ liệu thật chỉ khi đủ hồ sơ đồng ý (PL-00, tài liệu 48); không nhận loại vận hành chính thức.'}
             </p>
           ) : null}
           {Object.entries(DATA_CLASS_LABELS).map(([value, label]) => (
@@ -313,7 +313,7 @@ function SetupWizard({
           ))}
           {dataClass === 'consented' ? (
             <div className="consents">
-              <p>Dữ liệu thật cần đủ bốn hồ sơ còn hiệu lực và bản ghi vùng máy chủ (tài liệu 33, PL-00).</p>
+              <p>Dữ liệu thật cần đủ bốn hồ sơ còn hiệu lực và bản ghi vùng máy chủ (tài liệu 48, PL-00).</p>
               <label>
                 Phạm vi dữ liệu
                 <input value={dataScope} onChange={(event) => setDataScope(event.target.value)} />

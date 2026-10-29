@@ -1,4 +1,4 @@
-// Cổng biên của hồ sơ thử nghiệm (DT-SaaS phần S9, YCTD-203; tài liệu 32 mục 14.5 "Thiết kế dùng chung"): một Cloudflare Worker
+// Cổng biên của hồ sơ thử nghiệm (DT-SaaS phần S9, YCTD-203; tài liệu 47 mục 14.5 "Thiết kế dùng chung"): một Cloudflare Worker
 // đứng trước máy chủ gộp (Render hoặc Koyeb) cho mọi tên miền của nền tảng:
 // - tên miền của trường (tên miền con `<mã>.<tên miền hệ thống>` hoặc tên miền riêng qua Cloudflare for SaaS):
 //   /quan-ly, /giao-vien, /phu-huynh, /hoc-sinh là bốn ứng dụng tĩnh (dựng với APP_BASE_PATH tương ứng), /api/v1 chuyển về máy chủ, phần
@@ -39,7 +39,7 @@ function hostOf(request) {
   return new URL(request.url).hostname.toLowerCase();
 }
 
-// Biểu ngữ "môi trường thử nghiệm" theo chính sách dữ liệu của nền tảng (tài liệu 32 mục 14.5 S9, biện pháp 8)
+// Biểu ngữ "môi trường thử nghiệm" theo chính sách dữ liệu của nền tảng (tài liệu 47 mục 14.5 S9, biện pháp 8)
 export function bannerHtml(policy) {
   if (policy === 'synthetic-only') {
     return '<div data-trial-banner role="note" style="position:fixed;left:0;right:0;bottom:0;z-index:2147483647;padding:4px 12px;font:12px/1.4 system-ui,sans-serif;background:#7a3e00;color:#fff;text-align:center">Môi trường thử nghiệm, máy chủ đặt ngoài Việt Nam: chỉ dùng dữ liệu giả.</div>';

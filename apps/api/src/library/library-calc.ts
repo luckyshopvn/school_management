@@ -1,4 +1,4 @@
-// Phần tính thuần của thư viện trường học (DT-22 phần 22a, YCTD-181; tài liệu 32 mục 13.4): ngày hạn, tiền phạt trễ hạn, mã
+// Phần tính thuần của thư viện trường học (DT-22 phần 22a, YCTD-181; tài liệu 47 mục 13.4): ngày hạn, tiền phạt trễ hạn, mã
 // số đăng ký cá biệt, số thẻ, chỉ tiêu báo cáo. Không đọc cơ sở dữ liệu, kiểm thử bằng bảng ví dụ
 
 export const LIBRARY_RULE_CODE = 'YCTD-181';

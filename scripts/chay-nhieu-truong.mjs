@@ -1,4 +1,4 @@
-// Chạy đủ bản nhiều trường trên máy phát triển (YCTD-310; tài liệu 32 mục 16.10): dịch vụ định danh, máy chủ API, tiến trình nền (đã
+// Chạy đủ bản nhiều trường trên máy phát triển (YCTD-310; tài liệu 47 mục 16.10): dịch vụ định danh, máy chủ API, tiến trình nền (đã
 // dựng ở apps/*/dist) và sáu ứng dụng web (vite): cổng quản trị trường, cổng vận hành nền tảng, ứng dụng giáo viên, phụ huynh, học sinh,
 // chợ gia sư (chung cho phụ huynh và gia sư từ YCTD-368; cổng 5196 của ứng dụng Gia sư cũ chỉ còn chuyển hướng về chợ). Biến của .env
 // bị đè bởi tệp môi trường riêng do lệnh
@@ -25,7 +25,7 @@ const option = (name, fallback) => {
 const baseFile = resolve(GOC, '.env');
 const multiFile = resolve(GOC, option('env-out', '.env.nhieu-truong'));
 if (!existsSync(multiFile)) {
-  console.error(`Chưa có ${multiFile}: chạy lệnh nhieu-truong-cuc-bo trước (tài liệu 32 mục 16.10)`);
+  console.error(`Chưa có ${multiFile}: chạy lệnh nhieu-truong-cuc-bo trước (tài liệu 47 mục 16.10)`);
   process.exit(1);
 }
 const merged = {

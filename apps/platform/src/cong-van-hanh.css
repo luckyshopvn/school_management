@@ -1,6 +1,7 @@
 /* Giao diện cổng vận hành theo thiết kế Eric duyệt ngày 2026-10-29 (YCTD-324): thanh bên xanh đậm chia nhóm, nền xám nhạt, thẻ trắng
    bo góc. Màu nhấn dùng lại màu thương hiệu của trang đăng nhập (YCTD-312); chữ đạt tương phản 4,5:1 trên nền của nó. Chỉ áp cho
-   .shell-platform: trang của tài khoản cấp trên (.shell) giữ bố cục cũ */
+   .shell-platform: trang của tài khoản cấp trên (.shell) giữ bố cục cũ. Từ YCTD-370 không chữ nào dưới 14 px (Q-89), màu ghi ở tài
+   liệu 15 mục "Màu cổng vận hành"; thêm màu nguy hiểm, lớp phủ hộp thoại và các thành phần ở cuối tệp */
 .shell-platform {
   --pf-navy: #12304f;
   --pf-navy-line: #2a4a6e;
@@ -20,6 +21,11 @@
   --pf-warn: #7a4600;
   --pf-idle-bg: #eef1f4;
   --pf-idle: #4a5562;
+  --pf-row-line: #eef1f4;
+  --pf-input-border: #cdd5df;
+  --pf-danger: #b91c1c;
+  --pf-danger-bg: #fdecec;
+  --pf-overlay: rgb(15 23 42 / 45%);
   grid-template-columns: 16rem minmax(0, 1fr);
   grid-template-rows: 1fr;
   background: var(--pf-page);
@@ -59,7 +65,7 @@
 
 .shell-platform nav .brand small {
   color: var(--pf-nav-muted);
-  font-size: 0.75rem;
+  font-size: 0.875rem;
 }
 
 .shell-platform .menu-group {
@@ -71,7 +77,7 @@
 .shell-platform .menu-group-label {
   padding: 0.75rem 0.75rem 0.25rem;
   color: var(--pf-nav-muted);
-  font-size: 0.7rem;
+  font-size: 0.875rem;
   letter-spacing: 0.06em;
   text-transform: uppercase;
 }
@@ -108,7 +114,7 @@
 .shell-platform nav .operator-role {
   padding: 0 0.5rem 0.25rem;
   color: var(--pf-nav-muted);
-  font-size: 0.75rem;
+  font-size: 0.875rem;
 }
 
 .shell-platform nav .operator button {
@@ -155,7 +161,7 @@
 
 .shell-platform th {
   color: var(--pf-muted);
-  font-size: 0.75rem;
+  font-size: 0.875rem;
   font-weight: 600;
 }
 
@@ -167,7 +173,7 @@
 
 .shell-platform .muted {
   color: var(--pf-muted);
-  font-size: 0.8rem;
+  font-size: 0.875rem;
 }
 
 .shell-platform .button-primary,
@@ -204,7 +210,7 @@
   display: inline-block;
   padding: 0.1rem 0.6rem;
   border-radius: 999px;
-  font-size: 0.75rem;
+  font-size: 0.875rem;
   font-weight: 500;
   white-space: nowrap;
 }
@@ -235,6 +241,11 @@
   grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr));
   gap: 1rem;
   margin-bottom: 1.5rem;
+}
+
+/* Sáu ô một hàng ở trang có nhiều chỉ số (YCTD-370) */
+.shell-platform .tiles.compact {
+  grid-template-columns: repeat(auto-fit, minmax(9.5rem, 1fr));
 }
 
 .shell-platform .tile {
@@ -279,7 +290,7 @@
   display: flex;
   flex-direction: column;
   gap: 0.35rem;
-  font-size: 0.8rem;
+  font-size: 0.875rem;
   font-weight: 500;
 }
 
@@ -404,6 +415,464 @@
   list-style: none;
 }
 
+/* Thành phần dùng chung của các trang thiết kế lại ở YCTD-370 (tài liệu 15 mục thành phần cổng vận hành) */
+.shell-platform small {
+  font-size: 0.875rem;
+}
+
+.shell-platform :focus-visible {
+  outline: 2px solid var(--pf-brand);
+  outline-offset: 2px;
+}
+
+.shell-platform .page-head {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-bottom: 1.25rem;
+}
+
+.shell-platform .page-head > div:first-child {
+  flex: 1 1 28rem;
+}
+
+.shell-platform .page-head .lead {
+  margin: 0;
+}
+
+.shell-platform .page-actions,
+.shell-platform .button-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.shell-platform .button-row.end {
+  justify-content: flex-end;
+}
+
+.shell-platform .card-head {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 0.75rem;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.75rem;
+}
+
+.shell-platform .card-head h2 {
+  margin: 0;
+  font-size: 1.05rem;
+  font-weight: 600;
+}
+
+.shell-platform .stack {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.shell-platform .button-primary,
+.shell-platform .button-secondary,
+.shell-platform .button-danger {
+  justify-content: center;
+  gap: 0.4rem;
+  white-space: nowrap;
+}
+
+.shell-platform .button-danger {
+  display: inline-flex;
+  align-items: center;
+  min-height: 36px;
+  padding: 0 0.9rem;
+  border: 0;
+  border-radius: 8px;
+  background: var(--pf-danger);
+  color: #fff;
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.shell-platform .button-link {
+  min-height: 32px;
+  padding: 0 0.4rem;
+  border: 0;
+  background: none;
+  color: var(--pf-brand);
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.shell-platform .button-link.danger {
+  color: var(--pf-danger);
+}
+
+.shell-platform main button:disabled,
+.shell-platform dialog button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.shell-platform .button-large {
+  min-height: 44px;
+}
+
+.shell-platform .status[data-tone='danger'] {
+  background: var(--pf-danger-bg);
+  color: var(--pf-danger);
+}
+
+/* Nhóm nút lọc trạng thái: nút bo tròn, nút đang chọn có aria-pressed */
+.shell-platform .pills {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.shell-platform .pills button {
+  min-height: 36px;
+  padding: 0 0.8rem;
+  border: 1px solid var(--pf-input-border);
+  border-radius: 999px;
+  background: #fff;
+  color: var(--pf-text);
+  font: inherit;
+  font-size: 0.875rem;
+  cursor: pointer;
+}
+
+.shell-platform .pills button[aria-pressed='true'] {
+  border-color: var(--pf-brand);
+  background: var(--pf-info-bg);
+  color: var(--pf-brand-strong);
+  font-weight: 600;
+}
+
+/* Dải thông báo kết quả: thành công role=status, lỗi role=alert */
+.shell-platform .banner {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 0.75rem;
+  align-items: center;
+  margin: 0 0 1rem;
+  padding: 0.7rem 1rem;
+  border-radius: 8px;
+  font-size: 0.875rem;
+}
+
+.shell-platform .banner[data-tone='ok'] {
+  background: var(--pf-ok-bg);
+  color: var(--pf-ok);
+}
+
+.shell-platform .banner[data-tone='danger'] {
+  background: var(--pf-danger-bg);
+  color: var(--pf-danger);
+}
+
+.shell-platform .banner[data-tone='warn'] {
+  background: var(--pf-warn-bg);
+  color: var(--pf-warn);
+}
+
+.shell-platform .banner[data-tone='info'] {
+  background: var(--pf-info-bg);
+  color: var(--pf-brand-strong);
+}
+
+.shell-platform .banner .button-link {
+  margin-left: auto;
+  color: inherit;
+  text-decoration: underline;
+}
+
+/* Khối rỗng, không có quyền */
+.shell-platform .empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 2rem 1rem;
+  color: var(--pf-muted);
+  text-align: center;
+}
+
+.shell-platform .empty strong {
+  color: var(--pf-text);
+}
+
+/* Khung xương khi đang tải */
+.shell-platform .skeleton {
+  display: block;
+  height: 14px;
+  border-radius: 6px;
+  background: linear-gradient(90deg, var(--pf-row-line), var(--pf-page), var(--pf-row-line));
+}
+
+.shell-platform .skeleton + .skeleton {
+  margin-top: 10px;
+}
+
+/* Ô nhập của biểu mẫu: nhãn trên, gợi ý và lỗi dưới nhãn */
+.shell-platform .field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  min-width: 0;
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.shell-platform .field .hint {
+  color: var(--pf-muted);
+  font-weight: 400;
+}
+
+.shell-platform .field-error {
+  color: var(--pf-danger);
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.shell-platform .field input:not([type='checkbox'], [type='radio'], [type='file']),
+.shell-platform .field select,
+.shell-platform .field textarea {
+  min-width: 0;
+  min-height: 40px;
+  padding: 0 0.6rem;
+  border: 1px solid var(--pf-input-border);
+  border-radius: 8px;
+  background: #fff;
+  color: inherit;
+  font: inherit;
+  font-weight: 400;
+}
+
+.shell-platform .field textarea {
+  padding: 0.5rem 0.6rem;
+  resize: vertical;
+}
+
+/* Ô chọn nằm trong dòng bảng */
+.shell-platform select.inline-select {
+  min-height: 36px;
+  padding: 0 0.5rem;
+  border: 1px solid var(--pf-input-border);
+  border-radius: 8px;
+  background: #fff;
+  color: inherit;
+  font: inherit;
+}
+
+.shell-platform .field [aria-invalid='true'] {
+  border-color: var(--pf-danger);
+}
+
+.shell-platform .grid-2,
+.shell-platform .grid-3 {
+  display: grid;
+  gap: 0.75rem 1rem;
+}
+
+.shell-platform .grid-2 {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.shell-platform .grid-3 {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.shell-platform fieldset.form-group {
+  min-width: 0;
+  margin: 0;
+  padding: 1rem 0 0;
+  border: 0;
+  border-top: 1px solid var(--pf-row-line);
+}
+
+.shell-platform fieldset.form-group legend {
+  float: left;
+  width: 100%;
+  margin-bottom: 0.5rem;
+  padding: 0;
+  font-weight: 600;
+}
+
+.shell-platform fieldset.form-group > :not(legend) {
+  clear: both;
+}
+
+.shell-platform .check {
+  display: flex;
+  gap: 0.5rem;
+  align-items: flex-start;
+  min-height: 32px;
+  font-size: 0.875rem;
+}
+
+.shell-platform .check input {
+  flex: none;
+  width: 18px;
+  height: 18px;
+  margin-top: 2px;
+}
+
+/* Bảng rộng cuộn ngang trong thẻ, cột đầu cố định */
+.shell-platform .table-scroll {
+  position: relative;
+  overflow-x: auto;
+}
+
+.shell-platform .table-scroll > table {
+  min-width: 640px;
+}
+
+.shell-platform .table-scroll > table.sticky-first th:first-child,
+.shell-platform .table-scroll > table.sticky-first td:first-child {
+  position: sticky;
+  left: 0;
+  z-index: 1;
+  background: var(--pf-card);
+}
+
+.shell-platform td.number,
+.shell-platform th.number {
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+  white-space: nowrap;
+}
+
+.shell-platform td {
+  vertical-align: top;
+}
+
+.shell-platform .nowrap {
+  white-space: nowrap;
+}
+
+/* Danh sách nhãn, giá trị hai cột */
+.shell-platform dl.details {
+  display: grid;
+  grid-template-columns: max-content minmax(0, 1fr);
+  gap: 0.4rem 1rem;
+  margin: 0;
+  font-size: 0.875rem;
+}
+
+.shell-platform dl.details dt {
+  color: var(--pf-muted);
+}
+
+.shell-platform dl.details dd {
+  margin: 0;
+}
+
+.shell-platform code.secret {
+  display: block;
+  padding: 0.5rem 0.6rem;
+  border: 1px solid var(--pf-border);
+  border-radius: 8px;
+  background: var(--pf-page);
+  font-size: 0.875rem;
+  word-break: break-all;
+}
+
+/* Thanh so với hạn mức (YCTD-374) */
+.shell-platform .meter {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 12rem;
+  font-size: 0.875rem;
+}
+
+.shell-platform .meter-track {
+  display: block;
+  height: 8px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: var(--pf-idle-bg);
+}
+
+.shell-platform .meter-track > span {
+  display: block;
+  height: 100%;
+  background: var(--pf-brand);
+}
+
+.shell-platform .meter[data-tone='warn'] .meter-track > span {
+  background: var(--pf-warn);
+}
+
+.shell-platform .meter[data-tone='danger'] .meter-track > span {
+  background: var(--pf-danger);
+}
+
+/* Hộp thoại dùng chung (thay hộp nhập, hộp xác nhận của trình duyệt) */
+.shell-platform dialog {
+  width: min(560px, calc(100% - 32px));
+  max-height: calc(100% - 48px);
+  padding: 0;
+  border: 1px solid var(--pf-border);
+  border-radius: 12px;
+  color: var(--pf-text);
+}
+
+.shell-platform dialog.wide {
+  width: min(860px, calc(100% - 32px));
+}
+
+.shell-platform dialog::backdrop {
+  background: var(--pf-overlay);
+}
+
+.shell-platform .dialog-head {
+  display: flex;
+  gap: 0.75rem;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem 1.25rem;
+  border-bottom: 1px solid var(--pf-row-line);
+}
+
+.shell-platform .dialog-head h2 {
+  margin: 0;
+  font-size: 1.05rem;
+  font-weight: 600;
+}
+
+.shell-platform .dialog-close {
+  min-width: 44px;
+  min-height: 44px;
+  border: 0;
+  background: none;
+  color: var(--pf-muted);
+  font-size: 1.25rem;
+  cursor: pointer;
+}
+
+.shell-platform .dialog-body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+  padding: 1rem 1.25rem;
+}
+
+.shell-platform .dialog-foot {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  justify-content: flex-end;
+  padding: 0.85rem 1.25rem;
+  border-top: 1px solid var(--pf-row-line);
+  background: var(--pf-page);
+}
+
 /* 768 đến 1279 px: thanh bên chỉ còn biểu tượng; nhóm, thương hiệu, tên nhân viên ẩn chữ */
 @media (min-width: 768px) and (max-width: 1279.98px) {
   .shell-platform {
@@ -419,7 +888,7 @@
   .shell-platform nav .operator button {
     justify-content: center;
     padding: 0.25rem;
-    font-size: 0.7rem;
+    font-size: 0.875rem;
     text-align: center;
     white-space: normal;
   }
@@ -453,5 +922,29 @@
 
   .shell-platform main {
     padding: 1rem;
+  }
+
+  .shell-platform .grid-2,
+  .shell-platform .grid-3,
+  .shell-platform dl.details {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .shell-platform .page-actions {
+    width: 100%;
+  }
+
+  .shell-platform .page-actions > * {
+    flex: 1 1 auto;
+  }
+
+  /* Ô chỉ số của các trang YCTD-370: hai ô một hàng; Tổng quan giữ một cột */
+  .shell-platform .tiles.compact {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.75rem;
+  }
+
+  .shell-platform .tiles.compact strong {
+    font-size: 1.5rem;
   }
 }

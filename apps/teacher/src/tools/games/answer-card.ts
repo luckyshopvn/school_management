@@ -1,4 +1,4 @@
-// Thẻ đáp án giấy (DT-23 phần 23c, YCTD-213; tài liệu 32 mục 15.4, GD-107): mẫu thẻ do dự án tự thiết kế, mã đọc tự viết (không
+// Thẻ đáp án giấy (DT-23 phần 23c, YCTD-213; tài liệu 47 mục 15.4, GD-107): mẫu thẻ do dự án tự thiết kế, mã đọc tự viết (không
 // dùng thư viện ngoài nên không phát sinh giấy phép). Thẻ là hình vuông 6 x 6 ô:
 // - viền ngoài một ô toàn đen để tìm thẻ trong ảnh;
 // - 4 x 4 ô bên trong: ba góc trong đen, góc trong dưới phải trắng để biết thẻ đang xoay thế nào; 12 ô còn lại là 7 bit số thứ tự

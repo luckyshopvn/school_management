@@ -2,7 +2,7 @@ import { sql } from 'kysely';
 import type { Migration } from 'kysely/migration';
 
 // DT-28 phần 28c (YCTD-273): bài tập trực tuyến là loại hoạt động `assignment` của lõi 28b. Claude tự chọn theo ủy quyền của Eric
-// ngày 2026-10-11 (tài liệu 32 mục 20.7):
+// ngày 2026-10-11 (tài liệu 47 mục 20.7):
 // - Mỗi hoạt động loại bài tập có đúng một dòng `assignments` (cài đặt riêng của bài: ngữ cảnh, cách làm, nộp muộn, số lần
 //   nộp, cách chấm); tên, hướng dẫn, hạn, điều kiện mở vẫn ở `course_activities` của lõi.
 // - Phiên bản bài (phân hóa) và câu của bài ở bảng riêng; câu trắc nghiệm lưu **bản chụp** câu đã duyệt của 22g1 (sửa câu ở

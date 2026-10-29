@@ -2,7 +2,7 @@ import { sql } from 'kysely';
 import type { Migration } from 'kysely/migration';
 
 // DT-19 phần 19a (YCTD-151). Phạm vi cấp học của người dùng: người phụ trách một cấp ở trường liên cấp (ví dụ Phó Hiệu
-// trưởng phụ trách Tiểu học) chỉ xem dữ liệu của cấp mình, không tạo vai trò mới theo cấp (tài liệu 32 mục 10.5). Không có
+// trưởng phụ trách Tiểu học) chỉ xem dữ liệu của cấp mình, không tạo vai trò mới theo cấp (tài liệu 47 mục 10.5). Không có
 // dòng nào nghĩa là mọi cấp, nên mọi tài khoản hiện có giữ nguyên quyền; phạm vi cấp chỉ thu hẹp thêm, không cấp thêm quyền.
 // Người quản lý tài khoản (P01.account.manage, P01.account.manage-in-unit trong phạm vi đơn vị) đặt phạm vi cấp.
 // Quyền mới "Cấu hình cấp học của trường" (bật, tắt, thứ tự, tên, thuật ngữ ở 1.4 Cấu hình trường): Hiệu trưởng, do Claude

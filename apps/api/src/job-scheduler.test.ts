@@ -5,7 +5,7 @@ import { AdmissionsRateLimiter } from './admissions/public-rate-limit.js';
 import { JobScheduler } from './common/job-scheduler.js';
 import { sendWithHost, startMultiTenantApi, type MultiTenantApi } from './tenant-test-support.js';
 
-// Việc nền, điểm tick và trang công khai ở chế độ nhiều trường (DT-SaaS phần S1b, tài liệu 32 mục 14.5, 14.7): bộ lập lịch chiếm
+// Việc nền, điểm tick và trang công khai ở chế độ nhiều trường (DT-SaaS phần S1b, tài liệu 47 mục 14.5, 14.7): bộ lập lịch chiếm
 // việc đến hạn của từng trường qua cơ sở dữ liệu nền tảng, nhiều bản máy chủ không chạy trùng, trường lỗi không chặn trường khác;
 // domain-check theo danh mục tên miền nền tảng; trang chọn trường; giới hạn tần suất công khai tách theo trường
 const SECRET = 'bi-mat-kiem-thu-bo-lap-lich';

@@ -1,7 +1,7 @@
 import { sql } from 'kysely';
 import type { Migration } from 'kysely/migration';
 
-// Hồ sơ gia sư, xác minh từng bậc, khai giáo viên đang dạy ở trường (DT-27 phần 27g, YCTD-257; tài liệu 32 mục 19.5). Claude tự chọn theo
+// Hồ sơ gia sư, xác minh từng bậc, khai giáo viên đang dạy ở trường (DT-27 phần 27g, YCTD-257; tài liệu 47 mục 19.5). Claude tự chọn theo
 // ủy quyền của Eric ngày 2026-10-11:
 // - hồ sơ: môn theo cấp và khối, loại nội dung (`curriculum` là môn của chương trình phổ thông, `enrichment` là năng khiếu, kỹ năng, ngoại
 //   ngữ tăng cường…), giá mỗi buổi (đồng), thời lượng buổi, lịch trống theo tuần, ngôn ngữ dạy; trạng thái nháp → chờ duyệt → đã duyệt

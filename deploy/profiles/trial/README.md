@@ -1,6 +1,6 @@
 # Hồ sơ thử nghiệm (a): nền tảng nhiều trường trên gói miễn phí
 
-DT-SaaS phần S9, YCTD-203; kế hoạch ở `tai_lieu/32_KE_HOACH_THEO_HE_THONG_SO.md` mục 14.4, 14.5 "S9" và 14.11 (GD-100, GD-101). Hồ sơ này
+DT-SaaS phần S9, YCTD-203; kế hoạch ở `tai_lieu/47_KE_HOACH_THEO_HE_THONG_SO.md` mục 14.4, 14.5 "S9" và 14.11 (GD-100, GD-101). Hồ sơ này
 dùng chung mã nguồn và ảnh container với hồ sơ vận hành (b) ở `deploy/profiles/production/`. Mọi khác biệt chọn bằng biến cấu hình
 của nền tảng, không rẽ nhánh trong mã nghiệp vụ.
 
@@ -109,7 +109,7 @@ Mẫu biến chung: [`env.trial.example`](env.trial.example). Mỗi tổ hợp c
 
 ## 5. Trường dùng dữ liệu thật: hồ sơ đồng ý và vùng máy chủ
 
-Theo `tai_lieu/33_HO_SO_PHAP_LY/00_MUC_LUC.md` mục 2 (PL-00). Bộ mẫu là bản nháp; **luật sư của Eric rà trước khi dùng**.
+Theo `tai_lieu/48_HO_SO_PHAP_LY/00_MUC_LUC.md` mục 2 (PL-00). Bộ mẫu là bản nháp; **luật sư của Eric rà trước khi dùng**.
 
 1. Nền tảng hoàn tất các hồ sơ sau, và phiếu chấp nhận rủi ro của Eric (PL-09) còn hiệu lực. PL-09 ghi căn cứ lưu trữ dữ liệu tại Việt Nam theo Luật An ninh mạng số 116/2025/QH15 và Nghị định 333/2026/NĐ-CP; Nghị định 53/2022/NĐ-CP chưa rõ còn hiệu lực, luật sư kiểm:
    - PL-15: điều kiện của chính nền tảng;

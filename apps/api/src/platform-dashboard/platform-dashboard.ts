@@ -41,7 +41,7 @@ import { Databases } from '../common/databases.js';
 import { JobScheduler } from '../common/job-scheduler.js';
 import { countActiveStudents, usedStorageMb } from '../common/plan-limits.js';
 
-// Bảng điều khiển nền tảng ở máy chủ API (DT-SaaS phần S4, YCTD-197; tài liệu 32 mục 14.5 "S4"). Claude tự chọn theo ủy quyền của
+// Bảng điều khiển nền tảng ở máy chủ API (DT-SaaS phần S4, YCTD-197; tài liệu 47 mục 14.5 "S4"). Claude tự chọn theo ủy quyền của
 // Eric ngày 2026-10-11:
 // - việc định kỳ `school-metrics` (mặc định mỗi giờ, SCHOOL_METRICS_INTERVAL_SECONDS) chạy trong ngữ cảnh từng trường: đếm tài khoản
 //   (không tính tài khoản hỗ trợ nền tảng), học sinh đang học, dung lượng tệp, dung lượng cơ sở dữ liệu, lần đăng nhập gần nhất, tên

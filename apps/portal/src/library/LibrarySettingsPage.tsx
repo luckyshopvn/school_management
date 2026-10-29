@@ -16,7 +16,7 @@ import {
 } from './library-api.js';
 import { EmptyRow, ErrorAlert, HEAD_CLASS, LibraryFrame, Panel, TH_CLASS, useToast } from './library-common.js';
 
-// Quy định mượn và phân loại ấn phẩm (DT-22 phần 22a, tài liệu 32 mục 13.4, YCTD-181): cấp có học sinh mượn sách, số ngày giữ
+// Quy định mượn và phân loại ấn phẩm (DT-22 phần 22a, tài liệu 47 mục 13.4, YCTD-181): cấp có học sinh mượn sách, số ngày giữ
 // chỗ đặt trước, quy định mượn của cán bộ và học sinh (số bản, số ngày, số lần gia hạn, phạt mỗi ngày trễ), ngưỡng và bật,
 // tắt từng chỉ tiêu theo chuẩn thư viện, phân loại ấn phẩm (cho mượn về hay chỉ đọc tại chỗ)
 

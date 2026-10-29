@@ -1,4 +1,4 @@
-// Khai báo nhà cung cấp định danh bên ngoài ở mức nền tảng (DT-25, YCTD-225, tài liệu 32 mục 17.4). Nền tảng khai nhà cung cấp nào dùng
+// Khai báo nhà cung cấp định danh bên ngoài ở mức nền tảng (DT-25, YCTD-225, tài liệu 47 mục 17.4). Nền tảng khai nhà cung cấp nào dùng
 // được (biến môi trường EXTERNAL_IDENTITY_PROVIDERS, dạng JSON, không chứa bí mật); khóa bí mật dùng chung của nền tảng đặt ở biến môi
 // trường riêng EXTERNAL_IDENTITY_<MÃ>_CLIENT_SECRET (QU-05). Mỗi trường tự bật, có thể dùng mã ứng dụng và khóa riêng (lưu mã hóa theo
 // khóa của trường). Nhà cung cấp không khai ở nền tảng thì không trường nào bật được.

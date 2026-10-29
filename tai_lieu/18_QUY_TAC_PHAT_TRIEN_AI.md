@@ -1,8 +1,8 @@
 # 18. QUY TẮC PHÁT TRIỂN AI
 
 - Mô tả: Các quy tắc AI phải tuân thủ trong dự án này.
-- Phiên bản: 1.1
-- Ngày cập nhật: 2026-10-09
+- Phiên bản: 1.2
+- Ngày cập nhật: 2026-10-29
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
 
@@ -53,6 +53,9 @@
 | AI-26 | Điều gì chưa rõ phải thành giả định `GD-xx` hoặc câu hỏi mở `Q-xx`, không được bịa |
 | AI-27 | Cập nhật tài liệu cùng lượt với việc thay đổi mã nguồn, không để tài liệu đi sau mã nguồn |
 | AI-28 | Ghi nhật ký dự án ngay sau khi hoàn thành việc có giá trị lâu dài |
+| AI-46 | Mã định danh riêng của dự án thay cho mã của Vibecoding_Flow: đợt và phần việc `DT-<số>` (phần `DT-29 phần 29e`), yêu cầu thay đổi `YCTD-<số>` thay cho `THAY_DOI` và `CONG_VIEC` (ghi ở `24`, đặc tả dài nằm ở `47_KE_HOACH_THEO_HE_THONG_SO.md`), màn hình `MH-<số>` (cổng quản trị), `MG-<số>` (giáo viên), `MP-<số>` (phụ huynh) thay cho `MAN_HINH`, lỗi `L-<số>` trong `25_KET_QUA_KIEM_THU.md` thay cho `LOI`; chức năng `P<phân hệ>-<số>`, tiêu chí `AC-<số>`, kịch bản `CT-<số>`, quy tắc `BR-<số>`, quyết định kiến trúc `QĐ-<số>`, giả định `GD-<số>`, câu hỏi `Q-<số>`. Mã đã cấp không đổi, không dùng lại; lấy số tiếp theo trên `main` mới nhất và kiểm cả PR đang mở (YCTD-369) |
+| AI-47 | Sổ dùng chung `02`, `23`, `24`, bảng mốc phát hành ở `01`, số đếm ở `index.md` và dòng bảng mới của các tài liệu đặc tả không sửa trực tiếp trong PR thường: mỗi PR thêm đúng một tệp mảnh `tai_lieu/thay_doi_cho_gom/YCTD-<số>-<tên>.md` theo `thay_doi_cho_gom/README.md`; CI chạy `node scripts/gom-thay-doi.mjs --kiem`. Phiên điều phối gom định kỳ trên nhánh `gom-<ngày>`; số phiên bản chốt khi gom theo thứ tự merge. Cách này thay cho quy định nhánh `tai-lieu/...` merge ngay của Vibecoding_Flow (YCTD-291, YCTD-369) |
+| AI-48 | Thẻ phiên bản: `v<số>` chỉ cho bản phần mềm Eric nghiệm thu (`v1.0.0`, `v1.1.0`, `v1.2.0`); mốc tài liệu 0.x gắn thẻ có chú thích `tai-lieu-<số>`, nội dung "Phiên bản X (PR n)", trên commit merge của PR đưa mục phiên bản vào `main`, gắn sau lượt gom đã merge. Không xóa, không ghi đè thẻ đã có; danh sách thẻ gửi phiên điều phối xác nhận trước khi đẩy (YCTD-369) |
 
 ## 5. Quy tắc phạm vi và thay đổi
 
@@ -69,9 +72,12 @@
 | AI-37 | Không tách máy chủ API nghiệp vụ thành nhiều dịch vụ theo miền khi chưa được phê duyệt; giữ một máy chủ, chia mô đun bên trong |
 | AI-38 | Bám kế hoạch tổng thể tại `01_KE_HOACH_TONG_THE.md`; không mở một đợt xây dựng khi cổng kiểm soát của giai đoạn trước chưa đạt |
 | AI-39 | Không đổi thứ tự đợt, không bỏ qua cổng kiểm soát và không gộp nhiều đợt làm một khi chưa được Eric phê duyệt |
-| AI-40 | Trước mọi thay đổi mã nguồn, kể cả sửa lỗi nhỏ, AI trình thiết kế và chờ Eric xác nhận; AI không tự commit hay đẩy mã lên kho |
+| AI-40 | Từ ngày 2026-10-11 AI làm việc tự chủ theo ủy quyền của Eric (GD-184): tự thiết kế, viết mã, commit, đẩy nhánh, mở PR và merge việc mức Nhỏ, Vừa theo AI-44; ghi lựa chọn của mình vào phiếu ở `24` dạng "Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11"; không rebase, không force-push. Vẫn hỏi Eric về quyết định sản phẩm, việc mức Lớn trước khi viết mã (AI-43), triển khai lên môi trường thật và việc quy tắc bảo mật cấm. Nội dung trước ngày 2026-10-11: AI trình thiết kế, chờ Eric xác nhận, không tự commit |
 | AI-41 | Mã nguồn không được giả định chỉ có một cơ sở dữ liệu: có cơ sở dữ liệu định danh, cơ sở dữ liệu hệ thống và mỗi năm học một cơ sở dữ liệu; thay đổi cấu trúc dữ liệu theo QU-11; khi mở năm học phải giữ nguyên mã định danh của bản ghi chuyển sang (QĐ-15, QĐ-17) |
 | AI-42 | Mọi quyết định kiến trúc đã chốt tại `12_KIEN_TRUC_HE_THONG.md` mục 13 là ràng buộc; quyết định đã bị thay thế thì theo quyết định thay thế |
+| AI-43 | Việc mức Lớn (đổi kiến trúc, đổi phân quyền, nhiều module, sửa cấu trúc dữ liệu hoặc API đang dùng) phải có phiếu ở `24_YEU_CAU_THAY_DOI.md`, bản mẫu giao diện và danh sách lát, được Eric duyệt trước khi viết mã (GD-181) |
+| AI-44 | Việc mức Nhỏ, Vừa: phiên điều phối được merge khi CI đạt toàn bộ và nhánh gộp sạch với `main`, theo ủy quyền tự động của Eric ngày 2026-10-11 (GD-182) |
+| AI-45 | Tệp tạm của AI (script thử, log, ảnh chụp, kết quả trung gian) đặt trong `tam_thoi/` ở gốc kho, thư mục này nằm trong `.gitignore`; dọn trước khi trình nghiệm thu và cuối phiên (GD-183) |
 
 ## 6. Quy tắc tự kiểm trước khi báo hoàn thành
 
@@ -102,4 +108,8 @@ Không áp dụng. Tài liệu này là quy tắc làm việc, không mô tả h
 | GD-52 | Đã xác nhận ngày 09/10/2026: Bộ quy tắc này áp dụng cho mọi công việc trên dự án, kể cả sửa nhỏ | Eric |
 | GD-81 | Đã xác nhận ngày 09/10/2026 (theo QĐ-06 đến QĐ-10): Bốn quyết định kiến trúc QĐ-06 đến QĐ-10 là ràng buộc, mọi mã nguồn viết sau phải tuân theo. Mở rộng thành AI-42: mọi quyết định đã chốt, QĐ-09 đã được QĐ-14 thay thế | Eric |
 | Q-97 | Đã trả lời ngày 09/10/2026: siết chặt quy tắc cho AI, xem AI-40 | Eric |
-| Q-98 | Đã trả lời ngày 09/10/2026: có, siết chặt: AI phải được Eric xác nhận trước mọi thay đổi mã nguồn và không tự commit (AI-40) | Eric |
+| Q-98 | Đã trả lời ngày 09/10/2026: có, siết chặt: AI phải được Eric xác nhận trước mọi thay đổi mã nguồn và không tự commit (AI-40); thay bằng ủy quyền tự chủ ngày 11/10/2026, xem GD-184 | Eric |
+| GD-181 | Đã xác nhận ngày 29/10/2026: việc mức Lớn chỉ viết mã sau khi Eric duyệt phiếu `24`, bản mẫu giao diện và danh sách lát (AI-43, YCTD-369) | Eric |
+| GD-182 | Đã xác nhận ngày 29/10/2026: việc mức Nhỏ, Vừa được phiên điều phối merge khi CI đạt toàn bộ và gộp sạch với `main` (AI-44, YCTD-369) | Eric |
+| GD-183 | Đã xác nhận ngày 29/10/2026: tệp tạm của AI đặt trong `tam_thoi/` ở gốc kho, Git bỏ qua (AI-45, YCTD-369) | Eric |
+| GD-184 | Đã xác nhận ngày 11/10/2026, ghi ngày 29/10/2026: AI làm việc tự chủ không chờ xác nhận từng bước, thay nội dung cũ của AI-40 (Q-97, Q-98); Eric duyệt sửa AI-40 ngày 29/10/2026 (YCTD-369) | Eric |

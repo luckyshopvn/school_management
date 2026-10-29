@@ -1,7 +1,7 @@
 import { spawn } from 'node:child_process';
 import { createServer, request as httpRequest } from 'node:http';
 
-// Container gộp của hồ sơ thử nghiệm (DT-SaaS phần S9, YCTD-203; tài liệu 32 mục 14.5): chạy dịch vụ định danh và máy chủ API
+// Container gộp của hồ sơ thử nghiệm (DT-SaaS phần S9, YCTD-203; tài liệu 47 mục 14.5): chạy dịch vụ định danh và máy chủ API
 // trong một container, mở một cổng (PORT do Render, Koyeb đặt). Bộ định tuyến nhỏ này nhận mọi yêu cầu và chuyển theo đúng
 // bảng tuyến của Caddy ở hồ sơ vận hành: nhóm điểm cuối định danh sang `identity`, phần còn lại sang `api`. Trước khi chạy:
 // MIGRATE_ON_START=true thì chạy migrate cơ sở dữ liệu nền tảng; MIGRATE_SCHOOLS_ON_START=true thì migrate cuốn chiếu mọi trường

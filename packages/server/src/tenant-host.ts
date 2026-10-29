@@ -1,6 +1,6 @@
 import { timingSafeEqual } from 'node:crypto';
 
-// Nguồn tên miền của yêu cầu (biến TENANT_HOST_SOURCE, tài liệu 32 mục 14.4): `host` là tiêu đề Host; `x-forwarded-host` là
+// Nguồn tên miền của yêu cầu (biến TENANT_HOST_SOURCE, tài liệu 47 mục 14.4): `host` là tiêu đề Host; `x-forwarded-host` là
 // tiêu đề do máy chủ chuyển tiếp đáng tin (cần TRUST_PROXY); `header:<tên>` là tiêu đề do cổng biên đặt, đi kèm bí mật
 // chung EDGE_SHARED_SECRET vì máy chủ ở hồ sơ thử nghiệm có địa chỉ công khai
 export type TenantHostSource = { kind: 'host' } | { kind: 'x-forwarded-host' } | { kind: 'header'; name: string };

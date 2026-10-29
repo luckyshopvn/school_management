@@ -32,7 +32,7 @@ import {
 import { createDomainProvider, type DomainProvider } from './domain-provider.js';
 import { addDays, readPlanLifecycleSettings, vietnamDate } from './school-plans.js';
 
-// Khởi tạo và vòng đời trường (DT-SaaS phần S2, YCTD-193; tài liệu 32 mục 14.5). Thư viện dùng chung cho cổng nền tảng (dịch vụ
+// Khởi tạo và vòng đời trường (DT-SaaS phần S2, YCTD-193; tài liệu 47 mục 14.5). Thư viện dùng chung cho cổng nền tảng (dịch vụ
 // định danh), lệnh dòng lệnh `platform` và kiểm thử. Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11:
 // - bước setup gồm thông tin trường, tên miền (mặc định <mã>.<tên miền hệ thống> hoặc tên miền riêng cấu hình tay), loại dữ liệu
 //   (dữ liệu thật phải đủ hồ sơ đồng ý), quản trị viên đầu tiên (đường liên kết kích hoạt một lần) và đồng ý điều khoản;

@@ -1,7 +1,7 @@
 import { sql } from 'kysely';
 import type { Migration } from 'kysely/migration';
 
-// DT-23 phần 23d (YCTD-214; tài liệu 32 mục 15): giới hạn AI của gói và khóa AI của nền tảng. Khối số giữ sẵn 0200 đến 0202. Claude tự
+// DT-23 phần 23d (YCTD-214; tài liệu 47 mục 15): giới hạn AI của gói và khóa AI của nền tảng. Khối số giữ sẵn 0200 đến 0202. Claude tự
 // chọn theo ủy quyền của Eric ngày 2026-10-11:
 // - `plans.ai_max_requests`, `plans.ai_max_tokens`: hạn mức số yêu cầu và số token mỗi tháng (tháng dương lịch, giờ Việt Nam) của
 //   trường; trống là không giới hạn, 0 là gói không dùng AI. Hạn mức áp ở máy chủ API cho cả hai cấu hình AI (ở cấu hình `school`

@@ -1,7 +1,7 @@
 import { sql } from 'kysely';
 import type { Migration } from 'kysely/migration';
 
-// Thu phí chương trình gia sư trong trường (DT-27 phần 27c, YCTD-253; tài liệu 32 mục 19.5). Claude tự chọn theo ủy quyền của Eric
+// Thu phí chương trình gia sư trong trường (DT-27 phần 27c, YCTD-253; tài liệu 47 mục 19.5). Claude tự chọn theo ủy quyền của Eric
 // ngày 2026-10-11 ở chỗ kế hoạch chưa chốt:
 // - giá đặt ở chương trình `enrichment` có thu: theo buổi (`per_session`, thu các buổi chưa hủy đến hết kỳ) hoặc trọn gói
 //   (`per_program`, thu một lần); `curriculum` không có giá (ràng buộc của bảng và hàm thuần ở máy chủ);

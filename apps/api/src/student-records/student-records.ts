@@ -34,7 +34,7 @@ import {
   VIETNAM_DATE,
 } from './student-records-common.js';
 
-// Hồ sơ học sinh đủ theo hệ thống của Sở (DT-16 phần 16g, khảo sát `31_KHAO_SAT_HE_THONG_SO.md` mục 3.4):
+// Hồ sơ học sinh đủ theo hệ thống của Sở (DT-16 phần 16g, khảo sát `46_KHAO_SAT_HE_THONG_SO.md` mục 3.4):
 // - 4.1.1: Xóa hồ sơ nháp (không xóa cứng); "Cấp mã định danh Bộ" chạy nội bộ: nhập tay mã do Bộ cấp, xuất tệp theo mẫu
 //   82 cột của Bộ cho học sinh chưa có mã để nộp; "Xuất file lỗi": hồ sơ thiếu hoặc sai ô bắt buộc của CSDL ngành;
 // - 4.1.3: số thứ tự cố định trong lớp, sắp xếp A–Z theo lớp chọn hoặc tất cả lớp, đổi thứ tự bằng tay;

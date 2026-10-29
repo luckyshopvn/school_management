@@ -20,7 +20,7 @@ import { Infrastructure } from '../common/infrastructure.js';
 import { IDENTITY_CONFIGURATION, type IdentityConfiguration } from '../common/configuration.js';
 import { IdentitySettingsService } from '../settings/identity-settings.service.js';
 
-// Xác thực hai lớp tuỳ chọn của người dùng trường (DT-SaaS phần S8b, YCTD-201, tài liệu 32 mục 14.5, GD-97). Mặc định tắt cả trường nên
+// Xác thực hai lớp tuỳ chọn của người dùng trường (DT-SaaS phần S8b, YCTD-201, tài liệu 47 mục 14.5, GD-97). Mặc định tắt cả trường nên
 // quyết định hiện hành YCTD-31 (không bắt buộc xác thực hai lớp cho Hiệu trưởng, Phó Hiệu trưởng, kế toán trưởng) không đổi; trường bật
 // `totp_enabled` ở cấu hình chung thì mỗi người dùng tự đăng ký bằng ứng dụng xác thực và từ đó đăng nhập bằng mật khẩu cộng mã.
 // Khóa TOTP mã hóa bằng khóa mã hóa của trường (chế độ nhiều trường) hoặc TOTP_ENCRYPTION_KEY (chế độ một trường); mỗi mã chỉ dùng một

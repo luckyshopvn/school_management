@@ -20,7 +20,7 @@ import { testAdminDatabaseUrl } from './test-admin.js';
 import { TenantConnections } from './tenant-connections.js';
 import { TenantRegistry } from './tenant-registry.js';
 
-// Kiểm thử nền đa thuê bao ở cấp cơ sở dữ liệu (DT-SaaS phần S1a, tài liệu 32 mục 14.7 lớp 1, 4, 9): cơ sở dữ liệu nền tảng,
+// Kiểm thử nền đa thuê bao ở cấp cơ sở dữ liệu (DT-SaaS phần S1a, tài liệu 47 mục 14.7 lớp 1, 4, 9): cơ sở dữ liệu nền tảng,
 // hai bố cục, bộ phân giải, nhóm kết nối. Mọi cơ sở dữ liệu, vai trò dựng riêng cho lần chạy và gỡ khi xong
 const adminUrl = testAdminDatabaseUrl();
 const suffix = randomUUID().replaceAll('-', '').slice(0, 8);

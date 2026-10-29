@@ -19,7 +19,7 @@ import {
   type LoggedInUser,
 } from '../test-support.js';
 
-// Đăng ký dịch vụ, chốt kỳ, đăng ký và hủy trễ, học hè; ca kiểm thử theo 27_BO_CA_KIEM_THU_CHI_TIET/03_P05.md mục 5, 10a
+// Đăng ký dịch vụ, chốt kỳ, đăng ký và hủy trễ, học hè; ca kiểm thử theo 42_BO_CA_KIEM_THU_CHI_TIET/03_P05.md mục 5, 10a
 // và CTC-P04-046. Ngày chốt tính theo ngày thật nên năm học kiểm thử dựng quanh tháng hiện tại:
 // tháng hiện tại đã qua ngày chốt (ngày 25 tháng trước), tháng hiện tại cộng hai còn trong thời gian đăng ký
 const randomPhone = () => `09${randomInt(0, 100_000_000).toString().padStart(8, '0')}`;

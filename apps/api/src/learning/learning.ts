@@ -47,7 +47,7 @@ import {
   type TemplateItem,
 } from './learning-template-rules.js';
 
-// Lõi hệ thống quản lý học tập (DT-28 phần 28b, YCTD-272; tài liệu 32 mục 20.7). Lớp học trực tuyến, chương, hoạt động, kết
+// Lõi hệ thống quản lý học tập (DT-28 phần 28b, YCTD-272; tài liệu 47 mục 20.7). Lớp học trực tuyến, chương, hoạt động, kết
 // quả hoạt động, nhật ký học tập ở năm học; khoá học mẫu của tổ ở hệ thống. Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11:
 // - Lớp học trực tuyến theo lớp, môn sinh từ phân công giảng dạy (`class_staff_assignments` có môn); cặp lớp, môn chỉ có trong
 //   thời khoá biểu đang áp dụng thì lấy giáo viên của tiết. Đồng bộ khi giáo viên mở danh sách lớp của mình và khi Ban Giám

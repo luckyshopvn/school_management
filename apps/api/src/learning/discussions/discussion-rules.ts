@@ -1,7 +1,7 @@
 import { ruleViolationError, validationError, type FieldError } from '@school-management/server';
 import type { RequestBody } from '../../common/request-fields.js';
 
-// Quy tắc thuần của giao tiếp trong lớp và nhóm (DT-28 phần 28e, YCTD-275; tài liệu 32 mục 20.7). Claude tự chọn theo ủy quyền
+// Quy tắc thuần của giao tiếp trong lớp và nhóm (DT-28 phần 28e, YCTD-275; tài liệu 47 mục 20.7). Claude tự chọn theo ủy quyền
 // của Eric ngày 2026-10-11, ghi ở YCTD-275:
 // - Giờ mở thảo luận (GD-144, Eric đã chốt 2026-10-28: trường tự cấu hình): mặc định không giới hạn, trường tự đặt ở cấu hình `discussion_open_hours`
 //   (khung giờ ngày học và cuối tuần); ngoài giờ học sinh chỉ đọc, giáo viên vẫn viết.

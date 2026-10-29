@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
 import { openTestAcademicYear, sendJson, startApiTestEnvironment, type ApiTestEnvironment } from '../test-support.js';
 
-// Lớp học và phân công giáo viên; ca kiểm thử theo 27_BO_CA_KIEM_THU_CHI_TIET/02_P02_VA_P04.md mục 3.5
+// Lớp học và phân công giáo viên; ca kiểm thử theo 42_BO_CA_KIEM_THU_CHI_TIET/02_P02_VA_P04.md mục 3.5
 const rows = <Row = Record<string, unknown>>(body: unknown) => body as Row[];
 const errorCodeOf = (body: Record<string, unknown>) => (body.error as { code?: string } | undefined)?.code;
 

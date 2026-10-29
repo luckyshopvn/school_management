@@ -42,7 +42,7 @@ import {
   useToast,
 } from './library-common.js';
 
-// Mượn, trả, đặt trước (DT-22 phần 22a, tài liệu 32 mục 13.4, YCTD-181). Ba thẻ: mượn (quét số thẻ bạn đọc rồi quét mã các
+// Mượn, trả, đặt trước (DT-22 phần 22a, tài liệu 47 mục 13.4, YCTD-181). Ba thẻ: mượn (quét số thẻ bạn đọc rồi quét mã các
 // bản sao, có thể mượn cho lớp), trả (quét mã bản sao, tính tiền phạt trễ hạn, báo bản được giữ cho người đặt trước; danh
 // sách đang mượn, quá hạn kèm gia hạn, báo mất, nhắc quá hạn) và đặt trước ấn phẩm hết bản sẵn sàng
 type Tab = 'borrow' | 'return' | 'reservations';

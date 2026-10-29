@@ -14,7 +14,7 @@ import {
   type LoggedInUser,
 } from '../test-support.js';
 
-// Điểm danh, chốt ngày, báo vắng; ca kiểm thử theo 27_BO_CA_KIEM_THU_CHI_TIET/02_P02_VA_P04.md mục 4.1, 4.2
+// Điểm danh, chốt ngày, báo vắng; ca kiểm thử theo 42_BO_CA_KIEM_THU_CHI_TIET/02_P02_VA_P04.md mục 4.1, 4.2
 const PAST_DAY = '2026-10-05';
 const OTHER_PAST_DAY = '2026-10-06';
 const randomPhone = () => `09${randomInt(0, 100_000_000).toString().padStart(8, '0')}`;

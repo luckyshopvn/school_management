@@ -21,7 +21,7 @@ import {
   tutorNoShowAllowed,
 } from './market-room-rules.js';
 
-// Phòng học video của chợ gia sư (DT-27 phần 27j, YCTD-362; tài liệu 32 mục 19.12; GD-164, quyết định của Eric ngày 2026-10-29):
+// Phòng học video của chợ gia sư (DT-27 phần 27j, YCTD-362; tài liệu 47 mục 19.12; GD-164, quyết định của Eric ngày 2026-10-29):
 // - phụ huynh đồng ý ghi hình một lần cho mọi buổi của một con với một gia sư, rút lại được; con từ đủ 7 tuổi cùng xác nhận. Buổi có trẻ
 //   vị thành niên chỉ vào phòng được khi có đồng ý còn hiệu lực;
 // - phòng vào được từ lúc mở (mặc định 10 phút trước giờ học) đến hết giờ, chỉ buổi đã trả tiền; gia sư mở phòng (`session/start` của

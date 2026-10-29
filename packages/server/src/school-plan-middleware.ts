@@ -1,7 +1,7 @@
 import type { NextFunction, Request, Response } from 'express';
 import { currentTenant } from './tenant-context.js';
 
-// Chế độ chỉ đọc của trường (DT-SaaS phần S5a, YCTD-194; tài liệu 32 mục 14.5): trường ở trạng thái `read_only` (quá hạn dùng thử
+// Chế độ chỉ đọc của trường (DT-SaaS phần S5a, YCTD-194; tài liệu 47 mục 14.5): trường ở trạng thái `read_only` (quá hạn dùng thử
 // hoặc hạn đã trả phí) chỉ được xem; mọi yêu cầu ghi bị chặn với mã SCHOOL_READ_ONLY, trừ các đường dẫn được phép (đăng nhập, xuất
 // dữ liệu, thanh toán và gia hạn). Đặt sau phần mềm trung gian nhận diện trường; chế độ một trường không có ngữ cảnh nên không chặn
 const READ_METHODS = new Set(['GET', 'HEAD', 'OPTIONS']);

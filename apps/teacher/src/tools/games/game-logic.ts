@@ -1,4 +1,4 @@
-// Trò chơi kiến thức ở màn hình lớp (DT-23 phần 23c, YCTD-213; tài liệu 32 mục 15.4): phần thuần, chạy được trong kiểm thử với
+// Trò chơi kiến thức ở màn hình lớp (DT-23 phần 23c, YCTD-213; tài liệu 47 mục 15.4): phần thuần, chạy được trong kiểm thử với
 // nguồn ngẫu nhiên cố định. Bộ tạo ô chữ, vòng quay và điểm theo vòng do dự án tự viết, không chép giao diện hay luật của sản phẩm
 // khác
 export type Random = () => number;

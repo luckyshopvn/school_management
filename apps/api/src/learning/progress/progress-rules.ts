@@ -2,7 +2,7 @@ import { ruleViolationError, validationError, type FieldError } from '@school-ma
 import { isUuid, type RequestBody } from '../../common/request-fields.js';
 import { isDone, type ResultStatus } from '../learning-rules.js';
 
-// Quy tắc thuần của tiến độ, bảng điểm hoạt động, sổ điểm, báo cáo (DT-28 phần 28d, YCTD-274; tài liệu 32 mục 20.7). Claude tự chọn
+// Quy tắc thuần của tiến độ, bảng điểm hoạt động, sổ điểm, báo cáo (DT-28 phần 28d, YCTD-274; tài liệu 47 mục 20.7). Claude tự chọn
 // theo ủy quyền của Eric ngày 2026-10-11, ghi ở YCTD-274:
 // - Không xếp hạng: lưới tiến độ, bảng điểm sắp theo số thứ tự, họ tên; không có cột thứ hạng, không có bảng xếp hạng cho học sinh.
 // - "Cần chú ý": quá hạn từ 2 hoạt động bắt buộc, hoặc đã có ít nhất 3 hoạt động bắt buộc đến hạn mà hoàn thành dưới một nửa, hoặc

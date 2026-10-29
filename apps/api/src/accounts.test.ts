@@ -4,7 +4,7 @@ import { postJson } from '@school-management/identity/testing';
 import { openTestAcademicYear, sendJson, startApiTestEnvironment, type ApiTestEnvironment } from './test-support.js';
 
 // Quản lý tài khoản, vai trò, quyền do dịch vụ định danh phục vụ, đọc cây đơn vị thật qua máy chủ API
-// Ca kiểm thử theo 27_BO_CA_KIEM_THU_CHI_TIET/01_DINH_DANH_VA_P01.md mục 3.6, 4.5, 4.6 (PQ-13, YCTD-39)
+// Ca kiểm thử theo 42_BO_CA_KIEM_THU_CHI_TIET/01_DINH_DANH_VA_P01.md mục 3.6, 4.5, 4.6 (PQ-13, YCTD-39)
 describe('Tài khoản, vai trò và quyền', () => {
   let environment: ApiTestEnvironment;
   let principal: string;

@@ -9,7 +9,7 @@ import { connectionStringOf } from './school-database-layout.js';
 import { schoolDescriptors, type Actor, type LifecycleEnvironment } from './school-lifecycle.js';
 import { startTenantTestPlatform, type TenantTestPlatform } from './tenant-test-support.js';
 
-// Đổi khóa mã hóa dữ liệu trẻ và bọc lại khóa gốc (DT-SaaS phần S3, YCTD-195; tài liệu 32 mục 14.5). Nền tảng và trường dựng riêng cho
+// Đổi khóa mã hóa dữ liệu trẻ và bọc lại khóa gốc (DT-SaaS phần S3, YCTD-195; tài liệu 47 mục 14.5). Nền tảng và trường dựng riêng cho
 // lần chạy, dữ liệu giả hoàn toàn
 const actor: Actor = { type: 'cli', name: 'Kiểm thử S3' };
 let test: TenantTestPlatform;

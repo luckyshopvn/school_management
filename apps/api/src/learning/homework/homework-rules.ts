@@ -2,7 +2,7 @@ import { ruleViolationError, type FieldError } from '@school-management/server';
 import type { HomeworkPolicyAction, HomeworkReminderKind } from '@school-management/database';
 import type { RequestBody } from '../../common/request-fields.js';
 
-// Quy tắc thuần của bài về nhà (DT-28 phần 28f, YCTD-276; tài liệu 32 mục 20.7). Bài về nhà là bài tập 28c ngữ cảnh `homework`.
+// Quy tắc thuần của bài về nhà (DT-28 phần 28f, YCTD-276; tài liệu 47 mục 20.7). Bài về nhà là bài tập 28c ngữ cảnh `homework`.
 // - Quy tắc khối lượng (GD-143, Eric chốt 2026-10-26): trường tự đặt theo cấp, khối; nền tảng không đặt giới hạn mặc định, trường
 //   chưa đặt thì không chặn, không cảnh báo. Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11, ghi ở YCTD-276: khối lượng
 //   tính theo **ngày đến hạn** (giờ Việt Nam) của bài; bài chưa ghi số phút dự kiến tính 0 phút; quy tắc của khối thay quy tắc

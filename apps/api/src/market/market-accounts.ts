@@ -18,7 +18,7 @@ import {
   sameHash,
 } from './market-tokens.js';
 
-// Tài khoản, đăng nhập và văn bản pháp lý của chợ gia sư (DT-27 phần 27f, YCTD-256; tài liệu 32 mục 19.5). Claude tự chọn theo ủy
+// Tài khoản, đăng nhập và văn bản pháp lý của chợ gia sư (DT-27 phần 27f, YCTD-256; tài liệu 47 mục 19.5). Claude tự chọn theo ủy
 // quyền của Eric ngày 2026-10-11:
 // - đăng ký bằng thư điện tử hoặc số điện thoại, mật khẩu (tối thiểu 8 ký tự có chữ và số như BM-03), đồng ý phiên bản mới nhất của
 //   điều khoản sử dụng, chính sách dữ liệu (gia sư thêm điều khoản của gia sư); tài khoản ở trạng thái chờ đến khi nhập mã 6 số gửi

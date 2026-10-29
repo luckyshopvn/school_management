@@ -20,7 +20,7 @@ import { ChildScope } from '../children/child-scope.js';
 import { ConductService } from '../conduct/conduct.js';
 import { GroupSetsService } from '../child-groups/group-sets.js';
 
-// Công cụ lớp học trên ứng dụng giáo viên (DT-23 phần 23b, YCTD-212; tài liệu 32 mục 15.4): gọi tên ngẫu nhiên, chia nhóm,
+// Công cụ lớp học trên ứng dụng giáo viên (DT-23 phần 23b, YCTD-212; tài liệu 47 mục 15.4): gọi tên ngẫu nhiên, chia nhóm,
 // bảng điểm nhanh. Máy giáo viên bốc ngẫu nhiên và giữ đồng hồ; máy chủ chỉ cấp danh sách lớp thật, ghi lượt gọi, bản chia
 // nhóm, dòng điểm của buổi và chuyển điểm vào nề nếp, thi đua (DT-21) khi giáo viên chọn tiêu chí và xác nhận. Các lượt gọi
 // và dòng điểm ghi lúc mất mạng được gửi lại sau, mỗi dòng mang `client_id` do máy sinh nên gửi lại nhiều lần không trùng.

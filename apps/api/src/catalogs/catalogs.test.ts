@@ -4,7 +4,7 @@ import { openTestAcademicYear, sendJson, startApiTestEnvironment, type ApiTestEn
 
 const rows = <Row = Record<string, unknown>>(body: unknown) => body as Row[];
 
-// Các danh mục của P01; ca kiểm thử theo 27_BO_CA_KIEM_THU_CHI_TIET/01_DINH_DANH_VA_P01.md mục 4.3, 4.4, 4.9, 4.10
+// Các danh mục của P01; ca kiểm thử theo 42_BO_CA_KIEM_THU_CHI_TIET/01_DINH_DANH_VA_P01.md mục 4.3, 4.4, 4.9, 4.10
 describe('Phòng ban, chức danh, danh mục dùng chung, hạn mức phê duyệt, phòng học, bậc học', () => {
   let environment: ApiTestEnvironment;
   let principal: string;
