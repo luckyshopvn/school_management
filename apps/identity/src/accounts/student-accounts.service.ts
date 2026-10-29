@@ -89,7 +89,7 @@ export class StudentAccountsService {
               `Tên đăng nhập ${maskLoginIdentifier(input.username)} đã thuộc tài khoản khác của trường`,
             );
           }
-          // Cấp lại mật khẩu, chuyển đơn vị: người gọi phải có quyền ở cả đơn vị hiện tại của học sinh (YCTD-375)
+          // Cấp lại mật khẩu, chuyển đơn vị: người gọi phải có quyền ở cả đơn vị hiện tại của học sinh (YCTD-378)
           const currentUnits = await transaction
             .selectFrom('user_roles')
             .select('org_unit_id')

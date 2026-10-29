@@ -80,7 +80,7 @@ export class StaffAccountsService {
     if (assignments.some((assignment) => PROTECTED_ROLES.includes(assignment.role_code))) {
       throw forbidden('Không khóa được tài khoản quản trị hoặc Hiệu trưởng qua chấm dứt hợp đồng');
     }
-    // Chỉ khóa tài khoản có vai trò nhân sự, mọi vai trò nhân sự nằm trong phạm vi người thao tác (YCTD-375)
+    // Chỉ khóa tài khoản có vai trò nhân sự, mọi vai trò nhân sự nằm trong phạm vi người thao tác (YCTD-378)
     const staffAssignments = assignments.filter((assignment) => !NON_STAFF_ROLES.includes(assignment.role_code));
     if (staffAssignments.length === 0) {
       throw ruleViolationError('BR-37', 'Tài khoản này không có vai trò nhân sự');

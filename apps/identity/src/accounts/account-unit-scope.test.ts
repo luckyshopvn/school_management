@@ -4,7 +4,7 @@ import { after, before, describe, it } from 'node:test';
 import { OrganizationDirectory, type OrgUnitSummary } from './organization-directory.js';
 import { createTestUser, postJson, startTestApplication, type TestContext, type TestUser } from '../test-support.js';
 
-// Phạm vi đơn vị của tài khoản đích khi cấp lại mật khẩu học sinh và khi khóa tài khoản do chấm dứt hợp đồng (YCTD-375);
+// Phạm vi đơn vị của tài khoản đích khi cấp lại mật khẩu học sinh và khi khóa tài khoản do chấm dứt hợp đồng (YCTD-378);
 // kịch bản CT-1714, CT-1715
 const rootUnit = randomUUID();
 const branchA = randomUUID();
@@ -20,7 +20,7 @@ class FakeOrganizationDirectory extends OrganizationDirectory {
   }
 }
 
-describe('Phạm vi đơn vị của tài khoản đích (YCTD-375)', () => {
+describe('Phạm vi đơn vị của tài khoản đích (YCTD-378)', () => {
   let context: TestContext;
 
   const tokenOf = async (user: TestUser) =>
