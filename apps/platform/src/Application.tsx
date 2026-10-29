@@ -193,7 +193,7 @@ function Shell({ accessToken, onLogout }: { accessToken: string; onLogout: () =>
             {active === 'schools' ? <SchoolsPage token={accessToken} role={profile.role} /> : null}
             {active === 'plans' ? <PlansPage accessToken={accessToken} /> : null}
             {active === 'billing' ? <BillingPage accessToken={accessToken} /> : null}
-            {active === 'dashboard' ? <DashboardPage token={accessToken} /> : null}
+            {active === 'dashboard' ? <DashboardPage token={accessToken} role={profile.role} /> : null}
             {active === 'maintenance' ? <MaintenancePage token={accessToken} role={profile.role} /> : null}
             {active === 'parent-orgs' ? <AdminUnitsPage token={accessToken} /> : null}
             {active === 'ai' ? <AiPage accessToken={accessToken} /> : null}
