@@ -122,7 +122,12 @@ export function MarketShell({
             <BrandMark />
             <span className="text-section-title font-bold">{title}</span>
           </button>
-          <div className="min-w-0 flex-1">{side ? null : roleNavigation}</div>
+          {/* Thanh điều hướng ở đầu trang: dưới 1280 px xuống một hàng riêng, đủ rộng để không bị ép thành cột hẹp (YCTD-368) */}
+          {roleNavigation && !side ? (
+            <div className="order-last w-full min-w-0 xl:order-none xl:w-auto xl:flex-1">{roleNavigation}</div>
+          ) : (
+            <div className="flex-1" />
+          )}
           {site && !site.real_payments ? (
             <span className="rounded-full bg-warning/10 px-3 py-1 text-label font-medium text-warning">
               Thanh toán giả lập

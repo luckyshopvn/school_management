@@ -54,19 +54,38 @@ function ParentHome({ page, onPage }: { page: ParentPage | null; onPage: (next: 
   return null;
 }
 
+// Địa chỉ mở ra trỏ tới trang của vai kia (ví dụ liên kết gia sư gửi phụ huynh): báo một lần lúc vào khu riêng, ứng dụng mở trang mặc
+// định của vai mình (bản mẫu MH-593, MH-594 trạng thái "không có quyền", YCTD-368)
+function ForeignPageNotice({ me, page }: { me: Me; page: string | null }) {
+  const [foreign] = useState(
+    () =>
+      page !== null &&
+      !pagesOf(me.kind).some((row) => row.key === page) &&
+      pagesOf(me.kind === 'tutor' ? 'parent' : 'tutor').some((row) => row.key === page),
+  );
+  if (!foreign) return null;
+  return (
+    <Alert tone="warning">
+      {me.kind === 'tutor'
+        ? 'Trang bạn mở dành cho tài khoản phụ huynh. Đã mở trang của tài khoản gia sư.'
+        : 'Trang bạn mở dành cho tài khoản gia sư. Đã mở trang của tài khoản phụ huynh.'}
+    </Alert>
+  );
+}
+
 function RoleNavigation({ me, page, onPage }: { me: Me; page: string | null; onPage: (next: string) => void }) {
   const side = me.kind === 'tutor';
   return (
     <nav
       aria-label={side ? 'Điều hướng khu gia sư' : 'Điều hướng khu phụ huynh'}
-      className={side ? 'flex flex-col gap-1' : 'flex flex-wrap gap-1'}
+      className={side ? 'flex flex-col gap-1' : 'flex gap-1 overflow-x-auto'}
     >
       {pagesOf(me.kind).map((row) => (
         <button
           key={row.key}
           type="button"
           aria-current={page === row.key ? 'page' : undefined}
-          className={`min-h-11 rounded-lg px-3 font-medium ${side ? 'text-left' : ''} ${
+          className={`min-h-11 rounded-lg px-3 font-medium ${side ? 'text-left' : 'shrink-0 whitespace-nowrap'} ${
             page === row.key ? 'bg-selected text-brand-strong' : 'text-text hover:bg-page'
           }`}
           onClick={() => onPage(row.key)}
@@ -119,13 +138,16 @@ export function MarketApplication() {
           </section>
         )}
       >
-        {(me) =>
-          me.kind === 'tutor' ? (
-            <TutorHome page={pageFor(me) as TutorPage | null} onPage={open} />
-          ) : (
-            <ParentHome page={pageFor(me) as ParentPage | null} onPage={open} />
-          )
-        }
+        {(me) => (
+          <>
+            <ForeignPageNotice me={me} page={page} />
+            {me.kind === 'tutor' ? (
+              <TutorHome page={pageFor(me) as TutorPage | null} onPage={open} />
+            ) : (
+              <ParentHome page={pageFor(me) as ParentPage | null} onPage={open} />
+            )}
+          </>
+        )}
       </MarketShell>
     </>
   );
