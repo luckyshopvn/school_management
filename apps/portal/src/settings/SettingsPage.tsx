@@ -1,17 +1,7 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useState, type ReactNode } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { PERMISSION_CODES } from '@school-management/shared';
-import {
-  Alert,
-  Button,
-  FORM_CONTROL_CLASS,
-  FormBlock,
-  FormRow,
-  StatusBadge,
-  TextField,
-  Toast,
-  type StatusTone,
-} from '@school-management/ui';
+import { Alert, Button, FORM_CONTROL_CLASS, FormRow, TextField, Toast } from '@school-management/ui';
 import { fetchCurrentUser, ApiError } from '../session/api-client.js';
 import { listOrgUnits } from '../org-units/org-units-api.js';
 import { AppShell } from '../pages/AppShell.js';
@@ -28,13 +18,30 @@ import {
   type EffectiveSetting,
   type SettingSource,
 } from './settings-api.js';
+import { groupElementId, SETTING_GROUPS, unitSettingGroup, type SettingGroupKey } from './settings-groups.js';
 
-// Cấu hình theo đơn vị (P01-08, YCTD-40) và cấu hình chung của tài khoản (PQ-07); giao diện chỉ hiển thị, máy chủ kiểm tra giá trị
-const SOURCE_LABELS: Record<SettingSource, { label: string; tone: StatusTone }> = {
-  unit: { label: 'Riêng của đơn vị', tone: 'info' },
-  truong_chinh: { label: 'Theo Trường chính', tone: 'neutral' },
-  default: { label: 'Mặc định', tone: 'neutral' },
-  missing: { label: 'Chưa cấu hình', tone: 'warning' },
+// Cấu hình theo đơn vị (P01-08, YCTD-40) và cấu hình chung của tài khoản (PQ-07); giao diện chỉ hiển thị, máy chủ kiểm tra giá trị.
+// Bố cục theo thiết kế "Cổng quản trị trường" (YCTD-335): ô Đơn vị cạnh tiêu đề, các khối chia theo nhóm ở settings-groups.ts,
+// danh sách nhóm ở bên trái từ 1280 px (hẹp hơn thì ở trên cùng); nguồn của giá trị ghi gọn sau giá trị đang áp dụng
+const SOURCE_TEXT: Record<Exclude<SettingSource, 'missing'>, string> = {
+  unit: 'riêng của đơn vị',
+  truong_chinh: 'theo Trường chính',
+  default: 'mặc định',
+};
+
+// Gợi ý nhập theo kiểu giá trị, hiện dưới tên mục khi được sửa (giữ quy tắc nhập ngày của đoạn giải thích cũ)
+const INPUT_HINTS: Partial<Record<EffectiveSetting['value_type'], string>> = {
+  closing_day: 'Số từ 1 đến 28, "cuối tháng" hoặc "mùng 1 tháng sau"',
+  day_of_month: 'Số từ 1 đến 28 hoặc "cuối tháng"',
+  day_list: 'Các số ngày tăng dần, cách nhau bằng dấu phẩy',
+  time_of_day: 'Giờ dạng HH:MM, ví dụ 07:30',
+  minutes: 'Số phút từ 0 đến 480',
+  percent: 'Phần trăm từ 100 đến 1000',
+};
+
+// Dòng gợi ý ngắn của nhóm, hiện dưới tên nhóm
+const GROUP_HINTS: Partial<Record<SettingGroupKey, string>> = {
+  staff: 'Ngày chốt công cố định mùng 1 tháng sau.',
 };
 
 function messageOf(error: unknown): string {
@@ -56,6 +63,14 @@ function toText(setting: EffectiveSetting): string {
     return 'cuối tháng';
   }
   return String(value);
+}
+
+// Chữ trong ô của một mục: mục Bật/Tắt là "" (kế thừa), "bat", "tat"
+function originalText(setting: EffectiveSetting): string {
+  if (setting.value_type === 'boolean') {
+    return setting.unit_value === null ? '' : setting.unit_value ? 'bat' : 'tat';
+  }
+  return toText(setting);
 }
 
 function fromText(setting: EffectiveSetting, text: string): unknown {
@@ -103,124 +118,157 @@ function describeValue(setting: EffectiveSetting): string {
   return Array.isArray(setting.value) ? setting.value.join(', ') : String(setting.value);
 }
 
-function UnitSettingsForm({ orgUnitId, editable, onSaved }: { orgUnitId: string; editable: boolean; onSaved(): void }) {
+// Giá trị đang áp dụng kèm nguồn, ví dụ "25 · mặc định"; chưa có ở đâu thì "Chưa cấu hình"
+function describeApplied(setting: EffectiveSetting): string {
+  if (setting.source === 'missing') {
+    return 'Chưa cấu hình';
+  }
+  return `${describeValue(setting)} · ${SOURCE_TEXT[setting.source]}`;
+}
+
+// Cấu hình theo đơn vị đang chọn: chữ người dùng sửa giữ theo đơn vị (đổi đơn vị thì bỏ), một nút Lưu cấu hình ghi mọi mục đã sửa
+// ở mọi nhóm
+function useUnitSettings(orgUnitId: string | undefined, onSaved: () => void) {
   const queryClient = useQueryClient();
-  const settings = useQuery({ queryKey: ['settings', orgUnitId], queryFn: () => readSettings(orgUnitId) });
-  const [draft, setDraft] = useState<Record<string, string>>({});
-  useEffect(() => {
-    if (settings.data) {
-      setDraft(
-        Object.fromEntries(
-          settings.data.map((setting) => [
-            setting.key,
-            setting.value_type === 'boolean'
-              ? setting.unit_value === null
-                ? ''
-                : setting.unit_value
-                  ? 'bat'
-                  : 'tat'
-              : toText(setting),
-          ]),
-        ),
-      );
-    }
-  }, [settings.data]);
+  const settings = useQuery({
+    queryKey: ['settings', orgUnitId],
+    queryFn: () => readSettings(orgUnitId as string),
+    enabled: orgUnitId !== undefined,
+  });
+  const [edits, setEdits] = useState<{ orgUnitId?: string; values: Record<string, string> }>({ values: {} });
+  const currentEdits = edits.orgUnitId === orgUnitId ? edits.values : {};
+  const unitSettings = (settings.data ?? []).filter((setting) => !setting.school);
+  const textOf = (setting: EffectiveSetting) => currentEdits[setting.key] ?? originalText(setting);
+  const edit = (key: string, text: string) => setEdits({ orgUnitId, values: { ...currentEdits, [key]: text } });
   const save = useMutation({
-    mutationFn: () => {
+    mutationFn: (unitId: string) => {
       const values: Record<string, unknown> = {};
-      for (const setting of settings.data ?? []) {
-        const original =
-          setting.value_type === 'boolean'
-            ? setting.unit_value === null
-              ? ''
-              : setting.unit_value
-                ? 'bat'
-                : 'tat'
-            : toText(setting);
-        if ((draft[setting.key] ?? '') !== original) {
-          values[setting.key] = fromText(setting, draft[setting.key] ?? '');
+      for (const setting of unitSettings) {
+        const text = textOf(setting);
+        if (text !== originalText(setting)) {
+          values[setting.key] = fromText(setting, text);
         }
       }
-      return saveSettings(orgUnitId, values);
+      return saveSettings(unitId, values);
     },
-    onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: ['settings', orgUnitId] });
+    onSuccess: async (_data, unitId) => {
+      await queryClient.invalidateQueries({ queryKey: ['settings', unitId] });
+      setEdits({ values: {} });
       onSaved();
     },
   });
-  const fieldErrors =
+  const { reset } = save;
+  useEffect(() => {
+    reset();
+  }, [orgUnitId, reset]);
+  const fieldErrors: Record<string, string> =
     save.error instanceof ApiError
       ? Object.fromEntries(save.error.details.map((detail) => [detail.field, detail.message]))
       : {};
+  return { settings, unitSettings, textOf, edit, save, fieldErrors };
+}
 
-  if (settings.isPending) {
-    return <div className="h-60 animate-pulse rounded bg-border" aria-hidden="true" />;
-  }
-  if (settings.isError) {
-    return <Alert tone="danger">{messageOf(settings.error)}</Alert>;
-  }
+type UnitSettingsState = ReturnType<typeof useUnitSettings>;
+
+// Các mục theo đơn vị của một nhóm, trong thẻ "Theo đơn vị"
+function UnitSettingsCard({
+  state,
+  items,
+  unitName,
+  editable,
+}: {
+  state: UnitSettingsState;
+  items: EffectiveSetting[];
+  unitName: string;
+  editable: boolean;
+}) {
   return (
-    <div className="flex flex-col gap-4">
-      {save.error ? <Alert tone="danger">{messageOf(save.error)}</Alert> : null}
-      <table className="w-full text-content">
-        <thead className="text-left text-label font-medium text-text-secondary">
-          <tr>
-            <th className="px-3 py-2">Mục cấu hình</th>
-            <th className="px-3 py-2">Đang áp dụng</th>
-            <th className="px-3 py-2">Nguồn</th>
-            {editable ? <th className="px-3 py-2">Giá trị riêng của đơn vị</th> : null}
-          </tr>
-        </thead>
-        <tbody>
-          {settings.data
-            .filter((setting) => !setting.school)
-            .map((setting) => (
-              <tr key={setting.key} className="border-t border-border align-top">
-                <td className="px-3 py-2 font-medium">{setting.label}</td>
-                <td className="px-3 py-2">{describeValue(setting)}</td>
-                <td className="px-3 py-2">
-                  <StatusBadge {...SOURCE_LABELS[setting.source]} />
-                </td>
-                {editable ? (
+    <SettingsCard title="Theo đơn vị" subtitle={unitName}>
+      <div className="overflow-x-auto">
+        <table className="w-full text-content">
+          <thead className="text-left text-label font-medium text-text-secondary">
+            <tr>
+              <th className="px-3 py-2">Mục cấu hình</th>
+              <th className="px-3 py-2">Đang áp dụng</th>
+              {editable ? <th className="px-3 py-2">Giá trị riêng của đơn vị</th> : null}
+            </tr>
+          </thead>
+          <tbody>
+            {items.map((setting) => {
+              const error = state.fieldErrors[`values.${setting.key}`];
+              const hint = editable ? INPUT_HINTS[setting.value_type] : undefined;
+              return (
+                <tr key={setting.key} className="border-t border-border align-top">
                   <td className="px-3 py-2">
-                    {setting.value_type === 'boolean' ? (
-                      <select
-                        aria-label={setting.label}
-                        value={draft[setting.key] ?? ''}
-                        onChange={(event) => setDraft({ ...draft, [setting.key]: event.target.value })}
-                        className="rounded-lg border border-border bg-card px-3 py-2"
-                      >
-                        <option value="">Kế thừa</option>
-                        <option value="bat">Bật</option>
-                        <option value="tat">Tắt</option>
-                      </select>
-                    ) : (
-                      <input
-                        aria-label={setting.label}
-                        value={draft[setting.key] ?? ''}
-                        placeholder="Để trống là kế thừa"
-                        onChange={(event) => setDraft({ ...draft, [setting.key]: event.target.value })}
-                        className="w-48 rounded-lg border border-border bg-card px-3 py-2"
-                      />
-                    )}
-                    {fieldErrors[`values.${setting.key}`] ? (
-                      <p className="mt-1 text-label text-danger">{fieldErrors[`values.${setting.key}`]}</p>
-                    ) : null}
+                    <span className="font-medium text-text">{setting.label}</span>
+                    {hint ? <p className="text-label text-text-secondary">{hint}</p> : null}
                   </td>
-                ) : null}
-              </tr>
-            ))}
-        </tbody>
-      </table>
-      {editable ? (
-        <div>
-          <Button variant="primary" onClick={() => save.mutate()} disabled={save.isPending}>
-            {save.isPending ? 'Đang lưu…' : 'Lưu cấu hình'}
-          </Button>
-        </div>
-      ) : null}
-    </div>
+                  <td
+                    className={`px-3 py-2 ${setting.source === 'missing' ? 'text-warning' : setting.source === 'unit' ? 'text-brand' : 'text-text'}`}
+                  >
+                    {describeApplied(setting)}
+                  </td>
+                  {editable ? (
+                    <td className="px-3 py-2">
+                      {setting.value_type === 'boolean' ? (
+                        <select
+                          aria-label={setting.label}
+                          value={state.textOf(setting)}
+                          onChange={(event) => state.edit(setting.key, event.target.value)}
+                          className="rounded-lg border border-border bg-card px-3 py-2"
+                        >
+                          <option value="">Kế thừa</option>
+                          <option value="bat">Bật</option>
+                          <option value="tat">Tắt</option>
+                        </select>
+                      ) : (
+                        <input
+                          aria-label={setting.label}
+                          value={state.textOf(setting)}
+                          placeholder="Để trống là kế thừa"
+                          onChange={(event) => state.edit(setting.key, event.target.value)}
+                          className="w-48 rounded-lg border border-border bg-card px-3 py-2"
+                        />
+                      )}
+                      {error ? <p className="mt-1 text-label text-danger">{error}</p> : null}
+                    </td>
+                  ) : null}
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
+    </SettingsCard>
   );
+}
+
+// Thẻ trắng viền mảnh của một khối trên trang
+function SettingsCard({
+  title,
+  subtitle,
+  label,
+  children,
+}: {
+  title: string;
+  subtitle?: string;
+  label?: string;
+  children: ReactNode;
+}) {
+  return (
+    <section className="flex flex-col gap-4 rounded-xl border border-border bg-card p-4" aria-label={label}>
+      <div className="flex flex-wrap items-baseline gap-x-2">
+        <h3 className="text-content font-semibold text-text">{title}</h3>
+        {subtitle ? <span className="text-label text-text-secondary">{subtitle}</span> : null}
+      </div>
+      {children}
+    </section>
+  );
+}
+
+// Dòng gợi ý ngắn dưới một ô của FormRow, thẳng cột với ô nhập
+function FieldHint({ children }: { children: ReactNode }) {
+  return <p className="-mt-2 text-label text-text-secondary md:pl-[12.75rem]">{children}</p>;
 }
 
 // Khối "Cấu hình trường" theo mục 1.4 của Sở (DT-16 phần 16e): tên trường hiển thị (thanh đầu trang, trang đăng nhập), tên
@@ -284,45 +332,40 @@ function SchoolSettingsForm({
       ? save.error.details.find((detail) => detail.field === `values.${key}`)?.message
       : undefined;
   return (
-    <section className="flex flex-col gap-4 rounded-xl border border-border bg-card p-4" aria-label="Cấu hình trường">
+    <SettingsCard title="Cấu hình trường" subtitle="Cả trường" label="Cấu hình trường">
       {save.error && !(save.error instanceof ApiError && save.error.details.length > 0) ? (
         <Alert tone="danger">{messageOf(save.error)}</Alert>
       ) : null}
-      <FormBlock title="Cấu hình trường">
-        <FormRow label="Tên trường hiển thị" error={fieldError('school_display_name')}>
+      <FormRow label="Tên trường hiển thị" error={fieldError('school_display_name')}>
+        <input
+          className={FORM_CONTROL_CLASS}
+          value={displayName}
+          disabled={!editable}
+          placeholder="Để trống là tên Trường chính trong cây đơn vị"
+          onChange={(event) => setDisplayName(event.target.value)}
+        />
+      </FormRow>
+      <FieldHint>Hiện ở thanh đầu trang và trang đăng nhập.</FieldHint>
+      <FormRow label="Tên đơn vị hành chính" error={fieldError('administrative_unit_name')}>
+        <input
+          className={FORM_CONTROL_CLASS}
+          value={unitName}
+          disabled={!editable}
+          onChange={(event) => setUnitName(event.target.value)}
+        />
+      </FormRow>
+      <FormRow label="Cân nặng, chiều cao">
+        <label className="flex items-center gap-2 text-content text-text">
           <input
-            className={FORM_CONTROL_CLASS}
-            value={displayName}
+            type="checkbox"
+            checked={underweight}
             disabled={!editable}
-            placeholder="Để trống là tên Trường chính trong cây đơn vị"
-            onChange={(event) => setDisplayName(event.target.value)}
+            onChange={(event) => setUnderweight(event.target.checked)}
           />
-        </FormRow>
-        <FormRow label="Tên đơn vị hành chính" error={fieldError('administrative_unit_name')}>
-          <input
-            className={FORM_CONTROL_CLASS}
-            value={unitName}
-            disabled={!editable}
-            onChange={(event) => setUnitName(event.target.value)}
-          />
-        </FormRow>
-        <FormRow label="Cân nặng, chiều cao">
-          <label className="flex items-center gap-2 text-content text-text">
-            <input
-              type="checkbox"
-              checked={underweight}
-              disabled={!editable}
-              onChange={(event) => setUnderweight(event.target.checked)}
-            />
-            Tính cân nặng/chiều cao cho trẻ suy dinh dưỡng thể nhẹ cân
-          </label>
-        </FormRow>
-      </FormBlock>
-      <p className="text-label text-text-secondary">
-        Tên trường hiển thị dùng ở thanh đầu trang và trang đăng nhập. Bỏ tích ô cân nặng, chiều cao thì trẻ suy dinh
-        dưỡng thể nhẹ cân không xếp kênh cân nặng theo chiều cao (gầy còm, thừa cân, béo phì) ở 4.3.2 Tổng hợp cân nặng,
-        chiều cao.
-      </p>
+          Tính cân nặng/chiều cao cho trẻ suy dinh dưỡng thể nhẹ cân
+        </label>
+      </FormRow>
+      <FieldHint>Bỏ tích thì trẻ nhẹ cân không xếp kênh gầy còm, thừa cân, béo phì ở 4.3.2.</FieldHint>
       {editable ? (
         <div>
           <Button variant="primary" onClick={() => save.mutate()} disabled={save.isPending}>
@@ -330,7 +373,7 @@ function SchoolSettingsForm({
           </Button>
         </div>
       ) : null}
-    </section>
+    </SettingsCard>
   );
 }
 
@@ -389,11 +432,7 @@ function AccountLockSettings({ onSaved }: { onSaved(message: string): void }) {
     return null;
   }
   return (
-    <section
-      className="flex flex-col gap-4 rounded-xl border border-border bg-card p-4"
-      aria-label="Cấu hình tài khoản"
-    >
-      <h2 className="text-section-title font-semibold text-text">Tài khoản</h2>
+    <SettingsCard title="Tài khoản" subtitle="Cả trường" label="Cấu hình tài khoản">
       {save.error ? <Alert tone="danger">{messageOf(save.error)}</Alert> : null}
       <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
         {NUMBER_FIELDS.map((field) => (
@@ -412,10 +451,10 @@ function AccountLockSettings({ onSaved }: { onSaved(message: string): void }) {
         </Button>
       </div>
       <div className="flex flex-col gap-3 border-t border-border pt-4">
-        <h3 className="text-content font-semibold text-text">Mật khẩu mặc định của phụ huynh</h3>
+        <h4 className="text-content font-semibold text-text">Mật khẩu mặc định của phụ huynh</h4>
         <p className="text-label text-text-secondary">
           {settings.data?.parent_default_password_configured
-            ? 'Đã đặt. Hệ thống chỉ lưu dạng mã hóa nên không xem lại được; nhập mật khẩu mới để thay. Phụ huynh chưa kích hoạt sẽ dùng mật khẩu mới.'
+            ? 'Đã đặt. Chỉ lưu dạng mã hóa nên không xem lại được; mật khẩu mới áp cho phụ huynh chưa kích hoạt.'
             : 'Chưa đặt. Cần đặt trước khi tạo tài khoản phụ huynh.'}
         </p>
         <div className="flex flex-wrap items-end gap-3">
@@ -432,7 +471,7 @@ function AccountLockSettings({ onSaved }: { onSaved(message: string): void }) {
           </Button>
         </div>
       </div>
-    </section>
+    </SettingsCard>
   );
 }
 
@@ -474,11 +513,7 @@ function LoginSecuritySettings({ onSaved }: { onSaved(message: string): void }) 
     return null;
   }
   return (
-    <section
-      className="flex flex-col gap-4 rounded-xl border border-border bg-card p-4"
-      aria-label="Đăng nhập và bảo mật"
-    >
-      <h2 className="text-section-title font-semibold text-text">Đăng nhập và bảo mật</h2>
+    <SettingsCard title="Đăng nhập và bảo mật" subtitle="Cả trường" label="Đăng nhập và bảo mật">
       {save.error && !(save.error instanceof ApiError && save.error.details.length > 0) ? (
         <Alert tone="danger">{messageOf(save.error)}</Alert>
       ) : null}
@@ -507,17 +542,57 @@ function LoginSecuritySettings({ onSaved }: { onSaved(message: string): void }) 
           <input type="checkbox" checked={captchaAlways} onChange={(event) => setCaptchaAlways(event.target.checked)} />
           Luôn hiện mã xác nhận ở trang đăng nhập
         </label>
-        <label className="flex items-center gap-2 pb-2 text-label text-text">
-          <input type="checkbox" checked={totpEnabled} onChange={(event) => setTotpEnabled(event.target.checked)} />
-          Cho phép xác thực hai lớp (mỗi người tự đăng ký bằng ứng dụng xác thực ở Hồ sơ của tôi)
-        </label>
+        <div className="flex flex-col gap-1 pb-2">
+          <label className="flex items-center gap-2 text-label text-text">
+            <input type="checkbox" checked={totpEnabled} onChange={(event) => setTotpEnabled(event.target.checked)} />
+            Cho phép xác thực hai lớp
+          </label>
+          <p className="pl-6 text-label text-text-secondary">
+            Mỗi người tự đăng ký bằng ứng dụng xác thực ở Hồ sơ của tôi.
+          </p>
+        </div>
       </div>
       <div>
         <Button onClick={() => save.mutate()} disabled={save.isPending}>
           Lưu đăng nhập và bảo mật
         </Button>
       </div>
-    </section>
+    </SettingsCard>
+  );
+}
+
+// Danh sách nhóm: từ 1280 px là cột bên trái, dính khi cuộn; hẹp hơn thì một hàng nút ở trên cùng. Bấm nhóm thì cuộn tới nhóm
+function GroupNavigation({
+  groups,
+  active,
+  onSelect,
+}: {
+  groups: ReadonlyArray<(typeof SETTING_GROUPS)[number]>;
+  active: SettingGroupKey | undefined;
+  onSelect(key: SettingGroupKey): void;
+}) {
+  return (
+    <nav
+      aria-label="Nhóm cấu hình"
+      className="rounded-xl border border-border bg-card p-2 xl:sticky xl:top-20 xl:self-start"
+    >
+      <ul className="flex flex-wrap gap-1 xl:flex-col">
+        {groups.map((group) => (
+          <li key={group.key}>
+            <button
+              type="button"
+              aria-current={active === group.key ? 'true' : undefined}
+              onClick={() => onSelect(group.key)}
+              className={`w-full rounded-lg px-3 py-2 text-left text-label font-medium ${
+                active === group.key ? 'bg-selected text-brand' : 'text-text-secondary hover:bg-page hover:text-text'
+              }`}
+            >
+              {group.label}
+            </button>
+          </li>
+        ))}
+      </ul>
+    </nav>
   );
 }
 
@@ -529,77 +604,152 @@ export function SettingsPage() {
   const units = useQuery({ queryKey: ['org-units', 'flat', ''], queryFn: () => listOrgUnits() });
   const [orgUnitId, setOrgUnitId] = useState<string>();
   const [toastMessage, setToastMessage] = useState<string>();
+  const [activeGroup, setActiveGroup] = useState<SettingGroupKey>();
   const closeToast = useCallback(() => setToastMessage(undefined), []);
   const rootId = units.data?.find((unit) => unit.unit_type === 'truong_chinh')?.id;
   const selectedId = orgUnitId ?? rootId ?? units.data?.[0]?.id;
+  const selectedName = units.data?.find((unit) => unit.id === selectedId)?.name ?? '';
   const wholeSchoolSettingManager =
     currentUser.data?.assignments.some(
       (assignment) =>
         assignment.org_unit_id === null && assignment.permissions.includes(PERMISSION_CODES.settingManage),
     ) ?? false;
+  const unitState = useUnitSettings(selectedId, () => setToastMessage('Đã lưu cấu hình'));
+  const itemsOf = (group: SettingGroupKey) =>
+    unitState.unitSettings.filter((setting) => unitSettingGroup(setting) === group);
+  const unitCard = (group: SettingGroupKey) => {
+    const items = itemsOf(group);
+    return items.length > 0 ? (
+      <UnitSettingsCard key="unit" state={unitState} items={items} unitName={selectedName} editable={canManage} />
+    ) : null;
+  };
+
+  // Nội dung của từng nhóm; nhóm không có khối nào (ví dụ thiếu quyền) thì không hiện ở danh sách nhóm
+  const content: Record<SettingGroupKey, ReactNode[]> = {
+    general: [
+      rootId ? (
+        <SchoolSettingsBlock
+          key="school"
+          rootId={rootId}
+          editable={canManage && wholeSchoolSettingManager}
+          onSaved={setToastMessage}
+        />
+      ) : null,
+      unitCard('general'),
+    ],
+    levels: [
+      <SchoolLevelsBlock key="levels" editable={canManageLevels} onSaved={setToastMessage} />,
+      rootId ? (
+        <TeachingToolsSettingsBlock
+          key="tools"
+          rootId={rootId}
+          editable={canManage && wholeSchoolSettingManager}
+          onSaved={setToastMessage}
+        />
+      ) : null,
+    ],
+    fees: [unitCard('fees')],
+    staff: [unitCard('staff')],
+    health: [unitCard('health')],
+    conduct: [
+      canManageConduct ? <ConductSettingsBlock key="conduct" editable onSaved={setToastMessage} /> : null,
+      unitCard('conduct'),
+    ],
+    security: [
+      unitCard('security'),
+      wholeSchoolSettingManager ? <AccountLockSettings key="account" onSaved={setToastMessage} /> : null,
+      wholeSchoolSettingManager ? <LoginSecuritySettings key="login" onSaved={setToastMessage} /> : null,
+    ],
+  };
+  const hasContent = (group: SettingGroupKey) => {
+    switch (group) {
+      case 'general':
+        return rootId !== undefined || itemsOf(group).length > 0;
+      case 'levels':
+        return true;
+      case 'conduct':
+        return canManageConduct || itemsOf(group).length > 0;
+      case 'security':
+        return wholeSchoolSettingManager || itemsOf(group).length > 0;
+      default:
+        // Nhóm chỉ có mục theo đơn vị: còn đang tải thì vẫn hiện để danh sách nhóm không nhảy
+        return unitState.settings.isPending || itemsOf(group).length > 0;
+    }
+  };
+  const groups = SETTING_GROUPS.filter((group) => hasContent(group.key));
+  const selectGroup = (key: SettingGroupKey) => {
+    setActiveGroup(key);
+    document.getElementById(groupElementId(key))?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  };
 
   return (
     <AppShell>
       <Toast message={toastMessage} onClose={closeToast} />
-      <div className="flex flex-col gap-6">
-        <h1 className="text-page-title font-bold text-text">{menuPageTitle('/settings')}</h1>
-        {rootId ? (
-          <SchoolSettingsBlock
-            rootId={rootId}
-            editable={canManage && wholeSchoolSettingManager}
-            onSaved={setToastMessage}
-          />
-        ) : null}
-        {rootId ? (
-          <TeachingToolsSettingsBlock
-            rootId={rootId}
-            editable={canManage && wholeSchoolSettingManager}
-            onSaved={setToastMessage}
-          />
-        ) : null}
-        <SchoolLevelsBlock editable={canManageLevels} onSaved={setToastMessage} />
-        {canManageConduct ? <ConductSettingsBlock editable onSaved={setToastMessage} /> : null}
-        <section
-          className="flex flex-col gap-4 rounded-xl border border-border bg-card p-4"
-          aria-label="Cấu hình theo đơn vị"
-        >
-          <div className="flex flex-wrap items-end gap-3">
-            <div className="flex flex-col gap-2">
-              <label htmlFor="settings-unit" className="text-label font-medium text-text">
-                Đơn vị
-              </label>
-              <select
-                id="settings-unit"
-                value={selectedId ?? ''}
-                onChange={(event) => setOrgUnitId(event.target.value)}
-                className="rounded-lg border border-border bg-card px-3 py-2 text-content"
+      <div className="flex flex-col gap-4">
+        <div className="flex flex-wrap items-end justify-between gap-3">
+          <h1 className="text-page-title font-bold text-text">{menuPageTitle('/settings')}</h1>
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="text-label font-medium text-text-secondary" aria-hidden="true">
+              Áp dụng cho
+            </span>
+            <select
+              aria-label="Đơn vị"
+              value={selectedId ?? ''}
+              onChange={(event) => setOrgUnitId(event.target.value)}
+              className="rounded-lg border border-border bg-card px-3 py-2 text-content"
+            >
+              {(units.data ?? []).map((unit) => (
+                <option key={unit.id} value={unit.id}>
+                  {unit.name}
+                </option>
+              ))}
+            </select>
+            {canManage && selectedId ? (
+              <Button
+                variant="primary"
+                onClick={() => unitState.save.mutate(selectedId)}
+                disabled={unitState.save.isPending || !unitState.settings.data}
               >
-                {(units.data ?? []).map((unit) => (
-                  <option key={unit.id} value={unit.id}>
-                    {unit.name}
-                  </option>
-                ))}
-              </select>
-            </div>
-            <p className="text-label text-text-secondary">
-              Mục để trống thì dùng giá trị của Trường chính, nếu Trường chính cũng trống thì dùng mặc định. Ngày trong
-              tháng ghi số từ 1 đến 28 hoặc "cuối tháng"; ngày chốt học phí ghi thêm được "mùng 1 tháng sau"; ngày chốt
-              công cố định mùng 1 tháng sau; mốc nhắc nợ ghi các số cách nhau bằng dấu phẩy.
-            </p>
+                {unitState.save.isPending ? 'Đang lưu…' : 'Lưu cấu hình'}
+              </Button>
+            ) : null}
           </div>
-          {selectedId ? (
-            <UnitSettingsForm
-              key={selectedId}
-              orgUnitId={selectedId}
-              editable={canManage}
-              onSaved={() => setToastMessage('Đã lưu cấu hình')}
-            />
-          ) : (
-            <Alert tone="warning">Chưa có đơn vị. Hãy mở năm học và tạo cây đơn vị trước.</Alert>
-          )}
-        </section>
-        {wholeSchoolSettingManager ? <AccountLockSettings onSaved={setToastMessage} /> : null}
-        {wholeSchoolSettingManager ? <LoginSecuritySettings onSaved={setToastMessage} /> : null}
+        </div>
+        <p className="text-label text-text-secondary">
+          Mục theo đơn vị để trống thì dùng giá trị của Trường chính, rồi đến mặc định; nút Lưu cấu hình ghi mọi mục
+          theo đơn vị đã sửa. Khối áp cho cả trường có nút ghi riêng.
+        </p>
+        {units.isSuccess && !selectedId ? (
+          <Alert tone="warning">Chưa có đơn vị. Hãy mở năm học và tạo cây đơn vị trước.</Alert>
+        ) : null}
+        {unitState.settings.isError ? <Alert tone="danger">{messageOf(unitState.settings.error)}</Alert> : null}
+        {unitState.save.error ? <Alert tone="danger">{messageOf(unitState.save.error)}</Alert> : null}
+        <div className="grid grid-cols-1 gap-6 xl:grid-cols-[14rem_minmax(0,1fr)]">
+          <GroupNavigation groups={groups} active={activeGroup} onSelect={selectGroup} />
+          <div className="flex min-w-0 flex-col gap-8">
+            {groups.map((group) => (
+              <section
+                key={group.key}
+                id={groupElementId(group.key)}
+                aria-labelledby={`${groupElementId(group.key)}-title`}
+                className="flex scroll-mt-20 flex-col gap-3"
+              >
+                <div>
+                  <h2 id={`${groupElementId(group.key)}-title`} className="text-section-title font-semibold text-text">
+                    {group.label}
+                  </h2>
+                  {GROUP_HINTS[group.key] ? (
+                    <p className="text-label text-text-secondary">{GROUP_HINTS[group.key]}</p>
+                  ) : null}
+                </div>
+                {group.key !== 'levels' && group.key !== 'conduct' && unitState.settings.isPending && selectedId ? (
+                  <div className="h-24 animate-pulse rounded bg-border" aria-hidden="true" />
+                ) : null}
+                {content[group.key]}
+              </section>
+            ))}
+          </div>
+        </div>
       </div>
     </AppShell>
   );

@@ -63,11 +63,12 @@ function TeachingToolsForm({
       className="flex flex-col gap-4 rounded-xl border border-border bg-card p-4"
       aria-label="Hộp công cụ giảng dạy"
     >
-      <h2 className="text-section-title font-semibold text-text">Hộp công cụ giảng dạy</h2>
-      <p className="text-label text-text-secondary">
-        Công cụ đánh dấu thì giáo viên thấy ở ứng dụng giáo viên, theo cấp học của lớp đang dạy. Bỏ đánh dấu để tắt công
-        cụ cho cả trường.
-      </p>
+      <div>
+        <h3 className="text-content font-semibold text-text">Hộp công cụ giảng dạy</h3>
+        <p className="text-label text-text-secondary">
+          Ứng dụng giáo viên hiện công cụ đã đánh dấu, theo cấp của lớp; bỏ đánh dấu là tắt cho cả trường.
+        </p>
+      </div>
       {save.error ? (
         <Alert tone="danger">
           {save.error instanceof ApiError
@@ -79,7 +80,7 @@ function TeachingToolsForm({
         const tools = TEACHING_TOOLS.filter((tool) => tool.section === section.key);
         return tools.length > 0 ? (
           <fieldset key={section.key} className="flex flex-col gap-2">
-            <legend className="text-content font-semibold text-text">{section.label}</legend>
+            <legend className="text-label font-semibold text-text-secondary">{section.label}</legend>
             {tools.map((tool) => (
               <label key={tool.key} className="flex items-start gap-2 text-content text-text">
                 <input

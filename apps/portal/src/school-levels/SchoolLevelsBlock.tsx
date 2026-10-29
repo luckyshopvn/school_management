@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { Alert, Button, FORM_CONTROL_CLASS, FormBlock } from '@school-management/ui';
+import { Alert, Button, FORM_CONTROL_CLASS } from '@school-management/ui';
 import { ApiError } from '../session/api-client.js';
 import {
   listSchoolLevels,
@@ -88,78 +88,78 @@ function SchoolLevelsForm({
             : messageOf(save.error)}
         </Alert>
       ) : null}
-      <FormBlock title="Cấp học của trường">
-        <div className="overflow-x-auto">
-          <table className="w-full text-content">
-            <thead>
-              <tr className="text-left text-label text-text-secondary">
-                <th className="px-3 py-2">Bật</th>
-                <th className="px-3 py-2">Mã</th>
-                <th className="px-3 py-2">Thứ tự</th>
-                <th className="px-3 py-2">Tên hiển thị</th>
-                <th className="px-3 py-2">Gọi người học</th>
-                <th className="px-3 py-2">Nhãn ô ngữ cảnh</th>
-                <th className="px-3 py-2">Số lớp năm học này</th>
-              </tr>
-            </thead>
-            <tbody>
-              {rows.map((row, index) => (
-                <tr key={row.code} className="border-t border-border" data-testid={`school-level-${row.code}`}>
-                  <td className="px-3 py-2">
+      <div>
+        <h3 className="text-content font-semibold text-text">Cấp học của trường</h3>
+        <p className="text-label text-text-secondary">
+          Bật ít nhất một cấp. Cấp không xóa được; tắt cấp chỉ ẩn, lớp và học sinh giữ nguyên.
+        </p>
+      </div>
+      <div className="overflow-x-auto">
+        <table className="w-full text-content">
+          <thead>
+            <tr className="text-left text-label text-text-secondary">
+              <th className="px-3 py-2">Bật</th>
+              <th className="px-3 py-2">Mã</th>
+              <th className="px-3 py-2">Thứ tự</th>
+              <th className="px-3 py-2">Tên hiển thị</th>
+              <th className="px-3 py-2">Gọi người học</th>
+              <th className="px-3 py-2">Nhãn ô ngữ cảnh</th>
+              <th className="px-3 py-2">Số lớp năm học này</th>
+            </tr>
+          </thead>
+          <tbody>
+            {rows.map((row, index) => (
+              <tr key={row.code} className="border-t border-border" data-testid={`school-level-${row.code}`}>
+                <td className="px-3 py-2">
+                  <input
+                    type="checkbox"
+                    className="h-4 w-4"
+                    aria-label={`Bật cấp ${row.code}`}
+                    checked={row.is_enabled}
+                    disabled={!editable}
+                    onChange={(event) => change(row.code, { is_enabled: event.target.checked })}
+                  />
+                </td>
+                <td className="px-3 py-2 font-medium">{row.code}</td>
+                <td className="px-3 py-2">
+                  <input
+                    className={`${FORM_CONTROL_CLASS} w-20`}
+                    aria-label={`Thứ tự cấp ${row.code}`}
+                    inputMode="numeric"
+                    value={row.order_text}
+                    disabled={!editable}
+                    onChange={(event) => change(row.code, { order_text: event.target.value })}
+                  />
+                  {fieldError(index, 'order_no') ? (
+                    <p className="text-label text-danger">{fieldError(index, 'order_no')}</p>
+                  ) : null}
+                </td>
+                {(['display_name', 'learner_term', 'context_label'] as const).map((field) => (
+                  <td key={field} className="px-3 py-2">
                     <input
-                      type="checkbox"
-                      className="h-4 w-4"
-                      aria-label={`Bật cấp ${row.code}`}
-                      checked={row.is_enabled}
+                      className={FORM_CONTROL_CLASS}
+                      aria-label={`${field === 'display_name' ? 'Tên hiển thị' : field === 'learner_term' ? 'Gọi người học' : 'Nhãn ô ngữ cảnh'} cấp ${row.code}`}
+                      value={row[field]}
                       disabled={!editable}
-                      onChange={(event) => change(row.code, { is_enabled: event.target.checked })}
+                      onChange={(event) => change(row.code, { [field]: event.target.value })}
                     />
-                  </td>
-                  <td className="px-3 py-2 font-medium">{row.code}</td>
-                  <td className="px-3 py-2">
-                    <input
-                      className={`${FORM_CONTROL_CLASS} w-20`}
-                      aria-label={`Thứ tự cấp ${row.code}`}
-                      inputMode="numeric"
-                      value={row.order_text}
-                      disabled={!editable}
-                      onChange={(event) => change(row.code, { order_text: event.target.value })}
-                    />
-                    {fieldError(index, 'order_no') ? (
-                      <p className="text-label text-danger">{fieldError(index, 'order_no')}</p>
+                    {fieldError(index, field) ? (
+                      <p className="text-label text-danger">{fieldError(index, field)}</p>
                     ) : null}
                   </td>
-                  {(['display_name', 'learner_term', 'context_label'] as const).map((field) => (
-                    <td key={field} className="px-3 py-2">
-                      <input
-                        className={FORM_CONTROL_CLASS}
-                        aria-label={`${field === 'display_name' ? 'Tên hiển thị' : field === 'learner_term' ? 'Gọi người học' : 'Nhãn ô ngữ cảnh'} cấp ${row.code}`}
-                        value={row[field]}
-                        disabled={!editable}
-                        onChange={(event) => change(row.code, { [field]: event.target.value })}
-                      />
-                      {fieldError(index, field) ? (
-                        <p className="text-label text-danger">{fieldError(index, field)}</p>
-                      ) : null}
-                    </td>
-                  ))}
-                  <td className="px-3 py-2">{row.class_count}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </FormBlock>
+                ))}
+                <td className="px-3 py-2">{row.class_count}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
       {hiddenWithClasses.length > 0 ? (
         <Alert tone="warning">
           {hiddenWithClasses.map((row) => `Cấp ${row.code} đang có ${row.class_count} lớp`).join('; ')}. Tắt cấp chỉ ẩn
           cấp đó, lớp và học sinh giữ nguyên.
         </Alert>
       ) : null}
-      <p className="text-label text-text-secondary">
-        Trường liên cấp bật nhiều cấp. Phải bật ít nhất một cấp; cấp không xóa được, tắt cấp chỉ ẩn. Nhãn ô ngữ cảnh
-        hiện ở thanh đầu trang (ví dụ "Cấp MN"); thuật ngữ gọi người học là "Trẻ" ở Mầm non, "Học sinh" ở cấp khác.
-      </p>
       {editable ? (
         <div>
           <Button variant="primary" onClick={() => save.mutate()} disabled={save.isPending}>

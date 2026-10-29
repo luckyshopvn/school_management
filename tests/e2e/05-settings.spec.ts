@@ -24,11 +24,37 @@ test('Hiệu trưởng đặt ngày chốt học phí của Phân hiệu A; nh�
   await openMenu(page, '/settings');
   await page.getByLabel('Đơn vị', { exact: true }).selectOption({ label: 'Phân hiệu A' });
 
-  const row = page.getByRole('row').filter({ hasText: 'Ngày chốt học phí' });
-  await expect(row).toContainText('Mùng 1 tháng sau');
+  // Danh sách nhóm của trang (YCTD-335): đủ bảy nhóm theo thứ tự; bấm nhóm thì cuộn tới khối của nhóm
+  const groups = page.getByRole('navigation', { name: 'Nhóm cấu hình' });
+  await expect(groups.getByRole('button')).toHaveText([
+    'Thông tin chung',
+    'Cấp học',
+    'Học phí, dịch vụ',
+    'Nhân sự, chấm công',
+    'Y tế, bán trú, kho',
+    'Nề nếp, thi đua',
+    'Nhật ký, bảo mật',
+  ]);
+  await groups.getByRole('button', { name: 'Nhật ký, bảo mật' }).click();
+  await expect(groups.getByRole('button', { name: 'Nhật ký, bảo mật' })).toHaveAttribute('aria-current', 'true');
+  const securityGroup = page.getByRole('region', { name: 'Nhật ký, bảo mật', exact: true });
+  await expect(securityGroup.getByRole('heading', { name: 'Nhật ký, bảo mật' })).toBeInViewport();
+  await expect(securityGroup.getByRole('row').filter({ hasText: 'Ghi nhật ký truy cập dữ liệu' })).toHaveCount(1);
+  await expect(securityGroup.getByRole('region', { name: 'Cấu hình tài khoản' })).toBeVisible();
+
+  // Mục theo đơn vị nằm trong nhóm của mục; nguồn ghi gọn sau giá trị đang áp dụng, không còn cột Nguồn
+  const feesGroup = page.getByRole('region', { name: 'Học phí, dịch vụ', exact: true });
+  const row = feesGroup.getByRole('row').filter({ hasText: 'Ngày chốt học phí' });
+  await expect(row).toContainText('Mùng 1 tháng sau · mặc định');
   await expect(page.getByRole('row').filter({ hasText: 'Ngày chốt công' })).toHaveCount(0);
-  await expect(row).toContainText('Mặc định');
+  await expect(page.getByRole('columnheader', { name: 'Nguồn' })).toHaveCount(0);
   await expect(page.getByRole('row').filter({ hasText: 'Ngày đến hạn thanh toán' })).toContainText('Chưa cấu hình');
+  await expect(
+    page
+      .getByRole('region', { name: 'Nhân sự, chấm công', exact: true })
+      .getByRole('row')
+      .filter({ hasText: 'Giờ vào làm' }),
+  ).toHaveCount(1);
 
   await page.getByLabel('Ngày chốt học phí').fill('31');
   await page.getByRole('button', { name: 'Lưu cấu hình' }).click();
@@ -37,7 +63,7 @@ test('Hiệu trưởng đặt ngày chốt học phí của Phân hiệu A; nh�
   await page.getByLabel('Ngày chốt học phí').fill('25');
   await page.getByRole('button', { name: 'Lưu cấu hình' }).click();
   await expect(page.getByRole('status').filter({ hasText: 'Đã lưu cấu hình' })).toBeVisible();
-  await expect(row).toContainText('Riêng của đơn vị');
+  await expect(row).toContainText('25 · riêng của đơn vị');
 
   await expect(page.getByLabel('Số ngày không đăng nhập thì tự khóa tài khoản')).toHaveValue(/\d+/);
 

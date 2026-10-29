@@ -34,11 +34,12 @@ export function ConductSettingsBlock({ editable, onSaved }: { editable: boolean;
       className="flex flex-col gap-4 rounded-xl border border-border bg-card p-4"
       aria-label="Nề nếp, thi đua lớp"
     >
-      <h2 className="text-section-title font-semibold text-text">Nề nếp, thi đua lớp</h2>
-      <p className="text-label text-text-secondary">
-        Tuỳ trường. Bật thì giáo viên trực ghi điểm cộng, trừ theo tiêu chí cho lớp Tiểu học; điểm tuần của lớp là điểm
-        nền cộng tổng điểm đã ghi.
-      </p>
+      <div>
+        <h3 className="text-content font-semibold text-text">Nề nếp, thi đua lớp</h3>
+        <p className="text-label text-text-secondary">
+          Tuỳ trường. Bật thì giáo viên trực ghi điểm cộng, trừ cho lớp Tiểu học; điểm tuần = điểm nền + điểm đã ghi.
+        </p>
+      </div>
       {save.error ? <Alert tone="danger">{messageOf(save.error)}</Alert> : null}
       <div className="flex flex-wrap items-end gap-3">
         <label className="flex items-center gap-2 pb-2 text-label text-text">
