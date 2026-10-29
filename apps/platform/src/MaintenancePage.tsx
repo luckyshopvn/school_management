@@ -148,12 +148,7 @@ function CreateNoticeForm({ token, onCreated }: { token: string; onCreated: (out
         <fieldset className="stack" style={{ gap: '0.25rem', border: 0, margin: 0, padding: 0 }}>
           <legend className="field">Gửi tới</legend>
           <label className="check">
-            <input
-              type="radio"
-              name="gui-toi"
-              checked={audience === 'all'}
-              onChange={() => setAudience('all')}
-            />
+            <input type="radio" name="gui-toi" checked={audience === 'all'} onChange={() => setAudience('all')} />
             Mọi trường
           </label>
           <label className="check">
@@ -206,7 +201,9 @@ export function MaintenancePage({ token, role }: { token: string; role: Operator
       .notices(token)
       .then((reply) => setItems(reply.items))
       .catch((caught: unknown) =>
-        setLoadError(`Không đọc được danh sách thông báo: ${errorMessage(caught)}. Bấm Tải lại; lỗi lặp lại thì báo nhóm kỹ thuật.`),
+        setLoadError(
+          `Không đọc được danh sách thông báo: ${errorMessage(caught)}. Bấm Tải lại; lỗi lặp lại thì báo nhóm kỹ thuật.`,
+        ),
       );
   }, [token]);
   useEffect(load, [load]);
@@ -235,8 +232,8 @@ export function MaintenancePage({ token, role }: { token: string; role: Operator
         <div>
           <h1>Bảo trì</h1>
           <p className="lead">
-            Thông báo bảo trì gửi tới trường. Người dùng của trường thấy biểu ngữ từ 72 giờ trước giờ bắt đầu đến khi kết
-            thúc.
+            Thông báo bảo trì gửi tới trường. Người dùng của trường thấy biểu ngữ từ 72 giờ trước giờ bắt đầu đến khi
+            kết thúc.
           </p>
         </div>
       </div>

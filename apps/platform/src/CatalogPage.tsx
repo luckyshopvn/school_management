@@ -92,7 +92,9 @@ export function CatalogPage({
       .overview(token)
       .then(setOverview)
       .catch((caught: unknown) =>
-        setLoadError(`Không đọc được số liệu danh mục: ${errorMessage(caught)}. Bấm Tải lại; lỗi lặp lại thì báo nhóm kỹ thuật.`),
+        setLoadError(
+          `Không đọc được số liệu danh mục: ${errorMessage(caught)}. Bấm Tải lại; lỗi lặp lại thì báo nhóm kỹ thuật.`,
+        ),
       );
   }, [token]);
   useEffect(load, [load]);
@@ -105,7 +107,9 @@ export function CatalogPage({
       <div className="page-head">
         <div>
           <h1>Danh mục đơn vị</h1>
-          <p className="lead">Danh mục trường, phường xã toàn quốc dùng cho trang đăng nhập chọn đơn vị và việc mở trường.</p>
+          <p className="lead">
+            Danh mục trường, phường xã toàn quốc dùng cho trang đăng nhập chọn đơn vị và việc mở trường.
+          </p>
         </div>
       </div>
       <OutcomeBanner outcome={outcome} onClose={() => setOutcome(null)} />
@@ -125,7 +129,9 @@ export function CatalogPage({
                   <span className="muted">Đơn vị (trường)</span>
                   <strong data-testid="catalog-units">{count(overview.units)}</strong>
                   <span className="muted">
-                    {overview.levels.map((level) => `${level.name} ${count(overview.by_level[level.code])}`).join(' · ')}
+                    {overview.levels
+                      .map((level) => `${level.name} ${count(overview.by_level[level.code])}`)
+                      .join(' · ')}
                   </span>
                 </div>
                 <div className="card tile" role="listitem">
@@ -135,7 +141,9 @@ export function CatalogPage({
                 </div>
                 <div className="card tile" role="listitem">
                   <span className="muted">Lần nhập gần nhất</span>
-                  <strong style={{ fontSize: '1.25rem' }}>{lastRun ? shortTime(lastRun.started_at) : 'Chưa nhập'}</strong>
+                  <strong style={{ fontSize: '1.25rem' }}>
+                    {lastRun ? shortTime(lastRun.started_at) : 'Chưa nhập'}
+                  </strong>
                   {lastRun ? (
                     <span className="muted">
                       Thêm {count(lastRun.totals.units_inserted)} · sửa {count(lastRun.totals.units_updated)} · bỏ qua{' '}
@@ -158,8 +166,8 @@ export function CatalogPage({
               {overview.units === 0 ? (
                 <section className="card" style={{ marginBottom: '1.5rem' }}>
                   <EmptyState title="Danh mục chưa có đơn vị nào">
-                    Nhập tệp phường, xã trước, rồi tới tệp đơn vị. Kho mã công khai không chứa danh mục thật: tệp thật chỉ
-                    nạp ở máy chủ triển khai.
+                    Nhập tệp phường, xã trước, rồi tới tệp đơn vị. Kho mã công khai không chứa danh mục thật: tệp thật
+                    chỉ nạp ở máy chủ triển khai.
                   </EmptyState>
                 </section>
               ) : null}
@@ -725,7 +733,6 @@ export function CatalogUnitPicker({
   );
 }
 
-
 function LoginPageForm({ token, canManage }: { token: string; canManage: boolean }) {
   const [settings, setSettings] = useState<LoginPageSettings | null>(null);
   const [lines, setLines] = useState('');
@@ -774,8 +781,8 @@ function LoginPageForm({ token, canManage }: { token: string; canManage: boolean
       <OutcomeBanner outcome={outcome} onClose={() => setOutcome(null)} />
       {loadError ? <LoadError message={loadError} onRetry={load} /> : null}
       <p className="muted">
-        Không dùng tên, quốc huy hay biểu trưng của cơ quan nhà nước; tiêu đề là tên của nền tảng. Trường có tên miền riêng
-        dùng tên và biểu trưng của trường (Thiết lập, Thương hiệu).
+        Không dùng tên, quốc huy hay biểu trưng của cơ quan nhà nước; tiêu đề là tên của nền tảng. Trường có tên miền
+        riêng dùng tên và biểu trưng của trường (Thiết lập, Thương hiệu).
       </p>
       {!settings && !loadError ? <Skeleton lines={3} /> : null}
       {settings && canManage ? (
