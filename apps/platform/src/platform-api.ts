@@ -448,7 +448,23 @@ export interface SupportStartReply {
   handoff: { path: string; host: string | null; expires_in_seconds: number };
 }
 
+// Khối Tình trạng dịch vụ của trang Bảo trì (YCTD-376)
+export interface ServiceStatusItem {
+  key: 'identity' | 'api' | 'worker' | 'storage' | 'queue';
+  state: 'ok' | 'slow' | 'error' | 'unknown';
+  milliseconds: number | null;
+  detail: string;
+  observed_at: string | null;
+}
+
+export interface ServiceStatusReply {
+  checked_at: string;
+  slow_milliseconds: number;
+  items: ServiceStatusItem[];
+}
+
 export const dashboardApi = {
+  serviceStatus: (token: string) => call<ServiceStatusReply>(token, '/service-status'),
   overview: (token: string) => call<DashboardOverview>(token, '/dashboard'),
   errors: (token: string, school: string, hours: number) =>
     call<{ hours: number; items: ErrorCountRow[] }>(

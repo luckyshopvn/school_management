@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState, type FormEvent } from 'react';
 import { operatorCan, type OperatorRole } from '@school-management/shared';
-import { dashboardApi, type MaintenanceNotice } from './platform-api.js';
+import { dashboardApi, type MaintenanceNotice, type ServiceStatusReply } from './platform-api.js';
 import {
   ConfirmDialog,
   EmptyState,
@@ -186,6 +186,97 @@ function CreateNoticeForm({ token, onCreated }: { token: string; onCreated: (out
   );
 }
 
+// Tình trạng dịch vụ (YCTD-376, ĐX-CN-1): đo khi mở trang và khi bấm Kiểm lại, không tự làm mới; ngưỡng Chậm 1 giây
+const SERVICE_NAMES: Record<ServiceStatusReply['items'][number]['key'], string> = {
+  identity: 'Dịch vụ định danh',
+  api: 'Máy chủ API',
+  worker: 'Tiến trình nền',
+  storage: 'Lưu trữ tệp',
+  queue: 'Hàng đợi',
+};
+const SERVICE_STATES: Record<ServiceStatusReply['items'][number]['state'], { label: string; tone: string }> = {
+  ok: { label: 'Hoạt động', tone: 'ok' },
+  slow: { label: 'Chậm', tone: 'warn' },
+  error: { label: 'Lỗi', tone: 'danger' },
+  unknown: { label: 'Chưa rõ', tone: 'idle' },
+};
+
+function ServiceStatusCard({ token }: { token: string }) {
+  const [reply, setReply] = useState<ServiceStatusReply | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [busy, run] = useBusy();
+
+  const check = useCallback(
+    () =>
+      void run(async () => {
+        setError(null);
+        try {
+          setReply(await dashboardApi.serviceStatus(token));
+        } catch (caught) {
+          setError(`Không kiểm được tình trạng dịch vụ: ${errorMessage(caught)}`);
+        }
+      }),
+    [run, token],
+  );
+  useEffect(check, [check]);
+
+  return (
+    <section className="card" aria-labelledby="tinh-trang-dich-vu" style={{ marginBottom: '1.5rem' }}>
+      <div className="card-head">
+        <h2 id="tinh-trang-dich-vu">Tình trạng dịch vụ</h2>
+        <div className="button-row">
+          {reply ? <span className="muted">Kiểm lúc {shortTime(reply.checked_at)}</span> : null}
+          <button type="button" className="button-secondary" onClick={check} disabled={busy} aria-busy={busy}>
+            {busy ? 'Đang kiểm…' : 'Kiểm lại'}
+          </button>
+        </div>
+      </div>
+      {error ? (
+        <p className="field-error" role="alert">
+          {error}
+        </p>
+      ) : null}
+      {!reply && !error ? <Skeleton lines={3} label="Đang kiểm tình trạng dịch vụ" /> : null}
+      {reply ? (
+        <div className="table-scroll">
+          <table className="sticky-first" aria-label="Tình trạng dịch vụ" style={{ minWidth: 640 }}>
+            <thead>
+              <tr>
+                <th scope="col">Dịch vụ</th>
+                <th scope="col">Trạng thái</th>
+                <th scope="col" className="number">
+                  Thời gian phản hồi
+                </th>
+                <th scope="col">Chi tiết</th>
+              </tr>
+            </thead>
+            <tbody>
+              {reply.items.map((item) => (
+                <tr key={item.key}>
+                  <td className="nowrap">{SERVICE_NAMES[item.key]}</td>
+                  <td>
+                    <span className="status" data-tone={SERVICE_STATES[item.state].tone}>
+                      {SERVICE_STATES[item.state].label}
+                    </span>
+                  </td>
+                  <td className="number">{item.milliseconds === null ? '—' : `${item.milliseconds} ms`}</td>
+                  <td>
+                    {item.detail}
+                    {item.observed_at ? <div className="muted">Số liệu lúc {shortTime(item.observed_at)}</div> : null}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      ) : null}
+      <p className="muted" style={{ marginBottom: 0 }}>
+        Chậm khi phản hồi quá {(reply?.slow_milliseconds ?? 1000) / 1000} giây. Chỉ kiểm khi mở trang hoặc bấm Kiểm lại.
+      </p>
+    </section>
+  );
+}
+
 export function MaintenancePage({ token, role }: { token: string; role: OperatorRole }) {
   const canManage = operatorCan(role, 'maintenance.manage');
   const [items, setItems] = useState<MaintenanceNotice[] | null>(null);
@@ -239,6 +330,7 @@ export function MaintenancePage({ token, role }: { token: string; role: Operator
       </div>
       <OutcomeBanner outcome={outcome} onClose={() => setOutcome(null)} />
       {loadError ? <LoadError message={loadError} onRetry={load} /> : null}
+      <ServiceStatusCard token={token} />
       <div className="columns">
         <section className="card wide" aria-labelledby="danh-sach-thong-bao">
           <h2 id="danh-sach-thong-bao">Thông báo bảo trì</h2>
