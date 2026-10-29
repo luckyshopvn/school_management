@@ -355,15 +355,6 @@ export type {
   ExamAttemptEventType,
   ExamMode,
   ClassroomGameKind,
-  TutoringAttendanceStatus,
-  TutoringAudience,
-  TutoringContentType,
-  TutoringDelivery,
-  TutoringProgramStatus,
-  TutoringRegistrationStatus,
-  TutoringFeeBasis,
-  TutoringCancelRefund,
-  TutoringFundingSource,
   VideoRoomRole,
 } from '../school-year/schema.js';
 export { DEFAULT_TAX_TABLE_ID } from '../school-year/migrations/0022_create_payrolls.js';
