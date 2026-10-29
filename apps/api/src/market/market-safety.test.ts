@@ -695,9 +695,9 @@ describe('chợ gia sư: an toàn trẻ em và kiểm duyệt (27i)', () => {
       .execute();
     video.deferRecordingCompletion = true;
     try {
-      const started = await call(TUTOR_HOST, 'POST', `/tutor/bookings/${id}/session/start`, undefined, tutor.token);
+      const started = await call(MARKET_HOST, 'POST', `/tutor/bookings/${id}/session/start`, undefined, tutor.token);
       assert.equal(started.status, 200, JSON.stringify(started.body));
-      const ended = await call(TUTOR_HOST, 'POST', `/tutor/bookings/${id}/session/end`, undefined, tutor.token);
+      const ended = await call(MARKET_HOST, 'POST', `/tutor/bookings/${id}/session/end`, undefined, tutor.token);
       assert.equal(ended.body.recording, 'processing');
     } finally {
       video.deferRecordingCompletion = false;
