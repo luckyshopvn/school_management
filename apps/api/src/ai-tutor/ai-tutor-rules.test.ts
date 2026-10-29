@@ -1,8 +1,14 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import {
+  daysInMonth,
   monthlyWindow,
+  prorate,
   purchaseBlock,
+  remainingDaysOfMonth,
+  upgradeQuote,
+  type UpgradeCurrent,
+  type UpgradeTarget,
   topUpValidUntil,
   turnBalance,
   turnOrder,
@@ -164,5 +170,106 @@ describe('Gia sư AI: thứ tự trừ lượt', () => {
       ),
       { monthly: 60, topUp: 50 },
     );
+  });
+});
+
+describe('Gia sư AI: nâng gói giữa tháng', () => {
+  const current = (overrides: Partial<UpgradeCurrent> = {}): UpgradeCurrent => ({
+    planSource: 'school',
+    planKind: 'monthly',
+    planId: 'co-ban',
+    status: 'active',
+    periodMonth: '2026-10-01',
+    monthlyPrice: 79000,
+    monthlyTurns: 100,
+    ...overrides,
+  });
+  const target = (overrides: Partial<UpgradeTarget> = {}): UpgradeTarget => ({
+    source: 'school',
+    id: 'nang-cao',
+    kind: 'monthly',
+    status: 'active',
+    price: 149000,
+    turns: 300,
+    schoolLevels: ['TH', 'THCS', 'THPT'],
+    ...overrides,
+  });
+
+  it('số ngày của tháng: 31, 30, tháng 2 năm thường 28, năm nhuận 29', () => {
+    assert.equal(daysInMonth('2026-10-01'), 31);
+    assert.equal(daysInMonth('2026-11-01'), 30);
+    assert.equal(daysInMonth('2026-02-01'), 28);
+    assert.equal(daysInMonth('2028-02-01'), 29);
+  });
+
+  it('ngày còn lại tính cả hôm nay theo giờ Việt Nam; tháng chưa tới là cả tháng; tháng đã qua là 0', () => {
+    assert.deepEqual(remainingDaysOfMonth('2026-10-01', NOW), { remainingDays: 2, daysInMonth: 31 });
+    // 0 giờ ngày 1/10 giờ Việt Nam: cả tháng
+    assert.deepEqual(remainingDaysOfMonth('2026-10-01', new Date('2026-09-30T17:00:00Z')).remainingDays, 31);
+    // 23:59 ngày 31/10 giờ Việt Nam: còn đúng một ngày; một giây sau đã sang tháng 11
+    assert.equal(remainingDaysOfMonth('2026-10-01', new Date('2026-10-31T16:59:59Z')).remainingDays, 1);
+    assert.equal(remainingDaysOfMonth('2026-10-01', new Date('2026-10-31T17:00:00Z')).remainingDays, 0);
+    assert.equal(remainingDaysOfMonth('2026-11-01', NOW).remainingDays, 30);
+  });
+
+  it('phần theo tỉ lệ làm tròn tới đơn vị; không âm, không vượt cả phần', () => {
+    assert.equal(prorate(70000, 2, 31), 4516);
+    assert.equal(prorate(200, 2, 31), 13);
+    assert.equal(prorate(70000, 31, 31), 70000);
+    assert.equal(prorate(70000, 40, 31), 70000);
+    assert.equal(prorate(70000, 0, 31), 0);
+    assert.equal(prorate(70000, 5, 0), 0);
+  });
+
+  it('ngày 30/10 nâng Cơ bản lên Nâng cao: trả 4.516 đồng, cộng 13 lượt', () => {
+    assert.deepEqual(upgradeQuote(current(), target(), 'THCS', NOW), {
+      ok: true,
+      quote: {
+        remainingDays: 2,
+        daysInMonth: 31,
+        fromPrice: 79000,
+        toPrice: 149000,
+        fromTurns: 100,
+        toTurns: 300,
+        priceDifference: 4516,
+        extraTurns: 13,
+      },
+    });
+  });
+
+  it('ngày đầu tháng trả đủ chênh lệch; gói tháng sau đã mua trước thì cũng trả đủ', () => {
+    const firstDay = new Date('2026-09-30T17:00:00Z');
+    const quote = upgradeQuote(current(), target(), 'THCS', firstDay);
+    assert.equal(quote.ok && quote.quote.priceDifference, 70000);
+    assert.equal(quote.ok && quote.quote.extraTurns, 200);
+    const nextMonth = upgradeQuote(current({ periodMonth: '2026-11-01' }), target(), 'THCS', NOW);
+    assert.equal(nextMonth.ok && nextMonth.quote.remainingDays, 30);
+  });
+
+  it('không cho nâng: gói lượt, chưa kích hoạt, khác nguồn, gói ngừng bán, sai cấp, cùng gói, không cao hơn, tháng đã qua', () => {
+    const blocked = (value: ReturnType<typeof upgradeQuote>) => (value.ok ? 'ok' : value.code);
+    assert.equal(
+      blocked(upgradeQuote(current({ planKind: 'top_up', periodMonth: null }), target(), 'THCS', NOW)),
+      'not_monthly',
+    );
+    assert.equal(blocked(upgradeQuote(current(), target({ kind: 'top_up' }), 'THCS', NOW)), 'not_monthly');
+    assert.equal(blocked(upgradeQuote(current({ status: 'pending' }), target(), 'THCS', NOW)), 'not_active');
+    assert.equal(blocked(upgradeQuote(current({ status: 'cancelled' }), target(), 'THCS', NOW)), 'not_active');
+    assert.equal(blocked(upgradeQuote(current(), target({ source: 'platform' }), 'THCS', NOW)), 'source_mismatch');
+    assert.equal(blocked(upgradeQuote(current(), target({ status: 'archived' }), 'THCS', NOW)), 'plan_archived');
+    assert.equal(
+      blocked(upgradeQuote(current(), target({ schoolLevels: ['THPT'] }), 'THCS', NOW)),
+      'level_not_allowed',
+    );
+    assert.equal(blocked(upgradeQuote(current(), target({ id: 'co-ban' }), 'THCS', NOW)), 'same_plan');
+    assert.equal(blocked(upgradeQuote(current(), target({ price: 79000 }), 'THCS', NOW)), 'not_higher');
+    assert.equal(blocked(upgradeQuote(current(), target({ turns: 99 }), 'THCS', NOW)), 'not_higher');
+    assert.equal(blocked(upgradeQuote(current({ periodMonth: '2026-09-01' }), target(), 'THCS', NOW)), 'period_ended');
+  });
+
+  it('giá cao hơn một đồng, cùng số lượt (chỉ thêm quyền gửi ảnh) vẫn được nâng, không cộng lượt', () => {
+    const quote = upgradeQuote(current(), target({ price: 79001, turns: 100 }), 'THCS', NOW);
+    assert.equal(quote.ok && quote.quote.priceDifference, 0);
+    assert.equal(quote.ok && quote.quote.extraTurns, 0);
   });
 });
