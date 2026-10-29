@@ -295,4 +295,22 @@ export const PUBLIC_ROUTES: PublicRoute[] = [
     reason:
       'Quản trị chợ gia sư ở cổng nền tảng (DT-27 phần 27f): mã phiên vận hành (đối tượng riêng), chỉ ở tên miền PLATFORM_CONSOLE_HOST (tên miền khác 404)',
   })),
+  // Gói gia sư AI nền tảng bán thẳng cho phụ huynh (YCTD-383 lát L1b)
+  ...(
+    [
+      ['GET', '/api/v1/platform-ai-tutor/plans'],
+      ['POST', '/api/v1/platform-ai-tutor/plans'],
+      ['PUT', '/api/v1/platform-ai-tutor/plans/:id'],
+      ['POST', '/api/v1/platform-ai-tutor/plans/:id/status'],
+      ['GET', '/api/v1/platform-ai-tutor/orders'],
+      ['GET', '/api/v1/platform-ai-tutor/orders/:id'],
+      ['POST', '/api/v1/platform-ai-tutor/orders/:id/cancel'],
+      ['POST', '/api/v1/platform-ai-tutor/orders/:id/refund'],
+    ] as const
+  ).map(([method, path]) => ({
+    method,
+    path,
+    reason:
+      'Quản lý gói gia sư AI nền tảng bán, giao dịch, hoàn tiền ở cổng nền tảng (YCTD-383 lát L1b): không thuộc trường nào; mã phiên vận hành vai trò quản trị hoặc kế toán, chỉ ở tên miền PLATFORM_CONSOLE_HOST (tên miền khác 404)',
+  })),
 ];
