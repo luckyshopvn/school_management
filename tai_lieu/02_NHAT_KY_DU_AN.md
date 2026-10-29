@@ -32,7 +32,7 @@
 
 - Eric duyệt ngày 2026-10-29 cách xử lý năm điểm lệch quy trình và việc đánh lại số (qua phiên điều phối): phương án B, tài liệu riêng sang dải 40 đến 49, để trống 28 đến 39 để tham chiếu cũ còn sót không trỏ nhầm; giữ nguyên số cũ trong lịch sử `02`, `23`, `24` và trong chú thích tệp database migration; sửa chú thích mã nguồn khác; sửa AI-40; cập nhật `01` sang mười ba giai đoạn.
 - Số phiên bản do công cụ gom chốt theo thứ tự merge, không theo số đề xuất của tệp mảnh, nên tệp mảnh này nhận 0.238.0 thay vì 0.249.0 đề xuất.
-- Thẻ mốc tài liệu dạng `tai-lieu-<số>` (Eric chọn ngày 2026-10-29), `v<số>` giữ cho bản phần mềm đã nghiệm thu; gắn 256 thẻ (`tai-lieu-0.25.4` đến `tai-lieu-0.238.0`) sau khi PR này merge, bỏ qua 0.1.0 đến 0.25.3.
+- Thẻ mốc tài liệu dạng `tai-lieu-<số>` (Eric chọn ngày 2026-10-29), `v<số>` giữ cho bản phần mềm đã nghiệm thu; gắn 255 thẻ (`tai-lieu-0.25.4` đến `tai-lieu-0.238.0`) sau khi PR này merge, bỏ qua 0.1.0 đến 0.25.3.
 
 #### Thay đổi
 
