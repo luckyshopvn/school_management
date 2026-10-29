@@ -1659,6 +1659,7 @@ Giao kèo văn thư lưu trữ (YCTD-118):
 | GET | /api/v1/auth/platform/dashboard/errors?school=<mã>&hours=<1 đến 720> | Lỗi gom theo giờ (YCTD-197); `school=-` là lỗi không thuộc trường nào |
 | GET, POST | /api/v1/auth/platform/maintenance-notices | Danh sách, tạo thông báo bảo trì (YCTD-197, BR-226); dữ liệu sai 400; ghi nhật ký nền tảng |
 | POST | /api/v1/auth/platform/maintenance-notices/{id}/cancel | Hủy thông báo bảo trì (YCTD-197) |
+| GET | /api/v1/auth/platform/service-status | Tình trạng dịch vụ cho trang Bảo trì (YCTD-376): năm mục identity, api, worker, storage, queue, mỗi mục `state` (ok, slow, error, unknown), `milliseconds`, `detail`, `observed_at`; ngưỡng Chậm 1 giây; quyền `maintenance.view`; không có mã phiên 401 |
 | GET | /api/v1/auth/platform/schools/{mã}/support | Cho phép hỗ trợ của trường (đọc từ cơ sở dữ liệu hệ thống của trường) và 20 phiên hỗ trợ gần nhất (YCTD-197) |
 | POST | /api/v1/auth/platform/schools/{mã}/support-sessions | Mở phiên hỗ trợ `{ reason }` (YCTD-197, BR-227): trường không phục vụ hoặc chưa cho phép 422; trả `session_id`, `scope`, `expires_at`, `handoff` (`path` `/support-login?code=…`, `host`, `expires_in_seconds` 300) |
 | POST | /api/v1/auth/platform/support-sessions/{id}/end | Kết thúc phiên hỗ trợ, thu hồi phiên đăng nhập ở trường, ghi nhật ký hai phía (YCTD-197) |
