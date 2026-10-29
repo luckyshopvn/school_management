@@ -35,6 +35,10 @@
     "./external-identity": {
       "types": "./dist/external-identity/index.d.ts",
       "default": "./dist/external-identity/index.js"
+    },
+    "./service-status": {
+      "types": "./dist/service-status.d.ts",
+      "default": "./dist/service-status.js"
     }
   },
   "scripts": {

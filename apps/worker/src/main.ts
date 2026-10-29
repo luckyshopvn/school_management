@@ -1,3 +1,4 @@
+import { startHeartbeat } from './heartbeat.js';
 import { createRedisConnection } from './redis-connection.js';
 import { consumeGenerationQueue } from './timetable-generation.js';
 
@@ -9,8 +10,13 @@ let running = true;
 console.log('Tiến trình chạy nền đã kết nối Redis');
 
 const stopped = consumeGenerationQueue(redis, () => running);
+// Tín hiệu còn sống cho cổng vận hành (YCTD-376), kết nối riêng vì BLPOP giữ kết nối chính
+const heartbeatRedis = createRedisConnection();
+const stopHeartbeat = startHeartbeat(heartbeatRedis);
 
 process.on('SIGTERM', () => {
   running = false;
+  stopHeartbeat();
+  heartbeatRedis.disconnect();
   void stopped.finally(() => redis.disconnect());
 });
