@@ -429,6 +429,10 @@
   margin-bottom: 1.25rem;
 }
 
+.shell-platform .page-head > div:first-child {
+  flex: 1 1 28rem;
+}
+
 .shell-platform .page-head .lead {
   margin: 0;
 }
@@ -647,6 +651,17 @@
 .shell-platform .field textarea {
   padding: 0.5rem 0.6rem;
   resize: vertical;
+}
+
+/* Ô chọn nằm trong dòng bảng */
+.shell-platform select.inline-select {
+  min-height: 36px;
+  padding: 0 0.5rem;
+  border: 1px solid var(--pf-input-border);
+  border-radius: 8px;
+  background: #fff;
+  color: inherit;
+  font: inherit;
 }
 
 .shell-platform .field [aria-invalid='true'] {
