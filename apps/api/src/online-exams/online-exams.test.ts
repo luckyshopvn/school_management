@@ -1540,4 +1540,55 @@ describe('Thi trực tuyến cho học sinh', () => {
       'nhóm của bộ đã lưu trữ',
     );
   });
+
+  it('CT-1725: bài giao cho hai lớp: giáo viên chỉ chủ nhiệm hoặc chỉ dạy một lớp không xem, chấm, nộp thay, hủy được cả bài', async () => {
+    const sixA = await schoolYear
+      .selectFrom('classes')
+      .select(['academic_year_id', 'grade_level'])
+      .where('id', '=', classId)
+      .executeTakeFirstOrThrow();
+    const sixB = await schoolYear
+      .insertInto('classes')
+      .values({
+        org_unit_id: unitId,
+        academic_year_id: sixA.academic_year_id,
+        code: '6B',
+        name: '6B',
+        grade_level: sixA.grade_level,
+        school_level: 'THCS',
+        max_size: 45,
+      })
+      .returning('id')
+      .executeTakeFirstOrThrow();
+    // Giáo viên "other" chủ nhiệm 6B; giáo viên Toán chỉ dạy 6A
+    await schoolYear
+      .insertInto('class_staff_assignments')
+      .values({
+        class_id: sixB.id,
+        staff_user_id: other.userId,
+        staff_name: 'Giáo viên chủ nhiệm 6B',
+        assignment_role: 'homeroom',
+        from_date: addDays(vietnamToday, -60),
+      })
+      .execute();
+    const assignment = await createAssignment(
+      plainExamId,
+      { title: 'Kiểm tra hai lớp', class_ids: [classId, sixB.id] },
+      as(principal),
+    );
+    const an = students.An as Student;
+    an.accessToken = await signInStudent('An');
+    const started = await startAttempt(an.accessToken, assignment, 'off');
+    assert.equal(started.status, 200, JSON.stringify(started.body));
+    for (const teacher of [other, math]) {
+      assert.equal((await api('GET', `/online-exams/assignments/${assignment}`, as(teacher))).status, 403);
+      assert.equal((await api('GET', `/online-exams/attempts/${started.body.id}`, as(teacher))).status, 403);
+      assert.equal(
+        (await api('POST', `/online-exams/attempts/${started.body.id}/force-submit`, as(teacher))).status,
+        403,
+      );
+      assert.equal((await api('POST', `/online-exams/assignments/${assignment}/cancel`, as(teacher))).status, 403);
+    }
+    assert.equal((await api('GET', `/online-exams/assignments/${assignment}`, as(principal))).status, 200);
+  });
 });

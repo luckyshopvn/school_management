@@ -175,9 +175,14 @@ export class ChildrenService {
       limit: Math.min(filter.pageSize, PAGE_SIZE_LIMIT),
       offset: (filter.page - 1) * filter.pageSize,
     });
+    const healthVisible = await this.childScope.healthVisibleIds(
+      currentUser,
+      current.database,
+      rows.map((row) => row.id),
+    );
     const canSeeHealth = this.childScope.canSeeHealth(currentUser);
     return {
-      items: rows.map((row) => this.studentRow(row, canSeeHealth)),
+      items: rows.map((row) => this.studentRow(row, healthVisible.has(row.id))),
       page: filter.page,
       page_size: filter.pageSize,
       total,
@@ -213,7 +218,11 @@ export class ChildrenService {
     if (total > rowLimit) {
       throw new ExportTooLargeError(total);
     }
-    const canSeeHealth = this.childScope.canSeeHealth(currentUser);
+    const healthVisible = await this.childScope.healthVisibleIds(
+      currentUser,
+      database,
+      rows.map((row) => row.id),
+    );
     const columns = columnIds.flatMap((id) => STUDENT_EXPORT_COLUMNS.filter((column) => column.id === id));
     const createdAt = this.clock.now();
     return buildStudentWorkbook({
@@ -227,7 +236,7 @@ export class ChildrenService {
       orgUnitIds: [...new Set(rows.map((row) => row.org_unit_id))],
       columns: columns.map((column) => ({ key: column.id, label: column.label })),
       rows: rows.map((row) => {
-        const student = this.studentRow(row, canSeeHealth);
+        const student = this.studentRow(row, healthVisible.has(row.id));
         return Object.fromEntries(columns.map((column) => [column.id, column.value(student)]));
       }),
       ipAddress,
@@ -236,7 +245,8 @@ export class ChildrenService {
     });
   }
 
-  // Bộ lọc theo dân tộc, diện chính sách, khuyết tật chỉ cho nhóm vai trò xem sức khỏe (BR-53, YCTD-100)
+  // Bộ lọc theo dân tộc, diện chính sách, khuyết tật chỉ cho nhóm vai trò xem sức khỏe (BR-53, YCTD-100), và chỉ trên trẻ
+  // người dùng được xem sức khỏe
   private async studentPage(
     database: Kysely<SchoolYearDatabase>,
     currentUser: CurrentUser,
@@ -249,12 +259,15 @@ export class ChildrenService {
         'Lọc theo dân tộc, diện chính sách, khuyết tật cần vai trò được xem thông tin sức khỏe của trẻ',
       );
     }
-    const scope = await this.childScope.resolve(currentUser, database);
+    // Phạm vi xem sức khỏe nằm trong phạm vi xem trẻ nên dùng thay khi lọc theo cột nhạy cảm
+    const scope = usesSensitiveFilter(filter)
+      ? await this.childScope.resolveHealth(currentUser, database)
+      : await this.childScope.resolve(currentUser, database);
     const hash = filter.nationalId ? this.protection.hash(filter.nationalId) : null;
     return findStudents(database, this.childScope, scope, filter, hash, page);
   }
 
-  // Cột CSDL ngành của dòng học sinh xem cùng nhóm vai trò xem sức khỏe như ở hồ sơ (BR-53, YCTD-100)
+  // Cột CSDL ngành của dòng học sinh xem theo phạm vi xem sức khỏe như ở hồ sơ (BR-53, YCTD-100)
   private studentRow(row: StudentRecord, canSeeHealth: boolean) {
     const { national_id_last4: lastFour, birth_certificate_file_id: certificate, ...rest } = row;
     return {
@@ -434,7 +447,7 @@ export class ChildrenService {
     }
     // Thông tin CSDL ngành sửa được cùng nhóm vai trò xem được (BR-53, DT-16 phần 16g)
     const moetFields = changes.moet_fields && Object.keys(changes.moet_fields).length > 0 ? changes.moet_fields : null;
-    if (moetFields && !this.childScope.canSeeHealth(currentUser)) {
+    if (moetFields && !(await this.childScope.canSeeHealthOf(currentUser, database, childId))) {
       throw new ApplicationError(
         'ERR_FORBIDDEN',
         'Sửa dân tộc, diện chính sách, khuyết tật, biết bơi cần vai trò được xem thông tin sức khỏe của trẻ',
@@ -1077,9 +1090,9 @@ export class ChildrenService {
       .where('class_enrollments.child_id', '=', childId)
       .orderBy('class_enrollments.from_date', 'desc')
       .execute();
-    // Dữ liệu sức khỏe theo BR-53; người lập hồ sơ xem được khi hồ sơ còn nháp hoặc chờ duyệt
+    // Dữ liệu sức khỏe theo BR-53, xét theo từng trẻ; người lập hồ sơ xem được khi hồ sơ còn nháp hoặc chờ duyệt
     const canSeeHealth =
-      this.childScope.canSeeHealth(currentUser) ||
+      (await this.childScope.canSeeHealthOf(currentUser, database as Kysely<SchoolYearDatabase>, childId)) ||
       ((child.status === 'draft' || child.status === 'pending') &&
         currentUser.hasPermission(PERMISSION_CODES.childManage));
     const health = canSeeHealth

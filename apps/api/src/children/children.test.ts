@@ -825,4 +825,59 @@ describe('Hồ sơ trẻ, phụ huynh, duyệt và phân lớp', () => {
       assert.equal(fresh.status, 400, JSON.stringify(fresh.body));
     });
   });
+
+  describe('BR-53 Dữ liệu sức khỏe xét theo từng trẻ', () => {
+    it('CT-1723: vai trò bếp có con học ở trường, giáo viên chủ nhiệm lớp khác dạy bộ môn ở lớp của trẻ không xem được sức khỏe, dân tộc của trẻ; chủ nhiệm lớp của trẻ xem được', async () => {
+      const child = await enrolChild('ĐT-A1', 'L-A1', {
+        health: { has_allergies: true, allergies: 'Đậu phộng' },
+      });
+      await schoolYear
+        .updateTable('children')
+        .set({ moet_profile: JSON.stringify({ ethnicity: 'Kinh', disability_type: 'Khiếm thị' }) })
+        .where('id', '=', child.id as string)
+        .execute();
+      const kitchenParent = await environment.loginWithRoles([
+        { roleCode: 'VT-10', orgUnitId: unit('ĐT-A1') },
+        { roleCode: 'VT-14', orgUnitId: unit('ĐT-A1') },
+      ]);
+      // Giáo viên chủ nhiệm lớp khác, dạy bộ môn ở lớp của trẻ
+      const otherHomeroom = await environment.loginWithRoles([
+        { roleCode: 'VT-07', orgUnitId: unit('ĐT-A1') },
+        { roleCode: 'VT-08', orgUnitId: unit('ĐT-A1') },
+      ]);
+      const assigned = await api('POST', `/classes/${classes['L-A1']}/staff-assignments`, principal.accessToken, {
+        staff_user_id: otherHomeroom.userId,
+        assignment_role: 'subject',
+        subject_name: 'Âm nhạc',
+      });
+      assert.equal(assigned.status, 201, JSON.stringify(assigned.body));
+
+      for (const viewer of [kitchenParent, otherHomeroom]) {
+        const detail = await api('GET', `/children/${child.id}`, viewer.accessToken);
+        assert.equal(detail.status, 200, JSON.stringify(detail.body));
+        assert.equal(detail.body.health, null);
+        assert.equal(detail.body.moet_profile, null);
+        const listed = rows<{ id: string; ethnicity: string | null; disability_type: string | null }>(
+          ((await api('GET', '/children?page_size=100', viewer.accessToken)).body as { items: unknown }).items,
+        ).find((item) => item.id === child.id);
+        assert.ok(listed);
+        assert.equal(listed.ethnicity, null);
+        assert.equal(listed.disability_type, null);
+        const filtered = await api('GET', '/children?disability=true&page_size=100', viewer.accessToken);
+        assert.ok(
+          rows<{ id: string }>((filtered.body as { items?: unknown }).items ?? []).every(
+            (item) => item.id !== child.id,
+          ),
+        );
+      }
+
+      const homeroomDetail = await api('GET', `/children/${child.id}`, users.homeroom?.accessToken ?? '');
+      assert.equal((homeroomDetail.body.health as { allergies: string } | null)?.allergies, 'Đậu phộng');
+      const homeroomRow = rows<{ id: string; ethnicity: string | null }>(
+        ((await api('GET', '/children?page_size=100', users.homeroom?.accessToken ?? '')).body as { items: unknown })
+          .items,
+      ).find((item) => item.id === child.id);
+      assert.equal(homeroomRow?.ethnicity, 'Kinh');
+    });
+  });
 });

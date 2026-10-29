@@ -452,4 +452,20 @@ describe('Điểm cuối sổ đầu bài', () => {
       ],
     );
   });
+
+  it('CT-1724: điểm danh theo tiết của học sinh chỉ cho nhân sự có phạm vi với học sinh; giáo viên không dạy lớp bị từ chối', async () => {
+    const path = `/children/${children[0]}/period-attendance?month=2026-10`;
+    const outsider = await environment.loginAs('VT-08', unitId);
+    assert.equal((await api('GET', path, outsider.accessToken)).status, 403);
+    // Nhân sự văn phòng của đơn vị khác
+    const otherUnit = await api('POST', '/org-units', principal.accessToken, {
+      code: 'DT-20D',
+      name: 'Điểm trường thử',
+      unit_type: 'diem_truong',
+    });
+    assert.equal(otherUnit.status, 201, JSON.stringify(otherUnit.body));
+    const kitchen = await environment.loginAs('VT-10', otherUnit.body.id as string);
+    assert.equal((await api('GET', path, kitchen.accessToken)).status, 403);
+    assert.equal((await api('GET', path, principal.accessToken)).status, 200);
+  });
 });
