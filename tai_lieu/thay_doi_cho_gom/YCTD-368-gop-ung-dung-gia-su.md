@@ -65,7 +65,7 @@ phien_ban_de_xuat: 0.248.0
 - Dữ liệu, API, quyền bị ảnh hưởng: không có migration. `GET /market/public/site` bỏ `tutor_url`, `application`. `POST /market/auth/register` nhận `kind` do người dùng chọn ở mọi tên miền của chợ. `POST /market/auth/login`, `POST /market/identity/complete` (đăng nhập) không còn chặn theo tên miền. `POST /market/identity/start` lấy mục đích theo loại tài khoản. Máy chủ API không phục vụ tên miền cũ của ứng dụng Gia sư (404). Quyền theo loại tài khoản ở từng điểm cuối không đổi.
 - Ảnh hưởng chức năng cũ: tài khoản gia sư đăng nhập ở tên miền của chợ; liên kết cũ ở tên miền `gia-su.` chuyển hướng về chợ. Phiên gia sư cũ phải đăng nhập lại.
 - Kiểm thử cần thực hiện: kiểm kiểu `apps/api`, `apps/market`, `packages/market-client`, `apps/platform`, `tests`; kiểm thử máy chủ chợ; kiểm thử cấu hình chợ; kiểm thử Worker; e2e 195 đến 199.
-- Trạng thái: Đã triển khai
+- Trạng thái: Đã phê duyệt (Eric duyệt ngày 2026-10-29; làm theo lát L1 đến L5)
 
 ## 23 Lịch sử phiên bản
 
