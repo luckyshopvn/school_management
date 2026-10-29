@@ -11,6 +11,7 @@ import { createTestUser } from '@school-management/identity/testing';
 import ExcelJS from 'exceljs';
 import { E2E_SCHOOL_YEAR_DATABASE_PREFIX } from '../e2e-environment.mjs';
 import { openMenu } from './menu.js';
+import { clickGridMoreItem, gridMoreItem } from './grid.js';
 
 // Nhân sự đủ tính năng theo hệ thống của Sở (DT-16 phần 16f): 3.1.1 Thay đổi, Xóa, Xuất tệp theo mẫu Bộ; 3.1.2 Nhân sự phân
 // hiệu; 3.1.3 Nhập nhân sự từ Excel (mẫu 75 cột, tra cứu danh mục); 3.1.5 Đánh dấu đã xác thực số định danh (bản chạy nội
@@ -74,8 +75,9 @@ test('CT-16f-11: 3.1.1 Thay đổi mở hồ sơ dòng đã chọn, Xóa có h�
   await page.getByLabel('Tìm theo tên hoặc mã').fill(token);
   const grid = page.getByRole('region', { name: 'Danh sách nhân sự' });
   await expect(grid.getByRole('row').filter({ hasText: token })).toHaveCount(3);
+  // Thay đổi, Xóa chỉ hiện ở thanh "Đã chọn" khi có dòng được chọn (YCTD-333)
   const change = grid.getByRole('button', { name: 'Thay đổi', exact: true });
-  await expect(change).toBeDisabled();
+  await expect(change).toHaveCount(0);
   await grid.getByRole('checkbox', { name: `Chọn ${names.verify}` }).check();
   await change.click();
   // Hồ sơ mở ở trang riêng chia thẻ (YCTD-309); ô Dân tộc ở thẻ Hồ sơ CSDL Bộ
@@ -98,14 +100,14 @@ test('CT-16f-11: 3.1.1 Thay đổi mở hồ sơ dòng đã chọn, Xóa có h�
 
   // Tệp theo mẫu Bộ: không gửi đi, chỉ tải tệp
   const downloading = page.waitForEvent('download');
-  await grid.getByRole('button', { name: 'Xuất tệp theo mẫu Bộ' }).click();
+  await clickGridMoreItem(grid, 'Xuất tệp theo mẫu Bộ');
   const download = await downloading;
   expect(download.suggestedFilename()).toMatch(/^ho-so-can-bo-theo-mau-bo-.*\.xlsx$/);
   const workbook = new ExcelJS.Workbook();
   await workbook.xlsx.readFile(await download.path());
   expect(workbook.getWorksheet('Hồ sơ')?.getRow(1).cellCount).toBe(75);
   expect(workbook.getWorksheet('Kiểm tra dữ liệu')).toBeTruthy();
-  await expect(grid.getByRole('button', { name: 'Xuất file lỗi' })).toBeVisible();
+  await expect(await gridMoreItem(grid, 'Xuất file lỗi')).toBeVisible();
 });
 
 test('CT-16f-12: 3.1.5 đánh dấu đã xác thực, sai thông tin cần ghi chú; 5.6 tiến độ xác thực theo đơn vị', async ({

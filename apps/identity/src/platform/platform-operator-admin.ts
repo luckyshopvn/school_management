@@ -13,6 +13,7 @@ import { generateTemporaryPassword } from '../accounts/temporary-password.js';
 import { IDENTITY_CONFIGURATION, TENANCY_RUNTIME, type IdentityConfiguration } from '../common/configuration.js';
 import { createPlatformOperatorWithTotp, enrollOperatorTotp, PlatformOperatorsService } from './platform-operators.js';
 import { PlatformSchoolsService } from './platform-schools.js';
+import { operatorRolesFor } from '@school-management/shared';
 
 // Nhân viên vận hành của công ty (YCTD-311): quản trị nền tảng tạo tài khoản, phân vai, khóa, mở khóa, cấp lại khóa xác thực hai lớp
 // ở cổng nền tảng. Nhân viên chỉ vào dữ liệu trường qua phiên hỗ trợ trường đã cấp (support_access_grants, support-sessions), không
@@ -136,6 +137,7 @@ export class PlatformOperatorAdminService {
       fullName,
       password,
       role,
+      mustChangePassword: true,
     });
     await writeAudit(this.platform, {
       actorType: 'operator',
@@ -242,26 +244,26 @@ export class PlatformOperatorAdminController {
 
   @Get()
   async list(@Req() request: Request) {
-    await this.schools.actor(request, ['quan_tri']);
+    await this.schools.actor(request, operatorRolesFor('operators.manage'));
     return this.admin.list();
   }
 
   @Post()
   async create(@Body() body: Record<string, unknown> | undefined, @Req() request: Request) {
-    const actor = await this.schools.actor(request, ['quan_tri']);
+    const actor = await this.schools.actor(request, operatorRolesFor('operators.manage'));
     return this.admin.create(body, { id: actor.id ?? '' }, request.ip ?? null);
   }
 
   @Patch(':id')
   async update(@Param('id') id: string, @Body() body: Record<string, unknown> | undefined, @Req() request: Request) {
-    const actor = await this.schools.actor(request, ['quan_tri']);
+    const actor = await this.schools.actor(request, operatorRolesFor('operators.manage'));
     return this.admin.update(id, body, { id: actor.id ?? '' });
   }
 
   @Post(':id/totp-reset')
   @HttpCode(200)
   async resetTotp(@Param('id') id: string, @Body() body: Record<string, unknown> | undefined, @Req() request: Request) {
-    const actor = await this.schools.actor(request, ['quan_tri']);
+    const actor = await this.schools.actor(request, operatorRolesFor('operators.manage'));
     return this.admin.resetTotp(id, body, { id: actor.id ?? '' }, request.ip ?? null);
   }
 }

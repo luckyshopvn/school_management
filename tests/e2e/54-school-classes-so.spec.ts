@@ -11,6 +11,7 @@ import { createTestUser } from '@school-management/identity/testing';
 import ExcelJS from 'exceljs';
 import { E2E_SCHOOL_YEAR_DATABASE_PREFIX } from '../e2e-environment.mjs';
 import { expectNoMenuLink, logout, openMenu } from './menu.js';
+import { clickGridMoreItem } from './grid.js';
 
 // Trường học, lớp học theo hệ thống của Sở (DT-15 phần 15b, YCTD-111): 1.2 Quản lý phân hiệu, 1.3 Quản lý điểm trường,
 // 2.1 Hồ sơ lớp học trên lưới với biểu mẫu theo khối, 2.2 Nhập lớp học từ Excel, 3.3 Phân công phụ trách lớp. Chạy sau
@@ -210,7 +211,7 @@ test('CT-15b-9: 2.1 Hồ sơ lớp học: cột của Sở, thêm lớp theo kh�
   await expect(grid.getByRole('row', { name: 'Lớp Mầm 1', exact: true })).toHaveCount(0);
 
   // Bật cột Điểm trường (ẩn mặc định) rồi xuất Excel đúng các cột đang hiện
-  await grid.getByRole('button', { name: 'Cấu hình cột hiển thị' }).click();
+  await clickGridMoreItem(grid, 'Cấu hình cột hiển thị');
   const dialog = page.getByRole('dialog', { name: 'Cấu hình cột hiển thị' });
   await dialog.getByRole('checkbox', { name: 'Điểm trường', exact: true }).check();
   await dialog.getByRole('button', { name: 'Ghi' }).click();

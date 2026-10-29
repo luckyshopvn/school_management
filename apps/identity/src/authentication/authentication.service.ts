@@ -33,6 +33,7 @@ import { ImpersonationService, type ImpersonationDescription } from './impersona
 import { createRefreshToken, hashRefreshToken, readSessionIdFromRefreshToken, TokenService } from './token.service.js';
 import { SupportSessionsService, supportScopeForChannel } from '../platform/support-sessions.js';
 import { accountKindsOf, kindForChannel, maskLoginIdentifier } from '../accounts/national-id.js';
+import { InitialPasswordCodeService } from './initial-password-code.service.js';
 
 // Sai mật khẩu 5 lần liên tiếp thì tạm khóa 15 phút rồi tự mở (BM-04, XT-05)
 export const MAXIMUM_FAILED_LOGIN_COUNT = 5;
@@ -156,6 +157,7 @@ export class AuthenticationService {
     private readonly support: SupportSessionsService,
     private readonly totp: TotpService,
     @Inject(IDENTITY_CONFIGURATION) private readonly configuration: IdentityConfiguration,
+    private readonly initialPasswordCodes: InitialPasswordCodeService,
   ) {}
 
   private get database() {
@@ -466,11 +468,13 @@ export class AuthenticationService {
     await this.revokeSession(claims.sessionId, this.clock.now());
   }
 
-  // Đổi mật khẩu xong thì thu hồi các phiên khác và cấp lại mã cho phiên hiện tại
+  // Đổi mật khẩu xong thì thu hồi các phiên khác và cấp lại mã cho phiên hiện tại. Còn mật khẩu mặc định (YCTD-311) thì phải kèm mã xác
+  // nhận gửi tới số điện thoại của tài khoản (YCTD-323)
   async changePassword(
     claims: AccessTokenClaims,
     currentPassword: string,
     newPassword: string,
+    otpCode?: string,
   ): Promise<TokenResponse> {
     const now = this.clock.now();
     await this.findActiveSession(claims.sessionId, now);
@@ -493,6 +497,9 @@ export class AuthenticationService {
     }
     // Không cho dùng lại mật khẩu gần đây (DT-16 phần 16c)
     await assertPasswordNotReused(this.database, user, newPassword, await this.identitySettings.passwordHistoryCount());
+    if (user.initial_password_expires_at !== null) {
+      await this.initialPasswordCodes.consume(user.id, otpCode);
+    }
 
     const newHash = await hashPassword(newPassword);
     await this.database.transaction().execute(async (transaction) => {

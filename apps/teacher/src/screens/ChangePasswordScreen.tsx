@@ -1,13 +1,16 @@
 import { useState, type FormEvent } from 'react';
-import { Alert, Button, TextField } from '@school-management/ui';
-import { ApiError } from '../session/api-client.js';
+import { Alert, Button, PhoneCodeField, TextField } from '@school-management/ui';
+import { ApiError, sendChangePasswordCode } from '../session/api-client.js';
 import { useSession } from '../session/session.js';
 
-// MH-48 Đổi mật khẩu khi bắt buộc đổi ở lần đăng nhập đầu hoặc sau khi được đặt lại (BM-07)
+// MH-48 Đổi mật khẩu khi bắt buộc đổi ở lần đăng nhập đầu hoặc sau khi được đặt lại (BM-07). Còn mật khẩu mặc định thì máy chủ đòi
+// mã gửi tới số điện thoại: hiện ô mã khi máy chủ báo lỗi ở ô otp_code (YCTD-323)
 export function ChangePasswordScreen() {
   const session = useSession();
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
+  const [otpCode, setOtpCode] = useState('');
+  const [codeNeeded, setCodeNeeded] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string>();
   const [submitting, setSubmitting] = useState(false);
 
@@ -16,8 +19,11 @@ export function ChangePasswordScreen() {
     setErrorMessage(undefined);
     setSubmitting(true);
     try {
-      await session.changePassword(currentPassword, newPassword);
+      await session.changePassword(currentPassword, newPassword, otpCode.trim() || undefined);
     } catch (error) {
+      if (error instanceof ApiError && error.details.some((detail) => detail.field === 'otp_code')) {
+        setCodeNeeded(true);
+      }
       setErrorMessage(
         error instanceof ApiError
           ? [error.message, ...error.details.map((detail) => detail.message)].join('. ')
@@ -49,6 +55,7 @@ export function ChangePasswordScreen() {
           value={newPassword}
           onChange={(event) => setNewPassword(event.target.value)}
         />
+        {codeNeeded ? <PhoneCodeField value={otpCode} onChange={setOtpCode} onSend={sendChangePasswordCode} /> : null}
         <Button type="submit" variant="primary" disabled={submitting}>
           Lưu mật khẩu
         </Button>

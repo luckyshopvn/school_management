@@ -13,6 +13,7 @@ import { LoginRateLimiter } from './login-rate-limiter.js';
 import { isTotpRequiredError, TotpService } from './totp.service.js';
 import { PasswordResetService } from './password-reset.service.js';
 import { IdentitySettingsService } from '../settings/identity-settings.service.js';
+import { InitialPasswordCodeService } from './initial-password-code.service.js';
 import { OneTimeCodeService } from './one-time-code.service.js';
 import { clearRefreshTokenCookie, readRefreshTokenCookie, setRefreshTokenCookie } from './refresh-token-cookie.js';
 
@@ -53,6 +54,7 @@ export class AuthenticationController {
     private readonly identitySettings: IdentitySettingsService,
     private readonly impersonation: ImpersonationService,
     private readonly clock: Clock,
+    private readonly initialPasswordCodes: InitialPasswordCodeService,
   ) {}
 
   // Thông tin công khai của trang đăng nhập cổng quản trị: đường dây nóng, có luôn hiện mã xác nhận (DT-16 phần 16c)
@@ -232,7 +234,18 @@ export class AuthenticationController {
     if (errors.length > 0) {
       throw validationError(errors);
     }
-    return this.authenticationService.changePassword(request.accessTokenClaims, currentPassword, newPassword);
+    const otpCode =
+      typeof body?.otp_code === 'string' && body.otp_code.trim() !== '' ? body.otp_code.trim() : undefined;
+    return this.authenticationService.changePassword(request.accessTokenClaims, currentPassword, newPassword, otpCode);
+  }
+
+  // Gửi mã xác nhận tới số điện thoại khi tài khoản còn mật khẩu mặc định (YCTD-323); dùng được trong phiên chỉ đổi mật khẩu
+  @Post('change-password/code')
+  @HttpCode(200)
+  @UseGuards(AccessTokenGuard)
+  @AllowedWhilePasswordChangeRequired()
+  async sendChangePasswordCode(@Req() request: AuthenticatedRequest) {
+    return this.initialPasswordCodes.send(request.accessTokenClaims.userId);
   }
 
   // Xác thực hai lớp tuỳ chọn của người dùng trường (DT-SaaS phần S8b, YCTD-201): xem trạng thái, đăng ký, xác nhận, tắt; người quản lý

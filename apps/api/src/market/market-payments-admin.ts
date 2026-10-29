@@ -5,6 +5,7 @@ import { PublicEndpoint } from '../authentication/authentication.guard.js';
 import type { RequestBody } from '../common/request-fields.js';
 import { MarketBookingsService } from './market-bookings.js';
 import { MarketContext, marketNotFound } from './market-context.js';
+import { operatorRolesFor } from '@school-management/shared';
 
 // Thanh toán, tranh chấp, quy tắc hoa hồng ở cổng nền tảng (DT-27 phần 27h, YCTD-258): danh sách buổi và tiền, tranh chấp chờ quyết
 // định, quyết định có lý do (khiếu nại lại do nhân viên khác xét), quy tắc hoa hồng là dữ liệu có ngày hiệu lực (tỷ lệ thật Eric chốt,
@@ -19,7 +20,7 @@ export class MarketPaymentsAdminService {
   ) {}
 
   async overview(request: Request) {
-    await this.market.operator(request);
+    await this.market.operator(request, operatorRolesFor('market.payments'));
     const database = this.market.database;
     const [bookings, disputes, rules] = await Promise.all([
       database
@@ -83,26 +84,26 @@ export class MarketPaymentsAdminService {
   }
 
   async dispute(request: Request, id: string) {
-    await this.market.operator(request);
+    await this.market.operator(request, operatorRolesFor('market.payments'));
     if (!UUID.test(id)) throw marketNotFound();
     return this.bookings.disputeView(id);
   }
 
   async decide(request: Request, id: string, body: RequestBody) {
-    const operatorId = await this.market.operator(request);
+    const operatorId = await this.market.operator(request, operatorRolesFor('market.payments'));
     return this.bookings.decide(operatorId, id, body);
   }
 
   // Chốt ngay quyết định lần đầu (hai bên không khiếu nại lại) để chuyển tiền trước hạn 7 ngày
   async finalize(request: Request, id: string) {
-    const operatorId = await this.market.operator(request);
+    const operatorId = await this.market.operator(request, operatorRolesFor('market.payments'));
     if (!UUID.test(id)) throw marketNotFound();
     await this.bookings.finalizeDecided(operatorId, id);
     return this.bookings.disputeView(id);
   }
 
   async addRule(request: Request, body: RequestBody) {
-    const operatorId = await this.market.operator(request);
+    const operatorId = await this.market.operator(request, operatorRolesFor('market.payments'));
     const errors: FieldError[] = [];
     const kind = body?.content_kind ?? null;
     if (kind !== null && kind !== 'curriculum' && kind !== 'enrichment') {
@@ -146,7 +147,7 @@ export class MarketPaymentsAdminService {
   }
 
   async runDue(request: Request) {
-    const operatorId = await this.market.operator(request);
+    const operatorId = await this.market.operator(request, operatorRolesFor('market.payments'));
     const result = await this.bookings.runDue();
     await this.market.audit({ actorType: 'operator', actorId: operatorId, action: 'jobs.run', details: result });
     return result;

@@ -24,6 +24,7 @@ import { HealthController } from './health.controller.js';
 import { createSmsSender, SmsSender } from './messaging/sms-sender.js';
 import { DemoAwareSmsSender } from './messaging/demo-sms-sender.js';
 import { OneTimeCodeService } from './authentication/one-time-code.service.js';
+import { InitialPasswordCodeService } from './authentication/initial-password-code.service.js';
 import { CaptchaService } from './authentication/captcha.service.js';
 import { PasswordResetService } from './authentication/password-reset.service.js';
 import { ImpersonationService } from './authentication/impersonation.service.js';
@@ -54,6 +55,7 @@ import {
 } from './directory/unit-directory.js';
 import { PlatformCatalogController, PlatformCatalogService } from './platform/platform-catalog.js';
 import { CatalogProvisioningService } from './platform/catalog-provisioning.js';
+import { PlatformAuditController, PlatformAuditService } from './platform/platform-audit.js';
 import { ExternalIdentityController } from './external-identity/external-identity.controller.js';
 import { ExternalIdentityService } from './external-identity/external-identity.service.js';
 
@@ -92,6 +94,7 @@ export class ApplicationModule {
         UnitDirectoryController,
         LoginHandoffController,
         PlatformCatalogController,
+        PlatformAuditController,
         ExternalIdentityController,
       ],
       providers: [
@@ -106,6 +109,7 @@ export class ApplicationModule {
         TotpService,
         IdentityDataExportService,
         OneTimeCodeService,
+        InitialPasswordCodeService,
         CaptchaService,
         PasswordResetService,
         // Bản trình diễn không gửi tin nhắn thật (DT-18 phần 18h)
@@ -145,6 +149,7 @@ export class ApplicationModule {
         UnitDirectoryService,
         PlatformCatalogService,
         CatalogProvisioningService,
+        PlatformAuditService,
         ExternalIdentityService,
       ],
     };
