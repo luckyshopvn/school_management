@@ -6,9 +6,11 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "typecheck": "tsc -p tsconfig.json"
+    "typecheck": "tsc -p tsconfig.json",
+    "test": "node --test \"src/**/*.test.ts\""
   },
   "dependencies": {
+    "@fontsource/be-vietnam-pro": "5.3.0",
     "@school-management/shared": "workspace:*",
     "@school-management/ui": "workspace:*",
     "@tanstack/react-query": "^5.104.1",

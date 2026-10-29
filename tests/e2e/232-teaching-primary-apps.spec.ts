@@ -14,6 +14,8 @@ import { E2E_SCHOOL_YEAR_DATABASE_PREFIX, E2E_TEACHER_PORT } from '../e2e-enviro
 // chương, học xem đồng hồ, phân số trực quan, khung ô li; lớp Mầm non không có các mini app này. Dữ liệu giả
 const identity = createDatabase<IdentityDatabase>(readConnectionString('identity'));
 let schoolYear: ReturnType<typeof createDatabase<SchoolYearDatabase>>;
+// Lớp, trẻ thử xoá ở afterAll (kể cả khi kịch bản hỏng giữa chừng) để kịch bản đếm lớp theo cấp (84) không lệch
+const created: Array<{ classId: string; childId: string }> = [];
 const TEACHER_URL = `http://localhost:${E2E_TEACHER_PORT}`;
 
 test.beforeAll(async () => {
@@ -23,6 +25,12 @@ test.beforeAll(async () => {
 });
 
 test.afterAll(async () => {
+  for (const { classId, childId } of created) {
+    await schoolYear.deleteFrom('class_staff_assignments').where('class_id', '=', classId).execute();
+    await schoolYear.deleteFrom('class_enrollments').where('class_id', '=', classId).execute();
+    await schoolYear.deleteFrom('children').where('id', '=', childId).execute();
+    await schoolYear.deleteFrom('classes').where('id', '=', classId).execute();
+  }
   await schoolYear.destroy();
   await identity.destroy();
 });
@@ -71,8 +79,6 @@ test('CT-29c-5: mini app Tiểu học: bảng cửu chương, đồng hồ, phâ
     { name: preschool, level: 'MN', grade: reference.grade_level },
     { name: primary, level: 'TH', grade: 'T230' },
   ] as const;
-  // Lớp, trẻ thử xoá khi xong để kịch bản đếm lớp theo cấp (84) không lệch
-  const created: Array<{ classId: string; childId: string }> = [];
   for (const [index, { name, level, grade }] of classes.entries()) {
     const classRow = await schoolYear
       .insertInto('classes')
@@ -128,9 +134,9 @@ test('CT-29c-5: mini app Tiểu học: bảng cửu chương, đồng hồ, phâ
   await page.getByRole('tab', { name: /Bảng cửu chương/ }).click();
   await page.getByRole('button', { name: 'Bảng 7' }).click();
   await expect(page.getByRole('list', { name: 'Bảng nhân 7' })).toContainText('7 × 8 = 56');
-  await expect(page.getByLabel('Câu hỏi')).toContainText('= ?');
+  await expect(page.getByLabel('Câu hỏi', { exact: true })).toContainText('= ?');
   await page.getByRole('button', { name: 'Hiện đáp án' }).click();
-  await expect(page.getByLabel('Câu hỏi')).not.toContainText('?');
+  await expect(page.getByLabel('Câu hỏi', { exact: true })).not.toContainText('?');
 
   // Học xem đồng hồ: 7 giờ, tiến 15 phút
   await page.getByRole('tab', { name: /Học xem đồng hồ/ }).click();
@@ -153,10 +159,4 @@ test('CT-29c-5: mini app Tiểu học: bảng cửu chương, đồng hồ, phâ
   await expect(page.getByRole('tab', { name: /Gọi tên ngẫu nhiên/ })).toBeVisible();
   await expect(page.getByRole('tab', { name: /Bảng cửu chương/ })).toHaveCount(0);
   await page.context().close();
-  for (const { classId, childId } of created) {
-    await schoolYear.deleteFrom('class_staff_assignments').where('class_id', '=', classId).execute();
-    await schoolYear.deleteFrom('class_enrollments').where('class_id', '=', classId).execute();
-    await schoolYear.deleteFrom('children').where('id', '=', childId).execute();
-    await schoolYear.deleteFrom('classes').where('id', '=', classId).execute();
-  }
 });

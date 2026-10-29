@@ -103,5 +103,7 @@ export interface Child {
   school_level: 'TH' | 'THCS' | 'THPT';
   grade: number;
   consent_current: boolean;
+  // Con đọc tin nhắn khi phụ huynh cho (YCTD-364)
+  reads_messages: boolean;
   school_link: { school_code: string; grade: number; linked_at: string } | null;
 }

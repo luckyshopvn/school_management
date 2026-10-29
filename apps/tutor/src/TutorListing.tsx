@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Alert, Button, FORM_CONTROL_CLASS } from '@school-management/ui';
+import { Alert, Button, FORM_CONTROL_CLASS, StatusBadge } from '@school-management/ui';
 import { errorText, marketRequest } from '@school-management/market-client';
 import {
   LISTING_STATUS_LABELS,
@@ -22,6 +22,8 @@ const EMPTY_SUBJECT: Subject = {
   content_kind: 'enrichment',
   price_per_session: 150_000,
   session_minutes: 60,
+  package_sessions: null,
+  package_price: null,
 };
 
 export function TutorListing({ listing, onChange }: { listing: Listing; onChange: (next: Listing) => void }) {
@@ -55,15 +57,22 @@ export function TutorListing({ listing, onChange }: { listing: Listing; onChange
     setSlots(slots.map((item, position) => (position === index ? { ...item, ...patch } : item)));
 
   return (
-    <section aria-label="Hồ sơ dạy" className="flex flex-col gap-3">
-      <h2 className="text-section-title font-semibold">Hồ sơ dạy</h2>
-      <p>
-        Trạng thái: <strong>{LISTING_STATUS_LABELS[listing.status]}</strong>
-        {listing.review_note ? ` – ${listing.review_note}` : ''}
-      </p>
+    <section
+      id="ho-so-day"
+      aria-label="Hồ sơ dạy"
+      className="rounded-2xl border border-border bg-card flex flex-col gap-4 p-6"
+    >
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <h2 className="text-section-title font-semibold">Hồ sơ dạy</h2>
+        <StatusBadge
+          tone={listing.status === 'approved' ? 'success' : listing.status === 'rejected' ? 'danger' : 'warning'}
+          label={LISTING_STATUS_LABELS[listing.status]}
+        />
+      </div>
+      {listing.review_note ? <p>Ghi chú của nền tảng: {listing.review_note}</p> : null}
       {error ? <Alert tone="danger">{error}</Alert> : null}
       {message ? <Alert tone="success">{message}</Alert> : null}
-      <label className="flex flex-col">
+      <label className="flex flex-col gap-1 text-label font-medium">
         Ngôn ngữ dạy
         <input className={FORM_CONTROL_CLASS} value={language} onChange={(event) => setLanguage(event.target.value)} />
       </label>
@@ -75,9 +84,9 @@ export function TutorListing({ listing, onChange }: { listing: Listing; onChange
           <fieldset
             key={index}
             aria-label={`Môn ${index + 1}`}
-            className="flex flex-wrap items-end gap-2 rounded-lg border p-2"
+            className="flex flex-wrap items-end gap-2 rounded-xl border border-border bg-page p-3"
           >
-            <label className="flex flex-col">
+            <label className="flex flex-col gap-1 text-label font-medium">
               Tên môn
               <input
                 className={FORM_CONTROL_CLASS}
@@ -85,7 +94,7 @@ export function TutorListing({ listing, onChange }: { listing: Listing; onChange
                 onChange={(event) => updateSubject(index, { subject: event.target.value })}
               />
             </label>
-            <label className="flex flex-col">
+            <label className="flex flex-col gap-1 text-label font-medium">
               Cấp
               <select
                 className={FORM_CONTROL_CLASS}
@@ -104,7 +113,7 @@ export function TutorListing({ listing, onChange }: { listing: Listing; onChange
                 <option value="THPT">Trung học phổ thông</option>
               </select>
             </label>
-            <label className="flex flex-col">
+            <label className="flex flex-col gap-1 text-label font-medium">
               Từ lớp
               <select
                 className={FORM_CONTROL_CLASS}
@@ -118,7 +127,7 @@ export function TutorListing({ listing, onChange }: { listing: Listing; onChange
                 ))}
               </select>
             </label>
-            <label className="flex flex-col">
+            <label className="flex flex-col gap-1 text-label font-medium">
               Đến lớp
               <select
                 className={FORM_CONTROL_CLASS}
@@ -132,7 +141,7 @@ export function TutorListing({ listing, onChange }: { listing: Listing; onChange
                 ))}
               </select>
             </label>
-            <label className="flex flex-col">
+            <label className="flex flex-col gap-1 text-label font-medium">
               Loại nội dung
               <select
                 className={FORM_CONTROL_CLASS}
@@ -145,7 +154,7 @@ export function TutorListing({ listing, onChange }: { listing: Listing; onChange
                 <option value="curriculum">Môn của chương trình phổ thông</option>
               </select>
             </label>
-            <label className="flex flex-col">
+            <label className="flex flex-col gap-1 text-label font-medium">
               Giá mỗi buổi (đồng)
               <input
                 className={FORM_CONTROL_CLASS}
@@ -156,7 +165,7 @@ export function TutorListing({ listing, onChange }: { listing: Listing; onChange
                 onChange={(event) => updateSubject(index, { price_per_session: Number(event.target.value) })}
               />
             </label>
-            <label className="flex flex-col">
+            <label className="flex flex-col gap-1 text-label font-medium">
               Thời lượng (phút)
               <input
                 className={FORM_CONTROL_CLASS}
@@ -168,6 +177,34 @@ export function TutorListing({ listing, onChange }: { listing: Listing; onChange
                 onChange={(event) => updateSubject(index, { session_minutes: Number(event.target.value) })}
               />
             </label>
+            <label className="flex flex-col gap-1 text-label font-medium">
+              Số buổi của gói (trống: không bán gói)
+              <input
+                className={FORM_CONTROL_CLASS}
+                type="number"
+                min={2}
+                max={50}
+                value={item.package_sessions ?? ''}
+                onChange={(event) =>
+                  updateSubject(index, {
+                    package_sessions: event.target.value === '' ? null : Number(event.target.value),
+                  })
+                }
+              />
+            </label>
+            <label className="flex flex-col gap-1 text-label font-medium">
+              Giá cả gói (đồng)
+              <input
+                className={FORM_CONTROL_CLASS}
+                type="number"
+                min={0}
+                step={1000}
+                value={item.package_price ?? ''}
+                onChange={(event) =>
+                  updateSubject(index, { package_price: event.target.value === '' ? null : Number(event.target.value) })
+                }
+              />
+            </label>
             <Button onClick={() => setSubjects(subjects.filter((_, position) => position !== index))}>Bỏ môn</Button>
           </fieldset>
         );
@@ -175,8 +212,12 @@ export function TutorListing({ listing, onChange }: { listing: Listing; onChange
       <Button onClick={() => setSubjects([...subjects, EMPTY_SUBJECT])}>Thêm môn</Button>
       <h3 className="font-semibold">Giờ trống mỗi tuần (giờ Việt Nam)</h3>
       {slots.map((slot, index) => (
-        <fieldset key={index} aria-label={`Khung giờ ${index + 1}`} className="flex flex-wrap items-end gap-2">
-          <label className="flex flex-col">
+        <fieldset
+          key={index}
+          aria-label={`Khung giờ ${index + 1}`}
+          className="flex flex-wrap items-end gap-2 rounded-xl border border-border bg-page p-3"
+        >
+          <label className="flex flex-col gap-1 text-label font-medium">
             Thứ
             <select
               className={FORM_CONTROL_CLASS}
@@ -190,7 +231,7 @@ export function TutorListing({ listing, onChange }: { listing: Listing; onChange
               ))}
             </select>
           </label>
-          <label className="flex flex-col">
+          <label className="flex flex-col gap-1 text-label font-medium">
             Từ
             <input
               className={FORM_CONTROL_CLASS}
@@ -199,7 +240,7 @@ export function TutorListing({ listing, onChange }: { listing: Listing; onChange
               onChange={(event) => updateSlot(index, { start_minute: parseTime(event.target.value) })}
             />
           </label>
-          <label className="flex flex-col">
+          <label className="flex flex-col gap-1 text-label font-medium">
             Đến
             <input
               className={FORM_CONTROL_CLASS}

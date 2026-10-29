@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
+import { Alert } from '@school-management/ui';
 import {
   ChildSafetyPolicy,
   MarketShell,
@@ -6,6 +7,7 @@ import {
   MessageInbox,
   type Child,
 } from '@school-management/market-client';
+import { ParentIdentityLogin, useParentIdentityReturn } from './ParentAccount.js';
 import { ParentArea } from './ParentArea.js';
 import { ParentBookings } from './ParentBookings.js';
 import { SafetyPage } from './SafetyPage.js';
@@ -47,6 +49,7 @@ function ParentHome({ page, onPage }: { page: Page | null; onPage: (next: Page) 
 }
 
 export function MarketApplication() {
+  const identityReturn = useParentIdentityReturn();
   const [page, setPage] = useState<Page | null>(pageFromHash);
   useEffect(() => {
     const onHash = () => setPage(pageFromHash());
@@ -57,40 +60,48 @@ export function MarketApplication() {
     setPage(next);
     window.history.replaceState(null, '', `#${next}`);
   }, []);
+  if (identityReturn.pending) {
+    return <p className="p-4">Đang hoàn tất đăng nhập bằng định danh…</p>;
+  }
   return (
-    <MarketShell
-      kind="parent"
-      title="Chợ gia sư"
-      navigation={
-        <nav aria-label="Điều hướng chợ" className="flex flex-wrap gap-1">
-          {PAGES.map((row) => (
-            <button
-              key={row.key}
-              type="button"
-              aria-current={page === row.key ? 'page' : undefined}
-              className={`min-h-11 rounded-lg px-3 font-medium ${
-                page === row.key ? 'bg-selected text-brand-strong' : 'text-text hover:bg-page'
-              }`}
-              onClick={() => open(row.key)}
-            >
-              {row.label}
-            </button>
-          ))}
-        </nav>
-      }
-      intro={(site) => (
-        <section aria-label="Giới thiệu" className="flex flex-col gap-5">
-          {site?.tutor_url ? (
-            <p className="text-label text-text-secondary">
-              Bạn là gia sư? <a href={site.tutor_url}>Mở ứng dụng Gia sư</a>
-            </p>
-          ) : null}
-          <TutorSearch />
-          <ChildSafetyPolicy />
-        </section>
-      )}
-    >
-      <ParentHome page={page} onPage={open} />
-    </MarketShell>
+    <>
+      {identityReturn.message ? <Alert tone="success">{identityReturn.message}</Alert> : null}
+      {identityReturn.error ? <Alert tone="danger">{identityReturn.error}</Alert> : null}
+      <MarketShell
+        kind="parent"
+        title="Chợ gia sư"
+        loginExtras={<ParentIdentityLogin />}
+        navigation={
+          <nav aria-label="Điều hướng chợ" className="flex flex-wrap gap-1">
+            {PAGES.map((row) => (
+              <button
+                key={row.key}
+                type="button"
+                aria-current={page === row.key ? 'page' : undefined}
+                className={`min-h-11 rounded-lg px-3 font-medium ${
+                  page === row.key ? 'bg-selected text-brand-strong' : 'text-text hover:bg-page'
+                }`}
+                onClick={() => open(row.key)}
+              >
+                {row.label}
+              </button>
+            ))}
+          </nav>
+        }
+        intro={(site) => (
+          <section aria-label="Giới thiệu" className="flex flex-col gap-5">
+            {site?.tutor_url ? (
+              <p className="text-label text-text-secondary">
+                Bạn là gia sư? <a href={site.tutor_url}>Mở ứng dụng Gia sư</a>
+              </p>
+            ) : null}
+            <TutorSearch />
+            <ChildSafetyPolicy />
+          </section>
+        )}
+      >
+        <ParentHome page={page} onPage={open} />
+      </MarketShell>
+    </>
   );
 }

@@ -79,6 +79,8 @@ export async function readListing(database: Database, accountId: string): Promis
         'content_kind',
         'price_per_session',
         'session_minutes',
+        'package_sessions',
+        'package_price',
       ])
       .where('account_id', '=', accountId)
       .orderBy('created_at')
