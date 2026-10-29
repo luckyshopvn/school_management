@@ -2492,6 +2492,7 @@ Số GD và RR của DT-27 bắt đầu từ GD-130 và RR-28: DT-26 dùng GD-12
 | GD-137 | Thư viện bảng trắng | Thư viện mã nguồn mở có giấy phép dùng thương mại, chọn và ghi giấy phép lúc làm | mã 27a | Claude (theo ủy quyền) |
 | GD-138 | Khấu trừ thuế ở chợ | Công tắc tắt đến khi luật sư kết luận (E-03); tỷ lệ là dữ liệu có ngày hiệu lực | cấu hình chợ | Eric, luật sư |
 | GD-164 | Mốc của phòng học video ở chợ (quyết định của Eric ngày 2026-10-29) | Mở phòng trước giờ học 10 phút; vào muộn quá 15 phút tính vắng; gia sư vắng quá 10 phút thì phụ huynh báo và được hoàn đủ; có mặt từ 80% thời lượng là đủ buổi; gia sư không xác nhận thì tự xác nhận sau 24 giờ; phụ huynh vào xem luôn tắt micro trừ khi gia sư cho nói | cấu hình chợ (`platform_settings.market`) | Eric (đã chốt; cổng vận hành chỉnh được) |
+| GD-165 | Gói buổi ở chợ (quyết định của Eric ngày 2026-10-29) | Dùng trong 8 tuần kể từ lúc trả tiền; hết hạn thì hoàn phần buổi chưa học theo giá mỗi buổi của gói; hủy trước buổi đầu thì hoàn đủ; gia sư bị tạm khóa thì hoàn phần còn lại; mỗi buổi giải ngân riêng sau hạn khiếu nại | cấu hình chợ (`package_valid_days`) | Eric (đã chốt) |
 
 ### 19.12 Phần 27j: phòng học video của chợ (YCTD-362)
 
@@ -2526,8 +2527,19 @@ Các chức năng còn lại trong bản thiết kế Eric duyệt ngày 2026-10
   - phụ huynh bật cho từng con; con chỉ đọc các luồng tin của phụ huynh với gia sư có buổi với con, trên máy và bằng phiên của phụ huynh;
   - không có điểm cuối gửi tin cho con, không có kênh riêng giữa gia sư và trẻ;
   - thoát chế độ con đọc phải nhập lại mật khẩu của phụ huynh; mỗi lần mở ghi nhật ký.
-- **Gói buổi:** chưa làm, chờ Eric chốt quy tắc hạn dùng và hoàn tiền phần chưa học.
+- **Gói buổi:** làm ở YCTD-365 (mục 19.14).
 - **Giao diện duyệt đánh giá ở cổng vận hành:** làm cùng YCTD-363.
+
+### 19.14 Gói buổi (YCTD-365)
+
+Quy tắc theo GD-165 (Eric chốt ngày 2026-10-29), cơ sở dữ liệu chợ marketplace 0051:
+
+- gia sư đặt gói cho từng môn trong hồ sơ dạy (số buổi, giá cả gói);
+- phụ huynh mua gói, trả một lần (bản này giả lập, giữ chỗ 30 phút); gói dùng trong 8 tuần kể từ lúc trả tiền (cấu hình chợ `package_valid_days`);
+- mỗi buổi đặt từ gói là một buổi đã trả tiền với giá mỗi buổi của gói (giá gói chia số buổi, làm tròn xuống), có dòng thanh toán riêng đang giữ, giải ngân riêng sau hạn khiếu nại; khi chuyển tiền, mã tham chiếu của buổi đổi về lệnh thu của gói;
+- hủy buổi trong gói thì trả lượt về gói (phụ huynh hủy phải trước giờ học 24 giờ); gia sư hủy, gia sư vắng, không đồng ý ghi hình cũng trả lượt;
+- hết hạn dùng thì hoàn phần buổi chưa học và phần dư làm tròn; hủy gói trước buổi đầu thì hoàn đủ; gia sư bị tạm khóa thì hoàn phần còn lại;
+- bản này chạy với bộ giả lập thanh toán; khi có nhà cung cấp có giấy phép (E-02) cần nối giải ngân, hoàn từng phần theo một lệnh thu của gói.
 
 
 ## 20. DT-28: hệ thống quản lý học tập (LMS) cho trường phổ thông (28a đến 28j)

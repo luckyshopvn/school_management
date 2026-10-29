@@ -22,6 +22,8 @@ const EMPTY_SUBJECT: Subject = {
   content_kind: 'enrichment',
   price_per_session: 150_000,
   session_minutes: 60,
+  package_sessions: null,
+  package_price: null,
 };
 
 export function TutorListing({ listing, onChange }: { listing: Listing; onChange: (next: Listing) => void }) {
@@ -173,6 +175,34 @@ export function TutorListing({ listing, onChange }: { listing: Listing; onChange
                 step={15}
                 value={item.session_minutes}
                 onChange={(event) => updateSubject(index, { session_minutes: Number(event.target.value) })}
+              />
+            </label>
+            <label className="flex flex-col gap-1 text-label font-medium">
+              Số buổi của gói (trống: không bán gói)
+              <input
+                className={FORM_CONTROL_CLASS}
+                type="number"
+                min={2}
+                max={50}
+                value={item.package_sessions ?? ''}
+                onChange={(event) =>
+                  updateSubject(index, {
+                    package_sessions: event.target.value === '' ? null : Number(event.target.value),
+                  })
+                }
+              />
+            </label>
+            <label className="flex flex-col gap-1 text-label font-medium">
+              Giá cả gói (đồng)
+              <input
+                className={FORM_CONTROL_CLASS}
+                type="number"
+                min={0}
+                step={1000}
+                value={item.package_price ?? ''}
+                onChange={(event) =>
+                  updateSubject(index, { package_price: event.target.value === '' ? null : Number(event.target.value) })
+                }
               />
             </label>
             <Button onClick={() => setSubjects(subjects.filter((_, position) => position !== index))}>Bỏ môn</Button>

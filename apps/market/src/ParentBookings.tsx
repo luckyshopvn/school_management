@@ -8,6 +8,7 @@ import {
   ReportForm,
   type Child,
 } from '@school-management/market-client';
+import { PackagesPanel } from './Packages.js';
 import { ReviewPanel } from './ReviewForm.js';
 import { SessionRoom } from './SessionRoom.js';
 import { CARD_CLASS, money, when } from './styles.js';
@@ -46,6 +47,9 @@ export interface BookableSubject {
   content_kind: string;
   price_per_session: number;
   session_minutes: number;
+  // Gói buổi (YCTD-365): trống là gia sư không bán gói cho môn này
+  package_sessions?: number | null;
+  package_price?: number | null;
 }
 
 interface Booking {
@@ -58,6 +62,8 @@ interface Booking {
   minutes: number;
   price: number;
   status: string;
+  // Buổi đặt từ gói (YCTD-365)
+  package_id?: string | null;
   refunded_amount: number | null;
   dispute_status: string | null;
   decision: string | null;
@@ -93,6 +99,8 @@ export function BookingForm({
     recording: false,
   });
   const [booked, setBooked] = useState<Booking>();
+  const [mode, setMode] = useState<'single' | 'package'>('single');
+  const [packageBought, setPackageBought] = useState<{ sessions_total: number; price_total: number }>();
   const [error, setError] = useState<string>();
   useEffect(() => {
     if (!readSession()) return;
@@ -122,12 +130,29 @@ export function BookingForm({
   }
   const subject = subjects.find((item) => item.id === form.subject_id);
   const needsAttest = schoolTeacher && subject?.content_kind === 'curriculum';
+  const hasPackage = Boolean(subject?.package_sessions && subject.package_price);
+  const buyingPackage = hasPackage && mode === 'package';
   return (
     <form
       aria-label={`Đặt buổi với ${tutorName}`}
       className={shell}
       onSubmit={(event) => {
         event.preventDefault();
+        if (buyingPackage) {
+          marketRequest<{ sessions_total: number; price_total: number }>('POST', '/packages', {
+            tutor_id: tutorId,
+            child_id: form.child_id,
+            subject_id: form.subject_id,
+            no_assignment_attested: form.attest,
+            recording_consented: form.recording,
+          })
+            .then((result) => {
+              setError(undefined);
+              setPackageBought(result);
+            })
+            .catch((caught: unknown) => setError(errorText(caught)));
+          return;
+        }
         marketRequest<Booking>('POST', '/bookings', {
           tutor_id: tutorId,
           child_id: form.child_id,
@@ -145,6 +170,19 @@ export function BookingForm({
     >
       <h3 className="text-section-title font-semibold">Đặt buổi học</h3>
       {error ? <Alert tone="danger">{error}</Alert> : null}
+      {packageBought ? (
+        <div className="flex flex-col gap-2">
+          <Alert tone="success">
+            Đã giữ chỗ gói {packageBought.sessions_total} buổi, {money(packageBought.price_total)}. Trả tiền giả lập ở
+            mục Buổi học của con trong 30 phút, rồi đặt từng buổi từ gói.
+          </Alert>
+          {onBooked ? (
+            <Button variant="primary" onClick={onBooked}>
+              Sang thanh toán giả lập
+            </Button>
+          ) : null}
+        </div>
+      ) : null}
       {booked ? (
         <div className="flex flex-col gap-2">
           <Alert tone="success">
@@ -186,15 +224,41 @@ export function BookingForm({
           ))}
         </select>
       </label>
-      <label className="flex flex-col gap-1 text-label font-medium">
-        Giờ học (giờ Việt Nam)
-        <input
-          className={FORM_CONTROL_CLASS}
-          type="datetime-local"
-          value={form.starts_at}
-          onChange={(event) => setForm({ ...form, starts_at: event.target.value })}
-        />
-      </label>
+      {hasPackage && subject ? (
+        <fieldset className="flex flex-col gap-2">
+          <legend className="mb-1 text-label font-semibold">Đặt theo</legend>
+          <label
+            className={`flex items-center gap-2 rounded-xl border p-3 ${mode === 'single' ? 'border-2 border-brand' : 'border-border'}`}
+          >
+            <input type="radio" name="dat-theo" checked={mode === 'single'} onChange={() => setMode('single')} />
+            <span className="flex-1">Buổi lẻ</span>
+            <strong>{money(subject.price_per_session)}</strong>
+          </label>
+          <label
+            className={`flex items-center gap-2 rounded-xl border p-3 ${mode === 'package' ? 'border-2 border-brand' : 'border-border'}`}
+          >
+            <input type="radio" name="dat-theo" checked={mode === 'package'} onChange={() => setMode('package')} />
+            <span className="flex-1">Gói {subject.package_sessions} buổi</span>
+            <strong>{money(subject.package_price ?? 0)}</strong>
+          </label>
+        </fieldset>
+      ) : null}
+      {buyingPackage ? (
+        <p className="text-label text-text-secondary">
+          Gói dùng trong thời hạn của chợ (mặc định 8 tuần) kể từ lúc trả tiền. Hết hạn thì hoàn phần buổi chưa học; hủy
+          gói trước buổi đầu thì hoàn đủ. Trả tiền xong thì đặt từng buổi ở mục Buổi học của con.
+        </p>
+      ) : (
+        <label className="flex flex-col gap-1 text-label font-medium">
+          Giờ học (giờ Việt Nam)
+          <input
+            className={FORM_CONTROL_CLASS}
+            type="datetime-local"
+            value={form.starts_at}
+            onChange={(event) => setForm({ ...form, starts_at: event.target.value })}
+          />
+        </label>
+      )}
       {needsAttest ? (
         <label className="flex items-start gap-2 rounded-lg bg-warning/10 p-3 text-label">
           <input
@@ -230,7 +294,7 @@ export function BookingForm({
         Giữ chỗ 30 phút. Chưa trả trong thời gian này thì chỗ được nhả.
       </p>
       <Button type="submit" variant="primary">
-        Giữ chỗ buổi học
+        {buyingPackage ? 'Giữ chỗ gói buổi' : 'Giữ chỗ buổi học'}
       </Button>
     </form>
   );
@@ -459,6 +523,7 @@ export function ParentBookings() {
         <Button onClick={load}>Tải lại</Button>
       </div>
       {error ? <Alert tone="danger">{error}</Alert> : null}
+      <PackagesPanel onChange={load} />
       {bookings.length === 0 ? <p className="text-text-secondary">Chưa có buổi học nào.</p> : null}
       {GROUPS.map((group) => {
         const rows = bookings.filter((booking) => group.statuses.includes(booking.status));
@@ -482,6 +547,7 @@ export function ParentBookings() {
                           <strong className="text-section-title">
                             {booking.subject} với {booking.tutor_name} – {booking.child_name}
                           </strong>
+                          {booking.package_id ? <StatusBadge tone="info" label="Buổi trong gói" /> : null}
                           <StatusBadge
                             tone={status?.tone ?? 'neutral'}
                             label={`${status?.label ?? booking.status}${

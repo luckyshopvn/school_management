@@ -907,4 +907,109 @@ describe('chợ gia sư: an toàn trẻ em và kiểm duyệt (27i)', () => {
     assert.equal((await call(MARKET_HOST, 'PUT', '/me', { display_name: 'Mẹ của Bé' }, token)).status, 200);
     assert.equal((await call(MARKET_HOST, 'GET', '/me', undefined, token)).body.display_name, 'Mẹ của Bé');
   });
+  it('CT-365-1: gói buổi: mua, trả tiền giả lập, đặt buổi từ gói, hủy trả lượt, hết hạn hoàn phần chưa học (GD-165)', async () => {
+    const parent = await registerParent();
+    const tutor = await seedTutor();
+    // Môn chưa bán gói thì không mua được
+    const noPackage = await call(
+      MARKET_HOST,
+      'POST',
+      '/packages',
+      { tutor_id: tutor.id, child_id: parent.childId, subject_id: tutor.subject, recording_consented: true },
+      parent.token,
+    );
+    assert.equal(noPackage.status, 400);
+    await database
+      .updateTable('market_tutor_subjects')
+      .set({ package_sessions: 3, package_price: 400_000 })
+      .where('id', '=', tutor.subject)
+      .execute();
+    const created = await call(
+      MARKET_HOST,
+      'POST',
+      '/packages',
+      { tutor_id: tutor.id, child_id: parent.childId, subject_id: tutor.subject, recording_consented: true },
+      parent.token,
+    );
+    assert.equal(created.status, 201, JSON.stringify(created.body));
+    assert.equal(created.body.status, 'held');
+    assert.equal(created.body.price_per_session, 133_333);
+    const packageId = created.body.id as string;
+    const paid = await call(MARKET_HOST, 'POST', `/packages/${packageId}/mock-pay`, {}, parent.token);
+    assert.equal(paid.body.status, 'paid', JSON.stringify(paid.body));
+    const validDays =
+      (new Date(paid.body.expires_at as string).getTime() - new Date(paid.body.paid_at as string).getTime()) /
+      (24 * HOUR);
+    assert.equal(validDays, 56, 'dùng trong 8 tuần');
+
+    // Đặt buổi từ gói: đã trả tiền, giá mỗi buổi của gói
+    const at = new Date(Date.now() + 72 * HOUR);
+    at.setUTCMinutes(0, 0, 0);
+    const first = await call(
+      MARKET_HOST,
+      'POST',
+      '/bookings',
+      { package_id: packageId, starts_at: at.toISOString() },
+      parent.token,
+    );
+    assert.equal(first.status, 201, JSON.stringify(first.body));
+    assert.equal(first.body.status, 'paid');
+    assert.equal(first.body.price, 133_333);
+    // Gói đã có buổi: không hủy cả gói được
+    assert.equal((await call(MARKET_HOST, 'POST', `/packages/${packageId}/cancel`, {}, parent.token)).status, 409);
+    // Hủy buổi trước 24 giờ: trả lượt về gói
+    assert.equal(
+      (await call(MARKET_HOST, 'POST', `/bookings/${first.body.id as string}/cancel`, {}, parent.token)).status,
+      200,
+    );
+    let list = await call(MARKET_HOST, 'GET', '/packages', undefined, parent.token);
+    let pack = (list.body.packages as Array<{ id: string; sessions_used: number }>).find((row) => row.id === packageId);
+    assert.equal(pack?.sessions_used, 0);
+
+    // Dùng một buổi, rồi gói hết hạn: hoàn 2 buổi chưa học và phần dư làm tròn
+    const second = await call(
+      MARKET_HOST,
+      'POST',
+      '/bookings',
+      { package_id: packageId, starts_at: new Date(at.getTime() + 24 * HOUR).toISOString() },
+      parent.token,
+    );
+    assert.equal(second.status, 201, JSON.stringify(second.body));
+    await database
+      .updateTable('market_packages')
+      .set({ expires_at: new Date(Date.now() - HOUR) })
+      .where('id', '=', packageId)
+      .execute();
+    const due = await admin('POST', '/payments/run-due');
+    assert.ok((due.body.packagesExpired as number) >= 1, JSON.stringify(due.body));
+    list = await call(MARKET_HOST, 'GET', '/packages', undefined, parent.token);
+    pack = (
+      list.body.packages as Array<{ id: string; sessions_used: number; status: string; refunded_amount: number }>
+    ).find((row) => row.id === packageId) as typeof pack & { status: string; refunded_amount: number };
+    assert.equal((pack as unknown as { status: string }).status, 'expired');
+    assert.equal((pack as unknown as { refunded_amount: number }).refunded_amount, 400_000 - 133_333);
+  });
+
+  it('CT-365-2: hủy gói trước buổi đầu thì hoàn đủ', async () => {
+    const parent = await registerParent();
+    const tutor = await seedTutor();
+    await database
+      .updateTable('market_tutor_subjects')
+      .set({ package_sessions: 4, package_price: 500_000 })
+      .where('id', '=', tutor.subject)
+      .execute();
+    const created = await call(
+      MARKET_HOST,
+      'POST',
+      '/packages',
+      { tutor_id: tutor.id, child_id: parent.childId, subject_id: tutor.subject, recording_consented: true },
+      parent.token,
+    );
+    const packageId = created.body.id as string;
+    await call(MARKET_HOST, 'POST', `/packages/${packageId}/mock-pay`, {}, parent.token);
+    const cancelled = await call(MARKET_HOST, 'POST', `/packages/${packageId}/cancel`, {}, parent.token);
+    assert.equal(cancelled.status, 200, JSON.stringify(cancelled.body));
+    assert.equal(cancelled.body.status, 'cancelled');
+    assert.equal(cancelled.body.refunded_amount, 500_000);
+  });
 });

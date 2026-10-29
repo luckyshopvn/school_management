@@ -233,6 +233,11 @@ export const PUBLIC_ROUTES: PublicRoute[] = [
       ['POST', '/api/v1/market/auth/password/reset'],
       ['PUT', '/api/v1/market/me'],
       ['GET', '/api/v1/market/identity/linked'],
+      // Gói buổi (YCTD-365, GD-165)
+      ['POST', '/api/v1/market/packages'],
+      ['GET', '/api/v1/market/packages'],
+      ['POST', '/api/v1/market/packages/:id/mock-pay'],
+      ['POST', '/api/v1/market/packages/:id/cancel'],
     ] as const
   ).map(([method, path]) => ({
     method,
