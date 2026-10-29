@@ -17,6 +17,9 @@ import { E2E_SCHOOL_YEAR_DATABASE_PREFIX, E2E_SYSTEM_DATABASE_NAME, E2E_TEACHER_
 const identity = createDatabase<IdentityDatabase>(readConnectionString('identity'));
 let schoolYear: ReturnType<typeof createDatabase<SchoolYearDatabase>>;
 let system: ReturnType<typeof createDatabase<SystemDatabase>>;
+// Học liệu, lớp, trẻ thử xoá ở afterAll (kể cả khi kịch bản hỏng giữa chừng) để kịch bản đếm lớp theo cấp (84) không lệch
+const created: Array<{ classId: string; childId: string }> = [];
+const resourceIds: string[] = [];
 const TEACHER_URL = `http://localhost:${E2E_TEACHER_PORT}`;
 
 test.beforeAll(async () => {
@@ -27,6 +30,18 @@ test.beforeAll(async () => {
 });
 
 test.afterAll(async () => {
+  if (resourceIds.length > 0) {
+    await schoolYear.deleteFrom('learning_resource_usage').where('resource_id', 'in', resourceIds).execute();
+    await schoolYear.deleteFrom('learning_resource_events').where('resource_id', 'in', resourceIds).execute();
+    await system.deleteFrom('learning_resource_versions').where('resource_id', 'in', resourceIds).execute();
+    await system.deleteFrom('learning_resources').where('id', 'in', resourceIds).execute();
+  }
+  for (const { classId, childId } of created) {
+    await schoolYear.deleteFrom('class_staff_assignments').where('class_id', '=', classId).execute();
+    await schoolYear.deleteFrom('class_enrollments').where('class_id', '=', classId).execute();
+    await schoolYear.deleteFrom('children').where('id', '=', childId).execute();
+    await schoolYear.deleteFrom('classes').where('id', '=', classId).execute();
+  }
   await schoolYear.destroy();
   await system.destroy();
   await identity.destroy();
@@ -76,8 +91,6 @@ test('CT-29e-3: bài hát, câu chuyện của trường chỉ hiện học li�
     { name: preschool, level: 'MN', grade: reference.grade_level },
     { name: primary, level: 'TH', grade: 'T230' },
   ] as const;
-  // Lớp, trẻ thử xoá khi xong để kịch bản đếm lớp theo cấp (84) không lệch
-  const created: Array<{ classId: string; childId: string }> = [];
   for (const [index, { name, level, grade }] of classes.entries()) {
     const classRow = await schoolYear
       .insertInto('classes')
@@ -136,7 +149,6 @@ test('CT-29e-3: bài hát, câu chuyện của trường chỉ hiện học li�
     { title: `Bài hát nháp ${suffix}`, level: 'MN', published: false },
     { title: `Bài hát Tiểu học ${suffix}`, level: 'TH', published: true },
   ];
-  const resourceIds: string[] = [];
   for (const song of songs) {
     const row = await system
       .insertInto('learning_resources')
@@ -212,14 +224,4 @@ test('CT-29e-3: bài hát, câu chuyện của trường chỉ hiện học li�
   await expect(page.getByRole('tab', { name: /Gọi tên ngẫu nhiên/ })).toBeVisible();
   await expect(page.getByRole('tab', { name: /Bài hát, câu chuyện của trường/ })).toHaveCount(0);
   await page.context().close();
-  await schoolYear.deleteFrom('learning_resource_usage').where('resource_id', 'in', resourceIds).execute();
-  await schoolYear.deleteFrom('learning_resource_events').where('resource_id', 'in', resourceIds).execute();
-  await system.deleteFrom('learning_resource_versions').where('resource_id', 'in', resourceIds).execute();
-  await system.deleteFrom('learning_resources').where('id', 'in', resourceIds).execute();
-  for (const { classId, childId } of created) {
-    await schoolYear.deleteFrom('class_staff_assignments').where('class_id', '=', classId).execute();
-    await schoolYear.deleteFrom('class_enrollments').where('class_id', '=', classId).execute();
-    await schoolYear.deleteFrom('children').where('id', '=', childId).execute();
-    await schoolYear.deleteFrom('classes').where('id', '=', classId).execute();
-  }
 });
