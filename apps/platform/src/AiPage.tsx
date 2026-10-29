@@ -86,7 +86,9 @@ export function AiPage({
   const load = useCallback(() => {
     setLoadError(null);
     reload().catch((caught: unknown) =>
-      setLoadError(`Không đọc được thiết lập trợ lý AI: ${errorMessage(caught)}. Bấm Tải lại; lỗi lặp lại thì báo nhóm kỹ thuật.`),
+      setLoadError(
+        `Không đọc được thiết lập trợ lý AI: ${errorMessage(caught)}. Bấm Tải lại; lỗi lặp lại thì báo nhóm kỹ thuật.`,
+      ),
     );
   }, [reload]);
   useEffect(load, [load]);
@@ -160,11 +162,7 @@ export function AiPage({
             <h2 id="nha-cung-cap">Nhà cung cấp của nền tảng</h2>
             {canConfigure ? (
               <div className="columns">
-                <form
-                  className="stack wide"
-                  aria-label="Nhà cung cấp và mô hình của nền tảng"
-                  onSubmit={saveSettings}
-                >
+                <form className="stack wide" aria-label="Nhà cung cấp và mô hình của nền tảng" onSubmit={saveSettings}>
                   <div className="grid-2">
                     <label className="field">
                       Nhà cung cấp
@@ -201,8 +199,8 @@ export function AiPage({
                     <strong>Khóa dùng chung</strong> {keyStatus}
                   </div>
                   <p className="muted" style={{ margin: 0 }}>
-                    Khóa mã hóa bằng khóa gốc của nền tảng, chỉ ở cơ sở dữ liệu nền tảng, không bao giờ xuống cơ sở dữ liệu
-                    của trường và không hiện lại.
+                    Khóa mã hóa bằng khóa gốc của nền tảng, chỉ ở cơ sở dữ liệu nền tảng, không bao giờ xuống cơ sở dữ
+                    liệu của trường và không hiện lại.
                   </p>
                   <label className="field">
                     <span>
@@ -346,7 +344,9 @@ export function AiPage({
                         </td>
                         <td>
                           <span className="status" data-tone={row.config === 'platform' ? 'info' : 'idle'}>
-                            {row.config === 'platform' ? 'Nền tảng cấp khóa (thu phí)' : 'Trường tự nhập khóa (miễn phí)'}
+                            {row.config === 'platform'
+                              ? 'Nền tảng cấp khóa (thu phí)'
+                              : 'Trường tự nhập khóa (miễn phí)'}
                           </span>
                         </td>
                         <td>{row.model}</td>

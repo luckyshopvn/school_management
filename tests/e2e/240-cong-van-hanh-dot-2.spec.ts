@@ -79,7 +79,14 @@ const invoice = {
 function fixture(role: Role, method: string, path: string): Reply | undefined {
   if (path === '/me') {
     return {
-      body: { id: 'nv-1', login: 'nv-gia', full_name: 'Nhân viên giả', role, must_change_password: false, school_count: 1 },
+      body: {
+        id: 'nv-1',
+        login: 'nv-gia',
+        full_name: 'Nhân viên giả',
+        role,
+        must_change_password: false,
+        school_count: 1,
+      },
     };
   }
   if (path === '/maintenance-notices' && method === 'GET') {
@@ -182,8 +189,24 @@ function fixture(role: Role, method: string, path: string): Reply | undefined {
   if (path === '/plan-schools') {
     return {
       body: [
-        { id: 's1', code: 'truong-gia', name: 'Trường giả', status: 'active', trial_ends_on: null, paid_until: null, plan: null },
-        { id: 's2', code: 'truong-hoa', name: 'Trường Hoa giả', status: 'trial', trial_ends_on: null, paid_until: null, plan: null },
+        {
+          id: 's1',
+          code: 'truong-gia',
+          name: 'Trường giả',
+          status: 'active',
+          trial_ends_on: null,
+          paid_until: null,
+          plan: null,
+        },
+        {
+          id: 's2',
+          code: 'truong-hoa',
+          name: 'Trường Hoa giả',
+          status: 'trial',
+          trial_ends_on: null,
+          paid_until: null,
+          plan: null,
+        },
       ],
     };
   }
@@ -304,7 +327,11 @@ async function openConsole(page: Page, role: Role): Promise<Request[]> {
     if (path === '/captcha') {
       return route.fulfill({
         contentType: 'application/json',
-        body: JSON.stringify({ captcha_id: '00000000-0000-4000-8000-000000000000', image: captchaImage, expires_in_seconds: 300 }),
+        body: JSON.stringify({
+          captcha_id: '00000000-0000-4000-8000-000000000000',
+          image: captchaImage,
+          expires_in_seconds: 300,
+        }),
       });
     }
     if (path === '/login') {
@@ -313,13 +340,20 @@ async function openConsole(page: Page, role: Role): Promise<Request[]> {
         body.otp_code
           ? {
               contentType: 'application/json',
-              body: JSON.stringify({ access_token: 'ma-gia', operator: { id: 'nv-1', login: 'nv-gia', full_name: 'Nhân viên giả' } }),
+              body: JSON.stringify({
+                access_token: 'ma-gia',
+                operator: { id: 'nv-1', login: 'nv-gia', full_name: 'Nhân viên giả' },
+              }),
             }
           : {
               status: 401,
               contentType: 'application/json',
               body: JSON.stringify({
-                error: { code: 'ERR_UNAUTHENTICATED', message: 'Cần mã', details: [{ field: 'otp_code', message: 'Nhập mã' }] },
+                error: {
+                  code: 'ERR_UNAUTHENTICATED',
+                  message: 'Cần mã',
+                  details: [{ field: 'otp_code', message: 'Nhập mã' }],
+                },
               }),
             },
       );
@@ -380,7 +414,9 @@ test.describe('cổng vận hành đợt 2', () => {
   test('CT-1691: Hỗ trợ không thấy tạo, hủy thông báo bảo trì', async ({ page: support }) => {
     await openConsole(support, 'ho_tro');
     await openPage(support, 'Bảo trì');
-    await expect(support.getByRole('table', { name: 'Danh sách thông báo bảo trì' })).toContainText('Nâng cấp máy chủ giả');
+    await expect(support.getByRole('table', { name: 'Danh sách thông báo bảo trì' })).toContainText(
+      'Nâng cấp máy chủ giả',
+    );
     await expect(support.getByRole('form', { name: 'Tạo thông báo bảo trì' })).toHaveCount(0);
     await expect(support.getByRole('button', { name: /^Hủy thông báo/ })).toHaveCount(0);
   });
@@ -400,7 +436,9 @@ test.describe('cổng vận hành đợt 2', () => {
     await expect(accountant.getByText('Chỉ quản trị nền tảng sửa được.')).toBeVisible();
   });
 
-  test('CT-1701: Kỹ thuật mở lỗi theo giờ của trường, thấy biểu mẫu tạo thông báo bảo trì', async ({ page: technician }) => {
+  test('CT-1701: Kỹ thuật mở lỗi theo giờ của trường, thấy biểu mẫu tạo thông báo bảo trì', async ({
+    page: technician,
+  }) => {
     await openConsole(technician, 'ky_thuat');
     await openPage(technician, 'Bảng điều khiển');
     await technician.getByRole('button', { name: 'Xem lỗi truong-gia: 1 / 2' }).click();
@@ -434,7 +472,9 @@ test.describe('cổng vận hành đợt 2', () => {
     ]);
   });
 
-  test('CT-1693: Bảo trì báo lỗi tại ô khi kết thúc trước bắt đầu; bấm nhanh hai lần chỉ tạo một thông báo', async ({ page }) => {
+  test('CT-1693: Bảo trì báo lỗi tại ô khi kết thúc trước bắt đầu; bấm nhanh hai lần chỉ tạo một thông báo', async ({
+    page,
+  }) => {
     const writes = await openConsole(page, 'ky_thuat');
     await openPage(page, 'Bảo trì');
     const form = page.getByRole('form', { name: 'Tạo thông báo bảo trì' });
@@ -500,7 +540,9 @@ test.describe('cổng vận hành đợt 2', () => {
     expect(writes).toHaveLength(0);
   });
 
-  test('CT-1696: đổi mật khẩu 11 ký tự không gửi được, quy tắc dưới ô báo Chưa đủ; 12 ký tự gửi được', async ({ page }) => {
+  test('CT-1696: đổi mật khẩu 11 ký tự không gửi được, quy tắc dưới ô báo Chưa đủ; 12 ký tự gửi được', async ({
+    page,
+  }) => {
     const writes = await openConsole(page, 'ho_tro');
     await page.getByRole('navigation', { name: 'Menu' }).getByRole('button', { name: 'Đổi mật khẩu' }).click();
     const form = page.getByRole('form', { name: 'Đổi mật khẩu vận hành' });
@@ -519,7 +561,9 @@ test.describe('cổng vận hành đợt 2', () => {
     expect(writes).toHaveLength(1);
   });
 
-  test('CT-1697: thẻ chọn chuyển bằng mũi tên; Kỹ thuật thấy chính sách vào trường ở dạng chỉ xem', async ({ page }) => {
+  test('CT-1697: thẻ chọn chuyển bằng mũi tên; Kỹ thuật thấy chính sách vào trường ở dạng chỉ xem', async ({
+    page,
+  }) => {
     await openConsole(page, 'ky_thuat');
     await openPage(page, 'Danh mục đơn vị');
     const first = page.getByRole('tab', { name: 'Danh mục' });

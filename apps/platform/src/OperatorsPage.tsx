@@ -296,9 +296,7 @@ function ResetTotpDialog({
   );
 }
 
-type PendingChange =
-  | { kind: 'role'; row: OperatorRow; role: OperatorRole }
-  | { kind: 'lock'; row: OperatorRow };
+type PendingChange = { kind: 'role'; row: OperatorRow; role: OperatorRole } | { kind: 'lock'; row: OperatorRow };
 
 export function OperatorsPage({ token, currentOperatorId }: { token: string; currentOperatorId: string }) {
   const [items, setItems] = useState<OperatorRow[] | null>(null);
@@ -321,7 +319,9 @@ export function OperatorsPage({ token, currentOperatorId }: { token: string; cur
         setLoginRule(reply.login_rule);
       })
       .catch((caught: unknown) =>
-        setLoadError(`Không đọc được danh sách nhân viên: ${errorMessage(caught)}. Bấm Tải lại; lỗi lặp lại thì báo nhóm kỹ thuật.`),
+        setLoadError(
+          `Không đọc được danh sách nhân viên: ${errorMessage(caught)}. Bấm Tải lại; lỗi lặp lại thì báo nhóm kỹ thuật.`,
+        ),
       );
   }, [token]);
   useEffect(load, [load]);
@@ -364,8 +364,8 @@ export function OperatorsPage({ token, currentOperatorId }: { token: string; cur
         <div>
           <h1>Nhân viên vận hành</h1>
           <p className="lead">
-            Nhân viên của công ty vận hành, hỗ trợ các trường. Nhân viên không có tài khoản ở trường; vào dữ liệu trường chỉ
-            qua phiên hỗ trợ có thời hạn và ghi nhật ký. Xác thực hai lớp là bắt buộc.
+            Nhân viên của công ty vận hành, hỗ trợ các trường. Nhân viên không có tài khoản ở trường; vào dữ liệu trường
+            chỉ qua phiên hỗ trợ có thời hạn và ghi nhật ký. Xác thực hai lớp là bắt buộc.
           </p>
         </div>
         <div className="page-actions">
@@ -380,7 +380,9 @@ export function OperatorsPage({ token, currentOperatorId }: { token: string; cur
         <h2 id="tai-khoan-van-hanh">Tài khoản vận hành</h2>
         {items === null && !loadError ? <Skeleton lines={3} /> : null}
         {items && others.length === 0 ? (
-          <EmptyState title="Chỉ có tài khoản của bạn">Thêm nhân viên hỗ trợ, kỹ thuật, kế toán để chia việc.</EmptyState>
+          <EmptyState title="Chỉ có tài khoản của bạn">
+            Thêm nhân viên hỗ trợ, kỹ thuật, kế toán để chia việc.
+          </EmptyState>
         ) : null}
         {items && items.length > 0 ? (
           <div className="table-scroll">
@@ -506,8 +508,8 @@ export function OperatorsPage({ token, currentOperatorId }: { token: string; cur
           onCancel={() => setPending(null)}
         >
           <p style={{ margin: 0 }}>
-            Từ <b>{OPERATOR_ROLE_LABELS[pending.row.role]}</b> sang <b>{OPERATOR_ROLE_LABELS[pending.role]}</b>. Trang và
-            thao tác nhân viên được làm đổi theo vai trò mới.
+            Từ <b>{OPERATOR_ROLE_LABELS[pending.row.role]}</b> sang <b>{OPERATOR_ROLE_LABELS[pending.role]}</b>. Trang
+            và thao tác nhân viên được làm đổi theo vai trò mới.
           </p>
         </ConfirmDialog>
       ) : null}
