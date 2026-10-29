@@ -63,6 +63,8 @@ export const OPERATOR_PERMISSIONS = {
   'market.payments': ['quan_tri', 'ke_toan'],
   // Nhân viên vận hành
   'operators.manage': ADMIN,
+  // Nhật ký truy cập của cổng vận hành: vào trường, khởi tạo, bật tính năng (YCTD-324)
+  'audit.view': ['quan_tri', 'ho_tro'],
 } as const satisfies Record<string, readonly OperatorRole[]>;
 
 export type OperatorCapability = keyof typeof OPERATOR_PERMISSIONS;
@@ -88,4 +90,5 @@ export const OPERATOR_MENU_CAPABILITIES: Record<string, OperatorCapability> = {
   catalog: 'catalog.view',
   market: 'market.view',
   operators: 'operators.manage',
+  audit: 'audit.view',
 };

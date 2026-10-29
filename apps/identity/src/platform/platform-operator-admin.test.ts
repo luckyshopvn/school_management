@@ -242,6 +242,9 @@ describe('nhân viên vận hành nền tảng', () => {
     ['PUT', '/auth/platform/login-page', 'catalog.manage', { hotline: 'x'.repeat(500) }],
     ['GET', '/auth/platform/dashboard', 'overview.view'],
     ['GET', '/auth/platform/dashboard/errors', 'dashboard.errors'],
+    // Nhật ký truy cập, số liệu Tổng quan (YCTD-324)
+    ['GET', '/auth/platform/audit-log', 'audit.view'],
+    ['GET', '/auth/platform/overview', 'overview.view'],
     ['GET', '/auth/platform/maintenance-notices', 'maintenance.view'],
     ['POST', '/auth/platform/maintenance-notices', 'maintenance.manage', {}],
     ['POST', `/auth/platform/maintenance-notices/${NO_ID}/cancel`, 'maintenance.manage', {}],

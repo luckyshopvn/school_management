@@ -55,6 +55,7 @@ import {
 } from './directory/unit-directory.js';
 import { PlatformCatalogController, PlatformCatalogService } from './platform/platform-catalog.js';
 import { CatalogProvisioningService } from './platform/catalog-provisioning.js';
+import { PlatformAuditController, PlatformAuditService } from './platform/platform-audit.js';
 import { ExternalIdentityController } from './external-identity/external-identity.controller.js';
 import { ExternalIdentityService } from './external-identity/external-identity.service.js';
 
@@ -93,6 +94,7 @@ export class ApplicationModule {
         UnitDirectoryController,
         LoginHandoffController,
         PlatformCatalogController,
+        PlatformAuditController,
         ExternalIdentityController,
       ],
       providers: [
@@ -147,6 +149,7 @@ export class ApplicationModule {
         UnitDirectoryService,
         PlatformCatalogService,
         CatalogProvisioningService,
+        PlatformAuditService,
         ExternalIdentityService,
       ],
     };

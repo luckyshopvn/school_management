@@ -141,6 +141,8 @@ export const PUBLIC_ROUTES: PublicRoute[] = [
   { method: 'PUT', path: '/api/v1/auth/platform/schools/:code/catalog-unit', reason: PLATFORM },
   { method: 'POST', path: '/api/v1/auth/platform/catalog/units/:moet/open', reason: PLATFORM },
   { method: 'PUT', path: '/api/v1/auth/platform/schools/:code/addon-modules', reason: PLATFORM },
+  { method: 'GET', path: '/api/v1/auth/platform/audit-log', reason: PLATFORM },
+  { method: 'GET', path: '/api/v1/auth/platform/overview', reason: PLATFORM },
   { method: 'POST', path: '/api/v1/auth/platform/captcha', reason: PLATFORM },
   { method: 'GET', path: '/api/v1/auth/platform/login-page', reason: PLATFORM },
   { method: 'PUT', path: '/api/v1/auth/platform/login-page', reason: PLATFORM },
