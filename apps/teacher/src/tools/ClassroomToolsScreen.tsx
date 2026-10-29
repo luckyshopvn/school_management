@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useId, useState } from 'react';
 import { TEACHING_TOOL_SECTIONS, teachingToolsFor, type TeachingTool } from '@school-management/shared';
 import { Alert, ApplicationHeader, Button } from '@school-management/ui';
 import { requestJson } from '../session/api-client.js';
@@ -19,6 +19,14 @@ import { GroupTool } from './GroupTool.js';
 import { ScoreboardTool } from './ScoreboardTool.js';
 import { TimerTool } from './TimerTool.js';
 import { GamesTool } from './games/GamesTool.js';
+import { AlphabetTool } from './mini/AlphabetTool.js';
+import { CountingTool } from './mini/CountingTool.js';
+import { DiceTool } from './mini/DiceTool.js';
+import { NoiseLightTool } from './mini/NoiseLightTool.js';
+import { ShapesColorsTool } from './mini/ShapesColorsTool.js';
+import { StarBoardTool } from './mini/StarBoardTool.js';
+import { VisualTimerTool } from './mini/VisualTimerTool.js';
+import { WhiteboardTool } from './mini/WhiteboardTool.js';
 
 // Hộp công cụ giảng dạy (DT-29, YCTD-325; trước đây là Công cụ lớp học của DT-23 phần 23b, YCTD-212; tài liệu 32 mục 15.4, 21):
 // gom công cụ, mini app hỗ trợ giảng dạy của lớp đang chọn, lọc theo cấp của lớp (danh mục `TEACHING_TOOLS` ở gói chung), bỏ công
@@ -56,9 +64,13 @@ function ToolTile({
   onSelect(): void;
   asTab: boolean;
 }) {
+  // Tên của ô chỉ là tên công cụ; mô tả ẩn khỏi tên và đọc riêng qua aria-describedby, để tên không lẫn chữ của mô tả
+  // (mô tả "Hình và màu" có chữ "gọi tên")
+  const descriptionId = useId();
   return (
     <button
       type="button"
+      aria-describedby={descriptionId}
       {...(asTab ? { role: 'tab', 'aria-selected': selected } : {})}
       onClick={onSelect}
       className={`flex min-h-16 flex-col items-start gap-1 rounded-lg px-3 py-2 text-left ${
@@ -66,7 +78,13 @@ function ToolTile({
       }`}
     >
       <span className="text-label font-semibold">{tool.label}</span>
-      <span className={`text-label ${selected ? 'text-white' : 'text-text-secondary'}`}>{tool.description}</span>
+      <span
+        id={descriptionId}
+        aria-hidden="true"
+        className={`text-label ${selected ? 'text-white' : 'text-text-secondary'}`}
+      >
+        {tool.description}
+      </span>
     </button>
   );
 }
@@ -274,6 +292,14 @@ export function ClassroomToolsScreen({
                   />
                 ) : null}
                 {active === 'timer' ? <TimerTool /> : null}
+                {active === 'whiteboard' ? <WhiteboardTool /> : null}
+                {active === 'dice' ? <DiceTool /> : null}
+                {active === 'visual-timer' ? <VisualTimerTool /> : null}
+                {active === 'noise-light' ? <NoiseLightTool /> : null}
+                {active === 'star-board' ? <StarBoardTool key={snapshot.class_id} classId={snapshot.class_id} /> : null}
+                {active === 'shapes-colors' ? <ShapesColorsTool /> : null}
+                {active === 'counting' ? <CountingTool /> : null}
+                {active === 'alphabet' ? <AlphabetTool /> : null}
                 {active === 'games' ? <GamesTool snapshot={snapshot} online={online && classes !== null} /> : null}
                 {active === 'scoreboard' ? (
                   <ScoreboardTool
