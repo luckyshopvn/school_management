@@ -74,3 +74,11 @@ describe('mốc phòng học video (YCTD-362, GD-164)', () => {
     assert.throws(() => parseMarketSettings({ auto_confirm_hours: 0 }), MarketSettingsError);
   });
 });
+
+describe('gói buổi (YCTD-365, GD-165)', () => {
+  test('mặc định dùng trong 56 ngày, chỉnh được từ 7 đến 365 ngày', () => {
+    assert.equal(parseMarketSettings({}).packageValidDays, 56);
+    assert.equal(parseMarketSettings({ package_valid_days: 30 }).packageValidDays, 30);
+    assert.throws(() => parseMarketSettings({ package_valid_days: 3 }), MarketSettingsError);
+  });
+});

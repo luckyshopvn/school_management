@@ -30,6 +30,8 @@ function view(settings: MarketSettings) {
     real_payments_enabled: settings.realPaymentsEnabled,
     // Mốc phòng học video (YCTD-362)
     ...roomTimingsJson(settings.room),
+    // Hạn dùng gói buổi (YCTD-365)
+    package_valid_days: settings.packageValidDays,
   };
 }
 
