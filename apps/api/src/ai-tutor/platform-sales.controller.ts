@@ -28,6 +28,17 @@ export class AiTutorDirectPurchaseController {
     return this.sales.createOrder(currentUser, childId, body, request.ip ?? null);
   }
 
+  @Post('children/:childId/upgrades')
+  @HttpCode(201)
+  upgrade(
+    @Param('childId') childId: string,
+    @Body() body: RequestBody,
+    @AuthenticatedUser() currentUser: CurrentUser,
+    @Req() request: Request,
+  ) {
+    return this.sales.createUpgrade(currentUser, childId, body, request.ip ?? null);
+  }
+
   @Get('orders/:id')
   order(@Param('id') id: string, @AuthenticatedUser() currentUser: CurrentUser) {
     return this.sales.parentOrder(currentUser, id);

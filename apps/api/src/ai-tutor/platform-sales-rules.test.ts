@@ -125,5 +125,15 @@ describe('Gia sư AI nền tảng bán: quy tắc thuần', () => {
       }),
       'Gói Mua thêm 50 lượt (50 lượt hỏi, dùng trong 12 tháng)',
     );
+    assert.equal(
+      receiptDescription({
+        planName: 'Nâng cao tháng',
+        planKind: 'monthly',
+        periodMonth: '2026-10-01',
+        turns: 300,
+        kind: 'upgrade',
+      }),
+      'Nâng lên gói Nâng cao tháng tháng 10/2026 (phần chênh lệch theo số ngày còn lại của tháng)',
+    );
   });
 });

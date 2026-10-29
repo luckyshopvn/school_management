@@ -35,12 +35,22 @@ import { queueNotification } from '../common/notification-queue.js';
 import { isUuid, notFoundError, type RequestBody } from '../common/request-fields.js';
 import {
   isPeriodMonth,
+  upgradeQuote,
   vietnamMonthOf,
   type AiTutorPlanKind,
   type AiTutorSchoolLevel,
   type PurchaseBlock,
 } from './ai-tutor-rules.js';
-import { activateAiTutorSubscription, aiTutorTurnBalance, createAiTutorSubscription } from './ai-tutor-turns.js';
+import {
+  activateAiTutorSubscription,
+  aiTutorTurnBalance,
+  applyAiTutorUpgrade,
+  cancelAiTutorUpgrade,
+  createAiTutorSubscription,
+  createAiTutorUpgrade,
+  currentMonthlyTerms,
+  type AiTutorUpgradeBlock,
+} from './ai-tutor-turns.js';
 import {
   canCancel,
   canRefund,
@@ -117,6 +127,23 @@ function blockMessage(block: PurchaseBlock, periodMonth: string | null): string 
       return `Con đã có gói tháng ${month} ${where} (${state}). Mỗi con chỉ có một gói tháng trong một tháng`;
     }
   }
+}
+
+const UPGRADE_BLOCKS: Record<AiTutorUpgradeBlock, string> = {
+  not_found: 'Không tìm thấy gói đang dùng của con',
+  upgrade_pending: 'Đang có một lần nâng gói chờ thanh toán; hãy trả hoặc hủy giao dịch đó trước',
+  not_monthly: 'Chỉ nâng được gói tháng lên gói tháng',
+  not_active: 'Gói của con chưa được kích hoạt',
+  source_mismatch: 'Chỉ nâng được lên gói của cùng nơi bán',
+  plan_archived: 'Gói này đã ngừng bán',
+  level_not_allowed: 'Gói này không áp dụng cho cấp học của con',
+  same_plan: 'Con đang dùng gói này',
+  not_higher: 'Chỉ nâng được lên gói giá cao hơn, số lượt không ít hơn',
+  period_ended: 'Tháng dùng của gói đã hết',
+};
+
+function upgradeBlockMessage(code: AiTutorUpgradeBlock): string {
+  return UPGRADE_BLOCKS[code];
 }
 
 @Injectable()
@@ -313,22 +340,24 @@ export class PlatformAiTutorSalesService implements PlatformTransferHandler {
     const currentMonth = vietnamMonthOf(now);
     const next = new Date(`${currentMonth}T00:00:00Z`);
     next.setUTCMonth(next.getUTCMonth() + 1);
+    const levelPlans = level ? plans.filter((plan) => plan.school_levels.includes(level)) : [];
     return {
       child_id: childId,
       school_level: level,
       payment,
       current_month: currentMonth,
       next_month: next.toISOString().slice(0, 10),
-      plans: level ? plans.filter((plan) => plan.school_levels.includes(level)).map(planView) : [],
+      plans: levelPlans.map(planView),
       subscriptions: subscriptions.map((row) => ({ ...row, period_month: dateText(row.period_month) })),
       balance,
       orders,
+      upgrade_options: await this.upgradeOptions(system, childId, level, levelPlans, now),
     };
   }
 
   // Phụ huynh bấm mua: ghi lần mua chờ thanh toán ở trường, giao dịch ở nền tảng, mã QR hoặc liên kết thanh toán của cổng nền tảng
   async createOrder(currentUser: CurrentUser, childId: string, body: RequestBody, payerIpAddress: string | null) {
-    const tenant = this.schoolOfRequest();
+    this.schoolOfRequest();
     const { level } = await this.childOf(currentUser, childId);
     if (!level) {
       throw new ApplicationError(
@@ -388,53 +417,224 @@ export class PlatformAiTutorSalesService implements PlatformTransferHandler {
     if (!purchase.ok) {
       throw new ApplicationError('ERR_CONFLICT', blockMessage(purchase.block, periodMonth));
     }
-    const amount = money(plan.price);
     try {
-      const sequence = await this.nextValue('platform_ai_tutor_order_number_seq');
-      const code = orderCode(now, sequence);
-      const transferContent = transferContentOf(now, sequence);
-      const settings = await readBillingSettings(this.platform);
-      const account = settings.receivingAccount;
-      const created = await gateway.createPaymentRequest({
-        invoiceCode: code,
-        transferContent,
-        amount,
-        childName: `Gia su AI ${plan.name}`,
-        receivingAccountNumber: account.accountNumber ?? '',
-        receivingAccountName: account.accountName ?? '',
-        receivingBankBin: account.bankBin,
+      const orderId = await this.openOrder({
+        currentUser,
+        childId,
+        subscriptionId: purchase.subscriptionId,
+        upgradeId: null,
+        plan,
+        periodMonth,
+        amount: money(plan.price),
+        now,
+        expiresAt,
         payerIpAddress,
       });
-      const order = await this.platform
-        .insertInto('platform_ai_tutor_orders')
-        .values({
-          code,
-          transfer_content: transferContent,
-          school_id: tenant.schoolId,
-          school_name: tenant.name,
-          child_id: childId,
-          subscription_id: purchase.subscriptionId,
-          buyer_user_id: currentUser.id,
-          buyer_name: currentUser.description.full_name,
-          plan_id: plan.id,
-          plan_name: plan.name,
-          plan_kind: plan.kind,
-          period_month: periodMonth,
-          turns: plan.turns,
-          amount,
-          pending_expires_at: expiresAt,
-          provider: created.provider,
-          provider_reference: created.providerReference,
-          qr_content: created.qrContent,
-          created_at: now,
-          updated_at: now,
-        })
-        .returning('id')
-        .executeTakeFirstOrThrow();
-      return this.parentOrder(currentUser, order.id);
+      return this.parentOrder(currentUser, orderId);
     } catch (error) {
       // Không tạo được yêu cầu thanh toán: bỏ chỗ đã giữ để phụ huynh mua lại được ngay
       await this.cancelSubscription(system, purchase.subscriptionId, 'Không tạo được yêu cầu thanh toán', now);
+      throw error;
+    }
+  }
+
+  // Tạo yêu cầu thanh toán ở cổng mặc định của nền tảng và ghi giao dịch chờ; trả mã giao dịch
+  private async openOrder(input: {
+    currentUser: CurrentUser;
+    childId: string;
+    subscriptionId: string;
+    upgradeId: string | null;
+    plan: PlanRow;
+    periodMonth: string | null;
+    amount: number;
+    now: Date;
+    expiresAt: Date;
+    payerIpAddress: string | null;
+  }): Promise<string> {
+    const tenant = this.schoolOfRequest();
+    const gateway = (await this.gateways.registry()).defaultGateway;
+    const sequence = await this.nextValue('platform_ai_tutor_order_number_seq');
+    const code = orderCode(input.now, sequence);
+    const transferContent = transferContentOf(input.now, sequence);
+    const account = (await readBillingSettings(this.platform)).receivingAccount;
+    const created = await gateway.createPaymentRequest({
+      invoiceCode: code,
+      transferContent,
+      amount: input.amount,
+      childName: `Gia su AI ${input.plan.name}`,
+      receivingAccountNumber: account.accountNumber ?? '',
+      receivingAccountName: account.accountName ?? '',
+      receivingBankBin: account.bankBin,
+      payerIpAddress: input.payerIpAddress,
+    });
+    const order = await this.platform
+      .insertInto('platform_ai_tutor_orders')
+      .values({
+        code,
+        transfer_content: transferContent,
+        school_id: tenant.schoolId,
+        school_name: tenant.name,
+        child_id: input.childId,
+        subscription_id: input.subscriptionId,
+        buyer_user_id: input.currentUser.id,
+        buyer_name: input.currentUser.description.full_name,
+        plan_id: input.plan.id,
+        plan_name: input.plan.name,
+        plan_kind: input.plan.kind,
+        period_month: input.periodMonth,
+        turns: input.plan.turns,
+        kind: input.upgradeId ? 'upgrade' : 'purchase',
+        upgrade_id: input.upgradeId,
+        amount: input.amount,
+        pending_expires_at: input.expiresAt,
+        provider: created.provider,
+        provider_reference: created.providerReference,
+        qr_content: created.qrContent,
+        created_at: input.now,
+        updated_at: input.now,
+      })
+      .returning('id')
+      .executeTakeFirstOrThrow();
+    return order.id;
+  }
+
+  // Gói tháng của nền tảng mà con đang dùng trong tháng này (nguồn nền tảng, còn hiệu lực)
+  private async currentPlatformMonthly(system: SystemClient, childId: string, now: Date) {
+    return system
+      .selectFrom('ai_tutor_subscriptions')
+      .selectAll()
+      .where('child_id', '=', childId)
+      .where('plan_source', '=', 'platform')
+      .where('plan_kind', '=', 'monthly')
+      .where('status', '=', 'active')
+      .where('period_month', '=', vietnamMonthOf(now))
+      .where('valid_until', '>', now)
+      .executeTakeFirst();
+  }
+
+  // Các gói tháng cao hơn nâng lên được trong tháng này, kèm phần chênh lệch theo số ngày còn lại và số lượt cộng thêm
+  private async upgradeOptions(
+    system: SystemClient,
+    childId: string,
+    level: AiTutorSchoolLevel | null,
+    plans: PlanRow[],
+    now: Date,
+  ) {
+    const current = level ? await this.currentPlatformMonthly(system, childId, now) : undefined;
+    if (!current || !level) {
+      return [];
+    }
+    const terms = await currentMonthlyTerms(system, current);
+    return plans.flatMap((plan) => {
+      const priced = upgradeQuote(
+        {
+          planSource: 'platform',
+          planKind: 'monthly',
+          planId: current.plan_id,
+          status: 'active',
+          periodMonth: dateText(current.period_month),
+          monthlyPrice: terms.price,
+          monthlyTurns: terms.turns,
+        },
+        {
+          source: 'platform',
+          id: plan.id,
+          kind: plan.kind,
+          status: plan.status,
+          price: money(plan.price),
+          turns: plan.turns,
+          schoolLevels: plan.school_levels,
+        },
+        level,
+        now,
+      );
+      return priced.ok && priced.quote.priceDifference > 0
+        ? [
+            {
+              subscription_id: current.id,
+              from_plan_name: current.plan_name,
+              plan_id: plan.id,
+              plan_name: plan.name,
+              price_difference: priced.quote.priceDifference,
+              extra_turns: priced.quote.extraTurns,
+              remaining_days: priced.quote.remainingDays,
+              days_in_month: priced.quote.daysInMonth,
+            },
+          ]
+        : [];
+    });
+  }
+
+  // Nâng gói tháng giữa tháng (Eric chọn ngày 2026-10-30): phụ huynh chỉ trả phần chênh lệch theo số ngày còn lại của tháng, trả ngay qua
+  // cổng của nền tảng; lượt cộng thêm theo cùng tỉ lệ. Lần nâng ghi ở trường ở trạng thái chờ (`createAiTutorUpgrade`), áp khi tiền vào
+  async createUpgrade(currentUser: CurrentUser, childId: string, body: RequestBody, payerIpAddress: string | null) {
+    this.schoolOfRequest();
+    const { level } = await this.childOf(currentUser, childId);
+    const planId = body?.plan_id;
+    const plan = isUuid(planId)
+      ? await this.platform
+          .selectFrom('platform_ai_tutor_plans')
+          .selectAll()
+          .where('id', '=', planId)
+          .executeTakeFirst()
+      : undefined;
+    if (!plan) {
+      throw validationError([{ field: 'plan_id', message: 'Chọn gói tháng muốn nâng lên' }]);
+    }
+    const now = this.clock.now();
+    const system = this.databases.system;
+    const current = level ? await this.currentPlatformMonthly(system, childId, now) : undefined;
+    if (!current || !level) {
+      throw new ApplicationError('ERR_CONFLICT', 'Con chưa có gói tháng mua trực tiếp đang dùng trong tháng này');
+    }
+    if ((await this.paymentState()).provider === 'none') {
+      throw new ApplicationError('ERR_CONFLICT', 'Nền tảng chưa mở thanh toán trực tuyến');
+    }
+    const expiresAt = pendingExpiresAt(now);
+    const upgrade = await createAiTutorUpgrade(
+      system,
+      {
+        subscriptionId: current.id,
+        childSchoolLevel: level,
+        target: {
+          source: 'platform',
+          id: plan.id,
+          kind: plan.kind,
+          name: plan.name,
+          price: plan.price,
+          turns: plan.turns,
+          allowImages: plan.allow_images,
+          schoolLevels: plan.school_levels,
+          status: plan.status,
+        },
+        buyerUserId: currentUser.id,
+        buyerName: currentUser.description.full_name,
+        pendingExpiresAt: expiresAt,
+      },
+      now,
+    );
+    if (!upgrade.ok) {
+      throw new ApplicationError('ERR_CONFLICT', upgradeBlockMessage(upgrade.code));
+    }
+    try {
+      if (upgrade.quote.priceDifference <= 0) {
+        throw new ApplicationError('ERR_CONFLICT', 'Phần chênh lệch quá nhỏ để thanh toán; hãy chọn gói khác');
+      }
+      const orderId = await this.openOrder({
+        currentUser,
+        childId,
+        subscriptionId: current.id,
+        upgradeId: upgrade.upgradeId,
+        plan,
+        periodMonth: dateText(current.period_month),
+        amount: upgrade.quote.priceDifference,
+        now,
+        expiresAt,
+        payerIpAddress,
+      });
+      return this.parentOrder(currentUser, orderId);
+    } catch (error) {
+      await cancelAiTutorUpgrade(system, upgrade.upgradeId, 'Không tạo được yêu cầu thanh toán', now);
       throw error;
     }
   }
@@ -557,7 +757,7 @@ export class PlatformAiTutorSalesService implements PlatformTransferHandler {
       } else if (result === 'late') {
         if (order.status === 'pending') {
           await this.inSchool(order.school_id, (system) =>
-            this.cancelSubscription(system, order.subscription_id, 'Tiền đến sau hạn giữ chỗ', now),
+            this.dropPending(system, order, 'Tiền đến sau hạn giữ chỗ', now),
           );
         }
         await transaction
@@ -586,6 +786,17 @@ export class PlatformAiTutorSalesService implements PlatformTransferHandler {
 
   // Kích hoạt lần mua ở trường; lần thử trước đã kích hoạt (giao dịch ở nền tảng lỗi sau đó) thì vẫn coi là đã kích hoạt
   private async activate(system: SystemClient, order: OrderRow, now: Date): Promise<boolean> {
+    if (order.upgrade_id) {
+      if (await applyAiTutorUpgrade(system, order.upgrade_id, now, order.code)) {
+        return true;
+      }
+      const upgrade = await system
+        .selectFrom('ai_tutor_upgrades')
+        .select(['status', 'external_reference'])
+        .where('id', '=', order.upgrade_id)
+        .executeTakeFirst();
+      return upgrade?.status === 'applied' && upgrade.external_reference === order.code;
+    }
     if (await activateAiTutorSubscription(system, order.subscription_id, now, order.code)) {
       return true;
     }
@@ -681,11 +892,18 @@ export class PlatformAiTutorSalesService implements PlatformTransferHandler {
       if (closed.numUpdatedRows !== 1n) {
         return false;
       }
-      await this.inSchool(order.school_id, (system) =>
-        this.cancelSubscription(system, order.subscription_id, reason, now),
-      );
+      await this.inSchool(order.school_id, (system) => this.dropPending(system, order, reason, now));
       return true;
     });
+  }
+
+  // Bỏ phần đang chờ ở trường của giao dịch: lần mua chờ (mua mới) hoặc lần nâng chờ (nâng gói)
+  private async dropPending(system: SystemClient, order: OrderRow, reason: string, now: Date): Promise<void> {
+    if (order.upgrade_id) {
+      await cancelAiTutorUpgrade(system, order.upgrade_id, reason, now);
+      return;
+    }
+    await this.cancelSubscription(system, order.subscription_id, reason, now);
   }
 
   // Đóng các giao dịch của trường đã quá hạn giữ chỗ; trả số giao dịch đã đóng
@@ -989,8 +1207,12 @@ export class PlatformAiTutorSalesService implements PlatformTransferHandler {
           created_at: now,
         })
         .execute();
-      await this.inSchool(order.school_id, (system) =>
-        system
+      await this.inSchool(order.school_id, async (system) => {
+        if (order.upgrade_id) {
+          await this.revertUpgrade(system, order.upgrade_id, now);
+          return;
+        }
+        await system
           .updateTable('ai_tutor_subscriptions')
           .set({
             status: 'refunded',
@@ -1000,8 +1222,8 @@ export class PlatformAiTutorSalesService implements PlatformTransferHandler {
           })
           .where('id', '=', order.subscription_id)
           .where('status', 'in', ['pending', 'active'])
-          .execute(),
-      );
+          .execute();
+      });
       await writeAudit(transaction, {
         actorType: 'operator',
         actorId: operator.id,
@@ -1011,6 +1233,56 @@ export class PlatformAiTutorSalesService implements PlatformTransferHandler {
       });
     });
     return this.orderDetail(request, id);
+  }
+
+  // Hoàn tiền một lần nâng gói đã áp: đưa gói về gói trước khi nâng, bớt số lượt đã cộng (không dưới số đã dùng, đang giữ), lần nâng
+  // chuyển `refunded` nên giá tháng đang dùng trở về giá cũ. Chỉ hoàn được lần nâng gần nhất của gói; lần nâng chưa áp (tiền đến muộn)
+  // thì không đổi gói
+  private async revertUpgrade(system: SystemClient, upgradeId: string, now: Date): Promise<void> {
+    await system.transaction().execute(async (transaction) => {
+      const upgrade = await transaction
+        .selectFrom('ai_tutor_upgrades')
+        .selectAll()
+        .where('id', '=', upgradeId)
+        .where('status', '=', 'applied')
+        .forUpdate()
+        .executeTakeFirst();
+      if (!upgrade) {
+        return;
+      }
+      const later = await transaction
+        .selectFrom('ai_tutor_upgrades')
+        .select('id')
+        .where('subscription_id', '=', upgrade.subscription_id)
+        .where('status', '=', 'applied')
+        .where('applied_at', '>', upgrade.applied_at ?? now)
+        .executeTakeFirst();
+      if (later) {
+        throw new ApplicationError('ERR_CONFLICT', 'Gói đã được nâng tiếp sau lần này; hãy hoàn lần nâng sau trước');
+      }
+      const fromPlan = await this.platform
+        .selectFrom('platform_ai_tutor_plans')
+        .select('allow_images')
+        .where('id', '=', upgrade.from_plan_id)
+        .executeTakeFirst();
+      await transaction
+        .updateTable('ai_tutor_subscriptions')
+        .set({
+          plan_id: upgrade.from_plan_id,
+          plan_name: upgrade.from_plan_name,
+          allow_images: fromPlan?.allow_images ?? false,
+          turns: sql<number>`greatest(turns - ${upgrade.extra_turns}, used_turns + held_turns, 1)`,
+          updated_at: now,
+        })
+        .where('id', '=', upgrade.subscription_id)
+        .where('plan_id', '=', upgrade.to_plan_id)
+        .execute();
+      await transaction
+        .updateTable('ai_tutor_upgrades')
+        .set({ status: 'refunded', updated_at: now })
+        .where('id', '=', upgrade.id)
+        .execute();
+    });
   }
 }
 

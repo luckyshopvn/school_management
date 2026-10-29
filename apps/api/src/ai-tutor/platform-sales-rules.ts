@@ -183,7 +183,11 @@ export function receiptDescription(order: {
   const head = order.kind === 'upgrade' ? `Nâng lên gói ${order.planName}` : `Gói ${order.planName}`;
   if (order.planKind === 'monthly' && order.periodMonth) {
     const [year, month] = order.periodMonth.split('-');
-    return `${head} tháng ${Number(month)}/${year} (${order.turns.toLocaleString('vi-VN')} lượt hỏi)`;
+    const detail =
+      order.kind === 'upgrade'
+        ? 'phần chênh lệch theo số ngày còn lại của tháng'
+        : `${order.turns.toLocaleString('vi-VN')} lượt hỏi`;
+    return `${head} tháng ${Number(month)}/${year} (${detail})`;
   }
   return `${head} (${order.turns.toLocaleString('vi-VN')} lượt hỏi, dùng trong 12 tháng)`;
 }

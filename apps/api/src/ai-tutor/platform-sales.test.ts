@@ -20,7 +20,7 @@ import { runAsSchool } from '@school-management/server';
 import type { Kysely } from 'kysely';
 import { CurrentSchoolYearResolver } from '../common/current-school-year.js';
 import { sendWithHost, startMultiTenantApi, type MultiTenantApi } from '../tenant-test-support.js';
-import { vietnamMonthOf } from './ai-tutor-rules.js';
+import { prorate, remainingDaysOfMonth, vietnamMonthOf } from './ai-tutor-rules.js';
 import { activateAiTutorSubscription, aiTutorTurnBalance, createAiTutorSubscription } from './ai-tutor-turns.js';
 import { PlatformAiTutorExpiryJob } from './platform-sales.js';
 
@@ -569,5 +569,67 @@ describe('Gia sư AI: nền tảng bán thẳng cho phụ huynh', () => {
     } finally {
       await platform.deleteFrom('platform_integration_secrets').execute();
     }
+  });
+
+  it('CT-383-L1b-9: nâng gói tháng giữa tháng: chỉ trả phần chênh lệch theo ngày còn lại, lượt cộng thêm cùng tỉ lệ; hoàn tiền thì về gói cũ', async () => {
+    const advanced = await operator('POST', '/plans', {
+      kind: 'monthly',
+      name: 'Nâng cao tháng',
+      price: 169_000,
+      turns: 300,
+      allow_images: true,
+      school_levels: ['THCS', 'THPT'],
+    });
+    assert.equal(advanced.status, 201, JSON.stringify(advanced.body));
+    const now = new Date();
+    const { remainingDays, daysInMonth } = remainingDaysOfMonth(vietnamMonthOf(now), now);
+    const expectedAmount = prorate(169_000 - 89_000, remainingDays, daysInMonth);
+    const expectedTurns = prorate(300 - 120, remainingDays, daysInMonth);
+    assert.ok(expectedAmount > 0);
+
+    const overview = await parent('GET', `/children/${childId}`);
+    const option = (overview.body.upgrade_options as Array<Record<string, unknown>>).find(
+      (item) => item.plan_id === advanced.body.id,
+    );
+    assert.ok(option, JSON.stringify(overview.body.upgrade_options));
+    assert.equal(option.price_difference, expectedAmount);
+    assert.equal(option.extra_turns, expectedTurns);
+    assert.equal(option.remaining_days, remainingDays);
+    const before = (await aiTutorTurnBalance(system, childId, new Date())).monthly;
+
+    const created = await parent('POST', `/children/${childId}/upgrades`, { plan_id: advanced.body.id });
+    assert.equal(created.status, 201, JSON.stringify(created.body));
+    assert.equal(created.body.kind, 'upgrade');
+    assert.equal(created.body.status, 'pending');
+    assert.equal(created.body.amount, expectedAmount, 'chỉ trả phần chênh lệch theo số ngày còn lại');
+    const again = await parent('POST', `/children/${childId}/upgrades`, { plan_id: advanced.body.id });
+    assert.equal(again.status, 409, 'đang có lần nâng chờ thanh toán');
+
+    const paid = await parent('POST', `/orders/${String(created.body.id)}/simulate-payment`);
+    assert.equal(paid.body.status, 'paid', JSON.stringify(paid.body));
+    assert.match(
+      String((paid.body.receipt as Record<string, unknown>).description),
+      /^Nâng lên gói Nâng cao tháng tháng \d+\/\d{4}/,
+    );
+    const subscription = await subscriptionOf(String(created.body.id));
+    assert.equal(subscription.plan_name, 'Nâng cao tháng');
+    assert.equal(subscription.allow_images, true);
+    assert.equal(subscription.turns, 120 + expectedTurns);
+    assert.equal(Number(subscription.price), 89_000, 'giá mua ban đầu giữ nguyên trên dòng đăng ký');
+    assert.equal((await aiTutorTurnBalance(system, childId, new Date())).monthly, before + expectedTurns);
+    const same = await parent('POST', `/children/${childId}/upgrades`, { plan_id: advanced.body.id });
+    assert.equal(same.status, 409);
+    assert.match(String((same.body.error as Record<string, unknown>).message), /đang dùng gói này/);
+
+    const refunded = await operator('POST', `/orders/${String(created.body.id)}/refund`, {
+      reason: 'Phụ huynh đổi ý (thử)',
+    });
+    assert.equal(refunded.status, 200, JSON.stringify(refunded.body));
+    const reverted = await subscriptionOf(String(created.body.id));
+    assert.equal(reverted.status, 'active', 'hoàn lần nâng không hủy gói tháng đã mua');
+    assert.equal(reverted.plan_name, 'Cơ bản tháng');
+    assert.equal(reverted.allow_images, false);
+    assert.equal(reverted.turns, 120);
+    assert.equal((await aiTutorTurnBalance(system, childId, new Date())).monthly, before);
   });
 });
