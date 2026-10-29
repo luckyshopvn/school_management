@@ -156,8 +156,7 @@ const emptyRule = {
   due_days: '15',
 };
 
-const TABS_BASE = ['hoa-don', 'cong-no', 'chua-khop', 'quy-tac', 'cau-hinh'] as const;
-type BillingTab = (typeof TABS_BASE)[number];
+type BillingTab = 'hoa-don' | 'cong-no' | 'chua-khop' | 'quy-tac' | 'cau-hinh';
 
 const FILTERS: Array<[string, string]> = [
   ['', 'Tất cả'],
