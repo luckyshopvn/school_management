@@ -11,13 +11,15 @@ import {
   vietnamDate,
   type AiPricing,
   type PlatformDatabase,
+  type PlatformOperatorRole,
   type TenancyRuntime,
 } from '@school-management/database';
-import { ApplicationError, Clock, readBearerToken, validationError, type FieldError } from '@school-management/server';
+import { ApplicationError, Clock, validationError, type FieldError } from '@school-management/server';
 import type { Request } from 'express';
 import { sql, type Kysely } from 'kysely';
 import { TENANCY_RUNTIME } from '../common/configuration.js';
 import { PlatformOperatorsService } from './platform-operators.js';
+import { operatorRolesFor } from '@school-management/shared';
 
 // Trợ lý AI ở cổng vận hành nền tảng (DT-23 phần 23d, YCTD-214; tài liệu 32 mục 15, GD-102, GD-103): khóa nhà cung cấp AI dùng chung của
 // nền tảng (cấu hình `platform`, mã hóa bằng khóa gốc, chỉ trả bốn ký tự cuối), nhà cung cấp và mã mô hình của nền tảng, màn hình thiết lập
@@ -105,9 +107,12 @@ export class PlatformAiService {
     @Optional() @Inject(TENANCY_RUNTIME) private readonly tenancy: TenancyRuntime | null = null,
   ) {}
 
-  async authorize(request: Request): Promise<{ platform: Kysely<PlatformDatabase>; operatorId: string }> {
-    this.operators.assertConsoleHost(request);
-    const operator = await this.operators.me(readBearerToken(request.header('authorization')));
+  // Vai trò được làm việc này theo OPERATOR_PERMISSIONS (YCTD-323)
+  async authorize(
+    request: Request,
+    roles: readonly PlatformOperatorRole[],
+  ): Promise<{ platform: Kysely<PlatformDatabase>; operatorId: string }> {
+    const operator = await this.operators.authorize(request, roles);
     return { platform: this.operators.platformDatabase(), operatorId: operator.id };
   }
 
@@ -228,31 +233,31 @@ export class PlatformAiController {
 
   @Get()
   async overview(@Req() request: Request) {
-    const { platform } = await this.ai.authorize(request);
+    const { platform } = await this.ai.authorize(request, operatorRolesFor('ai.view'));
     return this.ai.overview(platform);
   }
 
   @Put('settings')
   async settings(@Body() body: Body_, @Req() request: Request) {
-    const { platform, operatorId } = await this.ai.authorize(request);
+    const { platform, operatorId } = await this.ai.authorize(request, operatorRolesFor('ai.settings'));
     return this.ai.saveSettings(platform, operatorId, body);
   }
 
   @Put('key')
   async key(@Body() body: Body_, @Req() request: Request) {
-    const { platform, operatorId } = await this.ai.authorize(request);
+    const { platform, operatorId } = await this.ai.authorize(request, operatorRolesFor('ai.settings'));
     return this.ai.saveKey(platform, operatorId, body);
   }
 
   @Put('pricing/:planId')
   async pricing(@Param('planId') planId: string, @Body() body: Body_, @Req() request: Request) {
-    const { platform, operatorId } = await this.ai.authorize(request);
+    const { platform, operatorId } = await this.ai.authorize(request, operatorRolesFor('ai.pricing'));
     return this.ai.savePricing(platform, operatorId, planId, body);
   }
 
   @Get('usage')
   async usage(@Query() query: Record<string, string | undefined>, @Req() request: Request) {
-    const { platform } = await this.ai.authorize(request);
+    const { platform } = await this.ai.authorize(request, operatorRolesFor('ai.view'));
     return this.ai.usage(platform, query);
   }
 }

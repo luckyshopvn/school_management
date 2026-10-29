@@ -8,7 +8,9 @@ import { useSchoolLevelTerms } from '../school-levels/working-level.js';
 import { ApiError, requestJson } from '../session/api-client.js';
 
 // Điểm danh trên cổng quản trị (P04-01, P04-06, QT-02): xem bảng của lớp theo ngày; quản lý đơn vị chốt thay,
-// sửa sau khi chốt kèm lý do, mở lại ngày đã chốt (ghi chú 15 của tài liệu 08, YCTD-47)
+// sửa sau khi chốt kèm lý do, mở lại ngày đã chốt (ghi chú 15 của tài liệu 08, YCTD-47). YCTD-334 (thiết kế lại cổng quản
+// trị): bộ lọc gọn một hàng, ô Đơn vị chỉ hiện khi có từ hai đơn vị, nút ngày trước, ngày sau; tóm tắt thành từng ô số; nút
+// thao tác ở đầu bảng, thêm "Đánh dấu tất cả có mặt" cho các dòng chưa đánh dấu (vẫn phải bấm Lưu)
 type Status = 'present' | 'absent_notified' | 'absent_unnotified' | 'late' | 'early_leave' | 'late_and_early_leave';
 
 const STATUS_LABELS: Record<Status, string> = {
@@ -53,6 +55,13 @@ function messageOf(error: unknown): string {
 
 function vietnamToday(): string {
   return new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Ho_Chi_Minh' }).format(new Date());
+}
+
+// Ngày liền trước hoặc liền sau dạng yyyy-mm-dd, tính theo lịch (không theo múi giờ máy)
+function shiftDate(value: string, days: number): string {
+  const [year, month, day] = value.split('-').map(Number);
+  const date = new Date(Date.UTC(year ?? 1970, (month ?? 1) - 1, (day ?? 1) + days));
+  return date.toISOString().slice(0, 10);
 }
 
 export function AttendancePage() {
@@ -129,24 +138,36 @@ export function AttendancePage() {
     <AppShell>
       <Toast message={toastMessage} onClose={closeToast} />
       <div className="flex flex-col gap-6">
-        <h1 className="text-page-title font-bold text-text">Điểm danh</h1>
-        <div className="flex flex-wrap items-end gap-4">
-          <UnitSelect units={unitChoice.units} selectedId={orgUnitId} onSelect={unitChoice.select} />
-          <label className="flex flex-col gap-2 text-label font-medium text-text">
-            Lớp
-            <select
-              value={selectedClassId}
-              onChange={(event) => setClassId(event.target.value)}
-              className="rounded-lg border border-border bg-card px-3 py-2 text-content font-normal"
-            >
-              {activeClasses.map((item) => (
-                <option key={item.id} value={item.id}>
-                  {item.name}
-                </option>
-              ))}
-            </select>
-          </label>
-          <TextField label="Ngày" type="date" value={date} onChange={(event) => setDate(event.target.value)} />
+        <div className="flex flex-wrap items-end justify-between gap-4">
+          <h1 className="text-page-title font-bold text-text">Điểm danh</h1>
+          <div className="flex flex-wrap items-end gap-3">
+            {unitChoice.units.length > 1 ? (
+              <UnitSelect units={unitChoice.units} selectedId={orgUnitId} onSelect={unitChoice.select} />
+            ) : null}
+            <label className="flex flex-col gap-2 text-label font-medium text-text">
+              Lớp
+              <select
+                value={selectedClassId}
+                onChange={(event) => setClassId(event.target.value)}
+                className="rounded-lg border border-border bg-card px-3 py-2 text-content font-normal"
+              >
+                {activeClasses.map((item) => (
+                  <option key={item.id} value={item.id}>
+                    {item.name}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <div className="flex items-end gap-1">
+              <Button aria-label="Hôm trước" onClick={() => setDate(shiftDate(date, -1))}>
+                <span aria-hidden="true">‹</span>
+              </Button>
+              <TextField label="Ngày" type="date" value={date} onChange={(event) => setDate(event.target.value)} />
+              <Button aria-label="Hôm sau" onClick={() => setDate(shiftDate(date, 1))}>
+                <span aria-hidden="true">›</span>
+              </Button>
+            </div>
+          </div>
         </div>
         {sheet.isError ? <Alert tone="warning">{messageOf(sheet.error)}</Alert> : null}
         {actionError ? <Alert tone="danger">{messageOf(actionError)}</Alert> : null}
@@ -155,18 +176,68 @@ export function AttendancePage() {
             className="flex flex-col gap-4 rounded-xl border border-border bg-card p-4"
             aria-label="Bảng điểm danh"
           >
-            <div className="flex flex-wrap items-center gap-3 text-content">
+            <div className="flex flex-wrap items-center gap-3">
               <StatusBadge
                 tone={data.day_status === 'locked' ? 'success' : 'info'}
                 label={data.day_status === 'locked' ? 'Đã chốt' : 'Chưa chốt'}
               />
-              <span>
-                {data.summary.total} {terms.learner.toLocaleLowerCase('vi')} · có mặt {data.summary.present} · đi muộn{' '}
-                {data.summary.late} · về sớm {data.summary.early_leave} · nghỉ có báo {data.summary.absent_notified} ·
-                nghỉ không báo {data.summary.absent_unnotified} · chưa đánh dấu {data.summary.unmarked} ·{' '}
-                {data.summary.meal_count} suất ăn
-              </span>
+              <dl className="flex flex-wrap gap-x-5 gap-y-1 text-content" aria-label="Tóm tắt điểm danh">
+                {[
+                  [terms.learner, data.summary.total],
+                  ['Có mặt', data.summary.present],
+                  ['Đi muộn', data.summary.late],
+                  ['Về sớm', data.summary.early_leave],
+                  ['Nghỉ có báo', data.summary.absent_notified],
+                  ['Nghỉ không báo', data.summary.absent_unnotified],
+                  ['Chưa đánh dấu', data.summary.unmarked],
+                  ['Suất ăn', data.summary.meal_count],
+                ].map(([label, value]) => (
+                  <div key={label} className="flex items-baseline gap-1.5">
+                    <dt className="text-label text-text-secondary">{label}</dt>
+                    <dd
+                      className={`font-semibold ${label === 'Chưa đánh dấu' && Number(value) > 0 ? 'text-warning' : ''}`}
+                    >
+                      {value}
+                    </dd>
+                  </div>
+                ))}
+              </dl>
             </div>
+            {data.can_edit ? (
+              <div className="flex flex-wrap items-end gap-3">
+                {data.day_status === 'locked' ? (
+                  <TextField
+                    label="Lý do sửa hoặc mở lại"
+                    value={reason}
+                    onChange={(event) => setReason(event.target.value)}
+                  />
+                ) : null}
+                <Button
+                  disabled={data.children.every((child) => marks[child.child_id])}
+                  onClick={() =>
+                    setMarks(
+                      Object.fromEntries(
+                        data.children.map((child) => [child.child_id, marks[child.child_id] || 'present']),
+                      ),
+                    )
+                  }
+                >
+                  Đánh dấu tất cả có mặt
+                </Button>
+                <Button variant="primary" disabled={save.isPending} onClick={() => save.mutate()}>
+                  Lưu điểm danh
+                </Button>
+                {data.day_status === 'open' ? (
+                  <Button disabled={lock.isPending} onClick={() => lock.mutate()}>
+                    Chốt điểm danh ngày
+                  </Button>
+                ) : (
+                  <Button disabled={unlock.isPending || reason.trim() === ''} onClick={() => unlock.mutate()}>
+                    Mở lại ngày đã chốt
+                  </Button>
+                )}
+              </div>
+            ) : null}
             <table className="w-full text-content">
               <thead className="text-left text-label font-medium text-text-secondary">
                 <tr>
@@ -209,29 +280,6 @@ export function AttendancePage() {
                 ))}
               </tbody>
             </table>
-            {data.can_edit ? (
-              <div className="flex flex-wrap items-end gap-3">
-                {data.day_status === 'locked' ? (
-                  <TextField
-                    label="Lý do sửa hoặc mở lại"
-                    value={reason}
-                    onChange={(event) => setReason(event.target.value)}
-                  />
-                ) : null}
-                <Button variant="primary" disabled={save.isPending} onClick={() => save.mutate()}>
-                  Lưu điểm danh
-                </Button>
-                {data.day_status === 'open' ? (
-                  <Button disabled={lock.isPending} onClick={() => lock.mutate()}>
-                    Chốt điểm danh ngày
-                  </Button>
-                ) : (
-                  <Button disabled={unlock.isPending || reason.trim() === ''} onClick={() => unlock.mutate()}>
-                    Mở lại ngày đã chốt
-                  </Button>
-                )}
-              </div>
-            ) : null}
           </section>
         ) : null}
       </div>

@@ -28,7 +28,7 @@ interface SessionValue {
     otpCode?: string,
     remember?: boolean,
   ): Promise<void>;
-  changePassword(currentPassword: string, newPassword: string): Promise<void>;
+  changePassword(currentPassword: string, newPassword: string, otpCode?: string): Promise<void>;
   logout(): Promise<void>;
   // Đăng nhập thay và thoát (DT-18 phần 18h); dữ liệu đã tải của phiên trước bị xóa khỏi bộ nhớ đệm
   startImpersonation(userId: string, reason: string): Promise<void>;
@@ -67,8 +67,8 @@ export function SessionProvider({ children }: { children: ReactNode }) {
       async login(loginIdentifier, password, captcha, otpCode, remember) {
         applyTokens(await requestLogin(loginIdentifier, password, captcha, otpCode, remember));
       },
-      async changePassword(currentPassword, newPassword) {
-        applyTokens(await requestPasswordChange(currentPassword, newPassword));
+      async changePassword(currentPassword, newPassword, otpCode) {
+        applyTokens(await requestPasswordChange(currentPassword, newPassword, otpCode));
         await queryClient.invalidateQueries();
       },
       async startImpersonation(userId, reason) {

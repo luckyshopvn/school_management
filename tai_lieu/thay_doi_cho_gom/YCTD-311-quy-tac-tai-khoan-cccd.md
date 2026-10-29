@@ -32,6 +32,7 @@ phien_ban_de_xuat: 0.187.0
 
 - Số CCCD (số định danh cá nhân) là dữ liệu cá nhân cơ bản (khoản 3 Điều 2 Nghị định 13/2023/NĐ-CP), không phải dữ liệu nhạy cảm; Luật Bảo vệ dữ liệu cá nhân số 91/2025/QH15 (hiệu lực từ 01/01/2026) giữ cách phân loại này. Trường xử lý để định danh người dùng của hệ thống quản lý trường học theo nhiệm vụ của cơ sở giáo dục; nhà trường là bên kiểm soát dữ liệu, nhà cung cấp phần mềm là bên xử lý theo hợp đồng.
 - Nguyên tắc tối thiểu và mục đích: chỉ dùng số CCCD làm tên đăng nhập, không hiện trên danh sách, nhật ký, không đưa vào đường dẫn khi tạo tài khoản; lưu mã hóa ở hồ sơ (máy chủ API), dạng rõ ở cột tên đăng nhập của dịch vụ định danh có phân quyền cơ sở dữ liệu riêng.
+- Rủi ro của mật khẩu mặc định chung (bổ sung theo YCTD-323): một giá trị dùng cho mọi tài khoản tạo theo số CCCD ở mọi trường, ai từng nhận tài khoản cũng biết; số CCCD không phải bí mật. Người biết cả hai có thể đăng nhập trước chủ tài khoản trong thời hạn của mật khẩu mặc định. Eric quyết định ngày 2026-10-28 giữ mật khẩu mặc định chung, kèm các biện pháp của YCTD-323: (a) đổi mật khẩu mặc định lần đầu phải nhập mã gửi tới số điện thoại trong hồ sơ; (b) tài khoản không có số điện thoại nhận mật khẩu tạm ngẫu nhiên, không nhận mật khẩu mặc định; (c) tài khoản quản trị trường bắt buộc có số điện thoại (YCTD-314); (d) thời hạn mật khẩu mặc định rút xuống 24 giờ, cấu hình `initial_password_lifetime_hours` từ 1 đến 720 giờ. Rủi ro còn lại: người giữ được điện thoại của chủ tài khoản.
 - Còn phải làm khi triển khai thật: (a) văn bản thông báo xử lý dữ liệu cá nhân của trường nêu việc dùng số CCCD làm tên đăng nhập; (b) bộ lọc "Tên đăng nhập" của danh sách người dùng đang gửi qua tham số đường dẫn, khi tìm theo số CCCD thì nên chuyển sang thân yêu cầu (đề xuất); (c) đánh giá tác động xử lý dữ liệu cá nhân của nhà trường cập nhật mục số CCCD; (d) trẻ dưới 16 tuổi (học sinh): số định danh của trẻ do cha mẹ hoặc người giám hộ cung cấp khi nhập học, cần có trong nội dung đồng ý của hồ sơ nhập học.
 
 #### Thay đổi
@@ -41,7 +42,7 @@ phien_ban_de_xuat: 0.187.0
 #### Vấn đề tồn đọng
 
 - Màn hình tạo tài khoản ở cổng quản trị chưa có ô "Số CCCD" riêng (gõ 12 chữ số vào ô Tên đăng nhập là đủ); màn hình cấu hình chưa có ô sửa số ngày hạn mật khẩu mặc định (đặt qua `PUT /auth/settings`).
-- Nhân viên vận hành chưa có màn hình tự đổi mật khẩu tạm ở cổng nền tảng; phân vai mới chặn ở quản lý nhân viên và phiên hỗ trợ, các trang khác (gói, thu phí, trường) còn mở cho mọi vai trò.
+- Nhân viên vận hành chưa có màn hình tự đổi mật khẩu tạm ở cổng nền tảng; phân vai mới chặn ở quản lý nhân viên và phiên hỗ trợ, các trang khác (gói, thu phí, trường) còn mở cho mọi vai trò. Đã làm ở YCTD-323.
 - Đề xuất: so khớp tên đăng nhập bằng giá trị băm có khóa; pepper cho băm mật khẩu; chuyển bộ lọc tên đăng nhập sang thân yêu cầu.
 
 ## 24 Yêu cầu thay đổi

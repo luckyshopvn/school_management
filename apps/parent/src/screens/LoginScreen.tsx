@@ -1,7 +1,7 @@
-import { useState, type FormEvent } from 'react';
+import { useCallback, useEffect, useRef, useState, type FormEvent } from 'react';
 import { Alert, Button, DemoAccountPicker, ExternalProviderButtons, TextField } from '@school-management/ui';
 import { externalRequest } from '../session/external-request.js';
-import { ApiError, requestOneTimeCode } from '../session/api-client.js';
+import { ApiError, issueCaptcha, requestOneTimeCode, type CaptchaChallenge } from '../session/api-client.js';
 import { useSession } from '../session/session.js';
 import { RECRUITMENT_HASH } from './RecruitmentScreen.js';
 
@@ -18,6 +18,39 @@ function describe(error: unknown): { message: string; fields: Record<string, str
   return { message: 'Không kết nối được tới máy chủ, vui lòng thử lại', fields: {} };
 }
 
+// Ô mã xác nhận dạng ảnh ở đăng nhập bằng mật khẩu, cùng cơ chế với cổng quản trị và ứng dụng giáo viên (YCTD-354): hiện từ lần nhập
+// sai đầu tiên; mỗi mã dùng một lần
+function useCaptcha(enabled: boolean) {
+  const [challenge, setChallenge] = useState<CaptchaChallenge>();
+  const [text, setText] = useState('');
+  const latest = useRef(0);
+  const refresh = useCallback(() => {
+    const request = ++latest.current;
+    setText('');
+    issueCaptcha()
+      .then((issued) => {
+        if (request === latest.current) {
+          setChallenge(issued);
+        }
+      })
+      .catch(() => undefined);
+  }, []);
+  useEffect(() => {
+    if (enabled) {
+      refresh();
+    } else {
+      setChallenge(undefined);
+    }
+  }, [enabled, refresh]);
+  return {
+    challenge,
+    text,
+    setText,
+    refresh,
+    answer: enabled && challenge ? { captcha_id: challenge.captcha_id, captcha_text: text } : undefined,
+  };
+}
+
 export function LoginScreen({ onAdmissions }: { onAdmissions?: () => void }) {
   const session = useSession();
   const [method, setMethod] = useState<Method>('password');
@@ -28,6 +61,8 @@ export function LoginScreen({ onAdmissions }: { onAdmissions?: () => void }) {
   const [errorMessage, setErrorMessage] = useState<string>();
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const [submitting, setSubmitting] = useState(false);
+  const [failedOnce, setFailedOnce] = useState(false);
+  const captcha = useCaptcha(failedOnce);
 
   async function run(action: () => Promise<void>) {
     setErrorMessage(undefined);
@@ -46,11 +81,21 @@ export function LoginScreen({ onAdmissions }: { onAdmissions?: () => void }) {
 
   function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    void run(() =>
-      method === 'password'
-        ? session.loginWithPassword(phone.trim(), password)
-        : session.loginWithOneTimeCode(phone.trim(), code),
-    );
+    if (method === 'code') {
+      void run(() => session.loginWithOneTimeCode(phone.trim(), code));
+      return;
+    }
+    void run(async () => {
+      try {
+        await session.loginWithPassword(phone.trim(), password, captcha.answer);
+      } catch (error) {
+        if (failedOnce) {
+          captcha.refresh();
+        }
+        setFailedOnce(true);
+        throw error;
+      }
+    });
   }
 
   function sendCode() {
@@ -130,6 +175,35 @@ export function LoginScreen({ onAdmissions }: { onAdmissions?: () => void }) {
             </Button>
           </div>
         )}
+        {method === 'password' && captcha.challenge ? (
+          <div className="flex flex-col gap-2">
+            <div className="flex items-center gap-2">
+              <img
+                src={captcha.challenge.image}
+                alt="Ảnh mã xác nhận"
+                width={170}
+                height={56}
+                className="rounded-md border border-border"
+              />
+              <button
+                type="button"
+                className="rounded-md px-2 py-1 text-label font-medium text-link hover:underline"
+                onClick={captcha.refresh}
+              >
+                Làm mới mã
+              </button>
+            </div>
+            <TextField
+              label="Mã xác nhận"
+              name="captcha"
+              autoComplete="off"
+              autoCapitalize="characters"
+              value={captcha.text}
+              onChange={(event) => captcha.setText(event.target.value)}
+              error={fieldErrors.captcha}
+            />
+          </div>
+        ) : null}
         <Button type="submit" variant="primary" disabled={submitting}>
           {submitting ? 'Đang xử lý…' : 'Đăng nhập'}
         </Button>

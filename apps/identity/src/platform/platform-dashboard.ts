@@ -10,6 +10,7 @@ import type { Request } from 'express';
 import { sql, type Kysely } from 'kysely';
 import { IDENTITY_CONFIGURATION, TENANCY_RUNTIME, type IdentityConfiguration } from '../common/configuration.js';
 import { PlatformSchoolsService } from './platform-schools.js';
+import { operatorRolesFor } from '@school-management/shared';
 
 // Bảng điều khiển nền tảng (DT-SaaS phần S4, YCTD-197; tài liệu 32 mục 14.5 "S4"). Claude tự chọn theo ủy quyền của Eric ngày
 // 2026-10-11:
@@ -373,7 +374,7 @@ export class PlatformDashboardController {
 
   @Get('dashboard')
   async overview(@Req() request: Request) {
-    await this.schools.actor(request);
+    await this.schools.actor(request, operatorRolesFor('overview.view'));
     return this.dashboard.overview();
   }
 
@@ -383,27 +384,27 @@ export class PlatformDashboardController {
     @Query('hours') hours: string | undefined,
     @Req() request: Request,
   ) {
-    await this.schools.actor(request);
+    await this.schools.actor(request, operatorRolesFor('dashboard.errors'));
     return this.dashboard.errors(school, hours);
   }
 
   @Get('maintenance-notices')
   async notices(@Req() request: Request) {
-    await this.schools.actor(request);
+    await this.schools.actor(request, operatorRolesFor('maintenance.view'));
     return this.dashboard.notices();
   }
 
   @Post('maintenance-notices')
   @HttpCode(200)
   async create(@Body() body: Record<string, unknown> | undefined, @Req() request: Request) {
-    const actor = await this.schools.actor(request);
+    const actor = await this.schools.actor(request, operatorRolesFor('maintenance.manage'));
     return this.dashboard.createNotice(body ?? {}, { id: actor.id ?? '', name: actor.name });
   }
 
   @Post('maintenance-notices/:id/cancel')
   @HttpCode(200)
   async cancel(@Param('id') id: string, @Req() request: Request) {
-    const actor = await this.schools.actor(request);
+    const actor = await this.schools.actor(request, operatorRolesFor('maintenance.manage'));
     return this.dashboard.cancelNotice(id, { id: actor.id ?? '', name: actor.name });
   }
 }

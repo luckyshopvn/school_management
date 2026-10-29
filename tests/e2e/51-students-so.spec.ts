@@ -12,6 +12,7 @@ import { createTestUser } from '@school-management/identity/testing';
 import ExcelJS from 'exceljs';
 import { E2E_SCHOOL_YEAR_DATABASE_PREFIX } from '../e2e-environment.mjs';
 import { expectNoMenuLink, openMenu } from './menu.js';
+import { clickGridMoreItem } from './grid.js';
 
 // Học sinh theo hệ thống của Sở (DT-15 phần 15c, YCTD-108): 4.1.1 lưới học sinh có cột, bộ lọc, sắp xếp A–Z, cập nhật
 // hàng loạt, xuất Excel; hồ sơ theo khối có nút Ghi, điện thoại nhận tin, thẻ thông tin riêng của trường; 4.2 biến động
@@ -142,7 +143,7 @@ test('CT-15c-12: lưới học sinh theo Sở: cột, A–Z, cấu hình cột, 
   await expect(rows.nth(0)).toContainText('01/06/2022');
 
   // Bật cột Điện thoại nhận tin, Học 2 buổi/ngày
-  await grid.getByRole('button', { name: 'Cấu hình cột hiển thị' }).click();
+  await clickGridMoreItem(grid, 'Cấu hình cột hiển thị');
   const dialog = page.getByRole('dialog', { name: 'Cấu hình cột hiển thị' });
   await dialog.getByRole('checkbox', { name: 'Điện thoại nhận tin', exact: true }).check();
   await dialog.getByRole('checkbox', { name: 'Học 2 buổi/ngày', exact: true }).check();
@@ -201,7 +202,7 @@ test('CT-15c-13: hồ sơ theo khối có nút Ghi; điện thoại nhận tin; 
   await form.getByRole('button', { name: 'Ghi', exact: true }).click();
   await expect(page.getByText('Đã ghi hồ sơ học sinh')).toBeVisible();
   const phone = await form.getByLabel('Điện thoại nhận tin').locator('option:checked').textContent();
-  await grid.getByRole('button', { name: 'Cấu hình cột hiển thị' }).click();
+  await clickGridMoreItem(grid, 'Cấu hình cột hiển thị');
   const dialog = page.getByRole('dialog', { name: 'Cấu hình cột hiển thị' });
   await dialog.getByRole('checkbox', { name: 'Điện thoại nhận tin', exact: true }).check();
   await dialog.getByRole('button', { name: 'Ghi' }).click();

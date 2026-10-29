@@ -149,8 +149,11 @@ export function SupportLoginPage() {
       setErrorMessage('Thiếu mã trong đường liên kết hỗ trợ');
       return;
     }
+    // Trang mở sau khi vào (YCTD-324: "Tài khoản quản trị trường" ở cổng vận hành mở thẳng /accounts); chỉ nhận đường dẫn trong trang
+    const next = new URLSearchParams(window.location.search).get('next') ?? '/';
+    const target = /^\/(?!\/)[\w\-/]*$/.test(next) ? next : '/';
     publicJson('/api/v1/auth/support/exchange', { method: 'POST', body: JSON.stringify({ code }) })
-      .then(() => window.location.replace('/'))
+      .then(() => window.location.replace(target))
       .catch((error: unknown) =>
         setErrorMessage(error instanceof ApiError ? error.message : 'Không kết nối được tới máy chủ, vui lòng thử lại'),
       );
