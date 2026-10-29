@@ -2585,6 +2585,23 @@ Lỗi quy tắc 422 mã `YCTD-277`. Vào phòng trả `{ status, room_id, title,
 | GET | /api/v1/student/live/rooms/{id} | Trạng thái phòng: `teacher_watching`, thông báo, phòng chia nhỏ, `moved_to` |
 | POST | /api/v1/student/live/rooms/{id}/join, /leave, /help, /report | Vào, rời phòng; gọi giáo viên; báo cáo `{ reason }` |
 
+### 17.11. Gia sư AI do trường bán (YCTD-383 lát L1a, YCTD-387)
+
+Quản trị dùng quyền `P01.integration.manage`; điểm cuối của phụ huynh chỉ cho người giám hộ của con (khác thì 403). Lỗi quy tắc 422 mã `BR-461` (cấp chưa bật), `BR-462` (mua: gói ngừng bán, sai cấp, tháng đã qua, đã có gói tháng trong tháng), `BR-463` (hủy), `BR-464` (nâng gói). Giá là số nguyên đồng.
+
+| Phương thức | Đường dẫn | Mô tả |
+|---|---|---|
+| GET | /api/v1/ai-tutor/school | Cài đặt `{ enabled_levels, quiet_start, quiet_end }` và gói kèm `active_count` |
+| PUT | /api/v1/ai-tutor/school/settings | Lưu `{ enabled_levels: ('TH' \| 'THCS' \| 'THPT')[], quiet_start: 'HH:MM', quiet_end: 'HH:MM' }` |
+| POST | /api/v1/ai-tutor/school/plans | Tạo gói `{ kind: monthly \| top_up, name, price, turns, allow_images, school_levels, status? }` |
+| PUT | /api/v1/ai-tutor/school/plans/{id} | Sửa gói, ngừng bán (`status: archived`) hoặc bán lại; không đổi `kind` |
+| GET | /api/v1/ai-tutor/school/purchases?month=YYYY-MM | Lần mua và lần nâng gói của trường, có tên học sinh, `invoiced` |
+| GET | /api/v1/children/{id}/ai-tutor | Phụ huynh: `enabled`, `current_month`, `next_month`, gói đang bán cho cấp của con, `balance { monthly, top_up }`, lần mua 12 tháng (cả hai nguồn) kèm `can_cancel`, `cancel_note`, lần nâng |
+| POST | /api/v1/children/{id}/ai-tutor/purchases | Mua `{ plan_id, period_month (gói tháng, YYYY-MM-01), consent: true }`; kích hoạt ngay; trả lại trang của con |
+| POST | /api/v1/children/{id}/ai-tutor/purchases/{subscriptionId}/cancel | Hủy khi chưa lên hóa đơn học phí và con chưa dùng lượt |
+| GET | /api/v1/children/{id}/ai-tutor/purchases/{subscriptionId}/upgrade-quote?plan_id= | Báo giá nâng gói `{ remaining_days, days_in_month, price_difference, extra_turns }` |
+| POST | /api/v1/children/{id}/ai-tutor/purchases/{subscriptionId}/upgrade | Nâng gói `{ plan_id }`; áp ngay, phần chênh lệch vào hóa đơn học phí kỳ tới |
+
 ## 18. Quy tắc kiểm tra dữ liệu
 
 | Mã | Quy tắc |
