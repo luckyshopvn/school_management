@@ -152,7 +152,7 @@ test('CT-29c-5: mini app Tiểu học: bảng cửu chương, đồng hồ, phâ
 
   // Khung ô li
   await page.getByRole('tab', { name: /Khung ô li/ }).click();
-  await expect(page.getByLabel('Khung ô li')).toBeVisible();
+  await expect(page.getByRole('region', { name: 'Khung ô li' }).locator('canvas')).toBeVisible();
 
   // Lớp Mầm non: không có mini app Tiểu học
   await page.getByLabel('Lớp', { exact: true }).selectOption({ label: preschool });
