@@ -449,7 +449,7 @@ describe('bảng điều khiển nền tảng và phiên hỗ trợ', () => {
     assert.equal(afterCancel.items.find((item) => item.id === noticeId)?.state, 'cancelled');
   });
 
-  it('CT-1713: khóa hoặc hạ vai trò nhân viên vận hành thì phiên hỗ trợ đang mở của người đó kết thúc (YCTD-374)', async () => {
+  it('CT-1713: khóa hoặc hạ vai trò nhân viên vận hành thì phiên hỗ trợ đang mở của người đó kết thúc (YCTD-377)', async () => {
     const signIn = async (role: 'quan_tri' | 'ho_tro') => {
       const account = `nv-${role}-${Math.random().toString(36).slice(2, 8)}`;
       const created = await createPlatformOperatorWithTotp(platform.platform, platform.masterKey, {

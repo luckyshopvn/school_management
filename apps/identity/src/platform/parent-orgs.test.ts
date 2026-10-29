@@ -308,7 +308,7 @@ describe('đơn vị cấp trên ở dịch vụ định danh', () => {
       );
     }
 
-    // Khóa tài khoản cấp trên: phiên xem chi tiết đang mở kết thúc (CT-1713, YCTD-374)
+    // Khóa tài khoản cấp trên: phiên xem chi tiết đang mở kết thúc (CT-1713, YCTD-377)
     assert.equal(
       (await send(context, { path: '/auth/me', host: platform.school('alpha').host, token: access })).status,
       200,

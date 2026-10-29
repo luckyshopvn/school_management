@@ -199,7 +199,7 @@ export class PlatformOperatorAdminService {
       action: 'operator.update',
       details: { operator_id: id, role, status },
     });
-    // Bị khóa hoặc không còn được mở phiên hỗ trợ: phiên vào trường đang mở của người đó kết thúc ngay (YCTD-374)
+    // Bị khóa hoặc không còn được mở phiên hỗ trợ: phiên vào trường đang mở của người đó kết thúc ngay (YCTD-377)
     if (updated.status !== 'active' || !operatorCan(updated.role, 'support.open')) {
       await this.support.endForRequester(
         'operator',

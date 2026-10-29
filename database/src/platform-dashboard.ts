@@ -167,7 +167,7 @@ export interface ActiveSupportSession {
 }
 
 // Phiên hỗ trợ đang mở gắn với một phiên đăng nhập của trường (mã phiên `sid`); hết hạn, đã kết thúc hoặc người mở phiên (nhân viên
-// vận hành, tài khoản cấp trên) không còn hoạt động thì null (YCTD-374)
+// vận hành, tài khoản cấp trên) không còn hoạt động thì null (YCTD-377)
 export async function activeSupportSession(
   platform: Kysely<PlatformDatabase>,
   identitySessionId: string,

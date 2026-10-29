@@ -9,7 +9,7 @@ import { routingPath } from '../common/request-path.js';
 import { SupportSessionInterceptor } from '../platform-dashboard/platform-dashboard.js';
 import { ImpersonationInterceptor } from './impersonation.js';
 
-// Lệnh chặn theo đường dẫn so trên dạng Express định tuyến: không phân biệt hoa thường, bỏ "/" cuối (YCTD-374);
+// Lệnh chặn theo đường dẫn so trên dạng Express định tuyến: không phân biệt hoa thường, bỏ "/" cuối (YCTD-377);
 // kịch bản CT-1711, CT-1712
 const BLOCKED_VARIANTS = [
   '/api/v1/signing/dossiers/sign',
@@ -58,7 +58,7 @@ const fakeDatabases = {
 } as unknown as Databases;
 const fakeClock = { now: () => new Date() } as unknown as Clock;
 
-describe('Lệnh chặn theo đường dẫn (YCTD-374)', () => {
+describe('Lệnh chặn theo đường dẫn (YCTD-377)', () => {
   it('đường dẫn so khớp: chữ thường, bỏ "/" cuối', () => {
     assert.equal(routingPath('/API/v1/Signing/Dossiers/Sign/'), '/api/v1/signing/dossiers/sign');
     assert.equal(routingPath('/api/v1/children//'), '/api/v1/children');

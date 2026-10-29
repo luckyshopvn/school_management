@@ -1,5 +1,5 @@
 // Đường dẫn yêu cầu theo cách Express 5 định tuyến: không phân biệt hoa thường, chấp nhận "/" cuối. Lệnh chặn, ghi vết theo
-// đường dẫn phải so trên dạng này, nếu không thì cùng một tuyến viết hoa hoặc thêm "/" cuối sẽ lọt qua (YCTD-374)
+// đường dẫn phải so trên dạng này, nếu không thì cùng một tuyến viết hoa hoặc thêm "/" cuối sẽ lọt qua (YCTD-377)
 export function routingPath(path: string): string {
   return path.toLowerCase().replace(/\/+$/, '') || '/';
 }

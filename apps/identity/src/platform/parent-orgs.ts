@@ -411,7 +411,7 @@ export class ParentOrgsService {
       action: `parent-org.user-${status}`,
       details: { login: user.login },
     });
-    // Tài khoản cấp trên bị khóa: phiên xem chi tiết đang mở kết thúc ngay (YCTD-374)
+    // Tài khoản cấp trên bị khóa: phiên xem chi tiết đang mở kết thúc ngay (YCTD-377)
     if (status === 'locked') {
       await this.support.endForRequester('parent_org', id, 'Tài khoản cấp trên bị khóa', {
         type: 'operator',
