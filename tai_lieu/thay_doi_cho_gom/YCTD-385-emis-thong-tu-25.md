@@ -27,7 +27,8 @@ phien_ban_de_xuat: không
 
 #### Vấn đề tồn đọng
 
-- Chờ Eric duyệt bản mẫu, danh sách lát và câu hỏi Q-385-1 đến Q-385-4; chưa viết mã.
+- Chờ Eric duyệt bản mẫu, danh sách lát và câu hỏi Q-385-1 đến Q-385-5; chưa viết mã.
+- Đối chiếu thêm báo cáo truong.hcm.edu.vn: cấp duyệt theo cấp học, hạn của cấp trên sớm hơn hạn Bộ, phòng dùng chung báo một cấp; biểu 01.ĐN-MN mới khớp khoảng 38/217 dòng (đề xuất L10).
 - Bản in Thông tư có hai chỗ nghi lỗi in (02.ĐN-TH mã 27, 28; 02.CN-TH mã 02); mẫu EQMS và mẫu Excel phổ thông là bản tạm.
 
 ## 24 Yêu cầu thay đổi

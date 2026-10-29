@@ -5,6 +5,7 @@
 - Trạng thái: Chờ Eric duyệt bản mẫu, danh sách lát và các câu hỏi ở mục 9
 - Bản mẫu: `tai_lieu/ban_mau/yctd-385/index.html` (mở thẳng bằng trình duyệt; thanh trên cùng chọn màn hình, khổ, trạng thái)
 - Bản chép biểu gốc: `BIEU_02_TIEU_HOC.md`, `BIEU_03_THCS.md`, `BIEU_04_THPT.md` cùng thư mục
+- Đầu vào: báo cáo phân tích csdl.moet.gov.vn (mục 5, 6, 7) và báo cáo phân tích truong.hcm.edu.vn (mục 5, 8), cùng ngày 2026-10-30, lưu ngoài kho
 
 ## 1. Yêu cầu và căn cứ
 
@@ -27,7 +28,7 @@ Văn bản đã kiểm tình trạng hiệu lực ngày 2026-10-30:
 
 | Phần | Có | Thiếu hoặc khác |
 |---|---|---|
-| Mầm non | Biểu 01.ĐN-MN, 08.ĐN-NSNN, cuối năm, đội ngũ, sức khỏe, cơ sở vật chất (`apps/api/src/emis/`), gửi từng thẻ, tệp lỗi | Ngoài phạm vi việc này (biểu 01 đã theo mẫu Sở TP.HCM) |
+| Mầm non | Biểu 01.ĐN-MN, 08.ĐN-NSNN, cuối năm, đội ngũ, sức khỏe, cơ sở vật chất (`apps/api/src/emis/`), gửi từng thẻ, tệp lỗi | Báo cáo truong.hcm mục 8.2: 01.ĐN-MN mới khớp khoảng 38/217 dòng, một bộ 6 cột cho mọi thẻ; 08.ĐN-NSNN chưa đủ 71 mã. Ngoài thứ tự (a) đến (d) của Eric; đề xuất lát L10 (mục 7) |
 | Tiểu học, THCS, THPT | Khung biểu cấu hình được ở cơ sở dữ liệu hệ thống (`report_forms`, `report_form_rows`, migration 0027, 0028); dòng công thức tính từ lớp, học sinh; dòng nhập tay; xuất Excel, PDF; gửi qua mẫu "gửi lên cấp trên" | Hai biểu khung mỗi cấp do Claude đặt, **không theo mẫu Bộ**; một bộ cột cho cả biểu (Thông tư 25 mỗi phần một bộ cột); công thức chỉ có đối tượng `students`, `classes`; không có tuổi, tuyển mới, lưu ban, chuyển đi, bỏ học, dạng khuyết tật, đối tượng chính sách, lớp ghép; không có phần Trường, Đội ngũ, Phòng học |
 | Gửi lên cấp trên (`apps/api/src/submissions/upper-level-submissions.ts`) | Chưa gửi, Đã gửi, Đã gửi yêu cầu mở khóa, Cần gửi lại; xuất tệp gửi kèm bản chụp; đánh dấu đã gửi; trường tự mở khóa (quyền hồ sơ trường) | Không có phía cấp trên: không duyệt, không từ chối, không khóa; trạng thái Duyệt, Từ chối, Đã khóa không có |
 | Cấp trên (`apps/api/src/parent-org/`, `apps/platform/src/ParentOrgApp.tsx`) | Tài khoản Bộ, Sở, xã gắn đơn vị hành chính; xem số liệu tổng hợp ẩn danh của trường đã đồng ý; xin xem chi tiết | Không có danh sách báo cáo trường gửi, không duyệt |
@@ -74,6 +75,7 @@ Tên chỉ tiêu EQMS do hệ thống đặt theo hướng dẫn sử dụng; m�
 - Mở rộng khung có sẵn thay vì làm module mới: `report_forms` thêm phần (`report_form_sections`: mã phần, tên, thứ tự, bộ cột riêng); `report_form_rows` gắn phần. Biểu cũ chuyển thành một phần duy nhất, hành vi không đổi.
 - Thêm cột `source` cho biểu (`tt25` khóa sửa dòng, mã; `custom` như hiện nay) để người dùng không sửa nhầm mẫu pháp định; vẫn sửa được dòng nhập tay và ghi chú.
 - Kỳ thêm `mid_year` (EQMS giữa năm).
+- Phòng học dùng chung nhiều cấp chỉ báo một lần, vào cấp dùng nhiều hơn (giải thích Phần V của Thông tư; báo cáo truong.hcm mục 8.2 "Liên cấp"): thêm ô "cấp báo cáo" cho phòng ở phân hệ Cơ sở vật chất, mặc định cấp có nhiều lớp dùng phòng nhất.
 - Bộ cột theo phần dùng **nhóm cột của trường**: màn hình chỉ hiện nhóm theo loại hình của trường (công lập hoặc tư thục); tệp Excel xuất đủ cột của mẫu (nhóm kia để trống) cho cấp trên cộng dồn.
 - Biểu khung cũ (`emis-th-dau-nam`, `emis-th-cuoi-nam`, khung THCS, THPT) giữ nguyên, đổi tên thêm "(khung cũ)", ẩn khỏi danh sách mặc định; số đã nhập không mất.
 
@@ -119,7 +121,9 @@ Cấp trên từ chối yêu cầu mở khóa thì về Đã duyệt, đã khóa
 
 ### 5.2 Ai duyệt
 
-Đơn vị hành chính mà trường đang gắn ở cổng vận hành (`schools.admin_unit_id`: xã hoặc Sở), chờ Eric chọn (Q-385-1). Tài khoản cấp trên của đơn vị đó và đơn vị cha xem được; chỉ đơn vị gắn trực tiếp được duyệt.
+Thực tế ở TP.HCM (báo cáo truong.hcm mục 5.4): xã duyệt Mầm non, Tiểu học, THCS; Sở duyệt THPT, GDTX và trường trực thuộc Sở. Đề xuất: duyệt theo cấp của biểu; biểu Mầm non, Tiểu học, THCS gửi đơn vị xã (hoặc Phòng ở năm học cũ) mà trường đang gắn (`schools.admin_unit_id`); biểu THPT gửi Sở là đơn vị cha của đơn vị đó; trường gắn thẳng với Sở thì mọi biểu gửi Sở. Chờ Eric chọn (Q-385-1). Đơn vị cha xem được; chỉ đơn vị duyệt mới duyệt được.
+
+Hạn gửi: cấp trên đặt hạn riêng cho trường thuộc đơn vị mình theo từng kỳ (TP.HCM năm học 2025-2026 đặt 06/10, sớm hơn hạn Bộ 30/10); chưa đặt thì dùng hạn của Thông tư. Hạn này dùng cho nút khóa hàng loạt và nhắc ở trang của trường.
 
 ### 5.3 Dữ liệu và đường đi
 
@@ -150,6 +154,7 @@ Cấp trên từ chối yêu cầu mở khóa thì về Đã duyệt, đã khóa
 | L7 | EQMS cuối năm, báo cáo đội ngũ cuối năm | Vừa | MH-626 |
 | L8 | Mẫu nhập, xuất CSDL ngành Tiểu học, THCS, THPT (mẫu tạm), xuất tách theo cấp | Vừa | MH-627 |
 | L9 | Đối chiếu danh mục với phụ lục Quyết định 4998, bỏ nhãn "tạm" ở chỗ khớp | Nhỏ | Bảng đối chiếu |
+| L10 (đề xuất, ngoài thứ tự của Eric) | Mầm non: 01.ĐN-MN đủ 217 mã và cột theo thẻ, 08.ĐN-NSNN đủ 71 mã, 01.CN-MN đúng mẫu, chuyển sang khung nhiều phần | Vừa | 01.ĐN-MN |
 
 Lát Lớn chờ Eric nghiệm thu trước khi gộp; lát Vừa, Nhỏ tự gộp khi đủ 11 kiểm tra CI và nhánh có `origin/main` mới nhất (AI-44). Không sửa `packages/shared/src/portal-menu.ts` (phiên tên phân hệ theo cấp đang sửa): các biểu mới nằm trong trang 7.15 và 7.18 có sẵn; mục 7.16 "Mẫu nhập, xuất CSDL ngành" ở L8 sẽ phối hợp với phiên đó.
 
@@ -166,7 +171,8 @@ Hiện trạng: mã cấp `GDTX` (mã Bộ 05) chỉ có ở danh mục nền t�
 
 ## 9. Câu hỏi chờ Eric quyết
 
-- Q-385-1: Ai duyệt báo cáo của trường? Đề xuất: đơn vị hành chính trường đang gắn (xã hoặc Sở).
+- Q-385-1: Ai duyệt báo cáo của trường? Đề xuất: theo cấp của biểu như TP.HCM đang làm (xã duyệt Mầm non, Tiểu học, THCS; Sở duyệt THPT và trường trực thuộc).
+- Q-385-5: Có làm L10 (biểu Mầm non đủ mã theo Thông tư 25/2024) không?
 - Q-385-2: Duyệt và khóa? Đề xuất: duyệt là khóa ngay; đến hạn, cấp trên có nút khóa hàng loạt biểu chưa duyệt (như phần mềm Bộ: "đến hạn hoặc đã duyệt thì khóa").
 - Q-385-3: Tính tuổi học sinh, giáo viên? Đề xuất: theo năm sinh (năm đầu của năm học trừ năm sinh), như quy ước độ tuổi của ngành (lớp 1 năm học 2026-2027 là sinh năm 2020).
 - Q-385-4: Duyệt danh sách lát và thứ tự L1 đến L9?
