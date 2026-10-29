@@ -513,7 +513,12 @@ export function AiTutorSalesPage({ token }: { token: string }) {
       .catch((caught: unknown) => setLoadError(`Không đọc được giao dịch: ${errorMessage(caught)}`));
   }, [token, filter]);
   useEffect(loadPlans, [loadPlans]);
-  useEffect(loadOrders, [loadOrders]);
+  // Mỗi lần mở thẻ Giao dịch (hoặc đổi bộ lọc) đọc lại để thấy giao dịch mới
+  useEffect(() => {
+    if (tab === 'giao-dich') {
+      loadOrders();
+    }
+  }, [tab, loadOrders]);
 
   const setStatus = (plan: Plan, status: Plan['status']) =>
     void run(async () => {
