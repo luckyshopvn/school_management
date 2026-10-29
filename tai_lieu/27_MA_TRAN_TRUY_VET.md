@@ -118,7 +118,7 @@ Phủ YCTD-213 đến YCTD-369: mọi yêu cầu có tệp mảnh được gom �
 | YCTD-365 | Gói buổi ở chợ gia sư | 0.217.0 | chưa xác định | chưa xác định | chưa xác định | PR 262, `ff3368f6`; tệp mã nêu trong tệp mảnh: `database/marketplace/migrations/0051_create_market_packages.ts`, `database/marketplace/schema-parts/yctd-365-goi-buoi.ts` và 3 tệp khác | CI: 11/11 đạt |
 | YCTD-366 | Kiểm thử giao diện gói dịch vụ chờ bộ đệm ngữ cảnh trường | 0.208.0 | chưa xác định | chưa xác định | chưa xác định | PR 266, `35e1968b`; tệp mã nêu trong tệp mảnh: `tests/e2e/134-school-plans.spec.ts` | CI: 11/11 đạt |
 | YCTD-367 | Trang cấp trên rút đề nghị xem chi tiết, xuất báo cáo chạy nền | 0.231.0 | chưa xác định | chưa xác định | chưa xác định | PR 286, `b1cff0d8`; tệp mã nêu trong tệp mảnh: `database/platform/migrations/0245_add_parent_org_exports_and_withdraw.ts`, `database/platform/schema.ts` và 8 tệp khác | CI: 11/11 đạt |
-| YCTD-369 | Sửa các điểm lệch quy trình Vibecoding_Flow | 0.238.0 | Không áp dụng (chỉ tài liệu) | Không áp dụng | Không áp dụng | PR {SO_PR}, nhánh `gom-2026-10-29` | `node scripts/gom-thay-doi.mjs --kiem` đạt; CI của PR |
+| YCTD-369 | Sửa các điểm lệch quy trình Vibecoding_Flow, đánh lại số bộ tài liệu | 0.238.0 | Không áp dụng (tài liệu, chú thích mã) | Không áp dụng | Không áp dụng | PR 287, nhánh `gom-2026-10-29` | `node scripts/gom-thay-doi.mjs --kiem` đạt; CI của PR |
 
 ## 4. Số YCTD trong khoảng YCTD-292 đến YCTD-369 không có dòng
 
