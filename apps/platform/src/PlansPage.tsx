@@ -329,6 +329,8 @@ export function PlansPage({
   const [loadError, setLoadError] = useState<string | null>(null);
   const [confirmLifecycle, setConfirmLifecycle] = useState(false);
   const [busy, runBusy] = useBusy();
+  // Ô tìm trường ở thẻ Gói của từng trường (YCTD-372, ĐX-CN-6): lọc trên danh sách đã tải theo tên hoặc mã
+  const [schoolQuery, setSchoolQuery] = useState('');
   const [assign, setAssign] = useState<
     Record<string, { plan_id: string; trial_ends_on: string; paid_until: string; status: string }>
   >({});
@@ -432,6 +434,14 @@ export function PlansPage({
       edit(target);
     }
   }, [focusPlanId, plans, canManage, edit]);
+
+  const query = schoolQuery.trim().toLocaleLowerCase('vi');
+  const shownSchools = query
+    ? schools.filter(
+        (school) =>
+          school.name.toLocaleLowerCase('vi').includes(query) || school.code.toLocaleLowerCase('vi').includes(query),
+      )
+    : schools;
 
   const assignmentOf = (school: PlanSchool) =>
     assign[school.id] ?? {
@@ -741,14 +751,27 @@ export function PlansPage({
           <section className="card" aria-labelledby="goi-cua-truong-tieu-de">
             <div className="card-head">
               <h2 id="goi-cua-truong-tieu-de">Gói của từng trường</h2>
-              {canManage ? (
-                <button type="button" className="button-secondary" onClick={() => setConfirmLifecycle(true)}>
-                  Chạy chuyển trạng thái theo hạn
-                </button>
-              ) : null}
+              <div className="button-row">
+                <input
+                  type="search"
+                  className="inline-select"
+                  aria-label="Tìm trường"
+                  placeholder="Tên hoặc mã trường"
+                  value={schoolQuery}
+                  onChange={(event) => setSchoolQuery(event.target.value)}
+                />
+                {canManage ? (
+                  <button type="button" className="button-secondary" onClick={() => setConfirmLifecycle(true)}>
+                    Chạy chuyển trạng thái theo hạn
+                  </button>
+                ) : null}
+              </div>
             </div>
             {plans !== null && schools.length === 0 ? <EmptyState title="Chưa có trường nào" /> : null}
-            {schools.length ? (
+            {schools.length > 0 && shownSchools.length === 0 ? (
+              <EmptyState title="Không có trường nào khớp từ tìm" />
+            ) : null}
+            {shownSchools.length ? (
               <div className="table-scroll">
                 <table className="sticky-first" aria-label="Gói của từng trường" style={{ minWidth: 900 }}>
                   <thead>
@@ -766,7 +789,7 @@ export function PlansPage({
                     </tr>
                   </thead>
                   <tbody>
-                    {schools.map((school) => {
+                    {shownSchools.map((school) => {
                       const value = assignmentOf(school);
                       const update = (change: Partial<typeof value>) =>
                         setAssign({ ...assign, [school.id]: { ...value, ...change } });

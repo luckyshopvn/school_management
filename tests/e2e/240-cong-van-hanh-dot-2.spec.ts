@@ -180,7 +180,12 @@ function fixture(role: Role, method: string, path: string): Reply | undefined {
     return { body: plans[0] };
   }
   if (path === '/plan-schools') {
-    return { body: [] };
+    return {
+      body: [
+        { id: 's1', code: 'truong-gia', name: 'Trường giả', status: 'active', trial_ends_on: null, paid_until: null, plan: null },
+        { id: 's2', code: 'truong-hoa', name: 'Trường Hoa giả', status: 'trial', trial_ends_on: null, paid_until: null, plan: null },
+      ],
+    };
   }
   if (path === '/billing/price-rules') {
     // Như máy chủ: quy tắc tính phí cần billing.view
@@ -547,6 +552,19 @@ test.describe('cổng vận hành đợt 2', () => {
     await form.getByRole('button', { name: 'Lưu gói' }).click();
     await expect(page.getByRole('status').filter({ hasText: 'Đã lưu gói' })).toBeVisible();
     expect(writes[0]?.postDataJSON()).toMatchObject({ billing_cycle: 'term' });
+  });
+
+  test('CT-1706: ô tìm trường lọc bảng Gói của từng trường theo tên hoặc mã (YCTD-372)', async ({ page }) => {
+    await openConsole(page, 'ho_tro');
+    await openPage(page, 'Gói dịch vụ');
+    await page.getByRole('tab', { name: 'Gói của từng trường' }).click();
+    const table = page.getByRole('table', { name: 'Gói của từng trường' });
+    await expect(table.getByRole('row')).toHaveCount(3);
+    await page.getByRole('searchbox', { name: 'Tìm trường' }).fill('HOA');
+    await expect(table.getByRole('row')).toHaveCount(2);
+    await expect(table).toContainText('truong-hoa');
+    await page.getByRole('searchbox', { name: 'Tìm trường' }).fill('khong-co');
+    await expect(page.getByText('Không có trường nào khớp từ tìm')).toBeVisible();
   });
 
   test('CT-1699: tám trang không còn hộp nhập, hộp xác nhận của trình duyệt', () => {
