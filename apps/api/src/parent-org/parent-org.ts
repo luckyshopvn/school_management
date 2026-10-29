@@ -70,7 +70,7 @@ export const AGGREGATE_SNAPSHOT_JOB = 'aggregate-snapshots';
 const ATTENDANCE_DAYS = 30;
 const PRESENT_STATUSES = ['present', 'late', 'early_leave', 'late_and_early_leave'];
 
-function notFound(): ApplicationError {
+export function notFound(): ApplicationError {
   return new ApplicationError('ERR_NOT_FOUND', 'Không tìm thấy');
 }
 
@@ -617,24 +617,48 @@ export class ParentOrgDataService {
   async exportFile(request: Request, unit: unknown, category: unknown, format: unknown) {
     const fileFormat = readTableFileFormat(format) ?? 'xlsx';
     const view = await this.view(request, unit, category);
-    const flatten = (metrics: Record<string, unknown> | null, prefix = ''): Record<string, unknown> => {
-      const out: Record<string, unknown> = {};
-      for (const [key, value] of Object.entries(metrics ?? {})) {
-        if (value && typeof value === 'object') {
-          Object.assign(out, flatten(value as Record<string, unknown>, `${prefix}${key}.`));
-        } else {
-          out[`${prefix}${key}`] = value === null ? 'ẩn' : value;
-        }
-      }
-      return out;
+    const buffer = await buildTableFile(
+      fileFormat,
+      [...aggregateSheets(view, 'compare', 'So sánh trường'), ...aggregateSheets(view, 'summary', 'Tổng hợp')],
+      this.clock.now(),
+    );
+    return {
+      buffer,
+      contentType: CONTENT_TYPES[fileFormat],
+      fileName: `tong-hop-${view.unit.code}-${view.category}.${fileFormat}`,
     };
-    const rows = view.schools.map((school) => ({ name: school.name, code: school.code, ...flatten(school.metrics) }));
-    const keys = [
-      ...new Set(rows.flatMap((row) => Object.keys(row)).filter((key) => key !== 'name' && key !== 'code')),
-    ];
-    const sheets: TableFileSheet[] = [
+  }
+}
+
+// Bảng của tệp xuất số liệu tổng hợp (DT-SaaS S6; dùng chung cho tải trực tiếp và xuất chạy nền YCTD-367): "so sánh từng trường" (trường
+// đã đồng ý, mỗi dòng một trường) hoặc "tổng hợp theo đơn vị" (đơn vị và đơn vị con). Ô bị ẩn ghi "ẩn"
+export type AggregateLayout = 'summary' | 'compare';
+
+function flattenMetrics(metrics: Record<string, unknown> | null, prefix = ''): Record<string, unknown> {
+  const out: Record<string, unknown> = {};
+  for (const [key, value] of Object.entries(metrics ?? {})) {
+    if (value && typeof value === 'object') {
+      Object.assign(out, flattenMetrics(value as Record<string, unknown>, `${prefix}${key}.`));
+    } else {
+      out[`${prefix}${key}`] = value === null ? 'ẩn' : value;
+    }
+  }
+  return out;
+}
+
+export function aggregateSheets(view: AggregateView, layout: AggregateLayout, title: string): TableFileSheet[] {
+  const schools = view.schools.map((school) => ({
+    name: school.name,
+    code: school.code,
+    ...flattenMetrics(school.metrics),
+  }));
+  const keys = [
+    ...new Set(schools.flatMap((row) => Object.keys(row)).filter((key) => key !== 'name' && key !== 'code')),
+  ];
+  if (layout === 'compare') {
+    return [
       {
-        title: 'So sánh trường',
+        title,
         heading: [
           `${view.unit.name}: ${AGGREGATE_CATEGORY_LABELS[view.category]}`,
           `${view.schools_count} trường đã đồng ý; ô ít hơn ${view.min_group} người ghi "ẩn"`,
@@ -644,33 +668,30 @@ export class ParentOrgDataService {
           { key: 'code', label: 'Mã', width: 12 },
           ...keys.map((key) => ({ key, label: key, width: 14 })),
         ],
-        rows,
+        rows: schools,
         numbered: true,
       },
-      {
-        title: 'Tổng hợp',
-        columns: [
-          { key: 'name', label: 'Đơn vị', width: 40 },
-          { key: 'schools_count', label: 'Số trường', width: 10 },
-          ...keys.map((key) => ({ key, label: key, width: 14 })),
-        ],
-        rows: [
-          { name: view.unit.name, schools_count: view.schools_count, ...flatten(view.total) },
-          ...view.children.map((child) => ({
-            name: child.name,
-            schools_count: child.schools_count,
-            ...flatten(child.total),
-          })),
-        ],
-      },
     ];
-    const buffer = await buildTableFile(fileFormat, sheets, this.clock.now());
-    return {
-      buffer,
-      contentType: CONTENT_TYPES[fileFormat],
-      fileName: `tong-hop-${view.unit.code}-${view.category}.${fileFormat}`,
-    };
   }
+  return [
+    {
+      title,
+      heading: [`${view.unit.name}: ${AGGREGATE_CATEGORY_LABELS[view.category]}`],
+      columns: [
+        { key: 'name', label: 'Đơn vị', width: 40 },
+        { key: 'schools_count', label: 'Số trường', width: 10 },
+        ...keys.map((key) => ({ key, label: key, width: 14 })),
+      ],
+      rows: [
+        { name: view.unit.name, schools_count: view.schools_count, ...flattenMetrics(view.total) },
+        ...view.children.map((child) => ({
+          name: child.name,
+          schools_count: child.schools_count,
+          ...flattenMetrics(child.total),
+        })),
+      ],
+    },
+  ];
 }
 
 @Controller('parent-org')

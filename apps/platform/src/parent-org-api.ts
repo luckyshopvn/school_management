@@ -140,10 +140,52 @@ export interface AccessRequest {
   categories: AggregateCategory[];
   reason: string;
   hours: number;
-  status: 'pending' | 'approved' | 'rejected' | 'revoked';
+  status: 'pending' | 'approved' | 'rejected' | 'revoked' | 'withdrawn';
   decided_by_name: string | null;
   expires_at: string | null;
+  withdrawn_at?: string | null;
   created_at: string;
+}
+
+// Tệp xuất chạy nền (YCTD-367)
+export interface ParentOrgExport {
+  id: string;
+  admin_unit_id: string;
+  unit_name: string;
+  categories: AggregateCategory[];
+  category_labels: string[];
+  layout: 'summary' | 'compare';
+  layout_label: string;
+  format: 'xlsx' | 'pdf';
+  status: 'queued' | 'running' | 'done' | 'failed' | 'expired';
+  file_name: string | null;
+  size_bytes: number | null;
+  error: string | null;
+  created_at: string;
+  finished_at: string | null;
+  expires_at: string | null;
+}
+
+export interface ParentOrgExportList {
+  background_available: boolean;
+  retention_days: number;
+  exports: ParentOrgExport[];
+}
+
+async function saveFile(token: string, path: string, fallbackName: string): Promise<void> {
+  const response = await fetch(path, { headers: { authorization: `Bearer ${token}` } });
+  if (!response.ok) {
+    const payload = (await response.json().catch(() => ({}))) as { error?: { message?: string } };
+    throw new PlatformValidationError(response.status, payload.error?.message ?? 'Không tải được tệp', []);
+  }
+  const disposition = response.headers.get('content-disposition') ?? '';
+  const match = /filename\*=UTF-8''([^;]+)/.exec(disposition);
+  const url = URL.createObjectURL(await response.blob());
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = match ? decodeURIComponent(match[1] ?? '') : fallbackName;
+  link.click();
+  URL.revokeObjectURL(url);
 }
 
 export const parentOrgApi = {
@@ -173,19 +215,25 @@ export const parentOrgApi = {
       `/api/v1/auth/parent-org/access-requests/${id}/open`,
       {},
     ),
-  async download(token: string, unitId: string, category: AggregateCategory, format: 'xlsx' | 'pdf'): Promise<void> {
-    const response = await fetch(
+  // Rút đề nghị của chính mình: chờ duyệt hoặc đã duyệt còn hạn (YCTD-367)
+  withdrawRequest: (token: string, id: string) =>
+    send<{ id: string; status: 'withdrawn' }>(
+      token,
+      'POST',
+      `/api/v1/auth/parent-org/access-requests/${id}/withdraw`,
+      {},
+    ),
+  download: (token: string, unitId: string, category: AggregateCategory, format: 'xlsx' | 'pdf') =>
+    saveFile(
+      token,
       `/api/v1/parent-org/aggregate/export?unit=${encodeURIComponent(unitId)}&category=${category}&format=${format}`,
-      { headers: { authorization: `Bearer ${token}` } },
-    );
-    if (!response.ok) {
-      throw new PlatformValidationError(response.status, 'Không xuất được tệp', []);
-    }
-    const url = URL.createObjectURL(await response.blob());
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = `tong-hop-${category}.${format}`;
-    link.click();
-    URL.revokeObjectURL(url);
-  },
+      `tong-hop-${category}.${format}`,
+    ),
+  exports: (token: string) => send<ParentOrgExportList>(token, 'GET', '/api/v1/parent-org/exports'),
+  createExport: (
+    token: string,
+    input: { unit_id: string; categories: AggregateCategory[]; layout: 'summary' | 'compare'; format: 'xlsx' | 'pdf' },
+  ) => send<ParentOrgExport>(token, 'POST', '/api/v1/parent-org/exports', input),
+  downloadExport: (token: string, item: ParentOrgExport) =>
+    saveFile(token, `/api/v1/parent-org/exports/${item.id}/file`, item.file_name ?? `bao-cao.${item.format}`),
 };

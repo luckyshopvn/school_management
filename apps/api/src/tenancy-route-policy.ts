@@ -60,6 +60,18 @@ export const PUBLIC_ROUTES: PublicRoute[] = [
     'Xuất Excel, PDF số liệu tổng hợp cho tài khoản cấp trên (DT-SaaS S6): cùng điều kiện tên miền cổng nền tảng và mã phiên cấp trên',
   ),
   get(
+    '/api/v1/parent-org/exports',
+    'Danh sách tệp xuất chạy nền của tài khoản cấp trên (YCTD-367): cùng điều kiện tên miền cổng nền tảng và mã phiên cấp trên; chỉ việc của chính tài khoản',
+  ),
+  post(
+    '/api/v1/parent-org/exports',
+    'Tạo việc xuất báo cáo chạy nền cho tài khoản cấp trên (YCTD-367): đơn vị phải trong phạm vi; tệp chỉ có số liệu tổng hợp, cùng quy tắc ẩn ô nhỏ',
+  ),
+  get(
+    '/api/v1/parent-org/exports/:id/file',
+    'Tải tệp xuất chạy nền của tài khoản cấp trên (YCTD-367): chỉ người tạo, đơn vị còn trong phạm vi, tệp chưa hết hạn; ghi nhật ký',
+  ),
+  get(
     '/api/v1/public/branding',
     'Tên hiển thị, màu chủ đạo và địa chỉ biểu trưng của trường cho trang đăng nhập (S3), theo tên miền của trường; không trả dữ liệu cá nhân',
   ),

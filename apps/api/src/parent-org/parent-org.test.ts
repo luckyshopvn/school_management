@@ -9,11 +9,12 @@ import {
 } from '@school-management/identity/testing';
 import { runAsSchool } from '@school-management/server';
 import { sendWithHost, startMultiTenantApi, type MultiTenantApi } from '../tenant-test-support.js';
+import { ParentOrgExportsService } from './parent-org-exports.js';
 import { AggregateSnapshotService } from './parent-org.js';
 
 // Đơn vị cấp trên ở máy chủ API (DT-SaaS phần S6, YCTD-202), kịch bản CT-S6-6 đến CT-S6-8: bản chụp tổng hợp chạy ở cả hai bố cục;
 // cấp trên chỉ thấy trường đã đồng ý cho cấp mình, trong cây con; xuất Excel, PDF; trường duyệt, rút đề nghị xem chi tiết. Hai
-// trường giả, cây đơn vị giả
+// trường giả, cây đơn vị giả. CT-367-1, CT-367-2 (YCTD-367): xuất báo cáo chạy nền; cấp trên rút đề nghị
 const CONSOLE_HOST = 'platform.e2e.localhost';
 
 let exportOrigin = '';
@@ -64,7 +65,7 @@ for (const layout of ['database', 'schema'] as const) {
       environment = await startMultiTenantApi({
         label: `porg${layout.slice(0, 1)}`,
         layout,
-        configuration: { platformConsoleHost: CONSOLE_HOST },
+        configuration: { platformConsoleHost: CONSOLE_HOST, parentOrgExportIntervalSeconds: 0 },
       });
       // Năm học đang dùng của hai trường (bản chụp đọc năm học đang dùng)
       for (const name of ['alpha', 'beta']) {
@@ -230,6 +231,52 @@ for (const layout of ['database', 'schema'] as const) {
       );
     });
 
+    it('CT-367-1: xuất báo cáo chạy nền: tạo việc, dựng tệp, danh sách, tải về; ngoài phạm vi 403; hết hạn thì xóa tệp', async () => {
+      const post = (body: unknown, token = parentToken) =>
+        sendWithHost(environment.apiOrigin, {
+          method: 'POST',
+          path: '/api/v1/parent-org/exports',
+          host: CONSOLE_HOST,
+          token,
+          body,
+        });
+      assert.equal((await post({ categories: [], layout: 'x', format: 'doc' })).status, 400);
+      assert.equal(
+        (await post({ unit_id: units['so-khac'], categories: ['scale'], layout: 'summary', format: 'xlsx' })).status,
+        403,
+      );
+      assert.equal(
+        (await post({ categories: ['scale'], layout: 'summary', format: 'xlsx' }, environment.tokens.alpha)).status,
+        401,
+      );
+      const created = await post({ categories: ['scale', 'staff'], layout: 'compare', format: 'xlsx' });
+      assert.equal(created.status, 201, JSON.stringify(created.body));
+      const id = created.body.id as string;
+      await environment.api.get(ParentOrgExportsService).runDue();
+      const listed = await parentOrgApi('/exports');
+      assert.equal(listed.status, 200, JSON.stringify(listed.body));
+      assert.equal(listed.body.background_available, true);
+      const row = (
+        listed.body.exports as Array<{ id: string; status: string; file_name: string; category_labels: string[] }>
+      ).find((item) => item.id === id);
+      assert.equal(row?.status, 'done', JSON.stringify(row));
+      assert.match(row?.file_name ?? '', /^so-sanh-so-gia-.*\.xlsx$/);
+      assert.equal(row?.category_labels.length, 2);
+      const file = await download(`/api/v1/parent-org/exports/${id}/file`);
+      assert.equal(file.status, 200);
+      assert.match(file.type, /spreadsheetml/);
+      assert.equal((await download('/api/v1/parent-org/exports/khong-phai-uuid/file')).status, 404);
+
+      // Hết hạn giữ: việc định kỳ xóa tệp, tải về báo 409
+      await environment.platform.platform
+        .updateTable('parent_org_exports')
+        .set({ expires_at: new Date(Date.now() - 1000) })
+        .where('id', '=', id)
+        .execute();
+      await environment.api.get(ParentOrgExportsService).runDue();
+      assert.equal((await download(`/api/v1/parent-org/exports/${id}/file`)).status, 409);
+    });
+
     if (layout === 'database') {
       it('CT-S6-8: trường duyệt đề nghị xem chi tiết; cấp trên mở phiên chỉ đọc; trường rút thì phiên kết thúc ngay', async () => {
         const created = await identity(
@@ -281,6 +328,71 @@ for (const layout of ['database', 'schema'] as const) {
         const revoked = await environment.call('alpha', 'POST', `/parent-org-consents/requests/${id}/revoke`, {});
         assert.equal(revoked.status, 200);
         assert.equal((await environment.call('alpha', 'GET', '/school-plan', undefined, support)).status, 401);
+      });
+
+      it('CT-367-2: cấp trên rút đề nghị chờ duyệt, rút đề nghị đã duyệt thì phiên xem chi tiết kết thúc; trường thấy đã rút', async () => {
+        const request = async () => {
+          const created = await identity(
+            'POST',
+            '/auth/parent-org/access-requests',
+            {
+              school_code: environment.platform.school('alpha').code,
+              categories: ['scale'],
+              reason: 'Đối chiếu sĩ số',
+              hours: 2,
+            },
+            parentToken,
+          );
+          assert.equal(created.status, 200, JSON.stringify(created.body));
+          return created.body.id as string;
+        };
+        const pending = await request();
+        const withdrawn = await identity(
+          'POST',
+          `/auth/parent-org/access-requests/${pending}/withdraw`,
+          {},
+          parentToken,
+        );
+        assert.equal(withdrawn.status, 200, JSON.stringify(withdrawn.body));
+        assert.equal(withdrawn.body.status, 'withdrawn');
+        assert.equal(
+          (await identity('POST', `/auth/parent-org/access-requests/${pending}/withdraw`, {}, parentToken)).status,
+          400,
+          'đã rút thì không rút lại',
+        );
+        assert.equal(
+          (await environment.call('alpha', 'POST', `/parent-org-consents/requests/${pending}/approve`, {})).status,
+          400,
+          'trường không duyệt đề nghị đã rút',
+        );
+        const school = await environment.call('alpha', 'GET', '/parent-org-consents');
+        assert.ok(
+          (school.body.requests as Array<{ id: string; status: string }>).some(
+            (row) => row.id === pending && row.status === 'withdrawn',
+          ),
+        );
+
+        const approved = await request();
+        await environment.call('alpha', 'POST', `/parent-org-consents/requests/${approved}/approve`, {});
+        const opened = await identity('POST', `/auth/parent-org/access-requests/${approved}/open`, {}, parentToken);
+        const code = new URL((opened.body.handoff as { path: string }).path, 'http://x').searchParams.get('code');
+        const exchanged = await sendWithHost(environment.identityOrigin, {
+          path: '/api/v1/auth/support/exchange',
+          host: environment.hosts.alpha,
+          body: { code },
+        });
+        const support = exchanged.body.access_token as string;
+        assert.equal((await environment.call('alpha', 'GET', '/school-plan', undefined, support)).status, 200);
+        assert.equal(
+          (await identity('POST', `/auth/parent-org/access-requests/${approved}/withdraw`, {}, parentToken)).status,
+          200,
+        );
+        assert.equal((await environment.call('alpha', 'GET', '/school-plan', undefined, support)).status, 401);
+        assert.equal(
+          (await identity('POST', `/auth/parent-org/access-requests/${approved}/open`, {}, parentToken)).status >= 400,
+          true,
+          'đề nghị đã rút không mở phiên được',
+        );
       });
     }
   });

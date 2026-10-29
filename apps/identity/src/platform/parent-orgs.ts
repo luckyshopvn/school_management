@@ -600,6 +600,7 @@ export class ParentOrgsService {
           'parent_org_access_requests.decided_by_name',
           'parent_org_access_requests.expires_at',
           'parent_org_access_requests.revoked_at',
+          'parent_org_access_requests.withdrawn_at',
           'parent_org_access_requests.created_at',
         ])
         .where('parent_org_access_requests.user_id', '=', user.id)
@@ -674,7 +675,50 @@ export class ParentOrgsService {
     }
     return this.support.startForParentOrg(id, { id: user.id, name: user.full_name, unitName: unit.name });
   }
+  // Cấp trên rút đề nghị của mình (YCTD-367): đề nghị chờ duyệt, hoặc đã duyệt còn hạn (phiên xem chi tiết đang mở kết thúc ngay). Chỉ
+  // người gửi; trường thấy trạng thái "Cấp trên đã rút". Quyền theo tài khoản cấp trên, không theo vai trò vận hành
+  async withdrawRequest(user: ParentOrgUserRow, id: string) {
+    if (!REQUEST_ID.test(id)) throw notFound();
+    const now = new Date();
+    const row = await this.platform
+      .selectFrom('parent_org_access_requests')
+      .select(['id', 'school_id', 'user_id', 'status', 'expires_at'])
+      .where('id', '=', id)
+      .executeTakeFirst();
+    if (!row || row.user_id !== user.id) throw notFound();
+    const active = row.status === 'approved' && row.expires_at !== null && row.expires_at > now;
+    if (row.status !== 'pending' && !active) {
+      throw validationError([{ field: 'status', message: 'Chỉ rút được đề nghị đang chờ hoặc đã duyệt còn hạn' }]);
+    }
+    const updated = await this.platform
+      .updateTable('parent_org_access_requests')
+      .set({ status: 'withdrawn', withdrawn_at: now })
+      .where('id', '=', id)
+      .where('status', '=', row.status)
+      .returning('id')
+      .executeTakeFirst();
+    if (!updated) throw new ApplicationError('ERR_CONFLICT', 'Đề nghị vừa đổi trạng thái; tải lại danh sách');
+    const sessions = await this.platform
+      .selectFrom('support_sessions')
+      .select('id')
+      .where('access_request_id', '=', id)
+      .where('ended_at', 'is', null)
+      .execute();
+    for (const session of sessions) {
+      await this.support.end(session.id, 'withdrawn', { type: 'system', name: user.full_name });
+    }
+    await writeAudit(this.platform, {
+      actorType: 'system',
+      action: 'parent-org.access-withdrawn',
+      schoolId: row.school_id,
+      details: { request_id: id, user_id: user.id, previous_status: row.status, sessions_ended: sessions.length },
+    });
+    return { id, status: 'withdrawn' as const };
+  }
 }
+
+// Đề nghị xem chi tiết: mã là uuid (mã khác thì 404, không để cơ sở dữ liệu báo lỗi kiểu)
+const REQUEST_ID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 // Đăng ký (hoặc cấp lại) xác thực hai lớp của tài khoản cấp trên: khóa mã hóa bằng khóa gốc của nền tảng, mã khôi phục chỉ lưu bản
 // băm; khóa và mã khôi phục chỉ trả một lần
@@ -816,5 +860,11 @@ export class ParentOrgAuthController {
   @HttpCode(200)
   async open(@Param('id') id: string, @Req() request: Request) {
     return this.parentOrgs.openRequest(await this.parentOrgs.userFromRequest(request), id);
+  }
+
+  @Post('access-requests/:id/withdraw')
+  @HttpCode(200)
+  async withdraw(@Param('id') id: string, @Req() request: Request) {
+    return this.parentOrgs.withdrawRequest(await this.parentOrgs.userFromRequest(request), id);
   }
 }

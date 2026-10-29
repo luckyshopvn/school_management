@@ -669,12 +669,37 @@ export interface ParentOrgAccessRequestsTable {
   categories: ColumnType<AggregateCategory[], string, string>;
   reason: string;
   hours: number;
-  status: Generated<'pending' | 'approved' | 'rejected' | 'revoked'>;
+  status: Generated<'pending' | 'approved' | 'rejected' | 'revoked' | 'withdrawn'>;
   decided_at: Date | null;
   decided_by_name: string | null;
   expires_at: Date | null;
   revoked_at: Date | null;
+  // Cấp trên tự rút đề nghị (YCTD-367)
+  withdrawn_at: Date | null;
   created_at: CreatedTimestamp;
+}
+
+// Xuất báo cáo chạy nền của cấp trên (YCTD-367, migration 0245)
+export type ParentOrgExportStatus = 'queued' | 'running' | 'done' | 'failed' | 'expired';
+
+export interface ParentOrgExportsTable {
+  id: Generated<string>;
+  user_id: string;
+  admin_unit_id: string;
+  unit_name: string;
+  categories: ColumnType<AggregateCategory[], string, string>;
+  layout: 'summary' | 'compare';
+  format: 'xlsx' | 'pdf';
+  status: Generated<ParentOrgExportStatus>;
+  storage_key: string | null;
+  file_name: string | null;
+  size_bytes: number | null;
+  error: string | null;
+  attempts: Generated<number>;
+  created_at: CreatedTimestamp;
+  started_at: Date | null;
+  finished_at: Date | null;
+  expires_at: Date | null;
 }
 
 // Danh mục đơn vị giáo dục toàn quốc (DT-24, YCTD-220)
@@ -795,6 +820,7 @@ export interface PlatformDatabase {
   school_aggregate_consents: SchoolAggregateConsentsTable;
   aggregate_snapshots: AggregateSnapshotsTable;
   parent_org_access_requests: ParentOrgAccessRequestsTable;
+  parent_org_exports: ParentOrgExportsTable;
   catalog_departments: CatalogDepartmentsTable;
   catalog_levels: CatalogLevelsTable;
   catalog_communes: CatalogCommunesTable;

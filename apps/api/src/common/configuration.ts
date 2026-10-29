@@ -77,6 +77,9 @@ export interface ApiConfiguration {
   // Đơn vị cấp trên (DT-SaaS phần S6): chu kỳ bản chụp tổng hợp của từng trường (giây, mặc định 6 giờ; 0 là tắt), ngưỡng ẩn nhóm nhỏ
   aggregateSnapshotIntervalSeconds?: number;
   parentOrgMinGroup?: number;
+  // Xuất báo cáo chạy nền của cấp trên (YCTD-367): chu kỳ việc định kỳ (giây, 0 là tắt), số ngày giữ tệp
+  parentOrgExportIntervalSeconds?: number;
+  parentOrgExportRetentionDays?: number;
   // Tên miền của cổng nền tảng: số liệu cho tài khoản cấp trên chỉ phục vụ ở đây (tên miền khác 404); trống thì tắt
   platformConsoleHost?: string | null;
   // Chợ gia sư (DT-27 phần 27f): kết nối cơ sở dữ liệu `marketplace` bằng vai trò riêng của chợ; trống là tắt chợ. Bí mật băm mã học
@@ -379,6 +382,11 @@ export function readConfigurationFromEnvironment(options: { multiTenant?: boolea
     schoolMetricsIntervalSeconds: Number(process.env.SCHOOL_METRICS_INTERVAL_SECONDS ?? 3600),
     aggregateSnapshotIntervalSeconds: Number(process.env.AGGREGATE_SNAPSHOT_INTERVAL_SECONDS ?? 21_600),
     parentOrgMinGroup: Number(process.env.PARENT_ORG_MIN_GROUP) > 0 ? Number(process.env.PARENT_ORG_MIN_GROUP) : 5,
+    parentOrgExportIntervalSeconds: Number(process.env.PARENT_ORG_EXPORT_INTERVAL_SECONDS ?? 30),
+    parentOrgExportRetentionDays:
+      Number(process.env.PARENT_ORG_EXPORT_RETENTION_DAYS) > 0
+        ? Number(process.env.PARENT_ORG_EXPORT_RETENTION_DAYS)
+        : 7,
     platformConsoleHost: process.env.PLATFORM_CONSOLE_HOST?.trim() || null,
     marketplaceDatabaseUrl: process.env.MARKETPLACE_DATABASE_URL?.trim() || null,
     marketLinkSecret: process.env.MARKET_LINK_SECRET?.trim() || null,
