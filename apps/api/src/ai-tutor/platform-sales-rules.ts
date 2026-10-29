@@ -131,7 +131,10 @@ export function readPlanInput(
     levels.length > 0 &&
     levels.every((level) => SCHOOL_LEVELS.includes(level as AiTutorSchoolLevel));
   if (!validLevels) {
-    errors.push({ field: 'school_levels', message: 'Chọn ít nhất một cấp: Tiểu học, Trung học cơ sở, Trung học phổ thông' });
+    errors.push({
+      field: 'school_levels',
+      message: 'Chọn ít nhất một cấp: Tiểu học, Trung học cơ sở, Trung học phổ thông',
+    });
   }
   if (errors.length > 0) {
     return { value: null, errors };

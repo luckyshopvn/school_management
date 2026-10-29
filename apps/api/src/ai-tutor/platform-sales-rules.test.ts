@@ -116,7 +116,13 @@ describe('Gia sư AI nền tảng bán: quy tắc thuần', () => {
       'Gói Cơ bản tháng tháng 10/2026 (100 lượt hỏi)',
     );
     assert.equal(
-      receiptDescription({ planName: 'Mua thêm 50 lượt', planKind: 'top_up', periodMonth: null, turns: 50, kind: 'purchase' }),
+      receiptDescription({
+        planName: 'Mua thêm 50 lượt',
+        planKind: 'top_up',
+        periodMonth: null,
+        turns: 50,
+        kind: 'purchase',
+      }),
       'Gói Mua thêm 50 lượt (50 lượt hỏi, dùng trong 12 tháng)',
     );
   });

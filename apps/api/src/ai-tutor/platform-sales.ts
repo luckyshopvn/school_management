@@ -301,7 +301,9 @@ export class PlatformAiTutorSalesService implements PlatformTransferHandler {
         ])
         .where('child_id', '=', childId)
         .where('status', 'in', ['pending', 'active'])
-        .where((expression) => expression.or([expression('valid_until', 'is', null), expression('valid_until', '>', now)]))
+        .where((expression) =>
+          expression.or([expression('valid_until', 'is', null), expression('valid_until', '>', now)]),
+        )
         .orderBy('created_at', 'desc')
         .execute(),
       aiTutorTurnBalance(system, childId, now),
@@ -329,11 +331,18 @@ export class PlatformAiTutorSalesService implements PlatformTransferHandler {
     const tenant = this.schoolOfRequest();
     const { level } = await this.childOf(currentUser, childId);
     if (!level) {
-      throw new ApplicationError('ERR_CONFLICT', 'Gia sư AI dành cho học sinh Tiểu học, Trung học cơ sở, Trung học phổ thông');
+      throw new ApplicationError(
+        'ERR_CONFLICT',
+        'Gia sư AI dành cho học sinh Tiểu học, Trung học cơ sở, Trung học phổ thông',
+      );
     }
     const planId = body?.plan_id;
     const plan = isUuid(planId)
-      ? await this.platform.selectFrom('platform_ai_tutor_plans').selectAll().where('id', '=', planId).executeTakeFirst()
+      ? await this.platform
+          .selectFrom('platform_ai_tutor_plans')
+          .selectAll()
+          .where('id', '=', planId)
+          .executeTakeFirst()
       : undefined;
     if (!plan) {
       throw validationError([{ field: 'plan_id', message: 'Chọn một gói của nền tảng' }]);
@@ -537,7 +546,8 @@ export class PlatformAiTutorSalesService implements PlatformTransferHandler {
         { status: order.status, amount: money(order.amount), pendingExpiresAt: order.pending_expires_at },
         { amount: transfer.amount, receivedAt: transfer.receivedAt },
       );
-      let result: 'activated' | 'already_settled' | 'amount_mismatch' | 'late' = decision === 'activate' ? 'late' : decision;
+      let result: 'activated' | 'already_settled' | 'amount_mismatch' | 'late' =
+        decision === 'activate' ? 'late' : decision;
       if (decision === 'activate') {
         const activated = await this.inSchool(order.school_id, (system) => this.activate(system, order, now));
         result = activated ? 'activated' : 'late';
@@ -566,7 +576,9 @@ export class PlatformAiTutorSalesService implements PlatformTransferHandler {
     this.logger.log(`Tiền vào gia sư AI ${transfer.provider}: ${outcome.kind} ${code}`);
     if (outcome.kind === 'activated') {
       await this.notifyReceipt(outcome.order).catch((error: unknown) =>
-        this.logger.warn(`Không gửi được thông báo biên lai: ${error instanceof Error ? error.message : String(error)}`),
+        this.logger.warn(
+          `Không gửi được thông báo biên lai: ${error instanceof Error ? error.message : String(error)}`,
+        ),
       );
     }
     return true;
@@ -596,9 +608,9 @@ export class PlatformAiTutorSalesService implements PlatformTransferHandler {
       .set({ status: 'paid', paid_at: transfer.receivedAt, updated_at: now })
       .where('id', '=', order.id)
       .execute();
-    const sequence = await sql<{ value: string }>`select nextval('platform_ai_tutor_receipt_number_seq') as value`.execute(
-      transaction,
-    );
+    const sequence = await sql<{
+      value: string;
+    }>`select nextval('platform_ai_tutor_receipt_number_seq') as value`.execute(transaction);
     await transaction
       .insertInto('platform_ai_tutor_receipts')
       .values({
@@ -702,7 +714,11 @@ export class PlatformAiTutorSalesService implements PlatformTransferHandler {
   private hostOf(request: Request): string | undefined {
     const tenancy = this.tenancy;
     return tenancy
-      ? extractTenantHost(request.headers, tenancy.configuration.hostSource, tenancy.configuration.edgeSecret ?? undefined)
+      ? extractTenantHost(
+          request.headers,
+          tenancy.configuration.hostSource,
+          tenancy.configuration.edgeSecret ?? undefined,
+        )
       : undefined;
   }
 
@@ -832,7 +848,9 @@ export class PlatformAiTutorSalesService implements PlatformTransferHandler {
     const plan = await this.planOrThrow(id);
     const status = body?.status;
     if (status !== 'active' && status !== 'archived') {
-      throw validationError([{ field: 'status', message: 'Trạng thái là active (đang bán) hoặc archived (ngừng bán)' }]);
+      throw validationError([
+        { field: 'status', message: 'Trạng thái là active (đang bán) hoặc archived (ngừng bán)' },
+      ]);
     }
     const updated = await this.platform
       .updateTable('platform_ai_tutor_plans')
@@ -974,7 +992,12 @@ export class PlatformAiTutorSalesService implements PlatformTransferHandler {
       await this.inSchool(order.school_id, (system) =>
         system
           .updateTable('ai_tutor_subscriptions')
-          .set({ status: 'refunded', cancelled_at: now, cancel_reason: `Hoàn tiền: ${value.reason}`.slice(0, 500), updated_at: now })
+          .set({
+            status: 'refunded',
+            cancelled_at: now,
+            cancel_reason: `Hoàn tiền: ${value.reason}`.slice(0, 500),
+            updated_at: now,
+          })
           .where('id', '=', order.subscription_id)
           .where('status', 'in', ['pending', 'active'])
           .execute(),

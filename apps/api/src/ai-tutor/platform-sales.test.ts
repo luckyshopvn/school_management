@@ -19,7 +19,7 @@ import {
 import { runAsSchool } from '@school-management/server';
 import type { Kysely } from 'kysely';
 import { CurrentSchoolYearResolver } from '../common/current-school-year.js';
-import { sendWithHost, startMultiTenantApi, type MultiTenantApi, type Reply } from '../tenant-test-support.js';
+import { sendWithHost, startMultiTenantApi, type MultiTenantApi } from '../tenant-test-support.js';
 import { vietnamMonthOf } from './ai-tutor-rules.js';
 import { activateAiTutorSubscription, aiTutorTurnBalance, createAiTutorSubscription } from './ai-tutor-turns.js';
 import { PlatformAiTutorExpiryJob } from './platform-sales.js';
@@ -53,12 +53,16 @@ describe('Gia sư AI: nền tảng bán thẳng cho phụ huynh', () => {
 
   async function operatorToken(role: 'quan_tri' | 'ho_tro'): Promise<string> {
     const login = `van-hanh-${role}-${Math.random().toString(36).slice(2, 8)}`;
-    const created = await createPlatformOperatorWithTotp(environment.platform.platform, environment.platform.masterKey, {
-      login,
-      fullName: `Nhân viên ${role}`,
-      password: OPERATOR_TEST_PASSWORD,
-      role,
-    });
+    const created = await createPlatformOperatorWithTotp(
+      environment.platform.platform,
+      environment.platform.masterKey,
+      {
+        login,
+        fullName: `Nhân viên ${role}`,
+        password: OPERATOR_TEST_PASSWORD,
+        role,
+      },
+    );
     const reply = await sendWithHost(environment.identityOrigin, {
       path: '/api/v1/auth/platform/login',
       host: CONSOLE_HOST,
@@ -93,8 +97,9 @@ describe('Gia sư AI: nền tảng bán thẳng cho phụ huynh', () => {
     assert.equal(unit.status, 201, JSON.stringify(unit.body));
     const unitId = unit.body.id as string;
     const tenant = await environment.tenantOf('alpha');
-    const schoolYear = await runAsSchool(tenant, async () =>
-      (await environment.api.get(CurrentSchoolYearResolver).require()).database,
+    const schoolYear = await runAsSchool(
+      tenant,
+      async () => (await environment.api.get(CurrentSchoolYearResolver).require()).database,
     );
     const identity = environment.identityRuntime.connections.database<IdentityDatabase>(tenant, 'identity', 'identity');
     const user = await createTestUser(identity, { roles: [{ roleCode: 'VT-14', orgUnitId: unitId }] });
@@ -155,7 +160,12 @@ describe('Gia sư AI: nền tảng bán thẳng cho phụ huynh', () => {
         .execute();
       await schoolYear
         .insertInto('child_guardians')
-        .values({ child_id: child.id, guardian_id: guardian.id, relationship_item_id: relationship.id, is_primary: true })
+        .values({
+          child_id: child.id,
+          guardian_id: guardian.id,
+          relationship_item_id: relationship.id,
+          is_primary: true,
+        })
         .execute();
       children.push(child.id);
     }
@@ -215,10 +225,19 @@ describe('Gia sư AI: nền tảng bán thẳng cho phụ huynh', () => {
       school_levels: ['TH'],
     });
     plans.primaryOnly = primaryOnly.body.id as string;
-    const invalid = await operator('POST', '/plans', { kind: 'monthly', name: 'Miễn phí', price: 0, turns: 10, school_levels: ['TH'] });
+    const invalid = await operator('POST', '/plans', {
+      kind: 'monthly',
+      name: 'Miễn phí',
+      price: 0,
+      turns: 10,
+      school_levels: ['TH'],
+    });
     assert.equal(invalid.status, 400);
     assert.equal((await operator('GET', '/plans', undefined, supportToken)).status, 403, 'hỗ trợ trường không bán gói');
-    assert.equal((await operator('GET', '/plans', undefined, adminToken, environment.hosts.alpha as string)).status, 404);
+    assert.equal(
+      (await operator('GET', '/plans', undefined, adminToken, environment.hosts.alpha as string)).status,
+      404,
+    );
 
     const renamed = await operator('PUT', `/plans/${plans.monthly}`, {
       name: 'Cơ bản tháng',
@@ -229,8 +248,15 @@ describe('Gia sư AI: nền tảng bán thẳng cho phụ huynh', () => {
     assert.equal(renamed.status, 200, JSON.stringify(renamed.body));
     assert.equal(renamed.body.turns, 120);
     assert.equal(
-      (await operator('PUT', `/plans/${plans.monthly}`, { kind: 'top_up', name: 'X', price: 1000, turns: 1, school_levels: ['TH'] }))
-        .status,
+      (
+        await operator('PUT', `/plans/${plans.monthly}`, {
+          kind: 'top_up',
+          name: 'X',
+          price: 1000,
+          turns: 1,
+          school_levels: ['TH'],
+        })
+      ).status,
       400,
       'không đổi loại gói',
     );
@@ -340,10 +366,16 @@ describe('Gia sư AI: nền tảng bán thẳng cho phụ huynh', () => {
     );
     assert.equal(school.ok, true);
     await activateAiTutorSubscription(system, (school as { subscriptionId: string }).subscriptionId, now, 'HP-THU');
-    const blocked = await parent('POST', `/children/${childId}/orders`, { plan_id: plans.monthly, period_month: nextMonth });
+    const blocked = await parent('POST', `/children/${childId}/orders`, {
+      plan_id: plans.monthly,
+      period_month: nextMonth,
+    });
     assert.equal(blocked.status, 409);
     assert.match(String((blocked.body.error as Record<string, unknown>).message), /mua qua trường/);
-    const pastMonth = await parent('POST', `/children/${childId}/orders`, { plan_id: plans.monthly, period_month: '2026-01-01' });
+    const pastMonth = await parent('POST', `/children/${childId}/orders`, {
+      plan_id: plans.monthly,
+      period_month: '2026-01-01',
+    });
     assert.equal(pastMonth.status, 409);
     const wrongLevel = await parent('POST', `/children/${primaryChildId}/orders`, { plan_id: plans.monthly });
     assert.equal(wrongLevel.status, 409, 'gói không áp dụng cho Tiểu học');
@@ -387,9 +419,15 @@ describe('Gia sư AI: nền tảng bán thẳng cho phụ huynh', () => {
     assert.equal((await aiTutorTurnBalance(system, childId, new Date())).topUp, 50);
 
     assert.equal((await operator('POST', `/orders/${orderId}/refund`, { reason: 'Thử' }, supportToken)).status, 403);
-    assert.equal((await operator('POST', `/orders/${orderId}/refund`, { amount: 46_000, reason: 'Quá số' })).status, 400);
+    assert.equal(
+      (await operator('POST', `/orders/${orderId}/refund`, { amount: 46_000, reason: 'Quá số' })).status,
+      400,
+    );
     assert.equal((await operator('POST', `/orders/${orderId}/refund`, { amount: 45_000 })).status, 400, 'thiếu lý do');
-    const refunded = await operator('POST', `/orders/${orderId}/refund`, { amount: 30_000, reason: 'Phụ huynh mua nhầm' });
+    const refunded = await operator('POST', `/orders/${orderId}/refund`, {
+      amount: 30_000,
+      reason: 'Phụ huynh mua nhầm',
+    });
     assert.equal(refunded.status, 200, JSON.stringify(refunded.body));
     assert.equal(refunded.body.status, 'refunded');
     const refund = refunded.body.refund as Record<string, unknown>;
@@ -426,7 +464,9 @@ describe('Gia sư AI: nền tảng bán thẳng cho phụ huynh', () => {
     assert.equal((await subscriptionOf(String(first.body.id))).status, 'cancelled');
     const second = await parent('POST', `/children/${childId}/orders`, { plan_id: plans.topUp });
     assert.equal((await operator('POST', `/orders/${String(second.body.id)}/cancel`, {})).status, 400, 'thiếu lý do');
-    const byOperator = await operator('POST', `/orders/${String(second.body.id)}/cancel`, { reason: 'Phụ huynh nhờ hủy' });
+    const byOperator = await operator('POST', `/orders/${String(second.body.id)}/cancel`, {
+      reason: 'Phụ huynh nhờ hủy',
+    });
     assert.equal(byOperator.body.status, 'cancelled');
     assert.equal((await operator('POST', `/orders/${String(second.body.id)}/refund`, { reason: 'X' })).status, 409);
     const betaView = await environment.call('beta', 'GET', `/ai-tutor/direct/orders/${String(second.body.id)}`);
