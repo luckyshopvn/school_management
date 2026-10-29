@@ -60,6 +60,32 @@
 
 Quy ước này áp dụng thống nhất trên mọi màn hình tài chính và mọi báo cáo.
 
+### 2.5 Màu cổng vận hành
+
+Cổng vận hành nền tảng (`apps/platform`, thiết kế Eric duyệt ngày 2026-10-29) dùng thanh điều hướng bên trái màu xanh đậm, khác KC-08 của cổng quản trị. Giá trị ghi đúng như `apps/platform/src/cong-van-hanh.css` (biến `--pf-*`), chỉ áp trong `.shell-platform` (YCTD-370, ĐX-15.1 đến ĐX-15.3).
+
+| Mã | Tên | Giá trị | Dùng cho |
+|---|---|---|---|
+| VH-01 | Nền thanh bên | #12304F | Thanh bên, thanh đầu trang ở điện thoại |
+| VH-02 | Đường kẻ thanh bên | #2A4A6E | Đường phân cách khối tài khoản ở chân thanh bên |
+| VH-03 | Chữ thanh bên | #DBE6F3 | Chữ mục menu |
+| VH-04 | Chữ phụ thanh bên | #A9BCD2 | Nhãn nhóm menu, vai trò nhân viên |
+| VH-05 | Mục đang chọn | #1F4E8C | Nền mục menu đang mở (chữ trắng) |
+| VH-06 | Nhấn | #055A9A | Nút chính, liên kết, viền tiêu điểm, thẻ chọn đang chọn (bằng M-02) |
+| VH-07 | Nhấn đậm | #04497D | Nút chính khi trỏ vào, chữ nhãn thông tin |
+| VH-08 | Nền trang | #F4F6F9 | Nền vùng nội dung, chân hộp thoại |
+| VH-09 | Viền thẻ | #DDE2E8 | Viền thẻ, hộp thoại, thẻ chọn |
+| VH-10 | Kẻ dòng | #EEF1F4 | Kẻ dòng bảng, phân nhóm biểu mẫu |
+| VH-11 | Viền ô nhập | #CDD5DF | Viền ô nhập, ô chọn, nút lọc |
+| VH-12 | Chữ | #17202A | Chữ chính |
+| VH-13 | Chữ phụ | #5D6875 | Mô tả, gợi ý, tiêu đề cột |
+| VH-14 | Nhãn thành công | nền #E3F4EA, chữ #1D6B43 | Nhãn, dải thông báo thành công |
+| VH-15 | Nhãn thông tin | nền #E8EEF7, chữ #04497D | Nhãn thông tin, nút lọc đang chọn |
+| VH-16 | Nhãn cảnh báo | nền #FDF0D8, chữ #7A4600 | Nhãn, dải cảnh báo |
+| VH-17 | Nhãn trung tính | nền #EEF1F4, chữ #4A5562 | Đã hủy, đã kết thúc, ngừng dùng |
+| VH-18 | Nguy hiểm | chữ, nút phá hủy T-03 #B91C1C (chữ trắng trên nền này 6,5:1); nền nhạt #FDECEC (chữ T-03 trên nền này 5,67:1) | Nút phá hủy, nhãn quá hạn, dải lỗi, lỗi tại ô |
+| VH-19 | Lớp phủ hộp thoại | C-01 mờ 45% (rgb(15 23 42 / 45%)) | Nền sau hộp thoại |
+
 ## 3. Chữ
 
 | Mã | Cấp | Cỡ chữ | Độ đậm | Dùng cho |
@@ -72,7 +98,7 @@ Quy ước này áp dụng thống nhất trên mọi màn hình tài chính và
 | CH-06 | Ghi chú | 14 điểm ảnh | 400 | Chú thích, dấu thời gian; dùng màu C-02 để phân biệt với nội dung |
 | CH-07 | Số liệu lớn | 28 điểm ảnh | 700 | Chỉ số trên bảng điều khiển |
 
-Phông chữ dùng phông hệ thống có hỗ trợ đầy đủ dấu tiếng Việt. Không dùng quá nhiều cấp cỡ chữ trong cùng một khối. Không có chữ nào nhỏ hơn 14 điểm ảnh; giao diện cho phóng to theo trình duyệt (Q-89).
+Phông chữ dùng phông hệ thống có hỗ trợ đầy đủ dấu tiếng Việt. Không dùng quá nhiều cấp cỡ chữ trong cùng một khối. Không có chữ nào nhỏ hơn 14 điểm ảnh, kể cả cổng vận hành từ YCTD-370; giao diện cho phóng to theo trình duyệt (Q-89).
 
 ## 4. Khoảng cách và bố cục
 
@@ -110,6 +136,20 @@ Phông chữ dùng phông hệ thống có hỗ trợ đầy đủ dấu tiếng
 | TD-17 | Số định danh đã che | Chỉ hiện bốn số cuối, phần còn lại thay bằng dấu sao; vai trò được xem đầy đủ có nút xem, mỗi lần bấm ghi nhật ký truy cập (BR-81) |
 | TD-18 | Menu ngang đánh số và menu người dùng | Vai trò `menubar`, `menu`, `menuitem` theo WAI-ARIA, dùng được bằng chuột và bàn phím; mục có số thứ bậc 1., 1.1., 1.1.1.; trang đang mở tô sáng ở mục lá và mục cấp một chứa nó; menu người dùng mở từ tên người dùng ở thanh đầu trang (`14_DAC_TA_GIAO_DIEN.md` BC-10 đến BC-12; YCTD-107) |
 | TD-19 | Khối biểu mẫu | `FormBlock` (khối có tiêu đề), `FormRow` (một dòng nhãn và ô nhập) và lớp `FORM_CONTROL_CLASS` cho ô nhập ở `packages/ui`: nhãn bên trái, ô nhập bên phải; dưới 768 điểm ảnh nhãn nằm trên ô nhập; dùng cho biểu mẫu theo khối như của Sở (`14_DAC_TA_GIAO_DIEN.md` BC-16; YCTD-108) |
+
+### 5.1 Thành phần riêng của cổng vận hành
+
+Lớp ở `apps/platform/src/cong-van-hanh.css`, thành phần React ở `apps/platform/src/platform-ui.tsx` (YCTD-370, ĐX-15.3). TD-07, TD-09, TD-15 áp cho cổng vận hành qua các thành phần này.
+
+| Mã | Thành phần | Quy tắc |
+|---|---|---|
+| VH-TP-01 | Hộp thoại (`Dialog`, `ConfirmDialog`) | Thẻ `<dialog>` mở dạng phủ: tiêu đề, nút đóng ×, thân, chân có nút; lớp phủ VH-19; Esc đóng, trừ hộp thông tin hiện một lần (chỉ đóng bằng nút "Đã lưu, đóng"); đóng xong tiêu điểm về nút đã mở. Thay hộp nhập, hộp xác nhận của trình duyệt. Hộp xác nhận thao tác phá hủy dùng nút VH-18 |
+| VH-TP-02 | Nhóm nút lọc trạng thái | Nút bo tròn, `aria-pressed`; nút đang chọn theo VH-15, viền VH-06 |
+| VH-TP-03 | Dải thông báo kết quả | Bốn tông thành công, nguy hiểm, cảnh báo, thông tin; thành công `role="status"`, lỗi `role="alert"`; lỗi tải có nút Tải lại |
+| VH-TP-04 | Thẻ chọn trong trang (`TabList`) | Mũi tên trái, phải, Home, End chuyển thẻ; chỉ thẻ đang chọn nhận tiêu điểm bằng Tab |
+| VH-TP-05 | Ô nhập có gợi ý | Nhãn phía trên, gợi ý chữ phụ cạnh nhãn, lỗi màu T-03 dưới ô, `aria-invalid` |
+| VH-TP-06 | Nút gửi | Đang gửi thì khóa nút, đổi chữ "Đang …", không gửi lặp khi bấm nhiều lần |
+| VH-TP-07 | Thanh so với hạn mức | Chữ "đã dùng / hạn mức (phần trăm)" trên thanh cao 8 điểm ảnh, nền VH-17; dưới 80% màu VH-06, từ 80% chữ cảnh báo VH-16, từ 100% T-03; vai trò `meter` (YCTD-374) |
 
 ## 6. Biểu tượng và hình ảnh
 
