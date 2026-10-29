@@ -5,6 +5,7 @@ import { replaceDatabaseName, testAdminDatabaseUrl } from '@school-management/da
 import {
   E2E_CONSOLE_HOST,
   E2E_MARKET_FILES_KEY,
+  E2E_MARKET_HOST,
   E2E_MARKET_LINK_SECRET,
   E2E_MARKET_OIDC_CLIENT_ID,
   E2E_MARKET_OIDC_CLIENT_SECRET,
@@ -149,10 +150,9 @@ export default defineConfig({
       env: { API_BASE_URL: apiBaseUrl },
     },
     {
-      // Ứng dụng Gia sư (YCTD-262)
-      command: `pnpm --filter @school-management/tutor exec vite --port ${E2E_MULTI_TUTOR_PORT} --strictPort`,
-      url: `http://localhost:${E2E_MULTI_TUTOR_PORT}`,
-      env: { API_BASE_URL: apiBaseUrl },
+      // Tên miền cũ của ứng dụng Gia sư (YCTD-262) chỉ còn chuyển hướng về Chợ gia sư (YCTD-368)
+      command: `node ../scripts/chuyen-huong-gia-su.mjs --port ${E2E_MULTI_TUTOR_PORT} --target http://${E2E_MARKET_HOST}:${E2E_MULTI_MARKET_PORT}`,
+      url: `http://localhost:${E2E_MULTI_TUTOR_PORT}/sw.js`,
     },
   ],
 });

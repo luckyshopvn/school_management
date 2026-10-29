@@ -60,10 +60,9 @@ flowchart LR
 | `apps/teacher`                  | Ứng dụng giáo viên (web, dùng được trên điện thoại)                                                                   |
 | `apps/parent`                   | Ứng dụng phụ huynh                                                                                                    |
 | `apps/platform`                 | Cổng quản trị nền tảng nhiều trường                                                                                   |
-| `apps/market`                   | Chợ gia sư                                                                                                            |
+| `apps/market`                   | Chợ gia sư, ứng dụng chung của phụ huynh và gia sư (phân quyền theo loại tài khoản)                                   |
 | `apps/mobile`                   | Vỏ ứng dụng điện thoại (Capacitor)                                                                                    |
 | `apps/student`                  | Ứng dụng học sinh, **đang được tách riêng ở PR 224, chưa có trên `main`**                                             |
-| `apps/tutor`                    | Ứng dụng gia sư, **đang được tách khỏi chợ gia sư ở PR 223, chưa có trên `main`**                                     |
 | `packages/`                     | Mã dùng chung: `config` (cấu hình TypeScript), `shared`, `server`, `ui`, `pwa`                                        |
 | `database/`                     | Lược đồ và tệp thay đổi cấu trúc (migration) của từng loại cơ sở dữ liệu: định danh, hệ thống, năm học, nền tảng, chợ |
 | `tests/`                        | Kiểm thử e2e Playwright và các kiểm thử mức kho mã                                                                    |
@@ -107,7 +106,7 @@ Cổng mặc định lấy từ cấu hình trong kho mã:
 | Dịch vụ định danh               | 3001 (`IDENTITY_PORT`) |
 | portal / teacher / parent       | 5173 / 5174 / 5175     |
 | platform / market               | 5177 / 5178            |
-| student / tutor                 | 5179 / 5181            |
+| student                         | 5179                   |
 | PostgreSQL / Redis / kho tệp S3 | 5432 / 6379 / 8333     |
 
 Bản nhiều trường trên máy (đăng nhập chọn Sở → Cấp, Phường / Xã → Trường ở `http://truong.localhost:5190/`, cổng vận hành nền tảng `http://platform.truong.localhost:5191/`, đủ ứng dụng giáo viên, phụ huynh, học sinh, chợ gia sư), chạy song song với

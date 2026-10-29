@@ -18,8 +18,10 @@ import { MarketMessenger } from './market-messenger.js';
 // hóa, nhân viên nền tảng xem tệp (có nhật ký) và duyệt; hồ sơ đã duyệt hiện ở tìm kiếm theo Mẫu 02, không lộ liên hệ. Dữ liệu giả
 const CONSOLE_HOST = 'platform.e2e.localhost';
 const MARKET_HOST = 'cho-gia-su.e2e.localhost';
-const TUTOR_HOST = 'gia-su.e2e.localhost';
-const RETURN_URL = `http://${TUTOR_HOST}:5388/xac-minh`;
+const LEGACY_TUTOR_HOST = 'gia-su.e2e.localhost';
+const RETURN_URL = `http://${MARKET_HOST}:5388/xac-minh`;
+// Ứng dụng chung (YCTD-368): đăng nhập bằng định danh quay về /dinh-danh của chợ, xác minh gia sư quay về /xac-minh
+const LOGIN_RETURN_URL = `http://${MARKET_HOST}:5388/dinh-danh`;
 const PDF = Buffer.concat([Buffer.from('%PDF-1.4\n'), randomBytes(64)]);
 
 function adultBirthdate(): string {
@@ -54,7 +56,7 @@ describe('chợ gia sư: hồ sơ và xác minh gia sư (27g)', () => {
       ...(cookie ? { cookie } : {}),
     });
   const tutorCall = (method: string, path: string, body?: unknown, token?: string, cookie?: string) =>
-    call(TUTOR_HOST, method, path, body, token, cookie);
+    call(MARKET_HOST, method, path, body, token, cookie);
   const admin = (method: string, path: string, body?: unknown) =>
     call(CONSOLE_HOST, method, `/admin${path}`, body, operatorToken);
 
@@ -82,7 +84,7 @@ describe('chợ gia sư: hồ sơ và xác minh gia sư (27g)', () => {
           path: url.pathname,
           method: 'POST',
           headers: {
-            host: TUTOR_HOST,
+            host: MARKET_HOST,
             authorization: `Bearer ${token}`,
             'content-type': `multipart/form-data; boundary=${boundary}`,
             'content-length': payload.length,
@@ -125,7 +127,7 @@ describe('chợ gia sư: hồ sơ và xác minh gia sư (27g)', () => {
     const started = await tutorCall(
       'POST',
       '/identity/start',
-      { provider: 'gia-lap', purpose, return_url: RETURN_URL },
+      { provider: 'gia-lap', purpose, return_url: purpose === 'login' ? LOGIN_RETURN_URL : RETURN_URL },
       token,
     );
     assert.equal(started.status, 200, JSON.stringify(started.body));
@@ -191,7 +193,7 @@ describe('chợ gia sư: hồ sơ và xác minh gia sư (27g)', () => {
     });
     operatorToken = reply.body.access_token as string;
     assert.equal(
-      (await admin('PUT', '/settings', { enabled: true, host: MARKET_HOST, tutor_host: TUTOR_HOST })).status,
+      (await admin('PUT', '/settings', { enabled: true, host: MARKET_HOST, tutor_host: LEGACY_TUTOR_HOST })).status,
       200,
     );
     for (const kind of ['terms', 'privacy', 'tutor_terms']) {
@@ -212,12 +214,13 @@ describe('chợ gia sư: hồ sơ và xác minh gia sư (27g)', () => {
     const badReturn = await tutorCall(
       'POST',
       '/identity/start',
-      { provider: 'gia-lap', purpose: 'verify', return_url: `http://${MARKET_HOST}/xac-minh` },
+      { provider: 'gia-lap', purpose: 'verify', return_url: `http://${LEGACY_TUTOR_HOST}/xac-minh` },
       first.token,
     );
     assert.equal(badReturn.status, 400);
-    // Ứng dụng phụ huynh có đăng nhập định danh (YCTD-364) nhưng không có xác minh gia sư: địa chỉ quay về của phụ huynh là /dinh-danh
+    // Tên miền cũ của ứng dụng Gia sư không còn phục vụ định danh (YCTD-368); tên miền chung của chợ thì có
     assert.equal((await call(MARKET_HOST, 'GET', '/identity/providers')).status, 200);
+    assert.equal((await call(LEGACY_TUTOR_HOST, 'GET', '/identity/providers')).status, 404);
 
     const minor = await oidc(
       'verify',
@@ -467,14 +470,14 @@ describe('chợ gia sư: hồ sơ và xác minh gia sư (27g)', () => {
     );
     assert.equal((await admin('POST', `/reviews/tutors/${tutor.id}/profile`, { decision: 'approve' })).status, 200);
 
-    // Tìm kiếm ở ứng dụng phụ huynh; ứng dụng Gia sư không có tìm kiếm
+    // Tìm kiếm là phần công khai của ứng dụng chung (YCTD-368); tên miền cũ của ứng dụng Gia sư 404
     const found = await call(MARKET_HOST, 'GET', '/public/tutors?subject=anh&school_level=THCS&grade=7&weekday=6');
     assert.equal(found.status, 200, JSON.stringify(found.body));
     const card = (found.body.tutors as Array<Record<string, unknown>>).find((row) => row.id === tutor.id);
     assert.ok(card, 'gia sư đã duyệt hiện ở tìm kiếm');
     assert.equal(card.min_price, 150_000);
     assert.equal((await call(MARKET_HOST, 'GET', '/public/tutors?subject=hoa')).body.tutors instanceof Array, true);
-    assert.equal((await call(TUTOR_HOST, 'GET', '/public/tutors')).status, 404);
+    assert.equal((await call(LEGACY_TUTOR_HOST, 'GET', '/public/tutors')).status, 404);
     const page = await call(MARKET_HOST, 'GET', `/public/tutors/${tutor.id}`);
     assert.equal(page.status, 200);
     assert.equal((page.body.form02 as { place: string }).place, 'Trực tuyến qua Chợ gia sư');
@@ -492,7 +495,7 @@ describe('chợ gia sư: hồ sơ và xác minh gia sư (27g)', () => {
     );
     assert.equal((await call(MARKET_HOST, 'GET', `/public/tutors/${tutor.id}`)).status, 404);
   });
-  it('CT-364-3: phụ huynh liên kết định danh rồi đăng nhập bằng định danh; định danh của phụ huynh không đăng nhập được ứng dụng Gia sư (YCTD-364)', async () => {
+  it('CT-364-3: phụ huynh liên kết định danh rồi đăng nhập bằng định danh; đăng nhập định danh mở phiên đúng loại tài khoản đã gắn (YCTD-364, YCTD-368)', async () => {
     const email = `phu-huynh-dd-${Date.now()}@example.test`;
     const registered = await call(MARKET_HOST, 'POST', '/auth/register', {
       kind: 'parent',
@@ -553,8 +556,10 @@ describe('chợ gia sư: hồ sơ và xác minh gia sư (27g)', () => {
     assert.equal(login.status, 200, JSON.stringify(login.body));
     const me = await call(MARKET_HOST, 'GET', '/me', undefined, login.body.session_token as string);
     assert.equal(me.body.kind, 'parent');
-    // Cùng định danh ở ứng dụng Gia sư: không có tài khoản gia sư gắn định danh này
-    const tutorLogin = await oidc('login', { subject, birthdate: adultBirthdate() });
-    assert.equal(tutorLogin.reply.status, 403);
+    // Phiên mở bằng định danh của phụ huynh vẫn chỉ là phụ huynh: không gọi được điểm cuối của gia sư (YCTD-368)
+    assert.equal(
+      (await call(MARKET_HOST, 'GET', '/tutor/listing', undefined, login.body.session_token as string)).status,
+      403,
+    );
   });
 });

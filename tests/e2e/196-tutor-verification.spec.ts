@@ -24,13 +24,12 @@ import {
   E2E_MULTI_IDENTITY_PORT,
   E2E_MULTI_MARKET_PORT,
   E2E_MULTI_STATE_FILE,
-  E2E_MULTI_TUTOR_PORT,
   E2E_TUTOR_HOST,
 } from '../e2e-multi-environment.mjs';
 import { expect, test } from './fixtures.js';
 import { signInConsole } from './platform-console.js';
 
-// DT-27 phần 27g (YCTD-257, spec 196): gia sư ở ứng dụng Gia sư xác minh danh tính qua nhà cung cấp OIDC giả lập (đủ 18 tuổi), khai hồ sơ
+// DT-27 phần 27g (YCTD-257, spec 196): gia sư ở khu gia sư của Chợ gia sư (ứng dụng chung từ YCTD-368) xác minh danh tính qua nhà cung cấp OIDC giả lập (đủ 18 tuổi), khai hồ sơ
 // dạy, nộp phiếu lý lịch tư pháp (mã hóa ở máy chủ), gửi duyệt; nhân viên nền tảng duyệt ở cổng nền tảng; phụ huynh thấy gia sư ở Chợ
 // gia sư, mở trang theo Mẫu 02. Chỉ chạy ở dự án nhiều trường. Dữ liệu giả, không gọi dịch vụ thật
 const IDENTITY = `http://127.0.0.1:${E2E_MULTI_IDENTITY_PORT}`;
@@ -111,12 +110,13 @@ test.afterAll(async () => {
 test('CT-27g-5: gia sư xác minh, khai hồ sơ, nộp lý lịch; nền tảng duyệt; phụ huynh tìm thấy theo Mẫu 02', async ({
   browser,
 }) => {
-  // Đăng ký gia sư ở ứng dụng Gia sư
-  const tutorContext = await browser.newContext({ baseURL: `http://${E2E_TUTOR_HOST}:${E2E_MULTI_TUTOR_PORT}` });
+  // Đăng ký gia sư ở ứng dụng chung Chợ gia sư, chọn loại tài khoản gia sư (YCTD-368)
+  const tutorContext = await browser.newContext({ baseURL: `http://${E2E_MARKET_HOST}:${E2E_MULTI_MARKET_PORT}` });
   const tutor = await tutorContext.newPage();
   await tutor.goto('/');
-  await tutor.getByRole('button', { name: 'Đăng ký' }).click();
-  const register = tutor.getByRole('form', { name: 'Đăng ký tài khoản gia sư' });
+  await tutor.getByRole('button', { name: 'Đăng ký làm gia sư' }).click();
+  const register = tutor.getByRole('form', { name: 'Đăng ký tài khoản chợ gia sư' });
+  await expect(register.getByLabel('Gia sư, kể cả giáo viên dạy kèm ngoài trường')).toBeChecked();
   await register.getByLabel('Thư điện tử hoặc số điện thoại').fill(tutorEmail);
   await register.getByLabel('Tên hiển thị').fill(tutorName);
   await register.getByLabel('Mật khẩu (ít nhất 8 ký tự, có chữ và số)').fill('matkhau123');
@@ -157,7 +157,7 @@ test('CT-27g-5: gia sư xác minh, khai hồ sơ, nộp lý lịch; nền tảng
 
   // Hồ sơ dạy: một môn năng khiếu, một khung giờ (khu gia sư chia trang theo cột điều hướng, YCTD-361)
   await tutor
-    .getByRole('navigation', { name: 'Điều hướng ứng dụng Gia sư' })
+    .getByRole('navigation', { name: 'Điều hướng khu gia sư' })
     .getByRole('button', { name: 'Hồ sơ và môn dạy' })
     .click();
   const listing = tutor.getByRole('region', { name: 'Hồ sơ dạy' });
@@ -172,7 +172,7 @@ test('CT-27g-5: gia sư xác minh, khai hồ sơ, nộp lý lịch; nền tảng
   // Phiếu lý lịch tư pháp cấp hôm nay
   const today = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Ho_Chi_Minh' }).format(new Date());
   await tutor
-    .getByRole('navigation', { name: 'Điều hướng ứng dụng Gia sư' })
+    .getByRole('navigation', { name: 'Điều hướng khu gia sư' })
     .getByRole('button', { name: 'Xác minh' })
     .click();
   const record = tutor.getByRole('form', { name: 'Phiếu lý lịch tư pháp' });
@@ -185,7 +185,7 @@ test('CT-27g-5: gia sư xác minh, khai hồ sơ, nộp lý lịch; nền tảng
   await record.getByRole('button', { name: 'Nộp phiếu lý lịch tư pháp' }).click();
   await expect(record).toContainText('Đang chờ duyệt');
   await tutor
-    .getByRole('navigation', { name: 'Điều hướng ứng dụng Gia sư' })
+    .getByRole('navigation', { name: 'Điều hướng khu gia sư' })
     .getByRole('button', { name: 'Hồ sơ và môn dạy' })
     .click();
   await tutor.getByRole('region', { name: 'Hồ sơ dạy' }).getByRole('button', { name: 'Gửi nền tảng duyệt' }).click();

@@ -93,15 +93,12 @@ export class MarketAccountsService {
   }
 
   async site(request: Request) {
-    const { settings, kind } = await this.market.assertMarketHost(request);
+    const { settings } = await this.market.assertMarketHost(request);
     const documents = await this.latestDocuments();
-    // Địa chỉ hai ứng dụng để dẫn qua lại (YCTD-262); không kèm giao thức, theo giao thức của trang đang mở
-    const urlOf = (host: string | null) => (host ? `//${host}/` : null);
+    // Một ứng dụng chung cho phụ huynh và gia sư (YCTD-368): chỉ còn địa chỉ của chợ; không kèm giao thức, theo giao thức của trang
     return {
       name: 'Chợ gia sư',
-      application: kind,
-      market_url: urlOf(settings.host),
-      tutor_url: urlOf(settings.tutorHost),
+      market_url: settings.host ? `//${settings.host}/` : null,
       // Bản này chỉ chạy thanh toán giả lập (quyết định của Eric ngày 2026-10-28)
       real_payments: false,
       documents: documents.map((row) => ({ id: row.id, kind: row.kind, version: row.version, title: row.title })),
@@ -184,16 +181,12 @@ export class MarketAccountsService {
   }
 
   async register(request: Request, body: RequestBody) {
-    const { kind: hostKind } = await this.market.assertMarketHost(request);
+    await this.market.assertMarketHost(request);
     const errors: FieldError[] = [];
     const kind = body?.kind;
-    // Mỗi ứng dụng một vai (YCTD-262): phụ huynh đăng ký ở Chợ gia sư, gia sư ở ứng dụng Gia sư
-    if (kind !== hostKind) {
-      errors.push({
-        field: 'kind',
-        message:
-          hostKind === 'tutor' ? 'Ứng dụng Gia sư chỉ nhận tài khoản gia sư' : 'Gia sư đăng ký ở ứng dụng Gia sư',
-      });
+    // Người đăng ký chọn loại tài khoản ở ứng dụng chung (YCTD-368); mỗi tài khoản một loại, không đổi về sau (GD-181)
+    if (kind !== 'parent' && kind !== 'tutor') {
+      errors.push({ field: 'kind', message: 'Chọn loại tài khoản: phụ huynh hoặc gia sư' });
     }
     const email = text(body, 'email').toLowerCase();
     const phone = normalizePhone(text(body, 'phone'));
@@ -339,7 +332,7 @@ export class MarketAccountsService {
   }
 
   async login(request: Request, body: RequestBody) {
-    const { kind: hostKind } = await this.market.assertMarketHost(request);
+    await this.market.assertMarketHost(request);
     const login = text(body, 'login');
     const password = typeof body?.password === 'string' ? body.password : '';
     const email = login.includes('@') ? login.toLowerCase() : null;
@@ -371,15 +364,6 @@ export class MarketAccountsService {
           .execute();
       }
       throw unauthenticatedError();
-    }
-    // Mật khẩu đúng nhưng tài khoản của vai kia: chỉ dẫn sang đúng ứng dụng, không mở phiên
-    if (row.kind !== hostKind) {
-      throw new ApplicationError(
-        'ERR_FORBIDDEN',
-        row.kind === 'tutor'
-          ? 'Tài khoản gia sư đăng nhập ở ứng dụng Gia sư'
-          : 'Tài khoản phụ huynh đăng nhập ở Chợ gia sư',
-      );
     }
     if (row.status === 'locked') {
       throw new ApplicationError('ERR_FORBIDDEN', 'Tài khoản đã bị khóa, liên hệ bộ phận hỗ trợ của chợ');

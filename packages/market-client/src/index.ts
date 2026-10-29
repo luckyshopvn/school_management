@@ -1,4 +1,4 @@
-// Phần dùng chung của ứng dụng Chợ gia sư (phụ huynh, apps/market) và ứng dụng Gia sư (apps/tutor) (DT-27, YCTD-256, YCTD-262): gọi
+// Phần dùng chung của ứng dụng Chợ gia sư (apps/market, chung cho phụ huynh và gia sư từ YCTD-368; DT-27, YCTD-256): gọi
 // máy chủ API của chợ, phiên của chợ, biểu mẫu đăng ký, xác nhận mã, đăng nhập
 export { LoginForm, RegisterForm, VerifyForm } from './AccountForms.js';
 export { ChangePasswordForm, DisplayNameForm, ForgotPasswordForm } from './AccountSecurity.js';

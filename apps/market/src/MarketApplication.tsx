@@ -1,39 +1,45 @@
 import { useCallback, useEffect, useState } from 'react';
-import { Alert } from '@school-management/ui';
+import { UpdateBanner } from '@school-management/pwa';
+import { Alert, Button } from '@school-management/ui';
 import {
   ChildSafetyPolicy,
   MarketShell,
   marketRequest,
   MessageInbox,
   type Child,
+  type Me,
 } from '@school-management/market-client';
-import { ParentIdentityLogin, useParentIdentityReturn } from './ParentAccount.js';
+import { IdentityLogin, useIdentityReturn } from './ParentAccount.js';
 import { ParentArea } from './ParentArea.js';
 import { ParentBookings } from './ParentBookings.js';
 import { SafetyPage } from './SafetyPage.js';
 import { TutorSearch } from './TutorSearch.js';
+import { TUTOR_PAGES, TutorHome, type TutorPage } from './tutor/TutorHome.js';
 
-// Chợ gia sư cho phụ huynh (DT-27 phần 27f, YCTD-256; tài liệu 32 mục 19.5): trang công khai, đăng ký, đăng nhập phụ huynh, khu phụ
-// huynh (hồ sơ con, đồng ý, liên kết với trường). Gia sư dùng ứng dụng riêng apps/tutor (YCTD-262, quyết định của Eric ngày 2026-10-28).
-// Tìm gia sư, trang gia sư theo Mẫu 02 (27g, TutorSearch); đặt buổi, thanh toán giả lập là của 27h; tin nhắn, báo cáo vi phạm, phòng học
-// có ghi hình, chính sách an toàn trẻ em là của 27i. Từ YCTD-360 (thiết kế duyệt ngày 2026-10-28) khu phụ huynh chia trang theo thanh
-// điều hướng ở đầu trang thay cho một trang dài; trang đang mở ghi ở phần # của địa chỉ để tải lại vẫn đúng trang
-const PAGES = [
+// Chợ gia sư (DT-27 phần 27f, YCTD-256; tài liệu 32 mục 19.5): trang công khai, đăng ký, đăng nhập, rồi khu riêng theo loại tài khoản.
+// Từ YCTD-368 (GD-181) là ứng dụng chung của phụ huynh và gia sư (gộp ứng dụng Gia sư của YCTD-262): phụ huynh thấy tìm gia sư, buổi học
+// của con, tin nhắn, hồ sơ con, an toàn (thanh điều hướng ở đầu trang, YCTD-360); gia sư, kể cả giáo viên dạy kèm ngoài trường, thấy
+// buổi dạy, lịch, hồ sơ, thu nhập, xác minh (cột điều hướng bên trái, YCTD-361). Ẩn ở giao diện chỉ để gọn: máy chủ kiểm loại tài khoản
+// ở từng điểm cuối. Trang đang mở ghi ở phần # của địa chỉ để tải lại vẫn đúng trang
+const PARENT_PAGES = [
   { key: 'tim-gia-su', label: 'Tìm gia sư' },
   { key: 'buoi-hoc', label: 'Buổi học của con' },
   { key: 'tin-nhan', label: 'Tin nhắn' },
   { key: 'ho-so-con', label: 'Hồ sơ con' },
   { key: 'an-toan', label: 'An toàn' },
 ] as const;
-type Page = (typeof PAGES)[number]['key'];
+type ParentPage = (typeof PARENT_PAGES)[number]['key'];
 
-function pageFromHash(): Page | null {
-  const key = window.location.hash.replace(/^#/, '');
-  return PAGES.find((row) => row.key === key)?.key ?? null;
+function pagesOf(kind: Me['kind']): ReadonlyArray<{ key: string; label: string }> {
+  return kind === 'tutor' ? TUTOR_PAGES : PARENT_PAGES;
+}
+
+function pageFromHash(): string | null {
+  return window.location.hash.replace(/^#/, '') || null;
 }
 
 // Mở khu phụ huynh: chưa có hồ sơ con thì vào thẳng trang Hồ sơ con để thêm con trước khi tìm gia sư
-function ParentHome({ page, onPage }: { page: Page | null; onPage: (next: Page) => void }) {
+function ParentHome({ page, onPage }: { page: ParentPage | null; onPage: (next: ParentPage) => void }) {
   useEffect(() => {
     if (page) return;
     marketRequest<{ children: Child[] }>('GET', '/children')
@@ -48,59 +54,78 @@ function ParentHome({ page, onPage }: { page: Page | null; onPage: (next: Page) 
   return null;
 }
 
+function RoleNavigation({ me, page, onPage }: { me: Me; page: string | null; onPage: (next: string) => void }) {
+  const side = me.kind === 'tutor';
+  return (
+    <nav
+      aria-label={side ? 'Điều hướng khu gia sư' : 'Điều hướng khu phụ huynh'}
+      className={side ? 'flex flex-col gap-1' : 'flex flex-wrap gap-1'}
+    >
+      {pagesOf(me.kind).map((row) => (
+        <button
+          key={row.key}
+          type="button"
+          aria-current={page === row.key ? 'page' : undefined}
+          className={`min-h-11 rounded-lg px-3 font-medium ${side ? 'text-left' : ''} ${
+            page === row.key ? 'bg-selected text-brand-strong' : 'text-text hover:bg-page'
+          }`}
+          onClick={() => onPage(row.key)}
+        >
+          {row.label}
+        </button>
+      ))}
+    </nav>
+  );
+}
+
 export function MarketApplication() {
-  const identityReturn = useParentIdentityReturn();
-  const [page, setPage] = useState<Page | null>(pageFromHash);
+  const identityReturn = useIdentityReturn();
+  const [page, setPage] = useState<string | null>(pageFromHash);
   useEffect(() => {
     const onHash = () => setPage(pageFromHash());
     window.addEventListener('hashchange', onHash);
     return () => window.removeEventListener('hashchange', onHash);
   }, []);
-  const open = useCallback((next: Page) => {
+  const open = useCallback((next: string) => {
     setPage(next);
     window.history.replaceState(null, '', `#${next}`);
   }, []);
+  // Trang ở địa chỉ không thuộc bộ màn của loại tài khoản (ví dụ liên kết của vai kia) thì như chưa chọn trang
+  const pageFor = (me: Me) => (pagesOf(me.kind).some((row) => row.key === page) ? page : null);
   if (identityReturn.pending) {
     return <p className="p-4">Đang hoàn tất đăng nhập bằng định danh…</p>;
   }
   return (
     <>
+      <UpdateBanner />
       {identityReturn.message ? <Alert tone="success">{identityReturn.message}</Alert> : null}
       {identityReturn.error ? <Alert tone="danger">{identityReturn.error}</Alert> : null}
       <MarketShell
-        kind="parent"
         title="Chợ gia sư"
-        loginExtras={<ParentIdentityLogin />}
-        navigation={
-          <nav aria-label="Điều hướng chợ" className="flex flex-wrap gap-1">
-            {PAGES.map((row) => (
-              <button
-                key={row.key}
-                type="button"
-                aria-current={page === row.key ? 'page' : undefined}
-                className={`min-h-11 rounded-lg px-3 font-medium ${
-                  page === row.key ? 'bg-selected text-brand-strong' : 'text-text hover:bg-page'
-                }`}
-                onClick={() => open(row.key)}
-              >
-                {row.label}
-              </button>
-            ))}
-          </nav>
-        }
-        intro={(site) => (
+        loginExtras={<IdentityLogin />}
+        navigationPlacement={(me) => (me.kind === 'tutor' ? 'side' : 'top')}
+        navigation={(me) => <RoleNavigation me={me} page={pageFor(me)} onPage={open} />}
+        intro={(_site, register) => (
           <section aria-label="Giới thiệu" className="flex flex-col gap-5">
-            {site?.tutor_url ? (
-              <p className="text-label text-text-secondary">
-                Bạn là gia sư? <a href={site.tutor_url}>Mở ứng dụng Gia sư</a>
+            <div className="flex flex-wrap items-center gap-3 rounded-2xl bg-warning/5 p-4">
+              <p className="min-w-0 flex-1 text-text-secondary">
+                Bạn là gia sư hoặc giáo viên muốn dạy kèm trực tuyến? Gia sư được xác minh danh tính và lý lịch trước
+                khi nhận học sinh; mọi tin nhắn với học sinh luôn có phụ huynh.
               </p>
-            ) : null}
+              <Button onClick={() => register('tutor')}>Đăng ký làm gia sư</Button>
+            </div>
             <TutorSearch />
             <ChildSafetyPolicy />
           </section>
         )}
       >
-        <ParentHome page={page} onPage={open} />
+        {(me) =>
+          me.kind === 'tutor' ? (
+            <TutorHome page={pageFor(me) as TutorPage | null} onPage={open} />
+          ) : (
+            <ParentHome page={pageFor(me) as ParentPage | null} onPage={open} />
+          )
+        }
       </MarketShell>
     </>
   );

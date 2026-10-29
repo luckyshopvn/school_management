@@ -3,24 +3,30 @@ import { Alert, Button, FORM_CONTROL_CLASS } from '@school-management/ui';
 import { errorText, marketRequest, type Site } from './market-api.js';
 
 // Đăng ký, xác nhận mã, đăng nhập của chợ gia sư (DT-27 phần 27f): đăng ký phải tích đồng ý từng văn bản bắt buộc của vai (phiên bản
-// mới nhất); tài khoản chờ xác nhận đến khi nhập mã 6 số gửi tới thư điện tử hoặc số điện thoại. Dùng chung cho ứng dụng Chợ gia sư
-// (phụ huynh) và ứng dụng Gia sư (YCTD-262): mỗi ứng dụng một vai, truyền qua `kind`
+// mới nhất); tài khoản chờ xác nhận đến khi nhập mã 6 số gửi tới thư điện tử hoặc số điện thoại. Ứng dụng chung (YCTD-368): người đăng
+// ký chọn loại tài khoản; mỗi tài khoản một loại (GD-181), ai cần cả hai vai thì đăng ký thêm bằng thư điện tử hoặc số điện thoại khác
 const REQUIRED: Record<'parent' | 'tutor', string[]> = {
   parent: ['terms', 'privacy'],
   tutor: ['terms', 'privacy', 'tutor_terms'],
 };
 
+const KIND_OPTIONS: Array<{ kind: 'parent' | 'tutor'; label: string }> = [
+  { kind: 'parent', label: 'Phụ huynh tìm gia sư cho con' },
+  { kind: 'tutor', label: 'Gia sư, kể cả giáo viên dạy kèm ngoài trường' },
+];
+
 export function RegisterForm({
-  kind,
+  initialKind = 'parent',
   site,
   onRegistered,
   onOpenDocument,
 }: {
-  kind: 'parent' | 'tutor';
+  initialKind?: 'parent' | 'tutor';
   site: Site;
   onRegistered: (token: string) => void;
   onOpenDocument: (kind: string) => void;
 }) {
+  const [kind, setKind] = useState(initialKind);
   const [form, setForm] = useState({
     contact: '',
     display_name: '',
@@ -45,13 +51,26 @@ export function RegisterForm({
   };
 
   return (
-    <form
-      aria-label={kind === 'tutor' ? 'Đăng ký tài khoản gia sư' : 'Đăng ký tài khoản chợ gia sư'}
-      className="flex flex-col gap-2"
-      onSubmit={submit}
-    >
+    <form aria-label="Đăng ký tài khoản chợ gia sư" className="flex flex-col gap-2" onSubmit={submit}>
       <h2 className="text-section-title font-semibold">Đăng ký</h2>
       {error ? <Alert tone="danger">{error}</Alert> : null}
+      <fieldset className="flex flex-col gap-1">
+        <legend>Bạn đăng ký với tư cách</legend>
+        {KIND_OPTIONS.map((option) => (
+          <label key={option.kind} className="flex min-h-11 items-center gap-2">
+            <input
+              type="radio"
+              name="loai-tai-khoan"
+              checked={kind === option.kind}
+              onChange={() => {
+                setKind(option.kind);
+                setAccepted([]);
+              }}
+            />
+            {option.label}
+          </label>
+        ))}
+      </fieldset>
       <label className="flex flex-col">
         Thư điện tử hoặc số điện thoại
         <input

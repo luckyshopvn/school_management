@@ -139,7 +139,9 @@ test('CT-27f-6: cổng nền tảng bật chợ, phụ huynh đăng ký và tạ
   const settings = page.getByRole('form', { name: 'Cấu hình chợ gia sư' });
   await settings.getByLabel('Bật chợ gia sư').check();
   await settings.getByLabel('Tên miền con dành riêng của chợ').fill(E2E_MARKET_HOST);
-  await settings.getByLabel('Tên miền con của ứng dụng Gia sư').fill(E2E_TUTOR_HOST);
+  await settings
+    .getByLabel('Tên miền cũ của ứng dụng Gia sư, chuyển hướng về chợ (không bắt buộc)')
+    .fill(E2E_TUTOR_HOST);
   await settings.getByRole('button', { name: 'Lưu cấu hình chợ' }).click();
   await expect(page.getByRole('status')).toHaveText('Đã lưu cấu hình chợ gia sư');
   const publish = page.getByRole('form', { name: 'Đăng văn bản pháp lý của chợ' });
@@ -166,7 +168,7 @@ test('CT-27f-6: cổng nền tảng bật chợ, phụ huynh đăng ký và tạ
   const market = await marketContext.newPage();
   await market.goto('/');
   await expect(market.getByText('thanh toán là giả lập')).toBeVisible();
-  await market.getByRole('button', { name: 'Đăng ký' }).click();
+  await market.getByRole('button', { name: 'Đăng ký', exact: true }).click();
   const register = market.getByRole('form', { name: 'Đăng ký tài khoản chợ gia sư' });
   await register.getByLabel('Thư điện tử hoặc số điện thoại').fill(parentEmail);
   await register.getByLabel('Tên hiển thị').fill('Phụ huynh giả');
@@ -195,6 +197,10 @@ test('CT-27f-6: cổng nền tảng bật chợ, phụ huynh đăng ký và tạ
   await expect(child).toContainText('Đã đồng ý cho hồ sơ con');
   await child.getByRole('button', { name: 'Rút đồng ý cho Bé Na' }).click();
   await expect(child).toContainText('Chưa đồng ý (con chưa học được ở chợ)');
+  // Ứng dụng chung (YCTD-368): phụ huynh chỉ thấy bộ màn của phụ huynh
+  const parentNavigation = market.getByRole('navigation', { name: 'Điều hướng khu phụ huynh' });
+  await expect(parentNavigation.getByRole('button', { name: 'Buổi học của con' })).toBeVisible();
+  await expect(market.getByRole('button', { name: 'Hồ sơ và môn dạy' })).toHaveCount(0);
 
   // Phiên chợ không dùng được ở trường, mã phiên của trường không dùng được ở chợ
   const session = (await market.evaluate("window.sessionStorage.getItem('cho-gia-su-phien')")) as string | null;
@@ -204,14 +210,17 @@ test('CT-27f-6: cổng nền tảng bật chợ, phụ huynh đăng ký và tạ
   expect(await hostCall(E2E_MARKET_HOST, 'GET', '/market/me', session ?? '')).toBe(200);
   await marketContext.close();
 
-  // Ứng dụng Gia sư (YCTD-262): ứng dụng riêng ở tên miền riêng, chỉ nhận tài khoản gia sư; phiên phụ huynh không dùng được ở đây
-  expect(await hostCall(E2E_TUTOR_HOST, 'GET', '/market/me', session ?? '')).toBe(401);
-  const tutorContext = await browser.newContext({ baseURL: `http://${E2E_TUTOR_HOST}:${E2E_MULTI_TUTOR_PORT}` });
+  // Ứng dụng chung (YCTD-368, CT-368-2): tên miền cũ của ứng dụng Gia sư chuyển hướng về chợ, giữ đường dẫn và truy vấn; máy chủ API
+  // không phục vụ tên miền cũ. Gia sư đăng ký ở chợ, chọn loại tài khoản gia sư, rồi thấy bộ màn của gia sư
+  expect(await hostCall(E2E_TUTOR_HOST, 'GET', '/market/me', session ?? '')).toBe(404);
+  const tutorContext = await browser.newContext({ baseURL: `http://${E2E_MARKET_HOST}:${E2E_MULTI_MARKET_PORT}` });
   const tutor = await tutorContext.newPage();
-  await tutor.goto('/');
+  await tutor.goto(`http://${E2E_TUTOR_HOST}:${E2E_MULTI_TUTOR_PORT}/?moi=phong-hoc`);
+  await expect(tutor).toHaveURL(`http://${E2E_MARKET_HOST}:${E2E_MULTI_MARKET_PORT}/?moi=phong-hoc`);
   await expect(tutor.locator('link[rel="manifest"]')).toHaveAttribute('href', './manifest.webmanifest');
-  await tutor.getByRole('button', { name: 'Đăng ký' }).click();
-  const tutorRegister = tutor.getByRole('form', { name: 'Đăng ký tài khoản gia sư' });
+  await tutor.getByRole('button', { name: 'Đăng ký làm gia sư' }).click();
+  const tutorRegister = tutor.getByRole('form', { name: 'Đăng ký tài khoản chợ gia sư' });
+  await expect(tutorRegister.getByLabel('Gia sư, kể cả giáo viên dạy kèm ngoài trường')).toBeChecked();
   await tutorRegister.getByLabel('Thư điện tử hoặc số điện thoại').fill(tutorEmail);
   await tutorRegister.getByLabel('Tên hiển thị').fill('Gia sư giả');
   await tutorRegister.getByLabel('Mật khẩu (ít nhất 8 ký tự, có chữ và số)').fill('matkhau123');
@@ -224,8 +233,9 @@ test('CT-27f-6: cổng nền tảng bật chợ, phụ huynh đăng ký và tạ
   const tutorVerify = tutor.getByRole('form', { name: 'Xác nhận tài khoản' });
   await tutorVerify.getByLabel('Mã xác nhận').fill(CODE);
   await tutorVerify.getByRole('button', { name: 'Xác nhận' }).click();
+  await expect(tutor.getByRole('navigation', { name: 'Điều hướng khu phụ huynh' })).toHaveCount(0);
   await tutor
-    .getByRole('navigation', { name: 'Điều hướng ứng dụng Gia sư' })
+    .getByRole('navigation', { name: 'Điều hướng khu gia sư' })
     .getByRole('button', { name: 'Hồ sơ và môn dạy' })
     .click();
   const tutorProfile = tutor.getByRole('region', { name: 'Hồ sơ gia sư' });

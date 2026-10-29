@@ -4,8 +4,8 @@
 //   /quan-ly, /giao-vien, /phu-huynh, /hoc-sinh là bốn ứng dụng tĩnh (dựng với APP_BASE_PATH tương ứng), /api/v1 chuyển về máy chủ, phần
 //   còn lại là website công khai của trường (chuyển về /api/v1/public/site như Caddy của hồ sơ vận hành);
 // - tên miền cổng nền tảng (CONSOLE_HOST): ứng dụng `apps/platform` ở gốc, /api/v1 chuyển về máy chủ;
-// - tên miền của chợ gia sư (MARKET_HOST, `apps/market`) và của ứng dụng Gia sư (TUTOR_HOST, `apps/tutor`; DT-27, YCTD-262): ứng
-//   dụng ở gốc như cổng nền tảng, /api/v1 chuyển về máy chủ;
+// - tên miền của chợ gia sư (MARKET_HOST, `apps/market`, chung cho phụ huynh và gia sư từ YCTD-368): ứng dụng ở gốc như cổng nền
+//   tảng, /api/v1 chuyển về máy chủ; tên miền cũ của ứng dụng Gia sư (TUTOR_HOST, YCTD-262) chuyển 308 mọi đường dẫn về MARKET_HOST;
 // - tên miền hệ thống (ROOT_DOMAIN): trang đăng nhập theo đơn vị (DT-24: ứng dụng cổng quản trị ở /quan-ly, gốc chuyển về đó);
 //   trang chọn trường cũ của S1b vẫn ở /api/v1/public/schools/picker.
 // Khi chuyển về máy chủ, Worker xóa tiêu đề do người dùng tự đặt rồi đặt tên miền gốc vào EDGE_HOST_HEADER kèm bí mật
@@ -26,10 +26,7 @@ export const APPS = [
 ];
 const CONSOLE_DIRECTORY = 'nen-tang';
 // Chợ gia sư (DT-27): thư mục tệp tĩnh theo biến tên miền
-const HOST_APPS = [
-  { setting: 'MARKET_HOST', directory: 'cho-gia-su' },
-  { setting: 'TUTOR_HOST', directory: 'gia-su' },
-];
+const HOST_APPS = [{ setting: 'MARKET_HOST', directory: 'cho-gia-su' }];
 const WAKING_STATUSES = new Set([502, 504, 520, 521, 522, 523, 524]);
 const WAKING_RETRY_SECONDS = 10;
 
@@ -182,6 +179,12 @@ export async function handleRequest(request, env, context) {
   const url = new URL(request.url);
   const host = hostOf(request);
   const path = url.pathname;
+  // Tên miền cũ của ứng dụng Gia sư (YCTD-368): chuyển cả đường dẫn và truy vấn về chợ, kể cả /api/v1, để liên kết cũ không gãy
+  const tutorHost = setting(env, 'TUTOR_HOST').toLowerCase();
+  const marketHost = setting(env, 'MARKET_HOST').toLowerCase();
+  if (tutorHost && marketHost && host === tutorHost) {
+    return Response.redirect(`${url.protocol}//${marketHost}${path}${url.search}`, 308);
+  }
   if (path === '/api/v1' || path.startsWith('/api/v1/')) {
     return forwardToOrigin(request, env, context);
   }

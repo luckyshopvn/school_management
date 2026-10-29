@@ -20,14 +20,13 @@ import {
   E2E_MULTI_IDENTITY_PORT,
   E2E_MULTI_MARKET_PORT,
   E2E_MULTI_STATE_FILE,
-  E2E_MULTI_TUTOR_PORT,
   E2E_TUTOR_HOST,
 } from '../e2e-multi-environment.mjs';
 import { expect, test } from './fixtures.js';
 import { signInConsole } from './platform-console.js';
 
 // DT-27 phần 27h (YCTD-258, spec 197): phụ huynh ở Chợ gia sư đặt buổi với gia sư đã duyệt, thanh toán giả lập; gia sư đánh dấu đã dạy ở
-// ứng dụng Gia sư; phụ huynh mở tranh chấp; nhân viên nền tảng quyết định hoàn đủ ở cổng nền tảng, chốt; phụ huynh thấy đã hoàn tiền. Gia
+// khu gia sư (ứng dụng chung, YCTD-368); phụ huynh mở tranh chấp; nhân viên nền tảng quyết định hoàn đủ ở cổng nền tảng, chốt; phụ huynh thấy đã hoàn tiền. Gia
 // sư đã duyệt dựng thẳng trong cơ sở dữ liệu chợ (luồng duyệt ở spec 196). Chỉ chạy ở dự án nhiều trường. Không có tiền thật
 const IDENTITY = `http://127.0.0.1:${E2E_MULTI_IDENTITY_PORT}`;
 const API = `http://127.0.0.1:${E2E_MULTI_API_PORT}`;
@@ -121,8 +120,8 @@ test.beforeAll(async () => {
     (await admin('POST', '/payments/commission-rules', { percent: 10, minimum: 0, effective_from: today })).status,
   ).toBe(200);
 
-  // Gia sư: đăng ký qua ứng dụng Gia sư, rồi dựng hồ sơ đã duyệt thẳng trong cơ sở dữ liệu chợ
-  const registered = await hostCall(E2E_TUTOR_HOST, 'POST', '/auth/register', undefined, {
+  // Gia sư: đăng ký ở Chợ gia sư (ứng dụng chung, YCTD-368), rồi dựng hồ sơ đã duyệt thẳng trong cơ sở dữ liệu chợ
+  const registered = await hostCall(E2E_MARKET_HOST, 'POST', '/auth/register', undefined, {
     kind: 'tutor',
     email: tutorEmail,
     display_name: tutorName,
@@ -132,7 +131,7 @@ test.beforeAll(async () => {
   expect(registered.status).toBe(201);
   tutorToken = registered.body.session_token as string;
   await setKnownCode(tutorEmail);
-  expect((await hostCall(E2E_TUTOR_HOST, 'POST', '/auth/verify', tutorToken, { code: CODE })).status).toBe(200);
+  expect((await hostCall(E2E_MARKET_HOST, 'POST', '/auth/verify', tutorToken, { code: CODE })).status).toBe(200);
   const tutor = await marketplace
     .selectFrom('market_accounts')
     .select('id')
@@ -204,7 +203,7 @@ test('CT-27h-7: đặt buổi, thanh toán giả lập, gia sư đánh dấu đ�
   const marketContext = await browser.newContext({ baseURL: `http://${E2E_MARKET_HOST}:${E2E_MULTI_MARKET_PORT}` });
   const market = await marketContext.newPage();
   await market.goto('/');
-  await market.getByRole('button', { name: 'Đăng ký' }).click();
+  await market.getByRole('button', { name: 'Đăng ký', exact: true }).click();
   const register = market.getByRole('form', { name: 'Đăng ký tài khoản chợ gia sư' });
   await register.getByLabel('Thư điện tử hoặc số điện thoại').fill(parentEmail);
   await register.getByLabel('Tên hiển thị').fill('Phụ huynh đặt buổi');
@@ -228,7 +227,10 @@ test('CT-27h-7: đặt buổi, thanh toán giả lập, gia sư đánh dấu đ�
   await expect(market.getByRole('listitem', { name: 'Hồ sơ Bé Minh' })).toContainText('Đã đồng ý cho hồ sơ con');
 
   // Tìm gia sư, đặt buổi 3 ngày tới lúc 18:00 giờ Việt Nam (khu phụ huynh chia trang theo thanh điều hướng, YCTD-360)
-  await market.getByRole('navigation', { name: 'Điều hướng chợ' }).getByRole('button', { name: 'Tìm gia sư' }).click();
+  await market
+    .getByRole('navigation', { name: 'Điều hướng khu phụ huynh' })
+    .getByRole('button', { name: 'Tìm gia sư' })
+    .click();
   const search = market.getByRole('form', { name: 'Lọc gia sư' });
   await search.getByLabel('Môn').fill(subjectName);
   await search.getByRole('button', { name: 'Tìm' }).click();
@@ -246,7 +248,7 @@ test('CT-27h-7: đặt buổi, thanh toán giả lập, gia sư đánh dấu đ�
   await booking.getByRole('button', { name: 'Giữ chỗ buổi học' }).click();
   await expect(booking).toContainText('Đã giữ chỗ buổi');
   await market
-    .getByRole('navigation', { name: 'Điều hướng chợ' })
+    .getByRole('navigation', { name: 'Điều hướng khu phụ huynh' })
     .getByRole('button', { name: 'Buổi học của con' })
     .click();
   const lessons = market.getByRole('region', { name: 'Buổi học của con' });
@@ -270,8 +272,8 @@ test('CT-27h-7: đặt buổi, thanh toán giả lập, gia sư đánh dấu đ�
     .where('id', '=', row.id)
     .execute();
 
-  // Gia sư đánh dấu đã dạy ở ứng dụng Gia sư (phiên đặt sẵn vào bộ nhớ của thẻ)
-  const tutorContext = await browser.newContext({ baseURL: `http://${E2E_TUTOR_HOST}:${E2E_MULTI_TUTOR_PORT}` });
+  // Gia sư đánh dấu đã dạy ở khu gia sư (phiên đặt sẵn vào bộ nhớ của thẻ)
+  const tutorContext = await browser.newContext({ baseURL: `http://${E2E_MARKET_HOST}:${E2E_MULTI_MARKET_PORT}` });
   await tutorContext.addInitScript({
     content: `window.sessionStorage.setItem('cho-gia-su-phien', ${JSON.stringify(tutorToken)});`,
   });

@@ -1,18 +1,19 @@
-# Chợ gia sư (DT-27 phần 27f, YCTD-256; ứng dụng Gia sư YCTD-262): hai ứng dụng tĩnh trên tên miền con dành riêng của nền tảng, /api/v1
-# chuyển về máy chủ như mọi tên miền khác. Bật bằng cách sao chép thành marketplace.caddy và đặt MARKET_SITE, TUTOR_SITE trong
-# production.env; hai tên miền phải trùng với tên miền đặt ở cổng nền tảng (trang Chợ gia sư), không thì máy chủ API trả 404.
-# Máy chủ API cần MARKETPLACE_DATABASE_URL (vai trò riêng của chợ, xem database/src/marketplace/marketplace-database.ts)
+# Chợ gia sư (DT-27 phần 27f, YCTD-256): một ứng dụng tĩnh chung cho phụ huynh và gia sư (YCTD-368 gộp ứng dụng Gia sư của YCTD-262)
+# trên tên miền con dành riêng của nền tảng, /api/v1 chuyển về máy chủ như mọi tên miền khác. Bật bằng cách sao chép thành
+# marketplace.caddy và đặt MARKET_SITE trong production.env; tên miền phải trùng với tên miền đặt ở cổng nền tảng (trang Chợ gia sư),
+# không thì máy chủ API trả 404. Máy chủ API cần MARKETPLACE_DATABASE_URL (vai trò riêng của chợ, xem
+# database/src/marketplace/marketplace-database.ts)
 
-# Ứng dụng phụ huynh của chợ (apps/market)
+# Ứng dụng Chợ gia sư (apps/market), phân quyền theo loại tài khoản
 {$MARKET_SITE} {
 	import common
 	import backend
 	import spa /srv/market
 }
 
-# Ứng dụng Gia sư (apps/tutor)
+# Tên miền cũ của ứng dụng Gia sư (TUTOR_SITE, nếu đã từng dùng): chuyển 308 cả đường dẫn và truy vấn về chợ để liên kết cũ không gãy
+# (lượt quay về /xac-minh của nhà cung cấp định danh, liên kết mời phòng học). Không dùng thì bỏ khối này
 {$TUTOR_SITE} {
 	import common
-	import backend
-	import spa /srv/tutor
+	redir https://{$MARKET_SITE}{uri} 308
 }

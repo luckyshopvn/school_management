@@ -26,7 +26,6 @@ COPY apps/student/package.json apps/student/
 COPY apps/platform/package.json apps/platform/
 COPY apps/mobile/package.json apps/mobile/
 COPY apps/market/package.json apps/market/
-COPY apps/tutor/package.json apps/tutor/
 COPY packages/config/package.json packages/config/
 COPY packages/server/package.json packages/server/
 COPY packages/shared/package.json packages/shared/

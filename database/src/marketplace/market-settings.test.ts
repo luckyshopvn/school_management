@@ -30,9 +30,9 @@ describe('parseMarketSettings (CT-27f-1)', () => {
     );
   });
 
-  test('bật chợ cần tên miền của chợ và của ứng dụng Gia sư (khác nhau), tên miền chuẩn hóa chữ thường', () => {
+  test('bật chợ cần tên miền của chợ; tên miền cũ của ứng dụng Gia sư không bắt buộc, khác tên miền chợ (YCTD-368)', () => {
     assert.throws(() => parseMarketSettings({ enabled: true }), MarketSettingsError);
-    assert.throws(() => parseMarketSettings({ enabled: true, host: 'cho.example.vn' }), MarketSettingsError);
+    assert.equal(parseMarketSettings({ enabled: true, host: 'cho.example.vn' }).tutorHost, null);
     assert.throws(
       () => parseMarketSettings({ enabled: true, host: 'cho.example.vn', tutor_host: 'cho.example.vn' }),
       MarketSettingsError,

@@ -22,7 +22,7 @@ import { MarketplacePaymentProvider, type MockMarketplacePaymentProvider } from 
 // Dữ liệu giả, nhà cung cấp thanh toán giả lập, không có tiền thật
 const CONSOLE_HOST = 'platform.e2e.localhost';
 const MARKET_HOST = 'cho-gia-su.e2e.localhost';
-const TUTOR_HOST = 'gia-su.e2e.localhost';
+const LEGACY_TUTOR_HOST = 'gia-su.e2e.localhost';
 const HOUR = 3_600_000;
 
 describe('chợ gia sư: đặt buổi, thanh toán, tranh chấp (27h)', () => {
@@ -217,7 +217,7 @@ describe('chợ gia sư: đặt buổi, thanh toán, tranh chấp (27h)', () => 
         })),
       )
       .execute();
-    const login = await call(TUTOR_HOST, 'POST', '/auth/login', { login: email, password: 'matkhau123' });
+    const login = await call(MARKET_HOST, 'POST', '/auth/login', { login: email, password: 'matkhau123' });
     assert.equal(login.status, 200, JSON.stringify(login.body));
     return {
       id: account.id,
@@ -281,7 +281,7 @@ describe('chợ gia sư: đặt buổi, thanh toán, tranh chấp (27h)', () => 
     provider = environment.api.get(MarketplacePaymentProvider) as MockMarketplacePaymentProvider;
     operators.push(await operatorToken('mot'), await operatorToken('hai'));
     assert.equal(
-      (await admin('PUT', '/settings', { enabled: true, host: MARKET_HOST, tutor_host: TUTOR_HOST })).status,
+      (await admin('PUT', '/settings', { enabled: true, host: MARKET_HOST, tutor_host: LEGACY_TUTOR_HOST })).status,
       200,
     );
     for (const kind of ['terms', 'privacy', 'parent_consent', 'tutor_terms']) {
@@ -316,9 +316,9 @@ describe('chợ gia sư: đặt buổi, thanh toán, tranh chấp (27h)', () => 
     assert.equal(paid.body.status, 'paid', JSON.stringify(paid.body));
     assert.equal(paid.body.payment_status, 'held');
     // Chưa đến giờ kết thúc thì chưa đánh dấu đã dạy
-    assert.equal((await call(TUTOR_HOST, 'POST', `/tutor/bookings/${id}/complete`, {}, tutor.token)).status, 409);
+    assert.equal((await call(MARKET_HOST, 'POST', `/tutor/bookings/${id}/complete`, {}, tutor.token)).status, 409);
     await moveToPast(id, 3);
-    const completed = await call(TUTOR_HOST, 'POST', `/tutor/bookings/${id}/complete`, {}, tutor.token);
+    const completed = await call(MARKET_HOST, 'POST', `/tutor/bookings/${id}/complete`, {}, tutor.token);
     assert.equal(completed.body.status, 'completed', JSON.stringify(completed.body));
     // Chưa hết hạn khiếu nại: chưa giải ngân
     assert.equal(((await admin('POST', '/payments/run-due')).body as { disbursed: number }).disbursed, 0);
@@ -335,14 +335,12 @@ describe('chợ gia sư: đặt buổi, thanh toán, tranh chấp (27h)', () => 
     assert.equal(row?.commission_taken, 15_000);
     const ref = provider.ledger.filter((entry) => entry.action === 'release').at(-1);
     assert.deepEqual([ref?.payout, ref?.commission], [135_000, 15_000]);
-    const earnings = (await call(TUTOR_HOST, 'GET', '/tutor/bookings', undefined, tutor.token)).body.earnings as Record<
-      string,
-      number
-    >;
+    const earnings = (await call(MARKET_HOST, 'GET', '/tutor/bookings', undefined, tutor.token)).body
+      .earnings as Record<string, number>;
     assert.equal(earnings.released, 135_000);
-    // Phụ huynh không dùng được điểm cuối của gia sư (403 chỉ tài khoản gia sư), phiên phụ huynh ở ứng dụng Gia sư thì 401
+    // Phụ huynh không dùng được điểm cuối của gia sư (403 chỉ tài khoản gia sư); tên miền cũ của ứng dụng Gia sư 404 (YCTD-368)
     assert.equal((await call(MARKET_HOST, 'GET', '/tutor/bookings', undefined, parent.token)).status, 403);
-    assert.equal((await call(TUTOR_HOST, 'GET', '/tutor/bookings', undefined, parent.token)).status, 401);
+    assert.equal((await call(LEGACY_TUTOR_HOST, 'GET', '/tutor/bookings', undefined, tutor.token)).status, 404);
   });
 
   it('CT-27h-3: điều kiện đặt buổi: giờ trống, Tiểu học, cam kết của giáo viên đang dạy ở trường, đồng ý của cha mẹ, giữ chỗ quá hạn', async () => {
@@ -431,7 +429,7 @@ describe('chợ gia sư: đặt buổi, thanh toán, tranh chấp (27h)', () => 
     assert.equal(half.body.commission_taken, 7_500);
     const byTutor = await pay(30);
     const tutorCancel = await call(
-      TUTOR_HOST,
+      MARKET_HOST,
       'POST',
       `/tutor/bookings/${byTutor}/cancel`,
       { reason: 'Ốm' },
@@ -462,10 +460,17 @@ describe('chợ gia sư: đặt buổi, thanh toán, tranh chấp (27h)', () => 
     assert.equal(opened.status, 200, JSON.stringify(opened.body));
     assert.equal((opened.body.booking as { status: string }).status, 'disputed');
     assert.ok(provider.ledger.some((entry) => entry.action === 'hold'));
-    assert.equal((await call(TUTOR_HOST, 'POST', `/tutor/bookings/${id}/complete`, {}, tutor.token)).status, 409);
+    assert.equal((await call(MARKET_HOST, 'POST', `/tutor/bookings/${id}/complete`, {}, tutor.token)).status, 409);
     assert.equal(
-      (await call(TUTOR_HOST, 'POST', `/disputes/${id}/statements`, { body: 'Mạng chập chờn, đã bù giờ' }, tutor.token))
-        .status,
+      (
+        await call(
+          MARKET_HOST,
+          'POST',
+          `/disputes/${id}/statements`,
+          { body: 'Mạng chập chờn, đã bù giờ' },
+          tutor.token,
+        )
+      ).status,
       200,
     );
     assert.equal(
@@ -483,7 +488,7 @@ describe('chợ gia sư: đặt buổi, thanh toán, tranh chấp (27h)', () => 
     assert.equal((decided.body.statements as unknown[]).length, 2);
     // Gia sư khiếu nại lại; nhân viên một không xét lại được, nhân viên hai quyết định giải ngân
     assert.equal(
-      (await call(TUTOR_HOST, 'POST', `/disputes/${id}/appeal`, { reason: 'Đã bù đủ giờ' }, tutor.token)).status,
+      (await call(MARKET_HOST, 'POST', `/disputes/${id}/appeal`, { reason: 'Đã bù đủ giờ' }, tutor.token)).status,
       200,
     );
     assert.equal(
@@ -562,7 +567,7 @@ describe('chợ gia sư: đặt buổi, thanh toán, tranh chấp (27h)', () => 
     const blocked = await admin('PUT', '/settings', {
       enabled: true,
       host: MARKET_HOST,
-      tutor_host: TUTOR_HOST,
+      tutor_host: LEGACY_TUTOR_HOST,
       real_payments_enabled: true,
     });
     assert.equal(blocked.status, 400);

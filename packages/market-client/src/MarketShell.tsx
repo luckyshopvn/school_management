@@ -5,24 +5,22 @@ import { ForgotPasswordForm } from './AccountSecurity.js';
 import { errorText, marketRequest, readSession, writeSession, type Me, type Site } from './market-api.js';
 import { SAFETY_HOTLINE } from './SafetyWidgets.js';
 
-// Khung dùng chung của ứng dụng Chợ gia sư (phụ huynh) và ứng dụng Gia sư (DT-27 phần 27f, YCTD-256; tách ứng dụng ở YCTD-262): trang
-// công khai (giới thiệu, văn bản pháp lý), đăng ký, xác nhận mã, đăng nhập, văn bản mới cần đồng ý; phần riêng của vai (khu phụ huynh,
-// khu gia sư) do ứng dụng truyền vào. Mỗi ứng dụng một vai: máy chủ chỉ nhận tài khoản phụ huynh ở tên miền của chợ, tài khoản gia sư
-// ở tên miền của ứng dụng Gia sư. Bố cục theo bản thiết kế "Chợ gia sư, Gia sư, Cấp trên" Eric duyệt ngày 2026-10-28 (YCTD-360): thanh
+// Khung của ứng dụng Chợ gia sư (DT-27 phần 27f, YCTD-256): trang công khai (giới thiệu, văn bản pháp lý), đăng ký, xác nhận mã,
+// đăng nhập, văn bản mới cần đồng ý; phần riêng của vai (khu phụ huynh, khu gia sư) do ứng dụng dựng theo loại tài khoản của phiên.
+// Từ YCTD-368 (GD-181) phụ huynh và gia sư dùng chung một ứng dụng, một tên miền; máy chủ vẫn kiểm loại tài khoản ở từng điểm cuối. Bố cục theo bản thiết kế "Chợ gia sư, Gia sư, Cấp trên" Eric duyệt ngày 2026-10-28 (YCTD-360): thanh
 // đầu trang trắng có thanh điều hướng của vai, nhãn "Thanh toán giả lập", nội dung rộng, chân trang có văn bản pháp lý và đường dây nóng
 type View = 'home' | 'register' | 'login' | 'forgot' | 'document';
 
 export interface MarketShellProperties {
-  kind: 'parent' | 'tutor';
   title: string;
-  // Phần giới thiệu khi chưa đăng nhập; nhận cấu hình công khai để dẫn sang ứng dụng còn lại
-  intro: (site: Site | null) => ReactNode;
-  // Khu riêng của vai khi tài khoản đã xác nhận và đồng ý đủ văn bản
-  children: ReactNode;
-  // Thanh điều hướng của vai khi đã vào khu riêng: ở đầu trang (Chợ gia sư, YCTD-360) hoặc cột bên trái (ứng dụng Gia sư, YCTD-361)
-  navigation?: ReactNode;
-  navigationPlacement?: 'top' | 'side';
-  // Cách đăng nhập thêm dưới biểu mẫu mật khẩu (ứng dụng Gia sư: đăng nhập bằng định danh đã xác minh, DT-27 phần 27g)
+  // Phần giới thiệu khi chưa đăng nhập; register mở biểu mẫu đăng ký với loại tài khoản chọn sẵn
+  intro: (site: Site | null, register: (kind: 'parent' | 'tutor') => void) => ReactNode;
+  // Khu riêng của vai khi tài khoản đã xác nhận và đồng ý đủ văn bản, dựng theo loại tài khoản (me.kind)
+  children: (me: Me) => ReactNode;
+  // Thanh điều hướng của vai: ở đầu trang (phụ huynh, YCTD-360) hoặc cột bên trái (gia sư, YCTD-361)
+  navigation?: (me: Me) => ReactNode;
+  navigationPlacement?: (me: Me) => 'top' | 'side';
+  // Cách đăng nhập thêm dưới biểu mẫu mật khẩu (đăng nhập bằng định danh đã liên kết hoặc đã xác minh)
   loginExtras?: ReactNode;
 }
 
@@ -47,17 +45,17 @@ function BrandMark() {
 }
 
 export function MarketShell({
-  kind,
   title,
   intro,
   children,
   navigation,
-  navigationPlacement = 'top',
+  navigationPlacement,
   loginExtras,
 }: MarketShellProperties) {
   const [site, setSite] = useState<Site | null>(null);
   const [me, setMe] = useState<Me | null>(null);
   const [view, setView] = useState<View>('home');
+  const [registerKind, setRegisterKind] = useState<'parent' | 'tutor'>('parent');
   const [document, setDocument] = useState<{ title: string; body: string; version: number } | null>(null);
   const [error, setError] = useState<string>();
 
@@ -103,8 +101,14 @@ export function MarketShell({
     void loadMe();
   };
 
+  const openRegister = (kind: 'parent' | 'tutor') => {
+    setRegisterKind(kind);
+    setView('register');
+  };
+
   const ready = view === 'home' && me?.status === 'active' && me.consents_needed.length === 0;
-  const side = navigationPlacement === 'side' && Boolean(navigation);
+  const roleNavigation = ready && navigation ? navigation(me) : null;
+  const side = ready && Boolean(roleNavigation) && navigationPlacement?.(me) === 'side';
 
   return (
     <div className="flex min-h-screen flex-col">
@@ -118,7 +122,7 @@ export function MarketShell({
             <BrandMark />
             <span className="text-section-title font-bold">{title}</span>
           </button>
-          <div className="min-w-0 flex-1">{ready && !side ? navigation : null}</div>
+          <div className="min-w-0 flex-1">{side ? null : roleNavigation}</div>
           {site && !site.real_payments ? (
             <span className="rounded-full bg-warning/10 px-3 py-1 text-label font-medium text-warning">
               Thanh toán giả lập
@@ -138,7 +142,7 @@ export function MarketShell({
           ) : (
             <div className="flex gap-2">
               <Button onClick={() => setView('login')}>Đăng nhập</Button>
-              <Button variant="primary" onClick={() => setView('register')}>
+              <Button variant="primary" onClick={() => openRegister('parent')}>
                 Đăng ký
               </Button>
             </div>
@@ -167,7 +171,13 @@ export function MarketShell({
         ) : null}
         {view === 'register' && site ? (
           <div className="mx-auto w-full max-w-md rounded-2xl border border-border bg-card p-6">
-            <RegisterForm kind={kind} site={site} onRegistered={signedIn} onOpenDocument={openDocument} />
+            <RegisterForm
+              key={registerKind}
+              initialKind={registerKind}
+              site={site}
+              onRegistered={signedIn}
+              onOpenDocument={openDocument}
+            />
           </div>
         ) : null}
         {view === 'login' ? (
@@ -217,14 +227,14 @@ export function MarketShell({
         {ready && side ? (
           <div className="flex flex-wrap items-start gap-6">
             <div className="w-full max-w-64 flex-[1_1_200px] rounded-2xl border border-border bg-card p-3">
-              {navigation}
+              {roleNavigation}
             </div>
-            <div className="flex min-w-0 flex-[999_1_560px] flex-col gap-4">{children}</div>
+            <div className="flex min-w-0 flex-[999_1_560px] flex-col gap-4">{children(me)}</div>
           </div>
         ) : null}
-        {ready && !side ? children : null}
+        {ready && !side ? children(me) : null}
 
-        {view === 'home' && !me ? intro(site) : null}
+        {view === 'home' && !me ? intro(site, openRegister) : null}
       </main>
 
       <footer className="border-t border-border bg-card">

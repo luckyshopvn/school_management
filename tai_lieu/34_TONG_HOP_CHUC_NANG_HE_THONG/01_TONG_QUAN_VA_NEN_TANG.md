@@ -93,8 +93,7 @@ Pnpm monorepo, TypeScript. Máy chủ NestJS, giao diện React kèm Vite, cơ s
 | Ứng dụng phụ huynh | `apps/parent` | Web chạy trên điện thoại | 5175 | 5376 |
 | Ứng dụng học sinh | `apps/student` | Web chạy trên điện thoại: thi trực tuyến, bài tập, lớp học trực tuyến, học khi mạng yếu; tách khỏi ứng dụng phụ huynh (YCTD-300), chạy thật ở `/hoc-sinh/` | 5179 | 5379 |
 | Cổng vận hành nền tảng | `apps/platform` | Quản lý trường của DT-SaaS (Tổng quan, Trường) | 5177 | Theo cấu hình e2e nhiều trường |
-| Chợ gia sư | `apps/market` | Phụ huynh tìm, đặt gia sư (DT-27 phần 27f đến 27i) | 5178 | 5387 |
-| Ứng dụng Gia sư | `apps/tutor` | Gia sư của chợ: hồ sơ, xác minh, buổi dạy, an toàn (YCTD-262; cổng dev đổi từ 5179 sang 5181 ở YCTD-259 vì trùng `apps/student`) | 5181 | 5388 |
+| Chợ gia sư | `apps/market` | Ứng dụng chung của phụ huynh và gia sư, phân quyền theo loại tài khoản (DT-27 phần 27f đến 27i; YCTD-368 gộp ứng dụng Gia sư `apps/tutor` của YCTD-262 vào đây, GD-181). Phụ huynh: tìm, đặt gia sư, buổi học của con, hồ sơ con, an toàn; gia sư, kể cả giáo viên dạy kèm ngoài trường: hồ sơ, xác minh, lịch, buổi dạy, thu nhập. Tên miền cũ của ứng dụng Gia sư chuyển hướng về đây | 5178 | 5387 (5388 là bộ chuyển hướng tên miền cũ) |
 
 Gói dùng chung: `packages/shared` (cây menu, mã quyền, điều kiện quyền theo menu, cấp học), `packages/server` (mã phiên, ngữ cảnh trường, tên khóa, máy xếp thời khóa biểu, eSMS), `packages/ui` (thành phần giao diện), `packages/config`. Thư mục `database/` chứa migration và lệnh quản trị cơ sở dữ liệu.
 

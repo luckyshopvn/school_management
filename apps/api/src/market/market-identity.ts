@@ -30,8 +30,10 @@ import { MarketContext } from './market-context.js';
 // - phụ huynh (YCTD-364, thiết kế Eric duyệt ngày 2026-10-28; việc T-M6): ở Chợ gia sư, phụ huynh đang đăng nhập liên kết tài khoản định
 //   danh (`link`, quay về `/dinh-danh`), sau đó đăng nhập bằng định danh đó; liên kết cũng phải có phiên của đúng tài khoản đã bắt đầu.
 //   Liên kết của phụ huynh không phải xác minh gia sư, không ghi kết quả xác minh
+// - ứng dụng chung (YCTD-368): mọi lượt quay về tên miền của chợ; xác minh gia sư quay về `/xac-minh`, đăng nhập và liên kết quay về
+//   `/dinh-danh`. Đăng nhập bằng định danh mở phiên cho tài khoản đã gắn định danh đó, loại nào cũng được
 const REQUEST_LIFETIME_MS = 10 * 60 * 1000;
-const RETURN_PATHS = { tutor: '/xac-minh', parent: '/dinh-danh' } as const;
+const RETURN_PATHS = { verify: '/xac-minh', link: '/dinh-danh', login: '/dinh-danh' } as const;
 const ADULT_AGE = 18;
 // Tiền tố __Secure-: trình duyệt chỉ nhận cookie có Secure từ trang an toàn, tên miền anh em không đặt đè được
 const STATE_COOKIE = '__Secure-market_oidc_state';
@@ -103,8 +105,8 @@ export class MarketIdentityService {
       .map((item) => ({ code: item.code, display_name: item.displayName }));
   }
 
-  private returnUrl(raw: unknown, host: string | null, kind: 'parent' | 'tutor'): string {
-    const path = RETURN_PATHS[kind];
+  private returnUrl(raw: unknown, host: string | null, purpose: keyof typeof RETURN_PATHS): string {
+    const path = RETURN_PATHS[purpose];
     let url: URL;
     try {
       url = new URL(typeof raw === 'string' ? raw : '');
@@ -125,15 +127,14 @@ export class MarketIdentityService {
   }
 
   async start(request: Request, body: RequestBody, response: Response) {
-    const { settings, kind } = await this.market.assertMarketHost(request);
-    // Gia sư: xác minh hoặc đăng nhập; phụ huynh: liên kết hoặc đăng nhập
-    const purpose = body?.purpose === 'login' ? 'login' : kind === 'tutor' ? 'verify' : 'link';
-    const accountId = purpose === 'login' ? null : (await this.market.account(request)).id;
+    const { settings } = await this.market.assertMarketHost(request);
+    // Đăng nhập không cần phiên; có phiên thì theo loại tài khoản: gia sư xác minh, phụ huynh liên kết
+    const account = body?.purpose === 'login' ? null : await this.market.account(request);
+    const purpose = !account ? 'login' : account.kind === 'tutor' ? 'verify' : 'link';
+    const accountId = account?.id ?? null;
     const code = typeof body?.provider === 'string' ? body.provider : '';
     const provider = this.provider(code);
-    const parameters = newAuthorizationParameters(
-      this.returnUrl(body?.return_url, kind === 'tutor' ? settings.tutorHost : settings.host, kind),
-    );
+    const parameters = newAuthorizationParameters(this.returnUrl(body?.return_url, settings.host, purpose));
     await this.market.database
       .insertInto('market_oidc_requests')
       .values({
@@ -160,7 +161,7 @@ export class MarketIdentityService {
   }
 
   async complete(request: Request, body: RequestBody, response: Response) {
-    const { kind } = await this.market.assertMarketHost(request);
+    await this.market.assertMarketHost(request);
     const state = typeof body?.state === 'string' ? body.state : '';
     const code = typeof body?.code === 'string' ? body.code : '';
     // Trình duyệt hoàn tất phải là trình duyệt đã bắt đầu (cookie không có hoặc khác thì không dùng lượt này)
@@ -196,7 +197,7 @@ export class MarketIdentityService {
     }
     const subject = hashSubject(row.provider, identity.subject);
     if (row.purpose === 'login') {
-      return this.login(row.provider, subject, kind);
+      return this.login(row.provider, subject);
     }
     if (row.purpose === 'link') {
       return this.link(row.account_id as string, row.provider, subject);
@@ -246,7 +247,7 @@ export class MarketIdentityService {
     };
   }
 
-  private async login(provider: string, subject: string, kind: 'parent' | 'tutor') {
+  private async login(provider: string, subject: string) {
     const linked = await this.market.database
       .selectFrom('market_external_identities')
       .innerJoin('market_accounts', 'market_accounts.id', 'market_external_identities.account_id')
@@ -254,12 +255,10 @@ export class MarketIdentityService {
       .where('market_external_identities.provider', '=', provider)
       .where('market_external_identities.subject', '=', subject)
       .executeTakeFirst();
-    if (!linked || linked.kind !== kind || linked.status !== 'active') {
+    if (!linked || linked.status !== 'active') {
       throw new ApplicationError(
         'ERR_FORBIDDEN',
-        kind === 'tutor'
-          ? 'Chưa có tài khoản gia sư nào xác minh bằng định danh này; đăng nhập bằng mật khẩu rồi xác minh danh tính'
-          : 'Chưa có tài khoản phụ huynh nào liên kết định danh này; đăng nhập bằng mật khẩu rồi liên kết ở trang tài khoản',
+        'Chưa có tài khoản nào gắn định danh này; đăng nhập bằng mật khẩu rồi liên kết (phụ huynh) hoặc xác minh danh tính (gia sư)',
       );
     }
     await this.market.audit({

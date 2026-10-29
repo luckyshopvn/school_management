@@ -13,7 +13,11 @@ import { CARD_CLASS } from './styles.js';
 // Tài khoản phụ huynh ở Chợ gia sư (YCTD-364; thiết kế duyệt ngày 2026-10-28; việc T-M5, T-M6, T-M9 của rà soát giao diện): thông tin
 // tài khoản, tên hiển thị, đổi mật khẩu, liên kết và đăng nhập bằng tài khoản định danh (bộ nối OIDC của DT-25, cùng cách gắn lượt chuyển
 // hướng với trình duyệt của PR 242), chế độ con đọc tin nhắn (chỉ đọc, thoát phải nhập mật khẩu phụ huynh)
+// Ứng dụng chung (YCTD-368): đăng nhập bằng định danh và liên kết của phụ huynh quay về /dinh-danh, xác minh danh tính của gia sư quay
+// về /xac-minh (giữ đường dẫn của ứng dụng Gia sư cũ để liên kết đã đăng ký ở nhà cung cấp vẫn dùng được qua chuyển hướng tên miền)
 export const IDENTITY_RETURN_PATH = '/dinh-danh';
+export const VERIFY_RETURN_PATH = '/xac-minh';
+const RETURN_PATHS = [IDENTITY_RETURN_PATH, VERIFY_RETURN_PATH];
 
 interface Provider {
   code: string;
@@ -38,26 +42,33 @@ function startIdentity(provider: string, purpose: 'login' | 'link') {
   }).then((result) => window.location.assign(result.authorization_url));
 }
 
-// Quay về từ nhà cung cấp định danh: gửi mã và state cho máy chủ; đăng nhập thì giữ phiên mới, liên kết thì báo đã liên kết
-export function useParentIdentityReturn(): { pending: boolean; message?: string; error?: string } {
-  const [pending, setPending] = useState(window.location.pathname === IDENTITY_RETURN_PATH);
+// Quay về từ nhà cung cấp định danh: gửi mã và state cho máy chủ; đăng nhập thì giữ phiên mới, liên kết thì báo đã liên kết, xác minh
+// của gia sư thì báo kết quả và mở trang Xác minh
+export function useIdentityReturn(): { pending: boolean; message?: string; error?: string } {
+  const [pending, setPending] = useState(RETURN_PATHS.includes(window.location.pathname));
   const [message, setMessage] = useState<string>();
   const [error, setError] = useState<string>();
   useEffect(() => {
-    if (window.location.pathname !== IDENTITY_RETURN_PATH) return;
+    const path = window.location.pathname;
+    if (!RETURN_PATHS.includes(path)) return;
     const query = new URLSearchParams(window.location.search);
     const code = query.get('code');
     const state = query.get('state');
-    window.history.replaceState(null, '', '/');
+    window.history.replaceState(null, '', path === VERIFY_RETURN_PATH ? '/#xac-minh' : '/');
     if (!code || !state) {
       setError(query.get('error_description') ?? 'Nhà cung cấp định danh không trả kết quả');
       setPending(false);
       return;
     }
-    marketRequest<{ session_token?: string; status: string }>('POST', '/identity/complete', { code, state })
+    marketRequest<{ session_token?: string; status: string; note?: string | null }>('POST', '/identity/complete', {
+      code,
+      state,
+    })
       .then((result) => {
         if (result.session_token) writeSession(result.session_token);
         else if (result.status === 'linked') setMessage('Đã liên kết tài khoản định danh');
+        else if (result.status === 'approved') setMessage('Đã xác minh danh tính');
+        else setError(result.note ?? 'Chưa xác minh được danh tính');
       })
       .catch((caught: unknown) => setError(errorText(caught)))
       .finally(() => setPending(false));
@@ -65,7 +76,7 @@ export function useParentIdentityReturn(): { pending: boolean; message?: string;
   return { pending, message, error };
 }
 
-export function ParentIdentityLogin() {
+export function IdentityLogin() {
   const providers = useProviders();
   const [error, setError] = useState<string>();
   if (providers.length === 0) return null;
@@ -83,7 +94,8 @@ export function ParentIdentityLogin() {
         </Button>
       ))}
       <p className="text-label text-text-secondary">
-        Dùng được khi đã liên kết định danh ở trang Hồ sơ con, mục tài khoản.
+        Phụ huynh dùng được khi đã liên kết định danh ở trang Hồ sơ con, mục tài khoản; gia sư dùng được khi đã xác minh
+        danh tính.
       </p>
     </div>
   );
