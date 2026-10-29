@@ -45,7 +45,11 @@ import {
 // QT-01): lưới dữ liệu chung có tìm theo họ tên, mở rộng tìm kiếm theo các bộ lọc của mục 4.1.4, cột theo danh sách của
 // Sở, sắp xếp A–Z theo tên; Thêm mới, Cập nhật hàng loạt học 2 buổi/ngày và bán trú (4.1.12), Xuất Excel; Hồ sơ mở ngay
 // dưới dòng. Ô mã định danh Bộ tô đỏ khi trống (AC-201). Từ DT-16 phần 16g đủ nút của Sở: Thay đổi (mở hồ sơ để sửa), Xóa
-// (hồ sơ nháp), Cấp mã định danh Bộ (nhập tay mã do Bộ cấp, xuất tệp theo mẫu Bộ cho học sinh chưa có mã), Xuất file lỗi
+// (hồ sơ nháp), Cấp mã định danh Bộ (nhập tay mã do Bộ cấp, xuất tệp theo mẫu Bộ cho học sinh chưa có mã), Xuất file lỗi.
+// YCTD-338 (thiết kế lại cổng quản trị, theo mẫu YCTD-333): thanh công cụ chỉ còn Nhập từ Excel, Thêm mới; Thay đổi, Xóa,
+// Cập nhật hàng loạt, Cấp mã định danh Bộ cho dòng đã chọn ở thanh "Đã chọn"; Cấp mã định danh Bộ, Xuất Excel, Xuất file
+// lỗi, Đồng bộ CSDL ngành ở menu Thêm; cột ít dùng ẩn mặc định (bật ở Cấu hình cột hiển thị); ô mã định danh Bộ trống ghi
+// chữ xám thay nhãn đỏ; bỏ ảnh chữ cái đầu ở ô họ tên
 function messageOf(error: unknown): string {
   return error instanceof ApiError
     ? [error.message, ...error.details.map((detail) => detail.message)].join('. ')
@@ -87,14 +91,6 @@ const YES_NO = [
   { value: 'false', label: 'Không' },
 ];
 
-// Chữ viết tắt trên ảnh đại diện: chữ đầu của họ và của tên
-function initialsOf(fullName: string): string {
-  const words = fullName.trim().split(/\s+/).filter(Boolean);
-  const first = words[0]?.[0] ?? '';
-  const last = words.length > 1 ? (words[words.length - 1]?.[0] ?? '') : '';
-  return (first + last).toUpperCase();
-}
-
 // Thẻ trạng thái phía trên lưới theo mẫu thiết kế: cùng bộ lọc "Trạng thái" ở Mở rộng tìm kiếm; số lượng chỉ hiện ở thẻ đang
 // chọn vì máy chủ chỉ trả tổng số dòng của bộ lọc hiện tại
 const STATUS_TABS: Array<{ value: ChildStatus | ''; label: string }> = [
@@ -106,38 +102,29 @@ const STATUS_TABS: Array<{ value: ChildStatus | ''; label: string }> = [
 ];
 const formatCount = (value: number) => value.toLocaleString('vi-VN');
 
-// Cột theo danh sách học sinh của Sở (4.1.1: mã định danh Bộ, họ tên, ngày sinh, giới tính, dân tộc, trạng thái, số điện
-// thoại liên hệ; 4.1.4: khối, lớp); cột còn lại ẩn mặc định. Mã cột trùng mã cột của tệp Excel ở máy chủ
+// Cột theo danh sách học sinh của Sở (4.1.1, 4.1.4). Mặc định chỉ hiện cột theo thiết kế YCTD-338: mã định danh Bộ, họ tên,
+// ngày sinh, giới tính, lớp, trạng thái, số điện thoại liên hệ; cột còn lại (dân tộc, phụ huynh, chuyên cần, khối…) ẩn mặc
+// định, bật ở Cấu hình cột hiển thị. Mã cột trùng mã cột của tệp Excel ở máy chủ
 function studentColumns(): Array<DataGridColumn<ChildListItem>> {
   return [
     {
       id: 'moet_student_code',
       header: 'Mã định danh Bộ GD&ĐT',
       cell: (row) => (
-        <span className={row.moet_student_code ? '' : 'rounded bg-danger/10 px-2 text-danger'}>
-          {row.moet_student_code ?? 'Chưa có'}
-        </span>
+        <span className={row.moet_student_code ? '' : 'text-text-secondary'}>{row.moet_student_code ?? 'Chưa có'}</span>
       ),
     },
     {
       id: 'full_name',
       header: 'Họ tên',
       alwaysVisible: true,
-      cell: (row) => (
-        <span className="flex items-center gap-2.5">
-          <span
-            aria-hidden="true"
-            className="flex h-8 w-8 flex-none items-center justify-center rounded-full bg-selected text-xs font-bold text-brand-strong"
-          >
-            {initialsOf(row.full_name)}
-          </span>
-          <span className="font-semibold text-text">{row.full_name}</span>
-        </span>
-      ),
+      className: 'font-semibold text-text',
+      cell: (row) => row.full_name,
     },
     { id: 'dob', header: 'Ngày sinh', cell: (row) => formatDate(row.dob) },
     { id: 'gender', header: 'Giới tính', cell: (row) => (row.gender === 'male' ? 'Nam' : 'Nữ') },
-    { id: 'ethnicity', header: 'Dân tộc', cell: (row) => row.ethnicity ?? '' },
+    { id: 'class', header: 'Lớp', cell: (row) => row.class_name ?? '' },
+    { id: 'ethnicity', header: 'Dân tộc', hiddenByDefault: true, cell: (row) => row.ethnicity ?? '' },
     {
       id: 'status',
       header: 'Trạng thái',
@@ -150,14 +137,14 @@ function studentColumns(): Array<DataGridColumn<ChildListItem>> {
     },
     { id: 'contact_phone', header: 'Số điện thoại liên hệ', cell: (row) => row.contact_phone ?? '' },
     // Người liên hệ chính và tỷ lệ ngày có mặt ở năm học (YCTD-319)
-    { id: 'guardian_name', header: 'Phụ huynh', cell: (row) => row.guardian_name ?? '' },
+    { id: 'guardian_name', header: 'Phụ huynh', hiddenByDefault: true, cell: (row) => row.guardian_name ?? '' },
     {
       id: 'attendance_rate',
       header: 'Chuyên cần',
+      hiddenByDefault: true,
       cell: (row) => (row.attendance_rate === null ? '' : `${row.attendance_rate}%`),
     },
-    { id: 'grade', header: 'Khối', cell: (row) => row.grade_name ?? row.grade_level ?? '' },
-    { id: 'class', header: 'Lớp', cell: (row) => row.class_name ?? '' },
+    { id: 'grade', header: 'Khối', hiddenByDefault: true, cell: (row) => row.grade_name ?? row.grade_level ?? '' },
     { id: 'sms_phone', header: 'Điện thoại nhận tin', hiddenByDefault: true, cell: (row) => row.sms_phone ?? '' },
     {
       id: 'two_sessions_per_day',
@@ -347,7 +334,9 @@ function MoetCodeDialog({
             </tbody>
           </table>
         ) : (
-          <p className="text-label text-text-secondary">Chọn học sinh trên lưới để ghi mã Bộ đã cấp.</p>
+          <p className="text-label text-text-secondary">
+            Chọn học sinh trên lưới rồi bấm Cấp mã định danh Bộ ở thanh &quot;Đã chọn&quot; để ghi mã Bộ đã cấp.
+          </p>
         )}
         {save.error ? <Alert tone="danger">{messageOf(save.error)}</Alert> : null}
       </div>
@@ -595,7 +584,6 @@ export function ChildrenPage() {
                 Nhập từ Excel
               </Link>
             ) : null}
-            {canImport ? <Button onClick={() => setSyncing(true)}>Đồng bộ CSDL ngành</Button> : null}
             {canManage ? (
               <Button
                 variant="primary"
@@ -675,11 +663,13 @@ export function ChildrenPage() {
               },
             }}
             advancedSearch={advancedSearch}
-            toolbar={(selected) => (
+            // Nút chính (Nhập từ Excel, Thêm mới) ở đầu trang; thao tác trên dòng đã chọn chỉ hiện ở thanh "Đã chọn"
+            selectionActions={(selected) => (
               <>
                 {canManage || canApprove ? (
                   <Button
                     disabled={selected.length !== 1}
+                    title={selected.length !== 1 ? 'Chọn một hồ sơ để thay đổi' : undefined}
                     onClick={() => {
                       setOpenId(selected[0]?.id);
                       setCreating(false);
@@ -690,26 +680,36 @@ export function ChildrenPage() {
                 ) : null}
                 {canManage ? (
                   <Button
+                    variant="danger"
                     disabled={selected.length !== 1 || selected[0]?.status !== 'draft'}
+                    title={
+                      selected.length !== 1 || selected[0]?.status !== 'draft'
+                        ? 'Chỉ xóa được một hồ sơ nháp mỗi lần'
+                        : undefined
+                    }
                     onClick={() => setDeleting(selected[0])}
                   >
                     Xóa
                   </Button>
                 ) : null}
                 {canManage || canApprove ? (
-                  <Button disabled={selected.length === 0} onClick={() => setBulkRows(selected)}>
-                    Cập nhật hàng loạt
-                  </Button>
+                  <Button onClick={() => setBulkRows(selected)}>Cập nhật hàng loạt</Button>
                 ) : null}
                 {canManage ? <Button onClick={() => setCodeRows(selected)}>Cấp mã định danh Bộ</Button> : null}
-                {canExport ? (
-                  <Button disabled={exporting} onClick={() => void runExport()}>
-                    Xuất Excel
-                  </Button>
-                ) : null}
-                {canExport ? <Button onClick={() => void runErrorFile()}>Xuất file lỗi</Button> : null}
               </>
             )}
+            // Thao tác phụ vào menu Thêm; Cấp mã định danh Bộ ở đây mở hộp không kèm dòng chọn (xuất tệp theo mẫu Bộ cho học
+            // sinh chưa có mã), muốn ghi mã thì chọn dòng rồi bấm nút cùng tên ở thanh "Đã chọn"
+            moreActions={[
+              ...(canManage ? [{ label: 'Cấp mã định danh Bộ', onSelect: () => setCodeRows([]) }] : []),
+              ...(canExport
+                ? [
+                    { label: 'Xuất Excel', disabled: exporting, onSelect: () => void runExport() },
+                    { label: 'Xuất file lỗi', onSelect: () => void runErrorFile() },
+                  ]
+                : []),
+              ...(canImport ? [{ label: 'Đồng bộ CSDL ngành', onSelect: () => setSyncing(true) }] : []),
+            ]}
             selectable
             rowActions={(row) => (
               <Button variant="text" onClick={() => setOpenId(openId === row.id ? undefined : row.id)}>

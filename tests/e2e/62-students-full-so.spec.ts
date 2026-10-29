@@ -12,6 +12,7 @@ import { createTestUser } from '@school-management/identity/testing';
 import ExcelJS from 'exceljs';
 import { E2E_SCHOOL_YEAR_DATABASE_PREFIX } from '../e2e-environment.mjs';
 import { openMenu } from './menu.js';
+import { clickGridMoreItem } from './grid.js';
 
 // Học sinh đủ theo hệ thống của Sở (DT-16 phần 16g): 4.1.1 Thay đổi, Xóa, Cấp mã định danh Bộ, Xuất file lỗi, sửa dân tộc;
 // 4.1.3 sắp xếp; 4.1.5 điện thoại nhận tin hàng loạt; 4.1.8 thu thập, đánh dấu xác thực số định danh; 4.1.10 tài khoản học
@@ -164,9 +165,15 @@ test('CT-16g-14: 4.1.1 Thay đổi mở hồ sơ, sửa dân tộc; Xóa hồ s�
   await form.getByLabel('Lý do sửa thông tin định danh').fill('Bổ sung theo giấy khai sinh');
   await form.getByRole('button', { name: 'Ghi' }).click();
   await expect(page.getByText('Đã ghi hồ sơ học sinh')).toBeVisible();
+  // Cột Dân tộc ẩn mặc định (YCTD-338): bật ở Cấu hình cột hiển thị để xem trên lưới
+  await clickGridMoreItem(grid, 'Cấu hình cột hiển thị');
+  const columns = page.getByRole('dialog', { name: 'Cấu hình cột hiển thị' });
+  await columns.getByRole('checkbox', { name: 'Dân tộc', exact: true }).check();
+  await columns.getByRole('button', { name: 'Ghi' }).click();
   await expect(grid.getByRole('row', { name: `Học sinh ${names.an}` })).toContainText('Tày');
 
-  // Cấp mã định danh Bộ nhập tay cho học sinh đã chọn
+  // Cấp mã định danh Bộ nhập tay cho học sinh đã chọn (nút ở thanh "Đã chọn")
+  await expect(grid.getByRole('toolbar', { name: 'Thao tác với dòng đã chọn' })).toBeVisible();
   await grid.getByRole('button', { name: 'Cấp mã định danh Bộ' }).click();
   const codes = page.getByRole('dialog').filter({ hasText: 'Cấp mã định danh Bộ' });
   await expect(codes).toContainText('Hệ thống chưa kết nối CSDL của Bộ');
@@ -176,7 +183,8 @@ test('CT-16g-14: 4.1.1 Thay đổi mở hồ sơ, sửa dân tộc; Xóa hồ s�
   await expect(grid.getByRole('row', { name: `Học sinh ${names.an}` })).toContainText(`HS${suffix}`);
   await grid.getByLabel(`Chọn ${names.an}`).uncheck();
 
-  // Xóa chỉ bật với hồ sơ nháp; phải tích đồng ý trong hộp xác nhận
+  // Xóa chỉ hiện ở thanh "Đã chọn" khi có dòng được chọn, chỉ bật với hồ sơ nháp; phải tích đồng ý trong hộp xác nhận
+  await expect(grid.getByRole('button', { name: 'Xóa', exact: true })).toHaveCount(0);
   await grid.getByLabel(`Chọn ${names.binh}`).check();
   await expect(grid.getByRole('button', { name: 'Xóa', exact: true })).toBeDisabled();
   await grid.getByLabel(`Chọn ${names.binh}`).uncheck();
@@ -190,7 +198,7 @@ test('CT-16g-14: 4.1.1 Thay đổi mở hồ sơ, sửa dân tộc; Xóa hồ s�
 
   // Xuất file lỗi: hồ sơ thiếu ô bắt buộc của CSDL ngành
   const downloading = page.waitForEvent('download');
-  await grid.getByRole('button', { name: 'Xuất file lỗi' }).click();
+  await clickGridMoreItem(grid, 'Xuất file lỗi');
   const download = await downloading;
   expect(download.suggestedFilename()).toMatch(/^hoc-sinh-file-loi-.*\.xlsx$/);
   const book = new ExcelJS.Workbook();
