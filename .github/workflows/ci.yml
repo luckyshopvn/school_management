@@ -9,6 +9,12 @@ on:
   schedule:
     - cron: '0 19 * * *'
 
+# Lượt chạy mới tự huỷ lượt cũ của cùng PR hoặc cùng nhánh (YCTD-357): khoá theo số PR, nhánh khác thì theo ref. event_name
+# nằm trong khoá nên lượt chạy đêm (schedule) và lượt push của main không huỷ lẫn nhau
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event_name }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
 jobs:
   kiem-thu:
     if: github.event_name != 'schedule'
