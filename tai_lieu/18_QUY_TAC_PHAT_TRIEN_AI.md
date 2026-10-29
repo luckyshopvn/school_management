@@ -53,6 +53,9 @@
 | AI-26 | Điều gì chưa rõ phải thành giả định `GD-xx` hoặc câu hỏi mở `Q-xx`, không được bịa |
 | AI-27 | Cập nhật tài liệu cùng lượt với việc thay đổi mã nguồn, không để tài liệu đi sau mã nguồn |
 | AI-28 | Ghi nhật ký dự án ngay sau khi hoàn thành việc có giá trị lâu dài |
+| AI-46 | Mã định danh riêng của dự án thay cho mã của Vibecoding_Flow: đợt và phần việc `DT-<số>` (phần `DT-29 phần 29e`), yêu cầu thay đổi `YCTD-<số>` thay cho `THAY_DOI` và `CONG_VIEC` (ghi ở `24`, đặc tả dài nằm ở `47_KE_HOACH_THEO_HE_THONG_SO.md`), màn hình `MH-<số>` (cổng quản trị), `MG-<số>` (giáo viên), `MP-<số>` (phụ huynh) thay cho `MAN_HINH`, lỗi `L-<số>` trong `25_KET_QUA_KIEM_THU.md` thay cho `LOI`; chức năng `P<phân hệ>-<số>`, tiêu chí `AC-<số>`, kịch bản `CT-<số>`, quy tắc `BR-<số>`, quyết định kiến trúc `QĐ-<số>`, giả định `GD-<số>`, câu hỏi `Q-<số>`. Mã đã cấp không đổi, không dùng lại; lấy số tiếp theo trên `main` mới nhất và kiểm cả PR đang mở (YCTD-369) |
+| AI-47 | Sổ dùng chung `02`, `23`, `24`, bảng mốc phát hành ở `01`, số đếm ở `index.md` và dòng bảng mới của các tài liệu đặc tả không sửa trực tiếp trong PR thường: mỗi PR thêm đúng một tệp mảnh `tai_lieu/thay_doi_cho_gom/YCTD-<số>-<tên>.md` theo `thay_doi_cho_gom/README.md`; CI chạy `node scripts/gom-thay-doi.mjs --kiem`. Phiên điều phối gom định kỳ trên nhánh `gom-<ngày>`; số phiên bản chốt khi gom theo thứ tự merge. Cách này thay cho quy định nhánh `tai-lieu/...` merge ngay của Vibecoding_Flow (YCTD-291, YCTD-369) |
+| AI-48 | Thẻ phiên bản: `v<số>` chỉ cho bản phần mềm Eric nghiệm thu (`v1.0.0`, `v1.1.0`, `v1.2.0`); mốc tài liệu 0.x gắn thẻ có chú thích `tai-lieu-<số>`, nội dung "Phiên bản X (PR n)", trên commit merge của PR đưa mục phiên bản vào `main`, gắn sau lượt gom đã merge. Không xóa, không ghi đè thẻ đã có; danh sách thẻ gửi phiên điều phối xác nhận trước khi đẩy (YCTD-369) |
 
 ## 5. Quy tắc phạm vi và thay đổi
 

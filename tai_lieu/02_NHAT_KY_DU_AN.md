@@ -24,7 +24,7 @@
 - Thêm `27_MA_TRAN_TRUY_VET.md`: liên kết YCTD-213 đến YCTD-369 với chức năng (`10`), tiêu chí nghiệm thu (`11`), kịch bản kiểm thử (`21`), PR và commit merge, kết quả CI, kết quả ghi ở `25`. Dữ liệu trích từ tệp mảnh trên `origin/main` `6048abc9` và `gh pr view`; chỗ không có dữ liệu ghi "chưa xác định".
 - Thêm `26_TRIEN_KHAI.md`: tổng hợp các cách triển khai đang có (bản một máy, hồ sơ "Vận hành", hồ sơ thử nghiệm, bản nhiều trường trên máy), thứ tự database migration, phương án quay lui, mẫu biên bản; ghi rõ chưa có lần triển khai môi trường thật nào.
 - `01` chuyển sang mô hình mười ba giai đoạn: thêm giai đoạn 12 Triển khai (CG-12), vận hành và cải tiến thành giai đoạn 13 (CG-13).
-- Thêm vào `18` quy tắc AI-43 đến AI-45, sửa AI-40 theo ủy quyền làm việc tự chủ ngày 2026-10-11, thêm giả định đã xác nhận GD-181 đến GD-184.
+- Thêm vào `18` quy tắc AI-43 đến AI-48 (mức Lớn, merge mức Nhỏ và Vừa, tệp tạm, mã định danh riêng, sổ qua tệp mảnh, thẻ `tai-lieu-<số>`), sửa AI-40 theo ủy quyền làm việc tự chủ ngày 2026-10-11, thêm giả định đã xác nhận GD-181 đến GD-184.
 - Thêm `tam_thoi/` vào `.gitignore`.
 - Sửa dòng "Mã N đang dùng đến" ở `03` từ N22 thành N25 (lỗi L-17 của `25`).
 
@@ -32,7 +32,7 @@
 
 - Eric duyệt ngày 2026-10-29 cách xử lý năm điểm lệch quy trình và việc đánh lại số (qua phiên điều phối): phương án B, tài liệu riêng sang dải 40 đến 49, để trống 28 đến 39 để tham chiếu cũ còn sót không trỏ nhầm; giữ nguyên số cũ trong lịch sử `02`, `23`, `24` và trong chú thích tệp database migration; sửa chú thích mã nguồn khác; sửa AI-40; cập nhật `01` sang mười ba giai đoạn.
 - Số phiên bản do công cụ gom chốt theo thứ tự merge, không theo số đề xuất của tệp mảnh, nên tệp mảnh này nhận 0.238.0 thay vì 0.249.0 đề xuất.
-- Gắn tag phiên bản làm sau khi PR này merge, theo danh sách phiên điều phối xác nhận.
+- Thẻ mốc tài liệu dạng `tai-lieu-<số>` (Eric chọn ngày 2026-10-29), `v<số>` giữ cho bản phần mềm đã nghiệm thu; gắn 256 thẻ (`tai-lieu-0.25.4` đến `tai-lieu-0.238.0`) sau khi PR này merge, bỏ qua 0.1.0 đến 0.25.3.
 
 #### Thay đổi
 
@@ -42,7 +42,7 @@
 
 - Ma trận truy vết chưa phủ YCTD-01 đến YCTD-212; nhiều dòng thiếu mã chức năng, tiêu chí nghiệm thu (xem `27` mục 5).
 - Bản PDF trong `49_TONG_HOP_CHUC_NANG_HE_THONG/` còn liên kết theo đường dẫn cũ; dựng lại ở lần cập nhật tài liệu tổng hợp.
-- Gắn tag các phiên bản đã merge: chờ phiên điều phối xác nhận danh sách.
+- Gắn và đẩy thẻ `tai-lieu-*` sau khi PR này merge.
 
 ### 2026-10-28 — DT-29 phần 29e: bài hát, câu chuyện của trường trong Hộp công cụ giảng dạy
 

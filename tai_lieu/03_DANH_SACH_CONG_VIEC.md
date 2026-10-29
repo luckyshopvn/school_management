@@ -155,7 +155,7 @@ Chỉ liệt kê việc chưa xong. Mọi đợt xây dựng DT-00 đến DT-11 
 | N11 | Áp dụng câu trả lời Q-136 đến Q-138 vào P08-10, P10-11, P14-10, P14-11 | Toàn dự án | 2026-10-09 | 0.5.1 | Xem `24_YEU_CAU_THAY_DOI.md` YCTD-06; thêm `Q-139`, `GD-86`, `AC-173`, `AC-174`, `CT-129`, `CT-130` |
 | N10 | Bổ sung hai mươi chức năng theo tám ảnh sơ đồ chức năng, lưu ảnh vào `41_SO_DO_CHUC_NANG/` | Toàn dự án | 2026-10-09 | 0.5.0 | Xem `24_YEU_CAU_THAY_DOI.md` YCTD-05; thêm `Q-136` đến `Q-138`, `GD-85`; `Q-06`, `Q-28`, `Q-29` đã trả lời |
 | N9 | Chuyển bộ tài liệu sang cấu trúc Vibecoding_Flow, sửa các chỗ chưa khớp, thống nhất phân cấp phê duyệt, đổi mã dự án thành SM | Toàn dự án | 2026-10-09 | 0.4.0 | Xem `24_YEU_CAU_THAY_DOI.md` YCTD-01 đến YCTD-04; `Q-49`, `Q-132` đến `Q-135` đã trả lời |
-| N25 | Sửa các điểm lệch quy trình Vibecoding_Flow: gom tệp mảnh, ma trận truy vết `27`, tài liệu triển khai `26`, quy tắc AI-43 đến AI-45, thư mục `tam_thoi/` | Toàn dự án | 2026-10-29 | 0.238.0 | Xem `24_YEU_CAU_THAY_DOI.md` YCTD-369; gắn tag phiên bản sau khi merge |
+| N25 | Sửa các điểm lệch quy trình Vibecoding_Flow: gom tệp mảnh, ma trận truy vết `27`, tài liệu triển khai `26`, quy tắc AI-43 đến AI-48, thư mục `tam_thoi/` | Toàn dự án | 2026-10-29 | 0.238.0 | Xem `24_YEU_CAU_THAY_DOI.md` YCTD-369; gắn tag phiên bản sau khi merge |
 
 
 ## 8. Quy ước mã

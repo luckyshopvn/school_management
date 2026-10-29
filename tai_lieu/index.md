@@ -27,7 +27,7 @@
 | 15 | [15_HE_THONG_THIET_KE.md](15_HE_THONG_THIET_KE.md) | Hệ thống thiết kế | Màu, chữ, khoảng cách, thành phần dùng chung | 06 Thiết kế giao diện | Đã phê duyệt |
 | 16 | [16_CO_SO_DU_LIEU.md](16_CO_SO_DU_LIEU.md) | Cơ sở dữ liệu | 485 bảng dự kiến, quan hệ, chỉ mục, chính sách xóa | 07 Thiết kế dữ liệu và API | Đã phê duyệt |
 | 17 | [17_DAC_TA_API.md](17_DAC_TA_API.md) | Đặc tả API | Điểm cuối, mô hình lỗi, phân trang, kiểm tra dữ liệu | 07 Thiết kế dữ liệu và API | Đã phê duyệt |
-| 18 | [18_QUY_TAC_PHAT_TRIEN_AI.md](18_QUY_TAC_PHAT_TRIEN_AI.md) | Quy tắc phát triển AI | AI-01 đến AI-45 | 08 Chuẩn bị môi trường AI | Đã phê duyệt |
+| 18 | [18_QUY_TAC_PHAT_TRIEN_AI.md](18_QUY_TAC_PHAT_TRIEN_AI.md) | Quy tắc phát triển AI | AI-01 đến AI-48 | 08 Chuẩn bị môi trường AI | Đã phê duyệt |
 | 19 | [19_CHI_DAN_HE_THONG_AI.md](19_CHI_DAN_HE_THONG_AI.md) | Chỉ dẫn hệ thống AI | Ngữ cảnh, câu lệnh hệ thống, quy ước mã | 08 Chuẩn bị môi trường AI | Đã phê duyệt |
 | 20 | [20_KE_HOACH_KIEM_THU.md](20_KE_HOACH_KIEM_THU.md) | Kế hoạch kiểm thử | Phạm vi, lớp kiểm thử, dữ liệu, tiêu chí đạt | 10 Kiểm thử | Đã phê duyệt |
 | 21 | [21_KICH_BAN_KIEM_THU.md](21_KICH_BAN_KIEM_THU.md) | Kịch bản kiểm thử | CT-001 đến CT-1680 | 10 Kiểm thử | Đã phê duyệt |

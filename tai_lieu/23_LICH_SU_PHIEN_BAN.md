@@ -11,7 +11,7 @@
 1. Mỗi phiên bản phát hành ghi một mục, xếp mới nhất lên đầu.
 2. Mỗi mục ghi rõ: mã phiên bản, ngày phát hành, phạm vi thay đổi, chức năng mới, lỗi đã sửa, thay đổi dữ liệu, thay đổi API, rủi ro, khả năng tương thích và phương án quay lui.
 3. Phiên bản đánh số theo dạng chính.phụ.sửa. Tăng số chính khi thay đổi phá vỡ tương thích, tăng số phụ khi thêm chức năng, tăng số sửa khi sửa lỗi.
-4. Bản phần mềm 1.0.0, 1.1.0, 1.2.0 được Eric nghiệm thu ngày 13/10/2026, gắn thẻ `v1.0.0`, `v1.1.0`, `v1.2.0` (YCTD-92), ứng với phiên bản tài liệu 0.31.0, 0.42.0, 0.48.0. Các mục dưới đây ghi các mốc của bộ tài liệu.
+4. Bản phần mềm 1.0.0, 1.1.0, 1.2.0 được Eric nghiệm thu ngày 13/10/2026, gắn thẻ `v1.0.0`, `v1.1.0`, `v1.2.0` (YCTD-92), ứng với phiên bản tài liệu 0.31.0, 0.42.0, 0.48.0. Các mục dưới đây ghi các mốc của bộ tài liệu. Thẻ `v<số>` chỉ dùng cho bản phần mềm được Eric nghiệm thu; mốc tài liệu 0.x gắn thẻ có chú thích `tai-lieu-<số>` (ví dụ `tai-lieu-0.238.0`, nội dung "Phiên bản X (PR n)") trên commit merge của PR đưa mục phiên bản vào nhánh chính (YCTD-369, AI-48). Các mốc 0.1.0 đến 0.25.3 có sẵn trong PR 1, lập trước khi có kho mã, nên không gắn thẻ.
 5. Từ phiên bản 0.4.0, mỗi mục ghi theo mẫu của Vibecoding_Flow; các mục trước giữ nguyên dạng bảng và tên tệp cũ vì là ghi nhận lịch sử.
 6. Từ YCTD-291 (ngày 2026-10-26), mục phiên bản mới của mỗi PR nằm ở tệp mảnh trong thư mục `tai_lieu/thay_doi_cho_gom/` cho tới lần gom, với số phiên bản đề xuất và chỗ giữ `{PHIEN_BAN}`; PR thường không sửa tệp này. Số chính thức chốt khi gom theo thứ tự merge (quy ước ở `thay_doi_cho_gom/README.md`).
 
@@ -19,7 +19,7 @@
 
 ### Phiên bản 0.238.0 – 2026-10-29
 
-- Phạm vi thay đổi: gom 92 tệp mảnh, đánh lại số bộ tài liệu (25 kết quả kiểm thử, 26 triển khai, 27 ma trận truy vết, tài liệu riêng sang 40 đến 49), mười ba giai đoạn ở `01`, quy tắc AI-40, AI-43 đến AI-45 (YCTD-369). Không đổi mã chạy, chỉ chú thích.
+- Phạm vi thay đổi: gom 92 tệp mảnh, đánh lại số bộ tài liệu (25 kết quả kiểm thử, 26 triển khai, 27 ma trận truy vết, tài liệu riêng sang 40 đến 49), mười ba giai đoạn ở `01`, quy tắc AI-40, AI-43 đến AI-48 (YCTD-369). Không đổi mã chạy, chỉ chú thích.
 - Phương án quay lui: revert commit merge của PR; không có thay đổi dữ liệu.
 
 ### Phiên bản 0.237.0 – 2026-10-28
