@@ -177,6 +177,13 @@ test('CT-19f-5: trường liên cấp: bật Tiểu học, mở lớp khối 1, 
     await parent.getByRole('button', { name: 'Đăng nhập' }).click();
     await expect(parent.getByRole('listitem', { name: 'Nguyễn Gia Bảo' })).toBeVisible();
     await expect(parent.getByRole('listitem', { name: SIBLING_NAME })).toBeVisible();
+    // Đổi con (YCTD-351): chọn một con thì chỉ còn thẻ của con đó; chọn lại Tất cả các con thì hiện cả hai
+    const picker = parent.getByRole('combobox', { name: 'Đổi con' });
+    await picker.selectOption({ label: SIBLING_NAME });
+    await expect(parent.getByRole('listitem', { name: SIBLING_NAME })).toBeVisible();
+    await expect(parent.getByRole('listitem', { name: 'Nguyễn Gia Bảo' })).toHaveCount(0);
+    await picker.selectOption({ label: 'Tất cả các con' });
+    await expect(parent.getByRole('listitem', { name: 'Nguyễn Gia Bảo' })).toBeVisible();
   } finally {
     await setPrimaryEnabled(page, false);
   }
