@@ -25,7 +25,8 @@ export interface PlatformAiTutorOrdersTable {
   period_month: ColumnType<string | null, string | null | undefined, string | null>;
   turns: number;
   kind: Generated<'purchase' | 'upgrade'>;
-  upgrade_from_subscription_id: string | null;
+  // Lần nâng ở `ai_tutor_upgrades` của trường (giao dịch nâng gói)
+  upgrade_id: string | null;
   amount: Money;
   status: Generated<PlatformAiTutorOrderStatus>;
   pending_expires_at: Date;

@@ -34,7 +34,8 @@ export const migration: Migration = {
       .addColumn('turns', 'integer', (column) => column.notNull().check(sql`turns between 1 and 100000`))
       // `purchase`: mua mới; `upgrade`: nâng gói tháng giữa tháng, chỉ trả phần chênh lệch
       .addColumn('kind', 'text', (column) => column.notNull().defaultTo('purchase'))
-      .addColumn('upgrade_from_subscription_id', 'uuid')
+      // Lần nâng ở `ai_tutor_upgrades` của trường (khác cơ sở dữ liệu nên không khóa ngoại)
+      .addColumn('upgrade_id', 'uuid')
       .addColumn('amount', 'bigint', (column) => column.notNull().check(sql`amount > 0`))
       .addColumn('status', 'text', (column) => column.notNull().defaultTo('pending'))
       .addColumn('pending_expires_at', 'timestamptz', (column) => column.notNull())
@@ -54,7 +55,7 @@ export const migration: Migration = {
       )
       .addCheckConstraint(
         'platform_ai_tutor_orders_upgrade_check',
-        sql`(kind = 'upgrade') = (upgrade_from_subscription_id is not null)`,
+        sql`(kind = 'upgrade') = (upgrade_id is not null)`,
       )
       .execute();
     await database.schema
