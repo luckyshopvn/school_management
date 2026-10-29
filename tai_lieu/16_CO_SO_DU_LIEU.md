@@ -1068,6 +1068,7 @@ Quy tắc của lát L1b (mã ở `apps/api/src/ai-tutor/platform-sales-rules.ts
 2. Tiền vào: cùng cổng và mã giao dịch của cổng chỉ ghi một lần. Đúng số tiền và ghi nhận trước hạn giữ chỗ thì kích hoạt lần mua ở trường, giao dịch `paid`, lập biên lai, báo trong ứng dụng cho người mua. Sai số tiền: giữ `pending`, ghi `amount_mismatch`. Đến sau hạn hoặc giao dịch đã đóng: không kích hoạt, giao dịch `needs_refund`.
 3. Hết hạn: việc nền theo trường (5 phút một lần) và lần đọc của phụ huynh chuyển giao dịch quá hạn sang `expired`, hủy lần mua chờ ở trường.
 4. Hủy: chỉ giao dịch `pending` (phụ huynh hoặc nhân viên vận hành có lý do). Hoàn tiền: chỉ `paid` hoặc `needs_refund`, một lần; lần mua ở trường chuyển `refunded`; người thao tác ghi ở `platform_ai_tutor_refunds` và `platform_audit_log`.
+5. Nâng gói tháng giữa tháng (dùng hàm chung của YCTD-386): giao dịch `upgrade` trỏ tới lần nâng chờ ở `ai_tutor_upgrades` của trường, số tiền là phần chênh lệch theo số ngày còn lại; tiền vào thì `applyAiTutorUpgrade`, hết hạn hoặc hủy thì `cancelAiTutorUpgrade`. Hoàn tiền lần nâng: dòng đăng ký về gói trước khi nâng, `turns` bớt số lượt đã cộng (không dưới `used_turns + held_turns`), lần nâng chuyển `refunded`; chỉ hoàn được lần nâng gần nhất.
 
 ## 19. Quan hệ chính giữa các bảng
 

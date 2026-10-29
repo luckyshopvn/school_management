@@ -14,8 +14,10 @@ phien_ban_de_xuat: 0.250.0
 - Cơ sở dữ liệu nền tảng (tệp `0251_create_ai_tutor_sales`): `platform_ai_tutor_orders` (giao dịch), `platform_ai_tutor_payments` (tiền vào của cổng, ghi một lần theo mã của cổng), `platform_ai_tutor_receipts` (biên lai), `platform_ai_tutor_refunds` (hoàn tiền, người thao tác). Tài liệu `16` mục 18R.
 - Máy chủ API: `apps/api/src/ai-tutor/platform-sales-rules.ts` (hàm thuần), `platform-sales.ts` (dịch vụ, việc nền đóng giao dịch quá hạn), `platform-sales.controller.ts`; đăng ký ở `src/dang-ky/yctd-383-l1b-nen-tang-ban.ts`. Điểm nhận thông báo tiền vào của cổng nền tảng ở `billing.ts` hỏi bộ nhận của gia sư AI trước khi đối chiếu hóa đơn dịch vụ (`billing/platform-transfer-handler.ts`). Đường dẫn vận hành `/api/v1/platform-ai-tutor/*` không cần trường, khai ở `tenancy-route-policy.ts`. Việc mới `ai-tutor.sales` (quản trị, kế toán) và mục menu `ai-tutor` ở `packages/shared/src/operator-permissions.ts`. Tài liệu `17` mục 17.11.
 - Cổng vận hành: trang "Gia sư AI" (`apps/platform/src/AiTutorSalesPage.tsx`, bản mẫu MH-600): tạo, sửa, ngừng bán, mở bán lại gói tháng và gói lượt theo cấp học; danh sách giao dịch có lọc; chi tiết giao dịch có biên lai, tiền vào của cổng; hủy giao dịch chờ, ghi hoàn tiền có lý do.
-- Ứng dụng phụ huynh: `apps/parent/src/ai-tutor/AiTutorDirectPurchase.tsx` (tab "Mua trực tiếp" của MH-598, xuất mặc định thành phần nhận mã con): gói của nền tảng theo cấp học, chọn tháng này hoặc tháng sau, mã QR hoặc liên kết thanh toán, giữ chỗ 15 phút, nút giả lập khi cổng là bộ giả lập, lượt còn, giao dịch, biên lai. Lát L1a gắn thành phần vào khung trang và tab chọn nơi mua.
-- Kiểm thử tự động: `apps/api/src/ai-tutor/platform-sales-rules.test.ts` (8 ca), `apps/api/src/ai-tutor/platform-sales.test.ts` (CT-383-L1b-1 đến 7 trên máy chủ API nhiều trường thật: tạo, sửa, ngừng bán gói, vai trò hỗ trợ 403, tên miền trường 404; mua và kích hoạt qua cổng giả lập, biên lai, thông báo; mua trùng gói tháng với nguồn trường; hết hạn giữ chỗ và tiền đến muộn; hoàn tiền một phần, hoàn hai lần 409; hủy; cổng SePay của nền tảng với khóa sai 401, khóa đúng, gửi lặp, sai số tiền), e2e `tests/e2e/142-ai-tutor-direct-purchase.spec.ts` (CT-383-L1b-8, dự án nhiều trường).
+- Ứng dụng phụ huynh: `apps/parent/src/ai-tutor/AiTutorDirectPurchase.tsx` (tab "Mua trực tiếp" của MH-598, xuất mặc định thành phần nhận mã con): gói của nền tảng theo cấp học, chọn tháng này hoặc tháng sau, mã QR hoặc liên kết thanh toán, giữ chỗ 15 phút, nút giả lập khi cổng là bộ giả lập, lượt còn, nâng gói tháng này, giao dịch, biên lai. Lát L1a gắn thành phần vào khung trang và tab chọn nơi mua.
+- Nâng gói giữa tháng (Eric chọn ngày 2026-10-30) dùng hàm chung của YCTD-386 (`upgradeQuote`, `createAiTutorUpgrade`, `applyAiTutorUpgrade`, `cancelAiTutorUpgrade`): phụ huynh chỉ trả phần chênh lệch theo số ngày còn lại của tháng, trả ngay qua cổng của nền tảng; tiền vào thì áp lần nâng, lượt cộng thêm cùng tỉ lệ; hoàn tiền lần nâng đưa gói về gói cũ.
+- Kiểm thử tự động: `apps/api/src/ai-tutor/platform-sales-rules.test.ts` (8 ca), `apps/api/src/ai-tutor/platform-sales.test.ts` (CT-383-L1b-1 đến 7 và 9 trên máy chủ API nhiều trường thật: tạo, sửa, ngừng bán gói, vai trò hỗ trợ 403, tên miền trường 404; mua và kích hoạt qua cổng giả lập, biên lai, thông báo; mua trùng gói tháng với nguồn trường; hết hạn giữ chỗ và tiền đến muộn; hoàn tiền một phần, hoàn hai lần 409; hủy; cổng SePay của nền tảng với khóa sai 401, khóa đúng, gửi lặp, sai số tiền; nâng gói giữa tháng và hoàn tiền lần nâng), e2e `tests/e2e/142-ai-tutor-direct-purchase.spec.ts` (CT-383-L1b-8, dự án nhiều trường).
+- `scripts/gom-thay-doi.mjs`: phiếu làm theo nhiều lát được thêm một tệp mảnh cho mỗi lát (`YCTD-<số>-l<lát>-<tên>.md`, cùng mã YCTD); trước đây bộ kiểm báo trùng mã với tệp của lát L0 còn chờ gom. Kiểm thử `tests/tai-lieu/gom-thay-doi.test.mjs` thêm một ca; `thay_doi_cho_gom/README.md` quy tắc 1.
 
 #### Quyết định
 
@@ -47,7 +49,7 @@ Khi nền tảng là bên bán cho phụ huynh, mã hiện có chưa làm các v
 
 #### Vấn đề tồn đọng
 
-- Nâng gói giữa tháng (chỉ trả phần chênh lệch theo số ngày còn lại) chờ hàm tính tỉ lệ dùng chung của lát L1a.
+- Hoàn tiền giao dịch mua gói tháng không tự hoàn các lần nâng đã trả của cùng gói; kế toán hoàn từng giao dịch nâng (lần nâng gần nhất trước).
 - Thành phần mua trực tiếp chưa hiện ở ứng dụng phụ huynh cho tới khi lát L1a gắn vào khung trang; e2e phần phụ huynh gọi thẳng máy chủ API.
 - Các việc pháp lý và vận hành ở trên.
 
@@ -56,9 +58,9 @@ Khi nền tảng là bên bán cho phụ huynh, mã hiện có chưa làm các v
 ### YCTD-383: Gia sư AI trả phí, lát L1b: nền tảng bán thẳng cho phụ huynh – 2026-10-30
 
 - Lý do: Eric chọn cả hai cách bán (Q1, ngày 2026-10-30); lát L1b là phần nền tảng bán thẳng cho phụ huynh qua cổng thanh toán của nền tảng.
-- Nội dung thay đổi: cổng vận hành tạo, sửa, ngừng bán gói nền tảng; phụ huynh mua cho từng con, trả bằng mã QR hoặc liên kết qua cổng của nền tảng (giả lập trên máy), tiền vào hợp lệ thì kích hoạt, có biên lai trong ứng dụng; hủy, hoàn tiền có ghi người thao tác.
+- Nội dung thay đổi: cổng vận hành tạo, sửa, ngừng bán gói nền tảng; phụ huynh mua cho từng con, trả bằng mã QR hoặc liên kết qua cổng của nền tảng (giả lập trên máy), tiền vào hợp lệ thì kích hoạt, có biên lai trong ứng dụng; nâng gói tháng giữa tháng chỉ trả phần chênh lệch theo số ngày còn lại; hủy, hoàn tiền có ghi người thao tác.
 - Thành phần bị ảnh hưởng: `database/platform/migrations/0251_create_ai_tutor_sales.ts`, `apps/api/src/ai-tutor/platform-sales*.ts`, `apps/api/src/billing/billing.ts`, `apps/api/src/create-application.ts`, `apps/api/src/tenancy-route-policy.ts`, `packages/shared/src/operator-permissions.ts`, `apps/platform` (trang, menu, proxy), `apps/parent/src/ai-tutor/AiTutorDirectPurchase.tsx`, tài liệu 16, 17.
-- Dữ liệu, API, quyền bị ảnh hưởng: bốn bảng mới, hai dãy số ở cơ sở dữ liệu nền tảng; 13 điểm cuối mới; việc vận hành mới `ai-tutor.sales` cho quản trị, kế toán; điểm nhận tiền vào của cổng nền tảng thêm nhánh cho nội dung `GSAI...`.
+- Dữ liệu, API, quyền bị ảnh hưởng: bốn bảng mới, hai dãy số ở cơ sở dữ liệu nền tảng; 14 điểm cuối mới; việc vận hành mới `ai-tutor.sales` cho quản trị, kế toán; điểm nhận tiền vào của cổng nền tảng thêm nhánh cho nội dung `GSAI...`.
 - Ảnh hưởng chức năng cũ: thu phí dịch vụ không đổi (nội dung `HD...` vẫn đối chiếu như cũ, kiểm thử `billing.test.ts` đạt).
 - Kiểm thử cần thực hiện: `apps/api/src/ai-tutor/*.test.ts`, `billing.test.ts`, `tenancy-matrix.test.ts`, `tenancy.test.ts`, e2e 142 (dự án nhiều trường).
 - Mức: Lớn. Người phê duyệt: Eric, ngày 2026-10-30 (phương án, bản mẫu MH-598, MH-600, danh sách lát).
@@ -77,4 +79,4 @@ Khi nền tảng là bên bán cho phụ huynh, mã hiện có chưa làm các v
 
 ## Thêm dòng
 
-| 27_MA_TRAN_TRUY_VET.md | YCTD-369 | YCTD-383 lát L1b | Gia sư AI trả phí, lát L1b: nền tảng bán thẳng cho phụ huynh | {PHIEN_BAN} | chưa cấp | MH-598 (tab Mua trực tiếp), MH-600 | CT-383-L1b-1 đến 7 ở `apps/api/src/ai-tutor/platform-sales.test.ts`, CT-383-L1b-8 ở `tests/e2e/142-ai-tutor-direct-purchase.spec.ts`, `apps/api/src/ai-tutor/platform-sales-rules.test.ts` | PR, commit merge ghi khi gom; tệp mã: `apps/api/src/ai-tutor/platform-sales.ts` và 15 tệp khác | Kiểm thử tự động và e2e 142 đạt trên máy ngày 30/10/2026; CI của PR |
+| 27_MA_TRAN_TRUY_VET.md | YCTD-369 | YCTD-383 lát L1b | Gia sư AI trả phí, lát L1b: nền tảng bán thẳng cho phụ huynh | {PHIEN_BAN} | chưa cấp | MH-598 (tab Mua trực tiếp), MH-600 | CT-383-L1b-1 đến 7 và 9 ở `apps/api/src/ai-tutor/platform-sales.test.ts`, CT-383-L1b-8 ở `tests/e2e/142-ai-tutor-direct-purchase.spec.ts`, `apps/api/src/ai-tutor/platform-sales-rules.test.ts` | PR, commit merge ghi khi gom; tệp mã: `apps/api/src/ai-tutor/platform-sales.ts` và 15 tệp khác | Kiểm thử tự động và e2e 142 đạt trên máy ngày 30/10/2026; CI của PR |

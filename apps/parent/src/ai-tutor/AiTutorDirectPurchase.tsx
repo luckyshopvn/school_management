@@ -64,6 +64,16 @@ interface Overview {
   }>;
   balance: { monthly: number; topUp: number };
   orders: Order[];
+  // Nâng gói tháng đang dùng giữa tháng: phần chênh lệch theo số ngày còn lại, lượt cộng thêm cùng tỉ lệ (máy chủ tính)
+  upgrade_options: Array<{
+    plan_id: string;
+    plan_name: string;
+    from_plan_name: string;
+    price_difference: number;
+    extra_turns: number;
+    remaining_days: number;
+    days_in_month: number;
+  }>;
 }
 
 const STATUS: Record<Order['status'], { label: string; tone: StatusTone }> = {
@@ -266,6 +276,7 @@ export default function AiTutorDirectPurchase({ childId }: { childId: string }) 
           className="flex flex-col gap-2 rounded-lg border border-warning p-3"
         >
           <strong className="text-content">
+            {pending.kind === 'upgrade' ? 'Nâng lên ' : ''}
             {pending.plan_name}
             {pending.period_month ? `, ${monthLabel(pending.period_month)}` : ''}: chờ thanh toán
           </strong>
@@ -296,6 +307,37 @@ export default function AiTutorDirectPurchase({ childId }: { childId: string }) 
           {view.payment.simulated ? (
             <p className="text-label text-text-secondary">Cổng thanh toán giả lập trên máy: không có tiền thật.</p>
           ) : null}
+        </section>
+      ) : null}
+
+      {view.payment.available && !pending && view.upgrade_options.length > 0 ? (
+        <section aria-label="Nâng gói tháng này" className="flex flex-col gap-2">
+          <h3 className="text-content font-semibold">Nâng gói tháng này</h3>
+          {view.upgrade_options.map((option) => (
+            <div key={option.plan_id} className="flex flex-col gap-1 rounded-lg border p-3 text-content">
+              <strong>
+                {option.from_plan_name} lên {option.plan_name}
+              </strong>
+              <span className="text-label text-text-secondary">
+                Còn {option.remaining_days}/{option.days_in_month} ngày của tháng: trả thêm{' '}
+                {money(option.price_difference)}, cộng {option.extra_turns} lượt hỏi.
+              </span>
+              <Button
+                disabled={busy}
+                aria-label={`Nâng lên ${option.plan_name}`}
+                onClick={() =>
+                  void act(() =>
+                    requestJson(`/api/v1/ai-tutor/direct/children/${childId}/upgrades`, {
+                      method: 'POST',
+                      body: JSON.stringify({ plan_id: option.plan_id }),
+                    }),
+                  )
+                }
+              >
+                Nâng gói
+              </Button>
+            </div>
+          ))}
         </section>
       ) : null}
 

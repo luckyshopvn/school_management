@@ -2591,7 +2591,8 @@ Chỉ có ở nền tảng nhiều trường. Phần phụ huynh theo tên miề
 
 | Phương thức | Đường dẫn | Mô tả |
 |---|---|---|
-| GET | /api/v1/ai-tutor/direct/children/{childId} | Phụ huynh: `{ school_level, payment: { available, provider, simulated }, current_month, next_month, plans, subscriptions, balance: { monthly, topUp }, orders }`; gói lọc theo cấp học của lớp đang học |
+| GET | /api/v1/ai-tutor/direct/children/{childId} | Phụ huynh: `{ school_level, payment: { available, provider, simulated }, current_month, next_month, plans, subscriptions, balance: { monthly, topUp }, orders, upgrade_options: [{ subscription_id, from_plan_name, plan_id, plan_name, price_difference, extra_turns, remaining_days, days_in_month }] }`; gói lọc theo cấp học của lớp đang học |
+| POST | /api/v1/ai-tutor/direct/children/{childId}/upgrades | Phụ huynh nâng gói tháng của nền tảng đang dùng trong tháng này `{ plan_id }`: 201 giao dịch `upgrade` chờ thanh toán, số tiền là phần chênh lệch theo số ngày còn lại (YCTD-386); tiền vào thì áp lần nâng, cộng lượt cùng tỉ lệ |
 | POST | /api/v1/ai-tutor/direct/children/{childId}/orders | Phụ huynh mua `{ plan_id, period_month? }` (gói tháng, mặc định tháng này): 201 giao dịch `pending` có `code`, `transfer_content`, `qr_content`, `pending_expires_at` |
 | GET | /api/v1/ai-tutor/direct/orders/{id} | Phụ huynh: một giao dịch, kèm `receipt` khi đã thu, `refund` khi đã hoàn |
 | POST | /api/v1/ai-tutor/direct/orders/{id}/cancel | Phụ huynh hủy giao dịch `pending` |
@@ -2602,7 +2603,7 @@ Chỉ có ở nền tảng nhiều trường. Phần phụ huynh theo tên miề
 | GET | /api/v1/platform-ai-tutor/orders?status= | 200 giao dịch mới nhất: mã, trường, gói, số tiền, trạng thái, số biên lai, số đã hoàn |
 | GET | /api/v1/platform-ai-tutor/orders/{id} | Chi tiết: người mua, biên lai, tiền vào của cổng, hoàn tiền kèm người thao tác |
 | POST | /api/v1/platform-ai-tutor/orders/{id}/cancel | Hủy giao dịch `pending` `{ reason }` |
-| POST | /api/v1/platform-ai-tutor/orders/{id}/refund | Hoàn tiền `{ amount? (mặc định đủ), reason }` cho giao dịch `paid` hoặc `needs_refund`; ghi nhật ký nền tảng |
+| POST | /api/v1/platform-ai-tutor/orders/{id}/refund | Hoàn tiền `{ amount? (mặc định đủ), reason }` cho giao dịch `paid` hoặc `needs_refund`; ghi nhật ký nền tảng. Giao dịch nâng gói: gói về gói trước khi nâng, bớt lượt đã cộng; chỉ hoàn được lần nâng gần nhất (409 nếu đã nâng tiếp) |
 
 ## 18. Quy tắc kiểm tra dữ liệu
 
