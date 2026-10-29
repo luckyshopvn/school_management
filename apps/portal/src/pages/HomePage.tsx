@@ -3,6 +3,7 @@ import { Alert } from '@school-management/ui';
 import { fetchCurrentUser } from '../session/api-client.js';
 import { AppShell } from './AppShell.js';
 import { QuickAccess } from './QuickAccess.js';
+import { RecentPages } from './RecentPages.js';
 import { WorkspaceDashboard } from './WorkspaceDashboard.js';
 
 // Dòng ngày trên tiêu đề trang chủ theo giờ Việt Nam, ví dụ "Thứ Tư, 28/10/2026"
@@ -39,6 +40,7 @@ export function HomePage() {
             <h1 className="text-page-title font-bold text-text">Xin chào, {currentUser.data.full_name}</h1>
           </div>
           <WorkspaceDashboard />
+          <RecentPages />
           <QuickAccess />
         </section>
       )}

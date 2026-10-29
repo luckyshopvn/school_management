@@ -352,7 +352,8 @@ export function ChildrenPage() {
   const queryClient = useQueryClient();
   const unitChoice = useUnitChoice();
   const grid = useGridSettings('children');
-  const [search, setSearch] = useState('');
+  // Mở từ ô tìm chung ở thanh đầu trang (YCTD-337): /children?q=<họ tên> điền sẵn ô tìm
+  const [search, setSearch] = useState(() => new URLSearchParams(window.location.search).get('q') ?? '');
   const [filter, setFilter] = useState<StudentFilter>({});
   const [page, setPage] = useState(1);
   const [openId, setOpenId] = useState<string>();

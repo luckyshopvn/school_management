@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react';
 import { listPortalMenuEntries } from '@school-management/shared';
 import { Link, useLocation } from '@tanstack/react-router';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { WorkspaceContext, WorkspaceSwitcher, useWorkspaceState } from './workspaces.js';
 import { MyWorkHeaderLink } from '../my-work/MyWorkBadge.js';
 import { NotificationBell } from '../notifications/NotificationBell.js';
@@ -11,6 +11,7 @@ import { fetchCurrentUser } from '../session/api-client.js';
 import { useSession } from '../session/session.js';
 import { SideMenu } from './MainMenu.js';
 import { FunctionSearch } from './FunctionSearch.js';
+import { recordRecentPage } from './recent-pages-api.js';
 import { usePortalMenu } from './menu-permissions.js';
 import { UserMenu } from './UserMenu.js';
 import { Alert, Toast } from '@school-management/ui';
@@ -75,6 +76,18 @@ export function AppShell({ children }: { children: ReactNode }) {
       ensure(pageWorkspace);
     }
   }, [pathname, pageWorkspace, ensure]);
+
+  // Ghi trang vừa mở cho nhóm "Hay dùng" (YCTD-337): chỉ trang là mục menu người dùng thấy; lỗi ghi không ảnh hưởng trang
+  const queryClient = useQueryClient();
+  const menuPagePath = pageEntries.find((entry) => entry.node.path === pathname)?.node.path;
+  useEffect(() => {
+    if (!menuPagePath) {
+      return;
+    }
+    recordRecentPage(menuPagePath)
+      .then(() => queryClient.invalidateQueries({ queryKey: ['recent-pages'] }))
+      .catch(() => undefined);
+  }, [menuPagePath, queryClient]);
 
   // Ngăn kéo menu dưới 1280 px: đóng khi chọn trang khác hoặc bấm Esc
   useEffect(() => {

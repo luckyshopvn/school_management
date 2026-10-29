@@ -444,6 +444,8 @@ import { WorkHistoryController, WorkHistoryService } from './staff/work-history.
 import { BonusDeductionsController, BonusDeductionsService } from './payroll/bonus-deductions.js';
 import { IntegrationsController, IntegrationsService } from './integrations/integrations.js';
 import { QuickLinksController, QuickLinksService } from './quick-links/quick-links.js';
+import { RecentPagesController, RecentPagesService } from './recent-pages/recent-pages.js';
+import { GlobalSearchController, GlobalSearchService } from './global-search/global-search.js';
 import { GridSettingsController, GridSettingsService } from './grid-settings/grid-settings.js';
 import { FeedbackController, FeedbackService } from './feedback/feedback.js';
 import { ArchivesController } from './archives/archives.controller.js';
@@ -818,6 +820,8 @@ export class ApplicationModule {
         FiscalPeriodsController,
         IntegrationsController,
         QuickLinksController,
+        RecentPagesController,
+        GlobalSearchController,
         GridSettingsController,
         FeedbackController,
         ArchivesController,
@@ -1166,6 +1170,8 @@ export class ApplicationModule {
         },
         IntegrationsService,
         QuickLinksService,
+        RecentPagesService,
+        GlobalSearchService,
         GridSettingsService,
         FeedbackService,
         ArchivesService,
