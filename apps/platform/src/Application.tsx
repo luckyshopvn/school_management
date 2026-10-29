@@ -191,7 +191,7 @@ function Shell({ accessToken, onLogout }: { accessToken: string; onLogout: () =>
             ) : null}
             {active === 'audit' ? <AuditLogPage token={accessToken} /> : null}
             {active === 'schools' ? <SchoolsPage token={accessToken} role={profile.role} /> : null}
-            {active === 'plans' ? <PlansPage accessToken={accessToken} /> : null}
+            {active === 'plans' ? <PlansPage accessToken={accessToken} role={profile.role} /> : null}
             {active === 'billing' ? <BillingPage accessToken={accessToken} /> : null}
             {active === 'dashboard' ? <DashboardPage token={accessToken} role={profile.role} /> : null}
             {active === 'maintenance' ? <MaintenancePage token={accessToken} role={profile.role} /> : null}

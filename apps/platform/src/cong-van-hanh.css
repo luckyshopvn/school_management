@@ -703,6 +703,10 @@
   font-weight: 600;
 }
 
+.shell-platform fieldset.form-group > :not(legend) {
+  clear: both;
+}
+
 .shell-platform .check {
   display: flex;
   gap: 0.5rem;
