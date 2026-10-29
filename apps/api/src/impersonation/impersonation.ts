@@ -14,6 +14,7 @@ import { catchError, from, mergeMap, type Observable, throwError } from 'rxjs';
 import { AuthenticatedUser, RequirePermission } from '../authentication/authentication.guard.js';
 import type { CurrentUser } from '../authentication/current-user.js';
 import { Databases } from '../common/databases.js';
+import { matchesRoutingPath } from '../common/request-path.js';
 
 // Đăng nhập thay trên máy chủ API (DT-18 phần 18h, YCTD-145). Dịch vụ định danh mở phiên đăng nhập thay và ghi lần bắt đầu,
 // kết thúc; máy chủ API biết phiên đang đăng nhập thay qua /auth/me và:
@@ -50,7 +51,7 @@ export class ImpersonationInterceptor implements NestInterceptor {
     const path = request.path;
     const method = request.method.toUpperCase();
     const writes = !['GET', 'HEAD', 'OPTIONS'].includes(method);
-    if (writes && BLOCKED_PATHS.some((pattern) => pattern.test(path))) {
+    if (writes && matchesRoutingPath(BLOCKED_PATHS, path)) {
       return throwError(
         () =>
           new ApplicationError(
@@ -62,7 +63,7 @@ export class ImpersonationInterceptor implements NestInterceptor {
           ),
       );
     }
-    if (!writes && !DOWNLOAD_PATH.test(path)) {
+    if (!writes && !matchesRoutingPath([DOWNLOAD_PATH], path)) {
       return next.handle();
     }
     const currentUser = request.currentUser;

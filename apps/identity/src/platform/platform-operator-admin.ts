@@ -13,7 +13,8 @@ import { generateTemporaryPassword } from '../accounts/temporary-password.js';
 import { IDENTITY_CONFIGURATION, TENANCY_RUNTIME, type IdentityConfiguration } from '../common/configuration.js';
 import { createPlatformOperatorWithTotp, enrollOperatorTotp, PlatformOperatorsService } from './platform-operators.js';
 import { PlatformSchoolsService } from './platform-schools.js';
-import { operatorRolesFor } from '@school-management/shared';
+import { SupportSessionsService } from './support-sessions.js';
+import { operatorCan, operatorRolesFor } from '@school-management/shared';
 
 // Nhân viên vận hành của công ty (YCTD-311): quản trị nền tảng tạo tài khoản, phân vai, khóa, mở khóa, cấp lại khóa xác thực hai lớp
 // ở cổng nền tảng. Nhân viên chỉ vào dữ liệu trường qua phiên hỗ trợ trường đã cấp (support_access_grants, support-sessions), không
@@ -61,6 +62,7 @@ export class PlatformOperatorAdminService {
     @Inject(IDENTITY_CONFIGURATION) private readonly configuration: IdentityConfiguration,
     private readonly operators: PlatformOperatorsService,
     private readonly clock: Clock,
+    private readonly support: SupportSessionsService,
   ) {}
 
   private get platform(): Kysely<PlatformDatabase> {
@@ -197,6 +199,15 @@ export class PlatformOperatorAdminService {
       action: 'operator.update',
       details: { operator_id: id, role, status },
     });
+    // Bị khóa hoặc không còn được mở phiên hỗ trợ: phiên vào trường đang mở của người đó kết thúc ngay (YCTD-374)
+    if (updated.status !== 'active' || !operatorCan(updated.role, 'support.open')) {
+      await this.support.endForRequester(
+        'operator',
+        id,
+        updated.status !== 'active' ? 'Nhân viên vận hành bị khóa' : 'Nhân viên vận hành đổi vai trò',
+        { type: 'operator', id: actor.id, name: 'Quản trị nền tảng' },
+      );
+    }
     return updated;
   }
 

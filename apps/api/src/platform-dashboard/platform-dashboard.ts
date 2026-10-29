@@ -38,6 +38,7 @@ import { actorNameOf, originOf, writeAuditLog } from '../common/audit-log.js';
 import { API_CONFIGURATION, TENANCY_RUNTIME, type ApiConfiguration } from '../common/configuration.js';
 import { CurrentSchoolYearResolver } from '../common/current-school-year.js';
 import { Databases } from '../common/databases.js';
+import { matchesRoutingPath } from '../common/request-path.js';
 import { JobScheduler } from '../common/job-scheduler.js';
 import { countActiveStudents, usedStorageMb } from '../common/plan-limits.js';
 
@@ -432,7 +433,7 @@ export class SupportSessionInterceptor implements NestInterceptor {
       void recordSupportAction(tenancy.platform, support.id, { service: 'api', method, route, status }).catch(
         () => undefined,
       );
-    if ((writes && support.scope === 'read') || SUPPORT_BLOCKED_PATHS.some((pattern) => pattern.test(request.path))) {
+    if ((writes && support.scope === 'read') || matchesRoutingPath(SUPPORT_BLOCKED_PATHS, request.path)) {
       record(403);
       return throwError(
         () =>

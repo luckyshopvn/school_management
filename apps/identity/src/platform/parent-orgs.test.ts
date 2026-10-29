@@ -307,5 +307,30 @@ describe('đơn vị cấp trên ở dịch vụ định danh', () => {
         action,
       );
     }
+
+    // Khóa tài khoản cấp trên: phiên xem chi tiết đang mở kết thúc (CT-1713, YCTD-374)
+    assert.equal(
+      (await send(context, { path: '/auth/me', host: platform.school('alpha').host, token: access })).status,
+      200,
+    );
+    const parentUser = await platform.platform
+      .selectFrom('parent_org_users')
+      .select('id')
+      .where('login', '=', 'phong-a-gia')
+      .executeTakeFirstOrThrow();
+    assert.equal(
+      (await operator('POST', `parent-org-users/${parentUser.id}/status`, { status: 'locked' })).status,
+      200,
+    );
+    assert.equal(
+      (await send(context, { path: '/auth/me', host: platform.school('alpha').host, token: access })).status,
+      401,
+    );
+    const ended = await platform.platform
+      .selectFrom('support_sessions')
+      .select('ended_at')
+      .where('access_request_id', '=', requestId)
+      .executeTakeFirstOrThrow();
+    assert.ok(ended.ended_at);
   });
 });
