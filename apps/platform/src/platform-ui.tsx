@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useId, useRef, useState, type ReactNode } from 'react';
+import { useCallback, useEffect, useId, useRef, useState, type KeyboardEvent, type ReactNode } from 'react';
 import { PlatformValidationError } from './platform-api.js';
 
 // Thành phần dùng chung của các trang cổng vận hành thiết kế lại ở YCTD-370 (tài liệu 15 mục thành phần cổng vận hành): hộp thoại thay
@@ -181,6 +181,68 @@ export function ConfirmDialog({
         </button>
       </div>
     </Dialog>
+  );
+}
+
+// Thẻ chọn trong trang: mũi tên trái, phải, Home, End chuyển thẻ; thẻ đang chọn nhận tiêu điểm bằng Tab. Khung nội dung dùng
+// id `the-<khóa>-noi-dung`, gắn nhãn bằng id `the-<khóa>`
+export function TabList<Key extends string>({
+  label,
+  tabs,
+  active,
+  onChange,
+}: {
+  label: string;
+  tabs: ReadonlyArray<{ key: Key; label: string }>;
+  active: Key;
+  onChange: (key: Key) => void;
+}) {
+  function move(event: KeyboardEvent, index: number) {
+    const last = tabs.length - 1;
+    const next =
+      event.key === 'ArrowRight'
+        ? (index + 1) % tabs.length
+        : event.key === 'ArrowLeft'
+          ? (index - 1 + tabs.length) % tabs.length
+          : event.key === 'Home'
+            ? 0
+            : event.key === 'End'
+              ? last
+              : -1;
+    const target = tabs[next];
+    if (!target) {
+      return;
+    }
+    event.preventDefault();
+    onChange(target.key);
+    document.getElementById(`the-${target.key}`)?.focus();
+  }
+  return (
+    <div role="tablist" aria-label={label}>
+      {tabs.map((tab, index) => (
+        <button
+          key={tab.key}
+          type="button"
+          role="tab"
+          id={`the-${tab.key}`}
+          aria-selected={tab.key === active}
+          aria-controls={`the-${tab.key}-noi-dung`}
+          tabIndex={tab.key === active ? 0 : -1}
+          onClick={() => onChange(tab.key)}
+          onKeyDown={(event) => move(event, index)}
+        >
+          {tab.label}
+        </button>
+      ))}
+    </div>
+  );
+}
+
+export function TabPanel({ tab, children }: { tab: string; children: ReactNode }) {
+  return (
+    <div role="tabpanel" id={`the-${tab}-noi-dung`} aria-labelledby={`the-${tab}`}>
+      {children}
+    </div>
   );
 }
 

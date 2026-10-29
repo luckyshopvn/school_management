@@ -197,7 +197,7 @@ function Shell({ accessToken, onLogout }: { accessToken: string; onLogout: () =>
             {active === 'maintenance' ? <MaintenancePage token={accessToken} role={profile.role} /> : null}
             {active === 'parent-orgs' ? <AdminUnitsPage token={accessToken} /> : null}
             {active === 'ai' ? <AiPage accessToken={accessToken} /> : null}
-            {active === 'catalog' ? <CatalogPage token={accessToken} /> : null}
+            {active === 'catalog' ? <CatalogPage token={accessToken} role={profile.role} onNavigate={setActive} /> : null}
             {active === 'market' ? <MarketPage accessToken={accessToken} role={profile.role} /> : null}
             {active === 'operators' ? <OperatorsPage token={accessToken} currentOperatorId={profile.id} /> : null}
           </>
