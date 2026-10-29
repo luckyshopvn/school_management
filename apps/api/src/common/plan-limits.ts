@@ -2,7 +2,7 @@ import type { SchoolYearDatabase, SystemDatabase } from '@school-management/data
 import { ApplicationError, currentTenant } from '@school-management/server';
 import { sql, type Kysely, type Transaction } from 'kysely';
 
-// Giới hạn của gói dịch vụ (DT-SaaS phần S5a, YCTD-194; tài liệu 32 mục 14.5): vượt giới hạn thì chặn **thêm mới** (học sinh vào
+// Giới hạn của gói dịch vụ (DT-SaaS phần S5a, YCTD-194; tài liệu 47 mục 14.5): vượt giới hạn thì chặn **thêm mới** (học sinh vào
 // trạng thái đang học, tệp tải lên, cấp học bật thêm), không chặn xem hay sửa dữ liệu đã có. Trường chưa gán gói hoặc chế độ một
 // trường không giới hạn
 type YearExecutor = Kysely<SchoolYearDatabase> | Transaction<SchoolYearDatabase>;

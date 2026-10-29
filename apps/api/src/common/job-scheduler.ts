@@ -32,7 +32,7 @@ export interface ScheduledJob {
 // hoặc của nơi gọi tick bên ngoài lệch chút thì việc vẫn chạy đúng nhịp
 const DUE_RATIO = 0.9;
 
-// Bộ lập lịch việc nền theo từng trường (DT-SaaS phần S1b, tài liệu 32 mục 14.5). Chế độ một trường không dùng: mỗi lớp việc nền tự
+// Bộ lập lịch việc nền theo từng trường (DT-SaaS phần S1b, tài liệu 47 mục 14.5). Chế độ một trường không dùng: mỗi lớp việc nền tự
 // hẹn giờ như trước. Chế độ nhiều trường: mỗi lớp đăng ký việc ở đây; mỗi lượt tick duyệt các trường đang phục vụ (đồng thời có
 // giới hạn, lệch ngẫu nhiên), chiếm việc đến hạn của từng trường bằng một câu lệnh nguyên tử trên `scheduler_state` ở cơ sở dữ liệu nền
 // tảng nên nhiều bản máy chủ hay tick gọi muộn, gọi trùng đều không chạy trùng, và máy chủ ngủ rồi dậy thì bù ngay lượt đến hạn.

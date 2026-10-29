@@ -5,7 +5,7 @@ import { API_CONFIGURATION, type ApiConfiguration } from '../common/configuratio
 import { Databases } from '../common/databases.js';
 import { decryptSecret, encryptSecret } from '../common/secret-encryption.js';
 
-// Cấu hình kết nối ngoài riêng từng trường (DT-SaaS phần S3, YCTD-195, tài liệu 32 mục 14.5): thanh toán, eSMS, Zalo OA, Facebook, kho
+// Cấu hình kết nối ngoài riêng từng trường (DT-SaaS phần S3, YCTD-195, tài liệu 47 mục 14.5): thanh toán, eSMS, Zalo OA, Facebook, kho
 // tệp. Mỗi kết nối lưu một dòng ở `integration_secrets` của cơ sở dữ liệu hệ thống của trường, giá trị mã hóa bằng khóa của trường;
 // không bao giờ trả lại giá trị đã lưu (chỉ bốn ký tự cuối của giá trị bí mật). Lớp này là nguồn duy nhất cho các bộ nối ngoài
 // (`tenant-connectors.ts`) thay cho đọc biến môi trường ở chế độ nhiều trường

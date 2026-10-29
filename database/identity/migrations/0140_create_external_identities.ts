@@ -1,7 +1,7 @@
 import { sql } from 'kysely';
 import type { Migration } from 'kysely/migration';
 
-// Bộ nối nhà cung cấp định danh bên ngoài theo chuẩn OIDC, sẵn cho VNeID (DT-25, YCTD-225, tài liệu 32 mục 17):
+// Bộ nối nhà cung cấp định danh bên ngoài theo chuẩn OIDC, sẵn cho VNeID (DT-25, YCTD-225, tài liệu 47 mục 17):
 // - `external_identity_providers`: cấu hình của trường cho từng nhà cung cấp nền tảng đã khai (bật tắt, mã ứng dụng riêng, khóa bí mật
 //   mã hóa bằng khóa của trường, nhóm vai trò được dùng, có coi là đạt xác thực hai lớp); có cột `id` để công cụ đổi khóa của S3 tự mã
 //   hóa lại `client_secret_encrypted`.

@@ -1,4 +1,4 @@
-// Nhóm loại thông báo cho tuỳ chọn tắt đẩy và nội dung đẩy (DT-26 phần 26b, YCTD-232; tài liệu 32 mục 18). Nhóm cố định, ánh xạ từ
+// Nhóm loại thông báo cho tuỳ chọn tắt đẩy và nội dung đẩy (DT-26 phần 26b, YCTD-232; tài liệu 47 mục 18). Nhóm cố định, ánh xạ từ
 // `template_code` theo tiền tố; loại không khớp nhóm nào thuộc "Thông báo chung của trường".
 // Nội dung đẩy đi qua máy chủ của nhà cung cấp trình duyệt (Google, Apple, Mozilla) ở nước ngoài và hiện trên màn hình khóa, nên chỉ
 // gồm tiêu đề theo nhóm, tên trường và một câu chung; KHÔNG lấy tiêu đề, nội dung của thông báo (có thể có họ tên, số tiền, điểm, sức

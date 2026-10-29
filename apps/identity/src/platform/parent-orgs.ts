@@ -47,7 +47,7 @@ import { PlatformSchoolsService } from './platform-schools.js';
 import { SupportSessionsService } from './support-sessions.js';
 import { operatorRolesFor, type OperatorCapability } from '@school-management/shared';
 
-// Đơn vị cấp trên ở dịch vụ định danh (DT-SaaS phần S6, YCTD-202; tài liệu 32 mục 14.5 "S6"). Claude tự chọn theo ủy quyền của Eric
+// Đơn vị cấp trên ở dịch vụ định danh (DT-SaaS phần S6, YCTD-202; tài liệu 47 mục 14.5 "S6"). Claude tự chọn theo ủy quyền của Eric
 // ngày 2026-10-11:
 // - người vận hành quản lý cây đơn vị hành chính (thêm, sửa, ngừng, gộp, tách, nạp bộ nút mặc định hoặc tệp danh mục), gắn trường
 //   vào nút quản lý, tạo tài khoản cấp trên (mật khẩu tối thiểu 12 ký tự như tài khoản vận hành, xác thực hai lớp bắt buộc: khóa

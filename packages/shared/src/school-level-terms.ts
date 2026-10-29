@@ -1,6 +1,6 @@
 import type { SchoolLevelCode } from './school-levels.js';
 
-// Nhãn thuật ngữ theo cấp học (DT-19 phần 19c, YCTD-153; tài liệu 32 mục 10.4): Mầm non gọi "Trẻ", "Nhóm lớp"; cấp khác
+// Nhãn thuật ngữ theo cấp học (DT-19 phần 19c, YCTD-153; tài liệu 47 mục 10.4): Mầm non gọi "Trẻ", "Nhóm lớp"; cấp khác
 // gọi "Học sinh", "Lớp". Trang dùng bảng này thay cho chữ ghi cứng; trường chỉ có Mầm non giữ nguyên chữ như trước. Tên
 // bảng, cột (children, classes) không đổi (mục 10.2)
 export interface SchoolLevelTerms {

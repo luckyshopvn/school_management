@@ -4,7 +4,7 @@ import { join, relative, sep } from 'node:path';
 import { describe, it } from 'node:test';
 import { fileURLToPath } from 'node:url';
 
-// Kiểm tĩnh của nền đa thuê bao (DT-SaaS phần S1a, tài liệu 32 mục 14.7 lớp 2): quét mã nguồn, chặn mã mới truy cập cơ sở dữ liệu,
+// Kiểm tĩnh của nền đa thuê bao (DT-SaaS phần S1a, tài liệu 47 mục 14.7 lớp 2): quét mã nguồn, chặn mã mới truy cập cơ sở dữ liệu,
 // Redis, kho tệp ngoài lớp hạ tầng, đọc biến môi trường rải rác, ghép tay khóa của trường. Các chỗ đã có trước S1a nằm trong tệp
 // baseline kèm lý do và do S1b, S3 gỡ dần: tệp mới vi phạm thì kiểm thử đỏ, tệp baseline hết vi phạm mà vẫn nằm trong baseline cũng
 // đỏ (baseline chỉ được co lại). Cập nhật baseline: UPDATE_STATIC_GUARD_BASELINE=1 node --test tenancy/static-guard.test.mjs
@@ -149,7 +149,7 @@ if (process.env.UPDATE_STATIC_GUARD_BASELINE) {
   }
   writeFileSync(
     baselinePath,
-    `${JSON.stringify({ _chu_thich: 'Chỗ vi phạm có trước DT-SaaS S1a, kèm lý do; chỉ được co lại (tài liệu 32 mục 14.7 lớp 2)', rules }, null, 2)}\n`,
+    `${JSON.stringify({ _chu_thich: 'Chỗ vi phạm có trước DT-SaaS S1a, kèm lý do; chỉ được co lại (tài liệu 47 mục 14.7 lớp 2)', rules }, null, 2)}\n`,
   );
 }
 

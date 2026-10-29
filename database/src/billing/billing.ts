@@ -8,7 +8,7 @@ import { aiPricingReady } from './ai-pricing.js';
 import { aiUsageBetween, readPlanAiPricing } from './platform-ai.js';
 import { computeCharges, ruleFromPlanPrices, type BillingUsage, type Charges, type PriceRule } from './pricing.js';
 
-// Thu phí tự động (DT-SaaS phần S5b, YCTD-196; tài liệu 32 mục 14.5): chốt số liệu kỳ, lập hóa đơn, nhận tiền và đối soát, gia hạn và mở
+// Thu phí tự động (DT-SaaS phần S5b, YCTD-196; tài liệu 47 mục 14.5): chốt số liệu kỳ, lập hóa đơn, nhận tiền và đối soát, gia hạn và mở
 // lại trường, nhắc gia hạn, điều chỉnh tay, hóa đơn điện tử. Hàm thư viện trên cơ sở dữ liệu nền tảng, dùng chung cho máy chủ API (việc
 // nền theo trường, trang hóa đơn của trường, gọi lại của cổng), dịch vụ định danh (cổng vận hành) và lệnh `platform`.
 // Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11:

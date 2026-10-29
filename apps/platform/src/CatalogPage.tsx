@@ -9,7 +9,7 @@ import {
 } from './catalog-api.js';
 import { PlatformValidationError, type SupportAccessPolicy } from './platform-api.js';
 
-// Danh mục đơn vị toàn quốc và đăng nhập theo đơn vị ở cổng nền tảng (DT-24, YCTD-220; tài liệu 32 mục 16):
+// Danh mục đơn vị toàn quốc và đăng nhập theo đơn vị ở cổng nền tảng (DT-24, YCTD-220; tài liệu 47 mục 16):
 // - số liệu danh mục, các lần nhập gần đây;
 // - nhập hoặc cập nhật từ CSV (đơn vị hoặc phường, xã), chạy thử trước, báo cáo thêm, sửa, giữ nguyên, bỏ qua và cờ chất lượng;
 // - tra cứu đơn vị theo sở, cấp, cờ, chữ; thấy trường đã khởi tạo gắn với đơn vị;

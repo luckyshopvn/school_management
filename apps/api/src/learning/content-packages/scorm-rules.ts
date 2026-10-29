@@ -4,7 +4,7 @@ import { ruleViolationError, type FieldError } from '@school-management/server';
 import type { ScormStandard } from '@school-management/database';
 import type { CompletionRule, ResultStatus } from '../learning-rules.js';
 
-// Quy tắc thuần của gói SCORM (DT-28 phần 28h, YCTD-278; tài liệu 32 mục 20.7). Claude tự chọn theo ủy quyền của Eric ngày
+// Quy tắc thuần của gói SCORM (DT-28 phần 28h, YCTD-278; tài liệu 47 mục 20.7). Claude tự chọn theo ủy quyền của Eric ngày
 // 2026-10-11, ghi ở YCTD-278:
 // - Gói zip tối đa 200 MB (GD-150), giải nén tối đa 2.000 tệp, 500 MB, mỗi tệp 200 MB; không nhận zip mã hóa, ZIP64, đường dẫn
 //   tuyệt đối hay có `..`; chỉ nhận loại tệp của bài giảng web (trang, mã, kiểu, ảnh, âm thanh, video, phông, dữ liệu).

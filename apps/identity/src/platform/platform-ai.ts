@@ -21,7 +21,7 @@ import { TENANCY_RUNTIME } from '../common/configuration.js';
 import { PlatformOperatorsService } from './platform-operators.js';
 import { operatorRolesFor } from '@school-management/shared';
 
-// Trợ lý AI ở cổng vận hành nền tảng (DT-23 phần 23d, YCTD-214; tài liệu 32 mục 15, GD-102, GD-103): khóa nhà cung cấp AI dùng chung của
+// Trợ lý AI ở cổng vận hành nền tảng (DT-23 phần 23d, YCTD-214; tài liệu 47 mục 15, GD-102, GD-103): khóa nhà cung cấp AI dùng chung của
 // nền tảng (cấu hình `platform`, mã hóa bằng khóa gốc, chỉ trả bốn ký tự cuối), nhà cung cấp và mã mô hình của nền tảng, màn hình thiết lập
 // riêng đơn giá AI của từng gói (token miễn phí mỗi kỳ, đơn giá token vào và ra theo một nghìn token, đơn giá riêng theo mô hình, phí tối
 // thiểu, bước làm tròn; số tiền để trống cho đến khi nhập lúc triển khai), số token đã dùng của từng trường. Chỉ phục vụ ở tên miền của

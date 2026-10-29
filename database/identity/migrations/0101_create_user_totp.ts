@@ -1,7 +1,7 @@
 import { sql } from 'kysely';
 import type { Migration } from 'kysely/migration';
 
-// Xác thực hai lớp tuỳ chọn của người dùng trường (DT-SaaS phần S8b, YCTD-201, tài liệu 32 mục 14.5): khóa TOTP mã hóa bằng khóa mã hóa
+// Xác thực hai lớp tuỳ chọn của người dùng trường (DT-SaaS phần S8b, YCTD-201, tài liệu 47 mục 14.5): khóa TOTP mã hóa bằng khóa mã hóa
 // của trường (được mã hóa lại cùng khi đổi khóa dữ liệu trẻ), chỉ có hiệu lực ở đăng nhập sau khi người dùng xác nhận mã đầu tiên
 // (`confirmed_at`); `last_step` để mỗi mã chỉ dùng một lần
 export const migration: Migration = {

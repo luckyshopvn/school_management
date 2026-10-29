@@ -2,7 +2,7 @@ import { sql } from 'kysely';
 import type { Migration } from 'kysely/migration';
 
 // Cấu hình của nền tảng (tên miền hệ thống, tên sản phẩm, mã trường dành riêng) và tài khoản vận hành nền tảng; tài khoản
-// vận hành không thuộc trường nào (tài liệu 32 mục 14.2)
+// vận hành không thuộc trường nào (tài liệu 47 mục 14.2)
 export const migration: Migration = {
   async up(database) {
     await database.schema

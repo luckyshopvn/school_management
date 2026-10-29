@@ -26,7 +26,7 @@ import type { Request } from 'express';
 import type { Kysely } from 'kysely';
 import { PlatformOperatorsService } from './platform-operators.js';
 
-// Gói dịch vụ ở cổng vận hành nền tảng (DT-SaaS phần S5a, YCTD-194; tài liệu 32 mục 14.5): người vận hành lập gói (phân hệ, giới
+// Gói dịch vụ ở cổng vận hành nền tảng (DT-SaaS phần S5a, YCTD-194; tài liệu 47 mục 14.5): người vận hành lập gói (phân hệ, giới
 // hạn, giá niêm yết cho S5b), gán gói cho trường có ngày hiệu lực, đặt hạn dùng thử, hạn đã trả phí, đổi trạng thái (dùng thử, hoạt
 // động, chỉ đọc, tạm ngưng), chạy chuyển trạng thái theo hạn. Chỉ phục vụ ở tên miền của cổng nền tảng với mã phiên vận hành.
 // Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11

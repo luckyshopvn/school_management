@@ -18,7 +18,7 @@ import {
   type TestUser,
 } from '../test-support.js';
 
-// Dịch vụ định danh ở chế độ nhiều trường (DT-SaaS phần S1a, tài liệu 32 mục 14.7 lớp 3, 6): cơ sở dữ liệu định danh theo trường,
+// Dịch vụ định danh ở chế độ nhiều trường (DT-SaaS phần S1a, tài liệu 47 mục 14.7 lớp 3, 6): cơ sở dữ liệu định danh theo trường,
 // mã phiên mang mã trường, cookie mã làm mới và khóa Redis không lẫn giữa các trường
 
 interface Reply {

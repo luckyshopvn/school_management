@@ -1,7 +1,7 @@
 import type { PortalQuickLinkPath } from './index.js';
 import type { SchoolLevelCode } from './school-levels.js';
 
-// Cây menu ngang của cổng quản trị theo hệ thống của Sở (DT-15 phần 15a, tài liệu 32 mục 3): mỗi phân hệ một menu đánh số
+// Cây menu ngang của cổng quản trị theo hệ thống của Sở (DT-15 phần 15a, tài liệu 47 mục 3): mỗi phân hệ một menu đánh số
 // thứ bậc 1., 1.1., 1.1.1.; số giữ đúng số của Sở ở phân hệ Quản lý giáo dục Mầm non, Cơ sở vật chất, Báo cáo số liệu,
 // Quản trị hệ thống (mục chưa có thì để trống số); phân hệ riêng đánh số liên tục. Mỗi trang chỉ có ở một chỗ. Quyền hiện
 // từng mục do cổng quản trị kiểm tra; máy chủ vẫn kiểm tra quyền ở mọi yêu cầu
@@ -59,7 +59,7 @@ const group = (number: string, label: string, children: PortalMenuNode[]): Porta
   children,
 });
 // Mục chỉ của Tiểu học: nhóm 7 (DT-20 phần 20a) tạm đánh số tiếp sau nhóm cuối của Sở, đánh lại khi khảo sát hệ thống của
-// Sở cấp Tiểu học (tài liệu 32 mục 11.1); 4.8 Bán trú, 4.9 Nề nếp, thi đua lớp (phần 20b; THCS, THPT dùng chung từ 21d)
+// Sở cấp Tiểu học (tài liệu 47 mục 11.1); 4.8 Bán trú, 4.9 Nề nếp, thi đua lớp (phần 20b; THCS, THPT dùng chung từ 21d)
 const primary = (node: PortalMenuNode): PortalMenuNode => ({ ...node, levels: ['TH'] });
 // Mục của THCS, THPT (DT-21 phần 21a): nhóm 7 dùng chung ba cấp; mục riêng cấp THCS, THPT thêm vào nhóm đó
 const secondary = (node: PortalMenuNode, levels: readonly SchoolLevelCode[] = ['THCS', 'THPT']): PortalMenuNode => ({
@@ -311,7 +311,7 @@ export const PORTAL_WORKSPACES: PortalWorkspace[] = [
     ],
   },
   {
-    // Quản lý văn bản và điều hành theo VNPT iOffice (DT-18, tài liệu 32 mục 9; quyết định của Eric ngày 2026-10-19). Phần
+    // Quản lý văn bản và điều hành theo VNPT iOffice (DT-18, tài liệu 47 mục 9; quyết định của Eric ngày 2026-10-19). Phần
     // 18a làm Văn bản đến và Quản trị văn bản; 18b thêm Văn bản đi (nhóm 3); 18c thêm Quản lý công việc, Hồ sơ công việc,
     // Quản lý lịch đơn vị, Báo cáo (nhóm 4 đến 7). Số nhóm, tên mục Claude tự đặt theo menu của iOffice
     key: 'documents',

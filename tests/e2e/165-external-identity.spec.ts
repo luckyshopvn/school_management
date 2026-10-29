@@ -12,7 +12,7 @@ import {
   E2E_PORTAL_PORT,
 } from '../e2e-environment.mjs';
 
-// Bộ nối nhà cung cấp định danh OIDC, sẵn cho VNeID (DT-25, YCTD-225; tài liệu 32 mục 17): luồng máy chủ chạy trên dịch vụ định danh e2e
+// Bộ nối nhà cung cấp định danh OIDC, sẵn cho VNeID (DT-25, YCTD-225; tài liệu 47 mục 17): luồng máy chủ chạy trên dịch vụ định danh e2e
 // thật với nhà cung cấp OIDC giả lập cục bộ (không gọi dịch vụ thật, khóa ký sinh mới mỗi lượt). Nút "Đăng nhập bằng ..." trên màn hình
 // đăng nhập làm sau khi DT-24 gộp; spec này kiểm phần máy chủ: bật theo trường, liên kết bằng mật khẩu, đăng nhập, chữ ký sai, nonce sai,
 // subject đã liên kết với người khác, trường tắt nhà cung cấp

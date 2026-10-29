@@ -13,7 +13,7 @@ import {
 import { copyDatabase } from './school-data-copy.js';
 import type { Actor } from './school-lifecycle.js';
 
-// Chuyển một trường sang nền tảng khác hoặc bố cục khác mà không sửa mã (DT-SaaS phần S9, YCTD-203; tài liệu 32 mục 14.5 "Chuyển
+// Chuyển một trường sang nền tảng khác hoặc bố cục khác mà không sửa mã (DT-SaaS phần S9, YCTD-203; tài liệu 47 mục 14.5 "Chuyển
 // lên VPS không sửa mã"): từ hồ sơ thử nghiệm (bố cục schema ở Neon, Supabase) sang hồ sơ vận hành (bố cục database ở VPS trong
 // nước), hoặc ngược lại. Các bước:
 // 1. trường nguồn phải đang tạm dừng hoặc chỉ đọc để dữ liệu không đổi trong lúc chép;

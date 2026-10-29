@@ -35,7 +35,7 @@ import { PlatformSchoolsService } from './platform-schools.js';
 import { DIRECT_ENTRY_ROLE, SupportSessionsService } from './support-sessions.js';
 import { operatorRolesFor, type OperatorCapability } from '@school-management/shared';
 
-// Danh mục đơn vị toàn quốc ở cổng nền tảng (DT-24, YCTD-220; tài liệu 32 mục 16): xem số liệu và lần nhập, tìm đơn vị (kèm cờ chất
+// Danh mục đơn vị toàn quốc ở cổng nền tảng (DT-24, YCTD-220; tài liệu 47 mục 16): xem số liệu và lần nhập, tìm đơn vị (kèm cờ chất
 // lượng, trường đã gắn), nhập hoặc cập nhật từ CSV (gửi nguyên văn bản tệp, tối đa 20 MB, chạy thử được), gắn trường đã khởi tạo
 // với một đơn vị (mã Bộ), cấu hình tiêu đề và chân trang của trang đăng nhập ở tên miền chung
 export const CATALOG_IMPORT_PATH = '/api/v1/auth/platform/catalog/import';

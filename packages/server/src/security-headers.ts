@@ -1,6 +1,6 @@
 import type { NextFunction, Request, Response } from 'express';
 
-// Tiêu đề bảo mật cho máy chủ API và dịch vụ định danh (DT-SaaS phần S8b, YCTD-201, tài liệu 32 mục 14.5), thêm vào lớp tiêu đề của máy chủ
+// Tiêu đề bảo mật cho máy chủ API và dịch vụ định danh (DT-SaaS phần S8b, YCTD-201, tài liệu 47 mục 14.5), thêm vào lớp tiêu đề của máy chủ
 // chuyển tiếp (Caddy): chặn đoán kiểu nội dung, chặn nhúng khung, bỏ tiêu đề tiết lộ phần mềm, tắt quyền cảm biến, buộc HTTPS khi yêu cầu
 // đến qua HTTPS (HSTS), và không cho lưu đệm phản hồi xác thực (mã phiên). Không đặt CSP vì máy chủ API cũng trả trang HTML của website
 // trường và trang chọn trường (CSP của trang do lớp trình bày đặt)

@@ -13,7 +13,7 @@ import {
   type TestUser,
 } from '../test-support.js';
 
-// Xác thực hai lớp tuỳ chọn theo trường và chính sách mật khẩu theo trường (DT-SaaS phần S8b, YCTD-201; tài liệu 32 mục 14.5, GD-97).
+// Xác thực hai lớp tuỳ chọn theo trường và chính sách mật khẩu theo trường (DT-SaaS phần S8b, YCTD-201; tài liệu 47 mục 14.5, GD-97).
 // Mặc định tắt cả trường nên đăng nhập hiện có không đổi; trường bật thì người dùng tự đăng ký bằng ứng dụng xác thực
 const POLICY_KEYS = ['totp_enabled', 'password_min_length', 'login_max_failed_attempts', 'login_lock_minutes'];
 

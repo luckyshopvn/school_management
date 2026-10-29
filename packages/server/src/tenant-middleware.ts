@@ -28,7 +28,7 @@ function sendError(response: Response, status: number, code: string, message: st
   response.status(status).json({ error: { code, message, details: [] } });
 }
 
-// Đặt ngữ cảnh trường ở đầu yêu cầu của dịch vụ định danh và máy chủ API (tài liệu 32 mục 14.4). Tên miền lạ, trường
+// Đặt ngữ cảnh trường ở đầu yêu cầu của dịch vụ định danh và máy chủ API (tài liệu 47 mục 14.4). Tên miền lạ, trường
 // đang khởi tạo hoặc đã xóa trả 404 chung, không lộ tên trường; trường tạm dừng trả 503
 export function createTenantMiddleware(options: TenantMiddlewareOptions) {
   const isFree = options.isTenantFreePath ?? ((path: string) => DEFAULT_TENANT_FREE_PATHS.has(path));

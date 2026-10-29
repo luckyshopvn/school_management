@@ -48,7 +48,7 @@ import { buildFacilitiesWorkbook, fileStamp, sendWorkbook } from '../facilities/
 import { LIBRARY_RULE_CODE, normalizeScannedCode } from './library-calc.js';
 import { LibraryCore } from './library-core.js';
 
-// Danh mục thư viện trường học (DT-22 phần 22a, YCTD-181; tài liệu 32 mục 13.4): thiết lập (quy định mượn, cấp có học sinh
+// Danh mục thư viện trường học (DT-22 phần 22a, YCTD-181; tài liệu 47 mục 13.4): thiết lập (quy định mượn, cấp có học sinh
 // mượn, ngày giữ chỗ), phân loại ấn phẩm, ấn phẩm, bản sao có số đăng ký cá biệt, tem mã vạch (mã QR), thanh lý, tệp tài liệu
 // số, sổ đăng ký cá biệt. Chỉ người có quyền quản lý thư viện ghi được; mọi cán bộ có quyền xem tra cứu danh mục
 const VIEW = PERMISSION_CODES.schoolLibraryView;

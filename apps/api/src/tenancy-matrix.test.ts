@@ -3,7 +3,7 @@ import { after, before, describe, it } from 'node:test';
 import { PUBLIC_ROUTES } from './tenancy-route-policy.js';
 import { sendWithHost, startMultiTenantApi, type MultiTenantApi } from './tenant-test-support.js';
 
-// Ma trận cách ly ở cấp yêu cầu (DT-SaaS phần S1a, tài liệu 32 mục 14.7 lớp 3): liệt kê TỰ ĐỘNG mọi tuyến của máy chủ API; tuyến
+// Ma trận cách ly ở cấp yêu cầu (DT-SaaS phần S1a, tài liệu 47 mục 14.7 lớp 3): liệt kê TỰ ĐỘNG mọi tuyến của máy chủ API; tuyến
 // nào không khai là công khai ở tenancy-route-policy.ts thì mã phiên của trường A gọi ở tên miền trường B phải bị từ chối 401,
 // không có mã phiên cũng 401, tên miền lạ 404. Thêm tuyến công khai mới mà chưa khai báo thì kiểm thử đỏ
 interface RouteLayer {

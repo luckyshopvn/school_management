@@ -1,7 +1,7 @@
 import { sql } from 'kysely';
 import type { Migration } from 'kysely/migration';
 
-// DT-27 phần 27a (YCTD-251; tài liệu 32 mục 19.2 phần 4, 19.5): giới hạn của gói cho lớp video để chi phí băng thông và lưu trữ đi cùng
+// DT-27 phần 27a (YCTD-251; tài liệu 47 mục 19.2 phần 4, 19.5): giới hạn của gói cho lớp video để chi phí băng thông và lưu trữ đi cùng
 // doanh thu. Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11:
 // - `plans.video_max_minutes`: số phút người dự mỗi tháng (tháng dương lịch, giờ Việt Nam), đo từ nhật ký vào ra phòng ở cơ sở dữ
 //   liệu của trường; vượt thì không mở phòng mới, không cấp mã vào phòng; trống là không giới hạn, 0 là gói không có video;

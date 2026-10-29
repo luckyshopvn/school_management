@@ -1,4 +1,4 @@
-// Phân hệ Tuyển sinh đầu cấp (DT-17 phần 17c, YCTD-134; khảo sát 31 mục 10.2): nhãn và danh sách giá trị dùng chung cho máy
+// Phân hệ Tuyển sinh đầu cấp (DT-17 phần 17c, YCTD-134; khảo sát 46 mục 10.2): nhãn và danh sách giá trị dùng chung cho máy
 // chủ API (lưới, tệp Excel, PDF), cổng quản trị và ứng dụng phụ huynh. Hồ sơ cuối cấp là hồ sơ của trẻ học năm cuối cấp
 // chuẩn bị vào cấp trên; cấp Mầm non là trẻ lớp mẫu giáo 5–6 tuổi chuẩn bị vào lớp 1
 export type FinalYearStatus =
@@ -94,7 +94,7 @@ export const FINAL_YEAR_CHECK_LABELS: Record<FinalYearCheckItem, string> = {
   residence_proof: 'Thiếu hình ảnh thông tin cư trú trên VNeID',
 };
 
-// Tuyển sinh đầu cấp phần 2 (DT-17 phần 17d, YCTD-135; khảo sát 31 mục 10.2.4): tiếp nhận hồ sơ được phân tuyến về trường,
+// Tuyển sinh đầu cấp phần 2 (DT-17 phần 17d, YCTD-135; khảo sát 46 mục 10.2.4): tiếp nhận hồ sơ được phân tuyến về trường,
 // đăng ký trường tiên tiến, thông báo tuyển sinh, chuyển hồ sơ trúng tuyển sang hồ sơ học sinh. Hồ sơ là hồ sơ tuyển sinh
 // của phân hệ Tuyển sinh (YCTD-86); đợt tuyển sinh thêm loại hình và năm học nhận trẻ
 export type AdmissionProgramType = 'general' | 'advanced' | 'survey';

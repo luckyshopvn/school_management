@@ -1,7 +1,7 @@
 import { sql } from 'kysely';
 import type { Migration } from 'kysely/migration';
 
-// Hỏi đáp bài tập của chương trình gia sư (DT-27 phần 27e, YCTD-255; tài liệu 32 mục 19.5, YCTD-270). Câu hỏi, trả lời, xác nhận câu
+// Hỏi đáp bài tập của chương trình gia sư (DT-27 phần 27e, YCTD-255; tài liệu 47 mục 19.5, YCTD-270). Câu hỏi, trả lời, xác nhận câu
 // trả lời, lọc, báo cáo là của bộ máy hỏi đáp 28e (`discussion_threads` loại `question` ở khoá học ghi sẵn của chương trình, 27d1);
 // phần này chỉ thêm phần riêng của gia sư. Số 0201: sau dải 0170 đến 0199 của DT-28 vì khoá ngoại tới bảng của 28e (0182); dải 0150
 // đến 0169 của DT-27 (0158, 0159 của kế hoạch) chạy trước nên không dùng được. Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11:

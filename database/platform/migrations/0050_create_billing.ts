@@ -1,7 +1,7 @@
 import { sql } from 'kysely';
 import type { Migration } from 'kysely/migration';
 
-// Thu phí tự động (DT-SaaS phần S5b, YCTD-196; tài liệu 32 mục 14.5). Khối số giữ sẵn 0050 đến 0059. Claude tự chọn theo ủy quyền của
+// Thu phí tự động (DT-SaaS phần S5b, YCTD-196; tài liệu 47 mục 14.5). Khối số giữ sẵn 0050 đến 0059. Claude tự chọn theo ủy quyền của
 // Eric ngày 2026-10-11 ở những chỗ kế hoạch chưa chốt:
 // - `price_rules`: quy tắc tính phí cấu hình được (Eric chốt 2026-10-25, GD-94): thành phần theo học sinh (bậc thang lũy tiến hoặc
 //   theo bậc cả gói), theo trường (phí cố định mỗi kỳ), theo phân hệ (giá từng phân hệ mỗi kỳ), kết hợp được, mặc định theo học sinh;

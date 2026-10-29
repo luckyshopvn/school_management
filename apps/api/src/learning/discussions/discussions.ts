@@ -32,7 +32,7 @@ import {
   weekCalendar,
 } from './discussion-rules.js';
 
-// Giao tiếp trong lớp và nhóm (DT-28 phần 28e, YCTD-275; tài liệu 32 mục 20.7): thông báo lớp, diễn đàn, hỏi đáp ở lớp học trực
+// Giao tiếp trong lớp và nhóm (DT-28 phần 28e, YCTD-275; tài liệu 47 mục 20.7): thông báo lớp, diễn đàn, hỏi đáp ở lớp học trực
 // tuyến; bảng tin, việc, ghi chú, tệp của không gian học nhóm; hàng chờ báo cáo vi phạm; lịch học tập của học sinh. Quyền lớp học
 // trực tuyến lấy qua cửa của lõi 28b; nhóm lấy từ bộ nhóm 28a. An toàn trẻ em (trường không tắt được): giáo viên của lớp và người
 // lập bộ nhóm luôn thấy mọi nội dung; không có tin nhắn riêng giữa hai học sinh; chữ học sinh viết được lọc thông tin liên lạc;

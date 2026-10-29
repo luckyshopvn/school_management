@@ -2,7 +2,7 @@ import { sql } from 'kysely';
 import type { Migration } from 'kysely/migration';
 
 // Bằng chứng đồng ý xử lý dữ liệu thật và vùng máy chủ (DT-SaaS phần S2, YCTD-193), theo danh sách trường dữ liệu ở
-// tai_lieu/33_HO_SO_PHAP_LY/00_MUC_LUC.md mục 3 (S8a):
+// tai_lieu/48_HO_SO_PHAP_LY/00_MUC_LUC.md mục 3 (S8a):
 // - `school_consents`: một dòng mỗi văn bản đã ký (dpa PL-02, consent PL-03, impact-assessment PL-06, PL-07, risk-acceptance
 //   PL-09), có mã mẫu, phiên bản mẫu, người ký, thời hạn, phạm vi dữ liệu, ảnh chụp vùng máy chủ tại ngày ký, mã băm và khóa
 //   lưu bản quét, ngày nộp cơ quan, ngày rút đồng ý. Trường `consented` phải có đủ bốn loại còn hiệu lực;

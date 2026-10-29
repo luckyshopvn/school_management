@@ -16,7 +16,7 @@ import type { RequestBody } from '../common/request-fields.js';
 import { MarketAccountsService } from './market-accounts.js';
 import { MarketContext } from './market-context.js';
 
-// Xác minh danh tính gia sư và đăng nhập bằng OIDC ở chợ gia sư (DT-27 phần 27g, YCTD-257; tài liệu 32 mục 19.2 "xác minh lý lịch gia
+// Xác minh danh tính gia sư và đăng nhập bằng OIDC ở chợ gia sư (DT-27 phần 27g, YCTD-257; tài liệu 47 mục 19.2 "xác minh lý lịch gia
 // sư ở chợ mở", 19.5). Dùng bộ nối OIDC của DT-25 (chuyển sang packages/server). Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11:
 // - chỉ ứng dụng Gia sư dùng (tên miền của ứng dụng Gia sư); nhà cung cấp khai ở MARKET_IDENTITY_PROVIDERS, ứng dụng đăng ký ở nhà
 //   cung cấp là của chợ;

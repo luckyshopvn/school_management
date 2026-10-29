@@ -21,7 +21,7 @@ import { TenantConnections, type TenantConnectionsOptions } from './tenant-conne
 import { TenantRegistry } from './tenant-registry.js';
 import { databaseHostSettings, readDatabaseHostOptions, type DatabaseHostOptions } from './database-host-adapter.js';
 
-// Cấu hình nền tảng nhiều trường đọc từ biến môi trường của nền tảng (không phải của từng trường, tài liệu 32 mục 14.4).
+// Cấu hình nền tảng nhiều trường đọc từ biến môi trường của nền tảng (không phải của từng trường, tài liệu 47 mục 14.4).
 // Không có PLATFORM_DATABASE_URL thì chế độ một trường: hành vi hiện nay, mọi tên miền thuộc về trường duy nhất
 export interface TenancyConfiguration {
   platformDatabaseUrl: string;
@@ -172,7 +172,7 @@ export class TenancyRuntime {
     };
   }
 
-  // Chạy một việc cho từng trường đang phục vụ, mỗi việc trong ngữ cảnh của trường (DT-SaaS phần S1b, tài liệu 32 mục 14.5): bỏ qua
+  // Chạy một việc cho từng trường đang phục vụ, mỗi việc trong ngữ cảnh của trường (DT-SaaS phần S1b, tài liệu 47 mục 14.5): bỏ qua
   // trường tạm dừng hoặc đang khởi tạo; trường lỗi không chặn trường khác; số trường chạy song song giới hạn, mỗi trường lệch một
   // khoảng ngẫu nhiên để các trường không dồn cùng lúc
   async forEachServingSchool(

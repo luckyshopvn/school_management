@@ -2,7 +2,7 @@ import { sql, type Kysely } from 'kysely';
 import { HCM_ADMINISTRATIVE_UNITS } from '../system/data/hcm-administrative-units.js';
 import type { AdminUnitLevel, AggregateCategory, PlatformDatabase } from '../platform/schema.js';
 
-// Đơn vị cấp trên (DT-SaaS phần S6, YCTD-202; tài liệu 32 mục 14.5 "S6"): hàm dùng chung cho dịch vụ định danh (cây đơn vị, tài
+// Đơn vị cấp trên (DT-SaaS phần S6, YCTD-202; tài liệu 47 mục 14.5 "S6"): hàm dùng chung cho dịch vụ định danh (cây đơn vị, tài
 // khoản cấp trên), máy chủ API (bản chụp tổng hợp, số liệu cho cấp trên) và kiểm thử. Claude tự chọn theo ủy quyền của Eric ngày
 // 2026-10-11:
 // - phạm vi của tài khoản cấp trên là cây con của nút được gán; trường thuộc cây con có mặt trong số liệu của một nhóm khi trường

@@ -9,7 +9,7 @@ import { MarketAccountsService } from './market-accounts.js';
 import { MarketContext, marketNotFound } from './market-context.js';
 import { verifyMarketLinkCode } from './market-link-code.js';
 
-// Hồ sơ con do phụ huynh tạo ở chợ gia sư (DT-27 phần 27f, YCTD-256; tài liệu 32 mục 19.3 "trẻ em trước", GD-135). Claude tự chọn theo
+// Hồ sơ con do phụ huynh tạo ở chợ gia sư (DT-27 phần 27f, YCTD-256; tài liệu 47 mục 19.3 "trẻ em trước", GD-135). Claude tự chọn theo
 // ủy quyền của Eric ngày 2026-10-11:
 // - chỉ tên hiển thị (không cần tên thật), năm sinh, cấp học, lớp; không có số định danh, ảnh, ngày sinh đầy đủ;
 // - tạo hồ sơ con cần đồng ý phiên bản mới nhất của "Đồng ý của cha mẹ cho hồ sơ con" (ghi theo từng con); rút đồng ý thì hồ sơ con

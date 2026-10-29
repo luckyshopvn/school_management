@@ -1,7 +1,7 @@
 import { sql } from 'kysely';
 import type { Migration } from 'kysely/migration';
 
-// Khởi tạo và vòng đời trường (DT-SaaS phần S2, YCTD-193; tài liệu 32 mục 14.5). Claude tự chọn theo ủy quyền của Eric ngày
+// Khởi tạo và vòng đời trường (DT-SaaS phần S2, YCTD-193; tài liệu 47 mục 14.5). Claude tự chọn theo ủy quyền của Eric ngày
 // 2026-10-11:
 // - `schools` thêm thông tin của bước setup (địa chỉ, cấp học, năm học đầu) và mốc vòng đời (tạm dừng, yêu cầu xóa, hạn xóa,
 //   đã xóa, bản ghi chứng minh đã xóa). Xóa vĩnh viễn giữ lại đúng hàng của trường ở trạng thái `deleted` làm bằng chứng;

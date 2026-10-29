@@ -1,7 +1,7 @@
 import { sql } from 'kysely';
 import type { Migration } from 'kysely/migration';
 
-// Xác thực hai lớp bắt buộc của tài khoản vận hành nền tảng (DT-SaaS phần S8b, YCTD-201, tài liệu 32 mục 14.5): khóa TOTP mã hóa bằng khóa
+// Xác thực hai lớp bắt buộc của tài khoản vận hành nền tảng (DT-SaaS phần S8b, YCTD-201, tài liệu 47 mục 14.5): khóa TOTP mã hóa bằng khóa
 // gốc của nền tảng (được bọc lại cùng khi đổi khóa gốc), bước thời gian dùng gần nhất để mỗi mã chỉ dùng một lần
 export const migration: Migration = {
   async up(database) {

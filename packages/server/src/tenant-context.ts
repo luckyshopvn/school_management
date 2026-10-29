@@ -1,6 +1,6 @@
 import { AsyncLocalStorage } from 'node:async_hooks';
 
-// Ngữ cảnh một trường của nền tảng nhiều trường (DT-SaaS phần S1a, tài liệu 32 mục 14). Nằm ở một tệp riêng, không phụ
+// Ngữ cảnh một trường của nền tảng nhiều trường (DT-SaaS phần S1a, tài liệu 47 mục 14). Nằm ở một tệp riêng, không phụ
 // thuộc gói nào khác, để hàm đặt tên khóa (resource-names.ts) và mã nghiệp vụ dùng chung một bộ lưu ngữ cảnh
 
 export type SchoolStatus =

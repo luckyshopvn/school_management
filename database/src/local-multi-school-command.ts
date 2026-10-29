@@ -16,7 +16,7 @@ import { provisionMarketplaceDatabase } from './marketplace/marketplace-database
 import { MARKET_SETTINGS_KEY, readMarketSettings } from './marketplace/market-settings.js';
 import { writeAudit } from './provision-school.js';
 
-// Dựng bản nhiều trường trên máy phát triển, song song với bản một trường (YCTD-310; hướng dẫn ở tai_lieu/32 mục 16.10). Chạy lặp được:
+// Dựng bản nhiều trường trên máy phát triển, song song với bản một trường (YCTD-310; hướng dẫn ở tai_lieu/47 mục 16.10). Chạy lặp được:
 //   pnpm --filter @school-management/database nhieu-truong-cuc-bo --school-code <mã> --school-name <tên> [tùy chọn]
 // Các bước: (1) tạo vai trò platform_local và cơ sở dữ liệu nền tảng riêng (mật khẩu sinh mới, giữ nguyên khi chạy lại); (2) migrate;
 // (3) tạo cơ sở dữ liệu chợ gia sư và vai trò riêng; (4) ghi tệp môi trường riêng (mặc định ../.env.nhieu-truong, phải nằm trong
@@ -32,7 +32,7 @@ import { writeAudit } from './provision-school.js';
 //   --tat-viec-nen                tắt việc nền chạy theo giờ (khi bản một trường còn chạy trên cùng cơ sở dữ liệu)
 //   --root-domain <tên miền>      tên miền chung có ô chọn đơn vị (mặc định truong.localhost)
 //   --api-port, --identity-port   cổng máy chủ API, dịch vụ định danh (mặc định 3100, 3101)
-//   --units <tệp.csv> [--communes <tệp.csv>]   danh mục đơn vị, phường xã (cột như tài liệu 32 mục 16.6); bỏ qua thì không nạp
+//   --units <tệp.csv> [--communes <tệp.csv>]   danh mục đơn vị, phường xã (cột như tài liệu 47 mục 16.6); bỏ qua thì không nạp
 //   --school-domain <tên miền>    tên miền của trường demo (mặc định <mã chữ thường>.<tên miền chung>)
 //   --demo-moet-code <mã> --demo-department <mã sở> --demo-commune <mã phường xã> [--demo-levels MN,TH]
 //                                 đơn vị của trường demo trong danh mục (nguồn demo-local)
@@ -240,7 +240,7 @@ async function main(): Promise<void> {
   } finally {
     await platform.destroy();
   }
-  console.log(`Trang đăng nhập theo đơn vị: http://${rootDomain}:<cổng cổng quản trị>/ (xem tài liệu 32 mục 16.10)`);
+  console.log(`Trang đăng nhập theo đơn vị: http://${rootDomain}:<cổng cổng quản trị>/ (xem tài liệu 47 mục 16.10)`);
 }
 
 main().catch((error: unknown) => {

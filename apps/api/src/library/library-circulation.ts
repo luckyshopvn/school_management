@@ -28,7 +28,7 @@ import { OrganizationScopes } from '../organization/organization-scopes.js';
 import { addDays, lateFine, LIBRARY_RULE_CODE, normalizeScannedCode, overdueDays } from './library-calc.js';
 import { LibraryCore, type LibraryExecutor } from './library-core.js';
 
-// Bạn đọc, mượn trả, đặt trước, phát và thu sách giáo khoa của thư viện (DT-22 phần 22a, YCTD-181; tài liệu 32 mục 13.4).
+// Bạn đọc, mượn trả, đặt trước, phát và thu sách giáo khoa của thư viện (DT-22 phần 22a, YCTD-181; tài liệu 47 mục 13.4).
 // - Thẻ bạn đọc: cán bộ (từ `staff`) và học sinh (từ `children`, lớp hiện tại thuộc cấp có học sinh mượn); cấp thẻ khi đồng bộ
 //   hoặc khi mượn lần đầu, khóa khi nghỉ, chuyển trường, không xóa lịch sử;
 // - mượn: kiểm tra quy định của loại bạn đọc (số bản tối đa, không mượn thêm khi còn bản quá hạn), ấn phẩm cho mượn về, bản

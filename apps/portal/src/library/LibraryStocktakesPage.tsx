@@ -27,7 +27,7 @@ import {
   useToast,
 } from './library-common.js';
 
-// Kiểm kê thư viện (DT-22 phần 22a, tài liệu 32 mục 13.4, YCTD-181): mở đợt cho cả kho hoặc một kệ, quét mã từng bản sao
+// Kiểm kê thư viện (DT-22 phần 22a, tài liệu 47 mục 13.4, YCTD-181): mở đợt cho cả kho hoặc một kệ, quét mã từng bản sao
 // (cảnh báo bản quét trùng, bản ngoài kệ), đối chiếu với sổ ra bản thiếu, thừa, hỏng; đóng đợt rồi xử lý bản thiếu bằng cách
 // đánh dấu mất hoặc thanh lý, có lý do
 

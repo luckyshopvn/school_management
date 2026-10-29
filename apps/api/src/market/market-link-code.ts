@@ -1,6 +1,6 @@
 import { createHmac, timingSafeEqual } from 'node:crypto';
 
-// Mã liên kết hồ sơ con ở chợ với trường (DT-27 phần 27f, YCTD-256; tài liệu 32 mục 19.5 "liên kết với trường"). Cha mẹ đăng nhập ở
+// Mã liên kết hồ sơ con ở chợ với trường (DT-27 phần 27f, YCTD-256; tài liệu 47 mục 19.5 "liên kết với trường"). Cha mẹ đăng nhập ở
 // ứng dụng phụ huynh của trường, chọn con, đồng ý; máy chủ API (trong ngữ cảnh trường) ký mã gồm mã trường, mã học sinh dạng băm, cấp,
 // lớp, hạn 10 phút bằng MARKET_LINK_SECRET. Cha mẹ dán mã ở chợ; chợ kiểm chữ ký và hạn rồi chỉ giữ ba giá trị đó. Chợ không gọi vào
 // trường, không đọc cơ sở dữ liệu của trường

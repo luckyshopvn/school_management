@@ -770,7 +770,7 @@ export function buildBieu01(input: Bieu01Input): Bieu01Result {
 // ---------------------------------------------------------------------------------------------------------------------
 // Thẻ 5. Ngân sách nhà nước theo Biểu 08.ĐN-NSNN, mã 1 đến 71 (khảo sát mục 10.4.2). Ghi chép không có mã 6 nên không có
 // dòng mã 6; tên các mục 2 đến 5 của chi thường xuyên (mã 24–55) chưa ghi được nên đặt "Mục 2" đến "Mục 5", chia như mục 1,
-// chờ đối chiếu biểu của Sở (tài liệu 32 mục 8.3)
+// chờ đối chiếu biểu của Sở (tài liệu 47 mục 8.3)
 export const BUDGET_PENDING_NOTE =
   'Biểu 08.ĐN-NSNN: tên các mục 2 đến 5 của chi thường xuyên (mã 24 đến 55) chưa khảo sát được, đặt "Mục 2" đến "Mục 5", chờ đối chiếu biểu của Sở';
 

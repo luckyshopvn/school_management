@@ -35,7 +35,7 @@ import { CaptchaService } from '../authentication/captcha.service.js';
 import { TokenService } from '../authentication/token.service.js';
 import { IDENTITY_CONFIGURATION, TENANCY_RUNTIME, type IdentityConfiguration } from '../common/configuration.js';
 
-// Tài khoản vận hành nền tảng (DT-SaaS phần S1a, tài liệu 32 mục 14.4, 14.5): đăng nhập riêng của cổng nền tảng, nằm ở cơ sở dữ
+// Tài khoản vận hành nền tảng (DT-SaaS phần S1a, tài liệu 47 mục 14.4, 14.5): đăng nhập riêng của cổng nền tảng, nằm ở cơ sở dữ
 // liệu nền tảng, không thuộc trường nào. Chỉ phục vụ ở tên miền của cổng nền tảng (PLATFORM_CONSOLE_HOST); mã phiên có đối tượng
 // riêng nên máy chủ API và dịch vụ định danh của trường không nhận, và mã phiên của trường không dùng được ở cổng nền tảng
 export const PLATFORM_OPERATOR_LOGIN_PATH = '/api/v1/auth/platform/';
@@ -497,7 +497,7 @@ export async function enrollOperatorTotp(
 }
 
 // Tạo tài khoản vận hành kèm xác thực hai lớp (lệnh dòng lệnh và kiểm thử). Mật khẩu của tài khoản vận hành theo mặc định nền tảng chặt hơn
-// của trường: tối thiểu 12 ký tự (DT-SaaS phần S8b, tài liệu 32 mục 14.5)
+// của trường: tối thiểu 12 ký tự (DT-SaaS phần S8b, tài liệu 47 mục 14.5)
 export const OPERATOR_MINIMUM_PASSWORD_LENGTH = 12;
 
 export async function createPlatformOperatorWithTotp(

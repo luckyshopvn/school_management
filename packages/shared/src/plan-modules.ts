@@ -1,7 +1,7 @@
 import { MENU_PERMISSION_RULES, menuPermissionCodes } from './menu-permissions.js';
 import { listPortalMenuEntries, PORTAL_WORKSPACES, type PortalWorkspaceKey } from './portal-menu.js';
 
-// Phân hệ của gói dịch vụ (DT-SaaS phần S5a, YCTD-194; tài liệu 32 mục 14.5). Phân hệ của gói là phân hệ của cây menu cổng quản
+// Phân hệ của gói dịch vụ (DT-SaaS phần S5a, YCTD-194; tài liệu 47 mục 14.5). Phân hệ của gói là phân hệ của cây menu cổng quản
 // trị (PORTAL_WORKSPACES); quyền `P..` gắn với phân hệ qua bảng ánh xạ tính một nơi ở tệp này từ quy tắc quyền của từng mục menu
 // (MENU_PERMISSION_RULES): quyền dùng ở mục menu của phân hệ nào thì thuộc phân hệ đó. Quyền thuộc nhiều phân hệ thì dùng được khi
 // gói bật một trong các phân hệ đó; quyền không gắn mục menu nào (quyền nền, quyền của ứng dụng giáo viên, phụ huynh) luôn dùng

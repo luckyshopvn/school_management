@@ -25,7 +25,7 @@ import {
   MULTI_TENANT_SPEC,
 } from './e2e-multi-environment.mjs';
 
-// Kiểm thử giao diện nhiều trường (DT-SaaS phần S1a, tài liệu 32 mục 14.7): một dịch vụ định danh, một máy chủ API, một cổng quản trị
+// Kiểm thử giao diện nhiều trường (DT-SaaS phần S1a, tài liệu 47 mục 14.7): một dịch vụ định danh, một máy chủ API, một cổng quản trị
 // phục vụ nhiều trường theo tên miền con `*.e2e.localhost`; nền tảng và các trường giả do e2e-multi-setup.mjs dựng trước mỗi lần chạy.
 // Chạy: pnpm --filter @school-management/tests e2e:multi
 if (existsSync('../.env')) {

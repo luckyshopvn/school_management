@@ -6,7 +6,7 @@ import type { QuestionSnapshot } from '../../exams/exams.js';
 import type { RubricCriterion, RubricLevel } from '../../learning-resources/resource-sharing-rules.js';
 import type { CompletionRule, ResultStatus } from '../learning-rules.js';
 
-// Quy tắc thuần của bài tập trực tuyến (DT-28 phần 28c, YCTD-273; tài liệu 32 mục 20.7). Claude tự chọn theo ủy quyền của Eric
+// Quy tắc thuần của bài tập trực tuyến (DT-28 phần 28c, YCTD-273; tài liệu 47 mục 20.7). Claude tự chọn theo ủy quyền của Eric
 // ngày 2026-10-11, ghi ở YCTD-273:
 // - Điểm của bài là thang 10: tổng điểm các câu (trắc nghiệm máy chấm, tự luận, ảnh, tệp, ghi âm giáo viên chấm) quy về 10 theo
 //   tổng điểm tối đa của phiên bản; chấm theo thang tiêu chí thì quy tổng mức đã chọn về 10 theo điểm tối đa của thang (22h2).

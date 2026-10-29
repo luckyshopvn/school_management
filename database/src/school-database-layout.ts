@@ -6,7 +6,7 @@ import type { SchoolDatabaseKind, SchoolDatabaseLayoutValue } from '../platform/
 import { decryptSecret } from '@school-management/server/tenancy';
 import { VIETNAM_TIMEZONE } from './timezone.js';
 
-// Bố cục cơ sở dữ liệu của một trường (DT-SaaS phần S1a, tài liệu 32 mục 14.4):
+// Bố cục cơ sở dữ liệu của một trường (DT-SaaS phần S1a, tài liệu 47 mục 14.4):
 // - database: mỗi cơ sở dữ liệu riêng của trường, một vai trò PostgreSQL `s_<mã>` sở hữu và là vai trò kết nối duy nhất;
 // - schema: mỗi lược đồ riêng trong một cơ sở dữ liệu dùng chung (hồ sơ thử nghiệm, gói miễn phí giới hạn số cơ sở dữ liệu),
 //   mỗi lược đồ một vai trò riêng chỉ có quyền trên lược đồ đó, `search_path` đặt ở mức vai trò nên mã truy vấn không đổi

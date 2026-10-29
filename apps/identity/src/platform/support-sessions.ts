@@ -51,7 +51,7 @@ import { PlatformOperatorsService } from './platform-operators.js';
 import { PlatformSchoolsService } from './platform-schools.js';
 import { operatorRolesFor } from '@school-management/shared';
 
-// Đăng nhập hỗ trợ của nhân viên nền tảng (DT-SaaS phần S4, YCTD-197; tài liệu 32 mục 14.5 "S4"), mở rộng đăng nhập thay của 18h.
+// Đăng nhập hỗ trợ của nhân viên nền tảng (DT-SaaS phần S4, YCTD-197; tài liệu 47 mục 14.5 "S4"), mở rộng đăng nhập thay của 18h.
 // Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11:
 // - quản trị của trường bật cho phép ở cổng quản trị (bảng support_access_grants ở cơ sở dữ liệu hệ thống của trường): có hạn (mặc
 //   định 24 giờ, tối đa 7 ngày), phạm vi chỉ đọc hoặc toàn quyền, ghi lý do; rút được bất kỳ lúc nào, rút thì phiên đang mở kết thúc
@@ -64,7 +64,7 @@ import { operatorRolesFor } from '@school-management/shared';
 //   support_session_actions; bắt đầu, kết thúc ghi cả nhật ký của trường (nhật ký định danh) và platform_audit_log;
 // - cổng quản trị hiện biểu ngữ "đang trong phiên hỗ trợ" cho nhân viên nền tảng, và báo phiên đang mở cho người dùng của trường.
 export const SUPPORT_RULE_CODE = 'YCTD-197';
-// Quyền vào mọi trường của quản trị nền tảng (DT-24, YCTD-220; tài liệu 32 mục 16; Eric quyết định ngày 2026-10-26): chính sách ở mức
+// Quyền vào mọi trường của quản trị nền tảng (DT-24, YCTD-220; tài liệu 47 mục 16; Eric quyết định ngày 2026-10-26): chính sách ở mức
 // nền tảng (platform_settings.support_access_policy), mặc định `any_school`: tài khoản vận hành vào được mọi trường đã khởi tạo mà
 // không cần trường đồng ý, nhưng bắt buộc nhập lại mã xác thực hai lớp ngay lúc mở, ghi lý do, chọn phạm vi và số giờ (mặc định 2,
 // tối đa 8), ghi nhật ký hai phía như phiên hỗ trợ, trường xem được ở trang Cho phép hỗ trợ, cổng quản trị hiện biểu ngữ "đang truy

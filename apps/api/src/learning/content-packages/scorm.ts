@@ -33,7 +33,7 @@ import {
   type ScormSco,
 } from './scorm-rules.js';
 
-// Gói SCORM (DT-28 phần 28h, YCTD-278; tài liệu 32 mục 20.7). Gói là học liệu loại `scorm` của kho 22h1: tệp zip là một phiên bản
+// Gói SCORM (DT-28 phần 28h, YCTD-278; tài liệu 47 mục 20.7). Gói là học liệu loại `scorm` của kho 22h1: tệp zip là một phiên bản
 // của học liệu (qua `LearningResourcesService.addTypedFileVersion`, duyệt như mọi học liệu), tệp đã giải nén lưu ở kho tệp theo
 // `storageKey('scorm', gói, số thứ tự)`. Hoạt động loại `scorm` của lõi 28b trỏ tới học liệu đã công bố; học sinh mở bài nhận mã
 // truy cập ngắn hạn (trường, gói, hoạt động, học sinh, nguồn gốc trang cha, hạn) ký HMAC; tệp của gói phục vụ ở

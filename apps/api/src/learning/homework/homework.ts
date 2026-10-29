@@ -27,7 +27,7 @@ import {
   type LessonCandidate,
 } from './homework-rules.js';
 
-// Bài về nhà và phụ huynh (DT-28 phần 28f, YCTD-276; tài liệu 32 mục 20.7). Bài về nhà là bài tập 28c ngữ cảnh `homework`: soạn,
+// Bài về nhà và phụ huynh (DT-28 phần 28f, YCTD-276; tài liệu 47 mục 20.7). Bài về nhà là bài tập 28c ngữ cảnh `homework`: soạn,
 // chấm, trả bài, nộp thay của phụ huynh đi qua `AssignmentsService`; phần này lo phần riêng của bài về nhà:
 // - Giao từ sổ đầu bài: tạo hoạt động bài tập trong lớp học trực tuyến của lớp và môn của tiết, gắn `class_log_id`, hạn mặc định là
 //   đầu tiết kế tiếp của môn theo thời khoá biểu; sổ đầu bài hiện bài về nhà của tiết.

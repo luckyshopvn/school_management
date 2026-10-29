@@ -16,7 +16,7 @@ import { DOCUMENT_KIND_LABELS } from './market-accounts.js';
 import { MarketContext } from './market-context.js';
 import { operatorRolesFor } from '@school-management/shared';
 
-// Cấu hình chợ gia sư ở cổng nền tảng (DT-27 phần 27f, YCTD-256; tài liệu 32 mục 19.5 "cấu hình chợ"): bật tắt chợ, tên miền con dành
+// Cấu hình chợ gia sư ở cổng nền tảng (DT-27 phần 27f, YCTD-256; tài liệu 47 mục 19.5 "cấu hình chợ"): bật tắt chợ, tên miền con dành
 // riêng, hạn giữ bản ghi, hạn khiếu nại, tỷ lệ hoa hồng mặc định (dữ liệu cho 27h), đăng phiên bản mới của văn bản pháp lý, số liệu
 // tổng. Chỉ ở tên miền của cổng nền tảng với mã phiên vận hành. Thu tiền thật không bật được (market-settings.ts)
 function view(settings: MarketSettings) {

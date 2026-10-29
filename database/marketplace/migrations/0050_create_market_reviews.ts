@@ -1,7 +1,7 @@
 import { sql } from 'kysely';
 import type { Migration } from 'kysely/migration';
 
-// Đánh giá gia sư, đăng nhập định danh của phụ huynh, con đọc tin nhắn (YCTD-364; thiết kế Eric duyệt ngày 2026-10-28; tài liệu 32 mục
+// Đánh giá gia sư, đăng nhập định danh của phụ huynh, con đọc tin nhắn (YCTD-364; thiết kế Eric duyệt ngày 2026-10-28; tài liệu 47 mục
 // 19.13). Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11:
 // - đánh giá (`market_reviews`): mỗi buổi đã dạy một đánh giá của phụ huynh của buổi; 1 đến 5 sao, bốn tiêu chí không bắt buộc, nhận xét
 //   đã che thông tin liên lạc ngoài; chờ nhân viên nền tảng duyệt rồi mới hiện; gia sư trả lời một lần đánh giá đã hiện;

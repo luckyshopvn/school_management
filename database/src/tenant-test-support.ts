@@ -10,7 +10,7 @@ import { createSchoolDatabaseLayout, type SchoolDatabaseLayout } from './school-
 import { readTenancyConfiguration, TenancyRuntime } from './tenancy-runtime.js';
 import { testAdminDatabaseUrl } from './test-admin.js';
 
-// Nền tảng nhiều trường dựng riêng cho kiểm thử (DT-SaaS phần S1a, tài liệu 32 mục 14.7): cơ sở dữ liệu nền tảng tạm, vài trường
+// Nền tảng nhiều trường dựng riêng cho kiểm thử (DT-SaaS phần S1a, tài liệu 47 mục 14.7): cơ sở dữ liệu nền tảng tạm, vài trường
 // giả với tên miền `<tên>-<hậu tố>.e2e.localhost`, cơ sở dữ liệu và vai trò riêng của lần chạy; gỡ sạch khi đóng. Dùng cho kiểm
 // thử của dịch vụ định danh, máy chủ API và bộ kiểm thử cách ly; không bao giờ đụng cơ sở dữ liệu dùng chung
 export interface TestSchool extends ProvisionedSchool {
@@ -150,7 +150,7 @@ export async function startTenantTestPlatform(
 }
 
 // Có chuỗi `needle` ở bất kỳ ô nào của bất kỳ bảng nào của một cơ sở dữ liệu (hoặc lược đồ) của trường không: quét bằng tài khoản
-// quản trị, giống tìm chuỗi mồi (canary) trong bản chụp cơ sở dữ liệu (tài liệu 32 mục 14.7 lớp 4). Chỉ dùng trong kiểm thử
+// quản trị, giống tìm chuỗi mồi (canary) trong bản chụp cơ sở dữ liệu (tài liệu 47 mục 14.7 lớp 4). Chỉ dùng trong kiểm thử
 export async function textExistsInSchoolDatabase(
   adminUrl: string,
   descriptor: { databaseName: string; schemaName: string | null },

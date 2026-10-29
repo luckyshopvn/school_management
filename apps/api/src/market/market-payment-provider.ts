@@ -1,6 +1,6 @@
 import { createHmac, randomBytes, randomUUID, timingSafeEqual } from 'node:crypto';
 
-// Bộ nối thanh toán của chợ gia sư (DT-27 phần 27h, YCTD-258; tài liệu 32 mục 19.3 "tiền đi theo mô hình"): tiền nằm ở tổ chức có giấy
+// Bộ nối thanh toán của chợ gia sư (DT-27 phần 27h, YCTD-258; tài liệu 47 mục 19.3 "tiền đi theo mô hình"): tiền nằm ở tổ chức có giấy
 // phép, nền tảng chỉ ra lệnh (tạo lệnh thu có giữ, giải ngân chia hoa hồng, hoàn một phần hoặc toàn phần, giữ khi tranh chấp) và nhận sự
 // kiện có chữ ký. Bản này chỉ có bộ giả lập `mock` (quyết định của Eric ngày 2026-10-28: tiền giả lập); nhà cung cấp thật viết theo lớp
 // này khi Eric chọn tổ chức (E-02) và chỉ dùng được khi thu tiền thật bật (chặn đến khi xong E-01 đến E-07)

@@ -13,7 +13,7 @@ import { gradeNumber } from '../learning/homework/homework-rules.js';
 import { MARKET_LINK_LIFETIME_MS, signMarketLinkCode } from './market-link-code.js';
 import { hashStudentForMarket } from './market-tokens.js';
 
-// Phần ở trường của việc liên kết hồ sơ con ở chợ gia sư với trường (DT-27 phần 27f, YCTD-256; tài liệu 32 mục 19.5). Cha mẹ đăng
+// Phần ở trường của việc liên kết hồ sơ con ở chợ gia sư với trường (DT-27 phần 27f, YCTD-256; tài liệu 47 mục 19.5). Cha mẹ đăng
 // nhập ứng dụng phụ huynh của trường, chọn con, bấm "Lấy mã liên kết với Chợ gia sư" (là đồng ý chuyển ba giá trị: mã trường, mã học
 // sinh dạng băm, cấp và lớp); mã hạn 10 phút, ghi nhật ký của trường. Claude tự chọn thay luồng chuyển đăng nhập của DT-24 (chợ chuyển
 // sang tên miền của trường rồi quay lại): mã dán tay không cần chợ biết tên miền của trường, chợ không bao giờ gọi vào trường; luồng

@@ -14,7 +14,7 @@ import type { CurrentUser } from '../authentication/current-user.js';
 import { Databases } from './databases.js';
 import { cacheKey } from './resource-names.js';
 
-// Đọc cấp học của trường qua một chỗ (DT-19 phần 19a, YCTD-151; tài liệu 32 mục 10.4): danh sách cấp, cấp đang bật, cấp
+// Đọc cấp học của trường qua một chỗ (DT-19 phần 19a, YCTD-151; tài liệu 47 mục 10.4): danh sách cấp, cấp đang bật, cấp
 // mặc định, cấp người dùng được xem. Mọi phần sau (khối, lớp, menu, báo cáo, DT-20, DT-21) đọc cấp qua lớp này, không đọc
 // cột rời. Bộ nhớ đệm trong tiến trình, khóa tạo qua cacheKey, sống 30 giây và xóa ngay khi ghi ở tiến trình này (máy chủ
 // API khác thấy thay đổi chậm nhất 30 giây). Bảng trống (chưa chạy migration hệ thống 0023) thì coi trường chỉ có Mầm non

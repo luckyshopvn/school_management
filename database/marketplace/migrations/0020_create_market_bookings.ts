@@ -1,7 +1,7 @@
 import { sql } from 'kysely';
 import type { Migration } from 'kysely/migration';
 
-// Đặt buổi, thanh toán giữ tiền, giải ngân, hoàn tiền, tranh chấp, hoa hồng của chợ gia sư (DT-27 phần 27h, YCTD-258; tài liệu 32 mục
+// Đặt buổi, thanh toán giữ tiền, giải ngân, hoàn tiền, tranh chấp, hoa hồng của chợ gia sư (DT-27 phần 27h, YCTD-258; tài liệu 47 mục
 // 19.5). Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11 và quyết định ngày 2026-10-28 ("làm mã, tiền giả lập"):
 // - buổi lẻ (gói buổi làm sau): giữ chỗ chờ trả tiền có hạn; giá, hoa hồng, môn chụp lại lúc đặt (gia sư sửa hồ sơ không đổi buổi đã đặt);
 // - tiền nằm ở nhà cung cấp thanh toán (`provider`, bản này chỉ `mock`); bảng `market_payments` ghi lệnh thu có giữ, số đã hoàn, số đã giải

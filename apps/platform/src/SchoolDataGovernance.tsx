@@ -11,7 +11,7 @@ import {
   type SchoolDetail,
 } from './platform-api.js';
 
-// Loại dữ liệu, hồ sơ đồng ý, vùng máy chủ của trường đã tạo (YCTD-343; tài liệu 32 mục S2, S9): chuyển `synthetic` sang
+// Loại dữ liệu, hồ sơ đồng ý, vùng máy chủ của trường đã tạo (YCTD-343; tài liệu 47 mục S2, S9): chuyển `synthetic` sang
 // `consented` đi qua cùng cổng hồ sơ đồng ý như bước setup, `production` chỉ sau khi đã chuyển về máy chủ trong nước. Máy chủ
 // quyết định (đủ hồ sơ, chính sách môi trường); trang chỉ hỏi xác nhận rồi hiện lỗi nghiệp vụ máy chủ trả về. Nút chỉ hiện cho vai
 // trò máy chủ cho phép (DATA_GOVERNANCE_ROLES ở apps/identity/src/platform/platform-schools.ts)

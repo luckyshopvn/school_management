@@ -18,7 +18,7 @@ import { Databases } from '../common/databases.js';
 import { FileStorage, S3FileStorage } from '../files/file-storage.js';
 import { buildSchoolDataArchive, schoolArchiveSources } from './school-data-archive.js';
 
-// Lệnh xuất và xóa vĩnh viễn dữ liệu một trường của nền tảng nhiều trường (DT-SaaS phần S2, YCTD-193; tài liệu 32 mục 14.5),
+// Lệnh xuất và xóa vĩnh viễn dữ liệu một trường của nền tảng nhiều trường (DT-SaaS phần S2, YCTD-193; tài liệu 47 mục 14.5),
 // chạy trong ảnh máy chủ API với biến môi trường của máy chủ API và của nền tảng (PLATFORM_DATABASE_URL, PLATFORM_MASTER_KEY,
 // PLATFORM_ADMIN_DATABASE_URL):
 //   node dist/school-data-export/school-lifecycle-command.js export --code <mã> --out <tệp.zip>

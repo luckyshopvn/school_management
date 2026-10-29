@@ -1,7 +1,7 @@
 import type { KpiSchoolLevelCode } from './kpi.js';
 
 // Hồ sơ chuyên môn và Việc của tôi (DT-18 phần 18e, YCTD-142). Kho hồ sơ theo mô tả công khai của GIKIDI Nhà Trường (tài
-// liệu 32 mục 9.4); tên thư mục mặc định, luồng duyệt mặc định của từng thư mục, các nguồn của Việc của tôi do Claude tự chọn
+// liệu 47 mục 9.4); tên thư mục mặc định, luồng duyệt mặc định của từng thư mục, các nguồn của Việc của tôi do Claude tự chọn
 // theo ủy quyền của Eric ngày 2026-10-11
 export const PROFESSIONAL_RULE_CODE = 'YCTD-142';
 export const PROFESSIONAL_MAXIMUM_FILE_BYTES = 20 * 1024 * 1024;

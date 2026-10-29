@@ -1,7 +1,7 @@
 import { sql } from 'kysely';
 import type { Migration } from 'kysely/migration';
 
-// Đơn vị cấp trên (DT-SaaS phần S6, YCTD-202; tài liệu 32 mục 14.5 "S6"):
+// Đơn vị cấp trên (DT-SaaS phần S6, YCTD-202; tài liệu 47 mục 14.5 "S6"):
 // - admin_units: cây đơn vị hành chính cấu hình được (Bộ, Sở, Phòng Văn hóa – Xã hội cấp xã), không ghi cứng địa danh trong mã;
 //   gộp nút giữ lại nút cũ ở trạng thái `merged` kèm nút nhận để tra lịch sử;
 // - schools.admin_unit_id: nút quản lý của trường (thường là Phòng của xã, phường; trường do Sở quản lý gắn thẳng vào Sở);

@@ -1,4 +1,4 @@
-// Cấp học (DT-19 phần 19a, YCTD-151; tài liệu 32 mục 10.2): bốn mã cố định theo Luật Giáo dục, dùng chung cho bảng
+// Cấp học (DT-19 phần 19a, YCTD-151; tài liệu 47 mục 10.2): bốn mã cố định theo Luật Giáo dục, dùng chung cho bảng
 // school_levels, phạm vi cấp của người dùng và các danh mục đã có cột cấp (thiết bị tối thiểu, KPI, kế hoạch giáo dục,
 // website). Thêm cấp phải sửa mã ở đây, không thêm dữ liệu
 export const SCHOOL_LEVEL_CODES = ['MN', 'TH', 'THCS', 'THPT'] as const;
