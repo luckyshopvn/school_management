@@ -2504,7 +2504,7 @@ Eric duyệt bản thiết kế "Chợ gia sư, Gia sư, Cấp trên" ngày 2026
 - **Điểm danh:** mỗi lần vào, ra ghi một dòng (`market_session_attendance`), từ ứng dụng và từ sự kiện của máy chủ video (địa chỉ gọi lại chung `/video/webhook` chuyển phòng `market-*` sang chợ). Điểm danh cộng các khoảng có mặt trong giờ học, bỏ phần trùng khi vào lại; vào lần đầu muộn quá mốc thì tính vắng; đủ tỉ lệ thì đủ buổi. Phụ huynh vào xem không tính.
 - **Gia sư vắng:** gia sư chưa vào phòng quá mốc sau giờ học thì phụ huynh bấm "Báo gia sư vắng"; buổi hủy, hoàn đủ.
 - **Xác nhận buổi:** gia sư xác nhận đã dạy kèm nhận xét gửi phụ huynh và sự cố trong buổi (`market_session_rooms`). Không xác nhận thì việc định kỳ của chợ tự xác nhận sau mốc; hạn khiếu nại tính từ lúc xác nhận.
-- **Mốc:** cấu hình chợ, mặc định theo GD-164. Biểu mẫu chỉnh mốc ở cổng vận hành làm cùng YCTD-363 (đụng `apps/platform`, xếp lượt với phiên đổi giao diện cổng vận hành).
+- **Mốc:** cấu hình chợ, mặc định theo GD-164. Biểu mẫu chỉnh mốc ở trang Chợ gia sư của cổng vận hành làm ở YCTD-363.
 - **Dùng lại:** `VideoRoomProvider` (livekit, mock), `VideoRoom`, `VideoHostPanel` (thêm `recordingLocked`: không có nút dừng ghi), bảng trắng của `packages/ui`.
 - **Lưu ở đâu:** marketplace 0040 (`market_recording_consents`, `market_session_rooms`, `market_session_participants`, `market_session_attendance`).
 - **Kiểm thử:** quy tắc thuần CT-27j-1 (`market-room-rules.test.ts`); máy chủ CT-27i-5 (sửa theo phòng chờ), CT-27j-2 (gia sư vắng, điểm danh, rút đồng ý, tự xác nhận); giao diện CT-27j-3 (spec 199, bộ giả lập lớp video).
@@ -2528,7 +2528,7 @@ Các chức năng còn lại trong bản thiết kế Eric duyệt ngày 2026-10
   - không có điểm cuối gửi tin cho con, không có kênh riêng giữa gia sư và trẻ;
   - thoát chế độ con đọc phải nhập lại mật khẩu của phụ huynh; mỗi lần mở ghi nhật ký.
 - **Gói buổi:** làm ở YCTD-365 (mục 19.14).
-- **Giao diện duyệt đánh giá ở cổng vận hành:** làm cùng YCTD-363.
+- **Giao diện duyệt đánh giá ở cổng vận hành:** làm ở YCTD-363 (trang Chợ gia sư, khối "Đánh giá gia sư chờ duyệt").
 
 ### 19.14 Gói buổi (YCTD-365)
 
