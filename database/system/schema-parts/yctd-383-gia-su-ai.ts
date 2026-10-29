@@ -98,5 +98,37 @@ declare module '../schema.js' {
     ai_tutor_turn_ledger: AiTutorTurnLedgerTable;
     ai_tutor_conversations: AiTutorConversationsTable;
     ai_tutor_messages: AiTutorMessagesTable;
+    ai_tutor_upgrades: AiTutorUpgradesTable;
   }
+}
+
+// Nâng gói tháng giữa tháng, dùng chung cho hai nguồn bán (migration hệ thống 0131_create_ai_tutor_upgrades)
+export interface AiTutorUpgradesTable {
+  id: Generated<string>;
+  subscription_id: string;
+  child_id: string;
+  plan_source: AiTutorPlanSource;
+  from_plan_id: string;
+  from_plan_name: string;
+  from_price: Money;
+  from_turns: number;
+  to_plan_id: string;
+  to_plan_name: string;
+  to_price: Money;
+  to_turns: number;
+  to_allow_images: boolean;
+  remaining_days: number;
+  days_in_month: number;
+  price_difference: Money;
+  extra_turns: number;
+  status: Generated<'pending' | 'applied' | 'cancelled' | 'refunded'>;
+  pending_expires_at: Date | null;
+  buyer_user_id: string;
+  buyer_name: string;
+  external_reference: string | null;
+  applied_at: Date | null;
+  cancelled_at: Date | null;
+  cancel_reason: string | null;
+  created_at: CreatedTimestamp;
+  updated_at: UpdatedTimestamp;
 }
