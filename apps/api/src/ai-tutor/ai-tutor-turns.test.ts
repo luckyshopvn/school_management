@@ -13,6 +13,10 @@ import {
 import type { Kysely } from 'kysely';
 import {
   activateAiTutorSubscription,
+  applyAiTutorUpgrade,
+  cancelAiTutorUpgrade,
+  createAiTutorUpgrade,
+  currentMonthlyTerms,
   aiTutorTurnBalance,
   captureAiTutorTurn,
   createAiTutorSubscription,
@@ -329,5 +333,188 @@ describe('Gia sư AI: đăng ký gói và sổ lượt', () => {
         .execute(),
       /ai_tutor_plans_levels_check/,
     );
+  });
+
+  describe('nâng gói giữa tháng', () => {
+    const advanced = plan({ id: randomUUID(), name: 'Nâng cao', price: 149000, turns: 300, allowImages: true });
+    const upgradeInput = (
+      subscriptionId: string,
+      overrides: Partial<Parameters<typeof createAiTutorUpgrade>[1]> = {},
+    ) => ({
+      subscriptionId,
+      childSchoolLevel: 'THCS' as const,
+      target: advanced,
+      buyerUserId: randomUUID(),
+      buyerName: 'Phụ huynh thử',
+      pendingExpiresAt: null,
+      ...overrides,
+    });
+    const subscription = (id: string) =>
+      system
+        .selectFrom('ai_tutor_subscriptions')
+        .select(['plan_id', 'plan_name', 'allow_images', 'turns', 'used_turns', 'price'])
+        .where('id', '=', id)
+        .executeTakeFirstOrThrow();
+
+    it('ngày 30/10 nâng Cơ bản lên Nâng cao: chênh lệch 4.516 đồng, cộng 13 lượt, đổi gói, cho gửi ảnh; giá mua ban đầu giữ nguyên', async () => {
+      const id = await buyActive(purchase());
+      const held = await holdAiTutorTurn(system, childId, NOW);
+      assert.equal(held.ok && (await captureAiTutorTurn(system, held.entryId, NOW)), true);
+      const created = await createAiTutorUpgrade(system, upgradeInput(id), NOW);
+      assert.equal(created.ok, true);
+      const { upgradeId, quote } = created as {
+        upgradeId: string;
+        quote: { priceDifference: number; extraTurns: number };
+      };
+      assert.equal(quote.priceDifference, 4516);
+      assert.equal(quote.extraTurns, 13);
+      assert.equal((await subscription(id)).turns, 100);
+      assert.equal(await applyAiTutorUpgrade(system, upgradeId, NOW, 'dong-thu-nang'), true);
+      assert.deepEqual(await subscription(id), {
+        plan_id: advanced.id,
+        plan_name: 'Nâng cao',
+        allow_images: true,
+        turns: 113,
+        used_turns: 1,
+        price: '79000.00',
+      });
+      assert.deepEqual(await aiTutorTurnBalance(system, childId, NOW), { monthly: 112, topUp: 0 });
+      assert.deepEqual(await currentMonthlyTerms(system, { id, price: '79000.00', turns: 113 }), {
+        price: 149000,
+        turns: 300,
+      });
+      assert.equal(await applyAiTutorUpgrade(system, upgradeId, NOW, 'lan-hai'), false);
+    });
+
+    it('nâng lần hai tính từ gói đã nâng; nâng lại cùng gói, gói rẻ hơn, khác nguồn thì bị chặn', async () => {
+      const id = await buyActive(purchase());
+      const first = await createAiTutorUpgrade(system, upgradeInput(id), NOW);
+      assert.equal(first.ok && (await applyAiTutorUpgrade(system, first.upgradeId, NOW, null)), true);
+      assert.deepEqual(await createAiTutorUpgrade(system, upgradeInput(id), NOW), { ok: false, code: 'same_plan' });
+      assert.deepEqual(
+        await createAiTutorUpgrade(system, upgradeInput(id, { target: plan({ price: 99000, turns: 400 }) }), NOW),
+        { ok: false, code: 'not_higher' },
+      );
+      assert.deepEqual(
+        await createAiTutorUpgrade(
+          system,
+          upgradeInput(id, { target: plan({ source: 'platform', price: 299000, turns: 600 }) }),
+          NOW,
+        ),
+        { ok: false, code: 'source_mismatch' },
+      );
+      const premium = await createAiTutorUpgrade(
+        system,
+        upgradeInput(id, { target: plan({ name: 'Cao cấp', price: 211000, turns: 610 }) }),
+        NOW,
+      );
+      assert.equal(premium.ok, true);
+      const quote = (
+        premium as { quote: { fromPrice: number; fromTurns: number; priceDifference: number; extraTurns: number } }
+      ).quote;
+      assert.deepEqual(
+        [quote.fromPrice, quote.fromTurns, quote.priceDifference, quote.extraTurns],
+        [149000, 300, 4000, 20],
+      );
+    });
+
+    it('một lần nâng đang chờ thì chặn lần khác; quá hạn giữ chỗ thì bị hủy và không áp được; hủy tay', async () => {
+      const id = await buyActive(purchase());
+      const expiresAt = new Date('2026-10-30T03:15:00Z');
+      const pending = await createAiTutorUpgrade(system, upgradeInput(id, { pendingExpiresAt: expiresAt }), NOW);
+      assert.equal(pending.ok, true);
+      const pendingId = (pending as { upgradeId: string }).upgradeId;
+      assert.deepEqual(await createAiTutorUpgrade(system, upgradeInput(id), NOW), {
+        ok: false,
+        code: 'upgrade_pending',
+      });
+      assert.equal(await applyAiTutorUpgrade(system, pendingId, expiresAt, 'tre'), false);
+      const again = await createAiTutorUpgrade(system, upgradeInput(id), expiresAt);
+      assert.equal(again.ok, true);
+      const old = await system
+        .selectFrom('ai_tutor_upgrades')
+        .select(['status', 'cancel_reason'])
+        .where('id', '=', pendingId)
+        .executeTakeFirstOrThrow();
+      assert.deepEqual(old, { status: 'cancelled', cancel_reason: 'Quá hạn thanh toán' });
+      const againId = (again as { upgradeId: string }).upgradeId;
+      assert.equal(await cancelAiTutorUpgrade(system, againId, 'Phụ huynh bỏ thanh toán', NOW), true);
+      assert.equal(await cancelAiTutorUpgrade(system, againId, 'Lần hai', NOW), false);
+      assert.equal(await applyAiTutorUpgrade(system, againId, NOW, null), false);
+      assert.equal((await subscription(id)).turns, 100);
+    });
+
+    it('không nâng: đăng ký không có, chưa kích hoạt, đã hủy, hết tháng, gói lượt', async () => {
+      assert.deepEqual(await createAiTutorUpgrade(system, upgradeInput(randomUUID()), NOW), {
+        ok: false,
+        code: 'not_found',
+      });
+      const pending = await createAiTutorSubscription(system, purchase(), NOW);
+      const pendingId = (pending as { subscriptionId: string }).subscriptionId;
+      assert.deepEqual(await createAiTutorUpgrade(system, upgradeInput(pendingId), NOW), {
+        ok: false,
+        code: 'not_active',
+      });
+      const active = await buyActive(purchase({ periodMonth: '2026-11-01' }));
+      assert.deepEqual(await createAiTutorUpgrade(system, upgradeInput(active), new Date('2026-12-01T00:00:00Z')), {
+        ok: false,
+        code: 'period_ended',
+      });
+      const topUp = await buyActive(purchase({ plan: plan({ kind: 'top_up', turns: 50 }), periodMonth: null }));
+      assert.deepEqual(await createAiTutorUpgrade(system, upgradeInput(topUp), NOW), {
+        ok: false,
+        code: 'not_monthly',
+      });
+    });
+
+    it('đăng ký bị hủy sau khi ghi lần nâng thì không áp được', async () => {
+      const id = await buyActive(purchase());
+      const created = await createAiTutorUpgrade(system, upgradeInput(id), NOW);
+      await system.updateTable('ai_tutor_subscriptions').set({ status: 'cancelled' }).where('id', '=', id).execute();
+      assert.equal(created.ok && (await applyAiTutorUpgrade(system, created.upgradeId, NOW, null)), false);
+    });
+
+    it('hai lần nâng đồng thời cho cùng một đăng ký: đúng một lần được ghi', async () => {
+      const id = await buyActive(purchase());
+      const results = await Promise.all([
+        createAiTutorUpgrade(system, upgradeInput(id), NOW),
+        createAiTutorUpgrade(system, upgradeInput(id), NOW),
+      ]);
+      assert.equal(results.filter((result) => result.ok).length, 1);
+      assert.deepEqual(
+        results.find((result) => !result.ok),
+        { ok: false, code: 'upgrade_pending' },
+      );
+    });
+
+    it('cơ sở dữ liệu từ chối lần nâng xuống gói rẻ hơn khi ghi thẳng', async () => {
+      const id = await buyActive(purchase());
+      await assert.rejects(
+        system
+          .insertInto('ai_tutor_upgrades')
+          .values({
+            subscription_id: id,
+            child_id: childId,
+            plan_source: 'school',
+            from_plan_id: randomUUID(),
+            from_plan_name: 'Nâng cao',
+            from_price: 149000,
+            from_turns: 300,
+            to_plan_id: randomUUID(),
+            to_plan_name: 'Cơ bản',
+            to_price: 79000,
+            to_turns: 100,
+            to_allow_images: false,
+            remaining_days: 2,
+            days_in_month: 31,
+            price_difference: 0,
+            extra_turns: 0,
+            buyer_user_id: randomUUID(),
+            buyer_name: 'Phụ huynh thử',
+          })
+          .execute(),
+        /ai_tutor_upgrades_terms_check/,
+      );
+    });
   });
 });
