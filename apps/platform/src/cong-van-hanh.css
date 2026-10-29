@@ -782,6 +782,37 @@
   word-break: break-all;
 }
 
+/* Thanh so với hạn mức (YCTD-374) */
+.shell-platform .meter {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 12rem;
+  font-size: 0.875rem;
+}
+
+.shell-platform .meter-track {
+  display: block;
+  height: 8px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: var(--pf-idle-bg);
+}
+
+.shell-platform .meter-track > span {
+  display: block;
+  height: 100%;
+  background: var(--pf-brand);
+}
+
+.shell-platform .meter[data-tone='warn'] .meter-track > span {
+  background: var(--pf-warn);
+}
+
+.shell-platform .meter[data-tone='danger'] .meter-track > span {
+  background: var(--pf-danger);
+}
+
 /* Hộp thoại dùng chung (thay hộp nhập, hộp xác nhận của trình duyệt) */
 .shell-platform dialog {
   width: min(560px, calc(100% - 32px));

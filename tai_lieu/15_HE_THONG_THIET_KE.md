@@ -149,6 +149,7 @@ Lớp ở `apps/platform/src/cong-van-hanh.css`, thành phần React ở `apps/p
 | VH-TP-04 | Thẻ chọn trong trang (`TabList`) | Mũi tên trái, phải, Home, End chuyển thẻ; chỉ thẻ đang chọn nhận tiêu điểm bằng Tab |
 | VH-TP-05 | Ô nhập có gợi ý | Nhãn phía trên, gợi ý chữ phụ cạnh nhãn, lỗi màu T-03 dưới ô, `aria-invalid` |
 | VH-TP-06 | Nút gửi | Đang gửi thì khóa nút, đổi chữ "Đang …", không gửi lặp khi bấm nhiều lần |
+| VH-TP-07 | Thanh so với hạn mức | Chữ "đã dùng / hạn mức (phần trăm)" trên thanh cao 8 điểm ảnh, nền VH-17; dưới 80% màu VH-06, từ 80% chữ cảnh báo VH-16, từ 100% T-03; vai trò `meter` (YCTD-374) |
 
 ## 6. Biểu tượng và hình ảnh
 

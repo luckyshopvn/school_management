@@ -196,7 +196,7 @@ function fixture(role: Role, method: string, path: string): Reply | undefined {
           status: 'active',
           trial_ends_on: null,
           paid_until: null,
-          plan: null,
+          plan: { id: 'p1', code: 'goi-gia', name: 'Gói giả', effective_from: '2030-01-01' },
         },
         {
           id: 's2',
@@ -227,7 +227,7 @@ function fixture(role: Role, method: string, path: string): Reply | undefined {
             code: 'goi-gia',
             name: 'Gói giả',
             status: 'active',
-            ai_max_requests: null,
+            ai_max_requests: 100,
             ai_max_tokens: null,
             configured: false,
             ready: false,
@@ -245,7 +245,22 @@ function fixture(role: Role, method: string, path: string): Reply | undefined {
     };
   }
   if (path === '/ai/usage') {
-    return { body: { rows: [] } };
+    return {
+      body: {
+        rows: [
+          {
+            school_id: 's1',
+            code: 'truong-gia',
+            name: 'Trường giả',
+            config: 'platform',
+            model: 'mo-hinh-gia',
+            requests: 85,
+            input_tokens: 1000,
+            output_tokens: 500,
+          },
+        ],
+      },
+    };
   }
   if (path === '/billing') {
     return {
@@ -610,6 +625,25 @@ test.describe('cổng vận hành đợt 2', () => {
     await expect(table).toContainText('truong-hoa');
     await page.getByRole('searchbox', { name: 'Tìm trường' }).fill('khong-co');
     await expect(page.getByText('Không có trường nào khớp từ tìm')).toBeVisible();
+  });
+
+  test('CT-1707: Trợ lý AI chọn tháng gửi đúng khoảng ngày; thanh so với hạn mức của gói (YCTD-374)', async ({
+    page,
+  }) => {
+    await openConsole(page, 'ke_toan');
+    await openPage(page, 'Trợ lý AI');
+    const quota = page.getByRole('table', { name: 'So với hạn mức của gói' });
+    await expect(quota).toContainText('85 / 100 (85%)');
+    await expect(quota).toContainText('1.500 · không giới hạn');
+    await expect(page.getByRole('meter', { name: 'Yêu cầu AI của truong-gia so với hạn mức' })).toHaveAttribute(
+      'aria-valuenow',
+      '85',
+    );
+    const [request] = await Promise.all([
+      page.waitForRequest((item) => item.url().includes('/ai/usage?from=2030-02-01&to=2030-02-28')),
+      page.getByLabel('Tháng', { exact: true }).fill('2030-02'),
+    ]);
+    expect(request.method()).toBe('GET');
   });
 
   test('CT-1699: tám trang không còn hộp nhập, hộp xác nhận của trình duyệt', () => {
