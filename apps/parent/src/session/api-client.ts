@@ -22,6 +22,17 @@ export interface TokenResponse {
   password_change_required: boolean;
 }
 
+// Ảnh mã xác nhận ở đăng nhập bằng mật khẩu (YCTD-354): máy chủ đòi khi tài khoản đã nhập sai nhiều lần
+export interface CaptchaChallenge {
+  captcha_id: string;
+  image: string;
+}
+
+export interface CaptchaAnswer {
+  captcha_id: string;
+  captcha_text: string;
+}
+
 export interface CurrentUser {
   id: string;
   full_name: string;
@@ -114,13 +125,21 @@ export async function fetchWithSession(path: string): Promise<Response> {
   return attempt();
 }
 
-export async function loginWithPassword(phone: string, password: string): Promise<TokenResponse> {
+export async function loginWithPassword(
+  phone: string,
+  password: string,
+  captcha?: CaptchaAnswer,
+): Promise<TokenResponse> {
   return remember(
     await send<TokenResponse>('/api/v1/auth/login', {
       method: 'POST',
-      body: JSON.stringify({ login: phone, password, channel: 'parent' }),
+      body: JSON.stringify({ login: phone, password, channel: 'parent', ...captcha }),
     }),
   );
+}
+
+export function issueCaptcha(): Promise<CaptchaChallenge> {
+  return send<CaptchaChallenge>('/api/v1/auth/captcha', { method: 'POST', body: JSON.stringify({}) });
 }
 
 export function requestOneTimeCode(phone: string): Promise<{ message: string; expires_in_seconds: number }> {
@@ -133,13 +152,28 @@ export async function loginWithOneTimeCode(phone: string, code: string): Promise
   );
 }
 
-export async function changePassword(currentPassword: string, newPassword: string): Promise<TokenResponse> {
+export async function changePassword(
+  currentPassword: string,
+  newPassword: string,
+  otpCode?: string,
+): Promise<TokenResponse> {
   return remember(
     await requestJson<TokenResponse>('/api/v1/auth/change-password', {
       method: 'POST',
-      body: JSON.stringify({ current_password: currentPassword, new_password: newPassword }),
+      body: JSON.stringify({
+        current_password: currentPassword,
+        new_password: newPassword,
+        ...(otpCode ? { otp_code: otpCode } : {}),
+      }),
     }),
   );
+}
+
+// Gửi mã xác nhận tới số điện thoại khi tài khoản còn mật khẩu mặc định (YCTD-323)
+export async function sendChangePasswordCode(): Promise<{ phone: string; expires_in_seconds: number }> {
+  return requestJson<{ phone: string; expires_in_seconds: number }>('/api/v1/auth/change-password/code', {
+    method: 'POST',
+  });
 }
 
 export async function logout(): Promise<void> {

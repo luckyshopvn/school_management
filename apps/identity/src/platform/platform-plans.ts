@@ -1,9 +1,14 @@
 import { Body, Controller, Get, HttpCode, Injectable, Param, Post, Put, Req } from '@nestjs/common';
-import { applyPlanLifecycle, asDateText, writeAudit, type PlatformDatabase } from '@school-management/database';
+import {
+  applyPlanLifecycle,
+  asDateText,
+  writeAudit,
+  type PlatformDatabase,
+  type PlatformOperatorRole,
+} from '@school-management/database';
 import {
   ApplicationError,
   Clock,
-  readBearerToken,
   ruleViolationError,
   validationError,
   type FieldError,
@@ -15,6 +20,7 @@ import {
   PLAN_PRICING_MODES,
   type PlanBillingCycle,
   type PlanPricingMode,
+  operatorRolesFor,
 } from '@school-management/shared';
 import type { Request } from 'express';
 import type { Kysely } from 'kysely';
@@ -193,9 +199,12 @@ export class PlatformPlansService {
   ) {}
 
   // Tên miền của cổng nền tảng và mã phiên vận hành còn hiệu lực
-  async authorize(request: Request): Promise<{ platform: Kysely<PlatformDatabase>; operatorId: string }> {
-    this.operators.assertConsoleHost(request);
-    const operator = await this.operators.me(readBearerToken(request.header('authorization')));
+  // Vai trò được làm việc này theo OPERATOR_PERMISSIONS (YCTD-323)
+  async authorize(
+    request: Request,
+    roles: readonly PlatformOperatorRole[],
+  ): Promise<{ platform: Kysely<PlatformDatabase>; operatorId: string }> {
+    const operator = await this.operators.authorize(request, roles);
     return { platform: this.operators.platformDatabase(), operatorId: operator.id };
   }
 
@@ -408,44 +417,44 @@ export class PlatformPlansController {
 
   @Get('plan-modules')
   async modules(@Req() request: Request) {
-    await this.plans.authorize(request);
+    await this.plans.authorize(request, operatorRolesFor('plans.view'));
     return PLAN_MODULES;
   }
 
   @Get('plans')
   async list(@Req() request: Request) {
-    const { platform } = await this.plans.authorize(request);
+    const { platform } = await this.plans.authorize(request, operatorRolesFor('plans.view'));
     return this.plans.listPlans(platform);
   }
 
   @Post('plans')
   async create(@Body() body: Body_, @Req() request: Request) {
-    const { platform, operatorId } = await this.plans.authorize(request);
+    const { platform, operatorId } = await this.plans.authorize(request, operatorRolesFor('plans.manage'));
     return this.plans.savePlan(platform, operatorId, null, parsePlanInput(body));
   }
 
   @Put('plans/:id')
   async update(@Param('id') id: string, @Body() body: Body_, @Req() request: Request) {
-    const { platform, operatorId } = await this.plans.authorize(request);
+    const { platform, operatorId } = await this.plans.authorize(request, operatorRolesFor('plans.manage'));
     return this.plans.savePlan(platform, operatorId, assertId(id), parsePlanInput(body));
   }
 
   @Get('plan-schools')
   async schools(@Req() request: Request) {
-    const { platform } = await this.plans.authorize(request);
+    const { platform } = await this.plans.authorize(request, operatorRolesFor('plans.view'));
     return this.plans.listSchools(platform);
   }
 
   @Put('plan-schools/:id')
   async updateSchool(@Param('id') id: string, @Body() body: Body_, @Req() request: Request) {
-    const { platform, operatorId } = await this.plans.authorize(request);
+    const { platform, operatorId } = await this.plans.authorize(request, operatorRolesFor('plans.manage'));
     return this.plans.updateSchool(platform, operatorId, assertId(id), body);
   }
 
   @Post('plan-lifecycle')
   @HttpCode(200)
   async lifecycle(@Req() request: Request) {
-    const { platform, operatorId } = await this.plans.authorize(request);
+    const { platform, operatorId } = await this.plans.authorize(request, operatorRolesFor('plans.manage'));
     return this.plans.runLifecycle(platform, operatorId);
   }
 }

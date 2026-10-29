@@ -147,13 +147,28 @@ export function issueCaptcha(): Promise<CaptchaChallenge> {
   return send<CaptchaChallenge>('/api/v1/auth/captcha', { method: 'POST', body: JSON.stringify({}) });
 }
 
-export async function changePassword(currentPassword: string, newPassword: string): Promise<TokenResponse> {
+export async function changePassword(
+  currentPassword: string,
+  newPassword: string,
+  otpCode?: string,
+): Promise<TokenResponse> {
   return remember(
     await requestJson<TokenResponse>('/api/v1/auth/change-password', {
       method: 'POST',
-      body: JSON.stringify({ current_password: currentPassword, new_password: newPassword }),
+      body: JSON.stringify({
+        current_password: currentPassword,
+        new_password: newPassword,
+        ...(otpCode ? { otp_code: otpCode } : {}),
+      }),
     }),
   );
+}
+
+// Gửi mã xác nhận tới số điện thoại khi tài khoản còn mật khẩu mặc định (YCTD-323)
+export async function sendChangePasswordCode(): Promise<{ phone: string; expires_in_seconds: number }> {
+  return requestJson<{ phone: string; expires_in_seconds: number }>('/api/v1/auth/change-password/code', {
+    method: 'POST',
+  });
 }
 
 export async function logout(): Promise<void> {

@@ -33,6 +33,7 @@ import { readLoginPageSettings } from '../directory/unit-directory.js';
 import { CatalogProvisioningService } from './catalog-provisioning.js';
 import { PlatformSchoolsService } from './platform-schools.js';
 import { DIRECT_ENTRY_ROLE, SupportSessionsService } from './support-sessions.js';
+import { operatorRolesFor, type OperatorCapability } from '@school-management/shared';
 
 // Danh mục đơn vị toàn quốc ở cổng nền tảng (DT-24, YCTD-220; tài liệu 32 mục 16): xem số liệu và lần nhập, tìm đơn vị (kèm cờ chất
 // lượng, trường đã gắn), nhập hoặc cập nhật từ CSV (gửi nguyên văn bản tệp, tối đa 20 MB, chạy thử được), gắn trường đã khởi tạo
@@ -213,26 +214,27 @@ export class PlatformCatalogController {
     private readonly support: SupportSessionsService,
   ) {}
 
-  private async actor(request: Request) {
-    const actor = await this.schools.actor(request);
+  // Mặc định chỉ việc sửa danh mục và trang đăng nhập (YCTD-323)
+  private async actor(request: Request, capability: OperatorCapability = 'catalog.manage') {
+    const actor = await this.schools.actor(request, operatorRolesFor(capability));
     return { id: actor.id ?? '', name: actor.name };
   }
 
   @Get('catalog')
   async overview(@Req() request: Request) {
-    await this.actor(request);
+    await this.actor(request, 'catalog.view');
     return this.catalog.overview();
   }
 
   @Get('catalog/units')
   async units(@Query() query: Record<string, unknown>, @Req() request: Request) {
-    await this.actor(request);
+    await this.actor(request, 'catalog.view');
     return this.catalog.units(query);
   }
 
   @Get('catalog/unit')
   async unit(@Query('code') code: string | undefined, @Req() request: Request) {
-    await this.actor(request);
+    await this.actor(request, 'catalog.view');
     return this.catalog.unit(text(code, 40));
   }
 
@@ -268,7 +270,7 @@ export class PlatformCatalogController {
 
   @Get('login-page')
   async loginPage(@Req() request: Request) {
-    await this.actor(request);
+    await this.actor(request, 'catalog.view');
     return this.catalog.loginPage();
   }
 

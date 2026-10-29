@@ -1,0 +1,457 @@
+/* Giao diện cổng vận hành theo thiết kế Eric duyệt ngày 2026-10-29 (YCTD-324): thanh bên xanh đậm chia nhóm, nền xám nhạt, thẻ trắng
+   bo góc. Màu nhấn dùng lại màu thương hiệu của trang đăng nhập (YCTD-312); chữ đạt tương phản 4,5:1 trên nền của nó. Chỉ áp cho
+   .shell-platform: trang của tài khoản cấp trên (.shell) giữ bố cục cũ */
+.shell-platform {
+  --pf-navy: #12304f;
+  --pf-navy-line: #2a4a6e;
+  --pf-nav-text: #dbe6f3;
+  --pf-nav-muted: #a9bcd2;
+  --pf-brand: #055a9a;
+  --pf-brand-strong: #04497d;
+  --pf-page: #f4f6f9;
+  --pf-card: #fff;
+  --pf-border: #dde2e8;
+  --pf-text: #17202a;
+  --pf-muted: #5d6875;
+  --pf-ok-bg: #e3f4ea;
+  --pf-ok: #1d6b43;
+  --pf-info-bg: #e8eef7;
+  --pf-warn-bg: #fdf0d8;
+  --pf-warn: #7a4600;
+  --pf-idle-bg: #eef1f4;
+  --pf-idle: #4a5562;
+  grid-template-columns: 16rem minmax(0, 1fr);
+  grid-template-rows: 1fr;
+  background: var(--pf-page);
+  color: var(--pf-text);
+  line-height: 1.5;
+}
+
+.shell-platform > header {
+  display: none;
+}
+
+.shell-platform nav {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  box-sizing: border-box;
+  overflow-y: auto;
+  gap: 2px;
+  padding: 1.25rem 0.75rem;
+  background: var(--pf-navy);
+  color: var(--pf-nav-text);
+}
+
+.shell-platform nav .brand {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0 0.5rem 1rem;
+  color: #9cc3f0;
+}
+
+.shell-platform nav .brand .menu-label {
+  display: flex;
+  flex-direction: column;
+  color: #e7eef7;
+}
+
+.shell-platform nav .brand small {
+  color: var(--pf-nav-muted);
+  font-size: 0.75rem;
+}
+
+.shell-platform .menu-group {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.shell-platform .menu-group-label {
+  padding: 0.75rem 0.75rem 0.25rem;
+  color: var(--pf-nav-muted);
+  font-size: 0.7rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.shell-platform nav button {
+  min-height: 44px;
+  color: var(--pf-nav-text);
+}
+
+.shell-platform nav button:hover {
+  background: rgb(255 255 255 / 8%);
+}
+
+.shell-platform nav button[aria-current='true'] {
+  background: #1f4e8c;
+  color: #fff;
+  font-weight: 600;
+}
+
+.shell-platform nav .operator {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin-top: auto;
+  padding: 1rem 0.25rem 0;
+  border-top: 1px solid var(--pf-navy-line);
+}
+
+.shell-platform nav .operator-name {
+  padding: 0 0.5rem;
+  font-weight: 600;
+}
+
+.shell-platform nav .operator-role {
+  padding: 0 0.5rem 0.25rem;
+  color: var(--pf-nav-muted);
+  font-size: 0.75rem;
+}
+
+.shell-platform nav .operator button {
+  color: #9cc3f0;
+  font-size: 0.875rem;
+}
+
+.shell-platform main {
+  box-sizing: border-box;
+  max-width: 1240px;
+  padding: 2rem 2.5rem 3rem;
+}
+
+.shell-platform main h1 {
+  margin: 0 0 0.25rem;
+  font-size: 1.6rem;
+  font-weight: 600;
+}
+
+.shell-platform main .lead {
+  margin: 0 0 1.25rem;
+  color: var(--pf-muted);
+}
+
+.shell-platform .card {
+  box-sizing: border-box;
+  min-width: 0;
+  padding: 1.25rem;
+  background: var(--pf-card);
+  border: 1px solid var(--pf-border);
+  border-radius: 12px;
+}
+
+.shell-platform .card > h2 {
+  margin: 0 0 0.75rem;
+  font-size: 1.05rem;
+  font-weight: 600;
+}
+
+.shell-platform table {
+  background: transparent;
+  font-size: 0.875rem;
+}
+
+.shell-platform th {
+  color: var(--pf-muted);
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.shell-platform th,
+.shell-platform td {
+  padding: 0.6rem 0.5rem;
+  border-bottom-color: #eef1f4;
+}
+
+.shell-platform .muted {
+  color: var(--pf-muted);
+  font-size: 0.8rem;
+}
+
+.shell-platform .button-primary,
+.shell-platform .button-secondary {
+  display: inline-flex;
+  align-items: center;
+  min-height: 36px;
+  padding: 0 0.9rem;
+  border-radius: 8px;
+  font: inherit;
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.shell-platform .button-primary {
+  border: 0;
+  background: var(--pf-brand);
+  color: #fff;
+}
+
+.shell-platform .button-primary:hover {
+  background: var(--pf-brand-strong);
+}
+
+.shell-platform .button-secondary {
+  border: 1px solid var(--pf-brand);
+  background: #fff;
+  color: var(--pf-brand);
+}
+
+/* Trạng thái của trường: chữ kèm màu, không chỉ dựa vào màu */
+.shell-platform .status {
+  display: inline-block;
+  padding: 0.1rem 0.6rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.shell-platform .status[data-tone='ok'] {
+  background: var(--pf-ok-bg);
+  color: var(--pf-ok);
+}
+
+.shell-platform .status[data-tone='info'] {
+  background: var(--pf-info-bg);
+  color: var(--pf-brand-strong);
+}
+
+.shell-platform .status[data-tone='warn'] {
+  background: var(--pf-warn-bg);
+  color: var(--pf-warn);
+}
+
+.shell-platform .status[data-tone='idle'] {
+  background: var(--pf-idle-bg);
+  color: var(--pf-idle);
+}
+
+/* Ô chỉ số ở Tổng quan */
+.shell-platform .tiles {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.shell-platform .tile {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.shell-platform .tile strong {
+  font-size: 1.85rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.shell-platform .columns {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+  align-items: flex-start;
+}
+
+.shell-platform .columns > .wide {
+  flex: 3 1 32rem;
+}
+
+.shell-platform .columns > .narrow {
+  display: flex;
+  flex: 2 1 20rem;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.shell-platform .filters {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr));
+  gap: 0.75rem;
+  align-items: end;
+  margin-bottom: 1rem;
+}
+
+.shell-platform .filters label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  font-size: 0.8rem;
+  font-weight: 500;
+}
+
+.shell-platform .filters input,
+.shell-platform .filters select {
+  min-height: 40px;
+  padding: 0 0.6rem;
+  border: 1px solid #cdd5df;
+  border-radius: 8px;
+  background: #fff;
+  font: inherit;
+}
+
+.shell-platform .pager {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.75rem;
+  padding-top: 0.75rem;
+}
+
+.shell-platform .activity {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.shell-platform .activity li {
+  display: flex;
+  flex-direction: column;
+}
+
+/* Thẻ chọn ở trang chi tiết trường */
+.shell-platform [role='tablist'] {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin: 1rem 0 1.25rem;
+  border-bottom: 1px solid var(--pf-border);
+}
+
+.shell-platform [role='tab'] {
+  min-height: 44px;
+  padding: 0 1rem;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  background: none;
+  color: var(--pf-muted);
+  font: inherit;
+  cursor: pointer;
+}
+
+.shell-platform [role='tab'][aria-selected='true'] {
+  border-bottom-color: var(--pf-brand);
+  color: var(--pf-text);
+  font-weight: 600;
+}
+
+/* Công tắc bật, tắt tính năng trả phí */
+.shell-platform button[role='switch'] {
+  position: relative;
+  flex: none;
+  width: 52px;
+  min-width: 52px;
+  height: 30px;
+  min-height: 30px;
+  padding: 0;
+  border: 1px solid #9aa5b1;
+  border-radius: 999px;
+  background: #e3e8ee;
+  cursor: pointer;
+}
+
+.shell-platform button[role='switch']::after {
+  content: '';
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 1px 2px rgb(0 0 0 / 25%);
+}
+
+.shell-platform button[role='switch'][aria-checked='true'] {
+  border-color: var(--pf-brand);
+  background: var(--pf-brand);
+}
+
+.shell-platform button[role='switch'][aria-checked='true']::after {
+  left: 25px;
+}
+
+.shell-platform .feature-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.85rem 0;
+  border-top: 1px solid #eef1f4;
+}
+
+.shell-platform .feature-row > div {
+  flex: 1 1 16rem;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.shell-platform .free-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr));
+  gap: 0.5rem 1.25rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* 768 đến 1279 px: thanh bên chỉ còn biểu tượng; nhóm, thương hiệu, tên nhân viên ẩn chữ */
+@media (min-width: 768px) and (max-width: 1279.98px) {
+  .shell-platform {
+    grid-template-columns: 4.5rem minmax(0, 1fr);
+  }
+
+  .shell-platform .menu-group-label,
+  .shell-platform nav .brand .menu-label,
+  .shell-platform nav .operator .menu-label {
+    display: none;
+  }
+
+  .shell-platform nav .operator button {
+    justify-content: center;
+    padding: 0.25rem;
+    font-size: 0.7rem;
+    text-align: center;
+    white-space: normal;
+  }
+
+  .shell-platform main {
+    padding: 1.5rem;
+  }
+}
+
+/* Dưới 768 px: thanh đầu có nút ☰, thanh bên là ngăn kéo */
+@media (max-width: 767.98px) {
+  .shell-platform {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto 1fr;
+  }
+
+  .shell-platform > header {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    background: var(--pf-navy);
+    color: #fff;
+  }
+
+  .shell-platform nav {
+    position: fixed;
+    height: auto;
+  }
+
+  .shell-platform main {
+    padding: 1rem;
+  }
+}

@@ -1,5 +1,6 @@
 import { Body, Controller, Get, HttpCode, Injectable, Param, Post, Req } from '@nestjs/common';
 import { ApplicationError, validationError, type FieldError } from '@school-management/server';
+import { operatorRolesFor } from '@school-management/shared';
 import type { Request } from 'express';
 import { sql } from 'kysely';
 import { PublicEndpoint } from '../authentication/authentication.guard.js';
@@ -172,10 +173,11 @@ export class MarketReviewsService {
     return { replied: true, warning: filtered.warning };
   }
 
-  // ---------- Nhân viên nền tảng: hàng chờ duyệt đánh giá (giao diện ở cổng vận hành làm cùng YCTD-363)
+  // ---------- Nhân viên nền tảng: hàng chờ duyệt đánh giá (giao diện ở cổng vận hành làm cùng YCTD-363); kiểm duyệt nên cùng vai trò với
+  // kiểm duyệt chợ (quản trị, hỗ trợ; YCTD-323)
 
   async pending(request: Request) {
-    await this.market.operator(request);
+    await this.market.operator(request, operatorRolesFor('market.safety'));
     const rows = await this.market.database
       .selectFrom('market_reviews')
       .innerJoin('market_accounts as tutor', 'tutor.id', 'market_reviews.tutor_account_id')
@@ -195,7 +197,7 @@ export class MarketReviewsService {
   }
 
   async decide(request: Request, id: string, body: RequestBody) {
-    const operatorId = await this.market.operator(request);
+    const operatorId = await this.market.operator(request, operatorRolesFor('market.safety'));
     if (!UUID.test(id)) throw marketNotFound();
     const decision = body?.decision === 'publish' ? 'published' : body?.decision === 'reject' ? 'rejected' : null;
     const note = typeof body?.note === 'string' ? body.note.trim().slice(0, 1000) : '';

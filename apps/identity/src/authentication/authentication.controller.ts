@@ -13,6 +13,7 @@ import { LoginRateLimiter } from './login-rate-limiter.js';
 import { isTotpRequiredError, TotpService } from './totp.service.js';
 import { PasswordResetService } from './password-reset.service.js';
 import { IdentitySettingsService } from '../settings/identity-settings.service.js';
+import { InitialPasswordCodeService } from './initial-password-code.service.js';
 import { OneTimeCodeService } from './one-time-code.service.js';
 import { clearRefreshTokenCookie, readRefreshTokenCookie, setRefreshTokenCookie } from './refresh-token-cookie.js';
 
@@ -53,6 +54,7 @@ export class AuthenticationController {
     private readonly identitySettings: IdentitySettingsService,
     private readonly impersonation: ImpersonationService,
     private readonly clock: Clock,
+    private readonly initialPasswordCodes: InitialPasswordCodeService,
   ) {}
 
   // Thông tin công khai của trang đăng nhập cổng quản trị: đường dây nóng, có luôn hiện mã xác nhận (DT-16 phần 16c)
@@ -113,9 +115,9 @@ export class AuthenticationController {
       throw validationError(errors);
     }
     const channel = assertChannel(body?.channel);
-    // Mã xác nhận áp dụng cho cổng quản trị (DT-16 phần 16c), kênh học sinh (DT-23 phần 23a, cùng cơ chế của S8b) và kênh giáo viên
-    // (YCTD-353): tài khoản cán bộ đăng nhập được ở kênh giáo viên nên phải cùng quy tắc, không thì thử mật khẩu ở đó không gặp mã
-    const portal = channel === 'portal' || channel === 'student' || channel === 'teacher';
+    // Mã xác nhận áp dụng mọi kênh đăng nhập bằng mật khẩu: cổng quản trị (DT-16 phần 16c), học sinh (DT-23 phần 23a, cùng cơ chế của
+    // S8b), giáo viên (YCTD-353), phụ huynh (YCTD-354). Lần sai đếm theo tên đăng nhập, cộng chung mọi kênh, nên đổi kênh không né được mã
+    const portal = channel === 'portal' || channel === 'student' || channel === 'teacher' || channel === 'parent';
     if (portal && (await this.captchaService.requiredForLogin(login))) {
       await this.captchaService.assertSolved(readCaptcha(body));
     }
@@ -232,7 +234,18 @@ export class AuthenticationController {
     if (errors.length > 0) {
       throw validationError(errors);
     }
-    return this.authenticationService.changePassword(request.accessTokenClaims, currentPassword, newPassword);
+    const otpCode =
+      typeof body?.otp_code === 'string' && body.otp_code.trim() !== '' ? body.otp_code.trim() : undefined;
+    return this.authenticationService.changePassword(request.accessTokenClaims, currentPassword, newPassword, otpCode);
+  }
+
+  // Gửi mã xác nhận tới số điện thoại khi tài khoản còn mật khẩu mặc định (YCTD-323); dùng được trong phiên chỉ đổi mật khẩu
+  @Post('change-password/code')
+  @HttpCode(200)
+  @UseGuards(AccessTokenGuard)
+  @AllowedWhilePasswordChangeRequired()
+  async sendChangePasswordCode(@Req() request: AuthenticatedRequest) {
+    return this.initialPasswordCodes.send(request.accessTokenClaims.userId);
   }
 
   // Xác thực hai lớp tuỳ chọn của người dùng trường (DT-SaaS phần S8b, YCTD-201): xem trạng thái, đăng ký, xác nhận, tắt; người quản lý

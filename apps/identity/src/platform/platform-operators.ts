@@ -62,6 +62,8 @@ export interface PlatformOperatorSummary {
   full_name: string;
   // Vai trò nhân viên vận hành (YCTD-311): cổng nền tảng ẩn trang không thuộc vai trò
   role: PlatformOperatorRole;
+  // Còn dùng mật khẩu tạm do quản trị cấp: cổng chỉ cho đổi mật khẩu, mọi trang khác bị chặn ở máy chủ (YCTD-323)
+  must_change_password: boolean;
 }
 
 @Injectable()
@@ -160,7 +162,13 @@ export class PlatformOperatorsService {
     });
     return {
       token: await this.tokenService.signOperatorToken(row.id),
-      operator: { id: row.id, login: row.login, full_name: row.full_name, role: row.role },
+      operator: {
+        id: row.id,
+        login: row.login,
+        full_name: row.full_name,
+        role: row.role,
+        must_change_password: row.must_change_password,
+      },
     };
   }
 
@@ -239,12 +247,92 @@ export class PlatformOperatorsService {
     }
   }
 
+  // Người vận hành của một yêu cầu ở cổng (YCTD-323): đúng tên miền cổng, mã phiên còn hiệu lực, tài khoản đang hoạt động, đã đổi mật khẩu
+  // tạm, và vai trò nằm trong danh sách được làm việc này (bảng OPERATOR_PERMISSIONS); không truyền danh sách thì chỉ quản trị
+  async authorize(
+    request: Request,
+    roles: readonly PlatformOperatorRole[] = ['quan_tri'],
+  ): Promise<{ id: string; full_name: string; role: PlatformOperatorRole }> {
+    this.assertConsoleHost(request);
+    const operatorId = await this.tokenService.verifyOperatorToken(readBearerToken(request.header('authorization')));
+    const row = await this.platform()
+      .selectFrom('platform_operators')
+      .select(['id', 'full_name', 'status', 'role', 'must_change_password'])
+      .where('id', '=', operatorId)
+      .executeTakeFirst();
+    if (!row || row.status !== 'active') {
+      throw unauthenticatedError();
+    }
+    if (row.must_change_password) {
+      throw new ApplicationError('ERR_FORBIDDEN', 'Bạn cần đổi mật khẩu tạm trước khi tiếp tục');
+    }
+    if (!roles.includes(row.role)) {
+      throw new ApplicationError('ERR_FORBIDDEN', 'Vai trò vận hành của bạn không được làm thao tác này');
+    }
+    return { id: row.id, full_name: row.full_name, role: row.role };
+  }
+
+  // Nhân viên vận hành tự đổi mật khẩu (YCTD-323, T-P1): đúng mật khẩu hiện tại và mã hai lớp; mật khẩu mới theo chính sách, từ 12 ký
+  // tự, khác mật khẩu cũ. Dùng được khi còn mật khẩu tạm (đổi xong thì bỏ cờ). Mọi lần đổi, kể cả nhập sai, ghi nhật ký nền tảng
+  async changePassword(request: Request, body: Record<string, unknown> | undefined): Promise<{ changed: true }> {
+    this.assertConsoleHost(request);
+    const platform = this.platform();
+    const operatorId = await this.tokenService.verifyOperatorToken(readBearerToken(request.header('authorization')));
+    const row = await platform
+      .selectFrom('platform_operators')
+      .select(['id', 'status', 'password_hash'])
+      .where('id', '=', operatorId)
+      .executeTakeFirst();
+    if (!row || row.status !== 'active') {
+      throw unauthenticatedError();
+    }
+    const errors: FieldError[] = [];
+    const currentPassword = readText(body, 'current_password', errors);
+    const newPassword = readText(body, 'new_password', errors);
+    const otpCode =
+      typeof body?.otp_code === 'string' && body.otp_code.trim() !== '' ? body.otp_code.trim() : undefined;
+    if (errors.length > 0) {
+      throw validationError(errors);
+    }
+    const ipAddress = request.ip ?? null;
+    const now = this.clock.now();
+    if (!(await verifyPassword(row.password_hash, currentPassword))) {
+      await writeAudit(platform, {
+        actorType: 'operator',
+        actorId: row.id,
+        action: 'operator.password-change-failed',
+        details: { ip: ipAddress },
+      });
+      throw validationError([{ field: 'current_password', message: 'Mật khẩu hiện tại không đúng' }]);
+    }
+    await this.assertSecondFactor(row.id, otpCode, ipAddress, now);
+    const policyErrors = checkPasswordPolicy('new_password', newPassword, OPERATOR_MINIMUM_PASSWORD_LENGTH);
+    if (policyErrors.length > 0) {
+      throw validationError(policyErrors);
+    }
+    if (newPassword === currentPassword) {
+      throw validationError([{ field: 'new_password', message: 'Mật khẩu mới phải khác mật khẩu hiện tại' }]);
+    }
+    await platform
+      .updateTable('platform_operators')
+      .set({ password_hash: await hashPassword(newPassword), must_change_password: false, updated_at: now })
+      .where('id', '=', row.id)
+      .execute();
+    await writeAudit(platform, {
+      actorType: 'operator',
+      actorId: row.id,
+      action: 'operator.password-change',
+      details: { ip: ipAddress },
+    });
+    return { changed: true };
+  }
+
   async me(accessToken: string): Promise<PlatformOperatorSummary & { school_count: number }> {
     const platform = this.platform();
     const operatorId = await this.tokenService.verifyOperatorToken(accessToken);
     const row = await platform
       .selectFrom('platform_operators')
-      .select(['id', 'login', 'full_name', 'status', 'role'])
+      .select(['id', 'login', 'full_name', 'status', 'role', 'must_change_password'])
       .where('id', '=', operatorId)
       .executeTakeFirst();
     if (!row || row.status !== 'active') {
@@ -260,6 +348,7 @@ export class PlatformOperatorsService {
       login: row.login,
       full_name: row.full_name,
       role: row.role,
+      must_change_password: row.must_change_password,
       school_count: Number(count.count),
     };
   }
@@ -331,12 +420,24 @@ export class PlatformAuthController {
     this.operators.assertConsoleHost(request);
     return this.operators.me(readBearerToken(request.header('authorization')));
   }
+
+  @Post('password')
+  @HttpCode(200)
+  async changePassword(@Body() body: Record<string, unknown> | undefined, @Req() request: Request) {
+    return this.operators.changePassword(request, body);
+  }
 }
 
 // Tạo tài khoản vận hành nền tảng (lệnh dòng lệnh và kiểm thử); mật khẩu theo chính sách của hệ thống (BM-03)
 export async function createPlatformOperator(
   platform: Kysely<PlatformDatabase>,
-  input: { login: string; fullName: string; password: string; role?: PlatformOperatorRole },
+  input: {
+    login: string;
+    fullName: string;
+    password: string;
+    role?: PlatformOperatorRole;
+    mustChangePassword?: boolean;
+  },
 ): Promise<string> {
   const login = input.login.trim().toLowerCase();
   if (login.length < 3 || login.length > 64) {
@@ -361,6 +462,7 @@ export async function createPlatformOperator(
       full_name: input.fullName,
       password_hash: await hashPassword(input.password),
       ...(input.role ? { role: input.role } : {}),
+      ...(input.mustChangePassword ? { must_change_password: true } : {}),
     })
     .returning('id')
     .executeTakeFirstOrThrow();
@@ -401,7 +503,13 @@ export const OPERATOR_MINIMUM_PASSWORD_LENGTH = 12;
 export async function createPlatformOperatorWithTotp(
   platform: Kysely<PlatformDatabase>,
   masterKey: Buffer,
-  input: { login: string; fullName: string; password: string; role?: PlatformOperatorRole },
+  input: {
+    login: string;
+    fullName: string;
+    password: string;
+    role?: PlatformOperatorRole;
+    mustChangePassword?: boolean;
+  },
 ): Promise<{ id: string; secret: string; otpauthUri: string; recoveryCodes: string[] }> {
   const id = await createPlatformOperator(platform, input);
   return { id, ...(await enrollOperatorTotp(platform, masterKey, id, input.login.trim().toLowerCase())) };

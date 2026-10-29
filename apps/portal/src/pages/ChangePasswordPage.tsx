@@ -1,16 +1,19 @@
 import { useState, type FormEvent } from 'react';
 import { useNavigate } from '@tanstack/react-router';
-import { Alert, Button, TextField } from '@school-management/ui';
-import { ApiError } from '../session/api-client.js';
+import { Alert, Button, PhoneCodeField, TextField } from '@school-management/ui';
+import { ApiError, sendChangePasswordCode } from '../session/api-client.js';
 import { useSession } from '../session/session.js';
 
-// MH-48 Đổi mật khẩu; quy tắc mật khẩu do máy chủ kiểm tra (BM-03). Mật khẩu hết hạn thì báo rõ lý do (YCTD-110)
+// MH-48 Đổi mật khẩu; quy tắc mật khẩu do máy chủ kiểm tra (BM-03). Mật khẩu hết hạn thì báo rõ lý do (YCTD-110). Còn mật khẩu mặc
+// định thì máy chủ đòi mã gửi tới số điện thoại: hiện ô mã khi máy chủ báo lỗi ở ô otp_code (YCTD-323)
 export function ChangePasswordPage() {
   const session = useSession();
   const navigate = useNavigate();
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmation, setConfirmation] = useState('');
+  const [otpCode, setOtpCode] = useState('');
+  const [codeNeeded, setCodeNeeded] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string>();
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const [submitting, setSubmitting] = useState(false);
@@ -25,7 +28,7 @@ export function ChangePasswordPage() {
     }
     setSubmitting(true);
     try {
-      await session.changePassword(currentPassword, newPassword);
+      await session.changePassword(currentPassword, newPassword, otpCode.trim() || undefined);
       await navigate({ to: '/' });
     } catch (error) {
       if (error instanceof ApiError) {
@@ -37,6 +40,9 @@ export function ChangePasswordPage() {
             : detail.message;
         }
         setFieldErrors(messages);
+        if (messages.otp_code) {
+          setCodeNeeded(true);
+        }
       } else {
         setErrorMessage('Không kết nối được tới máy chủ, vui lòng thử lại');
       }
@@ -88,6 +94,14 @@ export function ChangePasswordPage() {
           onChange={(event) => setConfirmation(event.target.value)}
           error={fieldErrors.confirmation}
         />
+        {codeNeeded ? (
+          <PhoneCodeField
+            value={otpCode}
+            onChange={setOtpCode}
+            onSend={sendChangePasswordCode}
+            error={fieldErrors.otp_code}
+          />
+        ) : null}
         <Button type="submit" variant="primary" disabled={submitting}>
           {submitting ? 'Đang lưu…' : 'Đổi mật khẩu'}
         </Button>

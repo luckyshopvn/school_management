@@ -14,6 +14,7 @@ import { PublicEndpoint } from '../authentication/authentication.guard.js';
 import type { RequestBody } from '../common/request-fields.js';
 import { DOCUMENT_KIND_LABELS } from './market-accounts.js';
 import { MarketContext } from './market-context.js';
+import { operatorRolesFor } from '@school-management/shared';
 
 // Cấu hình chợ gia sư ở cổng nền tảng (DT-27 phần 27f, YCTD-256; tài liệu 32 mục 19.5 "cấu hình chợ"): bật tắt chợ, tên miền con dành
 // riêng, hạn giữ bản ghi, hạn khiếu nại, tỷ lệ hoa hồng mặc định (dữ liệu cho 27h), đăng phiên bản mới của văn bản pháp lý, số liệu
@@ -39,7 +40,7 @@ export class MarketAdminService {
   constructor(private readonly market: MarketContext) {}
 
   async overview(request: Request) {
-    await this.market.operator(request);
+    await this.market.operator(request, operatorRolesFor('market.view'));
     const database = this.market.database;
     const [settings, documents, accounts, children] = await Promise.all([
       this.market.settings(),
@@ -69,7 +70,7 @@ export class MarketAdminService {
   }
 
   async saveSettings(request: Request, body: RequestBody) {
-    const operatorId = await this.market.operator(request);
+    const operatorId = await this.market.operator(request, operatorRolesFor('market.settings'));
     let settings: MarketSettings;
     try {
       settings = parseMarketSettings(body ?? undefined);
@@ -85,7 +86,7 @@ export class MarketAdminService {
 
   // Đăng phiên bản mới (số phiên bản tăng một); phiên bản đã đăng không sửa, không xóa
   async publish(request: Request, body: RequestBody) {
-    const operatorId = await this.market.operator(request);
+    const operatorId = await this.market.operator(request, operatorRolesFor('market.settings'));
     const errors: FieldError[] = [];
     const kind = body?.kind;
     if (typeof kind !== 'string' || !(kind in DOCUMENT_KIND_LABELS)) {
