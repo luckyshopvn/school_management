@@ -62,6 +62,7 @@ const MINIMUM_LEAD_MS = 2 * 3_600_000;
 const MAXIMUM_AHEAD_MS = 60 * 24 * 3_600_000;
 const APPEAL_DAYS = 7;
 const ACTIVE: MarketBookingStatus[] = ['held', 'paid', 'completed', 'disputed'];
+const PACKAGE_REF_PREFIX = 'pkg:';
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 type Database = Kysely<MarketplaceDatabase>;
@@ -124,6 +125,8 @@ export class MarketBookingsService implements OnApplicationBootstrap, OnModuleDe
   async create(request: Request, body: RequestBody) {
     const account = await this.accounts.requireReady(request, 'parent');
     const settings = await this.assertPaymentsAllowed();
+    // Buổi đặt từ gói đã trả tiền (YCTD-365): không thu tiền thêm
+    if (body?.package_id !== undefined) return this.createFromPackage(account, body);
     const database = this.market.database;
     const errors: FieldError[] = [];
     const tutorId = typeof body?.tutor_id === 'string' && UUID.test(body.tutor_id) ? body.tutor_id : '';
@@ -328,6 +331,7 @@ export class MarketBookingsService implements OnApplicationBootstrap, OnModuleDe
       .select([
         'market_bookings.id',
         'market_bookings.child_name',
+        'market_bookings.package_id',
         'market_bookings.subject',
         'market_bookings.school_level',
         'market_bookings.grade',
@@ -453,7 +457,9 @@ export class MarketBookingsService implements OnApplicationBootstrap, OnModuleDe
         .where('market_payments.provider_ref', '=', event.providerRef)
         .forUpdate()
         .executeTakeFirst();
-      if (!payment || payment.status !== 'pending') return { duplicate: false as const, refundLate: null };
+      // Mã tham chiếu không phải của buổi lẻ: có thể là của gói buổi (YCTD-365)
+      if (!payment) return { duplicate: false as const, refundLate: await this.packagePaid(trx, event, now) };
+      if (payment.status !== 'pending') return { duplicate: false as const, refundLate: null };
       if (event.type === 'charge.failed' || event.amount !== payment.amount) {
         await trx
           .updateTable('market_payments')
@@ -516,7 +522,19 @@ export class MarketBookingsService implements OnApplicationBootstrap, OnModuleDe
     for (const booking of upcoming) {
       await this.cancel(booking.id, 'system', 'tutor_account_id', tutorId, { reason });
     }
+    // Gói đang dùng của gia sư: hoàn phần còn lại (YCTD-365, GD-165)
+    await this.refundPackagesForSuspension(tutorId);
     return upcoming;
+  }
+
+  // Phòng học video (YCTD-362, GD-164): gia sư vắng (phụ huynh báo khi gia sư chưa vào phòng quá mốc), hoặc phụ huynh không đồng ý ghi
+  // hình buổi có trẻ vị thành niên: hủy và hoàn đủ
+  async cancelForTutorNoShow(id: string, parentId: string) {
+    return this.cancel(id, 'system', 'parent_account_id', parentId, {}, 'Gia sư vắng: hoàn đủ');
+  }
+
+  async cancelForRecordingDeclined(id: string, parentId: string) {
+    return this.cancel(id, 'parent', 'parent_account_id', parentId, {}, 'Phụ huynh không đồng ý ghi hình: hoàn đủ');
   }
 
   private async cancel(
@@ -525,6 +543,8 @@ export class MarketBookingsService implements OnApplicationBootstrap, OnModuleDe
     field: 'parent_account_id' | 'tutor_account_id',
     accountId: string,
     body: RequestBody,
+    // Hoàn đủ theo quy tắc riêng (gia sư vắng, không đồng ý ghi hình), kể cả khi buổi đã tới giờ; null thì theo chính sách hủy
+    fullRefundRule: string | null = null,
   ) {
     const reason = typeof body?.reason === 'string' ? body.reason.trim().slice(0, 500) : '';
     const now = this.market.now();
@@ -554,7 +574,36 @@ export class MarketBookingsService implements OnApplicationBootstrap, OnModuleDe
       if (booking.status !== 'paid') {
         throw new ApplicationError('ERR_CONFLICT', 'Chỉ hủy được buổi đã trả tiền và chưa học');
       }
-      const policy = cancellationRefund(booking.price, booking.starts_at, now, by === 'parent' ? 'parent' : 'tutor');
+      // Buổi của gói (YCTD-365): hủy thì trả lượt về gói, không chuyển tiền; phụ huynh hủy trong 24 giờ trước giờ học thì không trả lượt
+      // nên không cho hủy (gia sư hủy, gia sư vắng, tạm khóa, không đồng ý ghi hình vẫn trả lượt)
+      if (booking.package_id) {
+        if (by === 'parent' && !fullRefundRule) {
+          const policy = cancellationRefund(booking.price, booking.starts_at, now, 'parent');
+          if (!policy.allowed || policy.refund < booking.price) {
+            throw new ApplicationError('ERR_CONFLICT', 'Buổi trong gói chỉ hủy được trước giờ học 24 giờ');
+          }
+        }
+        await trx
+          .updateTable('market_payments')
+          .set({ status: 'settled', updated_at: now })
+          .where('booking_id', '=', booking.id)
+          .execute();
+        await trx
+          .updateTable('market_bookings')
+          .set({
+            status: 'cancelled',
+            cancelled_by: by,
+            cancelled_at: now,
+            cancel_reason: [fullRefundRule ?? 'Trả lượt về gói', reason].filter(Boolean).join('. '),
+            updated_at: now,
+          })
+          .where('id', '=', booking.id)
+          .execute();
+        return null;
+      }
+      const policy = fullRefundRule
+        ? { refund: booking.price, allowed: true, rule: fullRefundRule }
+        : cancellationRefund(booking.price, booking.starts_at, now, by === 'parent' ? 'parent' : 'tutor');
       if (!policy.allowed) throw new ApplicationError('ERR_CONFLICT', policy.rule);
       const split = settlement(booking.price, booking.commission, policy.refund);
       const payment = await trx
@@ -584,9 +633,9 @@ export class MarketBookingsService implements OnApplicationBootstrap, OnModuleDe
     });
     if (result) {
       if (result.split.refund > 0)
-        await this.provider.refund({ providerRef: result.providerRef, amount: result.split.refund });
+        await this.refundFunds({ providerRef: result.providerRef, amount: result.split.refund });
       if (result.split.payout + result.split.commission > 0) {
-        await this.provider.release({
+        await this.releaseFunds({
           providerRef: result.providerRef,
           payout: result.split.payout,
           commission: result.split.commission,
@@ -635,7 +684,7 @@ export class MarketBookingsService implements OnApplicationBootstrap, OnModuleDe
         .executeTakeFirstOrThrow();
       return payment.provider_ref;
     });
-    await this.provider.setDisputeHold({ providerRef, held: true });
+    await this.disputeHoldFunds({ providerRef, held: true });
     await this.market.audit({ actorType: 'account', actorId: account.id, action: 'dispute.open', target: id });
     return this.disputeView(id);
   }
@@ -724,6 +773,7 @@ export class MarketBookingsService implements OnApplicationBootstrap, OnModuleDe
       .select([
         'market_bookings.id',
         'market_bookings.child_name',
+        'market_bookings.package_id',
         'market_bookings.subject',
         'market_bookings.grade',
         'market_bookings.starts_at',
@@ -777,6 +827,497 @@ export class MarketBookingsService implements OnApplicationBootstrap, OnModuleDe
     return this.bookingView(id);
   }
 
+  // ---------- Gói buổi (YCTD-365, GD-165; quyết định của Eric ngày 2026-10-29)
+  // Mua gói: một lần trả cho cả gói (giữ chỗ 30 phút như buổi lẻ, bản này giả lập). Mỗi buổi đặt từ gói là một buổi đã trả tiền có dòng
+  // thanh toán riêng đang giữ (mã tham chiếu `pkg:<gói>:<buổi>`, khi chuyển tiền đổi về lệnh thu của gói), giải ngân riêng sau hạn khiếu
+  // nại. Hết hạn dùng (mặc định 8 tuần): hoàn phần buổi chưa học theo giá mỗi buổi của gói và phần dư làm tròn. Hủy gói trước buổi đầu:
+  // hoàn đủ. Gia sư bị tạm khóa: hoàn phần còn lại
+
+  // Lệnh thu của nhà cung cấp cho một dòng thanh toán: buổi của gói dùng lệnh thu của gói
+  private async chargeRef(providerRef: string): Promise<string> {
+    if (!providerRef.startsWith(PACKAGE_REF_PREFIX)) return providerRef;
+    const packageId = providerRef.slice(PACKAGE_REF_PREFIX.length).split(':')[0] ?? '';
+    const row = await this.market.database
+      .selectFrom('market_packages')
+      .select('provider_ref')
+      .where('id', '=', packageId)
+      .executeTakeFirst();
+    return row?.provider_ref ?? providerRef;
+  }
+
+  private async releaseFunds(input: { providerRef: string; payout: number; commission: number }) {
+    await this.provider.release({ ...input, providerRef: await this.chargeRef(input.providerRef) });
+  }
+
+  private async refundFunds(input: { providerRef: string; amount: number }) {
+    await this.provider.refund({ ...input, providerRef: await this.chargeRef(input.providerRef) });
+  }
+
+  private async disputeHoldFunds(input: { providerRef: string; held: boolean }) {
+    await this.provider.setDisputeHold({ ...input, providerRef: await this.chargeRef(input.providerRef) });
+  }
+
+  // Số buổi đã dùng của gói: buổi đặt từ gói chưa bị hủy trả lượt
+  private async usedSessions(executor: Executor, packageId: string): Promise<number> {
+    const row = await executor
+      .selectFrom('market_bookings')
+      .select(sql<number>`count(*)::int`.as('used'))
+      .where('package_id', '=', packageId)
+      .where('status', 'not in', ['cancelled', 'expired'])
+      .executeTakeFirstOrThrow();
+    return row.used;
+  }
+
+  private async packageView(id: string) {
+    const row = await this.market.database
+      .selectFrom('market_packages')
+      .innerJoin('market_accounts as tutor', 'tutor.id', 'market_packages.tutor_account_id')
+      .select([
+        'market_packages.id',
+        'market_packages.tutor_account_id as tutor_id',
+        'tutor.display_name as tutor_name',
+        'market_packages.child_id',
+        'market_packages.child_name',
+        'market_packages.subject',
+        'market_packages.session_minutes',
+        'market_packages.sessions_total',
+        'market_packages.price_total',
+        'market_packages.price_per_session',
+        'market_packages.status',
+        'market_packages.hold_expires_at',
+        'market_packages.paid_at',
+        'market_packages.expires_at',
+        'market_packages.refunded_amount',
+        'market_packages.closed_reason',
+      ])
+      .where('market_packages.id', '=', id)
+      .executeTakeFirstOrThrow();
+    return { ...row, sessions_used: await this.usedSessions(this.market.database, id) };
+  }
+
+  async createPackage(request: Request, body: RequestBody) {
+    const account = await this.accounts.requireReady(request, 'parent');
+    const settings = await this.assertPaymentsAllowed();
+    const database = this.market.database;
+    const tutorId = typeof body?.tutor_id === 'string' && UUID.test(body.tutor_id) ? body.tutor_id : '';
+    const childId = typeof body?.child_id === 'string' && UUID.test(body.child_id) ? body.child_id : '';
+    const subjectId = typeof body?.subject_id === 'string' && UUID.test(body.subject_id) ? body.subject_id : '';
+    const attested = body?.no_assignment_attested === true;
+    const recordingConsented = body?.recording_consented === true;
+    const errors: FieldError[] = [];
+    if (!tutorId) errors.push({ field: 'tutor_id', message: 'Chọn gia sư' });
+    if (!childId) errors.push({ field: 'child_id', message: 'Chọn hồ sơ con' });
+    if (!subjectId) errors.push({ field: 'subject_id', message: 'Chọn môn' });
+    if (errors.length > 0) throw validationError(errors);
+    const now = this.market.now();
+    const [child, consent, subject, tutor, role] = await Promise.all([
+      database
+        .selectFrom('market_children')
+        .select(['id', 'display_name', 'school_level', 'grade', 'birth_year'])
+        .where('id', '=', childId)
+        .where('parent_account_id', '=', account.id)
+        .executeTakeFirst(),
+      database
+        .selectFrom('market_consents')
+        .innerJoin('market_legal_documents', 'market_legal_documents.id', 'market_consents.document_id')
+        .select('market_consents.id')
+        .where('market_consents.child_id', '=', childId)
+        .where('market_consents.withdrawn_at', 'is', null)
+        .where('market_legal_documents.kind', '=', 'parent_consent')
+        .executeTakeFirst(),
+      database
+        .selectFrom('market_tutor_subjects')
+        .select([
+          'subject',
+          'school_level',
+          'grade_from',
+          'grade_to',
+          'content_kind',
+          'session_minutes',
+          'package_sessions',
+          'package_price',
+        ])
+        .where('id', '=', subjectId)
+        .where('account_id', '=', tutorId)
+        .executeTakeFirst(),
+      this.visibleTutor(database, tutorId),
+      database
+        .selectFrom('market_tutor_school_roles')
+        .select('account_id')
+        .where('account_id', '=', tutorId)
+        .executeTakeFirst(),
+    ]);
+    if (!child) throw validationError([{ field: 'child_id', message: 'Không tìm thấy hồ sơ con' }]);
+    if (!consent) {
+      throw validationError([
+        { field: 'child_id', message: 'Hồ sơ con chưa có đồng ý của cha mẹ; đồng ý lại trước khi mua gói' },
+      ]);
+    }
+    if (!tutor || !subject) throw marketNotFound();
+    if (!subject.package_sessions || !subject.package_price) {
+      throw validationError([{ field: 'subject_id', message: 'Gia sư không bán gói cho môn này' }]);
+    }
+    if (
+      child.school_level !== subject.school_level ||
+      child.grade < subject.grade_from ||
+      child.grade > subject.grade_to
+    ) {
+      throw validationError([{ field: 'subject_id', message: 'Môn này không dạy cấp, lớp của con' }]);
+    }
+    const problems = contentProblems({
+      schoolLevel: child.school_level,
+      contentKind: subject.content_kind,
+      tutorIsSchoolTeacher: Boolean(role),
+      attestedNoAssignment: attested,
+    });
+    if (problems.length > 0) throw validationError(problems);
+    const recordingRequired = isMinor(child.birth_year, now);
+    if (recordingRequired && !recordingConsented) {
+      throw validationError([
+        {
+          field: 'recording_consented',
+          message: 'Buổi học với trẻ dưới 18 tuổi luôn được ghi hình để bảo vệ trẻ; đồng ý ghi hình để mua gói',
+        },
+      ]);
+    }
+    const perSession = Math.floor(subject.package_price / subject.package_sessions);
+    const rules = (await database
+      .selectFrom('market_commission_rules')
+      .select(['content_kind', 'tutor_account_id', 'percent', 'minimum', 'effective_from'])
+      .execute()) as unknown as Array<Omit<CommissionRule, 'percent'> & { percent: string }>;
+    const rule = pickCommissionRule(
+      rules.map((item) => ({
+        ...item,
+        percent: Number(item.percent),
+        effective_from: String(item.effective_from).slice(0, 10),
+      })),
+      { contentKind: subject.content_kind, tutorId, date: vietnamClock(now).date },
+    );
+    const commission = commissionFor(perSession, rule, settings.defaultCommissionPercent);
+    const id = randomUUID();
+    const charge = await this.provider.createHeldCharge({
+      reference: id,
+      amount: subject.package_price,
+      description: `Gói ${subject.package_sessions} buổi ${subject.subject} với gia sư ${tutor.display_name}`,
+    });
+    await database
+      .insertInto('market_packages')
+      .values({
+        id,
+        parent_account_id: account.id,
+        child_id: child.id,
+        child_name: child.display_name,
+        tutor_account_id: tutorId,
+        subject: subject.subject,
+        school_level: subject.school_level,
+        grade: child.grade,
+        content_kind: subject.content_kind,
+        session_minutes: subject.session_minutes,
+        sessions_total: subject.package_sessions,
+        price_total: subject.package_price,
+        price_per_session: perSession,
+        commission_per_session: commission,
+        no_assignment_attested: attested,
+        recording_required: recordingRequired,
+        status: 'held',
+        hold_expires_at: new Date(now.getTime() + HOLD_MINUTES * 60_000),
+        provider: this.provider.code,
+        provider_ref: charge.providerRef,
+      })
+      .execute();
+    await this.market.audit({ actorType: 'account', actorId: account.id, action: 'package.create', target: id });
+    return { ...(await this.packageView(id)), checkout: charge.checkout };
+  }
+
+  async listPackages(request: Request) {
+    const account = await this.accounts.requireReady(request, 'parent');
+    const rows = await this.market.database
+      .selectFrom('market_packages')
+      .select('id')
+      .where('parent_account_id', '=', account.id)
+      .orderBy('created_at', 'desc')
+      .limit(100)
+      .execute();
+    return { packages: await Promise.all(rows.map((row) => this.packageView(row.id))) };
+  }
+
+  async mockPayPackage(request: Request, id: string) {
+    const account = await this.accounts.requireReady(request, 'parent');
+    if (!(this.provider instanceof MockMarketplacePaymentProvider) || !UUID.test(id)) throw marketNotFound();
+    const row = await this.market.database
+      .selectFrom('market_packages')
+      .select(['provider_ref', 'price_total'])
+      .where('id', '=', id)
+      .where('parent_account_id', '=', account.id)
+      .executeTakeFirst();
+    if (!row) throw marketNotFound();
+    const signed = this.provider.signedEvent({
+      eventId: `mock_evt_${randomUUID()}`,
+      type: 'charge.succeeded',
+      providerRef: row.provider_ref,
+      amount: row.price_total,
+    });
+    await this.handleWebhook(this.provider.code, signed.body, signed.signature);
+    return this.packageView(id);
+  }
+
+  // Sự kiện thanh toán của gói (gọi từ handleWebhook khi mã tham chiếu không phải của buổi lẻ)
+  private async packagePaid(
+    trx: Transaction<MarketplaceDatabase>,
+    event: PaymentEvent,
+    now: Date,
+  ): Promise<{ providerRef: string; amount: number } | null> {
+    const row = await trx
+      .selectFrom('market_packages')
+      .select(['id', 'status', 'price_total', 'provider_ref', 'hold_expires_at'])
+      .where('provider_ref', '=', event.providerRef)
+      .forUpdate()
+      .executeTakeFirst();
+    if (!row || row.status !== 'held') return null;
+    if (event.type === 'charge.failed' || event.amount !== row.price_total) {
+      await trx
+        .updateTable('market_packages')
+        .set({ status: 'cancelled', closed_reason: 'Thanh toán không thành công', updated_at: now })
+        .where('id', '=', row.id)
+        .execute();
+      return null;
+    }
+    if (row.hold_expires_at.getTime() <= now.getTime()) {
+      await trx
+        .updateTable('market_packages')
+        .set({
+          status: 'refunded',
+          refunded_amount: row.price_total,
+          closed_reason: 'Tiền về sau khi hết giữ chỗ: hoàn đủ',
+          updated_at: now,
+        })
+        .where('id', '=', row.id)
+        .execute();
+      return { providerRef: row.provider_ref, amount: row.price_total };
+    }
+    const settings = await this.market.settings();
+    await trx
+      .updateTable('market_packages')
+      .set({
+        status: 'paid',
+        paid_at: now,
+        expires_at: new Date(now.getTime() + settings.packageValidDays * 24 * 3_600_000),
+        updated_at: now,
+      })
+      .where('id', '=', row.id)
+      .execute();
+    return null;
+  }
+
+  // Đặt một buổi từ gói đã trả tiền: cùng gia sư, cùng con, cùng môn; còn lượt, chưa hết hạn
+  private async createFromPackage(account: { id: string }, body: RequestBody) {
+    const database = this.market.database;
+    const packageId = typeof body?.package_id === 'string' && UUID.test(body.package_id) ? body.package_id : '';
+    const startsAt = typeof body?.starts_at === 'string' ? new Date(body.starts_at) : new Date(Number.NaN);
+    if (Number.isNaN(startsAt.getTime())) throw validationError([{ field: 'starts_at', message: 'Chọn giờ học' }]);
+    const now = this.market.now();
+    const pack = packageId
+      ? await database
+          .selectFrom('market_packages')
+          .selectAll()
+          .where('id', '=', packageId)
+          .where('parent_account_id', '=', account.id)
+          .executeTakeFirst()
+      : undefined;
+    if (!pack) throw marketNotFound();
+    if (pack.status !== 'paid' || !pack.expires_at || pack.expires_at.getTime() <= now.getTime()) {
+      throw new ApplicationError('ERR_CONFLICT', 'Gói chưa trả tiền hoặc đã hết hạn dùng');
+    }
+    if (!pack.child_id) throw new ApplicationError('ERR_CONFLICT', 'Hồ sơ con của gói đã bị xóa');
+    if (startsAt.getTime() < now.getTime() + MINIMUM_LEAD_MS || startsAt.getTime() > pack.expires_at.getTime()) {
+      throw validationError([{ field: 'starts_at', message: 'Đặt trước ít nhất 2 giờ, trước khi gói hết hạn dùng' }]);
+    }
+    if (!(await this.visibleTutor(database, pack.tutor_account_id))) {
+      throw new ApplicationError('ERR_CONFLICT', 'Gia sư đang tạm ngừng hoạt động trên chợ');
+    }
+    const slots = await database
+      .selectFrom('market_tutor_availability')
+      .select(['weekday', 'start_minute', 'end_minute'])
+      .where('account_id', '=', pack.tutor_account_id)
+      .execute();
+    if (!fitsAvailability(startsAt, pack.session_minutes, slots)) {
+      throw validationError([
+        { field: 'starts_at', message: 'Giờ học không nằm trong giờ trống của gia sư (giờ Việt Nam)' },
+      ]);
+    }
+    const booking = await database.transaction().execute(async (trx) => {
+      await sql`select pg_advisory_xact_lock(hashtext(${pack.tutor_account_id}))`.execute(trx);
+      await sql`select pg_advisory_xact_lock(hashtext(${pack.id}))`.execute(trx);
+      if ((await this.usedSessions(trx, pack.id)) >= pack.sessions_total) {
+        throw new ApplicationError('ERR_CONFLICT', 'Gói đã dùng hết số buổi');
+      }
+      const busy = await trx
+        .selectFrom('market_bookings')
+        .select(['starts_at', 'minutes'])
+        .where('status', 'in', ACTIVE)
+        .where((eb) =>
+          eb.or([eb('tutor_account_id', '=', pack.tutor_account_id), eb('child_id', '=', pack.child_id as string)]),
+        )
+        .where('starts_at', '>', new Date(startsAt.getTime() - 4 * 3_600_000))
+        .where('starts_at', '<', new Date(startsAt.getTime() + 4 * 3_600_000))
+        .execute();
+      if (busy.some((row) => overlaps(startsAt, pack.session_minutes, row.starts_at, row.minutes))) {
+        throw new ApplicationError('ERR_CONFLICT', 'Giờ này gia sư hoặc con đã có buổi khác');
+      }
+      const created = await trx
+        .insertInto('market_bookings')
+        .values({
+          parent_account_id: account.id,
+          child_id: pack.child_id,
+          child_name: pack.child_name,
+          tutor_account_id: pack.tutor_account_id,
+          subject: pack.subject,
+          school_level: pack.school_level,
+          grade: pack.grade,
+          content_kind: pack.content_kind,
+          starts_at: startsAt,
+          minutes: pack.session_minutes,
+          price: pack.price_per_session,
+          commission: pack.commission_per_session,
+          status: 'paid',
+          hold_expires_at: now,
+          no_assignment_attested: pack.no_assignment_attested,
+          recording_required: pack.recording_required,
+          recording_consented: pack.recording_required,
+          package_id: pack.id,
+        })
+        .returning('id')
+        .executeTakeFirstOrThrow();
+      await trx
+        .insertInto('market_payments')
+        .values({
+          booking_id: created.id,
+          provider: pack.provider,
+          provider_ref: `${PACKAGE_REF_PREFIX}${pack.id}:${created.id}`,
+          amount: pack.price_per_session,
+          commission: pack.commission_per_session,
+          status: 'held',
+        })
+        .execute();
+      return created;
+    });
+    await this.market.audit({
+      actorType: 'account',
+      actorId: account.id,
+      action: 'booking.create-from-package',
+      target: booking.id,
+      details: { package: pack.id },
+    });
+    return this.bookingView(booking.id);
+  }
+
+  // Kết thúc gói: hoàn phần buổi chưa học theo giá mỗi buổi của gói và phần dư làm tròn (hết hạn, tạm khóa gia sư), hoặc hoàn đủ khi
+  // chưa dùng buổi nào (phụ huynh hủy gói)
+  private async closePackage(
+    packageId: string,
+    status: 'cancelled' | 'expired' | 'refunded',
+    reason: string,
+    onlyIfUnused: boolean,
+  ): Promise<number | null> {
+    const now = this.market.now();
+    const result = await this.market.database.transaction().execute(async (trx) => {
+      await sql`select pg_advisory_xact_lock(hashtext(${packageId}))`.execute(trx);
+      const pack = await trx
+        .selectFrom('market_packages')
+        .select(['id', 'status', 'sessions_total', 'price_total', 'price_per_session', 'provider_ref'])
+        .where('id', '=', packageId)
+        .forUpdate()
+        .executeTakeFirst();
+      if (pack?.status !== 'paid') return null;
+      const used = await this.usedSessions(trx, packageId);
+      if (onlyIfUnused && used > 0) {
+        throw new ApplicationError('ERR_CONFLICT', 'Gói đã có buổi; chỉ hủy gói được trước buổi đầu');
+      }
+      const refund = pack.price_total - used * pack.price_per_session;
+      await trx
+        .updateTable('market_packages')
+        .set({
+          status: refund === 0 ? 'used_up' : status,
+          refunded_amount: refund,
+          closed_reason: reason,
+          updated_at: now,
+        })
+        .where('id', '=', packageId)
+        .execute();
+      return { providerRef: pack.provider_ref, refund };
+    });
+    if (result && result.refund > 0) {
+      await this.provider.refund({ providerRef: result.providerRef, amount: result.refund });
+    }
+    if (result) {
+      await this.market.audit({
+        actorType: 'system',
+        action: `package.${status}`,
+        target: packageId,
+        details: { refund: result.refund, reason },
+      });
+    }
+    return result?.refund ?? null;
+  }
+
+  async cancelPackage(request: Request, id: string) {
+    const account = await this.accounts.requireReady(request, 'parent');
+    if (!UUID.test(id)) throw marketNotFound();
+    const pack = await this.market.database
+      .selectFrom('market_packages')
+      .select(['id', 'status'])
+      .where('id', '=', id)
+      .where('parent_account_id', '=', account.id)
+      .executeTakeFirst();
+    if (!pack) throw marketNotFound();
+    if (pack.status === 'held') {
+      await this.market.database
+        .updateTable('market_packages')
+        .set({ status: 'cancelled', closed_reason: 'Phụ huynh hủy trước khi trả tiền', updated_at: this.market.now() })
+        .where('id', '=', id)
+        .execute();
+      return this.packageView(id);
+    }
+    const refund = await this.closePackage(id, 'cancelled', 'Phụ huynh hủy gói trước buổi đầu: hoàn đủ', true);
+    if (refund === null) throw new ApplicationError('ERR_CONFLICT', 'Gói không còn hủy được');
+    return this.packageView(id);
+  }
+
+  // Việc định kỳ: nhả gói giữ chỗ quá hạn chưa trả; gói hết hạn dùng thì hoàn phần chưa học
+  private async runPackagesDue(now: Date): Promise<{ packagesExpired: number }> {
+    const database = this.market.database;
+    await database
+      .updateTable('market_packages')
+      .set({ status: 'cancelled', closed_reason: 'Hết giữ chỗ, chưa trả tiền', updated_at: now })
+      .where('status', '=', 'held')
+      .where('hold_expires_at', '<=', now)
+      .execute();
+    const due = await database
+      .selectFrom('market_packages')
+      .select('id')
+      .where('status', '=', 'paid')
+      .where('expires_at', '<=', now)
+      .execute();
+    for (const row of due) {
+      await this.closePackage(row.id, 'expired', 'Hết hạn dùng: hoàn phần buổi chưa học', false);
+    }
+    return { packagesExpired: due.length };
+  }
+
+  // Gia sư bị tạm khóa (27i): gói đang dùng được hoàn phần còn lại
+  async refundPackagesForSuspension(tutorId: string) {
+    const rows = await this.market.database
+      .selectFrom('market_packages')
+      .select('id')
+      .where('tutor_account_id', '=', tutorId)
+      .where('status', '=', 'paid')
+      .execute();
+    for (const row of rows) {
+      await this.closePackage(row.id, 'refunded', 'Gia sư bị tạm khóa: hoàn phần còn lại', false);
+    }
+    return rows.length;
+  }
+
   // ---------- Việc định kỳ, quyết định tranh chấp (gọi từ quản trị)
 
   async expireHolds(executor: Executor, now: Date): Promise<number> {
@@ -803,11 +1344,19 @@ export class MarketBookingsService implements OnApplicationBootstrap, OnModuleDe
   }
 
   // Giải ngân buổi đã dạy, hết hạn khiếu nại, không có tranh chấp
-  async runDue(): Promise<{ expired: number; disbursed: number; finalized: number }> {
-    if (!this.market.available) return { expired: 0, disbursed: 0, finalized: 0 };
+  async runDue(): Promise<{
+    expired: number;
+    autoConfirmed: number;
+    packagesExpired: number;
+    disbursed: number;
+    finalized: number;
+  }> {
+    if (!this.market.available) return { expired: 0, autoConfirmed: 0, packagesExpired: 0, disbursed: 0, finalized: 0 };
     const now = this.market.now();
     const database = this.market.database;
     const expired = await this.expireHolds(database, now);
+    const autoConfirmed = await this.autoConfirm(now);
+    const { packagesExpired } = await this.runPackagesDue(now);
     const due = await database
       .selectFrom('market_bookings')
       .select('id')
@@ -848,7 +1397,7 @@ export class MarketBookingsService implements OnApplicationBootstrap, OnModuleDe
         return { providerRef: payment.provider_ref, split };
       });
       if (result) {
-        await this.provider.release({
+        await this.releaseFunds({
           providerRef: result.providerRef,
           payout: result.split.payout,
           commission: result.split.commission,
@@ -858,7 +1407,43 @@ export class MarketBookingsService implements OnApplicationBootstrap, OnModuleDe
       }
     }
     const finalized = await this.finalizeDecided(null);
-    return { expired, disbursed, finalized };
+    return { expired, autoConfirmed, packagesExpired, disbursed, finalized };
+  }
+
+  // Gia sư không xác nhận đã dạy (phòng học video, YCTD-362, GD-164): quá mốc sau giờ kết thúc thì hệ thống tự xác nhận; hạn khiếu nại
+  // của phụ huynh tính từ lúc tự xác nhận
+  private async autoConfirm(now: Date): Promise<number> {
+    const settings = await this.market.settings();
+    const hours = settings.room.autoConfirmHours;
+    const due = await this.market.database
+      .updateTable('market_bookings')
+      .set({
+        status: 'completed',
+        completed_at: now,
+        complaint_deadline: new Date(now.getTime() + settings.complaintWindowHours * 3_600_000),
+        updated_at: now,
+      })
+      .where('status', '=', 'paid')
+      .where(sql<boolean>`starts_at + make_interval(mins => minutes) + make_interval(hours => ${hours}) <= ${now}`)
+      .returning(['id', 'starts_at', 'minutes'])
+      .execute();
+    for (const booking of due) {
+      await this.market.database
+        .insertInto('market_session_rooms')
+        .values({
+          booking_id: booking.id,
+          opened_at: booking.starts_at,
+          closed_at: new Date(booking.starts_at.getTime() + booking.minutes * 60_000),
+          confirmed_at: now,
+          confirmed_by: 'auto',
+        })
+        .onConflict((conflict) =>
+          conflict.column('booking_id').doUpdateSet({ confirmed_at: now, confirmed_by: 'auto' }),
+        )
+        .execute();
+      await this.market.audit({ actorType: 'system', action: 'booking.auto-confirm', target: booking.id });
+    }
+    return due.length;
   }
 
   // Quyết định tranh chấp: lần đầu (đang mở) hoặc xét lại (đã khiếu nại lại, phải là nhân viên khác người quyết định lần đầu)
@@ -1003,11 +1588,11 @@ export class MarketBookingsService implements OnApplicationBootstrap, OnModuleDe
       return { providerRef: payment.provider_ref, split };
     });
     if (!result) return;
-    await this.provider.setDisputeHold({ providerRef: result.providerRef, held: false });
+    await this.disputeHoldFunds({ providerRef: result.providerRef, held: false });
     if (result.split.refund > 0)
-      await this.provider.refund({ providerRef: result.providerRef, amount: result.split.refund });
+      await this.refundFunds({ providerRef: result.providerRef, amount: result.split.refund });
     if (result.split.payout + result.split.commission > 0) {
-      await this.provider.release({
+      await this.releaseFunds({
         providerRef: result.providerRef,
         payout: result.split.payout,
         commission: result.split.commission,
@@ -1029,6 +1614,28 @@ export class MarketBookingsController {
   @Get('bookings')
   list(@Req() request: Request) {
     return this.bookings.listForParent(request);
+  }
+
+  @Post('packages')
+  createPackage(@Req() request: Request, @Body() body: RequestBody) {
+    return this.bookings.createPackage(request, body);
+  }
+
+  @Get('packages')
+  listPackages(@Req() request: Request) {
+    return this.bookings.listPackages(request);
+  }
+
+  @Post('packages/:id/mock-pay')
+  @HttpCode(200)
+  mockPayPackage(@Req() request: Request, @Param('id') id: string) {
+    return this.bookings.mockPayPackage(request, id);
+  }
+
+  @Post('packages/:id/cancel')
+  @HttpCode(200)
+  cancelPackage(@Req() request: Request, @Param('id') id: string) {
+    return this.bookings.cancelPackage(request, id);
   }
 
   @Post('bookings/:id/mock-pay')

@@ -2491,6 +2491,56 @@ Số GD và RR của DT-27 bắt đầu từ GD-130 và RR-28: DT-26 dùng GD-12
 | GD-136 | Hạn của phiếu lý lịch tư pháp khi xác minh gia sư | Phiếu cấp trong 6 tháng, xác minh lại mỗi 12 tháng | cấu hình chợ | Eric |
 | GD-137 | Thư viện bảng trắng | Thư viện mã nguồn mở có giấy phép dùng thương mại, chọn và ghi giấy phép lúc làm | mã 27a | Claude (theo ủy quyền) |
 | GD-138 | Khấu trừ thuế ở chợ | Công tắc tắt đến khi luật sư kết luận (E-03); tỷ lệ là dữ liệu có ngày hiệu lực | cấu hình chợ | Eric, luật sư |
+| GD-164 | Mốc của phòng học video ở chợ (quyết định của Eric ngày 2026-10-29) | Mở phòng trước giờ học 10 phút; vào muộn quá 15 phút tính vắng; gia sư vắng quá 10 phút thì phụ huynh báo và được hoàn đủ; có mặt từ 80% thời lượng là đủ buổi; gia sư không xác nhận thì tự xác nhận sau 24 giờ; phụ huynh vào xem luôn tắt micro trừ khi gia sư cho nói | cấu hình chợ (`platform_settings.market`) | Eric (đã chốt; cổng vận hành chỉnh được) |
+| GD-165 | Gói buổi ở chợ (quyết định của Eric ngày 2026-10-29) | Dùng trong 8 tuần kể từ lúc trả tiền; hết hạn thì hoàn phần buổi chưa học theo giá mỗi buổi của gói; hủy trước buổi đầu thì hoàn đủ; gia sư bị tạm khóa thì hoàn phần còn lại; mỗi buổi giải ngân riêng sau hạn khiếu nại | cấu hình chợ (`package_valid_days`) | Eric (đã chốt) |
+
+### 19.12 Phần 27j: phòng học video của chợ (YCTD-362)
+
+Eric duyệt bản thiết kế "Chợ gia sư, Gia sư, Cấp trên" ngày 2026-10-28 và chốt các quyết định về phòng học ngày 2026-10-29. Phần này làm thành một phần riêng của DT-27, cỡ khoảng 2 đến 3 đơn vị, sau 27f đến 27i.
+
+- **Ghi hình:** luôn ghi hình buổi có trẻ dưới 18 tuổi. Phụ huynh từ chối thì hủy buổi, hoàn đủ tiền. Bản ghi chỉ phụ huynh, gia sư và nhân viên xử lý tranh chấp được xem, giữ có hạn (GD-131, GD-132).
+- **Đồng ý ghi hình:** hỏi một lần cho mọi buổi của một con với một gia sư, rút lại được bất cứ lúc nào (`market_recording_consents`). Con từ đủ 7 tuổi cùng xác nhận. **Cần luật sư xem lại trước khi mở thật** (Luật 91/2025 Điều 24).
+- **Vào phòng:** chỉ buổi đã trả tiền (giả lập), từ lúc mở phòng đến hết giờ học. Gia sư mở phòng (`session/start` của 27i, bắt đầu ghi hình). Người của buổi vào phòng chờ (`market_session_participants`); gia sư cho vào, cho nói, cho chia sẻ màn hình, mời ra. Phụ huynh chọn "Con học" (vai học sinh) hoặc "Tôi vào xem" (vai cha mẹ, luôn tắt micro trừ khi gia sư cho nói).
+- **Điểm danh:** mỗi lần vào, ra ghi một dòng (`market_session_attendance`), từ ứng dụng và từ sự kiện của máy chủ video (địa chỉ gọi lại chung `/video/webhook` chuyển phòng `market-*` sang chợ). Điểm danh cộng các khoảng có mặt trong giờ học, bỏ phần trùng khi vào lại; vào lần đầu muộn quá mốc thì tính vắng; đủ tỉ lệ thì đủ buổi. Phụ huynh vào xem không tính.
+- **Gia sư vắng:** gia sư chưa vào phòng quá mốc sau giờ học thì phụ huynh bấm "Báo gia sư vắng"; buổi hủy, hoàn đủ.
+- **Xác nhận buổi:** gia sư xác nhận đã dạy kèm nhận xét gửi phụ huynh và sự cố trong buổi (`market_session_rooms`). Không xác nhận thì việc định kỳ của chợ tự xác nhận sau mốc; hạn khiếu nại tính từ lúc xác nhận.
+- **Mốc:** cấu hình chợ, mặc định theo GD-164. Biểu mẫu chỉnh mốc ở trang Chợ gia sư của cổng vận hành làm ở YCTD-363.
+- **Dùng lại:** `VideoRoomProvider` (livekit, mock), `VideoRoom`, `VideoHostPanel` (thêm `recordingLocked`: không có nút dừng ghi), bảng trắng của `packages/ui`.
+- **Lưu ở đâu:** marketplace 0040 (`market_recording_consents`, `market_session_rooms`, `market_session_participants`, `market_session_attendance`).
+- **Kiểm thử:** quy tắc thuần CT-27j-1 (`market-room-rules.test.ts`); máy chủ CT-27i-5 (sửa theo phòng chờ), CT-27j-2 (gia sư vắng, điểm danh, rút đồng ý, tự xác nhận); giao diện CT-27j-3 (spec 199, bộ giả lập lớp video).
+
+### 19.13 Đánh giá, tài khoản, đăng nhập định danh của phụ huynh, con đọc tin nhắn (YCTD-364)
+
+Các chức năng còn lại trong bản thiết kế Eric duyệt ngày 2026-10-28 mà máy chủ chưa có API. Phiên điều phối xếp thành YCTD-364.
+
+- **Đánh giá sau buổi** (`market_reviews`, marketplace 0050):
+  - mỗi buổi đã dạy có một đánh giá của phụ huynh của buổi: 1 đến 5 sao, bốn tiêu chí không bắt buộc, nhận xét; thông tin liên lạc ngoài bị che như tin nhắn;
+  - đánh giá chờ nhân viên nền tảng duyệt rồi mới hiện, với tên "Phụ huynh học sinh lớp N"; từ chối phải ghi lý do;
+  - gia sư trả lời một lần đánh giá đã hiện; trang tìm gia sư có điểm trung bình, sắp "đánh giá cao trước";
+  - báo cáo vi phạm từ đánh giá dùng loại `review` của 27i.
+- **Mật khẩu và tài khoản:**
+  - đổi mật khẩu phải nhập mật khẩu hiện tại; đổi xong thì các phiên khác bị thu hồi;
+  - quên mật khẩu: mã 6 số mục đích `reset`, câu trả lời không cho biết tài khoản có tồn tại hay không; đặt lại xong thì mọi phiên bị thu hồi;
+  - sửa tên hiển thị. Đổi thư điện tử, số điện thoại chưa làm.
+- **Đăng nhập định danh của phụ huynh:** phụ huynh đang đăng nhập liên kết định danh (mục đích `link`, quay về `/dinh-danh` trên tên miền của chợ), rồi đăng nhập bằng định danh đó. Giữ cách gắn lượt với trình duyệt và với tài khoản của YCTD-322 (PR 242). Định danh chỉ đăng nhập được ứng dụng của đúng vai.
+- **Con đọc tin nhắn** (`market_children.reads_messages`):
+  - phụ huynh bật cho từng con; con chỉ đọc các luồng tin của phụ huynh với gia sư có buổi với con, trên máy và bằng phiên của phụ huynh;
+  - không có điểm cuối gửi tin cho con, không có kênh riêng giữa gia sư và trẻ;
+  - thoát chế độ con đọc phải nhập lại mật khẩu của phụ huynh; mỗi lần mở ghi nhật ký.
+- **Gói buổi:** làm ở YCTD-365 (mục 19.14).
+- **Giao diện duyệt đánh giá ở cổng vận hành:** làm ở YCTD-363 (trang Chợ gia sư, khối "Đánh giá gia sư chờ duyệt").
+
+### 19.14 Gói buổi (YCTD-365)
+
+Quy tắc theo GD-165 (Eric chốt ngày 2026-10-29), cơ sở dữ liệu chợ marketplace 0051:
+
+- gia sư đặt gói cho từng môn trong hồ sơ dạy (số buổi, giá cả gói);
+- phụ huynh mua gói, trả một lần (bản này giả lập, giữ chỗ 30 phút); gói dùng trong 8 tuần kể từ lúc trả tiền (cấu hình chợ `package_valid_days`);
+- mỗi buổi đặt từ gói là một buổi đã trả tiền với giá mỗi buổi của gói (giá gói chia số buổi, làm tròn xuống), có dòng thanh toán riêng đang giữ, giải ngân riêng sau hạn khiếu nại; khi chuyển tiền, mã tham chiếu của buổi đổi về lệnh thu của gói;
+- hủy buổi trong gói thì trả lượt về gói (phụ huynh hủy phải trước giờ học 24 giờ); gia sư hủy, gia sư vắng, không đồng ý ghi hình cũng trả lượt;
+- hết hạn dùng thì hoàn phần buổi chưa học và phần dư làm tròn; hủy gói trước buổi đầu thì hoàn đủ; gia sư bị tạm khóa thì hoàn phần còn lại;
+- bản này chạy với bộ giả lập thanh toán; khi có nhà cung cấp có giấy phép (E-02) cần nối giải ngân, hoàn từng phần theo một lệnh thu của gói.
+
 
 ## 20. DT-28: hệ thống quản lý học tập (LMS) cho trường phổ thông (28a đến 28j)
 

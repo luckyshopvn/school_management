@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useId, useState } from 'react';
 import { TEACHING_TOOL_SECTIONS, teachingToolsFor, type TeachingTool } from '@school-management/shared';
 import { Alert, ApplicationHeader, Button } from '@school-management/ui';
 import { requestJson } from '../session/api-client.js';
@@ -72,9 +72,13 @@ function ToolTile({
   onSelect(): void;
   asTab: boolean;
 }) {
+  // Tên của ô chỉ là tên công cụ; mô tả ẩn khỏi tên và đọc riêng qua aria-describedby, để tên không lẫn chữ của mô tả
+  // (mô tả "Hình và màu" có chữ "gọi tên")
+  const descriptionId = useId();
   return (
     <button
       type="button"
+      aria-describedby={descriptionId}
       {...(asTab ? { role: 'tab', 'aria-selected': selected } : {})}
       onClick={onSelect}
       className={`flex min-h-16 flex-col items-start gap-1 rounded-lg px-3 py-2 text-left ${
@@ -82,7 +86,13 @@ function ToolTile({
       }`}
     >
       <span className="text-label font-semibold">{tool.label}</span>
-      <span className={`text-label ${selected ? 'text-white' : 'text-text-secondary'}`}>{tool.description}</span>
+      <span
+        id={descriptionId}
+        aria-hidden="true"
+        className={`text-label ${selected ? 'text-white' : 'text-text-secondary'}`}
+      >
+        {tool.description}
+      </span>
     </button>
   );
 }

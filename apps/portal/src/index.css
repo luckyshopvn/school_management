@@ -14,6 +14,8 @@
   --color-nav-active: #1f4e8c;
   --color-nav-text: #dbe6f3;
   --color-nav-muted: #9fb3cb;
+  /* Phông chữ của cổng quản trị (YCTD-331): Be Vietnam Pro tự phục vụ, chưa tải xong thì dùng phông hệ thống */
+  --font-sans: 'Be Vietnam Pro', ui-sans-serif, system-ui, sans-serif;
 }
 
 body {

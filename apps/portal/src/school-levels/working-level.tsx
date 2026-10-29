@@ -70,8 +70,9 @@ function saveWorkingSchoolLevel(code: SchoolLevelCode | null): Promise<{ working
   });
 }
 
-// Bộ chọn cấp ở thanh đầu trang, cạnh ô ngữ cảnh năm học: chỉ hiện khi người dùng được xem từ hai cấp trở lên. "Tất cả" là
-// mặc định; đổi cấp thì menu, nhãn thuật ngữ và ô ngữ cảnh đổi theo ngay
+// Bộ chọn cấp trong hộp ngữ cảnh "cấp · năm học · học kỳ" ở thanh đầu trang (YCTD-331 gom vào một nút; trước nằm riêng cạnh
+// ô ngữ cảnh): chỉ hiện khi người dùng được xem từ hai cấp trở lên. "Tất cả" là mặc định; đổi cấp thì menu, nhãn thuật ngữ
+// và ô ngữ cảnh đổi theo ngay
 export function SchoolLevelSwitcher() {
   const levels = useWorkingSchoolLevels();
   const queryClient = useQueryClient();
@@ -85,10 +86,10 @@ export function SchoolLevelSwitcher() {
     return null;
   }
   return (
-    <label className="hidden items-center gap-1.5 text-label font-semibold text-white md:flex">
+    <label className="flex flex-col gap-1 px-3 pb-2 text-label font-medium text-text">
       <span>Cấp học</span>
       <select
-        className="h-9 rounded-md border border-white/60 bg-header px-2 text-label font-semibold text-white hover:bg-header-strong"
+        className="h-9 rounded-md border border-border-strong bg-card px-2 text-label text-text"
         aria-label="Cấp học đang làm việc"
         data-testid="school-level-switcher"
         value={levels.selected ?? ALL_SCHOOL_LEVELS}

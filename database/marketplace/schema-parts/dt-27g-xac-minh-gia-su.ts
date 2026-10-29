@@ -64,7 +64,8 @@ export interface MarketTutorSchoolRolesTable {
 
 export interface MarketOidcRequestsTable {
   state_hash: string;
-  purpose: 'verify' | 'login';
+  // 'link': phụ huynh liên kết định danh (YCTD-364, marketplace 0050)
+  purpose: 'verify' | 'login' | 'link';
   provider: string;
   account_id: string | null;
   nonce: string;

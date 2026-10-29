@@ -11,7 +11,7 @@ export interface IdentityConfiguration {
   tokenPrivateKeyPem: string;
   tokenPublicKeyPem: string;
   loginRequestsPerMinutePerAddress: number;
-  // "Ghi nhớ" ở trang đăng nhập cổng quản trị (YCTD-310): số ngày giữ phiên (PORTAL_REMEMBER_DAYS, mặc định 30, từ 1 đến 90)
+  // "Ghi nhớ" ở trang đăng nhập cổng quản trị (YCTD-310): số ngày giữ phiên (PORTAL_REMEMBER_DAYS, mặc định 30, từ 1 đến 30, YCTD-353)
   portalRememberDays?: number;
   // Máy chủ API, để đọc cây đơn vị khi quản lý tài khoản (YCTD-39)
   apiBaseUrl: string;

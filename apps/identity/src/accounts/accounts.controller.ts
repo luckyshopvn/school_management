@@ -366,6 +366,12 @@ export class AccountsController {
     return this.accountsService.get(callerOf(request), userId);
   }
 
+  // Xem đủ tên đăng nhập (số CCCD), có ghi nhật ký (YCTD-353)
+  @Get(':id/login-identifier')
+  viewLoginIdentifier(@Req() request: AuthenticatedRequest, @Param('id', uuidParameter('id')) userId: string) {
+    return this.accountsService.viewLoginIdentifier(callerOf(request), userId);
+  }
+
   @Post()
   create(@Req() request: AuthenticatedRequest, @Body() body: RequestBody) {
     const errors: FieldError[] = [];

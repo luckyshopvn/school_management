@@ -278,7 +278,7 @@ test('CT-27h-7: đặt buổi, thanh toán giả lập, gia sư đánh dấu đ�
   const tutor = await tutorContext.newPage();
   await tutor.goto('/');
   const taught = tutor
-    .getByRole('region', { name: 'Buổi dạy và thu nhập' })
+    .getByRole('region', { name: 'Buổi dạy', exact: true })
     .getByRole('listitem')
     .filter({ hasText: subjectName });
   await taught.getByRole('button', { name: 'Đánh dấu đã dạy' }).click();

@@ -166,21 +166,26 @@ test('CT-S6-9: tài khoản cấp Sở có xác thực hai lớp; trường đ�
   await expect(schoolPage.getByText('Đã lưu đồng ý chia sẻ số liệu')).toBeVisible();
   await schoolContext.close();
 
-  // Tài khoản cấp Sở: đăng nhập có mã TOTP, thấy alpha, không thấy beta; xuất Excel
+  // Tài khoản cấp Sở: đăng nhập hai bước có mã TOTP, xuất Excel; trang So sánh trường thấy alpha, không thấy beta
   const parentContext = await browser.newContext({ baseURL: `http://${E2E_CONSOLE_HOST}:${E2E_MULTI_CONSOLE_PORT}` });
   const parentPage = await parentContext.newPage();
   await parentPage.goto('/cap-tren');
   const login = parentPage.getByRole('form', { name: 'Đăng nhập cấp trên' });
   await login.getByLabel('Tên đăng nhập').fill(parentLogin);
   await login.getByLabel('Mật khẩu').fill(PASSWORD);
+  await login.getByRole('button', { name: 'Tiếp tục' }).click();
   await login.getByLabel('Mã xác thực hai lớp').fill(totpCode(secret, new Date()));
   await login.getByRole('button', { name: 'Đăng nhập' }).click();
   await expect(parentPage.getByRole('heading', { name: 'Số liệu tổng hợp' })).toBeVisible();
-  const comparison = parentPage.getByRole('table', { name: 'So sánh trường' });
-  await expect(comparison).toContainText(tenants.alpha?.name as string);
-  await expect(comparison).not.toContainText(tenants.beta?.name as string);
   const download = parentPage.waitForEvent('download');
   await parentPage.getByRole('button', { name: 'Xuất Excel' }).click();
   expect((await download).suggestedFilename()).toMatch(/\.xlsx$/);
+  await parentPage
+    .getByRole('navigation', { name: 'Trang cấp trên' })
+    .getByRole('link', { name: 'So sánh trường' })
+    .click();
+  const comparison = parentPage.getByRole('table', { name: 'So sánh trường' });
+  await expect(comparison).toContainText(tenants.alpha?.name as string);
+  await expect(comparison).not.toContainText(tenants.beta?.name as string);
   await parentContext.close();
 });
