@@ -88,7 +88,7 @@ Cổng vận hành nền tảng (`apps/platform`, thiết kế Eric duyệt ngà
 
 ### 2.6 Hai phong cách dùng chung (YCTD-384, chờ phê duyệt)
 
-Eric chọn ngày 2026-10-30: cổng quản trị trường và cổng vận hành theo phong cách "Hành chính hiện đại"; ứng dụng giáo viên, phụ huynh, học sinh và chợ gia sư theo phong cách "Thân thiện theo vai" (một nền chung, mỗi vai một màu nhấn). Hai phong cách dùng chung phông, thang chữ, khoảng cách, vùng chạm, màu trạng thái (VH-14 đến VH-18), màu tài chính (mục 2.4) và mọi thành phần ở mục 5. Giá trị đặt một lần ở `packages/ui/src/theme.css`; ứng dụng chỉ chọn phong cách và vai, không ghi đè màu riêng. Khi các lát của YCTD-384 xong, PC-01 đến PC-28 thay M-01, M-02, M-05, N-01 đến N-03, C-01 đến C-03, V-01, V-02 và VH-01 đến VH-13 trong mã giao diện; các mã cũ giữ trong tài liệu để tra cứu. Bản mẫu: `tai_lieu/ban_mau/yctd-384/index.html`.
+Eric chọn ngày 2026-10-30: cổng quản trị trường và cổng vận hành theo phong cách "Hành chính hiện đại"; ứng dụng giáo viên, phụ huynh, học sinh theo phong cách "Thân thiện theo vai" (một nền chung, mỗi vai một màu nhấn). Hai phong cách dùng chung phông, thang chữ, khoảng cách, vùng chạm, màu trạng thái (VH-14 đến VH-18), màu tài chính (mục 2.4) và mọi thành phần ở mục 5. Giá trị đặt một lần ở `packages/ui/src/theme.css`; ứng dụng chỉ chọn phong cách và vai, không ghi đè màu riêng. Khi các lát của YCTD-384 xong, PC-01 đến PC-28 thay M-01, M-02, M-05, N-01 đến N-03, C-01 đến C-03, V-01, V-02 và VH-01 đến VH-13 trong mã giao diện; các mã cũ giữ trong tài liệu để tra cứu. Bản mẫu: `tai_lieu/ban_mau/yctd-384/index.html`.
 
 Phong cách Hành chính hiện đại (lớp `.pc-hanh-chinh`):
 
@@ -113,7 +113,7 @@ Phong cách Thân thiện theo vai (lớp `.pc-theo-vai` kèm một lớp vai):
 
 | Mã | Tên | Giá trị | Dùng cho |
 |---|---|---|---|
-| PC-15 | Nền trang | #FBF8F3 | Nền vùng nội dung (bằng nền kem đã duyệt của chợ gia sư) |
+| PC-15 | Nền trang | #FBF8F3 | Nền vùng nội dung |
 | PC-16 | Chữ | #1F2A24 | Chữ chính (14,01:1 trên PC-15) |
 | PC-17 | Chữ phụ | #5C6660 | Mô tả, thời gian (5,62:1 trên PC-15) |
 | PC-18 | Viền thẻ | #E7E1D8 | Viền thẻ, thanh dưới |
@@ -122,7 +122,7 @@ Phong cách Thân thiện theo vai (lớp `.pc-theo-vai` kèm một lớp vai):
 | PC-21 | Giáo viên | nhấn #0F6B5F, nhấn đậm #0B564C, nền nhạt #E1F1EC | Lớp `.vai-giao-vien`; chữ trắng trên nhấn 6,39:1; nhấn đậm trên nền nhạt 7,35:1 |
 | PC-22 | Phụ huynh | nhấn #1F5FA8, nhấn đậm #184C87, nền nhạt #E6EEF9 | Lớp `.vai-phu-huynh`; 6,44:1; 7,41:1 |
 | PC-23 | Học sinh | nhấn #6D28D9, nhấn đậm #5B21B6, nền nhạt #EFE7FD | Lớp `.vai-hoc-sinh`; 7,10:1; 7,49:1 |
-| PC-24 | Chợ gia sư | nhấn #1F4E8C, nhấn đậm #12304F, nền nhạt #E8EEF7 | Lớp `.vai-cho-gia-su`; giữ màu đã duyệt ở YCTD-360, YCTD-361, YCTD-368; 8,31:1; 11,53:1 |
+| PC-24 | (bỏ) | — | Dự kiến cho chợ gia sư; bỏ ngày 2026-10-30 vì chợ gia sư tách sang kho riêng. Mã không dùng lại |
 
 Dùng chung hai phong cách:
 
@@ -132,6 +132,17 @@ Dùng chung hai phong cách:
 | PC-26 | Cảnh báo | nền #FDF0D8, chữ #7A4600 | Nhãn, dải cảnh báo (bằng VH-16; 6,89:1) |
 | PC-27 | Nguy hiểm | nền #FDECEC, chữ và nút phá hủy #B91C1C | Bằng VH-18 (5,66:1 trên nền nhạt) |
 | PC-28 | Trung tính | nền #EEF1F4, chữ #4A5562 | Đã hủy, bảo lưu, đã kết thúc (bằng VH-17) |
+
+### 2.7 Sẵn sàng cho ứng dụng Android, iOS (YCTD-384, chờ phê duyệt)
+
+| Mã | Quy tắc |
+|---|---|
+| GT-01 | Nguồn biến duy nhất `packages/ui/tokens.json` (màu, chữ, khoảng cách, bo góc, bóng, thời lượng chuyển động) sinh `theme.css`; tên biến theo nghĩa (nhấn, nền, chữ phụ), không theo màu; về sau sinh được chủ đề cho ứng dụng gốc |
+| GT-02 | Cỡ chữ khai báo theo `rem` để theo cỡ chữ của hệ thống, trình duyệt; bố cục chịu được cỡ chữ 200% |
+| GT-03 | Vùng an toàn: trang đặt `viewport-fit=cover`; thanh đầu, thanh dưới, thanh thao tác, ngăn dưới cộng `env(safe-area-inset-*)` |
+| GT-04 | Điều hướng: thanh dưới tối đa 5 mục; màn con có nút quay lại ở đầu trang; vuốt mép trái (iOS) và nút quay lại (Android) đóng ngăn, hộp thoại trước rồi mới về màn trước |
+| GT-05 | Cử chỉ chỉ là cách thêm: kéo xuống tải lại danh sách, nhấn giữ để chọn nhiều; mọi việc làm được bằng nút |
+| GT-06 | Chế độ tối: phiên bản 1.0 chưa có (Q-85); mỗi biến PC-* có thể kèm giá trị tối trong `tokens.json`, chưa bật (chờ Eric quyết Q-384-2) |
 
 ## 3. Chữ
 
@@ -214,6 +225,12 @@ Lớp ở `apps/platform/src/cong-van-hanh.css`, thành phần React ở `apps/p
 | TD-24 | Dải thông báo một dòng | Thay khối thông báo cao ở đầu trang: biểu tượng, nội dung cắt một dòng, nút Xem mở đủ nội dung, nút Ẩn; đạt tương phản như PC-10 |
 | TD-25 | Thanh công cụ lưới gọn | Ô tìm, nút "Bộ lọc" kèm số điều kiện đang áp dụng (TD-10), nút phụ hay dùng, nút "Thêm" gom thao tác ít dùng; nút chính đặt cạnh tiêu đề trang. Khi chọn dòng hiện dải "Đã chọn N …" với thao tác hàng loạt. Điện thoại ẩn nút phụ vào "Thêm" |
 | TD-26 | Nhóm nút chọn một | Các nút liền nhau cao 44 điểm ảnh, `role="group"`, `aria-pressed`; nút đang chọn tô màu trạng thái tương ứng (ví dụ điểm danh Có, Phép, Vắng) |
+| TD-27 | Ngăn dưới | Điện thoại: thao tác ít dùng, bộ lọc, chọn giá trị mở từ đáy màn hình, có tay cầm, lớp phủ, vùng an toàn; vuốt xuống hoặc nút quay lại đóng. Máy tính bảng, máy tính dùng menu sổ xuống, hộp thoại |
+| TD-28 | Thanh thao tác hàng loạt ở đáy | Điện thoại: khi chọn từ một dòng, thanh dính đáy hiện số đã chọn, nút Bỏ chọn, thao tác chính, nút "Thao tác khác" mở TD-27; máy tính bảng, máy tính dùng dải "Đã chọn N …" trên lưới |
+| TD-29 | Bảng nhập theo ô | Máy tính, máy tính bảng: cột tên và hàng tiêu đề dính khi cuộn, ô nhập 44 điểm ảnh, bàn phím số cho điểm. Điện thoại: chế độ nhập theo từng dòng (mọi cột của một học sinh, nút trước, sau) và theo một cột cho cả danh sách; cùng dữ liệu, cùng điểm cuối |
+| TD-30 | Lịch tuần, ngày | Máy tính, máy tính bảng: lưới tuần, ô có cảnh báo tô màu kèm chữ. Điện thoại: hàng nút chọn ngày, các mục của ngày thành danh sách; xem tháng thành danh sách theo ngày; đổi ô bằng bấm rồi chọn ở TD-27 |
+| TD-31 | Mục lục biểu mẫu dài | Máy tính: cột mục lục trái dính; máy tính bảng, điện thoại: hàng nút cuộn ngang dính trên cùng; mục có lỗi gắn nhãn số lỗi; nút Ghi dính đáy |
+| TD-32 | Biểu đồ kèm số liệu | Mỗi biểu đồ có câu tóm tắt và bảng số liệu đọc được bằng trình đọc màn hình; nhãn trục từ 14 điểm ảnh; điện thoại thu gọn số cột, không cuộn ngang |
 
 ## 6. Biểu tượng và hình ảnh
 
