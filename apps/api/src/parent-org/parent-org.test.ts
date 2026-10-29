@@ -256,9 +256,9 @@ for (const layout of ['database', 'schema'] as const) {
       const listed = await parentOrgApi('/exports');
       assert.equal(listed.status, 200, JSON.stringify(listed.body));
       assert.equal(listed.body.background_available, true);
-      const row = (listed.body.exports as Array<{ id: string; status: string; file_name: string; category_labels: string[] }>).find(
-        (item) => item.id === id,
-      );
+      const row = (
+        listed.body.exports as Array<{ id: string; status: string; file_name: string; category_labels: string[] }>
+      ).find((item) => item.id === id);
       assert.equal(row?.status, 'done', JSON.stringify(row));
       assert.match(row?.file_name ?? '', /^so-sanh-so-gia-.*\.xlsx$/);
       assert.equal(row?.category_labels.length, 2);
@@ -347,7 +347,12 @@ for (const layout of ['database', 'schema'] as const) {
           return created.body.id as string;
         };
         const pending = await request();
-        const withdrawn = await identity('POST', `/auth/parent-org/access-requests/${pending}/withdraw`, {}, parentToken);
+        const withdrawn = await identity(
+          'POST',
+          `/auth/parent-org/access-requests/${pending}/withdraw`,
+          {},
+          parentToken,
+        );
         assert.equal(withdrawn.status, 200, JSON.stringify(withdrawn.body));
         assert.equal(withdrawn.body.status, 'withdrawn');
         assert.equal(

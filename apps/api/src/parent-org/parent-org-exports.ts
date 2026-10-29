@@ -56,6 +56,24 @@ const MAX_ATTEMPTS = 3;
 const STALE_RUNNING_MS = 15 * 60_000;
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
+export interface ParentOrgExportView {
+  id: string;
+  admin_unit_id: string;
+  unit_name: string;
+  categories: AggregateCategory[];
+  category_labels: string[];
+  layout: AggregateLayout;
+  layout_label: string;
+  format: ExportFormat;
+  status: 'queued' | 'running' | 'done' | 'failed' | 'expired';
+  file_name: string | null;
+  size_bytes: number | null;
+  error: string | null;
+  created_at: Date;
+  finished_at: Date | null;
+  expires_at: Date | null;
+}
+
 export function parentOrgExportKey(unitId: string, exportId: string, format: ExportFormat): string {
   return `platform/parent-org-exports/${unitId}/${exportId}.${format}`;
 }
@@ -105,7 +123,10 @@ export class ParentOrgExportsService implements OnApplicationBootstrap, OnModule
     const user = await this.data.user(request);
     const storage = this.storage;
     if (!storage) {
-      throw new ApplicationError('ERR_RULE_VIOLATION', 'Bản triển khai chưa có kho tệp để xuất chạy nền; dùng tải trực tiếp');
+      throw new ApplicationError(
+        'ERR_RULE_VIOLATION',
+        'Bản triển khai chưa có kho tệp để xuất chạy nền; dùng tải trực tiếp',
+      );
     }
     const unitId = typeof body?.unit_id === 'string' && body.unit_id ? body.unit_id : user.unit_id;
     const categories: AggregateCategory[] = Array.isArray(body?.categories)
@@ -173,7 +194,7 @@ export class ParentOrgExportsService implements OnApplicationBootstrap, OnModule
     };
   }
 
-  private async describe(id: string) {
+  private async describe(id: string): Promise<ParentOrgExportView> {
     const row = await this.platform
       .selectFrom('parent_org_exports')
       .select([

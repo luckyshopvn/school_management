@@ -217,7 +217,12 @@ export const parentOrgApi = {
     ),
   // Rút đề nghị của chính mình: chờ duyệt hoặc đã duyệt còn hạn (YCTD-367)
   withdrawRequest: (token: string, id: string) =>
-    send<{ id: string; status: 'withdrawn' }>(token, 'POST', `/api/v1/auth/parent-org/access-requests/${id}/withdraw`, {}),
+    send<{ id: string; status: 'withdrawn' }>(
+      token,
+      'POST',
+      `/api/v1/auth/parent-org/access-requests/${id}/withdraw`,
+      {},
+    ),
   download: (token: string, unitId: string, category: AggregateCategory, format: 'xlsx' | 'pdf') =>
     saveFile(
       token,
