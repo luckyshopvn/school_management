@@ -1,4 +1,4 @@
-// Chuyển hướng tên miền cũ của ứng dụng Gia sư về Chợ gia sư (YCTD-368, GD-181): từ khi gộp hai ứng dụng, gia-su.<tên miền> không còn
+// Chuyển hướng tên miền cũ của ứng dụng Gia sư về Chợ gia sư (YCTD-368, GD-185): từ khi gộp hai ứng dụng, gia-su.<tên miền> không còn
 // ứng dụng riêng. Mọi đường dẫn chuyển 308 sang cùng đường dẫn, cùng truy vấn ở địa chỉ của chợ, để liên kết cũ không gãy: lượt quay về
 // từ nhà cung cấp định danh (/xac-minh?code=…), liên kết mời vào phòng học, dấu trang của gia sư. Riêng /sw.js trả một service worker
 // tự gỡ: trình duyệt đã cài ứng dụng Gia sư cũ kiểm bản mới thì nhận bản này, xóa bộ nhớ đệm 'gia-su-v-' rồi tự hủy đăng ký (service

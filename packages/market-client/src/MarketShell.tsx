@@ -7,7 +7,7 @@ import { SAFETY_HOTLINE } from './SafetyWidgets.js';
 
 // Khung của ứng dụng Chợ gia sư (DT-27 phần 27f, YCTD-256): trang công khai (giới thiệu, văn bản pháp lý), đăng ký, xác nhận mã,
 // đăng nhập, văn bản mới cần đồng ý; phần riêng của vai (khu phụ huynh, khu gia sư) do ứng dụng dựng theo loại tài khoản của phiên.
-// Từ YCTD-368 (GD-181) phụ huynh và gia sư dùng chung một ứng dụng, một tên miền; máy chủ vẫn kiểm loại tài khoản ở từng điểm cuối. Bố cục theo bản thiết kế "Chợ gia sư, Gia sư, Cấp trên" Eric duyệt ngày 2026-10-28 (YCTD-360): thanh
+// Từ YCTD-368 (GD-185) phụ huynh và gia sư dùng chung một ứng dụng, một tên miền; máy chủ vẫn kiểm loại tài khoản ở từng điểm cuối. Bố cục theo bản thiết kế "Chợ gia sư, Gia sư, Cấp trên" Eric duyệt ngày 2026-10-28 (YCTD-360): thanh
 // đầu trang trắng có thanh điều hướng của vai, nhãn "Thanh toán giả lập", nội dung rộng, chân trang có văn bản pháp lý và đường dây nóng
 type View = 'home' | 'register' | 'login' | 'forgot' | 'document';
 

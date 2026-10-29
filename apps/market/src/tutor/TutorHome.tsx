@@ -14,7 +14,7 @@ import type { Listing } from './tutor-api.js';
 // Khu gia sư của Chợ gia sư (DT-27, YCTD-262; quyết định của Eric ngày 2026-10-28 "làm thêm ứng dụng cho gia sư"; giáo viên dạy kèm
 // ngoài trường cũng dùng bằng tài khoản chợ riêng): giới thiệu và cơ sở dạy thêm (27f), xác minh từng bậc, hồ sơ dạy, khai giáo viên
 // đang dạy ở trường, Mẫu 03 (27g). Lịch dạy, buổi, thu nhập (27h); báo cáo an toàn (27i). Từ YCTD-361 chia trang theo cột điều hướng
-// bên trái, trang đang mở ghi ở phần # của địa chỉ. Từ YCTD-368 (GD-181) không còn là ứng dụng riêng: ứng dụng Chợ gia sư hiện khu
+// bên trái, trang đang mở ghi ở phần # của địa chỉ. Từ YCTD-368 (GD-185) không còn là ứng dụng riêng: ứng dụng Chợ gia sư hiện khu
 // này khi tài khoản đăng nhập là gia sư; máy chủ vẫn chỉ cho tài khoản gia sư gọi các điểm cuối /tutor/*
 export const TUTOR_PAGES = [
   { key: 'buoi-day', label: 'Buổi dạy' },

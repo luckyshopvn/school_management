@@ -17,7 +17,7 @@ import { TutorSearch } from './TutorSearch.js';
 import { TUTOR_PAGES, TutorHome, type TutorPage } from './tutor/TutorHome.js';
 
 // Chợ gia sư (DT-27 phần 27f, YCTD-256; tài liệu 47 mục 19.5): trang công khai, đăng ký, đăng nhập, rồi khu riêng theo loại tài khoản.
-// Từ YCTD-368 (GD-181) là ứng dụng chung của phụ huynh và gia sư (gộp ứng dụng Gia sư của YCTD-262): phụ huynh thấy tìm gia sư, buổi học
+// Từ YCTD-368 (GD-185) là ứng dụng chung của phụ huynh và gia sư (gộp ứng dụng Gia sư của YCTD-262): phụ huynh thấy tìm gia sư, buổi học
 // của con, tin nhắn, hồ sơ con, an toàn (thanh điều hướng ở đầu trang, YCTD-360); gia sư, kể cả giáo viên dạy kèm ngoài trường, thấy
 // buổi dạy, lịch, hồ sơ, thu nhập, xác minh (cột điều hướng bên trái, YCTD-361). Ẩn ở giao diện chỉ để gọn: máy chủ kiểm loại tài khoản
 // ở từng điểm cuối. Trang đang mở ghi ở phần # của địa chỉ để tải lại vẫn đúng trang

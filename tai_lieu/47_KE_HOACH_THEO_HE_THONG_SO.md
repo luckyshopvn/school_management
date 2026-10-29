@@ -2481,7 +2481,7 @@ Bản kế hoạch này là YCTD-250, chỉ đổi tài liệu (không tăng phi
 | E-08 | Rà và ký các hồ sơ PL-16 đến PL-21 (`48_HO_SO_PHAP_LY/16_DANH_SACH_HO_SO_GIA_SU.md`) | Mốc 1 (PL-17, PL-18 phần trong trường), mốc 3 (tất cả) | |
 | E-09 | Chọn nhà cung cấp hóa đơn điện tử thật (đã treo từ S5b) | 27h xuất hóa đơn hoa hồng thật | |
 | E-10 | Chốt các giả định GD-130 đến GD-138 ở 19.11 nếu muốn khác giá trị Claude đặt | Khi làm từng phần | |
-| E-11 | Một người có cả hai vai (ví dụ giáo viên vừa là phụ huynh): giữ hai tài khoản riêng hay cho một tài khoản đổi vai (phương án ở 19.15 mục 4) | Trước khi mở chợ thật | Mặc định GD-181: mỗi tài khoản một loại |
+| E-11 | Một người có cả hai vai (ví dụ giáo viên vừa là phụ huynh): giữ hai tài khoản riêng hay cho một tài khoản đổi vai (phương án ở 19.15 mục 4) | Trước khi mở chợ thật | Eric chọn (a) ngày 2026-10-29: mỗi tài khoản một loại (GD-185) |
 
 ### 19.11 Giả định chưa chốt, làm cấu hình được
 
@@ -2499,7 +2499,7 @@ Số GD và RR của DT-27 bắt đầu từ GD-130 và RR-28: DT-26 dùng GD-12
 | GD-137 | Thư viện bảng trắng | Thư viện mã nguồn mở có giấy phép dùng thương mại, chọn và ghi giấy phép lúc làm | mã 27a | Claude (theo ủy quyền) |
 | GD-138 | Khấu trừ thuế ở chợ | Công tắc tắt đến khi luật sư kết luận (E-03); tỷ lệ là dữ liệu có ngày hiệu lực | cấu hình chợ | Eric, luật sư |
 | GD-164 | Mốc của phòng học video ở chợ (quyết định của Eric ngày 2026-10-29) | Mở phòng trước giờ học 10 phút; vào muộn quá 15 phút tính vắng; gia sư vắng quá 10 phút thì phụ huynh báo và được hoàn đủ; có mặt từ 80% thời lượng là đủ buổi; gia sư không xác nhận thì tự xác nhận sau 24 giờ; phụ huynh vào xem luôn tắt micro trừ khi gia sư cho nói | cấu hình chợ (`platform_settings.market`) | Eric (đã chốt; cổng vận hành chỉnh được) |
-| GD-181 | Gộp ứng dụng Gia sư vào Chợ gia sư (yêu cầu của Eric ngày 2026-10-29, YCTD-368) | Một ứng dụng `apps/market` ở một tên miền cho phụ huynh và gia sư, hiện bộ màn theo loại tài khoản; máy chủ kiểm loại tài khoản ở từng điểm cuối, bỏ quy tắc chặn theo tên miền; tên miền cũ `gia-su.` chuyển 308 về chợ. Mỗi tài khoản một loại, không đổi sau khi đăng ký; ai cần cả hai vai thì đăng ký thêm tài khoản bằng thư điện tử hoặc số điện thoại khác (đến khi Eric quyết E-11). **Thay quyết định tách ứng dụng của YCTD-262** | `apps/market`, `MarketContext.assertMarketHost`, cấu hình chợ (`tutor_host` chỉ còn là tên miền cũ) | Eric (yêu cầu gộp đã chốt; cách cho một người hai vai chờ E-11) |
+| GD-185 | Gộp ứng dụng Gia sư vào Chợ gia sư (yêu cầu của Eric ngày 2026-10-29, YCTD-368) | Một ứng dụng `apps/market` ở một tên miền cho phụ huynh và gia sư, hiện bộ màn theo loại tài khoản; máy chủ kiểm loại tài khoản ở từng điểm cuối, bỏ quy tắc chặn theo tên miền; tên miền cũ `gia-su.` chuyển 308 về chợ. Mỗi tài khoản một loại, không đổi sau khi đăng ký; ai cần cả hai vai thì đăng ký thêm tài khoản bằng thư điện tử hoặc số điện thoại khác (Eric chọn phương án (a) của E-11 ngày 2026-10-29). **Thay quyết định tách ứng dụng của YCTD-262** | `apps/market`, `MarketContext.assertMarketHost`, cấu hình chợ (`tutor_host` chỉ còn là tên miền cũ) | Eric (đã chốt ngày 2026-10-29: duyệt phiếu, bản mẫu, danh sách lát; E-11 chọn (a)) |
 | GD-165 | Gói buổi ở chợ (quyết định của Eric ngày 2026-10-29) | Dùng trong 8 tuần kể từ lúc trả tiền; hết hạn thì hoàn phần buổi chưa học theo giá mỗi buổi của gói; hủy trước buổi đầu thì hoàn đủ; gia sư bị tạm khóa thì hoàn phần còn lại; mỗi buổi giải ngân riêng sau hạn khiếu nại | cấu hình chợ (`package_valid_days`) | Eric (đã chốt) |
 
 ### 19.12 Phần 27j: phòng học video của chợ (YCTD-362)
@@ -2551,7 +2551,7 @@ Quy tắc theo GD-165 (Eric chốt ngày 2026-10-29), cơ sở dữ liệu chợ
 
 ### 19.15 Gộp ứng dụng Gia sư vào Chợ gia sư (YCTD-368)
 
-Ngày 2026-10-29 Eric yêu cầu gộp hai ứng dụng web của chợ thành một, dùng chung cho giáo viên (gia sư) và phụ huynh, phân quyền theo loại tài khoản. Quyết định ghi ở GD-181; điểm còn chờ Eric ở E-11.
+Ngày 2026-10-29 Eric yêu cầu gộp hai ứng dụng web của chợ thành một, dùng chung cho giáo viên (gia sư) và phụ huynh, phân quyền theo loại tài khoản. Quyết định ghi ở GD-185. Eric duyệt phiếu YCTD-368, bản mẫu `tai_lieu/ban_mau/yctd-368/` và danh sách lát ngày 2026-10-29, chọn phương án (a) của E-11 (mục 4).
 
 1. **Một ứng dụng, một tên miền.**
    - `apps/tutor` gộp vào `apps/market`: các màn của gia sư ở `apps/market/src/tutor/`; `apps/tutor` bị xóa. Ứng dụng chung cài được (PWA, tiền tố bộ nhớ đệm `cho-gia-su-v-`).
@@ -2570,10 +2570,10 @@ Ngày 2026-10-29 Eric yêu cầu gộp hai ứng dụng web của chợ thành m
    - Gia sư không gọi được `/children`, `/bookings` của phụ huynh (403); chỉ thấy con của phụ huynh qua buổi đã đặt với mình như trước.
    - Không có kênh nhắn riêng giữa gia sư và trẻ; tin nhắn vẫn là luồng phụ huynh và gia sư.
    - Phòng học vẫn ghi hình theo GD-131, GD-164; không đổi quy tắc phòng.
-4. **Một người có cả hai vai (chờ Eric, E-11).** Mặc định trước mắt: mỗi tài khoản một loại; giáo viên vừa là phụ huynh đăng ký hai tài khoản bằng hai thư điện tử hoặc số điện thoại khác nhau (thư điện tử, số điện thoại là duy nhất trên mọi loại). Claude không tự gộp tài khoản. Hai phương án để Eric chọn:
+4. **Một người có cả hai vai (E-11, Eric chọn (a) ngày 2026-10-29).** Mặc định trước mắt: mỗi tài khoản một loại; giáo viên vừa là phụ huynh đăng ký hai tài khoản bằng hai thư điện tử hoặc số điện thoại khác nhau (thư điện tử, số điện thoại là duy nhất trên mọi loại). Claude không tự gộp tài khoản. Hai phương án để Eric chọn:
    - (a) Giữ hai tài khoản riêng: đơn giản, nhật ký, đối soát tiền, báo cáo an toàn tách bạch; người dùng phải đăng xuất để đổi vai và cần hai địa chỉ liên lạc.
    - (b) Một tài khoản, hai hồ sơ vai: thêm bảng vai của tài khoản, phiên mang vai đang dùng, nút đổi vai; mỗi vai đồng ý văn bản riêng; báo cáo an toàn, tạm khóa áp theo người (khóa vai gia sư thì xét cả vai phụ huynh). Cần migration chợ và rà lại mọi điểm cuối dùng `account.kind`.
-   - Claude đề xuất (a) cho đến khi mở chợ thật, cân nhắc (b) khi có số liệu giáo viên dùng cả hai vai.
+   - Eric chọn (a). Phương án (b) xét lại khi có số liệu giáo viên dùng cả hai vai; bản mẫu MH-595 giữ làm tham khảo.
 5. **Kiểm thử:** máy chủ CT-368-1 (`market.test.ts`: phiên gia sư dùng ở tên miền chung, tên miền cũ 404, sai loại tài khoản 403; các tệp kiểm thử chợ gọi gia sư ở tên miền chung); cổng biên (`tests/trial/edge-worker.test.mjs`: tên miền cũ chuyển 308); giao diện CT-368-2 (spec 195: tên miền cũ chuyển hướng, gia sư đăng ký ở chợ và thấy đúng bộ màn, phụ huynh không thấy màn của gia sư) cùng spec 196 đến 199 chạy trên tên miền chung.
 
 

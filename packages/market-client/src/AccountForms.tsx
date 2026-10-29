@@ -4,7 +4,7 @@ import { errorText, marketRequest, type Site } from './market-api.js';
 
 // Đăng ký, xác nhận mã, đăng nhập của chợ gia sư (DT-27 phần 27f): đăng ký phải tích đồng ý từng văn bản bắt buộc của vai (phiên bản
 // mới nhất); tài khoản chờ xác nhận đến khi nhập mã 6 số gửi tới thư điện tử hoặc số điện thoại. Ứng dụng chung (YCTD-368): người đăng
-// ký chọn loại tài khoản; mỗi tài khoản một loại (GD-181), ai cần cả hai vai thì đăng ký thêm bằng thư điện tử hoặc số điện thoại khác
+// ký chọn loại tài khoản; mỗi tài khoản một loại (GD-185), ai cần cả hai vai thì đăng ký thêm bằng thư điện tử hoặc số điện thoại khác
 const REQUIRED: Record<'parent' | 'tutor', string[]> = {
   parent: ['terms', 'privacy'],
   tutor: ['terms', 'privacy', 'tutor_terms'],

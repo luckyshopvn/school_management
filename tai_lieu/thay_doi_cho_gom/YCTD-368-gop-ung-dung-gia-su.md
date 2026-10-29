@@ -11,7 +11,7 @@ phien_ban_de_xuat: 0.248.0
 
 #### Công việc đã thực hiện
 
-- Thêm GD-181, E-11 và mục 19.15 vào tài liệu 47; sửa bảng địa chỉ ở 16.10 và dòng Chợ gia sư ở tài liệu 49.
+- Thêm GD-185, E-11 và mục 19.15 vào tài liệu 47; sửa bảng địa chỉ ở 16.10 và dòng Chợ gia sư ở tài liệu 49.
 - Gộp `apps/tutor` vào `apps/market`, xóa `apps/tutor`:
   - các màn của gia sư chuyển sang `apps/market/src/tutor/`;
   - ứng dụng chung hiện bộ màn theo loại tài khoản của phiên: phụ huynh có thanh điều hướng ở đầu trang, gia sư có cột bên trái;
@@ -37,7 +37,7 @@ phien_ban_de_xuat: 0.248.0
 
 #### Quyết định
 
-- GD-181 theo yêu cầu của Eric ngày 2026-10-29 ("gộp 2 ứng dụng gia sư lại làm 1 … phân quyền cho phù hợp"): một ứng dụng, một tên miền; quyền theo loại tài khoản ở máy chủ. Thay quyết định tách ứng dụng của YCTD-262.
+- GD-185 theo yêu cầu của Eric ngày 2026-10-29 ("gộp 2 ứng dụng gia sư lại làm 1 … phân quyền cho phù hợp"): một ứng dụng, một tên miền; quyền theo loại tài khoản ở máy chủ. Thay quyết định tách ứng dụng của YCTD-262.
 - Một người có cả hai vai: chờ Eric (E-11). Mặc định mỗi tài khoản một loại; đăng ký thêm tài khoản loại kia bằng thư điện tử hoặc số điện thoại khác. Không tự gộp tài khoản.
 - Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11:
   - giữ cột `tutor_host` làm tên miền cũ để cổng vận hành còn thấy, không thêm migration;
@@ -59,7 +59,7 @@ phien_ban_de_xuat: 0.248.0
 
 ### YCTD-368: Gộp ứng dụng Gia sư vào Chợ gia sư, phân quyền theo loại tài khoản – 2026-10-29
 
-- Lý do: Eric yêu cầu ngày 2026-10-29 một ứng dụng dùng chung cho giáo viên (gia sư) và phụ huynh, phân quyền theo loại tài khoản (GD-181).
+- Lý do: Eric yêu cầu ngày 2026-10-29 một ứng dụng dùng chung cho giáo viên (gia sư) và phụ huynh, phân quyền theo loại tài khoản (GD-185).
 - Nội dung thay đổi: gộp `apps/tutor` vào `apps/market`, xóa `apps/tutor`; ứng dụng hiện bộ màn theo `kind`; máy chủ bỏ quy tắc chặn theo tên miền, giữ kiểm loại tài khoản ở từng điểm cuối; tên miền cũ chuyển hướng về chợ.
 - Thành phần bị ảnh hưởng: `apps/market/*` (thêm `src/tutor/`, `public/`), `apps/tutor` (xóa), `packages/market-client/src/MarketShell.tsx`, `AccountForms.tsx`, `market-api.ts`, `apps/api/src/market/market-context.ts`, `market-accounts.ts`, `market-identity.ts`, `market-password.ts`, `market-public.ts` và kiểm thử, `database/src/marketplace/market-settings.ts`, `apps/platform/src/MarketPage.tsx`, `scripts/chay-nhieu-truong.mjs`, `scripts/chuyen-huong-gia-su.mjs` (mới), `deploy/docker/*.Dockerfile`, `deploy/profiles/production/*`, `deploy/profiles/trial/*`, `tests/playwright.multi.config.ts`, `tests/e2e-multi-environment.mjs`, `tests/e2e/195` đến `199`, `tests/trial/edge-worker.test.mjs`, README, tài liệu 47, 49.
 - Dữ liệu, API, quyền bị ảnh hưởng: không có migration. `GET /market/public/site` bỏ `tutor_url`, `application`. `POST /market/auth/register` nhận `kind` do người dùng chọn ở mọi tên miền của chợ. `POST /market/auth/login`, `POST /market/identity/complete` (đăng nhập) không còn chặn theo tên miền. `POST /market/identity/start` lấy mục đích theo loại tài khoản. Máy chủ API không phục vụ tên miền cũ của ứng dụng Gia sư (404). Quyền theo loại tài khoản ở từng điểm cuối không đổi.
@@ -71,7 +71,7 @@ phien_ban_de_xuat: 0.248.0
 
 ### Phiên bản {PHIEN_BAN} – 2026-10-29
 
-- Phạm vi thay đổi: gộp ứng dụng Gia sư vào Chợ gia sư, phân quyền theo loại tài khoản (YCTD-368, GD-181).
+- Phạm vi thay đổi: gộp ứng dụng Gia sư vào Chợ gia sư, phân quyền theo loại tài khoản (YCTD-368, GD-185).
 - Gỡ ứng dụng `apps/tutor`; tên miền cũ chuyển hướng về chợ.
 
 ## 01 Bảng phiên bản

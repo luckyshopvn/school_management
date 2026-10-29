@@ -184,7 +184,7 @@ export class MarketAccountsService {
     await this.market.assertMarketHost(request);
     const errors: FieldError[] = [];
     const kind = body?.kind;
-    // Người đăng ký chọn loại tài khoản ở ứng dụng chung (YCTD-368); mỗi tài khoản một loại, không đổi về sau (GD-181)
+    // Người đăng ký chọn loại tài khoản ở ứng dụng chung (YCTD-368); mỗi tài khoản một loại, không đổi về sau (GD-185)
     if (kind !== 'parent' && kind !== 'tutor') {
       errors.push({ field: 'kind', message: 'Chọn loại tài khoản: phụ huynh hoặc gia sư' });
     }

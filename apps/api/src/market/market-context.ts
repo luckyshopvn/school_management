@@ -106,7 +106,7 @@ export class MarketContext implements OnModuleDestroy {
     );
   }
 
-  // Phần của người dùng chợ: chợ bật và đúng tên miền dành riêng của chợ. Từ YCTD-368 (GD-181) phụ huynh và gia sư dùng chung một ứng
+  // Phần của người dùng chợ: chợ bật và đúng tên miền dành riêng của chợ. Từ YCTD-368 (GD-185) phụ huynh và gia sư dùng chung một ứng
   // dụng ở tên miền này; vai lấy từ loại tài khoản của phiên (`account`, `requireReady`), không từ tên miền. Tên miền cũ của ứng dụng
   // Gia sư (`tutorHost`) chỉ được tầng biên chuyển hướng về đây, máy chủ API không phục vụ nó
   async assertMarketHost(request: Request): Promise<{ settings: MarketSettings }> {

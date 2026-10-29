@@ -6,7 +6,7 @@ import { writeAudit } from '../provision-school.js';
 // `market` như cấu hình AI của 23d. Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11 và quyết định ngày 2026-10-28 ("làm mã, tiền
 // giả lập"):
 // - chợ tắt mặc định; bật thì máy chủ API phục vụ `/api/v1/market/*` ở tên miền con dành riêng của chợ (`host`), nơi chạy ứng dụng
-//   chung của phụ huynh và gia sư (YCTD-368, GD-181). `tutor_host` (không bắt buộc) là tên miền cũ của ứng dụng Gia sư đã gộp
+//   chung của phụ huynh và gia sư (YCTD-368, GD-185). `tutor_host` (không bắt buộc) là tên miền cũ của ứng dụng Gia sư đã gộp
 //   (YCTD-262): tầng biên chuyển hướng nó về `host`, máy chủ API không phục vụ; phải khác `host`;
 // - hạn giữ bản ghi (GD-132), hạn khiếu nại trước khi giải ngân (GD-133), tỷ lệ hoa hồng mặc định (E-01, để trống đến khi Eric chốt)
 //   là dữ liệu, 27h dùng;

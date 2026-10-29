@@ -79,12 +79,12 @@
 
 <div class="ban-mau-thanh" role="toolbar" aria-label="Chọn màn hình của bản mẫu">
   <b>Bản mẫu YCTD-368</b>
-  <button data-man="mh571" aria-pressed="true">MH-571 Trang công khai</button>
-  <button data-man="mh572" aria-pressed="false">MH-572 Đăng ký chọn vai trò</button>
-  <button data-man="mh573" aria-pressed="false">MH-573 Đăng nhập</button>
-  <button data-man="mh574" aria-pressed="false">MH-574 Khung phụ huynh</button>
-  <button data-man="mh575" aria-pressed="false">MH-575 Khung gia sư</button>
-  <button data-man="mh576" aria-pressed="false">MH-576 Đổi vai (chỉ khi chọn phương án b)</button>
+  <button data-man="mh590" aria-pressed="true">MH-590 Trang công khai</button>
+  <button data-man="mh591" aria-pressed="false">MH-591 Đăng ký chọn vai trò</button>
+  <button data-man="mh592" aria-pressed="false">MH-592 Đăng nhập</button>
+  <button data-man="mh593" aria-pressed="false">MH-593 Khung phụ huynh</button>
+  <button data-man="mh594" aria-pressed="false">MH-594 Khung gia sư</button>
+  <button data-man="mh595" aria-pressed="false">MH-595 Đổi vai (chỉ khi chọn phương án b)</button>
 </div>
 <div class="trang-thai" role="toolbar" aria-label="Chọn trạng thái">
   <span>Trạng thái:</span>
@@ -101,18 +101,18 @@
     <button class="logo" type="button">⌂ Chợ gia sư</button>
     <div style="flex:1"></div>
     <span class="nhan-gia-lap">Thanh toán giả lập</span>
-    <div class="hang"><button class="nut" data-di="mh573">Đăng nhập</button><button class="nut chinh" data-di="mh572">Đăng ký</button></div>
+    <div class="hang"><button class="nut" data-di="mh592">Đăng nhập</button><button class="nut chinh" data-di="mh591">Đăng ký</button></div>
   </div></header>
   <p class="dai" style="margin:0">Chợ đang chạy thử: thanh toán là giả lập, không có tiền thật.</p>
 </template>
 
-<section class="man-hinh hien" id="mh571" aria-label="MH-571 Trang công khai">
+<section class="man-hinh hien" id="mh590" aria-label="MH-590 Trang công khai">
   <div data-chen="dau-chua-dang-nhap"></div>
   <main>
-    <div class="ghi-chu-ban-mau">MH-571 · Người chưa đăng nhập ở <b>cho-gia-su.&lt;tên miền&gt;</b>. Mở <b>gia-su.&lt;tên miền&gt;/…</b> cũ thì trình duyệt được chuyển 308 về đúng đường dẫn ở đây (không có màn hình riêng). Ô mới: dải "Đăng ký làm gia sư" thay cho liên kết "Mở ứng dụng Gia sư".</div>
+    <div class="ghi-chu-ban-mau">MH-590 · Người chưa đăng nhập ở <b>cho-gia-su.&lt;tên miền&gt;</b>. Mở <b>gia-su.&lt;tên miền&gt;/…</b> cũ thì trình duyệt được chuyển 308 về đúng đường dẫn ở đây (không có màn hình riêng). Ô mới: dải "Đăng ký làm gia sư" thay cho liên kết "Mở ứng dụng Gia sư".</div>
     <div class="the hang" style="background:var(--warning-bg);border-color:#efe2cc">
       <p style="flex:1;min-width:240px;margin:0" class="phu">Bạn là gia sư hoặc giáo viên muốn dạy kèm trực tuyến? Gia sư được xác minh danh tính và lý lịch trước khi nhận học sinh; mọi tin nhắn với học sinh luôn có phụ huynh.</p>
-      <button class="nut" data-di="mh572" data-vai="tutor">Đăng ký làm gia sư</button>
+      <button class="nut" data-di="mh591" data-vai="tutor">Đăng ký làm gia sư</button>
     </div>
     <div class="the cot">
       <h2>Tìm gia sư</h2>
@@ -129,10 +129,10 @@
   </main>
 </section>
 
-<section class="man-hinh" id="mh572" aria-label="MH-572 Đăng ký chọn vai trò">
+<section class="man-hinh" id="mh591" aria-label="MH-591 Đăng ký chọn vai trò">
   <div data-chen="dau-chua-dang-nhap"></div>
   <main>
-    <div class="ghi-chu-ban-mau">MH-572 · Một biểu mẫu cho cả hai vai. Bấm "Đăng ký làm gia sư" ở MH-571 thì ô Gia sư được chọn sẵn. Đổi vai thì danh sách văn bản phải đồng ý đổi theo (gia sư thêm Điều khoản dành cho gia sư) và bỏ các ô đã tích.</div>
+    <div class="ghi-chu-ban-mau">MH-591 · Một biểu mẫu cho cả hai vai. Bấm "Đăng ký làm gia sư" ở MH-590 thì ô Gia sư được chọn sẵn. Đổi vai thì danh sách văn bản phải đồng ý đổi theo (gia sư thêm Điều khoản dành cho gia sư) và bỏ các ô đã tích.</div>
     <form class="the hep cot" aria-label="Đăng ký tài khoản chợ gia sư" onsubmit="return false">
       <h2>Đăng ký</h2>
       <div data-tt-hien="loi" class="thong-bao loi" role="alert">Thư điện tử này đã có tài khoản. Mỗi tài khoản một vai: muốn dùng vai khác, hãy đăng ký bằng thư điện tử hoặc số điện thoại khác.</div>
@@ -152,23 +152,23 @@
       </div>
       <button class="nut chinh" data-tt-an="dang-tai">Tạo tài khoản</button>
       <button class="nut chinh" disabled data-tt-hien="dang-tai">Đang tạo tài khoản…</button>
-      <p class="phu" style="margin:0">Đã có tài khoản? <a href="#" data-di="mh573">Đăng nhập</a></p>
+      <p class="phu" style="margin:0">Đã có tài khoản? <a href="#" data-di="mh592">Đăng nhập</a></p>
     </form>
   </main>
 </section>
 
-<section class="man-hinh" id="mh573" aria-label="MH-573 Đăng nhập">
+<section class="man-hinh" id="mh592" aria-label="MH-592 Đăng nhập">
   <div data-chen="dau-chua-dang-nhap"></div>
   <main>
-    <div class="ghi-chu-ban-mau">MH-573 · Một màn đăng nhập cho cả hai vai. Không còn lỗi "Tài khoản gia sư đăng nhập ở ứng dụng Gia sư". Sau đăng nhập, ứng dụng mở MH-574 hoặc MH-575 theo loại tài khoản.</div>
+    <div class="ghi-chu-ban-mau">MH-592 · Một màn đăng nhập cho cả hai vai. Không còn lỗi "Tài khoản gia sư đăng nhập ở ứng dụng Gia sư". Sau đăng nhập, ứng dụng mở MH-593 hoặc MH-594 theo loại tài khoản.</div>
     <form class="the hep cot" aria-label="Đăng nhập" onsubmit="return false">
       <h2>Đăng nhập</h2>
       <div data-tt-hien="loi" class="thong-bao loi" role="alert">Sai thư điện tử, số điện thoại hoặc mật khẩu. Sai 5 lần thì tài khoản tạm khóa 15 phút.</div>
       <div data-tt-hien="khong-quyen" class="thong-bao loi" role="alert">Tài khoản đã bị khóa, liên hệ bộ phận hỗ trợ của chợ.</div>
       <label class="o">Thư điện tử hoặc số điện thoại<input autocomplete="username" /></label>
       <label class="o">Mật khẩu<input type="password" autocomplete="current-password" /></label>
-      <button class="nut chinh" data-di="mh574" data-tt-an="dang-tai">Đăng nhập (thử: phụ huynh)</button>
-      <button class="nut" data-di="mh575" data-tt-an="dang-tai">Đăng nhập (thử: gia sư)</button>
+      <button class="nut chinh" data-di="mh593" data-tt-an="dang-tai">Đăng nhập (thử: phụ huynh)</button>
+      <button class="nut" data-di="mh594" data-tt-an="dang-tai">Đăng nhập (thử: gia sư)</button>
       <button class="nut chinh" disabled data-tt-hien="dang-tai">Đang đăng nhập…</button>
       <a href="#">Quên mật khẩu?</a>
       <div class="cot" style="border-top:1px solid var(--border);padding-top:12px">
@@ -179,17 +179,17 @@
   </main>
 </section>
 
-<section class="man-hinh" id="mh574" aria-label="MH-574 Khung phụ huynh">
+<section class="man-hinh" id="mh593" aria-label="MH-593 Khung phụ huynh">
   <header class="dau"><div class="dau-trong">
     <button class="logo" type="button">⌂ Chợ gia sư</button>
     <nav class="tren" aria-label="Điều hướng khu phụ huynh" style="flex:1">
       <button aria-current="page">Tìm gia sư</button><button>Buổi học của con</button><button>Tin nhắn</button><button>Hồ sơ con</button><button>An toàn</button>
     </nav>
     <span class="nhan-gia-lap">Thanh toán giả lập</span>
-    <div class="hang"><span class="vong">P</span><span>Phụ huynh Thử</span><button class="nut" data-di="mh571">Đăng xuất</button></div>
+    <div class="hang"><span class="vong">P</span><span>Phụ huynh Thử</span><button class="nut" data-di="mh590">Đăng xuất</button></div>
   </div></header>
   <main>
-    <div class="ghi-chu-ban-mau">MH-574 · Giữ đúng bố cục đã duyệt ở YCTD-360 (thanh điều hướng ở đầu trang). Không có mục nào của gia sư. Chưa có hồ sơ con thì mở thẳng "Hồ sơ con".</div>
+    <div class="ghi-chu-ban-mau">MH-593 · Giữ đúng bố cục đã duyệt ở YCTD-360 (thanh điều hướng ở đầu trang). Không có mục nào của gia sư. Chưa có hồ sơ con thì mở thẳng "Hồ sơ con".</div>
     <div data-tt-hien="khong-quyen" class="thong-bao canh-bao" role="status">Trang bạn mở dành cho tài khoản gia sư. Đã mở trang Tìm gia sư của tài khoản phụ huynh.</div>
     <div data-tt-hien="loi" class="thong-bao loi" role="alert">Không tải được buổi học. Thử lại sau ít phút; nếu vẫn lỗi, liên hệ bộ phận hỗ trợ.</div>
     <div class="the cot">
@@ -204,15 +204,15 @@
   </main>
 </section>
 
-<section class="man-hinh" id="mh575" aria-label="MH-575 Khung gia sư">
+<section class="man-hinh" id="mh594" aria-label="MH-594 Khung gia sư">
   <header class="dau"><div class="dau-trong">
     <button class="logo" type="button">⌂ Chợ gia sư</button>
     <div style="flex:1"></div>
     <span class="nhan-gia-lap">Thanh toán giả lập</span>
-    <div class="hang"><span class="vong">G</span><span>Gia sư Thử</span><button class="nut" data-di="mh571">Đăng xuất</button></div>
+    <div class="hang"><span class="vong">G</span><span>Gia sư Thử</span><button class="nut" data-di="mh590">Đăng xuất</button></div>
   </div></header>
   <main>
-    <div class="ghi-chu-ban-mau">MH-575 · Giữ bố cục đã duyệt ở YCTD-361 (cột điều hướng bên trái), nay nằm trong cùng ứng dụng, cùng tên miền với phụ huynh. Chỉ khác ứng dụng Gia sư cũ ở tên trên đầu trang ("Chợ gia sư").</div>
+    <div class="ghi-chu-ban-mau">MH-594 · Giữ bố cục đã duyệt ở YCTD-361 (cột điều hướng bên trái), nay nằm trong cùng ứng dụng, cùng tên miền với phụ huynh. Chỉ khác ứng dụng Gia sư cũ ở tên trên đầu trang ("Chợ gia sư").</div>
     <div class="bo-cuc-ben">
       <nav class="ben" aria-label="Điều hướng khu gia sư">
         <button aria-current="page">Buổi dạy</button><button>Lịch</button><button>Hồ sơ và môn dạy</button><button>Thu nhập</button><button>Tin nhắn</button><button>Đánh giá</button><button>Xác minh</button><button>An toàn, kiểm duyệt</button>
@@ -234,7 +234,7 @@
   </main>
 </section>
 
-<section class="man-hinh" id="mh576" aria-label="MH-576 Đổi vai">
+<section class="man-hinh" id="mh595" aria-label="MH-595 Đổi vai">
   <header class="dau"><div class="dau-trong">
     <button class="logo" type="button">⌂ Chợ gia sư</button>
     <div style="flex:1"></div>
@@ -244,7 +244,7 @@
     <div class="hang"><span class="vong">V</span><span>Cô Vân</span><button class="nut">Đăng xuất</button></div>
   </div></header>
   <main>
-    <div class="ghi-chu-ban-mau">MH-576 · <b>Chỉ làm nếu Eric chọn phương án (b) của E-11.</b> Một tài khoản có hai vai; ô "Đổi vai" ở đầu trang đổi bộ màn và quyền của phiên. Phương án (a) mặc định không có màn này: giáo viên vừa là phụ huynh đăng ký hai tài khoản bằng hai thư điện tử hoặc số điện thoại khác nhau.</div>
+    <div class="ghi-chu-ban-mau">MH-595 · <b>Chỉ làm nếu Eric chọn phương án (b) của E-11.</b> Một tài khoản có hai vai; ô "Đổi vai" ở đầu trang đổi bộ màn và quyền của phiên. Phương án (a) mặc định không có màn này: giáo viên vừa là phụ huynh đăng ký hai tài khoản bằng hai thư điện tử hoặc số điện thoại khác nhau.</div>
     <div class="thong-bao thanh-cong" role="status">Đã chuyển sang vai Phụ huynh. Tin nhắn, báo cáo, nhật ký của hai vai vẫn tách riêng.</div>
     <div data-tt-hien="khong-quyen" class="thong-bao loi" role="alert">Vai Gia sư của bạn đang tạm khóa trong lúc xem xét báo cáo an toàn; vai Phụ huynh vẫn dùng được.</div>
   </main>
