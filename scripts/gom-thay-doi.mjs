@@ -306,8 +306,8 @@ export function kiemThuMuc(thuMuc) {
   const daThay = new Map();
   for (const m of manh) {
     const yctd = m.dauTep.yctd;
-    if (!yctd) continue;
-    if (daThay.has(yctd) && !TEP_LAT.test(m.tenTep)) {
+    if (!yctd || TEP_LAT.test(m.tenTep)) continue;
+    if (daThay.has(yctd)) {
       ketQua.find((k) => k.tenTep === m.tenTep).loi.push(`${yctd} trùng với tệp ${daThay.get(yctd)}`);
     } else daThay.set(yctd, m.tenTep);
   }
