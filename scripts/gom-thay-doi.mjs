@@ -15,6 +15,9 @@ export const THU_MUC_MANH = 'thay_doi_cho_gom';
 export const CHO_PHIEN_BAN = '{PHIEN_BAN}';
 
 const TEN_TEP_MANH = /^YCTD-(\d+)-[a-z0-9-]+\.md$/;
+// Phiếu làm theo nhiều lát (YCTD-383): mỗi lát sau thêm một tệp mảnh riêng `YCTD-<số>-l<lát>-<tên>.md` cùng mã YCTD với tệp của lát
+// trước, nên không bị bắt trùng mã và được ghi thêm mục vào `24` khi mã đã có ở đó
+const TEP_LAT = /^YCTD-\d+-l\d+[a-z]?-/;
 const NGAY = /^\d{4}-\d{2}-\d{2}$/;
 const PHIEN_BAN = /^(\d+)\.(\d+)\.(\d+)$/;
 const KHONG_PHIEN_BAN = 'không';
@@ -255,7 +258,12 @@ export function kiemTepManh(manh, taiLieu) {
     if (khoaMoi && timDongBang(dong, khoaMoi) >= 0)
       loi.push(`Thêm dòng: ${them.tep} đã có dòng "${khoaMoi}": lấy mã khác`);
   }
-  if (yctd && taiLieu?.[TEP.yeuCau] && new RegExp(`^### ${yctd}:`, 'm').test(taiLieu[TEP.yeuCau])) {
+  if (
+    yctd &&
+    !TEP_LAT.test(manh.tenTep) &&
+    taiLieu?.[TEP.yeuCau] &&
+    new RegExp(`^### ${yctd}:`, 'm').test(taiLieu[TEP.yeuCau])
+  ) {
     loi.push(`${yctd} đã có trong ${TEP.yeuCau}: lấy số khác`);
   }
   return loi;
@@ -298,7 +306,7 @@ export function kiemThuMuc(thuMuc) {
   const daThay = new Map();
   for (const m of manh) {
     const yctd = m.dauTep.yctd;
-    if (!yctd) continue;
+    if (!yctd || TEP_LAT.test(m.tenTep)) continue;
     if (daThay.has(yctd)) {
       ketQua.find((k) => k.tenTep === m.tenTep).loi.push(`${yctd} trùng với tệp ${daThay.get(yctd)}`);
     } else daThay.set(yctd, m.tenTep);

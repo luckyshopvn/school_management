@@ -21,6 +21,7 @@ import { TENANT_FREE_PATHS } from './common/school-picker.js';
 import { viewedSchoolYearMiddleware } from './common/viewed-school-year.js';
 import { MARKET_PATH_PREFIX } from './market/market-context.js';
 import { PARENT_ORG_PATH_PREFIX } from './parent-org/parent-org.js';
+import { PLATFORM_AI_TUTOR_PATH_PREFIX } from './ai-tutor/platform-sales.js';
 import { scormAwareResolver } from './learning/content-packages/scorm-tenant.js';
 import type { FileStorage } from './files/file-storage.js';
 import type { SmsGateway } from './notifications/sms-gateway.js';
@@ -54,9 +55,13 @@ export async function createApplication(
       createTenantMiddleware({
         resolver: tenancy.registry,
         hostSource: tenancy.configuration.hostSource,
-        // Số liệu cho tài khoản cấp trên (DT-SaaS phần S6), chợ gia sư (DT-27 phần 27f) không thuộc trường nào
+        // Số liệu cho tài khoản cấp trên (DT-SaaS phần S6), chợ gia sư (DT-27 phần 27f), quản lý gói gia sư AI nền tảng bán (YCTD-383 lát
+        // L1b) không thuộc trường nào
         isTenantFreePath: (path) =>
-          TENANT_FREE_PATHS.has(path) || path.startsWith(PARENT_ORG_PATH_PREFIX) || path.startsWith(MARKET_PATH_PREFIX),
+          TENANT_FREE_PATHS.has(path) ||
+          path.startsWith(PARENT_ORG_PATH_PREFIX) ||
+          path.startsWith(MARKET_PATH_PREFIX) ||
+          path.startsWith(PLATFORM_AI_TUTOR_PATH_PREFIX),
         ...(tenancy.configuration.edgeSecret ? { edgeSecret: tenancy.configuration.edgeSecret } : {}),
         resolveByToken: scormAwareResolver(
           tenancy,

@@ -52,6 +52,7 @@ import { queueNotification } from '../common/notification-queue.js';
 import { countActiveStudents, usedStorageMb } from '../common/plan-limits.js';
 import { PaymentGatewayRegistry, type PaymentGateway } from '../finance/payment-gateway.js';
 import { createPaymentGateway, isWebhookGateway, WebhookAuthenticationError } from '../finance/payment-providers.js';
+import { PLATFORM_TRANSFER_HANDLER, type PlatformTransferHandler } from './platform-transfer-handler.js';
 import type { StoredConnector } from '../school-settings/school-settings.js';
 import { paymentSettingsOf } from '../school-settings/tenant-connectors.js';
 
@@ -286,7 +287,8 @@ export class SchoolBillingController {
 }
 
 // Thông báo tiền vào của cổng thanh toán của nền tảng: không theo tên miền trường (đường dẫn không cần trường), xác thực bằng chữ ký hoặc
-// khóa của cổng; cổng chưa bật thì 404, chữ ký sai thì 401 và không ghi gì
+// khóa của cổng; cổng chưa bật thì 404, chữ ký sai thì 401 và không ghi gì. Khoản tiền của gói gia sư AI nền tảng bán (nội dung `GSAI...`,
+// YCTD-383 lát L1b) do bộ nhận thêm xử lý, không đối chiếu với hóa đơn dịch vụ
 @Controller('platform-billing/webhooks')
 @PublicEndpoint()
 export class PlatformBillingWebhooksController {
@@ -296,6 +298,9 @@ export class PlatformBillingWebhooksController {
     private readonly gateways: PlatformPaymentGateways,
     private readonly clock: Clock,
     @Optional() @Inject(TENANCY_RUNTIME) private readonly tenancy: TenancyRuntime | null = null,
+    @Optional()
+    @Inject(PLATFORM_TRANSFER_HANDLER)
+    private readonly transferHandler: PlatformTransferHandler | null = null,
   ) {}
 
   @Post(':provider')
@@ -319,6 +324,9 @@ export class PlatformBillingWebhooksController {
       throw error;
     }
     for (const transfer of incoming) {
+      if (await this.transferHandler?.receiveTransfer(transfer, now)) {
+        continue;
+      }
       const outcome = await receivePayment(
         this.tenancy.platform,
         {

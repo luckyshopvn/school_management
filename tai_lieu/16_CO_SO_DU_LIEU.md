@@ -1051,6 +1051,25 @@ Quy tắc của lát L0 (mã ở `apps/api/src/ai-tutor/ai-tutor-rules.ts`, `ai-
 3. Trừ lượt: tạm giữ một lượt trước khi gọi AI bằng câu cập nhật có điều kiện còn lượt, rồi trừ thật khi gọi thành công hoặc hoàn khi lỗi; chốt lần hai không đổi gì. Thứ tự: lượt gói tháng trước, hết mới tới lượt mua thêm sắp hết hạn trước. Lượt tạm giữ quá 10 phút được hoàn.
 4. Nâng gói tháng giữa tháng (Eric chọn ngày 2026-10-30; tệp hệ thống `0131_create_ai_tutor_upgrades`, bảng `ai_tutor_upgrades`): chỉ nâng gói tháng đang dùng lên gói tháng cùng nguồn bán, giá cao hơn, số lượt không ít hơn. Phần chênh lệch = (giá tháng gói mới − giá tháng gói đang dùng) × ngày còn lại ÷ số ngày của tháng, làm tròn tới đồng; lượt cộng thêm theo cùng tỉ lệ, làm tròn tới lượt. Ngày còn lại tính cả hôm nay theo lịch Việt Nam; tháng dùng chưa tới thì trả đủ. Khi áp, dòng đăng ký đổi mã gói, tên gói, quyền gửi ảnh và cộng thêm lượt; `price` giữ giá mua ban đầu. Mỗi đăng ký chỉ một lần nâng đang chờ; lần nâng chờ quá `pending_expires_at` được hủy khi có lần nâng mới.
 
+## 18R. Gia sư AI nền tảng bán thẳng cho phụ huynh (YCTD-383 lát L1b)
+
+Phần tiền của nền tảng nằm ở cơ sở dữ liệu nền tảng (tệp nền tảng `0251_create_ai_tutor_sales`); lần mua của con vẫn ghi ở `ai_tutor_subscriptions` của trường (mục 18Q) với `plan_source = 'platform'`, `external_reference` là mã giao dịch. Cơ sở dữ liệu nền tảng không lưu họ tên học sinh, chỉ mã con. Tiền theo đồng, số nguyên. Hai dãy số `platform_ai_tutor_order_number_seq`, `platform_ai_tutor_receipt_number_seq` cấp số giao dịch và số biên lai.
+
+| Bảng | Mục đích | Cột chính |
+|---|---|---|
+| platform_ai_tutor_orders (nền tảng, từ YCTD-383 lát L1b) | Giao dịch: mỗi lần phụ huynh bấm mua hoặc nâng gói | id, code (duy nhất, dạng `GD-YYYYMMDD-NNNN`), transfer_content (duy nhất, `GSAI` + ngày + số), school_id (khóa ngoại `schools`), school_name, child_id, subscription_id (dòng ở cơ sở dữ liệu hệ thống của trường, không khóa ngoại), buyer_user_id, buyer_name, plan_id (khóa ngoại `platform_ai_tutor_plans`), plan_name, plan_kind, period_month, turns, kind (`purchase`, `upgrade`), upgrade_id (lần nâng ở `ai_tutor_upgrades` của trường; có khi và chỉ khi `upgrade`), amount (> 0), status (`pending`, `paid`, `expired`, `cancelled`, `refunded`, `needs_refund`), pending_expires_at, provider, provider_reference, qr_content, paid_at, cancelled_at, cancel_reason, created_at, updated_at; chỉ mục (school_id, child_id, created_at), (created_at), chỉ mục riêng phần (school_id, pending_expires_at) với dòng `pending` |
+| platform_ai_tutor_payments (nền tảng, từ YCTD-383 lát L1b) | Thông báo tiền vào của cổng thanh toán của nền tảng có nội dung `GSAI...` | id, order_id (khóa ngoại, trống khi không khớp), provider, provider_reference (duy nhất cùng provider: thông báo lặp không ghi lần hai), amount, transfer_content, received_at, outcome (`activated`, `already_settled`, `amount_mismatch`, `late`, `unmatched`), created_at |
+| platform_ai_tutor_receipts (nền tảng, từ YCTD-383 lát L1b) | Biên lai của giao dịch đã thu | id, order_id (duy nhất), number (duy nhất, dạng `BL-YYYYMMDD-NNNN`), payer_name, school_name, description, amount, provider, provider_reference, issued_at |
+| platform_ai_tutor_refunds (nền tảng, từ YCTD-383 lát L1b) | Hoàn tiền do nhân viên vận hành ghi | id, order_id (duy nhất: hoàn một lần), amount (> 0, không quá số đã thu), reason (1 đến 500 ký tự), operator_id (khóa ngoại `platform_operators`), operator_name, created_at |
+
+Quy tắc của lát L1b (mã ở `apps/api/src/ai-tutor/platform-sales-rules.ts`, `platform-sales.ts`):
+
+1. Mua: ghi lần mua chờ ở trường (`createAiTutorSubscription`, hạn giữ chỗ 15 phút), rồi giao dịch `pending` ở nền tảng kèm mã QR hoặc liên kết của cổng mặc định của nền tảng. Không tạo được yêu cầu thanh toán thì hủy lần mua chờ ngay.
+2. Tiền vào: cùng cổng và mã giao dịch của cổng chỉ ghi một lần. Đúng số tiền và ghi nhận trước hạn giữ chỗ thì kích hoạt lần mua ở trường, giao dịch `paid`, lập biên lai, báo trong ứng dụng cho người mua. Sai số tiền: giữ `pending`, ghi `amount_mismatch`. Đến sau hạn hoặc giao dịch đã đóng: không kích hoạt, giao dịch `needs_refund`.
+3. Hết hạn: việc nền theo trường (5 phút một lần) và lần đọc của phụ huynh chuyển giao dịch quá hạn sang `expired`, hủy lần mua chờ ở trường.
+4. Hủy: chỉ giao dịch `pending` (phụ huynh hoặc nhân viên vận hành có lý do). Hoàn tiền: chỉ `paid` hoặc `needs_refund`, một lần; lần mua ở trường chuyển `refunded`; người thao tác ghi ở `platform_ai_tutor_refunds` và `platform_audit_log`.
+5. Nâng gói tháng giữa tháng (dùng hàm chung của YCTD-386): giao dịch `upgrade` trỏ tới lần nâng chờ ở `ai_tutor_upgrades` của trường, số tiền là phần chênh lệch theo số ngày còn lại; tiền vào thì `applyAiTutorUpgrade`, hết hạn hoặc hủy thì `cancelAiTutorUpgrade`. Hoàn tiền lần nâng: dòng đăng ký về gói trước khi nâng, `turns` bớt số lượt đã cộng (không dưới `used_turns + held_turns`), lần nâng chuyển `refunded`; chỉ hoàn được lần nâng gần nhất.
+
 ## 19. Quan hệ chính giữa các bảng
 
 ```mermaid

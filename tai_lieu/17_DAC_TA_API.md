@@ -2585,6 +2585,26 @@ Lỗi quy tắc 422 mã `YCTD-277`. Vào phòng trả `{ status, room_id, title,
 | GET | /api/v1/student/live/rooms/{id} | Trạng thái phòng: `teacher_watching`, thông báo, phòng chia nhỏ, `moved_to` |
 | POST | /api/v1/student/live/rooms/{id}/join, /leave, /help, /report | Vào, rời phòng; gọi giáo viên; báo cáo `{ reason }` |
 
+### 17.11. Gia sư AI nền tảng bán thẳng cho phụ huynh (YCTD-383 lát L1b)
+
+Chỉ có ở nền tảng nhiều trường. Phần phụ huynh theo tên miền của trường, người gọi phải là cha mẹ, người giám hộ của con (403 nếu không). Phần vận hành ở đường dẫn không cần trường, chỉ ở tên miền `PLATFORM_CONSOLE_HOST` (tên miền khác 404), mã phiên vận hành vai trò `quan_tri` hoặc `ke_toan` (việc `ai-tutor.sales`; vai trò khác 403). Mua trùng gói tháng, gói ngừng bán, sai cấp học, tháng đã qua, giao dịch đã đổi trạng thái: 409. Tiền vào đi qua `POST /api/v1/platform-billing/webhooks/{provider}` có sẵn: nội dung chứa `GSAI...` thì xử lý ở đây, không đối chiếu với hóa đơn dịch vụ.
+
+| Phương thức | Đường dẫn | Mô tả |
+|---|---|---|
+| GET | /api/v1/ai-tutor/direct/children/{childId} | Phụ huynh: `{ school_level, payment: { available, provider, simulated }, current_month, next_month, plans, subscriptions, balance: { monthly, topUp }, orders, upgrade_options: [{ subscription_id, from_plan_name, plan_id, plan_name, price_difference, extra_turns, remaining_days, days_in_month }] }`; gói lọc theo cấp học của lớp đang học |
+| POST | /api/v1/ai-tutor/direct/children/{childId}/upgrades | Phụ huynh nâng gói tháng của nền tảng đang dùng trong tháng này `{ plan_id }`: 201 giao dịch `upgrade` chờ thanh toán, số tiền là phần chênh lệch theo số ngày còn lại (YCTD-386); tiền vào thì áp lần nâng, cộng lượt cùng tỉ lệ |
+| POST | /api/v1/ai-tutor/direct/children/{childId}/orders | Phụ huynh mua `{ plan_id, period_month? }` (gói tháng, mặc định tháng này): 201 giao dịch `pending` có `code`, `transfer_content`, `qr_content`, `pending_expires_at` |
+| GET | /api/v1/ai-tutor/direct/orders/{id} | Phụ huynh: một giao dịch, kèm `receipt` khi đã thu, `refund` khi đã hoàn |
+| POST | /api/v1/ai-tutor/direct/orders/{id}/cancel | Phụ huynh hủy giao dịch `pending` |
+| POST | /api/v1/ai-tutor/direct/orders/{id}/simulate-payment | Giả lập tiền vào đủ số tiền; chỉ khi cổng mặc định của nền tảng là bộ giả lập (khác thì 404) |
+| GET, POST | /api/v1/platform-ai-tutor/plans | Vận hành: danh sách gói kèm `paid_orders`; tạo gói `{ kind, name, price (1.000 đến 10.000.000), turns, allow_images (chỉ gói tháng), school_levels }` |
+| PUT | /api/v1/platform-ai-tutor/plans/{id} | Sửa gói (không đổi `kind`); lần mua đã có giữ giá cũ |
+| POST | /api/v1/platform-ai-tutor/plans/{id}/status | Ngừng bán, mở bán lại `{ status: active \| archived }` |
+| GET | /api/v1/platform-ai-tutor/orders?status= | 200 giao dịch mới nhất: mã, trường, gói, số tiền, trạng thái, số biên lai, số đã hoàn |
+| GET | /api/v1/platform-ai-tutor/orders/{id} | Chi tiết: người mua, biên lai, tiền vào của cổng, hoàn tiền kèm người thao tác |
+| POST | /api/v1/platform-ai-tutor/orders/{id}/cancel | Hủy giao dịch `pending` `{ reason }` |
+| POST | /api/v1/platform-ai-tutor/orders/{id}/refund | Hoàn tiền `{ amount? (mặc định đủ), reason }` cho giao dịch `paid` hoặc `needs_refund`; ghi nhật ký nền tảng. Giao dịch nâng gói: gói về gói trước khi nâng, bớt lượt đã cộng; chỉ hoàn được lần nâng gần nhất (409 nếu đã nâng tiếp) |
+
 ## 18. Quy tắc kiểm tra dữ liệu
 
 | Mã | Quy tắc |
