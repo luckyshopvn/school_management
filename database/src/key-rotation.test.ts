@@ -4,7 +4,8 @@ import { after, before, describe, it } from 'node:test';
 import { decryptSecret, encryptSecret } from '@school-management/server/tenancy';
 import { sql } from 'kysely';
 import { createDatabase } from './connection.js';
-import { rewrapMasterKey, rotateChildKeys } from './key-rotation.js';
+import { MASTER_KEY_COLUMNS, rewrapMasterKey, rotateChildKeys } from './key-rotation.js';
+import { storeNativePushKey } from './native-push-keys.js';
 import { connectionStringOf } from './school-database-layout.js';
 import { schoolDescriptors, type Actor, type LifecycleEnvironment } from './school-lifecycle.js';
 import { startTenantTestPlatform, type TenantTestPlatform } from './tenant-test-support.js';
@@ -72,6 +73,20 @@ async function seed(name: string, count: number) {
         database,
       );
     }
+    // Bảng thăm dò cùng tên với bảng của cơ sở dữ liệu năm học: hồ sơ CSDL ngành và ảnh chụp hồ sơ trong phiếu chuyển (CT-1721)
+    for (const table of ['children', 'staff_movements']) {
+      const column = table === 'children' ? 'moet_profile' : 'dossier';
+      await sql`create table if not exists ${sql.raw(table)} (id uuid primary key default gen_random_uuid(), ${sql.raw(column)} jsonb)`.execute(
+        database,
+      );
+      await sql`delete from ${sql.raw(table)}`.execute(database);
+    }
+    await sql`insert into children (moet_profile) values (${JSON.stringify({ ethnicity: 'Kinh', citizen_id_encrypted: encryptSecret(keys.encryption, '079000000001'), citizen_id_last4: '0001' })}::jsonb)`.execute(
+      database,
+    );
+    await sql`insert into staff_movements (dossier) values (${JSON.stringify({ id_number_encrypted: encryptSecret(keys.encryption, '079000000002'), moet_profile: { social_insurance_number_encrypted: encryptSecret(keys.encryption, '7900000003') } })}::jsonb)`.execute(
+      database,
+    );
     await sql`insert into integration_secrets (connector, values_encrypted) values ('esms', ${encryptSecret(keys.encryption, JSON.stringify({ api_key: 'khoa-gia' }))}) on conflict (connector) do update set values_encrypted = excluded.values_encrypted`.execute(
       database,
     );
@@ -118,6 +133,22 @@ async function expectAllOn(name: string, keys: { encryption: Buffer; hash: Buffe
       }>`select values_encrypted from integration_secrets where connector = 'esms'`.execute(database)
     ).rows[0];
     assert.equal(JSON.parse(decryptSecret(keys.encryption, secret?.values_encrypted ?? '')).api_key, 'khoa-gia');
+    const profile = (
+      await sql<{ moet_profile: Record<string, string> }>`select moet_profile from children`.execute(database)
+    ).rows[0]?.moet_profile;
+    assert.equal(decryptSecret(keys.encryption, profile?.citizen_id_encrypted ?? ''), '079000000001');
+    assert.equal(profile?.ethnicity, 'Kinh');
+    assert.equal(profile?.citizen_id_last4, '0001');
+    const dossier = (
+      await sql<{
+        dossier: { id_number_encrypted: string; moet_profile: { social_insurance_number_encrypted: string } };
+      }>`select dossier from staff_movements`.execute(database)
+    ).rows[0]?.dossier;
+    assert.equal(decryptSecret(keys.encryption, dossier?.id_number_encrypted ?? ''), '079000000002');
+    assert.equal(
+      decryptSecret(keys.encryption, dossier?.moet_profile.social_insurance_number_encrypted ?? ''),
+      '7900000003',
+    );
   });
 }
 
@@ -127,7 +158,7 @@ describe('đổi khóa mã hóa dữ liệu trẻ', () => {
     await assert.rejects(() => rotateChildKeys(environment, 'khong-co', actor), /Không có trường/);
   });
 
-  it('mã hóa lại mọi cột *_encrypted, tính lại băm, thay khóa ở school_keys, ghi nhật ký', async () => {
+  it('CT-1721: mã hóa lại mọi cột *_encrypted và số định danh trong jsonb, tính lại băm, thay khóa ở school_keys, ghi nhật ký', async () => {
     await seed('alpha', 5);
     await seedIdentity('alpha');
     const before = await keysOf('alpha');
@@ -189,6 +220,75 @@ describe('đổi khóa mã hóa dữ liệu trẻ', () => {
 });
 
 describe('bọc lại khóa gốc của nền tảng', () => {
+  it('CT-1722: danh sách cột bọc lại khớp mọi cột *_encrypted của cơ sở dữ liệu nền tảng', async () => {
+    const rows = (
+      await sql<{ name: string }>`
+        select c.table_name || '.' || c.column_name as name
+        from information_schema.columns c
+        join information_schema.tables t on t.table_schema = c.table_schema and t.table_name = c.table_name
+        where c.table_schema = current_schema() and t.table_type = 'BASE TABLE'
+          and c.column_name like '%#_encrypted' escape '#'
+        order by 1`.execute(test.platform)
+    ).rows.map((row) => row.name);
+    assert.deepEqual(rows, [...MASTER_KEY_COLUMNS].sort());
+  });
+
+  it('CT-1722: khóa cổng thanh toán, khóa VAPID (cả khóa đã thôi dùng), khóa đẩy gốc thiết bị đọc được bằng khóa gốc mới', async () => {
+    const enc = (text: string) => encryptSecret(test.masterKey, text);
+    await test.platform
+      .insertInto('platform_integration_secrets')
+      .values({ connector: 'payos', values_encrypted: enc(JSON.stringify({ api_key: 'khoa-gia' })) })
+      .execute();
+    await test.platform
+      .insertInto('platform_push_keys')
+      .values([
+        {
+          public_key: 'cong-khai-cu',
+          private_key_encrypted: enc('rieng-cu'),
+          subject: 'mailto:a@example.com',
+          retired_at: new Date(),
+        },
+        { public_key: 'cong-khai', private_key_encrypted: enc('rieng'), subject: 'mailto:a@example.com' },
+      ])
+      .execute();
+    await storeNativePushKey(test.platform, test.masterKey, 'fcm', {
+      projectId: 'du-an-gia',
+      clientEmail: 'gia@example.com',
+      privateKey: 'khoa-gia',
+    });
+    const newMaster = randomBytes(32);
+    const counts = await rewrapMasterKey(test.platform, test.masterKey, newMaster, actor);
+    try {
+      assert.equal(counts.integrationSecrets, 1);
+      assert.equal(counts.pushKeys, 2);
+      assert.equal(counts.nativePushKeys, 1);
+      const secret = await test.platform
+        .selectFrom('platform_integration_secrets')
+        .select('values_encrypted')
+        .executeTakeFirstOrThrow();
+      assert.equal(JSON.parse(decryptSecret(newMaster, secret.values_encrypted)).api_key, 'khoa-gia');
+      const pushKeys = await test.platform
+        .selectFrom('platform_push_keys')
+        .select('private_key_encrypted')
+        .orderBy('public_key')
+        .execute();
+      assert.deepEqual(
+        pushKeys.map((row) => decryptSecret(newMaster, row.private_key_encrypted)),
+        ['rieng', 'rieng-cu'],
+      );
+      const native = await test.platform
+        .selectFrom('platform_native_push_keys')
+        .select('credentials_encrypted')
+        .executeTakeFirstOrThrow();
+      assert.equal(JSON.parse(decryptSecret(newMaster, native.credentials_encrypted)).projectId, 'du-an-gia');
+    } finally {
+      await rewrapMasterKey(test.platform, newMaster, test.masterKey, actor);
+      await test.platform.deleteFrom('platform_integration_secrets').execute();
+      await test.platform.deleteFrom('platform_push_keys').execute();
+      await test.platform.deleteFrom('platform_native_push_keys').execute();
+    }
+  });
+
   it('bọc lại khóa và mật khẩu kết nối của mọi trường; khóa gốc cũ không còn dùng được', async () => {
     const alphaBefore = await keysOf('alpha');
     const newMaster = randomBytes(32);
