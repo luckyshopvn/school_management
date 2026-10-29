@@ -28,8 +28,6 @@ export const PLATFORM_MENU: readonly PlatformMenuItem[] = [
   { key: 'plans', label: 'Gói dịch vụ', group: 'kinh-doanh' },
   // Thu phí tự động (S5b)
   { key: 'billing', label: 'Thu phí', group: 'kinh-doanh' },
-  // Chợ gia sư: cấu hình, văn bản pháp lý, số tài khoản (DT-27 phần 27f)
-  { key: 'market', label: 'Chợ gia sư', group: 'kinh-doanh' },
   // Trợ lý AI: khóa nền tảng, đơn giá AI theo gói, token đã dùng (DT-23 phần 23d)
   { key: 'ai', label: 'Trợ lý AI', group: 'kinh-doanh' },
   // Thông báo bảo trì (S4)

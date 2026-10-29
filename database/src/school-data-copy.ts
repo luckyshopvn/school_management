@@ -86,7 +86,12 @@ async function fixedTextSettings(transaction: Transaction<unknown>): Promise<voi
 }
 
 // Đọc mọi bảng của một cơ sở dữ liệu của trường trong một ảnh chụp, gọi handler theo từng bảng, từng trang dòng
-export async function readSnapshot(descriptor: DatabaseDescriptor, handler: SnapshotHandler): Promise<TableTotals[]> {
+// options.tables: chỉ đọc các bảng này (sao lưu trước khi xóa, YCTD-384); không truyền là mọi bảng
+export async function readSnapshot(
+  descriptor: DatabaseDescriptor,
+  handler: SnapshotHandler,
+  options: { tables?: readonly string[] } = {},
+): Promise<TableTotals[]> {
   const database = createDatabase<unknown>(connectionStringOf(descriptor), { max: 1 });
   try {
     return await database
@@ -97,7 +102,10 @@ export async function readSnapshot(descriptor: DatabaseDescriptor, handler: Snap
         await fixedTextSettings(transaction);
         const schema = descriptor.schemaName ?? (await currentSchema(transaction));
         const totals: TableTotals[] = [];
-        for (const table of await listTables(transaction, schema)) {
+        const tables = (await listTables(transaction, schema)).filter(
+          (table) => !options.tables || options.tables.includes(table),
+        );
+        for (const table of tables) {
           const all = await listColumns(transaction, schema, table);
           const columns = all.filter((column) => !column.generated).map((column) => column.name);
           await handler.table({ table, columns, checksumColumns: all.map((column) => column.name) });

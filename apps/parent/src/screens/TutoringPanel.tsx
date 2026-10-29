@@ -12,7 +12,6 @@ import {
 import { Alert, Button } from '@school-management/ui';
 import { ApiError, requestJson } from '../session/api-client.js';
 import { ChildTutoringCourses } from './ChildTutoringCourses.js';
-import { ChildMarketLink } from './ChildMarketLink.js';
 import { ChildTutoringQuestions } from './ChildTutoringQuestions.js';
 import { ChildVideoPanel } from './ChildVideoPanel.js';
 
@@ -106,7 +105,6 @@ export function TutoringPanel({ child }: { child: { id: string; full_name: strin
         programIds={(overview?.programs ?? []).filter((program) => program.registered).map((program) => program.id)}
       />
       <ChildTutoringQuestions childId={child.id} />
-      <ChildMarketLink childId={child.id} />
       <h3 className="text-content font-semibold">Chương trình nhà trường mở cho con</h3>
       {overview && overview.programs.length === 0 ? (
         <p className="text-label text-text-secondary">Hiện chưa có chương trình nào mở cho con.</p>

@@ -21,7 +21,7 @@ Danh sách đầy đủ nằm ở tài liệu; bên dưới chỉ là các nhóm
 | Kho, tài sản, mua hàng, tuyển dụng | Tài sản, cấp phát, tồn kho, đề nghị mua, tin tuyển dụng                                                 | [05 Phạm vi](tai_lieu/05_PHAM_VI.md)                                                                                                                                                                                            |
 | Truyền thông và tương tác          | Thông báo (kể cả thông báo đẩy), hoạt động, album, khảo sát, website công khai của trường               | [QT-09](tai_lieu/40_QUY_TRINH_NGHIEP_VU/QT-09_NHAT_KY_VA_TRAO_DOI.md), [QT-10](tai_lieu/40_QUY_TRINH_NGHIEP_VU/QT-10_HOAT_DONG_VA_CONG_BO.md)                                                                                   |
 | Học trực tuyến và thi              | Bài tập, thi trực tuyến, lớp học trực tiếp, khoá học ghi sẵn                                            | [47 Kế hoạch](tai_lieu/47_KE_HOACH_THEO_HE_THONG_SO.md)                                                                                                                                                                         |
-| Chợ gia sư                         | Gia sư trong trường và chợ gia sư                                                                       | [47 Kế hoạch](tai_lieu/47_KE_HOACH_THEO_HE_THONG_SO.md)                                                                                                                                                                         |
+| Gia sư trong trường                | Gia sư trong trường                                                                                     | [47 Kế hoạch](tai_lieu/47_KE_HOACH_THEO_HE_THONG_SO.md)                                                                                                                                                                         |
 | Nền tảng nhiều trường              | Gói dịch vụ, giới hạn theo gói, tên miền riêng, quản trị nền tảng                                       | [12 Kiến trúc](tai_lieu/12_KIEN_TRUC_HE_THONG.md), [47 Kế hoạch](tai_lieu/47_KE_HOACH_THEO_HE_THONG_SO.md)                                                                                                                      |
 | Báo cáo                            | Bảng điều khiển theo vai trò, báo cáo theo phân hệ và theo cấp                                          | [49 Tổng hợp chức năng](tai_lieu/49_TONG_HOP_CHUC_NANG_HE_THONG/00_MUC_LUC.md)                                                                                                                                                  |
 
@@ -38,10 +38,9 @@ flowchart LR
     teacher[teacher: giáo viên]
     parent[parent: phụ huynh]
     platform[platform: quản trị nền tảng]
-    market[market: chợ gia sư]
     mobile[mobile: vỏ ứng dụng điện thoại]
   end
-  portal & teacher & parent & platform & market --> api
+  portal & teacher & parent & platform --> api
   portal & teacher & parent & platform --> identity
   api[api: nghiệp vụ] --> pg[(PostgreSQL)]
   identity[identity: định danh] --> pg
@@ -51,24 +50,23 @@ flowchart LR
   api --> s3[(Kho tệp tương thích S3)]
 ```
 
-| Thư mục                         | Vai trò                                                                                                               |
-| ------------------------------- | --------------------------------------------------------------------------------------------------------------------- |
-| `apps/api`                      | Máy chủ API nghiệp vụ (NestJS), tiến trình gửi thông báo, việc định kỳ                                                |
-| `apps/identity`                 | Dịch vụ định danh: tài khoản, vai trò, quyền, đăng nhập, phiên                                                        |
-| `apps/worker`                   | Tiến trình chạy nền, hiện là máy xếp thời khoá biểu, lấy việc từ hàng đợi Redis                                       |
-| `apps/portal`                   | Cổng quản trị cho cán bộ nhà trường                                                                                   |
-| `apps/teacher`                  | Ứng dụng giáo viên (web, dùng được trên điện thoại)                                                                   |
-| `apps/parent`                   | Ứng dụng phụ huynh                                                                                                    |
-| `apps/platform`                 | Cổng quản trị nền tảng nhiều trường                                                                                   |
-| `apps/market`                   | Chợ gia sư, ứng dụng chung của phụ huynh và gia sư (phân quyền theo loại tài khoản)                                   |
-| `apps/mobile`                   | Vỏ ứng dụng điện thoại (Capacitor)                                                                                    |
-| `apps/student`                  | Ứng dụng học sinh, **đang được tách riêng ở PR 224, chưa có trên `main`**                                             |
-| `packages/`                     | Mã dùng chung: `config` (cấu hình TypeScript), `shared`, `server`, `ui`, `pwa`                                        |
-| `database/`                     | Lược đồ và tệp thay đổi cấu trúc (migration) của từng loại cơ sở dữ liệu: định danh, hệ thống, năm học, nền tảng, chợ |
-| `tests/`                        | Kiểm thử e2e Playwright và các kiểm thử mức kho mã                                                                    |
-| `deploy/`                       | Hồ sơ và cấu hình triển khai                                                                                          |
-| `docker/`, `docker-compose.yml` | Môi trường phát triển trên máy                                                                                        |
-| `tai_lieu/`                     | Bộ tài liệu của dự án                                                                                                 |
+| Thư mục                         | Vai trò                                                                                                          |
+| ------------------------------- | ---------------------------------------------------------------------------------------------------------------- |
+| `apps/api`                      | Máy chủ API nghiệp vụ (NestJS), tiến trình gửi thông báo, việc định kỳ                                           |
+| `apps/identity`                 | Dịch vụ định danh: tài khoản, vai trò, quyền, đăng nhập, phiên                                                   |
+| `apps/worker`                   | Tiến trình chạy nền, hiện là máy xếp thời khoá biểu, lấy việc từ hàng đợi Redis                                  |
+| `apps/portal`                   | Cổng quản trị cho cán bộ nhà trường                                                                              |
+| `apps/teacher`                  | Ứng dụng giáo viên (web, dùng được trên điện thoại)                                                              |
+| `apps/parent`                   | Ứng dụng phụ huynh                                                                                               |
+| `apps/platform`                 | Cổng quản trị nền tảng nhiều trường                                                                              |
+| `apps/mobile`                   | Vỏ ứng dụng điện thoại (Capacitor)                                                                               |
+| `apps/student`                  | Ứng dụng học sinh, **đang được tách riêng ở PR 224, chưa có trên `main`**                                        |
+| `packages/`                     | Mã dùng chung: `config` (cấu hình TypeScript), `shared`, `server`, `ui`, `pwa`                                   |
+| `database/`                     | Lược đồ và tệp thay đổi cấu trúc (migration) của từng loại cơ sở dữ liệu: định danh, hệ thống, năm học, nền tảng |
+| `tests/`                        | Kiểm thử e2e Playwright và các kiểm thử mức kho mã                                                               |
+| `deploy/`                       | Hồ sơ và cấu hình triển khai                                                                                     |
+| `docker/`, `docker-compose.yml` | Môi trường phát triển trên máy                                                                                   |
+| `tai_lieu/`                     | Bộ tài liệu của dự án                                                                                            |
 
 Về dữ liệu: dịch vụ định danh có cơ sở dữ liệu riêng; máy chủ API dùng một cơ sở dữ liệu hệ thống và mỗi năm học một cơ sở dữ liệu nghiệp vụ. Ở chế độ nhiều trường, mỗi trường có dữ liệu tách biệt, theo bố cục một cơ sở dữ liệu riêng hoặc một schema riêng (hồ sơ thử nghiệm). Chi tiết: [12 Kiến trúc hệ thống](tai_lieu/12_KIEN_TRUC_HE_THONG.md), [13 Công nghệ](tai_lieu/13_CONG_NGHE_SU_DUNG.md), [16 Cơ sở dữ liệu](tai_lieu/16_CO_SO_DU_LIEU.md).
 
@@ -95,7 +93,7 @@ Chạy dịch vụ (sau khi dựng):
 ```bash
 pnpm --filter @school-management/identity start
 pnpm --filter @school-management/api start
-pnpm --filter @school-management/portal dev     # tương tự cho teacher, parent, platform, market
+pnpm --filter @school-management/portal dev     # tương tự cho teacher, parent, platform
 ```
 
 Cổng mặc định lấy từ cấu hình trong kho mã:
@@ -105,11 +103,11 @@ Cổng mặc định lấy từ cấu hình trong kho mã:
 | API                             | 3000 (`API_PORT`)      |
 | Dịch vụ định danh               | 3001 (`IDENTITY_PORT`) |
 | portal / teacher / parent       | 5173 / 5174 / 5175     |
-| platform / market               | 5177 / 5178            |
+| platform                        | 5177                   |
 | student                         | 5179                   |
 | PostgreSQL / Redis / kho tệp S3 | 5432 / 6379 / 8333     |
 
-Bản nhiều trường trên máy (đăng nhập chọn Sở → Cấp, Phường / Xã → Trường ở `http://truong.localhost:5190/`, cổng vận hành nền tảng `http://platform.truong.localhost:5191/`, đủ ứng dụng giáo viên, phụ huynh, học sinh, chợ gia sư), chạy song song với
+Bản nhiều trường trên máy (đăng nhập chọn Sở → Cấp, Phường / Xã → Trường ở `http://truong.localhost:5190/`, cổng vận hành nền tảng `http://platform.truong.localhost:5191/`, đủ ứng dụng giáo viên, phụ huynh, học sinh), chạy song song với
 bản một trường ở trên: dựng bằng `pnpm --filter @school-management/database nhieu-truong-cuc-bo …` rồi chạy
 `node scripts/chay-nhieu-truong.mjs`; hướng dẫn đầy đủ ở `tai_lieu/47_KE_HOACH_THEO_HE_THONG_SO.md` mục 16.10.
 
