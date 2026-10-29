@@ -53,10 +53,7 @@ export const migration: Migration = {
         'platform_ai_tutor_orders_status_check',
         sql`status in ('pending', 'paid', 'expired', 'cancelled', 'refunded', 'needs_refund')`,
       )
-      .addCheckConstraint(
-        'platform_ai_tutor_orders_upgrade_check',
-        sql`(kind = 'upgrade') = (upgrade_id is not null)`,
-      )
+      .addCheckConstraint('platform_ai_tutor_orders_upgrade_check', sql`(kind = 'upgrade') = (upgrade_id is not null)`)
       .execute();
     await database.schema
       .createIndex('platform_ai_tutor_orders_child_index')
