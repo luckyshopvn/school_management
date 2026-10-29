@@ -9,6 +9,7 @@ import {
 } from '@school-management/database';
 import { createTestUser } from '@school-management/identity/testing';
 import { E2E_SCHOOL_YEAR_DATABASE_PREFIX } from '../e2e-environment.mjs';
+import { clickGridMoreItem } from './grid.js';
 import { openMenu } from './menu.js';
 
 // MH-03 2.1. Hồ sơ lớp học và phân công giáo viên (P02-05, YCTD-44; lưới, biểu mẫu theo Sở YCTD-111). Chạy sau
@@ -84,7 +85,11 @@ test('Quản lý đơn vị tạo lớp của Phân hiệu A, phân công giáo 
   await row.getByRole('button', { name: 'Giải thể lớp' }).click();
   await page.getByRole('dialog').getByRole('button', { name: 'Giải thể lớp' }).click();
   await expect(row.getByRole('button', { name: 'Mở lại' })).toBeVisible();
-  // Cột Lớp giải thể hiện mặc định như màn hình 2.1 của Sở (YCTD-117)
+  // Cột Lớp giải thể ẩn mặc định từ YCTD-339 (thiết kế cổng quản trị); bật ở Cấu hình cột hiển thị
+  await clickGridMoreItem(grid, 'Cấu hình cột hiển thị');
+  const columns = page.getByRole('dialog', { name: 'Cấu hình cột hiển thị' });
+  await columns.getByRole('checkbox', { name: 'Lớp giải thể', exact: true }).check();
+  await columns.getByRole('button', { name: 'Ghi' }).click();
   await expect(row).toContainText('Đã giải thể');
   await row.getByRole('button', { name: 'Mở lại' }).click();
   await expect(row.getByRole('button', { name: 'Giải thể lớp' })).toBeVisible();

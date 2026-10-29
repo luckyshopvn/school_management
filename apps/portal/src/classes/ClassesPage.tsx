@@ -1,10 +1,12 @@
 import { useCallback, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { Link } from '@tanstack/react-router';
 import {
   CLASS_AGE_GROUPS,
   CLASS_STAGE_LABELS,
   PERMISSION_CODES,
   classAgeGroupLabel,
+  isMenuPathVisible,
   type ClassStage,
 } from '@school-management/shared';
 import {
@@ -25,7 +27,7 @@ import { AppShell } from '../pages/AppShell.js';
 import { useGridSettings } from '../pages/grid-settings.js';
 import { menuPageTitle } from '../pages/page-title.js';
 import { ApiError } from '../session/api-client.js';
-import { useHasPermission } from '../session/permissions.js';
+import { useCurrentPermissions, useHasPermission } from '../session/permissions.js';
 import { ClassForm } from './ClassForm.js';
 import {
   addAssignment,
@@ -46,7 +48,11 @@ import {
 // MH-03 2.1. Hồ sơ lớp học theo Sở (DT-15 phần 15b, YCTD-111): lưới dữ liệu chung (khóa `classes`) với cột theo thứ tự cột
 // của Sở, tìm theo tên hoặc mã lớp, mở rộng tìm kiếm, Thêm mới, Xuất Excel; Sửa mở biểu mẫu theo khối ngay dưới dòng.
 // Phân công giáo viên (P02-05, YCTD-44) ở nút "Giáo viên" của dòng; giải thể lớp là đóng lớp, không xóa (BR-02). DT-16
-// phần 16e thêm ô chọn dòng, Xóa lớp (lớp chưa phát sinh dữ liệu), giải thể và thay đổi hàng loạt các lớp đã chọn
+// phần 16e thêm ô chọn dòng, Xóa lớp (lớp chưa phát sinh dữ liệu), giải thể và thay đổi hàng loạt các lớp đã chọn.
+// YCTD-339 (thiết kế lại cổng quản trị, theo mẫu YCTD-333): thanh công cụ chỉ còn Nhập từ Excel (mở 2.2), Thêm mới; Thay
+// đổi, Giải thể lớp đã chọn, Xóa lớp hiện ở thanh "Đã chọn" khi chọn dòng; Xuất Excel ở menu Thêm; cột mặc định còn Tên
+// lớp, Khối, Giáo viên chủ nhiệm, Số học sinh, Điểm trường, Phòng học (cột khác bật ở Cấu hình cột hiển thị); đầu trang
+// có liên kết sang 3.3 Phân công phụ trách lớp
 function messageOf(error: unknown): string {
   return error instanceof ApiError
     ? [error.message, ...error.details.map((detail) => detail.message)].join('. ')
@@ -60,8 +66,9 @@ const YES_NO = [
 ];
 const yes = (value: boolean) => (value ? 'Có' : '');
 
-// Mã cột trùng mã cột tệp Excel của máy chủ. Cột hiện, ẩn mặc định và 50 dòng mỗi trang theo màn hình 2.1 của Sở
-// (tài liệu 31 mục 9.8, YCTD-117)
+// Mã cột trùng mã cột tệp Excel của máy chủ; thứ tự cột theo màn hình 2.1 của Sở, 50 dòng mỗi trang (tài liệu 31 mục 9.8,
+// YCTD-117). Cột hiện mặc định theo thiết kế cổng quản trị (YCTD-339): Tên lớp, Khối, Giáo viên chủ nhiệm, Số học sinh,
+// Điểm trường, Phòng học; các cột khác ẩn mặc định, bật lại ở Cấu hình cột hiển thị
 const SO_PAGE_SIZE = 50;
 const COLUMNS: Array<DataGridColumn<ClassRecord>> = [
   {
@@ -70,45 +77,57 @@ const COLUMNS: Array<DataGridColumn<ClassRecord>> = [
     hiddenByDefault: true,
     cell: (row) => (row.org_unit_type === 'phan_hieu' ? row.org_unit_name : ''),
   },
-  { id: 'code', header: 'Mã lớp', cell: (row) => row.code },
+  { id: 'code', header: 'Mã lớp', hiddenByDefault: true, cell: (row) => row.code },
   { id: 'name', header: 'Tên lớp', alwaysVisible: true, className: 'font-medium', cell: (row) => row.name },
   { id: 'grade', header: 'Khối', cell: (row) => row.grade_name },
-  { id: 'stage', header: 'Nhóm lớp', cell: (row) => (row.stage ? CLASS_STAGE_LABELS[row.stage] : '') },
+  {
+    id: 'stage',
+    header: 'Nhóm lớp',
+    hiddenByDefault: true,
+    cell: (row) => (row.stage ? CLASS_STAGE_LABELS[row.stage] : ''),
+  },
   {
     id: 'nursery_group',
     header: 'Nhóm trẻ',
+    hiddenByDefault: true,
     cell: (row) => (row.stage === 'nhom_tre' && row.age_group ? classAgeGroupLabel(row.age_group) : ''),
   },
   {
     id: 'age_group',
     header: 'Nhóm tuổi',
+    hiddenByDefault: true,
     cell: (row) => (row.stage === 'mau_giao' && row.age_group ? classAgeGroupLabel(row.age_group) : ''),
   },
-  { id: 'sort_order', header: 'Thứ tự', cell: (row) => row.sort_order ?? '' },
-  { id: 'homeroom', header: 'Giáo viên chủ nhiệm', hiddenByDefault: true, cell: (row) => row.homeroom_names },
+  { id: 'sort_order', header: 'Thứ tự', hiddenByDefault: true, cell: (row) => row.sort_order ?? '' },
+  { id: 'homeroom', header: 'Giáo viên chủ nhiệm', cell: (row) => row.homeroom_names },
   { id: 'enrolled', header: 'Số học sinh', cell: (row) => `${row.enrolled_count}/${row.max_size}` },
-  { id: 'two_sessions_per_day', header: 'Học 2 buổi/ngày', cell: (row) => yes(row.two_sessions_per_day) },
+  {
+    id: 'two_sessions_per_day',
+    header: 'Học 2 buổi/ngày',
+    hiddenByDefault: true,
+    cell: (row) => yes(row.two_sessions_per_day),
+  },
   {
     id: 'mixed_age',
     header: 'Lớp mẫu giáo ghép 2 hoặc 3 độ tuổi',
     hiddenByDefault: true,
     cell: (row) => (row.mixed_age_count ? `Ghép ${row.mixed_age_count} độ tuổi` : ''),
   },
-  { id: 'is_combined', header: 'Lớp ghép', cell: (row) => yes(row.is_combined) },
-  { id: 'combined_into', header: 'Ghép vào lớp', cell: (row) => row.combined_into_name ?? '' },
-  { id: 'boarding', header: 'Lớp bán trú', cell: (row) => yes(row.boarding) },
+  { id: 'is_combined', header: 'Lớp ghép', hiddenByDefault: true, cell: (row) => yes(row.is_combined) },
+  { id: 'combined_into', header: 'Ghép vào lớp', hiddenByDefault: true, cell: (row) => row.combined_into_name ?? '' },
+  { id: 'boarding', header: 'Lớp bán trú', hiddenByDefault: true, cell: (row) => yes(row.boarding) },
   {
     id: 'dissolved',
     header: 'Lớp giải thể',
+    hiddenByDefault: true,
     cell: (row) => (row.status === 'closed' ? <StatusBadge tone="neutral" label="Đã giải thể" /> : ''),
   },
   {
     id: 'school_site',
     header: 'Điểm trường',
-    hiddenByDefault: true,
     cell: (row) => (row.org_unit_type === 'diem_truong' ? row.org_unit_name : ''),
   },
-  { id: 'room', header: 'Phòng học', hiddenByDefault: true, cell: (row) => row.room_name ?? '' },
+  { id: 'room', header: 'Phòng học', cell: (row) => row.room_name ?? '' },
   { id: 'max_size', header: 'Sĩ số tối đa', hiddenByDefault: true, cell: (row) => row.max_size },
 ];
 
@@ -282,6 +301,10 @@ function bulkMessage(result: BulkClassResult, done: string): string {
 export function ClassesPage() {
   const canManage = useHasPermission(PERMISSION_CODES.classManage);
   const canExport = useHasPermission(PERMISSION_CODES.dataExport);
+  // Liên kết sang 2.2 và 3.3 hiện theo đúng điều kiện quyền của mục menu tương ứng
+  const permissions = useCurrentPermissions();
+  const canImport = isMenuPathVisible('/class-imports', (code) => permissions.has(code));
+  const canOpenAssignments = isMenuPathVisible('/class-assignments', (code) => permissions.has(code));
   const queryClient = useQueryClient();
   const unitChoice = useUnitChoice();
   const grid = useGridSettings('classes', SO_PAGE_SIZE);
@@ -431,7 +454,17 @@ export function ClassesPage() {
     <AppShell>
       <Toast message={toastMessage} onClose={closeToast} />
       <div className="flex flex-col gap-6">
-        <h1 className="text-page-title font-bold text-text">{menuPageTitle('/classes')}</h1>
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <h1 className="text-page-title font-bold text-text">{menuPageTitle('/classes')}</h1>
+          {canOpenAssignments ? (
+            <Link
+              to="/class-assignments"
+              className="flex min-h-11 items-center rounded-lg border border-border bg-card px-4 text-label font-medium text-link hover:bg-selected"
+            >
+              Phân công phụ trách lớp
+            </Link>
+          ) : null}
+        </div>
         {!unitChoice.isPending && unitChoice.units.length === 0 ? (
           <Alert tone="warning">Chưa có đơn vị. Hãy mở năm học và tạo cây đơn vị trước.</Alert>
         ) : null}
@@ -477,39 +510,47 @@ export function ClassesPage() {
           search={{ label: 'Tìm theo tên, mã lớp', value: search, onChange: setSearch }}
           advancedSearch={advancedSearch}
           selectable={canManage}
-          toolbar={(selectedRows) => (
-            <>
-              {canManage && unitChoice.selectedId ? (
-                <Button
-                  variant="primary"
-                  onClick={() => {
-                    setCreating(true);
-                    setOpen(undefined);
-                  }}
-                >
-                  Thêm mới
-                </Button>
-              ) : null}
-              {canManage ? (
-                <>
-                  <Button disabled={selectedRows.length === 0} onClick={() => openBulk('change', selectedRows)}>
-                    Thay đổi
+          toolbar={
+            canManage ? (
+              <>
+                {canImport ? (
+                  <Link
+                    to="/class-imports"
+                    className="rounded-lg border border-border-strong bg-card px-4 py-2 text-label font-medium text-text hover:bg-selected"
+                  >
+                    Nhập từ Excel
+                  </Link>
+                ) : null}
+                {unitChoice.selectedId ? (
+                  <Button
+                    variant="primary"
+                    onClick={() => {
+                      setCreating(true);
+                      setOpen(undefined);
+                    }}
+                  >
+                    Thêm mới
                   </Button>
-                  <Button disabled={selectedRows.length === 0} onClick={() => openBulk('dissolve', selectedRows)}>
-                    Giải thể lớp đã chọn
-                  </Button>
-                  <Button disabled={selectedRows.length === 0} onClick={() => openBulk('delete', selectedRows)}>
-                    Xóa lớp
-                  </Button>
-                </>
-              ) : null}
-              {canExport ? (
-                <Button disabled={exporting} onClick={() => void runExport()}>
-                  Xuất Excel
-                </Button>
-              ) : null}
-            </>
-          )}
+                ) : null}
+              </>
+            ) : null
+          }
+          selectionActions={
+            canManage
+              ? (selectedRows) => (
+                  <>
+                    <Button onClick={() => openBulk('change', selectedRows)}>Thay đổi</Button>
+                    <Button onClick={() => openBulk('dissolve', selectedRows)}>Giải thể lớp đã chọn</Button>
+                    <Button variant="danger" onClick={() => openBulk('delete', selectedRows)}>
+                      Xóa lớp
+                    </Button>
+                  </>
+                )
+              : undefined
+          }
+          moreActions={
+            canExport ? [{ label: 'Xuất Excel', disabled: exporting, onSelect: () => void runExport() }] : undefined
+          }
           rowActions={(row) => (
             <span className="flex flex-wrap justify-end gap-1">
               {canManage ? (
