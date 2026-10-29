@@ -217,8 +217,9 @@ test('CT-27f-6: cổng nền tảng bật chợ, phụ huynh đăng ký và tạ
   const tutor = await tutorContext.newPage();
   await tutor.goto(`http://${E2E_TUTOR_HOST}:${E2E_MULTI_TUTOR_PORT}/?moi=phong-hoc`);
   await expect(tutor).toHaveURL(`http://${E2E_MARKET_HOST}:${E2E_MULTI_MARKET_PORT}/?moi=phong-hoc`);
-  // Ứng dụng chung cài được như ứng dụng Gia sư cũ: trang có manifest của Chợ gia sư (vite ghi lại đường dẫn tương đối thành tuyệt đối)
-  await expect(tutor.locator('link[rel="manifest"]')).toHaveAttribute('href', /manifest\.webmanifest$/);
+  // Ứng dụng chung cài được như ứng dụng Gia sư cũ: trang có manifest của Chợ gia sư, đường dẫn theo cùng quy ước với ứng dụng phụ huynh,
+  // giáo viên, học sinh (tuyệt đối, vite gắn đường dẫn gốc khi dựng)
+  await expect(tutor.locator('link[rel="manifest"]')).toHaveAttribute('href', '/manifest.webmanifest');
   // Đọc bằng trình duyệt: Node không phân giải được tên miền *.localhost
   expect(
     await tutor.evaluate(
