@@ -132,15 +132,7 @@ export const PUBLIC_ROUTES: PublicRoute[] = [
   // Lớp video trực tiếp (DT-27 phần 27a)
   post(
     '/api/v1/video/webhook',
-    'Sự kiện gọi lại của máy chủ video (vào ra phòng, ghi xong): một địa chỉ cho mọi trường, đi qua đường dẫn không cần trường, trường lấy từ tên phòng; xác thực bằng chữ ký của máy chủ video, video chưa bật thì 404',
-  ),
-  get(
-    '/api/v1/tutoring/course-media/:activityId/stream',
-    'Phát video bài học của khoá gia sư bằng đường dẫn ký 5 phút do điểm cuối có đăng nhập cấp (thẻ video không gửi được mã phiên), theo tên miền của trường, theo đoạn; mỗi lần cấp đường dẫn đã ghi nhật ký xem (DT-27 phần 27d1)',
-  ),
-  get(
-    '/api/v1/video/recordings/:id/stream',
-    'Phát bản ghi video bằng đường dẫn ký 5 phút do điểm cuối có đăng nhập cấp (thẻ video không gửi được mã phiên), theo tên miền của trường; mỗi lần cấp đường dẫn đã ghi nhật ký xem',
+    'Sự kiện gọi lại của máy chủ video (vào ra phòng): một địa chỉ cho mọi trường, đi qua đường dẫn không cần trường, trường lấy từ tên phòng; xác thực bằng chữ ký của máy chủ video, video chưa bật thì 404',
   ),
   // Gói bài giảng SCORM (DT-28 phần 28h): tệp của gói mở bằng mã truy cập ký HMAC 4 giờ trong đường dẫn (khung sandbox không gửi được
   // mã phiên); mã gắn trường, sai hoặc của trường khác thì 404; tệp có CSP sandbox nên không đọc được phiên của ứng dụng

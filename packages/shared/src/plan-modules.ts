@@ -9,7 +9,10 @@ import { listPortalMenuEntries, PORTAL_WORKSPACES, type PortalWorkspaceKey } fro
 // Tính năng không phải phân hệ của cây menu (YCTD-314): trợ lý AI và học trực tuyến, lớp trực tiếp chạy ở nhiều ứng dụng (cổng quản
 // trị, giáo viên, học sinh) nên gói bật, tắt bằng mã riêng; máy chủ API chặn theo khai báo RequirePlanModule ở bộ điều khiển
 export type PlanFeatureKey = 'ai-assistant' | 'online-learning' | 'sms-zalo';
-export type PlanModuleKey = PortalWorkspaceKey | PlanFeatureKey;
+// Phân hệ đã bỏ (YCTD-384 lát L2, Eric chốt ngày 2026-10-30: gia sư trong trường): gói và tính năng riêng của trường đã lưu mã này
+// vẫn hợp lệ khi sửa lại, nhưng mã không còn hiện để chọn và không bật chức năng nào
+export type RemovedPlanModuleKey = 'tutoring';
+export type PlanModuleKey = PortalWorkspaceKey | PlanFeatureKey | RemovedPlanModuleKey;
 
 // Phân hệ luôn bật ở mọi gói: quản trị hệ thống (tài khoản, phân quyền, cấu hình trường) để trường còn đăng nhập, quản trị được
 export const CORE_PLAN_MODULES: readonly PlanModuleKey[] = ['system'];
@@ -28,6 +31,10 @@ const PLAN_FEATURES: readonly PlanModule[] = [
   { key: 'sms-zalo', label: 'Tin nhắn SMS, Zalo', core: false },
 ];
 
+const REMOVED_PLAN_MODULES: readonly PlanModule[] = [
+  { key: 'tutoring', label: 'Gia sư trong trường (đã bỏ)', core: false },
+];
+
 export const PLAN_MODULES: readonly PlanModule[] = [
   ...PORTAL_WORKSPACES.map((workspace) => ({
     key: workspace.key,
@@ -44,14 +51,13 @@ export const PAID_PLAN_MODULES: readonly PlanModuleKey[] = [
   'ai-assistant',
   'online-exam',
   'online-learning',
-  'tutoring',
   'reports',
   'kpi',
   'sms-zalo',
 ];
 
 export function planModuleLabel(key: string): string {
-  return PLAN_MODULES.find((module) => module.key === key)?.label ?? key;
+  return [...PLAN_MODULES, ...REMOVED_PLAN_MODULES].find((module) => module.key === key)?.label ?? key;
 }
 
 // Lời báo thống nhất khi trường chưa có tính năng (mã lỗi MODULE_NOT_IN_PLAN): giao diện hiện nguyên văn
@@ -60,7 +66,7 @@ export function paidFeatureMessage(key: string | null): string {
 }
 
 export function isPlanModuleKey(value: unknown): value is PlanModuleKey {
-  return typeof value === 'string' && PLAN_MODULES.some((module) => module.key === value);
+  return typeof value === 'string' && [...PLAN_MODULES, ...REMOVED_PLAN_MODULES].some((module) => module.key === value);
 }
 
 let permissionModules: Map<string, Set<PlanModuleKey>> | undefined;

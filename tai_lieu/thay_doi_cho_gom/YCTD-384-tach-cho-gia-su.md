@@ -7,6 +7,33 @@ phien_ban_de_xuat: 0.240.0
 
 ## 02 Nhật ký
 
+### 2026-10-30 — Bỏ chương trình gia sư trong trường, lát L2: gỡ mã gia sư trong trường (YCTD-384)
+
+#### Công việc đã thực hiện
+
+- Máy chủ API: gỡ `apps/api/src/tutoring` (chương trình, quy định dạy thêm, buổi học, đơn đăng ký, điểm danh, quyết định tăng thời lượng, thu chi và thù lao, khóa học ghi sẵn, câu hỏi gửi thầy cô, đồng ý AI của cha mẹ) cùng bộ điều khiển, dịch vụ ở `application.module.ts` và đường dẫn không cần trường `/api/v1/tutoring/course-media/:activityId/stream`, `/api/v1/video/recordings/:id/stream`.
+- Tính học phí không còn lập dòng thu gia sư và khoản trừ gia sư; hóa đơn đã phát hành giữ nguyên dòng `item_type = 'tutoring'`, hiện theo nội dung dòng như trước.
+- Trợ lý AI: gỡ `draftAnswer` và mẫu lời nhắc gợi ý trả lời câu hỏi; kiểu `answer` chỉ còn trong ràng buộc cơ sở dữ liệu hệ thống và nhãn lịch sử của cổng trường.
+- Lớp video: gỡ phòng của buổi gia sư, ghi hình, danh sách và phát bản ghi, đồng ý ghi hình, việc nền xóa bản ghi hết hạn, điểm cuối `children/:id/video`, `student/video`. Giữ cấu hình của trường (số người dự tối đa), phòng tức thời, phút người dự theo gói, bộ nối máy chủ video, `video/webhook` và phần mở rộng cho giờ học trực tuyến (DT-28 phần 28g). Nhóm `/video` chuyển sang quyền `P02.learning.teach`, `P02.learning.decide` và gói `online-learning`.
+- Cổng trường: gỡ nhóm menu "Gia sư trực tuyến" và năm trang; thẻ cấu hình lớp video chuyển sang trang 9.3 Hình thức và nội quy dạy học trực tuyến (Ban Giám hiệu). Lối tắt Truy cập nhanh tới trang đã gỡ không hiện, lần lưu sau bỏ hẳn.
+- Ứng dụng giáo viên bỏ màn hình và nút "Gia sư trong trường"; ứng dụng phụ huynh bỏ mục "Gia sư" (khóa học, câu hỏi, lớp video theo buổi); ứng dụng học sinh bỏ khóa học, câu hỏi và lớp video của chương trình gia sư.
+- Gói dùng chung: gỡ `PERMISSION_CODES.tutoringManage`, `tutoringTeach`, tệp `tutoring.ts`, `tutoring-fees.ts`, quy tắc menu, mục Truy cập nhanh, tính năng theo cấp `school_tutoring`, văn bản đồng ý ghi hình; `packages/ui` bỏ `VideoRecordingList` và thuộc tính `recordingLocked`.
+- Kiểm thử: gỡ kiểm thử của mã đã bỏ (`apps/api/src/tutoring/*.test.ts`, kịch bản giao diện 190, 191, 192); viết lại kịch bản máy chủ CT-27a-3 đến CT-27a-6 theo phần video còn lại; sửa kiểm thử cây menu theo cấp và kiểm thử mở danh mục.
+
+#### Quyết định
+
+- Mã phân hệ gói `tutoring` giữ là mã đã bỏ: gói và tính năng riêng của trường đã lưu mã này vẫn sửa lại được, mã không hiện để chọn, không còn là tính năng trả phí. Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11.
+- Bảng dữ liệu, kiểu bảng ở `database/school-year/schema.ts` và quyền ở cơ sở dữ liệu định danh giữ nguyên đến lát L3.
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-384, `23_LICH_SU_PHIEN_BAN.md` {PHIEN_BAN}.
+
+#### Vấn đề tồn đọng
+
+- Lát L3 (database migration xóa bảng gia sư, bảng bản ghi video, quyền `P02.tutoring.*` kèm lệnh sao lưu), L4 (đánh dấu chức năng đã bỏ ở tài liệu).
+- Giới hạn dung lượng bản ghi video của gói (`video_max_recording_mb`) còn ở cổng nền tảng nhưng không còn chức năng nào dùng.
+
 ### 2026-10-30 — Tách Chợ gia sư thành sản phẩm riêng, lát L1: gỡ mã chợ khỏi School Management (YCTD-384)
 
 #### Công việc đã thực hiện
@@ -58,8 +85,11 @@ phien_ban_de_xuat: 0.240.0
 
 - Phạm vi thay đổi: gỡ Chợ gia sư khỏi School Management, chợ chuyển sang kho riêng (YCTD-384, lát L1).
 - Dữ liệu: cần chạy lệnh `xoa-du-lieu-da-bo -- --tinh-nang cho-gia-su` trước database migration nền tảng 0255 ở bản triển khai có cơ sở dữ liệu chợ.
+- Phạm vi thay đổi (lát L2): gỡ mã chương trình gia sư trong trường ở máy chủ API, cổng trường, ứng dụng giáo viên, phụ huynh, học sinh; tính học phí không lập dòng thu gia sư; lớp video chỉ còn phòng tức thời, cấu hình và phần dùng chung cho giờ học trực tuyến.
+- Dữ liệu (lát L2): không đổi cấu trúc dữ liệu; bảng gia sư và bản ghi video giữ nguyên đến lát L3.
+- Quay lui (lát L2): triển khai lại phiên bản trước, dữ liệu không đổi.
 - Quay lui: triển khai lại phiên bản trước; dữ liệu chợ khôi phục từ tệp sao lưu (`verifyRemovedDataBackup` kiểm tệp, nạp bằng `loadDatabase` của school-data-copy.ts vào cơ sở dữ liệu chợ tạo lại bằng phiên bản trước).
 
 ## 01 Bảng phiên bản
 
-| {PHIEN_BAN} | Gỡ Chợ gia sư khỏi School Management, chợ chuyển sang kho riêng (lát L1) | YCTD-384 |
+| {PHIEN_BAN} | Gỡ Chợ gia sư khỏi School Management, chợ chuyển sang kho riêng (lát L1); gỡ mã gia sư trong trường (lát L2) | YCTD-384 |

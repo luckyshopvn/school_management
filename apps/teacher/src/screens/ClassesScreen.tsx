@@ -73,7 +73,6 @@ export function ClassesScreen({
   onOpenOnlineClasses,
   onOpenClassroomTools,
   onOpenClassroomMode,
-  onOpenTutoring,
 }: {
   onOpen(myClass: MyClass): void;
   onOpenPickup(myClass: MyClass): void;
@@ -99,7 +98,6 @@ export function ClassesScreen({
   onOpenOnlineClasses(): void;
   onOpenClassroomTools(classes: MyClass[]): void;
   onOpenClassroomMode(classes: MyClass[]): void;
-  onOpenTutoring(): void;
 }) {
   const session = useSession();
   const [classes, setClasses] = useState<MyClass[]>();
@@ -111,8 +109,6 @@ export function ClassesScreen({
   const [canTrain, setCanTrain] = useState(false);
   // Lớp học trực tuyến (DT-28 phần 28b)
   const [canTeachOnline, setCanTeachOnline] = useState(false);
-  // Gia sư trong trường (DT-27 phần 27b)
-  const [canTutor, setCanTutor] = useState(false);
 
   useEffect(() => {
     fetchCurrentUser()
@@ -128,7 +124,6 @@ export function ClassesScreen({
         );
         setCanTrain(user.assignments.some((assignment) => assignment.permissions.includes('P09.training.use')));
         setCanTeachOnline(user.assignments.some((assignment) => assignment.permissions.includes('P02.learning.teach')));
-        setCanTutor(user.assignments.some((assignment) => assignment.permissions.includes('P02.tutoring.teach')));
       })
       .catch(() => setGateUnitIds([]));
     requestJson<MyClass[]>('/api/v1/classes?mine=true&status=active')
@@ -175,9 +170,6 @@ export function ClassesScreen({
           {canTrain ? <Button onClick={onOpenTraining}>Bồi dưỡng của tôi</Button> : null}
           {canTeachOnline && fitsSomeClass('online_learning') ? (
             <Button onClick={onOpenOnlineClasses}>Lớp học trực tuyến</Button>
-          ) : null}
-          {canTutor && fitsSomeClass('school_tutoring') ? (
-            <Button onClick={onOpenTutoring}>Gia sư trong trường</Button>
           ) : null}
           {/* Lịch dạy theo thời khoá biểu (DT-20 phần 22c1): giáo viên có lớp cấp phổ thông */}
           {(classes ?? []).some((myClass) => hasLevelFeature(myClass.school_level, 'period_timetable')) ? (
