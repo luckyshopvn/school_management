@@ -11,7 +11,8 @@ import { writeAudit } from './provision-school.js';
 //
 // Đổi khóa của trường: mã hóa lại từng bước, ghi tiến độ sau mỗi lô nên làm tiếp được khi bị gián đoạn. Công cụ tự tìm mọi cột
 // `*_encrypted` có cột `id` ở cơ sở dữ liệu hệ thống và mọi cơ sở dữ liệu năm học của trường (số định danh của trẻ và người lớn,
-// khóa kết nối Zalo, mật khẩu tài khoản đồng bộ, cấu hình kết nối ngoài), nên bảng thêm sau tự được xử lý; cột `<tên>_hash` cùng bảng là
+// khóa kết nối Zalo, mật khẩu tài khoản đồng bộ, cấu hình kết nối ngoài), nên bảng thêm sau tự được xử lý; giá trị mã hóa nằm trong
+// cột jsonb thì khai ở `ENCRYPTED_JSON_COLUMNS`; cột `<tên>_hash` cùng bảng là
 // băm có khóa của bản rõ, tính lại bằng khóa băm mới. Trường phải đang tạm dừng (không có yêu cầu nào đọc dữ liệu bằng khóa cũ trong khi
 // một phần dòng đã sang khóa mới); khóa mới chỉ thay khóa hiện tại ở `school_keys` khi xong toàn bộ.
 // Làm tiếp an toàn: dòng đã sang khóa mới (giải mã bằng khóa cũ lỗi, bằng khóa mới được) được bỏ qua.
@@ -67,6 +68,89 @@ async function encryptedColumns(database: Kysely<unknown>): Promise<EncryptedCol
     });
   }
   return columns;
+}
+
+// Cột jsonb chứa giá trị mã hóa bằng khóa dữ liệu trẻ ở khóa con tên `*_encrypted`, kể cả lồng nhau: số CCCD, hộ chiếu, bảo hiểm
+// xã hội trong hồ sơ CSDL ngành của trẻ và nhân viên; ảnh chụp hồ sơ nhân viên trong phiếu chuyển đi, chuyển đến
+const ENCRYPTED_JSON_COLUMNS: ReadonlyArray<{ table: string; column: string }> = [
+  { table: 'children', column: 'moet_profile' },
+  { table: 'staff', column: 'moet_profile' },
+  { table: 'staff_movements', column: 'dossier' },
+];
+
+async function encryptedJsonColumns(database: Kysely<unknown>): Promise<EncryptedColumn[]> {
+  const rows = await sql<{ table_name: string; column_name: string }>`
+    select table_name, column_name from information_schema.columns
+    where table_schema = current_schema() and data_type = 'jsonb'`.execute(database);
+  const present = new Set(rows.rows.map((row) => `${row.table_name}.${row.column_name}`));
+  return ENCRYPTED_JSON_COLUMNS.filter((target) => present.has(`${target.table}.${target.column}`)).map((target) => ({
+    ...target,
+    hashColumn: null,
+  }));
+}
+
+// Mã hóa lại mọi chuỗi ở khóa con `*_encrypted`; trả về có đổi gì không. Giá trị đã sang khóa mới thì giữ nguyên,
+// không giải mã được bằng khóa nào là dữ liệu hỏng, dừng
+function reencryptJson(value: unknown, keys: { oldEncryption: Buffer; newEncryption: Buffer }): boolean {
+  if (Array.isArray(value)) {
+    return value.map((item) => reencryptJson(item, keys)).some(Boolean);
+  }
+  if (value === null || typeof value !== 'object') {
+    return false;
+  }
+  const record = value as Record<string, unknown>;
+  let changed = false;
+  for (const [key, item] of Object.entries(record)) {
+    if (key.endsWith('_encrypted') && typeof item === 'string') {
+      let plain: string;
+      try {
+        plain = decryptSecret(keys.oldEncryption, item);
+      } catch {
+        decryptSecret(keys.newEncryption, item);
+        continue;
+      }
+      record[key] = encryptSecret(keys.newEncryption, plain);
+      changed = true;
+    } else if (reencryptJson(item, keys)) {
+      changed = true;
+    }
+  }
+  return changed;
+}
+
+async function reencryptJsonColumn(
+  database: Kysely<unknown>,
+  target: EncryptedColumn,
+  keys: { oldEncryption: Buffer; newEncryption: Buffer },
+  after: string | null,
+  batchSize: number,
+): Promise<{ rows: number; lastId: string | null; processed: number }> {
+  const table = quote(target.table);
+  const column = quote(target.column);
+  const where = after ? sql`and id > ${after}::uuid` : sql``;
+  const batch = await sql<{ id: string; value: string }>`
+    select id::text as id, ${sql.raw(column)}::text as value from ${sql.raw(table)}
+    where ${sql.raw(column)}::text like '%#_encrypted"%' escape '#' ${where} order by id limit ${batchSize}`.execute(
+    database,
+  );
+  if (batch.rows.length === 0) {
+    return { rows: 0, lastId: after, processed: 0 };
+  }
+  let processed = 0;
+  await database.transaction().execute(async (transaction) => {
+    await sql`set transaction read write`.execute(transaction);
+    for (const row of batch.rows) {
+      const document: unknown = JSON.parse(row.value);
+      if (!reencryptJson(document, keys)) {
+        continue;
+      }
+      await sql`update ${sql.raw(table)} set ${sql.raw(column)} = ${JSON.stringify(document)}::jsonb where id = ${row.id}::uuid`.execute(
+        transaction,
+      );
+      processed += 1;
+    }
+  });
+  return { rows: batch.rows.length, lastId: batch.rows[batch.rows.length - 1]?.id ?? after, processed };
 }
 
 function quote(identifier: string): string {
@@ -202,13 +286,20 @@ export async function rotateChildKeys(
     for (const descriptor of descriptors) {
       const database = createDatabase<unknown>(connectionStringOf(descriptor), { max: 1 });
       try {
-        for (const target of await encryptedColumns(database)) {
-          const key = `${descriptor.kind}:${descriptor.name}:${target.table}.${target.column}`;
+        const steps = [
+          ...(await encryptedColumns(database)).map((target) => ({ target, json: false })),
+          ...(await encryptedJsonColumns(database)).map((target) => ({ target, json: true })),
+        ];
+        for (const { target, json } of steps) {
+          const key = `${descriptor.kind}:${descriptor.name}:${target.table}.${target.column}${json ? ':json' : ''}`;
           if (progress[key] === 'done') {
             continue;
           }
           for (;;) {
-            const result = await reencryptColumn(database, target, keys, progress[key] ?? null, batchSize);
+            const after = progress[key] ?? null;
+            const result = json
+              ? await reencryptJsonColumn(database, target, keys, after, batchSize)
+              : await reencryptColumn(database, target, keys, after, batchSize);
             if (result.rows === 0) {
               progress[key] = 'done';
               break;
@@ -270,16 +361,51 @@ export async function rotateChildKeys(
   return { rotationId: rotation.id, status: 'completed', rowsDone, resumed };
 }
 
-// Bọc lại khóa của mọi trường (khóa mã hóa và khóa băm dữ liệu trẻ, khóa mới đang đổi dở) và mật khẩu kết nối cơ sở dữ liệu bằng khóa
-// gốc mới; trong một giao dịch nên không bao giờ có trạng thái nửa cũ nửa mới. Sau đó đặt PLATFORM_MASTER_KEY thành khóa mới
+// Mọi cột `*_encrypted` của cơ sở dữ liệu nền tảng; kiểm thử đối chiếu danh sách này với cơ sở dữ liệu để bảng thêm sau không bị sót
+export const MASTER_KEY_COLUMNS = [
+  'school_keys.child_encryption_key_encrypted',
+  'school_keys.child_hash_key_encrypted',
+  'school_databases.password_encrypted',
+  'school_key_rotations.new_encryption_key_encrypted',
+  'school_key_rotations.new_hash_key_encrypted',
+  'platform_operator_totp.secret_encrypted',
+  'parent_org_user_totp.secret_encrypted',
+  'platform_integration_secrets.values_encrypted',
+  'platform_push_keys.private_key_encrypted',
+  'platform_native_push_keys.credentials_encrypted',
+] as const;
+
+export interface MasterKeyRewrapCounts {
+  keys: number;
+  passwords: number;
+  rotations: number;
+  operatorTotp: number;
+  parentOrgTotp: number;
+  integrationSecrets: number;
+  pushKeys: number;
+  nativePushKeys: number;
+}
+
+// Bọc lại khóa của mọi trường (khóa mã hóa và khóa băm dữ liệu trẻ, khóa mới đang đổi dở), mật khẩu kết nối cơ sở dữ liệu, khóa
+// hai lớp, khóa cổng thanh toán, AI và thông báo đẩy của nền tảng bằng khóa gốc mới; trong một giao dịch nên không bao giờ có trạng
+// thái nửa cũ nửa mới. Sau đó đặt PLATFORM_MASTER_KEY thành khóa mới
 export async function rewrapMasterKey(
   platform: Kysely<PlatformDatabase>,
   oldMasterKey: Buffer,
   newMasterKey: Buffer,
   actor: Actor,
-): Promise<{ keys: number; passwords: number; rotations: number }> {
+): Promise<MasterKeyRewrapCounts> {
   const rewrap = (value: string) => encryptSecret(newMasterKey, decryptSecret(oldMasterKey, value));
-  const counts = { keys: 0, passwords: 0, rotations: 0, operatorTotp: 0, parentOrgTotp: 0 };
+  const counts: MasterKeyRewrapCounts = {
+    keys: 0,
+    passwords: 0,
+    rotations: 0,
+    operatorTotp: 0,
+    parentOrgTotp: 0,
+    integrationSecrets: 0,
+    pushKeys: 0,
+    nativePushKeys: 0,
+  };
   await platform.transaction().execute(async (transaction) => {
     for (const row of await transaction.selectFrom('school_keys').selectAll().execute()) {
       await transaction
@@ -337,6 +463,42 @@ export async function rewrapMasterKey(
         .where('user_id', '=', row.user_id)
         .execute();
       counts.parentOrgTotp += 1;
+    }
+    // Khóa cổng thanh toán và khóa AI của nền tảng
+    for (const row of await transaction
+      .selectFrom('platform_integration_secrets')
+      .select(['connector', 'values_encrypted'])
+      .execute()) {
+      await transaction
+        .updateTable('platform_integration_secrets')
+        .set({ values_encrypted: rewrap(row.values_encrypted) })
+        .where('connector', '=', row.connector)
+        .execute();
+      counts.integrationSecrets += 1;
+    }
+    // Khóa riêng VAPID, kể cả khóa đã thôi dùng
+    for (const row of await transaction
+      .selectFrom('platform_push_keys')
+      .select(['id', 'private_key_encrypted'])
+      .execute()) {
+      await transaction
+        .updateTable('platform_push_keys')
+        .set({ private_key_encrypted: rewrap(row.private_key_encrypted) })
+        .where('id', '=', row.id)
+        .execute();
+      counts.pushKeys += 1;
+    }
+    // Khóa đẩy gốc thiết bị (FCM, APNs), kể cả khóa đã thôi dùng
+    for (const row of await transaction
+      .selectFrom('platform_native_push_keys')
+      .select(['id', 'credentials_encrypted'])
+      .execute()) {
+      await transaction
+        .updateTable('platform_native_push_keys')
+        .set({ credentials_encrypted: rewrap(row.credentials_encrypted) })
+        .where('id', '=', row.id)
+        .execute();
+      counts.nativePushKeys += 1;
     }
   });
   await writeAudit(platform, {
