@@ -106,7 +106,7 @@ export class MemoryStore implements CacheStore {
   }
 
   // Kho trong bộ nhớ không giữ danh sách: hàng đợi luôn rỗng
-  async llen(_key: string): Promise<number> {
+  async llen(): Promise<number> {
     return 0;
   }
 
