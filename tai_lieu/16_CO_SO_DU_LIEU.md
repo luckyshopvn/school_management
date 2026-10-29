@@ -1030,6 +1030,26 @@ Cơ sở dữ liệu năm học, tệp `0187_create_learning_live_rooms`, `0188_
 | learning_live_notices (từ YCTD-277) | Thông báo giáo viên gửi tới mọi phòng chia nhỏ | room_id, body, sent_by_name |
 | learning_live_help_requests (từ YCTD-277) | Học sinh "gọi giáo viên" từ phòng chia nhỏ | room_id, child_id, resolved_at |
 
+## 18Q. Gia sư AI trả phí trong ứng dụng học sinh (YCTD-383 lát L0)
+
+Gói tháng, lượt mua thêm (giữ 12 tháng) và lịch sử trò chuyện (giữ 12 tháng) đi qua ranh giới năm học nên các bảng của trường nằm ở cơ sở dữ liệu hệ thống (tệp hệ thống `0130_create_ai_tutor`), không ở cơ sở dữ liệu năm học. Mã trẻ giữ nguyên khi sang năm học mới (mục 1, quy ước 10) nên `child_id` không có khóa ngoại. Gói do nền tảng bán nằm ở cơ sở dữ liệu nền tảng (tệp nền tảng `0250_create_ai_tutor_plans`). Cột đánh dấu bài tập ở cơ sở dữ liệu năm học (tệp năm học `0230_add_assignment_ai_blocked`).
+
+| Bảng | Mục đích | Cột chính |
+|---|---|---|
+| ai_tutor_plans (hệ thống, từ YCTD-383) | Gói do trường bán (nguồn `school`) | id, kind (`monthly` gói tháng, `top_up` gói lượt mua thêm), name (1 đến 80 ký tự), price (số tiền hai chữ số thập phân, đồng), turns (lượt mỗi tháng hoặc lượt của một lần mua, 1 đến 100.000), allow_images (chỉ gói tháng được bật), school_levels (mảng con khác rỗng của `TH`, `THCS`, `THPT`), status (`active`, `archived`), created_by, created_by_name, created_at, updated_at |
+| platform_ai_tutor_plans (nền tảng, từ YCTD-383) | Gói do nền tảng bán thẳng cho phụ huynh (nguồn `platform`) | cùng cột với `ai_tutor_plans`; price theo đồng, số nguyên như `plans` |
+| ai_tutor_subscriptions (hệ thống, từ YCTD-383) | Mỗi lần mua cho một con, của cả hai nguồn; chụp lại gói lúc mua; giữ số lượt đã dùng, đang tạm giữ | id, child_id, plan_source (`school`, `platform`), plan_id (mã ở bảng gói của nguồn, không khóa ngoại), plan_kind, plan_name, price, allow_images, period_month (ngày đầu tháng dùng; bắt buộc ở gói tháng, trống ở gói lượt), status (`pending`, `active`, `cancelled`, `refunded`), pending_expires_at (hạn giữ chỗ của dòng chờ thanh toán; trống là giữ tới khi kích hoạt hoặc hủy), buyer_user_id, buyer_name, external_reference (mã dòng thu trên hóa đơn học phí hoặc mã giao dịch của nền tảng), turns, used_turns, held_turns (used_turns + held_turns ≤ turns), valid_from, valid_until (đặt khi kích hoạt), activated_at, cancelled_at, cancel_reason, created_at, updated_at; chỉ mục duy nhất `ai_tutor_subscriptions_one_monthly` (child_id, period_month) với gói tháng ở trạng thái `pending` hoặc `active`; chỉ mục (child_id, status, valid_until) |
+| ai_tutor_turn_ledger (hệ thống, từ YCTD-383) | Sổ lượt: mỗi lượt hỏi một dòng | id, child_id, subscription_id, status (`held` tạm giữ trước khi gọi AI, `captured` đã trừ sau khi gọi, `released` đã hoàn khi lỗi), held_at, settled_at (trống khi và chỉ khi `held`), release_reason; chỉ mục (child_id, held_at), chỉ mục riêng phần held_at với dòng `held` |
+| ai_tutor_conversations (hệ thống, từ YCTD-383) | Hội thoại của em | id, child_id, school_level (`TH`, `THCS`, `THPT`), grade_level_code, subject_code, subject_name, topic (chủ đề ngắn cho cha mẹ xem, tối đa 200 ký tự), created_at, last_message_at; chỉ mục (child_id, last_message_at) |
+| ai_tutor_messages (hệ thống, từ YCTD-383) | Tin nhắn của hội thoại, giữ 12 tháng | id, conversation_id (xóa theo hội thoại), role (`student`, `tutor`), body (1 đến 8.000 ký tự), ledger_entry_id (lượt đã trừ), model, input_tokens, output_tokens, created_at; chỉ mục (conversation_id, created_at), (created_at) cho việc xóa theo hạn |
+| assignments (thêm cột, năm học, từ YCTD-383) | Bài tập giáo viên đánh dấu "không dùng AI" | ai_blocked (mặc định không) |
+
+Quy tắc của lát L0 (mã ở `apps/api/src/ai-tutor/ai-tutor-rules.ts`, `ai-tutor-turns.ts`):
+
+1. Chặn mua trùng: mỗi con chỉ một gói tháng ở trạng thái `pending` hoặc `active` trong một tháng, bất kể trường bán hay nền tảng bán. Cả hai nguồn ghi vào cùng bảng `ai_tutor_subscriptions` ở cơ sở dữ liệu hệ thống của trường có con, nên chỉ mục duy nhất `ai_tutor_subscriptions_one_monthly` chặn được cả hai lần mua đồng thời; lần thua nhận `monthly_exists` kèm nguồn đang giữ. Dòng chờ thanh toán quá `pending_expires_at` được hủy trong cùng giao dịch trước khi ghi dòng mới. Gói lượt không bị chặn. Không mua được gói đã ngừng bán, gói không áp dụng cho cấp học của con, tháng đã qua.
+2. Khoảng dùng đặt khi kích hoạt: gói tháng từ 0 giờ ngày đầu tháng tới 0 giờ ngày đầu tháng sau, giờ Việt Nam; gói lượt từ lúc kích hoạt tới cùng thời điểm sau 12 tháng (ngày 29/02 lùi về 28/02).
+3. Trừ lượt: tạm giữ một lượt trước khi gọi AI bằng câu cập nhật có điều kiện còn lượt, rồi trừ thật khi gọi thành công hoặc hoàn khi lỗi; chốt lần hai không đổi gì. Thứ tự: lượt gói tháng trước, hết mới tới lượt mua thêm sắp hết hạn trước. Lượt tạm giữ quá 10 phút được hoàn.
+
 ## 19. Quan hệ chính giữa các bảng
 
 ```mermaid
