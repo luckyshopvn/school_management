@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import { randomUUID } from 'node:crypto';
 import { after, before, describe, it } from 'node:test';
 import { createDatabase, replaceDatabaseName, type SchoolYearDatabase } from '@school-management/database';
-import { createTestUser, postJson } from '@school-management/identity/testing';
+import { createTestUser, postJson, solvedCaptcha } from '@school-management/identity/testing';
 import type { Kysely } from 'kysely';
 import { FileStorage } from '../files/file-storage.js';
 import {
@@ -360,10 +360,13 @@ describe('Thi trực tuyến cho học sinh', () => {
       channel: 'student',
     });
     assert.equal(staffOnStudent.status, 401, 'tài khoản cán bộ không vào kênh student');
+    // Ba lần thử ở kênh khác tính như nhập sai (sai kênh báo như sai mật khẩu), đủ ngưỡng nên lần vào đúng kênh phải kèm mã xác nhận
+    // (YCTD-353, YCTD-354); đăng nhập đúng thì xóa bộ đếm
     const first = await postJson(identityUrl('/auth/login'), {
       login: an.username,
       password: an.password,
       channel: 'student',
+      ...(await solvedCaptcha(environment.identity)),
     });
     assert.equal(first.status, 200, JSON.stringify(first.body));
     assert.equal(first.body.password_change_required, true, 'mật khẩu do trường cấp phải đổi ở lần đầu');
