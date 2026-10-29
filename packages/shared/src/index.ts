@@ -561,6 +561,8 @@ export const PORTAL_QUICK_LINK_PATHS = [
   '/outgoing-documents/manage',
   '/outgoing-documents/interconnect',
   '/outgoing-documents/search',
+  // Công văn của tôi: văn bản đến, đi chờ tôi xử lý và dự thảo của tôi (YCTD-336)
+  '/my-documents',
   // Giao việc, lịch, hồ sơ công việc, báo cáo theo VNPT iOffice (DT-18 phần 18c)
   '/directives/new',
   '/directives/inbox',
@@ -950,6 +952,8 @@ export const DATA_GRID_KEYS = [
   'outgoing-manage',
   'outgoing-recipients',
   'outgoing-register',
+  // Công văn của tôi (YCTD-336)
+  'my-documents',
   // Giao việc, lịch, hồ sơ công việc, báo cáo theo VNPT iOffice (DT-18 phần 18c)
   'directive-inbox',
   'directive-outbox',

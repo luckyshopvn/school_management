@@ -1,5 +1,6 @@
 import { useCallback, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useSearch } from '@tanstack/react-router';
 import {
   INCOMING_DOCUMENT_STATUS_LABELS,
   INCOMING_ROLE_LABELS,
@@ -23,6 +24,7 @@ import { menuPageTitle } from '../pages/page-title.js';
 import { formatDate, messageOf, selectClass } from '../archives/archive-ui.js';
 import { ArchiveDialog, IncomingDocumentDetail } from './IncomingDocumentDetail.js';
 import { IncomingDocumentForm } from './IncomingDocumentForm.js';
+import { UrgencyBadge } from './UrgencyBadge.js';
 import {
   archiveMany,
   completeMany,
@@ -39,13 +41,15 @@ import {
 
 // Danh sách văn bản đến theo VNPT iOffice (DT-18 phần 18a, YCTD-138): tìm theo trích yếu, "Tìm kiếm nâng cao" (số ký hiệu,
 // số đến, đơn vị ban hành, ngày đến, sổ, hình thức, độ khẩn, quá hạn, đến hạn), lọc theo vai trò (Xử lý chính, Phối hợp,
-// Xem, Tất cả), chú thích màu (đỏ hỏa tốc, cam khẩn, xanh chỉ đạo; [XLC], [PH], [QH], [ĐH]); thao tác hàng loạt Kết thúc hàng
-// loạt, Lưu hồ sơ hàng loạt, Đánh dấu. Bấm một dòng mở chi tiết văn bản ngay dưới dòng
+// Xem, Tất cả); thao tác hàng loạt Kết thúc hàng loạt, Lưu hồ sơ hàng loạt, Đánh dấu. Bấm một dòng mở chi tiết văn bản ngay
+// dưới dòng. Bản gọn theo thiết kế "Cổng quản trị trường" (YCTD-336): bỏ dòng chú thích màu, độ khẩn và văn bản chỉ đạo ghi
+// bằng nhãn chữ trong ô trích yếu, ký hiệu [XLC], [PH], [QH], [ĐH] có tên đầy đủ khi trỏ chuột; lọc vai trò là một ô chọn;
+// nút hàng loạt chỉ hiện khi đã chọn dòng
 const ROLE_FILTERS: Array<{ value: IncomingRoleFilter; label: string }> = [
+  { value: 'all', label: 'Tất cả' },
   { value: 'main', label: 'Xử lý chính' },
   { value: 'coordinate', label: 'Phối hợp' },
   { value: 'view', label: 'Xem' },
-  { value: 'all', label: 'Tất cả' },
 ];
 
 interface Tab {
@@ -60,17 +64,6 @@ interface ListPageOptions {
   roleFilter?: boolean;
   create?: 'register' | 'interconnect';
   notice?: string;
-}
-
-// Màu chữ trích yếu theo chú thích của iOffice
-function summaryClass(row: IncomingListItem): string {
-  if ((row.urgency_level ?? 0) >= 2) {
-    return 'text-danger';
-  }
-  if ((row.urgency_level ?? 0) === 1) {
-    return 'text-warning';
-  }
-  return row.directed ? 'text-info' : 'text-text';
 }
 
 function columnsOf(view: IncomingListView): Array<DataGridColumn<IncomingListItem>> {
@@ -99,11 +92,23 @@ function columnsOf(view: IncomingListView): Array<DataGridColumn<IncomingListIte
       cell: (row) => (
         <span className="flex flex-wrap items-center gap-1">
           {row.my_role && INCOMING_ROLE_TAGS[row.my_role] ? (
-            <span className="text-label font-semibold">[{INCOMING_ROLE_TAGS[row.my_role]}]</span>
+            <abbr title={INCOMING_ROLE_LABELS[row.my_role]} className="text-label font-semibold no-underline">
+              [{INCOMING_ROLE_TAGS[row.my_role]}]
+            </abbr>
           ) : null}
-          {row.overdue ? <span className="text-label font-semibold text-danger">[QH]</span> : null}
-          {row.due_soon ? <span className="text-label font-semibold text-warning">[ĐH]</span> : null}
-          <span className={`${summaryClass(row)} ${row.unread ? 'font-bold' : 'font-medium'}`}>{row.summary}</span>
+          {row.overdue ? (
+            <abbr title="Quá hạn" className="text-label font-semibold text-danger no-underline">
+              [QH]
+            </abbr>
+          ) : null}
+          {row.due_soon ? (
+            <abbr title="Đến hạn" className="text-label font-semibold text-warning no-underline">
+              [ĐH]
+            </abbr>
+          ) : null}
+          <UrgencyBadge level={row.urgency_level} name={row.urgency_name} />
+          {row.directed ? <StatusBadge tone="info" label="Chỉ đạo" /> : null}
+          <span className={`text-text ${row.unread ? 'font-bold' : 'font-medium'}`}>{row.summary}</span>
           {row.restricted ? <StatusBadge tone="neutral" label="Hạn chế xem" /> : null}
           {row.starred ? <span aria-label="Đã đánh dấu">★</span> : null}
         </span>
@@ -172,7 +177,9 @@ function IncomingListPage({ path, gridKey, tabs, roleFilter, create, notice }: L
   const [filter, setFilter] = useState<Omit<IncomingFilter, 'view' | 'role' | 'q'>>({});
   const [page, setPage] = useState(1);
   const [openId, setOpenId] = useState<string>();
-  const [creating, setCreating] = useState(false);
+  // Nút "Vào sổ văn bản đến" của trang Công văn của tôi (YCTD-336) mở trang này kèm ?create=true để mở sẵn ô vào sổ
+  const linked: { create?: boolean } = useSearch({ strict: false });
+  const [creating, setCreating] = useState(() => Boolean(create) && linked.create === true);
   const [toastMessage, setToastMessage] = useState<string>();
   const [bulk, setBulk] = useState<{ kind: 'complete' | 'archive'; ids: string[] }>();
   const closeToast = useCallback(() => setToastMessage(undefined), []);
@@ -283,27 +290,24 @@ function IncomingListPage({ path, gridKey, tabs, roleFilter, create, notice }: L
           </div>
         ) : null}
         {roleFilter ? (
-          <div role="radiogroup" aria-label="Vai trò" className="flex flex-wrap items-center gap-3 text-content">
-            {ROLE_FILTERS.map((option) => (
-              <label key={option.value} className="flex items-center gap-1">
-                <input
-                  type="radio"
-                  name={`${gridKey}-role`}
-                  checked={role === option.value}
-                  onChange={() => {
-                    setRole(option.value);
-                    setPage(1);
-                  }}
-                />
-                {option.label}
-              </label>
-            ))}
-          </div>
+          <label className="flex w-full flex-col text-label font-medium text-text sm:w-56">
+            Vai trò
+            <select
+              value={role}
+              onChange={(event) => {
+                setRole(event.target.value as IncomingRoleFilter);
+                setPage(1);
+              }}
+              className={selectClass}
+            >
+              {ROLE_FILTERS.map((option) => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
+            </select>
+          </label>
         ) : null}
-        <p className="text-label text-text-secondary" aria-label="Chú thích màu">
-          <span className="text-danger">Đỏ: Hỏa tốc</span>; <span className="text-warning">Cam: Khẩn</span>;{' '}
-          <span className="text-info">Xanh: Chỉ đạo</span>; [XLC] Xử lý chính; [PH] Phối hợp; [QH] Quá hạn; [ĐH] Đến hạn
-        </p>
         {creating && create ? (
           <section className="rounded-xl border border-border bg-card p-4">
             <IncomingDocumentForm
@@ -392,24 +396,19 @@ function IncomingListPage({ path, gridKey, tabs, roleFilter, create, notice }: L
                     {create === 'register' ? 'Thêm mới' : 'Nhập văn bản liên thông'}
                   </Button>
                 ) : null}
-                {view !== 'interconnect' ? (
+                {/* Nút hàng loạt chỉ hiện khi đã chọn dòng (YCTD-336), không hiện mờ thường trực */}
+                {view !== 'interconnect' && ids.length > 0 ? (
                   <>
-                    <Button disabled={ids.length === 0} onClick={() => setBulk({ kind: 'complete', ids })}>
-                      Kết thúc hàng loạt
-                    </Button>
-                    <Button disabled={ids.length === 0} onClick={() => setBulk({ kind: 'archive', ids })}>
-                      Lưu hồ sơ hàng loạt
-                    </Button>
+                    <Button onClick={() => setBulk({ kind: 'complete', ids })}>Kết thúc hàng loạt</Button>
+                    <Button onClick={() => setBulk({ kind: 'archive', ids })}>Lưu hồ sơ hàng loạt</Button>
                     <Button
-                      disabled={ids.length === 0 || flags.isPending}
+                      disabled={flags.isPending}
                       onClick={() => flags.mutate({ ids, starred: view !== 'starred' })}
                     >
                       {view === 'starred' ? 'Bỏ đánh dấu' : 'Đánh dấu'}
                     </Button>
                     {view === 'followed' ? (
-                      <Button disabled={ids.length === 0} onClick={() => flags.mutate({ ids, followed: false })}>
-                        Bỏ theo dõi
-                      </Button>
+                      <Button onClick={() => flags.mutate({ ids, followed: false })}>Bỏ theo dõi</Button>
                     ) : null}
                   </>
                 ) : null}

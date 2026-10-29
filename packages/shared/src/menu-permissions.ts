@@ -294,6 +294,8 @@ export const MENU_PERMISSION_RULES: Partial<Record<PortalQuickLinkPath, MenuPerm
   '/outgoing-documents/manage': 'P09.outgoing-document.issue',
   '/outgoing-documents/interconnect': 'P09.outgoing-document.issue',
   '/outgoing-documents/search': anyOf('P09.outgoing-document.search', 'P09.outgoing-document.issue'),
+  // Công văn của tôi (YCTD-336): hiện khi người dùng thấy được 1.1 Văn bản đến hoặc 3.1 Văn bản đi
+  '/my-documents': anyOf(INCOMING, OUTGOING),
   // Giao việc, lịch, hồ sơ công việc, báo cáo theo VNPT iOffice (DT-18 phần 18c): giao việc cho người có quyền giao việc;
   // việc đã giao gồm cả việc giao theo quyền cũ của 3.1 Công việc và kế hoạch; hồ sơ nộp lưu cho văn thư lưu trữ
   '/directives/new': 'P09.task.direct',

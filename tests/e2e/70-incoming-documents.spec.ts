@@ -126,6 +126,18 @@ test('Văn thư vào sổ, trình lãnh đạo; lãnh đạo chuyển xử lý; 
   await page.getByRole('button', { name: 'Ghi' }).click();
   await expect(page.getByText(/Đã ghi \d+ lãnh đạo nhận văn bản/)).toBeVisible();
 
+  // 8. Công văn của tôi (YCTD-336): văn thư có quyền vào sổ thấy nút Vào sổ văn bản đến, bấm thì mở 1.2 với ô vào sổ mở sẵn
+  await openMenu(page, '/my-documents');
+  await expect(page.getByRole('heading', { name: '8. Công văn của tôi' })).toBeVisible();
+  await page.getByRole('button', { name: 'Vào sổ văn bản đến' }).click();
+  await expect(page.getByRole('heading', { name: '1.2. Quản lý văn bản đến' })).toBeVisible();
+  await expect(page.getByRole('form', { name: 'THÔNG TIN VĂN BẢN ĐẾN' })).toBeVisible();
+  await page
+    .getByRole('form', { name: 'THÔNG TIN VĂN BẢN ĐẾN' })
+    .getByRole('button', { name: 'Đóng', exact: true })
+    .click();
+  await expect(page.getByRole('form', { name: 'THÔNG TIN VĂN BẢN ĐẾN' })).toHaveCount(0);
+
   // 1.2 Quản lý văn bản đến: Thêm mới (vào sổ) kèm tệp quét
   await openMenu(page, '/incoming-documents/manage');
   await expect(page.getByRole('heading', { name: '1.2. Quản lý văn bản đến' })).toBeVisible();
@@ -172,8 +184,24 @@ test('Văn thư vào sổ, trình lãnh đạo; lãnh đạo chuyển xử lý; 
   const incomingBlock = leaderPage.getByRole('region', { name: 'Công văn đến của tôi' });
   await expect(incomingBlock).toContainText(symbol);
   await expect(incomingBlock).toContainText('Chờ xử lý:');
+  // 8. Công văn của tôi (YCTD-336): văn bản vừa trình nằm ở thẻ Cần tôi xử lý (loại Đến, nơi gửi, nhãn độ khẩn); bấm dòng mở
+  // chi tiết văn bản; thẻ Dự thảo của tôi không có văn bản đến
+  await openMenu(leaderPage, '/my-documents');
+  await expect(leaderPage.getByRole('heading', { name: '8. Công văn của tôi' })).toBeVisible();
+  await expect(leaderPage.getByRole('tab', { name: /^Cần tôi xử lý/ })).toHaveAttribute('aria-selected', 'true');
+  const myRow = leaderPage.getByRole('row', { name: `Văn bản đến ${symbol}` });
+  await expect(myRow).toContainText('Đến');
+  await expect(myRow).toContainText(unitName);
+  await expect(myRow).toContainText('Khẩn');
+  await myRow.getByText(`V/v kế hoạch năm học E2E ${suffix}`).click();
+  await expect(leaderPage.getByRole('toolbar', { name: 'Thao tác văn bản' })).toBeVisible();
+  await openTab(leaderPage, 'Dự thảo của tôi');
+  await expect(myRow).toHaveCount(0);
   await openMenu(leaderPage, '/incoming-documents');
   await expect(leaderPage.getByRole('heading', { name: '1.1. Văn bản đến' })).toBeVisible();
+  // Bản gọn (YCTD-336): không còn dòng chú thích màu, độ khẩn ghi bằng nhãn chữ trong ô trích yếu
+  await expect(leaderPage.getByLabel('Chú thích màu')).toHaveCount(0);
+  await expect(leaderPage.getByRole('row', { name: `Văn bản ${symbol}` })).toContainText('Khẩn');
   await openDocument(leaderPage, symbol);
   await leaderPage
     .getByRole('toolbar', { name: 'Thao tác văn bản' })
@@ -189,9 +217,19 @@ test('Văn thư vào sổ, trình lãnh đạo; lãnh đạo chuyển xử lý; 
   // Chuyên viên: lọc Xử lý chính, xử lý xong
   const handlerPage = await signIn(browser, handler);
   await openMenu(handlerPage, '/incoming-documents');
-  await handlerPage.getByRole('radio', { name: 'Xử lý chính' }).check();
+  // Vai trò là một ô chọn (YCTD-336, trước là các nút radio)
+  await handlerPage.getByRole('combobox', { name: 'Vai trò' }).selectOption({ label: 'Xử lý chính' });
   const handlerRow = handlerPage.getByRole('row', { name: `Văn bản ${symbol}` });
   await expect(handlerRow).toContainText('[XLC]');
+  // Nút hàng loạt chỉ hiện khi đã chọn dòng (YCTD-336)
+  const bulkComplete = handlerPage.getByRole('button', { name: 'Kết thúc hàng loạt' });
+  await expect(bulkComplete).toHaveCount(0);
+  await handlerRow.getByLabel(`Chọn ${symbol}`).check();
+  await expect(bulkComplete).toBeVisible();
+  await expect(handlerPage.getByRole('button', { name: 'Lưu hồ sơ hàng loạt' })).toBeVisible();
+  await expect(handlerPage.getByRole('button', { name: 'Đánh dấu', exact: true })).toBeVisible();
+  await handlerRow.getByLabel(`Chọn ${symbol}`).uncheck();
+  await expect(bulkComplete).toHaveCount(0);
   await openDocument(handlerPage, symbol);
   await handlerPage.getByRole('button', { name: 'Xử lý xong' }).click();
   const finish = handlerPage.getByRole('dialog');
