@@ -5,8 +5,9 @@ import { writeAudit } from '../provision-school.js';
 // Cấu hình chợ gia sư ở cổng nền tảng (DT-27 phần 27f, YCTD-256; tài liệu 47 mục 19.5, 19.10, 19.11): lưu ở `platform_settings` khóa
 // `market` như cấu hình AI của 23d. Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11 và quyết định ngày 2026-10-28 ("làm mã, tiền
 // giả lập"):
-// - chợ tắt mặc định; bật thì máy chủ API phục vụ `/api/v1/market/*` ở tên miền con dành riêng của chợ (`host`, ứng dụng phụ huynh) và
-//   của ứng dụng Gia sư (`tutor_host`, YCTD-262); hai tên miền phải khác nhau;
+// - chợ tắt mặc định; bật thì máy chủ API phục vụ `/api/v1/market/*` ở tên miền con dành riêng của chợ (`host`), nơi chạy ứng dụng
+//   chung của phụ huynh và gia sư (YCTD-368, GD-185). `tutor_host` (không bắt buộc) là tên miền cũ của ứng dụng Gia sư đã gộp
+//   (YCTD-262): tầng biên chuyển hướng nó về `host`, máy chủ API không phục vụ; phải khác `host`;
 // - hạn giữ bản ghi (GD-132), hạn khiếu nại trước khi giải ngân (GD-133), tỷ lệ hoa hồng mặc định (E-01, để trống đến khi Eric chốt)
 //   là dữ liệu, 27h dùng;
 // - **thu tiền thật luôn tắt** ở bản này: lưu `real_payments_enabled = true` bị từ chối cho đến khi xong E-01 đến E-07 (luật sư, tổ
@@ -125,11 +126,8 @@ export function parseMarketSettings(body: Record<string, unknown> | undefined): 
   if (tutorHost && !HOST_PATTERN.test(tutorHost)) {
     throw new MarketSettingsError('tutor_host', 'Tên miền chỉ gồm chữ thường, số, gạch ngang, dấu chấm');
   }
-  if (enabled && !tutorHost) {
-    throw new MarketSettingsError('tutor_host', 'Bật chợ cần tên miền con dành riêng của ứng dụng Gia sư');
-  }
   if (tutorHost && tutorHost === host) {
-    throw new MarketSettingsError('tutor_host', 'Ứng dụng Gia sư cần tên miền khác tên miền của chợ');
+    throw new MarketSettingsError('tutor_host', 'Tên miền cũ của ứng dụng Gia sư phải khác tên miền của chợ');
   }
   const retention = body?.record_retention_days ?? DEFAULT_MARKET_SETTINGS.recordRetentionDays;
   if (typeof retention !== 'number' || !Number.isInteger(retention) || retention < 7 || retention > 365) {

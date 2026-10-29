@@ -2,6 +2,7 @@
 @import '@school-management/ui/theme.css';
 @source '../../../packages/ui/src';
 @source '../../../packages/market-client/src';
+@source '../../../packages/pwa/src';
 
 body {
   @apply bg-page text-content text-text;

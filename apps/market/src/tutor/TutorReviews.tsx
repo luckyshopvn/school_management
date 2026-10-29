@@ -7,7 +7,7 @@ import {
   marketRequest,
   type Me,
 } from '@school-management/market-client';
-import { CARD_CLASS } from './styles.js';
+import { CARD_CLASS } from '../styles.js';
 
 // Đánh giá của phụ huynh về gia sư và tài khoản của gia sư (YCTD-364; thiết kế duyệt ngày 2026-10-28): đánh giá chờ duyệt, đã hiện;
 // gia sư trả lời một lần đánh giá đã hiện (nhân viên nền tảng duyệt trước khi hiện); đổi mật khẩu, sửa tên hiển thị

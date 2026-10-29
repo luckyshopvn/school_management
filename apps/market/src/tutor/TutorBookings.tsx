@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Alert, Button, FORM_CONTROL_CLASS, StatusBadge, type StatusTone } from '@school-management/ui';
 import { errorText, marketRequest, RecordingPlayer, ReportForm } from '@school-management/market-client';
-import { CARD_CLASS, money, when } from './styles.js';
+import { CARD_CLASS, money, when } from '../styles.js';
 import { TeachingRoom } from './TeachingRoom.js';
 
 // Buổi dạy và thu nhập của gia sư (DT-27 phần 27h, YCTD-258): buổi đã trả tiền, đánh dấu đã dạy sau giờ kết thúc, hủy (phụ huynh được

@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Alert, Button } from '@school-management/ui';
 import { useTutorBookings } from './TutorBookings.js';
-import { CARD_CLASS } from './styles.js';
+import { CARD_CLASS } from '../styles.js';
 import { minutesText, WEEKDAYS, type Listing } from './tutor-api.js';
 
 // Lịch dạy dạng tuần (YCTD-361, thiết kế duyệt ngày 2026-10-28; trước đây buổi dạy chỉ là danh sách): bảy cột theo thứ, mỗi cột có giờ

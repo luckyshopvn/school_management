@@ -10,7 +10,7 @@ import {
   type VideoJoinInfo,
 } from '@school-management/ui';
 import { errorText, marketRequest } from '@school-management/market-client';
-import { CARD_CLASS, when } from './styles.js';
+import { CARD_CLASS, when } from '../styles.js';
 
 // Phòng dạy video của một buổi, phía gia sư (DT-27 phần 27j, YCTD-362; thiết kế duyệt ngày 2026-10-28): điều kiện mở phòng, mở phòng
 // (bắt đầu ghi hình với trẻ vị thành niên), lớp video (VideoRoom) và bảng của chủ phòng (VideoHostPanel: phòng chờ, cho vào, cho nói, cho

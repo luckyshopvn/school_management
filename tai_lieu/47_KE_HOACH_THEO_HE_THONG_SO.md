@@ -1843,8 +1843,8 @@ Eric yêu cầu ngày 2026-10-28: trang đăng nhập làm tương tự trang đ
 | Ứng dụng phụ huynh | `http://tc.truong.localhost:5193/` |
 | Ứng dụng học sinh | `http://tc.truong.localhost:5194/` |
 | Cổng vận hành nền tảng | `http://platform.truong.localhost:5191/` |
-| Chợ gia sư | `http://cho-gia-su.truong.localhost:5195/` |
-| Ứng dụng Gia sư | `http://gia-su.truong.localhost:5196/` |
+| Chợ gia sư (ứng dụng chung của phụ huynh và gia sư, YCTD-368) | `http://cho-gia-su.truong.localhost:5195/` |
+| Tên miền cũ của ứng dụng Gia sư (chỉ chuyển hướng về chợ, YCTD-368) | `http://gia-su.truong.localhost:5196/` |
 | Dịch vụ định danh, máy chủ API | `127.0.0.1:3101`, `127.0.0.1:3100` |
 | Tiến trình nền (xếp thời khóa biểu) | hàng đợi Redis `127.0.0.1:6379` |
 | Cơ sở dữ liệu nền tảng, chợ | `school_platform` (vai trò `platform_local`), `school_marketplace` (vai trò `marketplace_local`), mật khẩu sinh ngẫu nhiên |
@@ -1853,7 +1853,7 @@ Eric yêu cầu ngày 2026-10-28: trang đăng nhập làm tương tự trang đ
    Chromium tự đưa mọi `*.localhost` về máy, không sửa tệp hosts. Trường mới khởi tạo ở cổng vận hành có tên miền `<mã>.truong.localhost`, dùng cùng các cổng trên. Cổng vận hành 5177 (`apps/platform` mặc định) trỏ dịch vụ định danh 3001 của bản một trường, không có nền tảng: cổng vận hành chỉ dùng ở bản nhiều trường, địa chỉ 5191.
    - Trường demo được **nhận** làm trường của nền tảng bằng `adopt-existing` (mã nền tảng `tc-demo` vì mã nền tảng cần 3 đến 32 ký tự chữ thường): dùng lại cơ sở dữ liệu định danh, hệ thống, năm học của bản một trường, không chép, không đổi tên; tài khoản, mật khẩu như bản một trường. Việc nền chạy theo giờ bật mặc định; nếu chạy lại bản một trường trên cùng cơ sở dữ liệu thì dựng lại với `--tat-viec-nen` để không chạy trùng.
    - Trường demo không có trong danh mục của Bộ: lệnh gắn một đơn vị nguồn `demo-local` (mã `DEMO-TC`, cấp Mầm non) ở sở, phường chỉ định. Nạp lại danh mục với `--deactivate-missing` sẽ chuyển đơn vị này sang ngừng hoạt động: chạy lại lệnh dựng để gắn lại.
-   - Chợ gia sư: lệnh dựng tạo cơ sở dữ liệu chợ, khóa ký mã liên kết, khóa mã hóa tệp giấy tờ và bật chợ ở `cho-gia-su.truong.localhost`, ứng dụng Gia sư ở `gia-su.truong.localhost`; thu tiền thật luôn tắt (thanh toán giả lập).
+   - Chợ gia sư: lệnh dựng tạo cơ sở dữ liệu chợ, khóa ký mã liên kết, khóa mã hóa tệp giấy tờ và bật chợ ở `cho-gia-su.truong.localhost` (một ứng dụng cho cả phụ huynh và gia sư từ YCTD-368), ghi `gia-su.truong.localhost` là tên miền cũ chỉ chuyển hướng; thu tiền thật luôn tắt (thanh toán giả lập).
 4. **Cách dựng** (ở gốc kho, sau `pnpm build`; chạy lại được, giữ khoá và mật khẩu đã sinh):
 
 ```bash
@@ -1887,7 +1887,7 @@ Eric yêu cầu ngày 2026-10-29: "cấp quyền cho user admin vào tất cả 
 1. **Đủ quyền.** Phiên Admin vào thẳng (nhân viên vận hành vai trò `quan_tri` hiện hành, chính sách `any_school`, toàn quyền) nhận ở `/auth/me` thêm vai trò tổng hợp "Quản trị nền tảng (toàn quyền)": mọi mã quyền có ở bảng `permissions` của trường, toàn trường (mã vai trò Hiệu trưởng để lớp phạm vi dữ liệu là toàn trường), mọi phân hệ của cổng quản trị. Vai trò này không lưu ở cơ sở dữ liệu; kiểm lại ở mỗi yêu cầu (phiên kết thúc, nhân viên đổi vai trò hoặc bị khóa thì mất). Phân hệ ngoài gói của trường vẫn bị chặn theo gói (tính năng trả phí trường đã bật thì dùng được). Phiên theo cho phép của trường, phiên kỹ thuật, hỗ trợ giữ quyền của tài khoản hỗ trợ như cũ.
 2. **Mọi ứng dụng của nhân viên.** Đổi đường liên kết hỗ trợ nhận `channel` `portal`, `teacher`, `parent`; ứng dụng giáo viên, phụ huynh có trang `/support-login`. Cổng vận hành có nhóm nút "Ứng dụng của trường" (Ứng dụng giáo viên, Ứng dụng phụ huynh) cạnh "Vào trường"; mỗi lần bấm là một phiên vào thẳng riêng, ghi nhật ký hai phía kèm kênh. Máy phát triển: `VITE_SCHOOL_TEACHER_PORT`, `VITE_SCHOOL_PARENT_PORT` do `scripts/chay-nhieu-truong.mjs` đặt; bản chạy thật dùng đường dẫn `/giao-vien`, `/phu-huynh` của tên miền trường (đổi bằng `VITE_SCHOOL_TEACHER_PATH`, `VITE_SCHOOL_PARENT_PATH`).
 3. **Chế độ xem của nhân viên hỗ trợ ở ứng dụng phụ huynh, học sinh (phần 315b).** Không đăng nhập thành một phụ huynh, học sinh cụ thể. Ở kênh `parent`, `student` phiên Admin luôn chỉ đọc (phạm vi `read` ở mã phiên và ở `/auth/me`; máy chủ API chặn mọi yêu cầu ghi). Ứng dụng phụ huynh: thay cho "con của tôi", ô chọn lớp rồi học sinh (`GET /api/v1/support-view/classes`, `…/classes/:id/students`), hiện thẻ của học sinh đó như phụ huynh thấy. Ứng dụng học sinh: màn hình chọn lớp, học sinh (`/api/v1/student/support-view/…`), rồi xem ứng dụng như học sinh đó thấy, thanh "Đổi học sinh"; học sinh đang xem gửi ở tiêu đề `x-support-view-child`, máy chủ chỉ nhận ở phiên Admin vào thẳng kênh `student` và dùng thay cho học sinh của tài khoản ở ba chỗ tra học sinh (học trực tuyến, thi trực tuyến, phòng video). Hồ sơ ở trang đầu ứng dụng học sinh (`GET /student/profile`) không còn chặn theo gói thi trực tuyến để trường gói miễn phí vẫn mở được ứng dụng. Cổng vận hành thêm nút "Ứng dụng học sinh" (`VITE_SCHOOL_STUDENT_PORT`, mặc định đường dẫn `/hoc-sinh`).
-4. **Chợ gia sư, ứng dụng Gia sư.** Kiểm duyệt, thanh toán, xác minh của chợ chạy ở cổng vận hành bằng mã phiên vận hành nên Admin đã có; ứng dụng Gia sư là ứng dụng của gia sư, không có vai trò kiểm duyệt. Giới hạn theo vai trò vận hành làm ở YCTD-323.
+4. **Chợ gia sư (gồm khu gia sư, YCTD-368).** Kiểm duyệt, thanh toán, xác minh của chợ chạy ở cổng vận hành bằng mã phiên vận hành nên Admin đã có; khu gia sư của Chợ gia sư là của gia sư, không có vai trò kiểm duyệt. Giới hạn theo vai trò vận hành làm ở YCTD-323.
 5. **Nhật ký.** Mọi thao tác là của tài khoản hỗ trợ `ho-tro-nen-tang` của trường, ghi vào nhật ký phiên hỗ trợ (`support_session_actions`) với tên nhân viên vận hành; không ghi như người dùng của trường.
 6. **Kiểm thử:** `apps/identity` CT-1551 (quét mọi mã quyền của gói dùng chung và bảng `permissions` ở bốn kênh, phụ huynh, học sinh chỉ đọc, nhật ký kèm kênh), CT-1552 (phiên theo cho phép của trường không có quyền đầy đủ); `apps/api` CT-1553 (chế độ xem ở kênh phụ huynh, học sinh: chọn lớp, chỉ đọc, người khác không dùng được).
 
@@ -2481,6 +2481,7 @@ Bản kế hoạch này là YCTD-250, chỉ đổi tài liệu (không tăng phi
 | E-08 | Rà và ký các hồ sơ PL-16 đến PL-21 (`48_HO_SO_PHAP_LY/16_DANH_SACH_HO_SO_GIA_SU.md`) | Mốc 1 (PL-17, PL-18 phần trong trường), mốc 3 (tất cả) | |
 | E-09 | Chọn nhà cung cấp hóa đơn điện tử thật (đã treo từ S5b) | 27h xuất hóa đơn hoa hồng thật | |
 | E-10 | Chốt các giả định GD-130 đến GD-138 ở 19.11 nếu muốn khác giá trị Claude đặt | Khi làm từng phần | |
+| E-11 | Một người có cả hai vai (ví dụ giáo viên vừa là phụ huynh): giữ hai tài khoản riêng hay cho một tài khoản đổi vai (phương án ở 19.15 mục 4) | Trước khi mở chợ thật | Eric chọn (a) ngày 2026-10-29: mỗi tài khoản một loại (GD-185) |
 
 ### 19.11 Giả định chưa chốt, làm cấu hình được
 
@@ -2498,6 +2499,7 @@ Số GD và RR của DT-27 bắt đầu từ GD-130 và RR-28: DT-26 dùng GD-12
 | GD-137 | Thư viện bảng trắng | Thư viện mã nguồn mở có giấy phép dùng thương mại, chọn và ghi giấy phép lúc làm | mã 27a | Claude (theo ủy quyền) |
 | GD-138 | Khấu trừ thuế ở chợ | Công tắc tắt đến khi luật sư kết luận (E-03); tỷ lệ là dữ liệu có ngày hiệu lực | cấu hình chợ | Eric, luật sư |
 | GD-164 | Mốc của phòng học video ở chợ (quyết định của Eric ngày 2026-10-29) | Mở phòng trước giờ học 10 phút; vào muộn quá 15 phút tính vắng; gia sư vắng quá 10 phút thì phụ huynh báo và được hoàn đủ; có mặt từ 80% thời lượng là đủ buổi; gia sư không xác nhận thì tự xác nhận sau 24 giờ; phụ huynh vào xem luôn tắt micro trừ khi gia sư cho nói | cấu hình chợ (`platform_settings.market`) | Eric (đã chốt; cổng vận hành chỉnh được) |
+| GD-185 | Gộp ứng dụng Gia sư vào Chợ gia sư (yêu cầu của Eric ngày 2026-10-29, YCTD-368) | Một ứng dụng `apps/market` ở một tên miền cho phụ huynh và gia sư, hiện bộ màn theo loại tài khoản; máy chủ kiểm loại tài khoản ở từng điểm cuối, bỏ quy tắc chặn theo tên miền; tên miền cũ `gia-su.` chuyển 308 về chợ. Mỗi tài khoản một loại, không đổi sau khi đăng ký; ai cần cả hai vai thì đăng ký thêm tài khoản bằng thư điện tử hoặc số điện thoại khác (Eric chọn phương án (a) của E-11 ngày 2026-10-29). **Thay quyết định tách ứng dụng của YCTD-262** | `apps/market`, `MarketContext.assertMarketHost`, cấu hình chợ (`tutor_host` chỉ còn là tên miền cũ) | Eric (đã chốt ngày 2026-10-29: duyệt phiếu, bản mẫu, danh sách lát; E-11 chọn (a)) |
 | GD-165 | Gói buổi ở chợ (quyết định của Eric ngày 2026-10-29) | Dùng trong 8 tuần kể từ lúc trả tiền; hết hạn thì hoàn phần buổi chưa học theo giá mỗi buổi của gói; hủy trước buổi đầu thì hoàn đủ; gia sư bị tạm khóa thì hoàn phần còn lại; mỗi buổi giải ngân riêng sau hạn khiếu nại | cấu hình chợ (`package_valid_days`) | Eric (đã chốt) |
 
 ### 19.12 Phần 27j: phòng học video của chợ (YCTD-362)
@@ -2528,7 +2530,7 @@ Các chức năng còn lại trong bản thiết kế Eric duyệt ngày 2026-10
   - đổi mật khẩu phải nhập mật khẩu hiện tại; đổi xong thì các phiên khác bị thu hồi;
   - quên mật khẩu: mã 6 số mục đích `reset`, câu trả lời không cho biết tài khoản có tồn tại hay không; đặt lại xong thì mọi phiên bị thu hồi;
   - sửa tên hiển thị. Đổi thư điện tử, số điện thoại chưa làm.
-- **Đăng nhập định danh của phụ huynh:** phụ huynh đang đăng nhập liên kết định danh (mục đích `link`, quay về `/dinh-danh` trên tên miền của chợ), rồi đăng nhập bằng định danh đó. Giữ cách gắn lượt với trình duyệt và với tài khoản của YCTD-322 (PR 242). Định danh chỉ đăng nhập được ứng dụng của đúng vai.
+- **Đăng nhập định danh của phụ huynh:** phụ huynh đang đăng nhập liên kết định danh (mục đích `link`, quay về `/dinh-danh` trên tên miền của chợ), rồi đăng nhập bằng định danh đó. Giữ cách gắn lượt với trình duyệt và với tài khoản của YCTD-322 (PR 242). Định danh chỉ đăng nhập được ứng dụng của đúng vai. Từ YCTD-368 hai vai chung một ứng dụng: định danh mở phiên cho đúng tài khoản đã gắn, loại tài khoản quyết định bộ màn và quyền.
 - **Con đọc tin nhắn** (`market_children.reads_messages`):
   - phụ huynh bật cho từng con; con chỉ đọc các luồng tin của phụ huynh với gia sư có buổi với con, trên máy và bằng phiên của phụ huynh;
   - không có điểm cuối gửi tin cho con, không có kênh riêng giữa gia sư và trẻ;
@@ -2546,6 +2548,33 @@ Quy tắc theo GD-165 (Eric chốt ngày 2026-10-29), cơ sở dữ liệu chợ
 - hủy buổi trong gói thì trả lượt về gói (phụ huynh hủy phải trước giờ học 24 giờ); gia sư hủy, gia sư vắng, không đồng ý ghi hình cũng trả lượt;
 - hết hạn dùng thì hoàn phần buổi chưa học và phần dư làm tròn; hủy gói trước buổi đầu thì hoàn đủ; gia sư bị tạm khóa thì hoàn phần còn lại;
 - bản này chạy với bộ giả lập thanh toán; khi có nhà cung cấp có giấy phép (E-02) cần nối giải ngân, hoàn từng phần theo một lệnh thu của gói.
+
+### 19.15 Gộp ứng dụng Gia sư vào Chợ gia sư (YCTD-368)
+
+Ngày 2026-10-29 Eric yêu cầu gộp hai ứng dụng web của chợ thành một, dùng chung cho giáo viên (gia sư) và phụ huynh, phân quyền theo loại tài khoản. Quyết định ghi ở GD-185. Eric duyệt phiếu YCTD-368, bản mẫu `tai_lieu/ban_mau/yctd-368/` và danh sách lát ngày 2026-10-29, chọn phương án (a) của E-11 (mục 4).
+
+1. **Một ứng dụng, một tên miền.**
+   - `apps/tutor` gộp vào `apps/market`: các màn của gia sư ở `apps/market/src/tutor/`; `apps/tutor` bị xóa. Ứng dụng chung cài được (PWA, tiền tố bộ nhớ đệm `cho-gia-su-v-`).
+   - Tên miền chung là tên miền của chợ (máy phát triển `cho-gia-su.truong.localhost:5195`). Tên miền cũ `gia-su.` chuyển 308 cả đường dẫn và truy vấn về chợ, nên lượt quay về `/xac-minh` của nhà cung cấp định danh và liên kết mời phòng học cũ vẫn dùng được.
+   - Nơi chuyển hướng: `scripts/chuyen-huong-gia-su.mjs` (máy phát triển, e2e; `/sw.js` trả service worker tự gỡ cho máy đã cài ứng dụng Gia sư cũ), khối `TUTOR_SITE` của Caddy (hồ sơ vận hành), Worker của hồ sơ thử nghiệm (`TUTOR_HOST`).
+   - Cấu hình chợ: `tutor_host` không còn bắt buộc, chỉ ghi tên miền cũ; máy chủ API chỉ phục vụ `host` của chợ, tên miền cũ trả 404 nếu tầng biên chưa chuyển hướng.
+   - Nhà cung cấp định danh cần khai thêm địa chỉ quay về trên tên miền của chợ (`/xac-minh` cho xác minh gia sư, `/dinh-danh` cho đăng nhập và liên kết).
+2. **Phân quyền theo loại tài khoản.**
+   - Đăng ký: người dùng chọn "Phụ huynh tìm gia sư cho con" hoặc "Gia sư, kể cả giáo viên dạy kèm ngoài trường"; văn bản phải đồng ý theo loại (gia sư thêm điều khoản của gia sư).
+   - Sau đăng nhập, `GET /me` trả `kind`; ứng dụng hiện bộ màn của loại đó.
+   - Phụ huynh (thanh điều hướng ở đầu trang): tìm gia sư, buổi học của con (đặt buổi, gói buổi, phòng học phía học sinh, đánh giá), tin nhắn, hồ sơ con, an toàn (báo cáo).
+   - Gia sư (cột bên trái): buổi dạy, lịch, hồ sơ và môn dạy (gồm khai giáo viên của trường), thu nhập và giải ngân, tin nhắn, đánh giá, xác minh danh tính, an toàn.
+   - Máy chủ kiểm loại tài khoản ở từng điểm cuối (`requireReady(request, 'parent' | 'tutor')`, 403 khi sai loại), không dựa vào giao diện. Bỏ quy tắc chặn theo tên miền: không còn lỗi "Tài khoản gia sư đăng nhập ở ứng dụng Gia sư"; đăng nhập mật khẩu, quên mật khẩu, đăng nhập định danh đều ở tên miền chung.
+   - Tìm gia sư, trang gia sư là phần công khai của tên miền chung.
+3. **An toàn trẻ em giữ nguyên.**
+   - Gia sư không gọi được `/children`, `/bookings` của phụ huynh (403); chỉ thấy con của phụ huynh qua buổi đã đặt với mình như trước.
+   - Không có kênh nhắn riêng giữa gia sư và trẻ; tin nhắn vẫn là luồng phụ huynh và gia sư.
+   - Phòng học vẫn ghi hình theo GD-131, GD-164; không đổi quy tắc phòng.
+4. **Một người có cả hai vai (E-11, Eric chọn (a) ngày 2026-10-29).** Mặc định trước mắt: mỗi tài khoản một loại; giáo viên vừa là phụ huynh đăng ký hai tài khoản bằng hai thư điện tử hoặc số điện thoại khác nhau (thư điện tử, số điện thoại là duy nhất trên mọi loại). Claude không tự gộp tài khoản. Hai phương án để Eric chọn:
+   - (a) Giữ hai tài khoản riêng: đơn giản, nhật ký, đối soát tiền, báo cáo an toàn tách bạch; người dùng phải đăng xuất để đổi vai và cần hai địa chỉ liên lạc.
+   - (b) Một tài khoản, hai hồ sơ vai: thêm bảng vai của tài khoản, phiên mang vai đang dùng, nút đổi vai; mỗi vai đồng ý văn bản riêng; báo cáo an toàn, tạm khóa áp theo người (khóa vai gia sư thì xét cả vai phụ huynh). Cần migration chợ và rà lại mọi điểm cuối dùng `account.kind`.
+   - Eric chọn (a). Phương án (b) xét lại khi có số liệu giáo viên dùng cả hai vai; bản mẫu MH-595 giữ làm tham khảo.
+5. **Kiểm thử:** máy chủ CT-368-1 (`market.test.ts`: phiên gia sư dùng ở tên miền chung, tên miền cũ 404, sai loại tài khoản 403; các tệp kiểm thử chợ gọi gia sư ở tên miền chung); cổng biên (`tests/trial/edge-worker.test.mjs`: tên miền cũ chuyển 308); giao diện CT-368-2 (spec 195: tên miền cũ chuyển hướng, gia sư đăng ký ở chợ và thấy đúng bộ màn, phụ huynh không thấy màn của gia sư) cùng spec 196 đến 199 chạy trên tên miền chung.
 
 
 ## 20. DT-28: hệ thống quản lý học tập (LMS) cho trường phổ thông (28a đến 28j)

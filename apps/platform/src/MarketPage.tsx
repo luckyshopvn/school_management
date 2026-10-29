@@ -191,11 +191,12 @@ export function MarketPage({ accessToken, role }: { accessToken: string; role: O
             Bật chợ gia sư
           </label>
           <label>
-            Tên miền con dành riêng của chợ
+            Tên miền con dành riêng của chợ (ứng dụng chung của phụ huynh và gia sư)
             <input value={form.host} onChange={(event) => setForm({ ...form, host: event.target.value })} />
           </label>
+          {/* YCTD-368: ứng dụng Gia sư đã gộp vào chợ; tên miền cũ chỉ để ghi lại, tầng biên chuyển hướng về tên miền của chợ */}
           <label>
-            Tên miền con của ứng dụng Gia sư
+            Tên miền cũ của ứng dụng Gia sư, chuyển hướng về chợ (không bắt buộc)
             <input value={form.tutorHost} onChange={(event) => setForm({ ...form, tutorHost: event.target.value })} />
           </label>
           <label>

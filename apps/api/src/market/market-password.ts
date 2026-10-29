@@ -95,7 +95,8 @@ export class MarketPasswordService {
   }
 
   private async accountByLogin(request: Request, login: string) {
-    const { kind } = await this.market.assertMarketHost(request);
+    // Thư điện tử, số điện thoại là duy nhất trên mọi loại tài khoản nên không cần lọc theo loại (YCTD-368)
+    await this.market.assertMarketHost(request);
     const email = login.includes('@') ? login.toLowerCase() : null;
     const phone = email ? null : normalizePhone(login);
     if (!login) return undefined;
@@ -103,7 +104,6 @@ export class MarketPasswordService {
       .selectFrom('market_accounts')
       .select(['id', 'kind', 'email', 'phone', 'status'])
       .where(email ? 'email' : 'phone', '=', (email ?? phone) as string)
-      .where('kind', '=', kind)
       .where('status', 'in', ['active', 'pending'])
       .executeTakeFirst();
   }

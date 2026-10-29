@@ -60,10 +60,9 @@ flowchart LR
 | `apps/teacher`                  | Teacher app (web, usable on phones)                                                                    |
 | `apps/parent`                   | Parent app                                                                                             |
 | `apps/platform`                 | Multi-school platform admin portal                                                                     |
-| `apps/market`                   | Tutoring marketplace                                                                                   |
+| `apps/market`                   | Tutoring marketplace, one app for parents and tutors (screens by account kind)                         |
 | `apps/mobile`                   | Phone app shell (Capacitor)                                                                            |
 | `apps/student`                  | Student app, **being split out in PR 224, not yet on `main`**                                          |
-| `apps/tutor`                    | Tutor app, **being split out of the marketplace in PR 223, not yet on `main`**                         |
 | `packages/`                     | Shared code: `config` (TypeScript configs), `shared`, `server`, `ui`, `pwa`                            |
 | `database/`                     | Schemas and migrations for each kind of database: identity, system, school year, platform, marketplace |
 | `tests/`                        | Playwright e2e tests and repository-level tests                                                        |

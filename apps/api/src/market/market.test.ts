@@ -16,8 +16,8 @@ import { hashStudentForMarket } from './market-tokens.js';
 // liên kết với trường bằng mã ký, tài khoản gia sư. Hai trường giả, dữ liệu giả, không gọi dịch vụ thật
 const CONSOLE_HOST = 'platform.e2e.localhost';
 const MARKET_HOST = 'cho-gia-su.e2e.localhost';
-// Ứng dụng Gia sư (YCTD-262): tên miền riêng, chỉ nhận tài khoản gia sư
-const TUTOR_HOST = 'gia-su.e2e.localhost';
+// Tên miền cũ của ứng dụng Gia sư (YCTD-262); từ YCTD-368 hai vai dùng chung tên miền của chợ, tên miền cũ chỉ chuyển hướng ở tầng biên
+const LEGACY_TUTOR_HOST = 'gia-su.e2e.localhost';
 const LINK_SECRET = 'bi-mat-lien-ket-kiem-thu-khong-dung-that';
 
 describe('chợ gia sư: nền (27f)', () => {
@@ -45,7 +45,7 @@ describe('chợ gia sư: nền (27f)', () => {
 
   async function register(kind: 'parent' | 'tutor', email: string, extra: string[] = []) {
     const accepted = [documents.terms, documents.privacy, ...extra];
-    const host = kind === 'tutor' ? TUTOR_HOST : MARKET_HOST;
+    const host = MARKET_HOST;
     const reply = await marketCall(
       'POST',
       '/auth/register',
@@ -125,7 +125,7 @@ describe('chợ gia sư: nền (27f)', () => {
     const blocked = await admin('PUT', '/settings', {
       enabled: true,
       host: MARKET_HOST,
-      tutor_host: TUTOR_HOST,
+      tutor_host: LEGACY_TUTOR_HOST,
       real_payments_enabled: true,
     });
     assert.equal(blocked.status, 400, JSON.stringify(blocked.body));
@@ -133,7 +133,7 @@ describe('chợ gia sư: nền (27f)', () => {
     const saved = await admin('PUT', '/settings', {
       enabled: true,
       host: MARKET_HOST,
-      tutor_host: TUTOR_HOST,
+      tutor_host: LEGACY_TUTOR_HOST,
       default_commission_percent: 10,
     });
     assert.equal(saved.status, 200, JSON.stringify(saved.body));
@@ -314,10 +314,10 @@ describe('chợ gia sư: nền (27f)', () => {
   it('CT-27f-5: gia sư: thêm điều khoản của gia sư, hồ sơ và cơ sở dạy thêm tối thiểu; phiên bản văn bản mới cần đồng ý lại', async () => {
     const email = `gia-su-${Date.now()}@example.test`;
     const tutorCall = (method: string, path: string, body?: unknown, token?: string) =>
-      marketCall(method, path, body, token, TUTOR_HOST);
-    // Mỗi ứng dụng một vai (YCTD-262): gia sư không đăng ký ở Chợ gia sư
+      marketCall(method, path, body, token, MARKET_HOST);
+    // Ứng dụng chung (YCTD-368): người đăng ký chọn loại tài khoản; loại khác phụ huynh, gia sư bị từ chối
     const onMarket = await marketCall('POST', '/auth/register', {
-      kind: 'tutor',
+      kind: 'teacher',
       email,
       display_name: 'Gia sư giả',
       password: 'matkhau123',
@@ -334,6 +334,18 @@ describe('chợ gia sư: nền (27f)', () => {
     assert.equal(noTutorTerms.status, 400);
     const token = await register('tutor', email, [documents.tutor_terms as string]);
     assert.equal((await tutorCall('GET', '/children', undefined, token)).status, 403);
+    // Phụ huynh đăng ký trước khi nền tảng đăng điều khoản phiên bản 2 bên dưới (dùng ở phần kiểm quyền theo loại tài khoản, YCTD-368)
+    const parentToken = await register('parent', `phu-huynh-368-${Date.now()}@example.test`);
+    // Mỗi tài khoản một loại (GD-185, E-11 phương án a): thư điện tử của gia sư không đăng ký thêm được tài khoản phụ huynh (CT-1744)
+    const sameEmail = await marketCall('POST', '/auth/register', {
+      kind: 'parent',
+      email,
+      display_name: 'Phụ huynh trùng thư',
+      password: 'matkhau123',
+      accepted_document_ids: [documents.terms, documents.privacy],
+    });
+    assert.equal(sameEmail.status, 400, JSON.stringify(sameEmail.body));
+    assert.match(JSON.stringify(sameEmail.body), /Đã có tài khoản dùng thư điện tử hoặc số điện thoại này/);
     const profile = await tutorCall(
       'PUT',
       '/tutor/profile',
@@ -361,11 +373,22 @@ describe('chợ gia sư: nền (27f)', () => {
     assert.equal((await tutorCall('POST', `/me/consents/${v2.body.id as string}`, {}, token)).status, 200);
     assert.equal((await tutorCall('GET', '/tutor/profile', undefined, token)).status, 200);
 
-    // Phiên gia sư không dùng được ở tên miền của chợ; đăng nhập đúng mật khẩu ở chợ chỉ được dẫn sang ứng dụng Gia sư
-    assert.equal((await marketCall('GET', '/me', undefined, token)).status, 401);
-    const wrongApp = await marketCall('POST', '/auth/login', { login: email, password: 'matkhau123' });
-    assert.equal(wrongApp.status, 403, JSON.stringify(wrongApp.body));
-    assert.match(JSON.stringify(wrongApp.body), /ứng dụng Gia sư/);
+    // Ứng dụng chung (YCTD-368, CT-368-1): phiên gia sư dùng ở tên miền của chợ, /me báo loại tài khoản để ứng dụng hiện đúng bộ màn;
+    // tên miền cũ của ứng dụng Gia sư không còn được máy chủ API phục vụ (tầng biên chuyển hướng)
+    const meTutor = await marketCall('GET', '/me', undefined, token);
+    assert.equal(meTutor.status, 200, JSON.stringify(meTutor.body));
+    assert.equal(meTutor.body.kind, 'tutor');
+    assert.equal((await marketCall('GET', '/me', undefined, token, LEGACY_TUTOR_HOST)).status, 404);
+    assert.equal(
+      (await marketCall('POST', '/auth/login', { login: email, password: 'matkhau123' }, undefined, LEGACY_TUTOR_HOST))
+        .status,
+      404,
+    );
+    // Quyền theo loại tài khoản ở từng điểm cuối, không theo tên miền: gia sư không gọi được điểm cuối của phụ huynh và ngược lại
+    assert.equal((await marketCall('GET', '/children', undefined, token)).status, 403);
+    // requireReady xét loại tài khoản trước văn bản cần đồng ý: phụ huynh chưa đồng ý phiên bản 2 vẫn nhận 403, không phải 409
+    assert.equal((await marketCall('GET', '/tutor/profile', undefined, parentToken)).status, 403);
+    assert.equal((await marketCall('GET', '/me', undefined, parentToken)).body.kind, 'parent');
 
     // Đăng nhập lại; sai mật khẩu 5 lần thì khóa 15 phút
     assert.equal((await tutorCall('POST', '/auth/login', { login: email, password: 'matkhau123' })).status, 200);
