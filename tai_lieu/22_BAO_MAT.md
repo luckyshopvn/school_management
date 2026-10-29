@@ -22,7 +22,7 @@
 | BM-02 | Mật khẩu lưu dưới dạng băm có muối, dùng thuật toán băm mật khẩu chuyên dụng, không dùng hàm băm thông thường |
 | BM-03 | Mật khẩu tối thiểu 8 ký tự, có cả chữ và số (YCTD-35) |
 | BM-04 | Sai mật khẩu 5 lần liên tiếp thì tạm khóa tài khoản 15 phút, hết thời gian tự mở (YCTD-35) |
-| BM-05 | Mã phiên ngắn hạn kèm mã làm mới; mã làm mới thu hồi được khi đăng xuất hoặc khi phát hiện bất thường. Mã phiên hết hạn sau 15 phút; mã làm mới hết hạn sau 8 giờ với cổng quản trị và 30 ngày với ứng dụng giáo viên, ứng dụng phụ huynh (Q-120) |
+| BM-05 | Mã phiên ngắn hạn kèm mã làm mới; mã làm mới thu hồi được khi đăng xuất hoặc khi phát hiện bất thường. Mã phiên hết hạn sau 15 phút; mã làm mới hết hạn sau 8 giờ với cổng quản trị và 30 ngày với ứng dụng giáo viên, ứng dụng phụ huynh (Q-120). Tích "Ghi nhớ" ở trang đăng nhập cổng quản trị thì mã làm mới giữ 30 ngày, cookie giữ qua lần đóng trình duyệt; cấu hình `PORTAL_REMEMBER_DAYS` chỉ hạ được, không quá 30 ngày (YCTD-310, YCTD-353, GD-172). Phiên cổng vận hành nền tảng tối đa 8 giờ, không có mã làm mới; "Ghi nhớ" ở đó chỉ nhớ tên đăng nhập trên trình duyệt, không kéo dài phiên |
 | BM-71 | Mã làm mới gửi cho trình duyệt bằng cookie httpOnly, SameSite=Strict, Secure, đường dẫn `/api/v1/auth`; không trả trong nội dung phản hồi (YCTD-36). Mỗi kênh một cookie riêng vì ba kênh dùng chung tên miền; phiên khác kênh không làm mới được (YCTD-43) |
 | BM-06 | Bỏ ngày 09/10/2026: không dùng xác thực hai lớp (YCTD-31); rủi ro chiếm tài khoản của vai trò phê duyệt được giảm bằng BM-03, BM-04, BM-36, BM-56 (RR-15) |
 | BM-07 | Tài khoản phụ huynh mới bắt buộc đổi mật khẩu ở lần đăng nhập đầu bằng mật khẩu; tài khoản vừa được đặt lại mật khẩu (P01-06) bắt buộc đổi mật khẩu ở lần đăng nhập kế tiếp (Q-148) |

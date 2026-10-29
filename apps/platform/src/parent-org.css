@@ -1,0 +1,490 @@
+/* Trang đơn vị cấp trên `/cap-tren` theo bản vẽ Eric duyệt ngày 2026-10-28 (YCTD-363). Cùng nền, màu xanh của cổng vận hành; mọi lớp
+   bắt đầu bằng `po` để không đụng kiểu chung của cổng vận hành (index.css). Phông Be Vietnam Pro nếu máy có, không tải phông từ ngoài.
+   Chữ đạt tương phản 4,5:1; vùng chạm 44 px */
+.po {
+  --po-brand: #1f4e8c;
+  --po-brand-strong: #12304f;
+  --po-border: #dde2e8;
+  --po-input: #cdd5df;
+  --po-muted: #5d6875;
+  --po-page: #f4f6f9;
+  min-height: 100vh;
+  background: var(--po-page);
+  color: #1c2430;
+  font-family: 'Be Vietnam Pro', system-ui, sans-serif;
+  font-size: 14px;
+}
+
+.po a {
+  color: var(--po-brand);
+}
+
+.po-top {
+  background: var(--po-brand-strong);
+  color: #fff;
+}
+
+.po-top-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px 16px;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 12px 16px 0;
+}
+
+.po-top-row strong {
+  font-size: 16px;
+}
+
+.po-user {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  color: #dbe6f3;
+}
+
+.po-user button {
+  min-height: 44px;
+  padding: 0 12px;
+  border: 1px solid #5b7aa3;
+  border-radius: 8px;
+  background: transparent;
+  color: #fff;
+  font: inherit;
+  cursor: pointer;
+}
+
+.po-tabs {
+  display: flex;
+  overflow-x: auto;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 4px;
+}
+
+.po-tabs a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 48px;
+  padding: 0 14px;
+  border-bottom: 3px solid transparent;
+  color: #dbe6f3;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.po-tabs a[aria-current='page'] {
+  border-bottom-color: #fff;
+  color: #fff;
+  font-weight: 600;
+}
+
+.po-main {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px 16px 40px;
+  box-sizing: border-box;
+}
+
+.po-main h2 {
+  margin: 0;
+  font-size: 22px;
+}
+
+.po-main h3 {
+  margin: 0;
+  font-size: 16px;
+}
+
+.po-lead {
+  margin: 0;
+  color: var(--po-muted);
+}
+
+.po-card {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-width: 0;
+  padding: 18px;
+  border: 1px solid var(--po-border);
+  border-radius: 12px;
+  background: #fff;
+  box-sizing: border-box;
+}
+
+.po-split {
+  display: grid;
+  grid-template-columns: minmax(220px, 280px) minmax(0, 1fr);
+  gap: 16px;
+  align-items: start;
+}
+
+.po-kpis {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  gap: 12px;
+}
+
+.po-kpi {
+  gap: 2px;
+}
+
+.po-kpi span {
+  color: var(--po-muted);
+  font-size: 13px;
+}
+
+.po-kpi strong {
+  font-size: 26px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.po-tree {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.po-tree button {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  width: 100%;
+  min-height: 44px;
+  padding: 0 10px;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.po-tree button[aria-current='true'] {
+  background: #e8eff8;
+  color: var(--po-brand);
+  font-weight: 600;
+}
+
+.po-tree small {
+  color: var(--po-muted);
+  white-space: nowrap;
+}
+
+.po-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 12px;
+}
+
+.po-row > .po-field {
+  flex: 1 1 200px;
+}
+
+.po-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.po-field input,
+.po-field select,
+.po-field textarea {
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
+  min-height: 44px;
+  padding: 0 10px;
+  border: 1px solid var(--po-input);
+  border-radius: 8px;
+  background: #fff;
+  font: inherit;
+  font-size: 16px;
+  font-weight: 400;
+}
+
+.po-field textarea {
+  padding: 10px;
+}
+
+.po-checks {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 18px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.po-checks legend {
+  margin-bottom: 6px;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.po-check {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 44px;
+}
+
+.po-check input {
+  width: 18px;
+  height: 18px;
+  margin: 0;
+}
+
+.po-btn,
+.po-btn2 {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 0 16px;
+  border-radius: 8px;
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.po-btn {
+  border: 0;
+  background: var(--po-brand);
+  color: #fff;
+}
+
+.po-btn2 {
+  border: 1px solid var(--po-brand);
+  background: #fff;
+  color: var(--po-brand);
+  font-weight: 500;
+}
+
+.po-btn:focus-visible,
+.po-btn2:focus-visible,
+.po-tabs a:focus-visible,
+.po-tree button:focus-visible,
+.po-sort:focus-visible {
+  outline: 3px solid #7aa7e0;
+  outline-offset: 2px;
+}
+
+.po-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.po-chips button {
+  min-height: 44px;
+  padding: 0 14px;
+  border: 1px solid var(--po-input);
+  border-radius: 999px;
+  background: #fff;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+}
+
+.po-chips button[aria-pressed='true'] {
+  border-color: var(--po-brand);
+  background: var(--po-brand);
+  color: #fff;
+}
+
+.po-scroll {
+  overflow-x: auto;
+}
+
+.po table {
+  width: 100%;
+  border-collapse: collapse;
+  background: #fff;
+}
+
+.po th {
+  padding: 10px 8px;
+  border-bottom: 1px solid var(--po-border);
+  color: var(--po-muted);
+  font-size: 12px;
+  font-weight: 600;
+  text-align: right;
+  white-space: nowrap;
+}
+
+.po td {
+  padding: 11px 8px;
+  border-bottom: 1px solid #eef1f4;
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+}
+
+.po th:first-child,
+.po td:first-child {
+  text-align: left;
+}
+
+.po tfoot td {
+  font-weight: 600;
+}
+
+.po-sort {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  min-height: 32px;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.po-hidden {
+  display: inline-block;
+  padding: 1px 8px;
+  border-radius: 999px;
+  background: #eef1f4;
+  color: #4a5562;
+  font-size: 12px;
+}
+
+.po-chip {
+  display: inline-block;
+  padding: 2px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.po-chip-pending {
+  background: #fff4dc;
+  color: #7a4b00;
+}
+
+.po-chip-approved {
+  background: #e3f4ea;
+  color: #1d5e37;
+}
+
+.po-chip-rejected {
+  background: #fde8e8;
+  color: #8a1f1f;
+}
+
+.po-chip-revoked {
+  background: #eef1f4;
+  color: #4a5562;
+}
+
+.po-requests {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.po-request {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 14px 16px;
+  border: 1px solid var(--po-border);
+  border-radius: 10px;
+}
+
+.po-alert {
+  margin: 0;
+  padding: 10px 14px;
+  border-radius: 8px;
+  background: #fde8e8;
+  color: #8a1f1f;
+}
+
+.po-note {
+  margin: 0;
+  padding: 10px 14px;
+  border-radius: 8px;
+  background: #eef3fa;
+  color: #23466f;
+}
+
+.po-small {
+  margin: 0;
+  color: var(--po-muted);
+  font-size: 13px;
+}
+
+.po-login {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 16px;
+}
+
+.po-login .po-card {
+  width: 100%;
+  max-width: 440px;
+  padding: 28px;
+}
+
+.po-login h1 {
+  margin: 0;
+  font-size: 22px;
+}
+
+.po-login form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.po-otp input {
+  font-size: 22px;
+  font-weight: 600;
+  letter-spacing: 0.3em;
+  text-align: center;
+}
+
+.po-linkbtn {
+  min-height: 44px;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--po-brand);
+  font: inherit;
+  text-align: left;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+@media (max-width: 760px) {
+  .po-split {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

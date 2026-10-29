@@ -29,6 +29,7 @@ import {
   removeRole,
   resetPassword,
   updateAccount,
+  viewLoginIdentifier,
   type Account,
   type AccountFilter,
   type DirectoryAccount,
@@ -177,6 +178,8 @@ function AccountDetail({
   const queryClient = useQueryClient();
   const [grant, setGrant] = useState<RoleGrant>({ role_code: '', org_unit_id: null });
   const [confirmingReset, setConfirmingReset] = useState(false);
+  // Tên đăng nhập đủ số sau khi bấm "Xem đủ" (danh sách và chi tiết chỉ hiện dạng che, YCTD-353)
+  const [fullUsername, setFullUsername] = useState<string | null>(null);
   const [impersonating, setImpersonating] = useState(false);
   // Vai trò đang chờ xác nhận gỡ (hộp xác nhận xóa theo mẫu của Sở, DT-15 phần 15a)
   const [removing, setRemoving] = useState<Account['assignments'][number]>();
@@ -188,6 +191,10 @@ function AccountDetail({
       await refresh();
       onChanged(updated.status === 'locked' ? 'Đã khóa tài khoản' : 'Đã mở khóa tài khoản');
     },
+  });
+  const reveal = useMutation({
+    mutationFn: () => viewLoginIdentifier(account.id),
+    onSuccess: (result) => setFullUsername(result.username),
   });
   const reset = useMutation({
     mutationFn: () => resetPassword(account.id),
@@ -227,9 +234,18 @@ function AccountDetail({
         {account.must_change_password ? <StatusBadge tone="warning" label="Chờ đổi mật khẩu" /> : null}
       </div>
       <p className="text-content text-text-secondary">
-        {[account.phone, account.username, account.valid_until ? `hết hiệu lực ${account.valid_until}` : null]
+        {[
+          account.phone,
+          fullUsername ?? account.username,
+          account.valid_until ? `hết hiệu lực ${account.valid_until}` : null,
+        ]
           .filter(Boolean)
           .join(' · ')}
+        {account.username?.includes('*') && !fullUsername ? (
+          <Button variant="text" onClick={() => reveal.mutate()} disabled={reveal.isPending}>
+            Xem đủ tên đăng nhập
+          </Button>
+        ) : null}
       </p>
       {error ? <Alert tone="danger">{messageOf(error)}</Alert> : null}
       <div className="flex flex-wrap gap-2">

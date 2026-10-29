@@ -14,7 +14,7 @@ import { PublicEndpoint } from '../authentication/authentication.guard.js';
 import { API_CONFIGURATION, type ApiConfiguration } from '../common/configuration.js';
 import type { RequestBody } from '../common/request-fields.js';
 import { MarketAccountsService } from './market-accounts.js';
-import { MarketContext, marketNotFound } from './market-context.js';
+import { MarketContext } from './market-context.js';
 
 // Xác minh danh tính gia sư và đăng nhập bằng OIDC ở chợ gia sư (DT-27 phần 27g, YCTD-257; tài liệu 32 mục 19.2 "xác minh lý lịch gia
 // sư ở chợ mở", 19.5). Dùng bộ nối OIDC của DT-25 (chuyển sang packages/server). Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11:
@@ -27,8 +27,11 @@ import { MarketContext, marketNotFound } from './market-context.js';
 // - đăng nhập: chỉ tài khoản gia sư đã xác minh danh tính bằng đúng nhà cung cấp đó; không tự tạo tài khoản
 // - lượt chuyển hướng gắn với trình duyệt đã bắt đầu (YCTD-322): lúc bắt đầu đặt cookie httpOnly chứa state, lúc hoàn tất phải khớp;
 //   xác minh còn phải có phiên của đúng tài khoản đã bắt đầu
+// - phụ huynh (YCTD-364, thiết kế Eric duyệt ngày 2026-10-28; việc T-M6): ở Chợ gia sư, phụ huynh đang đăng nhập liên kết tài khoản định
+//   danh (`link`, quay về `/dinh-danh`), sau đó đăng nhập bằng định danh đó; liên kết cũng phải có phiên của đúng tài khoản đã bắt đầu.
+//   Liên kết của phụ huynh không phải xác minh gia sư, không ghi kết quả xác minh
 const REQUEST_LIFETIME_MS = 10 * 60 * 1000;
-const RETURN_PATH = '/xac-minh';
+const RETURN_PATHS = { tutor: '/xac-minh', parent: '/dinh-danh' } as const;
 const ADULT_AGE = 18;
 // Tiền tố __Secure-: trình duyệt chỉ nhận cookie có Secure từ trang an toàn, tên miền anh em không đặt đè được
 const STATE_COOKIE = '__Secure-market_oidc_state';
@@ -93,23 +96,15 @@ export class MarketIdentityService {
     return provider;
   }
 
-  // Chỉ ở tên miền của ứng dụng Gia sư
-  private async assertTutorApp(request: Request) {
-    const { settings, kind } = await this.market.assertMarketHost(request);
-    if (kind !== 'tutor') {
-      throw marketNotFound();
-    }
-    return settings;
-  }
-
   async list(request: Request) {
-    await this.assertTutorApp(request);
+    await this.market.assertMarketHost(request);
     return this.definitions()
       .filter((item) => item.clientId)
       .map((item) => ({ code: item.code, display_name: item.displayName }));
   }
 
-  private returnUrl(raw: unknown, tutorHost: string | null): string {
+  private returnUrl(raw: unknown, host: string | null, kind: 'parent' | 'tutor'): string {
+    const path = RETURN_PATHS[kind];
     let url: URL;
     try {
       url = new URL(typeof raw === 'string' ? raw : '');
@@ -117,25 +112,28 @@ export class MarketIdentityService {
       throw validationError([{ field: 'return_url', message: 'Địa chỉ quay về không hợp lệ' }]);
     }
     if (
-      !tutorHost ||
-      url.hostname !== tutorHost ||
-      url.pathname !== RETURN_PATH ||
+      !host ||
+      url.hostname !== host ||
+      url.pathname !== path ||
       (url.protocol !== 'https:' && url.protocol !== 'http:')
     ) {
       throw validationError([
-        { field: 'return_url', message: 'Địa chỉ quay về phải là trang xác minh của ứng dụng Gia sư' },
+        { field: 'return_url', message: 'Địa chỉ quay về phải là trang định danh của ứng dụng đang dùng' },
       ]);
     }
-    return `${url.origin}${RETURN_PATH}`;
+    return `${url.origin}${path}`;
   }
 
   async start(request: Request, body: RequestBody, response: Response) {
-    const settings = await this.assertTutorApp(request);
-    const purpose = body?.purpose === 'login' ? 'login' : 'verify';
-    const accountId = purpose === 'verify' ? (await this.market.account(request)).id : null;
+    const { settings, kind } = await this.market.assertMarketHost(request);
+    // Gia sư: xác minh hoặc đăng nhập; phụ huynh: liên kết hoặc đăng nhập
+    const purpose = body?.purpose === 'login' ? 'login' : kind === 'tutor' ? 'verify' : 'link';
+    const accountId = purpose === 'login' ? null : (await this.market.account(request)).id;
     const code = typeof body?.provider === 'string' ? body.provider : '';
     const provider = this.provider(code);
-    const parameters = newAuthorizationParameters(this.returnUrl(body?.return_url, settings.tutorHost));
+    const parameters = newAuthorizationParameters(
+      this.returnUrl(body?.return_url, kind === 'tutor' ? settings.tutorHost : settings.host, kind),
+    );
     await this.market.database
       .insertInto('market_oidc_requests')
       .values({
@@ -162,7 +160,7 @@ export class MarketIdentityService {
   }
 
   async complete(request: Request, body: RequestBody, response: Response) {
-    await this.assertTutorApp(request);
+    const { kind } = await this.market.assertMarketHost(request);
     const state = typeof body?.state === 'string' ? body.state : '';
     const code = typeof body?.code === 'string' ? body.code : '';
     // Trình duyệt hoàn tất phải là trình duyệt đã bắt đầu (cookie không có hoặc khác thì không dùng lượt này)
@@ -182,7 +180,7 @@ export class MarketIdentityService {
       : undefined;
     if (!row || !code) staleRequest();
     // Kết quả xác minh chỉ ghi cho tài khoản đang đăng nhập, đúng tài khoản đã bắt đầu
-    if (row.purpose === 'verify' && (await this.market.account(request)).id !== row.account_id) staleRequest();
+    if (row.purpose !== 'login' && (await this.market.account(request)).id !== row.account_id) staleRequest();
     let identity: ExternalIdentityResult;
     try {
       identity = await this.provider(row.provider).exchange(
@@ -198,12 +196,57 @@ export class MarketIdentityService {
     }
     const subject = hashSubject(row.provider, identity.subject);
     if (row.purpose === 'login') {
-      return this.login(row.provider, subject);
+      return this.login(row.provider, subject, kind);
+    }
+    if (row.purpose === 'link') {
+      return this.link(row.account_id as string, row.provider, subject);
     }
     return this.verify(row.account_id as string, row.provider, subject, identity);
   }
 
-  private async login(provider: string, subject: string) {
+  // Phụ huynh liên kết định danh: một định danh chỉ gắn một tài khoản
+  private async link(accountId: string, provider: string, subject: string) {
+    const other = await this.market.database
+      .selectFrom('market_external_identities')
+      .select('account_id')
+      .where('provider', '=', provider)
+      .where('subject', '=', subject)
+      .executeTakeFirst();
+    if (other && other.account_id !== accountId) {
+      throw new ApplicationError('ERR_CONFLICT', 'Định danh này đã liên kết với một tài khoản khác');
+    }
+    await this.market.database
+      .insertInto('market_external_identities')
+      .values({ provider, subject, account_id: accountId })
+      .onConflict((conflict) => conflict.columns(['provider', 'subject']).doNothing())
+      .execute();
+    await this.market.audit({
+      actorType: 'account',
+      actorId: accountId,
+      action: 'account.identity-link',
+      target: provider,
+    });
+    return { kind: 'link', status: 'linked', note: null };
+  }
+
+  // Định danh đã liên kết của tài khoản đang đăng nhập (trang tài khoản phụ huynh)
+  async linked(request: Request) {
+    const account = await this.market.account(request);
+    const rows = await this.market.database
+      .selectFrom('market_external_identities')
+      .select(['provider', 'created_at'])
+      .where('account_id', '=', account.id)
+      .execute();
+    return {
+      identities: rows.map((row) => ({
+        provider: row.provider,
+        display_name: this.definitions().find((item) => item.code === row.provider)?.displayName ?? row.provider,
+        linked_at: row.created_at,
+      })),
+    };
+  }
+
+  private async login(provider: string, subject: string, kind: 'parent' | 'tutor') {
     const linked = await this.market.database
       .selectFrom('market_external_identities')
       .innerJoin('market_accounts', 'market_accounts.id', 'market_external_identities.account_id')
@@ -211,10 +254,12 @@ export class MarketIdentityService {
       .where('market_external_identities.provider', '=', provider)
       .where('market_external_identities.subject', '=', subject)
       .executeTakeFirst();
-    if (!linked || linked.kind !== 'tutor' || linked.status !== 'active') {
+    if (!linked || linked.kind !== kind || linked.status !== 'active') {
       throw new ApplicationError(
         'ERR_FORBIDDEN',
-        'Chưa có tài khoản gia sư nào xác minh bằng định danh này; đăng nhập bằng mật khẩu rồi xác minh danh tính',
+        kind === 'tutor'
+          ? 'Chưa có tài khoản gia sư nào xác minh bằng định danh này; đăng nhập bằng mật khẩu rồi xác minh danh tính'
+          : 'Chưa có tài khoản phụ huynh nào liên kết định danh này; đăng nhập bằng mật khẩu rồi liên kết ở trang tài khoản',
       );
     }
     await this.market.audit({
@@ -327,6 +372,11 @@ export class MarketIdentityController {
   @Get('providers')
   list(@Req() request: Request) {
     return this.identity.list(request);
+  }
+
+  @Get('linked')
+  linked(@Req() request: Request) {
+    return this.identity.linked(request);
   }
 
   @Post('start')

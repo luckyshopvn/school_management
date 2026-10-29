@@ -38,23 +38,23 @@ export function TutorArea() {
       .catch((caught: unknown) => setError(errorText(caught)));
 
   return (
-    <section aria-label="Hồ sơ gia sư" className="flex flex-col gap-3">
-      <h2 className="text-section-title font-semibold">Hồ sơ gia sư</h2>
+    <section aria-label="Hồ sơ gia sư" className="rounded-2xl border border-border bg-card flex flex-col gap-4 p-6">
+      <h2 className="text-section-title font-semibold">Giới thiệu và cơ sở dạy thêm</h2>
       {error ? <Alert tone="danger">{error}</Alert> : null}
       {message ? <Alert tone="success">{message}</Alert> : null}
       <p className="text-label text-text-secondary">
-        Hồ sơ chưa hiện công khai. Xác minh danh tính, bằng cấp, lý lịch tư pháp và trang công khai sẽ mở ở bước tiếp
-        theo.
+        Không ghi số điện thoại, mạng xã hội, liên kết ngoài. Hồ sơ chỉ hiện ở Chợ gia sư khi đã xác minh và nền tảng
+        duyệt.
       </p>
       <form
         aria-label="Giới thiệu gia sư"
-        className="flex flex-col gap-2"
+        className="flex flex-col gap-3"
         onSubmit={(event) => {
           event.preventDefault();
           void save('/tutor/profile', profile, 'Đã lưu giới thiệu');
         }}
       >
-        <label className="flex flex-col">
+        <label className="flex flex-col gap-1 text-label font-medium">
           Dòng giới thiệu
           <input
             className={FORM_CONTROL_CLASS}
@@ -62,7 +62,7 @@ export function TutorArea() {
             onChange={(event) => setProfile({ ...profile, headline: event.target.value })}
           />
         </label>
-        <label className="flex flex-col">
+        <label className="flex flex-col gap-1 text-label font-medium">
           Giới thiệu ngắn
           <textarea
             className={FORM_CONTROL_CLASS}
@@ -77,14 +77,14 @@ export function TutorArea() {
       </form>
       <form
         aria-label="Cơ sở dạy thêm"
-        className="flex flex-col gap-2"
+        className="flex flex-col gap-3 border-t border-border pt-4"
         onSubmit={(event) => {
           event.preventDefault();
           void save('/tutor/provider', provider, 'Đã lưu cơ sở dạy thêm');
         }}
       >
         <h3 className="font-semibold">Cơ sở dạy thêm đứng tên</h3>
-        <label className="flex flex-col">
+        <label className="flex flex-col gap-1 text-label font-medium">
           Loại
           <select
             className={FORM_CONTROL_CLASS}
@@ -95,7 +95,7 @@ export function TutorArea() {
             <option value="organization">Tổ chức</option>
           </select>
         </label>
-        <label className="flex flex-col">
+        <label className="flex flex-col gap-1 text-label font-medium">
           Tên cơ sở
           <input
             className={FORM_CONTROL_CLASS}
@@ -103,7 +103,7 @@ export function TutorArea() {
             onChange={(event) => setProvider({ ...provider, name: event.target.value })}
           />
         </label>
-        <label className="flex flex-col">
+        <label className="flex flex-col gap-1 text-label font-medium">
           Số đăng ký kinh doanh (nếu có)
           <input
             className={FORM_CONTROL_CLASS}

@@ -12,6 +12,9 @@ export interface Subject {
   content_kind: 'curriculum' | 'enrichment';
   price_per_session: number;
   session_minutes: number;
+  // Gói buổi (YCTD-365): trống cả hai là không bán gói
+  package_sessions: number | null;
+  package_price: number | null;
 }
 
 export interface Slot {

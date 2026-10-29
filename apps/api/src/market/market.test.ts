@@ -249,6 +249,7 @@ describe('chợ gia sư: nền (27f)', () => {
       'display_name',
       'grade',
       'id',
+      'reads_messages',
       'school_level',
       'school_link',
     ]);

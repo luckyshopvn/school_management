@@ -201,6 +201,36 @@ test('CT-15a-9: chọn phân hệ đổi bộ menu, tải lại vẫn giữ; m�
   await expect(menuLink(page, '/accounts')).toHaveCount(0);
 });
 
+test('CT-332-1: tìm chức năng ở thanh đầu trang (gõ không dấu, bàn phím) và trang Tất cả chức năng có ô lọc', async ({
+  page,
+}) => {
+  const user = await createTestUser(database, { roles: [{ roleCode: 'VT-02', orgUnitId: null }] });
+  await fillLogin(page, user.username, user.password);
+  await selectWorkspace(page, EDUCATION);
+
+  // Gõ không dấu vẫn khớp; mũi tên xuống, Enter mở trang; trang thuộc phân hệ khác thì thanh bên tự chuyển phân hệ
+  const search = page.getByRole('combobox', { name: 'Tìm chức năng' });
+  await search.fill('phan quyen nhom theo phan mem');
+  const results = page.getByRole('listbox', { name: 'Chức năng tìm thấy' });
+  await expect(results.getByRole('option', { name: /1\.2\. Phân quyền nhóm theo phần mềm/ })).toBeVisible();
+  await search.press('Enter');
+  await expect(page).toHaveURL(/\/role-workspaces$/);
+  await expect(page.getByRole('button', { name: `Phân hệ: ${SYSTEM}` })).toBeVisible();
+  await search.fill('khong co chuc nang nay');
+  await expect(results.getByRole('option', { name: 'Không có chức năng phù hợp' })).toBeVisible();
+  await search.press('Escape');
+  await expect(results).toBeHidden();
+
+  // Tất cả chức năng: mọi phân hệ, phân hệ đang chọn đứng đầu; lọc theo số thứ bậc
+  await page.getByRole('complementary', { name: 'Thanh bên' }).getByRole('link', { name: 'Tất cả chức năng' }).click();
+  await expect(page).toHaveURL(/\/all-functions$/);
+  await expect(page.getByRole('heading', { name: 'Tất cả chức năng', exact: true })).toBeVisible();
+  await expect(page.getByRole('region', { name: EDUCATION, exact: true })).toBeVisible();
+  await page.getByRole('searchbox', { name: 'Lọc chức năng' }).fill('4.1.1');
+  await page.getByRole('link', { name: '4.1.1. Quản lý hồ sơ học sinh', exact: true }).click();
+  await expect(page).toHaveURL(/\/children$/);
+});
+
 test('CT-15a-10: màn hình hẹp dùng nút menu mở cây menu gập', async ({ page }) => {
   await page.setViewportSize({ width: 375, height: 800 });
   const user = await createTestUser(database, { roles: [{ roleCode: 'VT-02', orgUnitId: null }] });
