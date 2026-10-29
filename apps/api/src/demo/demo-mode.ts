@@ -1,6 +1,6 @@
 import { Controller, Get, Injectable, Logger } from '@nestjs/common';
 import type { DemoAccount } from '@school-management/database';
-import { Clock, ruleViolationError } from '@school-management/server';
+import { Clock, currentTenant, ruleViolationError } from '@school-management/server';
 import { DEMO_PASSWORD } from '@school-management/shared';
 import { PublicEndpoint } from '../authentication/authentication.guard.js';
 import { Databases } from '../common/databases.js';
@@ -36,7 +36,8 @@ const DISABLED: DemoStatus = {
 
 @Injectable()
 export class DemoMode {
-  private cached: { status: DemoStatus; at: number } | null = null;
+  // Đệm theo mã trường: mỗi trường có dấu trình diễn riêng ở chế độ nhiều trường
+  private readonly cached = new Map<string, { status: DemoStatus; at: number }>();
 
   constructor(
     private readonly databases: Databases,
@@ -45,8 +46,10 @@ export class DemoMode {
 
   async status(): Promise<DemoStatus> {
     const now = this.clock.now().getTime();
-    if (this.cached && now - this.cached.at < CACHE_MILLISECONDS) {
-      return this.cached.status;
+    const school = currentTenant()?.code ?? '';
+    const cached = this.cached.get(school);
+    if (cached && now - cached.at < CACHE_MILLISECONDS) {
+      return cached.status;
     }
     const row = await this.databases.system.selectFrom('demo_environment').selectAll().executeTakeFirst();
     const status: DemoStatus = row
@@ -58,7 +61,7 @@ export class DemoMode {
           accounts: row.accounts,
         }
       : DISABLED;
-    this.cached = { status, at: now };
+    this.cached.set(school, { status, at: now });
     return status;
   }
 

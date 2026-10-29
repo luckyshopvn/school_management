@@ -112,6 +112,15 @@ interface PriceRuleRow {
   plans: string[];
 }
 
+// Máy chủ trả tối đa 200 hóa đơn mới nhất (database/src/billing/billing.ts listInvoices)
+const INVOICE_LIST_LIMIT = 200;
+
+// Ngày hôm nay dạng yyyy-mm-dd theo giờ của máy
+function localDay(): string {
+  const now = new Date();
+  return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+}
+
 const money = (value: number) => `${value.toLocaleString('vi-VN')} đ`;
 const STATUS: Record<string, string> = { issued: 'Chưa trả', paid: 'Đã trả', void: 'Đã hủy' };
 const COMPONENTS: Record<string, string> = {
@@ -698,6 +707,7 @@ export function BillingPage({ accessToken, role }: { accessToken: string; role: 
   const [tab, setTab] = useState<BillingTab>('hoa-don');
   const [overview, setOverview] = useState<Overview | null>(null);
   const [invoices, setInvoices] = useState<InvoiceRow[]>([]);
+  const [allInvoices, setAllInvoices] = useState<InvoiceRow[]>([]);
   const [rules, setRules] = useState<PriceRuleRow[]>([]);
   const [filter, setFilter] = useState('');
   const [selected, setSelected] = useState<string | null>(null);
@@ -713,13 +723,16 @@ export function BillingPage({ accessToken, role }: { accessToken: string; role: 
   const [busy, runBusy] = useBusy();
 
   const reload = useCallback(async () => {
-    const [nextOverview, nextInvoices, nextRules] = await Promise.all([
+    const [nextOverview, nextInvoices, nextRules, nextAll] = await Promise.all([
       call<Overview>(accessToken, 'GET', 'billing'),
       call<InvoiceRow[]>(accessToken, 'GET', `billing/invoices${filter ? `?status=${filter}` : ''}`),
       call<PriceRuleRow[]>(accessToken, 'GET', 'billing/price-rules'),
+      // Mọi trạng thái, để tính "Phải thu kỳ này", "Đã thu" (YCTD-375); không lọc thì dùng lại kết quả trên
+      filter ? call<InvoiceRow[]>(accessToken, 'GET', 'billing/invoices') : Promise.resolve(null),
     ]);
     setOverview(nextOverview);
     setInvoices(nextInvoices);
+    setAllInvoices(nextAll ?? nextInvoices);
     setRules(nextRules);
     const current = nextOverview.settings;
     setSettings({
@@ -830,6 +843,20 @@ export function BillingPage({ accessToken, role }: { accessToken: string; role: 
         { outstanding: 0, open: 0, overdue: 0 },
       )
     : null;
+  // Kỳ này (YCTD-375, ĐX-CN-2, Eric chọn phương án a ngày 2026-10-29): hóa đơn chưa hủy có kỳ chứa ngày hôm nay, theo kỳ của từng
+  // trường. "Phải thu kỳ này" là tổng tiền các hóa đơn đó, "Đã thu" là số đã trả của chính các hóa đơn đó. Máy chủ trả tối đa 200 hóa
+  // đơn mới nhất; chạm mức này thì ghi rõ số có thể thiếu
+  const today = localDay();
+  const currentPeriod = allInvoices.filter(
+    (invoice) =>
+      invoice.status !== 'void' &&
+      invoice.period_start.slice(0, 10) <= today &&
+      today <= invoice.period_end.slice(0, 10),
+  );
+  const periodDue = currentPeriod.reduce((sum, invoice) => sum + invoice.total, 0);
+  const periodPaid = currentPeriod.reduce((sum, invoice) => sum + invoice.amount_paid, 0);
+  const periodTruncated = allInvoices.length >= INVOICE_LIST_LIMIT;
+
   const tabs = [
     { key: 'hoa-don' as const, label: 'Hóa đơn' },
     { key: 'cong-no' as const, label: 'Công nợ theo trường' },
@@ -865,6 +892,23 @@ export function BillingPage({ accessToken, role }: { accessToken: string; role: 
       {overview && totals ? (
         <>
           <div className="tiles compact" role="list" aria-label="Tổng hợp thu phí">
+            <div className="card tile" role="listitem">
+              <span className="muted">Phải thu kỳ này</span>
+              <strong data-testid="phai-thu-ky-nay">{money(periodDue)}</strong>
+              <span className="muted">
+                {currentPeriod.length.toLocaleString('vi-VN')} hóa đơn có kỳ chứa hôm nay
+                {periodTruncated ? '; tính trên 200 hóa đơn mới nhất, có thể thiếu' : ''}
+              </span>
+            </div>
+            <div className="card tile" role="listitem">
+              <span className="muted">Đã thu</span>
+              <strong data-testid="da-thu-ky-nay">{money(periodPaid)}</strong>
+              <span className="muted">
+                {periodDue > 0
+                  ? `${Math.round((periodPaid / periodDue) * 100)}% của phải thu kỳ này`
+                  : 'Của các hóa đơn kỳ này'}
+              </span>
+            </div>
             <div className="card tile" role="listitem">
               <span className="muted">Còn phải thu</span>
               <strong>{money(totals.outstanding)}</strong>

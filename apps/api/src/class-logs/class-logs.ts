@@ -21,6 +21,7 @@ import type { Request, Response } from 'express';
 import type { Kysely, Transaction } from 'kysely';
 import { AuthenticatedUser, RequirePermission } from '../authentication/authentication.guard.js';
 import type { CurrentUser } from '../authentication/current-user.js';
+import { ChildScope } from '../children/child-scope.js';
 import { periodDefault } from './period-defaults.js';
 import { readSchoolLevel } from '../catalogs/school-level-fields.js';
 import { originOf, writeAuditLog, type ChangeOrigin } from '../common/audit-log.js';
@@ -207,6 +208,7 @@ export class ClassLogsService {
     private readonly timetables: TimetablesService,
     private readonly changes: TimetableChangesService,
     private readonly clock: Clock,
+    private readonly childScope: ChildScope,
   ) {}
 
   private today(): string {
@@ -767,19 +769,11 @@ export class ClassLogsService {
     };
   }
 
-  // Điểm danh theo tiết của con trong một tháng (ứng dụng phụ huynh): các tiết không có mặt kèm số tiết theo trạng thái
+  // Điểm danh theo tiết của con trong một tháng (ứng dụng phụ huynh): các tiết không có mặt kèm số tiết theo trạng thái.
+  // Xem theo phạm vi xem trẻ (BR-72): phụ huynh của học sinh, nhân sự văn phòng trong đơn vị, giáo viên lớp được phân công
   async childMonth(currentUser: CurrentUser, childId: string, month: string) {
     const { database } = await this.currentSchoolYear.require();
-    const guardian = await database
-      .selectFrom('child_guardians')
-      .innerJoin('guardians', 'guardians.id', 'child_guardians.guardian_id')
-      .select('guardians.id')
-      .where('child_guardians.child_id', '=', childId)
-      .where('guardians.user_id', '=', currentUser.id)
-      .executeTakeFirst();
-    if (!guardian && !this.timetables.isStaffViewer(currentUser)) {
-      throw new ApplicationError('ERR_FORBIDDEN', 'Chỉ phụ huynh của học sinh hoặc nhân sự xem được điểm danh này');
-    }
+    await this.childScope.assertCanRead(currentUser, database, childId);
     const from = `${month}-01`;
     const to = addDays(addDays(`${month}-01`, 31).slice(0, 8) + '01', -1);
     const rows = await database
@@ -1113,6 +1107,7 @@ export class ChildPeriodAttendanceController {
   constructor(private readonly classLogs: ClassLogsService) {}
 
   @Get()
+  @RequirePermission('P02.view', 'P02.edit', PERMISSION_CODES.classManage)
   read(
     @Param('id', uuidParameter('Mã học sinh không hợp lệ')) childId: string,
     @Query('month') month: string | undefined,

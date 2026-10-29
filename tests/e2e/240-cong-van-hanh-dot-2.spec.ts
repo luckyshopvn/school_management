@@ -75,6 +75,34 @@ const invoice = {
   payment_content: 'HDGIA1',
 };
 
+// Hóa đơn có kỳ là tháng hiện tại (YCTD-375): một hóa đơn còn hiệu lực, một hóa đơn đã hủy (không tính)
+const now = new Date();
+const monthStart = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-01`;
+const monthEnd = `${monthStart.slice(0, 8)}${String(new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate()).padStart(2, '0')}`;
+const currentInvoices = [
+  {
+    ...invoice,
+    id: 'i2',
+    code: 'HD-GIA-2',
+    period_start: monthStart,
+    period_end: monthEnd,
+    total: 3000,
+    amount_paid: 1000,
+    outstanding: 2000,
+  },
+  {
+    ...invoice,
+    id: 'i3',
+    code: 'HD-GIA-3',
+    period_start: monthStart,
+    period_end: monthEnd,
+    total: 5000,
+    amount_paid: 0,
+    outstanding: 0,
+    status: 'void',
+  },
+];
+
 // Dữ liệu giả cho từng điểm cuối của cổng; trả undefined thì 404
 function fixture(role: Role, method: string, path: string): Reply | undefined {
   if (path === '/me') {
@@ -345,7 +373,7 @@ function fixture(role: Role, method: string, path: string): Reply | undefined {
     };
   }
   if (path.startsWith('/billing/invoices') && method === 'GET') {
-    return { body: [invoice] };
+    return { body: [invoice, ...currentInvoices] };
   }
   if (path === '/catalog') {
     return {
@@ -702,6 +730,17 @@ test.describe('cổng vận hành đợt 2', () => {
     await expect.poll(() => checks).toBe(1);
     await page.getByRole('button', { name: 'Kiểm lại' }).click();
     await expect.poll(() => checks).toBe(2);
+  });
+
+  test('CT-1708: Phải thu kỳ này, Đã thu tính trên hóa đơn chưa hủy có kỳ chứa hôm nay (YCTD-375)', async ({
+    page,
+  }) => {
+    await openConsole(page, 'ke_toan');
+    await openPage(page, 'Thu phí');
+    await expect(page.getByTestId('phai-thu-ky-nay')).toHaveText('3.000 đ');
+    await expect(page.getByTestId('da-thu-ky-nay')).toHaveText('1.000 đ');
+    await expect(page.getByText('33% của phải thu kỳ này')).toBeVisible();
+    await expect(page.getByText('1 hóa đơn có kỳ chứa hôm nay')).toBeVisible();
   });
 
   test('CT-1699: tám trang không còn hộp nhập, hộp xác nhận của trình duyệt', () => {

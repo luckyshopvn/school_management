@@ -715,7 +715,8 @@ export class OnlineExamsService {
     return roster;
   }
 
-  // Người này xem, quản lý được bài giao không: người quản lý, người giao, hoặc người dạy một lớp được giao
+  // Người này xem, quản lý được bài giao không: người quản lý, người giao, hoặc người chủ nhiệm hay dạy môn của đề ở mọi lớp được
+  // giao (PQ-109); thao tác trên bài, lượt làm áp cho mọi học sinh của bài nên phải có phạm vi với mọi lớp
   async assertCanManage(database: Database, currentUser: CurrentUser, assignmentId: string) {
     const assignment = await database
       .selectFrom('exam_assignments')
@@ -774,12 +775,14 @@ export class OnlineExamsService {
       .select(['exam_assignment_targets.class_id', 'class_enrollments.class_id as enrolled_class_id'])
       .where('exam_assignment_targets.assignment_id', '=', assignmentId)
       .execute();
-    const taught = targets.some(
-      (target) =>
-        scope !== 'all' &&
-        ((target.class_id !== null && scope.has(target.class_id)) ||
-          (target.enrolled_class_id !== null && scope.has(target.enrolled_class_id))),
-    );
+    const taught =
+      scope !== 'all' &&
+      targets.length > 0 &&
+      targets.every(
+        (target) =>
+          (target.class_id !== null && scope.has(target.class_id)) ||
+          (target.enrolled_class_id !== null && scope.has(target.enrolled_class_id)),
+      );
     if (!taught) {
       throw new ApplicationError('ERR_FORBIDDEN', 'Bạn không giao hay dạy lớp của bài thi này');
     }
