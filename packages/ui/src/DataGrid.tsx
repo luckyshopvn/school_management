@@ -1,5 +1,6 @@
 import { Fragment, useEffect, useId, useMemo, useRef, useState, type ReactNode } from 'react';
 import { Button } from './Button.js';
+import { MoreMenu, type MoreMenuItem } from './MoreMenu.js';
 import { TextField } from './TextField.js';
 import { DIALOG_NARROW_FULL_SCREEN_CLASS } from './dialog.js';
 
@@ -72,6 +73,11 @@ export interface DataGridProperties<Row> {
   advancedSearch?: ReactNode;
   // Nút riêng của màn hình (Thêm mới, Xuất Excel…); dạng hàm nhận các dòng đang chọn
   toolbar?: ReactNode | ((selectedRows: Row[]) => ReactNode);
+  // Thao tác phụ của màn hình (YCTD-333): vào menu "Thêm" cùng Xuất PDF và Cấu hình cột hiển thị, thanh công cụ chỉ còn nút
+  // chính
+  moreActions?: MoreMenuItem[];
+  // Thao tác trên các dòng đang chọn (Thay đổi, Xóa, Cập nhật hàng loạt…): chỉ hiện ở thanh "Đã chọn" khi có dòng được chọn
+  selectionActions?(selectedRows: Row[]): ReactNode;
   selectable?: boolean;
   rowActions?(row: Row): ReactNode;
   // Dòng chi tiết mở ngay dưới dòng dữ liệu; trả null thì không có
@@ -380,6 +386,8 @@ export function DataGrid<Row>({
   search,
   advancedSearch,
   toolbar,
+  moreActions,
+  selectionActions,
   selectable,
   rowActions,
   renderRowDetail,
@@ -499,12 +507,13 @@ export function DataGrid<Row>({
         ) : null}
         <div className="ml-auto flex flex-wrap items-center gap-2">
           {toolbarContent}
-          {exportPdf ? (
-            <Button disabled={pdfBusy} onClick={() => void runPdfExport()}>
-              Xuất PDF
-            </Button>
-          ) : null}
-          <Button onClick={() => setConfiguring(true)}>Cấu hình cột hiển thị</Button>
+          <MoreMenu
+            items={[
+              ...(moreActions ?? []),
+              ...(exportPdf ? [{ label: 'Xuất PDF', disabled: pdfBusy, onSelect: () => void runPdfExport() }] : []),
+              { label: 'Cấu hình cột hiển thị', onSelect: () => setConfiguring(true) },
+            ]}
+          />
         </div>
       </div>
       {pdfMessage ? (
@@ -527,9 +536,21 @@ export function DataGrid<Row>({
         </div>
       ) : null}
       {selectable ? (
-        <p className="text-label text-text-secondary" aria-live="polite">
-          {selectedRows.length > 0 ? `Đã chọn ${selectedRows.length} dòng` : ''}
-        </p>
+        <div
+          className={`flex flex-wrap items-center gap-x-4 gap-y-2 ${selectedRows.length > 0 && selectionActions ? 'rounded-lg bg-selected px-3 py-2' : ''}`}
+        >
+          <p className="text-label text-text-secondary" aria-live="polite">
+            {selectedRows.length > 0 ? `Đã chọn ${selectedRows.length} dòng` : ''}
+          </p>
+          {selectedRows.length > 0 && selectionActions ? (
+            <div role="toolbar" aria-label="Thao tác với dòng đã chọn" className="flex flex-wrap items-center gap-2">
+              {selectionActions(selectedRows)}
+              <Button variant="text" onClick={() => setSelectedIds(new Set())}>
+                Bỏ chọn
+              </Button>
+            </div>
+          ) : null}
+        </div>
       ) : null}
       {loading ? (
         <div className="h-40 animate-pulse rounded bg-border" aria-hidden="true" />

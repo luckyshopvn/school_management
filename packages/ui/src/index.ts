@@ -16,6 +16,7 @@ export {
   type DataGridProperties,
   type DataGridViewSettings,
 } from './DataGrid.js';
+export { MoreMenu, type MoreMenuItem } from './MoreMenu.js';
 export { FORM_CONTROL_CLASS, FormBlock, FormRow } from './FormLayout.js';
 export { QrScanner, type QrScannerProperties } from './QrScanner.js';
 export { DemoAccountPicker, DemoBanner, type DemoNoticeAccount } from './DemoNotice.js';
