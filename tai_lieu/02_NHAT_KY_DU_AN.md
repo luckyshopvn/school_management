@@ -1,8 +1,8 @@
 # 02. NHẬT KÝ DỰ ÁN
 
 - Mô tả: Ghi nhận công việc, quyết định, thay đổi và vấn đề tồn đọng theo ngày, ngày mới nhất ở trên cùng.
-- Phiên bản: 0.82
-- Ngày cập nhật: 2026-10-26
+- Phiên bản: 0.83
+- Ngày cập nhật: 2026-10-29
 - Trạng thái: Đang cập nhật
 
 ## Quy ước ghi nhật ký
@@ -14,6 +14,2525 @@
 - Không ghi thông tin tạm thời như kết quả tra cứu, đường dẫn tạm, thông báo lỗi của công cụ.
 
 ## Nhật ký theo ngày
+
+### 2026-10-29 — Sửa các điểm lệch quy trình Vibecoding_Flow (YCTD-369)
+
+#### Công việc đã thực hiện
+
+- Gom 92 tệp mảnh chờ (YCTD-213 đến YCTD-367) và tệp mảnh này bằng `node scripts/gom-thay-doi.mjs` trên nhánh `gom-2026-10-29`; `02`, `03`, `23`, `24`, `01`, `index.md` và các tài liệu nhận "Thêm dòng" đã cập nhật tới YCTD-369. Phiên bản chốt theo thứ tự merge từ 0.148.0 đến 0.238.0.
+- Thêm `36_MA_TRAN_TRUY_VET.md`: liên kết YCTD-213 đến YCTD-369 với chức năng (`10`), tiêu chí nghiệm thu (`11`), kịch bản kiểm thử (`21`), PR và commit merge, kết quả CI, kết quả ghi ở `35`. Dữ liệu trích từ tệp mảnh trên `origin/main` `6048abc9` và `gh pr view`; chỗ không có dữ liệu ghi "chưa xác định".
+- Thêm `37_TRIEN_KHAI.md`: tổng hợp các cách triển khai đang có (bản một máy, hồ sơ "Vận hành", hồ sơ thử nghiệm, bản nhiều trường trên máy), thứ tự database migration, phương án quay lui, mẫu biên bản; ghi rõ chưa có lần triển khai môi trường thật nào.
+- Thêm vào `18` quy tắc AI-43 đến AI-45 và giả định đã xác nhận GD-181 đến GD-183.
+- Thêm `tam_thoi/` vào `.gitignore`.
+- Sửa dòng "Mã N đang dùng đến" ở `03` từ N22 thành N25 (lỗi L-17 của `35`).
+
+#### Quyết định
+
+- Eric duyệt ngày 2026-10-29 cách xử lý năm điểm lệch quy trình (qua phiên điều phối).
+- Ma trận truy vết và tài liệu triển khai lấy số 36, 37 vì số 25, 26, 27 của quy trình đã dùng cho thư mục khác (như `35`).
+- Số phiên bản do công cụ gom chốt theo thứ tự merge, không theo số đề xuất của tệp mảnh, nên tệp mảnh này nhận 0.238.0 thay vì 0.249.0 đề xuất.
+- Gắn tag phiên bản làm sau khi PR này merge, theo danh sách phiên điều phối xác nhận.
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-369, `23_LICH_SU_PHIEN_BAN.md` 0.238.0, `36_MA_TRAN_TRUY_VET.md`, `37_TRIEN_KHAI.md`, `18_QUY_TAC_PHAT_TRIEN_AI.md`.
+
+#### Vấn đề tồn đọng
+
+- Ma trận truy vết chưa phủ YCTD-01 đến YCTD-212 và các YCTD trước lần gom trước; nhiều dòng thiếu mã chức năng, tiêu chí nghiệm thu (xem `36` mục 4).
+- Gắn tag các phiên bản đã merge: chờ phiên điều phối xác nhận danh sách.
+
+### 2026-10-28 — DT-29 phần 29e: bài hát, câu chuyện của trường trong Hộp công cụ giảng dạy
+
+#### Công việc đã thực hiện
+
+- Cơ sở dữ liệu hệ thống `0121_add_song_story_resource_types.ts`: loại học liệu `song` (Bài hát), `story` (Câu chuyện), qua Ban Giám hiệu duyệt.
+- Máy chủ API: kho học liệu nhận tệp âm thanh MP3, M4A, WAV, OGG theo chữ ký đầu tệp (`detectResourceFileType`).
+- Ứng dụng giáo viên: mini app "Bài hát, câu chuyện của trường" (lớp Mầm non) liệt kê học liệu loại Bài hát, Câu chuyện đã công bố của cấp của lớp, phát âm thanh, video ngay trên lớp, chiếu ảnh, mở PDF hoặc liên kết.
+
+#### Quyết định
+
+- Dự án không kèm bài hát, truyện nào: nội dung do trường tải lên kho học liệu, qua luồng duyệt và kiểm bản quyền của 22h1 (Ban Giám hiệu duyệt như video). Mini app dùng lại quyền dùng học liệu, danh sách và tải tệp có sẵn của kho, không thêm điểm cuối. Chưa lưu tệp để phát khi mất mạng (tệp âm thanh, video lớn, cần mạng khi phát). Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11.
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-329, `32_KE_HOACH_THEO_HE_THONG_SO.md` mục 22, `07_QUY_TAC_NGHIEP_VU.md` BR-196, `14_DAC_TA_GIAO_DIEN.md` MH-564, `16_CO_SO_DU_LIEU.md`, `21_KICH_BAN_KIEM_THU.md` CT-1561 đến CT-1563, `11_TIEU_CHI_NGHIEM_THU.md` AC-1137, `23_LICH_SU_PHIEN_BAN.md` 0.237.0.
+
+#### Vấn đề tồn đọng
+
+- Lưu sẵn tệp để phát khi mất mạng (tuỳ chọn) chưa làm; giới hạn 50 MB mỗi tệp của kho học liệu áp cho cả âm thanh.
+
+### 2026-10-28 — DT-29 phần 29d: mini app THCS, THPT của Hộp công cụ giảng dạy
+
+#### Công việc đã thực hiện
+
+- Ứng dụng giáo viên (`apps/teacher/src/tools/mini/`): máy tính khoa học, vẽ đồ thị hàm số, bảng tuần hoàn, hình học động, bảng hằng số và đổi đơn vị; phần thuần `expression.ts` (bộ tính biểu thức tự viết), `graph-logic.ts`, `periodic-table.ts`, `geometry.ts`, `units.ts`. Danh mục `TEACHING_TOOLS` thêm năm công cụ cho lớp THCS, THPT.
+
+#### Quyết định
+
+- Bộ tính biểu thức tự viết, không dùng `eval` hay `Function` (không chạy mã từ chữ người dùng gõ), dùng chung cho máy tính và vẽ đồ thị. Bảng tuần hoàn: tên nguyên tố theo IUPAC như sách Khoa học tự nhiên, Hoá học chương trình 2018; khối lượng nguyên tử chuẩn rút gọn của IUPAC; La, Ac ở nhóm 3. Hằng số vật lí theo CODATA 2018, làm tròn bốn chữ số có nghĩa. Mọi dữ liệu là dữ kiện khoa học công khai, nằm trong ứng dụng, chạy khi mất mạng. Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11.
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-328, `32_KE_HOACH_THEO_HE_THONG_SO.md` mục 22, `14_DAC_TA_GIAO_DIEN.md` MH-563, `21_KICH_BAN_KIEM_THU.md` CT-1555 đến CT-1560, `11_TIEU_CHI_NGHIEM_THU.md` AC-1136, `23_LICH_SU_PHIEN_BAN.md` 0.236.0.
+
+#### Vấn đề tồn đọng
+
+- Mô phỏng vật lí, hoá học để đợt sau (32 mục 22). Hình học động mới có tam giác; chưa có đường tròn, đa giác tự dựng.
+
+### 2026-10-28 — DT-29 phần 29c: mini app Tiểu học của Hộp công cụ giảng dạy
+
+#### Công việc đã thực hiện
+
+- Ứng dụng giáo viên (`apps/teacher/src/tools/mini/`): bảng cửu chương, khung ô li (bảng trắng có kẻ dòng như vở ô li), học xem đồng hồ, phân số trực quan; phần thuần ở `primary-logic.ts`. Danh mục `TEACHING_TOOLS` thêm bốn công cụ cho lớp Tiểu học.
+
+#### Quyết định
+
+- Chạy trên máy, không lưu kết quả, không cần danh sách lớp. Khung ô li tự vẽ (dòng kẻ mảnh mỗi ô li, dòng đậm mỗi bốn ô li, kẻ dọc mỗi bốn ô li), không dùng phông chữ mẫu có bản quyền: giáo viên viết mẫu bằng bút cảm ứng. Đọc giờ theo cách nói ở lớp ("7 giờ rưỡi", tuỳ chọn "8 giờ kém 15 phút"). Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11.
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-327, `32_KE_HOACH_THEO_HE_THONG_SO.md` mục 22, `14_DAC_TA_GIAO_DIEN.md` MH-562, `21_KICH_BAN_KIEM_THU.md` CT-1668 đến CT-1672, `11_TIEU_CHI_NGHIEM_THU.md` AC-1135, `23_LICH_SU_PHIEN_BAN.md` 0.235.0.
+
+#### Vấn đề tồn đọng
+
+- Khổ ô li trên màn hình theo bề rộng bảng, chưa đúng kích thước in của vở thật.
+
+### 2026-10-29 — Cổng quản trị: Công văn của tôi và trang Văn bản đến gọn (YCTD-336)
+
+#### Công việc đã thực hiện
+
+- Áp thiết kế "Cổng quản trị trường" Eric duyệt ngày 2026-10-28 cho phân hệ Quản lý văn bản và điều hành.
+- Trang mới "8. Công văn của tôi" (`/my-documents`, MH-570): thẻ "Cần tôi xử lý" gộp văn bản đến chờ tôi xử lý (thẻ Chờ xử lý của 1.1) và văn bản đi chờ tôi cho ý kiến hoặc ký (thẻ Chờ xử lý của 3.1), cột Loại ghi Đến hoặc Đi; thẻ "Dự thảo của tôi" (thẻ Dự thảo của 3.1). Cột Loại, Số, Số ký hiệu, Trích yếu (nhãn độ khẩn), Nơi gửi, Hạn xử lý; bấm dòng mở chi tiết văn bản có sẵn ngay dưới dòng. Nút "Vào sổ văn bản đến" (quyền `P09.incoming-document.register`) mở 1.2 với biểu mẫu vào sổ mở sẵn, "Soạn văn bản đi" (quyền `P09.outgoing-document.draft`) mở 3.1 với biểu mẫu dự thảo mở sẵn (tham số `create=true`). Mục menu hiện khi người dùng thấy được 1.1 hoặc 3.1.
+- Trang 1.1 Văn bản đến gọn hơn (dùng chung cho 1.2 đến 1.7): bỏ dòng chú thích màu; độ khẩn ghi bằng nhãn chữ "Hỏa tốc", "Khẩn" và văn bản chỉ đạo có nhãn "Chỉ đạo" trong ô trích yếu, chữ trích yếu không tô màu nữa; ký hiệu [XLC], [PH], [QH], [ĐH] có tên đầy đủ khi trỏ chuột; ba nút radio vai trò thành một ô chọn "Vai trò"; các nút Kết thúc hàng loạt, Lưu hồ sơ hàng loạt, Đánh dấu (Bỏ đánh dấu, Bỏ theo dõi) chỉ hiện khi đã chọn dòng. Không bỏ chức năng nào.
+- Kịch bản e2e `tests/e2e/70-incoming-documents.spec.ts`: thêm bước Công văn của tôi (CT-1680), sửa bước lọc vai trò sang ô chọn, kiểm không còn chú thích màu và nút hàng loạt chỉ hiện khi chọn dòng.
+
+#### Quyết định
+
+- "Công văn của tôi" là mục riêng số 8. ở cuối menu phân hệ thay vì chèn đầu nhóm 1: chèn vào nhóm 1 phải đánh lại số 1.1. đến 1.7. đã dùng trong tài liệu, kiểm thử, hướng dẫn; mục 1. đến 7. giữ số theo kiểu của Sở (Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11).
+- Trang gộp lấy tối đa 200 văn bản mỗi danh sách (giới hạn trang của máy chủ) rồi phân trang ở lưới; danh sách dài hơn thì trang báo xem đủ ở 1.1, 3.1. Chỉ đọc danh sách của trang người dùng được thấy (1.1 hoặc 3.1) theo cùng điều kiện quyền của menu.
+- Dòng chú thích màu ở 3.1 Văn bản đi chưa bỏ trong phần này (yêu cầu chỉ nêu 1.1); trang Công văn của tôi đã dùng nhãn chữ cho cả văn bản đi.
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-336, `23_LICH_SU_PHIEN_BAN.md` 0.234.0.
+
+#### Vấn đề tồn đọng
+
+- Văn bản đi chưa có hạn xử lý trong danh sách nên cột Hạn xử lý của dòng Đi để trống.
+- Trang 3.1 Văn bản đi vẫn còn dòng chú thích màu, làm khi áp thiết kế cho trang văn bản đi.
+
+### 2026-10-29 — Cổng quản trị: nhóm Hay dùng và ô tìm chung học sinh, cán bộ (YCTD-337)
+
+#### Công việc đã thực hiện
+
+- Bảng `user_recent_pages` ở cơ sở dữ liệu hệ thống (thay đổi cấu trúc 0125): trang mỗi tài khoản mở gần đây, khóa (user_id, path), giữ tối đa 20 dòng mỗi tài khoản.
+- API: `GET /me/recent-pages` (tối đa 8 trang mới nhất, bỏ trang của cấp chưa bật), `POST /me/recent-pages` (ghi lần mở trang, chỉ nhận đường dẫn là mục menu của cổng quản trị), `DELETE /me/recent-pages?path=` (bỏ một trang); chỉ của chính tài khoản đang đăng nhập.
+- API: `GET /search?q=` (từ khóa 2 đến 100 ký tự) tìm học sinh, cán bộ theo tên bằng chính danh sách học sinh, danh sách cán bộ nên theo đúng phạm vi xem của người dùng; tối đa 5 mỗi nhóm; không có quyền xem nhóm nào thì nhóm đó trống; chỉ trả mã, tên, lớp hoặc đơn vị, đường dẫn.
+- Cổng quản trị: khung trang ghi mỗi lần mở trang là mục menu; khối "Hay dùng" trên trang chủ có nút bỏ từng trang; ô tìm ở thanh đầu trang hiện "Hay dùng" khi chưa gõ, gõ từ 2 ký tự thì có thêm nhóm Học sinh, Cán bộ, giáo viên; mở học sinh thì trang 4.1.1 điền sẵn ô tìm (`/children?q=`), mở cán bộ thì vào hồ sơ.
+- Kiểm thử đơn vị CT-337-1 đến CT-337-6 (`apps/api/src/recent-pages/recent-pages.test.ts`), e2e CT-337-7 (`tests/e2e/237-hay-dung-tim-chung.spec.ts`).
+
+#### Quyết định
+
+- GD-180 (Eric, 2026-10-29): "Hay dùng" theo trang mỗi người dùng mở gần nhất, lưu ở máy chủ, không cấu hình theo nhóm; ô tìm chung tìm học sinh, cán bộ theo quyền xem, không trả số định danh. Ghi ở `32_KE_HOACH_THEO_HE_THONG_SO.md` mục 21.
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-337, `23_LICH_SU_PHIEN_BAN.md` 0.233.0.
+
+#### Vấn đề tồn đọng
+
+- Không.
+
+### 2026-10-29 — Cổng quản trị: trang Cấu hình trường theo thiết kế mới (YCTD-335)
+
+#### Công việc đã thực hiện
+
+- 1.4 Cấu hình trường: ô Đơn vị ("Áp dụng cho") và nút Lưu cấu hình lên cạnh tiêu đề trang; các khối chia thành bảy nhóm (Thông tin chung; Cấp học; Học phí, dịch vụ; Nhân sự, chấm công; Y tế, bán trú, kho; Nề nếp, thi đua; Nhật ký, bảo mật), danh sách nhóm ở bên trái từ 1280 px (hẹp hơn thì ở trên cùng), bấm nhóm thì cuộn tới nhóm.
+- Bảng cấu hình theo đơn vị tách theo nhóm; bỏ cột Nguồn, nguồn ghi gọn sau giá trị đang áp dụng (ví dụ "25 · mặc định", "Chưa cấu hình").
+- Các đoạn giải thích dài rút thành một dòng gợi ý dưới mục liên quan, giữ quy tắc nhập ngày, "tắt cấp chỉ ẩn, lớp và học sinh giữ nguyên", ngày chốt công cố định mùng 1 tháng sau.
+- Kịch bản e2e 05 kiểm danh sách nhóm, bấm nhóm cuộn tới, mục nằm đúng nhóm và cách ghi nguồn mới.
+
+#### Quyết định
+
+- Bấm nhóm thì cuộn tới (mọi nhóm vẫn hiện) thay vì chỉ hiện nhóm đó, để các kịch bản mở thẳng `/settings` rồi dùng thẻ "Cấp học của trường", "Nề nếp, thi đua lớp" không phải chọn nhóm trước (Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11).
+- Mục theo đơn vị xếp vào nhóm theo khóa (bảng ở `settings-groups.ts`); khóa mới chưa có trong bảng thì xếp theo từ khóa trong tên mục, không khớp thì vào Thông tin chung. Hộp công cụ giảng dạy xếp vào nhóm Cấp học vì công cụ hiện theo cấp của lớp.
+- Một nút Lưu cấu hình ở đầu trang ghi mọi mục theo đơn vị đã sửa ở mọi nhóm (như trước là một nút cho cả bảng); các khối áp cho cả trường giữ nút Ghi, Lưu riêng và tên nút như cũ.
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-335, `23_LICH_SU_PHIEN_BAN.md` 0.232.0.
+
+#### Vấn đề tồn đọng
+
+- Không.
+
+### 2026-10-29 — Trang cấp trên rút đề nghị xem chi tiết, xuất báo cáo chạy nền
+
+#### Công việc đã thực hiện
+
+- Cơ sở dữ liệu nền tảng 0245:
+  - đề nghị xem chi tiết thêm trạng thái `withdrawn` (cấp trên rút, khác `revoked` là trường rút) và cột `withdrawn_at`;
+  - bảng `parent_org_exports` cho việc xuất chạy nền.
+- Dịch vụ định danh: `POST /api/v1/auth/parent-org/access-requests/:id/withdraw`.
+  - Chỉ người gửi rút được, với đề nghị đang chờ hoặc đã duyệt còn hạn.
+  - Phiên xem chi tiết đang mở kết thúc ngay.
+  - Ghi nhật ký `parent-org.access-withdrawn`.
+- Máy chủ API, `parent-org-exports.ts`:
+  - tạo việc xuất (nhiều nhóm số liệu trong một tệp; bố cục tổng hợp theo đơn vị hoặc so sánh từng trường; Excel hoặc PDF);
+  - việc định kỳ dựng tệp, chiếm việc bằng `for update skip locked`, dựng lại việc bị dừng giữa chừng tối đa 3 lần;
+  - lưu tệp ở kho tệp chung theo thư mục của đơn vị cấp trên, giữ 7 ngày rồi xóa;
+  - danh sách tệp của chính tài khoản, tải về có ghi nhật ký;
+  - bảng của tệp xuất dùng chung với tải trực tiếp (`aggregateSheets`).
+- Trang `/cap-tren`:
+  - trang Xuất báo cáo có chọn bố cục, danh sách "Tệp đã xuất" tự làm mới khi còn tệp đang tạo, nút tải về; bản triển khai chưa có kho tệp thì tải trực tiếp như trước;
+  - thẻ đề nghị có "Rút đề nghị" (hỏi lại một lần), trạng thái "Bạn đã rút".
+- Cổng quản trị của trường: bảng đề nghị ghi "Cấp trên đã rút".
+- Kiểm thử máy chủ: CT-367-1 (xuất chạy nền), CT-367-2 (rút đề nghị chờ duyệt và đã duyệt, phiên xem chi tiết kết thúc).
+- Kiểm lại trang Chợ gia sư của cổng vận hành sau YCTD-323 và YCTD-324:
+  - các khối theo vai trò khớp quyền ở máy chủ;
+  - ô mốc phòng học và hạn dùng gói vẫn còn.
+
+#### Quyết định
+
+- Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11:
+  - quyền theo tài khoản cấp trên và cây đơn vị, không theo vai trò vận hành; bảng quyền vận hành của YCTD-323 không cần mục mới;
+  - mỗi tài khoản tối đa 3 tệp đang tạo; tệp giữ 7 ngày (`PARENT_ORG_EXPORT_RETENTION_DAYS`), việc định kỳ chạy mỗi 30 giây (`PARENT_ORG_EXPORT_INTERVAL_SECONDS`, 0 là tắt);
+  - rút đề nghị đã duyệt là kết thúc phiên đang mở ngay, như khi trường rút.
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-367, `23_LICH_SU_PHIEN_BAN.md` 0.231.0.
+
+#### Vấn đề tồn đọng
+
+- Không có.
+
+### 2026-10-29 — CI tự huỷ lượt chạy cũ của cùng PR hoặc cùng nhánh (YCTD-357)
+
+#### Công việc đã thực hiện
+
+- Thêm khối `concurrency` ở cấp workflow của `.github/workflows/ci.yml`: khoá gồm tên workflow, loại sự kiện và số PR (nhánh khác thì ref), `cancel-in-progress: true`. Lượt chạy mới của cùng PR hoặc cùng nhánh huỷ lượt cũ đang chạy hoặc đang chờ.
+
+#### Quyết định
+
+- Loại sự kiện nằm trong khoá để lượt chạy đêm (schedule) và lượt push của main không huỷ lẫn nhau; khoá theo số PR để các PR nối tiếp nhau không chạy trùng hai lượt cho một head (Eric duyệt ngày 2026-10-29).
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-357, `23_LICH_SU_PHIEN_BAN.md` 0.230.0.
+
+#### Vấn đề tồn đọng
+
+- Không.
+
+### 2026-10-29 — Cổng quản trị: danh sách học sinh gọn theo thiết kế (YCTD-338)
+
+#### Công việc đã thực hiện
+
+- 4.1.1 Quản lý hồ sơ học sinh theo mẫu của YCTD-333: đầu trang chỉ còn nút chính Nhập từ Excel (mở 4.1.2, người có quyền nhập học sinh), Thêm mới; Thay đổi, Xóa, Cập nhật hàng loạt, Cấp mã định danh Bộ (ghi mã cho dòng đã chọn) ở thanh "Đã chọn" (`selectionActions`); Cấp mã định danh Bộ, Xuất Excel, Xuất file lỗi, Đồng bộ CSDL ngành ở menu Thêm (`moreActions`) cùng Xuất PDF, Cấu hình cột hiển thị.
+- Cột mặc định: Mã định danh Bộ GD&ĐT, Họ tên, Ngày sinh, Giới tính, Lớp, Trạng thái, Số điện thoại liên hệ; Dân tộc, Phụ huynh, Chuyên cần, Khối ẩn mặc định (bật ở Cấu hình cột hiển thị). Cột Lớp chuyển lên sau Giới tính theo thiết kế.
+- Ô mã định danh Bộ trống ghi "Chưa có" chữ xám thay nhãn đỏ; bỏ ảnh chữ cái đầu chỉ để trang trí ở ô Họ tên. Thẻ trạng thái, ô "Tìm theo họ tên", mở rộng tìm kiếm giữ nguyên.
+- Sửa kịch bản e2e 51 (cột mặc định, Xuất Excel ở menu Thêm), 62 (bật cột Dân tộc ở Cấu hình cột hiển thị, nút Xóa chỉ có sau khi chọn dòng, Xuất file lỗi ở menu Thêm). Cập nhật MH-02 ở `14_DAC_TA_GIAO_DIEN.md`, ghi chú AC-201 ở `11_TIEU_CHI_NGHIEM_THU.md`.
+
+#### Quyết định
+
+- Không bỏ chức năng, chỉ dời chỗ. "Cấp mã định danh Bộ" có ở cả hai chỗ: ở menu Thêm mở hộp không kèm dòng (xuất tệp theo mẫu Bộ cho học sinh chưa có mã), ở thanh "Đã chọn" mở hộp ghi mã cho các dòng đã chọn, như nút cũ khi có và khi chưa có dòng chọn.
+- Nhập từ Excel, Thêm mới giữ ở đầu trang (cạnh tiêu đề và dòng tổng số) như bố cục hiện có của trang học sinh, không chuyển vào thanh công cụ của lưới.
+- "Đồng bộ CSDL ngành" là nút phụ trên đầu trang nên vào menu Thêm.
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-338, `23_LICH_SU_PHIEN_BAN.md` 0.229.0.
+
+#### Vấn đề tồn đọng
+
+- Ô tìm chưa đọc tham số `?q=` trên đường dẫn (main chưa có); sẽ thêm cùng phần tìm chung nếu cần.
+
+### 2026-10-29 — Cổng quản trị: trang Hồ sơ lớp học gọn theo thiết kế (YCTD-339)
+
+#### Công việc đã thực hiện
+
+- 2.1 Hồ sơ lớp học theo mẫu YCTD-333: thanh công cụ còn Nhập từ Excel (mở 2.2, chỉ hiện khi có quyền của mục 2.2), Thêm mới; Thay đổi, Giải thể lớp đã chọn, Xóa lớp ở thanh "Đã chọn" (chỉ hiện khi chọn dòng); Xuất Excel ở menu Thêm cùng Xuất PDF và Cấu hình cột hiển thị.
+- Cột hiện mặc định: Tên lớp, Khối, Giáo viên chủ nhiệm, Số học sinh, Điểm trường, Phòng học. Mã lớp, Nhóm lớp, Nhóm trẻ, Nhóm tuổi, Thứ tự, Học 2 buổi/ngày, Lớp ghép, Ghép vào lớp, Lớp bán trú, Lớp giải thể ẩn mặc định (cùng Phân hiệu, Lớp mẫu giáo ghép 2 hoặc 3 độ tuổi, Sĩ số tối đa vốn đã ẩn); bật lại ở Cấu hình cột hiển thị.
+- Đầu trang có liên kết "Phân công phụ trách lớp" sang 3.3 (hiện theo quyền của mục 3.3); mục menu 3.3 giữ nguyên, hai trang vẫn tách.
+- Sửa kịch bản e2e 08-classes (bật cột Lớp giải thể trước khi kiểm), 54-school-classes-so (CT-15b-9 kiểm cột mặc định mới, Nhập từ Excel, liên kết 3.3, thao tác hàng loạt chưa hiện khi chưa chọn dòng, bật cột ẩn rồi kiểm, Xuất Excel qua menu Thêm).
+
+#### Quyết định
+
+- Không bỏ chức năng: mọi nút cũ vẫn còn, chỉ dời chỗ; thao tác trên dòng (Sửa, Giáo viên, Giải thể lớp, Mở lại) giữ ở cuối dòng.
+- Giữ tên cột và thứ tự cột theo Sở (mã cột trùng mã cột tệp Excel của máy chủ); cột "Điểm trường" là cột đơn vị của lớp trên lưới. Thứ tự cột mặc định vì vậy là Điểm trường trước Phòng học.
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-339, `23_LICH_SU_PHIEN_BAN.md` 0.228.0.
+
+#### Vấn đề tồn đọng
+
+- Không.
+
+### 2026-10-29 — Cổng quản trị: trang Điểm danh theo thiết kế mới (YCTD-334)
+
+#### Công việc đã thực hiện
+
+- 4.7 Điểm danh: tiêu đề và bộ lọc một hàng; ô Đơn vị chỉ hiện khi người dùng có từ hai đơn vị; nút Hôm trước, Hôm sau cạnh ô ngày; tóm tắt thành từng ô số (số chưa đánh dấu tô màu cảnh báo khi còn); nút thao tác lên đầu bảng; thêm nút "Đánh dấu tất cả có mặt" cho các dòng chưa đánh dấu (vẫn phải bấm Lưu điểm danh; tắt khi mọi dòng đã đánh dấu).
+- Kịch bản e2e 11 kiểm nút mới và nút đổi ngày.
+
+#### Quyết định
+
+- Giữ đủ sáu trạng thái điểm danh, chốt, mở lại kèm lý do như trước; chỉ đổi cách bày.
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-334, `23_LICH_SU_PHIEN_BAN.md` 0.227.0.
+
+#### Vấn đề tồn đọng
+
+- Không.
+
+### 2026-10-28 — DT-29 phần 29b: mini app chung và Mầm non của Hộp công cụ giảng dạy
+
+#### Công việc đã thực hiện
+
+- Ứng dụng giáo viên, thư mục `apps/teacher/src/tools/mini/`: bảng trắng, xúc xắc và bốc số (mọi cấp); đồng hồ hình ảnh, đèn giữ trật tự, bảng thưởng sao (Mầm non, Tiểu học); hình và màu, đếm và số, làm quen chữ cái (Mầm non). Phần thuần ở `mini-logic.ts`.
+- Danh mục `TEACHING_TOOLS` thêm tám công cụ; màn Hộp công cụ mở các công cụ này.
+
+#### Quyết định
+
+- Mọi mini app chạy trên máy giáo viên, dùng được khi mất mạng, không gọi máy chủ. Đèn giữ trật tự chỉ đo mức to nhỏ của micro ngay trên máy, không ghi âm, không lưu; dừng đo thì tắt micro. Bảng sao lưu trên máy theo lớp trong ngày, xóa khi đăng xuất như dữ liệu khác của công cụ lớp học, không vào sổ điểm hay nề nếp. Hình, đồ vật tự vẽ bằng SVG; chữ cái dùng phông của máy. Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11.
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-326, `32_KE_HOACH_THEO_HE_THONG_SO.md` mục 22, `14_DAC_TA_GIAO_DIEN.md` MH-561, `21_KICH_BAN_KIEM_THU.md` CT-1545 đến CT-1549, `11_TIEU_CHI_NGHIEM_THU.md` AC-1133, AC-1134, `23_LICH_SU_PHIEN_BAN.md` 0.226.0.
+
+#### Vấn đề tồn đọng
+
+- Ngưỡng của đèn giữ trật tự cần thử ở lớp thật với nhiều loại micro; bảng sao chưa chuyển sang bảng điểm nhanh.
+
+### 2026-10-29 — Giao diện cổng vận hành theo thiết kế
+
+#### Công việc đã thực hiện
+
+- Cổng vận hành theo thiết kế Eric duyệt ngày 2026-10-29: thanh bên xanh đậm, mục chia ba nhóm Điều hành (Tổng quan, Trường học, Bảng điều khiển, Đơn vị cấp trên, Danh mục đơn vị), Kinh doanh (Gói dịch vụ, Thu phí, Chợ gia sư, Trợ lý AI), Hệ thống (Bảo trì, Nhật ký truy cập, Nhân viên vận hành); tên, vai trò của nhân viên, Đổi mật khẩu, Đăng xuất ở chân thanh bên; máy tính bảng chỉ còn biểu tượng, điện thoại là ngăn kéo. Giữ mọi trang, tính năng có sẵn và lọc menu theo vai trò của YCTD-323; trang đăng nhập giữ nguyên.
+- Trang Tổng quan: bốn ô chỉ số từ dữ liệu thật (đơn vị trong danh mục, trường đã khởi tạo và số khởi tạo hôm nay, trường bật tính năng trả phí, lượt quản trị vào trường 7 ngày); ô không có nguồn thì ẩn. Bảng trường mở gần đây có nút Vào trường, mục gói tính năng, truy cập gần đây (chỉ vai trò xem được nhật ký).
+- Trang Nhật ký truy cập mới: lọc theo nhóm việc (vào trường, khởi tạo, tính năng trả phí), mã trường, khoảng ngày; phân trang; xuất CSV đúng bộ lọc (có BOM, chặn công thức bảng tính). Dịch vụ định danh thêm `GET /api/v1/auth/platform/audit-log` và `GET /api/v1/auth/platform/overview`; quyền mới `audit.view` (quản trị, hỗ trợ).
+- Trang Trường học: tìm theo tên, mã, mã Bộ; lọc trạng thái; phân trang 50 dòng; nhãn trạng thái; nút Vào trường cho Admin. Trang chi tiết trường có bốn thẻ: Tổng quan (thông tin, thao tác, tên miền, loại dữ liệu, phiên hỗ trợ, sao lưu, nhật ký vòng đời), Gói và tính năng (gói hiện hành, phân hệ miễn phí, công tắc từng tính năng trả phí), Tài khoản quản trị trường (mở phiên vào thẳng tới trang Tài khoản của trường để tạo tài khoản theo đúng quy tắc của trường), Nhật ký truy cập của trường.
+- Cổng quản trị: trang `/support-login` nhận `next` (chỉ đường dẫn trong trang) để mở thẳng trang Tài khoản.
+- Kiểm thử: CT-1571, CT-1572 ở `apps/identity/src/platform/platform-audit.test.ts`; e2e 184 sửa theo trang Tổng quan mới.
+
+#### Quyết định
+
+- Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11: tạo tài khoản quản trị đầu tiên làm ở cổng quản trị của trường trong phiên vào thẳng thay cho biểu mẫu riêng ở cổng vận hành, để dùng chung quy tắc tài khoản của trường (mật khẩu mặc định, mã xác nhận đổi mật khẩu lần đầu, GD-163) và nhật ký; màu nhấn dùng màu thương hiệu của trang đăng nhập cổng vận hành.
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-324, `23_LICH_SU_PHIEN_BAN.md` 0.225.0.
+
+#### Vấn đề tồn đọng
+
+- Danh sách Trường học chỉ gồm trường đã khởi tạo; trường chưa khởi tạo vẫn tìm và mở ở Danh mục đơn vị.
+
+### 2026-10-29 — Vai trò vận hành theo từng điểm cuối, đổi mật khẩu vận hành, mã xác nhận khi đổi mật khẩu mặc định
+
+#### Công việc đã thực hiện
+
+- Bảng quyền vận hành dùng chung `packages/shared/src/operator-permissions.ts` (`OPERATOR_PERMISSIONS`): mỗi việc của cổng vận hành ghi các vai trò được làm. Việc không ghi thì chỉ quản trị làm được; gọi xác thực người vận hành mà không truyền vai trò cũng chỉ cho quản trị.
+  - Mọi vai trò: xem tổng quan, trường, danh mục, đơn vị cấp trên, gói, thông báo bảo trì, phiên hỗ trợ, tổng quan chợ.
+  - Hỗ trợ: cấp lại liên kết kích hoạt, mở phiên hỗ trợ, duyệt hồ sơ gia sư, kiểm duyệt chợ, xem lỗi máy chủ.
+  - Kỹ thuật: khởi tạo trường, tên miền, loại dữ liệu, hồ sơ đồng ý, vùng máy chủ (cùng YCTD-343), thông báo bảo trì, mở phiên hỗ trợ, xem lỗi máy chủ.
+  - Kế toán: gói dịch vụ, thu phí, tính năng trả phí của trường, đơn giá và số token AI, thanh toán ở chợ.
+  - Chỉ quản trị: tạm ngưng, mở lại, xóa trường; danh mục, trang đăng nhập; đơn vị cấp trên; bộ nối thanh toán; khóa và cấu hình AI; cấu hình và văn bản pháp lý của chợ; chính sách hỗ trợ; nhân viên vận hành.
+- Dịch vụ định danh:
+  - `PlatformOperatorsService.authorize` kiểm tên miền cổng, mã phiên, tài khoản đang hoạt động, đã đổi mật khẩu tạm, đúng vai trò.
+  - Trường, đơn vị cấp trên, danh mục, bảng điều khiển, phiên hỗ trợ, gói, thu phí, AI, nhân viên vận hành gọi kèm danh sách vai trò của việc.
+  - Máy chủ API: `MarketContext.operator` nhận vai trò, phần quản trị chợ chia theo cấu hình, duyệt hồ sơ, kiểm duyệt, thanh toán.
+- Cổng vận hành:
+  - Menu chỉ hiện trang vai trò được làm.
+  - Trang Chợ gia sư chỉ hiện phần của vai trò.
+- Đổi mật khẩu của nhân viên vận hành (T-P1 của rà soát giao diện):
+  - Thêm `POST /api/v1/auth/platform/password`: cần mật khẩu hiện tại và mã xác thực hai lớp; mật khẩu mới theo chính sách, từ 12 ký tự, khác mật khẩu cũ.
+  - Ghi nhật ký nền tảng `operator.password-change`, nhập sai mật khẩu hiện tại ghi `operator.password-change-failed`.
+  - Nhân viên do quản trị tạo nhận mật khẩu tạm có cờ `must_change_password`. Còn cờ thì mọi điểm cuối của cổng (kể cả phần chợ ở máy chủ API) trả 403, cổng chỉ hiện màn Đổi mật khẩu (MH-546); đổi xong thì bỏ cờ.
+  - Nút "Đổi mật khẩu" ở đầu cổng.
+- Mật khẩu mặc định chung (YCTD-311, giữ theo quyết định của Eric):
+  - Đổi mật khẩu lần đầu khi còn mật khẩu mặc định phải kèm mã gửi tới số điện thoại của tài khoản: `POST /api/v1/auth/change-password/code` gửi mã, `POST /api/v1/auth/change-password` nhận `otp_code`.
+  - Mã dùng cấu hình hạn, số lần nhập sai, số lần gửi mỗi giờ của mã đăng nhập phụ huynh.
+  - Tài khoản theo số CCCD không có số điện thoại nhận mật khẩu tạm ngẫu nhiên.
+  - Hạn mật khẩu mặc định tính theo giờ: `initial_password_lifetime_hours` mặc định 24, từ 1 đến 720, thay `initial_password_lifetime_days`.
+  - Migration định danh `0185`: mã một lần có mục đích `initial_password`.
+  - Cổng quản trị, ứng dụng giáo viên, ứng dụng phụ huynh hiện ô mã và nút gửi mã khi máy chủ đòi (thành phần `PhoneCodeField` của `packages/ui`).
+- Kiểm thử:
+  - CT-1524: đổi mật khẩu mặc định cần mã. CT-1514 sửa: hạn 24 giờ, không số điện thoại thì mật khẩu tạm.
+  - CT-1521 thêm phần đổi mật khẩu tạm.
+  - CT-1525: mọi điểm cuối vận hành của dịch vụ định danh × 4 vai trò theo bảng quyền.
+  - CT-1526: phần quản trị chợ theo vai trò.
+  - CT-S4-4: thông báo bảo trì do kỹ thuật tạo, hỗ trợ bị 403.
+  - e2e 221: đổi mật khẩu mặc định kèm mã.
+
+#### Quyết định
+
+- Eric duyệt ngày 2026-10-28 theo rà soát bảo mật và rà soát giao diện (T-P1): vai trò theo từng điểm cuối, mặc định chỉ quản trị; giữ mật khẩu mặc định chung, thêm mã xác nhận, hạn 24 giờ; đổi mật khẩu vận hành cần mã hai lớp, từ 12 ký tự, có nhật ký.
+- Việc của từng vai trò: Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11, theo ghi chú vai trò ở migration nền tảng `0241` và nhóm menu của bản thiết kế cổng vận hành. Loại dữ liệu, hồ sơ đồng ý, vùng máy chủ giữ như YCTD-343 (quản trị, kỹ thuật).
+- Bảng quyền đặt ở `packages/shared` để menu của cổng và máy chủ dùng cùng một danh sách; cổng vận hành thêm phụ thuộc `@school-management/shared`.
+- Ứng dụng hiện ô mã khi máy chủ báo lỗi ở ô `otp_code`, không thêm trường vào phản hồi đăng nhập.
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-323, `23_LICH_SU_PHIEN_BAN.md` 0.224.0.
+
+#### Vấn đề tồn đọng
+
+- Các nút ở trang chi tiết trường (tạm ngưng, tên miền, cấp lại liên kết) chưa ẩn theo vai trò; máy chủ đã chặn và báo rõ lý do.
+- Nhân viên vận hành quên mật khẩu vẫn phải nhờ quản trị; chưa có điểm cuối quản trị đặt lại mật khẩu của nhân viên.
+
+### 2026-10-29 — Cổng quản trị: lưới dữ liệu gọn và danh sách cán bộ theo thiết kế (YCTD-333)
+
+#### Công việc đã thực hiện
+
+- Lưới dữ liệu dùng chung (`packages/ui` DataGrid): nút "Xuất PDF" và "Cấu hình cột hiển thị" vào menu "Thêm" (menu button theo WAI-ARIA, `MoreMenu`); thêm `moreActions` (thao tác phụ của màn hình vào cùng menu) và `selectionActions` (thao tác trên dòng đã chọn, chỉ hiện ở thanh "Đã chọn" khi có dòng được chọn, kèm nút Bỏ chọn). Áp cho mọi màn hình dùng lưới.
+- 3.1.1 Hồ sơ cán bộ, giáo viên: thanh công cụ còn Nhập từ Excel (mở 3.1.3), Thêm mới; Thay đổi, Xóa ở thanh "Đã chọn"; Xuất Excel, Xuất tệp theo mẫu Bộ, Xuất file lỗi ở menu Thêm; cột Ngày sinh, Giới tính, Dân tộc, Nhóm chức vụ, Hình thức hợp đồng, Trình độ chuyên môn ẩn mặc định (bật ở Cấu hình cột hiển thị); ô mã định danh Bộ trống ghi chữ xám thay nhãn đỏ.
+- Trợ giúp e2e `tests/e2e/grid.ts` (`gridMoreItem`, `clickGridMoreItem`); sửa kịch bản 04, 51, 54, 55, 58, 60, 184.
+
+#### Quyết định
+
+- Không bỏ chức năng: mọi nút cũ vẫn còn, chỉ dời vào menu Thêm hoặc thanh "Đã chọn"; cột ẩn vẫn bật lại được và vẫn xuất Excel theo cột đang hiện.
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-333, `23_LICH_SU_PHIEN_BAN.md` 0.223.0.
+
+#### Vấn đề tồn đọng
+
+- Áp cùng mẫu cho danh sách học sinh, lớp, văn bản, thu phí và các trang khác ở các PR sau.
+
+### 2026-10-29 — Mã xác nhận ở đăng nhập bằng mật khẩu của ứng dụng phụ huynh
+
+#### Công việc đã thực hiện
+
+- Dịch vụ định danh: đăng nhập bằng mật khẩu ở kênh `parent` dùng cùng quy tắc mã xác nhận với cổng quản trị và ứng dụng giáo viên (YCTD-353). Tên đăng nhập nhập sai đủ `captcha_failure_threshold` lần trong 15 phút thì bắt nhập mã; lần sai đếm theo tên đăng nhập, cộng chung mọi kênh. Đăng nhập bằng mã một lần qua tin nhắn không đổi.
+- Ứng dụng phụ huynh: màn đăng nhập bằng mật khẩu hiện ảnh mã, nút "Làm mới mã" và ô "Mã xác nhận" từ lần nhập sai đầu tiên; `api-client` lấy ảnh mã và gửi kèm câu trả lời; `session` chuyển câu trả lời đi.
+- BR-121 (`07`): mã xác nhận áp dụng cả ứng dụng phụ huynh khi đăng nhập bằng mật khẩu.
+- Kiểm thử: CT-1529 (sai 3 lần ở kênh phụ huynh thì phải nhập mã; có mã đúng thì vào được; đăng nhập đúng thì xóa bộ đếm).
+
+#### Quyết định
+
+- Phiên điều phối giao ngày 2026-10-29, tách khỏi YCTD-353 để làm việc tồn đọng của YCTD-353. Không sửa `App.tsx` và màn trang chủ của ứng dụng phụ huynh vì PR khác đang sửa hai tệp đó.
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-354, `23_LICH_SU_PHIEN_BAN.md` 0.222.0.
+
+#### Vấn đề tồn đọng
+
+- Không.
+
+### 2026-10-29 — Cổng quản trị: ô tìm chức năng và trang Tất cả chức năng (YCTD-332)
+
+#### Công việc đã thực hiện
+
+- Ô "Tìm chức năng" ở thanh đầu trang: gõ tên hoặc số thứ bậc của mục menu, gõ không dấu vẫn khớp; mũi tên lên, xuống, Enter, Esc theo mẫu combobox; chỉ tìm trong cây menu đã lọc theo quyền của mọi phân hệ người dùng được thấy; mở trang thuộc phân hệ khác thì thanh bên tự chuyển phân hệ.
+- Trang "Tất cả chức năng" (`/all-functions`): toàn bộ cây menu đánh số của mọi phân hệ người dùng được thấy, phân hệ đang chọn đứng đầu, ô lọc theo tên hoặc số; đường vào ở cuối thanh bên. Đây là đường vào cho các mục sẽ gom khỏi thanh bên ở các phần áp thiết kế từng trang.
+- Kịch bản e2e CT-332-1 ở `01-login.spec.ts`.
+
+#### Quyết định
+
+- Ô tìm ở phần này chỉ tìm chức năng (trang); tìm học sinh, cán bộ theo tên làm sau khi có điểm cuối tìm chung ở máy chủ (Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11).
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-332, `23_LICH_SU_PHIEN_BAN.md` 0.221.0.
+
+#### Vấn đề tồn đọng
+
+- Nhóm "Hay dùng" khi chọn phân hệ (theo vai trò) chưa làm: cần nơi cấu hình phân hệ hay dùng cho từng nhóm người dùng (ở 1.2 Phân quyền nhóm theo phần mềm) và điểm cuối máy chủ tương ứng.
+
+### 2026-10-29 — Cổng quản trị: dải thông báo, một nút ngữ cảnh, phông Be Vietnam Pro (YCTD-331)
+
+#### Công việc đã thực hiện
+
+- Thông báo khi vào trang (DT-16 phần 16c) đổi từ hộp bật lên che trang sang dải ở đầu nội dung: mỗi thông báo một dòng, có nút Đóng; nhắc cập nhật mã định danh tổ chức vẫn có đường dẫn "Cập nhật hồ sơ trường". Nhắc mật khẩu sắp hết hạn chỉ còn ở dải cảnh báo đầu trang (trước hiện cả hai nơi).
+- Bộ chọn cấp học chuyển vào hộp ngữ cảnh "cấp · năm học · học kỳ" ở thanh đầu trang, nên thanh đầu trang chỉ còn một nút ngữ cảnh.
+- Phông chữ của cổng quản trị đổi sang Be Vietnam Pro, tự phục vụ cùng ứng dụng bằng gói `@fontsource/be-vietnam-pro` 5.3.0 (giấy phép OFL-1.1), không tải từ máy chủ ngoài.
+- Trợ giúp e2e `openWorkingContext`; `selectSchoolLevel` mở hộp ngữ cảnh trước; sửa kịch bản 59, 83, 86.
+
+#### Quyết định
+
+- Phông tự phục vụ thay Google Fonts để trình duyệt của người dùng không gửi yêu cầu ra máy chủ ngoài (Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11).
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-331, `23_LICH_SU_PHIEN_BAN.md` 0.220.0.
+
+#### Vấn đề tồn đọng
+
+- Ô tìm chung, trang "Tất cả chức năng", nhóm "Hay dùng" làm ở PR sau; các trang theo canvas làm ở các PR sau nữa.
+
+### 2026-10-29 — Ứng dụng phụ huynh có nút Đổi con và thanh điều hướng dưới
+
+#### Công việc đã thực hiện
+
+- Thanh điều hướng dưới cố định ("Điều hướng chính") bốn mục, mỗi mục cao 52 px, mục đang mở có `aria-current`:
+  - Trang chủ: như trước.
+  - Lịch học: thời khoá biểu của con cấp phổ thông, bảng Học tập của con Mầm non.
+  - Tin nhắn: thông báo của trường, trao đổi với giáo viên của từng con.
+  - Tài khoản: họ tên, cài lên màn hình chính, thông báo đẩy, liên kết đăng nhập ngoài, Đăng xuất.
+- Phụ huynh có từ hai con có ô "Đổi con" ở thanh đầu. Mặc định "Tất cả các con"; chọn một con thì Trang chủ, Lịch học, Tin nhắn chỉ của con đó.
+- Giữ ô chọn lớp, học sinh của phiên hỗ trợ (YCTD-315b) và tuyến `/support-login`. Không sửa màn hình đăng nhập, `api-client`, `session`.
+- Kiểm thử giao diện 85 (thanh điều hướng, Lịch học theo cấp, Đổi con giữ khi về Trang chủ) và 86 (Đổi con lọc thẻ của con).
+
+#### Quyết định
+
+- "Đổi con" mặc định hiện mọi con. Cách này giữ thói quen cũ của phụ huynh có nhiều con và các kiểm thử giao diện đang tìm thẻ của từng con. Trang chủ giữ đủ các bảng như trước (Đăng xuất vẫn ở trang chủ); ba mục còn lại là trang gọn cho điện thoại. Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11, Eric đồng ý làm theo đề xuất ngày 2026-10-28.
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-351, `23_LICH_SU_PHIEN_BAN.md` 0.219.0.
+
+#### Vấn đề tồn đọng
+
+- Không.
+
+### 2026-10-29 — Giao diện trang đơn vị cấp trên, cấu hình và duyệt đánh giá của chợ ở cổng vận hành
+
+#### Công việc đã thực hiện
+
+- Trang `/cap-tren` của cổng nền tảng làm lại theo bản vẽ Eric duyệt ngày 2026-10-28 (`ParentOrgApp.tsx`, kiểu riêng `parent-org.css`):
+  - đăng nhập hai bước: tên đăng nhập, mật khẩu rồi mã xác thực; có lối dùng mã khôi phục (máy chủ đã nhận mã khôi phục ở cùng ô);
+  - đầu trang xanh đậm có bốn trang: Tổng hợp, So sánh trường, Xuất báo cáo, Đề nghị xem chi tiết;
+  - Tổng hợp: cây phạm vi (đơn vị và đơn vị con, số trường), bốn chỉ số chính (trường có số liệu, học sinh, tỉ lệ chuyên cần, nhân sự), bảng theo nhóm số liệu có dòng cộng, chú giải ô "ẩn", khối trường chưa có số liệu (đếm, không hiện tên trường chưa đồng ý);
+  - So sánh trường: bảng sắp được theo từng cột, ô ẩn và trường chưa có số liệu xếp cuối; trường đang được xem chi tiết ghi hạn, trường khác có nút đề nghị xem chi tiết;
+  - Xuất báo cáo: chọn đơn vị, nhiều nhóm số liệu (mỗi nhóm một tệp), Excel hoặc PDF;
+  - Đề nghị xem chi tiết: biểu mẫu, danh sách đề nghị có nhãn trạng thái; "Mở phiên xem chi tiết" mở cổng quản trị của trường ở tab mới.
+- Trang Chợ gia sư của cổng vận hành:
+  - biểu mẫu cấu hình thêm các mốc phòng học video (GD-164) và hạn dùng gói buổi (GD-165); biểu mẫu gửi đủ các ô để lần lưu không đưa mốc về mặc định;
+  - khối "Đánh giá gia sư chờ duyệt" (`MarketReviewModeration.tsx`): hiện hoặc từ chối có lý do, xem bản gốc trước khi che thông tin liên hệ.
+- Kiểm thử giao diện 139 đổi theo đăng nhập hai bước và trang So sánh trường.
+
+#### Quyết định
+
+- Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11:
+  - bảng số liệu, không vẽ biểu đồ (theo bản vẽ đã duyệt);
+  - xuất báo cáo vẫn tải trực tiếp, mỗi nhóm một tệp; chưa làm danh sách tệp đã xuất ở máy chủ và lựa chọn bố cục "so sánh từng trường" trong tệp;
+  - dùng phông Be Vietnam Pro nếu máy có, không tải phông từ dịch vụ ngoài.
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-363, `23_LICH_SU_PHIEN_BAN.md` 0.218.0.
+
+#### Vấn đề tồn đọng
+
+- "Rút đề nghị" của cấp trên chưa làm: cần điểm cuối mới ở `apps/identity/src/platform`, đang dành cho phiên bảo mật YCTD-323.
+- Danh sách tệp đã xuất và bố cục so sánh trong tệp cần API xuất nền ở máy chủ.
+
+### 2026-10-29 — Gói buổi ở chợ gia sư
+
+#### Công việc đã thực hiện
+
+- Thêm GD-165 và mục 19.14 vào tài liệu 32. Cơ sở dữ liệu chợ marketplace 0051: bảng `market_packages`, giá gói ở `market_tutor_subjects`, cột `market_bookings.package_id`; cấu hình chợ `package_valid_days` (mặc định 56 ngày).
+- Máy chủ API, `market-bookings.ts`:
+  - mua gói, trả tiền giả lập, đặt buổi từ gói, hủy gói;
+  - hủy buổi trong gói thì trả lượt về gói;
+  - việc định kỳ hoàn phần buổi chưa học khi gói hết hạn; gia sư bị tạm khóa thì hoàn phần còn lại;
+  - chuyển tiền của buổi trong gói dùng lệnh thu của gói.
+- Hồ sơ dạy của gia sư nhận số buổi và giá cả gói cho từng môn; trang gia sư công khai và tìm gia sư trả giá gói.
+- Chợ gia sư: thẻ đặt buổi chọn buổi lẻ hoặc gói; trang Buổi học của con có khối Gói buổi (trả tiền giả lập, đặt buổi từ gói, hủy gói); thẻ gia sư ghi "Có giá theo gói buổi"; buổi đặt từ gói có nhãn "Buổi trong gói".
+- Ứng dụng Gia sư: hồ sơ dạy có số buổi và giá cả gói cho từng môn.
+- Kiểm thử máy chủ: CT-365-1 (mua, đặt, hủy trả lượt, hết hạn hoàn phần chưa học), CT-365-2 (hủy gói trước buổi đầu hoàn đủ); kiểm thử cấu hình chợ `package_valid_days`.
+
+#### Quyết định
+
+- GD-165 do Eric chốt ngày 2026-10-29: dùng trong 8 tuần; hết hạn hoàn các buổi chưa học theo giá mỗi buổi của gói; hủy trước buổi đầu hoàn đủ; gia sư bị tạm khóa hoàn phần còn lại; mỗi buổi giải ngân riêng sau hạn khiếu nại; các mốc chỉnh được ở cấu hình chợ.
+- Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11: giá mỗi buổi của gói là giá gói chia số buổi, làm tròn xuống, phần dư hoàn khi gói kết thúc; phụ huynh hủy buổi trong gói phải trước giờ học 24 giờ mới được trả lượt.
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-365, `23_LICH_SU_PHIEN_BAN.md` 0.217.0.
+
+#### Vấn đề tồn đọng
+
+- Gói buổi chạy với bộ giả lập; khi có nhà cung cấp có giấy phép (E-02) cần nối giải ngân, hoàn từng phần theo một lệnh thu của gói.
+- Ô chỉnh `package_valid_days` ở cổng vận hành làm cùng YCTD-363.
+
+### 2026-10-29 — Đánh giá gia sư, mật khẩu, đăng nhập định danh của phụ huynh, con đọc tin nhắn
+
+#### Công việc đã thực hiện
+
+- Thêm mục 19.13 vào tài liệu 32. Cơ sở dữ liệu chợ marketplace 0050: bảng `market_reviews`, mục đích `link` của lượt chuyển hướng OIDC, cột `market_children.reads_messages`.
+- Máy chủ API:
+  - `market-reviews.ts`: phụ huynh đánh giá buổi đã dạy; trang gia sư có đánh giá đã duyệt và điểm trung bình; gia sư xem và trả lời một lần; nhân viên nền tảng có hàng chờ, hiện hoặc từ chối có lý do; phụ huynh bật cho con đọc tin nhắn và lấy các luồng tin chỉ đọc;
+  - `market-password.ts`: đổi mật khẩu, quên mật khẩu bằng mã, xác nhận lại mật khẩu, sửa tên hiển thị;
+  - `market-identity.ts` mở cho ứng dụng Chợ gia sư: phụ huynh liên kết định danh, đăng nhập bằng định danh, xem định danh đã liên kết;
+  - tìm gia sư trả điểm đánh giá và sắp `rating_desc`.
+- Chợ gia sư:
+  - thẻ gia sư có điểm, sắp "Đánh giá cao trước"; trang gia sư có khối đánh giá kèm trả lời và nút báo cáo đánh giá;
+  - buổi đã dạy có biểu mẫu đánh giá;
+  - trang Hồ sơ con có tùy chọn "con đọc tin nhắn" và chế độ con đọc (chỉ đọc, thoát bằng mật khẩu), khối tài khoản (tên hiển thị, đổi mật khẩu, liên kết định danh);
+  - đăng nhập có "Quên mật khẩu?" và "Đăng nhập bằng" định danh; trang `/dinh-danh` hoàn tất đăng nhập, liên kết.
+- Ứng dụng Gia sư: trang Đánh giá có ô trả lời, khối Tài khoản ở trang Hồ sơ và môn dạy, "Quên mật khẩu?" ở trang đăng nhập.
+- Kiểm thử máy chủ: CT-364-1 (đánh giá, con đọc tin nhắn), CT-364-2 (mật khẩu, tên hiển thị), CT-364-3 (đăng nhập định danh của phụ huynh); sửa CT-27g-2 (ứng dụng phụ huynh nay có danh sách nhà cung cấp định danh).
+
+#### Quyết định
+
+- Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11:
+  - đánh giá chờ duyệt rồi mới hiện (theo bản vẽ đã duyệt);
+  - con đọc tin nhắn trên máy của phụ huynh, bằng phiên của phụ huynh, thoát phải nhập mật khẩu; không cấp tài khoản hay đường dẫn riêng cho trẻ;
+  - quên mật khẩu không cho biết tài khoản có tồn tại hay không.
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-364, `23_LICH_SU_PHIEN_BAN.md` 0.216.0.
+
+#### Vấn đề tồn đọng
+
+- Gói buổi chưa làm, chờ Eric chốt quy tắc hạn dùng và hoàn tiền phần chưa học.
+- Giao diện duyệt đánh giá ở cổng vận hành làm cùng YCTD-363; trước đó đánh giá nằm ở hàng chờ, chưa hiện.
+- Đổi thư điện tử, số điện thoại của tài khoản chợ chưa làm.
+
+### 2026-10-29 — Phòng học video của chợ gia sư (DT-27 phần 27j)
+
+#### Công việc đã thực hiện
+
+- Thêm phần 27j vào tài liệu 32 (mục 19.12) và GD-164 (mốc của phòng học, quyết định của Eric ngày 2026-10-29).
+- Cơ sở dữ liệu chợ marketplace 0040: `market_recording_consents` (đồng ý ghi hình theo con và gia sư, rút được), `market_session_rooms` (mở, đóng, xác nhận buổi), `market_session_participants` (phòng chờ, quyền nói, chia sẻ, mời ra), `market_session_attendance` (nhật ký vào ra).
+- Cấu hình chợ thêm năm mốc (mở phòng trước giờ học, vào muộn tính vắng, gia sư vắng, tỉ lệ đủ buổi, tự xác nhận); API cổng vận hành đọc, ghi được; mặc định 10 phút, 15 phút, 10 phút, 80%, 24 giờ.
+- Máy chủ API `apps/api/src/market/market-rooms.ts`: trạng thái phòng của buổi, đồng ý ghi hình (con từ đủ 7 tuổi cùng xác nhận), không đồng ý thì hủy buổi và hoàn đủ, vào phòng chờ, rời phòng, báo gia sư vắng (hoàn đủ), phòng của gia sư (người trong phòng chờ, điểm danh), cho vào, cho nói, cho chia sẻ màn hình, mời ra, xác nhận đã dạy kèm nhận xét. Quy tắc thuần ở `market-room-rules.ts`.
+- `session/start` của 27i dùng mốc mở phòng của cấu hình, ghi phòng đã mở và trả thông tin vào phòng của chủ phòng; `session/join` chuyển sang phòng chờ; `session/end` đóng phòng, đóng các khoảng có mặt. Sự kiện vào ra của máy chủ video với phòng `market-*` chuyển sang chợ để ghi điểm danh.
+- Việc định kỳ của chợ tự xác nhận buổi gia sư không xác nhận sau mốc (`runDue` trả thêm `autoConfirmed`).
+- Ứng dụng Chợ gia sư: trang phòng học (`SessionRoom`): điều kiện vào phòng, đồng ý ghi hình, chọn "Con học" hay "Tôi vào xem", phòng chờ (hỏi lại mỗi 5 giây), lớp video `VideoRoom`, báo gia sư vắng, kết thúc buổi có điểm danh và nhận xét của gia sư. Trang Hồ sơ con có danh sách đồng ý ghi hình theo gia sư, nút rút đồng ý.
+- Ứng dụng Gia sư: trang phòng dạy (`TeachingRoom`): điều kiện mở phòng, lớp video, `VideoHostPanel` (phòng chờ, cho vào, cho nói, cho chia sẻ, mời ra), kết thúc, điểm danh, xác nhận đã dạy.
+- `VideoHostPanel` thêm `recordingLocked`: buổi bắt buộc ghi thì không có nút dừng ghi.
+- Kiểm thử: CT-27j-1 (quy tắc thuần), sửa CT-27i-5, thêm CT-27j-2 (máy chủ), spec 199 CT-27j-3 (giao diện, bộ giả lập lớp video).
+
+#### Quyết định
+
+- Quyết định của Eric ngày 2026-10-29 ghi ở GD-164 và mục 19.12.
+- Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11: đồng ý ghi hình lúc đặt buổi (27i) vẫn giữ; vào phòng cần thêm đồng ý theo gia sư. Gia sư mời ra được cả phụ huynh vào xem. Gia sư rời lớp video là kết thúc phòng.
+- Spec 199 dùng học sinh đủ 18 tuổi (không bắt buộc ghi hình) để không phụ thuộc kho lưu bản ghi của môi trường kiểm thử; luồng đồng ý và ghi hình bắt buộc có kiểm thử máy chủ.
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-362, `23_LICH_SU_PHIEN_BAN.md` 0.215.0.
+
+#### Vấn đề tồn đọng
+
+- Cần luật sư xem lại việc con từ đủ 7 tuổi cùng xác nhận đồng ý ghi hình trước khi mở thật.
+- Biểu mẫu chỉnh năm mốc ở trang Chợ gia sư của cổng vận hành làm ở YCTD-363 (đụng `apps/platform`).
+- Sự kiện "ghi xong" của máy chủ video cho phòng của chợ chưa nối (bản ghi LiveKit thật ở trạng thái đang xử lý đến khi có việc nối này); bộ giả lập trả tệp ngay nên kiểm thử không bị ảnh hưởng.
+
+### 2026-10-29 — Áp bản thiết kế cho ứng dụng Gia sư
+
+#### Công việc đã thực hiện
+
+- Áp bản thiết kế "Chợ gia sư, Gia sư, Cấp trên" (Eric duyệt ngày 2026-10-28) cho `apps/tutor`: khu gia sư chia bảy trang theo cột điều hướng bên trái (Buổi dạy, Lịch, Hồ sơ và môn dạy, Thu nhập, Tin nhắn, Xác minh, An toàn, kiểm duyệt) thay cho một trang dài; trang đang mở ghi ở phần `#` của địa chỉ. Hồ sơ đã duyệt thì vào Buổi dạy, chưa duyệt thì vào Xác minh.
+- Khung chung `MarketShell` thêm `navigationPlacement="side"` để đặt thanh điều hướng thành cột bên trái.
+- Buổi dạy: thẻ từng buổi có ô ngày giờ, nhãn trạng thái, chia nhóm Sắp tới, Đã dạy và khiếu nại, Đã xong; khung tạm khóa hiện ở đầu trang khi có.
+- Lịch: lưới bảy ngày của tuần đang xem, có giờ trống hằng tuần và buổi đã đặt, chuyển tuần trước, tuần sau (trước đây chỉ có danh sách).
+- Thu nhập: ba ô tóm tắt (đã giải ngân, đang chờ, hoa hồng), bảng theo từng buổi (học phí, hoa hồng, thực nhận đã giải ngân hoặc dự kiến, trạng thái), dải "Giải ngân giả lập".
+- Xác minh: cột các bước có nhãn trạng thái, biểu mẫu từng bước bên phải; nói rõ nền tảng nhận gì từ nhà cung cấp định danh.
+- Hồ sơ và môn dạy: giới thiệu, cơ sở dạy thêm, hồ sơ dạy có nhãn trạng thái, khai giáo viên đang dạy ở trường; thêm nút "Bỏ khai báo" gọi `DELETE /market/tutor/school-role` đã có (việc T-T2 của rà soát giao diện).
+- An toàn, kiểm duyệt: khối kiểm duyệt luôn hiện (kể cả khi chưa có báo cáo), chính sách an toàn trẻ em.
+- Màu giống Chợ gia sư (ghi đè biến màu trong `apps/tutor/src/index.css`).
+- Sửa kiểm thử giao diện 195, 196, 197, 198 theo cột điều hướng.
+
+#### Quyết định
+
+- Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11: giờ trống vẫn sửa ở Hồ sơ dạy (máy chủ lưu giờ trống cùng hồ sơ dạy); trang Lịch chỉ xem, có nút sang trang sửa.
+- Phòng dạy video làm ở YCTD-362; nút "Mở phòng học" giữ nguyên hành vi cũ trong phần này.
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-361, `23_LICH_SU_PHIEN_BAN.md` 0.214.0.
+
+#### Vấn đề tồn đọng
+
+- Chưa làm vì cần API mới: ảnh hồ sơ gia sư (T-T1), giá theo gói buổi (T-M3), trả lời đánh giá, nhãn "giáo viên trường X đã xác minh" bằng liên kết tài khoản trường (T-T3), cột thuế khấu trừ ở Thu nhập, nghỉ một ngày.
+
+### 2026-10-29 — Mã xác nhận ở ứng dụng giáo viên, che số định danh, giới hạn "Ghi nhớ"
+
+#### Công việc đã thực hiện
+
+- Mã xác nhận ở kênh giáo viên (L-07 của tài liệu 35):
+  - Đăng nhập kênh `teacher` dùng cùng quy tắc với cổng quản trị: tên đăng nhập nhập sai đủ `captcha_failure_threshold` lần trong 15 phút thì bắt nhập mã. Lần sai đếm theo tên đăng nhập, cộng chung mọi kênh có mã.
+  - Ứng dụng giáo viên hiện ảnh mã, nút "Làm mới mã" và ô "Mã xác nhận" từ lần nhập sai đầu tiên, như ứng dụng học sinh.
+- Số định danh của học sinh (L-05): nhật ký cấp tài khoản học và thi (máy chủ API), nhật ký đồng bộ tài khoản học sinh và thông báo trùng tên đăng nhập (dịch vụ định danh) chỉ ghi dạng che (`maskLoginIdentifier`).
+- Số CCCD của nhân sự ở dịch vụ định danh (L-08):
+  - `GET /api/v1/users/:id` trả tên đăng nhập dạng che như danh sách.
+  - Thêm `GET /api/v1/users/:id/login-identifier` để xem đủ: chỉ người quản lý được tài khoản đó, mỗi lần xem ghi nhật ký tài khoản `view_login_identifier` (nhật ký chỉ ghi dạng che).
+  - Tìm theo từ khóa toàn chữ số chỉ khớp đủ cả tên đăng nhập, không dò được từng chữ số.
+  - Cổng quản trị có nút "Xem đủ tên đăng nhập" ở chi tiết tài khoản.
+- "Ghi nhớ" (L-04, quyết định của Eric, GD-172):
+  - Cổng quản trị: mã làm mới giữ 30 ngày khi tích "Ghi nhớ"; `PORTAL_REMEMBER_DAYS` chỉ hạ được, không quá 30 (trước cho tới 90).
+  - Cổng vận hành nền tảng: phiên tối đa 8 giờ như cũ, "Ghi nhớ" chỉ nhớ tên đăng nhập trên trình duyệt.
+  - Sửa BM-05 (`22`) và BR-121 (`07`): mã xác nhận áp dụng cổng quản trị, ứng dụng giáo viên, ứng dụng học sinh, cổng vận hành.
+- Kiểm thử:
+  - CT-16c-3 sửa: kênh giáo viên đòi mã sau 3 lần sai; sai ở cổng rồi sang kênh giáo viên vẫn phải nhập mã.
+  - CT-1527: chi tiết che số CCCD, xem đủ có nhật ký, người không quản lý bị 403, tìm một phần chữ số không ra.
+  - CT-1528: trần 30 ngày của "Ghi nhớ", phiên vận hành 8 giờ.
+
+#### Quyết định
+
+- Eric chốt ngày 2026-10-29 (GD-172): tài khoản trường giữ phiên 30 ngày khi chọn "Ghi nhớ"; tài khoản vận hành nền tảng tối đa 8 giờ, "Ghi nhớ" không kéo dài.
+- Eric duyệt ngày 2026-10-29 sửa L-05, L-07, L-08 theo rà soát quy trình (tài liệu 35, PR 250).
+- Quyền xem đủ số CCCD của nhân sự là quyền quản lý được tài khoản đó (cùng điều kiện của xem chi tiết); không thêm mã quyền mới. Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11.
+- Giữ biến `PORTAL_REMEMBER_DAYS` để bản triển khai hạ được thời hạn, trần 30 ngày.
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-353, `23_LICH_SU_PHIEN_BAN.md` 0.213.0.
+
+#### Vấn đề tồn đọng
+
+- Ứng dụng phụ huynh chưa có mã xác nhận ở đăng nhập bằng mật khẩu (tài khoản phụ huynh theo số CCCD); lần sai vẫn được đếm chung theo tên đăng nhập. Đã làm ở YCTD-354.
+
+### 2026-10-29 — Sửa lỗi xem camera giám thị mất phiên khi hai yêu cầu mở phiên chạy song song (YCTD-355)
+
+#### Công việc đã thực hiện
+
+- Spec `154-online-exam-proctoring.spec.ts` (CT-1175, CT-23e-5) lúc đạt lúc hỏng trên CI (PR 246, PR 257): ô "Camera của …" không có "Đang xem". Dấu vết của run 40736134879 và run 40745898287 (bốn lần hỏng giống nhau) cho thấy đây là **lỗi ứng dụng, không phải lỗi kiểm thử**: ô không đang chờ mà đã ở trạng thái cuối "Không xem được", chi tiết "Phiên xem đã kết thúc".
+- Nguyên nhân: ô camera (`LiveTile` ở `apps/portal/src/online-exams/ProctorPanel.tsx`) mở phiên xem ngay trong hiệu ứng. Ở bản chạy thử, StrictMode gắn hiệu ứng hai lần nên hai yêu cầu `POST /online-exams/attempts/:id/proctor/views` đi cùng một mili giây. Máy chủ (`exam-proctoring.ts`, `startView`) đóng mọi phiên xem còn mở của cùng người xem trên cùng bài làm trước khi tạo phiên mới. Hai yêu cầu được xử lý theo thứ tự đảo thì phiên của lượt hiệu ứng còn sống bị đóng (gửi tín hiệu trả 422 "Phiên xem đã kết thúc"), còn phiên sống sót thuộc lượt đã hủy và bị xoá ngay. Không còn phiên nào nên chờ bao lâu cũng không xem được. YCTD-306 chỉ chặn lượt đã hủy ghi đè trạng thái, chưa chặn đua ở máy chủ. Ở bản thật (không có StrictMode) bấm "Xem camera" hai lần nhanh cũng có thể gặp.
+- Sửa ở cổng quản trị:
+  - `LiveTile` hoãn mở phiên một nhịp (`setTimeout` 0) và xoá hẹn giờ khi gỡ: lượt gắn đầu của StrictMode bị gỡ trước khi hẹn giờ chạy nên chỉ một yêu cầu mở phiên.
+  - Mỗi bài làm chỉ một yêu cầu mở phiên tại một thời điểm: `createSingleFlight` (`proctor-single-flight.ts`), yêu cầu đến sau dùng lại kết quả của yêu cầu trước.
+  - Nút "Xem camera của …" tắt trong lúc yêu cầu mở phiên của bài làm đó đang chạy.
+- Spec 154 giữ nguyên (không tăng thời gian chờ).
+- Cổng quản trị có kiểm thử đơn vị như ứng dụng phụ huynh, học sinh (`node --test`, lệnh `test`, `allowImportingTsExtensions`): `proctor-single-flight.test.ts` ba ca (dùng lại kết quả, khoá riêng và gọi lại sau khi xong, lỗi truyền cho mọi bên chờ và cho thử lại).
+- Kết quả trên máy ngày 2026-10-29: `pnpm --filter @school-management/portal test` 3/3 đạt; `typecheck`, `eslint`, `prettier --check` của các tệp đã sửa đạt. E2e có khoá: spec 01 đến 09 và 154 (29 ca) đạt, rồi spec 154 lặp hai lần đạt (154 đạt 3/3). Trên máy spec này trước khi sửa cũng thường đạt, nên bằng chứng chính là dấu vết CI nêu trên; cần CI của PR xác nhận.
+
+#### Quyết định
+
+- Sửa ở giao diện, không đổi quy tắc máy chủ "mở phiên mới thì đóng phiên cũ" (phương án đóng theo thời điểm tạo vẫn đua khi trùng mili giây). Phiên điều phối đồng ý ngày 2026-10-29.
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-355, `23_LICH_SU_PHIEN_BAN.md` 0.212.0.
+
+#### Vấn đề tồn đọng
+
+- Không.
+
+### 2026-10-28 — DT-29 phần 29a: Hộp công cụ giảng dạy theo cấp học
+
+#### Công việc đã thực hiện
+
+- Khảo sát công cụ hỗ trợ giảng dạy đã có (23b, 23c, 23a, 23d, DT-28), đăng nhập thử ba tài khoản giáo viên ở trường trình diễn, vẽ bản thiết kế Hộp công cụ giảng dạy; Eric duyệt ngày 2026-10-28 (32 mục 22).
+- Gói chung: danh mục công cụ `TEACHING_TOOLS` (`packages/shared/src/teaching-tools.ts`), ba mục cấp mới `class_pickup`, `class_medication`, `school_tutoring` ở `level-features.ts`.
+- Máy chủ API: cấu hình `teaching_tools_disabled` (kiểu `teaching_tool_list`), `GET /classroom-tools/config` trả thêm `disabled_tools`.
+- Ứng dụng giáo viên: màn Công cụ lớp học đổi thành Hộp công cụ giảng dạy (ô công cụ theo cấp của lớp, công cụ trường tắt, tính năng gói, lối vào giáo án, sổ đầu bài, lớp học trực tuyến), đường dẫn `?man=hop-cong-cu` và chuyển đường dẫn cũ, lối tắt trong `manifest.webmanifest`; trang chủ lọc Đón trả, Dặn thuốc, Lớp học trực tuyến, Gia sư trong trường theo cấp.
+- Cổng quản trị: khối Hộp công cụ giảng dạy ở trang Cấu hình (bật, tắt từng công cụ).
+
+#### Quyết định
+
+- Bảng điểm nhanh giữ ở mọi cấp (Mầm non đang dùng để ghi nề nếp, thi đua); Gia sư trong trường lọc như Lớp học trực tuyến. Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11.
+- Công tắc từng công cụ là cấu hình của trường; công cụ thuộc tính năng trả phí (lớp học trực tuyến, `online-learning` của YCTD-314) ẩn khi gói chưa bật.
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-325, `32_KE_HOACH_THEO_HE_THONG_SO.md` mục 22, `07_QUY_TAC_NGHIEP_VU.md` BR-460, `11_TIEU_CHI_NGHIEM_THU.md` AC-1130 đến AC-1132, `14_DAC_TA_GIAO_DIEN.md` MH-337, `16_CO_SO_DU_LIEU.md`, `17_DAC_TA_API.md`, `21_KICH_BAN_KIEM_THU.md` CT-1540 đến CT-1544, `23_LICH_SU_PHIEN_BAN.md` 0.211.0.
+
+#### Vấn đề tồn đọng
+
+- Mini app mới theo cấp làm ở 29b đến 29e. Ứng dụng phụ huynh chưa lọc đón trả, dặn thuốc theo cấp.
+
+### 2026-10-29 — Danh mục thiết bị tối thiểu và mẫu kế hoạch giáo dục cho Tiểu học, THCS, THPT
+
+#### Công việc đã thực hiện
+
+- Rà nguồn dữ liệu mẫu Mầm non: danh mục thiết bị tối thiểu là hằng trong mã (`apps/api/src/facilities/equipment-templates.ts`, mẫu `MN-TT02-2010`, 515 thiết bị, YCTD-143) cộng 56 dòng gieo sẵn của migration năm học 0049; mẫu kế hoạch giáo dục là hằng `EDUCATION_PLAN_DEFAULT_TEMPLATES` (bảy mẫu Mầm non do dự án soạn ở YCTD-147). Không có seed hay migration nào chứa dữ liệu của cấp phổ thông.
+- Rà tài liệu yêu cầu (tai_lieu 06, 10, 14, 31, 32, 34 và tài liệu khảo sát 31): chỉ có số văn bản căn cứ cho Tiểu học, THCS, THPT (Thông tư 37, 38, 39/2021/TT-BGDĐT, tài liệu 32 mục 18g) và danh sách loại mẫu kế hoạch cần có (tài liệu 32 mục 22i); không có nội dung danh mục thiết bị hay nội dung mẫu kế hoạch của ba cấp này. Khảo sát hệ thống của Sở (tài liệu 31) chỉ xem cấp Mầm non.
+- Thiết bị: cột `age_group` nhận thêm mã khối K1 đến K12 (migration năm học 0215, ràng buộc gắn nhóm với cấp); thiết bị có cấp học khi thêm, sửa, nhập Excel (suy từ nhóm tuổi hoặc khối); lớp của cấp phổ thông áp định mức theo mã khối; đối sánh 2.6 theo cấp đang bật, chỉ lớp của cấp đó; API mới `GET /equipment-minimum/levels` trả nguồn danh mục từng cấp. Cấp chưa bật bị từ chối (422), khối không thuộc cấp, lĩnh vực phát triển ở cấp phổ thông bị từ chối (400).
+- Cổng quản trị: 2.1 thẻ Danh mục tối thiểu có ô Cấp học, Nhóm tuổi hoặc Khối, thông báo nguồn danh mục, khối "Thêm thiết bị vào danh mục tối thiểu"; 2.2 thêm ô Cấp học; 2.6 ô Cấp học chỉ có cấp đang bật, cấp chưa có danh mục chuẩn hiện "Chưa có danh mục chuẩn, trường tự nhập" kèm liên kết tới 2.1; 5.6 Thư viện mẫu kế hoạch chỉ có cấp đang bật, cấp phổ thông có nút "Nạp khung rỗng" và thông báo "Chưa có mẫu chuẩn cho cấp học này, trường tự nhập".
+- Kế hoạch giáo dục: Tiểu học, THCS, THPT nạp sáu khung rỗng theo các loại mẫu nêu ở tài liệu 32 mục 22i (nhà trường, tổ chuyên môn, dự giờ thao giảng, giáo viên, chủ nhiệm, bài dạy), mỗi khung một mục văn bản trống; tạo, sửa mẫu, nạp mặc định kiểm cấp học đang bật.
+- Kiểm thử máy chủ API mới `apps/api/src/facilities/equipment-levels-345.test.ts` (CT-1640 đến CT-1646); sửa `education-plans.test.ts` theo cách kiểm cấp mới.
+
+#### Nguồn dữ liệu đã dùng và phần để trường tự nhập
+
+| Phần | Có nguồn tài liệu | Nguồn | Để trường tự nhập |
+|---|---|---|---|
+| Danh mục thiết bị tối thiểu Mầm non | Có (giữ nguyên, không đổi) | Mẫu `MN-TT02-2010` của YCTD-143 | Không |
+| Văn bản căn cứ danh mục Tiểu học, THCS, THPT (chỉ số văn bản) | Có | Tài liệu 32 mục 18g: Thông tư 37/2021 (TH), 38/2021 (THCS), 39/2021 (THPT) | Không |
+| Danh mục thiết bị tối thiểu Tiểu học, THCS, THPT (tên, đơn vị, số lượng) | Không | Không có trong tai_lieu, kể cả tài liệu khảo sát 31 | Có: thêm từng thiết bị ở 2.1 hoặc nhập Excel; không nạp mẫu nào |
+| Khối áp định mức K1 đến K12 | Có | Khối mẫu của DT-19 (`GRADE_LEVEL_TEMPLATES`, YCTD-152) | Không |
+| Loại mẫu kế hoạch cấp phổ thông (tên sáu khung) | Có | Tài liệu 32 mục 22i: năm học, tổ chuyên môn gồm dự giờ, thao giảng, giáo viên, chủ nhiệm, bài dạy | Không |
+| Thư mục lưu kho của khung | Có | Thư mục mặc định cấp phổ thông của kho hồ sơ chuyên môn (`PROFESSIONAL_DEFAULT_FOLDERS`, YCTD-142) | Khung dự giờ, thao giảng không gắn thư mục |
+| Mục, cột, chỉ tiêu của mẫu kế hoạch cấp phổ thông | Không | Không có trong tai_lieu | Có: mỗi khung một mục trống, trường sửa mẫu, thêm mục, cột hoặc tự tạo mẫu |
+
+#### Quyết định
+
+- Không nạp danh mục thiết bị hay nội dung mẫu kế hoạch nào cho Tiểu học, THCS, THPT vì tài liệu dự án không có; không chép lại thông tư từ trí nhớ. Chỉ thêm mẫu khi danh mục được đưa vào tài liệu của dự án (theo quy tắc của Eric).
+- Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11: định mức cấp phổ thông áp theo khối dùng chung cột `age_group` (mã K1 đến K12), không thêm cột môn học (ghi môn ở ô Loại thiết bị); lĩnh vực phát triển chỉ cho Mầm non; khung kế hoạch cấp phổ thông có loại kế hoạch, kì, luồng duyệt theo mẫu Mầm non cùng loại, không kí nội bộ; cấp chưa bật trả 422 theo quy tắc cấp học `YCTD-152`; đối sánh không gửi cấp lấy cấp đầu tiên đang bật; số migration năm học 0215 để cách xa các PR song song; giữ tiêu đề cột Excel "Nhóm tuổi" (tệp mẫu cũ vẫn nhập được), ghi chú cột nói thêm khối.
+- Không làm xuất Excel kế hoạch giáo dục (ngoài phạm vi theo giao việc).
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-345, `10_YEU_CAU_CHUC_NANG.md` P09-31, P13-12, `14_DAC_TA_GIAO_DIEN.md` MH-81, MH-205, MH-235, `16_CO_SO_DU_LIEU.md` (equipment_items, migration 0215), `17_DAC_TA_API.md`, `21_KICH_BAN_KIEM_THU.md` CT-1640 đến CT-1646, `32_KE_HOACH_THEO_HE_THONG_SO.md` 18g, `34_TONG_HOP_CHUC_NANG_HE_THONG/` 02, 04, 07, `23_LICH_SU_PHIEN_BAN.md` 0.210.0.
+
+#### Vấn đề tồn đọng
+
+- Danh mục thiết bị tối thiểu và mẫu kế hoạch chuẩn của Tiểu học, THCS, THPT cần được đưa vào tài liệu dự án (bản gốc Thông tư 37, 38, 39/2021 và hướng dẫn kế hoạch giáo dục) thì mới thêm mẫu nạp sẵn.
+- Khối tự đặt mã khác K1 đến K12 chưa khớp định mức thiết bị (hiện ở cảnh báo lớp chưa xếp được); chưa có cột môn học riêng; kế hoạch giáo dục chưa xuất Excel.
+
+### 2026-10-28 — Xem dữ liệu năm học đã đóng ở cổng quản trị
+
+#### Công việc đã thực hiện
+
+- Sửa lỗi mức Cao số 4 của rà soát giao diện ngày 28/10/2026: ô năm học ở thanh đầu trang liệt kê năm học đã đóng nhưng bấm không làm gì (BC-09 ghi "chưa hỗ trợ xem năm học cũ").
+- Máy chủ API: tiêu đề `x-academic-year-id` gắn vào ngữ cảnh của yêu cầu; bộ giải năm học đang dùng (`CurrentSchoolYearResolver`, nơi mọi phân hệ lấy cơ sở dữ liệu năm học) trả cơ sở dữ liệu của năm đã đóng cho yêu cầu đọc, từ chối yêu cầu ghi theo BR-93; mã sai dạng 400, năm không có hoặc còn nháp 404. Bộ chặn đổi lỗi cơ sở dữ liệu chỉ đọc (25006) và thiếu bảng, cột (42703, 42P01) khi đang xem năm cũ thành lỗi nghiệp vụ BR-93 có thông điệp rõ.
+- Cổng quản trị: chọn được năm đã đóng ở ô năm học; mọi yêu cầu (kể cả tải tệp) mang mã năm đang xem; đổi năm thì tải lại mọi truy vấn; nút đổi màu cảnh báo, dải "chỉ xem" ở cuối màn hình có nút về năm đang dùng; giữ năm đang xem khi tải lại trang trong cùng thẻ, bỏ khi đăng xuất.
+- Kiểm thử: `apps/api/src/academic-years/viewed-year.test.ts` (CT-1620 đến CT-1624).
+
+#### Quyết định
+
+- Chọn năm theo tiêu đề yêu cầu và một chỗ giải năm học chung thay vì thêm tham số năm học cho từng điểm cuối: hơn 1.700 chỗ gọi đi qua bộ giải nên mọi màn đọc được năm cũ mà không sửa từng phân hệ. Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11.
+- Không chạy tệp thay đổi cấu trúc cho năm đã đóng (giữ QU-11): chức năng làm sau ngày đóng năm học báo "Năm học đang xem đóng trước khi có chức năng này…" thay cho lỗi hệ thống. Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11.
+- Năm đang xem giữ trong sessionStorage của thẻ trình duyệt (không phải localStorage) để thẻ khác và lần đăng nhập sau mặc định về năm đang dùng, tránh nhầm năm khi nhập liệu.
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-342, `23_LICH_SU_PHIEN_BAN.md` 0.209.0.
+
+#### Vấn đề tồn đọng
+
+- Ứng dụng giáo viên, phụ huynh, học sinh chưa có ô chọn năm học; chỉ cổng quản trị xem được năm cũ.
+- Màn có nút ghi vẫn hiện nút khi xem năm cũ; bấm thì máy chủ từ chối kèm thông báo. Ẩn nút theo từng màn để làm khi áp thiết kế mới.
+
+### 2026-10-29 — Kiểm thử giao diện gói dịch vụ chờ bộ đệm ngữ cảnh trường
+
+#### Công việc đã thực hiện
+
+- E2e `134-school-plans.spec.ts` CT-S5a-8 hỏng ở job nhiều trường của PR 260: mục "Kho học liệu" vẫn hiện dù trường alpha chỉ có gói `education`. Ca này qua ở mọi lượt CI trước khi PR 238 merge, kể cả lượt cuối của PR 238; mã lọc menu và dữ liệu gói không đổi. Nguyên nhân là thời điểm: kiểm thử gán gói thẳng vào cơ sở dữ liệu nền tảng ở beforeAll, còn máy chủ API giữ ngữ cảnh trường (kèm gói, trạng thái) trong bộ đệm 30 giây. Các ca e2e mới của PR 238 (khởi tạo trường ở lần mở đầu, vài chục giây) đổi thời điểm chạy, nên cổng quản trị có lúc đọc gói cũ (không giới hạn).
+- Sửa kiểm thử: sau khi đăng nhập, chờ `GET /api/v1/school-plan` báo gói giới hạn (trường alpha) hoặc chỉ đọc (trường beta), tối đa 45 giây, rồi tải lại trang và mới kiểm menu, dải báo. Mã ứng dụng không đổi.
+
+#### Quyết định
+
+- Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11: không thêm điểm cuối xóa bộ đệm chỉ để kiểm thử; kiểm thử chờ đúng hành vi đã ghi của bộ phân giải trường (đọc lại sau tối đa 30 giây).
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-366, `23_LICH_SU_PHIEN_BAN.md` 0.208.0.
+
+#### Vấn đề tồn đọng
+
+- Không.
+
+### 2026-10-29 — Admin đủ quyền ở mọi ứng dụng của trường
+
+#### Công việc đã thực hiện
+
+- Dịch vụ định danh: phiên Admin vào thẳng nhận ở `/auth/me` vai trò tổng hợp có mọi mã quyền của trường ở toàn trường và mọi phân hệ; kiểm lại ở mỗi yêu cầu theo vai trò, trạng thái hiện hành của nhân viên vận hành. Đổi đường liên kết hỗ trợ nhận kênh `portal`, `teacher`, `parent` (kênh học sinh từ chối), nhật ký phiên ghi kèm kênh.
+- Ứng dụng giáo viên, phụ huynh: trang `/support-login` (thành phần dùng chung `SupportSignIn` ở `packages/ui`).
+- Cổng vận hành: nhóm nút "Ứng dụng của trường" ở mục Phiên hỗ trợ của trang chi tiết trường; `scripts/chay-nhieu-truong.mjs` đặt cổng của hai ứng dụng.
+- Phần 315b (Eric phàn nàn không vào được ứng dụng phụ huynh, học sinh): chế độ xem của nhân viên hỗ trợ ở hai ứng dụng: chọn lớp, rồi học sinh, chỉ đọc; kênh học sinh nhận phiên hỗ trợ; điểm cuối `/support-view` và `/student/support-view`; tiêu đề `x-support-view-child` chỉ nhận ở phiên Admin; hồ sơ trang đầu ứng dụng học sinh không chặn theo gói thi trực tuyến; nút "Ứng dụng học sinh" ở cổng vận hành.
+- Kiểm thử: CT-1551, CT-1552 ở `apps/identity`; CT-1553 ở `apps/api`.
+
+#### Quyết định
+
+- Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11: quyền đầy đủ là vai trò tổng hợp tính khi đọc, không thêm vai trò vào cơ sở dữ liệu của trường; mã vai trò Hiệu trưởng để lớp phạm vi dữ liệu là toàn trường; mỗi ứng dụng một phiên vào thẳng riêng.
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-315, `23_LICH_SU_PHIEN_BAN.md` 0.207.0.
+
+#### Vấn đề tồn đọng
+
+- Không.
+
+### 2026-10-28 — Thiết kế lại cổng quản trị trường, phần khung chung (YCTD-330)
+
+#### Công việc đã thực hiện
+
+- Khảo sát mã `apps/portal` và bản chạy trên máy, lập danh sách yếu tố thừa về hình thức; vẽ canvas thiết kế 14 màn "Cổng quản trị trường" (khung chung, đăng nhập, bảng điều khiển, cán bộ, hồ sơ cán bộ, học sinh, lớp, điểm danh, sổ điểm, thời khóa biểu, Công văn của tôi, văn bản đến và đi, thu phí, cài đặt trường). Eric duyệt ngày 2026-10-28.
+- Làm phần khung chung: thanh bên trái xanh đậm có tên trường, ô chọn phân hệ (thêm ô lọc khi có hơn 8 phân hệ) và cây menu đánh số gập mở của phân hệ đang chọn; nhóm chứa trang đang mở tự mở; dưới 1280 px thanh bên là ngăn kéo. Thanh đầu trang giữ cấp học, năm học, Việc của tôi, chuông, ứng dụng liên kết, menu người dùng. Bỏ chân trang, "Gửi phản hồi" chuyển vào menu người dùng. Trang chủ bỏ tiêu đề "Tổng quan phân hệ" và khối Lối tắt (trùng cây menu). Màu nút chính, thanh đầu trang đổi sang xanh đậm (#1f4e8c, #12304f) trong cổng quản trị.
+- Đổi trợ giúp e2e `tests/e2e/menu.ts` sang thanh bên (`sideMenu`, `workspaceMenu`, `openGroup`); sửa kịch bản 01, 53, 83, 184 theo khung mới.
+
+#### Quyết định
+
+- GD-170: thanh bên trái thay menu ngang của DT-15 phần 15a. GD-171: giữ số thứ bậc theo Sở trên menu. Ghi ở `32_KE_HOACH_THEO_HE_THONG_SO.md` mục 21.
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-330, `23_LICH_SU_PHIEN_BAN.md` 0.206.0.
+
+#### Vấn đề tồn đọng
+
+- Chưa làm ở phần này: gom cấp học, năm học, học kỳ vào một nút; dải thông báo một dòng thay hộp bật lên; ô tìm chung ở đầu trang; trang "Tất cả chức năng"; nhóm "Hay dùng" khi chọn phân hệ; phông chữ Be Vietnam Pro. Các trang theo thiết kế làm ở YCTD-331 trở đi.
+- Chưa xem tận mắt trên máy: bản chạy thử ở cổng riêng không nhận ra trường qua proxy; dựa vào kiểm thử giao diện trên CI.
+
+### 2026-10-28 — Cổng vận hành nền tảng: chuyển loại dữ liệu, thêm hồ sơ đồng ý, vùng máy chủ ở chi tiết trường
+
+#### Công việc đã thực hiện
+
+- Sửa lỗi mức Cao T-P2 của rà soát giao diện 2026-10-28: dịch vụ định danh đã có `POST /auth/platform/schools/{mã}/consents`, `/hosting`, `/data-class` nhưng cổng nền tảng không gọi, nên trường đã tạo không chuyển được từ `synthetic` sang `consented` hay `production` (tài liệu 32 mục S2, S9 mục 7).
+- Màn Chi tiết trường (MH-318) thêm khối "Loại dữ liệu, hồ sơ đồng ý và vùng máy chủ" (`apps/platform/src/SchoolDataGovernance.tsx`): loại dữ liệu hiện tại, ghi chú chính sách môi trường, danh sách còn thiếu để dùng dữ liệu thật; chọn loại mới, hỏi xác nhận rồi gửi, lỗi nghiệp vụ của máy chủ hiện kèm từng mục còn thiếu; bảng hồ sơ đồng ý (có trạng thái còn hiệu lực, hết hạn, đã rút) và biểu mẫu thêm hồ sơ; bảng vùng máy chủ và biểu mẫu thêm vùng máy chủ. Thay danh sách chỉ xem trước đây.
+- Máy chủ: ba điểm cuối trên chỉ nhận vai trò vận hành `quan_tri`, `ky_thuat` (trước đây mọi vai trò); hỗ trợ, kế toán nhận 403. Cổng nền tảng ẩn nút theo cùng danh sách (`DATA_GOVERNANCE_ROLES`). Chi tiết trường trả thêm `consent_gaps` tính theo cùng quy tắc với bước chuyển sang `consented` (đủ bốn hồ sơ còn hiệu lực, có vùng máy chủ chưa kết thúc).
+- Kiểm thử: `apps/identity/src/platform/school-data-class.test.ts` CT-1630 đến CT-1634 (đúng, sai, theo vai trò, chính sách môi trường); e2e nhiều trường `tests/e2e/141-school-data-class.spec.ts` CT-1635, CT-1636 (thêm số 141 vào `MULTI_TENANT_SPEC`).
+
+#### Quyết định
+
+- Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11: đổi loại dữ liệu, ghi hồ sơ đồng ý và vùng máy chủ chỉ cho quản trị và kỹ thuật. Đây là bằng chứng pháp lý (Nghị định 13/2023/NĐ-CP) và bước chuyển máy chủ (S9 mục 7 do kỹ thuật làm sau `platform relayout`); hỗ trợ và kế toán không cần thao tác này.
+- Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11: giữ quy tắc chuyển loại của máy chủ như cũ (đi qua cổng hồ sơ đồng ý khi sang `consented`, chính sách môi trường chặn loại không cho phép), không chặn thêm chiều về `synthetic`; giao diện hỏi xác nhận kèm cảnh báo trường dữ liệu giả có thể bị tự xóa.
+- Mã băm bản quét vẫn nhập tay; tải bản quét và tự tính mã băm là T-P4, làm riêng.
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-343, `23_LICH_SU_PHIEN_BAN.md` 0.205.0.
+
+#### Vấn đề tồn đọng
+
+- Chưa có thao tác rút hồ sơ đồng ý hay kết thúc vùng máy chủ ở cổng (máy chủ chưa có điểm cuối).
+- Đề xuất: cân nhắc chặn chuyển trường `consented`, `production` về `synthetic` khi còn dữ liệu thật, vì trường dữ liệu giả có thể bị tự xóa.
+
+### 2026-10-29 — Sửa CI nhánh chính: ảnh tham chiếu trang đăng nhập cổng quản trị (YCTD-352)
+
+#### Công việc đã thực hiện
+
+- Việc `kiem-thu-thiet-bi` của nhánh chính hỏng từ PR 233 (YCTD-310, giao diện đăng nhập mới): ca `180-device-frame.spec.ts:70` "Ảnh chụp tham chiếu trang đăng nhập cổng quản trị" lệch ảnh mẫu ở bốn dự án `dien-thoai`, `dien-thoai-webkit`, `may-tinh-bang-doc`, `may-tinh-bang-ngang` (lỗi L-02 ở `35_KET_QUA_KIEM_THU.md`, YCTD-321).
+- Thay bốn ảnh mẫu `tests/e2e/180-device-frame.spec.ts-snapshots/dang-nhap-cong-quan-tri-*-linux.png` bằng ảnh `*-actual.png` của lần chạy CI nhánh chính 40688025038 (commit `8123bf4d`, artifact `ket-qua-kiem-thu-thiet-bi-0`), theo cách của YCTD-306.
+- Ảnh thực tế ổn định: mỗi khổ có bốn bản (hai mảnh, lần chạy và lần thử lại) giống hệt nhau. Trang đăng nhập cổng quản trị không đổi từ `8123bf4d` đến `5bb5e025` (không có thay đổi ở `apps/portal/src/pages/LoginPage.tsx`, `apps/portal/src/index.css`, `packages/ui`).
+- PR gắn nhãn `thiet-bi-day-du` để chạy đủ bốn dự án thiết bị.
+
+#### Quyết định
+
+- Không đổi ngưỡng `maxDiffPixelRatio` và không bỏ ca ảnh tham chiếu. Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11.
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-352, `23_LICH_SU_PHIEN_BAN.md` 0.204.0.
+
+#### Vấn đề tồn đọng
+
+- PR 243 (khung chung mới của cổng quản trị) sửa `apps/portal/src/index.css`; nếu PR đó làm đổi trang đăng nhập thì sinh lại bốn ảnh này từ CI sau khi merge.
+
+### 2026-10-28 — Rà soát lại quy trình và kiểm thử toàn bộ trên nhánh chính (YCTD-321)
+
+#### Công việc đã thực hiện
+
+- Chạy lại quy trình Vibecoding_Flow trên `origin/main` `8123bf4d` (sau PR 220 đến 236). Phiên rà soát: không sửa mã, không đổi nghiệp vụ, chỉ ghi lỗi và đề xuất.
+- Đối chiếu bộ tài liệu với danh sách tệp bắt buộc của quy trình, quy ước tệp mảnh và `node scripts/gom-thay-doi.mjs --kiem` (44 tệp mảnh, 0 lỗi).
+- Lập bảng truy xuất YCTD-295 đến YCTD-313 (tiêu chí nghiệm thu, kịch bản kiểm thử, kiểm thử tự động, kết quả).
+- Chạy thật trên cơ sở dữ liệu riêng của phiên (`school_identity_rs321`, `school_system_rs321`): `pnpm format:check`, `pnpm lint`, `pnpm build`, `pnpm typecheck`, `pnpm database:migrate`, `pnpm test`, ba bộ e2e như CI (giao diện, thiết bị tập con yêu cầu kéo, nhiều trường) có giữ khoá e2e.
+- Rà bảo mật theo `22_BAO_MAT.md` cho PR 233 đến 236 (đăng nhập, phiên, mật khẩu, argon2id, mã xác nhận, nhật ký, số CCCD, bí mật trong kho).
+- Ghi kết quả, danh sách lỗi theo mức độ và đề xuất xử lý vào tài liệu mới `35_KET_QUA_KIEM_THU.md`.
+
+#### Quyết định
+
+- Kết quả kiểm thử ghi ở tệp mới số 35 vì số 25 và 26 của dự án đã dùng cho `25_QUY_TRINH_NGHIEP_VU/` và `26_SO_DO_CHUC_NANG/` (phiên điều phối đồng ý ngày 2026-10-28). Việc lệch số so với danh sách của quy trình ghi thành phát hiện mức Thấp để Eric quyết.
+- Không ghi bù quyết định "mở mọi trường", "gói miễn phí" (thuộc YCTD-314 đang làm, chưa merge) và "sổ liên lạc" (không tìm thấy dữ liệu trong kho và ghi chú các phiên) để không bịa.
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-321, `23_LICH_SU_PHIEN_BAN.md` 0.203.0, `35_KET_QUA_KIEM_THU.md`.
+
+#### Vấn đề tồn đọng
+
+- Các lỗi và đề xuất ở `35_KET_QUA_KIEM_THU.md` mục 6, chờ Eric duyệt cách xử lý.
+
+### 2026-10-29 — Áp bản thiết kế cho Chợ gia sư phía phụ huynh
+
+#### Công việc đã thực hiện
+
+- Áp bản thiết kế "Chợ gia sư, Gia sư, Cấp trên" (Eric duyệt ngày 2026-10-28) cho `apps/market`: khung chung `MarketShell` (gói `packages/market-client`) có thanh đầu trang trắng, nhãn "Thanh toán giả lập", dải báo chợ chạy thử, nội dung rộng, chân trang có đường dây nóng và văn bản pháp lý; biểu mẫu đăng ký, đăng nhập, xác nhận mã nằm trong thẻ giữa trang.
+- Khu phụ huynh chia năm trang theo thanh điều hướng ở đầu trang (Tìm gia sư, Buổi học của con, Tin nhắn, Hồ sơ con, An toàn) thay cho một trang dài; trang đang mở ghi ở phần `#` của địa chỉ. Tài khoản chưa có hồ sơ con thì vào thẳng trang Hồ sơ con.
+- Tìm gia sư: khối tìm ở đầu trang (môn, cấp, lớp, ngày trống), bộ lọc thêm bên trái (loại nội dung, giá tối đa, huy hiệu xác minh), sắp xếp, thẻ gia sư có chữ đầu tên thay ảnh. Ô "Ngày trống" dùng tham số `weekday` máy chủ đã có từ 27g nhưng giao diện chưa gọi; lọc theo huy hiệu làm ở trình duyệt.
+- Trang gia sư hai cột: hồ sơ, Mẫu 02 dạng bảng, lưới giờ trống bảy ngày; thẻ đặt buổi bên phải có tóm tắt học phí, thời lượng, hạn giữ chỗ 30 phút, nút sang thanh toán.
+- Buổi học của con chia nhóm Sắp tới, Cần bạn xem, Đã xong; mỗi buổi có ô ngày giờ, nhãn trạng thái. "Thanh toán giả lập" mở khung ghi rõ "Đây là thanh toán giả lập", chỗ đặt mã QR không quét được, nút "Giả lập: đã trả thành công".
+- Hồ sơ con: mỗi con một thẻ; thêm nút sửa hồ sơ con (gọi `PUT /market/children/:id` đã có, việc T-M7 của rà soát giao diện); xóa hồ sơ con phải xác nhận qua hộp thoại (sửa H-6); khối thông tin tài khoản chỉ xem.
+- Trang An toàn: đường dây nóng, danh sách báo cáo phụ huynh đã gửi kèm trạng thái và kết quả (gọi `GET /market/reports` đã có, việc T-M8), chính sách an toàn trẻ em.
+- Tin nhắn: hộp thư bên trái, hội thoại bên phải, tin của mình bên phải; dùng chung với ứng dụng Gia sư.
+- Màu theo bản thiết kế: xanh #1f4e8c, #12304f, nền kem #fbf8f3, ghi đè biến màu trong `apps/market/src/index.css`, không sửa `packages/ui`; vùng chạm 44 px.
+- Sửa kiểm thử giao diện 197, 198 theo điều hướng mới và khung thanh toán giả lập; 198 thêm bước xem báo cáo đã gửi ở trang An toàn.
+
+#### Quyết định
+
+- Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11: phần này chỉ đổi giao diện và nối các API máy chủ đã có; chức năng trong bản vẽ cần API mới thì chưa hiện (không vẽ nút không chạy).
+- Giữ phông chữ hệ thống như cổng quản trị đã áp thiết kế (PR 239), chưa tải Be Vietnam Pro.
+- Phòng học video của chợ làm ở YCTD-362; nút "Vào phòng học" giữ nguyên hành vi cũ trong phần này.
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-360, `23_LICH_SU_PHIEN_BAN.md` 0.202.0.
+
+#### Vấn đề tồn đọng
+
+- Chưa làm vì cần API mới: đánh giá sau buổi và gia sư trả lời, sắp xếp theo đánh giá (T-M2); gói buổi (T-M3); đổi mật khẩu, sửa thông tin tài khoản, quên mật khẩu (T-M5); đăng nhập định danh cho phụ huynh (T-M6); con đọc tin nhắn khi phụ huynh cho (T-M9); nút "Giả lập: trả lỗi" (bộ giả lập chưa có đường trả lỗi).
+
+### 2026-10-29 — Ban Giám hiệu xem và xét duyệt hồ sơ tuyển sinh
+
+#### Công việc đã thực hiện
+
+- Sửa lỗi ở trang `/admissions` trong phần chạy thử của rà soát giao diện ngày 28/10/2026: với Hiệu trưởng (VT-02), `GET /admission-campaigns` trả 403. Ma trận quyền (tài liệu 08 mục 3) ghi VT-02, VT-15 được phê duyệt ("D") ở P16 Tuyển sinh, nhưng migration 0035 chỉ cấp `P16.application.review` cho VT-03; Ban Giám hiệu không có quyền P16 nào.
+- Migration định danh `0184_add_admission_review_for_principals`: cấp `P16.application.review` cho VT-02, VT-15. Ban Giám hiệu thấy mục 1. Tuyển sinh, xem đợt và hồ sơ, xét đạt hoặc không đạt; lập đợt, tiếp nhận hồ sơ, tin tuyển sinh vẫn của VT-12, VT-03.
+- Lỗi 500 của `GET /account-directory` ghi cùng trang: điểm cuối này thuộc trang 1.4 Danh sách người dùng (`/accounts`), không phải trang tuyển sinh; bộ dò ghi theo trang đang mở nên yêu cầu của trang trước rơi vào `/admissions`. Kiểm thử nhiều trường với tài khoản VT-02 trả 200; đo truy vấn trên cơ sở dữ liệu định danh của bản trên máy (49 nghìn tài khoản) đều dưới 100 ms, nên không phải quá hạn chờ 5 giây. Chưa tái hiện được, chưa sửa mã.
+- Kiểm thử: CT-1610 trong `apps/api/src/admissions/admissions.test.ts`.
+
+#### Quyết định
+
+- Ô "D" của VT-02, VT-15 ứng với quyền xét duyệt hồ sơ (`P16.application.review`), quyền phê duyệt duy nhất của P16; không cấp quyền lập đợt hay tiếp nhận. Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11.
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-341, `23_LICH_SU_PHIEN_BAN.md` 0.201.0.
+
+#### Vấn đề tồn đọng
+
+- Lỗi 500 của danh sách người dùng ở bản nhiều trường trên máy: khi chạy lại, đọc nhật ký máy chủ API và dịch vụ định danh theo mã tương quan của phản hồi lỗi.
+- Các vai trò "X" (chỉ xem) ở dòng P16 của ma trận (VT-04, VT-05, VT-06, VT-09) chưa có quyền xem tuyển sinh vì P16 chưa có quyền chỉ xem.
+
+### 2026-10-29 — Dặn thuốc theo QT-07: trạng thái Đã nhận thuốc, báo phụ huynh khi cho uống, leo thang sự kiện y tế nặng
+
+#### Công việc đã thực hiện
+
+- Rà soát giao diện ngày 2026-10-28 (mục 3.1 C3, mức Cao) ghi `/medicines` lệch QT-07 và "chưa kiểm lại phía máy chủ". Kiểm lại máy chủ: nhận thuốc chuyển thẳng `pending` sang `administering`; cho uống không báo phụ huynh; từ chối, bỏ liều chỉ báo trong ứng dụng; gửi yêu cầu chỉ báo một bên (y tế hoặc giáo viên chủ nhiệm); không tự hoàn thành khi hết thời gian dùng; sự kiện y tế không báo quản lý đơn vị, sự kiện nặng không leo thang.
+- Máy chủ (`apps/api/src/medicines/medication-requests.ts`): thêm trạng thái `received` (Đã nhận thuốc). Nhận thuốc chuyển `pending` → `received`; liều đầu tiên chuyển `received` → `administering`; ghi liều, lịch cho uống, kết thúc sớm nhận cả `received` và `administering`; từ chối chỉ từ `pending`. Hết thời gian dùng thì yêu cầu `received`, `administering` tự chuyển `completed`. Gửi yêu cầu báo cả y tế của đơn vị và giáo viên chủ nhiệm, ghi rõ người nhận thuốc. Mỗi liều cho uống báo phụ huynh trong ứng dụng (`medication_dose_given`); bỏ liều và từ chối báo thêm tin nhắn.
+- Sự kiện y tế (`apps/api/src/health/health-care.ts`): mọi sự kiện báo quản lý đơn vị (VT-03) trong ứng dụng; sự kiện nặng leo thang VT-03, Hiệu trưởng (VT-02), Phó Hiệu trưởng phụ trách đơn vị (VT-15).
+- Cơ sở dữ liệu năm học: migration `0224_add_medication_received_status` mở ràng buộc trạng thái, chuyển phiếu `administering` chưa có liều nào về `received`.
+- Cổng quản trị `/medicines`: trạng thái Chờ nhận thuốc, Đã nhận thuốc; "Nhận thuốc" mở biểu mẫu dưới dòng (Số lượng thực nhận, Tình trạng thuốc, "Xác nhận đã nhận thuốc"); cột trạng thái hiện thuốc thực nhận; "Kết thúc" có ở phiếu đã nhận và đang cho uống. Ứng dụng phụ huynh (MP-07) hiện "Nhà trường đã nhận thuốc"; ứng dụng giáo viên (MG-09) hiện "Đã nhận thuốc" trong danh sách đang thực hiện.
+- Kiểm thử: `apps/api/src/medicines/medicines.test.ts` (cập nhật CT-055, CT-171; thêm CT-1660 đến CT-1666), `apps/api/src/health/health.test.ts` (cập nhật CT-058; thêm CT-1667); e2e spec 31 thêm bước nhập thuốc thực nhận và phụ huynh thấy Nhà trường đã nhận thuốc.
+
+#### Quyết định
+
+Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11 ở những chỗ QT-07 không nói rõ:
+
+- Hoàn thành khi hết thời gian dùng: hệ thống chuyển lúc đọc danh sách, chi tiết, lịch cho uống (mọi nơi trạng thái hiện ra), không thêm việc nền theo giờ. Phiếu Đã nhận thuốc chưa ghi liều nào mà hết thời gian dùng cũng chuyển Hoàn thành (QT-07 chỉ vẽ Đang cho uống → Hoàn thành; giữ Đã nhận thuốc mãi thì danh sách đọng). Phiếu chờ nhận hết hạn giữ nguyên để người nhận thuốc từ chối kèm lý do.
+- Kết thúc sớm (phụ huynh dặn ngừng thuốc) được từ Đã nhận thuốc và Đang cho uống.
+- Tin nhắn cho phụ huynh khi từ chối, bỏ liều theo QT-07 mục 9; người nhận theo quy tắc chọn phụ huynh nhận tin nhắn sẵn có (như sự kiện y tế nặng). Cho uống, nhận thuốc chỉ trong ứng dụng.
+- Sự kiện y tế: QT-07 mục 9 ghi kênh "trong ứng dụng và tin nhắn" cho phụ huynh; giữ quy tắc sẵn có (tin nhắn chỉ khi sự kiện nặng, YCTD-74), chỉ thêm người nhận ở trường. Quản lý đơn vị nhận mọi sự kiện (QT-07 bước 8); sự kiện nặng báo thêm Ban Giám hiệu (VT-02, VT-15 theo đơn vị). Thông báo gửi theo vai trò nên chỉ trong ứng dụng (bộ gửi tin nhắn cần tài khoản cụ thể).
+- E8 (sự kiện nặng chưa xử lý quá thời gian cấu hình): sự kiện y tế bắt buộc nhập cách xử lý ngay khi ghi nên không có trạng thái "chưa xử lý"; leo thang làm ngay khi ghi sự kiện nặng thay cho cảnh báo trễ. Không thêm cấu hình thời gian.
+- Nhãn trạng thái `pending` trên cổng quản trị đổi "Chờ nhận" thành "Chờ nhận thuốc" (khớp ứng dụng phụ huynh, giáo viên); trạng thái "Phụ huynh gửi" của QT-07.
+- Số migration 0224 theo phiên bản đề xuất, tránh dải 0202 trở đi các phần song song có thể dùng; kho mã bật `allowUnorderedMigrations`. Không cần migration định danh.
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-344, `23_LICH_SU_PHIEN_BAN.md` 0.200.0; BR-52 (sửa tại chỗ), P10-04, P10-07, MH-17, MP-07, CT-1660 đến CT-1667.
+
+#### Vấn đề tồn đọng
+
+- Nhắc giờ cho uống thuốc (QT-07 mục 15, việc chạy nền) chưa làm, ngoài phạm vi C3.
+
+### 2026-10-28 — Khai báo cơ sở vật chất mở được với quyền quản lý thiết bị
+
+#### Công việc đã thực hiện
+
+- Sửa lỗi mức Cao số 7 của rà soát giao diện ngày 28/10/2026: mục menu 1.1 Khai báo cơ sở vật chất (`/facility-rooms`) hiện cho người có `P13.equipment.manage`, nhưng `GET /facilities/rooms` và `POST /facilities/rooms/export` chỉ nhận `P17.report.facilities` hoặc `P01.room.manage`, nên vai trò chỉ có quyền thiết bị (vai trò trường tự tạo) mở trang thì bị 403.
+- Máy chủ API nhận thêm `P13.equipment.manage` cho hai điểm cuối chỉ đọc này; phạm vi đơn vị tính theo cùng bộ quyền. Thêm, sửa phòng vẫn qua danh mục phòng học (`P01.room.manage`).
+- Kiểm thử: CT-14d-3 thêm vai trò thử chỉ có quyền thiết bị (xem, lọc sai bị 400, xuất được) và vai trò chỉ có quyền báo cáo EMIS (xem, xuất đều 403).
+
+#### Quyết định
+
+- Mở rộng quyền ở máy chủ thay vì thu hẹp menu: MH-80 và P13-11 đã ghi VT-11 (nhân viên kho, người quản lý thiết bị) được xem, và người quản lý thiết bị cần danh sách phòng để đặt thiết bị. Điểm cuối chỉ đọc, không có dữ liệu cá nhân. Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11.
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-340, `23_LICH_SU_PHIEN_BAN.md` 0.199.0.
+
+#### Vấn đề tồn đọng
+
+- Không.
+
+### 2026-10-28 — Điểm danh đầu ngày ở mọi cấp, điểm danh theo tiết lấy mặc định từ điểm danh đầu ngày
+
+#### Công việc đã thực hiện
+
+- `packages/shared/src/level-features.ts`: bật `daily_attendance` cho mọi cấp. Ứng dụng giáo viên mở bảng điểm danh theo ngày ở lớp mọi cấp (thẻ lớp, chế độ lớp học). Ứng dụng phụ huynh hiện "Điểm danh tháng này" và dòng điểm danh hôm nay ở con mọi cấp.
+- Bảng điểm danh của ứng dụng giáo viên ghi "Điểm danh cả ngày" ở lớp Mầm non, "Điểm danh đầu ngày" ở lớp Tiểu học, THCS, THPT.
+- `GET /class-logs/lesson`: tiết chưa ghi điểm danh lấy trạng thái theo điểm danh đầu ngày của học sinh ở lớp:
+  - có mặt, đi muộn giữ nguyên;
+  - về sớm là có mặt; đi muộn và về sớm là đi muộn;
+  - nghỉ có báo là vắng có phép; nghỉ không báo là vắng không phép.
+  Ngày chưa điểm danh đầu ngày thì như trước: có báo vắng là vắng có phép, không có là có mặt. Mỗi học sinh có thêm `status_source`, `daily_status`; ghi chú mặc định là ghi chú của điểm danh đầu ngày. Logic tách ở `apps/api/src/class-logs/period-defaults.ts`.
+- Sổ đầu bài của ứng dụng giáo viên ghi "Theo điểm danh đầu ngày: …" dưới tên học sinh. Học sinh về sớm được tô màu, nhắc chọn vắng có phép ở các tiết sau. Giáo viên tiết vẫn sửa được trạng thái (điểm danh lại).
+- Kiểm thử đơn vị `period-defaults.test.ts`, kiểm thử máy chủ API ở `class-logs.test.ts`. Sửa `multi-level-apps.test.ts` và kiểm thử giao diện 85 theo quy tắc mới.
+
+#### Quyết định
+
+- Eric chốt ngày 2026-10-28: Mầm non điểm danh cả ngày; các cấp khác điểm danh theo tiết, chủ yếu lấy từ điểm danh đầu ngày, trừ khi giáo viên muốn điểm danh lại hoặc học sinh có phép về sớm.
+- Điểm danh đầu ngày đã ghi đứng trước báo vắng của phụ huynh, vì giáo viên đã xác nhận tại lớp. Về sớm không biết từ tiết nào nên các tiết vẫn mặc định có mặt; giáo viên tiết sau sửa. Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11.
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-350, `23_LICH_SU_PHIEN_BAN.md` 0.198.0.
+
+#### Vấn đề tồn đọng
+
+- Chưa ghi giờ về sớm ở điểm danh đầu ngày; nếu cần tự đánh vắng các tiết sau giờ về thì làm phần riêng.
+
+### 2026-10-28 — Giáo viên trả lời trao đổi trên bài nộp ở ứng dụng giáo viên
+
+#### Công việc đã thực hiện
+
+- Sửa lỗi mức Cao T1 của rà soát giao diện ngày 2026-10-28 (phụ lục giáo viên, phụ huynh, học sinh, mục H3): ở màn Chấm bài của Bài tập trực tuyến (MH-421), khối "Trao đổi trên bài" chỉ liệt kê, học sinh và phụ huynh hỏi được mà giáo viên không trả lời được.
+- Ứng dụng giáo viên: khối "Trao đổi trên bài" luôn hiện ở màn Chấm bài, gồm các lời trao đổi (tên kèm Giáo viên, Học sinh hoặc Phụ huynh), dòng "Chưa có lời trao đổi nào" khi trống, ô "Trả lời học sinh, phụ huynh" (tối đa 2000 ký tự) và nút "Gửi trả lời". Nút khoá khi ô trống hoặc đang gửi. Gửi xong, lời trả lời hiện ngay ở cuối luồng lấy từ phản hồi của máy chủ, ô soạn được xoá, báo "Đã gửi trả lời"; lỗi báo "Chưa gửi được trả lời: <lý do của máy chủ>".
+- Máy chủ API: tuyến `POST /api/v1/learning/submissions/{id}/comments` đã có từ YCTD-273 và đã kiểm đúng quyền (`P02.assignment.manage` cộng giáo viên của lớp học trực tuyến có hoạt động, qua cửa `teacherActivity` của lõi 28b); không đổi mã máy chủ, bổ sung kiểm thử.
+- Kiểm thử máy chủ API (CT-28c-18): giáo viên của lớp gửi được (201, bỏ khoảng trắng hai đầu, ghi `author_kind: teacher`); giáo viên khác lớp, phụ huynh, học sinh 403; lời rỗng, thiếu nội dung, quá 2000 ký tự 422, đúng 2000 ký tự được; bài không có 404; giáo viên đọc lại bài thấy lời trả lời sau lời của học sinh; học sinh thấy lời trả lời ở lần nộp.
+- Kiểm thử đơn vị ứng dụng giáo viên (CT-28c-17): hàm kiểm lời trả lời và hàm nối lời vừa gửi vào luồng.
+- Kiểm thử giao diện `212-online-assignments` (CT-28c-16) thêm bước: học sinh hỏi trên bài đã trả, giáo viên mở bài thấy câu hỏi, nút gửi khoá khi ô trống, gửi trả lời, lời hiện ngay, ô soạn trống; học sinh mở lại thấy lời trả lời.
+
+#### Quyết định
+
+- Sau khi gửi, màn hình nối lời trả lời vào luồng từ phản hồi của máy chủ thay vì đọc lại cả bài nộp, để không ghi đè điểm, nhận xét giáo viên đang chấm dở. Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11.
+- Không sửa máy chủ vì tuyến đã chặn đúng giáo viên khác lớp; chỉ bổ sung kiểm thử theo vai trò. Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11.
+- Ô trả lời nằm ngay trong màn Chấm bài, không tách màn mới; không đụng hộp công cụ giảng dạy (PR 246).
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-346, `23_LICH_SU_PHIEN_BAN.md` 0.197.0.
+
+#### Vấn đề tồn đọng
+
+- Chưa báo cho học sinh, phụ huynh khi giáo viên trả lời (chỉ thấy khi mở bài); cần thì làm cùng đợt thông báo của học trực tuyến.
+
+### 2026-10-28 — Trang chủ ứng dụng phụ huynh thêm thẻ Khoản cần nộp và Điểm mới
+
+#### Công việc đã thực hiện
+
+- Thẻ của từng con trên trang chủ ứng dụng phụ huynh có thêm hai thẻ tóm tắt trên lưới lối tắt:
+  - "Khoản cần nộp": tối đa ba hóa đơn đã phát hành còn phải nộp (tháng, số còn phải nộp), nhãn hạn nộp gần nhất, nút "Xem và thanh toán" mở bảng Học phí (có mã QR).
+  - "Điểm mới" (con học THCS, THPT): tối đa ba môn có điểm ở học kỳ đã khoá gần nhất (trung bình môn hoặc Đạt, Chưa đạt), nút "Xem sổ điểm" mở bảng Điểm học tập.
+- Hai thẻ dùng đúng điểm cuối của bảng Học phí (`GET /invoices?child_id=`) và Điểm học tập (`GET /scores/children/:id`); lỗi hay chưa có dữ liệu thì ẩn thẻ. Thành phần ở `apps/parent/src/screens/ChildSummaryCards.tsx`.
+
+#### Quyết định
+
+- Không làm nút "Đổi con" và thanh điều hướng dưới của mẫu giao diện: kiểm thử giao diện 85, 86 cần thấy thẻ của mọi con cùng lúc, ứng dụng phụ huynh chưa có điều hướng dưới (đổi khung ứng dụng là việc riêng). Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11.
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-320, `23_LICH_SU_PHIEN_BAN.md` 0.196.0.
+
+#### Vấn đề tồn đọng
+
+- Nút "Đổi con", thanh điều hướng dưới chờ Eric quyết định có đổi khung ứng dụng phụ huynh hay không.
+
+### 2026-10-28 — Danh sách học sinh thêm cột Phụ huynh, Chuyên cần và Đồng bộ CSDL ngành
+
+#### Công việc đã thực hiện
+
+- `GET /api/v1/children` trả thêm `guardian_name` (họ tên người liên hệ chính) và `attendance_rate`: phần trăm số ngày có mặt (kể cả đi muộn, về sớm) trên số ngày đã điểm danh ở năm học, làm tròn số nguyên, chưa điểm danh ngày nào là null. Xuất Excel, PDF danh sách nhận thêm cột `guardian_name` (Phụ huynh) và `attendance_rate` (Chuyên cần).
+- Lưới 4.1.1. Quản lý hồ sơ học sinh thêm cột Phụ huynh và Chuyên cần (hiện mặc định, sau cột Số điện thoại liên hệ), cấu hình cột ẩn được.
+- Nút "Đồng bộ CSDL ngành" (người có quyền nhập học sinh) mở hộp hướng dẫn đồng bộ bằng tệp 82 cột: "Tải tệp kèm dữ liệu để nộp" và "Nhập tệp từ CSDL ngành" (sang 4.1.2). Hệ thống không gửi dữ liệu đi.
+- Kiểm thử máy chủ API cho hai trường mới.
+
+#### Quyết định
+
+- Đồng bộ CSDL ngành làm bản chạy nội bộ theo quyết định ngày 2026-10-16 của Eric về chức năng cần hệ thống bên ngoài: dùng tệp theo mẫu của Bộ, để sẵn chỗ nối kết nối thật.
+- Chuyên cần tính trên năm học hiện tại (mỗi năm học một cơ sở dữ liệu); "có mặt" gồm đi muộn, về sớm, giống bộ đếm Có mặt của màn hình điểm danh. Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11.
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-319, `23_LICH_SU_PHIEN_BAN.md` 0.195.0.
+
+#### Vấn đề tồn đọng
+
+- Kết nối trực tiếp CSDL ngành chờ Sở cấp giao diện kết nối.
+
+### 2026-10-28 — Mở mọi trường trong danh mục, quản trị nền tảng vào thẳng, gói cơ bản miễn phí
+
+#### Công việc đã thực hiện
+
+- Thư viện `database`: `src/catalog-provisioning.ts` khởi tạo trường ở lần mở đầu tiên từ danh mục (mã `dv-<mã Bộ>`, tên miền `dv-<mã Bộ>.<tên miền chung>`, cơ sở dữ liệu định danh, hệ thống, năm học hiện tại, khóa, gói `co-ban-mien-phi`); chống trùng khi hai lần mở cùng lúc bằng ràng buộc duy nhất và bước nhận việc; việc bỏ dở quá 10 phút hoặc lỗi nhận lại được; tối đa 60 trường tự khởi tạo mỗi giờ. Việc khởi tạo của S2 nhận việc không có quản trị viên đầu tiên, đồng ý điều khoản và có bước gán gói.
+- Tệp thay đổi cấu trúc nền tảng 0242: gói `co-ban-mien-phi`, cột `schools.addon_modules`, thêm mã `ai-assistant`, `online-learning` cho các gói đã có danh sách phân hệ.
+- Dịch vụ định danh: `GET directory/unit` trả trạng thái trường của đơn vị, bỏ lời báo "chưa sử dụng hệ thống"; `POST directory/prepare` khởi tạo ở nền; `POST auth/platform/catalog/units/:moet/open` (Admin) khởi tạo rồi mở phiên vào thẳng; phiên hỗ trợ của vai trò `quan_tri` theo chính sách `any_school` không hỏi lý do, mã hai lớp, số giờ (hạn kỹ thuật 30 ngày), ghi `support.platform-admin-entry` ở nền tảng và `support_start` ở trường; `PUT auth/platform/schools/:code/addon-modules` bật tính năng trả phí riêng cho trường.
+- Tài khoản quản trị trường (VT-01, VT-02): tạo tài khoản, gán vai trò thiếu số CCCD, họ tên hoặc số điện thoại thì 400. Bộ gửi thông báo không gửi SMS, Zalo khi gói chưa có `sms-zalo`.
+- Máy chủ API: khai báo `RequirePlanModule` ở bộ điều khiển trợ lý AI, học trực tuyến (cả lớp trực tiếp), thi trực tuyến, gia sư; mọi lời gọi AI kiểm gói ở dịch vụ trợ lý AI; lời báo thống nhất "… là tính năng trả phí, trường chưa đăng ký. Liên hệ bộ phận hỗ trợ để bật." (mã lỗi `MODULE_NOT_IN_PLAN`).
+- Cổng quản trị: trang đăng nhập hiện "Đang khởi tạo đơn vị…" và hỏi lại tới khi trường sẵn sàng; khung trang hiện lời báo tính năng trả phí khi mở trang của phân hệ chưa bật. Cổng vận hành: nút "Vào trường (quản trị nền tảng)" ở trang chi tiết trường, nút "Khởi tạo và vào trường" ở Danh mục đơn vị, mục "Gói dịch vụ và tính năng trả phí" bật, tắt từng tính năng.
+- Kiểm thử: `database` CT-1531 đến CT-1533 (gồm hai lần mở đầu cùng lúc); `apps/identity` CT-1534 đến CT-1536 (khởi tạo từ trang đăng nhập, Admin vào thẳng, nhật ký hai phía, tạo tài khoản quản trị đầu tiên theo số CCCD, bật tính năng trả phí), sửa CT-24-6, CT-24-7, CT-S4 theo vai trò; `apps/api` CT-1537 (từ chối tính năng trả phí, bật riêng thì dùng được); e2e 160 (CT-24-9, CT-24-10), 136. E2e 01 không có lời báo cũ nên không đổi.
+
+#### Quyết định
+
+- Eric chốt ngày 2026-10-28: GD-159 (Admin vào mọi trường không hỏi, vẫn ghi nhật ký; sửa GD-110), GD-160 (mở mọi đơn vị, khởi tạo ở lần mở đầu tiên), GD-161 (gói cơ bản miễn phí, tính năng trả phí bật riêng từng trường), GD-162 (sổ liên lạc điện tử miễn phí; tin nhắn SMS, Zalo trả phí theo tin cho trường), GD-163 (tài khoản quản trị trường luôn đủ số CCCD, họ tên, số điện thoại).
+- Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11: dùng lại gói dịch vụ của S5a thay cho cơ chế cờ tính năng mới; phân hệ ngoài hai danh sách của Eric (tài chính, bếp, thư viện, …) để miễn phí trong gói cơ bản, người vận hành sửa gói ở cổng nền tảng nếu cần; hạn kỹ thuật 30 ngày cho phiên vào thẳng; tối đa 60 trường tự khởi tạo mỗi giờ; loại dữ liệu ban đầu `synthetic`.
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-314, `23_LICH_SU_PHIEN_BAN.md` 0.194.0.
+
+#### Vấn đề tồn đọng
+
+- Tính phí theo tin của tính năng `sms-zalo` ở phần thu phí (S5b) chưa làm; số tin đã gửi có ở `notification_recipients`.
+- Bước setup của S2 vẫn tạo quản trị viên đầu tiên theo tên đăng nhập, chưa bắt số CCCD, điện thoại (GD-163 chỉ áp ở dịch vụ tài khoản).
+- Luật sư rà ghi chú PL-02 Điều 5a sau khi bỏ ghi mục đích theo từng lần vào (GD-159).
+- Bản nhiều trường đang chạy trên máy cần dựng lại (`pnpm build`), chạy tệp thay đổi cấu trúc nền tảng 0242 và khởi động lại để có gói miễn phí và tự khởi tạo (`scripts/chay-nhieu-truong.mjs` suy `PLATFORM_ADMIN_DATABASE_URL` từ `POSTGRES_PASSWORD`).
+
+### 2026-10-28 — Siết kiểm duyệt và xác minh danh tính ở chợ gia sư
+
+#### Công việc đã thực hiện
+
+- Kiểm duyệt (27i, YCTD-259): báo cáo mức nghiêm trọng về gia sư chỉ tạm khóa ngay khi phụ huynh báo đã thực sự học với gia sư, tức có buổi đã nhận tiền hoặc luồng tin nhắn gia sư đã trả lời. Các báo cáo nghiêm trọng khác vào hàng chờ 4 giờ như trước.
+- Tạm khóa tự động chỉ ẩn gia sư, chặn đặt buổi, nhắn tin, mở phòng và giữ tiền chưa giải ngân. Việc hủy buổi sắp tới (hoàn đủ) và báo phụ huynh có buổi với gia sư chỉ chạy khi nhân viên nền tảng tạm khóa hoặc quyết định tạm khóa, mỗi lần khóa một lần. Nhân viên bác hoặc cảnh cáo thì gỡ khóa như trước.
+- Nhãn mức "Nghiêm trọng" ở form báo cáo đổi thành "Nghiêm trọng (xử lý trong 4 giờ)".
+- Xác minh danh tính và đăng nhập OIDC (27g, YCTD-257): lúc bắt đầu, máy chủ đặt cookie httpOnly gắn lượt với trình duyệt. Lúc hoàn tất, cookie phải khớp `state`. Với mục đích xác minh còn phải có phiên của đúng tài khoản đã bắt đầu. Không khớp thì báo lượt đã hết hạn và không ghi kết quả.
+- Kiểm thử:
+  - CT-27i-3 sửa theo luồng giữ rồi xác nhận;
+  - thêm CT-27i-7 cho người báo chưa học với gia sư, luồng chỉ phụ huynh nhắn, buổi giữ chỗ chưa trả tiền, luồng gia sư đã trả lời, bác thì gỡ khóa;
+  - thêm CT-27g-6 cho hoàn tất ở trình duyệt khác, phiên của tài khoản khác, chưa đăng nhập, cookie của lượt khác;
+  - e2e 198 kiểm hoàn tiền sau quyết định của nhân viên.
+
+#### Quyết định
+
+- Eric duyệt ngày 2026-10-28 theo kết quả rà soát bảo mật các PR ngày 2026-10-28.
+- Quan hệ "đã học" không tính luồng chỉ phụ huynh nhắn và buổi giữ chỗ chưa trả tiền, vì người báo tự tạo được. Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11.
+- Không thêm cột: lần báo phụ huynh của mỗi lần khóa nhận ra qua nhật ký kiểm duyệt `tutor.suspend.notify` từ lúc bắt đầu khóa. Cookie chứa chính `state` (vốn đã nằm ở địa chỉ quay về), không cần lưu thêm ở cơ sở dữ liệu.
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-322, `23_LICH_SU_PHIEN_BAN.md` 0.193.0.
+
+#### Vấn đề tồn đọng
+
+- Trong lúc chờ nhân viên xác nhận, buổi đã trả tiền của gia sư bị tạm khóa không mở phòng được nhưng chưa hủy. Hạn xử lý 4 giờ của mức nghiêm trọng giới hạn khoảng chờ này.
+
+### 2026-10-28 — Sổ điểm nhập từ Excel và in sổ
+
+#### Công việc đã thực hiện
+
+- Máy chủ API thêm ba điểm cuối cho sổ điểm một môn ở một lớp, một học kỳ:
+  - `GET /api/v1/scores/classes/:id/subjects/:subjectId/template?term_type=` trả `so-diem.xlsx`: cột Mã hệ thống, STT, Họ và tên, TX1…TXn (đủ số lần tối thiểu và số điểm đang có), Giữa kỳ, Cuối kỳ, Nhận xét (môn nhận xét: Kết quả, Nhận xét) kèm học sinh và điểm đang có; trang Hướng dẫn.
+  - `POST /api/v1/scores/classes/:id/subjects/:subjectId/import` (biểu mẫu `term_type`, `file`) đọc tệp mẫu đã điền. Học sinh nhận theo mã hệ thống; điểm ghi dấu phẩy hoặc dấu chấm; số cột TX lấy theo tệp. Có dòng lỗi thì trả `saved: 0` và `errors` theo dòng, cột, không ghi; hợp lệ thì ghi như nút Ghi điểm (cùng quyền phân công, khoá sổ, hạn nhập).
+  - `GET /api/v1/scores/classes/:id/subjects/:subjectId/print?term_type=` trả `so-diem.pdf`: tiêu đề lớp, môn, học kỳ; STT, họ tên, điểm, TB môn HK, nhận xét.
+- Màn hình sổ điểm thẻ Nhập điểm thêm "Tải mẫu Excel", "Nhập từ Excel" (người được nhập môn) và "In sổ" (người xem được sổ); lỗi của tệp liệt kê theo dòng.
+- Logic tệp tách ở `apps/api/src/scores/score-files.ts`, có kiểm thử đơn vị; kiểm thử máy chủ API cho cả ba điểm cuối.
+
+#### Quyết định
+
+- Nhập từ Excel ghi cả bảng của các học sinh có trong tệp (ô trống là chưa có điểm), giống bấm Ghi điểm sau khi sửa trên màn hình. Học sinh nhận theo mã hệ thống thay vì họ tên vì có thể trùng tên. Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11.
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-318, `23_LICH_SU_PHIEN_BAN.md` 0.192.0.
+
+#### Vấn đề tồn đọng
+
+- Không.
+
+### 2026-10-28 — Xuất Excel thời khoá biểu theo lớp, giáo viên, phòng
+
+#### Công việc đã thực hiện
+
+- Máy chủ API thêm `GET /api/v1/timetable-versions/:id/export`, cùng bộ lọc `class_id`, `teacher_user_id`, `room_id` với màn hình xem. Tệp `thoi-khoa-bieu.xlsx` có mỗi lớp, giáo viên hoặc phòng một trang tính. Mỗi trang có hai dòng tiêu đề (đối tượng; tên bản, ngày áp dụng), dòng là tiết kèm giờ theo khung giờ của cấp, cột là Thứ Hai đến Thứ Bảy (thêm Chủ nhật khi có tiết). Ô ghi môn kèm giáo viên, phòng (xem theo lớp), lớp, phòng (theo giáo viên) hoặc lớp, giáo viên (theo phòng); tiết học theo nhóm ghi "(nhóm N)". Không lọc thì mọi lớp.
+- Quyền như xem thời khoá biểu (nhân sự xem được lớp); phụ huynh nhận 403.
+- Màn hình 7.4. Thời khoá biểu thêm nút "Xuất Excel" cạnh ô chọn lớp, giáo viên, phòng; chưa chọn thì nút là "Xuất Excel mọi lớp".
+- Dựng trang tính tách ở `apps/api/src/timetables/timetable-export.ts`, có kiểm thử đơn vị; kiểm thử máy chủ API cho đường dẫn xuất.
+
+#### Quyết định
+
+- Dùng bộ dựng tệp bảng dùng chung (`exports/table-file.ts`) và nhãn thứ dùng chung `TIMETABLE_WEEKDAY_LABELS` để tệp khớp màn hình. Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11.
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-317, `23_LICH_SU_PHIEN_BAN.md` 0.191.0.
+
+#### Vấn đề tồn đọng
+
+- Không.
+
+### 2026-10-28 — Thẻ Phân công giảng dạy ở trang hồ sơ cán bộ, giáo viên
+
+#### Công việc đã thực hiện
+
+- Máy chủ API thêm `GET /api/v1/staff/:id/teaching-assignments`: phân công giảng dạy, chủ nhiệm đang hiệu lực của nhân sự ở năm học hiện tại (lớp, khối, cấp, vai trò, môn, số tiết mỗi tuần, từ ngày, đến ngày) kèm tổng số tiết. Số tiết trống ở phân công thì lấy số tiết của chương trình theo khối. Phân công gắn với tài khoản nên hồ sơ chưa liên kết tài khoản trả danh sách trống kèm `has_account: false`.
+- Quyền xem giống hồ sơ nhân sự: người có `P07.staff.view` trong phạm vi đơn vị của nhân sự hoặc chính nhân sự đó; người khác nhận 403.
+- Trang `/staff/$staffId` thêm thẻ Phân công giảng dạy (`?tab=teaching`): bảng Lớp, Vai trò (Chủ nhiệm, Bộ môn), Môn, Số tiết/tuần, Từ ngày và dòng tổng số tiết mỗi tuần. Hồ sơ chưa liên kết tài khoản thì thẻ nhắc liên kết ở thẻ Thông tin chung. Liên kết, bỏ liên kết tài khoản làm mới danh sách.
+- Kiểm thử máy chủ API: phân công đang hiệu lực, tổng số tiết, bỏ phân công đã kết thúc, chính giáo viên xem được, hồ sơ chưa liên kết trả trống, giáo viên khác bị từ chối.
+
+#### Quyết định
+
+- Thẻ chỉ hiện khi nhân sự có phân công đang hiệu lực hoặc hồ sơ chưa liên kết tài khoản; nhân sự đã liên kết mà không dạy lớp nào (kế toán, nhân viên) thì ẩn thẻ. Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11.
+- Xong việc "Chưa làm" ghi ở YCTD-309.
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-316, `23_LICH_SU_PHIEN_BAN.md` 0.190.0.
+
+#### Vấn đề tồn đọng
+
+- Không.
+
+### 2026-10-28 — Chọn phân hệ ở cổng quản trị thì về bảng điều khiển của phân hệ
+
+#### Công việc đã thực hiện
+
+- Sửa lỗi Eric báo: chọn phân hệ khác ở ô Phân hệ chỉ đổi menu ngang, vùng nội dung vẫn là trang của phân hệ cũ nên phải tự bấm.
+- Theo yêu cầu "bảng điều khiển phải cập nhật theo phân hệ": chọn phân hệ khác thì về trang chủ; trang chủ có vùng "Tổng quan phân hệ" đổi theo phân hệ đang chọn. Chọn lại phân hệ đang mở thì giữ nguyên trang.
+- Khối theo phân hệ, chỉ hiện khi menu đã lọc theo quyền có trang tương ứng:
+  - Quản lý văn bản và điều hành: "Công văn đến của tôi" (văn bản chờ xử lý như thẻ Chờ xử lý của 1.1, số chờ xử lý, 5 dòng mới nhất) và "Công văn đi của tôi" (chờ xử lý và dự thảo của tôi), mỗi khối có "Xem tất cả".
+  - Quản lý giáo dục, Tài chính, Báo cáo: bảng điều khiển MH-01; Quản lý giáo dục thêm sinh nhật trong tháng.
+  - Phân hệ có trang Hồ sơ cán bộ, giáo viên: hợp đồng sắp hết hạn.
+  - Mọi phân hệ: Việc cần xử lý và Lối tắt tới 8 trang đầu của phân hệ.
+- Khối không có số liệu ghi "Trống" thay vì ẩn hoặc để trống.
+- Khung trang chỉ tự chuyển menu theo trang khi trang không thuộc phân hệ đang chọn.
+- Kiểm thử e2e: CT-15a-9 (chọn phân hệ về trang chủ, khối văn bản ghi "Trống" với tài khoản mới), kịch bản văn bản đến (khối Công văn đến hiện văn bản vừa trình lãnh đạo), kịch bản văn bản đi (khối Công văn đi hiện dự thảo chờ cho ý kiến).
+
+#### Quyết định
+
+- Bảng điều khiển của phân hệ nằm ở trang chủ `/` theo phân hệ đang chọn (đã lưu trên trình duyệt), không thêm đường dẫn riêng cho từng phân hệ. Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11.
+- Vùng ngoài đặt tên "Tổng quan phân hệ …" để không trùng tên vùng "Bảng điều khiển" của MH-01 mà kiểm thử đang dùng.
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-307, `23_LICH_SU_PHIEN_BAN.md` 0.189.0.
+
+#### Vấn đề tồn đọng
+
+- Các phân hệ ngoài văn bản, giáo dục, tài chính, báo cáo mới có Việc cần xử lý và Lối tắt; khối số liệu riêng cần thêm khi có yêu cầu cụ thể.
+
+### 2026-10-28 — Quy tắc tài khoản theo số CCCD và nhân viên vận hành
+
+#### Công việc đã thực hiện
+
+- Tên đăng nhập của tài khoản trường là số CCCD (số định danh cá nhân 12 chữ số). Dịch vụ định danh nhận `national_id` khi tạo tài khoản, hoặc nhận 12 chữ số gõ thẳng vào ô tên đăng nhập; kiểm 12 chữ số, mã tỉnh ở 3 số đầu (danh mục 63 tỉnh), năm sinh ở số thứ 4 đến 6 khi biết năm sinh; chỉ chặn khi sai rõ ràng. Phần kiểm thuần ở `packages/shared/src/national-id.ts` dùng chung cho dịch vụ định danh và máy chủ API.
+- Tài khoản tạo theo số CCCD nhận mật khẩu mặc định từ biến môi trường `DEFAULT_INITIAL_PASSWORD` (chỉ ở `.env` của máy chủ, kho mã không có giá trị), phải đổi ở lần đăng nhập đầu; quá `initial_password_lifetime_days` ngày (mặc định 7, cấu hình từ 1 đến 90) mà chưa đổi thì không đăng nhập được, quản trị trường đặt lại. Cột mới `users.initial_password_expires_at`. Chưa đặt biến thì tài khoản mới nhận mật khẩu tạm ngẫu nhiên như trước, vẫn có hạn.
+- Phân biệt loại tài khoản theo ứng dụng đang đăng nhập: cán bộ, giáo viên vào cổng quản trị và ứng dụng giáo viên; phụ huynh vào ứng dụng phụ huynh; học sinh chỉ vào ứng dụng học sinh. Một số CCCD vừa là giáo viên vừa là phụ huynh là một tài khoản có hai loại, mỗi ứng dụng mở phiên đúng loại; (số CCCD, loại) vì vậy là duy nhất. Sai loại thì báo như sai mật khẩu để không lộ tên đăng nhập thuộc loại nào.
+- Hàng loạt: (a) "Tạo tài khoản cho nhân sự" (1.4 Danh sách người dùng, đồng bộ từ hồ sơ nhân sự) dùng số CCCD trong hồ sơ làm tên đăng nhập, hồ sơ chưa có số hợp lệ thì dùng mã nhân sự như trước; (b) "Khởi tạo" tài khoản học và thi dùng số định danh của học sinh, thiếu, sai hoặc lệch năm sinh thì dùng phương án dự phòng "hs" kèm mã Bộ GD&ĐT (CSDL ngành), rồi "hs" kèm số thứ tự; `STUDENT_USERNAME_RULE=ma_hoc_sinh` bỏ qua số định danh.
+- Che số CCCD: danh sách tài khoản, danh sách tài khoản học và thi, kết quả tạo hàng loạt, nhật ký tài khoản, nhật ký thay đổi của hồ sơ nhân sự và sự kiện bảo mật (`security_events.login_identifier`) chỉ ghi `********` kèm 4 số cuối. Chi tiết tài khoản và tệp mật khẩu vừa cấp cho học sinh vẫn ghi đủ để trao tài khoản.
+- Băm mật khẩu: tham số argon2id tường minh m=64 MiB, t=3, p=4 (khuyến nghị thứ hai của RFC 9106; đo trên máy phát triển khoảng 75 ms mỗi lần, mục tiêu dưới 250 ms), hạ được bằng `PASSWORD_HASH_MEMORY_KIB`, `PASSWORD_HASH_TIME_COST`, `PASSWORD_HASH_PARALLELISM` nhưng không thấp hơn mức tối thiểu OWASP (m=19 MiB, t=2). Đăng nhập đúng với giá trị băm tham số cũ thì băm lại: tài khoản trường, nhân viên vận hành nền tảng, tài khoản đơn vị cấp trên. Băm song song khi cấp tài khoản học sinh hàng loạt giảm từ 16 xuống 4 để giới hạn bộ nhớ.
+- Nhân viên vận hành của công ty: thêm vai trò `platform_operators.role` (quản trị, hỗ trợ, kỹ thuật, kế toán; tài khoản đã có là quản trị). Trang "Nhân viên vận hành" ở cổng nền tảng (chỉ quản trị thấy): tạo nhân viên (đăng ký luôn xác thực hai lớp; mật khẩu tạm, khóa TOTP, mã khôi phục hiện một lần), đổi vai trò, khóa, mở khóa, cấp lại khóa hai lớp; tạo và cấp lại khóa phải nhập mã hai lớp của người thao tác. Tên đăng nhập là số CCCD, đổi sang thư điện tử công ty bằng `PLATFORM_OPERATOR_LOGIN_RULE=email`. Kế toán không mở được phiên hỗ trợ; chỉ quản trị sửa chính sách hỗ trợ. Nhân viên chỉ vào dữ liệu trường qua phiên hỗ trợ trường cấp (`support_access_grants`, `support-sessions`), không có tài khoản ở trường.
+- Kiểm thử: `apps/identity/src/accounts/national-id-accounts.test.ts` CT-1511 đến CT-1518; `apps/api/src/student-records/student-records-so.test.ts` CT-1519; `apps/identity/src/platform/platform-operator-admin.test.ts` CT-1521; e2e `tests/e2e/221-tai-khoan-cccd.spec.ts` CT-1520 (lượt e2e dùng mật khẩu mặc định thử `E2E_DEFAULT_INITIAL_PASSWORD`).
+
+#### Quyết định
+
+- Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11: một người có một tài khoản ở trường (khóa là số CCCD), loại tài khoản suy từ vai trò và kênh đăng nhập, không tách thành nhiều bản ghi người dùng; giữ cách gán vai trò phụ huynh vào tài khoản sẵn có của giáo viên (YCTD-44, YCTD-45), tránh hai mật khẩu cho cùng một người.
+- Tài khoản quản trị tổng `Admin` (YCTD-310, đọc từ `PLATFORM_SUPERADMIN_*`) là tài khoản vận hành nền tảng, không thuộc trường nào: quy tắc số CCCD và hạn mật khẩu mặc định không áp dụng (cột hạn trống, tên đăng nhập không phải 12 chữ số). Tài khoản trường đã có (tên đăng nhập tự do, số điện thoại) giữ nguyên; quy tắc áp cho tài khoản tạo mới bằng số CCCD.
+- Tên đăng nhập lưu số CCCD dạng rõ ở dịch vụ định danh vì là định danh đăng nhập (như số điện thoại hiện nay) và máy chủ API đã lưu số CCCD mã hóa kèm giá trị băm có khóa ở hồ sơ. Chưa đổi sang so khớp bằng giá trị băm có khóa ở dịch vụ định danh: mất khóa là mọi người không đăng nhập được, cần quy trình xoay khóa riêng; ghi thành đề xuất.
+- Pepper (khóa bí mật trộn vào băm mật khẩu) chưa làm: thư viện có tham số `secret` nhưng giá trị băm cũ không có pepper, cần đánh dấu phiên bản băm trong chuỗi và chuyển dần khi đăng nhập, cộng quy trình giữ và xoay khóa. Đề xuất làm thành phần riêng sau khi có kho bí mật của máy chủ chạy thật.
+- Mật khẩu mặc định Eric đưa chỉ đặt ở `.env` cục bộ (đã nằm trong `.gitignore`), không có trong mã, dữ liệu mẫu, e2e hay tài liệu. Máy chủ chạy thật đặt qua biến môi trường. Biến sai chính sách (dưới 8 ký tự, thiếu chữ hoặc số) thì dịch vụ định danh không khởi động.
+
+#### Đánh giá dùng số CCCD theo Nghị định 13/2023/NĐ-CP và Luật Bảo vệ dữ liệu cá nhân 2025
+
+- Số CCCD (số định danh cá nhân) là dữ liệu cá nhân cơ bản (khoản 3 Điều 2 Nghị định 13/2023/NĐ-CP), không phải dữ liệu nhạy cảm; Luật Bảo vệ dữ liệu cá nhân số 91/2025/QH15 (hiệu lực từ 01/01/2026) giữ cách phân loại này. Trường xử lý để định danh người dùng của hệ thống quản lý trường học theo nhiệm vụ của cơ sở giáo dục; nhà trường là bên kiểm soát dữ liệu, nhà cung cấp phần mềm là bên xử lý theo hợp đồng.
+- Nguyên tắc tối thiểu và mục đích: chỉ dùng số CCCD làm tên đăng nhập, không hiện trên danh sách, nhật ký, không đưa vào đường dẫn khi tạo tài khoản; lưu mã hóa ở hồ sơ (máy chủ API), dạng rõ ở cột tên đăng nhập của dịch vụ định danh có phân quyền cơ sở dữ liệu riêng.
+- Rủi ro của mật khẩu mặc định chung (bổ sung theo YCTD-323): một giá trị dùng cho mọi tài khoản tạo theo số CCCD ở mọi trường, ai từng nhận tài khoản cũng biết; số CCCD không phải bí mật. Người biết cả hai có thể đăng nhập trước chủ tài khoản trong thời hạn của mật khẩu mặc định. Eric quyết định ngày 2026-10-28 giữ mật khẩu mặc định chung, kèm các biện pháp của YCTD-323: (a) đổi mật khẩu mặc định lần đầu phải nhập mã gửi tới số điện thoại trong hồ sơ; (b) tài khoản không có số điện thoại nhận mật khẩu tạm ngẫu nhiên, không nhận mật khẩu mặc định; (c) tài khoản quản trị trường bắt buộc có số điện thoại (YCTD-314); (d) thời hạn mật khẩu mặc định rút xuống 24 giờ, cấu hình `initial_password_lifetime_hours` từ 1 đến 720 giờ. Rủi ro còn lại: người giữ được điện thoại của chủ tài khoản.
+- Còn phải làm khi triển khai thật: (a) văn bản thông báo xử lý dữ liệu cá nhân của trường nêu việc dùng số CCCD làm tên đăng nhập; (b) bộ lọc "Tên đăng nhập" của danh sách người dùng đang gửi qua tham số đường dẫn, khi tìm theo số CCCD thì nên chuyển sang thân yêu cầu (đề xuất); (c) đánh giá tác động xử lý dữ liệu cá nhân của nhà trường cập nhật mục số CCCD; (d) trẻ dưới 16 tuổi (học sinh): số định danh của trẻ do cha mẹ hoặc người giám hộ cung cấp khi nhập học, cần có trong nội dung đồng ý của hồ sơ nhập học.
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-311, `23_LICH_SU_PHIEN_BAN.md` 0.188.0.
+
+#### Vấn đề tồn đọng
+
+- Màn hình tạo tài khoản ở cổng quản trị chưa có ô "Số CCCD" riêng (gõ 12 chữ số vào ô Tên đăng nhập là đủ); màn hình cấu hình chưa có ô sửa số ngày hạn mật khẩu mặc định (đặt qua `PUT /auth/settings`).
+- Nhân viên vận hành chưa có màn hình tự đổi mật khẩu tạm ở cổng nền tảng; phân vai mới chặn ở quản lý nhân viên và phiên hỗ trợ, các trang khác (gói, thu phí, trường) còn mở cho mọi vai trò. Đã làm ở YCTD-323.
+- Đề xuất: so khớp tên đăng nhập bằng giá trị băm có khóa; pepper cho băm mật khẩu; chuyển bộ lọc tên đăng nhập sang thân yêu cầu.
+
+### 2026-10-28 — Mã xác nhận ở đăng nhập cổng vận hành nền tảng
+
+#### Công việc đã thực hiện
+
+- Dịch vụ định danh: thêm `POST /api/v1/auth/platform/captcha` (chỉ ở tên miền cổng nền tảng, giới hạn 30 ảnh mỗi địa chỉ mỗi phút); `POST /api/v1/auth/platform/login` nhận `captcha_id`, `captcha_text` và kiểm trước mật khẩu.
+- Cùng cơ chế với đăng nhập cổng quản trị (PR 233, YCTD-310): dùng lại hàm sinh ảnh và đáp án lưu Redis 5 phút, dùng một lần; trang luôn hiện ô mã; có gửi mã thì phải đúng; không gửi mã chỉ được khi tên đăng nhập nhập sai chưa tới 3 lần trong 15 phút. Khóa Redis ở nhóm "platform" vì cổng không thuộc trường nào.
+- Bước nhập mã xác thực hai lớp không phải giải ảnh lần nữa: bước 1 đúng mã ảnh và đúng mật khẩu thì máy chủ cấp "lượt đã qua" gắn với mã ảnh và tên đăng nhập trong 5 phút, bước 2 gửi lại mã ảnh đó.
+- Cổng vận hành: ô "nhập mã xác nhận", ảnh mã và nút "Làm mới mã" cùng một hàng như mẫu; gửi lỗi thì lấy ảnh mới; sai mã hai lớp thì quay lại bước 1 với ảnh mới.
+- Kiểm thử: kiểm thử đơn vị đăng nhập vận hành (gửi sai mã bị từ chối, sai mật khẩu ba lần thì bắt buộc mã, bước mã hai lớp dùng lượt đã qua); e2e `signInConsole` đọc đáp án ở Redis (`readPlatformCaptchaAnswerForTesting`), CT-26e-3 giả lập điểm cuối mã xác nhận.
+
+#### Quyết định
+
+- Không thêm đường vượt mã xác nhận bằng biến môi trường: kiểm thử đọc đáp án ở Redis như PR 233; các kiểm thử gọi thẳng API đăng nhập đúng mật khẩu không cần mã vì chưa tới ngưỡng nhập sai. Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11.
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-313, `23_LICH_SU_PHIEN_BAN.md` 0.187.0.
+
+#### Vấn đề tồn đọng
+
+- Không.
+
+### 2026-10-28 — Giao diện đăng nhập cổng vận hành nền tảng theo mẫu đăng nhập mới
+
+#### Công việc đã thực hiện
+
+- Làm lại trang đăng nhập của cổng vận hành nền tảng (`apps/platform`) cùng phong cách mẫu đăng nhập Eric duyệt cho trường: thẻ trắng bo góc giữa nền xanh nhạt có chấm, tiêu đề "Đăng nhập hệ thống", dòng phụ "Cổng vận hành nền tảng", mục "Thông tin tài khoản" chữ hoa xanh có vạch dọc, ô nhập bo góc, nút xanh đậm toàn chiều rộng, hàng "Ghi nhớ" và "Quên Mật Khẩu?". Không có mục thông tin đơn vị.
+- Đăng nhập hai bước: tên đăng nhập, mật khẩu; máy chủ trả lỗi đòi mã xác thực hai lớp (`details[].field = otp_code`) thì sang bước "Xác thực hai lớp" nhập mã TOTP hoặc mã khôi phục, có "Quay lại".
+- "Ghi nhớ" chỉ lưu tên đăng nhập trên trình duyệt; mật khẩu để trình duyệt tự lưu qua `autocomplete`. "Quên Mật Khẩu?" mở lời dặn liên hệ quản trị viên nền tảng.
+- Màu theo token của `packages/ui/src/theme.css`, chữ đạt tương phản 4,5:1; ô nhập 16 px, vùng chạm từ 44 px; thẻ co theo khổ điện thoại.
+- Kiểm thử e2e: thêm `tests/e2e/platform-console.ts` (`signInConsole` đăng nhập hai bước) dùng ở các kịch bản 132, 136, 137, 139, 160, 195, 196, 197; CT-26e-3 kiểm tiêu đề mới, Quên mật khẩu, Ghi nhớ và bước mã hai lớp với máy chủ giả lập.
+
+#### Quyết định
+
+- Cổng nền tảng chưa dùng Tailwind và `packages/ui`; giữ CSS thuần của ứng dụng, khai báo biến màu theo đúng giá trị token chung thay vì thêm cấu hình web, vì các phiên khác đang sửa cấu hình web. Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11.
+- Ô mã xác nhận dạng ảnh chưa đặt: dịch vụ định danh chưa có mã xác nhận cho đăng nhập tài khoản vận hành và phiên này không sửa định danh; chỗ đặt ghi trong mã nguồn.
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-312, `23_LICH_SU_PHIEN_BAN.md` 0.186.0.
+
+#### Vấn đề tồn đọng
+
+- Thêm ô mã xác nhận khi dịch vụ định danh hỗ trợ mã xác nhận cho đăng nhập tài khoản vận hành.
+
+### 2026-10-28 — Trang đăng nhập theo mẫu và bản nhiều trường trên máy
+
+#### Công việc đã thực hiện
+
+- Thiết kế lại trang đăng nhập cổng quản trị theo ảnh mẫu của Eric: một thẻ trắng giữa nền xanh nhạt có chấm, tiêu đề "Đăng nhập hệ thống", mục THÔNG TIN ĐƠN VỊ (Sở Giáo dục và Đào tạo; Cấp và Phường / Xã cùng hàng, điện thoại xếp dọc; Trường), mục THÔNG TIN TÀI KHOẢN (Tên đăng nhập, Mật khẩu, hàng mã xác nhận có ảnh và nút làm mới dạng biểu tượng), Ghi nhớ, Quên Mật Khẩu?, nút Đăng nhập toàn chiều rộng. Bỏ cột thương hiệu bên trái; tên hệ thống, biểu trưng của trường (nếu có) đặt nhỏ phía trên thẻ.
+- Tên miền chung: chọn Sở rồi Cấp (bắt buộc), Phường / Xã chỉ để lọc (có "Tất cả phường, xã" để bỏ lọc), danh sách Trường lọc theo Sở, Cấp và Phường nếu chọn; ô Cấp chỉ hiện cấp có trường trong sở (và phường nếu chọn) nhờ điểm cuối `GET /api/v1/auth/directory/levels` nhận thêm `department`, `commune`. Hàng mã xác nhận luôn hiện, ảnh của đúng trường hiện khi đã chọn trường. Tên miền của trường và chế độ một trường: mục THÔNG TIN ĐƠN VỊ chỉ đọc (tên Sở, trường, cấp, mã, năm học).
+- Ghi nhớ: (a) nhớ đơn vị đã chọn (Sở, Cấp, Phường, Trường) và tên đăng nhập ở máy; (b) máy chủ định danh nhận `remember` khi đăng nhập (cả đăng nhập theo đơn vị): phiên cổng quản trị kéo dài `PORTAL_REMEMBER_DAYS` ngày (mặc định 30, từ 1 đến 90), cookie mã làm mới bền; không tích thì hạn 8 giờ như cũ và cookie là cookie phiên, hết khi đóng trình duyệt; (c) biểu mẫu thật có `autocomplete="username"`, `autocomplete="current-password"` để trình quản lý mật khẩu của trình duyệt đề nghị lưu. Trang không bao giờ tự lưu mật khẩu (localStorage, sessionStorage, cookie, IndexedDB).
+- Lệnh `pnpm --filter @school-management/database nhieu-truong-cuc-bo` dựng bản nhiều trường trên máy song song bản một trường: vai trò, cơ sở dữ liệu nền tảng riêng, khoá gốc và mật khẩu sinh mới chỉ ghi vào tệp môi trường đã nằm trong `.gitignore`, nạp danh mục từ CSV theo tham số, nhận trường demo hiện có (adopt-existing, dùng lại cơ sở dữ liệu cũ), gắn trường demo vào danh mục. Lệnh dựng cũng tạo cơ sở dữ liệu chợ gia sư, khóa của chợ và bật chợ ở `cho-gia-su.truong.localhost`, ứng dụng Gia sư ở `gia-su.truong.localhost` (thu tiền thật luôn tắt). Tập lệnh `scripts/chay-nhieu-truong.mjs` chạy đủ bản nhiều trường bằng một lệnh: định danh 3101, API 3100, tiến trình nền, cổng quản trị 5190, cổng vận hành 5191, ứng dụng giáo viên 5192, phụ huynh 5193, học sinh 5194, chợ gia sư 5195, ứng dụng Gia sư 5196, tất cả ở tên miền `*.localhost`.
+- Quản trị vào mọi trường trên bản nhiều trường: một tài khoản vận hành nền tảng (cơ chế DT-24, chính sách `any_school`) đăng nhập ở cổng nền tảng rồi mở phiên quản trị sang trường bất kỳ; cổng nền tảng tạo liên kết `http` ở cổng của cổng quản trị khi đặt `VITE_SCHOOL_PORTAL_PORT` (máy phát triển).
+- `.gitignore` bỏ qua `.env.*` (trừ `.env.example`). Hướng dẫn ở tài liệu 32 mục 16.10 và README.
+
+#### Quyết định
+
+- Danh mục của DT-24 đã phân cấp Sở → Phường/Xã (mã xã 5 chữ số, không có cấp huyện): không đổi cấu trúc dữ liệu.
+- Thứ tự ô theo ảnh mẫu Eric gửi sau (Cấp và Phường / Xã cùng hàng, phường không bắt buộc), thay thứ tự Sở → Phường → Cấp của yêu cầu đầu.
+- Ô Tên đăng nhập, Mật khẩu, Mã xác nhận dùng chữ gợi ý như mẫu; nhãn "Số điện thoại hoặc tên đăng nhập", "Mật khẩu", "Mã xác nhận" vẫn có cho trình đọc màn hình (ngoại lệ TD-02 của riêng trang đăng nhập; chữ gợi ý màu chữ phụ, tương phản trên 4.5:1). Ô Ghi nhớ, nút làm mới mã giữ tên "Ghi nhớ tài khoản", "Làm mới mã" cho trình đọc màn hình.
+- Chế độ một trường giữ cách hiện mã xác nhận đã có (theo cấu hình hoặc sau lần nhập sai đầu tiên, máy chủ bắt buộc sau số lần sai cấu hình); không thêm đường vượt mã xác nhận: e2e đọc đáp án ở kho tạm như trước.
+- Không tích Ghi nhớ thì cookie mã làm mới của cổng quản trị là cookie phiên (trước đây bền 8 giờ); phiên vẫn hết hạn sau 8 giờ ở máy chủ. Máy chủ nhận ra phiên đã ghi nhớ khi làm mới bằng độ dài phiên (dài hơn 8 giờ), không thêm cột.
+- Trường demo nhận vào nền tảng bằng adopt-existing, không chép dữ liệu; mã nền tảng `tc-demo` (mã nền tảng cần 3 đến 32 ký tự chữ thường), tên miền `tc.truong.localhost`; đơn vị danh mục giả `DEMO-TC` nguồn `demo-local`. Eric dừng bản một trường ngày 2026-10-28 nên việc nền chạy theo giờ bật mặc định ở bản nhiều trường; chạy lại bản một trường trên cùng cơ sở dữ liệu thì dựng với `--tat-viec-nen`.
+- Quản trị vào mọi trường là một tài khoản vận hành nền tảng duy nhất tên `Admin` (không phân biệt hoa thường), mật khẩu ngẫu nhiên từ 12 ký tự theo chính sách tài khoản vận hành, xác thực hai lớp bắt buộc; mật khẩu, khóa chỉ ở `.env.nhieu-truong`, không ở kho. Cổng vận hành chỉ dùng ở bản nhiều trường (5191); cổng 5177 của bản một trường không có nền tảng.
+- Ứng dụng giáo viên, phụ huynh chưa có đăng nhập theo đơn vị nên không đổi.
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-310, `23_LICH_SU_PHIEN_BAN.md` 0.185.0, `32_KE_HOACH_THEO_HE_THONG_SO.md` mục 16.10.
+
+#### Vấn đề tồn đọng
+
+- Đăng nhập theo đơn vị cho ứng dụng giáo viên, phụ huynh (khi cần) là phần việc riêng.
+
+### 2026-10-28 — Hồ sơ cán bộ, giáo viên mở ở trang riêng chia thẻ
+
+#### Công việc đã thực hiện
+
+- Thêm trang `/staff/$staffId` (`apps/portal/src/staff/StaffDetailPage.tsx`, đổi tên từ `StaffDetailPanel.tsx`). Đầu trang có nút quay lại danh sách, họ tên, trạng thái, dòng chức danh · phòng ban · đơn vị và mã nhân sự.
+- Các thẻ: Thông tin chung (thông tin riêng của trường, tài khoản liên kết), Hồ sơ CSDL Bộ (hồ sơ cán bộ, giáo viên theo Sở, thông tin theo CSDL ngành), Hợp đồng (hợp đồng lao động, lương thỏa thuận), Lương và phụ cấp (khoản lương riêng, người phụ thuộc), Quá trình công tác (mốc công tác, chứng chỉ).
+- Thẻ đang mở lưu ở `?tab=` (`moet`, `contracts`, `pay`, `history`; thẻ Thông tin chung không ghi), tải lại hay chia sẻ đường dẫn vẫn mở đúng thẻ. Thẻ ngang cuộn được trên màn hình hẹp, phím mũi tên chuyển thẻ.
+- Danh sách 3.1.1 bỏ khung hồ sơ dưới dòng, lưới dùng toàn chiều rộng. Bấm dòng, nút "Thay đổi" hay liên kết "Hồ sơ" mở trang hồ sơ; tạo hồ sơ mới xong thì mở trang hồ sơ vừa tạo. Quyền, thao tác ghi, xóa, xuất giữ nguyên.
+- 5.9 Thống kê hồ sơ nhân sự chưa nhập đủ: bấm tên mở trang hồ sơ ở thẻ Hồ sơ CSDL Bộ thay cho khung bên dưới lưới.
+- Sửa kiểm thử giao diện 19, 55, 60 theo trang mới; thêm bước kiểm tra địa chỉ có `?tab=`, tải lại trang vẫn ở thẻ Hợp đồng, người không xem được hợp đồng không thấy thẻ Hợp đồng.
+
+#### Quyết định
+
+- Thẻ Hợp đồng chỉ hiện khi máy chủ trả danh sách hợp đồng (BR-46); thẻ Lương và phụ cấp, Quá trình công tác ẩn khi máy chủ từ chối quyền xem (dùng cùng truy vấn với phần bên trong).
+- Chưa có thẻ Phân công giảng dạy: máy chủ chưa có API phân công theo một nhân sự (chỉ có theo lớp và tổng số tiết theo giáo viên).
+- Thẻ đang mở chỉ dựng nội dung của thẻ đó, các thẻ khác tải khi mở.
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-309, `23_LICH_SU_PHIEN_BAN.md` 0.184.0.
+
+#### Vấn đề tồn đọng
+
+- Chưa làm: thẻ Phân công giảng dạy (lớp, môn, số tiết của một giáo viên) ở trang hồ sơ cán bộ, giáo viên. Làm khi máy chủ có API trả phân công giảng dạy theo một nhân sự; hiện chỉ có phân công theo lớp (`/api/v1/teaching-assignments?class_id=`) và tổng số tiết theo giáo viên (`/api/v1/teaching-assignments/teachers`).
+
+### 2026-10-28 — DT-27 phần 27i: an toàn trẻ em và kiểm duyệt ở chợ
+
+#### Công việc đã thực hiện
+
+- Đọc mục 19.2 (ghi hình, báo cáo vi phạm), 19.5 (27i), 19.6, 20.5 (lọc thông tin liên lạc của 28e) của `32_KE_HOACH_THEO_HE_THONG_SO.md`. Phiên điều phối giao ngày 2026-10-28 sau 27h (PR 229): báo cáo vi phạm, tạm khóa gia sư, lọc thông tin liên lạc (dùng lại hàm thuần `scanContactInfo` của 28e trong `packages/shared`), ghi hình bắt buộc với buổi có trẻ vị thành niên theo 19.2, quyền xem bản ghi; giao diện ở `apps/tutor`, `apps/market` và cổng nền tảng.
+- Văn bản pháp lý: Luật 91/2025/QH15 Điều 24 (dữ liệu trẻ em) đã đọc toàn văn ở S8a ngày 2026-10-25 (19.2); Nghị định 356/2025 Điều 21 khoản 5 (phần mềm giáo dục có ghi hình) theo 19.2. Luật Trẻ em 102/2016 và căn cứ của Tổng đài 111 **chưa đọc lại bản gốc trong phiên này** (19.2 ghi chưa xác minh số điều); sản phẩm chỉ hướng dẫn gọi 111 và 113, không trích điều luật.
+- Marketplace `0030`: `market_message_threads`, `market_messages`, `market_reports`, `market_tutor_suspensions`, `market_moderation_log`, `market_session_recordings`, `market_recording_views`, `market_evidence_exports`; thêm `recording_required`, `recording_consented` vào `market_bookings`; kiểu bảng ở `database/marketplace/schema-parts/dt-27i-an-toan-tre-em.ts`.
+- Máy chủ API (đăng ký ở `src/dang-ky/dt-27i-an-toan-tre-em.ts`):
+  - `market-safety-rules.ts`: hàm thuần (hạn xử lý theo mức, mức tối thiểu của an toàn trẻ em, tạm khóa ngay, trẻ vị thành niên theo năm sinh, hạn giữ bản ghi, giờ mở phòng, lọc tin nhắn, điều kiện "gia sư không bị tạm khóa");
+  - `market-safety.ts`: tin nhắn, báo cáo vi phạm, kháng nghị, tạm khóa và gỡ khóa, phòng học có ghi hình qua bộ nối video của 27a, xem bản ghi, xóa bản ghi hết hạn, hàng chờ kiểm duyệt, xuất hồ sơ;
+  - `market-bookings.ts` (27h): đặt buổi với trẻ vị thành niên phải đồng ý ghi hình; gia sư đang tạm khóa không đặt được; hủy buổi sắp tới khi tạm khóa (hoàn đủ); không giải ngân trong lúc tạm khóa; `market-public.ts`: ẩn gia sư đang tạm khóa.
+- `packages/market-client`: `SafetyWidgets.tsx` (tin nhắn, báo cáo vi phạm, phát bản ghi, chính sách an toàn trẻ em), `marketBlob`.
+- Giao diện: Chợ gia sư (đồng ý ghi hình khi đặt; Nhắn tin, Báo cáo hồ sơ ở trang gia sư; Vào phòng học, Xem bản ghi, Báo cáo vi phạm ở buổi học; Tin nhắn; Chính sách an toàn trẻ em); ứng dụng Gia sư (Kiểm duyệt và an toàn, Mở và kết thúc phòng học, Xem bản ghi, Báo cáo phụ huynh, Tin nhắn, Chính sách); cổng nền tảng (Kiểm duyệt và an toàn trẻ em: chỉ số, hàng chờ, bằng chứng, quyết định, tạm khóa ngay, xuất hồ sơ, xem bản ghi).
+- Sửa cổng phát triển trùng (phiên điều phối phát hiện khi chạy toàn hệ thống): `apps/tutor` và `apps/student` cùng đặt `server.port: 5179` vì PR 223 và PR 224 gộp song song; đổi `apps/tutor` sang **5181** (5180 dành cho portal chạy nhanh). Đã rà: e2e dùng cổng riêng 5388 (không đổi), máy chủ API và dịch vụ định danh không có danh sách CORS hay origin theo cổng (giao diện gọi cùng tên miền qua proxy), `apps/mobile` chỉ chuyển cổng 5174, 5175, 5179 (không có ứng dụng Gia sư); cập nhật `README.md` và bảng cổng ở `34_TONG_HOP_CHUC_NANG_HE_THONG/01_TONG_QUAN_VA_NEN_TANG.md` (thêm dòng Chợ gia sư, Ứng dụng Gia sư). Mảnh YCTD-262 còn ghi 5179 là lịch sử, không sửa.
+- Kiểm thử: CT-27i-1 (`market-safety-rules.test.ts`), CT-27i-2 đến CT-27i-5 (`market-safety.test.ts`), CT-27i-6 (e2e `198-market-safety.spec.ts`); sửa `market-bookings.test.ts` và e2e 197 cho đồng ý ghi hình.
+
+#### Quyết định
+
+- Tin nhắn chỉ có luồng phụ huynh với gia sư, phụ huynh mở luồng; trẻ không có tài khoản ở chợ nên không có luồng gia sư với trẻ. Chữ đã che lưu ở `body`; chữ gốc chỉ lưu khi có che, chỉ nhân viên kiểm duyệt xem (bằng chứng). Lần thứ 3 trong một luồng một người gửi thông tin liên lạc ngoài thì gắn cờ luồng và tự tạo báo cáo né hoa hồng (mức trung bình).
+- Báo cáo vi phạm: năm loại (an toàn trẻ em, quấy rối, gian lận, né hoa hồng, nội dung sai), bốn mức; hạn xử lý nghiêm trọng 4 giờ, cao 24 giờ, trung bình 3 ngày, thấp 7 ngày; an toàn trẻ em không thấp hơn mức cao. Gia sư chỉ báo phụ huynh đã có buổi hoặc tin nhắn với mình.
+- Mức nghiêm trọng tạm khóa gia sư ngay, không chờ nhân viên: ẩn khỏi chợ, không đặt buổi, không nhắn tin, không mở phòng, hủy buổi sắp tới (hoàn đủ như gia sư hủy), giữ tiền chưa giải ngân, báo phụ huynh đã có buổi với gia sư (kèm 111, 113). Tạm khóa là dòng riêng, không khóa tài khoản, để gia sư đăng nhập xem và kháng nghị.
+- Quyết định: tạm khóa, cảnh cáo, bác; bắt buộc có lý do; cảnh cáo hoặc bác thì gỡ khóa đang có. Một lần kháng nghị trong 7 ngày (gia sư kháng nghị tạm khóa, cảnh cáo; người báo kháng nghị bác), nhân viên khác người quyết định lần đầu xét. Mọi bước ghi nhật ký kiểm duyệt.
+- Ghi hình (19.2): mọi buổi có trẻ dưới 18 tuổi (theo năm sinh, năm tròn 18 vẫn tính) phải ghi; phụ huynh đồng ý khi đặt, không đồng ý thì không đặt được. Phòng chỉ mở khi bắt đầu ghi được (có bộ nối video, kho tệp, khóa mã hóa của chợ); phụ huynh chỉ vào phòng khi đang ghi. Bản ghi mã hóa AES-256-GCM bằng `MARKET_FILES_KEY`, giữ 30 ngày, giữ tiếp khi buổi đang tranh chấp, có báo cáo chưa chốt (trừ đã bác) về một trong hai bên, hoặc gia sư đang tạm khóa. Chỉ phụ huynh, gia sư của buổi, nhân viên nền tảng xem; phát `inline`, `no-store`, giao diện không có nút tải; mỗi lượt xem ghi nhật ký.
+- Xuất hồ sơ cho cơ quan có thẩm quyền phải ghi cơ quan và số văn bản yêu cầu, có nhật ký; tệp xuất gồm báo cáo, tin nhắn gốc, buổi học, siêu dữ liệu bản ghi; bàn giao bản ghi theo thủ tục riêng (E-08).
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-259, `23_LICH_SU_PHIEN_BAN.md` 0.183.0; BR-444 đến BR-447, PQ-191, P02-136, AC-1106 đến AC-1110, MH-543 đến MH-545, CT-1407 đến CT-1412, QĐ-49.
+
+#### Vấn đề tồn đọng
+
+- Chưa làm: giao diện phòng video trong ứng dụng Chợ gia sư và Gia sư (máy chủ đã cấp mã vào phòng, bộ nối của 27a), điểm danh tự động từ sự kiện vào ra; nhận sự kiện kết thúc ghi của LiveKit cho phòng của chợ (bộ giả lập trả tệp ngay; LiveKit thật để bản ghi ở trạng thái `processing`); mã hóa tệp do LiveKit Egress ghi thẳng vào kho (hiện dựa vào mã hóa của kho); danh sách từ ngữ cấm của chợ; trẻ đọc tin nhắn khi phụ huynh cho; báo cáo từ đánh giá (chưa có đánh giá sau buổi); văn bản PL-19 đầy đủ (luật sư của Eric rà, E-08); thủ tục chuyển cơ quan có thẩm quyền.
+- Đọc lại bản gốc Luật Trẻ em 102/2016 và căn cứ Tổng đài 111 trước khi mở chợ.
+
+### 2026-10-28 — DT-27 phần 27h: đặt buổi, thanh toán, tranh chấp
+
+#### Công việc đã thực hiện
+
+- Đọc mục 19.3 (tiền đi theo mô hình), 19.5 (27h), GD-133, GD-134 của `32_KE_HOACH_THEO_HE_THONG_SO.md`. Quyết định của Eric ngày 2026-10-28: làm mã, tiền giả lập; không bật tiền thật trước khi xong E-01 đến E-07. Giao diện phụ huynh ở `apps/market`, gia sư ở `apps/tutor`.
+- Marketplace `0020`: `market_bookings`, `market_payments`, `market_payment_events`, `market_disputes`, `market_dispute_statements`, `market_commission_rules`; kiểu bảng ở `database/marketplace/schema-parts/dt-27h-dat-buoi-thanh-toan.ts`.
+- Máy chủ API (đăng ký ở `src/dang-ky/dt-27h-dat-buoi-thanh-toan.ts`):
+  - `market-payment-provider.ts`: lớp `MarketplacePaymentProvider` (tạo lệnh thu có giữ, giải ngân chia hoa hồng, hoàn, giữ khi tranh chấp, kiểm sự kiện có chữ ký) và bộ giả lập `MockMarketplacePaymentProvider`;
+  - `market-booking-rules.ts`: hàm thuần (chọn quy tắc hoa hồng, tính hoa hồng, hoàn khi hủy theo GD-134, chia tiền, giờ Việt Nam, giờ trống, trùng giờ, điều kiện nội dung theo Thông tư 29/2024);
+  - `market-bookings.ts`: đặt buổi, thanh toán giả lập, nhận sự kiện của nhà cung cấp, hủy, gia sư đánh dấu đã dạy, tranh chấp, trình bày, khiếu nại lại, việc định kỳ (nhả chỗ, giải ngân, chốt quyết định);
+  - `market-payments-admin.ts`: thanh toán, tranh chấp, quy tắc hoa hồng, chạy ngay việc định kỳ ở cổng nền tảng.
+- `market-tutor-rules.ts` (27g): hồ sơ gia sư không có môn `curriculum` cho cấp Tiểu học; trang công khai trả mã môn để đặt buổi.
+- Giao diện: Chợ gia sư (Đặt buổi ở trang gia sư, Buổi học của con: thanh toán giả lập, hủy, tranh chấp, trình bày, khiếu nại lại); ứng dụng Gia sư (Buổi dạy và thu nhập); cổng nền tảng (Buổi học và thanh toán: tranh chấp, quyết định, chốt, quy tắc hoa hồng, chạy giải ngân).
+- Kiểm thử: CT-27h-1 (`market-booking-rules.test.ts`), CT-27h-2 đến CT-27h-6 (`market-bookings.test.ts`), CT-27h-7 (e2e `197-tutor-booking.spec.ts`).
+
+#### Quyết định
+
+- Tiền nằm ở nhà cung cấp thanh toán, nền tảng chỉ ra lệnh (19.3); bản này chỉ có bộ giả lập `mock`, ghi sổ trong bộ nhớ, ký sự kiện HMAC-SHA256. Nhà cung cấp chuyển tiền thật bị từ chối khi cấu hình chợ chưa bật thu tiền thật (luôn tắt), kiểm ở mỗi lần đặt buổi.
+- Đặt buổi lẻ trước ít nhất 2 giờ, trong 60 ngày, nằm trọn trong giờ trống của gia sư theo giờ Việt Nam, không trùng buổi khác của gia sư hoặc của con (khóa theo gia sư khi ghi); giữ chỗ 30 phút chờ trả tiền; tiền về sau khi chỗ đã nhả thì hoàn ngay.
+- Hồ sơ con phải còn đồng ý của cha mẹ; cấp, lớp của con thuộc môn đã chọn; không dạy thêm môn `curriculum` cho học sinh Tiểu học (Thông tư 29/2024 khoản 1 Điều 4); gia sư đang dạy ở trường dạy môn `curriculum` thì phụ huynh cam kết con không do gia sư dạy ở trường (khoản 2 Điều 4) vì chợ chưa có phân công của trường để so khớp.
+- Giá, môn, hoa hồng chụp lại lúc đặt. Quy tắc hoa hồng cụ thể nhất (theo gia sư, theo loại nội dung, chung), ngày hiệu lực gần nhất không sau ngày đặt; không có quy tắc thì theo tỷ lệ mặc định của cấu hình chợ (để trống là 0). Làm tròn đến đồng, tối thiểu, không vượt giá.
+- Hủy (GD-134): phụ huynh hủy trước 24 giờ hoàn đủ, trong 24 giờ hoàn 50% (phần còn lại chia hoa hồng và gia sư), gia sư hủy hoàn đủ; từ giờ bắt đầu không hủy, chỉ mở tranh chấp.
+- Gia sư đánh dấu đã dạy sau giờ kết thúc; hạn khiếu nại tính từ giờ kết thúc (GD-133); hết hạn mà không có tranh chấp thì giải ngân (trừ hoa hồng). Điểm danh bằng phòng video của 27a ở ngữ cảnh chợ chưa làm, nên giải ngân dựa vào đánh dấu của gia sư và quyền khiếu nại của phụ huynh.
+- Tranh chấp: phụ huynh mở từ giờ bắt đầu đến hết hạn khiếu nại, tiền bị giữ; hai bên trình bày; nhân viên quyết định hoàn đủ, hoàn một phần hoặc giải ngân, có lý do; quyết định lần đầu chưa chuyển tiền, một bên được khiếu nại lại trong 7 ngày, do nhân viên khác xét; hết 7 ngày (hoặc nhân viên chốt) thì chuyển tiền theo quyết định.
+- Việc định kỳ chạy trong máy chủ API (`MARKET_JOB_INTERVAL_SECONDS`, mặc định 300 giây); nhân viên cũng chạy ngay được ở cổng nền tảng.
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-258, `23_LICH_SU_PHIEN_BAN.md` 0.182.0; BR-440 đến BR-443, PQ-190, P02-135, AC-1100 đến AC-1105, MH-540 đến MH-542, CT-1400 đến CT-1406, QĐ-48.
+
+#### Vấn đề tồn đọng
+
+- Chưa làm: gói nhiều buổi; phòng video của 27a ở ngữ cảnh chợ và điểm danh tự động (có bản ghi cho tranh chấp); so khớp phân công qua liên kết tài khoản trường; khấu trừ thuế (công tắc tắt, GD-138, chờ E-03) và hóa đơn hoa hồng (chờ E-09); phương án B "trả thẳng gia sư"; đánh giá sau buổi và sắp xếp theo đánh giá; báo cáo doanh thu theo gia sư.
+- Nhà cung cấp thanh toán thật chờ E-02 và chỉ dùng khi xong E-01 đến E-07.
+
+### 2026-10-28 — DT-27 phần 27g: hồ sơ, xác minh, tìm gia sư
+
+#### Công việc đã thực hiện
+
+- Đọc mục 19.2 (xác minh lý lịch gia sư ở chợ mở), 19.5 (27g) của `32_KE_HOACH_THEO_HE_THONG_SO.md`. Làm trên ứng dụng Gia sư `apps/tutor` (YCTD-262); phiên điều phối giao ngày 2026-10-28, ưu tiên của Eric là giao diện web.
+- Bộ nối OIDC của DT-25 (`identity-provider`, `oidc-provider`, `provider-profiles` và kiểm thử) chuyển bằng `git mv` sang `packages/server/src/external-identity/` (đường nhập `@school-management/server/external-identity`) để máy chủ API dùng; dịch vụ định danh nhập từ gói, hành vi không đổi. `readProviderDefinitions` nhận tiền tố biến (`EXTERNAL_IDENTITY` mặc định, `MARKET_IDENTITY` cho chợ).
+- Marketplace `0010`: thêm cột duyệt, ngôn ngữ dạy cho `market_tutor_profiles` (trạng thái thêm đã duyệt, bị từ chối); bảng `market_tutor_subjects`, `market_tutor_availability`, `market_tutor_documents`, `market_tutor_verifications`, `market_tutor_school_roles`, `market_oidc_requests`. Kiểu bảng ở `database/marketplace/schema-parts/dt-27g-xac-minh-gia-su.ts`.
+- Máy chủ API (`apps/api/src/market/`, đăng ký ở `src/dang-ky/dt-27g-xac-minh-gia-su.ts`):
+  - `market-identity.ts`: xác minh danh tính và đăng nhập bằng OIDC ở ứng dụng Gia sư (`/api/v1/market/identity/*`);
+  - `market-listing.ts`: hồ sơ dạy, gửi duyệt, nộp giấy tờ (mã hóa AES-256-GCM bằng `MARKET_FILES_KEY`, kho chung của bản triển khai), khai giáo viên đang dạy ở trường, Mẫu 03 (`/api/v1/market/tutor/*`);
+  - `market-review.ts`: hàng chờ duyệt, xem tệp có nhật ký, duyệt hoặc từ chối có lý do (`/api/v1/market/admin/reviews/*`);
+  - `market-public.ts`: tìm gia sư, trang công khai theo Mẫu 02 ở Chợ gia sư (`/api/v1/market/public/tutors*`);
+  - `market-tutor-rules.ts`: quy tắc thuần (kiểm hồ sơ, trạng thái xác minh có hạn, điều kiện gửi duyệt, duyệt, hiện công khai).
+- `TenantFileStorage.deploymentStorage()`: kho chung của bản triển khai cho phần không thuộc trường nào (tệp của chợ không đi qua cấu hình kho riêng của trường).
+- Giao diện: ứng dụng Gia sư (Xác minh, Hồ sơ dạy, Giáo viên đang dạy ở trường với báo cáo Mẫu 03 in được, đăng nhập bằng định danh, trang quay về `/xac-minh`); Chợ gia sư (Tìm gia sư, trang gia sư theo Mẫu 02); cổng nền tảng (Hàng chờ duyệt gia sư trong trang Chợ gia sư).
+- Kiểm thử: CT-27g-1 (`market-tutor-rules.test.ts`), CT-27g-2 đến CT-27g-4 (`market-verification.test.ts`, nhà cung cấp OIDC giả lập), CT-27g-5 (e2e `196-tutor-verification.spec.ts`).
+
+#### Quyết định
+
+- Xác minh danh tính chỉ nhận nhà cung cấp khai `birthdate_claim` (chợ phải biết đủ 18 tuổi); dưới 18 tuổi hoặc không có ngày sinh thì từ chối. Chợ chỉ lưu băm của mã đối tượng, "đủ 18 tuổi", không lưu ngày sinh; một người chỉ gắn một tài khoản gia sư.
+- Lượt OIDC lưu ở cơ sở dữ liệu chợ (máy chủ API không có Redis riêng của chợ), chỉ lưu băm của state, hạn 10 phút, dùng một lần; địa chỉ quay về phải là `/xac-minh` trên tên miền của ứng dụng Gia sư.
+- Đăng nhập bằng OIDC chỉ cho tài khoản gia sư đã xác minh bằng đúng nhà cung cấp đó; không tự tạo tài khoản.
+- Hiện công khai khi hồ sơ đã duyệt, danh tính đã xác minh, lý lịch tư pháp đã duyệt còn hiệu lực (GD-136: cấp trong 6 tháng khi nộp, hiệu lực 12 tháng từ ngày duyệt). Sửa hồ sơ đã duyệt thì về chờ duyệt, ẩn khỏi tìm kiếm.
+- Môn `curriculum` cần nộp đăng ký kinh doanh trước khi gửi duyệt và cần đăng ký kinh doanh đã duyệt trước khi duyệt hồ sơ.
+- Giáo viên đang dạy ở trường (Eric làm rõ ngày 2026-10-28: giáo viên dạy kèm ngoài trường dùng ứng dụng Gia sư bằng tài khoản chợ riêng): khai tên trường, công lập hay không, môn, lớp; giáo viên trường công lập không có môn `curriculum` (Thông tư 29/2024 khoản 3 Điều 4) ở cả lúc lưu hồ sơ và lúc khai; báo cáo Mẫu 03 là bản in để nộp Hiệu trưởng. Chợ không đọc dữ liệu trường.
+- Trang công khai theo Mẫu 02: cơ sở đứng tên, số đăng ký kinh doanh nếu có, môn, khối lớp, thời lượng, mức thu, địa điểm (trực tuyến), hình thức, thời gian, người dạy; không có thư điện tử, số điện thoại, địa chỉ của gia sư.
+- Tệp giấy tờ: nhận PDF, JPEG, PNG theo các byte đầu (không tin phần mở rộng), tối đa 10 MB; nộp lại thì thay bản cũ, xóa tệp cũ khỏi kho.
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-257, `23_LICH_SU_PHIEN_BAN.md` 0.181.0; BR-430 đến BR-432, PQ-185, P02-130, AC-1090 đến AC-1094, MH-530 đến MH-533, CT-1390 đến CT-1394, QĐ-47.
+
+#### Vấn đề tồn đọng
+
+- Chưa làm: ảnh hồ sơ gia sư; đánh giá sau buổi và sắp xếp theo đánh giá (cần buổi đã học, 27h); liên kết tài khoản chợ với tài khoản trường để hiện nhãn "giáo viên trường X đã xác minh"; nhắc gia sư nộp lại lý lịch tư pháp trước khi hết hiệu lực.
+- Nhà cung cấp định danh thật (VNeID qua tổ chức cung cấp dịch vụ xác thực) chờ E-04; bản này chỉ chạy nhà cung cấp OIDC giả lập.
+
+### 2026-10-28 — Sửa CI nhánh chính
+
+#### Công việc đã thực hiện
+
+- CI trên `main` đỏ từ khoảng 2026-10-26 (37 trên 40 lần chạy gần nhất). Có ba nguyên nhân:
+  - Việc `kiem-thu-thiet-bi` (hai mảnh, chỉ chạy đầy đủ trên `main` và hằng đêm) thiếu ảnh mẫu Linux của spec 180.
+  - Spec 154 (CT-23e-5) hỏng chập chờn.
+  - Spec 58 (CT-16a-10) đua với tiến trình xuất nền.
+- Spec 180: thêm bốn ảnh mẫu `tests/e2e/180-device-frame.spec.ts-snapshots/dang-nhap-cong-quan-tri-{dien-thoai,dien-thoai-webkit,may-tinh-bang-doc,may-tinh-bang-ngang}-linux.png`. Ảnh lấy từ artifact của lần chạy CI 40626845934 trên commit 6ceff5fa. Ảnh do hai máy chạy CI độc lập (mảnh 1/2 và 2/2) sinh ra giống nhau từng byte.
+- Giám thị camera:
+  - Ô camera của giáo viên (`apps/portal/src/online-exams/ProctorPanel.tsx`) bỏ qua kết quả của lượt mở đã hủy.
+  - Máy học sinh (`apps/student/src/proctoring.ts`) xử lý lỗi trả lời từng lời mời riêng, không để lỗi của một lời mời bỏ qua các lời mời khác trong cùng lượt hỏi.
+- Spec 58 CT-16a-10: giữ khóa dòng tác vụ "Đang chờ" trong một giao dịch suốt lúc kiểm giao diện.
+- CI: yêu cầu kéo gắn nhãn `thiet-bi-day-du` chạy việc `kiem-thu-thiet-bi` đầy đủ như trên `main` (hai mảnh, bốn dự án thiết bị, thêm WebKit).
+  - Nhờ vậy kiểm được ca chỉ chạy trên `main` trước khi gộp.
+  - Sự kiện `pull_request` mặc định không chạy lại khi gắn nhãn, nên gắn nhãn xong phải đẩy thêm một commit.
+
+#### Quyết định
+
+- Ảnh mẫu Linux lấy từ chính CI chứ không tách bài so ảnh khỏi lượt chạy bắt buộc:
+  - CI chạy trên `ubuntu-latest` với trình duyệt cài bằng `playwright install --with-deps`, không chạy trong container Playwright. Ảnh sinh từ container có thể lệch phông chữ so với CI, còn ảnh từ chính CI khớp đúng môi trường so.
+  - Hai mảnh chạy trên hai máy khác nhau cho ảnh trùng từng byte, nên kết xuất ổn định.
+  - Tách bài so ảnh khỏi lượt chạy bắt buộc thì mất kiểm tra hồi quy giao diện mà YCTD-233 đặt ra.
+  - Khi ảnh hệ điều hành của máy chạy CI đổi phông chữ hoặc giao diện trang đăng nhập đổi có chủ ý, tải artifact `ket-qua-kiem-thu-thiet-bi-*` của lần chạy hỏng, lấy tệp `*-actual.png` thay cho ảnh mẫu.
+- Spec 154 hỏng do lỗi mã thật, không phải lỗi spec. Kiểm thử chạy cổng quản trị bằng `vite` (chế độ phát triển, có `StrictMode`) nên hiệu ứng của ô camera chạy hai lần:
+  - Lượt một mở phiên xem A, lượt hai mở phiên xem B, và máy chủ đóng A khi mở B.
+  - Nếu lời mời của A gửi sau khi A bị đóng, máy chủ báo "Phiên xem đã kết thúc". Lỗi này ghi đè trạng thái của ô thành "Không xem được".
+  - Nếu máy học sinh thấy lời mời của A trước, lỗi khi trả lời A làm bỏ qua lời mời của B trong cùng lượt hỏi (con trỏ đã tiến), nên ô đứng mãi ở "Đang kết nối…".
+  - Ngoài `StrictMode`, cùng tình huống xảy ra khi giáo viên đóng rồi mở lại ô camera nhanh.
+- Spec 58: tiến trình xuất nền của máy chủ API lấy tác vụ chờ bằng `for update skip locked` và chạy ngay. Tác vụ giả không có tham số nên thành "Lỗi" trước khi trang kịp hiện "Đang chờ".
+  - Spec giữ khóa dòng nên tiến trình nền bỏ qua dòng đó; điều kiện kiểm tra giữ nguyên.
+  - Mã xuất nền đúng như thiết kế nên không sửa mã.
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-306, `23_LICH_SU_PHIEN_BAN.md` 0.180.0.
+
+#### Vấn đề tồn đọng
+
+- Không có.
+
+### 2026-10-28 — DT-28 phần 28g: giờ học trực tuyến, phòng nhóm, phòng chia nhỏ
+
+#### Công việc đã thực hiện
+
+- Làm phần 28g theo `32` mục 20.6, 20.7. **GD-144 Eric đã chốt 2026-10-28** ("Trường tự cấu hình"):
+  - Mặc định không giới hạn giờ.
+  - Mỗi trường tự đặt khung giờ mở thảo luận và phòng học nhóm; ngoài giờ chỉ đọc.
+  - Đã cập nhật các chỗ của 28e còn ghi "chưa chốt" (tệp mảnh YCTD-275, chú thích mã, dòng 28e và dòng GD-144 ở 32).
+- **Dùng lại 27a**, không thêm dịch vụ video:
+  - Bộ nối phòng video (LiveKit, bộ giả lập khi kiểm thử), tên phòng theo trường, mã vào phòng theo vai trò.
+  - Sự kiện gọi lại có chữ ký và giới hạn phút của gói. Thêm cửa `VideoRoomExtension` ở `VideoRoomsService`: sự kiện của phòng không thuộc 27a chuyển cho 28g, phút người dự của 28g cộng vào phút của gói.
+- **Giờ học trực tuyến** (loại hoạt động `live_session`):
+  - Giáo viên tạo ở ứng dụng giáo viên: giờ bắt đầu là `opens_at` (lịch học tập của 28e tự hiện), thời lượng 5 đến 240 phút.
+  - Giáo viên mở phòng, vào làm chủ phòng; học sinh vào khi hoạt động đã giao, đang mở với em và phòng đang mở; Ban Giám hiệu, tổ trưởng vào xem.
+  - Điểm danh gợi ý từ nhật ký vào ra (cả phòng chia nhỏ): có mặt khi dự từ nửa thời lượng, vào muộn hoặc ra sớm, vắng. Giáo viên xác nhận mới ghi kết quả hoạt động.
+  - Không ghi hình (GD-131 của 27a giữ tắt).
+- **Phòng chia nhỏ** từ phòng giờ học:
+  - Chia theo bộ nhóm có sẵn hoặc ngẫu nhiên có hạt; lớp học trực tuyến gắn lớp thì lưu thành bộ nhóm `classroom`.
+  - Có hạn phòng; thông báo tới mọi phòng; chuyển học sinh; học sinh "gọi giáo viên"; gọi tất cả về phòng chính.
+- **Phòng nhóm** theo nhóm của bộ nhóm (28a):
+  - Người lập bộ nhóm, giáo viên của lớp mở và vào bất cứ lúc nào.
+  - Học sinh tự mở chỉ khi giáo viên bật cho bộ nhóm và trong giờ mở của trường.
+  - Học sinh luôn thấy "Giáo viên đang xem phòng này" (GD-149).
+  - Báo cáo từ phòng vào hàng chờ của 28e.
+- **Giao diện:**
+  - Ứng dụng giáo viên: `LiveScreen.tsx`, `LiveSessionScreen.tsx`.
+  - Ứng dụng học sinh (`apps/student`, YCTD-300): `StudentLivePanel.tsx`.
+  - `VideoRoom` của `packages/ui` nhận nhãn vai trò.
+  - Cổng quản trị: dòng giải thích giờ mở ở 9.5 nói rõ áp dụng cho cả phòng nhóm.
+- **Đăng ký theo cơ chế của YCTD-294:**
+  - Kiểu bảng: `database/school-year/schema-parts/dt-28g-hoc-truc-tuyen-truc-tiep.ts`.
+  - Bộ điều khiển: `apps/api/src/dang-ky/dt-28g-hoc-truc-tuyen-truc-tiep.ts`.
+  - Không sửa danh sách chung.
+- **Kiểm thử:**
+  - 5/5 ca thuần `live-rules.test.ts`, 3/3 ca API `live.test.ts`.
+  - Hồi quy `video`, `discussions`, `learning`.
+  - e2e `220-live-sessions` chạy kèm spec nền 01 đến 09.
+
+#### Quyết định
+
+- Claude chọn theo ủy quyền (ghi ở YCTD-277):
+  - Giờ mở phòng nhóm dùng chung cấu hình `discussion_open_hours` của 28e.
+  - Phòng giáo viên mở không theo giờ mở; phòng học sinh tự mở thì ngoài giờ không mở, không vào được.
+  - Báo cáo từ phòng gắn chủ đề hệ thống "Phòng video" (đã khoá) của nhóm hoặc của lớp học trực tuyến, để dùng nguyên hàng chờ, phạm vi xử lý của 28e.
+  - "Giáo viên đang xem" theo người đang trong phòng: có khi cấp mã vào, hết khi giáo viên bấm rời phòng hoặc máy chủ video báo rời.
+  - Khoá tự chọn không gắn lớp: phòng nhóm, phòng chia nhỏ theo bộ nhóm dùng các bộ nhóm do chính giáo viên lập; chia ngẫu nhiên không lưu bộ nhóm.
+- Migration năm học 0187, 0188 (dải giữ sẵn); không thêm quyền.
+- Mã khối riêng (BR-420, AC-1080, MH-520, CT-1380, BM-215, PQ-180, P03-65); mục mới 12Q, 18P, 17.10 đặt sau mục của 28j.
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-277, `23_LICH_SU_PHIEN_BAN.md` 0.179.0; đặc tả 07, 08, 10, 11, 12, 14, 16, 17, 21, 22, dòng của phần ở 32, 34.
+
+#### Vấn đề tồn đọng
+
+- Ghi hình giờ học của trường (GD-131) chưa làm.
+- Gợi ý giờ học theo tiết của thời khoá biểu chưa làm.
+- Phụ huynh chưa xem điểm danh giờ học trực tuyến riêng; kết quả hoạt động vẫn hiện như mọi hoạt động.
+
+### 2026-10-28 — DT-27: tách ứng dụng Gia sư khỏi Chợ gia sư
+
+#### Công việc đã thực hiện
+
+- Quyết định của Eric ngày 2026-10-28 (qua phiên điều phối): "làm thêm ứng dụng cho gia sư". `apps/market` (27f) đang gộp khu phụ huynh và khu gia sư; tách khu gia sư thành ứng dụng riêng `apps/tutor` theo cách của `apps/teacher`, `apps/parent` (Vite, React, `packages/ui`, `packages/pwa`, PWA riêng tên "Chợ gia sư – Gia sư"). Làm trước 27g vì 27g chưa bắt đầu; 27g, 27h, 27i làm phần gia sư trên `apps/tutor`.
+- `git mv` khu gia sư (`TutorArea.tsx`) sang `apps/tutor`; phần dùng chung (gọi máy chủ API của chợ, phiên của chợ, biểu mẫu đăng ký, xác nhận mã, đăng nhập, khung trang công khai và văn bản pháp lý) chuyển bằng `git mv` sang gói mới `packages/market-client` (`MarketShell`, `RegisterForm` theo vai, `LoginForm`, `VerifyForm`, `marketRequest`).
+- `apps/tutor`: cổng phát triển 5179, manifest tĩnh (không theo trường), biểu tượng, service worker dùng chung với tiền tố bộ nhớ đệm `gia-su-v-`, khung cập nhật bản mới.
+- Máy chủ API: cấu hình chợ thêm `tutor_host` (tên miền của ứng dụng Gia sư, bắt buộc khi bật chợ, khác tên miền của chợ); `assertMarketHost` trả vai theo tên miền; đăng ký, đăng nhập, phiên chỉ nhận tài khoản phụ huynh ở tên miền của chợ, tài khoản gia sư ở tên miền của ứng dụng Gia sư; `GET /api/v1/market/public/site` trả thêm `application`, `market_url`, `tutor_url`. Cổng nền tảng: ô tên miền của ứng dụng Gia sư.
+- Triển khai: ảnh `web` dựng thêm `apps/market` (`/srv/market`), `apps/tutor` (`/srv/tutor`); ảnh máy chủ, ảnh gộp của hồ sơ thử nghiệm chép thêm `package.json` của hai ứng dụng và gói mới; hồ sơ vận hành thêm `caddy/sites.d/marketplace.caddy.example`, biến `MARKET_SITE`, `TUTOR_SITE`; cổng biên Cloudflare của hồ sơ thử nghiệm phục vụ hai ứng dụng ở gốc theo `MARKET_HOST`, `TUTOR_HOST` (`build-assets.sh` dựng thêm hai thư mục `cho-gia-su`, `gia-su`).
+- Kiểm thử: CT-27f-1, CT-27f-2, CT-27f-5 cập nhật theo hai tên miền; e2e 195 thêm ứng dụng Gia sư (cổng 5388, tên miền `gia-su.e2e.localhost`); `tests/trial/edge-worker.test.mjs` thêm hai tên miền.
+
+#### Quyết định
+
+- Ứng dụng Gia sư ở tên miền con riêng (không ở đường dẫn con của tên miền chợ): PWA cài riêng, phạm vi service worker riêng, phiên ở `sessionStorage` riêng của nguồn gốc; máy chủ biết vai của ứng dụng theo tên miền.
+- Mỗi ứng dụng một vai: tài khoản phụ huynh chỉ đăng ký, đăng nhập, dùng phiên ở Chợ gia sư; tài khoản gia sư chỉ ở ứng dụng Gia sư. Đăng nhập đúng mật khẩu ở sai ứng dụng thì 403 kèm chỉ dẫn, không mở phiên; phiên mang sang ứng dụng kia thì 401.
+- Gói `packages/market-client` dùng chung thay vì chép mã; không tách thêm gói giao diện.
+- Không đổi CORS, cookie: hai ứng dụng gọi `/api/v1` cùng tên miền của mình, phiên là mã trong `sessionStorage`, không có cookie. Chưa có máy khách OIDC (đăng nhập OIDC của gia sư làm ở 27g).
+- Phạm vi theo lời Eric làm rõ ngày 2026-10-28 (nguyên văn): "giáo viên dạy kèm cũng dùng ứng dụng gia sư như 1 kênh ngoài. đối với học sinh trong trường vẫn cho phép giáo viên sử dụng ứng dụng giáo viên". Do đó:
+  - giáo viên dạy kèm ngoài trường (kênh ngoài, chợ) dùng `apps/tutor` như mọi gia sư khác, đăng nhập bằng **tài khoản chợ riêng** (không dùng tài khoản của trường);
+  - dạy kèm học sinh trong trường của mình (27a đến 27e) vẫn làm ở ứng dụng giáo viên; không bỏ chức năng nào của ứng dụng giáo viên;
+  - liên kết tùy chọn tài khoản chợ với tài khoản trường để hiện nhãn "giáo viên trường X đã xác minh" làm ở 27g (cùng phần khai là giáo viên trường nào, báo cáo Mẫu 03); dữ liệu chợ và dữ liệu trường vẫn cách ly (chợ chỉ nhận kết quả xác minh, không đọc cơ sở dữ liệu trường);
+  - giữ các chặn theo Thông tư 29/2024 của kế hoạch: giáo viên công lập không đứng tên cơ sở dạy thêm cho nội dung `curriculum` (27g, khi gia sư khai loại nội dung); giáo viên đang được phân công dạy trẻ thì không nhận buổi `curriculum` có thu tiền của trẻ đó (27h, so khớp qua liên kết trường của hồ sơ con).
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-262, `23_LICH_SU_PHIEN_BAN.md` 0.178.0; BR-411, AC-1075, MH-513, CT-1376, QĐ-46 (QĐ-45 đã là của YCTD-300 khi gộp main).
+
+#### Vấn đề tồn đọng
+
+- Ảnh dựng `web` phục vụ được hai ứng dụng, nhưng tạo vai trò, cơ sở dữ liệu chợ và đặt tên miền ở môi trường thật vẫn chờ mở chợ (E-04).
+
+### 2026-10-28 — README song ngữ
+
+#### Công việc đã thực hiện
+
+- Thêm `README.md` (tiếng Việt, bản chính) và `README.en.md` (tiếng Anh) ở gốc kho mã, có liên kết chuyển ngôn ngữ ở đầu mỗi tệp: giới thiệu, tính năng theo nhóm, kiến trúc (sơ đồ mermaid), chạy trên máy, kiểm thử, triển khai, quy ước đóng góp, giấy phép.
+- Nội dung lấy từ `package.json`, `pnpm-workspace.yaml`, `docker-compose.yml`, `.env.example`, `deploy/`, `.github/workflows/ci.yml` và bộ tài liệu `tai_lieu/`.
+
+#### Quyết định
+
+- Kho chưa có tệp `LICENSE`: README ghi "chưa có giấy phép", không tự chọn giấy phép.
+- `apps/student` (PR 224) và `apps/tutor` (PR 223) ghi rõ là đang tách, chưa có trên `main`; khi hai PR gộp thì cập nhật bảng thư mục.
+- README không chứa khoá, mật khẩu, địa chỉ nội bộ hay dữ liệu thật, không khẳng định tuân thủ hay chứng nhận.
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-305, `23_LICH_SU_PHIEN_BAN.md` 0.177.0.
+
+#### Vấn đề tồn đọng
+
+- Chủ dự án chọn giấy phép thì thêm `LICENSE` và sửa mục "Giấy phép" của hai README.
+
+### 2026-10-28 — Tách riêng ứng dụng học sinh
+
+#### Công việc đã thực hiện
+
+- Dựng ứng dụng web `apps/student` (Vite, React, `packages/ui`, `packages/pwa`) cùng kiểu với ứng dụng giáo viên, phụ huynh. Chuyển bằng `git mv` (giữ lịch sử) toàn bộ màn hình học sinh từ `apps/parent/src/student/`: đăng nhập, đặt mật khẩu mới, thi trực tuyến có giám thị camera, bài tập, SCORM, thảo luận lớp, lớp video, hỏi đáp gia sư, khoá học ghi sẵn, học khi mạng yếu (IndexedDB), cùng `student-api.ts`, `student-session.tsx` và mô hình nhận diện khuôn mặt ở `public/models`.
+- Phần dùng chung của hai ứng dụng: danh sách huy hiệu, chứng nhận (`RecognitionList`) chuyển sang `packages/ui`.
+- Ứng dụng học sinh có manifest riêng (tên "… – Học sinh", mở thẳng gốc của ứng dụng), service worker riêng (tiền tố bộ nhớ đệm `hoc-sinh-v-`), đăng ký thông báo đẩy `usePushSync('student')` theo phạm vi của mình.
+- Ứng dụng phụ huynh bỏ nhánh `#hoc-sinh`. Địa chỉ cũ `<ứng dụng phụ huynh>#hoc-sinh` (thẻ QR, liên kết kích hoạt, lối tắt đã cài) chuyển sang ứng dụng học sinh trước khi dựng ứng dụng phụ huynh; liên kết "Học sinh làm bài thi trực tuyến" ở màn hình đăng nhập phụ huynh trỏ thẳng sang ứng dụng học sinh, liên kết "Ứng dụng phụ huynh" ở màn hình đăng nhập học sinh trỏ ngược lại.
+- Chạy thật: ảnh `web` dựng ứng dụng học sinh với đường dẫn gốc `/hoc-sinh/`, Caddy phục vụ ở `/hoc-sinh/` của tên miền phụ huynh (`deploy/caddy`, bản một trường của hồ sơ vận hành) và của tên miền trường khi `TENANT_PATHS=on`; trang học sinh mở quyền camera, micro của chính trang (giám thị camera 23e, lớp video 27a), các trang khác giữ chính sách chặt như cũ. Hồ sơ thử nghiệm: `build-assets.sh` dựng thêm `hoc-sinh`, cổng biên Cloudflare và proxy Vercel 3b nhận tiền tố `/hoc-sinh`.
+- Máy chủ API: manifest `student` mở thẳng gốc của ứng dụng (bỏ `#hoc-sinh`). Dịch vụ định danh không đổi: kênh `student`, cookie làm mới riêng, xác thực địa chỉ quay về theo tên miền của yêu cầu nên ứng dụng ở cùng tên miền không cần khai thêm. CSP của tệp SCORM lấy `frame-ancestors` từ nguồn gốc trang mở gói nên tự đúng với ứng dụng mới.
+- Cổng phát triển 5179, cổng e2e 5379 (chưa ứng dụng nào dùng). Vỏ ứng dụng `apps/mobile` không mở màn hình học sinh; chỉ thêm cổng 5179 vào danh sách điều hướng được và chuyển cổng khi chạy máy giả lập.
+- Kiểm thử giao diện có học sinh (150, 154, 181, 212, 214, 217, 218, 219) mở thẳng ứng dụng học sinh; 181 kiểm địa chỉ cũ `#hoc-sinh` chuyển sang ứng dụng mới, manifest và service worker riêng; 180 đo thêm trang đăng nhập học sinh theo khổ thiết bị (chạy ở `kiem-thu-thiet-bi`).
+
+#### Quyết định
+
+- Anh Eric quyết định ngày 2026-10-28 tách riêng ứng dụng học sinh, thay ghi chú cũ của DT-23 phần 23a "không dựng ứng dụng thứ tư" (QĐ-45).
+- Ứng dụng học sinh nằm ở `/hoc-sinh/` cùng tên miền với ứng dụng phụ huynh thay vì tên miền con riêng: địa chỉ cũ chuyển hướng được trong cùng tên miền, cookie kênh `student` vẫn là cookie cùng tên miền, không cần biến môi trường mới khi triển khai.
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-300, `23_LICH_SU_PHIEN_BAN.md` 0.176.0.
+
+#### Vấn đề tồn đọng
+
+- Đăng ký đẩy của học sinh tạo trước khi tách gắn với service worker của ứng dụng phụ huynh: chạm thông báo mở ứng dụng phụ huynh; học sinh muốn nhận đẩy ở ứng dụng mới thì bật lại ở mục thông báo của ứng dụng học sinh.
+- Hồ sơ vận hành bật `TENANT_PATHS=on` vẫn chờ S1b dựng các ứng dụng khác với đường dẫn gốc riêng; ứng dụng học sinh đã dựng sẵn với `/hoc-sinh/`.
+
+### 2026-10-28 — Áp sáu màn mẫu giao diện đã duyệt
+
+#### Công việc đã thực hiện
+
+- Học sinh (`/children`, `ChildrenPage`): dòng tiêu đề có số học sinh theo bộ lọc và nút "Nhập từ Excel" (sang `/student-imports`, theo quyền nhập), "Thêm mới" chuyển lên dòng tiêu đề; thẻ trạng thái (Tất cả và các trạng thái hồ sơ) đồng bộ với ô "Trạng thái" ở "Mở rộng tìm kiếm"; thẻ và lưới chung một khung trắng; cột họ tên có ảnh đại diện chữ cái đầu.
+- Sổ điểm (`/scores`, `ScoresPage`): dòng mô tả lớp, học kỳ, Thông tư 22/2021; bộ lọc trong khung trắng; thẻ dạng gạch chân; nhóm cột "Đánh giá thường xuyên" trên TX1..n, Giữa kỳ, Cuối kỳ, "TB môn HK", Nhận xét; nhãn tiến độ nhập theo bản nháp; ô bắt buộc chưa nhập viền cam; ghi chú công thức lấy từ hệ số cấu hình.
+- Thời khoá biểu (`/timetables`, `TimetablesPage`): dòng tóm tắt phiên bản, ngày áp dụng, đối tượng đang xem, số tiết mỗi tuần; "Xem theo" thành thẻ chọn Theo lớp, Theo giáo viên, Theo phòng; nhãn số xung đột phải sửa; lưới có dải "Buổi chiều", mỗi tiết là khối màu theo môn (`lesson-tone.ts`); liên kết "Xếp tự động" theo quyền quản lý thời khoá biểu. Lưới chỉ xem dùng chung với bản xem trước ở trang xếp tự động.
+- Đăng nhập (`/login`, `LoginPage`, `LoginHero`): bố cục hai cột, cột trái nền xanh có biểu trưng, tên trường màu vàng, dòng giới thiệu và ba nhãn ứng dụng; cột phải là thẻ đăng nhập; trên điện thoại hai cột xếp chồng.
+- Ứng dụng giáo viên, điểm danh (`AttendanceScreen`): thanh đầu xanh có tên lớp, ngày và ba bộ đếm (Có mặt, Nghỉ có báo, Nghỉ không báo); chạm vào dòng đổi lần lượt Có mặt, Nghỉ có báo, Nghỉ không báo; nút lưu, chốt ngày ở thanh dưới cố định.
+- Ứng dụng phụ huynh, trang chủ (`HomeScreen`): đầu trang xanh "Xin chào," và tên phụ huynh; thẻ của con chồng lên đầu trang, có ảnh chữ cái đầu và trạng thái điểm danh hôm nay (lấy từ điểm danh tháng, không có thì không hiện); lưới bốn lối tắt Báo vắng, Thời khoá biểu, Thực đơn, Học phí thay cho các nút cũ cùng tên.
+
+#### Quyết định
+
+- Chỉ đổi phần trình bày, giữ nguyên dữ liệu, truy vấn, quyền, hộp thoại, nhãn và mã kiểm thử mà kiểm thử giao diện dùng ("Lưu điểm danh", "Ban hành", "Ghi nhớ tài khoản", "Xin chào, …", "Ghi điểm").
+- Phần mẫu không có dữ liệu hay chức năng phía sau thì bỏ, không tự thêm: nút "Đồng bộ CSDL ngành", cột Phụ huynh, Chuyên cần ở danh sách học sinh; "Nhập từ Excel", "In sổ" ở sổ điểm; "Xuất Excel" ở thời khoá biểu; tiết, môn ở thanh đầu điểm danh; thẻ điểm mới, khoản cần nộp, nút "Đổi con", thanh điều hướng dưới ở trang chủ phụ huynh.
+- Dùng màu của `packages/ui/src/theme.css`, không ghi mã màu trong mã; liên kết mới cao tối thiểu 44 px dưới 1280 px.
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-296, `23_LICH_SU_PHIEN_BAN.md` 0.175.0.
+
+#### Vấn đề tồn đọng
+
+- Chưa chạy kiểm thử giao diện trên máy; chờ CI.
+
+### 2026-10-28 — Trang chủ cổng quản trị theo mẫu giao diện Tổng quan
+
+#### Công việc đã thực hiện
+
+- Dựng bộ mẫu giao diện trên canvas thiết kế (tổng quan Ban Giám hiệu, danh sách học sinh, đăng nhập, điểm danh trên ứng dụng giáo viên, trang chủ ứng dụng phụ huynh, sổ điểm, thời khoá biểu) theo mã màu và cỡ chữ ở `packages/ui/src/theme.css`.
+- Đưa mẫu Tổng quan vào trang chủ cổng quản trị: dòng ngày trên lời chào; bảng điều khiển MH-01 đổi từ 8 thẻ nhỏ sang 5 thẻ số lớn có dòng ghi chú; thêm khối "Việc cần xử lý" theo phân hệ; xếp sinh nhật, hợp đồng sắp hết hạn vào lưới hai cột.
+
+#### Quyết định
+
+- Giữ tiêu đề "Xin chào, …" vì nhiều kịch bản e2e dựa vào tiêu đề này.
+- Khối "Việc cần xử lý" dùng lại truy vấn đếm của nút Việc của tôi (không gọi thêm máy chủ), xếp phân hệ nhiều việc lên trước, bằng nhau thì theo thứ tự nhãn, tối đa 5 dòng. Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11.
+- Chưa đưa biểu đồ chuyên cần 7 ngày, bảng lớp vắng nhiều, lịch hôm nay của mẫu vì chưa có điểm cuối trả số liệu này; không dùng số liệu giả.
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-295, `23_LICH_SU_PHIEN_BAN.md` 0.174.0.
+
+#### Vấn đề tồn đọng
+
+- Cần điểm cuối chuyên cần theo ngày và lớp vắng nhiều trong ngày để hoàn thiện mẫu Tổng quan.
+
+### 2026-10-28 — DT-27 phần 27f: nền chợ gia sư
+
+#### Công việc đã thực hiện
+
+- Đọc mục 19.3 đến 19.11 (27f) của `32_KE_HOACH_THEO_HE_THONG_SO.md`. Eric quyết ngày 2026-10-28 (qua phiên điều phối): làm phần mã của chợ ngay, thanh toán chạy giả lập; không bật tiền thật trước khi xong E-01 đến E-07.
+- Cơ sở dữ liệu chung mới `marketplace`: loại migration thứ năm (`database/marketplace/`, chỉ mục sinh bằng `database/sinh-chi-muc.mjs` như bốn loại cũ), `migrateToLatest('marketplace', …)`, biến `MARKETPLACE_DATABASE_URL`; `platform migrate` chạy luôn chợ khi có biến. Tệp 0001 (múi giờ) đến 0005: `market_accounts`, `market_verification_codes`, `market_sessions`, `market_external_identities`, `market_legal_documents`, `market_consents`, `market_children`, `market_school_links`, `market_tutor_profiles`, `market_providers`, `market_audit_log`.
+- `provisionMarketplaceDatabase` tạo vai trò riêng (mặc định `marketplace_service`, không CREATEDB, không CREATEROLE) là chủ cơ sở dữ liệu chợ, thu quyền kết nối của PUBLIC.
+- Máy chủ API `apps/api/src/market/` (đăng ký ở `src/dang-ky/dt-27f-cho-gia-su.ts`): đường dẫn `/api/v1/market/*` không cần trường; tài khoản phụ huynh, gia sư (đăng ký có đồng ý văn bản bắt buộc, mã xác nhận 6 số, đăng nhập khóa 15 phút sau 5 lần sai, phiên riêng), hồ sơ con, đồng ý của cha mẹ theo con, rút đồng ý, liên kết với trường bằng mã ký, hồ sơ gia sư và cơ sở dạy thêm tối thiểu, quản trị ở cổng nền tảng (cấu hình, đăng văn bản pháp lý, số tài khoản). Phía trường: `GET`, `POST /api/v1/children/{id}/market-link` cho cha mẹ lấy mã liên kết.
+- Cấu hình chợ ở `platform_settings` khóa `market` (`database/src/marketplace/market-settings.ts`): bật tắt, tên miền dành riêng, hạn giữ bản ghi (GD-132), hạn khiếu nại (GD-133), tỷ lệ hoa hồng mặc định (E-01, để trống); thu tiền thật luôn tắt.
+- `PlatformOperatorTokenVerifier` ở `packages/server` để máy chủ API kiểm mã phiên vận hành (cùng đối tượng, loại với dịch vụ định danh).
+- Giao diện: ứng dụng mới `apps/market` (cổng phát triển 5178): trang giới thiệu, văn bản pháp lý, đăng ký, xác nhận, đăng nhập, khu phụ huynh (hồ sơ con, đồng ý, liên kết trường), khu gia sư; trang Chợ gia sư ở cổng nền tảng; nút Lấy mã liên kết ở khối gia sư của con (ứng dụng phụ huynh).
+- Kiểm thử: CT-27f-1 (`database/src/marketplace/market-settings.test.ts`), CT-27f-2 đến CT-27f-5 (`apps/api/src/market/market.test.ts`), CT-27f-6 (e2e `195-marketplace-isolation.spec.ts`, dự án nhiều trường; bước dựng tạo cơ sở dữ liệu `school_marketplace_e2e` và vai trò `marketplace_e2e`).
+
+#### Quyết định
+
+- Chợ ở máy chủ API (không dựng dịch vụ thứ ba), đường dẫn không cần trường như `/api/v1/parent-org/*`: không có ngữ cảnh trường nên `Databases` không mở được kết nối của trường nào; chỉ phục vụ khi chạy nhiều trường, có `MARKETPLACE_DATABASE_URL`, chợ bật và đúng tên miền dành riêng (tên miền khác 404). Quản trị chợ cũng ở máy chủ API (`/api/v1/market/admin`), chỉ ở tên miền cổng nền tảng với mã phiên vận hành, để chỉ một tiến trình giữ vai trò của chợ.
+- Phiên của chợ là chuỗi ngẫu nhiên 32 byte, chỉ lưu băm; không dùng mã phiên ký của trường nên hai bên không dùng chéo được.
+- Một tài khoản một vai (phụ huynh hoặc gia sư); trẻ không có tài khoản (GD-135); hồ sơ con chỉ tên hiển thị, năm sinh, cấp, lớp (lớp đúng cấp: Tiểu học 1 đến 5, THCS 6 đến 9, THPT 10 đến 12).
+- Văn bản pháp lý có phiên bản, phiên bản đã đăng không sửa; có phiên bản mới của văn bản bắt buộc thì người dùng phải đồng ý lại mới dùng tiếp (409 cho đến khi đồng ý).
+- Liên kết với trường bằng mã ký HMAC hạn 10 phút do ứng dụng phụ huynh của trường cấp (`MARKET_LINK_SECRET`), mã chỉ mang mã trường, mã học sinh băm HMAC theo mã trường, cấp, lớp; chợ không gọi vào trường. Thay cho luồng chuyển đăng nhập của DT-24 và bảng định danh `0170` của kế hoạch (không cần lưu ở trường; nhật ký cấp mã ghi ở nhật ký của trường). Luồng chuyển tự động có thể thêm sau mà không đổi dạng mã.
+- Mã xác nhận gửi qua hộp thư giả lập trong bộ nhớ của máy chủ (không ghi mã ra nhật ký); nối thư điện tử, tin nhắn thật làm khi mở chợ (E-04).
+- Đăng nhập bằng OIDC (bộ nối DT-25) chuyển sang 27g, làm cùng xác minh danh tính gia sư; bảng `market_external_identities` đã có.
+- Thu tiền thật: lưu `real_payments_enabled = true` bị từ chối, đọc cấu hình luôn trả tắt kể cả khi giá trị ở cơ sở dữ liệu bị sửa tay; bỏ chặn là thay đổi mã có YCTD riêng sau E-01 đến E-07.
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-256, `23_LICH_SU_PHIEN_BAN.md` 0.173.0; BR-410, PQ-175, P02-125, AC-1070 đến AC-1074, MH-510 đến MH-512, CT-1370 đến CT-1375, QĐ-44.
+
+#### Vấn đề tồn đọng
+
+- Gửi mã xác nhận thật (thư điện tử, tin nhắn), đăng nhập OIDC, đặt lại mật khẩu chưa làm; giới hạn tần suất đăng ký theo địa chỉ mạng chưa làm.
+- Ảnh dựng `deploy/docker/web.Dockerfile`, Caddy, hồ sơ thử nghiệm chưa phục vụ `apps/market`; tạo vai trò, cơ sở dữ liệu chợ ở môi trường thật làm khi mở chợ (E-04).
+
+### 2026-10-28 — DT-28 phần 28j: học khi mạng yếu
+
+#### Công việc đã thực hiện
+
+- Làm phần 28j theo `32` mục 20.6, 20.7. **GD-148 Eric đã chốt 2026-10-27** ("Đồng ý đề xuất"):
+  - Tắt mặc định, Ban Giám hiệu bật ở mục 9.3.
+  - Dữ liệu chỉ ở trên máy tối đa 7 ngày (trường đặt 1 đến 7), xoá khi nộp xong, khi đăng xuất, khi quá hạn.
+  - Khóa bản ghi không có tên học sinh; dữ liệu mã hoá AES-GCM khi trình duyệt có WebCrypto.
+- **Mô-đun riêng** `apps/parent/src/student/offline/` (quy tắc thuần, kho IndexedDB, cửa `offline.ts`), gọi từ ba chỗ: màn hình làm bài tập, danh sách học trực tuyến, đăng xuất. Khi cần gỡ thì bỏ thư mục này và các dòng gọi; phía máy chủ chỉ là cấu hình và mã chống trùng, giữ lại không ảnh hưởng.
+- **Màn hình học tập của học sinh** (khi trường bật):
+  - Bản nháp câu trả lời tự lưu trên máy, mở lại thì khôi phục.
+  - Nội dung hoạt động đã mở được giữ (trừ bài tập, video, gói SCORM); mất mạng thì mở lại bản đã giữ.
+  - Mất mạng khi gửi tệp hoặc bấm nộp: thao tác vào hàng đợi trên máy, có mạng lại thì tự gửi theo thứ tự.
+- **Máy chủ** (năm học 0193):
+  - Mã chống trùng do máy sinh cho lần nộp và tệp; gửi lại cùng mã thì trả bản đã nhận, không ghi lần hai.
+  - Thời điểm em bấm nộp trên máy được ghi để giáo viên xét khi bài muộn do mạng; máy chủ vẫn tính muộn theo lúc nhận.
+- **Kiểm thử:** 2/2 ca thuần ở `apps/parent` (`node --test`), 2/2 ca API (`offline.test.ts`); e2e `219-offline-learning` đạt, chạy kèm spec nền 01 đến 09 (spec 04 hỏng vì tài khoản trùng tên trong cơ sở dữ liệu định danh riêng của phiên, do môi trường); hồi quy `assignments`, `homework` cùng `offline` 26/26 ca.
+
+#### Quyết định
+
+- Claude chọn theo ủy quyền (ghi ở YCTD-280):
+  - Thời điểm bấm nộp trên máy chỉ nhận trong 7 ngày gần đây và không sau lúc nhận quá 5 phút.
+  - Hàng đợi: lỗi mạng thì dừng chờ lần sau; máy chủ từ chối (bài đóng, hết lượt) thì bỏ thao tác và báo cho em.
+  - Khóa mã hoá sinh trên máy, không xuất được, xoá cùng dữ liệu khi đăng xuất.
+  - Nộp thay của phụ huynh chưa dùng chế độ này.
+  - Gửi tệp từng phần không làm (tệp của bài nộp tối đa 10 MB, gửi một lần).
+- Migration năm học 0193; không thêm quyền.
+- Mã khối riêng (BR-400, AC-1060, MH-505, CT-1360, BM-210, PQ-170, P03-60); mục mới 12P, 18O, 17.9 đặt sau mục của 28i.
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-280, `23_LICH_SU_PHIEN_BAN.md` 0.172.0; đặc tả 07, 08, 10, 11, 12, 14, 16, 17, 21, 22, dòng của phần ở 32, 34.
+
+#### Vấn đề tồn đọng
+
+- Nộp thay ngoại tuyến của phụ huynh; gửi tệp từng phần.
+- Giáo viên chưa thấy thời điểm bấm nộp trên máy trong danh sách bài nộp (cột đã có ở cơ sở dữ liệu).
+
+### 2026-10-27 — DT-26 phần 26g: thông báo đẩy gốc FCM, APNs cho ứng dụng cài đặt (phần mã)
+
+#### Công việc đã thực hiện
+
+- Máy chủ API: bộ nối `fcm` (Firebase Cloud Messaging HTTP v1, tài khoản dịch vụ ký JWT RS256 đổi mã truy cập OAuth) và `apns` (HTTP/2, khóa `.p8` ký JWT ES256) của `PushSender`; bộ định tuyến chọn bộ nối theo loại đăng ký (`web_push`, `fcm`, `apns`); biến PUSH_NATIVE_PROVIDER (`native`, `development`), tệp khóa cho bản một trường (FCM_SERVICE_ACCOUNT_FILE, APNS_KEY_FILE, APNS_KEY_ID, APNS_TEAM_ID, APNS_BUNDLE_ID, APNS_ENVIRONMENT).
+- Đăng ký mã thiết bị qua cùng điểm cuối của 26b: `POST /push/subscriptions` nhận `kind` (`fcm`, `apns`), `token`, `origin` (địa chỉ gốc của ứng dụng web của trường); `unsubscribe` nhận `kind`, `token`; `GET /public/push/vapid-public-key` trả thêm `native` (máy chủ có khóa cho FCM, APNs chưa). Nội dung đẩy kèm `app_url` là địa chỉ gốc lúc đăng ký.
+- Cơ sở dữ liệu nền tảng 0232 `platform_native_push_keys`: khóa FCM, APNs của nền tảng lưu mã hóa bằng khóa gốc; lệnh `platform set-native-push-key`, `retire-native-push-key`.
+- `packages/pwa`: `native-push.ts` (xin quyền, lấy mã thiết bị qua plugin PushNotifications, gửi, thu hồi khi tắt hoặc đăng xuất, lấy lại mã khi mở ứng dụng, chạm thông báo); `push-client.ts` tự chuyển sang đẩy gốc khi chạy trong vỏ; khối Cài đặt thông báo hướng dẫn mở quyền ở cài đặt của máy.
+- `apps/mobile`: plugin `@capacitor/push-notifications` 8.1.3; `MainActivity` chèn cầu nối Capacitor kèm riêng plugin đẩy vào trang của các tên miền được phép, báo trang khi bản dựng chưa có cấu hình Firebase; trang khởi động mở đúng ứng dụng của trường đã lưu khi chạm thông báo; iOS chuyển mã thiết bị APNs cho plugin (`AppDelegate.swift`).
+- Kiểm thử: `native-push.test.ts` của máy chủ API (máy chủ FCM, APNs giả lập trả mã lỗi thật), `native-push.test.ts` của `packages/pwa`, e2e spec 186 (cách ly mã thiết bị giữa hai trường), sửa spec 182 theo phản hồi khóa công khai mới.
+
+#### Quyết định
+
+- Eric cho làm trước phần mã 26g ngày 2026-10-27 khi chưa có tài khoản nhà phát triển; bộ nối chạy với bộ giả lập, chưa nối FCM, APNs thật, không có khóa, `google-services.json`, `.p8` trong kho (QĐ-43).
+- Không cần migration hệ thống 0093: bảng `push_subscriptions` của 26b đã có loại `fcm`, `apns`; mã thiết bị lưu mã hóa ở cột địa chỉ đăng ký.
+- Chạy thử trên máy giả lập phát hiện gọi `register` khi bản dựng chưa có `google-services.json` làm ứng dụng dừng (Firebase chưa khởi tạo); vỏ báo trang `DAY_GOC_SAN_SANG = false`, khối Cài đặt thông báo báo hệ thống chưa bật đẩy.
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-237, `23_LICH_SU_PHIEN_BAN.md` 0.171.0; BR-405, P19-12, AC-1065, AC-1066, CT-1365, CT-1366, QĐ-43.
+
+#### Vấn đề tồn đọng
+
+- Gửi thật cần Eric: tạo dự án Firebase (thêm ứng dụng Android `vn.schoolmanagement.demo`, tải `google-services.json` đặt vào `apps/mobile/android/app/`, tạo khóa tài khoản dịch vụ rồi nạp bằng `platform set-native-push-key --provider fcm`), tạo khóa APNs `.p8` ở Apple Developer và bật năng lực Push Notifications trong Xcode. iOS chưa dựng được (không có máy Mac). Máy chủ chưa kiểm với FCM, APNs thật.
+
+### 2026-10-28 — DT-28 phần 28i: huy hiệu và chứng nhận hoàn thành
+
+#### Công việc đã thực hiện
+
+- Làm phần 28i theo `32` mục 20.6, 20.7. Tắt mặc định (GD-155); Ban Giám hiệu bật ở mục 9.3, đặt mẫu chứng nhận (tên chứng nhận, chức danh, họ tên người ký).
+- **Huy hiệu nội bộ:**
+  - Tự động theo tiêu chí có sẵn: hoàn thành chương, hoàn thành khoá, nộp bài đúng hạn 5 lần liên tiếp trong một lớp học trực tuyến. Máy tính khi mở danh sách, mỗi tiêu chí ghi một lần.
+  - Giáo viên của lớp học trực tuyến trao huy hiệu kèm lý do, thu hồi có lý do.
+  - Chỉ học sinh đó, phụ huynh, giáo viên thấy; không bảng xếp hạng, không đếm hay so sánh giữa học sinh.
+- **Chứng nhận hoàn thành khoá tự chọn:**
+  - Giáo viên của khoá cấp cho học sinh đã hoàn thành mọi hoạt động bắt buộc.
+  - Tệp PDF theo mẫu của trường, có mã kiểm tra, đường dẫn trang kiểm tra.
+  - Thu hồi có lý do; thu hồi rồi cấp lại được.
+- **Trang kiểm tra công khai** `/api/v1/public/certificates/{mã}` theo tên miền của trường: chỉ tên khoá, ngày cấp, tên trường, họ tên viết tắt, trạng thái (hợp lệ, đã thu hồi); có giới hạn tần suất.
+- **Giao diện:**
+  - Ứng dụng giáo viên: màn hình "Huy hiệu, chứng nhận" của lớp học trực tuyến.
+  - Học sinh `#hoc-sinh` và ứng dụng phụ huynh: khối huy hiệu, chứng nhận của em.
+  - Cổng quản trị: khối cấu hình ở mục 9.3.
+- **Kiểm thử:** 5/5 ca của `recognition-rules.test.ts`, `recognition.test.ts`; e2e `218-badges-certificates` đạt, chạy kèm spec nền 01 đến 09 (spec 04 hỏng vì tài khoản trùng tên trong cơ sở dữ liệu định danh riêng của phiên, do môi trường); hồi quy 64/64 ca (recognition, content-packages, learning, homework, progress, ma trận cách ly, school-levels), `migrate.test.ts`.
+
+- **Sửa lỗi của lõi 28b:** `LearningService.sync` truy vấn môn với danh sách rỗng (lỗi 500 ở danh sách lớp học trực tuyến) khi trường có lớp nhưng chưa có phân công môn, tiết nào, ví dụ giáo viên chỉ dạy khoá tự chọn; nay bỏ qua truy vấn khi danh sách rỗng, có ca kiểm thử ở `recognition.test.ts`.
+
+#### Quyết định
+
+- Claude chọn theo ủy quyền (ghi ở YCTD-279):
+  - Ngưỡng nộp đúng hạn liên tiếp là 5, mỗi lớp học trực tuyến một huy hiệu.
+  - Huy hiệu tự động đã thu hồi không trao lại.
+  - Họ tên viết tắt là chữ đầu của họ, tên đệm cộng tên (Nguyễn Văn An thành N. V. An), lưu sẵn lúc cấp.
+  - Mã kiểm tra `CN-` cộng 10 ký tự, bỏ ký tự dễ nhầm.
+  - Cấu hình lưu ở `settings` khóa `learning_recognition`.
+- Migration năm học 0191 (`learning_badges`), 0192 (`course_certificates`); không thêm quyền.
+- Mã khối riêng (BR-390, AC-1050, MH-500, CT-1350, BM-205, PQ-165, P03-55) để không va với PR đang mở; dòng bảng mới neo vào dòng của 28b; mục mới 12O, 18N, 17.8 đặt sau mục của 28h.
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-279, `23_LICH_SU_PHIEN_BAN.md` 0.170.0; đặc tả 07, 08, 10, 11, 12, 14, 16, 17, 21, 22, dòng của phần ở 32, 34.
+
+#### Vấn đề tồn đọng
+
+- Trang kiểm tra chỉ tra chứng nhận ở cơ sở dữ liệu năm học hiện tại; chứng nhận của năm học đã đóng chưa tra được.
+- Chứng nhận cho khoá của 27d (khoá học ghi sẵn của gia sư) để khi 27d cần.
+- Huy hiệu tương thích Open Badges không làm.
+- Việc sau của 28h (ghi ở YCTD-278): spec nhiều trường cho gói SCORM; tên miền nội dung ở cổng biên.
+
+### 2026-10-27 — Đăng ký bằng tệp riêng của từng phần
+
+#### Công việc đã thực hiện
+
+- Tệp thay đổi cấu trúc của bốn cơ sở dữ liệu (định danh, hệ thống, năm học, nền tảng) nạp từ chỉ mục sinh tự động: `database/sinh-chi-muc.mjs` đọc `database/<loại>/migrations/` rồi sinh `<loại>/migrations.generated.ts`; `<loại>/index.ts` chỉ còn xuất lại chỉ mục. Không đổi tên tệp nào.
+- Kiểu bảng của từng phần đặt ở `database/<loại>/schema-parts/<phần>.ts`, thêm bảng vào `SchoolYearDatabase` (hoặc `SystemDatabase`, `PlatformDatabase`, `IdentityDatabase`) bằng `declare module '../schema.js'`; chỉ mục `<loại>/schema-parts.generated.ts` kéo các tệp này vào chương trình, `database/src/index.ts` xuất lại kiểu của chúng. Chuyển bảng `scorm_attempts` (DT-28 phần 28h) sang `school-year/schema-parts/dt-28h-goi-scorm.ts` làm mẫu.
+- Máy chủ API: mỗi phần thêm `apps/api/src/dang-ky/<phần>.ts` xuất mặc định `{ controllers, providers, transitionSteps } satisfies PhanDangKy` (`src/common/dang-ky-phan.ts`); `apps/api/sinh-dang-ky.mjs` sinh `src/dang-ky.generated.ts`; `ApplicationModule` nối các phần theo thứ tự tên tệp sau danh sách có sẵn. Chuyển đăng ký của DT-28 phần 28h sang `src/dang-ky/dt-28h-goi-scorm.ts` làm mẫu.
+- Bước dựng, kiểm kiểu của `database` và `apps/api` chạy tập lệnh sinh trước `tsc`; tệp `*.generated.ts` không đưa lên kho (`.gitignore`).
+- CI chạy `node database/sinh-chi-muc.mjs --kiem` và `node apps/api/sinh-dang-ky.mjs --kiem`: báo lỗi khi tên tệp sai mẫu, tệp thay đổi cấu trúc thiếu `export const migration`, tệp kiểu bảng thiếu `declare module`, tệp đăng ký thiếu `export default`, bộ điều khiển (`@Controller`) chưa có ở `application.module.ts` hay tệp nào ở `src/dang-ky/`, chỉ mục đã sinh lệch với thư mục.
+
+#### Quyết định
+
+- Chỉ mục sinh khi dựng, không đưa lên kho: một danh sách sinh ra mà đưa lên kho vẫn xung đột khi hai PR thêm dòng liền nhau (thường gặp vì phần mới lấy số lớn nhất), nên chỉ thư mục là nguồn. Phương án đã loại: đọc thư mục lúc chạy bằng `import()` động (mất kiểm kiểu, `dist` còn tệp cũ khi xoá nguồn), `import.meta.glob`/`require.context` (máy chủ dựng bằng `tsc`, không có bộ đóng gói).
+- Giữ nguyên danh sách bộ điều khiển, dịch vụ đã có ở `application.module.ts` để không đổi thứ tự đăng ký tuyến; các phần nối sau cùng nên thứ tự cũ giữ nguyên (28h vốn đứng cuối).
+- Thứ tự chạy tệp thay đổi cấu trúc không đổi: Kysely xếp theo tên tệp (đã bật `allowUnorderedMigrations`). So bốn cơ sở dữ liệu migrate từ đầu bằng mã cũ và mã mới trên PostgreSQL máy phát triển: cùng số bảng (định danh 25, hệ thống 94, năm học 457, nền tảng 53), số cột (173, 1113, 5303, 524), cùng cột, chỉ mục, ràng buộc và danh sách tệp đã chạy.
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-294, `23_LICH_SU_PHIEN_BAN.md` 0.169.0.
+
+#### Vấn đề tồn đọng
+
+- PR đang mở (DT-26, DT-27, DT-28) khi gộp main phải chuyển dòng đăng ký của mình sang tệp riêng một lần (hướng dẫn ở mô tả PR).
+- Các danh sách chung khác còn sửa tại chỗ: xuất lại hằng số, kiểu ở `database/src/index.ts` (trừ kiểu bảng của phần), `MY_WORK_SOURCE_TYPES`, menu cổng quản trị.
+
+### 2026-10-27 — DT-27 phần 27e: hỏi đáp bài tập của chương trình gia sư
+
+#### Công việc đã thực hiện
+
+- Đọc mục 19.4, 19.5 (27e) và 20.7 (28e) của `32_KE_HOACH_THEO_HE_THONG_SO.md`; 27e xây trên bộ máy hỏi đáp 28e (PR 207) và khoá học ghi sẵn 27d1 (PR 208).
+- Năm học `0201`: `tutoring_programs.answer_hours`, `tutoring_question_marks`, `tutoring_ai_answers`, `tutoring_ai_consents`. Hệ thống `0120`: thêm loại yêu cầu AI `answer`.
+- Máy chủ `apps/api/src/tutoring/tutoring-questions.ts`: hàng chờ theo chương trình, thời hạn trả lời theo chương trình, gợi ý AI nháp, gửi câu trả lời có dấu "có AI hỗ trợ", học sinh đánh dấu đã hiểu, cha mẹ xem câu hỏi của con và bật tắt AI cho con. `AiAssistantService.draftAnswer` và mẫu lời nhắc `buildAnswerPrompt` ở 23d.
+- Giao diện: khối Hỏi đáp bài tập ở trang Chương trình gia sư (cổng quản trị); Hỏi đáp bài tập của con (ứng dụng phụ huynh); Hỏi đáp bài tập ở trang chủ học sinh (kênh student).
+- Kiểm thử: CT-27e-1 đến CT-27e-3.
+
+#### Quyết định
+
+- Câu hỏi, trả lời, xác nhận câu trả lời, lọc thông tin liên lạc, báo cáo, giờ mở dùng bộ máy hỏi đáp 28e ở khoá học ghi sẵn của chương trình; 27e không dựng bảng câu hỏi thứ hai.
+- Migration năm học `0201` (không phải `0158`, `0159` của kế hoạch) vì khoá ngoại tới bảng của 28e (`0182`); hệ thống `0120` (không phải dải `0100` đến `0109`) vì phải chạy sau `0111` của 28c cùng ràng buộc loại yêu cầu AI.
+- Gợi ý AI qua `AiProvider` của 23d: lời nhắc chỉ có cấp, môn, chữ của câu hỏi và ghi chú của giáo viên đã quét dữ liệu cá nhân; không gửi ảnh, không gửi tên học sinh; có dữ liệu cá nhân thì từ chối. Nhật ký và hạn mức theo 23d. Bản nháp không lưu vào câu hỏi; giáo viên sửa rồi mới gửi.
+- Phụ huynh tắt AI cho con; chưa chọn thì cho phép (mặc định của trường); trường tắt AI thì không có nút gợi ý.
+- Học sinh báo chưa hiểu thì câu trở lại hàng chờ cho đến khi giáo viên trả lời thêm.
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-255, `23_LICH_SU_PHIEN_BAN.md` 0.168.0; BR-370, PQ-155, P02-120, AC-1035 đến AC-1037, MH-490, CT-1325 đến CT-1327.
+
+#### Vấn đề tồn đọng
+
+- Ảnh trong câu hỏi, câu trả lời và liên kết học liệu, câu trong ngân hàng chưa làm vì bộ máy hỏi đáp 28e chưa có tệp đính kèm; nhắc quá hạn chỉ hiện trong hàng chờ, chưa gửi thông báo.
+
+### 2026-10-27 — DT-27 phần 27d2: tiến độ của khoá học ghi sẵn
+
+#### Công việc đã thực hiện
+
+- Phần thứ hai của 27d (tách ở YCTD-254), làm sau khi 28d gộp (PR 206); nhánh tách từ 27d1 (PR 208).
+- Máy chủ `apps/api/src/tutoring/tutoring-courses.ts`: học sinh báo phần trăm đã xem video, ghi kết quả hoạt động và nhật ký học tập của 28b; xem video ở kênh học sinh theo điều kiện mở của 28b; tiến độ của em trong khoá cho cha mẹ, học sinh; tiến độ từng học sinh cho giáo viên dạy, Ban Giám hiệu.
+- Giao diện: bảng tiến độ học sinh ở khối Khoá học ghi sẵn (cổng quản trị); phần trăm đã xem từng video và tiến độ của em (ứng dụng phụ huynh, kênh học sinh); trình phát ở kênh học sinh báo phần trăm đã xem.
+- Kiểm thử: CT-27d2-1, CT-27d2-2.
+
+#### Quyết định
+
+- Không thêm bảng, không thêm migration: tiến độ là `activity_results` (cột `progress`) và `learning_events` của 28b, nên bảng tiến độ, sổ điểm, báo cáo, tóm tắt hằng tuần của 28d tự thấy khoá học ghi sẵn như mọi khoá tự chọn. Số năm học 0157 của kế hoạch không dùng.
+- Phần trăm đã xem chỉ tăng; xem từ 90% thì hoàn thành nếu cách tính của hoạt động là "xem xong" (cách tính khác chỉ ghi phần trăm); hoạt động đã xong thì giữ nguyên. Trình phát báo mỗi khi qua mốc 10% và khi xem hết.
+- Chỉ học sinh (kênh student) ghi tiến độ; cha mẹ, giáo viên xem video không tính là em đã xem. Mở video ở kênh học sinh ghi nhật ký "mở", không hoàn thành ngay như hoạt động xem được thường của 28b.
+- Tiến độ của em dùng cùng cách tính với danh sách học của 28b (hoạt động bắt buộc xong, quá hạn, phần trăm).
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-261, `23_LICH_SU_PHIEN_BAN.md` 0.167.0; BR-351, P02-116, AC-1012, AC-1013, CT-1298, CT-1299.
+
+#### Vấn đề tồn đọng
+
+- Phần trăm đã xem do trình phát báo (không kiểm ở máy chủ từng đoạn đã tải); đủ cho theo dõi học tập, không dùng để chấm điểm.
+
+### 2026-10-28 — DT-28 phần 28h: gói SCORM và gói khoá học
+
+#### Công việc đã thực hiện
+
+- Làm phần 28h theo `32` mục 20.6, 20.7.
+- **Gói SCORM 1.2 và 2004 là học liệu loại mới `scorm` của kho 22h1.** Gói zip tải lên học liệu, qua tổ chuyên môn, Ban Giám hiệu duyệt như mọi học liệu (Thông tư 09/2021/TT-BGDĐT Điều 7 khoản 3).
+- **Kiểm gói khi tải lên:**
+  - Bản kê `imsmanifest.xml`, chuẩn, danh sách SCO theo tổ chức mặc định.
+  - Chặn đường dẫn thoát thư mục, đường dẫn tuyệt đối, loại tệp không cho phép, zip có mật khẩu, ZIP64.
+  - Gói tối đa 200 MB (GD-150).
+- **Phát cô lập:**
+  - Tệp của gói phục vụ theo mã truy cập ngắn hạn ký HMAC (trường, gói, hoạt động, học sinh, nguồn gốc trang cha, hạn 4 giờ).
+  - CSP `sandbox allow-scripts`: tài liệu luôn ở nguồn gốc riêng, không đọc được phiên, cookie, dữ liệu của ứng dụng; chỉ nạp mã, kiểu, ảnh từ chính gói; không gửi biểu mẫu, không gọi máy chủ ngoài.
+  - Khung `iframe sandbox="allow-scripts"` ở trang học sinh và trang xem trước.
+  - Nguồn gốc nội dung riêng cấu hình được (`SCORM_CONTENT_ORIGIN`). Ở chế độ nhiều trường, trường lấy theo mã truy cập trong đường dẫn, rồi kiểm chữ ký và mã trường.
+- **Bộ chuyển API** `API` (1.2) và `API_1484_11` (2004) gắn vào trang SCO:
+  - Gửi thay đổi lên trang cha bằng `postMessage`; trang cha kiểm khung nguồn và nguồn gốc.
+  - Lưu trạng thái hoàn thành, đạt, điểm (quy về thang 10), thời gian phiên, vị trí, dữ liệu tạm có giới hạn cỡ.
+  - Kết quả hoạt động của lõi 28b tính từ các SCO.
+  - Gói nhiều SCO chạy lần lượt, không làm trình tự và điều hướng (GD-153).
+- **Hoạt động loại `scorm`** trỏ tới học liệu gói SCORM đã công bố, đặt được trong khoá học mẫu.
+- **Gói khoá học** `school-management.course-package/1`:
+  - Xuất khoá học mẫu kèm học liệu đã công bố mà hoạt động tham chiếu (tệp, liên kết, gói SCORM); không chứa dữ liệu học sinh.
+  - Nhập thành khoá mẫu nháp của người nhập. Học liệu trùng dùng lại; học liệu mới tạo nháp và gửi duyệt theo 22h1.
+- **Giao diện:**
+  - Cổng quản trị, kho học liệu: khối "Gói bài giảng SCORM" (tải gói, xem trước).
+  - Thêm hoạt động "Gói bài giảng SCORM" ở lớp học trực tuyến.
+  - Khoá học mẫu: "Xuất gói khoá học", "Nhập gói khoá học từ trường khác".
+  - Học sinh `#hoc-sinh`: trình phát gói.
+- **Kiểm thử:**
+  - 8/8 ca của `scorm-rules.test.ts`, `scorm.test.ts`.
+  - Hồi quy `learning`, `assignments`, `learning-resources` (danh mục mặc định nay 9 loại), `school-levels`, `quick-links`, `school-plan`, ma trận cách ly nhiều trường (khai báo tuyến công khai `/scorm-content` ở `tenancy-route-policy.ts`); `migrate.test.ts`.
+  - e2e `217-scorm-packages` đạt, chạy kèm spec nền 01 đến 09; spec 04 hỏng vì tài khoản trùng tên trong cơ sở dữ liệu định danh riêng của phiên, do môi trường (giáo viên tải gói và xem trước; học sinh học gói trong khung cô lập; gói không đọc được trang cha; kết quả "Đạt" ghi về máy chủ).
+
+#### Quyết định
+
+- Claude chọn theo ủy quyền (ghi ở YCTD-278):
+  - Giải nén tối đa 2.000 tệp, 500 MB, mỗi tệp 200 MB.
+  - Điểm theo `score.scaled` (2004) nếu có, không thì `raw` theo `min`, `max` (thiếu `max` coi thang 100).
+  - Gói chỉ biết người học là "Học sinh" với mã ẩn danh, không biết tên thật.
+  - Gói khoá học tối đa 300 MB.
+  - Không có tuyến xuất riêng cho câu hỏi, thang tiêu chí vì khoá mẫu của 28b không chứa bài tập.
+- Migration hệ thống 0113 (loại học liệu `scorm`, bảng `scorm_packages`), 0114 (`course_package_transfers`); năm học 0189 (`scorm_attempts`). Không dùng năm học 0190 giữ sẵn.
+- Mã khối riêng (BR-380, AC-1040, MH-495, CT-1340, BM-200, PQ-160, P03-50) để không va với PR đang mở; dòng bảng mới neo vào dòng của 28b; mục mới 12N, 18M, 17.7 đặt sau mục của 28e (28f giữ 12M, 18L, 17.6).
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-278, `23_LICH_SU_PHIEN_BAN.md` 0.166.0; đặc tả 07, 08, 10, 11, 12, 14, 16, 17, 21, 22, dòng của phần ở 32, 34.
+
+#### Vấn đề tồn đọng
+
+- Chưa mở rộng `MULTI_TENANT_SPEC` bằng spec nhiều trường (mã truy cập của trường A mở ở trường B). Phần này mới có kiểm thử đơn vị: chữ ký, mã trường trong mã truy cập.
+- Chưa có cấu hình tên miền nội dung ở cổng biên (Caddy, Worker) của hồ sơ triển khai; khi đặt `SCORM_CONTENT_ORIGIN` cần trỏ tên miền đó về máy chủ API.
+- Trình tự và điều hướng SCORM 2004 không làm (GD-153); xAPI, cmi5, LTI để sau.
+
+### 2026-10-28 — DT-28 phần 28f: bài về nhà và phụ huynh
+
+#### Công việc đã thực hiện
+
+- Làm phần 28f theo `32` mục 20.6, 20.7. Bài về nhà là bài tập 28c ngữ cảnh `homework`; soạn, chấm, trả bài dùng lại 28c.
+- Giao từ sổ đầu bài:
+  - Tiết đã ghi có khối "Bài về nhà của tiết" và nút "Giao bài về nhà".
+  - Máy tạo hoạt động bài tập ở lớp học trực tuyến của lớp và môn, gắn `class_log_id`, nhóm của tiết.
+  - Hạn mặc định là đầu tiết kế tiếp của môn theo thời khoá biểu.
+- Quy tắc khối lượng do trường tự đặt (GD-143), mục 9.6 Bài về nhà:
+  - Ban Giám hiệu đặt theo cấp, khối: số bài, số phút mỗi ngày, thứ không để hạn, ngày lễ, khối không giao, cảnh báo hay chặn, căn cứ.
+  - Nền tảng không đặt giới hạn mặc định; bảng mẫu gợi ý (chưa xác minh) chỉ để tham khảo.
+- Lịch khối lượng 7 ngày của lớp:
+  - Giáo viên xem ngay trước khi phát hành bài về nhà.
+  - Chủ nhiệm, giáo viên của lớp, Ban Giám hiệu xem theo lớp, tuần ở mục 9.6.
+- Phát hành theo quy tắc của trường:
+  - Cảnh báo thì giáo viên xác nhận "Vẫn giao".
+  - Chặn thì Ban Giám hiệu cho vượt có lý do (lưu trên bài).
+- Phụ huynh:
+  - "Bài tập về nhà của con" theo ngày đến hạn: trạng thái, kết quả, nhận xét khi thầy cô đã trả.
+  - "Đã xem cùng con".
+  - Nộp thay khi con chưa có tài khoản học (chụp vở, ghi âm, gõ ngắn); bài ghi người nộp là phụ huynh.
+  - Trao đổi với thầy cô trên bài đã nộp.
+- Nhắc bài về nhà: việc nền 15 phút một lượt gửi bốn loại nhắc tới phụ huynh (trong ứng dụng, tin đẩy) và tài khoản học của em.
+  - Đã giao, sắp đến hạn (từ 19:00 hôm trước, trường đổi được), chưa nộp khi quá hạn, đã trả.
+  - Giờ yên lặng 21:00 đến 6:00; nhiều bài của một em gộp một thông báo; mỗi bài, mỗi em, mỗi loại chỉ nhắc một lần.
+- Vắng có phép ngày giao: màn hình bài của giáo viên gợi ý "Gia hạn 2 ngày" hoặc "Miễn".
+- Kiểm thử: 9/9 ca của `homework-rules.test.ts`, `homework.test.ts`; hồi quy 123/123 ca (`homework`, `assignments`, `discussions`, `progress`, `learning`, `school-levels`, `quick-links`, `school-plan`, `child-groups`, `class-logs`); `migrate.test.ts`; e2e `215-homework-parents` đạt (chạy kèm spec nền 01 đến 09; spec 04 hỏng vì tài khoản trùng tên trong cơ sở dữ liệu định danh riêng của phiên, do môi trường).
+
+#### Quyết định
+
+- Claude chọn theo ủy quyền (ghi ở YCTD-276):
+  - Khối lượng tính theo ngày đến hạn (giờ Việt Nam); bài chưa ghi số phút tính 0 phút; quy tắc của khối thay quy tắc chung của cấp.
+  - Bài tính vào khối lượng là bài về nhà đã phát hành của mọi môn trong lớp.
+  - Hạn mặc định tìm tiết kế tiếp trong 14 ngày, bỏ ngày lễ; không thấy thì 7 giờ sáng sau 7 ngày.
+  - Vượt quy tắc chặn: Ban Giám hiệu không có quyền phát hành bài tập (`P02.assignment.manage`) nên cho vượt trên bài trước, giáo viên phát hành sau.
+  - Nộp thay chỉ cho bài làm cá nhân, con chưa có tài khoản học, chưa có bài nộp.
+  - Phụ huynh trao đổi trên bài được cả khi con có tài khoản.
+- 28f thêm bốn mẫu thông báo theo kế hoạch: `homework_assigned`, `homework_due_soon`, `homework_missing`, `homework_returned`.
+- Không thêm quyền mới, không có migration định danh.
+- Mã khối riêng (BR-360, AC-1020, MH-480, CT-1310, BM-190, PQ-150, P03-40) để không va với 28e, 27d1, 27d2 đang mở; dòng bảng mới neo vào dòng của 28b.
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-276, `23_LICH_SU_PHIEN_BAN.md` 0.165.0; đặc tả 07, 08, 10, 11, 12, 14, 16, 17, 21, 22, dòng của phần ở 32, 34.
+
+#### Vấn đề tồn đọng
+
+- Lịch học tập của 28e chưa tách riêng bài về nhà (bài về nhà hiện như mọi hoạt động có hạn).
+- Kho chưa có tài liệu hướng dẫn sử dụng; bảng mẫu gợi ý đặt ở mục 9.6.
+
+### 2026-10-27 — DT-26 phần 26f: vỏ ứng dụng cài đặt Capacitor, bản demo trên máy giả lập
+
+#### Công việc đã thực hiện
+
+- `apps/mobile` (mới): vỏ Capacitor 8.5.3 một ứng dụng cho giáo viên và phụ huynh; trang khởi động (`www/index.html`) thêm trường bằng địa chỉ hoặc máy chủ phát triển, chọn vai trò, mở ứng dụng web của trường (`/giao-vien/`, `/phu-huynh/`; máy chủ phát triển cổng 5174, 5175) trong WebView; danh sách trường lưu trên máy.
+- Dự án Android (`android/`, compileSdk 36, minSdk 24) và iOS (`ios/`, Swift Package Manager) do Capacitor sinh; Android chỉ cho phép http tới `localhost`, `10.0.2.2` (cấu hình bảo mật mạng), iOS cho phép mạng cục bộ (`NSAllowsLocalNetworking`); máy chủ được mở trong ứng dụng khai ở `capacitor.config.ts`, thêm bằng biến `CAP_CHO_PHEP_MAY_CHU`.
+- Script `scripts/dung-android-debug.mjs` (`pnpm --filter @school-management/mobile android:debug`, `android:run`): kiểm JDK, Android SDK (thiếu thì in danh sách cần cài và dừng), `cap sync`, dựng APK debug bằng Gradle, chuyển cổng bằng `adb reverse`, cài và mở trên máy giả lập.
+- Hướng dẫn chạy demo `apps/mobile/HUONG_DAN_DEMO.md` (Android AVD, iOS Simulator trên Mac). e2e spec 185: trang khởi động ở khổ máy tính và bốn khổ thiết bị.
+
+#### Quyết định
+
+- Đợt 3 của DT-26 làm theo phạm vi demo trên máy giả lập (Eric, 2026-10-27: "chỉ cần thử chạy trên máy giả lập"); 26g (đẩy FCM, APNs) và 26h (ký, dựng bản trên CI, phát hành, hồ sơ cửa hàng) hoãn đến khi có tài khoản nhà phát triển Apple, Google (GD-158).
+- Bản demo tải ứng dụng web của trường trong WebView thay vì đóng gói bản dựng tĩnh: đóng gói cần lớp HTTP gốc, mã làm mới lưu ở Keychain, Keystore, phiên `client_kind = native` của dịch vụ định danh (phần còn lại của 26f) (QĐ-40).
+- Máy giả lập Android gọi máy chủ phát triển qua `localhost` nhờ `adb reverse` (ngữ cảnh an toàn nên service worker, PWA chạy được) thay cho `10.0.2.2`.
+- Thông báo đẩy chưa hỗ trợ trong ứng dụng cài đặt: Web Push không chạy trong WebView; dùng PWA trên trình duyệt (26b).
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-236, `23_LICH_SU_PHIEN_BAN.md` 0.164.0; BR-366, P19-11, AC-1027, AC-1028, CT-1320, MH-484, QĐ-40, GD-158.
+
+#### Vấn đề tồn đọng
+
+- Đã dựng và chạy trên máy giả lập Android ngày 2026-10-27 (Eric cho cài JDK, Android SDK, máy giả lập vào ổ D:); iOS Simulator cần máy Mac có Xcode, chưa chạy. Phần còn lại của 26f (đóng gói, đăng nhập gốc, sinh trắc học, liên kết sâu, chọn trường từ danh mục DT-24), gửi đẩy thật của 26g (phần mã đã làm ở YCTD-237) và 26h làm khi có tài khoản.
+
+### 2026-10-27 — DT-27 phần 27d1: khoá học ghi sẵn của chương trình gia sư
+
+#### Công việc đã thực hiện
+
+- Đọc lại mục 19.4, 19.5 (27d) và 20 (28b, 28d) của `32_KE_HOACH_THEO_HE_THONG_SO.md`; 27d dựa trên lõi LMS của 28b và 28d (YCTD-270), 28d chưa gộp.
+- Theo đồng ý của phiên điều phối ngày 2026-10-27, tách 27d thành **27d1** (phần riêng của gia sư, chỉ cần 28b, làm ở đây) và **27d2** (tiến độ đã xem, bài đã nộp, điểm cho học sinh, giáo viên, phụ huynh; làm sau khi 28d gộp).
+- Năm học `0200` (sau dải 0170 đến 0199 của DT-28 vì khoá ngoại tới `course_spaces` 0172, `course_activities` 0173; dải 0150 đến 0169 của DT-27 chạy trước nên không dùng được; 27d2 không thêm bảng): `tutoring_program_courses`, `tutoring_media_views`.
+- Máy chủ `apps/api/src/tutoring/tutoring-courses.ts`: gắn chương trình gia sư với khoá tự chọn của 28b, đồng bộ ghi danh khi duyệt hoặc rút đơn, bài video của khoá, đường dẫn xem ký 5 phút có nhật ký, phát theo đoạn (HTTP Range).
+- Giao diện: khối Khoá học ghi sẵn ở chi tiết chương trình (cổng quản trị), khoá học của con (ứng dụng phụ huynh), khoá học gia sư (kênh học sinh); thành phần dùng chung `LessonVideoList`.
+- Kiểm thử: CT-27d1-1 đến CT-27d1-3.
+
+#### Quyết định
+
+- Khoá học ghi sẵn là một `course_spaces` loại `elective` của 28b; chương, bài, điều kiện mở, kết quả hoạt động soạn ở Học trực tuyến của 28b; không dựng bảng khoá học thứ hai; không dùng bảng hệ thống 0101 đến 0103 (không còn phần riêng cần dùng qua nhiều năm học).
+- Bài video là hoạt động `resource` của khoá trỏ tới học liệu 22h1 là tệp video đã công bố (đi qua kiểm duyệt, giấy phép của 22h1).
+- Phát theo đoạn bằng đường dẫn ký 5 phút (khoá băm dữ liệu trẻ của trường), `inline`, không lưu đệm, giao diện không có nút tải; chuyển mã nhiều độ phân giải là tuỳ chọn, mặc định tắt (phát tệp gốc), chưa làm.
+- Không đụng tiến độ, bảng điểm hoạt động của 28d; nhật ký xem chỉ ghi lần lấy đường dẫn.
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-254, `23_LICH_SU_PHIEN_BAN.md` 0.163.0; BR-350, PQ-145, P02-115, AC-1010, AC-1011, MH-470, MH-471, CT-1295 đến CT-1297.
+
+#### Vấn đề tồn đọng
+
+- 27d2 sau khi 28d gộp; đọc cả tệp video vào bộ nhớ khi phát (chưa phát thẳng từ kho tệp theo đoạn); chuyển mã tuỳ chọn.
+
+### 2026-10-28 — DT-28 phần 28e: giao tiếp trong lớp và nhóm
+
+#### Công việc đã thực hiện
+
+- Làm phần 28e theo `32` mục 20.6, 20.7: một bộ máy thảo luận cho thông báo lớp, diễn đàn, hỏi đáp (lớp học trực tuyến) và bảng tin của không gian học nhóm (nhóm của bộ nhóm 28a):
+  - Thông báo lớp tới học sinh, phụ huynh qua hàng đợi thông báo; tin đẩy không có nội dung.
+  - Diễn đàn: học sinh mở chủ đề khi giáo viên cho.
+  - Hỏi đáp: câu hỏi riêng, hàng chờ câu chưa trả lời (quá 48 giờ là quá hạn), giáo viên xác nhận câu trả lời.
+  - Không gian học nhóm: bảng tin, việc chia việc, ghi chú chung có phiên bản, tệp chung.
+- An toàn trẻ em:
+  - Giáo viên của lớp và người lập bộ nhóm luôn thấy mọi nội dung; không có nhắn riêng giữa hai học sinh.
+  - Lọc che số điện thoại, thư điện tử, liên kết, mạng xã hội, từ ngữ của trường (hàm thuần `scanContactInfo` ở `packages/shared`, 27i dùng lại).
+  - Giờ mở do trường tự đặt (GD-144 Eric đã chốt 2026-10-28: trường tự cấu hình, mặc định không giới hạn); xóa của học sinh là ẩn, vẫn lưu.
+  - Báo cáo vi phạm, hàng chờ của trường có hạn 2 ngày; tạm khóa quyền viết.
+- Phụ huynh: thông báo lớp, không gian nhóm của con theo GD-145, lịch học tập của con. Học sinh có lịch học tập tuần (thời khoá biểu, ngày mở, hạn hoạt động; không iCal, GD-157).
+- Giao diện:
+  - Ứng dụng giáo viên: Thông báo, thảo luận, hỏi đáp.
+  - Học sinh `#hoc-sinh`: thảo luận của lớp, nhóm của em, lịch học tập.
+  - Phụ huynh: thông báo lớp, nhóm, lịch của con.
+  - Cổng quản trị: mục 9.5 An toàn thảo luận (hàng chờ, giờ mở, từ ngữ lọc).
+- Kiểm thử: 10/10 ca của `discussion-rules.test.ts`, `discussions.test.ts`; hồi quy `learning`, `assignments`, `progress`, `quick-links`, `school-levels`, `school-plan`, `child-groups`; `migrate.test.ts`; e2e `214-class-discussions` đạt (chạy kèm spec nền 01 đến 09; spec 04 hỏng vì tài khoản trùng tên trong cơ sở dữ liệu định danh riêng của phiên, do môi trường).
+
+#### Quyết định
+
+- Claude chọn theo ủy quyền:
+  - Báo cáo vi phạm do bộ lọc từ ngữ tự gửi (`source = filter`); thông tin liên lạc chỉ che, không gửi hàng chờ.
+  - Chủ nhiệm (VT-07) có quyền xử lý nhưng máy chủ chỉ cho xem báo cáo của lớp mình; Ban Giám hiệu xem mọi báo cáo.
+  - Trường chưa có vai trò người tư vấn tâm lý học đường; trường gán quyền `P02.discussion.moderate` cho vai trò đó ở phân quyền nhóm.
+  - Mẫu thông báo mới `class_announcement` (trong ứng dụng) và `class_announcement_push` (đẩy, không nội dung); 28e là phần duy nhất thêm mẫu thông báo.
+- Mã khối riêng (BR-340, AC-1000, MH-460, CT-1280, BM-180, PQ-140, P03-28) để không va với các PR đang mở; dòng bảng mới neo vào dòng của 28b như 28c, 28d.
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-275, `23_LICH_SU_PHIEN_BAN.md` 0.162.0; đặc tả 07, 08, 10, 11, 12, 14, 16, 17, 21, 22, dòng của phần ở 32, 34.
+
+#### Vấn đề tồn đọng
+
+- Ảnh trong câu hỏi chưa làm (chỉ chữ); 28g thêm giờ học trực tuyến vào lịch, 28f thêm bài về nhà; báo cáo liên quan con chưa tự thông báo cho phụ huynh THCS, THPT.
+
+### 2026-10-27 — DT-26 phần 26e: bố cục máy tính bảng của cổng quản trị và cổng nền tảng
+
+#### Công việc đã thực hiện
+
+- `packages/ui`: `DataGrid` co giãn theo khổ (từ 768 px bảng cuộn ngang trong khung, cột đầu cố định; dưới 768 px dạng thẻ, cột chính làm tiêu đề, ba cột phụ đầu hiện ngay, các cột còn lại thu vào "Xem thêm"; cột chính khai báo bằng `primary`, không khai báo thì là cột đầu đang hiện); hộp thoại phủ kín màn hình dưới 768 px (`DIALOG_NARROW_FULL_SCREEN_CLASS`, áp cho hộp thoại của gói và ba hộp thoại của cổng quản trị); màu của bộ chủ đề đậm hơn để chữ đạt tương phản 4,5:1.
+- Cổng quản trị: dưới 1280 px menu ngang thay bằng ngăn kéo bên trái mở bằng nút "Menu chức năng" (đóng bằng nút Đóng menu, nền mờ, phím Esc, khi chọn trang); dưới 1280 px vùng chạm 44 px, chữ ô nhập 16 px; dải nút Ghi, Hủy của biểu mẫu dính đáy dưới 768 px.
+- Cổng nền tảng: từ 1280 px thanh bên đầy đủ; 768 đến 1279 px thanh chỉ còn biểu tượng, tên mục hiện khi rê chuột, đưa bàn phím tới hoặc chạm giữ; dưới 768 px ngăn kéo mở bằng nút ☰; nội dung rộng cuộn ngang trong vùng nội dung; vùng chạm, cỡ chữ ô nhập như cổng quản trị.
+- Kiểm thử: e2e spec 184 (bốn khổ thiết bị); gỡ toàn bộ mục còn lại của đường cơ sở 26c (`tests/e2e/device-baseline.json` rỗng), spec 180 không còn cần đường cơ sở.
+
+#### Quyết định
+
+- Cổng quản trị không có thanh bên (từ DT-15 dùng menu ngang nhiều cấp theo mẫu của Sở) nên "thu gọn thành biểu tượng" của đặc tả áp cho cổng nền tảng; cổng quản trị dùng ngăn kéo dưới 1280 px vì menu ngang sổ xuống bằng rê chuột không hợp màn hình chạm và tràn dòng ở máy tính bảng ngang (QĐ-39).
+- `DataGrid` chọn dạng bảng hay thẻ bằng `matchMedia` để chỉ dựng một dạng (dựng cả hai rồi ẩn bằng CSS làm mỗi ô có hai bản trong trang, bộ chọn của kiểm thử khớp hai phần tử).
+- Đổi màu ngay ở bộ chủ đề chung (`packages/ui/src/theme.css`) thay vì ghi đè trong từng ứng dụng; ứng dụng giáo viên, phụ huynh đã ghi đè cùng giá trị ở 26d nên không đổi.
+- Spec 184 tự chạy máy chủ Vite của cổng nền tảng và giả lập API đăng nhập vì môi trường e2e một trường không có cổng nền tảng; không sửa cấu hình Playwright của 26c.
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-235, `23_LICH_SU_PHIEN_BAN.md` 0.161.0; BR-313, P19-10, AC-967 đến AC-969, CT-1269 đến CT-1271, MH-424, QĐ-39; màu M-01 đến M-03, M-05, C-03, T-01 đến T-05 ở `15_HE_THONG_THIET_KE.md`.
+
+#### Vấn đề tồn đọng
+
+- Thử trên máy tính bảng thật khi Eric có máy. Màn hình nghiệp vụ tự vẽ bảng (không dùng `DataGrid`) vẫn cuộn ngang trong khung của mình, chưa có dạng thẻ.
+
+### 2026-10-28 — DT-28 phần 28d: tiến độ, bảng điểm hoạt động, sổ điểm, báo cáo
+
+#### Công việc đã thực hiện
+
+- Làm phần 28d theo `32` mục 20.6, 20.7:
+  - Tiến độ từng em và cả lớp, theo chương, danh sách cần chú ý, không xếp hạng.
+  - Bảng điểm hoạt động (trung bình có trọng số chỉ tham khảo), xuất Excel, PDF.
+  - Đưa điểm thường xuyên vào sổ điểm (THCS, THPT) qua `ScoresService.recordActivityScores`, nguồn `activity`.
+  - Tiểu học: gợi ý mức đạt môn và nhận xét thường xuyên, giáo viên sửa rồi ghi qua sổ nhận xét của 20c (GD-141).
+  - Báo cáo chủ nhiệm, tổ chuyên môn, toàn trường, hoạt động dạy của giáo viên; tóm tắt cho phụ huynh và tóm tắt hằng tuần qua hàng đợi thông báo (bật theo trường).
+  - Báo cáo tổng kết dạy học trực tuyến theo học kỳ (Ban Giám hiệu nhập đánh giá, khó khăn, nguyên nhân, kiến nghị), xuất PDF, Excel; hồ sơ dạy học trực tuyến của lớp, môn theo học kỳ.
+  - Lượt dùng câu hỏi của bài tập ghi `question_usages` với tỷ lệ đúng.
+- Giao diện: ứng dụng giáo viên (Tiến độ và bảng điểm), cổng quản trị mục 9.4 Báo cáo học tập trực tuyến, ứng dụng phụ huynh (sắp đến hạn, nhận xét gần đây).
+- Kiểm thử:
+  - 12/12 ca của `progress-rules.test.ts`, `progress.test.ts`.
+  - Hồi quy đạt: `assignments` (có kiểm `question_usages`), `learning`, `scores`, `assessments`, `settings`, `quick-links`, `exam-grading`, `classroom-games`.
+  - `migrate.test.ts` đạt; e2e `213-learning-progress` và `212-online-assignments` đạt (chạy kèm spec nền 01 đến 09; spec 04 hỏng vì tài khoản trùng tên trong cơ sở dữ liệu định danh riêng của phiên, do môi trường).
+  - Chạy với cơ sở dữ liệu định danh, hệ thống riêng của phiên.
+
+#### Quyết định
+
+- Claude chọn theo ủy quyền: thêm cửa `spaceAccess` ở cuối `LearningService` (như các cửa của 28c) để 28d không chép quy tắc ai xem lớp học trực tuyến.
+- `ScoresService` thêm `recordActivityScores` dùng chung thân với `recordExamScores` (cùng quyền nhập, khoá sổ, hạn của 21c); 28d là phần duy nhất sửa `scores/`.
+- Tiểu học ghi qua `AssessmentsService.saveSubject`, `addComment` có sẵn, giữ điểm bài kiểm tra và nhận xét môn đang có của từng em.
+- Mã khối riêng (BR-320, AC-980, MH-440, CT-1260, BM-170, P03-23) để không va với các PR đang mở; dòng bảng mới neo vào dòng của 28b như 28c.
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-274, `23_LICH_SU_PHIEN_BAN.md` 0.160.0; đặc tả 07, 10, 11, 12, 14, 16, 17, 21, 22, dòng của phần ở 32, 34.
+
+#### Vấn đề tồn đọng
+
+- Báo cáo tổ chuyên môn chưa tính độ phủ kế hoạch theo tuần.
+- Tóm tắt hằng tuần chỉ gửi trong ứng dụng (không tin nhắn).
+- Mẫu thông báo `learning_weekly_summary` không thêm vào bảng mẫu: mã mẫu là chữ tự do, trường sửa nội dung được ở bảng mẫu riêng. Kế hoạch ghi 28e là phần duy nhất thêm mẫu thông báo mới.
+
+### 2026-10-27 — DT-27 phần 27a: lớp video trực tiếp
+
+#### Công việc đã thực hiện
+
+- Đọc mục 19.2 (phần 3 an toàn trẻ em và ghi hình, phần 4 hạ tầng video), 19.5 (27a), 19.11 của `32_KE_HOACH_THEO_HE_THONG_SO.md`; rà coturn và cấp máy chủ ICE của 23e, mẫu bộ nối nhà cung cấp (AI của 23d, thông báo đẩy của 26b), giới hạn gói (S5a), việc nền theo trường (S1b), kho tệp, chỗ nối điểm danh `recordRoomEvents` của 27b, kênh student của 23a.
+- Thêm bộ nối `VideoRoomProvider` (`livekit` tự host, `livekit-cloud` dự phòng, `mock`; SDK máy chủ `livekit-server-sdk` 2.19.1, giấy phép Apache-2.0), dịch vụ phòng, điểm cuối giáo viên, cha mẹ, học sinh, sự kiện gọi lại có chữ ký, việc nền xóa bản ghi hết hạn.
+- Năm học `0160`, `0161` (thay số giữ sẵn 0150, 0151 vì phải chạy sau bảng buổi gia sư 0153 của 27b), nền tảng `0240` (giới hạn phút, dung lượng bản ghi của gói).
+- Hồ sơ vận hành: dịch vụ `livekit` (v1.13.7) và `egress` (v1.14.1) ở hồ sơ `video`, TURN dùng chung coturn của 23e, biến LIVEKIT_* không bắt buộc khi tắt video.
+- Giao diện: thành phần dùng chung `VideoRoom`, `VideoHostPanel`, `VideoRecordingList` (`livekit-client` 2.22.3) ở `packages/ui`; lớp video của buổi ở cổng quản trị và ứng dụng giáo viên; cha mẹ vào xem và đồng ý ghi hình ở ứng dụng phụ huynh; học sinh vào lớp ở kênh student; cấu hình lớp video của trường; giới hạn video ở trang gói của nền tảng.
+- Kiểm thử: CT-27a-1 đến CT-27a-8.
+
+#### Quyết định
+
+- Không rẽ nhánh theo nhà cung cấp trong mã nghiệp vụ; bộ giả lập trả mã vào phòng giả và nhận sự kiện ký bằng khóa giả lập.
+- Tên phòng ở máy chủ video có mã trường; sự kiện gọi lại đi qua một địa chỉ chung (đường dẫn không cần trường), trường lấy từ tên phòng.
+- Phòng chờ bật mặc định; mã vào phòng dùng để vào trong 10 phút; cha mẹ, Ban Giám hiệu vào xem, nói khi gia sư cho; học sinh chia sẻ màn hình khi được cho.
+- Trong trường ghi hình tắt mặc định: chương trình bật ghi hình và mọi học sinh có đơn được duyệt có đồng ý còn hiệu lực của cha mẹ; bản ghi theo `storageKey('video-recordings', …)`, giữ 30 ngày (cấu hình), xem bằng đường dẫn ký 5 phút, không có nút tải, mỗi lần xem ghi nhật ký.
+- Bảng trắng tự viết bằng canvas, đồng bộ qua kênh dữ liệu của phòng, không thêm thư viện (GD-137).
+- Giới hạn của gói đo từ nhật ký vào ra ở cơ sở dữ liệu của trường; vượt thì không mở phòng mới, không cấp mã vào, không ghi mới.
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-251, `23_LICH_SU_PHIEN_BAN.md` 0.159.0; BR-310 đến BR-312, PQ-120, P02-110, P02-111, AC-950 đến AC-952, MH-410 đến MH-414, CT-1250 đến CT-1257.
+
+#### Vấn đề tồn đọng
+
+- Đo băng thông, số nhân của Egress và cú pháp TURN dùng chung của LiveKit trên máy thật (E-05); luật sư kết luận ghi hình (E-06) trước khi bật ở trường thật; bản ghi lớn đọc cả tệp vào bộ nhớ khi phát (chưa có phát theo đoạn); khóa LiveKit ở biến môi trường, chưa có trang lưu mã hóa ở `platform`.
+
+### 2026-10-27 — DT-28 phần 28c: bài tập trực tuyến
+
+#### Công việc đã thực hiện
+
+- Làm phần 28c theo `32` mục 20.6, 20.7: bài tập là loại hoạt động `assignment` của lõi 28b; câu trắc nghiệm từ câu đã duyệt của 22g1 (bản chụp) chấm bằng hàm của 22g2, tự luận, ảnh hoặc tệp PDF, ghi âm, học liệu; phiên bản bài; giao lớp, nhóm, từng học sinh; hạn, nộp muộn, số lần nộp, miễn, đóng bài; bài nhóm do nhóm trưởng nộp, đánh giá đóng góp, điều chỉnh điểm cá nhân có lý do; chấm tay, thang tiêu chí 22h2, mức (Tiểu học); ngân hàng nhận xét (câu của trường 20c và câu của giáo viên); trả bài ghi kết quả hoạt động; trao đổi trên bài; gợi ý nhận xét AI qua 23d chỉ từ đề, thang tiêu chí, điểm đã chấm, ghi chú (GD-142).
+- Giao diện: ứng dụng giáo viên (soạn, giao, chấm, trả, gợi ý AI), học sinh ở `#hoc-sinh` (làm, lưu nháp, ảnh vẽ lại để bỏ siêu dữ liệu, ghi âm có giới hạn, nộp, xem nhận xét, trao đổi, đánh giá đóng góp), phụ huynh (xem các lần nộp, điểm, nhận xét của con).
+- Kiểm thử: 15/15 ca của `assignment-rules.test.ts`, `assignments.test.ts`; hồi quy 110/110 ca (`quick-links`, `school-plan`, `learning`, `online-exams`, `ai-assistant`, `child-groups`), `database/src/migrate.test.ts` 5/5; e2e `212-online-assignments` chưa chạy được trên máy (cổng của e2e bị tiến trình cũ chiếm), kết quả lấy ở CI. Chạy với cơ sở dữ liệu định danh, hệ thống riêng của phiên.
+
+#### Quyết định
+
+- Claude chọn theo ủy quyền: thêm **cửa công khai** ở cuối `LearningService` của lõi (`teacherActivity`, `studentContext`, `openActivityForChild`, `guardianOrStaff`, `writeResult`) thay vì chép quy tắc quyền của lõi sang 28c; kế hoạch ghi "không sửa lõi của 28b" để tránh va giữa các phần làm song song, đợt 2 làm tuần tự nên chỉ thêm hàm ở cuối lớp, không đổi hàm có sẵn. Mã khối riêng cho 28c (BR-300, AC-960, MH-420, CT-1230, BM-160, PQ-130) để không va với các PR đang mở; người gom đánh lại nếu cần.
+- Hai kiểm thử của 28b coi `assignment` là loại chưa đăng ký nay đổi sang `discussion` (28e).
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-273, `23_LICH_SU_PHIEN_BAN.md` 0.158.0; đặc tả 07, 08, 10, 11, 12, 14, 16, 17, 21, 22, dòng của phần ở 32, 34.
+
+#### Vấn đề tồn đọng
+
+- Màn hình soạn phiên bản bài, đích nhóm, từng học sinh và thang tiêu chí ở giao diện chưa làm (máy chủ đã có); nộp thay của phụ huynh, bài về nhà từ sổ đầu bài là 28f; đưa kết quả vào sổ điểm, sổ nhận xét là 28d.
+
+### 2026-10-27 — DT-26 phần 26d: bố cục máy tính bảng của ứng dụng giáo viên và phụ huynh
+
+#### Công việc đã thực hiện
+
+- Ứng dụng giáo viên: màn hình Chế độ lớp học (chọn sẵn lớp của tiết đang dạy theo thời khoá biểu, khung phải điểm danh, sổ đầu bài, công cụ lớp học, trình chiếu toàn màn hình, giữ màn hình sáng); trang chủ hai khung từ 1024 px, danh sách lớp hai cột từ 768 px; màn hình điểm danh, sổ đầu bài, công cụ lớp học có tuỳ chọn nhúng.
+- Ứng dụng phụ huynh: trang chủ hai cột từ 768 px. Cả hai ứng dụng: các màn hình nới rộng từ 768 px; vùng chạm 44 px, chữ ô nhập 16 px, màu báo, chữ phụ, liên kết, nút chính đủ tương phản 4,5:1, đặt ở `index.css` của từng ứng dụng, không sửa `packages/ui`.
+- Kiểm thử: `apps/teacher` 14/14 (chọn tiết đang dạy, giờ Việt Nam); e2e spec 183 (bốn khổ thiết bị) và spec 180 không còn cần đường cơ sở cho 26d.
+
+#### Quyết định
+
+- Yêu cầu truy cập đặt ở CSS của từng ứng dụng, viết ngoài lớp để thắng lớp tiện ích; màu của bộ chủ đề ghi đè bằng biến trong ứng dụng; `packages/ui` để phần 26e sửa (QĐ-38).
+- Giờ Việt Nam tính bằng UTC+7 cố định thay cho `Intl.DateTimeFormat` vì Safari cho kết quả khác.
+- Spec 183 giả lập danh sách lớp và thời khoá biểu bằng `page.route` vì việc CI theo khổ thiết bị không có năm học.
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-234, `23_LICH_SU_PHIEN_BAN.md` 0.157.0; BR-306, P19-09, AC-945 đến AC-947, CT-1240 đến CT-1242, MH-402, QĐ-38.
+
+#### Vấn đề tồn đọng
+
+- Trò chơi kiến thức (23c) là một công cụ trong Công cụ lớp học nên có sẵn ở thẻ Công cụ lớp học và khi trình chiếu của chế độ lớp học. Thử trên máy tính bảng thật khi Eric có máy.
+
+### 2026-10-27 — DT-27 phần 27c: thu phí và chi trả gia sư trong trường theo quy định
+
+#### Công việc đã thực hiện
+
+- Đọc mục 19.2, 19.4, 19.5 (27c) của `32_KE_HOACH_THEO_HE_THONG_SO.md`; rà luồng tính học phí (`fees/fee-calculation.service.ts`, mẫu phí ngoại khóa `activities/extracurricular-fees.ts`), điều chỉnh hóa đơn (`fees/discounts.service.ts`), phiếu chi hoàn, thưởng và khấu trừ của bảng lương (`staff_bonus_deductions`), biểu thuế thu nhập cá nhân, tệp Excel và nhật ký xuất.
+- Thêm năm học `0155` (giá của chương trình, dòng `tutoring` trên hóa đơn, buổi đã thu, khoản trừ buổi hủy, phần trừ đã áp) và `0156` (đơn giá thù lao theo tiết, nguồn chi, người dạy buổi, thù lao đã đẩy, khoản mục lương `THU_LAO_DAY_THEM`).
+- Thêm hàm thuần `packages/shared/src/tutoring-fees.ts`, phần nối vào lần tính học phí `apps/api/src/tutoring/tutoring-fees.ts`, dịch vụ và điểm cuối thu chi `tutoring-finance.ts`, trang "5. Thu chi gia sư" ở cổng quản trị, ô giá và thù lao ở biểu mẫu chương trình, chọn giáo viên đã dạy khi xác nhận điểm danh, mức thu ở ứng dụng phụ huynh.
+- Kiểm thử: CT-27c-1 đến CT-27c-9 (hàm thuần, luồng có cơ sở dữ liệu ở `apps/api`, e2e 192).
+
+#### Quyết định
+
+- Chương trình `curriculum` không có giá và không bật được thu tiền (ràng buộc của bảng, hàm thuần, máy chủ); nguồn chi thù lao luôn là kinh phí của trường; màn hình ghi căn cứ.
+- Khoản thu của chương trình `enrichment` có thu là dòng `tutoring` trên hóa đơn chính của kỳ, do lần tính học phí lập (cùng cách phí ngoại khóa): theo buổi thu các buổi chưa hủy từ ngày duyệt đơn đến hết kỳ; trọn gói thu một lần. Thu qua cổng của trường như mọi hóa đơn.
+- Buổi đã thu bị hủy thành khoản trừ: mặc định trừ vào khoản gia sư kỳ sau (dòng không âm); kế toán có thể lập điều chỉnh giảm hóa đơn qua luồng điều chỉnh hiện có (chờ duyệt), hoặc đóng sau khi đã hoàn qua phiếu chi hoàn. Buổi đã xác nhận điểm danh không hủy được.
+- Thù lao theo tiết của buổi đã dạy (đã xác nhận điểm danh); kế toán đẩy vào bảng lương tháng thành dòng thưởng của khoản mục "Thù lao dạy phụ đạo, bồi dưỡng", chịu thuế thu nhập cá nhân theo biểu thuế sẵn có; bảng lương đã gửi duyệt hoặc đã duyệt thì đẩy vào tháng sau.
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-253, `23_LICH_SU_PHIEN_BAN.md` 0.156.0; BR-253 đến BR-255, PQ-112, P02-89, P02-90, AC-901 đến AC-903, MH-362, CT-1146 đến CT-1154.
+
+#### Vấn đề tồn đọng
+
+- Thông tư 29/2024 chưa đối chiếu bản gốc (E-07); hoàn tiền mặt cho buổi đã thu vẫn do kế toán lập phiếu chi hoàn rồi đóng khoản trừ; đơn giá riêng của từng giáo viên có ở API, chưa có ô trên biểu mẫu.
+
+### 2026-10-27 — DT-23 phần 23c: trò chơi kiến thức và thẻ đáp án giấy
+
+#### Công việc đã thực hiện
+
+- Nhận bản dở dang của phiên trước (nhánh `dt-23-phan-23c`, kiểm thử logic ứng dụng giáo viên đạt, kiểm thử API và e2e 152 đã viết nhưng chưa chạy, chưa có tài liệu); gộp origin/main (23e, 26a, 28a, 28b), chạy kiểm thử API, e2e 152, viết tài liệu.
+- Cơ sở dữ liệu: năm học `0126`, `0127`. Máy chủ API: nhóm `/classroom-games`. Ứng dụng giáo viên: thẻ Trò chơi trong Công cụ lớp học (hỏi đáp theo vòng, vòng quay, ô chữ, thẻ đáp án giấy in và quét).
+- Thêm quy tắc BR-280, chức năng P02-100 đến P02-102, biện pháp BM-140 đến BM-141, màn hình MH-400 đến MH-401, kịch bản CT-1200 đến CT-1204, tiêu chí AC-940 đến AC-944. Kết quả ngày 27/10/2026: kiểm thử đơn vị ứng dụng giáo viên `apps/teacher/src/tools/games/games.test.ts` (CT-23c-1 đến CT-23c-3) và `apps/api/src/classroom-games/classroom-games.test.ts` (CT-23c-4 đến CT-23c-6) đạt; kiểm thử đơn vị toàn kho đạt (bộ 23c, 23e, 23a chạy riêng; toàn bộ để CI chạy); kiểm thử giao diện `tests/e2e/152-classroom-games.spec.ts` (CT-23c-7) đạt cùng 02, 03, 06, 08, 101, 151 (14/14); kiểm tĩnh đa thuê bao, ma trận cách ly, build, kiểm tra kiểu, lint, kiểm tra định dạng đạt.
+
+#### Quyết định
+
+- Trò chơi chạy trên máy giáo viên, học sinh không cần thiết bị; bộ đọc thẻ đáp án tự viết (không thư viện ngoài, không vấn đề giấy phép); hình quét không rời khỏi máy; điểm trò chơi không vào sổ điểm.
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-213, `07_QUY_TAC_NGHIEP_VU.md` BR-280, `10_YEU_CAU_CHUC_NANG.md` P02-100 đến P02-102, `11_TIEU_CHI_NGHIEM_THU.md` AC-940 đến AC-944, `14_DAC_TA_GIAO_DIEN.md` MH-400 đến MH-401, `16_CO_SO_DU_LIEU.md`, `17_DAC_TA_API.md`, `21_KICH_BAN_KIEM_THU.md` CT-1200 đến CT-1204, `22_BAO_MAT.md` BM-140 đến BM-141, `23_LICH_SU_PHIEN_BAN.md` 0.155.0.
+
+#### Vấn đề tồn đọng
+
+- Thử đọc thẻ trên nhiều mẫu camera và ánh sáng thật ở lớp; mẫu thẻ in cần thử in thật; ô chữ chỉ sinh từ câu trả lời ngắn.
+
+### 2026-10-27 — Tệp mảnh có mục "Thêm dòng"
+
+#### Công việc đã thực hiện
+
+- Thêm mục `## Thêm dòng` vào `scripts/gom-thay-doi.mjs`: mỗi dòng gồm tệp, neo (ô đầu của dòng đứng trước hoặc `cuối bảng <tiêu đề>`) và dòng bảng mới giữ nguyên văn.
+- `--kiem` báo lỗi khi tệp hoặc neo không có, số ô khác bảng, mã dòng mới đã có trong tài liệu hoặc trùng với tệp mảnh khác.
+- Khi gom, chèn theo thứ tự merge; nhiều tệp cùng chèn sau một neo thì giữ thứ tự merge.
+- Cập nhật `tai_lieu/thay_doi_cho_gom/README.md` (quy tắc 3, mẫu, bảng quy tắc từng phần); thêm ba ca ở `tests/tai-lieu/gom-thay-doi.test.mjs`.
+
+#### Quyết định
+
+- Dòng bảng mới ở tài liệu đặc tả (`07`, `08`, `10`, `11`, `14`, `16`, `17`, `21`…) ghi qua "Thêm dòng" thay vì sửa tại chỗ, vì các PR song song cùng nối cuối một bảng nên xung đột mỗi lần một PR merge (gặp ở PR 196 với PR 185, 192, 197).
+- Mục "Nối dòng" giữ nguyên nghĩa: chỉ nối nội dung vào ô cuối của một dòng có sẵn.
+- Các PR đang mở (193, 195) giữ dòng tại chỗ, không cần chuyển.
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-293.
+
+#### Vấn đề tồn đọng
+
+- Không.
+
+### 2026-10-26 — DT-23 phần 23e: giám thị camera cho thi trực tuyến
+
+#### Công việc đã thực hiện
+
+- Đọc mục 15 của `32_KE_HOACH_THEO_HE_THONG_SO.md` (15.3, 15.4, 15.6 dòng "Học sinh gian lận khi thi ở nhà", GD-106, mục 19 về coturn dùng chung với 27a, GD-132) và mã 23a (`student-exams.ts`, `proctoring.ts`, `ExamRoom.tsx`, kho tệp, bộ lập lịch); viết mục 15.4 "23e".
+- Cơ sở dữ liệu: năm học `0129`. Máy chủ API: dịch vụ giám thị (phiên xem trực tiếp, báo hiệu, đồng ý, ghi hình mã hoá, xem lại, dọn quá hạn), cấu hình máy chủ ICE. Ứng dụng phụ huynh: thông báo, bộ trả lời WebRTC, bộ ghi hình, màn hình đồng ý của phụ huynh. Cổng quản trị: lưới camera, đồng ý của cha mẹ, nhật ký người xem, xem lại bản ghi, cấu hình. Hồ sơ vận hành: coturn.
+- Thêm quy tắc BR-270, chức năng P02-95 đến P02-98, quyền PQ-115, biện pháp BM-120 đến BM-122, màn hình MH-380 đến MH-382, kịch bản CT-1170 đến CT-1175, tiêu chí AC-920 đến AC-924. Kết quả ngày 26/10/2026: kiểm thử đơn vị `apps/api/src/online-exams/exam-proctoring.test.ts` (CT-23e-1a đến CT-23e-1c) và `online-exams.test.ts` (CT-23e-1 đến CT-23e-4) đạt; kiểm thử đơn vị toàn kho đạt (bộ 23e, 23a, 22g, định danh chạy riêng; toàn bộ để CI chạy); kiểm thử giao diện `tests/e2e/154-online-exam-proctoring.spec.ts` (CT-23e-5) cùng 02, 03, 06, 08, 150 đạt; toàn bộ kiểm thử giao diện để CI chạy toàn bộ; trên máy chạy riêng 02, 03, 06, 08, 101, 102, 103, 150 và 154 (14/14 đạt); kiểm tĩnh đa thuê bao, ma trận cách ly, kiểm thử hai bố cục cơ sở dữ liệu `database` và `schema`, build, kiểm tra kiểu, lint, kiểm tra định dạng đạt.
+
+#### Quyết định
+
+- Thực hiện phần 23e theo đề xuất của phiên điều phối (Eric yêu cầu): hình xem trực tiếp đi thẳng giữa hai trình duyệt, không qua máy chủ API (nhẹ tải, ít rủi ro lộ hình); báo hiệu bằng hỏi định kỳ vì máy chủ chưa có kênh web socket; ghi hình do trình duyệt học sinh tải từng đoạn (không dựng máy chủ ghi hình riêng); đồng ý của cha mẹ kiểm cả lúc xem và lúc ghi; mặc định tắt và cần luật sư rà trước khi bật ở trường thật.
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-215, `07_QUY_TAC_NGHIEP_VU.md` BR-270, `08_VAI_TRO_NGUOI_DUNG.md` PQ-115, `10_YEU_CAU_CHUC_NANG.md` P02-95 đến P02-98, `11_TIEU_CHI_NGHIEM_THU.md` AC-920 đến AC-924, `14_DAC_TA_GIAO_DIEN.md` MH-380 đến MH-382, `16_CO_SO_DU_LIEU.md`, `17_DAC_TA_API.md`, `21_KICH_BAN_KIEM_THU.md` CT-1170 đến CT-1175, `22_BAO_MAT.md` BM-120 đến BM-122, `23_LICH_SU_PHIEN_BAN.md` 0.154.0, `33_HO_SO_PHAP_LY/` PL-13, PL-15.
+
+#### Vấn đề tồn đọng
+
+- Luật sư rà quy định dữ liệu trẻ em, ghi hình và giám sát (PL-15) trước khi bật ở trường thật; thử coturn và thử tải ở môi trường thật; ảnh chụp định kỳ, AI cảnh báo bất thường không làm.
+
+### 2026-10-26 — DT-28 phần 28b: lõi hệ thống quản lý học tập
+
+#### Công việc đã thực hiện
+
+- Làm phần 28b theo `32` mục 20.6, 20.7: lớp học trực tuyến tự sinh từ phân công giảng dạy, khoá tự chọn, khoá học mẫu của tổ qua duyệt hai bước, chương, hoạt động (trang, liên kết, học liệu), điều kiện mở, kết quả hoạt động chung, tiến độ, kế hoạch theo tuần, nhật ký học tập, quyết định dạy học trực tuyến thay thế và nội quy theo Thông tư 09/2021/TT-BGDĐT; cổng quản trị 9.1 đến 9.3, ứng dụng giáo viên, ứng dụng phụ huynh.
+- Kiểm thử: 38/38 ca API (`learning.test.ts` có CT-28b-17 học sinh, `learning-rules.test.ts`, `learning-tenancy.test.ts` hai bố cục, `school-plan.test.ts`, `online-exams.test.ts`, `working-level.test.ts`); e2e `211-online-classes` đạt (chạy kèm spec nền 01 đến 09; lần đầu hỏng vì ứng dụng phụ huynh đăng nhập bằng số điện thoại, đã sửa spec), `134-school-plans` đạt ở chế độ nhiều trường. Chạy với CSDL định danh, hệ thống riêng của phần.
+
+#### Quyết định
+
+- Claude chọn theo ủy quyền: phân công giảng dạy là nguồn chính để sinh lớp học trực tuyến, thời khoá biểu là nguồn phụ; đồng bộ khi mở danh sách thay vì móc vào luồng ban hành thời khoá biểu; quy tắc duyệt khoá mẫu viết lại theo đúng quy tắc của 22h1 vì 28b không sửa tệp của 22h1; cách ly kiểm ở mức API cho cả hai bố cục thay vì e2e nhiều trường.
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-272, `23_LICH_SU_PHIEN_BAN.md` 0.153.0; đặc tả 07, 08, 10, 11, 12, 14, 16, 17, 21, 22, dòng của phần ở 32, 34.
+
+#### Vấn đề tồn đọng
+
+- Sau khi 23a gộp: thêm học sinh tự học ở kênh `student` (`/student/learning`, quyền `P02.learning.study` cho VT-21, MH-361, CT-1145) trong cùng PR; sửa CI hỏng CT-S5a-8 (quy tắc menu khoá mẫu ghi quyền kho học liệu làm tuyến kho học liệu không còn bị chặn theo gói; tuyến nhân sự `/learning` nay chặn theo gói).
+
+### 2026-10-26 — DT-27 phần 27b: chương trình gia sư trong trường, lịch và đặt buổi, điểm danh
+
+#### Công việc đã thực hiện
+
+- Đọc mục 19.2, 19.3, 19.4, 19.5 (27b), 19.11 của `32_KE_HOACH_THEO_HE_THONG_SO.md`; rà thời khoá biểu (`timetable_lessons`, `period_slots`, `applyingVersions`), sổ điểm (`subject_term_results`), quan hệ phụ huynh, luồng trao đổi, thông báo, góp ý, phân hệ của gói dịch vụ (S5a), mẫu phần 23a.
+- Thêm năm học 0152 đến 0154, định danh 0172, hàm thuần quy định dạy thêm, máy chủ API `tutoring/`, bốn trang ở cổng quản trị, màn hình ở ứng dụng giáo viên, mục Gia sư ở ứng dụng phụ huynh, kiểm thử đơn vị và e2e 191.
+- Thêm BR-245 đến BR-247, PQ-110, P02-86 đến P02-88, AC-883 đến AC-885, MH-349 đến MH-354, CT-1130 đến CT-1137; phiên bản 0.152.0.
+
+#### Quyết định
+
+- Quy định dạy thêm là dữ liệu có ngày hiệu lực (`tutoring_rules`); khóa kiểm ở máy chủ bằng hàm thuần dùng chung với giao diện.
+- Giới hạn tiết đếm cả chương trình khác cùng môn; kiểm khi xếp buổi và khi duyệt đơn.
+- Đơn đăng ký lưu bản chụp văn bản và mã băm; người duyệt là giáo viên chủ nhiệm, giáo viên dạy hoặc Ban Giám hiệu.
+- Tin nhắn của chương trình dùng luồng trao đổi giáo viên với cha mẹ hiện có; không có luồng riêng với học sinh.
+- Điểm danh tự động là chỗ nối `recordRoomEvents` cho 27a, có điểm cuối giả lập; không dựng video.
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-252, `07_QUY_TAC_NGHIEP_VU.md` BR-245 đến BR-247, `08_VAI_TRO_NGUOI_DUNG.md` PQ-110, `10_YEU_CAU_CHUC_NANG.md` P02-86 đến P02-88, `11_TIEU_CHI_NGHIEM_THU.md` AC-883 đến AC-885, `14_DAC_TA_GIAO_DIEN.md` MH-349 đến MH-354, `16_CO_SO_DU_LIEU.md`, `17_DAC_TA_API.md`, `21_KICH_BAN_KIEM_THU.md` CT-1130 đến CT-1137; phiên bản 0.152.0.
+
+#### Vấn đề tồn đọng
+
+- Thông tư 29/2024 chưa đối chiếu bản gốc (E-07); điểm danh tự động khi 27a gộp; thu phí, thù lao ở 27c.
+
+### 2026-10-26 — DT-28 phần 28a: mô hình nhóm dùng chung
+
+#### Công việc đã thực hiện
+
+- Đọc mục 20 của `32` (dòng 28a, phạm vi 20.7, ranh giới đợt 1), mã `child-groups/` (4.1.6), `classroom-tools/` và `apps/teacher/src/tools/` (23b), sổ điểm (21c), mức đạt Tiểu học (20c), tiết nhóm và tổ hợp môn (21a, 21b).
+- Thêm năm học 0170 (`group_sets`, cột bộ nhóm ở `child_groups`, `role` ở thành viên, `child_group_member_events`) và 0171 (dời `classroom_groupings` sang bộ nhóm `classroom`).
+- Viết hàm chia thuần `group-split.ts` (ngẫu nhiên có hạt, trộn năng lực, gom tầng, cân bằng giới, ràng buộc, nhóm trưởng, từ tiết nhóm 21b), dịch vụ và điểm cuối `/group-sets`, hàm đọc ổn định `GroupSetsReader` cho 28b, 28c, 28e; công cụ lớp học 23b đọc, lưu bộ `classroom`; thẻ Chia nhóm thêm Kiểu chia và Dùng bộ nhóm có sẵn.
+- Kiểm thử đơn vị CT-28a-1 đến CT-28a-12, e2e spec 210 (CT-28a-13); tài liệu 01, 07, 16, 17, 21, 23, 24, 32, `index.md`.
+
+#### Quyết định
+
+- Claude chọn theo ủy quyền: GD-140 như kế hoạch (điểm trung bình môn học kỳ gần nhất có điểm, chưa đủ điểm thì trung bình cộng điểm đã có; Tiểu học mức đạt môn kỳ gần nhất); nguồn kết quả hoạt động báo lỗi đến khi 28d gộp.
+- Bảng `classroom_groupings` của 23b còn được ghi song song một bản phát hành để spec 151, CT-23b-10 và bản ứng dụng cũ đọc được; máy chủ chỉ đọc bộ nhóm. Lưu bản chia không đổi thì giữ bộ cũ (tránh sinh bộ thừa).
+- Sau khi 23a (PR 189) gộp: thêm đích `group` cho đề thi trực tuyến; thành viên lúc giao ghi thành dòng học sinh mang `group_id` nguồn để màn hình học sinh, danh sách học sinh của 23a không phải đổi và đổi nhóm sau đó không đổi bài đã giao.
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-271, phiên bản 0.151.0.
+
+#### Vấn đề tồn đọng
+
+- Màn hình nhóm của con ở ứng dụng phụ huynh, của học sinh; màn hình bộ nhóm ở cổng quản trị.
+
+### 2026-10-27 — Mở năm học nhanh hơn: chạy tệp thay đổi cấu trúc theo lô (YCTD-292)
+
+#### Công việc đã thực hiện
+
+- Tìm nguyên nhân e2e `02-academic-years.spec.ts` hỏng ở bước mở năm học (chờ quá 30 giây thông báo "Đã mở năm học…", CI của PR 193 và PR 196): mở năm học tạo cơ sở dữ liệu năm học mới rồi chạy toàn bộ tệp thay đổi cấu trúc ngay trong yêu cầu; `migrateToLatest` chạy mỗi tệp một giao dịch bằng `migrateUp()`, mỗi lần Kysely lại kiểm bảng ghi tệp đã chạy, bảng khóa, đọc trạng thái.
+- Đo trên máy làm việc ngày 2026-10-27 với 100 tệp năm học: mỗi tệp một giao dịch 40,5 đến 41,3 giây; mọi tệp trong một giao dịch 4,7 giây; theo lô 10 tệp 8,6 giây; theo lô 20 tệp 6,3 giây. Gần 90% thời gian là chi phí lặp của từng lần chạy, không phải câu lệnh tạo bảng.
+- Sửa `database/src/migrate.ts`: `migrateToLatest` chạy theo lô, mỗi lô tối đa `MIGRATIONS_PER_TRANSACTION` (10) tệp trong một giao dịch bằng `migrateTo` đến tệp cuối của lô; danh sách tệp chờ đọc một lần. Thêm kiểm thử chạy theo lô (đủ tệp, đúng thứ tự tên, lô cuối thiếu, chạy lại không còn tệp).
+
+#### Quyết định
+
+- Không tăng thời gian chờ của e2e: thời gian thật đã giảm khoảng 4,7 lần, còn khoảng 9 giây ở máy làm việc.
+- Chọn lô 10 thay vì một giao dịch hay lô 20: vẫn tránh lỗi "out of shared memory" khi nhiều trường tạo cơ sở dữ liệu cùng lúc (lý do cũ của cách chạy từng tệp), chấp nhận chậm hơn lô 20 khoảng 2 giây.
+- Không đổi mở năm học sang việc nền có theo dõi tiến trình: khi chạy nhanh như hiện nay thì chưa cần; ghi ở vấn đề tồn đọng nếu số tệp còn tăng nhiều.
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-292, `23_LICH_SU_PHIEN_BAN.md` 0.150.1.
+
+#### Vấn đề tồn đọng
+
+- Nếu số tệp năm học tiếp tục tăng mạnh, cân nhắc dựng sẵn cơ sở dữ liệu mẫu đã chạy tệp ở môi trường vận hành hoặc đưa mở năm học sang việc nền có tiến trình.
+
+### 2026-10-26 — DT-26 phần 26b, phần giao diện: thông báo đẩy trên ứng dụng giáo viên, phụ huynh, học sinh
+
+#### Công việc đã thực hiện
+
+- Service worker dùng chung (`packages/pwa/service-worker.js`) nhận đẩy: hiện thông báo từ tiêu đề, nội dung, nhóm của máy chủ; chạm thông báo đưa ứng dụng đang mở lên trước hoặc mở trang đầu; trình duyệt đổi đăng ký thì báo trang đăng ký lại.
+- `packages/pwa/src/push/`: xét trạng thái đẩy của máy, đăng ký, hủy, đồng bộ, thu hồi khi đăng xuất; khối "Cài đặt thông báo" (`PushSettings`, `PushSettingsPanel`) và móc `usePushSync`.
+- Nối vào ứng dụng giáo viên (Lớp của tôi), phụ huynh (trang chủ), màn hình học sinh (danh sách bài); đăng xuất ở ba nơi thu hồi đăng ký trước khi xóa phiên.
+- Kiểm thử: `packages/pwa` 15/15 (trạng thái đẩy, khóa VAPID, nhãn máy, sự kiện push, notificationclick, pushsubscriptionchange của service worker); e2e spec 187 (giao diện cài đặt thông báo) chạy trên máy cùng phần máy chủ của PR 191.
+
+#### Quyết định
+
+- Kiểm phần nhận đẩy của service worker bằng kiểm thử đơn vị chạy tệp mẫu trong môi trường giả lập của Node: Chromium chạy ẩn của e2e không hiện thông báo hệ thống (đã thử gửi đẩy qua giao thức gỡ lỗi).
+- Một phạm vi service worker chỉ có một đăng ký đẩy nên ứng dụng phụ huynh và màn hình học sinh trên cùng máy chỉ một người nhận, người bật sau cùng.
+- Ứng dụng giáo viên chỉ có service worker khi trường bật ngoại tuyến (GD-108 giữ nguyên); trường tắt thì khối cài đặt báo chưa sẵn sàng, không tự đăng ký service worker riêng cho đẩy.
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-239, `23_LICH_SU_PHIEN_BAN.md` 0.150.0; BR-244, P19-08, AC-891, AC-892, CT-1120, CT-1121, MH-355, BM-104, mục 12H.
+
+#### Vấn đề tồn đọng
+
+- Phụ thuộc phần máy chủ ở PR 191 (YCTD-232): gộp PR 191 trước PR này. Thử đẩy thật trên máy (Android Chrome, iPhone đã cài) khi Eric bật khóa VAPID ở môi trường thử.
+
+### 2026-10-26 — DT-26 phần 26c: khung kiểm thử theo khổ thiết bị
+
+#### Công việc đã thực hiện
+
+- Đọc mục 18 của `32_KE_HOACH_THEO_HE_THONG_SO.md` (26c, ranh giới tệp với 26a, 26b), `tests/playwright.config.ts`, `.github/workflows/ci.yml` sau PR 177.
+- `tests/playwright.config.ts`: biến `E2E_DEVICES` (`pr`, `full`); mặc định giữ dự án `chromium` như cũ. Thêm dự án `dien-thoai` (390 × 844), `may-tinh-bang-doc` (820 × 1180), `may-tinh-bang-ngang` (1180 × 820), `dien-thoai-webkit`; nhãn `@thiet-bi`, `@thiet-bi-pr`.
+- `tests/e2e/device-checks.ts` (vùng chạm, cỡ chữ ô nhập, cuộn ngang, axe-core, đường cơ sở vi phạm đã biết) và `device-baseline.json`; spec 180 (`180-device-frame.spec.ts`) đo trang đăng nhập của ba ứng dụng và trang chủ cổng quản trị, ảnh chụp tham chiếu bật bằng `E2E_SCREENSHOTS=1` ở Linux.
+- `.github/workflows/ci.yml`: việc `kiem-thu-thiet-bi` song song với `kiem-thu-giao-dien` (yêu cầu kéo: một mảnh, hai khổ, Chromium, nhãn `@thiet-bi-pr`; nhánh chính và lịch hằng đêm 19 giờ UTC: bốn dự án, chia hai mảnh, có WebKit); các việc nặng khác bỏ qua khi chạy theo lịch.
+- Thêm thư viện kiểm thử `@axe-core/playwright` (axe-core, giấy phép MPL-2.0, chỉ dùng ở kiểm thử).
+- Sửa lỗi thật bộ kiểm đo được ở màn đăng nhập phụ huynh (`apps/parent/src/screens/LoginScreen.tsx`): hai liên kết công khai nâng vùng chạm lên 44 px, không ngoại lệ.
+
+#### Quyết định
+
+- Bộ kiểm đã đo ra vi phạm thật ở trang đăng nhập (vùng chạm dưới 44 px, ô nhập 15 px, tương phản màu). Phần 26c không sửa giao diện ngoài liên kết phụ huynh nói trên (phần còn lại thuộc 26d cho ứng dụng giáo viên và phụ huynh, 26e cho cổng quản trị): các vi phạm đó ghi ở `device-baseline.json` kèm phần chịu trách nhiệm; spec chỉ hỏng khi có vi phạm mới ngoài đường cơ sở, xóa khỏi tệp khi đã sửa.
+- Ảnh chụp tham chiếu chưa có tệp gốc trong kho (kết xuất khác nhau giữa hệ điều hành): tạo bằng `--update-snapshots` ở Linux của CI rồi đưa vào kho.
+- Số phút đo của việc mới ở CI chưa có: ghi vào YCTD-233 sau lần chạy đầu của yêu cầu kéo.
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-233, `21_KICH_BAN_KIEM_THU.md` CT-1112 đến CT-1114, `23_LICH_SU_PHIEN_BAN.md` 0.149.0.
+
+#### Vấn đề tồn đọng
+
+- Sửa các vi phạm ở đường cơ sở (26d, 26e); tạo ảnh chụp tham chiếu ở CI; đo thời gian việc `kiem-thu-thiet-bi`.
+
+### 2026-10-26 — DT-26 phần 26b: thông báo đẩy Web Push, phần máy chủ
+
+#### Công việc đã thực hiện
+
+- Đọc mục 18 của `32` (26b), mã hàng đợi thông báo (`queueNotification`, `notification-dispatcher.ts`), khóa theo trường (S1a, S3), bộ lập lịch (S1b).
+- Làm phần máy chủ: kênh `push`, bộ nối `PushSender`, đăng ký theo máy, tuỳ chọn theo nhóm, khóa VAPID, điểm cuối API, lệnh dòng lệnh, kiểm thử đơn vị và e2e 182.
+
+#### Quyết định
+
+- Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11: dùng thư viện `web-push` 3.6.7 thay vì tự viết mã hóa RFC 8291; tám nhóm loại ánh xạ theo tiền tố mã loại; loại khẩn lưu ở `notification_urgent_templates`; tối đa 20 máy mỗi người; kênh đẩy chỉ cho người nhận là tài khoản cụ thể ở phần này.
+- Phiên điều phối: mở PR phần máy chủ trước, phần giao diện sau khi 26a (PR 185) gộp.
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-232, `23_LICH_SU_PHIEN_BAN.md` 0.148.0.
+
+#### Kết quả kiểm thử
+
+- `apps/api`: `notifications/push/push.test.ts` 6/6 (CT-26b-1 đến CT-26b-6); cùng `notification-dispatcher.test.ts`, `integrations.test.ts`, `notifications.test.ts`, ma trận cách ly (`tenancy-matrix.test.ts`, `tenancy.test.ts`): 27/27.
+- Kiểm tĩnh đa thuê bao, quét bí mật: đạt. Typecheck, lint, định dạng: đạt.
+- e2e nhiều trường (giữ khóa `e2e.lock`): 182 1/1 (CT-26b-7); 130, 131 đạt.
+
+#### Vấn đề tồn đọng
+
+- Giao diện cài đặt thông báo và mã nhận đẩy ở service worker: phiên của 26a làm tiếp sau khi PR này gộp.
+- Kênh đẩy cho người nhận theo vai trò (`role_code`): chưa làm.
+- Thử trên máy thật (iOS 16.4 trở lên đã cài, Android Chrome): điều kiện ra của đợt 1.
 
 ### 2026-10-26 — Đổi quy ước ghi tài liệu chung sang tệp mảnh (YCTD-291)
 

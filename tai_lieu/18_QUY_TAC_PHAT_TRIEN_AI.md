@@ -1,8 +1,8 @@
 # 18. QUY TẮC PHÁT TRIỂN AI
 
 - Mô tả: Các quy tắc AI phải tuân thủ trong dự án này.
-- Phiên bản: 1.1
-- Ngày cập nhật: 2026-10-09
+- Phiên bản: 1.2
+- Ngày cập nhật: 2026-10-29
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
 
@@ -72,6 +72,9 @@
 | AI-40 | Trước mọi thay đổi mã nguồn, kể cả sửa lỗi nhỏ, AI trình thiết kế và chờ Eric xác nhận; AI không tự commit hay đẩy mã lên kho |
 | AI-41 | Mã nguồn không được giả định chỉ có một cơ sở dữ liệu: có cơ sở dữ liệu định danh, cơ sở dữ liệu hệ thống và mỗi năm học một cơ sở dữ liệu; thay đổi cấu trúc dữ liệu theo QU-11; khi mở năm học phải giữ nguyên mã định danh của bản ghi chuyển sang (QĐ-15, QĐ-17) |
 | AI-42 | Mọi quyết định kiến trúc đã chốt tại `12_KIEN_TRUC_HE_THONG.md` mục 13 là ràng buộc; quyết định đã bị thay thế thì theo quyết định thay thế |
+| AI-43 | Việc mức Lớn (đổi kiến trúc, đổi phân quyền, nhiều module, sửa cấu trúc dữ liệu hoặc API đang dùng) phải có phiếu ở `24_YEU_CAU_THAY_DOI.md`, bản mẫu giao diện và danh sách lát, được Eric duyệt trước khi viết mã (GD-181) |
+| AI-44 | Việc mức Nhỏ, Vừa: phiên điều phối được merge khi CI đạt toàn bộ và nhánh gộp sạch với `main`, theo ủy quyền tự động của Eric ngày 2026-10-11 (GD-182) |
+| AI-45 | Tệp tạm của AI (script thử, log, ảnh chụp, kết quả trung gian) đặt trong `tam_thoi/` ở gốc kho, thư mục này nằm trong `.gitignore`; dọn trước khi trình nghiệm thu và cuối phiên (GD-183) |
 
 ## 6. Quy tắc tự kiểm trước khi báo hoàn thành
 
@@ -103,3 +106,6 @@ Không áp dụng. Tài liệu này là quy tắc làm việc, không mô tả h
 | GD-81 | Đã xác nhận ngày 09/10/2026 (theo QĐ-06 đến QĐ-10): Bốn quyết định kiến trúc QĐ-06 đến QĐ-10 là ràng buộc, mọi mã nguồn viết sau phải tuân theo. Mở rộng thành AI-42: mọi quyết định đã chốt, QĐ-09 đã được QĐ-14 thay thế | Eric |
 | Q-97 | Đã trả lời ngày 09/10/2026: siết chặt quy tắc cho AI, xem AI-40 | Eric |
 | Q-98 | Đã trả lời ngày 09/10/2026: có, siết chặt: AI phải được Eric xác nhận trước mọi thay đổi mã nguồn và không tự commit (AI-40) | Eric |
+| GD-181 | Đã xác nhận ngày 29/10/2026: việc mức Lớn chỉ viết mã sau khi Eric duyệt phiếu `24`, bản mẫu giao diện và danh sách lát (AI-43, YCTD-369) | Eric |
+| GD-182 | Đã xác nhận ngày 29/10/2026: việc mức Nhỏ, Vừa được phiên điều phối merge khi CI đạt toàn bộ và gộp sạch với `main` (AI-44, YCTD-369) | Eric |
+| GD-183 | Đã xác nhận ngày 29/10/2026: tệp tạm của AI đặt trong `tam_thoi/` ở gốc kho, Git bỏ qua (AI-45, YCTD-369) | Eric |

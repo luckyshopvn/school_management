@@ -1,8 +1,8 @@
 # 01. KẾ HOẠCH TỔNG THỂ
 
 - Mô tả: Tài liệu điều phối cấp cao nhất của dự án: mười hai giai đoạn kèm cổng kiểm soát, các mốc phát hành, kế hoạch thực thi theo đợt, đường găng, tổ chức thực hiện, quản lý thay đổi và rủi ro.
-- Phiên bản: 1.76
-- Ngày cập nhật: 2026-10-26
+- Phiên bản: 1.77
+- Ngày cập nhật: 2026-10-29
 - Trạng thái: Đã phê duyệt
 - Người phê duyệt: Eric, ngày 2026-10-09
 
@@ -268,6 +268,97 @@ Sản phẩm: School Management, hệ thống quản lý trường mầm non cho
 | 0.144.0 | DT-23 phần 23a: thi trực tuyến cho học sinh (kênh student, giao đề, làm bài, khóa toàn màn hình và camera trên máy, chấm, chuyển điểm theo luồng 22g2) | YCTD-211 |
 | 0.145.0 | DT-26 phần 26a: vỏ ứng dụng web cài được dùng chung (gói `packages/pwa` gom service worker của 23b, manifest và biểu tượng theo thương hiệu từng trường, ứng dụng phụ huynh có service worker, dải có bản mới, lời mời cài cho Android, iPhone, Zalo), YCTD-231 | 2026-10-26 |
 | 0.147.0 | DT-25 bước 25b: giao diện đăng nhập và liên kết bằng nhà cung cấp định danh (nút trên màn hình đăng nhập của ba ứng dụng, trang quay về có nhập mã hai lớp, liên kết và gỡ ở Tài khoản của tôi, cấu hình của trường), YCTD-226 | 2026-10-26 |
+| 0.148.0 | DT-26 phần 26b: thông báo đẩy Web Push, phần máy chủ (kênh push của hàng đợi chung, bộ nối web-push và giả lập, đăng ký theo máy mã hóa bằng khóa của trường, tuỳ chọn tắt theo nhóm, khóa VAPID của nền tảng) | YCTD-232 |
+| 0.149.0 | DT-26 phần 26c: khung kiểm thử theo khổ thiết bị (dự án Playwright theo khổ thiết bị, nhãn @thiet-bi, bộ kiểm vùng chạm 44 px, cỡ chữ ô nhập, cuộn ngang, axe-core; việc CI kiem-thu-thiet-bi chạy song song, hằng đêm chạy đủ), YCTD-233 | 2026-10-26 |
+| 0.150.0 | DT-26 phần 26b, phần giao diện: service worker nhận đẩy, cài đặt thông báo đẩy ở ứng dụng giáo viên, phụ huynh, học sinh | YCTD-239 |
+| 0.150.1 | Mở năm học nhanh hơn: chạy tệp thay đổi cấu trúc theo lô 10 tệp mỗi giao dịch | YCTD-292 |
+| 0.151.0 | DT-28 phần 28a: mô hình nhóm dùng chung (bộ nhóm của lớp mở rộng `child_groups`; chia tay, ngẫu nhiên, theo năng lực, cân bằng giới, ràng buộc, từ tiết nhóm 21b; nhóm trưởng, lịch sử; công cụ lớp học 23b dùng bộ nhóm; hàm đọc ổn định cho phần khác) | YCTD-271 |
+| 0.152.0 | DT-27 phần 27b: chương trình gia sư trong trường (loại nội dung, nhóm đối tượng, không thu tiền với môn học), buổi lặp theo tuần không trùng thời khoá biểu, giới hạn 2 tiết/tuần/môn, quyết định của Sở, đơn của cha mẹ, điểm danh, báo vắng | YCTD-252 |
+| 0.153.0 | DT-28 phần 28b: lõi hệ thống quản lý học tập (lớp học trực tuyến tự sinh từ phân công giảng dạy, khoá tự chọn, khoá học mẫu của tổ chuyên môn qua duyệt tổ và Ban Giám hiệu rồi đẩy xuống lớp, chương và hoạt động trang nội dung, liên kết, học liệu đã công bố, điều kiện mở, kết quả hoạt động chung, tiến độ, kế hoạch dạy học trực tuyến theo tuần, nhật ký học tập dạng gần xAPI, quyết định dạy học trực tuyến thay thế và nội quy theo Thông tư 09/2021/TT-BGDĐT; phụ huynh xem việc học trực tuyến của con) (YCTD-272) | Đã triển khai |
+| 0.154.0 | DT-23 phần 23e: giám thị camera cho thi trực tuyến (xem trực tiếp WebRTC, ghi hình mã hoá có hạn, thông báo và đồng ý của cha mẹ) | YCTD-215 |
+| 0.155.0 | DT-23 phần 23c: trò chơi kiến thức và thẻ đáp án giấy (hỏi đáp theo vòng, vòng quay, ô chữ, thẻ đáp án giấy quét bằng camera trên máy) | YCTD-213 |
+| 0.156.0 | DT-27 phần 27c: thu phí chương trình bổ trợ trên hóa đơn của trường, khoản trừ buổi hủy, thù lao giáo viên vào bảng lương, báo cáo thu chi gia sư | YCTD-253 |
+| 0.157.0 | DT-26 phần 26d: chế độ lớp học, bố cục máy tính bảng và yêu cầu truy cập của ứng dụng giáo viên, phụ huynh | YCTD-234 |
+| 0.158.0 | DT-28 phần 28c: bài tập trực tuyến (câu đã duyệt của ngân hàng câu hỏi chấm tự động, tự luận, ảnh, tệp, ghi âm, phiên bản, giao lớp, nhóm, học sinh, nộp muộn, bài nhóm, chấm, thang tiêu chí, ngân hàng nhận xét, trả bài, gợi ý nhận xét AI không gửi bài làm) (YCTD-273) | Đã triển khai |
+| 0.159.0 | DT-27 phần 27a: lớp video trực tiếp (LiveKit tự host, phòng chờ, quyền theo vai trò, ghi hình có đồng ý của cha mẹ, điểm danh từ nhật ký phòng, giới hạn theo gói) | YCTD-251 |
+| 0.160.0 | DT-28 phần 28d: tiến độ học trực tuyến và học sinh cần chú ý, bảng điểm hoạt động, đưa kết quả vào sổ điểm (điểm thường xuyên) và sổ nhận xét (Tiểu học), báo cáo theo vai trò, tóm tắt cho phụ huynh, báo cáo tổng kết và hồ sơ dạy học trực tuyến theo Thông tư 09 (YCTD-274) | Đã triển khai |
+| 0.161.0 | DT-26 phần 26e: bố cục máy tính bảng của cổng quản trị và cổng nền tảng, màu đủ tương phản ở bộ chủ đề | YCTD-235 |
+| 0.162.0 | DT-28 phần 28e: giao tiếp trong lớp và nhóm (thông báo lớp tới học sinh, phụ huynh, diễn đàn, hỏi đáp có câu hỏi riêng và xác nhận câu trả lời, không gian học nhóm có việc, ghi chú, tệp, lọc thông tin liên lạc, báo cáo vi phạm và hàng chờ của trường, giờ mở do trường đặt, lịch học tập) (YCTD-275) | Đã triển khai |
+| 0.163.0 | DT-27 phần 27d1: khoá học ghi sẵn của chương trình gia sư (khoá tự chọn của lõi LMS, ghi danh theo đơn, xem video theo đoạn có nhật ký); tiến độ ở 27d2 sau 28d | YCTD-254 |
+| 0.164.0 | DT-26 phần 26f bản demo: vỏ ứng dụng cài đặt Capacitor cho giáo viên, phụ huynh, chạy trên máy giả lập | YCTD-236 |
+| 0.165.0 | DT-28 phần 28f: bài về nhà và phụ huynh (giao từ sổ đầu bài, quy tắc khối lượng do trường đặt, lịch khối lượng của lớp, phụ huynh xem bài của con, đã xem cùng con, nộp thay, nhắc có giờ yên lặng, gợi ý gia hạn khi vắng) (YCTD-276) | Đã triển khai |
+| 0.166.0 | DT-28 phần 28h: gói SCORM và gói khoá học (nhập gói SCORM 1.2, 2004 vào kho học liệu qua duyệt, phát cô lập ở nguồn gốc riêng có mã truy cập ngắn hạn, bộ chuyển API ghi kết quả hoạt động, xuất nhập gói khoá học giữa các trường) (YCTD-278) | Đã triển khai |
+| 0.167.0 | DT-27 phần 27d2: tiến độ của khoá học ghi sẵn (phần trăm đã xem video ghi kết quả hoạt động của 28b, tiến độ cho học sinh, phụ huynh, giáo viên) | YCTD-261 |
+| 0.168.0 | DT-27 phần 27e: hỏi đáp bài tập của chương trình gia sư (hàng chờ theo chương trình, gợi ý AI nháp chỉ giáo viên thấy, dấu có AI hỗ trợ, học sinh báo đã hiểu, cha mẹ tắt AI cho con) | YCTD-255 |
+| 0.169.0 | Đăng ký mô-đun, tệp thay đổi cấu trúc, kiểu bảng bằng tệp riêng của từng phần | YCTD-294 |
+| 0.170.0 | DT-28 phần 28i: huy hiệu và chứng nhận hoàn thành (tắt mặc định; huy hiệu nội bộ tự động và do giáo viên trao, không bảng xếp hạng; chứng nhận PDF cho khoá tự chọn, mã kiểm tra, trang kiểm tra công khai chỉ họ tên viết tắt, thu hồi được) (YCTD-279) | Đã triển khai |
+| 0.171.0 | DT-26 phần 26g phần mã: thông báo đẩy gốc FCM, APNs cho ứng dụng cài đặt | YCTD-237 |
+| 0.172.0 | DT-28 phần 28j: học khi mạng yếu (tắt mặc định; bản nháp, nội dung đã mở, thao tác chờ gửi của học sinh mã hoá trên máy tối đa 7 ngày, xoá khi nộp, đăng xuất; hàng đợi gửi lại có mã chống trùng; thời điểm bấm nộp trên máy; GD-148 đã chốt 2026-10-27) (YCTD-280) | Đã triển khai |
+| 0.173.0 | DT-27 phần 27f: nền chợ gia sư (cơ sở dữ liệu marketplace, ứng dụng apps/market, tài khoản, hồ sơ con có đồng ý, liên kết với trường, cấu hình chợ; thu tiền thật luôn tắt) | YCTD-256 |
+| 0.174.0 | Trang chủ cổng quản trị theo mẫu giao diện Tổng quan | YCTD-295 |
+| 0.175.0 | Áp sáu màn mẫu giao diện đã duyệt | YCTD-296 |
+| 0.176.0 | Tách riêng ứng dụng học sinh khỏi ứng dụng phụ huynh | YCTD-300 |
+| 0.177.0 | README song ngữ ở gốc kho mã | YCTD-305 |
+| 0.178.0 | DT-27: tách ứng dụng Gia sư (apps/tutor, PWA riêng, tên miền riêng) khỏi Chợ gia sư (apps/market, phần phụ huynh); gói dùng chung packages/market-client; mỗi ứng dụng một vai tài khoản | YCTD-262 |
+| 0.179.0 | DT-28 phần 28g: giờ học trực tuyến (phòng lớp từ lịch, điểm danh từ nhật ký phòng), phòng chia nhỏ, phòng video nhóm có "giáo viên đang xem", báo cáo vào hàng chờ; GD-144 đã chốt 2026-10-28 (YCTD-277) | Đã triển khai |
+| 0.180.0 | Sửa CI nhánh chính: ảnh mẫu thiết bị, giám thị camera, tác vụ xuất nền | YCTD-306 |
+| 0.181.0 | DT-27 phần 27g: hồ sơ gia sư, xác minh bốn bậc (danh tính qua OIDC đủ 18 tuổi, bằng cấp, lý lịch tư pháp, đăng ký kinh doanh), hàng chờ duyệt ở cổng nền tảng, tìm gia sư theo Mẫu 02, Mẫu 03 cho giáo viên đang dạy ở trường | YCTD-257 |
+| 0.182.0 | DT-27 phần 27h: đặt buổi lẻ ở Chợ gia sư, thanh toán giữ tiền giả lập, hủy và hoàn theo chính sách, giải ngân sau hạn khiếu nại, tranh chấp có khiếu nại lại, quy tắc hoa hồng; thu tiền thật không bật được | YCTD-258 |
+| 0.183.0 | DT-27 phần 27i: an toàn trẻ em và kiểm duyệt ở chợ gia sư: tin nhắn che thông tin liên lạc ngoài, báo cáo vi phạm, tạm khóa gia sư ngay khi nghiêm trọng, kiểm duyệt có kháng nghị, ghi hình bắt buộc với trẻ vị thành niên, xem bản ghi có nhật ký | YCTD-259 |
+| 0.184.0 | Hồ sơ cán bộ, giáo viên mở ở trang riêng chia thẻ | YCTD-309 |
+| 0.185.0 | Trang đăng nhập theo mẫu (Sở → Cấp, Phường / Xã → Trường), Ghi nhớ phiên dài, bản nhiều trường trên máy | YCTD-310 |
+| 0.186.0 | Giao diện đăng nhập cổng vận hành nền tảng theo mẫu mới | YCTD-312 |
+| 0.187.0 | Mã xác nhận ở đăng nhập cổng vận hành nền tảng | YCTD-313 |
+| 0.188.0 | Quy tắc tài khoản theo số CCCD, mật khẩu mặc định có hạn, băm argon2id tường minh, nhân viên vận hành của công ty | YCTD-311 |
+| 0.189.0 | Chọn phân hệ thì về bảng điều khiển của phân hệ | YCTD-307 |
+| 0.190.0 | Thẻ Phân công giảng dạy ở trang hồ sơ cán bộ, giáo viên | YCTD-316 |
+| 0.191.0 | Xuất Excel thời khoá biểu theo lớp, giáo viên, phòng | YCTD-317 |
+| 0.192.0 | Sổ điểm nhập từ Excel và in sổ | YCTD-318 |
+| 0.193.0 | Siết kiểm duyệt và xác minh danh tính ở chợ gia sư | YCTD-322 |
+| 0.194.0 | Mở mọi trường, quản trị nền tảng vào thẳng, gói cơ bản miễn phí | YCTD-314 |
+| 0.195.0 | Danh sách học sinh thêm cột Phụ huynh, Chuyên cần và Đồng bộ CSDL ngành | YCTD-319 |
+| 0.196.0 | Trang chủ ứng dụng phụ huynh thêm thẻ Khoản cần nộp và Điểm mới | YCTD-320 |
+| 0.197.0 | Giáo viên trả lời trao đổi trên bài nộp | YCTD-346 |
+| 0.198.0 | Điểm danh đầu ngày ở mọi cấp, điểm danh theo tiết lấy mặc định từ điểm danh đầu ngày | YCTD-350 |
+| 0.199.0 | Khai báo cơ sở vật chất mở được với quyền quản lý thiết bị | YCTD-340 |
+| 0.200.0 | Dặn thuốc theo QT-07: Đã nhận thuốc, báo phụ huynh khi cho uống, leo thang sự kiện y tế nặng | YCTD-344 |
+| 0.201.0 | Ban Giám hiệu xem và xét duyệt hồ sơ tuyển sinh | YCTD-341 |
+| 0.202.0 | Áp bản thiết kế cho Chợ gia sư phía phụ huynh | YCTD-360 |
+| 0.203.0 | Rà soát lại quy trình, kiểm thử toàn bộ trên nhánh chính, tài liệu 35 kết quả kiểm thử | YCTD-321 |
+| 0.204.0 | Sửa CI nhánh chính: ảnh tham chiếu trang đăng nhập cổng quản trị | YCTD-352 |
+| 0.205.0 | Cổng vận hành nền tảng: loại dữ liệu, hồ sơ đồng ý, vùng máy chủ ở chi tiết trường | YCTD-343 |
+| 0.206.0 | Thiết kế lại cổng quản trị trường: khung chung, thanh bên trái | YCTD-330 |
+| 0.207.0 | Admin đủ quyền ở mọi ứng dụng của trường | YCTD-315 |
+| 0.209.0 | Xem dữ liệu năm học đã đóng ở cổng quản trị | YCTD-342 |
+| 0.210.0 | Danh mục thiết bị tối thiểu và mẫu kế hoạch giáo dục cho Tiểu học, THCS, THPT (trường tự nhập) | YCTD-345 |
+| 0.211.0 | DT-29 phần 29a: Hộp công cụ giảng dạy theo cấp học | YCTD-325 |
+| 0.212.0 | Sửa lỗi xem camera giám thị mất phiên khi mở phiên song song | YCTD-355 |
+| 0.213.0 | Mã xác nhận ở ứng dụng giáo viên, che số định danh, giới hạn "Ghi nhớ" | YCTD-353 |
+| 0.214.0 | Áp bản thiết kế cho ứng dụng Gia sư | YCTD-361 |
+| 0.215.0 | Phòng học video của chợ gia sư | YCTD-362 |
+| 0.216.0 | Đánh giá gia sư, mật khẩu, đăng nhập định danh của phụ huynh, con đọc tin nhắn | YCTD-364 |
+| 0.217.0 | Gói buổi ở chợ gia sư | YCTD-365 |
+| 0.218.0 | Giao diện trang đơn vị cấp trên, cấu hình và duyệt đánh giá của chợ | YCTD-363 |
+| 0.219.0 | Ứng dụng phụ huynh có nút Đổi con và thanh điều hướng dưới | YCTD-351 |
+| 0.220.0 | Cổng quản trị: dải thông báo, một nút ngữ cảnh, phông Be Vietnam Pro | YCTD-331 |
+| 0.221.0 | Cổng quản trị: ô tìm chức năng, trang Tất cả chức năng | YCTD-332 |
+| 0.222.0 | Mã xác nhận ở đăng nhập bằng mật khẩu của ứng dụng phụ huynh | YCTD-354 |
+| 0.223.0 | Cổng quản trị: lưới dữ liệu gọn, danh sách cán bộ theo thiết kế | YCTD-333 |
+| 0.224.0 | Vai trò vận hành theo từng điểm cuối, đổi mật khẩu vận hành, mã xác nhận khi đổi mật khẩu mặc định | YCTD-323 |
+| 0.225.0 | Giao diện cổng vận hành theo thiết kế | YCTD-324 |
+| 0.226.0 | DT-29 phần 29b: mini app chung và Mầm non của Hộp công cụ giảng dạy | YCTD-326 |
+| 0.227.0 | Cổng quản trị: trang Điểm danh theo thiết kế mới | YCTD-334 |
+| 0.228.0 | Cổng quản trị: trang Hồ sơ lớp học gọn theo thiết kế | YCTD-339 |
+| 0.229.0 | Cổng quản trị: danh sách học sinh gọn theo thiết kế | YCTD-338 |
+| 0.230.0 | CI tự huỷ lượt chạy cũ của cùng PR hoặc cùng nhánh | YCTD-357 |
+| 0.231.0 | Cấp trên rút đề nghị, xuất báo cáo chạy nền | YCTD-367 |
+| 0.232.0 | Cổng quản trị: trang Cấu hình trường theo thiết kế mới | YCTD-335 |
+| 0.233.0 | Cổng quản trị: nhóm Hay dùng, ô tìm chung học sinh, cán bộ | YCTD-337 |
+| 0.234.0 | Cổng quản trị: Công văn của tôi, trang Văn bản đến gọn | YCTD-336 |
+| 0.235.0 | DT-29 phần 29c: mini app Tiểu học của Hộp công cụ giảng dạy | YCTD-327 |
+| 0.236.0 | DT-29 phần 29d: mini app THCS, THPT của Hộp công cụ giảng dạy | YCTD-328 |
+| 0.237.0 | DT-29 phần 29e: bài hát, câu chuyện của trường trong Hộp công cụ giảng dạy | YCTD-329 |
+| 0.238.0 | Sửa lệch quy trình: gom tệp mảnh, ma trận truy vết, tài liệu triển khai, quy tắc mức Lớn và tệp tạm | YCTD-369 |
 | 1.0.0 | Giai đoạn 1 chạy thật: nền tảng, trẻ, điểm danh, học phí, thanh toán mã QR, phiếu thu, phiếu chi, quỹ tiền mặt, nhân sự, lương cơ bản, hai ứng dụng, báo cáo cơ bản, nhập dữ liệu từ Excel, nhập mã định danh của Bộ, API đối tác | 09 đến 11 | Eric nghiệm thu ngày 13/10/2026, thẻ `v1.0.0` (tài liệu 0.31.0, YCTD-92); chờ triển khai ở việc T6 |
 | 1.1.0 | Giai đoạn 2: giảng dạy, y tế, bếp, kho, hoạt động, tương tác, công việc, tài khoản ngân hàng và công nợ phải trả, báo cáo hợp nhất | 09 đến 11 | Eric nghiệm thu ngày 13/10/2026, thẻ `v1.1.0` (tài liệu 0.42.0, YCTD-92) |
 | 1.2.0 | Giai đoạn 3: tuyển sinh, tuyển dụng, kết nối Facebook và Zalo, đối soát thanh toán, sổ kế toán kép | 09 đến 11 | Eric nghiệm thu ngày 13/10/2026, thẻ `v1.2.0` (tài liệu 0.48.0, YCTD-92) |
@@ -709,6 +800,7 @@ Không còn mục chưa xác minh. Các mục trước đây đã được trả
 | GD-115 | DT-25: nhóm vai trò được đăng nhập bằng nhà cung cấp ngoài mặc định là mọi vai trò trừ học sinh; học sinh dưới 14 tuổi không tự đăng nhập | Eric |
 | GD-130 đến GD-138 | DT-27: số người tối đa lớp nhóm nhỏ (8), ghi hình (trong trường tắt mặc định, chợ bắt buộc với trẻ vị thành niên), giữ bản ghi 30 ngày, khiếu nại 48 giờ, chính sách hủy, không tài khoản riêng dưới 16 tuổi ở chợ, hạn lý lịch tư pháp, thư viện bảng trắng, khấu trừ thuế tắt đến khi luật sư kết luận (`32` mục 19.11) | Eric (GD-137: Claude) |
 | GD-140 đến GD-157 | DT-28: **Eric chốt 2026-10-26 GD-141** (kết quả hoạt động vào điểm thường xuyên THCS, THPT; Tiểu học làm căn cứ gợi ý nhận xét và mức đạt, không điểm số; công tắc trường mặc định bật, giáo viên chọn từng hoạt động), **GD-142** (AI không đọc bài làm, không làm chế độ gửi bài làm), **GD-143** (quy tắc bài về nhà do trường tự cấu hình, nền tảng không đặt mặc định), **GD-145** (phụ huynh xem không gian nhóm theo cấp); còn lại: nguồn điểm chia nhóm, giờ mở thảo luận và nhóm, thời hạn lưu, nộp muộn, bản nháp ngoại tuyến (mở rộng GD-108), giáo viên quan sát luôn hiện, giới hạn tệp và gói SCORM, nội dung cần duyệt theo Thông tư 09 Điều 7, LTI để sau, SCORM 2004 không trình tự, lớp học trực tuyến ẩn đến khi mở, huy hiệu tắt mặc định, ghi danh khoá tự chọn, không xuất iCal (`32` mục 20.13) | Eric (GD-140, GD-147, GD-150, GD-153, GD-157: Claude) |
+| GD-159 đến GD-163 | Eric đã chốt ngày 2026-10-28 (YCTD-314): Admin vào mọi trường không hỏi, vẫn ghi nhật ký (sửa GD-110); mở mọi đơn vị, khởi tạo trường ở lần mở đầu tiên; gói cơ bản miễn phí, tính năng trả phí bật riêng từng trường; sổ liên lạc điện tử miễn phí, SMS, Zalo trả phí theo tin; tài khoản quản trị trường đủ số CCCD, họ tên, số điện thoại | Eric (đã chốt) |
 | Q-128 | Đã trả lời ngày 09/10/2026: giữ cách dùng điều kiện vào, điều kiện ra, không đặt mốc ngày | Eric |
 | Q-129 | Đã trả lời ngày 09/10/2026: Eric duyệt mọi cổng; Hiệu trưởng cùng nghiệm thu nghiệp vụ; kế toán trưởng cùng nghiệm thu phân hệ học phí, tài chính, lương | Eric |
 | Q-130 | Đã trả lời ngày 09/10/2026: dùng Git trên GitHub, kho riêng; dựng tích hợp và triển khai tự động ngay từ đợt DT-00 | Eric |
