@@ -116,10 +116,11 @@ export function OperatorPasswordPage({
               />
               {currentError ? <span className="field-error">{currentError}</span> : null}
             </label>
-            <label className="field">
-              Mật khẩu mới
+            <div className="field">
+              <label htmlFor="mat-khau-moi">Mật khẩu mới</label>
               <span style={{ display: 'flex', gap: 6 }}>
                 <input
+                  id="mat-khau-moi"
                   type={showNew ? 'text' : 'password'}
                   autoComplete="new-password"
                   minLength={MINIMUM_LENGTH}
@@ -140,7 +141,7 @@ export function OperatorPasswordPage({
                 </button>
               </span>
               {newError ? <span className="field-error">{newError}</span> : null}
-            </label>
+            </div>
             <ul className="muted" style={{ margin: '-0.25rem 0 0', paddingLeft: '1.1rem' }} aria-live="polite">
               <Rule passed={longEnough} label={`Từ ${MINIMUM_LENGTH} ký tự trở lên`} failedLabel="Chưa đủ" />
               <Rule passed={matching} label="Hai lần nhập khớp nhau" failedLabel="Chưa khớp" />

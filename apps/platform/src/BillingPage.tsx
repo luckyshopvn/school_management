@@ -17,7 +17,7 @@ import {
 // Trang "Thu phí" của cổng vận hành nền tảng (DT-SaaS phần S5b, YCTD-196): công nợ theo trường, hóa đơn và chi tiết, lập hóa đơn tay,
 // điều chỉnh tay có lý do (giảm giá, ghi nhận tiền tay, hủy, tặng kỳ, gán giao dịch chưa khớp), hóa đơn điện tử, quy tắc tính phí, cấu
 // hình thu phí và khóa cổng thanh toán của nền tảng (chỉ hiện gợi ý bốn ký tự cuối). Giao diện YCTD-370: bốn ô tổng hợp, năm thẻ chọn;
-// chi tiết và điều chỉnh hóa đơn, tặng kỳ, gán giao dịch, lập hóa đơn trong hộp thoại (bỏ window.prompt); hủy hóa đơn phải tích ô đồng
+// chi tiết và điều chỉnh hóa đơn, tặng kỳ, gán giao dịch, lập hóa đơn trong hộp thoại (bỏ hộp nhập của trình duyệt); hủy hóa đơn phải tích ô đồng
 // ý; chỉ vai trò có billing.connectors nhập khóa cổng thanh toán
 interface Receivable {
   school_id: string;
