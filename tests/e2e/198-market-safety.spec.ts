@@ -20,14 +20,13 @@ import {
   E2E_MULTI_IDENTITY_PORT,
   E2E_MULTI_MARKET_PORT,
   E2E_MULTI_STATE_FILE,
-  E2E_MULTI_TUTOR_PORT,
   E2E_TUTOR_HOST,
 } from '../e2e-multi-environment.mjs';
 import { expect, test } from './fixtures.js';
 import { signInConsole } from './platform-console.js';
 
 // DT-27 phần 27i (YCTD-259, spec 198): phụ huynh nhắn tin cho gia sư (số điện thoại bị che, có cảnh báo), đặt buổi có đồng ý ghi hình,
-// trả tiền giả lập, báo cáo mức nghiêm trọng; gia sư bị tạm khóa ngay; gia sư thấy tạm khóa ở ứng dụng Gia sư; nhân viên nền tảng thấy
+// trả tiền giả lập, báo cáo mức nghiêm trọng; gia sư bị tạm khóa ngay; gia sư thấy tạm khóa ở khu gia sư; nhân viên nền tảng thấy
 // chỉ số, chữ gốc của tin nhắn, ghi quyết định tạm khóa có lý do thì buổi mới được hoàn đủ (YCTD-322). Gia sư đã duyệt dựng thẳng trong
 // cơ sở dữ liệu chợ. Chỉ chạy ở dự án nhiều trường. Dữ liệu giả, không có tiền thật
 const IDENTITY = `http://127.0.0.1:${E2E_MULTI_IDENTITY_PORT}`;
@@ -118,8 +117,8 @@ test.beforeAll(async () => {
     documents[kind] = published.body.id as string;
   }
 
-  // Gia sư: đăng ký qua ứng dụng Gia sư, rồi dựng hồ sơ đã duyệt thẳng trong cơ sở dữ liệu chợ
-  const registered = await hostCall(E2E_TUTOR_HOST, 'POST', '/auth/register', undefined, {
+  // Gia sư: đăng ký ở Chợ gia sư (ứng dụng chung, YCTD-368), rồi dựng hồ sơ đã duyệt thẳng trong cơ sở dữ liệu chợ
+  const registered = await hostCall(E2E_MARKET_HOST, 'POST', '/auth/register', undefined, {
     kind: 'tutor',
     email: tutorEmail,
     display_name: tutorName,
@@ -129,7 +128,7 @@ test.beforeAll(async () => {
   expect(registered.status).toBe(201);
   tutorToken = registered.body.session_token as string;
   await setKnownCode(tutorEmail);
-  expect((await hostCall(E2E_TUTOR_HOST, 'POST', '/auth/verify', tutorToken, { code: CODE })).status).toBe(200);
+  expect((await hostCall(E2E_MARKET_HOST, 'POST', '/auth/verify', tutorToken, { code: CODE })).status).toBe(200);
   const tutor = await marketplace
     .selectFrom('market_accounts')
     .select('id')
@@ -190,7 +189,7 @@ test('CT-27i-6: tin nhắn bị che, báo cáo nghiêm trọng tạm khóa gia s
   const marketContext = await browser.newContext({ baseURL: `http://${E2E_MARKET_HOST}:${E2E_MULTI_MARKET_PORT}` });
   const market = await marketContext.newPage();
   await market.goto('/');
-  await market.getByRole('button', { name: 'Đăng ký' }).click();
+  await market.getByRole('button', { name: 'Đăng ký', exact: true }).click();
   const register = market.getByRole('form', { name: 'Đăng ký tài khoản chợ gia sư' });
   await register.getByLabel('Thư điện tử hoặc số điện thoại').fill(parentEmail);
   await register.getByLabel('Tên hiển thị').fill('Phụ huynh an toàn');
@@ -211,12 +210,18 @@ test('CT-27i-6: tin nhắn bị che, báo cáo nghiêm trọng tạm khóa gia s
   await add.getByLabel(new RegExp(`đồng ý Văn bản parent_consent ${suffix} \\(phiên bản \\d+\\)`)).check();
   await add.getByRole('button', { name: 'Thêm hồ sơ con' }).click();
   await expect(market.getByRole('listitem', { name: 'Hồ sơ Bé An' })).toContainText('Đã đồng ý cho hồ sơ con');
-  await market.getByRole('navigation', { name: 'Điều hướng chợ' }).getByRole('button', { name: 'An toàn' }).click();
+  await market
+    .getByRole('navigation', { name: 'Điều hướng khu phụ huynh' })
+    .getByRole('button', { name: 'An toàn' })
+    .click();
   await expect(market.getByRole('region', { name: 'Chính sách an toàn trẻ em' }).first()).toContainText('111');
   await expect(market.getByRole('region', { name: 'Báo cáo tôi đã gửi' })).toContainText('Bạn chưa gửi báo cáo nào');
 
   // Mở trang gia sư: nhắn tin có số điện thoại thì bị che và có cảnh báo
-  await market.getByRole('navigation', { name: 'Điều hướng chợ' }).getByRole('button', { name: 'Tìm gia sư' }).click();
+  await market
+    .getByRole('navigation', { name: 'Điều hướng khu phụ huynh' })
+    .getByRole('button', { name: 'Tìm gia sư' })
+    .click();
   const search = market.getByRole('form', { name: 'Lọc gia sư' });
   await search.getByLabel('Môn').fill(subjectName);
   await search.getByRole('button', { name: 'Tìm' }).click();
@@ -243,7 +248,7 @@ test('CT-27i-6: tin nhắn bị che, báo cáo nghiêm trọng tạm khóa gia s
   await booking.getByRole('button', { name: 'Giữ chỗ buổi học' }).click();
   await expect(booking).toContainText('Đã giữ chỗ buổi');
   await market
-    .getByRole('navigation', { name: 'Điều hướng chợ' })
+    .getByRole('navigation', { name: 'Điều hướng khu phụ huynh' })
     .getByRole('button', { name: 'Buổi học của con' })
     .click();
   const lessons = market.getByRole('region', { name: 'Buổi học của con' });
@@ -267,14 +272,14 @@ test('CT-27i-6: tin nhắn bị che, báo cáo nghiêm trọng tạm khóa gia s
   await expect(lesson).toContainText('Đã trả tiền');
 
   // Gia sư thấy tài khoản đang tạm khóa
-  const tutorContext = await browser.newContext({ baseURL: `http://${E2E_TUTOR_HOST}:${E2E_MULTI_TUTOR_PORT}` });
+  const tutorContext = await browser.newContext({ baseURL: `http://${E2E_MARKET_HOST}:${E2E_MULTI_MARKET_PORT}` });
   await tutorContext.addInitScript({
     content: `window.sessionStorage.setItem('cho-gia-su-phien', ${JSON.stringify(tutorToken)});`,
   });
   const tutor = await tutorContext.newPage();
   await tutor.goto('/');
   await tutor
-    .getByRole('navigation', { name: 'Điều hướng ứng dụng Gia sư' })
+    .getByRole('navigation', { name: 'Điều hướng khu gia sư' })
     .getByRole('button', { name: 'An toàn, kiểm duyệt' })
     .click();
   await expect(tutor.getByRole('region', { name: 'Kiểm duyệt và an toàn' })).toContainText('Tài khoản đang tạm khóa');
@@ -305,7 +310,10 @@ test('CT-27i-6: tin nhắn bị che, báo cáo nghiêm trọng tạm khóa gia s
   await lessons.getByRole('button', { name: 'Tải lại' }).click();
   await expect(lesson).toContainText('Đã hoàn tiền');
   // Phụ huynh theo dõi báo cáo đã gửi ở trang An toàn (YCTD-360)
-  await market.getByRole('navigation', { name: 'Điều hướng chợ' }).getByRole('button', { name: 'An toàn' }).click();
+  await market
+    .getByRole('navigation', { name: 'Điều hướng khu phụ huynh' })
+    .getByRole('button', { name: 'An toàn' })
+    .click();
   await expect(market.getByRole('listitem', { name: `Báo cáo về ${tutorName}` })).toContainText('Đã quyết định');
   await marketContext.close();
 });

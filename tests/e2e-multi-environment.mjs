@@ -8,7 +8,7 @@ export const E2E_MULTI_PORTAL_PORT = 5383;
 export const E2E_MULTI_CONSOLE_PORT = 5384;
 // Chợ gia sư (DT-27 phần 27f, spec 195): ứng dụng apps/market ở tên miền con dành riêng, cơ sở dữ liệu marketplace và vai trò riêng
 export const E2E_MULTI_MARKET_PORT = 5387;
-// Ứng dụng Gia sư của chợ (YCTD-262, spec 195)
+// Tên miền cũ của ứng dụng Gia sư (YCTD-262): từ YCTD-368 chỉ còn bộ chuyển hướng về chợ (scripts/chuyen-huong-gia-su.mjs, spec 195)
 export const E2E_MULTI_TUTOR_PORT = 5388;
 export const E2E_ROOT_DOMAIN = 'e2e.localhost';
 // Bí mật dùng chung của điểm tick bộ lập lịch (phần S1b); chỉ cho môi trường kiểm thử cục bộ

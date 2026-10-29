@@ -64,9 +64,9 @@ function optionalInteger(value: string | undefined, field: string, min: number, 
 export class MarketPublicService {
   constructor(private readonly market: MarketContext) {}
 
+  // Tìm gia sư, trang gia sư là phần công khai của ứng dụng chung (YCTD-368): ai mở tên miền của chợ cũng xem được, kể cả chưa đăng nhập
   private async assertParentApp(request: Request) {
-    const { kind } = await this.market.assertMarketHost(request);
-    if (kind !== 'parent') throw marketNotFound();
+    await this.market.assertMarketHost(request);
   }
 
   private async badges(database: Database, accountIds: string[], today: string) {

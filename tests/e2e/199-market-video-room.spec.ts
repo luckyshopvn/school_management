@@ -19,7 +19,6 @@ import {
   E2E_MULTI_IDENTITY_PORT,
   E2E_MULTI_MARKET_PORT,
   E2E_MULTI_STATE_FILE,
-  E2E_MULTI_TUTOR_PORT,
   E2E_TUTOR_HOST,
 } from '../e2e-multi-environment.mjs';
 import { expect, test } from './fixtures.js';
@@ -132,7 +131,7 @@ test.beforeAll(async () => {
   }
 
   // Gia sư đã duyệt dựng thẳng trong cơ sở dữ liệu chợ
-  tutorToken = await register(E2E_TUTOR_HOST, 'tutor', tutorEmail, tutorName, [
+  tutorToken = await register(E2E_MARKET_HOST, 'tutor', tutorEmail, tutorName, [
     documents.terms ?? '',
     documents.privacy ?? '',
     documents.tutor_terms ?? '',
@@ -246,7 +245,7 @@ test('CT-27j-3: phòng chờ, gia sư cho vào, lớp video giả lập, kết t
   await expect(parentRoom).toContainText('Gia sư chưa mở phòng');
 
   // Gia sư mở phòng dạy, cho học sinh vào
-  const tutorContext = await browser.newContext({ baseURL: `http://${E2E_TUTOR_HOST}:${E2E_MULTI_TUTOR_PORT}` });
+  const tutorContext = await browser.newContext({ baseURL: `http://${E2E_MARKET_HOST}:${E2E_MULTI_MARKET_PORT}` });
   await tutorContext.addInitScript({
     content: `window.sessionStorage.setItem('cho-gia-su-phien', ${JSON.stringify(tutorToken)});`,
   });

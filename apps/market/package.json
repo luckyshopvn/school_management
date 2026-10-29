@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@school-management/market-client": "workspace:*",
+    "@school-management/pwa": "workspace:*",
     "@school-management/ui": "workspace:*",
     "react": "^19.2.0",
     "react-dom": "^19.2.0"

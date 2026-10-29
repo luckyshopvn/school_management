@@ -1,6 +1,7 @@
 // Chạy đủ bản nhiều trường trên máy phát triển (YCTD-310; tài liệu 47 mục 16.10): dịch vụ định danh, máy chủ API, tiến trình nền (đã
-// dựng ở apps/*/dist) và bảy ứng dụng web (vite): cổng quản trị trường, cổng vận hành nền tảng, ứng dụng giáo viên, phụ huynh, học sinh,
-// chợ gia sư, ứng dụng Gia sư. Biến của .env bị đè bởi tệp môi trường riêng do lệnh
+// dựng ở apps/*/dist) và sáu ứng dụng web (vite): cổng quản trị trường, cổng vận hành nền tảng, ứng dụng giáo viên, phụ huynh, học sinh,
+// chợ gia sư (chung cho phụ huynh và gia sư từ YCTD-368; cổng 5196 của ứng dụng Gia sư cũ chỉ còn chuyển hướng về chợ). Biến của .env
+// bị đè bởi tệp môi trường riêng do lệnh
 // `pnpm --filter @school-management/database nhieu-truong-cuc-bo` sinh. Mọi ứng dụng trỏ về định danh, API của bản nhiều trường và
 // phục vụ ở tên miền *.localhost (trình duyệt tự đưa về máy, không sửa tệp hosts). Ctrl+C dừng tất cả.
 //
@@ -12,6 +13,7 @@ import { existsSync, readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { parseEnv } from 'node:util';
+import { startLegacyTutorRedirect } from './chuyen-huong-gia-su.mjs';
 
 const GOC = fileURLToPath(new URL('..', import.meta.url));
 const args = process.argv.slice(2);
@@ -43,9 +45,10 @@ const WEB = [
   { name: 'phu-huynh', filter: '@school-management/parent', port: 5193 },
   { name: 'hoc-sinh', filter: '@school-management/student', port: 5194 },
   { name: 'cho-gia-su', filter: '@school-management/market', port: 5195 },
-  { name: 'gia-su', filter: '@school-management/tutor', port: 5196 },
 ];
 const port = (name) => WEB.find((app) => app.name === name).port;
+// Tên miền cũ của ứng dụng Gia sư (YCTD-262) chuyển hướng về chợ (YCTD-368) để liên kết cũ không gãy
+const LEGACY_TUTOR_PORT = 5196;
 // Khởi tạo trường ở lần mở đầu tiên (YCTD-314) cần tài khoản tạo cơ sở dữ liệu, vai trò: chưa đặt PLATFORM_ADMIN_DATABASE_URL thì suy
 // từ POSTGRES_PASSWORD của .env và máy chủ của PLATFORM_DATABASE_URL; chỉ truyền cho tiến trình, không ghi ra tệp
 if (!merged.PLATFORM_ADMIN_DATABASE_URL && merged.POSTGRES_PASSWORD) {
@@ -98,8 +101,17 @@ const children = processes.map(({ name, command, args: commandArgs, shell }) => 
   return child;
 });
 
+const legacyTutor = await startLegacyTutorRedirect({
+  port: LEGACY_TUTOR_PORT,
+  target: `http://cho-gia-su.${root}:${port('cho-gia-su')}`,
+}).catch((error) => {
+  console.error(`[gia-su] không mở được cổng ${LEGACY_TUTOR_PORT} để chuyển hướng: ${error.message}`);
+  return null;
+});
+
 const stop = () => {
   for (const child of children) child.kill();
+  legacyTutor?.close();
   process.exit(0);
 };
 process.on('SIGINT', stop);
@@ -114,7 +126,7 @@ console.log(
     `  Ứng dụng phụ huynh           http://${school}:${port('phu-huynh')}/`,
     `  Ứng dụng học sinh            http://${school}:${port('hoc-sinh')}/`,
     `  Cổng vận hành nền tảng       http://${merged.PLATFORM_CONSOLE_HOST || `platform.${root}`}:${port('cong-van-hanh')}/`,
-    `  Chợ gia sư                   http://cho-gia-su.${root}:${port('cho-gia-su')}/`,
-    `  Ứng dụng Gia sư              http://gia-su.${root}:${port('gia-su')}/`,
+    `  Chợ gia sư, phụ huynh và gia sư http://cho-gia-su.${root}:${port('cho-gia-su')}/`,
+    `  Tên miền cũ Gia sư (chuyển)  http://gia-su.${root}:${LEGACY_TUTOR_PORT}/`,
   ].join('\n'),
 );
