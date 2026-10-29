@@ -1,10 +1,11 @@
-import { cacheKeyWithPrefix } from './resource-names.js';
+import { platformCacheKey } from './resource-names.js';
 
 // Tình trạng dịch vụ cho cổng vận hành (YCTD-376, ĐX-CN-1, phương án A Eric duyệt ngày 2026-10-29): tiến trình nền ghi tín hiệu còn
 // sống, máy chủ API tự kiểm cơ sở dữ liệu và lưu trữ tệp rồi ghi kết quả vào Redis; dịch vụ định danh đọc các khóa này khi người vận
-// hành bấm Kiểm lại. Khóa dùng chung của nền tảng (không tiền tố trường). Chỉ ghi ok hoặc lỗi và thời gian, không ghi nội dung lỗi gốc
-export const WORKER_HEARTBEAT_KEY = cacheKeyWithPrefix('', 'service-status', 'worker');
-export const API_STATUS_KEY = cacheKeyWithPrefix('', 'service-status', 'api');
+// hành bấm Kiểm lại. Khóa cấp nền tảng qua platformCacheKey (`platform:worker:heartbeat`, `platform:service-status:api`). Chỉ ghi
+// ok hoặc lỗi và thời gian, không ghi nội dung lỗi gốc
+export const WORKER_HEARTBEAT_KEY = platformCacheKey('worker', 'heartbeat');
+export const API_STATUS_KEY = platformCacheKey('service-status', 'api');
 
 // Tiến trình nền ghi mỗi 30 giây; quá 90 giây không có tín hiệu thì coi là đã dừng. Giữ giá trị một ngày để báo giờ tín hiệu cuối
 export const WORKER_HEARTBEAT_SECONDS = 30;

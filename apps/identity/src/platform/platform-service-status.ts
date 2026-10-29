@@ -2,11 +2,9 @@ import { Controller, Get, Inject, Injectable, Optional, Req } from '@nestjs/comm
 import type { TenancyRuntime } from '@school-management/database';
 import { Clock } from '@school-management/server';
 import {
-  API_STATUS_KEY,
   checkState,
   SLOW_MILLISECONDS,
   timedCheck,
-  WORKER_HEARTBEAT_KEY,
   WORKER_STALE_SECONDS,
   type ApiStatusRecord,
   type CheckResult,
@@ -50,7 +48,10 @@ export const API_HEALTH_TIMEOUT_MILLISECONDS = 3000;
 export interface ServiceStatusProbes {
   now: Date;
   checkDatabase: () => Promise<unknown>;
-  store: { get(key: string): Promise<string | null>; ping(): Promise<string>; llen(key: string): Promise<number> };
+  ping: () => Promise<unknown>;
+  readWorkerHeartbeat: () => Promise<string | null>;
+  readApiStatus: () => Promise<string | null>;
+  queueLength: () => Promise<number>;
   // Gọi GET /api/v1/health của máy chủ API; lỗi hoặc quá hạn thì ném lỗi
   checkApiHealth: () => Promise<unknown>;
 }
@@ -91,11 +92,11 @@ export async function collectServiceStatus(probes: ServiceStatusProbes): Promise
     timedCheck(probes.checkApiHealth),
     (async () => {
       redisCheck.result = await timedCheck(async () => {
-        await probes.store.ping();
+        await probes.ping();
         const [heartbeat, record, queue] = await Promise.all([
-          probes.store.get(WORKER_HEARTBEAT_KEY),
-          probes.store.get(API_STATUS_KEY),
-          probes.store.llen(GENERATION_QUEUE_KEY),
+          probes.readWorkerHeartbeat(),
+          probes.readApiStatus(),
+          probes.queueLength(),
         ]);
         redisCheck.value = heartbeat;
         redisCheck.apiRecord = record;
@@ -230,7 +231,10 @@ export class PlatformServiceStatusService {
     return collectServiceStatus({
       now: this.clock.now(),
       checkDatabase: () => sql`select 1`.execute(this.tenancy ? this.tenancy.platform : this.infrastructure.database),
-      store: this.infrastructure.redis,
+      ping: () => this.infrastructure.ping(),
+      readWorkerHeartbeat: () => this.infrastructure.platformCache('worker').get('heartbeat'),
+      readApiStatus: () => this.infrastructure.platformCache('service-status').get('api'),
+      queueLength: () => this.infrastructure.queueLength(GENERATION_QUEUE_KEY),
       checkApiHealth: async () => {
         const response = await fetch(`${this.configuration.apiBaseUrl}/api/v1/health`, {
           signal: AbortSignal.timeout(API_HEALTH_TIMEOUT_MILLISECONDS),

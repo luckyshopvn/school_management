@@ -16,11 +16,10 @@ function probes(values: Record<string, string>, overrides: Partial<ServiceStatus
     now: NOW,
     checkDatabase: async () => undefined,
     checkApiHealth: async () => undefined,
-    store: {
-      get: async (key) => values[key] ?? null,
-      ping: async () => 'PONG',
-      llen: async () => 2,
-    },
+    ping: async () => 'PONG',
+    readWorkerHeartbeat: async () => values[WORKER_HEARTBEAT_KEY] ?? null,
+    readApiStatus: async () => values[API_STATUS_KEY] ?? null,
+    queueLength: async () => 2,
     ...overrides,
   };
 }
@@ -72,12 +71,8 @@ describe('tình trạng dịch vụ: thu thập', () => {
           checkApiHealth: async () => {
             throw new Error('The operation was aborted due to timeout');
           },
-          store: {
-            get: async () => null,
-            ping: async () => {
-              throw new Error('connect ECONNREFUSED 10.0.0.5:6379');
-            },
-            llen: async () => 0,
+          ping: async () => {
+            throw new Error('connect ECONNREFUSED 10.0.0.5:6379');
           },
         },
       ),

@@ -34,6 +34,7 @@ import {
   type GenerationResult,
   type GenerationState,
 } from '@school-management/server/timetable-generation';
+import { API_STATUS_KEY } from '@school-management/server/service-status';
 import {
   CONSTRAINT_LABELS,
   DEFAULT_WEIGHTS,
@@ -98,6 +99,9 @@ export abstract class TimetableGenerationQueue {
   abstract readState(runId: string): Promise<GenerationState | null>;
   abstract readResult(runId: string): Promise<GenerationResult | null>;
   abstract cancel(runId: string): Promise<void>;
+  // Ghi kết quả tự kiểm của máy chủ API cho khối Tình trạng dịch vụ (YCTD-376). Đặt ở đây vì đây là kết nối Redis duy nhất của máy
+  // chủ API (lớp hạ tầng Redis chỉ có ở dịch vụ định danh); khóa cố định API_STATUS_KEY. Hàng đợi trong tiến trình (không có Redis) bỏ qua
+  abstract writePlatformStatus(record: string, seconds: number): Promise<void>;
   close(): Promise<void> {
     return Promise.resolve();
   }
@@ -135,12 +139,20 @@ export class RedisTimetableGenerationQueue extends TimetableGenerationQueue {
     await this.redis.set(generationCancelKey(runId), '1', 'EX', GENERATION_TTL_SECONDS);
   }
 
+  override async writePlatformStatus(record: string, seconds: number) {
+    await this.redis.set(API_STATUS_KEY, record, 'EX', seconds);
+  }
+
   override async close() {
     this.redis.disconnect();
   }
 }
 
 export class InProcessTimetableGenerationQueue extends TimetableGenerationQueue {
+  async writePlatformStatus() {
+    // Không có Redis: không nơi nào đọc kết quả tự kiểm
+  }
+
   private readonly states = new Map<string, GenerationState>();
   private readonly results = new Map<string, GenerationResult>();
   private readonly cancelled = new Set<string>();

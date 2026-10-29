@@ -13,6 +13,18 @@ function checkedParts(parts: string[]): string[] {
   return parts;
 }
 
+// Khóa cấp nền tảng, không thuộc trường nào (YCTD-376): dùng chung giữa dịch vụ định danh, máy chủ API, tiến trình nền, dạng
+// `platform:<nhóm>:...`. Chỉ nhận nhóm trong danh sách cố định để không thành lối tắt bỏ qua phạm vi trường của cacheKey
+export const PLATFORM_CACHE_NAMESPACES = ['service-status', 'worker'] as const;
+export type PlatformCacheNamespace = (typeof PLATFORM_CACHE_NAMESPACES)[number];
+
+export function platformCacheKey(namespace: PlatformCacheNamespace, ...parts: string[]): string {
+  if (!(PLATFORM_CACHE_NAMESPACES as readonly string[]).includes(namespace)) {
+    throw new Error(`Nhóm khóa nền tảng không được phép: ${namespace}`);
+  }
+  return checkedParts(['platform', namespace, ...parts]).join(':');
+}
+
 // Khóa của một tệp ở kho tệp, ví dụ storageKey('incoming-documents', documentId, fileId). Ở chế độ nhiều trường khóa có tiền
 // tố của trường (`tenants/<mã>/...`) lấy từ ngữ cảnh; thiếu ngữ cảnh là lỗi. Trường số 1 có tiền tố trống nên khóa hiện có còn đúng
 export function storageKey(...parts: string[]): string {
