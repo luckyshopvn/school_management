@@ -1,5 +1,6 @@
 import { useCallback, useState } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useSearch } from '@tanstack/react-router';
 import {
   OUTGOING_DOCUMENT_STATUS_LABELS,
   OUTGOING_RECIPIENT_TYPE_LABELS,
@@ -97,7 +98,9 @@ function OutgoingListPage({
   const [filter, setFilter] = useState<Omit<OutgoingFilter, 'view' | 'q'>>({});
   const [page, setPage] = useState(1);
   const [openId, setOpenId] = useState<string>();
-  const [creating, setCreating] = useState(false);
+  // Nút "Soạn văn bản đi" của trang Công văn của tôi (YCTD-336) mở trang này kèm ?create=true để mở sẵn ô soạn dự thảo
+  const linked: { create?: boolean } = useSearch({ strict: false });
+  const [creating, setCreating] = useState(() => Boolean(create) && linked.create === true);
   const [toastMessage, setToastMessage] = useState<string>();
   const closeToast = useCallback(() => setToastMessage(undefined), []);
   const catalog = useQuery({ queryKey: ['document-catalogs'], queryFn: () => listCatalog() });

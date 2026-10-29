@@ -364,6 +364,10 @@ export const PORTAL_WORKSPACES: PortalWorkspace[] = [
         leaf('7.2.', 'Báo cáo tổng hợp', '/document-reports/summary'),
         leaf('7.3.', 'Thống kê số liệu trong đơn vị', '/document-reports/statistics'),
       ]),
+      // Công văn của tôi (YCTD-336, thiết kế "Cổng quản trị trường" Eric duyệt ngày 2026-10-28): gom văn bản đến, đi chờ tôi
+      // xử lý và dự thảo của tôi. Đặt thành mục riêng số 8. để giữ nguyên số 1.1. đến 7.3. đã dùng trong tài liệu, kiểm thử
+      // và hướng dẫn; chèn vào đầu nhóm 1 thì phải đánh lại số cả nhóm Văn bản đến
+      leaf('8.', 'Công văn của tôi', '/my-documents'),
     ],
   },
   {

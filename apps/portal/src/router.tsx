@@ -211,6 +211,7 @@ import {
 } from './entry-admissions/EntryIntakePages.js';
 import { KpiCatalogPage } from './kpi/KpiCatalogPage.js';
 import { MyWorkPage } from './my-work/MyWorkPage.js';
+import { MyDocumentsPage } from './my-documents/MyDocumentsPage.js';
 import {
   FoldersPage,
   GroupRecordsPage,
@@ -359,6 +360,11 @@ function SessionGate() {
 
 const rootRoute = createRootRoute({ component: SessionGate });
 
+// Tham số create=true mở sẵn ô nhập của 1.2 Quản lý văn bản đến, 3.1 Văn bản đi khi đi từ nút Vào sổ văn bản đến, Soạn văn
+// bản đi của trang Công văn của tôi (YCTD-336)
+const createSearch = (search: Record<string, unknown>): { create?: boolean } =>
+  search.create === true ? { create: true } : {};
+
 const routeTree = rootRoute.addChildren([
   createRoute({ getParentRoute: () => rootRoute, path: '/', component: HomePage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/login', component: LoginPage }),
@@ -456,7 +462,12 @@ const routeTree = rootRoute.addChildren([
   createRoute({ getParentRoute: () => rootRoute, path: '/signing-submissions', component: SigningSubmissionsPage }),
   // Văn bản đến theo VNPT iOffice (DT-18 phần 18a)
   createRoute({ getParentRoute: () => rootRoute, path: '/incoming-documents', component: IncomingInboxPage }),
-  createRoute({ getParentRoute: () => rootRoute, path: '/incoming-documents/manage', component: IncomingManagePage }),
+  createRoute({
+    getParentRoute: () => rootRoute,
+    path: '/incoming-documents/manage',
+    component: IncomingManagePage,
+    validateSearch: createSearch,
+  }),
   createRoute({
     getParentRoute: () => rootRoute,
     path: '/incoming-documents/for-information',
@@ -542,7 +553,12 @@ const routeTree = rootRoute.addChildren([
   createRoute({ getParentRoute: () => rootRoute, path: '/website/review', component: WebsiteReviewPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/website/contacts', component: WebsiteContactsPage }),
   // Văn bản đi theo VNPT iOffice (DT-18 phần 18b)
-  createRoute({ getParentRoute: () => rootRoute, path: '/outgoing-documents', component: OutgoingPage }),
+  createRoute({
+    getParentRoute: () => rootRoute,
+    path: '/outgoing-documents',
+    component: OutgoingPage,
+    validateSearch: createSearch,
+  }),
   createRoute({ getParentRoute: () => rootRoute, path: '/outgoing-documents/manage', component: OutgoingManagePage }),
   createRoute({
     getParentRoute: () => rootRoute,
@@ -550,6 +566,8 @@ const routeTree = rootRoute.addChildren([
     component: OutgoingInterconnectPage,
   }),
   createRoute({ getParentRoute: () => rootRoute, path: '/outgoing-documents/search', component: OutgoingSearchPage }),
+  // Công văn của tôi (YCTD-336)
+  createRoute({ getParentRoute: () => rootRoute, path: '/my-documents', component: MyDocumentsPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/tra-cuu-van-ban', component: VerifyDocumentPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/school-weeks', component: SchoolWeeksPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/year-rollover', component: YearRolloverPage }),
