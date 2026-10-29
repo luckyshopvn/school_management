@@ -559,7 +559,8 @@ export function PlansPage({
                           </td>
                           <td>{limitsOf(plan)}</td>
                           <td>
-                            {PRICING_LABELS[plan.pricing_mode]}: {count(plan.unit_price)} đ mỗi {BILLING_CYCLE_LABELS[plan.billing_cycle].toLowerCase()}
+                            {PRICING_LABELS[plan.pricing_mode]}: {count(plan.unit_price)} đ mỗi{' '}
+                            {BILLING_CYCLE_LABELS[plan.billing_cycle].toLowerCase()}
                           </td>
                           <td className="number">{count(plan.school_count)}</td>
                           {canManage ? (
