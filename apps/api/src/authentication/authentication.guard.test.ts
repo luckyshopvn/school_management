@@ -26,7 +26,7 @@ class AuthorizationProbeController {
   }
 }
 
-// Ca kiểm thử theo 27_BO_CA_KIEM_THU_CHI_TIET/01_DINH_DANH_VA_P01.md
+// Ca kiểm thử theo 42_BO_CA_KIEM_THU_CHI_TIET/01_DINH_DANH_VA_P01.md
 describe('Máy chủ API: kiểm tra mã phiên và quyền', () => {
   let environment: ApiTestEnvironment;
   let apiBaseUrl: string;

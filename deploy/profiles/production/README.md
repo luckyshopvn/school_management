@@ -1,6 +1,6 @@
 # Hồ sơ "Vận hành" (b): VPS trong nước
 
-- Mã việc: DT-SaaS phần S7a (YCTD-198); kế hoạch ở `tai_lieu/32_KE_HOACH_THEO_HE_THONG_SO.md` mục 14.4, 14.5.
+- Mã việc: DT-SaaS phần S7a (YCTD-198); kế hoạch ở `tai_lieu/47_KE_HOACH_THEO_HE_THONG_SO.md` mục 14.4, 14.5.
 - Phạm vi: phần dựng sẵn để chạy School Management nhiều trường trên VPS đặt tại Việt Nam. Không sửa mã nghiệp vụ. Bản một trường cũ (`deploy/docker-compose.production.yml`, `deploy/README.md`) vẫn dùng được; hồ sơ này chạy được cả bản một trường hiện nay (mục 5.2).
 - Mọi giá trị trong tệp mẫu là giả (tên miền `*.test`, mật khẩu và khóa để trống). Không ghi bí mật vào kho mã.
 

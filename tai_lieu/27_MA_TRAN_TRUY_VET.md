@@ -1,6 +1,6 @@
-# 36. MA TRẬN TRUY VẾT
+# 27. MA TRẬN TRUY VẾT
 
-- Mô tả: Nối mỗi yêu cầu thay đổi (`24`) với chức năng (`10`), tiêu chí nghiệm thu (`11`), kịch bản kiểm thử (`21`), PR và commit merge trên `main`, phiên bản (`23`) và kết quả kiểm thử (CI của PR, ô kết quả của kịch bản, `35`). Đây là tài liệu `27_MA_TRAN_TRUY_VET` của quy trình Vibecoding_Flow; số 27 của dự án đã dùng cho `27_BO_CA_KIEM_THU_CHI_TIET/` nên lấy số tiếp theo (YCTD-369).
+- Mô tả: Nối mỗi yêu cầu thay đổi (`24`) với chức năng (`10`), tiêu chí nghiệm thu (`11`), kịch bản kiểm thử (`21`), PR và commit merge trên `main`, phiên bản (`23`) và kết quả kiểm thử (CI của PR, ô kết quả của kịch bản, `25`). Đây là tài liệu `27_MA_TRAN_TRUY_VET` của quy trình Vibecoding_Flow (YCTD-369).
 - Phiên bản: 1.0
 - Ngày cập nhật: 2026-10-29
 - Trạng thái: Đang cập nhật
@@ -8,7 +8,7 @@
 
 ## 1. Phạm vi
 
-Phủ YCTD-213 đến YCTD-369: mọi yêu cầu có tệp mảnh được gom ở lượt gom ngày 2026-10-29 (92 tệp) và YCTD-369. Các YCTD trước đó (YCTD-01 đến YCTD-291, đã gom ở các lượt trước) chưa dựng ma trận; dữ liệu của chúng nằm ở `24`, `10`, `11`, `21` và các báo cáo `28`, `29`, `30`.
+Phủ YCTD-213 đến YCTD-369: mọi yêu cầu có tệp mảnh được gom ở lượt gom ngày 2026-10-29 (92 tệp) và YCTD-369. Các YCTD trước đó (YCTD-01 đến YCTD-291, đã gom ở các lượt trước) chưa dựng ma trận; dữ liệu của chúng nằm ở `24`, `10`, `11`, `21` và các báo cáo `43`, `44`, `45`.
 
 ## 2. Cách dựng
 
@@ -18,8 +18,8 @@ Phủ YCTD-213 đến YCTD-369: mọi yêu cầu có tệp mảnh được gom �
 4. Cột "Kết quả kiểm thử":
    - "CI: a/b đạt": các kiểm tra của lần chạy cuối trên PR, đếm thành công và bỏ qua theo điều kiện; tra ngày 2026-10-29.
    - "CT mới ghi": ô kết quả của các kịch bản mới thêm qua tệp mảnh (Đạt, Chưa chạy, Chờ CI).
-   - Ở một số tệp mảnh, ô cuối của dòng CT mới là mức ưu tiên (Cao, Trung bình) thay vì kết quả (lỗi L-17 của `35`); khi đó kết quả từng CT ghi "chưa xác định".
-   - YCTD-295 đến YCTD-313 có bảng truy xuất chi tiết ở `35` mục 5.
+   - Ở một số tệp mảnh, ô cuối của dòng CT mới là mức ưu tiên (Cao, Trung bình) thay vì kết quả (lỗi L-17 của `25`); khi đó kết quả từng CT ghi "chưa xác định".
+   - YCTD-295 đến YCTD-313 có bảng truy xuất chi tiết ở `25` mục 5.
 5. Một PR có thể chứa nhiều YCTD (PR 259 chứa YCTD-361, YCTD-362); mỗi YCTD vẫn có phiên bản riêng.
 
 ## 3. Ma trận YCTD-213 đến YCTD-369
@@ -59,17 +59,17 @@ Phủ YCTD-213 đến YCTD-369: mọi yêu cầu có tệp mảnh được gom �
 | YCTD-292 | Mở năm học nhanh hơn: chạy tệp thay đổi cấu trúc theo lô | 0.150.1 | chưa xác định | chưa xác định | chưa xác định | PR 198, `e7e0ad73`; tệp mã nêu trong tệp mảnh: `database/src/migrate.ts`, `database/src/migrate.test.ts` | CI: 11/11 đạt |
 | YCTD-293 | Tệp mảnh có mục "Thêm dòng" để chèn dòng bảng mới vào tài liệu đặc tả | không | chưa xác định | chưa xác định | chưa xác định | PR 199, `c51dfe86`; tệp mã nêu trong tệp mảnh: `scripts/gom-thay-doi.mjs`, `tests/tai-lieu/gom-thay-doi.test.mjs` | CI: 11/11 đạt |
 | YCTD-294 | Đăng ký mô-đun, tệp thay đổi cấu trúc và kiểu bảng bằng tệp riêng của từng phần | 0.169.0 | chưa xác định | chưa xác định | chưa xác định | PR 217, `9b11611d`; tệp mã nêu trong tệp mảnh: `database/sinh-chi-muc.mjs`, `database/<loại>/schema-parts/<phần>.ts` và 10 tệp khác | CI: 11/11 đạt |
-| YCTD-295 | Trang chủ cổng quản trị theo mẫu giao diện Tổng quan | 0.174.0 | chưa xác định | chưa xác định | chưa xác định | PR 220, `d6fcb008`; tệp mã nêu trong tệp mảnh: `apps/portal/src/pages/HomePage.tsx`, `apps/portal/src/reports/DashboardCards.tsx` và 1 tệp khác | CI: 11/11 đạt; xem `35` mục 5 |
-| YCTD-296 | Áp sáu màn mẫu giao diện đã duyệt vào cổng quản trị, ứng dụng giáo viên, ứng dụng phụ huynh | 0.175.0 | chưa xác định | chưa xác định | chưa xác định | PR 222, `1f35c704`; tệp mã nêu trong tệp mảnh: `apps/portal/src/children/ChildrenPage.tsx`, `apps/portal/src/scores/ScoresPage.tsx` và 6 tệp khác | CI: 11/11 đạt; xem `35` mục 5 |
-| YCTD-300 | Tách riêng ứng dụng học sinh khỏi ứng dụng phụ huynh | 0.176.0 | chưa xác định | chưa xác định | chưa xác định | PR 224, `e9524436`; tệp mã nêu trong tệp mảnh: `apps/api/src/school-settings/pwa-manifest.ts`, `tests/playwright.config.ts` và 1 tệp khác | CI: 11/11 đạt; xem `35` mục 5 |
-| YCTD-305 | README song ngữ ở gốc kho mã | 0.177.0 | chưa xác định | chưa xác định | chưa xác định | PR 225, `e8909095` | CI: 10/11 đạt, 1 hỏng (merge khi còn hỏng, `35` lỗi L-21); xem `35` mục 5 |
-| YCTD-306 | Sửa CI nhánh chính (ảnh mẫu thiết bị, giám thị camera, tác vụ xuất nền) | 0.180.0 | chưa xác định | chưa xác định | chưa xác định | PR 228, `cec8c5bd`; tệp mã nêu trong tệp mảnh: `apps/portal/src/online-exams/ProctorPanel.tsx`, `apps/student/src/proctoring.ts` | CI: 12/12 đạt; xem `35` mục 5 |
-| YCTD-307 | Chọn phân hệ ở cổng quản trị thì về bảng điều khiển của phân hệ | 0.189.0 | chưa xác định | chưa xác định | chưa xác định | PR 231, `8123bf4d`; tệp mã nêu trong tệp mảnh: `apps/portal/src/pages/workspaces.tsx`, `apps/portal/src/pages/AppShell.tsx` và 7 tệp khác | CI: 11/11 đạt; xem `35` mục 5 |
-| YCTD-309 | Hồ sơ cán bộ, giáo viên mở ở trang riêng chia thẻ | 0.184.0 | chưa xác định | chưa xác định | chưa xác định | PR 232, `3055cf03`; tệp mã nêu trong tệp mảnh: `apps/portal/src/staff/StaffDetailPage.tsx`, `apps/portal/src/staff/StaffPage.tsx` và 5 tệp khác | CI: 11/11 đạt; xem `35` mục 5 |
-| YCTD-310 | Trang đăng nhập theo mẫu (Sở → Cấp, Phường / Xã → Trường), Ghi nhớ phiên dài và bản nhiều trường trên máy | 0.185.0 | P19-06 | chưa xác định | CT-1501 đến CT-1506 | PR 233, `06edf3fd`; tệp mã nêu trong tệp mảnh: `scripts/chay-nhieu-truong.mjs`, `database/src/local-multi-school.test.ts` và 4 tệp khác | CI: 11/11 đạt; CT mới ghi: 6 đạt; xem `35` mục 5 |
-| YCTD-311 | Quy tắc tài khoản theo số CCCD, mật khẩu mặc định có hạn, băm argon2id tường minh, nhân viên vận hành của công ty | 0.188.0 | P01-06, P02-01, P19-06 | chưa xác định | CT-1511 đến CT-1521 | PR 235, `938835cc`; tệp mã nêu trong tệp mảnh: `packages/shared/src/national-id.ts`, `apps/identity/src/accounts/national-id-accounts.test.ts` và 3 tệp khác | CI: 11/11 đạt; CT mới ghi: 11 đạt; xem `35` mục 5 |
-| YCTD-312 | Giao diện đăng nhập cổng vận hành nền tảng theo mẫu đăng nhập mới | 0.186.0 | chưa xác định | chưa xác định | chưa xác định | PR 234, `c5bd2720`; tệp mã nêu trong tệp mảnh: `tests/e2e/platform-console.ts`, `apps/platform/src/LoginPage.tsx` và 2 tệp khác | CI: 11/11 đạt; xem `35` mục 5 |
-| YCTD-313 | Mã xác nhận ở đăng nhập cổng vận hành nền tảng | 0.187.0 | chưa xác định | chưa xác định | chưa xác định | PR 236, `0fc030f2`; tệp mã nêu trong tệp mảnh: `apps/identity/src/authentication/captcha.service.ts`, `apps/identity/src/platform/platform-operators.ts` và 6 tệp khác | CI: 11/11 đạt; xem `35` mục 5 |
+| YCTD-295 | Trang chủ cổng quản trị theo mẫu giao diện Tổng quan | 0.174.0 | chưa xác định | chưa xác định | chưa xác định | PR 220, `d6fcb008`; tệp mã nêu trong tệp mảnh: `apps/portal/src/pages/HomePage.tsx`, `apps/portal/src/reports/DashboardCards.tsx` và 1 tệp khác | CI: 11/11 đạt; xem `25` mục 5 |
+| YCTD-296 | Áp sáu màn mẫu giao diện đã duyệt vào cổng quản trị, ứng dụng giáo viên, ứng dụng phụ huynh | 0.175.0 | chưa xác định | chưa xác định | chưa xác định | PR 222, `1f35c704`; tệp mã nêu trong tệp mảnh: `apps/portal/src/children/ChildrenPage.tsx`, `apps/portal/src/scores/ScoresPage.tsx` và 6 tệp khác | CI: 11/11 đạt; xem `25` mục 5 |
+| YCTD-300 | Tách riêng ứng dụng học sinh khỏi ứng dụng phụ huynh | 0.176.0 | chưa xác định | chưa xác định | chưa xác định | PR 224, `e9524436`; tệp mã nêu trong tệp mảnh: `apps/api/src/school-settings/pwa-manifest.ts`, `tests/playwright.config.ts` và 1 tệp khác | CI: 11/11 đạt; xem `25` mục 5 |
+| YCTD-305 | README song ngữ ở gốc kho mã | 0.177.0 | chưa xác định | chưa xác định | chưa xác định | PR 225, `e8909095` | CI: 10/11 đạt, 1 hỏng (merge khi còn hỏng, `25` lỗi L-21); xem `25` mục 5 |
+| YCTD-306 | Sửa CI nhánh chính (ảnh mẫu thiết bị, giám thị camera, tác vụ xuất nền) | 0.180.0 | chưa xác định | chưa xác định | chưa xác định | PR 228, `cec8c5bd`; tệp mã nêu trong tệp mảnh: `apps/portal/src/online-exams/ProctorPanel.tsx`, `apps/student/src/proctoring.ts` | CI: 12/12 đạt; xem `25` mục 5 |
+| YCTD-307 | Chọn phân hệ ở cổng quản trị thì về bảng điều khiển của phân hệ | 0.189.0 | chưa xác định | chưa xác định | chưa xác định | PR 231, `8123bf4d`; tệp mã nêu trong tệp mảnh: `apps/portal/src/pages/workspaces.tsx`, `apps/portal/src/pages/AppShell.tsx` và 7 tệp khác | CI: 11/11 đạt; xem `25` mục 5 |
+| YCTD-309 | Hồ sơ cán bộ, giáo viên mở ở trang riêng chia thẻ | 0.184.0 | chưa xác định | chưa xác định | chưa xác định | PR 232, `3055cf03`; tệp mã nêu trong tệp mảnh: `apps/portal/src/staff/StaffDetailPage.tsx`, `apps/portal/src/staff/StaffPage.tsx` và 5 tệp khác | CI: 11/11 đạt; xem `25` mục 5 |
+| YCTD-310 | Trang đăng nhập theo mẫu (Sở → Cấp, Phường / Xã → Trường), Ghi nhớ phiên dài và bản nhiều trường trên máy | 0.185.0 | P19-06 | chưa xác định | CT-1501 đến CT-1506 | PR 233, `06edf3fd`; tệp mã nêu trong tệp mảnh: `scripts/chay-nhieu-truong.mjs`, `database/src/local-multi-school.test.ts` và 4 tệp khác | CI: 11/11 đạt; CT mới ghi: 6 đạt; xem `25` mục 5 |
+| YCTD-311 | Quy tắc tài khoản theo số CCCD, mật khẩu mặc định có hạn, băm argon2id tường minh, nhân viên vận hành của công ty | 0.188.0 | P01-06, P02-01, P19-06 | chưa xác định | CT-1511 đến CT-1521 | PR 235, `938835cc`; tệp mã nêu trong tệp mảnh: `packages/shared/src/national-id.ts`, `apps/identity/src/accounts/national-id-accounts.test.ts` và 3 tệp khác | CI: 11/11 đạt; CT mới ghi: 11 đạt; xem `25` mục 5 |
+| YCTD-312 | Giao diện đăng nhập cổng vận hành nền tảng theo mẫu đăng nhập mới | 0.186.0 | chưa xác định | chưa xác định | chưa xác định | PR 234, `c5bd2720`; tệp mã nêu trong tệp mảnh: `tests/e2e/platform-console.ts`, `apps/platform/src/LoginPage.tsx` và 2 tệp khác | CI: 11/11 đạt; xem `25` mục 5 |
+| YCTD-313 | Mã xác nhận ở đăng nhập cổng vận hành nền tảng | 0.187.0 | chưa xác định | chưa xác định | chưa xác định | PR 236, `0fc030f2`; tệp mã nêu trong tệp mảnh: `apps/identity/src/authentication/captcha.service.ts`, `apps/identity/src/platform/platform-operators.ts` và 6 tệp khác | CI: 11/11 đạt; xem `25` mục 5 |
 | YCTD-314 | Mở mọi trường trong danh mục, quản trị nền tảng vào thẳng, gói cơ bản miễn phí | 0.194.0 | P19-06, P01-06 | chưa xác định | CT-1531 đến CT-1537 | PR 238, `4d5472ea`; tệp mã nêu trong tệp mảnh: `scripts/chay-nhieu-truong.mjs`, `database/platform/migrations/0242_add_free_plan_and_addon_modules.ts` và 24 tệp khác | CI: 11/11 đạt; CT mới ghi: 7 đạt |
 | YCTD-315 | Admin đủ quyền ở mọi ứng dụng của trường | 0.207.0 | P19-06 | chưa xác định | CT-1551 đến CT-1553 | PR 261, `59efc1e9`; tệp mã nêu trong tệp mảnh: `scripts/chay-nhieu-truong.mjs`, `database/src/platform-dashboard.ts` và 20 tệp khác | CI: 11/11 đạt; CT mới ghi: 3 đạt |
 | YCTD-316 | Thẻ Phân công giảng dạy ở trang hồ sơ cán bộ, giáo viên | 0.190.0 | chưa xác định | chưa xác định | chưa xác định | PR 237, `3cf880b2`; tệp mã nêu trong tệp mảnh: `apps/api/src/staff/staff.service.ts`, `apps/api/src/staff/staff.controller.ts` và 3 tệp khác | CI: 11/11 đạt |
@@ -124,15 +124,15 @@ Phủ YCTD-213 đến YCTD-369: mọi yêu cầu có tệp mảnh được gom �
 
 | Số | Tình trạng |
 |---|---|
-| YCTD-297 đến YCTD-299, YCTD-301 đến YCTD-304, YCTD-308 | Không được dùng (`35` mục 1; YCTD-308 đã đổi thành YCTD-309) |
+| YCTD-297 đến YCTD-299, YCTD-301 đến YCTD-304, YCTD-308 | Không được dùng (`25` mục 1; YCTD-308 đã đổi thành YCTD-309) |
 | YCTD-347 đến YCTD-349, YCTD-356, YCTD-358, YCTD-359, YCTD-368 | Chưa xác định: không có tệp mảnh, không có mục ở `24`, không có commit nhắc tới trên `main` ngày 2026-10-29. Có thể đã giữ cho phiên đang làm hoặc bỏ không dùng |
 
 ## 5. Chỗ hở chính
 
-1. 43 trên 92 dòng có tệp mảnh không nêu mã chức năng ở `10`; 56 dòng không nêu tiêu chí nghiệm thu ở `11`. Phần lớn là việc giao diện, CI, tài liệu; một số việc có hành vi mới thuộc diện phải có AC, CT (xem `35` lỗi L-12).
+1. 43 trên 92 dòng có tệp mảnh không nêu mã chức năng ở `10`; 56 dòng không nêu tiêu chí nghiệm thu ở `11`. Phần lớn là việc giao diện, CI, tài liệu; một số việc có hành vi mới thuộc diện phải có AC, CT (xem `25` lỗi L-12).
 2. Kịch bản mới của các tệp mảnh từ YCTD-234 đến YCTD-280 ghi mức ưu tiên ở ô cuối, nên kết quả từng kịch bản chỉ còn dựa vào CI của PR.
 3. YCTD-325 đến YCTD-329, YCTD-343 có kịch bản ghi "Chưa chạy"; YCTD-336 ghi "Chờ CI". CI của các PR này đạt, nhưng ô kết quả của kịch bản chưa được cập nhật.
-4. PR 225 (YCTD-305) merge khi một kiểm tra CI còn hỏng (`35` lỗi L-21).
+4. PR 225 (YCTD-305) merge khi một kiểm tra CI còn hỏng (`25` lỗi L-21).
 
 ## 6. Quy tắc cập nhật
 

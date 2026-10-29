@@ -1,10 +1,10 @@
-# 34.5. TÀI CHÍNH, NHÂN SỰ, HẬU CẦN, TƯƠNG TÁC, GIẢNG DẠY, TUYỂN SINH, BÁO CÁO
+# 49.5. TÀI CHÍNH, NHÂN SỰ, HẬU CẦN, TƯƠNG TÁC, GIẢNG DẠY, TUYỂN SINH, BÁO CÁO
 
 - Mô tả: Phân hệ 2.8 đến 2.14
 - Phiên bản: 1.0
 - Ngày cập nhật: 2026-10-25
 - Trạng thái: Chờ phê duyệt
-- Thuộc: [Tài liệu 34, tổng hợp chức năng hệ thống](00_MUC_LUC.md)
+- Thuộc: [Tài liệu 49, tổng hợp chức năng hệ thống](00_MUC_LUC.md)
 - Nguồn: mã và tài liệu trên nhánh `main` ngày 2026-10-25 (sau PR 165, 166, 167, 169, 170). Khi tài liệu và mã lệch nhau, mô tả theo mã; chỗ lệch ghi ở [phụ lục](07_MA_TRAN_VAI_TRO_VA_PHU_LUC.md)
 
 Mỗi phân hệ mô tả theo cùng khuôn: mục đích, cấp học, vai trò và mã quyền, căn cứ pháp lý, chức năng và màn hình, quy tắc nghiệp vụ, dữ liệu và tệp xuất, liên kết, kiểm thử e2e. Số mục menu, đường dẫn theo `packages/shared/src/portal-menu.ts`. Sơ đồ quy trình ở cuối tệp.
@@ -245,7 +245,7 @@ Mô tả chi tiết:
   - Tương tác: `P15.interaction.manage` (VT-03, VT-02, VT-15), `P15.message.send` (VT-07, VT-03), `P02.lost-item.manage`.
   - Truyền thông: `P14.activity.create` (VT-07, VT-08), `P14.activity.approve` (VT-03, VT-15, VT-02), `P14.content.manage` (VT-03), `P14.library.manage` (VT-03, VT-07), `P14.extracurricular.manage` (VT-03, VT-07), `P14.comment.moderate` (VT-03, VT-07), `P14.facebook.manage` (VT-03, VT-02); `P05.registration.manage` để đăng ký ngoại khóa thay.
   - Liên quan: `P01.integration.manage` (kết nối Fanpage, Zalo), `P19.notification-template.manage`, `P19.notification-receipt.view`.
-- Căn cứ pháp lý: đồng ý sử dụng hình ảnh của trẻ (BR-65) và đồng ý xử lý dữ liệu cá nhân gắn với Nghị định 13/2023/NĐ-CP về bảo vệ dữ liệu cá nhân theo hồ sơ pháp lý của dự án (`tai_lieu/33_HO_SO_PHAP_LY`); mã của phân hệ không ghi số hiệu văn bản.
+- Căn cứ pháp lý: đồng ý sử dụng hình ảnh của trẻ (BR-65) và đồng ý xử lý dữ liệu cá nhân gắn với Nghị định 13/2023/NĐ-CP về bảo vệ dữ liệu cá nhân theo hồ sơ pháp lý của dự án (`tai_lieu/48_HO_SO_PHAP_LY`); mã của phân hệ không ghi số hiệu văn bản.
 
 ### Chức năng và màn hình
 

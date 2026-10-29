@@ -14,7 +14,7 @@ import {
   type LoggedInUser,
 } from '../test-support.js';
 
-// Quỹ và tài khoản, phiếu thu, phân bổ, số dư có và công nợ; ca kiểm thử theo 27_BO_CA_KIEM_THU_CHI_TIET/04_P06.md
+// Quỹ và tài khoản, phiếu thu, phân bổ, số dư có và công nợ; ca kiểm thử theo 42_BO_CA_KIEM_THU_CHI_TIET/04_P06.md
 // mục 3 và 03_P05.md mục P05-09. Hóa đơn ghi sẵn: HĐ-1 của T1 1 000 000, HĐ-2 của T1 2 000 000 đã quá hạn,
 // HĐ-3 của T2 1 500 000, HĐ-B của T3 ở đơn vị B
 const randomPhone = () => `09${randomInt(0, 100_000_000).toString().padStart(8, '0')}`;

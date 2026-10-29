@@ -1,12 +1,12 @@
-# 35. KẾT QUẢ KIỂM THỬ VÀ DANH SÁCH LỖI
+# 25. KẾT QUẢ KIỂM THỬ VÀ DANH SÁCH LỖI
 
 - Mô tả: Kết quả lượt rà soát lại quy trình Vibecoding_Flow và kiểm thử toàn bộ trên nhánh chính sau PR 220 đến 236: lệnh đã chạy, số đạt và hỏng, bảng truy xuất YCTD-295 đến YCTD-313, rà bảo mật theo `22_BAO_MAT.md`, lỗi phân loại theo mức độ và đề xuất xử lý (YCTD-321).
-- Phiên bản: 1.0
-- Ngày cập nhật: 2026-10-28
+- Phiên bản: 1.1
+- Ngày cập nhật: 2026-10-29
 - Trạng thái: Chờ Eric duyệt cách xử lý
 - Người thực hiện: Claude, phiên rà soát do phiên điều phối giao ngày 2026-10-28
 
-Tài liệu này giữ vai trò tệp "Kết quả kiểm thử và danh sách lỗi" của quy trình. Quy trình đặt tệp này ở số 25, nhưng dự án đã dùng số 25 và 26 cho thư mục quy trình nghiệp vụ và sơ đồ chức năng gốc, nên lấy số tiếp theo (xem lỗi L-19). Các báo cáo kiểm thử trước ở `28`, `29`, `30`.
+Đây là tài liệu "Kết quả kiểm thử và danh sách lỗi" của quy trình. Tài liệu được lập ngày 2026-10-28 với số 35 và đổi sang số 25 ngày 2026-10-29 (YCTD-369, bảng đổi số ở `index.md`). Nội dung mục 1 đến 7 là lượt rà soát ngày 2026-10-28; lượt kiểm thử sau thêm mục mới. Các báo cáo kiểm thử trước ở `43`, `44`, `45`; kết quả theo từng yêu cầu ở `27_MA_TRAN_TRUY_VET.md`.
 
 ## 1. Phạm vi
 
@@ -72,12 +72,12 @@ Các việc khác của các lần chạy trên (`kiem-thu`, `kiem-thu-giao-dien
 | Hạng mục | Hiện trạng | Lỗi |
 |---|---|---|
 | Tệp bắt buộc `index.md`, `01` đến `24` | Đủ | |
-| `25_KET_QUA_KIEM_THU.md`, `26_TRIEN_KHAI.md` | Không có. Số 25, 26 đã dùng cho `25_QUY_TRINH_NGHIEP_VU/`, `26_SO_DO_CHUC_NANG/`. Kết quả kiểm thử nằm rải ở `28`, `29`, `30` và tệp mảnh; hướng dẫn triển khai, phương án quay lui ở `deploy/README.md`, `deploy/profiles/production/README.md`, không có biên bản triển khai trong `tai_lieu/` | L-19 |
+| `25_KET_QUA_KIEM_THU.md`, `26_TRIEN_KHAI.md` | Không có. Số 25, 26 đã dùng cho thư mục quy trình nghiệp vụ và sơ đồ chức năng gốc (nay là `40_QUY_TRINH_NGHIEP_VU/`, `41_SO_DO_CHUC_NANG/`, YCTD-369). Kết quả kiểm thử nằm rải ở `43`, `44`, `45` và tệp mảnh; hướng dẫn triển khai, phương án quay lui ở `deploy/README.md`, `deploy/profiles/production/README.md`, không có biên bản triển khai trong `tai_lieu/` | L-19 |
 | Quy ước tệp mảnh | `--kiem` đạt. Lần gom cuối là YCTD-291 ngày 2026-10-26; 44 tệp mảnh (YCTD-213 đến YCTD-313) chờ gom | L-09 |
 | `02` | Mục mới nhất ngày 2026-10-26 (YCTD-291). Mục của 44 việc sau đó nằm ở tệp mảnh | L-09 |
 | `03` | Phiên bản 0.76, ngày 2026-10-26. Không có dòng nào cho YCTD-292 đến YCTD-313 và các tệp mảnh của chúng không có mục "Nối dòng" cho `03`; lượt này ghi bù qua tệp mảnh YCTD-321. Dòng P13 hỏng định dạng bảng; "Mã N đang dùng đến: N22" trong khi đã có N24 | L-10, L-17 |
 | `23` | Mục mới nhất 0.147.0. Phiên bản đề xuất 0.146.0 đến 0.189.0 nằm ở tệp mảnh; số chính thức chốt khi gom. Số 0.186.0 không tệp mảnh nào đề xuất | L-09 |
-| `24` | Mục mới nhất YCTD-291. GD-144 (Eric chốt 2026-10-28) và GD-148 (chốt 2026-10-27) đã ghi ở tệp mảnh YCTD-275, YCTD-277, YCTD-280 và `32` mục 20; quy tắc tài khoản theo số CCCD ở tệp mảnh YCTD-311 | L-09 |
+| `24` | Mục mới nhất YCTD-291. GD-144 (Eric chốt 2026-10-28) và GD-148 (chốt 2026-10-27) đã ghi ở tệp mảnh YCTD-275, YCTD-277, YCTD-280 và `47` mục 20; quy tắc tài khoản theo số CCCD ở tệp mảnh YCTD-311 | L-09 |
 | `01` mục quyết định | Dòng "GD-140 đến GD-157" (`01` dòng 711) vẫn ghi giờ mở thảo luận (GD-144) và bản nháp ngoại tuyến (GD-148) là "còn lại", dù đã chốt | L-16 |
 | Quyết định "mở mọi trường", "gói miễn phí" | Thuộc YCTD-314 (GD-159 đến GD-161) đang làm ở phiên khác, chưa merge. Không ghi bù | |
 | Quyết định "sổ liên lạc" | Không tìm thấy quyết định nào trong kho và ghi chú các phiên. Không ghi bù để không bịa; cần Eric cho nội dung | L-18 |
@@ -143,7 +143,7 @@ Không có.
 | L-16 | `01` dòng "GD-140 đến GD-157" ghi GD-144, GD-148 là còn lại dù đã chốt | Sửa dòng ở lần gom hoặc PR tài liệu kế tiếp |
 | L-17 | Tài liệu sai nhỏ: BR-202 trùng ở `07` (dòng 275, 279); dòng P13 của `03` có chữ nằm ngoài bảng; "Mã N đang dùng đến: N22" trong khi đã có N24; CT-1269 đến CT-1271 (tệp mảnh YCTD-235) lệch cột; nhãn CT trong mã không thống nhất (CT-310-1 đến 6 so với CT-1501 đến 1506; không có nhãn CT-310-4) | Sửa trong PR tài liệu kế tiếp; cân nhắc cho `--kiem` kiểm cột "Trạng thái" của dòng `21` |
 | L-18 | Quyết định "sổ liên lạc" của Eric không có trong kho | Eric cho nội dung để ghi YCTD |
-| L-19 | Bộ tài liệu lệch danh sách của quy trình: số 25, 26 không phải "Kết quả kiểm thử", "Triển khai"; biên bản triển khai không nằm trong `tai_lieu/` | Eric chọn: giữ số hiện tại và ghi ánh xạ ở `index.md` (25 → 35, 26 → `deploy/README.md`), hoặc thêm `36_TRIEN_KHAI.md` cho phương án quay lui và biên bản |
+| L-19 | Bộ tài liệu lệch danh sách của quy trình: số 25, 26 không phải "Kết quả kiểm thử", "Triển khai"; biên bản triển khai không nằm trong `tai_lieu/` | Đã xử lý ở YCTD-369 (2026-10-29): Eric chọn đánh lại số theo danh mục chuẩn: `25_KET_QUA_KIEM_THU.md` (tài liệu này), `26_TRIEN_KHAI.md`, `27_MA_TRAN_TRUY_VET.md`; tài liệu riêng của dự án dời sang `40` đến `49` (bảng đổi số ở `index.md`) |
 | L-20 | Quét bí mật trong CI (`tests/tenancy/secret-scan.test.mjs`) bỏ sót khóa PEM dạng base64 (dạng của `IDENTITY_TOKEN_PRIVATE_KEY`), JWT, chuỗi kết nối có mật khẩu, khóa cổng thanh toán Việt Nam, số CCCD, tệp `.xlsx`, lịch sử git. Quét tay lượt này không thấy bí mật thật: tệp env theo dõi chỉ là tệp mẫu, CSV chỉ là dữ liệu "Mẫu", số CCCD trong kiểm thử là số mẫu | Bổ sung mẫu; chạy thêm gitleaks hoặc trufflehog trên lịch sử |
 | L-21 | PR 225 (YCTD-305) merge khi `kiem-thu-giao-dien` còn hỏng (run 40615239236) | Nhắc lại quy tắc merge; kiểm `gh pr checks` trước khi merge |
 | L-22 | Môi trường kiểm thử trên máy Windows: (1) `pnpm test` và e2e không chạy song song được, API báo "Không liên lạc được với dịch vụ định danh" khi bộ kiểm thử máy chủ chạy cùng Redis và máy; (2) `localhost` phân giải sang IPv6 làm treo kết nối tới kho tệp (`S3_ENDPOINT`) và Redis, gây 16 ca e2e hỏng giả (mục 3.2) | Ghi vào hướng dẫn kiểm thử ở `20`: trên máy chạy e2e sau khi `pnpm test` xong; dùng `127.0.0.1` cho `REDIS_URL`, `S3_ENDPOINT` ở `.env` và `.env.example` (không đổi mã) |

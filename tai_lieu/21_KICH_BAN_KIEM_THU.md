@@ -12,7 +12,7 @@
 2. Cột "Kết quả thực tế" và "Trạng thái" chỉ được điền khi đã chạy thử thật. Trạng thái dùng ba giá trị: Chưa chạy, Đạt, Không đạt.
 3. Mọi ca kiểm thử tham chiếu tới tiêu chí nghiệm thu tương ứng trong `11_TIEU_CHI_NGHIEM_THU.md`.
 4. Ca kiểm thử về quyền bắt buộc phải gọi thẳng điểm cuối, không thao tác qua giao diện.
-5. Bộ ca kiểm thử chi tiết theo việc N21 nằm ở thư mục `27_BO_CA_KIEM_THU_CHI_TIET/`, mã `CTC-...`.
+5. Bộ ca kiểm thử chi tiết theo việc N21 nằm ở thư mục `42_BO_CA_KIEM_THU_CHI_TIET/`, mã `CTC-...`.
 
 ## 2. Nền tảng và phân quyền
 

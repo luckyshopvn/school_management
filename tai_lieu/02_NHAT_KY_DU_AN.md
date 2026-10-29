@@ -20,26 +20,28 @@
 #### Công việc đã thực hiện
 
 - Gom 92 tệp mảnh chờ (YCTD-213 đến YCTD-367) và tệp mảnh này bằng `node scripts/gom-thay-doi.mjs` trên nhánh `gom-2026-10-29`; `02`, `03`, `23`, `24`, `01`, `index.md` và các tài liệu nhận "Thêm dòng" đã cập nhật tới YCTD-369. Phiên bản chốt theo thứ tự merge từ 0.148.0 đến 0.238.0.
-- Thêm `36_MA_TRAN_TRUY_VET.md`: liên kết YCTD-213 đến YCTD-369 với chức năng (`10`), tiêu chí nghiệm thu (`11`), kịch bản kiểm thử (`21`), PR và commit merge, kết quả CI, kết quả ghi ở `35`. Dữ liệu trích từ tệp mảnh trên `origin/main` `6048abc9` và `gh pr view`; chỗ không có dữ liệu ghi "chưa xác định".
-- Thêm `37_TRIEN_KHAI.md`: tổng hợp các cách triển khai đang có (bản một máy, hồ sơ "Vận hành", hồ sơ thử nghiệm, bản nhiều trường trên máy), thứ tự database migration, phương án quay lui, mẫu biên bản; ghi rõ chưa có lần triển khai môi trường thật nào.
-- Thêm vào `18` quy tắc AI-43 đến AI-45 và giả định đã xác nhận GD-181 đến GD-183.
+- Đánh lại số bộ tài liệu theo danh mục chuẩn của quy trình (bảng đổi số ở `index.md`): `35_KET_QUA_KIEM_THU.md` thành `25_KET_QUA_KIEM_THU.md`; thêm `26_TRIEN_KHAI.md`, `27_MA_TRAN_TRUY_VET.md`; tài liệu riêng của dự án số 25 đến 34 dời sang 40 đến 49, giữ thứ tự. Đổi tên bằng `git mv`; sửa tham chiếu trong tài liệu hiện hành, `README.md`, `README.en.md`, `deploy/`, `.github/workflows/ci.yml`, 21 tệp kiểm thử và chú thích mã nguồn (commit riêng).
+- Thêm `27_MA_TRAN_TRUY_VET.md`: liên kết YCTD-213 đến YCTD-369 với chức năng (`10`), tiêu chí nghiệm thu (`11`), kịch bản kiểm thử (`21`), PR và commit merge, kết quả CI, kết quả ghi ở `25`. Dữ liệu trích từ tệp mảnh trên `origin/main` `6048abc9` và `gh pr view`; chỗ không có dữ liệu ghi "chưa xác định".
+- Thêm `26_TRIEN_KHAI.md`: tổng hợp các cách triển khai đang có (bản một máy, hồ sơ "Vận hành", hồ sơ thử nghiệm, bản nhiều trường trên máy), thứ tự database migration, phương án quay lui, mẫu biên bản; ghi rõ chưa có lần triển khai môi trường thật nào.
+- `01` chuyển sang mô hình mười ba giai đoạn: thêm giai đoạn 12 Triển khai (CG-12), vận hành và cải tiến thành giai đoạn 13 (CG-13).
+- Thêm vào `18` quy tắc AI-43 đến AI-45, sửa AI-40 theo ủy quyền làm việc tự chủ ngày 2026-10-11, thêm giả định đã xác nhận GD-181 đến GD-184.
 - Thêm `tam_thoi/` vào `.gitignore`.
-- Sửa dòng "Mã N đang dùng đến" ở `03` từ N22 thành N25 (lỗi L-17 của `35`).
+- Sửa dòng "Mã N đang dùng đến" ở `03` từ N22 thành N25 (lỗi L-17 của `25`).
 
 #### Quyết định
 
-- Eric duyệt ngày 2026-10-29 cách xử lý năm điểm lệch quy trình (qua phiên điều phối).
-- Ma trận truy vết và tài liệu triển khai lấy số 36, 37 vì số 25, 26, 27 của quy trình đã dùng cho thư mục khác (như `35`).
+- Eric duyệt ngày 2026-10-29 cách xử lý năm điểm lệch quy trình và việc đánh lại số (qua phiên điều phối): phương án B, tài liệu riêng sang dải 40 đến 49, để trống 28 đến 39 để tham chiếu cũ còn sót không trỏ nhầm; giữ nguyên số cũ trong lịch sử `02`, `23`, `24` và trong chú thích tệp database migration; sửa chú thích mã nguồn khác; sửa AI-40; cập nhật `01` sang mười ba giai đoạn.
 - Số phiên bản do công cụ gom chốt theo thứ tự merge, không theo số đề xuất của tệp mảnh, nên tệp mảnh này nhận 0.238.0 thay vì 0.249.0 đề xuất.
 - Gắn tag phiên bản làm sau khi PR này merge, theo danh sách phiên điều phối xác nhận.
 
 #### Thay đổi
 
-- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-369, `23_LICH_SU_PHIEN_BAN.md` 0.238.0, `36_MA_TRAN_TRUY_VET.md`, `37_TRIEN_KHAI.md`, `18_QUY_TAC_PHAT_TRIEN_AI.md`.
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-369, `23_LICH_SU_PHIEN_BAN.md` 0.238.0, `25_KET_QUA_KIEM_THU.md`, `26_TRIEN_KHAI.md`, `27_MA_TRAN_TRUY_VET.md`, `18_QUY_TAC_PHAT_TRIEN_AI.md`, `01_KE_HOACH_TONG_THE.md` mục 4, `index.md` mục "Bảng đổi số ngày 2026-10-29".
 
 #### Vấn đề tồn đọng
 
-- Ma trận truy vết chưa phủ YCTD-01 đến YCTD-212 và các YCTD trước lần gom trước; nhiều dòng thiếu mã chức năng, tiêu chí nghiệm thu (xem `36` mục 4).
+- Ma trận truy vết chưa phủ YCTD-01 đến YCTD-212; nhiều dòng thiếu mã chức năng, tiêu chí nghiệm thu (xem `27` mục 5).
+- Bản PDF trong `49_TONG_HOP_CHUC_NANG_HE_THONG/` còn liên kết theo đường dẫn cũ; dựng lại ở lần cập nhật tài liệu tổng hợp.
 - Gắn tag các phiên bản đã merge: chờ phiên điều phối xác nhận danh sách.
 
 ### 2026-10-28 — DT-29 phần 29e: bài hát, câu chuyện của trường trong Hộp công cụ giảng dạy

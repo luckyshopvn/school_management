@@ -11,7 +11,7 @@ import {
 } from '../test-support.js';
 import { IMPORT_COLUMNS } from './imports.service.js';
 
-// Nhập dữ liệu ban đầu và mã ngành; ca kiểm thử theo 27_BO_CA_KIEM_THU_CHI_TIET/01_DINH_DANH_VA_P01.md mục 4.11
+// Nhập dữ liệu ban đầu và mã ngành; ca kiểm thử theo 42_BO_CA_KIEM_THU_CHI_TIET/01_DINH_DANH_VA_P01.md mục 4.11
 // và 02_P02_VA_P04.md mục 3.10
 const DEFAULT_PASSWORD = 'PhuHuynh2026';
 const PNG = Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a, 1, 2, 3, 4]);

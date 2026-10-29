@@ -6,7 +6,7 @@ import { sql } from 'kysely';
 import { sendJson, startApiTestEnvironment, type ApiTestEnvironment } from '../test-support.js';
 import type { AcademicYearTransitionStep, TransitionViolation } from './academic-year-transition.js';
 
-// Ca kiểm thử theo 27_BO_CA_KIEM_THU_CHI_TIET/01_DINH_DANH_VA_P01.md mục 4.2
+// Ca kiểm thử theo 42_BO_CA_KIEM_THU_CHI_TIET/01_DINH_DANH_VA_P01.md mục 4.2
 const calendar20262027 = {
   first_term: { start_date: '2026-09-05', end_date: '2027-01-15' },
   second_term: { start_date: '2027-01-18', end_date: '2027-05-25' },

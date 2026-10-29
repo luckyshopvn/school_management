@@ -1,10 +1,10 @@
-# 34.1. TỔNG QUAN, KIẾN TRÚC VÀ NỀN TẢNG CHUNG
+# 49.1. TỔNG QUAN, KIẾN TRÚC VÀ NỀN TẢNG CHUNG
 
 - Mô tả: Mục tiêu, đối tượng dùng, cấp học, kiến trúc, đăng nhập và phân quyền, chọn phân hệ, thông báo, DT-SaaS đa thuê bao, kế hoạch DT-23, DT-26, DT-27 và DT-28
 - Phiên bản: 1.0
 - Ngày cập nhật: 2026-10-26
 - Trạng thái: Chờ phê duyệt
-- Thuộc: [Tài liệu 34, tổng hợp chức năng hệ thống](00_MUC_LUC.md)
+- Thuộc: [Tài liệu 49, tổng hợp chức năng hệ thống](00_MUC_LUC.md)
 - Nguồn: mã và tài liệu trên nhánh `main` ngày 2026-10-25 (sau PR 165, 166, 167, 169, 170). Khi tài liệu và mã lệch nhau, mô tả theo mã; chỗ lệch ghi ở [phụ lục](07_MA_TRAN_VAI_TRO_VA_PHU_LUC.md)
 
 ## 1. Tổng quan
@@ -20,7 +20,7 @@ Mục tiêu sản phẩm (tài liệu 04 mục 3, giữ nguyên ý):
 3. Cho phụ huynh tự tra cứu: điểm danh, thời khóa biểu, nhật ký, thực đơn, học phí, thông báo, điểm số, học bạ.
 4. Cho giáo viên công cụ ghi nhận công việc tại lớp và trao đổi với phụ huynh ở một nơi.
 5. Cho Ban Giám hiệu bảng điều khiển tập trung theo đơn vị và toàn trường.
-6. Đồng bộ chức năng và giao diện theo Hệ thống thông tin quản lý giáo dục cấp Trường của Sở GD&ĐT TP.HCM (tài liệu 31, 32): menu ngang đánh số, phân hệ, biểu EMIS, kí hồ sơ, tuyển sinh đầu cấp.
+6. Đồng bộ chức năng và giao diện theo Hệ thống thông tin quản lý giáo dục cấp Trường của Sở GD&ĐT TP.HCM (tài liệu 46, 47): menu ngang đánh số, phân hệ, biểu EMIS, kí hồ sơ, tuyển sinh đầu cấp.
 7. Điều hành nhà trường theo mô hình VNPT iOffice (văn bản đến, văn bản đi, giao việc, lịch, hồ sơ công việc) và các phân hệ riêng (KPI, website, hồ sơ chuyên môn, thi đua, bảo đảm chất lượng, thư viện, kho học liệu).
 
 Yêu cầu cấp cao xuyên suốt (tài liệu 04 mục 7): phân quyền do máy chủ quyết định (YCC-03), dữ liệu tài chính không xóa chỉ đảo (YCC-04), mọi thao tác thay đổi ghi nhật ký (YCC-05), thông báo nhiều kênh (YCC-07), giao diện tách khỏi máy chủ (YCC-09), dịch vụ định danh độc lập tự viết (YCC-10), phê duyệt theo hạn mức (YCC-11).
@@ -45,7 +45,7 @@ Vai trò VT-13 (Tài xế, người đưa đón) đã bỏ ngày 09/10/2026 cùn
 
 ### 1.2 Các cấp học MN, TH, THCS, THPT
 
-Nguồn: `packages/shared/src/school-levels.ts`, `packages/shared/src/level-features.ts`, `packages/shared/src/portal-menu.ts`, `apps/api/src/school-levels/school-levels.ts`, `apps/api/src/common/school-levels.ts`, `apps/portal/src/school-levels/`, định danh 0064, 0065; tài liệu 32 mục 10 (DT-19).
+Nguồn: `packages/shared/src/school-levels.ts`, `packages/shared/src/level-features.ts`, `packages/shared/src/portal-menu.ts`, `apps/api/src/school-levels/school-levels.ts`, `apps/api/src/common/school-levels.ts`, `apps/portal/src/school-levels/`, định danh 0064, 0065; tài liệu 47 mục 10 (DT-19).
 
 **Bốn mã cấp cố định** (`SCHOOL_LEVEL_CODES`): `MN` Mầm non, `TH` Tiểu học, `THCS` Trung học cơ sở, `THPT` Trung học phổ thông. Thêm cấp phải sửa mã, không thêm dữ liệu. Chỗ nào đọc cấp mà không thấy giá trị thì coi là `MN` (`DEFAULT_SCHOOL_LEVEL`), để trường mầm non hiện có không đổi hành vi.
 
@@ -83,7 +83,7 @@ Pnpm monorepo, TypeScript. Máy chủ NestJS, giao diện React kèm Vite, cơ s
 
 **Các ứng dụng**
 
-| Ứng dụng | Thư mục | Vai trò | Cổng dev mặc định | Cổng e2e (tài liệu 32 mục 14.1) |
+| Ứng dụng | Thư mục | Vai trò | Cổng dev mặc định | Cổng e2e (tài liệu 47 mục 14.1) |
 |---|---|---|---|---|
 | Máy chủ API nghiệp vụ | `apps/api` | Mọi quy tắc nghiệp vụ, kiểm tra quyền mỗi yêu cầu, tiến trình nền theo chu kỳ trong tiến trình | 3000 (`API_PORT`) | 3200 |
 | Dịch vụ định danh | `apps/identity` | Đăng nhập, phiên, tài khoản, vai trò, quyền, phạm vi đơn vị và cấp, khóa API đối tác, đăng nhập thay; ở chế độ nhiều trường thêm cổng vận hành nền tảng `/auth/platform` | 3001 (`IDENTITY_PORT`) | 3201 |
@@ -575,11 +575,11 @@ sequenceDiagram
 
 ## 4. DT-SaaS: đa thuê bao nhiều trường
 
-Nguồn: tài liệu 32 mục 14; `database/platform/`, `database/src/school-lifecycle.ts`, `school-database-layout.ts`, `platform-command.ts`, `adopt-existing.ts`, `domain-provider.ts`, `database-host-adapter.ts`, `school-relayout.ts`; `deploy/profiles/trial/`; `packages/server/src/tenancy.ts`, `tenant-middleware.ts`, `tenant-context.ts`, `resource-names.ts`; `apps/identity/src/platform/*`; `apps/api/src/tenancy-route-policy.ts`, `common/job-scheduler.ts`, `common/school-picker.ts`; `apps/platform/src/*`; e2e `130-tenancy-isolation`, `131-tenancy-background`, `132-school-lifecycle`, `140-trial-profile`; `tests/tenancy/`, `tests/trial/`.
+Nguồn: tài liệu 47 mục 14; `database/platform/`, `database/src/school-lifecycle.ts`, `school-database-layout.ts`, `platform-command.ts`, `adopt-existing.ts`, `domain-provider.ts`, `database-host-adapter.ts`, `school-relayout.ts`; `deploy/profiles/trial/`; `packages/server/src/tenancy.ts`, `tenant-middleware.ts`, `tenant-context.ts`, `resource-names.ts`; `apps/identity/src/platform/*`; `apps/api/src/tenancy-route-policy.ts`, `common/job-scheduler.ts`, `common/school-picker.ts`; `apps/platform/src/*`; e2e `130-tenancy-isolation`, `131-tenancy-background`, `132-school-lifecycle`, `140-trial-profile`; `tests/tenancy/`, `tests/trial/`.
 
 ### Mục tiêu và nguyên tắc
 
-Một nền tảng chạy nhiều trường, mỗi trường một đường dẫn riêng, dữ liệu tách hẳn (mỗi trường một bộ cơ sở dữ liệu định danh, hệ thống, năm học; một vai trò PostgreSQL; một tiền tố khóa Redis và tệp; không thêm `tenant_id` vào bảng nghiệp vụ). Bật bằng `PLATFORM_DATABASE_URL`; không có thì chạy **chế độ một trường** như trước. Thiếu ngữ cảnh trường ở chế độ nhiều trường là lỗi (`TENANT_CONTEXT_MISSING`), không rơi về trường mặc định. Căn cứ pháp lý nêu ở tài liệu 32: Nghị định 13/2023/NĐ-CP (bảo vệ dữ liệu cá nhân), Luật 91/2025/QH15, Nghị định 356/2025/NĐ-CP, Nghị định 53/2022/NĐ-CP (lưu trữ trong nước), Luật An ninh mạng 2018, Nghị định 85/2016/NĐ-CP, Thông tư 12/2022/TT-BTTTT, Nghị định 123/2020/NĐ-CP và Thông tư 78/2021/TT-BTC (hóa đơn điện tử, cho S5b).
+Một nền tảng chạy nhiều trường, mỗi trường một đường dẫn riêng, dữ liệu tách hẳn (mỗi trường một bộ cơ sở dữ liệu định danh, hệ thống, năm học; một vai trò PostgreSQL; một tiền tố khóa Redis và tệp; không thêm `tenant_id` vào bảng nghiệp vụ). Bật bằng `PLATFORM_DATABASE_URL`; không có thì chạy **chế độ một trường** như trước. Thiếu ngữ cảnh trường ở chế độ nhiều trường là lỗi (`TENANT_CONTEXT_MISSING`), không rơi về trường mặc định. Căn cứ pháp lý nêu ở tài liệu 47: Nghị định 13/2023/NĐ-CP (bảo vệ dữ liệu cá nhân), Luật 91/2025/QH15, Nghị định 356/2025/NĐ-CP, Nghị định 53/2022/NĐ-CP (lưu trữ trong nước), Luật An ninh mạng 2018, Nghị định 85/2016/NĐ-CP, Thông tư 12/2022/TT-BTTTT, Nghị định 123/2020/NĐ-CP và Thông tư 78/2021/TT-BTC (hóa đơn điện tử, cho S5b).
 
 ### Phần ĐÃ CÓ trên nhánh chính (kiểm trong mã)
 
@@ -589,7 +589,7 @@ Một nền tảng chạy nhiều trường, mỗi trường một đường d�
 | S1b Việc nền và công khai | YCTD-192, PR 166, 0.130.0 | `JobScheduler` theo trường, bảng `scheduler_state` (nền tảng 0010), hai chế độ: trong tiến trình hoặc ngoài (`POST /api/v1/internal/jobs/tick`, `INTERNAL_JOB_TOKEN`), bù lượt bỏ lỡ. Sáu việc nền đăng ký theo trường (mục 1.3). Hàng đợi máy xếp thời khóa biểu theo trường (phần tử `<tiền tố>|<mã lần xếp>`) kèm hạn mức. Kiểm tên miền cho Caddy cấp chứng chỉ theo danh mục tên miền nền tảng (`/api/v1/public/website/domain-check`). Trang chọn trường: `GET /api/v1/public/schools/picker`, `/resolve` (nhập mã trường rồi chuyển sang tên miền của trường, không đăng nhập chéo). Giới hạn tần suất công khai theo trường; bộ đệm ngữ cảnh trường (`TenantRegistry.contextOf`). E2e spec 131. Chưa làm: số đo theo trường, bản trình diễn theo trường |
 | S2 Khởi tạo và vòng đời trường | YCTD-193, PR 165, 0.131.0 | Nền tảng 0020 đến 0022: cột vòng đời của `schools`, `provisioning_jobs`, `school_lifecycle_events`, `school_admin_invitations`, `school_migrations`, cột kiểm tra tên miền, `school_consents`, `school_hosting`; hệ thống 0050 `terms_acceptances`. Thư viện `school-lifecycle.ts` (BR-206 đến BR-208, BM-77, BM-78): bước setup, khởi tạo mười một bước chạy tiếp được hoặc hoàn tác, tạm dừng, mở lại, yêu cầu xóa, hủy yêu cầu xóa, xóa vĩnh viễn sau thời gian chờ (mặc định 30 ngày, `SCHOOL_DELETION_GRACE_DAYS`), cổng hồ sơ đồng ý, lời mời kích hoạt một lần (72 giờ), migrate cuốn chiếu. Bộ nối `DomainProvider`: `dns-check` (tra CNAME về `PLATFORM_INGRESS_HOST` và TXT `_school-verify.<tên miền>`); `cloudflare-saas`, `vercel-domains` làm ở S9. Điểm cuối `/auth/platform/schools` và `/auth/activate`; trang Trường ở `apps/platform`, trang `/activate` ở cổng quản trị. Lệnh dòng lệnh `platform` và lệnh `school-lifecycle-command` của API (xuất ZIP một trường, xóa tệp khi purge). E2e spec 132 |
 | S7a Hạ tầng VPS, phần dựng sẵn | YCTD-198, PR 163, 0.128.0 | `deploy/profiles/production/`: Compose một đến vài máy (T1, T2, T3), PgBouncer, Caddy bắt mọi tên miền, giám sát (Prometheus, Loki, Grafana, Alertmanager), môi trường thử. Chưa kiểm tay trên staging |
-| S8a Hồ sơ pháp lý | YCTD-200, PR 162 | Chỉ tài liệu: `tai_lieu/33_HO_SO_PHAP_LY/` PL-00 đến PL-15 (hợp đồng, thỏa thuận xử lý dữ liệu, văn bản đồng ý, điều khoản, chính sách bảo vệ dữ liệu, đánh giá tác động, chấp nhận rủi ro...), bản nháp chờ luật sư rà. Không có mã |
+| S8a Hồ sơ pháp lý | YCTD-200, PR 162 | Chỉ tài liệu: `tai_lieu/48_HO_SO_PHAP_LY/` PL-00 đến PL-15 (hợp đồng, thỏa thuận xử lý dữ liệu, văn bản đồng ý, điều khoản, chính sách bảo vệ dữ liệu, đánh giá tác động, chấp nhận rủi ro...), bản nháp chờ luật sư rà. Không có mã |
 | S9 Triển khai thử nghiệm miễn phí | YCTD-203, PR 167, 0.132.0 | Hồ sơ `deploy/profiles/trial/` dùng chung mã với hồ sơ vận hành, khác ở biến cấu hình (chi tiết ở mục "Hồ sơ triển khai thử nghiệm" dưới đây). Nền tảng 0100 (`school_databases.login_name`). Bộ nối nơi đặt PostgreSQL `DB_HOST_ADAPTER` (`plain`, `neon`, `supabase`); bộ nối tên miền `cloudflare-saas`, `vercel-domains`; chính sách dữ liệu `PLATFORM_DATA_POLICY` (BR-209); lệnh `platform relayout` (BR-210); kho khóa trong bộ nhớ của dịch vụ định danh (`REDIS_URL=memory://`); `APP_BASE_PATH` cho ba ứng dụng web. E2e spec 140, kiểm thử `tests/trial/`. Chưa dựng thật trên nhà cung cấp; chưa làm `INTEGRATIONS_MODE` (S3 thay bằng bộ nối đọc theo trường) và tự xóa trường dữ liệu giả sau 30 ngày |
 | S3 Cấu hình riêng từng trường | YCTD-195, PR 169, 0.133.0 | Khóa kết nối ngoài riêng từng trường (BR-211): bảng `integration_secrets` (hệ thống 0051) mã hóa AES-256-GCM bằng khóa của trường, cho chín kết nối `payos`, `sepay`, `casso`, `vnpay`, `vietqr` (VietQR tĩnh, đối soát qua sao kê), `esms`, `zalo`, `facebook`, `storage`. Không bao giờ trả lại giá trị đã lưu, chỉ bốn ký tự cuối của giá trị bí mật; ô để trống khi lưu là giữ giá trị cũ; nhật ký chỉ ghi tên kết nối và tên trường đã đổi. Bộ nối đọc theo trường (`TenantSmsGateway`, `TenantFacebookPublisher`, `TenantZaloSender`, `TenantPaymentGatewayRegistry`, `TenantFileStorage`), thứ tự nguồn: cấu hình trường, bộ giả lập, biến môi trường (chỉ chế độ một trường), tắt; chế độ nhiều trường không dùng khóa của cả bản triển khai hay của trường khác. Thương hiệu (BR-213): `school_branding` (hệ thống 0052) gồm tên hiển thị, màu chủ đạo `#RRGGBB`, biểu trưng lấy từ website trường; trang đăng nhập đọc công khai `GET /api/v1/public/branding` và `/public/branding/logo`, không trả dữ liệu cá nhân. Đổi khóa (BR-212): `school_key_rotations` (nền tảng 0030); lệnh `platform rotate-child-key --code <mã>` mã hóa lại từng lô mọi cột `*_encrypted` và tính lại `*_hash` ở cơ sở dữ liệu hệ thống và mọi năm học, chỉ khi trường tạm dừng, làm tiếp được; `platform rewrap-master-key` bọc lại khóa mọi trường bằng khóa gốc mới trong một giao dịch. Điểm cuối `/school-settings/integrations` (`GET`, `PUT :connector`, `DELETE :connector`, `POST :connector/test`) và `/school-settings/branding` (`GET`, `PUT`), quyền `P01.integration.manage` (VT-02). Màn hình MH-321, MH-322 trong trang Quản trị hệ thống 3.2 Kết nối ngoài. E2e spec 133. Chưa làm: kiểm tra kết nối thật cho cổng thanh toán, tải biểu trưng riêng, tên sản phẩm theo cấu hình nền tảng, chuyển `.env` của bản đang chạy thành cấu hình trường số 1 |
 | S5a Gói dịch vụ và giới hạn | YCTD-194, PR 170, 0.134.0 | Gói dịch vụ (nền tảng 0040): bảng `plans` (mã, tên, danh sách phân hệ, trống là mọi phân hệ; giới hạn số học sinh đang học, dung lượng tệp, số cấp học; số ngày dùng thử; chỗ tính phí cho S5b: `pricing_mode` theo học sinh, theo trường hoặc theo phân hệ, mặc định theo học sinh, đơn giá, mức tối thiểu, chu kỳ), `school_plans` (gán gói có ngày hiệu lực, giữ lịch sử), cột `trial_ends_on`, `paid_until`, `status_changed_at` của `schools`, cấu hình `plan_lifecycle`, gói mặc định `full`. Phân hệ của gói là phân hệ của menu cổng; `system` luôn bật; trường chưa gán gói không bị giới hạn (BR-214). Máy chủ trả 403 `MODULE_NOT_IN_PLAN` khi tuyến chỉ thuộc phân hệ ngoài gói; cổng ẩn phân hệ ngoài gói (MH-324). Vượt giới hạn chỉ chặn thêm (duyệt hồ sơ trẻ, nhập trẻ, nhập từ CSDL của Bộ, bật cấp học, tải tệp) với 422 `PLAN_LIMIT_EXCEEDED`, không chặn xem, sửa, xuất (BR-215). Trạng thái theo hạn (BR-216): nhắc trước 15, 7, 1 ngày; quá hạn 7 ngày chuyển `read_only`; quá hạn 30 ngày chuyển `suspended`; mốc cấu hình được; không bao giờ xóa dữ liệu. Ở `read_only` mọi yêu cầu ghi tới API và định danh trả 403 `SCHOOL_READ_ONLY`, trừ đăng nhập, đăng xuất, làm mới phiên, xuất dữ liệu, xem gói, nhóm `/billing`; cổng hiện dải "Chế độ chỉ đọc" và dải nhắc hạn từ 15 ngày. Hàm `applyPlanLifecycle` chạy bằng lệnh `platform plan-lifecycle` hoặc nút ở cổng nền tảng, chưa nối bộ lập lịch. Điểm cuối `GET /api/v1/school-plan`; nhóm `/auth/platform/plans`, `plan-modules`, `plan-schools`, `plan-lifecycle`. Trang Gói dịch vụ ở cổng nền tảng (MH-323). E2e spec 134. Phần thu tiền để S5b |
@@ -602,7 +602,7 @@ Một nền tảng chạy nhiều trường, mỗi trường một đường d�
 
 ### Phần ĐANG LÀM hoặc KẾ HOẠCH (chưa có trong mã)
 
-| Phần | Đợt | Nội dung kế hoạch (tài liệu 32 mục 14.3) | Dấu hiệu trong mã |
+| Phần | Đợt | Nội dung kế hoạch (tài liệu 47 mục 14.3) | Dấu hiệu trong mã |
 |---|---|---|---|
 | (không còn) | | Mọi phần của DT-SaaS đã có trong mã sau S6; mở rộng sau bằng YCTD riêng: thi đua khối, cụm và cấp Phòng, Sở; đánh giá ngoài; nối hệ thống của Bộ, Sở | |
 
@@ -630,7 +630,7 @@ Không có nút xóa vĩnh viễn ở cổng: xóa vĩnh viễn chạy bằng l�
 
 ### DT-24: danh mục đơn vị toàn quốc, đăng nhập theo đơn vị, quyền quản trị nền tảng
 
-Nguồn: YCTD-220, tài liệu 32 mục 16, phiên bản 0.141.0.
+Nguồn: YCTD-220, tài liệu 47 mục 16, phiên bản 0.141.0.
 
 | Chức năng | Ở đâu | Quy tắc chính |
 |---|---|---|
@@ -654,7 +654,7 @@ Nguồn: YCTD-203, tài liệu 12 mục 12D và QĐ-28, `deploy/profiles/trial/R
 | Tệp | R2 hoặc Supabase Storage qua biến `S3_*` |
 | Tên miền riêng | `DOMAIN_PROVIDER=cloudflare-saas` (Cloudflare for SaaS: tạo, hỏi trạng thái tên miền và chứng chỉ, gỡ) hoặc `vercel-domains` (thêm, xác nhận, gỡ tên miền dự án Vercel); xóa vĩnh viễn trường gỡ tên miền khỏi nhà cung cấp |
 | Ba tổ hợp | `to-hop-1`, `to-hop-2`, `to-hop-3` (README các bước, tệp biến mẫu, mẫu dòng vùng máy chủ `school_hosting`); tổ hợp 3 có Vercel 3a, 3b và lịch GitHub Actions gọi `tick`. Tổ hợp 3b không có trang đang khởi động và không chèn biểu ngữ. Koyeb gói miễn phí không có vùng Singapore. Mọi tệp mẫu chỉ có giá trị giả |
-| Chính sách dữ liệu | `PLATFORM_DATA_POLICY` = `any` (mặc định), `consent-required`, `synthetic-only`; áp ở bước setup và khi đổi loại dữ liệu (BR-209). Dữ liệu thật ở máy chủ ngoài Việt Nam chỉ khi có văn bản đồng ý và hồ sơ ở `tai_lieu/33_HO_SO_PHAP_LY/` |
+| Chính sách dữ liệu | `PLATFORM_DATA_POLICY` = `any` (mặc định), `consent-required`, `synthetic-only`; áp ở bước setup và khi đổi loại dữ liệu (BR-209). Dữ liệu thật ở máy chủ ngoài Việt Nam chỉ khi có văn bản đồng ý và hồ sơ ở `tai_lieu/48_HO_SO_PHAP_LY/` |
 | Chuyển sang vận hành | `platform relayout --school <mã>` kèm `--to database` hoặc `--to schema`, với biến `TARGET_PLATFORM_*`: trường nguồn phải tạm dừng hoặc chỉ đọc; ghi trường ở đích, bọc lại khóa dữ liệu trẻ bằng khóa gốc của đích, chép tên miền, hồ sơ đồng ý, vùng máy chủ; tạo cơ sở dữ liệu theo bố cục đích, migrate, chép từng bảng trong một giao dịch, đặt lại bộ đếm; so số dòng và tổng kiểm md5 từng bảng, lệch thì dừng (BR-210) |
 
 Mặc định (`DB_HOST_ADAPTER=plain`, `PLATFORM_DATA_POLICY=any`, `APP_BASE_PATH=/`) giữ nguyên chế độ một trường và hồ sơ vận hành.
@@ -780,9 +780,9 @@ Ghi chú: lệnh `platform relayout` (S9) không đổi trạng thái; nó chỉ
 
 ## 5. DT-23: kế hoạch (chưa có trong mã)
 
-Nguồn: tài liệu 32 mục 15, YCTD-210. Mục này chỉ ghi để người đọc biết phần sắp làm; chưa có bảng, tuyến hay màn hình nào trong mã. Khi từng phần gộp, chuyển phần đó sang các mục mô tả theo mã.
+Nguồn: tài liệu 47 mục 15, YCTD-210. Mục này chỉ ghi để người đọc biết phần sắp làm; chưa có bảng, tuyến hay màn hình nào trong mã. Khi từng phần gộp, chuyển phần đó sang các mục mô tả theo mã.
 
-| Phần | Đợt | Nội dung kế hoạch (tài liệu 32 mục 15.3) | Dấu hiệu trong mã |
+| Phần | Đợt | Nội dung kế hoạch (tài liệu 47 mục 15.3) | Dấu hiệu trong mã |
 |---|---|---|---|
 | 23a Thi trực tuyến cho học sinh | 1 | Kênh đăng nhập `student`, giao đề, làm bài có đếm ngược theo đồng hồ máy chủ, chấm tự động câu trắc nghiệm, chuyển điểm vào sổ điểm theo luồng 22g2, ghi sự kiện rời trang | Đã làm (YCTD-211, phiên bản 0.144.0): `SessionChannel` có `student`; bảng `exam_assignments`, `exam_attempts`, `exam_attempt_events`; nhóm `/student/*`; phân hệ `online-exam`; màn hình học sinh ở ứng dụng phụ huynh (`#hoc-sinh`); chưa làm ảnh chụp định kỳ |
 | 23b Công cụ lớp học | 1 | Đã có trong mã (YCTD-212, tài liệu 0.140.0): xem mục 7 bên dưới | `apps/teacher/src/tools`, `apps/teacher/public/sw.js`, `apps/api/src/classroom-tools` |
@@ -792,9 +792,9 @@ Nguồn: tài liệu 32 mục 15, YCTD-210. Mục này chỉ ghi để người 
 
 ## 6. DT-26: kế hoạch (chưa có trong mã)
 
-Nguồn: tài liệu 32 mục 18, YCTD-230 (Eric yêu cầu ngày 2026-10-26 theo thứ tự PWA, máy tính bảng, ứng dụng cài đặt). Mục này chỉ ghi để người đọc biết phần sắp làm; chưa có bảng, tuyến hay màn hình nào trong mã. Khi từng phần gộp, chuyển phần đó sang các mục mô tả theo mã.
+Nguồn: tài liệu 47 mục 18, YCTD-230 (Eric yêu cầu ngày 2026-10-26 theo thứ tự PWA, máy tính bảng, ứng dụng cài đặt). Mục này chỉ ghi để người đọc biết phần sắp làm; chưa có bảng, tuyến hay màn hình nào trong mã. Khi từng phần gộp, chuyển phần đó sang các mục mô tả theo mã.
 
-| Phần | Đợt | Nội dung kế hoạch (tài liệu 32 mục 18.3) | Dấu hiệu trong mã |
+| Phần | Đợt | Nội dung kế hoạch (tài liệu 47 mục 18.3) | Dấu hiệu trong mã |
 |---|---|---|---|
 | 26a Vỏ PWA dùng chung | 1 | Gói `packages/pwa`, manifest, biểu tượng, màn hình chờ theo thương hiệu từng trường, cài lên màn hình chính, hướng dẫn cài cho iOS, gom service worker của 23b | **Đã có (YCTD-231, phiên bản 0.145.0):** `packages/pwa`, `/api/v1/public/pwa/*`, `school_branding.app_short_name`, manifest `student` cho màn hình học sinh của 23a; còn thiếu ảnh PNG và màn hình chờ iOS theo trường |
 | 26b Thông báo đẩy Web Push | 1 | Kênh `push` của hàng đợi thông báo chung, đăng ký theo người dùng và thiết bị, tắt theo loại, khóa VAPID của nền tảng | **Phần giao diện đã có (YCTD-239):** service worker nhận đẩy, khối "Cài đặt thông báo" ở ứng dụng giáo viên, phụ huynh, học sinh; phần máy chủ ở PR 191 (YCTD-232) |
@@ -818,9 +818,9 @@ Nguồn: tài liệu 32 mục 18, YCTD-230 (Eric yêu cầu ngày 2026-10-26 the
 
 ## 8. DT-27: kế hoạch (chưa có trong mã)
 
-Nguồn: tài liệu 32 mục 19, YCTD-250. Mục này chỉ ghi để người đọc biết phần sắp làm; chưa có bảng, tuyến hay màn hình nào trong mã. Khi từng phần gộp, chuyển phần đó sang các mục mô tả theo mã.
+Nguồn: tài liệu 47 mục 19, YCTD-250. Mục này chỉ ghi để người đọc biết phần sắp làm; chưa có bảng, tuyến hay màn hình nào trong mã. Khi từng phần gộp, chuyển phần đó sang các mục mô tả theo mã.
 
-| Phần | Đợt | Nội dung kế hoạch (tài liệu 32 mục 19.4) | Dấu hiệu trong mã |
+| Phần | Đợt | Nội dung kế hoạch (tài liệu 47 mục 19.4) | Dấu hiệu trong mã |
 |---|---|---|---|
 | 27a Lớp video trực tiếp | 1 | Phòng 1-1 và nhóm nhỏ, bảng trắng, chia sẻ màn hình, ghi hình có thời hạn, LiveKit tự host, giới hạn phút theo gói | Chưa có WebRTC hay máy chủ video |
 | 27b Chương trình gia sư, lịch, điểm danh | 1 | Chương trình theo loại nội dung `curriculum` hoặc `enrichment`, kiểm 2 tiết/tuần/môn, chặn Tiểu học, đơn của cha mẹ, điểm danh từ nhật ký phòng | `timetable_lessons`, `period_attendance` có sẵn để dùng lại |
@@ -834,15 +834,15 @@ Nguồn: tài liệu 32 mục 19, YCTD-250. Mục này chỉ ghi để người 
 
 ## 9. DT-25: bộ nối nhà cung cấp định danh OIDC, sẵn cho VNeID
 
-Kế hoạch ở `32_KE_HOACH_THEO_HE_THONG_SO.md` mục 17, YCTD-225. **Phần máy chủ đã có trong mã** (`apps/identity/src/external-identity/`): lớp trừu tượng `IdentityProvider`, bộ nối OIDC chung (authorization code + PKCE, state, nonce, discovery, kiểm chữ ký `id_token` qua JWKS, tải lại khóa khi nhà cung cấp quay khóa), hồ sơ `vneid` với các tham số "chờ tài liệu RAR" là cấu hình; nền tảng khai nhà cung cấp ở `EXTERNAL_IDENTITY_PROVIDERS` và `EXTERNAL_IDENTITY_<MÃ>_CLIENT_SECRET`; trường bật tắt, chọn nhóm vai trò, mã ứng dụng và khóa riêng (mã hóa theo khóa của trường) ở `PUT /auth/external/settings/:provider` (quyền `P01.account.manage`); bảng định danh 0140 `external_identity_providers`, `external_identities` (chỉ subject mã hóa và băm), `external_identity_events`; nhà cung cấp OIDC giả lập cho kiểm thử; e2e spec 165.
+Kế hoạch ở `47_KE_HOACH_THEO_HE_THONG_SO.md` mục 17, YCTD-225. **Phần máy chủ đã có trong mã** (`apps/identity/src/external-identity/`): lớp trừu tượng `IdentityProvider`, bộ nối OIDC chung (authorization code + PKCE, state, nonce, discovery, kiểm chữ ký `id_token` qua JWKS, tải lại khóa khi nhà cung cấp quay khóa), hồ sơ `vneid` với các tham số "chờ tài liệu RAR" là cấu hình; nền tảng khai nhà cung cấp ở `EXTERNAL_IDENTITY_PROVIDERS` và `EXTERNAL_IDENTITY_<MÃ>_CLIENT_SECRET`; trường bật tắt, chọn nhóm vai trò, mã ứng dụng và khóa riêng (mã hóa theo khóa của trường) ở `PUT /auth/external/settings/:provider` (quyền `P01.account.manage`); bảng định danh 0140 `external_identity_providers`, `external_identities` (chỉ subject mã hóa và băm), `external_identity_events`; nhà cung cấp OIDC giả lập cho kiểm thử; e2e spec 165.
 
 **Giao diện (bước 25b, YCTD-226):** nút "Đăng nhập bằng <nhà cung cấp>" trên màn hình đăng nhập của cổng quản trị, ứng dụng giáo viên, ứng dụng phụ huynh (chỉ khi trường bật; ở tên miền chung không hiện), trang quay về `/dang-nhap/ben-ngoai` có bước nhập mã hai lớp, mục "Liên kết tài khoản" ở Tài khoản của tôi và ứng dụng phụ huynh, khối cấu hình ở Danh sách người dùng. **Chưa có:** hợp đồng và tài liệu kỹ thuật của Trung tâm RAR (việc của Eric).
 
 ## 10. DT-28: kế hoạch hệ thống quản lý học tập (chưa có trong mã)
 
-Nguồn: tài liệu 32 mục 20, YCTD-270. Mục này chỉ ghi để người đọc biết phần sắp làm; chưa có bảng, tuyến hay màn hình nào trong mã. Khi từng phần gộp, chuyển phần đó sang các mục mô tả theo mã. Khoá học ghi sẵn (27d) và hỏi đáp (27e) của DT-27 xây trên lõi này.
+Nguồn: tài liệu 47 mục 20, YCTD-270. Mục này chỉ ghi để người đọc biết phần sắp làm; chưa có bảng, tuyến hay màn hình nào trong mã. Khi từng phần gộp, chuyển phần đó sang các mục mô tả theo mã. Khoá học ghi sẵn (27d) và hỏi đáp (27e) của DT-27 xây trên lõi này.
 
-| Phần | Đợt | Nội dung kế hoạch (tài liệu 32 mục 20.6) | Dấu hiệu trong mã |
+| Phần | Đợt | Nội dung kế hoạch (tài liệu 47 mục 20.6) | Dấu hiệu trong mã |
 |---|---|---|---|
 | 28a Mô hình nhóm dùng chung | 1 | Bộ nhóm theo lớp, môn, mục đích; chia tay, ngẫu nhiên, theo năng lực, cân bằng giới; nhóm trưởng; lịch sử; công cụ lớp học 23b dùng bộ nhóm | `child_groups`, `child_group_members` (DT-14c), `classroom_groupings` (23b) có sẵn để mở rộng, dời dữ liệu |
 | 28b Lõi LMS | 1 | Lớp học trực tuyến tự sinh từ phân công, khoá tự chọn, khoá học mẫu của tổ qua luồng duyệt 22h1, chương, hoạt động, điều kiện mở, kết quả hoạt động, quyết định hình thức theo Thông tư 09/2021, kế hoạch theo tuần, nhật ký học tập | **Đã có (YCTD-272, 0.154.0):** phân hệ `apps/api/src/learning`, nhóm `/api/v1/learning`, bảng `course_spaces`, `course_sections`, `course_activities`, `activity_results`, `learning_events`, `online_teaching_decisions`, `online_learning_rules` (năm học), `course_templates` (hệ thống); cổng quản trị 9.1 đến 9.3 (MH-356 đến MH-358), ứng dụng giáo viên MH-359, ứng dụng phụ huynh MH-360 |

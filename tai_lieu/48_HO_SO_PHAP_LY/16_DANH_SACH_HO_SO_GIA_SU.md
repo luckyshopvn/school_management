@@ -1,7 +1,7 @@
 # PL-16 ĐẾN PL-21. DANH SÁCH HỒ SƠ PHÁP LÝ CỦA NỀN TẢNG GIA SƯ TRỰC TUYẾN (DT-27)
 
 - Mã: PL-16 đến PL-21; phiên bản danh sách: DT27-0.1 (2026-10-26); YCTD-250.
-- Kế hoạch: `32_KE_HOACH_THEO_HE_THONG_SO.md` mục 19 (căn cứ pháp lý ở 19.2, việc của Eric ở 19.10).
+- Kế hoạch: `47_KE_HOACH_THEO_HE_THONG_SO.md` mục 19 (căn cứ pháp lý ở 19.2, việc của Eric ở 19.10).
 - Trạng thái: **danh sách hồ sơ cần có, chưa soạn nội dung.** Mỗi hồ sơ được soạn bản nháp trong phần ghi ở cột "Phần soạn", rồi **luật sư của Eric rà trước khi dùng**. Đây không phải tư vấn pháp lý.
 
 ## 1. Hồ sơ cần soạn
@@ -19,7 +19,7 @@
 
 | Giấy tờ | Cần trước | Ghi chú |
 |---|---|---|
-| Hợp đồng với tổ chức có giấy phép trung gian thanh toán (chia tiền hoặc giữ tiền có điều kiện), hoặc quyết định dùng phương án trả thẳng gia sư | Chợ mở có tiền thật | Việc E-02 ở `32` mục 19.10 |
+| Hợp đồng với tổ chức có giấy phép trung gian thanh toán (chia tiền hoặc giữ tiền có điều kiện), hoặc quyết định dùng phương án trả thẳng gia sư | Chợ mở có tiền thật | Việc E-02 ở `47` mục 19.10 |
 | Đăng ký kinh doanh của pháp nhân vận hành chợ, ngành nghề phù hợp; thông báo hoặc đăng ký với cơ quan quản lý thương mại điện tử nếu luật yêu cầu (chưa xác minh) | Mở chợ | Việc E-04 |
 | Hợp đồng với tổ chức cung cấp dịch vụ xác thực danh tính (VNeID qua tổ chức trung gian) | Bật xác minh VNeID ở chợ | Theo DT-25 |
 | Ý kiến bằng văn bản của luật sư về E-03, E-06, E-07 | Trước mốc 1 ở trường thật (E-06, E-07) và trước mốc 3 (E-03) | |

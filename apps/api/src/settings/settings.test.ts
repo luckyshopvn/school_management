@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
 import { openTestAcademicYear, sendJson, startApiTestEnvironment, type ApiTestEnvironment } from '../test-support.js';
 
-// Cấu hình theo đơn vị và nhật ký thao tác; ca kiểm thử theo 27_BO_CA_KIEM_THU_CHI_TIET/01_DINH_DANH_VA_P01.md mục 4.7, 4.8
+// Cấu hình theo đơn vị và nhật ký thao tác; ca kiểm thử theo 42_BO_CA_KIEM_THU_CHI_TIET/01_DINH_DANH_VA_P01.md mục 4.7, 4.8
 describe('Cấu hình theo đơn vị và nhật ký thao tác', () => {
   let environment: ApiTestEnvironment;
   let principal: string;

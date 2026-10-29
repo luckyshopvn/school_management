@@ -9,7 +9,7 @@
 ## 1. Quy ước
 
 1. Mã chức năng theo dạng `P<phân hệ>-<số thứ tự>`, ví dụ `P05-03`.
-2. Mỗi chức năng dưới đây là một yêu cầu ở mức nghiệp vụ. Chi tiết luồng, luồng lỗi, thông báo và tiêu chí nghiệm thu của các chức năng trọng yếu nằm trong `25_QUY_TRINH_NGHIEP_VU/` và `11_TIEU_CHI_NGHIEM_THU.md`.
+2. Mỗi chức năng dưới đây là một yêu cầu ở mức nghiệp vụ. Chi tiết luồng, luồng lỗi, thông báo và tiêu chí nghiệm thu của các chức năng trọng yếu nằm trong `40_QUY_TRINH_NGHIEP_VU/` và `11_TIEU_CHI_NGHIEM_THU.md`.
 3. Mọi chức năng đều phải kiểm tra quyền ở máy chủ theo ma trận tại `08_VAI_TRO_NGUOI_DUNG.md`. Cột "Người dùng" chỉ nêu vai trò chính, không phải danh sách quyền đầy đủ.
 4. Mọi chức năng ghi dữ liệu đều phải ghi nhật ký thao tác theo quy tắc `BR-35` và `PQ-05`.
 5. Chức năng gắn nhãn **(G1)**, **(G2)**, **(G3)** tương ứng giai đoạn 1, 2, 3 tại `05_PHAM_VI.md`.

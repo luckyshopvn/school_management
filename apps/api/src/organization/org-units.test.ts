@@ -20,7 +20,7 @@ class ScopeProbeController {
   }
 }
 
-// Ca kiểm thử theo 27_BO_CA_KIEM_THU_CHI_TIET/01_DINH_DANH_VA_P01.md mục 4.1 (cây hai cấp, YCTD-38)
+// Ca kiểm thử theo 42_BO_CA_KIEM_THU_CHI_TIET/01_DINH_DANH_VA_P01.md mục 4.1 (cây hai cấp, YCTD-38)
 describe('Cây đơn vị hai cấp', () => {
   let environment: ApiTestEnvironment;
   let principal: string;

@@ -19,7 +19,7 @@
 
 ### Phiên bản 0.238.0 – 2026-10-29
 
-- Phạm vi thay đổi: gom 92 tệp mảnh, ma trận truy vết `36`, tài liệu triển khai `37`, quy tắc AI-43 đến AI-45 (YCTD-369). Không đổi mã.
+- Phạm vi thay đổi: gom 92 tệp mảnh, đánh lại số bộ tài liệu (25 kết quả kiểm thử, 26 triển khai, 27 ma trận truy vết, tài liệu riêng sang 40 đến 49), mười ba giai đoạn ở `01`, quy tắc AI-40, AI-43 đến AI-45 (YCTD-369). Không đổi mã chạy, chỉ chú thích.
 - Phương án quay lui: revert commit merge của PR; không có thay đổi dữ liệu.
 
 ### Phiên bản 0.237.0 – 2026-10-28

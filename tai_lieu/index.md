@@ -10,7 +10,7 @@
 
 | Số | Tệp | Tên tài liệu | Mô tả | Giai đoạn | Trạng thái |
 |---|---|---|---|---|---|
-| 01 | [01_KE_HOACH_TONG_THE.md](01_KE_HOACH_TONG_THE.md) | Kế hoạch tổng thể | Mười hai giai đoạn, cổng kiểm soát, đợt xây dựng, đường găng, rủi ro | Toàn dự án | Đã phê duyệt |
+| 01 | [01_KE_HOACH_TONG_THE.md](01_KE_HOACH_TONG_THE.md) | Kế hoạch tổng thể | Mười ba giai đoạn, cổng kiểm soát, đợt xây dựng, đường găng, rủi ro | Toàn dự án | Đã phê duyệt |
 | 02 | [02_NHAT_KY_DU_AN.md](02_NHAT_KY_DU_AN.md) | Nhật ký dự án | Ghi nhận công việc theo ngày | Toàn dự án | Đang cập nhật |
 | 03 | [03_DANH_SACH_CONG_VIEC.md](03_DANH_SACH_CONG_VIEC.md) | Danh sách kiểm tra công việc | Công việc, trạng thái, thứ tự ưu tiên | Toàn dự án | Đang cập nhật |
 | 04 | [04_TONG_QUAN_DU_AN.md](04_TONG_QUAN_DU_AN.md) | Tổng quan dự án | Vấn đề, mục tiêu, đối tượng, yêu cầu cấp cao | 01 Xác định ý tưởng | Đã phê duyệt |
@@ -33,20 +33,38 @@
 | 21 | [21_KICH_BAN_KIEM_THU.md](21_KICH_BAN_KIEM_THU.md) | Kịch bản kiểm thử | CT-001 đến CT-1680 | 10 Kiểm thử | Đã phê duyệt |
 | 22 | [22_BAO_MAT.md](22_BAO_MAT.md) | Bảo mật | BM-01 đến BM-100, BM-95, BM-96 | 10 Kiểm thử | Đã phê duyệt |
 | 23 | [23_LICH_SU_PHIEN_BAN.md](23_LICH_SU_PHIEN_BAN.md) | Lịch sử phiên bản | Các phiên bản từ 0.1.0 | 11 Nghiệm thu và phát hành | Đang cập nhật |
-| 24 | [24_YEU_CAU_THAY_DOI.md](24_YEU_CAU_THAY_DOI.md) | Yêu cầu thay đổi | YCTD-01 đến YCTD-369, đánh giá ảnh hưởng; mục mới chờ gom ở `thay_doi_cho_gom/` | 12 Vận hành và cải tiến | Đang cập nhật |
-| 25 | [25_QUY_TRINH_NGHIEP_VU/](25_QUY_TRINH_NGHIEP_VU/) | Quy trình nghiệp vụ | Mười đặc tả QT-01 đến QT-10 và phiếu yêu cầu trống | 03 Phân tích nghiệp vụ | Đã phê duyệt |
-| 26 | [26_SO_DO_CHUC_NANG/](26_SO_DO_CHUC_NANG/) | Sơ đồ chức năng gốc | Tám ảnh sơ đồ chức năng do Eric gửi, nguồn đầu vào của bộ tài liệu | 01 Xác định ý tưởng | Tài liệu nguồn |
-| 27 | [27_BO_CA_KIEM_THU_CHI_TIET/](27_BO_CA_KIEM_THU_CHI_TIET/) | Bộ ca kiểm thử chi tiết | Ca kiểm thử chi tiết theo việc N21, mã CTC-..., năm đợt, 453 ca, 6 ca không áp dụng | 10 Kiểm thử | Đã phê duyệt |
-| 28 | [28_BAO_CAO_KIEM_THU_CG_10.md](28_BAO_CAO_KIEM_THU_CG_10.md) | Báo cáo kiểm thử và cổng CG-10 | Kết quả chạy thật, ca chưa chạy và quyết định xử lý, lỗi của DT-09, kết luận CG-10 (YCTD-72) | 10 Kiểm thử | Đã đánh giá |
-| 29 | [29_BAO_CAO_KIEM_THU_G2.md](29_BAO_CAO_KIEM_THU_G2.md) | Báo cáo kiểm thử giai đoạn 2 | Kết quả chạy thật sau đợt DT-10, ca chưa chạy và quyết định xử lý, lỗi khi gộp các phần, giới hạn bản 1.1.0 (YCTD-84) | 10 Kiểm thử | Đã đánh giá |
-| 30 | [30_BAO_CAO_KIEM_THU_G3.md](30_BAO_CAO_KIEM_THU_G3.md) | Báo cáo kiểm thử giai đoạn 3 | Kết quả chạy thật sau đợt DT-11, ca chưa chạy và quyết định xử lý, lỗi khi gộp các phần, giới hạn bản 1.2.0 (YCTD-91) | 10 Kiểm thử | Đã đánh giá |
-| 31 | [31_KHAO_SAT_HE_THONG_SO.md](31_KHAO_SAT_HE_THONG_SO.md) | Khảo sát hệ thống của Sở | Chức năng và giao diện của Hệ thống thông tin quản lý giáo dục cấp Trường (Mầm non) của Sở GD&ĐT TP.HCM, đối chiếu và đề xuất bổ sung; nền tảng kỹ thuật trang công khai (REA); khảo sát bổ sung ngày 2026-10-19 (Tuyển sinh đầu cấp, mẫu hồ sơ kí, chỉ tiêu và mã số EMIS, 1.7) và đối chiếu với mã nguồn | 02 Phân tích | Đã khảo sát |
-| 32 | [32_KE_HOACH_THEO_HE_THONG_SO.md](32_KE_HOACH_THEO_HE_THONG_SO.md) | Kế hoạch theo hệ thống của Sở | Đồng bộ chức năng và giao diện theo tài liệu 31: DT-15, DT-16 (đã triển khai), DT-17 (khảo sát bổ sung, năm phần 17a đến 17e, đã triển khai); DT-18 điều hành nhà trường (18a đến 18h, 22b, 22d, 22f, 22i); DT-19 nền đa cấp học (19a đến 19f, kế hoạch); DT-20 Tiểu học kèm 22c thời khoá biểu (20a đến 20f, 22c1, 22c2, kế hoạch); DT-21 THCS và THPT kèm 22g kiểm tra, đánh giá (21a đến 21g, 22g1, 22g2, kế hoạch); DT-22 thư viện, bồi dưỡng, kho học liệu số (22a, 22e, 22h1, 22h2 đã triển khai); DT-SaaS Enterprise SaaS nhiều trường (S1a đến S9 đã triển khai, hồ sơ thử nghiệm miễn phí và vận hành); DT-23 thi trực tuyến, công cụ lớp học, trò chơi kiến thức, trợ lý AI (23a đến 23d, kế hoạch); DT-24 danh mục đơn vị toàn quốc, đăng nhập theo đơn vị, quyền vào mọi trường của quản trị nền tảng (mục 16, đã triển khai); DT-26 ứng dụng web cài được, bố cục máy tính bảng, ứng dụng cài đặt iOS và Android (26a đến 26h, kế hoạch, mục 18); DT-27 nền tảng gia sư trực tuyến (27a đến 27i, kế hoạch, mục 19); DT-25 bộ nối nhà cung cấp định danh OIDC, sẵn cho VNeID (phần máy chủ đã triển khai, mục 17); DT-28 hệ thống quản lý học tập LMS (28a đến 28j, kế hoạch, mục 20) | 02 Phân tích | Đã duyệt hướng làm |
-| 33 | [33_HO_SO_PHAP_LY/](33_HO_SO_PHAP_LY/00_MUC_LUC.md) | Hồ sơ pháp lý và tuân thủ | Bộ mẫu của DT-SaaS phần S8a (YCTD-200): hợp đồng dịch vụ, thỏa thuận xử lý dữ liệu cá nhân, văn bản đồng ý dùng thử dữ liệu thật ở máy chủ ngoài Việt Nam, điều khoản sử dụng, chính sách bảo vệ dữ liệu cá nhân, hồ sơ đánh giá tác động xử lý và chuyển dữ liệu xuyên biên giới (Luật 91/2025/QH15, Nghị định 356/2025/NĐ-CP), bản ghi vùng máy chủ, phiếu chấp nhận rủi ro, lộ trình chuyển về trong nước, hồ sơ đề xuất cấp độ, quy trình sự cố và thông báo vi phạm, lưu giữ và xóa, mã hóa dữ liệu trẻ em, điều kiện dịch vụ xử lý dữ liệu; danh sách hồ sơ của nền tảng gia sư trực tuyến DT-27 (PL-16 đến PL-21, chưa soạn) | 02 Phân tích | Bản nháp, chờ luật sư rà |
-| 34 | [34_TONG_HOP_CHUC_NANG_HE_THONG/](34_TONG_HOP_CHUC_NANG_HE_THONG/00_MUC_LUC.md) | Tổng hợp chức năng hệ thống | Mô tả chi tiết chức năng đang có theo mã trên `main` ngày 2026-10-25 (sau PR 167, 169, 170): tổng quan, kiến trúc, cấp học, đăng nhập và phân quyền, 21 phân hệ (màn hình, nút, quy tắc, dữ liệu, căn cứ pháp lý, liên kết, e2e), ứng dụng giáo viên và phụ huynh, thông báo, DT-SaaS (phần đã có và phần kế hoạch); 82 sơ đồ quy trình Mermaid vẽ theo giai đoạn, tô màu theo vai trò; bản PDF gộp có liên kết dẫn nguồn; ma trận vai trò × phân hệ; bảng tra nhanh 278 mục menu; chỗ lệch giữa tài liệu và mã; thuật ngữ | Toàn dự án | Chờ phê duyệt |
-| 35 | [35_KET_QUA_KIEM_THU.md](35_KET_QUA_KIEM_THU.md) | Kết quả kiểm thử | Lượt rà soát ngày 2026-10-28 trên nhánh chính: lệnh, số đạt và hỏng, bảng truy xuất YCTD-295 đến YCTD-313, rà bảo mật, lỗi phân loại và đề xuất xử lý (YCTD-321) | 10 Kiểm thử | Chờ Eric duyệt cách xử lý |
-| 36 | [36_MA_TRAN_TRUY_VET.md](36_MA_TRAN_TRUY_VET.md) | Ma trận truy vết | YCTD-213 đến YCTD-369 nối với chức năng, tiêu chí nghiệm thu, kịch bản kiểm thử, PR, commit merge, kết quả kiểm thử (YCTD-369) | 10 Kiểm thử | Đang cập nhật |
-| 37 | [37_TRIEN_KHAI.md](37_TRIEN_KHAI.md) | Triển khai | Các cách triển khai đang có, thứ tự database migration, phương án quay lui, mẫu biên bản; chưa có lần triển khai môi trường thật (YCTD-369) | 12 Triển khai | Đang cập nhật |
+| 24 | [24_YEU_CAU_THAY_DOI.md](24_YEU_CAU_THAY_DOI.md) | Yêu cầu thay đổi | YCTD-01 đến YCTD-369, đánh giá ảnh hưởng; mục mới chờ gom ở `thay_doi_cho_gom/` | 13 Vận hành và cải tiến | Đang cập nhật |
+| 25 | [25_KET_QUA_KIEM_THU.md](25_KET_QUA_KIEM_THU.md) | Kết quả kiểm thử | Kết quả kiểm thử và danh sách lỗi; lượt rà soát ngày 2026-10-28 trên nhánh chính: lệnh, số đạt và hỏng, bảng truy xuất YCTD-295 đến YCTD-313, rà bảo mật, lỗi phân loại và đề xuất xử lý (YCTD-321) | 10 Kiểm thử | Chờ Eric duyệt cách xử lý |
+| 26 | [26_TRIEN_KHAI.md](26_TRIEN_KHAI.md) | Triển khai | Các cách triển khai đang có, thứ tự database migration, phương án quay lui, mẫu biên bản; chưa có lần triển khai môi trường thật (YCTD-369) | 12 Triển khai | Đang cập nhật |
+| 27 | [27_MA_TRAN_TRUY_VET.md](27_MA_TRAN_TRUY_VET.md) | Ma trận truy vết | YCTD-213 đến YCTD-369 nối với chức năng, tiêu chí nghiệm thu, kịch bản kiểm thử, PR, commit merge, kết quả kiểm thử (YCTD-369) | 04 Đặc tả yêu cầu | Đang cập nhật |
+| 40 | [40_QUY_TRINH_NGHIEP_VU/](40_QUY_TRINH_NGHIEP_VU/) | Quy trình nghiệp vụ | Mười đặc tả QT-01 đến QT-10 và phiếu yêu cầu trống | 03 Phân tích nghiệp vụ | Đã phê duyệt |
+| 41 | [41_SO_DO_CHUC_NANG/](41_SO_DO_CHUC_NANG/) | Sơ đồ chức năng gốc | Tám ảnh sơ đồ chức năng do Eric gửi, nguồn đầu vào của bộ tài liệu | 01 Xác định ý tưởng | Tài liệu nguồn |
+| 42 | [42_BO_CA_KIEM_THU_CHI_TIET/](42_BO_CA_KIEM_THU_CHI_TIET/) | Bộ ca kiểm thử chi tiết | Ca kiểm thử chi tiết theo việc N21, mã CTC-..., năm đợt, 453 ca, 6 ca không áp dụng | 10 Kiểm thử | Đã phê duyệt |
+| 43 | [43_BAO_CAO_KIEM_THU_CG_10.md](43_BAO_CAO_KIEM_THU_CG_10.md) | Báo cáo kiểm thử và cổng CG-10 | Kết quả chạy thật, ca chưa chạy và quyết định xử lý, lỗi của DT-09, kết luận CG-10 (YCTD-72) | 10 Kiểm thử | Đã đánh giá |
+| 44 | [44_BAO_CAO_KIEM_THU_G2.md](44_BAO_CAO_KIEM_THU_G2.md) | Báo cáo kiểm thử giai đoạn 2 | Kết quả chạy thật sau đợt DT-10, ca chưa chạy và quyết định xử lý, lỗi khi gộp các phần, giới hạn bản 1.1.0 (YCTD-84) | 10 Kiểm thử | Đã đánh giá |
+| 45 | [45_BAO_CAO_KIEM_THU_G3.md](45_BAO_CAO_KIEM_THU_G3.md) | Báo cáo kiểm thử giai đoạn 3 | Kết quả chạy thật sau đợt DT-11, ca chưa chạy và quyết định xử lý, lỗi khi gộp các phần, giới hạn bản 1.2.0 (YCTD-91) | 10 Kiểm thử | Đã đánh giá |
+| 46 | [46_KHAO_SAT_HE_THONG_SO.md](46_KHAO_SAT_HE_THONG_SO.md) | Khảo sát hệ thống của Sở | Chức năng và giao diện của Hệ thống thông tin quản lý giáo dục cấp Trường (Mầm non) của Sở GD&ĐT TP.HCM, đối chiếu và đề xuất bổ sung; nền tảng kỹ thuật trang công khai (REA); khảo sát bổ sung ngày 2026-10-19 (Tuyển sinh đầu cấp, mẫu hồ sơ kí, chỉ tiêu và mã số EMIS, 1.7) và đối chiếu với mã nguồn | 02 Phân tích | Đã khảo sát |
+| 47 | [47_KE_HOACH_THEO_HE_THONG_SO.md](47_KE_HOACH_THEO_HE_THONG_SO.md) | Kế hoạch theo hệ thống của Sở | Đồng bộ chức năng và giao diện theo tài liệu 46: DT-15, DT-16 (đã triển khai), DT-17 (khảo sát bổ sung, năm phần 17a đến 17e, đã triển khai); DT-18 điều hành nhà trường (18a đến 18h, 22b, 22d, 22f, 22i); DT-19 nền đa cấp học (19a đến 19f, kế hoạch); DT-20 Tiểu học kèm 22c thời khoá biểu (20a đến 20f, 22c1, 22c2, kế hoạch); DT-21 THCS và THPT kèm 22g kiểm tra, đánh giá (21a đến 21g, 22g1, 22g2, kế hoạch); DT-22 thư viện, bồi dưỡng, kho học liệu số (22a, 22e, 22h1, 22h2 đã triển khai); DT-SaaS Enterprise SaaS nhiều trường (S1a đến S9 đã triển khai, hồ sơ thử nghiệm miễn phí và vận hành); DT-23 thi trực tuyến, công cụ lớp học, trò chơi kiến thức, trợ lý AI (23a đến 23d, kế hoạch); DT-24 danh mục đơn vị toàn quốc, đăng nhập theo đơn vị, quyền vào mọi trường của quản trị nền tảng (mục 16, đã triển khai); DT-26 ứng dụng web cài được, bố cục máy tính bảng, ứng dụng cài đặt iOS và Android (26a đến 26h, kế hoạch, mục 18); DT-27 nền tảng gia sư trực tuyến (27a đến 27i, kế hoạch, mục 19); DT-25 bộ nối nhà cung cấp định danh OIDC, sẵn cho VNeID (phần máy chủ đã triển khai, mục 17); DT-28 hệ thống quản lý học tập LMS (28a đến 28j, kế hoạch, mục 20) | 02 Phân tích | Đã duyệt hướng làm |
+| 48 | [48_HO_SO_PHAP_LY/](48_HO_SO_PHAP_LY/00_MUC_LUC.md) | Hồ sơ pháp lý và tuân thủ | Bộ mẫu của DT-SaaS phần S8a (YCTD-200): hợp đồng dịch vụ, thỏa thuận xử lý dữ liệu cá nhân, văn bản đồng ý dùng thử dữ liệu thật ở máy chủ ngoài Việt Nam, điều khoản sử dụng, chính sách bảo vệ dữ liệu cá nhân, hồ sơ đánh giá tác động xử lý và chuyển dữ liệu xuyên biên giới (Luật 91/2025/QH15, Nghị định 356/2025/NĐ-CP), bản ghi vùng máy chủ, phiếu chấp nhận rủi ro, lộ trình chuyển về trong nước, hồ sơ đề xuất cấp độ, quy trình sự cố và thông báo vi phạm, lưu giữ và xóa, mã hóa dữ liệu trẻ em, điều kiện dịch vụ xử lý dữ liệu; danh sách hồ sơ của nền tảng gia sư trực tuyến DT-27 (PL-16 đến PL-21, chưa soạn) | 02 Phân tích | Bản nháp, chờ luật sư rà |
+| 49 | [49_TONG_HOP_CHUC_NANG_HE_THONG/](49_TONG_HOP_CHUC_NANG_HE_THONG/00_MUC_LUC.md) | Tổng hợp chức năng hệ thống | Mô tả chi tiết chức năng đang có theo mã trên `main` ngày 2026-10-25 (sau PR 167, 169, 170): tổng quan, kiến trúc, cấp học, đăng nhập và phân quyền, 21 phân hệ (màn hình, nút, quy tắc, dữ liệu, căn cứ pháp lý, liên kết, e2e), ứng dụng giáo viên và phụ huynh, thông báo, DT-SaaS (phần đã có và phần kế hoạch); 82 sơ đồ quy trình Mermaid vẽ theo giai đoạn, tô màu theo vai trò; bản PDF gộp có liên kết dẫn nguồn; ma trận vai trò × phân hệ; bảng tra nhanh 278 mục menu; chỗ lệch giữa tài liệu và mã; thuật ngữ | Toàn dự án | Chờ phê duyệt |
+
+## Bảng đổi số ngày 2026-10-29
+
+Ngày 2026-10-29 bộ tài liệu đánh lại số theo danh mục chuẩn của Vibecoding_Flow (YCTD-369, Eric duyệt phương án B). Số 28 đến 39 để trống để tham chiếu cũ còn sót không trỏ nhầm sang tài liệu khác. Nhật ký `02`, lịch sử `23`, yêu cầu thay đổi `24` và chú thích trong tệp database migration giữ nguyên số cũ: tra bảng dưới.
+
+| Số cũ | Tệp cũ | Số mới | Tệp mới |
+|---|---|---|---|
+| 25 | `25_QUY_TRINH_NGHIEP_VU/` | 40 | `40_QUY_TRINH_NGHIEP_VU/` |
+| 26 | `26_SO_DO_CHUC_NANG/` | 41 | `41_SO_DO_CHUC_NANG/` |
+| 27 | `27_BO_CA_KIEM_THU_CHI_TIET/` | 42 | `42_BO_CA_KIEM_THU_CHI_TIET/` |
+| 28 | `28_BAO_CAO_KIEM_THU_CG_10.md` | 43 | `43_BAO_CAO_KIEM_THU_CG_10.md` |
+| 29 | `29_BAO_CAO_KIEM_THU_G2.md` | 44 | `44_BAO_CAO_KIEM_THU_G2.md` |
+| 30 | `30_BAO_CAO_KIEM_THU_G3.md` | 45 | `45_BAO_CAO_KIEM_THU_G3.md` |
+| 31 | `31_KHAO_SAT_HE_THONG_SO.md` | 46 | `46_KHAO_SAT_HE_THONG_SO.md` |
+| 32 | `32_KE_HOACH_THEO_HE_THONG_SO.md` | 47 | `47_KE_HOACH_THEO_HE_THONG_SO.md` |
+| 33 | `33_HO_SO_PHAP_LY/` | 48 | `48_HO_SO_PHAP_LY/` |
+| 34 | `34_TONG_HOP_CHUC_NANG_HE_THONG/` | 49 | `49_TONG_HOP_CHUC_NANG_HE_THONG/` |
+| 35 | `35_KET_QUA_KIEM_THU.md` | 25 | `25_KET_QUA_KIEM_THU.md` |
 
 ## Quy trình nghiệp vụ
 
@@ -54,27 +72,27 @@ Mã quy trình dạng `QT-nn`, đánh số tăng dần, không tái sử dụng 
 
 | Mã | Tệp | Tên quy trình | Phiên bản | Trạng thái |
 |---|---|---|---|---|
-| QT-01 | [QT-01_TIEP_NHAN_TRE_MOI.md](25_QUY_TRINH_NGHIEP_VU/QT-01_TIEP_NHAN_TRE_MOI.md) | Tiếp nhận trẻ mới và lập hồ sơ trẻ | 1.3 | Đã phê duyệt |
-| QT-02 | [QT-02_DIEM_DANH_BAO_VANG.md](25_QUY_TRINH_NGHIEP_VU/QT-02_DIEM_DANH_BAO_VANG.md) | Điểm danh, báo vắng và đón trả trẻ | 1.5 | Đã phê duyệt |
-| QT-03 | [QT-03_DANG_KY_DICH_VU_VA_TINH_HOC_PHI.md](25_QUY_TRINH_NGHIEP_VU/QT-03_DANG_KY_DICH_VU_VA_TINH_HOC_PHI.md) | Đăng ký dịch vụ và tính học phí theo tháng | 1.9 | Đã phê duyệt |
-| QT-04 | [QT-04_THU_HOC_PHI_VA_CONG_NO.md](25_QUY_TRINH_NGHIEP_VU/QT-04_THU_HOC_PHI_VA_CONG_NO.md) | Thu học phí và quản lý công nợ phải thu | 1.5 | Đã phê duyệt |
-| QT-05 | [QT-05_PHIEU_CHI_VA_QUY.md](25_QUY_TRINH_NGHIEP_VU/QT-05_PHIEU_CHI_VA_QUY.md) | Lập phiếu chi và quản lý quỹ, tài khoản ngân hàng | 1.3 | Đã phê duyệt |
-| QT-06 | [QT-06_CHAM_CONG_VA_TINH_LUONG.md](25_QUY_TRINH_NGHIEP_VU/QT-06_CHAM_CONG_VA_TINH_LUONG.md) | Chấm công, nghỉ phép và tính lương | 1.5 | Đã phê duyệt |
-| QT-07 | [QT-07_DAN_THUOC_VA_CHAM_SOC_SUC_KHOE.md](25_QUY_TRINH_NGHIEP_VU/QT-07_DAN_THUOC_VA_CHAM_SOC_SUC_KHOE.md) | Dặn thuốc, cấp thuốc và chăm sóc sức khỏe trẻ | 1.2 | Đã phê duyệt |
-| QT-08 | [QT-08_TO_CHUC_DUA_DON.md](25_QUY_TRINH_NGHIEP_VU/QT-08_TO_CHUC_DUA_DON.md) | Tổ chức đưa đón trẻ | 1.0 | Đã bỏ ngày 09/10/2026 |
-| QT-09 | [QT-09_NHAT_KY_VA_TRAO_DOI.md](25_QUY_TRINH_NGHIEP_VU/QT-09_NHAT_KY_VA_TRAO_DOI.md) | Ghi nhật ký của bé và trao đổi với phụ huynh | 1.1 | Đã phê duyệt |
-| QT-10 | [QT-10_HOAT_DONG_VA_CONG_BO.md](25_QUY_TRINH_NGHIEP_VU/QT-10_HOAT_DONG_VA_CONG_BO.md) | Đăng hoạt động của lớp, duyệt và công bố cho phụ huynh | 1.1 | Đã phê duyệt |
-| — | [PHIEU_YEU_CAU.md](25_QUY_TRINH_NGHIEP_VU/PHIEU_YEU_CAU.md) | Phiếu yêu cầu tính năng trống để điền | — | — |
+| QT-01 | [QT-01_TIEP_NHAN_TRE_MOI.md](40_QUY_TRINH_NGHIEP_VU/QT-01_TIEP_NHAN_TRE_MOI.md) | Tiếp nhận trẻ mới và lập hồ sơ trẻ | 1.3 | Đã phê duyệt |
+| QT-02 | [QT-02_DIEM_DANH_BAO_VANG.md](40_QUY_TRINH_NGHIEP_VU/QT-02_DIEM_DANH_BAO_VANG.md) | Điểm danh, báo vắng và đón trả trẻ | 1.5 | Đã phê duyệt |
+| QT-03 | [QT-03_DANG_KY_DICH_VU_VA_TINH_HOC_PHI.md](40_QUY_TRINH_NGHIEP_VU/QT-03_DANG_KY_DICH_VU_VA_TINH_HOC_PHI.md) | Đăng ký dịch vụ và tính học phí theo tháng | 1.9 | Đã phê duyệt |
+| QT-04 | [QT-04_THU_HOC_PHI_VA_CONG_NO.md](40_QUY_TRINH_NGHIEP_VU/QT-04_THU_HOC_PHI_VA_CONG_NO.md) | Thu học phí và quản lý công nợ phải thu | 1.5 | Đã phê duyệt |
+| QT-05 | [QT-05_PHIEU_CHI_VA_QUY.md](40_QUY_TRINH_NGHIEP_VU/QT-05_PHIEU_CHI_VA_QUY.md) | Lập phiếu chi và quản lý quỹ, tài khoản ngân hàng | 1.3 | Đã phê duyệt |
+| QT-06 | [QT-06_CHAM_CONG_VA_TINH_LUONG.md](40_QUY_TRINH_NGHIEP_VU/QT-06_CHAM_CONG_VA_TINH_LUONG.md) | Chấm công, nghỉ phép và tính lương | 1.5 | Đã phê duyệt |
+| QT-07 | [QT-07_DAN_THUOC_VA_CHAM_SOC_SUC_KHOE.md](40_QUY_TRINH_NGHIEP_VU/QT-07_DAN_THUOC_VA_CHAM_SOC_SUC_KHOE.md) | Dặn thuốc, cấp thuốc và chăm sóc sức khỏe trẻ | 1.2 | Đã phê duyệt |
+| QT-08 | [QT-08_TO_CHUC_DUA_DON.md](40_QUY_TRINH_NGHIEP_VU/QT-08_TO_CHUC_DUA_DON.md) | Tổ chức đưa đón trẻ | 1.0 | Đã bỏ ngày 09/10/2026 |
+| QT-09 | [QT-09_NHAT_KY_VA_TRAO_DOI.md](40_QUY_TRINH_NGHIEP_VU/QT-09_NHAT_KY_VA_TRAO_DOI.md) | Ghi nhật ký của bé và trao đổi với phụ huynh | 1.1 | Đã phê duyệt |
+| QT-10 | [QT-10_HOAT_DONG_VA_CONG_BO.md](40_QUY_TRINH_NGHIEP_VU/QT-10_HOAT_DONG_VA_CONG_BO.md) | Đăng hoạt động của lớp, duyệt và công bố cho phụ huynh | 1.1 | Đã phê duyệt |
+| — | [PHIEU_YEU_CAU.md](40_QUY_TRINH_NGHIEP_VU/PHIEU_YEU_CAU.md) | Phiếu yêu cầu tính năng trống để điền | — | — |
 
 ## Bộ ca kiểm thử chi tiết
 
 | Đợt | Tệp | Phạm vi | Số ca | Trạng thái |
 |---|---|---|---|---|
-| 1 | [01_DINH_DANH_VA_P01.md](27_BO_CA_KIEM_THU_CHI_TIET/01_DINH_DANH_VA_P01.md) | Dịch vụ định danh, P01 | 147, trong đó 6 ca không áp dụng | Đã phê duyệt |
-| 2 | [02_P02_VA_P04.md](27_BO_CA_KIEM_THU_CHI_TIET/02_P02_VA_P04.md) | P02, P04 | 114 | Đã phê duyệt |
-| 3 | [03_P05.md](27_BO_CA_KIEM_THU_CHI_TIET/03_P05.md) | P05 | 67 | Đã phê duyệt |
-| 4 | [04_P06.md](27_BO_CA_KIEM_THU_CHI_TIET/04_P06.md) | P06 | 66 | Đã phê duyệt |
-| 5 | [05_P08.md](27_BO_CA_KIEM_THU_CHI_TIET/05_P08.md) | P08 | 59 | Đã phê duyệt |
+| 1 | [01_DINH_DANH_VA_P01.md](42_BO_CA_KIEM_THU_CHI_TIET/01_DINH_DANH_VA_P01.md) | Dịch vụ định danh, P01 | 147, trong đó 6 ca không áp dụng | Đã phê duyệt |
+| 2 | [02_P02_VA_P04.md](42_BO_CA_KIEM_THU_CHI_TIET/02_P02_VA_P04.md) | P02, P04 | 114 | Đã phê duyệt |
+| 3 | [03_P05.md](42_BO_CA_KIEM_THU_CHI_TIET/03_P05.md) | P05 | 67 | Đã phê duyệt |
+| 4 | [04_P06.md](42_BO_CA_KIEM_THU_CHI_TIET/04_P06.md) | P06 | 66 | Đã phê duyệt |
+| 5 | [05_P08.md](42_BO_CA_KIEM_THU_CHI_TIET/05_P08.md) | P08 | 59 | Đã phê duyệt |
 
 ## Trạng thái tổng thể
 
@@ -91,7 +109,7 @@ Mã quy trình dạng `QT-nn`, đánh số tăng dần, không tái sử dụng 
 | Bảng dữ liệu dự kiến | 505 | Xem `16_CO_SO_DU_LIEU.md`, đếm lại ngày 2026-10-15 theo tên bảng ở mục 2 đến mục 18 (mỗi tên đếm một lần), đã gồm `user_quick_links` (YCTD-102), tám bảng của YCTD-104, `growth_rounds` (YCTD-105) và `equipment_items`, `equipment_holdings`, `school_profiles` (YCTD-106), `user_grid_settings` (YCTD-107), `feedback` (YCTD-110); tám bảng xe đưa đón và bảng `meal_registrations` đã gỡ; thêm ba bảng công cụ lớp học (YCTD-212) |
 | Màn hình dự kiến | 388 | Đếm lại ngày 2026-10-15, cộng MH-142 đến MH-151 và MP-22 (YCTD-134), MH-152 đến MH-157 (YCTD-135), MH-158 đến MH-166 (YCTD-138), MH-167 đến MH-179 (YCTD-139), MH-180 đến MH-186 (YCTD-140), MH-187 đến MH-202 (YCTD-141), MH-203 đến MH-205 và MG-18 (YCTD-143), MH-206 đến MH-215 (YCTD-144), MH-216 đến MH-224 (YCTD-142), MH-225 đến MH-229 (YCTD-145), MH-230 đến MH-235 (YCTD-147), MH-236 đến MH-240 (YCTD-146), MH-241 đến MH-252 (YCTD-148), MH-253 đến MH-257 (YCTD-149): 92 mã MH (MH-01 đến MH-94, MH-64 và MH-66 chưa cấp; MH-65 chạy trong ứng dụng phụ huynh), 17 màn hình ứng dụng giáo viên, 20 màn hình ứng dụng phụ huynh; MG-13, MP-13 đã bỏ; MH-337, MH-338 (YCTD-212); MH-348 (YCTD-231); MH-356 đến MH-361 (YCTD-272); MH-420 đến MH-423 (YCTD-273); MH-440 đến MH-442 (YCTD-274); MH-460 đến MH-463 (YCTD-275); MH-480 đến MH-483 (YCTD-276); MH-495 đến MH-497 (YCTD-278); MH-500 đến MH-502 (YCTD-279); MH-505, MH-506 (YCTD-280); MH-520, MH-521 (YCTD-277); YCTD-314: trạng thái "đang khởi tạo" ở MH-47, lời báo tính năng trả phí ở khung cổng quản trị, mục tính năng trả phí ở trang chi tiết trường của cổng vận hành; MH-570 (YCTD-336) |
 | Ca kiểm thử khởi đầu | 1224 | Từ CT-001 đến CT-1680; CT-048, CT-059 đến CT-063, CT-127, CT-454 không áp dụng |
-| Cổng kiểm soát chất lượng | 12 | Từ CG-01 đến CG-12, xem `01_KE_HOACH_TONG_THE.md` |
+| Cổng kiểm soát chất lượng | 13 | Từ CG-01 đến CG-13, xem `01_KE_HOACH_TONG_THE.md` |
 | Đợt xây dựng | 12 | Từ DT-00 đến DT-11, xem `01_KE_HOACH_TONG_THE.md` |
 | Rủi ro đã ghi nhận | 14 | Từ RR-01 đến RR-14, xem `01_KE_HOACH_TONG_THE.md` |
 | Yêu cầu thay đổi | 290 | Từ YCTD-01 đến YCTD-369 (YCTD-291 đổi quy ước ghi tài liệu chung sang tệp mảnh, từ đây mục mới nằm ở `thay_doi_cho_gom/` tới lần gom; YCTD-290 sửa kiểm thử chập chờn; YCTD-226 là bước 25b của DT-25; YCTD-270 chỉ đổi tài liệu, YCTD-271 đến YCTD-289 giữ sẵn cho DT-28; YCTD-214 là phần 23d; YCTD-250 chỉ đổi tài liệu, YCTD-251 đến YCTD-264 giữ sẵn cho DT-27; YCTD-220 là DT-24 (YCTD-221 đến YCTD-229 dự phòng của DT-24, DT-25 dùng YCTD-225); YCTD-230 chỉ đổi tài liệu, YCTD-231 của 26a, YCTD-232 đến YCTD-244 giữ sẵn cho DT-26; YCTD-220 đến YCTD-229 dành cho DT-24, DT-25 đang làm; YCTD-212 của 23b; YCTD-210 chỉ đổi tài liệu, YCTD-211 của 23a đã có, YCTD-212 đến YCTD-219 giữ sẵn cho DT-23; YCTD-194 của S5a, YCTD-196 của S5b, YCTD-197 của S4, YCTD-202 của S6 đã có; YCTD-200 của S8a chỉ đổi tài liệu, YCTD-180, YCTD-190 chỉ đổi tài liệu, YCTD-191 đến YCTD-209 giữ sẵn cho DT-SaaS (S9 là YCTD-203), YCTD-183 đến YCTD-189 giữ sẵn cho DT-22; YCTD-166 chỉ đổi tài liệu, YCTD-161 đến YCTD-165 giữ sẵn cho DT-20; số giữ sẵn của DT-18 ghi khi phần gộp; YCTD-142 gộp sau YCTD-143, YCTD-144; YCTD-156 của 19f ghi khi gộp), xem `24_YEU_CAU_THAY_DOI.md` |
@@ -145,7 +163,7 @@ Trước ngày 09/10/2026 bộ tài liệu dùng thuật ngữ "cơ sở" cho đ
 
 1. Ngày 09/10/2026 Eric đã phê duyệt `01`, `04` đến `22` và các đặc tả QT; `02`, `03`, `23`, `24` là tài liệu ghi theo ngày, ở trạng thái Đang cập nhật.
 2. Dự án chưa có mã nguồn. Mọi tham chiếu tệp và số dòng trong các tài liệu phân tích hiện trạng đều chưa áp dụng được.
-3. Nguồn duy nhất để phân tích là danh sách tính năng và tám ảnh sơ đồ chức năng do Eric gửi ngày 09/10/2026, lưu tại `26_SO_DO_CHUC_NANG/`. Không có tài liệu nghiệp vụ, không có biểu mẫu thật, không có phỏng vấn người dùng.
+3. Nguồn duy nhất để phân tích là danh sách tính năng và tám ảnh sơ đồ chức năng do Eric gửi ngày 09/10/2026, lưu tại `41_SO_DO_CHUC_NANG/`. Không có tài liệu nghiệp vụ, không có biểu mẫu thật, không có phỏng vấn người dùng.
 4. Mọi câu hỏi mở đã được trả lời và mọi giả định đã được xử lý ngày 09/10/2026. CG-08 đã đạt ngày 09/10/2026: mã nguồn ở https://github.com/luckyshopvn/school_management, môi trường phát triển chạy Docker trên máy cục bộ; hạ tầng đám mây thuê khi triển khai (YCTD-32).
 5. Đầu mỗi phiên làm việc, đọc `index.md`, `01_KE_HOACH_TONG_THE.md`, `03_DANH_SACH_CONG_VIEC.md` và các tài liệu liên quan.
 6. Trạng thái tổng thể ở trên đếm mã giả định và câu hỏi mở trên toàn bộ tài liệu, kể cả các đặc tả quy trình.

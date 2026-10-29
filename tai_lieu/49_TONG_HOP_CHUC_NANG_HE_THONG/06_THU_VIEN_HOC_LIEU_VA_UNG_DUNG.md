@@ -1,10 +1,10 @@
-# 34.6. THƯ VIỆN, KHO HỌC LIỆU, ỨNG DỤNG GIÁO VIÊN VÀ ỨNG DỤNG PHỤ HUYNH
+# 49.6. THƯ VIỆN, KHO HỌC LIỆU, ỨNG DỤNG GIÁO VIÊN VÀ ỨNG DỤNG PHỤ HUYNH
 
 - Mô tả: Phân hệ 2.20, 2.21 và mục 3 ứng dụng giáo viên, ứng dụng phụ huynh theo màn hình
 - Phiên bản: 1.0
 - Ngày cập nhật: 2026-10-25
 - Trạng thái: Chờ phê duyệt
-- Thuộc: [Tài liệu 34, tổng hợp chức năng hệ thống](00_MUC_LUC.md)
+- Thuộc: [Tài liệu 49, tổng hợp chức năng hệ thống](00_MUC_LUC.md)
 - Nguồn: mã và tài liệu trên nhánh `main` ngày 2026-10-25 (sau PR 165, 166, 167, 169, 170). Khi tài liệu và mã lệch nhau, mô tả theo mã; chỗ lệch ghi ở [phụ lục](07_MA_TRAN_VAI_TRO_VA_PHU_LUC.md)
 
 Mỗi phân hệ mô tả theo cùng khuôn: mục đích, cấp học, vai trò và mã quyền, căn cứ pháp lý, chức năng và màn hình, quy tắc nghiệp vụ, dữ liệu và tệp xuất, liên kết, kiểm thử e2e. Số mục menu, đường dẫn theo `packages/shared/src/portal-menu.ts`. Sơ đồ quy trình ở cuối tệp.
@@ -22,7 +22,7 @@ Mỗi phân hệ mô tả theo cùng khuôn: mục đích, cấp học, vai trò
     - `P02.library.manage`: mọi thao tác ghi (thiết lập, phân loại, ấn phẩm, bản sao, thanh lý, tem mã, sổ đăng ký, tệp số), bạn đọc, mượn trả, đặt trước, sách giáo khoa, kiểm kê, báo cáo, in thẻ; mục menu 1.2 đến 4.1.
     - Không cần quyền: `GET /library/children/{id}/loans` (máy chủ kiểm tra người gọi là phụ huynh của học sinh).
   - Phạm vi đơn vị: mượn, trả, gia hạn, đặt trước, nhắc quá hạn kiểm tra `OrganizationScopes` theo đơn vị của bạn đọc.
-- Căn cứ pháp lý: mã và YCTD-181 **chưa ghi số hiệu văn bản cụ thể**. Tài liệu 32 mục 13.2 nêu văn bản dự kiến: Luật Thư viện 2019 và văn bản hướng dẫn, thông tư về tiêu chuẩn thư viện cơ sở giáo dục phổ thông (Thông tư 16/2022/TT-BGDĐT là văn bản hiện hành về tiêu chuẩn thư viện cơ sở giáo dục mầm non, phổ thông; mã chưa dẫn). Chỉ tiêu theo chuẩn có bộ mã cố định nhưng **ngưỡng để trống**, chờ đọc văn bản gốc.
+- Căn cứ pháp lý: mã và YCTD-181 **chưa ghi số hiệu văn bản cụ thể**. Tài liệu 47 mục 13.2 nêu văn bản dự kiến: Luật Thư viện 2019 và văn bản hướng dẫn, thông tư về tiêu chuẩn thư viện cơ sở giáo dục phổ thông (Thông tư 16/2022/TT-BGDĐT là văn bản hiện hành về tiêu chuẩn thư viện cơ sở giáo dục mầm non, phổ thông; mã chưa dẫn). Chỉ tiêu theo chuẩn có bộ mã cố định nhưng **ngưỡng để trống**, chờ đọc văn bản gốc.
 
 ### Chức năng và màn hình
 
@@ -142,7 +142,7 @@ Mỗi phân hệ mô tả theo cùng khuôn: mục đích, cấp học, vai trò
   - `P09.learning-resource.share`: xuất, nhập gói chia sẻ: VT-02, VT-15.
   - Điều khiển `learning-resources` và `resource-sharing` yêu cầu một trong các quyền trên ở mọi điểm cuối; điểm cuối riêng thêm quyền: danh mục loại, giấy phép, sửa chủ đề, xử lý báo lỗi cần `manage`; duyệt cần `review` hoặc `approve`; thống kê cần `review`, `approve` hoặc `manage`; gói cần `share`.
   - VT-14 Phụ huynh bị loại khỏi phân hệ.
-- Căn cứ pháp lý: bộ giấy phép mặc định theo Creative Commons 4.0, CC0 1.0, văn bản do cơ quan nhà nước ban hành (YCTD-183); nguyên tắc không đưa nội dung có bản quyền vào mã, dữ liệu mẫu (tài liệu 32 mục 13.2). Mã không dẫn số hiệu văn bản quy phạm.
+- Căn cứ pháp lý: bộ giấy phép mặc định theo Creative Commons 4.0, CC0 1.0, văn bản do cơ quan nhà nước ban hành (YCTD-183); nguyên tắc không đưa nội dung có bản quyền vào mã, dữ liệu mẫu (tài liệu 47 mục 13.2). Mã không dẫn số hiệu văn bản quy phạm.
 
 ### Chức năng và màn hình
 

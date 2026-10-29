@@ -178,7 +178,7 @@ Chạy trên máy tách biệt (máy chủ thử nghiệm hoặc máy chủ thu�
 
 ## 8. Kiểm thử hiệu năng CT-086 đến CT-088
 
-Chạy trên môi trường thử nghiệm có cấu hình giống môi trường chạy thật (21_KICH_BAN_KIEM_THU.md, 30_BAO_CAO_KIEM_THU_G3.md mục 41), dữ liệu mẫu gần với thật, không dùng dữ liệu thật. Công cụ gợi ý: k6 chạy bằng Docker từ một máy khác trong cùng vùng mạng (`docker run --rm -i grafana/k6 run - < kich-ban.js`).
+Chạy trên môi trường thử nghiệm có cấu hình giống môi trường chạy thật (21_KICH_BAN_KIEM_THU.md, 45_BAO_CAO_KIEM_THU_G3.md mục 41), dữ liệu mẫu gần với thật, không dùng dữ liệu thật. Công cụ gợi ý: k6 chạy bằng Docker từ một máy khác trong cùng vùng mạng (`docker run --rm -i grafana/k6 run - < kich-ban.js`).
 
 | Mã     | Chuẩn bị                                                                                     | Cách chạy                                                                                                                                                                                                  | Đạt khi                                                                                                                         |
 | ------ | -------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------- |

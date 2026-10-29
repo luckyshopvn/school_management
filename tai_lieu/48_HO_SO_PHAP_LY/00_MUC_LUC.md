@@ -1,9 +1,9 @@
-# 33. HỒ SƠ PHÁP LÝ VÀ TUÂN THỦ (DT-SaaS phần S8a)
+# 48. HỒ SƠ PHÁP LÝ VÀ TUÂN THỦ (DT-SaaS phần S8a)
 
 - Mô tả: Bộ mẫu pháp lý và hồ sơ tuân thủ cho nền tảng School Management nhiều trường (DT-SaaS), gồm mẫu dùng chung và bộ hồ sơ riêng cho trường dùng thử dữ liệu thật trên máy chủ ngoài Việt Nam; từ 2026-10-26 thêm danh sách hồ sơ cần có cho nền tảng gia sư trực tuyến (DT-27, PL-16 đến PL-21, chưa soạn nội dung).
 - Phiên bản bộ mẫu: S8a-1.1 (2026-10-26: PL-02 thêm Điều 5a quyền truy cập của quản trị nền tảng, DT-24, YCTD-220); danh sách DT-27: DT27-0.1
 - Ngày soạn: 2026-10-25; bổ sung 2026-10-26
-- Yêu cầu thay đổi: YCTD-200 (`24_YEU_CAU_THAY_DOI.md`); kế hoạch ở `32_KE_HOACH_THEO_HE_THONG_SO.md` mục 14.3, 14.5 "S8a", 14.11. Danh sách DT-27: YCTD-250, kế hoạch ở `32` mục 19.
+- Yêu cầu thay đổi: YCTD-200 (`24_YEU_CAU_THAY_DOI.md`); kế hoạch ở `47_KE_HOACH_THEO_HE_THONG_SO.md` mục 14.3, 14.5 "S8a", 14.11. Danh sách DT-27: YCTD-250, kế hoạch ở `47` mục 19.
 - Trạng thái: **Bản nháp. Luật sư của Eric phải rà trước khi dùng.** Không ký, không gửi cho trường, không nhận dữ liệu thật của trường nào khi bộ mẫu này chưa được rà.
 
 > **Lưu ý bắt buộc khi dùng bộ mẫu**

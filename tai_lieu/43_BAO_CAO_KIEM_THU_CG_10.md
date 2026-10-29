@@ -1,4 +1,4 @@
-# 28. BÁO CÁO KIỂM THỬ VÀ CỔNG CG-10
+# 43. BÁO CÁO KIỂM THỬ VÀ CỔNG CG-10
 
 - Mô tả: Kết quả chạy thật của bộ kịch bản kiểm thử `CT-...` và bộ ca kiểm thử chi tiết `CTC-...` cho giai đoạn 1, phân loại các ca chưa chạy và lỗi, kết luận cổng CG-10 trước khi phát hành 1.0.0 (đợt DT-09 phần 9g, YCTD-72).
 - Phiên bản: 1.0

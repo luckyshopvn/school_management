@@ -13,7 +13,7 @@ import {
   type TestContext,
 } from '../test-support.js';
 
-// Mật khẩu mặc định và mã một lần của phụ huynh; ca kiểm thử theo 27_BO_CA_KIEM_THU_CHI_TIET/01_DINH_DANH_VA_P01.md mục 3.2, 3.3
+// Mật khẩu mặc định và mã một lần của phụ huynh; ca kiểm thử theo 42_BO_CA_KIEM_THU_CHI_TIET/01_DINH_DANH_VA_P01.md mục 3.2, 3.3
 const DEFAULT_PASSWORD = 'PhuHuynh2026';
 const NEW_DEFAULT_PASSWORD = 'MacDinh2027';
 const PARENT_SETTING_KEYS = [

@@ -1,17 +1,17 @@
-# 34.4. ĐIỀU HÀNH, QUẢN TRỊ VÀ CHUYÊN MÔN
+# 49.4. ĐIỀU HÀNH, QUẢN TRỊ VÀ CHUYÊN MÔN
 
 - Mô tả: Phân hệ 2.6 văn bản và điều hành, 2.7 quản trị hệ thống, 2.15 KPI, 2.16 website, 2.17 hồ sơ chuyên môn, 2.18 thi đua, 2.19 bảo đảm chất lượng
 - Phiên bản: 1.0
 - Ngày cập nhật: 2026-10-25
 - Trạng thái: Chờ phê duyệt
-- Thuộc: [Tài liệu 34, tổng hợp chức năng hệ thống](00_MUC_LUC.md)
+- Thuộc: [Tài liệu 49, tổng hợp chức năng hệ thống](00_MUC_LUC.md)
 - Nguồn: mã và tài liệu trên nhánh `main` ngày 2026-10-25 (sau PR 165, 166, 167, 169, 170). Khi tài liệu và mã lệch nhau, mô tả theo mã; chỗ lệch ghi ở [phụ lục](07_MA_TRAN_VAI_TRO_VA_PHU_LUC.md)
 
 Mỗi phân hệ mô tả theo cùng khuôn: mục đích, cấp học, vai trò và mã quyền, căn cứ pháp lý, chức năng và màn hình, quy tắc nghiệp vụ, dữ liệu và tệp xuất, liên kết, kiểm thử e2e. Số mục menu, đường dẫn theo `packages/shared/src/portal-menu.ts`. Sơ đồ quy trình ở cuối tệp.
 
 ## 2.6. Quản lý văn bản và điều hành (`documents`)
 
-- Mục đích: quản lý văn bản đến, văn bản đi, giao việc, hồ sơ công việc, lịch đơn vị, phòng họp và báo cáo điều hành của nhà trường, làm theo hệ thống quản lý văn bản và điều hành VNPT iOffice mà các trường công lập TP.HCM đang dùng (quyết định của Eric ngày 2026-10-19, tài liệu 32 mục 9.1). Phân hệ làm trong ba phần của DT-18: 18a văn bản đến và quản trị văn bản (YCTD-138), 18b văn bản đi (YCTD-140), 18c giao việc, hồ sơ công việc, lịch, báo cáo (YCTD-141).
+- Mục đích: quản lý văn bản đến, văn bản đi, giao việc, hồ sơ công việc, lịch đơn vị, phòng họp và báo cáo điều hành của nhà trường, làm theo hệ thống quản lý văn bản và điều hành VNPT iOffice mà các trường công lập TP.HCM đang dùng (quyết định của Eric ngày 2026-10-19, tài liệu 47 mục 9.1). Phân hệ làm trong ba phần của DT-18: 18a văn bản đến và quản trị văn bản (YCTD-138), 18b văn bản đi (YCTD-140), 18c giao việc, hồ sơ công việc, lịch, báo cáo (YCTD-141).
 - Cấp học áp dụng: mọi cấp học. Phân hệ không khai báo `levels` trong `portal-menu.ts`; danh mục văn bản có cột cấp học, trống là mọi cấp. Mã không ghi cứng cấp học hay tên trường.
 - Đối tượng, vai trò dùng:
   - Mọi cán bộ, nhân viên dùng cổng quản trị: VT-02 Hiệu trưởng, VT-15 Phó Hiệu trưởng, VT-03 Quản lý đơn vị, VT-04 Kế toán, VT-05 Kế toán trưởng, VT-06 Nhân sự, VT-07 Giáo viên chủ nhiệm, VT-08 Giáo viên bộ môn, VT-09 Nhân viên y tế, VT-10 Nhân viên bếp, VT-11 Nhân viên kho và mua hàng, VT-12 Nhân viên tuyển sinh, VT-16 Thủ quỹ, VT-17 Tổ trưởng chuyên môn.
@@ -286,7 +286,7 @@ Quyền hiện mục menu (`menu-permissions.ts`, tiền tố `P09.` lược b�
 | Phạm vi cấp học của tài khoản | `P01.school-level.manage` | VT-02 |
 | Xuất Excel lưới, xem Tệp đã tạo | `P17.data.export` | theo ma trận P17 |
 
-- Căn cứ pháp lý: Nghị định 13/2023/NĐ-CP về bảo vệ dữ liệu cá nhân (mã ghi ở tệp hướng dẫn `DOC_TRUOC.txt` của gói toàn bộ dữ liệu; tài liệu 22 BM-67 ghi kèm Luật Bảo vệ dữ liệu cá nhân 2025; xem mục lệch về hiệu lực). Nghị định 69/2024/NĐ-CP (nhắc cập nhật mã định danh điện tử của tổ chức trong hộp Thông báo khi vào trang). Phần còn lại là quy tắc nội bộ theo mã YCTD (YCTD-42, 63, 90, 109, 110, 119, 120, 121, 123, 145) và khảo sát hệ thống của Sở (tài liệu 31, 32).
+- Căn cứ pháp lý: Nghị định 13/2023/NĐ-CP về bảo vệ dữ liệu cá nhân (mã ghi ở tệp hướng dẫn `DOC_TRUOC.txt` của gói toàn bộ dữ liệu; tài liệu 22 BM-67 ghi kèm Luật Bảo vệ dữ liệu cá nhân 2025; xem mục lệch về hiệu lực). Nghị định 69/2024/NĐ-CP (nhắc cập nhật mã định danh điện tử của tổ chức trong hộp Thông báo khi vào trang). Phần còn lại là quy tắc nội bộ theo mã YCTD (YCTD-42, 63, 90, 109, 110, 119, 120, 121, 123, 145) và khảo sát hệ thống của Sở (tài liệu 46, 47).
 
 ### Chức năng và màn hình
 
@@ -521,7 +521,7 @@ Tệp xuất: Excel 1.1 Nhóm người dùng (`/account-exports`), Excel 1.4 Dan
   - Biểu quyết `P09.kpi.vote`: VT-02, VT-15.
   - Cấu hình `P09.kpi.configure`: VT-02, VT-06. Bộ quy tắc, kỳ (thêm, sửa, khóa, mở lại), đối tượng đánh giá, danh mục chung, chuyển dữ liệu từ hệ thống cũ.
   - Ngoài mã quyền, mã còn trao thẩm quyền theo quan hệ: cấp trên trực tiếp ghi ở hồ sơ đối tượng (`superior_staff_id`) được duyệt, chấm, kết luận cho người dưới; người được ủy quyền chấm (`evaluator_staff_id`) được chấm việc được ủy quyền. API của thao tác quản lý nhận cả `participate` để người có quan hệ này dùng được.
-- Căn cứ pháp lý: bộ quy tắc 2 (mặc định) dành cho viên chức trường công lập theo Nghị định 233/2026/NĐ-CP (ghi trong migration `0064_create_kpi.ts` và mô tả bộ quy tắc). Bộ quy tắc 1 và tiêu chí chung 30 điểm lấy tham số theo Hướng dẫn 06-HD/BTCTU (Mẫu 01-A lãnh đạo, quản lý; Mẫu 01-B cán bộ). Văn bản điều chỉnh hướng dẫn này là tài liệu hạn chế phát tán (tài liệu 32 mục 9.4), tài liệu này chỉ ghi số hiệu.
+- Căn cứ pháp lý: bộ quy tắc 2 (mặc định) dành cho viên chức trường công lập theo Nghị định 233/2026/NĐ-CP (ghi trong migration `0064_create_kpi.ts` và mô tả bộ quy tắc). Bộ quy tắc 1 và tiêu chí chung 30 điểm lấy tham số theo Hướng dẫn 06-HD/BTCTU (Mẫu 01-A lãnh đạo, quản lý; Mẫu 01-B cán bộ). Văn bản điều chỉnh hướng dẫn này là tài liệu hạn chế phát tán (tài liệu 47 mục 9.4), tài liệu này chỉ ghi số hiệu.
 
 ### Chức năng và màn hình
 
@@ -748,7 +748,7 @@ Trang công khai còn đọc `outgoing_documents`, `outgoing_document_files` (CS
 
 ## 2.17. Hồ sơ chuyên môn (`professional-records`)
 
-- Mục đích: gom về một phân hệ các việc chuyên môn của cán bộ, giáo viên: danh sách việc đang chờ của chính người dùng ở mọi phân hệ (Việc của tôi), kho hồ sơ chuyên môn theo năm học có đợt nộp, hạn nộp và luồng duyệt theo thư mục, kế hoạch giáo dục lập từ thư viện mẫu và duyệt nhiều bước, hồ sơ bồi dưỡng giáo viên (khoá, đăng ký, kết quả, số tiết, chứng chỉ, chứng nhận có mã tra cứu, năng lực số). Phần 18e (YCTD-142), 22i (YCTD-147) của DT-18 và 22e (YCTD-182) của DT-22; mô hình kho hồ sơ, Việc của tôi lấy theo mô tả công khai của GIKIDI Nhà Trường (tài liệu 32 mục 9.1), không chép nguyên văn.
+- Mục đích: gom về một phân hệ các việc chuyên môn của cán bộ, giáo viên: danh sách việc đang chờ của chính người dùng ở mọi phân hệ (Việc của tôi), kho hồ sơ chuyên môn theo năm học có đợt nộp, hạn nộp và luồng duyệt theo thư mục, kế hoạch giáo dục lập từ thư viện mẫu và duyệt nhiều bước, hồ sơ bồi dưỡng giáo viên (khoá, đăng ký, kết quả, số tiết, chứng chỉ, chứng nhận có mã tra cứu, năng lực số). Phần 18e (YCTD-142), 22i (YCTD-147) của DT-18 và 22e (YCTD-182) của DT-22; mô hình kho hồ sơ, Việc của tôi lấy theo mô tả công khai của GIKIDI Nhà Trường (tài liệu 47 mục 9.1), không chép nguyên văn.
 - Cấp học áp dụng: mọi cấp (mục menu không khai báo `levels`). Danh mục thư mục mặc định có bản riêng cho Mầm non và bản chung cho Tiểu học, THCS, THPT (`PROFESSIONAL_DEFAULT_FOLDERS`). Thư viện mẫu kế hoạch giáo dục mặc định hiện chỉ có Mầm non (7 mẫu); Tiểu học, THCS, THPT có sáu khung rỗng (YCTD-345: tài liệu dự án không có nội dung mẫu, mỗi khung một mục trống, trường tự thêm mục hoặc tự tạo mẫu) (`EDUCATION_PLAN_DEFAULT_TEMPLATES`).
 - Đối tượng, vai trò dùng: VT-02 Hiệu trưởng, VT-15 Phó Hiệu trưởng, VT-17 Tổ trưởng chuyên môn, VT-03 đến VT-12, VT-16 (cán bộ, giáo viên, nhân viên dùng cổng quản trị). Trưởng nhóm công tác (cờ `is_leader` trong nhóm) duyệt thay tổ trưởng cho hồ sơ, kế hoạch của nhóm mà không cần quyền riêng. Phụ huynh (VT-14) không có quyền. Quyền chính (PQ-84, PQ-86, PQ-98, `packages/shared/src/index.ts`):
   - Việc của tôi: không cần quyền, mọi tài khoản đăng nhập (mỗi nguồn tự kiểm tra quyền).
@@ -1198,7 +1198,7 @@ Mọi danh hiệu mặc định có tỉ lệ phiếu đồng ý tối thiểu 5
 - Kho hồ sơ chuyên môn (18e): minh chứng của hồ sơ đề nghị, tải bản đã kí hoặc phiên bản mới nhất.
 - Văn bản đi (18b): tạo dự thảo kèm tệp Word; số, ngày ban hành lấy từ văn bản đi đã phát hành; dùng chung cách sinh mã tra cứu.
 - Nhân sự, tổ chuyên môn (`staff`, `departments`), Thông báo, Việc của tôi, chuyển năm học.
-- Về sau dùng lại mẫu giấy khen và mã tra cứu cho khen thưởng học sinh (DT-20, DT-21), chứng nhận bồi dưỡng (22e); kết quả bồi dưỡng là đầu vào tùy chọn (tài liệu 32).
+- Về sau dùng lại mẫu giấy khen và mã tra cứu cho khen thưởng học sinh (DT-20, DT-21), chứng nhận bồi dưỡng (22e); kết quả bồi dưỡng là đầu vào tùy chọn (tài liệu 47).
 
 ### Kiểm thử e2e
 

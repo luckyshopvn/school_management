@@ -1,4 +1,4 @@
-# 31. KHẢO SÁT HỆ THỐNG THÔNG TIN QUẢN LÝ GIÁO DỤC CỦA SỞ GD&ĐT TP.HCM
+# 46. KHẢO SÁT HỆ THỐNG THÔNG TIN QUẢN LÝ GIÁO DỤC CỦA SỞ GD&ĐT TP.HCM
 
 - Mô tả: Kết quả khảo sát chi tiết chức năng và giao diện của Hệ thống thông tin quản lý giáo dục (cấp Trường, Mầm non) tại `truong.hcm.edu.vn`, đối chiếu với hệ thống School Management và đề xuất bổ sung; mục 9 phân tích kỹ thuật bằng REA (trang công khai, trang chủ và màn hình 2.1 sau đăng nhập); mục 10 là khảo sát bổ sung ngày 2026-10-19 (Tuyển sinh đầu cấp, mẫu nội dung hồ sơ kí, chỉ tiêu và mã số các biểu EMIS, 1.7 kiểm định) và đối chiếu với mã nguồn.
 - Phiên bản: 1.2

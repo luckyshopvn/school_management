@@ -1,4 +1,4 @@
-# 34. TỔNG HỢP CHỨC NĂNG HỆ THỐNG SCHOOL MANAGEMENT
+# 49. TỔNG HỢP CHỨC NĂNG HỆ THỐNG SCHOOL MANAGEMENT
 
 - Mô tả: Mô tả chi tiết toàn bộ chức năng đang có của hệ thống School Management (Mầm non, Tiểu học, THCS, THPT): 21 phân hệ của cổng quản trị, ứng dụng giáo viên, ứng dụng phụ huynh, quản trị nền tảng DT-SaaS; kèm sơ đồ quy trình bằng Mermaid, ma trận vai trò × phân hệ, bảng tra nhanh, chỗ lệch giữa tài liệu và mã, thuật ngữ
 - Phiên bản: 1.1
@@ -20,13 +20,13 @@
 
 | Số | Tệp | Nội dung |
 |---|---|---|
-| 34.1 | [01_TONG_QUAN_VA_NEN_TANG.md](01_TONG_QUAN_VA_NEN_TANG.md) | Mục tiêu, đối tượng dùng, cấp học, kiến trúc (ứng dụng, cơ sở dữ liệu, tác vụ nền), thống kê nhanh; đăng nhập, phiên, vai trò, phân quyền, chọn phân hệ; thông báo; DT-SaaS đa thuê bao |
-| 34.2 | [02_QUAN_LY_GIAO_DUC_CSVC_EMIS.md](02_QUAN_LY_GIAO_DUC_CSVC_EMIS.md) | 2.1 Quản lý giáo dục nhóm 1 đến 6 (trường, lớp, nhân sự, học sinh, y tế, điểm danh, bán trú, công cụ hỗ trợ, cơ sở vật chất); 2.2 Cơ sở vật chất, TBDH; 2.3 Tuyển sinh đầu cấp; 2.4 Báo cáo số liệu EMIS; 2.5 Kí hồ sơ |
-| 34.3 | [03_DAY_HOC_VA_KIEM_TRA_DANH_GIA.md](03_DAY_HOC_VA_KIEM_TRA_DANH_GIA.md) | 2.1 nhóm 7 Dạy học (môn, phân công, thời khoá biểu, máy xếp, sổ đầu bài, TT27, sổ điểm TT22, học bạ số, lên lớp, tốt nghiệp, báo cáo Tiểu học, THCS, THPT); nhóm 8 Kiểm tra, đánh giá |
-| 34.4 | [04_DIEU_HANH_VA_QUAN_TRI.md](04_DIEU_HANH_VA_QUAN_TRI.md) | 2.6 Văn bản và điều hành; 2.7 Quản trị hệ thống; 2.15 KPI; 2.16 Website trường; 2.17 Hồ sơ chuyên môn (kế hoạch giáo dục, bồi dưỡng); 2.18 Thi đua, khen thưởng; 2.19 Bảo đảm chất lượng |
-| 34.5 | [05_TAI_CHINH_NHAN_SU_HAU_CAN.md](05_TAI_CHINH_NHAN_SU_HAU_CAN.md) | 2.8 Tài chính, học phí; 2.9 Nhân sự, chấm công, lương; 2.10 Bếp, kho, mua hàng, an toàn thực phẩm; 2.11 Tương tác, truyền thông; 2.12 Giảng dạy; 2.13 Tuyển sinh, tuyển dụng; 2.14 Báo cáo |
-| 34.6 | [06_THU_VIEN_HOC_LIEU_VA_UNG_DUNG.md](06_THU_VIEN_HOC_LIEU_VA_UNG_DUNG.md) | 2.20 Thư viện; 2.21 Kho học liệu; 3 Ứng dụng giáo viên và ứng dụng phụ huynh theo màn hình |
-| 34.7 | [07_MA_TRAN_VAI_TRO_VA_PHU_LUC.md](07_MA_TRAN_VAI_TRO_VA_PHU_LUC.md) | Ma trận vai trò × phân hệ; phụ lục A bảng tra nhanh 278 mục menu; phụ lục B chỗ lệch giữa tài liệu và mã; phụ lục C thuật ngữ |
+| 49.1 | [01_TONG_QUAN_VA_NEN_TANG.md](01_TONG_QUAN_VA_NEN_TANG.md) | Mục tiêu, đối tượng dùng, cấp học, kiến trúc (ứng dụng, cơ sở dữ liệu, tác vụ nền), thống kê nhanh; đăng nhập, phiên, vai trò, phân quyền, chọn phân hệ; thông báo; DT-SaaS đa thuê bao |
+| 49.2 | [02_QUAN_LY_GIAO_DUC_CSVC_EMIS.md](02_QUAN_LY_GIAO_DUC_CSVC_EMIS.md) | 2.1 Quản lý giáo dục nhóm 1 đến 6 (trường, lớp, nhân sự, học sinh, y tế, điểm danh, bán trú, công cụ hỗ trợ, cơ sở vật chất); 2.2 Cơ sở vật chất, TBDH; 2.3 Tuyển sinh đầu cấp; 2.4 Báo cáo số liệu EMIS; 2.5 Kí hồ sơ |
+| 49.3 | [03_DAY_HOC_VA_KIEM_TRA_DANH_GIA.md](03_DAY_HOC_VA_KIEM_TRA_DANH_GIA.md) | 2.1 nhóm 7 Dạy học (môn, phân công, thời khoá biểu, máy xếp, sổ đầu bài, TT27, sổ điểm TT22, học bạ số, lên lớp, tốt nghiệp, báo cáo Tiểu học, THCS, THPT); nhóm 8 Kiểm tra, đánh giá |
+| 49.4 | [04_DIEU_HANH_VA_QUAN_TRI.md](04_DIEU_HANH_VA_QUAN_TRI.md) | 2.6 Văn bản và điều hành; 2.7 Quản trị hệ thống; 2.15 KPI; 2.16 Website trường; 2.17 Hồ sơ chuyên môn (kế hoạch giáo dục, bồi dưỡng); 2.18 Thi đua, khen thưởng; 2.19 Bảo đảm chất lượng |
+| 49.5 | [05_TAI_CHINH_NHAN_SU_HAU_CAN.md](05_TAI_CHINH_NHAN_SU_HAU_CAN.md) | 2.8 Tài chính, học phí; 2.9 Nhân sự, chấm công, lương; 2.10 Bếp, kho, mua hàng, an toàn thực phẩm; 2.11 Tương tác, truyền thông; 2.12 Giảng dạy; 2.13 Tuyển sinh, tuyển dụng; 2.14 Báo cáo |
+| 49.6 | [06_THU_VIEN_HOC_LIEU_VA_UNG_DUNG.md](06_THU_VIEN_HOC_LIEU_VA_UNG_DUNG.md) | 2.20 Thư viện; 2.21 Kho học liệu; 3 Ứng dụng giáo viên và ứng dụng phụ huynh theo màn hình |
+| 49.7 | [07_MA_TRAN_VAI_TRO_VA_PHU_LUC.md](07_MA_TRAN_VAI_TRO_VA_PHU_LUC.md) | Ma trận vai trò × phân hệ; phụ lục A bảng tra nhanh 278 mục menu; phụ lục B chỗ lệch giữa tài liệu và mã; phụ lục C thuật ngữ |
 
 ## 3. Danh sách 21 phân hệ
 
@@ -58,7 +58,7 @@ Ngoài 21 phân hệ còn ba kênh: ứng dụng giáo viên, ứng dụng phụ
 
 ## 4. Chỉ mục sơ đồ quy trình
 
-Tài liệu có 82 sơ đồ Mermaid (flowchart, sequenceDiagram, stateDiagram-v2), đã dựng thử bằng Mermaid 11.4.1, không có lỗi cú pháp. Bảng dưới là các luồng chính theo yêu cầu; các sơ đồ trạng thái phụ xem cuối từng tệp. Bản PDF gộp toàn bộ tài liệu: [34_TONG_HOP_CHUC_NANG_HE_THONG.pdf](34_TONG_HOP_CHUC_NANG_HE_THONG.pdf).
+Tài liệu có 82 sơ đồ Mermaid (flowchart, sequenceDiagram, stateDiagram-v2), đã dựng thử bằng Mermaid 11.4.1, không có lỗi cú pháp. Bảng dưới là các luồng chính theo yêu cầu; các sơ đồ trạng thái phụ xem cuối từng tệp. Bản PDF gộp toàn bộ tài liệu: [49_TONG_HOP_CHUC_NANG_HE_THONG.pdf](49_TONG_HOP_CHUC_NANG_HE_THONG.pdf).
 
 ### Cách đọc sơ đồ
 
@@ -121,7 +121,7 @@ Tài liệu có 82 sơ đồ Mermaid (flowchart, sequenceDiagram, stateDiagram-v
 
 Rút từ phụ lục B; chi tiết và vị trí trong mã xem [tệp 07](07_MA_TRAN_VAI_TRO_VA_PHU_LUC.md).
 
-1. Migration KPI `database/school-year/migrations/0064_create_kpi.ts` chứa nguyên câu chữ tiêu chí chung lấy từ hướng dẫn 06-HD/BTCTU, trong khi tài liệu 32 (phần 18d) yêu cầu chỉ đưa tham số, không đưa nguyên văn tài liệu hạn chế vào kho công khai. Cần Eric xác nhận.
+1. Migration KPI `database/school-year/migrations/0064_create_kpi.ts` chứa nguyên câu chữ tiêu chí chung lấy từ hướng dẫn 06-HD/BTCTU, trong khi tài liệu 47 (phần 18d) yêu cầu chỉ đưa tham số, không đưa nguyên văn tài liệu hạn chế vào kho công khai. Cần Eric xác nhận.
 2. Tên bộ tài liệu (`index.md`, tài liệu 04) vẫn ghi "Hệ thống quản lý trường mầm non"; `index.md` và 05 vẫn ghi 19 phân hệ, mã có 21 phân hệ và bốn cấp học.
 3. Không có kết nối thật lên CSDL của Bộ, Sở: các mục "gửi lên cấp trên" xuất tệp để nộp bằng tay; kí hồ sơ là kí nội bộ, không phải chữ ký số.
 4. Thông báo chỉ có ba kênh trong mã: trong ứng dụng, SMS, Zalo (lỗi thì gửi SMS). Không có thư điện tử, không có thông báo đẩy như sơ đồ ở tài liệu 12.

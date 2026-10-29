@@ -13,7 +13,7 @@ import {
   type TestContext,
 } from '../test-support.js';
 
-// Ca kiểm thử theo 27_BO_CA_KIEM_THU_CHI_TIET/01_DINH_DANH_VA_P01.md
+// Ca kiểm thử theo 42_BO_CA_KIEM_THU_CHI_TIET/01_DINH_DANH_VA_P01.md
 
 async function login(
   context: TestContext,

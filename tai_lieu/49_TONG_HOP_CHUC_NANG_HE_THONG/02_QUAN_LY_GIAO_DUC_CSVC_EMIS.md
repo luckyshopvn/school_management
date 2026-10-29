@@ -1,17 +1,17 @@
-# 34.2. QUẢN LÝ GIÁO DỤC (NHÓM 1 ĐẾN 6), CƠ SỞ VẬT CHẤT, TUYỂN SINH ĐẦU CẤP, BÁO CÁO SỐ LIỆU, KÍ HỒ SƠ
+# 49.2. QUẢN LÝ GIÁO DỤC (NHÓM 1 ĐẾN 6), CƠ SỞ VẬT CHẤT, TUYỂN SINH ĐẦU CẤP, BÁO CÁO SỐ LIỆU, KÍ HỒ SƠ
 
 - Mô tả: Phân hệ 2.1 (nhóm 1 đến 6), 2.2, 2.3, 2.4, 2.5
 - Phiên bản: 1.0
 - Ngày cập nhật: 2026-10-25
 - Trạng thái: Chờ phê duyệt
-- Thuộc: [Tài liệu 34, tổng hợp chức năng hệ thống](00_MUC_LUC.md)
+- Thuộc: [Tài liệu 49, tổng hợp chức năng hệ thống](00_MUC_LUC.md)
 - Nguồn: mã và tài liệu trên nhánh `main` ngày 2026-10-25 (sau PR 165, 166, 167, 169, 170). Khi tài liệu và mã lệch nhau, mô tả theo mã; chỗ lệch ghi ở [phụ lục](07_MA_TRAN_VAI_TRO_VA_PHU_LUC.md)
 
 Mỗi phân hệ mô tả theo cùng khuôn: mục đích, cấp học, vai trò và mã quyền, căn cứ pháp lý, chức năng và màn hình, quy tắc nghiệp vụ, dữ liệu và tệp xuất, liên kết, kiểm thử e2e. Số mục menu, đường dẫn theo `packages/shared/src/portal-menu.ts`. Sơ đồ quy trình ở cuối tệp.
 
 ## 2.1. Quản lý giáo dục (`education`), nhóm 1 đến 6
 
-- Mục đích: quản lý hồ sơ trường, đơn vị (phân hiệu, điểm trường), lớp học, nhân sự, học sinh và các nghiệp vụ chăm sóc, nuôi dưỡng hằng ngày (cân đo, hoàn thành chương trình, thực đơn, sức khỏe, thuốc, điểm danh, bán trú, nề nếp); công cụ hỗ trợ (thống kê, mật khẩu mặc định, chuyển hồ sơ lên năm học mới, văn thư lưu trữ, danh sách trúng tuyển); khai báo cơ sở vật chất. Bố cục menu theo hệ thống của Sở (DT-15 phần 15a, tài liệu 32 mục 3), giữ đúng số mục của Sở; số trống (1.5, 3.1.4, 4.1.4, 4.1.7, 4.1.9, 4.1.12, 5.9) là mục Sở có nhưng hệ thống gộp hoặc chưa làm.
+- Mục đích: quản lý hồ sơ trường, đơn vị (phân hiệu, điểm trường), lớp học, nhân sự, học sinh và các nghiệp vụ chăm sóc, nuôi dưỡng hằng ngày (cân đo, hoàn thành chương trình, thực đơn, sức khỏe, thuốc, điểm danh, bán trú, nề nếp); công cụ hỗ trợ (thống kê, mật khẩu mặc định, chuyển hồ sơ lên năm học mới, văn thư lưu trữ, danh sách trúng tuyển); khai báo cơ sở vật chất. Bố cục menu theo hệ thống của Sở (DT-15 phần 15a, tài liệu 47 mục 3), giữ đúng số mục của Sở; số trống (1.5, 3.1.4, 4.1.4, 4.1.7, 4.1.9, 4.1.12, 5.9) là mục Sở có nhưng hệ thống gộp hoặc chưa làm.
 - Tên phân hệ đổi theo cấp: `portal-menu.ts` khai báo `label: 'Quản lý giáo dục Mầm non'` (tên dự phòng) và `levelTitle: 'Quản lý giáo dục'`. Hàm `portalWorkspacesForLevels(activeLevels)` (portal-menu.ts) đặt tên:
   - Người dùng đang làm việc ở đúng một cấp: "Quản lý giáo dục <tên hiển thị của cấp>", ví dụ "Quản lý giáo dục Mầm non", "Quản lý giáo dục Trung học cơ sở".
   - Chọn "Tất cả" (nhiều cấp): chỉ "Quản lý giáo dục".
@@ -407,7 +407,7 @@ Tiếp nhận và chuyển hồ sơ (BR-133, YCTD-135):
 - Cấp học áp dụng: 1.1 và 2.1, 2.4 chỉ Mầm non; 1.2, 1.3, 2.2, 2.3 mọi cấp. Báo cáo Tiểu học, THCS, THPT nằm ở mục 7.15, 7.18 của phân hệ Quản lý giáo dục.
 - Đối tượng, vai trò dùng: VT-02, VT-15 (có `P17.report.emis`); VT-02 mở khóa, đặt gửi lại.
 - Quyền chính: mọi đường dẫn `/emis*` cần `P17.report.emis` với phạm vi toàn trường ("Báo cáo EMIS lập cho toàn trường, cần phạm vi toàn trường"); mở khóa, đặt trạng thái gửi lại cần `P01.school-profile.manage`.
-- Căn cứ pháp lý: mã biểu "Biểu 01.ĐN-MN", "Biểu 08.ĐN-NSNN" lấy theo khảo sát hệ thống của Sở (tài liệu 31 mục 10.4); mã và tài liệu không dẫn thông tư về chế độ báo cáo thống kê. Mã có dẫn Thông tư 01/2021/TT-BGDĐT (hạng chức danh), các nghị định về đối tượng chính sách (NĐ 66/2025, NĐ 57/2017, NĐ 105/2020, NĐ 238/2025), Thông tư 26/2018 và 25/2018 (xếp loại chuẩn nghề nghiệp ở 2.2).
+- Căn cứ pháp lý: mã biểu "Biểu 01.ĐN-MN", "Biểu 08.ĐN-NSNN" lấy theo khảo sát hệ thống của Sở (tài liệu 46 mục 10.4); mã và tài liệu không dẫn thông tư về chế độ báo cáo thống kê. Mã có dẫn Thông tư 01/2021/TT-BGDĐT (hạng chức danh), các nghị định về đối tượng chính sách (NĐ 66/2025, NĐ 57/2017, NĐ 105/2020, NĐ 238/2025), Thông tư 26/2018 và 25/2018 (xếp loại chuẩn nghề nghiệp ở 2.2).
 
 ### Chức năng và màn hình
 

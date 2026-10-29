@@ -1,6 +1,6 @@
-# 37. TRIỂN KHAI
+# 26. TRIỂN KHAI
 
-- Mô tả: Các cách triển khai đang có trong kho, các bước chung, thứ tự database migration, phương án quay lui, kiểm tra sau triển khai và mẫu biên bản. Đây là tài liệu `26_TRIEN_KHAI` của quy trình Vibecoding_Flow; số 26 của dự án đã dùng cho `26_SO_DO_CHUC_NANG/` nên lấy số tiếp theo (YCTD-369).
+- Mô tả: Các cách triển khai đang có trong kho, các bước chung, thứ tự database migration, phương án quay lui, kiểm tra sau triển khai và mẫu biên bản. Đây là tài liệu `26_TRIEN_KHAI` của quy trình Vibecoding_Flow (YCTD-369).
 - Phiên bản: 1.0
 - Ngày cập nhật: 2026-10-29
 - Trạng thái: Đang cập nhật
@@ -44,11 +44,11 @@ Ba môi trường thử nghiệm, chạy thật, phát triển tách biệt cơ 
 
 - Hướng dẫn: `deploy/profiles/trial/README.md`, ba tổ hợp ở `deploy/profiles/trial/to-hop-1/` đến `to-hop-3/`.
 - Dùng chung mã và ảnh container với mục 3.2; chuyển một trường sang hồ sơ vận hành bằng `platform relayout` (`deploy/profiles/trial/README.md` mục 6).
-- Trường dùng dữ liệu thật trên máy chủ ngoài Việt Nam cần hồ sơ đồng ý và luật sư rà (`33_HO_SO_PHAP_LY/`).
+- Trường dùng dữ liệu thật trên máy chủ ngoài Việt Nam cần hồ sơ đồng ý và luật sư rà (`48_HO_SO_PHAP_LY/`).
 
 ### 3.4 Bản nhiều trường trên máy (YCTD-310, YCTD-314)
 
-- Hướng dẫn: `32_KE_HOACH_THEO_HE_THONG_SO.md` mục 16.10 (bảng địa chỉ, cách dựng, cách chạy, cách gỡ) và 16.11.
+- Hướng dẫn: `47_KE_HOACH_THEO_HE_THONG_SO.md` mục 16.10 (bảng địa chỉ, cách dựng, cách chạy, cách gỡ) và 16.11.
 - Dựng: `pnpm --filter @school-management/database nhieu-truong-cuc-bo …` sau `pnpm build`; chạy: `node scripts/chay-nhieu-truong.mjs`.
 - Tệp môi trường `.env.nhieu-truong` ở gốc kho, nằm trong `.gitignore`.
 - Chỉ dùng để phát triển và thử trên máy, không phải môi trường triển khai.

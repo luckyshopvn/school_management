@@ -1,4 +1,4 @@
-# 30. BÁO CÁO KIỂM THỬ GIAI ĐOẠN 3
+# 45. BÁO CÁO KIỂM THỬ GIAI ĐOẠN 3
 
 - Mô tả: Kết quả chạy thật của bộ kịch bản kiểm thử `CT-...` và bộ ca kiểm thử chi tiết `CTC-...` sau giai đoạn 3, phân loại các ca chưa chạy và lỗi phát hiện khi gộp các phần, kết luận trước khi đóng gói bản ứng viên phát hành 1.2.0 (đợt DT-11, YCTD-91).
 - Phiên bản: 1.0
@@ -23,7 +23,7 @@ Chưa làm: G3-04 bản cài riêng trên điện thoại chờ Eric quyết đ�
 
 ## 2. Môi trường và cách chạy
 
-Như `29_BAO_CAO_KIEM_THU_G2.md`: năm phần làm song song bằng các agent trong worktree riêng, quyền cấp trước ở tệp định danh 0035; người điều phối gộp nối tiếp, chạy toàn bộ kiểm thử máy chủ và giao diện trước mỗi yêu cầu gộp. Lần chạy cuối ngày 12/10/2026 trên nhánh `dt-11-phan-11c` (đã gồm mọi phần): máy chủ API 518/518 đạt, kiểm thử giao diện 62/62 đạt.
+Như `44_BAO_CAO_KIEM_THU_G2.md`: năm phần làm song song bằng các agent trong worktree riêng, quyền cấp trước ở tệp định danh 0035; người điều phối gộp nối tiếp, chạy toàn bộ kiểm thử máy chủ và giao diện trước mỗi yêu cầu gộp. Lần chạy cuối ngày 12/10/2026 trên nhánh `dt-11-phan-11c` (đã gồm mọi phần): máy chủ API 518/518 đạt, kiểm thử giao diện 62/62 đạt.
 
 ## 3. Kết quả tổng hợp
 
@@ -32,7 +32,7 @@ Như `29_BAO_CAO_KIEM_THU_G2.md`: năm phần làm song song bằng các agent t
 | Kịch bản kiểm thử `CT-001` đến `CT-235` | 235 | 224 | 4 | 7 |
 | Ca kiểm thử chi tiết `CTC-...` | 453 | 443 | 3 | 7 |
 
-So với `29_BAO_CAO_KIEM_THU_G2.md`: thêm 34 kịch bản mới cho chức năng G3 (CT-202 đến CT-235, kèm AC-246 đến AC-279); ba kịch bản P16 trước đây chưa chạy (CT-076, CT-077, CT-124) nay đạt. Mọi kịch bản thuộc chức năng G1, G2 và G3 chạy được trên máy phát triển đều đạt.
+So với `44_BAO_CAO_KIEM_THU_G2.md`: thêm 34 kịch bản mới cho chức năng G3 (CT-202 đến CT-235, kèm AC-246 đến AC-279); ba kịch bản P16 trước đây chưa chạy (CT-076, CT-077, CT-124) nay đạt. Mọi kịch bản thuộc chức năng G1, G2 và G3 chạy được trên máy phát triển đều đạt.
 
 ## 4. Ca chưa chạy và quyết định xử lý
 
@@ -40,7 +40,7 @@ So với `29_BAO_CAO_KIEM_THU_G2.md`: thêm 34 kịch bản mới cho chức nă
 |---|---|---|
 | CT-086, CT-087, CT-088, CT-089 | Hiệu năng và phục hồi cần môi trường gần môi trường chạy thật và quy trình sao lưu | Chạy trên môi trường thử nghiệm khi triển khai ở việc T6 |
 
-Ba ca chi tiết CTC-DD-024, CTC-P01-058, CTC-P06-061 giữ nguyên quyết định ở `28_BAO_CAO_KIEM_THU_CG_10.md` (chờ việc T1 và T6).
+Ba ca chi tiết CTC-DD-024, CTC-P01-058, CTC-P06-061 giữ nguyên quyết định ở `43_BAO_CAO_KIEM_THU_CG_10.md` (chờ việc T1 và T6).
 
 ## 5. Lỗi phát hiện trong đợt DT-11
 
@@ -55,7 +55,7 @@ Không còn lỗi nghiêm trọng hoặc lỗi cao chưa xử lý trong phạm v
 
 ## 6. Giới hạn đã biết của bản 1.2.0
 
-1. Các giới hạn của bản 1.0.0 và 1.1.0 ở `28_BAO_CAO_KIEM_THU_CG_10.md` và `29_BAO_CAO_KIEM_THU_G2.md` vẫn còn.
+1. Các giới hạn của bản 1.0.0 và 1.1.0 ở `43_BAO_CAO_KIEM_THU_CG_10.md` và `44_BAO_CAO_KIEM_THU_G2.md` vẫn còn.
 2. Facebook, Zalo Official Account, cổng thanh toán có thông báo tiền vào chỉ chạy bằng bộ giả lập; nối tài khoản thật ở việc T1 (T4, T7).
 3. Giới hạn số lần gọi của trang tuyển sinh, tuyển dụng công khai giữ trong bộ nhớ từng máy chủ; khi chạy nhiều máy chủ cần bộ nhớ chung (việc T6).
 4. Sổ kế toán kép: danh mục tài khoản khởi tạo cần kế toán trưởng đối chiếu Thông tư 24/2024/TT-BTC; kết chuyển theo năm học; công nợ phải trả, kho, khấu hao chưa ghi sổ tự động; ghi sổ tự động chạy khi xem sổ hoặc bấm ghi sổ.

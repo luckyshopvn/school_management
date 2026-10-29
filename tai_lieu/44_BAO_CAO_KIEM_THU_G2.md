@@ -1,4 +1,4 @@
-# 29. BÁO CÁO KIỂM THỬ GIAI ĐOẠN 2
+# 44. BÁO CÁO KIỂM THỬ GIAI ĐOẠN 2
 
 - Mô tả: Kết quả chạy thật của bộ kịch bản kiểm thử `CT-...` và bộ ca kiểm thử chi tiết `CTC-...` sau giai đoạn 2, phân loại các ca chưa chạy và lỗi phát hiện khi gộp các phần, kết luận trước khi đóng gói bản ứng viên phát hành 1.1.0 (đợt DT-10, YCTD-84).
 - Phiên bản: 1.0
@@ -27,7 +27,7 @@ Giai đoạn 2 (G2) theo `05_PHAM_VI.md`: G2-01, G2-02, G2-04 đến G2-17 (G2-0
 
 | Hạng mục | Nội dung |
 |---|---|
-| Môi trường | Như `28_BAO_CAO_KIEM_THU_CG_10.md`: máy phát triển chạy Docker và GitHub Actions; môi trường thử nghiệm trên đám mây dựng khi triển khai (việc T6) |
+| Môi trường | Như `43_BAO_CAO_KIEM_THU_CG_10.md`: máy phát triển chạy Docker và GitHub Actions; môi trường thử nghiệm trên đám mây dựng khi triển khai (việc T6) |
 | Cách làm | Từ phần 10b, ba phần một lượt làm song song bằng các agent trong worktree riêng; quyền của mỗi lượt cấp trước trong một tệp định danh (0032, 0033, 0034). Người điều phối gộp nối tiếp từng phần, chạy toàn bộ kiểm thử máy chủ và giao diện trên nhánh đã gộp, rồi mở yêu cầu gộp; chỉ gộp vào `main` khi tích hợp liên tục đạt |
 | Lần chạy cuối | Ngày 12/10/2026 trên nhánh `dt-10-phan-10i` (đã gồm mọi phần): máy chủ API 480/480 đạt, kiểm thử giao diện 57/57 đạt; chạy thêm bộ báo cáo và tài chính giai đoạn 2 sau khi bổ sung ca CT-041, CT-083, CT-085 |
 
@@ -44,7 +44,7 @@ So với cổng CG-10: thêm 13 kịch bản mới cho chức năng G2 chưa có
 
 ### 4.1 Ca chi tiết `CTC-...`
 
-Ba ca CTC-DD-024, CTC-P01-058, CTC-P06-061 giữ nguyên lý do và quyết định ở mục 4.1 của `28_BAO_CAO_KIEM_THU_CG_10.md` (chờ việc T1 và T6).
+Ba ca CTC-DD-024, CTC-P01-058, CTC-P06-061 giữ nguyên lý do và quyết định ở mục 4.1 của `43_BAO_CAO_KIEM_THU_CG_10.md` (chờ việc T1 và T6).
 
 ### 4.2 Kịch bản `CT-...`
 
@@ -67,7 +67,7 @@ Không còn lỗi nghiêm trọng hoặc lỗi cao chưa xử lý trong phạm v
 
 ## 6. Giới hạn đã biết của bản 1.1.0
 
-1. Các giới hạn của bản 1.0.0 ở mục 6 của `28_BAO_CAO_KIEM_THU_CG_10.md` vẫn còn (việc T1, T6).
+1. Các giới hạn của bản 1.0.0 ở mục 6 của `43_BAO_CAO_KIEM_THU_CG_10.md` vẫn còn (việc T1, T6).
 2. Chưa có tổ chuyên môn (`/teaching-groups`): tổ trưởng chuyên môn xem và duyệt giáo án theo đơn vị được gán; tổ trưởng duyệt giáo án trên cổng quản trị, chưa có trên ứng dụng giáo viên (YCTD-80).
 3. Chưa nhận ảnh đồ bị mất và tệp đính kèm tin nhắn, công việc, chứng chỉ; trao đổi với phụ huynh không theo thời gian thực (YCTD-79, YCTD-81).
 4. Chưa mở lại kỳ tài chính đã chốt; nhắc nợ gửi khi kế toán bấm, chưa gửi theo lịch (YCTD-82).

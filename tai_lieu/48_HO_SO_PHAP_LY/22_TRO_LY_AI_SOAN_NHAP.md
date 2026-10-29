@@ -1,6 +1,6 @@
 # PL-22. BẢN NHÁP: TRỢ LÝ AI SOẠN CÂU HỎI VÀ KẾ HOẠCH BÀI DẠY (DT-23 phần 23d)
 
-- Mã mẫu: PL-22; phiên bản: 23d-1.0 (2026-10-26); YCTD-214 (`24_YEU_CAU_THAY_DOI.md`); kế hoạch ở `32_KE_HOACH_THEO_HE_THONG_SO.md` mục 15, quyết định GD-102 đến GD-104.
+- Mã mẫu: PL-22; phiên bản: 23d-1.0 (2026-10-26); YCTD-214 (`24_YEU_CAU_THAY_DOI.md`); kế hoạch ở `47_KE_HOACH_THEO_HE_THONG_SO.md` mục 15, quyết định GD-102 đến GD-104.
 - Trạng thái: **bản nháp do Claude soạn để luật sư của Eric rà; không phải tư vấn pháp lý.** Không bật AI ở trường thật khi luật sư chưa rà phần này (phần mềm tắt AI mặc định theo trường).
 - Phạm vi: tính năng AI chỉ **soạn bản nháp** câu hỏi kiểm tra và kế hoạch bài dạy từ **nội dung chương trình**; không chấm điểm, không nhận xét học sinh, không dự đoán, không tuyển sinh, không trả lời học sinh, **không nhận dữ liệu cá nhân**.
 

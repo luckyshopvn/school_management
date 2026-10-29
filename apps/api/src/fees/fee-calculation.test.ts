@@ -19,7 +19,7 @@ import {
   type LoggedInUser,
 } from '../test-support.js';
 
-// Tính học phí, phát hành hóa đơn chính và bổ sung; ca kiểm thử theo 27_BO_CA_KIEM_THU_CHI_TIET/03_P05.md mục 6, 7 và
+// Tính học phí, phát hành hóa đơn chính và bổ sung; ca kiểm thử theo 42_BO_CA_KIEM_THU_CHI_TIET/03_P05.md mục 6, 7 và
 // CTC-P05-015, 017, 018. Kỳ tính là tháng trước tháng hiện tại để mọi ngày học đều đã qua và chốt được điểm danh
 const randomPhone = () => `09${randomInt(0, 100_000_000).toString().padStart(8, '0')}`;
 const errorOf = (body: Record<string, unknown>) =>

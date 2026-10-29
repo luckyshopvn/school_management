@@ -1,10 +1,10 @@
-# 34.3. QUẢN LÝ GIÁO DỤC: DẠY HỌC (NHÓM 7) VÀ KIỂM TRA, ĐÁNH GIÁ (NHÓM 8)
+# 49.3. QUẢN LÝ GIÁO DỤC: DẠY HỌC (NHÓM 7) VÀ KIỂM TRA, ĐÁNH GIÁ (NHÓM 8)
 
 - Mô tả: Phân hệ 2.1 nhóm 7 Dạy học (Tiểu học, THCS, THPT) và nhóm 8 Kiểm tra, đánh giá (THCS, THPT)
 - Phiên bản: 1.0
 - Ngày cập nhật: 2026-10-25
 - Trạng thái: Chờ phê duyệt
-- Thuộc: [Tài liệu 34, tổng hợp chức năng hệ thống](00_MUC_LUC.md)
+- Thuộc: [Tài liệu 49, tổng hợp chức năng hệ thống](00_MUC_LUC.md)
 - Nguồn: mã và tài liệu trên nhánh `main` ngày 2026-10-25 (sau PR 165, 166, 167, 169, 170). Khi tài liệu và mã lệch nhau, mô tả theo mã; chỗ lệch ghi ở [phụ lục](07_MA_TRAN_VAI_TRO_VA_PHU_LUC.md)
 
 Mỗi phân hệ mô tả theo cùng khuôn: mục đích, cấp học, vai trò và mã quyền, căn cứ pháp lý, chức năng và màn hình, quy tắc nghiệp vụ, dữ liệu và tệp xuất, liên kết, kiểm thử e2e. Số mục menu, đường dẫn theo `packages/shared/src/portal-menu.ts`. Sơ đồ quy trình ở cuối tệp.
@@ -46,7 +46,7 @@ Mỗi phân hệ mô tả theo cùng khuôn: mục đích, cấp học, vai trò
   - Học bạ, khen thưởng, xét tốt nghiệp: duyệt, kí, mở lại, quản lý kỳ xét `P02.student-record.approve` (VT-02, VT-15, migration 0072); in đủ số định danh cần `P02.national-id.view`.
   - Sơ đồ chỗ ngồi: `P02.seating.manage` (mọi lớp); giáo viên chủ nhiệm xếp lớp mình không cần quyền.
   - Báo cáo, thống kê Tiểu học, THCS, THPT: `P17.child-statistics.view`; biểu EMIS `P17.report.emis`; sửa khung biểu `P17.report-form.manage`; mở khoá biểu đã gửi `P01.school-profile.manage`.
-- Căn cứ pháp lý (theo chú thích trong mã và tài liệu 32 mục 11, 12): Chương trình giáo dục phổ thông 2018 (Thông tư 32/2018/TT-BGDĐT, bộ môn mẫu và số tiết); Thông tư 27/2020/TT-BGDĐT (đánh giá học sinh tiểu học: Điều 9 kết quả cuối năm, Điều 11 hoàn thành chương trình, Điều 13 học bạ, Điều 15 khen thưởng); Thông tư 22/2021/TT-BGDĐT (đánh giá học sinh THCS, THPT: Điều 7 đánh giá thường xuyên, Điều 8, 9 kết quả học tập, Điều 10 rèn luyện, lên lớp); Điều lệ trường tiểu học, Điều lệ trường trung học (tài liệu 32 nêu tên, mã không trích điều khoản); quy chế thi tốt nghiệp THPT hiện hành và quy chế xét công nhận tốt nghiệp THCS (mã ghi "theo quy chế hiện hành, cần đối chiếu văn bản gốc", không ghi số hiệu). Mã và tài liệu không căn cứ CV 5512, CV 4040, TT 26/2020, TT 28/2020, TT 32/2020 bằng số hiệu.
+- Căn cứ pháp lý (theo chú thích trong mã và tài liệu 47 mục 11, 12): Chương trình giáo dục phổ thông 2018 (Thông tư 32/2018/TT-BGDĐT, bộ môn mẫu và số tiết); Thông tư 27/2020/TT-BGDĐT (đánh giá học sinh tiểu học: Điều 9 kết quả cuối năm, Điều 11 hoàn thành chương trình, Điều 13 học bạ, Điều 15 khen thưởng); Thông tư 22/2021/TT-BGDĐT (đánh giá học sinh THCS, THPT: Điều 7 đánh giá thường xuyên, Điều 8, 9 kết quả học tập, Điều 10 rèn luyện, lên lớp); Điều lệ trường tiểu học, Điều lệ trường trung học (tài liệu 47 nêu tên, mã không trích điều khoản); quy chế thi tốt nghiệp THPT hiện hành và quy chế xét công nhận tốt nghiệp THCS (mã ghi "theo quy chế hiện hành, cần đối chiếu văn bản gốc", không ghi số hiệu). Mã và tài liệu không căn cứ CV 5512, CV 4040, TT 26/2020, TT 28/2020, TT 32/2020 bằng số hiệu.
 
 ### Chức năng và màn hình
 

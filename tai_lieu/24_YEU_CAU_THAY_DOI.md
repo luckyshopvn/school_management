@@ -16,8 +16,8 @@ Từ YCTD-291 (ngày 2026-10-26), mục YCTD mới của mỗi PR nằm ở tệ
 ### YCTD-369: Sửa các điểm lệch quy trình Vibecoding_Flow – 2026-10-29
 
 - Lý do: rà soát cho thấy dự án lệch quy trình ở năm điểm: tệp mảnh chưa gom nên `02`, `03`, `23`, `24` dừng ở YCTD-291 và 0.147.0; thiếu ma trận truy vết và tài liệu triển khai; gần như không gắn tag phiên bản; việc mức Lớn từng viết mã trước khi có bản mẫu duyệt; chưa có thư mục cho tệp tạm của AI.
-- Nội dung thay đổi: gom tệp mảnh; thêm `36_MA_TRAN_TRUY_VET.md`, `37_TRIEN_KHAI.md`; thêm AI-43 đến AI-45, GD-181 đến GD-183 vào `18`; thêm `tam_thoi/` vào `.gitignore`; gắn tag phiên bản sau khi merge.
-- Thành phần bị ảnh hưởng: chỉ tài liệu và `.gitignore`. Không đổi mã, dữ liệu, API, giao diện, phân quyền.
+- Nội dung thay đổi: gom tệp mảnh; đánh lại số bộ tài liệu theo danh mục chuẩn (`25_KET_QUA_KIEM_THU.md` từ `35`, thêm `26_TRIEN_KHAI.md`, `27_MA_TRAN_TRUY_VET.md`, tài liệu riêng 25 đến 34 dời sang 40 đến 49, bảng đổi số ở `index.md`); `01` theo mười ba giai đoạn; thêm AI-43 đến AI-45, sửa AI-40, thêm GD-181 đến GD-184 vào `18`; thêm `tam_thoi/` vào `.gitignore`; gắn tag phiên bản sau khi merge.
+- Thành phần bị ảnh hưởng: tài liệu, `.gitignore`, `README.md`, `README.en.md`, `deploy/`, `.github/workflows/ci.yml` (chú thích), chú thích và đường dẫn tài liệu trong mã nguồn, kiểm thử. Không đổi mã chạy, dữ liệu, API, giao diện, phân quyền. Lịch sử `02`, `23`, `24` và chú thích tệp database migration giữ số cũ.
 - Khả năng ảnh hưởng chức năng cũ: Không.
 - Kiểm thử cần thực hiện: `node scripts/gom-thay-doi.mjs --kiem`, `pnpm format:check`, CI của PR.
 - Người phê duyệt: Eric, ngày 2026-10-29.
