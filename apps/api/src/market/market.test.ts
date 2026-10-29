@@ -336,6 +336,16 @@ describe('chợ gia sư: nền (27f)', () => {
     assert.equal((await tutorCall('GET', '/children', undefined, token)).status, 403);
     // Phụ huynh đăng ký trước khi nền tảng đăng điều khoản phiên bản 2 bên dưới (dùng ở phần kiểm quyền theo loại tài khoản, YCTD-368)
     const parentToken = await register('parent', `phu-huynh-368-${Date.now()}@example.test`);
+    // Mỗi tài khoản một loại (GD-185, E-11 phương án a): thư điện tử của gia sư không đăng ký thêm được tài khoản phụ huynh (CT-1744)
+    const sameEmail = await marketCall('POST', '/auth/register', {
+      kind: 'parent',
+      email,
+      display_name: 'Phụ huynh trùng thư',
+      password: 'matkhau123',
+      accepted_document_ids: [documents.terms, documents.privacy],
+    });
+    assert.equal(sameEmail.status, 400, JSON.stringify(sameEmail.body));
+    assert.match(JSON.stringify(sameEmail.body), /Đã có tài khoản dùng thư điện tử hoặc số điện thoại này/);
     const profile = await tutorCall(
       'PUT',
       '/tutor/profile',

@@ -201,6 +201,13 @@ test('CT-27f-6: cổng nền tảng bật chợ, phụ huynh đăng ký và tạ
   const parentNavigation = market.getByRole('navigation', { name: 'Điều hướng khu phụ huynh' });
   await expect(parentNavigation.getByRole('button', { name: 'Buổi học của con' })).toBeVisible();
   await expect(market.getByRole('button', { name: 'Hồ sơ và môn dạy' })).toHaveCount(0);
+  // Liên kết tới trang của gia sư (#thu-nhap): báo trang dành cho gia sư, mở trang của phụ huynh (CT-1754)
+  await market.goto('/?mo-lai=1#thu-nhap');
+  await expect(
+    market.getByText('Trang bạn mở dành cho tài khoản gia sư. Đã mở trang của tài khoản phụ huynh.'),
+  ).toBeVisible();
+  await expect(parentNavigation).toBeVisible();
+  await expect(market.getByRole('navigation', { name: 'Điều hướng khu gia sư' })).toHaveCount(0);
 
   // Phiên chợ không dùng được ở trường, mã phiên của trường không dùng được ở chợ
   const session = (await market.evaluate("window.sessionStorage.getItem('cho-gia-su-phien')")) as string | null;
@@ -250,6 +257,13 @@ test('CT-27f-6: cổng nền tảng bật chợ, phụ huynh đăng ký và tạ
   await tutorProfile.getByLabel('Dòng giới thiệu').fill('Dạy Toán THCS');
   await tutorProfile.getByRole('button', { name: 'Lưu giới thiệu' }).click();
   await expect(tutorProfile.getByText('Đã lưu giới thiệu')).toBeVisible();
+  // Liên kết tới trang của phụ huynh (#ho-so-con): báo trang dành cho phụ huynh, không hiện hồ sơ con (CT-1753)
+  await tutor.goto('/?mo-lai=1#ho-so-con');
+  await expect(
+    tutor.getByText('Trang bạn mở dành cho tài khoản phụ huynh. Đã mở trang của tài khoản gia sư.'),
+  ).toBeVisible();
+  await expect(tutor.getByRole('navigation', { name: 'Điều hướng khu gia sư' })).toBeVisible();
+  await expect(tutor.getByRole('form', { name: 'Thêm hồ sơ con' })).toHaveCount(0);
   await tutorContext.close();
 
   // Vai trò cơ sở dữ liệu của chợ không vào được cơ sở dữ liệu của trường
