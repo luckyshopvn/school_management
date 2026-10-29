@@ -96,6 +96,11 @@ test('Giáo viên chủ nhiệm điểm danh lớp Mầm 1 trên ứng dụng gi
   await expect(sheet).toContainText('Đã chốt');
   await expect(sheet).toContainText('Nguyễn Gia Bảo');
   await expect(sheet.getByRole('button', { name: 'Mở lại ngày đã chốt' })).toBeVisible();
+  // YCTD-334: mọi dòng đã đánh dấu thì nút Đánh dấu tất cả có mặt tắt; nút Hôm trước, Hôm sau đổi ngày
+  await expect(sheet.getByRole('button', { name: 'Đánh dấu tất cả có mặt' })).toBeDisabled();
+  await portal.getByRole('button', { name: 'Hôm sau' }).click();
+  await portal.getByRole('button', { name: 'Hôm trước' }).click();
+  await expect(portal.getByLabel('Ngày')).toHaveValue(SCHOOL_DAY);
 });
 
 test('Phụ huynh báo vắng cho con trên ứng dụng phụ huynh và xem điểm danh tháng này', async ({ browser }) => {
