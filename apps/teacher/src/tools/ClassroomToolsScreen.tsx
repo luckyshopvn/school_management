@@ -20,6 +20,9 @@ import { ScoreboardTool } from './ScoreboardTool.js';
 import { TimerTool } from './TimerTool.js';
 import { GamesTool } from './games/GamesTool.js';
 import { AlphabetTool } from './mini/AlphabetTool.js';
+import { ClockTool } from './mini/ClockTool.js';
+import { FractionTool } from './mini/FractionTool.js';
+import { MultiplicationTool } from './mini/MultiplicationTool.js';
 import { CountingTool } from './mini/CountingTool.js';
 import { DiceTool } from './mini/DiceTool.js';
 import { NoiseLightTool } from './mini/NoiseLightTool.js';
@@ -300,6 +303,10 @@ export function ClassroomToolsScreen({
                 {active === 'shapes-colors' ? <ShapesColorsTool /> : null}
                 {active === 'counting' ? <CountingTool /> : null}
                 {active === 'alphabet' ? <AlphabetTool /> : null}
+                {active === 'multiplication' ? <MultiplicationTool /> : null}
+                {active === 'ruled-board' ? <WhiteboardTool ruled /> : null}
+                {active === 'clock-reading' ? <ClockTool /> : null}
+                {active === 'fractions' ? <FractionTool /> : null}
                 {active === 'games' ? <GamesTool snapshot={snapshot} online={online && classes !== null} /> : null}
                 {active === 'scoreboard' ? (
                   <ScoreboardTool

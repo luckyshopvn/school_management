@@ -49,6 +49,14 @@ describe('Hộp công cụ giảng dạy: danh mục công cụ', () => {
     }
   });
 
+  it('CT-29c-4: mini app Tiểu học chỉ ở lớp Tiểu học', () => {
+    for (const key of ['multiplication', 'ruled-board', 'clock-reading', 'fractions']) {
+      assert.equal(keys('TH').includes(key), true, key);
+      assert.equal(keys('MN').includes(key), false, key);
+      assert.equal(keys('THCS').includes(key), false, key);
+    }
+  });
+
   it('CT-29a-3: bỏ công cụ trường tắt và công cụ thuộc tính năng gói chưa bật', () => {
     assert.equal(keys('TH', { disabled: ['games', 'timer'] }).includes('games'), false);
     assert.equal(keys('TH', { disabled: ['games', 'timer'] }).includes('timer'), false);

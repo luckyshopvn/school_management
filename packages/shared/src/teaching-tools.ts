@@ -138,6 +138,39 @@ export const TEACHING_TOOLS: readonly TeachingTool[] = [
     levels: ['MN'],
     offline: true,
   },
+  // Tiểu học (DT-29 phần 29c, YCTD-327)
+  {
+    key: 'multiplication',
+    label: 'Bảng cửu chương',
+    description: 'Xem bảng nhân 2 đến 9, hỏi nhanh',
+    section: 'subject',
+    levels: ['TH'],
+    offline: true,
+  },
+  {
+    key: 'ruled-board',
+    label: 'Khung ô li',
+    description: 'Ô li để viết mẫu bằng bút cảm ứng',
+    section: 'subject',
+    levels: ['TH'],
+    offline: true,
+  },
+  {
+    key: 'clock-reading',
+    label: 'Học xem đồng hồ',
+    description: 'Đồng hồ kim kéo được, đọc giờ',
+    section: 'subject',
+    levels: ['TH'],
+    offline: true,
+  },
+  {
+    key: 'fractions',
+    label: 'Phân số trực quan',
+    description: 'Chia hình thành phần bằng nhau, tô theo tử số',
+    section: 'subject',
+    levels: ['TH'],
+    offline: true,
+  },
   // Lối vào các màn đã có của ứng dụng giáo viên
   {
     key: 'lesson-plans',
