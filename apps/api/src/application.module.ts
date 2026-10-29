@@ -59,6 +59,7 @@ import { AuthenticationGuard } from './authentication/authentication.guard.js';
 import { IdentityClient } from './authentication/identity-client.js';
 import type { TenancyRuntime } from '@school-management/database';
 import { API_CONFIGURATION, TENANCY_RUNTIME, type ApiConfiguration } from './common/configuration.js';
+import { ServiceStatusReporter } from './common/service-status-reporter.js';
 import { CurrentSchoolYearResolver } from './common/current-school-year.js';
 import { ViewedSchoolYearInterceptor } from './common/viewed-school-year.js';
 import { SchoolLevelResolver } from './common/school-levels.js';
@@ -906,6 +907,8 @@ export class ApplicationModule {
         { provide: TENANCY_RUNTIME, useValue: options.tenancy ?? null },
         { provide: Clock, useValue: clock },
         Databases,
+        // Tự kiểm cho khối Tình trạng dịch vụ của cổng vận hành (YCTD-376)
+        ServiceStatusReporter,
         options.identityClient ? { provide: IdentityClient, useValue: options.identityClient } : IdentityClient,
         { provide: APP_GUARD, useClass: AuthenticationGuard },
         // Gói dịch vụ (DT-SaaS phần S5a): chặn tải tệp khi hết dung lượng của gói
