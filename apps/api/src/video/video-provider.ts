@@ -228,11 +228,17 @@ export class MockVideoProvider extends VideoRoomProvider {
     return { egressId: `mock-egress-${randomUUID()}` };
   }
 
-  async stopRecording(egressId: string) {
+  async stopRecording(egressId: string): Promise<StoppedRecording> {
     this.calls.push({ method: 'stopRecording', args: [egressId] });
+    if (this.deferRecordingCompletion) {
+      return {};
+    }
     const contents = Buffer.from('ban ghi gia lap');
     return { completed: { sizeBytes: contents.length, contents } };
   }
+
+  // Bật thì dừng ghi không trả tệp, như LiveKit: tệp ghi xong báo qua sự kiện `recording_ended` (YCTD-376)
+  deferRecordingCompletion = false;
 
   async receiveWebhook(body: string, authorization: string | undefined): Promise<VideoRoomEvent | null> {
     const expected = Buffer.from(`Mock ${this.signature(body)}`);
@@ -240,7 +246,24 @@ export class MockVideoProvider extends VideoRoomProvider {
     if (expected.length !== received.length || !timingSafeEqual(expected, received)) {
       throw new VideoWebhookError('Chữ ký sự kiện gọi lại không hợp lệ');
     }
-    const event = JSON.parse(body) as { kind: 'join' | 'leave'; room: string; identity: string; at?: string };
+    const event = JSON.parse(body) as {
+      kind: 'join' | 'leave' | 'recording_ended';
+      room: string;
+      identity: string;
+      at?: string;
+      egress_id?: string;
+      succeeded?: boolean;
+      size_bytes?: number;
+    };
+    if (event.kind === 'recording_ended' && event.egress_id) {
+      return {
+        kind: 'recording_ended',
+        roomName: event.room,
+        identity: null,
+        at: event.at ? new Date(event.at) : new Date(),
+        recording: { egressId: event.egress_id, succeeded: event.succeeded === true, sizeBytes: event.size_bytes ?? 0 },
+      };
+    }
     if (event.kind !== 'join' && event.kind !== 'leave') {
       return null;
     }

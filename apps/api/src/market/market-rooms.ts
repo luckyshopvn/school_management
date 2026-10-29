@@ -21,6 +21,8 @@ import {
   tutorNoShowAllowed,
 } from './market-room-rules.js';
 
+type RecordingResult = NonNullable<VideoRoomEvent['recording']>;
+
 // Phòng học video của chợ gia sư (DT-27 phần 27j, YCTD-362; tài liệu 47 mục 19.12; GD-164, quyết định của Eric ngày 2026-10-29):
 // - phụ huynh đồng ý ghi hình một lần cho mọi buổi của một con với một gia sư, rút lại được; con từ đủ 7 tuổi cùng xác nhận. Buổi có trẻ
 //   vị thành niên chỉ vào phòng được khi có đồng ý còn hiệu lực;
@@ -598,9 +600,24 @@ export class MarketRoomsService {
     return this.tutorRoom(request, id);
   }
 
-  // ---------- Sự kiện của máy chủ video (vào, ra phòng của chợ); gọi từ VideoWebhookController
+  // Dịch vụ an toàn trẻ em đăng ký cách xử lý bản ghi đã ghi xong (mã hóa, lưu); đăng ký thay vì nhận vào hàm dựng để không phụ thuộc
+  // vòng giữa hai dịch vụ (YCTD-376)
+  private recordingEndedHandler: ((recording: RecordingResult, at: Date) => Promise<boolean>) | null = null;
+
+  onRecordingEnded(handler: (recording: RecordingResult, at: Date) => Promise<boolean>): void {
+    this.recordingEndedHandler = handler;
+  }
+
+  // ---------- Sự kiện của máy chủ video (vào, ra phòng, ghi xong của chợ); gọi từ VideoWebhookController
   async handleEvent(event: VideoRoomEvent): Promise<{ handled: boolean }> {
-    if (!this.market.available || !event.roomName.startsWith(MARKET_ROOM_PREFIX) || !event.identity) {
+    if (!this.market.available || !event.roomName.startsWith(MARKET_ROOM_PREFIX)) {
+      return { handled: false };
+    }
+    if (event.kind === 'recording_ended') {
+      if (!event.recording || !this.recordingEndedHandler) return { handled: false };
+      return { handled: await this.recordingEndedHandler(event.recording, event.at) };
+    }
+    if (!event.identity) {
       return { handled: false };
     }
     const bookingId = event.roomName.slice(MARKET_ROOM_PREFIX.length);

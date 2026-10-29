@@ -5,6 +5,8 @@ import {
   isExpired,
   isNetworkFailure,
   orderedQueue,
+  ownedKey,
+  ownerOfAccessToken,
   recordKey,
   type QueuedOperation,
 } from './offline-rules.ts';
@@ -53,5 +55,15 @@ describe('Học khi mạng yếu', () => {
     );
     assert.deepEqual(outcome, { sent: 1, dropped: [{ id: 'b', reason: 'Bài đã đóng' }], stopped: true });
     assert.deepEqual(removed, ['a', 'b'], 'c còn trong hàng đợi');
+  });
+
+  it('CT-1719: dữ liệu trên máy gắn với người dùng của mã phiên; khóa của hai em khác nhau (YCTD-376)', () => {
+    const tokenOf = (claims: object) => `e30.${Buffer.from(JSON.stringify(claims)).toString('base64url')}.chu-ky-gia`;
+    assert.equal(ownerOfAccessToken(tokenOf({ sub: 'hoc-sinh-a', exp: 1 })), 'hoc-sinh-a');
+    assert.equal(ownerOfAccessToken(tokenOf({ exp: 1 })), null);
+    assert.equal(ownerOfAccessToken('khong-phai-ma-phien'), null);
+    const queued = ownedKey('hoc-sinh-a', recordKey('queue', 'hoat-dong-1:ma-nop'));
+    assert.equal(queued, 'hoc-sinh-a/queue:hoat-dong-1:ma-nop');
+    assert.ok(!queued.startsWith(ownedKey('hoc-sinh-b', recordKey('queue', ''))), 'em B không thấy hàng đợi của em A');
   });
 });

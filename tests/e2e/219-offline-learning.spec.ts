@@ -15,7 +15,7 @@ import {
   E2E_SCHOOL_YEAR_DATABASE_PREFIX,
 } from '../e2e-environment.mjs';
 
-// Học khi mạng yếu (DT-28 phần 28j, YCTD-280; GD-148 đã chốt 2026-10-27), kịch bản CT-28j-5: trường bật; học sinh làm bài, mất mạng thì bấm
+// Học khi mạng yếu (DT-28 phần 28j, YCTD-280; GD-148 đã chốt 2026-10-27), kịch bản CT-28j-5, CT-1719 (YCTD-376): trường bật; học sinh làm bài, mất mạng thì bấm
 // nộp được giữ trên máy kèm thời điểm bấm nộp; có mạng lại tự nộp đúng một lần; đăng xuất xoá dữ liệu trên máy. Dữ liệu giả
 const identity = createDatabase<IdentityDatabase>(readConnectionString('identity'));
 let schoolYear: ReturnType<typeof createDatabase<SchoolYearDatabase>>;
@@ -81,10 +81,8 @@ async function call(token: string, method: string, path: string, body?: unknown)
   return { status: response.status, body: (await response.json()) as Record<string, unknown> };
 }
 
-test('CT-28j-5: mất mạng khi nộp bài: bài giữ trên máy, có mạng tự nộp một lần; đăng xuất xoá dữ liệu trên máy', async ({
-  browser,
-}) => {
-  test.setTimeout(300_000);
+// Trường bật học khi mạng yếu; một học sinh lớp THCS có tài khoản học và thi, một bài tập tự luận đã giao; trả hàm dọn cấu hình
+async function prepareAssignment(browser: Browser) {
   const suffix = Date.now() % 1_000_000;
   const reference = await schoolYear
     .selectFrom('classes')
@@ -143,6 +141,10 @@ test('CT-28j-5: mất mạng khi nộp bài: bài giữ trên máy, có mạng t
   const head = await signInPortal(browser, principal);
   await setSecondaryEnabled(head, true);
   const principalToken = await tokenOf(principal);
+  const cleanup = async () => {
+    await call(principalToken, 'PUT', '/learning/offline/config', { enabled: false, retention_days: 7 });
+    await setSecondaryEnabled(head, false);
+  };
   try {
     expect(
       (await call(principalToken, 'PUT', '/learning/offline/config', { enabled: true, retention_days: 7 })).status,
@@ -193,22 +195,42 @@ test('CT-28j-5: mất mạng khi nộp bài: bài giữ trên máy, có mạng t
     expect((await call(teacherToken, 'POST', `/learning/activities/${activityId}/assignment/release`, {})).status).toBe(
       200,
     );
+    return { suffix, account, childName, title, activityId, cleanup };
+  } catch (error) {
+    await cleanup();
+    throw error;
+  }
+}
 
-    const context = await browser.newContext();
-    const student = await context.newPage();
-    await student.goto(`${STUDENT_URL}/`);
-    await student.getByLabel('Tên đăng nhập').fill(account.username);
-    await student.getByLabel('Mật khẩu', { exact: true }).fill(account.password);
-    await student.getByRole('button', { name: 'Đăng nhập' }).click();
-    await expect(student.getByRole('heading', { name: 'Đặt mật khẩu mới' })).toBeVisible();
-    await student.getByLabel('Mật khẩu mới', { exact: true }).fill(`MatKhauMoi${suffix}`);
-    await student.getByLabel('Nhập lại mật khẩu mới').fill(`MatKhauMoi${suffix}`);
-    await student.getByRole('button', { name: 'Lưu mật khẩu' }).click();
-    await expect(student.getByRole('heading', { name: `Xin chào, ${childName}` })).toBeVisible();
-    await student.getByRole('button', { name: `Mở ${title}` }).click();
-    const work = student.getByRole('region', { name: `Bài tập ${title}` });
-    await expect(work.getByText('Bản nháp tự lưu trên máy này')).toBeVisible();
-    await work.getByLabel('Trả lời câu 1').fill('Em làm bài lúc mất mạng');
+// Học sinh đăng nhập lần đầu (đặt mật khẩu mới), mở bài, viết câu trả lời
+async function openAssignment(browser: Browser, prepared: Awaited<ReturnType<typeof prepareAssignment>>) {
+  const context = await browser.newContext();
+  const student = await context.newPage();
+  await student.goto(`${STUDENT_URL}/`);
+  await student.getByLabel('Tên đăng nhập').fill(prepared.account.username);
+  await student.getByLabel('Mật khẩu', { exact: true }).fill(prepared.account.password);
+  await student.getByRole('button', { name: 'Đăng nhập' }).click();
+  await expect(student.getByRole('heading', { name: 'Đặt mật khẩu mới' })).toBeVisible();
+  await student.getByLabel('Mật khẩu mới', { exact: true }).fill(`MatKhauMoi${prepared.suffix}`);
+  await student.getByLabel('Nhập lại mật khẩu mới').fill(`MatKhauMoi${prepared.suffix}`);
+  await student.getByRole('button', { name: 'Lưu mật khẩu' }).click();
+  await expect(student.getByRole('heading', { name: `Xin chào, ${prepared.childName}` })).toBeVisible();
+  await student.getByRole('button', { name: `Mở ${prepared.title}` }).click();
+  const work = student.getByRole('region', { name: `Bài tập ${prepared.title}` });
+  await expect(work.getByText('Bản nháp tự lưu trên máy này')).toBeVisible();
+  await work.getByLabel('Trả lời câu 1').fill('Em làm bài lúc mất mạng');
+  return { context, student, work };
+}
+
+const COUNT_RECORDS = `new Promise((resolve) => { const open = indexedDB.open('hoc-khi-mang-yeu', 1); open.onsuccess = () => { const request = open.result.transaction('records').objectStore('records').count(); request.onsuccess = () => resolve(request.result); }; })`;
+
+test('CT-28j-5: mất mạng khi nộp bài: bài giữ trên máy, có mạng tự nộp một lần; đăng xuất xoá dữ liệu trên máy', async ({
+  browser,
+}) => {
+  test.setTimeout(300_000);
+  const prepared = await prepareAssignment(browser);
+  try {
+    const { context, student, work } = await openAssignment(browser, prepared);
     const pressedAfter = Date.now() - 60_000;
     await context.setOffline(true);
     await work.getByRole('button', { name: 'Nộp bài' }).click();
@@ -219,19 +241,44 @@ test('CT-28j-5: mất mạng khi nộp bài: bài giữ trên máy, có mạng t
       .selectFrom('assignment_submissions')
       .innerJoin('assignments', 'assignments.id', 'assignment_submissions.assignment_id')
       .select(['assignment_submissions.status', 'assignment_submissions.client_submitted_at'])
-      .where('assignments.activity_id', '=', activityId)
+      .where('assignments.activity_id', '=', prepared.activityId)
       .where('assignment_submissions.status', '<>', 'draft')
       .execute();
     expect(submissions).toHaveLength(1);
     expect(submissions[0]?.client_submitted_at?.getTime() ?? 0).toBeGreaterThan(pressedAfter);
     await student.getByRole('button', { name: 'Đăng xuất' }).click();
     await expect(student.getByLabel('Tên đăng nhập')).toBeVisible();
-    const remaining = await student.evaluate(
-      `new Promise((resolve) => { const open = indexedDB.open('hoc-khi-mang-yeu', 1); open.onsuccess = () => { const request = open.result.transaction('records').objectStore('records').count(); request.onsuccess = () => resolve(request.result); }; })`,
-    );
-    expect(remaining).toBe(0);
+    expect(await student.evaluate(COUNT_RECORDS)).toBe(0);
   } finally {
-    await call(principalToken, 'PUT', '/learning/offline/config', { enabled: false, retention_days: 7 });
-    await setSecondaryEnabled(head, false);
+    await prepared.cleanup();
+  }
+});
+
+test('CT-1719: máy dùng chung: đăng xuất lúc mất mạng vẫn xoá bài chờ gửi trên máy, em sau không gửi được bài của em trước (YCTD-376)', async ({
+  browser,
+}) => {
+  test.setTimeout(300_000);
+  const prepared = await prepareAssignment(browser);
+  try {
+    const { context, student, work } = await openAssignment(browser, prepared);
+    await context.setOffline(true);
+    await work.getByRole('button', { name: 'Nộp bài' }).click();
+    await expect(work.getByText('Chưa có mạng: bài đã lưu trên máy và sẽ tự nộp khi có mạng')).toBeVisible();
+    expect(await student.evaluate(COUNT_RECORDS)).toBeGreaterThan(0);
+    // Vẫn mất mạng khi bấm Đăng xuất
+    await student.getByRole('button', { name: 'Đăng xuất' }).click();
+    await expect(student.getByLabel('Tên đăng nhập')).toBeVisible();
+    await expect.poll(() => student.evaluate(COUNT_RECORDS)).toBe(0);
+    await context.setOffline(false);
+    const submissions = await schoolYear
+      .selectFrom('assignment_submissions')
+      .innerJoin('assignments', 'assignments.id', 'assignment_submissions.assignment_id')
+      .select('assignment_submissions.id')
+      .where('assignments.activity_id', '=', prepared.activityId)
+      .where('assignment_submissions.status', '<>', 'draft')
+      .execute();
+    expect(submissions).toHaveLength(0);
+  } finally {
+    await prepared.cleanup();
   }
 });

@@ -1,6 +1,6 @@
 import { revokePushOnSignOut } from '@school-management/pwa';
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
-import { forgetEverything } from './offline/offline.ts';
+import { forgetEverything, isNetworkFailure, setOfflineOwner } from './offline/offline.ts';
 import {
   changeStudentPassword,
   refreshStudentSession,
@@ -31,6 +31,8 @@ export function StudentSessionProvider({ children }: { children: ReactNode }) {
   const [lastPassword, setLastPassword] = useState<string>();
 
   const applyTokens = useCallback((tokens: TokenResponse) => {
+    // Dữ liệu học khi mạng yếu gắn với em đang đăng nhập (YCTD-376)
+    setOfflineOwner(tokens.access_token);
     setPasswordChangeRequired(tokens.password_change_required);
     setStatus('signed-in');
   }, []);
@@ -38,7 +40,13 @@ export function StudentSessionProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     refreshStudentSession()
       .then(applyTokens)
-      .catch(() => setStatus('signed-out'));
+      .catch(async (error: unknown) => {
+        // Máy chủ từ chối phiên (hết hạn, đã thu hồi): xoá dữ liệu của em trước trên máy; mất mạng thì giữ để gửi khi có mạng
+        if (!isNetworkFailure(error)) {
+          await forgetEverything();
+        }
+        setStatus('signed-out');
+      });
   }, [applyTokens]);
 
   const value = useMemo<StudentSessionValue>(
@@ -60,9 +68,9 @@ export function StudentSessionProvider({ children }: { children: ReactNode }) {
           // Máy dùng chung không nhận đẩy của học sinh trước (DT-26 phần 26b); cần mã phiên nên gọi trước khi đăng xuất
           await revokePushOnSignOut(import.meta.env.BASE_URL, requestStudentJson);
           await studentLogout();
-          // Học khi mạng yếu (DT-28 phần 28j): đăng xuất xoá hết dữ liệu của em trên máy
-          await forgetEverything();
         } finally {
+          // Học khi mạng yếu (DT-28 phần 28j): đăng xuất xoá hết dữ liệu của em trên máy, kể cả khi mất mạng (YCTD-376)
+          await forgetEverything();
           setLastPassword(undefined);
           setPasswordChangeRequired(false);
           setStatus('signed-out');
