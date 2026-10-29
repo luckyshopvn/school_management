@@ -171,7 +171,12 @@ const FILTERS: Array<[string, string]> = [
 const ACTIONS: Record<string, { label: string; done: string; amount: boolean; reference: boolean }> = {
   'manual-payment': { label: 'Ghi nhận tiền tay', done: 'Đã ghi nhận tiền', amount: true, reference: true },
   discount: { label: 'Giảm giá', done: 'Đã giảm giá', amount: true, reference: false },
-  einvoice: { label: 'Phát hành hóa đơn điện tử', done: 'Đã phát hành hóa đơn điện tử', amount: false, reference: false },
+  einvoice: {
+    label: 'Phát hành hóa đơn điện tử',
+    done: 'Đã phát hành hóa đơn điện tử',
+    amount: false,
+    reference: false,
+  },
   'einvoice-cancel': { label: 'Hủy hóa đơn điện tử', done: 'Đã hủy hóa đơn điện tử', amount: false, reference: false },
   void: { label: 'Hủy hóa đơn', done: 'Đã hủy', amount: false, reference: false },
 };
@@ -550,7 +555,10 @@ function AssignDialog({
           void run(async () => {
             setError(null);
             try {
-              await call(accessToken, 'POST', `billing/payments/${payment.id}/assign`, { invoice_id: invoice.id, reason });
+              await call(accessToken, 'POST', `billing/payments/${payment.id}/assign`, {
+                invoice_id: invoice.id,
+                reason,
+              });
               onDone(`Đã gán vào ${invoice.code}.`);
             } catch (caught) {
               setError(`Không gán được: ${errorMessage(caught)}`);
@@ -729,7 +737,9 @@ export function BillingPage({ accessToken, role }: { accessToken: string; role: 
   const load = useCallback(() => {
     setLoadError(null);
     reload().catch((caught: unknown) =>
-      setLoadError(`Không đọc được dữ liệu thu phí: ${errorMessage(caught)}. Bấm Tải lại; lỗi lặp lại thì báo nhóm kỹ thuật.`),
+      setLoadError(
+        `Không đọc được dữ liệu thu phí: ${errorMessage(caught)}. Bấm Tải lại; lỗi lặp lại thì báo nhóm kỹ thuật.`,
+      ),
     );
   }, [reload]);
   useEffect(load, [load]);
@@ -834,7 +844,9 @@ export function BillingPage({ accessToken, role }: { accessToken: string; role: 
       <div className="page-head">
         <div>
           <h1>Thu phí</h1>
-          <p className="lead">Hóa đơn dịch vụ của các trường, công nợ, giao dịch chưa khớp, quy tắc tính phí và cấu hình thu.</p>
+          <p className="lead">
+            Hóa đơn dịch vụ của các trường, công nợ, giao dịch chưa khớp, quy tắc tính phí và cấu hình thu.
+          </p>
         </div>
         {overview ? (
           <div className="page-actions">
@@ -881,7 +893,12 @@ export function BillingPage({ accessToken, role }: { accessToken: string; role: 
                   <h2 id="hoa-don-tieu-de">Hóa đơn</h2>
                   <div className="pills" role="group" aria-label="Lọc hóa đơn">
                     {FILTERS.map(([value, label]) => (
-                      <button key={value} type="button" aria-pressed={filter === value} onClick={() => setFilter(value)}>
+                      <button
+                        key={value}
+                        type="button"
+                        aria-pressed={filter === value}
+                        onClick={() => setFilter(value)}
+                      >
                         {label}
                       </button>
                     ))}
@@ -1073,7 +1090,9 @@ export function BillingPage({ accessToken, role }: { accessToken: string; role: 
                     </button>
                   </div>
                   {rules.length === 0 ? (
-                    <EmptyState title="Chưa có quy tắc nào">Gói chưa gắn quy tắc thì tính theo giá niêm yết.</EmptyState>
+                    <EmptyState title="Chưa có quy tắc nào">
+                      Gói chưa gắn quy tắc thì tính theo giá niêm yết.
+                    </EmptyState>
                   ) : (
                     <div className="table-scroll">
                       <table className="sticky-first" aria-label="Quy tắc tính phí" style={{ minWidth: 760 }}>
@@ -1117,7 +1136,9 @@ export function BillingPage({ accessToken, role }: { accessToken: string; role: 
                 </section>
                 {editingRule ? (
                   <section className="card" aria-labelledby="bieu-mau-quy-tac">
-                    <h2 id="bieu-mau-quy-tac">{ruleForm.id ? `Sửa quy tắc: ${ruleForm.name}` : 'Lập quy tắc tính phí'}</h2>
+                    <h2 id="bieu-mau-quy-tac">
+                      {ruleForm.id ? `Sửa quy tắc: ${ruleForm.name}` : 'Lập quy tắc tính phí'}
+                    </h2>
                     <form
                       className="stack"
                       style={{ gap: '1.25rem' }}

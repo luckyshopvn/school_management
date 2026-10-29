@@ -231,7 +231,8 @@ function AiPricingBlock({ accessToken, planId, planName }: { accessToken: string
       <h2 id="phi-ai-cua-goi">Phí AI của gói {planName}</h2>
       <p className="muted" style={{ marginTop: 0 }}>
         Trường chọn cấu hình nền tảng cấp khóa trả phí theo token: mỗi kỳ trừ token miễn phí, phần còn lại nhân đơn giá,
-        làm tròn lên, không thấp hơn phí tối thiểu. Đơn giá để trống thì trường thuộc gói này chưa dùng được cấu hình đó.
+        làm tròn lên, không thấp hơn phí tối thiểu. Đơn giá để trống thì trường thuộc gói này chưa dùng được cấu hình
+        đó.
       </p>
       <OutcomeBanner outcome={outcome} onClose={() => setOutcome(null)} />
       <form className="stack" aria-label={`Phí AI của gói ${planName}`} onSubmit={save}>
@@ -351,7 +352,9 @@ export function PlansPage({
   const load = useCallback(() => {
     setLoadError(null);
     reload().catch((caught: unknown) =>
-      setLoadError(`Không đọc được danh sách gói: ${errorMessage(caught)}. Bấm Tải lại; lỗi lặp lại thì báo nhóm kỹ thuật.`),
+      setLoadError(
+        `Không đọc được danh sách gói: ${errorMessage(caught)}. Bấm Tải lại; lỗi lặp lại thì báo nhóm kỹ thuật.`,
+      ),
     );
   }, [reload]);
   useEffect(load, [load]);
@@ -498,8 +501,8 @@ export function PlansPage({
         <div>
           <h1>Gói dịch vụ</h1>
           <p className="lead">
-            Gói quyết định phân hệ, giới hạn và giá niêm yết của trường. Bật riêng một tính năng cho một trường làm ở trang
-            chi tiết trường.
+            Gói quyết định phân hệ, giới hạn và giá niêm yết của trường. Bật riêng một tính năng cho một trường làm ở
+            trang chi tiết trường.
           </p>
         </div>
         {canManage ? (
@@ -566,7 +569,8 @@ export function PlansPage({
                           </td>
                           <td>{limitsOf(plan)}</td>
                           <td>
-                            {PRICING_LABELS[plan.pricing_mode]}: {count(plan.unit_price)} đ mỗi {BILLING_CYCLE_LABELS[plan.billing_cycle].toLowerCase()}
+                            {PRICING_LABELS[plan.pricing_mode]}: {count(plan.unit_price)} đ mỗi{' '}
+                            {BILLING_CYCLE_LABELS[plan.billing_cycle].toLowerCase()}
                           </td>
                           <td className="number">{count(plan.school_count)}</td>
                           {canManage ? (
@@ -629,7 +633,12 @@ export function PlansPage({
                       Mọi phân hệ
                     </label>
                     {!form.allModules ? (
-                      <div className="grid-3" role="group" aria-label="Phân hệ được bật" style={{ gap: '0.25rem 1rem', marginTop: '0.5rem' }}>
+                      <div
+                        className="grid-3"
+                        role="group"
+                        aria-label="Phân hệ được bật"
+                        style={{ gap: '0.25rem 1rem', marginTop: '0.5rem' }}
+                      >
                         {modules.map((module) => (
                           <label key={module.key} className="check">
                             <input
@@ -654,7 +663,10 @@ export function PlansPage({
                   </fieldset>
                   <fieldset className="form-group">
                     <legend>
-                      Giới hạn <span className="muted" style={{ fontWeight: 400 }}>· để trống là không giới hạn</span>
+                      Giới hạn{' '}
+                      <span className="muted" style={{ fontWeight: 400 }}>
+                        · để trống là không giới hạn
+                      </span>
                     </legend>
                     <div className="grid-3">
                       {numberField('max_active_students', 'Học sinh đang học tối đa')}
