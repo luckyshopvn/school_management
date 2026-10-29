@@ -64,13 +64,12 @@ function ToolTile({
   onSelect(): void;
   asTab: boolean;
 }) {
-  // Tên của ô chỉ là tên công cụ; mô tả đọc riêng, để tên không lẫn chữ của mô tả (mô tả "Hình và màu" có chữ "gọi tên")
-  const labelId = useId();
+  // Tên của ô chỉ là tên công cụ; mô tả ẩn khỏi tên và đọc riêng qua aria-describedby, để tên không lẫn chữ của mô tả
+  // (mô tả "Hình và màu" có chữ "gọi tên")
   const descriptionId = useId();
   return (
     <button
       type="button"
-      aria-labelledby={labelId}
       aria-describedby={descriptionId}
       {...(asTab ? { role: 'tab', 'aria-selected': selected } : {})}
       onClick={onSelect}
@@ -78,10 +77,12 @@ function ToolTile({
         selected ? 'bg-brand text-white' : 'border border-border-strong bg-card text-text'
       }`}
     >
-      <span id={labelId} className="text-label font-semibold">
-        {tool.label}
-      </span>
-      <span id={descriptionId} className={`text-label ${selected ? 'text-white' : 'text-text-secondary'}`}>
+      <span className="text-label font-semibold">{tool.label}</span>
+      <span
+        id={descriptionId}
+        aria-hidden="true"
+        className={`text-label ${selected ? 'text-white' : 'text-text-secondary'}`}
+      >
         {tool.description}
       </span>
     </button>
