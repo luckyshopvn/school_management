@@ -14,6 +14,7 @@ import { writeAudit } from '../provision-school.js';
 // - mốc của phòng học video (YCTD-362, GD-164; quyết định của Eric ngày 2026-10-29): mở phòng trước giờ học 10 phút, vào muộn quá 15 phút
 //   tính vắng, gia sư vắng quá 10 phút thì phụ huynh báo và được hoàn đủ, có mặt từ 80% thời lượng là đủ buổi, gia sư không xác nhận
 //   thì tự xác nhận sau 24 giờ; cổng vận hành chỉnh được
+// - gói buổi (YCTD-365, GD-165; quyết định của Eric ngày 2026-10-29): dùng trong 56 ngày (8 tuần) kể từ lúc trả tiền, chỉnh được
 export const MARKET_SETTINGS_KEY = 'market';
 
 export interface MarketRoomTimings {
@@ -50,6 +51,7 @@ export interface MarketSettings {
   defaultCommissionPercent: number | null;
   realPaymentsEnabled: false;
   room: MarketRoomTimings;
+  packageValidDays: number;
 }
 
 export const DEFAULT_MARKET_SETTINGS: MarketSettings = {
@@ -61,6 +63,7 @@ export const DEFAULT_MARKET_SETTINGS: MarketSettings = {
   defaultCommissionPercent: null,
   realPaymentsEnabled: false,
   room: DEFAULT_ROOM_TIMINGS,
+  packageValidDays: 56,
 };
 
 export const REAL_PAYMENTS_BLOCKED_MESSAGE =
@@ -101,6 +104,7 @@ export async function readMarketSettings(platform: Kysely<PlatformDatabase>): Pr
     room: Object.fromEntries(
       ROOM_TIMING_FIELDS.map(([key, field]) => [key, integerOr(value[field], DEFAULT_ROOM_TIMINGS[key])]),
     ) as unknown as MarketRoomTimings,
+    packageValidDays: integerOr(value.package_valid_days, DEFAULT_MARKET_SETTINGS.packageValidDays),
   };
 }
 
@@ -153,6 +157,10 @@ export function parseMarketSettings(body: Record<string, unknown> | undefined): 
     }
     room[key] = input;
   }
+  const packageDays = body?.package_valid_days ?? DEFAULT_MARKET_SETTINGS.packageValidDays;
+  if (typeof packageDays !== 'number' || !Number.isInteger(packageDays) || packageDays < 7 || packageDays > 365) {
+    throw new MarketSettingsError('package_valid_days', 'Hạn dùng gói buổi là số ngày từ 7 đến 365');
+  }
   return {
     enabled,
     host: host || null,
@@ -162,6 +170,7 @@ export function parseMarketSettings(body: Record<string, unknown> | undefined): 
     defaultCommissionPercent: commission === null ? null : Math.round(commission * 100) / 100,
     realPaymentsEnabled: false,
     room,
+    packageValidDays: packageDays,
   };
 }
 
@@ -179,6 +188,7 @@ export async function saveMarketSettings(
     default_commission_percent: settings.defaultCommissionPercent,
     real_payments_enabled: false,
     ...roomTimingsJson(settings.room),
+    package_valid_days: settings.packageValidDays,
   });
   await platform
     .insertInto('platform_settings')

@@ -178,6 +178,8 @@ export class MarketPublicService {
               'grade_to',
               'content_kind',
               'price_per_session',
+              'package_sessions',
+              'package_price',
             ])
             .where('account_id', 'in', ids)
             .execute()
@@ -204,6 +206,8 @@ export class MarketPublicService {
             grade_to: item.grade_to,
             content_kind: item.content_kind,
             price_per_session: item.price_per_session,
+            package_sessions: item.package_sessions,
+            package_price: item.package_price,
           })),
         badges: badges.get(row.id),
       })),
@@ -242,6 +246,8 @@ export class MarketPublicService {
           'content_kind',
           'price_per_session',
           'session_minutes',
+          'package_sessions',
+          'package_price',
         ])
         .where('account_id', '=', row.id)
         .orderBy('created_at')
@@ -280,6 +286,8 @@ export class MarketPublicService {
           content_kind: item.content_kind,
           session_minutes: item.session_minutes,
           price_per_session: item.price_per_session,
+          package_sessions: item.package_sessions,
+          package_price: item.package_price,
         })),
         schedule: availability,
       },

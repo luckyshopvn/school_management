@@ -3,10 +3,13 @@ import { operatorCan, type OperatorRole } from '@school-management/shared';
 import { MarketPayments } from './MarketPayments.js';
 import { MarketSafety } from './MarketSafety.js';
 import { MarketReviews } from './MarketReviews.js';
+import { MarketReviewModeration } from './MarketReviewModeration.js';
 import { PlatformApiError } from './platform-api.js';
 
 // Trang "Chợ gia sư" của cổng vận hành nền tảng (DT-27 phần 27f, YCTD-256): bật tắt chợ, tên miền con dành riêng, hạn giữ bản ghi (GD-132),
 // hạn khiếu nại (GD-133), tỷ lệ hoa hồng mặc định (E-01, để trống khi chưa chốt), đăng phiên bản mới của văn bản pháp lý, số tài khoản.
+// Mốc phòng học video (GD-164, YCTD-362) và hạn dùng gói buổi (GD-165, YCTD-365) chỉnh ở cùng biểu mẫu (YCTD-363); máy chủ thay ô
+// không gửi bằng giá trị mặc định nên biểu mẫu luôn gửi đủ các ô.
 // Thu tiền thật luôn tắt ở bản này (chặn ở máy chủ đến khi xong E-01 đến E-07). Gọi máy chủ API ở /api/v1/market/admin
 interface Overview {
   settings: {
@@ -17,7 +20,8 @@ interface Overview {
     complaint_window_hours: number;
     default_commission_percent: number | null;
     real_payments_enabled: false;
-  };
+    package_valid_days: number;
+  } & Record<TimingField, number>;
   documents: Array<{ id: string; kind: string; version: number; title: string; published_at: string }>;
   document_kinds: Record<string, string>;
   accounts: Array<{ kind: 'parent' | 'tutor'; status: string; count: number }>;
@@ -57,6 +61,16 @@ const STATUS_LABELS: Record<string, string> = {
   closed: 'đã đóng',
 };
 
+// Mốc phòng học video (GD-164): tên ô ở máy chủ, nhãn, khoảng cho phép (khớp ROOM_TIMING_FIELDS của market-settings.ts)
+const TIMING_FIELDS = [
+  ['room_opens_before_minutes', 'Mở phòng trước giờ học (phút)', 0, 60],
+  ['late_absent_minutes', 'Vào muộn quá số phút này thì tính vắng', 1, 60],
+  ['tutor_no_show_minutes', 'Gia sư vắng quá số phút này thì phụ huynh báo được', 1, 60],
+  ['full_attendance_percent', 'Có mặt từ tỉ lệ này thì đủ buổi (%)', 50, 100],
+  ['auto_confirm_hours', 'Tự xác nhận buổi sau (giờ)', 1, 168],
+] as const;
+type TimingField = (typeof TIMING_FIELDS)[number][0];
+
 // Phần nào hiện theo vai trò nhân viên vận hành (YCTD-323): cấu hình và văn bản chỉ quản trị, duyệt hồ sơ và kiểm duyệt cho hỗ trợ,
 // thanh toán cho kế toán (bảng OPERATOR_PERMISSIONS)
 export function MarketPage({ accessToken, role }: { accessToken: string; role: OperatorRole }) {
@@ -69,6 +83,8 @@ export function MarketPage({ accessToken, role }: { accessToken: string; role: O
     retention: '30',
     window: '48',
     commission: '',
+    packageDays: '56',
+    timings: {} as Record<TimingField, string>,
   });
   const [document, setDocument] = useState({ kind: 'terms', title: '', body: '' });
   const [message, setMessage] = useState<string | null>(null);
@@ -86,6 +102,11 @@ export function MarketPage({ accessToken, role }: { accessToken: string; role: O
       window: String(next.settings.complaint_window_hours),
       commission:
         next.settings.default_commission_percent === null ? '' : String(next.settings.default_commission_percent),
+      packageDays: String(next.settings.package_valid_days),
+      timings: Object.fromEntries(TIMING_FIELDS.map(([field]) => [field, String(next.settings[field])])) as Record<
+        TimingField,
+        string
+      >,
     });
   }, []);
 
@@ -131,6 +152,8 @@ export function MarketPage({ accessToken, role }: { accessToken: string; role: O
         record_retention_days: Number(form.retention),
         complaint_window_hours: Number(form.window),
         default_commission_percent: form.commission.trim() === '' ? null : Number(form.commission),
+        package_valid_days: Number(form.packageDays),
+        ...Object.fromEntries(TIMING_FIELDS.map(([field]) => [field, Number(form.timings[field])])),
       });
       return 'Đã lưu cấu hình chợ gia sư';
     });
@@ -206,6 +229,31 @@ export function MarketPage({ accessToken, role }: { accessToken: string; role: O
               onChange={(event) => setForm({ ...form, commission: event.target.value })}
             />
           </label>
+          <fieldset>
+            <legend>Phòng học video (GD-164)</legend>
+            {TIMING_FIELDS.map(([field, text, min, max]) => (
+              <label key={field}>
+                {text}
+                <input
+                  type="number"
+                  min={min}
+                  max={max}
+                  value={form.timings[field] ?? ''}
+                  onChange={(event) => setForm({ ...form, timings: { ...form.timings, [field]: event.target.value } })}
+                />
+              </label>
+            ))}
+          </fieldset>
+          <label>
+            Hạn dùng gói buổi kể từ lúc trả tiền (ngày, GD-165)
+            <input
+              type="number"
+              min={7}
+              max={365}
+              value={form.packageDays}
+              onChange={(event) => setForm({ ...form, packageDays: event.target.value })}
+            />
+          </label>
           <button type="submit">Lưu cấu hình chợ</button>
         </form>
       ) : overview ? null : (
@@ -275,6 +323,7 @@ export function MarketPage({ accessToken, role }: { accessToken: string; role: O
       </ul>
       {operatorCan(role, 'market.review') ? <MarketReviews token={accessToken} /> : null}
       {operatorCan(role, 'market.payments') ? <MarketPayments token={accessToken} /> : null}
+      {operatorCan(role, 'market.safety') ? <MarketReviewModeration token={accessToken} /> : null}
       {operatorCan(role, 'market.safety') ? <MarketSafety token={accessToken} /> : null}
     </section>
   );
