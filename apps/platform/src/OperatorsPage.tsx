@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState, type FormEvent } from 'react';
+import QRCode from 'qrcode';
 import {
   OPERATOR_ROLE_LABELS,
   operatorsApi,
@@ -81,6 +82,27 @@ function CopyableValue({ label, value }: { label: string; value: string }) {
   );
 }
 
+// Mã QR của địa chỉ otpauth để quét bằng ứng dụng xác thực (YCTD-373, ĐX-CN-5): tạo ngay trên trình duyệt, không gửi đi đâu
+function OtpauthQr({ uri }: { uri: string }) {
+  const [image, setImage] = useState<string | null>(null);
+  useEffect(() => {
+    let cancelled = false;
+    QRCode.toDataURL(uri, { margin: 1, width: 200 })
+      .then((url) => {
+        if (!cancelled) {
+          setImage(url);
+        }
+      })
+      .catch(() => setImage(null));
+    return () => {
+      cancelled = true;
+    };
+  }, [uri]);
+  return image ? (
+    <img src={image} width={200} height={200} alt="Mã QR để thêm vào ứng dụng xác thực" style={{ alignSelf: 'center' }} />
+  ) : null;
+}
+
 // Thông tin hiện một lần: không đóng bằng Esc hay nút ×, không ghi vào bộ nhớ trình duyệt
 function CredentialsDialog({
   title,
@@ -100,6 +122,7 @@ function CredentialsDialog({
         {credentials.temporary_password ? (
           <CopyableValue label="Mật khẩu tạm" value={credentials.temporary_password} />
         ) : null}
+        <OtpauthQr uri={credentials.otpauth_uri} />
         <CopyableValue label="Khóa xác thực hai lớp" value={credentials.totp_secret} />
         <CopyableValue label="Địa chỉ thêm vào ứng dụng xác thực" value={credentials.otpauth_uri} />
         <CopyableValue label="Mã khôi phục" value={credentials.recovery_codes.join(' ')} />
