@@ -334,6 +334,8 @@ describe('chợ gia sư: nền (27f)', () => {
     assert.equal(noTutorTerms.status, 400);
     const token = await register('tutor', email, [documents.tutor_terms as string]);
     assert.equal((await tutorCall('GET', '/children', undefined, token)).status, 403);
+    // Phụ huynh đăng ký trước khi nền tảng đăng điều khoản phiên bản 2 bên dưới (dùng ở phần kiểm quyền theo loại tài khoản, YCTD-368)
+    const parentToken = await register('parent', `phu-huynh-368-${Date.now()}@example.test`);
     const profile = await tutorCall(
       'PUT',
       '/tutor/profile',
@@ -374,7 +376,7 @@ describe('chợ gia sư: nền (27f)', () => {
     );
     // Quyền theo loại tài khoản ở từng điểm cuối, không theo tên miền: gia sư không gọi được điểm cuối của phụ huynh và ngược lại
     assert.equal((await marketCall('GET', '/children', undefined, token)).status, 403);
-    const parentToken = await register('parent', `phu-huynh-368-${Date.now()}@example.test`);
+    // requireReady xét loại tài khoản trước văn bản cần đồng ý: phụ huynh chưa đồng ý phiên bản 2 vẫn nhận 403, không phải 409
     assert.equal((await marketCall('GET', '/tutor/profile', undefined, parentToken)).status, 403);
     assert.equal((await marketCall('GET', '/me', undefined, parentToken)).body.kind, 'parent');
 
