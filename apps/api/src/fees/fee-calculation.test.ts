@@ -505,4 +505,51 @@ describe('Tính học phí và phát hành hóa đơn', () => {
       assert.equal(allowed.status, 201, JSON.stringify(allowed.body));
     });
   });
+
+  describe('BR-25 Hóa đơn đã phát hành không bị tính lại', () => {
+    it('CT-1720: trẻ chuyển sang đơn vị khác sau khi hóa đơn chính đã phát hành; đơn vị mới tính học phí không sửa hóa đơn đó', async () => {
+      const issuedBefore = await schoolYear
+        .selectFrom('invoices')
+        .select(['id', 'org_unit_id', 'status', 'code', 'total_amount', 'calculation_run_id'])
+        .where('child_id', '=', children.T1 ?? '')
+        .where('invoice_kind', '=', 'main')
+        .executeTakeFirstOrThrow();
+      assert.equal(issuedBefore.status, 'issued');
+      const itemsBefore = await schoolYear
+        .selectFrom('invoice_items')
+        .select('id')
+        .where('invoice_id', '=', issuedBefore.id)
+        .orderBy('id')
+        .execute();
+      // T1 chuyển sang ĐT-B1, giữ lớp cũ đã chốt điểm danh; T4 thôi học trước kỳ để ĐT-B1 không vướng biểu phí bậc Lá
+      await schoolYear
+        .updateTable('children')
+        .set({ org_unit_id: units['ĐT-B1'] ?? '' })
+        .where('id', '=', children.T1 ?? '')
+        .execute();
+      await schoolYear
+        .updateTable('children')
+        .set({ status: 'withdrawn', leave_date: addDays(billed.first, -1) })
+        .where('id', '=', children.T4 ?? '')
+        .execute();
+
+      const response = await calculate(token('accountantB'), 'ĐT-B1');
+      assert.equal(response.status, 201, JSON.stringify(response.body));
+      assert.equal(response.body.child_count, 0);
+
+      const issuedAfter = await schoolYear
+        .selectFrom('invoices')
+        .select(['id', 'org_unit_id', 'status', 'code', 'total_amount', 'calculation_run_id'])
+        .where('id', '=', issuedBefore.id)
+        .executeTakeFirstOrThrow();
+      assert.deepEqual(issuedAfter, issuedBefore);
+      const itemsAfter = await schoolYear
+        .selectFrom('invoice_items')
+        .select('id')
+        .where('invoice_id', '=', issuedBefore.id)
+        .orderBy('id')
+        .execute();
+      assert.deepEqual(itemsAfter, itemsBefore);
+    });
+  });
 });

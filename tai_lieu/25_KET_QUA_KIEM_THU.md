@@ -109,7 +109,11 @@ Mã lỗi dạng `L-nn` chỉ dùng trong tài liệu này. "Đã xác minh" là
 
 ### 6.1 Nghiêm trọng
 
-Không có.
+Lượt rà soát mã ngày 29/10/2026 thêm các lỗi L-30 trở đi; mỗi lỗi ghi YCTD đã sửa ở cột cuối.
+
+| Mã | Lỗi | Bằng chứng | Hậu quả | Đề xuất xử lý |
+|---|---|---|---|---|
+| L-30 | Tính học phí chưa giữ nguyên hóa đơn chính đã phát hành của trẻ trong mọi trường hợp, kể cả trẻ đã chuyển đơn vị (đã xác minh) | CT-1720 | Hóa đơn đã phát hành, đã thu bị đổi số tiền, đơn vị, dòng chi tiết; trái BR-25 | Đã sửa ở YCTD-380 |
 
 ### 6.2 Cao
 

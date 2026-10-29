@@ -8,7 +8,7 @@ import {
   type FieldError,
 } from '@school-management/server';
 import { PERMISSION_CODES } from '@school-management/shared';
-import type { Kysely, Transaction } from 'kysely';
+import { sql, type Kysely, type Transaction } from 'kysely';
 import { SchoolCalendar, VIETNAM_DATE } from '../attendance/school-calendar.js';
 import type { CurrentUser } from '../authentication/current-user.js';
 import { writeAuditLog, type ChangeOrigin } from '../common/audit-log.js';
@@ -61,6 +61,28 @@ interface PriceTable {
 const priceKey = (gradeLevel: string, serviceId: string) => `${gradeLevel}:${serviceId}`;
 const share = (price: number, days: number, totalDays: number) => Math.round((price * days) / totalDays);
 
+// Tính và phát hành hóa đơn chính của cùng đơn vị, cùng kỳ chạy lần lượt
+async function lockFeePeriod(transaction: Transaction<SchoolYearDatabase>, orgUnitId: string, period: Period) {
+  await sql`select pg_advisory_xact_lock(hashtext(${`fee-period:${orgUnitId}:${formatPeriod(period)}`}))`.execute(
+    transaction,
+  );
+}
+
+async function assertMainNotIssued(database: Kysely<SchoolYearDatabase>, orgUnitId: string, period: Period) {
+  const issued = await database
+    .selectFrom('invoices')
+    .select('id')
+    .where('org_unit_id', '=', orgUnitId)
+    .where('period_year', '=', period.year)
+    .where('period_month', '=', period.month)
+    .where('invoice_kind', '=', 'main')
+    .where('status', '=', 'issued')
+    .executeTakeFirst();
+  if (issued) {
+    throw ruleViolationError('BR-25', 'Kỳ đã phát hành hóa đơn, sửa sai bằng phiếu điều chỉnh');
+  }
+}
+
 @Injectable()
 export class FeeCalculationService {
   constructor(
@@ -86,18 +108,7 @@ export class FeeCalculationService {
     if (!state.is_locked) {
       throw ruleViolationError('BR-26', 'Chốt danh sách đăng ký dịch vụ của kỳ trước khi tính học phí');
     }
-    const issued = await database
-      .selectFrom('invoices')
-      .select('id')
-      .where('org_unit_id', '=', orgUnitId)
-      .where('period_year', '=', period.year)
-      .where('period_month', '=', period.month)
-      .where('invoice_kind', '=', 'main')
-      .where('status', '=', 'issued')
-      .executeTakeFirst();
-    if (issued) {
-      throw ruleViolationError('BR-25', 'Kỳ đã phát hành hóa đơn, sửa sai bằng phiếu điều chỉnh');
-    }
+    await assertMainNotIssued(database, orgUnitId, period);
     const schoolDays = await this.schoolDays(period);
     if (schoolDays.length === 0) {
       throw ruleViolationError('BR-91', 'Tháng này không có ngày học theo lịch năm học');
@@ -223,6 +234,9 @@ export class FeeCalculationService {
       .executeTakeFirstOrThrow();
     try {
       await database.transaction().execute(async (transaction) => {
+        // Kiểm lại trong giao dịch, sau khi giữ khóa kỳ, để lần phát hành chạy song song không bị ghi đè (BR-25)
+        await lockFeePeriod(transaction, orgUnitId, period);
+        await assertMainNotIssued(transaction, orgUnitId, period);
         const keep = new Set(drafts.map((draft) => draft.child.id));
         const stale = await transaction
           .selectFrom('invoices')
@@ -240,6 +254,7 @@ export class FeeCalculationService {
           }
           await transaction.deleteFrom('invoices').where('id', 'in', staleIds).execute();
         }
+        const written: typeof drafts = [];
         for (const draft of drafts) {
           const invoice = await transaction
             .insertInto('invoices')
@@ -266,10 +281,16 @@ export class FeeCalculationService {
                   basis: JSON.stringify(draft.basis),
                   review_flags: JSON.stringify(draft.flags),
                   updated_at: this.clock.now(),
-                }),
+                })
+                // Chỉ thay hóa đơn nháp; hóa đơn chính đã phát hành của trẻ, kể cả ở đơn vị cũ, giữ nguyên (BR-25)
+                .where('invoices.status', '=', 'draft'),
             )
             .returning('id')
-            .executeTakeFirstOrThrow();
+            .executeTakeFirst();
+          if (!invoice) {
+            continue;
+          }
+          written.push(draft);
           await dropCreditsOfRecomputedInvoice(transaction, invoice.id);
           await transaction.deleteFrom('invoice_items').where('invoice_id', '=', invoice.id).execute();
           if (draft.items.length > 0) {
@@ -300,8 +321,8 @@ export class FeeCalculationService {
           .set({
             status: 'succeeded',
             finished_at: this.clock.now(),
-            child_count: drafts.length,
-            total_amount: drafts.reduce((sum, draft) => sum + draft.total, 0),
+            child_count: written.length,
+            total_amount: written.reduce((sum, draft) => sum + draft.total, 0),
           })
           .where('id', '=', run.id)
           .execute();
@@ -312,7 +333,7 @@ export class FeeCalculationService {
           entityId: run.id,
           action: 'create',
           before: null,
-          after: { period: formatPeriod(period), child_count: drafts.length },
+          after: { period: formatPeriod(period), child_count: written.length },
         });
       });
     } catch (error) {
@@ -366,7 +387,20 @@ export class FeeCalculationService {
     }
     const now = this.clock.now();
     await database.transaction().execute(async (transaction) => {
+      await lockFeePeriod(transaction, orgUnitId, period);
       for (const draft of drafts) {
+        // Hóa đơn đã được lần tính của đơn vị khác thay hoặc đã phát hành thì bỏ qua, không cấp số
+        const current = await transaction
+          .selectFrom('invoices')
+          .select('id')
+          .where('id', '=', draft.id)
+          .where('org_unit_id', '=', orgUnitId)
+          .where('status', '=', 'draft')
+          .forUpdate()
+          .executeTakeFirst();
+        if (!current) {
+          continue;
+        }
         await transaction
           .updateTable('invoices')
           .set({
