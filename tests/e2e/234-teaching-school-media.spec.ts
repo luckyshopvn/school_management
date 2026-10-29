@@ -175,6 +175,7 @@ test('CT-29e-3: bài hát, câu chuyện của trường chỉ hiện học li�
         owner_name: teacherName,
         department_id: null,
         department_name: null,
+        current_version: 1,
         published_version: song.published ? 1 : null,
         submitted_at: null,
         published_at: song.published ? new Date() : null,
