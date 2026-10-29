@@ -1,0 +1,289 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Bản mẫu Chợ gia sư chung</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<style>
+  /* Biến màu lấy đúng từ apps/market/src/index.css (thiết kế Eric duyệt ngày 2026-10-28, YCTD-360, YCTD-361) */
+  :root {
+    --brand: #1f4e8c; --brand-strong: #12304f; --page: #fbf8f3; --card: #ffffff; --selected: #e8eef7;
+    --border: #e7e1d8; --border-strong: #d6cfc4; --text: #17202a; --text-2: #4f5966; --muted: #5d6875;
+    --warning: #7a4600; --warning-bg: #fbf3e6; --danger: #a32a20; --danger-bg: #fbecea; --success: #1d6b43; --success-bg: #e9f4ee;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; font-family: 'Be Vietnam Pro', system-ui, sans-serif; background: var(--page); color: var(--text); font-size: 16px; }
+  button, input, select { font: inherit; }
+  button { min-height: 44px; min-width: 44px; cursor: pointer; }
+  :focus-visible { outline: 3px solid var(--brand); outline-offset: 2px; }
+  .ban-mau-thanh { position: sticky; top: 0; z-index: 5; background: #2b2f36; color: #fff; padding: 8px 16px; display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+  .ban-mau-thanh b { margin-right: 8px; }
+  .ban-mau-thanh button { background: #3d434c; color: #fff; border: 1px solid #59606b; border-radius: 8px; padding: 0 12px; }
+  .ban-mau-thanh button[aria-pressed='true'] { background: #fff; color: #17202a; }
+  .trang-thai { display: flex; flex-wrap: wrap; gap: 6px; padding: 8px 16px; background: #eceae6; border-bottom: 1px solid var(--border); font-size: 14px; align-items: center; }
+  .trang-thai button { min-height: 36px; background: #fff; border: 1px solid var(--border-strong); border-radius: 999px; padding: 0 12px; }
+  .trang-thai button[aria-pressed='true'] { background: var(--brand); color: #fff; border-color: var(--brand); }
+  .man-hinh { display: none; }
+  .man-hinh.hien { display: block; }
+  header.dau { background: var(--card); border-bottom: 1px solid var(--border); }
+  .dau-trong { max-width: 1152px; margin: 0 auto; padding: 8px 16px; display: flex; flex-wrap: wrap; align-items: center; gap: 8px 24px; }
+  .logo { display: flex; align-items: center; gap: 8px; color: var(--brand-strong); font-weight: 700; font-size: 20px; background: none; border: 0; padding: 0; }
+  .nhan-gia-lap { border-radius: 999px; background: var(--warning-bg); color: var(--warning); padding: 4px 12px; font-size: 14px; font-weight: 500; }
+  .nut { border-radius: 10px; border: 1px solid var(--border-strong); background: var(--card); color: var(--text); padding: 0 16px; font-weight: 500; }
+  .nut.chinh { background: var(--brand); border-color: var(--brand); color: #fff; }
+  .nut[disabled] { opacity: .6; cursor: progress; }
+  .dai { border-bottom: 1px solid #efe2cc; background: var(--warning-bg); color: var(--warning); padding: 8px 16px; text-align: center; font-size: 14px; }
+  main { max-width: 1152px; margin: 0 auto; padding: 24px 16px; display: flex; flex-direction: column; gap: 16px; }
+  .the { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 24px; }
+  .hep { max-width: 448px; margin: 0 auto; width: 100%; }
+  h1, h2, h3 { margin: 0; }
+  h2 { font-size: 24px; color: var(--brand-strong); }
+  h3 { font-size: 18px; }
+  .phu { color: var(--text-2); }
+  label.o { display: flex; flex-direction: column; gap: 4px; font-weight: 500; }
+  label.o input, select { min-height: 44px; border: 1px solid var(--border-strong); border-radius: 10px; padding: 0 12px; background: #fff; }
+  .loi-o input { border-color: var(--danger); }
+  .loi-chu { color: var(--danger); font-size: 14px; font-weight: 400; }
+  fieldset { border: 1px solid var(--border); border-radius: 12px; padding: 12px 16px; margin: 0; }
+  legend { font-weight: 600; padding: 0 4px; }
+  .lua-chon { display: flex; gap: 12px; align-items: flex-start; min-height: 44px; padding: 8px; border-radius: 10px; }
+  .lua-chon:has(input:checked) { background: var(--selected); }
+  .lua-chon input { width: 20px; height: 20px; margin-top: 2px; }
+  .cot { display: flex; flex-direction: column; gap: 12px; }
+  .hang { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+  .thong-bao { border-radius: 12px; padding: 12px 16px; }
+  .thong-bao.loi { background: var(--danger-bg); color: var(--danger); }
+  .thong-bao.thanh-cong { background: var(--success-bg); color: var(--success); }
+  .thong-bao.canh-bao { background: var(--warning-bg); color: var(--warning); }
+  nav.tren { display: flex; flex-wrap: wrap; gap: 4px; }
+  nav button, .ben button { border: 0; background: none; border-radius: 10px; padding: 0 12px; font-weight: 500; color: var(--text); text-align: left; }
+  nav button[aria-current='page'], .ben button[aria-current='page'] { background: var(--selected); color: var(--brand-strong); }
+  .bo-cuc-ben { display: flex; flex-wrap: wrap; gap: 24px; align-items: flex-start; }
+  .ben { flex: 1 1 200px; max-width: 256px; background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 12px; display: flex; flex-direction: column; gap: 4px; }
+  .noi-dung { flex: 999 1 560px; min-width: 0; display: flex; flex-direction: column; gap: 16px; }
+  .vong { display: inline-flex; width: 32px; height: 32px; border-radius: 999px; background: var(--warning-bg); color: var(--warning); align-items: center; justify-content: center; font-weight: 600; font-size: 14px; }
+  .the-gs { display: flex; gap: 16px; align-items: flex-start; }
+  .chu-dau { width: 64px; height: 64px; border-radius: 999px; background: var(--selected); color: var(--brand-strong); display: inline-flex; align-items: center; justify-content: center; font-weight: 600; font-size: 20px; flex-shrink: 0; }
+  .luoi { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px; }
+  .xuong { height: 14px; border-radius: 8px; background: linear-gradient(90deg, #eee9e1, #f6f2ec, #eee9e1); }
+  .ghi-chu-ban-mau { border: 2px dashed #8a8f98; border-radius: 12px; padding: 12px 16px; background: #fff; font-size: 14px; color: #3a3f47; }
+  footer { border-top: 1px solid var(--border); background: var(--card); }
+  footer div { max-width: 1152px; margin: 0 auto; padding: 16px; display: flex; flex-wrap: wrap; justify-content: space-between; gap: 12px; font-size: 14px; color: var(--text-2); }
+  a { color: var(--brand); }
+  @media (max-width: 640px) { main { padding: 16px; } .the { padding: 16px; } h2 { font-size: 20px; } }
+</style>
+</head>
+<body>
+
+<div class="ban-mau-thanh" role="toolbar" aria-label="Chọn màn hình của bản mẫu">
+  <b>Bản mẫu YCTD-368</b>
+  <button data-man="mh571" aria-pressed="true">MH-571 Trang công khai</button>
+  <button data-man="mh572" aria-pressed="false">MH-572 Đăng ký chọn vai trò</button>
+  <button data-man="mh573" aria-pressed="false">MH-573 Đăng nhập</button>
+  <button data-man="mh574" aria-pressed="false">MH-574 Khung phụ huynh</button>
+  <button data-man="mh575" aria-pressed="false">MH-575 Khung gia sư</button>
+  <button data-man="mh576" aria-pressed="false">MH-576 Đổi vai (chỉ khi chọn phương án b)</button>
+</div>
+<div class="trang-thai" role="toolbar" aria-label="Chọn trạng thái">
+  <span>Trạng thái:</span>
+  <button data-tt="du-lieu" aria-pressed="true">Có dữ liệu</button>
+  <button data-tt="rong" aria-pressed="false">Rỗng</button>
+  <button data-tt="dang-tai" aria-pressed="false">Đang tải</button>
+  <button data-tt="loi" aria-pressed="false">Lỗi</button>
+  <button data-tt="khong-quyen" aria-pressed="false">Không có quyền</button>
+</div>
+
+<!-- Khung đầu trang dùng chung, nội dung bên phải đổi theo đã đăng nhập hay chưa -->
+<template id="dau-chua-dang-nhap">
+  <header class="dau"><div class="dau-trong">
+    <button class="logo" type="button">⌂ Chợ gia sư</button>
+    <div style="flex:1"></div>
+    <span class="nhan-gia-lap">Thanh toán giả lập</span>
+    <div class="hang"><button class="nut" data-di="mh573">Đăng nhập</button><button class="nut chinh" data-di="mh572">Đăng ký</button></div>
+  </div></header>
+  <p class="dai" style="margin:0">Chợ đang chạy thử: thanh toán là giả lập, không có tiền thật.</p>
+</template>
+
+<section class="man-hinh hien" id="mh571" aria-label="MH-571 Trang công khai">
+  <div data-chen="dau-chua-dang-nhap"></div>
+  <main>
+    <div class="ghi-chu-ban-mau">MH-571 · Người chưa đăng nhập ở <b>cho-gia-su.&lt;tên miền&gt;</b>. Mở <b>gia-su.&lt;tên miền&gt;/…</b> cũ thì trình duyệt được chuyển 308 về đúng đường dẫn ở đây (không có màn hình riêng). Ô mới: dải "Đăng ký làm gia sư" thay cho liên kết "Mở ứng dụng Gia sư".</div>
+    <div class="the hang" style="background:var(--warning-bg);border-color:#efe2cc">
+      <p style="flex:1;min-width:240px;margin:0" class="phu">Bạn là gia sư hoặc giáo viên muốn dạy kèm trực tuyến? Gia sư được xác minh danh tính và lý lịch trước khi nhận học sinh; mọi tin nhắn với học sinh luôn có phụ huynh.</p>
+      <button class="nut" data-di="mh572" data-vai="tutor">Đăng ký làm gia sư</button>
+    </div>
+    <div class="the cot">
+      <h2>Tìm gia sư</h2>
+      <div class="hang"><select aria-label="Môn"><option>Toán</option></select><select aria-label="Lớp"><option>Lớp 7</option></select><select aria-label="Ngày trong tuần"><option>Thứ Bảy</option></select><button class="nut chinh">Tìm</button></div>
+      <div data-tt-hien="du-lieu" class="luoi">
+        <div class="the the-gs"><span class="chu-dau">NH</span><div class="cot" style="gap:4px"><b>Nguyễn Thị Hòa</b><span class="phu">Toán THCS · 150.000 đồng mỗi buổi · ★ 4,8 (12 đánh giá)</span><span class="phu">Trống gần nhất: Thứ Bảy 9:00</span></div></div>
+        <div class="the the-gs"><span class="chu-dau">TL</span><div class="cot" style="gap:4px"><b>Trần Phương Lan Anh Nguyễn Hoàng Bảo Ngọc (tên dài để thử tràn chữ)</b><span class="phu">Tiếng Anh, Toán Tiểu học · Có giá theo gói buổi</span><span class="phu">Giáo viên trường đã xác minh</span></div></div>
+      </div>
+      <p data-tt-hien="rong" class="phu">Chưa có gia sư nào khớp bộ lọc. Thử bỏ bớt điều kiện ngày hoặc lớp.</p>
+      <div data-tt-hien="dang-tai" class="cot" aria-busy="true"><div class="xuong" style="width:60%"></div><div class="xuong" style="width:80%"></div><div class="xuong" style="width:40%"></div></div>
+      <div data-tt-hien="loi" class="thong-bao loi" role="alert">Không kết nối được tới máy chủ. Kiểm tra mạng rồi bấm Tìm lại.</div>
+      <div data-tt-hien="khong-quyen" class="thong-bao canh-bao">Tìm gia sư là phần công khai: không có trạng thái "không có quyền" ở màn này.</div>
+    </div>
+  </main>
+</section>
+
+<section class="man-hinh" id="mh572" aria-label="MH-572 Đăng ký chọn vai trò">
+  <div data-chen="dau-chua-dang-nhap"></div>
+  <main>
+    <div class="ghi-chu-ban-mau">MH-572 · Một biểu mẫu cho cả hai vai. Bấm "Đăng ký làm gia sư" ở MH-571 thì ô Gia sư được chọn sẵn. Đổi vai thì danh sách văn bản phải đồng ý đổi theo (gia sư thêm Điều khoản dành cho gia sư) và bỏ các ô đã tích.</div>
+    <form class="the hep cot" aria-label="Đăng ký tài khoản chợ gia sư" onsubmit="return false">
+      <h2>Đăng ký</h2>
+      <div data-tt-hien="loi" class="thong-bao loi" role="alert">Thư điện tử này đã có tài khoản. Mỗi tài khoản một vai: muốn dùng vai khác, hãy đăng ký bằng thư điện tử hoặc số điện thoại khác.</div>
+      <div data-tt-hien="khong-quyen" class="thong-bao canh-bao">Bạn đang đăng nhập. Đăng xuất trước khi tạo tài khoản mới.</div>
+      <fieldset>
+        <legend>Bạn đăng ký với tư cách</legend>
+        <label class="lua-chon"><input type="radio" name="vai" value="parent" checked /> <span><b>Phụ huynh tìm gia sư cho con</b><br /><span class="phu">Tìm gia sư, đặt buổi, theo dõi buổi học của con</span></span></label>
+        <label class="lua-chon"><input type="radio" name="vai" value="tutor" /> <span><b>Gia sư, kể cả giáo viên dạy kèm ngoài trường</b><br /><span class="phu">Mở hồ sơ dạy, xác minh danh tính, nhận buổi, theo dõi thu nhập</span></span></label>
+      </fieldset>
+      <label class="o">Thư điện tử hoặc số điện thoại<input autocomplete="username" value="phuhuynh.thu@vidu.test" /></label>
+      <label class="o">Tên hiển thị<input value="Phụ huynh Thử" /></label>
+      <label class="o" data-tt-hien-o="loi">Mật khẩu (ít nhất 8 ký tự, có chữ và số)<input type="password" value="matkhau" /><span class="loi-chu" data-tt-hien="loi">Mật khẩu cần có cả chữ và số</span></label>
+      <div class="cot" style="gap:4px" id="van-ban">
+        <label class="hang"><input type="checkbox" /> Tôi đồng ý Điều khoản sử dụng <a href="#">Đọc</a></label>
+        <label class="hang"><input type="checkbox" /> Tôi đồng ý Chính sách dữ liệu cá nhân <a href="#">Đọc</a></label>
+        <label class="hang van-ban-gia-su" hidden><input type="checkbox" /> Tôi đồng ý Điều khoản dành cho gia sư <a href="#">Đọc</a></label>
+      </div>
+      <button class="nut chinh" data-tt-an="dang-tai">Tạo tài khoản</button>
+      <button class="nut chinh" disabled data-tt-hien="dang-tai">Đang tạo tài khoản…</button>
+      <p class="phu" style="margin:0">Đã có tài khoản? <a href="#" data-di="mh573">Đăng nhập</a></p>
+    </form>
+  </main>
+</section>
+
+<section class="man-hinh" id="mh573" aria-label="MH-573 Đăng nhập">
+  <div data-chen="dau-chua-dang-nhap"></div>
+  <main>
+    <div class="ghi-chu-ban-mau">MH-573 · Một màn đăng nhập cho cả hai vai. Không còn lỗi "Tài khoản gia sư đăng nhập ở ứng dụng Gia sư". Sau đăng nhập, ứng dụng mở MH-574 hoặc MH-575 theo loại tài khoản.</div>
+    <form class="the hep cot" aria-label="Đăng nhập" onsubmit="return false">
+      <h2>Đăng nhập</h2>
+      <div data-tt-hien="loi" class="thong-bao loi" role="alert">Sai thư điện tử, số điện thoại hoặc mật khẩu. Sai 5 lần thì tài khoản tạm khóa 15 phút.</div>
+      <div data-tt-hien="khong-quyen" class="thong-bao loi" role="alert">Tài khoản đã bị khóa, liên hệ bộ phận hỗ trợ của chợ.</div>
+      <label class="o">Thư điện tử hoặc số điện thoại<input autocomplete="username" /></label>
+      <label class="o">Mật khẩu<input type="password" autocomplete="current-password" /></label>
+      <button class="nut chinh" data-di="mh574" data-tt-an="dang-tai">Đăng nhập (thử: phụ huynh)</button>
+      <button class="nut" data-di="mh575" data-tt-an="dang-tai">Đăng nhập (thử: gia sư)</button>
+      <button class="nut chinh" disabled data-tt-hien="dang-tai">Đang đăng nhập…</button>
+      <a href="#">Quên mật khẩu?</a>
+      <div class="cot" style="border-top:1px solid var(--border);padding-top:12px">
+        <button class="nut">Đăng nhập bằng Định danh giả lập</button>
+        <p class="phu" style="margin:0;font-size:14px">Phụ huynh dùng được khi đã liên kết định danh ở trang tài khoản; gia sư dùng được khi đã xác minh danh tính.</p>
+      </div>
+    </form>
+  </main>
+</section>
+
+<section class="man-hinh" id="mh574" aria-label="MH-574 Khung phụ huynh">
+  <header class="dau"><div class="dau-trong">
+    <button class="logo" type="button">⌂ Chợ gia sư</button>
+    <nav class="tren" aria-label="Điều hướng khu phụ huynh" style="flex:1">
+      <button aria-current="page">Tìm gia sư</button><button>Buổi học của con</button><button>Tin nhắn</button><button>Hồ sơ con</button><button>An toàn</button>
+    </nav>
+    <span class="nhan-gia-lap">Thanh toán giả lập</span>
+    <div class="hang"><span class="vong">P</span><span>Phụ huynh Thử</span><button class="nut" data-di="mh571">Đăng xuất</button></div>
+  </div></header>
+  <main>
+    <div class="ghi-chu-ban-mau">MH-574 · Giữ đúng bố cục đã duyệt ở YCTD-360 (thanh điều hướng ở đầu trang). Không có mục nào của gia sư. Chưa có hồ sơ con thì mở thẳng "Hồ sơ con".</div>
+    <div data-tt-hien="khong-quyen" class="thong-bao canh-bao" role="status">Trang bạn mở dành cho tài khoản gia sư. Đã mở trang Tìm gia sư của tài khoản phụ huynh.</div>
+    <div data-tt-hien="loi" class="thong-bao loi" role="alert">Không tải được buổi học. Thử lại sau ít phút; nếu vẫn lỗi, liên hệ bộ phận hỗ trợ.</div>
+    <div class="the cot">
+      <h2>Buổi học sắp tới của con</h2>
+      <div data-tt-hien="du-lieu" class="cot">
+        <div class="hang" style="justify-content:space-between"><span><b>Bé Na</b> · Toán lớp 7 với Nguyễn Thị Hòa · Thứ Bảy 9:00</span><button class="nut">Vào phòng học</button></div>
+        <div class="hang" style="justify-content:space-between"><span><b>Bé Na</b> · Gói 8 buổi Tiếng Anh · còn 5 buổi · hạn dùng 24/12/2026</span><button class="nut">Đặt buổi từ gói</button></div>
+      </div>
+      <p data-tt-hien="rong" class="phu">Con chưa có buổi học nào. Mở Tìm gia sư để đặt buổi đầu tiên.</p>
+      <div data-tt-hien="dang-tai" class="cot" aria-busy="true"><div class="xuong"></div><div class="xuong" style="width:70%"></div></div>
+    </div>
+  </main>
+</section>
+
+<section class="man-hinh" id="mh575" aria-label="MH-575 Khung gia sư">
+  <header class="dau"><div class="dau-trong">
+    <button class="logo" type="button">⌂ Chợ gia sư</button>
+    <div style="flex:1"></div>
+    <span class="nhan-gia-lap">Thanh toán giả lập</span>
+    <div class="hang"><span class="vong">G</span><span>Gia sư Thử</span><button class="nut" data-di="mh571">Đăng xuất</button></div>
+  </div></header>
+  <main>
+    <div class="ghi-chu-ban-mau">MH-575 · Giữ bố cục đã duyệt ở YCTD-361 (cột điều hướng bên trái), nay nằm trong cùng ứng dụng, cùng tên miền với phụ huynh. Chỉ khác ứng dụng Gia sư cũ ở tên trên đầu trang ("Chợ gia sư").</div>
+    <div class="bo-cuc-ben">
+      <nav class="ben" aria-label="Điều hướng khu gia sư">
+        <button aria-current="page">Buổi dạy</button><button>Lịch</button><button>Hồ sơ và môn dạy</button><button>Thu nhập</button><button>Tin nhắn</button><button>Đánh giá</button><button>Xác minh</button><button>An toàn, kiểm duyệt</button>
+      </nav>
+      <div class="noi-dung">
+        <div data-tt-hien="khong-quyen" class="thong-bao canh-bao" role="status">Trang bạn mở (Hồ sơ con) dành cho tài khoản phụ huynh. Đã mở trang Buổi dạy của tài khoản gia sư.</div>
+        <div data-tt-hien="loi" class="thong-bao loi" role="alert">Không tải được buổi dạy. Thử lại sau ít phút.</div>
+        <div class="the cot">
+          <h2>Buổi dạy</h2>
+          <div data-tt-hien="du-lieu" class="cot">
+            <div class="hang" style="justify-content:space-between"><span>Thứ Bảy 9:00 · Toán lớp 7 · Học sinh lớp 7 (phụ huynh Phụ huynh Thử)</span><button class="nut">Mở phòng dạy</button></div>
+            <div class="hang" style="justify-content:space-between"><span>Thứ Hai 19:00 · Toán lớp 8 · Đã dạy, chờ hết hạn khiếu nại</span></div>
+          </div>
+          <p data-tt-hien="rong" class="phu">Chưa có buổi dạy. Hồ sơ cần được nền tảng duyệt mới hiện ở Tìm gia sư.</p>
+          <div data-tt-hien="dang-tai" class="cot" aria-busy="true"><div class="xuong"></div><div class="xuong" style="width:70%"></div></div>
+        </div>
+      </div>
+    </div>
+  </main>
+</section>
+
+<section class="man-hinh" id="mh576" aria-label="MH-576 Đổi vai">
+  <header class="dau"><div class="dau-trong">
+    <button class="logo" type="button">⌂ Chợ gia sư</button>
+    <div style="flex:1"></div>
+    <label class="hang" style="gap:6px">Đang dùng vai
+      <select aria-label="Đổi vai"><option>Gia sư</option><option>Phụ huynh</option></select>
+    </label>
+    <div class="hang"><span class="vong">V</span><span>Cô Vân</span><button class="nut">Đăng xuất</button></div>
+  </div></header>
+  <main>
+    <div class="ghi-chu-ban-mau">MH-576 · <b>Chỉ làm nếu Eric chọn phương án (b) của E-11.</b> Một tài khoản có hai vai; ô "Đổi vai" ở đầu trang đổi bộ màn và quyền của phiên. Phương án (a) mặc định không có màn này: giáo viên vừa là phụ huynh đăng ký hai tài khoản bằng hai thư điện tử hoặc số điện thoại khác nhau.</div>
+    <div class="thong-bao thanh-cong" role="status">Đã chuyển sang vai Phụ huynh. Tin nhắn, báo cáo, nhật ký của hai vai vẫn tách riêng.</div>
+    <div data-tt-hien="khong-quyen" class="thong-bao loi" role="alert">Vai Gia sư của bạn đang tạm khóa trong lúc xem xét báo cáo an toàn; vai Phụ huynh vẫn dùng được.</div>
+  </main>
+</section>
+
+<footer><div><span>Đường dây nóng bảo vệ trẻ em: 111</span><span><a href="#">Điều khoản sử dụng</a> · <a href="#">Chính sách dữ liệu cá nhân</a> · <a href="#">Điều khoản dành cho gia sư</a></span></div></footer>
+
+<script>
+  for (const slot of document.querySelectorAll('[data-chen]')) {
+    slot.replaceWith(document.getElementById(slot.dataset.chen).content.cloneNode(true));
+  }
+  const showScreen = (id) => {
+    document.querySelectorAll('.man-hinh').forEach((el) => el.classList.toggle('hien', el.id === id));
+    document.querySelectorAll('[data-man]').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.man === id)));
+    window.scrollTo(0, 0);
+  };
+  const showState = (state) => {
+    document.querySelectorAll('[data-tt]').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.tt === state)));
+    document.querySelectorAll('[data-tt-hien]').forEach((el) => { el.hidden = el.dataset.ttHien !== state; });
+    document.querySelectorAll('[data-tt-an]').forEach((el) => { el.hidden = el.dataset.ttAn === state; });
+    document.querySelectorAll('[data-tt-hien-o]').forEach((el) => el.classList.toggle('loi-o', el.dataset.ttHienO === state));
+  };
+  document.querySelectorAll('[data-man]').forEach((b) => b.addEventListener('click', () => showScreen(b.dataset.man)));
+  document.querySelectorAll('[data-tt]').forEach((b) => b.addEventListener('click', () => showState(b.dataset.tt)));
+  document.addEventListener('click', (event) => {
+    const target = event.target.closest('[data-di]');
+    if (!target) return;
+    event.preventDefault();
+    if (target.dataset.vai) document.querySelector(`input[name="vai"][value="${target.dataset.vai}"]`).checked = true;
+    syncDocuments();
+    showScreen(target.dataset.di);
+  });
+  const syncDocuments = () => {
+    const tutor = document.querySelector('input[name="vai"]:checked').value === 'tutor';
+    document.querySelector('.van-ban-gia-su').hidden = !tutor;
+    document.querySelectorAll('#van-ban input').forEach((box) => { box.checked = false; });
+  };
+  document.querySelectorAll('input[name="vai"]').forEach((r) => r.addEventListener('change', syncDocuments));
+  showState('du-lieu');
+</script>
+</body>
+</html>
