@@ -1,5 +1,5 @@
 import { Logger } from '@nestjs/common';
-import type { Clock } from '@school-management/server';
+import { currentTenant, type Clock } from '@school-management/server';
 import type { Infrastructure } from '../common/infrastructure.js';
 import { SmsSender } from './sms-sender.js';
 
@@ -10,7 +10,8 @@ const CACHE_MILLISECONDS = 30_000;
 
 export class DemoAwareSmsSender extends SmsSender {
   private readonly logger = new Logger('SmsSender');
-  private cached: { value: boolean; at: number } | null = null;
+  // Đệm theo mã trường: mỗi trường có dấu trình diễn riêng ở chế độ nhiều trường
+  private readonly cached = new Map<string, { value: boolean; at: number }>();
 
   constructor(
     private readonly inner: SmsSender,
@@ -30,8 +31,10 @@ export class DemoAwareSmsSender extends SmsSender {
 
   private async isDemo(): Promise<boolean> {
     const now = this.clock.now().getTime();
-    if (this.cached && now - this.cached.at < CACHE_MILLISECONDS) {
-      return this.cached.value;
+    const school = currentTenant()?.code ?? '';
+    const cached = this.cached.get(school);
+    if (cached && now - cached.at < CACHE_MILLISECONDS) {
+      return cached.value;
     }
     const row = await this.infrastructure.database
       .selectFrom('identity_settings')
@@ -39,7 +42,7 @@ export class DemoAwareSmsSender extends SmsSender {
       .where('key', '=', DEMO_ENVIRONMENT_SETTING_KEY)
       .executeTakeFirst();
     const value = row?.value === true;
-    this.cached = { value, at: now };
+    this.cached.set(school, { value, at: now });
     return value;
   }
 }
