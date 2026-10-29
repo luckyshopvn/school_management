@@ -217,7 +217,14 @@ test('CT-27f-6: cổng nền tảng bật chợ, phụ huynh đăng ký và tạ
   const tutor = await tutorContext.newPage();
   await tutor.goto(`http://${E2E_TUTOR_HOST}:${E2E_MULTI_TUTOR_PORT}/?moi=phong-hoc`);
   await expect(tutor).toHaveURL(`http://${E2E_MARKET_HOST}:${E2E_MULTI_MARKET_PORT}/?moi=phong-hoc`);
-  await expect(tutor.locator('link[rel="manifest"]')).toHaveAttribute('href', './manifest.webmanifest');
+  // Ứng dụng chung cài được như ứng dụng Gia sư cũ: trang có manifest của Chợ gia sư (vite ghi lại đường dẫn tương đối thành tuyệt đối)
+  await expect(tutor.locator('link[rel="manifest"]')).toHaveAttribute('href', /manifest\.webmanifest$/);
+  // Đọc bằng trình duyệt: Node không phân giải được tên miền *.localhost
+  expect(
+    await tutor.evaluate(
+      "fetch('/manifest.webmanifest').then((response) => response.json()).then((body) => body.name)",
+    ),
+  ).toBe('Chợ gia sư');
   await tutor.getByRole('button', { name: 'Đăng ký làm gia sư' }).click();
   const tutorRegister = tutor.getByRole('form', { name: 'Đăng ký tài khoản chợ gia sư' });
   await expect(tutorRegister.getByLabel('Gia sư, kể cả giáo viên dạy kèm ngoài trường')).toBeChecked();
