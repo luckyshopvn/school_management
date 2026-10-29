@@ -189,8 +189,24 @@ function fixture(role: Role, method: string, path: string): Reply | undefined {
   if (path === '/plan-schools') {
     return {
       body: [
-        { id: 's1', code: 'truong-gia', name: 'Trường giả', status: 'active', trial_ends_on: null, paid_until: null, plan: null },
-        { id: 's2', code: 'truong-hoa', name: 'Trường Hoa giả', status: 'trial', trial_ends_on: null, paid_until: null, plan: null },
+        {
+          id: 's1',
+          code: 'truong-gia',
+          name: 'Trường giả',
+          status: 'active',
+          trial_ends_on: null,
+          paid_until: null,
+          plan: null,
+        },
+        {
+          id: 's2',
+          code: 'truong-hoa',
+          name: 'Trường Hoa giả',
+          status: 'trial',
+          trial_ends_on: null,
+          paid_until: null,
+          plan: null,
+        },
       ],
     };
   }
