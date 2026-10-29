@@ -54,7 +54,7 @@ describe('Điểm cuối Hay dùng và tìm chung', () => {
       assert.equal((await sendJson('POST', recentUrl(), principal.accessToken, { path })).status, 204);
     }
     assert.equal((await sendJson('POST', recentUrl(), principal.accessToken, { path: '/children' })).status, 204);
-    const read = (await sendJson('GET', recentUrl(), principal.accessToken)).body as Array<{ path: string }>;
+    const read = (await sendJson('GET', recentUrl(), principal.accessToken)).body as unknown as Array<{ path: string }>;
     assert.equal(read.length, RECENT_PAGES_SHOWN);
     assert.equal(read[0]?.path, '/children');
     assert.equal(read[1]?.path, paths.at(-1));
@@ -62,7 +62,7 @@ describe('Điểm cuối Hay dùng và tìm chung', () => {
 
   it('CT-337-3: bỏ một trang khỏi danh sách; danh sách riêng từng tài khoản', async () => {
     assert.equal((await sendJson('DELETE', `${recentUrl()}?path=%2Fchildren`, principal.accessToken)).status, 204);
-    const read = (await sendJson('GET', recentUrl(), principal.accessToken)).body as Array<{ path: string }>;
+    const read = (await sendJson('GET', recentUrl(), principal.accessToken)).body as unknown as Array<{ path: string }>;
     assert.ok(!read.some((page) => page.path === '/children'));
     assert.deepEqual((await sendJson('GET', recentUrl(), teacher.accessToken)).body, []);
   });
