@@ -123,6 +123,7 @@ export const PUBLIC_ROUTES: PublicRoute[] = [
   { method: 'GET', path: '/api/v1/auth/parent-org/access-requests', reason: PARENT_ORG },
   { method: 'POST', path: '/api/v1/auth/parent-org/access-requests', reason: PARENT_ORG },
   { method: 'POST', path: '/api/v1/auth/parent-org/access-requests/:id/open', reason: PARENT_ORG },
+  { method: 'POST', path: '/api/v1/auth/parent-org/access-requests/:id/withdraw', reason: PARENT_ORG },
   // Danh mục đơn vị toàn quốc, đăng nhập theo đơn vị, quyền quản trị nền tảng (DT-24)
   { method: 'GET', path: '/api/v1/auth/directory/context', reason: DIRECTORY },
   { method: 'GET', path: '/api/v1/auth/directory/departments', reason: DIRECTORY },
