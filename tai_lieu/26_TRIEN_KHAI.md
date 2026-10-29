@@ -75,13 +75,13 @@ Ba môi trường thử nghiệm, chạy thật, phát triển tách biệt cơ 
 | Hệ thống `school_system` | `database/system/migrations/` | `migrate-command` |
 | Năm học `school_year_YYYY_YYYY` đang dùng | `database/school-year/migrations/` | `migrate-command`; năm học đã đóng giữ nguyên cấu trúc (QU-11) |
 | Nền tảng `school_platform` | `database/platform/migrations/` | `pnpm --filter @school-management/database platform migrate` |
-| Chợ gia sư `school_marketplace` | `database/marketplace/migrations/` | Cùng lệnh `platform migrate` khi có `MARKETPLACE_DATABASE_URL` |
+| Chợ gia sư `school_marketplace` | `database/marketplace/migrations/` | **Đã bỏ (YCTD-384):** sao lưu rồi xóa bằng `xoa-du-lieu-da-bo -- --tinh-nang cho-gia-su --xoa-co-so-du-lieu` (mục 5.2 bước 1). Trước đó: Cùng lệnh `platform migrate` khi có `MARKETPLACE_DATABASE_URL` |
 | Cơ sở dữ liệu của từng trường (nhiều trường) | Như định danh, hệ thống, năm học | `platform migrate-schools [--canary <mã>] [--continue]`, ghi kết quả vào `school_migrations` |
 
 ### 5.2 Thứ tự
 
-1. Sao lưu (mục 4 bước 3).
-2. `platform migrate` (nền tảng, rồi chợ gia sư) khi phiên bản có tệp mới ở `database/platform/` hoặc `database/marketplace/`.
+1. Sao lưu (mục 4 bước 3). Phiên bản có YCTD-384: sao lưu mã hóa dữ liệu đã bỏ trước database migration, `pnpm --filter @school-management/database xoa-du-lieu-da-bo -- --tinh-nang cho-gia-su` trước `platform migrate` (nền tảng `0255`), `-- --tinh-nang gia-su-trong-truong` trước `migrate-command` (năm học `0235`); database migration từ chối chạy khi chưa có bản ghi ở `removed_data_backups`.
+2. `platform migrate` khi phiên bản có tệp mới ở `database/platform/` (chợ gia sư và `database/marketplace/` đã bỏ từ YCTD-384).
 3. `migrate-command`: định danh, rồi hệ thống, rồi lần lượt từng năm học đang dùng (`database/src/migrate-command.ts`). Lỗi ở bước trước thì dừng, không chạy bước sau.
 4. Nhiều trường: `platform migrate-schools --canary <mã trường thử>` cho một trường trước, đạt thì chạy cho mọi trường.
 5. Khởi động lại dịch vụ: bản một máy thì `identity`, `api` chỉ chạy sau khi `migrate` thành công; hồ sơ vận hành thì `identity-a`, `identity-b`, `api-a`, `api-b` lần lượt, rồi `worker`, `web`.
