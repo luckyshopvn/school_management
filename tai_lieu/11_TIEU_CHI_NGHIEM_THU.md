@@ -273,7 +273,7 @@ Các mã từ AC-94 đến AC-134 được viết trực tiếp trong mục 12 c
 | AC-198 | Cho kỳ đã qua ngày chốt / Khi phụ huynh đăng ký thêm lớp STEM / Thì đăng ký ở trạng thái chờ Ban Giám hiệu duyệt, chưa sinh khoản phải thu |
 | AC-199 | Cho đăng ký trễ được duyệt với cách thu theo ngày thực tế / Khi tính học phí kỳ / Thì phí bằng phí tháng nhân số ngày học từ ngày bắt đầu học dịch vụ, kể cả ngày đó, đến cuối tháng, chia số ngày học của tháng (Q-150) |
 | AC-200 | Cho một trẻ đang học / Khi phụ huynh hoặc kế toán bỏ chọn bán trú / Thì hệ thống không cho bỏ |
-| AC-201 | Cho trẻ chưa có mã định danh ngành / Khi mở danh sách trẻ / Thì ô mã ngành để trống và tô đỏ |
+| AC-201 | Cho trẻ chưa có mã định danh ngành / Khi mở danh sách trẻ / Thì ô mã ngành để trống và tô đỏ (từ YCTD-338: trên lưới danh sách ghi "Chưa có" chữ xám theo thiết kế cổng quản trị; ô mã ở hồ sơ vẫn tô đỏ) |
 | AC-202 | Cho tệp mã định danh ngành / Khi nhập / Thì mã được gán theo số định danh cá nhân, dòng không khớp hoặc mã trùng được báo lỗi |
 | AC-203 | Cho phụ huynh mới được tạo tài khoản với mật khẩu mặc định / Khi đăng nhập bằng mật khẩu mặc định / Thì chỉ vào được màn hình đổi mật khẩu cho tới khi đổi xong; đăng nhập bằng mã một lần thì dùng bình thường (Q-147) |
 | AC-204 | Cho một ngày thứ bảy có lịch học bù do Ban Giám hiệu lập / Khi giáo viên mở điểm danh ngày đó / Thì mọi lớp của mọi đơn vị có danh sách điểm danh như ngày học thường và ngày đó được tính vào số ngày học của tháng |

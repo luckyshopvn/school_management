@@ -130,11 +130,13 @@ test('CT-15c-12: lưới học sinh theo Sở: cột, A–Z, cấu hình cột, 
   await signIn(page, 'VT-02', null);
   const grid = await openStudents(page);
   const headers = grid.getByRole('columnheader');
-  for (const header of ['Mã định danh Bộ GD&ĐT', 'Họ tên', 'Ngày sinh', 'Giới tính', 'Dân tộc', 'Trạng thái']) {
+  // Cột mặc định theo thiết kế (YCTD-338); Dân tộc, Khối, Phụ huynh ẩn mặc định, bật ở Cấu hình cột hiển thị
+  for (const header of ['Mã định danh Bộ GD&ĐT', 'Họ tên', 'Ngày sinh', 'Giới tính', 'Lớp', 'Trạng thái']) {
     await expect(headers.filter({ hasText: header }).first()).toBeVisible();
   }
   await expect(headers.filter({ hasText: 'Số điện thoại liên hệ' })).toBeVisible();
   await expect(headers.filter({ hasText: 'Điện thoại nhận tin' })).toHaveCount(0);
+  await expect(headers.filter({ hasText: 'Dân tộc' })).toHaveCount(0);
   // Sắp xếp theo tên rồi theo họ: An, Ánh, Bảo
   const rows = grid.getByRole('row').filter({ hasText: token });
   await expect(rows.nth(0)).toContainText(names.an);
@@ -169,7 +171,7 @@ test('CT-15c-12: lưới học sinh theo Sở: cột, A–Z, cấu hình cột, 
 
   // Xuất Excel đúng các cột đang hiện, theo bộ lọc đang chọn
   const downloading = page.waitForEvent('download');
-  await grid.getByRole('button', { name: 'Xuất Excel' }).click();
+  await clickGridMoreItem(grid, 'Xuất Excel');
   const download = await downloading;
   expect(download.suggestedFilename()).toMatch(/^danh-sach-hoc-sinh-.*\.xlsx$/);
   const workbook = new ExcelJS.Workbook();
