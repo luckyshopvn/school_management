@@ -117,6 +117,45 @@ function fixture(role: Role, method: string, path: string): Reply | undefined {
       },
     };
   }
+  if (path === '/service-status') {
+    return {
+      body: {
+        checked_at: '2030-01-01T08:00:00.000Z',
+        slow_milliseconds: 1000,
+        items: [
+          {
+            key: 'identity',
+            state: 'ok',
+            milliseconds: 12,
+            detail: 'Cơ sở dữ liệu 12 ms; Redis 2 ms',
+            observed_at: null,
+          },
+          {
+            key: 'api',
+            state: 'ok',
+            milliseconds: 40,
+            detail: 'Phản hồi 40 ms; cơ sở dữ liệu 9 ms',
+            observed_at: null,
+          },
+          {
+            key: 'worker',
+            state: 'error',
+            milliseconds: null,
+            detail: 'Không có tín hiệu',
+            observed_at: '2030-01-01T07:50:00.000Z',
+          },
+          { key: 'storage', state: 'slow', milliseconds: 1500, detail: 'Thùng chứa 1500 ms', observed_at: null },
+          {
+            key: 'queue',
+            state: 'ok',
+            milliseconds: null,
+            detail: '0 việc xếp thời khoá biểu đang chờ',
+            observed_at: null,
+          },
+        ],
+      },
+    };
+  }
   if (path === '/maintenance-notices' && method === 'GET') {
     return { body: { items: [notice] } };
   }
@@ -672,6 +711,25 @@ test.describe('cổng vận hành đợt 2', () => {
       page.getByLabel('Tháng', { exact: true }).fill('2030-02'),
     ]);
     expect(request.method()).toBe('GET');
+  });
+
+  test('CT-1709: Bảo trì có khối Tình trạng dịch vụ năm mục; Kiểm lại đo lại (YCTD-376)', async ({ page }) => {
+    await openConsole(page, 'ho_tro');
+    let checks = 0;
+    page.on('request', (request) => {
+      if (request.url().endsWith('/api/v1/auth/platform/service-status')) {
+        checks += 1;
+      }
+    });
+    await openPage(page, 'Bảo trì');
+    const table = page.getByRole('table', { name: 'Tình trạng dịch vụ' });
+    await expect(table.getByRole('row')).toHaveCount(6);
+    await expect(table.getByRole('row', { name: /Tiến trình nền/ })).toContainText('Lỗi');
+    await expect(table.getByRole('row', { name: /Lưu trữ tệp/ })).toContainText('Chậm');
+    await expect(table.getByRole('row', { name: /Dịch vụ định danh/ })).toContainText('Hoạt động');
+    await expect.poll(() => checks).toBe(1);
+    await page.getByRole('button', { name: 'Kiểm lại' }).click();
+    await expect.poll(() => checks).toBe(2);
   });
 
   test('CT-1708: Phải thu kỳ này, Đã thu tính trên hóa đơn chưa hủy có kỳ chứa hôm nay (YCTD-375)', async ({

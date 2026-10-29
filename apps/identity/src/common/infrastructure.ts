@@ -1,6 +1,7 @@
 import { Inject, Injectable, Optional, type OnModuleDestroy } from '@nestjs/common';
 import { createDatabase, type IdentityDatabase, type TenancyRuntime } from '@school-management/database';
 import { requireTenant } from '@school-management/server';
+import { platformCacheKey, type PlatformCacheNamespace } from '@school-management/server/resource-names';
 import { Redis } from 'ioredis';
 import type { Kysely } from 'kysely';
 import { IDENTITY_CONFIGURATION, TENANCY_RUNTIME, type IdentityConfiguration } from './configuration.js';
@@ -51,6 +52,22 @@ export class Infrastructure implements OnModuleDestroy {
     return tenant?.keyPrefix
       ? `${this.configuration.redisKeyPrefix}:t:${tenant.keyPrefix}`
       : this.configuration.redisKeyPrefix;
+  }
+
+  // Khóa cấp nền tảng, không cần ngữ cảnh trường (YCTD-376): yêu cầu của cổng vận hành không thuộc trường nên không dùng được
+  // scopedCache. Chỉ đọc; khóa `platform:<nhóm>:<tên>` do máy chủ API, tiến trình nền ghi qua platformCacheKey
+  platformCache(namespace: PlatformCacheNamespace): { get(name: string): Promise<string | null> } {
+    const store = this.redis;
+    return { get: (name) => store.get(platformCacheKey(namespace, name)) };
+  }
+
+  // Đo Redis, đếm phần tử một hàng đợi dùng chung (khối Tình trạng dịch vụ, YCTD-376)
+  ping(): Promise<string> {
+    return this.redis.ping();
+  }
+
+  queueLength(key: string): Promise<number> {
+    return this.redis.llen(key);
   }
 
   // Kho tạm theo trường cho một nhóm khóa (DT-25): khóa luôn là `<keyPrefix()>:<nhóm>:<tên>`, mã nghiệp vụ không tự ghép khóa Redis

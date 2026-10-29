@@ -17,6 +17,9 @@ export interface CacheStore {
   expire(key: string, seconds: number): Promise<unknown>;
   del(...keys: string[]): Promise<number>;
   multi(): CacheTransaction;
+  // Khối Tình trạng dịch vụ của cổng vận hành (YCTD-376): đo Redis, đếm việc chờ của hàng đợi
+  ping(): Promise<string>;
+  llen(key: string): Promise<number>;
   disconnect(): void;
 }
 
@@ -96,6 +99,15 @@ export class MemoryStore implements CacheStore {
       },
     };
     return transaction;
+  }
+
+  async ping(): Promise<string> {
+    return 'PONG';
+  }
+
+  // Kho trong bộ nhớ không giữ danh sách: hàng đợi luôn rỗng
+  async llen(): Promise<number> {
+    return 0;
   }
 
   disconnect(): void {

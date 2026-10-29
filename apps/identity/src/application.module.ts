@@ -41,6 +41,7 @@ import { PlatformPlansController, PlatformPlansService } from './platform/platfo
 import { PlatformBillingController, PlatformBillingService } from './platform/platform-billing.js';
 import { PlatformAiController, PlatformAiService } from './platform/platform-ai.js';
 import { PlatformDashboardController, PlatformDashboardService } from './platform/platform-dashboard.js';
+import { PlatformServiceStatusController, PlatformServiceStatusService } from './platform/platform-service-status.js';
 import { ParentOrgAuthController, ParentOrgsService, PlatformParentOrgsController } from './platform/parent-orgs.js';
 import {
   PlatformSupportController,
@@ -84,6 +85,7 @@ export class ApplicationModule {
         PlatformPlansController,
         PlatformBillingController,
         PlatformDashboardController,
+        PlatformServiceStatusController,
         PlatformParentOrgsController,
         ParentOrgAuthController,
         PlatformSupportController,
@@ -142,6 +144,7 @@ export class ApplicationModule {
         PlatformBillingService,
         PlatformAiService,
         PlatformDashboardService,
+        PlatformServiceStatusService,
         ParentOrgsService,
         SupportSessionsService,
         StudentAccountsService,

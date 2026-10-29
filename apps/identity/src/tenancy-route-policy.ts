@@ -94,6 +94,7 @@ export const PUBLIC_ROUTES: PublicRoute[] = [
   // Bảng điều khiển nền tảng, thông báo bảo trì, phiên hỗ trợ (DT-SaaS phần S4): cùng điều kiện tên miền cổng và mã phiên vận hành
   { method: 'GET', path: '/api/v1/auth/platform/dashboard', reason: PLATFORM },
   { method: 'GET', path: '/api/v1/auth/platform/dashboard/errors', reason: PLATFORM },
+  { method: 'GET', path: '/api/v1/auth/platform/service-status', reason: PLATFORM },
   { method: 'GET', path: '/api/v1/auth/platform/maintenance-notices', reason: PLATFORM },
   { method: 'POST', path: '/api/v1/auth/platform/maintenance-notices', reason: PLATFORM },
   { method: 'POST', path: '/api/v1/auth/platform/maintenance-notices/:id/cancel', reason: PLATFORM },

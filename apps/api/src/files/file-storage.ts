@@ -74,6 +74,11 @@ export class S3FileStorage extends FileStorage {
     return deleted;
   }
 
+  // Kiểm thùng chứa còn truy cập được (khối "Tình trạng dịch vụ" của cổng vận hành, YCTD-376); không tạo thùng
+  async probe(): Promise<void> {
+    await this.client.send(new HeadBucketCommand({ Bucket: this.settings.bucket }));
+  }
+
   // Tạo thùng chứa ở lần ghi đầu nếu chưa có
   private ensureBucket(): Promise<void> {
     this.bucketReady ??= (async () => {
