@@ -173,8 +173,11 @@ function fixture(role: Role, method: string, path: string): Reply | undefined {
   if (path === '/plan-modules') {
     return { body: [] };
   }
-  if (path === '/plans') {
+  if (path === '/plans' && method === 'GET') {
     return { body: plans };
+  }
+  if (path.startsWith('/plans')) {
+    return { body: plans[0] };
   }
   if (path === '/plan-schools') {
     return { body: [] };
@@ -531,6 +534,19 @@ test.describe('cổng vận hành đợt 2', () => {
     await page.getByRole('button', { name: 'Sửa đơn giá AI của gói Gói giả ở Gói dịch vụ' }).click();
     await expect(page.getByRole('heading', { name: 'Sửa gói: Gói giả' })).toBeVisible();
     await expect(page.getByRole('heading', { name: 'Phí AI của gói Gói giả' })).toBeVisible();
+  });
+
+  test('CT-1705: biểu mẫu gói có ô Chu kỳ thu, lưu gửi đúng chu kỳ đã chọn (YCTD-371)', async ({ page }) => {
+    const writes = await openConsole(page, 'quan_tri');
+    await openPage(page, 'Gói dịch vụ');
+    await expect(page.getByRole('table', { name: 'Danh sách gói' })).toContainText('0 đ mỗi tháng');
+    await page.getByRole('button', { name: 'Sửa gói Gói giả' }).click();
+    const form = page.getByRole('form', { name: 'Sửa gói' });
+    await expect(form.getByLabel('Chu kỳ thu')).toHaveValue('monthly');
+    await form.getByLabel('Chu kỳ thu').selectOption('term');
+    await form.getByRole('button', { name: 'Lưu gói' }).click();
+    await expect(page.getByRole('status').filter({ hasText: 'Đã lưu gói' })).toBeVisible();
+    expect(writes[0]?.postDataJSON()).toMatchObject({ billing_cycle: 'term' });
   });
 
   test('CT-1699: tám trang không còn hộp nhập, hộp xác nhận của trình duyệt', () => {
