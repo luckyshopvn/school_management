@@ -64,6 +64,12 @@ interface PlanSchool {
   plan: { id: string; code: string; name: string; effective_from: string } | null;
 }
 
+// Chu kỳ thu của gói (YCTD-371, ĐX-CN-7): trước đây biểu mẫu không có ô, gói mới luôn gửi monthly
+const BILLING_CYCLE_LABELS: Record<Plan['billing_cycle'], string> = {
+  monthly: 'Tháng',
+  term: 'Học kỳ',
+  yearly: 'Năm',
+};
 const PRICING_LABELS: Record<Plan['pricing_mode'], string> = {
   per_student: 'Theo số học sinh đang học',
   per_school: 'Theo trường',
@@ -553,7 +559,8 @@ export function PlansPage({
                           </td>
                           <td>{limitsOf(plan)}</td>
                           <td>
-                            {PRICING_LABELS[plan.pricing_mode]}: {count(plan.unit_price)} đ
+                            {PRICING_LABELS[plan.pricing_mode]}: {count(plan.unit_price)} đ mỗi{' '}
+                            {BILLING_CYCLE_LABELS[plan.billing_cycle].toLowerCase()}
                           </td>
                           <td className="number">{count(plan.school_count)}</td>
                           {canManage ? (
@@ -682,6 +689,21 @@ export function PlansPage({
                       </label>
                       {numberField('unit_price', 'Đơn giá (đồng)')}
                       {numberField('minimum_fee', 'Phí tối thiểu (đồng)')}
+                      <label className="field">
+                        Chu kỳ thu
+                        <select
+                          value={form.billing_cycle}
+                          onChange={(event) =>
+                            setForm({ ...form, billing_cycle: event.target.value as Plan['billing_cycle'] })
+                          }
+                        >
+                          {Object.entries(BILLING_CYCLE_LABELS).map(([value, label]) => (
+                            <option key={value} value={value}>
+                              {label}
+                            </option>
+                          ))}
+                        </select>
+                      </label>
                       {canReadRules ? (
                         <label className="field">
                           Quy tắc tính phí (thu phí tự động)
