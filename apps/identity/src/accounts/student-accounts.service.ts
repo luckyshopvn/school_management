@@ -41,8 +41,8 @@ export class StudentAccountsService {
   }
 
   async sync(caller: CallerContext, inputs: StudentAccountInput[]): Promise<StudentAccountResult[]> {
-    for (const orgUnitId of new Set(inputs.map((input) => input.org_unit_id))) {
-      await assertPermissionAtUnit(
+    const assertCanManageUnit = (orgUnitId: string | null) =>
+      assertPermissionAtUnit(
         this.database,
         this.organizationDirectory,
         caller,
@@ -50,6 +50,8 @@ export class StudentAccountsService {
         orgUnitId,
         'Bạn không có quyền cấp tài khoản học sinh',
       );
+    for (const orgUnitId of new Set(inputs.map((input) => input.org_unit_id))) {
+      await assertCanManageUnit(orgUnitId);
     }
     const studentRole = await this.database
       .selectFrom('roles')
@@ -86,6 +88,16 @@ export class StudentAccountsService {
               'YCTD-211',
               `Tên đăng nhập ${maskLoginIdentifier(input.username)} đã thuộc tài khoản khác của trường`,
             );
+          }
+          // Cấp lại mật khẩu, chuyển đơn vị: người gọi phải có quyền ở cả đơn vị hiện tại của học sinh (YCTD-378)
+          const currentUnits = await transaction
+            .selectFrom('user_roles')
+            .select('org_unit_id')
+            .where('user_id', '=', existing.id)
+            .where('role_id', '=', studentRole.id)
+            .execute();
+          for (const orgUnitId of new Set(currentUnits.map((role) => role.org_unit_id))) {
+            await assertCanManageUnit(orgUnitId);
           }
           await transaction
             .updateTable('users')
