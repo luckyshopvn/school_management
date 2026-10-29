@@ -5,7 +5,7 @@ import { createDatabase } from './connection.js';
 import { writeAudit } from './provision-school.js';
 import type { SystemDatabase } from '../system/schema.js';
 
-// Nhận bản triển khai đang chạy làm trường số 1 của nền tảng (DT-SaaS phần S1a, tài liệu 32 mục 14.5): chỉ ghi cơ sở dữ liệu nền
+// Nhận bản triển khai đang chạy làm trường số 1 của nền tảng (DT-SaaS phần S1a, tài liệu 47 mục 14.5): chỉ ghi cơ sở dữ liệu nền
 // tảng và dùng lại cơ sở dữ liệu hiện có, tiền tố khóa trống, khóa dữ liệu trẻ nhập từ cấu hình hiện tại; KHÔNG đổi tên, KHÔNG
 // sao chép dữ liệu. Chạy lặp được: lần sau cập nhật mô tả kết nối, khóa, tên miền, thêm cơ sở dữ liệu năm học mới
 

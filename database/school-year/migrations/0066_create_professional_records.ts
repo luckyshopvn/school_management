@@ -1,7 +1,7 @@
 import { sql } from 'kysely';
 import type { Migration } from 'kysely/migration';
 
-// DT-18 phần 18e (YCTD-142): hồ sơ chuyên môn theo mô tả công khai của GIKIDI Nhà Trường (tài liệu 32 mục 9.4). Cơ sở dữ
+// DT-18 phần 18e (YCTD-142): hồ sơ chuyên môn theo mô tả công khai của GIKIDI Nhà Trường (tài liệu 47 mục 9.4). Cơ sở dữ
 // liệu năm học nên kho tự tách theo năm học. Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11:
 // - `professional_folders`: cây thư mục ba nhánh (cá nhân, tổ hoặc nhóm, trường); mỗi thư mục có luồng duyệt riêng (không
 //   duyệt, tổ trưởng duyệt, tổ trưởng rồi Ban Giám hiệu duyệt) và có cần kí nội bộ hay không; cột cấp học để nạp danh mục

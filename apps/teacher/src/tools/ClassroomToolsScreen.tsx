@@ -37,7 +37,7 @@ import { StarBoardTool } from './mini/StarBoardTool.js';
 import { VisualTimerTool } from './mini/VisualTimerTool.js';
 import { WhiteboardTool } from './mini/WhiteboardTool.js';
 
-// Hộp công cụ giảng dạy (DT-29, YCTD-325; trước đây là Công cụ lớp học của DT-23 phần 23b, YCTD-212; tài liệu 32 mục 15.4, 21):
+// Hộp công cụ giảng dạy (DT-29, YCTD-325; trước đây là Công cụ lớp học của DT-23 phần 23b, YCTD-212; tài liệu 47 mục 15.4, 21):
 // gom công cụ, mini app hỗ trợ giảng dạy của lớp đang chọn, lọc theo cấp của lớp (danh mục `TEACHING_TOOLS` ở gói chung), bỏ công
 // cụ trường đã tắt và công cụ thuộc tính năng gói chưa bật. Công cụ chạy trên lớp mở được khi mất mạng sau lần tải đầu nhờ service
 // worker và bản chụp danh sách lớp gọn (hết hạn theo cấu hình của trường, xóa khi đăng xuất); các phân hệ khác vẫn cần mạng (GD-108)

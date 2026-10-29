@@ -1,7 +1,7 @@
 import { sql, type Kysely } from 'kysely';
 import type { PlatformAuditActorType, PlatformDatabase } from '../platform/schema.js';
 
-// Danh mục đơn vị giáo dục toàn quốc ở cơ sở dữ liệu nền tảng (DT-24, YCTD-220; tài liệu 32 mục 16).
+// Danh mục đơn vị giáo dục toàn quốc ở cơ sở dữ liệu nền tảng (DT-24, YCTD-220; tài liệu 47 mục 16).
 // Nguồn là tệp CSV theo cột của bản khảo sát ô chọn đơn vị trên trang đăng nhập của hệ thống ngành (một dòng mỗi trường hoặc mỗi
 // cặp trường, cấp học) và tệp phường, xã. Kho mã công khai không chứa tệp thật; trên máy chủ, quản trị nền tảng nạp bằng lệnh
 // `platform catalog-import` hoặc ở cổng nền tảng. Quy tắc làm sạch (Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11):

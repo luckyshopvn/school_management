@@ -18,7 +18,7 @@ import {
   type TestUser,
 } from '../test-support.js';
 
-// Cách ly giữa các trường của bộ nối nhà cung cấp định danh (DT-25, YCTD-225; tài liệu 32 mục 14.7, 17): cấu hình bật tắt, liên kết, state
+// Cách ly giữa các trường của bộ nối nhà cung cấp định danh (DT-25, YCTD-225; tài liệu 47 mục 14.7, 17): cấu hình bật tắt, liên kết, state
 // đều theo trường; subject mã hóa và băm bằng khóa của từng trường (kho khóa S3), nên cùng một subject ở hai trường cho hai bản băm khác
 // nhau và liên kết ở trường này không đăng nhập được ở trường kia
 const CODE = 'oidc-thu';

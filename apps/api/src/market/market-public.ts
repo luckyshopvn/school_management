@@ -9,7 +9,7 @@ import { vietnamToday } from './market-listing.js';
 import { notSuspended } from './market-safety-rules.js';
 import { badgesOf, verificationState, type VerificationRow } from './market-tutor-rules.js';
 
-// Tìm gia sư và trang công khai của gia sư theo Mẫu 02 (DT-27 phần 27g, YCTD-257; tài liệu 32 mục 19.5; Thông tư 29/2024 sửa bởi Thông
+// Tìm gia sư và trang công khai của gia sư theo Mẫu 02 (DT-27 phần 27g, YCTD-257; tài liệu 47 mục 19.5; Thông tư 29/2024 sửa bởi Thông
 // tư 19/2026: cơ sở dạy thêm công khai môn, thời lượng theo khối lớp, địa điểm, hình thức, thời gian, người dạy, mức thu). Ở tên miền
 // của chợ (ứng dụng phụ huynh), không cần đăng nhập. Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11:
 // - chỉ hiện gia sư có hồ sơ đã duyệt, danh tính đã xác minh, phiếu lý lịch tư pháp đã duyệt còn hiệu lực, tài khoản đang dùng;

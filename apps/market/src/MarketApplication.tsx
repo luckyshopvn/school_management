@@ -13,7 +13,7 @@ import { ParentBookings } from './ParentBookings.js';
 import { SafetyPage } from './SafetyPage.js';
 import { TutorSearch } from './TutorSearch.js';
 
-// Chợ gia sư cho phụ huynh (DT-27 phần 27f, YCTD-256; tài liệu 32 mục 19.5): trang công khai, đăng ký, đăng nhập phụ huynh, khu phụ
+// Chợ gia sư cho phụ huynh (DT-27 phần 27f, YCTD-256; tài liệu 47 mục 19.5): trang công khai, đăng ký, đăng nhập phụ huynh, khu phụ
 // huynh (hồ sơ con, đồng ý, liên kết với trường). Gia sư dùng ứng dụng riêng apps/tutor (YCTD-262, quyết định của Eric ngày 2026-10-28).
 // Tìm gia sư, trang gia sư theo Mẫu 02 (27g, TutorSearch); đặt buổi, thanh toán giả lập là của 27h; tin nhắn, báo cáo vi phạm, phòng học
 // có ghi hình, chính sách an toàn trẻ em là của 27i. Từ YCTD-360 (thiết kế duyệt ngày 2026-10-28) khu phụ huynh chia trang theo thanh

@@ -12,7 +12,7 @@ import {
   type TutoringRuleSet,
 } from '@school-management/shared';
 
-// Quy định dạy thêm của gia sư trong trường (DT-27 phần 27b, YCTD-252), kịch bản CT-27b-1, CT-27b-2: mỗi dòng của bảng ở tài liệu 32
+// Quy định dạy thêm của gia sư trong trường (DT-27 phần 27b, YCTD-252), kịch bản CT-27b-1, CT-27b-2: mỗi dòng của bảng ở tài liệu 47
 // mục 19.2 có ca kiểm thử (Thông tư 29/2024 sửa bởi Thông tư 19/2026)
 const RULES: TutoringRuleSet = {
   effectiveFrom: '2026-05-15',

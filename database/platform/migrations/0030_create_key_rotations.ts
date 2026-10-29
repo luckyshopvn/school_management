@@ -1,7 +1,7 @@
 import { sql } from 'kysely';
 import type { Migration } from 'kysely/migration';
 
-// Nhật ký đổi khóa mã hóa dữ liệu trẻ của trường (DT-SaaS phần S3, YCTD-195, tài liệu 32 mục 14.5): khóa mới (bọc bằng khóa gốc của
+// Nhật ký đổi khóa mã hóa dữ liệu trẻ của trường (DT-SaaS phần S3, YCTD-195, tài liệu 47 mục 14.5): khóa mới (bọc bằng khóa gốc của
 // nền tảng) và tiến độ mã hóa lại từng bảng, ghi sau mỗi lô để công cụ làm tiếp được khi bị gián đoạn. Mỗi trường chỉ có một lần
 // đổi khóa đang chạy; khóa mới chỉ thay khóa hiện tại ở `school_keys` khi mã hóa lại xong toàn bộ
 export const migration: Migration = {

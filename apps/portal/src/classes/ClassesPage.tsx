@@ -66,7 +66,7 @@ const YES_NO = [
 ];
 const yes = (value: boolean) => (value ? 'Có' : '');
 
-// Mã cột trùng mã cột tệp Excel của máy chủ; thứ tự cột theo màn hình 2.1 của Sở, 50 dòng mỗi trang (tài liệu 31 mục 9.8,
+// Mã cột trùng mã cột tệp Excel của máy chủ; thứ tự cột theo màn hình 2.1 của Sở, 50 dòng mỗi trang (tài liệu 46 mục 9.8,
 // YCTD-117). Cột hiện mặc định theo thiết kế cổng quản trị (YCTD-339): Tên lớp, Khối, Giáo viên chủ nhiệm, Số học sinh,
 // Điểm trường, Phòng học; các cột khác ẩn mặc định, bật lại ở Cấu hình cột hiển thị
 const SO_PAGE_SIZE = 50;

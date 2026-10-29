@@ -45,7 +45,7 @@ import {
   type RubricSnapshot,
 } from './assignment-rules.js';
 
-// Bài tập trực tuyến (DT-28 phần 28c, YCTD-273; tài liệu 32 mục 20.7). Quyền lớp học trực tuyến (ai dạy, ai là học sinh, ai là phụ
+// Bài tập trực tuyến (DT-28 phần 28c, YCTD-273; tài liệu 47 mục 20.7). Quyền lớp học trực tuyến (ai dạy, ai là học sinh, ai là phụ
 // huynh) lấy qua cửa của lõi 28b (`LearningService.teacherActivity`, `studentContext`, `openActivityForChild`, `guardianOrStaff`);
 // kết quả ghi vào `activity_results` qua `writeResult` nên tiến độ, điều kiện mở, báo cáo của lõi thấy bài tập như mọi loại khác.
 // Nhóm lấy qua `GroupSetsReader` của 28a. Gợi ý nhận xét AI qua `AiAssistantService.draftFeedback` của 23d, chỉ gửi đề, thang tiêu

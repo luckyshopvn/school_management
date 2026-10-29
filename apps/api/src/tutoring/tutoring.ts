@@ -38,7 +38,7 @@ import { TimetablesService } from '../timetables/timetables.js';
 import { syncTutoringCourseEnrollments } from './tutoring-courses.js';
 import { creditCancelledSession } from './tutoring-fees.js';
 
-// Gia sư trong trường (DT-27 phần 27b, YCTD-252; tài liệu 32 mục 19.2, 19.5): chương trình, buổi học lặp theo tuần, đơn đăng ký của
+// Gia sư trong trường (DT-27 phần 27b, YCTD-252; tài liệu 47 mục 19.2, 19.5): chương trình, buổi học lặp theo tuần, đơn đăng ký của
 // cha mẹ, điểm danh, quyết định tăng thời lượng của Sở, quy định dạy thêm có ngày hiệu lực. Mọi khóa của Thông tư 29/2024 sửa bởi
 // Thông tư 19/2026 kiểm ở máy chủ (hàm thuần ở `@school-management/shared/tutoring`). Claude tự chọn theo ủy quyền của Eric ngày
 // 2026-10-11:

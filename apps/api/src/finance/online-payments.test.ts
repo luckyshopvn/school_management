@@ -15,7 +15,7 @@ import {
   type LoggedInUser,
 } from '../test-support.js';
 
-// Thanh toán trực tuyến bằng mã QR qua bộ giả lập nhà cung cấp; ca kiểm thử theo 27_BO_CA_KIEM_THU_CHI_TIET/04_P06.md
+// Thanh toán trực tuyến bằng mã QR qua bộ giả lập nhà cung cấp; ca kiểm thử theo 42_BO_CA_KIEM_THU_CHI_TIET/04_P06.md
 // mục P06-11. Hóa đơn ghi sẵn: HĐ-2 của T1 2 000 000, HĐ-3 của T2 2 000 000, HĐ-4 của T1 500 000, HĐ-5 của T2 300 000
 const randomPhone = () => `09${randomInt(0, 100_000_000).toString().padStart(8, '0')}`;
 const errorOf = (body: Record<string, unknown>) => (body.error ?? {}) as { code?: string; rule_code?: string };

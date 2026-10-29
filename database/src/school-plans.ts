@@ -3,7 +3,7 @@ import type { Kysely } from 'kysely';
 import type { PlatformDatabase, SchoolStatusValue } from '../platform/schema.js';
 import { writeAudit } from './provision-school.js';
 
-// Gói dịch vụ của trường và chuyển trạng thái theo hạn (DT-SaaS phần S5a, YCTD-194; tài liệu 32 mục 14.5). Hàm thư viện dùng cho
+// Gói dịch vụ của trường và chuyển trạng thái theo hạn (DT-SaaS phần S5a, YCTD-194; tài liệu 47 mục 14.5). Hàm thư viện dùng cho
 // bộ phân giải trường (gói hiện hành vào ngữ cảnh), cổng vận hành, lệnh `platform plan-lifecycle` và bộ lập lịch theo trường của
 // S1b. Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11:
 // - gói hiện hành là bản gán có `effective_from` ≤ hôm nay và (`effective_to` trống hoặc > hôm nay), mới nhất trước; trường chưa

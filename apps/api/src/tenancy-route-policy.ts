@@ -1,4 +1,4 @@
-// Chính sách trường của các tuyến API công khai (DT-SaaS phần S1a, tài liệu 32 mục 14.7 lớp 3): tuyến không đòi mã phiên của đúng
+// Chính sách trường của các tuyến API công khai (DT-SaaS phần S1a, tài liệu 47 mục 14.7 lớp 3): tuyến không đòi mã phiên của đúng
 // trường phải khai ở đây kèm lý do. Mọi tuyến còn lại phải đòi mã phiên mang mã trường khớp tên miền (kiểm thử ma trận cách ly tự
 // liệt kê tuyến và đối chiếu danh sách này). Thêm tuyến công khai mới là một quyết định có lý do, không phải lỡ tay
 export interface PublicRoute {

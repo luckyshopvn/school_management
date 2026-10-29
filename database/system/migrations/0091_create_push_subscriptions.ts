@@ -1,7 +1,7 @@
 import { sql } from 'kysely';
 import type { Migration } from 'kysely/migration';
 
-// Đăng ký thông báo đẩy theo người dùng và thiết bị (DT-26 phần 26b, YCTD-232; tài liệu 32 mục 18), ở cơ sở dữ liệu hệ thống của
+// Đăng ký thông báo đẩy theo người dùng và thiết bị (DT-26 phần 26b, YCTD-232; tài liệu 47 mục 18), ở cơ sở dữ liệu hệ thống của
 // trường nên tự tách theo trường:
 // - `endpoint_encrypted`, `keys_encrypted`: địa chỉ đăng ký và khóa nhận (p256dh, auth) mã hóa bằng khóa của trường; `endpoint_hash`
 //   là mã băm có khóa của địa chỉ để chống trùng mà không giải mã;

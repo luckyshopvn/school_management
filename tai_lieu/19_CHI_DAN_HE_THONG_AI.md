@@ -18,7 +18,7 @@ Tài liệu này là ngữ cảnh cấp cho trí tuệ nhân tạo khi làm vi�
 
 **Bốn khối nghiệp vụ:** quản lý trẻ và giảng dạy; nhân sự và vận hành; tài chính, học phí và công nợ; kết nối nhà trường với giáo viên và phụ huynh.
 
-**Bộ tài liệu thiết kế:** `tai_lieu/`, tổ chức theo quy trình Vibecoding_Flow, gồm mục lục `index.md`, hai mươi bốn tài liệu đánh số từ `01_KE_HOACH_TONG_THE.md` đến `24_YEU_CAU_THAY_DOI.md`, thư mục `25_QUY_TRINH_NGHIEP_VU/` chứa các đặc tả quy trình mã `QT-nn`, và thư mục `26_SO_DO_CHUC_NANG/` chứa tám ảnh sơ đồ chức năng gốc.
+**Bộ tài liệu thiết kế:** `tai_lieu/`, tổ chức theo quy trình Vibecoding_Flow, gồm mục lục `index.md`, hai mươi bốn tài liệu đánh số từ `01_KE_HOACH_TONG_THE.md` đến `24_YEU_CAU_THAY_DOI.md`, thư mục `40_QUY_TRINH_NGHIEP_VU/` chứa các đặc tả quy trình mã `QT-nn`, và thư mục `41_SO_DO_CHUC_NANG/` chứa tám ảnh sơ đồ chức năng gốc.
 
 **Thứ tự đọc bắt buộc khi bắt đầu phiên làm việc:**
 
@@ -77,7 +77,7 @@ trừ thuật ngữ chuyên môn.
 | VT-01 đến VT-20 | Vai trò người dùng | `08_VAI_TRO_NGUOI_DUNG.md` |
 | PQ-xx | Quy tắc phân quyền | `08_VAI_TRO_NGUOI_DUNG.md` |
 | BR-xx | Quy tắc nghiệp vụ | `07_QUY_TAC_NGHIEP_VU.md` |
-| QT-nn | Quy trình nghiệp vụ | `25_QUY_TRINH_NGHIEP_VU/` |
+| QT-nn | Quy trình nghiệp vụ | `40_QUY_TRINH_NGHIEP_VU/` |
 | AC-xx | Tiêu chí nghiệm thu | `11_TIEU_CHI_NGHIEM_THU.md` |
 | GD-xx | Giả định | Rải trong các tài liệu |
 | Q-xx | Câu hỏi mở | Rải trong các tài liệu |

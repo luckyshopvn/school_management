@@ -4,7 +4,7 @@ import { currentTenant } from '@school-management/server/tenancy';
 import { startTenantTestPlatform, type TenantTestPlatform } from './tenant-test-support.js';
 import type { TenancyRuntime } from './tenancy-runtime.js';
 
-// Phần chạy nền và công khai của nền đa thuê bao (DT-SaaS phần S1b, tài liệu 32 mục 14.5, 14.7): duyệt các trường đang phục vụ,
+// Phần chạy nền và công khai của nền đa thuê bao (DT-SaaS phần S1b, tài liệu 47 mục 14.5, 14.7): duyệt các trường đang phục vụ,
 // bộ nhớ đệm ngữ cảnh trường, tên miền được phục vụ, trang chọn trường, bảng trạng thái bộ lập lịch. Dùng nền tảng kiểm thử riêng
 let environment: TenantTestPlatform;
 let runtime: TenancyRuntime;

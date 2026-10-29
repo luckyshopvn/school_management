@@ -22,7 +22,7 @@ import { DiscountsService } from '../fees/discounts.service.js';
 import { periodRange } from '../fees/registration-periods.js';
 import { assertTutoringModule, tutoringRuleError } from './tutoring.js';
 
-// Thu chi của chương trình gia sư trong trường (DT-27 phần 27c, YCTD-253; tài liệu 32 mục 19.5): báo cáo thu, trừ, hoàn, chi thù lao
+// Thu chi của chương trình gia sư trong trường (DT-27 phần 27c, YCTD-253; tài liệu 47 mục 19.5): báo cáo thu, trừ, hoàn, chi thù lao
 // theo chương trình và kỳ (xuất Excel); đẩy thù lao giáo viên vào bảng lương tháng; xử lý khoản trừ của buổi bị hủy (kế toán lập
 // điều chỉnh giảm hóa đơn qua luồng điều chỉnh hiện có, chuyển sang trừ kỳ sau, hoặc đóng sau khi đã hoàn qua phiếu chi hoàn).
 // Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11:

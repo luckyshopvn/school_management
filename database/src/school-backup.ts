@@ -31,7 +31,7 @@ import {
 } from './school-database-layout.js';
 import type { Actor } from './school-lifecycle.js';
 
-// Sao lưu và khôi phục theo từng trường (DT-SaaS phần S7b, YCTD-199; tài liệu 32 mục 14.5 "S7b"). Sao lưu logic viết bằng Node,
+// Sao lưu và khôi phục theo từng trường (DT-SaaS phần S7b, YCTD-199; tài liệu 47 mục 14.5 "S7b"). Sao lưu logic viết bằng Node,
 // không phụ thuộc phiên bản pg_dump, chạy được ở cả bố cục database và schema, qua bộ gom kết nối của Neon, Supabase:
 // - một tệp `<thư mục>/<mã trường>/<thời điểm>-<phạm vi>.sbak` cho mỗi lần sao lưu một trường: các dòng JSON (thông tin trường,
 //   khóa dữ liệu trẻ, tên miền, rồi từng cơ sở dữ liệu, từng bảng, các dòng dạng văn bản và tổng kiểm) nén gzip, mã hóa

@@ -31,7 +31,7 @@ import { ZaloTokenStore, type ZaloTokenStoreOptions } from '../integrations/zalo
 import { createSmsGateway, LoggingSmsGateway, SmsGateway } from '../notifications/sms-gateway.js';
 import type { SchoolSettings, StoredConnector } from './school-settings.js';
 
-// Bộ nối ngoài đọc cấu hình theo từng trường (DT-SaaS phần S3, YCTD-195, tài liệu 32 mục 14.5), thay cho `readConfigurationFromEnvironment`.
+// Bộ nối ngoài đọc cấu hình theo từng trường (DT-SaaS phần S3, YCTD-195, tài liệu 47 mục 14.5), thay cho `readConfigurationFromEnvironment`.
 // Quy tắc chọn nguồn của mỗi bộ nối:
 //   1. trường có cấu hình đang bật ở `integration_secrets` thì dùng cấu hình đó;
 //   2. bộ giả lập (`development`, ghi nhật ký) đặt ở cấu hình máy chủ vẫn dùng được cho phát triển và kiểm thử;

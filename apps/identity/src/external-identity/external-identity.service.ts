@@ -40,7 +40,7 @@ import {
   type ProviderProfile,
 } from '@school-management/server/external-identity';
 
-// Liên kết tài khoản và đăng nhập bằng nhà cung cấp định danh bên ngoài (DT-25, YCTD-225, tài liệu 32 mục 17). Nguyên tắc:
+// Liên kết tài khoản và đăng nhập bằng nhà cung cấp định danh bên ngoài (DT-25, YCTD-225, tài liệu 47 mục 17). Nguyên tắc:
 // - Không tự tạo tài khoản: chỉ người đã có tài khoản tự liên kết sau khi xác nhận lại bằng mật khẩu và mã xác thực hai lớp (nếu đã bật).
 // - Chỉ lưu mã liên kết (subject) do nhà cung cấp trả, mã hóa bằng khóa của trường (kho khóa S3) cùng băm có khóa để tra; không lưu số định
 //   danh, căn cước, họ tên hay claim nào khác.

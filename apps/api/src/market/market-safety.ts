@@ -42,7 +42,7 @@ import {
   suspendsImmediately,
 } from './market-safety-rules.js';
 
-// An toàn trẻ em và kiểm duyệt ở chợ gia sư (DT-27 phần 27i, YCTD-259; tài liệu 32 mục 19.2, 19.5). Claude tự chọn theo ủy quyền của
+// An toàn trẻ em và kiểm duyệt ở chợ gia sư (DT-27 phần 27i, YCTD-259; tài liệu 47 mục 19.2, 19.5). Claude tự chọn theo ủy quyền của
 // Eric ngày 2026-10-11:
 // - tin nhắn: chỉ có luồng phụ huynh với gia sư, phụ huynh mở luồng; thông tin liên lạc ngoài bị che bằng hàm thuần của 28e, người gửi
 //   được cảnh báo; lần thứ 3 thì gắn cờ luồng và tự tạo báo cáo né hoa hồng; gia sư đang bị tạm khóa không nhắn được;

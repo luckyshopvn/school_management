@@ -2,7 +2,7 @@ import { sql } from 'kysely';
 import type { Migration } from 'kysely/migration';
 
 // Nhật ký của nền tảng: thao tác của người vận hành và của lệnh dòng lệnh; không khóa ngoại tới trường để giữ lại sau khi
-// trường bị xóa (bằng chứng ở tài liệu 32 mục 14.5, S2)
+// trường bị xóa (bằng chứng ở tài liệu 47 mục 14.5, S2)
 export const migration: Migration = {
   async up(database) {
     await database.schema

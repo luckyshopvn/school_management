@@ -35,7 +35,7 @@ import { TENANCY_RUNTIME } from '../common/configuration.js';
 import { Infrastructure } from '../common/infrastructure.js';
 import { CatalogProvisioningService } from '../platform/catalog-provisioning.js';
 
-// Đăng nhập theo đơn vị (DT-24, YCTD-220; tài liệu 32 mục 16). Học bố cục và luồng chọn đơn vị của trang đăng nhập hệ thống ngành,
+// Đăng nhập theo đơn vị (DT-24, YCTD-220; tài liệu 47 mục 16). Học bố cục và luồng chọn đơn vị của trang đăng nhập hệ thống ngành,
 // không dùng tên, biểu trưng của cơ quan nhà nước; tiêu đề lấy từ cấu hình của nền tảng (platform_settings.login_page).
 // - Trên tên miền chung của nền tảng (PLATFORM_ROOT_DOMAIN): trang đăng nhập có ô chọn Sở → Cấp, Phường / Xã → Trường (YCTD-310) đọc danh
 //   mục ở cơ sở dữ liệu nền tảng (phân trang, tìm kiếm, giới hạn tần suất; không trả cả danh mục một lượt). Đăng nhập chạy trong

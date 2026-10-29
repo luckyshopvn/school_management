@@ -1,7 +1,7 @@
 import { randomBytes } from 'node:crypto';
 import { resolveCname, resolveTxt } from 'node:dns/promises';
 
-// Bộ nối tên miền riêng của trường (DT-SaaS phần S2, YCTD-193; tài liệu 32 mục 14.4, 14.5). Chọn bằng DOMAIN_PROVIDER của nền
+// Bộ nối tên miền riêng của trường (DT-SaaS phần S2, YCTD-193; tài liệu 47 mục 14.4, 14.5). Chọn bằng DOMAIN_PROVIDER của nền
 // tảng:
 // - dns-check (hồ sơ vận hành): người quản trị trỏ CNAME về địa chỉ vào của nền tảng và thêm bản ghi TXT
 //   `_school-verify.<tên miền>` chứa mã xác nhận; bộ nối tra DNS, đủ cả hai thì báo đã xác nhận; chứng chỉ do Caddy cấp theo
@@ -124,7 +124,7 @@ async function callJson(
   return body;
 }
 
-// Cloudflare for SaaS (tài liệu 32 mục 14.5 S9): mỗi tên miền riêng của trường là một "custom hostname" của vùng tên miền hệ
+// Cloudflare for SaaS (tài liệu 47 mục 14.5 S9): mỗi tên miền riêng của trường là một "custom hostname" của vùng tên miền hệ
 // thống; chứng chỉ do Cloudflare cấp (xác nhận qua HTTP khi CNAME đã trỏ về địa chỉ vào). Người quản trị của trường trỏ CNAME
 // về PLATFORM_INGRESS_HOST và thêm bản ghi TXT xác nhận quyền sở hữu do Cloudflare cấp; bộ nối hỏi trạng thái theo tên miền
 export class CloudflareSaasDomainProvider implements DomainProvider {

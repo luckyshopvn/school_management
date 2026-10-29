@@ -21,7 +21,7 @@ import { foldText } from '../imports/moet-columns.js';
 import { LEVEL_LABELS } from '../professional-standards/standard-rating.js';
 import { classAgeGroup } from '../statistics/statistics-calc.js';
 
-// Nội dung hồ sơ kí theo bốn mẫu của Sở (DT-17 phần 17b, YCTD-133; tài liệu 31 mục 10.3.3): số liệu lấy từ dữ liệu của năm
+// Nội dung hồ sơ kí theo bốn mẫu của Sở (DT-17 phần 17b, YCTD-133; tài liệu 46 mục 10.3.3): số liệu lấy từ dữ liệu của năm
 // học đang dùng tại thời điểm tạo hồ sơ, dựng thành các phần và mục theo đúng tên, thứ tự của Sở:
 // - hồ sơ trường: phần "Thông tin chung" và mỗi phân hiệu, điểm trường một phần "Thông tin điểm trường";
 // - hồ sơ lớp: thông tin lớp và các ô chương trình, lớp ghép; không có danh sách học sinh, giáo viên;

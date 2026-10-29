@@ -25,7 +25,7 @@ type NumericSettingKey =
   | 'password_history_count'
   | 'initial_password_lifetime_hours';
 
-// Mặc định của mã một lần theo tham số ở 27_BO_CA_KIEM_THU_CHI_TIET/01_DINH_DANH_VA_P01.md mục 3 (YCTD-43)
+// Mặc định của mã một lần theo tham số ở 42_BO_CA_KIEM_THU_CHI_TIET/01_DINH_DANH_VA_P01.md mục 3 (YCTD-43)
 const NUMERIC_SETTINGS: Record<
   NumericSettingKey,
   { defaultValue: number; minimum: number; maximum: number; label: string }

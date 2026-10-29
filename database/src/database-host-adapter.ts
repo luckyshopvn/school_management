@@ -1,4 +1,4 @@
-// Bộ nối nơi đặt PostgreSQL của trường (DT-SaaS phần S9, YCTD-203; tài liệu 32 mục 14.4), chọn bằng DB_HOST_ADAPTER của nền tảng.
+// Bộ nối nơi đặt PostgreSQL của trường (DT-SaaS phần S9, YCTD-203; tài liệu 47 mục 14.4), chọn bằng DB_HOST_ADAPTER của nền tảng.
 // Bộ nối chỉ quyết định địa chỉ kết nối ghi vào `school_databases` (máy chủ, cổng, tên đăng nhập) và vài lệnh tạo vai trò; mã
 // nghiệp vụ và `Databases` không biết nhà cung cấp:
 // - plain: máy chủ tự dựng (VPS, PgBouncer); địa chỉ lấy từ PLATFORM_ADMIN_DATABASE_URL hoặc DB_POOLER_HOST, DB_POOLER_PORT;

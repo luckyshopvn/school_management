@@ -15,7 +15,7 @@ import { isDone, summarizeProgress, type ResultStatus } from '../learning/learni
 import { LearningService } from '../learning/learning.js';
 import { assertTutoringModule } from './tutoring.js';
 
-// Khoá học ghi sẵn của chương trình gia sư, phần riêng của gia sư (DT-27 phần 27d1, YCTD-254; tài liệu 32 mục 19.5, YCTD-270).
+// Khoá học ghi sẵn của chương trình gia sư, phần riêng của gia sư (DT-27 phần 27d1, YCTD-254; tài liệu 47 mục 19.5, YCTD-270).
 // Khoá, chương, hoạt động, điều kiện mở, kết quả hoạt động là của lõi LMS 28b; tiến độ cho học sinh, giáo viên, phụ huynh để cho 27d2
 // (sau khi 28d gộp). Phần này:
 // - gắn chương trình gia sư với một khoá tự chọn (`course_spaces` loại `elective`) của 28b, giáo viên của chương trình là giáo viên

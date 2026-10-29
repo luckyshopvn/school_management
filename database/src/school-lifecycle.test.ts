@@ -40,7 +40,7 @@ import {
 import { startTenantTestPlatform, type TenantTestPlatform } from './tenant-test-support.js';
 import { decryptSecret } from '@school-management/server/tenancy';
 
-// Kiểm thử khởi tạo và vòng đời trường (DT-SaaS phần S2, YCTD-193; tài liệu 32 mục 14.5, 14.7). Cơ sở dữ liệu nền tảng, cơ sở
+// Kiểm thử khởi tạo và vòng đời trường (DT-SaaS phần S2, YCTD-193; tài liệu 47 mục 14.5, 14.7). Cơ sở dữ liệu nền tảng, cơ sở
 // dữ liệu và vai trò của trường dựng riêng cho lần chạy; dữ liệu giả hoàn toàn
 const actor: Actor = { type: 'cli', name: 'Kiểm thử S2' };
 const SYSTEM_DOMAIN = 'truong.test.localhost';

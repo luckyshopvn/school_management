@@ -28,7 +28,7 @@ import {
 import { LibraryCatalogService } from './library-catalog.js';
 import { LibraryCore } from './library-core.js';
 
-// Kiểm kê, báo cáo thống kê và chỉ tiêu theo chuẩn thư viện, in thẻ bạn đọc (DT-22 phần 22a, YCTD-181; tài liệu 32 mục 13.4).
+// Kiểm kê, báo cáo thống kê và chỉ tiêu theo chuẩn thư viện, in thẻ bạn đọc (DT-22 phần 22a, YCTD-181; tài liệu 47 mục 13.4).
 // - kiểm kê: mở đợt (cả kho hoặc một kệ), quét mã bản sao, đối chiếu với sổ (thiếu, thừa, hỏng), đóng đợt rồi xử lý chênh
 //   lệch: đánh dấu mất hoặc thanh lý bản thiếu;
 // - báo cáo: kho theo phân loại, khối; sách giáo khoa, tham khảo trên học sinh; lượt mượn theo tháng, lớp; ấn phẩm, bạn đọc

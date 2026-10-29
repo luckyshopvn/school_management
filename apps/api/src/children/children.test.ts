@@ -12,7 +12,7 @@ import {
   type LoggedInUser,
 } from '../test-support.js';
 
-// Hồ sơ trẻ theo QT-01; ca kiểm thử theo 27_BO_CA_KIEM_THU_CHI_TIET/02_P02_VA_P04.md mục 3.1 đến 3.3, 3.6
+// Hồ sơ trẻ theo QT-01; ca kiểm thử theo 42_BO_CA_KIEM_THU_CHI_TIET/02_P02_VA_P04.md mục 3.1 đến 3.3, 3.6
 const rows = <Row = Record<string, unknown>>(body: unknown) => body as Row[];
 const errorOf = (body: Record<string, unknown>) =>
   (body.error ?? {}) as { code?: string; rule_code?: string; details?: Array<{ field: string; message: string }> };

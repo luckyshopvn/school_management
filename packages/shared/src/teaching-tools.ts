@@ -1,7 +1,7 @@
 import { levelOf } from './level-features.js';
 import type { SchoolLevelCode } from './school-levels.js';
 
-// Hộp công cụ giảng dạy của ứng dụng giáo viên (DT-29, YCTD-325; tài liệu 32 mục 21): danh mục khai báo một nơi các công cụ, mini
+// Hộp công cụ giảng dạy của ứng dụng giáo viên (DT-29, YCTD-325; tài liệu 47 mục 21): danh mục khai báo một nơi các công cụ, mini
 // app hỗ trợ giảng dạy, cấp học áp dụng, có chạy được khi mất mạng không, gắn với tính năng nào của gói. Màn Hộp công cụ lọc theo
 // cấp của lớp đang chọn, bỏ công cụ trường đã tắt (cấu hình `teaching_tools_disabled`) và công cụ thuộc tính năng gói chưa bật.
 // Mỗi phần của DT-29 thêm công cụ của mình vào cuối danh sách. Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11

@@ -23,7 +23,7 @@ import {
   teacherWatching,
 } from './live-rules.js';
 
-// Giờ học trực tuyến, phòng video nhóm, phòng chia nhỏ (DT-28 phần 28g, YCTD-277; tài liệu 32 mục 20.7). Dùng lại 27a: bộ nối phòng
+// Giờ học trực tuyến, phòng video nhóm, phòng chia nhỏ (DT-28 phần 28g, YCTD-277; tài liệu 47 mục 20.7). Dùng lại 27a: bộ nối phòng
 // video, tên phòng theo trường, mã vào phòng theo vai trò, sự kiện gọi lại có chữ ký và giới hạn phút của gói (không thêm dịch vụ
 // video). Quyền lớp học trực tuyến qua cửa của lõi 28b, quyền nhóm như không gian nhóm của 28e. Claude tự chọn theo ủy quyền của Eric
 // ngày 2026-10-11 ở chỗ kế hoạch chưa chốt:

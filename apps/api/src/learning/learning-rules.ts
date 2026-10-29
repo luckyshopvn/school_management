@@ -1,7 +1,7 @@
 import { ruleViolationError, validationError, type FieldError } from '@school-management/server';
 import { isUuid, type RequestBody } from '../common/request-fields.js';
 
-// Hàm thuần của lõi hệ thống quản lý học tập (DT-28 phần 28b, YCTD-272; tài liệu 32 mục 20.7): sinh lớp học trực tuyến từ
+// Hàm thuần của lõi hệ thống quản lý học tập (DT-28 phần 28b, YCTD-272; tài liệu 47 mục 20.7): sinh lớp học trực tuyến từ
 // phân công giảng dạy, điều kiện mở hoạt động, hoàn thành, tiến độ, kế hoạch dạy học trực tuyến theo tuần, quyết định hình
 // thức dạy thay thế (Thông tư 09/2021/TT-BGDĐT), nội dung khoá học mẫu và cách nhận cập nhật của mẫu. Không đọc cơ sở dữ liệu
 export const LEARNING_RULE_CODE = 'YCTD-272';

@@ -1,5 +1,5 @@
 {
-  "_chu_thich": "Chỗ vi phạm có trước DT-SaaS S1a, kèm lý do; chỉ được co lại (tài liệu 32 mục 14.7 lớp 2)",
+  "_chu_thich": "Chỗ vi phạm có trước DT-SaaS S1a, kèm lý do; chỉ được co lại (tài liệu 47 mục 14.7 lớp 2)",
   "rules": {
     "direct-database-connection": {
       "apps/api/src/demo/demo-command.ts": "Bản trình diễn (18h) chỉ chạy ở chế độ một trường; S1b đưa vào thời gian chạy theo trường",

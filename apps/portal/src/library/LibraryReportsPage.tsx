@@ -3,7 +3,7 @@ import { Alert, Button, StatusBadge } from '@school-management/ui';
 import { CONDITION_LABELS, downloadLibraryReport, formatDate, readLibraryOverview } from './library-api.js';
 import { EmptyRow, ErrorAlert, HEAD_CLASS, LibraryFrame, Panel, TH_CLASS, useToast } from './library-common.js';
 
-// Báo cáo thư viện (DT-22 phần 22a, tài liệu 32 mục 13.4, YCTD-181): số liệu tổng, kho theo phân loại và khối, lượt mượn theo
+// Báo cáo thư viện (DT-22 phần 22a, tài liệu 47 mục 13.4, YCTD-181): số liệu tổng, kho theo phân loại và khối, lượt mượn theo
 // tháng và lớp, ấn phẩm và bạn đọc tích cực, sách quá hạn, bảng chỉ tiêu theo chuẩn thư viện (ngưỡng đặt ở 4.1 Quy định mượn
 // và phân loại; chưa đặt ngưỡng thì chưa kết luận), xuất Excel hoặc PDF
 

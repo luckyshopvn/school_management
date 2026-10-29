@@ -37,7 +37,7 @@ export interface SubjectTemplate {
 
 // Ba nhóm môn học lựa chọn ở THPT theo Chương trình giáo dục phổ thông 2018 (DT-21 phần 21a). Tổ hợp môn của trường gồm
 // một số môn lựa chọn thuộc ít nhất vài nhóm; số môn và số nhóm tối thiểu là mặc định theo chương trình (4 môn, 2 nhóm), nhà
-// trường đối chiếu văn bản gốc trước khi dùng (tài liệu 32 mục 12.2, 12.4)
+// trường đối chiếu văn bản gốc trước khi dùng (tài liệu 47 mục 12.2, 12.4)
 export type SubjectOptionGroup = 'social_science' | 'natural_science' | 'technology_arts';
 
 export const SUBJECT_OPTION_GROUP_LABELS: Record<SubjectOptionGroup, string> = {

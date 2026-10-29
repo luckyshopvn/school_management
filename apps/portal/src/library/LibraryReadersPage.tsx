@@ -30,7 +30,7 @@ import {
   useToast,
 } from './library-common.js';
 
-// Bạn đọc thư viện (DT-22 phần 22a, tài liệu 32 mục 13.4, YCTD-181): cán bộ và học sinh được cấp thẻ tự động từ danh sách
+// Bạn đọc thư viện (DT-22 phần 22a, tài liệu 47 mục 13.4, YCTD-181): cán bộ và học sinh được cấp thẻ tự động từ danh sách
 // nhân sự, học sinh đang học ("Đồng bộ thẻ"; người không còn trong trường bị khóa thẻ); khóa, mở khóa thẻ, in thẻ có mã QR
 // là số thẻ, xem lịch sử mượn. Dữ liệu cá nhân học sinh chỉ người có quyền quản lý thư viện được xem
 

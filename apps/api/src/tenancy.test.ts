@@ -11,7 +11,7 @@ import { ChildDataProtection } from './common/child-data-protection.js';
 import { Databases } from './common/databases.js';
 import { sendWithHost, startMultiTenantApi, type MultiTenantApi } from './tenant-test-support.js';
 
-// Máy chủ API ở chế độ nhiều trường (DT-SaaS phần S1a, tài liệu 32 mục 14.7 lớp 3, 4, 9): hai trường, dịch vụ định danh và máy chủ
+// Máy chủ API ở chế độ nhiều trường (DT-SaaS phần S1a, tài liệu 47 mục 14.7 lớp 3, 4, 9): hai trường, dịch vụ định danh và máy chủ
 // API chạy thật, chạy ở cả hai bố cục cơ sở dữ liệu. Dữ liệu mồi (canary) của từng trường không được xuất hiện ở trường kia
 const CALENDAR_2026 = {
   first_term: { start_date: '2026-09-05', end_date: '2027-01-15' },

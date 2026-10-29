@@ -1,6 +1,6 @@
 import { createHash } from 'node:crypto';
 
-// Bộ nối nhà cung cấp AI (DT-23 phần 23d, YCTD-214; tài liệu 32 mục 15.4). Mã nghiệp vụ chỉ biết giao diện `AiProvider` và bảng
+// Bộ nối nhà cung cấp AI (DT-23 phần 23d, YCTD-214; tài liệu 47 mục 15.4). Mã nghiệp vụ chỉ biết giao diện `AiProvider` và bảng
 // `AI_PROVIDERS` tra theo mã; không có `if` theo nhà cung cấp ở chỗ khác. Thêm nhà cung cấp là thêm một dòng vào bảng, địa chỉ và mã mô
 // hình là cấu hình (của nền tảng và của trường), không ghi cứng. `mock` chỉ để kiểm thử: cho kết quả cố định, không gọi ra ngoài, ghi
 // lại lời nhắc nhận được để kiểm thử khẳng định không có dữ liệu cá nhân; chỉ dựng khi cấu hình máy chủ cho phép (`AI_MOCK=true`)

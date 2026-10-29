@@ -1,6 +1,6 @@
 import type { SchoolLevelCode } from './school-levels.js';
 
-// Gia sư trong trường (DT-27 phần 27b, YCTD-252; tài liệu 32 mục 19.2, 19.5): nhãn và các hàm thuần của quy định dạy thêm dùng chung
+// Gia sư trong trường (DT-27 phần 27b, YCTD-252; tài liệu 47 mục 19.2, 19.5): nhãn và các hàm thuần của quy định dạy thêm dùng chung
 // cho máy chủ API (kiểm ở máy chủ, có kiểm thử đơn vị theo từng dòng của bảng 19.2) và giao diện (giải thích ngay trên màn hình).
 // Căn cứ: Thông tư 29/2024/TT-BGDĐT sửa đổi bởi Thông tư 19/2026/TT-BGDĐT (hiệu lực 15/05/2026); số liệu là dữ liệu có ngày hiệu
 // lực ở `tutoring_rules`, không ghi cứng ở đây

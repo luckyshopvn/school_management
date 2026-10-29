@@ -20,3 +20,6 @@ tests/.e2e-push-outbox.jsonl
 
 # Chỉ mục sinh khi dựng (YCTD-294): database/sinh-chi-muc.mjs, apps/api/sinh-dang-ky.mjs
 *.generated.ts
+
+# Tệp tạm của AI: script thử, log, ảnh chụp, kết quả trung gian (YCTD-369, AI-45)
+tam_thoi/

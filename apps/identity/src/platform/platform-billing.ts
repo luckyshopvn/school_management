@@ -54,7 +54,7 @@ import type { Kysely } from 'kysely';
 import { TENANCY_RUNTIME } from '../common/configuration.js';
 import { PlatformOperatorsService } from './platform-operators.js';
 
-// Thu phí ở cổng vận hành nền tảng (DT-SaaS phần S5b, YCTD-196; tài liệu 32 mục 14.5): quy tắc tính phí, hóa đơn và công nợ, lập hóa
+// Thu phí ở cổng vận hành nền tảng (DT-SaaS phần S5b, YCTD-196; tài liệu 47 mục 14.5): quy tắc tính phí, hóa đơn và công nợ, lập hóa
 // đơn tay, điều chỉnh tay có lý do (giảm giá, tặng kỳ, ghi nhận tiền tay, hủy hóa đơn, gán giao dịch chưa khớp), hóa đơn điện tử, cấu
 // hình thu phí và khóa cổng thanh toán của nền tảng (lưu mã hóa bằng khóa gốc của nền tảng). Chỉ phục vụ ở tên miền của cổng nền tảng
 // với mã phiên vận hành. Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11

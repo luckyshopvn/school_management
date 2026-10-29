@@ -1,7 +1,7 @@
 import { sql } from 'kysely';
 import type { Migration } from 'kysely/migration';
 
-// Chương trình gia sư trong trường (DT-27 phần 27b, YCTD-252; tài liệu 32 mục 19.2, 19.5). Khối số giữ sẵn năm học 0152 đến 0154.
+// Chương trình gia sư trong trường (DT-27 phần 27b, YCTD-252; tài liệu 47 mục 19.2, 19.5). Khối số giữ sẵn năm học 0152 đến 0154.
 // Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11 ở chỗ kế hoạch chưa chốt:
 // - `tutoring_rules`: số liệu của quy định dạy thêm là dữ liệu có ngày hiệu lực (số tiết tối đa mỗi tuần mỗi môn với nội dung
 //   `curriculum`, cấp học không được tổ chức `curriculum`, độ dài một tiết mặc định theo cấp khi trường chưa khai khung giờ tiết);

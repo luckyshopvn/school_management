@@ -13,7 +13,7 @@ import {
   type LoggedInUser,
 } from '../test-support.js';
 
-// Phiếu chi, duyệt theo hạn mức, hoàn tiền thôi học và sổ quỹ; ca kiểm thử theo 27_BO_CA_KIEM_THU_CHI_TIET/04_P06.md
+// Phiếu chi, duyệt theo hạn mức, hoàn tiền thôi học và sổ quỹ; ca kiểm thử theo 42_BO_CA_KIEM_THU_CHI_TIET/04_P06.md
 // mục 5, 6. QUY-A có số dư đầu 5 000 000; hạn mức phiếu chi của đơn vị A là 10 000 000; T2 có số dư có 500 000 nộp
 // chuyển khoản vào NH-A
 const randomPhone = () => `09${randomInt(0, 100_000_000).toString().padStart(8, '0')}`;

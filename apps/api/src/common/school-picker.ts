@@ -61,7 +61,7 @@ document.getElementById('code').addEventListener('keydown', (event) => { if (eve
 </html>
 `;
 
-// Trang chọn trường ở tên miền gốc của hệ thống (DT-SaaS phần S1b, tài liệu 32 mục 14.7): người dùng nhập mã trường rồi chuyển tới
+// Trang chọn trường ở tên miền gốc của hệ thống (DT-SaaS phần S1b, tài liệu 47 mục 14.7): người dùng nhập mã trường rồi chuyển tới
 // địa chỉ của trường. Không cần trường; không liệt kê trường (tránh lộ danh sách khách hàng), có giới hạn tần suất theo địa chỉ mạng;
 // chưa đặt PLATFORM_ROOT_DOMAIN thì không có trang này (404)
 @Controller('public/schools')

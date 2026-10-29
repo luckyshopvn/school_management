@@ -1,7 +1,7 @@
 import { sql } from 'kysely';
 import type { Migration } from 'kysely/migration';
 
-// Thù lao giáo viên dạy chương trình gia sư trong trường (DT-27 phần 27c, YCTD-253; tài liệu 32 mục 19.5). Claude tự chọn theo ủy
+// Thù lao giáo viên dạy chương trình gia sư trong trường (DT-27 phần 27c, YCTD-253; tài liệu 47 mục 19.5). Claude tự chọn theo ủy
 // quyền của Eric ngày 2026-10-11 ở chỗ kế hoạch chưa chốt:
 // - đơn giá theo tiết, đặt ở chương trình, giáo viên có đơn giá riêng thì dùng đơn giá riêng; thù lao một buổi là số tiết quy đổi
 //   của buổi nhân đơn giá, chỉ tính buổi chưa hủy đã xác nhận điểm danh;

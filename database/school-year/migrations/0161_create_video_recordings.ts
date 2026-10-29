@@ -1,7 +1,7 @@
 import { sql } from 'kysely';
 import type { Migration } from 'kysely/migration';
 
-// Ghi hình lớp video (DT-27 phần 27a, YCTD-251; tài liệu 32 mục 19.2 phần 3, 19.5). Claude tự chọn theo ủy quyền của Eric ngày
+// Ghi hình lớp video (DT-27 phần 27a, YCTD-251; tài liệu 47 mục 19.2 phần 3, 19.5). Claude tự chọn theo ủy quyền của Eric ngày
 // 2026-10-11 ở chỗ kế hoạch chưa chốt:
 // - trong trường ghi hình tắt mặc định (GD-131): chương trình bật `recording_enabled`, phòng của buổi chỉ ghi được khi mọi học sinh
 //   có đơn được duyệt đều có đồng ý ghi hình còn hiệu lực của cha mẹ (`video_recording_consents`, lưu bản chụp văn bản và mã băm,

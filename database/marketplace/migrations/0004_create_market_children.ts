@@ -1,7 +1,7 @@
 import { sql } from 'kysely';
 import type { Migration } from 'kysely/migration';
 
-// Hồ sơ con do phụ huynh tạo ở chợ gia sư (DT-27 phần 27f, YCTD-256; tài liệu 32 mục 19.3 "trẻ em trước"): dữ liệu tối thiểu là tên
+// Hồ sơ con do phụ huynh tạo ở chợ gia sư (DT-27 phần 27f, YCTD-256; tài liệu 47 mục 19.3 "trẻ em trước"): dữ liệu tối thiểu là tên
 // hiển thị, năm sinh, cấp học, lớp; không thu số định danh, ngày sinh đầy đủ, ảnh của trẻ. Trẻ không có tài khoản (GD-135). Liên kết
 // tùy chọn với trường (`market_school_links`) chỉ giữ mã trường, mã học sinh dạng băm và lớp, có đồng ý của phụ huynh
 export const migration: Migration = {

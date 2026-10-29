@@ -1,7 +1,7 @@
 import { sql } from 'kysely';
 import type { Migration } from 'kysely/migration';
 
-// Gắn trường đã khởi tạo với danh mục và quyền truy cập của quản trị nền tảng (DT-24, YCTD-220; tài liệu 32 mục 16):
+// Gắn trường đã khởi tạo với danh mục và quyền truy cập của quản trị nền tảng (DT-24, YCTD-220; tài liệu 47 mục 16):
 // - schools.moet_code: mã Bộ của đơn vị trong danh mục (liên kết mềm, không khóa ngoại để nạp lại danh mục không vướng trường);
 //   mỗi mã chỉ gắn một trường; đăng nhập theo đơn vị ở tên miền chung tra trường theo mã này;
 // - support_sessions.access_basis: căn cứ mở phiên: `school_grant` (trường cho phép, S4), `platform_policy` (quản trị nền tảng vào

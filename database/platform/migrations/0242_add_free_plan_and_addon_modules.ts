@@ -1,7 +1,7 @@
 import { sql } from 'kysely';
 import type { Migration } from 'kysely/migration';
 
-// Mở mọi trường trong danh mục, gói cơ bản miễn phí (YCTD-314, Eric yêu cầu ngày 2026-10-28; tài liệu 32 mục 16.11):
+// Mở mọi trường trong danh mục, gói cơ bản miễn phí (YCTD-314, Eric yêu cầu ngày 2026-10-28; tài liệu 47 mục 16.11):
 // - ba tính năng mới không phải phân hệ của cây menu: `ai-assistant` (trợ lý AI), `online-learning` (học trực tuyến, lớp trực
 //   tiếp), `sms-zalo` (tin nhắn SMS, Zalo gửi ra ngoài; sổ liên lạc trong ứng dụng vẫn miễn phí). Gói đã có danh sách phân hệ thêm
 //   ba mã này để trường đang dùng không mất tính năng;

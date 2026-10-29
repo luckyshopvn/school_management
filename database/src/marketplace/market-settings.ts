@@ -2,7 +2,7 @@ import type { Kysely } from 'kysely';
 import type { PlatformDatabase } from '../../platform/schema.js';
 import { writeAudit } from '../provision-school.js';
 
-// Cấu hình chợ gia sư ở cổng nền tảng (DT-27 phần 27f, YCTD-256; tài liệu 32 mục 19.5, 19.10, 19.11): lưu ở `platform_settings` khóa
+// Cấu hình chợ gia sư ở cổng nền tảng (DT-27 phần 27f, YCTD-256; tài liệu 47 mục 19.5, 19.10, 19.11): lưu ở `platform_settings` khóa
 // `market` như cấu hình AI của 23d. Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11 và quyết định ngày 2026-10-28 ("làm mã, tiền
 // giả lập"):
 // - chợ tắt mặc định; bật thì máy chủ API phục vụ `/api/v1/market/*` ở tên miền con dành riêng của chợ (`host`, ứng dụng phụ huynh) và
@@ -67,7 +67,7 @@ export const DEFAULT_MARKET_SETTINGS: MarketSettings = {
 };
 
 export const REAL_PAYMENTS_BLOCKED_MESSAGE =
-  'Chưa bật được thu tiền thật ở chợ: cần xong E-01 đến E-07 (hoa hồng, tổ chức có giấy phép, luật sư, pháp nhân; tài liệu 32 mục 19.10). Bản này chỉ chạy thanh toán giả lập';
+  'Chưa bật được thu tiền thật ở chợ: cần xong E-01 đến E-07 (hoa hồng, tổ chức có giấy phép, luật sư, pháp nhân; tài liệu 47 mục 19.10). Bản này chỉ chạy thanh toán giả lập';
 
 const HOST_PATTERN = /^(?=.{1,253}$)([a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?)(\.[a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?)*$/;
 

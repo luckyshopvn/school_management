@@ -3,7 +3,7 @@ import { SCHOOL_LEVELS } from './school-levels.js';
 
 // Danh mục cố định của cơ sở vật chất, thiết bị dạy học tối thiểu và hồ sơ trường (DT-14 phần 14d, YCTD-102). Máy chủ
 // dùng để kiểm tra dữ liệu gửi lên, cổng quản trị dùng để dựng biểu mẫu; tên chỉ tiêu theo khảo sát hệ thống của Sở
-// GD&ĐT TP.HCM (tài liệu 31), cần đối chiếu biểu mẫu chính thức của Bộ
+// GD&ĐT TP.HCM (tài liệu 46), cần đối chiếu biểu mẫu chính thức của Bộ
 
 export interface CodeLabel<T extends string = string> {
   value: T;
@@ -432,7 +432,7 @@ export function equipmentLevelOfGroup(group: string): EquipmentSchoolLevel | nul
 }
 
 // Nguồn danh mục tối thiểu của từng cấp (YCTD-345). Chỉ Mầm non có danh mục chép vào mã (YCTD-143). Tiểu học, THCS, THPT:
-// tài liệu dự án chỉ nêu số văn bản (tài liệu 32 mục 18g), không có nội dung danh mục, nên không nạp mẫu; trường tự nhập
+// tài liệu dự án chỉ nêu số văn bản (tài liệu 47 mục 18g), không có nội dung danh mục, nên không nạp mẫu; trường tự nhập
 // danh mục ở 2.1 (thêm từng thiết bị hoặc nhập từ Excel)
 export interface EquipmentCatalogSource {
   standard: boolean;

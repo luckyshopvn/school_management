@@ -1,7 +1,7 @@
 import { sql } from 'kysely';
 import type { Migration } from 'kysely/migration';
 
-// Trạng thái bộ lập lịch theo trường (DT-SaaS phần S1b, tài liệu 32 mục 14.5): mỗi việc nền của mỗi trường một dòng, ghi lần chạy
+// Trạng thái bộ lập lịch theo trường (DT-SaaS phần S1b, tài liệu 47 mục 14.5): mỗi việc nền của mỗi trường một dòng, ghi lần chạy
 // gần nhất để việc đến hạn tính từ dấu thời gian ở cơ sở dữ liệu (tiến trình ngủ rồi gọi lại muộn vẫn bù đủ, nhiều bản máy chủ
 // không chạy trùng một việc) và để bảng điều khiển nền tảng xem việc nào của trường nào chạy lúc nào, lỗi gì
 export const migration: Migration = {

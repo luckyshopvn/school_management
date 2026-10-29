@@ -2,7 +2,7 @@
 // equipment_items (cấu hình, Hiệu trưởng sửa trên màn hình); mẫu ở đây chỉ dùng khi bấm "Nạp danh mục mẫu": thêm dòng có
 // mã chưa có, không sửa dòng đã có. Mỗi mẫu ghi văn bản gốc; cấp khác thêm mẫu mới ở đây, không đổi mã.
 //
-// Tiểu học, THCS, THPT (YCTD-345): tài liệu dự án chỉ nêu số văn bản (Thông tư 37, 38, 39/2021/TT-BGDĐT, tài liệu 32 mục
+// Tiểu học, THCS, THPT (YCTD-345): tài liệu dự án chỉ nêu số văn bản (Thông tư 37, 38, 39/2021/TT-BGDĐT, tài liệu 47 mục
 // 18g), không có nội dung danh mục, nên chưa có mẫu ở đây; trường tự nhập danh mục (EQUIPMENT_CATALOG_SOURCES của gói dùng
 // chung). Chỉ thêm mẫu khi danh mục được đưa vào tài liệu của dự án, không chép lại từ trí nhớ.
 //

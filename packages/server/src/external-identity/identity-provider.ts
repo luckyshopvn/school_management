@@ -1,6 +1,6 @@
 import { createHash, randomBytes } from 'node:crypto';
 
-// Lớp trừu tượng nhà cung cấp định danh bên ngoài (DT-25, YCTD-225, tài liệu 32 mục 17). Mã nghiệp vụ (liên kết tài khoản, đăng nhập,
+// Lớp trừu tượng nhà cung cấp định danh bên ngoài (DT-25, YCTD-225, tài liệu 47 mục 17). Mã nghiệp vụ (liên kết tài khoản, đăng nhập,
 // kiểm vai trò, nhật ký) chỉ làm việc với lớp này; mỗi giao thức là một bộ nối riêng. Hiện có bộ nối OIDC chung (`OidcIdentityProvider`);
 // VNeID qua Trung tâm RAR (Cục C06) là một hồ sơ cấu hình của bộ nối OIDC. Nếu RAR dùng giao thức khác thì viết bộ nối mới theo lớp này,
 // không sửa mã nghiệp vụ

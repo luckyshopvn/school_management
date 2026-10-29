@@ -1,7 +1,7 @@
 import { ruleViolationError, type FieldError } from '@school-management/server';
 import { participantMinutes } from '@school-management/shared';
 
-// Quy tắc thuần của giờ học trực tuyến, phòng nhóm, phòng chia nhỏ (DT-28 phần 28g, YCTD-277; tài liệu 32 mục 20.7). Claude tự chọn
+// Quy tắc thuần của giờ học trực tuyến, phòng nhóm, phòng chia nhỏ (DT-28 phần 28g, YCTD-277; tài liệu 47 mục 20.7). Claude tự chọn
 // theo ủy quyền của Eric ngày 2026-10-11 ở chỗ kế hoạch chưa chốt:
 // - giờ học dài 5 đến 240 phút (mặc định 45); điểm danh gợi ý "có mặt" khi dự từ nửa thời lượng trở lên, "vào muộn hoặc ra sớm" khi
 //   có dự nhưng chưa đủ, "vắng" khi không vào; giáo viên xác nhận mới ghi kết quả hoạt động;

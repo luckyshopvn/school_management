@@ -1,6 +1,6 @@
 import { DEFAULT_SCHOOL_LEVEL, isSchoolLevelCode, type SchoolLevelCode } from './school-levels.js';
 
-// Chức năng của ứng dụng phụ huynh và ứng dụng giáo viên theo cấp học (DT-19 phần 19e, YCTD-155; tài liệu 32 mục 10.4).
+// Chức năng của ứng dụng phụ huynh và ứng dụng giáo viên theo cấp học (DT-19 phần 19e, YCTD-155; tài liệu 47 mục 10.4).
 // Chức năng ghi cấp chỉ hiện ở con, lớp thuộc cấp đó; chức năng không có trong bảng là của mọi cấp. Nhật ký và chăm sóc
 // hằng ngày, báo cơm, cân đo theo tháng tuổi, hồ sơ cuối cấp hiện là nghiệp vụ Mầm non nên chỉ hiện ở con, lớp Mầm non;
 // điểm danh theo tiết, sổ điểm, sổ đầu bài của cấp khác thêm ở DT-20, DT-21 bằng cùng bảng.

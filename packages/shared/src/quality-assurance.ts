@@ -1,7 +1,7 @@
 import type { KpiSchoolLevelCode } from './kpi.js';
 
 // Bảo đảm chất lượng, tự đánh giá (DT-18 phần 22f, YCTD-149) theo mô tả công khai của trang bảo đảm chất lượng đã khảo sát
-// (tài liệu 32 mục 9.4): bộ tiêu chuẩn kiểm định cấu hình được theo cấp học (tiêu chuẩn, tiêu chí, chỉ báo theo mức), đợt tự
+// (tài liệu 47 mục 9.4): bộ tiêu chuẩn kiểm định cấu hình được theo cấp học (tiêu chuẩn, tiêu chí, chỉ báo theo mức), đợt tự
 // đánh giá có hội đồng và nhóm công tác, phiếu đánh giá tiêu chí, minh chứng có mã và bốn trạng thái, kế hoạch cải tiến nối
 // Quản lý công việc, báo cáo tự đánh giá xuất Word, PDF, theo dõi hiệu lực công nhận nối mục 1.7 (17e). Bộ tiêu chuẩn là cấu
 // hình lưu ở cơ sở dữ liệu; bộ dưới đây chỉ là bản nạp mặc định (Mầm non trước, các cấp khác thêm sau DT-19). Các lựa chọn

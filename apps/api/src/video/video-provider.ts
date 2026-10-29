@@ -12,7 +12,7 @@ import {
 } from 'livekit-server-sdk';
 import type { ObjectStorageSettings, VideoSettings } from '../common/configuration.js';
 
-// Bộ nối phòng video (DT-27 phần 27a, YCTD-251; tài liệu 32 mục 19.5): tạo phòng, cấp mã vào phòng theo người và quyền, đổi quyền,
+// Bộ nối phòng video (DT-27 phần 27a, YCTD-251; tài liệu 47 mục 19.5): tạo phòng, cấp mã vào phòng theo người và quyền, đổi quyền,
 // kết thúc phòng, bắt đầu và dừng ghi, nhận sự kiện vào ra qua địa chỉ gọi lại có chữ ký. `livekit` (tự host) và `livekit-cloud` (dự
 // phòng) cùng mã, khác địa chỉ; `mock` cho kiểm thử. Mã nghiệp vụ chỉ gọi qua lớp này, không rẽ nhánh theo nhà cung cấp
 export interface VideoTokenInput {

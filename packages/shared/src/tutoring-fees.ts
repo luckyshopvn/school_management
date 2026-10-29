@@ -1,6 +1,6 @@
 import type { TutoringContentType } from './tutoring.js';
 
-// Thu phí, khoản trừ buổi hủy và thù lao của chương trình gia sư trong trường (DT-27 phần 27c, YCTD-253; tài liệu 32 mục 19.5).
+// Thu phí, khoản trừ buổi hủy và thù lao của chương trình gia sư trong trường (DT-27 phần 27c, YCTD-253; tài liệu 47 mục 19.5).
 // Hàm thuần dùng chung cho máy chủ API (kiểm ở máy chủ, có kiểm thử đơn vị) và giao diện (giải thích ngay trên màn hình)
 export type TutoringFeeBasis = 'per_session' | 'per_program';
 export type TutoringCancelRefund = 'deduct_next' | 'adjust_invoice';

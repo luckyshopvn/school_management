@@ -1,7 +1,7 @@
 import { sql } from 'kysely';
 import type { Migration } from 'kysely/migration';
 
-// Cơ sở dữ liệu nền tảng (DT-SaaS phần S1a, tài liệu 32 mục 14.4): danh sách trường, tên miền, cụm cơ sở dữ liệu, mô tả kết
+// Cơ sở dữ liệu nền tảng (DT-SaaS phần S1a, tài liệu 47 mục 14.4): danh sách trường, tên miền, cụm cơ sở dữ liệu, mô tả kết
 // nối cơ sở dữ liệu của từng trường và khóa mã hóa dữ liệu trẻ của từng trường. Mật khẩu kết nối và khóa đều được mã hóa
 // AES-256-GCM bằng khóa gốc của nền tảng (PLATFORM_MASTER_KEY), cơ sở dữ liệu không giữ bản rõ
 export const migration: Migration = {

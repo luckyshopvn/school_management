@@ -42,7 +42,7 @@ import {
   type PaymentEvent,
 } from './market-payment-provider.js';
 
-// Đặt buổi, thanh toán giữ tiền, giải ngân, hoàn tiền, tranh chấp ở chợ gia sư (DT-27 phần 27h, YCTD-258; tài liệu 32 mục 19.5). Phụ
+// Đặt buổi, thanh toán giữ tiền, giải ngân, hoàn tiền, tranh chấp ở chợ gia sư (DT-27 phần 27h, YCTD-258; tài liệu 47 mục 19.5). Phụ
 // huynh đặt ở Chợ gia sư, gia sư xem buổi và thu nhập ở ứng dụng Gia sư. Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11:
 // - đặt buổi lẻ ít nhất 2 giờ trước giờ học, trong 60 ngày tới, nằm trọn trong giờ trống của gia sư (giờ Việt Nam), không trùng buổi khác
 //   của gia sư hoặc của con; giữ chỗ 30 phút chờ trả tiền, quá hạn thì nhả chỗ;
@@ -206,7 +206,7 @@ export class MarketBookingsService implements OnApplicationBootstrap, OnModuleDe
       attestedNoAssignment: attested,
     });
     if (problems.length > 0) throw validationError(problems);
-    // Buổi có trẻ vị thành niên luôn ghi hình (27i, tài liệu 32 mục 19.2); không đồng ý thì không đặt được
+    // Buổi có trẻ vị thành niên luôn ghi hình (27i, tài liệu 47 mục 19.2); không đồng ý thì không đặt được
     const recordingRequired = isMinor(child.birth_year, now);
     if (recordingRequired && !recordingConsented) {
       throw validationError([

@@ -1,7 +1,7 @@
 import { sql } from 'kysely';
 import type { Migration } from 'kysely/migration';
 
-// An toàn trẻ em và kiểm duyệt ở chợ gia sư (DT-27 phần 27i, YCTD-259; tài liệu 32 mục 19.2, 19.5). Claude tự chọn theo ủy quyền của
+// An toàn trẻ em và kiểm duyệt ở chợ gia sư (DT-27 phần 27i, YCTD-259; tài liệu 47 mục 19.2, 19.5). Claude tự chọn theo ủy quyền của
 // Eric ngày 2026-10-11:
 // - tin nhắn chợ chỉ có luồng giữa phụ huynh và gia sư (không có luồng gia sư với trẻ); chữ đã che thông tin liên lạc ngoài lưu ở `body`,
 //   chữ gốc chỉ lưu khi có che (`original_body`) để nhân viên kiểm duyệt xem làm bằng chứng;

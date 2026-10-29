@@ -18,7 +18,7 @@ import {
 } from '../exams/exam-rules.js';
 import type { AiPrompt } from './ai-provider.js';
 
-// Dựng lời nhắc và đọc kết quả của trợ lý AI (DT-23 phần 23d, YCTD-214; tài liệu 32 mục 15.4). Nguyên tắc dữ liệu: lời nhắc **dựng từ mẫu
+// Dựng lời nhắc và đọc kết quả của trợ lý AI (DT-23 phần 23d, YCTD-214; tài liệu 47 mục 15.4). Nguyên tắc dữ liệu: lời nhắc **dựng từ mẫu
 // cố định** ở máy chủ, chỉ chứa nội dung chương trình (cấp, khối, môn, chủ đề, yêu cầu cần đạt, mức nhận thức, dạng câu, số câu, mô tả
 // thêm của giáo viên); mọi chữ do người dùng nhập bị quét số điện thoại, thư điện tử, số định danh và tên có trong danh sách học sinh,
 // phụ huynh, cán bộ của trường (so sánh ở máy chủ, danh sách không gửi đi đâu); thấy thì từ chối. Không đưa bài làm, điểm, nhận xét,

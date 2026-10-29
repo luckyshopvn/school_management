@@ -10,7 +10,7 @@ import { isUuid, notFoundError, type RequestBody } from '../common/request-field
 import { uuidParameter } from '../common/uuid-parameter.js';
 import { ChildScope } from '../children/child-scope.js';
 
-// Trò chơi kiến thức và thẻ đáp án giấy (DT-23 phần 23c, YCTD-213; tài liệu 32 mục 15.4). Claude tự chọn theo ủy quyền của Eric
+// Trò chơi kiến thức và thẻ đáp án giấy (DT-23 phần 23c, YCTD-213; tài liệu 47 mục 15.4). Claude tự chọn theo ủy quyền của Eric
 // ngày 2026-10-11:
 // - câu hỏi chỉ lấy từ ngân hàng câu hỏi đã duyệt (22g1) của khối của lớp, lọc theo môn, chủ đề, mức nhận thức, dạng câu;
 //   giáo viên được dùng với lớp mình phụ trách (cùng phạm vi của công cụ lớp học 23b), không cần quyền soạn câu hỏi;

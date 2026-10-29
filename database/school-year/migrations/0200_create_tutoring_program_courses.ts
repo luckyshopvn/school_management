@@ -1,7 +1,7 @@
 import { sql } from 'kysely';
 import type { Migration } from 'kysely/migration';
 
-// Khoá học ghi sẵn của chương trình gia sư, phần riêng của gia sư (DT-27 phần 27d1, YCTD-254; tài liệu 32 mục 19.5, YCTD-270). 27d tách
+// Khoá học ghi sẵn của chương trình gia sư, phần riêng của gia sư (DT-27 phần 27d1, YCTD-254; tài liệu 47 mục 19.5, YCTD-270). 27d tách
 // làm 27d1 (phần này) và 27d2 (tiến độ cho học sinh, giáo viên, phụ huynh, làm sau khi 28d gộp). Số 0200: sau dải của DT-28 vì cần
 // course_spaces (0172), course_activities (0173); dải DT-27 chạy trước. 27d2 không thêm bảng. Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11:
 // - khoá học ghi sẵn là một `course_spaces` loại `elective` của lõi LMS 28b, gắn với một chương trình gia sư 27b

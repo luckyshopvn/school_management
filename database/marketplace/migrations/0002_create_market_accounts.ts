@@ -1,7 +1,7 @@
 import { sql } from 'kysely';
 import type { Migration } from 'kysely/migration';
 
-// Tài khoản của chợ gia sư (DT-27 phần 27f, YCTD-256; tài liệu 32 mục 19.5): người dùng chợ không thuộc trường nào nên tài khoản nằm ở
+// Tài khoản của chợ gia sư (DT-27 phần 27f, YCTD-256; tài liệu 47 mục 19.5): người dùng chợ không thuộc trường nào nên tài khoản nằm ở
 // cơ sở dữ liệu `marketplace` riêng, không ở `identity` của trường. Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11:
 // - một tài khoản một vai (`parent` hoặc `tutor`); người vừa là phụ huynh vừa dạy thì mở hai tài khoản (thư điện tử khác nhau), để
 //   quyền và dữ liệu của hai vai không trộn;

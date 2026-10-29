@@ -1,7 +1,7 @@
 import { sql } from 'kysely';
 import type { Migration } from 'kysely/migration';
 
-// DT-23 phần 23d (YCTD-214; tài liệu 32 mục 15): trợ lý AI soạn câu hỏi nháp và kế hoạch bài dạy nháp. Khối số giữ sẵn 0071 đến 0073.
+// DT-23 phần 23d (YCTD-214; tài liệu 47 mục 15): trợ lý AI soạn câu hỏi nháp và kế hoạch bài dạy nháp. Khối số giữ sẵn 0071 đến 0073.
 // Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11:
 // - `ai_settings`: một dòng, bật tắt theo trường (mặc định tắt), cấu hình khóa (`school`: trường tự nhập khóa, miễn phí; `platform`:
 //   khóa của nền tảng, thu phí theo gói và token; GD-102), nhà cung cấp, mã mô hình riêng của trường, hạn mức yêu cầu mỗi người mỗi

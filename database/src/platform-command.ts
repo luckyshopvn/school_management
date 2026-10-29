@@ -45,7 +45,7 @@ import { readMasterKey, readTenancyConfiguration, TenancyRuntime } from './tenan
 import { applyPlanLifecycle } from './school-plans.js';
 import type { PlatformDatabase } from '../platform/schema.js';
 
-// Lệnh quản trị nền tảng nhiều trường (DT-SaaS phần S1a, tài liệu 32 mục 14.5):
+// Lệnh quản trị nền tảng nhiều trường (DT-SaaS phần S1a, tài liệu 47 mục 14.5):
 //   generate-master-key         in khóa gốc mới (32 byte, base64) để đặt vào PLATFORM_MASTER_KEY của nền tảng
 //   migrate                     chạy tệp thay đổi cấu trúc của cơ sở dữ liệu nền tảng (PLATFORM_DATABASE_URL)
 //   adopt-existing --code <mã> --name <tên> [--domains a,b]
@@ -88,7 +88,7 @@ import type { PlatformDatabase } from '../platform/schema.js';
 //   move-school --school <mã> [--drop-source]
 //                                      chuyển trường sang cụm đặt bằng TARGET_CLUSTER_ADMIN_URL (TARGET_CLUSTER_LAYOUT,
 //                                      TARGET_CLUSTER_SHARED_DATABASE); tạm dừng trong lúc chép, so số dòng, tổng kiểm
-// Danh mục đơn vị toàn quốc (DT-24, YCTD-220; tài liệu 32 mục 16.6):
+// Danh mục đơn vị toàn quốc (DT-24, YCTD-220; tài liệu 47 mục 16.6):
 //   catalog-import --units <tệp.csv> [--communes <tệp.csv>] [--source <tên nguồn>] [--dry-run] [--deactivate-missing]
 //                                      nhập hoặc cập nhật danh mục (so theo mã Bộ), in báo cáo thêm, sửa, giữ nguyên, bỏ qua
 // Thông báo đẩy Web Push (DT-26 phần 26b, YCTD-232):

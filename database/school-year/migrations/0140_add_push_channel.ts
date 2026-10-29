@@ -1,7 +1,7 @@
 import { sql } from 'kysely';
 import type { Migration } from 'kysely/migration';
 
-// Kênh thông báo đẩy `push` của hàng đợi thông báo chung (DT-26 phần 26b, YCTD-232; tài liệu 32 mục 18): tiến trình gửi thêm người
+// Kênh thông báo đẩy `push` của hàng đợi thông báo chung (DT-26 phần 26b, YCTD-232; tài liệu 47 mục 18): tiến trình gửi thêm người
 // nhận kênh `push` cho người nhận trong ứng dụng có đăng ký đẩy còn hiệu lực, gửi qua bộ nối `PushSender`; `delivered_via` ghi `push`
 export const migration: Migration = {
   async up(database) {

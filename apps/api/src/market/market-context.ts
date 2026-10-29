@@ -23,7 +23,7 @@ import type { Kysely } from 'kysely';
 import { API_CONFIGURATION, TENANCY_RUNTIME, type ApiConfiguration } from '../common/configuration.js';
 import { hashSessionToken } from './market-tokens.js';
 
-// Ngữ cảnh của chợ gia sư ở máy chủ API (DT-27 phần 27f, YCTD-256; tài liệu 32 mục 19.3, 19.5). Claude tự chọn theo ủy quyền của Eric
+// Ngữ cảnh của chợ gia sư ở máy chủ API (DT-27 phần 27f, YCTD-256; tài liệu 47 mục 19.3, 19.5). Claude tự chọn theo ủy quyền của Eric
 // ngày 2026-10-11:
 // - điểm cuối nằm ở `/api/v1/market/*`, đường dẫn không cần trường (như `/api/v1/parent-org/*`): không có ngữ cảnh trường nên không
 //   với tới được cơ sở dữ liệu của trường nào (`Databases` ném lỗi khi thiếu trường);

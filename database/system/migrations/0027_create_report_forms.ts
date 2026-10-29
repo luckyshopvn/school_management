@@ -120,7 +120,7 @@ export const migration: Migration = {
         id: string;
       }>`insert into report_forms (code, name, school_level, period, columns, note)
         values (${form.code}, ${form.name}, 'TH', ${form.period}, ${COLUMNS}::jsonb,
-          ${'Khung chờ đối chiếu với hệ thống của Sở cấp Tiểu học (tài liệu 31)'})
+          ${'Khung chờ đối chiếu với hệ thống của Sở cấp Tiểu học (tài liệu 46)'})
         on conflict (code) do nothing returning id`.execute(database);
       const formId = created.rows[0]?.id;
       if (!formId) {

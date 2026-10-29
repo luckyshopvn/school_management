@@ -1,8 +1,8 @@
 # 23. LỊCH SỬ PHIÊN BẢN
 
 - Mô tả: Mã phiên bản, ngày phát hành, danh sách thay đổi, chức năng mới, lỗi đã sửa, thay đổi dữ liệu, thay đổi API, rủi ro, khả năng tương thích, phương án quay lui.
-- Phiên bản: 0.66
-- Ngày cập nhật: 2026-10-26
+- Phiên bản: 0.67
+- Ngày cập nhật: 2026-10-29
 - Trạng thái: Đang cập nhật
 - Đã rà duyệt: Eric, ngày 2026-10-09
 
@@ -11,11 +11,714 @@
 1. Mỗi phiên bản phát hành ghi một mục, xếp mới nhất lên đầu.
 2. Mỗi mục ghi rõ: mã phiên bản, ngày phát hành, phạm vi thay đổi, chức năng mới, lỗi đã sửa, thay đổi dữ liệu, thay đổi API, rủi ro, khả năng tương thích và phương án quay lui.
 3. Phiên bản đánh số theo dạng chính.phụ.sửa. Tăng số chính khi thay đổi phá vỡ tương thích, tăng số phụ khi thêm chức năng, tăng số sửa khi sửa lỗi.
-4. Bản phần mềm 1.0.0, 1.1.0, 1.2.0 được Eric nghiệm thu ngày 13/10/2026, gắn thẻ `v1.0.0`, `v1.1.0`, `v1.2.0` (YCTD-92), ứng với phiên bản tài liệu 0.31.0, 0.42.0, 0.48.0. Các mục dưới đây ghi các mốc của bộ tài liệu.
+4. Bản phần mềm 1.0.0, 1.1.0, 1.2.0 được Eric nghiệm thu ngày 13/10/2026, gắn thẻ `v1.0.0`, `v1.1.0`, `v1.2.0` (YCTD-92), ứng với phiên bản tài liệu 0.31.0, 0.42.0, 0.48.0. Các mục dưới đây ghi các mốc của bộ tài liệu. Thẻ `v<số>` chỉ dùng cho bản phần mềm được Eric nghiệm thu; mốc tài liệu 0.x gắn thẻ có chú thích `tai-lieu-<số>` (ví dụ `tai-lieu-0.238.0`, nội dung "Phiên bản X (PR n)") trên commit merge của PR đưa mục phiên bản vào nhánh chính (YCTD-369, AI-48). Các mốc 0.1.0 đến 0.25.3 có sẵn trong PR 1, lập trước khi có kho mã, nên không gắn thẻ.
 5. Từ phiên bản 0.4.0, mỗi mục ghi theo mẫu của Vibecoding_Flow; các mục trước giữ nguyên dạng bảng và tên tệp cũ vì là ghi nhận lịch sử.
 6. Từ YCTD-291 (ngày 2026-10-26), mục phiên bản mới của mỗi PR nằm ở tệp mảnh trong thư mục `tai_lieu/thay_doi_cho_gom/` cho tới lần gom, với số phiên bản đề xuất và chỗ giữ `{PHIEN_BAN}`; PR thường không sửa tệp này. Số chính thức chốt khi gom theo thứ tự merge (quy ước ở `thay_doi_cho_gom/README.md`).
 
 ## 2. Danh sách phiên bản
+
+### Phiên bản 0.238.0 – 2026-10-29
+
+- Phạm vi thay đổi: gom 92 tệp mảnh, đánh lại số bộ tài liệu (25 kết quả kiểm thử, 26 triển khai, 27 ma trận truy vết, tài liệu riêng sang 40 đến 49), mười ba giai đoạn ở `01`, quy tắc AI-40, AI-43 đến AI-48 (YCTD-369). Không đổi mã chạy, chỉ chú thích.
+- Phương án quay lui: revert commit merge của PR; không có thay đổi dữ liệu.
+
+### Phiên bản 0.237.0 – 2026-10-28
+
+- Phạm vi thay đổi: DT-29 phần 29e, bài hát, câu chuyện của trường (YCTD-329).
+- Chức năng mới: loại học liệu Bài hát, Câu chuyện; kho học liệu nhận tệp âm thanh; mini app phát bài hát, câu chuyện của trường trên lớp Mầm non.
+- Cấu trúc dữ liệu: hệ thống 0121.
+
+### Phiên bản 0.236.0 – 2026-10-28
+
+- Phạm vi thay đổi: DT-29 phần 29d, mini app THCS, THPT (YCTD-328).
+- Chức năng mới: máy tính khoa học, vẽ đồ thị hàm số, bảng tuần hoàn, hình học động, bảng hằng số và đổi đơn vị trong Hộp công cụ giảng dạy.
+
+### Phiên bản 0.235.0 – 2026-10-28
+
+- Phạm vi thay đổi: DT-29 phần 29c, mini app Tiểu học (YCTD-327).
+- Chức năng mới: bảng cửu chương, khung ô li, học xem đồng hồ, phân số trực quan trong Hộp công cụ giảng dạy.
+
+### Phiên bản 0.234.0 – 2026-10-29
+
+- Phạm vi thay đổi: trang Công văn của tôi và trang Văn bản đến gọn theo thiết kế cổng quản trị (YCTD-336).
+
+### Phiên bản 0.233.0 – 2026-10-29
+
+- Phạm vi thay đổi: nhóm Hay dùng và ô tìm chung học sinh, cán bộ của cổng quản trị (YCTD-337).
+- Cơ sở dữ liệu hệ thống thêm bảng `user_recent_pages` (thay đổi cấu trúc 0125).
+
+### Phiên bản 0.232.0 – 2026-10-29
+
+- Phạm vi thay đổi: trang Cấu hình trường của cổng quản trị theo thiết kế mới (YCTD-335).
+
+### Phiên bản 0.231.0 – 2026-10-29
+
+- Phạm vi thay đổi: cấp trên rút đề nghị xem chi tiết, xuất báo cáo chạy nền (YCTD-367).
+- Cơ sở dữ liệu nền tảng: 0245.
+
+### Phiên bản 0.230.0 – 2026-10-29
+
+- Phạm vi thay đổi: CI tự huỷ lượt chạy cũ của cùng PR hoặc cùng nhánh (YCTD-357).
+
+### Phiên bản 0.229.0 – 2026-10-29
+
+- Phạm vi thay đổi: danh sách học sinh gọn theo thiết kế (YCTD-338).
+- Thao tác trên dòng đã chọn ở thanh "Đã chọn"; xuất tệp, đồng bộ CSDL ngành ở menu Thêm; ít cột mặc định hơn.
+
+### Phiên bản 0.228.0 – 2026-10-29
+
+- Phạm vi thay đổi: trang Hồ sơ lớp học gọn theo thiết kế cổng quản trị (YCTD-339).
+- Thao tác hàng loạt ở thanh "Đã chọn", Xuất Excel ở menu Thêm, sáu cột mặc định; liên kết sang Phân công phụ trách lớp.
+
+### Phiên bản 0.227.0 – 2026-10-29
+
+- Phạm vi thay đổi: trang Điểm danh của cổng quản trị theo thiết kế mới (YCTD-334).
+
+### Phiên bản 0.226.0 – 2026-10-28
+
+- Phạm vi thay đổi: DT-29 phần 29b, mini app chung và Mầm non (YCTD-326).
+- Chức năng mới: bảng trắng, xúc xắc và bốc số, đồng hồ hình ảnh, đèn giữ trật tự, bảng thưởng sao, hình và màu, đếm và số, làm quen chữ cái trong Hộp công cụ giảng dạy.
+
+### Phiên bản 0.225.0 – 2026-10-29
+
+- Phạm vi thay đổi: giao diện cổng vận hành theo thiết kế, trang Nhật ký truy cập, Tổng quan có chỉ số (YCTD-324).
+
+### Phiên bản 0.224.0 – 2026-10-29
+
+- Phạm vi thay đổi: vai trò vận hành theo từng điểm cuối, đổi mật khẩu vận hành, mã xác nhận khi đổi mật khẩu mặc định (YCTD-323).
+- Cổng vận hành chỉ cho mỗi vai trò đúng việc của mình; nhân viên tự đổi mật khẩu, bắt đổi mật khẩu tạm.
+- Đổi mật khẩu mặc định lần đầu cần mã gửi tới số điện thoại; mật khẩu mặc định hết hạn sau 24 giờ.
+
+### Phiên bản 0.223.0 – 2026-10-29
+
+- Phạm vi thay đổi: lưới dữ liệu gọn và danh sách cán bộ theo thiết kế (YCTD-333).
+- Menu "Thêm" ở mọi lưới dữ liệu; thanh "Đã chọn" cho thao tác hàng loạt; danh sách cán bộ ít cột mặc định hơn.
+
+### Phiên bản 0.222.0 – 2026-10-29
+
+- Phạm vi thay đổi: mã xác nhận ở đăng nhập bằng mật khẩu của ứng dụng phụ huynh (YCTD-354).
+- Phụ huynh nhập sai mật khẩu nhiều lần thì phải nhập mã xác nhận như cổng quản trị và ứng dụng giáo viên.
+
+### Phiên bản 0.221.0 – 2026-10-29
+
+- Phạm vi thay đổi: ô tìm chức năng và trang Tất cả chức năng của cổng quản trị (YCTD-332).
+
+### Phiên bản 0.220.0 – 2026-10-29
+
+- Phạm vi thay đổi: khung bổ sung của cổng quản trị trường (YCTD-331).
+- Dải thông báo thay hộp bật lên; một nút ngữ cảnh cấp, năm học, học kỳ; phông Be Vietnam Pro tự phục vụ.
+
+### Phiên bản 0.219.0 – 2026-10-29
+
+- Phạm vi thay đổi: ứng dụng phụ huynh có thanh điều hướng dưới và nút Đổi con (YCTD-351).
+- Không đổi dữ liệu, API, quyền.
+
+### Phiên bản 0.218.0 – 2026-10-29
+
+- Phạm vi thay đổi: giao diện trang đơn vị cấp trên; cấu hình mốc phòng học, hạn dùng gói buổi và duyệt đánh giá gia sư ở cổng vận hành (YCTD-363).
+
+### Phiên bản 0.217.0 – 2026-10-29
+
+- Phạm vi thay đổi: gói buổi ở chợ gia sư (YCTD-365, GD-165).
+- Cơ sở dữ liệu chợ: marketplace 0051.
+
+### Phiên bản 0.216.0 – 2026-10-29
+
+- Phạm vi thay đổi: đánh giá gia sư có duyệt, đổi và đặt lại mật khẩu, đăng nhập định danh của phụ huynh, con đọc tin nhắn ở chợ gia sư (YCTD-364).
+- Cơ sở dữ liệu chợ: marketplace 0050.
+
+### Phiên bản 0.215.0 – 2026-10-29
+
+- Phạm vi thay đổi: phòng học video của chợ gia sư (DT-27 phần 27j): đồng ý ghi hình theo gia sư, phòng chờ, điểm danh tự động, gia sư vắng, xác nhận và tự xác nhận buổi (YCTD-362).
+- Cơ sở dữ liệu chợ: marketplace 0040.
+
+### Phiên bản 0.214.0 – 2026-10-29
+
+- Phạm vi thay đổi: ứng dụng Gia sư theo bản thiết kế đã duyệt: cột điều hướng bảy trang, lịch tuần, thu nhập theo buổi, xác minh dạng các bước, bỏ khai báo trường (YCTD-361).
+- Không đổi dữ liệu, API, quyền.
+
+### Phiên bản 0.213.0 – 2026-10-29
+
+- Phạm vi thay đổi: mã xác nhận ở ứng dụng giáo viên, che số định danh, giới hạn "Ghi nhớ" (YCTD-353).
+- Ứng dụng giáo viên hỏi mã xác nhận sau nhiều lần nhập sai mật khẩu.
+- Nhật ký không còn ghi đủ số định danh của học sinh; chi tiết tài khoản che số CCCD, xem đủ có ghi nhật ký.
+- "Ghi nhớ" ở cổng quản trị giữ phiên tối đa 30 ngày.
+
+### Phiên bản 0.212.0 – 2026-10-29
+
+- Phạm vi thay đổi: sửa lỗi xem camera giám thị mất phiên khi hai yêu cầu mở phiên chạy song song (YCTD-355).
+
+### Phiên bản 0.211.0 – 2026-10-28
+
+- Phạm vi thay đổi: DT-29 phần 29a, Hộp công cụ giảng dạy theo cấp học (YCTD-325).
+- Chức năng mới: Hộp công cụ giảng dạy (thay Công cụ lớp học) lọc theo cấp của lớp, trường bật tắt từng công cụ, lối vào màn đã có, đường dẫn mở thẳng; trang chủ lọc mục không hợp cấp.
+
+### Phiên bản 0.210.0 – 2026-10-29
+
+- Phạm vi thay đổi: danh mục thiết bị tối thiểu và mẫu kế hoạch giáo dục cho Tiểu học, THCS, THPT theo hướng trường tự nhập (YCTD-345).
+- Chức năng mới: thiết bị theo cấp học, định mức cấp phổ thông theo khối; thêm thiết bị vào danh mục tối thiểu trên 2.1; nguồn danh mục từng cấp ở 2.6; khung rỗng mẫu kế hoạch cho ba cấp phổ thông.
+- Cơ sở dữ liệu: năm học 0215 (ràng buộc nhóm tuổi, khối theo cấp).
+
+### Phiên bản 0.209.0 – 2026-10-28
+
+- Phạm vi thay đổi: xem dữ liệu năm học đã đóng ở cổng quản trị (YCTD-342).
+- Thay đổi API: mọi điểm cuối của máy chủ API nhận tiêu đề `x-academic-year-id` để đọc năm học đã đóng; ghi kèm năm đã đóng trả 422 BR-93.
+
+### Phiên bản 0.208.0 – 2026-10-29
+
+- Phạm vi thay đổi: kiểm thử giao diện gói dịch vụ chờ bộ đệm ngữ cảnh trường (YCTD-366).
+
+### Phiên bản 0.207.0 – 2026-10-29
+
+- Phạm vi thay đổi: quản trị nền tảng đủ quyền ở mọi ứng dụng của nhân viên trường; chế độ xem của nhân viên hỗ trợ ở ứng dụng phụ huynh, học sinh (YCTD-315).
+
+### Phiên bản 0.206.0 – 2026-10-28
+
+- Phạm vi thay đổi: khung chung mới của cổng quản trị trường (YCTD-330).
+- Thanh bên trái theo phân hệ, cây menu đánh số gập mở; ô chọn phân hệ có ô lọc; bỏ chân trang; Gửi phản hồi ở menu người dùng; trang chủ bỏ Lối tắt và tiêu đề "Tổng quan phân hệ"; màu xanh đậm.
+
+### Phiên bản 0.205.0 – 2026-10-28
+
+- Phạm vi thay đổi: cổng vận hành nền tảng chuyển được loại dữ liệu, thêm hồ sơ đồng ý, vùng máy chủ của trường đã tạo (YCTD-343).
+- Chỉ vai trò vận hành quản trị, kỹ thuật được làm các thao tác này.
+
+### Phiên bản 0.204.0 – 2026-10-29
+
+- Phạm vi thay đổi: ảnh tham chiếu trang đăng nhập cổng quản trị của kiểm thử theo khổ thiết bị theo giao diện đăng nhập mới, sửa CI nhánh chính (YCTD-352).
+
+### Phiên bản 0.203.0 – 2026-10-28
+
+- Phạm vi thay đổi: rà soát lại quy trình và kiểm thử toàn bộ trên nhánh chính, tài liệu `35_KET_QUA_KIEM_THU.md` (YCTD-321). Không đổi mã.
+
+### Phiên bản 0.202.0 – 2026-10-29
+
+- Phạm vi thay đổi: Chợ gia sư phía phụ huynh theo bản thiết kế đã duyệt: thanh điều hướng năm trang, tìm gia sư, trang gia sư, buổi học, thanh toán giả lập, hồ sơ con, trang An toàn (YCTD-360).
+- Không đổi dữ liệu, API, quyền.
+
+### Phiên bản 0.201.0 – 2026-10-29
+
+- Phạm vi thay đổi: Ban Giám hiệu xem và xét duyệt hồ sơ tuyển sinh (YCTD-341).
+- Thay đổi cơ sở dữ liệu: migration định danh 0184 cấp `P16.application.review` cho VT-02, VT-15.
+
+### Phiên bản 0.200.0 – 2026-10-29
+
+- Phạm vi thay đổi: dặn thuốc và sự kiện y tế theo QT-07 (YCTD-344).
+- Chức năng mới: trạng thái Đã nhận thuốc; thông báo phụ huynh mỗi liều cho uống; leo thang sự kiện y tế nặng tới Ban Giám hiệu, báo quản lý đơn vị mọi sự kiện.
+- Lỗi đã sửa: nhận thuốc chuyển thẳng sang đang cho uống; không tự hoàn thành khi hết thời gian dùng; từ chối, bỏ liều không gửi tin nhắn; yêu cầu mới chỉ báo một bên.
+- Thay đổi dữ liệu: migration năm học 0224 (trạng thái `received`).
+- Thay đổi API: trạng thái `received` ở các điểm cuối dặn thuốc (không thêm điểm cuối).
+- Kiểm thử: CT-1660 đến CT-1667 cùng CT-055, CT-058, CT-171 (`medicines.test.ts` 9/9, `health.test.ts` 8/8, `reports-g2.test.ts` 8/8 trên máy ngày 29/10/2026); e2e spec 31 cập nhật.
+
+### Phiên bản 0.199.0 – 2026-10-28
+
+- Phạm vi thay đổi: khai báo cơ sở vật chất mở được với quyền quản lý thiết bị, khớp điều kiện hiện mục menu (YCTD-340).
+- Thay đổi API: `GET /facilities/rooms`, `POST /facilities/rooms/export` nhận thêm quyền `P13.equipment.manage`.
+
+### Phiên bản 0.198.0 – 2026-10-28
+
+- Phạm vi thay đổi: điểm danh đầu ngày ở mọi cấp; điểm danh theo tiết lấy mặc định từ điểm danh đầu ngày (YCTD-350).
+- Không đổi dữ liệu, quyền.
+
+### Phiên bản 0.197.0 – 2026-10-28
+
+- Phạm vi thay đổi: giáo viên trả lời trao đổi trên bài nộp ở ứng dụng giáo viên (YCTD-346).
+- Sửa lỗi: màn Chấm bài (MH-421) có ô "Trả lời học sinh, phụ huynh" và nút "Gửi trả lời"; lời trả lời hiện ngay, lỗi báo rõ.
+- Kiểm thử: CT-1650 đến CT-1652.
+- Không đổi dữ liệu, quyền, API.
+
+### Phiên bản 0.196.0 – 2026-10-28
+
+- Phạm vi thay đổi: trang chủ ứng dụng phụ huynh thêm thẻ Khoản cần nộp, Điểm mới (YCTD-320).
+- Không đổi dữ liệu, API, quyền.
+
+### Phiên bản 0.195.0 – 2026-10-28
+
+- Phạm vi thay đổi: danh sách học sinh thêm cột Phụ huynh, Chuyên cần; nút Đồng bộ CSDL ngành bằng tệp (YCTD-319).
+- Không đổi dữ liệu, quyền.
+
+### Phiên bản 0.194.0 – 2026-10-28
+
+- Phạm vi thay đổi: mở mọi trường trong danh mục (khởi tạo ở lần mở đầu tiên), quản trị nền tảng vào thẳng mọi trường, gói cơ bản miễn phí và tính năng trả phí bật riêng từng trường (YCTD-314).
+- Cơ sở dữ liệu nền tảng: tệp thay đổi cấu trúc 0242 (gói `co-ban-mien-phi`, `schools.addon_modules`).
+
+### Phiên bản 0.193.0 – 2026-10-28
+
+- Phạm vi thay đổi: siết kiểm duyệt và xác minh danh tính ở chợ gia sư (YCTD-322).
+- Báo cáo nghiêm trọng chỉ tạm khóa ngay gia sư mà người báo đã học; hủy buổi, báo phụ huynh khi nhân viên xác nhận.
+- Lượt xác minh danh tính, đăng nhập OIDC của ứng dụng Gia sư gắn với trình duyệt và tài khoản đã bắt đầu.
+
+### Phiên bản 0.192.0 – 2026-10-28
+
+- Phạm vi thay đổi: sổ điểm nhập từ Excel, tải mẫu kèm điểm đang có, in sổ ra PDF (YCTD-318).
+- Không đổi dữ liệu, quyền.
+
+### Phiên bản 0.191.0 – 2026-10-28
+
+- Phạm vi thay đổi: xuất Excel thời khoá biểu theo lớp, giáo viên, phòng (YCTD-317).
+- Không đổi dữ liệu, quyền.
+
+### Phiên bản 0.190.0 – 2026-10-28
+
+- Phạm vi thay đổi: thẻ Phân công giảng dạy ở trang hồ sơ cán bộ, giáo viên; API `GET /api/v1/staff/:id/teaching-assignments` (YCTD-316).
+- Không đổi dữ liệu, quyền.
+
+### Phiên bản 0.189.0 – 2026-10-28
+
+- Phạm vi thay đổi: chọn phân hệ ở cổng quản trị thì về bảng điều khiển của phân hệ; công văn đến, đi của tôi trên phân hệ văn bản; khối trống ghi "Trống" (YCTD-307).
+
+### Phiên bản 0.188.0 – 2026-10-28
+
+- Thay đổi chức năng: tên đăng nhập là số CCCD; mật khẩu mặc định từ biến môi trường, bắt đổi lần đầu, hết hạn sau 7 ngày (cấu hình được); phân biệt loại tài khoản theo ứng dụng; tạo hàng loạt theo số CCCD; che số CCCD ở danh sách, nhật ký (YCTD-311).
+- Bảo mật: tham số argon2id tường minh m=64 MiB, t=3, p=4, băm lại khi đăng nhập nếu giá trị băm cũ yếu hơn.
+- Cổng nền tảng: trang Nhân viên vận hành (vai trò quản trị, hỗ trợ, kỹ thuật, kế toán; xác thực hai lớp bắt buộc).
+- Cấu trúc dữ liệu: identity 0183 (`users.initial_password_expires_at`), platform 0241 (`platform_operators.role`).
+
+### Phiên bản 0.187.0 – 2026-10-28
+
+- Phạm vi thay đổi: mã xác nhận ở đăng nhập cổng vận hành nền tảng (YCTD-313).
+
+### Phiên bản 0.186.0 – 2026-10-28
+
+- Phạm vi thay đổi: giao diện đăng nhập cổng vận hành nền tảng theo mẫu đăng nhập mới, đăng nhập hai bước với mã xác thực hai lớp (YCTD-312).
+
+### Phiên bản 0.185.0 – 2026-10-28
+
+- Thay đổi giao diện: trang đăng nhập cổng quản trị theo ảnh mẫu (thẻ giữa nền xanh nhạt, THÔNG TIN ĐƠN VỊ, THÔNG TIN TÀI KHOẢN); ở tên miền chung chọn Sở → Cấp, Phường / Xã → Trường, cấp học lọc theo sở, phường (YCTD-310).
+- Thay đổi chức năng: Ghi nhớ giữ phiên cổng quản trị `PORTAL_REMEMBER_DAYS` ngày (mặc định 30) bằng cookie bền; không tích thì cookie hết khi đóng trình duyệt.
+- Công cụ: lệnh `nhieu-truong-cuc-bo` và `scripts/chay-nhieu-truong.mjs` dựng, chạy bản nhiều trường trên máy song song bản một trường.
+- Không đổi cấu trúc dữ liệu.
+
+### Phiên bản 0.184.0 – 2026-10-28
+
+- Phạm vi thay đổi: hồ sơ cán bộ, giáo viên mở ở trang riêng `/staff/$staffId` chia thẻ, thẻ đang mở ở địa chỉ (YCTD-309).
+- Không đổi dữ liệu, API, quyền.
+
+### Phiên bản 0.183.0 – 2026-10-28
+
+- Phạm vi thay đổi: DT-27 phần 27i, an toàn trẻ em và kiểm duyệt ở chợ gia sư (YCTD-259).
+- Chức năng mới: tin nhắn có lọc thông tin liên lạc, báo cáo vi phạm, tạm khóa gia sư, kiểm duyệt có kháng nghị, ghi hình bắt buộc với trẻ vị thành niên, xem bản ghi có nhật ký, xuất hồ sơ, chính sách an toàn trẻ em (P02-136).
+- Thay đổi dữ liệu: marketplace `0030`.
+- Thay đổi API: nhóm `/api/v1/market/messages/*`, `/api/v1/market/reports*`, `/api/v1/market/tutor/safety`, phòng học và bản ghi dưới `/api/v1/market/bookings/*` và `/api/v1/market/tutor/bookings/*`, `/api/v1/market/admin/safety*`.
+- Kiểm thử: CT-1407 đến CT-1412 (CT-27i-1 đến CT-27i-6).
+- Rủi ro: trung bình; tạm khóa tự động hủy buổi và hoàn tiền (giả lập); đặt buổi cho trẻ vị thành niên phải đồng ý ghi hình.
+- Khả năng tương thích: buổi đã đặt trước bản này có `recording_required = false`.
+- Phương án quay lui: hoàn lại commit gộp; bảng marketplace `0030` không ảnh hưởng phần khác.
+
+### Phiên bản 0.182.0 – 2026-10-28
+
+- Phạm vi thay đổi: DT-27 phần 27h, đặt buổi, thanh toán giữ tiền giả lập, giải ngân, hoàn tiền, tranh chấp, hoa hồng (YCTD-258).
+- Chức năng mới: đặt buổi lẻ, thanh toán giả lập, hủy và hoàn theo chính sách, giải ngân sau hạn khiếu nại, tranh chấp và khiếu nại lại, quy tắc hoa hồng, buổi dạy và thu nhập của gia sư (P02-135).
+- Thay đổi dữ liệu: marketplace `0020`.
+- Thay đổi API: nhóm `/api/v1/market/bookings*`, `/api/v1/market/tutor/bookings*`, `/api/v1/market/disputes/*`, `/api/v1/market/payments/webhooks/*`, `/api/v1/market/admin/payments*`.
+- Kiểm thử: CT-1400 đến CT-1406 (CT-27h-1 đến CT-27h-7).
+- Rủi ro: thấp; chỉ thanh toán giả lập, thu tiền thật không bật được.
+- Khả năng tương thích: hồ sơ gia sư đã có môn `curriculum` cấp Tiểu học phải sửa khi lưu lại.
+- Phương án quay lui: hoàn lại commit gộp; bảng marketplace `0020` không ảnh hưởng phần khác.
+
+### Phiên bản 0.181.0 – 2026-10-28
+
+- Phạm vi thay đổi: DT-27 phần 27g, hồ sơ gia sư, xác minh, hàng chờ duyệt, tìm gia sư (YCTD-257).
+- Chức năng mới: xác minh danh tính gia sư qua OIDC (đủ 18 tuổi), xác minh bằng cấp, lý lịch tư pháp, đăng ký kinh doanh; hồ sơ dạy, gửi duyệt; hàng chờ duyệt ở cổng nền tảng; tìm gia sư và trang theo Mẫu 02; Mẫu 03 cho giáo viên đang dạy ở trường; đăng nhập OIDC cho gia sư (P02-130).
+- Thay đổi dữ liệu: marketplace `0010`.
+- Thay đổi API: nhóm `/api/v1/market/tutor/*`, `/api/v1/market/identity/*`, `/api/v1/market/public/tutors*`, `/api/v1/market/admin/reviews*`.
+- Kiểm thử: CT-1390 đến CT-1394 (CT-27g-1 đến CT-27g-5).
+- Rủi ro: thấp; chợ chưa mở thật, nhà cung cấp định danh giả lập.
+- Khả năng tương thích: không đổi hành vi cũ; bộ nối OIDC của dịch vụ định danh chỉ đổi chỗ đặt mã.
+- Phương án quay lui: hoàn lại commit gộp; bảng marketplace `0010` không ảnh hưởng phần khác.
+
+### Phiên bản 0.180.0 – 2026-10-28
+
+- Phạm vi thay đổi: sửa CI nhánh chính (YCTD-306). Có ảnh mẫu Linux của spec 180, ô camera giám thị không còn hỏng khi mở lại, spec 58 không còn đua với tiến trình xuất nền.
+- Không đổi cấu trúc dữ liệu, không đổi API.
+
+### Phiên bản 0.179.0 – 2026-10-28
+
+- Phạm vi thay đổi: DT-28 phần 28g, giờ học trực tuyến, phòng nhóm, phòng chia nhỏ (YCTD-277; GD-144 đã chốt 2026-10-28).
+- Chức năng mới:
+  - Giờ học trực tuyến có phòng chia nhỏ, điểm danh từ nhật ký phòng (P03-65, MH-520).
+  - Phòng video nhóm (P03-66, MH-521).
+- Lỗi đã sửa: không có.
+- Thay đổi dữ liệu: năm học `0187`, `0188`; xem `16_CO_SO_DU_LIEU.md` mục 18P.
+- Thay đổi API: xem `17_DAC_TA_API.md` mục 17.10.
+- Kiểm thử: kịch bản CT-1380 đến CT-1388 (CT-28g-1 đến CT-28g-9 trong mã kiểm thử).
+- Rủi ro: máy chủ video không gửi sự kiện rời phòng thì "giáo viên đang xem" còn hiện tới khi giáo viên bấm rời phòng hoặc phòng kết thúc; phút của gói tăng khi dùng nhiều phòng nhóm.
+- Khả năng tương thích: không đổi hành vi cũ khi trường không dùng giờ học trực tuyến, phòng nhóm.
+- Phương án quay lui: hoàn lại commit gộp của nhánh 28g (migration chỉ thêm bảng).
+
+### Phiên bản 0.178.0 – 2026-10-28
+
+- Phạm vi thay đổi: DT-27, tách ứng dụng Gia sư khỏi Chợ gia sư (YCTD-262).
+- Chức năng mới: ứng dụng Gia sư `apps/tutor` (PWA riêng "Chợ gia sư – Gia sư"); mỗi ứng dụng một vai tài khoản.
+- Thay đổi dữ liệu: `platform_settings.market.tutor_host`.
+- Thay đổi API: nhóm `/api/v1/market` ràng vai theo tên miền; cấu hình thêm `tutor_host`.
+- Kiểm thử: CT-1376 (CT-YCTD262-1), cập nhật CT-1370, CT-1371, CT-1374, CT-1375.
+- Rủi ro: thấp; chợ chưa mở thật.
+- Khả năng tương thích: nền tảng thử đã bật chợ cần đặt thêm tên miền của ứng dụng Gia sư.
+- Phương án quay lui: hoàn lại commit gộp; cấu hình `tutor_host` thừa không ảnh hưởng.
+
+### Phiên bản 0.177.0 – 2026-10-28
+
+- Phạm vi thay đổi: thêm README song ngữ ở gốc kho mã (YCTD-305).
+- Không đổi hành vi chạy, không đổi cấu trúc dữ liệu.
+
+### Phiên bản 0.176.0 – 2026-10-28
+
+- Phạm vi thay đổi: tách riêng ứng dụng học sinh `apps/student` khỏi ứng dụng phụ huynh (YCTD-300).
+- Địa chỉ cũ `#hoc-sinh` của ứng dụng phụ huynh chuyển sang `/hoc-sinh/`; manifest, service worker, đăng ký đẩy riêng.
+- Ảnh `web` và Caddy phục vụ `/hoc-sinh/`; trang học sinh mở quyền camera, micro của chính trang.
+
+### Phiên bản 0.175.0 – 2026-10-28
+
+- Phạm vi thay đổi: áp sáu màn mẫu giao diện đã duyệt (YCTD-296): danh sách học sinh, sổ điểm, thời khoá biểu, đăng nhập cổng quản trị, điểm danh ứng dụng giáo viên, trang chủ ứng dụng phụ huynh.
+- Không đổi dữ liệu, API, quyền.
+
+### Phiên bản 0.174.0 – 2026-10-28
+
+- Phạm vi thay đổi: trang chủ cổng quản trị theo mẫu giao diện Tổng quan (YCTD-295).
+- Bảng điều khiển MH-01 hiển thị 5 thẻ số lớn có ghi chú; thêm khối "Việc cần xử lý" theo phân hệ.
+
+### Phiên bản 0.173.0 – 2026-10-28
+
+- Phạm vi thay đổi: DT-27 phần 27f, nền chợ gia sư (YCTD-256).
+- Chức năng mới: cơ sở dữ liệu `marketplace`, ứng dụng `apps/market`, tài khoản phụ huynh, gia sư, hồ sơ con, đồng ý theo phiên bản, liên kết với trường, cấu hình chợ ở cổng nền tảng (P02-125).
+- Thay đổi dữ liệu: cơ sở dữ liệu mới `marketplace` 0001 đến 0005; `platform_settings.market`.
+- Thay đổi API: nhóm `/api/v1/market`; `/api/v1/children/{id}/market-link`.
+- Kiểm thử: CT-1370 đến CT-1375 (CT-27f-1 đến CT-27f-6).
+- Rủi ro: thấp; chợ tắt mặc định, thanh toán chỉ giả lập, thu tiền thật không bật được.
+- Khả năng tương thích: không đổi hành vi cũ.
+- Phương án quay lui: tắt chợ ở cổng nền tảng hoặc bỏ `MARKETPLACE_DATABASE_URL`; hoàn lại commit gộp.
+
+### Phiên bản 0.172.0 – 2026-10-28
+
+- Phạm vi thay đổi: DT-28 phần 28j, học khi mạng yếu (YCTD-280; GD-148 đã chốt 2026-10-27).
+- Chức năng mới:
+  - Giữ bản nháp, nội dung, thao tác chờ gửi của học sinh trên máy (P03-60, MH-505).
+  - Cấu hình học khi mạng yếu của trường (P03-61, MH-506).
+- Lỗi đã sửa: không có.
+- Thay đổi dữ liệu: năm học `0193`; xem `16_CO_SO_DU_LIEU.md` mục 18O.
+- Thay đổi API: xem `17_DAC_TA_API.md` mục 17.9.
+- Kiểm thử: kịch bản CT-1360 đến CT-1364 (CT-28j-1 đến CT-28j-5 trong mã kiểm thử).
+- Rủi ro: máy dùng chung mà học sinh không đăng xuất thì dữ liệu còn trên máy tới khi quá hạn; trình duyệt chặn IndexedDB (chế độ riêng tư) thì chế độ này không chạy.
+- Khả năng tương thích: tắt mặc định, không đổi hành vi cũ.
+- Phương án quay lui: tắt ở cấu hình; hoặc hoàn lại commit gộp của nhánh 28j (migration chỉ thêm cột).
+
+### Phiên bản 0.171.0 – 2026-10-27
+
+- Phạm vi thay đổi: DT-26 phần 26g phần mã, thông báo đẩy gốc FCM, APNs cho ứng dụng cài đặt (YCTD-237).
+- Chức năng mới: đẩy gốc tới ứng dụng cài đặt (P19-12): bộ nối FCM, APNs, khóa của nền tảng, đăng ký mã thiết bị, chạm thông báo mở đúng ứng dụng của trường.
+- Lỗi đã sửa: không.
+- Thay đổi dữ liệu: cơ sở dữ liệu nền tảng 0232 `platform_native_push_keys`.
+- Thay đổi API: `POST /push/subscriptions`, `/push/subscriptions/unsubscribe` nhận `kind`, `token`; khóa công khai trả thêm `native`.
+- Kiểm thử: CT-1365, CT-1366. Kết quả: kiểm thử đơn vị đẩy của máy chủ API (`native-push.test.ts`, `push.test.ts`, `notification-dispatcher.test.ts`) 16/16 đạt; `packages/pwa` 17/17 đạt; typecheck `apps/api`, `database`, `packages/pwa`, `apps/mobile`, `apps/teacher`, `tests`, lint, prettier đạt; e2e spec 186, 182 chạy ở CI (dự án nhiều trường). Chạy thật trên máy giả lập Android ngày 2026-10-27 (APK debug có plugin đẩy, máy chủ API với `PUSH_NATIVE_PROVIDER=development`): trang của trường trong ứng dụng có cầu nối gốc chỉ với plugin PushNotifications, gọi được plugin; bấm Bật thì Android hỏi quyền thông báo; tìm thấy và sửa lỗi ứng dụng dừng khi lấy mã thiết bị lúc bản dựng chưa có `google-services.json` (sau sửa: khối Cài đặt thông báo báo hệ thống chưa bật đẩy). Chưa nhận thông báo thật (chưa có dự án Firebase).
+- Rủi ro: chưa gửi qua FCM, APNs thật; trang của trường có cầu nối gốc (chỉ plugin đẩy) nên chỉ khai tên miền trường tin cậy ở `allowNavigation`; một máy có một mã thiết bị nên giáo viên và phụ huynh dùng chung máy, chung trường thì người bật sau cùng nhận đẩy (như Web Push của 26b).
+- Khả năng tương thích: Web Push, ứng dụng web trên trình duyệt không đổi; ứng dụng cài đặt cũ (26f) không có plugin đẩy nên trang dùng như trước.
+- Phương án quay lui: hoàn lại commit gộp của nhánh; bảng `platform_native_push_keys` để lại không ảnh hưởng.
+
+### Phiên bản 0.170.0 – 2026-10-28
+
+- Phạm vi thay đổi: DT-28 phần 28i, huy hiệu và chứng nhận hoàn thành (YCTD-279).
+- Chức năng mới:
+  - Huy hiệu nội bộ (P03-55, MH-500, MH-501).
+  - Chứng nhận hoàn thành khoá tự chọn (P03-56, MH-500, MH-501).
+  - Trang kiểm tra chứng nhận công khai, cấu hình của trường (P03-57, MH-502).
+- Lỗi đã sửa: danh sách lớp học trực tuyến của giáo viên lỗi 500 khi trường chưa có phân công môn, tiết nào (`LearningService.sync`).
+- Thay đổi dữ liệu: năm học `0191`, `0192`; xem `16_CO_SO_DU_LIEU.md` mục 18N.
+- Thay đổi API: xem `17_DAC_TA_API.md` mục 17.8.
+- Kiểm thử: kịch bản CT-1350 đến CT-1355 (CT-28i-1 đến CT-28i-6 trong mã kiểm thử).
+- Rủi ro: huy hiệu tự động tính khi mở danh sách nên có độ trễ tới lần mở kế tiếp; chứng nhận năm học cũ chưa tra được.
+- Khả năng tương thích: tắt mặc định, không đổi hành vi cũ.
+- Phương án quay lui: hoàn lại commit gộp của nhánh 28i; migration chỉ thêm bảng.
+
+### Phiên bản 0.169.0 – 2026-10-27
+
+- Phạm vi thay đổi: đăng ký mô-đun, tệp thay đổi cấu trúc, kiểu bảng bằng tệp riêng của từng phần (YCTD-294).
+- Chỉ mục sinh khi dựng (`database/sinh-chi-muc.mjs`, `apps/api/sinh-dang-ky.mjs`), CI kiểm quên đăng ký.
+- Không đổi hành vi chạy, không đổi cấu trúc dữ liệu.
+
+### Phiên bản 0.168.0 – 2026-10-27
+
+- Phạm vi thay đổi: DT-27 phần 27e, hỏi đáp bài tập của chương trình gia sư (YCTD-255).
+- Chức năng mới: hàng chờ câu hỏi theo chương trình, thời hạn trả lời, gợi ý AI nháp chỉ giáo viên thấy, dấu "có AI hỗ trợ", học sinh báo đã hiểu, cha mẹ tắt AI cho con (P02-120).
+- Lỗi đã sửa: nhật ký AI ở cổng quản trị chưa có nhãn cho loại `feedback` của 28c.
+- Thay đổi dữ liệu: năm học `0201`; hệ thống `0120`.
+- Thay đổi API: nhóm hỏi đáp của `/tutoring`, `/children/{id}/tutoring`, `/student/tutoring`.
+- Kiểm thử: CT-1325 đến CT-1327 (CT-27e-1 đến CT-27e-3).
+- Rủi ro: thấp; AI chỉ chạy khi trường bật, dùng bộ nối và hạn mức của 23d.
+- Khả năng tương thích: không đổi hành vi cũ.
+- Phương án quay lui: hoàn lại commit gộp; câu hỏi, câu trả lời vẫn là dữ liệu hỏi đáp bình thường của 28e.
+
+### Phiên bản 0.167.0 – 2026-10-27
+
+- Phạm vi thay đổi: DT-27 phần 27d2, tiến độ của khoá học ghi sẵn (YCTD-261).
+- Chức năng mới: tiến độ xem video ghi kết quả hoạt động của 28b; tiến độ của em cho cha mẹ, học sinh; bảng tiến độ học sinh cho giáo viên (P02-116).
+- Lỗi đã sửa: không có.
+- Thay đổi dữ liệu: không.
+- Thay đổi API: tiến độ khoá học ở `/tutoring`, `/children/{id}/tutoring`, `/student/tutoring`.
+- Kiểm thử: CT-1298, CT-1299 (CT-27d2-1, CT-27d2-2).
+- Rủi ro: thấp.
+- Khả năng tương thích: mở video ở kênh học sinh nay theo điều kiện mở của 28b.
+- Phương án quay lui: hoàn lại commit gộp; kết quả đã ghi là dòng kết quả hoạt động bình thường của 28b.
+
+### Phiên bản 0.166.0 – 2026-10-28
+
+- Phạm vi thay đổi: DT-28 phần 28h, gói SCORM và gói khoá học (YCTD-278).
+- Chức năng mới:
+  - Nhập gói SCORM vào kho học liệu (P03-50, MH-495).
+  - Phát gói SCORM cô lập, ghi kết quả (P03-51, MH-497).
+  - Hoạt động gói SCORM (P03-52).
+  - Xuất, nhập gói khoá học (P03-53, MH-496).
+- Lỗi đã sửa: không có.
+- Thay đổi dữ liệu: hệ thống `0113`, `0114`; năm học `0189`; xem `16_CO_SO_DU_LIEU.md` mục 18M.
+- Thay đổi API: xem `17_DAC_TA_API.md` mục 17.7.
+- Kiểm thử: kịch bản CT-1340 đến CT-1348 (CT-28h-1 đến CT-28h-9 trong mã kiểm thử).
+- Rủi ro:
+  - Gói của bên thứ ba có thể dùng cách gọi API lạ (gọi `window.parent.API` thay vì tìm từ chính khung) nên không chạy; gói như vậy cần chỉnh lại.
+  - Gói tải tài nguyên ngoài (phông, mã từ máy chủ khác) bị CSP chặn.
+- Khả năng tương thích: không đổi hành vi học liệu, hoạt động cũ.
+- Phương án quay lui: hoàn lại commit gộp của nhánh 28h; migration chỉ thêm bảng, dòng loại học liệu.
+
+### Phiên bản 0.165.0 – 2026-10-28
+
+- Phạm vi thay đổi: DT-28 phần 28f, bài về nhà và phụ huynh (YCTD-276).
+- Chức năng mới:
+  - Giao bài về nhà từ sổ đầu bài (P03-40, MH-480).
+  - Quy tắc khối lượng của trường (P03-41, MH-483).
+  - Lịch khối lượng (P03-42, MH-481, MH-483).
+  - Bài tập của con, nộp thay (P03-43, MH-482).
+  - Nhắc bài về nhà (P03-44).
+- Lỗi đã sửa: không có.
+- Thay đổi dữ liệu: năm học `0185`, `0186`; xem `16_CO_SO_DU_LIEU.md` mục 18L.
+- Thay đổi API: xem `17_DAC_TA_API.md` mục 17.6.
+- Kiểm thử: kịch bản CT-1310 đến CT-1319 (CT-28f-1 đến CT-28f-10 trong mã kiểm thử); `apps/api` 9/9 ca của 28f, e2e 215 đạt ngày 28/10/2026.
+- Rủi ro: trường đặt quy tắc chặn quá chặt thì giáo viên phải chờ Ban Giám hiệu cho vượt; nhắc gửi theo lượt 15 phút nên có thể trễ tới 15 phút.
+- Khả năng tương thích: không đổi hành vi bài tập trên lớp.
+- Phương án quay lui: hoàn lại commit gộp của nhánh 28f; migration chỉ thêm cột, bảng.
+
+### Phiên bản 0.164.0 – 2026-10-27
+
+- Phạm vi thay đổi: DT-26 phần 26f bản demo, vỏ ứng dụng cài đặt Capacitor cho giáo viên và phụ huynh (YCTD-236).
+- Chức năng mới: ứng dụng cài đặt bản demo (P19-11, MH-484): trang khởi động chọn trường, vai trò; mở ứng dụng web của trường trong ứng dụng; script dựng bản debug Android, hướng dẫn chạy iOS Simulator.
+- Lỗi đã sửa: không.
+- Thay đổi dữ liệu: không.
+- Thay đổi API: không.
+- Kiểm thử: CT-1320. Kết quả: e2e spec 185 ở khổ máy tính 1/1 và bốn dự án thiết bị (`dien-thoai`, `may-tinh-bang-doc`, `may-tinh-bang-ngang`, `dien-thoai-webkit`) 4/4 đạt; typecheck `apps/mobile`, `tests`, lint, prettier đạt; `cap add android`, `cap add ios` sinh dự án được trên Windows; script dựng Android báo đúng các công cụ còn thiếu (mã thoát 2). Chạy thật ngày 2026-10-27 trên máy phát triển (Windows, JDK Temurin 21.0.12.1, Android SDK build-tools 36.0.0, platforms;android-36, máy giả lập Pixel 7 với ảnh hệ thống android-36 google_apis x86_64, tăng tốc WHPX): `android:debug` dựng `app-debug.apk` (4,1 MB) thành công; `android:run` chuyển cổng, cài, mở ứng dụng; trang khởi động hiện đúng, "Máy chủ phát triển trên máy này" thêm trường, Giáo viên mở trang đăng nhập ứng dụng giáo viên, Phụ huynh mở trang đăng nhập ứng dụng phụ huynh trong ứng dụng (AC-1028 đạt). Hai lỗi tìm thấy khi chạy và đã sửa: script gọi `gradlew.bat` theo tên nên `cmd` không tìm thấy (nay gọi theo đường dẫn đầy đủ); `vite` trên Windows chỉ nghe [::1] còn `adb reverse` nối tới 127.0.0.1 nên WebView báo ERR_EMPTY_RESPONSE (thêm `scripts/chuyen-cong-ipv4.mjs`, `android:run` báo cách xử lý khi 127.0.0.1 chưa có máy chủ). Cùng ngày đăng nhập thử trong ứng dụng trên dữ liệu trình diễn (lệnh `demo-command.js reset` trên cặp cơ sở dữ liệu riêng): giáo viên `demo.giaovien1` vào màn hình chính của ứng dụng giáo viên, phụ huynh `0900000001` vào màn hình chính của ứng dụng phụ huynh, dữ liệu tải từ máy chủ API qua proxy của `vite`. Chưa chạy iOS Simulator (không có máy Mac).
+- Rủi ro: chưa chạy iOS Simulator, chưa thử trên máy thật; ứng dụng chỉ tải trang web của trường nên mất mạng thì chỉ còn những gì service worker đã lưu.
+- Khả năng tương thích: không đổi ứng dụng web, API, dữ liệu.
+- Phương án quay lui: hoàn lại commit gộp của nhánh; không có thay đổi dữ liệu.
+
+### Phiên bản 0.163.0 – 2026-10-27
+
+- Phạm vi thay đổi: DT-27 phần 27d1, khoá học ghi sẵn của chương trình gia sư, phần riêng của gia sư (YCTD-254).
+- Chức năng mới: khoá học ghi sẵn gắn với chương trình gia sư trên lõi LMS 28b, ghi danh theo đơn được duyệt, xem bài video theo đoạn bằng đường dẫn ký có nhật ký cho giáo viên, cha mẹ, học sinh (P02-115).
+- Lỗi đã sửa: không có.
+- Thay đổi dữ liệu: năm học `0200`.
+- Thay đổi API: nhóm khoá học của `/tutoring`, `/children/{id}/tutoring`, `/student/tutoring`.
+- Kiểm thử: CT-1295 đến CT-1297 (CT-27d1-1 đến CT-27d1-3).
+- Rủi ro: thấp; tệp video lớn đọc cả tệp vào bộ nhớ khi phát.
+- Khả năng tương thích: không đổi hành vi cũ.
+- Phương án quay lui: hoàn lại commit gộp; khoá đã tạo vẫn là khoá tự chọn bình thường của 28b.
+
+### Phiên bản 0.162.0 – 2026-10-28
+
+- Phạm vi thay đổi: DT-28 phần 28e, giao tiếp trong lớp và nhóm (YCTD-275).
+- Chức năng mới:
+  - Thông báo lớp (P03-28).
+  - Diễn đàn, hỏi đáp (P03-29, MH-460, MH-461).
+  - Không gian học nhóm (P03-30).
+  - An toàn thảo luận (P03-31, MH-463).
+  - Lịch học tập (P03-32, MH-462).
+- Lỗi đã sửa: không có.
+- Thay đổi dữ liệu: năm học `0182` đến `0184` (tám bảng); định danh `0182`; xem `16_CO_SO_DU_LIEU.md` mục 18K.
+- Thay đổi API: xem `17_DAC_TA_API.md` mục 17.5.
+- Kiểm thử: kịch bản CT-1280 đến CT-1290 (CT-28e-1 đến CT-28e-11 trong mã kiểm thử); `apps/api` 10/10 ca của 28e ngày 28/10/2026.
+- Rủi ro: lọc chữ bằng mẫu có thể sót cách viết lách (số viết bằng chữ, dấu cách lạ); người xử lý vẫn cần hàng chờ báo cáo.
+- Khả năng tương thích: không đổi hành vi các phân hệ cũ.
+- Phương án quay lui: hoàn lại commit gộp của nhánh 28e; migration chỉ thêm bảng và quyền.
+
+### Phiên bản 0.161.0 – 2026-10-27
+
+- Phạm vi thay đổi: DT-26 phần 26e, bố cục máy tính bảng của cổng quản trị và cổng nền tảng (YCTD-235).
+- Chức năng mới: ngăn kéo menu của cổng quản trị dưới 1280 px; thanh biểu tượng và ngăn kéo của cổng nền tảng; lưới dữ liệu cột đầu cố định và dạng thẻ; hộp thoại toàn màn hình ở khổ hẹp (P19-10, MH-424).
+- Lỗi đã sửa: nút, ô nhập dưới 44 px, chữ ô nhập dưới 16 px, màu chữ thiếu tương phản ở cổng quản trị (đường cơ sở 26c không còn mục nào).
+- Thay đổi dữ liệu: không.
+- Thay đổi API: không.
+- Kiểm thử: CT-1269 đến CT-1271. Kết quả: e2e thiết bị (E2E_DEVICES=full, spec 180 và 184, bốn dự án `dien-thoai`, `may-tinh-bang-doc`, `may-tinh-bang-ngang`, `dien-thoai-webkit`) 28/28 đạt; spec 184 ở khổ máy tính `chromium` 3/3 đạt; hồi quy khổ máy tính 01–09, 11, 13, 51, 53, 54, 55, 62, 67, 73, 90, 98 (menu, ngăn kéo ở khổ 375, tài khoản, học sinh, điểm danh, học phí, sổ điểm, lưới dữ liệu) đạt không sửa kỳ vọng (spec 02 nới thời gian chờ tại máy, không đưa vào mã); typecheck `apps/teacher`, `apps/parent`, `apps/portal`, `apps/platform`, `tests`, lint, prettier đạt. Lỗi tìm thấy khi đo và đã sửa: nhãn ẩn của cột thao tác (định vị tuyệt đối) kéo rộng cả trang ở khổ máy tính bảng (khung cuộn của bảng nay làm khối chứa); ô lưới trong bố cục lưới CSS bị bảng đẩy rộng (thêm `min-w-0`); ô chọn của bảng, liên kết Quên mật khẩu, Việc của tôi, tên trường dưới 44 px; chữ trên nền nhạt của nhãn trạng thái thành công, trung tính và tên trường vàng thiếu tương phản. Sau khi gộp main (PR 204): trang đăng nhập cổng quản trị áp vùng chạm 44 px, chữ ô nhập 16 px ở mọi khổ (spec 180 chạy cả ở khổ máy tính); sửa lỗi tranh chấp của màn hình chấm bài giáo viên (28c): phản hồi đến muộn của lần đọc bài nộp trước ghi đè điểm vừa nhập khi máy chủ chậm, làm CT-28c-16 hỏng; chạy 01–09, 180, 184, 212 ở khổ máy tính 35/35, 180 và 184 ở bốn khổ thiết bị 28/28.
+- Rủi ro: màu toàn hệ thống đậm hơn một bậc; màn hình tự vẽ bảng chưa có dạng thẻ; chưa thử trên máy tính bảng thật.
+- Khả năng tương thích: từ 1280 px giữ bố cục cũ; không đổi API, dữ liệu.
+- Phương án quay lui: hoàn lại commit gộp của nhánh; không có thay đổi dữ liệu.
+
+### Phiên bản 0.160.0 – 2026-10-28
+
+- Phạm vi thay đổi: DT-28 phần 28d, tiến độ, bảng điểm hoạt động, sổ điểm, báo cáo (YCTD-274).
+- Chức năng mới:
+  - Tiến độ và học sinh cần chú ý (P03-23, MH-440).
+  - Bảng điểm hoạt động (P03-24).
+  - Đưa kết quả hoạt động vào sổ điểm, sổ nhận xét (P03-25).
+  - Báo cáo theo vai trò, tóm tắt cho phụ huynh (P03-26, MH-441, MH-442).
+  - Hồ sơ dạy học trực tuyến theo Thông tư 09 (P03-27).
+- Lỗi đã sửa: không có.
+- Thay đổi dữ liệu: năm học `0180`, `0181`; xem `16_CO_SO_DU_LIEU.md` mục 18J.
+- Thay đổi API: xem `17_DAC_TA_API.md` mục 17.4.
+- Kiểm thử: kịch bản CT-1260 đến CT-1268 (CT-28d-1 đến CT-28d-13 trong mã kiểm thử); `apps/api` 12/12 ca của 28d ngày 28/10/2026.
+- Rủi ro: tóm tắt hằng tuần chạy theo giờ của máy chủ mỗi giờ một lần, chỉ gửi trong ứng dụng; báo cáo đọc trực tiếp từ bảng kết quả, trường lớn có thể chậm.
+- Khả năng tương thích: không đổi hành vi các phân hệ cũ; sổ điểm có thêm nguồn `activity`.
+- Phương án quay lui: hoàn lại commit gộp của nhánh 28d; migration 0180 trả ràng buộc nguồn về như cũ, 0181 chỉ thêm bảng.
+
+### Phiên bản 0.159.0 – 2026-10-27
+
+- Phạm vi thay đổi: DT-27 phần 27a, lớp video trực tiếp (YCTD-251).
+- Chức năng mới: lớp video của buổi gia sư và phòng tức thời, phòng chờ, quyền theo vai trò, cha mẹ vào xem, học sinh vào lớp ở kênh student, bảng trắng, chia sẻ màn hình, ghi hình có đồng ý của cha mẹ và xem lại có nhật ký, điểm danh gợi ý từ nhật ký phòng, giới hạn phút và dung lượng bản ghi theo gói (P02-110, P02-111).
+- Lỗi đã sửa: không có.
+- Thay đổi dữ liệu: năm học `0160`, `0161`; nền tảng `0240`.
+- Thay đổi API: nhóm `/video` (xem `17_DAC_TA_API.md`).
+- Kiểm thử: CT-1250 đến CT-1257 (CT-27a-1 đến CT-27a-8): hàm thuần, luồng có cơ sở dữ liệu với bộ giả lập, cách ly hai trường ở hai bố cục, e2e 190.
+- Rủi ro: chưa đo băng thông và Egress trên máy thật (E-05); ghi hình cần kết luận của luật sư (E-06).
+- Khả năng tương thích: VIDEO_PROVIDER trống thì không có gì thay đổi.
+- Phương án quay lui: tắt VIDEO_PROVIDER và hồ sơ `video`; hoàn lại commit gộp.
+
+### Phiên bản 0.158.0 – 2026-10-27
+
+- Phạm vi thay đổi: DT-28 phần 28c, bài tập trực tuyến (YCTD-273).
+- Chức năng mới: soạn và giao bài tập (P03-18, MH-420); học sinh làm, nộp bài có ảnh, tệp, ghi âm (P03-19, MH-422); chấm, nhận xét, trả bài, ngân hàng nhận xét (P03-20, MH-421, MH-423); bài tập nhóm (P03-21); gợi ý nhận xét bằng trợ lý AI không gửi bài làm (P03-22).
+- Lỗi đã sửa: không có.
+- Thay đổi dữ liệu: năm học `0176` đến `0179` (mười bảng); định danh `0181` (quyền `P02.assignment.manage`); hệ thống `0111` (loại yêu cầu AI `feedback`); xem `16_CO_SO_DU_LIEU.md` mục 18I.
+- Thay đổi API: tuyến bài tập của giáo viên, học sinh, phụ huynh (xem `17_DAC_TA_API.md` mục 17.3).
+- Kiểm thử: kịch bản CT-1230 đến CT-1239 (CT-28c-1 đến CT-28c-16 trong mã kiểm thử). Kết quả ngày 27/10/2026: `apps/api` 15/15 ca của `assignment-rules.test.ts`, `assignments.test.ts`; hồi quy 110/110; `migrate.test.ts` 5/5; e2e `212-online-assignments` chờ CI.
+- Rủi ro: giao diện chưa soạn được phiên bản, đích nhóm, thang tiêu chí (chỉ qua máy chủ); ghi âm phụ thuộc trình duyệt có `MediaRecorder`.
+- Khả năng tương thích: không đổi hành vi các phân hệ cũ; hai kiểm thử của 28b đổi loại "chưa đăng ký" sang `discussion`.
+- Phương án quay lui: hoàn lại commit gộp của nhánh 28c; migration chỉ thêm bảng, quyền và nới ràng buộc loại yêu cầu AI.
+
+### Phiên bản 0.157.0 – 2026-10-27
+
+- Phạm vi thay đổi: DT-26 phần 26d, bố cục máy tính bảng của ứng dụng giáo viên và phụ huynh (YCTD-234).
+- Chức năng mới: chế độ lớp học của giáo viên (P19-09, MH-402); trang chủ giáo viên hai khung, trang chủ phụ huynh hai cột; vùng chạm, cỡ chữ ô nhập, màu tương phản đạt yêu cầu truy cập.
+- Lỗi đã sửa: nút, ô nhập dưới 44 px, chữ ô nhập dưới 16 px (iOS tự phóng to), màu chữ thiếu tương phản ở hai ứng dụng.
+- Thay đổi dữ liệu: không.
+- Thay đổi API: không.
+- Kiểm thử: CT-1240 đến CT-1242. Kết quả: kiểm thử đơn vị ứng dụng giáo viên 14/14 đạt; e2e thiết bị (E2E_DEVICES=full, spec 180 và 183, bốn dự án `dien-thoai`, `may-tinh-bang-doc`, `may-tinh-bang-ngang`, `dien-thoai-webkit`) 24/24 đạt, chạy lặp spec 183 hai lần 16/16 đạt; e2e máy tính 01–09, 151, 181, 187 30/30 đạt (spec 02 nới thời gian chờ tại máy, không đưa vào mã); typecheck, lint, prettier của `apps/teacher`, `apps/parent`, `tests` đạt. Spec 183 chặn service worker (`serviceWorkers: block`) vì ở WebKit yêu cầu do service worker gửi không đi qua `page.route`, và giả lập Fullscreen API vì WebKit chạy không giao diện có thể treo khi vào toàn màn hình thật. Sau khi gộp origin/main (PR 192, 196, 198): spec 183 ở bốn dự án thiết bị 8/8, e2e máy tính 01–09, 151, 181 29/29 đạt.
+- Rủi ro: màu hai ứng dụng đậm hơn cổng quản trị cho tới khi 26e sửa `packages/ui`; chưa thử trên máy tính bảng thật.
+- Khả năng tương thích: khổ điện thoại giữ bố cục cũ; không đổi API, dữ liệu.
+- Phương án quay lui: hoàn lại commit gộp của nhánh; không có thay đổi dữ liệu.
+
+### Phiên bản 0.156.0 – 2026-10-27
+
+- Phạm vi thay đổi: DT-27 phần 27c, thu phí và chi trả gia sư trong trường theo quy định (YCTD-253).
+- Chức năng mới: giá của chương trình bổ trợ có thu, dòng gia sư trên hóa đơn của kỳ, khoản trừ buổi hủy (trừ kỳ sau, điều chỉnh hóa đơn, đóng sau khi hoàn), thù lao giáo viên vào bảng lương, trang Thu chi gia sư có báo cáo và tệp Excel (P02-89, P02-90).
+- Lỗi đã sửa: không có.
+- Thay đổi dữ liệu: năm học `0155`, `0156`.
+- Thay đổi API: nhóm `/tutoring/finance` (xem `17_DAC_TA_API.md`).
+- Kiểm thử: CT-1146 đến CT-1154 (CT-27c-1 đến CT-27c-9): hàm thuần, luồng có cơ sở dữ liệu ở `apps/api`, e2e 192; e2e toàn bộ do CI chạy.
+- Rủi ro: Thông tư 29/2024 chưa đối chiếu bản gốc (E-07); hoàn tiền mặt vẫn qua phiếu chi hoàn do kế toán lập.
+- Khả năng tương thích: không đổi hóa đơn của trường không có chương trình có thu.
+- Phương án quay lui: hoàn lại commit gộp; chương trình đặt lại không thu tiền.
+
+### Phiên bản 0.155.0 – 2026-10-27
+
+- Phạm vi thay đổi: DT-23 phần 23c, trò chơi kiến thức và thẻ đáp án giấy (YCTD-213).
+- Chức năng mới: thẻ Trò chơi trong Công cụ lớp học (hỏi đáp theo vòng, vòng quay, ô chữ, thẻ đáp án giấy in và quét bằng camera trên máy); lưu lượt chơi, lịch sử sử dụng câu hỏi kèm tỷ lệ đúng.
+- Lỗi đã sửa: không có.
+- Thay đổi dữ liệu: tệp năm học `0126`, `0127`.
+- Thay đổi API: `/classroom-games/…`.
+- Kiểm thử: kịch bản CT-1200 đến CT-1204. Kết quả ngày 27/10/2026: kiểm thử đơn vị ứng dụng giáo viên `apps/teacher/src/tools/games/games.test.ts` (CT-23c-1 đến CT-23c-3) và `apps/api/src/classroom-games/classroom-games.test.ts` (CT-23c-4 đến CT-23c-6) đạt; kiểm thử đơn vị toàn kho đạt (bộ 23c, 23e, 23a chạy riêng; toàn bộ để CI chạy); kiểm thử giao diện `tests/e2e/152-classroom-games.spec.ts` (CT-23c-7) đạt cùng 02, 03, 06, 08, 101, 151 (14/14); kiểm tĩnh đa thuê bao, ma trận cách ly, build, kiểm tra kiểu, lint, kiểm tra định dạng đạt.
+- Rủi ro: lộ hình quét thẻ (hình chỉ xử lý trên máy giáo viên, máy chủ không nhận hình); kết quả đọc thẻ sai (giáo viên sửa tay được trước khi lưu); dòng lịch sử sử dụng câu hỏi không có đề làm sai thống kê của 22g2 (mã đọc bỏ qua dòng nguồn `game`).
+- Khả năng tương thích: không đổi hành vi cũ.
+- Phương án quay lui: hoàn lại commit gộp của nhánh 23c; chạy phần quay lui của tệp năm học `0127`, `0126`.
+
+### Phiên bản 0.154.0 – 2026-10-26
+
+- Phạm vi thay đổi: DT-23 phần 23e, giám thị camera cho thi trực tuyến (YCTD-215).
+- Chức năng mới: cấu hình của trường (xem trực tiếp, ghi hình, thời hạn giữ), bật theo bài giao; thông báo trước khi vào thi; đồng ý của cha mẹ (ứng dụng phụ huynh, trường ghi nhận văn bản); giáo viên xem lưới camera trực tiếp qua WebRTC, nhật ký người xem; ghi hình mã hoá có thời hạn, xem lại có kiểm quyền; coturn trong hồ sơ vận hành.
+- Lỗi đã sửa: không có.
+- Thay đổi dữ liệu: tệp năm học `0129`.
+- Thay đổi API: `/online-exams/attempts/{id}/proctor…`, `/online-exams/proctor/…`, `/student/attempts/{id}/proctor…`, `/student/attempts/{id}/recording/chunks`, `/parent/exam-proctor-consents`.
+- Kiểm thử: kịch bản CT-1170 đến CT-1175. Kết quả ngày 26/10/2026: kiểm thử đơn vị `apps/api/src/online-exams/exam-proctoring.test.ts` (CT-23e-1a đến CT-23e-1c) và `online-exams.test.ts` (CT-23e-1 đến CT-23e-4) đạt; kiểm thử đơn vị toàn kho đạt (bộ 23e, 23a, 22g, định danh chạy riêng; toàn bộ để CI chạy); kiểm thử giao diện `tests/e2e/154-online-exam-proctoring.spec.ts` (CT-23e-5) cùng 02, 03, 06, 08, 150 đạt; toàn bộ kiểm thử giao diện để CI chạy toàn bộ; trên máy chạy riêng 02, 03, 06, 08, 101, 102, 103, 150 và 154 (14/14 đạt); kiểm tĩnh đa thuê bao, ma trận cách ly, kiểm thử hai bố cục cơ sở dữ liệu `database` và `schema`, build, kiểm tra kiểu, lint, kiểm tra định dạng đạt.
+- Rủi ro: lộ hình ảnh trẻ em (hình xem trực tiếp không qua máy chủ API, bản ghi mã hoá và giới hạn người xem, có nhật ký; mặc định tắt; cần luật sư rà trước khi bật); giáo viên xem khi cha mẹ đã thu hồi (máy chủ kiểm lại mỗi lần); khoá TURN dùng chung bị lộ (chỉ cấp tên đăng nhập có hạn, khoá đặt ở biến môi trường).
+- Khả năng tương thích: không đổi hành vi cũ; máy chủ mới cần chạy tệp năm học `0129`; coturn là tuỳ chọn (không có thì chỉ kết nối trực tiếp trong cùng mạng).
+- Phương án quay lui: hoàn lại commit gộp của nhánh 23e; chạy phần quay lui của tệp năm học `0129`; bản ghi đã tải tự hết hạn hoặc xoá theo tiền tố `exam-recordings/` ở kho tệp.
+
+### Phiên bản 0.153.0 – 2026-10-26
+
+- Phạm vi thay đổi: DT-28 phần 28b, lõi hệ thống quản lý học tập (YCTD-272).
+- Chức năng mới: lớp học trực tuyến theo lớp, môn tự sinh từ phân công giảng dạy và khoá tự chọn (P03-12, MH-356); chương, hoạt động trang nội dung, liên kết, học liệu, điều kiện mở, giao cho học sinh (P03-13); tiến độ, kết quả hoạt động, kế hoạch dạy học trực tuyến theo tuần, nhật ký học tập (P03-14); khoá học mẫu của tổ chuyên môn qua duyệt hai bước rồi đẩy xuống lớp (P03-15, MH-357); quyết định dạy học trực tuyến thay thế và nội quy theo Thông tư 09/2021/TT-BGDĐT (P03-16, MH-358); ứng dụng giáo viên Lớp học trực tuyến (MH-359); ứng dụng phụ huynh Học trực tuyến của con (P03-17, MH-360); học sinh tự học ở kênh `student` (MH-361).
+- Lỗi đã sửa: không có.
+- Thay đổi dữ liệu: hệ thống `0110`; năm học `0172` đến `0175`; định danh `0180` (năm quyền `P02.learning.*`); xem `16_CO_SO_DU_LIEU.md` mục 18H.
+- Thay đổi API: nhóm `/learning` và `/student/learning` của học sinh (xem `17_DAC_TA_API.md` mục 17.2); tuyến nhân sự chặn theo gói của trường.
+- Kiểm thử: kịch bản CT-1138 đến CT-1145 (CT-28b-1 đến CT-28b-17 trong mã kiểm thử). Kết quả ngày 26/10/2026: `apps/api` 14/14 ca của `learning-rules.test.ts`, `learning.test.ts`; `learning-tenancy.test.ts` 2/2 (hai bố cục); `working-level.test.ts` 8/8, `menu-permissions.test.ts` và `secondary-class-records.test.ts` đạt; e2e: `211-online-classes` (CT-28b-16) và `151-classroom-tools` (CT-23b-14, có màn Lớp của tôi thêm nút mới) đạt, chạy kèm spec nền 01 đến 09.
+- Rủi ro: học sinh mới thấy tên, mô tả học liệu, chưa tải được tệp; tệp quyết định dạy thay thế chưa đính kèm được; báo cáo theo vai trò, sổ điểm, hồ sơ Thông tư 09 là phần 28d; trình soạn nội dung khoá mẫu ở cổng quản trị mới có chương và trang nội dung.
+- Khả năng tương thích: không đổi hành vi các phân hệ cũ; lớp học trực tuyến tự sinh ẩn với học sinh đến khi giáo viên mở; trường chỉ có Mầm non không thấy nhóm menu 9. Học tập trực tuyến.
+- Phương án quay lui: hoàn lại commit gộp của nhánh 28b; các tệp migration chỉ thêm bảng và quyền.
+
+### Phiên bản 0.152.0 – 2026-10-26
+
+- Phạm vi thay đổi: DT-27 phần 27b, chương trình gia sư trong trường, lịch và đặt buổi, điểm danh (YCTD-252).
+- Chức năng mới: chương trình gia sư theo Thông tư 29/2024 sửa bởi Thông tư 19/2026 (P02-86); buổi học lặp theo tuần không trùng thời khoá biểu, không quá 2 tiết/tuần/môn, quyết định tăng thời lượng của Sở (P02-87); đơn đăng ký của cha mẹ, điểm danh, báo vắng, tin nhắn qua cha mẹ, đường dây nóng (P02-88).
+- Lỗi đã sửa: không có.
+- Thay đổi dữ liệu: năm học `0152` đến `0154` (11 bảng `tutoring_*`), định danh `0172` (hai quyền).
+- Thay đổi API: nhóm `/tutoring`, `/children/{id}/tutoring` (xem `17_DAC_TA_API.md`).
+- Kiểm thử: kịch bản CT-1130 đến CT-1137 (CT-27b-1 đến CT-27b-8 trong mã kiểm thử): quy tắc thuần, luồng có cơ sở dữ liệu ở `apps/api`, e2e 191; e2e toàn bộ do CI chạy.
+- Rủi ro: Thông tư 29/2024 chưa đối chiếu bản gốc (E-07); trường chưa khai khung giờ tiết thì không so được giờ với thời khoá biểu; điểm danh tự động chờ 27a.
+- Khả năng tương thích: không đổi hành vi cũ.
+- Phương án quay lui: hoàn lại commit gộp của nhánh 27b; gói dịch vụ tắt phân hệ "Gia sư trực tuyến".
+
+### Phiên bản 0.151.0 – 2026-10-26
+
+- Phạm vi thay đổi: DT-28 phần 28a, mô hình nhóm dùng chung (YCTD-271).
+- Chức năng mới: bộ nhóm của lớp (chia tay, ngẫu nhiên có hạt, trộn năng lực, gom tầng, cân bằng giới, ràng buộc cùng nhóm, không cùng nhóm, từ tiết nhóm 21b), nhóm trưởng (đặt, ngẫu nhiên, luân phiên), lịch sử đổi thành viên; công cụ lớp học dùng bộ nhóm, chọn bộ sẵn có; hàm đọc ổn định `GroupSetsReader` cho 28b, 28c, 28e; giao đề thi trực tuyến 23a cho nhóm của bộ nhóm.
+- Lỗi đã sửa: không có.
+- Thay đổi dữ liệu: năm học `0170`, `0171`; xem `16_CO_SO_DU_LIEU.md` mục 18G.
+- Thay đổi API: nhóm `/group-sets`; `PUT /classroom-tools/classes/{id}/grouping` nhận thêm `group_set_id`.
+- Kiểm thử: kịch bản CT-1122 đến CT-1129 (CT-28a-1 đến CT-28a-14 trong mã kiểm thử).
+- Rủi ro: chia theo năng lực dựa trên điểm chưa đầy đủ đầu năm (học sinh chưa có điểm xếp sau ở gom tầng); bảng `classroom_groupings` còn ghi song song một bản phát hành.
+- Khả năng tương thích: nhóm 4.1.6 không đổi; công cụ lớp học giữ dạng phản hồi; bản chia cũ của 23b chuyển thành bộ nhóm.
+- Phương án quay lui: hoàn lại commit gộp; tệp 0171 và 0170 có hàm `down` xóa bộ nhóm đã dời và các cột mới, `classroom_groupings` vẫn đủ dữ liệu vì được ghi song song.
+
+### Phiên bản 0.150.1 – 2026-10-27
+
+- Phạm vi thay đổi: chạy tệp thay đổi cấu trúc theo lô để mở năm học nhanh hơn (YCTD-292).
+- Chức năng mới: không có.
+- Lỗi đã sửa: mở năm học quá 30 giây làm e2e spec 02 hỏng; mở năm học chạy 100 tệp từ khoảng 41 giây còn khoảng 9 giây.
+- Thay đổi dữ liệu: không.
+- Thay đổi API: không.
+- Kiểm thử: `database/src/migrate.test.ts` thêm ca chạy theo lô.
+- Rủi ro: một lô giữ nhiều khóa hơn một tệp; giới hạn 10 tệp mỗi lô.
+- Khả năng tương thích: tương thích hoàn toàn.
+- Phương án quay lui: hoàn lại commit; đặt `MIGRATIONS_PER_TRANSACTION` về 1 cho cách chạy cũ.
+
+### Phiên bản 0.150.0 – 2026-10-26
+
+- Phạm vi thay đổi: DT-26 phần 26b, phần giao diện của thông báo đẩy (YCTD-239).
+- Chức năng mới: service worker chung nhận đẩy và mở ứng dụng khi chạm; khối "Cài đặt thông báo" ở ứng dụng giáo viên, phụ huynh, màn hình học sinh (P19-08, MH-355).
+- Lỗi đã sửa: không có.
+- Thay đổi dữ liệu: không.
+- Thay đổi API: không (dùng API của YCTD-232).
+- Kiểm thử: CT-1120 (`packages/pwa` 15/15), CT-1121 (e2e spec 187). Kết quả ngày 26/10/2026 trên máy, cùng phần máy chủ của PR 191: e2e spec 01 đến 09, 151, 181 đạt; spec 187 đạt phần giao diện (phần gửi đẩy qua giao thức gỡ lỗi bỏ vì Chromium chạy ẩn không hiện thông báo, chuyển sang kiểm thử đơn vị).
+- Rủi ro: chưa thử đẩy thật trên máy (cần khóa VAPID ở môi trường thử); ứng dụng giáo viên của trường tắt ngoại tuyến không bật được đẩy.
+- Khả năng tương thích: không đổi hành vi cũ.
+- Phương án quay lui: hoàn lại commit gộp của nhánh; không có thay đổi dữ liệu.
+
+### Phiên bản 0.149.0 – 2026-10-26
+
+- Phạm vi thay đổi: DT-26 phần 26c, khung kiểm thử theo khổ thiết bị (YCTD-233).
+- Chức năng mới: không có chức năng cho người dùng; thêm dự án kiểm thử Playwright theo khổ điện thoại, máy tính bảng dọc, ngang, WebKit; bộ kiểm dùng chung (vùng chạm, cỡ chữ, cuộn ngang, axe-core); việc CI `kiem-thu-thiet-bi`.
+- Lỗi đã sửa: vùng chạm hai liên kết công khai ở màn đăng nhập phụ huynh dưới 44 px.
+- Thay đổi dữ liệu: không.
+- Thay đổi API: không.
+- Kiểm thử: CT-1112 đến CT-1114. Kết quả ở PR 188.
+- Rủi ro: việc CI thêm thời gian chạy song song (không nối đuôi); ảnh chụp tham chiếu chưa có tệp gốc; vi phạm ở đường cơ sở chờ 26d, 26e.
+- Khả năng tương thích: mặc định không đổi (dự án chromium); thêm thư viện kiểm thử `@axe-core/playwright` (MPL-2.0, chỉ ở kiểm thử).
+- Phương án quay lui: hoàn lại commit gộp của nhánh 26c.
+
+### Phiên bản 0.148.0 – 2026-10-26
+
+- Phạm vi thay đổi: DT-26 phần 26b, thông báo đẩy Web Push, phần máy chủ (YCTD-232).
+- Chức năng mới: kênh `push` của hàng đợi thông báo chung; bộ nối `PushSender` (`web-push`, `development`); đăng ký đẩy theo máy mã hóa bằng khóa của trường; tuỳ chọn tắt theo tám nhóm loại, loại khẩn không tắt được; gộp đẩy cùng nhóm trong 5 phút; khóa VAPID của nền tảng và lệnh `platform generate-vapid-keys`.
+- Lỗi đã sửa: không có.
+- Thay đổi dữ liệu: năm học 0140 (kênh `push`); hệ thống 0091 `push_subscriptions`, 0092 `notification_preferences`, `notification_urgent_templates`; nền tảng 0230 `platform_push_keys`.
+- Thay đổi API: `/public/push/vapid-public-key`, `/push/subscriptions`, `/push/subscriptions/unsubscribe`, `/push/subscriptions/{id}`, `/push/preferences`, `/push/urgent-templates`; biến `PUSH_PROVIDER`, `VAPID_PUBLIC_KEY`, `VAPID_PRIVATE_KEY`, `VAPID_SUBJECT`, `PUSH_DEVELOPMENT_OUTBOX`, `PUSH_COALESCE_MINUTES`, `PUSH_SUBSCRIPTION_RETENTION_DAYS`.
+- Kiểm thử: CT-26b-1 đến CT-26b-7 trong mã kiểm thử. Kết quả ghi ở `02_NHAT_KY_DU_AN.md` mục cùng ngày.
+- Rủi ro: nội dung đẩy đi qua máy chủ của nhà cung cấp trình duyệt ở nước ngoài (chỉ tiêu đề nhóm và tên trường); người nhận theo vai trò chưa có kênh đẩy; giao diện bật đẩy chờ 26a.
+- Khả năng tương thích: chưa đặt `PUSH_PROVIDER` hoặc người chưa đăng ký đẩy thì như cũ.
+- Phương án quay lui: bỏ `PUSH_PROVIDER` để ngừng kênh đẩy không cần quay lui mã; hoàn lại commit gộp để bỏ cả tính năng.
 
 ### Phiên bản 0.147.0 – 2026-10-26
 

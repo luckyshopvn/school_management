@@ -10,7 +10,7 @@ import {
 import { PUBLIC_ROUTES } from './tenancy-route-policy.js';
 import { createTestUser, startTenantTestApplication, TEST_PASSWORD, type TenantTestContext } from './test-support.js';
 
-// Ma trận cách ly cấp yêu cầu của dịch vụ định danh (DT-SaaS phần S1a, tài liệu 32 mục 14.7 lớp 3): liệt kê tự động mọi tuyến; tuyến
+// Ma trận cách ly cấp yêu cầu của dịch vụ định danh (DT-SaaS phần S1a, tài liệu 47 mục 14.7 lớp 3): liệt kê tự động mọi tuyến; tuyến
 // nào không khai công khai ở tenancy-route-policy.ts thì mã phiên của trường A gọi ở tên miền trường B phải bị từ chối 401, không có
 // mã phiên cũng 401, tên miền lạ 404. Tuyến công khai mới chưa khai báo thì kiểm thử đỏ
 interface RouteLayer {

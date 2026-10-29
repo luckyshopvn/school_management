@@ -56,7 +56,7 @@
 
 ## 3. Quy trình chính
 
-Các quy trình dưới đây được đặc tả chi tiết trong thư mục `25_QUY_TRINH_NGHIEP_VU/`.
+Các quy trình dưới đây được đặc tả chi tiết trong thư mục `40_QUY_TRINH_NGHIEP_VU/`.
 
 | Mã | Tên quy trình | Phân hệ | Vai trò khởi động |
 |---|---|---|---|

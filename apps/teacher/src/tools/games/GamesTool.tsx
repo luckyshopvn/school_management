@@ -20,7 +20,7 @@ import {
 } from './games-api.js';
 import { addToScoreboard, flushGames, readQuestionSet, recordGame, saveQuestionSet } from './games-store.js';
 
-// Trò chơi kiến thức ở màn hình lớp và thẻ đáp án giấy (DT-23 phần 23c, YCTD-213; tài liệu 32 mục 15.4): giáo viên điều khiển, học
+// Trò chơi kiến thức ở màn hình lớp và thẻ đáp án giấy (DT-23 phần 23c, YCTD-213; tài liệu 47 mục 15.4): giáo viên điều khiển, học
 // sinh không cần thiết bị. Câu hỏi chỉ lấy từ ngân hàng câu hỏi đã duyệt (22g1) của khối của lớp; kết quả mỗi câu ghi vào lịch sử
 // sử dụng câu hỏi; điểm nhóm không vào sổ điểm, chỉ chuyển sang bảng điểm nhanh (23b) khi giáo viên chọn
 export interface GameResult {

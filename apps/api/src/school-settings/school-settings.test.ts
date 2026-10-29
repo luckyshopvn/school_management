@@ -6,7 +6,7 @@ import { CONNECTOR_SPECS, validateConnectorValues } from './school-settings.js';
 import { paymentSettingsOf } from './tenant-connectors.js';
 import { buildIcon, buildManifest, initialOf, normalizeBase, shortNameOf } from './pwa-manifest.js';
 
-// Cấu hình kết nối riêng từng trường (DT-SaaS phần S3, YCTD-195; tài liệu 32 mục 14.5). Hai trường trên một nền tảng; dữ liệu giả hoàn toàn.
+// Cấu hình kết nối riêng từng trường (DT-SaaS phần S3, YCTD-195; tài liệu 47 mục 14.5). Hai trường trên một nền tảng; dữ liệu giả hoàn toàn.
 // Khóa lưu mã hóa bằng khóa của trường, không trả lại giá trị bí mật, trường này không thấy và không dùng cấu hình của trường kia
 describe('kiểm tra giá trị kết nối', () => {
   it('bắt buộc khi bật, giữ giá trị đã lưu khi để trống, từ chối trường lạ và giá trị xấu', () => {

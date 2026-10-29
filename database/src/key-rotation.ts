@@ -7,7 +7,7 @@ import { connectionStringOf, type DatabaseDescriptor } from './school-database-l
 import { schoolDescriptors, LifecycleError, type Actor, type LifecycleEnvironment } from './school-lifecycle.js';
 import { writeAudit } from './provision-school.js';
 
-// Đổi khóa mã hóa dữ liệu trẻ của trường và bọc lại khóa bằng khóa gốc mới (DT-SaaS phần S3, YCTD-195, tài liệu 32 mục 14.5).
+// Đổi khóa mã hóa dữ liệu trẻ của trường và bọc lại khóa bằng khóa gốc mới (DT-SaaS phần S3, YCTD-195, tài liệu 47 mục 14.5).
 //
 // Đổi khóa của trường: mã hóa lại từng bước, ghi tiến độ sau mỗi lô nên làm tiếp được khi bị gián đoạn. Công cụ tự tìm mọi cột
 // `*_encrypted` có cột `id` ở cơ sở dữ liệu hệ thống và mọi cơ sở dữ liệu năm học của trường (số định danh của trẻ và người lớn,

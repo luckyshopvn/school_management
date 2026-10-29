@@ -3,7 +3,7 @@ import { Alert } from './Alert.js';
 import { Button } from './Button.js';
 import { TextField } from './TextField.js';
 
-// Đăng nhập và liên kết tài khoản bằng nhà cung cấp định danh bên ngoài (DT-25 bước 25b, YCTD-225; tài liệu 32 mục 17), dùng chung cho
+// Đăng nhập và liên kết tài khoản bằng nhà cung cấp định danh bên ngoài (DT-25 bước 25b, YCTD-225; tài liệu 47 mục 17), dùng chung cho
 // cổng quản trị, ứng dụng giáo viên, ứng dụng phụ huynh. Mỗi ứng dụng truyền hàm gọi giao diện lập trình của mình (kèm mã phiên nếu có)
 // và đường dẫn gốc của ứng dụng. Máy chủ giữ mọi quy tắc (bật tắt theo trường, nhóm vai trò, tuổi, xác thực hai lớp); giao diện chỉ hiển
 // thị. Nhà cung cấp chuyển trình duyệt về `<gốc ứng dụng>/dang-nhap/ben-ngoai` của đúng tên miền

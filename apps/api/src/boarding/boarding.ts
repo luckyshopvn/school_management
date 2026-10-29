@@ -21,7 +21,7 @@ import { OrganizationScopes } from '../organization/organization-scopes.js';
 import { SettingsService } from '../settings/settings.service.js';
 import { BOARDING_RULE_CODE, classRoster, registeredChildren } from './boarding-roster.js';
 
-// Bán trú lớp ngoài Mầm non (DT-20 phần 20b, YCTD-159; tài liệu 32 mục 11.4). Lớp Mầm non giữ điểm danh theo ngày và báo cơm.
+// Bán trú lớp ngoài Mầm non (DT-20 phần 20b, YCTD-159; tài liệu 47 mục 11.4). Lớp Mầm non giữ điểm danh theo ngày và báo cơm.
 // Giáo viên chủ nhiệm của lớp hoặc người có quyền P04.boarding.manage ở đơn vị của lớp xem danh sách ăn, cắt suất hộ, chốt và
 // mở lại suất của ngày; phụ huynh báo hoặc hủy cắt suất của con cho ngày học từ hôm nay, hôm nay thì trước giờ bắt đầu học
 // (giờ chốt cắt suất dùng chung "Giờ bắt đầu học" của đơn vị, mặc định 07:30). Ngày đã chốt thì không cắt suất được, mở lại

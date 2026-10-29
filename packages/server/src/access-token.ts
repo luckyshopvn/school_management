@@ -21,7 +21,7 @@ export interface AccessTokenClaims {
   support?: 'read' | 'full';
 }
 
-// Xoay khóa ký (DT-SaaS phần S8b, tài liệu 32 mục 14.5): trong thời gian xoay, bên kiểm tra nhận cả khóa công khai mới và khóa cũ
+// Xoay khóa ký (DT-SaaS phần S8b, tài liệu 47 mục 14.5): trong thời gian xoay, bên kiểm tra nhận cả khóa công khai mới và khóa cũ
 // (TOKEN_PREVIOUS_PUBLIC_KEY); mã phiên cũ sống tối đa ACCESS_TOKEN_LIFETIME_SECONDS (15 phút) nên gỡ khóa cũ sau chừng đó
 export class AccessTokenVerifier {
   private publicKeys?: Promise<CryptoKey[]>;
