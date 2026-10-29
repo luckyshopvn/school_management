@@ -202,6 +202,9 @@ test.describe('cổng nền tảng', () => {
           id: 'van-hanh-thu',
           login: 'van-hanh-thu',
           full_name: 'Người vận hành thử',
+          // Menu lọc theo vai trò (YCTD-323): máy chủ thật luôn trả vai trò và cờ mật khẩu tạm
+          role: 'quan_tri',
+          must_change_password: false,
           school_count: 3,
         }),
       }),

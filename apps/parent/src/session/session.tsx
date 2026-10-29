@@ -20,7 +20,7 @@ interface SessionValue {
   lastPassword: string | undefined;
   loginWithPassword(phone: string, password: string, captcha?: CaptchaAnswer): Promise<void>;
   loginWithOneTimeCode(phone: string, code: string): Promise<void>;
-  changePassword(currentPassword: string, newPassword: string): Promise<void>;
+  changePassword(currentPassword: string, newPassword: string, otpCode?: string): Promise<void>;
   logout(): Promise<void>;
 }
 
@@ -56,8 +56,8 @@ export function SessionProvider({ children }: { children: ReactNode }) {
       async loginWithOneTimeCode(phone, code) {
         applyTokens(await loginWithOneTimeCode(phone, code));
       },
-      async changePassword(currentPassword, newPassword) {
-        applyTokens(await requestPasswordChange(currentPassword, newPassword));
+      async changePassword(currentPassword, newPassword, otpCode) {
+        applyTokens(await requestPasswordChange(currentPassword, newPassword, otpCode));
         setLastPassword(undefined);
       },
       async logout() {

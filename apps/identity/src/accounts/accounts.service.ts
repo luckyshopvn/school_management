@@ -446,9 +446,10 @@ export class AccountsService {
     await this.assertUnique(input.phone, input.username, null);
 
     // Quy tắc số CCCD (YCTD-311): tên đăng nhập là số CCCD thì nhận mật khẩu mặc định của hệ thống (DEFAULT_INITIAL_PASSWORD), có hạn
-    // theo cấu hình, kể cả tài khoản phụ huynh; chưa cấu hình mật khẩu mặc định thì sinh mật khẩu tạm như trước
+    // theo cấu hình, kể cả tài khoản phụ huynh; chưa cấu hình mật khẩu mặc định thì sinh mật khẩu tạm như trước. YCTD-323: đổi mật khẩu
+    // mặc định lần đầu phải kèm mã gửi tới số điện thoại, nên tài khoản không có số điện thoại nhận mật khẩu tạm ngẫu nhiên
     const nationalIdLogin = isNationalIdShaped(input.username);
-    const initialPassword = nationalIdLogin ? (this.configuration.defaultInitialPassword ?? null) : null;
+    const initialPassword = nationalIdLogin && input.phone ? (this.configuration.defaultInitialPassword ?? null) : null;
     const usesDefaultPassword =
       !nationalIdLogin && input.roles.length > 0 && input.roles.every((grant) => grant.role_code === PARENT_ROLE_CODE);
     if (usesDefaultPassword && (await this.identitySettings.parentDefaultPasswordHash()) === null) {
@@ -460,11 +461,12 @@ export class AccountsService {
     const temporaryPassword = usesDefaultPassword || initialPassword !== null ? null : generateTemporaryPassword();
     const passwordSource = initialPassword ?? temporaryPassword;
     const passwordHash = passwordSource === null ? null : await hashPassword(passwordSource);
-    const initialPasswordExpiresAt = nationalIdLogin
-      ? new Date(
-          this.clock.now().getTime() + (await this.identitySettings.initialPasswordLifetimeDays()) * DAY_MILLISECONDS,
-        )
-      : null;
+    const initialPasswordExpiresAt =
+      initialPassword !== null
+        ? new Date(
+            this.clock.now().getTime() + (await this.identitySettings.initialPasswordLifetimeHours()) * 3_600_000,
+          )
+        : null;
     const userId = await this.database.transaction().execute(async (transaction) => {
       const user = await transaction
         .insertInto('users')

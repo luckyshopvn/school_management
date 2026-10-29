@@ -1,11 +1,12 @@
 import { randomInt } from 'node:crypto';
 import { expect, test } from './fixtures.js';
 import { createDatabase, readConnectionString, type IdentityDatabase } from '@school-management/database';
-import { createTestUser } from '@school-management/identity/testing';
+import { createTestUser, hashForTesting } from '@school-management/identity/testing';
 import { E2E_DEFAULT_INITIAL_PASSWORD, E2E_IDENTITY_PORT } from '../e2e-environment.mjs';
 
 // Quy tắc tài khoản trường theo số CCCD (YCTD-311, CT-1520): Hiệu trưởng tạo tài khoản bằng số CCCD; người dùng đăng nhập bằng số CCCD
-// và mật khẩu mặc định (giá trị thử của lượt e2e) thì phải đổi mật khẩu ở MH-48 rồi mới vào trang chủ; danh sách tài khoản che số CCCD
+// và mật khẩu mặc định (giá trị thử của lượt e2e) thì phải đổi mật khẩu ở MH-48, kèm mã gửi tới số điện thoại (YCTD-323), rồi mới vào
+// trang chủ; danh sách tài khoản che số CCCD
 const database = createDatabase<IdentityDatabase>(readConnectionString('identity'));
 const IDENTITY = `http://localhost:${E2E_IDENTITY_PORT}/api/v1`;
 
@@ -30,6 +31,8 @@ test('CT-1520: tài khoản theo số CCCD đăng nhập lần đầu bằng m�
     data: {
       full_name: 'Nhân viên CCCD e2e',
       national_id: nationalId,
+      // Mật khẩu mặc định chỉ cấp cho tài khoản có số điện thoại (YCTD-323)
+      phone: `09${randomInt(0, 100_000_000).toString().padStart(8, '0')}`,
       // Vai trò toàn trường (WHOLE_SCHOOL_ROLE_CODES) không cần đơn vị
       roles: [{ role_code: 'VT-19', org_unit_id: null }],
     },
@@ -45,6 +48,24 @@ test('CT-1520: tài khoản theo số CCCD đăng nhập lần đầu bằng m�
   await page.getByLabel('Mật khẩu hiện tại').fill(E2E_DEFAULT_INITIAL_PASSWORD);
   await page.getByLabel('Mật khẩu mới', { exact: true }).fill('MatKhauRieng2026');
   await page.getByLabel('Nhập lại mật khẩu mới').fill('MatKhauRieng2026');
+  await page.getByRole('button', { name: 'Đổi mật khẩu' }).click();
+  // Còn mật khẩu mặc định: máy chủ đòi mã gửi tới số điện thoại (YCTD-323). Tin nhắn của lượt e2e chỉ ghi nhật ký máy chủ, nên kiểm thử
+  // đặt lại giá trị băm của mã vừa gửi thành một mã đã biết
+  await page.getByRole('button', { name: 'Gửi mã xác nhận' }).click();
+  await expect(page.getByText(/Đã gửi mã tới số/)).toBeVisible();
+  const user = await database
+    .selectFrom('users')
+    .select('id')
+    .where('username', '=', nationalId)
+    .executeTakeFirstOrThrow();
+  await database
+    .updateTable('one_time_codes')
+    .set({ code_hash: await hashForTesting('246810') })
+    .where('user_id', '=', user.id)
+    .where('purpose', '=', 'initial_password')
+    .where('used_at', 'is', null)
+    .execute();
+  await page.getByLabel('Mã xác nhận').fill('246810');
   await page.getByRole('button', { name: 'Đổi mật khẩu' }).click();
   await expect(page.getByRole('heading', { name: /^Xin chào,/ })).toBeVisible();
 
