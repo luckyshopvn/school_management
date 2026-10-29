@@ -99,7 +99,13 @@ function OtpauthQr({ uri }: { uri: string }) {
     };
   }, [uri]);
   return image ? (
-    <img src={image} width={200} height={200} alt="Mã QR để thêm vào ứng dụng xác thực" style={{ alignSelf: 'center' }} />
+    <img
+      src={image}
+      width={200}
+      height={200}
+      alt="Mã QR để thêm vào ứng dụng xác thực"
+      style={{ alignSelf: 'center' }}
+    />
   ) : null;
 }
 
