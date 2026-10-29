@@ -10,6 +10,7 @@ import { NavigationRegistryContext, useNavigationRegistryState } from './navigat
 import { fetchCurrentUser } from '../session/api-client.js';
 import { useSession } from '../session/session.js';
 import { SideMenu } from './MainMenu.js';
+import { FunctionSearch } from './FunctionSearch.js';
 import { usePortalMenu } from './menu-permissions.js';
 import { UserMenu } from './UserMenu.js';
 import { Alert, Toast } from '@school-management/ui';
@@ -134,6 +135,14 @@ export function AppShell({ children }: { children: ReactNode }) {
               </div>
               <WorkspaceSwitcher state={workspaces} />
               <SideMenu workspaces={menu} current={workspaces.current} />
+              {/* Đường vào mọi mục của mọi phân hệ (YCTD-332) */}
+              <Link
+                to="/all-functions"
+                aria-current={pathname === '/all-functions' ? 'page' : undefined}
+                className={`mt-2 flex min-h-10 items-center rounded-md border-t border-white/15 px-3 pt-2 text-label hover:bg-nav-hover max-xl:min-h-11 ${pathname === '/all-functions' ? 'bg-nav-active text-white' : 'text-nav-text'}`}
+              >
+                Tất cả chức năng
+              </Link>
             </aside>
             {mobileOpen ? (
               // Nền mờ: chạm ra ngoài ngăn kéo thì đóng; người dùng bàn phím đóng bằng nút Đóng menu hoặc Esc
@@ -151,6 +160,7 @@ export function AppShell({ children }: { children: ReactNode }) {
                 >
                   <MenuIcon />
                 </button>
+                <FunctionSearch workspaces={menu} />
                 <div className="ml-auto flex shrink-0 items-center gap-3 whitespace-nowrap">
                   <AcademicYearSwitcher />
                   <MyWorkHeaderLink />

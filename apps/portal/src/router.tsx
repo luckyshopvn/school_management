@@ -162,6 +162,7 @@ import { ActivatePage } from './pages/ActivatePage.js';
 import { SupportAccessPage, SupportLoginPage } from './support/support.js';
 import { ParentOrgConsentsPage } from './support/parent-org-consents.js';
 import { HelpPage } from './portal-shell/HelpPage.js';
+import { AllFunctionsPage } from './pages/AllFunctionsPage.js';
 import { MyProfilePage } from './portal-shell/MyProfilePage.js';
 import { SystemAnnouncementsPage } from './portal-shell/SystemAnnouncementsPage.js';
 import { AppLinksPage } from './portal-shell/AppLinksPage.js';
@@ -372,6 +373,8 @@ const routeTree = rootRoute.addChildren([
   createRoute({ getParentRoute: () => rootRoute, path: '/parent-org-consents', component: ParentOrgConsentsPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/my-profile', component: MyProfilePage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/help', component: HelpPage }),
+  // Tất cả chức năng của mọi phân hệ người dùng được thấy (YCTD-332)
+  createRoute({ getParentRoute: () => rootRoute, path: '/all-functions', component: AllFunctionsPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/system-announcements', component: SystemAnnouncementsPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/app-links', component: AppLinksPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/academic-years', component: AcademicYearsPage }),
