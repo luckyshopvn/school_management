@@ -80,9 +80,20 @@ export async function openGroup(tree: Locator, name: string) {
   await expect(group).toHaveAttribute('aria-expanded', 'true');
 }
 
+// Mở hộp ngữ cảnh "cấp · năm học · học kỳ" ở thanh đầu trang nếu đang đóng; bộ chọn cấp nằm trong hộp này (YCTD-331)
+export async function openWorkingContext(page: Page) {
+  const context = page.getByTestId('academic-year-context');
+  await expect(context).toBeVisible();
+  if ((await context.getAttribute('aria-expanded')) !== 'true') {
+    await context.click();
+  }
+  await expect(page.getByRole('dialog', { name: 'Năm học và học kỳ' })).toBeVisible();
+}
+
 // Chọn cấp đang làm việc ở thanh đầu trang rồi chờ ô ngữ cảnh hiện đúng cấp. Đổi cấp lưu lên máy chủ rồi mới đổi tên phân hệ theo
 // cấp ("Quản lý giáo dục" thành "Quản lý giáo dục Trung học phổ thông"); mở menu ngay sau khi chọn thì có thể bắt tên cũ
 export async function selectSchoolLevel(page: Page, code: string) {
+  await openWorkingContext(page);
   await page.getByTestId('school-level-switcher').selectOption(code);
   await expect(page.getByTestId('academic-year-context')).toContainText(`Cấp ${code} · `);
 }

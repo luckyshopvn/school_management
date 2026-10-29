@@ -10,7 +10,7 @@ import {
 } from '@school-management/database';
 import { createTestUser, hashForTesting, TEST_PASSWORD } from '@school-management/identity/testing';
 import { E2E_PARENT_PORT, E2E_SCHOOL_YEAR_DATABASE_PREFIX } from '../e2e-environment.mjs';
-import { openMenu } from './menu.js';
+import { openMenu, openWorkingContext, selectSchoolLevel } from './menu.js';
 
 // Trường liên cấp (DT-19 phần 19f, YCTD-156), kịch bản CT-19f-5: Hiệu trưởng bật Tiểu học, nạp khối Tiểu học, thêm cấp cho
 // Phân hiệu A, mở lớp khối 1; chọn cấp đang làm việc ở thanh đầu trang; phụ huynh của Nguyễn Gia Bảo (Mầm non, kịch bản 09) có
@@ -107,10 +107,9 @@ test('CT-19f-5: trường liên cấp: bật Tiểu học, mở lớp khối 1, 
     await expect(toast(page, `Đã tạo lớp ${CLASS_NAME}`)).toBeVisible();
 
     // Cấp đang làm việc: chọn Tiểu học thì ô ngữ cảnh chỉ còn Cấp TH
-    const switcher = page.getByTestId('school-level-switcher');
-    await switcher.selectOption('TH');
-    await expect(page.getByTestId('academic-year-context')).toContainText('Cấp TH · ');
-    await switcher.selectOption('all');
+    await selectSchoolLevel(page, 'TH');
+    await openWorkingContext(page);
+    await page.getByTestId('school-level-switcher').selectOption('all');
 
     // Phụ huynh của Nguyễn Gia Bảo có thêm con học lớp khối 1 (ghi thẳng hồ sơ đã duyệt như các kịch bản khác)
     const link = await schoolYear
