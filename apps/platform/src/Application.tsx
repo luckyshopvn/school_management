@@ -30,6 +30,8 @@ function Shell({ accessToken, onLogout }: { accessToken: string; onLogout: () =>
   const [active, setActive] = useState(PLATFORM_MENU[0]?.key ?? 'overview');
   const [error, setError] = useState<string | null>(null);
   const [menuOpen, setMenuOpen] = useState(false);
+  // Gói mở sẵn khi đi từ trang Trợ lý AI sang Gói dịch vụ (YCTD-370)
+  const [focusPlan, setFocusPlan] = useState<string | null>(null);
   // Mục đang hiện tên sau khi chạm giữ (thanh biểu tượng ở khổ máy tính bảng)
   const [hint, setHint] = useState<string>();
 
@@ -191,12 +193,19 @@ function Shell({ accessToken, onLogout }: { accessToken: string; onLogout: () =>
             ) : null}
             {active === 'audit' ? <AuditLogPage token={accessToken} /> : null}
             {active === 'schools' ? <SchoolsPage token={accessToken} role={profile.role} /> : null}
-            {active === 'plans' ? <PlansPage accessToken={accessToken} role={profile.role} /> : null}
+            {active === 'plans' ? <PlansPage accessToken={accessToken} role={profile.role} focusPlanId={focusPlan} /> : null}
             {active === 'billing' ? <BillingPage accessToken={accessToken} /> : null}
             {active === 'dashboard' ? <DashboardPage token={accessToken} role={profile.role} /> : null}
             {active === 'maintenance' ? <MaintenancePage token={accessToken} role={profile.role} /> : null}
             {active === 'parent-orgs' ? <AdminUnitsPage token={accessToken} /> : null}
-            {active === 'ai' ? <AiPage accessToken={accessToken} /> : null}
+            {active === 'ai' ? <AiPage
+                accessToken={accessToken}
+                role={profile.role}
+                onOpenPlan={(planId) => {
+                  setFocusPlan(planId);
+                  setActive('plans');
+                }}
+              /> : null}
             {active === 'catalog' ? <CatalogPage token={accessToken} role={profile.role} onNavigate={setActive} /> : null}
             {active === 'market' ? <MarketPage accessToken={accessToken} role={profile.role} /> : null}
             {active === 'operators' ? <OperatorsPage token={accessToken} currentOperatorId={profile.id} /> : null}
