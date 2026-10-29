@@ -29,6 +29,7 @@ export interface TeachingTool {
 const ALL: readonly SchoolLevelCode[] = ['MN', 'TH', 'THCS', 'THPT'];
 const GENERAL: readonly SchoolLevelCode[] = ['TH', 'THCS', 'THPT'];
 const PRIMARY_AND_BELOW: readonly SchoolLevelCode[] = ['MN', 'TH'];
+const SECONDARY: readonly SchoolLevelCode[] = ['THCS', 'THPT'];
 
 export const TEACHING_TOOLS: readonly TeachingTool[] = [
   // Công cụ lớp học đã có (DT-23 phần 23b, 23c)
@@ -169,6 +170,47 @@ export const TEACHING_TOOLS: readonly TeachingTool[] = [
     description: 'Chia hình thành phần bằng nhau, tô theo tử số',
     section: 'subject',
     levels: ['TH'],
+    offline: true,
+  },
+  // THCS, THPT (DT-29 phần 29d, YCTD-328)
+  {
+    key: 'calculator',
+    label: 'Máy tính khoa học',
+    description: 'Lượng giác, luỹ thừa, căn, lịch sử phép tính',
+    section: 'subject',
+    levels: SECONDARY,
+    offline: true,
+  },
+  {
+    key: 'graph',
+    label: 'Vẽ đồ thị hàm số',
+    description: 'Tối đa ba hàm y = f(x), phóng to, thu nhỏ',
+    section: 'subject',
+    levels: SECONDARY,
+    offline: true,
+  },
+  {
+    key: 'periodic-table',
+    label: 'Bảng tuần hoàn',
+    description: 'Tra 118 nguyên tố theo chu kì, nhóm',
+    section: 'subject',
+    levels: SECONDARY,
+    offline: true,
+  },
+  {
+    key: 'geometry',
+    label: 'Hình học động',
+    description: 'Tam giác kéo được đỉnh, đo cạnh, góc, các đường',
+    section: 'subject',
+    levels: SECONDARY,
+    offline: true,
+  },
+  {
+    key: 'constants',
+    label: 'Bảng hằng số, đơn vị',
+    description: 'Hằng số vật lí, đổi đơn vị',
+    section: 'subject',
+    levels: SECONDARY,
     offline: true,
   },
   // Lối vào các màn đã có của ứng dụng giáo viên
