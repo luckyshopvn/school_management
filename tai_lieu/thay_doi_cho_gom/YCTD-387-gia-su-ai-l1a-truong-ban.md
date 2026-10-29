@@ -17,6 +17,7 @@ phien_ban_de_xuat: 0.251.0
 - Dòng thu Gia sư AI (`item_type` `ai_tutor`) trên hóa đơn học phí của kỳ: lần tính học phí lập một dòng cho mỗi lần mua và mỗi lần nâng gói chưa thu; ghi ở `ai_tutor_invoice_charges` để không thu trùng. Sửa `apps/api/src/fees/fee-calculation.service.ts` để gọi phần này.
 - Database migration: hệ thống `0132_create_ai_tutor_school_settings`; năm học `0231_add_ai_tutor_invoice_charges`.
 - Kiểm thử: `apps/api/src/ai-tutor/school-sales.test.ts` (CT-1757 đến CT-1764), e2e `tests/e2e/241-gia-su-ai-truong-ban.spec.ts` (CT-1765, CT-1766).
+- e2e `190-video-room`, `191-tutoring`, `192-tutoring-finance` tìm nút "Gia sư" theo đúng tên (`exact: true`) vì thẻ của con có thêm nút "Gia sư AI"; không đổi điều kiện kiểm.
 
 #### Quyết định
 

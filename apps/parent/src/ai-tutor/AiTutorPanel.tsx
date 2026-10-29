@@ -188,7 +188,7 @@ export function AiTutorPanel({ child }: { child: { id: string; full_name: string
           Mua trực tiếp
         </Button>
       </div>
-      {tab === 'direct' ? <AiTutorDirectPurchase child={child} /> : null}
+      {tab === 'direct' ? <AiTutorDirectPurchase childId={child.id} /> : null}
       {tab === 'school' ? (
         <div className="flex flex-col gap-3" role="tabpanel" aria-label="Mua qua trường">
           {errorMessage ? <Alert tone="danger">{errorMessage}</Alert> : null}

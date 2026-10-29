@@ -213,7 +213,7 @@ test('CT-27a-8: giáo viên mở lớp video của buổi, cha mẹ vào xem qua
     await parentPage.getByLabel('Mật khẩu', { exact: true }).fill(parent.password);
     await parentPage.getByRole('button', { name: 'Đăng nhập' }).click();
     const card = parentPage.getByRole('listitem', { name: childName });
-    await card.getByRole('button', { name: 'Gia sư' }).click();
+    await card.getByRole('button', { name: 'Gia sư', exact: true }).click();
     const videoPanel = parentPage.getByRole('region', { name: `Lớp video của ${childName}` });
     await videoPanel.getByLabel(`Đồng ý ghi hình ${programName}`).check();
     await expect(videoPanel.getByLabel(`Đồng ý ghi hình ${programName}`)).toBeChecked();

@@ -175,8 +175,8 @@ test('CT-1765, CT-1766: trường bán gói Gia sư AI, phụ huynh mua qua trư
       await form.getByRole('button', { name: 'Tạo gói' }).click();
       await expect(toast(page, `Đã tạo gói ${plan.name}`)).toBeVisible();
     }
-    await expect(page.getByRole('row', { name: advanced })).toContainText('149.000 đ/tháng');
-    await expect(page.getByRole('row', { name: topUp })).toContainText('Theo gói tháng');
+    await expect(page.getByRole('row', { name: advanced, exact: true })).toContainText('149.000 đ/tháng');
+    await expect(page.getByRole('row', { name: topUp, exact: true })).toContainText('Theo gói tháng');
 
     // Phụ huynh: tab Mua qua trường, mua gói tháng Cơ bản cho tháng này
     const parentPage = await (await browser.newContext()).newPage();
@@ -193,32 +193,46 @@ test('CT-1765, CT-1766: trường bán gói Gia sư AI, phụ huynh mua qua trư
     await panel.getByRole('tab', { name: 'Mua qua trường' }).click();
     const schoolTab = panel.getByRole('tabpanel', { name: 'Mua qua trường' });
     await expect(schoolTab).toContainText('Con chưa có gói tháng trong tháng này');
-    await schoolTab.getByRole('listitem', { name: basic }).getByRole('button', { name: 'Chọn gói này' }).click();
-    const dialog = parentPage.getByRole('dialog', { name: `Mua ${basic}` });
+    await schoolTab
+      .getByRole('listitem', { name: basic, exact: true })
+      .getByRole('button', { name: 'Chọn gói này' })
+      .click();
+    const dialog = parentPage.getByRole('dialog').filter({ hasText: `Mua ${basic}` });
     await expect(dialog).toContainText('đồng ý cho');
     await dialog.getByRole('button', { name: 'Đồng ý' }).click();
     await expect(schoolTab).toContainText(`Đã mua ${basic}; phí vào hóa đơn học phí kỳ tới`);
     await expect(schoolTab.getByLabel('Lượt hỏi của con')).toContainText(`Đã dùng 0 / 100 lượt (${basic})`);
-    await expect(schoolTab.getByRole('listitem', { name: basic })).toContainText('Con đang dùng gói này');
+    await expect(schoolTab.getByRole('listitem', { name: basic, exact: true })).toContainText('Con đang dùng gói này');
 
     // Mua thêm gói lượt rồi hủy khi chưa lên hóa đơn
-    await schoolTab.getByRole('listitem', { name: topUp }).getByRole('button', { name: 'Mua thêm' }).click();
+    await schoolTab
+      .getByRole('listitem', { name: topUp, exact: true })
+      .getByRole('button', { name: 'Mua thêm' })
+      .click();
     await parentPage
-      .getByRole('dialog', { name: `Mua ${topUp}` })
+      .getByRole('dialog')
+      .filter({ hasText: `Mua ${topUp}` })
       .getByRole('button', { name: 'Đồng ý' })
       .click();
     await expect(schoolTab.getByLabel('Lượt hỏi của con')).toContainText('Lượt mua thêm còn 50');
     const topUpRow = schoolTab.getByRole('listitem', { name: `Lần mua ${topUp}` });
     await topUpRow.getByRole('button', { name: 'Hủy lần mua' }).click();
-    await parentPage.getByRole('dialog', { name: 'Hủy lần mua' }).getByRole('button', { name: 'Hủy lần mua' }).click();
+    await parentPage
+      .getByRole('dialog')
+      .filter({ hasText: 'Hủy lần mua' })
+      .getByRole('button', { name: 'Hủy lần mua' })
+      .click();
     await expect(topUpRow).toContainText('Đã hủy');
     await expect(schoolTab.getByLabel('Lượt hỏi của con')).toContainText('Lượt mua thêm còn 0');
 
     // CT-1766: nâng lên Nâng cao giữa tháng, trả chênh lệch theo số ngày còn lại
     const difference = Math.round((70_000 * remainingDays) / daysInMonth);
     const extra = Math.round((200 * remainingDays) / daysInMonth);
-    await schoolTab.getByRole('listitem', { name: advanced }).getByRole('button', { name: 'Nâng lên gói này' }).click();
-    const upgrade = parentPage.getByRole('dialog', { name: `Nâng lên ${advanced}` });
+    await schoolTab
+      .getByRole('listitem', { name: advanced, exact: true })
+      .getByRole('button', { name: 'Nâng lên gói này' })
+      .click();
+    const upgrade = parentPage.getByRole('dialog').filter({ hasText: `Nâng lên ${advanced}` });
     await expect(upgrade).toContainText(
       `Trả thêm ${money(difference)} theo ${remainingDays}/${daysInMonth} ngày còn lại`,
     );
