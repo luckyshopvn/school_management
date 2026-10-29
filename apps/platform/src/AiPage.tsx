@@ -45,6 +45,51 @@ interface UsageRow {
   output_tokens: number;
 }
 
+interface PlanSchoolRow {
+  id: string;
+  code: string;
+  name: string;
+  plan: { id: string } | null;
+}
+
+// Tháng dạng yyyy-mm theo giờ của máy; khoảng ngày gửi cho GET ai/usage (YCTD-374, ĐX-CN-3)
+function currentMonth(): string {
+  const now = new Date();
+  return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+}
+
+function monthRange(month: string): { from: string; to: string } {
+  const [year, monthNumber] = month.split('-').map(Number) as [number, number];
+  const lastDay = new Date(year, monthNumber, 0).getDate();
+  return { from: `${month}-01`, to: `${month}-${String(lastDay).padStart(2, '0')}` };
+}
+
+// Thanh so với hạn mức của gói: dưới 80% tông nhấn, từ 80% cảnh báo, từ 100% nguy hiểm
+function QuotaBar({ label, used, limit }: { label: string; used: number; limit: number | null }) {
+  if (limit === null) {
+    return <span className="muted">{count(used)} · không giới hạn</span>;
+  }
+  const percent = limit === 0 ? (used > 0 ? 100 : 0) : Math.round((used / limit) * 100);
+  const tone = percent >= 100 ? 'danger' : percent >= 80 ? 'warn' : 'ok';
+  return (
+    <div className="meter" data-tone={tone}>
+      <span>
+        {count(used)} / {count(limit)} ({percent}%)
+      </span>
+      <span
+        className="meter-track"
+        role="meter"
+        aria-label={label}
+        aria-valuemin={0}
+        aria-valuemax={limit}
+        aria-valuenow={Math.min(used, limit)}
+      >
+        <span style={{ width: `${Math.min(percent, 100)}%` }} />
+      </span>
+    </div>
+  );
+}
+
 function count(value: number | null): string {
   return value === null ? '—' : value.toLocaleString('vi-VN');
 }
@@ -62,6 +107,9 @@ export function AiPage({
   const canPrice = operatorCan(role, 'ai.pricing');
   const [overview, setOverview] = useState<Overview | null>(null);
   const [usage, setUsage] = useState<UsageRow[]>([]);
+  const [month, setMonth] = useState(currentMonth);
+  const [usageError, setUsageError] = useState<string | null>(null);
+  const [planOfSchool, setPlanOfSchool] = useState<Record<string, string>>({});
   const [settings, setSettings] = useState({ provider: 'anthropic', model: '', endpoint: '' });
   const [key, setKey] = useState({ enabled: true, api_key: '' });
   const [outcome, setOutcome] = useState<Outcome | null>(null);
@@ -69,12 +117,14 @@ export function AiPage({
   const [busy, runBusy] = useBusy();
 
   const reload = useCallback(async () => {
-    const [next, nextUsage] = await Promise.all([
+    const [next, schools] = await Promise.all([
       call<Overview>(accessToken, 'GET', 'ai'),
-      call<{ rows: UsageRow[] }>(accessToken, 'GET', 'ai/usage'),
+      call<PlanSchoolRow[]>(accessToken, 'GET', 'plan-schools'),
     ]);
     setOverview(next);
-    setUsage(nextUsage.rows);
+    setPlanOfSchool(
+      Object.fromEntries(schools.flatMap((school) => (school.plan ? [[school.id, school.plan.id]] : []))),
+    );
     setSettings({
       provider: next.settings.provider,
       model: next.settings.model,
@@ -82,6 +132,35 @@ export function AiPage({
     });
     setKey((current) => ({ ...current, enabled: next.key.configured ? next.key.enabled : true }));
   }, [accessToken]);
+
+  // Token đã dùng theo tháng chọn; máy chủ nhận khoảng ngày from, to
+  useEffect(() => {
+    const { from, to } = monthRange(month);
+    setUsageError(null);
+    call<{ rows: UsageRow[] }>(accessToken, 'GET', `ai/usage?from=${from}&to=${to}`)
+      .then((reply) => setUsage(reply.rows))
+      .catch((caught: unknown) => setUsageError(`Không đọc được token đã dùng: ${errorMessage(caught)}`));
+  }, [accessToken, month]);
+
+  // Hạn mức tính theo tháng, gộp mọi cấu hình và mô hình của trường
+  const bySchool = Object.values(
+    usage.reduce<Record<string, { school_id: string; code: string; name: string; requests: number; tokens: number }>>(
+      (sum, row) => {
+        const current = sum[row.school_id] ?? {
+          school_id: row.school_id,
+          code: row.code,
+          name: row.name,
+          requests: 0,
+          tokens: 0,
+        };
+        current.requests += row.requests;
+        current.tokens += row.input_tokens + row.output_tokens;
+        sum[row.school_id] = current;
+        return sum;
+      },
+      {},
+    ),
+  );
 
   const load = useCallback(() => {
     setLoadError(null);
@@ -313,9 +392,70 @@ export function AiPage({
           </section>
 
           <section className="card" aria-labelledby="token-da-dung">
-            <h2 id="token-da-dung">Token đã dùng trong tháng</h2>
+            <div className="card-head">
+              <h2 id="token-da-dung">Token đã dùng trong tháng</h2>
+              <label className="field" style={{ flexDirection: 'row', alignItems: 'center', gap: '0.5rem' }}>
+                Tháng
+                <input
+                  type="month"
+                  className="inline-select"
+                  value={month}
+                  max={currentMonth()}
+                  onChange={(event) => setMonth(event.target.value || currentMonth())}
+                />
+              </label>
+            </div>
+            {usageError ? (
+              <p className="field-error" role="alert">
+                {usageError}
+              </p>
+            ) : null}
+            {bySchool.length ? (
+              <div className="table-scroll" style={{ marginBottom: '1rem' }}>
+                <table className="sticky-first" aria-label="So với hạn mức của gói" style={{ minWidth: 720 }}>
+                  <thead>
+                    <tr>
+                      <th scope="col">Trường</th>
+                      <th scope="col">Yêu cầu so với hạn mức</th>
+                      <th scope="col">Token so với hạn mức</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {bySchool.map((school) => {
+                      const plan = overview.plans.find((item) => item.plan_id === planOfSchool[school.school_id]);
+                      return (
+                        <tr key={school.school_id}>
+                          <td>
+                            <div>{school.name}</div>
+                            <div className="muted">
+                              {school.code} · {plan ? `gói ${plan.name}` : 'chưa gán gói'}
+                            </div>
+                          </td>
+                          <td>
+                            <QuotaBar
+                              label={`Yêu cầu AI của ${school.code} so với hạn mức`}
+                              used={school.requests}
+                              limit={plan?.ai_max_requests ?? null}
+                            />
+                          </td>
+                          <td>
+                            <QuotaBar
+                              label={`Token AI của ${school.code} so với hạn mức`}
+                              used={school.tokens}
+                              limit={plan?.ai_max_tokens ?? null}
+                            />
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            ) : null}
             {usage.length === 0 ? (
-              <EmptyState title="Tháng này chưa có lượt dùng trợ lý AI" />
+              usageError ? null : (
+                <EmptyState title="Tháng này chưa có lượt dùng trợ lý AI" />
+              )
             ) : (
               <div className="table-scroll">
                 <table className="sticky-first" aria-label="Token AI đã dùng" style={{ minWidth: 820 }}>
