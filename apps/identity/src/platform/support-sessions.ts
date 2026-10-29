@@ -24,6 +24,7 @@ import {
   type PlatformDatabase,
   type PlatformOperatorRole,
   type SupportAccessBasis,
+  type SupportRequesterKind,
   type SupportScope,
   type SystemDatabase,
   type TenancyRuntime,
@@ -650,6 +651,28 @@ export class SupportSessionsService {
   async describe(identitySessionId: string) {
     const active = await this.requireActive(identitySessionId);
     return { id: active.id, scope: active.scope, operator_name: active.operatorName, expires_at: active.expiresAt };
+  }
+
+  // Nhân viên vận hành hoặc tài khoản cấp trên bị khóa, nhân viên bị hạ vai trò: kết thúc mọi phiên hỗ trợ đang mở của người đó
+  async endForRequester(
+    requesterKind: SupportRequesterKind,
+    requesterId: string,
+    reason: string,
+    actor: { type: 'operator'; id: string; name: string },
+  ): Promise<void> {
+    if (!this.tenancy) {
+      return;
+    }
+    const sessions = await this.platform
+      .selectFrom('support_sessions')
+      .select('id')
+      .where('requester_kind', '=', requesterKind)
+      .where('operator_id', '=', requesterId)
+      .where('ended_at', 'is', null)
+      .execute();
+    for (const session of sessions) {
+      await this.end(session.id, reason, actor);
+    }
   }
 
   // Nhân viên nền tảng đăng xuất: kết thúc phiên hỗ trợ gắn với phiên đăng nhập

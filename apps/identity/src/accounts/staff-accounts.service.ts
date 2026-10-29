@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { ApplicationError, Clock, ruleViolationError } from '@school-management/server';
-import { PERMISSION_CODES } from '@school-management/shared';
+import { PERMISSION_CODES, STUDENT_ROLE_CODE } from '@school-management/shared';
 import { Infrastructure } from '../common/infrastructure.js';
 import { forbidden } from './account-authority.js';
 import type { CallerContext } from './accounts.service.js';
@@ -12,6 +12,8 @@ import { assertPermissionAtUnit } from './permission-scope.js';
 // Tài khoản gắn với hồ sơ nhân sự: phòng nhân sự tra tài khoản có sẵn để liên kết; chấm dứt hợp đồng thì khóa tài khoản
 // ngay, không xóa (P07-01, P07-02; BR-05; YCTD-58). Máy chủ API gọi bằng mã phiên của người thao tác
 const PROTECTED_ROLES = ['VT-01', 'VT-02'];
+// Phụ huynh, học sinh không phải vai trò nhân sự
+const NON_STAFF_ROLES = ['VT-14', STUDENT_ROLE_CODE];
 
 export interface StaffAccountView {
   user_id: string;
@@ -78,6 +80,14 @@ export class StaffAccountsService {
     if (assignments.some((assignment) => PROTECTED_ROLES.includes(assignment.role_code))) {
       throw forbidden('Không khóa được tài khoản quản trị hoặc Hiệu trưởng qua chấm dứt hợp đồng');
     }
+    // Chỉ khóa tài khoản có vai trò nhân sự, mọi vai trò nhân sự nằm trong phạm vi người thao tác (YCTD-378)
+    const staffAssignments = assignments.filter((assignment) => !NON_STAFF_ROLES.includes(assignment.role_code));
+    if (staffAssignments.length === 0) {
+      throw ruleViolationError('BR-37', 'Tài khoản này không có vai trò nhân sự');
+    }
+    for (const orgUnitId of new Set(staffAssignments.map((assignment) => assignment.org_unit_id))) {
+      await this.assertStaffManager(caller, orgUnitId);
+    }
     if (user.status !== 'locked') {
       const now = this.clock.now();
       await this.database.transaction().execute(async (transaction) => {
@@ -112,7 +122,7 @@ export class StaffAccountsService {
     };
   }
 
-  private async assertStaffManager(caller: CallerContext, orgUnitId: string): Promise<void> {
+  private async assertStaffManager(caller: CallerContext, orgUnitId: string | null): Promise<void> {
     await assertPermissionAtUnit(
       this.database,
       this.organizationDirectory,

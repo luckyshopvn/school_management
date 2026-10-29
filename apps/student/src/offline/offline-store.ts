@@ -1,14 +1,16 @@
-import { isExpired } from './offline-rules.ts';
+import { isExpired, ownedKey } from './offline-rules.ts';
 
 // Kho trên máy của học khi mạng yếu (DT-28 phần 28j, YCTD-280): IndexedDB theo nguồn gốc của trường (mỗi trường một nguồn gốc nên
 // dữ liệu tự tách). Mỗi bản ghi mã hoá AES-GCM bằng khóa sinh trên máy, không xuất được (CryptoKey lưu trong chính IndexedDB);
-// trình duyệt không có WebCrypto thì lưu không mã hoá. Khóa bản ghi chỉ có loại và mã, không có tên học sinh. Xoá hết khi đăng xuất
+// trình duyệt không có WebCrypto thì lưu không mã hoá. Khóa bản ghi chỉ có loại và mã, không có tên học sinh. Xoá hết khi đăng xuất.
+// Từ YCTD-379 mỗi bản ghi và khóa mã hoá gắn với một người dùng (chủ): đọc, ghi, liệt kê chỉ trong phần của chủ
 const DATABASE = 'hoc-khi-mang-yeu';
 const RECORDS = 'records';
 const KEYS = 'keys';
 
 interface StoredRecord {
   key: string;
+  owner?: string;
   saved_at: number;
   encrypted: boolean;
   iv?: Uint8Array<ArrayBuffer>;
@@ -44,13 +46,14 @@ export function offlineStorageAvailable(): boolean {
   return typeof indexedDB !== 'undefined';
 }
 
-async function cryptoKey(): Promise<CryptoKey | null> {
+async function cryptoKey(owner: string): Promise<CryptoKey | null> {
   if (!globalThis.crypto?.subtle) return null;
   const db = await database();
-  const existing = await request(db.transaction(KEYS).objectStore(KEYS).get('main'));
+  const name = `owner:${owner}`;
+  const existing = await request(db.transaction(KEYS).objectStore(KEYS).get(name));
   if (existing) return existing as CryptoKey;
   const key = await crypto.subtle.generateKey({ name: 'AES-GCM', length: 256 }, false, ['encrypt', 'decrypt']);
-  await request(db.transaction(KEYS, 'readwrite').objectStore(KEYS).put(key, 'main'));
+  await request(db.transaction(KEYS, 'readwrite').objectStore(KEYS).put(key, name));
   return key;
 }
 
@@ -61,10 +64,10 @@ async function encode(value: unknown): Promise<{ data: ArrayBuffer; type: string
   return { data: new TextEncoder().encode(JSON.stringify(value)).buffer as ArrayBuffer, type: null };
 }
 
-export async function putRecord(key: string, value: unknown): Promise<void> {
+export async function putRecord(owner: string, key: string, value: unknown): Promise<void> {
   const { data, type } = await encode(value);
-  const secret = await cryptoKey();
-  const record: StoredRecord = { key, saved_at: Date.now(), encrypted: false, data, type };
+  const secret = await cryptoKey(owner);
+  const record: StoredRecord = { key: ownedKey(owner, key), owner, saved_at: Date.now(), encrypted: false, data, type };
   if (secret) {
     const iv = crypto.getRandomValues(new Uint8Array(12));
     record.data = await crypto.subtle.encrypt({ name: 'AES-GCM', iv }, secret, data);
@@ -75,61 +78,77 @@ export async function putRecord(key: string, value: unknown): Promise<void> {
   await request(db.transaction(RECORDS, 'readwrite').objectStore(RECORDS).put(record));
 }
 
-async function decode(record: StoredRecord): Promise<unknown> {
+async function decode(owner: string, record: StoredRecord): Promise<unknown> {
+  if (record.owner !== owner) throw new Error('Bản ghi của người dùng khác');
   let data = record.data;
   if (record.encrypted) {
-    const secret = await cryptoKey();
+    const secret = await cryptoKey(owner);
     if (!secret || !record.iv) return null;
     data = await crypto.subtle.decrypt({ name: 'AES-GCM', iv: record.iv }, secret, data);
   }
   return record.type ? new Blob([data], { type: record.type }) : JSON.parse(new TextDecoder().decode(data));
 }
 
-export async function getRecord<T>(key: string): Promise<{ value: T; saved_at: number } | null> {
+export async function getRecord<T>(owner: string, key: string): Promise<{ value: T; saved_at: number } | null> {
   const db = await database();
-  const record = (await request(db.transaction(RECORDS).objectStore(RECORDS).get(key))) as StoredRecord | undefined;
+  const fullKey = ownedKey(owner, key);
+  const record = (await request(db.transaction(RECORDS).objectStore(RECORDS).get(fullKey))) as StoredRecord | undefined;
   if (!record) return null;
   try {
-    return { value: (await decode(record)) as T, saved_at: record.saved_at };
+    return { value: (await decode(owner, record)) as T, saved_at: record.saved_at };
   } catch {
-    await removeRecord(key);
+    await removeFullKey(fullKey);
     return null;
   }
 }
 
-export async function listRecords<T>(prefix: string): Promise<Array<{ key: string; value: T; saved_at: number }>> {
+export async function listRecords<T>(
+  owner: string,
+  prefix: string,
+): Promise<Array<{ key: string; value: T; saved_at: number }>> {
   const db = await database();
   const records = (await request(db.transaction(RECORDS).objectStore(RECORDS).getAll())) as StoredRecord[];
+  const ownedPrefix = ownedKey(owner, prefix);
   const result: Array<{ key: string; value: T; saved_at: number }> = [];
-  for (const record of records.filter((item) => item.key.startsWith(prefix))) {
+  for (const record of records.filter((item) => item.key.startsWith(ownedPrefix))) {
     try {
-      result.push({ key: record.key, value: (await decode(record)) as T, saved_at: record.saved_at });
+      result.push({
+        key: record.key.slice(ownedKey(owner, '').length),
+        value: (await decode(owner, record)) as T,
+        saved_at: record.saved_at,
+      });
     } catch {
-      await removeRecord(record.key);
+      await removeFullKey(record.key);
     }
   }
   return result;
 }
 
-export async function removeRecord(key: string): Promise<void> {
+async function removeFullKey(fullKey: string): Promise<void> {
   const db = await database();
-  await request(db.transaction(RECORDS, 'readwrite').objectStore(RECORDS).delete(key));
+  await request(db.transaction(RECORDS, 'readwrite').objectStore(RECORDS).delete(fullKey));
 }
 
-export async function removePrefix(prefix: string): Promise<void> {
+export async function removeRecord(owner: string, key: string): Promise<void> {
+  await removeFullKey(ownedKey(owner, key));
+}
+
+export async function removePrefix(owner: string, prefix: string): Promise<void> {
   const db = await database();
   const keys = (await request(db.transaction(RECORDS).objectStore(RECORDS).getAllKeys())) as string[];
-  for (const key of keys.filter((item) => item.startsWith(prefix))) {
-    await removeRecord(key);
+  const ownedPrefix = ownedKey(owner, prefix);
+  for (const key of keys.filter((item) => item.startsWith(ownedPrefix))) {
+    await removeFullKey(key);
   }
 }
 
+// Xoá bản ghi quá hạn của mọi người dùng và bản ghi cũ chưa gắn người dùng (trước YCTD-379)
 export async function purgeExpired(retentionDays: number): Promise<void> {
   const db = await database();
   const records = (await request(db.transaction(RECORDS).objectStore(RECORDS).getAll())) as StoredRecord[];
   const now = Date.now();
-  for (const record of records.filter((item) => isExpired(item.saved_at, now, retentionDays))) {
-    await removeRecord(record.key);
+  for (const record of records.filter((item) => !item.owner || isExpired(item.saved_at, now, retentionDays))) {
+    await removeFullKey(record.key);
   }
 }
 

@@ -2,6 +2,7 @@ import { hash, verify } from '@node-rs/argon2';
 import { Body, Controller, HttpCode, Injectable, Post, Put, Req } from '@nestjs/common';
 import { ApplicationError, unauthenticatedError, validationError } from '@school-management/server';
 import type { Request } from 'express';
+import { sql } from 'kysely';
 import { PublicEndpoint } from '../authentication/authentication.guard.js';
 import type { RequestBody } from '../common/request-fields.js';
 import { checkMarketPassword, normalizePhone } from './market-accounts.js';
@@ -9,11 +10,9 @@ import { MarketContext } from './market-context.js';
 import { MarketMessenger } from './market-messenger.js';
 import {
   hashSessionToken,
-  hashVerificationCode,
   MARKET_CODE_LIFETIME_MS,
   MARKET_CODE_MAX_ATTEMPTS,
   newVerificationCode,
-  sameHash,
 } from './market-tokens.js';
 
 // Mật khẩu và thông tin tài khoản chợ gia sư (YCTD-364, thiết kế Eric duyệt ngày 2026-10-28; việc T-M5 của rà soát giao diện), dùng chung
@@ -23,7 +22,13 @@ import {
 //   phải lấy mã mới; câu trả lời không cho biết tài khoản có tồn tại hay không; đặt lại xong thì mọi phiên bị thu hồi, gỡ khóa đăng nhập;
 // - xác nhận lại mật khẩu (thoát chế độ con đọc tin nhắn của phụ huynh);
 // - sửa tên hiển thị. Đổi thư điện tử, số điện thoại cần xác nhận kênh mới nên chưa làm
+// Mã đặt lại mật khẩu (YCTD-379): lưu bằng argon2; mỗi lần nhập mã giành một lượt thử bằng một câu lệnh cập nhật có điều kiện trước khi
+// so mã, nên gửi đồng thời vẫn không quá số lượt; trong 24 giờ một tài khoản có tối đa 10 lượt thử và 10 mã, lấy mã mới không làm
+// mới số lượt thử
 const RESEND_INTERVAL_MS = 60 * 1000;
+const RESET_WINDOW_MS = 24 * 60 * 60 * 1000;
+const RESET_ATTEMPTS_PER_WINDOW = 10;
+const RESET_CODES_PER_WINDOW = 10;
 
 function text(body: RequestBody, field: string): string {
   const value = body?.[field];
@@ -103,17 +108,31 @@ export class MarketPasswordService {
       .executeTakeFirst();
   }
 
+  // Số mã đặt lại đã cấp, số lượt thử đã dùng và lần cấp mã gần nhất của tài khoản trong 24 giờ
+  private async resetUsage(accountId: string) {
+    return this.market.database
+      .selectFrom('market_verification_codes')
+      .select([
+        sql<number>`count(*)::int`.as('codes'),
+        sql<number>`coalesce(sum(attempts), 0)::int`.as('attempts'),
+        sql<Date | null>`max(created_at)`.as('last_created_at'),
+      ])
+      .where('account_id', '=', accountId)
+      .where('purpose', '=', 'reset')
+      .where('created_at', '>', new Date(this.market.now().getTime() - RESET_WINDOW_MS))
+      .executeTakeFirstOrThrow();
+  }
+
   async forgot(request: Request, body: RequestBody) {
     const account = await this.accountByLogin(request, text(body, 'login'));
     if (account) {
-      const last = await this.market.database
-        .selectFrom('market_verification_codes')
-        .select('created_at')
-        .where('account_id', '=', account.id)
-        .where('purpose', '=', 'reset')
-        .orderBy('created_at', 'desc')
-        .executeTakeFirst();
-      if (!last || this.market.now().getTime() - last.created_at.getTime() >= RESEND_INTERVAL_MS) {
+      const usage = await this.resetUsage(account.id);
+      const allowed =
+        usage.codes < RESET_CODES_PER_WINDOW &&
+        usage.attempts < RESET_ATTEMPTS_PER_WINDOW &&
+        (!usage.last_created_at ||
+          this.market.now().getTime() - new Date(usage.last_created_at).getTime() >= RESEND_INTERVAL_MS);
+      if (allowed) {
         const code = newVerificationCode();
         const channel = account.email ? 'email' : 'sms';
         await this.market.database
@@ -122,7 +141,7 @@ export class MarketPasswordService {
             account_id: account.id,
             channel,
             purpose: 'reset',
-            code_hash: hashVerificationCode(account.id, code),
+            code_hash: await hash(code),
             expires_at: new Date(this.market.now().getTime() + MARKET_CODE_LIFETIME_MS),
           })
           .execute();
@@ -147,7 +166,7 @@ export class MarketPasswordService {
     const row = account
       ? await this.market.database
           .selectFrom('market_verification_codes')
-          .select(['id', 'code_hash', 'attempts', 'expires_at'])
+          .select(['id', 'code_hash'])
           .where('account_id', '=', account.id)
           .where('purpose', '=', 'reset')
           .where('used_at', 'is', null)
@@ -155,22 +174,43 @@ export class MarketPasswordService {
           .executeTakeFirst()
       : undefined;
     const now = this.market.now();
-    if (!account || !row || row.expires_at.getTime() <= now.getTime() || row.attempts >= MARKET_CODE_MAX_ATTEMPTS) {
-      throw validationError([{ field: 'code', message: 'Mã đã hết hạn hoặc nhập sai quá số lần, hãy lấy mã mới' }]);
+    const expired = () =>
+      validationError([{ field: 'code', message: 'Mã đã hết hạn hoặc nhập sai quá số lần, hãy lấy mã mới' }]);
+    if (!account || !row) {
+      throw expired();
     }
-    if (!/^\d{6}$/.test(code) || !sameHash(row.code_hash, hashVerificationCode(account.id, code))) {
-      await this.market.database
-        .updateTable('market_verification_codes')
-        .set((eb) => ({ attempts: eb('attempts', '+', 1) }))
-        .where('id', '=', row.id)
-        .execute();
+    // Giành một lượt thử trước khi so mã: mã còn lượt và tài khoản còn lượt trong 24 giờ
+    const since = new Date(now.getTime() - RESET_WINDOW_MS);
+    const claimed = await this.market.database
+      .updateTable('market_verification_codes')
+      .set((eb) => ({ attempts: eb('attempts', '+', 1) }))
+      .where('id', '=', row.id)
+      .where('used_at', 'is', null)
+      .where('expires_at', '>', now)
+      .where('attempts', '<', MARKET_CODE_MAX_ATTEMPTS)
+      .where(
+        sql<boolean>`(select coalesce(sum(recent.attempts), 0) from market_verification_codes recent
+          where recent.account_id = ${account.id} and recent.purpose = 'reset' and recent.created_at > ${since})
+          < ${RESET_ATTEMPTS_PER_WINDOW}`,
+      )
+      .returning('id')
+      .executeTakeFirst();
+    if (!claimed) {
+      throw expired();
+    }
+    if (!/^\d{6}$/.test(code) || !(await verify(row.code_hash, code).catch(() => false))) {
       throw validationError([{ field: 'code', message: 'Mã không đúng' }]);
     }
-    await this.market.database
+    const used = await this.market.database
       .updateTable('market_verification_codes')
       .set({ used_at: now })
       .where('id', '=', row.id)
-      .execute();
+      .where('used_at', 'is', null)
+      .returning('id')
+      .executeTakeFirst();
+    if (!used) {
+      throw expired();
+    }
     await this.setPassword(account.id, next, null);
     await this.market.audit({ actorType: 'account', actorId: account.id, action: 'account.password-reset' });
     return { reset: true };

@@ -12,9 +12,13 @@ import {
   OPERATOR_TEST_PASSWORD,
   operatorOtp,
 } from '@school-management/identity/testing';
-import type { Kysely } from 'kysely';
+import { sql, type Kysely } from 'kysely';
+import { FileStorage } from '../files/file-storage.js';
 import { startMultiTenantApi, sendWithHost, type MultiTenantApi, type Reply } from '../tenant-test-support.js';
+import { MockVideoProvider, VIDEO_PROVIDER } from '../video/video-provider.js';
 import { MarketContext } from './market-context.js';
+import { marketStorage } from './market-files.js';
+import { MARKET_RATE_LIMITS, MarketRateLimiter } from './market-rate-limit.js';
 import { MarketMessenger } from './market-messenger.js';
 import { MarketplacePaymentProvider, type MockMarketplacePaymentProvider } from './market-payment-provider.js';
 
@@ -678,6 +682,73 @@ describe('chợ gia sư: an toàn trẻ em và kiểm duyệt (27i)', () => {
     assert.equal((await raw(MARKET_HOST, `/bookings/${id}/recording/stream`, parent.token)).status, 404);
   });
 
+  it('CT-1716: nhà cung cấp video báo ghi xong qua sự kiện gọi lại (như LiveKit): bản ghi được mã hóa, chuyển sang xem được, tệp thô bị xóa (YCTD-379)', async () => {
+    const video = environment.api.get(VIDEO_PROVIDER) as MockVideoProvider;
+    const storage = marketStorage(environment.api.get(FileStorage));
+    const parent = await registerParent();
+    const tutor = await seedTutor();
+    const id = await paidBooking(parent, tutor, 48);
+    await database
+      .updateTable('market_bookings')
+      .set({ starts_at: new Date(Date.now() - 5 * 60_000) })
+      .where('id', '=', id)
+      .execute();
+    video.deferRecordingCompletion = true;
+    try {
+      const started = await call(TUTOR_HOST, 'POST', `/tutor/bookings/${id}/session/start`, undefined, tutor.token);
+      assert.equal(started.status, 200, JSON.stringify(started.body));
+      const ended = await call(TUTOR_HOST, 'POST', `/tutor/bookings/${id}/session/end`, undefined, tutor.token);
+      assert.equal(ended.body.recording, 'processing');
+    } finally {
+      video.deferRecordingCompletion = false;
+    }
+    const recording = await database
+      .selectFrom('market_session_recordings')
+      .select(['egress_id', 'file_key'])
+      .where('booking_id', '=', id)
+      .executeTakeFirstOrThrow();
+    // Bộ ghi của nhà cung cấp tải tệp thô lên kho tại khóa đã giao
+    const contents = Buffer.from('ban ghi tu nha cung cap');
+    await storage.put(recording.file_key, contents, 'video/mp4');
+    const webhook = async (event: object) => {
+      const body = JSON.stringify(event);
+      const response = await fetch(`${environment.apiOrigin}/api/v1/video/webhook`, {
+        method: 'POST',
+        headers: { 'content-type': 'application/webhook+json', authorization: `Mock ${video.signature(body)}` },
+        body,
+      });
+      return response.status;
+    };
+    const finished = {
+      kind: 'recording_ended',
+      room: `market-${id}`,
+      egress_id: recording.egress_id,
+      succeeded: true,
+      size_bytes: contents.length,
+    };
+    assert.equal(await webhook(finished), 200);
+    const stored = await database
+      .selectFrom('market_session_recordings')
+      .select(['status', 'file_key', 'retain_until'])
+      .where('booking_id', '=', id)
+      .executeTakeFirstOrThrow();
+    assert.equal(stored.status, 'ready');
+    assert.ok(stored.retain_until);
+    assert.notDeepEqual(await storage.get(stored.file_key), contents, 'tệp lưu đã mã hóa');
+    if (stored.file_key !== recording.file_key) {
+      await assert.rejects(storage.get(recording.file_key), 'tệp thô đã xóa');
+    }
+    const viewed = await raw(MARKET_HOST, `/bookings/${id}/recording/stream`, parent.token);
+    assert.equal(viewed.status, 200);
+    assert.equal(viewed.body.toString(), contents.toString());
+    // Sự kiện gửi lại không mã hóa lần nữa
+    assert.equal(await webhook(finished), 200);
+    assert.equal(
+      (await raw(MARKET_HOST, `/bookings/${id}/recording/stream`, parent.token)).body.toString(),
+      contents.toString(),
+    );
+  });
+
   it('CT-27j-2: phòng học video: gia sư vắng thì hoàn đủ; điểm danh khi kết thúc; gia sư không xác nhận thì tự xác nhận sau 24 giờ', async () => {
     const parent = await registerParent();
     const tutor = await seedTutor();
@@ -922,6 +993,79 @@ describe('chợ gia sư: an toàn trẻ em và kiểm duyệt (27i)', () => {
     );
     assert.equal((await call(MARKET_HOST, 'PUT', '/me', { display_name: 'Mẹ của Bé' }, token)).status, 200);
     assert.equal((await call(MARKET_HOST, 'GET', '/me', undefined, token)).body.display_name, 'Mẹ của Bé');
+  });
+
+  it('CT-1717: mã đặt lại mật khẩu: gửi đồng thời vẫn chỉ được 5 lần thử; lấy mã mới không làm mới số lần thử trong ngày; mã lưu bằng hàm băm chậm (YCTD-379)', async () => {
+    environment.api.get(MarketRateLimiter).reset();
+    const parent = await registerParent();
+    const messenger = environment.api.get(MarketMessenger);
+    const latestCode = () => /(\d{6})/.exec(messenger.lastTo(parent.email)?.text ?? '')?.[1] ?? '';
+    const reset = (code: string) =>
+      call(MARKET_HOST, 'POST', '/auth/password/reset', { login: parent.email, code, new_password: 'datlai123' });
+    const wrong = (code: string) => (code === '000000' ? '111111' : '000000');
+    // Lùi thời điểm cấp mã để lấy mã mới không phải chờ 60 giây
+    const ageCodes = () =>
+      sql`update market_verification_codes set created_at = created_at - interval '2 minutes'
+        where account_id = ${parent.id} and purpose = 'reset'`.execute(database);
+
+    assert.equal((await call(MARKET_HOST, 'POST', '/auth/password/forgot', { login: parent.email })).status, 200);
+    const first = latestCode();
+    const stored = await database
+      .selectFrom('market_verification_codes')
+      .select('code_hash')
+      .where('account_id', '=', parent.id)
+      .where('purpose', '=', 'reset')
+      .executeTakeFirstOrThrow();
+    assert.match(stored.code_hash, /^\$argon2/, 'mã lưu bằng argon2');
+
+    // Gửi 8 lần sai đồng thời: chỉ 5 lần được so mã
+    const replies = await Promise.all(Array.from({ length: 8 }, () => reset(wrong(first))));
+    const compared = replies.filter((reply) => JSON.stringify(reply.body).includes('Mã không đúng')).length;
+    assert.ok(compared <= 5, `số lần được so mã: ${compared}`);
+    assert.equal((await reset(first)).status, 400, 'mã đúng cũng bị từ chối sau khi hết lượt');
+
+    // Mã mới chỉ còn phần lượt thử còn lại trong ngày
+    await ageCodes();
+    assert.equal((await call(MARKET_HOST, 'POST', '/auth/password/forgot', { login: parent.email })).status, 200);
+    const second = latestCode();
+    assert.notEqual(second, '');
+    for (let attempt = 0; attempt < 5; attempt += 1) {
+      await reset(wrong(second));
+    }
+    await ageCodes();
+    const sentBefore = messenger.outbox.filter((message) => message.to === parent.email).length;
+    assert.equal((await call(MARKET_HOST, 'POST', '/auth/password/forgot', { login: parent.email })).status, 200);
+    assert.equal(
+      messenger.outbox.filter((message) => message.to === parent.email).length,
+      sentBefore,
+      'hết lượt thử trong ngày thì không cấp mã mới',
+    );
+    assert.equal((await reset(second)).status, 400);
+    const login = await call(MARKET_HOST, 'POST', '/auth/login', { login: parent.email, password: 'datlai123' });
+    assert.notEqual(login.status, 200, 'mật khẩu không bị đổi');
+  });
+
+  it('CT-1718: điểm cuối của chợ giới hạn số yêu cầu theo địa chỉ mạng (YCTD-379)', async () => {
+    const limiter = environment.api.get(MarketRateLimiter);
+    limiter.reset();
+    try {
+      const statuses: number[] = [];
+      for (let attempt = 0; attempt < MARKET_RATE_LIMITS.code.limit + 1; attempt += 1) {
+        statuses.push(
+          (
+            await call(MARKET_HOST, 'POST', '/auth/password/reset', {
+              login: 'khong-co@example.test',
+              code: '000000',
+              new_password: 'datlai123',
+            })
+          ).status,
+        );
+      }
+      assert.ok(statuses.slice(0, -1).every((status) => status === 400));
+      assert.equal(statuses.at(-1), 429);
+    } finally {
+      limiter.reset();
+    }
   });
   it('CT-365-1: gói buổi: mua, trả tiền giả lập, đặt buổi từ gói, hủy trả lượt, hết hạn hoàn phần chưa học (GD-165)', async () => {
     const parent = await registerParent();

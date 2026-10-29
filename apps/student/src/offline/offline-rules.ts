@@ -12,6 +12,23 @@ export function recordKey(scope: RecordScope, id: string): string {
   return `${scope}:${id}`;
 }
 
+// Chủ của dữ liệu trên máy (YCTD-379): mã người dùng trong mã phiên (`sub`). Bản ghi và khóa mã hoá gắn với chủ, nên em khác đăng nhập
+// trên cùng máy không đọc, không gửi được bài của em trước
+export function ownerOfAccessToken(token: string): string | null {
+  const payload = token.split('.')[1];
+  if (!payload) return null;
+  try {
+    const claims = JSON.parse(atob(payload.replace(/-/g, '+').replace(/_/g, '/'))) as { sub?: unknown };
+    return typeof claims.sub === 'string' && claims.sub !== '' ? claims.sub : null;
+  } catch {
+    return null;
+  }
+}
+
+export function ownedKey(owner: string, key: string): string {
+  return `${owner}/${key}`;
+}
+
 export function isExpired(savedAt: number, now: number, retentionDays: number): boolean {
   const days = Math.min(Math.max(1, Math.floor(retentionDays)), MAXIMUM_RETENTION_DAYS);
   return now - savedAt > days * DAY_MS || savedAt > now + DAY_MS;

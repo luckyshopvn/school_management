@@ -448,4 +448,92 @@ describe('bảng điều khiển nền tảng và phiên hỗ trợ', () => {
     };
     assert.equal(afterCancel.items.find((item) => item.id === noticeId)?.state, 'cancelled');
   });
+
+  it('CT-1713: khóa hoặc hạ vai trò nhân viên vận hành thì phiên hỗ trợ đang mở của người đó kết thúc (YCTD-377)', async () => {
+    const signIn = async (role: 'quan_tri' | 'ho_tro') => {
+      const account = `nv-${role}-${Math.random().toString(36).slice(2, 8)}`;
+      const created = await createPlatformOperatorWithTotp(platform.platform, platform.masterKey, {
+        login: account,
+        fullName: 'Nhân viên giả',
+        password: OPERATOR_TEST_PASSWORD,
+        role,
+      });
+      const reply = await send(context, {
+        path: '/auth/platform/login',
+        host: CONSOLE_HOST,
+        body: {
+          login: account,
+          password: OPERATOR_TEST_PASSWORD,
+          otp_code: await operatorOtp(platform.platform, created.id, created.secret, context.clock.now()),
+        },
+      });
+      return { id: created.id, token: (reply.body as { access_token: string }).access_token };
+    };
+    const host = platform.school('alpha').host;
+    const openSession = async (staffToken: string) => {
+      const started = await send(context, {
+        path: `/auth/platform/schools/${code()}/support-sessions`,
+        host: CONSOLE_HOST,
+        token: staffToken,
+        body: { reason: 'Hỗ trợ trường cấu hình' },
+      });
+      assert.equal(started.status, 200, JSON.stringify(started.body));
+      const supportCode = new URL(
+        (started.body as { handoff: { path: string } }).handoff.path,
+        'http://x',
+      ).searchParams.get('code');
+      const exchanged = await send(context, { path: '/auth/support/exchange', host, body: { code: supportCode } });
+      assert.equal(exchanged.status, 200);
+      const access = (exchanged.body as { access_token: string }).access_token;
+      assert.equal((await send(context, { path: '/auth/me', host, token: access })).status, 200);
+      return { id: (started.body as { session_id: string }).session_id, access };
+    };
+    const endedAt = async (sessionId: string) =>
+      (
+        await runtime.platform
+          .selectFrom('support_sessions')
+          .select('ended_at')
+          .where('id', '=', sessionId)
+          .executeTakeFirstOrThrow()
+      ).ended_at;
+    const admin = await signIn('quan_tri');
+    const changeOperator = (id: string, body: unknown) =>
+      send(context, {
+        method: 'PATCH',
+        path: `/auth/platform/operators/${id}`,
+        host: CONSOLE_HOST,
+        token: admin.token,
+        body,
+      });
+
+    await grant('full');
+    // Khóa nhân viên: phiên hỗ trợ kết thúc, phiên đăng nhập ở trường bị thu hồi
+    const locked = await signIn('ho_tro');
+    const lockedSession = await openSession(locked.token);
+    assert.equal((await changeOperator(locked.id, { status: 'locked' })).status, 200);
+    assert.ok(await endedAt(lockedSession.id));
+    assert.equal((await send(context, { path: '/auth/me', host, token: lockedSession.access })).status, 401);
+
+    // Hạ sang vai trò không được mở phiên hỗ trợ: phiên kết thúc
+    const demoted = await signIn('ho_tro');
+    const demotedSession = await openSession(demoted.token);
+    assert.equal((await changeOperator(demoted.id, { role: 'ke_toan' })).status, 200);
+    assert.ok(await endedAt(demotedSession.id));
+    assert.equal((await send(context, { path: '/auth/me', host, token: demotedSession.access })).status, 401);
+
+    // Đổi sang vai trò vẫn mở được phiên hỗ trợ: phiên giữ nguyên
+    const kept = await signIn('ho_tro');
+    const keptSession = await openSession(kept.token);
+    assert.equal((await changeOperator(kept.id, { role: 'ky_thuat' })).status, 200);
+    assert.equal(await endedAt(keptSession.id), null);
+    assert.equal((await send(context, { path: '/auth/me', host, token: keptSession.access })).status, 200);
+
+    // Nhân viên bị khóa trực tiếp trong cơ sở dữ liệu (chưa qua thao tác khóa): phiên không còn dùng được
+    await runtime.platform
+      .updateTable('platform_operators')
+      .set({ status: 'locked' })
+      .where('id', '=', kept.id)
+      .execute();
+    assert.equal((await send(context, { path: '/auth/me', host, token: keptSession.access })).status, 401);
+  });
 });

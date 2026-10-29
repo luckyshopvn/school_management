@@ -166,7 +166,8 @@ export interface ActiveSupportSession {
   fullAccess: boolean;
 }
 
-// Phiên hỗ trợ đang mở gắn với một phiên đăng nhập của trường (mã phiên `sid`); hết hạn hoặc đã kết thúc thì null
+// Phiên hỗ trợ đang mở gắn với một phiên đăng nhập của trường (mã phiên `sid`); hết hạn, đã kết thúc hoặc người mở phiên (nhân viên
+// vận hành, tài khoản cấp trên) không còn hoạt động thì null (YCTD-377)
 export async function activeSupportSession(
   platform: Kysely<PlatformDatabase>,
   identitySessionId: string,
@@ -175,6 +176,7 @@ export async function activeSupportSession(
   const row = await platform
     .selectFrom('support_sessions')
     .leftJoin('platform_operators', 'platform_operators.id', 'support_sessions.operator_id')
+    .leftJoin('parent_org_users', 'parent_org_users.id', 'support_sessions.operator_id')
     .select([
       'support_sessions.id',
       'support_sessions.school_id',
@@ -185,12 +187,15 @@ export async function activeSupportSession(
       'support_sessions.requester_kind',
       'platform_operators.role as operator_role',
       'platform_operators.status as operator_status',
+      'parent_org_users.status as parent_org_user_status',
     ])
     .where('support_sessions.identity_session_id', '=', identitySessionId)
     .where('support_sessions.ended_at', 'is', null)
     .where('support_sessions.expires_at', '>', now)
     .executeTakeFirst();
-  return row
+  const requesterActive =
+    row?.requester_kind === 'parent_org' ? row.parent_org_user_status === 'active' : row?.operator_status === 'active';
+  return row && requesterActive
     ? {
         id: row.id,
         schoolId: row.school_id,

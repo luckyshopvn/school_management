@@ -5,6 +5,7 @@ import {
   HttpCode,
   Inject,
   Injectable,
+  Logger,
   Optional,
   Param,
   Post,
@@ -80,6 +81,7 @@ function pick<T extends string>(value: unknown, allowed: readonly T[]): T | null
 
 @Injectable()
 export class MarketSafetyService implements OnApplicationBootstrap, OnModuleDestroy {
+  private readonly logger = new Logger(MarketSafetyService.name);
   private timer: NodeJS.Timeout | null = null;
 
   constructor(
@@ -91,7 +93,9 @@ export class MarketSafetyService implements OnApplicationBootstrap, OnModuleDest
     @Inject(API_CONFIGURATION) private readonly configuration: ApiConfiguration,
     private readonly rooms: MarketRoomsService,
     @Optional() @Inject(VIDEO_PROVIDER) private readonly video: VideoRoomProvider | null = null,
-  ) {}
+  ) {
+    rooms.onRecordingEnded((recording, at) => this.finishRecording(recording, at));
+  }
 
   // Xóa bản ghi hết hạn giữ theo chu kỳ việc định kỳ của chợ (MARKET_JOB_INTERVAL_SECONDS)
   onApplicationBootstrap(): void {
@@ -749,6 +753,8 @@ export class MarketSafetyService implements OnApplicationBootstrap, OnModuleDest
           retain_until: recordingRetainUntil(now),
         })
         .where('id', '=', recording.id)
+        // Sự kiện ghi xong của nhà cung cấp có thể tới trước (finishRecording): không ghi đè trạng thái đã chốt
+        .where('status', '=', 'recording')
         .execute();
       await this.market.audit({
         actorType: 'account',
@@ -760,6 +766,60 @@ export class MarketSafetyService implements OnApplicationBootstrap, OnModuleDest
     await video.endRoom(`market-${booking.id}`);
     await this.rooms.closed(booking.id);
     return { recording: (await this.recordingFor(booking.id))?.status ?? null };
+  }
+
+  // Nhà cung cấp video báo ghi xong (LiveKit gửi sự kiện sau khi dừng ghi; tệp thô đã ở kho tại khóa đã giao): mã hóa sang khóa mới, xóa
+  // tệp thô, bản ghi xem được; ghi lỗi hoặc không đọc được tệp thì đặt `failed`. Sự kiện gửi lại thì bỏ qua (YCTD-379)
+  async finishRecording(
+    result: { egressId: string; succeeded: boolean; sizeBytes: number },
+    at: Date,
+  ): Promise<boolean> {
+    const recording = await this.market.database
+      .selectFrom('market_session_recordings')
+      .select(['id', 'booking_id', 'file_key', 'ended_at', 'retain_until'])
+      .where('egress_id', '=', result.egressId)
+      .where('status', 'in', ['recording', 'processing'])
+      .executeTakeFirst();
+    if (!recording) return false;
+    const key = this.configuration.marketFilesKey;
+    const storage = marketStorage(this.files);
+    const encryptedKey = `${recording.file_key}.enc`;
+    let stored: { sizeBytes: number } | null = null;
+    if (result.succeeded && key && hasMarketStorage(this.files)) {
+      try {
+        const contents = await storage.get(recording.file_key);
+        await storage.put(encryptedKey, encryptFile(key, contents), 'application/octet-stream');
+        stored = { sizeBytes: contents.length };
+      } catch (error) {
+        this.logger.error(
+          `Không mã hóa được bản ghi của buổi ${recording.booking_id}`,
+          error instanceof Error ? error.stack : String(error),
+        );
+      }
+    }
+    const endedAt = recording.ended_at ?? at;
+    const updated = await this.market.database
+      .updateTable('market_session_recordings')
+      .set({
+        status: stored ? 'ready' : 'failed',
+        ...(stored ? { file_key: encryptedKey, size_bytes: stored.sizeBytes } : {}),
+        ended_at: endedAt,
+        retain_until: recording.retain_until ?? recordingRetainUntil(endedAt),
+      })
+      .where('id', '=', recording.id)
+      .where('status', 'in', ['recording', 'processing'])
+      .returning('id')
+      .executeTakeFirst();
+    if (!updated) return true;
+    if (stored) {
+      await storage.delete(recording.file_key);
+    }
+    await this.market.audit({
+      actorType: 'system',
+      action: stored ? 'recording.ready' : 'recording.failed',
+      target: recording.booking_id,
+    });
+    return true;
   }
 
   async recordingStatus(request: Request, id: string) {
