@@ -6,6 +6,8 @@ import {
   type AccessRequest,
   type AggregateCategory,
   type AggregateView,
+  type ParentOrgExport,
+  type ParentOrgExportList,
   type ParentOrgProfile,
 } from './parent-org-api.js';
 import './parent-org.css';
@@ -653,6 +655,16 @@ function Compare({
   );
 }
 
+const EXPORT_STATUS: Record<ParentOrgExport['status'], { label: string; tone: string }> = {
+  queued: { label: 'Đang chờ', tone: 'pending' },
+  running: { label: 'Đang tạo', tone: 'pending' },
+  done: { label: 'Đã tạo', tone: 'approved' },
+  failed: { label: 'Lỗi', tone: 'rejected' },
+  expired: { label: 'Đã xóa', tone: 'revoked' },
+};
+
+// Xuất báo cáo (YCTD-367): tạo việc chạy nền, danh sách tệp đã xuất (tự làm mới khi còn tệp đang tạo), tải về. Bản triển khai chưa có kho
+// tệp thì tải trực tiếp từng nhóm như trước
 function Export({
   token,
   profile,
@@ -665,20 +677,41 @@ function Export({
   onUnit: (id: string) => void;
 }) {
   const [categories, setCategories] = useState<AggregateCategory[]>(profile.categories.slice(0, 1).map((c) => c.key));
+  const [layout, setLayout] = useState<'summary' | 'compare'>('summary');
   const [format, setFormat] = useState<'xlsx' | 'pdf'>('xlsx');
+  const [list, setList] = useState<ParentOrgExportList | null>(null);
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  // Máy chủ xuất mỗi nhóm một tệp, tải trực tiếp (chưa có danh sách tệp đã xuất ở máy chủ)
+  const load = useCallback(() => {
+    parentOrgApi
+      .exports(token)
+      .then(setList)
+      .catch((caught: unknown) => setError(messageOf(caught)));
+  }, [token]);
+  useEffect(load, [load]);
+  const pending = list?.exports.some((item) => item.status === 'queued' || item.status === 'running') ?? false;
+  useEffect(() => {
+    if (!pending) return;
+    const timer = window.setInterval(load, 4000);
+    return () => window.clearInterval(timer);
+  }, [pending, load]);
+
   async function submit(event: FormEvent) {
     event.preventDefault();
     setError(null);
     setMessage(null);
     setBusy(true);
     try {
-      for (const category of categories) await download(token, unitId, category, format);
-      setMessage(`Đã tạo ${categories.length} tệp.`);
+      if (list?.background_available) {
+        await parentOrgApi.createExport(token, { unit_id: unitId, categories, layout, format });
+        setMessage('Đã nhận yêu cầu. Tệp hiện ở danh sách bên dưới khi tạo xong.');
+        load();
+      } else {
+        for (const category of categories) await download(token, unitId, category, format);
+        setMessage(`Đã tải ${categories.length} tệp.`);
+      }
     } catch (caught) {
       setError(messageOf(caught));
     } finally {
@@ -695,7 +728,7 @@ function Export({
       <form className="po-card" aria-label="Xuất báo cáo" onSubmit={(event) => void submit(event)}>
         <UnitSelect profile={profile} unitId={unitId} onChange={onUnit} />
         <fieldset className="po-checks">
-          <legend>Nhóm số liệu (mỗi nhóm một tệp)</legend>
+          <legend>Nhóm số liệu{list?.background_available ? '' : ' (mỗi nhóm một tệp)'}</legend>
           {profile.categories.map((item) => (
             <label key={item.key} className="po-check">
               <input
@@ -711,6 +744,19 @@ function Export({
             </label>
           ))}
         </fieldset>
+        {list?.background_available ? (
+          <fieldset className="po-checks">
+            <legend>Bố cục</legend>
+            <label className="po-check">
+              <input type="radio" name="layout" checked={layout === 'summary'} onChange={() => setLayout('summary')} />
+              Tổng hợp theo đơn vị, cấp học
+            </label>
+            <label className="po-check">
+              <input type="radio" name="layout" checked={layout === 'compare'} onChange={() => setLayout('compare')} />
+              So sánh từng trường (chỉ trường đã đồng ý)
+            </label>
+          </fieldset>
+        ) : null}
         <fieldset className="po-checks">
           <legend>Định dạng</legend>
           <label className="po-check">
@@ -734,11 +780,51 @@ function Export({
         ) : null}
         <div className="po-row">
           <button type="submit" className="po-btn" disabled={busy || categories.length === 0}>
-            {busy ? 'Đang tạo tệp…' : 'Tạo tệp'}
+            {busy ? 'Đang gửi…' : 'Tạo tệp'}
           </button>
           <span className="po-small">Lần xuất được ghi vào nhật ký truy cập.</span>
         </div>
       </form>
+      {list?.background_available ? (
+        <section className="po-card" aria-label="Tệp đã xuất">
+          <h3>Tệp đã xuất</h3>
+          {list.exports.length === 0 ? <p className="po-small">Chưa có tệp.</p> : null}
+          <ul className="po-requests">
+            {list.exports.map((item) => {
+              const status = EXPORT_STATUS[item.status];
+              return (
+                <li key={item.id} className="po-request" aria-label={`Tệp ${item.layout_label} ${when(item.created_at)}`}>
+                  <div className="po-row" style={{ alignItems: 'center' }}>
+                    <strong>
+                      {item.layout_label} · {item.format === 'xlsx' ? 'Excel' : 'PDF'}
+                    </strong>
+                    <span className={`po-chip po-chip-${status.tone}`}>{status.label}</span>
+                  </div>
+                  <span className="po-small">
+                    {item.unit_name} · {item.category_labels.join(', ')} · tạo {when(item.created_at)}
+                    {item.status === 'done' && item.expires_at ? ` · giữ đến ${day(item.expires_at)}` : ''}
+                    {item.error ? ` · ${item.error}` : ''}
+                  </span>
+                  {item.status === 'done' ? (
+                    <div>
+                      <button
+                        type="button"
+                        className="po-btn2"
+                        onClick={() =>
+                          void parentOrgApi.downloadExport(token, item).catch((e: unknown) => setError(messageOf(e)))
+                        }
+                      >
+                        Tải về
+                      </button>
+                    </div>
+                  ) : null}
+                </li>
+              );
+            })}
+          </ul>
+          <p className="po-small">Tệp giữ {list.retention_days} ngày rồi tự xóa.</p>
+        </section>
+      ) : null}
     </>
   );
 }
@@ -748,6 +834,7 @@ const REQUEST_STATUS: Record<AccessRequest['status'], string> = {
   approved: 'Trường đã duyệt',
   rejected: 'Trường từ chối',
   revoked: 'Trường đã rút',
+  withdrawn: 'Bạn đã rút',
 };
 
 function Requests({
@@ -800,6 +887,21 @@ function Requests({
       }
     } catch (caught) {
       tab?.close();
+      setError(messageOf(caught));
+    }
+  }
+
+  // Rút đề nghị của mình (YCTD-367): hỏi lại một lần; đề nghị đã duyệt thì phiên xem chi tiết đang mở cũng kết thúc
+  const [confirming, setConfirming] = useState<string | null>(null);
+  async function withdraw(id: string) {
+    setError(null);
+    setMessage(null);
+    try {
+      await parentOrgApi.withdrawRequest(token, id);
+      setConfirming(null);
+      setMessage('Đã rút đề nghị.');
+      reload();
+    } catch (caught) {
       setError(messageOf(caught));
     }
   }
@@ -889,14 +991,17 @@ function Requests({
               <li key={item.id} className="po-request" aria-label={`Đề nghị ${item.school_name}`}>
                 <div className="po-row" style={{ alignItems: 'center' }}>
                   <strong>{item.school_name}</strong>
-                  <span className={`po-chip po-chip-${expired ? 'revoked' : item.status}`}>
+                  <span
+                    className={`po-chip po-chip-${expired || item.status === 'withdrawn' ? 'revoked' : item.status}`}
+                  >
                     {expired ? 'Đã hết hạn' : REQUEST_STATUS[item.status]}
                   </span>
                 </div>
                 <span className="po-small">
                   {item.categories.map(categoryLabel).join(', ')} · gửi {day(item.created_at)}
                   {item.status === 'approved' && item.expires_at ? ` · xem đến ${when(item.expires_at)}` : ''}
-                  {item.decided_by_name ? ` · trả lời bởi ${item.decided_by_name}` : ''} · lý do: {item.reason}
+                  {item.decided_by_name ? ` · trả lời bởi ${item.decided_by_name}` : ''}
+                  {item.withdrawn_at ? ` · rút ${day(item.withdrawn_at)}` : ''} · lý do: {item.reason}
                 </span>
                 {item.status === 'approved' && !expired ? (
                   <div className="po-row" style={{ alignItems: 'center' }}>
@@ -905,6 +1010,29 @@ function Requests({
                     </button>
                     <span className="po-small">Mở cổng quản trị của trường ở tab mới</span>
                   </div>
+                ) : null}
+                {item.status === 'pending' || (item.status === 'approved' && !expired) ? (
+                  confirming === item.id ? (
+                    <div className="po-row" style={{ alignItems: 'center' }}>
+                      <span className="po-small">
+                        {item.status === 'approved'
+                          ? 'Rút đề nghị sẽ kết thúc phiên xem chi tiết đang mở. Rút?'
+                          : 'Rút đề nghị này?'}
+                      </span>
+                      <button type="button" className="po-btn" onClick={() => void withdraw(item.id)}>
+                        Xác nhận rút
+                      </button>
+                      <button type="button" className="po-btn2" onClick={() => setConfirming(null)}>
+                        Thôi
+                      </button>
+                    </div>
+                  ) : (
+                    <div>
+                      <button type="button" className="po-linkbtn" onClick={() => setConfirming(item.id)}>
+                        Rút đề nghị
+                      </button>
+                    </div>
+                  )
                 ) : null}
               </li>
             );

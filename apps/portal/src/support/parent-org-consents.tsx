@@ -33,7 +33,7 @@ interface Overview {
     categories: Category[];
     reason: string;
     hours: number;
-    status: 'pending' | 'approved' | 'rejected' | 'revoked';
+    status: 'pending' | 'approved' | 'rejected' | 'revoked' | 'withdrawn';
     expires_at: string | null;
     created_at: string;
   }>;
@@ -179,7 +179,9 @@ export function ParentOrgConsentsPage() {
                           ? `Đã duyệt đến ${request.expires_at ? TIME.format(new Date(request.expires_at)) : ''}`
                           : request.status === 'rejected'
                             ? 'Đã từ chối'
-                            : 'Đã rút'}
+                            : request.status === 'withdrawn'
+                              ? 'Cấp trên đã rút'
+                              : 'Đã rút'}
                     </td>
                     <td className="flex gap-2">
                       {request.status === 'pending' ? (
