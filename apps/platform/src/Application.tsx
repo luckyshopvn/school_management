@@ -180,7 +180,9 @@ function Shell({ accessToken, onLogout }: { accessToken: string; onLogout: () =>
           <OperatorPasswordPage token={accessToken} forced={mustChange} onChanged={loadProfile} />
         ) : null}
         {/* Trang không thuộc vai trò: báo không có quyền thay khoảng trắng (YCTD-370) */}
-        {profile && !mustChange && active !== 'password' && !menu.some((item) => item.key === active) ? <NoAccess /> : null}
+        {profile && !mustChange && active !== 'password' && !menu.some((item) => item.key === active) ? (
+          <NoAccess />
+        ) : null}
         {mustChange || !profile || !menu.some((item) => item.key === active) ? null : (
           <>
             {active === 'overview' && profile ? (
@@ -193,20 +195,26 @@ function Shell({ accessToken, onLogout }: { accessToken: string; onLogout: () =>
             ) : null}
             {active === 'audit' ? <AuditLogPage token={accessToken} /> : null}
             {active === 'schools' ? <SchoolsPage token={accessToken} role={profile.role} /> : null}
-            {active === 'plans' ? <PlansPage accessToken={accessToken} role={profile.role} focusPlanId={focusPlan} /> : null}
+            {active === 'plans' ? (
+              <PlansPage accessToken={accessToken} role={profile.role} focusPlanId={focusPlan} />
+            ) : null}
             {active === 'billing' ? <BillingPage accessToken={accessToken} role={profile.role} /> : null}
             {active === 'dashboard' ? <DashboardPage token={accessToken} role={profile.role} /> : null}
             {active === 'maintenance' ? <MaintenancePage token={accessToken} role={profile.role} /> : null}
             {active === 'parent-orgs' ? <AdminUnitsPage token={accessToken} /> : null}
-            {active === 'ai' ? <AiPage
+            {active === 'ai' ? (
+              <AiPage
                 accessToken={accessToken}
                 role={profile.role}
                 onOpenPlan={(planId) => {
                   setFocusPlan(planId);
                   setActive('plans');
                 }}
-              /> : null}
-            {active === 'catalog' ? <CatalogPage token={accessToken} role={profile.role} onNavigate={setActive} /> : null}
+              />
+            ) : null}
+            {active === 'catalog' ? (
+              <CatalogPage token={accessToken} role={profile.role} onNavigate={setActive} />
+            ) : null}
             {active === 'market' ? <MarketPage accessToken={accessToken} role={profile.role} /> : null}
             {active === 'operators' ? <OperatorsPage token={accessToken} currentOperatorId={profile.id} /> : null}
           </>
