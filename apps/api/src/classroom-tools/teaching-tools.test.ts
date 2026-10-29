@@ -21,6 +21,7 @@ describe('Hộp công cụ giảng dạy: danh mục công cụ', () => {
       'shapes-colors',
       'counting',
       'alphabet',
+      'school-media',
       'lesson-plans',
     ]);
     assert.deepEqual(keys('THCS'), [

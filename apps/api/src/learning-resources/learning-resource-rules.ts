@@ -164,7 +164,8 @@ const OFFICE: Record<string, { signature: number[]; contentType: string }> = {
   ppt: { signature: OLE, contentType: 'application/vnd.ms-powerpoint' },
 };
 
-// Định dạng nhận: PDF, ảnh JPEG, PNG, GIF, Word, Excel, PowerPoint, video MP4; nhận theo chữ ký đầu tệp, không theo tên
+// Định dạng nhận: PDF, ảnh JPEG, PNG, GIF, Word, Excel, PowerPoint, video MP4; âm thanh MP3, M4A, WAV, OGG (từ YCTD-329, bài hát,
+// câu chuyện ghi âm của trường); nhận theo chữ ký đầu tệp, không theo tên
 export function detectResourceFileType(fileName: string, body: Buffer): string | undefined {
   if (startsWith(body, [0x25, 0x50, 0x44, 0x46])) {
     return 'application/pdf';
@@ -179,7 +180,21 @@ export function detectResourceFileType(fileName: string, body: Buffer): string |
     return 'image/gif';
   }
   if (startsWith(body, [0x66, 0x74, 0x79, 0x70], 4)) {
-    return 'video/mp4';
+    // Hộp ftyp nhãn "M4A " là âm thanh MPEG-4
+    return startsWith(body, [0x4d, 0x34, 0x41, 0x20], 8) ? 'audio/mp4' : 'video/mp4';
+  }
+  // MP3 có thẻ ID3 hoặc bắt đầu bằng khung MPEG (11 bit đồng bộ, lớp III)
+  if (
+    startsWith(body, [0x49, 0x44, 0x33]) ||
+    (body.length >= 2 && body[0] === 0xff && ((body[1] ?? 0) & 0xe6) === 0xe2)
+  ) {
+    return 'audio/mpeg';
+  }
+  if (startsWith(body, [0x52, 0x49, 0x46, 0x46]) && startsWith(body, [0x57, 0x41, 0x56, 0x45], 8)) {
+    return 'audio/wav';
+  }
+  if (startsWith(body, [0x4f, 0x67, 0x67, 0x53])) {
+    return 'audio/ogg';
   }
   const extension = /\.([a-z0-9]+)$/i.exec(fileName)?.[1]?.toLowerCase() ?? '';
   const office = OFFICE[extension];

@@ -25,6 +25,7 @@ import { ConstantsTool } from './mini/ConstantsTool.js';
 import { GeometryTool } from './mini/GeometryTool.js';
 import { GraphTool } from './mini/GraphTool.js';
 import { PeriodicTableTool } from './mini/PeriodicTableTool.js';
+import { SchoolMediaTool } from './mini/SchoolMediaTool.js';
 import { ClockTool } from './mini/ClockTool.js';
 import { FractionTool } from './mini/FractionTool.js';
 import { MultiplicationTool } from './mini/MultiplicationTool.js';
@@ -317,6 +318,9 @@ export function ClassroomToolsScreen({
                 {active === 'periodic-table' ? <PeriodicTableTool /> : null}
                 {active === 'geometry' ? <GeometryTool /> : null}
                 {active === 'constants' ? <ConstantsTool /> : null}
+                {active === 'school-media' ? (
+                  <SchoolMediaTool level={level} online={online && classes !== null} />
+                ) : null}
                 {active === 'games' ? <GamesTool snapshot={snapshot} online={online && classes !== null} /> : null}
                 {active === 'scoreboard' ? (
                   <ScoreboardTool

@@ -2961,4 +2961,4 @@ Cỡ ước lượng (một phần của DT-16 là một đơn vị, chỉ để
 | 29b | Đã làm (YCTD-326): bảng trắng, xúc xắc và bốc số, đồng hồ hình ảnh, đèn giữ trật tự, bảng thưởng sao, hình và màu, đếm và số, làm quen chữ cái |
 | 29c | Đã làm (YCTD-327): bảng cửu chương, khung ô li, học xem đồng hồ, phân số trực quan |
 | 29d | Đã làm (YCTD-328): máy tính khoa học, vẽ đồ thị hàm số, bảng tuần hoàn, hình học động, bảng hằng số và đổi đơn vị |
-| 29e | Chưa làm |
+| 29e | Đã làm (YCTD-329): loại học liệu Bài hát, Câu chuyện; kho nhận tệp âm thanh; mini app phát trên lớp Mầm non; hệ thống 0121 |
