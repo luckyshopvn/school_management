@@ -491,7 +491,7 @@ test.describe('cổng vận hành đợt 2', () => {
     expect(writes).toHaveLength(1);
   });
 
-  test('CT-1694: thông tin hiện một lần chỉ đóng bằng "Đã lưu, đóng", không ghi vào bộ nhớ trình duyệt; khóa nhân viên hỏi xác nhận', async ({
+  test('CT-1694: thông tin hiện một lần có mã QR (YCTD-373), chỉ đóng bằng "Đã lưu, đóng", không ghi vào bộ nhớ trình duyệt; khóa nhân viên hỏi xác nhận', async ({
     page,
   }) => {
     const writes = await openConsole(page, 'quan_tri');
@@ -504,6 +504,7 @@ test.describe('cổng vận hành đợt 2', () => {
     await create.getByRole('button', { name: 'Tạo tài khoản' }).click();
     const once = page.getByRole('dialog', { name: 'Tài khoản của Nhân viên mới giả' });
     await expect(once).toContainText('mat-khau-tam-gia');
+    await expect(once.getByRole('img', { name: 'Mã QR để thêm vào ứng dụng xác thực' })).toBeVisible();
     await page.keyboard.press('Escape');
     await expect(once).toBeVisible();
     await expect(once.getByRole('button', { name: 'Đóng', exact: true })).toHaveCount(0);
