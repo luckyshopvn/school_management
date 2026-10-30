@@ -176,7 +176,7 @@ export function ReadOnlyGrid({
                                   ? lesson.subject_name
                                   : `${lesson.class_name} · ${lesson.subject_name}`}
                               </span>
-                              <span className="text-xs text-text">
+                              <span className="text-label text-text">
                                 {mode === 'teacher'
                                   ? (lesson.room_name ?? '')
                                   : (lesson.teacher_name ?? 'Chưa có giáo viên')}
@@ -218,7 +218,7 @@ function GridHead() {
 function SessionBreak() {
   return (
     <tr className="border-b border-border bg-page">
-      <td colSpan={DAYS.length + 1} className="px-3 py-1.5 text-xs font-semibold text-text-secondary">
+      <td colSpan={DAYS.length + 1} className="px-3 py-1.5 text-label font-semibold text-text-secondary">
         Buổi chiều
       </td>
     </tr>
