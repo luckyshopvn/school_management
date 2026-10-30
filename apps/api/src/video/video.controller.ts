@@ -18,7 +18,6 @@ import {
   type OnApplicationBootstrap,
   type OnModuleDestroy,
 } from '@nestjs/common';
-import { ModuleRef } from '@nestjs/core';
 import type { TenancyRuntime } from '@school-management/database';
 import { isMultiTenantMode, runAsSchool, unauthenticatedError } from '@school-management/server';
 import { PERMISSION_CODES } from '@school-management/shared';
@@ -34,7 +33,6 @@ import { originOf } from '../common/audit-log.js';
 import { TENANCY_RUNTIME } from '../common/configuration.js';
 import { JobScheduler } from '../common/job-scheduler.js';
 import type { RequestBody } from '../common/request-fields.js';
-import { MARKET_ROOM_PREFIX, MarketRoomsService } from '../market/market-rooms.js';
 import { VIDEO_PROVIDER, VideoWebhookError, type VideoRoomProvider } from './video-provider.js';
 import { VideoRoomsService } from './video-rooms.js';
 
@@ -257,7 +255,6 @@ export class VideoWebhookController {
     private readonly video: VideoRoomsService,
     @Optional() @Inject(VIDEO_PROVIDER) private readonly provider: VideoRoomProvider | null = null,
     @Optional() @Inject(TENANCY_RUNTIME) private readonly tenancy: TenancyRuntime | null = null,
-    private readonly modules: ModuleRef,
   ) {}
 
   @Post()
@@ -278,11 +275,6 @@ export class VideoWebhookController {
     }
     if (!event) {
       return { handled: false };
-    }
-    // Phòng học của chợ gia sư (YCTD-362): không thuộc trường nào, ghi vào ra cho điểm danh ở cơ sở dữ liệu của chợ
-    if (event.roomName.startsWith(MARKET_ROOM_PREFIX)) {
-      const rooms = this.modules.get(MarketRoomsService, { strict: false });
-      return rooms.handleEvent(event);
     }
     const school = this.video.schoolOfRoom(event.roomName);
     if (this.tenancy) {
