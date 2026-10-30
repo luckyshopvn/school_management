@@ -44,7 +44,7 @@ import type { Actor } from './school-lifecycle.js';
 // Tệp ở kho tệp của trường (tenants/<tiền tố>/) sao lưu bằng rclone ở backup.sh, không nằm trong tệp này.
 export const BACKUP_FORMAT = 'school-backup';
 export const BACKUP_FORMAT_VERSION = 1;
-// Đầu tệp và kích thước các phần mã hóa; dùng chung cho tệp sao lưu dữ liệu trước khi xóa (removed-data-backup.ts, YCTD-384)
+// Đầu tệp và kích thước các phần mã hóa; dùng chung cho tệp sao lưu dữ liệu trước khi xóa (removed-data-backup.ts, YCTD-393)
 export const MAGIC = Buffer.from('SMBK1\n');
 export const SALT_BYTES = 16;
 export const IV_BYTES = 12;

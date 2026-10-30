@@ -2,7 +2,7 @@ import { sql } from 'kysely';
 import type { Migration } from 'kysely/migration';
 import { ensureRemovedDataBackupsTable } from '../../src/removed-data-log.js';
 
-// Chợ gia sư tách thành sản phẩm riêng (YCTD-384, quyết định của Eric ngày 2026-10-30): xóa cấu hình chợ (khóa `market` của
+// Chợ gia sư tách thành sản phẩm riêng (YCTD-393, quyết định của Eric ngày 2026-10-30): xóa cấu hình chợ (khóa `market` của
 // platform_settings). Có khóa này mà chưa chạy lệnh sao lưu dữ liệu chợ (bản ghi chức năng `cho-gia-su` trong removed_data_backups) thì
 // dừng: dữ liệu chợ phải được sao lưu trước. Bản triển khai chưa từng bật chợ không có khóa nên chạy qua. Không có bước lùi: dữ liệu đã
 // nằm trong tệp sao lưu

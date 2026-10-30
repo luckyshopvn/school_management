@@ -1,6 +1,6 @@
 import { sql, type Kysely } from 'kysely';
 
-// Bảng ghi nhận sao lưu dữ liệu của chức năng đã bỏ (YCTD-384). Tách khỏi removed-data-backup.ts để database migration nhập được mà
+// Bảng ghi nhận sao lưu dữ liệu của chức năng đã bỏ (YCTD-393). Tách khỏi removed-data-backup.ts để database migration nhập được mà
 // không kéo theo phần ghi tệp (school-backup.ts nhập migrate.ts)
 // Dòng ghi nhận chức năng đã xử lý khi không có bảng nào để sao lưu (ví dụ bản triển khai chưa từng bật chợ gia sư)
 export const NOTHING_TO_BACK_UP = '*';

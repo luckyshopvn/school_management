@@ -86,7 +86,7 @@ async function fixedTextSettings(transaction: Transaction<unknown>): Promise<voi
 }
 
 // Đọc mọi bảng của một cơ sở dữ liệu của trường trong một ảnh chụp, gọi handler theo từng bảng, từng trang dòng
-// options.tables: chỉ đọc các bảng này (sao lưu trước khi xóa, YCTD-384); không truyền là mọi bảng
+// options.tables: chỉ đọc các bảng này (sao lưu trước khi xóa, YCTD-393); không truyền là mọi bảng
 export async function readSnapshot(
   descriptor: DatabaseDescriptor,
   handler: SnapshotHandler,
