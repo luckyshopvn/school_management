@@ -89,7 +89,18 @@ export interface AiTutorMessagesTable {
   input_tokens: number | null;
   output_tokens: number | null;
   created_at: CreatedTimestamp;
+  // Lát L2 (migration hệ thống 0133_add_ai_tutor_chat)
+  step: AiTutorReplyStep | null;
+  request_kind: 'ask' | 'solution' | null;
+  moderation: AiTutorModeration | null;
+  reported_at: Date | null;
+  report_note: string | null;
 }
+
+// Bậc gợi ý của câu trả lời: nhắc khái niệm, gợi ý cách làm, làm mẫu bài tương tự, nhận xét bài làm, lời giải đầy đủ; từ chối ngoài học
+// tập; trả lời theo mẫu an toàn
+export type AiTutorReplyStep = 'concept' | 'method' | 'example' | 'check' | 'solution' | 'refusal' | 'safety';
+export type AiTutorModeration = 'self_harm' | 'bullying' | 'unsafe' | 'off_topic';
 
 declare module '../schema.js' {
   interface SystemDatabase {

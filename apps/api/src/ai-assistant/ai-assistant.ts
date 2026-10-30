@@ -38,6 +38,7 @@ import { parseQuestion } from '../exams/exam-inputs.js';
 import { ExamsService } from '../exams/exams.js';
 import { LearningResourcesService } from '../learning-resources/learning-resources.js';
 import { SchoolSettings } from '../school-settings/school-settings.js';
+import { tutorTokenUsage } from '../ai-tutor/tutor-usage.js';
 import {
   AI_DRAFT_NOTICE,
   AI_RULE_CODE,
@@ -925,10 +926,10 @@ export class AiAssistantService {
       from ai_requests
       where status = 'success'
       group by 1, 2, 3`.execute(this.system);
-    await recordAiTokenUsage(
-      this.tenancy.platform,
-      tenant.schoolId,
-      rows.rows.map((row) => ({
+    // Gia sư AI học sinh (YCTD-383 lát L2) ghi cùng bảng, phân loại riêng theo nguồn gói
+    const tutor = await tutorTokenUsage(this.system);
+    await recordAiTokenUsage(this.tenancy.platform, tenant.schoolId, [
+      ...rows.rows.map((row) => ({
         usageDate: row.usage_date,
         model: row.model,
         config: row.key_mode,
@@ -936,8 +937,9 @@ export class AiAssistantService {
         inputTokens: Number(row.input_tokens),
         outputTokens: Number(row.output_tokens),
       })),
-    );
-    return rows.rows.length;
+      ...tutor,
+    ]);
+    return rows.rows.length + tutor.length;
   }
 
   // Xóa theo ngày trọn vẹn (mốc là đầu ngày giờ Việt Nam) để lượt tổng hợp sau không ghi đè một ngày đã bị xóa một phần
