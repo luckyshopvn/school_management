@@ -86,7 +86,7 @@ Cổng vận hành nền tảng (`apps/platform`, thiết kế Eric duyệt ngà
 | VH-18 | Nguy hiểm | chữ, nút phá hủy T-03 #B91C1C (chữ trắng trên nền này 6,5:1); nền nhạt #FDECEC (chữ T-03 trên nền này 5,67:1) | Nút phá hủy, nhãn quá hạn, dải lỗi, lỗi tại ô |
 | VH-19 | Lớp phủ hộp thoại | C-01 mờ 45% (rgb(15 23 42 / 45%)) | Nền sau hộp thoại |
 
-### 2.6 Hai phong cách dùng chung (YCTD-384, chờ phê duyệt)
+### 2.6 Hai phong cách dùng chung (YCTD-384, Eric duyệt ngày 2026-10-30)
 
 Eric chọn ngày 2026-10-30: cổng quản trị trường và cổng vận hành theo phong cách "Hành chính hiện đại"; ứng dụng giáo viên, phụ huynh, học sinh theo phong cách "Thân thiện theo vai" (một nền chung, mỗi vai một màu nhấn). Hai phong cách dùng chung phông, thang chữ, khoảng cách, vùng chạm, màu trạng thái (VH-14 đến VH-18), màu tài chính (mục 2.4) và mọi thành phần ở mục 5. Giá trị đặt một lần ở `packages/ui/src/theme.css`; ứng dụng chỉ chọn phong cách và vai, không ghi đè màu riêng. Khi các lát của YCTD-384 xong, PC-01 đến PC-28 thay M-01, M-02, M-05, N-01 đến N-03, C-01 đến C-03, V-01, V-02 và VH-01 đến VH-13 trong mã giao diện; các mã cũ giữ trong tài liệu để tra cứu. Bản mẫu: `tai_lieu/ban_mau/yctd-384/index.html`.
 
@@ -133,7 +133,7 @@ Dùng chung hai phong cách:
 | PC-27 | Nguy hiểm | nền #FDECEC, chữ và nút phá hủy #B91C1C | Bằng VH-18 (5,66:1 trên nền nhạt) |
 | PC-28 | Trung tính | nền #EEF1F4, chữ #4A5562 | Đã hủy, bảo lưu, đã kết thúc (bằng VH-17) |
 
-### 2.7 Sẵn sàng cho ứng dụng Android, iOS (YCTD-384, chờ phê duyệt)
+### 2.7 Sẵn sàng cho ứng dụng Android, iOS (YCTD-384, Eric duyệt ngày 2026-10-30)
 
 | Mã | Quy tắc |
 |---|---|
@@ -156,7 +156,7 @@ Dùng chung hai phong cách:
 | CH-06 | Ghi chú | 14 điểm ảnh | 400 | Chú thích, dấu thời gian; dùng màu C-02 để phân biệt với nội dung |
 | CH-07 | Số liệu lớn | 28 điểm ảnh | 700 | Chỉ số trên bảng điều khiển |
 
-Phông chữ dùng phông hệ thống có hỗ trợ đầy đủ dấu tiếng Việt. Từ YCTD-384 (chờ phê duyệt): mọi ứng dụng dùng Be Vietnam Pro (độ đậm 400, 500, 600, 700) đóng gói cùng ứng dụng qua `@fontsource`, không tải từ máy chủ ngoài, phông hệ thống làm phông dự phòng; như cổng quản trị đang dùng. Chữ trong ô nhập 16 điểm ảnh ở mọi khổ màn hình (trước chỉ áp dưới 1280 điểm ảnh ở cổng quản trị). Số thứ bậc trên menu và tiêu đề trang cổng quản trị giữ như hiện nay (quyết định của Eric ngày 2026-10-30). Không dùng quá nhiều cấp cỡ chữ trong cùng một khối. Không có chữ nào nhỏ hơn 14 điểm ảnh, kể cả cổng vận hành từ YCTD-370; giao diện cho phóng to theo trình duyệt (Q-89).
+Phông chữ dùng phông hệ thống có hỗ trợ đầy đủ dấu tiếng Việt. Từ YCTD-384 (Eric duyệt ngày 2026-10-30): mọi ứng dụng dùng Be Vietnam Pro (độ đậm 400, 500, 600, 700) đóng gói cùng ứng dụng qua `@fontsource`, không tải từ máy chủ ngoài, phông hệ thống làm phông dự phòng; như cổng quản trị đang dùng. Chữ trong ô nhập 16 điểm ảnh ở mọi khổ màn hình (trước chỉ áp dưới 1280 điểm ảnh ở cổng quản trị). Số thứ bậc trên menu và tiêu đề trang cổng quản trị giữ như hiện nay (quyết định của Eric ngày 2026-10-30). Không dùng quá nhiều cấp cỡ chữ trong cùng một khối. Không có chữ nào nhỏ hơn 14 điểm ảnh, kể cả cổng vận hành từ YCTD-370; giao diện cho phóng to theo trình duyệt (Q-89).
 
 ## 4. Khoảng cách và bố cục
 
@@ -169,9 +169,9 @@ Phông chữ dùng phông hệ thống có hỗ trợ đầy đủ dấu tiếng
 | KC-05 | Đệm trong thẻ | 16 điểm ảnh |
 | KC-06 | Bán kính góc | 8 điểm ảnh cho thành phần nhỏ, 12 điểm ảnh cho thẻ |
 | KC-07 | Chiều rộng vùng nội dung tối đa | 1440 điểm ảnh |
-| KC-09 | Điểm ngắt (YCTD-384, chờ phê duyệt) | Điện thoại dưới 768 điểm ảnh; máy tính bảng 768 đến 1279; máy tính từ 1280. Phong cách hành chính: máy tính có thanh bên 256 điểm ảnh; máy tính bảng thu thanh bên thành dải biểu tượng 72 điểm ảnh (có nhãn khi trỏ vào, bấm mở ngăn đủ chữ); điện thoại ẩn thanh bên, thanh đầu xanh đậm có nút "Menu chức năng" mở ngăn. Phong cách theo vai: dưới 1024 điểm ảnh có thanh dưới 4 đến 5 mục; từ 1024 thanh dưới thành thanh bên trắng 240 điểm ảnh. Bảng dữ liệu dưới 768 điểm ảnh chuyển thành danh sách thẻ hoặc bọc cuộn ngang |
-| KC-10 | Vùng chạm (YCTD-384, chờ phê duyệt) | Mọi nút, ô nhập, mục menu, mục thanh dưới cao tối thiểu 44 điểm ảnh ở mọi khổ màn hình (trước chỉ áp dưới 1280 ở cổng quản trị) |
-| KC-11 | Bo góc theo phong cách (YCTD-384, chờ phê duyệt) | Hành chính: 8 điểm ảnh cho nút, ô nhập; 12 cho thẻ; không đổ bóng. Theo vai: 12 cho ô nhập; 16 cho thẻ, ô lối tắt; nút dạng viên; bóng mờ 0 2px 6px rgb(60 45 20 / 5%). Nhãn trạng thái bo tròn ở cả hai phong cách |
+| KC-09 | Điểm ngắt (YCTD-384, Eric duyệt ngày 2026-10-30) | Điện thoại dưới 768 điểm ảnh; máy tính bảng 768 đến 1279; máy tính từ 1280. Phong cách hành chính: máy tính có thanh bên 256 điểm ảnh; máy tính bảng thu thanh bên thành dải biểu tượng 72 điểm ảnh (có nhãn khi trỏ vào, bấm mở ngăn đủ chữ); điện thoại ẩn thanh bên, thanh đầu xanh đậm có nút "Menu chức năng" mở ngăn. Phong cách theo vai: dưới 1024 điểm ảnh có thanh dưới 4 đến 5 mục; từ 1024 thanh dưới thành thanh bên trắng 240 điểm ảnh. Bảng dữ liệu dưới 768 điểm ảnh chuyển thành danh sách thẻ hoặc bọc cuộn ngang |
+| KC-10 | Vùng chạm (YCTD-384, Eric duyệt ngày 2026-10-30) | Mọi nút, ô nhập, mục menu, mục thanh dưới cao tối thiểu 44 điểm ảnh ở mọi khổ màn hình (trước chỉ áp dưới 1280 ở cổng quản trị) |
+| KC-11 | Bo góc theo phong cách (YCTD-384, Eric duyệt ngày 2026-10-30) | Hành chính: 8 điểm ảnh cho nút, ô nhập; 12 cho thẻ; không đổ bóng. Theo vai: 12 cho ô nhập; 16 cho thẻ, ô lối tắt; nút dạng viên; bóng mờ 0 2px 6px rgb(60 45 20 / 5%). Nhãn trạng thái bo tròn ở cả hai phong cách |
 | KC-08 | Thanh menu ngang của cổng quản trị | Một dòng dưới thanh đầu trang, mục cấp một mở menu sổ xuống, cấp sâu hơn bật sang bên phải; dưới 768 điểm ảnh thay bằng cây menu gập mở từ nút "☰". Thay thanh điều hướng bên rộng 240 điểm ảnh, ẩn hiện được, nhóm thu gọn được của YCTD-99 (YCTD-107) |
 
 ## 5. Thành phần dùng chung
@@ -212,7 +212,7 @@ Lớp ở `apps/platform/src/cong-van-hanh.css`, thành phần React ở `apps/p
 | VH-TP-06 | Nút gửi | Đang gửi thì khóa nút, đổi chữ "Đang …", không gửi lặp khi bấm nhiều lần |
 | VH-TP-07 | Thanh so với hạn mức | Chữ "đã dùng / hạn mức (phần trăm)" trên thanh cao 8 điểm ảnh, nền VH-17; dưới 80% màu VH-06, từ 80% chữ cảnh báo VH-16, từ 100% T-03; vai trò `meter` (YCTD-374) |
 
-### 5.2 Thành phần dùng chung thêm ở YCTD-384 (chờ phê duyệt)
+### 5.2 Thành phần dùng chung thêm ở YCTD-384 (Eric duyệt ngày 2026-10-30)
 
 Đặt ở `packages/ui`, dùng cho mọi ứng dụng. Thành phần riêng của cổng vận hành (mục 5.1) chuyển về `packages/ui` ở lát của cổng vận hành; hành vi giữ nguyên.
 
@@ -245,7 +245,7 @@ Lớp ở `apps/platform/src/cong-van-hanh.css`, thành phần React ở `apps/p
 |---|---|
 | MC-01 | Màu nhận diện không dùng để thể hiện trạng thái hay giá trị tài chính |
 | MC-02 | Không truyền đạt thông tin chỉ bằng màu; luôn kèm chữ hoặc biểu tượng |
-| MC-03 | Nền tối chỉ dùng cho lớp phủ hộp thoại và thanh điều hướng trên điện thoại. Từ YCTD-384 (chờ phê duyệt): thêm thanh bên PC-11 của phong cách hành chính và đầu trang màu nhấn của phong cách theo vai |
+| MC-03 | Nền tối chỉ dùng cho lớp phủ hộp thoại và thanh điều hướng trên điện thoại. Từ YCTD-384 (Eric duyệt ngày 2026-10-30): thêm thanh bên PC-11 của phong cách hành chính và đầu trang màu nhấn của phong cách theo vai |
 | MC-04 | Màu cảnh báo và nguy hiểm chỉ dùng cho việc cần chú ý thật, không dùng trang trí |
 | MC-05 | Trong cùng một màn hình tối đa ba màu trạng thái xuất hiện |
 | MC-06 | Chữ trên nền màu phải đạt tương phản ở nguyên tắc 5; không đặt chữ trắng trên nền M-01, M-03, M-04, T-02 |

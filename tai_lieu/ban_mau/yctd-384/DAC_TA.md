@@ -3,7 +3,7 @@
 - Mô tả: Đặc tả công việc thiết kế lại giao diện mọi ứng dụng web theo hai phong cách, dùng đầy đủ trên máy tính, máy tính bảng, điện thoại, sẵn sàng cho ứng dụng Android, iOS; danh sách lát, tiêu chí nghiệm thu dự kiến.
 - Ngày: 2026-10-30
 - Mức: Lớn (sửa giá trị đã có ở tài liệu `15`, chạm mọi ứng dụng web)
-- Trạng thái: Chờ phê duyệt bản mẫu và danh sách lát; các câu hỏi ở mục 9 đã có quyết định
+- Trạng thái: Đã phê duyệt (Eric duyệt bản mẫu, danh sách lát ngày 2026-10-30)
 - Bản mẫu: [index.html](index.html) (mở thẳng bằng trình duyệt; thanh trên chọn màn hình, khổ, trạng thái)
 
 ## 1. Yêu cầu và quyết định
