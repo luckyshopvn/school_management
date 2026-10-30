@@ -487,6 +487,9 @@ importers:
 
   packages/ui:
     dependencies:
+      '@fontsource/be-vietnam-pro':
+        specifier: 5.3.0
+        version: 5.3.0
       jsqr:
         specifier: 1.4.0
         version: 1.4.0

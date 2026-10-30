@@ -12,6 +12,8 @@ import { formatDate } from './SystemAnnouncementsPage.js';
 export function StartupNotices() {
   const [pending] = useState(() => !startupNoticesShown());
   const [open, setOpen] = useState(false);
+  // Điện thoại: mỗi thông báo cắt một dòng tới khi bấm Xem đủ, để dải không chiếm nửa màn hình (TD-24, YCTD-384)
+  const [expanded, setExpanded] = useState(false);
   const announcements = useQuery({
     queryKey: ['active-announcements'],
     queryFn: listActiveAnnouncements,
@@ -52,7 +54,7 @@ export function StartupNotices() {
       <h2 id="thong-bao-khi-vao-trang" className="font-semibold">
         Thông báo
       </h2>
-      <ul className="flex min-w-0 flex-[1_1_20rem] flex-col gap-1">
+      <ul className={`flex min-w-0 flex-[1_1_20rem] flex-col gap-1 ${expanded ? '' : 'max-md:[&>li]:line-clamp-1'}`}>
         {items.map((item) => (
           <li key={item.id} aria-label={item.title}>
             <h3 className="inline font-semibold">{item.title}</h3>
@@ -76,6 +78,9 @@ export function StartupNotices() {
           </li>
         ) : null}
       </ul>
+      <Button variant="text" className="md:hidden" aria-expanded={expanded} onClick={() => setExpanded(!expanded)}>
+        {expanded ? 'Thu gọn' : 'Xem đủ'}
+      </Button>
       <Button variant="text" onClick={close}>
         Đóng
       </Button>

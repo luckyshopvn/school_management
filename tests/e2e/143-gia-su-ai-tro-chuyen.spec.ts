@@ -239,12 +239,27 @@ test.beforeAll(async () => {
   }
   subscribedStudent = await prepareStudent(context, true);
   newcomer = await prepareStudent(context, false);
+  // Lát L3 khóa theo khung giờ của trường (mặc định 22:00 đến 6:00): đặt khung giờ cách giờ chạy sáu tiếng để spec không phụ thuộc giờ
+  // chạy; khung giờ khóa được kiểm ở spec 144
+  const hour = (Math.floor(Date.now() / 3_600_000) + 7 + 6) % 24;
+  const pad = (value: number) => String(value).padStart(2, '0');
+  const values = { quiet_start: `${pad(hour)}:00`, quiet_end: `${pad((hour + 1) % 24)}:00` };
+  await runtime.connections
+    .database<SystemDatabase>(tenant, 'system', 'system')
+    .insertInto('ai_tutor_school_settings')
+    .values({ id: 1, ...values })
+    .onConflict((conflict) => conflict.column('id').doUpdateSet(values))
+    .execute();
 });
 
 test.afterAll(async () => {
   if (!runtime) {
     return;
   }
+  await runtime.connections
+    .database<SystemDatabase>(tenant, 'system', 'system')
+    .deleteFrom('ai_tutor_school_settings')
+    .execute();
   await runtime.platform.deleteFrom('platform_settings').where('key', '=', 'ai').execute();
   if (savedSettings) {
     await runtime.platform

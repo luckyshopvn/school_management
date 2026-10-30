@@ -33,7 +33,7 @@ export function RecentPages() {
           <li key={page.path} className="flex items-center rounded-lg border border-border-strong">
             <Link
               to={page.path}
-              className="flex min-h-10 items-center px-3 text-label font-medium text-link hover:underline max-xl:min-h-11"
+              className="flex min-h-11 items-center px-3 text-label font-medium text-link hover:underline"
             >
               {page.title}
             </Link>
@@ -41,7 +41,7 @@ export function RecentPages() {
               type="button"
               aria-label={`Bỏ ${page.title} khỏi Hay dùng`}
               disabled={remove.isPending}
-              className="flex h-10 w-10 items-center justify-center border-l border-border text-text-secondary hover:bg-selected max-xl:h-11 max-xl:w-11"
+              className="flex h-11 w-11 items-center justify-center border-l border-border text-text-secondary hover:bg-selected"
               onClick={() => remove.mutate(page.path)}
             >
               <span aria-hidden="true">×</span>
