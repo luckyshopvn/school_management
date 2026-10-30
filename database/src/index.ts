@@ -132,6 +132,8 @@ export type {
   StudentRuleKind,
   StudentRuleParentNotice,
   SupervisionSchoolLevel,
+  StudentConductSource,
+  StudentConductStatus,
   AssessmentScale,
   CompetencyGroup,
   AssessmentTermType,

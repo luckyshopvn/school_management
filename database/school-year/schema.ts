@@ -641,7 +641,9 @@ export type FilePurpose =
   | 'final_year_document'
   | 'admission_document'
   | 'kpi_evidence'
-  | 'professional_record';
+  | 'professional_record'
+  // Ảnh bằng chứng của ghi nhận rèn luyện (YCTD-391)
+  | 'conduct_evidence';
 
 export interface FilesTable extends CatalogRecordColumns {
   org_unit_id: string | null;
@@ -5624,6 +5626,32 @@ export interface SupervisionAssignmentsTable {
   updated_at: UpdatedTimestamp;
 }
 
+// Ghi nhận vi phạm, khen từng học sinh, lát L2 (YCTD-391)
+export type StudentConductSource = 'manual' | 'gate' | 'camera_alert';
+export type StudentConductStatus = 'active' | 'revoked';
+
+export interface StudentConductRecordsTable {
+  id: Generated<string>;
+  child_id: string;
+  class_id: string;
+  rule_item_id: string;
+  rule_name: string;
+  kind: StudentRuleKind;
+  occurred_at: Date;
+  zone_id: string | null;
+  description: string | null;
+  evidence_file_ids: Generated<string[]>;
+  source: Generated<StudentConductSource>;
+  class_conduct_entry_id: string | null;
+  recorded_by: string;
+  recorded_by_name: string;
+  status: Generated<StudentConductStatus>;
+  revoked_reason: string | null;
+  revoked_by_name: string | null;
+  revoked_at: Date | null;
+  created_at: CreatedTimestamp;
+}
+
 // Đánh giá học sinh theo Thông tư 27/2020 (DT-20 phần 20c, YCTD-161)
 export type AssessmentScale = 'subject' | 'competency';
 export type CompetencyGroup = 'quality' | 'general' | 'specific';
@@ -7615,6 +7643,7 @@ export interface SchoolYearDatabase {
   school_zones: SchoolZonesTable;
   student_rule_items: StudentRuleItemsTable;
   supervision_assignments: SupervisionAssignmentsTable;
+  student_conduct_records: StudentConductRecordsTable;
   assessment_levels: AssessmentLevelsTable;
   competency_items: CompetencyItemsTable;
   assessment_periods: AssessmentPeriodsTable;

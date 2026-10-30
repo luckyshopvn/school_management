@@ -68,6 +68,7 @@ export function ClassesScreen({
   onOpenStocktake,
   onOpenTimetable,
   onOpenLibrary,
+  onOpenSupervision,
   onOpenClassLog,
   onOpenTraining,
   onOpenOnlineClasses,
@@ -94,6 +95,7 @@ export function ClassesScreen({
   onOpenStocktake(): void;
   onOpenTimetable(): void;
   onOpenLibrary(): void;
+  onOpenSupervision(): void;
   onOpenClassLog(): void;
   onOpenTraining(): void;
   onOpenOnlineClasses(): void;
@@ -113,6 +115,8 @@ export function ClassesScreen({
   const [canTeachOnline, setCanTeachOnline] = useState(false);
   // Gia sư trong trường (DT-27 phần 27b)
   const [canTutor, setCanTutor] = useState(false);
+  // Ghi nhận rèn luyện, ca trực của giám thị (YCTD-391)
+  const [canSupervise, setCanSupervise] = useState(false);
 
   useEffect(() => {
     fetchCurrentUser()
@@ -129,6 +133,9 @@ export function ClassesScreen({
         setCanTrain(user.assignments.some((assignment) => assignment.permissions.includes('P09.training.use')));
         setCanTeachOnline(user.assignments.some((assignment) => assignment.permissions.includes('P02.learning.teach')));
         setCanTutor(user.assignments.some((assignment) => assignment.permissions.includes('P02.tutoring.teach')));
+        setCanSupervise(
+          user.assignments.some((assignment) => assignment.permissions.includes('P02.supervision.record')),
+        );
       })
       .catch(() => setGateUnitIds([]));
     requestJson<MyClass[]>('/api/v1/classes?mine=true&status=active')
@@ -193,11 +200,13 @@ export function ClassesScreen({
           ) : null}
           {/* Sách đang mượn ở thư viện trường (DT-22 phần 22a) */}
           <Button onClick={onOpenLibrary}>Sách tôi đang mượn</Button>
+          {/* Ca trực, ghi nhận vi phạm, khen từng học sinh (YCTD-391) */}
+          {canSupervise ? <Button onClick={onOpenSupervision}>Ghi nhận rèn luyện</Button> : null}
           {/* Sổ đầu bài, điểm danh theo tiết (DT-20 phần 20d) */}
           {(classes ?? []).some((myClass) => hasLevelFeature(myClass.school_level, 'period_attendance')) ? (
             <Button onClick={onOpenClassLog}>Sổ đầu bài</Button>
           ) : null}
-          {classes && classes.length === 0 && gateUnitIds.length === 0 ? (
+          {classes && classes.length === 0 && gateUnitIds.length === 0 && !canSupervise ? (
             <p className="text-content text-text-secondary">Bạn chưa được phân công lớp nào.</p>
           ) : null}
           <ul className="flex flex-col gap-2 md:grid md:grid-cols-2 md:gap-4">
