@@ -52,7 +52,15 @@ interface SheetChild {
   saved: boolean;
   note: string | null;
   absence: { reason: string | null; is_advised: boolean } | null;
+  // Lượt quét thẻ ở cổng trong ngày, chỉ là gợi ý (YCTD-389)
+  gate: { first_in: string | null; last_out: string | null; suggested_status: 'present' | 'late' | null } | null;
 }
+
+const GATE_TIME = new Intl.DateTimeFormat('vi-VN', {
+  timeZone: 'Asia/Ho_Chi_Minh',
+  hour: '2-digit',
+  minute: '2-digit',
+});
 
 interface Sheet {
   date: string;
@@ -350,6 +358,15 @@ export function AttendanceScreen({
                           </span>
                           <span className="flex min-w-0 flex-col gap-1">
                             <span className="text-content font-medium text-text">{child.full_name}</span>
+                            {child.gate?.first_in ? (
+                              <span className="flex flex-wrap items-center gap-1 text-label text-text-secondary">
+                                <StatusBadge
+                                  tone={child.gate.suggested_status === 'late' ? 'warning' : 'success'}
+                                  label={`Vào cổng ${GATE_TIME.format(new Date(child.gate.first_in))}`}
+                                />
+                                {child.gate.last_out ? `Ra ${GATE_TIME.format(new Date(child.gate.last_out))}` : null}
+                              </span>
+                            ) : null}
                             {child.absence ? (
                               <span className="flex flex-wrap items-center gap-1 text-xs text-text-secondary">
                                 <StatusBadge

@@ -27,6 +27,7 @@ import { TimetablePanel } from './TimetablePanel.js';
 import { AssessmentPanel } from './AssessmentPanel.js';
 import { ScorePanel } from './ScorePanel.js';
 import { PeriodAttendancePanel } from './PeriodAttendancePanel.js';
+import { GatePassesPanel } from './GatePassesPanel.js';
 import { LearningRecordPanel } from './LearningRecordPanel.js';
 import { ProctorConsentPanel } from './ProctorConsentPanel.js';
 import { AiTutorPanel } from '../ai-tutor/AiTutorPanel.js';
@@ -196,6 +197,7 @@ function ChildCard({
     | 'library'
     | 'scores'
     | 'period-attendance'
+    | 'gate'
     | 'learning-record'
     | 'proctor-consent'
     | 'online-learning'
@@ -317,6 +319,8 @@ function ChildCard({
         {has('daily_journal') ? (
           <Button onClick={() => setView(view === 'journal' ? 'none' : 'journal')}>Nhật ký</Button>
         ) : null}
+        {/* Lượt vào, ra cổng của con (YCTD-389) */}
+        <Button onClick={() => setView(view === 'gate' ? 'none' : 'gate')}>Đến và về trường</Button>
         <Button onClick={() => setView(view === 'pickups' ? 'none' : 'pickups')}>Người đón</Button>
         <Button onClick={() => setView(view === 'services' ? 'none' : 'services')}>Dịch vụ</Button>
         <Button onClick={() => setView(view === 'consent' ? 'none' : 'consent')}>Hình ảnh</Button>
@@ -382,6 +386,7 @@ function ChildCard({
       {view === 'library' ? <LibraryPanel child={child} /> : null}
       {view === 'scores' ? <ScorePanel child={child} /> : null}
       {view === 'period-attendance' ? <PeriodAttendancePanel child={child} month={month} /> : null}
+      {view === 'gate' ? <GatePassesPanel child={child} /> : null}
       {view === 'learning-record' ? <LearningRecordPanel child={child} /> : null}
       {view === 'proctor-consent' ? <ProctorConsentPanel child={child} /> : null}
       {view === 'online-learning' ? <OnlineLearningPanel child={child} /> : null}

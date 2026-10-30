@@ -1580,26 +1580,26 @@ Giao kèo văn thư lưu trữ (YCTD-118):
 | GET, PATCH | /api/v1/online-exams/assignments/{id} | Chi tiết, theo dõi; sửa tên, giờ, chế độ kết quả (P02-84) |
 | POST | /api/v1/online-exams/assignments/{id}/cancel, /release-results | Huỷ; công bố kết quả (P02-84) |
 | GET, PUT, POST | /api/v1/online-exams/attempts/{id}, /essay-marks, /force-submit | Xem bài; điểm tự luận; nộp thay (P02-84) |
-| GET | /api/v1/tutoring/meta, /tutoring/rules; POST /tutoring/rules | Danh mục cho biểu mẫu, quy định dạy thêm đang áp dụng và lịch sử; thêm quy định có ngày hiệu lực (P02.tutoring.manage) (YCTD-252) |
-| GET, POST | /api/v1/tutoring/programs; GET, PUT /tutoring/programs/{id} | Chương trình gia sư; vi phạm Thông tư 29 trả 422 `ERR_RULE_VIOLATION` mã YCTD-252, chi tiết mã từng dòng (`curriculum_fee`, `curriculum_audience`, `curriculum_subject`, `curriculum_level`) |
-| POST | /api/v1/tutoring/programs/{id}/submit, /approve, /reject, /close | Nộp (người dạy), duyệt, không duyệt (cần `reason`), đóng (Ban Giám hiệu) |
-| GET, PUT | /api/v1/tutoring/programs/{id}/candidate-suggestions, /candidates | Gợi ý học sinh chưa đạt môn từ sổ điểm; xác nhận danh sách học sinh được đăng ký |
-| POST | /api/v1/tutoring/programs/{id}/sessions | Xếp buổi lẻ (`session_date`) hoặc lặp theo tuần (`weekly`: from, to, weekdays 1 đến 7), `start_time`, `end_time`; trùng thời khoá biểu (`timetable_teacher`, `timetable_class`) hoặc quá giới hạn tiết (`weekly_periods`) trả 422 |
-| GET | /api/v1/tutoring/programs/{id}/registrations; POST /tutoring/registrations/{id}/approve, /reject | Đơn đăng ký; duyệt kiểm sĩ số và giới hạn tiết |
-| POST | /api/v1/tutoring/programs/{id}/messages | Nhắn cha mẹ của học sinh đã đăng ký qua luồng trao đổi |
-| GET | /api/v1/tutoring/sessions?from&to; POST /tutoring/sessions/{id}/cancel | Buổi của chương trình mình dạy (Ban Giám hiệu: mọi buổi); hủy buổi báo cha mẹ |
-| GET, PUT | /api/v1/tutoring/sessions/{id}/attendance; POST .../room-events | Điểm danh và xác nhận (vắng báo cha mẹ một lần); sự kiện vào, ra phòng giả lập đến khi 27a gộp |
-| GET, POST | /api/v1/tutoring/exemptions; GET .../{id}/file | Quyết định tăng thời lượng của Sở (biểu mẫu nhiều phần, tệp tùy chọn) |
-| GET | /api/v1/children/{id}/tutoring; POST .../registrations; POST .../registrations/{rid}/withdraw | Cha mẹ: chương trình mở cho con, đơn đã gửi, lịch học và điểm danh đã xác nhận; gửi đơn (`agree` bắt buộc), rút đơn |
-| GET | /api/v1/tutoring/finance/report?from&to; GET .../report/export | Thu chi gia sư theo chương trình và khoảng tháng (tối đa 24 tháng): đã thu, trừ kỳ sau, điều chỉnh giảm, đã hoàn, thu thuần, thù lao đã đẩy và chưa đẩy, tổng thù lao theo nguồn chi; tệp Excel ghi nhật ký xuất (YCTD-253) |
-| GET, POST | /api/v1/tutoring/finance/teacher-pay?month; POST .../teacher-pay/push `{ month }` | Thù lao buổi đã dạy chưa đẩy đến hết tháng (lý do chưa đẩy được); đẩy vào bảng lương tháng, cần `P08.bonus-deduction.manage`; bảng lương đã gửi duyệt hoặc đã duyệt trả 422 `payroll_locked` (YCTD-253) |
-| GET, POST | /api/v1/tutoring/finance/credits; POST .../credits/{id}/adjust, /deduct-next, /close `{ note }` | Khoản trừ buổi hủy đã thu; lập điều chỉnh giảm hóa đơn qua luồng điều chỉnh hiện có (cần `P05.invoice-adjustment.create`), chuyển sang trừ kỳ sau, đóng sau khi hoàn (YCTD-253) |
-| GET, PUT | /api/v1/video/status, /settings, /usage | Lớp video: máy chủ có bật video không; cấu hình của trường (người dự tối đa, giữ bản ghi, phòng chờ; sửa cần `P02.tutoring.manage`); phút đã dùng và dung lượng bản ghi theo gói (YCTD-251) |
-| POST | /api/v1/video/sessions/{id}/room; POST /video/rooms `{ title }`; POST /video/rooms/{id}/join | Mở phòng của buổi (giáo viên dạy, Ban Giám hiệu) hoặc phòng tức thời; vào phòng trả `{ status: ready, url, token }` hoặc `{ status: waiting }`; vượt phút của gói trả PLAN_LIMIT_EXCEEDED (YCTD-251) |
-| GET, PATCH, POST | /api/v1/video/rooms/{id}; PATCH .../participants/{identity} `{ admit, can_speak, can_share, remove }`; POST .../end, .../recording/start, .../recording/stop | Chủ phòng: người chờ, người dự, cho vào, cho nói, cho chia sẻ, mời ra, kết thúc, ghi hình (cần chương trình bật và đồng ý của cha mẹ, 422 kèm tên học sinh thiếu đồng ý) (YCTD-251) |
-| GET, POST | /api/v1/video/sessions/{id}/recordings; POST /video/recordings/{id}/view-link, /hold; GET /video/recordings/{id}/stream?token | Bản ghi của buổi; đường dẫn xem ký 5 phút (mỗi lần lấy ghi nhật ký xem), phát trực tiếp không lưu đệm; giữ bản ghi vì tranh chấp (YCTD-251) |
-| GET, POST, PUT | /api/v1/children/{id}/video/rooms, /rooms/{roomId}/join, /sessions/{sid}/recordings, /recordings/{rid}/view-link, /consents, PUT /consents/{programId} `{ agree }` | Cha mẹ: lớp đang mở của buổi của con, vào xem, bản ghi, đồng ý hoặc rút đồng ý ghi hình (YCTD-251) |
-| GET, POST | /api/v1/student/video/rooms, /rooms/{id}/join | Học sinh (kênh student, `P02.learning.study`): lớp đang mở của buổi đã đăng ký, vào lớp (YCTD-251) |
+| GET | /api/v1/tutoring/meta, /tutoring/rules; POST /tutoring/rules | **Đã bỏ (YCTD-393):** gia sư trong trường đã bỏ. Danh mục cho biểu mẫu, quy định dạy thêm đang áp dụng và lịch sử; thêm quy định có ngày hiệu lực (P02.tutoring.manage) (YCTD-252) |
+| GET, POST | /api/v1/tutoring/programs; GET, PUT /tutoring/programs/{id} | **Đã bỏ (YCTD-393):** gia sư trong trường đã bỏ. Chương trình gia sư; vi phạm Thông tư 29 trả 422 `ERR_RULE_VIOLATION` mã YCTD-252, chi tiết mã từng dòng (`curriculum_fee`, `curriculum_audience`, `curriculum_subject`, `curriculum_level`) |
+| POST | /api/v1/tutoring/programs/{id}/submit, /approve, /reject, /close | **Đã bỏ (YCTD-393):** gia sư trong trường đã bỏ. Nộp (người dạy), duyệt, không duyệt (cần `reason`), đóng (Ban Giám hiệu) |
+| GET, PUT | /api/v1/tutoring/programs/{id}/candidate-suggestions, /candidates | **Đã bỏ (YCTD-393):** gia sư trong trường đã bỏ. Gợi ý học sinh chưa đạt môn từ sổ điểm; xác nhận danh sách học sinh được đăng ký |
+| POST | /api/v1/tutoring/programs/{id}/sessions | **Đã bỏ (YCTD-393):** gia sư trong trường đã bỏ. Xếp buổi lẻ (`session_date`) hoặc lặp theo tuần (`weekly`: from, to, weekdays 1 đến 7), `start_time`, `end_time`; trùng thời khoá biểu (`timetable_teacher`, `timetable_class`) hoặc quá giới hạn tiết (`weekly_periods`) trả 422 |
+| GET | /api/v1/tutoring/programs/{id}/registrations; POST /tutoring/registrations/{id}/approve, /reject | **Đã bỏ (YCTD-393):** gia sư trong trường đã bỏ. Đơn đăng ký; duyệt kiểm sĩ số và giới hạn tiết |
+| POST | /api/v1/tutoring/programs/{id}/messages | **Đã bỏ (YCTD-393):** gia sư trong trường đã bỏ. Nhắn cha mẹ của học sinh đã đăng ký qua luồng trao đổi |
+| GET | /api/v1/tutoring/sessions?from&to; POST /tutoring/sessions/{id}/cancel | **Đã bỏ (YCTD-393):** gia sư trong trường đã bỏ. Buổi của chương trình mình dạy (Ban Giám hiệu: mọi buổi); hủy buổi báo cha mẹ |
+| GET, PUT | /api/v1/tutoring/sessions/{id}/attendance; POST .../room-events | **Đã bỏ (YCTD-393):** gia sư trong trường đã bỏ. Điểm danh và xác nhận (vắng báo cha mẹ một lần); sự kiện vào, ra phòng giả lập đến khi 27a gộp |
+| GET, POST | /api/v1/tutoring/exemptions; GET .../{id}/file | **Đã bỏ (YCTD-393):** gia sư trong trường đã bỏ. Quyết định tăng thời lượng của Sở (biểu mẫu nhiều phần, tệp tùy chọn) |
+| GET | /api/v1/children/{id}/tutoring; POST .../registrations; POST .../registrations/{rid}/withdraw | **Đã bỏ (YCTD-393):** gia sư trong trường đã bỏ. Cha mẹ: chương trình mở cho con, đơn đã gửi, lịch học và điểm danh đã xác nhận; gửi đơn (`agree` bắt buộc), rút đơn |
+| GET | /api/v1/tutoring/finance/report?from&to; GET .../report/export | **Đã bỏ (YCTD-393):** gia sư trong trường đã bỏ. Thu chi gia sư theo chương trình và khoảng tháng (tối đa 24 tháng): đã thu, trừ kỳ sau, điều chỉnh giảm, đã hoàn, thu thuần, thù lao đã đẩy và chưa đẩy, tổng thù lao theo nguồn chi; tệp Excel ghi nhật ký xuất (YCTD-253) |
+| GET, POST | /api/v1/tutoring/finance/teacher-pay?month; POST .../teacher-pay/push `{ month }` | **Đã bỏ (YCTD-393):** gia sư trong trường đã bỏ. Thù lao buổi đã dạy chưa đẩy đến hết tháng (lý do chưa đẩy được); đẩy vào bảng lương tháng, cần `P08.bonus-deduction.manage`; bảng lương đã gửi duyệt hoặc đã duyệt trả 422 `payroll_locked` (YCTD-253) |
+| GET, POST | /api/v1/tutoring/finance/credits; POST .../credits/{id}/adjust, /deduct-next, /close `{ note }` | **Đã bỏ (YCTD-393):** gia sư trong trường đã bỏ. Khoản trừ buổi hủy đã thu; lập điều chỉnh giảm hóa đơn qua luồng điều chỉnh hiện có (cần `P05.invoice-adjustment.create`), chuyển sang trừ kỳ sau, đóng sau khi hoàn (YCTD-253) |
+| GET, PUT | /api/v1/video/status, /settings, /usage | Lớp video: máy chủ có bật video không; cấu hình của trường (người dự tối đa, giữ bản ghi, phòng chờ; sửa cần `P02.learning.decide` từ YCTD-393, trước đó `P02.tutoring.manage`); phút đã dùng và dung lượng bản ghi theo gói (YCTD-251) |
+| POST | /api/v1/video/sessions/{id}/room; POST /video/rooms `{ title }`; POST /video/rooms/{id}/join | **Đã bỏ một phần (YCTD-393):** `/video/sessions/{id}/room` của buổi gia sư đã bỏ; phòng tức thời giữ lại. Mở phòng của buổi (giáo viên dạy, Ban Giám hiệu) hoặc phòng tức thời; vào phòng trả `{ status: ready, url, token }` hoặc `{ status: waiting }`; vượt phút của gói trả PLAN_LIMIT_EXCEEDED (YCTD-251) |
+| GET, PATCH, POST | /api/v1/video/rooms/{id}; PATCH .../participants/{identity} `{ admit, can_speak, can_share, remove }`; POST .../end, .../recording/start, .../recording/stop | **Đã bỏ một phần (YCTD-393):** `/recording/start`, `/recording/stop` đã bỏ. Chủ phòng: người chờ, người dự, cho vào, cho nói, cho chia sẻ, mời ra, kết thúc, ghi hình (cần chương trình bật và đồng ý của cha mẹ, 422 kèm tên học sinh thiếu đồng ý) (YCTD-251) |
+| GET, POST | /api/v1/video/sessions/{id}/recordings; POST /video/recordings/{id}/view-link, /hold; GET /video/recordings/{id}/stream?token | **Đã bỏ (YCTD-393):** gia sư trong trường đã bỏ. Bản ghi của buổi; đường dẫn xem ký 5 phút (mỗi lần lấy ghi nhật ký xem), phát trực tiếp không lưu đệm; giữ bản ghi vì tranh chấp (YCTD-251) |
+| GET, POST, PUT | /api/v1/children/{id}/video/rooms, /rooms/{roomId}/join, /sessions/{sid}/recordings, /recordings/{rid}/view-link, /consents, PUT /consents/{programId} `{ agree }` | **Đã bỏ (YCTD-393):** gia sư trong trường đã bỏ. Cha mẹ: lớp đang mở của buổi của con, vào xem, bản ghi, đồng ý hoặc rút đồng ý ghi hình (YCTD-251) |
+| GET, POST | /api/v1/student/video/rooms, /rooms/{id}/join | **Đã bỏ (YCTD-393):** gia sư trong trường đã bỏ. Học sinh (kênh student, `P02.learning.study`): lớp đang mở của buổi đã đăng ký, vào lớp (YCTD-251) |
 | POST | /api/v1/video/webhook | Sự kiện của máy chủ video (vào ra, ghi xong, phòng đóng): đường dẫn không cần trường, trường lấy từ tên phòng, chữ ký sai 401, video tắt 404 (YCTD-251) |
 | GET | /api/v1/student/profile, /exams | Học sinh: thông tin, bài được giao (P02-83) |
 | POST | /api/v1/student/exams/{id}/start | Mở hoặc tiếp tục lượt (`camera_state`) (P02-83) |
@@ -2684,6 +2684,33 @@ Nhóm `/supervision`. Đọc danh mục cần `P02.supervision.record` hoặc `P
 | POST | /api/v1/supervision/records (lát L2) | Ghi `{ child_ids (1 đến 30), rule_item_id, occurred_at?, zone_id?, description?, evidence_file_ids? (tối đa 3 tệp `conduct_evidence` do mình tải, chưa gắn) }`; cần `P02.supervision.record`; học sinh ngoài phạm vi 403; mục khác cấp 422 (`rule_code` YCTD-391); trả `record_ids`, `class_points_added` (mục gắn tiêu chí nề nếp và trường đã bật nề nếp) |
 | POST | /api/v1/supervision/records/{id}/revoke (lát L2) | Thu hồi `{ reason }`: người ghi trong ngày, giáo viên chủ nhiệm của lớp, người quản lý rèn luyện; xóa dòng điểm lớp đi kèm; đã thu hồi 422 |
 | GET | /api/v1/supervision/on-duty?zone_id=&at= | Người đang trực khu vực ở thời điểm `at` (ISO 8601, mặc định bây giờ): `[{ user_id, staff_id, full_name }]`; trống là không ai trực. Máy chủ dùng cùng hàm `SupervisionService.findOnDutySupervisors` khi gửi cảnh báo camera (YCTD-389) |
+
+### 17.15. Thẻ QR và lượt qua cổng (YCTD-389 lát L1)
+
+Mã ở `apps/api/src/gate-passes/`. Lượt qua cổng là gợi ý cho giáo viên; chỉ "Đi muộn" từ thẻ được tự ghi.
+
+| Phương thức | Đường dẫn | Mô tả |
+|---|---|---|
+| GET | /api/v1/classes/{id}/gate-cards | Thẻ của học sinh đang học trong lớp: `class_name`, `children [{ child_id, full_name, code, issued_at }]`; quyền `P04.gate-card.manage` ở đơn vị của lớp, khác thì 403 |
+| POST | /api/v1/classes/{id}/gate-cards | Cấp thẻ cho học sinh chưa có; `{ reissue_child_ids?: uuid[] }` cấp lại (thu hồi thẻ cũ). Học sinh ngoài lớp: 422. Trả như GET kèm `issued_count` |
+| POST | /api/v1/gate-passes | Quét thẻ `{ code, direction: in \| out }`; mã gõ tay được (bỏ khoảng trắng, gạch nối, không phân biệt hoa thường); quyền `P04.gate-pass.record` ở đơn vị của học sinh (403). Mã sai dạng, thẻ đã thu hồi, học sinh không còn học: 422; không có thẻ: 404. Trả `{ id, child_id, child_name, class_name, direction, passed_at, duplicate, auto_late }`; báo phụ huynh `gate_arrived` hoặc `gate_left` (trong ứng dụng, đẩy theo nhóm `gate`) |
+| GET | /api/v1/gate-passes/recent | 30 lượt mới nhất hôm nay trong phạm vi `P04.gate-pass.record` của người dùng; không có quyền: 403 |
+| POST | /api/v1/gate-passes/{id}/reject | Báo nhận nhầm `{ note? }` (tối đa 500 ký tự): giáo viên chủ nhiệm của lớp hoặc người có `P04.attendance.manage` ở đơn vị (403); lượt đã báo nhầm: 422; phụ huynh nhận `gate_pass_corrected` |
+| GET | /api/v1/children/{id}/gate-passes?from=&to= | Lượt của một học sinh, tối đa 31 ngày (422): người được xem hồ sơ em, phụ huynh của em; phụ huynh khác 403. Gồm lượt đã báo nhầm (`review_status`), bỏ lượt chờ xem |
+| GET | /api/v1/classes/{id}/attendance | (Đã có) mỗi dòng thêm `gate { first_in_pass_id, first_in, last_out, first_in_method, suggested_status }` hoặc `null`; `suggested_status` là `present` khi vào trước hoặc đúng giờ học, `late` khi sau |
+
+### 17.16. Thiết bị điểm danh, máy chấm công (YCTD-389 lát L2)
+
+Mã ở `apps/api/src/gate-passes/attendance-devices.*`. Quyền quản lý `P04.gate-device.manage` (VT-02, VT-15, VT-03) theo đơn vị của thiết bị. Bộ giả lập: `scripts/gia-lap-may-cham-cong.mjs`.
+
+| Phương thức | Đường dẫn | Mô tả |
+|---|---|---|
+| GET | /api/v1/attendance-devices | Thiết bị trong phạm vi quyền: `id, org_unit_id, kind, name, location_name, direction, key_hint, last_seen_at, disabled_at, created_at` (không trả khóa, mã băm); không có quyền 403 |
+| POST | /api/v1/attendance-devices | Khai báo `{ org_unit_id, kind, name (1 đến 120 ký tự), location_name?, direction: in \| out \| both }` (400 khi sai); 201 trả thiết bị kèm `key` (chỉ lần này) |
+| POST | /api/v1/attendance-devices/{id}/rotate-key | Đổi khóa, khóa cũ hết hiệu lực ngay; trả thiết bị kèm `key` mới |
+| POST | /api/v1/attendance-devices/{id}/disable | `{ disabled?: boolean }` (mặc định tắt) |
+| POST | /api/v1/attendance-devices/{id}/import | Tệp `file` CSV hoặc xlsx (tối đa 5 MB, 5.000 dòng): cột "Mã", "Thời điểm" (giờ Việt Nam), "Hướng" tùy chọn. Trả `{ total, counts: { recorded, duplicate, unchanged, manual_kept, unknown_code, rejected }, errors: [{ line, message }] }` (tối đa 50 lỗi); nhập lại cùng tệp không ghi trùng |
+| POST | /api/v1/device-events | Công khai, tiêu đề `x-device-key` (thiếu, sai, thiết bị đã tắt: 401). Thân `{ events: [{ external_id (1 đến 100 ký tự), code, direction?: in \| out, occurred_at (ISO 8601) }] }`, 1 đến 500 lượt (400). Trả `{ device_id, results: [{ external_id, status: recorded \| duplicate \| unchanged \| manual_kept \| unknown_code \| rejected, message? }] }` |
 
 ## 18. Quy tắc kiểm tra dữ liệu
 

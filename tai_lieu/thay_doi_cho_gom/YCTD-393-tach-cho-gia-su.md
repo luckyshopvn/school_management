@@ -7,6 +7,53 @@ phien_ban_de_xuat: 0.240.0
 
 ## 02 Nhật ký
 
+### 2026-10-30 — Tách Chợ gia sư, bỏ chương trình gia sư trong trường, lát L4: đánh dấu chức năng đã bỏ ở tài liệu (YCTD-393)
+
+#### Công việc đã thực hiện
+
+- Đánh dấu "Đã bỏ (YCTD-393)" tại chỗ, giữ nguyên mọi mã định danh: 07 (27 quy tắc), 08 (9 quyền), 10 (14 chức năng), 11 (40 tiêu chí nghiệm thu), 12 (QĐ-44, 46 đến 49), 14 (29 màn hình), 16 (bảng gia sư, bản ghi video, cơ sở dữ liệu chợ, cột liên kết hóa đơn; thêm đoạn về `removed_data_backups` và lệnh sao lưu), 17 (19 điểm cuối), 21 (61 kịch bản kiểm thử), 26 (bước sao lưu trước database migration 0255 và 0235), 27 (17 dòng), 47 mục 16.10, 16.12, 19, 48 (hồ sơ gia sư PL-16 đến PL-21), 49.
+- Thẻ cấu hình lớp video (MH-411) ghi chuyển sang trang 9.3; cấu hình video dùng quyền `P02.learning.decide`.
+
+#### Quyết định
+
+- Hạ tầng video dùng chung cho giờ học trực tuyến (BR-312, `/video/webhook`, `/video/status`, `/video/usage`) giữ, không đánh dấu.
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-393, `23_LICH_SU_PHIEN_BAN.md` {PHIEN_BAN}.
+
+#### Vấn đề tồn đọng
+
+- Dòng phân hệ P02 ở tài liệu 03 chưa ghi qua mục "Nối dòng".
+- Tệp PDF của tài liệu 49 sinh từ tệp Markdown, chưa sinh lại.
+
+### 2026-10-30 — Bỏ chương trình gia sư trong trường, lát L3: database migration xóa bảng gia sư kèm sao lưu (YCTD-393)
+
+#### Công việc đã thực hiện
+
+- Lệnh `pnpm --filter @school-management/database xoa-du-lieu-da-bo -- --tinh-nang gia-su-trong-truong` (`database/src/removed-tutoring-backup.ts`): sao lưu các bảng gia sư của mọi cơ sở dữ liệu năm học sẽ chạy database migration (nhiều trường khi có `PLATFORM_DATABASE_URL`: trường không ở trạng thái đang khởi tạo, đã xóa, năm học không chỉ đọc; một trường: năm học đang dùng) vào `<BACKUP_DIR>/removed[/<mã trường>]/gia-su-trong-truong/`, tệp nén, mã hóa bằng `BACKUP_ENCRYPTION_PASSPHRASE`, đọc lại kiểm tra; ghi số dòng, tổng kiểm từng bảng vào `removed_data_backups` của chính cơ sở dữ liệu đó; in tóm tắt từng cơ sở dữ liệu (số bảng, số dòng, dòng liên kết, đường dẫn tệp, mã băm).
+- Tệp sao lưu gồm trọn 23 bảng bị xóa, kèm ở phần `extra` của dòng đầu các dòng bảng còn giữ bị đổi hoặc xóa: `invoice_item_tutoring_links` (cặp `invoice_item_id`, `tutoring_registration_id`), `session_video_rooms`, `session_video_room_admissions`, `session_video_room_events` (trọn dòng dạng JSON).
+- Database migration năm học 0235: dừng khi bảng còn dữ liệu chưa có bản ghi sao lưu khớp số dòng; bỏ cột `invoice_items.tutoring_registration_id` (dòng `item_type = 'tutoring'` giữ số tiền, nội dung; ràng buộc vẫn nhận `tutoring`); xóa phòng video loại `session` cùng phòng chờ, nhật ký vào ra của phòng đó, bỏ cột `video_rooms.tutoring_session_id`, chỉ mục duy nhất, ràng buộc phòng của buổi, `video_rooms_kind_check` chỉ còn `instant`; xóa `tutoring_rules`, `tutoring_programs`, `tutoring_program_teachers`, `tutoring_program_classes`, `tutoring_program_candidates`, `tutoring_sessions`, `tutoring_exemptions`, `tutoring_exemption_children`, `tutoring_registrations`, `tutoring_attendance`, `tutoring_room_events`, `tutoring_charge_sessions`, `tutoring_credits`, `tutoring_credit_applications`, `tutoring_teacher_pay`, `video_recording_consents`, `video_recordings`, `video_recording_views`, `tutoring_program_courses`, `tutoring_media_views`, `tutoring_question_marks`, `tutoring_ai_answers`, `tutoring_ai_consents`; khoản mục lương `THU_LAO_DAY_THEM` chuyển `inactive`.
+- Database migration định danh 0190: gỡ quyền `P02.tutoring.manage`, `P02.tutoring.teach`, phần gán cho vai trò và việc ẩn phân hệ `tutoring` với VT-14, VT-21 do 0172 thêm.
+- Kiểu bảng: gỡ các bảng trên, `invoice_items.tutoring_registration_id`, `video_rooms.tutoring_session_id` khỏi `database/school-year/schema.ts` và kiểu `Tutoring*` khỏi `database/src/index.ts`; tính học phí bỏ bước xóa `tutoring_credits` tạm thời của lát L2.
+- Kiểm thử `database/src/removed-tutoring-backup.test.ts`: chưa sao lưu thì 0235 từ chối; sao lưu đủ bảng và dòng liên kết, 0235 xóa bảng, giữ dòng hóa đơn, phòng tức thời; chạy lại không lỗi; định danh tạo mới không còn quyền gia sư.
+
+#### Quyết định
+
+- Thiết kế sao lưu theo quyết định của Eric ngày 2026-10-30 (lệnh riêng, tệp mã hóa ngoài kho mã, ghi số dòng, database migration từ chối khi thiếu bản ghi).
+- Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11: `tutoring_rules` chỉ có dòng 0152 nạp sẵn thì không cần sao lưu (cấu hình dựng lại được, có ở mọi năm học kể cả năm mới tạo); quyền ở cơ sở dữ liệu định danh là cấu hình nạp sẵn nên không sao lưu; khoản mục lương giữ lại vì dòng lương đã lập có thể trỏ tới; phòng video tức thời giữ nguyên.
+- Năm học đã đóng (chỉ đọc) không chạy database migration (QU-11) nên giữ nguyên bảng gia sư, không cần sao lưu.
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-393, `23_LICH_SU_PHIEN_BAN.md` {PHIEN_BAN}.
+
+#### Vấn đề tồn đọng
+
+- Lát L4 (đánh dấu chức năng đã bỏ ở tài liệu).
+- Không gian khóa học loại `elective` từng gắn với chương trình gia sư (`tutoring_program_courses`) còn ở phần học trực tuyến; liên kết nằm trong tệp sao lưu.
+- Bản ghi video ở kho tệp (`video-recordings/…`) không bị xóa bởi database migration; danh sách khóa tệp nằm trong tệp sao lưu (`video_recordings.storage_key`).
+
 ### 2026-10-30 — Bỏ chương trình gia sư trong trường, lát L2: gỡ mã gia sư trong trường (YCTD-393)
 
 #### Công việc đã thực hiện
@@ -89,8 +136,12 @@ phien_ban_de_xuat: 0.240.0
 - Phạm vi thay đổi (lát L2): gỡ mã chương trình gia sư trong trường ở máy chủ API, cổng trường, ứng dụng giáo viên, phụ huynh, học sinh; tính học phí không lập dòng thu gia sư; lớp video chỉ còn phòng tức thời, cấu hình và phần dùng chung cho giờ học trực tuyến.
 - Dữ liệu (lát L2): không đổi cấu trúc dữ liệu; bảng gia sư và bản ghi video giữ nguyên đến lát L3.
 - Quay lui (lát L2): triển khai lại phiên bản trước, dữ liệu không đổi.
+- Phạm vi thay đổi (lát L3): database migration năm học 0235 xóa bảng gia sư, bảng ghi hình video, phòng video của buổi gia sư, cột nối của dòng hóa đơn; định danh 0190 gỡ quyền `P02.tutoring.*`; lệnh sao lưu `xoa-du-lieu-da-bo -- --tinh-nang gia-su-trong-truong`.
+- Thứ tự triển khai (lát L3): dừng ghi vào trường hoặc chạy trong khung bảo trì; chạy `pnpm --filter @school-management/database xoa-du-lieu-da-bo -- --tinh-nang gia-su-trong-truong` (cần `BACKUP_ENCRYPTION_PASSPHRASE`, `BACKUP_DIR`; nhiều trường cần `PLATFORM_DATABASE_URL`, `PLATFORM_ADMIN_DATABASE_URL`, `PLATFORM_MASTER_KEY` như `platform migrate-schools`); giữ tệp sao lưu ngoài máy chủ; rồi mới chạy database migration các cơ sở dữ liệu năm học (`pnpm database:migrate` hoặc `platform migrate-schools`). Dữ liệu đổi giữa lúc sao lưu và lúc chạy thì 0235 dừng: chạy lại lệnh sao lưu.
+- Dữ liệu (lát L3): năm học đã đóng giữ nguyên bảng gia sư (QU-11); hóa đơn đã phát hành giữ dòng gia sư cũ, chỉ mất liên kết tới đơn đăng ký.
+- Quay lui (lát L3): database migration 0235 không có bước lùi; triển khai lại phiên bản trước cần dựng lại bảng bằng 0152 đến 0156, 0160, 0161, 0200, 0201 rồi nạp dữ liệu từ tệp sao lưu (`verifyRemovedDataBackup` kiểm tệp, `loadDatabase` của school-data-copy.ts nạp bảng; liên kết hóa đơn, phòng video của buổi lấy từ phần `extra`); quyền định danh dựng lại bằng bước lùi của 0190.
 - Quay lui: triển khai lại phiên bản trước; dữ liệu chợ khôi phục từ tệp sao lưu (`verifyRemovedDataBackup` kiểm tệp, nạp bằng `loadDatabase` của school-data-copy.ts vào cơ sở dữ liệu chợ tạo lại bằng phiên bản trước).
 
 ## 01 Bảng phiên bản
 
-| {PHIEN_BAN} | Gỡ Chợ gia sư khỏi School Management, chợ chuyển sang kho riêng (lát L1); gỡ mã gia sư trong trường (lát L2) | YCTD-393 |
+| {PHIEN_BAN} | Gỡ Chợ gia sư khỏi School Management, chợ chuyển sang kho riêng (lát L1); gỡ mã gia sư trong trường (lát L2); xóa bảng gia sư kèm sao lưu (lát L3) | YCTD-393 |

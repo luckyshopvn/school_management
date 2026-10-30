@@ -35,6 +35,7 @@ describe('nhóm loại và nội dung đẩy', () => {
     assert.equal(pushGroupOf('medication_received').code, 'health');
     assert.equal(pushGroupOf('pickup_confirmation_requested').code, 'attendance');
     assert.equal(pushGroupOf('task_assigned').code, 'staff_work');
+    assert.equal(pushGroupOf('gate_arrived').code, 'gate');
     assert.equal(pushGroupOf('news_published').code, 'school');
     const message = buildPushMessage({
       notificationId: '00000000-0000-4000-8000-000000000001',

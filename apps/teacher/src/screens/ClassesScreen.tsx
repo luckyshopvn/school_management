@@ -63,6 +63,7 @@ export function ClassesScreen({
   onOpenScores,
   onOpenMedication,
   onOpenGate,
+  onOpenGateScan,
   onOpenLeave,
   onOpenPayslips,
   onOpenWork,
@@ -90,6 +91,7 @@ export function ClassesScreen({
   onOpenScores(myClass: MyClass): void;
   onOpenMedication(myClass: MyClass): void;
   onOpenGate(orgUnitIds: string[]): void;
+  onOpenGateScan(): void;
   onOpenLeave(): void;
   onOpenPayslips(): void;
   onOpenWork(): void;
@@ -110,6 +112,8 @@ export function ClassesScreen({
   const [gateUnitIds, setGateUnitIds] = useState<string[]>([]);
   // Quét QR kiểm kê thiết bị (DT-18 phần 18g)
   const [canStocktake, setCanStocktake] = useState(false);
+  // Quét thẻ vào, ra cổng (YCTD-389)
+  const [canScanGate, setCanScanGate] = useState(false);
   // Bồi dưỡng của tôi (DT-22 phần 22e)
   const [canTrain, setCanTrain] = useState(false);
   // Lớp học trực tuyến (DT-28 phần 28b)
@@ -128,6 +132,7 @@ export function ClassesScreen({
             .map((assignment) => assignment.org_unit_id)
             .filter((id): id is string => id !== null),
         );
+        setCanScanGate(user.assignments.some((assignment) => assignment.permissions.includes('P04.gate-pass.record')));
         setCanStocktake(
           user.assignments.some((assignment) => assignment.permissions.includes('P13.equipment.stocktake')),
         );
@@ -181,6 +186,11 @@ export function ClassesScreen({
               Xác nhận người đón tại cổng
             </Button>
           ) : null}
+          {canScanGate ? (
+            <Button variant="primary" onClick={onOpenGateScan}>
+              Quét thẻ vào, ra cổng
+            </Button>
+          ) : null}
           {aiTutorFlags && aiTutorFlags.flags.length > 0 ? (
             <Button variant={aiTutorFlags.pending_count > 0 ? 'primary' : 'secondary'} onClick={onOpenAiTutorFlags}>
               Gia sư AI: cờ cần xử lý ({aiTutorFlags.pending_count})
@@ -211,7 +221,7 @@ export function ClassesScreen({
           {(classes ?? []).some((myClass) => hasLevelFeature(myClass.school_level, 'period_attendance')) ? (
             <Button onClick={onOpenClassLog}>Sổ đầu bài</Button>
           ) : null}
-          {classes && classes.length === 0 && gateUnitIds.length === 0 && !canSupervise ? (
+          {classes && classes.length === 0 && gateUnitIds.length === 0 && !canScanGate && !canSupervise ? (
             <p className="text-content text-text-secondary">Bạn chưa được phân công lớp nào.</p>
           ) : null}
           <ul className="flex flex-col gap-2 md:grid md:grid-cols-2 md:gap-4">

@@ -5,6 +5,7 @@ import { CareScreen } from './screens/CareScreen.js';
 import { ChangePasswordScreen } from './screens/ChangePasswordScreen.js';
 import { ClassesScreen, type MyClass } from './screens/ClassesScreen.js';
 import { GateCheckScreen } from './screens/GateCheckScreen.js';
+import { GateScanScreen } from './screens/GateScanScreen.js';
 import { JournalScreen } from './screens/JournalScreen.js';
 import { LeaveScreen } from './screens/LeaveScreen.js';
 import { MessagesScreen } from './screens/MessagesScreen.js';
@@ -85,6 +86,7 @@ type Opened =
       myClass: MyClass;
     }
   | { screen: 'gate'; orgUnitIds: string[] }
+  | { screen: 'gate-scan' }
   | { screen: 'leave' }
   | { screen: 'payslips' }
   | { screen: 'work' }
@@ -261,6 +263,9 @@ function Screens() {
   if (opened?.screen === 'stocktake') {
     return <StocktakeScreen onBack={back} />;
   }
+  if (opened?.screen === 'gate-scan') {
+    return <GateScanScreen onBack={back} />;
+  }
   if (opened?.screen === 'gate') {
     return <GateCheckScreen orgUnitIds={opened.orgUnitIds} onBack={back} />;
   }
@@ -279,6 +284,7 @@ function Screens() {
       onOpenScores={(myClass) => setOpened({ screen: 'scores', myClass })}
       onOpenMedication={(myClass) => setOpened({ screen: 'medication', myClass })}
       onOpenGate={(orgUnitIds) => setOpened({ screen: 'gate', orgUnitIds })}
+      onOpenGateScan={() => setOpened({ screen: 'gate-scan' })}
       onOpenLeave={() => setOpened({ screen: 'leave' })}
       onOpenPayslips={() => setOpened({ screen: 'payslips' })}
       onOpenWork={() => setOpened({ screen: 'work' })}

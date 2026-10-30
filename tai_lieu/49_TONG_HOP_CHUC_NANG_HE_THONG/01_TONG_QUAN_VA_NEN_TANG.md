@@ -93,7 +93,7 @@ Pnpm monorepo, TypeScript. Máy chủ NestJS, giao diện React kèm Vite, cơ s
 | Ứng dụng phụ huynh | `apps/parent` | Web chạy trên điện thoại | 5175 | 5376 |
 | Ứng dụng học sinh | `apps/student` | Web chạy trên điện thoại: thi trực tuyến, bài tập, lớp học trực tuyến, học khi mạng yếu; tách khỏi ứng dụng phụ huynh (YCTD-300), chạy thật ở `/hoc-sinh/` | 5179 | 5379 |
 | Cổng vận hành nền tảng | `apps/platform` | Quản lý trường của DT-SaaS (Tổng quan, Trường) | 5177 | Theo cấu hình e2e nhiều trường |
-| Chợ gia sư | `apps/market` | Ứng dụng chung của phụ huynh và gia sư, phân quyền theo loại tài khoản (DT-27 phần 27f đến 27i; YCTD-368 gộp ứng dụng Gia sư `apps/tutor` của YCTD-262 vào đây, GD-185). Phụ huynh: tìm, đặt gia sư, buổi học của con, hồ sơ con, an toàn; gia sư, kể cả giáo viên dạy kèm ngoài trường: hồ sơ, xác minh, lịch, buổi dạy, thu nhập. Tên miền cũ của ứng dụng Gia sư chuyển hướng về đây | 5178 | 5387 (5388 là bộ chuyển hướng tên miền cũ) |
+| Chợ gia sư | `apps/market` | **Đã bỏ (YCTD-393):** chuyển sang sản phẩm riêng Chợ gia sư. Ứng dụng chung của phụ huynh và gia sư, phân quyền theo loại tài khoản (DT-27 phần 27f đến 27i; YCTD-368 gộp ứng dụng Gia sư `apps/tutor` của YCTD-262 vào đây, GD-185). Phụ huynh: tìm, đặt gia sư, buổi học của con, hồ sơ con, an toàn; gia sư, kể cả giáo viên dạy kèm ngoài trường: hồ sơ, xác minh, lịch, buổi dạy, thu nhập. Tên miền cũ của ứng dụng Gia sư chuyển hướng về đây | 5178 | 5387 (5388 là bộ chuyển hướng tên miền cũ) |
 
 Gói dùng chung: `packages/shared` (cây menu, mã quyền, điều kiện quyền theo menu, cấp học), `packages/server` (mã phiên, ngữ cảnh trường, tên khóa, máy xếp thời khóa biểu, eSMS), `packages/ui` (thành phần giao diện), `packages/config`. Thư mục `database/` chứa migration và lệnh quản trị cơ sở dữ liệu.
 
@@ -816,6 +816,8 @@ Nguồn: tài liệu 47 mục 18, YCTD-230 (Eric yêu cầu ngày 2026-10-26 the
 | Hộp công cụ giảng dạy (YCTD-325, DT-29 phần 29a) | Màn Công cụ lớp học đổi tên và gom công cụ theo cấp của lớp (danh mục `TEACHING_TOOLS` ở `packages/shared/src/teaching-tools.ts`), trường tắt từng công cụ, công cụ thuộc tính năng gói chưa bật ẩn, lối vào giáo án, sổ đầu bài, lớp học trực tuyến; trang chủ lọc Đón trả, Dặn thuốc, Lớp học trực tuyến, Gia sư trong trường theo cấp | cấu hình `teaching_tools_disabled`; `/classroom-tools/config`; MH-337; khối Hộp công cụ giảng dạy ở trang Cấu hình |
 
 ## 8. DT-27: kế hoạch (chưa có trong mã)
+
+**Đã bỏ (YCTD-393):** chợ gia sư (27f đến 27i) chuyển sang sản phẩm riêng `luckyshopvn/cho-gia-su`; gia sư trong trường (27a đến 27e) đã bỏ, mã đã gỡ; hạ tầng video giữ cho giờ học trực tuyến 28g. Bảng dưới giữ làm lịch sử.
 
 Nguồn: tài liệu 47 mục 19, YCTD-250. Mục này chỉ ghi để người đọc biết phần sắp làm; chưa có bảng, tuyến hay màn hình nào trong mã. Khi từng phần gộp, chuyển phần đó sang các mục mô tả theo mã.
 
