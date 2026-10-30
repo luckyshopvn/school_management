@@ -8,6 +8,7 @@ import { SyncAccountsPage } from './accounts/SyncAccountsPage.js';
 import { ApiClientsPage } from './accounts/ApiClientsPage.js';
 import { IntegrationsPage } from './settings/IntegrationsPage.js';
 import { AiAssistantPage } from './ai-assistant/AiAssistantPage.js';
+import { AiTutorSchoolPage } from './ai-tutor/AiTutorSchoolPage.js';
 import { CourseTemplatesPage } from './learning/CourseTemplatesPage.js';
 import { OnlineClassesPage } from './learning/OnlineClassesPage.js';
 import { OnlineTeachingPage } from './learning/OnlineTeachingPage.js';
@@ -46,11 +47,6 @@ import { ExamReportsPage } from './exam-grading/ExamReportsPage.js';
 import { OnlineExamsPage } from './online-exams/OnlineExamsPage.js';
 import { OnlineExamMonitorPage } from './online-exams/OnlineExamMonitorPage.js';
 import { OnlineExamSettingsPage } from './online-exams/OnlineExamSettingsPage.js';
-import { TutoringProgramsPage } from './tutoring/TutoringProgramsPage.js';
-import { TutoringSessionsPage } from './tutoring/TutoringSessionsPage.js';
-import { TutoringExemptionsPage } from './tutoring/TutoringExemptionsPage.js';
-import { TutoringRulesPage } from './tutoring/TutoringRulesPage.js';
-import { TutoringFinancePage } from './tutoring/TutoringFinancePage.js';
 import { ChildrenPage } from './children/ChildrenPage.js';
 import { StudentMovementsPage } from './children/StudentMovementsPage.js';
 import { DefaultPasswordsPage } from './students/DefaultPasswordsPage.js';
@@ -830,14 +826,10 @@ const routeTree = rootRoute.addChildren([
   createRoute({ getParentRoute: () => rootRoute, path: '/online-exams', component: OnlineExamsPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/online-exams/monitor', component: OnlineExamMonitorPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/online-exams/settings', component: OnlineExamSettingsPage }),
-  // Gia sư trong trường (DT-27 phần 27b)
-  createRoute({ getParentRoute: () => rootRoute, path: '/tutoring', component: TutoringProgramsPage }),
-  createRoute({ getParentRoute: () => rootRoute, path: '/tutoring/sessions', component: TutoringSessionsPage }),
-  createRoute({ getParentRoute: () => rootRoute, path: '/tutoring/exemptions', component: TutoringExemptionsPage }),
-  createRoute({ getParentRoute: () => rootRoute, path: '/tutoring/rules', component: TutoringRulesPage }),
-  createRoute({ getParentRoute: () => rootRoute, path: '/tutoring/finance', component: TutoringFinancePage }),
   // Trợ lý AI soạn nháp (DT-23 phần 23d)
   createRoute({ getParentRoute: () => rootRoute, path: '/ai-assistant', component: AiAssistantPage }),
+  // Gia sư AI do trường bán (YCTD-383 lát L1a)
+  createRoute({ getParentRoute: () => rootRoute, path: '/ai-tutor', component: AiTutorSchoolPage }),
   // Lõi hệ thống quản lý học tập (DT-28 phần 28b)
   createRoute({ getParentRoute: () => rootRoute, path: '/online-classes', component: OnlineClassesPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/course-templates', component: CourseTemplatesPage }),

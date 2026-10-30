@@ -5,13 +5,20 @@ import { createHash } from 'node:crypto';
 // hình là cấu hình (của nền tảng và của trường), không ghi cứng. `mock` chỉ để kiểm thử: cho kết quả cố định, không gọi ra ngoài, ghi
 // lại lời nhắc nhận được để kiểm thử khẳng định không có dữ liệu cá nhân; chỉ dựng khi cấu hình máy chủ cho phép (`AI_MOCK=true`)
 
-export type AiPromptKind = 'questions' | 'lesson_plan' | 'check' | 'feedback' | 'answer';
+export type AiPromptKind = 'questions' | 'lesson_plan' | 'check' | 'feedback' | 'tutor' | 'tutor_rewrite';
+
+// Một lượt cũ của hội thoại (gia sư AI học sinh, YCTD-383 lát L2): gửi trước câu hỏi mới theo thứ tự, bắt đầu bằng `user`
+export interface AiConversationTurn {
+  role: 'user' | 'assistant';
+  content: string;
+}
 
 export interface AiPrompt {
   kind: AiPromptKind;
   system: string;
   user: string;
   maxTokens: number;
+  history?: AiConversationTurn[];
 }
 
 export interface AiCompletion {
@@ -61,7 +68,7 @@ export class AnthropicProvider implements AiProvider {
           model: settings.model,
           max_tokens: prompt.maxTokens,
           system: prompt.system,
-          messages: [{ role: 'user', content: prompt.user }],
+          messages: [...(prompt.history ?? []), { role: 'user', content: prompt.user }],
         }),
         signal: AbortSignal.timeout(TIMEOUT_MILLISECONDS),
       });
@@ -171,12 +178,39 @@ function mockLessonPlan(): string {
   });
 }
 
+// Gia sư AI học sinh (YCTD-383 lát L2): chế độ gợi ý trả bước nhắc khái niệm, chế độ lời giải trả lời giải đầy đủ; viết lại trả câu
+// không có đáp án. Đáp án cuối `x = 12` của bài mẫu chỉ có ở `final_answer` và ở lời giải đầy đủ
+function mockTutor(prompt: AiPrompt): string {
+  if (prompt.kind === 'tutor_rewrite') {
+    return JSON.stringify({ reply: 'Em thử làm tiếp bước chuyển vế rồi gửi cho gia sư xem nhé.' });
+  }
+  const solution = /^CHE_DO: loi_giai$/m.test(prompt.system);
+  return JSON.stringify(
+    solution
+      ? {
+          step: 'solution',
+          topic: 'Phương trình bậc nhất một ẩn',
+          reply: 'Lời giải: chuyển vế được $3x - 2x = 5 + 7$, nên $x = 12$.',
+          final_answer: 'x = 12',
+        }
+      : {
+          step: 'concept',
+          topic: 'Phương trình bậc nhất một ẩn',
+          reply:
+            'Mình cùng làm nhé. Muốn tìm $x$, em đưa các hạng tử chứa $x$ về một vế. Em thử chuyển $2x$ sang vế trái xem được gì?',
+          final_answer: 'x = 12',
+        },
+  );
+}
+
 export class MockAiProvider implements AiProvider {
   readonly code = 'mock';
   // Lời nhắc đã nhận, theo thứ tự (kiểm thử đọc để khẳng định không có dữ liệu cá nhân)
   readonly received: AiPrompt[] = [];
   readonly keysSeen: string[] = [];
   failNext: string | null = null;
+  // Kết quả định sẵn cho các lần gọi tiếp theo, lấy lần lượt (kiểm thử đặt để thử câu trả lời lộ đáp án, nội dung không an toàn)
+  readonly scripted: string[] = [];
 
   async complete(prompt: AiPrompt, settings: AiProviderSettings): Promise<AiCompletion> {
     this.received.push(prompt);
@@ -186,27 +220,32 @@ export class MockAiProvider implements AiProvider {
       this.failNext = null;
       throw new AiProviderError(message);
     }
+    const scripted = this.scripted.shift();
     const text =
-      prompt.kind === 'questions'
-        ? mockQuestions(prompt.user)
-        : prompt.kind === 'lesson_plan'
-          ? mockLessonPlan()
-          : prompt.kind === 'feedback'
-            ? JSON.stringify({
-                comment: 'Em đã hoàn thành các yêu cầu chính của bài. Em cần trình bày rõ hơn các bước làm.',
-              })
-            : prompt.kind === 'answer'
-              ? JSON.stringify({
-                  answer:
-                    'Em hãy xem lại định nghĩa trong bài: số nguyên tố chỉ có hai ước là 1 và chính nó. Em thử kiểm tra từng số.',
-                })
-              : 'ok';
+      scripted !== undefined
+        ? scripted
+        : prompt.kind === 'tutor' || prompt.kind === 'tutor_rewrite'
+          ? mockTutor(prompt)
+          : this.fixedText(prompt);
+    const history = (prompt.history ?? []).reduce((sum, turn) => sum + tokensOf(turn.content), 0);
     return {
       text,
-      inputTokens: tokensOf(prompt.system) + tokensOf(prompt.user),
+      inputTokens: tokensOf(prompt.system) + history + tokensOf(prompt.user),
       outputTokens: tokensOf(text),
       model: settings.model,
     };
+  }
+
+  private fixedText(prompt: AiPrompt): string {
+    return prompt.kind === 'questions'
+      ? mockQuestions(prompt.user)
+      : prompt.kind === 'lesson_plan'
+        ? mockLessonPlan()
+        : prompt.kind === 'feedback'
+          ? JSON.stringify({
+              comment: 'Em đã hoàn thành các yêu cầu chính của bài. Em cần trình bày rõ hơn các bước làm.',
+            })
+          : 'ok';
   }
 
   async check(settings: AiProviderSettings): Promise<{ ok: boolean; detail: string }> {

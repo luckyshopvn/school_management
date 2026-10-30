@@ -27,8 +27,7 @@ export type PortalWorkspaceKey =
   | 'quality-assurance'
   | 'library'
   | 'learning-resources'
-  | 'online-exam'
-  | 'tutoring';
+  | 'online-exam';
 
 export interface PortalMenuNode {
   // Số thứ bậc có dấu chấm cuối như của Sở, ví dụ "4.1.1."
@@ -399,6 +398,8 @@ export const PORTAL_WORKSPACES: PortalWorkspace[] = [
         leaf('3.7.', 'Ứng dụng liên kết', '/app-links'),
         // Trợ lý AI soạn nháp (DT-23 phần 23d)
         leaf('3.8.', 'Trợ lý AI', '/ai-assistant'),
+        // Gia sư AI do trường bán cho phụ huynh (YCTD-383 lát L1a)
+        leaf('3.9.', 'Gia sư AI', '/ai-tutor'),
       ]),
       // Quản trị và trình diễn (DT-18 phần 18h)
       group('4.', 'Quản trị và trình diễn', [
@@ -690,21 +691,6 @@ export const PORTAL_WORKSPACES: PortalWorkspace[] = [
       leaf('1.', 'Giao đề thi trực tuyến', '/online-exams'),
       leaf('2.', 'Theo dõi bài làm', '/online-exams/monitor'),
       leaf('3.', 'Cấu hình thi trực tuyến', '/online-exams/settings'),
-    ],
-  },
-  {
-    // Gia sư trong trường (DT-27 phần 27b): phân hệ riêng để gói dịch vụ bật, tắt được; cha mẹ đăng ký ở ứng dụng phụ huynh, giáo
-    // viên điểm danh ở ứng dụng giáo viên. Tên mục do Claude tự đặt theo ủy quyền của Eric ngày 2026-10-11; từ Tiểu học trở lên
-    // (Tiểu học chỉ có chương trình bổ trợ ngoài chương trình môn học)
-    key: 'tutoring',
-    label: 'Gia sư trực tuyến',
-    levels: ['TH', 'THCS', 'THPT'],
-    menu: [
-      leaf('1.', 'Chương trình gia sư', '/tutoring'),
-      leaf('2.', 'Lịch buổi học, điểm danh', '/tutoring/sessions'),
-      leaf('3.', 'Quyết định tăng thời lượng', '/tutoring/exemptions'),
-      leaf('4.', 'Quy định dạy thêm', '/tutoring/rules'),
-      leaf('5.', 'Thu chi gia sư', '/tutoring/finance'),
     ],
   },
 ];

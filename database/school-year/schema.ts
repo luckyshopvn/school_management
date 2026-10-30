@@ -1083,13 +1083,13 @@ export interface InvoicesTable {
 export interface InvoiceItemsTable {
   id: Generated<string>;
   invoice_id: string;
-  item_type: 'tuition' | 'service' | 'opening' | 'extracurricular' | 'tutoring';
+  // `tutoring`: dòng gia sư của hóa đơn đã phát hành trước khi bỏ chương trình gia sư, giữ số tiền và nội dung (YCTD-393);
+  // `ai_tutor`: Gia sư AI do trường bán (YCTD-383)
+  item_type: 'tuition' | 'service' | 'opening' | 'extracurricular' | 'tutoring' | 'ai_tutor';
   service_id: string | null;
   service_registration_id: string | null;
   // Đăng ký ngoại khóa đã lập khoản thu (YCTD-78)
   extracurricular_registration_id: ColumnType<string | null, string | null | undefined, string | null>;
-  // Đăng ký chương trình gia sư đã lập khoản thu (YCTD-253)
-  tutoring_registration_id: ColumnType<string | null, string | null | undefined, string | null>;
   description: string;
   quantity: ColumnType<string, string | number, string | number>;
   unit_price: Money;
@@ -6540,217 +6540,6 @@ export interface OnlineLearningRuleAcksTable {
   acknowledged_at: CreatedTimestamp;
 }
 
-// Gia sư trong trường (DT-27 phần 27b, YCTD-252)
-export type TutoringContentType = 'curriculum' | 'enrichment';
-export type TutoringAudience = 'below_standard' | 'gifted' | 'final_year_review';
-export type TutoringDelivery = 'live_video' | 'course' | 'qa' | 'mixed';
-export type TutoringProgramStatus = 'draft' | 'submitted' | 'approved' | 'rejected' | 'closed';
-export type TutoringRegistrationStatus = 'pending' | 'approved' | 'rejected' | 'withdrawn';
-export type TutoringAttendanceStatus = 'present' | 'late' | 'left_early' | 'absent';
-
-export interface TutoringRulesTable {
-  id: Generated<string>;
-  effective_from: ColumnType<string, string, string>;
-  max_curriculum_periods_per_week: number;
-  curriculum_blocked_levels: ColumnType<SchoolLevelCode[], string | undefined, string>;
-  default_period_minutes: ColumnType<Partial<Record<SchoolLevelCode, number>>, string | undefined, string>;
-  legal_basis: string;
-  created_by_name: string | null;
-  created_at: CreatedTimestamp;
-}
-
-export interface TutoringProgramsTable {
-  id: Generated<string>;
-  name: string;
-  school_level: SchoolLevelCode;
-  subject_id: string | null;
-  topic: string | null;
-  content_type: TutoringContentType;
-  audience: TutoringAudience | null;
-  charges_fee: Generated<boolean>;
-  delivery: Generated<TutoringDelivery>;
-  description: string | null;
-  registration_form: string;
-  max_students: number | null;
-  starts_on: ColumnType<string, string, string>;
-  ends_on: ColumnType<string, string, string>;
-  status: Generated<TutoringProgramStatus>;
-  reject_reason: string | null;
-  decided_by: string | null;
-  decided_by_name: string | null;
-  decided_at: Date | null;
-  created_by: string;
-  created_by_name: string;
-  created_at: CreatedTimestamp;
-  updated_at: UpdatedTimestamp;
-  // Thu phí và thù lao (YCTD-253)
-  fee_basis: ColumnType<TutoringFeeBasis | null, TutoringFeeBasis | null | undefined, TutoringFeeBasis | null>;
-  fee_amount: ColumnType<string | null, string | number | null | undefined, string | number | null>;
-  cancel_refund: Generated<TutoringCancelRefund>;
-  pay_rate_per_period: ColumnType<string | null, string | number | null | undefined, string | number | null>;
-  funding_source: Generated<TutoringFundingSource>;
-  // Ghi hình lớp video của chương trình, cần đồng ý của cha mẹ (YCTD-251)
-  recording_enabled: Generated<boolean>;
-  // Thời hạn trả lời câu hỏi bài tập (YCTD-255)
-  answer_hours: Generated<number>;
-}
-
-export type TutoringFeeBasis = 'per_session' | 'per_program';
-export type TutoringCancelRefund = 'deduct_next' | 'adjust_invoice';
-export type TutoringFundingSource = 'school_budget' | 'tutoring_fees';
-
-export interface TutoringProgramTeachersTable {
-  program_id: string;
-  teacher_user_id: string;
-  teacher_name: string;
-  pay_rate_per_period: ColumnType<string | null, string | number | null | undefined, string | number | null>;
-}
-
-// Buổi đã lập khoản thu ở dòng hóa đơn nào; trọn gói thì `session_id` trống (YCTD-253)
-export interface TutoringChargeSessionsTable {
-  id: Generated<string>;
-  invoice_item_id: string;
-  registration_id: string;
-  session_id: string | null;
-  amount: Money;
-  sessions_total: number | null;
-  created_at: CreatedTimestamp;
-}
-
-export interface TutoringCreditsTable {
-  id: Generated<string>;
-  child_id: string;
-  registration_id: string;
-  session_id: string;
-  charged_invoice_id: string;
-  amount: Money;
-  reason: string;
-  mode: TutoringCancelRefund;
-  status: Generated<'open' | 'adjusted' | 'closed'>;
-  invoice_adjustment_id: string | null;
-  closed_note: string | null;
-  closed_by_name: string | null;
-  closed_at: Date | null;
-  created_by_name: string;
-  created_at: CreatedTimestamp;
-}
-
-export interface TutoringCreditApplicationsTable {
-  credit_id: string;
-  invoice_item_id: string;
-  amount: Money;
-}
-
-export interface TutoringTeacherPayTable {
-  id: Generated<string>;
-  session_id: string;
-  program_id: string;
-  teacher_user_id: string;
-  teacher_name: string;
-  staff_id: string;
-  periods: number;
-  rate: Money;
-  amount: Money;
-  funding_source: TutoringFundingSource;
-  bonus_deduction_id: string;
-  target_year: number;
-  target_month: number;
-  pushed_by_name: string;
-  pushed_at: CreatedTimestamp;
-}
-
-export interface TutoringProgramClassesTable {
-  program_id: string;
-  class_id: string;
-}
-
-export interface TutoringProgramCandidatesTable {
-  program_id: string;
-  child_id: string;
-  source: Generated<'suggested' | 'manual'>;
-  confirmed_by_name: string;
-  confirmed_at: ColumnType<Date, Date | undefined, Date>;
-}
-
-export interface TutoringSessionsTable {
-  id: Generated<string>;
-  program_id: string;
-  series_id: string | null;
-  session_date: ColumnType<string, string, string>;
-  start_time: string;
-  end_time: string;
-  periods: number;
-  location: string | null;
-  status: Generated<'scheduled' | 'cancelled'>;
-  cancel_reason: string | null;
-  video_room_ref: string | null;
-  attendance_confirmed_at: Date | null;
-  attendance_confirmed_by_name: string | null;
-  created_by: string;
-  created_at: CreatedTimestamp;
-  // Người dạy buổi, ghi khi xác nhận điểm danh (YCTD-253)
-  taught_by_user_id: ColumnType<string | null, string | null | undefined, string | null>;
-  taught_by_name: ColumnType<string | null, string | null | undefined, string | null>;
-}
-
-export interface TutoringExemptionsTable {
-  id: Generated<string>;
-  decision_no: string;
-  decision_date: ColumnType<string, string, string>;
-  subject_id: string;
-  max_periods_per_week: number;
-  file_key: string | null;
-  file_name: string | null;
-  note: string | null;
-  created_by: string;
-  created_by_name: string;
-  created_at: CreatedTimestamp;
-}
-
-export interface TutoringExemptionChildrenTable {
-  exemption_id: string;
-  child_id: string;
-}
-
-export interface TutoringRegistrationsTable {
-  id: Generated<string>;
-  program_id: string;
-  child_id: string;
-  guardian_user_id: string;
-  guardian_name: string;
-  form_text: string;
-  form_hash: string;
-  note: string | null;
-  submitted_at: ColumnType<Date, Date | undefined, Date>;
-  status: Generated<TutoringRegistrationStatus>;
-  decided_by_name: string | null;
-  decided_at: Date | null;
-  reject_reason: string | null;
-  withdrawn_at: Date | null;
-}
-
-export interface TutoringAttendanceTable {
-  session_id: string;
-  child_id: string;
-  status: TutoringAttendanceStatus;
-  source: 'room_log' | 'teacher';
-  joined_at: Date | null;
-  left_at: Date | null;
-  note: string | null;
-  confirmed_by_name: string | null;
-  confirmed_at: Date | null;
-  guardian_notified_at: Date | null;
-}
-
-export interface TutoringRoomEventsTable {
-  id: Generated<string>;
-  session_id: string;
-  child_id: string;
-  kind: 'join' | 'leave';
-  at: Date;
-  source: string;
-}
-
 // Bài tập trực tuyến (DT-28 phần 28c, YCTD-273)
 export type AssignmentContext = 'in_class' | 'homework';
 export type AssignmentWorkMode = 'individual' | 'group';
@@ -6937,8 +6726,8 @@ export interface VideoSettingsTable {
 
 export interface VideoRoomsTable {
   id: Generated<string>;
-  kind: 'session' | 'instant';
-  tutoring_session_id: string | null;
+  // Chỉ còn phòng tức thời: phòng của buổi gia sư đã xóa cùng chương trình gia sư (YCTD-393)
+  kind: 'instant';
   title: string;
   host_user_id: string;
   host_name: string;
@@ -6973,41 +6762,6 @@ export interface VideoRoomEventsTable {
   kind: 'join' | 'leave';
   at: Date;
   source: string;
-}
-
-export interface VideoRecordingConsentsTable {
-  id: Generated<string>;
-  program_id: string;
-  child_id: string;
-  guardian_user_id: string;
-  guardian_name: string;
-  consent_text: string;
-  consent_hash: string;
-  consented_at: ColumnType<Date, Date | undefined, Date>;
-  withdrawn_at: Date | null;
-}
-
-export interface VideoRecordingsTable {
-  id: Generated<string>;
-  room_id: string;
-  egress_id: string | null;
-  storage_key: string;
-  status: Generated<'recording' | 'ready' | 'failed' | 'deleted'>;
-  started_by_name: string;
-  started_at: ColumnType<Date, Date | undefined, Date>;
-  ended_at: Date | null;
-  size_bytes: ColumnType<string, string | number | undefined, string | number>;
-  expires_at: Date;
-  hold_reason: string | null;
-  deleted_at: Date | null;
-}
-
-export interface VideoRecordingViewsTable {
-  id: Generated<string>;
-  recording_id: string;
-  viewer_user_id: string;
-  viewer_name: string;
-  viewed_at: CreatedTimestamp;
 }
 
 // Giao tiếp trong lớp và nhóm (DT-28 phần 28e, YCTD-275)
@@ -7122,47 +6876,6 @@ export interface DiscussionWriteBansTable {
   created_by: string;
   created_by_name: string;
   created_at: CreatedTimestamp;
-}
-
-// Khoá học ghi sẵn của chương trình gia sư (DT-27 phần 27d1, YCTD-254)
-export interface TutoringProgramCoursesTable {
-  program_id: string;
-  course_space_id: string;
-  created_by_name: string;
-  created_at: CreatedTimestamp;
-}
-
-export interface TutoringMediaViewsTable {
-  id: Generated<string>;
-  activity_id: string;
-  viewer_user_id: string;
-  viewer_name: string;
-  child_id: string | null;
-  viewed_at: CreatedTimestamp;
-}
-
-// Hỏi đáp bài tập của chương trình gia sư (DT-27 phần 27e, YCTD-255)
-export interface TutoringQuestionMarksTable {
-  thread_id: string;
-  child_id: string;
-  understood: boolean;
-  marked_at: Generated<Date>;
-}
-
-export interface TutoringAiAnswersTable {
-  post_id: string;
-  thread_id: string;
-  ai_request_id: string;
-  teacher_user_id: string;
-  created_at: CreatedTimestamp;
-}
-
-export interface TutoringAiConsentsTable {
-  child_id: string;
-  allowed: boolean;
-  decided_by_user_id: string;
-  decided_by_name: string;
-  decided_at: Generated<Date>;
 }
 
 // Bài về nhà và phụ huynh (DT-28 phần 28f, YCTD-276)
@@ -7610,33 +7323,10 @@ export interface SchoolYearDatabase {
   online_teaching_decisions: OnlineTeachingDecisionsTable;
   online_learning_rules: OnlineLearningRulesTable;
   online_learning_rule_acks: OnlineLearningRuleAcksTable;
-  tutoring_rules: TutoringRulesTable;
-  tutoring_programs: TutoringProgramsTable;
-  tutoring_program_teachers: TutoringProgramTeachersTable;
-  tutoring_program_classes: TutoringProgramClassesTable;
-  tutoring_program_candidates: TutoringProgramCandidatesTable;
-  tutoring_sessions: TutoringSessionsTable;
-  tutoring_exemptions: TutoringExemptionsTable;
-  tutoring_exemption_children: TutoringExemptionChildrenTable;
-  tutoring_registrations: TutoringRegistrationsTable;
-  tutoring_attendance: TutoringAttendanceTable;
-  tutoring_charge_sessions: TutoringChargeSessionsTable;
-  tutoring_credits: TutoringCreditsTable;
-  tutoring_credit_applications: TutoringCreditApplicationsTable;
-  tutoring_teacher_pay: TutoringTeacherPayTable;
   video_settings: VideoSettingsTable;
   video_rooms: VideoRoomsTable;
   video_room_admissions: VideoRoomAdmissionsTable;
   video_room_events: VideoRoomEventsTable;
-  video_recording_consents: VideoRecordingConsentsTable;
-  video_recordings: VideoRecordingsTable;
-  video_recording_views: VideoRecordingViewsTable;
-  tutoring_program_courses: TutoringProgramCoursesTable;
-  tutoring_media_views: TutoringMediaViewsTable;
-  tutoring_question_marks: TutoringQuestionMarksTable;
-  tutoring_ai_answers: TutoringAiAnswersTable;
-  tutoring_ai_consents: TutoringAiConsentsTable;
-  tutoring_room_events: TutoringRoomEventsTable;
   assignments: AssignmentsTable;
   assignment_variants: AssignmentVariantsTable;
   assignment_items: AssignmentItemsTable;

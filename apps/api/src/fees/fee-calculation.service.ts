@@ -20,7 +20,8 @@ import { pickSmsRecipients } from '../finance/receivables.js';
 import { OrganizationScopes } from '../organization/organization-scopes.js';
 import { extracurricularItems } from '../activities/extracurricular-fees.js';
 import { boardingMealDays, BOARDING_RULE_CODE, unclosedBoardingDays } from '../boarding/boarding-roster.js';
-import { dropCreditsOfRecomputedInvoice, recordTutoringCharges, tutoringItems } from '../tutoring/tutoring-fees.js';
+import { aiTutorCharges, recordAiTutorCharges } from '../ai-tutor/school-sales-fees.js';
+import { Databases } from '../common/databases.js';
 import { DiscountsService } from './discounts.service.js';
 import { invoiceAmounts, recalculatePendingDiscounts } from './invoice-amounts.js';
 import { formatPeriod, periodRange, RegistrationPeriods, type Period } from './registration-periods.js';
@@ -35,13 +36,12 @@ const CHANGE_FLAG_RATIO = 0.3;
 const INVOICE_SEQUENCE = 'invoice';
 
 export interface DraftItem {
-  item_type: 'tuition' | 'service' | 'extracurricular' | 'tutoring';
+  // `ai_tutor`: Gia sư AI do trường bán (YCTD-383 lát L1a)
+  item_type: 'tuition' | 'service' | 'extracurricular' | 'ai_tutor';
   service_id: string | null;
   service_registration_id: string | null;
   // Phí hoạt động ngoại khóa (P14-11, YCTD-78)
   extracurricular_registration_id?: string | null;
-  // Chương trình gia sư bổ trợ có thu (YCTD-253)
-  tutoring_registration_id?: string | null;
   description: string;
   quantity: number;
   unit_price: number;
@@ -92,10 +92,26 @@ export class FeeCalculationService {
     private readonly periods: RegistrationPeriods,
     private readonly discounts: DiscountsService,
     private readonly clock: Clock,
+    private readonly databases: Databases,
   ) {}
 
   private today(): string {
     return VIETNAM_DATE.format(this.clock.now());
+  }
+
+  // Ngày bắt đầu năm học đang dùng (chưa đặt thì trống): lần mua Gia sư AI trước ngày này thuộc hóa đơn của năm học trước
+  private async schoolYearStart(): Promise<string | null> {
+    const { academicYearId } = await this.currentSchoolYear.require();
+    const year = await this.databases.system
+      .selectFrom('academic_years')
+      .select('start_date')
+      .where('id', '=', academicYearId)
+      .executeTakeFirst();
+    const start: unknown = year?.start_date;
+    if (!start) {
+      return null;
+    }
+    return start instanceof Date ? VIETNAM_DATE.format(start) : String(start).slice(0, 10);
   }
 
   // Chạy tính cho mọi trẻ của đơn vị trong kỳ; chạy lại thì thay kết quả nháp, không sinh trùng (AC-102)
@@ -143,10 +159,12 @@ export class FeeCalculationService {
       children.map((child) => child.id),
       period,
     );
-    const tutoring = await tutoringItems(
+    const aiTutor = await aiTutorCharges(
       database,
+      this.databases.system,
       children.map((child) => child.id),
       period,
+      await this.schoolYearStart(),
     );
 
     const missing: FieldError[] = [];
@@ -183,8 +201,8 @@ export class FeeCalculationService {
       }
       // Phí ngoại khóa theo tháng thu đủ, phí theo hoạt động thu một lần (BR-19, YCTD-78)
       items.push(...(extracurricular.get(child.id) ?? []));
-      // Gia sư bổ trợ có thu theo buổi hoặc trọn gói, đã trừ buổi bị hủy đã thu (YCTD-253)
-      items.push(...(tutoring.items.get(child.id) ?? []));
+      // Gia sư AI do trường bán: lần mua và phần chênh lệch nâng gói chưa thu (YCTD-383 lát L1a)
+      items.push(...(aiTutor.get(child.id) ?? []).map((charge) => charge.item));
       const total = items.reduce((sum, item) => sum + item.amount, 0);
       const flags: string[] = [];
       // Lớp ngoài Mầm non không điểm danh theo ngày nên không đánh dấu nghỉ nhiều theo ngày ăn (YCTD-159)
@@ -249,9 +267,6 @@ export class FeeCalculationService {
           .execute();
         const staleIds = stale.filter((row) => !keep.has(row.child_id)).map((row) => row.id);
         if (staleIds.length > 0) {
-          for (const staleId of staleIds) {
-            await dropCreditsOfRecomputedInvoice(transaction, staleId);
-          }
           await transaction.deleteFrom('invoices').where('id', 'in', staleIds).execute();
         }
         const written: typeof drafts = [];
@@ -291,15 +306,16 @@ export class FeeCalculationService {
             continue;
           }
           written.push(draft);
-          await dropCreditsOfRecomputedInvoice(transaction, invoice.id);
           await transaction.deleteFrom('invoice_items').where('invoice_id', '=', invoice.id).execute();
-          if (draft.items.length > 0) {
+          // Dòng Gia sư AI chèn riêng để ghi lần mua, lần nâng đã thu ở từng dòng
+          const ordinaryItems = draft.items.filter((item) => item.item_type !== 'ai_tutor');
+          if (ordinaryItems.length > 0) {
             await transaction
               .insertInto('invoice_items')
-              .values(draft.items.map((item) => ({ ...item, invoice_id: invoice.id })))
+              .values(ordinaryItems.map((item) => ({ ...item, invoice_id: invoice.id })))
               .execute();
           }
-          await recordTutoringCharges(transaction, invoice.id, tutoring.plans.get(draft.child.id) ?? []);
+          await recordAiTutorCharges(transaction, invoice.id, draft.child.id, aiTutor.get(draft.child.id) ?? []);
           // Miễn giảm chờ duyệt tính lại theo dòng mới; tổng miễn giảm vượt tổng hóa đơn thì đánh dấu để xem lại (BR-22)
           await recalculatePendingDiscounts(transaction, invoice.id);
           const discounted = await transaction

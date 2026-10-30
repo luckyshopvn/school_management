@@ -163,18 +163,6 @@ export const MENU_PERMISSION_RULES: Partial<Record<PortalQuickLinkPath, MenuPerm
   '/online-exams': 'P02.exam.assign',
   '/online-exams/monitor': 'P02.exam.assign',
   '/online-exams/settings': 'P02.exam.assign',
-  // Gia sư trong trường (DT-27 phần 27b): chương trình, buổi học và điểm danh cho người dạy; quyết định của Sở, quy định cho BGH
-  '/tutoring': anyOf('P02.tutoring.teach', 'P02.tutoring.manage'),
-  '/tutoring/sessions': anyOf('P02.tutoring.teach', 'P02.tutoring.manage'),
-  '/tutoring/exemptions': 'P02.tutoring.manage',
-  '/tutoring/rules': anyOf('P02.tutoring.teach', 'P02.tutoring.manage'),
-  // Thu chi gia sư (DT-27 phần 27c): Ban Giám hiệu, kế toán
-  '/tutoring/finance': anyOf(
-    'P02.tutoring.manage',
-    'P08.bonus-deduction.manage',
-    'P06.payment.manage',
-    'P05.invoice-adjustment.create',
-  ),
   // Khai báo tuần: ai xem được thiết lập thì xem, sửa cần quyền quản lý năm học như 2.1 Năm học (DT-16 phần 16e)
   '/school-weeks': anyOf('P01.view', 'P01.academic-year.manage'),
   '/staff': 'P07.staff.view',
@@ -420,6 +408,8 @@ export const MENU_PERMISSION_RULES: Partial<Record<PortalQuickLinkPath, MenuPerm
   '/integrations': 'P01.integration.manage',
   // Trợ lý AI soạn nháp (DT-23 phần 23d): quản trị của trường dùng quyền quản lý kết nối ngoài
   '/ai-assistant': 'P01.integration.manage',
+  // Gia sư AI do trường bán (YCTD-383 lát L1a): cùng quyền với Trợ lý AI
+  '/ai-tutor': 'P01.integration.manage',
   // Hóa đơn dịch vụ của trường (DT-SaaS phần S5b)
   '/service-invoices': 'P01.billing.manage',
   // Tài khoản đồng bộ của Bộ, của Sở (DT-16 phần 16d)

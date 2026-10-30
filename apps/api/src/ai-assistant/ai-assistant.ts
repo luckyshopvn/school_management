@@ -38,12 +38,10 @@ import { parseQuestion } from '../exams/exam-inputs.js';
 import { ExamsService } from '../exams/exams.js';
 import { LearningResourcesService } from '../learning-resources/learning-resources.js';
 import { SchoolSettings } from '../school-settings/school-settings.js';
+import { tutorTokenUsage } from '../ai-tutor/tutor-usage.js';
 import {
   AI_DRAFT_NOTICE,
   AI_RULE_CODE,
-  answerFreeText,
-  answerOf,
-  buildAnswerPrompt,
   buildFeedbackPrompt,
   buildLessonPlanPrompt,
   buildNameIndex,
@@ -60,7 +58,6 @@ import {
   questionFreeText,
   rawQuestionsOf,
   scanPersonalData,
-  type AnswerDraftRequest,
   type FeedbackDraftRequest,
 } from './ai-prompt.js';
 import {
@@ -382,7 +379,7 @@ export class AiAssistantService {
 
   private async assertQuota(settings: AiSettingsView, currentUser: CurrentUser): Promise<void> {
     const plan = currentTenant()?.plan;
-    // Trợ lý AI là tính năng trả phí (YCTD-314): mọi lời gọi AI (kể cả từ bài tập, hỏi đáp gia sư) đi qua đây
+    // Trợ lý AI là tính năng trả phí (YCTD-314): mọi lời gọi AI (kể cả từ bài tập) đi qua đây
     if (plan && !isModuleInPlan('ai-assistant', plan.modules)) {
       throw planModuleError('ai-assistant', plan.code);
     }
@@ -730,39 +727,6 @@ export class AiAssistantService {
     return { request_id: logId, comment, notice: AI_DRAFT_NOTICE };
   }
 
-  // ---------- Gợi ý trả lời câu hỏi bài tập (DT-27 phần 27e, YCTD-255)
-
-  // Hỏi đáp gia sư 27e gọi sau khi đã kiểm giáo viên dạy chương trình và phụ huynh không tắt AI cho em; yêu cầu chỉ có chữ của câu
-  // hỏi và ghi chú. Nháp chỉ trả cho giáo viên, không lưu vào câu hỏi; giáo viên sửa rồi mới gửi (câu trả lời mang dấu "có AI hỗ trợ")
-  async draftAnswer(currentUser: CurrentUser, request: AnswerDraftRequest) {
-    const settings = await this.settings();
-    const resolved = await this.resolve(settings);
-    const { database } = await this.currentSchoolYear.require();
-    const context: RequestContext = {
-      user: currentUser,
-      kind: 'answer',
-      schoolLevel: request.school_level,
-      gradeLevelCode: request.grade_level_code,
-      subjectName: request.subject_name,
-      topic: null,
-    };
-    const { completion, logId } = await this.run(
-      context,
-      settings,
-      resolved,
-      buildAnswerPrompt(request),
-      answerFreeText(request),
-      await this.nameIndex(database),
-    );
-    const answer = answerOf(completion.text);
-    if (!answer) {
-      await this.finishLog(logId, [], 'Kết quả của nhà cung cấp không đúng định dạng lời giải đáp');
-      throw ruleViolationError(AI_RULE_CODE, 'Trợ lý AI trả kết quả không dùng được, hãy thử lại');
-    }
-    await this.finishLog(logId, [], null);
-    return { request_id: logId, answer, notice: AI_DRAFT_NOTICE };
-  }
-
   // ---------- Kiểm tra kết nối, trạng thái, nhật ký
 
   async check(currentUser: CurrentUser) {
@@ -925,10 +889,10 @@ export class AiAssistantService {
       from ai_requests
       where status = 'success'
       group by 1, 2, 3`.execute(this.system);
-    await recordAiTokenUsage(
-      this.tenancy.platform,
-      tenant.schoolId,
-      rows.rows.map((row) => ({
+    // Gia sư AI học sinh (YCTD-383 lát L2) ghi cùng bảng, phân loại riêng theo nguồn gói
+    const tutor = await tutorTokenUsage(this.system);
+    await recordAiTokenUsage(this.tenancy.platform, tenant.schoolId, [
+      ...rows.rows.map((row) => ({
         usageDate: row.usage_date,
         model: row.model,
         config: row.key_mode,
@@ -936,8 +900,9 @@ export class AiAssistantService {
         inputTokens: Number(row.input_tokens),
         outputTokens: Number(row.output_tokens),
       })),
-    );
-    return rows.rows.length;
+      ...tutor,
+    ]);
+    return rows.rows.length + tutor.length;
   }
 
   // Xóa theo ngày trọn vẹn (mốc là đầu ngày giờ Việt Nam) để lượt tổng hợp sau không ghi đè một ngày đã bị xóa một phần

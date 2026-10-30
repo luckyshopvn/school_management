@@ -39,8 +39,6 @@ export * from './class-records.js';
 export * from './training.js';
 export * from './learning-resources.js';
 export * from './online-exams.js';
-export * from './tutoring.js';
-export * from './tutoring-fees.js';
 export * from './video.js';
 // Lọc thông tin liên lạc ở thảo luận của học sinh (DT-28 phần 28e)
 export * from './contact-filter.js';
@@ -325,9 +323,6 @@ export const PERMISSION_CODES = {
   // Thi trực tuyến cho học sinh (DT-23 phần 23a): giao đề, theo dõi, chấm (giáo viên); làm bài (học sinh, kênh student)
   examAssign: 'P02.exam.assign',
   examTake: 'P02.exam.take',
-  // Gia sư trong trường (DT-27 phần 27b)
-  tutoringManage: 'P02.tutoring.manage',
-  tutoringTeach: 'P02.tutoring.teach',
 } as const;
 
 // Danh mục chứng từ áp dụng hạn mức phê duyệt (07_QUY_TAC_NGHIEP_VU.md mục 12.1, BR-77)
@@ -712,6 +707,8 @@ export const PORTAL_QUICK_LINK_PATHS = [
   '/online-exams/settings',
   // Trợ lý AI soạn nháp (DT-23 phần 23d)
   '/ai-assistant',
+  // Gia sư AI do trường bán (YCTD-383 lát L1a)
+  '/ai-tutor',
   // Lõi hệ thống quản lý học tập (DT-28 phần 28b)
   '/online-classes',
   '/course-templates',
@@ -722,13 +719,6 @@ export const PORTAL_QUICK_LINK_PATHS = [
   '/online-discussion-safety',
   // Bài về nhà: quy tắc của trường, khối lượng theo lớp (DT-28 phần 28f)
   '/online-homework',
-  // Gia sư trong trường (DT-27 phần 27b)
-  '/tutoring',
-  '/tutoring/sessions',
-  '/tutoring/exemptions',
-  '/tutoring/rules',
-  // Thu chi gia sư trong trường (DT-27 phần 27c)
-  '/tutoring/finance',
 ] as const;
 
 export type PortalQuickLinkPath = (typeof PORTAL_QUICK_LINK_PATHS)[number];

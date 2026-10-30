@@ -4,21 +4,13 @@ import { defineConfig, devices } from '@playwright/test';
 import { replaceDatabaseName, testAdminDatabaseUrl } from '@school-management/database';
 import {
   E2E_CONSOLE_HOST,
-  E2E_MARKET_FILES_KEY,
-  E2E_MARKET_HOST,
-  E2E_MARKET_LINK_SECRET,
-  E2E_MARKET_OIDC_CLIENT_ID,
-  E2E_MARKET_OIDC_CLIENT_SECRET,
-  E2E_MARKET_OIDC_CODE,
-  E2E_MARKET_OIDC_PORT,
   E2E_ROOT_DOMAIN,
   E2E_SCHEDULER_SECRET,
   E2E_MULTI_API_PORT,
   E2E_MULTI_CONSOLE_PORT,
   E2E_MULTI_IDENTITY_PORT,
-  E2E_MULTI_MARKET_PORT,
-  E2E_MULTI_TUTOR_PORT,
   E2E_MULTI_PORTAL_PORT,
+  E2E_MULTI_STUDENT_PORT,
   E2E_MULTI_STATE_FILE,
   E2E_PUSH_OUTBOX_FILE,
   E2E_PLATFORM_DATABASE_NAME,
@@ -42,7 +34,6 @@ const state = existsSync(E2E_MULTI_STATE_FILE)
   ? (JSON.parse(readFileSync(E2E_MULTI_STATE_FILE, 'utf8')) as {
       masterKey: string;
       layout: 'database' | 'schema';
-      marketplaceUrl?: string;
     })
   : { masterKey: '', layout: 'database' as const };
 const adminUrl = testAdminDatabaseUrl();
@@ -113,24 +104,6 @@ export default defineConfig({
         PUSH_PROVIDER: 'development',
         PUSH_NATIVE_PROVIDER: 'development',
         PUSH_DEVELOPMENT_OUTBOX: fileURLToPath(E2E_PUSH_OUTBOX_FILE),
-        // Chợ gia sư (DT-27 phần 27f, spec 195): vai trò riêng của chợ, bí mật ký mã liên kết của lần chạy kiểm thử
-        MARKETPLACE_DATABASE_URL: state.marketplaceUrl ?? '',
-        MARKET_LINK_SECRET: E2E_MARKET_LINK_SECRET,
-        // Xác minh danh tính gia sư bằng nhà cung cấp OIDC giả lập do spec 196 chạy (DT-27 phần 27g); tệp giấy tờ mã hóa bằng khóa kiểm thử
-        MARKET_IDENTITY_PROVIDERS: JSON.stringify([
-          {
-            code: E2E_MARKET_OIDC_CODE,
-            profile: 'oidc',
-            display_name: 'Định danh giả lập',
-            issuer: `http://127.0.0.1:${E2E_MARKET_OIDC_PORT}/oidc-gia-lap`,
-            client_id: E2E_MARKET_OIDC_CLIENT_ID,
-            birthdate_claim: 'birthdate',
-            jwks_cooldown_seconds: 0,
-          },
-        ]),
-        [`MARKET_IDENTITY_${E2E_MARKET_OIDC_CODE.toUpperCase().replaceAll('-', '_')}_CLIENT_SECRET`]:
-          E2E_MARKET_OIDC_CLIENT_SECRET,
-        MARKET_FILES_KEY: E2E_MARKET_FILES_KEY,
       },
     },
     {
@@ -145,14 +118,10 @@ export default defineConfig({
       env: { IDENTITY_BASE_URL: identityBaseUrl, API_BASE_URL: apiBaseUrl },
     },
     {
-      command: `pnpm --filter @school-management/market exec vite --port ${E2E_MULTI_MARKET_PORT} --strictPort`,
-      url: `http://localhost:${E2E_MULTI_MARKET_PORT}`,
-      env: { API_BASE_URL: apiBaseUrl },
-    },
-    {
-      // Tên miền cũ của ứng dụng Gia sư (YCTD-262) chỉ còn chuyển hướng về Chợ gia sư (YCTD-368)
-      command: `node ../scripts/chuyen-huong-gia-su.mjs --port ${E2E_MULTI_TUTOR_PORT} --target http://${E2E_MARKET_HOST}:${E2E_MULTI_MARKET_PORT}`,
-      url: `http://localhost:${E2E_MULTI_TUTOR_PORT}/sw.js`,
+      // Ứng dụng học sinh theo tên miền của trường (YCTD-383 lát L2, spec 143)
+      command: `pnpm --filter @school-management/student exec vite --port ${E2E_MULTI_STUDENT_PORT} --strictPort`,
+      url: `http://localhost:${E2E_MULTI_STUDENT_PORT}`,
+      env: { IDENTITY_BASE_URL: identityBaseUrl, API_BASE_URL: apiBaseUrl },
     },
   ],
 });
