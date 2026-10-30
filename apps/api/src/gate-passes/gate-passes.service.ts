@@ -196,6 +196,16 @@ export class GatePassesService {
         .where('child_id', '=', child.id)
         .where('attendance_date', '=', date)
         .executeTakeFirst();
+      // Ngày lớp đã chốt thì chỉ sửa kèm lý do (BR-12): không tự ghi, coi như đã có điểm danh
+      const locked = child.class_id
+        ? await transaction
+            .selectFrom('attendance_days')
+            .select('status')
+            .where('class_id', '=', child.class_id)
+            .where('attendance_date', '=', date)
+            .where('status', '=', 'locked')
+            .executeTakeFirst()
+        : undefined;
       const autoLate =
         child.class_id !== null &&
         shouldAutoMarkLate({
@@ -204,7 +214,7 @@ export class GatePassesService {
           passedAt,
           schoolStartTime,
           isSchoolDay,
-          hasAttendanceRecord: existing !== undefined,
+          hasAttendanceRecord: existing !== undefined || locked !== undefined,
         });
       if (autoLate && child.class_id) {
         await transaction

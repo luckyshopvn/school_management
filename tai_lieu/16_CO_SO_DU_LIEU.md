@@ -1098,7 +1098,7 @@ Quy tắc (mã ở `apps/api/src/gate-passes/`):
 
 1. Cấp lại thẻ thu hồi thẻ cũ trong cùng giao dịch; thẻ đã thu hồi quét bị từ chối.
 2. Hai lượt cùng hướng của một học sinh cách nhau không quá 5 phút là một lượt (trả lượt cũ, không báo lần hai).
-3. Lượt vào sau giờ bắt đầu học (cài đặt `school_start_time`) bằng thẻ QR, thẻ RFID hoặc máy chấm công, trong ngày học, khi học sinh chưa có điểm danh ngày: ghi `attendance_records` trạng thái `late`, `source = system`, `recorded_by` là người quét, ghi chú giờ vào. Không ghi đè điểm danh đã có; không bao giờ ghi vắng.
+3. Lượt vào sau giờ bắt đầu học (cài đặt `school_start_time`) bằng thẻ QR, thẻ RFID hoặc máy chấm công, trong ngày học, khi học sinh chưa có điểm danh ngày, ngày của lớp chưa chốt: ghi `attendance_records` trạng thái `late`, `source = system`, `recorded_by` là người quét, ghi chú giờ vào. Không ghi đè điểm danh đã có; không bao giờ ghi vắng.
 4. Báo nhận nhầm chuyển `review_status` sang `rejected`, không xóa dòng; bảng điểm danh bỏ lượt đã báo nhầm khỏi gợi ý.
 
 ## 19. Quan hệ chính giữa các bảng

@@ -2634,7 +2634,7 @@ Chỉ có ở nền tảng nhiều trường và chỉ dùng khóa AI của nề
 | POST | /api/v1/student/ai-tutor/messages/{id}/report | Báo câu trả lời sai `{ note? (tối đa 500 ký tự) }`; chỉ câu trả lời của gia sư trong hội thoại của em, trừ câu trả lời theo mẫu an toàn |
 | GET | /api/v1/children/{id}/ai-tutor/topics | Cha mẹ, người giám hộ của con (khác thì 403; giáo viên 403): `month`, `turns_this_month`, `topics [{ subject_name, topic, turns, started_at, last_message_at }]`; không có toàn văn |
 
-### 17.14. Thẻ QR và lượt qua cổng (YCTD-389 lát L1)
+### 17.15. Thẻ QR và lượt qua cổng (YCTD-389 lát L1)
 
 Mã ở `apps/api/src/gate-passes/`. Lượt qua cổng là gợi ý cho giáo viên; chỉ "Đi muộn" từ thẻ được tự ghi.
 
