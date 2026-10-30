@@ -235,6 +235,7 @@ function legacyVisibility(has: (code: string) => boolean): Partial<Record<Portal
     '/api-clients': canSeeAccounts && canManageApiClients,
     '/integrations': canManageIntegrations,
     '/ai-assistant': canManageIntegrations,
+    '/ai-tutor': canManageIntegrations,
     '/audit-logs': canViewPlatform,
     // Tài chính – học phí
     '/fees': canSeeFinance && canViewFees,

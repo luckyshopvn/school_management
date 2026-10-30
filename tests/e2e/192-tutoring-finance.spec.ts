@@ -227,7 +227,7 @@ test('CT-27c-9: câu lạc bộ bổ trợ có thu theo buổi, cha mẹ thấy 
     await parentPage.getByLabel('Mật khẩu', { exact: true }).fill(parent.password);
     await parentPage.getByRole('button', { name: 'Đăng nhập' }).click();
     const card = parentPage.getByRole('listitem', { name: childName });
-    await card.getByRole('button', { name: 'Gia sư' }).click();
+    await card.getByRole('button', { name: 'Gia sư', exact: true }).click();
     const panel = parentPage.getByRole('region', { name: `Gia sư của ${childName}` });
     await expect(panel).toContainText('Thu 50.000 đ mỗi buổi học trên hóa đơn học phí của trường');
     await panel.getByRole('button', { name: `Đăng ký ${programName}` }).click();
