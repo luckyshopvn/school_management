@@ -18,7 +18,7 @@ import { CurrentSchoolYearResolver } from '../common/current-school-year.js';
 import { notFoundError } from '../common/request-fields.js';
 import { VIDEO_PROVIDER, type VideoRoomEvent, type VideoRoomProvider } from './video-provider.js';
 
-// Lớp video trực tiếp (DT-27 phần 27a, YCTD-251; tài liệu 47 mục 19.2 phần 3, 4 và 19.5). Từ YCTD-384 lát L2 (Eric chốt ngày
+// Lớp video trực tiếp (DT-27 phần 27a, YCTD-251; tài liệu 47 mục 19.2 phần 3, 4 và 19.5). Từ YCTD-393 lát L2 (Eric chốt ngày
 // 2026-10-30) chương trình gia sư trong trường bị bỏ: không còn phòng của buổi gia sư, ghi hình, bản ghi, đồng ý ghi hình của cha mẹ.
 // Phần còn lại dùng chung cho giờ học trực tuyến (DT-28 phần 28g):
 // - cấu hình của trường (số người dự tối đa một phòng), bộ nối máy chủ video, tên phòng theo trường;

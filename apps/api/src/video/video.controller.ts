@@ -31,7 +31,7 @@ import { VIDEO_PROVIDER, VideoWebhookError, type VideoRoomProvider } from './vid
 import { VideoRoomsService } from './video-rooms.js';
 
 // Điểm cuối của lớp video trực tiếp (DT-27 phần 27a, YCTD-251): nhóm /video cho giáo viên, Ban Giám hiệu (cấu hình của trường, phút
-// đã dùng, phòng tức thời); /video/webhook nhận sự kiện của máy chủ video. Từ YCTD-384 lát L2 chương trình gia sư trong trường bị
+// đã dùng, phòng tức thời); /video/webhook nhận sự kiện của máy chủ video. Từ YCTD-393 lát L2 chương trình gia sư trong trường bị
 // bỏ: quyền và gói theo học trực tuyến (lớp video dùng chung với giờ học trực tuyến của DT-28 phần 28g)
 const TEACH = PERMISSION_CODES.learningTeach;
 const MANAGE = PERMISSION_CODES.learningDecide;

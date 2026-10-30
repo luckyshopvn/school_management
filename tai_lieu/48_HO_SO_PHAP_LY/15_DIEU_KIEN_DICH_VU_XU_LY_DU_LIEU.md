@@ -35,6 +35,13 @@ Trách nhiệm khi đã là tổ chức kinh doanh dịch vụ (Điều 23, đã
 7. Thời hạn giữ bản ghi (mặc định 30 ngày, trường chỉnh 7 đến 90 ngày; GD-132) có phù hợp nguyên tắc tối thiểu hoá và có cần thời hạn riêng khi có khiếu nại gian lận; bản sao lưu của kho tệp giữ bản ghi lâu hơn hạn thì xử lý thế nào; quyền của học sinh, cha mẹ xem và yêu cầu xoá bản ghi.
 8. Việc xem trực tiếp cần thông báo gì trước khi thi (nội dung thông báo ở màn hình học sinh), có cần quy chế thi của trường ghi rõ không; hệ quả khi cha mẹ không đồng ý (học sinh thi bài không giám sát hoặc thi tại trường).
 9. Đặt máy chủ chuyển tiếp coturn ở nước ngoài có xử lý dữ liệu xuyên biên giới không (hình đi qua máy chủ chuyển tiếp ở dạng mã hoá, không lưu); ảnh hưởng tới PL-07, PL-08.
+10. Điểm danh bằng camera khuôn mặt (YCTD-389): đặc trưng khuôn mặt chỉ nằm trên trạm camera đặt tại trường (trường là bên kiểm soát, giữ thiết bị), nền tảng chỉ cung cấp phần mềm và nhận lượt qua cổng không có ảnh, đặc trưng. Nền tảng có bị coi là "trực tiếp xử lý dữ liệu nhạy cảm" (ảnh hưởng miễn trừ ở Điều 41 Nghị định 356/2025/NĐ-CP) không?
+11. Điểm danh có phải "công bố, tiết lộ đời sống riêng tư" của khoản 2 Điều 24 Luật 91/2025/QH15 để cần đồng ý của cả học sinh từ đủ 07 tuổi và người đại diện, hay chỉ cần đồng ý của người đại diện? (Thiết kế đang xin cả hai.) Hình thức đồng ý trên ứng dụng (bấm chọn, ghi thời điểm, tài khoản) có đủ là "văn bản" không, hay cần bản giấy có chữ ký?
+12. Camera an ninh trong khuôn viên trường (cổng, sân, hành lang) dùng để phát hiện vi phạm nội quy có thuộc khoản 1 Điều 32 Luật 91/2025/QH15 (ghi hình nơi công cộng không cần đồng ý) không? Nếu không: cần đồng ý của ai, nội dung biển thông báo (PL-24) đã đủ chưa, thời hạn giữ ảnh cảnh báo 7 ngày có phù hợp khoản 4 Điều 32 không.
+13. Quẹt thẻ RFID ở cổng để điểm danh có là "theo dõi định vị qua thẻ nhận dạng tần số vô tuyến" của điểm a khoản 3 Điều 31 Luật 91/2025/QH15 không, khi đầu đọc chỉ đặt ở cổng?
+14. Cảnh báo "không đồng phục" (ảnh tĩnh đã làm mờ khuôn mặt, không gắn tên) có phải xử lý dữ liệu cá nhân của học sinh không; cần biện pháp gì để không thành phân biệt đối xử?
+15. Trường công lập có thuộc "cơ quan nhà nước có thẩm quyền" của khoản 6 Điều 21 Luật 91/2025/QH15 (không phải lập đánh giá tác động) không; nếu có, trường cần bằng chứng gì thay cho bản đánh giá tác động để mở khóa camera khuôn mặt (PL-23 mục 4)?
+16. Điều 29 Nghị định 356/2025/NĐ-CP (thông báo vi phạm với dữ liệu vị trí, sinh trắc học) đặt thêm nghĩa vụ gì cho trạm camera và quy trình PL-12?
 
 ## 4. Kết luận
 

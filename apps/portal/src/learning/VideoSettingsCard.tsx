@@ -4,7 +4,7 @@ import { Alert, Button, FORM_CONTROL_CLASS } from '@school-management/ui';
 import { ApiError, requestJson } from '../session/api-client.js';
 
 // Cấu hình lớp video của trường (DT-27 phần 27a, YCTD-251): số người dự tối đa một phòng (GD-130); phút đã dùng theo gói.
-// Dùng chung cho giờ học trực tuyến (DT-28 phần 28g). Chuyển về đây từ trang quy định dạy thêm khi gỡ gia sư trong trường (YCTD-384
+// Dùng chung cho giờ học trực tuyến (DT-28 phần 28g). Chuyển về đây từ trang quy định dạy thêm khi gỡ gia sư trong trường (YCTD-393
 // lát L2); chỉ Ban Giám hiệu sửa
 interface VideoSettings {
   max_participants: number;

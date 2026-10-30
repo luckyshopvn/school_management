@@ -16,13 +16,13 @@ import {
   verifyRemovedDataBackup,
 } from './removed-data-backup.js';
 
-// Sao lưu dữ liệu của chức năng đã bỏ trước khi xóa (YCTD-384): tệp mã hóa đọc lại đủ dòng; database migration chỉ chạy khi bản ghi sao
+// Sao lưu dữ liệu của chức năng đã bỏ trước khi xóa (YCTD-393): tệp mã hóa đọc lại đủ dòng; database migration chỉ chạy khi bản ghi sao
 // lưu khớp số dòng hiện tại; bảng rỗng hoặc không còn thì không cần sao lưu
 const PASSPHRASE = 'mat-khau-sao-luu-kiem-thu';
 const FEATURE = 'chuc-nang-thu';
 const COMMAND = 'lệnh sao lưu thử';
 
-describe('sao lưu trước khi xóa bảng của chức năng đã bỏ (YCTD-384)', () => {
+describe('sao lưu trước khi xóa bảng của chức năng đã bỏ (YCTD-393)', () => {
   const systemUrl = readConnectionString('system');
   const databaseName = `removed_data_test_${randomUUID().replaceAll('-', '').slice(0, 12)}`;
   const url = replaceDatabaseName(systemUrl, databaseName);

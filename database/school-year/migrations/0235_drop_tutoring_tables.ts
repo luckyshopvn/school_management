@@ -2,8 +2,8 @@ import { sql, type Kysely } from 'kysely';
 import type { Migration } from 'kysely/migration';
 import { assertRemovedDataBackedUp } from '../../src/removed-data-log.js';
 
-// Bỏ chương trình gia sư trong trường DT-27 (YCTD-384 lát L3, quyết định của Eric ngày 2026-10-30): xóa các bảng gia sư do 0152 đến
-// 0156, 0161, 0200, 0201 tạo. Số 0235 đến 0239 dành cho YCTD-384. Trước khi xóa, mỗi bảng còn dữ liệu phải có bản ghi sao lưu cùng số
+// Bỏ chương trình gia sư trong trường DT-27 (YCTD-393 lát L3, quyết định của Eric ngày 2026-10-30): xóa các bảng gia sư do 0152 đến
+// 0156, 0161, 0200, 0201 tạo. Số 0235 đến 0239 dành cho YCTD-393. Trước khi xóa, mỗi bảng còn dữ liệu phải có bản ghi sao lưu cùng số
 // dòng hiện tại trong removed_data_backups của chính cơ sở dữ liệu này (lệnh TUTORING_BACKUP_COMMAND); thiếu thì dừng.
 // - Hóa đơn đã phát hành giữ dòng `tutoring` cũ (số tiền, nội dung), chỉ bỏ cột nối `invoice_items.tutoring_registration_id`.
 // - Phòng video của buổi gia sư (`kind = 'session'`) cùng phòng chờ, nhật ký vào ra của phòng đó bị xóa; phòng tức thời giữ nguyên.

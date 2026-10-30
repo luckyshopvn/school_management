@@ -1083,7 +1083,7 @@ export interface InvoicesTable {
 export interface InvoiceItemsTable {
   id: Generated<string>;
   invoice_id: string;
-  // `tutoring`: dòng gia sư của hóa đơn đã phát hành trước khi bỏ chương trình gia sư, giữ số tiền và nội dung (YCTD-384);
+  // `tutoring`: dòng gia sư của hóa đơn đã phát hành trước khi bỏ chương trình gia sư, giữ số tiền và nội dung (YCTD-393);
   // `ai_tutor`: Gia sư AI do trường bán (YCTD-383)
   item_type: 'tuition' | 'service' | 'opening' | 'extracurricular' | 'tutoring' | 'ai_tutor';
   service_id: string | null;
@@ -6726,7 +6726,7 @@ export interface VideoSettingsTable {
 
 export interface VideoRoomsTable {
   id: Generated<string>;
-  // Chỉ còn phòng tức thời: phòng của buổi gia sư đã xóa cùng chương trình gia sư (YCTD-384)
+  // Chỉ còn phòng tức thời: phòng của buổi gia sư đã xóa cùng chương trình gia sư (YCTD-393)
   kind: 'instant';
   title: string;
   host_user_id: string;

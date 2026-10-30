@@ -12,7 +12,7 @@ import {
 } from '../test-support.js';
 
 // Lớp video trực tiếp (DT-27 phần 27a, YCTD-251), kịch bản CT-27a-3 đến CT-27a-6 với bộ giả lập nhà cung cấp, phần còn lại sau khi gỡ
-// gia sư trong trường (YCTD-384 lát L2): phòng tức thời của giáo viên, vai trò chủ phòng và Ban Giám hiệu, sự kiện gọi lại có chữ ký
+// gia sư trong trường (YCTD-393 lát L2): phòng tức thời của giáo viên, vai trò chủ phòng và Ban Giám hiệu, sự kiện gọi lại có chữ ký
 // ghi nhật ký vào ra, kết thúc phòng, cấu hình của trường. Dữ liệu giả
 const vietnamToday = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Ho_Chi_Minh' }).format(new Date());
 const addDays = (date: string, days: number) =>

@@ -15,7 +15,7 @@ import { MIGRATIONS_PER_TRANSACTION, migrateToLatest } from './migrate.js';
 import { verifyRemovedDataBackup } from './removed-data-backup.js';
 import { backupTutoringDatabase, TUTORING_TABLES } from './removed-tutoring-backup.js';
 
-// Bỏ chương trình gia sư trong trường (YCTD-384 lát L3): database migration 0235 từ chối khi chưa sao lưu; sau khi sao lưu thì xóa bảng
+// Bỏ chương trình gia sư trong trường (YCTD-393 lát L3): database migration 0235 từ chối khi chưa sao lưu; sau khi sao lưu thì xóa bảng
 // gia sư, giữ dòng hóa đơn cũ (số tiền, nội dung), xóa phòng video của buổi gia sư, giữ phòng tức thời; tệp sao lưu giữ đủ dòng liên
 // kết để dựng lại. Định danh 0190 gỡ quyền, việc ẩn phân hệ gia sư
 const PASSPHRASE = 'mat-khau-sao-luu-kiem-thu';
@@ -49,7 +49,7 @@ async function tableExists(database: Kysely<unknown>, table: string): Promise<bo
   return result.rows[0]?.found === true;
 }
 
-describe('xóa bảng gia sư trong trường sau khi sao lưu (YCTD-384 lát L3)', () => {
+describe('xóa bảng gia sư trong trường sau khi sao lưu (YCTD-393 lát L3)', () => {
   const systemUrl = readConnectionString('system');
   const databaseName = `tutoring_drop_test_${randomUUID().replaceAll('-', '').slice(0, 12)}`;
   const url = replaceDatabaseName(systemUrl, databaseName);
@@ -201,7 +201,7 @@ describe('xóa bảng gia sư trong trường sau khi sao lưu (YCTD-384 lát L3
   });
 });
 
-describe('gỡ quyền gia sư ở cơ sở dữ liệu định danh (YCTD-384 lát L3)', () => {
+describe('gỡ quyền gia sư ở cơ sở dữ liệu định danh (YCTD-393 lát L3)', () => {
   it('định danh tạo mới chạy đủ tệp: không còn quyền P02.tutoring, không còn ẩn phân hệ gia sư', async () => {
     const systemUrl = readConnectionString('system');
     const databaseName = `identity_tutoring_test_${randomUUID().replaceAll('-', '').slice(0, 12)}`;

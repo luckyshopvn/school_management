@@ -1,7 +1,7 @@
 import { sql } from 'kysely';
 import type { Migration } from 'kysely/migration';
 
-// Bỏ chương trình gia sư trong trường DT-27 (YCTD-384 lát L3, quyết định của Eric ngày 2026-10-30): gỡ đúng những gì 0172 thêm, gồm
+// Bỏ chương trình gia sư trong trường DT-27 (YCTD-393 lát L3, quyết định của Eric ngày 2026-10-30): gỡ đúng những gì 0172 thêm, gồm
 // quyền P02.tutoring.manage, P02.tutoring.teach, phần gán quyền cho vai trò và việc ẩn phân hệ `tutoring` với Phụ huynh (VT-14), Học
 // sinh (VT-21). Đây là cấu hình nạp sẵn, tạo lại được từ 0172, không phải dữ liệu người dùng nên không cần sao lưu. Bước lùi nạp lại
 // như 0172.

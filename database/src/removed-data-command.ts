@@ -16,7 +16,7 @@ import {
 import { assertIdentifier } from './school-database-layout.js';
 import { readTenancyConfiguration, TenancyRuntime } from './tenancy-runtime.js';
 
-// Sao lưu rồi xóa dữ liệu của chức năng đã bỏ (YCTD-384):
+// Sao lưu rồi xóa dữ liệu của chức năng đã bỏ (YCTD-393):
 //   pnpm --filter @school-management/database xoa-du-lieu-da-bo -- --tinh-nang cho-gia-su [--xoa-co-so-du-lieu]
 //   pnpm --filter @school-management/database xoa-du-lieu-da-bo -- --tinh-nang gia-su-trong-truong
 // Chợ gia sư đã tách thành sản phẩm riêng, dữ liệu không chuyển (quyết định của Eric ngày 2026-10-30). Lệnh:

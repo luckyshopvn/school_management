@@ -5,7 +5,7 @@ import { backupTablesBeforeRemoval, recordRemovedDataBackup, type RemovedDataBac
 import { schoolDescriptors, type LifecycleEnvironment } from './school-lifecycle.js';
 import { connectionStringOf } from './school-database-layout.js';
 
-// Sao lưu dữ liệu chương trình gia sư trong trường của một cơ sở dữ liệu năm học trước database migration 0235 (YCTD-384 lát L3).
+// Sao lưu dữ liệu chương trình gia sư trong trường của một cơ sở dữ liệu năm học trước database migration 0235 (YCTD-393 lát L3).
 // Tệp gồm trọn các bảng 0235 xóa, kèm ở phần `extra` của dòng đầu các dòng bị đổi hoặc xóa ở bảng còn giữ, đủ để dựng lại liên kết:
 // - `invoice_item_tutoring_links`: cặp dòng hóa đơn và đơn đăng ký gia sư (cột `invoice_items.tutoring_registration_id` bị bỏ);
 // - `session_video_rooms`, `session_video_room_admissions`, `session_video_room_events`: phòng video của buổi gia sư cùng phòng chờ,

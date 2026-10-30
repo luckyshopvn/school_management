@@ -1,6 +1,6 @@
 // Chạy đủ bản nhiều trường trên máy phát triển (YCTD-310; tài liệu 47 mục 16.10): dịch vụ định danh, máy chủ API, tiến trình nền (đã
 // dựng ở apps/*/dist) và năm ứng dụng web (vite): cổng quản trị trường, cổng vận hành nền tảng, ứng dụng giáo viên, phụ huynh, học sinh.
-// Chợ gia sư đã tách thành sản phẩm riêng (YCTD-384). Biến của .env bị đè bởi tệp môi trường riêng do lệnh
+// Chợ gia sư đã tách thành sản phẩm riêng (YCTD-393). Biến của .env bị đè bởi tệp môi trường riêng do lệnh
 // `pnpm --filter @school-management/database nhieu-truong-cuc-bo` sinh. Mọi ứng dụng trỏ về định danh, API của bản nhiều trường và
 // phục vụ ở tên miền *.localhost (trình duyệt tự đưa về máy, không sửa tệp hosts). Ctrl+C dừng tất cả.
 //
