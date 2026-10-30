@@ -749,7 +749,7 @@ describe('Gia sư AI: khóa theo phòng thi, bài tập, khung giờ; báo giáo
     assert.doesNotMatch(JSON.stringify(topics.body), /flag|muốn chết/);
   });
 
-  it('CT-1788: trường chưa đặt đơn giá AI ở gói dịch vụ thì không bật bán, phụ huynh không mua được gói trường bán; em đã mua vẫn dùng', async () => {
+  it('CT-1890: trường chưa đặt đơn giá AI ở gói dịch vụ thì không bật bán, phụ huynh không mua được gói trường bán; em đã mua vẫn dùng', async () => {
     // Sau giờ đóng của bài tập ở CT-1783 và giờ mở của bài kiểm tra ở CT-1782
     setTime('15:30');
     const platform = environment.platform.platform;
