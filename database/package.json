@@ -16,7 +16,8 @@
     "level-check": "node --env-file-if-exists=../.env dist/src/level-check-command.js",
     "test": "node --env-file-if-exists=../.env --test \"dist/**/*.test.js\"",
     "platform": "node --env-file-if-exists=../.env dist/src/platform-command.js",
-    "nhieu-truong-cuc-bo": "node --env-file-if-exists=../.env dist/src/local-multi-school-command.js"
+    "nhieu-truong-cuc-bo": "node --env-file-if-exists=../.env dist/src/local-multi-school-command.js",
+    "xoa-du-lieu-da-bo": "node --env-file-if-exists=../.env dist/src/removed-data-command.js"
   },
   "dependencies": {
     "@school-management/server": "workspace:*",

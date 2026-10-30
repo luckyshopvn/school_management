@@ -137,7 +137,7 @@ export function AcademicYearSwitcher() {
   }, [open]);
 
   if (years.isPending) {
-    return <span className="hidden h-4 w-36 animate-pulse rounded bg-header-strong md:inline" aria-hidden="true" />;
+    return <span className="hidden h-4 w-36 animate-pulse rounded bg-current/20 md:inline" aria-hidden="true" />;
   }
   // Ô ngữ cảnh "Cấp MN · năm học · học kỳ" như của Sở (DT-16 phần 16c)
   const buttonText = viewedYear
@@ -150,7 +150,7 @@ export function AcademicYearSwitcher() {
     <div className="relative hidden md:block" ref={container}>
       <button
         type="button"
-        className={`flex h-9 items-center gap-2 rounded-md border px-2.5 text-label font-semibold hover:bg-header-strong ${viewedYear ? 'border-warning bg-warning text-white' : 'border-white/60 text-white'}`}
+        className={`flex h-11 items-center gap-2 rounded-md border px-2.5 text-label font-semibold ${viewedYear ? 'border-warning bg-warning text-white hover:opacity-90' : 'border-current/40 text-current hover:bg-current/10'}`}
         aria-label={
           viewedYear
             ? `${educationLevel}, đang xem năm học đã đóng: ${viewedYear.name}, chỉ xem`
@@ -236,7 +236,7 @@ export function AcademicYearSwitcher() {
               </span>
               <button
                 type="button"
-                className="rounded-md border border-white px-2 py-0.5 hover:bg-white/20"
+                className="min-h-11 rounded-md border border-white px-2 hover:bg-white/20"
                 onClick={() => chooseYear(null)}
               >
                 {currentYear ? `Về năm học ${currentYear.name}` : 'Thoát xem năm cũ'}

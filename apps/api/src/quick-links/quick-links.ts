@@ -58,7 +58,8 @@ export class QuickLinksService {
   ) {}
 
   // Lối tắt tới mục menu của cấp trường chưa bật (hoặc đã tắt) không hiện, vẫn giữ trong cơ sở dữ liệu để hiện lại khi bật
-  // cấp (DT-19 phần 19c); trường chỉ có Mầm non không ẩn gì
+  // cấp (DT-19 phần 19c); trường chỉ có Mầm non không ẩn gì. Lối tắt tới trang đã gỡ (gia sư trong trường, YCTD-393) không hiện,
+  // lần lưu sau bỏ hẳn
   async list(userId: string): Promise<QuickLink[]> {
     const hidden = portalMenuPathsOutsideLevels(await this.schoolLevels.enabled());
     const links = await this.databases.system
@@ -67,7 +68,7 @@ export class QuickLinksService {
       .where('user_id', '=', userId)
       .orderBy('position')
       .execute();
-    return links.filter((link) => !hidden.has(link.path as never));
+    return links.filter((link) => ALLOWED_PATHS.has(link.path) && !hidden.has(link.path as never));
   }
 
   // Thay toàn bộ danh sách trong một giao dịch; vị trí đánh lại từ 0 theo thứ tự gửi lên

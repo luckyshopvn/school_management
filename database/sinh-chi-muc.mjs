@@ -13,7 +13,7 @@ import { join, relative } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const GOC = fileURLToPath(new URL('.', import.meta.url));
-export const LOAI = ['identity', 'system', 'school-year', 'platform', 'marketplace'];
+export const LOAI = ['identity', 'system', 'school-year', 'platform'];
 
 const TEN_TEP_THAY_DOI = /^(\d{4})_[a-z0-9_]+\.ts$/;
 const TEN_TEP_PHAN = /^[a-z0-9]+(?:-[a-z0-9]+)*\.ts$/;

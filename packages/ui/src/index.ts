@@ -33,14 +33,7 @@ export {
   type ExternalRequest,
   type ExternalRequestError,
 } from './ExternalIdentity.js';
-export {
-  VideoHostPanel,
-  VideoRecordingList,
-  VideoRoom,
-  type VideoAdmission,
-  type VideoJoinInfo,
-  type VideoRecordingRow,
-} from './VideoRoom.js';
+export { VideoHostPanel, VideoRoom, type VideoAdmission, type VideoJoinInfo } from './VideoRoom.js';
 export {
   LessonCourseProgress,
   LessonVideoList,
@@ -50,3 +43,9 @@ export {
 } from './LessonVideoList.js';
 export { RecognitionList, type RecognitionView } from './RecognitionList.js';
 export { isSupportSignInLocation, SupportSignIn, type SupportChannel } from './SupportSignIn.js';
+export { BottomSheet } from './BottomSheet.js';
+export { ChoiceGroup, type ChoiceOption, type ChoiceTone } from './ChoiceGroup.js';
+export { NoticeStrip } from './NoticeStrip.js';
+export { SectionIndex, type FormSection } from './SectionIndex.js';
+export { SelectionBar } from './SelectionBar.js';
+export { ShortcutTiles, type ShortcutTile } from './ShortcutTiles.js';

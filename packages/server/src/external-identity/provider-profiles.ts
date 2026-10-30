@@ -236,8 +236,7 @@ export function secretVariableName(code: string, prefix = 'EXTERNAL_IDENTITY'): 
   return `${prefix}_${code.toUpperCase().replaceAll('-', '_')}_CLIENT_SECRET`;
 }
 
-// Đọc khai báo của nền tảng từ biến môi trường; trống là không có nhà cung cấp nào (mặc định, hành vi như trước DT-25). Chợ gia sư
-// (DT-27 phần 27g) dùng tiền tố riêng MARKET_IDENTITY: ứng dụng đăng ký ở nhà cung cấp là của chợ, địa chỉ quay về là của chợ
+// Đọc khai báo của nền tảng từ biến môi trường; trống là không có nhà cung cấp nào (mặc định, hành vi như trước DT-25)
 export function readProviderDefinitions(
   environment: NodeJS.ProcessEnv,
   prefix = 'EXTERNAL_IDENTITY',

@@ -176,7 +176,7 @@ export function FunctionSearch({ workspaces }: { workspaces: PortalWorkspace[] }
         }}
         onFocus={() => setOpen(true)}
         onKeyDown={onKeyDown}
-        className="h-9 w-full rounded-md border border-white/30 bg-white pl-9 pr-3 text-base text-text placeholder:text-text-secondary"
+        className="h-11 w-full rounded-md border border-pc-vien-o-nhap bg-white pl-9 pr-3 text-base text-text placeholder:text-text-secondary"
       />
       <ul
         id={listId}
@@ -201,7 +201,7 @@ export function FunctionSearch({ workspaces }: { workspaces: PortalWorkspace[] }
             }}
           >
             {index === 0 || options[index - 1]?.group !== option.group ? (
-              <span className="text-[12px] font-semibold uppercase tracking-wide text-text-secondary">
+              <span className="text-label font-semibold uppercase tracking-wide text-text-secondary">
                 {option.group}
               </span>
             ) : null}

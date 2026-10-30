@@ -36,6 +36,8 @@ interface Editor {
     max_attempts: number;
     grading: 'score' | 'rubric' | 'level' | 'completion' | 'none';
     show_results: 'after_submit' | 'after_return';
+    // Gia sư AI của học sinh khóa khi bài còn mở với em (YCTD-383 lát L3); máy chủ cũ không trả thì coi như tắt
+    ai_blocked?: boolean;
     released: boolean;
     closed_at: string | null;
   } | null;
@@ -112,6 +114,7 @@ function Composer({ activityId, editor, onSaved }: { activityId: string; editor:
   const [workMode, setWorkMode] = useState(editor.assignment?.work_mode ?? 'individual');
   const [groupSetId, setGroupSetId] = useState(editor.assignment?.group_set_id ?? editor.group_sets[0]?.id ?? '');
   const [latePolicy, setLatePolicy] = useState(editor.assignment?.late_policy ?? 'allow');
+  const [aiBlocked, setAiBlocked] = useState(editor.assignment?.ai_blocked ?? false);
   // Bài về nhà (DT-28 phần 28f): ngữ cảnh và số phút dự kiến để tính khối lượng theo quy tắc của trường
   const [context, setContext] = useState(editor.assignment?.context ?? 'in_class');
   const [minutes, setMinutes] = useState(
@@ -136,6 +139,7 @@ function Composer({ activityId, editor, onSaved }: { activityId: string; editor:
           estimated_minutes: minutes ? Number(minutes) : null,
           grading,
           late_policy: latePolicy,
+          ai_blocked: aiBlocked,
           work_mode: workMode,
           group_set_id: workMode === 'group' ? groupSetId : null,
           items: items.map((item) => ({
@@ -229,6 +233,7 @@ function Composer({ activityId, editor, onSaved }: { activityId: string; editor:
         />
         Cho nộp muộn (đánh dấu muộn, không trừ điểm)
       </label>
+      <AiBlockedToggle checked={aiBlocked} onChange={setAiBlocked} />
       <ol className="flex flex-col gap-2">
         {items.map((item, index) => (
           <li key={index} className="flex flex-col gap-1 rounded-lg border border-border bg-card p-3 text-label">
@@ -616,6 +621,35 @@ function SubmissionThread({
   );
 }
 
+// Công tắc "Không dùng AI" (YCTD-383 lát L3): bật thì Gia sư AI của học sinh được giao bài khóa đến khi em nộp bài hoặc bài đóng
+function AiBlockedToggle({
+  checked,
+  disabled = false,
+  onChange,
+}: {
+  checked: boolean;
+  disabled?: boolean;
+  onChange(checked: boolean): void;
+}) {
+  return (
+    <label className="flex items-start gap-2 text-label text-text">
+      <input
+        type="checkbox"
+        className="mt-1"
+        checked={checked}
+        disabled={disabled}
+        onChange={(event) => onChange(event.target.checked)}
+      />
+      <span>
+        Không dùng AI
+        <span className="block text-text-secondary">
+          Gia sư AI của học sinh tạm khóa đến khi em nộp bài hoặc bài đóng.
+        </span>
+      </span>
+    </label>
+  );
+}
+
 export function AssignmentScreen({ activityId, onBack }: { activityId: string; onBack(): void }) {
   const [editor, setEditor] = useState<Editor>();
   const [rows, setRows] = useState<SubmissionRow[]>([]);
@@ -705,6 +739,16 @@ export function AssignmentScreen({ activityId, onBack }: { activityId: string; o
                 Đã giao cho {editor.recipient_count} học sinh
                 {editor.assignment?.closed_at ? ' · Đã đóng bài' : ''}
               </p>
+              <AiBlockedToggle
+                checked={editor.assignment?.ai_blocked ?? false}
+                onChange={(checked) =>
+                  void run(
+                    () =>
+                      requestJson(base(activityId), { method: 'PATCH', body: JSON.stringify({ ai_blocked: checked }) }),
+                    checked ? 'Đã bật Không dùng AI cho bài này' : 'Đã tắt Không dùng AI cho bài này',
+                  )
+                }
+              />
               {editor.assignment?.context === 'homework' ? (
                 <HomeworkAbsences
                   activityId={activityId}
