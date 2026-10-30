@@ -264,7 +264,7 @@ test.beforeAll(async () => {
   parent = await createTestUser(identity, { roles: [{ roleCode: 'VT-14', orgUnitId: context.unitId }] });
   const guardian = await context.year
     .insertInto('guardians')
-    .values({ full_name: 'Mẹ thử e2e 145', phone: '0900000145', user_id: parent.id })
+    .values({ full_name: 'Mẹ thử e2e 145', phone: `0900${String(Date.now()).slice(-6)}`, user_id: parent.id })
     .returning('id')
     .executeTakeFirstOrThrow();
   students.newcomer = await prepareStudent(context, guardian.id, relationship.id, null);

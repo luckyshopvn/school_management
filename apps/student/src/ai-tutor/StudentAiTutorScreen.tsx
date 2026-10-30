@@ -257,6 +257,14 @@ export default function StudentAiTutorScreen({ onClose }: { onClose(): void }) {
             }
           : current,
       );
+      // Lát L5: vừa hết lượt thì lấy lại trạng thái lời nhờ cha mẹ từ máy chủ để hiện nút "Gửi lời nhờ cha mẹ"
+      if (result.balance.remaining === 0) {
+        void readTutorOverview()
+          .then((next) =>
+            setOverview((current) => (current ? { ...current, parent_request: next.parent_request } : current)),
+          )
+          .catch(() => undefined);
+      }
     } catch (error) {
       setErrorMessage(tutorErrorMessage(error));
     } finally {
