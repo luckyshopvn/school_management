@@ -16,7 +16,7 @@ const LATEST_COUNT = 5;
 // Máy chủ văn bản đến, đi chỉ nhận số dòng mỗi trang 10, 20, 50, 100, 200: lấy trang 10 dòng rồi hiện LATEST_COUNT dòng đầu
 const FETCH_PAGE_SIZE = 10;
 
-const linkClass = 'inline-flex items-center text-label font-medium text-link underline max-xl:min-h-11';
+const linkClass = 'inline-flex items-center text-label font-medium text-link underline min-h-11';
 
 export function EmptyText() {
   return <p className="text-content text-text-secondary">Trống</p>;

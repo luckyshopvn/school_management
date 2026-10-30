@@ -22,45 +22,25 @@ body {
   @apply bg-page text-content text-text;
 }
 
-/* Truy cập trên điện thoại và máy tính bảng (DT-26 phần 26e, YCTD-235): dưới 1280 px vùng chạm tối thiểu 44 × 44 px, chữ trong ô nhập từ
-   16 px để iOS không tự phóng to khi chạm vào ô; từ 1280 px giữ nguyên bố cục máy tính. Viết ngoài lớp (cascade layer) nên thắng các lớp
-   tiện ích cỡ nhỏ hơn của Tailwind và của packages/ui */
-@media (max-width: 1279.98px) {
-  input:not([type='checkbox'], [type='radio'], [type='range'], [type='hidden'], [type='color']),
-  select,
-  textarea {
-    font-size: max(16px, 1em);
-    min-height: 44px;
-  }
-  button,
-  [role='button'],
-  [role='tab'],
-  [role='menuitem'],
-  input[type='button'],
-  input[type='submit'] {
-    min-height: 44px;
-    min-width: 44px;
-  }
-  /* Ô chọn nhỏ: vùng chạm tính theo nhãn bao ngoài */
-  label:has(> input[type='checkbox'], > input[type='radio']) {
-    min-height: 44px;
-  }
-}
-
-/* Trang đăng nhập là lối vào chung của mọi thiết bị nên áp vùng chạm 44 px, chữ ô nhập 16 px ở mọi khổ, kể cả máy tính (DT-26 phần 26e) */
-.touch-layout input:not([type='checkbox'], [type='radio'], [type='range'], [type='hidden'], [type='color']),
-.touch-layout select,
-.touch-layout textarea {
+/* Vùng chạm tối thiểu 44 × 44 px, chữ trong ô nhập từ 16 px để iOS không tự phóng to khi chạm vào ô (DT-26 phần 26e, YCTD-235); từ YCTD-384
+   áp ở mọi khổ màn hình (KC-10, TN-04), trước chỉ dưới 1280 px. Viết ngoài lớp (cascade layer) nên thắng các lớp tiện ích cỡ nhỏ hơn của
+   Tailwind và của packages/ui */
+input:not([type='checkbox'], [type='radio'], [type='range'], [type='hidden'], [type='color']),
+select,
+textarea {
   font-size: max(16px, 1em);
   min-height: 44px;
 }
-.touch-layout button,
-.touch-layout [role='button'],
-.touch-layout input[type='button'],
-.touch-layout input[type='submit'] {
+button,
+[role='button'],
+[role='tab'],
+[role='menuitem'],
+input[type='button'],
+input[type='submit'] {
   min-height: 44px;
   min-width: 44px;
 }
-.touch-layout label:has(> input[type='checkbox'], > input[type='radio']) {
+/* Ô chọn nhỏ: vùng chạm tính theo nhãn bao ngoài */
+label:has(> input[type='checkbox'], > input[type='radio']) {
   min-height: 44px;
 }

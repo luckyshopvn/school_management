@@ -1,3 +1,8 @@
+/* Biến thiết kế mới (YCTD-384, 15_HE_THONG_THIET_KE.md mục 2.6, 2.7): sinh từ tokens.json, tên --pc-*, lớp tiện ích *-pc-*. Các biến cũ bên
+   dưới giữ nguyên giá trị tới lát làm lại của từng ứng dụng */
+@import './bien-thiet-ke.css';
+@import './bien-thiet-ke-tailwind.css';
+
 /* Mã màu, cỡ chữ theo 15_HE_THONG_THIET_KE.md mục 2 và 3; tông xanh dương theo mẫu Eric gửi ngày 2026-10-13 (YCTD-99) */
 /* DT-26 phần 26e (YCTD-235): màu nút chính, thanh đầu trang, liên kết, báo lỗi, cảnh báo, thông tin, thành công, chữ phụ đậm hơn để chữ đạt
    tương phản 4,5:1 (WCAG AA), kể cả chữ trên nền nhạt cùng tông của nhãn trạng thái; tên trường vàng thuần trên thanh đầu trang
