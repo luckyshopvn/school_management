@@ -3,8 +3,8 @@
 - Mô tả: Đặc tả công việc thiết kế lại giao diện mọi ứng dụng web theo hai phong cách, dùng đầy đủ trên máy tính, máy tính bảng, điện thoại, sẵn sàng cho ứng dụng Android, iOS; danh sách lát, tiêu chí nghiệm thu dự kiến.
 - Ngày: 2026-10-30
 - Mức: Lớn (sửa giá trị đã có ở tài liệu `15`, chạm mọi ứng dụng web)
-- Trạng thái: Chờ phê duyệt bản mẫu, danh sách lát và các quyết định ở mục 9
-- Bản mẫu: [index.html](index.html) (mở thẳng bằng trình duyệt; thanh trên chọn màn hình, khổ, trạng thái, biến thể hành chính)
+- Trạng thái: Chờ phê duyệt bản mẫu và danh sách lát; các câu hỏi ở mục 9 đã có quyết định
+- Bản mẫu: [index.html](index.html) (mở thẳng bằng trình duyệt; thanh trên chọn màn hình, khổ, trạng thái)
 
 ## 1. Yêu cầu và quyết định
 
@@ -20,6 +20,10 @@ Quyết định của Eric ngày 2026-10-30:
 1. Cổng quản trị trường và cổng vận hành theo phong cách "Hành chính hiện đại".
 2. Ứng dụng giáo viên, phụ huynh, học sinh theo phong cách "Thân thiện theo vai"; màu nhấn giáo viên #0F6B5F, phụ huynh #1F5FA8, học sinh #6D28D9 (duyệt trên ảnh minh họa).
 3. Menu và tiêu đề trang cổng quản trị giữ số thứ bậc.
+4. "Hành chính hiện đại" theo biến thể thanh bên xanh đậm như cổng đang dùng, không theo kiểu Sở (Q-384-1).
+5. Định nghĩa sẵn giá trị chế độ tối trong `tokens.json`, chưa bật (Q-384-2).
+6. Ứng dụng Android, iOS về sau theo phương án Capacitor đóng gói (Q-384-3).
+7. Gói Gia sư AI trong ứng dụng cài từ App Store, Google Play: mua trực tiếp, thanh toán bằng mã QR (Q-384-4). Rủi ro bị từ chối khi duyệt: xem mục 8.4.
 
 Giữ nguyên: chữ tối thiểu 14 điểm ảnh (Q-89), vùng chạm 44 điểm ảnh, tương phản WCAG 2.1 AA, chữ trong ô nhập 16 điểm ảnh. Không đổi nghiệp vụ, API, phân quyền, dữ liệu; không xóa chức năng.
 
@@ -128,7 +132,7 @@ Chạy tự động trên 17 màn hình × 3 khổ × 6 trạng thái (306 ảnh
 | Mục rà soát | Kết quả |
 |---|---|
 | 1. Khớp đặc tả | Bản mẫu là đặc tả; khớp tài liệu `15` mục 2.6, 2.7, 4, 5.2 |
-| 2. Chỉ dùng giá trị tài liệu `15` | Đạt (biến PC-*); biến thể kiểu Sở dùng giá trị riêng, chỉ để so sánh |
+| 2. Chỉ dùng giá trị tài liệu `15` | Đạt (biến PC-*) |
 | 3. Đủ trạng thái | Đạt, sáu trạng thái mỗi màn hình |
 | 4. Thông báo tiếng Việt nêu lỗi và cách xử lý | Đạt (lỗi tải có mã tra cứu, lỗi ô nhập nêu cách nhập đúng) |
 | 5. Responsive, không cuộn ngang ngoài ý muốn | Đạt ở 1366, 1024, 390 |
@@ -175,21 +179,23 @@ Các điểm dưới đây theo hướng dẫn duyệt của Apple và chính s�
 | Chủ đề | Quy tắc | Ảnh hưởng tới hệ thống |
 |---|---|---|
 | Đăng nhập | Apple 4.8: ứng dụng có đăng nhập bằng dịch vụ bên thứ ba (Google, Facebook, Zalo) phải có thêm một cách đăng nhập tương đương giữ riêng tư (Đăng nhập bằng Apple đạt); miễn khi chỉ dùng tài khoản của chính hệ thống, tài khoản do trường cấp, hoặc định danh điện tử của nhà nước | Hiện dùng tài khoản trường cấp: được miễn; nếu thêm đăng nhập bằng định danh điện tử của nhà nước cũng được miễn. Nếu thêm đăng nhập Google, Zalo cho phụ huynh thì phải thêm Đăng nhập bằng Apple |
-| Thanh toán nội dung số | Apple 3.1.1, Google Play Payments: mua nội dung số, tính năng dùng trong ứng dụng (gói Gia sư AI, lượt mua thêm) ngay trong ứng dụng phải qua thanh toán trong ứng dụng của Apple, Google; không được đặt nút, liên kết dẫn ra thanh toán ngoài (trừ vùng được phép theo luật địa phương). Dịch vụ bán cho tổ chức (Apple 3.1.3(c)) và dịch vụ người dạy người theo thời gian thực (3.1.3(d)) có ngoại lệ | MH-598 "Mua trực tiếp" (mã QR, thẻ) không đặt được trong ứng dụng cài từ cửa hàng. Cần chọn: dùng thanh toán trong ứng dụng cho mua trực tiếp, hoặc ứng dụng gốc chỉ cho "Mua qua trường" và ẩn mua trực tiếp; "Mua qua trường" là phụ huynh trả qua hóa đơn của trường, cần hỏi Apple, Google trước khi nộp vì không chắc thuộc ngoại lệ bán cho tổ chức |
+| Thanh toán nội dung số (Q-384-4) | Apple 3.1.1, Google Play Payments: mua nội dung số, tính năng dùng trong ứng dụng (gói Gia sư AI, lượt mua thêm) ngay trong ứng dụng phải qua thanh toán trong ứng dụng của Apple, Google; không được đặt nút, liên kết dẫn ra thanh toán ngoài (trừ vùng được phép theo luật địa phương). Dịch vụ bán cho tổ chức (Apple 3.1.3(c)) và dịch vụ người dạy người theo thời gian thực (3.1.3(d)) có ngoại lệ | MH-598 "Mua trực tiếp" (mã QR, thẻ) không đặt được trong ứng dụng cài từ cửa hàng. Cần chọn: dùng thanh toán trong ứng dụng cho mua trực tiếp, hoặc ứng dụng gốc chỉ cho "Mua qua trường" và ẩn mua trực tiếp; "Mua qua trường" là phụ huynh trả qua hóa đơn của trường, cần hỏi Apple, Google trước khi nộp vì không chắc thuộc ngoại lệ bán cho tổ chức |
 | Trẻ em | Apple 1.3, 5.1.4: ứng dụng dành cho trẻ không dùng quảng cáo, phân tích của bên thứ ba, có cổng phụ huynh trước liên kết ra ngoài và mua hàng. Google Play chính sách Gia đình: khai độ tuổi mục tiêu; nếu có trẻ dưới 13 tuổi thì chỉ dùng thư viện quảng cáo, phân tích đã chứng nhận, không thu mã định danh quảng cáo | Ứng dụng học sinh: không thêm thư viện phân tích, quảng cáo bên thứ ba; mở liên kết ngoài, mua gói phải qua phụ huynh (đã đúng hướng MH-596 "Gửi lời nhờ cha mẹ") |
 | Dữ liệu cá nhân | Nhãn quyền riêng tư (Apple), mục An toàn dữ liệu (Google) phải khai đúng dữ liệu thu; Apple 5.1.2(i): báo rõ và xin đồng ý khi gửi dữ liệu cá nhân tới dịch vụ AI bên thứ ba. Việt Nam: Nghị định 13/2023/NĐ-CP và Luật Bảo vệ dữ liệu cá nhân năm 2025: xử lý dữ liệu của trẻ từ đủ 7 tuổi cần đồng ý của trẻ và cha mẹ | Gia sư AI: màn hình đồng ý của phụ huynh trước khi con dùng (MH-598 đã có câu "Đăng ký là đồng ý…"), chặn tên, số điện thoại trước khi gửi (MH-597 đã có), khai dịch vụ AI dùng trong nhãn quyền riêng tư |
 | Xóa tài khoản | Apple 5.1.1(v), Google Play: ứng dụng cho tạo tài khoản phải cho xóa tài khoản từ trong ứng dụng; Google còn yêu cầu đường dẫn web để yêu cầu xóa | Tài khoản do trường cấp: cần luồng "Yêu cầu xóa tài khoản" gửi tới trường; chưa có trong hệ thống, là chức năng mới cần phiếu riêng trước khi nộp |
 | Chức năng tối thiểu | Apple 4.2: ứng dụng chỉ bọc trang web dễ bị từ chối | P2 phải có chức năng gốc: đẩy thông báo, sinh trắc học, quét mã bằng máy ảnh, làm việc khi mất mạng (điểm danh XL-05) |
 | Đẩy thông báo | Xin quyền đúng lúc, nói rõ lợi ích; Android 13 trở lên phải xin quyền | Màn "Cài đặt thông báo" (MH-348) là nơi xin quyền |
 
-## 9. Câu hỏi chờ Eric quyết
+## 9. Câu hỏi đã có quyết định
 
-| Mã | Câu hỏi | Phương án đề xuất |
-|---|---|---|
-| Q-384-1 | "Hành chính hiện đại" cho cổng quản trị theo biến thể nào: thanh bên xanh đậm như cổng đang dùng (bản đã trình), hay kiểu Sở (dải xanh #0A3D7A viền đỏ, tiêu đề chữ có chân viết hoa, bảng kẻ ô)? Bản mẫu có công tắc "Biến thể hành chính" để so sánh | Thanh bên xanh đậm: đã duyệt hai lần (28, 29/10), dày thông tin, đọc nhanh; kiểu Sở hợp chào bán cho Phòng, Sở nhưng tiêu đề viết hoa chữ có chân đọc chậm hơn |
-| Q-384-2 | Có định nghĩa sẵn giá trị chế độ tối trong `tokens.json` (chưa bật) không? | Có: chi phí nhỏ ở L1, tránh sửa lại khi làm ứng dụng gốc |
-| Q-384-3 | Phương án ứng dụng Android, iOS | P2 Capacitor (tiếp tục DT-26) |
-| Q-384-4 | Gói Gia sư AI trong ứng dụng cài từ cửa hàng | Hỏi Apple, Google về "Mua qua trường" trước khi nộp; nếu không được miễn thì dùng thanh toán trong ứng dụng cho mua trực tiếp |
+Eric trả lời ngày 2026-10-30. Bản mẫu đã bỏ công tắc biến thể kiểu Sở sau Q-384-1.
+
+| Mã | Câu hỏi | Phương án đề xuất | Quyết định |
+|---|---|---|---|
+| Q-384-1 | "Hành chính hiện đại" cho cổng quản trị theo biến thể nào: thanh bên xanh đậm như cổng đang dùng (bản đã trình), hay kiểu Sở (dải xanh #0A3D7A viền đỏ, tiêu đề chữ có chân viết hoa, bảng kẻ ô)? Bản mẫu có công tắc "Biến thể hành chính" để so sánh | Thanh bên xanh đậm: đã duyệt hai lần (28, 29/10), dày thông tin, đọc nhanh; kiểu Sở hợp chào bán cho Phòng, Sở nhưng tiêu đề viết hoa chữ có chân đọc chậm hơn | Thanh bên xanh đậm |
+| Q-384-2 | Có định nghĩa sẵn giá trị chế độ tối trong `tokens.json` (chưa bật) không? | Có: chi phí nhỏ ở L1, tránh sửa lại khi làm ứng dụng gốc | Định nghĩa sẵn, chưa bật |
+| Q-384-3 | Phương án ứng dụng Android, iOS | P2 Capacitor (tiếp tục DT-26) | Capacitor đóng gói |
+| Q-384-4 | Gói Gia sư AI trong ứng dụng cài từ cửa hàng | Hỏi Apple, Google về "Mua qua trường" trước khi nộp; nếu không được miễn thì dùng thanh toán trong ứng dụng cho mua trực tiếp | Mua trực tiếp, thanh toán bằng mã QR trong ứng dụng gốc. Rủi ro: Apple 3.1.1, Google Play Payments yêu cầu thanh toán trong ứng dụng cho nội dung số; có thể bị từ chối khi nộp. Kiểm lại với quy tắc mới nhất ở 26h trước khi nộp |
 
 ## 10. Rủi ro
 

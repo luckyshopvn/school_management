@@ -21,6 +21,7 @@ phien_ban_de_xuat: không
 
 - Eric ngày 2026-10-30: cổng quản trị trường và cổng vận hành theo phong cách "Hành chính hiện đại"; ứng dụng giáo viên, phụ huynh, học sinh theo phong cách "Thân thiện theo vai" với màu nhấn giáo viên #0F6B5F, phụ huynh #1F5FA8, học sinh #6D28D9; menu cổng quản trị giữ số thứ bậc.
 - Eric ngày 2026-10-30: mọi chức năng dùng được đầy đủ ở máy tính, máy tính bảng, điện thoại; hệ thiết kế dùng lại được cho ứng dụng Android, iOS (chỉ thiết kế, đề xuất); chợ gia sư tách sang kho riêng và chương trình gia sư trong trường (DT-27) bỏ, nên không thuộc việc này; thêm Gia sư AI.
+- Eric ngày 2026-10-30 (Q-384-1 đến Q-384-4): phong cách hành chính theo thanh bên xanh đậm như cổng đang dùng; định nghĩa sẵn giá trị chế độ tối, chưa bật; ứng dụng Android, iOS về sau theo phương án Capacitor đóng gói; gói Gia sư AI trong ứng dụng cài từ cửa hàng bán trực tiếp, thanh toán bằng mã QR (rủi ro bị từ chối theo quy tắc thanh toán nội dung số của Apple, Google, ghi ở đặc tả mục 8.4).
 
 #### Thay đổi
 
@@ -28,7 +29,8 @@ phien_ban_de_xuat: không
 
 #### Vấn đề tồn đọng
 
-- Chờ Eric duyệt bản mẫu, danh sách lát và bốn câu hỏi Q-384-1 đến Q-384-4; chưa viết mã giao diện.
+- Chờ Eric duyệt bản mẫu và danh sách lát; chưa viết mã giao diện.
+- Thanh toán gói Gia sư AI bằng mã QR trong ứng dụng cài từ cửa hàng có thể bị Apple, Google từ chối; kiểm lại trước khi nộp (DT-26 phần 26h).
 
 ## 24 Yêu cầu thay đổi
 

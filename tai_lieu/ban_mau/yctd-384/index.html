@@ -9,7 +9,7 @@
      Mở thẳng tệp bằng trình duyệt. Thanh trên cùng chọn màn hình, khổ, trạng thái; khung dùng container query nên cùng một trang
      hiện đúng bố cục máy tính 1366, máy tính bảng 1024, điện thoại 390 điểm ảnh. -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&family=Noto+Serif:ital,wght@0,700;1,400&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&family=Noto+Serif:ital@1&display=swap" rel="stylesheet">
 <style>
   /* ===== Biến chung (đề xuất tài liệu 15, YCTD-384) ===== */
   :root {
@@ -327,18 +327,6 @@
   }
   .the-dong input[type=checkbox] { display: none; }
 
-  /* ===== Biến thể "kiểu Sở" của phong cách hành chính (để Eric so sánh) =====
-     Theo định nghĩa "Hành chính hiện đại" trong ảnh phác của phiên điều phối: dải xanh #0A3D7A viền đỏ, tiêu đề chữ có chân viết hoa,
-     bảng kẻ ô như biểu mẫu, góc vuông. Không dùng quốc huy, quốc kỳ. */
-  .bien-the-so .pc-hanh-chinh { --side: #0a3d7a; --side-on: #072d5c; --accent: #0a3d7a; --accent-strong: #072d5c; --accent-soft: #e8ecf2; --radius-sm: 2px; --radius-lg: 4px; --radius-pill: 2px; --border: #cfd4dc; --page: #f2f3f5; }
-  .bien-the-so .hc-top { border-bottom: 3px solid #c8102e; }
-  .bien-the-so .hc-muc.chon { box-shadow: inset 4px 0 0 #c9a227; }
-  .bien-the-so .tieu-de-trang h1 { font-family: 'Noto Serif', Georgia, serif; text-transform: uppercase; color: #0a3d7a; letter-spacing: .02em; font-size: 22px; }
-  .bien-the-so .pc-hanh-chinh table td, .bien-the-so .pc-hanh-chinh table th { border: 1px solid #cfd4dc; }
-  .bien-the-so .pc-hanh-chinh th { background: #e8ecf2; color: #1a1f29; text-align: center; }
-  .bien-the-so .badge { border-radius: 2px; }
-  @container khung (max-width: 767px) { .bien-the-so .hc-top { background: #0a3d7a; } }
-
   @container khung (min-width: 1024px) {
     .tv { grid-template-columns: 240px 1fr; }
     .tv-side { display: flex; flex-direction: column; gap: 4px; padding: 16px 12px; background: var(--card); border-right: 1px solid var(--border); }
@@ -358,7 +346,6 @@
   <label>Màn hình <select id="chon-man"></select></label>
   <label>Khổ <select id="chon-kho"><option value="1366">Máy tính 1366</option><option value="1024">Máy tính bảng 1024</option><option value="390">Điện thoại 390</option></select></label>
   <label>Trạng thái <select id="chon-tt"><option value="du-lieu">Có dữ liệu</option><option value="rong">Rỗng</option><option value="tai">Đang tải</option><option value="loi">Lỗi</option><option value="quyen">Không có quyền</option><option value="thanh-cong">Thao tác thành công</option></select></label>
-  <label>Biến thể hành chính <select id="chon-bt"><option value="thanh-ben">Thanh bên xanh đậm (bản đã trình)</option><option value="so">Kiểu Sở: dải xanh viền đỏ, tiêu đề có chân</option></select></label>
   <span class="bm-note" id="ghi-chu"></span>
 </div>
 <div class="bm-stage"><div class="bm-frame" id="khung"></div></div>
@@ -802,18 +789,16 @@ const thamSo = new URLSearchParams(location.hash.slice(1));
 if (thamSo.get('man')) chonMan.value = thamSo.get('man');
 if (thamSo.get('kho')) document.getElementById('chon-kho').value = thamSo.get('kho');
 if (thamSo.get('tt')) document.getElementById('chon-tt').value = thamSo.get('tt');
-if (thamSo.get('bt')) document.getElementById('chon-bt').value = thamSo.get('bt');
 function ve() {
-  const ma = chonMan.value, kho = document.getElementById('chon-kho').value, tt = document.getElementById('chon-tt').value, bt = document.getElementById('chon-bt').value;
+  const ma = chonMan.value, kho = document.getElementById('chon-kho').value, tt = document.getElementById('chon-tt').value;
   const khung = document.getElementById('khung');
   khung.dataset.kho = kho;
-  khung.classList.toggle('bien-the-so', bt === 'so');
   khung.style.width = (Number(kho) + (kho === '390' ? 16 : 0)) + 'px';
   khung.innerHTML = MAN[ma].ve(tt);
   document.getElementById('ghi-chu').textContent = MAN[ma].ghi;
-  history.replaceState(null, '', `#man=${ma}&kho=${kho}&tt=${tt}&bt=${bt}`);
+  history.replaceState(null, '', `#man=${ma}&kho=${kho}&tt=${tt}`);
 }
-for (const id of ['chon-man', 'chon-kho', 'chon-tt', 'chon-bt']) document.getElementById(id).addEventListener('change', ve);
+for (const id of ['chon-man', 'chon-kho', 'chon-tt']) document.getElementById(id).addEventListener('change', ve);
 ve();
 </script>
 </body>

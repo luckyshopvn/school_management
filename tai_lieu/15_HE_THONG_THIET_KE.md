@@ -142,7 +142,7 @@ Dùng chung hai phong cách:
 | GT-03 | Vùng an toàn: trang đặt `viewport-fit=cover`; thanh đầu, thanh dưới, thanh thao tác, ngăn dưới cộng `env(safe-area-inset-*)` |
 | GT-04 | Điều hướng: thanh dưới tối đa 5 mục; màn con có nút quay lại ở đầu trang; vuốt mép trái (iOS) và nút quay lại (Android) đóng ngăn, hộp thoại trước rồi mới về màn trước |
 | GT-05 | Cử chỉ chỉ là cách thêm: kéo xuống tải lại danh sách, nhấn giữ để chọn nhiều; mọi việc làm được bằng nút |
-| GT-06 | Chế độ tối: phiên bản 1.0 chưa có (Q-85); mỗi biến PC-* có thể kèm giá trị tối trong `tokens.json`, chưa bật (chờ Eric quyết Q-384-2) |
+| GT-06 | Chế độ tối: phiên bản 1.0 chưa có (Q-85); mỗi biến PC-* có giá trị tối định nghĩa sẵn trong `tokens.json`, chưa bật (Eric quyết ngày 2026-10-30, Q-384-2) |
 
 ## 3. Chữ
 
