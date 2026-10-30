@@ -1,8 +1,15 @@
-import { Injectable } from '@nestjs/common';
-import type { SchoolYearDatabase, SystemDatabase } from '@school-management/database';
+import { Inject, Injectable, Optional } from '@nestjs/common';
+import {
+  aiPricingReady,
+  readPlanAiPricingByCode,
+  type SchoolYearDatabase,
+  type SystemDatabase,
+  type TenancyRuntime,
+} from '@school-management/database';
 import {
   ApplicationError,
   Clock,
+  currentTenant,
   ruleViolationError,
   validationError,
   type FieldError,
@@ -10,6 +17,7 @@ import {
 import { sql, type Kysely, type Selectable } from 'kysely';
 import type { CurrentUser } from '../authentication/current-user.js';
 import { actorNameOf, writeAuditLog, type ChangeOrigin } from '../common/audit-log.js';
+import { TENANCY_RUNTIME } from '../common/configuration.js';
 import { CurrentSchoolYearResolver } from '../common/current-school-year.js';
 import { Databases } from '../common/databases.js';
 import { isUuid, notFoundError, type RequestBody } from '../common/request-fields.js';
@@ -119,10 +127,28 @@ export class AiTutorSchoolSalesService {
     private readonly databases: Databases,
     private readonly currentSchoolYear: CurrentSchoolYearResolver,
     private readonly clock: Clock,
+    @Optional() @Inject(TENANCY_RUNTIME) private readonly tenancy: TenancyRuntime | null = null,
   ) {}
 
   private get system(): SystemClient {
     return this.databases.system;
+  }
+
+  // Chặn bán khi gói dịch vụ của trường chưa đặt đơn giá AI (YCTD-383 lát L3, Eric quyết ngày 2026-10-30): token của gói trường bán tính
+  // lên hóa đơn dịch vụ bằng đúng đơn giá này (`issueInvoice`, `aiPricingReady`); chưa đặt thì nền tảng không thu được. Em đã mua trước
+  // đó vẫn dùng bình thường. Một trường (không có nền tảng, không có hóa đơn dịch vụ) thì không áp dụng
+  async salesBlockReason(): Promise<string | null> {
+    const tenant = currentTenant();
+    if (!this.tenancy || !tenant) {
+      return null;
+    }
+    const contact =
+      'Nhà trường liên hệ nền tảng để đặt đơn giá AI cho gói dịch vụ rồi mới bán được gói Gia sư AI của trường.';
+    if (!tenant.plan) {
+      return `Trường chưa được gán gói dịch vụ. ${contact}`;
+    }
+    const pricing = await readPlanAiPricingByCode(this.tenancy.platform, tenant.plan.code);
+    return aiPricingReady(pricing) ? null : `Gói dịch vụ của trường chưa đặt đơn giá AI. ${contact}`;
   }
 
   async settings() {
@@ -163,6 +189,7 @@ export class AiTutorSchoolSalesService {
     const countOf = new Map(counts.map((row) => [row.plan_id, Number(row.count)]));
     return {
       settings: await this.settings(),
+      sales_block_reason: await this.salesBlockReason(),
       plans: plans.map((plan) => ({ ...planView(plan), active_count: countOf.get(plan.id) ?? 0 })),
     };
   }
@@ -172,6 +199,12 @@ export class AiTutorSchoolSalesService {
     const input = parseSchoolSettings(body, errors);
     if (errors.length > 0) {
       throw validationError(errors);
+    }
+    if (input.enabled_levels.length > 0) {
+      const blocked = await this.salesBlockReason();
+      if (blocked) {
+        throw ruleViolationError('BR-475', blocked, [{ field: 'enabled_levels', message: 'ai_pricing_missing' }]);
+      }
     }
     const before = await this.settings();
     const values = {
@@ -376,7 +409,10 @@ export class AiTutorSchoolSalesService {
     const child = await this.guardianChild(currentUser, childId);
     const settings = await this.settings();
     const now = this.clock.now();
-    const enabled = child.school_level !== null && settings.enabled_levels.includes(child.school_level);
+    const enabled =
+      child.school_level !== null &&
+      settings.enabled_levels.includes(child.school_level) &&
+      (await this.salesBlockReason()) === null;
     const plans =
       enabled && child.school_level
         ? await this.system
@@ -499,6 +535,12 @@ export class AiTutorSchoolSalesService {
     const settings = await this.settings();
     if (!settings.enabled_levels.includes(child.school_level)) {
       throw ruleViolationError('BR-461', 'Trường chưa bật Gia sư AI cho cấp học của con');
+    }
+    if ((await this.salesBlockReason()) !== null) {
+      throw ruleViolationError(
+        'BR-475',
+        'Nhà trường chưa mở bán gói Gia sư AI. Cha mẹ có thể mua trực tiếp từ nền tảng.',
+      );
     }
     if (!isUuid(planId)) {
       throw validationError([{ field: 'plan_id', message: 'Chọn gói' }]);

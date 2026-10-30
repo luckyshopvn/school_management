@@ -33,6 +33,8 @@ import { Databases } from '../common/databases.js';
 import { isUuid, notFoundError, type RequestBody } from '../common/request-fields.js';
 import { studentChildOf } from '../common/student-account.js';
 import { aiTutorAccess, type AiTutorAccess } from './ai-tutor-access.js';
+import { activeExamFor, openBlockedAssignmentFor, quietWindowOf } from './ai-tutor-locks.js';
+import { AiTutorSafetyFlagService } from './safety-flags.js';
 import { vietnamMonthOf, type AiTutorSchoolLevel } from './ai-tutor-rules.js';
 import {
   aiTutorTurnBalance,
@@ -89,7 +91,7 @@ interface StudentContext {
   schoolLevel: AiTutorSchoolLevel | null;
   gradeLevelCode: string;
   className: string | null;
-  access: AiTutorAccess;
+  classId: string | null;
   readOnly: boolean;
 }
 
@@ -137,11 +139,14 @@ const NO_TURNS_MESSAGE = 'Em đã dùng hết lượt hỏi. Nhờ cha mẹ mua 
 
 @Injectable()
 export class AiTutorChatService {
+  private readonly logger = new Logger(AiTutorChatService.name);
+
   constructor(
     private readonly databases: Databases,
     private readonly currentSchoolYear: CurrentSchoolYearResolver,
     private readonly clock: Clock,
     @Inject(AI_PROVIDERS) private readonly providers: AiProviderRegistry,
+    private readonly safetyFlags: AiTutorSafetyFlagService,
     @Optional() @Inject(TENANCY_RUNTIME) private readonly tenancy: TenancyRuntime | null = null,
   ) {}
 
@@ -163,7 +168,7 @@ export class AiTutorChatService {
     const enrollment = await database
       .selectFrom('class_enrollments')
       .innerJoin('classes', 'classes.id', 'class_enrollments.class_id')
-      .select(['classes.name', 'classes.school_level', 'classes.grade_level'])
+      .select(['classes.id', 'classes.name', 'classes.school_level', 'classes.grade_level'])
       .where('class_enrollments.child_id', '=', account.id)
       .where('class_enrollments.is_current', '=', true)
       .executeTakeFirst();
@@ -174,9 +179,29 @@ export class AiTutorChatService {
       schoolLevel: asAiTutorLevel(enrollment?.school_level),
       gradeLevelCode: enrollment?.grade_level ?? '',
       className: enrollment?.name ?? null,
-      access: aiTutorAccess({ readOnly }),
+      classId: enrollment?.id ?? null,
       readOnly,
     };
+  }
+
+  // Khóa của lát L3 kiểm ở máy chủ mỗi lần xem trang và trước khi giữ lượt (câu bị khóa không trừ lượt)
+  private async accessOf(context: StudentContext, now: Date): Promise<AiTutorAccess> {
+    if (context.readOnly) {
+      return aiTutorAccess({ readOnly: true, exam: null, blockedAssignment: null, quietStart: '', quietEnd: '', now });
+    }
+    const [exam, blockedAssignment, quiet] = await Promise.all([
+      activeExamFor(context.database, { childId: context.childId, classId: context.classId }, now),
+      openBlockedAssignmentFor(context.database, context.childId, now),
+      quietWindowOf(this.system),
+    ]);
+    return aiTutorAccess({
+      readOnly: false,
+      exam,
+      blockedAssignment,
+      quietStart: quiet.start,
+      quietEnd: quiet.end,
+      now,
+    });
   }
 
   // Chỉ khóa AI của nền tảng (Q8): thiếu ngữ cảnh nền tảng, khóa chưa bật hoặc nhà cung cấp chưa hỗ trợ thì không dùng được
@@ -242,10 +267,11 @@ export class AiTutorChatService {
   async overview(currentUser: CurrentUser) {
     const context = await this.student(currentUser);
     const now = this.clock.now();
-    const [balance, subjects, resolved] = await Promise.all([
+    const [balance, subjects, resolved, access] = await Promise.all([
       this.balance(context.childId, now),
       this.subjects(context),
       this.resolve(),
+      this.accessOf(context, now),
     ]);
     // Phiên xem hỗ trợ không thấy hội thoại của em (riêng tư của học sinh)
     const conversations = context.readOnly
@@ -268,7 +294,7 @@ export class AiTutorChatService {
         grade_level_code: context.gradeLevelCode,
         class_name: context.className,
       },
-      access: context.access,
+      access,
       ready: unavailable === null,
       unavailable_reason: unavailable,
       balance: {
@@ -389,9 +415,10 @@ export class AiTutorChatService {
 
   async send(currentUser: CurrentUser, body: RequestBody) {
     const context = await this.student(currentUser);
-    if (!context.access.allowed) {
-      throw ruleViolationError(TUTOR_RULES.turns, context.access.message, [
-        { field: 'lock', message: context.access.code },
+    const access = await this.accessOf(context, this.clock.now());
+    if (!access.allowed) {
+      throw ruleViolationError(TUTOR_RULES.turns, `${access.title} ${access.message}`, [
+        { field: 'lock', message: access.code },
       ]);
     }
     if (!context.schoolLevel) {
@@ -451,6 +478,12 @@ export class AiTutorChatService {
         throw error;
       }
       const stored = await this.store(context, conversation, subject, request, outcome, hold.entryId, now);
+      if (outcome.studentModeration === 'self_harm' || outcome.studentModeration === 'bullying') {
+        // Lỗi khi báo không làm hỏng câu trả lời của em: việc nền báo lại cờ chưa báo
+        await this.safetyFlags
+          .notifyPending(context.database, this.clock.now())
+          .catch((error: unknown) => this.logger.warn(`Chưa báo được cờ cảnh báo của gia sư AI: ${String(error)}`));
+      }
       const settledAt = this.clock.now();
       settled = outcome.capture
         ? await captureAiTutorTurn(this.system, hold.entryId, settledAt)
@@ -804,10 +837,12 @@ export class AiTutorChatService {
     return Number(deleted.numDeletedRows);
   }
 
-  async maintain(now: Date = this.clock.now()): Promise<{ released: number; purged: number }> {
+  async maintain(now: Date = this.clock.now()): Promise<{ released: number; purged: number; notified: number }> {
     const released = await releaseStaleAiTutorHolds(this.system, now);
     const purged = await this.purgeExpired(now);
-    return { released, purged };
+    // Cờ cảnh báo chưa báo được lúc em gửi (lỗi tạm thời) thì báo lại ở đây
+    const notified = await this.safetyFlags.notifyPending(null, now);
+    return { released, purged, notified };
   }
 }
 
@@ -828,9 +863,9 @@ export class AiTutorChatMaintenanceJob implements OnApplicationBootstrap {
         intervalSeconds: MAINTENANCE_JOB_SECONDS,
         run: async () => {
           const result = await this.chat.maintain();
-          if (result.released > 0 || result.purged > 0) {
+          if (result.released > 0 || result.purged > 0 || result.notified > 0) {
             this.logger.log(
-              `Gia sư AI: hoàn ${result.released} lượt tạm giữ quá hạn, xóa ${result.purged} tin nhắn quá hạn giữ`,
+              `Gia sư AI: hoàn ${result.released} lượt tạm giữ quá hạn, xóa ${result.purged} tin nhắn quá hạn giữ, báo ${result.notified} cờ cảnh báo`,
             );
           }
         },
