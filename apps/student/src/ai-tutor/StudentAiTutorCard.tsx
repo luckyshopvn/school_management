@@ -1,10 +1,12 @@
 import { useEffect, useState } from 'react';
 import { Alert, Button } from '@school-management/ui';
 import { readTutorOverview, type TutorOverview } from './ai-tutor-api.js';
+import { ParentRequestButton } from './ParentRequestButton.js';
 import { TurnMeter } from './TurnMeter.js';
 
 // Thẻ "Gia sư AI" ở trang chủ của em (YCTD-383 lát L2, MH-596): chưa có gói thì nhờ cha mẹ đăng ký trong ứng dụng phụ huynh; có gói thì
-// thấy số lượt còn lại và mở trang trò chuyện. Học sinh Mầm non hoặc chưa xếp lớp thì không hiện thẻ
+// thấy số lượt còn lại và mở trang trò chuyện. Học sinh Mầm non hoặc chưa xếp lớp thì không hiện thẻ. Lát L5: chưa có gói hoặc hết lượt
+// thì có nút "Gửi lời nhờ cha mẹ"
 export function StudentAiTutorCard({ onOpen }: { onOpen(): void }) {
   const [overview, setOverview] = useState<TutorOverview | null>(null);
 
@@ -36,6 +38,7 @@ export function StudentAiTutorCard({ onOpen }: { onOpen(): void }) {
       ) : (
         <Alert tone="warning">Em chưa có gói. Nhờ cha mẹ đăng ký Gia sư AI trong ứng dụng phụ huynh.</Alert>
       )}
+      <ParentRequestButton key={JSON.stringify(overview.parent_request)} initial={overview.parent_request} />
       {overview.subscribed && overview.unavailable_reason ? (
         <Alert tone="info">{overview.unavailable_reason}</Alert>
       ) : null}
