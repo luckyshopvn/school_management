@@ -64,6 +64,18 @@ export function useSchoolLevelTerms(): SchoolLevelTerms {
   return useWorkingSchoolLevels().terms;
 }
 
+// Có cấp Mầm non trong các cấp đang làm việc, hoặc các cấp được xem với trang cấu hình chung của trường: nút, ô, câu chỉ
+// dành cho Mầm non (cân đo 4.3, phần mềm học của 4.1.10) ẩn khi không có (YCTD-394)
+export function useHasPreschool(scope: 'working' | 'visible' = 'working'): boolean {
+  const levels = useWorkingSchoolLevels();
+  return levels[scope].some((level) => level.code === 'MN');
+}
+
+// Người học viết thường để đặt giữa câu ("trẻ", "học sinh") (YCTD-394)
+export function useLearnerWord(): string {
+  return useSchoolLevelTerms().learner.toLocaleLowerCase('vi');
+}
+
 function saveWorkingSchoolLevel(code: SchoolLevelCode | null): Promise<{ working_school_level: string | null }> {
   return requestJson('/api/v1/auth/me/working-school-level', {
     method: 'PUT',

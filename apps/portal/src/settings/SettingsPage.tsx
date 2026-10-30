@@ -8,6 +8,7 @@ import { AppShell } from '../pages/AppShell.js';
 import { menuPageTitle } from '../pages/page-title.js';
 import { useHasPermission } from '../session/permissions.js';
 import { SchoolLevelsBlock } from '../school-levels/SchoolLevelsBlock.js';
+import { useHasPreschool } from '../school-levels/working-level.js';
 import { ConductSettingsBlock } from '../conduct/ConductSettingsBlock.js';
 import { TeachingToolsSettingsBlock } from './TeachingToolsSettingsBlock.js';
 import {
@@ -272,7 +273,8 @@ function FieldHint({ children }: { children: ReactNode }) {
 }
 
 // Khối "Cấu hình trường" theo mục 1.4 của Sở (DT-16 phần 16e): tên trường hiển thị (thanh đầu trang, trang đăng nhập), tên
-// đơn vị hành chính, tính cân nặng/chiều cao cho trẻ suy dinh dưỡng thể nhẹ cân (4.3.2); đặt ở Trường chính, nút Ghi
+// đơn vị hành chính, tính cân nặng/chiều cao cho trẻ suy dinh dưỡng thể nhẹ cân (4.3.2, chỉ hiện khi trường có cấp Mầm non,
+// YCTD-394); đặt ở Trường chính, nút Ghi
 function SchoolSettingsBlock({
   rootId,
   editable,
@@ -304,6 +306,7 @@ function SchoolSettingsForm({
   editable: boolean;
   onSaved(message: string): void;
 }) {
+  const hasPreschool = useHasPreschool('visible');
   const queryClient = useQueryClient();
   const text = (key: string) => {
     const value = settings.find((setting) => setting.key === key)?.unit_value;
@@ -354,18 +357,22 @@ function SchoolSettingsForm({
           onChange={(event) => setUnitName(event.target.value)}
         />
       </FormRow>
-      <FormRow label="Cân nặng, chiều cao">
-        <label className="flex items-center gap-2 text-content text-text">
-          <input
-            type="checkbox"
-            checked={underweight}
-            disabled={!editable}
-            onChange={(event) => setUnderweight(event.target.checked)}
-          />
-          Tính cân nặng/chiều cao cho trẻ suy dinh dưỡng thể nhẹ cân
-        </label>
-      </FormRow>
-      <FieldHint>Bỏ tích thì trẻ nhẹ cân không xếp kênh gầy còm, thừa cân, béo phì ở 4.3.2.</FieldHint>
+      {hasPreschool ? (
+        <>
+          <FormRow label="Cân nặng, chiều cao">
+            <label className="flex items-center gap-2 text-content text-text">
+              <input
+                type="checkbox"
+                checked={underweight}
+                disabled={!editable}
+                onChange={(event) => setUnderweight(event.target.checked)}
+              />
+              Tính cân nặng/chiều cao cho trẻ suy dinh dưỡng thể nhẹ cân
+            </label>
+          </FormRow>
+          <FieldHint>Bỏ tích thì trẻ nhẹ cân không xếp kênh gầy còm, thừa cân, béo phì ở 4.3.2.</FieldHint>
+        </>
+      ) : null}
       {editable ? (
         <div>
           <Button variant="primary" onClick={() => save.mutate()} disabled={save.isPending}>

@@ -6,6 +6,7 @@ import { messageOf } from '../imports/import-api.js';
 import { AppShell } from '../pages/AppShell.js';
 import { useGridSettings } from '../pages/grid-settings.js';
 import { menuPageTitle } from '../pages/page-title.js';
+import { useHasPreschool } from '../school-levels/working-level.js';
 import { useHasPermission } from '../session/permissions.js';
 import { useStudentClassFilter } from './StudentClassFilter.js';
 import {
@@ -195,14 +196,17 @@ export function LearningAccountsGrid({ onChanged }: { onChanged(message: string)
 export function LearningAccountsPage() {
   const [toastMessage, setToastMessage] = useState<string>();
   const closeToast = useCallback(() => setToastMessage(undefined), []);
+  const hasPreschool = useHasPreschool();
   return (
     <AppShell>
       <Toast message={toastMessage} onClose={closeToast} />
       <div className="flex flex-col gap-6">
         <h1 className="text-page-title font-bold text-text">{menuPageTitle('/learning-accounts')}</h1>
         <p className="text-label text-text-secondary">
-          Tài khoản lưu nội bộ trên hệ thống của trường; học sinh mầm non chưa dùng phần mềm học, thi trực tuyến nên tài
-          khoản chưa dùng để đăng nhập.
+          Tài khoản lưu nội bộ trên hệ thống của trường
+          {hasPreschool
+            ? '; học sinh mầm non chưa dùng phần mềm học, thi trực tuyến nên tài khoản chưa dùng để đăng nhập.'
+            : '.'}
         </p>
         <LearningAccountsGrid onChanged={setToastMessage} />
       </div>
