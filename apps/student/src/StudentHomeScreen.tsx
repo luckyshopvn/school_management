@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { lazy, Suspense, useCallback, useEffect, useState } from 'react';
 import { InstallPrompt, PushSettingsPanel, UpdateBanner } from '@school-management/pwa';
 import { Alert, Button, StatusBadge, type StatusTone } from '@school-management/ui';
 import { ExamRoom } from './ExamRoom.js';
@@ -8,6 +8,7 @@ import { StudentTutoringCourses } from './StudentTutoringCourses.js';
 import { StudentTutoringQuestions } from './StudentTutoringQuestions.js';
 import { StudentLivePanel } from './StudentLivePanel.js';
 import { StudentVideoPanel } from './StudentVideoPanel.js';
+import { StudentAiTutorCard } from './ai-tutor/StudentAiTutorCard.js';
 import {
   listStudentExams,
   readResult,
@@ -20,6 +21,8 @@ import {
   type StudentProfile,
 } from './student-api.js';
 import { useStudentSession } from './student-session.js';
+
+const StudentAiTutorScreen = lazy(() => import('./ai-tutor/StudentAiTutorScreen.js'));
 
 // Màn hình học sinh (DT-23 phần 23a, YCTD-211): danh sách bài được giao và hạn, làm bài, xem kết quả theo chế độ giáo viên chọn,
 // đổi mật khẩu ở lần đầu đăng nhập. Học sinh chỉ thấy dữ liệu của chính mình
@@ -79,6 +82,8 @@ export function StudentHomeScreen() {
   const [errorMessage, setErrorMessage] = useState<string>();
   const [room, setRoom] = useState<StudentExamItem>();
   const [result, setResult] = useState<AttemptResult>();
+  // Gia sư AI (YCTD-383 lát L2): trang trò chuyện thay trang chủ, tải riêng vì có thư viện công thức
+  const [tutorOpen, setTutorOpen] = useState(false);
 
   const load = useCallback(async () => {
     try {
@@ -105,6 +110,14 @@ export function StudentHomeScreen() {
     } catch (error) {
       setErrorMessage(messageOf(error));
     }
+  }
+
+  if (tutorOpen) {
+    return (
+      <Suspense fallback={<div className="min-h-screen animate-pulse bg-page" aria-busy="true" />}>
+        <StudentAiTutorScreen onClose={() => setTutorOpen(false)} />
+      </Suspense>
+    );
   }
 
   if (room) {
@@ -138,6 +151,7 @@ export function StudentHomeScreen() {
       <PushSettingsPanel application="student" base={import.meta.env.BASE_URL} request={requestStudentJson} />
       {errorMessage ? <Alert tone="danger">{errorMessage}</Alert> : null}
       {result ? <ResultPanel result={result} onClose={() => setResult(undefined)} /> : null}
+      <StudentAiTutorCard onOpen={() => setTutorOpen(true)} />
       <section aria-label="Bài thi được giao" className="flex flex-col gap-3">
         <h2 className="text-label font-semibold text-text">Bài thi được giao</h2>
         {items?.length === 0 ? <Alert tone="info">Hiện chưa có bài thi nào được giao cho em.</Alert> : null}

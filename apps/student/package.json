@@ -14,8 +14,12 @@
     "@school-management/shared": "workspace:*",
     "@school-management/ui": "workspace:*",
     "@vladmandic/face-api": "1.7.15",
+    "katex": "^0.16.47",
     "react": "^19.2.0",
-    "react-dom": "^19.2.0"
+    "react-dom": "^19.2.0",
+    "react-markdown": "^10.1.0",
+    "rehype-katex": "^7.0.1",
+    "remark-math": "^6.0.0"
   },
   "devDependencies": {
     "@school-management/config": "workspace:*",

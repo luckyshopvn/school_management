@@ -61,6 +61,8 @@ export const OPERATOR_PERMISSIONS = {
   'market.review': ['quan_tri', 'ho_tro'],
   'market.safety': ['quan_tri', 'ho_tro'],
   'market.payments': ['quan_tri', 'ke_toan'],
+  // Gia sư AI nền tảng bán thẳng cho phụ huynh: gói, giao dịch, biên lai, hủy, hoàn tiền (YCTD-383 lát L1b)
+  'ai-tutor.sales': ['quan_tri', 'ke_toan'],
   // Nhân viên vận hành
   'operators.manage': ADMIN,
   // Nhật ký truy cập của cổng vận hành: vào trường, khởi tạo, bật tính năng (YCTD-324)
@@ -89,6 +91,7 @@ export const OPERATOR_MENU_CAPABILITIES: Record<string, OperatorCapability> = {
   ai: 'ai.view',
   catalog: 'catalog.view',
   market: 'market.view',
+  'ai-tutor': 'ai-tutor.sales',
   operators: 'operators.manage',
   audit: 'audit.view',
 };

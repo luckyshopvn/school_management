@@ -391,6 +391,7 @@ export type {
   SchoolDomainKind,
   SchoolDomainStatus,
   SchoolStatusValue,
+  AiUsageConfig,
 } from '../platform/schema.js';
 export type { DatabaseOptions } from './connection.js';
 export {

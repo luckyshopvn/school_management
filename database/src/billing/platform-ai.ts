@@ -1,6 +1,6 @@
 import { decryptSecret, encryptSecret } from '@school-management/server/tenancy';
 import { sql, type Kysely, type Transaction } from 'kysely';
-import type { PlatformDatabase } from '../../platform/schema.js';
+import type { AiUsageConfig, PlatformDatabase } from '../../platform/schema.js';
 import { writeAudit } from '../provision-school.js';
 import { aiPricingReady, validateAiPricing, type AiModelUsage, type AiPricing } from './ai-pricing.js';
 
@@ -297,7 +297,7 @@ export async function savePlanAiPricing(
 export interface AiUsageRow {
   usageDate: string;
   model: string;
-  config: 'school' | 'platform';
+  config: AiUsageConfig;
   requests: number;
   inputTokens: number;
   outputTokens: number;
@@ -335,7 +335,7 @@ export async function aiUsageBetween(
   schoolId: string,
   from: string,
   to: string,
-  config: 'school' | 'platform' = 'platform',
+  config: AiUsageConfig = 'platform',
 ): Promise<AiModelUsage[]> {
   const rows = await platform
     .selectFrom('ai_token_usage')

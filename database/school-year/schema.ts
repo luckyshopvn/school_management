@@ -1083,7 +1083,7 @@ export interface InvoicesTable {
 export interface InvoiceItemsTable {
   id: Generated<string>;
   invoice_id: string;
-  item_type: 'tuition' | 'service' | 'opening' | 'extracurricular' | 'tutoring';
+  item_type: 'tuition' | 'service' | 'opening' | 'extracurricular' | 'tutoring' | 'ai_tutor';
   service_id: string | null;
   service_registration_id: string | null;
   // Đăng ký ngoại khóa đã lập khoản thu (YCTD-78)
