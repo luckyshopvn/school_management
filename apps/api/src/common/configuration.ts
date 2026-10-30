@@ -5,23 +5,9 @@ import {
   type TenancyConfiguration,
 } from '@school-management/database';
 import { decodeBase64Key, readSmsProviderSettings, type SmsProviderSettings } from '@school-management/server';
-import { readProviderDefinitions, type ExternalProviderDefinition } from '@school-management/server/external-identity';
 import { PAYMENT_PROVIDER_CODES, type PaymentProviderCode } from '../finance/payment-gateway.js';
 import { readPaymentProviderSettings, type PaymentProviderSettings } from '../finance/payment-providers.js';
 import { DEFAULT_FACEBOOK_GRAPH_VERSION } from '../integrations/facebook-publisher.js';
-
-// Khóa mã hóa tệp giấy tờ của gia sư ở chợ (DT-27 phần 27g): 32 byte base64; trống là chưa bật nhận tệp
-export function readMarketFilesKey(text: string | undefined): Buffer | null {
-  const value = text?.trim();
-  if (!value) {
-    return null;
-  }
-  const key = Buffer.from(value, 'base64');
-  if (key.length !== 32) {
-    throw new Error('MARKET_FILES_KEY phải là 32 byte mã hóa base64');
-  }
-  return key;
-}
 
 // Mã cổng không có trong danh sách thì bỏ qua; mỗi mã chỉ một lần, giữ thứ tự ghi
 export function readPaymentGateways(text: string | undefined): PaymentProviderCode[] {
@@ -82,18 +68,6 @@ export interface ApiConfiguration {
   parentOrgExportRetentionDays?: number;
   // Tên miền của cổng nền tảng: số liệu cho tài khoản cấp trên chỉ phục vụ ở đây (tên miền khác 404); trống thì tắt
   platformConsoleHost?: string | null;
-  // Chợ gia sư (DT-27 phần 27f): kết nối cơ sở dữ liệu `marketplace` bằng vai trò riêng của chợ; trống là tắt chợ. Bí mật băm mã học
-  // sinh khi phụ huynh liên kết hồ sơ con ở chợ với trường (HMAC theo mã trường); trống thì không liên kết được
-  marketplaceDatabaseUrl?: string | null;
-  marketLinkSecret?: string | null;
-  // Xác minh danh tính gia sư, đăng nhập bằng OIDC ở chợ (DT-27 phần 27g): nhà cung cấp khai ở MARKET_IDENTITY_PROVIDERS (cùng dạng
-  // EXTERNAL_IDENTITY_PROVIDERS của DT-25, ứng dụng đăng ký là của chợ). Khóa 32 byte mã hóa tệp giấy tờ của gia sư (MARKET_FILES_KEY,
-  // base64); trống thì chưa nhận tệp
-  marketIdentityProviders?: ExternalProviderDefinition[];
-  marketFilesKey?: Buffer | null;
-  // Việc định kỳ của chợ gia sư (DT-27 phần 27h): nhả chỗ giữ quá hạn, giải ngân buổi hết hạn khiếu nại, chốt quyết định tranh chấp
-  // (giây, mặc định 300; 0 là tắt, kiểm thử tự gọi)
-  marketJobIntervalSeconds?: number;
   // Nguồn gốc riêng phục vụ tệp gói SCORM (DT-28 phần 28h), ví dụ https://noi-dung.he-thong.example; trống thì phục vụ ở tên miền của
   // trường (tệp vẫn ở nguồn gốc riêng nhờ CSP sandbox, không đọc được phiên, cookie của ứng dụng)
   scormContentOrigin?: string | null;
@@ -388,13 +362,6 @@ export function readConfigurationFromEnvironment(options: { multiTenant?: boolea
         ? Number(process.env.PARENT_ORG_EXPORT_RETENTION_DAYS)
         : 7,
     platformConsoleHost: process.env.PLATFORM_CONSOLE_HOST?.trim() || null,
-    marketplaceDatabaseUrl: process.env.MARKETPLACE_DATABASE_URL?.trim() || null,
-    marketLinkSecret: process.env.MARKET_LINK_SECRET?.trim() || null,
-    marketIdentityProviders: readProviderDefinitions(process.env, 'MARKET_IDENTITY'),
-    marketFilesKey: readMarketFilesKey(process.env.MARKET_FILES_KEY),
-    marketJobIntervalSeconds: process.env.MARKET_JOB_INTERVAL_SECONDS?.trim()
-      ? Number(process.env.MARKET_JOB_INTERVAL_SECONDS)
-      : 300,
     scormContentOrigin: process.env.SCORM_CONTENT_ORIGIN?.trim().replace(/\/+$/, '') || null,
     ...(process.env.INTERNAL_JOB_TOKEN?.trim() ? { schedulerSecret: process.env.INTERNAL_JOB_TOKEN.trim() } : {}),
     timetableMaxActiveRuns: Number(process.env.TIMETABLE_MAX_ACTIVE_RUNS ?? 2),

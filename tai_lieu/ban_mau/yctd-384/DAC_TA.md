@@ -65,7 +65,7 @@ Thay đổi tài liệu `14` sẽ ghi ở lát 0 sau khi duyệt:
 | Mã | Thay đổi |
 |---|---|
 | BC-02 | Giáo viên, phụ huynh, học sinh: thanh dưới 4 đến 5 mục dưới 1024 điểm ảnh, thanh bên từ 1024; mục "Tất cả" chứa mọi chức năng không có trên thanh |
-| BC-11 | Cổng quản trị: dưới 768 điểm ảnh ngăn menu từ nút "Menu chức năng"; 768 đến 1279 dải biểu tượng 72 điểm ảnh (trước: ngăn menu dưới 1280) |
+| BC-11 | Cổng quản trị: dưới 768 điểm ảnh ngăn menu từ nút "Menu chức năng"; 768 đến 1023 ngăn menu, từ 1024 thanh bên luôn hiện (trước: ngăn menu dưới 1280); không làm dải biểu tượng vì menu không có biểu tượng từng nhóm (lát L2; điều phối chọn thay Eric theo khuyến nghị ngày 2026-10-30, Eric có thể đổi) |
 | BC-18 (mới) | Mọi chức năng dùng được ở ba cỡ theo cách xử lý nhóm ở mục 3; không chức năng nào chỉ có trên máy tính |
 | TN-01 đến TN-03 | Theo KC-09: dưới 768, 768 đến 1279, từ 1280 |
 | TN-04 | Vùng chạm 44, chữ 14, chữ ô nhập 16 ở mọi khổ |

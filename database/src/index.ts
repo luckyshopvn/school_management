@@ -370,7 +370,6 @@ export type {
   VideoRoomRole,
 } from '../school-year/schema.js';
 export { DEFAULT_TAX_TABLE_ID } from '../school-year/migrations/0022_create_payrolls.js';
-export { TUTORING_PAY_ITEM_CODE } from '../school-year/migrations/0156_add_tutoring_teacher_pay.js';
 export { MEAL_SERVICE_ID } from '../school-year/migrations/0010_create_fee_catalogs.js';
 export { DEFAULT_LEDGER_ACCOUNTS, DEFAULT_POSTING_RULES } from '../school-year/migrations/0042_create_ledger.js';
 export type {
@@ -528,31 +527,6 @@ export type * from '../identity/schema-parts.generated.js';
 export type * from '../system/schema-parts.generated.js';
 export type * from '../school-year/schema-parts.generated.js';
 export type * from '../platform/schema-parts.generated.js';
-// Chợ gia sư (DT-27 phần 27f): cơ sở dữ liệu chung `marketplace`, cấu hình chợ ở cổng nền tảng
-export type * from '../marketplace/schema.js';
-export type * from '../marketplace/schema-parts.generated.js';
-export {
-  canConnect,
-  createMarketplaceConnection,
-  DEFAULT_MARKETPLACE_ROLE,
-  dropMarketplaceDatabase,
-  provisionMarketplaceDatabase,
-  type ProvisionMarketplaceRequest,
-} from './marketplace/marketplace-database.js';
-export {
-  DEFAULT_MARKET_SETTINGS,
-  DEFAULT_ROOM_TIMINGS,
-  MARKET_SETTINGS_KEY,
-  MarketSettingsError,
-  parseMarketSettings,
-  readMarketSettings,
-  REAL_PAYMENTS_BLOCKED_MESSAGE,
-  roomTimingsJson,
-  saveMarketSettings,
-  type MarketRoomTimings,
-  type MarketSettings,
-} from './marketplace/market-settings.js';
-export { startMarketplaceTestDatabase, type MarketplaceTestDatabase } from './marketplace/marketplace-test-support.js';
 export { provisionOwnedDatabase, type ProvisionOwnedDatabaseRequest } from './owned-database.js';
 export {
   DemoCatalogError,

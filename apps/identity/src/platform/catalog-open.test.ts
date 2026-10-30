@@ -327,7 +327,7 @@ describe('mở mọi trường trong danh mục và quản trị nền tảng v�
     assert.deepEqual(saved.body.addon_modules, ['ai-assistant', 'online-exam']);
     const tenant = await runtime.registry.resolveHost(`dv-98000201.${ROOT}`);
     assert.ok(tenant?.plan?.modules?.includes('ai-assistant'));
-    assert.ok(!tenant?.plan?.modules?.includes('tutoring'));
+    assert.ok(!tenant?.plan?.modules?.includes('kpi'));
     const audit = await platform.platform
       .selectFrom('platform_audit_log')
       .select('details')

@@ -132,8 +132,8 @@ export function OverviewPage({
               văn bản. Bật sẵn ở trường tự khởi tạo.
             </p>
             <p>
-              <strong>Trả phí, bật theo từng trường:</strong> trợ lý AI, thi trực tuyến, học trực tuyến, gia sư, báo cáo
-              nâng cao, tin nhắn SMS, Zalo.
+              <strong>Trả phí, bật theo từng trường:</strong> trợ lý AI, thi trực tuyến, học trực tuyến, báo cáo nâng
+              cao, tin nhắn SMS, Zalo.
             </p>
           </section>
           {canSeeAudit && overview ? (
