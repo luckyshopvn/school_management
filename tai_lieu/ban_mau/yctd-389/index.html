@@ -1,0 +1,561 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Bản mẫu điểm danh bằng camera và thẻ</title>
+<style>
+/* Giá trị lấy từ tài liệu 15 (M-01, N-01, C-01, T-01...). Dữ liệu giả, không có ảnh người thật. */
+:root {
+  --mau-chinh: #0670C0; --mau-chinh-dam: #055A9A; --lien-ket: #0369A1;
+  --nen-trang: #F5F7FA; --nen-the: #FFFFFF; --nen-chon: #E6F2FC;
+  --chu-chinh: #0F172A; --chu-phu: #475569; --chu-mo: #64748B;
+  --vien: #E2E8F0; --vien-nhan: #CBD5E1;
+  --thanh-cong: #166534; --canh-bao: #92400E; --nguy-hiem: #B91C1C; --thong-tin: #1D4ED8; --trung-tinh: #475569;
+  --nen-thanh-cong: #DCFCE7; --nen-canh-bao: #FEF3C7; --nen-nguy-hiem: #FEE2E2; --nen-thong-tin: #DBEAFE; --nen-trung-tinh: #F1F5F9;
+  --bo-goc: 8px; --bo-goc-lon: 12px;
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: #E9EDF2; color: var(--chu-chinh);
+  font: 15px/1.5 system-ui, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; }
+button, select, input { font: inherit; }
+:focus-visible { outline: 3px solid var(--lien-ket); outline-offset: 2px; }
+
+.dieu-khien { position: sticky; top: 0; z-index: 10; background: #0F172A; color: #fff; padding: 10px 16px;
+  display: flex; flex-wrap: wrap; gap: 8px 20px; align-items: center; }
+.dieu-khien strong { font-size: 15px; }
+.dieu-khien label { display: flex; gap: 6px; align-items: center; font-size: 14px; }
+.dieu-khien select { padding: 6px 8px; border-radius: 6px; border: 0; min-height: 36px; }
+.ghi-chu-ban-mau { padding: 8px 16px; font-size: 14px; color: var(--chu-phu); background: #fff; border-bottom: 1px solid var(--vien); }
+
+.san-khau { padding: 20px 16px 60px; display: flex; justify-content: center; }
+.khung { container-type: inline-size; background: var(--nen-trang); border: 1px solid var(--vien-nhan); border-radius: 14px;
+  overflow: hidden; width: 1366px; max-width: 100%; min-height: 760px; box-shadow: 0 6px 24px rgba(15,23,42,.12); }
+.khung.may-tinh-bang { width: 1024px; }
+.khung.dien-thoai { width: 390px; }
+
+/* Thanh đầu ứng dụng */
+.dau-trang { background: var(--mau-chinh); color: #fff; padding: 10px 16px; display: flex; align-items: center; gap: 12px; }
+.dau-trang .ten { font-weight: 700; color: #FFFF00; }
+.dau-trang .vi-tri { font-size: 14px; opacity: .95; }
+.dau-trang .nguoi { margin-left: auto; font-size: 14px; }
+@container (max-width: 600px) { .dau-trang .vi-tri, .dau-trang .nguoi { display: none; } }
+
+.noi-dung { padding: 20px; }
+@container (max-width: 600px) { .noi-dung { padding: 12px; } }
+h1 { font-size: 22px; margin: 0 0 4px; }
+h2 { font-size: 18px; margin: 0 0 12px; }
+h3 { font-size: 16px; margin: 0 0 8px; }
+.mo-ta { color: var(--chu-phu); margin: 0 0 16px; }
+
+.the { background: var(--nen-the); border: 1px solid var(--vien); border-radius: var(--bo-goc-lon); padding: 16px; margin-bottom: 16px; }
+.hang { display: flex; flex-wrap: wrap; gap: 8px 12px; align-items: center; }
+.gian { justify-content: space-between; }
+
+.nut { min-height: 44px; padding: 8px 16px; border-radius: var(--bo-goc); border: 1px solid var(--vien-nhan); background: #fff;
+  color: var(--chu-chinh); cursor: pointer; }
+.nut:hover { border-color: var(--chu-mo); }
+.nut.chinh { background: var(--mau-chinh); border-color: var(--mau-chinh); color: #fff; }
+.nut.chinh:hover { background: var(--mau-chinh-dam); }
+.nut.nguy-hiem { color: var(--nguy-hiem); border-color: #FCA5A5; }
+.nut.nho { min-height: 36px; padding: 4px 10px; font-size: 14px; }
+.nut[disabled] { opacity: .6; cursor: not-allowed; }
+@container (max-width: 600px) { .nut { min-height: 44px; } .nut.nho { min-height: 44px; } }
+
+.nhan { display: inline-flex; align-items: center; gap: 4px; padding: 2px 10px; border-radius: 999px; font-size: 14px; font-weight: 600; white-space: nowrap; }
+.nhan.tc { background: var(--nen-thanh-cong); color: var(--thanh-cong); }
+.nhan.cb { background: var(--nen-canh-bao); color: var(--canh-bao); }
+.nhan.ng { background: var(--nen-nguy-hiem); color: var(--nguy-hiem); }
+.nhan.tt { background: var(--nen-thong-tin); color: var(--thong-tin); }
+.nhan.tr { background: var(--nen-trung-tinh); color: var(--trung-tinh); }
+
+.dai-bao { border-radius: var(--bo-goc); padding: 10px 14px; margin-bottom: 16px; border: 1px solid; }
+.dai-bao.tt { background: var(--nen-thong-tin); border-color: #93C5FD; color: #1E3A8A; }
+.dai-bao.cb { background: var(--nen-canh-bao); border-color: #FCD34D; color: #78350F; }
+.dai-bao.ng { background: var(--nen-nguy-hiem); border-color: #FCA5A5; color: #7F1D1D; }
+.dai-bao.tc { background: var(--nen-thanh-cong); border-color: #86EFAC; color: #14532D; }
+
+.tong-hop { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; margin-bottom: 16px; }
+@container (max-width: 1100px) { .tong-hop { grid-template-columns: repeat(3, 1fr); } }
+@container (max-width: 600px) { .tong-hop { grid-template-columns: repeat(2, 1fr); } }
+.o-so { background: #fff; border: 1px solid var(--vien); border-radius: var(--bo-goc); padding: 10px 12px; }
+.o-so b { display: block; font-size: 22px; }
+.o-so span { color: var(--chu-phu); font-size: 14px; }
+
+.bang-boc { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; background: #fff; }
+th, td { text-align: left; padding: 10px 12px; border-bottom: 1px solid var(--vien); vertical-align: top; }
+th { font-size: 14px; color: var(--chu-phu); font-weight: 600; background: #F8FAFC; white-space: nowrap; }
+tr.dang-chon td { background: var(--nen-chon); }
+.chu-phu { color: var(--chu-phu); font-size: 14px; }
+.hoc-sinh { display: flex; gap: 10px; align-items: center; min-width: 0; }
+.chu-cai { flex: none; width: 36px; height: 36px; border-radius: 50%; background: #E2E8F0; color: var(--chu-phu);
+  display: grid; place-items: center; font-weight: 700; font-size: 14px; }
+.ten-dai { overflow-wrap: anywhere; }
+select.o-chon, input.o-nhap { min-height: 40px; padding: 6px 8px; border: 1px solid var(--vien-nhan); border-radius: 6px; background: #fff; }
+input.o-nhap.loi { border-color: var(--nguy-hiem); }
+.loi-o { color: var(--nguy-hiem); font-size: 14px; margin-top: 4px; }
+
+/* Bảng chuyển thành thẻ trên điện thoại */
+.danh-sach-the { display: none; }
+@container (max-width: 600px) {
+  .chi-may-tinh { display: none; }
+  .danh-sach-the { display: block; }
+}
+.the-hs { background: #fff; border: 1px solid var(--vien); border-radius: var(--bo-goc-lon); padding: 12px; margin-bottom: 10px; }
+.the-hs .hang + .hang { margin-top: 8px; }
+
+.chan-trang { position: sticky; bottom: 0; background: #fff; border-top: 1px solid var(--vien); padding: 12px 20px; display: flex; gap: 8px; justify-content: flex-end; flex-wrap: wrap; }
+@container (max-width: 600px) { .chan-trang { padding: 10px 12px; } .chan-trang .nut { flex: 1; } }
+
+.luoi-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.luoi-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+@container (max-width: 1100px) { .luoi-4 { grid-template-columns: 1fr 1fr; } }
+@container (max-width: 800px) { .luoi-2 { grid-template-columns: 1fr; } }
+@container (max-width: 600px) { .luoi-4 { grid-template-columns: 1fr; } }
+
+.lua-chon { display: block; border: 2px solid var(--vien); border-radius: var(--bo-goc-lon); padding: 12px; background: #fff; cursor: pointer; }
+.lua-chon.da-chon { border-color: var(--mau-chinh); background: var(--nen-chon); }
+.lua-chon.khoa { background: #F8FAFC; cursor: not-allowed; }
+.lua-chon input { margin-right: 6px; }
+
+.truong { margin-bottom: 12px; }
+.truong label { display: block; font-weight: 600; margin-bottom: 4px; }
+.goi-y { color: var(--chu-phu); font-size: 14px; }
+
+.cong-tac { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 12px 0; border-bottom: 1px solid var(--vien); }
+.cong-tac:last-child { border-bottom: 0; }
+.cong-tac input { width: 22px; height: 22px; flex: none; }
+
+/* Hộp xem ảnh cần xem và hộp xác nhận */
+.lop-phu { position: absolute; inset: 0; background: rgba(15,23,42,.45); display: none; align-items: center; justify-content: center; padding: 16px; }
+.lop-phu.mo { display: flex; }
+.hop { background: #fff; border-radius: var(--bo-goc-lon); padding: 20px; width: 520px; max-width: 100%; }
+.anh-gia { height: 180px; border-radius: var(--bo-goc); background: repeating-linear-gradient(45deg, #E2E8F0 0 10px, #F1F5F9 10px 20px);
+  display: grid; place-items: center; color: var(--chu-phu); text-align: center; padding: 12px; font-size: 14px; }
+.khung-ung-dung { position: relative; }
+
+.dong-thoi-gian { list-style: none; margin: 0; padding: 0; }
+.dong-thoi-gian li { display: flex; gap: 12px; padding: 12px 0; border-bottom: 1px solid var(--vien); }
+.dong-thoi-gian .gio { flex: none; width: 56px; font-weight: 700; }
+.thong-bao-day { background: #fff; border-radius: 14px; box-shadow: 0 4px 16px rgba(15,23,42,.15); padding: 12px 14px; margin-bottom: 16px; border: 1px solid var(--vien); }
+.thong-bao-day .ung-dung { font-size: 14px; color: var(--chu-phu); }
+
+.xuong { background: linear-gradient(90deg, #E2E8F0, #F1F5F9, #E2E8F0); background-size: 200% 100%; animation: chay 1.2s infinite; border-radius: 6px; height: 16px; margin: 10px 0; }
+@keyframes chay { to { background-position: -200% 0; } }
+@media (prefers-reduced-motion: reduce) { .xuong { animation: none; } }
+.trang-thai-chung { text-align: center; padding: 48px 16px; }
+.trang-thai-chung p { color: var(--chu-phu); max-width: 520px; margin: 8px auto 16px; }
+
+.thanh-tab { display: flex; gap: 4px; border-bottom: 1px solid var(--vien); margin-bottom: 16px; overflow-x: auto; }
+.thanh-tab button { border: 0; background: none; padding: 10px 14px; min-height: 44px; cursor: pointer; color: var(--chu-phu); border-bottom: 3px solid transparent; white-space: nowrap; }
+.thanh-tab button[aria-selected="true"] { color: var(--mau-chinh-dam); border-bottom-color: var(--mau-chinh-dam); font-weight: 600; }
+.an { display: none !important; }
+.toast { position: absolute; left: 50%; bottom: 80px; transform: translateX(-50%); background: #0F172A; color: #fff; padding: 10px 16px; border-radius: 8px; font-size: 14px; display: none; max-width: 90%; }
+.toast.mo { display: block; }
+</style>
+</head>
+<body>
+<div class="dieu-khien" role="region" aria-label="Điều khiển bản mẫu">
+  <strong>Bản mẫu: điểm danh bằng camera và thẻ</strong>
+  <label>Màn hình
+    <select id="chon-man-hinh">
+      <option value="diem-danh">MH-640. Điểm danh có kết quả camera, thẻ</option>
+      <option value="cau-hinh">MH-641. Cấu hình camera và thiết bị</option>
+      <option value="dong-y">MH-642. Đồng ý của phụ huynh</option>
+      <option value="thong-bao">MH-643. Thông báo đến và về</option>
+    </select>
+  </label>
+  <label>Cỡ
+    <select id="chon-co">
+      <option value="">Máy tính (1366)</option>
+      <option value="may-tinh-bang">Máy tính bảng (1024)</option>
+      <option value="dien-thoai">Điện thoại (390)</option>
+    </select>
+  </label>
+  <label>Trạng thái
+    <select id="chon-trang-thai">
+      <option value="du-lieu">Có dữ liệu</option>
+      <option value="rong">Rỗng</option>
+      <option value="dang-tai">Đang tải</option>
+      <option value="loi">Lỗi</option>
+      <option value="khong-quyen">Không có quyền</option>
+    </select>
+  </label>
+</div>
+<div class="ghi-chu-ban-mau" id="ghi-chu"></div>
+
+<div class="san-khau">
+  <div class="khung" id="khung">
+    <div class="khung-ung-dung">
+      <div class="dau-trang">
+        <span class="ten" id="ten-ung-dung">Quản lý trường học</span>
+        <span class="vi-tri" id="vi-tri">Trường Trung học cơ sở Trình Diễn</span>
+        <span class="nguoi" id="nguoi-dung">Cô Trần Thị Thu Hà · Giáo viên chủ nhiệm</span>
+      </div>
+      <div id="vung-noi-dung"></div>
+      <div class="lop-phu" id="lop-phu" role="dialog" aria-modal="true" aria-labelledby="tieu-de-hop"><div class="hop" id="hop"></div></div>
+      <div class="toast" id="toast" role="status" aria-live="polite"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ MÀN HÌNH 1: ĐIỂM DANH ============ -->
+<template id="mh-diem-danh">
+  <div class="noi-dung">
+    <div class="hang gian">
+      <div>
+        <h1>Điểm danh lớp 7A</h1>
+        <p class="mo-ta">Thứ Sáu, 30/10/2026 · Giờ vào lớp 07:15 · Sĩ số 36</p>
+      </div>
+      <div class="hang">
+        <label class="chu-phu" for="ngay">Ngày</label>
+        <input class="o-nhap" id="ngay" type="date" value="2026-10-30">
+      </div>
+    </div>
+    <div class="dai-bao tt">Cột "Camera và thẻ" chỉ là gợi ý từ thiết bị ở cổng. Hệ thống không tự ghi vắng; riêng "Đi muộn" từ thẻ QR, thẻ RFID, máy chấm công được tự ghi, thầy cô sửa được. Thầy cô kiểm tra rồi bấm <b>Lưu điểm danh</b>; học sinh chưa thấy qua cổng để trống cho thầy cô chọn.</div>
+    <div class="tong-hop">
+      <div class="o-so"><b>29</b><span>Qua cổng, chắc chắn</span></div>
+      <div class="o-so"><b>2</b><span>Cần xem lại</span></div>
+      <div class="o-so"><b>1</b><span>Qua cổng sau giờ vào lớp</span></div>
+      <div class="o-so"><b>2</b><span>Chưa thấy qua cổng</span></div>
+      <div class="o-so"><b>2</b><span>Không dùng camera (thẻ hoặc điểm danh tay)</span></div>
+    </div>
+
+    <div class="the chi-may-tinh" style="padding:0">
+      <div class="bang-boc">
+        <table>
+          <thead><tr><th>STT</th><th>Học sinh</th><th>Camera và thẻ</th><th>Trạng thái điểm danh</th><th>Ghi chú</th><th></th></tr></thead>
+          <tbody id="than-bang"></tbody>
+        </table>
+      </div>
+      <div class="chu-phu" style="padding:10px 12px">Đang hiện 7 trên 36 học sinh. <a href="#" style="color:var(--lien-ket)">Hiện tất cả</a></div>
+    </div>
+    <div class="danh-sach-the" id="danh-sach-the"></div>
+  </div>
+  <div class="chan-trang">
+    <button class="nut" data-hanh-dong="xac-nhan-goi-y">Điền theo gợi ý (31 học sinh)</button>
+    <button class="nut chinh" data-hanh-dong="luu">Lưu điểm danh</button>
+  </div>
+</template>
+
+<!-- ============ MÀN HÌNH 2: CẤU HÌNH ============ -->
+<template id="mh-cau-hinh">
+  <div class="noi-dung">
+    <h1>Điểm danh bằng thiết bị</h1>
+    <p class="mo-ta">Cài đặt trường · Chỉ Hiệu trưởng và Quản lý đơn vị thay đổi được.</p>
+    <div class="thanh-tab" role="tablist">
+      <button role="tab" aria-selected="true" data-tab="phuong-an">Phương án</button>
+      <button role="tab" aria-selected="false" data-tab="thiet-bi">Thiết bị</button>
+      <button role="tab" aria-selected="false" data-tab="nguong">Ngưỡng và thời hạn</button>
+      <button role="tab" aria-selected="false" data-tab="vung">Vùng cảnh báo nội quy</button>
+    </div>
+
+    <section data-ngan="phuong-an">
+      <div class="luoi-4">
+        <label class="lua-chon da-chon"><input type="checkbox" checked> <b>Thẻ QR</b><br><span class="goi-y">In thẻ từ danh sách học sinh. Bảo vệ quét bằng máy tính bảng. Không dùng sinh trắc học.</span></label>
+        <label class="lua-chon"><input type="checkbox"> <b>Thẻ RFID</b><br><span class="goi-y">Chỉ đặt đầu đọc ở cổng. Cần đồng ý của phụ huynh (Điều 31 Luật 91/2025/QH15).</span></label>
+        <label class="lua-chon da-chon"><input type="checkbox" checked> <b>Máy chấm công có sẵn</b><br><span class="goi-y">Nhận dữ liệu từ máy qua kết nối hoặc tệp. Dùng cho cán bộ; học sinh cần đồng ý.</span></label>
+        <label class="lua-chon khoa"><input type="checkbox" disabled> <b>Camera nhận diện khuôn mặt</b><br><span class="goi-y">Đang khóa: cần tải lên bằng chứng đã nộp hồ sơ đánh giá tác động xử lý dữ liệu cá nhân.</span><br><button class="nut nho" style="margin-top:8px">Tải bằng chứng</button></label>
+      </div>
+      <div class="the" style="margin-top:16px">
+        <h2>Áp dụng camera khuôn mặt cho</h2>
+        <div class="hang">
+          <label><input type="checkbox" checked disabled> Tiểu học (đăng ký lại mỗi học kỳ)</label>
+          <label><input type="checkbox" checked disabled> Trung học cơ sở</label>
+          <label><input type="checkbox" checked disabled> Trung học phổ thông</label>
+          <label><input type="checkbox" checked disabled> Cán bộ, giáo viên</label>
+        </div>
+        <p class="goi-y" style="margin:8px 0 0">Mầm non không dùng nhận diện khuôn mặt; dùng luồng bàn giao khi đón trẻ.</p>
+      </div>
+      <div class="the">
+        <h2>Biển thông báo có camera</h2>
+        <p class="mo-ta">Đặt ở cổng và nơi có camera. Nội dung ghi mục đích, thời hạn lưu, đầu mối liên hệ.</p>
+        <button class="nut">Tải biển thông báo (PDF, khổ A3)</button>
+      </div>
+    </section>
+
+    <section data-ngan="thiet-bi" class="an">
+      <div class="hang gian" style="margin-bottom:12px">
+        <h2 style="margin:0">Thiết bị (5)</h2>
+        <div class="hang"><button class="nut">Nhập tệp máy chấm công</button><button class="nut chinh" data-hanh-dong="them-thiet-bi">Thêm thiết bị</button></div>
+      </div>
+      <div class="the chi-may-tinh" style="padding:0"><div class="bang-boc"><table>
+        <thead><tr><th>Tên</th><th>Loại</th><th>Vị trí, hướng</th><th>Tình trạng</th><th>Lần cuối gửi</th><th></th></tr></thead>
+        <tbody>
+          <tr><td>Máy tính bảng cổng chính</td><td>Quét thẻ QR</td><td>Cổng chính · Vào và ra</td><td><span class="nhan tc">Đang hoạt động</span></td><td>07:21 hôm nay</td><td><button class="nut nho">Sửa</button></td></tr>
+          <tr><td>Máy chấm công phòng hội đồng</td><td>Máy chấm công khuôn mặt</td><td>Phòng hội đồng · Vào và ra</td><td><span class="nhan tc">Đang hoạt động</span></td><td>07:05 hôm nay</td><td><button class="nut nho">Khóa kết nối</button></td></tr>
+          <tr><td>Trạm camera số 1</td><td>Trạm camera tại trường</td><td>Phòng bảo vệ</td><td><span class="nhan ng">Mất kết nối 42 phút</span></td><td>06:39 hôm nay</td><td><button class="nut nho">Hướng dẫn xử lý</button></td></tr>
+          <tr><td>Camera cổng chính, làn vào</td><td>Camera (qua trạm số 1)</td><td>Cổng chính · Vào</td><td><span class="nhan tr">Chạy thử, chỉ ghi</span></td><td>06:39 hôm nay</td><td><button class="nut nho">Sửa</button></td></tr>
+          <tr><td>Camera sân sau nhà đa năng, khu vực để xe đạp điện của giáo viên và nhân viên</td><td>Camera an ninh (qua trạm số 1)</td><td>Sân sau · Vùng cảnh báo</td><td><span class="nhan tr">Chạy thử, chỉ ghi</span></td><td>06:39 hôm nay</td><td><button class="nut nho">Vẽ vùng</button></td></tr>
+        </tbody></table></div></div>
+      <div class="danh-sach-the">
+        <div class="the-hs"><b>Máy tính bảng cổng chính</b><div class="chu-phu">Quét thẻ QR · Cổng chính</div><div class="hang"><span class="nhan tc">Đang hoạt động</span><span class="chu-phu">07:21</span></div></div>
+        <div class="the-hs"><b>Máy chấm công phòng hội đồng</b><div class="chu-phu">Máy chấm công khuôn mặt</div><div class="hang"><span class="nhan tc">Đang hoạt động</span><span class="chu-phu">07:05</span></div></div>
+        <div class="the-hs"><b>Trạm camera số 1</b><div class="chu-phu">Trạm camera tại trường · Phòng bảo vệ</div><div class="hang"><span class="nhan ng">Mất kết nối 42 phút</span></div></div>
+      </div>
+    </section>
+
+    <section data-ngan="nguong" class="an">
+      <div class="luoi-2">
+        <div class="the">
+          <h2>Ngưỡng nhận diện</h2>
+          <div class="truong"><label for="nguong-chac">Ngưỡng chắc chắn</label><input class="o-nhap" id="nguong-chac" value="0,80"><div class="goi-y">Từ ngưỡng này trở lên: gợi ý có mặt và báo phụ huynh.</div></div>
+          <div class="truong"><label for="nguong-xem">Ngưỡng cần xem</label><input class="o-nhap loi" id="nguong-xem" value="0,85" aria-invalid="true" aria-describedby="loi-nguong"><div class="loi-o" id="loi-nguong">Ngưỡng cần xem phải nhỏ hơn ngưỡng chắc chắn (0,80). Nhập số từ 0,50 đến 0,79.</div></div>
+          <div class="truong"><label><input type="checkbox" checked> Chạy thử: chỉ ghi, không gợi ý, không báo phụ huynh</label><div class="goi-y">Đang chạy thử từ 19/10/2026. Tỉ lệ nhận nhầm đo được: 0,3 phần trăm (2 trên 712 lượt).</div></div>
+        </div>
+        <div class="the">
+          <h2>Thời hạn lưu</h2>
+          <div class="truong"><label for="han-anh">Giữ ảnh cần xem trên trạm (ngày)</label><input class="o-nhap" id="han-anh" value="1"><div class="goi-y">Từ 1 đến 7 ngày. Ảnh không gửi lên máy chủ.</div></div>
+          <div class="truong"><label for="han-canh-bao">Giữ ảnh cảnh báo nội quy (ngày)</label><input class="o-nhap" id="han-canh-bao" value="7"><div class="goi-y">Ảnh đã làm mờ khuôn mặt. Báo nhầm thì xóa ngay.</div></div>
+          <div class="truong"><label for="gio-dong">Giờ đóng cổng buổi sáng</label><input class="o-nhap" id="gio-dong" type="time" value="07:15"></div>
+        </div>
+      </div>
+      <div class="hang" style="justify-content:flex-end"><button class="nut chinh" data-hanh-dong="luu-loi">Lưu cài đặt</button></div>
+    </section>
+
+    <section data-ngan="vung" class="an">
+      <div class="dai-bao cb">Cảnh báo nội quy không gắn tên học sinh và không tự trừ điểm. Giám thị xem ở hàng chờ cảnh báo rồi xác nhận hoặc báo nhầm.</div>
+      <div class="the chi-may-tinh" style="padding:0"><div class="bang-boc"><table>
+        <thead><tr><th>Vùng</th><th>Camera</th><th>Loại cảnh báo</th><th>Khung giờ</th><th>Điều kiện</th><th></th></tr></thead>
+        <tbody>
+          <tr><td>Mái nhà kho</td><td>Camera sân sau</td><td><span class="nhan ng">Khu vực cấm</span></td><td>Cả ngày</td><td>Có người quá 10 giây</td><td><button class="nut nho">Sửa</button></td></tr>
+          <tr><td>Góc sau nhà vệ sinh nam</td><td>Camera sân sau</td><td><span class="nhan cb">Tụ tập</span></td><td>06:30 đến 17:30</td><td>Từ 6 người, quá 3 phút</td><td><button class="nut nho">Sửa</button></td></tr>
+          <tr><td>Cổng chính</td><td>Camera cổng chính, làn vào</td><td><span class="nhan tt">Vào sau giờ đóng cổng</span></td><td>Sau 07:15</td><td>Có người đi vào</td><td><button class="nut nho">Sửa</button></td></tr>
+        </tbody></table></div></div>
+      <div class="danh-sach-the">
+        <div class="the-hs"><b>Mái nhà kho</b><div class="hang"><span class="nhan ng">Khu vực cấm</span><span class="chu-phu">Có người quá 10 giây</span></div></div>
+        <div class="the-hs"><b>Góc sau nhà vệ sinh nam</b><div class="hang"><span class="nhan cb">Tụ tập</span><span class="chu-phu">Từ 6 người, quá 3 phút</span></div></div>
+      </div>
+      <button class="nut chinh">Thêm vùng</button>
+    </section>
+  </div>
+</template>
+
+<!-- ============ MÀN HÌNH 3: ĐỒNG Ý ============ -->
+<template id="mh-dong-y">
+  <div class="noi-dung">
+    <div class="thanh-tab" role="tablist">
+      <button role="tab" aria-selected="true" data-tab="phu-huynh">Phụ huynh (ứng dụng phụ huynh)</button>
+      <button role="tab" aria-selected="false" data-tab="nha-truong">Nhà trường theo dõi (cổng quản trị)</button>
+    </div>
+
+    <section data-ngan="phu-huynh">
+      <h1>Đồng ý dùng khuôn mặt để điểm danh</h1>
+      <p class="mo-ta">Con: Nguyễn Hoàng Bảo Ngọc · Lớp 7A</p>
+      <div class="the">
+        <h2>Nhà trường sẽ làm gì</h2>
+        <ul style="margin:0;padding-left:20px">
+          <li>Camera ở cổng nhận ra con khi vào và ra, để thầy cô điểm danh nhanh và báo cho anh chị.</li>
+          <li>Chỉ lưu <b>đặc trưng khuôn mặt đã mã hóa</b>, không lưu ảnh chụp đăng ký. Dữ liệu nằm trên thiết bị đặt tại trường, không gửi lên máy chủ.</li>
+          <li>Ảnh cắt khi máy chưa chắc chắn được giữ 1 ngày rồi tự xóa; chỉ giáo viên chủ nhiệm xem được trong mạng của trường.</li>
+          <li>Đặc trưng bị xóa khi anh chị rút lại đồng ý, khi con nghỉ học hoặc hết năm học.</li>
+          <li>Không đồng ý: con dùng thẻ QR hoặc được thầy cô điểm danh như bình thường, không bị ảnh hưởng gì khác.</li>
+        </ul>
+        <p class="chu-phu" style="margin:12px 0 0">Căn cứ: Luật Bảo vệ dữ liệu cá nhân số 91/2025/QH15 và Nghị định 356/2025/NĐ-CP. <a href="#" style="color:var(--lien-ket)">Đọc toàn văn thông báo xử lý dữ liệu</a></p>
+      </div>
+      <div class="the" id="khoi-quyet-dinh">
+        <h2>Quyết định của anh chị</h2>
+        <fieldset style="border:0;padding:0;margin:0">
+          <legend class="an">Quyết định</legend>
+          <label class="lua-chon da-chon" style="margin-bottom:8px"><input type="radio" name="qd" checked> <b>Đồng ý</b> cho nhà trường dùng khuôn mặt của con để điểm danh</label>
+          <label class="lua-chon"><input type="radio" name="qd"> <b>Không đồng ý</b>, con dùng thẻ QR hoặc điểm danh tay</label>
+        </fieldset>
+        <label style="display:block;margin-top:12px"><input type="checkbox" checked> Tôi đã giải thích cho con và con đồng ý (bắt buộc với con từ đủ 7 tuổi; con cũng xác nhận lại trong ứng dụng học sinh).</label>
+        <div class="hang" style="margin-top:16px"><button class="nut chinh" data-hanh-dong="gui-dong-y">Gửi quyết định</button></div>
+      </div>
+      <div class="the">
+        <div class="hang gian"><h2 style="margin:0">Tình trạng hiện tại</h2><span class="nhan tc">Đã đồng ý ngày 12/10/2026</span></div>
+        <p class="chu-phu">Con xác nhận ngày 13/10/2026 · Đã đăng ký khuôn mặt tại trường ngày 15/10/2026.</p>
+        <div class="hang">
+          <button class="nut">Xem các lượt qua cổng của con</button>
+          <button class="nut nguy-hiem" data-hanh-dong="rut-dong-y">Rút lại đồng ý và xóa dữ liệu</button>
+        </div>
+      </div>
+    </section>
+
+    <section data-ngan="nha-truong" class="an">
+      <div class="hang gian">
+        <div><h1>Theo dõi đồng ý dùng khuôn mặt</h1><p class="mo-ta">Năm học 2026 đến 2027 · Khối 6 đến 9</p></div>
+        <div class="hang"><button class="nut">In mẫu giấy đồng ý</button><button class="nut">Nhắc phụ huynh chưa trả lời</button></div>
+      </div>
+      <div class="tong-hop">
+        <div class="o-so"><b>412</b><span>Đồng ý</span></div>
+        <div class="o-so"><b>58</b><span>Không đồng ý</span></div>
+        <div class="o-so"><b>74</b><span>Chưa trả lời</span></div>
+        <div class="o-so"><b>389</b><span>Đã đăng ký khuôn mặt</span></div>
+        <div class="o-so"><b>3</b><span>Đã rút lại, chờ xóa trên trạm</span></div>
+      </div>
+      <div class="the chi-may-tinh" style="padding:0"><div class="bang-boc"><table>
+        <thead><tr><th>Lớp</th><th>Sĩ số</th><th>Đồng ý</th><th>Không đồng ý</th><th>Chưa trả lời</th><th>Học sinh đã xác nhận</th><th>Đã đăng ký</th></tr></thead>
+        <tbody>
+          <tr><td>6A</td><td>38</td><td>30</td><td>4</td><td>4</td><td>29</td><td>28</td></tr>
+          <tr><td>6B</td><td>37</td><td>26</td><td>6</td><td>5</td><td>26</td><td>24</td></tr>
+          <tr class="dang-chon"><td>7A</td><td>36</td><td>32</td><td>2</td><td>2</td><td>31</td><td>31</td></tr>
+          <tr><td>7B</td><td>35</td><td>21</td><td>3</td><td><b style="color:var(--canh-bao)">11</b></td><td>20</td><td>18</td></tr>
+        </tbody></table></div></div>
+      <div class="danh-sach-the">
+        <div class="the-hs"><b>Lớp 6A</b> · 38 học sinh<div class="hang"><span class="nhan tc">30 đồng ý</span><span class="nhan tr">4 không</span><span class="nhan cb">4 chưa trả lời</span></div></div>
+        <div class="the-hs"><b>Lớp 7B</b> · 35 học sinh<div class="hang"><span class="nhan tc">21 đồng ý</span><span class="nhan tr">3 không</span><span class="nhan cb">11 chưa trả lời</span></div></div>
+      </div>
+    </section>
+  </div>
+</template>
+
+<!-- ============ MÀN HÌNH 4: THÔNG BÁO ============ -->
+<template id="mh-thong-bao">
+  <div class="noi-dung">
+    <div class="thong-bao-day" aria-label="Thông báo đẩy mẫu">
+      <div class="ung-dung">Phụ huynh · bây giờ</div>
+      <b>Bảo Ngọc đã vào trường lúc 07:08</b>
+      <div class="chu-phu">Cổng chính. Nếu không đúng, bấm để báo nhà trường.</div>
+    </div>
+    <div class="luoi-2">
+      <div>
+        <div class="the">
+          <div class="hang gian"><h2 style="margin:0">Hôm nay, 30/10/2026</h2><span class="nhan tc">Đã ở trường</span></div>
+          <ul class="dong-thoi-gian">
+            <li><span class="gio">07:08</span><div><b>Vào trường</b><div class="chu-phu">Cổng chính · camera</div></div></li>
+            <li><span class="gio">07:20</span><div><b>Cô chủ nhiệm điểm danh: Có mặt</b><div class="chu-phu">Lớp 7A</div></div></li>
+          </ul>
+          <button class="nut nguy-hiem" data-hanh-dong="chua-den" style="margin-top:12px">Con tôi chưa đến trường</button>
+        </div>
+        <div class="the">
+          <h2>Hôm qua, 29/10/2026</h2>
+          <ul class="dong-thoi-gian">
+            <li><span class="gio">07:11</span><div><b>Vào trường</b><div class="chu-phu">Cổng chính · camera</div></div></li>
+            <li><span class="gio">07:02</span><div><b><s>Vào trường</s></b> <span class="nhan cb">Đã đính chính</span><div class="chu-phu">Nhà trường xác nhận nhận nhầm lúc 07:24. Xin lỗi anh chị.</div></div></li>
+            <li><span class="gio">16:52</span><div><b>Ra khỏi cổng</b><div class="chu-phu">Cổng chính · thẻ QR</div></div></li>
+          </ul>
+        </div>
+      </div>
+      <div class="the">
+        <h2>Cài đặt thông báo</h2>
+        <div class="cong-tac"><label for="ct-den">Báo khi con vào trường</label><input id="ct-den" type="checkbox" checked></div>
+        <div class="cong-tac"><label for="ct-ve">Báo khi con ra khỏi cổng</label><input id="ct-ve" type="checkbox" checked></div>
+        <div class="cong-tac"><label for="ct-tre">Báo khi con chưa qua cổng sau giờ vào lớp</label><input id="ct-tre" type="checkbox"></div>
+        <p class="goi-y" style="margin:12px 0 0">Thông báo gửi trong ứng dụng và thông báo đẩy, không gửi tin nhắn SMS. "Ra khỏi cổng" chỉ cho biết con đã ra cổng, không cho biết con đã về đến nhà.</p>
+      </div>
+    </div>
+  </div>
+</template>
+
+<script>
+// Dữ liệu giả, tên không phải người thật.
+const hocSinh = [
+  { ten: 'Lê Minh Anh', goiY: ['tc', 'Vào 07:02 · Cổng chính · camera'], chon: 'Có mặt' },
+  { ten: 'Nguyễn Hoàng Bảo Ngọc', goiY: ['tc', 'Vào 07:08 · Cổng chính · camera'], chon: 'Có mặt' },
+  { ten: 'Phạm Gia Bảo', goiY: ['cb', 'Cần xem · 07:09 · độ tin cậy 0,68'], chon: '', canXem: true },
+  { ten: 'Trần Đức Duy', goiY: ['tt', 'Vào 07:31 · thẻ QR · đã tự ghi Đi muộn'], chon: 'Đi muộn' },
+  { ten: 'Võ Thị Khánh Linh', goiY: ['tr', 'Chưa thấy qua cổng'], chon: '' },
+  { ten: 'Huỳnh Ngọc Phương Thảo Nguyên Khánh Vy', goiY: ['tr', 'Không dùng camera · điểm danh tay'], chon: '' },
+  { ten: 'Đặng Quốc Huy', goiY: ['tc', 'Vào 07:05 · Cổng chính · camera'], chon: 'Có mặt', daNhan: true },
+];
+const cacTrangThai = ['', 'Có mặt', 'Đi muộn', 'Vắng có phép', 'Vắng không phép', 'Về sớm'];
+const chuCai = ten => ten.split(' ').slice(-1)[0][0] + ten.split(' ')[0][0];
+
+function oChon(hs, i) {
+  return `<select class="o-chon" aria-label="Trạng thái của ${hs.ten}">${cacTrangThai.map(t =>
+    `<option ${t === hs.chon ? 'selected' : ''}>${t || 'Chọn trạng thái'}</option>`).join('')}</select>`;
+}
+function nutDong(hs, i) {
+  if (hs.canXem) return `<button class="nut nho" data-hanh-dong="xem-anh" data-i="${i}">Xem ảnh</button>`;
+  if (hs.goiY[0] === 'tc') return `<button class="nut nho nguy-hiem" data-hanh-dong="bao-nham" data-i="${i}">Báo nhận nhầm</button>`;
+  return '';
+}
+function veDiemDanh(goc) {
+  goc.querySelector('#than-bang').innerHTML = hocSinh.map((hs, i) => `
+    <tr${hs.canXem ? ' class="dang-chon"' : ''}><td>${i + 1}</td>
+    <td><div class="hoc-sinh"><span class="chu-cai" aria-hidden="true">${chuCai(hs.ten)}</span><span class="ten-dai">${hs.ten}</span></div></td>
+    <td><span class="nhan ${hs.goiY[0]}">${hs.goiY[1]}</span></td>
+    <td>${oChon(hs, i)}</td>
+    <td><input class="o-nhap" aria-label="Ghi chú cho ${hs.ten}" placeholder="Ghi chú"></td>
+    <td>${nutDong(hs, i)}</td></tr>`).join('');
+  goc.querySelector('#danh-sach-the').innerHTML = hocSinh.map((hs, i) => `
+    <div class="the-hs">
+      <div class="hang"><span class="chu-cai" aria-hidden="true">${chuCai(hs.ten)}</span><b class="ten-dai">${i + 1}. ${hs.ten}</b></div>
+      <div class="hang"><span class="nhan ${hs.goiY[0]}">${hs.goiY[1]}</span></div>
+      <div class="hang">${oChon(hs, i)}${nutDong(hs, i)}</div>
+    </div>`).join('');
+}
+
+const thongTin = {
+  'diem-danh': { ung: 'Quản lý trường học', nguoi: 'Cô Trần Thị Thu Hà · Giáo viên chủ nhiệm',
+    ghi: 'MH-640 · Giáo viên chủ nhiệm (cổng quản trị và ứng dụng giáo viên) · Gợi ý từ thiết bị, giáo viên xác nhận. Bấm "Xem ảnh" ở dòng cần xem, "Báo nhận nhầm" ở dòng chắc chắn.',
+    rong: ['Chưa có lượt qua cổng nào hôm nay', 'Thiết bị ở cổng chưa gửi dữ liệu. Thầy cô vẫn điểm danh tay như bình thường.', 'Điểm danh tay'],
+    quyen: 'Thầy cô chỉ xem được lượt qua cổng của lớp mình chủ nhiệm. Lớp 7B do thầy Lê Văn Nam chủ nhiệm.' },
+  'cau-hinh': { ung: 'Quản lý trường học', nguoi: 'Thầy Phạm Quang Huy · Hiệu trưởng',
+    ghi: 'MH-641 · Hiệu trưởng, Quản lý đơn vị · Bốn ngăn: phương án, thiết bị, ngưỡng (có ví dụ lỗi nhập), vùng cảnh báo nội quy.',
+    rong: ['Chưa có thiết bị nào', 'Thêm máy tính bảng quét thẻ QR hoặc máy chấm công để bắt đầu. Camera khuôn mặt cần bằng chứng đánh giá tác động.', 'Thêm thiết bị'],
+    quyen: 'Chỉ Hiệu trưởng và Quản lý đơn vị thay đổi được cài đặt điểm danh bằng thiết bị. Liên hệ ban giám hiệu nếu cần.' },
+  'dong-y': { ung: 'Phụ huynh', nguoi: 'Chị Nguyễn Thị Mai · Phụ huynh',
+    ghi: 'MH-642 · Ngăn "Phụ huynh" ở ứng dụng phụ huynh; ngăn "Nhà trường theo dõi" ở cổng quản trị (Hiệu trưởng, Quản lý đơn vị). Rút đồng ý có hộp xác nhận.',
+    rong: ['Nhà trường chưa dùng camera khuôn mặt', 'Khi nhà trường bật, anh chị sẽ nhận thông báo để chọn đồng ý hoặc không.', ''],
+    quyen: 'Chỉ cha, mẹ hoặc người giám hộ đã liên kết với học sinh mới quyết định được việc đồng ý.' },
+  'thong-bao': { ung: 'Phụ huynh', nguoi: 'Chị Nguyễn Thị Mai · Phụ huynh',
+    ghi: 'MH-643 · Ứng dụng phụ huynh · Thông báo đẩy, dòng thời gian đến và về, đính chính khi nhận nhầm, cài đặt thông báo.',
+    rong: ['Hôm nay chưa có lượt qua cổng nào của con', 'Nếu con đã đến trường, có thể thiết bị chưa nhận ra con. Cô chủ nhiệm vẫn điểm danh trong lớp.', ''],
+    quyen: 'Trường của con chưa bật thông báo đến và về.' },
+};
+
+const $ = s => document.querySelector(s);
+function hienToast(chu) { const t = $('#toast'); t.textContent = chu; t.classList.add('mo'); clearTimeout(t._h); t._h = setTimeout(() => t.classList.remove('mo'), 3000); }
+function moHop(html) { $('#hop').innerHTML = html; $('#lop-phu').classList.add('mo'); $('#hop').querySelector('button')?.focus(); }
+function dongHop() { $('#lop-phu').classList.remove('mo'); }
+
+function ve() {
+  const mh = $('#chon-man-hinh').value, tt = $('#chon-trang-thai').value, info = thongTin[mh];
+  $('#khung').className = 'khung ' + $('#chon-co').value;
+  $('#ten-ung-dung').textContent = info.ung; $('#nguoi-dung').textContent = info.nguoi; $('#ghi-chu').textContent = info.ghi;
+  const vung = $('#vung-noi-dung');
+  if (tt === 'dang-tai') { vung.innerHTML = '<div class="noi-dung" aria-busy="true"><div class="xuong" style="width:40%;height:24px"></div>' + '<div class="xuong"></div>'.repeat(8) + '</div>'; return; }
+  if (tt === 'loi') { vung.innerHTML = '<div class="noi-dung"><div class="trang-thai-chung"><h2>Không tải được dữ liệu</h2><p>Máy chủ không phản hồi. Kiểm tra kết nối mạng rồi thử lại; nếu vẫn lỗi, báo quản trị trường.</p><button class="nut chinh" data-hanh-dong="thu-lai">Thử lại</button></div></div>'; return; }
+  if (tt === 'khong-quyen') { vung.innerHTML = `<div class="noi-dung"><div class="trang-thai-chung"><h2>Không có quyền xem</h2><p>${info.quyen}</p></div></div>`; return; }
+  if (tt === 'rong') { const [a, b, c] = info.rong; vung.innerHTML = `<div class="noi-dung"><div class="trang-thai-chung"><h2>${a}</h2><p>${b}</p>${c ? `<button class="nut chinh">${c}</button>` : ''}</div></div>`; return; }
+  vung.innerHTML = ''; vung.appendChild($('#mh-' + mh).content.cloneNode(true));
+  if (mh === 'diem-danh') veDiemDanh(vung);
+}
+
+document.addEventListener('click', e => {
+  const tab = e.target.closest('[data-tab]');
+  if (tab) {
+    const vung = tab.closest('.noi-dung');
+    vung.querySelectorAll('[data-tab]').forEach(b => b.setAttribute('aria-selected', b === tab));
+    vung.querySelectorAll('[data-ngan]').forEach(s => s.classList.toggle('an', s.dataset.ngan !== tab.dataset.tab));
+    return;
+  }
+  const nut = e.target.closest('[data-hanh-dong]'); if (!nut) return;
+  const hs = hocSinh[nut.dataset.i];
+  switch (nut.dataset.hanhDong) {
+    case 'xem-anh': moHop(`<h2 id="tieu-de-hop">Cần xem: ${hs.ten}?</h2>
+      <div class="anh-gia">Ảnh cắt khuôn mặt lúc 07:09, cổng chính.<br>Ảnh mở trực tiếp từ trạm camera, chỉ xem được khi máy đang ở mạng của trường; tự xóa sau 1 ngày.</div>
+      <p class="chu-phu">Độ tin cậy 0,68. Gần giống: Phạm Gia Bảo (0,68), Phạm Gia Huy lớp 9C (0,61).</p>
+      <div class="hang" style="justify-content:flex-end"><button class="nut" data-hanh-dong="dong">Để sau</button><button class="nut nguy-hiem" data-hanh-dong="khong-phai">Không phải em này</button><button class="nut chinh" data-hanh-dong="dung-em">Đúng em này</button></div>`); break;
+    case 'bao-nham': moHop(`<h2 id="tieu-de-hop">Báo nhận nhầm ${hs.ten}?</h2><p>Lượt vào lúc 07:05 sẽ bị hủy. Phụ huynh đã nhận thông báo "đã vào trường" sẽ nhận tin đính chính. Không hoàn tác được.</p>
+      <div class="hang" style="justify-content:flex-end"><button class="nut" data-hanh-dong="dong">Hủy</button><button class="nut nguy-hiem" data-hanh-dong="xac-nhan-nham">Báo nhận nhầm</button></div>`); break;
+    case 'rut-dong-y': moHop(`<h2 id="tieu-de-hop">Rút lại đồng ý?</h2><p>Đặc trưng khuôn mặt của Bảo Ngọc sẽ bị xóa khỏi thiết bị của trường trong vòng 15 phút. Con sẽ dùng thẻ QR hoặc được cô điểm danh tay. Anh chị có thể đồng ý lại sau, khi đó con cần đăng ký lại tại trường.</p>
+      <div class="hang" style="justify-content:flex-end"><button class="nut" data-hanh-dong="dong">Giữ nguyên</button><button class="nut nguy-hiem" data-hanh-dong="xac-nhan-rut">Rút lại và xóa</button></div>`); break;
+    case 'chua-den': moHop(`<h2 id="tieu-de-hop">Báo nhà trường: con chưa đến trường?</h2><p>Cô chủ nhiệm lớp 7A sẽ nhận tin ngay và kiểm tra lại lượt vào lúc 07:08.</p>
+      <div class="truong"><label for="loi-nhan">Lời nhắn (không bắt buộc)</label><input class="o-nhap" id="loi-nhan" style="width:100%" placeholder="Ví dụ: hôm nay con nghỉ ốm ở nhà"></div>
+      <div class="hang" style="justify-content:flex-end"><button class="nut" data-hanh-dong="dong">Hủy</button><button class="nut chinh" data-hanh-dong="gui-bao">Gửi</button></div>`); break;
+    case 'dong': dongHop(); break;
+    case 'dung-em': dongHop(); hienToast('Đã xác nhận Phạm Gia Bảo vào trường lúc 07:09. Gợi ý: Có mặt.'); break;
+    case 'khong-phai': dongHop(); hienToast('Đã bỏ lượt này. Trạm ghi lại để nhà trường đăng ký lại ảnh.'); break;
+    case 'xac-nhan-nham': dongHop(); hienToast('Đã hủy lượt và gửi đính chính cho phụ huynh.'); break;
+    case 'xac-nhan-rut': dongHop(); hienToast('Đã rút lại đồng ý. Nhà trường sẽ xóa dữ liệu trong 15 phút.'); break;
+    case 'gui-bao': dongHop(); hienToast('Đã gửi cho cô chủ nhiệm.'); break;
+    case 'gui-dong-y': nut.disabled = true; nut.textContent = 'Đang gửi...'; setTimeout(() => { nut.disabled = false; nut.textContent = 'Gửi quyết định'; hienToast('Đã gửi. Con cần xác nhận lại trong ứng dụng học sinh.'); }, 900); break;
+    case 'xac-nhan-goi-y': hienToast('Đã điền "Có mặt" hoặc "Đi muộn" cho 31 học sinh. Còn 5 học sinh chưa chọn trạng thái.'); break;
+    case 'luu': nut.disabled = true; nut.textContent = 'Đang lưu...'; setTimeout(() => { nut.disabled = false; nut.textContent = 'Lưu điểm danh'; hienToast('Chưa lưu: còn 2 học sinh chưa chọn trạng thái (Võ Thị Khánh Linh, Huỳnh Ngọc Phương Thảo Nguyên Khánh Vy).'); }, 900); break;
+    case 'luu-loi': hienToast('Chưa lưu: kiểm tra ô "Ngưỡng cần xem".'); document.getElementById('nguong-xem').focus(); break;
+    case 'them-thiet-bi': hienToast('Mở biểu mẫu thêm thiết bị (chưa dựng trong bản mẫu).'); break;
+    case 'thu-lai': $('#chon-trang-thai').value = 'du-lieu'; ve(); break;
+  }
+});
+document.addEventListener('keydown', e => { if (e.key === 'Escape') dongHop(); });
+$('#lop-phu').addEventListener('click', e => { if (e.target.id === 'lop-phu') dongHop(); });
+['#chon-man-hinh', '#chon-co', '#chon-trang-thai'].forEach(s => $(s).addEventListener('change', ve));
+ve();
+</script>
+</body>
+</html>
