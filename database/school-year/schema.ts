@@ -1460,7 +1460,7 @@ export interface AttendanceLogsTable {
   worked_minutes: number | null;
   late_minutes: number | null;
   early_leave_minutes: number | null;
-  source: 'self' | 'manual';
+  source: 'self' | 'manual' | 'device';
   note: string | null;
   updated_by: string | null;
   created_at: CreatedTimestamp;

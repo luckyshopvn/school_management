@@ -332,6 +332,88 @@ export class StaffAttendanceService {
     return database.selectFrom('attendance_logs').select(LOG_COLUMNS).where('id', '=', logId).executeTakeFirstOrThrow();
   }
 
+  // Lượt chấm công của cán bộ từ thiết bị hoặc tệp máy chấm công (YCTD-389 lát L2): lượt sớm nhất trong ngày là giờ vào, lượt muộn
+  // nhất là giờ ra; ngày phòng nhân sự đã nhập tay thì giữ nguyên; tháng đã chốt bảng công thì từ chối
+  async recordDevicePunch(
+    database: Kysely<SchoolYearDatabase>,
+    staffCode: string,
+    punchedAt: Date,
+    origin: ChangeOrigin,
+  ): Promise<'recorded' | 'unchanged' | 'manual_kept' | 'unknown_code'> {
+    const staff = await database
+      .selectFrom('staff')
+      .select(['id', 'org_unit_id', 'start_date', 'end_date'])
+      .where('code', '=', staffCode)
+      .executeTakeFirst();
+    if (!staff) {
+      return 'unknown_code';
+    }
+    const workDate = VIETNAM_DATE.format(punchedAt);
+    if (workDate < staff.start_date || (staff.end_date !== null && workDate > staff.end_date)) {
+      throw ruleViolationError('BR-39', 'Ngày này nhân sự chưa vào làm hoặc đã nghỉ việc');
+    }
+    await assertMonthsOpen(database, staff.org_unit_id, workDate, workDate);
+    const time = new Intl.DateTimeFormat('en-GB', {
+      timeZone: 'Asia/Ho_Chi_Minh',
+      hour: '2-digit',
+      minute: '2-digit',
+      hourCycle: 'h23',
+    }).format(punchedAt);
+    const existing = await database
+      .selectFrom('attendance_logs')
+      .select(['id', 'check_in', 'check_out', 'source'])
+      .where('staff_id', '=', staff.id)
+      .where('work_date', '=', workDate)
+      .executeTakeFirst();
+    if (existing?.source === 'manual') {
+      return 'manual_kept';
+    }
+    let checkIn = existing?.check_in ?? time;
+    let checkOut = existing?.check_out ?? null;
+    if (existing) {
+      if (time < checkIn) {
+        checkOut = checkOut ?? checkIn;
+        checkIn = time;
+      } else if (time > checkIn && (checkOut === null || time > checkOut)) {
+        checkOut = time;
+      } else {
+        return 'unchanged';
+      }
+    }
+    const times = attendanceTimes(checkIn, checkOut, await this.workHours(staff.org_unit_id));
+    const values = {
+      check_in: checkIn,
+      check_out: checkOut,
+      ...times,
+      source: 'device' as const,
+      updated_by: origin.actorUserId,
+    };
+    await database.transaction().execute(async (transaction) => {
+      const row = existing
+        ? await transaction
+            .updateTable('attendance_logs')
+            .set({ ...values, updated_at: this.clock.now() })
+            .where('id', '=', existing.id)
+            .returning('id')
+            .executeTakeFirstOrThrow()
+        : await transaction
+            .insertInto('attendance_logs')
+            .values({ staff_id: staff.id, work_date: workDate, ...values })
+            .returning('id')
+            .executeTakeFirstOrThrow();
+      await writeAuditLog(transaction, {
+        origin,
+        orgUnitId: staff.org_unit_id,
+        entityName: 'attendance_logs',
+        entityId: row.id,
+        action: existing ? 'update' : 'create',
+        before: existing ?? null,
+        after: { staff_id: staff.id, work_date: workDate, ...values },
+      });
+    });
+    return 'recorded';
+  }
+
   private describeDays(days: Map<string, StaffDay>) {
     return [...days.entries()].map(([date, day]) => ({ date, ...day }));
   }

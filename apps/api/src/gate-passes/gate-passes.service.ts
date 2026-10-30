@@ -15,6 +15,7 @@ import { SettingsService } from '../settings/settings.service.js';
 import {
   GATE_CARD_CODE_PATTERN,
   generateGateCardCode,
+  DUPLICATE_WINDOW_MILLISECONDS,
   isDuplicatePass,
   normalizeGateCardCode,
   shouldAutoMarkLate,
@@ -25,6 +26,12 @@ import {
 // Thẻ QR và lượt qua cổng của học sinh, lát L1 (YCTD-389; tai_lieu/ban_mau/yctd-389/DAC_TA.md mục 4).
 // Lượt qua cổng là gợi ý cho giáo viên; chỉ "Đi muộn" từ thẻ được tự ghi; không bao giờ tự ghi vắng
 const RECENT_LIMIT = 30;
+const METHOD_NOTES: Record<GatePassMethod, string> = {
+  qr: 'thẻ QR',
+  rfid: 'thẻ RFID',
+  device: 'máy chấm công',
+  camera: 'camera',
+};
 const MAXIMUM_RANGE_DAYS = 31;
 
 export interface GatePassSummary {
@@ -35,7 +42,7 @@ export interface GatePassSummary {
   suggested_status: 'present' | 'late' | null;
 }
 
-interface ChildContext {
+export interface ChildContext {
   id: string;
   full_name: string;
   org_unit_id: string;
@@ -153,30 +160,73 @@ export class GatePassesService {
     if (child.status !== 'active') {
       throw ruleViolationError('QT-02', `${child.full_name} không còn đang học`);
     }
-    const passedAt = this.clock.now();
+    const pass = await this.recordChildPass(database, child, {
+      direction,
+      passedAt: this.clock.now(),
+      method: 'qr',
+      gateCardId: card.id,
+      deviceId: null,
+      recordedBy: origin.actorUserId,
+      externalId: null,
+      notify: true,
+    });
+    return {
+      id: pass.id,
+      child_id: child.id,
+      child_name: child.full_name,
+      class_name: child.class_name,
+      direction,
+      passed_at: pass.passed_at,
+      duplicate: pass.duplicate,
+      auto_late: pass.auto_late,
+    };
+  }
+
+  // Ghi một lượt của học sinh, dùng chung cho quét thẻ và thiết bị (lát L2): gộp lượt cùng hướng trong 5 phút, chống ghi trùng
+  // theo mã sự kiện của thiết bị, tự ghi "Đi muộn" khi đủ điều kiện, báo phụ huynh khi được yêu cầu
+  async recordChildPass(
+    database: Kysely<SchoolYearDatabase>,
+    child: ChildContext,
+    input: {
+      direction: GatePassDirection;
+      passedAt: Date;
+      method: GatePassMethod;
+      gateCardId: string | null;
+      deviceId: string | null;
+      recordedBy: string;
+      externalId: string | null;
+      notify: boolean;
+    },
+  ): Promise<{ id: string; passed_at: Date; duplicate: boolean; auto_late: boolean }> {
+    const { direction, passedAt, method } = input;
     const date = VIETNAM_DATE.format(passedAt);
-    const previous = await database
+    if (input.externalId) {
+      const sent = await database
+        .selectFrom('gate_passes')
+        .select(['id', 'passed_at'])
+        .where('external_id', '=', input.externalId)
+        .executeTakeFirst();
+      if (sent) {
+        return { id: sent.id, passed_at: sent.passed_at, duplicate: true, auto_late: false };
+      }
+    }
+    // Lượt gần nhất trước hoặc sau thời điểm này (thiết bị gửi bù có thể đến muộn)
+    const nearby = await database
       .selectFrom('gate_passes')
       .select(['id', 'direction', 'passed_at'])
       .where('child_id', '=', child.id)
       .where('review_status', '!=', 'rejected')
+      .where('direction', '=', direction)
+      .where('passed_at', '>=', new Date(passedAt.getTime() - DUPLICATE_WINDOW_MILLISECONDS))
+      .where('passed_at', '<=', new Date(passedAt.getTime() + DUPLICATE_WINDOW_MILLISECONDS))
       .orderBy('passed_at', 'desc')
       .executeTakeFirst();
-    if (previous && isDuplicatePass(previous, direction, passedAt)) {
-      return {
-        id: previous.id,
-        child_id: child.id,
-        child_name: child.full_name,
-        class_name: child.class_name,
-        direction,
-        passed_at: previous.passed_at,
-        duplicate: true,
-        auto_late: false,
-      };
+    if (nearby && isDuplicatePass(nearby, direction, passedAt)) {
+      return { id: nearby.id, passed_at: nearby.passed_at, duplicate: true, auto_late: false };
     }
     const schoolStartTime = await this.schoolStartTime(child.org_unit_id);
     const isSchoolDay = (await this.calendar.reasonNotSchoolDay(date)) === null;
-    const result = await database.transaction().execute(async (transaction) => {
+    return database.transaction().execute(async (transaction) => {
       const pass = await transaction
         .insertInto('gate_passes')
         .values({
@@ -184,9 +234,11 @@ export class GatePassesService {
           org_unit_id: child.org_unit_id,
           direction,
           passed_at: passedAt,
-          method: 'qr',
-          gate_card_id: card.id,
-          recorded_by: origin.actorUserId,
+          method,
+          gate_card_id: input.gateCardId,
+          device_id: input.deviceId,
+          recorded_by: input.deviceId ? null : input.recordedBy,
+          external_id: input.externalId,
         })
         .returning(['id', 'passed_at'])
         .executeTakeFirstOrThrow();
@@ -210,7 +262,7 @@ export class GatePassesService {
         child.class_id !== null &&
         shouldAutoMarkLate({
           direction,
-          method: 'qr',
+          method,
           passedAt,
           schoolStartTime,
           isSchoolDay,
@@ -225,28 +277,20 @@ export class GatePassesService {
             org_unit_id: child.org_unit_id,
             attendance_date: date,
             status: 'late',
-            note: `Tự ghi theo lượt vào cổng lúc ${vietnamTimeOfDay(passedAt)} (thẻ QR)`,
+            note: `Tự ghi theo lượt vào cổng lúc ${vietnamTimeOfDay(passedAt)} (${METHOD_NOTES[method]})`,
             source: 'system',
-            recorded_by: origin.actorUserId,
+            recorded_by: input.recordedBy,
             recorded_at: passedAt,
-            is_backfilled: false,
+            is_backfilled: input.deviceId !== null,
           })
           .onConflict((conflict) => conflict.columns(['child_id', 'attendance_date']).doNothing())
           .execute();
       }
-      await this.notifyGuardians(transaction, child, direction, passedAt);
-      return { pass, autoLate };
+      if (input.notify) {
+        await this.notifyGuardians(transaction, child, direction, passedAt);
+      }
+      return { id: pass.id, passed_at: pass.passed_at, duplicate: false, auto_late: autoLate };
     });
-    return {
-      id: result.pass.id,
-      child_id: child.id,
-      child_name: child.full_name,
-      class_name: child.class_name,
-      direction,
-      passed_at: result.pass.passed_at,
-      duplicate: false,
-      auto_late: result.autoLate,
-    };
   }
 
   // Lượt qua cổng gần nhất hôm nay trong phạm vi quét của người dùng (danh sách ở màn hình cổng)
@@ -463,7 +507,7 @@ export class GatePassesService {
     return classRecord;
   }
 
-  private async findChild(database: Kysely<SchoolYearDatabase>, childId: string): Promise<ChildContext> {
+  async findChild(database: Kysely<SchoolYearDatabase>, childId: string): Promise<ChildContext> {
     const child = await database
       .selectFrom('children')
       .leftJoin('class_enrollments', (join) =>

@@ -26,6 +26,8 @@ export interface GatePassesTable {
   confidence: Generated<string>;
   review_status: Generated<GatePassReviewStatus>;
   gate_card_id: string | null;
+  // Thiết bị gửi lượt (lát L2, migration 0245_add_gate_pass_device); thiết bị ở cơ sở dữ liệu hệ thống
+  device_id: string | null;
   recorded_by: string | null;
   external_id: string | null;
   reviewed_by: string | null;

@@ -79,6 +79,8 @@ export const PERMISSION_CODES = {
   // Điểm danh bằng thẻ ở cổng (YCTD-389): ghi lượt qua cổng; cấp, thu hồi thẻ QR
   gatePassRecord: 'P04.gate-pass.record',
   gateCardManage: 'P04.gate-card.manage',
+  // Thiết bị điểm danh, nhập tệp máy chấm công (YCTD-389 lát L2)
+  gateDeviceManage: 'P04.gate-device.manage',
   feeCatalogManage: 'P05.fee-catalog.manage',
   discountTypeManage: 'P05.discount-type.manage',
   cashflowCategoryManage: 'P06.cashflow-category.manage',

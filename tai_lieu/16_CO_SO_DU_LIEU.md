@@ -1105,6 +1105,23 @@ Quy tắc (mã ở `apps/api/src/gate-passes/`):
 3. Lượt vào sau giờ bắt đầu học (cài đặt `school_start_time`) bằng thẻ QR, thẻ RFID hoặc máy chấm công, trong ngày học, khi học sinh chưa có điểm danh ngày, ngày của lớp chưa chốt: ghi `attendance_records` trạng thái `late`, `source = system`, `recorded_by` là người quét, ghi chú giờ vào. Không ghi đè điểm danh đã có; không bao giờ ghi vắng.
 4. Báo nhận nhầm chuyển `review_status` sang `rejected`, không xóa dòng; bảng điểm danh bỏ lượt đã báo nhầm khỏi gợi ý.
 
+## 18U. Thiết bị điểm danh, máy chấm công (YCTD-389 lát L2)
+
+Tệp hệ thống `0141_create_attendance_devices`, năm học `0245_add_gate_pass_device`; kiểu ở `database/system/schema-parts/yctd-389-thiet-bi-diem-danh.ts`.
+
+| Bảng | Mục đích | Cột chính |
+|---|---|---|
+| attendance_devices (hệ thống, dùng qua các năm học) | Thiết bị điểm danh của trường | id, org_unit_id, kind (`qr_scanner`, `rfid_reader`, `face_terminal`, `camera_station`), name, location_name, direction (`in`, `out`, `both`), key_hash (SHA-256 của khóa, duy nhất), key_hint (bốn ký tự cuối), last_seen_at, disabled_at, created_by |
+| gate_passes (năm học, cột mới) | Lượt từ thiết bị | device_id (không có khóa ngoại vì thiết bị ở cơ sở dữ liệu hệ thống); `external_id` là `thiet-bi:<mã thiết bị>:<mã sự kiện>` hoặc `tep:<mã băm của thiết bị, mã, thời điểm>` |
+| attendance_logs (năm học, sửa ràng buộc) | Chấm công cán bộ | `source` thêm `device` |
+
+Quy tắc (mã ở `apps/api/src/gate-passes/attendance-devices.service.ts`, `apps/api/src/staff-attendance/staff-attendance.service.ts` hàm `recordDevicePunch`):
+
+1. Mã người trên thiết bị: đúng dạng mã thẻ QR thì là học sinh (thẻ còn hiệu lực), khác thì tra mã cán bộ (`staff.code`).
+2. Lượt của học sinh ghi `method = device` qua cùng hàm với quét thẻ (gộp 5 phút, tự ghi "Đi muộn"); chỉ báo phụ huynh khi lượt không cũ quá 30 phút.
+3. Lượt của cán bộ: lượt sớm nhất trong ngày là giờ vào, muộn nhất là giờ ra, nguồn `device`; ngày đã nhập tay (`manual`) giữ nguyên; tháng đã chốt bảng công thì từ chối.
+4. Thiết bị ở trường chính nhận người của mọi đơn vị; thiết bị ở đơn vị cấp 2 chỉ nhận người của đơn vị đó.
+
 ## 19. Quan hệ chính giữa các bảng
 
 ```mermaid
