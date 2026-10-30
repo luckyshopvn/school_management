@@ -50,69 +50,71 @@ Sơ đồ chỉ vẽ cấp phân hệ của cổng quản trị (YCTD-107); cây
 
 Từ YCTD-107 (DT-15 phần 15a), cổng quản trị dùng menu ngang nhiều cấp đánh số thay thanh điều hướng bên trái (BC-01, BC-10). Cây menu Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11, dựa trên `47_KE_HOACH_THEO_HE_THONG_SO.md` mục 3: bốn phân hệ đầu giữ đúng số thứ tự của Sở, mục Sở có mà mình chưa có thì để trống số (ví dụ 1.2, 1.3 Phân hiệu, Điểm trường làm ở phần 15b); bảy phân hệ riêng đánh số liên tục cùng kiểu. Mỗi trang của cổng quản trị có đúng một mục (66 trang, 67 trang từ YCTD-108 thêm "4.2. Biến động học sinh", 68 trang từ YCTD-109 thêm "1.3. Phân quyền nhóm theo menu", 69 trang từ YCTD-110 thêm "3.4. Ý kiến phản hồi", 73 trang từ YCTD-111 thêm "1.2. Quản lý phân hiệu", "1.3. Quản lý điểm trường", "2.2. Nhập lớp học từ Excel", "3.3. Phân công phụ trách lớp", 74 trang từ YCTD-116 thêm "4.1.11. Cập nhật địa danh hành chính"); Trang chủ ở đầu thanh menu; Thông báo, Đổi mật khẩu, Danh sách ý kiến đã gửi (`/my-feedback`, từ YCTD-110) ở menu người dùng (MH-84). Cây menu đặt ở gói dùng chung (`PORTAL_WORKSPACES`), điều kiện hiện từng mục giữ như thanh điều hướng cũ (`apps/portal/src/pages/menu-permissions.ts`; từ YCTD-109 chuyển sang gói dùng chung `packages/shared/src/menu-permissions.ts`, `MENU_PERMISSION_RULES`, dạng khai báo, kết quả hiện, ẩn giữ như trước); nhóm không còn mục thì ẩn, phân hệ không còn mục thì không có trong ô Phân hệ. "(nhóm)" là mục mở menu con. Tên nhóm, mục ghi trong các dòng MH trước YCTD-107 là tên trên thanh điều hướng cũ; vị trí hiện hành theo bảng dưới; tên tiêu đề của từng màn hình đổi ở các phần 15c, 15e. Từ YCTD-108 (phần 15c), tiêu đề trang của nhóm "4. Học sinh" lấy theo mục menu kèm số thứ bậc (hàm `menuPageTitle`), ví dụ MH-02 là "4.1.1. Quản lý hồ sơ học sinh", và chữ "trẻ" trên các màn hình học sinh của cổng quản trị đổi thành "học sinh". Từ YCTD-109 (phần 15e), tiêu đề các màn hình của phân hệ Quản trị hệ thống cũng kèm số menu lấy từ cây menu (`apps/portal/src/pages/page-title.ts`): 1.1. Nhóm người dùng, 1.3. Phân quyền nhóm theo menu, 1.4. Danh sách người dùng, 2.1. Năm học, 2.2. Cây đơn vị, 2.3. Phòng ban và chức danh, 2.4. Danh mục dùng chung, 2.5. Phòng học và bậc học, 2.6. Hạn mức phê duyệt, 3.1. Khóa API cho đối tác, 3.2. Kết nối ngoài, 3.3. Nhật ký thao tác (từ YCTD-110 thêm 3.4. Ý kiến phản hồi). Các màn hình 2.1 đến 2.6, 3.2 chỉ đổi tiêu đề, chưa chuyển sang lưới dữ liệu chung. Từ YCTD-111 (phần 15b), tiêu đề các trang của nhóm "1. Trường học", "2. Lớp học" và mục 3.3 cũng lấy từ cây menu kèm số: 1.1. Hồ sơ trường, 1.2. Quản lý phân hiệu, 1.3. Quản lý điểm trường, 1.4. Cấu hình trường (trước là "Cấu hình"), 2.1. Hồ sơ lớp học (trước là "Lớp học"), 2.2. Nhập lớp học từ Excel, 3.3. Phân công phụ trách lớp; 1.1 và 1.4 chỉ đổi tiêu đề. Từ YCTD-112 (phần 15d), tiêu đề MH-12 cũng lấy từ cây menu: "3.1.1. Hồ sơ cán bộ, giáo viên" (trước là "Hồ sơ nhân sự"); đường dẫn và mục menu không đổi. Từ YCTD-113 (phần 15f2), tiêu đề 12 trang của phân hệ "Nhân sự – chấm công, lương" cũng lấy từ cây menu kèm số (tên giữ như trước, chỉ thêm số): 1.1. Chấm công, 1.2. Đơn nghỉ phép, 1.3. Quy định phép năm, 1.4. Ngày lễ và lịch bù, 1.5. Lịch công tác, 2.1. Bảng lương, 2.2. Quyết toán và điều chỉnh lương, 2.3. Danh mục lương và biểu thuế, 2.4. Thưởng và khấu trừ, 2.5. Phiếu lương của tôi, 3.1. Công việc và kế hoạch, 3.2. Đánh giá nhân sự; đường dẫn và mục menu không đổi. Từ YCTD-114 (phần 15f1), tiêu đề 15 trang của phân hệ "Tài chính – học phí" cũng lấy từ cây menu kèm số: 1.1. Biểu phí và dịch vụ, 1.2. Đăng ký dịch vụ, 1.3. Học phí, 1.4. Duyệt miễn giảm và điều chỉnh, 1.5. Công nợ, 1.6. Nhắc nợ và xử lý quá hạn, 2.1. Phiếu thu, 2.2. Phiếu chi, 2.3. Quỹ và ngân hàng, 2.4. Sổ quỹ, 2.5. Đối chiếu ngân hàng, 2.6. Nợ nhà cung cấp, 2.7. Khoản mục thu chi, 3.1. Sổ kế toán, 3.2. Chốt kỳ tài chính; đường dẫn và mục menu không đổi. Từ YCTD-115 (phần 15f3), tiêu đề 8 trang của các phân hệ Bếp – kho, mua hàng; Tương tác – truyền thông; Giảng dạy; Tuyển sinh, tuyển dụng; Báo cáo cũng lấy từ cây menu kèm số: 1. Kho và tài sản, 2. Đề nghị mua hàng, 1. Tương tác với phụ huynh, 2. Hoạt động và tin tức, 1. Bài học và giáo án, 1. Tuyển sinh, 2. Tuyển dụng, 1. Báo cáo và bảng điều khiển; đường dẫn và mục menu không đổi.
 
+Cột "Phân hệ" ghi tên gốc "Quản lý giáo dục". Tên hiện trên giao diện đặt theo cấp (DT-19 phần 19c, YCTD-388): trường hoặc người dùng làm việc ở một cấp thấy "Quản lý giáo dục <tên cấp>" ("Quản lý giáo dục Mầm non" như Sở, "Quản lý giáo dục Tiểu học", "Quản lý giáo dục Trung học cơ sở", "Quản lý giáo dục Trung học phổ thông"); trường nhiều cấp chọn "Tất cả" thấy "Quản lý giáo dục". Ô chọn phân hệ, hộp chọn trang của Truy cập nhanh, Tất cả chức năng, Tìm chức năng theo cấp đang làm việc; 1.2 Phân quyền nhóm theo phần mềm và 1.3 Phân quyền nhóm theo menu theo các cấp trường đã bật; lúc ngữ cảnh trường đang tải chỉ hiện "Quản lý giáo dục". Mục chỉ của một cấp ghi ở đoạn "Từ YCTD-153" bên dưới.
+
 | Phân hệ | Số | Mục | Đường dẫn |
 |---|---|---|---|
-| Quản lý giáo dục Mầm non | 1. | Trường học | (nhóm) |
-| Quản lý giáo dục Mầm non | 1.1. | Hồ sơ trường | `/school-profile` |
-| Quản lý giáo dục Mầm non | 1.2. | Quản lý phân hiệu | `/branches` |
-| Quản lý giáo dục Mầm non | 1.3. | Quản lý điểm trường | `/school-sites` |
-| Quản lý giáo dục Mầm non | 1.4. | Cấu hình trường | `/settings` |
-| Quản lý giáo dục Mầm non | 1.6. | Tài khoản đồng bộ của Bộ, của Sở | `/sync-accounts` |
-| Quản lý giáo dục Mầm non | 1.7. | Rà soát thông tin kiểm định CLGD | `/accreditation-review` |
-| Quản lý giáo dục Mầm non | 1.8. | Tách trường | `/school-splits` |
-| Quản lý giáo dục Mầm non | 2. | Lớp học | (nhóm) |
-| Quản lý giáo dục Mầm non | 2.1. | Hồ sơ lớp học | `/classes` |
-| Quản lý giáo dục Mầm non | 2.2. | Nhập lớp học từ Excel | `/class-imports` |
-| Quản lý giáo dục Mầm non | 3. | Nhân sự | (nhóm) |
-| Quản lý giáo dục Mầm non | 3.1. | Hồ sơ nhân sự | (nhóm) |
-| Quản lý giáo dục Mầm non | 3.1.1. | Hồ sơ cán bộ, giáo viên | `/staff` |
-| Quản lý giáo dục Mầm non | 3.1.2. | Nhân sự phân hiệu | `/staff-branches` |
-| Quản lý giáo dục Mầm non | 3.1.3. | Nhập nhân sự từ Excel | `/staff-imports` |
-| Quản lý giáo dục Mầm non | 3.1.5. | Xác thực số định danh nhân sự với CSDLQG về dân cư | `/staff-identity` |
-| Quản lý giáo dục Mầm non | 3.2. | Đánh giá chuẩn nghề nghiệp | `/professional-standards` |
-| Quản lý giáo dục Mầm non | 3.3. | Phân công phụ trách lớp | `/class-assignments` |
-| Quản lý giáo dục Mầm non | 3.4. | Khai báo tuần | `/school-weeks` |
-| Quản lý giáo dục Mầm non | 3.5. | Biến động nhân sự | `/staff-movements` |
-| Quản lý giáo dục Mầm non | 4. | Học sinh | (nhóm) |
-| Quản lý giáo dục Mầm non | 4.1. | Hồ sơ học sinh | (nhóm) |
-| Quản lý giáo dục Mầm non | 4.1.1. | Quản lý hồ sơ học sinh | `/children` |
-| Quản lý giáo dục Mầm non | 4.1.2. | Nhập học sinh từ Excel | `/student-imports` |
-| Quản lý giáo dục Mầm non | 4.1.3. | Sắp xếp học sinh | `/student-order` |
-| Quản lý giáo dục Mầm non | 4.1.5. | Điện thoại nhận tin của phụ huynh | `/sms-phones` |
-| Quản lý giáo dục Mầm non | 4.1.6. | Nhóm học sinh | `/child-groups` |
-| Quản lý giáo dục Mầm non | 4.1.8. | Thu thập, xác thực số định danh | `/national-ids` |
-| Quản lý giáo dục Mầm non | 4.1.10. | Tài khoản học và thi | `/learning-accounts` |
-| Quản lý giáo dục Mầm non | 4.1.11. | Cập nhật địa danh hành chính | `/administrative-units` |
-| Quản lý giáo dục Mầm non | 4.1.13. | Nhập dữ liệu khác từ Excel | `/imports` |
-| Quản lý giáo dục Mầm non | 4.2. | Biến động học sinh | `/student-movements` |
-| Quản lý giáo dục Mầm non | 4.3. | Cân nặng, chiều cao | (nhóm) |
-| Quản lý giáo dục Mầm non | 4.3.1. | Nhập kết quả sức khỏe nuôi dưỡng | `/growth` |
-| Quản lý giáo dục Mầm non | 4.3.2. | Tổng hợp cân nặng, chiều cao | `/growth-report` |
-| Quản lý giáo dục Mầm non | 4.4. | Hoàn thành chương trình | `/program-completion` |
-| Quản lý giáo dục Mầm non | 4.5. | Thực đơn bữa ăn | `/kitchen` |
-| Quản lý giáo dục Mầm non | 4.6. | Sức khỏe học sinh | (nhóm) |
-| Quản lý giáo dục Mầm non | 4.6.1. | Nhập thông tin sức khỏe học sinh | `/student-health` |
-| Quản lý giáo dục Mầm non | 4.6.2. | Y tế học đường | `/health` |
-| Quản lý giáo dục Mầm non | 4.6.3. | Thuốc và dặn thuốc | `/medicines` |
-| Quản lý giáo dục Mầm non | 4.7. | Điểm danh | `/attendance` |
-| Quản lý giáo dục Mầm non | 5. | Công cụ hỗ trợ | (nhóm) |
-| Quản lý giáo dục Mầm non | 5.1. | Thống kê lớp, nhân sự, học sinh | `/statistics` |
-| Quản lý giáo dục Mầm non | 5.2. | Thống kê nhân sự | `/staff-statistics` |
-| Quản lý giáo dục Mầm non | 5.3. | Thống kê học sinh | `/student-statistics` |
-| Quản lý giáo dục Mầm non | 5.4. | Mã định danh, mật khẩu mặc định | `/default-passwords` |
-| Quản lý giáo dục Mầm non | 5.5. | Tiến độ xác thực số định danh học sinh | `/national-id-progress` |
-| Quản lý giáo dục Mầm non | 5.6. | Tiến độ xác thực số định danh nhân sự | `/staff-identity-progress` |
-| Quản lý giáo dục Mầm non | 5.7. | Chuyển hồ sơ lên năm học mới | `/year-rollover` |
-| Quản lý giáo dục Mầm non | 5.8. | Thống kê hồ sơ chưa nhập đủ | `/missing-profiles` |
-| Quản lý giáo dục Mầm non | 5.10. | Văn thư lưu trữ | (nhóm) |
-| Quản lý giáo dục Mầm non | 5.10.1. | Hồ sơ tài liệu | `/archive-records` |
-| Quản lý giáo dục Mầm non | 5.10.2. | Phông lưu trữ | `/archive-fonds` |
-| Quản lý giáo dục Mầm non | 5.10.3. | Thông tin lưu trữ | `/archive-holdings` |
-| Quản lý giáo dục Mầm non | 5.10.4. | Báo cáo lưu trữ | `/archive-report` |
-| Quản lý giáo dục Mầm non | 5.11. | Danh sách trúng tuyển Tuyển sinh đầu cấp | `/admitted-students` |
-| Quản lý giáo dục Mầm non | 6. | Cơ sở vật chất | (nhóm) |
-| Quản lý giáo dục Mầm non | 6.1. | Thực trạng và nhu cầu đầu tư phòng học, nhà công vụ | `/facility-investments` |
-| Quản lý giáo dục Mầm non | 6.2. | Nhập liệu cơ sở vật chất | `/facility-input` |
+| Quản lý giáo dục | 1. | Trường học | (nhóm) |
+| Quản lý giáo dục | 1.1. | Hồ sơ trường | `/school-profile` |
+| Quản lý giáo dục | 1.2. | Quản lý phân hiệu | `/branches` |
+| Quản lý giáo dục | 1.3. | Quản lý điểm trường | `/school-sites` |
+| Quản lý giáo dục | 1.4. | Cấu hình trường | `/settings` |
+| Quản lý giáo dục | 1.6. | Tài khoản đồng bộ của Bộ, của Sở | `/sync-accounts` |
+| Quản lý giáo dục | 1.7. | Rà soát thông tin kiểm định CLGD | `/accreditation-review` |
+| Quản lý giáo dục | 1.8. | Tách trường | `/school-splits` |
+| Quản lý giáo dục | 2. | Lớp học | (nhóm) |
+| Quản lý giáo dục | 2.1. | Hồ sơ lớp học | `/classes` |
+| Quản lý giáo dục | 2.2. | Nhập lớp học từ Excel | `/class-imports` |
+| Quản lý giáo dục | 3. | Nhân sự | (nhóm) |
+| Quản lý giáo dục | 3.1. | Hồ sơ nhân sự | (nhóm) |
+| Quản lý giáo dục | 3.1.1. | Hồ sơ cán bộ, giáo viên | `/staff` |
+| Quản lý giáo dục | 3.1.2. | Nhân sự phân hiệu | `/staff-branches` |
+| Quản lý giáo dục | 3.1.3. | Nhập nhân sự từ Excel | `/staff-imports` |
+| Quản lý giáo dục | 3.1.5. | Xác thực số định danh nhân sự với CSDLQG về dân cư | `/staff-identity` |
+| Quản lý giáo dục | 3.2. | Đánh giá chuẩn nghề nghiệp | `/professional-standards` |
+| Quản lý giáo dục | 3.3. | Phân công phụ trách lớp | `/class-assignments` |
+| Quản lý giáo dục | 3.4. | Khai báo tuần | `/school-weeks` |
+| Quản lý giáo dục | 3.5. | Biến động nhân sự | `/staff-movements` |
+| Quản lý giáo dục | 4. | Học sinh | (nhóm) |
+| Quản lý giáo dục | 4.1. | Hồ sơ học sinh | (nhóm) |
+| Quản lý giáo dục | 4.1.1. | Quản lý hồ sơ học sinh | `/children` |
+| Quản lý giáo dục | 4.1.2. | Nhập học sinh từ Excel | `/student-imports` |
+| Quản lý giáo dục | 4.1.3. | Sắp xếp học sinh | `/student-order` |
+| Quản lý giáo dục | 4.1.5. | Điện thoại nhận tin của phụ huynh | `/sms-phones` |
+| Quản lý giáo dục | 4.1.6. | Nhóm học sinh | `/child-groups` |
+| Quản lý giáo dục | 4.1.8. | Thu thập, xác thực số định danh | `/national-ids` |
+| Quản lý giáo dục | 4.1.10. | Tài khoản học và thi | `/learning-accounts` |
+| Quản lý giáo dục | 4.1.11. | Cập nhật địa danh hành chính | `/administrative-units` |
+| Quản lý giáo dục | 4.1.13. | Nhập dữ liệu khác từ Excel | `/imports` |
+| Quản lý giáo dục | 4.2. | Biến động học sinh | `/student-movements` |
+| Quản lý giáo dục | 4.3. | Cân nặng, chiều cao | (nhóm) |
+| Quản lý giáo dục | 4.3.1. | Nhập kết quả sức khỏe nuôi dưỡng | `/growth` |
+| Quản lý giáo dục | 4.3.2. | Tổng hợp cân nặng, chiều cao | `/growth-report` |
+| Quản lý giáo dục | 4.4. | Hoàn thành chương trình | `/program-completion` |
+| Quản lý giáo dục | 4.5. | Thực đơn bữa ăn | `/kitchen` |
+| Quản lý giáo dục | 4.6. | Sức khỏe học sinh | (nhóm) |
+| Quản lý giáo dục | 4.6.1. | Nhập thông tin sức khỏe học sinh | `/student-health` |
+| Quản lý giáo dục | 4.6.2. | Y tế học đường | `/health` |
+| Quản lý giáo dục | 4.6.3. | Thuốc và dặn thuốc | `/medicines` |
+| Quản lý giáo dục | 4.7. | Điểm danh | `/attendance` |
+| Quản lý giáo dục | 5. | Công cụ hỗ trợ | (nhóm) |
+| Quản lý giáo dục | 5.1. | Thống kê lớp, nhân sự, học sinh | `/statistics` |
+| Quản lý giáo dục | 5.2. | Thống kê nhân sự | `/staff-statistics` |
+| Quản lý giáo dục | 5.3. | Thống kê học sinh | `/student-statistics` |
+| Quản lý giáo dục | 5.4. | Mã định danh, mật khẩu mặc định | `/default-passwords` |
+| Quản lý giáo dục | 5.5. | Tiến độ xác thực số định danh học sinh | `/national-id-progress` |
+| Quản lý giáo dục | 5.6. | Tiến độ xác thực số định danh nhân sự | `/staff-identity-progress` |
+| Quản lý giáo dục | 5.7. | Chuyển hồ sơ lên năm học mới | `/year-rollover` |
+| Quản lý giáo dục | 5.8. | Thống kê hồ sơ chưa nhập đủ | `/missing-profiles` |
+| Quản lý giáo dục | 5.10. | Văn thư lưu trữ | (nhóm) |
+| Quản lý giáo dục | 5.10.1. | Hồ sơ tài liệu | `/archive-records` |
+| Quản lý giáo dục | 5.10.2. | Phông lưu trữ | `/archive-fonds` |
+| Quản lý giáo dục | 5.10.3. | Thông tin lưu trữ | `/archive-holdings` |
+| Quản lý giáo dục | 5.10.4. | Báo cáo lưu trữ | `/archive-report` |
+| Quản lý giáo dục | 5.11. | Danh sách trúng tuyển Tuyển sinh đầu cấp | `/admitted-students` |
+| Quản lý giáo dục | 6. | Cơ sở vật chất | (nhóm) |
+| Quản lý giáo dục | 6.1. | Thực trạng và nhu cầu đầu tư phòng học, nhà công vụ | `/facility-investments` |
+| Quản lý giáo dục | 6.2. | Nhập liệu cơ sở vật chất | `/facility-input` |
 | Quản lý cơ sở vật chất, TBDH | 1. | Cơ sở vật chất | (nhóm) |
 | Quản lý cơ sở vật chất, TBDH | 1.1. | Khai báo cơ sở vật chất | `/facility-rooms` |
 | Quản lý cơ sở vật chất, TBDH | 1.2. | Báo cáo cơ sở vật chất | `/facility-report` |
@@ -813,7 +815,7 @@ Từ YCTD-159 (DT-20 phần 20b), mục 4.8 "Bán trú" (chọn đơn vị, lớ
 Từ YCTD-158 (DT-20 phần 20a), phân hệ Quản lý giáo dục có nhóm "7. Dạy học Tiểu học" (MH-261, MH-262) chỉ khi làm việc ở cấp Tiểu học hoặc "Tất cả" ở trường có Tiểu học; trường chỉ có Mầm non không thấy nhóm này.
 
 Từ YCTD-167 (DT-21 phần 21a), nhóm 7 đổi tên "7. Dạy học" và hiện ở cả Tiểu học, THCS, THPT: 7.1 Môn học và hoạt động giáo dục, 7.2 Phân công giảng dạy theo môn (có ô chọn cấp khi trường bật nhiều cấp ngoài Mầm non) dùng chung ba cấp; 7.3, 7.4, 7.5 vẫn chỉ ở Tiểu học; 7.12 Tổ hợp môn chỉ ở THPT (MH-271); 7.13 Tổ bộ môn ở THCS, THPT (MH-272); 7.14 Sổ điểm ở THCS, THPT (MH-274, YCTD-170); 7.8 Học bạ, khen thưởng, lên lớp dùng chung Tiểu học, THCS, THPT (MH-288, YCTD-172); 7.15 Xét tốt nghiệp, hồ sơ thi ở THCS, THPT (MH-301, YCTD-174).
-Từ YCTD-165 (DT-20 phần 20f), mục 7.15 "Báo cáo, thống kê, EMIS Tiểu học" (chỉ hiện khi trường bật Tiểu học): chọn đơn vị; thẻ Sĩ số (bảng theo khối và Toàn trường), Kết quả đánh giá (chọn kỳ, gộp theo lớp, khối, toàn trường; bảng môn học, bảng phẩm chất, năng lực), Cuối năm (gộp; kết quả cuối năm, hoàn thành chương trình, khen thưởng), Chuyên cần, bán trú (từ ngày, đến ngày; bảng theo lớp), mỗi thẻ có Xuất Excel, Xuất PDF; thẻ EMIS Tiểu học (chọn biểu, bảng Chỉ tiêu, Mã số, Đơn vị và các cột; ô nhập tay ở dòng nhập tay, Lưu số nhập tay; biểu đã gửi thì khoá; Ban Giám hiệu có Sửa khung biểu: mã dòng, chỉ tiêu, loại, công thức, Thêm dòng, Lưu khung biểu). Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11.
+Từ YCTD-165 (DT-20 phần 20f), mục 7.15 "Báo cáo, thống kê, EMIS Tiểu học" (chỉ hiện khi trường bật Tiểu học): chọn đơn vị; thẻ Sĩ số (bảng theo khối và Toàn trường), Kết quả đánh giá (chọn kỳ, gộp theo lớp, khối, toàn trường; bảng môn học, bảng phẩm chất, năng lực), Cuối năm (gộp; kết quả cuối năm, hoàn thành chương trình, khen thưởng), Chuyên cần, bán trú (từ ngày, đến ngày; bảng theo lớp), mỗi thẻ có Xuất Excel, Xuất PDF; thẻ EMIS Tiểu học (chọn biểu, bảng Chỉ tiêu, Mã số, Đơn vị và các cột; ô nhập tay ở dòng nhập tay, Lưu số nhập tay; biểu đã gửi thì khoá; Ban Giám hiệu có Sửa khung biểu: mã dòng, chỉ tiêu, loại, công thức, Thêm dòng, Lưu khung biểu). Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11. Từ YCTD-385 lát L1 (MH-621, bản mẫu `tai_lieu/ban_mau/yctd-385/`): danh sách biểu đưa biểu Thông tư 25/2024 lên đầu (02.ĐN-TH, 02.CN-TH), biểu khung cũ xếp vào nhóm "Biểu khung cũ" cuối danh sách (vẫn xem, sửa được số đã nhập); biểu nhiều phần có hàng nút chọn phần (I. Trường, II. Lớp, III. Học sinh, IV. Đội ngũ, V. Phòng học tập), tiêu đề nhóm cột theo loại hình của trường (Công lập hoặc Tư thục), cột Chỉ tiêu cố định khi cuộn ngang, dòng thụt lề theo dấu "-", "+", nhãn "Nhập tay" dưới dòng nhập tay; dòng chữ không mã số không hiện mã; biểu pháp định không có nút Sửa khung biểu.
 
 Từ YCTD-167 (DT-21 phần 21a), nhóm 7 đổi tên "7. Dạy học" và hiện ở cả Tiểu học, THCS, THPT: 7.1 Môn học và hoạt động giáo dục, 7.2 Phân công giảng dạy theo môn (có ô chọn cấp khi trường bật nhiều cấp ngoài Mầm non) dùng chung ba cấp; 7.3, 7.4, 7.5 vẫn chỉ ở Tiểu học; 7.12 Tổ hợp môn chỉ ở THPT (MH-271); 7.13 Tổ bộ môn ở THCS, THPT (MH-272); 7.14 Sổ điểm ở THCS, THPT (MH-274, YCTD-170).
 

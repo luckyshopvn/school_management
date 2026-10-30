@@ -371,9 +371,9 @@ Gom từ khi rà mã ngày 2026-10-25. Tài liệu 49 mô tả theo mã; các ch
 
 | Chỗ | Tài liệu nói | Mã làm |
 |---|---|---|
-| Tên phân hệ theo cấp (tài liệu 47, DT-19 phần 19c) | Phân hệ đổi tên thành "Quản lý giáo dục" khi trường bật cấp khác | `portalWorkspacesForLevels` (portal-menu.ts) đặt "Quản lý giáo dục <tên cấp>" khi người dùng làm việc ở đúng một cấp; chỉ "Quản lý giáo dục" khi chọn "Tất cả" |
+| Tên phân hệ theo cấp (tài liệu 47, DT-19 phần 19c) | Phân hệ đổi tên thành "Quản lý giáo dục" khi trường bật cấp khác | `portalWorkspacesForLevels` (portal-menu.ts) đặt "Quản lý giáo dục <tên cấp>" khi người dùng làm việc ở đúng một cấp; chỉ "Quản lý giáo dục" khi chọn "Tất cả"; từ YCTD-388 hộp Truy cập nhanh, 1.2, trang Hướng dẫn và lúc đang tải cũng theo quy tắc này (trước đó vẫn hiện "Quản lý giáo dục Mầm non" ở trường liên cấp) |
 | Thuật ngữ theo cấp (32, 19c) | Mầm non hiện "Trẻ", "Hồ sơ trẻ" theo bảng nhãn dùng chung | Nhãn menu trong portal-menu.ts cố định "Học sinh", "Hồ sơ học sinh"; trang 4.1.x cũng cố định "học sinh" |
-| Tài liệu 14 mục 1.1 (bảng menu) | Mọi dòng ghi "Quản lý giáo dục Mầm non", không có cột cấp; MH-76, MH-77, MH-78 lặp hai lần | 4.3, 4.4 chỉ MN; 4.8 chỉ TH; 4.9 TH, THCS, THPT |
+| Tài liệu 14 mục 1.1 (bảng menu) | Mọi dòng ghi "Quản lý giáo dục Mầm non", không có cột cấp (YCTD-388 đổi thành tên gốc "Quản lý giáo dục", thêm đoạn giải thích tên theo cấp); MH-76, MH-77, MH-78 lặp hai lần | 4.3, 4.4 chỉ MN; 4.8 chỉ TH; 4.9 TH, THCS, THPT |
 | Chuẩn nghề nghiệp 3.2 | Kỳ vọng có chuẩn giáo viên phổ thông TT 20/2018 và chuẩn hiệu trưởng phổ thông | Chỉ có chuẩn giáo viên mầm non TT 26/2018 và chuẩn hiệu trưởng mầm non TT 25/2018 (migration 0047), ghi "cần đối chiếu văn bản" |
 | 1.7 Rà soát kiểm định | Phục vụ các cấp sau DT-19 đến DT-21 | `accreditation-review.ts` cố định cấp "Mầm non" |
 | BR-124 (tệp 82 cột) | Cần cả quyền xem số định danh và quyền xuất | `POST /school-splits/:id/export` chỉ kiểm tra `P01.school-profile.manage` và `P17.data.export` nhưng giải mã số định danh vào tệp |
