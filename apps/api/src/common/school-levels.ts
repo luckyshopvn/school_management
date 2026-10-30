@@ -6,8 +6,10 @@ import {
   isSchoolLevelCode,
   SCHOOL_LEVEL_PARAMETER,
   SCHOOL_LEVELS,
+  schoolLevelTerms,
   visibleSchoolLevels,
   type SchoolLevelCode,
+  type SchoolLevelTerms,
   type SchoolLevelView,
 } from '@school-management/shared';
 import type { CurrentUser } from '../authentication/current-user.js';
@@ -116,6 +118,13 @@ export class SchoolLevelResolver {
     }
     await this.assertCanAccess(currentUser, value);
     return [value];
+  }
+
+  // Thuật ngữ của các cấp trong yêu cầu ("Trẻ" hay "Học sinh", thuật ngữ trường đặt ở 1.4), cùng cách tính với cổng quản
+  // trị; dùng cho nhãn tệp xuất (YCTD-394)
+  async requestedTerms(currentUser: CurrentUser, value: unknown): Promise<SchoolLevelTerms> {
+    const codes = await this.requested(currentUser, value);
+    return schoolLevelTerms((await this.all()).filter((level) => codes.includes(level.code)));
   }
 
   invalidate(): void {

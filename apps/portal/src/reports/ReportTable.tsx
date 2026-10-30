@@ -1,6 +1,9 @@
+import { fillLearnerTerm } from '@school-management/shared';
+import { useSchoolLevelTerms } from '../school-levels/working-level.js';
 import { formatNumber, type ReportRow } from './reports-api.js';
 
-// Bảng số liệu của một báo cáo; giá trị mã được đổi sang chữ dễ đọc (YCTD-62, YCTD-83)
+// Bảng số liệu của một báo cáo; giá trị mã được đổi sang chữ dễ đọc (YCTD-62, YCTD-83). Tiêu đề, nhãn cột có chỗ giữ
+// "{người học}" ghi theo cấp đang làm việc (YCTD-394)
 export interface Column {
   key: string;
   label: string;
@@ -13,7 +16,17 @@ const LABELS: Record<string, string> = {
   absent_unnotified: 'Vắng không báo',
 };
 
-export function ReportTable({ rows, columns, title }: { rows: ReportRow[]; columns: Column[]; title: string }) {
+export function ReportTable({
+  rows,
+  columns,
+  title: rawTitle,
+}: {
+  rows: ReportRow[];
+  columns: Column[];
+  title: string;
+}) {
+  const terms = useSchoolLevelTerms();
+  const title = fillLearnerTerm(rawTitle, terms);
   return (
     <section
       className="flex flex-col gap-2 overflow-x-auto rounded-xl border border-border bg-card p-4"
@@ -28,7 +41,7 @@ export function ReportTable({ rows, columns, title }: { rows: ReportRow[]; colum
             <tr>
               {columns.map((column) => (
                 <th key={column.key} className="px-3 py-2">
-                  {column.label}
+                  {fillLearnerTerm(column.label, terms)}
                 </th>
               ))}
             </tr>

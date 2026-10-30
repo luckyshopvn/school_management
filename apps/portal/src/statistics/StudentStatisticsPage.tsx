@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { STUDENT_HEALTH_TERMS, type StudentHealthTermValue } from '@school-management/shared';
+import { STUDENT_HEALTH_TERMS, fillLearnerTerm, type StudentHealthTermValue } from '@school-management/shared';
 import { Alert, Button, DataGrid, type DataGridColumn } from '@school-management/ui';
 import { UnitSelect, useUnitChoice } from '../catalogs/UnitSelect.js';
 import { messageOf } from '../health/health-api.js';
@@ -9,6 +9,7 @@ import { matchesSearch } from '../pages/grid-search.js';
 import { useGridSettings } from '../pages/grid-settings.js';
 import { menuPageTitle } from '../pages/page-title.js';
 import { formatNumber } from '../reports/reports-api.js';
+import { useSchoolLevelTerms } from '../school-levels/working-level.js';
 import { MissingView } from './MissingProfilesPage.js';
 import { Table } from './StatisticsPage.js';
 import {
@@ -26,7 +27,7 @@ import {
 // Xuất Excel, PDF các bảng thống kê
 type Tab = 'age' | 'completion' | 'policy' | 'health' | 'ethnic' | 'missing';
 const TABS: Array<[Tab, string]> = [
-  ['age', 'Trẻ trong độ tuổi theo nhóm, lớp'],
+  ['age', '{Người học} trong độ tuổi theo nhóm, lớp'],
   ['completion', 'Biểu đồ hoàn thành chương trình'],
   ['policy', 'Diện chính sách theo độ tuổi'],
   ['health', 'Biết bơi, bệnh về mắt theo học kỳ'],
@@ -123,6 +124,7 @@ function EthnicList({ students }: { students: EthnicStudent[] }) {
 
 export function StudentStatisticsView({ orgUnitId, schoolLevel = '' }: { orgUnitId: string; schoolLevel?: string }) {
   const [tab, setTab] = useState<Tab>('age');
+  const terms = useSchoolLevelTerms();
   const [term, setTerm] = useState<StudentHealthTermValue>(defaultTerm);
   const [exportError, setExportError] = useState<string>();
   const stats = useQuery({
@@ -172,7 +174,7 @@ export function StudentStatisticsView({ orgUnitId, schoolLevel = '' }: { orgUnit
             variant={tab === code ? 'secondary' : 'text'}
             onClick={() => setTab(code)}
           >
-            {label}
+            {fillLearnerTerm(label, terms)}
           </Button>
         ))}
       </div>
@@ -191,7 +193,7 @@ export function StudentStatisticsView({ orgUnitId, schoolLevel = '' }: { orgUnit
             rows={data.by_age.map((group) => [group.label, group.count, group.female, group.percent])}
           />
           {ageTable(
-            'Trẻ trong độ tuổi theo nhóm, lớp',
+            fillLearnerTerm('{Người học} trong độ tuổi theo nhóm, lớp', terms),
             'Lớp',
             data,
             data.by_class.map((row) => ({ ...row, name: row.class_name })),

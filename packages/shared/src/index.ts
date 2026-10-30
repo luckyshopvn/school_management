@@ -76,6 +76,11 @@ export const PERMISSION_CODES = {
   attendanceManage: 'P04.attendance.manage',
   authorizedPickupManage: 'P02.authorized-pickup.manage',
   pickupGateConfirm: 'P04.pickup.gate-confirm',
+  // Điểm danh bằng thẻ ở cổng (YCTD-389): ghi lượt qua cổng; cấp, thu hồi thẻ QR
+  gatePassRecord: 'P04.gate-pass.record',
+  gateCardManage: 'P04.gate-card.manage',
+  // Thiết bị điểm danh, nhập tệp máy chấm công (YCTD-389 lát L2)
+  gateDeviceManage: 'P04.gate-device.manage',
   feeCatalogManage: 'P05.fee-catalog.manage',
   discountTypeManage: 'P05.discount-type.manage',
   cashflowCategoryManage: 'P06.cashflow-category.manage',
@@ -296,6 +301,9 @@ export const PERMISSION_CODES = {
   boardingManage: 'P04.boarding.manage',
   conductRecord: 'P02.conduct.record',
   conductManage: 'P02.conduct.manage',
+  // Giám thị và rèn luyện từng học sinh (YCTD-391)
+  supervisionRecord: 'P02.supervision.record',
+  supervisionManage: 'P02.supervision.manage',
   assessmentEnter: 'P02.assessment.enter',
   assessmentView: 'P02.assessment.view',
   assessmentManage: 'P02.assessment.manage',
@@ -342,7 +350,7 @@ export type ApprovalDocumentType = (typeof APPROVAL_DOCUMENT_TYPES)[number]['cod
 // Tên phân hệ theo mã, dùng làm tên nhóm chức năng trên ma trận quyền (03_DANH_SACH_CONG_VIEC.md mục 1)
 export const MODULE_NAMES: Record<string, string> = {
   P01: 'Nền tảng, đơn vị và phân quyền',
-  P02: 'Trẻ, phụ huynh và lớp học',
+  P02: '{Người học}, phụ huynh và lớp học',
   P03: 'Giảng dạy',
   P04: 'Điểm danh và chăm sóc hằng ngày',
   P05: 'Học phí, khoản thu và giảm trừ',
@@ -409,6 +417,7 @@ export const PORTAL_QUICK_LINK_PATHS = [
   '/kitchen',
   '/boarding',
   '/conduct',
+  '/supervision',
   '/medicines',
   '/inventory',
   '/activities',

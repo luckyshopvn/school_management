@@ -13,3 +13,20 @@ export function remainingPercent(remaining: number, total: number): number {
   }
   return Math.max(0, Math.min(100, Math.round((remaining / total) * 100)));
 }
+
+// Ảnh bài tập (YCTD-383 lát L4): kiểm sơ bộ ở ứng dụng trước khi nén; máy chủ kiểm lại loại, cỡ, số ảnh
+export const TUTOR_IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
+
+export function tutorImagesProblem(
+  picked: ReadonlyArray<{ type: string }>,
+  alreadyChosen: number,
+  maxCount: number,
+): string | null {
+  if (alreadyChosen + picked.length > maxCount) {
+    return `Mỗi câu hỏi gửi tối đa ${maxCount} ảnh`;
+  }
+  if (picked.some((file) => !TUTOR_IMAGE_TYPES.includes(file.type))) {
+    return 'Chỉ gửi ảnh JPEG, PNG hoặc WebP';
+  }
+  return null;
+}
