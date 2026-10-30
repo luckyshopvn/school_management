@@ -25,6 +25,20 @@ describe('computeAiCharges (CT-AI-1)', () => {
     assert.deepEqual(idle.lines, []);
   });
 
+  test('gia sư AI học sinh (YCTD-383 lát L2): dòng phí ghi riêng tên, cùng đơn giá với trợ lý AI', () => {
+    const result = computeAiCharges(PRICING, [
+      { model: 'm', requests: 1, inputTokens: 1_000, outputTokens: 0 },
+      { model: 'm', label: 'Gia sư AI học sinh', requests: 2, inputTokens: 2_000, outputTokens: 0 },
+    ]);
+    assert.deepEqual(
+      result.lines.map((line) => [line.description.split(':')[0], line.amount]),
+      [
+        ['Trợ lý AI, mô hình m', 100],
+        ['Gia sư AI học sinh, mô hình m', 200],
+      ],
+    );
+  });
+
   test('một mô hình: token vào và ra nhân đơn giá theo một nghìn token', () => {
     const result = computeAiCharges(PRICING, [{ model: 'm', requests: 3, inputTokens: 20_000, outputTokens: 10_000 }]);
     // 20 nghìn × 100 + 10 nghìn × 500 = 7.000

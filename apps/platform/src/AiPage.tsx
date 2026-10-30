@@ -38,12 +38,20 @@ interface UsageRow {
   school_id: string;
   code: string;
   name: string;
-  config: 'school' | 'platform';
+  config: 'school' | 'platform' | 'tutor_school' | 'tutor_platform';
   model: string;
   requests: number;
   input_tokens: number;
   output_tokens: number;
 }
+
+// Gia sư AI học sinh (YCTD-383 lát L2): token của gói trường bán tính lên hóa đơn dịch vụ, của gói nền tảng bán là chi phí của nền tảng
+const USAGE_CONFIG_LABELS: Record<UsageRow['config'], string> = {
+  platform: 'Nền tảng cấp khóa (thu phí)',
+  school: 'Trường tự nhập khóa (miễn phí)',
+  tutor_school: 'Gia sư AI học sinh, gói trường bán (thu phí)',
+  tutor_platform: 'Gia sư AI học sinh, gói nền tảng bán (chi phí nền tảng)',
+};
 
 interface PlanSchoolRow {
   id: string;
@@ -483,10 +491,11 @@ export function AiPage({
                           <div className="muted">{row.code}</div>
                         </td>
                         <td>
-                          <span className="status" data-tone={row.config === 'platform' ? 'info' : 'idle'}>
-                            {row.config === 'platform'
-                              ? 'Nền tảng cấp khóa (thu phí)'
-                              : 'Trường tự nhập khóa (miễn phí)'}
+                          <span
+                            className="status"
+                            data-tone={row.config === 'platform' || row.config === 'tutor_school' ? 'info' : 'idle'}
+                          >
+                            {USAGE_CONFIG_LABELS[row.config]}
                           </span>
                         </td>
                         <td>{row.model}</td>
