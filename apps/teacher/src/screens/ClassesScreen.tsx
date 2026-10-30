@@ -12,6 +12,7 @@ import { ApiError, fetchCurrentUser, requestJson } from '../session/api-client.j
 import { useSession } from '../session/session.js';
 import { CheckInCard } from './CheckInCard.js';
 import { NotificationsPanel } from './NotificationsPanel.js';
+import { AI_TUTOR_FLAGS_PATH, type AiTutorFlagList } from './AiTutorFlagsScreen.js';
 
 // MG-01 Lớp của tôi hôm nay: các lớp đang được phân công (YCTD-44); bảo vệ mở xác nhận người đón tại cổng (MG-16)
 export interface MyClass {
@@ -75,6 +76,7 @@ export function ClassesScreen({
   onOpenClassroomTools,
   onOpenClassroomMode,
   onOpenTutoring,
+  onOpenAiTutorFlags,
 }: {
   onOpen(myClass: MyClass): void;
   onOpenPickup(myClass: MyClass): void;
@@ -102,6 +104,7 @@ export function ClassesScreen({
   onOpenClassroomTools(classes: MyClass[]): void;
   onOpenClassroomMode(classes: MyClass[]): void;
   onOpenTutoring(): void;
+  onOpenAiTutorFlags(): void;
 }) {
   const session = useSession();
   const [classes, setClasses] = useState<MyClass[]>();
@@ -117,6 +120,8 @@ export function ClassesScreen({
   const [canTutor, setCanTutor] = useState(false);
   // Ghi nhận rèn luyện, ca trực của giám thị (YCTD-391)
   const [canSupervise, setCanSupervise] = useState(false);
+  // Cờ cảnh báo của Gia sư AI (YCTD-383 lát L3): máy chủ chỉ trả cờ của lớp mình chủ nhiệm; không có cờ thì ẩn mục
+  const [aiTutorFlags, setAiTutorFlags] = useState<AiTutorFlagList>();
 
   useEffect(() => {
     fetchCurrentUser()
@@ -138,6 +143,9 @@ export function ClassesScreen({
         );
       })
       .catch(() => setGateUnitIds([]));
+    requestJson<AiTutorFlagList>(AI_TUTOR_FLAGS_PATH)
+      .then(setAiTutorFlags)
+      .catch(() => setAiTutorFlags(undefined));
     requestJson<MyClass[]>('/api/v1/classes?mine=true&status=active')
       .then(setClasses)
       .catch((error: unknown) =>
@@ -176,6 +184,11 @@ export function ClassesScreen({
           {gateUnitIds.length > 0 ? (
             <Button variant="primary" onClick={() => onOpenGate(gateUnitIds)}>
               Xác nhận người đón tại cổng
+            </Button>
+          ) : null}
+          {aiTutorFlags && aiTutorFlags.flags.length > 0 ? (
+            <Button variant={aiTutorFlags.pending_count > 0 ? 'primary' : 'secondary'} onClick={onOpenAiTutorFlags}>
+              Gia sư AI: cờ cần xử lý ({aiTutorFlags.pending_count})
             </Button>
           ) : null}
           {canStocktake ? <Button onClick={onOpenStocktake}>Kiểm kê thiết bị</Button> : null}

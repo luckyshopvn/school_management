@@ -93,6 +93,8 @@ export interface AssignmentInput {
   rubric_id: string | null;
   show_results: 'after_submit' | 'after_return';
   estimated_minutes: number | null;
+  // Gia sư AI khóa khi bài còn mở với em (YCTD-383 lát L3)
+  ai_blocked: boolean;
   variants: VariantInput[];
   items: ItemInput[];
   targets: TargetInput[];
@@ -145,6 +147,10 @@ export function parseAssignmentInput(body: RequestBody): AssignmentInput {
   const minutes = body?.estimated_minutes ?? null;
   if (minutes !== null && (typeof minutes !== 'number' || !Number.isInteger(minutes) || minutes < 1 || minutes > 600)) {
     errors.push({ field: 'estimated_minutes', message: 'Thời lượng dự kiến từ 1 đến 600 phút' });
+  }
+  const aiBlocked = body?.ai_blocked ?? false;
+  if (typeof aiBlocked !== 'boolean') {
+    errors.push({ field: 'ai_blocked', message: 'Không dùng AI là true hoặc false' });
   }
 
   const variants: VariantInput[] = [];
@@ -282,6 +288,7 @@ export function parseAssignmentInput(body: RequestBody): AssignmentInput {
     rubric_id: grading === 'rubric' ? rubricId : null,
     show_results: showResults ?? 'after_return',
     estimated_minutes: minutes as number | null,
+    ai_blocked: aiBlocked === true,
     variants,
     items,
     targets,
