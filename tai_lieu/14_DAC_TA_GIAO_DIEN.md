@@ -902,6 +902,12 @@ Từ YCTD-122: MH-95 có cột Đơn vị, nhãn "Sắp đến hạn" cạnh th�
 | MP-21 | Tuyển sinh trực tuyến không cần đăng nhập: nút "Tuyển sinh trực tuyến" trên màn hình đăng nhập (MH-47), tin tuyển sinh của đợt đang mở kèm thời hạn, nộp hồ sơ, nhận mã hồ sơ, tra cứu trạng thái bằng mã và số điện thoại (YCTD-86) | Phụ huynh, người ngoài trường |
 | MP-22 | Hồ sơ cuối cấp (YCTD-134): nút "Hồ sơ cuối cấp" trên thẻ của trẻ; hồ sơ của con ở lớp năm cuối cấp do nhà trường lập: trạng thái hồ sơ, nhãn "Nhà trường đã duyệt" khi đã duyệt, Lớp, Ngày sinh, Số định danh (che), Nơi ở hiện tại, Địa chỉ, Liên hệ, Trường phân tuyến, Kiểm dò, Đề xuất đã gửi, giấy tờ đã tải (mở được); nút "Xác nhận" ("Đã xác nhận hồ sơ"), "Đề xuất sửa" (ô Nội dung cần sửa, nút "Gửi đề xuất", báo "Đã gửi đề xuất sửa cho nhà trường"); ô Loại giấy tờ, chọn ảnh hoặc PDF, nút "Tải giấy tờ"; ô "Đồng ý nhập học"; các nút ẩn khi hồ sơ đã duyệt; quá hạn điều chỉnh thì máy chủ từ chối kèm hạn; khối "Hỗ trợ tuyển sinh" (Nội dung cần hỗ trợ, Thư điện tử nhận trả lời, nút "Gửi yêu cầu", danh sách yêu cầu đã gửi kèm câu trả lời); con không ở lớp năm cuối cấp thì hiện "Con chưa có hồ sơ cuối cấp (chỉ có ở lớp năm cuối cấp)." (BR-132) | VT-14 |
 
+Gia sư AI, bổ sung của YCTD-383 lát L5 cho các màn hình MH-596 đến MH-599 (theo bản mẫu đã duyệt ngày 30/10/2026):
+
+- MH-596 (thẻ Gia sư AI ở trang chủ của em) và MH-597 (trang Gia sư AI): em chưa có gói hoặc đã hết lượt thì có nút "Gửi lời nhờ cha mẹ"; gửi xong hiện "Đã gửi lời nhờ cha mẹ lúc … Em gửi lại được sau …" (mỗi lý do một lần trong 24 giờ); cha mẹ chưa có tài khoản ứng dụng phụ huynh thì thay nút bằng dòng "Cha mẹ chưa có tài khoản ứng dụng phụ huynh. Em nói trực tiếp với cha mẹ nhé."; phiên xem hỗ trợ không có nút.
+- MH-598 (Gia sư AI cho con): khối "Tháng N của con" hiện chung dưới cả hai tab "Mua qua trường", "Mua trực tiếp": số lượt đã dùng của gói tháng, lượt mua thêm còn lại, "Con đã hỏi N lượt trong tháng", "Chủ đề nhiều nhất" (tối đa ba chủ đề); không có nội dung câu hỏi, câu trả lời hay trích đoạn. Cờ tự hại, bị bắt nạt chỉ đến cha mẹ bằng thông báo riêng (lát L3).
+- MH-599 (Gia sư AI của cổng quản trị): mục "Báo cáo tháng" có ô chọn tháng, hai ô số "Lượt hỏi tháng N" và "Token tháng N (vào hóa đơn dịch vụ)" (token từ một triệu đọc theo triệu), dòng ghi số học sinh đã hỏi, số lượt theo nguồn gói, token vào và ra, số câu được hoàn lượt vẫn tính token, token của gói nền tảng bán không tính cho trường.
+
 ## 3. Quy tắc bố cục
 
 | Mã | Quy tắc |

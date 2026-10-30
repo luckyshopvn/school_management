@@ -46,6 +46,15 @@ export interface TutorOverview {
   images: { allowed: boolean; max_count: number; max_bytes: number; retention_days: number };
   subjects: Array<{ code: string; name: string }>;
   conversations: TutorConversation[];
+  // Lát L5: lời nhờ cha mẹ khi chưa có gói (`no_plan`) hoặc hết lượt (`no_turns`); phiên xem hỗ trợ thì trống
+  parent_request: ParentRequestState | null;
+}
+
+export interface ParentRequestState {
+  reason: 'no_plan' | 'no_turns' | null;
+  guardian_account: boolean;
+  last_sent_at: string | null;
+  next_allowed_at: string | null;
 }
 
 export interface TutorThread {
@@ -97,6 +106,8 @@ export const fetchTutorImage = (imageId: string) => fetchStudentFile(`${BASE}/im
 
 export const reportTutorMessage = (messageId: string) =>
   postJson<{ id: string; reported: boolean }>(`${BASE}/messages/${messageId}/report`, {});
+
+export const requestParents = () => postJson<ParentRequestState & { notified: number }>(`${BASE}/parent-requests`, {});
 
 export function tutorErrorMessage(error: unknown): string {
   return error instanceof StudentApiError

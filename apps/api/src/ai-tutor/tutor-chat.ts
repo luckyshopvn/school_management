@@ -38,6 +38,7 @@ import { studentChildOf } from '../common/student-account.js';
 import { FileStorage } from '../files/file-storage.js';
 import { aiTutorAccess, type AiTutorAccess } from './ai-tutor-access.js';
 import { activeExamFor, openBlockedAssignmentFor, quietWindowOf } from './ai-tutor-locks.js';
+import { AiTutorParentRequestService } from './parent-requests.js';
 import { AiTutorSafetyFlagService } from './safety-flags.js';
 import { vietnamMonthOf, type AiTutorSchoolLevel } from './ai-tutor-rules.js';
 import {
@@ -188,6 +189,7 @@ export class AiTutorChatService {
     private readonly clock: Clock,
     @Inject(AI_PROVIDERS) private readonly providers: AiProviderRegistry,
     private readonly safetyFlags: AiTutorSafetyFlagService,
+    private readonly parentRequests: AiTutorParentRequestService,
     private readonly fileStorage: FileStorage,
     @Optional() @Inject(TENANCY_RUNTIME) private readonly tenancy: TenancyRuntime | null = null,
   ) {}
@@ -346,6 +348,11 @@ export class AiTutorChatService {
       : 'reason' in resolved
         ? resolved.reason
         : null;
+    // Lát L5: lời nhờ cha mẹ (MH-596); phiên xem hỗ trợ không gửi được nên không cần trạng thái
+    const parentRequest =
+      context.readOnly || !context.schoolLevel
+        ? null
+        : await this.parentRequests.state(context.database, context.childId, balance, now);
     return {
       child: {
         school_level: context.schoolLevel,
@@ -370,7 +377,25 @@ export class AiTutorChatService {
       },
       subjects,
       conversations: conversations.map(conversationView),
+      parent_request: parentRequest,
     };
+  }
+
+  // Lát L5: em chưa có gói hoặc hết lượt gửi lời nhờ cha mẹ mua hoặc gia hạn (BR-530)
+  async requestParents(currentUser: CurrentUser) {
+    const context = await this.student(currentUser);
+    if (context.readOnly) {
+      throw new ApplicationError('ERR_FORBIDDEN', 'Phiên xem hỗ trợ chỉ xem, không gửi lời nhờ cha mẹ');
+    }
+    if (!context.schoolLevel) {
+      throw ruleViolationError(
+        TUTOR_RULES.turns,
+        'Gia sư AI dành cho học sinh Tiểu học, Trung học cơ sở, Trung học phổ thông',
+      );
+    }
+    const now = this.clock.now();
+    const balance = await this.balance(context.childId, now);
+    return this.parentRequests.send(context.database, context.childId, balance, now);
   }
 
   private async ownConversation(childId: string, conversationId: string): Promise<ConversationRow> {
@@ -1033,9 +1058,26 @@ export class AiTutorChatService {
       .where('status', '=', 'captured')
       .where('settled_at', '>=', monthStart)
       .executeTakeFirstOrThrow();
+    // Lát L5 (MH-598 "Chủ đề nhiều nhất"): ba chủ đề có nhiều lượt đã trừ nhất trong tháng; chủ đề do gia sư đặt, đã quét dữ liệu cá nhân
+    const topTopics = await this.system
+      .selectFrom('ai_tutor_turn_ledger')
+      .innerJoin('ai_tutor_messages', 'ai_tutor_messages.ledger_entry_id', 'ai_tutor_turn_ledger.id')
+      .innerJoin('ai_tutor_conversations', 'ai_tutor_conversations.id', 'ai_tutor_messages.conversation_id')
+      .select(['ai_tutor_conversations.topic', sql<string>`count(distinct ai_tutor_turn_ledger.id)`.as('turns')])
+      .where('ai_tutor_turn_ledger.child_id', '=', childId)
+      .where('ai_tutor_turn_ledger.status', '=', 'captured')
+      .where('ai_tutor_turn_ledger.settled_at', '>=', monthStart)
+      .where('ai_tutor_messages.role', '=', 'tutor')
+      .where('ai_tutor_conversations.topic', 'is not', null)
+      .groupBy('ai_tutor_conversations.topic')
+      .orderBy(sql`count(distinct ai_tutor_turn_ledger.id)`, 'desc')
+      .orderBy('ai_tutor_conversations.topic')
+      .limit(3)
+      .execute();
     return {
       month,
       turns_this_month: Number(used.turns),
+      top_topics: topTopics.map((row) => ({ topic: row.topic as string, turns: Number(row.turns) })),
       topics: rows.map((row) => ({
         subject_name: row.subject_name,
         topic: row.topic,

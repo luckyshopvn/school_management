@@ -71,6 +71,12 @@ export class StudentAiTutorController {
     response.send(body);
   }
 
+  // Lát L5: gửi lời nhờ cha mẹ khi chưa có gói hoặc hết lượt (MH-596)
+  @Post('parent-requests')
+  requestParents(@AuthenticatedUser() currentUser: CurrentUser) {
+    return this.chat.requestParents(currentUser);
+  }
+
   @Post('messages/:id/report')
   @HttpCode(200)
   report(

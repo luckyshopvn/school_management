@@ -4,8 +4,13 @@ import { sql, type Kysely } from 'kysely';
 // Token của gia sư AI học sinh theo ngày (giờ Việt Nam), mô hình, nguồn gói (YCTD-383 lát L2; Q8 của Eric ngày 2026-10-30). Mỗi câu trả
 // lời của gia sư gắn với lượt đã tạm giữ của một lần mua nên biết lượt đó thuộc gói trường bán hay nền tảng bán: `tutor_school` tính lên
 // hóa đơn dịch vụ của trường, `tutor_platform` là chi phí của nền tảng. Câu trả lời đã gọi nhà cung cấp nhưng lượt được hoàn (kiểm duyệt,
-// ngoài học tập) vẫn tính token vì đã tốn. Việc nền tổng hợp token của trợ lý AI gọi thêm hàm này rồi ghi đè lên nền tảng
-export async function tutorTokenUsage(system: Kysely<SystemDatabase>): Promise<AiUsageRow[]> {
+// ngoài học tập) vẫn tính token vì đã tốn. Việc nền tổng hợp token của trợ lý AI gọi thêm hàm này rồi ghi đè lên nền tảng. Báo cáo của
+// trường (lát L5) gọi với khoảng thời gian của một tháng để số liệu khớp với hóa đơn dịch vụ
+export async function tutorTokenUsage(
+  system: Kysely<SystemDatabase>,
+  range?: { from: Date; until: Date },
+): Promise<AiUsageRow[]> {
+  const within = range ? sql`and m.created_at >= ${range.from} and m.created_at < ${range.until}` : sql``;
   const rows = await sql<{
     usage_date: string;
     model: string;
@@ -20,6 +25,7 @@ export async function tutorTokenUsage(system: Kysely<SystemDatabase>): Promise<A
     join ai_tutor_turn_ledger l on l.id = m.ledger_entry_id
     join ai_tutor_subscriptions s on s.id = l.subscription_id
     where m.role = 'tutor' and m.model is not null and m.input_tokens is not null and m.output_tokens is not null
+      ${within}
     group by 1, 2, 3`.execute(system);
   return rows.rows.map((row) => ({
     usageDate: row.usage_date,

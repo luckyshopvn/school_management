@@ -13,6 +13,7 @@ import {
   type TutorThread,
 } from './ai-tutor-api.js';
 import { TUTOR_IMAGE_TYPES, tutorImagesProblem } from './ai-tutor-math.js';
+import { ParentRequestButton } from './ParentRequestButton.js';
 import { TurnMeter } from './TurnMeter.js';
 import { TutorMarkdown } from './TutorMarkdown.js';
 
@@ -256,6 +257,14 @@ export default function StudentAiTutorScreen({ onClose }: { onClose(): void }) {
             }
           : current,
       );
+      // Lát L5: vừa hết lượt thì lấy lại trạng thái lời nhờ cha mẹ từ máy chủ để hiện nút "Gửi lời nhờ cha mẹ"
+      if (result.balance.remaining === 0) {
+        void readTutorOverview()
+          .then((next) =>
+            setOverview((current) => (current ? { ...current, parent_request: next.parent_request } : current)),
+          )
+          .catch(() => undefined);
+      }
     } catch (error) {
       setErrorMessage(tutorErrorMessage(error));
     } finally {
@@ -322,6 +331,10 @@ export default function StudentAiTutorScreen({ onClose }: { onClose(): void }) {
         <Alert tone="warning">
           Em đã dùng hết lượt hỏi. Nhờ cha mẹ mua thêm lượt hoặc gói tháng trong ứng dụng phụ huynh.
         </Alert>
+      ) : null}
+      {/* Lát L5: chưa có gói hoặc hết lượt thì gửi lời nhờ cha mẹ (MH-596) */}
+      {overview ? (
+        <ParentRequestButton key={JSON.stringify(overview.parent_request)} initial={overview.parent_request} />
       ) : null}
       {errorMessage ? <Alert tone="danger">{errorMessage}</Alert> : null}
       {notice ? <Alert tone="info">{notice}</Alert> : null}
