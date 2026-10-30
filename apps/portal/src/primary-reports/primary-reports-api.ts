@@ -13,14 +13,28 @@ export interface EmisRow {
   unit: string | null;
   kind: RowKind;
   formula: string | null;
+  // Mã phần của dòng; biểu cũ chỉ có phần `main` (YCTD-385)
+  section?: string;
   values: Record<string, number | null>;
+}
+
+// Phần của biểu Thông tư 25/2024: bộ cột của loại hình của trường, có nhóm loại hình hay không (YCTD-385)
+export interface EmisSection {
+  code: string;
+  name: string;
+  columns: Array<{ key: string; label: string }>;
+  ownership_groups: boolean;
 }
 
 export interface EmisView {
   code: string;
   name: string;
   note: string | null;
+  source?: 'custom' | 'tt25' | 'eqms';
+  form_number?: string | null;
+  ownership_label?: string | null;
   columns: Array<{ key: string; label: string }>;
+  sections?: EmisSection[];
   rows: EmisRow[];
   warnings: string[];
   locked: boolean;

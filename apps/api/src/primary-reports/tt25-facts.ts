@@ -171,14 +171,16 @@ export async function loadTt25Facts(
           'staff.start_date',
           'staff.end_date',
           'staff.moet_profile',
+          'staff.user_id',
           'job_titles.name as job_title',
         ])
         .execute(),
       database
         .selectFrom('class_staff_assignments')
         .innerJoin('classes', 'classes.id', 'class_staff_assignments.class_id')
-        .select(['class_staff_assignments.staff_id', 'classes.school_level'])
+        .select(['class_staff_assignments.staff_user_id', 'classes.school_level'])
         .where('classes.status', '=', 'active')
+        .where('class_staff_assignments.status', '=', 'active')
         .execute(),
       database
         .selectFrom('professional_evaluations')
@@ -257,9 +259,9 @@ export async function loadTt25Facts(
 
   const levelsOfStaff = new Map<string, Set<string>>();
   for (const row of assignments) {
-    const set = levelsOfStaff.get(row.staff_id) ?? new Set<string>();
+    const set = levelsOfStaff.get(row.staff_user_id) ?? new Set<string>();
     set.add(row.school_level);
-    levelsOfStaff.set(row.staff_id, set);
+    levelsOfStaff.set(row.staff_user_id, set);
   }
   const lowestLevel = ['MN', 'TH', 'THCS', 'THPT'].find((item) => context.enabledLevels.includes(item)) ?? level;
   const standardOf = new Map(evaluations.map((row) => [row.staff_id, row.overall_level]));
@@ -273,7 +275,7 @@ export async function loadTt25Facts(
     if (!active && !retired && !left) {
       return [];
     }
-    const taught = levelsOfStaff.get(row.id);
+    const taught = row.user_id ? levelsOfStaff.get(row.user_id) : undefined;
     if (multiLevel && (taught ? !taught.has(level) : level !== lowestLevel)) {
       return [];
     }

@@ -300,6 +300,7 @@ export function EmisTab({ onSaved, base = 'primary-reports' }: { onSaved(message
     retry: false,
   });
   const [manual, setManual] = useState<Record<string, Record<string, string>>>({});
+  const [sectionCode, setSectionCode] = useState('');
   const [editing, setEditing] = useState(false);
   const [rows, setRows] = useState<Array<Omit<EmisRow, 'values'>>>([]);
   useEffect(() => {
@@ -356,6 +357,14 @@ export function EmisTab({ onSaved, base = 'primary-reports' }: { onSaved(message
   const error = view.error ?? saveValues.error ?? saveRows.error;
   const updateRow = (index: number, field: 'code' | 'label' | 'unit' | 'kind' | 'formula', value: string) =>
     setRows(rows.map((row, position) => (position === index ? { ...row, [field]: value || null } : row)));
+  // Biểu Thông tư 25/2024 chia phần, mỗi phần một bộ cột (YCTD-385); biểu cũ là một phần `main`
+  const sections =
+    data?.sections && data.sections.length > 0
+      ? data.sections
+      : [{ code: 'main', name: '', columns: data?.columns ?? [], ownership_groups: false }];
+  const section = sections.find((item) => item.code === sectionCode) ?? sections[0]!;
+  const sectionRows = (data?.rows ?? []).filter((row) => (row.section ?? 'main') === section.code);
+  const indent = (label: string) => (label.startsWith('+') ? 'pl-8' : label.startsWith('-') ? 'pl-5' : 'px-2');
   return (
     <div className="flex flex-col gap-3">
       <div className="flex flex-wrap items-end gap-3">
@@ -380,31 +389,60 @@ export function EmisTab({ onSaved, base = 'primary-reports' }: { onSaved(message
         <Alert tone="info">Biểu đã gửi lên cấp trên; mở khoá ở trang gửi lên cấp trên trước khi sửa số nhập tay.</Alert>
       ) : null}
       {data && data.warnings.length > 0 ? <Alert tone="warning">{data.warnings.join('; ')}</Alert> : null}
+      {data && !editing && sections.length > 1 ? (
+        <div className="flex gap-2 overflow-x-auto" role="tablist" aria-label="Phần của biểu">
+          {sections.map((item) => (
+            <Button
+              key={item.code}
+              role="tab"
+              aria-selected={item.code === section.code}
+              variant={item.code === section.code ? 'primary' : 'secondary'}
+              className="shrink-0"
+              onClick={() => setSectionCode(item.code)}
+            >
+              {item.name}
+            </Button>
+          ))}
+        </div>
+      ) : null}
       {data && !editing ? (
-        <div className="overflow-x-auto">
-          <table className="w-full text-content" aria-label={data.name}>
+        <div className="relative overflow-x-auto">
+          <table className="w-full text-content" aria-label={section.name ? `${data.name}: ${section.name}` : data.name}>
             <thead className="text-left text-label font-medium text-text-secondary">
+              {section.ownership_groups && data.ownership_label ? (
+                <tr>
+                  <th colSpan={3} />
+                  <th colSpan={section.columns.length} className="px-2 py-2 text-center text-text">
+                    {data.ownership_label}
+                  </th>
+                </tr>
+              ) : null}
               <tr>
-                <th className="px-2 py-2">Chỉ tiêu</th>
+                <th className="sticky left-0 bg-card px-2 py-2">Chỉ tiêu</th>
                 <th className="px-2 py-2">Mã số</th>
                 <th className="px-2 py-2">Đơn vị</th>
-                {data.columns.map((column) => (
-                  <th key={column.key} className="px-2 py-2">
+                {section.columns.map((column) => (
+                  <th key={column.key} className="px-2 py-2 text-right">
                     {column.label}
                   </th>
                 ))}
               </tr>
             </thead>
             <tbody>
-              {data.rows.map((row) => (
+              {sectionRows.map((row) => (
                 <tr
                   key={row.code}
                   className={`border-t border-border ${row.kind === 'heading' ? 'font-semibold' : ''}`}
                 >
-                  <td className="px-2 py-2">{row.label}</td>
-                  <td className="px-2 py-2">{row.kind === 'heading' ? '' : row.code}</td>
+                  <td className={`sticky left-0 min-w-48 bg-card py-2 pr-2 ${indent(row.label)}`}>
+                    {row.label}
+                    {row.kind === 'manual' && data.source === 'tt25' ? (
+                      <span className="block text-label font-medium text-warning">Nhập tay</span>
+                    ) : null}
+                  </td>
+                  <td className="px-2 py-2">{row.kind === 'heading' || /^T\d+$/.test(row.code) ? '' : row.code}</td>
                   <td className="px-2 py-2">{row.unit ?? ''}</td>
-                  {data.columns.map((column) => (
+                  {section.columns.map((column) => (
                     <td key={column.key} className="px-2 py-2">
                       {row.kind === 'manual' ? (
                         <input
