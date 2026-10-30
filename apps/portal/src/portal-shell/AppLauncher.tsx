@@ -46,7 +46,7 @@ export function AppLauncher() {
     <div className="relative" ref={container}>
       <button
         type="button"
-        className="flex h-9 w-9 items-center justify-center rounded-md hover:bg-header-strong"
+        className="flex h-11 w-11 items-center justify-center rounded-md hover:bg-current/10"
         aria-label="Ứng dụng liên kết"
         aria-haspopup="dialog"
         aria-expanded={open}

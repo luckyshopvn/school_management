@@ -270,7 +270,7 @@ function LoginForm({ context, directory }: { context: LoginContext; directory: b
   const forgotClass = 'inline-flex min-h-11 items-center text-label font-semibold text-link hover:underline';
   return (
     <main
-      className="touch-layout flex min-h-screen flex-col items-center justify-center gap-4 bg-selected px-4 py-8"
+      className="flex min-h-screen flex-col items-center justify-center gap-4 bg-selected px-4 py-8"
       style={DOTTED_BACKGROUND}
     >
       {/* Tên hệ thống, trường từ cấu hình (giữ mã kiểm thử login-title); không dùng biểu trưng cơ quan nhà nước */}

@@ -13,14 +13,28 @@ export interface EmisRow {
   unit: string | null;
   kind: RowKind;
   formula: string | null;
+  // Mã phần của dòng; biểu cũ chỉ có phần `main` (YCTD-385)
+  section?: string;
   values: Record<string, number | null>;
+}
+
+// Phần của biểu Thông tư 25/2024: bộ cột của loại hình của trường, có nhóm loại hình hay không (YCTD-385)
+export interface EmisSection {
+  code: string;
+  name: string;
+  columns: Array<{ key: string; label: string }>;
+  ownership_groups: boolean;
 }
 
 export interface EmisView {
   code: string;
   name: string;
   note: string | null;
+  source?: 'custom' | 'tt25' | 'eqms';
+  form_number?: string | null;
+  ownership_label?: string | null;
   columns: Array<{ key: string; label: string }>;
+  sections?: EmisSection[];
   rows: EmisRow[];
   warnings: string[];
   locked: boolean;
@@ -45,8 +59,9 @@ export const exportReport = (report: string, params: Record<string, string | und
   );
 export const readPeriods = () =>
   requestJson<{ periods: Array<{ id: string; name: string }> }>('/api/v1/assessment/config?school_level=TH');
+// Lấy cả biểu khung cũ đã ẩn (YCTD-385) để vẫn xem được số đã nhập; màn hình xếp chúng vào nhóm riêng
 export const listEmisForms = (base: EmisBase = 'primary-reports') =>
-  requestJson<Array<{ code: string; name: string }>>(`/api/v1/${base}/emis`);
+  requestJson<Array<{ code: string; name: string; archived?: boolean }>>(`/api/v1/${base}/emis?archived=true`);
 export const readEmis = (code: string, base: EmisBase = 'primary-reports') =>
   requestJson<EmisView>(`/api/v1/${base}/emis/${code}`);
 export const saveEmisValues = (

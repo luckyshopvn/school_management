@@ -1,0 +1,296 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Bản mẫu tài khoản chung</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  /* Màu theo tài liệu 15: M-01, M-02, M-03, N-01..03, C-01..03, V-01..02, T-01..05 */
+  :root {
+    --mau-chinh: #0670C0; --mau-chinh-dam: #055A9A; --lien-ket: #0369A1;
+    --nen-trang: #F5F7FA; --nen-the: #FFFFFF; --nen-chon: #E6F2FC;
+    --chu-chinh: #0F172A; --chu-phu: #475569; --chu-mo: #64748B;
+    --vien: #E2E8F0; --vien-nhan: #CBD5E1;
+    --thanh-cong: #166534; --canh-bao: #92400E; --nguy-hiem: #B91C1C; --thong-tin: #1D4ED8; --trung-tinh: #475569;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; font-family: 'Be Vietnam Pro', system-ui, sans-serif; background: #CBD5E1; color: var(--chu-chinh); }
+  .thanh-chon { position: sticky; top: 0; z-index: 5; background: #0F172A; color: #fff; padding: 8px 16px; display: flex; flex-wrap: wrap; gap: 8px; align-items: center; font-size: 13px; }
+  .thanh-chon b { margin-right: 4px; }
+  .thanh-chon button { font: inherit; border: 1px solid #475569; background: #1E293B; color: #fff; border-radius: 6px; padding: 4px 10px; cursor: pointer; }
+  .thanh-chon button[aria-pressed="true"] { background: var(--mau-chinh); border-color: var(--mau-chinh); }
+  .khung-ngoai { padding: 16px; overflow: auto; }
+  .khung { margin: 0 auto; background: var(--nen-trang); min-height: 760px; box-shadow: 0 4px 24px rgba(15,23,42,.25); transform-origin: top center; }
+  .man-hinh { display: none; } .man-hinh.hien { display: block; }
+
+  .dau-trang { background: var(--mau-chinh); color: #fff; padding: 12px 24px; display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+  .dau-trang .ten { font-weight: 700; font-size: 16px; }
+  .dau-trang .phai { font-size: 14px; display: flex; gap: 16px; align-items: center; }
+  .dau-trang a { color: #fff; }
+  .noi-dung { padding: 24px; max-width: 1120px; margin: 0 auto; }
+  .the { background: var(--nen-the); border: 1px solid var(--vien); border-radius: 12px; padding: 24px; }
+  .the-dang-nhap { max-width: 420px; margin: 48px auto; }
+  h1 { font-size: 22px; margin: 0 0 4px; } h2 { font-size: 18px; margin: 0 0 12px; } h3 { font-size: 16px; margin: 0; }
+  .mo-ta { color: var(--chu-phu); font-size: 14px; margin: 0 0 20px; line-height: 1.5; }
+  label { display: block; font-size: 14px; font-weight: 500; margin: 0 0 6px; }
+  input, select { width: 100%; font: inherit; font-size: 16px; padding: 10px 12px; border: 1px solid var(--vien-nhan); border-radius: 8px; background: #fff; color: var(--chu-chinh); }
+  .o { margin-bottom: 16px; }
+  .nut { display: inline-flex; justify-content: center; align-items: center; gap: 6px; font: inherit; font-weight: 600; font-size: 15px; border-radius: 8px; padding: 10px 16px; border: 1px solid transparent; cursor: pointer; min-height: 44px; }
+  .nut-chinh { background: var(--mau-chinh); color: #fff; } .nut-chinh:hover { background: var(--mau-chinh-dam); }
+  .nut-phu { background: #fff; color: var(--mau-chinh-dam); border-color: var(--vien-nhan); }
+  .nut-nguy { background: #fff; color: var(--nguy-hiem); border-color: #FCA5A5; }
+  .rong { width: 100%; }
+  .lien-ket { color: var(--lien-ket); font-size: 14px; }
+  .chan-the { margin-top: 16px; text-align: center; font-size: 14px; color: var(--chu-phu); }
+  .ma-o { display: flex; gap: 8px; justify-content: space-between; }
+  .ma-o input { text-align: center; font-size: 22px; font-weight: 600; padding: 10px 0; }
+  .dong-y { background: var(--nen-chon); border-radius: 8px; padding: 14px; font-size: 14px; line-height: 1.5; margin-bottom: 16px; }
+  .dong-y ul { margin: 6px 0 10px 18px; padding: 0; }
+  .dong-y .chon { display: flex; gap: 8px; align-items: flex-start; font-weight: 500; }
+  .dong-y .chon input { width: 18px; height: 18px; margin-top: 2px; flex: none; }
+
+  .nhan { display: inline-block; font-size: 12px; font-weight: 600; border-radius: 999px; padding: 2px 10px; }
+  .nhan-tc { background: #DCFCE7; color: var(--thanh-cong); } .nhan-cb { background: #FEF3C7; color: var(--canh-bao); }
+  .nhan-ng { background: #FEE2E2; color: var(--nguy-hiem); } .nhan-tt { background: #DBEAFE; color: var(--thong-tin); }
+  .nhan-tr { background: #F1F5F9; color: var(--trung-tinh); }
+
+  .luoi-truong { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 16px; }
+  .nhom-truong .dau { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; margin-bottom: 12px; }
+  .nhom-truong .phu { color: var(--chu-mo); font-size: 13px; margin-top: 2px; }
+  .con { display: flex; align-items: center; gap: 12px; padding: 12px; border: 1px solid var(--vien); border-radius: 10px; margin-top: 8px; cursor: pointer; background: #fff; width: 100%; text-align: left; font: inherit; color: inherit; min-height: 64px; }
+  .con:hover { border-color: var(--mau-chinh); background: var(--nen-chon); }
+  .con .chu-cai { width: 40px; height: 40px; border-radius: 50%; background: var(--nen-chon); color: var(--mau-chinh-dam); font-weight: 700; display: grid; place-items: center; flex: none; }
+  .con .ten-con { font-weight: 600; } .con .lop { color: var(--chu-phu); font-size: 13px; }
+  .con .mui-ten { margin-left: auto; color: var(--chu-mo); font-size: 20px; }
+  .thong-bao { border-radius: 10px; padding: 12px 14px; font-size: 14px; line-height: 1.5; display: flex; gap: 12px; align-items: center; justify-content: space-between; flex-wrap: wrap; margin-bottom: 16px; }
+  .thong-bao-tt { background: #EFF6FF; border: 1px solid #BFDBFE; }
+  .thong-bao-cb { background: #FFFBEB; border: 1px solid #FDE68A; color: var(--canh-bao); }
+  .tieu-de-trang { display: flex; justify-content: space-between; align-items: flex-end; gap: 12px; flex-wrap: wrap; margin-bottom: 16px; }
+  .bang { width: 100%; border-collapse: collapse; font-size: 14px; }
+  .bang th, .bang td { text-align: left; padding: 10px 8px; border-bottom: 1px solid var(--vien); vertical-align: top; }
+  .bang th { color: var(--chu-phu); font-weight: 500; }
+  .hai-cot { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .chu-nho { font-size: 13px; color: var(--chu-mo); }
+  .bao-chung { background: #F1F5F9; border-radius: 8px; padding: 12px; font-size: 14px; color: var(--chu-phu); }
+
+  /* Cỡ điện thoại: khung đặt lớp hep */
+  .hep .dau-trang { padding: 12px 16px; } .hep .dau-trang .an-hep { display: none; }
+  .hep .noi-dung { padding: 16px; }
+  .hep .the { padding: 16px; } .hep .the-dang-nhap { margin: 24px auto; border: 0; background: transparent; padding: 0; }
+  .hep .luoi-truong { grid-template-columns: 1fr; }
+  .hep .hai-cot { grid-template-columns: 1fr; }
+  .hep .bang thead { display: none; }
+  .hep .bang tr { display: block; border-bottom: 1px solid var(--vien); padding: 8px 0; }
+  .hep .bang td { display: block; border: 0; padding: 2px 0; }
+  .vua .luoi-truong { grid-template-columns: 1fr 1fr; }
+</style>
+</head>
+<body>
+<div class="thanh-chon" role="toolbar" aria-label="Chọn màn hình và cỡ">
+  <b>Màn hình</b>
+  <button data-man="1" aria-pressed="true">MH-670 Đăng nhập</button>
+  <button data-man="2" aria-pressed="false">MH-671 Kích hoạt</button>
+  <button data-man="3" aria-pressed="false">MH-672 Chọn nơi làm việc</button>
+  <button data-man="4" aria-pressed="false">MH-673 Thêm trường</button>
+  <button data-man="5" aria-pressed="false">MH-674 Xác nhận gợi ý</button>
+  <button data-man="6" aria-pressed="false">MH-675 Tài khoản</button>
+  <b style="margin-left:12px">Cỡ</b>
+  <button data-co="1366" aria-pressed="true">1366</button>
+  <button data-co="1024" aria-pressed="false">1024</button>
+  <button data-co="390" aria-pressed="false">390</button>
+</div>
+
+<div class="khung-ngoai"><div class="khung" id="khung">
+
+<!-- 1. Đăng nhập -->
+<section class="man-hinh hien" data-man="1">
+  <div class="dau-trang"><span class="ten">School Management · Tài khoản chung</span></div>
+  <div class="noi-dung">
+    <div class="the the-dang-nhap">
+      <h1>Một tài khoản cho mọi trường</h1>
+      <p class="mo-ta">Dùng chung cho nhân viên, giáo viên, phụ huynh và học sinh từ THCS trở lên.</p>
+      <div class="o"><label for="sdt">Số định danh hoặc số điện thoại</label><input id="sdt" inputmode="numeric" autocomplete="username" placeholder="0012 0900 1234 hoặc 0901 234 567"></div>
+      <div class="o"><label for="mk">Mật khẩu</label><input id="mk" type="password" autocomplete="current-password"></div>
+      <button class="nut nut-chinh rong" data-di="3">Đăng nhập</button>
+      <button class="nut nut-phu rong" style="margin-top:8px" data-di="2">Nhận mã qua tin nhắn</button>
+      <div class="chan-the"><a class="lien-ket" href="#">Quên mật khẩu</a> · <a class="lien-ket" href="#" data-di="2">Lần đầu sử dụng</a> · <a class="lien-ket" href="#">Đăng nhập theo từng trường</a></div>
+    </div>
+  </div>
+</section>
+
+<!-- 2. Nhập mã, đồng ý lần đầu -->
+<section class="man-hinh" data-man="2">
+  <div class="dau-trang"><span class="ten">School Management · Tài khoản chung</span></div>
+  <div class="noi-dung">
+    <div class="the the-dang-nhap">
+      <h1>Kích hoạt tài khoản chung</h1>
+      <p class="mo-ta">Mã gồm 6 số đã gửi tới số 0901 *** 567, hiệu lực 5 phút. <a class="lien-ket" href="#">Đổi số</a></p>
+      <div class="o ma-o" role="group" aria-label="Mã 6 số">
+        <input maxlength="1" value="4" aria-label="Số 1"><input maxlength="1" value="8" aria-label="Số 2"><input maxlength="1" value="2" aria-label="Số 3"><input maxlength="1" aria-label="Số 4"><input maxlength="1" aria-label="Số 5"><input maxlength="1" aria-label="Số 6">
+      </div>
+      <div class="o"><label for="cccd">Số định danh cá nhân (12 số trên căn cước)</label><input id="cccd" inputmode="numeric" placeholder="001209001234"></div>
+      <div class="o"><label for="hoten">Họ và tên</label><input id="hoten" value="Nguyễn Thị Hoa"></div>
+      <div class="o"><label for="mkm">Đặt mật khẩu</label><input id="mkm" type="password" autocomplete="new-password"><div class="chu-nho" style="margin-top:4px">Tối thiểu 10 ký tự.</div></div>
+      <div class="dong-y">
+        <strong>Nền tảng lưu gì</strong>
+        <ul>
+          <li>Số định danh, số điện thoại (đã mã hóa), mật khẩu và danh sách trường bạn đã thêm.</li>
+          <li>Vai trò, điểm, sức khỏe, học phí vẫn do từng trường quản lý, không lưu ở tài khoản chung.</li>
+          <li>Bạn gỡ trường hoặc xóa tài khoản chung bất cứ lúc nào; tài khoản ở trường không bị xóa.</li>
+          <li>Học sinh dưới 18 tuổi: phụ huynh nhận mã xác nhận để đồng ý.</li>
+        </ul>
+        <label class="chon"><input type="checkbox"> Tôi đồng ý với <a class="lien-ket" href="#">Điều khoản sử dụng</a> và <a class="lien-ket" href="#">Chính sách bảo vệ dữ liệu cá nhân</a></label>
+      </div>
+      <button class="nut nut-chinh rong" data-di="3">Kích hoạt</button>
+      <div class="chan-the">Chưa nhận được mã? <a class="lien-ket" href="#">Gửi lại sau 45 giây</a></div>
+    </div>
+  </div>
+</section>
+
+<!-- 3. Chọn con -->
+<section class="man-hinh" data-man="3">
+  <div class="dau-trang"><span class="ten">School Management · Tài khoản chung</span><span class="phai"><span class="an-hep">0901 *** 567</span><a href="#" data-di="6">Tài khoản</a></span></div>
+  <div class="noi-dung">
+    <div class="tieu-de-trang">
+      <div><h1>Chọn nơi làm việc</h1><p class="mo-ta" style="margin:0">Chọn trường và vai trò để mở ứng dụng tương ứng.</p></div>
+      <button class="nut nut-phu" data-di="4">+ Thêm trường</button>
+    </div>
+    <div class="thong-bao thong-bao-tt">
+      <span><strong>Trường THCS Thử nghiệm B</strong> vừa tạo tài khoản với số định danh của bạn.</span>
+      <button class="nut nut-chinh" data-di="5">Xem và thêm</button>
+    </div>
+    <div class="luoi-truong">
+      <div class="the nhom-truong">
+        <div class="dau"><div><h3>Trường Tiểu học Thử nghiệm A</h3><div class="phu">Xã Thử nghiệm, Sở Giáo dục và Đào tạo Thử nghiệm</div></div><span class="nhan nhan-tc">Đang dùng</span></div>
+        <button class="con"><span class="chu-cai">GV</span><span><div class="ten-con">Giáo viên</div><div class="lop">Chủ nhiệm lớp 4B · ứng dụng giáo viên</div></span><span class="mui-ten">›</span></button>
+        <button class="con"><span class="chu-cai">QT</span><span><div class="ten-con">Quản trị</div><div class="lop">Tổ trưởng chuyên môn · cổng quản trị</div></span><span class="mui-ten">›</span></button>
+        <button class="con"><span class="chu-cai">A</span><span><div class="ten-con">Phụ huynh của Nguyễn Minh An</div><div class="lop">Lớp 3A · Đang học</div></span><span class="mui-ten">›</span></button>
+        <button class="con"><span class="chu-cai">B</span><span><div class="ten-con">Phụ huynh của Nguyễn Gia Bảo</div><div class="lop">Lớp 1C · Đang học</div></span><span class="mui-ten">›</span></button>
+      </div>
+      <div class="the nhom-truong">
+        <div class="dau"><div><h3>Trường Mầm non Thử nghiệm C</h3><div class="phu">Phường Mẫu, Sở Giáo dục và Đào tạo Thử nghiệm</div></div><span class="nhan nhan-tr">Con đã chuyển đi</span></div>
+        <button class="con"><span class="chu-cai">A</span><span><div class="ten-con">Phụ huynh của Nguyễn Minh An</div><div class="lop">Đã chuyển trường · xem hồ sơ, biên lai năm cũ</div></span><span class="mui-ten">›</span></button>
+      </div>
+      <div class="the nhom-truong">
+        <div class="dau"><div><h3>Trường THCS Thử nghiệm D</h3><div class="phu">Xã Ví dụ, Sở Giáo dục và Đào tạo Thử nghiệm</div></div><span class="nhan nhan-cb">Tạm treo</span></div>
+        <p class="mo-ta" style="margin:0 0 12px">Trường đang tắt đăng nhập bằng tài khoản chung. Đăng nhập theo từng trường hoặc liên hệ nhà trường.</p>
+        <a class="lien-ket" href="#">Đăng nhập ở trang của trường</a>
+      </div>
+      <div class="the nhom-truong">
+        <div class="dau"><div><h3>Trường Tiểu học Thử nghiệm E</h3><div class="phu">Xã Mẫu, Sở Giáo dục và Đào tạo Thử nghiệm</div></div><span class="nhan nhan-ng">Trường đã khóa tài khoản</span></div>
+        <p class="mo-ta" style="margin:0">Liên hệ nhà trường để được mở lại tài khoản.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 4. Thêm trường -->
+<section class="man-hinh" data-man="4">
+  <div class="dau-trang"><span class="ten">School Management · Tài khoản chung</span><span class="phai"><a href="#" data-di="3">‹ Chọn con</a></span></div>
+  <div class="noi-dung">
+    <div class="the" style="max-width:640px;margin:0 auto">
+      <h1>Thêm trường</h1>
+      <p class="mo-ta">Chọn trường bạn làm việc, con bạn học hoặc bạn đang học. Hệ thống tìm tài khoản có số định danh ****1234 ở trường đó. Nếu số điện thoại trường ghi khác số của bạn, trường sẽ gửi mã xác nhận tới số đó.</p>
+      <div class="hai-cot">
+        <div class="o"><label for="so">Sở Giáo dục và Đào tạo</label><select id="so"><option>Sở Giáo dục và Đào tạo Thử nghiệm</option></select></div>
+        <div class="o"><label for="cap">Cấp học</label><select id="cap"><option>Trung học cơ sở</option></select></div>
+        <div class="o"><label for="xa">Phường, xã</label><select id="xa"><option>Xã Thử nghiệm</option></select></div>
+        <div class="o"><label for="truong">Trường</label><input id="truong" value="Trường THCS Thử nghiệm B"></div>
+      </div>
+      <button class="nut nut-chinh">Thêm trường</button>
+      <div style="margin-top:16px" class="bao-chung" role="status">Trường chưa có tài khoản với số định danh này. Liên hệ nhà trường.</div>
+      <p class="chu-nho">Câu báo trên hiện khi không thêm được (cùng một câu cho mọi lý do).</p>
+    </div>
+  </div>
+</section>
+
+<!-- 5. Xác nhận gợi ý -->
+<section class="man-hinh" data-man="5">
+  <div class="dau-trang"><span class="ten">School Management · Tài khoản chung</span><span class="phai"><a href="#" data-di="3">‹ Chọn con</a></span></div>
+  <div class="noi-dung">
+    <div class="the" style="max-width:560px;margin:0 auto">
+      <h1>Thêm trường vào danh sách?</h1>
+      <p class="mo-ta"><strong>Trường THCS Thử nghiệm B</strong> đã tạo tài khoản với số định danh ****1234 ngày 30/10/2026, vai trò: Phụ huynh. Thường do con chuyển đến hoặc mới nhập học.</p>
+      <div class="thong-bao thong-bao-cb">Chỉ thêm khi bạn có liên quan tới trường này. Thêm xong, bạn dùng được các quyền mà trường đã gán cho tài khoản này.</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button class="nut nut-chinh" data-di="3">Thêm vào danh sách</button>
+        <button class="nut nut-phu" data-di="3">Không phải tôi</button>
+      </div>
+      <p class="chu-nho" style="margin-top:12px">"Không phải tôi" bỏ gợi ý và ghi nhật ký; tài khoản ở trường không đổi.</p>
+    </div>
+  </div>
+</section>
+
+<!-- 6. Tài khoản -->
+<section class="man-hinh" data-man="6">
+  <div class="dau-trang"><span class="ten">School Management · Tài khoản chung</span><span class="phai"><a href="#" data-di="3">‹ Chọn con</a></span></div>
+  <div class="noi-dung">
+    <h1 style="margin-bottom:16px">Tài khoản chung</h1>
+    <div class="hai-cot">
+      <div class="the">
+        <h2>Thông tin đăng nhập</h2>
+        <table class="bang"><tbody>
+          <tr><th>Số định danh</th><td>******1234</td></tr>
+          <tr><th>Số điện thoại</th><td>0901 *** 567 <a class="lien-ket" href="#">Đổi số</a></td></tr>
+          <tr><th>Mật khẩu</th><td>Đổi ngày 30/10/2026 <a class="lien-ket" href="#">Đổi mật khẩu</a></td></tr>
+          <tr><th>Xác thực hai lớp</th><td><span class="nhan nhan-tc">Đang bật</span> Bắt buộc vì bạn có vai trò nhân viên</td></tr>
+          <tr><th>Đồng ý điều khoản</th><td>Phiên bản 1.0, ngày 30/10/2026</td></tr>
+        </tbody></table>
+        <p class="chu-nho">Đổi số ở đây không đổi số ở trường. Báo nhà trường để nhận tin nhắn của trường ở số mới.</p>
+      </div>
+      <div class="the">
+        <h2>Trường đã thêm</h2>
+        <table class="bang">
+          <thead><tr><th>Trường</th><th>Trạng thái</th><th></th></tr></thead>
+          <tbody>
+            <tr><td>Trường Tiểu học Thử nghiệm A</td><td><span class="nhan nhan-tc">Đang dùng</span></td><td><button class="nut nut-phu">Gỡ</button></td></tr>
+            <tr><td>Trường Mầm non Thử nghiệm C</td><td><span class="nhan nhan-tc">Đang dùng</span></td><td><button class="nut nut-phu">Gỡ</button></td></tr>
+            <tr><td>Trường THCS Thử nghiệm D</td><td><span class="nhan nhan-cb">Cần xác minh lại</span></td><td><button class="nut nut-phu">Gỡ</button></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div class="the" style="margin-top:16px">
+      <h2>Lần vào trường gần đây</h2>
+      <table class="bang">
+        <thead><tr><th>Thời điểm</th><th>Trường</th><th>Thiết bị</th></tr></thead>
+        <tbody>
+          <tr><td>30/10/2026 20:14</td><td>Trường Tiểu học Thử nghiệm A</td><td>Điện thoại Android, ứng dụng cài đặt</td></tr>
+          <tr><td>29/10/2026 07:02</td><td>Trường Mầm non Thử nghiệm C</td><td>Trình duyệt Chrome</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="the" style="margin-top:16px">
+      <h2>Xóa tài khoản chung</h2>
+      <p class="mo-ta">Gỡ mọi trường và xóa tài khoản chung sau 30 ngày. Tài khoản phụ huynh ở từng trường vẫn còn, đăng nhập theo từng trường như trước.</p>
+      <button class="nut nut-nguy">Xóa tài khoản chung</button>
+    </div>
+  </div>
+</section>
+
+</div></div>
+
+<script>
+  const khung = document.getElementById('khung');
+  const datMan = (so) => {
+    document.querySelectorAll('.man-hinh').forEach((man) => man.classList.toggle('hien', man.dataset.man === so));
+    document.querySelectorAll('[data-man]').forEach((nut) => nut.tagName === 'BUTTON' && nut.setAttribute('aria-pressed', String(nut.dataset.man === so)));
+  };
+  const datCo = (co) => {
+    khung.style.width = co + 'px';
+    khung.classList.toggle('hep', co === '390');
+    khung.classList.toggle('vua', co === '1024');
+    document.querySelectorAll('[data-co]').forEach((nut) => nut.setAttribute('aria-pressed', String(nut.dataset.co === co)));
+    const rong = khung.parentElement.clientWidth - 32;
+    khung.style.zoom = Number(co) > rong ? String(rong / Number(co)) : '';
+  };
+  document.querySelectorAll('.thanh-chon [data-man]').forEach((nut) => nut.addEventListener('click', () => datMan(nut.dataset.man)));
+  document.querySelectorAll('[data-co]').forEach((nut) => nut.addEventListener('click', () => datCo(nut.dataset.co)));
+  document.querySelectorAll('[data-di]').forEach((phan) => phan.addEventListener('click', (suKien) => { suKien.preventDefault(); datMan(phan.dataset.di); }));
+  window.addEventListener('resize', () => datCo(document.querySelector('[data-co][aria-pressed="true"]').dataset.co));
+  datCo('1366');
+</script>
+</body>
+</html>
