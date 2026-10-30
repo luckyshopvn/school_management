@@ -43,8 +43,8 @@ Những việc sau không thuộc phạm vi sản phẩm ở mọi giai đoạn:
 1. Bỏ ngày 09/10/2026: sổ kế toán kép đã được đưa vào phạm vi giai đoạn 3, xem G3-06.
 2. Tính thuế thu nhập cá nhân và bảo hiểm xã hội ở mức kê khai: hệ thống tính khấu trừ trên bảng lương, không nộp thay qua cổng cơ quan thuế.
 3. Cổng thông tin của cơ quan quản lý giáo dục: không tự động nộp báo cáo lên hệ thống ngành.
-4. Camera và thiết bị phần cứng: hệ thống chỉ hiển thị đường dẫn tới camera nếu nhà trường cung cấp, không tự quản lý luồng video.
-5. Chấm công bằng thiết bị vân tay hoặc khuôn mặt: hệ thống nhận dữ liệu chấm công qua nhập tay, nhập hàng loạt hoặc giao diện lập trình, không tự nhận dạng sinh trắc học.
+4. Camera và thiết bị phần cứng: hệ thống không lưu, không phát lại luồng video trên máy chủ. Từ YCTD-389, camera ở cổng và camera an ninh được nối với trạm camera đặt tại trường; trạm chỉ gửi lên máy chủ lượt qua cổng (mã người, giờ, thiết bị, độ tin cậy) và cảnh báo nội quy kèm ảnh tĩnh đã làm mờ khuôn mặt. Ngoài trạm, hệ thống chỉ hiển thị đường dẫn tới camera nếu nhà trường cung cấp.
+5. Chấm công và điểm danh bằng thiết bị (YCTD-389): hệ thống nhận lượt qua cổng từ máy quét thẻ QR, đầu đọc thẻ RFID, máy chấm công vân tay hoặc khuôn mặt của trường (qua kết nối có chữ ký hoặc nhập tệp). Nhận dạng khuôn mặt chỉ chạy trên trạm camera tại trường, chỉ với người đã đồng ý, từ cấp tiểu học trở lên, không cho mầm non; máy chủ không nhận ảnh hay đặc trưng khuôn mặt. Kết quả chỉ là gợi ý cho giáo viên, trừ "Đi muộn" từ thẻ hoặc máy chấm công; hệ thống không tự ghi vắng.
 6. Quản lý tài chính của pháp nhân khác ngoài trường.
 
 ## 4. Chức năng bắt buộc — giai đoạn 1
