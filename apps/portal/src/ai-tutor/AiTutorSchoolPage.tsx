@@ -28,6 +28,8 @@ interface Plan {
 
 interface Overview {
   settings: { enabled_levels: Level[]; quiet_start: string; quiet_end: string };
+  // Lý do chưa bán được gói của trường (gói dịch vụ chưa đặt đơn giá AI, YCTD-383 lát L3); máy chủ cũ không trả thì coi như bán được
+  sales_block_reason?: string | null;
   plans: Plan[];
 }
 
@@ -171,8 +173,10 @@ function SettingsForm({ overview, notify }: { overview: Overview; notify(message
         </label>
       </div>
       <p className="text-label text-text-secondary">
-        Khóa khi làm bài kiểm tra: luôn bật. Lưu lịch sử trò chuyện: 12 tháng. Câu có dấu hiệu tự hại, bị bắt nạt: báo
-        giáo viên chủ nhiệm.
+        Khung giờ khóa theo giờ Việt Nam; giờ khóa lớn hơn giờ mở lại là khung qua nửa đêm (mặc định 22:00 đến 6:00).
+        Khóa khi làm bài kiểm tra: luôn bật. Bài tập giáo viên đánh dấu Không dùng AI: khóa đến khi em nộp bài hoặc bài
+        đóng. Lưu lịch sử trò chuyện: 12 tháng. Câu có dấu hiệu tự hại, bị bắt nạt: báo giáo viên chủ nhiệm; lớp chưa có
+        giáo viên chủ nhiệm thì báo Ban Giám hiệu; cha mẹ cũng nhận thông báo (không có câu em gửi).
       </p>
       <div>
         <Button type="submit" variant="primary" disabled={save.isPending}>
@@ -305,6 +309,79 @@ function PlanEditor({ initial, onDone }: { initial: PlanForm; onDone(message: st
   );
 }
 
+// Cờ cảnh báo của lớp chưa có giáo viên chủ nhiệm (YCTD-383 lát L3): Hiệu trưởng, Phó Hiệu trưởng nhận thay và đánh dấu đã xử lý.
+// Máy chủ chỉ trả cờ người xem được thấy; không có cờ thì ẩn mục
+interface SafetyFlag {
+  id: string;
+  child_name: string;
+  class_name: string | null;
+  kind_label: string;
+  created_at: string;
+  excerpt: string;
+  resolved: boolean;
+  resolved_by_name: string | null;
+}
+
+const FLAGS_API = '/api/v1/ai-tutor/safety-flags';
+const formatTime = (value: string) =>
+  new Intl.DateTimeFormat('vi-VN', { dateStyle: 'short', timeStyle: 'short', timeZone: 'Asia/Ho_Chi_Minh' }).format(
+    new Date(value),
+  );
+
+function SafetyFlagsSection({ notify }: { notify(message: string): void }) {
+  const queryClient = useQueryClient();
+  const flags = useQuery({
+    queryKey: ['ai-tutor-safety-flags'],
+    queryFn: () => requestJson<{ pending_count: number; flags: SafetyFlag[] }>(FLAGS_API),
+  });
+  const resolve = useMutation({
+    mutationFn: (flag: SafetyFlag) => requestJson(`${FLAGS_API}/${flag.id}/resolve`, json('POST', {})),
+    onSuccess: async (_result, flag) => {
+      notify(`Đã đánh dấu đã xử lý cờ của ${flag.child_name}`);
+      await queryClient.invalidateQueries({ queryKey: ['ai-tutor-safety-flags'] });
+    },
+  });
+  if (!flags.data || flags.data.flags.length === 0) {
+    return null;
+  }
+  return (
+    <section className="flex flex-col gap-3" aria-label="Cờ cần xử lý">
+      <h2 className="text-section-title font-semibold text-text">
+        Cờ cần xử lý của lớp chưa có giáo viên chủ nhiệm ({flags.data.pending_count})
+      </h2>
+      {resolve.error ? <Alert tone="danger">{messageOf(resolve.error)}</Alert> : null}
+      <ul className="flex flex-col gap-2">
+        {flags.data.flags.map((flag) => (
+          <li key={flag.id} className="flex flex-col gap-2 rounded-lg border border-border p-3">
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="flex-1 text-content font-semibold">
+                {flag.child_name}
+                {flag.class_name ? (
+                  <span className="ml-2 text-label text-text-secondary">Lớp {flag.class_name}</span>
+                ) : null}
+              </span>
+              <StatusBadge tone={flag.resolved ? 'neutral' : 'danger'} label={flag.kind_label} />
+            </div>
+            <p className="text-label text-text-secondary">{formatTime(flag.created_at)}</p>
+            <blockquote className="border-l-4 border-border pl-3 text-content">{flag.excerpt}</blockquote>
+            {flag.resolved ? (
+              <p className="text-label text-text-secondary">
+                Đã xử lý{flag.resolved_by_name ? ` bởi ${flag.resolved_by_name}` : ''}
+              </p>
+            ) : (
+              <div>
+                <Button variant="primary" disabled={resolve.isPending} onClick={() => resolve.mutate(flag)}>
+                  Đã xử lý
+                </Button>
+              </div>
+            )}
+          </li>
+        ))}
+      </ul>
+    </section>
+  );
+}
+
 export function AiTutorSchoolPage() {
   const queryClient = useQueryClient();
   const [toastMessage, setToastMessage] = useState<string>();
@@ -347,6 +424,12 @@ export function AiTutorSchoolPage() {
         <h1 className="text-page-title font-bold text-text">{menuPageTitle('/ai-tutor')}</h1>
         {overview.error ? <Alert tone="danger">{messageOf(overview.error)}</Alert> : null}
         {toggle.error ? <Alert tone="danger">{messageOf(toggle.error)}</Alert> : null}
+        {overview.data?.sales_block_reason ? (
+          <Alert tone="warning">
+            <strong>Chưa bán được gói của trường.</strong> {overview.data.sales_block_reason} Học sinh đã mua trước đó
+            vẫn dùng bình thường.
+          </Alert>
+        ) : null}
         {overview.data ? (
           <SettingsForm
             key={JSON.stringify(overview.data.settings)}
@@ -354,6 +437,7 @@ export function AiTutorSchoolPage() {
             notify={setToastMessage}
           />
         ) : null}
+        <SafetyFlagsSection notify={setToastMessage} />
         <section className="flex flex-col gap-3" aria-label="Gói của trường">
           <h2 className="text-section-title font-semibold text-text">Gói của trường</h2>
           <div className="overflow-x-auto">

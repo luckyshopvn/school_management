@@ -45,7 +45,7 @@ export const E2E_PUSH_OUTBOX_FILE = new URL('./.e2e-push-outbox.jsonl', import.m
 // 196 của phần 27g: xác minh, duyệt, tìm gia sư; 197 của phần 27h: đặt buổi, thanh toán giả lập, tranh chấp; 141 của YCTD-343:
 // loại dữ liệu, hồ sơ đồng ý, vùng máy chủ ở chi tiết trường; 199 của phần 27j: phòng học video của chợ; 142 của YCTD-383 lát L1b:
 // nền tảng bán thẳng gói gia sư AI; 143 của YCTD-383 lát L2: học sinh trò chuyện với gia sư AI
-export const MULTI_TENANT_SPEC = /[\\/]1(?:3\d|4[0-3]|53|60|82|86|95|96|97|98|99)-[^\\/]*\.spec\.ts$/;
+export const MULTI_TENANT_SPEC = /[\\/]1(?:3\d|4[0-4]|53|60|82|86|95|96|97|98|99)-[^\\/]*\.spec\.ts$/;
 
 export function schoolHost(code) {
   return `${code}.${E2E_ROOT_DOMAIN}`;

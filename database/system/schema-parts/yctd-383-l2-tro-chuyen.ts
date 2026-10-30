@@ -12,6 +12,10 @@ export interface AiTutorSafetyFlagsTable {
   kind: AiTutorSafetyFlagKind;
   created_at: ColumnType<Date, Date | undefined, never>;
   notified_at: Date | null;
+  // Lát L3 (migration hệ thống 0134_add_ai_tutor_safety_flag_resolution): giáo viên đánh dấu đã xử lý
+  resolved_at: Date | null;
+  resolved_by: string | null;
+  resolved_by_name: string | null;
 }
 
 declare module '../schema.js' {
