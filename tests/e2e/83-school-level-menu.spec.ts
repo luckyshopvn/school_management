@@ -6,7 +6,8 @@ import { openGroup, openMenu, openWorkingContext, selectSchoolLevel, selectWorks
 // Menu và phân hệ theo cấp học (DT-19 phần 19c, YCTD-153), kịch bản CT-19c-9: trường mầm non giữ y hệt menu, không có bộ
 // chọn cấp; Hiệu trưởng bật Tiểu học thì phân hệ thành "Quản lý giáo dục" và có bộ chọn cấp ("Tất cả" mặc định); chọn Tiểu
 // học thì mục chỉ của Mầm non ẩn, tên phân hệ, ô ngữ cảnh, nhãn "Học sinh" đổi theo; lựa chọn giữ sau khi tải lại. Cuối kịch
-// bản trả lại cấu hình Mầm non để các kịch bản khác không đổi. Chạy sau 02-academic-years, 03-org-units. Dữ liệu giả
+// bản trả lại cấu hình Mầm non để các kịch bản khác không đổi. Chạy sau 02-academic-years, 03-org-units. Dữ liệu giả. CT-19c-12
+// (YCTD-394) kiểm tra chữ người học theo cấp
 const identity = createDatabase<IdentityDatabase>(readConnectionString('identity'));
 
 test.afterAll(async () => {
@@ -165,4 +166,43 @@ test('CT-19c-11: trường liên cấp: Truy cập nhanh, 1.2 dùng tên phân h
   await expect(
     page.getByRole('region', { name: /^Phân hệ của / }).getByLabel('Quản lý giáo dục Mầm non', { exact: true }),
   ).toBeVisible();
+});
+
+// YCTD-394: chọn Tiểu học thì chữ "trẻ" ghi cứng đổi thành "học sinh" (thẻ sinh nhật, bảng báo cáo công nợ) và câu riêng của
+// Mầm non ở 4.1.10 ẩn; trường chỉ có Mầm non giữ chữ "trẻ". Cuối kịch bản trả lại cấu hình Mầm non
+test('CT-19c-12: trường liên cấp chọn Tiểu học: báo cáo, thẻ sinh nhật ghi "học sinh", câu Mầm non ở 4.1.10 ẩn', async ({
+  browser,
+}) => {
+  test.setTimeout(180_000);
+  const principal = await createTestUser(identity, { roles: [{ roleCode: 'VT-02', orgUnitId: null }] });
+  const page = await signIn(browser, principal);
+  const birthdays = page.getByRole('region', { name: 'Sinh nhật trong tháng' });
+  const preschoolNote = page.getByText(/học sinh mầm non chưa dùng phần mềm học/);
+  try {
+    await setPrimaryEnabled(page, true);
+    await selectSchoolLevel(page, 'TH');
+    await page.keyboard.press('Escape');
+    await selectWorkspace(page, 'Quản lý giáo dục Tiểu học');
+    await expect(birthdays.getByRole('heading', { name: 'Sinh nhật học sinh trong tháng' })).toBeVisible();
+
+    await page.goto('/reports');
+    await page.getByRole('tab', { name: 'Công nợ' }).click();
+    await page.getByRole('button', { name: 'Xem báo cáo' }).click();
+    await expect(page.getByRole('region', { name: 'Theo học sinh', exact: true })).toBeVisible();
+    await expect(page.getByRole('region', { name: 'Theo trẻ', exact: true })).toHaveCount(0);
+
+    await page.goto('/learning-accounts');
+    await expect(page.getByText(/^Tài khoản lưu nội bộ trên hệ thống của trường/)).toBeVisible();
+    await expect(preschoolNote).toHaveCount(0);
+  } finally {
+    await setPrimaryEnabled(page, false);
+    await identity.deleteFrom('user_preferences').where('user_id', '=', principal.id).execute();
+  }
+
+  // Trường chỉ có Mầm non: chữ "trẻ" và câu Mầm non như trước
+  await page.goto('/');
+  await selectWorkspace(page, 'Quản lý giáo dục Mầm non');
+  await expect(birthdays.getByRole('heading', { name: 'Sinh nhật trẻ trong tháng' })).toBeVisible();
+  await page.goto('/learning-accounts');
+  await expect(preschoolNote).toBeVisible();
 });
