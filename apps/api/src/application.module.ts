@@ -93,6 +93,7 @@ import { KitchenCatalogsController, KitchenCatalogsService } from './kitchen/kit
 import { KitchenMealsController, KitchenMealsService } from './kitchen/kitchen-meals.js';
 import { BoardingController, BoardingService } from './boarding/boarding.js';
 import { ConductController, ConductService } from './conduct/conduct.js';
+import { SupervisionController, SupervisionService } from './supervision/supervision.js';
 import { conductTransitionStep } from './conduct/conduct-transition.js';
 import { LibraryCatalogController, LibraryCatalogService } from './library/library-catalog.js';
 import { LibraryCirculationController, LibraryCirculationService } from './library/library-circulation.js';
@@ -345,6 +346,8 @@ import { AttendanceController } from './attendance/attendance.controller.js';
 import { AttendanceService } from './attendance/attendance.service.js';
 import { PickupsController } from './pickups/pickups.controller.js';
 import { PickupsService } from './pickups/pickups.service.js';
+import { GatePassesController } from './gate-passes/gate-passes.controller.js';
+import { GatePassesService } from './gate-passes/gate-passes.service.js';
 import { SchoolCalendar } from './attendance/school-calendar.js';
 import { CashAccountsController, CashAccountsService } from './finance/cash-accounts.js';
 import { ReceiptsController } from './finance/receipts.controller.js';
@@ -707,6 +710,7 @@ export class ApplicationModule {
         KitchenMealsController,
         BoardingController,
         ConductController,
+        SupervisionController,
         AssessmentConfigController,
         AssessmentsController,
         LearningRecordsController,
@@ -748,6 +752,7 @@ export class ApplicationModule {
         ImportsController,
         AttendanceController,
         PickupsController,
+        GatePassesController,
         ServicesController,
         FeeSchedulesController,
         DiscountTypesController,
@@ -1010,6 +1015,7 @@ export class ApplicationModule {
         KitchenMealsService,
         BoardingService,
         ConductService,
+        SupervisionService,
         AssessmentConfigService,
         AssessmentsService,
         LearningRecordsService,
@@ -1059,6 +1065,7 @@ export class ApplicationModule {
         StudentImportToolsService,
         AttendanceService,
         PickupsService,
+        GatePassesService,
         ServicesService,
         FeeSchedulesService,
         DiscountTypesService,

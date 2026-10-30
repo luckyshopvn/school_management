@@ -101,6 +101,8 @@ export const STAFF_JOBS = [
   'cook',
   'service',
   'other_staff',
+  // Nhân viên thiết bị, thí nghiệm: chỉ ở biểu THCS, THPT (YCTD-385 lát L2)
+  'equipment_lab',
 ] as const;
 export const STAFF_AGE_BANDS = ['20_29', '30_39', '40_49', '50_59', '60'] as const;
 export const STANDARD_LEVELS = ['excellent', 'good', 'met', 'not_met'] as const;
@@ -126,6 +128,12 @@ const COMMON_FLAGS = {
     'sex_education',
     'disaster_plan',
     'multi_level',
+    // Loại trường theo các cấp phổ thông trường có (YCTD-385 lát L2): phần Trường của biểu THCS, THPT chia nhóm theo loại
+    'type_thcs',
+    'type_th_thcs',
+    'type_thpt',
+    'type_thcs_thpt',
+    'type_th_thcs_thpt',
   ],
   sites: [],
   staff: ['principal', 'vice_principal', 'manager', 'teacher', 'new_hire', 'retired', 'left'],
@@ -176,11 +184,31 @@ const SECONDARY_FILTERS: FilterSet = {
       completion: COMPLETIONS,
       combination: null,
       graduation: ['graduated', 'not_graduated'],
+      age: null,
+      age_under: null,
+      age_over: null,
+      disability: DISABILITY_KINDS,
     },
     classes: { grade: null },
     ...COMMON_VALUES,
   },
-  flags: { students: ['boarding', 'awarded'], classes: ['boarding'], ...COMMON_FLAGS },
+  // Biểu Thông tư 25/2024 cấp THCS, THPT (YCTD-385 lát L2): tuổi, mới tuyển, lưu ban năm trước, dạng khuyết tật, 2 buổi/ngày,
+  // học lại hoặc thi lại hè, chuyển đến từ tỉnh khác, đủ điều kiện xét hoặc dự thi tốt nghiệp; lớp ghép, lớp trong trường nhiều cấp
+  flags: {
+    students: [
+      'boarding',
+      'awarded',
+      'two_sessions',
+      'new_entrant',
+      'repeater',
+      'disabled',
+      'summer_support',
+      'transfer_in_province',
+      'graduation_eligible',
+    ],
+    classes: ['boarding', 'two_sessions', 'multigrade', 'multi_level'],
+    ...COMMON_FLAGS,
+  },
 };
 const PRIMARY_FILTERS: FilterSet = { values: VALUE_FILTERS, flags: FLAG_FILTERS };
 

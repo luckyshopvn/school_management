@@ -6,11 +6,14 @@ import { listClasses } from '../classes/classes-api.js';
 import { AppShell } from '../pages/AppShell.js';
 import { useSchoolLevelTerms } from '../school-levels/working-level.js';
 import { ApiError, requestJson } from '../session/api-client.js';
+import { useHasPermission } from '../session/permissions.js';
+import { GateCardsPanel } from './GateCardsPanel.js';
 
 // Điểm danh trên cổng quản trị (P04-01, P04-06, QT-02): xem bảng của lớp theo ngày; quản lý đơn vị chốt thay,
 // sửa sau khi chốt kèm lý do, mở lại ngày đã chốt (ghi chú 15 của tài liệu 08, YCTD-47). YCTD-334 (thiết kế lại cổng quản
 // trị): bộ lọc gọn một hàng, ô Đơn vị chỉ hiện khi có từ hai đơn vị, nút ngày trước, ngày sau; tóm tắt thành từng ô số; nút
-// thao tác ở đầu bảng, thêm "Đánh dấu tất cả có mặt" cho các dòng chưa đánh dấu (vẫn phải bấm Lưu)
+// thao tác ở đầu bảng, thêm "Đánh dấu tất cả có mặt" cho các dòng chưa đánh dấu (vẫn phải bấm Lưu). YCTD-389: cột "Cổng trường"
+// là gợi ý từ lượt quét thẻ (MH-640); không có lượt thì để trống, không gợi ý vắng; báo nhận nhầm hủy lượt và gửi đính chính
 type Status = 'present' | 'absent_notified' | 'absent_unnotified' | 'late' | 'early_leave' | 'late_and_early_leave';
 
 const STATUS_LABELS: Record<Status, string> = {
@@ -34,6 +37,13 @@ interface Sheet {
     note: string | null;
     is_backfilled: boolean;
     absence: { reason: string | null; is_advised: boolean } | null;
+    gate: {
+      first_in_pass_id: string | null;
+      first_in: string | null;
+      last_out: string | null;
+      first_in_method: string | null;
+      suggested_status: 'present' | 'late' | null;
+    } | null;
   }>;
   summary: {
     total: number;
@@ -51,6 +61,19 @@ function messageOf(error: unknown): string {
   return error instanceof ApiError
     ? [error.message, ...error.details.map((detail) => detail.message)].join('. ')
     : 'Không kết nối được tới máy chủ, vui lòng thử lại';
+}
+
+const METHOD_LABELS: Record<string, string> = {
+  qr: 'thẻ QR',
+  rfid: 'thẻ RFID',
+  device: 'máy chấm công',
+  camera: 'camera',
+};
+
+function timeOf(value: string): string {
+  return new Intl.DateTimeFormat('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh', hour: '2-digit', minute: '2-digit' }).format(
+    new Date(value),
+  );
 }
 
 function vietnamToday(): string {
@@ -75,6 +98,8 @@ export function AttendancePage() {
   const [marks, setMarks] = useState<Record<string, Status | ''>>({});
   const [reason, setReason] = useState('');
   const [toastMessage, setToastMessage] = useState<string>();
+  const canManageCards = useHasPermission('P04.gate-card.manage');
+  const [showCards, setShowCards] = useState(false);
   const closeToast = useCallback(() => setToastMessage(undefined), []);
 
   const classes = useQuery({
@@ -131,7 +156,15 @@ export function AttendancePage() {
       }),
     onSuccess: () => refresh('Đã mở lại ngày đã chốt'),
   });
-  const actionError = save.error ?? lock.error ?? unlock.error;
+  const reject = useMutation({
+    mutationFn: (passId: string) =>
+      requestJson(`/api/v1/gate-passes/${passId}/reject`, {
+        method: 'POST',
+        body: JSON.stringify({ note: 'Giáo viên báo nhận nhầm' }),
+      }),
+    onSuccess: () => refresh('Đã hủy lượt và gửi đính chính cho phụ huynh'),
+  });
+  const actionError = save.error ?? lock.error ?? unlock.error ?? reject.error;
   const data = sheet.data;
 
   return (
@@ -169,6 +202,16 @@ export function AttendancePage() {
             </div>
           </div>
         </div>
+        {canManageCards && selectedClassId ? (
+          <div className="flex flex-col gap-3">
+            <div>
+              <Button aria-expanded={showCards} onClick={() => setShowCards(!showCards)}>
+                {showCards ? 'Ẩn thẻ QR của lớp' : 'Thẻ QR của lớp'}
+              </Button>
+            </div>
+            {showCards ? <GateCardsPanel classId={selectedClassId} learner={terms.learner} /> : null}
+          </div>
+        ) : null}
         {sheet.isError ? <Alert tone="warning">{messageOf(sheet.error)}</Alert> : null}
         {actionError ? <Alert tone="danger">{messageOf(actionError)}</Alert> : null}
         {data ? (
@@ -224,6 +267,21 @@ export function AttendancePage() {
                 >
                   Đánh dấu tất cả có mặt
                 </Button>
+                <Button
+                  disabled={!data.children.some((child) => !marks[child.child_id] && child.gate?.suggested_status)}
+                  onClick={() =>
+                    setMarks(
+                      Object.fromEntries(
+                        data.children.map((child) => [
+                          child.child_id,
+                          marks[child.child_id] || child.gate?.suggested_status || '',
+                        ]),
+                      ),
+                    )
+                  }
+                >
+                  Điền theo cổng trường
+                </Button>
                 <Button variant="primary" disabled={save.isPending} onClick={() => save.mutate()}>
                   Lưu điểm danh
                 </Button>
@@ -238,48 +296,84 @@ export function AttendancePage() {
                 )}
               </div>
             ) : null}
-            <table className="w-full text-content">
-              <thead className="text-left text-label font-medium text-text-secondary">
-                <tr>
-                  <th className="px-3 py-2">{terms.learner}</th>
-                  <th className="px-3 py-2">Trạng thái</th>
-                  <th className="px-3 py-2">Báo vắng</th>
-                  <th className="px-3 py-2">Ghi chú</th>
-                </tr>
-              </thead>
-              <tbody>
-                {data.children.map((child) => (
-                  <tr key={child.child_id} className="border-t border-border">
-                    <td className="px-3 py-2 font-medium">{child.full_name}</td>
-                    <td className="px-3 py-2">
-                      <select
-                        aria-label={`Trạng thái của ${child.full_name}`}
-                        value={marks[child.child_id] ?? ''}
-                        disabled={!data.can_edit}
-                        onChange={(event) =>
-                          setMarks({ ...marks, [child.child_id]: event.target.value as Status | '' })
-                        }
-                        className="rounded-lg border border-border bg-card px-2 py-1"
-                      >
-                        <option value="">Chưa đánh dấu</option>
-                        {(Object.keys(STATUS_LABELS) as Status[]).map((status) => (
-                          <option key={status} value={status}>
-                            {STATUS_LABELS[status]}
-                          </option>
-                        ))}
-                      </select>
-                      {child.is_backfilled ? (
-                        <span className="ml-2 text-label text-text-secondary">nhập bù</span>
-                      ) : null}
-                    </td>
-                    <td className="px-3 py-2">
-                      {child.absence ? (child.absence.is_advised ? 'Đã báo trước' : 'Báo muộn') : ''}
-                    </td>
-                    <td className="px-3 py-2">{child.note ?? ''}</td>
+            <div className="relative overflow-x-auto">
+              <table className="w-full text-content">
+                <thead className="text-left text-label font-medium text-text-secondary">
+                  <tr>
+                    <th className="px-3 py-2">{terms.learner}</th>
+                    <th className="px-3 py-2">Cổng trường</th>
+                    <th className="px-3 py-2">Trạng thái</th>
+                    <th className="px-3 py-2">Báo vắng</th>
+                    <th className="px-3 py-2">Ghi chú</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  {data.children.map((child) => (
+                    <tr key={child.child_id} className="border-t border-border">
+                      <td className="px-3 py-2 font-medium">{child.full_name}</td>
+                      <td className="px-3 py-2">
+                        {child.gate?.first_in ? (
+                          <div className="flex flex-wrap items-center gap-2">
+                            <StatusBadge
+                              tone={child.gate.suggested_status === 'late' ? 'warning' : 'success'}
+                              label={`Vào ${timeOf(child.gate.first_in)} · ${METHOD_LABELS[child.gate.first_in_method ?? ''] ?? ''}`}
+                            />
+                            {child.gate.last_out ? (
+                              <span className="text-label text-text-secondary">Ra {timeOf(child.gate.last_out)}</span>
+                            ) : null}
+                            {data.can_edit && child.gate.first_in_pass_id ? (
+                              <Button
+                                variant="text"
+                                disabled={reject.isPending}
+                                onClick={() => {
+                                  if (
+                                    child.gate?.first_in_pass_id &&
+                                    window.confirm(
+                                      `Báo nhận nhầm lượt vào của ${child.full_name}? Phụ huynh sẽ nhận tin đính chính, không hoàn tác được.`,
+                                    )
+                                  ) {
+                                    reject.mutate(child.gate.first_in_pass_id);
+                                  }
+                                }}
+                              >
+                                Báo nhận nhầm
+                              </Button>
+                            ) : null}
+                          </div>
+                        ) : (
+                          <span className="text-label text-text-secondary">Chưa thấy qua cổng</span>
+                        )}
+                      </td>
+                      <td className="px-3 py-2">
+                        <select
+                          aria-label={`Trạng thái của ${child.full_name}`}
+                          value={marks[child.child_id] ?? ''}
+                          disabled={!data.can_edit}
+                          onChange={(event) =>
+                            setMarks({ ...marks, [child.child_id]: event.target.value as Status | '' })
+                          }
+                          className="rounded-lg border border-border bg-card px-2 py-1"
+                        >
+                          <option value="">Chưa đánh dấu</option>
+                          {(Object.keys(STATUS_LABELS) as Status[]).map((status) => (
+                            <option key={status} value={status}>
+                              {STATUS_LABELS[status]}
+                            </option>
+                          ))}
+                        </select>
+                        {child.is_backfilled ? (
+                          <span className="ml-2 text-label text-text-secondary">nhập bù</span>
+                        ) : null}
+                      </td>
+                      <td className="px-3 py-2">
+                        {child.absence ? (child.absence.is_advised ? 'Đã báo trước' : 'Báo muộn') : ''}
+                      </td>
+                      <td className="px-3 py-2">{child.note ?? ''}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </section>
         ) : null}
       </div>

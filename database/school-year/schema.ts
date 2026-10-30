@@ -4378,6 +4378,17 @@ export interface StudentTransfersTable extends CatalogRecordColumns {
   decided_at: Date | null;
   decision_note: string | null;
   file_id: string | null;
+  // Gói chuyển trường (YCTD-390 lát L1): gói lập gần nhất ở chuyển đi, gói đã tiếp nhận ở chuyển đến
+  package_code: ColumnType<string | null, string | null | undefined, string | null>;
+  package_sha256: ColumnType<string | null, string | null | undefined, string | null>;
+  package_parts: ColumnType<Record<string, unknown> | null, string | null | undefined, string | null>;
+  package_created_at: ColumnType<Date | null, Date | null | undefined, Date | null>;
+  package_created_by_name: ColumnType<string | null, string | null | undefined, string | null>;
+  partner_school_code: ColumnType<string | null, string | null | undefined, string | null>;
+  received_data: ColumnType<Record<string, unknown> | null, string | null | undefined, string | null>;
+  // Thư trong hộp thư nền tảng và trường đối tác trên nền tảng (YCTD-390 lát L2)
+  mailbox_id: ColumnType<string | null, string | null | undefined, string | null>;
+  partner_school_id: ColumnType<string | null, string | null | undefined, string | null>;
 }
 
 // Cơ sở vật chất đủ theo hệ thống của Sở (DT-16 phần 16i): 6.1 thực trạng và nhu cầu đầu tư phòng học, nhà công vụ; mức độ
@@ -5574,6 +5585,53 @@ export interface RedStarMembersTable {
   status: Generated<CatalogStatus>;
   duty: string | null;
   updated_by_name: string | null;
+  updated_at: UpdatedTimestamp;
+}
+
+// Giám thị và rèn luyện từng học sinh, lát L1 (YCTD-391): khu vực trong trường, danh mục nội quy, phân công trực
+export type StudentRuleKind = 'violation' | 'commendation';
+export type StudentRuleParentNotice = 'none' | 'immediate' | 'daily_digest';
+export type SupervisionSchoolLevel = 'TH' | 'THCS' | 'THPT';
+
+export interface SchoolZonesTable {
+  id: Generated<string>;
+  name: string;
+  description: string | null;
+  order_no: Generated<number>;
+  status: Generated<CatalogStatus>;
+  created_at: CreatedTimestamp;
+  updated_at: UpdatedTimestamp;
+}
+
+export interface StudentRuleItemsTable {
+  id: Generated<string>;
+  code: string;
+  name: string;
+  kind: StudentRuleKind;
+  school_level: SupervisionSchoolLevel;
+  parent_notice: Generated<StudentRuleParentNotice>;
+  class_criterion_id: string | null;
+  order_no: Generated<number>;
+  status: Generated<CatalogStatus>;
+  created_at: CreatedTimestamp;
+  updated_at: UpdatedTimestamp;
+}
+
+export interface SupervisionAssignmentsTable {
+  id: Generated<string>;
+  staff_id: string;
+  school_level: SupervisionSchoolLevel;
+  grade_levels: Generated<string[]>;
+  zone_ids: Generated<string[]>;
+  weekdays: number[];
+  start_time: string;
+  end_time: string;
+  from_date: string | null;
+  to_date: string | null;
+  note: string | null;
+  status: Generated<CatalogStatus>;
+  updated_by_name: string | null;
+  created_at: CreatedTimestamp;
   updated_at: UpdatedTimestamp;
 }
 
@@ -7278,6 +7336,9 @@ export interface SchoolYearDatabase {
   seating_charts: SeatingChartsTable;
   seating_assignments: SeatingAssignmentsTable;
   red_star_members: RedStarMembersTable;
+  school_zones: SchoolZonesTable;
+  student_rule_items: StudentRuleItemsTable;
+  supervision_assignments: SupervisionAssignmentsTable;
   assessment_levels: AssessmentLevelsTable;
   competency_items: CompetencyItemsTable;
   assessment_periods: AssessmentPeriodsTable;

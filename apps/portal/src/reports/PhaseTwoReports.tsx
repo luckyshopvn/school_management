@@ -1,9 +1,11 @@
 import { useState } from 'react';
 import { useMutation, useQuery } from '@tanstack/react-query';
+import { SCHOOL_LEVEL_PARAMETER } from '@school-management/shared';
 import { Alert, Button, DataGrid, TextField, type DataGridColumn } from '@school-management/ui';
 import { UnitSelect, useUnitChoice } from '../catalogs/UnitSelect.js';
 import { listClasses } from '../classes/classes-api.js';
 import { useGridSettings } from '../pages/grid-settings.js';
+import { useWorkingSchoolLevels } from '../school-levels/working-level.js';
 import { matchesSearch } from '../pages/grid-search.js';
 import { ApiError } from '../session/api-client.js';
 import {
@@ -22,8 +24,12 @@ const today = () => new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Ho_Chi_Mi
 const firstOfMonth = () => `${today().slice(0, 7)}-01`;
 const messageOf = (error: unknown) => (error instanceof ApiError ? error.message : 'Không kết nối được tới máy chủ');
 
+// Gửi kèm cấp đang làm việc để nhãn "trẻ" hay "học sinh" trong tệp đúng cấp (YCTD-394); bộ lọc có cấp riêng thì giữ cấp đó
 export function ExportButton({ code, filters }: { code: string; filters: Record<string, string | null | undefined> }) {
-  const download = useMutation({ mutationFn: () => exportReport(code, filters) });
+  const workingLevel = useWorkingSchoolLevels().parameter;
+  const download = useMutation({
+    mutationFn: () => exportReport(code, { [SCHOOL_LEVEL_PARAMETER]: workingLevel, ...filters }),
+  });
   return (
     <div className="flex flex-col gap-1">
       <Button type="button" variant="secondary" disabled={download.isPending} onClick={() => download.mutate()}>
@@ -105,7 +111,7 @@ export function OperationsView() {
 
 const CONSOLIDATED_COLUMNS: Column[] = [
   { key: 'org_unit_name', label: 'Đơn vị' },
-  { key: 'children_count', label: 'Số trẻ' },
+  { key: 'children_count', label: 'Số {người học}' },
   { key: 'classes_count', label: 'Số lớp' },
   { key: 'staff_count', label: 'Số nhân sự' },
   { key: 'attendance_rate_percent', label: 'Tỷ lệ đi học (%)' },

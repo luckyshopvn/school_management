@@ -1,8 +1,10 @@
 import { useState, type ReactNode } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { fillLearnerTerm } from '@school-management/shared';
 import { Alert, Button, StatusBadge } from '@school-management/ui';
 import { UnitSelect, useUnitChoice } from '../catalogs/UnitSelect.js';
 import { ErrorFileButton } from './ExcelImportPanel.js';
+import { useSchoolLevelTerms } from '../school-levels/working-level.js';
 import { ApiError, requestJson } from '../session/api-client.js';
 
 // Nhập tệp xuất từ CSDL ngành (xls hoặc xlsx) cho trẻ hoặc nhân sự (YCTD-100): chọn đơn vị, kiểm tra tệp để xem trước số
@@ -26,8 +28,8 @@ interface MoetImportJob {
 
 const LABELS: Record<MoetImportType, { title: string; hint: string }> = {
   moet_children: {
-    title: 'Trẻ từ CSDL ngành',
-    hint: 'Tệp học sinh xuất từ CSDL ngành. Cột Mã lớp so khớp mã hoặc tên lớp của đơn vị đã chọn. Trẻ đã có (cùng số định danh) được cập nhật; trẻ chuyển đi, thôi học chưa có hồ sơ không được tạo. Dị ứng để chưa khai báo, bổ sung ở Hồ sơ trẻ.',
+    title: '{Người học} từ CSDL ngành',
+    hint: 'Tệp học sinh xuất từ CSDL ngành. Cột Mã lớp so khớp mã hoặc tên lớp của đơn vị đã chọn. {Người học} đã có (cùng số định danh) được cập nhật; {người học} chuyển đi, thôi học chưa có hồ sơ không được tạo. Dị ứng để chưa khai báo, bổ sung ở Hồ sơ {người học}.',
   },
   moet_staff: {
     title: 'Nhân sự từ CSDL ngành',
@@ -90,7 +92,8 @@ export function MoetImportSection({
   const [file, setFile] = useState<File>();
   const [job, setJob] = useState<MoetImportJob>();
   const [consent, setConsent] = useState(false);
-  const labels = LABELS[type];
+  const terms = useSchoolLevelTerms();
+  const labels = { title: fillLearnerTerm(LABELS[type].title, terms), hint: fillLearnerTerm(LABELS[type].hint, terms) };
   const needsConsent = confirmUpdates && (job?.preview?.updated ?? 0) > 0;
   const upload = useMutation({
     mutationFn: () => {
@@ -115,7 +118,7 @@ export function MoetImportSection({
       setJob(result);
       await queryClient.invalidateQueries();
       onChanged(
-        `Đã ghi ${labels.title.toLowerCase()}: ${result.preview?.created ?? 0} tạo mới, ${result.preview?.updated ?? 0} cập nhật`,
+        `Đã ghi ${labels.title.toLocaleLowerCase('vi')}: ${result.preview?.created ?? 0} tạo mới, ${result.preview?.updated ?? 0} cập nhật`,
       );
     },
   });

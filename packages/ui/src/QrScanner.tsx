@@ -9,12 +9,19 @@ export interface QrScannerProperties {
   onScan(text: string): void;
   // Nhãn của ô nhập tay
   manualLabel?: string;
+  // Chữ gợi ý trong ô nhập tay
+  manualPlaceholder?: string;
   disabled?: boolean;
 }
 
 const SCAN_INTERVAL_MS = 250;
 
-export function QrScanner({ onScan, manualLabel = 'Mã tem', disabled = false }: QrScannerProperties) {
+export function QrScanner({
+  onScan,
+  manualLabel = 'Mã tem',
+  manualPlaceholder = 'TB-…',
+  disabled = false,
+}: QrScannerProperties) {
   const inputId = useId();
   const video = useRef<HTMLVideoElement>(null);
   const canvas = useRef<HTMLCanvasElement>(null);
@@ -119,7 +126,7 @@ export function QrScanner({ onScan, manualLabel = 'Mã tem', disabled = false }:
             value={manual}
             disabled={disabled}
             autoComplete="off"
-            placeholder="TB-…"
+            placeholder={manualPlaceholder}
             onChange={(event) => setManual(event.target.value)}
             className="rounded-lg border border-border bg-card px-3 py-2 text-content"
           />

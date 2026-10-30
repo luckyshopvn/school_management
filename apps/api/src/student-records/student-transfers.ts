@@ -150,6 +150,7 @@ export class StudentTransfersService {
         'student_transfers.decided_at',
         'student_transfers.decision_note',
         'student_transfers.created_at',
+        'student_transfers.package_code',
         'org_units.name as org_unit_name',
         'children.moet_student_code',
         'children.status as child_status',

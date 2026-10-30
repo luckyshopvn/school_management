@@ -18,6 +18,9 @@ import {
   type StudentTransfer,
   type TransferPlace,
 } from './students-api.js';
+import { BuildPackageDialog, ImportPackageDialog, ReceivedLearningRecordsDialog } from './TransferPackageDialogs.js';
+import { SendPackageDialog, TransferMailboxPanel, useMailboxSettings } from './TransferMailboxPanel.js';
+import { listOutbox, MAILBOX_STATE_LABELS, revokeTransferPackage } from './transfer-mailbox-api.js';
 
 // Chuyển trường chạy nội bộ ở 4.2 Biến động học sinh (DT-16 phần 16g, mục 4.2 của Sở "tiếp nhận học sinh chuyển đến (từ
 // tỉnh, xã, trường); duyệt chuyển đi"). Các trường chưa liên thông nên theo quyết định của Eric ngày 2026-10-16 không có nút
@@ -180,7 +183,18 @@ export function StudentTransfersSection({ onChanged }: { onChanged(message: stri
   const [status, setStatus] = useState('');
   const [search, setSearch] = useState('');
   const [page, setPage] = useState(1);
-  const [dialog, setDialog] = useState<'out' | 'in'>();
+  const [dialog, setDialog] = useState<'out' | 'in' | 'package'>();
+  const [packaging, setPackaging] = useState<StudentTransfer>();
+  const [sending, setSending] = useState<StudentTransfer>();
+  const mailboxSettings = useMailboxSettings();
+  const mailboxEnabled = mailboxSettings.data?.available === true && mailboxSettings.data.enabled;
+  const outbox = useQuery({
+    queryKey: ['student-transfers', 'mailbox', 'outbox'],
+    queryFn: listOutbox,
+    enabled: mailboxSettings.data?.available === true,
+  });
+  const outboxByCode = new Map((outbox.data ?? []).map((item) => [item.package_code, item]));
+  const [receivedRecords, setReceivedRecords] = useState<StudentTransfer>();
   const [deciding, setDeciding] = useState<{ row: StudentTransfer; approve: boolean }>();
   const [note, setNote] = useState('');
   const [fileError, setFileError] = useState<string>();
@@ -191,6 +205,8 @@ export function StudentTransfersSection({ onChanged }: { onChanged(message: stri
   });
   const refresh = async (message: string) => {
     setDialog(undefined);
+    setPackaging(undefined);
+    setSending(undefined);
     onChanged(message);
     await queryClient.invalidateQueries({ queryKey: ['student-transfers'] });
     await queryClient.invalidateQueries({ queryKey: ['student-movements'] });
@@ -229,6 +245,15 @@ export function StudentTransfersSection({ onChanged }: { onChanged(message: stri
         />
       ),
     },
+    { id: 'package_code', header: 'Mã gói', cell: (row) => row.package_code ?? '' },
+    {
+      id: 'mailbox_state',
+      header: 'Gửi qua hệ thống',
+      cell: (row) => {
+        const item = row.direction === 'out' && row.package_code ? outboxByCode.get(row.package_code) : undefined;
+        return item ? `${MAILBOX_STATE_LABELS[item.state]}${item.decision_note ? `: ${item.decision_note}` : ''}` : '';
+      },
+    },
     { id: 'decided_by', header: 'Người duyệt', hiddenByDefault: true, cell: (row) => row.decided_by_name ?? '' },
     { id: 'decision_note', header: 'Ghi chú duyệt', hiddenByDefault: true, cell: (row) => row.decision_note ?? '' },
   ];
@@ -262,9 +287,10 @@ export function StudentTransfersSection({ onChanged }: { onChanged(message: stri
     <section className="flex flex-col gap-4" aria-label="Chuyển trường">
       <h2 className="text-section-title font-semibold text-text">Chuyển đi, tiếp nhận chuyển đến</h2>
       <p className="text-label text-text-secondary">
-        Các trường chưa liên thông dữ liệu: hồ sơ chuyển xuất dạng PDF hoặc tệp theo mẫu của Bộ để trao trường nhận;
-        trường nhận tải tệp lên để tiếp nhận.
+        Hiệu trưởng lập gói chuyển trường (mã hóa, có học bạ đã ký) để trao trường nhận; trường nhận dùng "Nhập gói
+        chuyển trường". Trường nhận dùng phần mềm khác thì xuất hồ sơ PDF hoặc tệp theo mẫu của Bộ.
       </p>
+      <TransferMailboxPanel canApprove={canApprove} onChanged={(message) => void refresh(message)} />
       {transfers.isError ? <Alert tone="danger">{messageOf(transfers.error)}</Alert> : null}
       {fileError ? <Alert tone="danger">{fileError}</Alert> : null}
       <DataGrid
@@ -301,6 +327,7 @@ export function StudentTransfersSection({ onChanged }: { onChanged(message: stri
           <>
             {canManage || canApprove ? <Button onClick={() => setDialog('out')}>Đề nghị chuyển đi</Button> : null}
             {canManage ? <Button onClick={() => setDialog('in')}>Tiếp nhận chuyển đến</Button> : null}
+            {canApprove ? <Button onClick={() => setDialog('package')}>Nhập gói chuyển trường</Button> : null}
           </>
         }
         rowActions={(row) => (
@@ -327,6 +354,41 @@ export function StudentTransfersSection({ onChanged }: { onChanged(message: stri
                 </Button>
               </>
             ) : null}
+            {row.direction === 'out' && canDossier && canApprove && row.status !== 'rejected' ? (
+              <Button variant="text" onClick={() => setPackaging(row)}>
+                Lập gói
+              </Button>
+            ) : null}
+            {row.direction === 'out' &&
+            canDossier &&
+            canApprove &&
+            mailboxEnabled &&
+            (row.status === 'pending' || row.status === 'approved') &&
+            !['sent', 'opened', 'accepted'].includes(outboxByCode.get(row.package_code ?? '')?.state ?? '') ? (
+              <Button variant="text" onClick={() => setSending(row)}>
+                Gửi qua hệ thống
+              </Button>
+            ) : null}
+            {row.direction === 'out' &&
+            canApprove &&
+            ['sent', 'opened'].includes(outboxByCode.get(row.package_code ?? '')?.state ?? '') ? (
+              <Button
+                variant="text"
+                onClick={() => {
+                  setFileError(undefined);
+                  revokeTransferPackage(row.id)
+                    .then(() => refresh('Đã thu hồi gói gửi qua hệ thống'))
+                    .catch((error: unknown) => setFileError(messageOf(error)));
+                }}
+              >
+                Thu hồi gói
+              </Button>
+            ) : null}
+            {row.direction === 'in' && row.package_code && row.child_id ? (
+              <Button variant="text" onClick={() => setReceivedRecords(row)}>
+                Học bạ nhận được
+              </Button>
+            ) : null}
             {row.direction === 'out' && canDossier ? (
               <>
                 <Button variant="text" onClick={() => dossier(row, 'pdf')}>
@@ -348,6 +410,26 @@ export function StudentTransfersSection({ onChanged }: { onChanged(message: stri
       ) : null}
       {dialog === 'in' ? (
         <ReceiveDialog onDone={(message) => void refresh(message)} onCancel={() => setDialog(undefined)} />
+      ) : null}
+      {dialog === 'package' ? (
+        <ImportPackageDialog onDone={(message) => void refresh(message)} onCancel={() => setDialog(undefined)} />
+      ) : null}
+      {sending ? (
+        <SendPackageDialog
+          transfer={sending}
+          onDone={(message) => void refresh(message)}
+          onCancel={() => setSending(undefined)}
+        />
+      ) : null}
+      {packaging ? (
+        <BuildPackageDialog
+          transfer={packaging}
+          onDone={(message) => void refresh(message)}
+          onCancel={() => setPackaging(undefined)}
+        />
+      ) : null}
+      {receivedRecords ? (
+        <ReceivedLearningRecordsDialog transfer={receivedRecords} onClose={() => setReceivedRecords(undefined)} />
       ) : null}
       {deciding ? (
         <ConfirmDialog

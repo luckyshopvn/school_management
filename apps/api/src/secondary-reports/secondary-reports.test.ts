@@ -49,7 +49,8 @@ describe('Công thức biểu EMIS THCS, THPT', () => {
     assert.throws(() => parseFormula('students.learning=good'), Error);
     assert.throws(() => parseFormula('students.year_result=excellent', 'THCS'), Error);
     assert.throws(() => parseFormula('students.learning=excellent', 'THCS'), Error);
-    assert.throws(() => parseFormula('classes.two_sessions', 'THPT'), Error);
+    // Từ YCTD-385 lát L2 lớp THCS, THPT có điều kiện 2 buổi/ngày (biểu Thông tư 25/2024); khen thưởng vẫn chỉ ở học sinh
+    assert.throws(() => parseFormula('classes.awarded', 'THPT'), Error);
     const facts = {
       students: [
         student({ female: true, ethnic: true, learning: 'good', title: 'excellent', graduation: 'graduated' }),
@@ -421,13 +422,21 @@ describe('Điểm cuối báo cáo, thống kê, EMIS THPT', () => {
   });
 
   it('CT-21g-4: biểu EMIS THPT tách khỏi Tiểu học; tính từ dữ liệu, nhập tay, sửa khung theo điều kiện của cấp; xuất', async () => {
+    // Từ YCTD-385 lát L2, L3 biểu khung THCS, THPT cũ thay bằng biểu Thông tư 25/2024, chỉ hiện khi xin `archived=true`;
+    // biểu khung cũ vẫn mở, nhập, sửa khung được theo mã
     const forms = list((await api('GET', '/secondary-reports/emis', principal.accessToken)).body);
     assert.deepEqual(forms.map((form) => form.code).sort(), [
-      'emis-thcs-cuoi-nam',
-      'emis-thcs-dau-nam',
-      'emis-thpt-cuoi-nam',
-      'emis-thpt-dau-nam',
+      'tt25-03-cn-thcs',
+      'tt25-03-dn-thcs',
+      'tt25-04-cn-thpt',
+      'tt25-04-dn-thpt',
     ]);
+    const all = list((await api('GET', '/secondary-reports/emis?archived=true', principal.accessToken)).body);
+    assert.ok(
+      ['emis-thcs-cuoi-nam', 'emis-thcs-dau-nam', 'emis-thpt-cuoi-nam', 'emis-thpt-dau-nam'].every((code) =>
+        all.some((form) => form.code === code),
+      ),
+    );
     const primaryForms = list((await api('GET', '/primary-reports/emis', principal.accessToken)).body);
     assert.ok(primaryForms.every((form) => form.school_level === 'TH'));
     assert.equal((await api('GET', '/primary-reports/emis/emis-thpt-cuoi-nam', principal.accessToken)).status, 404);
