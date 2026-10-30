@@ -27,10 +27,9 @@ export type LevelFeature =
   // Lớp học trực tuyến (DT-28 phần 28b, Thông tư 09/2021/TT-BGDĐT Điều 1): con học cấp phổ thông
   | 'online_learning'
   // Lọc mục của ứng dụng giáo viên theo cấp (DT-29, YCTD-325; Eric chốt ngày 2026-10-28): đón trả và dặn thuốc ở lớp Mầm non,
-  // Tiểu học; gia sư trong trường ở lớp phổ thông. Ứng dụng phụ huynh chưa dùng các mục này
+  // Tiểu học. Ứng dụng phụ huynh chưa dùng các mục này
   | 'class_pickup'
-  | 'class_medication'
-  | 'school_tutoring';
+  | 'class_medication';
 
 export const LEVEL_FEATURES: Record<LevelFeature, readonly SchoolLevelCode[]> = {
   // Điểm danh theo ngày (YCTD-350): Mầm non điểm danh cả ngày; Tiểu học, THCS, THPT điểm danh đầu ngày, làm mặc định cho
@@ -54,7 +53,6 @@ export const LEVEL_FEATURES: Record<LevelFeature, readonly SchoolLevelCode[]> = 
   online_learning: ['TH', 'THCS', 'THPT'],
   class_pickup: ['MN', 'TH'],
   class_medication: ['MN', 'TH'],
-  school_tutoring: ['TH', 'THCS', 'THPT'],
 };
 
 // Cấp của con hoặc lớp như máy chủ trả; trống (con chưa xếp lớp, máy chủ cũ) là Mầm non như mọi chỗ đọc cấp khác
