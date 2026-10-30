@@ -11,6 +11,9 @@ export const TUTOR_RULES = {
   hints: 'BR-467',
   safety: 'BR-468',
   history: 'BR-469',
+  // Lát L4: ảnh bài tập chỉ ở gói Nâng cao, loại, cỡ, số ảnh; ảnh có thông tin cá nhân; xóa ảnh sau 30 ngày
+  images: 'BR-500',
+  imageSafety: 'BR-501',
 } as const;
 
 export const QUESTION_MAX_LENGTH = 2000;
@@ -26,7 +29,7 @@ export const TOPIC_MAX_LENGTH = 80;
 
 export type TutorMode = 'hint' | 'solution';
 export type TutorStep = 'concept' | 'method' | 'example' | 'check' | 'solution' | 'refusal' | 'safety';
-export type StudentModeration = 'self_harm' | 'bullying' | 'unsafe' | 'off_topic';
+export type StudentModeration = 'self_harm' | 'bullying' | 'unsafe' | 'off_topic' | 'personal_data';
 
 export const LEVEL_NAMES: Record<AiTutorSchoolLevel, string> = {
   TH: 'Tiểu học',
@@ -69,6 +72,8 @@ export interface TutorPromptContext {
   gradeLevelCode: string;
   subjectName: string;
   mode: TutorMode;
+  // Lát L4: câu hỏi có ảnh bài tập
+  hasImages?: boolean;
 }
 
 // Lời nhắc hệ thống dựng từ mẫu cố định; chỉ có cấp, khối, môn, không có thông tin của em
@@ -92,9 +97,14 @@ export function buildTutorSystemPrompt(context: TutorPromptContext): string {
           '4. Em đã tự làm ít nhất hai lượt và bấm "Xem lời giải đầy đủ". Trình bày lời giải đầy đủ từng bước của bài em hỏi, giải thích vì sao làm như vậy, step "solution".',
           'CHE_DO: loi_giai',
         ];
-  const format =
-    'Trả về đúng một đối tượng JSON, không thêm chữ nào khác: {"step": "concept" | "method" | "example" | "check" | "solution" | "refusal", "topic": "chủ đề ngắn của bài, tối đa 80 ký tự, không có thông tin cá nhân", "reply": "lời của gia sư gửi em", "final_answer": "đáp án cuối cùng của bài em hỏi, chỉ để máy chủ kiểm tra, không hiển thị cho em; để trống khi không có"}';
-  return [...common, ...mode, format].join('\n');
+  const image = context.hasImages
+    ? [
+        'ANH: Em gửi kèm ảnh bài tập. Chép lại phần đề bài trong ảnh vào "image_text" (chỉ đề bài, tối đa 1000 ký tự). Nếu ảnh có tên người, khuôn mặt, số điện thoại, địa chỉ, số định danh, chữ ký, tên trường lớp hoặc thông tin cá nhân khác thì đặt "personal_data" là true, không chép và không nhắc lại các thông tin đó. Ảnh không phải bài tập thì đặt "step" là "refusal".',
+      ]
+    : [];
+  const imageFields = context.hasImages ? ', "image_text": "đề bài chép từ ảnh", "personal_data": true | false' : '';
+  const format = `Trả về đúng một đối tượng JSON, không thêm chữ nào khác: {"step": "concept" | "method" | "example" | "check" | "solution" | "refusal", "topic": "chủ đề ngắn của bài, tối đa 80 ký tự, không có thông tin cá nhân", "reply": "lời của gia sư gửi em", "final_answer": "đáp án cuối cùng của bài em hỏi, chỉ để máy chủ kiểm tra, không hiển thị cho em; để trống khi không có"${imageFields}}`;
+  return [...common, ...mode, ...image, format].join('\n');
 }
 
 export function buildRewritePrompt(reply: string, finalAnswer: string): AiPrompt {
@@ -117,6 +127,9 @@ export interface TutorReply {
   topic: string | null;
   reply: string;
   finalAnswer: string;
+  // Lát L4: đề chép từ ảnh, nhà cung cấp tự báo ảnh có thông tin cá nhân
+  imageText: string;
+  personalData: boolean;
 }
 
 const MODEL_STEPS: readonly TutorStep[] = ['concept', 'method', 'example', 'check', 'solution', 'refusal'];
@@ -151,6 +164,8 @@ export function parseTutorReply(text: string, mode: TutorMode): TutorReply | nul
     topic: topic || null,
     reply: reply.slice(0, 7000),
     finalAnswer: object ? textOf(object.final_answer) : '',
+    imageText: object ? textOf(object.image_text).slice(0, 2000) : '',
+    personalData: object?.personal_data === true,
   };
 }
 
@@ -310,6 +325,10 @@ export const SAFETY_REPLIES: Record<'self_harm' | 'bullying', string> = {
   bullying:
     'Cảm ơn em đã kể cho gia sư. Bị bắt nạt không phải lỗi của em. Em hãy kể ngay với bố mẹ, thầy cô chủ nhiệm hoặc một người lớn em tin tưởng để được giúp. Em có thể gọi miễn phí Tổng đài quốc gia bảo vệ trẻ em **111** (24 giờ mỗi ngày).',
 };
+
+// Lát L4: ảnh có thông tin cá nhân thì không lưu ảnh, không hiện câu trả lời của nhà cung cấp, nhắc em chụp lại chỉ phần đề bài
+export const IMAGE_PERSONAL_DATA_REPLY =
+  'Ảnh của em có thông tin cá nhân (tên, khuôn mặt, số điện thoại, địa chỉ hoặc số định danh). Gia sư không giữ ảnh này. Em hãy chụp lại **chỉ phần đề bài** rồi gửi lại nhé; lượt hỏi không bị trừ.';
 
 export const REFUSAL_REPLY =
   'Gia sư AI chỉ giúp em học các môn ở trường. Em hãy hỏi gia sư về bài học hoặc bài tập nhé.';

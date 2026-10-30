@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
-import { normalizeMathDelimiters, remainingPercent } from './ai-tutor-math.ts';
+import { normalizeMathDelimiters, remainingPercent, tutorImagesProblem } from './ai-tutor-math.ts';
 
 // Chuẩn hóa công thức và thanh số lượt của gia sư AI (YCTD-383 lát L2)
 describe('Gia sư AI: hiển thị công thức', () => {
@@ -18,5 +18,18 @@ describe('Gia sư AI: hiển thị công thức', () => {
     assert.equal(remainingPercent(62, 100), 62);
     assert.equal(remainingPercent(5, 0), 0);
     assert.equal(remainingPercent(120, 100), 100);
+  });
+});
+
+// Kiểm sơ bộ ảnh bài tập ở ứng dụng (YCTD-383 lát L4, CT-1947)
+describe('Gia sư AI: chọn ảnh bài tập', () => {
+  it('CT-1947: tối đa số ảnh máy chủ cho, chỉ JPEG, PNG, WebP', () => {
+    assert.equal(tutorImagesProblem([{ type: 'image/jpeg' }, { type: 'image/webp' }], 1, 3), null);
+    assert.equal(
+      tutorImagesProblem([{ type: 'image/png' }, { type: 'image/png' }], 2, 3),
+      'Mỗi câu hỏi gửi tối đa 3 ảnh',
+    );
+    assert.equal(tutorImagesProblem([{ type: 'image/gif' }], 0, 3), 'Chỉ gửi ảnh JPEG, PNG hoặc WebP');
+    assert.equal(tutorImagesProblem([{ type: 'application/pdf' }], 0, 3), 'Chỉ gửi ảnh JPEG, PNG hoặc WebP');
   });
 });
