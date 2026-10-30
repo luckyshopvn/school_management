@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { Alert, Button, ConfirmDialog, StatusBadge } from '@school-management/ui';
 import { useUnitChoice } from '../catalogs/UnitSelect.js';
@@ -17,6 +17,7 @@ import {
   type BuiltTransferPackage,
   type OptionalTransferPart,
 } from './transfer-packages-api.js';
+import { acceptMailboxPackage, previewMailboxPackage } from './transfer-mailbox-api.js';
 
 // Gói chuyển trường (YCTD-390 lát L1): MH-651 trường đi chọn thành phần và lập gói; MH-652, MH-653 trường đến nhập gói, xem trước,
 // xếp lớp, tiếp nhận; học bạ nhận từ trường khác xem và tải ở hồ sơ chuyển đến
@@ -144,7 +145,16 @@ export function BuildPackageDialog({
   );
 }
 
-export function ImportPackageDialog({ onDone, onCancel }: { onDone(message: string): void; onCancel(): void }) {
+// Gói bằng tệp (MH-653) hoặc gói nhận qua hộp thư nền tảng (lát L2): `mailboxId` có thì bỏ bước chọn tệp, mật khẩu
+export function ImportPackageDialog({
+  mailboxId,
+  onDone,
+  onCancel,
+}: {
+  mailboxId?: string;
+  onDone(message: string): void;
+  onCancel(): void;
+}) {
   const unitChoice = useUnitChoice();
   const [file, setFile] = useState<File>();
   const [password, setPassword] = useState('');
@@ -158,10 +168,20 @@ export function ImportPackageDialog({ onDone, onCancel }: { onDone(message: stri
     queryFn: () => listClasses(unitId),
     enabled: unitId !== '',
   });
-  const preview = useMutation({ mutationFn: () => previewTransferPackage(file as File, password) });
+  const preview = useMutation({
+    mutationFn: () => (mailboxId ? previewMailboxPackage(mailboxId) : previewTransferPackage(file as File, password)),
+  });
+  const openPreview = preview.mutate;
+  useEffect(() => {
+    if (mailboxId) {
+      openPreview();
+    }
+  }, [mailboxId, openPreview]);
   const accept = useMutation({
     mutationFn: () =>
-      acceptTransferPackage(file as File, password, { classId, fromDate, confirmOverCapacity: overCapacity }),
+      mailboxId
+        ? acceptMailboxPackage(mailboxId, { classId, fromDate, confirmOverCapacity: overCapacity })
+        : acceptTransferPackage(file as File, password, { classId, fromDate, confirmOverCapacity: overCapacity }),
     onSuccess: (result) => {
       if (result.child_id) {
         onDone(`Đã tiếp nhận ${preview.data?.student.full_name ?? 'học sinh'} vào lớp, trạng thái Đang học`);
@@ -173,18 +193,24 @@ export function ImportPackageDialog({ onDone, onCancel }: { onDone(message: stri
   return (
     <ConfirmDialog
       open
-      title="Nhập gói chuyển trường"
+      title={mailboxId ? 'Gói chuyển trường nhận qua hệ thống' : 'Nhập gói chuyển trường'}
       confirmLabel={data ? 'Tiếp nhận' : 'Xem gói'}
       busy={
         data
           ? accept.isPending || blocked || !classId
-          : preview.isPending || !file || password.replace(/[^A-Za-z0-9]/g, '').length !== 16
+          : preview.isPending || mailboxId !== undefined || !file || password.replace(/[^A-Za-z0-9]/g, '').length !== 16
       }
       onCancel={onCancel}
       onConfirm={() => (data ? accept.mutate() : preview.mutate())}
     >
       <div className="flex flex-col gap-3">
-        {!data ? (
+        {!data && mailboxId ? (
+          preview.error ? (
+            <Alert tone="danger">{messageOf(preview.error)}</Alert>
+          ) : (
+            <p className="text-label text-text-secondary">Đang mở gói, kiểm chữ ký của trường đi…</p>
+          )
+        ) : !data ? (
           <>
             <p className="text-label text-text-secondary">
               Chọn tệp gói (đuôi .goichuyen) và nhập mật khẩu 16 ký tự in trên bản in do trường cũ cấp.
@@ -210,7 +236,7 @@ export function ImportPackageDialog({ onDone, onCancel }: { onDone(message: stri
           <>
             <Alert tone="success">
               Gói {data.package_code} của {data.source_school.name}, người duyệt {data.approved_by_name}, lập ngày{' '}
-              {formatDate(data.created_at)}; mã băm từng phần hợp lệ.
+              {formatDate(data.created_at)}; {mailboxId ? 'chữ ký của trường đi và ' : ''}mã băm từng phần hợp lệ.
             </Alert>
             {data.already_received ? <Alert tone="danger">Gói này đã được tiếp nhận.</Alert> : null}
             {data.existing_child ? (
