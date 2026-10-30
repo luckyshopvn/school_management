@@ -183,6 +183,8 @@ test('CT-19c-12: trường liên cấp chọn Tiểu học: báo cáo, thẻ sin
     await selectSchoolLevel(page, 'TH');
     await page.keyboard.press('Escape');
     await selectWorkspace(page, 'Quản lý giáo dục Tiểu học');
+    // Chọn phân hệ không chuyển trang (đang ở 1.4 sau khi bật cấp): mở trang chủ để thấy thẻ sinh nhật như CT-19c-9
+    await page.goto('/');
     await expect(birthdays.getByRole('heading', { name: 'Sinh nhật học sinh trong tháng' })).toBeVisible();
 
     await page.goto('/reports');
@@ -200,8 +202,10 @@ test('CT-19c-12: trường liên cấp chọn Tiểu học: báo cáo, thẻ sin
   }
 
   // Trường chỉ có Mầm non: chữ "trẻ" và câu Mầm non như trước
+  // Tải lại trang để ngữ cảnh trường đọc lại cấp đã tắt, rồi mới chọn phân hệ
   await page.goto('/');
   await selectWorkspace(page, 'Quản lý giáo dục Mầm non');
+  await page.goto('/');
   await expect(birthdays.getByRole('heading', { name: 'Sinh nhật trẻ trong tháng' })).toBeVisible();
   await page.goto('/learning-accounts');
   await expect(preschoolNote).toBeVisible();
