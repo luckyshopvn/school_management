@@ -7,6 +7,8 @@ export interface NavigationEntry {
   path: string;
   label: string;
   workspace: PortalWorkspaceKey;
+  // Tên phân hệ như ô chọn phân hệ đang hiện (đặt theo cấp đang làm việc, YCTD-388)
+  workspaceLabel: string;
 }
 
 interface NavigationRegistry {
@@ -22,6 +24,7 @@ export function useNavigationRegistryState(workspaces: PortalWorkspace[]): Navig
         path: entry.node.path,
         label: entry.node.label,
         workspace: entry.workspace.key,
+        workspaceLabel: entry.workspace.label,
       })),
     }),
     [workspaces],

@@ -413,7 +413,7 @@ export function DataGrid<Row>({
   const primaryColumn = visibleColumns.find((column) => column.primary) ?? visibleColumns[0];
   // Cột đầu (sau ô chọn) dính bên trái khi bảng cuộn ngang; ô chọn rộng 2,5rem nên cột đầu dịch theo
   const stickyFirst = (index: number) =>
-    index === 0 ? `sticky z-[1] bg-inherit ${selectable ? 'left-10 max-xl:left-11' : 'left-0'}` : '';
+    index === 0 ? `sticky z-[1] bg-inherit ${selectable ? 'left-11' : 'left-0'}` : '';
   const pageSize = settings.pageSize;
   const total = serverPagination ? serverPagination.total : rows.length;
   const totalPages = Math.max(1, Math.ceil(total / pageSize));
@@ -537,7 +537,8 @@ export function DataGrid<Row>({
       ) : null}
       {selectable ? (
         <div
-          className={`flex flex-wrap items-center gap-x-4 gap-y-2 ${selectedRows.length > 0 && selectionActions ? 'rounded-lg bg-selected px-3 py-2' : ''}`}
+          // Điện thoại: thanh thao tác dính đáy màn hình, chừa vùng an toàn (TD-28, YCTD-384)
+          className={`flex flex-wrap items-center gap-x-4 gap-y-2 ${selectedRows.length > 0 && selectionActions ? 'rounded-lg bg-selected px-3 py-2 max-md:fixed max-md:inset-x-0 max-md:bottom-0 max-md:z-30 max-md:rounded-none max-md:border-t max-md:border-pc-vien max-md:pb-[calc(0.5rem+env(safe-area-inset-bottom,0px))] max-md:shadow-[0_-4px_16px_rgb(0_0_0/0.12)]' : ''}`}
         >
           <p className="text-label text-text-secondary" aria-live="polite">
             {selectedRows.length > 0 ? `Đã chọn ${selectedRows.length} dòng` : ''}
@@ -583,8 +584,8 @@ export function DataGrid<Row>({
             <thead className="bg-card text-left text-label font-medium text-text-secondary">
               <tr className="bg-card">
                 {selectable ? (
-                  <th scope="col" className="sticky left-0 z-[1] w-10 bg-inherit px-3 py-2 max-xl:w-11 max-xl:p-0">
-                    <label className="flex items-center justify-center max-xl:h-11 max-xl:w-11">
+                  <th scope="col" className="sticky left-0 z-[1] w-11 bg-inherit p-0">
+                    <label className="flex h-11 w-11 items-center justify-center">
                       <input
                         ref={selectAllReference}
                         type="checkbox"
@@ -629,11 +630,8 @@ export function DataGrid<Row>({
                       className={`border-t border-border ${onRowClick ? 'cursor-pointer hover:bg-selected' : ''} ${id === activeRowId ? 'bg-selected' : 'bg-card'}`}
                     >
                       {selectable ? (
-                        <td
-                          className="sticky left-0 z-[1] bg-inherit px-3 py-2 max-xl:p-0"
-                          onClick={(event) => event.stopPropagation()}
-                        >
-                          <label className="flex items-center justify-center max-xl:h-11 max-xl:w-11">
+                        <td className="sticky left-0 z-[1] bg-inherit p-0" onClick={(event) => event.stopPropagation()}>
+                          <label className="flex h-11 w-11 items-center justify-center">
                             <input
                               type="checkbox"
                               className="h-4 w-4"

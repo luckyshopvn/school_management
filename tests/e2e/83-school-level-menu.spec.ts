@@ -121,3 +121,48 @@ test('CT-19c-9: trường mầm non giữ menu; bật Tiểu học có bộ ch�
   await expect(context).toContainText('Cấp MN · ');
   await expect(page.getByRole('button', { name: 'Phân hệ: Quản lý giáo dục Mầm non', exact: true })).toBeVisible();
 });
+
+// YCTD-388: trường liên cấp không còn thấy tên dự phòng "Quản lý giáo dục Mầm non" ở hộp chọn trang của Truy cập nhanh và ở
+// 1.2 Phân quyền nhóm theo phần mềm; chọn một cấp thì Truy cập nhanh theo tên cấp đó. Cuối kịch bản trả lại cấu hình Mầm non
+test('CT-19c-11: trường liên cấp: Truy cập nhanh, 1.2 dùng tên phân hệ theo cấp, không còn tên Mầm non', async ({
+  browser,
+}) => {
+  test.setTimeout(180_000);
+  const principal = await createTestUser(identity, { roles: [{ roleCode: 'VT-02', orgUnitId: null }] });
+  const page = await signIn(browser, principal);
+  const quickAccess = page.getByRole('region', { name: 'Truy cập nhanh' });
+  const picker = quickAccess.getByRole('dialog', { name: 'Chọn trang thêm vào truy cập nhanh' });
+  try {
+    await setPrimaryEnabled(page, true);
+
+    // "Tất cả": nhóm trang của phân hệ là "Quản lý giáo dục"
+    await page.goto('/');
+    await quickAccess.getByRole('button', { name: 'Thêm truy cập nhanh' }).click();
+    await expect(picker.getByRole('region', { name: 'Phân hệ Quản lý giáo dục', exact: true })).toBeVisible();
+    await expect(picker.getByRole('region', { name: 'Phân hệ Quản lý giáo dục Mầm non', exact: true })).toHaveCount(0);
+    await picker.getByRole('button', { name: 'Đóng' }).click();
+
+    // Chọn Tiểu học: nhóm trang theo tên cấp
+    await selectSchoolLevel(page, 'TH');
+    await page.keyboard.press('Escape');
+    await quickAccess.getByRole('button', { name: 'Thêm truy cập nhanh' }).click();
+    await expect(picker.getByRole('region', { name: 'Phân hệ Quản lý giáo dục Tiểu học', exact: true })).toBeVisible();
+    await expect(picker.getByRole('region', { name: 'Phân hệ Quản lý giáo dục Mầm non', exact: true })).toHaveCount(0);
+    await picker.getByRole('button', { name: 'Đóng' }).click();
+
+    // 1.2 theo cấp trường đã bật (Mầm non, Tiểu học): "Quản lý giáo dục"
+    await page.goto('/role-workspaces');
+    const choices = page.getByRole('region', { name: /^Phân hệ của / });
+    await expect(choices.getByLabel('Quản lý giáo dục', { exact: true })).toBeVisible();
+    await expect(choices.getByLabel('Quản lý giáo dục Mầm non', { exact: true })).toHaveCount(0);
+  } finally {
+    await setPrimaryEnabled(page, false);
+    await identity.deleteFrom('user_preferences').where('user_id', '=', principal.id).execute();
+  }
+
+  // Trường chỉ có Mầm non: 1.2 giữ "Quản lý giáo dục Mầm non" như Sở
+  await page.goto('/role-workspaces');
+  await expect(
+    page.getByRole('region', { name: /^Phân hệ của / }).getByLabel('Quản lý giáo dục Mầm non', { exact: true }),
+  ).toBeVisible();
+});

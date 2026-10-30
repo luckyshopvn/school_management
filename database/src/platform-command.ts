@@ -545,17 +545,6 @@ async function main(): Promise<void> {
       throw error;
     }
     console.log('platform: đã ở phiên bản cấu trúc mới nhất');
-    // Chợ gia sư (DT-27 phần 27f): có MARKETPLACE_DATABASE_URL thì chạy luôn tệp thay đổi cấu trúc của cơ sở dữ liệu chợ
-    if (process.env.MARKETPLACE_DATABASE_URL?.trim()) {
-      const market = await migrateToLatest('marketplace', readConnectionString('marketplace'));
-      for (const result of market.results ?? []) {
-        console.log(`marketplace: ${result.migrationName} ${result.status}`);
-      }
-      if (market.error) {
-        throw market.error;
-      }
-      console.log('marketplace: đã ở phiên bản cấu trúc mới nhất');
-    }
     return;
   }
   if (command === 'generate-vapid-keys') {

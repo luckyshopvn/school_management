@@ -23,35 +23,28 @@ COPY apps/teacher/package.json apps/teacher/
 COPY apps/student/package.json apps/student/
 COPY apps/platform/package.json apps/platform/
 COPY apps/mobile/package.json apps/mobile/
-COPY apps/market/package.json apps/market/
 COPY packages/config/package.json packages/config/
 COPY packages/server/package.json packages/server/
 COPY packages/shared/package.json packages/shared/
 COPY packages/ui/package.json packages/ui/
 COPY packages/pwa/package.json packages/pwa/
-COPY packages/market-client/package.json packages/market-client/
 COPY database/package.json database/
 COPY tests/package.json tests/
 RUN --mount=type=cache,id=pnpm-store,target=/pnpm/store \
     pnpm install --frozen-lockfile --store-dir /pnpm/store \
       --filter "@school-management/portal..." --filter "@school-management/parent..." \
-      --filter "@school-management/teacher..." --filter "@school-management/student..." \
-      --filter "@school-management/market..."
+      --filter "@school-management/teacher..." --filter "@school-management/student..."
 COPY packages/config packages/config
 COPY packages/shared packages/shared
 COPY packages/ui packages/ui
 COPY packages/pwa packages/pwa
-COPY packages/market-client packages/market-client
 COPY apps/portal apps/portal
 COPY apps/parent apps/parent
 COPY apps/teacher apps/teacher
 COPY apps/student apps/student
-# Chợ gia sư: ứng dụng phụ huynh và ứng dụng Gia sư (DT-27, YCTD-256, YCTD-262), chỉ phục vụ ở hồ sơ nhiều trường
-COPY apps/market apps/market
 # Giao diện gọi /api/v1 cùng tên miền nên không cần biến địa chỉ máy chủ lúc dựng
 RUN pnpm --filter "@school-management/portal..." --filter "@school-management/parent..." \
-      --filter "@school-management/teacher..." \
-      --filter "@school-management/market..." build
+      --filter "@school-management/teacher..." build
 # Ứng dụng học sinh luôn nằm dưới /hoc-sinh/ (tên miền phụ huynh hoặc tên miền của trường, YCTD-300)
 RUN APP_BASE_PATH=/hoc-sinh/ pnpm --filter "@school-management/student" build
 
@@ -61,4 +54,3 @@ COPY --from=build /app/apps/portal/dist /srv/portal
 COPY --from=build /app/apps/parent/dist /srv/parent
 COPY --from=build /app/apps/teacher/dist /srv/teacher
 COPY --from=build /app/apps/student/dist /srv/student
-COPY --from=build /app/apps/market/dist /srv/market

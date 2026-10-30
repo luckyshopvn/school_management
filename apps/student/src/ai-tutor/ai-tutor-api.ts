@@ -31,7 +31,10 @@ export interface TutorMessage {
 
 export interface TutorOverview {
   child: { school_level: 'TH' | 'THCS' | 'THPT' | null; grade_level_code: string; class_name: string | null };
-  access: { allowed: true } | { allowed: false; code: string; message: string };
+  // Khóa của lát L3: đang thi, bài tập không dùng AI, ngoài khung giờ; phiên xem hỗ trợ chỉ đọc
+  access:
+    | { allowed: true }
+    | { allowed: false; code: 'read_only' | 'exam' | 'assignment' | 'quiet_hours'; title: string; message: string };
   ready: boolean;
   unavailable_reason: string | null;
   balance: TutorBalance;

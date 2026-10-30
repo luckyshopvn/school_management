@@ -12,23 +12,18 @@ import { migrateToLatest } from './migrate.js';
 import { provisionOwnedDatabase } from './owned-database.js';
 import { CATALOG_QUALITY_FLAGS, importSchoolCatalog } from './school-catalog.js';
 import { testAdminDatabaseUrl } from './test-admin.js';
-import { provisionMarketplaceDatabase } from './marketplace/marketplace-database.js';
-import { MARKET_SETTINGS_KEY, readMarketSettings } from './marketplace/market-settings.js';
-import { writeAudit } from './provision-school.js';
 
 // Dựng bản nhiều trường trên máy phát triển, song song với bản một trường (YCTD-310; hướng dẫn ở tai_lieu/47 mục 16.10). Chạy lặp được:
 //   pnpm --filter @school-management/database nhieu-truong-cuc-bo --school-code <mã> --school-name <tên> [tùy chọn]
 // Các bước: (1) tạo vai trò platform_local và cơ sở dữ liệu nền tảng riêng (mật khẩu sinh mới, giữ nguyên khi chạy lại); (2) migrate;
-// (3) tạo cơ sở dữ liệu chợ gia sư và vai trò riêng; (4) ghi tệp môi trường riêng (mặc định ../.env.nhieu-truong, phải nằm trong
-// .gitignore): địa chỉ nền tảng, chợ, khóa gốc và khóa của chợ sinh mới, tên miền chung, tên miền cổng nền tảng, cổng riêng; (5) bật
-// chợ ở cho-gia-su.<tên miền chung>, ứng dụng Gia sư ở gia-su.<tên miền chung> (thu tiền thật luôn tắt); (6) nạp danh mục đơn vị từ tệp
-// CSV chỉ bằng tham số; (7) nhận bản một trường làm trường của nền tảng (adopt-existing: dùng lại cơ sở dữ liệu, không chép); (8) gắn
+// (3) ghi tệp môi trường riêng (mặc định ../.env.nhieu-truong, phải nằm trong
+// .gitignore): địa chỉ nền tảng, khóa gốc sinh mới, tên miền chung, tên miền cổng nền tảng, cổng riêng; (4) nạp danh mục đơn vị từ tệp
+// CSV chỉ bằng tham số; (5) nhận bản một trường làm trường của nền tảng (adopt-existing: dùng lại cơ sở dữ liệu, không chép); (6) gắn
 // trường demo vào danh mục ở sở, phường chỉ định để chọn được trên trang đăng nhập.
 // Việc nền chạy theo giờ bật mặc định; còn chạy bản một trường trên cùng cơ sở dữ liệu thì thêm --tat-viec-nen để không chạy trùng.
 // Tùy chọn:
 //   --env-out <tệp>               tệp môi trường của bản nhiều trường (mặc định ../.env.nhieu-truong)
 //   --database <tên>              cơ sở dữ liệu nền tảng (mặc định school_platform)
-//   --marketplace-database <tên>  cơ sở dữ liệu chợ gia sư (mặc định school_marketplace)
 //   --tat-viec-nen                tắt việc nền chạy theo giờ (khi bản một trường còn chạy trên cùng cơ sở dữ liệu)
 //   --root-domain <tên miền>      tên miền chung có ô chọn đơn vị (mặc định truong.localhost)
 //   --api-port, --identity-port   cổng máy chủ API, dịch vụ định danh (mặc định 3100, 3101)
@@ -111,22 +106,6 @@ async function main(): Promise<void> {
   }
   console.log(`Cơ sở dữ liệu nền tảng ${databaseName}: đã ở phiên bản cấu trúc mới nhất`);
 
-  // Chợ gia sư (DT-27): cơ sở dữ liệu marketplace và vai trò riêng, khóa ký mã liên kết và khóa mã hóa tệp giấy tờ sinh mới
-  const existingMarketUrl = readEnvironmentValue(existing, 'MARKETPLACE_DATABASE_URL');
-  const marketplaceUrl = await provisionMarketplaceDatabase({
-    adminUrl: testAdminDatabaseUrl(process.env),
-    databaseName: option('marketplace-database', 'school_marketplace') as string,
-    roleName: 'marketplace_local',
-    rolePassword: existingMarketUrl
-      ? decodeURIComponent(new URL(existingMarketUrl).password)
-      : randomBytes(24).toString('base64url'),
-  });
-  const marketMigration = await migrateToLatest('marketplace', marketplaceUrl);
-  if (marketMigration.error) {
-    throw marketMigration.error;
-  }
-  console.log('Cơ sở dữ liệu chợ gia sư: đã ở phiên bản cấu trúc mới nhất');
-
   const header = existing
     ? existing
     : '# Bản nhiều trường trên máy (YCTD-310), sinh bởi lệnh nhieu-truong-cuc-bo; chứa mật khẩu, khóa: không đưa lên kho.\n' +
@@ -154,9 +133,10 @@ async function main(): Promise<void> {
       SCHEDULER_MODE: jobsOff ? 'external' : null,
       SCHOOL_METRICS_INTERVAL_SECONDS: jobsOff ? '0' : null,
       AGGREGATE_SNAPSHOT_INTERVAL_SECONDS: jobsOff ? '0' : null,
-      MARKETPLACE_DATABASE_URL: marketplaceUrl,
-      MARKET_LINK_SECRET: readEnvironmentValue(existing, 'MARKET_LINK_SECRET') ?? randomBytes(32).toString('base64url'),
-      MARKET_FILES_KEY: readEnvironmentValue(existing, 'MARKET_FILES_KEY') ?? randomBytes(32).toString('base64'),
+      // Chợ gia sư đã tách thành sản phẩm riêng (YCTD-393): gỡ biến cũ khỏi tệp môi trường khi chạy lại
+      MARKETPLACE_DATABASE_URL: null,
+      MARKET_LINK_SECRET: null,
+      MARKET_FILES_KEY: null,
       // Tên miền của trường demo để tập lệnh chạy in bảng địa chỉ
       NHIEU_TRUONG_TEN_MIEN_TRUONG_DEMO: schoolDomain,
     }),
@@ -166,27 +146,6 @@ async function main(): Promise<void> {
 
   const platform = createDatabase<PlatformDatabase>(platformUrl, { max: 2 });
   try {
-    // Bật chợ ở tên miền con của tên miền chung nếu chưa cấu hình; thu tiền thật luôn tắt (chỉ thanh toán giả lập)
-    const market = await readMarketSettings(platform);
-    if (!market.enabled || !market.host || !market.tutorHost) {
-      const value = JSON.stringify({
-        enabled: true,
-        host: `cho-gia-su.${rootDomain}`,
-        tutor_host: `gia-su.${rootDomain}`,
-        record_retention_days: market.recordRetentionDays,
-        complaint_window_hours: market.complaintWindowHours,
-        default_commission_percent: market.defaultCommissionPercent,
-        real_payments_enabled: false,
-      });
-      await platform
-        .insertInto('platform_settings')
-        .values({ key: MARKET_SETTINGS_KEY, value })
-        .onConflict((conflict) => conflict.column('key').doUpdateSet({ value, updated_at: new Date() }))
-        .execute();
-      await writeAudit(platform, { actorType: 'cli', action: 'market.settings-update', details: JSON.parse(value) });
-      console.log(`Đã bật chợ gia sư ở cho-gia-su.${rootDomain}, ứng dụng Gia sư ở gia-su.${rootDomain}`);
-    }
-
     const unitsPath = option('units');
     const communesPath = option('communes');
     if (unitsPath || communesPath) {
