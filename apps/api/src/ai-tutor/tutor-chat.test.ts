@@ -226,6 +226,14 @@ describe('Gia sư AI: học sinh trò chuyện với gia sư', () => {
       { type: 'system' },
     );
     await prepareSchool();
+    // Lát L3 khóa theo khung giờ của trường (mặc định 22:00 đến 6:00): đặt khung giờ cách giờ chạy kiểm thử sáu tiếng để các ca của lát
+    // L2 không phụ thuộc giờ chạy; ca khóa theo khung giờ ở `ai-tutor-locks.test.ts`
+    const hour = (Math.floor(Date.now() / 3_600_000) + 7 + 6) % 24;
+    const pad = (value: number) => String(value).padStart(2, '0');
+    await system
+      .insertInto('ai_tutor_school_settings')
+      .values({ id: 1, quiet_start: `${pad(hour)}:00`, quiet_end: `${pad((hour + 1) % 24)}:00` })
+      .execute();
   });
 
   after(async () => {
@@ -450,11 +458,12 @@ describe('Gia sư AI: học sinh trò chuyện với gia sư', () => {
       .where('conversation_id', '=', conversationId)
       .orderBy('created_at')
       .execute();
+    // Từ lát L3 cờ được báo ngay (lớp chưa có giáo viên chủ nhiệm thì báo Ban Giám hiệu), xem CT-1785
     assert.deepEqual(
-      flags.map((flag) => [flag.kind, flag.notified_at]),
+      flags.map((flag) => [flag.kind, flag.notified_at !== null]),
       [
-        ['self_harm', null],
-        ['bullying', null],
+        ['self_harm', true],
+        ['bullying', true],
       ],
     );
     const next = await ask(tokens.secondary, {

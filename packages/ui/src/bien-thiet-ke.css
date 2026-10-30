@@ -1,0 +1,168 @@
+/* Tệp sinh tự động từ packages/ui/tokens.json bằng scripts/sinh-bien-thiet-ke.mjs; không sửa tay (YCTD-384) */
+:root {
+  --pc-phong-chu: 'Be Vietnam Pro', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --pc-co-tieu-de-trang: 1.5rem;
+  --pc-co-tieu-de-vung: 1.125rem;
+  --pc-co-tieu-de-nho: 1rem;
+  --pc-co-noi-dung: 0.9375rem;
+  --pc-co-nhan: 0.875rem;
+  --pc-co-so-lieu: 1.75rem;
+  --pc-co-o-nhap: 1rem;
+  --pc-khoang-1: 0.25rem;
+  --pc-khoang-2: 0.5rem;
+  --pc-khoang-3: 0.75rem;
+  --pc-khoang-4: 1rem;
+  --pc-khoang-5: 1.5rem;
+  --pc-vung-cham: 2.75rem;
+  --pc-thanh-cong: #1d6b43;
+  --pc-thanh-cong-nen: #e3f4ea;
+  --pc-canh-bao: #7a4600;
+  --pc-canh-bao-nen: #fdf0d8;
+  --pc-nguy-hiem: #b91c1c;
+  --pc-nguy-hiem-nen: #fdecec;
+  --pc-thong-tin: #04497d;
+  --pc-thong-tin-nen: #e8eef7;
+  --pc-trung-tinh: #4a5562;
+  --pc-trung-tinh-nen: #eef1f4;
+  --pc-nen-trang: #f4f6f9;
+  --pc-the: #ffffff;
+  --pc-chu: #17202a;
+  --pc-chu-phu: #5d6875;
+  --pc-vien: #dde2e8;
+  --pc-ke: #eef1f4;
+  --pc-vien-o-nhap: #7d8896;
+  --pc-nhan: #1f4e8c;
+  --pc-nhan-dam: #163a69;
+  --pc-nhan-nhat: #e8eef7;
+  --pc-chu-tren-nhan: #ffffff;
+  --pc-thanh-ben: #12304f;
+  --pc-chu-thanh-ben: #dbe6f3;
+  --pc-chu-phu-thanh-ben: #a9bcd2;
+  --pc-ke-thanh-ben: #2a4a6e;
+  --pc-chon-thanh-ben: #1f4e8c;
+  --pc-chu-chon-thanh-ben: #ffffff;
+  --pc-bo-nho: 0.5rem;
+  --pc-bo-lon: 0.75rem;
+  --pc-bo-nut: 0.5rem;
+  --pc-bong: none;
+}
+.pc-hanh-chinh {
+  --pc-nen-trang: #f4f6f9;
+  --pc-the: #ffffff;
+  --pc-chu: #17202a;
+  --pc-chu-phu: #5d6875;
+  --pc-vien: #dde2e8;
+  --pc-ke: #eef1f4;
+  --pc-vien-o-nhap: #7d8896;
+  --pc-nhan: #1f4e8c;
+  --pc-nhan-dam: #163a69;
+  --pc-nhan-nhat: #e8eef7;
+  --pc-chu-tren-nhan: #ffffff;
+  --pc-thanh-ben: #12304f;
+  --pc-chu-thanh-ben: #dbe6f3;
+  --pc-chu-phu-thanh-ben: #a9bcd2;
+  --pc-ke-thanh-ben: #2a4a6e;
+  --pc-chon-thanh-ben: #1f4e8c;
+  --pc-chu-chon-thanh-ben: #ffffff;
+  --pc-bo-nho: 0.5rem;
+  --pc-bo-lon: 0.75rem;
+  --pc-bo-nut: 0.5rem;
+  --pc-bong: none;
+}
+.pc-theo-vai {
+  --pc-nen-trang: #fbf8f3;
+  --pc-the: #ffffff;
+  --pc-chu: #1f2a24;
+  --pc-chu-phu: #5c6660;
+  --pc-vien: #e7e1d8;
+  --pc-ke: #f1ece4;
+  --pc-vien-o-nhap: #8a8174;
+  --pc-chu-tren-nhan: #ffffff;
+  --pc-bo-nho: 0.75rem;
+  --pc-bo-lon: 1rem;
+  --pc-bo-nut: 999px;
+  --pc-bong: 0 2px 6px rgb(60 45 20 / 5%);
+  --pc-thanh-ben: var(--pc-the);
+  --pc-chu-thanh-ben: var(--pc-chu);
+  --pc-chu-phu-thanh-ben: var(--pc-chu-phu);
+  --pc-ke-thanh-ben: var(--pc-vien);
+  --pc-chon-thanh-ben: var(--pc-nhan-nhat);
+  --pc-chu-chon-thanh-ben: var(--pc-nhan-dam);
+}
+.vai-giao-vien {
+  --pc-nhan: #0f6b5f;
+  --pc-nhan-dam: #0b564c;
+  --pc-nhan-nhat: #e1f1ec;
+}
+.vai-phu-huynh {
+  --pc-nhan: #1f5fa8;
+  --pc-nhan-dam: #184c87;
+  --pc-nhan-nhat: #e6eef9;
+}
+.vai-hoc-sinh {
+  --pc-nhan: #6d28d9;
+  --pc-nhan-dam: #5b21b6;
+  --pc-nhan-nhat: #efe7fd;
+}
+/* Chế độ tối: định nghĩa sẵn, chưa bật (GT-06, Q-384-2) */
+.che-do-toi {
+  --pc-thanh-cong: #7dd3a0;
+  --pc-thanh-cong-nen: #12301f;
+  --pc-canh-bao: #f0b562;
+  --pc-canh-bao-nen: #33260f;
+  --pc-nguy-hiem: #f49a9a;
+  --pc-nguy-hiem-nen: #3a1717;
+  --pc-thong-tin: #9cc4f0;
+  --pc-thong-tin-nen: #16304a;
+  --pc-trung-tinh: #b4becb;
+  --pc-trung-tinh-nen: #26313d;
+}
+.che-do-toi .pc-hanh-chinh,
+.che-do-toi.pc-hanh-chinh {
+  --pc-nen-trang: #0e1620;
+  --pc-the: #15202c;
+  --pc-chu: #e6edf5;
+  --pc-chu-phu: #a3b1c2;
+  --pc-vien: #2a3a4c;
+  --pc-ke: #1e2b39;
+  --pc-vien-o-nhap: #7a8ba0;
+  --pc-nhan: #6fa8e8;
+  --pc-nhan-dam: #9cc4f0;
+  --pc-nhan-nhat: #1c3350;
+  --pc-chu-tren-nhan: #0e1620;
+  --pc-thanh-ben: #0a1520;
+  --pc-chu-thanh-ben: #dbe6f3;
+  --pc-chu-phu-thanh-ben: #a9bcd2;
+  --pc-ke-thanh-ben: #24384f;
+  --pc-chon-thanh-ben: #1c3350;
+  --pc-chu-chon-thanh-ben: #ffffff;
+}
+.che-do-toi .pc-theo-vai,
+.che-do-toi.pc-theo-vai {
+  --pc-nen-trang: #14110e;
+  --pc-the: #1e1a16;
+  --pc-chu: #efe9e1;
+  --pc-chu-phu: #b5ada2;
+  --pc-vien: #3a332b;
+  --pc-ke: #2a241e;
+  --pc-vien-o-nhap: #8f857a;
+  --pc-chu-tren-nhan: #14110e;
+}
+.che-do-toi .vai-giao-vien,
+.che-do-toi.vai-giao-vien {
+  --pc-nhan: #5cc4b2;
+  --pc-nhan-dam: #8edbcd;
+  --pc-nhan-nhat: #133a34;
+}
+.che-do-toi .vai-phu-huynh,
+.che-do-toi.vai-phu-huynh {
+  --pc-nhan: #7db2f0;
+  --pc-nhan-dam: #a9ccf6;
+  --pc-nhan-nhat: #172f4e;
+}
+.che-do-toi .vai-hoc-sinh,
+.che-do-toi.vai-hoc-sinh {
+  --pc-nhan: #b79cf5;
+  --pc-nhan-dam: #d0befa;
+  --pc-nhan-nhat: #2c1f4d;
+}

@@ -41,7 +41,7 @@ function MenuIcon() {
 
 // Khung trang của cổng quản trị (YCTD-330, thay khung menu ngang của DT-15 phần 15a theo GD-170): thanh bên trái xanh đậm có
 // tên trường màu vàng (DT-16 phần 16c), ô chọn phân hệ và cây menu đánh số của phân hệ đang chọn (GD-171 giữ số thứ bậc);
-// thanh đầu trang có cấp học, năm học, Việc của tôi, chuông thông báo, lưới ứng dụng liên kết, menu người dùng. Dưới 1280 px
+// thanh đầu trang có cấp học, năm học, Việc của tôi, chuông thông báo, lưới ứng dụng liên kết, menu người dùng. Dưới 1024 px (YCTD-384, trước là 1280 px)
 // thanh bên thành ngăn kéo mở bằng nút "☰". Bỏ chân trang: "Gửi phản hồi" (DT-15 phần 15g) chuyển vào menu người dùng. Mật
 // khẩu sắp hết hạn vẫn báo ở đầu trang (YCTD-110)
 export function AppShell({ children }: { children: ReactNode }) {
@@ -89,7 +89,7 @@ export function AppShell({ children }: { children: ReactNode }) {
       .catch(() => undefined);
   }, [menuPagePath, queryClient]);
 
-  // Ngăn kéo menu dưới 1280 px: đóng khi chọn trang khác hoặc bấm Esc
+  // Ngăn kéo menu dưới 1024 px: đóng khi chọn trang khác hoặc bấm Esc
   useEffect(() => {
     closeMobile();
   }, [pathname, closeMobile]);
@@ -111,7 +111,7 @@ export function AppShell({ children }: { children: ReactNode }) {
   return (
     <WorkspaceContext.Provider value={workspaces}>
       <NavigationRegistryContext.Provider value={navigationRegistry}>
-        <div className="flex min-h-screen flex-col">
+        <div className="pc-hanh-chinh flex min-h-screen flex-col">
           {/* Thanh đăng nhập thay, dải bản trình diễn ở mọi trang (DT-18 phần 18h) */}
           <ImpersonationBanner />
           <DemoBanner />
@@ -120,10 +120,10 @@ export function AppShell({ children }: { children: ReactNode }) {
           {/* Thông báo bảo trì, phiên hỗ trợ của nhân viên nền tảng (DT-SaaS phần S4) */}
           <PlatformNoticeBanner />
           <div className="flex min-h-0 flex-1">
-            {/* Thanh bên: luôn hiện từ 1280 px; dưới 1280 px là ngăn kéo phủ lên trang */}
+            {/* Thanh bên: luôn hiện từ 1024 px; dưới 1024 px là ngăn kéo phủ lên trang (YCTD-384, trước là 1280 px) */}
             <aside
               aria-label="Thanh bên"
-              className={`w-64 shrink-0 flex-col gap-2 overflow-y-auto bg-nav px-3 py-4 text-nav-text xl:sticky xl:top-0 xl:flex xl:h-screen ${mobileOpen ? 'fixed inset-y-0 left-0 z-50 flex shadow-lg max-xl:w-80 max-xl:max-w-[85vw]' : 'hidden'}`}
+              className={`w-64 shrink-0 flex-col gap-2 overflow-y-auto bg-nav px-3 py-4 text-nav-text lg:sticky lg:top-0 lg:flex lg:h-screen ${mobileOpen ? 'fixed inset-y-0 left-0 z-50 flex shadow-lg max-lg:w-80 max-lg:max-w-[85vw]' : 'hidden'}`}
             >
               <div className="flex items-start justify-between gap-2">
                 <Link
@@ -152,20 +152,22 @@ export function AppShell({ children }: { children: ReactNode }) {
               <Link
                 to="/all-functions"
                 aria-current={pathname === '/all-functions' ? 'page' : undefined}
-                className={`mt-2 flex min-h-10 items-center rounded-md border-t border-white/15 px-3 pt-2 text-label hover:bg-nav-hover max-xl:min-h-11 ${pathname === '/all-functions' ? 'bg-nav-active text-white' : 'text-nav-text'}`}
+                className={`mt-2 flex min-h-11 items-center rounded-md border-t border-white/15 px-3 pt-2 text-label hover:bg-nav-hover ${pathname === '/all-functions' ? 'bg-nav-active text-white' : 'text-nav-text'}`}
               >
                 Tất cả chức năng
               </Link>
             </aside>
             {mobileOpen ? (
               // Nền mờ: chạm ra ngoài ngăn kéo thì đóng; người dùng bàn phím đóng bằng nút Đóng menu hoặc Esc
-              <div className="fixed inset-0 z-40 bg-text/40 xl:hidden" aria-hidden="true" onClick={closeMobile} />
+              <div className="fixed inset-0 z-40 bg-text/40 lg:hidden" aria-hidden="true" onClick={closeMobile} />
             ) : null}
             <div className="flex min-w-0 flex-1 flex-col">
-              <header className="sticky top-0 z-30 flex h-14 items-center gap-3 bg-header px-4 text-white shadow-sm">
+              <header // Thanh đầu trang: điện thoại nền xanh đậm; từ 768 px nền trắng, viền dưới (bản mẫu YCTD-384); nút con dùng màu chữ kế thừa
+                className="sticky top-0 z-30 flex h-14 items-center gap-3 bg-header px-4 pt-[env(safe-area-inset-top,0px)] text-white shadow-sm md:h-16 md:border-b md:border-pc-vien md:bg-pc-the md:text-pc-chu md:shadow-none"
+              >
                 <button
                   type="button"
-                  className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg hover:bg-header-strong xl:hidden"
+                  className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg hover:bg-current/10 lg:hidden"
                   aria-label="Menu chức năng"
                   aria-expanded={mobileOpen}
                   aria-controls="menu-gon"
@@ -180,7 +182,7 @@ export function AppShell({ children }: { children: ReactNode }) {
                   <NotificationBell />
                   <AppLauncher />
                   {currentUser.isPending ? (
-                    <span className="h-4 w-32 animate-pulse rounded bg-header-strong" aria-hidden="true" />
+                    <span className="h-4 w-32 animate-pulse rounded bg-current/20" aria-hidden="true" />
                   ) : (
                     <UserMenu
                       fullName={currentUser.data?.full_name}

@@ -16,7 +16,7 @@ function CountBubble({ total, overdue, className }: { total: number; overdue: nu
   }
   return (
     <span
-      className={`${className} min-w-[18px] rounded-full px-1 text-center text-[11px] font-semibold leading-[18px] text-white ${overdue ? 'bg-danger' : 'bg-brand'}`}
+      className={`${className} min-w-[22px] rounded-full px-1 text-center text-label font-semibold leading-[22px] text-white ${overdue ? 'bg-danger' : 'bg-brand'}`}
       aria-hidden="true"
       data-testid="my-work-count"
     >
@@ -45,7 +45,7 @@ export function MyWorkHeaderLink() {
   return (
     <Link
       to={MY_WORK_PATH}
-      className="relative flex h-9 items-center rounded-full px-2 text-label font-medium text-white hover:bg-header-strong max-xl:h-11 max-xl:min-w-11 max-xl:justify-center"
+      className="relative flex h-11 min-w-11 items-center justify-center rounded-full px-2 text-label font-medium text-current hover:bg-current/10"
       aria-label={
         total ? `Việc của tôi, ${total} việc đang chờ${overdue ? `, ${overdue} quá hạn` : ''}` : 'Việc của tôi'
       }
