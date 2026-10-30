@@ -2648,6 +2648,19 @@ Mã ở `apps/api/src/gate-passes/`. Lượt qua cổng là gợi ý cho giáo v
 | GET | /api/v1/children/{id}/gate-passes?from=&to= | Lượt của một học sinh, tối đa 31 ngày (422): người được xem hồ sơ em, phụ huynh của em; phụ huynh khác 403. Gồm lượt đã báo nhầm (`review_status`), bỏ lượt chờ xem |
 | GET | /api/v1/classes/{id}/attendance | (Đã có) mỗi dòng thêm `gate { first_in_pass_id, first_in, last_out, first_in_method, suggested_status }` hoặc `null`; `suggested_status` là `present` khi vào trước hoặc đúng giờ học, `late` khi sau |
 
+### 17.16. Thiết bị điểm danh, máy chấm công (YCTD-389 lát L2)
+
+Mã ở `apps/api/src/gate-passes/attendance-devices.*`. Quyền quản lý `P04.gate-device.manage` (VT-02, VT-15, VT-03) theo đơn vị của thiết bị. Bộ giả lập: `scripts/gia-lap-may-cham-cong.mjs`.
+
+| Phương thức | Đường dẫn | Mô tả |
+|---|---|---|
+| GET | /api/v1/attendance-devices | Thiết bị trong phạm vi quyền: `id, org_unit_id, kind, name, location_name, direction, key_hint, last_seen_at, disabled_at, created_at` (không trả khóa, mã băm); không có quyền 403 |
+| POST | /api/v1/attendance-devices | Khai báo `{ org_unit_id, kind, name (1 đến 120 ký tự), location_name?, direction: in \| out \| both }` (400 khi sai); 201 trả thiết bị kèm `key` (chỉ lần này) |
+| POST | /api/v1/attendance-devices/{id}/rotate-key | Đổi khóa, khóa cũ hết hiệu lực ngay; trả thiết bị kèm `key` mới |
+| POST | /api/v1/attendance-devices/{id}/disable | `{ disabled?: boolean }` (mặc định tắt) |
+| POST | /api/v1/attendance-devices/{id}/import | Tệp `file` CSV hoặc xlsx (tối đa 5 MB, 5.000 dòng): cột "Mã", "Thời điểm" (giờ Việt Nam), "Hướng" tùy chọn. Trả `{ total, counts: { recorded, duplicate, unchanged, manual_kept, unknown_code, rejected }, errors: [{ line, message }] }` (tối đa 50 lỗi); nhập lại cùng tệp không ghi trùng |
+| POST | /api/v1/device-events | Công khai, tiêu đề `x-device-key` (thiếu, sai, thiết bị đã tắt: 401). Thân `{ events: [{ external_id (1 đến 100 ký tự), code, direction?: in \| out, occurred_at (ISO 8601) }] }`, 1 đến 500 lượt (400). Trả `{ device_id, results: [{ external_id, status: recorded \| duplicate \| unchanged \| manual_kept \| unknown_code \| rejected, message? }] }` |
+
 ## 18. Quy tắc kiểm tra dữ liệu
 
 | Mã | Quy tắc |

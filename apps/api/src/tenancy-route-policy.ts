@@ -31,6 +31,10 @@ export const PUBLIC_ROUTES: PublicRoute[] = [
   post('/api/v1/payment-webhooks/casso', WEBHOOK),
   post('/api/v1/payment-webhooks/payos', WEBHOOK),
   post('/api/v1/payment-webhooks/sepay', WEBHOOK),
+  post(
+    '/api/v1/device-events',
+    'Thiết bị điểm danh của trường gửi lượt qua cổng (YCTD-389 lát L2, BM-232): nhận theo tên miền của trường, xác thực bằng khóa riêng của thiết bị (chỉ lưu mã băm), thiết bị tắt bị từ chối, chỉ nhận mã người, hướng, thời điểm',
+  ),
   get(
     '/api/v1/public/website/domain-check',
     'Caddy hỏi trước khi cấp chứng chỉ theo yêu cầu (18f); gọi bằng địa chỉ nội bộ nên không cần trường: ở chế độ nhiều trường tra danh mục tên miền của cơ sở dữ liệu nền tảng, chỉ trả 200 hoặc 404, không trả dữ liệu (S1b)',

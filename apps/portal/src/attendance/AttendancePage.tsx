@@ -7,6 +7,7 @@ import { AppShell } from '../pages/AppShell.js';
 import { useSchoolLevelTerms } from '../school-levels/working-level.js';
 import { ApiError, requestJson } from '../session/api-client.js';
 import { useHasPermission } from '../session/permissions.js';
+import { AttendanceDevicesPanel } from './AttendanceDevicesPanel.js';
 import { GateCardsPanel } from './GateCardsPanel.js';
 
 // Điểm danh trên cổng quản trị (P04-01, P04-06, QT-02): xem bảng của lớp theo ngày; quản lý đơn vị chốt thay,
@@ -100,6 +101,9 @@ export function AttendancePage() {
   const [toastMessage, setToastMessage] = useState<string>();
   const canManageCards = useHasPermission('P04.gate-card.manage');
   const [showCards, setShowCards] = useState(false);
+  // Thiết bị điểm danh (YCTD-389 lát L2)
+  const canManageDevices = useHasPermission('P04.gate-device.manage');
+  const [showDevices, setShowDevices] = useState(false);
   const closeToast = useCallback(() => setToastMessage(undefined), []);
 
   const classes = useQuery({
@@ -210,6 +214,16 @@ export function AttendancePage() {
               </Button>
             </div>
             {showCards ? <GateCardsPanel classId={selectedClassId} learner={terms.learner} /> : null}
+          </div>
+        ) : null}
+        {canManageDevices && orgUnitId ? (
+          <div className="flex flex-col gap-3">
+            <div>
+              <Button aria-expanded={showDevices} onClick={() => setShowDevices(!showDevices)}>
+                {showDevices ? 'Ẩn thiết bị điểm danh' : 'Thiết bị điểm danh'}
+              </Button>
+            </div>
+            {showDevices ? <AttendanceDevicesPanel orgUnitId={orgUnitId} /> : null}
           </div>
         ) : null}
         {sheet.isError ? <Alert tone="warning">{messageOf(sheet.error)}</Alert> : null}
