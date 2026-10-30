@@ -1,0 +1,564 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>YCTD-390 liên thông học sinh</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<style>
+  /* Màu theo cổng quản trị đã duyệt (thanh bên #12304F, màu chính #1F4E8C); đổi theo hướng thiết kế lại toàn bộ khi Eric chốt */
+  :root {
+    --brand: #1f4e8c; --brand-strong: #12304f; --page: #f4f6f9; --card: #ffffff; --selected: #e8eef7;
+    --border: #e2e8f0; --border-strong: #cbd5e1; --text: #0f172a; --text-2: #475569; --muted: #64748b;
+    --success: #166534; --success-bg: #ecf7ef; --warning: #92400e; --warning-bg: #fdf4e7; --danger: #b91c1c; --danger-bg: #fdeeee; --info: #1d4ed8; --info-bg: #eef3fd;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; font-family: 'Be Vietnam Pro', system-ui, sans-serif; background: #d9dde3; color: var(--text); font-size: 15px; }
+  button, input, select, textarea { font: inherit; }
+  button { cursor: pointer; }
+  :focus-visible { outline: 3px solid var(--brand); outline-offset: 2px; }
+  .ban-mau-thanh { position: sticky; top: 0; z-index: 10; background: #2b2f36; color: #fff; padding: 8px 16px; display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+  .ban-mau-thanh b { margin-right: 6px; }
+  .ban-mau-thanh button { min-height: 36px; background: #3d434c; color: #fff; border: 1px solid #59606b; border-radius: 8px; padding: 0 10px; font-size: 14px; }
+  .ban-mau-thanh button[aria-pressed='true'] { background: #fff; color: #17202a; }
+  .ban-mau-thanh .ngan { width: 1px; height: 24px; background: #59606b; margin: 0 6px; }
+  .khung-ngoai { padding: 16px; display: flex; justify-content: center; }
+  .khung { width: 100%; max-width: 1366px; background: var(--page); border-radius: 8px; overflow: hidden; container-type: inline-size; box-shadow: 0 0 0 1px #b8bec7; min-height: 760px; transition: max-width .2s; }
+  .man-hinh { display: none; }
+  .man-hinh.hien { display: block; }
+
+  /* Khung ứng dụng quản trị */
+  .vo { display: grid; grid-template-columns: 240px minmax(0, 1fr); min-height: 760px; }
+  .vo > div, .luoi-2 > *, .luoi-3 > * { min-width: 0; }
+  .thanh-ben { background: var(--brand-strong); color: #dbe4f0; padding: 16px 12px; font-size: 14px; }
+  .thanh-ben .ten-truong { color: #fff; font-weight: 600; margin-bottom: 16px; line-height: 1.3; }
+  .thanh-ben a { display: block; color: inherit; text-decoration: none; padding: 9px 10px; border-radius: 8px; }
+  .thanh-ben a.dang { background: rgba(255,255,255,.14); color: #fff; font-weight: 500; }
+  .thanh-ben .nhom { margin: 14px 10px 6px; font-size: 12px; text-transform: uppercase; letter-spacing: .04em; color: #9fb3cc; }
+  .dau-trang { background: var(--card); border-bottom: 1px solid var(--border); padding: 10px 20px; display: flex; gap: 12px; align-items: center; }
+  .dau-trang .menu { display: none; min-width: 44px; min-height: 44px; border: 1px solid var(--border-strong); background: var(--card); border-radius: 8px; }
+  .dau-trang .duong-dan { color: var(--muted); font-size: 14px; }
+  .dau-trang .nguoi { margin-left: auto; font-size: 14px; color: var(--text-2); }
+  main { padding: 20px; display: flex; flex-direction: column; gap: 16px; }
+  h1 { font-size: 24px; margin: 0; color: var(--brand-strong); }
+  h2 { font-size: 18px; margin: 0 0 12px; }
+  h3 { font-size: 15px; margin: 0 0 8px; }
+  p { margin: 0 0 8px; line-height: 1.5; }
+  .the { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 20px; }
+  .hang { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+  .hang.giua { justify-content: space-between; }
+  .nut { min-height: 44px; border-radius: 8px; border: 1px solid var(--border-strong); background: var(--card); color: var(--text); padding: 0 16px; font-weight: 500; }
+  .nut.chinh { background: var(--brand); border-color: var(--brand); color: #fff; }
+  .nut.nguy { color: var(--danger); border-color: #f0b8b8; }
+  .nhan { display: inline-block; border-radius: 999px; padding: 3px 10px; font-size: 13px; font-weight: 500; white-space: nowrap; }
+  .nhan.cho { background: var(--warning-bg); color: var(--warning); }
+  .nhan.xong { background: var(--success-bg); color: var(--success); }
+  .nhan.tin { background: var(--info-bg); color: var(--info); }
+  .nhan.loi { background: var(--danger-bg); color: var(--danger); }
+  .nhan.xam { background: #eef1f5; color: var(--text-2); }
+  .bo-loc { display: flex; flex-wrap: wrap; gap: 8px; }
+  .bo-loc select, .bo-loc input, .o { min-height: 44px; border: 1px solid var(--border-strong); border-radius: 8px; padding: 0 12px; background: #fff; font-size: 16px; }
+  .o { width: 100%; }
+  label.nhan-o { display: block; font-size: 14px; color: var(--text-2); margin: 12px 0 6px; font-weight: 500; }
+  .cuon { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; font-size: 14px; }
+  th { text-align: left; font-weight: 600; color: var(--text-2); background: #f8fafc; border-bottom: 1px solid var(--border); padding: 10px 12px; white-space: nowrap; }
+  td { border-bottom: 1px solid var(--border); padding: 10px 12px; vertical-align: top; }
+  tr.chon td { background: var(--selected); }
+  .the-dong { display: none; }
+  .luoi-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .luoi-3 { display: grid; grid-template-columns: 2fr 1fr; gap: 16px; }
+  .buoc { display: flex; list-style: none; padding: 0; margin: 0; }
+  .buoc li { flex: 1; position: relative; padding: 28px 6px 0; font-size: 13px; text-align: center; color: var(--muted); }
+  .buoc li::before { content: ''; position: absolute; top: 8px; left: 50%; width: 16px; height: 16px; margin-left: -8px; border-radius: 50%; background: #fff; border: 2px solid var(--border-strong); z-index: 1; }
+  .buoc li::after { content: ''; position: absolute; top: 15px; left: -50%; width: 100%; height: 2px; background: var(--border-strong); }
+  .buoc li:first-child::after { display: none; }
+  .buoc li.xong { color: var(--success); }
+  .buoc li.xong::before { background: var(--success); border-color: var(--success); }
+  .buoc li.dang { color: var(--brand); font-weight: 600; }
+  .buoc li.dang::before { border-color: var(--brand); background: var(--selected); }
+  .ds-du-lieu { list-style: none; margin: 0; padding: 0; }
+  .ds-du-lieu li { display: flex; gap: 10px; padding: 9px 0; border-bottom: 1px solid var(--border); align-items: flex-start; }
+  .ds-du-lieu li:last-child { border-bottom: 0; }
+  .ds-du-lieu input { width: 20px; height: 20px; margin-top: 2px; flex: none; }
+  .ds-du-lieu .phu { color: var(--muted); font-size: 13px; }
+  .ds-du-lieu .khoa { margin-left: auto; }
+  .dai { border-radius: 8px; padding: 12px 14px; font-size: 14px; line-height: 1.5; }
+  .dai.vang { background: var(--warning-bg); color: var(--warning); border: 1px solid #f1d8b4; }
+  .dai.xanh { background: var(--info-bg); color: #1e3a8a; border: 1px solid #c9d7f5; }
+  .dai.luc { background: var(--success-bg); color: var(--success); border: 1px solid #c3e3cc; }
+  .the-tab { display: flex; gap: 4px; border-bottom: 1px solid var(--border); overflow-x: auto; }
+  .the-tab button { min-height: 44px; background: none; border: 0; border-bottom: 3px solid transparent; padding: 0 14px; color: var(--text-2); white-space: nowrap; }
+  .the-tab button.dang { border-color: var(--brand); color: var(--brand); font-weight: 600; }
+  .so-sanh td:first-child { color: var(--text-2); width: 34%; }
+  .khop { color: var(--success); font-weight: 500; }
+  .lech { color: var(--danger); font-weight: 500; }
+  .nho { font-size: 13px; color: var(--muted); }
+
+  /* Ứng dụng phụ huynh */
+  .ph { max-width: 720px; margin: 0 auto; min-height: 760px; background: var(--page); display: flex; flex-direction: column; }
+  .ph-dau { background: var(--brand-strong); color: #fff; padding: 14px 16px; display: flex; align-items: center; gap: 10px; }
+  .ph-dau .lui { min-width: 44px; min-height: 44px; border: 0; background: rgba(255,255,255,.12); color: #fff; border-radius: 8px; font-size: 18px; }
+  .ph-dau b { font-size: 17px; }
+  .ph main { padding: 16px; flex: 1; display: block; }
+  .ph main > * { margin-bottom: 12px; }
+  .con { display: flex; gap: 12px; align-items: center; }
+  .anh { width: 44px; height: 44px; border-radius: 50%; background: var(--selected); color: var(--brand); display: grid; place-items: center; font-weight: 700; flex: none; }
+  .ph-duoi { position: sticky; bottom: 0; background: var(--card); border-top: 1px solid var(--border); display: grid; grid-template-columns: repeat(4, 1fr); }
+  .ph-duoi a { min-height: 56px; display: grid; place-items: center; font-size: 14px; color: var(--text-2); text-decoration: none; }
+  .ph-duoi a.dang { color: var(--brand); font-weight: 600; }
+  .dong-thoi-gian { list-style: none; padding: 0; margin: 0; }
+  .dong-thoi-gian li { position: relative; padding: 0 0 18px 28px; }
+  .dong-thoi-gian li::before { content: ''; position: absolute; left: 6px; top: 6px; width: 12px; height: 12px; border-radius: 50%; background: var(--border-strong); }
+  .dong-thoi-gian li::after { content: ''; position: absolute; left: 11px; top: 20px; bottom: 0; width: 2px; background: var(--border); }
+  .dong-thoi-gian li:last-child::after { display: none; }
+  .dong-thoi-gian li.xong::before { background: var(--success); }
+  .dong-thoi-gian li.dang::before { background: var(--brand); box-shadow: 0 0 0 4px var(--selected); }
+  .chon-truong { border: 1px solid var(--border-strong); border-radius: 8px; padding: 10px 12px; display: flex; gap: 10px; align-items: flex-start; background: #fff; margin-top: 8px; }
+  .chon-truong input { width: 20px; height: 20px; margin-top: 3px; flex: none; }
+
+  /* Máy tính bảng: thanh bên thu gọn */
+  @container (max-width: 1100px) {
+    .vo { grid-template-columns: 72px minmax(0, 1fr); }
+    .thanh-ben .chu, .thanh-ben .nhom, .thanh-ben .ten-truong { display: none; }
+    .thanh-ben a { text-align: center; padding: 10px 0; font-size: 18px; }
+    .luoi-3 { grid-template-columns: minmax(0, 1fr); }
+  }
+  /* Điện thoại */
+  @container (max-width: 600px) {
+    .vo { grid-template-columns: minmax(0, 1fr); }
+    .thanh-ben { display: none; }
+    .dau-trang .menu { display: inline-block; }
+    .dau-trang .duong-dan, .dau-trang .nguoi { display: none; }
+    main { padding: 12px; }
+    .the { padding: 14px; }
+    h1 { font-size: 20px; }
+    .luoi-2 { grid-template-columns: minmax(0, 1fr); }
+    .bang-rong { display: none; }
+    .the-dong { display: block; }
+    .the-dong .muc { border: 1px solid var(--border); border-radius: 12px; padding: 12px; margin-bottom: 10px; background: #fff; }
+    .buoc li { font-size: 0; padding-top: 22px; }
+    .buoc li.dang { font-size: 12px; }
+    .hang .nut { flex: 1 1 100%; }
+    .ph-dau b { font-size: 16px; }
+  }
+</style>
+</head>
+<body>
+<div class="ban-mau-thanh" role="toolbar" aria-label="Chọn màn hình và cỡ màn hình">
+  <b>YCTD-390 liên thông học sinh</b>
+  <button data-mh="mh1" aria-pressed="true">MH-650 Trường đi: chuyển đi</button>
+  <button data-mh="mh2" aria-pressed="false">MH-651 Trường đi: duyệt, lập gói</button>
+  <button data-mh="mh3" aria-pressed="false">MH-652 Trường đến: hồ sơ chuyển đến</button>
+  <button data-mh="mh4" aria-pressed="false">MH-653 Trường đến: xem gói, tiếp nhận</button>
+  <button data-mh="mh5" aria-pressed="false">MH-654 Phụ huynh: xin chuyển trường</button>
+  <button data-mh="mh6" aria-pressed="false">MH-655 Phụ huynh: theo dõi</button>
+  <button data-mh="mh7" aria-pressed="false">MH-656 Liên cấp: lên cấp trong trường</button>
+  <button data-mh="mh8" aria-pressed="false">MH-657 Trường mới: yêu cầu chuyển hồ sơ</button>
+  <button data-mh="mh9" aria-pressed="false">MH-658 Trường cũ: xác nhận chuyển hồ sơ</button>
+  <button data-mh="mh10" aria-pressed="false">MH-659 Phụ huynh: xác nhận ở trường cũ</button>
+  <span class="ngan"></span>
+  <button data-co="1366" aria-pressed="true">Máy tính 1366</button>
+  <button data-co="1024" aria-pressed="false">Máy tính bảng 1024</button>
+  <button data-co="390" aria-pressed="false">Điện thoại 390</button>
+</div>
+
+<div class="khung-ngoai"><div class="khung" id="khung">
+
+<!-- MH1: Trường đi, danh sách chuyển đi -->
+<section class="man-hinh hien" id="mh1" aria-label="Trường đi: danh sách chuyển đi">
+<div class="vo">
+  <nav class="thanh-ben" aria-label="Menu">
+    <div class="ten-truong">Trường Tiểu học và THCS Hoa Sen (giả lập)</div>
+    <div class="nhom">Học sinh</div>
+    <a href="#"><span aria-hidden="true">👤</span> <span class="chu">4.1 Hồ sơ học sinh</span></a>
+    <a href="#" class="dang"><span aria-hidden="true">⇄</span> <span class="chu">4.2 Biến động học sinh</span></a>
+    <a href="#"><span aria-hidden="true">📘</span> <span class="chu">Học bạ</span></a>
+    <div class="nhom">Năm học</div>
+    <a href="#"><span aria-hidden="true">↻</span> <span class="chu">Chuyển năm học</span></a>
+  </nav>
+  <div>
+    <div class="dau-trang"><button class="menu" aria-label="Mở menu">☰</button><span class="duong-dan">Học sinh › 4.2 Biến động học sinh</span><span class="nguoi">Phó hiệu trưởng · Năm học 2026-2027</span></div>
+    <main>
+      <div class="hang giua"><h1>Chuyển đi</h1><button class="nut chinh">+ Lập đề nghị chuyển đi</button></div>
+      <div class="the-tab" role="tablist"><button class="dang">Chuyển đi (3)</button><button>Chuyển đến (2)</button><button>Thôi học</button><button>Học lại</button><button>Chuyển lớp</button></div>
+      <div class="bo-loc"><select aria-label="Trạng thái"><option>Mọi trạng thái</option><option>Chờ duyệt</option><option>Đã gửi gói</option><option>Trường đến đã nhận</option></select><select aria-label="Nơi đến"><option>Mọi nơi đến</option><option>Trường trong hệ thống</option><option>Trường ngoài hệ thống</option></select><input aria-label="Tìm học sinh" placeholder="Tìm theo tên, mã định danh Bộ" /></div>
+      <div class="the bang-rong" style="padding:0">
+        <div class="cuon"><table>
+          <thead><tr><th>Học sinh</th><th>Lớp</th><th>Trường đến</th><th>Nguồn đề nghị</th><th>Ngày chuyển</th><th>Đồng ý gửi dữ liệu</th><th>Trạng thái</th></tr></thead>
+          <tbody>
+            <tr class="chon"><td><b>Nguyễn Minh An</b><br><span class="nho">Mã Bộ 79xxxxxx01</span></td><td>4A</td><td>TH Bình Minh <span class="nhan tin">Trong hệ thống</span></td><td>Phụ huynh nộp qua ứng dụng</td><td>20/01/2027</td><td><span class="nhan xong">Đã đồng ý</span></td><td><span class="nhan cho">Chờ Hiệu trưởng duyệt</span></td></tr>
+            <tr><td><b>Trần Gia Bảo</b><br><span class="nho">Mã Bộ 79xxxxxx02</span></td><td>7B</td><td>THCS Tân Lập (tỉnh khác) <span class="nhan xam">Ngoài hệ thống</span></td><td>Trường lập theo đơn giấy</td><td>18/01/2027</td><td><span class="nhan xong">Đơn giấy đã ký</span></td><td><span class="nhan tin">Đã xuất gói, chờ xác nhận</span></td></tr>
+            <tr><td><b>Lê Thu Hà</b><br><span class="nho">Mã Bộ 79xxxxxx03</span></td><td>2C</td><td>TH Rạng Đông <span class="nhan tin">Trong hệ thống</span></td><td>Phụ huynh nộp qua ứng dụng</td><td>05/09/2026</td><td><span class="nhan xong">Đã đồng ý</span></td><td><span class="nhan xong">Trường đến đã tiếp nhận</span></td></tr>
+          </tbody>
+        </table></div>
+      </div>
+      <div class="the-dong">
+        <div class="muc"><div class="hang giua"><b>Nguyễn Minh An · 4A</b><span class="nhan cho">Chờ duyệt</span></div><p class="nho">Đến TH Bình Minh (trong hệ thống) · 20/01/2027</p><p class="nho">Phụ huynh đã đồng ý gửi dữ liệu</p></div>
+        <div class="muc"><div class="hang giua"><b>Trần Gia Bảo · 7B</b><span class="nhan tin">Đã xuất gói</span></div><p class="nho">Đến THCS Tân Lập (ngoài hệ thống) · 18/01/2027</p></div>
+        <div class="muc"><div class="hang giua"><b>Lê Thu Hà · 2C</b><span class="nhan xong">Đã tiếp nhận</span></div><p class="nho">Đến TH Rạng Đông (trong hệ thống) · 05/09/2026</p></div>
+      </div>
+      <p class="nho">Chuyển trường trong năm học theo khung thời gian của Sở; ngoài khung thì ghi số quyết định của cấp có thẩm quyền.</p>
+    </main>
+  </div>
+</div>
+</section>
+
+<!-- MH2: Trường đi, duyệt và lập gói -->
+<section class="man-hinh" id="mh2" aria-label="Trường đi: duyệt và lập gói">
+<div class="vo">
+  <nav class="thanh-ben" aria-label="Menu">
+    <div class="ten-truong">Trường Tiểu học và THCS Hoa Sen (giả lập)</div>
+    <div class="nhom">Học sinh</div>
+    <a href="#"><span aria-hidden="true">👤</span> <span class="chu">4.1 Hồ sơ học sinh</span></a>
+    <a href="#" class="dang"><span aria-hidden="true">⇄</span> <span class="chu">4.2 Biến động học sinh</span></a>
+    <a href="#"><span aria-hidden="true">📘</span> <span class="chu">Học bạ</span></a>
+  </nav>
+  <div>
+    <div class="dau-trang"><button class="menu" aria-label="Mở menu">☰</button><span class="duong-dan">4.2 Biến động học sinh › Chuyển đi › Nguyễn Minh An</span><span class="nguoi">Hiệu trưởng</span></div>
+    <main>
+      <h1>Đề nghị chuyển đi: Nguyễn Minh An, lớp 4A</h1>
+      <ol class="buoc" aria-label="Các bước">
+        <li class="xong">Phụ huynh nộp đơn</li><li class="dang">Hiệu trưởng duyệt</li><li>Gửi gói</li><li>Trường đến tiếp nhận</li><li>Hoàn tất</li>
+      </ol>
+      <div class="luoi-3">
+        <div class="the">
+          <h2>Thành phần gói chuyển trường</h2>
+          <p class="nho">Gói chỉ gồm dữ liệu dưới đây. Mục "Bắt buộc" là hồ sơ chuyển trường theo quy định; mục khác chỉ gửi khi phụ huynh đồng ý trong đơn.</p>
+          <ul class="ds-du-lieu">
+            <li><input type="checkbox" checked disabled aria-label="Hồ sơ học sinh"><div><b>Hồ sơ học sinh</b><div class="phu">Họ tên, ngày sinh, giới tính, dân tộc, nơi ở, cha mẹ hoặc người giám hộ, diện chính sách</div></div><span class="khoa nhan xam">Bắt buộc</span></li>
+            <li><input type="checkbox" checked disabled aria-label="Mã định danh"><div><b>Mã định danh Bộ, số định danh cá nhân</b><div class="phu">Số định danh mã hóa trong gói, chỉ trường đến giải mã</div></div><span class="khoa nhan xam">Bắt buộc</span></li>
+            <li><input type="checkbox" checked disabled aria-label="Học bạ"><div><b>Học bạ số lớp 1 đến lớp 3 (đã ký)</b><div class="phu">Tệp PDF đã ký nội bộ kèm mã băm; học bạ lớp 4 chưa chốt</div></div><span class="khoa nhan xam">Bắt buộc</span></li>
+            <li><input type="checkbox" checked disabled aria-label="Bảng tổng hợp"><div><b>Bảng tổng hợp kết quả học kỳ I năm 2026-2027, tiến độ chương trình, tài liệu học tập</b><div class="phu">Theo hồ sơ chuyển trường tiểu học</div></div><span class="khoa nhan xam">Bắt buộc</span></li>
+            <li><input type="checkbox" checked disabled aria-label="Kế hoạch giáo dục cá nhân"><div><b>Kế hoạch giáo dục cá nhân</b><div class="phu">Có 1 kế hoạch; bắt buộc với học sinh khuyết tật</div></div><span class="khoa nhan xam">Bắt buộc</span></li>
+            <li><input type="checkbox" checked aria-label="Sức khỏe"><div><b>Sức khỏe</b><div class="phu">Chiều cao, cân nặng, tiêm chủng, dị ứng. Phụ huynh đã đồng ý</div></div></li>
+            <li><input type="checkbox" checked aria-label="Khen thưởng"><div><b>Khen thưởng, kỷ luật còn hiệu lực</b><div class="phu">1 khen thưởng cuối năm 2025-2026</div></div></li>
+            <li><input type="checkbox" aria-label="Ảnh"><div><b>Ảnh học sinh</b><div class="phu">Phụ huynh chưa đồng ý, không gửi</div></div></li>
+          </ul>
+          <h3 style="margin-top:16px">Ở lại trường</h3>
+          <p class="nho">Học phí, công nợ, biên lai; điểm danh từng ngày; sổ liên lạc, tin nhắn; nhật ký thao tác; bài làm, bài thi trực tuyến; tài khoản học và thi của trường.</p>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:16px">
+          <div class="the">
+            <h2>Trường đến</h2>
+            <p><b>Trường Tiểu học Bình Minh</b><br><span class="nho">Mã trường Bộ 79xxxxxx · trong hệ thống</span></p>
+            <p class="nho">Gói gửi thẳng vào hộp "Hồ sơ chuyển đến" của trường đến. Trường đến chỉ thấy gói này, không đọc được dữ liệu khác của trường đi.</p>
+          </div>
+          <div class="dai vang"><b>Công nợ chưa tất toán: 1.250.000 đồng.</b> Công nợ ở lại trường, không chặn chuyển trường và không ghi vào gói.</div>
+          <div class="the">
+            <h2>Duyệt</h2>
+            <label class="nhan-o" for="ngay">Ngày chuyển</label><input id="ngay" class="o" value="20/01/2027">
+            <label class="nhan-o" for="qd">Số quyết định ngoài khung thời gian (nếu có)</label><input id="qd" class="o" placeholder="Không bắt buộc">
+            <div class="hang" style="margin-top:16px"><button class="nut chinh">Duyệt, ký và gửi gói</button><button class="nut nguy">Từ chối</button></div>
+            <p class="nho" style="margin-top:8px">Khi trường đến tiếp nhận, học sinh chuyển sang "Đã chuyển đi" từ ngày chuyển; hồ sơ giữ ở trường đi, chỉ đọc.</p>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+</section>
+
+<!-- MH3: Trường đến, hộp hồ sơ chuyển đến -->
+<section class="man-hinh" id="mh3" aria-label="Trường đến: hồ sơ chuyển đến">
+<div class="vo">
+  <nav class="thanh-ben" aria-label="Menu">
+    <div class="ten-truong">Trường Tiểu học Bình Minh (giả lập)</div>
+    <div class="nhom">Học sinh</div>
+    <a href="#"><span aria-hidden="true">👤</span> <span class="chu">4.1 Hồ sơ học sinh</span></a>
+    <a href="#" class="dang"><span aria-hidden="true">⇄</span> <span class="chu">4.2 Biến động học sinh</span></a>
+  </nav>
+  <div>
+    <div class="dau-trang"><button class="menu" aria-label="Mở menu">☰</button><span class="duong-dan">4.2 Biến động học sinh › Chuyển đến</span><span class="nguoi">Hiệu trưởng · Năm học 2026-2027</span></div>
+    <main>
+      <div class="hang giua"><h1>Hồ sơ chuyển đến</h1><div class="hang"><button class="nut">Nhập gói từ tệp</button><button class="nut">Tiếp nhận hồ sơ giấy</button></div></div>
+      <div class="the-tab" role="tablist"><button class="dang">Chờ tiếp nhận (2)</button><button>Đã tiếp nhận</button><button>Đã từ chối</button></div>
+      <div class="the bang-rong" style="padding:0">
+        <div class="cuon"><table>
+          <thead><tr><th>Học sinh</th><th>Từ trường</th><th>Nguồn</th><th>Lớp đề nghị</th><th>Đối chiếu</th><th>Hạn trả lời</th><th></th></tr></thead>
+          <tbody>
+            <tr><td><b>Nguyễn Minh An</b><br><span class="nho">Mã Bộ 79xxxxxx01</span></td><td>TH và THCS Hoa Sen</td><td><span class="nhan tin">Gói trong hệ thống, đã ký</span></td><td>Khối 4</td><td><span class="nhan xong">Chưa có hồ sơ ở trường</span></td><td>23/01/2027</td><td><button class="nut">Xem gói</button></td></tr>
+            <tr><td><b>Phạm Quốc Huy</b><br><span class="nho">Mã Bộ 01xxxxxx77</span></td><td>TH Đông Hải (tỉnh khác)</td><td><span class="nhan xam">Tệp gói nhập tay</span></td><td>Khối 3</td><td><span class="nhan cho">Trùng tên, ngày sinh với 1 hồ sơ nháp</span></td><td>22/01/2027</td><td><button class="nut">Xem gói</button></td></tr>
+          </tbody>
+        </table></div>
+      </div>
+      <div class="the-dong">
+        <div class="muc"><div class="hang giua"><b>Nguyễn Minh An</b><span class="nhan tin">Trong hệ thống</span></div><p class="nho">Từ TH và THCS Hoa Sen · khối 4 · hạn 23/01/2027</p><button class="nut" style="width:100%">Xem gói</button></div>
+        <div class="muc"><div class="hang giua"><b>Phạm Quốc Huy</b><span class="nhan cho">Cần đối chiếu</span></div><p class="nho">Từ TH Đông Hải (tệp) · khối 3 · hạn 22/01/2027</p><button class="nut" style="width:100%">Xem gói</button></div>
+      </div>
+      <div class="dai xanh">Hiệu trưởng trường đến trả lời trong thời hạn cấu hình được (mặc định 3 ngày làm việc, chờ đối chiếu văn bản gốc). Gói quá hạn được nhắc lại.</div>
+    </main>
+  </div>
+</div>
+</section>
+
+<!-- MH4: Trường đến, xem gói và tiếp nhận -->
+<section class="man-hinh" id="mh4" aria-label="Trường đến: xem gói và tiếp nhận">
+<div class="vo">
+  <nav class="thanh-ben" aria-label="Menu">
+    <div class="ten-truong">Trường Tiểu học Bình Minh (giả lập)</div>
+    <div class="nhom">Học sinh</div>
+    <a href="#"><span aria-hidden="true">👤</span> <span class="chu">4.1 Hồ sơ học sinh</span></a>
+    <a href="#" class="dang"><span aria-hidden="true">⇄</span> <span class="chu">4.2 Biến động học sinh</span></a>
+  </nav>
+  <div>
+    <div class="dau-trang"><button class="menu" aria-label="Mở menu">☰</button><span class="duong-dan">Chuyển đến › Nguyễn Minh An</span><span class="nguoi">Hiệu trưởng</span></div>
+    <main>
+      <h1>Gói chuyển trường: Nguyễn Minh An</h1>
+      <div class="dai luc">Chữ ký và mã băm của gói hợp lệ. Gói do Trường TH và THCS Hoa Sen ký ngày 16/01/2027, định dạng <code>school-management.student-transfer/1</code>.</div>
+      <div class="luoi-2">
+        <div class="the">
+          <h2>Đối chiếu hồ sơ</h2>
+          <table class="so-sanh"><tbody>
+            <tr><td>Mã định danh Bộ</td><td>79xxxxxx01 <span class="khop">· chưa có ở trường</span></td></tr>
+            <tr><td>Họ tên</td><td>Nguyễn Minh An</td></tr>
+            <tr><td>Ngày sinh</td><td>12/03/2018</td></tr>
+            <tr><td>Số định danh cá nhân</td><td>•••• •••• 4821 <span class="khop">· đã xác thực ở trường đi</span></td></tr>
+            <tr><td>Cha mẹ, người giám hộ</td><td>Nguyễn Văn Bình (cha) · 09xx xxx 123 <span class="khop">· chưa có tài khoản ở trường</span></td></tr>
+          </tbody></table>
+          <p class="nho" style="margin-top:8px">Học sinh đã có hồ sơ ở trường thì không tạo hồ sơ mới; trường chọn hồ sơ có sẵn để gắn dữ liệu của gói.</p>
+        </div>
+        <div class="the">
+          <h2>Nội dung gói</h2>
+          <ul class="ds-du-lieu">
+            <li><input type="checkbox" checked disabled aria-label="Hồ sơ"><div><b>Hồ sơ học sinh</b><div class="phu">Tạo hồ sơ ở trạng thái Đang học</div></div></li>
+            <li><input type="checkbox" checked disabled aria-label="Học bạ"><div><b>Học bạ lớp 1 đến lớp 3</b><div class="phu">Lưu nguyên bản đã ký, chỉ đọc</div></div></li>
+            <li><input type="checkbox" checked disabled aria-label="Bảng tổng hợp"><div><b>Kết quả học kỳ I lớp 4</b><div class="phu">Dùng khi lập học bạ lớp 4 cuối năm</div></div></li>
+            <li><input type="checkbox" checked disabled aria-label="Nhu cầu đặc biệt"><div><b>Kế hoạch giáo dục cá nhân</b><div class="phu">Hiện cho giáo viên chủ nhiệm mới</div></div></li>
+            <li><input type="checkbox" checked disabled aria-label="Sức khỏe"><div><b>Sức khỏe</b></div></li>
+            <li><input type="checkbox" checked disabled aria-label="Khen thưởng"><div><b>Khen thưởng, kỷ luật</b></div></li>
+          </ul>
+        </div>
+      </div>
+      <div class="the">
+        <h2>Tiếp nhận</h2>
+        <div class="luoi-2">
+          <div><label class="nhan-o" for="lop">Xếp vào lớp</label><select id="lop" class="o"><option>4B (sĩ số 34/35)</option><option>4A (sĩ số 35/35, đã đủ)</option></select></div>
+          <div><label class="nhan-o" for="ngaynhan">Ngày bắt đầu học</label><input id="ngaynhan" class="o" value="21/01/2027"></div>
+        </div>
+        <ul class="ds-du-lieu" style="margin-top:8px">
+          <li><input type="checkbox" checked aria-label="Tài khoản phụ huynh"><div><b>Tạo tài khoản phụ huynh ở trường này cho Nguyễn Văn Bình theo số điện thoại trong gói</b><div class="phu">Phụ huynh đăng nhập ứng dụng của trường mới bằng cùng số điện thoại; ở trường cũ chỉ còn xem học bạ và biên lai</div></div></li>
+          <li><input type="checkbox" aria-label="Cấp tài khoản học sinh"><div><b>Cấp tài khoản học và thi mới cho học sinh</b><div class="phu">Tài khoản ở trường cũ bị khóa từ ngày chuyển</div></div></li>
+        </ul>
+        <div class="hang" style="margin-top:12px"><button class="nut chinh">Tiếp nhận</button><button class="nut nguy">Từ chối, ghi lý do</button><button class="nut">Tải gói (PDF)</button></div>
+      </div>
+    </main>
+  </div>
+</div>
+</section>
+
+<!-- MH5: Phụ huynh, đơn xin chuyển trường -->
+<section class="man-hinh" id="mh5" aria-label="Phụ huynh: đơn xin chuyển trường">
+<div class="ph">
+  <div class="ph-dau"><button class="lui" aria-label="Quay lại">‹</button><b>Đơn xin chuyển trường</b></div>
+  <main>
+    <div class="the"><div class="con"><div class="anh">MA</div><div><b>Nguyễn Minh An</b><br><span class="nho">Lớp 4A · Trường TH và THCS Hoa Sen</span></div></div></div>
+    <div class="the">
+      <h2>Trường muốn chuyển đến</h2>
+      <input class="o" aria-label="Tìm trường" value="Bình Minh">
+      <label class="chon-truong"><input type="radio" name="t" checked><span><b>Trường Tiểu học Bình Minh</b><br><span class="nho">Phường An Lạc · dùng cùng hệ thống: hồ sơ gửi thẳng, không cần nộp giấy</span></span></label>
+      <label class="chon-truong"><input type="radio" name="t"><span><b>Trường khác, không có trong danh sách</b><br><span class="nho">Trường cũ lập bộ hồ sơ để bạn nộp cho trường mới</span></span></label>
+      <label class="nhan-o" for="lydo">Lý do</label><select id="lydo" class="o"><option>Chuyển nơi cư trú theo cha mẹ</option><option>Hoàn cảnh gia đình khó khăn hoặc lý do chính đáng khác</option></select>
+      <label class="nhan-o" for="ngaymuon">Ngày muốn chuyển</label><input id="ngaymuon" class="o" value="20/01/2027">
+    </div>
+    <div class="the">
+      <h2>Đồng ý gửi dữ liệu cho trường mới</h2>
+      <p class="nho">Hồ sơ, mã định danh, học bạ, kết quả học tập, kế hoạch giáo dục cá nhân là hồ sơ chuyển trường theo quy định. Các mục dưới đây chỉ gửi khi bạn đồng ý.</p>
+      <ul class="ds-du-lieu">
+        <li><input type="checkbox" checked aria-label="Sức khỏe"><div><b>Sức khỏe</b><div class="phu">Chiều cao, cân nặng, dị ứng, tiêm chủng</div></div></li>
+        <li><input type="checkbox" checked aria-label="Khen thưởng"><div><b>Khen thưởng, kỷ luật</b></div></li>
+        <li><input type="checkbox" aria-label="Ảnh"><div><b>Ảnh của con</b></div></li>
+      </ul>
+      <div class="dai xanh" style="margin-top:10px">Con từ đủ 7 tuổi thì con cũng cần đồng ý.</div>
+      <label class="chon-truong"><input type="checkbox" checked><span>Tôi đã hỏi và con đồng ý</span></label>
+    </div>
+    <button class="nut chinh" style="width:100%">Gửi đơn</button>
+    <p class="nho">Học phí còn nợ không chặn việc chuyển trường; trường cũ sẽ liên hệ để tất toán.</p>
+  </main>
+  <nav class="ph-duoi" aria-label="Điều hướng"><a href="#">Trang chủ</a><a href="#" class="dang">Con</a><a href="#">Tin nhắn</a><a href="#">Tài khoản</a></nav>
+</div>
+</section>
+
+<!-- MH6: Phụ huynh, theo dõi -->
+<section class="man-hinh" id="mh6" aria-label="Phụ huynh: theo dõi chuyển trường">
+<div class="ph">
+  <div class="ph-dau"><button class="lui" aria-label="Quay lại">‹</button><b>Chuyển trường của Minh An</b></div>
+  <main>
+    <div class="the">
+      <ul class="dong-thoi-gian">
+        <li class="xong"><b>Đã gửi đơn</b><br><span class="nho">15/01/2027 · đồng ý gửi sức khỏe, khen thưởng</span></li>
+        <li class="xong"><b>Trường Hoa Sen đã duyệt và gửi hồ sơ</b><br><span class="nho">16/01/2027</span></li>
+        <li class="dang"><b>Trường Bình Minh đang xem hồ sơ</b><br><span class="nho">Trả lời trước 23/01/2027</span></li>
+        <li><b>Con bắt đầu học ở trường mới</b></li>
+      </ul>
+    </div>
+    <div class="dai luc">Khi trường mới tiếp nhận, bạn nhận tin nhắn để đăng nhập ứng dụng của trường mới bằng cùng số điện thoại.</div>
+    <div class="the">
+      <h2>Ở trường cũ sau khi chuyển</h2>
+      <p class="nho">Bạn vẫn xem và tải được học bạ, biên lai học phí của các năm đã học. Tin nhắn, điểm danh của trường cũ không còn hiện.</p>
+    </div>
+    <button class="nut" style="width:100%">Rút đơn</button>
+  </main>
+  <nav class="ph-duoi" aria-label="Điều hướng"><a href="#">Trang chủ</a><a href="#" class="dang">Con</a><a href="#">Tin nhắn</a><a href="#">Tài khoản</a></nav>
+</div>
+</section>
+
+<!-- MH7: Liên cấp, lên cấp trong trường -->
+<section class="man-hinh" id="mh7" aria-label="Liên cấp: lên cấp trong trường">
+<div class="vo">
+  <nav class="thanh-ben" aria-label="Menu">
+    <div class="ten-truong">Trường Tiểu học và THCS Hoa Sen (giả lập)</div>
+    <div class="nhom">Năm học</div>
+    <a href="#" class="dang"><span aria-hidden="true">↻</span> <span class="chu">Chuyển năm học</span></a>
+  </nav>
+  <div>
+    <div class="dau-trang"><button class="menu" aria-label="Mở menu">☰</button><span class="duong-dan">Chuyển năm học 2026-2027 sang 2027-2028 › Lên cấp</span><span class="nguoi">Hiệu trưởng</span></div>
+    <main>
+      <h1>Lên cấp: lớp 5 lên lớp 6</h1>
+      <div class="dai xanh">Trường dạy cả Tiểu học và THCS. Học sinh hoàn thành chương trình tiểu học được xếp thẳng vào khối 6, giữ nguyên hồ sơ, mã định danh, học bạ tiểu học, tài khoản phụ huynh. Không lập gói chuyển trường.</div>
+      <div class="the bang-rong" style="padding:0">
+        <div class="cuon"><table>
+          <thead><tr><th>Học sinh</th><th>Lớp 5</th><th>Hoàn thành chương trình tiểu học</th><th>Lên lớp</th><th>Xử lý</th></tr></thead>
+          <tbody>
+            <tr><td>Đỗ Hải Nam</td><td>5A</td><td><span class="nhan xong">Hoàn thành</span></td><td><select aria-label="Lớp mới"><option>6A</option><option>6B</option></select></td><td>Ở lại trường</td></tr>
+            <tr><td>Vũ Ngọc Lan</td><td>5A</td><td><span class="nhan xong">Hoàn thành</span></td><td>Không</td><td><span class="nhan tin">Sang trường khác, lập gói</span></td></tr>
+            <tr><td>Hoàng Đức Tâm</td><td>5B</td><td><span class="nhan cho">Chưa hoàn thành</span></td><td>Học lại lớp 5</td><td>Ở lại lớp 5</td></tr>
+          </tbody>
+        </table></div>
+      </div>
+      <div class="the-dong">
+        <div class="muc"><div class="hang giua"><b>Đỗ Hải Nam · 5A</b><span class="nhan xong">Hoàn thành</span></div><p class="nho">Lên 6A, ở lại trường</p></div>
+        <div class="muc"><div class="hang giua"><b>Vũ Ngọc Lan · 5A</b><span class="nhan xong">Hoàn thành</span></div><p class="nho">Sang trường khác, lập gói</p></div>
+        <div class="muc"><div class="hang giua"><b>Hoàng Đức Tâm · 5B</b><span class="nhan cho">Chưa hoàn thành</span></div><p class="nho">Học lại lớp 5</p></div>
+      </div>
+      <div class="hang"><button class="nut chinh">Xác nhận lên cấp</button><button class="nut">Xuất danh sách</button></div>
+    </main>
+  </div>
+</div>
+</section>
+
+<!-- MH8: Trường mới, hồ sơ trúng tuyển và yêu cầu chuyển hồ sơ -->
+<section class="man-hinh" id="mh8" aria-label="Trường mới: yêu cầu trường cũ chuyển hồ sơ">
+<div class="vo">
+  <nav class="thanh-ben" aria-label="Menu">
+    <div class="ten-truong">Trường THCS Lê Lợi (giả lập)</div>
+    <div class="nhom">Tuyển sinh đầu cấp</div>
+    <a href="#"><span aria-hidden="true">📝</span> <span class="chu">1.3 Xác nhận hồ sơ tiên tiến</span></a>
+    <a href="#" class="dang"><span aria-hidden="true">📥</span> <span class="chu">1.4 Tiếp nhận hồ sơ tuyển sinh</span></a>
+  </nav>
+  <div>
+    <div class="dau-trang"><button class="menu" aria-label="Mở menu">☰</button><span class="duong-dan">Tuyển sinh đầu cấp › 1.4 Tiếp nhận hồ sơ tuyển sinh › Đợt lớp 6 năm học 2027-2028</span><span class="nguoi">Nhân viên tuyển sinh</span></div>
+    <main>
+      <div class="hang giua"><h1>Hồ sơ trúng tuyển lớp 6</h1><button class="nut chinh">Gửi yêu cầu chuyển hồ sơ (2 hồ sơ đã chọn)</button></div>
+      <div class="the-tab" role="tablist"><button class="dang">Chưa có hồ sơ từ trường cũ (3)</button><button>Đang chờ trường cũ (1)</button><button>Đã nhận hồ sơ (12)</button><button>Trường cũ từ chối (0)</button></div>
+      <div class="the bang-rong" style="padding:0">
+        <div class="cuon"><table>
+          <thead><tr><th><input type="checkbox" aria-label="Chọn tất cả"></th><th>Học sinh</th><th>Mã định danh Bộ</th><th>Trường cũ</th><th>Đồng ý lấy hồ sơ</th><th>Gửi được</th></tr></thead>
+          <tbody>
+            <tr class="chon"><td><input type="checkbox" checked aria-label="Chọn"></td><td><b>Đỗ Hải Nam</b><br><span class="nho">12/05/2016 · Trúng tuyển</span></td><td>79xxxxxx11</td><td>TH và THCS Hoa Sen <span class="nhan tin">Trong hệ thống</span></td><td><span class="nhan xong">Có, trong đơn trực tuyến</span></td><td><span class="nhan xong">Gửi qua hộp thư</span></td></tr>
+            <tr class="chon"><td><input type="checkbox" checked aria-label="Chọn"></td><td><b>Mai Thanh Trúc</b><br><span class="nho">03/11/2016 · Đạt (phân tuyến)</span></td><td>79xxxxxx12</td><td>TH Bình Minh <span class="nhan tin">Trong hệ thống</span></td><td><span class="nhan xong">Có, đơn giấy đã quét</span></td><td><span class="nhan xong">Gửi qua hộp thư</span></td></tr>
+            <tr><td><input type="checkbox" aria-label="Chọn"></td><td><b>Lý Gia Huy</b><br><span class="nho">21/07/2016 · Trúng tuyển</span></td><td>01xxxxxx45</td><td>TH Đông Hải (tỉnh khác) <span class="nhan xam">Ngoài hệ thống</span></td><td><span class="nhan xong">Có</span></td><td><span class="nhan cho">In giấy đề nghị</span></td></tr>
+            <tr><td><input type="checkbox" disabled aria-label="Chọn"></td><td><b>Phan Minh Khoa</b><br><span class="nho">09/02/2016 · Trúng tuyển</span></td><td><span class="lech">Chưa có</span></td><td>TH Bình Minh</td><td><span class="nhan cho">Chưa có</span></td><td><span class="nhan loi">Thiếu mã định danh, đồng ý</span></td></tr>
+          </tbody>
+        </table></div>
+      </div>
+      <div class="the-dong">
+        <div class="muc"><div class="hang giua"><b>Đỗ Hải Nam</b><span class="nhan xong">Gửi được</span></div><p class="nho">Từ TH và THCS Hoa Sen (trong hệ thống) · mã Bộ 79xxxxxx11</p><label class="chon-truong"><input type="checkbox" checked><span>Chọn để gửi yêu cầu</span></label></div>
+        <div class="muc"><div class="hang giua"><b>Mai Thanh Trúc</b><span class="nhan xong">Gửi được</span></div><p class="nho">Từ TH Bình Minh (trong hệ thống) · mã Bộ 79xxxxxx12</p><label class="chon-truong"><input type="checkbox" checked><span>Chọn để gửi yêu cầu</span></label></div>
+        <div class="muc"><div class="hang giua"><b>Lý Gia Huy</b><span class="nhan cho">Ngoài hệ thống</span></div><p class="nho">Từ TH Đông Hải (tỉnh khác)</p><button class="nut" style="width:100%">In giấy đề nghị chuyển hồ sơ</button></div>
+        <div class="muc"><div class="hang giua"><b>Phan Minh Khoa</b><span class="nhan loi">Thiếu dữ liệu</span></div><p class="nho">Cần mã định danh Bộ và đồng ý lấy hồ sơ của phụ huynh</p></div>
+      </div>
+      <div class="dai xanh">Yêu cầu chỉ gửi mã định danh Bộ, họ tên, ngày sinh, mã hồ sơ tuyển sinh. Trường cũ xác nhận thì hồ sơ, học bạ tiểu học đã ký được gắn vào hồ sơ tuyển sinh và điền sẵn khi nhập học. Chưa có gói vẫn nhập học được.</div>
+    </main>
+  </div>
+</div>
+</section>
+
+<!-- MH9: Trường cũ, xác nhận chuyển hồ sơ -->
+<section class="man-hinh" id="mh9" aria-label="Trường cũ: xác nhận chuyển hồ sơ">
+<div class="vo">
+  <nav class="thanh-ben" aria-label="Menu">
+    <div class="ten-truong">Trường Tiểu học và THCS Hoa Sen (giả lập)</div>
+    <div class="nhom">Học sinh</div>
+    <a href="#"><span aria-hidden="true">👤</span> <span class="chu">4.1 Hồ sơ học sinh</span></a>
+    <a href="#" class="dang"><span aria-hidden="true">⇄</span> <span class="chu">4.2 Biến động học sinh</span></a>
+  </nav>
+  <div>
+    <div class="dau-trang"><button class="menu" aria-label="Mở menu">☰</button><span class="duong-dan">4.2 Biến động học sinh › Yêu cầu chuyển hồ sơ</span><span class="nguoi">Hiệu trưởng</span></div>
+    <main>
+      <div class="hang giua"><h1>Yêu cầu chuyển hồ sơ từ trường mới</h1><button class="nut">Xác nhận các yêu cầu đã khớp (1)</button></div>
+      <div class="the-tab" role="tablist"><button>Chuyển đi</button><button class="dang">Yêu cầu chuyển hồ sơ (2)</button><button>Chuyển đến</button><button>Học lại</button></div>
+      <div class="luoi-3">
+        <div class="the">
+          <h2>Đỗ Hải Nam</h2>
+          <p class="nho">Trường THCS Lê Lợi đề nghị ngày 02/07/2027 · trúng tuyển lớp 6 năm học 2027-2028 · trả lời trước 09/07/2027</p>
+          <table class="so-sanh"><tbody>
+            <tr><td>Mã định danh Bộ</td><td>79xxxxxx11 <span class="khop">· khớp</span></td></tr>
+            <tr><td>Họ tên, ngày sinh</td><td>Đỗ Hải Nam, 12/05/2016 <span class="khop">· khớp</span></td></tr>
+            <tr><td>Ở trường</td><td>Lớp 5A năm học 2026-2027</td></tr>
+            <tr><td>Hoàn thành chương trình tiểu học</td><td><span class="nhan xong">Đã xác nhận</span></td></tr>
+            <tr><td>Học bạ lớp 1 đến lớp 5</td><td><span class="nhan xong">Đã ký</span></td></tr>
+            <tr><td>Đồng ý trong đơn tuyển sinh</td><td>Ở trường mới, ngày 15/06/2027</td></tr>
+            <tr><td>Phụ huynh xác nhận ở trường</td><td><span class="nhan xong">Đã xác nhận 03/07/2027 trên ứng dụng</span></td></tr>
+          </tbody></table>
+          <h3 style="margin-top:16px">Sẽ gửi</h3>
+          <p class="nho">Hồ sơ học sinh, mã định danh, học bạ tiểu học đã ký, kết quả hoàn thành chương trình, kế hoạch giáo dục cá nhân (nếu có). Sức khỏe, khen thưởng chỉ gửi khi đơn tuyển sinh có đồng ý cho mục đó.</p>
+          <div class="hang" style="margin-top:12px"><button class="nut chinh">Xác nhận, ký và gửi</button><button class="nut nguy">Từ chối, ghi lý do</button></div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:16px">
+          <div class="the">
+            <h2>Yêu cầu khác</h2>
+            <p><b>Mai Thanh Trúc</b><br><span class="nho">Từ THCS Lê Lợi · khớp mã Bộ</span></p>
+            <span class="nhan cho">Chờ phụ huynh xác nhận</span>
+            <div class="hang" style="margin-top:8px"><button class="nut">Nhắc phụ huynh</button><button class="nut">Xác nhận thay phụ huynh (giấy)</button></div>
+            <hr style="border:0;border-top:1px solid var(--border);margin:16px 0">
+            <p><b>Học sinh không xác định</b><br><span class="nho">Từ THCS Quang Trung · mã Bộ không có ở trường</span></p>
+            <span class="nhan loi">Không khớp</span>
+            <p class="nho" style="margin-top:8px">Trả lời "không tìm thấy học sinh", không gửi thêm thông tin.</p>
+          </div>
+          <div class="dai vang">Học sinh vẫn học ở trường hết năm học. Sang năm mới, học sinh thành "Đã tốt nghiệp" và ghi "Đã chuyển hồ sơ cho THCS Lê Lợi".</div>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+</section>
+
+<!-- MH10: Phụ huynh xác nhận ở trường cũ (Q8) -->
+<section class="man-hinh" id="mh10" aria-label="Phụ huynh: xác nhận chuyển hồ sơ">
+<div class="ph">
+  <div class="ph-dau"><button class="lui" aria-label="Quay lại">‹</button><b>Xác nhận chuyển hồ sơ</b></div>
+  <main>
+    <div class="the"><div class="con"><div class="anh">HN</div><div><b>Đỗ Hải Nam</b><br><span class="nho">Lớp 5A · Trường TH và THCS Hoa Sen</span></div></div></div>
+    <div class="the">
+      <h2>Trường THCS Lê Lợi đề nghị nhận hồ sơ của con</h2>
+      <p class="nho">Con đã trúng tuyển lớp 6 năm học 2027-2028. Trường Hoa Sen sẽ gửi: hồ sơ, mã định danh, học bạ tiểu học, kết quả hoàn thành chương trình.</p>
+      <ul class="ds-du-lieu">
+        <li><input type="checkbox" checked aria-label="Sức khỏe"><div><b>Gửi thêm sức khỏe</b></div></li>
+        <li><input type="checkbox" aria-label="Khen thưởng"><div><b>Gửi thêm khen thưởng</b></div></li>
+      </ul>
+      <label class="chon-truong"><input type="checkbox" checked><span>Tôi đã hỏi và con đồng ý</span></label>
+    </div>
+    <button class="nut chinh" style="width:100%">Đồng ý chuyển hồ sơ</button>
+    <button class="nut" style="width:100%">Không phải trường con trúng tuyển</button>
+    <p class="nho">Không xác nhận trong hạn thì trường nhắc lại. Không dùng ứng dụng: ký giấy xác nhận, trường xác nhận thay kèm bản quét.</p>
+  </main>
+  <nav class="ph-duoi" aria-label="Điều hướng"><a href="#">Trang chủ</a><a href="#" class="dang">Con</a><a href="#">Tin nhắn</a><a href="#">Tài khoản</a></nav>
+</div>
+</section>
+
+</div></div>
+<script>
+  const khung = document.getElementById('khung');
+  document.querySelectorAll('[data-mh]').forEach(nut => nut.addEventListener('click', () => {
+    document.querySelectorAll('[data-mh]').forEach(n => n.setAttribute('aria-pressed', String(n === nut)));
+    document.querySelectorAll('.man-hinh').forEach(m => m.classList.toggle('hien', m.id === nut.dataset.mh));
+  }));
+  document.querySelectorAll('[data-co]').forEach(nut => nut.addEventListener('click', () => {
+    document.querySelectorAll('[data-co]').forEach(n => n.setAttribute('aria-pressed', String(n === nut)));
+    khung.style.maxWidth = nut.dataset.co + 'px';
+  }));
+</script>
+</body>
+</html>

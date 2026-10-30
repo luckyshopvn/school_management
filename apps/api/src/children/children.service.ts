@@ -613,6 +613,44 @@ export class ChildrenService {
     if (child.status !== 'pending') {
       throw ruleViolationError('QT-01', 'Chỉ duyệt được hồ sơ đang chờ duyệt');
     }
+    return this.placeInClass(
+      currentUser,
+      accessToken,
+      child,
+      { ...input, fromDate: this.today() },
+      'Tiếp nhận trẻ mới',
+      origin,
+    );
+  }
+
+  // Tiếp nhận học sinh chuyển đến bằng gói chuyển trường (YCTD-390, BR-482): Hiệu trưởng tiếp nhận là quyết định, hồ sơ nháp
+  // tạo từ gói chuyển thẳng sang Đang học và xếp lớp từ ngày bắt đầu học, không qua gửi duyệt
+  async admitTransferred(
+    currentUser: CurrentUser,
+    accessToken: string,
+    childId: string,
+    input: { classId: string; confirmOverCapacity: boolean; fromDate: string },
+    origin: ChangeOrigin,
+  ) {
+    const { database } = await this.currentSchoolYear.require();
+    const child = await this.findChild(database, childId);
+    await this.organizationScopes.assertCanAccess(currentUser, PERMISSION_CODES.childApprove, child.org_unit_id);
+    if (child.status !== 'draft') {
+      throw ruleViolationError('BR-482', 'Chỉ tiếp nhận được hồ sơ vừa tạo từ gói chuyển trường');
+    }
+    return this.placeInClass(currentUser, accessToken, child, input, 'Tiếp nhận học sinh chuyển đến', origin);
+  }
+
+  private async placeInClass(
+    currentUser: CurrentUser,
+    accessToken: string,
+    child: Awaited<ReturnType<ChildrenService['findChild']>>,
+    input: { classId: string; confirmOverCapacity: boolean; fromDate: string },
+    enrollmentReason: string,
+    origin: ChangeOrigin,
+  ) {
+    const { database } = await this.currentSchoolYear.require();
+    const childId = child.id;
     // Gói dịch vụ giới hạn số học sinh đang học (DT-SaaS phần S5a)
     await assertStudentCapacity(database, 1);
     const targetClass = await this.findActiveClass(database, input.classId);
@@ -648,7 +686,7 @@ export class ChildrenService {
     const accountants = await this.identityClient
       .listStaff(accessToken, 'VT-04', targetClass.org_unit_id)
       .catch(() => []);
-    const today = this.today();
+    const fromDate = input.fromDate;
 
     return database.transaction().execute(async (transaction) => {
       for (const account of accounts) {
@@ -663,7 +701,7 @@ export class ChildrenService {
         .set({
           status: 'active',
           org_unit_id: targetClass.org_unit_id,
-          enroll_date: today,
+          enroll_date: fromDate,
           approved_by: origin.actorUserId,
           approved_at: this.clock.now(),
           reject_reason: null,
@@ -676,8 +714,8 @@ export class ChildrenService {
         .values({
           child_id: childId,
           class_id: targetClass.id,
-          from_date: today,
-          reason: 'Tiếp nhận trẻ mới',
+          from_date: fromDate,
+          reason: enrollmentReason,
           created_by: origin.actorUserId,
         })
         .execute();

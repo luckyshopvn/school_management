@@ -44,10 +44,11 @@ import type { Actor } from './school-lifecycle.js';
 // Tệp ở kho tệp của trường (tenants/<tiền tố>/) sao lưu bằng rclone ở backup.sh, không nằm trong tệp này.
 export const BACKUP_FORMAT = 'school-backup';
 export const BACKUP_FORMAT_VERSION = 1;
-const MAGIC = Buffer.from('SMBK1\n');
-const SALT_BYTES = 16;
-const IV_BYTES = 12;
-const TAG_BYTES = 16;
+// Đầu tệp và kích thước các phần mã hóa; dùng chung cho tệp sao lưu dữ liệu trước khi xóa (removed-data-backup.ts, YCTD-393)
+export const MAGIC = Buffer.from('SMBK1\n');
+export const SALT_BYTES = 16;
+export const IV_BYTES = 12;
+export const TAG_BYTES = 16;
 
 export type BackupScope = 'all' | 'active';
 
@@ -82,14 +83,14 @@ export interface BackupSummary {
   rows: number;
 }
 
-function deriveKey(passphrase: string, salt: Buffer): Buffer {
+export function deriveKey(passphrase: string, salt: Buffer): Buffer {
   if (passphrase.length < 16) {
     throw new Error('BACKUP_ENCRYPTION_PASSPHRASE phải có ít nhất 16 ký tự');
   }
   return scryptSync(passphrase, salt, 32);
 }
 
-function stampOf(date: Date): string {
+export function stampOf(date: Date): string {
   return date
     .toISOString()
     .replace(/[-:]/g, '')
@@ -100,7 +101,7 @@ function messageOf(error: unknown): string {
   return error instanceof Error ? error.message : String(error);
 }
 
-async function sha256File(path: string): Promise<string> {
+export async function sha256File(path: string): Promise<string> {
   const hash = createHash('sha256');
   await pipeline(createReadStream(path), hash);
   return hash.digest('hex');
@@ -316,10 +317,10 @@ type BackupLine =
 
 // Giải mã, giải nén, gọi onLine cho từng dòng. Mã xác thực GCM chỉ được kiểm ở cuối tệp: khôi phục luôn gọi verifyBackup trước
 // khi ghi vào đâu
-async function readBackup(
+export async function readBackup<Line = BackupLine>(
   path: string,
   passphrase: string,
-  onLine: (line: BackupLine) => Promise<void>,
+  onLine: (line: Line) => Promise<void>,
 ): Promise<void> {
   const size = (await stat(path)).size;
   const handle = await open(path, 'r');
@@ -349,7 +350,7 @@ async function readBackup(
   const consuming = (async () => {
     for await (const line of lines) {
       if (line) {
-        await onLine(JSON.parse(line) as BackupLine);
+        await onLine(JSON.parse(line) as Line);
       }
     }
   })();
