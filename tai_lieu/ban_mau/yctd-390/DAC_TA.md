@@ -227,7 +227,7 @@ Quy tắc đề xuất:
 
 ### 7.1. Cấu trúc
 
-Tệp `.zip` mã hóa (trong hệ thống: mã hóa bằng khóa công khai của trường đến; ngoài hệ thống: bằng mật khẩu in trên bản PDF). Bên trong:
+Gói là JSON nén gzip gồm bản kê và các phần dưới đây (cùng kiểu gói khoá học `course-package/1`), mã hóa AES-256-GCM (trong hệ thống từ lát L2: bằng khóa công khai của trường đến; ngoài hệ thống, lát L1: bằng khóa dẫn từ mật khẩu in trên bản PDF), tệp đuôi `.goichuyen`. Lát L1 chọn JSON nén thay cho zip để không thêm bộ đọc zip có mật khẩu. Các phần:
 
 ```
 manifest.json            định dạng, phiên bản, mã gói, loại (chuyen-truong | tuyen-sinh), trường đi (mã Bộ, tên), trường đến,
