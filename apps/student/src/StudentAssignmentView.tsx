@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { Alert, Button, FORM_CONTROL_CLASS, StatusBadge } from '@school-management/ui';
+import { cleanImage } from './clean-image.js';
 import { fetchStudentFile, requestStudentJson, StudentApiError } from './student-api.js';
 import {
   forgetActivity,
@@ -81,20 +82,6 @@ const messageOf = (error: unknown) =>
   error instanceof StudentApiError || error instanceof OfflineQueued
     ? error.message
     : 'Không kết nối được tới máy chủ, vui lòng thử lại';
-
-// Vẽ lại ảnh lên khung để bỏ siêu dữ liệu (EXIF, vị trí), thu nhỏ cạnh dài về 1600 điểm ảnh, lưu JPEG chất lượng 0,85
-async function cleanImage(file: File): Promise<Blob> {
-  const bitmap = await createImageBitmap(file);
-  const ratio = Math.min(1, 1600 / Math.max(bitmap.width, bitmap.height));
-  const canvas = document.createElement('canvas');
-  canvas.width = Math.round(bitmap.width * ratio);
-  canvas.height = Math.round(bitmap.height * ratio);
-  canvas.getContext('2d')?.drawImage(bitmap, 0, 0, canvas.width, canvas.height);
-  bitmap.close();
-  return new Promise((resolve, reject) =>
-    canvas.toBlob((blob) => (blob ? resolve(blob) : reject(new Error('Không đọc được ảnh'))), 'image/jpeg', 0.85),
-  );
-}
 
 function Recorder({ limitSeconds, onDone }: { limitSeconds: number; onDone(blob: Blob): void }) {
   const [recording, setRecording] = useState(false);

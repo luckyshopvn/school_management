@@ -62,14 +62,28 @@ describe('Gia sư AI: quy tắc trò chuyện', () => {
       'Đây: {"step":"example","topic":"Phân số","reply":"Ví dụ $\\\\frac{1}{2}$","final_answer":"3/4"}',
       'hint',
     );
-    assert.deepEqual(parsed, { step: 'example', topic: 'Phân số', reply: 'Ví dụ $\\frac{1}{2}$', finalAnswer: '3/4' });
+    assert.deepEqual(parsed, {
+      step: 'example',
+      topic: 'Phân số',
+      reply: 'Ví dụ $\\frac{1}{2}$',
+      finalAnswer: '3/4',
+      imageText: '',
+      personalData: false,
+    });
     assert.deepEqual(parseTutorReply('Em thử chuyển vế xem', 'hint'), {
       step: 'method',
       topic: null,
       reply: 'Em thử chuyển vế xem',
       finalAnswer: '',
+      imageText: '',
+      personalData: false,
     });
     assert.equal(parseTutorReply('{"reply":""}', 'hint'), null);
+    // Lát L4: đề chép từ ảnh, nhà cung cấp báo thông tin cá nhân (chỉ nhận đúng giá trị true)
+    const image = parseTutorReply('{"reply":"Gợi ý","image_text":" Tìm x ","personal_data":true}', 'hint');
+    assert.equal(image?.imageText, 'Tìm x');
+    assert.equal(image?.personalData, true);
+    assert.equal(parseTutorReply('{"reply":"Gợi ý","personal_data":"true"}', 'hint')?.personalData, false);
   });
 
   it('lộ đáp án: cụm "đáp án là", đáp án nằm trong câu trả lời; không tính khi đáp án có sẵn trong đề', () => {

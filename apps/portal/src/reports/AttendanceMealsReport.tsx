@@ -4,6 +4,7 @@ import { Alert, Button, TextField } from '@school-management/ui';
 import { ATTENDANCE_STAGES } from '@school-management/shared';
 import { UnitSelect, useUnitChoice } from '../catalogs/UnitSelect.js';
 import { LevelSelect, useReportLevel } from '../school-levels/LevelSelect.js';
+import { useLearnerWord } from '../school-levels/working-level.js';
 import { listClasses } from '../classes/classes-api.js';
 import { ApiError } from '../session/api-client.js';
 import { ExportButton } from './PhaseTwoReports.js';
@@ -81,6 +82,7 @@ export function AttendanceMealsView({ canExport }: { canExport: boolean }) {
   const [orgUnitId, setOrgUnitId] = useState('');
   const [classId, setClassId] = useState('');
   const level = useReportLevel();
+  const learner = useLearnerWord();
   const [applied, setApplied] = useState<Record<string, string | null>>();
   const values = {
     period,
@@ -178,7 +180,7 @@ export function AttendanceMealsView({ canExport }: { canExport: boolean }) {
           </p>
           {data.days.some((day) => day.date === data.today && day.counted) ? (
             <Alert tone="info">
-              Hôm nay tính theo điểm danh đã lưu đến lúc xem; trẻ chưa được điểm danh nằm ở cột "Chưa điểm danh".
+              Hôm nay tính theo điểm danh đã lưu đến lúc xem; {learner} chưa được điểm danh nằm ở cột "Chưa điểm danh".
             </Alert>
           ) : null}
           <section
@@ -235,8 +237,8 @@ export function AttendanceMealsView({ canExport }: { canExport: boolean }) {
               </tbody>
             </table>
             <p className="text-label text-text-secondary">
-              P nghỉ có phép, K nghỉ không phép, B nghỉ bệnh (lý do có từ ốm, bệnh, sốt, ho...). Suất ăn là số trẻ có
-              mặt những ngày ăn; ô trống là ngày không tính hoặc chưa tới.
+              P nghỉ có phép, K nghỉ không phép, B nghỉ bệnh (lý do có từ ốm, bệnh, sốt, ho...). Suất ăn là số {learner}{' '}
+              có mặt những ngày ăn; ô trống là ngày không tính hoặc chưa tới.
             </p>
           </section>
         </>
@@ -245,9 +247,9 @@ export function AttendanceMealsView({ canExport }: { canExport: boolean }) {
       {applied?.class_id && matrix.data ? (
         <section
           className="flex flex-col gap-2 overflow-x-auto rounded-xl border border-border bg-card p-4"
-          aria-label="Điểm danh từng trẻ"
+          aria-label={`Điểm danh từng ${learner}`}
         >
-          <h2 className="text-section-title font-semibold text-text">Điểm danh từng trẻ</h2>
+          <h2 className="text-section-title font-semibold text-text">Điểm danh từng {learner}</h2>
           <table className="w-full text-content">
             <thead className="text-left text-label font-medium text-text-secondary">
               <tr>

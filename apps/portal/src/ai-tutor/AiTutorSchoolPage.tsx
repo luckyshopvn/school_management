@@ -4,6 +4,7 @@ import { Alert, Button, FORM_CONTROL_CLASS, StatusBadge, Toast } from '@school-m
 import { AppShell } from '../pages/AppShell.js';
 import { menuPageTitle } from '../pages/page-title.js';
 import { ApiError, requestJson } from '../session/api-client.js';
+import { AiTutorSchoolReport } from './AiTutorSchoolReport.js';
 
 // Cài đặt Gia sư AI của trường (YCTD-383 lát L1a; bản mẫu MH-599): bật theo cấp học, khung giờ khóa (mặc định 22:00 đến 6:00), tạo,
 // sửa, ngừng bán gói tháng và gói lượt, xem các lần mua của phụ huynh. Máy chủ giữ quy tắc; trang chỉ hiện và gửi
@@ -511,6 +512,7 @@ export function AiTutorSchoolPage() {
           ) : null}
         </section>
         <PlanEditor initial={editing} onDone={finishEdit} />
+        <AiTutorSchoolReport />
         <section className="flex flex-col gap-3" aria-label="Các lần mua">
           <h2 className="text-section-title font-semibold text-text">Các lần mua</h2>
           <label className="flex max-w-xs flex-col text-label">
