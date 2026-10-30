@@ -142,3 +142,10 @@ export function useEnabledLevelWorkspaces(): PortalWorkspace[] {
     return levels.data ? workspaces : portalWorkspacesWithoutLevelName(workspaces);
   }, [levels.data]);
 }
+
+// Thuật ngữ theo cấp trường đã bật, cho mô tả, tên nhóm quyền ở 1.3 (quyền dùng chung cho cả trường, không theo cấp đang làm
+// việc; YCTD-394 lát L2). Chưa tải xong thì như trường mầm non
+export function useEnabledLevelTerms(): SchoolLevelTerms {
+  const levels = useQuery({ queryKey: ['school-levels'], queryFn: listSchoolLevels });
+  return useMemo(() => schoolLevelTerms(levels.data?.levels.filter((level) => level.is_enabled) ?? []), [levels.data]);
+}
