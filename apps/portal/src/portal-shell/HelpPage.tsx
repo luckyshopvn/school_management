@@ -37,8 +37,10 @@ export function HelpPage() {
         </Section>
         <Section title="2. Thanh đầu trang">
           <p>
-            Bên trái là tên trường và ô chọn phân hệ (Quản lý giáo dục Mầm non, Cơ sở vật chất, Báo cáo số liệu, Quản
-            trị hệ thống…). Mỗi phân hệ có menu ngang đánh số riêng ngay dưới thanh đầu trang.
+            Bên trái là tên trường và ô chọn phân hệ (Quản lý giáo dục, Cơ sở vật chất, Báo cáo số liệu, Quản trị hệ
+            thống…). Phân hệ Quản lý giáo dục mang tên cấp đang làm việc, ví dụ "Quản lý giáo dục Mầm non", "Quản lý
+            giáo dục Tiểu học"; trường nhiều cấp chọn "Tất cả" thì chỉ là "Quản lý giáo dục". Mỗi phân hệ có menu ngang
+            đánh số riêng ngay dưới thanh đầu trang.
           </p>
           <p>
             Bên phải là ô ngữ cảnh "Cấp MN · năm học · học kỳ", chuông thông báo, lưới ứng dụng liên kết và menu người

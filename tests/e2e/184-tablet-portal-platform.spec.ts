@@ -15,8 +15,8 @@ import { signInConsole } from './platform-console.js';
 import { clickGridMoreItem } from './grid.js';
 
 // DT-26 phần 26e (YCTD-235, spec 184): bố cục máy tính bảng của cổng quản trị và cổng nền tảng, chạy ở các dự án thiết bị của 26c
-// (E2E_DEVICES=pr hoặc full; ở dự án `chromium` mặc định chạy như ca thường ở khổ máy tính 1280 px). Cổng quản trị: dưới 1280 px menu là
-// ngăn kéo, lưới dữ liệu là bảng cuộn ngang có cột đầu cố định từ 768 px và dạng thẻ dưới 768 px, hộp thoại phủ kín màn hình dưới 768 px.
+// (E2E_DEVICES=pr hoặc full; ở dự án `chromium` mặc định chạy như ca thường ở khổ máy tính 1280 px). Cổng quản trị: dưới 1024 px menu là
+// ngăn kéo (YCTD-384, trước là 1280 px), lưới dữ liệu là bảng cuộn ngang có cột đầu cố định từ 768 px và dạng thẻ dưới 768 px, hộp thoại phủ kín màn hình dưới 768 px.
 // Cổng nền tảng không chạy trong môi trường e2e một trường nên spec tự chạy máy chủ Vite của cổng ở cổng riêng và giả lập API đăng nhập
 // bằng page.route. Kiểm không cuộn ngang cả trang, cỡ chữ ô nhập, vùng chạm, axe không lỗi nghiêm trọng. Dữ liệu giả
 const database = createDatabase<IdentityDatabase>(readConnectionString('identity'));
@@ -29,9 +29,9 @@ test.afterAll(async () => {
   await database.destroy();
 });
 
-// Vùng chạm 44 px, chữ ô nhập 16 px chỉ áp dưới 1280 px; từ 1280 px giữ bố cục máy tính nên chỉ kiểm cuộn ngang và axe
-async function deviceViolations(page: Page) {
-  const touchLayout = (page.viewportSize()?.width ?? 1280) < 1280;
+// Vùng chạm 44 px, chữ ô nhập 16 px: cổng nền tảng chỉ áp dưới 1280 px; cổng quản trị áp ở mọi khổ từ YCTD-384 (KC-10, TN-04)
+async function deviceViolations(page: Page, touchEverywhere = false) {
+  const touchLayout = touchEverywhere || (page.viewportSize()?.width ?? 1280) < 1280;
   return [
     ...(await horizontalOverflowViolations(page)),
     ...(touchLayout ? await inputFontViolations(page) : []),
@@ -49,22 +49,22 @@ async function signInPortal(page: Page) {
   await expect(page.getByRole('heading', { name: /^Xin chào,/ })).toBeVisible();
 }
 
-test('@thiet-bi @thiet-bi-pr CT-26e-1: cổng quản trị: thanh bên từ 1280 px, ngăn kéo dưới 1280 px; trang chủ đạt yêu cầu truy cập', async ({
+test('@thiet-bi @thiet-bi-pr CT-26e-1: cổng quản trị: thanh bên từ 1024 px, ngăn kéo dưới 1024 px; trang chủ đạt yêu cầu truy cập', async ({
   page,
 }) => {
   await signInPortal(page);
   const width = page.viewportSize()?.width ?? 1280;
   const toggle = page.getByRole('button', { name: 'Menu chức năng' });
   const menu = page.getByRole('navigation', { name: 'Menu chức năng' });
-  if (width >= 1280) {
-    // Thanh bên luôn hiện từ 1280 px (YCTD-330)
+  const home = await deviceViolations(page, true);
+  expect(home, describeViolations(home)).toEqual([]);
+  if (width >= 1024) {
+    // Thanh bên luôn hiện từ 1024 px (YCTD-330; YCTD-384 hạ từ 1280 px)
     await expect(menu).toBeVisible();
     await expect(toggle).toBeHidden();
   } else {
     await expect(menu).toHaveCount(0);
     await expect(toggle).toBeVisible();
-    const home = await deviceViolations(page);
-    expect(home, describeViolations(home)).toEqual([]);
 
     // Ngăn kéo bên trái, phủ trên nội dung; Esc đóng, nút Đóng menu đóng
     await toggle.click();
@@ -103,7 +103,7 @@ test('@thiet-bi @thiet-bi-pr CT-26e-2: lưới dữ liệu cuộn ngang có cộ
     const cards = grid.getByRole('list', { name: 'Danh sách người dùng' });
     await expect(cards.getByRole('listitem').first()).toBeVisible();
   }
-  const violations = await deviceViolations(page);
+  const violations = await deviceViolations(page, true);
   expect(violations, describeViolations(violations)).toEqual([]);
 
   // Hộp thoại: dưới 768 px rộng bằng màn hình, từ 768 px là hộp giữa màn hình

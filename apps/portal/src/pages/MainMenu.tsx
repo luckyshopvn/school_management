@@ -6,7 +6,7 @@ import type { WorkspaceKey } from './workspaces.js';
 
 // Thanh bên trái theo phân hệ (YCTD-330, quyết định GD-170 thay menu ngang của DT-15 phần 15a): cây menu đánh số của phân hệ
 // đang chọn theo chiều dọc, giữ số thứ bậc theo hệ thống của Sở (GD-171). Mục cha là nút gập, mở ra các mục con; nhóm chứa
-// trang đang mở tự mở. Cùng một thanh dùng cho mọi khổ màn hình: từ 1280 px luôn hiện bên trái, dưới 1280 px (DT-26 phần 26e)
+// trang đang mở tự mở. Cùng một thanh dùng cho mọi khổ màn hình: từ 1024 px luôn hiện bên trái (YCTD-384, trước là 1280 px), dưới 1024 px (DT-26 phần 26e)
 // là ngăn kéo mở bằng nút "☰" ở thanh đầu trang
 
 function isActivePath(pathname: string, path: string | undefined): boolean {
@@ -77,7 +77,7 @@ function WorkspaceTree({ workspace, hidden }: { workspace: PortalWorkspace; hidd
             <li key={key}>
               <button
                 type="button"
-                className={`flex min-h-10 w-full items-center justify-between gap-2 rounded-md px-3 text-left max-xl:min-h-11 text-label hover:bg-nav-hover ${depth === 0 ? 'font-medium text-white' : 'text-nav-text'} ${inTrail && !open ? 'bg-nav-hover' : ''}`}
+                className={`flex min-h-11 w-full items-center justify-between gap-2 rounded-md px-3 text-left text-label hover:bg-nav-hover ${depth === 0 ? 'font-medium text-white' : 'text-nav-text'} ${inTrail && !open ? 'bg-nav-hover' : ''}`}
                 aria-expanded={open}
                 aria-controls={listId}
                 onClick={() => toggle(key)}
@@ -110,7 +110,7 @@ function WorkspaceTree({ workspace, hidden }: { workspace: PortalWorkspace; hidd
               to={node.path}
               data-menu-path={node.path}
               aria-current={current ? 'page' : undefined}
-              className={`flex min-h-9 items-center gap-2 rounded-md px-3 py-1.5 text-label hover:bg-nav-hover max-xl:min-h-11 ${current ? 'bg-nav-active font-semibold text-white' : 'text-nav-text'}`}
+              className={`flex min-h-11 items-center gap-2 rounded-md px-3 py-1.5 text-label hover:bg-nav-hover ${current ? 'bg-nav-active font-semibold text-white' : 'text-nav-text'}`}
             >
               <span className="min-w-0 flex-1">{portalMenuText(node)}</span>
               <MenuBadge path={node.path} />
@@ -132,7 +132,7 @@ function WorkspaceTree({ workspace, hidden }: { workspace: PortalWorkspace; hidd
       <Link
         to="/"
         aria-current={pathname === '/' ? 'page' : undefined}
-        className={`flex min-h-10 items-center rounded-md px-3 text-label font-medium hover:bg-nav-hover max-xl:min-h-11 ${pathname === '/' ? 'bg-nav-active text-white' : 'text-white'}`}
+        className={`flex min-h-11 items-center rounded-md px-3 text-label font-medium hover:bg-nav-hover ${pathname === '/' ? 'bg-nav-active text-white' : 'text-white'}`}
       >
         Trang chủ
       </Link>

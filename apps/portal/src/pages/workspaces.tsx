@@ -191,7 +191,7 @@ export function WorkspaceSwitcher({ state }: { state: WorkspaceState }) {
       >
         <WorkspaceIcon name={WORKSPACE_ICONS[current.key]} />
         <span className="flex min-w-0 flex-1 flex-col leading-tight">
-          <span className="text-[12px] text-nav-muted">Phân hệ</span>
+          <span className="text-label text-nav-muted">Phân hệ</span>
           <span className="truncate text-label font-medium">{current.label}</span>
         </span>
         <span className="text-nav-muted" aria-hidden="true">

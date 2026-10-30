@@ -21,12 +21,26 @@ import {
   validationError,
   type FieldError,
 } from '@school-management/server';
-import { evaluateFormula, parseFormula, PERMISSION_CODES, type ReportColumnKey } from '@school-management/shared';
+import type { SchoolYearDatabase } from '@school-management/database';
+import {
+  evaluateFormula,
+  expandSectionColumns,
+  OWNERSHIP_GROUP_LABELS,
+  parseFormula,
+  parseRowSum,
+  PERMISSION_CODES,
+  sectionColumns,
+  type FormulaFacts,
+  type OwnershipGroup,
+  type ReportColumnKey,
+  type ReportSection,
+} from '@school-management/shared';
 import type { Request, Response } from 'express';
 import { AuthenticatedUser, RequirePermission } from '../authentication/authentication.guard.js';
 import type { CurrentUser } from '../authentication/current-user.js';
 import { writeAuditLog, originOf } from '../common/audit-log.js';
 import { CurrentSchoolYearResolver } from '../common/current-school-year.js';
+import { SchoolLevelResolver } from '../common/school-levels.js';
 import { Databases } from '../common/databases.js';
 import { notFoundError, type RequestBody } from '../common/request-fields.js';
 import { readTableFileFormat } from '../exports/table-file.js';
@@ -34,6 +48,7 @@ import { buildFacilitiesWorkbook, fileStamp, sendWorkbook } from '../facilities/
 import { UpperLevelForms, UpperLevelSubmissions } from '../submissions/upper-level-submissions.js';
 import { loadSecondaryFacts } from '../secondary-reports/secondary-facts.js';
 import { loadPrimaryFacts } from './primary-facts.js';
+import { loadTt25Facts } from './tt25-facts.js';
 
 // EMIS Tiểu học (DT-20 phần 20f, YCTD-165): biểu là khung cấu hình được ở cơ sở dữ liệu hệ thống (`report_forms`,
 // `report_form_rows`). Dòng công thức tính tại lúc xem từ số liệu của năm học đang mở (toàn trường, lớp, học sinh Tiểu học);
@@ -62,6 +77,15 @@ interface FormRow {
   unit: string | null;
   kind: 'heading' | 'formula' | 'manual';
   formula: string | null;
+  section: string;
+}
+
+// Biểu cũ chỉ có một phần `main` dùng bộ cột của biểu, không lặp theo loại hình
+function sectionsOf(form: { columns: unknown; sections: unknown }): ReportSection[] {
+  if (Array.isArray(form.sections) && form.sections.length > 0) {
+    return form.sections as ReportSection[];
+  }
+  return [{ code: TAB, name: '', columns: form.columns as ReportSection['columns'], ownership_groups: false }];
 }
 
 @Injectable()
@@ -72,6 +96,7 @@ export class PrimaryEmisService implements OnModuleInit {
     private readonly submissions: UpperLevelSubmissions,
     private readonly forms: UpperLevelForms,
     private readonly clock: Clock,
+    private readonly schoolLevels: SchoolLevelResolver,
     @Optional() @Inject(JobScheduler) private readonly scheduler: JobScheduler | null = null,
   ) {}
 
@@ -108,11 +133,26 @@ export class PrimaryEmisService implements OnModuleInit {
     }
   }
 
-  async list(levels: string[] = PRIMARY_LEVELS) {
+  // Biểu khung cũ đã thay bằng biểu Thông tư 25/2024 (`archived`) chỉ hiện khi xin cả biểu ẩn
+  async list(levels: string[] = PRIMARY_LEVELS, includeArchived = false) {
     return this.databases.system
       .selectFrom('report_forms')
-      .select(['id', 'code', 'name', 'school_level', 'period', 'note', 'updated_at', 'updated_by_name'])
+      .select([
+        'id',
+        'code',
+        'name',
+        'school_level',
+        'period',
+        'note',
+        'source',
+        'form_number',
+        'archived',
+        'updated_at',
+        'updated_by_name',
+      ])
       .where('school_level', 'in', levels as Array<'TH'>)
+      .$if(!includeArchived, (query) => query.where('archived', '=', false))
+      .orderBy('source', 'desc')
       .orderBy('school_level')
       .orderBy('period', 'desc')
       .execute();
@@ -129,49 +169,133 @@ export class PrimaryEmisService implements OnModuleInit {
     }
     const rows = (await this.databases.system
       .selectFrom('report_form_rows')
-      .select(['id', 'order_no', 'code', 'label', 'unit', 'kind', 'formula'])
+      .select(['id', 'order_no', 'code', 'label', 'unit', 'kind', 'formula', 'section'])
       .where('form_id', '=', form.id)
       .orderBy('order_no')
       .execute()) as FormRow[];
     return { form, rows };
   }
 
-  // Biểu đã tính: dòng công thức tính từ số liệu, dòng nhập tay lấy số đã lưu; dòng công thức sai cú pháp ghi lỗi ở cảnh báo
+  // Số liệu nền theo cấp của biểu; biểu Thông tư 25/2024 thêm trường, điểm trường, đội ngũ, phòng học tập, học sinh rời trường
+  private async facts(
+    form: { school_level: string; source: string },
+    current: {
+      academicYearId: string;
+      database: Awaited<ReturnType<CurrentSchoolYearResolver['require']>>['database'];
+    },
+  ): Promise<FormulaFacts & { ownership: OwnershipGroup | null }> {
+    const level = form.school_level;
+    const base =
+      level === 'THCS' || level === 'THPT'
+        ? await loadSecondaryFacts(current.database, level, null)
+        : await loadPrimaryFacts(current.database, null);
+    if (form.source !== 'tt25') {
+      return { ...base, ownership: null };
+    }
+    const year = await this.databases.system
+      .selectFrom('academic_years')
+      .select(['start_date', 'end_date'])
+      .where('id', '=', current.academicYearId)
+      .executeTakeFirstOrThrow();
+    const text = (value: unknown) =>
+      value instanceof Date ? value.toISOString().slice(0, 10) : String(value ?? '').slice(0, 10);
+    const yearStart = text(year.start_date);
+    const previous = await this.databases.system
+      .selectFrom('academic_years')
+      .innerJoin('academic_year_databases', 'academic_year_databases.academic_year_id', 'academic_years.id')
+      .select('academic_year_databases.database_name')
+      .where('academic_years.start_date', '<', year.start_date)
+      .orderBy('academic_years.start_date', 'desc')
+      .executeTakeFirst();
+    return loadTt25Facts(
+      {
+        database: current.database,
+        previous: previous ? this.databases.schoolYear<SchoolYearDatabase>(previous.database_name) : null,
+        level: level as 'TH',
+        enabledLevels: await this.schoolLevels.enabled(),
+        startYear: Number(yearStart.slice(0, 4)),
+        yearStart,
+        yearEnd: text(year.end_date),
+      },
+      base as Parameters<typeof loadTt25Facts>[1],
+    );
+  }
+
+  // Biểu đã tính: dòng công thức tính từ số liệu, dòng nhập tay lấy số đã lưu (theo phần), dòng cộng (`rows:`) cộng các dòng
+  // khác của phần sau cùng; dòng công thức sai cú pháp ghi lỗi ở cảnh báo. Biểu nhiều phần trả bộ cột trường thấy theo loại hình
   async view(currentUser: CurrentUser, code: string, levels?: string[]) {
     const { form, rows } = await this.form(code, levels);
-    const { database } = await this.currentSchoolYear.require();
+    const current = await this.currentSchoolYear.require();
     const level = form.school_level;
-    const facts =
-      level === 'THCS' || level === 'THPT'
-        ? await loadSecondaryFacts(database, level, null)
-        : await loadPrimaryFacts(database, null);
-    const saved = await database
+    const facts = await this.facts(form, current);
+    const ownership = facts.ownership;
+    const sections = sectionsOf(form);
+    const columnsOf = new Map(sections.map((section) => [section.code, section.columns.map((column) => column.key)]));
+    const saved = await current.database
       .selectFrom('emis_report_values')
-      .select(['row_code', 'values', 'updated_by_name', 'updated_at'])
+      .select(['tab_key', 'row_code', 'values', 'updated_by_name', 'updated_at'])
       .where('form_code', '=', code)
-      .where('tab_key', '=', TAB)
       .execute();
-    const columns = form.columns as unknown as Array<{ key: ReportColumnKey; label: string }>;
     const warnings: string[] = [];
     const values = rows.map((row) => {
+      const keys = columnsOf.get(row.section) ?? [];
       if (row.kind === 'heading') {
         return { ...row, values: {} as Record<string, number | null> };
       }
       if (row.kind === 'manual') {
-        const stored = saved.find((item) => item.row_code === row.code);
+        const stored = saved.find((item) => item.tab_key === row.section && item.row_code === row.code);
         return { ...row, values: (stored?.values ?? {}) as Record<string, number | null> };
+      }
+      if (parseRowSum(row.formula)) {
+        return { ...row, values: {} as Record<string, number | null> };
       }
       try {
         const parsed = parseFormula(row.formula ?? '', level);
         return {
           ...row,
-          values: Object.fromEntries(columns.map((column) => [column.key, evaluateFormula(parsed, column.key, facts)])),
+          values: Object.fromEntries(keys.map((key) => [key, evaluateFormula(parsed, key as ReportColumnKey, facts)])),
         };
       } catch (error) {
         warnings.push(`Dòng ${row.code}: ${(error as Error).message}`);
         return { ...row, values: {} as Record<string, number | null> };
       }
     });
+    // Dòng cộng có thể gồm dòng cộng khác (155 = 156 + 158 + 164, 158 = 159 + ... + 163): tính đệ quy, dòng đang tính dở
+    // (vòng lặp) bỏ qua và ghi cảnh báo
+    const done = new Set<string>();
+    const pending = new Set<string>();
+    const sum = (row: (typeof values)[number]) => {
+      const parts = parseRowSum(row.formula);
+      if (!parts || done.has(row.code)) {
+        return;
+      }
+      pending.add(row.code);
+      const sources = values.filter((item) => item.section === row.section && parts.includes(item.code));
+      if (sources.length !== parts.length) {
+        warnings.push(`Dòng ${row.code}: cộng dòng không có trong phần`);
+      }
+      for (const source of sources) {
+        if (pending.has(source.code)) {
+          warnings.push(`Dòng ${row.code}: cộng vòng tròn qua dòng ${source.code}`);
+        } else {
+          sum(source);
+        }
+      }
+      row.values = Object.fromEntries(
+        (columnsOf.get(row.section) ?? []).map((key) => {
+          const cells = sources.map((item) => item.values[key]);
+          return [
+            key,
+            cells.every((cell) => cell === null || cell === undefined)
+              ? null
+              : cells.reduce<number>((total, cell) => total + (cell ?? 0), 0),
+          ];
+        }),
+      );
+      pending.delete(row.code);
+      done.add(row.code);
+    };
+    values.forEach(sum);
     const manualRows = rows.filter((row) => row.kind === 'manual');
     const status = await this.submissions.statusOf(code);
     return {
@@ -180,17 +304,27 @@ export class PrimaryEmisService implements OnModuleInit {
       school_level: form.school_level,
       period: form.period,
       note: form.note,
-      columns,
+      source: form.source,
+      form_number: form.form_number,
+      ownership,
+      ownership_label: ownership ? OWNERSHIP_GROUP_LABELS[ownership] : null,
+      columns: form.columns as unknown as Array<{ key: ReportColumnKey; label: string }>,
+      sections: sections.map((section) => ({
+        ...section,
+        columns: ownership && section.ownership_groups ? sectionColumns(section, ownership) : section.columns,
+      })),
       rows: values,
       warnings,
       locked: this.submissions.isLocked(status),
       status,
       can_edit_values: currentUser.hasPermission(PERMISSION),
-      can_edit_form: currentUser.hasPermission(PERMISSION_CODES.reportFormManage),
+      can_edit_form: form.source === 'custom' && currentUser.hasPermission(PERMISSION_CODES.reportFormManage),
       completeness: [
         {
           label: 'Đã nhập các dòng nhập tay',
-          done: manualRows.every((row) => saved.some((item) => item.row_code === row.code)),
+          done: manualRows.every((row) =>
+            saved.some((item) => item.tab_key === row.section && item.row_code === row.code),
+          ),
         },
         { label: 'Công thức hợp lệ', done: warnings.length === 0 },
       ],
@@ -209,13 +343,15 @@ export class PrimaryEmisService implements OnModuleInit {
     if (this.submissions.isLocked(await this.submissions.statusOf(code))) {
       throw ruleViolationError(PRIMARY_REPORT_RULE_CODE, 'Biểu đã gửi lên cấp trên; mở khoá trước khi sửa');
     }
-    const columns = (form.columns as unknown as Array<{ key: string }>).map((column) => column.key);
+    const sections = sectionsOf(form);
     const errors: FieldError[] = [];
     rows.forEach((row, index) => {
       const definition = definitions.find((item) => item.code === row.code);
       if (!definition || definition.kind !== 'manual') {
         errors.push({ field: `rows[${index}].code`, message: 'Chỉ nhập tay ở dòng nhập tay của biểu' });
       }
+      const section = sections.find((item) => item.code === (definition?.section ?? TAB));
+      const columns = (section?.columns ?? []).map((column) => column.key as string);
       for (const [key, value] of Object.entries(row.values)) {
         if (!columns.includes(key)) {
           errors.push({ field: `rows[${index}].values.${key}`, message: 'Cột không có ở biểu' });
@@ -239,7 +375,12 @@ export class PrimaryEmisService implements OnModuleInit {
         };
         await transaction
           .insertInto('emis_report_values')
-          .values({ ...values, form_code: code, tab_key: TAB, row_code: row.code })
+          .values({
+            ...values,
+            form_code: code,
+            tab_key: definitions.find((item) => item.code === row.code)?.section ?? TAB,
+            row_code: row.code,
+          })
           .onConflict((conflict) => conflict.columns(['form_code', 'tab_key', 'row_code']).doUpdateSet(values))
           .execute();
       }
@@ -271,6 +412,12 @@ export class PrimaryEmisService implements OnModuleInit {
     levels?: string[],
   ) {
     const { form, rows: before } = await this.form(code, levels);
+    if (form.source !== 'custom') {
+      throw ruleViolationError(
+        PRIMARY_REPORT_RULE_CODE,
+        'Biểu theo mẫu pháp định, không sửa dòng, mã số; chỉ nhập số ở dòng nhập tay',
+      );
+    }
     const errors: FieldError[] = [];
     const codes = new Set<string>();
     rows.forEach((row, index) => {
@@ -333,11 +480,48 @@ export class PrimaryEmisService implements OnModuleInit {
     return this.view(currentUser, code, levels);
   }
 
+  // Biểu cũ: một trang. Biểu nhiều phần: mỗi phần một trang; phần có nhóm loại hình xuất đủ ba nhóm cột như mẫu, nhóm Tổng
+  // số và nhóm của trường cùng số, nhóm kia để trống
   async export(currentUser: CurrentUser, code: string, format: 'xlsx' | 'pdf', ip: string | null, levels?: string[]) {
     const view = await this.view(currentUser, code, levels);
+    const { form } = await this.form(code, levels);
     const { database } = await this.currentSchoolYear.require();
     const now = this.clock.now();
-    let order = 0;
+    const multiple = Array.isArray(form.sections) && form.sections.length > 0;
+    const sheets = sectionsOf(form).map((section) => {
+      const expanded = expandSectionColumns(section);
+      const keyOf = (group: string | null, key: string) => (group ? `${group}:${key}` : key);
+      let order = 0;
+      return {
+        title: (multiple ? section.name : view.name).slice(0, 31),
+        heading: [multiple ? `${view.name}: ${section.name}` : view.name, view.note ?? ''],
+        columns: [
+          { key: 'order', label: 'TT', width: 6 },
+          { key: 'label', label: 'Chỉ tiêu', width: 48 },
+          { key: 'unit', label: 'Đơn vị tính', width: 10 },
+          { key: 'code', label: 'Mã số', width: 8 },
+          ...expanded.map(({ group, column }) => ({
+            key: keyOf(group, column.key),
+            label: group ? `${OWNERSHIP_GROUP_LABELS[group]}: ${column.label}` : column.label,
+            width: 12,
+          })),
+        ],
+        rows: view.rows
+          .filter((row) => row.section === section.code)
+          .map((row) => ({
+            order: row.kind === 'heading' ? '' : String((order += 1)),
+            label: row.label,
+            unit: row.unit ?? '',
+            code: /^Td+$/.test(row.code) ? '' : row.code,
+            ...Object.fromEntries(
+              expanded.map(({ group, column }) => [
+                keyOf(group, column.key),
+                group === null || group === 'total' || group === view.ownership ? (row.values[column.key] ?? '') : '',
+              ]),
+            ),
+          })),
+      };
+    });
     return buildFacilitiesWorkbook({
       database,
       currentUser,
@@ -345,26 +529,7 @@ export class PrimaryEmisService implements OnModuleInit {
       fileName: `${code}-${fileStamp(now)}`,
       filters: { form_code: code },
       orgUnitIds: [],
-      sheets: [
-        {
-          title: view.name.slice(0, 31),
-          heading: [view.name, view.note ?? ''],
-          columns: [
-            { key: 'order', label: 'TT', width: 6 },
-            { key: 'label', label: 'Chỉ tiêu', width: 40 },
-            { key: 'code', label: 'Mã số', width: 8 },
-            { key: 'unit', label: 'Đơn vị', width: 10 },
-            ...view.columns.map((column) => ({ key: column.key, label: column.label, width: 12 })),
-          ],
-          rows: view.rows.map((row) => ({
-            order: row.kind === 'heading' ? '' : String((order += 1)),
-            label: row.label,
-            code: row.code,
-            unit: row.unit ?? '',
-            ...row.values,
-          })),
-        },
-      ],
+      sheets,
       ipAddress: ip,
       createdAt: now,
       format,
@@ -378,8 +543,8 @@ export class PrimaryEmisController {
 
   @Get()
   @RequirePermission(PERMISSION)
-  list(@Req() request: Request) {
-    return this.emis.list(levelsOf(request));
+  list(@Req() request: Request, @Query('archived') archived: string | undefined) {
+    return this.emis.list(levelsOf(request), archived === 'true');
   }
 
   @Get(':code')

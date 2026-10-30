@@ -170,7 +170,7 @@ export default function StudentAiTutorScreen({ onClose }: { onClose(): void }) {
     }
   }
 
-  const locked = overview && !overview.access.allowed ? overview.access.message : null;
+  const locked = overview && !overview.access.allowed ? overview.access : null;
   const canAsk =
     overview !== null &&
     overview.subscribed &&
@@ -193,7 +193,19 @@ export default function StudentAiTutorScreen({ onClose }: { onClose(): void }) {
       {overview?.subscribed && overview.unavailable_reason ? (
         <Alert tone="info">{overview.unavailable_reason}</Alert>
       ) : null}
-      {locked ? <Alert tone="warning">{locked}</Alert> : null}
+      {/* Trạng thái khóa theo bản mẫu MH-597 (YCTD-383 lát L3): tiêu đề đậm, dòng dưới là lý do và lúc mở lại */}
+      {locked ? (
+        <Alert tone="warning">
+          <strong>{locked.title}</strong> {locked.message}
+          {/* Lúc bị khóa em không gửi được câu nào, nên vẫn hiện nơi tìm giúp đỡ */}
+          {locked.code !== 'read_only' ? (
+            <span className="mt-1 block">
+              Nếu em đang buồn hoặc bị bắt nạt, hãy nói với bố mẹ, thầy cô hoặc gọi miễn phí Tổng đài quốc gia bảo vệ
+              trẻ em 111 (24 giờ mỗi ngày).
+            </span>
+          ) : null}
+        </Alert>
+      ) : null}
       {overview?.subscribed && overview.ready && overview.balance.remaining === 0 ? (
         <Alert tone="warning">
           Em đã dùng hết lượt hỏi. Nhờ cha mẹ mua thêm lượt hoặc gói tháng trong ứng dụng phụ huynh.
@@ -266,7 +278,12 @@ export default function StudentAiTutorScreen({ onClose }: { onClose(): void }) {
 
         <ol aria-label="Tin nhắn" className="flex flex-col gap-2">
           {thread?.messages.map((message) => (
-            <MessageBubble key={message.id} message={message} onReport={report} canReport={!locked} />
+            <MessageBubble
+              key={message.id}
+              message={message}
+              onReport={report}
+              canReport={locked?.code !== 'read_only'}
+            />
           ))}
         </ol>
         <div ref={endRef} />

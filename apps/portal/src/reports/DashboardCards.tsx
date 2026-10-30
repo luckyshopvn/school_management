@@ -17,7 +17,7 @@ function Card({ label, value, note, warn }: { label: string; value: string; note
     <div className="flex flex-col gap-1.5 rounded-xl border border-border bg-card px-5 py-4">
       <p className="text-label text-text-secondary">{label}</p>
       <p className="text-[30px] font-bold leading-tight tracking-tight text-text">{value}</p>
-      {note ? <p className={`text-[13px] ${warn ? 'text-warning' : 'text-text-secondary'}`}>{note}</p> : null}
+      {note ? <p className={`text-label ${warn ? 'text-warning' : 'text-text-secondary'}`}>{note}</p> : null}
     </div>
   );
 }
