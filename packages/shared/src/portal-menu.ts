@@ -134,6 +134,8 @@ export const PORTAL_WORKSPACES: PortalWorkspace[] = [
         leaf('4.7.', 'Điểm danh', '/attendance'),
         primary(leaf('4.8.', 'Bán trú', '/boarding')),
         secondary(leaf('4.9.', 'Nề nếp, thi đua lớp', '/conduct'), ['TH', 'THCS', 'THPT']),
+        // Danh mục nội quy, khu vực trong trường, phân công giám thị trực (YCTD-391)
+        secondary(leaf('4.10.', 'Nội quy, phân công giám thị', '/supervision'), ['TH', 'THCS', 'THPT']),
       ]),
       group('5.', 'Công cụ hỗ trợ', [
         leaf('5.1.', 'Thống kê lớp, nhân sự, học sinh', '/statistics'),

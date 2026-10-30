@@ -2634,6 +2634,24 @@ Chỉ có ở nền tảng nhiều trường và chỉ dùng khóa AI của nề
 | POST | /api/v1/student/ai-tutor/messages/{id}/report | Báo câu trả lời sai `{ note? (tối đa 500 ký tự) }`; chỉ câu trả lời của gia sư trong hội thoại của em, trừ câu trả lời theo mẫu an toàn |
 | GET | /api/v1/children/{id}/ai-tutor/topics | Cha mẹ, người giám hộ của con (khác thì 403; giáo viên 403): `month`, `turns_this_month`, `topics [{ subject_name, topic, turns, started_at, last_message_at }]`; không có toàn văn |
 
+### 17.14. Giám thị: nội quy, khu vực, phân công trực (YCTD-391 lát L1)
+
+Nhóm `/supervision`. Đọc danh mục cần `P02.supervision.record` hoặc `P02.supervision.manage`; sửa, phân công, tra người trực cần `P02.supervision.manage`. Cấp chỉ nhận `TH`, `THCS`, `THPT`. Giờ là giờ Việt Nam dạng `HH:MM`.
+
+| Phương thức | Đường dẫn | Mô tả |
+|---|---|---|
+| GET | /api/v1/supervision/zones | Khu vực: `id, name, description, order_no, status` |
+| POST, PATCH | /api/v1/supervision/zones, /zones/{id} | Tạo `{ name, description?, order_no? }`; sửa thêm `status`; trùng tên 409 |
+| GET | /api/v1/supervision/rule-items?school_level= | Mục nội quy kèm `class_criterion_name`, `class_criterion_points` |
+| POST | /api/v1/supervision/rule-items | Tạo `{ code, name, kind: violation \| commendation, school_level, parent_notice?: none \| immediate \| daily_digest, class_criterion_id?, order_no? }`; tiêu chí nề nếp khác cấp hoặc ngược chiều 422 (`rule_code` YCTD-391) |
+| POST | /api/v1/supervision/rule-items/defaults | Nạp bộ mặc định `{ school_level }`; trả `created`, `skipped` |
+| PATCH | /api/v1/supervision/rule-items/{id} | Sửa `name, parent_notice, class_criterion_id (null là bỏ gắn), order_no, status`; gửi `code`, `kind`, `school_level` thì 400 |
+| GET | /api/v1/supervision/staff-options | Nhân sự đang làm việc, đã có tài khoản, trong phạm vi đơn vị |
+| GET | /api/v1/supervision/assignments?school_level=&staff_id= | Phân công kèm `staff_name` |
+| POST | /api/v1/supervision/assignments | Tạo `{ staff_id, school_level, grade_levels[], zone_ids[], weekdays[1..7], start_time, end_time, from_date?, to_date?, note? }`; nhân sự đã nghỉ hoặc chưa có tài khoản 422 |
+| PATCH | /api/v1/supervision/assignments/{id} | Sửa các trường trên trừ `staff_id`, thêm `status` |
+| GET | /api/v1/supervision/on-duty?zone_id=&at= | Người đang trực khu vực ở thời điểm `at` (ISO 8601, mặc định bây giờ): `[{ user_id, staff_id, full_name }]`; trống là không ai trực. Máy chủ dùng cùng hàm `SupervisionService.findOnDutySupervisors` khi gửi cảnh báo camera (YCTD-389) |
+
 ## 18. Quy tắc kiểm tra dữ liệu
 
 | Mã | Quy tắc |

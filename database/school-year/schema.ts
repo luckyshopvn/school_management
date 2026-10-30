@@ -5577,6 +5577,53 @@ export interface RedStarMembersTable {
   updated_at: UpdatedTimestamp;
 }
 
+// Giám thị và rèn luyện từng học sinh, lát L1 (YCTD-391): khu vực trong trường, danh mục nội quy, phân công trực
+export type StudentRuleKind = 'violation' | 'commendation';
+export type StudentRuleParentNotice = 'none' | 'immediate' | 'daily_digest';
+export type SupervisionSchoolLevel = 'TH' | 'THCS' | 'THPT';
+
+export interface SchoolZonesTable {
+  id: Generated<string>;
+  name: string;
+  description: string | null;
+  order_no: Generated<number>;
+  status: Generated<CatalogStatus>;
+  created_at: CreatedTimestamp;
+  updated_at: UpdatedTimestamp;
+}
+
+export interface StudentRuleItemsTable {
+  id: Generated<string>;
+  code: string;
+  name: string;
+  kind: StudentRuleKind;
+  school_level: SupervisionSchoolLevel;
+  parent_notice: Generated<StudentRuleParentNotice>;
+  class_criterion_id: string | null;
+  order_no: Generated<number>;
+  status: Generated<CatalogStatus>;
+  created_at: CreatedTimestamp;
+  updated_at: UpdatedTimestamp;
+}
+
+export interface SupervisionAssignmentsTable {
+  id: Generated<string>;
+  staff_id: string;
+  school_level: SupervisionSchoolLevel;
+  grade_levels: Generated<string[]>;
+  zone_ids: Generated<string[]>;
+  weekdays: number[];
+  start_time: string;
+  end_time: string;
+  from_date: string | null;
+  to_date: string | null;
+  note: string | null;
+  status: Generated<CatalogStatus>;
+  updated_by_name: string | null;
+  created_at: CreatedTimestamp;
+  updated_at: UpdatedTimestamp;
+}
+
 // Đánh giá học sinh theo Thông tư 27/2020 (DT-20 phần 20c, YCTD-161)
 export type AssessmentScale = 'subject' | 'competency';
 export type CompetencyGroup = 'quality' | 'general' | 'specific';
@@ -7565,6 +7612,9 @@ export interface SchoolYearDatabase {
   seating_charts: SeatingChartsTable;
   seating_assignments: SeatingAssignmentsTable;
   red_star_members: RedStarMembersTable;
+  school_zones: SchoolZonesTable;
+  student_rule_items: StudentRuleItemsTable;
+  supervision_assignments: SupervisionAssignmentsTable;
   assessment_levels: AssessmentLevelsTable;
   competency_items: CompetencyItemsTable;
   assessment_periods: AssessmentPeriodsTable;
