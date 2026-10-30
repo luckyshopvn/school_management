@@ -5,6 +5,7 @@ import {
   PORTAL_WORKSPACES,
   portalMenuPathsOutsideLevels,
   portalWorkspacesForLevels,
+  portalWorkspacesWithoutLevelName,
   SCHOOL_LEVEL_TERMS,
   schoolLevelTerms,
   workingSchoolLevels,
@@ -138,6 +139,28 @@ describe('Cây menu và nhãn theo cấp học', () => {
     assert.equal(
       education(portalWorkspacesForLevels([{ code: 'MN', display_name: 'Mầm non (nhà trẻ, mẫu giáo)' }]))?.label,
       'Quản lý giáo dục Mầm non (nhà trẻ, mẫu giáo)',
+    );
+  });
+
+  it('CT-19c-10 (YCTD-388): tên phân hệ cho từng trường hợp cấp; chưa biết cấp thì không gắn tên cấp nào', () => {
+    const education = (workspaces: ReturnType<typeof portalWorkspacesForLevels>) =>
+      workspaces.find((workspace) => workspace.key === 'education')?.label;
+    assert.equal(education(portalWorkspacesForLevels(levelsOf('MN'))), 'Quản lý giáo dục Mầm non');
+    assert.equal(education(portalWorkspacesForLevels(levelsOf('TH'))), 'Quản lý giáo dục Tiểu học');
+    assert.equal(education(portalWorkspacesForLevels(levelsOf('THCS'))), 'Quản lý giáo dục Trung học cơ sở');
+    assert.equal(education(portalWorkspacesForLevels(levelsOf('THPT'))), 'Quản lý giáo dục Trung học phổ thông');
+    assert.equal(education(portalWorkspacesForLevels(levelsOf('THCS', 'THPT'))), 'Quản lý giáo dục');
+    // Đang tải ngữ cảnh trường: giữ cây, phân hệ đặt tên theo cấp chỉ còn "Quản lý giáo dục"; phân hệ khác giữ tên
+    const preschool = portalWorkspacesForLevels(levelsOf('MN'));
+    const loading = portalWorkspacesWithoutLevelName(preschool);
+    assert.equal(education(loading), 'Quản lý giáo dục');
+    assert.deepEqual(
+      loading.filter((workspace) => workspace.key !== 'education').map((workspace) => workspace.label),
+      preschool.filter((workspace) => workspace.key !== 'education').map((workspace) => workspace.label),
+    );
+    assert.deepEqual(
+      listPortalMenuEntries(loading).map((entry) => entry.node.path),
+      listPortalMenuEntries(preschool).map((entry) => entry.node.path),
     );
   });
 
