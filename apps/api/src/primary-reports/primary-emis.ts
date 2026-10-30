@@ -179,7 +179,10 @@ export class PrimaryEmisService implements OnModuleInit {
   // Số liệu nền theo cấp của biểu; biểu Thông tư 25/2024 thêm trường, điểm trường, đội ngũ, phòng học tập, học sinh rời trường
   private async facts(
     form: { school_level: string; source: string },
-    current: { academicYearId: string; database: Awaited<ReturnType<CurrentSchoolYearResolver['require']>>['database'] },
+    current: {
+      academicYearId: string;
+      database: Awaited<ReturnType<CurrentSchoolYearResolver['require']>>['database'];
+    },
   ): Promise<FormulaFacts & { ownership: OwnershipGroup | null }> {
     const level = form.school_level;
     const base =
@@ -250,9 +253,7 @@ export class PrimaryEmisService implements OnModuleInit {
         const parsed = parseFormula(row.formula ?? '', level);
         return {
           ...row,
-          values: Object.fromEntries(
-            keys.map((key) => [key, evaluateFormula(parsed, key as ReportColumnKey, facts)]),
-          ),
+          values: Object.fromEntries(keys.map((key) => [key, evaluateFormula(parsed, key as ReportColumnKey, facts)])),
         };
       } catch (error) {
         warnings.push(`Dòng ${row.code}: ${(error as Error).message}`);
@@ -271,7 +272,12 @@ export class PrimaryEmisService implements OnModuleInit {
       row.values = Object.fromEntries(
         (columnsOf.get(row.section) ?? []).map((key) => {
           const cells = sources.map((item) => item.values[key]);
-          return [key, cells.every((cell) => cell === null || cell === undefined) ? null : cells.reduce<number>((sum, cell) => sum + (cell ?? 0), 0)];
+          return [
+            key,
+            cells.every((cell) => cell === null || cell === undefined)
+              ? null
+              : cells.reduce<number>((sum, cell) => sum + (cell ?? 0), 0),
+          ];
         }),
       );
     }
@@ -301,7 +307,9 @@ export class PrimaryEmisService implements OnModuleInit {
       completeness: [
         {
           label: 'Đã nhập các dòng nhập tay',
-          done: manualRows.every((row) => saved.some((item) => item.tab_key === row.section && item.row_code === row.code)),
+          done: manualRows.every((row) =>
+            saved.some((item) => item.tab_key === row.section && item.row_code === row.code),
+          ),
         },
         { label: 'Công thức hợp lệ', done: warnings.length === 0 },
       ],
@@ -390,7 +398,10 @@ export class PrimaryEmisService implements OnModuleInit {
   ) {
     const { form, rows: before } = await this.form(code, levels);
     if (form.source !== 'custom') {
-      throw ruleViolationError(PRIMARY_REPORT_RULE_CODE, 'Biểu theo mẫu pháp định, không sửa dòng, mã số; chỉ nhập số ở dòng nhập tay');
+      throw ruleViolationError(
+        PRIMARY_REPORT_RULE_CODE,
+        'Biểu theo mẫu pháp định, không sửa dòng, mã số; chỉ nhập số ở dòng nhập tay',
+      );
     }
     const errors: FieldError[] = [];
     const codes = new Set<string>();

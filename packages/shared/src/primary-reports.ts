@@ -78,7 +78,14 @@ type FilterSet = {
   flags: Record<FormulaEntity, readonly string[]>;
 };
 
-export const DISABILITY_KINDS = ['vision', 'hearing_speech', 'intellectual', 'mobility', 'neuro_mental', 'other'] as const;
+export const DISABILITY_KINDS = [
+  'vision',
+  'hearing_speech',
+  'intellectual',
+  'mobility',
+  'neuro_mental',
+  'other',
+] as const;
 export const STAFF_JOBS = [
   'academic_affairs',
   'counselor',
@@ -242,7 +249,9 @@ function matches(fact: Record<string, unknown>, filters: ParsedFormula['filters'
       const value = fact[comparison.key];
       return typeof value === 'number' && comparison.test(value, Number(filter.value));
     }
-    return NUMERIC_VALUES.has(filter.key) ? fact[filter.key] === Number(filter.value) : fact[filter.key] === filter.value;
+    return NUMERIC_VALUES.has(filter.key)
+      ? fact[filter.key] === Number(filter.value)
+      : fact[filter.key] === filter.value;
   });
 }
 
@@ -344,8 +353,6 @@ export function expandSectionColumns(
     return section.columns.map((column) => ({ group: null, column }));
   }
   return (['total', 'public', 'private'] as const).flatMap((group) =>
-    section.columns
-      .filter((column) => group === 'public' || !column.public_only)
-      .map((column) => ({ group, column })),
+    section.columns.filter((column) => group === 'public' || !column.public_only).map((column) => ({ group, column })),
   );
 }

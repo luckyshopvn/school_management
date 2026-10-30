@@ -407,7 +407,10 @@ export function EmisTab({ onSaved, base = 'primary-reports' }: { onSaved(message
       ) : null}
       {data && !editing ? (
         <div className="relative overflow-x-auto">
-          <table className="w-full text-content" aria-label={section.name ? `${data.name}: ${section.name}` : data.name}>
+          <table
+            className="w-full text-content"
+            aria-label={section.name ? `${data.name}: ${section.name}` : data.name}
+          >
             <thead className="text-left text-label font-medium text-text-secondary">
               {section.ownership_groups && data.ownership_label ? (
                 <tr>

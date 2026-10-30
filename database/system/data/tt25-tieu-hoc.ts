@@ -69,7 +69,12 @@ function studentsByGradeAndAge(): Tt25Row[] {
     for (let age = from; age <= to; age += 1) {
       rows.push([code(firstAge + age - from), `+ ${age} tuổi`, 'người', `students.grade=${grade}.age=${age}`]);
     }
-    rows.push([code(firstAge + to - from + 1), '+ ... (tuổi khác, tính các tuổi lớn hơn)', 'người', `students.grade=${grade}.age_over=${to}`]);
+    rows.push([
+      code(firstAge + to - from + 1),
+      '+ ... (tuổi khác, tính các tuổi lớn hơn)',
+      'người',
+      `students.grade=${grade}.age_over=${to}`,
+    ]);
     rows.push([`T3${index}`, 'Trong đó:', null, H]);
     if (index === 0) {
       rows.push(['37', '+ Học sinh mới tuyển đầu cấp', 'người', 'students.grade=K1.new_entrant']);
@@ -124,13 +129,33 @@ const range = (from: number, count: number) => Array.from({ length: count }, (_,
 function staffJobs(shared: number, concurrentLabel: string): Tt25Row[] {
   const support = shared + SHARED_JOBS.length + 2;
   return [
-    [String(shared), '4.3. Vị trí việc làm chuyên môn dùng chung', 'người', `rows:${range(shared + 1, SHARED_JOBS.length).join('+')}`],
+    [
+      String(shared),
+      '4.3. Vị trí việc làm chuyên môn dùng chung',
+      'người',
+      `rows:${range(shared + 1, SHARED_JOBS.length).join('+')}`,
+    ],
     ['T40', 'Chia ra:', null, H],
-    ...SHARED_JOBS.map(([label, job], index): Tt25Row => [String(shared + 1 + index), label, 'người', `staff.job=${job}`]),
+    ...SHARED_JOBS.map(([label, job], index): Tt25Row => [
+      String(shared + 1 + index),
+      label,
+      'người',
+      `staff.job=${job}`,
+    ]),
     [String(shared + SHARED_JOBS.length + 1), concurrentLabel, 'người', M],
-    [String(support), '4.4. Vị trí việc làm hỗ trợ, phục vụ', 'người', `rows:${range(support + 1, SUPPORT_JOBS.length).join('+')}`],
+    [
+      String(support),
+      '4.4. Vị trí việc làm hỗ trợ, phục vụ',
+      'người',
+      `rows:${range(support + 1, SUPPORT_JOBS.length).join('+')}`,
+    ],
     ['T41', 'Chia ra:', null, H],
-    ...SUPPORT_JOBS.map(([label, job], index): Tt25Row => [String(support + 1 + index), label, 'người', `staff.job=${job}`]),
+    ...SUPPORT_JOBS.map(([label, job], index): Tt25Row => [
+      String(support + 1 + index),
+      label,
+      'người',
+      `staff.job=${job}`,
+    ]),
   ];
 }
 
@@ -141,8 +166,7 @@ export const TT25_TIEU_HOC: Tt25Form[] = [
     name: 'Biểu 02.ĐN-TH: Báo cáo thống kê giáo dục tiểu học (đầu năm học)',
     school_level: 'TH',
     period: 'start_of_year',
-    note:
-      'Theo Thông tư 25/2024/TT-BGDĐT, có tại ngày 30/9, Sở nhận ngày 31/10. Bản in có hai dòng "Lớp ghép" (mã 27, 28), giữ đúng bản in; dòng 28 nhập tay. Tuổi tính theo năm sinh.',
+    note: 'Theo Thông tư 25/2024/TT-BGDĐT, có tại ngày 30/9, Sở nhận ngày 31/10. Bản in có hai dòng "Lớp ghép" (mã 27, 28), giữ đúng bản in; dòng 28 nhập tay. Tuổi tính theo năm sinh.',
     sections: [
       {
         code: 'truong',
@@ -161,11 +185,26 @@ export const TT25_TIEU_HOC: Tt25Form[] = [
           ['09', '- Trường có máy tính dùng cho mục đích học tập', 'trường', 'school.computers'],
           ['10', '- Trường có cơ sở hạ tầng và tài liệu phù hợp với học sinh khuyết tật', 'trường', M],
           ['11', '- Trường có nước uống', 'trường', 'school.drinking_water'],
-          ['12', '- Trường có hệ thống vệ sinh tiện lợi và riêng rẽ cho từng giới tính', 'trường', 'school.separate_toilets'],
+          [
+            '12',
+            '- Trường có hệ thống vệ sinh tiện lợi và riêng rẽ cho từng giới tính',
+            'trường',
+            'school.separate_toilets',
+          ],
           ['13', '- Trường có chỗ rửa tay thuận tiện (bao gồm nước và xà phòng)', 'trường', 'school.handwashing'],
-          ['14', '- Trường có chương trình giáo dục cơ bản về giới tính, phòng chống bạo lực, xâm hại; cung cấp kiến thức về HIV', 'trường', 'school.sex_education'],
+          [
+            '14',
+            '- Trường có chương trình giáo dục cơ bản về giới tính, phòng chống bạo lực, xâm hại; cung cấp kiến thức về HIV',
+            'trường',
+            'school.sex_education',
+          ],
           ['15', '- Trường có bộ phận làm công tác tư vấn tâm lý học đường', 'trường', M],
-          ['16', '- Trường có kế hoạch giáo dục phòng, chống thiên tai và ứng phó biến đổi khí hậu', 'trường', 'school.disaster_plan'],
+          [
+            '16',
+            '- Trường có kế hoạch giáo dục phòng, chống thiên tai và ứng phó biến đổi khí hậu',
+            'trường',
+            'school.disaster_plan',
+          ],
           ['17', '1.2. Số điểm trường', 'điểm', 'sites'],
         ],
       },
@@ -176,7 +215,12 @@ export const TT25_TIEU_HOC: Tt25Form[] = [
         rows: [
           ['18', 'Tổng số', 'lớp', 'classes'],
           ['T02', 'Chia ra:', null, H],
-          ...grades.map((grade, index): Tt25Row => [String(19 + index), `- Lớp ${index + 1}`, 'lớp', `classes.grade=${grade}`]),
+          ...grades.map((grade, index): Tt25Row => [
+            String(19 + index),
+            `- Lớp ${index + 1}`,
+            'lớp',
+            `classes.grade=${grade}`,
+          ]),
           ['T03', 'Trong đó:', null, H],
           ['24', '- Lớp học 2 buổi/ngày', 'lớp', 'classes.two_sessions'],
           ['25', '- Lớp tiểu học trong trường phổ thông dân tộc bán trú', 'lớp', M],
@@ -195,7 +239,12 @@ export const TT25_TIEU_HOC: Tt25Form[] = [
           ...studentsByGradeAndAge(),
           ...studentsByAge(),
           ['T05', '3.3. Trong tổng quy mô có:', null, H],
-          ['90', '- Tổng số học sinh lưu ban năm học trước đang học lại trong năm học này', 'người', 'students.repeater'],
+          [
+            '90',
+            '- Tổng số học sinh lưu ban năm học trước đang học lại trong năm học này',
+            'người',
+            'students.repeater',
+          ],
           ['91', '- Học sinh học 2 buổi/ngày', 'người', 'students.two_sessions'],
           ['92', '- Học sinh dân tộc học bán trú', 'người', 'students.ethnic_boarding'],
           ['93', '- Học sinh khuyết tật học hòa nhập', 'người', 'students.disabled'],
@@ -274,8 +323,7 @@ export const TT25_TIEU_HOC: Tt25Form[] = [
     name: 'Biểu 02.CN-TH: Báo cáo thống kê giáo dục tiểu học (cuối năm học)',
     school_level: 'TH',
     period: 'end_of_year',
-    note:
-      'Theo Thông tư 25/2024/TT-BGDĐT, có tại ngày 31/5, Sở nhận ngày 30/6. Bản in đặt mã 02 trên dòng "Trong đó:", giữ đúng bản in. Tuổi tính theo năm sinh.',
+    note: 'Theo Thông tư 25/2024/TT-BGDĐT, có tại ngày 31/5, Sở nhận ngày 30/6. Bản in đặt mã 02 trên dòng "Trong đó:", giữ đúng bản in. Tuổi tính theo năm sinh.',
     sections: [
       {
         code: 'truong',
@@ -298,7 +346,12 @@ export const TT25_TIEU_HOC: Tt25Form[] = [
         rows: [
           ['08', 'Tổng số lớp', 'lớp', 'classes'],
           ['T02', 'Chia ra:', null, H],
-          ...grades.map((grade, index): Tt25Row => [code(9 + index), `- Lớp ${index + 1}`, 'lớp', `classes.grade=${grade}`]),
+          ...grades.map((grade, index): Tt25Row => [
+            code(9 + index),
+            `- Lớp ${index + 1}`,
+            'lớp',
+            `classes.grade=${grade}`,
+          ]),
           ['T03', 'Trong đó:', null, H],
           ['14', '- Lớp học 2 buổi/ngày', 'lớp', 'classes.two_sessions'],
           ['15', '- Lớp ghép', 'lớp', 'classes.multigrade'],
@@ -316,11 +369,26 @@ export const TT25_TIEU_HOC: Tt25Form[] = [
           ['19', '- Học sinh bỏ học', 'người', 'leavers.dropout'],
           ['20', '3.2. Tổng quy mô', 'người', 'students'],
           ['T05', '3.3. Quy mô chia theo lớp', null, H],
-          ...grades.map((grade, index): Tt25Row => [String(21 + index), `- Học sinh lớp ${index + 1}`, 'người', `students.grade=${grade}`]),
+          ...grades.map((grade, index): Tt25Row => [
+            String(21 + index),
+            `- Học sinh lớp ${index + 1}`,
+            'người',
+            `students.grade=${grade}`,
+          ]),
           ['26', '3.4. Học sinh học lại, thi lại trong hè', 'người', 'students.summer_support'],
-          ...grades.map((grade, index): Tt25Row => [String(27 + index), `- Lớp ${index + 1}`, 'người', `students.grade=${grade}.summer_support`]),
+          ...grades.map((grade, index): Tt25Row => [
+            String(27 + index),
+            `- Lớp ${index + 1}`,
+            'người',
+            `students.grade=${grade}.summer_support`,
+          ]),
           ['32', '3.5. Học sinh lưu ban', 'người', 'students.completion=retained'],
-          ...grades.map((grade, index): Tt25Row => [String(33 + index), `- Lớp ${index + 1}`, 'người', `students.grade=${grade}.completion=retained`]),
+          ...grades.map((grade, index): Tt25Row => [
+            String(33 + index),
+            `- Lớp ${index + 1}`,
+            'người',
+            `students.grade=${grade}.completion=retained`,
+          ]),
           ['38', '3.6. Học sinh hoàn thành chương trình tiểu học', 'người', 'students.completion=level_completed'],
           ['T06', 'Chia theo tuổi:', null, H],
           ['39', '- Dưới 11 tuổi', 'người', 'students.completion=level_completed.age_under=11'],
@@ -356,8 +424,18 @@ export const TT25_TIEU_HOC: Tt25Form[] = [
           ...staffJobs(59, '- Kiêm nhiệm 2 hoặc 3 VTVL chuyên môn dùng chung'),
           ['73', '4.5. Số giáo viên, nhân viên được tham gia các chương trình bồi dưỡng', 'lượt người', M],
           ['74', '- Chương trình bồi dưỡng thường xuyên', 'lượt người', M],
-          ['75', '- Tập huấn và tham gia giảng dạy về phòng, chống HIV trên nền tảng kỹ năng sống và giáo dục sức khỏe sinh sản.', 'lượt người', M],
-          ['76', '- Trong đó: Số nhân viên được tập huấn và tham gia giảng dạy về phòng, chống HIV trên nền tảng kỹ năng sống và giáo dục sức khỏe sinh sản.', 'lượt người', M],
+          [
+            '75',
+            '- Tập huấn và tham gia giảng dạy về phòng, chống HIV trên nền tảng kỹ năng sống và giáo dục sức khỏe sinh sản.',
+            'lượt người',
+            M,
+          ],
+          [
+            '76',
+            '- Trong đó: Số nhân viên được tập huấn và tham gia giảng dạy về phòng, chống HIV trên nền tảng kỹ năng sống và giáo dục sức khỏe sinh sản.',
+            'lượt người',
+            M,
+          ],
         ],
       },
     ],

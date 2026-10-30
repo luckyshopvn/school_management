@@ -107,93 +107,96 @@ export async function loadTt25Facts(
     .select('id')
     .where('unit_type', '=', 'truong_chinh')
     .executeTakeFirst();
-  const [profile, sites, children, completion, previousRetained, leavers, transfers, staff, assignments, evaluations, rooms] =
-    await Promise.all([
-      root
-        ? database
-            .selectFrom('school_profiles')
-            .select(['general', 'other_info'])
-            .where('org_unit_id', '=', root.id)
-            .executeTakeFirst()
-        : undefined,
-      database
-        .selectFrom('org_units')
-        .select('id')
-        .where('unit_type', '=', 'diem_truong')
-        .where('status', '=', 'active')
-        .execute(),
-      database
-        .selectFrom('children')
-        .select(['id', 'dob', 'moet_profile', 'special_needs_note'])
-        .where('id', 'in', [...base.students.map((row) => row.id), '00000000-0000-0000-0000-000000000000'])
-        .execute(),
-      database
-        .selectFrom('completion_results')
-        .select(['child_id', 'support_plan'])
-        .where('class_id', 'in', [...base.classes.map((row) => row.id), '00000000-0000-0000-0000-000000000000'])
-        .execute(),
-      context.previous
-        ? context.previous
-            .selectFrom('completion_results')
-            .select('child_id')
-            .where('outcome', '=', 'retained')
-            .execute()
-        : Promise.resolve([] as Array<{ child_id: string }>),
-      database
-        .selectFrom('children')
-        .innerJoin('class_enrollments', 'class_enrollments.child_id', 'children.id')
-        .innerJoin('classes', 'classes.id', 'class_enrollments.class_id')
-        .select(['children.id', 'children.gender', 'children.moet_profile', 'children.leave_date', 'classes.grade_level'])
-        .where('children.status', '=', 'withdrawn')
-        .where('classes.school_level', '=', level)
-        .execute(),
-      database
-        .selectFrom('student_transfers')
-        .innerJoin('children', 'children.id', 'student_transfers.child_id')
-        .select([
-          'student_transfers.child_id',
-          'student_transfers.province_name',
-          'student_transfers.transfer_date',
-          'children.gender',
-          'children.moet_profile',
-        ])
-        .where('student_transfers.direction', '=', 'out')
-        .where('student_transfers.status', 'in', ['approved', 'received'])
-        .execute(),
-      database
-        .selectFrom('staff')
-        .leftJoin('job_titles', 'job_titles.id', 'staff.job_title_id')
-        .select([
-          'staff.id',
-          'staff.gender',
-          'staff.dob',
-          'staff.status',
-          'staff.start_date',
-          'staff.end_date',
-          'staff.moet_profile',
-          'staff.user_id',
-          'job_titles.name as job_title',
-        ])
-        .execute(),
-      database
-        .selectFrom('class_staff_assignments')
-        .innerJoin('classes', 'classes.id', 'class_staff_assignments.class_id')
-        .select(['class_staff_assignments.staff_user_id', 'classes.school_level'])
-        .where('classes.status', '=', 'active')
-        .where('class_staff_assignments.status', '=', 'active')
-        .execute(),
-      database
-        .selectFrom('professional_evaluations')
-        .select(['staff_id', 'overall_level', 'updated_at'])
-        .where('status', '=', 'finalized')
-        .orderBy('updated_at', 'asc')
-        .execute(),
-      database
-        .selectFrom('rooms')
-        .select(['id', 'room_type', 'condition'])
-        .where('status', '=', 'active')
-        .execute(),
-    ]);
+  const [
+    profile,
+    sites,
+    children,
+    completion,
+    previousRetained,
+    leavers,
+    transfers,
+    staff,
+    assignments,
+    evaluations,
+    rooms,
+  ] = await Promise.all([
+    root
+      ? database
+          .selectFrom('school_profiles')
+          .select(['general', 'other_info'])
+          .where('org_unit_id', '=', root.id)
+          .executeTakeFirst()
+      : undefined,
+    database
+      .selectFrom('org_units')
+      .select('id')
+      .where('unit_type', '=', 'diem_truong')
+      .where('status', '=', 'active')
+      .execute(),
+    database
+      .selectFrom('children')
+      .select(['id', 'dob', 'moet_profile', 'special_needs_note'])
+      .where('id', 'in', [...base.students.map((row) => row.id), '00000000-0000-0000-0000-000000000000'])
+      .execute(),
+    database
+      .selectFrom('completion_results')
+      .select(['child_id', 'support_plan'])
+      .where('class_id', 'in', [...base.classes.map((row) => row.id), '00000000-0000-0000-0000-000000000000'])
+      .execute(),
+    context.previous
+      ? context.previous.selectFrom('completion_results').select('child_id').where('outcome', '=', 'retained').execute()
+      : Promise.resolve([] as Array<{ child_id: string }>),
+    database
+      .selectFrom('children')
+      .innerJoin('class_enrollments', 'class_enrollments.child_id', 'children.id')
+      .innerJoin('classes', 'classes.id', 'class_enrollments.class_id')
+      .select(['children.id', 'children.gender', 'children.moet_profile', 'children.leave_date', 'classes.grade_level'])
+      .where('children.status', '=', 'withdrawn')
+      .where('classes.school_level', '=', level)
+      .execute(),
+    database
+      .selectFrom('student_transfers')
+      .innerJoin('children', 'children.id', 'student_transfers.child_id')
+      .select([
+        'student_transfers.child_id',
+        'student_transfers.province_name',
+        'student_transfers.transfer_date',
+        'children.gender',
+        'children.moet_profile',
+      ])
+      .where('student_transfers.direction', '=', 'out')
+      .where('student_transfers.status', 'in', ['approved', 'received'])
+      .execute(),
+    database
+      .selectFrom('staff')
+      .leftJoin('job_titles', 'job_titles.id', 'staff.job_title_id')
+      .select([
+        'staff.id',
+        'staff.gender',
+        'staff.dob',
+        'staff.status',
+        'staff.start_date',
+        'staff.end_date',
+        'staff.moet_profile',
+        'staff.user_id',
+        'job_titles.name as job_title',
+      ])
+      .execute(),
+    database
+      .selectFrom('class_staff_assignments')
+      .innerJoin('classes', 'classes.id', 'class_staff_assignments.class_id')
+      .select(['class_staff_assignments.staff_user_id', 'classes.school_level'])
+      .where('classes.status', '=', 'active')
+      .where('class_staff_assignments.status', '=', 'active')
+      .execute(),
+    database
+      .selectFrom('professional_evaluations')
+      .select(['staff_id', 'overall_level', 'updated_at'])
+      .where('status', '=', 'finalized')
+      .orderBy('updated_at', 'asc')
+      .execute(),
+    database.selectFrom('rooms').select(['id', 'room_type', 'condition']).where('status', '=', 'active').execute(),
+  ]);
   const general = (profile?.general ?? {}) as Record<string, unknown>;
   const other = (profile?.other_info ?? {}) as Record<string, unknown>;
   const flag = (key: string) => other[key] === true;
@@ -229,7 +232,9 @@ export async function loadTt25Facts(
       age: birthYear === null ? null : startYear - birthYear,
       repeater,
       new_entrant: row.grade === 'K1' && !repeater,
-      disability: disabilityKindOf(profileText(child?.moet_profile, 'disability_type') ?? child?.special_needs_note ?? null),
+      disability: disabilityKindOf(
+        profileText(child?.moet_profile, 'disability_type') ?? child?.special_needs_note ?? null,
+      ),
       ethnic_boarding: row.ethnic && row.boarding,
       summer_support: summer.has(row.id),
       transfer_in_province: otherProvince(profileText(child?.moet_profile, 'transfer_from_province')),

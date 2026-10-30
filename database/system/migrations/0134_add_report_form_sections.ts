@@ -17,7 +17,10 @@ export const migration: Migration = {
     await database.schema
       .alterTable('report_forms')
       .addColumn('source', 'text', (column) =>
-        column.notNull().defaultTo('custom').check(sql`source in ('custom', 'tt25', 'eqms')`),
+        column
+          .notNull()
+          .defaultTo('custom')
+          .check(sql`source in ('custom', 'tt25', 'eqms')`),
       )
       .addColumn('form_number', 'text', (column) => column.check(sql`char_length(form_number) between 1 and 30`))
       .addColumn('sections', 'jsonb')
@@ -29,13 +32,21 @@ export const migration: Migration = {
     await database.schema
       .alterTable('report_form_rows')
       .addColumn('section', 'text', (column) =>
-        column.notNull().defaultTo('main').check(sql`char_length(section) between 1 and 20`),
+        column
+          .notNull()
+          .defaultTo('main')
+          .check(sql`char_length(section) between 1 and 20`),
       )
       .execute();
     await sql`update report_forms set name = name || ' (khung cũ)', archived = true
       where code in ('emis-th-dau-nam', 'emis-th-cuoi-nam')`.execute(database);
     for (const form of TT25_TIEU_HOC) {
-      const sections = form.sections.map(({ code, name, columns }) => ({ code, name, columns, ownership_groups: true }));
+      const sections = form.sections.map(({ code, name, columns }) => ({
+        code,
+        name,
+        columns,
+        ownership_groups: true,
+      }));
       const created = await sql<{ id: string }>`insert into report_forms
           (code, name, school_level, period, columns, note, source, form_number, sections)
         values (${form.code}, ${form.name}, ${form.school_level}, ${form.period},

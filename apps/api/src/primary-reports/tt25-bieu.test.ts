@@ -11,7 +11,13 @@ import {
   type ReportSection,
 } from '@school-management/shared';
 import type { Kysely } from 'kysely';
-import { openTestAcademicYear, sendJson, startApiTestEnvironment, type ApiTestEnvironment, type LoggedInUser } from '../test-support.js';
+import {
+  openTestAcademicYear,
+  sendJson,
+  startApiTestEnvironment,
+  type ApiTestEnvironment,
+  type LoggedInUser,
+} from '../test-support.js';
 import { ageBandOf, disabilityKindOf, staffJobOf } from './tt25-facts.js';
 
 // Biểu thống kê Thông tư 25/2024 cấp Tiểu học, khung biểu nhiều phần (YCTD-385 lát L1); kịch bản CT-1880 đến CT-1886
@@ -43,7 +49,10 @@ describe('Công thức và phần của biểu Thông tư 25/2024', () => {
         { active: true, teacher: true, female: true, ethnic: false, indefinite: true, retired: false },
         { active: false, teacher: true, female: false, ethnic: false, indefinite: false, retired: true },
       ],
-      rooms: [{ classroom: true, permanent: true }, { classroom: true, borrowed: true }],
+      rooms: [
+        { classroom: true, permanent: true },
+        { classroom: true, borrowed: true },
+      ],
     };
     assert.equal(evaluateFormula(parseFormula('students.grade=K1.age=6'), 'ethnic_female', facts), 1);
     assert.equal(evaluateFormula(parseFormula('students.age_over=11'), 'total', facts), 1);
@@ -73,7 +82,15 @@ describe('Công thức và phần của biểu Thông tư 25/2024', () => {
     );
     assert.deepEqual(
       expandSectionColumns(section).map(({ group, column }) => `${group}:${column.key}`),
-      ['total:total', 'total:female', 'public:total', 'public:indefinite', 'public:female', 'private:total', 'private:female'],
+      [
+        'total:total',
+        'total:female',
+        'public:total',
+        'public:indefinite',
+        'public:female',
+        'private:total',
+        'private:female',
+      ],
     );
   });
 
@@ -87,7 +104,15 @@ describe('Công thức và phần của biểu Thông tư 25/2024', () => {
     assert.equal(staffJobOf('Kế toán', null), 'accounting');
     assert.equal(staffJobOf(null, 'Nhân viên bảo vệ'), 'security');
     assert.equal(staffJobOf('Lao công', null), 'other_staff');
-    assert.deepEqual([19, 20, 29, 30, 59, 60, 64].map(ageBandOf), [null, '20_29', '20_29', '30_39', '50_59', '60', '60']);
+    assert.deepEqual([19, 20, 29, 30, 59, 60, 64].map(ageBandOf), [
+      null,
+      '20_29',
+      '20_29',
+      '30_39',
+      '50_59',
+      '60',
+      '60',
+    ]);
   });
 });
 
@@ -116,7 +141,9 @@ describe('Biểu 02.ĐN-TH, 02.CN-TH', () => {
       .select('start_date')
       .where('id', '=', academicYearId)
       .executeTakeFirstOrThrow();
-    startYear = Number(String(year.start_date instanceof Date ? year.start_date.toISOString() : year.start_date).slice(0, 4));
+    startYear = Number(
+      String(year.start_date instanceof Date ? year.start_date.toISOString() : year.start_date).slice(0, 4),
+    );
     const registry = await environment.system
       .selectFrom('academic_year_databases')
       .select('database_name')
@@ -125,8 +152,8 @@ describe('Biểu 02.ĐN-TH, 02.CN-TH', () => {
     schoolYear = createDatabase<SchoolYearDatabase>(
       replaceDatabaseName(environment.systemDatabaseUrl, registry.database_name),
     );
-    unitId = (await api('POST', '/org-units', { code: 'TH385', name: 'Trường Tiểu học', unit_type: 'truong_chinh' })).body
-      .id as string;
+    unitId = (await api('POST', '/org-units', { code: 'TH385', name: 'Trường Tiểu học', unit_type: 'truong_chinh' }))
+      .body.id as string;
     await schoolYear
       .insertInto('org_units')
       .values({
@@ -163,10 +190,12 @@ describe('Biểu 02.ĐN-TH, 02.CN-TH', () => {
         it_infrastructure: '{}',
         updated_by: principal.userId,
       })
-      .onConflict((conflict) => conflict.column('org_unit_id').doUpdateSet({
-        general: JSON.stringify({ ownership_type: 'public', national_standard_level: '2', province: 'Tỉnh Mẫu' }),
-        other_info: JSON.stringify({ grid_electricity: true, has_internet: true, handwashing: false }),
-      }))
+      .onConflict((conflict) =>
+        conflict.column('org_unit_id').doUpdateSet({
+          general: JSON.stringify({ ownership_type: 'public', national_standard_level: '2', province: 'Tỉnh Mẫu' }),
+          other_info: JSON.stringify({ grid_electricity: true, has_internet: true, handwashing: false }),
+        }),
+      )
       .execute();
     const room = await schoolYear
       .insertInto('rooms')
@@ -175,7 +204,14 @@ describe('Biểu 02.ĐN-TH, 02.CN-TH', () => {
       .executeTakeFirstOrThrow();
     await schoolYear
       .insertInto('rooms')
-      .values({ org_unit_id: unitId, code: 'DCN', name: 'Phòng đa chức năng', capacity: 35, condition: 'semi_permanent', room_type: 'multi_purpose' })
+      .values({
+        org_unit_id: unitId,
+        code: 'DCN',
+        name: 'Phòng đa chức năng',
+        capacity: 35,
+        condition: 'semi_permanent',
+        room_type: 'multi_purpose',
+      })
       .execute();
     const classIds: Record<string, string> = {};
     for (const [code, grade, combined, roomId] of [
@@ -233,9 +269,33 @@ describe('Biểu 02.ĐN-TH, 02.CN-TH', () => {
     }
     // Hiệu trưởng nữ; giáo viên hạng II viên chức không xác định thời hạn, 35 tuổi; kế toán hợp đồng lao động
     for (const [code, gender, birth, profile] of [
-      ['CB1', 'female', startYear - 50, { position_group: 'Cán bộ quản lý', job_position: 'Hiệu trưởng', contract_form: 'Viên chức HĐLV không xác định thời hạn' }],
-      ['GV1', 'male', startYear - 35, { position_group: 'Giáo viên', civil_service_rank: 'Hạng II', contract_form: 'Viên chức HĐLV không xác định thời hạn', ethnicity: 'Nùng' }],
-      ['NV1', 'female', startYear - 28, { position_group: 'Nhân viên', job_position: 'Kế toán', contract_form: 'Hợp đồng lao động' }],
+      [
+        'CB1',
+        'female',
+        startYear - 50,
+        {
+          position_group: 'Cán bộ quản lý',
+          job_position: 'Hiệu trưởng',
+          contract_form: 'Viên chức HĐLV không xác định thời hạn',
+        },
+      ],
+      [
+        'GV1',
+        'male',
+        startYear - 35,
+        {
+          position_group: 'Giáo viên',
+          civil_service_rank: 'Hạng II',
+          contract_form: 'Viên chức HĐLV không xác định thời hạn',
+          ethnicity: 'Nùng',
+        },
+      ],
+      [
+        'NV1',
+        'female',
+        startYear - 28,
+        { position_group: 'Nhân viên', job_position: 'Kế toán', contract_form: 'Hợp đồng lao động' },
+      ],
     ] as const) {
       await schoolYear
         .insertInto('staff')
@@ -262,7 +322,9 @@ describe('Biểu 02.ĐN-TH, 02.CN-TH', () => {
     const codes = forms.map((form) => form.code);
     assert.ok(codes.includes('tt25-02-dn-th') && codes.includes('tt25-02-cn-th'));
     assert.ok(!codes.includes('emis-th-dau-nam'));
-    const all = (await api('GET', '/primary-reports/emis?archived=true')).body as unknown as Array<Record<string, unknown>>;
+    const all = (await api('GET', '/primary-reports/emis?archived=true')).body as unknown as Array<
+      Record<string, unknown>
+    >;
     assert.ok(all.some((form) => form.code === 'emis-th-dau-nam' && String(form.name).endsWith('(khung cũ)')));
     assert.equal((await api('GET', '/secondary-reports/emis/tt25-02-dn-th')).status, 404);
   });
@@ -274,7 +336,10 @@ describe('Biểu 02.ĐN-TH, 02.CN-TH', () => {
     assert.equal(body.form_number, '02.ĐN-TH');
     assert.equal(body.ownership_label, 'Công lập');
     const sections = body.sections as Array<{ code: string; columns: Array<{ key: string }> }>;
-    assert.deepEqual(sections.map((section) => section.code), ['truong', 'lop', 'hoc_sinh', 'doi_ngu', 'phong_hoc']);
+    assert.deepEqual(
+      sections.map((section) => section.code),
+      ['truong', 'lop', 'hoc_sinh', 'doi_ngu', 'phong_hoc'],
+    );
     assert.equal(sections[3]?.columns.length, 7);
     const total = (code: string) => rowOf(body, code).values.total;
     assert.deepEqual(['01', '02', '03', '07', '08', '13', '17'].map(total), [1, 0, 1, 1, 1, 0, 1]);
@@ -327,7 +392,10 @@ describe('Biểu 02.ĐN-TH, 02.CN-TH', () => {
   it('CT-1886: 02.CN-TH tính bỏ học, cộng vị trí việc làm, hoàn thành chương trình theo tuổi', async () => {
     const body = (await api('GET', '/primary-reports/emis/tt25-02-cn-th')).body;
     const total = (code: string) => rowOf(body, code).values.total;
-    assert.deepEqual(['01', '07', '08', '15', '19', '20', '43', '48', '59', '62'].map(total), [1, 1, 2, 1, 1, 3, 3, 1, 1, 1]);
+    assert.deepEqual(
+      ['01', '07', '08', '15', '19', '20', '43', '48', '59', '62'].map(total),
+      [1, 1, 2, 1, 1, 3, 3, 1, 1, 1],
+    );
     assert.equal(rowOf(body, '19').values.female, 0);
     assert.equal(total('38'), 0);
   });
