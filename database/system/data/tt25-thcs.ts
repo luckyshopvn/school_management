@@ -18,7 +18,7 @@ const code = (value: number) => String(value).padStart(2, '0');
 const range = (from: number, count: number) => Array.from({ length: count }, (_, index) => String(from + index));
 
 // Cờ của một nhóm trường: [nhãn, điều kiện hoặc nhập tay]; mã liên tiếp từ `first`
-function schoolGroup(type: string, first: number, flags: Array<[string, string]>): Tt25Row[] {
+export function schoolGroup(type: string, first: number, flags: Array<[string, string]>): Tt25Row[] {
   return flags.map(([label, flag], index) => [
     code(first + index),
     label,
@@ -26,11 +26,11 @@ function schoolGroup(type: string, first: number, flags: Array<[string, string]>
     flag === M ? M : `school.${type}.${flag}`,
   ]);
 }
-const STANDARD: Array<[string, string]> = [
+export const STANDARD: Array<[string, string]> = [
   ['- Trường đạt chuẩn quốc gia mức độ 1', 'standard_1'],
   ['- Trường đạt chuẩn quốc gia mức độ 2', 'standard_2'],
 ];
-const CONDITIONS: Array<[string, string]> = [
+export const CONDITIONS: Array<[string, string]> = [
   ['- Trường có tổ chức học trực tuyến', M],
   ['- Trường có điện', 'electricity'],
   ['- Trường có internet dùng cho mục đích học tập, giảng dạy', 'internet'],
@@ -114,7 +114,7 @@ const SUPPORT_JOBS: Array<[string, string]> = [
 ];
 
 // Vị trí chức danh chuyên ngành khác giáo viên, chuyên môn dùng chung, hỗ trợ phục vụ; `first` là mã dòng thiết bị, thí nghiệm
-function staffJobs(first: number): Tt25Row[] {
+export function staffJobs(first: number): Tt25Row[] {
   const shared = first + 4;
   const support = shared + SHARED_JOBS.length + 2;
   return [
