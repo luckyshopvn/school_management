@@ -184,6 +184,8 @@ export interface StudentTransfer {
   decision_note: string | null;
   org_unit_name: string;
   moet_student_code: string | null;
+  // Gói chuyển trường đã lập (chuyển đi) hoặc đã tiếp nhận (chuyển đến), YCTD-390
+  package_code: string | null;
 }
 
 export interface TransferPlace {

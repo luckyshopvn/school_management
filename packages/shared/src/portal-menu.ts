@@ -27,8 +27,7 @@ export type PortalWorkspaceKey =
   | 'quality-assurance'
   | 'library'
   | 'learning-resources'
-  | 'online-exam'
-  | 'tutoring';
+  | 'online-exam';
 
 export interface PortalMenuNode {
   // Số thứ bậc có dấu chấm cuối như của Sở, ví dụ "4.1.1."
@@ -48,7 +47,8 @@ export interface PortalWorkspace {
   // Cấp học của phân hệ, cùng quy ước với mục menu (DT-19 phần 19c)
   levels?: readonly SchoolLevelCode[];
   // Phân hệ đặt tên theo cấp: một cấp thì "<levelTitle> <tên cấp>" (trường mầm non giữ "Quản lý giáo dục Mầm non" như Sở),
-  // nhiều cấp thì chỉ "<levelTitle>"; tên cấp lấy từ school_levels, không ghi cứng
+  // nhiều cấp thì chỉ "<levelTitle>"; tên cấp lấy từ school_levels, không ghi cứng. Khi đó label chỉ là tên dự phòng của
+  // trường mầm non: chỗ hiện tên phân hệ lấy tên từ portalWorkspacesForLevels, không đọc thẳng PORTAL_WORKSPACES (YCTD-388)
   levelTitle?: string;
 }
 
@@ -694,21 +694,6 @@ export const PORTAL_WORKSPACES: PortalWorkspace[] = [
       leaf('3.', 'Cấu hình thi trực tuyến', '/online-exams/settings'),
     ],
   },
-  {
-    // Gia sư trong trường (DT-27 phần 27b): phân hệ riêng để gói dịch vụ bật, tắt được; cha mẹ đăng ký ở ứng dụng phụ huynh, giáo
-    // viên điểm danh ở ứng dụng giáo viên. Tên mục do Claude tự đặt theo ủy quyền của Eric ngày 2026-10-11; từ Tiểu học trở lên
-    // (Tiểu học chỉ có chương trình bổ trợ ngoài chương trình môn học)
-    key: 'tutoring',
-    label: 'Gia sư trực tuyến',
-    levels: ['TH', 'THCS', 'THPT'],
-    menu: [
-      leaf('1.', 'Chương trình gia sư', '/tutoring'),
-      leaf('2.', 'Lịch buổi học, điểm danh', '/tutoring/sessions'),
-      leaf('3.', 'Quyết định tăng thời lượng', '/tutoring/exemptions'),
-      leaf('4.', 'Quy định dạy thêm', '/tutoring/rules'),
-      leaf('5.', 'Thu chi gia sư', '/tutoring/finance'),
-    ],
-  },
 ];
 
 // Một mục lá kèm phân hệ và chuỗi mục cha, dùng cho Truy cập nhanh và trợ giúp kiểm thử
@@ -784,6 +769,14 @@ export function portalWorkspacesForLevels(
       : workspace.label;
     return [{ ...workspace, label, menu }];
   });
+}
+
+// Tên phân hệ khi chưa biết cấp (ngữ cảnh trường đang tải): phân hệ đặt tên theo cấp chỉ hiện "<levelTitle>", không gắn
+// tên cấp nào, để trường không phải mầm non không thoáng thấy "Quản lý giáo dục Mầm non" (YCTD-388)
+export function portalWorkspacesWithoutLevelName(workspaces: PortalWorkspace[]): PortalWorkspace[] {
+  return workspaces.map((workspace) =>
+    workspace.levelTitle ? { ...workspace, label: workspace.levelTitle } : workspace,
+  );
 }
 
 // Đường dẫn của các mục menu không thuộc cấp nào trong danh sách, dùng để ẩn lối tắt "Truy cập nhanh" và mục của cây quyền
