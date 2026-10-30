@@ -16,6 +16,8 @@ export default defineConfig({
     proxy: {
       '/api/v1/auth': { target: identityTarget },
       '/api/v1/parent-org': { target: apiTarget },
+      // Gói gia sư AI nền tảng bán (YCTD-383 lát L1b) ở máy chủ API
+      '/api/v1/platform-ai-tutor': { target: apiTarget },
     },
   },
 });

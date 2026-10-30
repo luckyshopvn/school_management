@@ -398,6 +398,8 @@ export const PORTAL_WORKSPACES: PortalWorkspace[] = [
         leaf('3.7.', 'Ứng dụng liên kết', '/app-links'),
         // Trợ lý AI soạn nháp (DT-23 phần 23d)
         leaf('3.8.', 'Trợ lý AI', '/ai-assistant'),
+        // Gia sư AI do trường bán cho phụ huynh (YCTD-383 lát L1a)
+        leaf('3.9.', 'Gia sư AI', '/ai-tutor'),
       ]),
       // Quản trị và trình diễn (DT-18 phần 18h)
       group('4.', 'Quản trị và trình diễn', [

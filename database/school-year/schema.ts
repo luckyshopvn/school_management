@@ -1083,8 +1083,9 @@ export interface InvoicesTable {
 export interface InvoiceItemsTable {
   id: Generated<string>;
   invoice_id: string;
-  // `tutoring`: dòng gia sư của hóa đơn đã phát hành trước khi bỏ chương trình gia sư, giữ số tiền và nội dung (YCTD-384)
-  item_type: 'tuition' | 'service' | 'opening' | 'extracurricular' | 'tutoring';
+  // `tutoring`: dòng gia sư của hóa đơn đã phát hành trước khi bỏ chương trình gia sư, giữ số tiền và nội dung (YCTD-384);
+  // `ai_tutor`: Gia sư AI do trường bán (YCTD-383)
+  item_type: 'tuition' | 'service' | 'opening' | 'extracurricular' | 'tutoring' | 'ai_tutor';
   service_id: string | null;
   service_registration_id: string | null;
   // Đăng ký ngoại khóa đã lập khoản thu (YCTD-78)

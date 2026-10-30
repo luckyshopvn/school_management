@@ -197,3 +197,124 @@ export function turnBalance(candidates: readonly TurnCandidate[], now: Date): { 
   }
   return { monthly, topUp };
 }
+
+// Nâng gói tháng giữa tháng (Eric chọn ngày 2026-10-30; dùng chung cho trường bán và nền tảng bán): phụ huynh trả phần chênh lệch giá
+// theo số ngày còn lại của tháng dùng, lượt hỏi cộng thêm theo cùng tỉ lệ. Ngày còn lại tính cả hôm nay, theo lịch Việt Nam
+
+// Số ngày của tháng dùng `YYYY-MM-01`
+export function daysInMonth(periodMonth: string): number {
+  const { validFrom, validUntil } = monthlyWindow(periodMonth);
+  return Math.round((validUntil.getTime() - validFrom.getTime()) / (24 * 60 * 60 * 1000));
+}
+
+// Ngày còn lại của tháng dùng tính cả hôm nay (giờ Việt Nam): tháng chưa tới thì cả tháng, tháng đã qua thì 0
+export function remainingDaysOfMonth(periodMonth: string, now: Date): { remainingDays: number; daysInMonth: number } {
+  const total = daysInMonth(periodMonth);
+  const currentMonth = vietnamMonthOf(now);
+  if (currentMonth < periodMonth) {
+    return { remainingDays: total, daysInMonth: total };
+  }
+  if (currentMonth > periodMonth) {
+    return { remainingDays: 0, daysInMonth: total };
+  }
+  const today = new Date(now.getTime() + VIETNAM_OFFSET_MS).getUTCDate();
+  return { remainingDays: total - today + 1, daysInMonth: total };
+}
+
+// Phần theo tỉ lệ ngày còn lại, làm tròn tới đơn vị (đồng hoặc lượt)
+export function prorate(amount: number, remainingDays: number, totalDays: number): number {
+  if (totalDays <= 0 || remainingDays <= 0) {
+    return 0;
+  }
+  return Math.round((amount * Math.min(remainingDays, totalDays)) / totalDays);
+}
+
+export interface UpgradeCurrent {
+  planSource: AiTutorPlanSource;
+  planKind: AiTutorPlanKind;
+  planId: string;
+  status: 'pending' | 'active' | 'cancelled' | 'refunded';
+  periodMonth: string | null;
+  // Giá tháng và số lượt tháng của gói đang dùng (gói mua ban đầu hoặc gói của lần nâng gần nhất)
+  monthlyPrice: number;
+  monthlyTurns: number;
+}
+
+export interface UpgradeTarget {
+  source: AiTutorPlanSource;
+  id: string;
+  kind: AiTutorPlanKind;
+  status: 'active' | 'archived';
+  price: number;
+  turns: number;
+  schoolLevels: readonly AiTutorSchoolLevel[];
+}
+
+export type UpgradeBlockCode =
+  | 'not_monthly'
+  | 'not_active'
+  | 'source_mismatch'
+  | 'plan_archived'
+  | 'level_not_allowed'
+  | 'same_plan'
+  | 'not_higher'
+  | 'period_ended';
+
+export interface UpgradeQuote {
+  remainingDays: number;
+  daysInMonth: number;
+  fromPrice: number;
+  toPrice: number;
+  fromTurns: number;
+  toTurns: number;
+  priceDifference: number;
+  extraTurns: number;
+}
+
+// Báo giá nâng gói hoặc lý do không cho nâng. Chỉ nâng gói tháng đang dùng lên gói tháng khác cùng nguồn bán, giá cao hơn và số lượt
+// không ít hơn; gói lượt không nâng (phụ huynh mua thêm gói lượt)
+export function upgradeQuote(
+  current: UpgradeCurrent,
+  target: UpgradeTarget,
+  childSchoolLevel: AiTutorSchoolLevel,
+  now: Date,
+): { ok: true; quote: UpgradeQuote } | { ok: false; code: UpgradeBlockCode } {
+  if (current.planKind !== 'monthly' || target.kind !== 'monthly' || current.periodMonth === null) {
+    return { ok: false, code: 'not_monthly' };
+  }
+  if (current.status !== 'active') {
+    return { ok: false, code: 'not_active' };
+  }
+  if (current.planSource !== target.source) {
+    return { ok: false, code: 'source_mismatch' };
+  }
+  if (target.status !== 'active') {
+    return { ok: false, code: 'plan_archived' };
+  }
+  if (!target.schoolLevels.includes(childSchoolLevel)) {
+    return { ok: false, code: 'level_not_allowed' };
+  }
+  if (target.id === current.planId) {
+    return { ok: false, code: 'same_plan' };
+  }
+  if (target.price <= current.monthlyPrice || target.turns < current.monthlyTurns) {
+    return { ok: false, code: 'not_higher' };
+  }
+  const { remainingDays, daysInMonth: totalDays } = remainingDaysOfMonth(current.periodMonth, now);
+  if (remainingDays === 0) {
+    return { ok: false, code: 'period_ended' };
+  }
+  return {
+    ok: true,
+    quote: {
+      remainingDays,
+      daysInMonth: totalDays,
+      fromPrice: current.monthlyPrice,
+      toPrice: target.price,
+      fromTurns: current.monthlyTurns,
+      toTurns: target.turns,
+      priceDifference: prorate(target.price - current.monthlyPrice, remainingDays, totalDays),
+      extraTurns: prorate(target.turns - current.monthlyTurns, remainingDays, totalDays),
+    },
+  };
+}
