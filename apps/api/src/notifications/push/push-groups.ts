@@ -53,6 +53,8 @@ export const PUSH_GROUPS: readonly PushGroup[] = [
       'library_',
     ],
   },
+  // Lượt vào, ra cổng của con và đính chính khi nhận nhầm (YCTD-389)
+  { code: 'gate', label: 'Con đến và về trường', title: 'Đến và về trường', prefixes: ['gate_'] },
   { code: 'exams', label: 'Thi trực tuyến', title: 'Thi trực tuyến', prefixes: ['exam_', 'online_exam'] },
   {
     code: 'messages',

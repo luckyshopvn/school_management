@@ -1085,6 +1085,22 @@ Quy tắc (mã ở `apps/api/src/ai-tutor/tutor-chat.ts`, `tutor-chat-rules.ts`,
 3. Câu hỏi bị kiểm duyệt (`moderation` khác trống) và câu trả lời theo mẫu (`step` là `refusal`, `safety`) không gửi lại nhà cung cấp ở lượt sau.
 4. Lịch sử giữ 12 tháng: việc nền theo trường (10 phút một lần) xóa tin nhắn tạo trước đầu ngày (giờ Việt Nam) của cùng ngày 12 tháng trước, rồi xóa hội thoại không còn tin nhắn; cùng việc nền hoàn lượt tạm giữ quá 10 phút.
 
+## 18T. Thẻ QR và lượt qua cổng (YCTD-389 lát L1)
+
+Tệp năm học `0240_create_gate_passes`; kiểu ở `database/school-year/schema-parts/yctd-389-luot-qua-cong.ts`. Đặc tả chung: `tai_lieu/ban_mau/yctd-389/DAC_TA.md`.
+
+| Bảng | Mục đích | Cột chính |
+|---|---|---|
+| gate_cards (năm học) | Thẻ QR điểm danh của học sinh | id, child_id, code (16 ký tự base32 ngẫu nhiên, duy nhất, không chứa thông tin cá nhân), issued_by, issued_at, revoked_at, revoked_by; mỗi học sinh tối đa một thẻ còn hiệu lực (chỉ mục duy nhất có điều kiện `revoked_at is null`) |
+| gate_passes (năm học) | Lượt vào, ra cổng | id, child_id, org_unit_id, direction (`in`, `out`), passed_at, method (`qr`, `rfid`, `device`, `camera`), confidence (0 đến 1, thẻ là 1), review_status (`confirmed`, `needs_review`, `rejected`), gate_card_id, recorded_by, external_id (duy nhất, chống ghi trùng khi thiết bị gửi lại, dùng từ lát L2), reviewed_by, reviewed_at, review_note; chỉ mục (child_id, passed_at), (org_unit_id, passed_at) |
+
+Quy tắc (mã ở `apps/api/src/gate-passes/`):
+
+1. Cấp lại thẻ thu hồi thẻ cũ trong cùng giao dịch; thẻ đã thu hồi quét bị từ chối.
+2. Hai lượt cùng hướng của một học sinh cách nhau không quá 5 phút là một lượt (trả lượt cũ, không báo lần hai).
+3. Lượt vào sau giờ bắt đầu học (cài đặt `school_start_time`) bằng thẻ QR, thẻ RFID hoặc máy chấm công, trong ngày học, khi học sinh chưa có điểm danh ngày: ghi `attendance_records` trạng thái `late`, `source = system`, `recorded_by` là người quét, ghi chú giờ vào. Không ghi đè điểm danh đã có; không bao giờ ghi vắng.
+4. Báo nhận nhầm chuyển `review_status` sang `rejected`, không xóa dòng; bảng điểm danh bỏ lượt đã báo nhầm khỏi gợi ý.
+
 ## 19. Quan hệ chính giữa các bảng
 
 ```mermaid
