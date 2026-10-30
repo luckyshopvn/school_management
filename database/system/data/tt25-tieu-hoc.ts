@@ -2,7 +2,7 @@
 // phủ (`tai_lieu/ban_mau/yctd-385/BIEU_02_TIEU_HOC.md`). Mỗi dòng: mã số đúng bản in, tên chỉ tiêu nguyên văn (có số thứ tự
 // TT ở đầu khi bản in có), đơn vị tính, cách lấy số: công thức theo `packages/shared/src/primary-reports.ts`, `manual` (trường
 // nhập vì hệ thống chưa có nguồn hoặc nguồn ở cấp trên), `heading` (dòng chữ không có số). Dòng chữ không có mã số trong bản in
-// dùng mã `T<số>`. Chỗ nghi lỗi in giữ đúng bản in, ghi ở `note` của biểu. Dùng cho database migration hệ thống 0134; không
+// dùng mã `T<số>`. Chỗ nghi lỗi in giữ đúng bản in, ghi ở `note` của biểu. Dùng cho database migration hệ thống 0135; không
 // sửa sau khi migration đã chạy (biểu mới thì thêm tệp và migration mới)
 
 export type Tt25Row = [code: string, label: string, unit: string | null, source: string];

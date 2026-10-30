@@ -11,7 +11,7 @@ phien_ban_de_xuat: 0.253.0
 
 #### Công việc đã thực hiện
 
-- Database migration hệ thống 0134: `report_forms` thêm `source` (`custom`, `tt25`, `eqms`), `form_number`, `sections` (JSON các phần, mỗi phần bộ cột riêng, có lặp theo nhóm loại hình), `archived`; kỳ thêm `mid_year`; `report_form_rows` thêm `section`. Nạp 02.ĐN-TH (164 mã) và 02.CN-TH (76 mã) chép từ bản gốc Thông tư 25/2024 (`database/system/data/tt25-tieu-hoc.ts`); hai biểu khung Tiểu học cũ đổi tên "(khung cũ)" và ẩn, số đã nhập giữ nguyên.
+- Database migration hệ thống 0135: `report_forms` thêm `source` (`custom`, `tt25`, `eqms`), `form_number`, `sections` (JSON các phần, mỗi phần bộ cột riêng, có lặp theo nhóm loại hình), `archived`; kỳ thêm `mid_year`; `report_form_rows` thêm `section`. Nạp 02.ĐN-TH (164 mã) và 02.CN-TH (76 mã) chép từ bản gốc Thông tư 25/2024 (`database/system/data/tt25-tieu-hoc.ts`); hai biểu khung Tiểu học cũ đổi tên "(khung cũ)" và ẩn, số đã nhập giữ nguyên.
 - Công thức (`packages/shared/src/primary-reports.ts`) thêm đối tượng `school`, `sites`, `staff`, `rooms`, `leavers`; điều kiện học sinh: tuổi (`age`, `age_under`, `age_over`), mới tuyển, lưu ban năm trước, dạng khuyết tật, dân tộc học bán trú, học lại hoặc thi lại trong hè, chuyển đến từ tỉnh khác; lớp ghép, lớp trong trường nhiều cấp; dòng cộng `rows:` gồm cả dòng nhập tay. Đội ngũ chỉ đếm người đang làm việc, trừ dòng nghỉ hưu, nghỉ, chuyển đi.
 - Máy chủ API: số liệu nền mới ở `apps/api/src/primary-reports/tt25-facts.ts`; biểu đã tính trả phần, cột theo loại hình của trường; số nhập tay lưu theo phần; biểu pháp định không cho thay khung; xuất Excel mỗi phần một trang, đủ ba nhóm cột Tổng số, Công lập, Tư thục.
 - Cổng quản trị 7.15: chọn phần của biểu, tiêu đề nhóm cột theo loại hình, cột Chỉ tiêu cố định khi cuộn ngang, nhãn "Nhập tay".
@@ -37,8 +37,8 @@ phien_ban_de_xuat: 0.253.0
 
 - Lý do: lát L1 của YCTD-385 (danh sách lát đã duyệt ngày 2026-10-30).
 - Nội dung thay đổi: khung biểu nhiều phần, công thức mới, nạp hai biểu Tiểu học theo Thông tư 25/2024, giao diện chọn phần, xuất Excel đủ cột mẫu.
-- Thành phần bị ảnh hưởng: `database/system/migrations/0134_add_report_form_sections.ts` (mới), `database/system/data/tt25-tieu-hoc.ts` (mới), `database/system/schema-parts/yctd-385-bieu-thong-ke.ts` (mới), `database/system/schema.ts`, `packages/shared/src/primary-reports.ts`, `apps/api/src/primary-reports/primary-emis.ts`, `apps/api/src/primary-reports/tt25-facts.ts` (mới), `apps/portal/src/primary-reports/PrimaryReportsPage.tsx`, `apps/portal/src/primary-reports/primary-reports-api.ts`; tài liệu 11, 14, 16, 17, 21.
-- Dữ liệu bị ảnh hưởng: database migration hệ thống 0134 thêm cột, nạp hai biểu, đổi tên và ẩn hai biểu khung cũ; số đã nhập của biểu cũ giữ nguyên (phần `main`).
+- Thành phần bị ảnh hưởng: `database/system/migrations/0135_add_report_form_sections.ts` (mới), `database/system/data/tt25-tieu-hoc.ts` (mới), `database/system/schema-parts/yctd-385-bieu-thong-ke.ts` (mới), `database/system/schema.ts`, `packages/shared/src/primary-reports.ts`, `apps/api/src/primary-reports/primary-emis.ts`, `apps/api/src/primary-reports/tt25-facts.ts` (mới), `apps/portal/src/primary-reports/PrimaryReportsPage.tsx`, `apps/portal/src/primary-reports/primary-reports-api.ts`; tài liệu 11, 14, 16, 17, 21.
+- Dữ liệu bị ảnh hưởng: database migration hệ thống 0135 thêm cột, nạp hai biểu, đổi tên và ẩn hai biểu khung cũ; số đã nhập của biểu cũ giữ nguyên (phần `main`).
 - API bị ảnh hưởng: `/api/v1/primary-reports/emis` và `/secondary-reports/emis` trả thêm trường, nhận `?archived=true`; thay khung biểu pháp định trả 422.
 - Quyền bị ảnh hưởng: không.
 - Mức: Lớn. Người phê duyệt: Eric, ngày 2026-10-30 (danh sách lát).
@@ -49,7 +49,7 @@ phien_ban_de_xuat: 0.253.0
 ### Phiên bản {PHIEN_BAN} – 2026-10-30
 
 - Phạm vi thay đổi: biểu thống kê Thông tư 25/2024 cấp Tiểu học 02.ĐN-TH, 02.CN-TH trên khung biểu nhiều phần (YCTD-385 lát L1).
-- Quay lui: chạy `down` của database migration hệ thống 0134 (xóa biểu `tt25`, khôi phục tên và hiện hai biểu khung cũ, bỏ các cột mới), rồi hoàn tác commit hợp nhất của PR. Số nhập tay của biểu `tt25` ở `emis_report_values` của năm học còn lại, không ảnh hưởng biểu khác.
+- Quay lui: chạy `down` của database migration hệ thống 0135 (xóa biểu `tt25`, khôi phục tên và hiện hai biểu khung cũ, bỏ các cột mới), rồi hoàn tác commit hợp nhất của PR. Số nhập tay của biểu `tt25` ở `emis_report_values` của năm học còn lại, không ảnh hưởng biểu khác.
 
 ## 01 Bảng phiên bản
 
@@ -57,7 +57,7 @@ phien_ban_de_xuat: 0.253.0
 
 ## Thêm dòng
 
-| 16_CO_SO_DU_LIEU.md | report_forms, report_form_rows (bổ sung YCTD-175) | report_forms, report_form_rows (bổ sung YCTD-385) | Khung biểu nhiều phần cho biểu thống kê Thông tư 25/2024 (tệp hệ thống `0134`); nạp `tt25-02-dn-th`, `tt25-02-cn-th`; hai biểu khung Tiểu học cũ đổi tên "(khung cũ)", `archived` | report_forms thêm source (`custom`, `tt25`, `eqms`; mặc định `custom`), form_number, sections (JSON: code, name, columns gồm key, label, public_only; ownership_groups), archived; period thêm `mid_year`; report_form_rows thêm section (mặc định `main`). Số nhập tay ở `emis_report_values` dùng `tab_key` là mã phần |
+| 16_CO_SO_DU_LIEU.md | report_forms, report_form_rows (bổ sung YCTD-175) | report_forms, report_form_rows (bổ sung YCTD-385) | Khung biểu nhiều phần cho biểu thống kê Thông tư 25/2024 (tệp hệ thống `0135`); nạp `tt25-02-dn-th`, `tt25-02-cn-th`; hai biểu khung Tiểu học cũ đổi tên "(khung cũ)", `archived` | report_forms thêm source (`custom`, `tt25`, `eqms`; mặc định `custom`), form_number, sections (JSON: code, name, columns gồm key, label, public_only; ownership_groups), archived; period thêm `mid_year`; report_form_rows thêm section (mặc định `main`). Số nhập tay ở `emis_report_values` dùng `tab_key` là mã phần |
 | 11_TIEU_CHI_NGHIEM_THU.md | cuối bảng 19. Chức năng bổ sung theo tám ảnh sơ đồ chức năng | AC-1250 | Cho biểu 02.ĐN-TH, 02.CN-TH / Khi so với bản gốc Thông tư 25/2024 / Thì đủ 164 và 76 mã số, tên chỉ tiêu, đơn vị tính, năm phần (bốn phần ở cuối năm) với bộ cột của từng phần; chỗ nghi lỗi in giữ đúng bản in, có ghi chú (Bắt buộc; CT-1880, CT-1883, CT-1884; YCTD-385) |
 | 11_TIEU_CHI_NGHIEM_THU.md | cuối bảng 19. Chức năng bổ sung theo tám ảnh sơ đồ chức năng | AC-1251 | Cho trường có dữ liệu lớp, học sinh, cán bộ, phòng, hồ sơ trường / Khi mở biểu / Thì dòng tính được cho đúng số ở từng cột (tuổi theo năm sinh, lưu ban năm trước, dạng khuyết tật, đội ngũ theo hợp đồng, phòng theo hiện trạng), màn hình hiện nhóm cột theo loại hình của trường; dòng cộng gồm cả số nhập tay (Bắt buộc; CT-1880, CT-1881, CT-1882, CT-1884, CT-1885, CT-1886; YCTD-385) |
 | 11_TIEU_CHI_NGHIEM_THU.md | cuối bảng 19. Chức năng bổ sung theo tám ảnh sơ đồ chức năng | AC-1252 | Cho biểu pháp định / Khi nhập tay, thay khung, xuất Excel / Thì số lưu theo phần, cột ngoài phần bị từ chối; thay khung bị từ chối 422; tệp Excel mỗi phần một trang đủ ba nhóm cột Tổng số, Công lập, Tư thục, nhóm không thuộc loại hình để trống (Bắt buộc; CT-1885; YCTD-385) |
