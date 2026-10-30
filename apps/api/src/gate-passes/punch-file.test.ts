@@ -23,7 +23,9 @@ describe('Đọc tệp máy chấm công', () => {
   });
 
   it('CSV chấm phẩy có BOM và ô trong ngoặc kép; tiêu đề không dấu vẫn nhận', () => {
-    const table = parseCsv('\uFEFFMa;Thoi diem;Huong\r\n"AB;CD";2026-10-30 07:00;vao\r\n\r\nNS001;30/10/2026 16:30;ra\r\n');
+    const table = parseCsv(
+      '\uFEFFMa;Thoi diem;Huong\r\n"AB;CD";2026-10-30 07:00;vao\r\n\r\nNS001;30/10/2026 16:30;ra\r\n',
+    );
     const rows = rowsToPunches(table);
     assert.equal(rows.length, 2);
     assert.equal(rows[0]?.code, 'AB;CD');
