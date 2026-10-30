@@ -2,7 +2,7 @@
 
 - Ngày: 2026-10-30
 - Mức: Lớn (đổi cấu trúc khung biểu ở cơ sở dữ liệu hệ thống, thêm bảng ở cơ sở dữ liệu nền tảng, thêm quyền và màn hình cho tài khoản cấp trên, nhiều module)
-- Trạng thái: Chờ Eric duyệt bản mẫu, danh sách lát và các câu hỏi ở mục 9
+- Trạng thái: Đã phê duyệt (Eric, ngày 2026-10-30; quyết định ở mục 9)
 - Bản mẫu: `tai_lieu/ban_mau/yctd-385/index.html` (mở thẳng bằng trình duyệt; thanh trên cùng chọn màn hình, khổ, trạng thái)
 - Bản chép biểu gốc: `BIEU_02_TIEU_HOC.md`, `BIEU_03_THCS.md`, `BIEU_04_THPT.md` cùng thư mục
 - Đầu vào: báo cáo phân tích csdl.moet.gov.vn (mục 5, 6, 7) và báo cáo phân tích truong.hcm.edu.vn (mục 5, 8), cùng ngày 2026-10-30, lưu ngoài kho
@@ -169,7 +169,9 @@ Hiện trạng: mã cấp `GDTX` (mã Bộ 05) chỉ có ở danh mục nền t�
 
 Đề xuất: B, làm sau khi có khách hàng là trung tâm GDTX; cần chép biểu 05 của Thông tư 25/2024 trước khi ước lượng.
 
-## 9. Câu hỏi chờ Eric quyết
+## 9. Câu hỏi và quyết định của Eric
+
+Eric trả lời ngày 2026-10-30: Q-385-1 theo cấp học; Q-385-2 duyệt là khóa, đến hạn cấp trên khóa hàng loạt; Q-385-3 theo năm sinh; Q-385-4 và Q-385-5 làm L1 đến L9, thêm L10.
 
 - Q-385-1: Ai duyệt báo cáo của trường? Đề xuất: theo cấp của biểu như TP.HCM đang làm (xã duyệt Mầm non, Tiểu học, THCS; Sở duyệt THPT và trường trực thuộc).
 - Q-385-5: Có làm L10 (biểu Mầm non đủ mã theo Thông tư 25/2024) không?

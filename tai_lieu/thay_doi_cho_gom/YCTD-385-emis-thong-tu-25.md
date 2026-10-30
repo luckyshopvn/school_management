@@ -19,6 +19,7 @@ phien_ban_de_xuat: không
 #### Quyết định
 
 - Eric ngày 2026-10-30: để sau hồ sơ xin kết nối với Bộ, tập trung phát triển sản phẩm; thứ tự (a) biểu và mẫu nhập, xuất Thông tư 25/2024, (b) luồng duyệt, khóa, (c) EQMS và đội ngũ cuối năm, (d) GDTX chỉ khảo sát, đề xuất.
+- Eric ngày 2026-10-30 duyệt bản mẫu, danh sách lát L1 đến L10 và chọn: Q-385-1 cấp duyệt theo cấp học (xã hoặc Phòng duyệt Mầm non, Tiểu học, THCS; Sở duyệt THPT và trường trực thuộc); Q-385-2 duyệt là khóa, đến hạn cấp trên khóa hàng loạt; Q-385-3 tuổi tính theo năm sinh (năm đầu của năm học trừ năm sinh).
 - Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11: mở rộng khung biểu cấu hình được có sẵn thay vì làm module mới; danh mục chưa đối chiếu phụ lục Quyết định 4998 ghi nhãn tạm theo mẫu Excel của hệ thống Bộ.
 
 #### Thay đổi
@@ -27,7 +28,7 @@ phien_ban_de_xuat: không
 
 #### Vấn đề tồn đọng
 
-- Chờ Eric duyệt bản mẫu, danh sách lát và câu hỏi Q-385-1 đến Q-385-5; chưa viết mã.
+- Chưa viết mã; làm tiếp từ lát L1.
 - Đối chiếu thêm báo cáo truong.hcm.edu.vn: cấp duyệt theo cấp học, hạn của cấp trên sớm hơn hạn Bộ, phòng dùng chung báo một cấp; biểu 01.ĐN-MN mới khớp khoảng 38/217 dòng (đề xuất L10).
 - Bản in Thông tư có hai chỗ nghi lỗi in (02.ĐN-TH mã 27, 28; 02.CN-TH mã 02); mẫu EQMS và mẫu Excel phổ thông là bản tạm.
 
@@ -40,5 +41,5 @@ phien_ban_de_xuat: không
 - Thành phần bị ảnh hưởng (dự kiến): `packages/shared/src/primary-reports.ts`, `apps/api/src/primary-reports`, `apps/api/src/secondary-reports`, `apps/api/src/submissions`, `apps/api/src/parent-org`, `apps/api/src/imports`, `apps/portal/src/primary-reports`, `apps/portal/src/secondary-reports`, `apps/portal/src/submissions`, `apps/platform/src/ParentOrgApp.tsx`; database migration ở cơ sở dữ liệu hệ thống (`report_form_sections`, cột `source`, kỳ `mid_year`) và nền tảng (`report_submissions`, `report_submission_events`); tài liệu `10`, `11`, `14`, `16`, `17`, `21`, `22`.
 - Dữ liệu bị ảnh hưởng: biểu khung cũ giữ nguyên, đổi tên thêm "(khung cũ)"; số đã nhập không mất. Bản chụp gửi lên nền tảng chỉ gồm số liệu tổng hợp.
 - Quyền bị ảnh hưởng: thêm thao tác duyệt, từ chối, khóa, xử lý mở khóa cho tài khoản cấp trên của đơn vị trường gắn; quyền mở khóa tại trường chỉ còn ở chế độ một trường.
-- Mức: Lớn.
-- Trạng thái: Chờ phê duyệt
+- Mức: Lớn. Người phê duyệt: Eric, ngày 2026-10-30.
+- Trạng thái: Đã phê duyệt
