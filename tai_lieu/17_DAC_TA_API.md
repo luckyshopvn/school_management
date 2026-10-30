@@ -2680,6 +2680,20 @@ Nhóm `/supervision`. Đọc danh mục cần `P02.supervision.record` hoặc `P
 | PATCH | /api/v1/supervision/assignments/{id} | Sửa các trường trên trừ `staff_id`, thêm `status` |
 | GET | /api/v1/supervision/on-duty?zone_id=&at= | Người đang trực khu vực ở thời điểm `at` (ISO 8601, mặc định bây giờ): `[{ user_id, staff_id, full_name }]`; trống là không ai trực. Máy chủ dùng cùng hàm `SupervisionService.findOnDutySupervisors` khi gửi cảnh báo camera (YCTD-389) |
 
+### 17.15. Thẻ QR và lượt qua cổng (YCTD-389 lát L1)
+
+Mã ở `apps/api/src/gate-passes/`. Lượt qua cổng là gợi ý cho giáo viên; chỉ "Đi muộn" từ thẻ được tự ghi.
+
+| Phương thức | Đường dẫn | Mô tả |
+|---|---|---|
+| GET | /api/v1/classes/{id}/gate-cards | Thẻ của học sinh đang học trong lớp: `class_name`, `children [{ child_id, full_name, code, issued_at }]`; quyền `P04.gate-card.manage` ở đơn vị của lớp, khác thì 403 |
+| POST | /api/v1/classes/{id}/gate-cards | Cấp thẻ cho học sinh chưa có; `{ reissue_child_ids?: uuid[] }` cấp lại (thu hồi thẻ cũ). Học sinh ngoài lớp: 422. Trả như GET kèm `issued_count` |
+| POST | /api/v1/gate-passes | Quét thẻ `{ code, direction: in \| out }`; mã gõ tay được (bỏ khoảng trắng, gạch nối, không phân biệt hoa thường); quyền `P04.gate-pass.record` ở đơn vị của học sinh (403). Mã sai dạng, thẻ đã thu hồi, học sinh không còn học: 422; không có thẻ: 404. Trả `{ id, child_id, child_name, class_name, direction, passed_at, duplicate, auto_late }`; báo phụ huynh `gate_arrived` hoặc `gate_left` (trong ứng dụng, đẩy theo nhóm `gate`) |
+| GET | /api/v1/gate-passes/recent | 30 lượt mới nhất hôm nay trong phạm vi `P04.gate-pass.record` của người dùng; không có quyền: 403 |
+| POST | /api/v1/gate-passes/{id}/reject | Báo nhận nhầm `{ note? }` (tối đa 500 ký tự): giáo viên chủ nhiệm của lớp hoặc người có `P04.attendance.manage` ở đơn vị (403); lượt đã báo nhầm: 422; phụ huynh nhận `gate_pass_corrected` |
+| GET | /api/v1/children/{id}/gate-passes?from=&to= | Lượt của một học sinh, tối đa 31 ngày (422): người được xem hồ sơ em, phụ huynh của em; phụ huynh khác 403. Gồm lượt đã báo nhầm (`review_status`), bỏ lượt chờ xem |
+| GET | /api/v1/classes/{id}/attendance | (Đã có) mỗi dòng thêm `gate { first_in_pass_id, first_in, last_out, first_in_method, suggested_status }` hoặc `null`; `suggested_status` là `present` khi vào trước hoặc đúng giờ học, `late` khi sau |
+
 ## 18. Quy tắc kiểm tra dữ liệu
 
 | Mã | Quy tắc |

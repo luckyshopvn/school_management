@@ -1089,6 +1089,22 @@ Quy tắc (mã ở `apps/api/src/ai-tutor/tutor-chat.ts`, `tutor-chat-rules.ts`,
 6. Báo giáo viên chủ nhiệm (lát L3, mã ở `safety-flags.ts`): ngay sau khi lưu cờ, và việc nền báo lại cờ còn `notified_at` trống. Nhận cờ bằng lệnh ghi `notified_at` có điều kiện rồi mới tạo thông báo (`notifications`, `template_code = 'ai_tutor_safety_flag'`, `target_type = 'ai_tutor_safety_flags'`, kênh trong ứng dụng); tạo thông báo lỗi thì trả `notified_at` về trống. Người nhận: giáo viên chủ nhiệm đang được phân công (`class_staff_assignments`, `homeroom`, `active`) của lớp hiện tại; không có thì vai trò VT-02, VT-15 của đơn vị của lớp (em chưa xếp lớp thì đơn vị trường chính). Cùng lúc tạo thông báo riêng `ai_tutor_safety_flag_guardian` cho tài khoản của cha mẹ, người giám hộ liên kết với em (`child_guardians`, `guardians.user_id`), chỉ có loại dấu hiệu, thời điểm, lời khuyên. Báo và đánh dấu đã xử lý ghi `audit_logs` (`entity_name = 'ai_tutor_safety_flags'`).
 7. Ảnh bài tập (lát L4, mã ở `tutor-images.ts`, `tutor-chat.ts`): chỉ gói tháng đang dùng có `allow_images` (kiểm trước khi giữ lượt); tối đa 3 ảnh, mỗi ảnh 4 MB, JPEG, PNG, WebP theo byte đầu, bỏ siêu dữ liệu trước khi lưu và gửi đi. Ảnh chỉ lưu khi câu được trả lời bình thường (khóa `ai-tutor-images/<mã học sinh>/<mã ngẫu nhiên>`, có tiền tố của trường); câu có thông tin cá nhân trong ảnh lưu `moderation = 'personal_data'`, câu trả lời theo mẫu `step = 'safety'`, không có dòng ảnh, không có `image_text`. Lượt sau gửi `image_text` kèm câu hỏi cũ, không gửi lại ảnh. Việc nền xóa ảnh có `created_at` từ đủ 30 ngày trước: xóa tệp ở kho, ghi `storage_key` trống và `deleted_at`; kho lỗi thì để lần sau; chạy trước bước xóa lịch sử 12 tháng.
 
+## 18T. Thẻ QR và lượt qua cổng (YCTD-389 lát L1)
+
+Tệp năm học `0240_create_gate_passes`; kiểu ở `database/school-year/schema-parts/yctd-389-luot-qua-cong.ts`. Đặc tả chung: `tai_lieu/ban_mau/yctd-389/DAC_TA.md`.
+
+| Bảng | Mục đích | Cột chính |
+|---|---|---|
+| gate_cards (năm học) | Thẻ QR điểm danh của học sinh | id, child_id, code (16 ký tự base32 ngẫu nhiên, duy nhất, không chứa thông tin cá nhân), issued_by, issued_at, revoked_at, revoked_by; mỗi học sinh tối đa một thẻ còn hiệu lực (chỉ mục duy nhất có điều kiện `revoked_at is null`) |
+| gate_passes (năm học) | Lượt vào, ra cổng | id, child_id, org_unit_id, direction (`in`, `out`), passed_at, method (`qr`, `rfid`, `device`, `camera`), confidence (0 đến 1, thẻ là 1), review_status (`confirmed`, `needs_review`, `rejected`), gate_card_id, recorded_by, external_id (duy nhất, chống ghi trùng khi thiết bị gửi lại, dùng từ lát L2), reviewed_by, reviewed_at, review_note; chỉ mục (child_id, passed_at), (org_unit_id, passed_at) |
+
+Quy tắc (mã ở `apps/api/src/gate-passes/`):
+
+1. Cấp lại thẻ thu hồi thẻ cũ trong cùng giao dịch; thẻ đã thu hồi quét bị từ chối.
+2. Hai lượt cùng hướng của một học sinh cách nhau không quá 5 phút là một lượt (trả lượt cũ, không báo lần hai).
+3. Lượt vào sau giờ bắt đầu học (cài đặt `school_start_time`) bằng thẻ QR, thẻ RFID hoặc máy chấm công, trong ngày học, khi học sinh chưa có điểm danh ngày, ngày của lớp chưa chốt: ghi `attendance_records` trạng thái `late`, `source = system`, `recorded_by` là người quét, ghi chú giờ vào. Không ghi đè điểm danh đã có; không bao giờ ghi vắng.
+4. Báo nhận nhầm chuyển `review_status` sang `rejected`, không xóa dòng; bảng điểm danh bỏ lượt đã báo nhầm khỏi gợi ý.
+
 ## 19. Quan hệ chính giữa các bảng
 
 ```mermaid

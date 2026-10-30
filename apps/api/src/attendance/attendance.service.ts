@@ -9,6 +9,7 @@ import { CurrentSchoolYearResolver } from '../common/current-school-year.js';
 import { queueNotification } from '../common/notification-queue.js';
 import { notFoundError } from '../common/request-fields.js';
 import { ChildScope } from '../children/child-scope.js';
+import { GatePassesService } from '../gate-passes/gate-passes.service.js';
 import { OrganizationScopes } from '../organization/organization-scopes.js';
 import { SettingsService } from '../settings/settings.service.js';
 import { SchoolCalendar } from './school-calendar.js';
@@ -49,6 +50,7 @@ export class AttendanceService {
     private readonly calendar: SchoolCalendar,
     private readonly settings: SettingsService,
     private readonly clock: Clock,
+    private readonly gatePasses: GatePassesService,
   ) {}
 
   // Bảng điểm danh: trẻ đang học của lớp, trạng thái đã lưu, báo vắng đã có; chưa lưu thì chưa đánh dấu
@@ -90,6 +92,13 @@ export class AttendanceService {
       .where('class_id', '=', classId)
       .where('attendance_date', '=', date)
       .executeTakeFirst();
+    // Lượt qua cổng trong ngày làm gợi ý (YCTD-389); giáo viên vẫn là người ghi
+    const gate = await this.gatePasses.summaries(
+      database,
+      classRecord.org_unit_id,
+      children.map((child) => child.child_id),
+      date,
+    );
     const rows = children.map((child) => ({
       child_id: child.child_id,
       full_name: child.full_name,
@@ -102,6 +111,7 @@ export class AttendanceService {
         child.absence_is_advised === null
           ? null
           : { reason: child.absence_reason, is_advised: child.absence_is_advised },
+      gate: gate.get(child.child_id) ?? null,
     }));
     return {
       class_id: classId,

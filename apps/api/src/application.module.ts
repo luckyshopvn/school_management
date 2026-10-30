@@ -346,6 +346,8 @@ import { AttendanceController } from './attendance/attendance.controller.js';
 import { AttendanceService } from './attendance/attendance.service.js';
 import { PickupsController } from './pickups/pickups.controller.js';
 import { PickupsService } from './pickups/pickups.service.js';
+import { GatePassesController } from './gate-passes/gate-passes.controller.js';
+import { GatePassesService } from './gate-passes/gate-passes.service.js';
 import { SchoolCalendar } from './attendance/school-calendar.js';
 import { CashAccountsController, CashAccountsService } from './finance/cash-accounts.js';
 import { ReceiptsController } from './finance/receipts.controller.js';
@@ -750,6 +752,7 @@ export class ApplicationModule {
         ImportsController,
         AttendanceController,
         PickupsController,
+        GatePassesController,
         ServicesController,
         FeeSchedulesController,
         DiscountTypesController,
@@ -1062,6 +1065,7 @@ export class ApplicationModule {
         StudentImportToolsService,
         AttendanceService,
         PickupsService,
+        GatePassesService,
         ServicesService,
         FeeSchedulesService,
         DiscountTypesService,
