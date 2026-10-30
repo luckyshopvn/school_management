@@ -48,7 +48,8 @@ export interface PortalWorkspace {
   // Cấp học của phân hệ, cùng quy ước với mục menu (DT-19 phần 19c)
   levels?: readonly SchoolLevelCode[];
   // Phân hệ đặt tên theo cấp: một cấp thì "<levelTitle> <tên cấp>" (trường mầm non giữ "Quản lý giáo dục Mầm non" như Sở),
-  // nhiều cấp thì chỉ "<levelTitle>"; tên cấp lấy từ school_levels, không ghi cứng
+  // nhiều cấp thì chỉ "<levelTitle>"; tên cấp lấy từ school_levels, không ghi cứng. Khi đó label chỉ là tên dự phòng của
+  // trường mầm non: chỗ hiện tên phân hệ lấy tên từ portalWorkspacesForLevels, không đọc thẳng PORTAL_WORKSPACES (YCTD-388)
   levelTitle?: string;
 }
 
@@ -786,6 +787,14 @@ export function portalWorkspacesForLevels(
       : workspace.label;
     return [{ ...workspace, label, menu }];
   });
+}
+
+// Tên phân hệ khi chưa biết cấp (ngữ cảnh trường đang tải): phân hệ đặt tên theo cấp chỉ hiện "<levelTitle>", không gắn
+// tên cấp nào, để trường không phải mầm non không thoáng thấy "Quản lý giáo dục Mầm non" (YCTD-388)
+export function portalWorkspacesWithoutLevelName(workspaces: PortalWorkspace[]): PortalWorkspace[] {
+  return workspaces.map((workspace) =>
+    workspace.levelTitle ? { ...workspace, label: workspace.levelTitle } : workspace,
+  );
 }
 
 // Đường dẫn của các mục menu không thuộc cấp nào trong danh sách, dùng để ẩn lối tắt "Truy cập nhanh" và mục của cây quyền
