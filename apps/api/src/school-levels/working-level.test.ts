@@ -36,6 +36,8 @@ const PRIMARY_ONLY_PATHS = [
   '/teaching-assignments',
   '/boarding',
   '/conduct',
+  // Nội quy, phân công giám thị (YCTD-391)
+  '/supervision',
   // Thời khoá biểu phần khung (DT-20 phần 22c1)
   '/period-slots',
   '/timetables',
@@ -136,7 +138,7 @@ describe('Cây menu và nhãn theo cấp học', () => {
     const students = education(primary)?.menu.find((node) => node.number === '4.');
     assert.deepEqual(
       students?.children?.map((node) => node.number),
-      ['4.1.', '4.2.', '4.5.', '4.6.', '4.7.', '4.8.', '4.9.'],
+      ['4.1.', '4.2.', '4.5.', '4.6.', '4.7.', '4.8.', '4.9.', '4.10.'],
     );
     const emis = primary.find((workspace) => workspace.key === 'emis');
     assert.deepEqual(
