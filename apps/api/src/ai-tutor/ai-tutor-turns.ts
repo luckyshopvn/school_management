@@ -6,16 +6,20 @@ import {
   subscriptionWindow,
   turnBalance,
   turnOrder,
+  upgradeQuote,
   type AiTutorPlanKind,
   type AiTutorPlanSource,
   type AiTutorSchoolLevel,
   type PurchaseBlock,
   type TurnCandidate,
+  type UpgradeBlockCode,
+  type UpgradeQuote,
 } from './ai-tutor-rules.js';
 
 // Đăng ký gói và sổ lượt của gia sư AI trả phí (YCTD-383 lát L0) trên cơ sở dữ liệu hệ thống của trường. Lát L1a (trường bán qua hóa đơn
-// học phí) và L1b (nền tảng bán qua cổng thanh toán của nền tảng) cùng gọi `createAiTutorSubscription`, `activateAiTutorSubscription`;
-// lát L2 gọi `holdAiTutorTurn` trước khi gọi AI rồi `captureAiTutorTurn` hoặc `releaseAiTutorTurn`. Chưa có điểm cuối API ở lát này.
+// học phí) và L1b (nền tảng bán qua cổng thanh toán của nền tảng) cùng gọi `createAiTutorSubscription`, `activateAiTutorSubscription`,
+// và để nâng gói giữa tháng thì `createAiTutorUpgrade`, `applyAiTutorUpgrade`; lát L2 gọi `holdAiTutorTurn` trước khi gọi AI rồi
+// `captureAiTutorTurn` hoặc `releaseAiTutorTurn`.
 
 type SystemClient = Kysely<SystemDatabase>;
 type SubscriptionRow = Selectable<SystemDatabase['ai_tutor_subscriptions']>;
@@ -303,4 +307,206 @@ export async function releaseStaleAiTutorHolds(system: SystemClient, now: Date):
     }
   }
   return released;
+}
+
+// Giá tháng và số lượt tháng của gói đang dùng: gói đích của lần nâng gần nhất đã áp, chưa nâng thì gói mua ban đầu
+export async function currentMonthlyTerms(
+  system: SystemClient,
+  subscription: Pick<SubscriptionRow, 'id' | 'price' | 'turns'>,
+): Promise<{ price: number; turns: number }> {
+  const upgrades = await system
+    .selectFrom('ai_tutor_upgrades')
+    .select(['to_price', 'to_turns'])
+    .where('subscription_id', '=', subscription.id)
+    .where('status', '=', 'applied')
+    .orderBy('applied_at', 'desc')
+    .execute();
+  const latest = upgrades[0];
+  if (latest) {
+    return { price: Number(latest.to_price), turns: latest.to_turns };
+  }
+  return { price: Number(subscription.price), turns: subscription.turns };
+}
+
+export interface AiTutorUpgradeInput {
+  subscriptionId: string;
+  childSchoolLevel: AiTutorSchoolLevel;
+  target: AiTutorPurchaseInput['plan'];
+  buyerUserId: string;
+  buyerName: string;
+  // Hạn giữ chỗ khi chờ thanh toán (nền tảng bán); trống là giữ tới khi áp hoặc hủy
+  pendingExpiresAt: Date | null;
+}
+
+export type AiTutorUpgradeBlock = UpgradeBlockCode | 'not_found' | 'upgrade_pending';
+
+export type AiTutorUpgradeResult =
+  { ok: true; upgradeId: string; quote: UpgradeQuote } | { ok: false; code: AiTutorUpgradeBlock };
+
+const ONE_PENDING_UPGRADE_INDEX = 'ai_tutor_upgrades_one_pending';
+
+// Ghi một lần nâng gói ở trạng thái chờ, kèm báo giá theo số ngày còn lại. Trong cùng giao dịch: khóa dòng đăng ký, hủy lần nâng đang
+// chờ đã quá hạn giữ chỗ, kiểm quy tắc. Nơi gọi tự kiểm con thuộc phụ huynh. Trường bán gọi `applyAiTutorUpgrade` ngay sau đó
+export async function createAiTutorUpgrade(
+  system: SystemClient,
+  input: AiTutorUpgradeInput,
+  now: Date,
+): Promise<AiTutorUpgradeResult> {
+  try {
+    return await system.transaction().execute(async (transaction) => {
+      const subscription = await transaction
+        .selectFrom('ai_tutor_subscriptions')
+        .selectAll()
+        .where('id', '=', input.subscriptionId)
+        .forUpdate()
+        .executeTakeFirst();
+      if (!subscription) {
+        return { ok: false, code: 'not_found' } as const;
+      }
+      await transaction
+        .updateTable('ai_tutor_upgrades')
+        .set({ status: 'cancelled', cancelled_at: now, cancel_reason: 'Quá hạn thanh toán', updated_at: now })
+        .where('subscription_id', '=', subscription.id)
+        .where('status', '=', 'pending')
+        .where('pending_expires_at', '<=', now)
+        .execute();
+      const waiting = await transaction
+        .selectFrom('ai_tutor_upgrades')
+        .select('id')
+        .where('subscription_id', '=', subscription.id)
+        .where('status', '=', 'pending')
+        .executeTakeFirst();
+      if (waiting) {
+        return { ok: false, code: 'upgrade_pending' } as const;
+      }
+      const terms = await currentMonthlyTerms(transaction, subscription);
+      const isExpired = subscription.valid_until !== null && subscription.valid_until.getTime() <= now.getTime();
+      const priced = upgradeQuote(
+        {
+          planSource: subscription.plan_source,
+          planKind: subscription.plan_kind,
+          planId: subscription.plan_id,
+          status: isExpired ? 'cancelled' : subscription.status,
+          periodMonth: subscription.period_month,
+          monthlyPrice: terms.price,
+          monthlyTurns: terms.turns,
+        },
+        {
+          source: input.target.source,
+          id: input.target.id,
+          kind: input.target.kind,
+          status: input.target.status,
+          price: Number(input.target.price),
+          turns: input.target.turns,
+          schoolLevels: input.target.schoolLevels,
+        },
+        input.childSchoolLevel,
+        now,
+      );
+      if (!priced.ok) {
+        return { ok: false, code: isExpired && priced.code === 'not_active' ? 'period_ended' : priced.code } as const;
+      }
+      const { quote } = priced;
+      const inserted = await transaction
+        .insertInto('ai_tutor_upgrades')
+        .values({
+          subscription_id: subscription.id,
+          child_id: subscription.child_id,
+          plan_source: subscription.plan_source,
+          from_plan_id: subscription.plan_id,
+          from_plan_name: subscription.plan_name,
+          from_price: quote.fromPrice,
+          from_turns: quote.fromTurns,
+          to_plan_id: input.target.id,
+          to_plan_name: input.target.name,
+          to_price: quote.toPrice,
+          to_turns: quote.toTurns,
+          to_allow_images: input.target.allowImages,
+          remaining_days: quote.remainingDays,
+          days_in_month: quote.daysInMonth,
+          price_difference: quote.priceDifference,
+          extra_turns: quote.extraTurns,
+          pending_expires_at: input.pendingExpiresAt,
+          buyer_user_id: input.buyerUserId,
+          buyer_name: input.buyerName,
+          created_at: now,
+          updated_at: now,
+        })
+        .returning('id')
+        .executeTakeFirstOrThrow();
+      return { ok: true, upgradeId: inserted.id, quote } as const;
+    });
+  } catch (error) {
+    if (isUniqueViolation(error, ONE_PENDING_UPGRADE_INDEX)) {
+      return { ok: false, code: 'upgrade_pending' };
+    }
+    throw error;
+  }
+}
+
+// Áp lần nâng đang chờ (trường bán: ngay khi ghi; nền tảng bán: khi đã thu tiền): đổi dòng đăng ký sang gói mới, cộng thêm lượt. Trả
+// về false khi lần nâng không còn chờ, đã quá hạn giữ chỗ, hoặc đăng ký không còn hiệu lực
+export async function applyAiTutorUpgrade(
+  system: SystemClient,
+  upgradeId: string,
+  now: Date,
+  externalReference: string | null,
+): Promise<boolean> {
+  return system.transaction().execute(async (transaction) => {
+    const upgrade = await transaction
+      .selectFrom('ai_tutor_upgrades')
+      .selectAll()
+      .where('id', '=', upgradeId)
+      .where('status', '=', 'pending')
+      .forUpdate()
+      .executeTakeFirst();
+    if (!upgrade || (upgrade.pending_expires_at !== null && upgrade.pending_expires_at.getTime() <= now.getTime())) {
+      return false;
+    }
+    const updated = await transaction
+      .updateTable('ai_tutor_subscriptions')
+      .set((expression) => ({
+        plan_id: upgrade.to_plan_id,
+        plan_name: upgrade.to_plan_name,
+        allow_images: upgrade.to_allow_images,
+        turns: expression('turns', '+', upgrade.extra_turns),
+        updated_at: now,
+      }))
+      .where('id', '=', upgrade.subscription_id)
+      .where('status', '=', 'active')
+      .where('plan_id', '=', upgrade.from_plan_id)
+      .where('valid_until', '>', now)
+      .executeTakeFirst();
+    if (updated.numUpdatedRows !== 1n) {
+      return false;
+    }
+    await transaction
+      .updateTable('ai_tutor_upgrades')
+      .set({
+        status: 'applied',
+        applied_at: now,
+        pending_expires_at: null,
+        external_reference: externalReference,
+        updated_at: now,
+      })
+      .where('id', '=', upgrade.id)
+      .execute();
+    return true;
+  });
+}
+
+// Hủy lần nâng đang chờ (áp không được, phụ huynh bỏ thanh toán). Trả về false khi lần nâng không còn chờ
+export async function cancelAiTutorUpgrade(
+  system: SystemClient,
+  upgradeId: string,
+  reason: string,
+  now: Date,
+): Promise<boolean> {
+  const result = await system
+    .updateTable('ai_tutor_upgrades')
+    .set({ status: 'cancelled', cancelled_at: now, cancel_reason: reason.slice(0, 500), updated_at: now })
+    .where('id', '=', upgradeId)
+    .where('status', '=', 'pending')
+    .executeTakeFirst();
+  return result.numUpdatedRows === 1n;
 }

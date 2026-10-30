@@ -466,12 +466,15 @@ export interface PlatformIntegrationSecretsTable {
   updated_by: string | null;
 }
 
-// Trợ lý AI (DT-23 phần 23d, YCTD-214)
+// Trợ lý AI (DT-23 phần 23d, YCTD-214). Phân loại: trợ lý AI của giáo viên `school`, `platform`; gia sư AI học sinh (YCTD-383 lát L2)
+// `tutor_school` (gói trường bán, thu phí trường), `tutor_platform` (gói nền tảng bán, chi phí của nền tảng)
+export type AiUsageConfig = 'school' | 'platform' | 'tutor_school' | 'tutor_platform';
+
 export interface AiTokenUsageTable {
   school_id: string;
   usage_date: ColumnType<string, string, string>;
   model: string;
-  config: 'school' | 'platform';
+  config: AiUsageConfig;
   requests: Generated<number>;
   input_tokens: ColumnType<string, number | string | undefined, number | string>;
   output_tokens: ColumnType<string, number | string | undefined, number | string>;

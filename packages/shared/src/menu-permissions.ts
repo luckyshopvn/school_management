@@ -408,6 +408,8 @@ export const MENU_PERMISSION_RULES: Partial<Record<PortalQuickLinkPath, MenuPerm
   '/integrations': 'P01.integration.manage',
   // Trợ lý AI soạn nháp (DT-23 phần 23d): quản trị của trường dùng quyền quản lý kết nối ngoài
   '/ai-assistant': 'P01.integration.manage',
+  // Gia sư AI do trường bán (YCTD-383 lát L1a): cùng quyền với Trợ lý AI
+  '/ai-tutor': 'P01.integration.manage',
   // Hóa đơn dịch vụ của trường (DT-SaaS phần S5b)
   '/service-invoices': 'P01.billing.manage',
   // Tài khoản đồng bộ của Bộ, của Sở (DT-16 phần 16d)

@@ -145,4 +145,22 @@ export const PUBLIC_ROUTES: PublicRoute[] = [
     '/api/v1/public/certificates/:code',
     'Trang kiểm tra chứng nhận theo mã in trên chứng nhận, theo tên miền của trường; có giới hạn tần suất (DT-28 phần 28i)',
   ),
+  // Gói gia sư AI nền tảng bán thẳng cho phụ huynh (YCTD-383 lát L1b)
+  ...(
+    [
+      ['GET', '/api/v1/platform-ai-tutor/plans'],
+      ['POST', '/api/v1/platform-ai-tutor/plans'],
+      ['PUT', '/api/v1/platform-ai-tutor/plans/:id'],
+      ['POST', '/api/v1/platform-ai-tutor/plans/:id/status'],
+      ['GET', '/api/v1/platform-ai-tutor/orders'],
+      ['GET', '/api/v1/platform-ai-tutor/orders/:id'],
+      ['POST', '/api/v1/platform-ai-tutor/orders/:id/cancel'],
+      ['POST', '/api/v1/platform-ai-tutor/orders/:id/refund'],
+    ] as const
+  ).map(([method, path]) => ({
+    method,
+    path,
+    reason:
+      'Quản lý gói gia sư AI nền tảng bán, giao dịch, hoàn tiền ở cổng nền tảng (YCTD-383 lát L1b): không thuộc trường nào; mã phiên vận hành vai trò quản trị hoặc kế toán, chỉ ở tên miền PLATFORM_CONSOLE_HOST (tên miền khác 404)',
+  })),
 ];

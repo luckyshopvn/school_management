@@ -707,6 +707,8 @@ export const PORTAL_QUICK_LINK_PATHS = [
   '/online-exams/settings',
   // Trợ lý AI soạn nháp (DT-23 phần 23d)
   '/ai-assistant',
+  // Gia sư AI do trường bán (YCTD-383 lát L1a)
+  '/ai-tutor',
   // Lõi hệ thống quản lý học tập (DT-28 phần 28b)
   '/online-classes',
   '/course-templates',
