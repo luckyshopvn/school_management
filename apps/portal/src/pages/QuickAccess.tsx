@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Link } from '@tanstack/react-router';
-import { MAX_QUICK_LINKS, PORTAL_WORKSPACES } from '@school-management/shared';
+import { MAX_QUICK_LINKS } from '@school-management/shared';
 import { Alert, Button } from '@school-management/ui';
 import { useState } from 'react';
 import { useNavigationEntries, type NavigationEntry } from './navigation-registry.js';
@@ -8,9 +8,6 @@ import { listQuickLinks, saveQuickLinks, type QuickLink } from './quick-links-ap
 import { WORKSPACE_ICONS, WorkspaceIcon, type IconName } from './workspaces.js';
 
 const QUICK_LINKS_KEY = ['quick-links'];
-
-const labelOf = (key: NavigationEntry['workspace']) =>
-  PORTAL_WORKSPACES.find((workspace) => workspace.key === key)?.label ?? key;
 
 // Bộ chọn trang để ghim: các trang người dùng thấy trên menu, nhóm theo phân hệ
 function QuickLinkPicker({
@@ -30,7 +27,7 @@ function QuickLinkPicker({
 }) {
   const groups = new Map<string, { icon: IconName; items: NavigationEntry[] }>();
   for (const entry of entries) {
-    const title = labelOf(entry.workspace);
+    const title = entry.workspaceLabel;
     const group = groups.get(title) ?? { icon: WORKSPACE_ICONS[entry.workspace], items: [] };
     group.items.push(entry);
     groups.set(title, group);
