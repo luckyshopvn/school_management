@@ -20,7 +20,7 @@ phien_ban_de_xuat: 0.254.0
 
 #### Quyết định
 
-- Bản mẫu vẽ dải biểu tượng 72 điểm ảnh cho máy tính bảng, nhưng menu cổng quản trị (23 phân hệ, mục có số thứ bậc) không có biểu tượng cho từng nhóm; tự vẽ là việc thiết kế mới chưa duyệt. Lát này hiện thanh bên đầy đủ từ 1024 điểm ảnh, dưới 1024 là ngăn menu; chờ Eric xác nhận tại điểm xem trước. Đã ghi ở tài liệu `14` BC-11, `15` KC-09, đặc tả `tai_lieu/ban_mau/yctd-384/DAC_TA.md`.
+- Bản mẫu vẽ dải biểu tượng 72 điểm ảnh cho máy tính bảng, nhưng menu cổng quản trị (23 phân hệ, mục có số thứ bậc) không có biểu tượng cho từng nhóm; tự vẽ là việc thiết kế mới chưa duyệt. Lát này hiện thanh bên đầy đủ từ 1024 điểm ảnh, dưới 1024 là ngăn menu; điều phối chọn thay Eric theo khuyến nghị ngày 2026-10-30, Eric có thể đổi. Đã ghi ở tài liệu `14` BC-11, `15` KC-09, đặc tả `tai_lieu/ban_mau/yctd-384/DAC_TA.md`.
 - Ẩn cột phụ của lưới ở máy tính bảng dời sang lát L3 cùng các bảng nhiều cột.
 
 #### Thay đổi
