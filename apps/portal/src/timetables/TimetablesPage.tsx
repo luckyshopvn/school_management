@@ -723,7 +723,7 @@ export function TimetablesPage() {
           {canManage && level ? (
             <Link
               to="/timetable-generator"
-              className="inline-flex items-center rounded-lg border border-border-strong bg-card px-4 py-2 text-label font-medium text-text hover:bg-selected max-xl:min-h-11"
+              className="inline-flex items-center rounded-lg border border-border-strong bg-card px-4 py-2 text-label font-medium text-text hover:bg-selected min-h-11"
             >
               Xếp tự động
             </Link>

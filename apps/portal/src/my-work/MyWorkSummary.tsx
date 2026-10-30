@@ -38,7 +38,7 @@ export function MyWorkSummary() {
         <h2 className="text-section-title font-semibold text-text">Việc cần xử lý</h2>
         <Link
           to={MY_WORK_PATH}
-          className="inline-flex items-center text-label font-medium text-link underline max-xl:min-h-11"
+          className="inline-flex items-center text-label font-medium text-link underline min-h-11"
         >
           Xem tất cả
         </Link>
