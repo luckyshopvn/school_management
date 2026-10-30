@@ -29,7 +29,6 @@ import { ScorePanel } from './ScorePanel.js';
 import { PeriodAttendancePanel } from './PeriodAttendancePanel.js';
 import { LearningRecordPanel } from './LearningRecordPanel.js';
 import { ProctorConsentPanel } from './ProctorConsentPanel.js';
-import { TutoringPanel } from './TutoringPanel.js';
 import { AiTutorPanel } from '../ai-tutor/AiTutorPanel.js';
 import { hasLevelFeature, levelOf } from '@school-management/shared';
 import { useSchoolLevelNames } from './school-levels.js';
@@ -200,7 +199,6 @@ function ChildCard({
     | 'learning-record'
     | 'proctor-consent'
     | 'online-learning'
-    | 'tutoring'
     | 'ai-tutor'
   >('none');
   const [attendance, setAttendance] = useState<MonthAttendance>();
@@ -357,10 +355,6 @@ function ChildCard({
             Học trực tuyến
           </Button>
         ) : null}
-        {/* Gia sư trong trường (DT-27 phần 27b): từ Tiểu học trở lên */}
-        {has('period_timetable') ? (
-          <Button onClick={() => setView(view === 'tutoring' ? 'none' : 'tutoring')}>Gia sư</Button>
-        ) : null}
         {/* Gia sư AI trả phí (YCTD-383 lát L1a): Tiểu học, Trung học cơ sở, Trung học phổ thông */}
         {['TH', 'THCS', 'THPT'].includes(child.school_level ?? '') ? (
           <Button onClick={() => setView(view === 'ai-tutor' ? 'none' : 'ai-tutor')}>Gia sư AI</Button>
@@ -371,7 +365,6 @@ function ChildCard({
       </div>
       {view === 'journal' ? <JournalPanel child={child} /> : null}
       {view === 'medication' ? <MedicationPanel child={child} /> : null}
-      {view === 'tutoring' ? <TutoringPanel child={child} /> : null}
       {view === 'ai-tutor' ? <AiTutorPanel child={child} /> : null}
       {view === 'consent' ? <PhotoConsentPanel child={child} /> : null}
       {view === 'health' ? <HealthPanel child={child} schoolLevel={child.school_level} /> : null}

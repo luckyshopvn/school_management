@@ -33,7 +33,6 @@ import { requestJson } from './session/api-client.js';
 import { ClassroomOfflineManager } from './tools/ClassroomOfflineManager.js';
 import { ClassroomToolsScreen } from './tools/ClassroomToolsScreen.js';
 import { toolboxLinkSearch, withToolboxSearch } from './tools/toolbox-link.js';
-import { TutoringScreen } from './screens/TutoringScreen.js';
 import { AiTutorFlagsScreen } from './screens/AiTutorFlagsScreen.js';
 import { readRosters } from './tools/classroom-store.js';
 import { SessionProvider, useSession } from './session/session.js';
@@ -97,7 +96,6 @@ type Opened =
   | { screen: 'classroom-tools'; classes: MyClass[] | undefined; classId?: string }
   | { screen: 'classroom-mode'; classes: MyClass[] }
   | { screen: 'online-classes' }
-  | { screen: 'tutoring' }
   | { screen: 'ai-tutor-flags' };
 
 // Đường dẫn mở thẳng Hộp công cụ (DT-29, YCTD-325): tên cũ đổi sang tên mới ngay khi mở ứng dụng
@@ -239,9 +237,6 @@ function Screens() {
   if (opened?.screen === 'classroom-mode') {
     return <ClassroomModeScreen classes={opened.classes} onBack={back} />;
   }
-  if (opened?.screen === 'tutoring') {
-    return <TutoringScreen onBack={back} />;
-  }
   if (opened?.screen === 'ai-tutor-flags') {
     return <AiTutorFlagsScreen onBack={back} />;
   }
@@ -290,7 +285,6 @@ function Screens() {
       onOpenClassroomTools={(classes) => setOpened({ screen: 'classroom-tools', classes })}
       onOpenClassroomMode={(classes) => setOpened({ screen: 'classroom-mode', classes })}
       onOpenOnlineClasses={() => setOpened({ screen: 'online-classes' })}
-      onOpenTutoring={() => setOpened({ screen: 'tutoring' })}
       onOpenAiTutorFlags={() => setOpened({ screen: 'ai-tutor-flags' })}
     />
   );
