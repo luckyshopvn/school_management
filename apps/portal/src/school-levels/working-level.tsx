@@ -3,6 +3,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import {
   ALL_SCHOOL_LEVELS,
   portalWorkspacesForLevels,
+  portalWorkspacesWithoutLevelName,
   schoolLevelContextLabel,
   schoolLevelTerms,
   workingSchoolLevels,
@@ -63,6 +64,18 @@ export function useSchoolLevelTerms(): SchoolLevelTerms {
   return useWorkingSchoolLevels().terms;
 }
 
+// Có cấp Mầm non trong các cấp đang làm việc, hoặc các cấp được xem với trang cấu hình chung của trường: nút, ô, câu chỉ
+// dành cho Mầm non (cân đo 4.3, phần mềm học của 4.1.10) ẩn khi không có (YCTD-394)
+export function useHasPreschool(scope: 'working' | 'visible' = 'working'): boolean {
+  const levels = useWorkingSchoolLevels();
+  return levels[scope].some((level) => level.code === 'MN');
+}
+
+// Người học viết thường để đặt giữa câu ("trẻ", "học sinh") (YCTD-394)
+export function useLearnerWord(): string {
+  return useSchoolLevelTerms().learner.toLocaleLowerCase('vi');
+}
+
 function saveWorkingSchoolLevel(code: SchoolLevelCode | null): Promise<{ working_school_level: string | null }> {
   return requestJson('/api/v1/auth/me/working-school-level', {
     method: 'PUT',
@@ -116,13 +129,16 @@ export function SchoolLevelSwitcher() {
 }
 
 // Phân hệ và mục menu thuộc cấp trường đang bật, cho cây quyền ở 1.3 Phân quyền nhóm theo menu (DT-19 phần 19c): mục của
-// cấp chưa bật ẩn khỏi cây; trường chỉ có Mầm non giữ đủ cây như trước. Chưa tải xong thì dùng cây của trường mầm non
+// cấp chưa bật ẩn khỏi cây; trường chỉ có Mầm non giữ đủ cây như trước. Chưa tải xong thì dùng cây của trường mầm non,
+// tên phân hệ chưa gắn cấp (YCTD-388). Tên phân hệ ở đây theo cấp trường đã bật, dùng cho trang không theo cấp đang làm việc
+// (1.2, 1.3)
 export function useEnabledLevelWorkspaces(): PortalWorkspace[] {
   const levels = useQuery({ queryKey: ['school-levels'], queryFn: listSchoolLevels });
   return useMemo(() => {
     const enabled = levels.data?.levels.filter((level) => level.is_enabled);
-    return portalWorkspacesForLevels(
+    const workspaces = portalWorkspacesForLevels(
       enabled && enabled.length > 0 ? enabled : [{ code: 'MN', display_name: 'Mầm non' }],
     );
+    return levels.data ? workspaces : portalWorkspacesWithoutLevelName(workspaces);
   }, [levels.data]);
 }

@@ -3,6 +3,7 @@ import {
   MENU_PERMISSION_RULES,
   isMenuRuleSatisfied,
   portalWorkspacesForLevels,
+  portalWorkspacesWithoutLevelName,
   type PortalMenuNode,
   type PortalQuickLinkPath,
   type PortalWorkspace,
@@ -50,8 +51,10 @@ export function filterMenu(
 }
 
 // Cây menu theo cấp đang làm việc (DT-19 phần 19c) rồi theo quyền. Chưa tải xong ngữ cảnh trường thì dùng cây của trường
-// mầm non (không có mục chỉ của Tiểu học, DT-20 phần 20a)
-const PRESCHOOL_WORKSPACES = portalWorkspacesForLevels([{ code: 'MN', display_name: 'Mầm non' }]);
+// mầm non (không có mục chỉ của Tiểu học, DT-20 phần 20a) nhưng tên phân hệ chưa gắn cấp (YCTD-388)
+const PRESCHOOL_WORKSPACES = portalWorkspacesWithoutLevelName(
+  portalWorkspacesForLevels([{ code: 'MN', display_name: 'Mầm non' }]),
+);
 
 export function usePortalMenu(): PortalWorkspace[] {
   // So sánh theo nội dung để cây menu không dựng lại mỗi lần vẽ

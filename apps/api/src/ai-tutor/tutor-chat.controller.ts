@@ -1,13 +1,24 @@
-import { Body, Controller, Get, HttpCode, Param, Post } from '@nestjs/common';
+import { Body, Controller, Get, HttpCode, Param, Post, Res, UploadedFiles, UseInterceptors } from '@nestjs/common';
+import { FilesInterceptor } from '@nestjs/platform-express';
 import { PERMISSION_CODES } from '@school-management/shared';
+import type { Response } from 'express';
 import { AuthenticatedUser, RequirePermission, StudentEndpoint } from '../authentication/authentication.guard.js';
 import type { CurrentUser } from '../authentication/current-user.js';
 import type { RequestBody } from '../common/request-fields.js';
 import { uuidParameter } from '../common/uuid-parameter.js';
 import { AiTutorChatService } from './tutor-chat.js';
+import { IMAGE_MAX_BYTES, IMAGE_MAX_COUNT } from './tutor-images.js';
+
+// Phần tệp do bộ nhận tệp nhiều phần của Express trả về
+interface UploadedPart {
+  originalname: string;
+  size: number;
+  buffer: Buffer;
+}
 
 // Điểm cuối trò chuyện với gia sư AI (YCTD-383 lát L2). Nhóm /student/ai-tutor: chỉ mã phiên kênh student, chỉ hội thoại của chính em
-// (MH-596, MH-597). Cha mẹ: chủ đề và số lượt của con (máy chủ kiểm người giám hộ); giáo viên không có điểm cuối xem hội thoại
+// (MH-596, MH-597). Cha mẹ: chủ đề và số lượt của con (máy chủ kiểm người giám hộ); giáo viên không có điểm cuối xem hội thoại.
+// Lát L4: câu hỏi kèm ảnh gửi dạng nhiều phần, trường `images`; ảnh chỉ tải qua nhóm /student/ai-tutor của chính em
 @Controller('student/ai-tutor')
 @StudentEndpoint()
 @RequirePermission(PERMISSION_CODES.learningStudy)
@@ -27,9 +38,37 @@ export class StudentAiTutorController {
     return this.chat.conversation(currentUser, id);
   }
 
+  // Bộ nhận tệp nhận thêm một ảnh so với giới hạn để máy chủ trả lời rõ "tối đa 3 ảnh"; ảnh quá cỡ dừng ngay ở bộ nhận tệp
   @Post('messages')
-  send(@Body() body: RequestBody, @AuthenticatedUser() currentUser: CurrentUser) {
-    return this.chat.send(currentUser, body);
+  @UseInterceptors(
+    FilesInterceptor('images', IMAGE_MAX_COUNT + 1, {
+      limits: { fileSize: IMAGE_MAX_BYTES, files: IMAGE_MAX_COUNT + 1 },
+    }),
+  )
+  send(
+    @Body() body: RequestBody,
+    @UploadedFiles() files: UploadedPart[] | undefined,
+    @AuthenticatedUser() currentUser: CurrentUser,
+  ) {
+    return this.chat.send(
+      currentUser,
+      body,
+      (files ?? []).map((file) => ({ originalName: file.originalname, size: file.size, buffer: file.buffer })),
+    );
+  }
+
+  @Get('images/:id')
+  async image(
+    @Param('id', uuidParameter('Mã ảnh không hợp lệ')) id: string,
+    @Res() response: Response,
+    @AuthenticatedUser() currentUser: CurrentUser,
+  ) {
+    const { contentType, body } = await this.chat.image(currentUser, id);
+    response.setHeader('content-type', contentType);
+    response.setHeader('content-disposition', 'inline');
+    response.setHeader('cache-control', 'no-store');
+    response.setHeader('x-content-type-options', 'nosniff');
+    response.send(body);
   }
 
   @Post('messages/:id/report')

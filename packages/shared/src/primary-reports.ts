@@ -4,7 +4,20 @@
 // của Sở cấp Tiểu học nên bộ dòng mặc định chỉ là khung, sửa cho khớp sau khảo sát. Claude tự chọn theo ủy quyền của Eric
 // ngày 2026-10-11. THCS, THPT (DT-21 phần 21g, YCTD-175) dùng cùng cú pháp với bộ điều kiện của cấp (xếp loại học tập, rèn
 // luyện cả năm, danh hiệu, lên lớp, tổ hợp, tốt nghiệp): gọi `parseFormula(text, cấp)`
-export type ReportColumnKey = 'total' | 'female' | 'ethnic' | 'ethnic_female' | 'disabled';
+// Cột tách số. Biểu Thông tư 25/2024 (YCTD-385) thêm cột phân loại hợp đồng của đội ngũ công lập và cột cấp công trình của
+// phòng học tập
+export type ReportColumnKey =
+  | 'total'
+  | 'female'
+  | 'ethnic'
+  | 'ethnic_female'
+  | 'disabled'
+  | 'indefinite'
+  | 'fixed_term'
+  | 'labor_contract'
+  | 'permanent'
+  | 'semi_permanent'
+  | 'temporary';
 export type ReportRowKind = 'heading' | 'formula' | 'manual';
 
 export const REPORT_COLUMN_LABELS: Record<ReportColumnKey, string> = {
@@ -13,6 +26,12 @@ export const REPORT_COLUMN_LABELS: Record<ReportColumnKey, string> = {
   ethnic: 'Dân tộc thiểu số',
   ethnic_female: 'Nữ dân tộc thiểu số',
   disabled: 'Khuyết tật',
+  indefinite: 'Viên chức HĐLV không xác định thời hạn',
+  fixed_term: 'Viên chức HĐLV xác định thời hạn',
+  labor_contract: 'Hợp đồng lao động',
+  permanent: 'Kiên cố',
+  semi_permanent: 'Bán kiên cố',
+  temporary: 'Tạm',
 };
 
 export interface PrimaryStudentFact {
@@ -25,35 +44,130 @@ export interface PrimaryStudentFact {
   year_result: string | null;
   completion: string | null;
   awarded: boolean;
+  // YCTD-385: tuổi theo năm sinh (năm đầu của năm học trừ năm sinh, quyết định của Eric ngày 2026-10-30), học sinh mới tuyển
+  // lớp 1, lưu ban năm học trước, dạng khuyết tật, dân tộc học bán trú, học lại hoặc thi lại trong hè, chuyển đến từ tỉnh khác
+  age?: number | null;
+  new_entrant?: boolean;
+  repeater?: boolean;
+  disability?: string | null;
+  ethnic_boarding?: boolean;
+  summer_support?: boolean;
+  transfer_in_province?: boolean;
 }
 
 export interface PrimaryClassFact {
   grade: string;
   two_sessions: boolean;
   boarding: boolean;
+  multigrade?: boolean;
+  multi_level?: boolean;
 }
 
+// Đối tượng của công thức. YCTD-385 thêm trường (`school`, một dòng, giá trị 0 hoặc 1), điểm trường (`sites`), đội ngũ
+// (`staff`), phòng học tập (`rooms`), học sinh rời trường trong năm (`leavers`: bỏ học, chuyển đi)
+export const FORMULA_ENTITIES = ['students', 'classes', 'school', 'sites', 'staff', 'rooms', 'leavers'] as const;
+export type FormulaEntity = (typeof FORMULA_ENTITIES)[number];
+
 export interface ParsedFormula {
-  entity: 'students' | 'classes';
+  entity: FormulaEntity;
   filters: Array<{ key: string; value: string | null }>;
 }
 
 type FilterSet = {
-  values: Record<ParsedFormula['entity'], Record<string, readonly string[] | null>>;
-  flags: Record<ParsedFormula['entity'], readonly string[]>;
+  values: Record<FormulaEntity, Record<string, readonly string[] | null>>;
+  flags: Record<FormulaEntity, readonly string[]>;
 };
 
-const VALUE_FILTERS: Record<ParsedFormula['entity'], Record<string, readonly string[] | null>> = {
+export const DISABILITY_KINDS = [
+  'vision',
+  'hearing_speech',
+  'intellectual',
+  'mobility',
+  'neuro_mental',
+  'other',
+] as const;
+export const STAFF_JOBS = [
+  'academic_affairs',
+  'counselor',
+  'disability_support',
+  'library',
+  'office_management',
+  'accounting',
+  'treasurer',
+  'clerical',
+  'health',
+  'information_technology',
+  'security',
+  'cook',
+  'service',
+  'other_staff',
+  // Nhân viên thiết bị, thí nghiệm: chỉ ở biểu THCS, THPT (YCTD-385 lát L2)
+  'equipment_lab',
+] as const;
+export const STAFF_AGE_BANDS = ['20_29', '30_39', '40_49', '50_59', '60'] as const;
+export const STANDARD_LEVELS = ['excellent', 'good', 'met', 'not_met'] as const;
+
+// Điều kiện dùng chung mọi cấp phổ thông cho các đối tượng mới của YCTD-385
+const COMMON_VALUES = {
+  school: {},
+  sites: {},
+  staff: { job: STAFF_JOBS, rank: ['1', '2', '3'], age_band: STAFF_AGE_BANDS, standard: STANDARD_LEVELS },
+  rooms: {},
+  leavers: { grade: null },
+} as const;
+const COMMON_FLAGS = {
+  school: [
+    'standard_1',
+    'standard_2',
+    'electricity',
+    'internet',
+    'computers',
+    'drinking_water',
+    'separate_toilets',
+    'handwashing',
+    'sex_education',
+    'disaster_plan',
+    'multi_level',
+    // Loại trường theo các cấp phổ thông trường có (YCTD-385 lát L2): phần Trường của biểu THCS, THPT chia nhóm theo loại
+    'type_thcs',
+    'type_th_thcs',
+    'type_thpt',
+    'type_thcs_thpt',
+    'type_th_thcs_thpt',
+  ],
+  sites: [],
+  staff: ['principal', 'vice_principal', 'manager', 'teacher', 'new_hire', 'retired', 'left'],
+  rooms: ['classroom', 'borrowed', 'multi_purpose'],
+  leavers: ['dropout', 'transfer_out_province'],
+} as const;
+
+const VALUE_FILTERS: Record<FormulaEntity, Record<string, readonly string[] | null>> = {
   students: {
     grade: null,
     year_result: ['excellent', 'good', 'completed', 'not_completed'],
     completion: ['promoted', 'level_completed', 'pending_support', 'retained'],
+    age: null,
+    age_under: null,
+    age_over: null,
+    disability: DISABILITY_KINDS,
   },
   classes: { grade: null },
+  ...COMMON_VALUES,
 };
-const FLAG_FILTERS: Record<ParsedFormula['entity'], readonly string[]> = {
-  students: ['two_sessions', 'boarding', 'awarded'],
-  classes: ['two_sessions', 'boarding'],
+const FLAG_FILTERS: Record<FormulaEntity, readonly string[]> = {
+  students: [
+    'two_sessions',
+    'boarding',
+    'awarded',
+    'new_entrant',
+    'repeater',
+    'ethnic_boarding',
+    'disabled',
+    'summer_support',
+    'transfer_in_province',
+  ],
+  classes: ['two_sessions', 'boarding', 'multigrade', 'multi_level'],
+  ...COMMON_FLAGS,
 };
 
 const RATINGS = ['good', 'fair', 'pass', 'fail'] as const;
@@ -70,10 +184,31 @@ const SECONDARY_FILTERS: FilterSet = {
       completion: COMPLETIONS,
       combination: null,
       graduation: ['graduated', 'not_graduated'],
+      age: null,
+      age_under: null,
+      age_over: null,
+      disability: DISABILITY_KINDS,
     },
     classes: { grade: null },
+    ...COMMON_VALUES,
   },
-  flags: { students: ['boarding', 'awarded'], classes: ['boarding'] },
+  // Biểu Thông tư 25/2024 cấp THCS, THPT (YCTD-385 lát L2): tuổi, mới tuyển, lưu ban năm trước, dạng khuyết tật, 2 buổi/ngày,
+  // học lại hoặc thi lại hè, chuyển đến từ tỉnh khác, đủ điều kiện xét hoặc dự thi tốt nghiệp; lớp ghép, lớp trong trường nhiều cấp
+  flags: {
+    students: [
+      'boarding',
+      'awarded',
+      'two_sessions',
+      'new_entrant',
+      'repeater',
+      'disabled',
+      'summer_support',
+      'transfer_in_province',
+      'graduation_eligible',
+    ],
+    classes: ['boarding', 'two_sessions', 'multigrade', 'multi_level'],
+    ...COMMON_FLAGS,
+  },
 };
 const PRIMARY_FILTERS: FilterSet = { values: VALUE_FILTERS, flags: FLAG_FILTERS };
 
@@ -81,14 +216,25 @@ export function formulaFilters(level: string): FilterSet {
   return level === 'THCS' || level === 'THPT' ? SECONDARY_FILTERS : PRIMARY_FILTERS;
 }
 
+// Điều kiện so sánh số: `age_under=11` là tuổi nhỏ hơn 11, `age_over=11` là tuổi lớn hơn 11
+const COMPARISONS: Record<string, { key: string; test: (fact: number, limit: number) => boolean }> = {
+  age_under: { key: 'age', test: (fact, limit) => fact < limit },
+  age_over: { key: 'age', test: (fact, limit) => fact > limit },
+};
+const NUMERIC_VALUES = new Set(['age', 'age_under', 'age_over']);
+
 // Ví dụ: "students", "students.grade=K1", "students.year_result=excellent", "classes.grade=K5.two_sessions"; THCS, THPT:
-// "students.learning=good", "students.title=excellent", "students.combination=TN1", "students.graduation=graduated"
+// "students.learning=good", "students.title=excellent", "students.combination=TN1", "students.graduation=graduated";
+// YCTD-385: "students.grade=K1.age=6", "students.completion=level_completed.age_under=11", "school.electricity",
+// "staff.teacher.rank=2", "rooms.classroom", "leavers.dropout"
 export function parseFormula(text: string, level = 'TH'): ParsedFormula {
   const { values: valueFilters, flags: flagFilters } = formulaFilters(level);
   const parts = text.trim().split('.');
-  const entity = parts.shift();
-  if (entity !== 'students' && entity !== 'classes') {
-    throw new Error('Công thức bắt đầu bằng students (học sinh) hoặc classes (lớp)');
+  const entity = parts.shift() as FormulaEntity | undefined;
+  if (!entity || !(FORMULA_ENTITIES as readonly string[]).includes(entity)) {
+    throw new Error(
+      'Công thức bắt đầu bằng students (học sinh), classes (lớp), school (trường), sites (điểm trường), staff (đội ngũ), rooms (phòng học tập) hoặc leavers (học sinh rời trường)',
+    );
   }
   const filters = parts.map((part) => {
     const [key, value, extra] = part.split('=');
@@ -102,7 +248,12 @@ export function parseFormula(text: string, level = 'TH'): ParsedFormula {
       return { key, value: null };
     }
     const allowed = valueFilters[entity][key];
-    if (allowed === undefined || value === '' || (allowed !== null && !allowed.includes(value))) {
+    if (
+      allowed === undefined ||
+      value === '' ||
+      (allowed !== null && !allowed.includes(value)) ||
+      (NUMERIC_VALUES.has(key) && !/^\d{1,3}$/.test(value))
+    ) {
       throw new Error(`Điều kiện "${part}" không dùng được với ${entity}`);
     }
     return { key, value };
@@ -110,42 +261,48 @@ export function parseFormula(text: string, level = 'TH'): ParsedFormula {
   return { entity, filters };
 }
 
-function matches(fact: Record<string, unknown>, filters: ParsedFormula['filters']): boolean {
-  return filters.every((filter) =>
-    filter.value === null ? fact[filter.key] === true : fact[filter.key] === filter.value,
-  );
+// Dòng cộng các dòng khác của cùng phần (YCTD-385), ví dụ "rows:156+158+164": dùng cho dòng tổng gồm cả dòng nhập tay
+export function parseRowSum(text: string | null): string[] | null {
+  const match = /^rows:([0-9A-Za-z.]+(?:\+[0-9A-Za-z.]+)*)$/.exec((text ?? '').trim());
+  return match ? match[1]!.split('+') : null;
 }
 
-// Giá trị ô: số học sinh hoặc số lớp thoả điều kiện, tách theo cột; lớp chỉ có cột tổng số (cột khác để trống)
-export function evaluateFormula(
-  formula: ParsedFormula,
-  column: ReportColumnKey,
-  facts: {
-    students: Array<Pick<PrimaryStudentFact, 'female' | 'ethnic' | 'disabled'>>;
-    classes: object[];
-  },
-): number | null {
-  if (formula.entity === 'classes') {
-    return column === 'total'
-      ? facts.classes.filter((row) => matches(row as unknown as Record<string, unknown>, formula.filters)).length
-      : null;
+function matches(fact: Record<string, unknown>, filters: ParsedFormula['filters']): boolean {
+  return filters.every((filter) => {
+    if (filter.value === null) {
+      return fact[filter.key] === true;
+    }
+    const comparison = COMPARISONS[filter.key];
+    if (comparison) {
+      const value = fact[comparison.key];
+      return typeof value === 'number' && comparison.test(value, Number(filter.value));
+    }
+    return NUMERIC_VALUES.has(filter.key)
+      ? fact[filter.key] === Number(filter.value)
+      : fact[filter.key] === filter.value;
+  });
+}
+
+export type FormulaFacts = { students: object[]; classes: object[] } & Partial<Record<FormulaEntity, object[]>>;
+
+// Giá trị ô: số đối tượng thoả điều kiện, tách theo cột. Học sinh tách theo nữ, dân tộc, khuyết tật; đội ngũ, phòng học tập,
+// học sinh rời trường tách theo cờ cùng tên cột của từng dòng số liệu; lớp, trường, điểm trường chỉ có cột tổng số
+export function evaluateFormula(formula: ParsedFormula, column: ReportColumnKey, facts: FormulaFacts): number | null {
+  // Đội ngũ chỉ đếm người đang làm việc, trừ dòng nghỉ hưu, nghỉ hoặc chuyển đi trong năm học
+  const leaving = formula.filters.some((filter) => filter.key === 'retired' || filter.key === 'left');
+  const rows = (facts[formula.entity] ?? []).filter((row) => {
+    const fact = row as unknown as Record<string, unknown>;
+    return (formula.entity !== 'staff' || leaving || fact.active !== false) && matches(fact, formula.filters);
+  });
+  if (column === 'total') {
+    return rows.length;
   }
-  return facts.students.filter((row) => {
-    if (!matches(row as unknown as Record<string, unknown>, formula.filters)) {
-      return false;
-    }
-    switch (column) {
-      case 'female':
-        return row.female;
-      case 'ethnic':
-        return row.ethnic;
-      case 'ethnic_female':
-        return row.ethnic && row.female;
-      case 'disabled':
-        return row.disabled;
-      default:
-        return true;
-    }
+  if (formula.entity === 'classes' || formula.entity === 'school' || formula.entity === 'sites') {
+    return null;
+  }
+  return rows.filter((row) => {
+    const fact = row as unknown as Record<string, unknown>;
+    return column === 'ethnic_female' ? fact.ethnic === true && fact.female === true : fact[column] === true;
   }).length;
 }
 
@@ -184,4 +341,46 @@ export const SCORE_DISTRIBUTION_BANDS = [
 export function scoreBand(average: number): (typeof SCORE_DISTRIBUTION_BANDS)[number]['key'] {
   const band = SCORE_DISTRIBUTION_BANDS.find((item) => average >= item.from && average < item.to);
   return band ? band.key : 'tu-8';
+}
+
+// Phần của biểu (YCTD-385): biểu Thông tư 25/2024 chia phần Trường, Lớp, Học sinh, Đội ngũ, Phòng học tập, mỗi phần một bộ cột.
+// Cột của phần là cột của một loại hình; biểu của Sở lặp bộ cột cho ba nhóm Tổng số, Công lập, Tư thục (`ownership_groups`).
+// Cột `public_only` chỉ có ở nhóm Công lập (phân loại viên chức, hợp đồng của đội ngũ). Một trường chỉ điền nhóm theo loại
+// hình của mình; màn hình hiện nhóm đó, tệp Excel xuất đủ ba nhóm, nhóm kia để trống
+export interface ReportSectionColumn {
+  key: ReportColumnKey;
+  label: string;
+  public_only?: boolean;
+}
+
+export interface ReportSection {
+  code: string;
+  name: string;
+  columns: ReportSectionColumn[];
+  ownership_groups: boolean;
+}
+
+export type OwnershipGroup = 'public' | 'private';
+
+export const OWNERSHIP_GROUP_LABELS: Record<'total' | OwnershipGroup, string> = {
+  total: 'Tổng số',
+  public: 'Công lập',
+  private: 'Tư thục',
+};
+
+// Cột trường thấy trên màn hình theo loại hình
+export function sectionColumns(section: ReportSection, ownership: OwnershipGroup): ReportSectionColumn[] {
+  return section.columns.filter((column) => ownership === 'public' || !column.public_only);
+}
+
+// Cột của tệp xuất theo đúng mẫu: ba nhóm khi phần có nhóm loại hình, một nhóm khi không
+export function expandSectionColumns(
+  section: ReportSection,
+): Array<{ group: 'total' | OwnershipGroup | null; column: ReportSectionColumn }> {
+  if (!section.ownership_groups) {
+    return section.columns.map((column) => ({ group: null, column }));
+  }
+  return (['total', 'public', 'private'] as const).flatMap((group) =>
+    section.columns.filter((column) => group === 'public' || !column.public_only).map((column) => ({ group, column })),
+  );
 }

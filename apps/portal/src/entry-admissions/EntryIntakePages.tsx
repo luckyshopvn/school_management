@@ -37,6 +37,7 @@ import { SelectBox } from '../facilities/facilities-ui.js';
 import { AppShell } from '../pages/AppShell.js';
 import { useGridSettings } from '../pages/grid-settings.js';
 import { menuPageTitle } from '../pages/page-title.js';
+import { useLearnerWord } from '../school-levels/working-level.js';
 import { useHasPermission } from '../session/permissions.js';
 import { formatDate, formatDateTime, messageOf, type ImportRowError } from './entry-admissions-api.js';
 import {
@@ -519,6 +520,7 @@ function CampaignSettingsDialog({
   onClose(): void;
   onSaved(message: string): void;
 }) {
+  const learner = useLearnerWord();
   const options = useOptions();
   const [programType, setProgramType] = useState<AdmissionProgramType>(campaign.program_type);
   const [yearId, setYearId] = useState(campaign.target_academic_year_id ?? '');
@@ -547,7 +549,7 @@ function CampaignSettingsDialog({
           onChange={(value) => setProgramType(value as AdmissionProgramType)}
         />
         <SelectBox
-          label="Năm học nhận trẻ"
+          label={`Năm học nhận ${learner}`}
           value={yearId}
           emptyLabel="Chưa chọn"
           options={(options.data?.academic_years ?? []).map((year) => ({
@@ -647,6 +649,7 @@ function Tabs({
 
 // 1.4 Tiếp nhận hồ sơ tuyển sinh
 export function IntakePage() {
+  const learner = useLearnerWord();
   const canManage = useHasPermission(PERMISSION_CODES.entryIntakeManage);
   const grid = useGridSettings('entry-intake');
   const page = usePageState('intake');
@@ -798,7 +801,7 @@ export function IntakePage() {
           đạt của tuyển sinh trực tuyến. Tích giấy tờ đã nộp, phụ huynh đồng ý hoặc từ chối nhập học rồi bấm "Lưu dữ
           liệu".
           {campaign
-            ? ` Đợt: ${campaign.name}, loại hình ${ADMISSION_PROGRAM_LABELS[campaign.program_type]}${campaign.target_academic_year_id ? '' : ', chưa chọn năm học nhận trẻ'}.`
+            ? ` Đợt: ${campaign.name}, loại hình ${ADMISSION_PROGRAM_LABELS[campaign.program_type]}${campaign.target_academic_year_id ? '' : `, chưa chọn năm học nhận ${learner}`}.`
             : ''}
         </>
       }
@@ -1352,6 +1355,7 @@ function TransferDialogs({
   onClose(): void;
   onDone(result: { package_code: string; results: TransferResult[] }): void;
 }) {
+  const learner = useLearnerWord();
   const [step, setStep] = useState<'confirm' | 'classes'>('confirm');
   const [confirmDuplicates, setConfirmDuplicates] = useState(false);
   const [busy, setBusy] = useState(false);
@@ -1383,7 +1387,8 @@ function TransferDialogs({
           {error ? <Alert tone="danger">{error}</Alert> : null}
           <span>
             {arranged} học sinh đã chọn đã được xếp lớp. Bạn có muốn xóa lớp đã xếp? Xóa lớp thì hồ sơ học sinh chờ
-            duyệt và xếp lớp ở Hồ sơ học sinh; giữ lớp thì học sinh vào lớp đã xếp khi bạn có quyền duyệt hồ sơ trẻ.
+            duyệt và xếp lớp ở Hồ sơ học sinh; giữ lớp thì học sinh vào lớp đã xếp khi bạn có quyền duyệt hồ sơ{' '}
+            {learner}.
           </span>
           <span>
             <Button disabled={busy} onClick={() => go(true)}>
@@ -1502,6 +1507,7 @@ const transferredText = (row: IntakeRow) =>
 
 // 1.6 Chuyển hồ sơ trúng tuyển sang CSDL
 export function TransferPage() {
+  const learner = useLearnerWord();
   const canTransfer = useHasPermission(PERMISSION_CODES.entryIntakeTransfer);
   const grid = useGridSettings('entry-transfer');
   const page = usePageState('transfer', { transferred: 'no' });
@@ -1602,7 +1608,7 @@ export function TransferPage() {
         page.error,
         grid.error ? messageOf(grid.error) : undefined,
       ]}
-      info="Chuyển hồ sơ trúng tuyển thành hồ sơ học sinh ở năm học nhận trẻ của đợt (năm học đó phải đã tạo và đang mở). Hồ sơ cần số định danh, giấy khai sinh, quan hệ của người liên hệ và khai báo dị ứng; hồ sơ thiếu ghi lỗi ở bảng kết quả. Mỗi lần chuyển một mã gói tin, mỗi hồ sơ một mã GUID."
+      info={`Chuyển hồ sơ trúng tuyển thành hồ sơ học sinh ở năm học nhận ${learner} của đợt (năm học đó phải đã tạo và đang mở). Hồ sơ cần số định danh, giấy khai sinh, quan hệ của người liên hệ và khai báo dị ứng; hồ sơ thiếu ghi lỗi ở bảng kết quả. Mỗi lần chuyển một mã gói tin, mỗi hồ sơ một mã GUID.`}
     >
       <Tabs
         label="Chuyển hồ sơ"

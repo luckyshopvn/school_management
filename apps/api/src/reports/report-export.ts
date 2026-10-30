@@ -1,6 +1,6 @@
 import { Body, Controller, Get, HttpCode, Injectable, Param, Post, Query, Req, Res } from '@nestjs/common';
 import { Clock, type FieldError } from '@school-management/server';
-import { PERMISSION_CODES } from '@school-management/shared';
+import { PERMISSION_CODES, SCHOOL_LEVEL_PARAMETER, fillLearnerTerm } from '@school-management/shared';
 import ExcelJS from 'exceljs';
 import type { Request, Response } from 'express';
 import { sql } from 'kysely';
@@ -8,6 +8,7 @@ import { AuthenticatedUser, RequirePermission } from '../authentication/authenti
 import type { CurrentUser } from '../authentication/current-user.js';
 import { CurrentSchoolYearResolver } from '../common/current-school-year.js';
 import { notFoundError } from '../common/request-fields.js';
+import { SchoolLevelResolver } from '../common/school-levels.js';
 import { LedgerReportsService } from '../ledger/ledger-reports.js';
 import { AttendanceMealsService, readAttendanceMealsFilter, type AttendanceMealsFilter } from './attendance-meals.js';
 import { attendanceWorkbook } from './attendance-meals-workbook.js';
@@ -27,7 +28,8 @@ import { ReportsService } from './reports.service.js';
 
 // Xuất dữ liệu (P17-12; BR-74; YCTD-83): người có quyền xuất dữ liệu xuất các báo cáo mình được xem ra tệp Excel. Mỗi lần
 // xuất kiểm tra cả quyền xuất lẫn quyền xem của báo cáo trong phạm vi đơn vị, ghi một dòng nhật ký xuất (người xuất, báo
-// cáo, bộ lọc, đơn vị, số dòng, có dữ liệu cá nhân hay không) rồi mới trả tệp. Tệp không lưu lại trên hệ thống
+// cáo, bộ lọc, đơn vị, số dòng, có dữ liệu cá nhân hay không) rồi mới trả tệp. Tệp không lưu lại trên hệ thống. Tên bảng,
+// nhãn cột có chỗ giữ "{người học}" ghi theo cấp của tham số school_level, không gửi là các cấp người dùng được xem (YCTD-394)
 const XLSX_TYPE = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
 const EXPORTED_DAY = sql<string>`(export_logs.exported_at at time zone 'Asia/Ho_Chi_Minh')::date`;
 
@@ -61,7 +63,7 @@ const CLASS_TUITION_COLUMNS: ReportColumn[] = [
 export const CONSOLIDATED_COLUMNS: ReportColumn[] = [
   { key: 'org_unit_code', label: 'Mã đơn vị' },
   { key: 'org_unit_name', label: 'Đơn vị' },
-  { key: 'children_count', label: 'Số trẻ' },
+  { key: 'children_count', label: 'Số {người học}' },
   { key: 'classes_count', label: 'Số lớp' },
   { key: 'staff_count', label: 'Số nhân sự' },
   { key: 'attendance_rate_percent', label: 'Tỷ lệ đi học (%)' },
@@ -98,7 +100,7 @@ export const EXPORT_DEFINITIONS: Record<string, ExportDefinition> = {
         title: 'Theo lớp',
         columns: [
           { key: 'class_name', label: 'Lớp' },
-          { key: 'child_count', label: 'Số trẻ' },
+          { key: 'child_count', label: 'Số {người học}' },
           { key: 'outstanding_amount', label: 'Còn nợ' },
           { key: 'overdue_amount', label: 'Quá hạn' },
           { key: 'credit_amount', label: 'Số dư có' },
@@ -106,9 +108,9 @@ export const EXPORT_DEFINITIONS: Record<string, ExportDefinition> = {
       },
       {
         key: 'children',
-        title: 'Theo trẻ',
+        title: 'Theo {người học}',
         columns: [
-          { key: 'full_name', label: 'Trẻ' },
+          { key: 'full_name', label: '{Người học}' },
           { key: 'class_name', label: 'Lớp' },
           { key: 'outstanding_amount', label: 'Còn nợ' },
           { key: 'overdue_amount', label: 'Quá hạn' },
@@ -194,11 +196,11 @@ export const EXPORT_DEFINITIONS: Record<string, ExportDefinition> = {
       },
       {
         key: 'absences',
-        title: 'Trẻ vắng',
+        title: '{Người học} vắng',
         columns: [
           { key: 'attendance_date', label: 'Ngày' },
           { key: 'class_name', label: 'Lớp' },
-          { key: 'full_name', label: 'Trẻ' },
+          { key: 'full_name', label: '{Người học}' },
           { key: 'status', label: 'Trạng thái' },
           { key: 'note', label: 'Ghi chú' },
         ],
@@ -248,8 +250,8 @@ export const EXPORT_DEFINITIONS: Record<string, ExportDefinition> = {
         columns: [
           { key: 'date', label: 'Ngày' },
           { key: 'note', label: 'Ghi chú' },
-          { key: 'present_count', label: 'Số trẻ đi học' },
-          { key: 'absent_count', label: 'Số trẻ vắng' },
+          { key: 'present_count', label: 'Số {người học} đi học' },
+          { key: 'absent_count', label: 'Số {người học} vắng' },
         ],
       },
     ],
@@ -379,6 +381,7 @@ export class ReportExportService {
     private readonly consolidated: ConsolidatedReportService,
     private readonly ledger: LedgerReportsService,
     private readonly attendanceMeals: AttendanceMealsService,
+    private readonly schoolLevels: SchoolLevelResolver,
     private readonly clock: Clock,
   ) {}
 
@@ -407,6 +410,7 @@ export class ReportExportService {
         ipAddress,
       );
     }
+    const terms = await this.schoolLevels.requestedTerms(currentUser, query[SCHOOL_LEVEL_PARAMETER]);
     const data = await this.run(currentUser, code, filter);
     const exportedAt = this.clock.now();
     const workbook = new ExcelJS.Workbook();
@@ -437,8 +441,8 @@ export class ReportExportService {
     for (const sheet of definition.sheets) {
       const rows = (data[sheet.key] as ReportRow[] | undefined) ?? [];
       rowCount += rows.length;
-      const worksheet = workbook.addWorksheet(sheet.title);
-      worksheet.addRow(sheet.columns.map((column) => column.label));
+      const worksheet = workbook.addWorksheet(fillLearnerTerm(sheet.title, terms));
+      worksheet.addRow(sheet.columns.map((column) => fillLearnerTerm(column.label, terms)));
       worksheet.getRow(1).font = { bold: true };
       for (const row of rows) {
         worksheet.addRow(

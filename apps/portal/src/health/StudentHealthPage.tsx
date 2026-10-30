@@ -12,6 +12,7 @@ import { UnitSelect, useUnitChoice } from '../catalogs/UnitSelect.js';
 import { listClasses } from '../classes/classes-api.js';
 import { AppShell } from '../pages/AppShell.js';
 import { menuPageTitle } from '../pages/page-title.js';
+import { useHasPreschool } from '../school-levels/working-level.js';
 import { messageOf } from './health-api.js';
 import {
   exportStudentHealth,
@@ -22,9 +23,9 @@ import {
 } from './student-health-api.js';
 
 // 4.6.1 Nhập thông tin sức khỏe học sinh (DT-16 phần 16h, theo mục 4.6 của Sở): chọn đơn vị, lớp, học kỳ; nhập cân nặng,
-// chiều cao, kết quả giáo dục thể chất, biết bơi, bệnh về mắt từng học sinh rồi "Ghi"; "Lấy dữ liệu từ 4.3" chép số đo gần
-// nhất của các đợt cân đo trong học kỳ; "Xuất Excel" bảng của lớp. Bảng nhập theo từng ô nên giữ dạng bảng nhập liệu như
-// 4.3.1 (DT-16 phần 16b)
+// chiều cao, kết quả giáo dục thể chất, biết bơi, bệnh về mắt từng học sinh rồi "Ghi"; "Lấy dữ liệu từ 4.3" (chỉ khi làm việc ở
+// cấp Mầm non vì 4.3 chỉ có ở Mầm non, YCTD-394) chép số đo gần nhất của các đợt cân đo trong học kỳ; "Xuất Excel" bảng
+// của lớp. Bảng nhập theo từng ô nên giữ dạng bảng nhập liệu như 4.3.1 (DT-16 phần 16b)
 const selectClass = 'rounded-lg border border-border bg-card px-3 py-2 text-content';
 const inputClass = 'w-20 rounded-lg border border-border bg-card px-2 py-1 text-content';
 const smallSelect = 'rounded-lg border border-border bg-card px-2 py-1 text-content';
@@ -117,6 +118,7 @@ export function StudentHealthPage() {
   const exportFile = useMutation({ mutationFn: () => exportStudentHealth(classId, term) });
 
   const editable = Boolean(grid.data?.can_edit);
+  const hasPreschool = useHasPreschool();
   const update = (childId: string, patch: Partial<DraftRow>) =>
     setDraft((current) => {
       const base = current[childId] ?? {
@@ -197,9 +199,11 @@ export function StudentHealthPage() {
                   <Button type="button" variant="primary" disabled={save.isPending} onClick={() => save.mutate()}>
                     Ghi
                   </Button>
-                  <Button type="button" variant="secondary" disabled={pull.isPending} onClick={() => pull.mutate()}>
-                    Lấy dữ liệu từ 4.3
-                  </Button>
+                  {hasPreschool ? (
+                    <Button type="button" variant="secondary" disabled={pull.isPending} onClick={() => pull.mutate()}>
+                      Lấy dữ liệu từ 4.3
+                    </Button>
+                  ) : null}
                 </>
               ) : null}
               <Button type="button" variant="secondary" onClick={() => exportFile.mutate()}>
