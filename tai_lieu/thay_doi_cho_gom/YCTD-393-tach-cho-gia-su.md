@@ -1,5 +1,5 @@
 ---
-yctd: YCTD-384
+yctd: YCTD-393
 tieu_de: Tách Chợ gia sư thành sản phẩm riêng, bỏ chương trình gia sư trong trường
 ngay: 2026-10-30
 phien_ban_de_xuat: 0.240.0
@@ -7,7 +7,7 @@ phien_ban_de_xuat: 0.240.0
 
 ## 02 Nhật ký
 
-### 2026-10-30 — Bỏ chương trình gia sư trong trường, lát L2: gỡ mã gia sư trong trường (YCTD-384)
+### 2026-10-30 — Bỏ chương trình gia sư trong trường, lát L2: gỡ mã gia sư trong trường (YCTD-393)
 
 #### Công việc đã thực hiện
 
@@ -27,14 +27,14 @@ phien_ban_de_xuat: 0.240.0
 
 #### Thay đổi
 
-- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-384, `23_LICH_SU_PHIEN_BAN.md` {PHIEN_BAN}.
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-393, `23_LICH_SU_PHIEN_BAN.md` {PHIEN_BAN}.
 
 #### Vấn đề tồn đọng
 
 - Lát L3 (database migration xóa bảng gia sư, bảng bản ghi video, quyền `P02.tutoring.*` kèm lệnh sao lưu), L4 (đánh dấu chức năng đã bỏ ở tài liệu).
 - Giới hạn dung lượng bản ghi video của gói (`video_max_recording_mb`) còn ở cổng nền tảng nhưng không còn chức năng nào dùng.
 
-### 2026-10-30 — Tách Chợ gia sư thành sản phẩm riêng, lát L1: gỡ mã chợ khỏi School Management (YCTD-384)
+### 2026-10-30 — Tách Chợ gia sư thành sản phẩm riêng, lát L1: gỡ mã chợ khỏi School Management (YCTD-393)
 
 #### Công việc đã thực hiện
 
@@ -48,11 +48,12 @@ phien_ban_de_xuat: 0.240.0
 
 - Eric ngày 2026-10-30: tách Chợ gia sư ra kho riêng tư, không liên hệ gì với School Management, dữ liệu chợ không chuyển; bỏ hẳn chương trình gia sư trong trường (DT-27) có sao lưu trước khi xóa bảng; School Management chỉ giữ Gia sư AI (YCTD-383).
 - Eric duyệt phiếu và danh sách lát; sao lưu bằng lệnh xuất tệp mã hóa, database migration từ chối khi chưa có bản ghi sao lưu; quản trị chợ bằng ứng dụng và tài khoản riêng có TOTP; giữ Mẫu 03 ở chợ.
-- Số giữ cho YCTD-384: nền tảng 0255 đến 0259, năm học 0235 đến 0239, định danh 0190 đến 0194, hệ thống 0135 đến 0139. Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11.
+- Mã yêu cầu thay đổi đổi từ YCTD-384 sang YCTD-393 vì phiên thiết kế lại giao diện đã gộp YCTD-384 trước; PR 307 và các commit đầu còn ghi YCTD-384.
+- Số giữ cho YCTD-393: nền tảng 0255 đến 0259, năm học 0235 đến 0239, định danh 0190 đến 0194, hệ thống 0135 đến 0139. Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11.
 
 #### Thay đổi
 
-- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-384, `23_LICH_SU_PHIEN_BAN.md` {PHIEN_BAN}.
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-393, `23_LICH_SU_PHIEN_BAN.md` {PHIEN_BAN}.
 
 #### Vấn đề tồn đọng
 
@@ -61,7 +62,7 @@ phien_ban_de_xuat: 0.240.0
 
 ## 24 Yêu cầu thay đổi
 
-### YCTD-384: Tách Chợ gia sư thành sản phẩm riêng, bỏ chương trình gia sư trong trường – 2026-10-30
+### YCTD-393: Tách Chợ gia sư thành sản phẩm riêng, bỏ chương trình gia sư trong trường – 2026-10-30
 
 - Lý do: Eric quyết định ngày 2026-10-30: Chợ gia sư thành sản phẩm riêng ở kho riêng tư `luckyshopvn/cho-gia-su`, không liên hệ gì với School Management, bắt đầu dữ liệu trống; bỏ hẳn chương trình gia sư bổ trợ trong trường (DT-27). School Management chỉ giữ Gia sư AI trả phí (YCTD-383). Thay các quyết định YCTD-250 đến 255, 261, 262, 368.
 - Nội dung thay đổi:
@@ -76,14 +77,14 @@ phien_ban_de_xuat: 0.240.0
 - Giao diện bị ảnh hưởng: cổng vận hành bỏ "Chợ gia sư"; cổng trường bỏ nhóm "Gia sư"; ứng dụng giáo viên, phụ huynh, học sinh bỏ phần gia sư, câu hỏi, khóa học ghi sẵn, phòng học video theo buổi gia sư, liên kết Chợ gia sư.
 - Quyền bị ảnh hưởng: quyền vận hành `market.*`; PQ-110, 120, 145, 155 thôi hiệu lực.
 - Kiểm thử cần thực hiện: kiểm kiểu toàn kho; kiểm thử máy chủ (học phí, AI, video, lớp học trực tuyến, cấp học); kiểm thử cổng biên; kiểm thử giao diện còn lại; database migration trên bản sao có dữ liệu mẫu (thiếu sao lưu thì dừng, có sao lưu thì xóa, hóa đơn cũ không đổi số tiền).
-- Mã cũ không xóa, đánh dấu "Đã bỏ (YCTD-384)" ở lát L4.
+- Mã cũ không xóa, đánh dấu "Đã bỏ (YCTD-393)" ở lát L4.
 - Trạng thái: Đã duyệt (Eric, 2026-10-30); lát L1 đã triển khai.
 
 ## 23 Lịch sử phiên bản
 
 ### Phiên bản {PHIEN_BAN} – 2026-10-30
 
-- Phạm vi thay đổi: gỡ Chợ gia sư khỏi School Management, chợ chuyển sang kho riêng (YCTD-384, lát L1).
+- Phạm vi thay đổi: gỡ Chợ gia sư khỏi School Management, chợ chuyển sang kho riêng (YCTD-393, lát L1).
 - Dữ liệu: cần chạy lệnh `xoa-du-lieu-da-bo -- --tinh-nang cho-gia-su` trước database migration nền tảng 0255 ở bản triển khai có cơ sở dữ liệu chợ.
 - Phạm vi thay đổi (lát L2): gỡ mã chương trình gia sư trong trường ở máy chủ API, cổng trường, ứng dụng giáo viên, phụ huynh, học sinh; tính học phí không lập dòng thu gia sư; lớp video chỉ còn phòng tức thời, cấu hình và phần dùng chung cho giờ học trực tuyến.
 - Dữ liệu (lát L2): không đổi cấu trúc dữ liệu; bảng gia sư và bản ghi video giữ nguyên đến lát L3.
@@ -92,4 +93,4 @@ phien_ban_de_xuat: 0.240.0
 
 ## 01 Bảng phiên bản
 
-| {PHIEN_BAN} | Gỡ Chợ gia sư khỏi School Management, chợ chuyển sang kho riêng (lát L1); gỡ mã gia sư trong trường (lát L2) | YCTD-384 |
+| {PHIEN_BAN} | Gỡ Chợ gia sư khỏi School Management, chợ chuyển sang kho riêng (lát L1); gỡ mã gia sư trong trường (lát L2) | YCTD-393 |

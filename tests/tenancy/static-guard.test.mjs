@@ -92,7 +92,7 @@ const RULES = [
       /\/configuration\.ts$/,
       /\/main\.ts$/,
       // local-multi-school-command: lệnh dựng bản nhiều trường trên máy phát triển (YCTD-310); removed-data-command: lệnh sao lưu,
-      // xóa dữ liệu của chức năng đã bỏ (YCTD-384)
+      // xóa dữ liệu của chức năng đã bỏ (YCTD-393)
       /^database\/src\/(environment|platform-command|migrate-command|level-check-command|local-multi-school-command|removed-data-command|tenancy-runtime|test-admin)\.ts$/,
       // Lệnh dòng lệnh vận hành nền tảng đọc khóa gốc ở biến môi trường (DT-SaaS phần S8b)
       /^apps\/identity\/src\/(create-platform-operator|reset-operator-totp)\.ts$/,

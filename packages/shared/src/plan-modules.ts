@@ -9,7 +9,7 @@ import { listPortalMenuEntries, PORTAL_WORKSPACES, type PortalWorkspaceKey } fro
 // Tính năng không phải phân hệ của cây menu (YCTD-314): trợ lý AI và học trực tuyến, lớp trực tiếp chạy ở nhiều ứng dụng (cổng quản
 // trị, giáo viên, học sinh) nên gói bật, tắt bằng mã riêng; máy chủ API chặn theo khai báo RequirePlanModule ở bộ điều khiển
 export type PlanFeatureKey = 'ai-assistant' | 'online-learning' | 'sms-zalo';
-// Phân hệ đã bỏ (YCTD-384 lát L2, Eric chốt ngày 2026-10-30: gia sư trong trường): gói và tính năng riêng của trường đã lưu mã này
+// Phân hệ đã bỏ (YCTD-393 lát L2, Eric chốt ngày 2026-10-30: gia sư trong trường): gói và tính năng riêng của trường đã lưu mã này
 // vẫn hợp lệ khi sửa lại, nhưng mã không còn hiện để chọn và không bật chức năng nào
 export type RemovedPlanModuleKey = 'tutoring';
 export type PlanModuleKey = PortalWorkspaceKey | PlanFeatureKey | RemovedPlanModuleKey;

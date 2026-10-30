@@ -17,7 +17,7 @@ export {
   recordRemovedDataBackup,
 } from './removed-data-log.js';
 
-// Sao lưu dữ liệu của chức năng đã bỏ trước khi xóa (YCTD-384; quyết định của Eric ngày 2026-10-30: lệnh riêng xuất từng bảng ra tệp
+// Sao lưu dữ liệu của chức năng đã bỏ trước khi xóa (YCTD-393; quyết định của Eric ngày 2026-10-30: lệnh riêng xuất từng bảng ra tệp
 // nén, mã hóa, ngoài kho mã; ghi số dòng vào bảng sao lưu; database migration xóa bảng từ chối chạy khi chưa có bản ghi sao lưu tương
 // ứng). Tệp cùng định dạng mã hóa với bản sao lưu trường (school-backup.ts: gzip, AES-256-GCM, khóa dẫn từ
 // BACKUP_ENCRYPTION_PASSPHRASE): dòng đầu là thông tin tệp, mỗi bảng một dòng cột, các dòng dữ liệu dạng văn bản, dòng tổng kiểm.

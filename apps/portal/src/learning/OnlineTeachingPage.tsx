@@ -269,7 +269,7 @@ export function OnlineTeachingPage() {
         {canDecide ? <RecognitionSettings onSaved={setToastMessage} /> : null}
         {/* Học khi mạng yếu (DT-28 phần 28j, GD-148 đã chốt 2026-10-27): chỉ Ban Giám hiệu */}
         {canDecide ? <OfflineSettings onSaved={setToastMessage} /> : null}
-        {/* Lớp video dùng cho giờ học trực tuyến (DT-28 phần 28g), chuyển từ trang quy định dạy thêm khi gỡ gia sư (YCTD-384) */}
+        {/* Lớp video dùng cho giờ học trực tuyến (DT-28 phần 28g), chuyển từ trang quy định dạy thêm khi gỡ gia sư (YCTD-393) */}
         {canDecide ? <VideoSettingsCard onSaved={setToastMessage} /> : null}
       </div>
     </AppShell>

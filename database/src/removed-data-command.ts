@@ -4,7 +4,7 @@ import { createDatabase } from './connection.js';
 import { backupTablesBeforeRemoval, recordRemovedDataBackup } from './removed-data-backup.js';
 import { assertIdentifier } from './school-database-layout.js';
 
-// Sao lưu rồi xóa dữ liệu của chức năng đã bỏ (YCTD-384):
+// Sao lưu rồi xóa dữ liệu của chức năng đã bỏ (YCTD-393):
 //   pnpm --filter @school-management/database xoa-du-lieu-da-bo -- --tinh-nang cho-gia-su [--xoa-co-so-du-lieu]
 // Chợ gia sư đã tách thành sản phẩm riêng, dữ liệu không chuyển (quyết định của Eric ngày 2026-10-30). Lệnh:
 //   (1) sao lưu mọi bảng của cơ sở dữ liệu chợ (MARKETPLACE_DATABASE_URL, nếu có) kèm cấu hình khóa `market` của platform_settings

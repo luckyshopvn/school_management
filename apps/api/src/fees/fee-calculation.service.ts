@@ -267,7 +267,7 @@ export class FeeCalculationService {
           .execute();
         const staleIds = stale.filter((row) => !keep.has(row.child_id)).map((row) => row.id);
         if (staleIds.length > 0) {
-          // Khoản trừ gia sư chưa dùng của hóa đơn nháp bị bỏ (dữ liệu cũ của gia sư trong trường, đã gỡ ở YCTD-384 lát L2) xóa
+          // Khoản trừ gia sư chưa dùng của hóa đơn nháp bị bỏ (dữ liệu cũ của gia sư trong trường, đã gỡ ở YCTD-393 lát L2) xóa
           // trước để khóa ngoại không chặn xóa hóa đơn; lát L3 xóa bảng thì bỏ bước này
           await transaction
             .deleteFrom('tutoring_credits')

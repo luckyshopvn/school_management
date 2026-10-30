@@ -133,7 +133,7 @@ async function main(): Promise<void> {
       SCHEDULER_MODE: jobsOff ? 'external' : null,
       SCHOOL_METRICS_INTERVAL_SECONDS: jobsOff ? '0' : null,
       AGGREGATE_SNAPSHOT_INTERVAL_SECONDS: jobsOff ? '0' : null,
-      // Chợ gia sư đã tách thành sản phẩm riêng (YCTD-384): gỡ biến cũ khỏi tệp môi trường khi chạy lại
+      // Chợ gia sư đã tách thành sản phẩm riêng (YCTD-393): gỡ biến cũ khỏi tệp môi trường khi chạy lại
       MARKETPLACE_DATABASE_URL: null,
       MARKET_LINK_SECRET: null,
       MARKET_FILES_KEY: null,
