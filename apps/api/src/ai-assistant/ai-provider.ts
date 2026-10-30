@@ -5,12 +5,18 @@ import { createHash } from 'node:crypto';
 // hình là cấu hình (của nền tảng và của trường), không ghi cứng. `mock` chỉ để kiểm thử: cho kết quả cố định, không gọi ra ngoài, ghi
 // lại lời nhắc nhận được để kiểm thử khẳng định không có dữ liệu cá nhân; chỉ dựng khi cấu hình máy chủ cho phép (`AI_MOCK=true`)
 
-export type AiPromptKind = 'questions' | 'lesson_plan' | 'check' | 'feedback' | 'answer' | 'tutor' | 'tutor_rewrite';
+export type AiPromptKind = 'questions' | 'lesson_plan' | 'check' | 'feedback' | 'tutor' | 'tutor_rewrite';
 
 // Một lượt cũ của hội thoại (gia sư AI học sinh, YCTD-383 lát L2): gửi trước câu hỏi mới theo thứ tự, bắt đầu bằng `user`
 export interface AiConversationTurn {
   role: 'user' | 'assistant';
   content: string;
+}
+
+// Ảnh gửi kèm câu hỏi mới (gia sư AI học sinh, YCTD-383 lát L4): chỉ ảnh JPEG, PNG, WebP đã kiểm ở máy chủ
+export interface AiPromptImage {
+  mediaType: 'image/jpeg' | 'image/png' | 'image/webp';
+  data: Buffer;
 }
 
 export interface AiPrompt {
@@ -19,6 +25,21 @@ export interface AiPrompt {
   user: string;
   maxTokens: number;
   history?: AiConversationTurn[];
+  images?: AiPromptImage[];
+}
+
+// Nội dung của câu hỏi mới: có ảnh thì ảnh đứng trước chữ, không thì chỉ chữ
+function userContentOf(prompt: AiPrompt) {
+  if (!prompt.images || prompt.images.length === 0) {
+    return prompt.user;
+  }
+  return [
+    ...prompt.images.map((image) => ({
+      type: 'image',
+      source: { type: 'base64', media_type: image.mediaType, data: image.data.toString('base64') },
+    })),
+    { type: 'text', text: prompt.user },
+  ];
 }
 
 export interface AiCompletion {
@@ -68,7 +89,7 @@ export class AnthropicProvider implements AiProvider {
           model: settings.model,
           max_tokens: prompt.maxTokens,
           system: prompt.system,
-          messages: [...(prompt.history ?? []), { role: 'user', content: prompt.user }],
+          messages: [...(prompt.history ?? []), { role: 'user', content: userContentOf(prompt) }],
         }),
         signal: AbortSignal.timeout(TIMEOUT_MILLISECONDS),
       });
@@ -110,8 +131,10 @@ export class AnthropicProvider implements AiProvider {
   }
 }
 
-// Bộ giả lập: kết quả cố định theo loại yêu cầu; số token là chiều dài chia 4 làm tròn lên (cố định, kiểm thử được)
+// Bộ giả lập: kết quả cố định theo loại yêu cầu; số token là chiều dài chia 4 làm tròn lên, mỗi ảnh cộng cố định 100 token (cố định,
+// kiểm thử được)
 const tokensOf = (text: string) => Math.ceil(text.length / 4);
+export const MOCK_IMAGE_TOKENS = 100;
 
 function mockQuestions(user: string): string {
   const count = Number(/^SO_CAU: (\d+)$/m.exec(user)?.[1] ?? 1);
@@ -180,11 +203,16 @@ function mockLessonPlan(): string {
 
 // Gia sư AI học sinh (YCTD-383 lát L2): chế độ gợi ý trả bước nhắc khái niệm, chế độ lời giải trả lời giải đầy đủ; viết lại trả câu
 // không có đáp án. Đáp án cuối `x = 12` của bài mẫu chỉ có ở `final_answer` và ở lời giải đầy đủ
+// Có ảnh (lát L4) thì chép đề bài mẫu vào `image_text`, không có thông tin cá nhân
 function mockTutor(prompt: AiPrompt): string {
   if (prompt.kind === 'tutor_rewrite') {
     return JSON.stringify({ reply: 'Em thử làm tiếp bước chuyển vế rồi gửi cho gia sư xem nhé.' });
   }
   const solution = /^CHE_DO: loi_giai$/m.test(prompt.system);
+  const image =
+    prompt.images && prompt.images.length > 0
+      ? { image_text: 'Giải phương trình 3x - 7 = 2x + 5', personal_data: false }
+      : {};
   return JSON.stringify(
     solution
       ? {
@@ -192,6 +220,7 @@ function mockTutor(prompt: AiPrompt): string {
           topic: 'Phương trình bậc nhất một ẩn',
           reply: 'Lời giải: chuyển vế được $3x - 2x = 5 + 7$, nên $x = 12$.',
           final_answer: 'x = 12',
+          ...image,
         }
       : {
           step: 'concept',
@@ -199,6 +228,7 @@ function mockTutor(prompt: AiPrompt): string {
           reply:
             'Mình cùng làm nhé. Muốn tìm $x$, em đưa các hạng tử chứa $x$ về một vế. Em thử chuyển $2x$ sang vế trái xem được gì?',
           final_answer: 'x = 12',
+          ...image,
         },
   );
 }
@@ -230,7 +260,8 @@ export class MockAiProvider implements AiProvider {
     const history = (prompt.history ?? []).reduce((sum, turn) => sum + tokensOf(turn.content), 0);
     return {
       text,
-      inputTokens: tokensOf(prompt.system) + history + tokensOf(prompt.user),
+      inputTokens:
+        tokensOf(prompt.system) + history + tokensOf(prompt.user) + (prompt.images?.length ?? 0) * MOCK_IMAGE_TOKENS,
       outputTokens: tokensOf(text),
       model: settings.model,
     };
@@ -245,12 +276,7 @@ export class MockAiProvider implements AiProvider {
           ? JSON.stringify({
               comment: 'Em đã hoàn thành các yêu cầu chính của bài. Em cần trình bày rõ hơn các bước làm.',
             })
-          : prompt.kind === 'answer'
-            ? JSON.stringify({
-                answer:
-                  'Em hãy xem lại định nghĩa trong bài: số nguyên tố chỉ có hai ước là 1 và chính nó. Em thử kiểm tra từng số.',
-              })
-            : 'ok';
+          : 'ok';
   }
 
   async check(settings: AiProviderSettings): Promise<{ ok: boolean; detail: string }> {

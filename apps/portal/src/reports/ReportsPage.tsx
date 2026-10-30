@@ -55,7 +55,7 @@ const TABLES: Record<ReportCode, Array<{ key: string; title: string; columns: Co
       title: 'Theo lớp',
       columns: [
         { key: 'class_name', label: 'Lớp' },
-        { key: 'child_count', label: 'Số trẻ' },
+        { key: 'child_count', label: 'Số {người học}' },
         { key: 'outstanding_amount', label: 'Còn nợ' },
         { key: 'overdue_amount', label: 'Quá hạn' },
         { key: 'credit_amount', label: 'Số dư có' },
@@ -63,9 +63,9 @@ const TABLES: Record<ReportCode, Array<{ key: string; title: string; columns: Co
     },
     {
       key: 'children',
-      title: 'Theo trẻ',
+      title: 'Theo {người học}',
       columns: [
-        { key: 'full_name', label: 'Trẻ' },
+        { key: 'full_name', label: '{Người học}' },
         { key: 'class_name', label: 'Lớp' },
         { key: 'outstanding_amount', label: 'Còn nợ' },
         { key: 'overdue_amount', label: 'Quá hạn' },
@@ -130,11 +130,11 @@ const TABLES: Record<ReportCode, Array<{ key: string; title: string; columns: Co
     },
     {
       key: 'absences',
-      title: 'Trẻ vắng',
+      title: '{Người học} vắng',
       columns: [
         { key: 'attendance_date', label: 'Ngày' },
         { key: 'class_name', label: 'Lớp' },
-        { key: 'full_name', label: 'Trẻ' },
+        { key: 'full_name', label: '{Người học}' },
         { key: 'status', label: 'Trạng thái' },
         { key: 'note', label: 'Ghi chú' },
       ],
@@ -163,8 +163,8 @@ const TABLES: Record<ReportCode, Array<{ key: string; title: string; columns: Co
       columns: [
         { key: 'date', label: 'Ngày' },
         { key: 'note', label: 'Ghi chú' },
-        { key: 'present_count', label: 'Số trẻ đi học' },
-        { key: 'absent_count', label: 'Số trẻ vắng' },
+        { key: 'present_count', label: 'Số {người học} đi học' },
+        { key: 'absent_count', label: 'Số {người học} vắng' },
       ],
     },
   ],

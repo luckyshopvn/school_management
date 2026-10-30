@@ -20,7 +20,6 @@ import { pickSmsRecipients } from '../finance/receivables.js';
 import { OrganizationScopes } from '../organization/organization-scopes.js';
 import { extracurricularItems } from '../activities/extracurricular-fees.js';
 import { boardingMealDays, BOARDING_RULE_CODE, unclosedBoardingDays } from '../boarding/boarding-roster.js';
-import { dropCreditsOfRecomputedInvoice, recordTutoringCharges, tutoringItems } from '../tutoring/tutoring-fees.js';
 import { aiTutorCharges, recordAiTutorCharges } from '../ai-tutor/school-sales-fees.js';
 import { Databases } from '../common/databases.js';
 import { DiscountsService } from './discounts.service.js';
@@ -38,13 +37,11 @@ const INVOICE_SEQUENCE = 'invoice';
 
 export interface DraftItem {
   // `ai_tutor`: Gia sư AI do trường bán (YCTD-383 lát L1a)
-  item_type: 'tuition' | 'service' | 'extracurricular' | 'tutoring' | 'ai_tutor';
+  item_type: 'tuition' | 'service' | 'extracurricular' | 'ai_tutor';
   service_id: string | null;
   service_registration_id: string | null;
   // Phí hoạt động ngoại khóa (P14-11, YCTD-78)
   extracurricular_registration_id?: string | null;
-  // Chương trình gia sư bổ trợ có thu (YCTD-253)
-  tutoring_registration_id?: string | null;
   description: string;
   quantity: number;
   unit_price: number;
@@ -162,11 +159,6 @@ export class FeeCalculationService {
       children.map((child) => child.id),
       period,
     );
-    const tutoring = await tutoringItems(
-      database,
-      children.map((child) => child.id),
-      period,
-    );
     const aiTutor = await aiTutorCharges(
       database,
       this.databases.system,
@@ -209,8 +201,6 @@ export class FeeCalculationService {
       }
       // Phí ngoại khóa theo tháng thu đủ, phí theo hoạt động thu một lần (BR-19, YCTD-78)
       items.push(...(extracurricular.get(child.id) ?? []));
-      // Gia sư bổ trợ có thu theo buổi hoặc trọn gói, đã trừ buổi bị hủy đã thu (YCTD-253)
-      items.push(...(tutoring.items.get(child.id) ?? []));
       // Gia sư AI do trường bán: lần mua và phần chênh lệch nâng gói chưa thu (YCTD-383 lát L1a)
       items.push(...(aiTutor.get(child.id) ?? []).map((charge) => charge.item));
       const total = items.reduce((sum, item) => sum + item.amount, 0);
@@ -277,9 +267,13 @@ export class FeeCalculationService {
           .execute();
         const staleIds = stale.filter((row) => !keep.has(row.child_id)).map((row) => row.id);
         if (staleIds.length > 0) {
-          for (const staleId of staleIds) {
-            await dropCreditsOfRecomputedInvoice(transaction, staleId);
-          }
+          // Khoản trừ gia sư chưa dùng của hóa đơn nháp bị bỏ (dữ liệu cũ của gia sư trong trường, đã gỡ ở YCTD-393 lát L2) xóa
+          // trước để khóa ngoại không chặn xóa hóa đơn; lát L3 xóa bảng thì bỏ bước này
+          await transaction
+            .deleteFrom('tutoring_credits')
+            .where('charged_invoice_id', 'in', staleIds)
+            .where('status', '=', 'open')
+            .execute();
           await transaction.deleteFrom('invoices').where('id', 'in', staleIds).execute();
         }
         const written: typeof drafts = [];
@@ -319,7 +313,6 @@ export class FeeCalculationService {
             continue;
           }
           written.push(draft);
-          await dropCreditsOfRecomputedInvoice(transaction, invoice.id);
           await transaction.deleteFrom('invoice_items').where('invoice_id', '=', invoice.id).execute();
           // Dòng Gia sư AI chèn riêng để ghi lần mua, lần nâng đã thu ở từng dòng
           const ordinaryItems = draft.items.filter((item) => item.item_type !== 'ai_tutor');
@@ -329,7 +322,6 @@ export class FeeCalculationService {
               .values(ordinaryItems.map((item) => ({ ...item, invoice_id: invoice.id })))
               .execute();
           }
-          await recordTutoringCharges(transaction, invoice.id, tutoring.plans.get(draft.child.id) ?? []);
           await recordAiTutorCharges(transaction, invoice.id, draft.child.id, aiTutor.get(draft.child.id) ?? []);
           // Miễn giảm chờ duyệt tính lại theo dòng mới; tổng miễn giảm vượt tổng hóa đơn thì đánh dấu để xem lại (BR-22)
           await recalculatePendingDiscounts(transaction, invoice.id);
