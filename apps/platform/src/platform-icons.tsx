@@ -12,7 +12,6 @@ const PATHS: Record<string, ReactNode> = {
   'parent-orgs': <path d="M9 3h6v5H9zM3 16h6v5H3zM15 16h6v5h-6zM12 8v4M6 16v-4h12v4" />,
   ai: <path d="M12 3v4M12 17v4M3 12h4M17 12h4M6 6l2.5 2.5M15.5 15.5 18 18M18 6l-2.5 2.5M8.5 15.5 6 18" />,
   catalog: <path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01" />,
-  market: <path d="M3 9l2-5h14l2 5M3 9h18v11H3zM9 20v-6h6v6" />,
   // Gia sư AI nền tảng bán (YCTD-383 lát L1b): mũ tốt nghiệp
   'ai-tutor': <path d="M2 9l10-5 10 5-10 5zM6 11v5c3 2 9 2 12 0v-5M22 9v6" />,
   operators: <path d="M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM2 21v-2a5 5 0 0 1 5-5h4a5 5 0 0 1 5 5v2M17 11l2 2 4-4" />,

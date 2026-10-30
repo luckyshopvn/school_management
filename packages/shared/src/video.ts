@@ -4,29 +4,17 @@
 export type VideoRoomRole = 'host' | 'student' | 'guardian' | 'observer';
 export type VideoRoomKind = 'session' | 'instant';
 export type VideoRoomStatus = 'open' | 'ended';
-export type VideoRecordingStatus = 'recording' | 'ready' | 'failed' | 'deleted';
 export type VideoTrackSource = 'camera' | 'microphone' | 'screen_share' | 'screen_share_audio';
 
 export const VIDEO_ROOM_ROLE_LABELS: Record<VideoRoomRole, string> = {
-  host: 'Gia sư (chủ phòng)',
+  host: 'Giáo viên (chủ phòng)',
   student: 'Học sinh',
   guardian: 'Cha mẹ (vào xem)',
   observer: 'Ban Giám hiệu (vào xem)',
 };
 
-export const VIDEO_RECORDING_STATUS_LABELS: Record<VideoRecordingStatus, string> = {
-  recording: 'Đang ghi',
-  ready: 'Đã ghi xong',
-  failed: 'Ghi lỗi',
-  deleted: 'Đã xóa theo hạn',
-};
-
 // Mã vào phòng chỉ dùng để vào trong 10 phút (tài liệu 47 mục 19.5)
 export const VIDEO_JOIN_TOKEN_SECONDS = 600;
-
-// Văn bản đồng ý ghi hình cha mẹ xác nhận cho con (lưu bản chụp và mã băm khi đồng ý)
-export const VIDEO_RECORDING_CONSENT_TEXT =
-  'Tôi đồng ý để nhà trường ghi hình các buổi học trực tuyến của con tôi trong chương trình này. Bản ghi chỉ người dự buổi, cha mẹ và Ban Giám hiệu xem được, không tải xuống, xóa theo thời hạn giữ của nhà trường. Tôi có thể rút lại đồng ý bất cứ lúc nào.';
 
 export interface VideoGrants {
   roomAdmin: boolean;

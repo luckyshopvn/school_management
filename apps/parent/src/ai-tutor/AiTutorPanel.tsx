@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Alert, Button, ConfirmDialog, FORM_CONTROL_CLASS, StatusBadge, type StatusTone } from '@school-management/ui';
 import { ApiError, requestJson } from '../session/api-client.js';
+import { AiTutorChildUsage } from './AiTutorChildUsage.js';
 import AiTutorDirectPurchase from './AiTutorDirectPurchase.js';
 
 // Gia sư AI cho con (YCTD-383 lát L1a; bản mẫu MH-598): chọn nơi mua "Mua qua trường" (phí vào hóa đơn học phí kỳ tới) hoặc "Mua trực
@@ -195,27 +196,6 @@ export function AiTutorPanel({ child }: { child: { id: string; full_name: string
           {notice ? <Alert tone="success">{notice}</Alert> : null}
           {view ? (
             <>
-              <div className="flex flex-col gap-2 rounded-xl border border-border p-3" aria-label="Lượt hỏi của con">
-                <p className="text-content font-semibold text-text">
-                  Tháng {Number(view.current_month.slice(5, 7))} của con
-                </p>
-                {currentMonthly ? (
-                  <>
-                    <p className="text-content text-text">
-                      Đã dùng {currentMonthly.used_turns} / {currentMonthly.turns} lượt ({currentMonthly.plan_name})
-                    </p>
-                    <progress
-                      className="h-2 w-full"
-                      max={currentMonthly.turns}
-                      value={currentMonthly.used_turns}
-                      aria-label="Lượt đã dùng trong tháng"
-                    />
-                  </>
-                ) : (
-                  <p className="text-content text-text-secondary">Con chưa có gói tháng trong tháng này</p>
-                )}
-                <p className="text-content text-text">Lượt mua thêm còn {view.balance.top_up}</p>
-              </div>
               {!view.enabled ? (
                 <Alert tone="info">Trường chưa mở bán Gia sư AI cho cấp học của con</Alert>
               ) : (
@@ -347,6 +327,15 @@ export function AiTutorPanel({ child }: { child: { id: string; full_name: string
             </>
           ) : null}
         </div>
+      ) : null}
+      {/* Lát L5 (MH-598): số lượt và chủ đề của con, hiện chung cho cả hai nơi mua */}
+      {view ? (
+        <AiTutorChildUsage
+          childId={child.id}
+          currentMonth={view.current_month}
+          monthly={currentMonthly}
+          topUpRemaining={view.balance.top_up}
+        />
       ) : null}
       <ConfirmDialog
         open={pending !== undefined}

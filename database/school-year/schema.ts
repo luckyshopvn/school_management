@@ -4380,6 +4380,17 @@ export interface StudentTransfersTable extends CatalogRecordColumns {
   decided_at: Date | null;
   decision_note: string | null;
   file_id: string | null;
+  // Gói chuyển trường (YCTD-390 lát L1): gói lập gần nhất ở chuyển đi, gói đã tiếp nhận ở chuyển đến
+  package_code: ColumnType<string | null, string | null | undefined, string | null>;
+  package_sha256: ColumnType<string | null, string | null | undefined, string | null>;
+  package_parts: ColumnType<Record<string, unknown> | null, string | null | undefined, string | null>;
+  package_created_at: ColumnType<Date | null, Date | null | undefined, Date | null>;
+  package_created_by_name: ColumnType<string | null, string | null | undefined, string | null>;
+  partner_school_code: ColumnType<string | null, string | null | undefined, string | null>;
+  received_data: ColumnType<Record<string, unknown> | null, string | null | undefined, string | null>;
+  // Thư trong hộp thư nền tảng và trường đối tác trên nền tảng (YCTD-390 lát L2)
+  mailbox_id: ColumnType<string | null, string | null | undefined, string | null>;
+  partner_school_id: ColumnType<string | null, string | null | undefined, string | null>;
 }
 
 // Cơ sở vật chất đủ theo hệ thống của Sở (DT-16 phần 16i): 6.1 thực trạng và nhu cầu đầu tư phòng học, nhà công vụ; mức độ

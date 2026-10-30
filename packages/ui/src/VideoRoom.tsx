@@ -252,12 +252,10 @@ export interface VideoAdmission {
   can_share: boolean;
 }
 
-// Bảng của chủ phòng: phòng chờ (cho vào), cho nói, cho chia sẻ màn hình, mời ra; bắt đầu, dừng ghi; kết thúc phòng; phút còn lại.
-// recordingLocked (phòng học của chợ gia sư, YCTD-362): buổi có trẻ vị thành niên luôn ghi hình, không có nút dừng ghi
+// Bảng của chủ phòng: phòng chờ (cho vào), cho nói, cho chia sẻ màn hình, mời ra; bắt đầu, dừng ghi; kết thúc phòng; phút còn lại
 export function VideoHostPanel({
   admissions,
   recording,
-  recordingLocked = false,
   minutesLeft,
   onParticipant,
   onRecording,
@@ -265,7 +263,6 @@ export function VideoHostPanel({
 }: {
   admissions: VideoAdmission[];
   recording: boolean;
-  recordingLocked?: boolean;
   minutesLeft: number | null;
   onParticipant: (
     identity: string,
@@ -310,79 +307,11 @@ export function VideoHostPanel({
         ))}
       </ul>
       <div className="flex flex-wrap gap-2">
-        {recordingLocked ? (
-          <span className="text-label text-text-secondary">Buổi với trẻ dưới 18 tuổi luôn ghi hình</span>
-        ) : (
-          <Button onClick={() => onRecording(!recording)}>{recording ? 'Dừng ghi hình' : 'Bắt đầu ghi hình'}</Button>
-        )}
+        <Button onClick={() => onRecording(!recording)}>{recording ? 'Dừng ghi hình' : 'Bắt đầu ghi hình'}</Button>
         <Button variant="danger" onClick={onEnd}>
           Kết thúc phòng
         </Button>
       </div>
-    </section>
-  );
-}
-
-export interface VideoRecordingRow {
-  id: string;
-  status: 'recording' | 'ready' | 'failed' | 'deleted';
-  started_at: string;
-  expires_at: string;
-}
-
-// Bản ghi của buổi: xem bằng đường dẫn ký ngắn hạn, không có nút tải, mỗi lần xem ghi nhật ký
-export function VideoRecordingList({
-  recordings,
-  onView,
-}: {
-  recordings: VideoRecordingRow[];
-  onView: (id: string) => Promise<string>;
-}) {
-  const [source, setSource] = useState<string>();
-  const [error, setError] = useState<string>();
-  if (recordings.length === 0) {
-    return null;
-  }
-  return (
-    <section aria-label="Bản ghi của buổi" className="flex flex-col gap-2">
-      <h3 className="font-semibold">Bản ghi</h3>
-      {error ? <Alert tone="danger">{error}</Alert> : null}
-      <ul className="flex flex-col gap-1">
-        {recordings.map((recording) => (
-          <li key={recording.id} className="flex flex-wrap items-center gap-2 text-label">
-            <span>
-              {new Date(recording.started_at).toLocaleString('vi-VN')} · giữ đến{' '}
-              {new Date(recording.expires_at).toLocaleDateString('vi-VN')}
-            </span>
-            {recording.status === 'ready' ? (
-              <Button
-                onClick={() =>
-                  onView(recording.id)
-                    .then((url) => {
-                      setError(undefined);
-                      setSource(url);
-                    })
-                    .catch(() => setError('Không mở được bản ghi'))
-                }
-              >
-                Xem bản ghi
-              </Button>
-            ) : (
-              <span>{recording.status === 'recording' ? 'Đang ghi' : 'Không xem được'}</span>
-            )}
-          </li>
-        ))}
-      </ul>
-      {source ? (
-        <video
-          aria-label="Xem lại bản ghi"
-          src={source}
-          controls
-          controlsList="nodownload"
-          onContextMenu={(event) => event.preventDefault()}
-          className="w-full max-w-xl rounded-lg bg-black"
-        />
-      ) : null}
     </section>
   );
 }

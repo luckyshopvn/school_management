@@ -13,7 +13,8 @@ import type { PrimaryClassRow, PrimaryStudentRow } from './primary-facts.js';
 // - dạng khuyết tật so khớp chữ ở ô "Loại khuyết tật" của hồ sơ CSDL ngành (ô chữ tự do, chưa có danh mục), không khớp là "khác";
 // - trường: cờ ở "Thông tin khác" của hồ sơ trường, mức chuẩn quốc gia; điểm trường đang hoạt động;
 // - đội ngũ: đang làm việc, cộng người nghỉ hưu, nghỉ hoặc chuyển đi trong năm học (chỉ đếm ở dòng nghỉ hưu, nghỉ, chuyển đi);
-//   trường nhiều cấp: giáo viên đếm ở cấp có lớp được phân công, người không dạy lớp nào đếm ở cấp thấp nhất của trường. Claude tự
+//   trường nhiều cấp: giáo viên đếm ở cấp có lớp được phân công, người không dạy lớp nào (cán bộ quản lý, nhân viên) đếm ở cấp
+//   cao nhất của trường, theo giải thích biểu THCS, THPT của Thông tư ("trường nhiều cấp có cấp cao nhất là ..."). Claude tự
 //   chọn theo ủy quyền của Eric ngày 2026-10-11;
 // - phòng học tập: phòng học là phòng gắn với lớp đang học của cấp; phòng đa chức năng theo loại phòng; cột kiên cố, bán kiên cố,
 //   tạm theo hiện trạng; phòng nhờ, mượn không xếp được cột cấp công trình;
@@ -57,8 +58,12 @@ const ROLE_TO_JOB: Record<string, string> = {
   other: 'other_staff',
 };
 
-export function staffJobOf(jobPosition: string | null, jobTitle: string | null): string {
+// Nhân viên thiết bị, thí nghiệm chỉ có dòng riêng ở biểu THCS, THPT; biểu Tiểu học tính vào nhân viên khác
+export function staffJobOf(jobPosition: string | null, jobTitle: string | null, level = 'TH'): string {
   const value = fold(jobPosition) || fold(jobTitle);
+  if (level !== 'TH' && (value.includes('thiet bi') || value.includes('thi nghiem'))) {
+    return 'equipment_lab';
+  }
   const rule = JOB_RULES.find(([text]) => value.includes(text));
   return rule ? rule[1] : ROLE_TO_JOB[employeeRoleOf({ job_position: jobPosition, job_title: jobTitle })]!;
 }
@@ -74,6 +79,8 @@ export function ageBandOf(age: number | null): string | null {
   return `${from}_${from + 9}`;
 }
 
+const FIRST_GRADE: Record<string, string> = { TH: 'K1', THCS: 'K6', THPT: 'K10' };
+
 const yearOf = (value: unknown): number | null => {
   const text = value instanceof Date ? value.toISOString() : typeof value === 'string' ? value : '';
   const year = Number(text.slice(0, 4));
@@ -81,6 +88,18 @@ const yearOf = (value: unknown): number | null => {
 };
 const dateText = (value: unknown): string | null =>
   value instanceof Date ? value.toISOString().slice(0, 10) : typeof value === 'string' ? value.slice(0, 10) : null;
+
+// Loại trường theo các cấp phổ thông trường có (Mầm non không tính): phần Trường của biểu THCS, THPT chia nhóm theo loại
+export function schoolTypes(enabledLevels: string[]): Record<string, boolean> {
+  const levels = ['TH', 'THCS', 'THPT'].filter((level) => enabledLevels.includes(level)).join('+');
+  return {
+    type_thcs: levels === 'THCS',
+    type_th_thcs: levels === 'TH+THCS',
+    type_thpt: levels === 'THPT',
+    type_thcs_thpt: levels === 'THCS+THPT',
+    type_th_thcs_thpt: levels === 'TH+THCS+THPT',
+  };
+}
 
 export interface Tt25Context {
   database: Kysely<SchoolYearDatabase>;
@@ -212,6 +231,30 @@ export async function loadTt25Facts(
       .map((row) => row.child_id),
   );
   const multiLevel = context.enabledLevels.length > 1;
+  const classIds = [...base.classes.map((row) => row.id), '00000000-0000-0000-0000-000000000000'];
+  const [twoSessionClassRows, twoSessionChildRows, eligibleRows] = await Promise.all([
+    database
+      .selectFrom('classes')
+      .select('id')
+      .where('two_sessions_per_day', '=', true)
+      .where('id', 'in', classIds)
+      .execute(),
+    database
+      .selectFrom('children')
+      .select('id')
+      .where('two_sessions_per_day', '=', true)
+      .where('id', 'in', [...base.students.map((row) => row.id), '00000000-0000-0000-0000-000000000000'])
+      .execute(),
+    database
+      .selectFrom('graduation_candidates')
+      .select('child_id')
+      .where('eligible', '=', true)
+      .where('class_id', 'in', classIds)
+      .execute(),
+  ]);
+  const twoSessionClasses = new Set(twoSessionClassRows.map((row) => row.id));
+  const twoSessionChildren = new Set(twoSessionChildRows.map((row) => row.id));
+  const eligible = new Set(eligibleRows.map((row) => row.child_id));
   const combined = new Set(
     (
       await database
@@ -231,7 +274,9 @@ export async function loadTt25Facts(
       ...row,
       age: birthYear === null ? null : startYear - birthYear,
       repeater,
-      new_entrant: row.grade === 'K1' && !repeater,
+      new_entrant: row.grade === FIRST_GRADE[level] && !repeater,
+      two_sessions: row.two_sessions === true || twoSessionChildren.has(row.id) || twoSessionClasses.has(row.class_id),
+      graduation_eligible: eligible.has(row.id),
       disability: disabilityKindOf(
         profileText(child?.moet_profile ?? null, 'disability_type') ?? child?.special_needs_note ?? null,
       ),
@@ -268,7 +313,7 @@ export async function loadTt25Facts(
     set.add(row.school_level);
     levelsOfStaff.set(row.staff_user_id, set);
   }
-  const lowestLevel = ['MN', 'TH', 'THCS', 'THPT'].find((item) => context.enabledLevels.includes(item)) ?? level;
+  const highestLevel = ['THPT', 'THCS', 'TH', 'MN'].find((item) => context.enabledLevels.includes(item)) ?? level;
   const standardOf = new Map(evaluations.map((row) => [row.staff_id, row.overall_level]));
   const staffFacts = staff.flatMap((row) => {
     const text = (key: string) => profileText(row.moet_profile, key);
@@ -281,7 +326,7 @@ export async function loadTt25Facts(
       return [];
     }
     const taught = row.user_id ? levelsOfStaff.get(row.user_id) : undefined;
-    if (multiLevel && (taught ? !taught.has(level) : level !== lowestLevel)) {
+    if (multiLevel && (taught ? !taught.has(level) : level !== highestLevel)) {
       return [];
     }
     const jobPosition = text('job_position');
@@ -302,7 +347,7 @@ export async function loadTt25Facts(
         vice_principal: principal === 'vice',
         manager: principal !== null || category === 'manager',
         teacher: principal === null && category === 'teacher',
-        job: principal === null && category === 'employee' ? staffJobOf(jobPosition, row.job_title) : null,
+        job: principal === null && category === 'employee' ? staffJobOf(jobPosition, row.job_title, level) : null,
         rank: rank ? String(rank.level) : null,
         age_band: ageBandOf(birthYear === null ? null : startYear - birthYear),
         standard: standardOf.get(row.id) ?? null,
@@ -337,7 +382,12 @@ export async function loadTt25Facts(
   const level2 = general.national_standard_level === '2';
   return {
     ownership,
-    classes: base.classes.map((row) => ({ ...row, multigrade: combined.has(row.id), multi_level: multiLevel })),
+    classes: base.classes.map((row) => ({
+      ...row,
+      two_sessions: twoSessionClasses.has(row.id),
+      multigrade: combined.has(row.id),
+      multi_level: multiLevel,
+    })),
     students,
     school: [
       {
@@ -352,6 +402,7 @@ export async function loadTt25Facts(
         sex_education: flag('sex_education'),
         disaster_plan: flag('disaster_prevention'),
         multi_level: multiLevel,
+        ...schoolTypes(context.enabledLevels),
       },
     ],
     sites: sites.map(() => ({})),
