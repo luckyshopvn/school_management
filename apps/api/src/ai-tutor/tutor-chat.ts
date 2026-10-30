@@ -15,12 +15,14 @@ import {
   validationError,
 } from '@school-management/server';
 import { sql, type Kysely, type Selectable } from 'kysely';
+import { randomUUID } from 'node:crypto';
 import { AI_PROVIDERS } from '../ai-assistant/ai-assistant.js';
 import { buildNameIndex, PERSONAL_DATA_LABELS, scanPersonalData } from '../ai-assistant/ai-prompt.js';
 import {
   AiProviderError,
   type AiCompletion,
   type AiConversationTurn,
+  type AiPromptImage,
   type AiProvider,
   type AiProviderRegistry,
   type AiProviderSettings,
@@ -30,8 +32,10 @@ import { JobScheduler } from '../common/job-scheduler.js';
 import { TENANCY_RUNTIME } from '../common/configuration.js';
 import { CurrentSchoolYearResolver } from '../common/current-school-year.js';
 import { Databases } from '../common/databases.js';
+import { storageKey } from '../common/resource-names.js';
 import { isUuid, notFoundError, type RequestBody } from '../common/request-fields.js';
 import { studentChildOf } from '../common/student-account.js';
+import { FileStorage } from '../files/file-storage.js';
 import { aiTutorAccess, type AiTutorAccess } from './ai-tutor-access.js';
 import { activeExamFor, openBlockedAssignmentFor, quietWindowOf } from './ai-tutor-locks.js';
 import { AiTutorSafetyFlagService } from './safety-flags.js';
@@ -49,6 +53,7 @@ import {
   buildRewritePrompt,
   buildTutorSystemPrompt,
   HISTORY_MESSAGES,
+  IMAGE_PERSONAL_DATA_REPLY,
   isSolutionUnlocked,
   isUnsafeReply,
   moderateStudentText,
@@ -68,6 +73,15 @@ import {
   type TutorMode,
   type TutorStep,
 } from './tutor-chat-rules.js';
+import {
+  checkTutorImages,
+  IMAGE_DELETED_LABEL,
+  IMAGE_MAX_BYTES,
+  IMAGE_MAX_COUNT,
+  IMAGE_RETENTION_DAYS,
+  imageRetentionCutoff,
+  type IncomingImage,
+} from './tutor-images.js';
 
 // Trò chuyện bằng chữ của học sinh với gia sư AI (YCTD-383 lát L2; bản mẫu MH-596, MH-597; quyết định của Eric ngày 2026-10-30):
 // - chỉ dùng khóa AI của nền tảng (Q8); token ghi trên câu trả lời, việc nền tổng hợp theo nguồn gói (`tutor-usage.ts`);
@@ -78,10 +92,15 @@ import {
 // - câu có dấu hiệu tự hại hoặc bị bắt nạt: trả lời theo mẫu có số 111, không gửi nhà cung cấp, ghi cờ cảnh báo (lát L3 báo giáo viên
 //   chủ nhiệm);
 // - lịch sử giữ 12 tháng: em xem lại hội thoại của mình; cha mẹ chỉ xem chủ đề và số lượt; giáo viên không có điểm cuối nào để xem.
+// Lát L4 (ảnh bài tập, Q5): chỉ gói tháng đang dùng có quyền gửi ảnh (gói Nâng cao) mới gửi được, kiểm trước khi giữ lượt; ảnh JPEG, PNG,
+// WebP, tối đa 3 ảnh mỗi câu, mỗi ảnh tối đa 4 MB, bỏ siêu dữ liệu trước khi lưu và gửi đi; gia sư chép đề từ ảnh, đề chép được quét dữ
+// liệu cá nhân và kiểm duyệt như câu chữ; ảnh có thông tin cá nhân thì không lưu ảnh, hoàn lượt, nhắc em; ảnh chỉ lưu khi câu được trả lời
+// bình thường, ở kho tệp của trường; việc nền xóa ảnh sau 30 ngày. Chỉ em xem lại ảnh của mình; cha mẹ, giáo viên không có điểm cuối xem ảnh.
 // Hội thoại ở cơ sở dữ liệu hệ thống của trường; con, lớp, môn, người giám hộ ở cơ sở dữ liệu năm học đang dùng
 type SystemClient = Kysely<SystemDatabase>;
 type MessageRow = Selectable<SystemDatabase['ai_tutor_messages']>;
 type ConversationRow = Selectable<SystemDatabase['ai_tutor_conversations']>;
+type ImageRow = Selectable<SystemDatabase['ai_tutor_message_images']>;
 
 const MAINTENANCE_JOB_SECONDS = 600;
 
@@ -108,13 +127,30 @@ interface Outcome {
   completion: { model: string; inputTokens: number; outputTokens: number } | null;
   capture: boolean;
   releaseReason: string | null;
+  // Đề chép từ ảnh (lát L4), lưu kèm câu hỏi khi câu được trả lời bình thường
+  imageText: string | null;
 }
 
-function messageView(row: MessageRow) {
+interface TutorRequest {
+  mode: TutorMode;
+  conversationId: string | null;
+  subjectCode: string;
+  text: string;
+  images: AiPromptImage[];
+}
+
+function messageView(row: MessageRow, images: readonly ImageRow[] = []) {
   return {
     id: row.id,
     role: row.role,
     body: row.body,
+    image_text: row.image_text,
+    images: images.map((image) => ({
+      id: image.id,
+      content_type: image.content_type,
+      deleted: image.deleted_at !== null,
+      deleted_label: image.deleted_at !== null ? IMAGE_DELETED_LABEL : null,
+    })),
     step: row.step,
     step_label: row.step ? STEP_LABELS[row.step] : null,
     request_kind: row.request_kind,
@@ -136,6 +172,11 @@ function conversationView(row: ConversationRow) {
 }
 
 const NO_TURNS_MESSAGE = 'Em đã dùng hết lượt hỏi. Nhờ cha mẹ mua thêm lượt hoặc gói tháng trong ứng dụng phụ huynh.';
+const IMAGES_NOT_ALLOWED_MESSAGE =
+  'Gửi ảnh bài tập chỉ có ở gói Nâng cao. Em gõ đề bài bằng chữ, hoặc nhờ cha mẹ nâng gói trong ứng dụng phụ huynh; lượt hỏi không bị trừ';
+const DEFAULT_IMAGE_QUESTION = 'Em gửi ảnh bài tập, nhờ gia sư gợi ý.';
+const IMAGE_FOLDER = 'ai-tutor-images';
+const IMAGE_PURGE_BATCH = 500;
 
 @Injectable()
 export class AiTutorChatService {
@@ -147,6 +188,7 @@ export class AiTutorChatService {
     private readonly clock: Clock,
     @Inject(AI_PROVIDERS) private readonly providers: AiProviderRegistry,
     private readonly safetyFlags: AiTutorSafetyFlagService,
+    private readonly fileStorage: FileStorage,
     @Optional() @Inject(TENANCY_RUNTIME) private readonly tenancy: TenancyRuntime | null = null,
   ) {}
 
@@ -262,16 +304,32 @@ export class AiTutorChatService {
     };
   }
 
+  // Gói Nâng cao: gói tháng đang dùng có quyền gửi ảnh (gói lượt dùng quyền của gói tháng, Q5)
+  private async imagesAllowed(childId: string, now: Date): Promise<boolean> {
+    const row = await this.system
+      .selectFrom('ai_tutor_subscriptions')
+      .select('id')
+      .where('child_id', '=', childId)
+      .where('status', '=', 'active')
+      .where('plan_kind', '=', 'monthly')
+      .where('allow_images', '=', true)
+      .where('valid_from', '<=', now)
+      .where('valid_until', '>', now)
+      .executeTakeFirst();
+    return row !== undefined;
+  }
+
   // ---------- Trang của em (MH-596, MH-597)
 
   async overview(currentUser: CurrentUser) {
     const context = await this.student(currentUser);
     const now = this.clock.now();
-    const [balance, subjects, resolved, access] = await Promise.all([
+    const [balance, subjects, resolved, access, imagesAllowed] = await Promise.all([
       this.balance(context.childId, now),
       this.subjects(context),
       this.resolve(),
       this.accessOf(context, now),
+      this.imagesAllowed(context.childId, now),
     ]);
     // Phiên xem hỗ trợ không thấy hội thoại của em (riêng tư của học sinh)
     const conversations = context.readOnly
@@ -304,6 +362,12 @@ export class AiTutorChatService {
         total: balance.total,
       },
       subscribed: balance.subscribed,
+      images: {
+        allowed: imagesAllowed,
+        max_count: IMAGE_MAX_COUNT,
+        max_bytes: IMAGE_MAX_BYTES,
+        retention_days: IMAGE_RETENTION_DAYS,
+      },
       subjects,
       conversations: conversations.map(conversationView),
     };
@@ -335,6 +399,25 @@ export class AiTutorChatService {
       .execute();
   }
 
+  private async viewsOf(messages: readonly MessageRow[]) {
+    const ids = messages.filter((row) => row.role === 'student').map((row) => row.id);
+    const images =
+      ids.length === 0
+        ? []
+        : await this.system
+            .selectFrom('ai_tutor_message_images')
+            .selectAll()
+            .where('message_id', 'in', ids)
+            .orderBy('position')
+            .execute();
+    return messages.map((row) =>
+      messageView(
+        row,
+        images.filter((image) => image.message_id === row.id),
+      ),
+    );
+  }
+
   private progressOf(messages: readonly MessageRow[]) {
     const facts = messages
       .filter((row) => row.role === 'student' && row.request_kind !== null)
@@ -351,26 +434,63 @@ export class AiTutorChatService {
     const messages = await this.messagesOf(conversation.id);
     return {
       conversation: conversationView(conversation),
-      messages: messages.map(messageView),
+      messages: await this.viewsOf(messages),
       ...this.progressOf(messages),
     };
   }
 
+  // Ảnh em đã gửi: chỉ chính em (không phiên xem hỗ trợ); ảnh của em khác, ảnh đã xóa trả "không tìm thấy"
+  async image(currentUser: CurrentUser, imageId: string): Promise<{ contentType: string; body: Buffer }> {
+    const context = await this.student(currentUser);
+    if (context.readOnly) {
+      throw new ApplicationError('ERR_FORBIDDEN', 'Phiên xem hỗ trợ không xem ảnh của học sinh');
+    }
+    const row = isUuid(imageId)
+      ? await this.system
+          .selectFrom('ai_tutor_message_images')
+          .innerJoin('ai_tutor_messages', 'ai_tutor_messages.id', 'ai_tutor_message_images.message_id')
+          .innerJoin('ai_tutor_conversations', 'ai_tutor_conversations.id', 'ai_tutor_messages.conversation_id')
+          .select(['ai_tutor_message_images.storage_key', 'ai_tutor_message_images.content_type'])
+          .where('ai_tutor_message_images.id', '=', imageId)
+          .where('ai_tutor_conversations.child_id', '=', context.childId)
+          .executeTakeFirst()
+      : undefined;
+    if (!row) {
+      throw notFoundError('Không tìm thấy ảnh', 'ai_tutor_image');
+    }
+    if (!row.storage_key) {
+      throw notFoundError(IMAGE_DELETED_LABEL, 'ai_tutor_image');
+    }
+    return { contentType: row.content_type, body: await this.fileStorage.get(row.storage_key) };
+  }
+
   // ---------- Gửi câu hỏi
 
-  private readRequest(body: RequestBody) {
+  // Câu hỏi gửi dạng JSON (chỉ chữ) hoặc nhiều phần (chữ kèm ảnh `images`, lát L4)
+  private readRequest(body: RequestBody, files: readonly IncomingImage[]): TutorRequest {
     const mode: TutorMode = body?.mode === 'solution' ? 'solution' : 'hint';
     if (body?.mode !== undefined && body.mode !== 'hint' && body.mode !== 'solution') {
       throw validationError([{ field: 'mode', message: 'Chế độ là hint hoặc solution' }]);
     }
-    const conversationId = typeof body?.conversation_id === 'string' ? body.conversation_id : null;
+    const conversationId =
+      typeof body?.conversation_id === 'string' && body.conversation_id !== '' ? body.conversation_id : null;
     const subjectCode = typeof body?.subject_code === 'string' ? body.subject_code.trim() : '';
-    const text = typeof body?.text === 'string' ? body.text.trim() : '';
+    let text = typeof body?.text === 'string' ? body.text.trim() : '';
     if (mode === 'solution') {
+      if (files.length > 0) {
+        throw validationError([{ field: 'images', message: 'Xem lời giải đầy đủ không gửi kèm ảnh' }]);
+      }
       if (!conversationId) {
         throw validationError([{ field: 'conversation_id', message: 'Chọn hội thoại để xem lời giải' }]);
       }
-      return { mode, conversationId, subjectCode, text: 'Em muốn xem lời giải đầy đủ.' };
+      return { mode, conversationId, subjectCode, text: 'Em muốn xem lời giải đầy đủ.', images: [] };
+    }
+    const checked = checkTutorImages(files);
+    if (!checked.ok) {
+      throw validationError([{ field: checked.field, message: checked.message }]);
+    }
+    if (!text && checked.images.length > 0) {
+      text = DEFAULT_IMAGE_QUESTION;
     }
     if (!text) {
       throw validationError([{ field: 'text', message: 'Em hãy nhập câu hỏi' }]);
@@ -381,7 +501,7 @@ export class AiTutorChatService {
     if (!conversationId && !subjectCode) {
       throw validationError([{ field: 'subject_code', message: 'Em hãy chọn môn' }]);
     }
-    return { mode, conversationId, subjectCode, text };
+    return { mode, conversationId, subjectCode, text, images: checked.images };
   }
 
   private async nameIndex(database: Kysely<SchoolYearDatabase>): Promise<Set<string>> {
@@ -406,14 +526,18 @@ export class AiTutorChatService {
         answer.step !== 'refusal' &&
         answer.step !== 'safety'
       ) {
-        turns.push({ role: 'user', content: question.body }, { role: 'assistant', content: answer.body });
+        // Ảnh không gửi lại ở lượt sau, chỉ gửi đề bài gia sư đã chép từ ảnh
+        const content = question.image_text
+          ? `${question.body}\n\nĐề bài trong ảnh em đã gửi: ${question.image_text}`
+          : question.body;
+        turns.push({ role: 'user', content }, { role: 'assistant', content: answer.body });
         index += 1;
       }
     }
     return turns.slice(-HISTORY_MESSAGES);
   }
 
-  async send(currentUser: CurrentUser, body: RequestBody) {
+  async send(currentUser: CurrentUser, body: RequestBody, files: readonly IncomingImage[] = []) {
     const context = await this.student(currentUser);
     const access = await this.accessOf(context, this.clock.now());
     if (!access.allowed) {
@@ -427,7 +551,7 @@ export class AiTutorChatService {
         'Gia sư AI dành cho học sinh Tiểu học, Trung học cơ sở, Trung học phổ thông',
       );
     }
-    const request = this.readRequest(body);
+    const request = this.readRequest(body, files);
     let conversation: ConversationRow | null = null;
     let subject: { code: string; name: string };
     let previous: MessageRow[] = [];
@@ -454,6 +578,10 @@ export class AiTutorChatService {
     }
 
     const now = this.clock.now();
+    // Ảnh chỉ ở gói Nâng cao: kiểm trước khi giữ lượt, gói khác không bị trừ lượt
+    if (request.images.length > 0 && !(await this.imagesAllowed(context.childId, now))) {
+      throw ruleViolationError(TUTOR_RULES.images, IMAGES_NOT_ALLOWED_MESSAGE, [{ field: 'images', message: 'plan' }]);
+    }
     const hold = await holdAiTutorTurn(this.system, context.childId, now);
     if (!hold.ok) {
       throw ruleViolationError(TUTOR_RULES.turns, NO_TURNS_MESSAGE);
@@ -477,7 +605,15 @@ export class AiTutorChatService {
         settled = await releaseAiTutorTurn(this.system, hold.entryId, 'Lỗi nhà cung cấp AI', this.clock.now());
         throw error;
       }
-      const stored = await this.store(context, conversation, subject, request, outcome, hold.entryId, now);
+      // Ảnh chỉ lưu khi câu được trả lời bình thường; lưu tệp trước, lỗi khi ghi cơ sở dữ liệu thì xóa tệp vừa lưu
+      const images = outcome.capture ? await this.putImages(context.childId, request.images) : [];
+      let stored: Awaited<ReturnType<AiTutorChatService['store']>>;
+      try {
+        stored = await this.store(context, conversation, subject, request, outcome, hold.entryId, now, images);
+      } catch (error) {
+        await this.removeFiles(images.map((image) => image.storageKey));
+        throw error;
+      }
       if (outcome.studentModeration === 'self_harm' || outcome.studentModeration === 'bullying') {
         // Lỗi khi báo không làm hỏng câu trả lời của em: việc nền báo lại cờ chưa báo
         await this.safetyFlags
@@ -491,7 +627,7 @@ export class AiTutorChatService {
       const messages = await this.messagesOf(stored.conversation.id);
       return {
         conversation: conversationView(stored.conversation),
-        messages: stored.messages.map(messageView),
+        messages: await this.viewsOf(stored.messages),
         turn: outcome.capture ? 'captured' : 'released',
         balance: await this.balance(context.childId, settledAt).then((balance) => ({
           monthly: balance.monthly,
@@ -512,11 +648,12 @@ export class AiTutorChatService {
   private async answer(
     context: StudentContext,
     subject: { code: string; name: string },
-    request: { mode: TutorMode; text: string },
+    request: TutorRequest,
     previous: readonly MessageRow[],
     resolved: Resolved,
     names: Set<string>,
   ): Promise<Outcome> {
+    const hasImages = request.images.length > 0;
     const flagged = moderateStudentText(request.text);
     if (flagged === 'self_harm' || flagged === 'bullying') {
       return {
@@ -527,6 +664,7 @@ export class AiTutorChatService {
         completion: null,
         capture: false,
         releaseReason: flagged === 'self_harm' ? 'Kiểm duyệt: dấu hiệu tự hại' : 'Kiểm duyệt: dấu hiệu bị bắt nạt',
+        imageText: null,
       };
     }
     if (flagged === 'unsafe') {
@@ -538,6 +676,7 @@ export class AiTutorChatService {
         completion: null,
         capture: false,
         releaseReason: 'Kiểm duyệt: nội dung không phù hợp',
+        imageText: null,
       };
     }
     const system = buildTutorSystemPrompt({
@@ -545,6 +684,7 @@ export class AiTutorChatService {
       gradeLevelCode: context.gradeLevelCode,
       subjectName: subject.name,
       mode: request.mode,
+      hasImages,
     });
     const calls: AiCompletion[] = [];
     const call = async (prompt: Parameters<AiProvider['complete']>[0]) => {
@@ -568,6 +708,7 @@ export class AiTutorChatService {
       user: request.text,
       maxTokens: TUTOR_MAX_TOKENS,
       history: this.historyOf(previous),
+      ...(hasImages ? { images: request.images } : {}),
     });
     const tokens = () => ({
       model: calls[0]?.model ?? resolved.credentials.model,
@@ -581,6 +722,53 @@ export class AiTutorChatService {
         'Gia sư AI trả lời không đọc được. Em thử hỏi lại; lượt hỏi không bị trừ',
       );
     }
+    // Ảnh (lát L4): đề chép từ ảnh quét dữ liệu cá nhân và kiểm duyệt như câu chữ; nhà cung cấp báo có thông tin cá nhân, đề chép được hoặc
+    // câu trả lời có dữ liệu cá nhân thì không lưu ảnh, không hiện câu trả lời, hoàn lượt
+    const imageText = hasImages ? parsed.imageText : '';
+    if (hasImages) {
+      const personal =
+        parsed.personalData ||
+        scanPersonalData(imageText, names).length > 0 ||
+        scanPersonalData(parsed.reply, names).length > 0;
+      if (personal) {
+        return {
+          studentModeration: 'personal_data',
+          tutorBody: IMAGE_PERSONAL_DATA_REPLY,
+          step: 'safety',
+          topic: null,
+          completion: tokens(),
+          capture: false,
+          releaseReason: 'Ảnh có dữ liệu cá nhân',
+          imageText: null,
+        };
+      }
+      const imageFlag = imageText ? moderateStudentText(imageText) : null;
+      if (imageFlag === 'self_harm' || imageFlag === 'bullying') {
+        return {
+          studentModeration: imageFlag,
+          tutorBody: SAFETY_REPLIES[imageFlag],
+          step: 'safety',
+          topic: null,
+          completion: tokens(),
+          capture: false,
+          releaseReason:
+            imageFlag === 'self_harm' ? 'Kiểm duyệt ảnh: dấu hiệu tự hại' : 'Kiểm duyệt ảnh: dấu hiệu bị bắt nạt',
+          imageText: null,
+        };
+      }
+      if (imageFlag === 'unsafe') {
+        return {
+          studentModeration: 'unsafe',
+          tutorBody: REFUSAL_REPLY,
+          step: 'refusal',
+          topic: null,
+          completion: tokens(),
+          capture: false,
+          releaseReason: 'Kiểm duyệt ảnh: nội dung không phù hợp',
+          imageText: null,
+        };
+      }
+    }
     if (parsed.step === 'refusal') {
       return {
         studentModeration: 'off_topic',
@@ -590,6 +778,7 @@ export class AiTutorChatService {
         completion: tokens(),
         capture: false,
         releaseReason: 'Ngoài học tập',
+        imageText: null,
       };
     }
     if (isUnsafeReply(parsed.reply)) {
@@ -601,6 +790,7 @@ export class AiTutorChatService {
         completion: tokens(),
         capture: false,
         releaseReason: 'Kiểm duyệt: câu trả lời không phù hợp',
+        imageText: null,
       };
     }
     let reply = parsed.reply;
@@ -609,7 +799,9 @@ export class AiTutorChatService {
       if (step === 'solution') {
         step = 'method';
       }
-      const question = previous.find((row) => row.role === 'student')?.body ?? request.text;
+      const opening = previous.find((row) => row.role === 'student');
+      // Đề bài gồm câu hỏi đầu, câu mới và đề chép từ ảnh: đáp án có sẵn trong đề không tính là lộ đáp án
+      const question = [opening?.body ?? request.text, opening?.image_text ?? '', imageText].join('\n');
       if (revealsFinalAnswer(reply, parsed.finalAnswer, `${question}\n${request.text}`)) {
         const rewritten = await call(buildRewritePrompt(reply, parsed.finalAnswer));
         const candidate = rewritten ? parseRewrite(rewritten.text) : null;
@@ -630,6 +822,7 @@ export class AiTutorChatService {
       completion: tokens(),
       capture: true,
       releaseReason: null,
+      imageText: imageText || null,
     };
   }
 
@@ -641,6 +834,7 @@ export class AiTutorChatService {
     outcome: Outcome,
     ledgerEntryId: string,
     now: Date,
+    images: ReadonlyArray<{ storageKey: string; contentType: AiPromptImage['mediaType']; sizeBytes: number }>,
   ) {
     return this.system.transaction().execute(async (transaction) => {
       const conversation =
@@ -667,10 +861,27 @@ export class AiTutorChatService {
           body: request.text,
           request_kind: request.mode === 'solution' ? 'solution' : 'ask',
           moderation: outcome.studentModeration,
+          image_text: outcome.imageText,
           created_at: now,
         })
         .returningAll()
         .executeTakeFirstOrThrow();
+      if (images.length > 0) {
+        await transaction
+          .insertInto('ai_tutor_message_images')
+          .values(
+            images.map((image, index) => ({
+              message_id: question.id,
+              child_id: context.childId,
+              position: index + 1,
+              storage_key: image.storageKey,
+              content_type: image.contentType,
+              size_bytes: image.sizeBytes,
+              created_at: now,
+            })),
+          )
+          .execute();
+      }
       const reply = await transaction
         .insertInto('ai_tutor_messages')
         .values({
@@ -709,6 +920,29 @@ export class AiTutorChatService {
         .executeTakeFirstOrThrow();
       return { conversation: updated, messages: [question, reply] };
     });
+  }
+
+  private async putImages(childId: string, images: readonly AiPromptImage[]) {
+    const stored: Array<{ storageKey: string; contentType: AiPromptImage['mediaType']; sizeBytes: number }> = [];
+    try {
+      for (const image of images) {
+        const key = storageKey(IMAGE_FOLDER, childId, randomUUID());
+        await this.fileStorage.put(key, image.data, image.mediaType);
+        stored.push({ storageKey: key, contentType: image.mediaType, sizeBytes: image.data.length });
+      }
+    } catch (error) {
+      await this.removeFiles(stored.map((image) => image.storageKey));
+      throw error;
+    }
+    return stored;
+  }
+
+  private async removeFiles(keys: readonly string[]) {
+    for (const key of keys) {
+      await this.fileStorage
+        .delete(key)
+        .catch((error: unknown) => this.logger.warn(`Chưa xóa được ảnh gia sư AI: ${String(error)}`));
+    }
   }
 
   // ---------- Báo câu trả lời sai
@@ -837,12 +1071,47 @@ export class AiTutorChatService {
     return Number(deleted.numDeletedRows);
   }
 
-  async maintain(now: Date = this.clock.now()): Promise<{ released: number; purged: number; notified: number }> {
+  // Xóa ảnh từ đủ 30 ngày (Q5): xóa tệp ở kho rồi xóa khóa tệp, ghi lúc xóa; dòng còn lại để tin nhắn hiện "Ảnh đã xóa sau 30 ngày". Kho
+  // lỗi thì để lần chạy sau xóa lại
+  async purgeImages(now: Date = this.clock.now()): Promise<number> {
+    const rows = await this.system
+      .selectFrom('ai_tutor_message_images')
+      .select(['id', 'storage_key'])
+      .where('deleted_at', 'is', null)
+      .where('created_at', '<=', imageRetentionCutoff(now))
+      .orderBy('created_at')
+      .limit(IMAGE_PURGE_BATCH)
+      .execute();
+    let deleted = 0;
+    for (const row of rows) {
+      try {
+        if (row.storage_key) {
+          await this.fileStorage.delete(row.storage_key);
+        }
+      } catch (error) {
+        this.logger.warn(`Chưa xóa được ảnh gia sư AI quá 30 ngày: ${String(error)}`);
+        continue;
+      }
+      await this.system
+        .updateTable('ai_tutor_message_images')
+        .set({ storage_key: null, deleted_at: now })
+        .where('id', '=', row.id)
+        .execute();
+      deleted += 1;
+    }
+    return deleted;
+  }
+
+  async maintain(
+    now: Date = this.clock.now(),
+  ): Promise<{ released: number; purged: number; notified: number; images: number }> {
     const released = await releaseStaleAiTutorHolds(this.system, now);
+    // Ảnh xóa trước lịch sử 12 tháng để tệp không còn sót khi tin nhắn bị xóa
+    const images = await this.purgeImages(now);
     const purged = await this.purgeExpired(now);
     // Cờ cảnh báo chưa báo được lúc em gửi (lỗi tạm thời) thì báo lại ở đây
     const notified = await this.safetyFlags.notifyPending(null, now);
-    return { released, purged, notified };
+    return { released, purged, notified, images };
   }
 }
 
@@ -863,9 +1132,9 @@ export class AiTutorChatMaintenanceJob implements OnApplicationBootstrap {
         intervalSeconds: MAINTENANCE_JOB_SECONDS,
         run: async () => {
           const result = await this.chat.maintain();
-          if (result.released > 0 || result.purged > 0 || result.notified > 0) {
+          if (result.released > 0 || result.purged > 0 || result.notified > 0 || result.images > 0) {
             this.logger.log(
-              `Gia sư AI: hoàn ${result.released} lượt tạm giữ quá hạn, xóa ${result.purged} tin nhắn quá hạn giữ, báo ${result.notified} cờ cảnh báo`,
+              `Gia sư AI: hoàn ${result.released} lượt tạm giữ quá hạn, xóa ${result.purged} tin nhắn quá hạn giữ, xóa ${result.images} ảnh quá 30 ngày, báo ${result.notified} cờ cảnh báo`,
             );
           }
         },

@@ -296,6 +296,9 @@ export const PERMISSION_CODES = {
   boardingManage: 'P04.boarding.manage',
   conductRecord: 'P02.conduct.record',
   conductManage: 'P02.conduct.manage',
+  // Giám thị và rèn luyện từng học sinh (YCTD-391)
+  supervisionRecord: 'P02.supervision.record',
+  supervisionManage: 'P02.supervision.manage',
   assessmentEnter: 'P02.assessment.enter',
   assessmentView: 'P02.assessment.view',
   assessmentManage: 'P02.assessment.manage',
@@ -409,6 +412,7 @@ export const PORTAL_QUICK_LINK_PATHS = [
   '/kitchen',
   '/boarding',
   '/conduct',
+  '/supervision',
   '/medicines',
   '/inventory',
   '/activities',
