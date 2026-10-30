@@ -12,6 +12,7 @@ import { MessagesScreen } from './screens/MessagesScreen.js';
 import { MealReportScreen } from './screens/MealReportScreen.js';
 import { BoardingScreen } from './screens/BoardingScreen.js';
 import { MyLibraryScreen } from './screens/MyLibraryScreen.js';
+import { SupervisionScreen } from './screens/SupervisionScreen.js';
 import { AssessmentScreen } from './screens/AssessmentScreen.js';
 import { ScoreScreen } from './screens/ScoreScreen.js';
 import { PayslipsScreen } from './screens/PayslipsScreen.js';
@@ -92,6 +93,7 @@ type Opened =
   | { screen: 'stocktake' }
   | { screen: 'timetable' }
   | { screen: 'library' }
+  | { screen: 'supervision' }
   | { screen: 'class-log' }
   | { screen: 'training' }
   // classes undefined: mở bằng đường dẫn, màn tự tải lớp của tôi
@@ -230,6 +232,9 @@ function Screens() {
   if (opened?.screen === 'library') {
     return <MyLibraryScreen onBack={back} />;
   }
+  if (opened?.screen === 'supervision') {
+    return <SupervisionScreen onBack={back} />;
+  }
   if (opened?.screen === 'class-log') {
     return <ClassLogScreen onBack={back} />;
   }
@@ -286,6 +291,7 @@ function Screens() {
       onOpenStocktake={() => setOpened({ screen: 'stocktake' })}
       onOpenTimetable={() => setOpened({ screen: 'timetable' })}
       onOpenLibrary={() => setOpened({ screen: 'library' })}
+      onOpenSupervision={() => setOpened({ screen: 'supervision' })}
       onOpenClassLog={() => setOpened({ screen: 'class-log' })}
       onOpenTraining={() => setOpened({ screen: 'training' })}
       onOpenClassroomTools={(classes) => setOpened({ screen: 'classroom-tools', classes })}

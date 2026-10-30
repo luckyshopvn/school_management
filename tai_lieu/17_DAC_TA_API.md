@@ -2678,6 +2678,11 @@ Nhóm `/supervision`. Đọc danh mục cần `P02.supervision.record` hoặc `P
 | GET | /api/v1/supervision/assignments?school_level=&staff_id= | Phân công kèm `staff_name` |
 | POST | /api/v1/supervision/assignments | Tạo `{ staff_id, school_level, grade_levels[], zone_ids[], weekdays[1..7], start_time, end_time, from_date?, to_date?, note? }`; nhân sự đã nghỉ hoặc chưa có tài khoản 422 |
 | PATCH | /api/v1/supervision/assignments/{id} | Sửa các trường trên trừ `staff_id`, thêm `status` |
+| GET | /api/v1/supervision/my-scope (lát L2) | Lớp người dùng được ghi nhận (`classes`), `school_levels`, `can_manage`; cần `P02.supervision.record` hoặc `P02.supervision.manage` |
+| GET | /api/v1/supervision/students?search=&class_id= (lát L2) | Học sinh đang học ở lớp trong phạm vi; tìm theo tên (ít nhất 2 ký tự) hoặc theo lớp; lớp ngoài phạm vi 403 |
+| GET | /api/v1/supervision/records?from=&to=&class_id=&child_id=&mine=true (lát L2) | Ghi nhận theo ngày giờ Việt Nam: của mình và của lớp trong phạm vi (`mine=true` chỉ của mình); kèm `full_name`, `class_name`, `zone_name` |
+| POST | /api/v1/supervision/records (lát L2) | Ghi `{ child_ids (1 đến 30), rule_item_id, occurred_at?, zone_id?, description?, evidence_file_ids? (tối đa 3 tệp `conduct_evidence` do mình tải, chưa gắn) }`; cần `P02.supervision.record`; học sinh ngoài phạm vi 403; mục khác cấp 422 (`rule_code` YCTD-391); trả `record_ids`, `class_points_added` (mục gắn tiêu chí nề nếp và trường đã bật nề nếp) |
+| POST | /api/v1/supervision/records/{id}/revoke (lát L2) | Thu hồi `{ reason }`: người ghi trong ngày, giáo viên chủ nhiệm của lớp, người quản lý rèn luyện; xóa dòng điểm lớp đi kèm; đã thu hồi 422 |
 | GET | /api/v1/supervision/on-duty?zone_id=&at= | Người đang trực khu vực ở thời điểm `at` (ISO 8601, mặc định bây giờ): `[{ user_id, staff_id, full_name }]`; trống là không ai trực. Máy chủ dùng cùng hàm `SupervisionService.findOnDutySupervisors` khi gửi cảnh báo camera (YCTD-389) |
 
 ### 17.15. Thẻ QR và lượt qua cổng (YCTD-389 lát L1)

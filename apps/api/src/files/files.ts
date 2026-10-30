@@ -28,6 +28,7 @@ import { ChildScope } from '../children/child-scope.js';
 import { OrganizationScopes } from '../organization/organization-scopes.js';
 import { MedicationAccess } from '../medicines/medication-access.js';
 import { medicationRequestOfFile } from '../medicines/medication-requests.js';
+import { conductRecordOfFile, SupervisionAccess } from '../supervision/supervision-access.js';
 import { FileStorage } from './file-storage.js';
 
 // Tệp đính kèm của hồ sơ trẻ: bản chụp giấy khai sinh và giấy đồng ý hình ảnh; ảnh hoặc PDF, tối đa 10 MB (YCTD-45).
@@ -41,6 +42,8 @@ const PURPOSES: FilePurpose[] = [
   'payment_voucher',
   'medicine_photo',
   'prescription',
+  // Ảnh bằng chứng ghi nhận rèn luyện (YCTD-391)
+  'conduct_evidence',
 ];
 const MEDICATION_PURPOSES: FilePurpose[] = ['medicine_photo', 'prescription'];
 const SIGNATURES: Array<{ contentType: string; bytes: number[] }> = [
@@ -78,6 +81,7 @@ export class FilesService {
     private readonly fileStorage: FileStorage,
     private readonly childScope: ChildScope,
     private readonly medicationAccess: MedicationAccess,
+    private readonly supervisionAccess: SupervisionAccess,
   ) {}
 
   async upload(
@@ -92,11 +96,14 @@ export class FilesService {
       await this.organizationScopes.assertCanAccess(currentUser, PERMISSION_CODES.paymentManage, input.orgUnitId);
     } else if (MEDICATION_PURPOSES.includes(input.purpose)) {
       await this.assertGuardianInUnit(currentUser, database, input.orgUnitId);
+    } else if (input.purpose === 'conduct_evidence') {
+      await this.organizationScopes.assertCanAccess(currentUser, PERMISSION_CODES.supervisionRecord, input.orgUnitId);
     } else {
       await this.organizationScopes.assertCanAccess(currentUser, PERMISSION_CODES.childManage, input.orgUnitId);
     }
     const contentType = detectContentType(input.body);
-    const imageOnly = input.purpose === 'pickup_photo' || input.purpose === 'medicine_photo';
+    const imageOnly =
+      input.purpose === 'pickup_photo' || input.purpose === 'medicine_photo' || input.purpose === 'conduct_evidence';
     if (!contentType || (imageOnly && contentType === 'application/pdf')) {
       throw validationError([
         {
@@ -106,7 +113,9 @@ export class FilesService {
               ? 'Ảnh bàn giao là ảnh JPEG hoặc PNG'
               : input.purpose === 'medicine_photo'
                 ? 'Ảnh thuốc là ảnh JPEG hoặc PNG'
-                : 'Chỉ nhận ảnh JPEG, PNG hoặc tệp PDF',
+                : input.purpose === 'conduct_evidence'
+                  ? 'Ảnh bằng chứng là ảnh JPEG hoặc PNG'
+                  : 'Chỉ nhận ảnh JPEG, PNG hoặc tệp PDF',
         },
       ]);
     }
@@ -160,6 +169,16 @@ export class FilesService {
       const request = await medicationRequestOfFile(database, fileId);
       if (request) {
         await this.medicationAccess.assertCanRead(currentUser, database, request.child_id);
+      } else if (createdBy !== currentUser.id) {
+        throw new ApplicationError('ERR_FORBIDDEN', 'Bạn không có quyền xem tệp này');
+      }
+      return { file: stored, body: await this.fileStorage.get(storageKey) };
+    }
+    if (file.purpose === 'conduct_evidence') {
+      // Ảnh bằng chứng rèn luyện xem theo phạm vi xem ghi nhận (YCTD-391); chưa gắn ghi nhận thì chỉ người tải lên xem
+      const record = await conductRecordOfFile(database, fileId);
+      if (record) {
+        await this.supervisionAccess.assertCanViewRecord(currentUser, database, record);
       } else if (createdBy !== currentUser.id) {
         throw new ApplicationError('ERR_FORBIDDEN', 'Bạn không có quyền xem tệp này');
       }
