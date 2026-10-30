@@ -39,6 +39,12 @@ export function schoolLevelTerms(
   return terms.every((term) => term === terms[0]) && terms[0] ? terms[0] : SCHOOL_LEVEL_TERMS.TH;
 }
 
+// Chữ có chỗ giữ người học (YCTD-394): "{Người học}" thành thuật ngữ viết hoa đầu ("Trẻ", "Học sinh"), "{người học}" thành
+// chữ thường ("trẻ", "học sinh"). Dùng cho nhãn cột, tiêu đề ghi một lần mà hiển thị theo cấp
+export function fillLearnerTerm(text: string, terms: SchoolLevelTerms): string {
+  return text.replaceAll('{Người học}', terms.learner).replaceAll('{người học}', terms.learner.toLocaleLowerCase('vi'));
+}
+
 // Cấp đang làm việc (DT-19 phần 19c): trường nhiều cấp chọn một cấp hoặc "Tất cả" ở thanh đầu trang, lưu theo người dùng.
 // Tham số dùng chung khi gọi API: ?school_level=<mã>; không gửi hoặc "all" là mọi cấp người dùng được xem
 export const SCHOOL_LEVEL_PARAMETER = 'school_level';

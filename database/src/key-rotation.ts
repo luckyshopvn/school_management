@@ -373,6 +373,9 @@ export const MASTER_KEY_COLUMNS = [
   'platform_integration_secrets.values_encrypted',
   'platform_push_keys.private_key_encrypted',
   'platform_native_push_keys.credentials_encrypted',
+  // Khóa riêng nhận và ký gói chuyển trường (YCTD-390 lát L2)
+  'school_transfer_keys.encryption_private_key_encrypted',
+  'school_transfer_keys.signing_private_key_encrypted',
 ] as const;
 
 export interface MasterKeyRewrapCounts {
@@ -384,6 +387,7 @@ export interface MasterKeyRewrapCounts {
   integrationSecrets: number;
   pushKeys: number;
   nativePushKeys: number;
+  transferKeys: number;
 }
 
 // Bọc lại khóa của mọi trường (khóa mã hóa và khóa băm dữ liệu trẻ, khóa mới đang đổi dở), mật khẩu kết nối cơ sở dữ liệu, khóa
@@ -405,6 +409,7 @@ export async function rewrapMasterKey(
     integrationSecrets: 0,
     pushKeys: 0,
     nativePushKeys: 0,
+    transferKeys: 0,
   };
   await platform.transaction().execute(async (transaction) => {
     for (const row of await transaction.selectFrom('school_keys').selectAll().execute()) {
@@ -499,6 +504,18 @@ export async function rewrapMasterKey(
         .where('id', '=', row.id)
         .execute();
       counts.nativePushKeys += 1;
+    }
+    // Khóa riêng nhận và ký gói chuyển trường của từng trường (YCTD-390 lát L2)
+    for (const row of await transaction.selectFrom('school_transfer_keys').selectAll().execute()) {
+      await transaction
+        .updateTable('school_transfer_keys')
+        .set({
+          encryption_private_key_encrypted: rewrap(row.encryption_private_key_encrypted),
+          signing_private_key_encrypted: rewrap(row.signing_private_key_encrypted),
+        })
+        .where('school_id', '=', row.school_id)
+        .execute();
+      counts.transferKeys += 1;
     }
   });
   await writeAudit(platform, {

@@ -3,6 +3,7 @@ import { useSearch } from '@tanstack/react-router';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import {
   MODULE_NAMES,
+  fillLearnerTerm,
   PERMISSION_CODES,
   PORTAL_WORKSPACES,
   menuGatePermissionCodes,
@@ -17,7 +18,7 @@ import { menuPageTitle } from '../pages/page-title.js';
 import { ApiError } from '../session/api-client.js';
 import { useHasPermission } from '../session/permissions.js';
 import { listPermissions, listRoles, replaceRolePermissions, type Permission, type Role } from './accounts-api.js';
-import { useEnabledLevelWorkspaces } from '../school-levels/working-level.js';
+import { useEnabledLevelTerms, useEnabledLevelWorkspaces } from '../school-levels/working-level.js';
 
 // 1.3 Phân quyền nhóm theo menu (DT-15 phần 15e, lựa chọn 3 của Eric ngày 2026-10-13): ma trận quyền hiển thị theo cây
 // menu đánh số; mỗi mục menu liệt kê các mã quyền quyết định mục đó hiện (MENU_PERMISSION_RULES ở gói dùng chung), tích
@@ -81,6 +82,7 @@ function PermissionCheckbox({
   disabled: boolean;
   onChange(code: string, checked: boolean): void;
 }) {
+  const terms = useEnabledLevelTerms();
   return (
     <label className="flex items-start gap-2 text-content text-text">
       <input
@@ -91,7 +93,8 @@ function PermissionCheckbox({
         onChange={(event) => onChange(permission.code, event.target.checked)}
       />
       <span>
-        {permission.description} <span className="text-label text-text-muted">({permission.code})</span>
+        {fillLearnerTerm(permission.description, terms)}{' '}
+        <span className="text-label text-text-muted">({permission.code})</span>
       </span>
     </label>
   );
@@ -236,6 +239,7 @@ function RoleMatrix({
   workspaceKey: string;
   onSaved(): void;
 }) {
+  const terms = useEnabledLevelTerms();
   const [selected, setSelected] = useState(new Set(role.permissions));
   useEffect(() => setSelected(new Set(role.permissions)), [role]);
   const save = useMutation({ mutationFn: () => replaceRolePermissions(role.id, [...selected]), onSuccess: onSaved });
@@ -343,7 +347,7 @@ function RoleMatrix({
                     }
                   >
                     {moduleCode}
-                    {MODULE_NAMES[moduleCode] ? ` · ${MODULE_NAMES[moduleCode]}` : ''}
+                    {MODULE_NAMES[moduleCode] ? ` · ${fillLearnerTerm(MODULE_NAMES[moduleCode], terms)}` : ''}
                   </BulkCheckbox>
                 </legend>
                 {modulePermissions.map((permission) => (

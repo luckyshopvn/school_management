@@ -60,7 +60,7 @@
 | users | Tài khoản đăng nhập | full_name, phone (duy nhất), username (duy nhất), password_hash (để trống khi phụ huynh còn dùng mật khẩu mặc định chung, YCTD-43), status, last_login_at, failed_login_count, locked_until (hết hạn tạm khóa do sai mật khẩu, YCTD-35), must_change_password, valid_until (bắt buộc với VT-20), password_changed_at (thời điểm đặt mật khẩu gần nhất, bắt buộc, mặc định now(); tài khoản có trước YCTD-110 lấy coalesce(updated_at, created_at); BR-110) |
 | roles | Vai trò | code (duy nhất), name, is_system, is_active (hiệu lực, mặc định đúng, YCTD-120) |
 | role_workspace_exclusions | Phân hệ của cổng quản trị nhóm không được dùng (1.2, YCTD-120, tệp `0046`) | role_id (khóa ngoại `roles`, xóa theo nhóm), workspace_key (khóa phân hệ của `PORTAL_WORKSPACES`), created_at; khóa chính (role_id, workspace_key) |
-| permissions | Quyền theo chức năng | code (duy nhất), module_code, description |
+| permissions | Quyền theo chức năng | code (duy nhất), module_code, description (từ YCTD-394 có thể chứa chỗ giữ `{người học}`, `{Người học}`, cổng quản trị điền "trẻ" hay "học sinh" theo cấp trường đã bật; database migration 0199) |
 | role_permissions | Gán quyền cho vai trò | role_id, permission_id |
 | user_roles | Gán vai trò cho tài khoản | user_id, role_id, org_unit_id (cho phép trống nghĩa là toàn trường; tham chiếu theo mã, không có khóa ngoại vì nằm khác cơ sở dữ liệu) |
 | user_school_levels | Phạm vi cấp học của tài khoản (P01-36, BR-154; YCTD-151, tệp định danh `0064_add_user_school_levels`) | user_id (khóa ngoại `users`, xóa theo), school_level (`MN`, `TH`, `THCS`, `THPT`), created_by, created_at; khóa chính (user_id, school_level); không có dòng nào là mọi cấp |
