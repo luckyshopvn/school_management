@@ -7,6 +7,26 @@ phien_ban_de_xuat: 0.240.0
 
 ## 02 Nhật ký
 
+### 2026-10-30 — Tách Chợ gia sư, bỏ chương trình gia sư trong trường, lát L4: đánh dấu chức năng đã bỏ ở tài liệu (YCTD-393)
+
+#### Công việc đã thực hiện
+
+- Đánh dấu "Đã bỏ (YCTD-393)" tại chỗ, giữ nguyên mọi mã định danh: 07 (27 quy tắc), 08 (9 quyền), 10 (14 chức năng), 11 (40 tiêu chí nghiệm thu), 12 (QĐ-44, 46 đến 49), 14 (29 màn hình), 16 (bảng gia sư, bản ghi video, cơ sở dữ liệu chợ, cột liên kết hóa đơn; thêm đoạn về `removed_data_backups` và lệnh sao lưu), 17 (19 điểm cuối), 21 (61 kịch bản kiểm thử), 26 (bước sao lưu trước database migration 0255 và 0235), 27 (17 dòng), 47 mục 16.10, 16.12, 19, 48 (hồ sơ gia sư PL-16 đến PL-21), 49.
+- Thẻ cấu hình lớp video (MH-411) ghi chuyển sang trang 9.3; cấu hình video dùng quyền `P02.learning.decide`.
+
+#### Quyết định
+
+- Hạ tầng video dùng chung cho giờ học trực tuyến (BR-312, `/video/webhook`, `/video/status`, `/video/usage`) giữ, không đánh dấu.
+
+#### Thay đổi
+
+- Xem `24_YEU_CAU_THAY_DOI.md` YCTD-393, `23_LICH_SU_PHIEN_BAN.md` {PHIEN_BAN}.
+
+#### Vấn đề tồn đọng
+
+- Dòng phân hệ P02 ở tài liệu 03 chưa ghi qua mục "Nối dòng".
+- Tệp PDF của tài liệu 49 sinh từ tệp Markdown, chưa sinh lại.
+
 ### 2026-10-30 — Bỏ chương trình gia sư trong trường, lát L3: database migration xóa bảng gia sư kèm sao lưu (YCTD-393)
 
 #### Công việc đã thực hiện
