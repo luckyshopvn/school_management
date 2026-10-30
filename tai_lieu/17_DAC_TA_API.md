@@ -2622,6 +2622,18 @@ Quản trị dùng quyền `P01.integration.manage`; điểm cuối của phụ 
 | GET | /api/v1/children/{id}/ai-tutor/purchases/{subscriptionId}/upgrade-quote?plan_id= | Báo giá nâng gói `{ remaining_days, days_in_month, price_difference, extra_turns }` |
 | POST | /api/v1/children/{id}/ai-tutor/purchases/{subscriptionId}/upgrade | Nâng gói `{ plan_id }`; áp ngay, phần chênh lệch vào hóa đơn học phí kỳ tới |
 
+### 17.13. Học sinh trò chuyện với gia sư AI (YCTD-383 lát L2)
+
+Chỉ có ở nền tảng nhiều trường và chỉ dùng khóa AI của nền tảng (Q8). Nhóm `/student/ai-tutor`: chỉ mã phiên kênh student, quyền `P02.learning.study`, chỉ hội thoại của chính em (hội thoại của em khác trả 404). Phiên xem hỗ trợ của quản trị nền tảng chỉ đọc: không gửi câu hỏi, không thấy hội thoại. Lỗi quy tắc 422 mã `BR-466` (hết lượt, nhà cung cấp lỗi, khóa), `BR-467` (chưa đủ hai lượt tự làm để xem lời giải), `BR-468` (câu có dữ liệu cá nhân). Mỗi câu hỏi tạm giữ một lượt trước khi gọi nhà cung cấp, trừ khi nhà cung cấp trả lời, hoàn khi lỗi, khi có dữ liệu cá nhân, khi bị kiểm duyệt hoặc ngoài học tập. Câu có dấu hiệu tự hại hoặc bị bắt nạt nhận câu trả lời theo mẫu có số 111, không gửi nhà cung cấp, ghi cờ ở `ai_tutor_safety_flags`.
+
+| Phương thức | Đường dẫn | Mô tả |
+|---|---|---|
+| GET | /api/v1/student/ai-tutor | Trang của em: `child { school_level, grade_level_code, class_name }`, `access { allowed, code?, message? }` (điểm kiểm tra khóa duy nhất), `ready`, `unavailable_reason`, `balance { monthly, top_up, remaining, total }`, `subscribed`, `subjects [{ code, name }]` của cấp, `conversations` (50 hội thoại gần nhất) |
+| GET | /api/v1/student/ai-tutor/conversations/{id} | Một hội thoại: `conversation`, `messages [{ id, role, body, step, step_label, request_kind, blocked, reported, created_at }]`, `attempts`, `solution_unlocked` |
+| POST | /api/v1/student/ai-tutor/messages | Gửi `{ conversation_id?, subject_code? (hội thoại mới), text (1 đến 2.000 ký tự), mode: hint \| solution }`; `solution` chỉ khi đã có hai lượt tự làm. 201 `{ conversation, messages: [câu hỏi, câu trả lời], turn: captured \| released, balance, attempts, solution_unlocked }`; câu bị kiểm duyệt vẫn 201 với `turn: released` |
+| POST | /api/v1/student/ai-tutor/messages/{id}/report | Báo câu trả lời sai `{ note? (tối đa 500 ký tự) }`; chỉ câu trả lời của gia sư trong hội thoại của em, trừ câu trả lời theo mẫu an toàn |
+| GET | /api/v1/children/{id}/ai-tutor/topics | Cha mẹ, người giám hộ của con (khác thì 403; giáo viên 403): `month`, `turns_this_month`, `topics [{ subject_name, topic, turns, started_at, last_message_at }]`; không có toàn văn |
+
 ## 18. Quy tắc kiểm tra dữ liệu
 
 | Mã | Quy tắc |

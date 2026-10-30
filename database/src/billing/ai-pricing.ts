@@ -21,6 +21,8 @@ export interface AiPricing {
 
 export interface AiModelUsage {
   model: string;
+  // Tên dòng phí: trống là "Trợ lý AI"; token của gia sư AI học sinh từ gói trường bán ghi "Gia sư AI học sinh" (YCTD-383 lát L2)
+  label?: string;
   requests: number;
   inputTokens: number;
   outputTokens: number;
@@ -108,7 +110,7 @@ export function computeAiCharges(pricing: AiPricing, usage: AiModelUsage[]): AiC
     if (amount > 0n) {
       lines.push({
         kind: 'ai',
-        description: `Trợ lý AI, mô hình ${item.model}: ${formatNumber(item.inputTokens)} token vào, ${formatNumber(item.outputTokens)} token ra`,
+        description: `${item.label ?? 'Trợ lý AI'}, mô hình ${item.model}: ${formatNumber(item.inputTokens)} token vào, ${formatNumber(item.outputTokens)} token ra`,
         quantity: 1,
         unitPrice: Number(amount),
         amount: Number(amount),

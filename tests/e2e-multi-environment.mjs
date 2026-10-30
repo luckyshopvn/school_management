@@ -10,6 +10,8 @@ export const E2E_MULTI_CONSOLE_PORT = 5384;
 export const E2E_MULTI_MARKET_PORT = 5387;
 // Tên miền cũ của ứng dụng Gia sư (YCTD-262): từ YCTD-368 chỉ còn bộ chuyển hướng về chợ (scripts/chuyen-huong-gia-su.mjs, spec 195)
 export const E2E_MULTI_TUTOR_PORT = 5388;
+// Ứng dụng học sinh theo tên miền của trường (YCTD-383 lát L2, spec 143: học sinh trò chuyện với gia sư AI dùng khóa AI của nền tảng)
+export const E2E_MULTI_STUDENT_PORT = 5389;
 export const E2E_ROOT_DOMAIN = 'e2e.localhost';
 // Bí mật dùng chung của điểm tick bộ lập lịch (phần S1b); chỉ cho môi trường kiểm thử cục bộ
 export const E2E_SCHEDULER_SECRET = 'e2e-scheduler-secret';
@@ -42,8 +44,8 @@ export const E2E_PUSH_OUTBOX_FILE = new URL('./.e2e-push-outbox.jsonl', import.m
 // án `multi`; dự án `single` (e2e hiện có) bỏ qua; 195 của DT-27 phần 27f: cách ly chợ gia sư với các trường
 // 196 của phần 27g: xác minh, duyệt, tìm gia sư; 197 của phần 27h: đặt buổi, thanh toán giả lập, tranh chấp; 141 của YCTD-343:
 // loại dữ liệu, hồ sơ đồng ý, vùng máy chủ ở chi tiết trường; 199 của phần 27j: phòng học video của chợ; 142 của YCTD-383 lát L1b:
-// nền tảng bán thẳng gói gia sư AI
-export const MULTI_TENANT_SPEC = /[\\/]1(?:3\d|4[0-2]|53|60|82|86|95|96|97|98|99)-[^\\/]*\.spec\.ts$/;
+// nền tảng bán thẳng gói gia sư AI; 143 của YCTD-383 lát L2: học sinh trò chuyện với gia sư AI
+export const MULTI_TENANT_SPEC = /[\\/]1(?:3\d|4[0-3]|53|60|82|86|95|96|97|98|99)-[^\\/]*\.spec\.ts$/;
 
 export function schoolHost(code) {
   return `${code}.${E2E_ROOT_DOMAIN}`;
