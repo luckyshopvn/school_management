@@ -93,6 +93,7 @@ import { KitchenCatalogsController, KitchenCatalogsService } from './kitchen/kit
 import { KitchenMealsController, KitchenMealsService } from './kitchen/kitchen-meals.js';
 import { BoardingController, BoardingService } from './boarding/boarding.js';
 import { ConductController, ConductService } from './conduct/conduct.js';
+import { SupervisionController, SupervisionService } from './supervision/supervision.js';
 import { conductTransitionStep } from './conduct/conduct-transition.js';
 import { LibraryCatalogController, LibraryCatalogService } from './library/library-catalog.js';
 import { LibraryCirculationController, LibraryCirculationService } from './library/library-circulation.js';
@@ -513,27 +514,9 @@ import { OnlineExamsController } from './online-exams/online-exams.controller.js
 import { OnlineExamsService } from './online-exams/online-exams.js';
 import { StudentExamsController, StudentProfileController } from './online-exams/student-exams.controller.js';
 import { StudentExamsService } from './online-exams/student-exams.js';
-import { ChildTutoringController, TutoringController } from './tutoring/tutoring.controller.js';
-import { TutoringService } from './tutoring/tutoring.js';
-import { TutoringFinanceController } from './tutoring/tutoring-finance.controller.js';
-import { TutoringFinanceService } from './tutoring/tutoring-finance.js';
 import { createVideoProvider, VIDEO_PROVIDER } from './video/video-provider.js';
-import {
-  ChildVideoController,
-  StudentVideoController,
-  VideoController,
-  VideoJobs,
-  VideoRecordingStreamController,
-  VideoWebhookController,
-} from './video/video.controller.js';
+import { VideoController, VideoWebhookController } from './video/video.controller.js';
 import { VideoRoomsService } from './video/video-rooms.js';
-import {
-  ChildTutoringCoursesController,
-  StudentTutoringCoursesController,
-  TutoringCourseMediaStreamController,
-  TutoringCoursesController,
-} from './tutoring/tutoring-courses.controller.js';
-import { TutoringCoursesService } from './tutoring/tutoring-courses.js';
 import { AiAssistantController, AiUsageJob } from './ai-assistant/ai-assistant.controller.js';
 import { AI_PROVIDERS, AiAssistantService } from './ai-assistant/ai-assistant.js';
 import { AiProviderRegistry } from './ai-assistant/ai-provider.js';
@@ -551,12 +534,6 @@ import { LearningProgressService } from './learning/progress/progress.js';
 import { DiscussionsController } from './learning/discussions/discussions.controller.js';
 import { DiscussionsService } from './learning/discussions/discussions.js';
 import { StudentDiscussionsController } from './learning/discussions/student-discussions.controller.js';
-import {
-  ChildTutoringQuestionsController,
-  StudentTutoringQuestionsController,
-  TutoringQuestionsController,
-} from './tutoring/tutoring-questions.controller.js';
-import { TutoringQuestionsService } from './tutoring/tutoring-questions.js';
 import { HomeworkController } from './learning/homework/homework.controller.js';
 import { HomeworkPolicyGate } from './learning/homework/homework-policy.js';
 import { HomeworkService } from './learning/homework/homework.js';
@@ -731,6 +708,7 @@ export class ApplicationModule {
         KitchenMealsController,
         BoardingController,
         ConductController,
+        SupervisionController,
         AssessmentConfigController,
         AssessmentsController,
         LearningRecordsController,
@@ -868,34 +846,17 @@ export class ApplicationModule {
         ParentProctorConsentsController,
         // Học sinh tự học ở lớp học trực tuyến (DT-28 phần 28b)
         StudentLearningController,
-        // Gia sư trong trường (DT-27 phần 27b)
-        TutoringController,
-        ChildTutoringController,
-        // Thu chi gia sư trong trường (DT-27 phần 27c)
-        TutoringFinanceController,
         // Bài tập trực tuyến (DT-28 phần 28c)
         AssignmentsController,
         StudentAssignmentsController,
         // Lớp video trực tiếp (DT-27 phần 27a)
         VideoController,
-        VideoRecordingStreamController,
-        ChildVideoController,
-        StudentVideoController,
         VideoWebhookController,
         // Tiến độ, bảng điểm hoạt động, sổ điểm, báo cáo (DT-28 phần 28d)
         LearningProgressController,
         // Giao tiếp trong lớp và nhóm (DT-28 phần 28e)
         DiscussionsController,
         StudentDiscussionsController,
-        // Khoá học ghi sẵn của chương trình gia sư (DT-27 phần 27d1)
-        TutoringCoursesController,
-        TutoringCourseMediaStreamController,
-        ChildTutoringCoursesController,
-        StudentTutoringCoursesController,
-        // Hỏi đáp bài tập của chương trình gia sư (DT-27 phần 27e)
-        TutoringQuestionsController,
-        ChildTutoringQuestionsController,
-        StudentTutoringQuestionsController,
         // Bài về nhà và phụ huynh (DT-28 phần 28f)
         HomeworkController,
         // Các phần ở src/dang-ky/, theo thứ tự tên tệp (YCTD-294)
@@ -1051,6 +1012,7 @@ export class ApplicationModule {
         KitchenMealsService,
         BoardingService,
         ConductService,
+        SupervisionService,
         AssessmentConfigService,
         AssessmentsService,
         LearningRecordsService,
@@ -1329,24 +1291,15 @@ export class ApplicationModule {
               apnsHost: configuration.push?.apnsHost,
             }),
         },
-        // Gia sư trong trường (DT-27 phần 27b)
-        TutoringService,
-        // Thu chi gia sư trong trường (DT-27 phần 27c)
-        TutoringFinanceService,
         // Bài tập trực tuyến (DT-28 phần 28c)
         AssignmentsService,
         // Lớp video trực tiếp (DT-27 phần 27a): bộ nối chọn theo VIDEO_PROVIDER, chưa đặt thì tắt video
         { provide: VIDEO_PROVIDER, useValue: createVideoProvider(configuration.video, configuration.objectStorage) },
         VideoRoomsService,
-        VideoJobs,
         // Tiến độ, bảng điểm hoạt động, sổ điểm, báo cáo (DT-28 phần 28d)
         LearningProgressService,
         // Giao tiếp trong lớp và nhóm (DT-28 phần 28e)
         DiscussionsService,
-        // Khoá học ghi sẵn của chương trình gia sư (DT-27 phần 27d1)
-        TutoringCoursesService,
-        // Hỏi đáp bài tập của chương trình gia sư (DT-27 phần 27e)
-        TutoringQuestionsService,
         // Bài về nhà và phụ huynh (DT-28 phần 28f)
         HomeworkPolicyGate,
         HomeworkService,
