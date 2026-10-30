@@ -13,7 +13,6 @@ import { MaintenancePage } from './MaintenancePage.js';
 import { OperatorsPage } from './OperatorsPage.js';
 import { AdminUnitsPage } from './AdminUnitsPage.js';
 import { CatalogPage } from './CatalogPage.js';
-import { MarketPage } from './MarketPage.js';
 import { AiTutorSalesPage } from './AiTutorSalesPage.js';
 import { ParentOrgApp } from './ParentOrgApp.js';
 import { fetchProfile, PlatformApiError, type OperatorProfile } from './platform-api.js';
@@ -216,7 +215,6 @@ function Shell({ accessToken, onLogout }: { accessToken: string; onLogout: () =>
             {active === 'catalog' ? (
               <CatalogPage token={accessToken} role={profile.role} onNavigate={setActive} />
             ) : null}
-            {active === 'market' ? <MarketPage accessToken={accessToken} role={profile.role} /> : null}
             {active === 'ai-tutor' ? <AiTutorSalesPage token={accessToken} /> : null}
             {active === 'operators' ? <OperatorsPage token={accessToken} currentOperatorId={profile.id} /> : null}
           </>

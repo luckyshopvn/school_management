@@ -4,10 +4,7 @@ import { Alert, Button, StatusBadge, type StatusTone } from '@school-management/
 import { ExamRoom } from './ExamRoom.js';
 import { StudentLearningPanel } from './StudentLearningPanel.js';
 import { CalendarWeek, StudentGroupsPanel } from './StudentDiscussions.js';
-import { StudentTutoringCourses } from './StudentTutoringCourses.js';
-import { StudentTutoringQuestions } from './StudentTutoringQuestions.js';
 import { StudentLivePanel } from './StudentLivePanel.js';
-import { StudentVideoPanel } from './StudentVideoPanel.js';
 import { StudentAiTutorCard } from './ai-tutor/StudentAiTutorCard.js';
 import {
   listStudentExams,
@@ -188,9 +185,6 @@ export function StudentHomeScreen() {
       {/* Lớp học trực tuyến (DT-28 phần 28b) */}
       {/* Giờ học trực tuyến, phòng nhóm, phòng chia nhỏ (DT-28 phần 28g) */}
       <StudentLivePanel />
-      <StudentVideoPanel />
-      <StudentTutoringCourses />
-      <StudentTutoringQuestions />
       <StudentLearningPanel />
       {/* Không gian học nhóm, lịch học tập (DT-28 phần 28e) */}
       <StudentGroupsPanel />

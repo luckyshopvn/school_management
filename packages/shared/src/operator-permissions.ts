@@ -13,8 +13,6 @@ const ALL: readonly OperatorRole[] = OPERATOR_ROLES;
 const ADMIN: readonly OperatorRole[] = ['quan_tri'];
 
 export const OPERATOR_PERMISSIONS = {
-  // Xem: tổng quan chợ gia sư (cấu hình, văn bản, số tài khoản) cho mọi vai trò làm việc ở chợ
-  'market.view': ALL,
   // Xem: bảng điều khiển, danh sách và chi tiết trường, danh mục đơn vị, đơn vị cấp trên, gói (để hiện ở trang trường), thông báo bảo
   // trì, chính sách hỗ trợ
   'overview.view': ALL,
@@ -56,11 +54,6 @@ export const OPERATOR_PERMISSIONS = {
   'ai.view': ['quan_tri', 'ke_toan'],
   'ai.settings': ADMIN,
   'ai.pricing': ['quan_tri', 'ke_toan'],
-  // Chợ gia sư (máy chủ API): cấu hình, văn bản pháp lý; duyệt hồ sơ; kiểm duyệt; thanh toán, giải ngân, tranh chấp
-  'market.settings': ADMIN,
-  'market.review': ['quan_tri', 'ho_tro'],
-  'market.safety': ['quan_tri', 'ho_tro'],
-  'market.payments': ['quan_tri', 'ke_toan'],
   // Gia sư AI nền tảng bán thẳng cho phụ huynh: gói, giao dịch, biên lai, hủy, hoàn tiền (YCTD-383 lát L1b)
   'ai-tutor.sales': ['quan_tri', 'ke_toan'],
   // Nhân viên vận hành
@@ -90,7 +83,6 @@ export const OPERATOR_MENU_CAPABILITIES: Record<string, OperatorCapability> = {
   'parent-orgs': 'parent-orgs.view',
   ai: 'ai.view',
   catalog: 'catalog.view',
-  market: 'market.view',
   'ai-tutor': 'ai-tutor.sales',
   operators: 'operators.manage',
   audit: 'audit.view',

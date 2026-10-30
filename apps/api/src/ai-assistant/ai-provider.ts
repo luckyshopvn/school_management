@@ -5,7 +5,7 @@ import { createHash } from 'node:crypto';
 // hình là cấu hình (của nền tảng và của trường), không ghi cứng. `mock` chỉ để kiểm thử: cho kết quả cố định, không gọi ra ngoài, ghi
 // lại lời nhắc nhận được để kiểm thử khẳng định không có dữ liệu cá nhân; chỉ dựng khi cấu hình máy chủ cho phép (`AI_MOCK=true`)
 
-export type AiPromptKind = 'questions' | 'lesson_plan' | 'check' | 'feedback' | 'answer' | 'tutor' | 'tutor_rewrite';
+export type AiPromptKind = 'questions' | 'lesson_plan' | 'check' | 'feedback' | 'tutor' | 'tutor_rewrite';
 
 // Một lượt cũ của hội thoại (gia sư AI học sinh, YCTD-383 lát L2): gửi trước câu hỏi mới theo thứ tự, bắt đầu bằng `user`
 export interface AiConversationTurn {
@@ -276,12 +276,7 @@ export class MockAiProvider implements AiProvider {
           ? JSON.stringify({
               comment: 'Em đã hoàn thành các yêu cầu chính của bài. Em cần trình bày rõ hơn các bước làm.',
             })
-          : prompt.kind === 'answer'
-            ? JSON.stringify({
-                answer:
-                  'Em hãy xem lại định nghĩa trong bài: số nguyên tố chỉ có hai ước là 1 và chính nó. Em thử kiểm tra từng số.',
-              })
-            : 'ok';
+          : 'ok';
   }
 
   async check(settings: AiProviderSettings): Promise<{ ok: boolean; detail: string }> {
