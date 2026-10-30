@@ -21,7 +21,6 @@ The full list lives in the documents; below are the main groups.
 | Inventory, assets, purchasing, recruitment | Assets, issuing, stock, purchase requests, job postings                                                   | [05 Scope](tai_lieu/05_PHAM_VI.md)                                                                                                                                                                                              |
 | Communication and engagement               | Notifications (including push), activities, albums, surveys, public school website                        | [QT-09](tai_lieu/40_QUY_TRINH_NGHIEP_VU/QT-09_NHAT_KY_VA_TRAO_DOI.md), [QT-10](tai_lieu/40_QUY_TRINH_NGHIEP_VU/QT-10_HOAT_DONG_VA_CONG_BO.md)                                                                                   |
 | Online learning and exams                  | Assignments, online exams, live classes, recorded courses                                                 | [47 Plan](tai_lieu/47_KE_HOACH_THEO_HE_THONG_SO.md)                                                                                                                                                                             |
-| Tutoring marketplace                       | In-school tutors and a tutoring marketplace                                                               | [47 Plan](tai_lieu/47_KE_HOACH_THEO_HE_THONG_SO.md)                                                                                                                                                                             |
 | Multi-school platform                      | Service plans and plan limits, custom domains, platform administration                                    | [12 Architecture](tai_lieu/12_KIEN_TRUC_HE_THONG.md), [47 Plan](tai_lieu/47_KE_HOACH_THEO_HE_THONG_SO.md)                                                                                                                       |
 | Reporting                                  | Role-based dashboards, reports per module and per level                                                   | [49 Feature summary](tai_lieu/49_TONG_HOP_CHUC_NANG_HE_THONG/00_MUC_LUC.md)                                                                                                                                                     |
 
@@ -38,10 +37,9 @@ flowchart LR
     teacher[teacher: teachers]
     parent[parent: parents]
     platform[platform: platform admin]
-    market[market: tutoring marketplace]
     mobile[mobile: phone app shell]
   end
-  portal & teacher & parent & platform & market --> api
+  portal & teacher & parent & platform --> api
   portal & teacher & parent & platform --> identity
   api[api: business API] --> pg[(PostgreSQL)]
   identity[identity: auth] --> pg
@@ -51,24 +49,23 @@ flowchart LR
   api --> s3[(S3-compatible file storage)]
 ```
 
-| Directory                       | Role                                                                                                   |
-| ------------------------------- | ------------------------------------------------------------------------------------------------------ |
-| `apps/api`                      | Business API server (NestJS), notification dispatcher, scheduled jobs                                  |
-| `apps/identity`                 | Identity service: accounts, roles, permissions, sign-in, sessions                                      |
-| `apps/worker`                   | Background process, currently the timetable generator, fed from a Redis queue                          |
-| `apps/portal`                   | Admin portal for school staff                                                                          |
-| `apps/teacher`                  | Teacher app (web, usable on phones)                                                                    |
-| `apps/parent`                   | Parent app                                                                                             |
-| `apps/platform`                 | Multi-school platform admin portal                                                                     |
-| `apps/market`                   | Tutoring marketplace, one app for parents and tutors (screens by account kind)                         |
-| `apps/mobile`                   | Phone app shell (Capacitor)                                                                            |
-| `apps/student`                  | Student app, **being split out in PR 224, not yet on `main`**                                          |
-| `packages/`                     | Shared code: `config` (TypeScript configs), `shared`, `server`, `ui`, `pwa`                            |
-| `database/`                     | Schemas and migrations for each kind of database: identity, system, school year, platform, marketplace |
-| `tests/`                        | Playwright e2e tests and repository-level tests                                                        |
-| `deploy/`                       | Deployment profiles and configuration                                                                  |
-| `docker/`, `docker-compose.yml` | Local development environment                                                                          |
-| `tai_lieu/`                     | Project documentation                                                                                  |
+| Directory                       | Role                                                                                      |
+| ------------------------------- | ----------------------------------------------------------------------------------------- |
+| `apps/api`                      | Business API server (NestJS), notification dispatcher, scheduled jobs                     |
+| `apps/identity`                 | Identity service: accounts, roles, permissions, sign-in, sessions                         |
+| `apps/worker`                   | Background process, currently the timetable generator, fed from a Redis queue             |
+| `apps/portal`                   | Admin portal for school staff                                                             |
+| `apps/teacher`                  | Teacher app (web, usable on phones)                                                       |
+| `apps/parent`                   | Parent app                                                                                |
+| `apps/platform`                 | Multi-school platform admin portal                                                        |
+| `apps/mobile`                   | Phone app shell (Capacitor)                                                               |
+| `apps/student`                  | Student app, **being split out in PR 224, not yet on `main`**                             |
+| `packages/`                     | Shared code: `config` (TypeScript configs), `shared`, `server`, `ui`, `pwa`               |
+| `database/`                     | Schemas and migrations for each kind of database: identity, system, school year, platform |
+| `tests/`                        | Playwright e2e tests and repository-level tests                                           |
+| `deploy/`                       | Deployment profiles and configuration                                                     |
+| `docker/`, `docker-compose.yml` | Local development environment                                                             |
+| `tai_lieu/`                     | Project documentation                                                                     |
 
 Data: the identity service has its own database; the API server uses one system database plus one business database per school year. In multi-school mode each school's data is isolated, using either a dedicated database or a dedicated schema (trial profile). Details: [12 Architecture](tai_lieu/12_KIEN_TRUC_HE_THONG.md), [13 Technology](tai_lieu/13_CONG_NGHE_SU_DUNG.md), [16 Database](tai_lieu/16_CO_SO_DU_LIEU.md).
 
@@ -95,7 +92,7 @@ Run services (after building):
 ```bash
 pnpm --filter @school-management/identity start
 pnpm --filter @school-management/api start
-pnpm --filter @school-management/portal dev     # likewise for teacher, parent, platform, market
+pnpm --filter @school-management/portal dev     # likewise for teacher, parent, platform
 ```
 
 Default ports, taken from the repository's configuration:
@@ -105,7 +102,7 @@ Default ports, taken from the repository's configuration:
 | API                                  | 3000 (`API_PORT`)      |
 | Identity service                     | 3001 (`IDENTITY_PORT`) |
 | portal / teacher / parent            | 5173 / 5174 / 5175     |
-| platform / market                    | 5177 / 5178            |
+| platform                             | 5177                   |
 | PostgreSQL / Redis / S3 file storage | 5432 / 6379 / 8333     |
 
 Local multi-school setup (unit login with Department → Level, Ward/Commune → School at `http://truong.localhost:5190/`), running

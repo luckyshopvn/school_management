@@ -1,0 +1,6 @@
+/* Phông Be Vietnam Pro đóng gói cùng ứng dụng, không tải từ máy chủ ngoài (15_HE_THONG_THIET_KE.md mục 3, YCTD-384). Ứng dụng nhập
+   tệp này ở lát làm lại của mình */
+@import '@fontsource/be-vietnam-pro/400.css';
+@import '@fontsource/be-vietnam-pro/500.css';
+@import '@fontsource/be-vietnam-pro/600.css';
+@import '@fontsource/be-vietnam-pro/700.css';

@@ -40,7 +40,7 @@ function workspaceName(workspace: PortalWorkspace): string | RegExp {
 // Chọn phân hệ ở ô Phân hệ trên thanh đầu trang nếu đang chọn phân hệ khác; trả tên phân hệ đang hiện
 export async function selectWorkspace(page: Page, label: string | RegExp): Promise<string> {
   const switcher = page.getByRole('button', { name: /^Phân hệ: / });
-  // Dưới 1280 px ô chọn phân hệ nằm trong ngăn kéo thanh bên (YCTD-330): mở ngăn kéo trước
+  // Dưới 1024 px ô chọn phân hệ nằm trong ngăn kéo thanh bên (YCTD-330; YCTD-384 hạ từ 1280 px): mở ngăn kéo trước
   const toggle = page.getByRole('button', { name: 'Menu chức năng' });
   // Chờ khung trang dựng xong (một trong hai nút hiện) rồi mới quyết định, vì isVisible không chờ
   await expect(switcher.or(toggle).first()).toBeVisible();

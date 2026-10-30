@@ -8,9 +8,7 @@ import {
   createDatabase,
   createSchoolDatabaseLayout,
   dropDatabaseIfExists,
-  dropMarketplaceDatabase,
   migrateToLatest,
-  provisionMarketplaceDatabase,
   provisionSchool,
   purgeSchoolArtifacts,
   replaceDatabaseName,
@@ -18,8 +16,6 @@ import {
 } from '@school-management/database';
 import {
   E2E_LIFECYCLE_SCHOOL_CODES,
-  E2E_MARKETPLACE_DATABASE_NAME,
-  E2E_MARKETPLACE_ROLE,
   E2E_MULTI_STATE_FILE,
   E2E_PLATFORM_DATABASE_NAME,
   E2E_SCHOOL_CODES,
@@ -73,20 +69,5 @@ try {
 } finally {
   await platform.destroy();
 }
-// Chợ gia sư (DT-27 phần 27f, spec 195): cơ sở dữ liệu marketplace và vai trò riêng, mật khẩu ngẫu nhiên của lần chạy
-await dropMarketplaceDatabase(adminUrl, E2E_MARKETPLACE_DATABASE_NAME, E2E_MARKETPLACE_ROLE);
-const marketplaceUrl = await provisionMarketplaceDatabase({
-  adminUrl,
-  databaseName: E2E_MARKETPLACE_DATABASE_NAME,
-  roleName: E2E_MARKETPLACE_ROLE,
-  rolePassword: randomBytes(18).toString('base64url'),
-});
-const marketMigration = await migrateToLatest('marketplace', marketplaceUrl);
-if (marketMigration.error) {
-  throw marketMigration.error;
-}
-writeFileSync(
-  E2E_MULTI_STATE_FILE,
-  JSON.stringify({ masterKey: masterKey.toString('base64'), layout: layoutKind, marketplaceUrl }),
-);
+writeFileSync(E2E_MULTI_STATE_FILE, JSON.stringify({ masterKey: masterKey.toString('base64'), layout: layoutKind }));
 console.log(`Đã dựng nền tảng nhiều trường kiểm thử: ${E2E_SCHOOL_CODES.join(', ')} (bố cục ${layoutKind})`);

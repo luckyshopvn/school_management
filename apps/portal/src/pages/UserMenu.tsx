@@ -118,7 +118,7 @@ export function UserMenu({
       <button
         ref={button}
         type="button"
-        className="flex h-9 items-center gap-2 rounded-md px-2 text-label font-semibold text-white hover:bg-header-strong"
+        className="flex h-11 items-center gap-2 rounded-md px-2 text-label font-semibold text-current hover:bg-current/10"
         aria-haspopup="menu"
         aria-expanded={open}
         aria-controls="menu-nguoi-dung"
