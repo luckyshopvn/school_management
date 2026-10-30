@@ -141,9 +141,8 @@ describe('Biểu 02.ĐN-TH, 02.CN-TH', () => {
       .select('start_date')
       .where('id', '=', academicYearId)
       .executeTakeFirstOrThrow();
-    startYear = Number(
-      String(year.start_date instanceof Date ? year.start_date.toISOString() : year.start_date).slice(0, 4),
-    );
+    const start: unknown = year.start_date;
+    startYear = start instanceof Date ? start.getUTCFullYear() : Number(String(start).slice(0, 4));
     const registry = await environment.system
       .selectFrom('academic_year_databases')
       .select('database_name')

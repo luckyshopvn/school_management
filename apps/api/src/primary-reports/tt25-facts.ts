@@ -233,11 +233,11 @@ export async function loadTt25Facts(
       repeater,
       new_entrant: row.grade === 'K1' && !repeater,
       disability: disabilityKindOf(
-        profileText(child?.moet_profile, 'disability_type') ?? child?.special_needs_note ?? null,
+        profileText(child?.moet_profile ?? null, 'disability_type') ?? child?.special_needs_note ?? null,
       ),
       ethnic_boarding: row.ethnic && row.boarding,
       summer_support: summer.has(row.id),
-      transfer_in_province: otherProvince(profileText(child?.moet_profile, 'transfer_from_province')),
+      transfer_in_province: otherProvince(profileText(child?.moet_profile ?? null, 'transfer_from_province')),
     };
   });
 

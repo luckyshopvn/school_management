@@ -59,8 +59,9 @@ export const exportReport = (report: string, params: Record<string, string | und
   );
 export const readPeriods = () =>
   requestJson<{ periods: Array<{ id: string; name: string }> }>('/api/v1/assessment/config?school_level=TH');
+// Lấy cả biểu khung cũ đã ẩn (YCTD-385) để vẫn xem được số đã nhập; màn hình xếp chúng vào nhóm riêng
 export const listEmisForms = (base: EmisBase = 'primary-reports') =>
-  requestJson<Array<{ code: string; name: string }>>(`/api/v1/${base}/emis`);
+  requestJson<Array<{ code: string; name: string; archived?: boolean }>>(`/api/v1/${base}/emis?archived=true`);
 export const readEmis = (code: string, base: EmisBase = 'primary-reports') =>
   requestJson<EmisView>(`/api/v1/${base}/emis/${code}`);
 export const saveEmisValues = (

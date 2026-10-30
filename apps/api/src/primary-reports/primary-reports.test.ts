@@ -379,12 +379,13 @@ describe('Thống kê, EMIS Tiểu học', () => {
   });
 
   it('CT-20f-6: EMIS Tiểu học: khung cấu hình được, dòng công thức, nhập tay, sửa khung, gửi lên cấp trên khoá nhập tay', async () => {
-    const forms = await api('GET', '/primary-reports/emis', 'principal');
+    // Từ YCTD-385 lát L1 danh sách mặc định là biểu Thông tư 25/2024; hai biểu khung cũ ẩn, xin `archived=true` mới có
+    const forms = await api('GET', '/primary-reports/emis?archived=true', 'principal');
     assert.deepEqual(
       list(forms.body)
         .map((row) => row.code)
         .sort(),
-      ['emis-th-cuoi-nam', 'emis-th-dau-nam'],
+      ['emis-th-cuoi-nam', 'emis-th-dau-nam', 'tt25-02-cn-th', 'tt25-02-dn-th'],
     );
     const code = 'emis-th-dau-nam';
     const view = await api('GET', `/primary-reports/emis/${code}`, 'principal');

@@ -260,14 +260,26 @@ export class PrimaryEmisService implements OnModuleInit {
         return { ...row, values: {} as Record<string, number | null> };
       }
     });
-    for (const row of values) {
+    // Dòng cộng có thể gồm dòng cộng khác (155 = 156 + 158 + 164, 158 = 159 + ... + 163): tính đệ quy, dòng đang tính dở
+    // (vòng lặp) bỏ qua và ghi cảnh báo
+    const done = new Set<string>();
+    const pending = new Set<string>();
+    const sum = (row: (typeof values)[number]) => {
       const parts = parseRowSum(row.formula);
-      if (!parts) {
-        continue;
+      if (!parts || done.has(row.code)) {
+        return;
       }
+      pending.add(row.code);
       const sources = values.filter((item) => item.section === row.section && parts.includes(item.code));
       if (sources.length !== parts.length) {
         warnings.push(`Dòng ${row.code}: cộng dòng không có trong phần`);
+      }
+      for (const source of sources) {
+        if (pending.has(source.code)) {
+          warnings.push(`Dòng ${row.code}: cộng vòng tròn qua dòng ${source.code}`);
+        } else {
+          sum(source);
+        }
       }
       row.values = Object.fromEntries(
         (columnsOf.get(row.section) ?? []).map((key) => {
@@ -276,11 +288,14 @@ export class PrimaryEmisService implements OnModuleInit {
             key,
             cells.every((cell) => cell === null || cell === undefined)
               ? null
-              : cells.reduce<number>((sum, cell) => sum + (cell ?? 0), 0),
+              : cells.reduce<number>((total, cell) => total + (cell ?? 0), 0),
           ];
         }),
       );
-    }
+      pending.delete(row.code);
+      done.add(row.code);
+    };
+    values.forEach(sum);
     const manualRows = rows.filter((row) => row.kind === 'manual');
     const status = await this.submissions.statusOf(code);
     return {

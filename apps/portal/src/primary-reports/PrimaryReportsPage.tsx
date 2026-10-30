@@ -292,7 +292,9 @@ export function EmisTab({ onSaved, base = 'primary-reports' }: { onSaved(message
   const queryClient = useQueryClient();
   const forms = useQuery({ queryKey: ['emis-forms', base], queryFn: () => listEmisForms(base) });
   const [code, setCode] = useState('');
-  const selected = code || forms.data?.[0]?.code || '';
+  const currentForms = (forms.data ?? []).filter((form) => !form.archived);
+  const archivedForms = (forms.data ?? []).filter((form) => form.archived);
+  const selected = code || currentForms[0]?.code || archivedForms[0]?.code || '';
   const view = useQuery({
     queryKey: ['emis-form', base, selected],
     queryFn: () => readEmis(selected, base),
@@ -371,11 +373,20 @@ export function EmisTab({ onSaved, base = 'primary-reports' }: { onSaved(message
         <label className="flex flex-col gap-2 text-label font-medium text-text">
           Biểu
           <select value={selected} onChange={(event) => setCode(event.target.value)} className={SELECT_CLASS}>
-            {(forms.data ?? []).map((form) => (
+            {currentForms.map((form) => (
               <option key={form.code} value={form.code}>
                 {form.name}
               </option>
             ))}
+            {archivedForms.length > 0 ? (
+              <optgroup label="Biểu khung cũ">
+                {archivedForms.map((form) => (
+                  <option key={form.code} value={form.code}>
+                    {form.name}
+                  </option>
+                ))}
+              </optgroup>
+            ) : null}
           </select>
         </label>
         {selected ? <ExportButtons onExport={(format) => exportEmis(selected, format, base)} /> : null}
