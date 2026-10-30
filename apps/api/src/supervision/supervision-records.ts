@@ -1,7 +1,13 @@
 import { Body, Controller, Get, HttpCode, Injectable, Param, Post, Query, Req } from '@nestjs/common';
 import { sql, type Transaction } from 'kysely';
 import type { SchoolYearDatabase } from '@school-management/database';
-import { ApplicationError, Clock, ruleViolationError, validationError, type FieldError } from '@school-management/server';
+import {
+  ApplicationError,
+  Clock,
+  ruleViolationError,
+  validationError,
+  type FieldError,
+} from '@school-management/server';
 import { PERMISSION_CODES } from '@school-management/shared';
 import type { Request } from 'express';
 import { AuthenticatedUser, RequirePermission } from '../authentication/authentication.guard.js';
@@ -53,7 +59,6 @@ const RECORD_COLUMNS = [
   'student_conduct_records.revoked_at',
   'student_conduct_records.created_at',
 ] as const;
-
 
 interface RecordInput {
   childIds: string[];

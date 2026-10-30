@@ -31,7 +31,9 @@ export const migration: Migration = {
       )
       // Nguồn: ghi tay; lát sau thêm cổng trường, cảnh báo camera
       .addColumn('source', 'text', (column) => column.notNull().defaultTo('manual'))
-      .addColumn('class_conduct_entry_id', 'uuid', (column) => column.references('conduct_entries.id').onDelete('set null'))
+      .addColumn('class_conduct_entry_id', 'uuid', (column) =>
+        column.references('conduct_entries.id').onDelete('set null'),
+      )
       .addColumn('recorded_by', 'uuid', (column) => column.notNull())
       .addColumn('recorded_by_name', 'text', (column) => column.notNull())
       .addColumn('status', 'text', (column) => column.notNull().defaultTo('active'))

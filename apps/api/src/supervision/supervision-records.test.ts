@@ -184,7 +184,10 @@ describe('Ghi nhận rèn luyện từng học sinh', () => {
       ).status,
       201,
     );
-    assert.equal((await api('PUT', '/conduct/settings', principal.accessToken, { enabled: true, base_points: 100 })).status, 200);
+    assert.equal(
+      (await api('PUT', '/conduct/settings', principal.accessToken, { enabled: true, base_points: 100 })).status,
+      200,
+    );
     criterionId = (
       await api('POST', '/conduct/criteria', principal.accessToken, {
         code: 'TP',
@@ -229,13 +232,17 @@ describe('Ghi nhận rèn luyện từng học sinh', () => {
       (subjectScope.body.classes as Array<{ name: string }>).map((row) => row.name),
       ['7A'],
     );
-    const found = (await api('GET', `/supervision/students?search=${encodeURIComponent('học sinh')}`, token('supervisor')))
-      .body as unknown as Array<{ full_name: string }>;
+    const found = (
+      await api('GET', `/supervision/students?search=${encodeURIComponent('học sinh')}`, token('supervisor'))
+    ).body as unknown as Array<{ full_name: string }>;
     assert.deepEqual(
       found.map((row) => row.full_name),
       ['Học sinh An', 'Học sinh Bình'],
     );
-    assert.equal((await api('GET', `/supervision/students?class_id=${classes['7A']}`, token('supervisor'))).status, 403);
+    assert.equal(
+      (await api('GET', `/supervision/students?class_id=${classes['7A']}`, token('supervisor'))).status,
+      403,
+    );
     assert.equal((await api('GET', '/supervision/students?search=a', token('supervisor'))).status, 400);
   });
 
@@ -288,14 +295,18 @@ describe('Ghi nhận rèn luyện từng học sinh', () => {
     });
     assert.equal(wrongLevel.status, 422);
     assert.equal(errorOf(wrongLevel.body).rule_code, 'YCTD-391');
-    const noChild = await api('POST', '/supervision/records', token('supervisor'), { child_ids: [], rule_item_id: rules.help });
+    const noChild = await api('POST', '/supervision/records', token('supervisor'), {
+      child_ids: [],
+      rule_item_id: rules.help,
+    });
     assert.equal(noChild.status, 400);
     const bySubject = await api('POST', '/supervision/records', token('subject'), {
       child_ids: [children['Cường']],
       rule_item_id: rules.help,
     });
     assert.equal(bySubject.status, 201);
-    const list = (await api('GET', `/supervision/records?from=${vietnamToday}`, token('homeroom'))).body as unknown as Array<{
+    const list = (await api('GET', `/supervision/records?from=${vietnamToday}`, token('homeroom')))
+      .body as unknown as Array<{
       full_name: string;
       recorded_by_name: string;
     }>;
@@ -356,7 +367,9 @@ describe('Ghi nhận rèn luyện từng học sinh', () => {
     assert.ok(record.class_conduct_entry_id);
     const noReason = await api('POST', `/supervision/records/${recordId}/revoke`, token('supervisor'), {});
     assert.equal(noReason.status, 400);
-    const bySubject = await api('POST', `/supervision/records/${recordId}/revoke`, token('subject'), { reason: 'Nhầm' });
+    const bySubject = await api('POST', `/supervision/records/${recordId}/revoke`, token('subject'), {
+      reason: 'Nhầm',
+    });
     assert.equal(bySubject.status, 403);
     const revoked = await api('POST', `/supervision/records/${recordId}/revoke`, token('supervisor'), {
       reason: 'Ghi nhầm học sinh',
@@ -368,11 +381,12 @@ describe('Ghi nhận rèn luyện từng học sinh', () => {
       .where('id', '=', record.class_conduct_entry_id ?? '')
       .executeTakeFirst();
     assert.equal(entry, undefined);
-    const twice = await api('POST', `/supervision/records/${recordId}/revoke`, token('supervisor'), { reason: 'Lần hai' });
+    const twice = await api('POST', `/supervision/records/${recordId}/revoke`, token('supervisor'), {
+      reason: 'Lần hai',
+    });
     assert.equal(twice.status, 422);
-    const subjectRecord = (
-      await api('GET', `/supervision/records?from=${vietnamToday}&mine=true`, token('subject'))
-    ).body as unknown as Array<{ id: string }>;
+    const subjectRecord = (await api('GET', `/supervision/records?from=${vietnamToday}&mine=true`, token('subject')))
+      .body as unknown as Array<{ id: string }>;
     // Ghi nhận của giáo viên bộ môn ở lớp 7A: chủ nhiệm 6A không xem, không thu hồi được
     const notHomeroom = await api(
       'POST',
@@ -381,9 +395,8 @@ describe('Ghi nhận rèn luyện từng học sinh', () => {
       { reason: 'Không phải lớp mình' },
     );
     assert.equal(notHomeroom.status, 403);
-    const byHomeroom = (
-      await api('GET', `/supervision/records?from=${vietnamToday}&mine=true`, token('supervisor'))
-    ).body as unknown as Array<{ id: string; status: string }>;
+    const byHomeroom = (await api('GET', `/supervision/records?from=${vietnamToday}&mine=true`, token('supervisor')))
+      .body as unknown as Array<{ id: string; status: string }>;
     const active = byHomeroom.find((row) => row.status === 'active');
     const homeroomRevoke = await api('POST', `/supervision/records/${active?.id ?? ''}/revoke`, token('homeroom'), {
       reason: 'Chủ nhiệm xem lại',

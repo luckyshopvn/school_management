@@ -110,7 +110,10 @@ function DutyView({ onRecord }: { onRecord(): void }) {
     <div className="flex flex-col gap-4">
       {message ? <Alert tone={message.tone}>{message.text}</Alert> : null}
       <div className="grid grid-cols-2 gap-3">
-        <section className="flex flex-col gap-1 rounded-xl border border-border bg-card p-4" aria-label="Vi phạm hôm nay">
+        <section
+          className="flex flex-col gap-1 rounded-xl border border-border bg-card p-4"
+          aria-label="Vi phạm hôm nay"
+        >
           <span className="text-label text-text-secondary">Vi phạm hôm nay</span>
           <span className="text-page-title font-bold text-text">{count('violation')}</span>
         </section>
@@ -136,7 +139,10 @@ function DutyView({ onRecord }: { onRecord(): void }) {
               {record.status === 'revoked' ? (
                 <StatusBadge tone="neutral" label="Đã thu hồi" />
               ) : (
-                <StatusBadge tone={record.kind === 'violation' ? 'danger' : 'success'} label={KIND_LABELS[record.kind]} />
+                <StatusBadge
+                  tone={record.kind === 'violation' ? 'danger' : 'success'}
+                  label={KIND_LABELS[record.kind]}
+                />
               )}
             </div>
             <span className="text-label text-text-secondary">
@@ -206,15 +212,14 @@ function RecordView({ classes, onSaved }: { classes: ScopeClass[]; onSaved(messa
   const selectedLevels = [...new Set(selected.map((student) => student.school_level))];
   const shownRules = rules.filter(
     (item) =>
-      item.kind === kind && (selectedLevels.length === 0 || selectedLevels.every((level) => level === item.school_level)),
+      item.kind === kind &&
+      (selectedLevels.length === 0 || selectedLevels.every((level) => level === item.school_level)),
   );
 
   async function find(event?: FormEvent) {
     event?.preventDefault();
     setMessage(undefined);
-    const query = classId
-      ? `class_id=${classId}`
-      : `search=${encodeURIComponent(search.trim())}`;
+    const query = classId ? `class_id=${classId}` : `search=${encodeURIComponent(search.trim())}`;
     try {
       setResults(await requestJson<Student[]>(`/api/v1/supervision/students?${query}`));
     } catch (error) {
@@ -307,7 +312,9 @@ function RecordView({ classes, onSaved }: { classes: ScopeClass[]; onSaved(messa
             Tìm học sinh
           </Button>
         </form>
-        {results && results.length === 0 ? <p className="text-content text-text-secondary">Không thấy học sinh.</p> : null}
+        {results && results.length === 0 ? (
+          <p className="text-content text-text-secondary">Không thấy học sinh.</p>
+        ) : null}
         <ul className="flex flex-col gap-1" aria-label="Kết quả tìm học sinh">
           {(results ?? []).map((student) => (
             <li key={student.child_id}>
@@ -359,7 +366,9 @@ function RecordView({ classes, onSaved }: { classes: ScopeClass[]; onSaved(messa
           ))}
         </div>
         {shownRules.length === 0 ? (
-          <p className="text-label text-text-secondary">Chưa có mục nội quy phù hợp; Ban Giám hiệu khai ở cổng quản trị.</p>
+          <p className="text-label text-text-secondary">
+            Chưa có mục nội quy phù hợp; Ban Giám hiệu khai ở cổng quản trị.
+          </p>
         ) : null}
         <label className="flex flex-col gap-1 text-label font-medium text-text">
           Khu vực
