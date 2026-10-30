@@ -39,7 +39,7 @@ import {
 // trưởng xem trước gói, chọn lớp, tiếp nhận; hồ sơ tạo bằng đường tiếp nhận tệp 82 cột có sẵn rồi chuyển thẳng sang Đang học
 // (Q7 của đặc tả). Ở lát L1 gói đi bằng tệp; lát L2 thêm hộp thư nền tảng cho trường trong hệ thống
 
-interface StudentSummary {
+export interface StudentSummary {
   full_name: string;
   dob: string | null;
   gender: string;
@@ -86,6 +86,12 @@ export interface TransferPackagePreview {
   existing_child: { id: string; full_name: string } | null;
 }
 
+export interface TransferPackageInput {
+  optionalParts: OptionalTransferPart[];
+  consentRecorded: boolean;
+  applicationReceived: boolean;
+}
+
 type TransferPackageManifestConsent = OpenedTransferPackage['manifest']['consent'];
 
 const partLabel = (path: string): string => {
@@ -130,9 +136,47 @@ export class TransferPackagesService {
   async build(
     currentUser: CurrentUser,
     transferId: string,
-    input: { optionalParts: OptionalTransferPart[]; consentRecorded: boolean; applicationReceived: boolean },
+    input: TransferPackageInput,
     ipAddress: string | null,
     origin: ChangeOrigin,
+  ) {
+    const password = generateTransferPassword();
+    const { database, transfer, sealed, packageCode, partsRecord, student } = await this.seal(
+      currentUser,
+      transferId,
+      input,
+      origin,
+      { password, destination: null },
+    );
+    const packageFile = await logExportedFile(database, currentUser, {
+      reportCode: 'student-transfer-package',
+      fileName: `${packageCode}.${TRANSFER_PACKAGE_EXTENSION}`,
+      buffer: sealed.body,
+      rowCount: 1,
+      orgUnitIds: [transfer.org_unit_id],
+      filters: { transfer_id: transfer.id, package_code: packageCode, parts: partsRecord.parts },
+      ipAddress,
+      contentType: 'application/octet-stream',
+    });
+    const print = await this.printSheet(sealed.manifest, sealed.sha256, password, student);
+    return {
+      package_code: packageCode,
+      package_sha256: sealed.sha256,
+      password,
+      parts: sealed.manifest.parts.map((part) => ({ path: part.path, label: partLabel(part.path), bytes: part.bytes })),
+      package_file: { file_name: packageFile.fileName, content_base64: sealed.body.toString('base64') },
+      print_file: { file_name: `${packageCode}-ban-in.pdf`, content_base64: print.toString('base64') },
+    };
+  }
+
+  // Dựng, niêm phong gói cho đề nghị chuyển đi và ghi gói vào `student_transfers`; dùng cho tệp (mật khẩu in trên bản in) và hộp
+  // thư nền tảng (mật khẩu ngẫu nhiên bọc bằng khóa của trường đến, lát L2). `destination` là trường đến chọn trong danh bạ
+  async seal(
+    currentUser: CurrentUser,
+    transferId: string,
+    input: TransferPackageInput,
+    origin: ChangeOrigin,
+    options: { password: string; destination: { school_name: string; code: string | null } | null },
   ) {
     const { database } = await this.currentSchoolYear.require();
     const transfer = await database
@@ -242,7 +286,6 @@ export class TransferPackagesService {
     }
 
     const source = await this.school(database);
-    const password = generateTransferPassword();
     const packageCode = generatePackageCode(createdAt);
     const consent = input.optionalParts.length
       ? {
@@ -258,11 +301,9 @@ export class TransferPackagesService {
         kind: 'chuyen-truong',
         created_at: createdAt.toISOString(),
         source_school: source,
-        destination: {
-          school_name: transfer.school_name,
-          province_name: transfer.province_name,
-          ward_name: transfer.ward_name,
-        },
+        destination: options.destination
+          ? { school_name: options.destination.school_name, province_name: null, ward_name: null }
+          : { school_name: transfer.school_name, province_name: transfer.province_name, ward_name: transfer.ward_name },
         transfer_date: transfer.transfer_date,
         reason: transfer.reason,
         approved_by_name: origin.actorName,
@@ -270,7 +311,7 @@ export class TransferPackagesService {
         consent,
       },
       files,
-      password,
+      options.password,
     );
     const partsRecord = { parts: sealed.manifest.parts.map((part) => part.path), consent };
     await database.transaction().execute(async (transaction) => {
@@ -282,6 +323,9 @@ export class TransferPackagesService {
           package_parts: JSON.stringify(partsRecord),
           package_created_at: createdAt,
           package_created_by_name: origin.actorName,
+          ...(options.destination
+            ? { school_name: options.destination.school_name, partner_school_code: options.destination.code }
+            : {}),
           updated_at: createdAt,
         })
         .where('id', '=', transfer.id)
@@ -292,29 +336,11 @@ export class TransferPackagesService {
         entityName: 'student_transfers',
         entityId: transfer.id,
         action: 'update',
-        before: { package_code: transfer.package_code },
+        before: { package_code: transfer.package_code, school_name: transfer.school_name },
         after: { package_code: packageCode, package_sha256: sealed.sha256, ...partsRecord },
       });
     });
-    const packageFile = await logExportedFile(database, currentUser, {
-      reportCode: 'student-transfer-package',
-      fileName: `${packageCode}.${TRANSFER_PACKAGE_EXTENSION}`,
-      buffer: sealed.body,
-      rowCount: 1,
-      orgUnitIds: [transfer.org_unit_id],
-      filters: { transfer_id: transfer.id, package_code: packageCode, parts: partsRecord.parts },
-      ipAddress,
-      contentType: 'application/octet-stream',
-    });
-    const print = await this.printSheet(sealed.manifest, sealed.sha256, password, student);
-    return {
-      package_code: packageCode,
-      package_sha256: sealed.sha256,
-      password,
-      parts: sealed.manifest.parts.map((part) => ({ path: part.path, label: partLabel(part.path), bytes: part.bytes })),
-      package_file: { file_name: packageFile.fileName, content_base64: sealed.body.toString('base64') },
-      print_file: { file_name: `${packageCode}-ban-in.pdf`, content_base64: print.toString('base64') },
-    };
+    return { database, transfer, sealed, packageCode, partsRecord, student };
   }
 
   private async studentSummary(database: Kysely<SchoolYearDatabase>, childId: string): Promise<StudentSummary> {
@@ -430,6 +456,11 @@ export class TransferPackagesService {
     return this.describe(database, opened);
   }
 
+  async previewOpened(opened: OpenedTransferPackage): Promise<TransferPackagePreview> {
+    const { database } = await this.currentSchoolYear.require();
+    return this.describe(database, opened);
+  }
+
   private async describe(database: Kysely<SchoolYearDatabase>, opened: OpenedTransferPackage) {
     const { manifest } = opened;
     const student = readJsonPart<StudentSummary>(opened, 'hoc-sinh.json');
@@ -481,8 +512,19 @@ export class TransferPackagesService {
     input: { body: Buffer; password: string; classId: string; fromDate: string; confirmOverCapacity: boolean },
     origin: ChangeOrigin,
   ): Promise<{ errors: RowError[]; transfer_id: string | null; child_id: string | null }> {
-    const { database } = await this.currentSchoolYear.require();
     const opened = openTransferPackage(input.body, input.password);
+    return this.acceptOpened(currentUser, accessToken, opened, input, origin);
+  }
+
+  // Tiếp nhận gói đã mở (tệp ở lát L1, hộp thư nền tảng ở lát L2)
+  async acceptOpened(
+    currentUser: CurrentUser,
+    accessToken: string,
+    opened: OpenedTransferPackage,
+    input: { classId: string; fromDate: string; confirmOverCapacity: boolean },
+    origin: ChangeOrigin,
+  ): Promise<{ errors: RowError[]; transfer_id: string | null; child_id: string | null }> {
+    const { database } = await this.currentSchoolYear.require();
     const description = await this.describe(database, opened);
     if (description.already_received) {
       throw transferPackageRule('Gói này đã được tiếp nhận');

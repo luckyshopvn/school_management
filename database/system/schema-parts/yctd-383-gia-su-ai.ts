@@ -95,12 +95,15 @@ export interface AiTutorMessagesTable {
   moderation: AiTutorModeration | null;
   reported_at: Date | null;
   report_note: string | null;
+  // Lát L4 (migration hệ thống 0140_add_ai_tutor_images): đề bài gia sư chép từ ảnh em gửi
+  image_text: ColumnType<string | null, string | null | undefined, string | null>;
 }
 
 // Bậc gợi ý của câu trả lời: nhắc khái niệm, gợi ý cách làm, làm mẫu bài tương tự, nhận xét bài làm, lời giải đầy đủ; từ chối ngoài học
 // tập; trả lời theo mẫu an toàn
 export type AiTutorReplyStep = 'concept' | 'method' | 'example' | 'check' | 'solution' | 'refusal' | 'safety';
-export type AiTutorModeration = 'self_harm' | 'bullying' | 'unsafe' | 'off_topic';
+// `personal_data` (lát L4): ảnh có thông tin cá nhân
+export type AiTutorModeration = 'self_harm' | 'bullying' | 'unsafe' | 'off_topic' | 'personal_data';
 
 declare module '../schema.js' {
   interface SystemDatabase {

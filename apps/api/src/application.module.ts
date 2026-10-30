@@ -93,6 +93,7 @@ import { KitchenCatalogsController, KitchenCatalogsService } from './kitchen/kit
 import { KitchenMealsController, KitchenMealsService } from './kitchen/kitchen-meals.js';
 import { BoardingController, BoardingService } from './boarding/boarding.js';
 import { ConductController, ConductService } from './conduct/conduct.js';
+import { SupervisionController, SupervisionService } from './supervision/supervision.js';
 import { conductTransitionStep } from './conduct/conduct-transition.js';
 import { LibraryCatalogController, LibraryCatalogService } from './library/library-catalog.js';
 import { LibraryCirculationController, LibraryCirculationService } from './library/library-circulation.js';
@@ -711,6 +712,7 @@ export class ApplicationModule {
         KitchenMealsController,
         BoardingController,
         ConductController,
+        SupervisionController,
         AssessmentConfigController,
         AssessmentsController,
         LearningRecordsController,
@@ -1017,6 +1019,7 @@ export class ApplicationModule {
         KitchenMealsService,
         BoardingService,
         ConductService,
+        SupervisionService,
         AssessmentConfigService,
         AssessmentsService,
         LearningRecordsService,

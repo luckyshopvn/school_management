@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { PERMISSION_CODES } from '@school-management/shared';
 import { useHasPermission } from '../session/permissions.js';
-import { useSchoolLevelTerms } from '../school-levels/working-level.js';
+import { useLearnerWord, useSchoolLevelTerms } from '../school-levels/working-level.js';
 import { formatNumber, readBirthdays, readDashboard } from './reports-api.js';
 
 // MH-01 Bảng điều khiển trên trang chủ (P17-01, P17-02, P17-13; YCTD-62): Ban Giám hiệu thấy toàn phạm vi, quản lý
@@ -78,6 +78,7 @@ export function DashboardCards() {
 }
 
 export function BirthdayList() {
+  const learner = useLearnerWord();
   const month = vietnamMonth();
   const birthdays = useQuery({ queryKey: ['birthdays', month], queryFn: () => readBirthdays(month), retry: false });
   if (!birthdays.data) {
@@ -85,7 +86,7 @@ export function BirthdayList() {
   }
   return (
     <section className="rounded-xl border border-border bg-card p-5" aria-label="Sinh nhật trong tháng">
-      <h2 className="text-section-title font-semibold text-text">Sinh nhật trẻ trong tháng</h2>
+      <h2 className="text-section-title font-semibold text-text">Sinh nhật {learner} trong tháng</h2>
       {birthdays.data.length === 0 ? <p className="mt-2 text-content text-text-secondary">Trống</p> : null}
       <ul className="mt-2 flex flex-col gap-1 text-content">
         {birthdays.data.map((child) => (

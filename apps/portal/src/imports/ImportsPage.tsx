@@ -1,8 +1,9 @@
 import { useCallback, useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
-import { PERMISSION_CODES } from '@school-management/shared';
+import { PERMISSION_CODES, fillLearnerTerm } from '@school-management/shared';
 import { Toast } from '@school-management/ui';
 import { AppShell } from '../pages/AppShell.js';
+import { useLearnerWord, useSchoolLevelTerms } from '../school-levels/working-level.js';
 import { useHasPermission } from '../session/permissions.js';
 import { ExcelImportPanel } from './ExcelImportPanel.js';
 
@@ -25,7 +26,7 @@ type ImportType =
 
 const TYPE_LABELS: Record<ImportType, string> = {
   classes: 'Lớp học',
-  children: 'Trẻ và phụ huynh',
+  children: '{Người học} và phụ huynh',
   moet_codes: 'Mã định danh ngành',
   opening_debts: 'Công nợ đầu kỳ',
   staff: 'Nhân sự',
@@ -36,11 +37,14 @@ const TYPE_LABELS: Record<ImportType, string> = {
 
 export function ImportSection({ type, onChanged }: { type: ImportType; onChanged(message: string): void }) {
   const queryClient = useQueryClient();
+  const terms = useSchoolLevelTerms();
+  const learner = useLearnerWord();
   const moetCodes = type === 'moet_codes';
+  const title = fillLearnerTerm(TYPE_LABELS[type], terms);
   return (
     <ExcelImportPanel
       type={type}
-      title={TYPE_LABELS[type]}
+      title={title}
       uploadPath={moetCodes ? '/api/v1/imports/moet-codes' : '/api/v1/imports'}
       uploadFields={moetCodes ? {} : { type }}
       uploadLabel={moetCodes ? 'Nhập mã ngành' : 'Tải lên'}
@@ -48,12 +52,12 @@ export function ImportSection({ type, onChanged }: { type: ImportType; onChanged
       onUploaded={async (result) => {
         if (moetCodes) {
           await queryClient.invalidateQueries({ queryKey: ['children'] });
-          onChanged(`Đã gán mã ngành cho ${result.assigned_rows ?? 0} trẻ`);
+          onChanged(`Đã gán mã ngành cho ${result.assigned_rows ?? 0} ${learner}`);
         }
       }}
       onCommitted={async (result) => {
         await queryClient.invalidateQueries();
-        onChanged(`Đã ghi ${result.total_rows} dòng ${TYPE_LABELS[type].toLowerCase()}`);
+        onChanged(`Đã ghi ${result.total_rows} dòng ${title.toLocaleLowerCase('vi')}`);
       }}
     />
   );
