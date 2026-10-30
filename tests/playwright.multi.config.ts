@@ -19,6 +19,7 @@ import {
   E2E_MULTI_MARKET_PORT,
   E2E_MULTI_TUTOR_PORT,
   E2E_MULTI_PORTAL_PORT,
+  E2E_MULTI_STUDENT_PORT,
   E2E_MULTI_STATE_FILE,
   E2E_PUSH_OUTBOX_FILE,
   E2E_PLATFORM_DATABASE_NAME,
@@ -142,6 +143,12 @@ export default defineConfig({
       command: `pnpm --filter @school-management/platform exec vite --port ${E2E_MULTI_CONSOLE_PORT} --strictPort`,
       url: `http://localhost:${E2E_MULTI_CONSOLE_PORT}`,
       // Trang của tài khoản cấp trên (S6) đọc số liệu tổng hợp ở máy chủ API
+      env: { IDENTITY_BASE_URL: identityBaseUrl, API_BASE_URL: apiBaseUrl },
+    },
+    {
+      // Ứng dụng học sinh theo tên miền của trường (YCTD-383 lát L2, spec 143)
+      command: `pnpm --filter @school-management/student exec vite --port ${E2E_MULTI_STUDENT_PORT} --strictPort`,
+      url: `http://localhost:${E2E_MULTI_STUDENT_PORT}`,
       env: { IDENTITY_BASE_URL: identityBaseUrl, API_BASE_URL: apiBaseUrl },
     },
     {

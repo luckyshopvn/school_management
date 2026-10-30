@@ -234,6 +234,17 @@ describe('gom tệp mảnh thay đổi', () => {
     assert.match(loi.map((k) => k.loi.join('; ')).join('\n'), /YCTD-233 trùng với tệp/);
   });
 
+  it('phiếu làm theo lát: tệp của lát sau cùng mã YCTD không bị bắt trùng', () => {
+    ghiManh('YCTD-233-mot.md', tepManh({ so: 233, ten: 'Lát L0' }));
+    ghiManh('YCTD-233-l1b-hai.md', tepManh({ so: 233, ten: 'Lát L1b' }));
+    const { soTep, loi } = kiemThuMuc(thuMuc);
+    assert.equal(soTep, 2);
+    assert.deepEqual(
+      loi.flatMap((k) => k.loi),
+      [],
+    );
+  });
+
   describe('mục Thêm dòng', () => {
     const DAC_TA =
       '# 14. ĐẶC TẢ\n\n## 3. Màn hình\n\n| Mã | Tên | Ghi chú |\n|---|---|---|\n| MH-348 | Cũ | |\n| MH-349 | Cũ hơn | |\n\n## 4. Khác\n\n| Mã | Tên | Ghi chú |\n|---|---|---|\n| MH-900 | Khác | |\n';

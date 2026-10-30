@@ -213,7 +213,7 @@ test('CT-27b-8: lập, duyệt chương trình gia sư, xếp buổi, cha mẹ �
     await parentPage.getByLabel('Mật khẩu', { exact: true }).fill(parent.password);
     await parentPage.getByRole('button', { name: 'Đăng nhập' }).click();
     const card = parentPage.getByRole('listitem', { name: childName });
-    await card.getByRole('button', { name: 'Gia sư' }).click();
+    await card.getByRole('button', { name: 'Gia sư', exact: true }).click();
     const panel = parentPage.getByRole('region', { name: `Gia sư của ${childName}` });
     await expect(panel).toContainText('Không thu tiền');
     await panel.getByRole('button', { name: `Đăng ký ${programName}` }).click();
@@ -234,8 +234,8 @@ test('CT-27b-8: lập, duyệt chương trình gia sư, xếp buổi, cha mẹ �
     await teacherPage.getByRole('button', { name: 'Xác nhận điểm danh' }).click();
     await expect(toast(teacherPage, 'Đã xác nhận điểm danh 1 học sinh, báo vắng 1 cha mẹ')).toBeVisible();
 
-    await card.getByRole('button', { name: 'Gia sư' }).click();
-    await card.getByRole('button', { name: 'Gia sư' }).click();
+    await card.getByRole('button', { name: 'Gia sư', exact: true }).click();
+    await card.getByRole('button', { name: 'Gia sư', exact: true }).click();
     await expect(panel.getByRole('list', { name: 'Lịch học gia sư' })).toContainText(
       `${first} 17:00–17:45 · ${programName}`,
     );

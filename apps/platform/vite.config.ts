@@ -18,6 +18,8 @@ export default defineConfig({
       '/api/v1/parent-org': { target: apiTarget },
       // Quản trị chợ gia sư (DT-27 phần 27f) ở máy chủ API
       '/api/v1/market': { target: apiTarget },
+      // Gói gia sư AI nền tảng bán (YCTD-383 lát L1b) ở máy chủ API
+      '/api/v1/platform-ai-tutor': { target: apiTarget },
     },
   },
 });

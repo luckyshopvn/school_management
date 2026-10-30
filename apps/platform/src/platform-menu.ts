@@ -32,6 +32,8 @@ export const PLATFORM_MENU: readonly PlatformMenuItem[] = [
   { key: 'market', label: 'Chợ gia sư', group: 'kinh-doanh' },
   // Trợ lý AI: khóa nền tảng, đơn giá AI theo gói, token đã dùng (DT-23 phần 23d)
   { key: 'ai', label: 'Trợ lý AI', group: 'kinh-doanh' },
+  // Gia sư AI nền tảng bán thẳng cho phụ huynh: gói, giao dịch, biên lai, hoàn tiền (YCTD-383 lát L1b)
+  { key: 'ai-tutor', label: 'Gia sư AI', group: 'kinh-doanh' },
   // Thông báo bảo trì (S4)
   { key: 'maintenance', label: 'Bảo trì', group: 'he-thong' },
   // Nhật ký vào trường, khởi tạo, bật tính năng (YCTD-324)

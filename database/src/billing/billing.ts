@@ -288,10 +288,17 @@ export async function issueInvoice(
   input: IssueInvoiceInput,
   pricing: PricingContext,
 ): Promise<IssuedInvoice> {
-  // Thành phần AI (DT-23 phần 23d): token của kỳ ở cấu hình `platform` nhân đơn giá của gói; gói chưa đặt đủ đơn giá thì không thu
+  // Thành phần AI (DT-23 phần 23d): token của kỳ ở cấu hình `platform` nhân đơn giá của gói; gói chưa đặt đủ đơn giá thì không thu.
+  // Gia sư AI học sinh (YCTD-383 lát L2): token của lượt dùng từ gói trường bán (`tutor_school`) tính cùng đơn giá, dòng phí ghi riêng
+  // "Gia sư AI học sinh"; token của lượt dùng từ gói nền tảng bán (`tutor_platform`) là chi phí của nền tảng, không tính
   const aiPricing = await readPlanAiPricing(platform, input.plan.planId);
   const aiUsage = aiPricingReady(aiPricing)
-    ? await aiUsageBetween(platform, input.schoolId, input.range.start, input.range.end, 'platform')
+    ? [
+        ...(await aiUsageBetween(platform, input.schoolId, input.range.start, input.range.end, 'platform')),
+        ...(await aiUsageBetween(platform, input.schoolId, input.range.start, input.range.end, 'tutor_school')).map(
+          (usage) => ({ ...usage, label: 'Gia sư AI học sinh' }),
+        ),
+      ]
     : [];
   const charges = computeCharges(input.plan.rule, input.usage, {
     ...(input.discount ? { discount: input.discount } : {}),
