@@ -397,6 +397,8 @@ export class AssignmentsService {
         rubric_snapshot: rubric ? JSON.stringify(rubric) : null,
         show_results: input.show_results,
         estimated_minutes: input.estimated_minutes,
+        // Màn hình cũ không gửi cờ "không dùng AI" thì giữ cờ đã có
+        ai_blocked: body?.ai_blocked === undefined && existing ? existing.ai_blocked : input.ai_blocked,
         updated_at: now,
       };
       const assignment = await transaction
@@ -463,7 +465,8 @@ export class AssignmentsService {
     return this.editor(currentUser, activityId);
   }
 
-  // Cài đặt nộp bài đổi được cả sau khi phát hành: nộp muộn, số lần nộp (chỉ tăng), cách hiện kết quả trắc nghiệm
+  // Cài đặt nộp bài đổi được cả sau khi phát hành: nộp muộn, số lần nộp (chỉ tăng), cách hiện kết quả trắc nghiệm, không dùng AI
+  // (YCTD-383 lát L3: giáo viên bật, tắt được bất cứ lúc nào)
   async updateSettings(currentUser: CurrentUser, activityId: string, body: RequestBody) {
     const { database } = await this.teacher(currentUser, activityId);
     const assignment = await this.requireAssignment(database, activityId);
@@ -472,6 +475,7 @@ export class AssignmentsService {
       late_policy?: 'allow' | 'block';
       max_attempts?: number;
       show_results?: 'after_submit' | 'after_return';
+      ai_blocked?: boolean;
     } = {};
     if (body?.late_policy !== undefined) {
       if (body.late_policy !== 'allow' && body.late_policy !== 'block') {
@@ -493,6 +497,13 @@ export class AssignmentsService {
         errors.push({ field: 'show_results', message: 'Hiện kết quả after_submit hoặc after_return' });
       } else {
         changes.show_results = body.show_results;
+      }
+    }
+    if (body?.ai_blocked !== undefined) {
+      if (typeof body.ai_blocked !== 'boolean') {
+        errors.push({ field: 'ai_blocked', message: 'Không dùng AI là true hoặc false' });
+      } else {
+        changes.ai_blocked = body.ai_blocked;
       }
     }
     if (errors.length > 0) {

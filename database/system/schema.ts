@@ -1444,7 +1444,7 @@ export interface ResourceCollectionItemsTable {
 }
 
 // Khung biểu báo cáo cấu hình được, EMIS Tiểu học (DT-20 phần 20f, YCTD-165)
-export type ReportFormPeriod = 'start_of_year' | 'end_of_year';
+export type ReportFormPeriod = 'start_of_year' | 'mid_year' | 'end_of_year';
 export type ReportFormRowKind = 'heading' | 'formula' | 'manual';
 
 export interface ReportFormsTable {

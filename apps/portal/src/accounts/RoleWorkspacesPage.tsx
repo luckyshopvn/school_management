@@ -1,10 +1,11 @@
 import { useCallback, useState } from 'react';
 import { useSearch } from '@tanstack/react-router';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { PERMISSION_CODES, PORTAL_WORKSPACES } from '@school-management/shared';
+import { PERMISSION_CODES, PORTAL_WORKSPACES, type PortalWorkspace } from '@school-management/shared';
 import { Alert, Button, StatusBadge, Toast } from '@school-management/ui';
 import { AppShell } from '../pages/AppShell.js';
 import { menuPageTitle } from '../pages/page-title.js';
+import { useEnabledLevelWorkspaces } from '../school-levels/working-level.js';
 import { ApiError } from '../session/api-client.js';
 import { useHasPermission } from '../session/permissions.js';
 import { listRoles, replaceRoleWorkspaces, type Role } from './accounts-api.js';
@@ -18,6 +19,12 @@ function messageOf(error: unknown): string {
 
 function WorkspaceChoices({ role, editable, onSaved }: { role: Role; editable: boolean; onSaved(role: Role): void }) {
   const [selected, setSelected] = useState(() => new Set(role.workspaces));
+  // Tên phân hệ theo cấp trường đã bật (YCTD-388): trường liên cấp thấy "Quản lý giáo dục", không thấy tên dự phòng Mầm non
+  const levelWorkspaces = useEnabledLevelWorkspaces();
+  const labelOf = (workspace: PortalWorkspace) =>
+    levelWorkspaces.find((candidate) => candidate.key === workspace.key)?.label ??
+    workspace.levelTitle ??
+    workspace.label;
   const save = useMutation({
     mutationFn: () =>
       replaceRoleWorkspaces(
@@ -64,7 +71,7 @@ function WorkspaceChoices({ role, editable, onSaved }: { role: Role; editable: b
               disabled={!editable}
               onChange={(event) => toggle(workspace.key, event.target.checked)}
             />
-            {workspace.label}
+            {labelOf(workspace)}
           </label>
         ))}
       </fieldset>
