@@ -86,6 +86,64 @@ Cổng vận hành nền tảng (`apps/platform`, thiết kế Eric duyệt ngà
 | VH-18 | Nguy hiểm | chữ, nút phá hủy T-03 #B91C1C (chữ trắng trên nền này 6,5:1); nền nhạt #FDECEC (chữ T-03 trên nền này 5,67:1) | Nút phá hủy, nhãn quá hạn, dải lỗi, lỗi tại ô |
 | VH-19 | Lớp phủ hộp thoại | C-01 mờ 45% (rgb(15 23 42 / 45%)) | Nền sau hộp thoại |
 
+### 2.6 Hai phong cách dùng chung (YCTD-384, Eric duyệt ngày 2026-10-30)
+
+Eric chọn ngày 2026-10-30: cổng quản trị trường và cổng vận hành theo phong cách "Hành chính hiện đại"; ứng dụng giáo viên, phụ huynh, học sinh theo phong cách "Thân thiện theo vai" (một nền chung, mỗi vai một màu nhấn). Hai phong cách dùng chung phông, thang chữ, khoảng cách, vùng chạm, màu trạng thái (VH-14 đến VH-18), màu tài chính (mục 2.4) và mọi thành phần ở mục 5. Giá trị đặt một lần ở `packages/ui/src/theme.css`; ứng dụng chỉ chọn phong cách và vai, không ghi đè màu riêng. Khi các lát của YCTD-384 xong, PC-01 đến PC-28 thay M-01, M-02, M-05, N-01 đến N-03, C-01 đến C-03, V-01, V-02 và VH-01 đến VH-13 trong mã giao diện; các mã cũ giữ trong tài liệu để tra cứu. Bản mẫu: `tai_lieu/ban_mau/yctd-384/index.html`.
+
+Phong cách Hành chính hiện đại (lớp `.pc-hanh-chinh`):
+
+| Mã | Tên | Giá trị | Dùng cho |
+|---|---|---|---|
+| PC-01 | Nền trang | #F4F6F9 | Nền vùng nội dung (bằng VH-08) |
+| PC-02 | Nền thẻ | #FFFFFF | Thẻ, bảng, biểu mẫu, thanh đầu trang trên máy tính |
+| PC-03 | Chữ | #17202A | Chữ chính (15,2:1 trên PC-01) |
+| PC-04 | Chữ phụ | #5D6875 | Nhãn phụ, mô tả, tiêu đề cột (5,24:1 trên PC-01) |
+| PC-05 | Viền thẻ | #DDE2E8 | Viền thẻ, hộp thoại |
+| PC-06 | Kẻ dòng | #EEF1F4 | Kẻ dòng bảng, phân ô số liệu |
+| PC-07 | Viền ô nhập | #7D8896 | Viền ô nhập, ô chọn, nút phụ; đạt 3:1 với nền theo WCAG 1.4.11 (thay #CDD5DF chỉ đạt 1,48:1) |
+| PC-08 | Nhấn | #1F4E8C | Nút chính (chữ trắng 8,31:1), mục menu đang chọn, viền tiêu điểm, nút lọc đang chọn; thống nhất cổng vận hành (trước là #055A9A) và cổng quản trị |
+| PC-09 | Nhấn đậm | #163A69 | Nút chính khi trỏ vào, chữ trên nền nhạt nhấn |
+| PC-10 | Nền nhạt nhấn | #E8EEF7 | Nút lọc đang chọn, ô ảnh đại diện, dải thông tin (bằng VH-15) |
+| PC-11 | Nền thanh bên | #12304F | Thanh bên; thanh đầu trang trên điện thoại (bằng VH-01) |
+| PC-12 | Chữ thanh bên | #DBE6F3 | Mục menu (10,65:1) |
+| PC-13 | Chữ phụ thanh bên | #A9BCD2 | Số thứ bậc, nhãn nhóm, chữ phụ (6,92:1) |
+| PC-14 | Đường kẻ thanh bên | #2A4A6E | Viền nút Phân hệ, đường phân cách |
+
+Phong cách Thân thiện theo vai (lớp `.pc-theo-vai` kèm một lớp vai):
+
+| Mã | Tên | Giá trị | Dùng cho |
+|---|---|---|---|
+| PC-15 | Nền trang | #FBF8F3 | Nền vùng nội dung |
+| PC-16 | Chữ | #1F2A24 | Chữ chính (14,01:1 trên PC-15) |
+| PC-17 | Chữ phụ | #5C6660 | Mô tả, thời gian (5,62:1 trên PC-15) |
+| PC-18 | Viền thẻ | #E7E1D8 | Viền thẻ, thanh dưới |
+| PC-19 | Kẻ dòng | #F1ECE4 | Kẻ dòng danh sách |
+| PC-20 | Viền ô nhập | #8A8174 | Viền ô nhập, nút phụ (3,62:1 trên PC-15) |
+| PC-21 | Giáo viên | nhấn #0F6B5F, nhấn đậm #0B564C, nền nhạt #E1F1EC | Lớp `.vai-giao-vien`; chữ trắng trên nhấn 6,39:1; nhấn đậm trên nền nhạt 7,35:1 |
+| PC-22 | Phụ huynh | nhấn #1F5FA8, nhấn đậm #184C87, nền nhạt #E6EEF9 | Lớp `.vai-phu-huynh`; 6,44:1; 7,41:1 |
+| PC-23 | Học sinh | nhấn #6D28D9, nhấn đậm #5B21B6, nền nhạt #EFE7FD | Lớp `.vai-hoc-sinh`; 7,10:1; 7,49:1 |
+| PC-24 | (bỏ) | — | Dự kiến cho chợ gia sư; bỏ ngày 2026-10-30 vì chợ gia sư tách sang kho riêng. Mã không dùng lại |
+
+Dùng chung hai phong cách:
+
+| Mã | Tên | Giá trị | Dùng cho |
+|---|---|---|---|
+| PC-25 | Thành công | nền #E3F4EA, chữ #1D6B43 | Nhãn, dải thành công (bằng VH-14; 5,68:1) |
+| PC-26 | Cảnh báo | nền #FDF0D8, chữ #7A4600 | Nhãn, dải cảnh báo (bằng VH-16; 6,89:1) |
+| PC-27 | Nguy hiểm | nền #FDECEC, chữ và nút phá hủy #B91C1C | Bằng VH-18 (5,66:1 trên nền nhạt) |
+| PC-28 | Trung tính | nền #EEF1F4, chữ #4A5562 | Đã hủy, bảo lưu, đã kết thúc (bằng VH-17) |
+
+### 2.7 Sẵn sàng cho ứng dụng Android, iOS (YCTD-384, Eric duyệt ngày 2026-10-30)
+
+| Mã | Quy tắc |
+|---|---|
+| GT-01 | Nguồn biến duy nhất `packages/ui/tokens.json` (màu, chữ, khoảng cách, bo góc, bóng, thời lượng chuyển động) sinh `theme.css`; tên biến theo nghĩa (nhấn, nền, chữ phụ), không theo màu; về sau sinh được chủ đề cho ứng dụng gốc |
+| GT-02 | Cỡ chữ khai báo theo `rem` để theo cỡ chữ của hệ thống, trình duyệt; bố cục chịu được cỡ chữ 200% |
+| GT-03 | Vùng an toàn: trang đặt `viewport-fit=cover`; thanh đầu, thanh dưới, thanh thao tác, ngăn dưới cộng `env(safe-area-inset-*)` |
+| GT-04 | Điều hướng: thanh dưới tối đa 5 mục; màn con có nút quay lại ở đầu trang; vuốt mép trái (iOS) và nút quay lại (Android) đóng ngăn, hộp thoại trước rồi mới về màn trước |
+| GT-05 | Cử chỉ chỉ là cách thêm: kéo xuống tải lại danh sách, nhấn giữ để chọn nhiều; mọi việc làm được bằng nút |
+| GT-06 | Chế độ tối: phiên bản 1.0 chưa có (Q-85); mỗi biến PC-* có giá trị tối định nghĩa sẵn trong `tokens.json`, chưa bật (Eric quyết ngày 2026-10-30, Q-384-2) |
+
 ## 3. Chữ
 
 | Mã | Cấp | Cỡ chữ | Độ đậm | Dùng cho |
@@ -98,7 +156,7 @@ Cổng vận hành nền tảng (`apps/platform`, thiết kế Eric duyệt ngà
 | CH-06 | Ghi chú | 14 điểm ảnh | 400 | Chú thích, dấu thời gian; dùng màu C-02 để phân biệt với nội dung |
 | CH-07 | Số liệu lớn | 28 điểm ảnh | 700 | Chỉ số trên bảng điều khiển |
 
-Phông chữ dùng phông hệ thống có hỗ trợ đầy đủ dấu tiếng Việt. Không dùng quá nhiều cấp cỡ chữ trong cùng một khối. Không có chữ nào nhỏ hơn 14 điểm ảnh, kể cả cổng vận hành từ YCTD-370; giao diện cho phóng to theo trình duyệt (Q-89).
+Phông chữ dùng phông hệ thống có hỗ trợ đầy đủ dấu tiếng Việt. Từ YCTD-384 (Eric duyệt ngày 2026-10-30): mọi ứng dụng dùng Be Vietnam Pro (độ đậm 400, 500, 600, 700) đóng gói cùng ứng dụng qua `@fontsource`, không tải từ máy chủ ngoài, phông hệ thống làm phông dự phòng; như cổng quản trị đang dùng. Chữ trong ô nhập 16 điểm ảnh ở mọi khổ màn hình (trước chỉ áp dưới 1280 điểm ảnh ở cổng quản trị). Số thứ bậc trên menu và tiêu đề trang cổng quản trị giữ như hiện nay (quyết định của Eric ngày 2026-10-30). Không dùng quá nhiều cấp cỡ chữ trong cùng một khối. Không có chữ nào nhỏ hơn 14 điểm ảnh, kể cả cổng vận hành từ YCTD-370; giao diện cho phóng to theo trình duyệt (Q-89).
 
 ## 4. Khoảng cách và bố cục
 
@@ -111,6 +169,9 @@ Phông chữ dùng phông hệ thống có hỗ trợ đầy đủ dấu tiếng
 | KC-05 | Đệm trong thẻ | 16 điểm ảnh |
 | KC-06 | Bán kính góc | 8 điểm ảnh cho thành phần nhỏ, 12 điểm ảnh cho thẻ |
 | KC-07 | Chiều rộng vùng nội dung tối đa | 1440 điểm ảnh |
+| KC-09 | Điểm ngắt (YCTD-384, Eric duyệt ngày 2026-10-30) | Điện thoại dưới 768 điểm ảnh; máy tính bảng 768 đến 1279; máy tính từ 1280. Phong cách hành chính: máy tính có thanh bên 256 điểm ảnh; máy tính bảng thu thanh bên thành dải biểu tượng 72 điểm ảnh (có nhãn khi trỏ vào, bấm mở ngăn đủ chữ); điện thoại ẩn thanh bên, thanh đầu xanh đậm có nút "Menu chức năng" mở ngăn. Phong cách theo vai: dưới 1024 điểm ảnh có thanh dưới 4 đến 5 mục; từ 1024 thanh dưới thành thanh bên trắng 240 điểm ảnh. Bảng dữ liệu dưới 768 điểm ảnh chuyển thành danh sách thẻ hoặc bọc cuộn ngang |
+| KC-10 | Vùng chạm (YCTD-384, Eric duyệt ngày 2026-10-30) | Mọi nút, ô nhập, mục menu, mục thanh dưới cao tối thiểu 44 điểm ảnh ở mọi khổ màn hình (trước chỉ áp dưới 1280 ở cổng quản trị) |
+| KC-11 | Bo góc theo phong cách (YCTD-384, Eric duyệt ngày 2026-10-30) | Hành chính: 8 điểm ảnh cho nút, ô nhập; 12 cho thẻ; không đổ bóng. Theo vai: 12 cho ô nhập; 16 cho thẻ, ô lối tắt; nút dạng viên; bóng mờ 0 2px 6px rgb(60 45 20 / 5%). Nhãn trạng thái bo tròn ở cả hai phong cách |
 | KC-08 | Thanh menu ngang của cổng quản trị | Một dòng dưới thanh đầu trang, mục cấp một mở menu sổ xuống, cấp sâu hơn bật sang bên phải; dưới 768 điểm ảnh thay bằng cây menu gập mở từ nút "☰". Thay thanh điều hướng bên rộng 240 điểm ảnh, ẩn hiện được, nhóm thu gọn được của YCTD-99 (YCTD-107) |
 
 ## 5. Thành phần dùng chung
@@ -151,6 +212,26 @@ Lớp ở `apps/platform/src/cong-van-hanh.css`, thành phần React ở `apps/p
 | VH-TP-06 | Nút gửi | Đang gửi thì khóa nút, đổi chữ "Đang …", không gửi lặp khi bấm nhiều lần |
 | VH-TP-07 | Thanh so với hạn mức | Chữ "đã dùng / hạn mức (phần trăm)" trên thanh cao 8 điểm ảnh, nền VH-17; dưới 80% màu VH-06, từ 80% chữ cảnh báo VH-16, từ 100% T-03; vai trò `meter` (YCTD-374) |
 
+### 5.2 Thành phần dùng chung thêm ở YCTD-384 (Eric duyệt ngày 2026-10-30)
+
+Đặt ở `packages/ui`, dùng cho mọi ứng dụng. Thành phần riêng của cổng vận hành (mục 5.1) chuyển về `packages/ui` ở lát của cổng vận hành; hành vi giữ nguyên.
+
+| Mã | Thành phần | Quy tắc |
+|---|---|---|
+| TD-20 | Khung hành chính | Thanh bên PC-11 có tên đơn vị, nút Phân hệ, menu có số thứ bậc, "Tất cả chức năng"; thanh đầu trang trắng có ô tìm, nút ngữ cảnh năm học, Việc của tôi, chuông, ảnh đại diện mở menu người dùng; bố cục theo KC-09 |
+| TD-21 | Khung theo vai | Đầu trang màu nhấn bo đáy 20 điểm ảnh, lời chào, nút ngữ cảnh dạng viên (chọn lớp, chọn con, tuần), chuông; thanh dưới hoặc thanh bên theo KC-09; mục đang chọn có viên nền nhạt nhấn |
+| TD-22 | Ô lối tắt | Bốn ô một hàng: biểu tượng trong ô 52 điểm ảnh bo 16, nhãn 14 điểm ảnh; ô cuối luôn là "Tất cả" mở danh sách đủ chức năng. Thay hàng nút viên dài ở ứng dụng phụ huynh và cột nút ở ứng dụng giáo viên |
+| TD-23 | Danh sách thẻ thay bảng | Dưới 768 điểm ảnh mỗi dòng bảng thành một thẻ: ảnh đại diện hoặc chữ viết tắt, tên, một dòng phụ, nhãn trạng thái, mũi tên mở chi tiết; cả thẻ là vùng bấm. Bảng nhập theo ô giữ dạng bảng, bọc cuộn ngang có cột đầu cố định |
+| TD-24 | Dải thông báo một dòng | Thay khối thông báo cao ở đầu trang: biểu tượng, nội dung cắt một dòng, nút Xem mở đủ nội dung, nút Ẩn; đạt tương phản như PC-10 |
+| TD-25 | Thanh công cụ lưới gọn | Ô tìm, nút "Bộ lọc" kèm số điều kiện đang áp dụng (TD-10), nút phụ hay dùng, nút "Thêm" gom thao tác ít dùng; nút chính đặt cạnh tiêu đề trang. Khi chọn dòng hiện dải "Đã chọn N …" với thao tác hàng loạt. Điện thoại ẩn nút phụ vào "Thêm" |
+| TD-26 | Nhóm nút chọn một | Các nút liền nhau cao 44 điểm ảnh, `role="group"`, `aria-pressed`; nút đang chọn tô màu trạng thái tương ứng (ví dụ điểm danh Có, Phép, Vắng) |
+| TD-27 | Ngăn dưới | Điện thoại: thao tác ít dùng, bộ lọc, chọn giá trị mở từ đáy màn hình, có tay cầm, lớp phủ, vùng an toàn; vuốt xuống hoặc nút quay lại đóng. Máy tính bảng, máy tính dùng menu sổ xuống, hộp thoại |
+| TD-28 | Thanh thao tác hàng loạt ở đáy | Điện thoại: khi chọn từ một dòng, thanh dính đáy hiện số đã chọn, nút Bỏ chọn, thao tác chính, nút "Thao tác khác" mở TD-27; máy tính bảng, máy tính dùng dải "Đã chọn N …" trên lưới |
+| TD-29 | Bảng nhập theo ô | Máy tính, máy tính bảng: cột tên và hàng tiêu đề dính khi cuộn, ô nhập 44 điểm ảnh, bàn phím số cho điểm. Điện thoại: chế độ nhập theo từng dòng (mọi cột của một học sinh, nút trước, sau) và theo một cột cho cả danh sách; cùng dữ liệu, cùng điểm cuối |
+| TD-30 | Lịch tuần, ngày | Máy tính, máy tính bảng: lưới tuần, ô có cảnh báo tô màu kèm chữ. Điện thoại: hàng nút chọn ngày, các mục của ngày thành danh sách; xem tháng thành danh sách theo ngày; đổi ô bằng bấm rồi chọn ở TD-27 |
+| TD-31 | Mục lục biểu mẫu dài | Máy tính: cột mục lục trái dính; máy tính bảng, điện thoại: hàng nút cuộn ngang dính trên cùng; mục có lỗi gắn nhãn số lỗi; nút Ghi dính đáy |
+| TD-32 | Biểu đồ kèm số liệu | Mỗi biểu đồ có câu tóm tắt và bảng số liệu đọc được bằng trình đọc màn hình; nhãn trục từ 14 điểm ảnh; điện thoại thu gọn số cột, không cuộn ngang |
+
 ## 6. Biểu tượng và hình ảnh
 
 1. Biểu tượng dùng một bộ thống nhất, nét mảnh, kích thước mặc định hai mươi điểm ảnh.
@@ -164,7 +245,7 @@ Lớp ở `apps/platform/src/cong-van-hanh.css`, thành phần React ở `apps/p
 |---|---|
 | MC-01 | Màu nhận diện không dùng để thể hiện trạng thái hay giá trị tài chính |
 | MC-02 | Không truyền đạt thông tin chỉ bằng màu; luôn kèm chữ hoặc biểu tượng |
-| MC-03 | Nền tối chỉ dùng cho lớp phủ hộp thoại và thanh điều hướng trên điện thoại |
+| MC-03 | Nền tối chỉ dùng cho lớp phủ hộp thoại và thanh điều hướng trên điện thoại. Từ YCTD-384 (Eric duyệt ngày 2026-10-30): thêm thanh bên PC-11 của phong cách hành chính và đầu trang màu nhấn của phong cách theo vai |
 | MC-04 | Màu cảnh báo và nguy hiểm chỉ dùng cho việc cần chú ý thật, không dùng trang trí |
 | MC-05 | Trong cùng một màn hình tối đa ba màu trạng thái xuất hiện |
 | MC-06 | Chữ trên nền màu phải đạt tương phản ở nguyên tắc 5; không đặt chữ trắng trên nền M-01, M-03, M-04, T-02 |
