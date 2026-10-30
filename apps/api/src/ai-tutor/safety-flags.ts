@@ -13,7 +13,10 @@ import { isUuid, notFoundError } from '../common/request-fields.js';
 // - người nhận là giáo viên chủ nhiệm đang được phân công của lớp hiện tại của em; lớp chưa có giáo viên chủ nhiệm (hoặc em chưa xếp lớp)
 //   thì báo Hiệu trưởng (VT-02) và Phó Hiệu trưởng (VT-15) của đơn vị: hai vai trò sẵn có có quyền quản lý hồ sơ học sinh và chịu
 //   trách nhiệm chung về học sinh của trường, không dùng vai trò tuyển sinh hay kế toán;
-// - thông báo chỉ có tên em, lớp và lời nhắc mở danh sách cờ, không có loại dấu hiệu hay câu em gửi (thông báo đẩy vốn chỉ có câu chung);
+// - thông báo cho giáo viên chỉ có tên em, lớp và lời nhắc mở danh sách cờ, không có loại dấu hiệu hay câu em gửi (thông báo đẩy vốn chỉ
+//   có câu chung);
+// - cha mẹ, người giám hộ có tài khoản liên kết với em nhận thông báo riêng CÙNG LÚC (Eric quyết ngày 2026-10-30, đổi so với lát L2): loại
+//   dấu hiệu, thời điểm, lời khuyên liên hệ giáo viên chủ nhiệm hoặc Tổng đài 111; không có câu em gửi, không có hội thoại;
 // - danh sách cờ chỉ có học sinh, lớp, loại dấu hiệu, thời điểm và đoạn trích ngắn của chính câu em gửi; không có toàn bộ hội thoại;
 // - quyền xem tính lúc xem: giáo viên chủ nhiệm thấy cờ của em đang học lớp mình chủ nhiệm; Ban Giám hiệu thấy cờ của em ở lớp chưa có giáo
 //   viên chủ nhiệm trong phạm vi đơn vị được gán; cha mẹ, giáo viên bộ môn, giáo viên chủ nhiệm lớp khác không thấy;
@@ -28,6 +31,17 @@ const NO_ACTOR = '00000000-0000-0000-0000-000000000000';
 const SYSTEM_ORIGIN: ChangeOrigin = { actorUserId: NO_ACTOR, actorName: 'Gia sư AI (tự động)', ipAddress: null };
 
 export const SAFETY_FLAG_LABELS = { self_harm: 'Dấu hiệu tự hại', bullying: 'Dấu hiệu bị bắt nạt' } as const;
+const GUARDIAN_KIND_TEXT = { self_harm: 'có dấu hiệu tự hại', bullying: 'có dấu hiệu bị bắt nạt' } as const;
+const VIETNAM_MOMENT = new Intl.DateTimeFormat('vi-VN', {
+  dateStyle: 'short',
+  timeStyle: 'short',
+  timeZone: 'Asia/Ho_Chi_Minh',
+});
+
+// Nội dung thông báo cho cha mẹ: loại dấu hiệu, thời điểm, lời khuyên; không có câu em gửi
+export function guardianNotificationBody(childName: string, kind: keyof typeof GUARDIAN_KIND_TEXT, at: Date): string {
+  return `Lúc ${VIETNAM_MOMENT.format(at)}, một câu ${childName} gửi Gia sư AI ${GUARDIAN_KIND_TEXT[kind]}. Cha mẹ hãy nhẹ nhàng trò chuyện với con và liên hệ giáo viên chủ nhiệm. Khi cần hỗ trợ, gọi miễn phí Tổng đài quốc gia bảo vệ trẻ em 111 (24 giờ mỗi ngày).`;
+}
 
 export function excerptOf(body: string): string {
   const text = body.replace(/\s+/g, ' ').trim();
@@ -95,6 +109,18 @@ export class AiTutorSafetyFlagService {
     return result;
   }
 
+  // Tài khoản cha mẹ, người giám hộ có liên kết với em
+  private async guardianUserIds(database: YearDatabase, childId: string): Promise<string[]> {
+    const rows = await database
+      .selectFrom('child_guardians')
+      .innerJoin('guardians', 'guardians.id', 'child_guardians.guardian_id')
+      .select('guardians.user_id')
+      .where('child_guardians.child_id', '=', childId)
+      .where('guardians.user_id', 'is not', null)
+      .execute();
+    return [...new Set(rows.flatMap((row) => (row.user_id ? [row.user_id] : [])))];
+  }
+
   private async rootUnitId(database: YearDatabase): Promise<string | null> {
     const root = await database
       .selectFrom('org_units')
@@ -155,6 +181,16 @@ export class AiTutorSafetyFlagService {
           targetId: flag.id,
           recipients,
         });
+        const guardians = await this.guardianUserIds(year, flag.child_id);
+        await queueNotification(year, {
+          orgUnitId: unit,
+          templateCode: 'ai_tutor_safety_flag_guardian',
+          title: 'Gia sư AI: con cần cha mẹ quan tâm',
+          body: guardianNotificationBody(placement?.childName ?? 'con', flag.kind, flag.created_at),
+          targetType: 'ai_tutor_safety_flags',
+          targetId: flag.id,
+          recipients: guardians.map((userId) => ({ userId, channel: 'in_app' as const })),
+        });
         await writeAuditLog(year, {
           origin: SYSTEM_ORIGIN,
           orgUnitId: unit,
@@ -168,6 +204,7 @@ export class AiTutorSafetyFlagService {
             kind: flag.kind,
             notified_to: homeroom.length > 0 ? 'homeroom' : 'leadership',
             recipient_count: recipients.length,
+            guardian_count: guardians.length,
           },
         });
         notified += 1;

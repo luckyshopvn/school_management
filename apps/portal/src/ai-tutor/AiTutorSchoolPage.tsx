@@ -28,6 +28,8 @@ interface Plan {
 
 interface Overview {
   settings: { enabled_levels: Level[]; quiet_start: string; quiet_end: string };
+  // Lý do chưa bán được gói của trường (gói dịch vụ chưa đặt đơn giá AI, YCTD-383 lát L3); máy chủ cũ không trả thì coi như bán được
+  sales_block_reason?: string | null;
   plans: Plan[];
 }
 
@@ -174,7 +176,7 @@ function SettingsForm({ overview, notify }: { overview: Overview; notify(message
         Khung giờ khóa theo giờ Việt Nam; giờ khóa lớn hơn giờ mở lại là khung qua nửa đêm (mặc định 22:00 đến 6:00).
         Khóa khi làm bài kiểm tra: luôn bật. Bài tập giáo viên đánh dấu Không dùng AI: khóa đến khi em nộp bài hoặc bài
         đóng. Lưu lịch sử trò chuyện: 12 tháng. Câu có dấu hiệu tự hại, bị bắt nạt: báo giáo viên chủ nhiệm; lớp chưa có
-        giáo viên chủ nhiệm thì báo Ban Giám hiệu.
+        giáo viên chủ nhiệm thì báo Ban Giám hiệu; cha mẹ cũng nhận thông báo (không có câu em gửi).
       </p>
       <div>
         <Button type="submit" variant="primary" disabled={save.isPending}>
@@ -422,6 +424,12 @@ export function AiTutorSchoolPage() {
         <h1 className="text-page-title font-bold text-text">{menuPageTitle('/ai-tutor')}</h1>
         {overview.error ? <Alert tone="danger">{messageOf(overview.error)}</Alert> : null}
         {toggle.error ? <Alert tone="danger">{messageOf(toggle.error)}</Alert> : null}
+        {overview.data?.sales_block_reason ? (
+          <Alert tone="warning">
+            <strong>Chưa bán được gói của trường.</strong> {overview.data.sales_block_reason} Học sinh đã mua trước đó
+            vẫn dùng bình thường.
+          </Alert>
+        ) : null}
         {overview.data ? (
           <SettingsForm
             key={JSON.stringify(overview.data.settings)}

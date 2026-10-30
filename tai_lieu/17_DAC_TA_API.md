@@ -2611,13 +2611,13 @@ Quản trị dùng quyền `P01.integration.manage`; điểm cuối của phụ 
 
 | Phương thức | Đường dẫn | Mô tả |
 |---|---|---|
-| GET | /api/v1/ai-tutor/school | Cài đặt `{ enabled_levels, quiet_start, quiet_end }` và gói kèm `active_count` |
-| PUT | /api/v1/ai-tutor/school/settings | Lưu `{ enabled_levels: ('TH' \| 'THCS' \| 'THPT')[], quiet_start: 'HH:MM', quiet_end: 'HH:MM' }` |
+| GET | /api/v1/ai-tutor/school | Cài đặt `{ enabled_levels, quiet_start, quiet_end }`, `sales_block_reason` (lý do chưa bán được gói của trường khi gói dịch vụ chưa gán hoặc chưa đặt đơn giá AI, YCTD-383 lát L3; bán được thì `null`) và gói kèm `active_count` |
+| PUT | /api/v1/ai-tutor/school/settings | Lưu `{ enabled_levels: ('TH' \| 'THCS' \| 'THPT')[], quiet_start: 'HH:MM', quiet_end: 'HH:MM' }`; bật cấp học khi gói dịch vụ chưa đặt đơn giá AI thì 422 `BR-475` (tắt hết cấp học vẫn lưu được) |
 | POST | /api/v1/ai-tutor/school/plans | Tạo gói `{ kind: monthly \| top_up, name, price, turns, allow_images, school_levels, status? }` |
 | PUT | /api/v1/ai-tutor/school/plans/{id} | Sửa gói, ngừng bán (`status: archived`) hoặc bán lại; không đổi `kind` |
 | GET | /api/v1/ai-tutor/school/purchases?month=YYYY-MM | Lần mua và lần nâng gói của trường, có tên học sinh, `invoiced` |
 | GET | /api/v1/children/{id}/ai-tutor | Phụ huynh: `enabled`, `current_month`, `next_month`, gói đang bán cho cấp của con, `balance { monthly, top_up }`, lần mua 12 tháng (cả hai nguồn) kèm `can_cancel`, `cancel_note`, lần nâng |
-| POST | /api/v1/children/{id}/ai-tutor/purchases | Mua `{ plan_id, period_month (gói tháng, YYYY-MM-01), consent: true }`; kích hoạt ngay; trả lại trang của con |
+| POST | /api/v1/children/{id}/ai-tutor/purchases | Mua `{ plan_id, period_month (gói tháng, YYYY-MM-01), consent: true }`; kích hoạt ngay; trả lại trang của con. Gói dịch vụ của trường chưa đặt đơn giá AI thì 422 `BR-475` (cả khi nâng gói); trang của con trả `enabled: false` |
 | POST | /api/v1/children/{id}/ai-tutor/purchases/{subscriptionId}/cancel | Hủy khi chưa lên hóa đơn học phí và con chưa dùng lượt |
 | GET | /api/v1/children/{id}/ai-tutor/purchases/{subscriptionId}/upgrade-quote?plan_id= | Báo giá nâng gói `{ remaining_days, days_in_month, price_difference, extra_turns }` |
 | POST | /api/v1/children/{id}/ai-tutor/purchases/{subscriptionId}/upgrade | Nâng gói `{ plan_id }`; áp ngay, phần chênh lệch vào hóa đơn học phí kỳ tới |
@@ -2626,7 +2626,7 @@ Quản trị dùng quyền `P01.integration.manage`; điểm cuối của phụ 
 
 Chỉ có ở nền tảng nhiều trường và chỉ dùng khóa AI của nền tảng (Q8). Nhóm `/student/ai-tutor`: chỉ mã phiên kênh student, quyền `P02.learning.study`, chỉ hội thoại của chính em (hội thoại của em khác trả 404). Phiên xem hỗ trợ của quản trị nền tảng chỉ đọc: không gửi câu hỏi, không thấy hội thoại. Lỗi quy tắc 422 mã `BR-466` (hết lượt, nhà cung cấp lỗi, khóa), `BR-467` (chưa đủ hai lượt tự làm để xem lời giải), `BR-468` (câu có dữ liệu cá nhân). Mỗi câu hỏi tạm giữ một lượt trước khi gọi nhà cung cấp, trừ khi nhà cung cấp trả lời, hoàn khi lỗi, khi có dữ liệu cá nhân, khi bị kiểm duyệt hoặc ngoài học tập. Câu có dấu hiệu tự hại hoặc bị bắt nạt nhận câu trả lời theo mẫu có số 111, không gửi nhà cung cấp, ghi cờ ở `ai_tutor_safety_flags`.
 
-Lát L3: gửi câu hỏi khi đang bị khóa trả 422 mã `BR-466`, `details` có `{ field: 'lock', message: <code> }`, không giữ lượt, không trừ lượt. Thứ tự khóa: `read_only`, `exam` (BR-471), `assignment` (BR-472), `quiet_hours` (BR-473). Cờ cảnh báo báo giáo viên chủ nhiệm (BR-474) qua thông báo trong ứng dụng; nhóm `/ai-tutor/safety-flags` dùng mã phiên của nhân viên (kênh student 403), không gắn quyền riêng: máy chủ chỉ trả cờ của em đang học lớp người xem chủ nhiệm, hoặc của lớp chưa có giáo viên chủ nhiệm khi người xem có vai trò VT-02, VT-15 (toàn trường hoặc đơn vị được gán); người khác nhận danh sách trống, đánh dấu cờ không được xem trả 404.
+Lát L3: gửi câu hỏi khi đang bị khóa trả 422 mã `BR-466`, `details` có `{ field: 'lock', message: <code> }`, không giữ lượt, không trừ lượt. Thứ tự khóa: `read_only`, `exam` (BR-471), `assignment` (BR-472), `quiet_hours` (BR-473). Cờ cảnh báo báo giáo viên chủ nhiệm và cha mẹ có tài khoản liên kết với em cùng lúc (BR-474) qua thông báo trong ứng dụng (hai thông báo riêng: `ai_tutor_safety_flag` cho giáo viên, `ai_tutor_safety_flag_guardian` cho cha mẹ); nhóm `/ai-tutor/safety-flags` dùng mã phiên của nhân viên (kênh student 403), không gắn quyền riêng: máy chủ chỉ trả cờ của em đang học lớp người xem chủ nhiệm, hoặc của lớp chưa có giáo viên chủ nhiệm khi người xem có vai trò VT-02, VT-15 (toàn trường hoặc đơn vị được gán); người khác nhận danh sách trống, đánh dấu cờ không được xem trả 404.
 
 | Phương thức | Đường dẫn | Mô tả |
 |---|---|---|

@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import { randomUUID } from 'node:crypto';
 import { after, afterEach, before, describe, it } from 'node:test';
 import {
+  savePlanAiPricing,
   savePlatformAiKey,
   savePlatformAiSettings,
   type IdentityDatabase,
@@ -35,7 +36,7 @@ describe('Gia sư AI: khóa theo phòng thi, bài tập, khung giờ; báo giáo
   const tokens = { a: '', b: '', c: '', homeroomA: '', homeroomB: '', subjectTeacher: '', parent: '' };
   const children = { a: '', b: '', c: '' };
   const classes = { a: '', b: '', c: '' };
-  const users = { homeroomA: '', subjectTeacher: '' };
+  const users = { homeroomA: '', subjectTeacher: '', parent: '' };
   let subscriptionA = '';
   let subjectId = '';
   // Giờ Việt Nam của ngày mai: sau lúc kích hoạt gói lượt (gói lượt có hiệu lực từ lúc kích hoạt)
@@ -139,6 +140,7 @@ describe('Gia sư AI: khóa theo phòng thi, bài tập, khung giờ; báo giáo
     const parentUser = await createTestUser(identity, { roles: [{ roleCode: 'VT-14', orgUnitId: unitId }] });
     users.homeroomA = homeroomA.id;
     users.subjectTeacher = subjectTeacher.id;
+    users.parent = parentUser.id;
     const guardian = await schoolYear
       .insertInto('guardians')
       .values({ full_name: 'Trần Thị Mẹ Thử', phone: '0900000386', user_id: parentUser.id })
@@ -320,7 +322,7 @@ describe('Gia sư AI: khóa theo phòng thi, bài tập, khung giờ; báo giáo
 
   it('CT-1781: trường đổi khung giờ ở cổng quản trị thì khóa theo khung giờ mới', async () => {
     const saved = await environment.call('alpha', 'PUT', '/ai-tutor/school/settings', {
-      enabled_levels: ['THCS'],
+      enabled_levels: [],
       quiet_start: '21:00',
       quiet_end: '07:00',
     });
@@ -569,7 +571,7 @@ describe('Gia sư AI: khóa theo phòng thi, bài tập, khung giờ; báo giáo
     assert.equal(wrongPatch.status, 422, JSON.stringify(wrongPatch.body));
   });
 
-  it('CT-1785: cờ tự hại báo giáo viên chủ nhiệm lớp của em; lớp chưa có giáo viên chủ nhiệm thì báo Ban Giám hiệu; có nhật ký', async () => {
+  it('CT-1785: cờ tự hại báo giáo viên chủ nhiệm và cha mẹ cùng lúc; lớp chưa có giáo viên chủ nhiệm thì báo Ban Giám hiệu; có nhật ký', async () => {
     setTime('15:00');
     const harm = await ask(tokens.a, 'Em buồn quá, em muốn chết');
     assert.equal(harm.status, 201, JSON.stringify(harm.body));
@@ -589,14 +591,48 @@ describe('Gia sư AI: khóa theo phòng thi, bài tập, khung giờ; báo giáo
         'notification_recipients.role_code',
       ])
       .where('notifications.target_id', '=', flagA.id)
+      .where('notifications.template_code', '=', 'ai_tutor_safety_flag')
       .execute();
     assert.deepEqual(
       notificationA.map((row) => [row.user_id, row.role_code]),
       [[users.homeroomA, null]],
     );
-    // Thông báo không có loại dấu hiệu và câu em gửi
+    // Thông báo cho giáo viên không có loại dấu hiệu và câu em gửi
     assert.match(notificationA[0]?.body ?? '', /Nguyễn Văn An Thử lớp 8A/);
     assert.doesNotMatch(notificationA[0]?.body ?? '', /chết|tự hại/);
+    // Cha mẹ có tài khoản liên kết với em nhận cùng lúc: loại dấu hiệu, thời điểm, lời khuyên; không có câu em gửi
+    const guardianA = await schoolYear
+      .selectFrom('notifications')
+      .innerJoin('notification_recipients', 'notification_recipients.notification_id', 'notifications.id')
+      .select(['notifications.body', 'notification_recipients.user_id'])
+      .where('notifications.target_id', '=', flagA.id)
+      .where('notifications.template_code', '=', 'ai_tutor_safety_flag_guardian')
+      .execute();
+    assert.deepEqual(
+      guardianA.map((row) => row.user_id),
+      [users.parent],
+    );
+    assert.match(guardianA[0]?.body ?? '', /dấu hiệu tự hại/);
+    assert.match(guardianA[0]?.body ?? '', /giáo viên chủ nhiệm/);
+    assert.match(guardianA[0]?.body ?? '', /111/);
+    assert.doesNotMatch(guardianA[0]?.body ?? '', /chết|buồn quá/);
+    // Mỗi người chỉ thấy thông báo của mình trong trung tâm thông báo
+    const parentInbox = await environment.call('alpha', 'GET', '/notifications', undefined, tokens.parent);
+    assert.equal(parentInbox.status, 200, JSON.stringify(parentInbox.body));
+    const parentTitles = (parentInbox.body.notifications as Array<{ title: string }>).map((item) => item.title);
+    assert.ok(parentTitles.includes('Gia sư AI: con cần cha mẹ quan tâm'));
+    assert.ok(!parentTitles.includes('Gia sư AI: học sinh cần thầy cô quan tâm'));
+    const teacherInbox = await environment.call('alpha', 'GET', '/notifications', undefined, tokens.homeroomA);
+    const teacherTitles = (teacherInbox.body.notifications as Array<{ title: string }>).map((item) => item.title);
+    assert.ok(teacherTitles.includes('Gia sư AI: học sinh cần thầy cô quan tâm'));
+    assert.ok(!teacherTitles.includes('Gia sư AI: con cần cha mẹ quan tâm'));
+    const otherTeacherInbox = await environment.call('alpha', 'GET', '/notifications', undefined, tokens.homeroomB);
+    assert.equal(
+      (otherTeacherInbox.body.notifications as Array<{ title: string }>).filter((item) =>
+        item.title.startsWith('Gia sư AI'),
+      ).length,
+      0,
+    );
     const bullying = await ask(tokens.c, 'Em bị bắt nạt ở lớp, các bạn đánh em');
     assert.equal(bullying.status, 201, JSON.stringify(bullying.body));
     const flagC = await system
@@ -604,6 +640,7 @@ describe('Gia sư AI: khóa theo phòng thi, bài tập, khung giờ; báo giáo
       .selectAll()
       .where('child_id', '=', children.c)
       .executeTakeFirstOrThrow();
+    // Em 8C không có cha mẹ có tài khoản: chỉ có thông báo cho Ban Giám hiệu
     const notificationC = await schoolYear
       .selectFrom('notification_recipients')
       .innerJoin('notifications', 'notifications.id', 'notification_recipients.notification_id')
@@ -710,5 +747,106 @@ describe('Gia sư AI: khóa theo phòng thi, bài tập, khung giờ; báo giáo
     );
     assert.equal(topics.status, 200, JSON.stringify(topics.body));
     assert.doesNotMatch(JSON.stringify(topics.body), /flag|muốn chết/);
+  });
+
+  it('CT-1788: trường chưa đặt đơn giá AI ở gói dịch vụ thì không bật bán, phụ huynh không mua được gói trường bán; em đã mua vẫn dùng', async () => {
+    // Sau giờ đóng của bài tập ở CT-1783 và giờ mở của bài kiểm tra ở CT-1782
+    setTime('15:30');
+    const platform = environment.platform.platform;
+    const tenant = await environment.tenantOf('alpha');
+    const overview = async () => {
+      const reply = await environment.call('alpha', 'GET', '/ai-tutor/school');
+      assert.equal(reply.status, 200, JSON.stringify(reply.body));
+      return reply.body.sales_block_reason as string | null;
+    };
+    const enable = (levels: string[]) =>
+      environment.call('alpha', 'PUT', '/ai-tutor/school/settings', {
+        enabled_levels: levels,
+        quiet_start: '22:00',
+        quiet_end: '06:00',
+      });
+    // Chưa gán gói dịch vụ
+    assert.match(String(await overview()), /chưa được gán gói dịch vụ.*liên hệ nền tảng/);
+    const refused = await enable(['THCS']);
+    assert.equal(refused.status, 422, JSON.stringify(refused.body));
+    assert.equal((refused.body.error as { rule_code: string }).rule_code, 'BR-475');
+    // Tắt bán vẫn được
+    assert.equal((await enable([])).status, 200);
+    // Gán gói dịch vụ chưa có đơn giá AI
+    const rule = await platform
+      .insertInto('price_rules')
+      .values({
+        code: 'theo-truong-l3',
+        name: 'Theo trường',
+        components: JSON.stringify(['per_school']),
+        school_fee: 1_000_000,
+        period: 'monthly',
+        vat_percent: 0,
+        due_days: 10,
+      })
+      .returning('id')
+      .executeTakeFirstOrThrow();
+    const plan = await platform
+      .insertInto('plans')
+      .values({ code: 'goi-l3', name: 'Gói thử L3', price_rule_id: rule.id })
+      .returning('id')
+      .executeTakeFirstOrThrow();
+    await platform
+      .insertInto('school_plans')
+      .values({ school_id: tenant.schoolId, plan_id: plan.id, effective_from: '2026-01-01' })
+      .execute();
+    environment.apiRuntime.registry.invalidate();
+    assert.match(String(await overview()), /chưa đặt đơn giá AI/);
+    assert.equal((await enable(['THCS'])).status, 422);
+    // Cài đặt đã bật từ trước (dữ liệu cũ) và gói đang bán: phụ huynh không thấy gói, mua bị từ chối
+    await system
+      .insertInto('ai_tutor_school_settings')
+      .values({ id: 1, enabled_levels: ['THCS'] })
+      .onConflict((conflict) => conflict.column('id').doUpdateSet({ enabled_levels: ['THCS'] }))
+      .execute();
+    const created = await environment.call('alpha', 'POST', '/ai-tutor/school/plans', {
+      kind: 'top_up',
+      name: 'Gói 20 lượt L3',
+      price: 29_000,
+      turns: 20,
+      allow_images: false,
+      school_levels: ['THCS'],
+    });
+    assert.equal(created.status, 201, JSON.stringify(created.body));
+    const planId = created.body.id as string;
+    const view = await environment.call('alpha', 'GET', `/children/${children.a}/ai-tutor`, undefined, tokens.parent);
+    assert.equal(view.status, 200, JSON.stringify(view.body));
+    assert.equal(view.body.enabled, false);
+    assert.deepEqual(view.body.plans, []);
+    const purchase = await environment.call(
+      'alpha',
+      'POST',
+      `/children/${children.a}/ai-tutor/purchases`,
+      { plan_id: planId, consent: true },
+      tokens.parent,
+    );
+    assert.equal(purchase.status, 422, JSON.stringify(purchase.body));
+    assert.equal((purchase.body.error as { rule_code: string }).rule_code, 'BR-475');
+    // Em đã mua trước đó vẫn hỏi được
+    const reply = await ask(tokens.a, 'Số nguyên tố là gì?');
+    assert.equal(reply.status, 201, JSON.stringify(reply.body));
+    // Nền tảng đặt đơn giá AI: trường bật bán, phụ huynh mua được
+    await savePlanAiPricing(
+      platform,
+      plan.id,
+      { freeTokens: 0, inputPricePer1k: 10, outputPricePer1k: 20, modelPrices: {}, minimumFee: 0, roundingStep: 1 },
+      { type: 'operator', id: '00000000-0000-4000-8000-000000000003' },
+    );
+    assert.equal(await overview(), null);
+    assert.equal((await enable(['THCS'])).status, 200);
+    const allowed = await environment.call(
+      'alpha',
+      'POST',
+      `/children/${children.a}/ai-tutor/purchases`,
+      { plan_id: planId, consent: true },
+      tokens.parent,
+    );
+    assert.equal(allowed.status, 201, JSON.stringify(allowed.body));
+    await system.deleteFrom('ai_tutor_school_settings').execute();
   });
 });
