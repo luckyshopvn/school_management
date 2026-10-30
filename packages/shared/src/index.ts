@@ -345,7 +345,7 @@ export type ApprovalDocumentType = (typeof APPROVAL_DOCUMENT_TYPES)[number]['cod
 // Tên phân hệ theo mã, dùng làm tên nhóm chức năng trên ma trận quyền (03_DANH_SACH_CONG_VIEC.md mục 1)
 export const MODULE_NAMES: Record<string, string> = {
   P01: 'Nền tảng, đơn vị và phân quyền',
-  P02: 'Trẻ, phụ huynh và lớp học',
+  P02: '{Người học}, phụ huynh và lớp học',
   P03: 'Giảng dạy',
   P04: 'Điểm danh và chăm sóc hằng ngày',
   P05: 'Học phí, khoản thu và giảm trừ',
