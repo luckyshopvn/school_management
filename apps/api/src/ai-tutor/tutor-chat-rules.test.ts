@@ -104,8 +104,9 @@ describe('Gia sư AI: quy tắc trò chuyện', () => {
   });
 
   it('điểm kiểm tra khóa: phiên xem hỗ trợ chỉ đọc thì không dùng được', () => {
-    assert.deepEqual(aiTutorAccess({ readOnly: false }), { allowed: true });
-    const locked = aiTutorAccess({ readOnly: true });
+    const open = { readOnly: false, exam: null, blockedAssignment: null, quietStart: '22:00', quietEnd: '06:00' };
+    assert.deepEqual(aiTutorAccess({ ...open, now: new Date('2026-10-30T05:00:00Z') }), { allowed: true });
+    const locked = aiTutorAccess({ ...open, readOnly: true, now: new Date('2026-10-30T05:00:00Z') });
     assert.equal(locked.allowed, false);
   });
 });
