@@ -18,7 +18,7 @@ phien_ban_de_xuat: không
 #### Quyết định
 
 - Claude tự chọn theo ủy quyền của Eric ngày 2026-10-11: dùng mã YCTD thay CONG_VIEC và tệp mảnh thay nhánh `tai-lieu/...` theo AI-46, AI-47; giữ mã AC-1400 đến AC-1419, CT-2100 đến CT-2129.
-- Chờ Eric duyệt bản mẫu, danh sách lát L1 đến L5 và câu hỏi Q-395-1 đến Q-395-4.
+- Eric ngày 2026-10-31 duyệt bản mẫu lần 2, danh sách lát L1 đến L5 và phương án đề xuất A cho Q-395-1 đến Q-395-4: chỉ làm khổ máy tính, điện thoại giữ như hiện nay; khổ máy tính theo phong cách theo vai giáo viên; thanh bên có ô chọn lớp; sổ điểm dạng bảng nhập theo ô.
 
 #### Thay đổi
 
@@ -39,8 +39,8 @@ phien_ban_de_xuat: không
 - Dữ liệu, API, quyền bị ảnh hưởng: không.
 - Ảnh hưởng chức năng cũ: điện thoại và máy tính bảng dọc không đổi; mọi màn giữ nút Quay lại; ứng dụng phụ huynh, học sinh không đổi.
 - Kiểm thử cần thực hiện: lát L0 chỉ đổi tài liệu, chạy `node scripts/gom-thay-doi.mjs --kiem`; từ L1 e2e ứng dụng giáo viên ở 390 và 1366, kiểm thử đơn vị `packages/ui`, ảnh chụp trước, sau.
-- Mức: Lớn. Người phê duyệt: Eric (chờ duyệt bản mẫu, danh sách lát).
-- Trạng thái: Chờ phê duyệt
+- Mức: Lớn. Người phê duyệt: Eric, ngày 2026-10-31 (bản mẫu, danh sách lát, Q-395-1 đến Q-395-4).
+- Trạng thái: Đã phê duyệt
 
 ## Nối dòng
 

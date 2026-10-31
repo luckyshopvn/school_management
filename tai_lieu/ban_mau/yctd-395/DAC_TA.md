@@ -3,7 +3,7 @@
 - Mô tả: Đặc tả công việc thêm bố cục máy tính (từ 1024 điểm ảnh) cho ứng dụng giáo viên: thanh bên, nội dung rộng; điện thoại giữ như hiện nay. Danh sách lát, tiêu chí nghiệm thu dự kiến.
 - Ngày: 2026-10-31
 - Mức: **Lớn** (đổi bố cục toàn ứng dụng giáo viên, khoảng 36 màn hình; thêm thành phần dùng chung ở `packages/ui` cho ba ứng dụng). Không đổi dữ liệu, API, phân quyền.
-- Trạng thái: Chờ Eric duyệt bản mẫu, danh sách lát và các câu hỏi ở mục 8
+- Trạng thái: Đã phê duyệt (Eric duyệt bản mẫu lần 2, danh sách lát, phương án A cho Q-395-1 đến Q-395-4 ngày 2026-10-31)
 - Bản mẫu: `index.html` cùng thư mục (bốn màn hình, ba khổ 1366, 1024, 390, sáu trạng thái, hai phương án màu; lần 2 ngày 2026-10-31 làm lại theo phong cách theo vai sau khi Eric chê lần 1)
 
 Ký hiệu nguồn: **[Mã]** đọc từ mã nguồn; **[Tài liệu]** từ tài liệu đã duyệt; **[Đề xuất]** chưa có, cần Eric duyệt.
