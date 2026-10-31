@@ -347,8 +347,8 @@ describe('Bảo đảm chất lượng', () => {
     assert.equal(mine.length, 10);
   });
 
-  it('CT-22f-5: minh chứng: mã tự đánh theo hộp và tiêu chí, dùng chung nhiều tiêu chí, tải tệp lên chuyển "Đã đủ", nguồn văn bản phải có thật, chỉ nhóm của tiêu chí được thêm; xuất danh mục', async () => {
-    const base = { assessment_id: assessmentId, criterion_id: criteria['1.1'] };
+  it('CT-22f-5: minh chứng ở kho dùng chung (YCTD-396): mã tự đánh theo hộp và tiêu chí của bộ, dùng chung nhiều tiêu chí, phiên bản tải lên chuyển "Đã đủ", nguồn văn bản phải có thật; phiếu đọc minh chứng từ kho; xuất danh mục; xóa chỉ người quản lý kho, chặn khi tiêu chí đã có phiếu được duyệt', async () => {
+    const base = { framework_id: frameworkId, node_id: criteria['1.1'] };
     const first = await api('POST', '/quality/evidences', 'teacher', {
       ...base,
       title: 'Kế hoạch chiến lược giai đoạn thử',
@@ -356,52 +356,48 @@ describe('Bảo đảm chất lượng', () => {
       issued_date: addDays(vietnamToday, -300),
       issuer: 'Trường thử',
       status: 'missing',
-      criterion_ids: [criteria['1.8']],
+      shared_node_ids: [criteria['1.8']],
     });
     assert.equal(first.status, 201, JSON.stringify(first.body));
     assert.equal(first.body.code, 'H1-1.1-01');
+    assert.equal(first.body.display_code, '[H1-1.1-01]');
     evidences.first = first.body.id as string;
     const second = await api('POST', '/quality/evidences', 'teacher', { ...base, title: 'Nghị quyết thử' });
     assert.equal(second.body.code, 'H1-1.1-02');
     evidences.second = second.body.id as string;
     const boxed = await api('POST', '/quality/evidences', 'vice', {
-      assessment_id: assessmentId,
-      criterion_id: criteria['3.1'],
+      framework_id: frameworkId,
+      node_id: criteria['3.1'],
       box: 7,
       title: 'Hồ sơ đất thử',
     });
     assert.equal(boxed.body.code, 'H7-3.1-01');
-    // Giáo viên Một không thuộc nhóm tiêu chuẩn 3; Giáo viên Hai không thuộc đợt
-    assert.equal(
-      (await api('POST', '/quality/evidences', 'teacher', { ...base, criterion_id: criteria['3.1'], title: 'X' }))
-        .status,
-      403,
-    );
-    assert.equal((await api('POST', '/quality/evidences', 'teacher2', { ...base, title: 'X' })).status, 403);
-    const missingSource = await api('POST', '/quality/evidences', 'teacher', {
+    evidences.boxed = boxed.body.id as string;
+    assert.equal((await api('POST', '/quality/evidences', 'parent', { ...base, title: 'X' })).status, 403);
+    const missingSource = await api('POST', '/quality/evidences', 'principal', {
       ...base,
       title: 'Văn bản không có',
-      source_type: 'outgoing_document',
-      source_id: '00000000-0000-4000-8000-000000000001',
+      record_type: 'outgoing_document',
+      record_id: '00000000-0000-4000-8000-000000000001',
     });
     assert.equal(missingSource.status, 400);
-    const missingDocument = await api('POST', '/quality/evidences', 'teacher', {
+    const missingDocument = await api('POST', '/quality/evidences', 'principal', {
       ...base,
       title: 'Hồ sơ không có',
-      source_type: 'professional_document',
+      record_type: 'professional_document',
     });
     assert.equal(missingDocument.status, 400);
-    const uploaded = await upload(`/quality/evidences/${evidences.first}/file`, 'teacher', 'ke-hoach.pdf', PDF);
+    const uploaded = await upload(`/quality/evidences/${evidences.first}/versions`, 'teacher', 'ke-hoach.pdf', PDF);
     assert.equal(uploaded.status, 200, JSON.stringify(uploaded.body));
-    assert.equal(uploaded.body.status, 'sufficient');
-    assert.equal(uploaded.body.source_type, 'upload');
-    const bad = await upload(`/quality/evidences/${evidences.second}/file`, 'teacher', 'a.exe', Buffer.from('MZ'));
+    assert.equal(uploaded.body.version_no, 1);
+    assert.equal((await api('GET', `/quality/evidences/${evidences.first}`, 'teacher')).body.status, 'sufficient');
+    const bad = await upload(`/quality/evidences/${evidences.second}/versions`, 'teacher', 'a.exe', Buffer.from('MZ'));
     assert.equal(bad.status, 400);
     const file = await download(`/quality/evidences/${evidences.first}/file`, 'vice');
     assert.equal(file.status, 200);
     assert.equal(file.body.subarray(0, 4).toString(), '%PDF');
     const shared = (
-      await api('GET', `/quality/evidences?assessment_id=${assessmentId}&criterion_id=${criteria['1.8']}`, 'teacher')
+      await api('GET', `/quality/evidences?framework_id=${frameworkId}&node_id=${criteria['1.8']}`, 'teacher')
     ).body as unknown as Array<{ code: string }>;
     assert.deepEqual(
       shared.map((row) => row.code),
@@ -409,13 +405,19 @@ describe('Bảo đảm chất lượng', () => {
     );
     const report = await api('GET', `/quality/reports/${reports['1.8']}`, 'teacher');
     assert.equal((report.body.evidences as Array<{ shared: boolean }>)[0]?.shared, true);
-    const sufficient = (await api('GET', `/quality/evidences?assessment_id=${assessmentId}&status=sufficient`, 'vice'))
+    const sufficient = (await api('GET', `/quality/evidences?framework_id=${frameworkId}&status=sufficient`, 'vice'))
       .body as unknown as unknown[];
     assert.equal(sufficient.length, 1);
     const listFile = await download(`/quality/assessments/${assessmentId}/evidences/export?format=xlsx`, 'principal');
     assert.equal(listFile.status, 200);
     assert.equal(listFile.body.subarray(0, 2).toString(), 'PK');
-    assert.equal((await api('DELETE', `/quality/evidences/${evidences.second}`, 'teacher')).status, 204);
+    assert.equal((await api('DELETE', `/quality/evidences/${evidences.boxed}`, 'teacher')).status, 403);
+    // Phiếu tiêu chí 1.1 đã được duyệt ở CT-22f-4
+    assert.equal(
+      errorOf((await api('DELETE', `/quality/evidences/${evidences.second}`, 'principal')).body).rule_code,
+      'YCTD-396',
+    );
+    assert.equal((await api('DELETE', `/quality/evidences/${evidences.boxed}`, 'principal')).status, 204);
   });
 
   it('CT-22f-6: hoàn thành đợt khi mọi phiếu đã duyệt; kế hoạch cải tiến thành kế hoạch công việc một lần; báo cáo tự đánh giá Word, PDF', async () => {
@@ -501,7 +503,7 @@ describe('Bảo đảm chất lượng', () => {
     assert.equal(records[0]?.external_level_label, 'Mức 2');
   });
 
-  it('CT-22f-8: bước chuyển năm học chép bộ tiêu chuẩn giữ mã; kế thừa minh chứng năm trước giữ mã cũ, trạng thái "Cần cập nhật", không chép trùng', async () => {
+  it('CT-22f-8: bước chuyển năm học chép bộ tiêu chuẩn giữ mã; minh chứng của đợt năm trước chuyển sang kho một lần, giữ mã cũ và năm học', async () => {
     const previousName = `${environment.schoolYearDatabasePrefix}quality_previous`;
     await createMigratedTestDatabase(environment.systemDatabaseUrl, previousName, 'school-year');
     const previousUrl = replaceDatabaseName(environment.systemDatabaseUrl, previousName);
@@ -569,31 +571,19 @@ describe('Bảo đảm chất lượng', () => {
       })
       .execute();
     try {
-      // Đợt đã hoàn thành không kế thừa; mở lại rồi kế thừa
-      assert.equal(
-        errorOf((await api('POST', `/quality/assessments/${assessmentId}/inherit-evidences`, 'principal')).body)
-          .rule_code,
-        'YCTD-149',
-      );
-      await api('POST', `/quality/assessments/${assessmentId}/reopen`, 'principal');
-      assert.equal(
-        (await api('POST', `/quality/assessments/${assessmentId}/inherit-evidences`, 'teacher')).status,
-        403,
-      );
-      const inherited = await api('POST', `/quality/assessments/${assessmentId}/inherit-evidences`, 'principal');
-      assert.deepEqual(inherited.body, { year_name: 'Năm học trước thử', created: 2, skipped: 0 });
-      const again = await api('POST', `/quality/assessments/${assessmentId}/inherit-evidences`, 'principal');
-      assert.deepEqual(again.body, { year_name: 'Năm học trước thử', created: 0, skipped: 2 });
-      const rows = (
-        await api('GET', `/quality/evidences?assessment_id=${assessmentId}&status=needs_update`, 'principal')
-      ).body as unknown as Array<{ code: string; inherited_code: string; inherited_year_name: string }>;
-      assert.deepEqual(
-        rows.map((row) => [row.code, row.inherited_code, row.inherited_year_name]),
-        [
-          ['H1-1.2-01', 'H1-1.2-01', 'Năm học trước thử'],
-          ['H2-2.2-03', 'H2-2.2-03', 'Năm học trước thử'],
-        ],
-      );
+      // Kho chuyển minh chứng của năm học trước một lần, giữ mã cũ và năm học của minh chứng (YCTD-396 thay kế thừa)
+      for (const round of [1, 2]) {
+        const rows = (await api('GET', `/quality/evidences?framework_id=${frameworkId}`, 'principal'))
+          .body as unknown as Array<{ code: string; school_year_names: string[] }>;
+        const imported = rows.filter((row) => row.school_year_names.includes('Năm học trước thử'));
+        assert.deepEqual(imported.map((row) => row.code).sort(), ['H1-1.2-01', 'H2-2.2-03'], `lượt ${round}`);
+      }
+      const marker = await environment.system
+        .selectFrom('evidence_imports')
+        .select('evidence_count')
+        .where('school_year_database', '=', previousName)
+        .executeTakeFirstOrThrow();
+      assert.equal(marker.evidence_count, 2);
     } finally {
       await environment.system
         .deleteFrom('academic_year_databases')

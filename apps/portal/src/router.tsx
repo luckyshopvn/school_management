@@ -243,11 +243,11 @@ import {
 } from './emulation/EmulationPages.js';
 import {
   QualityAssessmentsPage,
-  QualityEvidencesPage,
   QualityFrameworksPage,
   QualityRecognitionPage,
   QualityReportsPage,
 } from './quality-assurance/QualityPages.js';
+import { QualityEvidencesPage } from './quality-assurance/EvidencePages.js';
 import { LibraryCirculationPage } from './library/LibraryCirculationPage.js';
 import { LibraryReadersPage } from './library/LibraryReadersPage.js';
 import { LibraryReportsPage } from './library/LibraryReportsPage.js';

@@ -2,14 +2,10 @@ import type { FieldError } from '@school-management/server';
 import {
   KPI_SCHOOL_LEVELS,
   QUALITY_COUNCIL_POSITION_LABELS,
-  QUALITY_EVIDENCE_SOURCE_LABELS,
-  QUALITY_EVIDENCE_STATUS_LABELS,
   QUALITY_LIMITS,
   QUALITY_MAXIMUM_LEVEL,
   type KpiSchoolLevelCode,
   type QualityCouncilPositionCode,
-  type QualityEvidenceSourceCode,
-  type QualityEvidenceStatusCode,
   type QualityImprovementAction,
 } from '@school-management/shared';
 import { isUuid, type RequestBody } from '../common/request-fields.js';
@@ -91,18 +87,6 @@ export interface ReportInput {
   improvement_actions: QualityImprovementAction[];
   indicator_results: Record<string, boolean>;
   self_level: number | null;
-}
-
-export interface EvidenceInput {
-  title: string;
-  document_number: string | null;
-  issued_date: string | null;
-  issuer: string | null;
-  description: string | null;
-  status: QualityEvidenceStatusCode;
-  source_type: QualityEvidenceSourceCode;
-  source_id: string | null;
-  criterion_ids: string[];
 }
 
 export interface RecognitionInput {
@@ -286,27 +270,6 @@ export function readReport(body: RequestBody, errors: FieldError[]): ReportInput
     indicator_results: results,
     self_level: readInteger(body, 'self_level', errors, { min: 0, max: QUALITY_MAXIMUM_LEVEL }),
   };
-}
-
-export function readEvidence(body: RequestBody, errors: FieldError[]): EvidenceInput {
-  const input: EvidenceInput = {
-    title: readText(body, 'title', errors, { required: true, maximum: 500 }) ?? '',
-    document_number: readText(body, 'document_number', errors, { maximum: 100 }),
-    issued_date: readDate(body, 'issued_date', errors),
-    issuer: readText(body, 'issuer', errors, { maximum: 300 }),
-    description: readText(body, 'description', errors, { maximum: 2000 }),
-    status: readChoice(body, 'status', QUALITY_EVIDENCE_STATUS_LABELS, 'collecting', errors),
-    source_type: readChoice(body, 'source_type', QUALITY_EVIDENCE_SOURCE_LABELS, 'none', errors),
-    source_id: readUuid(body, 'source_id', errors),
-    criterion_ids: readUuidList(body, 'criterion_ids', errors, 100),
-  };
-  if (
-    ['professional_document', 'incoming_document', 'outgoing_document'].includes(input.source_type) &&
-    !input.source_id
-  ) {
-    errors.push({ field: 'source_id', message: 'Bắt buộc chọn hồ sơ hoặc văn bản nguồn' });
-  }
-  return input;
 }
 
 export function readRecognition(body: RequestBody, errors: FieldError[]): RecognitionInput {

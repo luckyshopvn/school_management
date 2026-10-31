@@ -1,15 +1,12 @@
 import { Injectable } from '@nestjs/common';
-import type { SchoolYearDatabase, SystemDatabase } from '@school-management/database';
+import type { SchoolYearDatabase } from '@school-management/database';
 import { ApplicationError, Clock, ruleViolationError, validationError } from '@school-management/server';
 import {
-  formatEvidenceCode,
   QUALITY_ASSESSMENT_STATUS_LABELS,
   QUALITY_COUNCIL_POSITION_LABELS,
   QUALITY_DEFAULT_FRAMEWORKS,
-  QUALITY_EVIDENCE_SOURCE_LABELS,
   QUALITY_EVIDENCE_STATUS_LABELS,
   QUALITY_LIMITS,
-  QUALITY_MAXIMUM_FILE_BYTES,
   QUALITY_REPORT_STATUS_LABELS,
   QUALITY_RULE_CODE,
   qualityLevelLabel,
@@ -18,31 +15,26 @@ import {
   suggestCriterionLevel,
   summarizeQualityLevels,
   type KpiSchoolLevelCode,
-  type QualityEvidenceSourceCode,
   type QualityEvidenceStatusCode,
   type QualityImprovementAction,
 } from '@school-management/shared';
 import { sql, type Kysely, type Selectable, type Transaction } from 'kysely';
-import { randomUUID } from 'node:crypto';
 import { VIETNAM_DATE } from '../attendance/school-calendar.js';
-import { detectArchiveFileType } from '../archives/archives.js';
 import type { CurrentUser } from '../authentication/current-user.js';
 import { writeAuditLog, type ChangeOrigin } from '../common/audit-log.js';
 import { CurrentSchoolYearResolver } from '../common/current-school-year.js';
 import { Databases } from '../common/databases.js';
 import { notFoundError } from '../common/request-fields.js';
-import { storageKey } from '../common/resource-names.js';
-import { buildTableFile, CONTENT_TYPES, type TableFileFormat } from '../exports/table-file.js';
+import type { TableFileFormat } from '../exports/table-file.js';
 import { FileStorage } from '../files/file-storage.js';
-import { escapeLike } from '../incoming-documents/incoming-fields.js';
 import { buildDocumentPdf, buildDocx, DOCX_TYPE, PDF_TYPE, type DocumentBlock } from '../kpi/kpi-documents.js';
 import { OrganizationScopes } from '../organization/organization-scopes.js';
 import { PlansService, type PlanItemInput } from '../work/plans.js';
+import { EvidenceStoreService } from './evidence-store.js';
 import type {
   AssessmentInput,
   CouncilMemberInput,
   CriterionInput,
-  EvidenceInput,
   FrameworkInput,
   IndicatorInput,
   RecognitionInput,
@@ -62,7 +54,6 @@ import type {
 type Executor = Kysely<SchoolYearDatabase> | Transaction<SchoolYearDatabase>;
 type AssessmentRow = Selectable<SchoolYearDatabase['quality_assessments']>;
 type ReportRow = Selectable<SchoolYearDatabase['quality_criterion_reports']>;
-type EvidenceRow = Selectable<SchoolYearDatabase['quality_evidences']>;
 
 const USE = PERMISSION_CODES.qualityUse;
 const MANAGE = PERMISSION_CODES.qualityManage;
@@ -83,10 +74,6 @@ function forbidden(message: string): ApplicationError {
 const actionsOf = (value: unknown) => (Array.isArray(value) ? value : []) as QualityImprovementAction[];
 const resultsOf = (value: unknown) =>
   (value && typeof value === 'object' && !Array.isArray(value) ? value : {}) as Record<string, boolean>;
-const standardBox = (code: string) => {
-  const number = Number.parseInt(code, 10);
-  return Number.isInteger(number) && number >= 1 && number <= 99 ? number : 1;
-};
 
 export interface QualityContext {
   database: Kysely<SchoolYearDatabase>;
@@ -100,13 +87,6 @@ interface Membership {
   groupIds: string[];
 }
 
-export interface EvidenceFilter {
-  assessment_id: string;
-  criterion_id: string | null;
-  status: QualityEvidenceStatusCode | null;
-  q: string | null;
-}
-
 @Injectable()
 export class QualityAssuranceService {
   constructor(
@@ -116,6 +96,7 @@ export class QualityAssuranceService {
     private readonly fileStorage: FileStorage,
     private readonly workPlans: PlansService,
     private readonly clock: Clock,
+    private readonly evidenceStore: EvidenceStoreService,
   ) {}
 
   today(): string {
@@ -207,13 +188,11 @@ export class QualityAssuranceService {
       .orderBy('staff.full_name')
       .limit(MAXIMUM_LIST)
       .execute();
-    const previous = await this.previousYear();
     return {
       has_staff: context.staff !== null,
       can_manage: context.manager,
       can_use: currentUser.hasPermission(USE) || context.manager,
       staff,
-      previous_year: previous?.name ?? null,
     };
   }
 
@@ -568,11 +547,7 @@ export class QualityAssuranceService {
     if (ids.length === 0) {
       return;
     }
-    const evidence = await transaction
-      .selectFrom('quality_evidences')
-      .select('id')
-      .where('criterion_id', 'in', ids)
-      .executeTakeFirst();
+    const evidence = await this.evidenceStore.nodesInUse(ids);
     const written = await transaction
       .selectFrom('quality_criterion_reports')
       .select('id')
@@ -756,11 +731,6 @@ export class QualityAssuranceService {
           .whereRef('quality_criterion_reports.assessment_id', '=', 'assessments.id')
           .where('quality_criterion_reports.status', '=', 'approved')
           .as('approved_count'),
-        eb
-          .selectFrom('quality_evidences')
-          .select((inner) => inner.fn.countAll<string>().as('count'))
-          .whereRef('quality_evidences.assessment_id', '=', 'assessments.id')
-          .as('evidence_count'),
       ])
       .orderBy('assessments.created_at', 'desc')
       .limit(MAXIMUM_LIST);
@@ -787,12 +757,17 @@ export class QualityAssuranceService {
         ]),
       );
     }
-    return (await query.execute()).map((row) => ({
+    const rows = await query.execute();
+    const counts = new Map<string, number>();
+    for (const frameworkId of new Set(rows.map((row) => row.framework_id))) {
+      counts.set(frameworkId, new Set((await this.evidenceStore.byNodes(frameworkId, null)).map((row) => row.id)).size);
+    }
+    return rows.map((row) => ({
       ...row,
       status_label: QUALITY_ASSESSMENT_STATUS_LABELS[row.status],
       report_count: Number(row.report_count ?? 0),
       approved_count: Number(row.approved_count ?? 0),
-      evidence_count: Number(row.evidence_count ?? 0),
+      evidence_count: counts.get(row.framework_id) ?? 0,
     }));
   }
 
@@ -857,14 +832,6 @@ export class QualityAssuranceService {
           throw qualityRule('Chỉ đổi bộ tiêu chuẩn khi đợt đang chuẩn bị');
         }
         await this.activeFramework(transaction, input.framework_id);
-        const used = await transaction
-          .selectFrom('quality_evidences')
-          .select('id')
-          .where('assessment_id', '=', id)
-          .executeTakeFirst();
-        if (used) {
-          throw qualityRule('Đợt đã có minh chứng, không đổi bộ tiêu chuẩn được');
-        }
         await transaction.deleteFrom('quality_criterion_reports').where('assessment_id', '=', id).execute();
       }
       const updated = await transaction
@@ -894,14 +861,6 @@ export class QualityAssuranceService {
       const before = await this.assessmentRow(transaction, id);
       if (before.status !== 'draft') {
         throw qualityRule('Chỉ xóa đợt đang chuẩn bị');
-      }
-      const evidence = await transaction
-        .selectFrom('quality_evidences')
-        .select('id')
-        .where('assessment_id', '=', id)
-        .executeTakeFirst();
-      if (evidence) {
-        throw qualityRule('Đợt đã có minh chứng, không xóa được');
       }
       await transaction.deleteFrom('quality_assessments').where('id', '=', id).execute();
       await writeAuditLog(transaction, {
@@ -947,14 +906,11 @@ export class QualityAssuranceService {
             .orderBy('staff_name')
             .execute()
         : [];
-    const criteria = await this.criteriaRows(database, id);
+    const criteria = await this.criteriaRows(database, assessment);
     const summary = summarizeQualityLevels(criteria.map((row) => row.self_level));
-    const evidenceStatus = await database
-      .selectFrom('quality_evidences')
-      .select(['status', (eb) => eb.fn.countAll<string>().as('count')])
-      .where('assessment_id', '=', id)
-      .groupBy('status')
-      .execute();
+    const evidenceStatus = new Map<string, string>(
+      (await this.evidenceStore.byNodes(assessment.framework_id, null)).map((row) => [row.id, row.status]),
+    );
     return {
       ...assessment,
       status_label: QUALITY_ASSESSMENT_STATUS_LABELS[assessment.status],
@@ -970,7 +926,7 @@ export class QualityAssuranceService {
       evidence_status: Object.fromEntries(
         Object.keys(QUALITY_EVIDENCE_STATUS_LABELS).map((status) => [
           status,
-          Number(evidenceStatus.find((row) => row.status === status)?.count ?? 0),
+          [...evidenceStatus.values()].filter((value) => value === status).length,
         ]),
       ),
       can_manage: context.manager,
@@ -980,7 +936,9 @@ export class QualityAssuranceService {
   }
 
   // Bảng tiến độ phiếu theo tiêu chí của đợt
-  private async criteriaRows(database: Executor, assessmentId: string) {
+  private async criteriaRows(database: Executor, assessment: { id: string; framework_id: string }) {
+    const assessmentId = assessment.id;
+    const evidences = await this.evidenceStore.byNodes(assessment.framework_id, null);
     const rows = await database
       .selectFrom('quality_criterion_reports as reports')
       .innerJoin('quality_criteria as criteria', 'criteria.id', 'reports.criterion_id')
@@ -999,14 +957,6 @@ export class QualityAssuranceService {
         'standards.title as standard_title',
         'groups.name as work_group_name',
       ])
-      .select((eb) =>
-        eb
-          .selectFrom('quality_evidences')
-          .select((inner) => inner.fn.countAll<string>().as('count'))
-          .whereRef('quality_evidences.criterion_id', '=', 'reports.criterion_id')
-          .whereRef('quality_evidences.assessment_id', '=', 'reports.assessment_id')
-          .as('evidence_count'),
-      )
       .where('reports.assessment_id', '=', assessmentId)
       .orderBy('standards.sort_order')
       .orderBy('standards.code')
@@ -1017,7 +967,7 @@ export class QualityAssuranceService {
       ...row,
       status_label: QUALITY_REPORT_STATUS_LABELS[row.status],
       level_label: qualityLevelLabel(row.self_level),
-      evidence_count: Number(row.evidence_count ?? 0),
+      evidence_count: evidences.filter((evidence) => evidence.node_id === row.criterion_id).length,
     }));
   }
 
@@ -1579,39 +1529,20 @@ export class QualityAssuranceService {
 
   // Minh chứng của tiêu chí: minh chứng mã theo tiêu chí và minh chứng dùng chung gắn thêm tiêu chí
   private async criterionEvidences(database: Executor, assessmentId: string, criterionId: string) {
-    const rows = await database
-      .selectFrom('quality_evidences')
-      .select([
-        'id',
-        'code',
-        'title',
-        'document_number',
-        'issued_date',
-        'issuer',
-        'status',
-        'source_type',
-        'criterion_id',
-      ])
-      .where('assessment_id', '=', assessmentId)
-      .where((eb) =>
-        eb.or([
-          eb('criterion_id', '=', criterionId),
-          eb.exists(
-            eb
-              .selectFrom('quality_evidence_criteria')
-              .select('evidence_id')
-              .whereRef('quality_evidence_criteria.evidence_id', '=', 'quality_evidences.id')
-              .where('quality_evidence_criteria.criterion_id', '=', criterionId),
-          ),
-        ]),
-      )
-      .orderBy('box')
-      .orderBy('code')
-      .execute();
-    return rows.map((row) => ({
-      ...row,
-      shared: row.criterion_id !== criterionId,
-      status_label: QUALITY_EVIDENCE_STATUS_LABELS[row.status],
+    const assessment = await this.assessmentRow(database, assessmentId);
+    return (await this.evidenceStore.byNodes(assessment.framework_id, [criterionId])).map((row) => ({
+      id: row.id,
+      code: row.code,
+      display_code: row.display_code,
+      title: row.title,
+      document_number: row.document_number,
+      issued_date: row.issued_date,
+      issuer: row.issuer,
+      status: row.status as QualityEvidenceStatusCode,
+      status_label: row.status_label,
+      validity: row.validity,
+      validity_label: row.validity_label,
+      shared: row.shared,
     }));
   }
 
@@ -1796,749 +1727,13 @@ export class QualityAssuranceService {
   // ---- Minh chứng ----
 
   // Thêm, sửa minh chứng của một tiêu chí: người quản lý hoặc thành viên nhóm được phân công tiêu chí; đợt chưa hoàn thành
-  private async assertEvidenceEditor(
-    context: QualityContext,
-    database: Executor,
-    assessment: AssessmentRow,
-    member: Membership,
-    criterionId: string,
-  ) {
-    if (assessment.status === 'completed') {
-      throw qualityRule('Đợt đã hoàn thành, không sửa minh chứng');
-    }
-    if (context.manager) {
-      return;
-    }
-    const report = await database
-      .selectFrom('quality_criterion_reports')
-      .select('work_group_id')
-      .where('assessment_id', '=', assessment.id)
-      .where('criterion_id', '=', criterionId)
-      .executeTakeFirst();
-    if (!report?.work_group_id || !member.groupIds.includes(report.work_group_id)) {
-      throw forbidden('Chỉ thành viên nhóm công tác của tiêu chí thêm, sửa minh chứng');
-    }
-  }
-
-  async evidences(currentUser: CurrentUser, filter: EvidenceFilter) {
-    const context = await this.context(currentUser);
-    await this.visibleAssessment(context, filter.assessment_id);
-    let query = context.database
-      .selectFrom('quality_evidences as evidences')
-      .innerJoin('quality_criteria as criteria', 'criteria.id', 'evidences.criterion_id')
-      .select([
-        'evidences.id',
-        'evidences.code',
-        'evidences.box',
-        'evidences.title',
-        'evidences.document_number',
-        'evidences.issued_date',
-        'evidences.issuer',
-        'evidences.description',
-        'evidences.status',
-        'evidences.source_type',
-        'evidences.source_label',
-        'evidences.file_id',
-        'evidences.professional_document_id',
-        'evidences.system_document_id',
-        'evidences.inherited_code',
-        'evidences.inherited_year_name',
-        'evidences.criterion_id',
-        'criteria.code as criterion_code',
-        'criteria.title as criterion_title',
-        'evidences.created_by_name',
-        'evidences.updated_at',
-      ])
-      .where('evidences.assessment_id', '=', filter.assessment_id)
-      .orderBy('evidences.box')
-      .orderBy('criteria.sort_order')
-      .orderBy('evidences.sequence')
-      .limit(MAXIMUM_LIST);
-    if (filter.criterion_id) {
-      const criterionId = filter.criterion_id;
-      query = query.where((eb) =>
-        eb.or([
-          eb('evidences.criterion_id', '=', criterionId),
-          eb.exists(
-            eb
-              .selectFrom('quality_evidence_criteria')
-              .select('evidence_id')
-              .whereRef('quality_evidence_criteria.evidence_id', '=', 'evidences.id')
-              .where('quality_evidence_criteria.criterion_id', '=', criterionId),
-          ),
-        ]),
-      );
-    }
-    if (filter.status) {
-      query = query.where('evidences.status', '=', filter.status);
-    }
-    if (filter.q) {
-      const pattern = `%${escapeLike(filter.q)}%`;
-      query = query.where((eb) =>
-        eb.or([
-          eb('evidences.title', 'ilike', pattern),
-          eb('evidences.code', 'ilike', pattern),
-          eb('evidences.document_number', 'ilike', pattern),
-        ]),
-      );
-    }
-    const rows = await query.execute();
-    const shared =
-      rows.length > 0
-        ? await context.database
-            .selectFrom('quality_evidence_criteria')
-            .innerJoin('quality_criteria', 'quality_criteria.id', 'quality_evidence_criteria.criterion_id')
-            .select(['quality_evidence_criteria.evidence_id', 'quality_criteria.id', 'quality_criteria.code'])
-            .where(
-              'quality_evidence_criteria.evidence_id',
-              'in',
-              rows.map((row) => row.id),
-            )
-            .execute()
-        : [];
-    return rows.map((row) => ({
-      ...row,
-      status_label: QUALITY_EVIDENCE_STATUS_LABELS[row.status],
-      source_type_label: QUALITY_EVIDENCE_SOURCE_LABELS[row.source_type],
-      shared_criteria: shared
-        .filter((item) => item.evidence_id === row.id)
-        .map((item) => ({ id: item.id, code: item.code })),
-    }));
-  }
-
-  private async evidenceRow(database: Executor, id: string): Promise<EvidenceRow> {
-    const row = await database.selectFrom('quality_evidences').selectAll().where('id', '=', id).executeTakeFirst();
-    if (!row) {
-      throw notFoundError('Không tìm thấy minh chứng', 'quality_evidence');
-    }
-    return row;
-  }
-
-  // Nguồn văn bản: hồ sơ của kho hồ sơ chuyên môn năm học này, văn bản đến đã vào sổ, văn bản đi đã phát hành; ghi lại nhãn
-  // của nguồn (số, ngày, trích yếu) để báo cáo và năm sau vẫn đọc được
-  private async resolveSource(
-    database: Executor,
-    sourceType: QualityEvidenceSourceCode,
-    sourceId: string | null,
-  ): Promise<{
-    professional_document_id: string | null;
-    system_document_id: string | null;
-    source_label: string | null;
-  }> {
-    const none = { professional_document_id: null, system_document_id: null, source_label: null };
-    if (!sourceId || sourceType === 'upload' || sourceType === 'none') {
-      return none;
-    }
-    if (sourceType === 'professional_document') {
-      const document = await database
-        .selectFrom('professional_documents')
-        .select(['id', 'title', 'owner_name', 'status'])
-        .where('id', '=', sourceId)
-        .executeTakeFirst();
-      if (!document) {
-        throw validationError([{ field: 'source_id', message: 'Không tìm thấy hồ sơ ở kho hồ sơ chuyên môn' }]);
-      }
-      return {
-        ...none,
-        professional_document_id: document.id,
-        source_label: `${document.title} (${document.owner_name})`,
-      };
-    }
-    const label = await this.systemDocumentLabel(this.databases.system, sourceType, sourceId);
-    if (!label) {
-      throw validationError([{ field: 'source_id', message: 'Không tìm thấy văn bản' }]);
-    }
-    return { ...none, system_document_id: sourceId, source_label: label };
-  }
-
-  private async systemDocumentLabel(
-    system: Kysely<SystemDatabase>,
-    sourceType: QualityEvidenceSourceCode,
-    id: string,
-  ): Promise<string | null> {
-    if (sourceType === 'incoming_document') {
-      const row = await system
-        .selectFrom('incoming_documents')
-        .select(['symbol', 'document_date', 'summary', 'issuer_name'])
-        .where('id', '=', id)
-        .executeTakeFirst();
-      return row
-        ? `${row.symbol} ngày ${row.document_date} của ${row.issuer_name}: ${row.summary}`.slice(0, 500)
-        : null;
-    }
-    const row = await system
-      .selectFrom('outgoing_documents')
-      .select(['symbol', 'issue_number', 'issued_at', 'summary', 'status'])
-      .where('id', '=', id)
-      .executeTakeFirst();
-    if (!row || row.status !== 'issued') {
-      return null;
-    }
-    const issued = row.issued_at ? VIETNAM_DATE.format(row.issued_at) : '';
-    return `${row.symbol ?? row.issue_number ?? ''} ngày ${issued}: ${row.summary}`.slice(0, 500);
-  }
-
-  // Ô chọn nguồn: tìm hồ sơ, văn bản theo tên, số, trích yếu
-  async evidenceSources(currentUser: CurrentUser, sourceType: QualityEvidenceSourceCode, q: string | null) {
-    const context = await this.context(currentUser);
-    if (!context.manager && !context.staff) {
-      return [];
-    }
-    const pattern = q ? `%${escapeLike(q)}%` : null;
-    if (sourceType === 'professional_document') {
-      let query = context.database
-        .selectFrom('professional_documents')
-        .select(['id', 'title', 'owner_name', 'status'])
-        .where('status', '=', 'approved')
-        .orderBy('updated_at', 'desc')
-        .limit(50);
-      if (pattern) {
-        query = query.where('title', 'ilike', pattern);
-      }
-      return (await query.execute()).map((row) => ({ id: row.id, label: `${row.title} (${row.owner_name})` }));
-    }
-    if (sourceType === 'incoming_document') {
-      let query = this.databases.system
-        .selectFrom('incoming_documents')
-        .select(['id', 'symbol', 'document_date', 'summary'])
-        .where('status', '<>', 'pending_registration')
-        .orderBy('document_date', 'desc')
-        .limit(50);
-      if (pattern) {
-        query = query.where((eb) => eb.or([eb('summary', 'ilike', pattern), eb('symbol', 'ilike', pattern)]));
-      }
-      return (await query.execute()).map((row) => ({
-        id: row.id,
-        label: `${row.symbol} ngày ${row.document_date}: ${row.summary}`,
-      }));
-    }
-    if (sourceType === 'outgoing_document') {
-      let query = this.databases.system
-        .selectFrom('outgoing_documents')
-        .select(['id', 'symbol', 'issued_at', 'summary'])
-        .where('status', '=', 'issued')
-        .orderBy('issued_at', 'desc')
-        .limit(50);
-      if (pattern) {
-        query = query.where((eb) => eb.or([eb('summary', 'ilike', pattern), eb('symbol', 'ilike', pattern)]));
-      }
-      return (await query.execute()).map((row) => ({
-        id: row.id,
-        label: `${row.symbol ?? ''} ngày ${row.issued_at ? VIETNAM_DATE.format(row.issued_at) : ''}: ${row.summary}`,
-      }));
-    }
-    return [];
-  }
-
-  private async checkSharedCriteria(database: Executor, assessment: AssessmentRow, ids: string[]) {
-    if (ids.length === 0) {
-      return;
-    }
-    const found = await database
-      .selectFrom('quality_criteria')
-      .select('id')
-      .where('framework_id', '=', assessment.framework_id)
-      .where('id', 'in', ids)
-      .execute();
-    if (found.length !== ids.length) {
-      throw validationError([{ field: 'criterion_ids', message: 'Có tiêu chí không thuộc bộ tiêu chuẩn của đợt' }]);
-    }
-  }
-
-  async createEvidence(
-    currentUser: CurrentUser,
-    assessmentId: string,
-    criterionId: string,
-    box: number | null,
-    input: EvidenceInput,
-    origin: ChangeOrigin,
-  ) {
-    const context = await this.context(currentUser);
-    if (input.source_type === 'upload') {
-      throw validationError([{ field: 'source_type', message: 'Tạo minh chứng trước rồi tải tệp lên' }]);
-    }
-    const created = await context.database.transaction().execute(async (transaction) => {
-      const { assessment, member } = await this.visibleAssessment(context, assessmentId);
-      const criterion = await transaction
-        .selectFrom('quality_criteria as criteria')
-        .innerJoin('quality_standards as standards', 'standards.id', 'criteria.standard_id')
-        .select(['criteria.id', 'criteria.code', 'standards.code as standard_code'])
-        .where('criteria.id', '=', criterionId)
-        .where('criteria.framework_id', '=', assessment.framework_id)
-        .executeTakeFirst();
-      if (!criterion) {
-        throw validationError([{ field: 'criterion_id', message: 'Tiêu chí không thuộc bộ tiêu chuẩn của đợt' }]);
-      }
-      await this.assertEvidenceEditor(context, transaction, assessment, member, criterionId);
-      const shared = input.criterion_ids.filter((id) => id !== criterionId);
-      await this.checkSharedCriteria(transaction, assessment, shared);
-      const source = await this.resolveSource(transaction, input.source_type, input.source_id);
-      // Khóa đợt để hai người thêm cùng lúc không trùng số thứ tự
-      await transaction
-        .selectFrom('quality_assessments')
-        .select('id')
-        .where('id', '=', assessmentId)
-        .forUpdate()
-        .execute();
-      const last = await transaction
-        .selectFrom('quality_evidences')
-        .select((eb) => eb.fn.max('sequence').as('sequence'))
-        .where('assessment_id', '=', assessmentId)
-        .where('criterion_id', '=', criterionId)
-        .executeTakeFirst();
-      const sequence = Number(last?.sequence ?? 0) + 1;
-      const boxNumber = box ?? standardBox(criterion.standard_code);
-      const row = await transaction
-        .insertInto('quality_evidences')
-        .values({
-          assessment_id: assessmentId,
-          criterion_id: criterionId,
-          box: boxNumber,
-          sequence,
-          code: formatEvidenceCode(boxNumber, criterion.code, sequence),
-          title: input.title,
-          document_number: input.document_number,
-          issued_date: input.issued_date,
-          issuer: input.issuer,
-          description: input.description,
-          status: input.status,
-          source_type: input.source_type,
-          ...source,
-          created_by: currentUser.id,
-          created_by_name: currentUser.description.full_name,
-        })
-        .returningAll()
-        .executeTakeFirstOrThrow();
-      if (shared.length > 0) {
-        await transaction
-          .insertInto('quality_evidence_criteria')
-          .values(shared.map((id) => ({ evidence_id: row.id, criterion_id: id })))
-          .execute();
-      }
-      await writeAuditLog(transaction, {
-        origin,
-        orgUnitId: assessment.org_unit_id,
-        entityName: 'quality_evidences',
-        entityId: row.id,
-        action: 'create',
-        before: null,
-        after: row,
-      });
-      return row;
-    });
-    return created;
-  }
-
-  async updateEvidence(currentUser: CurrentUser, id: string, input: EvidenceInput, origin: ChangeOrigin) {
-    const context = await this.context(currentUser);
-    return context.database.transaction().execute(async (transaction) => {
-      const before = await this.evidenceRow(transaction, id);
-      const { assessment, member } = await this.visibleAssessment(context, before.assessment_id);
-      await this.assertEvidenceEditor(context, transaction, assessment, member, before.criterion_id);
-      const shared = input.criterion_ids.filter((criterionId) => criterionId !== before.criterion_id);
-      await this.checkSharedCriteria(transaction, assessment, shared);
-      // Nguồn tải lên giữ tệp đã có; đổi sang nguồn khác thì bỏ tệp
-      const keepUpload = input.source_type === 'upload';
-      if (keepUpload && !before.file_id) {
-        throw validationError([{ field: 'source_type', message: 'Minh chứng chưa có tệp tải lên' }]);
-      }
-      const source = keepUpload
-        ? { professional_document_id: null, system_document_id: null, source_label: null }
-        : await this.resolveSource(transaction, input.source_type, input.source_id);
-      const updated = await transaction
-        .updateTable('quality_evidences')
-        .set({
-          title: input.title,
-          document_number: input.document_number,
-          issued_date: input.issued_date,
-          issuer: input.issuer,
-          description: input.description,
-          status: input.status,
-          source_type: input.source_type,
-          ...source,
-          file_id: keepUpload ? before.file_id : null,
-          updated_at: this.clock.now(),
-        })
-        .where('id', '=', id)
-        .returningAll()
-        .executeTakeFirstOrThrow();
-      await transaction.deleteFrom('quality_evidence_criteria').where('evidence_id', '=', id).execute();
-      if (shared.length > 0) {
-        await transaction
-          .insertInto('quality_evidence_criteria')
-          .values(shared.map((criterionId) => ({ evidence_id: id, criterion_id: criterionId })))
-          .execute();
-      }
-      await writeAuditLog(transaction, {
-        origin,
-        orgUnitId: assessment.org_unit_id,
-        entityName: 'quality_evidences',
-        entityId: id,
-        action: 'update',
-        before,
-        after: updated,
-      });
-      return updated;
-    });
-  }
-
-  async deleteEvidence(currentUser: CurrentUser, id: string, origin: ChangeOrigin) {
-    const context = await this.context(currentUser);
-    await context.database.transaction().execute(async (transaction) => {
-      const before = await this.evidenceRow(transaction, id);
-      const { assessment, member } = await this.visibleAssessment(context, before.assessment_id);
-      await this.assertEvidenceEditor(context, transaction, assessment, member, before.criterion_id);
-      await transaction.deleteFrom('quality_evidences').where('id', '=', id).execute();
-      await writeAuditLog(transaction, {
-        origin,
-        orgUnitId: assessment.org_unit_id,
-        entityName: 'quality_evidences',
-        entityId: id,
-        action: 'delete',
-        before,
-        after: null,
-      });
-    });
-  }
-
-  // Tải tệp minh chứng (PDF, ảnh, Word, Excel tối đa 20 MB); nguồn chuyển thành tệp tải lên, trạng thái lên "Đã đủ" nếu
-  // đang "Chưa có"
-  async uploadEvidenceFile(
-    currentUser: CurrentUser,
-    id: string,
-    file: { fileName: string; body: Buffer },
-    origin: ChangeOrigin,
-  ) {
-    const context = await this.context(currentUser);
-    const before = await this.evidenceRow(context.database, id);
-    const { assessment, member } = await this.visibleAssessment(context, before.assessment_id);
-    await this.assertEvidenceEditor(context, context.database, assessment, member, before.criterion_id);
-    if (file.body.length === 0 || file.body.length > QUALITY_MAXIMUM_FILE_BYTES) {
-      throw validationError([{ field: 'file', message: 'Tệp tối đa 20 MB' }]);
-    }
-    const contentType = detectArchiveFileType(file.fileName, file.body);
-    if (!contentType) {
-      throw validationError([{ field: 'file', message: 'Tệp minh chứng là PDF, ảnh JPEG, PNG, Word hoặc Excel' }]);
-    }
-    const key = storageKey('quality-evidences', assessment.id, randomUUID());
-    await this.fileStorage.put(key, file.body, contentType);
-    try {
-      return await context.database.transaction().execute(async (transaction) => {
-        const stored = await transaction
-          .insertInto('files')
-          .values({
-            org_unit_id: assessment.org_unit_id,
-            purpose: 'professional_record',
-            file_name: file.fileName.slice(0, 200),
-            content_type: contentType,
-            size_bytes: file.body.length,
-            storage_key: key,
-            created_by: currentUser.id,
-          })
-          .returning('id')
-          .executeTakeFirstOrThrow();
-        const updated = await transaction
-          .updateTable('quality_evidences')
-          .set({
-            source_type: 'upload',
-            file_id: stored.id,
-            professional_document_id: null,
-            system_document_id: null,
-            source_label: null,
-            status: before.status === 'missing' ? 'sufficient' : before.status,
-            updated_at: this.clock.now(),
-          })
-          .where('id', '=', id)
-          .returningAll()
-          .executeTakeFirstOrThrow();
-        await writeAuditLog(transaction, {
-          origin,
-          orgUnitId: assessment.org_unit_id,
-          entityName: 'quality_evidences',
-          entityId: id,
-          action: 'update',
-          before,
-          after: updated,
-        });
-        return updated;
-      });
-    } catch (error) {
-      await this.fileStorage.delete(key).catch(() => undefined);
-      throw error;
-    }
-  }
-
-  // Tệp của minh chứng: tệp tải lên hoặc phiên bản mới nhất (bản đã kí nếu có) của hồ sơ ở kho hồ sơ chuyên môn; văn bản
-  // đến, đi mở ở phân hệ văn bản
-  async evidenceFile(currentUser: CurrentUser, id: string) {
-    const context = await this.context(currentUser);
-    const evidence = await this.evidenceRow(context.database, id);
-    await this.visibleAssessment(context, evidence.assessment_id);
-    let fileId = evidence.file_id;
-    if (!fileId && evidence.professional_document_id) {
-      const document = await context.database
-        .selectFrom('professional_documents')
-        .select(['signed_file_id', 'current_version'])
-        .where('id', '=', evidence.professional_document_id)
-        .executeTakeFirst();
-      const version = document
-        ? await context.database
-            .selectFrom('professional_document_versions')
-            .select('file_id')
-            .where('document_id', '=', evidence.professional_document_id)
-            .where('version_no', '=', document.current_version)
-            .executeTakeFirst()
-        : undefined;
-      fileId = document?.signed_file_id ?? version?.file_id ?? null;
-    }
-    if (!fileId) {
-      throw notFoundError('Minh chứng không có tệp để tải', 'file');
-    }
-    const file = await context.database
-      .selectFrom('files')
-      .select(['file_name', 'content_type', 'storage_key'])
-      .where('id', '=', fileId)
-      .executeTakeFirstOrThrow();
-    return { file, body: await this.fileStorage.get(file.storage_key) };
-  }
-
   // Danh mục mã minh chứng của đợt, xuất Excel hoặc CSV
   async evidenceListFile(currentUser: CurrentUser, assessmentId: string, format: TableFileFormat) {
-    const rows = await this.evidences(currentUser, {
-      assessment_id: assessmentId,
-      criterion_id: null,
-      status: null,
-      q: null,
-    });
-    const columns = [
-      { key: 'code', label: 'Mã minh chứng', width: 16 },
-      { key: 'title', label: 'Tên minh chứng', width: 40 },
-      { key: 'issued', label: 'Số, ngày ban hành', width: 20 },
-      { key: 'issuer', label: 'Nơi ban hành', width: 24 },
-      { key: 'criterion_code', label: 'Tiêu chí', width: 10 },
-      { key: 'shared', label: 'Dùng chung cho tiêu chí', width: 18 },
-      { key: 'status_label', label: 'Trạng thái', width: 14 },
-      { key: 'source', label: 'Nguồn', width: 36 },
-      { key: 'note', label: 'Ghi chú', width: 24 },
-    ];
-    const buffer = await buildTableFile(
-      format,
-      [
-        {
-          title: 'Danh mục minh chứng',
-          columns,
-          numbered: true,
-          rows: rows.map((row) => ({
-            code: row.code,
-            title: row.title,
-            issued: [row.document_number, row.issued_date].filter(Boolean).join(', '),
-            issuer: row.issuer ?? '',
-            criterion_code: row.criterion_code,
-            shared: row.shared_criteria.map((item) => item.code).join(', '),
-            status_label: row.status_label,
-            source: row.source_label ? `${row.source_type_label}: ${row.source_label}` : row.source_type_label,
-            note: row.inherited_code ? `Kế thừa ${row.inherited_code} năm học ${row.inherited_year_name ?? ''}` : '',
-          })),
-        },
-      ],
-      this.clock.now(),
-    );
-    return { buffer, contentType: CONTENT_TYPES[format], fileName: `danh-muc-minh-chung.${format}` };
-  }
-
-  // ---- Kế thừa minh chứng năm trước ----
-
-  private async previousYear() {
-    const current = await this.currentSchoolYear.find();
-    if (!current) {
-      return undefined;
-    }
-    const year = await this.databases.system
-      .selectFrom('academic_years')
-      .select('start_date')
-      .where('id', '=', current.academicYearId)
-      .executeTakeFirstOrThrow();
-    return this.databases.system
-      .selectFrom('academic_years')
-      .innerJoin('academic_year_databases', 'academic_year_databases.academic_year_id', 'academic_years.id')
-      .select(['academic_years.name', 'academic_year_databases.database_name'])
-      .where('academic_years.start_date', '<', year.start_date)
-      .orderBy('academic_years.start_date', 'desc')
-      .executeTakeFirst();
-  }
-
-  // Chép minh chứng của đợt gần nhất cùng bộ tiêu chuẩn ở năm học trước (bộ chuyển năm giữ mã định danh): giữ mã cũ để đối
-  // chiếu, trạng thái "Cần cập nhật"; tệp tải lên dùng lại cùng tệp ở kho tệp; hồ sơ của kho hồ sơ chuyên môn năm trước không
-  // nối sang năm này nên chỉ giữ nhãn; văn bản đến, đi giữ liên kết. Minh chứng đã kế thừa (cùng mã cũ) thì bỏ qua
-  async inheritEvidences(currentUser: CurrentUser, assessmentId: string, origin: ChangeOrigin) {
     const context = await this.context(currentUser);
-    this.assertManager(context);
-    const assessment = await this.assessmentRow(context.database, assessmentId);
-    if (assessment.status === 'completed') {
-      throw qualityRule('Đợt đã hoàn thành, không kế thừa minh chứng');
-    }
-    const previous = await this.previousYear();
-    if (!previous) {
-      throw qualityRule('Chưa có năm học trước để kế thừa minh chứng');
-    }
-    const old = this.databases.schoolYear<SchoolYearDatabase>(previous.database_name);
-    const source = await old
-      .selectFrom('quality_assessments')
-      .select('id')
-      .where('framework_id', '=', assessment.framework_id)
-      .orderBy('created_at', 'desc')
-      .executeTakeFirst();
-    if (!source) {
-      throw qualityRule(`Năm học ${previous.name} không có đợt tự đánh giá cùng bộ tiêu chuẩn`);
-    }
-    const evidences = await old
-      .selectFrom('quality_evidences')
-      .selectAll()
-      .where('assessment_id', '=', source.id)
-      .orderBy('box')
-      .orderBy('sequence')
-      .execute();
-    const oldShared = await old
-      .selectFrom('quality_evidence_criteria')
-      .innerJoin('quality_evidences', 'quality_evidences.id', 'quality_evidence_criteria.evidence_id')
-      .select(['quality_evidence_criteria.evidence_id', 'quality_evidence_criteria.criterion_id'])
-      .where('quality_evidences.assessment_id', '=', source.id)
-      .execute();
-    const oldFiles = new Map(
-      (
-        await old
-          .selectFrom('files')
-          .select(['id', 'file_name', 'content_type', 'size_bytes', 'storage_key'])
-          .where(
-            'id',
-            'in',
-            evidences
-              .map((row) => row.file_id)
-              .filter((value): value is string => value !== null)
-              .concat([NO_ID]),
-          )
-          .execute()
-      ).map((row) => [row.id, row]),
-    );
-    let created = 0;
-    let skipped = 0;
-    await context.database.transaction().execute(async (transaction) => {
-      const criteria = await transaction
-        .selectFrom('quality_criteria as criteria')
-        .innerJoin('quality_standards as standards', 'standards.id', 'criteria.standard_id')
-        .select(['criteria.id', 'criteria.code'])
-        .where('criteria.framework_id', '=', assessment.framework_id)
-        .execute();
-      const codes = new Map(criteria.map((row) => [row.id, row.code]));
-      const existing = await transaction
-        .selectFrom('quality_evidences')
-        .select(['criterion_id', 'sequence', 'inherited_code', 'code'])
-        .where('assessment_id', '=', assessmentId)
-        .execute();
-      const inherited = new Set(existing.map((row) => row.inherited_code).filter(Boolean));
-      const usedCodes = new Set(existing.map((row) => row.code));
-      const next = new Map<string, number>();
-      for (const row of existing) {
-        next.set(row.criterion_id, Math.max(next.get(row.criterion_id) ?? 0, row.sequence));
-      }
-      for (const evidence of evidences) {
-        const criterionCode = codes.get(evidence.criterion_id);
-        if (!criterionCode || inherited.has(evidence.code)) {
-          skipped += 1;
-          continue;
-        }
-        // Giữ số thứ tự cũ khi còn trống để mã minh chứng không đổi giữa các năm
-        let sequence = evidence.sequence;
-        let code = formatEvidenceCode(evidence.box, criterionCode, sequence);
-        if (usedCodes.has(code)) {
-          sequence = (next.get(evidence.criterion_id) ?? 0) + 1;
-          code = formatEvidenceCode(evidence.box, criterionCode, sequence);
-        }
-        next.set(evidence.criterion_id, Math.max(next.get(evidence.criterion_id) ?? 0, sequence));
-        usedCodes.add(code);
-        let fileId: string | null = null;
-        const oldFile = evidence.file_id ? oldFiles.get(evidence.file_id) : undefined;
-        if (oldFile) {
-          fileId = (
-            await transaction
-              .insertInto('files')
-              .values({
-                org_unit_id: assessment.org_unit_id,
-                purpose: 'professional_record',
-                file_name: oldFile.file_name,
-                content_type: oldFile.content_type,
-                size_bytes: oldFile.size_bytes,
-                storage_key: oldFile.storage_key,
-                created_by: currentUser.id,
-              })
-              .returning('id')
-              .executeTakeFirstOrThrow()
-          ).id;
-        }
-        const sourceType: QualityEvidenceSourceCode =
-          evidence.source_type === 'upload' && !fileId
-            ? 'none'
-            : evidence.source_type === 'professional_document'
-              ? 'none'
-              : evidence.source_type;
-        const row = await transaction
-          .insertInto('quality_evidences')
-          .values({
-            assessment_id: assessmentId,
-            criterion_id: evidence.criterion_id,
-            box: evidence.box,
-            sequence,
-            code,
-            title: evidence.title,
-            document_number: evidence.document_number,
-            issued_date: evidence.issued_date,
-            issuer: evidence.issuer,
-            description: evidence.description,
-            status: 'needs_update',
-            source_type: sourceType,
-            file_id: fileId,
-            professional_document_id: null,
-            system_document_id:
-              sourceType === 'incoming_document' || sourceType === 'outgoing_document'
-                ? evidence.system_document_id
-                : null,
-            source_label:
-              evidence.source_type === 'professional_document' && evidence.source_label
-                ? `Kho hồ sơ năm học ${previous.name}: ${evidence.source_label}`.slice(0, 500)
-                : evidence.source_label,
-            inherited_code: evidence.code,
-            inherited_year_name: previous.name,
-            created_by: currentUser.id,
-            created_by_name: currentUser.description.full_name,
-          })
-          .returning('id')
-          .executeTakeFirstOrThrow();
-        const shared = oldShared
-          .filter((item) => item.evidence_id === evidence.id && codes.has(item.criterion_id))
-          .map((item) => ({ evidence_id: row.id, criterion_id: item.criterion_id }));
-        if (shared.length > 0) {
-          await transaction.insertInto('quality_evidence_criteria').values(shared).execute();
-        }
-        created += 1;
-      }
-      await writeAuditLog(transaction, {
-        origin,
-        orgUnitId: assessment.org_unit_id,
-        entityName: 'quality_evidences',
-        entityId: assessmentId,
-        action: 'create',
-        before: null,
-        after: { inherited_from: previous.name, created, skipped },
-      });
-    });
-    return { year_name: previous.name, created, skipped };
+    const { assessment } = await this.visibleAssessment(context, assessmentId);
+    return this.evidenceStore.listFile(currentUser, assessment.framework_id, format);
   }
 
-  // ---- Kế hoạch cải tiến nối Quản lý công việc ----
-
-  // Các việc cải tiến có người phụ trách và hạn của các phiếu đã duyệt thành kế hoạch công việc nháp, mỗi đơn vị của người
-  // phụ trách một kế hoạch (Quản lý công việc chỉ nhận người phụ trách cùng đơn vị); người có quyền quản lý kế hoạch công
-  // việc của đơn vị kích hoạt để giao việc (P09-03). Tạo một lần cho mỗi đợt
   async createWorkPlan(currentUser: CurrentUser, assessmentId: string, origin: ChangeOrigin) {
     const context = await this.context(currentUser);
     this.assertManager(context);
@@ -2639,19 +1834,8 @@ export class QualityAssuranceService {
       .selectAll()
       .where('assessment_id', '=', id)
       .execute();
-    const evidences = await database
-      .selectFrom('quality_evidences')
-      .selectAll()
-      .where('assessment_id', '=', id)
-      .orderBy('box')
-      .orderBy('code')
-      .execute();
-    const shared = await database
-      .selectFrom('quality_evidence_criteria')
-      .innerJoin('quality_evidences', 'quality_evidences.id', 'quality_evidence_criteria.evidence_id')
-      .select(['quality_evidence_criteria.criterion_id', 'quality_evidences.code'])
-      .where('quality_evidences.assessment_id', '=', id)
-      .execute();
+    const linked = await this.evidenceStore.byNodes(assessment.framework_id, null);
+    const evidences = linked.filter((row) => !row.shared);
     const council = await database
       .selectFrom('quality_council_members')
       .selectAll()
@@ -2761,10 +1945,7 @@ export class QualityAssuranceService {
       blocks.push({ kind: 'heading', text: `Tiêu chuẩn ${standard.code}: ${standard.title}` });
       for (const criterion of standard.criteria) {
         const report = reports.find((row) => row.criterion_id === criterion.id);
-        const codes = [
-          ...evidences.filter((row) => row.criterion_id === criterion.id).map((row) => row.code),
-          ...shared.filter((row) => row.criterion_id === criterion.id).map((row) => row.code),
-        ];
+        const codes = linked.filter((row) => row.node_id === criterion.id).map((row) => row.display_code);
         blocks.push({ kind: 'heading', text: `Tiêu chí ${criterion.code}: ${criterion.title}` });
         const results = resultsOf(report?.indicator_results);
         if (criterion.indicators.length > 0) {
@@ -2847,7 +2028,7 @@ export class QualityAssuranceService {
       header: ['TT', 'Mã minh chứng', 'Tên minh chứng', 'Số, ngày ban hành', 'Nơi ban hành', 'Ghi chú'],
       rows: evidences.map((row, index) => [
         String(index + 1),
-        row.code,
+        row.display_code,
         row.title,
         [row.document_number, row.issued_date].filter(Boolean).join(', '),
         row.issuer ?? '',
