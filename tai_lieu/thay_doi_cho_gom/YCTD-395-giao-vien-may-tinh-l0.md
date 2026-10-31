@@ -13,7 +13,7 @@ phien_ban_de_xuat: không
 
 - Khảo sát mã: ứng dụng giáo viên giữ màn đang mở trong trạng thái, không có đường dẫn; mỗi màn tự vẽ thanh tiêu đề và vùng nội dung rộng 448 hoặc 768 điểm ảnh; `packages/ui` chưa có khung có thanh bên; thanh bên cổng quản trị gắn với bộ định tuyến và phân hệ nên không dùng lại nguyên được.
 - Đối chiếu tài liệu `15` đã duyệt ở YCTD-384: KC-09, TD-21 đã quy định thanh bên trắng 240 điểm ảnh từ 1024 cho ứng dụng theo vai; lát L7 của YCTD-384 chưa làm.
-- Lập đặc tả và bản mẫu (`tai_lieu/ban_mau/yctd-395/DAC_TA.md`, `index.html`): trang chủ MG-01, Ca trực và Ghi nhận MH-676, Sổ điểm MH-275 ở ba khổ 1366, 1024, 390, sáu trạng thái, hai phương án màu khung; kiểm tự động 72 tổ hợp không tràn khung, vùng chạm từ 44 điểm ảnh.
+- Lập đặc tả và bản mẫu (`tai_lieu/ban_mau/yctd-395/DAC_TA.md`, `index.html`): trang chủ MG-01, Ca trực và Ghi nhận MH-676, Sổ điểm MH-275 ở ba khổ 1366, 1024, 390, sáu trạng thái, hai phương án màu; Eric chê bản mẫu lần 1 (màu, nút hiện tại) nên lần 2 làm theo phong cách theo vai đã duyệt ở YCTD-384 (biểu tượng, ô lối tắt, thẻ lớp); kiểm tự động 144 tổ hợp không tràn khung, vùng chạm từ 44 điểm ảnh, chữ từ 14 điểm ảnh.
 
 #### Quyết định
 

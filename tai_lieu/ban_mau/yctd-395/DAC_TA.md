@@ -4,7 +4,7 @@
 - Ngày: 2026-10-31
 - Mức: **Lớn** (đổi bố cục toàn ứng dụng giáo viên, khoảng 36 màn hình; thêm thành phần dùng chung ở `packages/ui` cho ba ứng dụng). Không đổi dữ liệu, API, phân quyền.
 - Trạng thái: Chờ Eric duyệt bản mẫu, danh sách lát và các câu hỏi ở mục 8
-- Bản mẫu: `index.html` cùng thư mục (bốn màn hình, ba khổ 1366, 1024, 390, sáu trạng thái, hai phương án màu khung)
+- Bản mẫu: `index.html` cùng thư mục (bốn màn hình, ba khổ 1366, 1024, 390, sáu trạng thái, hai phương án màu; lần 2 ngày 2026-10-31 làm lại theo phong cách theo vai sau khi Eric chê lần 1)
 
 Ký hiệu nguồn: **[Mã]** đọc từ mã nguồn; **[Tài liệu]** từ tài liệu đã duyệt; **[Đề xuất]** chưa có, cần Eric duyệt.
 
@@ -48,7 +48,7 @@ Chức năng của lớp (Điểm danh, Sổ điểm, Đánh giá, Trao đổi v
 
 | Màn hình | Máy tính | Điện thoại |
 |---|---|---|
-| MG-01 Trang chủ | Dải chào; "Lớp của tôi" thành lưới thẻ lớp, mỗi thẻ có tên, cấp, sĩ số, nhãn Chủ nhiệm và các nút chức năng của lớp xếp lưới; hàng nút việc nhanh (Gia sư AI, Lịch dạy, Sổ đầu bài, Hộp công cụ); cột phải 340 điểm ảnh từ 1280: chấm công, thông báo, thông báo đẩy | Như hiện nay |
+| MG-01 Trang chủ | Dải chào màu nhấn bo 24 có ô chấm công; hàng ô lối tắt TD-22 có biểu tượng (Ghi nhận rèn luyện, Cờ Gia sư AI kèm số, Lịch dạy, Sổ đầu bài, Hộp công cụ, Chế độ lớp học, Lớp trực tuyến); "Lớp của tôi" thành lưới thẻ lớp: ô ký hiệu lớp, tên, cấp, sĩ số, nhãn Chủ nhiệm, lưới chức năng có biểu tượng ba cột; cột phải 320 điểm ảnh từ 1280: thông báo, việc của tôi (nghỉ phép, phiếu lương, lịch công tác, công việc), thông báo đẩy | Như hiện nay |
 | MH-676 Ca trực hôm nay | Hai thẻ số liệu; "Tôi đã ghi hôm nay" thành bảng (Giờ, Học sinh và lớp, Loại, Mục nội quy, Khu vực, Thu hồi); thu hồi mở dòng nhập lý do ngay dưới dòng | Như hiện nay |
 | MH-676 Ghi nhận vi phạm, khen | Từ 1280: hai cột (1. Học sinh bên trái; 2. Nội dung, 3. Ảnh bên phải); 1024 đến 1279 một cột rộng. Thanh lưu dính đáy có nút Thôi, Lưu ghi nhận kèm số học sinh. Máy tính chọn tệp ảnh thay chụp | Như hiện nay |
 | MH-275 Sổ điểm lớp | Bảng nhập theo ô (TD-29): cột họ tên và hàng tiêu đề dính khi cuộn, ô 44 điểm ảnh, cột TB môn; môn nhận xét có cột Kết quả | Như hiện nay (mỗi học sinh một thẻ) |
@@ -99,7 +99,7 @@ Không đổi quyền, API, dữ liệu. Thanh bên chỉ ẩn, hiện mục the
 | Mã | Câu hỏi | Phương án | Đề xuất |
 |---|---|---|---|
 | Q-395-1 | Phạm vi | A. Chỉ làm khổ máy tính, điện thoại giữ như hiện nay; phần điện thoại để YCTD-384 L7. B. Làm trọn L7 ngay (thêm thanh dưới, ô lối tắt trên điện thoại, đổi màu theo vai) | A, đúng yêu cầu, ít rủi ro cho người đang dùng điện thoại |
-| Q-395-2 | Màu khung máy tính | A. Màu hiện tại của ứng dụng (nhấn xanh dương #0670C0), đổi cùng lúc với điện thoại ở L7. B. Màu theo vai giáo viên đã duyệt (#0F6B5F) ngay từ bây giờ, chỉ ở khổ máy tính | A, để điện thoại và máy tính cùng một màu; bản mẫu có nút xem cả hai |
+| Q-395-2 | Màu và phong cách khổ máy tính | A. Phong cách theo vai giáo viên đã duyệt ở YCTD-384 (nền kem, nhấn xanh lục #0F6B5F, nút dạng viên, bo 16) ngay từ bây giờ ở khổ máy tính; điện thoại đổi theo ở L7. B. Giữ màu hiện tại (nhấn xanh dương #0670C0) cho tới L7 | A: Eric chê bản mẫu lần 1 dùng màu và nút hiện tại là xấu (2026-10-31); phong cách theo vai đã được duyệt. Bản mẫu có nút xem cả hai |
 | Q-395-3 | Chức năng của lớp trên thanh bên | A. Ô chọn lớp và chức năng của lớp đang chọn. B. Chỉ chức năng chung; chức năng lớp vẫn bấm từ thẻ lớp ở trang chủ | A, đi thẳng tới Điểm danh, Sổ điểm không qua trang chủ |
 | Q-395-4 | Sổ điểm trên máy tính | A. Bảng nhập theo ô như bản mẫu. B. Giữ mỗi học sinh một thẻ, chỉ rộng hơn | A, theo TD-29 đã duyệt |
 
@@ -111,12 +111,12 @@ Không đổi quyền, API, dữ liệu. Thanh bên chỉ ẩn, hiện mục the
 | 2. Giá trị tài liệu `15` | Màu hiện tại (`theme.css`, `apps/teacher/src/index.css`) hoặc PC-15 đến PC-21; KC-09, KC-10; CH-01 đến CH-07 |
 | 3. Đủ trạng thái | Có dữ liệu, rỗng, đang tải, lỗi, không có quyền, thông báo thành công ở cả bốn màn |
 | 4. Thông báo | Tiếng Việt, nói lỗi gì và cách xử lý (ví dụ "Chưa lưu được: Võ Đức Thắng, điểm thường xuyên 2 phải từ 0 đến 10") |
-| 5. Responsive | Kiểm tự động 72 tổ hợp (4 màn, 3 khổ, 6 trạng thái): không phần tử nào tràn khung ngoài bảng cuộn |
+| 5. Responsive | Kiểm tự động 144 tổ hợp (2 phương án màu, 4 màn, 3 khổ, 6 trạng thái): không phần tử nào tràn khung ngoài bảng cuộn |
 | 6. Chữ dài | Tên lớp "10A1 Chuyên Toán – Tin học chất lượng cao", tên học sinh năm chữ: xuống dòng, không cắt dấu |
-| 7. Tương phản | Nhấn #0670C0 trên trắng 5,1:1; chữ phụ #475569 trên #F5F7FA 7,0:1; phương án theo vai theo PC-15 đến PC-21 đã tính ở tài liệu `15` |
+| 7. Tương phản | Phong cách theo vai: giá trị PC-15 đến PC-21 đã tính ở tài liệu `15` (chữ trắng trên nhấn 6,39:1, chữ phụ 5,62:1). Màu hiện tại: nhấn #0670C0 trên trắng 5,1:1, chữ phụ #475569 trên #F5F7FA 7,0:1 |
 | 8. Bàn phím | Thanh bên là liên kết, ô chọn lớp là `select`, viền tiêu điểm 3 điểm ảnh |
 | 9. Theo quyền | Mục thanh bên theo điều kiện của trang chủ (mục 4.1) |
 | 10. Nút đang xử lý | "Đang lưu…" khóa nút; thu hồi cần nhập lý do |
 | 11. Lỗi tại ô | Mục nội quy, ô điểm ngoài khoảng |
 | 12. Màn cũ | Điện thoại không đổi; kiểm bằng ảnh chụp 390 trước, sau ở từng lát |
-| Vùng chạm | Kiểm tự động: mọi nút, ô nhập, ô chọn cao từ 44 điểm ảnh ở 72 tổ hợp |
+| Vùng chạm | Kiểm tự động: mọi nút, ô nhập, ô chọn cao từ 44 điểm ảnh, chữ từ 14 điểm ảnh ở 144 tổ hợp |
