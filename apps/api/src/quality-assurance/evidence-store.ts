@@ -30,6 +30,7 @@ import { buildTableFile, CONTENT_TYPES, type TableFileFormat } from '../exports/
 import { FileStorage } from '../files/file-storage.js';
 import { escapeLike } from '../incoming-documents/incoming-fields.js';
 import { OrganizationScopes } from '../organization/organization-scopes.js';
+import { EvidenceSources, likePattern, type SourceContext } from './evidence-sources.js';
 
 // Kho minh chứng dùng chung của trường (YCTD-396 lát L1). Minh chứng ở cơ sở dữ liệu hệ thống nên dùng cho nhiều năm học mà
 // không chép (Q-396-2); mỗi bộ tiêu chí cấp một mã theo tiêu chí chính, dùng chung cho tiêu chí khác giữ mã đó (BR-533 đến
@@ -45,27 +46,6 @@ const CONTRIBUTE = PERMISSION_CODES.evidenceContribute;
 const MANAGE = PERMISSION_CODES.evidenceManage;
 export const EVIDENCE_PERMISSIONS = [VIEW, CONTRIBUTE, MANAGE];
 const MAXIMUM_LIST = 1000;
-
-// Quyền cần để chọn bản ghi của từng loại nguồn (BR-540): gắn bản ghi cần quyền xem bản ghi đó ở phân hệ nguồn
-const RECORD_PERMISSIONS: Record<EvidenceRecordTypeCode, string[]> = {
-  professional_document: [
-    PERMISSION_CODES.professionalRecordUse,
-    PERMISSION_CODES.professionalRecordReview,
-    PERMISSION_CODES.professionalRecordApprove,
-    PERMISSION_CODES.professionalRecordManage,
-  ],
-  incoming_document: [
-    PERMISSION_CODES.incomingDocumentView,
-    PERMISSION_CODES.incomingDocumentSearch,
-    PERMISSION_CODES.incomingDocumentAdmin,
-  ],
-  outgoing_document: [
-    PERMISSION_CODES.outgoingDocumentDraft,
-    PERMISSION_CODES.outgoingDocumentSign,
-    PERMISSION_CODES.outgoingDocumentIssue,
-    PERMISSION_CODES.outgoingDocumentSearch,
-  ],
-};
 
 export function evidenceRule(message: string): ApplicationError {
   return ruleViolationError(EVIDENCE_RULE_CODE, message);
@@ -125,6 +105,8 @@ interface Snapshot {
   record_label: string;
   record_updated_at: Date | null;
   file: { file_name: string; content_type: string; body: Buffer } | null;
+  // Quyền xem nguồn ghi vào minh chứng khi bản chụp có dữ liệu cá nhân (BR-542)
+  personal_data_permissions: string[] | null;
 }
 
 interface NodeInfo {
@@ -143,6 +125,7 @@ export class EvidenceStoreService {
     private readonly databases: Databases,
     private readonly fileStorage: FileStorage,
     private readonly clock: Clock,
+    private readonly sourceRegistry: EvidenceSources,
   ) {}
 
   private async context(currentUser: CurrentUser): Promise<StoreContext> {
@@ -401,7 +384,7 @@ export class EvidenceStoreService {
       events = events.where('action', 'not in', ['view_file', 'download_file']);
     }
     const current = versions[0];
-    const changed = current ? await this.sourceChanged(context, current) : false;
+    const changed = current ? await this.sourceChanged(context, currentUser, current) : false;
     const validity = evidenceValidity(item.valid_until, context.today);
     return {
       ...item,
@@ -450,6 +433,7 @@ export class EvidenceStoreService {
   // Bản ghi nguồn đã sửa sau lần chụp (BR-541): so thời điểm sửa của bản ghi với thời điểm ghi ở phiên bản
   private async sourceChanged(
     context: StoreContext,
+    currentUser: CurrentUser,
     version: {
       source_kind: string;
       record_type: string | null;
@@ -460,26 +444,10 @@ export class EvidenceStoreService {
     if (version.source_kind !== 'record' || !version.record_id || !version.record_updated_at) {
       return false;
     }
-    const updated = await this.recordUpdatedAt(
-      context,
-      version.record_type as EvidenceRecordTypeCode,
-      version.record_id,
-    );
+    const updated = await this.sourceRegistry
+      .get(version.record_type as EvidenceRecordTypeCode)
+      .updatedAt(this.sourceContext(context, currentUser), version.record_id);
     return updated !== null && updated.getTime() > version.record_updated_at.getTime();
-  }
-
-  private async recordUpdatedAt(context: StoreContext, type: EvidenceRecordTypeCode, id: string) {
-    if (type === 'professional_document') {
-      const row = await context.year.database
-        .selectFrom('professional_documents')
-        .select('updated_at')
-        .where('id', '=', id)
-        .executeTakeFirst();
-      return row?.updated_at ?? null;
-    }
-    const table = type === 'incoming_document' ? 'incoming_documents' : 'outgoing_documents';
-    const row = await context.system.selectFrom(table).select('updated_at').where('id', '=', id).executeTakeFirst();
-    return row?.updated_at ?? null;
   }
 
   // ---- Quyền sửa ----
@@ -540,7 +508,9 @@ export class EvidenceStoreService {
     if (!item.has_personal_data) {
       return true;
     }
-    return item.personal_data_permission !== null && currentUser.hasPermission(item.personal_data_permission);
+    return (item.personal_data_permission ?? '')
+      .split(',')
+      .some((code) => code !== '' && currentUser.hasPermission(code));
   }
 
   // ---- Tạo, sửa, xóa ----
@@ -894,6 +864,13 @@ export class EvidenceStoreService {
       })
       .where('id', '=', evidenceId)
       .execute();
+    if (snapshot?.personal_data_permissions) {
+      await transaction
+        .updateTable('evidence_items')
+        .set({ has_personal_data: true, personal_data_permission: snapshot.personal_data_permissions.join(',') })
+        .where('id', '=', evidenceId)
+        .execute();
+    }
     await this.event(
       transaction,
       evidenceId,
@@ -982,61 +959,46 @@ export class EvidenceStoreService {
 
   // ---- Nguồn là bản ghi ----
 
+  private sourceContext(context: StoreContext, currentUser: CurrentUser): SourceContext {
+    return {
+      currentUser,
+      system: context.system,
+      year: context.year,
+      fileStorage: this.fileStorage,
+      now: this.clock.now(),
+    };
+  }
+
   private assertRecordPermission(currentUser: CurrentUser, type: EvidenceRecordTypeCode) {
-    if (!RECORD_PERMISSIONS[type].some((code) => currentUser.hasPermission(code))) {
+    if (!this.sourceRegistry.allows(currentUser, type)) {
       throw forbidden(`Bạn không có quyền xem ${EVIDENCE_RECORD_TYPE_LABELS[type].toLowerCase()}`);
     }
   }
 
-  // Ô chọn bản ghi: tìm hồ sơ, văn bản theo tên, số, trích yếu
+  // Ô chọn bản ghi: tìm theo tên, số, trích yếu trong phạm vi người dùng xem được ở phân hệ nguồn
   async sources(currentUser: CurrentUser, type: EvidenceRecordTypeCode, q: string | null) {
     const context = await this.context(currentUser);
     this.assertRecordPermission(currentUser, type);
-    const pattern = q ? `%${escapeLike(q)}%` : null;
-    if (type === 'professional_document') {
-      let query = context.year.database
-        .selectFrom('professional_documents')
-        .select(['id', 'title', 'owner_name'])
-        .where('status', '=', 'approved')
-        .orderBy('updated_at', 'desc')
-        .limit(50);
-      if (pattern) {
-        query = query.where('title', 'ilike', pattern);
-      }
-      return (await query.execute()).map((row) => ({ id: row.id, label: `${row.title} (${row.owner_name})` }));
-    }
-    if (type === 'incoming_document') {
-      let query = context.system
-        .selectFrom('incoming_documents')
-        .select(['id', 'symbol', 'document_date', 'summary'])
-        .where('status', '<>', 'pending_registration')
-        .orderBy('document_date', 'desc')
-        .limit(50);
-      if (pattern) {
-        query = query.where((eb) => eb.or([eb('summary', 'ilike', pattern), eb('symbol', 'ilike', pattern)]));
-      }
-      return (await query.execute()).map((row) => ({
-        id: row.id,
-        label: `${row.symbol} ngày ${row.document_date}: ${row.summary}`,
-      }));
-    }
-    let query = context.system
-      .selectFrom('outgoing_documents')
-      .select(['id', 'symbol', 'issued_at', 'summary'])
-      .where('status', '=', 'issued')
-      .orderBy('issued_at', 'desc')
-      .limit(50);
-    if (pattern) {
-      query = query.where((eb) => eb.or([eb('summary', 'ilike', pattern), eb('symbol', 'ilike', pattern)]));
-    }
-    return (await query.execute()).map((row) => ({
-      id: row.id,
-      label: `${row.symbol ?? ''} ngày ${row.issued_at ? VIETNAM_DATE.format(row.issued_at) : ''}: ${row.summary}`,
-    }));
+    return this.sourceRegistry.get(type).search(this.sourceContext(context, currentUser), likePattern(q));
   }
 
-  // Chụp bản ghi lúc gắn (Q-396-4): nhãn, thời điểm sửa của bản ghi và tệp gốc (bản đã ký nếu có) chép vào kho để nội dung
-  // không đổi theo bản ghi
+  // Minh chứng đã dùng bản ghi này làm nguồn (nút "Dùng làm minh chứng" ở trang nguồn)
+  async byRecord(currentUser: CurrentUser, type: EvidenceRecordTypeCode, recordId: string) {
+    const context = await this.context(currentUser);
+    const rows = await context.system
+      .selectFrom('evidence_versions as versions')
+      .innerJoin('evidence_items as items', 'items.id', 'versions.evidence_id')
+      .leftJoin('evidence_codes as codes', 'codes.evidence_id', 'items.id')
+      .select(['items.id', 'items.title', 'codes.code', 'codes.framework_id'])
+      .where('versions.record_type', '=', type)
+      .where('versions.record_id', '=', recordId)
+      .distinct()
+      .execute();
+    return rows.map((row) => ({ ...row, display_code: row.code ? bracketEvidenceCode(row.code) : null }));
+  }
+
+  // Chụp bản ghi lúc gắn (Q-396-4) qua bộ đăng ký nguồn: nhãn, thời điểm sửa của bản ghi và tệp (tệp gốc hoặc PDF dựng
+  // từ dữ liệu) chép vào kho để nội dung không đổi theo bản ghi
   private async snapshot(
     context: StoreContext,
     currentUser: CurrentUser,
@@ -1044,39 +1006,23 @@ export class EvidenceStoreService {
     id: string,
   ): Promise<Snapshot> {
     this.assertRecordPermission(currentUser, type);
-    if (type === 'professional_document') {
-      const document = await context.year.database
-        .selectFrom('professional_documents')
-        .select(['id', 'title', 'owner_name', 'status', 'signed_file_id', 'current_version', 'updated_at'])
-        .where('id', '=', id)
-        .executeTakeFirst();
-      if (!document || document.status !== 'approved') {
-        throw validationError([
-          { field: 'record_id', message: 'Không tìm thấy hồ sơ đã duyệt ở kho hồ sơ chuyên môn' },
-        ]);
-      }
-      const fileId = await this.professionalFileId(context.year.database, document);
-      return {
-        record_type: type,
-        record_id: id,
-        record_school_year: context.year.name,
-        record_label: `${document.title} (${document.owner_name})`.slice(0, 500),
-        record_updated_at: document.updated_at,
-        file: fileId ? await this.yearFile(context.year.database, fileId) : null,
-      };
+    const definition = this.sourceRegistry.get(type);
+    const taken = await definition.snapshot(this.sourceContext(context, currentUser), id);
+    if (!taken) {
+      throw validationError([
+        { field: 'record_id', message: 'Không tìm thấy dữ liệu nguồn hoặc dữ liệu chưa đủ điều kiện' },
+      ]);
     }
-    const label = await this.documentLabel(context.system, type, id);
-    if (!label) {
-      throw validationError([{ field: 'record_id', message: 'Không tìm thấy văn bản' }]);
-    }
-    const stored = await this.documentFile(context.system, type, id);
     return {
       record_type: type,
       record_id: id,
-      record_school_year: null,
-      record_label: label.label,
-      record_updated_at: label.updated_at,
-      file: stored ? { ...stored, body: await this.fileStorage.get(stored.storage_key) } : null,
+      record_school_year: definition.per_school_year ? context.year.name : null,
+      record_label: taken.label.slice(0, 500),
+      record_updated_at: taken.updated_at,
+      file: taken.file,
+      personal_data_permissions: definition.personal_data
+        ? (definition.personal_data_permissions ?? definition.permissions ?? [])
+        : null,
     };
   }
 
@@ -1094,73 +1040,6 @@ export class EvidenceStoreService {
       .where('version_no', '=', document.current_version)
       .executeTakeFirst();
     return version?.file_id ?? null;
-  }
-
-  private async yearFile(database: YearExecutor, fileId: string) {
-    const file = await database
-      .selectFrom('files')
-      .select(['file_name', 'content_type', 'storage_key'])
-      .where('id', '=', fileId)
-      .executeTakeFirst();
-    return file
-      ? {
-          file_name: file.file_name,
-          content_type: file.content_type,
-          body: await this.fileStorage.get(file.storage_key),
-        }
-      : null;
-  }
-
-  private async documentLabel(system: SystemExecutor, type: 'incoming_document' | 'outgoing_document', id: string) {
-    if (type === 'incoming_document') {
-      const row = await system
-        .selectFrom('incoming_documents')
-        .select(['symbol', 'document_date', 'summary', 'issuer_name', 'status', 'updated_at'])
-        .where('id', '=', id)
-        .executeTakeFirst();
-      return row && row.status !== 'pending_registration'
-        ? {
-            label: `${row.symbol} ngày ${row.document_date} của ${row.issuer_name}: ${row.summary}`.slice(0, 500),
-            updated_at: row.updated_at,
-          }
-        : null;
-    }
-    const row = await system
-      .selectFrom('outgoing_documents')
-      .select(['symbol', 'issue_number', 'issued_at', 'summary', 'status', 'updated_at'])
-      .where('id', '=', id)
-      .executeTakeFirst();
-    if (!row || row.status !== 'issued') {
-      return null;
-    }
-    const issued = row.issued_at ? VIETNAM_DATE.format(row.issued_at) : '';
-    return {
-      label: `${row.symbol ?? row.issue_number ?? ''} ngày ${issued}: ${row.summary}`.slice(0, 500),
-      updated_at: row.updated_at,
-    };
-  }
-
-  // Tệp chính của văn bản: văn bản đi lấy bản đã ký, văn bản đến lấy tệp đầu tiên
-  private async documentFile(system: SystemExecutor, type: 'incoming_document' | 'outgoing_document', id: string) {
-    if (type === 'outgoing_document') {
-      return (
-        (await system
-          .selectFrom('outgoing_document_files')
-          .select(['file_name', 'content_type', 'storage_key'])
-          .where('document_id', '=', id)
-          .where('kind', '=', 'signed')
-          .orderBy('created_at', 'desc')
-          .executeTakeFirst()) ?? null
-      );
-    }
-    return (
-      (await system
-        .selectFrom('incoming_document_files')
-        .select(['file_name', 'content_type', 'storage_key'])
-        .where('document_id', '=', id)
-        .orderBy('created_at')
-        .executeTakeFirst()) ?? null
-    );
   }
 
   // ---- Xuất danh mục ----

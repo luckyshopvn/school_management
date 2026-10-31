@@ -28,13 +28,26 @@ export function evidenceValidity(validUntil: string | null, today: string): Evid
   return validUntil <= limit.toISOString().slice(0, 10) ? 'expiring' : 'valid';
 }
 
-// Loại bản ghi làm nguồn minh chứng. Lát L1 có ba loại đã dùng ở 22f; lát L2 thêm bộ đăng ký nguồn và các loại khác
-export type EvidenceRecordTypeCode = 'professional_document' | 'incoming_document' | 'outgoing_document';
+// Loại bản ghi làm nguồn minh chứng: ba loại đã dùng ở 22f (lát L1) và các loại của bộ đăng ký nguồn (lát L2)
+export type EvidenceRecordTypeCode =
+  | 'professional_document'
+  | 'incoming_document'
+  | 'outgoing_document'
+  | 'education_plan'
+  | 'work_plan'
+  | 'staff_qualification'
+  | 'professional_evaluation'
+  | 'facility_report';
 
 export const EVIDENCE_RECORD_TYPE_LABELS: Record<EvidenceRecordTypeCode, string> = {
   professional_document: 'Hồ sơ chuyên môn đã duyệt',
   incoming_document: 'Văn bản đến đã vào sổ',
   outgoing_document: 'Văn bản đi đã phát hành',
+  education_plan: 'Kế hoạch giáo dục (cá nhân, tổ, trường)',
+  work_plan: 'Kế hoạch công việc',
+  staff_qualification: 'Thống kê đội ngũ theo trình độ',
+  professional_evaluation: 'Phiếu đánh giá chuẩn nghề nghiệp',
+  facility_report: 'Báo cáo cơ sở vật chất',
 };
 
 export type EvidenceEventActionCode =

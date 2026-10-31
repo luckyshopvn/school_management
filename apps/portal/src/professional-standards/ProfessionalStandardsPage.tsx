@@ -11,6 +11,7 @@ import { menuPageTitle } from '../pages/page-title.js';
 import { useHasPermission } from '../session/permissions.js';
 import { listStaff } from '../staff/staff-api.js';
 import { messageOf, selectClass } from '../work/work-api.js';
+import { UseAsEvidence } from '../quality-assurance/UseAsEvidence.js';
 import {
   createCriterion,
   finalizeEvaluation,
@@ -295,6 +296,13 @@ function AssessmentPanel({ evaluationId, onChanged }: { evaluationId: string; on
   return (
     <section className="flex flex-col gap-3 rounded-lg bg-card p-4" aria-label={`Phiếu của ${detail.data.full_name}`}>
       <h2 className="text-section-title font-semibold text-text">Phiếu của {detail.data.full_name}</h2>
+      <div>
+        <UseAsEvidence
+          recordType="professional_evaluation"
+          recordId={evaluationId}
+          defaultTitle={`Phiếu đánh giá chuẩn nghề nghiệp của ${detail.data.full_name}`}
+        />
+      </div>
       <EvaluationHeader evaluation={detail.data} />
       <EvaluationForm
         evaluation={detail.data}

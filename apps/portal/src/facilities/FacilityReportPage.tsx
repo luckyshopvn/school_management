@@ -16,6 +16,7 @@ import {
   type FacilityReport,
 } from './facilities-api.js';
 import { SelectBox, TabBar } from './facilities-ui.js';
+import { UseAsEvidence } from '../quality-assurance/UseAsEvidence.js';
 
 // 1.2 Báo cáo cơ sở vật chất (khảo sát mục 4, dòng 1.2; DT-16 phần 16i): số liệu phòng đang dùng theo khối, loại phòng và
 // hiện trạng; thẻ nhà vệ sinh; tổng hợp mức độ đạt chuẩn theo khối phòng (Hiệu trưởng đánh giá, mức của trường là mức thấp
@@ -257,6 +258,11 @@ export function FacilityReportPage() {
             >
               Xuất PDF
             </Button>
+            <UseAsEvidence
+              recordType="facility_report"
+              recordId={orgUnitId || 'toan-truong'}
+              defaultTitle="Báo cáo cơ sở vật chất"
+            />
           </div>
         </div>
         <div className="grid gap-3 md:grid-cols-3">

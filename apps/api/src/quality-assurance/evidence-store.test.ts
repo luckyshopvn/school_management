@@ -1,6 +1,8 @@
 import assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
+import { createDatabase, replaceDatabaseName, type SchoolYearDatabase } from '@school-management/database';
 import { bracketEvidenceCode, evidenceValidity } from '@school-management/shared';
+import type { Kysely } from 'kysely';
 import { FileStorage } from '../files/file-storage.js';
 import {
   openTestAcademicYear,
@@ -10,7 +12,7 @@ import {
   type LoggedInUser,
 } from '../test-support.js';
 
-// Kho minh chứng dùng chung (YCTD-396 lát L1); kịch bản CT-2130 đến CT-2135 (trong mã kiểm thử là CT-396-1 đến CT-396-6).
+// Kho minh chứng dùng chung (YCTD-396 lát L1); kịch bản CT-2130 đến CT-2135 (trong mã kiểm thử là CT-396-1 đến CT-396-6), lát L2 thêm CT-396-8, CT-396-9.
 // Dữ liệu mẫu là dữ liệu giả
 const vietnamToday = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Ho_Chi_Minh' }).format(new Date());
 const addDays = (date: string, days: number) =>
@@ -32,12 +34,14 @@ describe('Kho minh chứng: hàm dùng chung', () => {
 describe('Kho minh chứng', () => {
   let environment: ApiTestEnvironment;
   let principal: LoggedInUser;
+  let schoolYear: Kysely<SchoolYearDatabase>;
   const users: Record<string, LoggedInUser> = {};
   const criteria: Record<string, string> = {};
   const evidences: Record<string, string> = {};
   let frameworkId = '';
   let otherFrameworkId = '';
   let otherCriterionId = '';
+  let unit = '';
 
   const token = (name: string) => (name === 'principal' ? principal.accessToken : (users[name]?.accessToken ?? ''));
   const api = (method: string, path: string, name: string, body?: unknown) =>
@@ -69,6 +73,13 @@ describe('Kho minh chứng', () => {
       first_term: { start_date: firstStart, end_date: firstEnd },
       second_term: { start_date: addDays(firstEnd, 3), end_date: addDays(firstEnd, 120) },
     });
+    const registry = await environment.system
+      .selectFrom('academic_year_databases')
+      .select('database_name')
+      .executeTakeFirstOrThrow();
+    schoolYear = createDatabase<SchoolYearDatabase>(
+      replaceDatabaseName(environment.systemDatabaseUrl, registry.database_name),
+    );
     users.teacher = await environment.loginAs('VT-07', null);
     users.teacher2 = await environment.loginAs('VT-07', null);
     users.parent = await environment.loginAs('VT-14', null);
@@ -103,6 +114,7 @@ describe('Kho minh chứng', () => {
   });
 
   after(async () => {
+    await schoolYear.destroy();
     await environment.close();
   });
 
@@ -288,5 +300,79 @@ describe('Kho minh chứng', () => {
     );
     assert.ok((updated.body.events as Array<{ action: string }>).some((row) => row.action === 'link'));
     assert.equal((await api('PUT', path, 'principal', body)).status, 200);
+  });
+
+  it('CT-396-8: nguồn thống kê đội ngũ (lát L2): ô chọn có toàn trường, gắn chụp PDF không có dữ liệu cá nhân, tra minh chứng theo bản ghi; người không có quyền xem thống kê không gắn được; mã bản ghi sai bị từ chối', async () => {
+    unit = (await api('POST', '/org-units', 'principal', { code: 'TC', name: 'TC', unit_type: 'truong_chinh' })).body
+      .id as string;
+    const options = (await api('GET', '/quality/evidences/sources?record_type=staff_qualification', 'principal'))
+      .body as unknown as Array<{ id: string }>;
+    assert.equal(options[0]?.id, 'toan-truong');
+    const base = {
+      framework_id: frameworkId,
+      node_id: criteria['2.2'],
+      title: 'Thống kê đội ngũ theo trình độ thử',
+      record_type: 'staff_qualification',
+      record_id: 'toan-truong',
+    };
+    assert.equal((await api('POST', '/quality/evidences', 'teacher', base)).status, 403);
+    assert.equal(
+      (await api('POST', '/quality/evidences', 'principal', { ...base, record_id: 'khong-co' })).status,
+      400,
+    );
+    const created = await api('POST', '/quality/evidences', 'principal', base);
+    assert.equal(created.status, 201, JSON.stringify(created.body));
+    const detail = await api('GET', `/quality/evidences/${created.body.id}`, 'principal');
+    assert.equal(detail.body.has_personal_data, false);
+    assert.equal(detail.body.status, 'sufficient');
+    const file = await download(`/quality/evidences/${created.body.id}/file`, 'principal');
+    assert.equal(file.body.subarray(0, 4).toString(), '%PDF');
+    const used = (
+      await api(
+        'GET',
+        '/quality/evidences/by-record?record_type=staff_qualification&record_id=toan-truong',
+        'principal',
+      )
+    ).body as unknown as Array<{ display_code: string }>;
+    assert.deepEqual(
+      used.map((row) => row.display_code),
+      [created.body.display_code],
+    );
+  });
+
+  it('CT-396-9: nguồn phiếu đánh giá chuẩn nghề nghiệp (lát L2): bản chụp có dữ liệu cá nhân, chỉ người có quyền quản lý hoặc đánh giá chuẩn tải được', async () => {
+    const staff = await schoolYear
+      .insertInto('staff')
+      .values({
+        org_unit_id: unit,
+        code: 'NS-CN-1',
+        full_name: 'Giáo Viên Chuẩn Thử',
+        start_date: addDays(vietnamToday, -300),
+      })
+      .returning('id')
+      .executeTakeFirstOrThrow();
+    const evaluation = await schoolYear
+      .insertInto('professional_evaluations')
+      .values({ staff_id: staff.id, org_unit_id: unit, standard_type: 'teacher', opened_by: principal.userId })
+      .returning('id')
+      .executeTakeFirstOrThrow();
+    const options = (
+      await api('GET', '/quality/evidences/sources?record_type=professional_evaluation&q=Chuẩn', 'principal')
+    ).body as unknown as Array<{ id: string }>;
+    assert.ok(options.some((row) => row.id === evaluation.id));
+    const created = await api('POST', '/quality/evidences', 'principal', {
+      framework_id: frameworkId,
+      node_id: criteria['2.2'],
+      title: 'Phiếu đánh giá chuẩn của giáo viên thử',
+      record_type: 'professional_evaluation',
+      record_id: evaluation.id,
+    });
+    assert.equal(created.status, 201, JSON.stringify(created.body));
+    const id = created.body.id as string;
+    const detail = await api('GET', `/quality/evidences/${id}`, 'teacher');
+    assert.equal(detail.body.has_personal_data, true);
+    assert.equal(detail.body.can_download, false);
+    assert.equal((await download(`/quality/evidences/${id}/file`, 'teacher')).status, 403);
+    assert.equal((await download(`/quality/evidences/${id}/file`, 'principal')).status, 200);
   });
 });

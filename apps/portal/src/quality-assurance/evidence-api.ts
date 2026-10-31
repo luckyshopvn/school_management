@@ -188,5 +188,9 @@ export const downloadEvidenceVersion = (id: string, versionNo: number | null) =>
   );
 export const exportStoreEvidences = (frameworkId: string) =>
   download(`${API}/export${query({ framework_id: frameworkId, format: 'xlsx' })}`, 'danh-muc-minh-chung.xlsx');
+export const listEvidenceByRecord = (recordType: EvidenceRecordTypeCode, recordId: string) =>
+  requestJson<
+    Array<{ id: string; title: string; code: string | null; framework_id: string | null; display_code: string | null }>
+  >(`${API}/by-record${query({ record_type: recordType, record_id: recordId })}`);
 export const listRecordSources = (recordType: EvidenceRecordTypeCode, q: string) =>
   requestJson<Array<{ id: string; label: string }>>(`${API}/sources${query({ record_type: recordType, q })}`);
