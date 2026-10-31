@@ -2,9 +2,9 @@
 
 - Ngày: 2026-10-31
 - Mức: Lớn (dữ liệu mới xuyên năm học ở cơ sở dữ liệu hệ thống, chuyển dữ liệu của phân hệ Bảo đảm chất lượng, quyền mới, nhiều module cung cấp nguồn minh chứng)
-- Trạng thái: Chờ Eric duyệt bản mẫu, danh sách lát và câu hỏi mục 10. Chưa viết mã.
+- Trạng thái: Đã phê duyệt (Eric, ngày 2026-10-31: bản mẫu, danh sách lát, câu trả lời mục 10)
 - Bản mẫu: `tai_lieu/ban_mau/yctd-396/index.html` (mở thẳng bằng trình duyệt; thanh trên cùng chọn màn hình, khổ, trạng thái)
-- Mã giữ: YCTD-396; AC-1420 đến AC-1459; CT-2130 đến CT-2179; BR-533 đến BR-549; MH-678 đến MH-689. Số database migration cấp ở lát viết mã theo `main` lúc đó.
+- Mã giữ: YCTD-396; AC-1420 đến AC-1459; CT-2130 đến CT-2179; BR-533 đến BR-549; BM-271 đến BM-275; MH-678 đến MH-689; vai trò VT-23 (đoàn đánh giá ngoài). Số database migration cấp ở lát viết mã theo `main` lúc đó.
 
 ## 1. Yêu cầu và căn cứ
 
@@ -19,7 +19,7 @@ Văn bản dùng (chỉ trích tên, số hiệu; đã tra cứu ngày 2026-10-3
 | Thông tư 19/2018/TT-BGDĐT | Kiểm định chất lượng giáo dục và công nhận đạt chuẩn quốc gia đối với trường mầm non | Bộ mẫu `MN-KDCL` đã có (YCTD-149) |
 | Thông tư 17/2018/TT-BGDĐT | Như trên, trường tiểu học | Chưa có bộ mẫu |
 | Thông tư 18/2018/TT-BGDĐT | Như trên, trường trung học cơ sở, trung học phổ thông, trường phổ thông có nhiều cấp học | Chưa có bộ mẫu |
-| Thông tư 22/2024/TT-BGDĐT | Sửa đổi, bổ sung một số điều của các quy định kèm theo Thông tư 17, 18, 19/2018 | Hiệu lực từ 25/01/2025 theo trang tra cứu; xem Q-396-1 |
+| Thông tư 22/2024/TT-BGDĐT | Sửa đổi, bổ sung một số điều của các quy định kèm theo Thông tư 17, 18, 19/2018 | Hiệu lực từ 25/01/2025 theo trang tra cứu; bộ mẫu theo bản đã sửa đổi (Q-396-1) |
 | Công văn 5932/BGDĐT-QLCL (2018) | Hướng dẫn tự đánh giá và đánh giá ngoài cơ sở giáo dục phổ thông: cách mã minh chứng `[Hn-a.b-c]`, danh mục minh chứng, mẫu báo cáo | Đối chiếu bản gốc ở lát L5 |
 | Công văn hướng dẫn tự đánh giá và đánh giá ngoài trường mầm non (2018) | Như trên cho mầm non | Các nguồn ghi số hiệu khác nhau (5942 hoặc 5492); đối chiếu bản gốc ở lát L5 |
 
@@ -64,7 +64,7 @@ Nền tảng dùng lại được:
 - **Nút của cây**: tiêu chuẩn, tiêu chí, chỉ báo (tên cấp do bộ đặt, ví dụ bộ chuẩn giáo viên dùng "Tiêu chuẩn, Tiêu chí, Mức"). Minh chứng gắn vào tiêu chí; chỉ báo dùng để đánh dấu đạt ở phiếu.
 - **Kho minh chứng của trường**: mỗi minh chứng tồn tại một lần, nhiều năm học, nhiều bộ tiêu chí. Có mã theo từng bộ (cùng một biên bản có thể là `[H1-1.1-01]` ở bộ kiểm định và `TĐ-2.3-04` ở bộ thi đua).
 - **Phiên bản**: mỗi lần thay tệp hoặc chụp lại bản ghi nguồn là một phiên bản mới; danh mục, báo cáo dùng phiên bản hiện hành; phiên bản cũ giữ để tra.
-- **Nguồn**: tệp tải lên, hoặc **bản ghi trong hệ thống** qua bộ đăng ký nguồn (mục 4.4). Bản ghi được chụp thành tệp PDF lúc gắn (Q-396-4) và giữ liên kết để mở bản gốc.
+- **Nguồn**: tệp tải lên, hoặc **bản ghi trong hệ thống** qua bộ đăng ký nguồn (mục 4.4). Bản ghi được chụp thành tệp PDF đầy đủ lúc gắn (Q-396-4, Q-396-5) và giữ liên kết để mở bản gốc.
 - **Đợt** (đợt tự đánh giá của 22f, hoặc đợt của bộ khác): khoảng năm học được tính, hội đồng, phiếu đánh giá. Đợt đọc minh chứng từ kho, không chép.
 
 ### 4.2 Mô hình dữ liệu (đề xuất, chốt ở lát L1)
@@ -75,12 +75,12 @@ Nền tảng dùng lại được:
 |---|---|---|
 | `evidence_frameworks` | `code`, `name`, `kind` (`accreditation`, `principal_standard`, `teacher_standard`, `emulation`, `safe_school`, `school_year_plan`, `other`), `school_levels` (mảng), `subject` (`school`, `person`), `legal_basis`, `max_level` (0 đến 4), `cycle_years`, `code_pattern`, `node_labels` (tên ba cấp), `template_code`, `template_version`, `status` (`active`, `inactive`) | Thay `quality_frameworks` ở năm học |
 | `evidence_framework_nodes` | `framework_id`, `parent_id`, `depth` (1 tiêu chuẩn, 2 tiêu chí, 3 chỉ báo), `code`, `title`, `level` (mức của chỉ báo), `evidence_hint`, `suggested_sources` (mảng loại nguồn), `default_box`, `sort_order` | Thay `quality_standards`, `quality_criteria`, `quality_indicators` |
-| `evidence_items` | `title`, `document_number`, `issued_date`, `issuer`, `description`, `school_year_names` (mảng năm học minh chứng thuộc về), `valid_from`, `valid_until`, `status` (`missing`, `collecting`, `sufficient`, `needs_update`), `confidentiality` (`normal`, `restricted`), `owner_user_id`, `current_version_id`, `created_by`, `updated_at` | "Hết hiệu lực", "Sắp hết hiệu lực" tính từ `valid_until`, không lưu |
-| `evidence_versions` | `evidence_id`, `version_no`, `source_kind` (`upload`, `record`), `storage_key`, `file_name`, `content_type`, `size_bytes`, `sha256`, `record_type`, `record_id`, `record_school_year`, `record_label`, `record_updated_at`, `personal_data_mode` (`aggregate`, `named`), `note`, `created_by`, `created_at` | Tệp lưu theo `storageKey` như hồ sơ công việc; không sửa, không xóa phiên bản đã có khi đợt đã hoàn thành |
+| `evidence_items` | `title`, `document_number`, `issued_date`, `issuer`, `description`, `school_year_names` (mảng năm học minh chứng thuộc về), `valid_from`, `valid_until`, `status` (`missing`, `collecting`, `sufficient`, `needs_update`), `owner_user_id`, `current_version_id`, `created_by`, `updated_at` | "Hết hiệu lực", "Sắp hết hiệu lực" tính từ `valid_until`, không lưu |
+| `evidence_versions` | `evidence_id`, `version_no`, `source_kind` (`upload`, `record`), `storage_key`, `file_name`, `content_type`, `size_bytes`, `sha256`, `record_type`, `record_id`, `record_school_year`, `record_label`, `record_updated_at`, `has_personal_data`, `personal_data_permission` (quyền xem loại nguồn), `note`, `created_by`, `created_at` | Tệp lưu theo `storageKey` như hồ sơ công việc; không sửa, không xóa phiên bản đã có khi đợt đã hoàn thành |
 | `evidence_codes` | `evidence_id`, `framework_id`, `primary_node_id`, `box`, `sequence`, `code` (duy nhất trong bộ) | Mã theo bộ; một minh chứng có tối đa một mã mỗi bộ |
 | `evidence_node_links` | `evidence_id`, `node_id`, `is_primary` | Dùng cho nhiều tiêu chí |
 | `evidence_assignments` | `framework_id`, `node_id`, `school_year_name`, `user_id`, `due_date`, `note` | Người phụ trách tiêu chí theo năm học |
-| `evidence_events` | `evidence_id`, `action`, `actor`, `detail`, `created_at` | Lịch sử: tạo, thêm phiên bản, gắn, gỡ, đổi trạng thái, đánh lại số |
+| `evidence_events` | `evidence_id`, `action`, `actor`, `detail`, `created_at` | Lịch sử: tạo, thêm phiên bản, gắn, gỡ, đổi trạng thái, đánh lại số; **xem, tải tệp** (nhật ký truy cập, Q-396-5) |
 
 Giữ ở cơ sở dữ liệu năm học (không đổi): `quality_assessments`, hội đồng, nhóm công tác, `quality_criterion_reports`. Phiếu, đợt tham chiếu nút của bộ ở hệ thống bằng mã định danh (không có khóa ngoại giữa hai cơ sở dữ liệu, như `system_document_id` đang làm).
 
@@ -102,10 +102,10 @@ Bộ đăng ký nguồn ở máy chủ: mỗi module khai báo một loại ngu�
 |---|---|---|---|
 | Đã có ở 22f | Văn bản đến đã vào sổ, văn bản đi đã phát hành (kèm bản đã ký), hồ sơ chuyên môn đã duyệt | Tệp gốc (bản ký nếu có) | L1 |
 | Kế hoạch, điều hành | Kế hoạch công việc, kế hoạch giáo dục, kế hoạch năm học của trường, hồ sơ công việc | PDF tóm tắt kế hoạch, danh mục văn bản trong hồ sơ | L2 |
-| Dạy học | Sổ điểm của lớp (một học kỳ), điểm danh của lớp (một tháng), sổ đầu bài | PDF bảng, mặc định tổng hợp không tên (Q-396-5) | L2 |
-| Đội ngũ | Hồ sơ cán bộ (danh sách đội ngũ theo trình độ), đánh giá chuẩn nghề nghiệp một kỳ, hồ sơ bồi dưỡng | PDF thống kê; bản có tên khi chọn | L2 |
+| Dạy học | Sổ điểm của lớp (một học kỳ), điểm danh của lớp (một tháng), sổ đầu bài | PDF bảng đầy đủ có tên học sinh (Q-396-5) | L2 |
+| Đội ngũ | Hồ sơ cán bộ (danh sách đội ngũ theo trình độ), đánh giá chuẩn nghề nghiệp một kỳ, hồ sơ bồi dưỡng | PDF danh sách có tên, không có số định danh | L2 |
 | Báo cáo | Biểu EMIS đã gửi (Thông tư 25/2024), báo cáo cơ sở vật chất, kết quả chuẩn thư viện | PDF biểu đã gửi | L2 |
-| Học sinh | Ghi nhận rèn luyện một học kỳ, khám sức khỏe định kỳ, cân đo | PDF tổng hợp không tên | L7 |
+| Học sinh | Ghi nhận rèn luyện một học kỳ, khám sức khỏe định kỳ, cân đo | PDF đầy đủ có tên học sinh | L7 |
 | Khác | Quyết định khen thưởng, biên bản bình xét thi đua, kiểm thực ba bước, kiểm kê tài sản, kết quả kiểm tra đánh giá | Tệp đã có hoặc PDF | L7 |
 
 Ở trang của bản ghi nguồn có nút **Dùng làm minh chứng** (MH-686): chọn bộ, tiêu chí (gợi ý tiêu chí có `suggested_sources` khớp), xem mã sẽ cấp, ghi. Nếu bản ghi đã là minh chứng thì nút thành **Minh chứng [H1-1.1-01]** mở chi tiết.
@@ -123,18 +123,19 @@ Bản ghi đổi sau lần chụp: kho gắn nhãn "Nguồn đã thay đổi", g
 
 - **Danh mục minh chứng** theo bộ, đợt (Excel, Word): cột Số thứ tự, Mã minh chứng, Tên minh chứng, Số, ngày ban hành hoặc thời điểm khảo sát, điều tra, phỏng vấn, quan sát, Nơi ban hành hoặc nhóm, cá nhân thực hiện, Ghi chú; nhóm theo tiêu chuẩn, tiêu chí; minh chứng dùng chung ghi lại mã gốc. Cột đối chiếu theo phụ lục của công văn hướng dẫn ở lát L5.
 - **Báo cáo tự đánh giá** (Word, PDF): mẫu Mầm non đã có; thêm mẫu phổ thông theo Công văn 5932/BGDĐT-QLCL. Mã minh chứng trong phần mô tả hiện trạng viết dạng `[H1-1.1-01]`; khi xuất kiểm mọi mã trích dẫn có trong danh mục, mã không có thì báo trước khi xuất.
-- **Gói hồ sơ minh chứng** (ZIP, tác vụ nền): thư mục theo hộp `H1`, `H2`..., tệp đặt tên theo mã, kèm danh mục; dùng khi đoàn đánh giá ngoài cần bản số. Minh chứng `restricted` chỉ vào gói khi người xuất có quyền xem nguồn.
+- **Gói hồ sơ minh chứng** (ZIP, tác vụ nền): thư mục theo hộp `H1`, `H2`..., tệp đặt tên theo mã, kèm danh mục; dùng khi đoàn đánh giá ngoài cần bản số. Minh chứng có dữ liệu cá nhân chỉ vào gói khi người xuất có quyền xem loại nguồn đó; lần xuất ghi nhật ký truy cập.
 
 ### 4.7 Quyền theo vai (Q-396-7, phương án A)
 
 | Quyền | Nội dung | Vai trò mặc định |
 |---|---|---|
-| `P09.evidence.view` | Xem kho minh chứng, độ phủ, tải tệp (trừ minh chứng hạn chế) | VT-02, VT-15, VT-03, VT-17, và người được phân công tiêu chí |
+| `P09.evidence.view` | Xem kho minh chứng, độ phủ, tải tệp (minh chứng có dữ liệu cá nhân cần thêm quyền xem nguồn) | VT-02, VT-15, VT-03, VT-17, và người được phân công tiêu chí |
 | `P09.evidence.contribute` | Thêm minh chứng, phiên bản, gắn từ trang nguồn cho tiêu chí mình phụ trách | Mọi vai trò đang có `P09.quality.use` |
 | `P09.evidence.manage` | Bộ tiêu chí, nạp bộ mẫu, phân công, đánh lại số, sửa, gỡ mọi minh chứng, xuất gói | VT-02, VT-15 |
 
 - Gắn bản ghi làm minh chứng cần cả quyền xem bản ghi đó ở phân hệ nguồn; máy chủ kiểm ở mọi yêu cầu (AI-12).
-- Minh chứng hạn chế (có dữ liệu cá nhân) chỉ người có quyền xem nguồn và `P09.evidence.manage` tải được.
+- Bản chụp luôn đầy đủ, có tên học sinh (Q-396-5). Minh chứng có dữ liệu cá nhân chỉ người có quyền xem loại nguồn đó ở phân hệ nguồn tải được, kể cả người có `P09.evidence.manage`; người không đủ quyền vẫn thấy tên, mã, không tải được tệp. Mọi lần xem, tải tệp ghi `evidence_events` (người, thời điểm, phiên bản). Căn cứ và biện pháp: Nghị định 13/2023/NĐ-CP về bảo vệ dữ liệu cá nhân, tài liệu `22` BM-271.
+- Đoàn đánh giá ngoài (Q-396-9): vai trò mới VT-23, tài khoản chỉ đọc có ngày hết hạn, chỉ thấy bộ và đợt được giao; lát L8.
 - `P09.quality.use`, `P09.quality.manage` giữ nguyên cho đợt, phiếu, hội đồng.
 - Phụ huynh, học sinh không có phân hệ.
 
@@ -172,14 +173,14 @@ Phân hệ "Bảo đảm chất lượng" đổi tên **"Minh chứng và kiểm
 5. Hết hiệu lực khi `valid_until` trước hôm nay; sắp hết hiệu lực trong 30 ngày; minh chứng hết hiệu lực không tính vào độ phủ.
 6. Phiên bản đã dùng trong một đợt Đã hoàn thành không xóa được.
 7. Không xóa minh chứng đang được trích dẫn trong phiếu đã duyệt; gỡ khỏi tiêu chí thì được.
-8. Gắn bản ghi làm minh chứng cần quyền xem bản ghi; bản chụp có dữ liệu cá nhân mặc định là bản tổng hợp không tên; bản có tên đặt mức hạn chế.
+8. Gắn bản ghi làm minh chứng cần quyền xem bản ghi; bản chụp luôn đầy đủ; minh chứng có dữ liệu cá nhân chỉ người có quyền xem loại nguồn tải được; mọi lần xem, tải ghi nhật ký truy cập.
 9. Tệp tải lên: PDF, ảnh, Word, Excel, tối đa 20 MB một tệp như 22f.
 10. Bộ tiêu chí đã có minh chứng hoặc đợt thì không xóa, chỉ ngừng dùng; nút đã có minh chứng thì không xóa.
 11. Nạp lại bộ mẫu không tạo trùng mã; nút trường đã sửa thì giữ bản của trường, báo khác biệt.
 
 ## 6. Bộ tiêu chí khác để Eric chọn (Q-396-8)
 
-Mọi bộ dưới đây là cấu hình (bộ mẫu nạp sẵn), không viết mã riêng. Căn cứ chỉ ghi tên; số hiệu đối chiếu bản gốc khi nạp.
+Mọi bộ dưới đây là cấu hình (bộ mẫu nạp sẵn), không viết mã riêng. Số hiệu đối chiếu bản gốc khi nạp. Eric ngày 2026-10-31 chọn làm A, B, C, D, E, thứ tự B, C trước (Q-396-8); F, G chưa làm.
 
 | Mã đề xuất | Bộ | Đối tượng | Căn cứ (đối chiếu khi nạp) | Nối với phần đã có |
 |---|---|---|---|---|
@@ -198,13 +199,14 @@ Bộ cá nhân (A, B) thêm khái niệm "người được đánh giá": mỗi 
 | Lát | Nội dung | Mức | Điểm xem trước |
 |---|---|---|---|
 | L0 | Tài liệu này, bản mẫu, phiếu YCTD-396 | — | Bản mẫu |
-| L1 | Bảng kho ở cơ sở dữ liệu hệ thống, chuyển dữ liệu 22f, quyền mới, đổi tên phân hệ và menu; MH-679, MH-680, MH-681 với nguồn tệp và ba nguồn có sẵn; phiên bản, hiệu lực, lịch sử; đợt và phiếu 22f đọc từ kho | Lớn | Danh sách, chi tiết, thêm minh chứng; e2e 80 vẫn đạt |
+| L1 | Bảng kho ở cơ sở dữ liệu hệ thống, chuyển dữ liệu 22f, quyền mới, đổi tên phân hệ và menu; MH-679, MH-680, MH-681 với nguồn tệp và ba nguồn có sẵn; phiên bản, hiệu lực, lịch sử, nhật ký truy cập tệp; đợt và phiếu 22f đọc từ kho | Lớn | Danh sách, chi tiết, thêm minh chứng; e2e 80 vẫn đạt |
 | L2 | Bộ đăng ký nguồn, bản chụp PDF, mười nguồn của nhóm kế hoạch, dạy học, đội ngũ, báo cáo; MH-686 ở trang nguồn | Lớn | Gắn sổ điểm, văn bản đi, biểu EMIS từ trang nguồn |
-| L3 | Bộ tiêu chí nhiều loại, nhiều cấp học, mẫu mã; bộ mẫu Tiểu học, THCS và THPT (mã, tên); nhập chỉ báo từ Excel; MH-684 | Vừa | Nạp bộ mẫu Tiểu học, sửa cây |
+| L3 | Bộ tiêu chí nhiều loại, nhiều cấp học, mẫu mã; bộ mẫu Mầm non, Tiểu học, THCS và THPT đủ tiêu chuẩn, tiêu chí, chỉ báo theo văn bản đã sửa đổi bởi Thông tư 22/2024 (Q-396-6); nhập chỉ báo từ Excel; MH-684 | Vừa | Nạp bộ mẫu Tiểu học, sửa cây |
 | L4 | Phân công phụ trách, độ phủ, tiêu chí thiếu, tổng quan, Việc của tôi; MH-678, MH-682, MH-683 | Vừa | Tổng quan và độ phủ của trường mẫu |
 | L5 | Xuất danh mục theo mẫu hướng dẫn, báo cáo tự đánh giá mẫu phổ thông, kiểm mã trích dẫn, gói ZIP theo hộp; MH-685 | Vừa | Tệp Word, Excel, ZIP |
-| L6 | Bộ tiêu chí Eric chọn ở Q-396-8; bộ cá nhân nếu chọn A hoặc B | Vừa đến Lớn | Theo bộ |
+| L6 | Bộ tiêu chí ở Q-396-8 theo thứ tự B (chuẩn giáo viên, bộ cá nhân), C (thi đua), A (chuẩn hiệu trưởng), D (trường học an toàn), E (kế hoạch năm học); tách L6a đến L6e khi làm | Vừa đến Lớn | Theo bộ |
 | L7 | Nguồn còn lại (học sinh, khen thưởng, kiểm thực, kiểm kê) | Vừa | Gắn từ trang nguồn |
+| L8 | Vai trò VT-23 đoàn đánh giá ngoài: tài khoản chỉ đọc có ngày hết hạn, giao bộ và đợt, chỉ xem, tải trong phạm vi được giao, nhật ký truy cập, tự khóa khi hết hạn (Q-396-9) | Lớn | Đăng nhập bằng tài khoản đoàn, xem danh mục |
 
 Mỗi lát một PR đích `main`, có e2e (spec mới số tiếp theo, giữ spec 80). Lát Lớn chờ Eric nghiệm thu trước khi gộp; lát Vừa gộp khi đủ kiểm tra CI.
 
@@ -213,8 +215,8 @@ Mỗi lát một PR đích `main`, có e2e (spec mới số tiếp theo, giữ s
 - Một minh chứng gắn cho hai tiêu chí của một bộ hiện ở cả hai tiêu chí với cùng mã; gắn sang bộ khác có mã riêng của bộ đó.
 - Mã cấp tự động đúng dạng `[H1-1.1-01]`, không trùng trong bộ; đánh lại số cho kết quả liên tục, có lịch sử.
 - Minh chứng thêm năm học 2025-2026 vẫn thấy ở năm học 2026-2027 mà không cần kế thừa; dữ liệu 22f cũ chuyển sang kho đủ số lượng, mã, tệp.
-- Gắn sổ điểm của lớp làm minh chứng tạo phiên bản PDF tổng hợp không tên; sửa điểm sau đó hiện "Nguồn đã thay đổi"; chụp lại tạo phiên bản 2, phiên bản 1 còn tải được.
-- Người không có quyền xem sổ điểm không gắn được sổ điểm (máy chủ trả 403).
+- Gắn sổ điểm của lớp làm minh chứng tạo phiên bản PDF đầy đủ có tên; sửa điểm sau đó hiện "Nguồn đã thay đổi"; chụp lại tạo phiên bản 2, phiên bản 1 còn tải được.
+- Người không có quyền xem sổ điểm không gắn được sổ điểm và không tải được bản chụp sổ điểm, kể cả khi có `P09.evidence.manage` (máy chủ trả 403); mỗi lần xem, tải ghi nhật ký truy cập.
 - Minh chứng hết hiệu lực không tính vào độ phủ; tiêu chí không còn minh chứng đủ hiện trong danh sách thiếu.
 - Người phụ trách thấy tiêu chí thiếu ở Việc của tôi.
 - Danh mục xuất đủ cột mẫu, nhóm theo tiêu chuẩn; báo cáo có mã trích dẫn không có trong danh mục thì báo trước khi xuất.
@@ -224,13 +226,16 @@ Mỗi lát một PR đích `main`, có e2e (spec mới số tiếp theo, giữ s
 
 - Chuyển dữ liệu 22f đọc nhiều cơ sở dữ liệu năm học: chạy được nhiều lần không tạo trùng, có báo cáo số dòng; bảng cũ giữ một phiên bản.
 - Bản chụp PDF của bảng lớn (sổ điểm cả khối) có thể chậm: dựng ở tác vụ nền như xuất PDF hiện có.
-- Nội dung chỉ báo là văn bản pháp quy; theo ràng buộc của dự án không chép nguyên văn dài vào kho mã công khai (Q-396-6).
+- Nội dung chỉ báo nạp theo văn bản (Q-396-6: Eric bỏ ràng buộc không chép nguyên văn cho phần bộ tiêu chí, vì văn bản quy phạm pháp luật không thuộc đối tượng bảo hộ quyền tác giả); phải đối chiếu bản gốc đã sửa đổi bởi Thông tư 22/2024 trước khi nạp.
+- Bản chụp có tên học sinh làm tăng dữ liệu cá nhân trong kho: chặn theo quyền xem nguồn, ghi nhật ký truy cập (BM-271).
 - Số hiệu công văn hướng dẫn mầm non chưa thống nhất giữa các nguồn; đối chiếu bản gốc trước lát L5.
 - Phạm vi lớn: L1, L2 chạm nhiều module; làm tuần tự, không chạy song song với phiên đang sửa cùng module nguồn.
 
-## 10. Câu hỏi cho Eric
+## 10. Câu hỏi và quyết định của Eric
 
-Mỗi câu có phương án A (đề xuất) và B.
+Eric trả lời ngày 2026-10-31 (qua phiên điều phối): Q-396-1 A; Q-396-2 A; Q-396-3 A; Q-396-4 A; **Q-396-5 B** (luôn bản đầy đủ có tên học sinh, vẫn chặn theo quyền xem nguồn, ghi nhật ký truy cập, ghi vào tài liệu `22` kèm lưu ý Nghị định 13/2023/NĐ-CP); **Q-396-6 B** (nạp đủ nội dung chỉ báo, bỏ ràng buộc không chép nguyên văn cho phần bộ tiêu chí); Q-396-7 A; Q-396-8 làm A, B, C, D, E, thứ tự B, C trước; **Q-396-9 B** (tài khoản chỉ đọc có thời hạn, vai trò mới, lát riêng L8); Q-396-10 duyệt.
+
+Các câu hỏi đã hỏi (giữ để tra):
 
 - **Q-396-1. "Thông tư 22" trong yêu cầu là văn bản nào?**
   A (đề xuất): Thông tư 22/2024/TT-BGDĐT sửa đổi Thông tư 17, 18, 19/2018 về kiểm định; bộ mẫu theo bản đã sửa đổi.

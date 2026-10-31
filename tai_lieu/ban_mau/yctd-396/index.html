@@ -418,7 +418,7 @@ const MC = [
   { ma: '[H1-1.1-01]', ten: 'Kế hoạch chiến lược phát triển nhà trường giai đoạn 2025–2030', so: '45/KH-THHA · 15/09/2025', noi: 'Trường Tiểu học Hòa An', tc: '1.1', chung: '', nguon: 'Văn bản đi', hl: 'Đến 30/06/2030', tt: 'du' },
   { ma: '[H1-1.1-02]', ten: 'Biên bản họp hội đồng trường thông qua kế hoạch chiến lược', so: '12/BB-HĐT · 20/09/2025', noi: 'Hội đồng trường', tc: '1.1', chung: '1.4', nguon: 'Hồ sơ chuyên môn', hl: '—', tt: 'du' },
   { ma: '[H1-1.3-01]', ten: 'Danh sách đội ngũ cán bộ, giáo viên theo trình độ đào tạo', so: 'Chụp ngày 02/10/2026', noi: 'Phần mềm · Hồ sơ cán bộ', tc: '1.3', chung: '3.1', nguon: 'Hồ sơ cán bộ', hl: '—', tt: 'cap' },
-  { ma: '[H2-2.1-03]', ten: 'Sổ điểm lớp 5A học kỳ II năm học 2025–2026 (tổng hợp không tên)', so: 'Chụp ngày 28/05/2026', noi: 'Phần mềm · Sổ điểm', tc: '2.1', chung: '', nguon: 'Sổ điểm', hl: '—', tt: 'du' },
+  { ma: '[H2-2.1-03]', ten: 'Sổ điểm lớp 5A học kỳ II năm học 2025–2026', so: 'Chụp ngày 28/05/2026', noi: 'Phần mềm · Sổ điểm', tc: '2.1', chung: '', nguon: 'Sổ điểm', hl: '—', tt: 'du' },
   { ma: '[H3-3.2-01]', ten: 'Biên bản kiểm tra phòng cháy, chữa cháy', so: '08/BB-PCCC · 10/11/2025', noi: 'Công an xã Hòa An', tc: '3.2', chung: '', nguon: 'Tệp tải lên', hl: 'Hết 10/11/2026', tt: 'het' },
   { ma: '[H4-4.1-02]', ten: 'Biểu 02.ĐN-TH đầu năm học 2026–2027 đã gửi', so: 'Gửi ngày 20/09/2026', noi: 'Phần mềm · Báo cáo số liệu', tc: '4.1', chung: '', nguon: 'Biểu EMIS', hl: '—', tt: 'du' },
   { ma: '[H5-5.2-01]', ten: 'Kế hoạch giáo dục khối 4 năm học 2026–2027', so: '—', noi: '', tc: '5.2', chung: '', nguon: 'Chưa có nguồn', hl: '—', tt: 'chua' },
@@ -474,12 +474,12 @@ MAN['danh-sach'] = {
 };
 
 MAN['chi-tiet'] = {
-  ten: 'MH-680 Chi tiết minh chứng', ghi: 'Phiên bản, mã theo từng bộ, tiêu chí đang dùng, lịch sử. Bản ghi trong phần mềm được chụp PDF lúc gắn (Q-396-4).',
+  ten: 'MH-680 Chi tiết minh chứng', ghi: 'Phiên bản, mã theo từng bộ, tiêu chí đang dùng, lịch sử. Bản ghi trong phần mềm được chụp PDF lúc gắn (Q-396-4); bản chụp luôn đầy đủ (Q-396-5).',
   trangThai: ['du-lieu', 'nguon-doi', 'han-che', 'het-han'],
   ve(tt) {
     const daiNguon = tt === 'nguon-doi' ? `<div class="dai tt" role="status">${ic('lam_moi')}<div class="noi-dung"><b>Nguồn đã thay đổi.</b> Hồ sơ cán bộ được sửa ngày 18/10/2026, sau lần chụp ngày 02/10/2026.</div><button class="btn">Chụp lại thành phiên bản mới</button></div>` : '';
     const daiHet = tt === 'het-han' ? `<div class="dai nh" role="status">${ic('canh_bao')}<div class="noi-dung"><b>Đã hết hiệu lực từ 10/11/2026.</b> Minh chứng không còn tính vào độ phủ của tiêu chí 3.2.</div><button class="btn">${ic('tai_len')}Tải phiên bản mới</button></div>` : '';
-    const daiHanChe = tt === 'han-che' ? `<div class="dai tt" role="status">${ic('khoa')}<div class="noi-dung"><b>Minh chứng hạn chế:</b> bản chụp có tên học sinh. Chỉ người có quyền xem sổ điểm của lớp và người quản lý kho tải được tệp.</div></div>` : '';
+    const daiHanChe = tt === 'han-che' ? `<div class="dai tt" role="status">${ic('khoa')}<div class="noi-dung"><b>Minh chứng có dữ liệu cá nhân:</b> bản chụp có tên học sinh. Chỉ người có quyền xem nguồn tải được tệp, kể cả người quản lý kho; mọi lần xem, tải được ghi nhật ký.</div></div>` : '';
     const nutTai = tt === 'han-che' ? `<button class="btn" disabled aria-disabled="true">${ic('khoa')}Không có quyền tải</button>` : `<button class="btn">${ic('tai_xuong')}Tải tệp</button>`;
     const pb = [['3', '18/10/2026', 'Chụp lại từ Hồ sơ cán bộ', 'Nguyễn Thị Lan', 'Hiện hành'], ['2', '02/10/2026', 'Chụp từ Hồ sơ cán bộ', 'Nguyễn Thị Lan', ''], ['1', '20/09/2025', 'Tải tệp lên (năm học 2025–2026)', 'Trần Văn Bình', '']];
     const dongPb = pb.map(([v, n, c, a, h]) => `<tr><td>Bản ${v}</td><td>${n}</td><td class="ten">${c}<small>${a}</small></td><td>${h ? `<span class="badge tc">${h}</span>` : ''}</td><td><button class="btn chu">Xem</button></td></tr>`).join('');
@@ -522,9 +522,7 @@ MAN.them = {
           <label><input type="radio" name="kq"><div class="noi"><b>Lớp 5A · Học kỳ I · 2026–2027</b><small>Chưa khóa sổ</small></div></label>
           <label><input type="radio" name="kq"><div class="noi"><b>Lớp 5B · Học kỳ II · 2025–2026</b><small>Bạn không có quyền xem sổ điểm lớp này</small></div></label>
         </div>
-        <div class="bieu-mau"><fieldset class="field rong" style="border:0;padding:0;margin:0"><span>Bản chụp</span>
-          <label style="display:flex;gap:8px;align-items:center;min-height:44px"><input type="radio" name="ban" checked style="width:20px;height:20px">Tổng hợp không tên học sinh (khuyên dùng)</label>
-          <label style="display:flex;gap:8px;align-items:center;min-height:44px"><input type="radio" name="ban" style="width:20px;height:20px">Có tên học sinh, minh chứng ở mức hạn chế</label></fieldset></div>`
+        <div class="dai tt" style="margin:16px">${ic('khoa')}<div class="noi-dung"><b>Bản chụp đầy đủ, có tên học sinh.</b> Chỉ người có quyền xem sổ điểm của lớp này tải được tệp; mọi lần xem, tải được ghi nhật ký.</div></div>`
       : `<div class="bieu-mau" style="padding-bottom:0"><div class="field rong"><span>Tệp <em>*</em></span><div style="border:2px dashed var(--input-border);border-radius:var(--radius-sm);padding:24px;text-align:center">${ic('tai_len')}<div>Kéo tệp vào đây hoặc <button class="btn chu">chọn tệp</button></div><small class="muted">PDF, ảnh, Word, Excel, tối đa 20 MB</small></div></div></div>`;
     return khung('Danh sách minh chứng', 'Kho minh chứng', 'Thêm minh chứng', `${duongDan('Kho minh chứng', 'Danh sách minh chứng', 'Thêm minh chứng')}
       <div class="tieu-de-trang"><h1>Thêm minh chứng</h1></div>
@@ -535,7 +533,7 @@ MAN.them = {
           <label class="${banGhi ? '' : 'chon'}"><input type="radio" name="ng" ${banGhi ? '' : 'checked'}><div><b>Tải tệp lên</b><small>Văn bản giấy đã quét, ảnh, tệp từ nơi khác.</small></div></label>
         </div>${nguon}</div>
       <div class="card khoi-bm"><h2>2. Thông tin</h2><div class="bieu-mau">
-        <label class="field rong ${loi ? 'loi' : ''}"><span>Tên minh chứng <em>*</em></span><input value="${loi ? '' : 'Sổ điểm lớp 5A học kỳ II năm học 2025–2026 (tổng hợp không tên)'}" ${loi ? 'aria-invalid="true"' : ''}>${loi ? '<span class="thong-bao-loi">Nhập tên minh chứng.</span>' : ''}</label>
+        <label class="field rong ${loi ? 'loi' : ''}"><span>Tên minh chứng <em>*</em></span><input value="${loi ? '' : 'Sổ điểm lớp 5A học kỳ II năm học 2025–2026'}" ${loi ? 'aria-invalid="true"' : ''}>${loi ? '<span class="thong-bao-loi">Nhập tên minh chứng.</span>' : ''}</label>
         <label class="field"><span>Số, kí hiệu</span><input></label>
         <label class="field"><span>Ngày ban hành hoặc ngày chụp</span><input value="31/10/2026"></label>
         <label class="field"><span>Nơi ban hành</span><input value="Trường Tiểu học Hòa An"></label>
@@ -619,7 +617,7 @@ MAN.xuat = {
   trangThai: ['du-lieu', 'loi-ma', 'dang-tao'],
   ve(tt) {
     const loiMa = tt === 'loi-ma' ? `<div class="dai nh" role="alert">${ic('canh_bao')}<div class="noi-dung"><b>2 mã trích dẫn trong phiếu không có trong danh mục:</b> <span class="ma">[H2-2.3-05]</span> ở tiêu chí 2.3, <span class="ma">[H4-4.1-07]</span> ở tiêu chí 4.1. Sửa phiếu hoặc thêm minh chứng trước khi xuất.</div></div>` : '';
-    const goi = tt === 'dang-tao' ? `<div class="dai tt" role="status" style="flex-direction:column;gap:8px"><b>Đang tạo gói hồ sơ</b><div class="thanh-tien" style="width:100%"><span style="width:45%"></span></div><small style="font-size:14px">84 trên 186 tệp · Bạn có thể rời trang, tệp sẽ ở Tệp đã tạo.</small></div>` : '<p>Thư mục H1 đến H5, tệp đặt tên theo mã, kèm danh mục. Minh chứng hạn chế chỉ vào gói khi bạn có quyền xem nguồn.</p>';
+    const goi = tt === 'dang-tao' ? `<div class="dai tt" role="status" style="flex-direction:column;gap:8px"><b>Đang tạo gói hồ sơ</b><div class="thanh-tien" style="width:100%"><span style="width:45%"></span></div><small style="font-size:14px">84 trên 186 tệp · Bạn có thể rời trang, tệp sẽ ở Tệp đã tạo.</small></div>` : '<p>Thư mục H1 đến H5, tệp đặt tên theo mã, kèm danh mục. Minh chứng có dữ liệu cá nhân chỉ vào gói khi bạn có quyền xem nguồn.</p>';
     return khung('Xuất danh mục và báo cáo', 'Thiết lập', 'Xuất', `${duongDan('Minh chứng và kiểm định', 'Thiết lập', 'Xuất danh mục và báo cáo')}<div class="tieu-de-trang"><h1>Xuất danh mục và báo cáo</h1>${chonBo()}<label class="field"><select aria-label="Đợt tự đánh giá"><option>Đợt tự đánh giá 2026–2027</option></select></label></div>
       ${loiMa}
       <div class="luoi-xuat">
@@ -654,7 +652,7 @@ MAN['dung-lam-mc'] = {
 // ===== Thanh chọn của bản mẫu =====
 const TEN_TRANG_THAI = {
   'du-lieu': 'Có dữ liệu', rong: 'Rỗng', tai: 'Đang tải', loi: 'Lỗi', quyen: 'Không có quyền', 'thanh-cong': 'Thao tác thành công',
-  'nguon-doi': 'Nguồn đã thay đổi', 'han-che': 'Minh chứng hạn chế', 'het-han': 'Hết hiệu lực',
+  'nguon-doi': 'Nguồn đã thay đổi', 'han-che': 'Có dữ liệu cá nhân, không đủ quyền tải', 'het-han': 'Hết hiệu lực',
   'ban-ghi': 'Nguồn: dữ liệu trong phần mềm', tep: 'Nguồn: tải tệp lên', 'loi-nhap': 'Lỗi nhập liệu',
   'chi-thieu': 'Chỉ tiêu chí thiếu', 'chon-nhieu': 'Chọn nhiều', 'hop-nap-mau': 'Hộp thoại nạp bộ mẫu',
   'loi-ma': 'Mã trích dẫn không có trong danh mục', 'dang-tao': 'Đang tạo gói ZIP',
