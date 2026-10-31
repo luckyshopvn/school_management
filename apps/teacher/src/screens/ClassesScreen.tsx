@@ -1,18 +1,12 @@
-import { useEffect, useState } from 'react';
-import {
-  hasLevelFeature,
-  levelOf,
-  SCHOOL_LEVELS,
-  schoolLevelTerms,
-  type LevelFeature,
-} from '@school-management/shared';
+import { hasLevelFeature, levelOf, SCHOOL_LEVELS, schoolLevelTerms } from '@school-management/shared';
 import { Alert, ApplicationHeader, Button } from '@school-management/ui';
 import { InstallPrompt, PushSettingsPanel } from '@school-management/pwa';
-import { ApiError, fetchCurrentUser, requestJson } from '../session/api-client.js';
+import { requestJson } from '../session/api-client.js';
 import { useSession } from '../session/session.js';
 import { CheckInCard } from './CheckInCard.js';
 import { NotificationsPanel } from './NotificationsPanel.js';
-import { AI_TUTOR_FLAGS_PATH, type AiTutorFlagList } from './AiTutorFlagsScreen.js';
+import { gateUnitIds, globalFeatures, sortClassesByLevel } from '../shell/teacher-features.js';
+import type { TeacherFeatureState } from '../shell/use-teacher-features.js';
 
 // MG-01 Lớp của tôi hôm nay: các lớp đang được phân công (YCTD-44); bảo vệ mở xác nhận người đón tại cổng (MG-16)
 export interface MyClass {
@@ -49,7 +43,13 @@ function ClassSummary({ myClass, showLevel }: { myClass: MyClass; showLevel: boo
   );
 }
 
+// Thứ tự cấp để xếp lớp ở trường nhiều cấp (dùng cả ở thanh bên khổ máy tính)
+export function levelOrder(level: unknown): number {
+  return SCHOOL_LEVELS.findIndex((item) => item.value === levelOf(level));
+}
+
 export function ClassesScreen({
+  features,
   onOpen,
   onOpenPickup,
   onOpenJournal,
@@ -78,6 +78,8 @@ export function ClassesScreen({
   onOpenClassroomMode,
   onOpenAiTutorFlags,
 }: {
+  // Dữ liệu tải ở Application, dùng chung với thanh bên (YCTD-395)
+  features: TeacherFeatureState;
   onOpen(myClass: MyClass): void;
   onOpenPickup(myClass: MyClass): void;
   onOpenJournal(myClass: MyClass): void;
@@ -107,66 +109,22 @@ export function ClassesScreen({
   onOpenAiTutorFlags(): void;
 }) {
   const session = useSession();
-  const [classes, setClasses] = useState<MyClass[]>();
-  const [errorMessage, setErrorMessage] = useState<string>();
-  const [gateUnitIds, setGateUnitIds] = useState<string[]>([]);
-  // Quét QR kiểm kê thiết bị (DT-18 phần 18g)
-  const [canStocktake, setCanStocktake] = useState(false);
-  // Quét thẻ vào, ra cổng (YCTD-389)
-  const [canScanGate, setCanScanGate] = useState(false);
-  // Bồi dưỡng của tôi (DT-22 phần 22e)
-  const [canTrain, setCanTrain] = useState(false);
-  // Lớp học trực tuyến (DT-28 phần 28b)
-  const [canTeachOnline, setCanTeachOnline] = useState(false);
-  // Ghi nhận rèn luyện, ca trực của giám thị (YCTD-391)
-  const [canSupervise, setCanSupervise] = useState(false);
-  // Cờ cảnh báo của Gia sư AI (YCTD-383 lát L3): máy chủ chỉ trả cờ của lớp mình chủ nhiệm; không có cờ thì ẩn mục
-  const [aiTutorFlags, setAiTutorFlags] = useState<AiTutorFlagList>();
-
-  useEffect(() => {
-    fetchCurrentUser()
-      .then((user) => {
-        setGateUnitIds(
-          user.assignments
-            .filter((assignment) => assignment.permissions.includes('P04.pickup.gate-confirm'))
-            .map((assignment) => assignment.org_unit_id)
-            .filter((id): id is string => id !== null),
-        );
-        setCanScanGate(user.assignments.some((assignment) => assignment.permissions.includes('P04.gate-pass.record')));
-        setCanStocktake(
-          user.assignments.some((assignment) => assignment.permissions.includes('P13.equipment.stocktake')),
-        );
-        setCanTrain(user.assignments.some((assignment) => assignment.permissions.includes('P09.training.use')));
-        setCanTeachOnline(user.assignments.some((assignment) => assignment.permissions.includes('P02.learning.teach')));
-        setCanSupervise(
-          user.assignments.some((assignment) => assignment.permissions.includes('P02.supervision.record')),
-        );
-      })
-      .catch(() => setGateUnitIds([]));
-    requestJson<AiTutorFlagList>(AI_TUTOR_FLAGS_PATH)
-      .then(setAiTutorFlags)
-      .catch(() => setAiTutorFlags(undefined));
-    requestJson<MyClass[]>('/api/v1/classes?mine=true&status=active')
-      .then(setClasses)
-      .catch((error: unknown) =>
-        setErrorMessage(error instanceof ApiError ? error.message : 'Không kết nối được tới máy chủ'),
-      );
-  }, []);
-
-  const levels = new Set((classes ?? []).map((myClass) => levelOf(myClass.school_level)));
-  // Mục không hợp cấp (DT-29, YCTD-325): giáo viên có lớp mà không lớp nào ở cấp của mục thì ẩn; chưa có lớp thì theo quyền như cũ
-  const fitsSomeClass = (feature: LevelFeature) =>
-    !classes || classes.length === 0 || classes.some((myClass) => hasLevelFeature(myClass.school_level, feature));
-  const multiLevel = levels.size > 1;
-  // Trường nhiều cấp: lớp xếp theo thứ tự cấp, giữ thứ tự máy chủ trả trong cùng cấp
-  const order = (myClass: MyClass) => SCHOOL_LEVELS.findIndex((item) => item.value === levelOf(myClass.school_level));
-  const sortedClasses = multiLevel
-    ? [...(classes ?? [])].sort((left, right) => order(left) - order(right))
-    : (classes ?? []);
+  const { classes, errorMessage, aiTutorFlags } = features;
+  const assignments = features.user?.assignments ?? [];
+  const gateUnits = gateUnitIds(assignments);
+  // Chức năng theo quyền và cấp lớp, cùng điều kiện với thanh bên (DT-29, YCTD-325; YCTD-395)
+  const visible = globalFeatures({
+    assignments,
+    classes,
+    aiTutorFlagCount: aiTutorFlags?.flags.length ?? 0,
+    hasLevelFeature,
+  });
+  const multiLevel = new Set((classes ?? []).map((myClass) => levelOf(myClass.school_level))).size > 1;
+  const sortedClasses = sortClassesByLevel(classes ?? [], levelOrder);
 
   return (
     <div className="min-h-screen">
-      <ApplicationHeader title="Ứng dụng giáo viên" />
+      <ApplicationHeader title="Ứng dụng giáo viên" hideInShell />
       {/* Máy tính bảng ngang, màn hình lớn (DT-26 phần 26d): hai khung, trái là thông báo và chấm công, phải là lớp của tôi; điện thoại
           giữ một cột như trước */}
       <main className="mx-auto flex max-w-md flex-col gap-4 px-4 py-6 md:max-w-3xl lg:grid lg:max-w-6xl lg:grid-cols-[minmax(0,22rem)_minmax(0,1fr)] lg:items-start">
@@ -181,47 +139,45 @@ export function ClassesScreen({
         <div className="flex flex-col gap-4">
           <h1 className="text-page-title font-bold text-text">Lớp của tôi</h1>
           {errorMessage ? <Alert tone="danger">{errorMessage}</Alert> : null}
-          {gateUnitIds.length > 0 ? (
-            <Button variant="primary" onClick={() => onOpenGate(gateUnitIds)}>
+          {visible.has('gate') ? (
+            <Button variant="primary" onClick={() => onOpenGate(gateUnits)}>
               Xác nhận người đón tại cổng
             </Button>
           ) : null}
-          {canScanGate ? (
+          {visible.has('gate-scan') ? (
             <Button variant="primary" onClick={onOpenGateScan}>
               Quét thẻ vào, ra cổng
             </Button>
           ) : null}
-          {aiTutorFlags && aiTutorFlags.flags.length > 0 ? (
+          {aiTutorFlags && visible.has('ai-tutor-flags') ? (
             <Button variant={aiTutorFlags.pending_count > 0 ? 'primary' : 'secondary'} onClick={onOpenAiTutorFlags}>
               Gia sư AI: cờ cần xử lý ({aiTutorFlags.pending_count})
             </Button>
           ) : null}
-          {canStocktake ? <Button onClick={onOpenStocktake}>Kiểm kê thiết bị</Button> : null}
-          {canTrain ? <Button onClick={onOpenTraining}>Bồi dưỡng của tôi</Button> : null}
-          {canTeachOnline && fitsSomeClass('online_learning') ? (
-            <Button onClick={onOpenOnlineClasses}>Lớp học trực tuyến</Button>
-          ) : null}
+          {visible.has('stocktake') ? <Button onClick={onOpenStocktake}>Kiểm kê thiết bị</Button> : null}
+          {visible.has('training') ? <Button onClick={onOpenTraining}>Bồi dưỡng của tôi</Button> : null}
+          {visible.has('online-classes') ? <Button onClick={onOpenOnlineClasses}>Lớp học trực tuyến</Button> : null}
           {/* Lịch dạy theo thời khoá biểu (DT-20 phần 22c1): giáo viên có lớp cấp phổ thông */}
-          {(classes ?? []).some((myClass) => hasLevelFeature(myClass.school_level, 'period_timetable')) ? (
-            <Button onClick={onOpenTimetable}>Lịch dạy của tôi</Button>
-          ) : null}
+          {visible.has('timetable') ? <Button onClick={onOpenTimetable}>Lịch dạy của tôi</Button> : null}
           {/* Hộp công cụ giảng dạy theo cấp của lớp (DT-29, YCTD-325; trước là Công cụ lớp học của DT-23 phần 23b) */}
-          {(classes ?? []).length > 0 ? (
+          {visible.has('classroom-tools') ? (
             <Button onClick={() => onOpenClassroomTools(classes ?? [])}>Hộp công cụ giảng dạy</Button>
           ) : null}
           {/* Chế độ lớp học trên máy tính bảng, màn hình lớn: lớp theo tiết đang dạy, điểm danh, sổ đầu bài, công cụ (DT-26 phần 26d) */}
-          {(classes ?? []).length > 0 ? (
+          {visible.has('classroom-mode') ? (
             <Button onClick={() => onOpenClassroomMode(sortedClasses)}>Chế độ lớp học</Button>
           ) : null}
           {/* Sách đang mượn ở thư viện trường (DT-22 phần 22a) */}
           <Button onClick={onOpenLibrary}>Sách tôi đang mượn</Button>
           {/* Ca trực, ghi nhận vi phạm, khen từng học sinh (YCTD-391) */}
-          {canSupervise ? <Button onClick={onOpenSupervision}>Ghi nhận rèn luyện</Button> : null}
+          {visible.has('supervision') ? <Button onClick={onOpenSupervision}>Ghi nhận rèn luyện</Button> : null}
           {/* Sổ đầu bài, điểm danh theo tiết (DT-20 phần 20d) */}
-          {(classes ?? []).some((myClass) => hasLevelFeature(myClass.school_level, 'period_attendance')) ? (
-            <Button onClick={onOpenClassLog}>Sổ đầu bài</Button>
-          ) : null}
-          {classes && classes.length === 0 && gateUnitIds.length === 0 && !canScanGate && !canSupervise ? (
+          {visible.has('class-log') ? <Button onClick={onOpenClassLog}>Sổ đầu bài</Button> : null}
+          {classes &&
+          classes.length === 0 &&
+          !visible.has('gate') &&
+          !visible.has('gate-scan') &&
+          !visible.has('supervision') ? (
             <p className="text-content text-text-secondary">Bạn chưa được phân công lớp nào.</p>
           ) : null}
           <ul className="flex flex-col gap-2 md:grid md:grid-cols-2 md:gap-4">

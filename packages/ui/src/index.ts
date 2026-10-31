@@ -49,3 +49,9 @@ export { NoticeStrip } from './NoticeStrip.js';
 export { SectionIndex, type FormSection } from './SectionIndex.js';
 export { SelectionBar } from './SelectionBar.js';
 export { ShortcutTiles, type ShortcutTile } from './ShortcutTiles.js';
+export {
+  RoleNavigationShell,
+  type RoleNavigationGroup,
+  type RoleNavigationItem,
+  type RoleNavigationShellProperties,
+} from './RoleNavigationShell.js';
