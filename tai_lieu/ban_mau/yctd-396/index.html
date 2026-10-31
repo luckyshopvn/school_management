@@ -1,0 +1,691 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Bản mẫu YCTD-396: kho minh chứng dùng chung</title>
+<!-- Bản mẫu YCTD-396: kho minh chứng dùng chung cho kiểm định chất lượng và các bộ tiêu chí khác, ở phân hệ "Minh chứng và kiểm định" của cổng quản trị. Khung và biến lấy từ bản mẫu YCTD-385 (phong cách "Hành chính hiện đại", YCTD-384). Dữ liệu, tên trường, tên người đều giả. Mở thẳng tệp bằng trình duyệt; thanh trên cùng chọn màn hình, khổ, trạng thái. -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&family=Noto+Serif:ital,wght@0,700;1,400&display=swap" rel="stylesheet">
+<style>
+  /* ===== Biến chung (đề xuất tài liệu 15, YCTD-384) ===== */
+  :root {
+    --font: 'Be Vietnam Pro', system-ui, sans-serif;
+    --text-page-title: 24px; --text-section-title: 18px; --text-subtitle: 16px; --text-content: 15px; --text-label: 14px; --text-metric: 28px;
+    --space-1: 4px; --space-2: 8px; --space-3: 12px; --space-4: 16px; --space-5: 24px;
+    --touch: 44px;
+    /* Màu trạng thái, dùng chung cho hai phong cách */
+    --success-bg: #e3f4ea; --success: #1d6b43; --warning-bg: #fdf0d8; --warning: #7a4600; --danger-bg: #fdecec; --danger: #b91c1c;
+    --info-bg: #e8eef7; --info: #04497d; --neutral-bg: #eef1f4; --neutral: #4a5562;
+  }
+  /* Hành chính hiện đại */
+  .pc-hanh-chinh {
+    --page: #f4f6f9; --card: #ffffff; --text: #17202a; --muted: #5d6875; --border: #dde2e8; --line: #eef1f4; --input-border: #7d8896;
+    --accent: #1f4e8c; --accent-strong: #163a69; --accent-soft: #e8eef7;
+    --side: #12304f; --side-text: #dbe6f3; --side-muted: #a9bcd2; --side-on: #1f4e8c; --side-line: #2a4a6e;
+    --radius-sm: 8px; --radius-lg: 12px; --radius-pill: 8px; --shadow: none;
+  }
+  /* Thân thiện theo vai: nền chung, mỗi vai một màu nhấn */
+  .pc-theo-vai {
+    --page: #fbf8f3; --card: #ffffff; --text: #1f2a24; --muted: #5c6660; --border: #e7e1d8; --line: #f1ece4; --input-border: #8a8174;
+    --radius-sm: 12px; --radius-lg: 16px; --radius-pill: 999px; --shadow: 0 2px 6px rgb(60 45 20 / 5%);
+  }
+  .vai-giao-vien { --accent: #0f6b5f; --accent-strong: #0b564c; --accent-soft: #e1f1ec; }
+  .vai-phu-huynh { --accent: #1f5fa8; --accent-strong: #184c87; --accent-soft: #e6eef9; }
+  .vai-hoc-sinh { --accent: #6d28d9; --accent-strong: #5b21b6; --accent-soft: #efe7fd; }
+
+  * { box-sizing: border-box; }
+  body { margin: 0; font-family: var(--font); background: #d9dee5; color: #17202a; }
+  /* ===== Thanh chọn của bản mẫu (không thuộc thiết kế) ===== */
+  .bm-bar { position: sticky; top: 0; z-index: 50; display: flex; flex-wrap: wrap; gap: 12px; align-items: end; padding: 10px 16px; background: #fff; border-bottom: 1px solid #c9d0d9; font-size: 14px; }
+  .bm-bar label { display: flex; flex-direction: column; gap: 2px; font-weight: 600; }
+  .bm-bar select { height: 40px; font: 15px var(--font); padding: 0 8px; border: 1px solid #7d8896; border-radius: 6px; }
+  .bm-bar .bm-note { color: #4a5562; font-weight: 400; max-width: 520px; }
+  .bm-stage { padding: 24px 16px 48px; display: flex; justify-content: center; }
+  .bm-frame { container-type: inline-size; container-name: khung; background: #fff; box-shadow: 0 4px 24px rgb(0 0 0 / 18%); overflow: hidden; position: relative; }
+  .bm-frame[data-kho="390"] { border-radius: 28px; border: 8px solid #1d232b; }
+
+  /* ===== Thành phần dùng chung ===== */
+  .ung-dung { font-family: var(--font); color: var(--text); background: var(--page); font-size: var(--text-content); line-height: 1.5; min-height: 100%; }
+  .btn { min-height: var(--touch); padding: 0 16px; border-radius: var(--radius-pill); border: 1px solid var(--input-border); background: var(--card); color: var(--text); font: 600 15px var(--font); display: inline-flex; align-items: center; justify-content: center; gap: 6px; cursor: pointer; white-space: nowrap; }
+  .btn.chinh { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .btn.chinh:hover { background: var(--accent-strong); }
+  .btn.chu { border-color: transparent; background: transparent; color: var(--accent-strong); padding: 0 8px; }
+  .btn.vuong { width: var(--touch); padding: 0; }
+  .btn:focus-visible, a:focus-visible, select:focus-visible, input:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+  .card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-lg); box-shadow: var(--shadow); }
+  .badge { display: inline-flex; align-items: center; gap: 6px; min-height: 28px; padding: 0 10px; border-radius: 999px; font-size: var(--text-label); font-weight: 600; white-space: nowrap; }
+  .badge::before { content: ''; width: 8px; height: 8px; border-radius: 50%; background: currentColor; }
+  .badge.tc { background: var(--success-bg); color: var(--success); } .badge.cb { background: var(--warning-bg); color: var(--warning); }
+  .badge.nh { background: var(--danger-bg); color: var(--danger); } .badge.tt { background: var(--info-bg); color: var(--info); } .badge.trung { background: var(--neutral-bg); color: var(--neutral); }
+  .field { display: flex; flex-direction: column; gap: 6px; }
+  .field > span { font-size: var(--text-label); font-weight: 600; }
+  .field > span em { font-style: normal; color: var(--danger); }
+  .field input, .field select, .field textarea, .search input { min-height: var(--touch); font: 16px var(--font); color: var(--text); padding: 0 12px; border: 1px solid var(--input-border); border-radius: var(--radius-sm); background: var(--card); width: 100%; }
+  .field small { font-size: var(--text-label); color: var(--muted); }
+  .field.loi input, .field.loi select { border-color: var(--danger); border-width: 2px; }
+  .field .thong-bao-loi { color: var(--danger); font-size: var(--text-label); font-weight: 500; }
+  .dai { display: flex; gap: 12px; align-items: flex-start; padding: 12px 16px; border-radius: var(--radius-sm); font-size: var(--text-content); }
+  .dai.tt { background: var(--info-bg); color: var(--info); } .dai.nh { background: var(--danger-bg); color: var(--danger); } .dai.tc { background: var(--success-bg); color: var(--success); }
+  .dai .noi-dung { flex: 1; min-width: 0; }
+  .dai.chon-nhieu { align-items: center; flex-wrap: wrap; gap: 4px 8px; padding: 6px 8px 6px 16px; }
+  .dai.chon-nhieu .dem { margin-right: auto; }
+  .dai b { color: inherit; }
+  .icon { width: 20px; height: 20px; flex: none; }
+  .muted { color: var(--muted); font-size: var(--text-label); }
+  .xuong { background: linear-gradient(90deg, var(--line) 0%, #e9edf2 50%, var(--line) 100%); background-size: 200% 100%; animation: xuong 1.4s infinite; border-radius: 8px; }
+  @keyframes xuong { to { background-position: -200% 0; } }
+  .khoi-rong { text-align: center; padding: 40px 16px; display: flex; flex-direction: column; align-items: center; gap: 12px; }
+  .khoi-rong .minh-hoa { width: 72px; height: 72px; border-radius: 50%; background: var(--accent-soft); color: var(--accent-strong); display: grid; place-items: center; }
+  .khoi-rong .minh-hoa svg { width: 34px; height: 34px; }
+  .khoi-rong h3 { margin: 0; font-size: var(--text-section-title); }
+  .khoi-rong p { margin: 0; color: var(--muted); max-width: 420px; }
+  .thong-bao-noi { position: absolute; top: 16px; right: 16px; z-index: 30; max-width: min(380px, calc(100% - 32px)); display: flex; gap: 10px; align-items: flex-start; padding: 12px 14px; background: #fff; border: 1px solid var(--border); border-left: 4px solid var(--success); border-radius: var(--radius-sm); box-shadow: 0 6px 20px rgb(0 0 0 / 14%); font-size: var(--text-content); }
+  .an-dt { } .chi-dt { display: none !important; }
+
+  /* ===== Khung hành chính ===== */
+  .hc { display: grid; grid-template-columns: 256px 1fr; min-height: 820px; }
+  .hc-side { background: var(--side); color: var(--side-text); padding: 16px 12px; display: flex; flex-direction: column; gap: 2px; }
+  .hc-ten-truong { color: #fff; font-weight: 700; font-size: 16px; line-height: 1.3; padding: 4px 8px 12px; display: flex; gap: 10px; align-items: center; }
+  .hc-ten-truong .logo { width: 36px; height: 36px; flex: none; border-radius: 8px; background: var(--side-on); display: grid; place-items: center; font-size: 15px; }
+  .hc-phan-he { display: flex; align-items: center; gap: 10px; min-height: 52px; margin: 0 0 8px; padding: 6px 10px; border: 1px solid var(--side-line); border-radius: 8px; color: #fff; font-size: 15px; font-weight: 600; background: transparent; width: 100%; text-align: left; font-family: var(--font); }
+  .hc-phan-he small { display: block; color: var(--side-muted); font-weight: 500; font-size: 14px; }
+  .hc-muc { display: flex; align-items: center; gap: 10px; min-height: var(--touch); padding: 0 10px; border-radius: 8px; font-size: 15px; color: var(--side-text); }
+  .hc-muc.mo { color: #fff; font-weight: 600; }
+  .hc-muc.chon { background: var(--side-on); color: #fff; font-weight: 600; }
+  .hc-muc.con { padding-left: 40px; font-size: 15px; }
+  .hc-muc .mui { margin-left: auto; opacity: .8; }
+  .hc-muc .so { min-width: 26px; color: var(--side-muted); }
+  .hc-muc.chon .so, .hc-muc.mo .so { color: #fff; }
+  .hc-ke { border-top: 1px solid var(--side-line); margin: 10px 0; }
+  .hc-main { min-width: 0; display: flex; flex-direction: column; }
+  .hc-top { position: sticky; top: 0; z-index: 10; height: 64px; display: flex; align-items: center; gap: 12px; padding: 0 24px; background: var(--card); border-bottom: 1px solid var(--border); }
+  .search { flex: 1; max-width: 420px; position: relative; }
+  .search svg { position: absolute; left: 12px; top: 12px; width: 20px; height: 20px; color: var(--muted); }
+  .search input { padding-left: 40px; }
+  .hc-ngu-canh { min-height: var(--touch); border: 1px solid var(--input-border); border-radius: 8px; padding: 0 12px; display: inline-flex; align-items: center; gap: 8px; font-weight: 600; font-size: 15px; white-space: nowrap; background: var(--card); }
+  .hc-top .khoang { flex: 1; }
+  .so-dem { min-width: 22px; height: 22px; padding: 0 6px; border-radius: 11px; background: var(--danger); color: #fff; font-size: 14px; font-weight: 700; display: inline-grid; place-items: center; }
+  .anh-dai-dien { width: 40px; height: 40px; border-radius: 50%; background: var(--accent-soft); color: var(--accent-strong); font-weight: 700; display: grid; place-items: center; flex: none; font-size: 15px; }
+  .hc-noi-dung { padding: 20px 24px 32px; display: flex; flex-direction: column; gap: 16px; max-width: 1440px; width: 100%; }
+  .hc-dai-thong-bao { display: flex; align-items: center; gap: 12px; padding: 0 8px 0 16px; min-height: 48px; background: var(--info-bg); color: var(--info); border-radius: 8px; font-size: 15px; }
+  .hc-dai-thong-bao .noi-dung { flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .duong-dan { font-size: var(--text-label); color: var(--muted); }
+  .tieu-de-trang { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+  .tieu-de-trang h1 { margin: 0; font-size: var(--text-page-title); line-height: 1.3; flex: 1; min-width: 200px; }
+  .chi-so { display: grid; grid-template-columns: repeat(5, 1fr); }
+  .chi-so > a { padding: 16px; border-right: 1px solid var(--line); color: inherit; text-decoration: none; min-height: 110px; display: flex; flex-direction: column; gap: 2px; }
+  .chi-so > a:last-child { border-right: 0; }
+  .chi-so .gia-tri { font-size: var(--text-metric); font-weight: 700; line-height: 1.2; }
+  .luoi-2 { display: grid; grid-template-columns: 2fr 1fr; gap: 16px; align-items: start; }
+  .the-tieu-de { display: flex; align-items: center; justify-content: space-between; padding: 14px 16px 8px; }
+  .the-tieu-de h2 { margin: 0; font-size: var(--text-section-title); }
+  .dong-viec { color: inherit; text-decoration: none; display: flex; align-items: center; gap: 12px; min-height: 56px; padding: 8px 16px; border-top: 1px solid var(--line); }
+  .dong-viec .noi { flex: 1; min-width: 0; }
+  .dong-viec .noi small { display: block; color: var(--muted); font-size: 14px; }
+  .thanh-cong-cu { display: flex; gap: 8px; align-items: center; padding: 12px 16px; border-bottom: 1px solid var(--line); flex-wrap: wrap; }
+  .thanh-cong-cu .search { max-width: 360px; }
+  .loc { display: flex; gap: 8px; padding: 12px 16px 0; flex-wrap: wrap; }
+  .chip { min-height: var(--touch); padding: 0 14px; border-radius: 999px; border: 1px solid var(--input-border); display: inline-flex; align-items: center; font-size: 14px; font-weight: 600; background: var(--card); color: var(--text); font-family: var(--font); }
+  .chip[aria-pressed="true"] { background: var(--accent-soft); border-color: var(--accent); color: var(--accent-strong); }
+  .bang-cuon { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; font-size: 15px; }
+  caption { text-align: left; padding: 0; height: 0; overflow: hidden; }
+  th { text-align: left; font-size: 14px; font-weight: 600; color: var(--muted); padding: 10px 12px; border-bottom: 1px solid var(--line); white-space: nowrap; }
+  td { padding: 8px 12px; border-bottom: 1px solid var(--line); vertical-align: middle; }
+  td.ten { min-width: 220px; } td.ten b { font-weight: 600; } td.ten small { display: block; color: var(--muted); font-size: 14px; }
+  td.chon, th.chon { width: 48px; } td input[type=checkbox], th input[type=checkbox] { width: 20px; height: 20px; }
+  td.so-tien { text-align: right; white-space: nowrap; }
+  .phan-trang { display: flex; align-items: center; gap: 8px; padding: 10px 16px; font-size: 14px; color: var(--muted); flex-wrap: wrap; }
+  .phan-trang .khoang { flex: 1; }
+  .the-dong { display: none; }
+  .bieu-mau { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; padding: 16px; }
+  .bieu-mau .rong { grid-column: 1 / -1; }
+  .khoi-bm h2 { margin: 0; padding: 14px 16px 0; font-size: var(--text-section-title); }
+  .chan-bm { position: sticky; bottom: 0; display: flex; gap: 8px; justify-content: flex-end; padding: 12px 16px; background: var(--card); border-top: 1px solid var(--border); }
+  .hc-dt-nav { display: none; }
+
+  /* Máy tính bảng: thanh bên thu thành dải biểu tượng 72 điểm ảnh */
+  @container khung (max-width: 1279px) {
+    .hc { grid-template-columns: 72px 1fr; }
+    .hc-side { padding: 12px 8px; align-items: center; }
+    .hc-ten-truong span, .hc-phan-he .chu-phan-he, .hc-muc .nhan, .hc-muc .mui, .hc-muc.con, .hc-muc .so { display: none; }
+    .hc-ten-truong { padding: 4px 0 12px; }
+    .hc-phan-he { width: 56px; height: 52px; justify-content: center; padding: 0; }
+    .hc-muc { width: 56px; justify-content: center; padding: 0; }
+    .chi-so { grid-template-columns: repeat(3, 1fr); }
+    .chi-so > a:nth-child(3) { border-right: 0; }
+    .chi-so > a:nth-child(-n+3) { border-bottom: 1px solid var(--line); }
+    .luoi-2 { grid-template-columns: 1fr; }
+    .hc-top { padding: 0 16px; }
+    .hc-noi-dung { padding: 16px; }
+    .an-bang { display: none; }
+  }
+  /* Điện thoại: bỏ thanh bên, thanh đầu gọn, bảng thành thẻ */
+  @container khung (max-width: 767px) {
+    .hc { grid-template-columns: 1fr; min-height: 780px; }
+    .hc-side { display: none; }
+    .hc-top { height: 56px; padding: 0 4px 0 4px; gap: 4px; background: var(--side); border: 0; color: #fff; }
+    .hc-top .btn.vuong { color: #fff; }
+    .hc-top .search, .hc-ngu-canh, .an-dt { display: none !important; }
+    .chi-dt { display: inline-flex !important; }
+    .hc-top .ten-dt { flex: 1; font-weight: 700; font-size: 16px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .hc-noi-dung { padding: 12px; gap: 12px; }
+    .tieu-de-trang h1 { font-size: 22px; min-width: 0; }
+    .chi-so { grid-template-columns: 1fr 1fr; }
+    .chi-so > a { min-height: 96px; border-bottom: 1px solid var(--line); }
+    .chi-so > a:nth-child(odd) { border-right: 1px solid var(--line); } .chi-so > a:nth-child(even) { border-right: 0; }
+    .chi-so > a:last-child { grid-column: 1 / -1; border-bottom: 0; }
+    .thanh-cong-cu .search { max-width: none; flex-basis: 100%; }
+    .bang-cuon.thanh-the table { display: none; }
+    .bang-cuon.thanh-the .the-dong { display: block; }
+    .bieu-mau { grid-template-columns: 1fr; padding: 12px; }
+    .hc-dai-thong-bao { min-height: 44px; }
+    .tieu-de-trang .btn.chinh .nhan-dai { display: none; }
+  }
+  .the-dong > a { display: flex; gap: 12px; align-items: center; padding: 12px 16px; border-bottom: 1px solid var(--line); color: inherit; text-decoration: none; min-height: 72px; }
+  .the-dong .noi { flex: 1; min-width: 0; }
+  .the-dong .noi b { display: block; font-weight: 600; }
+  .the-dong .noi small { display: block; color: var(--muted); font-size: 14px; }
+
+  /* ===== Riêng YCTD-385: biểu thống kê, duyệt, khóa ===== */
+  .the-bieu { display: flex; gap: 8px; padding: 12px 16px 0; flex-wrap: wrap; border-bottom: 1px solid var(--line); }
+  .the-bieu button { min-height: var(--touch); padding: 0 14px; border: 0; border-bottom: 3px solid transparent; background: transparent; font: 600 15px var(--font); color: var(--muted); cursor: pointer; white-space: nowrap; flex: none; }
+  .the-bieu button[aria-selected="true"] { color: var(--accent-strong); border-bottom-color: var(--accent); }
+  .bang-bieu th, .bang-bieu td { white-space: nowrap; }
+  .bang-bieu td.chi-tieu { white-space: normal; min-width: 320px; }
+  .bang-bieu td.so, .bang-bieu th.so { text-align: right; font-variant-numeric: tabular-nums; }
+  .bang-bieu tr.de-muc td { font-weight: 700; background: var(--line); }
+  .bang-bieu tr.dam td.chi-tieu { font-weight: 600; }
+  .bang-bieu td.cap-2 { padding-left: 28px; } .bang-bieu td.cap-3 { padding-left: 44px; }
+  .bang-bieu th.nhom { text-align: center; border-bottom: 0; color: var(--text); }
+  .bang-bieu td.nhap input { width: 88px; min-height: 40px; text-align: right; font: 16px var(--font); border: 1px solid var(--input-border); border-radius: 6px; padding: 0 8px; }
+  .bang-bieu td.nhap input:disabled { background: var(--line); color: var(--muted); border-color: var(--border); }
+  .bang-bieu .co-dinh { position: sticky; left: 0; background: var(--card); z-index: 1; }
+  .bang-bieu tr.de-muc .co-dinh { background: var(--line); }
+  .nguon { font-size: 14px; color: var(--muted); }
+  .nguon.tay { color: var(--warning); font-weight: 600; }
+  .hang-trang-thai { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+  .dong-thoi-gian { list-style: none; margin: 0; padding: 8px 16px 16px; display: flex; flex-direction: column; gap: 12px; }
+  .dong-thoi-gian li { display: flex; gap: 12px; }
+  .dong-thoi-gian li::before { content: ''; width: 10px; height: 10px; margin-top: 7px; border-radius: 50%; background: var(--accent); flex: none; }
+  .dong-thoi-gian small { display: block; color: var(--muted); font-size: 14px; }
+  .hop-thoai-nen { position: absolute; inset: 0; background: rgb(18 32 50 / 45%); display: grid; place-items: center; z-index: 40; padding: 16px; }
+  .hop-thoai { background: var(--card); border-radius: var(--radius-lg); width: min(520px, 100%); display: flex; flex-direction: column; gap: 12px; padding: 20px; box-shadow: 0 12px 32px rgb(0 0 0 / 25%); }
+  .hop-thoai h2 { margin: 0; font-size: var(--text-section-title); }
+  .hop-thoai textarea { min-height: 112px; padding: 10px 12px; font: 16px var(--font); border: 1px solid var(--input-border); border-radius: var(--radius-sm); }
+  .hop-thoai .chan { display: flex; gap: 8px; justify-content: flex-end; flex-wrap: wrap; }
+  .o-so { display: grid; grid-template-columns: repeat(5, 1fr); }
+  .o-so > button { border: 0; border-right: 1px solid var(--line); background: var(--card); padding: 14px 16px; text-align: left; font-family: var(--font); color: var(--text); cursor: pointer; min-height: 88px; }
+  .o-so > button:last-child { border-right: 0; }
+  .o-so > button[aria-pressed="true"] { background: var(--accent-soft); }
+  .o-so b { display: block; font-size: var(--text-metric); line-height: 1.2; }
+  .o-so span { font-size: 14px; color: var(--muted); }
+  .luoi-chi-tiet { display: grid; grid-template-columns: 2fr 1fr; gap: 16px; align-items: start; }
+  .luoi-chi-tiet > *, .hc-noi-dung > * { min-width: 0; }
+  .chan-thao-tac { display: flex; gap: 8px; flex-wrap: wrap; padding: 12px 16px; border-top: 1px solid var(--line); }
+  .ds-loi { margin: 0; padding: 0 16px 12px 36px; }
+  .ds-loi li { padding: 4px 0; }
+  @container khung (max-width: 1279px) {
+    .o-so { grid-template-columns: repeat(3, 1fr); }
+    .o-so > button:nth-child(-n+3) { border-bottom: 1px solid var(--line); }
+    .o-so > button:nth-child(3) { border-right: 0; }
+    .luoi-chi-tiet { grid-template-columns: 1fr; }
+  }
+  @container khung (max-width: 767px) {
+    .o-so { grid-template-columns: 1fr 1fr; }
+    .o-so > button { border-bottom: 1px solid var(--line); min-height: 76px; }
+    .o-so > button:nth-child(odd) { border-right: 1px solid var(--line); } .o-so > button:nth-child(even) { border-right: 0; }
+    .the-bieu { overflow-x: auto; flex-wrap: nowrap; }
+    .bang-bieu td.chi-tieu { min-width: 200px; }
+    .chan-thao-tac .btn { flex: 1 1 100%; }
+    .dai { flex-wrap: wrap; } .dai .btn { flex: 1 1 100%; }
+    .bang-bieu .cot-dvt { display: none; }
+    .bang-bieu td.chi-tieu { min-width: 168px; max-width: 200px; }
+    .hop-thoai-nen { align-items: end; padding: 0; }
+    .hop-thoai { border-radius: 16px 16px 0 0; }
+    .hop-thoai .chan .btn { flex: 1; }
+  }
+
+  /* ===== Riêng YCTD-396: kho minh chứng ===== */
+  .ma { font-family: ui-monospace, 'Cascadia Mono', Consolas, monospace; font-size: 14px; font-weight: 600; color: var(--accent-strong); background: var(--accent-soft); border-radius: 6px; padding: 2px 6px; white-space: nowrap; }
+  .thanh-tien { height: 10px; border-radius: 5px; background: var(--line); overflow: hidden; min-width: 80px; }
+  .thanh-tien > span { display: block; height: 100%; background: var(--accent); border-radius: 5px; }
+  .thanh-tien.thieu > span { background: var(--warning); }
+  .dong-phu { display: grid; grid-template-columns: minmax(0, 1fr) 160px 56px; gap: 12px; align-items: center; min-height: 52px; padding: 8px 16px; border-top: 1px solid var(--line); }
+  .dong-phu small { display: block; color: var(--muted); font-size: 14px; }
+  .dong-phu .so { text-align: right; font-weight: 600; font-variant-numeric: tabular-nums; }
+  .chon-nguon { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; padding: 16px 16px 0; }
+  .chon-nguon label { display: flex; gap: 12px; align-items: flex-start; padding: 14px; border: 1px solid var(--input-border); border-radius: var(--radius-sm); cursor: pointer; min-height: 88px; }
+  .chon-nguon label.chon { border: 2px solid var(--accent); background: var(--accent-soft); }
+  .chon-nguon input { width: 20px; height: 20px; margin-top: 2px; flex: none; }
+  .chon-nguon small { display: block; color: var(--muted); font-size: 14px; }
+  .ket-qua-nguon { margin: 0 16px; border: 1px solid var(--border); border-radius: var(--radius-sm); }
+  .ket-qua-nguon label { display: flex; gap: 12px; align-items: center; min-height: 56px; padding: 8px 12px; border-top: 1px solid var(--line); cursor: pointer; }
+  .ket-qua-nguon label:first-child { border-top: 0; }
+  .ket-qua-nguon label.chon { background: var(--accent-soft); }
+  .ket-qua-nguon input { width: 20px; height: 20px; flex: none; }
+  .ket-qua-nguon .noi { flex: 1; min-width: 0; }
+  .ket-qua-nguon small { display: block; color: var(--muted); font-size: 14px; }
+  .xem-ma { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; padding: 12px 16px; margin: 0 16px; background: var(--line); border-radius: var(--radius-sm); }
+  .cay { list-style: none; margin: 0; padding: 4px 0 8px; }
+  .cay li > div { display: flex; align-items: center; gap: 10px; min-height: 48px; padding: 4px 16px; border-top: 1px solid var(--line); }
+  .cay .cap-2 > div { padding-left: 40px; } .cay .cap-3 > div { padding-left: 64px; color: var(--muted); }
+  .cay .noi { flex: 1; min-width: 0; }
+  .cay .noi small { display: block; color: var(--muted); font-size: 14px; }
+  .cay ul { list-style: none; margin: 0; padding: 0; }
+  .ds-bo { display: flex; flex-direction: column; }
+  .ds-bo button { display: flex; flex-direction: column; gap: 4px; text-align: left; border: 0; border-top: 1px solid var(--line); background: var(--card); padding: 12px 16px; min-height: 72px; font-family: var(--font); color: var(--text); cursor: pointer; font-size: 15px; }
+  .ds-bo button[aria-current="true"] { background: var(--accent-soft); box-shadow: inset 4px 0 0 var(--accent); }
+  .ds-bo small { color: var(--muted); font-size: 14px; }
+  .luoi-xuat { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+  .luoi-xuat .card { display: flex; flex-direction: column; }
+  .luoi-xuat .than { padding: 0 16px 12px; flex: 1; display: flex; flex-direction: column; gap: 10px; }
+  .luoi-xuat .than p { margin: 0; color: var(--muted); font-size: 14px; }
+  .trang-van-ban { display: grid; grid-template-columns: 2fr 1fr; gap: 16px; align-items: start; }
+  .bang-tt { display: grid; grid-template-columns: 180px 1fr; gap: 8px 16px; padding: 8px 16px 16px; margin: 0; }
+  .bang-tt dt { color: var(--muted); font-size: 14px; } .bang-tt dd { margin: 0; min-width: 0; overflow-wrap: anywhere; }
+  .luoi-chi-tiet.luoi-bo { grid-template-columns: 1fr 2fr; }
+  .bang-tt .ma { white-space: normal; }
+  @container khung (max-width: 1279px) {
+    .luoi-xuat { grid-template-columns: 1fr 1fr; }
+    .trang-van-ban { grid-template-columns: 1fr; }
+  }
+  @container khung (max-width: 767px) {
+    .chon-nguon { grid-template-columns: 1fr; }
+    .dong-phu { grid-template-columns: minmax(0, 1fr) 72px 48px; }
+    .luoi-xuat { grid-template-columns: 1fr; }
+    .bang-tt { grid-template-columns: 1fr; gap: 2px; } .bang-tt dd { margin-bottom: 8px; }
+    .luoi-chi-tiet.luoi-bo { grid-template-columns: 1fr; }
+    .cay .cap-2 > div { padding-left: 28px; } .cay .cap-3 > div { padding-left: 40px; }
+  }
+</style>
+</head>
+<body>
+<div class="bm-bar" role="region" aria-label="Chọn màn hình của bản mẫu">
+  <label>Màn hình <select id="chon-man"></select></label>
+  <label>Khổ <select id="chon-kho"><option value="1366">Máy tính 1366</option><option value="1024">Máy tính bảng 1024</option><option value="390">Điện thoại 390</option></select></label>
+  <label>Trạng thái <select id="chon-tt"></select></label>
+  <span class="bm-note" id="ghi-chu"></span>
+</div>
+<div class="bm-stage"><div class="bm-frame" id="khung"></div></div>
+<script>
+// ===== Biểu tượng nét mảnh, 24×24 =====
+const BT = {
+  nha: '<path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/>',
+  truong: '<path d="M3 21h18M5 21V10l7-5 7 5v11M9 21v-6h6v6"/>',
+  lop: '<rect x="3" y="4" width="18" height="12" rx="2"/><path d="M8 20h8M12 16v4"/>',
+  nguoi: '<circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c.8-3.5 3.4-5.5 6.5-5.5s5.7 2 6.5 5.5M16 4.5a3.5 3.5 0 0 1 0 7M18 14.5c2 .6 3.2 2.5 3.5 5.5"/>',
+  hs: '<circle cx="12" cy="7" r="4"/><path d="M4 21c1-4 4-6 8-6s7 2 8 6"/>',
+  cong_cu: '<path d="M14 6l4-4 4 4-4 4M3 21l9-9M12 12l3 3"/>',
+  ccvc: '<path d="M4 20V9l8-5 8 5v11M9 20v-5h6v5"/>',
+  lich: '<rect x="3" y="4" width="18" height="17" rx="2"/><path d="M3 9h18M8 2v4M16 2v4"/>',
+  diem_danh: '<rect x="3" y="4" width="18" height="17" rx="2"/><path d="M3 9h18M8 14l2.5 2.5L16 12"/>',
+  tin: '<path d="M4 5h16v11H8l-4 4z"/>',
+  chuong: '<path d="M6 16V11a6 6 0 0 1 12 0v5l2 2H4zM10 20a2 2 0 0 0 4 0"/>',
+  tim: '<circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/>',
+  menu: '<path d="M4 7h16M4 12h16M4 17h16"/>',
+  sach: '<path d="M4 4h7a3 3 0 0 1 3 3v13a2 2 0 0 0-2-2H4zM20 4h-5a3 3 0 0 0-3 3"/>',
+  com: '<path d="M4 3v8a3 3 0 0 0 6 0V3M7 3v18M17 21V3c-2.5 1-4 4-4 8h4"/>',
+  tien: '<rect x="2.5" y="5" width="19" height="14" rx="2"/><path d="M2.5 10h19M6 15h4"/>',
+  them: '<circle cx="12" cy="12" r="1.5"/><circle cx="5" cy="12" r="1.5"/><circle cx="19" cy="12" r="1.5"/>',
+  bai: '<path d="M6 3h9l4 4v14H6z"/><path d="M9 12h7M9 16h5"/>',
+  video: '<rect x="2.5" y="6" width="13" height="12" rx="2"/><path d="M15.5 10l6-3v10l-6-3"/>',
+  thuoc: '<rect x="3" y="9" width="18" height="7" rx="3.5" transform="rotate(-35 12 12.5)"/><path d="M9.5 8.5l5 7"/>',
+  phai: '<path d="M9 6l6 6-6 6"/>', xuong: '<path d="M6 9l6 6 6-6"/>', cong: '<path d="M12 5v14M5 12h14"/>', loc: '<path d="M4 5h16l-6 8v6l-4-2v-4z"/>',
+  khoa: '<rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/>', canh_bao: '<path d="M12 3l10 18H2zM12 10v5M12 18v.5"/>', dong: '<path d="M6 6l12 12M18 6L6 18"/>', xong: '<path d="M5 12l5 5 9-10"/>',
+  ai: '<path d="M12 3l1.8 4.2L18 9l-4.2 1.8L12 15l-1.8-4.2L6 9l4.2-1.8zM19 15l.9 2.1L22 18l-2.1.9L19 21l-.9-2.1L16 18l2.1-.9z"/>', anh: '<rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="9" cy="10" r="2"/><path d="M21 16l-5-5-8 8"/>',
+  rong: '<rect x="4" y="4" width="16" height="16" rx="3"/><path d="M8 12h8M12 8v8" opacity=".5"/>', thoat: '<path d="M15 4h4v16h-4M10 17l5-5-5-5M15 12H3"/>',
+};
+const ic = (k, cls = 'icon') => `<svg class="${cls}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${BT[k]}</svg>`;
+
+// ===== Trạng thái chung trong vùng nội dung =====
+const TRANG_THAI = {
+  tai: () => `<div class="card" aria-busy="true" aria-label="Đang tải" style="padding:16px;display:flex;flex-direction:column;gap:12px">${'<div class="xuong" style="height:44px"></div>'.repeat(5)}</div>`,
+  loi: () => `<div class="dai nh" role="alert">${ic('canh_bao')}<div class="noi-dung"><b>Không tải được dữ liệu.</b> Máy chủ không phản hồi. Bấm Tải lại; nếu vẫn lỗi, gửi mã tra cứu <b>7F3A-21C9</b> cho bộ phận hỗ trợ.</div><button class="btn">Tải lại</button></div>`,
+  quyen: () => `<div class="card khoi-rong"><div class="minh-hoa">${ic('khoa')}</div><h3>Bạn không có quyền xem trang này</h3><p>Liên hệ quản lý đơn vị để được cấp quyền. Các trang khác vẫn dùng bình thường.</p><a class="btn" href="#">Về trang chủ</a></div>`,
+  rong: (tieuDe, cau, nut) => `<div class="card khoi-rong"><div class="minh-hoa">${ic('rong')}</div><h3>${tieuDe}</h3><p>${cau}</p>${nut ? `<button class="btn chinh">${ic('cong')}${nut}</button>` : ''}</div>`,
+};
+const noiThongBao = (cau) => `<div class="thong-bao-noi" role="status">${ic('xong')}<div style="flex:1">${cau}</div><button class="btn chu vuong" aria-label="Đóng thông báo">${ic('dong')}</button></div>`;
+
+// ===== Khung hành chính =====
+const MENU_QT = [
+  { so: '', ten: 'Trang chủ', bt: 'nha' },
+  { so: '1.', ten: 'Trường học', bt: 'truong' },
+  { so: '2.', ten: 'Lớp học', bt: 'lop', con: [['2.1.', 'Danh sách lớp'], ['2.2.', 'Điểm danh'], ['2.3.', 'Sổ điểm'], ['2.4.', 'Thời khóa biểu']] },
+  { so: '3.', ten: 'Nhân sự', bt: 'nguoi' },
+  { so: '4.', ten: 'Học sinh', bt: 'hs', con: [['4.1.', 'Quản lý hồ sơ học sinh'], ['4.2.', 'Biến động học sinh'], ['4.3.', 'Nhập từ Excel']] },
+  { so: '5.', ten: 'Công cụ hỗ trợ', bt: 'cong_cu' },
+  { so: '6.', ten: 'Cơ sở vật chất', bt: 'ccvc' },
+];
+function khungHanhChinh({ chon, mo, noiDung, tenTrang, phanHe = 'Quản lý giáo dục Mầm non', menu = MENU_QT, tenTruong = 'Trường Mầm non Trình Diễn Thành phố Hà Nội', viTat = 'TD', thongBao = true, nguoiDung = 'TH' }) {
+  const muc = menu.map((m) => {
+    const dangMo = m.ten === mo;
+    const conHtml = dangMo && m.con ? m.con.map(([s, t]) => `<a class="hc-muc con ${t === chon ? 'chon' : ''}" ${t === chon ? 'aria-current="page"' : ''}><span class="so">${s}</span><span class="nhan">${t}</span></a>`).join('') : '';
+    const laChon = m.ten === chon;
+    return `<a class="hc-muc ${laChon ? 'chon' : ''} ${dangMo ? 'mo' : ''}" title="${m.so} ${m.ten}" ${laChon ? 'aria-current="page"' : ''}>${ic(m.bt)}<span class="so">${m.so}</span><span class="nhan">${m.ten}</span>${m.con || m.so ? `<span class="mui">${ic(dangMo ? 'xuong' : 'phai')}</span>` : ''}</a>${conHtml}`;
+  }).join('');
+  return `<div class="ung-dung pc-hanh-chinh hc">
+    <nav class="hc-side" aria-label="Menu chức năng">
+      <div class="hc-ten-truong"><span class="logo">${viTat}</span><span>${tenTruong}</span></div>
+      <button class="hc-phan-he" title="Phân hệ: ${phanHe}">${ic('lop')}<span class="chu-phan-he"><small>Phân hệ</small>${phanHe}</span></button>
+      ${muc}
+      <div class="hc-ke"></div>
+      <a class="hc-muc" title="Tất cả chức năng">${ic('them')}<span class="nhan">Tất cả chức năng</span></a>
+    </nav>
+    <div class="hc-main">
+      <header class="hc-top">
+        <button class="btn chu vuong chi-dt" aria-label="Mở menu chức năng">${ic('menu')}</button>
+        <span class="ten-dt chi-dt">${tenTrang}</span>
+        <div class="search an-dt">${ic('tim')}<input aria-label="Tìm chức năng, học sinh, cán bộ" placeholder="Tìm chức năng, học sinh, cán bộ"></div>
+        <button class="hc-ngu-canh an-dt">${ic('lich')}TH · 2026–2027 · Học kỳ I ${ic('xuong')}</button>
+        <span class="khoang an-dt"></span>
+        <button class="btn chu vuong chi-dt" aria-label="Tìm">${ic('tim')}</button>
+        <button class="btn chu an-dt">Việc của tôi <span class="so-dem">3</span></button>
+        <button class="btn chu vuong" aria-label="Thông báo, 2 chưa đọc" style="position:relative">${ic('chuong')}</button>
+        <span class="anh-dai-dien" aria-label="Menu người dùng">${nguoiDung}</span>
+      </header>
+      <main class="hc-noi-dung">
+        ${thongBao ? `<div class="hc-dai-thong-bao" role="region" aria-label="Thông báo của hệ thống">${ic('chuong')}<span class="noi-dung"><b>Cập nhật mã định danh điện tử của tổ chức:</b> theo Nghị định 69/2024/NĐ-CP, cần nhập mã 12 chữ số vào hồ sơ trường.</span><button class="btn chu">Xem</button><button class="btn chu vuong" aria-label="Ẩn thông báo">${ic('dong')}</button></div>` : ''}
+        ${noiDung}
+      </main>
+    </div>
+  </div>`;
+}
+
+const MAN = {};
+// ===== Màn hình YCTD-396. Dữ liệu, tên trường, tên người đều giả =====
+BT.tai_xuong = '<path d="M12 4v11M7 10l5 5 5-5M5 20h14"/>';
+BT.tai_len = '<path d="M12 20V9M7 14l5-5 5 5M5 4h14"/>';
+BT.kho = '<path d="M3 7l9-4 9 4v10l-9 4-9-4z"/><path d="M3 7l9 4 9-4M12 11v10"/>';
+BT.lien_ket = '<path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/>';
+BT.lam_moi = '<path d="M20 11a8 8 0 0 0-14.9-3M4 4v4h4M4 13a8 8 0 0 0 14.9 3M20 20v-4h-4"/>';
+
+const TRUONG = 'Trường Tiểu học Hòa An (giả)';
+const MENU_MC = [
+  { so: '', ten: 'Trang chủ', bt: 'nha' },
+  { so: '1.', ten: 'Kho minh chứng', bt: 'kho', con: [['1.1.', 'Tổng quan'], ['1.2.', 'Danh sách minh chứng'], ['1.3.', 'Độ phủ theo tiêu chí']] },
+  { so: '2.', ten: 'Tự đánh giá', bt: 'diem_danh', con: [['2.1.', 'Đợt tự đánh giá'], ['2.2.', 'Phiếu đánh giá tiêu chí']] },
+  { so: '3.', ten: 'Thiết lập', bt: 'cong_cu', con: [['3.1.', 'Bộ tiêu chí'], ['3.2.', 'Phân công phụ trách'], ['3.3.', 'Theo dõi công nhận'], ['3.4.', 'Xuất danh mục và báo cáo']] },
+];
+const khung = (chon, mo, tenTrang, noiDung) => khungHanhChinh({ chon, mo, tenTrang, noiDung, phanHe: 'Minh chứng và kiểm định', menu: MENU_MC, tenTruong: TRUONG, viTat: 'HA', thongBao: false, nguoiDung: 'NL' });
+const duongDan = (...m) => `<div class="duong-dan">${m.join(' / ')}</div>`;
+const chonBo = (id = 'bo') => `<label class="field" style="min-width:260px"><span class="sr-only" style="position:absolute;left:-9999px">Bộ tiêu chí</span><select id="${id}" aria-label="Bộ tiêu chí"><option>TH-KDCL · Kiểm định chất lượng trường tiểu học</option><option>TĐ-2026 · Thi đua năm học 2026–2027</option></select></label>`;
+
+const TT_MC = { du: ['tc', 'Đã đủ'], thu: ['tt', 'Đang thu thập'], chua: ['nh', 'Chưa có'], cap: ['cb', 'Cần cập nhật'], het: ['trung', 'Hết hiệu lực'] };
+const badge = (k) => `<span class="badge ${TT_MC[k][0]}">${TT_MC[k][1]}</span>`;
+const MC = [
+  { ma: '[H1-1.1-01]', ten: 'Kế hoạch chiến lược phát triển nhà trường giai đoạn 2025–2030', so: '45/KH-THHA · 15/09/2025', noi: 'Trường Tiểu học Hòa An', tc: '1.1', chung: '', nguon: 'Văn bản đi', hl: 'Đến 30/06/2030', tt: 'du' },
+  { ma: '[H1-1.1-02]', ten: 'Biên bản họp hội đồng trường thông qua kế hoạch chiến lược', so: '12/BB-HĐT · 20/09/2025', noi: 'Hội đồng trường', tc: '1.1', chung: '1.4', nguon: 'Hồ sơ chuyên môn', hl: '—', tt: 'du' },
+  { ma: '[H1-1.3-01]', ten: 'Danh sách đội ngũ cán bộ, giáo viên theo trình độ đào tạo', so: 'Chụp ngày 02/10/2026', noi: 'Phần mềm · Hồ sơ cán bộ', tc: '1.3', chung: '3.1', nguon: 'Hồ sơ cán bộ', hl: '—', tt: 'cap' },
+  { ma: '[H2-2.1-03]', ten: 'Sổ điểm lớp 5A học kỳ II năm học 2025–2026 (tổng hợp không tên)', so: 'Chụp ngày 28/05/2026', noi: 'Phần mềm · Sổ điểm', tc: '2.1', chung: '', nguon: 'Sổ điểm', hl: '—', tt: 'du' },
+  { ma: '[H3-3.2-01]', ten: 'Biên bản kiểm tra phòng cháy, chữa cháy', so: '08/BB-PCCC · 10/11/2025', noi: 'Công an xã Hòa An', tc: '3.2', chung: '', nguon: 'Tệp tải lên', hl: 'Hết 10/11/2026', tt: 'het' },
+  { ma: '[H4-4.1-02]', ten: 'Biểu 02.ĐN-TH đầu năm học 2026–2027 đã gửi', so: 'Gửi ngày 20/09/2026', noi: 'Phần mềm · Báo cáo số liệu', tc: '4.1', chung: '', nguon: 'Biểu EMIS', hl: '—', tt: 'du' },
+  { ma: '[H5-5.2-01]', ten: 'Kế hoạch giáo dục khối 4 năm học 2026–2027', so: '—', noi: '', tc: '5.2', chung: '', nguon: 'Chưa có nguồn', hl: '—', tt: 'chua' },
+];
+function bangMinhChung(ds) {
+  const dong = ds.map((m) => `<tr><td class="chon"><input type="checkbox" aria-label="Chọn ${m.ma}"></td><td><span class="ma">${m.ma}</span></td><td class="ten"><b>${m.ten}</b><small>${m.so}${m.noi ? ' · ' + m.noi : ''}</small></td><td>${m.tc}${m.chung ? `<small class="muted" style="display:block">dùng chung ${m.chung}</small>` : ''}</td><td>${m.nguon}</td><td class="an-bang">${m.hl}</td><td>${badge(m.tt)}</td></tr>`).join('');
+  const the = ds.map((m) => `<a href="#"><div class="noi"><b>${m.ten}</b><small><span class="ma">${m.ma}</span> · ${m.nguon}</small></div>${badge(m.tt)}</a>`).join('');
+  return `<div class="bang-cuon thanh-the"><table><caption>Danh sách minh chứng</caption><thead><tr><th class="chon"><input type="checkbox" aria-label="Chọn tất cả"></th><th>Mã</th><th>Tên minh chứng</th><th>Tiêu chí</th><th>Nguồn</th><th class="an-bang">Hiệu lực</th><th>Trạng thái</th></tr></thead><tbody>${dong}</tbody></table><div class="the-dong">${the}</div></div>`;
+}
+
+MAN['tong-quan'] = {
+  ten: 'MH-678 Tổng quan minh chứng', ghi: 'Độ phủ của bộ tiêu chí đang chọn; ô số bấm được, dẫn tới danh sách đã lọc.',
+  trangThai: ['du-lieu', 'rong', 'tai', 'loi', 'quyen'],
+  ve(tt) {
+    const tren = `${duongDan('Minh chứng và kiểm định', 'Kho minh chứng', 'Tổng quan')}<div class="tieu-de-trang"><h1>Tổng quan minh chứng</h1>${chonBo()}<button class="btn chinh" aria-label="Thêm minh chứng">${ic('cong')}<span class="nhan-dai">Thêm minh chứng</span></button></div>`;
+    if (tt === 'tai') return khung('Tổng quan', 'Kho minh chứng', 'Tổng quan', tren + TRANG_THAI.tai());
+    if (tt === 'loi') return khung('Tổng quan', 'Kho minh chứng', 'Tổng quan', tren + TRANG_THAI.loi());
+    if (tt === 'quyen') return khung('Tổng quan', 'Kho minh chứng', 'Tổng quan', TRANG_THAI.quyen());
+    if (tt === 'rong') return khung('Tổng quan', 'Kho minh chứng', 'Tổng quan', tren + TRANG_THAI.rong('Chưa có bộ tiêu chí', 'Nạp bộ mẫu kiểm định theo cấp học của trường hoặc tạo bộ tiêu chí riêng, rồi gắn minh chứng.', 'Nạp bộ tiêu chí mẫu'));
+    const tc = [['Tiêu chuẩn 1. Tổ chức và quản lý nhà trường', 8, 10], ['Tiêu chuẩn 2. Cán bộ quản lý, giáo viên, nhân viên và học sinh', 4, 4], ['Tiêu chuẩn 3. Cơ sở vật chất và thiết bị dạy học', 4, 6], ['Tiêu chuẩn 4. Quan hệ giữa nhà trường, gia đình và xã hội', 2, 3], ['Tiêu chuẩn 5. Hoạt động giáo dục và kết quả giáo dục', 3, 5]];
+    const dongPhu = tc.map(([t, du, tong]) => { const p = Math.round(du * 100 / tong); return `<div class="dong-phu"><div>${t}<small>${du} trên ${tong} tiêu chí đủ minh chứng</small></div><div class="thanh-tien ${p < 100 ? 'thieu' : ''}" role="img" aria-label="${p} phần trăm"><span style="width:${p}%"></span></div><div class="so">${p}%</div></div>`; }).join('');
+    const viec = [['Tiêu chí 5.2 thiếu minh chứng', 'Bạn phụ trách · hạn 15/11/2026', 'nh', 'Thiếu'], ['[H3-3.2-01] hết hiệu lực', 'Biên bản kiểm tra phòng cháy, chữa cháy', 'trung', 'Hết hiệu lực'], ['[H1-1.3-01] nguồn đã thay đổi', 'Hồ sơ cán bộ sửa sau lần chụp ngày 02/10/2026', 'cb', 'Cần cập nhật']]
+      .map(([a, b, c, d]) => `<a class="dong-viec" href="#"><div class="noi">${a}<small>${b}</small></div><span class="badge ${c}">${d}</span></a>`).join('');
+    return khung('Tổng quan', 'Kho minh chứng', 'Tổng quan', `${tren}
+      <div class="card o-so" role="group" aria-label="Chỉ số minh chứng">
+        <button aria-pressed="false"><b>21/28</b><span>Tiêu chí đủ minh chứng</span></button>
+        <button aria-pressed="false"><b>7</b><span>Tiêu chí còn thiếu</span></button>
+        <button aria-pressed="false"><b>186</b><span>Minh chứng trong bộ</span></button>
+        <button aria-pressed="false"><b>4</b><span>Sắp hoặc đã hết hiệu lực</span></button>
+        <button aria-pressed="false"><b>3</b><span>Nguồn đã thay đổi</span></button>
+      </div>
+      <div class="luoi-2">
+        <div class="card"><div class="the-tieu-de"><h2>Độ phủ theo tiêu chuẩn</h2><a class="btn chu" href="#">Xem theo tiêu chí</a></div>${dongPhu}</div>
+        <div class="card"><div class="the-tieu-de"><h2>Việc của tôi</h2></div>${viec}</div>
+      </div>`);
+  },
+};
+
+MAN['danh-sach'] = {
+  ten: 'MH-679 Danh sách minh chứng', ghi: 'Một minh chứng tồn tại một lần trong kho, dùng cho nhiều tiêu chí, nhiều năm học; mã theo bộ đang chọn.',
+  trangThai: ['du-lieu', 'rong', 'tai', 'loi', 'quyen', 'thanh-cong'],
+  ve(tt) {
+    const tren = `${duongDan('Minh chứng và kiểm định', 'Kho minh chứng', 'Danh sách minh chứng')}<div class="tieu-de-trang"><h1>Danh sách minh chứng</h1>${chonBo()}<button class="btn an-dt">${ic('tai_xuong')}Xuất danh mục</button><button class="btn chinh" aria-label="Thêm minh chứng">${ic('cong')}<span class="nhan-dai">Thêm minh chứng</span></button></div>`;
+    const chips = ['Tất cả 186', 'Đã đủ 158', 'Đang thu thập 12', 'Chưa có 9', 'Cần cập nhật 3', 'Hết hiệu lực 4'].map((c, i) => `<button class="chip" aria-pressed="${i === 0}">${c}</button>`).join('');
+    const loc = `<div class="loc">${chips}</div><div class="thanh-cong-cu"><div class="search">${ic('tim')}<input aria-label="Tìm theo mã, tên, số kí hiệu" placeholder="Tìm theo mã, tên, số kí hiệu"></div><button class="btn">${ic('loc')}Tiêu chuẩn, tiêu chí, nguồn</button></div>`;
+    if (tt === 'quyen') return khung('Danh sách minh chứng', 'Kho minh chứng', 'Minh chứng', TRANG_THAI.quyen());
+    if (tt === 'tai') return khung('Danh sách minh chứng', 'Kho minh chứng', 'Minh chứng', tren + TRANG_THAI.tai());
+    if (tt === 'loi') return khung('Danh sách minh chứng', 'Kho minh chứng', 'Minh chứng', tren + TRANG_THAI.loi());
+    if (tt === 'rong') return khung('Danh sách minh chứng', 'Kho minh chứng', 'Minh chứng', tren + TRANG_THAI.rong('Bộ này chưa có minh chứng', 'Thêm tệp hoặc chọn dữ liệu đã có trong phần mềm như kế hoạch, văn bản, sổ điểm, biểu EMIS.', 'Thêm minh chứng'));
+    const noi = tt === 'thanh-cong' ? noiThongBao('Đã thêm minh chứng <b>[H2-2.1-04]</b> cho tiêu chí 2.1.') : '';
+    return khung('Danh sách minh chứng', 'Kho minh chứng', 'Minh chứng', `${noi}${tren}<div class="card">${loc}${bangMinhChung(MC)}<div class="phan-trang"><span>1–7 trên 186</span><span class="khoang"></span><button class="btn">Trang sau</button></div></div>`);
+  },
+};
+
+MAN['chi-tiet'] = {
+  ten: 'MH-680 Chi tiết minh chứng', ghi: 'Phiên bản, mã theo từng bộ, tiêu chí đang dùng, lịch sử. Bản ghi trong phần mềm được chụp PDF lúc gắn (Q-396-4).',
+  trangThai: ['du-lieu', 'nguon-doi', 'han-che', 'het-han'],
+  ve(tt) {
+    const daiNguon = tt === 'nguon-doi' ? `<div class="dai tt" role="status">${ic('lam_moi')}<div class="noi-dung"><b>Nguồn đã thay đổi.</b> Hồ sơ cán bộ được sửa ngày 18/10/2026, sau lần chụp ngày 02/10/2026.</div><button class="btn">Chụp lại thành phiên bản mới</button></div>` : '';
+    const daiHet = tt === 'het-han' ? `<div class="dai nh" role="status">${ic('canh_bao')}<div class="noi-dung"><b>Đã hết hiệu lực từ 10/11/2026.</b> Minh chứng không còn tính vào độ phủ của tiêu chí 3.2.</div><button class="btn">${ic('tai_len')}Tải phiên bản mới</button></div>` : '';
+    const daiHanChe = tt === 'han-che' ? `<div class="dai tt" role="status">${ic('khoa')}<div class="noi-dung"><b>Minh chứng hạn chế:</b> bản chụp có tên học sinh. Chỉ người có quyền xem sổ điểm của lớp và người quản lý kho tải được tệp.</div></div>` : '';
+    const nutTai = tt === 'han-che' ? `<button class="btn" disabled aria-disabled="true">${ic('khoa')}Không có quyền tải</button>` : `<button class="btn">${ic('tai_xuong')}Tải tệp</button>`;
+    const pb = [['3', '18/10/2026', 'Chụp lại từ Hồ sơ cán bộ', 'Nguyễn Thị Lan', 'Hiện hành'], ['2', '02/10/2026', 'Chụp từ Hồ sơ cán bộ', 'Nguyễn Thị Lan', ''], ['1', '20/09/2025', 'Tải tệp lên (năm học 2025–2026)', 'Trần Văn Bình', '']];
+    const dongPb = pb.map(([v, n, c, a, h]) => `<tr><td>Bản ${v}</td><td>${n}</td><td class="ten">${c}<small>${a}</small></td><td>${h ? `<span class="badge tc">${h}</span>` : ''}</td><td><button class="btn chu">Xem</button></td></tr>`).join('');
+    const the = pb.map(([v, n, c, , h]) => `<a href="#"><div class="noi"><b>Bản ${v} · ${n}</b><small>${c}</small></div>${h ? '<span class="badge tc">Hiện hành</span>' : ''}</a>`).join('');
+    return khung('Danh sách minh chứng', 'Kho minh chứng', 'Chi tiết minh chứng', `${duongDan('Kho minh chứng', 'Danh sách minh chứng', '[H1-1.3-01]')}
+      <div class="tieu-de-trang"><h1>Danh sách đội ngũ cán bộ, giáo viên theo trình độ đào tạo</h1>${nutTai}<button class="btn chinh">Sửa</button></div>
+      ${daiNguon}${daiHet}${daiHanChe}
+      <div class="luoi-chi-tiet">
+        <div style="display:flex;flex-direction:column;gap:16px">
+          <div class="card"><div class="the-tieu-de"><h2>Thông tin</h2>${tt === 'het-han' ? badge('het') : tt === 'nguon-doi' ? badge('cap') : badge('du')}</div>
+            <dl class="bang-tt"><dt>Nguồn</dt><dd>${ic('lien_ket')} Phần mềm · Hồ sơ cán bộ · Thống kê trình độ đào tạo <a href="#">Mở bản gốc</a></dd><dt>Số, ngày</dt><dd>Chụp ngày 18/10/2026</dd><dt>Nơi ban hành</dt><dd>Trường Tiểu học Hòa An</dd><dt>Năm học</dt><dd>2025–2026, 2026–2027</dd><dt>Hiệu lực</dt><dd>${tt === 'het-han' ? 'Đến 10/11/2026' : 'Không thời hạn'}</dd><dt>Người phụ trách</dt><dd>Nguyễn Thị Lan</dd><dt>Mô tả</dt><dd>Số cán bộ quản lý, giáo viên, nhân viên theo trình độ đào tạo, không kèm số định danh.</dd></dl></div>
+          <div class="card"><div class="the-tieu-de"><h2>Phiên bản</h2><button class="btn">${ic('tai_len')}Thêm phiên bản</button></div>
+            <div class="bang-cuon thanh-the"><table><caption>Phiên bản</caption><thead><tr><th>Bản</th><th>Ngày</th><th>Nội dung</th><th></th><th></th></tr></thead><tbody>${dongPb}</tbody></table><div class="the-dong">${the}</div></div></div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:16px">
+          <div class="card"><div class="the-tieu-de"><h2>Mã theo bộ tiêu chí</h2><button class="btn chu">Gắn thêm</button></div>
+            <a class="dong-viec" href="#"><div class="noi"><span class="ma">[H1-1.3-01]</span> Kiểm định chất lượng trường tiểu học<small>Tiêu chí chính 1.3 · dùng chung cho 3.1</small></div></a>
+            <a class="dong-viec" href="#"><div class="noi"><span class="ma">TĐ-2.1-02</span> Thi đua năm học 2026–2027<small>Tiêu chí 2.1</small></div></a></div>
+          <div class="card"><div class="the-tieu-de"><h2>Lịch sử</h2></div><ul class="dong-thoi-gian">
+            <li><div>Chụp lại thành bản 3<small>Nguyễn Thị Lan · 18/10/2026 09:12</small></div></li>
+            <li><div>Gắn vào bộ Thi đua, tiêu chí 2.1<small>Nguyễn Thị Lan · 05/10/2026 14:30</small></div></li>
+            <li><div>Thêm bản 2 từ Hồ sơ cán bộ<small>Nguyễn Thị Lan · 02/10/2026 08:05</small></div></li>
+          </ul></div>
+        </div>
+      </div>`);
+  },
+};
+
+MAN.them = {
+  ten: 'MH-681 Thêm minh chứng', ghi: 'Nguồn là tệp tải lên hoặc dữ liệu đã có trong phần mềm; mã cấp tự động theo tiêu chí chính, xem trước trước khi ghi.',
+  trangThai: ['ban-ghi', 'tep', 'loi-nhap'],
+  ve(tt) {
+    const banGhi = tt !== 'tep';
+    const loi = tt === 'loi-nhap';
+    const nguon = banGhi ? `<div class="bieu-mau" style="padding-bottom:8px">
+        <label class="field"><span>Loại dữ liệu <em>*</em></span><select><option>Sổ điểm của lớp (một học kỳ)</option><option>Điểm danh của lớp (một tháng)</option><option>Kế hoạch công việc</option><option>Kế hoạch giáo dục</option><option>Văn bản đi đã phát hành</option><option>Văn bản đến đã vào sổ</option><option>Hồ sơ chuyên môn đã duyệt</option><option>Hồ sơ cán bộ: thống kê đội ngũ</option><option>Đánh giá chuẩn nghề nghiệp</option><option>Biểu EMIS đã gửi</option></select></label>
+        <div class="field"><span>Tìm</span><div class="search" style="max-width:none">${ic('tim')}<input aria-label="Tìm lớp, kỳ" value="5A"></div></div></div>
+        <div class="ket-qua-nguon" role="radiogroup" aria-label="Kết quả tìm">
+          <label class="chon"><input type="radio" name="kq" checked><div class="noi"><b>Lớp 5A · Học kỳ II · 2025–2026</b><small>Đã khóa sổ 25/05/2026 · 32 học sinh</small></div></label>
+          <label><input type="radio" name="kq"><div class="noi"><b>Lớp 5A · Học kỳ I · 2026–2027</b><small>Chưa khóa sổ</small></div></label>
+          <label><input type="radio" name="kq"><div class="noi"><b>Lớp 5B · Học kỳ II · 2025–2026</b><small>Bạn không có quyền xem sổ điểm lớp này</small></div></label>
+        </div>
+        <div class="bieu-mau"><fieldset class="field rong" style="border:0;padding:0;margin:0"><span>Bản chụp</span>
+          <label style="display:flex;gap:8px;align-items:center;min-height:44px"><input type="radio" name="ban" checked style="width:20px;height:20px">Tổng hợp không tên học sinh (khuyên dùng)</label>
+          <label style="display:flex;gap:8px;align-items:center;min-height:44px"><input type="radio" name="ban" style="width:20px;height:20px">Có tên học sinh, minh chứng ở mức hạn chế</label></fieldset></div>`
+      : `<div class="bieu-mau" style="padding-bottom:0"><div class="field rong"><span>Tệp <em>*</em></span><div style="border:2px dashed var(--input-border);border-radius:var(--radius-sm);padding:24px;text-align:center">${ic('tai_len')}<div>Kéo tệp vào đây hoặc <button class="btn chu">chọn tệp</button></div><small class="muted">PDF, ảnh, Word, Excel, tối đa 20 MB</small></div></div></div>`;
+    return khung('Danh sách minh chứng', 'Kho minh chứng', 'Thêm minh chứng', `${duongDan('Kho minh chứng', 'Danh sách minh chứng', 'Thêm minh chứng')}
+      <div class="tieu-de-trang"><h1>Thêm minh chứng</h1></div>
+      ${loi ? `<div class="dai nh" role="alert">${ic('canh_bao')}<div class="noi-dung"><b>Chưa ghi được.</b> Sửa 2 ô được đánh dấu bên dưới.</div></div>` : ''}
+      <div class="card khoi-bm"><h2>1. Nguồn</h2>
+        <div class="chon-nguon" role="radiogroup" aria-label="Nguồn minh chứng">
+          <label class="${banGhi ? 'chon' : ''}"><input type="radio" name="ng" ${banGhi ? 'checked' : ''}><div><b>Dữ liệu trong phần mềm</b><small>Kế hoạch, văn bản, sổ điểm, điểm danh, hồ sơ cán bộ, biểu EMIS… Hệ thống chụp bản PDF lúc gắn.</small></div></label>
+          <label class="${banGhi ? '' : 'chon'}"><input type="radio" name="ng" ${banGhi ? '' : 'checked'}><div><b>Tải tệp lên</b><small>Văn bản giấy đã quét, ảnh, tệp từ nơi khác.</small></div></label>
+        </div>${nguon}</div>
+      <div class="card khoi-bm"><h2>2. Thông tin</h2><div class="bieu-mau">
+        <label class="field rong ${loi ? 'loi' : ''}"><span>Tên minh chứng <em>*</em></span><input value="${loi ? '' : 'Sổ điểm lớp 5A học kỳ II năm học 2025–2026 (tổng hợp không tên)'}" ${loi ? 'aria-invalid="true"' : ''}>${loi ? '<span class="thong-bao-loi">Nhập tên minh chứng.</span>' : ''}</label>
+        <label class="field"><span>Số, kí hiệu</span><input></label>
+        <label class="field"><span>Ngày ban hành hoặc ngày chụp</span><input value="31/10/2026"></label>
+        <label class="field"><span>Nơi ban hành</span><input value="Trường Tiểu học Hòa An"></label>
+        <label class="field"><span>Năm học của minh chứng</span><select><option>2025–2026</option></select></label>
+        <label class="field ${loi ? 'loi' : ''}"><span>Hiệu lực đến</span><input value="${loi ? '01/09/2020' : ''}" ${loi ? 'aria-invalid="true"' : ''}>${loi ? '<span class="thong-bao-loi">Ngày hiệu lực phải sau ngày ban hành.</span>' : '<small>Để trống nếu không có thời hạn.</small>'}</label>
+      </div></div>
+      <div class="card khoi-bm"><h2>3. Tiêu chí</h2><div class="bieu-mau">
+        <label class="field"><span>Bộ tiêu chí <em>*</em></span><select><option>TH-KDCL · Kiểm định chất lượng trường tiểu học</option></select></label>
+        <label class="field"><span>Tiêu chí chính <em>*</em></span><select><option>2.1 · Đối với giáo viên (gợi ý nguồn: sổ điểm)</option></select></label>
+        <label class="field"><span>Số hộp</span><input value="2" inputmode="numeric"><small>Mặc định theo số tiêu chuẩn.</small></label>
+        <label class="field"><span>Dùng chung cho tiêu chí</span><select><option>Chọn thêm tiêu chí…</option></select></label>
+      </div>
+      <div class="xem-ma" style="margin-bottom:16px"><span>Mã sẽ cấp</span><span class="ma">[H2-2.1-04]</span><span class="muted">Số thứ tự nhỏ nhất chưa dùng trong tiêu chí 2.1</span></div>
+      <div class="chan-bm"><button class="btn">Hủy</button><button class="btn chinh">Ghi minh chứng</button></div></div>`);
+  },
+};
+
+MAN['do-phu'] = {
+  ten: 'MH-682 Độ phủ theo tiêu chí', ghi: 'Tiêu chí thiếu khi không có minh chứng Đã đủ còn hiệu lực trong các năm học của chu kỳ (5 năm với kiểm định).',
+  trangThai: ['du-lieu', 'chi-thieu', 'tai', 'rong'],
+  ve(tt) {
+    const tren = `${duongDan('Minh chứng và kiểm định', 'Kho minh chứng', 'Độ phủ theo tiêu chí')}<div class="tieu-de-trang"><h1>Độ phủ theo tiêu chí</h1>${chonBo()}<button class="btn">${ic('tai_xuong')}Xuất Excel</button></div>`;
+    if (tt === 'tai') return khung('Độ phủ theo tiêu chí', 'Kho minh chứng', 'Độ phủ', tren + TRANG_THAI.tai());
+    if (tt === 'rong') return khung('Độ phủ theo tiêu chí', 'Kho minh chứng', 'Độ phủ', tren + TRANG_THAI.rong('Không còn tiêu chí thiếu', 'Mọi tiêu chí của bộ đều có minh chứng đủ và còn hiệu lực.', ''));
+    let ds = [['1.1', 'Phương hướng, chiến lược xây dựng và phát triển nhà trường', 2, 0, 0, 0, '', 'Nguyễn Thị Lan', '15/11/2026'], ['1.3', 'Hội đồng thi đua và khen thưởng; hội đồng khác', 1, 1, 0, 0, '', 'Trần Văn Bình', '15/11/2026'],
+      ['3.2', 'Phòng học, phòng chức năng, khối phụ trợ', 0, 1, 0, 1, 'Biên bản kiểm tra phòng cháy, chữa cháy còn hiệu lực', 'Lê Minh Châu', '30/11/2026'], ['5.2', 'Kế hoạch giáo dục của nhà trường', 0, 0, 1, 0, 'Kế hoạch giáo dục các khối; biên bản thông qua', 'Nguyễn Thị Lan', '15/11/2026'], ['5.4', 'Hoạt động trải nghiệm, hướng nghiệp', 0, 0, 0, 0, 'Kế hoạch, báo cáo hoạt động trải nghiệm', 'Chưa phân công', '—']];
+    if (tt === 'chi-thieu') ds = ds.filter((d) => d[2] === 0);
+    const dong = ds.map(([m, t, du, thu, chua, het, goi, ng, han]) => `<tr><td><b>${m}</b></td><td class="ten">${t}${goi ? `<small>Còn thiếu: ${goi}</small>` : ''}</td><td class="so-tien">${du}</td><td class="so-tien">${thu}</td><td class="so-tien">${chua}</td><td class="so-tien an-bang">${het}</td><td>${ng === 'Chưa phân công' ? '<span class="muted">Chưa phân công</span>' : ng}</td><td class="an-bang">${han}</td><td>${du > 0 ? '<span class="badge tc">Đủ</span>' : '<span class="badge nh">Thiếu</span>'}</td></tr>`).join('');
+    const the = ds.map(([m, t, du, , , , goi, ng]) => `<a href="#"><div class="noi"><b>${m} · ${t}</b><small>${du} đủ · ${ng}${goi ? ' · thiếu: ' + goi : ''}</small></div>${du > 0 ? '<span class="badge tc">Đủ</span>' : '<span class="badge nh">Thiếu</span>'}</a>`).join('');
+    return khung('Độ phủ theo tiêu chí', 'Kho minh chứng', 'Độ phủ', `${tren}<div class="card"><div class="loc"><button class="chip" aria-pressed="${tt !== 'chi-thieu'}">Tất cả 28</button><button class="chip" aria-pressed="${tt === 'chi-thieu'}">Chỉ tiêu chí thiếu 7</button><button class="chip" aria-pressed="false">Của tôi 6</button></div>
+      <div class="bang-cuon thanh-the" style="margin-top:12px"><table><caption>Độ phủ theo tiêu chí</caption><thead><tr><th>Tiêu chí</th><th>Tên</th><th>Đã đủ</th><th>Đang thu thập</th><th>Chưa có</th><th class="an-bang">Hết hiệu lực</th><th>Người phụ trách</th><th class="an-bang">Hạn</th><th>Độ phủ</th></tr></thead><tbody>${dong}</tbody></table><div class="the-dong">${the}</div></div></div>`);
+  },
+};
+
+MAN['phan-cong'] = {
+  ten: 'MH-683 Phân công phụ trách', ghi: 'Người phụ trách tiêu chí theo năm học; chọn nhiều tiêu chí để phân công một lần.',
+  trangThai: ['du-lieu', 'chon-nhieu', 'thanh-cong'],
+  ve(tt) {
+    const ds = [['1.1', 'Phương hướng, chiến lược xây dựng và phát triển nhà trường', 'Nguyễn Thị Lan'], ['1.2', 'Hội đồng trường và các hội đồng khác', 'Nguyễn Thị Lan'], ['1.3', 'Hội đồng thi đua và khen thưởng; hội đồng khác', 'Trần Văn Bình'], ['5.4', 'Hoạt động trải nghiệm, hướng nghiệp', '']];
+    const chonNhieu = tt === 'chon-nhieu';
+    const dong = ds.map(([m, t, ng], i) => `<tr><td class="chon"><input type="checkbox" ${chonNhieu && i > 1 ? 'checked' : ''} aria-label="Chọn tiêu chí ${m}"></td><td><b>${m}</b></td><td class="ten">${t}</td><td><select aria-label="Người phụ trách tiêu chí ${m}" style="min-height:40px;font:15px var(--font);border:1px solid var(--input-border);border-radius:6px;padding:0 8px"><option>${ng || 'Chưa phân công'}</option></select></td><td class="an-bang"><input aria-label="Hạn tiêu chí ${m}" value="15/11/2026" style="min-height:40px;width:130px;font:15px var(--font);border:1px solid var(--input-border);border-radius:6px;padding:0 8px"></td></tr>`).join('');
+    const the = ds.map(([m, t, ng]) => `<a href="#"><div class="noi"><b>${m} · ${t}</b><small>${ng || 'Chưa phân công'} · hạn 15/11/2026</small></div>${ic('phai')}</a>`).join('');
+    const dai = chonNhieu ? `<div class="dai tt chon-nhieu"><span class="dem"><b>Đã chọn 2 tiêu chí</b></span><button class="btn">Giao cho…</button><button class="btn">Đặt hạn…</button><button class="btn chu">Bỏ chọn</button></div>` : '';
+    const noi = tt === 'thanh-cong' ? noiThongBao('Đã phân công 2 tiêu chí cho Lê Minh Châu. Người được giao thấy việc ở Việc của tôi.') : '';
+    return khung('Phân công phụ trách', 'Thiết lập', 'Phân công', `${noi}${duongDan('Minh chứng và kiểm định', 'Thiết lập', 'Phân công phụ trách')}<div class="tieu-de-trang"><h1>Phân công phụ trách</h1>${chonBo()}<label class="field"><select aria-label="Năm học"><option>2026–2027</option></select></label></div>
+      <div class="card">${dai}<div class="bang-cuon thanh-the"><table><caption>Phân công</caption><thead><tr><th class="chon"><input type="checkbox" aria-label="Chọn tất cả"></th><th>Tiêu chí</th><th>Tên</th><th>Người phụ trách</th><th class="an-bang">Hạn hoàn thành</th></tr></thead><tbody>${dong}</tbody></table><div class="the-dong">${the}</div></div>
+      <div class="chan-bm"><button class="btn">Hủy</button><button class="btn chinh">Ghi phân công</button></div></div>`);
+  },
+};
+
+MAN['bo-tieu-chi'] = {
+  ten: 'MH-684 Bộ tiêu chí', ghi: 'Bộ là cấu hình: loại, cấp học, đối tượng, mẫu mã, chu kỳ. Bộ mẫu chỉ nạp mã, tên, gợi ý minh chứng (Q-396-6).',
+  trangThai: ['du-lieu', 'hop-nap-mau', 'rong'],
+  ve(tt) {
+    if (tt === 'rong') return khung('Bộ tiêu chí', 'Thiết lập', 'Bộ tiêu chí', `${duongDan('Minh chứng và kiểm định', 'Thiết lập', 'Bộ tiêu chí')}<div class="tieu-de-trang"><h1>Bộ tiêu chí</h1></div>${TRANG_THAI.rong('Chưa có bộ tiêu chí', 'Nạp bộ mẫu kiểm định theo cấp học của trường hoặc thêm bộ riêng (thi đua, chuẩn giáo viên, kế hoạch năm học…).', 'Nạp bộ mẫu')}`);
+    const bo = [['TH-KDCL', 'Kiểm định chất lượng trường tiểu học', 'Kiểm định · Tiểu học · Nhà trường · 5 năm', true], ['TĐ-2026', 'Thi đua năm học 2026–2027', 'Thi đua · Mọi cấp · Nhà trường · 1 năm', false], ['GV-CHUAN', 'Chuẩn nghề nghiệp giáo viên', 'Chuẩn giáo viên · Phổ thông · Cá nhân · 1 năm', false]];
+    const ds = bo.map(([m, t, c, on]) => `<button aria-current="${on}"><b>${t}</b><small>${m} · ${c}</small></button>`).join('');
+    const cay = `<ul class="cay">
+      <li><div><b>1</b><div class="noi">Tổ chức và quản lý nhà trường<small>10 tiêu chí · hộp 1</small></div><button class="btn chu">Sửa</button></div>
+        <ul><li class="cap-2"><div><b>1.1</b><div class="noi">Phương hướng, chiến lược xây dựng và phát triển nhà trường<small>3 chỉ báo · gợi ý nguồn: văn bản đi, kế hoạch</small></div><button class="btn chu">Sửa</button></div>
+          <ul><li class="cap-3"><div>Mức 1 · a<div class="noi">Nội dung chỉ báo do trường nhập theo văn bản hiện hành</div></div></li></ul></li>
+        <li class="cap-2"><div><b>1.2</b><div class="noi">Hội đồng trường và các hội đồng khác<small>Chưa nhập chỉ báo</small></div><span class="badge cb">Thiếu chỉ báo</span></div></li></ul></li>
+      <li><div><b>2</b><div class="noi">Cán bộ quản lý, giáo viên, nhân viên và học sinh<small>4 tiêu chí · hộp 2</small></div><button class="btn chu">Sửa</button></div></li>
+      <li><div><b>3</b><div class="noi">Cơ sở vật chất và thiết bị dạy học<small>6 tiêu chí · hộp 3</small></div><button class="btn chu">Sửa</button></div></li></ul>`;
+    const hop = tt === 'hop-nap-mau' ? `<div class="hop-thoai-nen"><div class="hop-thoai" role="dialog" aria-modal="true" aria-labelledby="tieu-de-nap"><h2 id="tieu-de-nap">Nạp bộ tiêu chí mẫu</h2>
+      <p class="muted" style="margin:0">Bộ mẫu chỉ có mã, tên tiêu chuẩn, tiêu chí và gợi ý minh chứng. Nội dung chỉ báo trường nhập hoặc nhập từ tệp Excel mẫu, đối chiếu văn bản hiện hành.</p>
+      ${[['Kiểm định trường mầm non', 'Thông tư 19/2018, sửa đổi 2024 · đã nạp'], ['Kiểm định trường tiểu học', 'Thông tư 17/2018, sửa đổi 2024'], ['Kiểm định trường THCS, THPT, phổ thông nhiều cấp', 'Thông tư 18/2018, sửa đổi 2024']].map(([a, b], i) => `<label style="display:flex;gap:12px;align-items:center;min-height:56px;border:1px solid var(--border);border-radius:8px;padding:8px 12px"><input type="radio" name="mau" ${i === 1 ? 'checked' : ''} ${i === 0 ? 'disabled' : ''} style="width:20px;height:20px"><div><b>${a}</b><small class="muted" style="display:block">${b}</small></div></label>`).join('')}
+      <div class="chan"><button class="btn">Hủy</button><button class="btn chinh">Nạp bộ mẫu</button></div></div></div>` : '';
+    return khung('Bộ tiêu chí', 'Thiết lập', 'Bộ tiêu chí', `${hop}${duongDan('Minh chứng và kiểm định', 'Thiết lập', 'Bộ tiêu chí')}<div class="tieu-de-trang"><h1>Bộ tiêu chí</h1><button class="btn an-dt">Nạp bộ mẫu</button><button class="btn chinh" aria-label="Thêm bộ tiêu chí">${ic('cong')}<span class="nhan-dai">Thêm bộ tiêu chí</span></button></div>
+      <div class="luoi-chi-tiet luoi-bo">
+        <div class="card"><div class="the-tieu-de"><h2>Các bộ</h2></div><div class="ds-bo">${ds}</div></div>
+        <div class="card"><div class="the-tieu-de"><h2>Kiểm định chất lượng trường tiểu học</h2><button class="btn chu">Sửa thông tin bộ</button></div>
+          <dl class="bang-tt"><dt>Mẫu mã</dt><dd><span class="ma">[H{hộp}-{tiêu chí}-{số thứ tự}]</span></dd><dt>Số mức</dt><dd>4 mức</dd><dt>Chu kỳ</dt><dd>5 năm học</dd></dl>
+          <div class="thanh-cong-cu"><button class="btn">${ic('cong')}Thêm tiêu chuẩn</button><button class="btn">${ic('tai_len')}Nhập chỉ báo từ Excel</button><button class="btn chu">Tải tệp mẫu</button></div>${cay}</div>
+      </div>`);
+  },
+};
+
+MAN.xuat = {
+  ten: 'MH-685 Xuất danh mục và báo cáo', ghi: 'Danh mục theo cột của công văn hướng dẫn; báo cáo kiểm mã trích dẫn trước khi xuất; gói ZIP theo hộp dựng ở tác vụ nền.',
+  trangThai: ['du-lieu', 'loi-ma', 'dang-tao'],
+  ve(tt) {
+    const loiMa = tt === 'loi-ma' ? `<div class="dai nh" role="alert">${ic('canh_bao')}<div class="noi-dung"><b>2 mã trích dẫn trong phiếu không có trong danh mục:</b> <span class="ma">[H2-2.3-05]</span> ở tiêu chí 2.3, <span class="ma">[H4-4.1-07]</span> ở tiêu chí 4.1. Sửa phiếu hoặc thêm minh chứng trước khi xuất.</div></div>` : '';
+    const goi = tt === 'dang-tao' ? `<div class="dai tt" role="status" style="flex-direction:column;gap:8px"><b>Đang tạo gói hồ sơ</b><div class="thanh-tien" style="width:100%"><span style="width:45%"></span></div><small style="font-size:14px">84 trên 186 tệp · Bạn có thể rời trang, tệp sẽ ở Tệp đã tạo.</small></div>` : '<p>Thư mục H1 đến H5, tệp đặt tên theo mã, kèm danh mục. Minh chứng hạn chế chỉ vào gói khi bạn có quyền xem nguồn.</p>';
+    return khung('Xuất danh mục và báo cáo', 'Thiết lập', 'Xuất', `${duongDan('Minh chứng và kiểm định', 'Thiết lập', 'Xuất danh mục và báo cáo')}<div class="tieu-de-trang"><h1>Xuất danh mục và báo cáo</h1>${chonBo()}<label class="field"><select aria-label="Đợt tự đánh giá"><option>Đợt tự đánh giá 2026–2027</option></select></label></div>
+      ${loiMa}
+      <div class="luoi-xuat">
+        <div class="card"><div class="the-tieu-de"><h2>Danh mục minh chứng</h2></div><div class="than"><p>Số thứ tự, mã, tên, số và ngày ban hành, nơi ban hành, ghi chú; nhóm theo tiêu chuẩn, tiêu chí; minh chứng dùng chung ghi mã gốc.</p><div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:auto"><button class="btn">${ic('tai_xuong')}Excel</button><button class="btn">${ic('tai_xuong')}Word</button></div></div></div>
+        <div class="card"><div class="the-tieu-de"><h2>Báo cáo tự đánh giá</h2></div><div class="than"><p>Theo mẫu của hướng dẫn tự đánh giá; phần mô tả trích mã dạng [H1-1.1-01].</p><div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:auto"><button class="btn" ${tt === 'loi-ma' ? 'disabled aria-disabled="true"' : ''}>${ic('tai_xuong')}Word</button><button class="btn" ${tt === 'loi-ma' ? 'disabled aria-disabled="true"' : ''}>${ic('tai_xuong')}PDF</button></div></div></div>
+        <div class="card"><div class="the-tieu-de"><h2>Gói hồ sơ theo hộp</h2></div><div class="than">${goi}<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:auto"><button class="btn chinh" ${tt === 'dang-tao' ? 'disabled aria-disabled="true"' : ''}>${ic('tai_xuong')}Tạo gói ZIP</button></div></div></div>
+      </div>`);
+  },
+};
+
+MAN['dung-lam-mc'] = {
+  ten: 'MH-686 Dùng làm minh chứng (ở trang nguồn)', ghi: 'Ví dụ ở trang văn bản đi đã phát hành; nút giống nhau ở mọi trang nguồn đã đăng ký (kế hoạch, sổ điểm, biểu EMIS…).',
+  trangThai: ['hop-thoai', 'da-gan'],
+  ve(tt) {
+    const daGan = tt === 'da-gan';
+    const menuVb = [{ so: '', ten: 'Trang chủ', bt: 'nha' }, { so: '2.', ten: 'Văn bản đến', bt: 'bai' }, { so: '3.', ten: 'Văn bản đi', bt: 'gui', con: [['3.1.', 'Dự thảo'], ['3.2.', 'Sổ văn bản đi']] }];
+    BT.gui = '<path d="M4 12l16-8-6 16-3-7z"/>';
+    const hop = daGan ? noiThongBao('Đã gắn làm minh chứng <b>[H1-1.1-03]</b> của bộ Kiểm định chất lượng trường tiểu học.') : `<div class="hop-thoai-nen"><div class="hop-thoai" role="dialog" aria-modal="true" aria-labelledby="tieu-de-gan"><h2 id="tieu-de-gan">Dùng làm minh chứng</h2>
+      <p class="muted" style="margin:0">Kế hoạch 52/KH-THHA · bản đã ký được chụp làm phiên bản 1.</p>
+      <label class="field"><span>Bộ tiêu chí <em>*</em></span><select><option>TH-KDCL · Kiểm định chất lượng trường tiểu học</option></select></label>
+      <label class="field"><span>Tiêu chí chính <em>*</em></span><select><option>1.1 · Phương hướng, chiến lược (gợi ý)</option><option>5.2 · Kế hoạch giáo dục (gợi ý)</option></select><small>Gợi ý theo loại nguồn "Văn bản đi".</small></label>
+      <div class="xem-ma" style="margin:0"><span>Mã sẽ cấp</span><span class="ma">[H1-1.1-03]</span></div>
+      <div class="chan"><button class="btn">Hủy</button><button class="btn chinh">Gắn minh chứng</button></div></div></div>`;
+    return khungHanhChinh({ chon: 'Sổ văn bản đi', mo: 'Văn bản đi', tenTrang: 'Văn bản đi', phanHe: 'Quản lý văn bản và điều hành', menu: menuVb, tenTruong: TRUONG, viTat: 'HA', thongBao: false, nguoiDung: 'NL', noiDung: `${hop}${duongDan('Văn bản đi', 'Sổ văn bản đi', '52/KH-THHA')}
+      <div class="tieu-de-trang"><h1>Kế hoạch thực hiện nhiệm vụ năm học 2026–2027</h1><button class="btn">${ic('tai_xuong')}Bản đã ký</button>${daGan ? `<button class="btn">${ic('lien_ket')}Minh chứng <span class="ma">[H1-1.1-03]</span></button>` : `<button class="btn chinh">${ic('lien_ket')}Dùng làm minh chứng</button>`}</div>
+      <div class="trang-van-ban"><div class="card"><div class="the-tieu-de"><h2>Thông tin văn bản</h2><span class="badge tc">Đã phát hành</span></div>
+        <dl class="bang-tt"><dt>Số, kí hiệu</dt><dd>52/KH-THHA</dd><dt>Ngày ban hành</dt><dd>12/09/2026</dd><dt>Người ký</dt><dd>Hiệu trưởng</dd><dt>Trích yếu</dt><dd>Kế hoạch thực hiện nhiệm vụ năm học 2026–2027</dd></dl></div>
+        <div class="card"><div class="the-tieu-de"><h2>Nơi nhận</h2></div><a class="dong-viec" href="#"><div class="noi">Các tổ chuyên môn<small>Đã nhận 12/09/2026</small></div></a></div></div>` });
+  },
+};
+
+// ===== Thanh chọn của bản mẫu =====
+const TEN_TRANG_THAI = {
+  'du-lieu': 'Có dữ liệu', rong: 'Rỗng', tai: 'Đang tải', loi: 'Lỗi', quyen: 'Không có quyền', 'thanh-cong': 'Thao tác thành công',
+  'nguon-doi': 'Nguồn đã thay đổi', 'han-che': 'Minh chứng hạn chế', 'het-han': 'Hết hiệu lực',
+  'ban-ghi': 'Nguồn: dữ liệu trong phần mềm', tep: 'Nguồn: tải tệp lên', 'loi-nhap': 'Lỗi nhập liệu',
+  'chi-thieu': 'Chỉ tiêu chí thiếu', 'chon-nhieu': 'Chọn nhiều', 'hop-nap-mau': 'Hộp thoại nạp bộ mẫu',
+  'loi-ma': 'Mã trích dẫn không có trong danh mục', 'dang-tao': 'Đang tạo gói ZIP',
+  'hop-thoai': 'Hộp thoại gắn', 'da-gan': 'Đã gắn',
+};
+const chonMan = document.getElementById('chon-man');
+const chonTt = document.getElementById('chon-tt');
+for (const [ma, m] of Object.entries(MAN)) chonMan.appendChild(new Option(m.ten, ma));
+function napTrangThai() {
+  const cu = chonTt.value;
+  chonTt.innerHTML = '';
+  for (const t of MAN[chonMan.value].trangThai) chonTt.appendChild(new Option(TEN_TRANG_THAI[t], t));
+  if (MAN[chonMan.value].trangThai.includes(cu)) chonTt.value = cu;
+}
+const thamSo = new URLSearchParams(location.hash.slice(1));
+if (thamSo.get('man') && MAN[thamSo.get('man')]) chonMan.value = thamSo.get('man');
+if (thamSo.get('kho')) document.getElementById('chon-kho').value = thamSo.get('kho');
+napTrangThai();
+if (thamSo.get('tt')) chonTt.value = thamSo.get('tt');
+function ve() {
+  const ma = chonMan.value, kho = document.getElementById('chon-kho').value, tt = chonTt.value;
+  const khung = document.getElementById('khung');
+  khung.dataset.kho = kho;
+  khung.style.width = (Number(kho) + (kho === '390' ? 16 : 0)) + 'px';
+  khung.innerHTML = MAN[ma].ve(tt);
+  document.getElementById('ghi-chu').textContent = MAN[ma].ghi;
+  history.replaceState(null, '', `#man=${ma}&kho=${kho}&tt=${tt}`);
+}
+chonMan.addEventListener('change', () => { napTrangThai(); ve(); });
+for (const id of ['chon-kho', 'chon-tt']) document.getElementById(id).addEventListener('change', ve);
+ve();
+</script>
+</body>
+</html>
