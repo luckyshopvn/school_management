@@ -33,6 +33,7 @@ export * from './student-records.js';
 export * from './primary-reports.js';
 export * from './emulation.js';
 export * from './quality-assurance.js';
+export * from './evidence-store.js';
 export * from './school-levels.js';
 export * from './level-structure.js';
 export * from './class-records.js';
@@ -297,6 +298,10 @@ export const PERMISSION_CODES = {
   // Bảo đảm chất lượng, tự đánh giá (DT-18 phần 22f)
   qualityUse: 'P09.quality.use',
   qualityManage: 'P09.quality.manage',
+  // Kho minh chứng dùng chung (YCTD-396)
+  evidenceView: 'P09.evidence.view',
+  evidenceContribute: 'P09.evidence.contribute',
+  evidenceManage: 'P09.evidence.manage',
   // Bán trú lớp ngoài Mầm non, nề nếp và thi đua lớp (DT-20 phần 20b)
   boardingManage: 'P04.boarding.manage',
   conductRecord: 'P02.conduct.record',

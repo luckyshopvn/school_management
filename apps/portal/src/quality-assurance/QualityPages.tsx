@@ -3,13 +3,11 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import {
   KPI_SCHOOL_LEVELS,
   QUALITY_COUNCIL_POSITION_LABELS,
-  QUALITY_EVIDENCE_SOURCE_LABELS,
   QUALITY_EVIDENCE_STATUS_LABELS,
   qualityLevelLabel,
   type KpiSchoolLevelCode,
   type QualityAssessmentStatusCode,
   type QualityCouncilPositionCode,
-  type QualityEvidenceSourceCode,
   type QualityEvidenceStatusCode,
   type QualityImprovementAction,
   type QualityReportStatusCode,
@@ -32,19 +30,12 @@ import { useGridSettings } from '../pages/grid-settings.js';
 import {
   applyRecognition,
   assessmentAction,
-  createEvidence,
   createImprovementPlan,
   deleteAssessment,
-  deleteEvidence,
   deleteFramework,
   deleteTreeItem,
-  downloadEvidenceFile,
-  exportEvidenceList,
   exportSelfReport,
-  inheritEvidences,
   listAssessments,
-  listEvidences,
-  listEvidenceSources,
   listFrameworks,
   listReports,
   loadDefaultFrameworks,
@@ -60,16 +51,12 @@ import {
   saveGroups,
   saveRecognition,
   saveTreeItem,
-  updateEvidence,
   updateReport,
-  uploadEvidenceFile,
   type AssessmentInput,
   type CriterionRow,
-  type EvidenceInput,
   type FrameworkInput,
   type QualityAssessment,
   type QualityAssessmentDetail,
-  type QualityEvidence,
   type QualityFramework,
   type QualityReportDetail,
   type QualityReportRow,
@@ -90,12 +77,6 @@ const REPORT_TONES: Record<QualityReportStatusCode, StatusTone> = {
   submitted: 'info',
   approved: 'success',
   returned: 'warning',
-};
-const EVIDENCE_TONES: Record<QualityEvidenceStatusCode, StatusTone> = {
-  missing: 'danger',
-  collecting: 'info',
-  sufficient: 'success',
-  needs_update: 'warning',
 };
 const RECOGNITION_LABELS: Record<RecognitionState, [string, StatusTone]> = {
   valid: ['Còn hiệu lực', 'success'],
@@ -169,7 +150,7 @@ function LevelSelect({
   );
 }
 
-// ---- 1.1 Đợt tự đánh giá ----
+// ---- 2.1 Đợt tự đánh giá ----
 
 const ASSESSMENT_COLUMNS: Array<DataGridColumn<QualityAssessment>> = [
   { id: 'title', header: 'Tên đợt', alwaysVisible: true, className: 'font-medium', cell: (row) => row.title },
@@ -747,13 +728,6 @@ function AssessmentPanel({ id, onChanged }: { id: string; onChanged(message: str
       onChanged('Đã bắt đầu đánh giá; các nhóm soạn phiếu tiêu chí');
     },
   });
-  const inherit = useMutation({
-    mutationFn: () => inheritEvidences(id),
-    onSuccess: async (result) => {
-      await queryClient.invalidateQueries({ queryKey: ['quality'] });
-      onChanged(`Đã kế thừa ${result.created} minh chứng của năm học ${result.year_name} (bỏ qua ${result.skipped})`);
-    },
-  });
   const data = detail.data;
   if (detail.error) {
     return <Alert tone="danger">{messageOf(detail.error)}</Alert>;
@@ -761,7 +735,7 @@ function AssessmentPanel({ id, onChanged }: { id: string; onChanged(message: str
   if (!data) {
     return <p className="text-content text-text-secondary">Đang tải…</p>;
   }
-  const error = start.error ?? inherit.error;
+  const error = start.error;
   return (
     <div className="flex flex-col gap-3" aria-label={`Chi tiết đợt ${data.title}`}>
       <Tabs<typeof tab>
@@ -813,11 +787,6 @@ function AssessmentPanel({ id, onChanged }: { id: string; onChanged(message: str
                 {data.status === 'draft' ? (
                   <Button variant="primary" disabled={start.isPending} onClick={() => start.mutate()}>
                     Bắt đầu đánh giá
-                  </Button>
-                ) : null}
-                {data.status !== 'completed' ? (
-                  <Button disabled={inherit.isPending} onClick={() => inherit.mutate()}>
-                    Kế thừa minh chứng năm trước
                   </Button>
                 ) : null}
               </div>
@@ -935,7 +904,7 @@ export function QualityAssessmentsPage() {
   );
 }
 
-// ---- 1.2 Phiếu đánh giá tiêu chí ----
+// ---- 2.2 Phiếu đánh giá tiêu chí ----
 
 const REPORT_COLUMNS: Array<DataGridColumn<QualityReportRow>> = [
   {
@@ -1144,12 +1113,15 @@ function ReportPanel({ id, maxLevel, onChanged }: { id: string; maxLevel: number
       <div className="text-content">
         <p className="font-medium">Minh chứng của tiêu chí</p>
         {data.evidences.length === 0 ? (
-          <p className="text-text-secondary">Chưa có minh chứng; thêm ở mục 1.3 Minh chứng.</p>
+          <p className="text-text-secondary">Chưa có minh chứng; thêm ở mục 1.1 Danh sách minh chứng.</p>
         ) : (
           <ul className="list-disc pl-5">
             {data.evidences.map((evidence) => (
               <li key={evidence.id}>
-                {evidence.code} {evidence.title} ({evidence.status_label}
+                {evidence.display_code} {evidence.title} ({evidence.status_label}
+                {evidence.validity === 'expired' || evidence.validity === 'expiring'
+                  ? `, ${evidence.validity_label.toLowerCase()}`
+                  : ''}
                 {evidence.shared ? ', dùng chung' : ''})
               </li>
             ))}
@@ -1248,428 +1220,7 @@ export function QualityReportsPage() {
   );
 }
 
-// ---- 1.3 Minh chứng ----
-
-const EVIDENCE_COLUMNS: Array<DataGridColumn<QualityEvidence>> = [
-  { id: 'code', header: 'Mã minh chứng', alwaysVisible: true, className: 'font-medium', cell: (row) => row.code },
-  { id: 'title', header: 'Tên minh chứng', cell: (row) => row.title },
-  {
-    id: 'issued',
-    header: 'Số, ngày ban hành',
-    cell: (row) => [row.document_number, formatDate(row.issued_date)].filter(Boolean).join(', '),
-  },
-  { id: 'issuer', header: 'Nơi ban hành', cell: (row) => row.issuer ?? '' },
-  {
-    id: 'criteria',
-    header: 'Tiêu chí',
-    cell: (row) => [row.criterion_code, ...row.shared_criteria.map((item) => item.code)].join(', '),
-  },
-  {
-    id: 'status',
-    header: 'Trạng thái',
-    cell: (row) => <StatusBadge tone={EVIDENCE_TONES[row.status]} label={row.status_label} />,
-  },
-  {
-    id: 'source',
-    header: 'Nguồn',
-    cell: (row) => (row.source_label ? `${row.source_type_label}: ${row.source_label}` : row.source_type_label),
-  },
-  {
-    id: 'inherited',
-    header: 'Kế thừa',
-    hiddenByDefault: true,
-    cell: (row) => (row.inherited_code ? `${row.inherited_code} (${row.inherited_year_name ?? ''})` : ''),
-  },
-];
-
-const emptyEvidence = (): EvidenceInput => ({
-  title: '',
-  document_number: null,
-  issued_date: null,
-  issuer: null,
-  description: null,
-  status: 'collecting',
-  source_type: 'none',
-  source_id: null,
-  criterion_ids: [],
-});
-
-function EvidenceForm({
-  assessmentId,
-  criteria,
-  initial,
-  onSaved,
-  onCancel,
-}: {
-  assessmentId: string;
-  criteria: CriterionRow[];
-  initial: QualityEvidence | null;
-  onSaved(row: QualityEvidence): void;
-  onCancel(): void;
-}) {
-  const [criterionId, setCriterionId] = useState(initial?.criterion_id ?? '');
-  const [box, setBox] = useState('');
-  const [form, setForm] = useState<EvidenceInput>(
-    initial
-      ? {
-          title: initial.title,
-          document_number: initial.document_number,
-          issued_date: initial.issued_date,
-          issuer: initial.issuer,
-          description: initial.description,
-          status: initial.status,
-          source_type: initial.source_type,
-          source_id: initial.professional_document_id ?? initial.system_document_id,
-          criterion_ids: initial.shared_criteria.map((item) => item.id),
-        }
-      : emptyEvidence(),
-  );
-  const [search, setSearch] = useState('');
-  const needsSource = ['professional_document', 'incoming_document', 'outgoing_document'].includes(form.source_type);
-  const sources = useQuery({
-    queryKey: ['quality', 'sources', form.source_type, search],
-    queryFn: () => listEvidenceSources(form.source_type, search),
-    enabled: needsSource,
-  });
-  const save = useMutation({
-    mutationFn: () =>
-      initial
-        ? updateEvidence(initial.id, form)
-        : createEvidence({
-            ...form,
-            assessment_id: assessmentId,
-            criterion_id: criterionId,
-            ...(box ? { box: Number(box) } : {}),
-          }),
-    onSuccess: onSaved,
-  });
-  const errors = fieldErrorsOf(save.error);
-  const set = (key: 'document_number' | 'issued_date' | 'issuer' | 'description') => (value: string) =>
-    setForm({ ...form, [key]: textOrNull(value) });
-  return (
-    <form
-      className="flex flex-col gap-3"
-      aria-label={initial ? `Sửa minh chứng ${initial.code}` : 'Thêm minh chứng'}
-      onSubmit={(event) => {
-        event.preventDefault();
-        save.mutate();
-      }}
-    >
-      {save.error && Object.keys(errors).length === 0 ? <Alert tone="danger">{messageOf(save.error)}</Alert> : null}
-      <FormBlock title="Minh chứng">
-        {initial ? null : (
-          <>
-            <FormRow label="Tiêu chí" error={errors.criterion_id}>
-              <select
-                className={FORM_CONTROL_CLASS}
-                value={criterionId}
-                onChange={(event) => setCriterionId(event.target.value)}
-              >
-                <option value="">Chọn tiêu chí</option>
-                {criteria.map((row) => (
-                  <option key={row.criterion_id} value={row.criterion_id}>
-                    {row.criterion_code} {row.criterion_title}
-                  </option>
-                ))}
-              </select>
-            </FormRow>
-            <FormRow label="Số hộp (trống: theo tiêu chuẩn)" error={errors.box}>
-              <input
-                type="number"
-                min={1}
-                max={99}
-                className={FORM_CONTROL_CLASS}
-                value={box}
-                onChange={(event) => setBox(event.target.value)}
-              />
-            </FormRow>
-          </>
-        )}
-        <FormRow label="Tên minh chứng" error={errors.title}>
-          <input
-            className={FORM_CONTROL_CLASS}
-            value={form.title}
-            onChange={(event) => setForm({ ...form, title: event.target.value })}
-          />
-        </FormRow>
-        <FormRow label="Số, kí hiệu" error={errors.document_number}>
-          <input
-            className={FORM_CONTROL_CLASS}
-            value={form.document_number ?? ''}
-            onChange={(event) => set('document_number')(event.target.value)}
-          />
-        </FormRow>
-        <FormRow label="Ngày ban hành" error={errors.issued_date}>
-          <input
-            type="date"
-            className={FORM_CONTROL_CLASS}
-            value={form.issued_date ?? ''}
-            onChange={(event) => set('issued_date')(event.target.value)}
-          />
-        </FormRow>
-        <FormRow label="Nơi ban hành" error={errors.issuer}>
-          <input
-            className={FORM_CONTROL_CLASS}
-            value={form.issuer ?? ''}
-            onChange={(event) => set('issuer')(event.target.value)}
-          />
-        </FormRow>
-        <FormRow label="Mô tả" error={errors.description}>
-          <textarea
-            className={textareaClass}
-            value={form.description ?? ''}
-            onChange={(event) => set('description')(event.target.value)}
-          />
-        </FormRow>
-        <FormRow label="Trạng thái" error={errors.status}>
-          <select
-            className={FORM_CONTROL_CLASS}
-            value={form.status}
-            onChange={(event) => setForm({ ...form, status: event.target.value as QualityEvidenceStatusCode })}
-          >
-            {Object.entries(QUALITY_EVIDENCE_STATUS_LABELS).map(([value, label]) => (
-              <option key={value} value={value}>
-                {label}
-              </option>
-            ))}
-          </select>
-        </FormRow>
-        <FormRow label="Nguồn" error={errors.source_type}>
-          <select
-            className={FORM_CONTROL_CLASS}
-            value={form.source_type}
-            onChange={(event) =>
-              setForm({ ...form, source_type: event.target.value as QualityEvidenceSourceCode, source_id: null })
-            }
-          >
-            {Object.entries(QUALITY_EVIDENCE_SOURCE_LABELS)
-              .filter(([value]) => value !== 'upload' || initial?.file_id)
-              .map(([value, label]) => (
-                <option key={value} value={value}>
-                  {label}
-                </option>
-              ))}
-          </select>
-        </FormRow>
-        {needsSource ? (
-          <FormRow label="Hồ sơ, văn bản nguồn" error={errors.source_id}>
-            <div className="flex flex-col gap-1">
-              <input
-                aria-label="Tìm hồ sơ, văn bản"
-                placeholder="Tìm theo tên, số, trích yếu"
-                className={FORM_CONTROL_CLASS}
-                value={search}
-                onChange={(event) => setSearch(event.target.value)}
-              />
-              <select
-                aria-label="Chọn hồ sơ, văn bản"
-                className={FORM_CONTROL_CLASS}
-                value={form.source_id ?? ''}
-                onChange={(event) => setForm({ ...form, source_id: event.target.value || null })}
-              >
-                <option value="">Chọn</option>
-                {(sources.data ?? []).map((item) => (
-                  <option key={item.id} value={item.id}>
-                    {item.label}
-                  </option>
-                ))}
-              </select>
-            </div>
-          </FormRow>
-        ) : null}
-        <fieldset className="flex flex-col gap-1">
-          <legend className="text-label font-medium">Dùng chung cho tiêu chí khác</legend>
-          <div className="flex flex-wrap gap-x-4 gap-y-1">
-            {criteria
-              .filter((row) => row.criterion_id !== (initial?.criterion_id ?? criterionId))
-              .map((row) => (
-                <label key={row.criterion_id} className="flex items-center gap-1 text-content">
-                  <input
-                    type="checkbox"
-                    checked={form.criterion_ids.includes(row.criterion_id)}
-                    onChange={() =>
-                      setForm({
-                        ...form,
-                        criterion_ids: form.criterion_ids.includes(row.criterion_id)
-                          ? form.criterion_ids.filter((id) => id !== row.criterion_id)
-                          : [...form.criterion_ids, row.criterion_id],
-                      })
-                    }
-                  />
-                  {row.criterion_code}
-                </label>
-              ))}
-          </div>
-        </fieldset>
-      </FormBlock>
-      <div className="flex gap-2">
-        <Button variant="primary" type="submit" disabled={save.isPending}>
-          Ghi
-        </Button>
-        <Button onClick={onCancel}>Hủy</Button>
-      </div>
-    </form>
-  );
-}
-
-export function QualityEvidencesPage() {
-  const queryClient = useQueryClient();
-  const grid = useGridSettings('quality-evidences');
-  const { toast, setToast, close } = useToast();
-  const [assessmentId, setAssessmentId] = useState('');
-  const [criterionId, setCriterionId] = useState('');
-  const [status, setStatus] = useState('');
-  const [search, setSearch] = useState('');
-  const [panel, setPanel] = useState<'create' | QualityEvidence>();
-  const [deleting, setDeleting] = useState<QualityEvidence>();
-  const assessment = useQuery({
-    queryKey: ['quality', 'assessment', assessmentId],
-    queryFn: () => readAssessment(assessmentId),
-    enabled: assessmentId !== '',
-  });
-  const evidences = useQuery({
-    queryKey: ['quality', 'evidences', assessmentId, criterionId, status, search],
-    queryFn: () => listEvidences({ assessment_id: assessmentId, criterion_id: criterionId, status, q: search }),
-    enabled: assessmentId !== '',
-  });
-  const refresh = () => queryClient.invalidateQueries({ queryKey: ['quality'] });
-  const upload = useMutation({
-    mutationFn: ({ row, file }: { row: QualityEvidence; file: File }) => uploadEvidenceFile(row.id, file),
-    onSuccess: async (row) => {
-      await refresh();
-      setToast(`Đã tải tệp cho minh chứng ${row.code}`);
-    },
-  });
-  const fetchFile = useMutation({ mutationFn: (row: QualityEvidence) => downloadEvidenceFile(row.id) });
-  const list = useMutation({ mutationFn: () => exportEvidenceList(assessmentId) });
-  const remove = useMutation({
-    mutationFn: (row: QualityEvidence) => deleteEvidence(row.id),
-    onSuccess: async (_result, row) => {
-      setDeleting(undefined);
-      await refresh();
-      setToast(`Đã xóa minh chứng ${row.code}`);
-    },
-    onError: () => setDeleting(undefined),
-  });
-  const detail = assessment.data;
-  const editable =
-    detail !== undefined && detail.status !== 'completed' && (detail.can_manage || detail.my_group_ids.length > 0);
-  const error = evidences.error ?? upload.error ?? fetchFile.error ?? list.error ?? remove.error;
-  return (
-    <Page path="/quality/evidences" toast={toast} onToastClose={close}>
-      <div className="flex flex-wrap items-end gap-3">
-        <AssessmentSelect value={assessmentId} onChange={setAssessmentId} />
-        <label className="text-label font-medium text-text">
-          Tiêu chí
-          <select className={selectClass} value={criterionId} onChange={(event) => setCriterionId(event.target.value)}>
-            <option value="">Tất cả tiêu chí</option>
-            {(detail?.criteria ?? []).map((row) => (
-              <option key={row.criterion_id} value={row.criterion_id}>
-                {row.criterion_code} {row.criterion_title}
-              </option>
-            ))}
-          </select>
-        </label>
-        <label className="text-label font-medium text-text">
-          Trạng thái
-          <select className={selectClass} value={status} onChange={(event) => setStatus(event.target.value)}>
-            <option value="">Tất cả</option>
-            {Object.entries(QUALITY_EVIDENCE_STATUS_LABELS).map(([value, label]) => (
-              <option key={value} value={value}>
-                {label}
-              </option>
-            ))}
-          </select>
-        </label>
-      </div>
-      {error ? <Alert tone="danger">{messageOf(error)}</Alert> : null}
-      {panel && detail ? (
-        <section className="rounded-xl border border-border bg-card p-4">
-          <EvidenceForm
-            assessmentId={assessmentId}
-            criteria={detail.criteria}
-            initial={panel === 'create' ? null : panel}
-            onCancel={() => setPanel(undefined)}
-            onSaved={async (row) => {
-              setPanel(undefined);
-              await refresh();
-              setToast(`Đã ghi minh chứng ${row.code}`);
-            }}
-          />
-        </section>
-      ) : null}
-      <DataGrid
-        label="Minh chứng"
-        columns={EVIDENCE_COLUMNS}
-        rows={evidences.data ?? []}
-        getRowId={(row) => row.id}
-        getRowLabel={(row) => `${row.code} ${row.title}`}
-        loading={assessmentId !== '' && !evidences.data && !evidences.error}
-        emptyText="Chưa có minh chứng."
-        search={{ label: 'Tìm theo mã, tên, số minh chứng', value: search, onChange: setSearch }}
-        toolbar={
-          <span className="flex flex-wrap gap-2">
-            {editable ? (
-              <Button variant="primary" onClick={() => setPanel('create')}>
-                Thêm minh chứng
-              </Button>
-            ) : null}
-            {assessmentId ? (
-              <Button disabled={list.isPending} onClick={() => list.mutate()}>
-                Xuất danh mục minh chứng
-              </Button>
-            ) : null}
-          </span>
-        }
-        rowActions={(row) => (
-          <span className="flex flex-wrap gap-1">
-            {row.file_id || row.professional_document_id ? (
-              <Button variant="text" onClick={() => fetchFile.mutate(row)}>
-                Xem tệp
-              </Button>
-            ) : null}
-            {editable ? (
-              <>
-                <label className="cursor-pointer px-2 py-2 text-label font-medium text-primary">
-                  Tải tệp lên
-                  <input
-                    type="file"
-                    aria-label={`Tải tệp cho ${row.code}`}
-                    className="sr-only"
-                    onChange={(event) => {
-                      const file = event.target.files?.[0];
-                      event.target.value = '';
-                      if (file) {
-                        upload.mutate({ row, file });
-                      }
-                    }}
-                  />
-                </label>
-                <Button variant="text" onClick={() => setPanel(row)}>
-                  Sửa
-                </Button>
-                <Button variant="text" onClick={() => setDeleting(row)}>
-                  Xóa
-                </Button>
-              </>
-            ) : null}
-          </span>
-        )}
-        settings={grid.settings}
-        onSettingsChange={grid.update}
-      />
-      <ConfirmDeleteDialog
-        open={deleting !== undefined}
-        subject={deleting ? `${deleting.code} ${deleting.title}` : ''}
-        busy={remove.isPending}
-        onConfirm={() => deleting && remove.mutate(deleting)}
-        onCancel={() => setDeleting(undefined)}
-      />
-    </Page>
-  );
-}
-
-// ---- 2.1 Theo dõi công nhận ----
+// ---- 3.2 Theo dõi công nhận ----
 
 type RecognitionRow = Awaited<ReturnType<typeof readRecognition>>['records'][number];
 
@@ -1736,7 +1287,7 @@ export function QualityRecognitionPage() {
   );
 }
 
-// ---- 2.2 Bộ tiêu chuẩn đánh giá ----
+// ---- 3.1 Bộ tiêu chuẩn đánh giá ----
 
 const FRAMEWORK_COLUMNS: Array<DataGridColumn<QualityFramework>> = [
   { id: 'code', header: 'Mã', alwaysVisible: true, className: 'font-medium', cell: (row) => row.code },

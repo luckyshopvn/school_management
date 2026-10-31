@@ -71,16 +71,16 @@ test('CT-22f-9: nạp bộ tiêu chuẩn; lập đợt, hội đồng, nhóm cô
   }
   const title = `Tự đánh giá E2E ${suffix}`;
 
-  // Hiệu trưởng: 2.2 nạp bộ tiêu chuẩn mẫu Mầm non
+  // Hiệu trưởng: 3.1 nạp bộ tiêu chuẩn mẫu Mầm non (spec 243 có thể đã nạp trước)
   const head = await signIn(browser, principal);
   await openMenu(head, '/quality/frameworks');
-  await expect(head.getByRole('heading', { name: '2.2. Bộ tiêu chuẩn đánh giá' })).toBeVisible();
+  await expect(head.getByRole('heading', { name: '3.1. Bộ tiêu chuẩn đánh giá' })).toBeVisible();
   await head.getByLabel('Cấp học').selectOption('MN');
   await head.getByRole('button', { name: 'Nạp bộ tiêu chuẩn mẫu' }).click();
   await expect(head.getByText(/Đã nạp \d+ bộ tiêu chuẩn/)).toBeVisible();
   await expect(head.getByRole('cell', { name: 'Kiểm định chất lượng giáo dục trường mầm non' })).toBeVisible();
 
-  // 1.1 lập đợt, hội đồng, nhóm công tác phụ trách mọi tiêu chí, bắt đầu
+  // 2.1 lập đợt, hội đồng, nhóm công tác phụ trách mọi tiêu chí, bắt đầu
   await openMenu(head, '/quality/assessments');
   await head.getByRole('button', { name: 'Lập đợt tự đánh giá' }).click();
   const form = head.getByRole('form', { name: 'Lập đợt tự đánh giá' });
@@ -112,7 +112,7 @@ test('CT-22f-9: nạp bộ tiêu chuẩn; lập đợt, hội đồng, nhóm cô
   await panel.getByRole('button', { name: 'Bắt đầu đánh giá' }).click();
   await expect(head.getByText('Đã bắt đầu đánh giá; các nhóm soạn phiếu tiêu chí')).toBeVisible();
 
-  // Giáo viên: 1.2 soạn, nộp phiếu tiêu chí 1.1; 1.3 thêm minh chứng
+  // Giáo viên: 2.2 soạn, nộp phiếu tiêu chí 1.1; 1.1 thêm minh chứng vào kho (YCTD-396)
   const staff = await signIn(browser, teacher);
   await openMenu(staff, '/quality/reports');
   await staff.getByLabel('Đợt tự đánh giá').selectOption({ label: title });
@@ -127,16 +127,15 @@ test('CT-22f-9: nạp bộ tiêu chuẩn; lập đợt, hội đồng, nhóm cô
   await sheet.getByRole('button', { name: 'Nộp phiếu' }).click();
   await expect(staff.getByText('Đã nộp phiếu')).toBeVisible();
   await openMenu(staff, '/quality/evidences');
-  await staff.getByLabel('Đợt tự đánh giá').selectOption({ label: title });
   await staff.getByRole('button', { name: 'Thêm minh chứng' }).click();
   const evidence = staff.getByRole('form', { name: 'Thêm minh chứng' });
   await evidence.getByLabel('Tiêu chí', { exact: true }).selectOption({ index: 1 });
   await evidence.getByLabel('Tên minh chứng').fill('Kế hoạch chiến lược thử');
   await evidence.getByRole('button', { name: 'Ghi' }).click();
-  await expect(staff.getByText('Đã ghi minh chứng H1-1.1-01')).toBeVisible();
-  await expect(staff.getByRole('cell', { name: 'H1-1.1-01', exact: true })).toBeVisible();
+  await expect(staff.getByText('Đã ghi minh chứng [H1-1.1-01]')).toBeVisible();
+  await expect(staff.getByRole('cell', { name: '[H1-1.1-01]', exact: true })).toBeVisible();
 
-  // Hiệu trưởng: 1.2 duyệt phiếu
+  // Hiệu trưởng: 2.2 duyệt phiếu
   await openMenu(head, '/quality/reports');
   await head.getByRole('tab', { name: 'Tất cả phiếu' }).click();
   await head.getByLabel('Đợt tự đánh giá').selectOption({ label: title });

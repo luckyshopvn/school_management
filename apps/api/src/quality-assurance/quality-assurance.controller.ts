@@ -1,29 +1,6 @@
-import {
-  Body,
-  Controller,
-  Delete,
-  Get,
-  HttpCode,
-  Param,
-  Post,
-  Put,
-  Query,
-  Req,
-  Res,
-  UploadedFile,
-  UseInterceptors,
-} from '@nestjs/common';
-import { FileInterceptor } from '@nestjs/platform-express';
+import { Body, Controller, Delete, Get, HttpCode, Param, Post, Put, Query, Req, Res } from '@nestjs/common';
 import { validationError, type FieldError } from '@school-management/server';
-import {
-  PERMISSION_CODES,
-  QUALITY_EVIDENCE_SOURCE_LABELS,
-  QUALITY_EVIDENCE_STATUS_LABELS,
-  QUALITY_MAXIMUM_FILE_BYTES,
-  QUALITY_MAXIMUM_LEVEL,
-  type QualityEvidenceSourceCode,
-  type QualityEvidenceStatusCode,
-} from '@school-management/shared';
+import { PERMISSION_CODES, QUALITY_MAXIMUM_LEVEL } from '@school-management/shared';
 import type { Request, Response } from 'express';
 import { AuthenticatedUser, RequirePermission } from '../authentication/authentication.guard.js';
 import type { CurrentUser } from '../authentication/current-user.js';
@@ -31,14 +8,13 @@ import { originOf } from '../common/audit-log.js';
 import { isUuid, type RequestBody } from '../common/request-fields.js';
 import { uuidParameter } from '../common/uuid-parameter.js';
 import { readTableFileFormat } from '../exports/table-file.js';
-import { readChoice, readInteger, readText, readUuid, throwIfAny } from '../incoming-documents/incoming-fields.js';
+import { readChoice, readInteger, readText, throwIfAny } from '../incoming-documents/incoming-fields.js';
 import { QUALITY_PERMISSIONS, QualityAssuranceService } from './quality-assurance.js';
 import {
   LEVEL_LABELS,
   readAssessment,
   readCouncil,
   readCriterion,
-  readEvidence,
   readFramework,
   readGroups,
   readIndicator,
@@ -53,13 +29,6 @@ const MANAGE = PERMISSION_CODES.qualityManage;
 const FRAMEWORK = 'Mã bộ tiêu chuẩn không hợp lệ';
 const ASSESSMENT = 'Mã đợt tự đánh giá không hợp lệ';
 const REPORT = 'Mã phiếu không hợp lệ';
-const EVIDENCE = 'Mã minh chứng không hợp lệ';
-
-interface UploadedPart {
-  originalname: string;
-  size: number;
-  buffer: Buffer;
-}
 
 function withErrors<Value>(read: (errors: FieldError[]) => Value): Value {
   const errors: FieldError[] = [];
@@ -443,17 +412,6 @@ export class QualityAssuranceController {
     return this.quality.applyToReview(user, id, originOf(request, user));
   }
 
-  @Post('assessments/:id/inherit-evidences')
-  @HttpCode(200)
-  @RequirePermission(MANAGE)
-  inherit(
-    @Param('id', uuidParameter(ASSESSMENT)) id: string,
-    @Req() request: Request,
-    @AuthenticatedUser() user: CurrentUser,
-  ) {
-    return this.quality.inheritEvidences(user, id, originOf(request, user));
-  }
-
   @Post('assessments/:id/work-plan')
   @RequirePermission(MANAGE)
   workPlan(
@@ -561,102 +519,5 @@ export class QualityAssuranceController {
     @AuthenticatedUser() user: CurrentUser,
   ) {
     return this.quality.reopenReport(user, id, originOf(request, user));
-  }
-
-  // ---- Minh chứng ----
-
-  @Get('evidence-sources')
-  sources(
-    @Query('source_type') sourceType: string | undefined,
-    @Query('q') q: string | undefined,
-    @AuthenticatedUser() user: CurrentUser,
-  ) {
-    const type = sourceType && sourceType in QUALITY_EVIDENCE_SOURCE_LABELS ? sourceType : 'none';
-    return this.quality.evidenceSources(
-      user,
-      type as QualityEvidenceSourceCode,
-      q && q.trim() !== '' ? q.trim().slice(0, 200) : null,
-    );
-  }
-
-  @Get('evidences')
-  evidences(@Query() query: Record<string, unknown>, @AuthenticatedUser() user: CurrentUser) {
-    const status =
-      typeof query.status === 'string' && query.status in QUALITY_EVIDENCE_STATUS_LABELS ? query.status : null;
-    return this.quality.evidences(user, {
-      assessment_id: requiredUuid(query.assessment_id, 'assessment_id'),
-      criterion_id: optionalUuid(query.criterion_id, 'criterion_id'),
-      status: status as QualityEvidenceStatusCode | null,
-      q: typeof query.q === 'string' && query.q.trim() !== '' ? query.q.trim().slice(0, 200) : null,
-    });
-  }
-
-  @Post('evidences')
-  createEvidence(@Body() body: RequestBody, @Req() request: Request, @AuthenticatedUser() user: CurrentUser) {
-    const { assessmentId, criterionId, box, input } = withErrors((errors) => ({
-      assessmentId: readUuid(body, 'assessment_id', errors, true) ?? '',
-      criterionId: readUuid(body, 'criterion_id', errors, true) ?? '',
-      box: readInteger(body, 'box', errors, { min: 1, max: 99 }),
-      input: readEvidence(body, errors),
-    }));
-    return this.quality.createEvidence(user, assessmentId, criterionId, box, input, originOf(request, user));
-  }
-
-  @Put('evidences/:id')
-  updateEvidence(
-    @Param('id', uuidParameter(EVIDENCE)) id: string,
-    @Body() body: RequestBody,
-    @Req() request: Request,
-    @AuthenticatedUser() user: CurrentUser,
-  ) {
-    return this.quality.updateEvidence(
-      user,
-      id,
-      withErrors((errors) => readEvidence(body, errors)),
-      originOf(request, user),
-    );
-  }
-
-  @Delete('evidences/:id')
-  @HttpCode(204)
-  async deleteEvidence(
-    @Param('id', uuidParameter(EVIDENCE)) id: string,
-    @Req() request: Request,
-    @AuthenticatedUser() user: CurrentUser,
-  ) {
-    await this.quality.deleteEvidence(user, id, originOf(request, user));
-  }
-
-  @Post('evidences/:id/file')
-  @HttpCode(200)
-  @UseInterceptors(FileInterceptor('file', { limits: { fileSize: QUALITY_MAXIMUM_FILE_BYTES, files: 1 } }))
-  upload(
-    @Param('id', uuidParameter(EVIDENCE)) id: string,
-    @UploadedFile() file: UploadedPart | undefined,
-    @Req() request: Request,
-    @AuthenticatedUser() user: CurrentUser,
-  ) {
-    if (!file || file.size === 0) {
-      throw validationError([{ field: 'file', message: 'Bắt buộc chọn tệp' }]);
-    }
-    return this.quality.uploadEvidenceFile(
-      user,
-      id,
-      { fileName: Buffer.from(file.originalname, 'latin1').toString('utf8'), body: file.buffer },
-      originOf(request, user),
-    );
-  }
-
-  @Get('evidences/:id/file')
-  async file(
-    @Param('id', uuidParameter(EVIDENCE)) id: string,
-    @Res() response: Response,
-    @AuthenticatedUser() user: CurrentUser,
-  ) {
-    const { file, body } = await this.quality.evidenceFile(user, id);
-    response.setHeader('content-type', file.content_type);
-    response.setHeader('content-disposition', `inline; filename*=UTF-8''${encodeURIComponent(file.file_name)}`);
-    response.setHeader('cache-control', 'no-store');
-    response.send(body);
   }
 }

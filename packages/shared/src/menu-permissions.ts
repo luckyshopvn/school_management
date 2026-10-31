@@ -64,6 +64,8 @@ const EMULATION_ANY = anyOf('P09.emulation.use', 'P09.emulation.manage', 'P09.em
 const EMULATION_MANAGE = anyOf('P09.emulation.manage', 'P09.emulation.decide');
 // Bảo đảm chất lượng, tự đánh giá (DT-18 phần 22f)
 const QUALITY_ANY = anyOf('P09.quality.use', 'P09.quality.manage');
+// Kho minh chứng dùng chung (YCTD-396)
+const EVIDENCE_ANY = anyOf('P09.evidence.view', 'P09.evidence.contribute', 'P09.evidence.manage');
 // Thư viện trường học (DT-22 phần 22a): tra cứu cho mọi cán bộ, phần còn lại cho người quản lý thư viện
 const LIBRARY_ANY = anyOf('P02.library.view', 'P02.library.manage');
 const SCHEDULE_ANY = anyOf('P09.schedule.view', 'P09.schedule.manage', 'P09.meeting-room.manage');
@@ -372,7 +374,7 @@ export const MENU_PERMISSION_RULES: Partial<Record<PortalQuickLinkPath, MenuPerm
   '/emulation/titles': EMULATION_ANY,
   '/quality/assessments': QUALITY_ANY,
   '/quality/reports': QUALITY_ANY,
-  '/quality/evidences': QUALITY_ANY,
+  '/quality/evidences': EVIDENCE_ANY,
   '/quality/recognition': QUALITY_ANY,
   '/quality/frameworks': QUALITY_ANY,
   '/library/titles': LIBRARY_ANY,

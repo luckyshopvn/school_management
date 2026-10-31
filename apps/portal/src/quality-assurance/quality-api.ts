@@ -1,8 +1,8 @@
 import type {
+  EvidenceValidityCode,
   KpiSchoolLevelCode,
   QualityAssessmentStatusCode,
   QualityCouncilPositionCode,
-  QualityEvidenceSourceCode,
   QualityEvidenceStatusCode,
   QualityImprovementAction,
   QualityLevelSummary,
@@ -42,7 +42,6 @@ export interface QualityOverview {
   can_manage: boolean;
   can_use: boolean;
   staff: Array<{ id: string; full_name: string; department_name: string | null }>;
-  previous_year: string | null;
 }
 
 export interface QualityFramework {
@@ -200,13 +199,15 @@ export interface QualityReportRow {
 export interface QualityEvidenceBrief {
   id: string;
   code: string;
+  display_code: string;
+  validity: EvidenceValidityCode;
+  validity_label: string;
   title: string;
   document_number: string | null;
   issued_date: string | null;
   issuer: string | null;
   status: QualityEvidenceStatusCode;
   status_label: string;
-  source_type: QualityEvidenceSourceCode;
   shared: boolean;
 }
 
@@ -247,44 +248,6 @@ export type ReportInput = Pick<
   QualityReportDetail,
   'current_state' | 'strengths' | 'weaknesses' | 'improvement_actions' | 'indicator_results' | 'self_level'
 >;
-
-export interface QualityEvidence {
-  id: string;
-  code: string;
-  box: number;
-  title: string;
-  document_number: string | null;
-  issued_date: string | null;
-  issuer: string | null;
-  description: string | null;
-  status: QualityEvidenceStatusCode;
-  status_label: string;
-  source_type: QualityEvidenceSourceCode;
-  source_type_label: string;
-  source_label: string | null;
-  file_id: string | null;
-  professional_document_id: string | null;
-  system_document_id: string | null;
-  inherited_code: string | null;
-  inherited_year_name: string | null;
-  criterion_id: string;
-  criterion_code: string;
-  criterion_title: string;
-  shared_criteria: Array<{ id: string; code: string }>;
-  created_by_name: string | null;
-}
-
-export interface EvidenceInput {
-  title: string;
-  document_number: string | null;
-  issued_date: string | null;
-  issuer: string | null;
-  description: string | null;
-  status: QualityEvidenceStatusCode;
-  source_type: QualityEvidenceSourceCode;
-  source_id: string | null;
-  criterion_ids: string[];
-}
 
 export type RecognitionState = 'valid' | 'expiring' | 'expired' | 'unknown';
 
@@ -368,11 +331,6 @@ export const applyRecognition = (id: string) =>
     `${API}/assessments/${id}/recognition/apply`,
     json('POST'),
   );
-export const inheritEvidences = (id: string) =>
-  requestJson<{ year_name: string; created: number; skipped: number }>(
-    `${API}/assessments/${id}/inherit-evidences`,
-    json('POST'),
-  );
 export const createImprovementPlan = (id: string) =>
   requestJson<{ work_plan_ids: string[]; plans: number; items: number }>(
     `${API}/assessments/${id}/work-plan`,
@@ -380,8 +338,6 @@ export const createImprovementPlan = (id: string) =>
   );
 export const exportSelfReport = (id: string, format: 'docx' | 'pdf') =>
   download(`${API}/assessments/${id}/report?format=${format}`, `bao-cao-tu-danh-gia.${format}`);
-export const exportEvidenceList = (id: string) =>
-  download(`${API}/assessments/${id}/evidences/export?format=xlsx`, 'danh-muc-minh-chung.xlsx');
 export const readRecognition = () => requestJson<QualityRecognition>(`${API}/recognition`);
 
 export const listReports = (filter: { assessment_id?: string; mine?: boolean }) =>
@@ -391,23 +347,3 @@ export const updateReport = (id: string, input: ReportInput) =>
   requestJson<QualityReportDetail>(`${API}/reports/${id}`, json('PUT', input));
 export const reportAction = (id: string, action: 'submit' | 'approve' | 'return' | 'reopen', note?: string) =>
   requestJson<QualityReportDetail>(`${API}/reports/${id}/${action}`, json('POST', note ? { note } : {}));
-
-export const listEvidences = (filter: { assessment_id: string; criterion_id?: string; status?: string; q?: string }) =>
-  requestJson<QualityEvidence[]>(`${API}/evidences${query(filter)}`);
-export const createEvidence = (input: EvidenceInput & { assessment_id: string; criterion_id: string; box?: number }) =>
-  requestJson<QualityEvidence>(`${API}/evidences`, json('POST', input));
-export const updateEvidence = (id: string, input: EvidenceInput) =>
-  requestJson<QualityEvidence>(`${API}/evidences/${id}`, json('PUT', input));
-export const deleteEvidence = (id: string): Promise<void> => requestJson(`${API}/evidences/${id}`, json('DELETE'));
-export async function uploadEvidenceFile(id: string, file: File): Promise<QualityEvidence> {
-  const form = new FormData();
-  form.append('file', file);
-  const response = await fetchWithSession(`${API}/evidences/${id}/file`, { method: 'POST', body: form });
-  if (!response.ok) {
-    throw await readError(response);
-  }
-  return (await response.json()) as QualityEvidence;
-}
-export const downloadEvidenceFile = (id: string) => download(`${API}/evidences/${id}/file`, 'minh-chung');
-export const listEvidenceSources = (sourceType: QualityEvidenceSourceCode, q: string) =>
-  requestJson<Array<{ id: string; label: string }>>(`${API}/evidence-sources${query({ source_type: sourceType, q })}`);

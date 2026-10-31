@@ -458,8 +458,8 @@ Bảo đảm chất lượng, tự đánh giá (DT-18 phần 22f, YCTD-149). Cơ
 | quality_work_groups | Nhóm công tác (P09-41) | id, assessment_id (xóa theo), name, leader_staff_id, sort_order |
 | quality_work_group_members | Thành viên nhóm (P09-41) | group_id (xóa theo), staff_id, staff_name |
 | quality_criterion_reports | Phiếu đánh giá tiêu chí (P09-42, BR-152) | id, assessment_id (xóa theo), criterion_id (duy nhất theo đợt), work_group_id, current_state, strengths, weaknesses, improvement_actions (jsonb: content, owner_staff_id, due_date, resources), indicator_results (jsonb: mã chỉ báo → đạt), self_level, status (`draft`, `submitted`, `approved`, `returned`), submitted_at, submitted_by_name, reviewed_at, reviewed_by_name, return_note, updated_by_name |
-| quality_evidences | Minh chứng (P09-43, BR-153) | id, assessment_id (xóa theo), criterion_id, box, sequence, code (`Hn-a.b-c`, duy nhất theo đợt), title, document_number, issued_date, issuer, description, status (`missing`, `collecting`, `sufficient`, `needs_update`), source_type (`upload`, `professional_document`, `incoming_document`, `outgoing_document`, `none`), file_id (mục đích tệp `professional_record`, khóa `storageKey('quality-evidences', đợt, …)`), professional_document_id, system_document_id (văn bản ở cơ sở dữ liệu hệ thống), source_label, inherited_code, inherited_year_name, created_by, created_by_name |
-| quality_evidence_criteria | Minh chứng dùng chung cho tiêu chí khác (P09-43) | evidence_id (xóa theo), criterion_id |
+| quality_evidences | Minh chứng (P09-43, BR-153); **chỉ đọc từ YCTD-396 lát L1**, nguồn chuyển sang kho ở mục 18V | id, assessment_id (xóa theo), criterion_id, box, sequence, code (`Hn-a.b-c`, duy nhất theo đợt), title, document_number, issued_date, issuer, description, status (`missing`, `collecting`, `sufficient`, `needs_update`), source_type (`upload`, `professional_document`, `incoming_document`, `outgoing_document`, `none`), file_id (mục đích tệp `professional_record`, khóa `storageKey('quality-evidences', đợt, …)`), professional_document_id, system_document_id (văn bản ở cơ sở dữ liệu hệ thống), source_label, inherited_code, inherited_year_name, created_by, created_by_name |
+| quality_evidence_criteria | Minh chứng dùng chung cho tiêu chí khác (P09-43); chỉ đọc từ YCTD-396 lát L1 | evidence_id (xóa theo), criterion_id |
 
 Thi đua, khen thưởng (DT-18 phần 22d, YCTD-148). Cơ sở dữ liệu năm học, tệp `database/school-year/migrations/0070_create_emulation.ts`; quyền ở tệp định danh `0062_add_emulation_permissions.ts`. Sổ nhiều năm đọc `emulation_awards` của mọi cơ sở dữ liệu năm học.
 
@@ -1125,6 +1125,21 @@ Quy tắc (mã ở `apps/api/src/gate-passes/attendance-devices.service.ts`, `ap
 2. Lượt của học sinh ghi `method = device` qua cùng hàm với quét thẻ (gộp 5 phút, tự ghi "Đi muộn"); chỉ báo phụ huynh khi lượt không cũ quá 30 phút.
 3. Lượt của cán bộ: lượt sớm nhất trong ngày là giờ vào, muộn nhất là giờ ra, nguồn `device`; ngày đã nhập tay (`manual`) giữ nguyên; tháng đã chốt bảng công thì từ chối.
 4. Thiết bị ở trường chính nhận người của mọi đơn vị; thiết bị ở đơn vị cấp 2 chỉ nhận người của đơn vị đó.
+
+## 18V. Kho minh chứng dùng chung (YCTD-396 lát L1)
+
+Tệp hệ thống `0143_create_evidence_store`, quyền ở tệp định danh `0200_add_evidence_permissions`; kiểu ở `database/system/schema-parts/yctd-396-kho-minh-chung.ts`. Bộ tiêu chí lát L1 vẫn ở cơ sở dữ liệu năm học (bảng của 22f, mã định danh giữ nguyên khi chuyển năm học) nên các cột `framework_id`, `node_id` không có khóa ngoại.
+
+| Bảng | Mục đích | Cột chính |
+|---|---|---|
+| evidence_items (hệ thống) | Minh chứng của trường, dùng qua các năm học (BR-536) | id, title, document_number, issued_date, issuer, description, school_year_names (mảng năm học), valid_until (BR-537), status (`missing`, `collecting`, `sufficient`, `needs_update`), has_personal_data, personal_data_permission (quyền xem nguồn cần để tải, BR-542), owner_user_id, owner_name, import_key (duy nhất: `<cơ sở dữ liệu năm học>:<mã minh chứng cũ>`), created_by, created_by_name |
+| evidence_versions (hệ thống) | Phiên bản (BR-535) | id, evidence_id (xóa theo), version_no (duy nhất theo minh chứng), source_kind (`upload`, `record`), record_type, record_id, record_school_year, record_label, record_updated_at, file_name, content_type, size_bytes, sha256, storage_key (khóa `storageKey('evidences', …)`; minh chứng chuyển từ 22f dùng lại khóa cũ), note, created_by, created_by_name |
+| evidence_codes (hệ thống) | Mã theo bộ (BR-533, BR-534) | evidence_id (xóa theo), framework_id, primary_node_id, box, sequence, code; khóa chính (evidence_id, framework_id); duy nhất (framework_id, code) |
+| evidence_node_links (hệ thống) | Tiêu chí dùng minh chứng | evidence_id (xóa theo), framework_id, node_id, is_primary; khóa chính (evidence_id, node_id); chỉ mục (framework_id, node_id) |
+| evidence_events (hệ thống) | Lịch sử và nhật ký truy cập; giữ khi minh chứng bị xóa | id, evidence_id, action (`create`, `update`, `add_version`, `link`, `unlink`, `delete`, `import`, `view_file`, `download_file`), version_no, detail, actor_id, actor_name |
+| evidence_imports (hệ thống) | Cơ sở dữ liệu năm học đã chuyển minh chứng của 22f | school_year_database (khóa chính), evidence_count, imported_at |
+
+Chuyển minh chứng của 22f (mã ở `apps/api/src/quality-assurance/evidence-store.ts` hàm `ensureImported`): chạy lần đầu kho được mở ở mỗi trường, từng cơ sở dữ liệu năm học từ năm cũ đến năm mới, trong giao dịch có khóa cố vấn; minh chứng kế thừa gộp vào minh chứng cùng mã của bộ (thêm năm học, phiên bản nếu tệp khác); mã trùng không phải kế thừa thì cấp số kế tiếp.
 
 ## 19. Quan hệ chính giữa các bảng
 
