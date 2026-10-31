@@ -30,6 +30,7 @@ import {
   type WorkFileDetail,
 } from './directives-api.js';
 import { formatDateTime, Page, todayText, useToast } from './directive-ui.js';
+import { UseAsEvidence } from '../quality-assurance/UseAsEvidence.js';
 
 // Hồ sơ công việc theo VNPT iOffice (DT-18 phần 18c, YCTD-141): 5.1 Hồ sơ cá nhân, 5.2 Hồ sơ được chia sẻ, 5.3 Hồ sơ được
 // chuyển giao; nộp lưu sang văn thư lưu trữ (5.10): 5.4 Hồ sơ nộp lưu (tiếp nhận, trả về), 5.5 Hồ sơ hết hạn bảo quản
@@ -241,6 +242,13 @@ function WorkFileDetailPanel({ id, onChanged }: { id: string; onChanged(message:
           </>
         ) : null}
       </dl>
+      <div>
+        <UseAsEvidence
+          recordType="work_file"
+          recordId={file.id}
+          defaultTitle={`Hồ sơ công việc ${file.code} ${file.title}`}
+        />
+      </div>
       <h3 className="text-content font-semibold">Thành phần hồ sơ</h3>
       <ul className="flex flex-col gap-1 text-content">
         {file.items.length === 0 ? <li className="text-text-secondary">Chưa có thành phần</li> : null}

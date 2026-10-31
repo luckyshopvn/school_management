@@ -28,7 +28,7 @@ export function evidenceValidity(validUntil: string | null, today: string): Evid
   return validUntil <= limit.toISOString().slice(0, 10) ? 'expiring' : 'valid';
 }
 
-// Loại bản ghi làm nguồn minh chứng: ba loại đã dùng ở 22f (lát L1) và các loại của bộ đăng ký nguồn (lát L2)
+// Loại bản ghi làm nguồn minh chứng: ba loại đã dùng ở 22f (lát L1) và các loại của bộ đăng ký nguồn (lát L2, L2b)
 export type EvidenceRecordTypeCode =
   | 'professional_document'
   | 'incoming_document'
@@ -37,7 +37,11 @@ export type EvidenceRecordTypeCode =
   | 'work_plan'
   | 'staff_qualification'
   | 'professional_evaluation'
-  | 'facility_report';
+  | 'facility_report'
+  | 'work_file'
+  | 'score_book'
+  | 'class_attendance'
+  | 'upper_level_submission';
 
 export const EVIDENCE_RECORD_TYPE_LABELS: Record<EvidenceRecordTypeCode, string> = {
   professional_document: 'Hồ sơ chuyên môn đã duyệt',
@@ -48,6 +52,10 @@ export const EVIDENCE_RECORD_TYPE_LABELS: Record<EvidenceRecordTypeCode, string>
   staff_qualification: 'Thống kê đội ngũ theo trình độ',
   professional_evaluation: 'Phiếu đánh giá chuẩn nghề nghiệp',
   facility_report: 'Báo cáo cơ sở vật chất',
+  work_file: 'Hồ sơ công việc',
+  score_book: 'Sổ điểm một môn của lớp (một học kỳ)',
+  class_attendance: 'Điểm danh của lớp (một tháng)',
+  upper_level_submission: 'Biểu, báo cáo đã gửi cấp trên',
 };
 
 export type EvidenceEventActionCode =

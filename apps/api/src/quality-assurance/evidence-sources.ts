@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import type { SchoolYearDatabase, SystemDatabase } from '@school-management/database';
 import { validationError } from '@school-management/server';
 import { PERMISSION_CODES, type EvidenceRecordTypeCode } from '@school-management/shared';
-import type { Kysely } from 'kysely';
+import { sql, type Kysely } from 'kysely';
 import { VIETNAM_DATE } from '../attendance/school-calendar.js';
 import type { CurrentUser } from '../authentication/current-user.js';
 import { buildTableFile, type TableFileSheet } from '../exports/table-file.js';
@@ -14,6 +14,10 @@ import { escapeLike } from '../incoming-documents/incoming-fields.js';
 import { ProfessionalStandardsService } from '../professional-standards/professional-standards.js';
 import { StaffStatisticsService } from '../statistics/staff-statistics.js';
 import { PlansService } from '../work/plans.js';
+import { AttendanceMealsService } from '../reports/attendance-meals.js';
+import { ScoresService } from '../scores/scores.js';
+import { UpperLevelSubmissions } from '../submissions/upper-level-submissions.js';
+import { WorkFilesService } from '../work-files/work-files.js';
 
 // Bộ đăng ký nguồn của kho minh chứng (YCTD-396 lát L2). Mỗi loại bản ghi khai báo quyền cần để xem, có dữ liệu cá nhân hay
 // không, cách tìm, cách chụp thành tệp và thời điểm sửa gần nhất để báo "Nguồn đã thay đổi" (BR-540 đến BR-542). Thêm loại
@@ -320,6 +324,10 @@ export class EvidenceSources {
     staffStatistics: StaffStatisticsService,
     professionalStandards: ProfessionalStandardsService,
     facilityReport: FacilityReportService,
+    workFiles: WorkFilesService,
+    scores: ScoresService,
+    attendanceMeals: AttendanceMealsService,
+    submissions: UpperLevelSubmissions,
   ) {
     // Toàn trường và các đơn vị theo tên
     const units = async (context: SourceContext, pattern: string | null, title: string) => {
@@ -596,6 +604,295 @@ export class EvidenceSources {
       updatedAt: (context) => this.latest(context, 'rooms'),
     };
 
+    // ---- Lát L2b: hồ sơ công việc, sổ điểm, điểm danh tháng, biểu đã gửi cấp trên ----
+
+    const WORK_FILE_ITEM_LABELS: Record<string, string> = {
+      incoming_document: 'Văn bản đến',
+      task: 'Công việc',
+      note: 'Ghi chú',
+    };
+    const workFile: EvidenceSourceDefinition = {
+      permissions: [PERMISSION_CODES.workFileUse, PERMISSION_CODES.archiveManage, PERMISSION_CODES.archiveView],
+      personal_data: false,
+      per_school_year: false,
+      async search(context, pattern) {
+        const found = new Map<string, { id: string; label: string }>();
+        for (const box of ['personal', 'shared', 'archive'] as const) {
+          const rows = await workFiles
+            .list(context.currentUser, box, { year: null, search: needleOf(pattern) })
+            .catch(() => []);
+          for (const row of rows) {
+            found.set(row.id, { id: row.id, label: `${row.code} ${row.title} (${row.owner_name}, năm ${row.year})` });
+          }
+        }
+        return [...found.values()].slice(0, SEARCH_LIMIT);
+      },
+      async snapshot(context, id) {
+        if (!isUuid(id)) {
+          return null;
+        }
+        const file = await workFiles.detail(context.currentUser, id);
+        return {
+          label: `Hồ sơ công việc ${file.code} ${file.title} (${file.owner_name}, năm ${file.year})`,
+          updated_at: file.updated_at,
+          file: await tablePdf(
+            'ho-so-cong-viec',
+            [
+              {
+                title: `Hồ sơ công việc ${file.code}: ${file.title}`,
+                heading: [
+                  `Người lập: ${file.owner_name}; năm ${file.year}; mở ngày ${formatVietnamDate(file.opened_on)}${
+                    file.closed_on ? `, đóng ngày ${formatVietnamDate(file.closed_on)}` : ''
+                  }`,
+                ],
+                columns: [
+                  { key: 'type', label: 'Loại', width: 14 },
+                  { key: 'title', label: 'Nội dung', width: 56 },
+                  { key: 'added', label: 'Người thêm, ngày', width: 26 },
+                ],
+                numbered: true,
+                rows: file.items.map((item) => ({
+                  type: WORK_FILE_ITEM_LABELS[item.item_type] ?? item.item_type,
+                  title: [item.document_symbol, item.title, item.note].filter(Boolean).join(' · '),
+                  added: `${item.added_by_name}, ${formatVietnamDate(item.created_at)}`,
+                })),
+              },
+            ],
+            context.now,
+          ),
+        };
+      },
+      async updatedAt(context, id) {
+        if (!isUuid(id)) {
+          return null;
+        }
+        const row = await context.system
+          .selectFrom('work_files')
+          .select('updated_at')
+          .where('id', '=', id)
+          .executeTakeFirst();
+        return row?.updated_at ?? null;
+      },
+    };
+
+    // Sổ điểm một môn của một lớp trong một học kỳ: mã "<lớp>:<môn>:<học kỳ>"
+    const TERM_LABELS: Record<string, string> = { first_term: 'Học kỳ I', second_term: 'Học kỳ II' };
+    const scoreKey = (id: string) => {
+      const [classId, subjectId, term] = id.split(':');
+      return classId && subjectId && isUuid(classId) && isUuid(subjectId) && term && term in TERM_LABELS
+        ? { classId, subjectId, term: term as 'first_term' | 'second_term' }
+        : null;
+    };
+    const scoreBook: EvidenceSourceDefinition = {
+      permissions: [
+        PERMISSION_CODES.assessmentView,
+        PERMISSION_CODES.assessmentEnter,
+        PERMISSION_CODES.assessmentManage,
+      ],
+      personal_data: true,
+      per_school_year: true,
+      async search(context, pattern) {
+        let query = context.year.database
+          .selectFrom('classes')
+          .select(['id', 'name'])
+          .where('school_level', 'in', ['THCS', 'THPT'])
+          .orderBy('name')
+          .limit(10);
+        if (pattern) {
+          query = query.where('name', 'ilike', pattern);
+        }
+        const options: Array<{ id: string; label: string }> = [];
+        for (const classRow of await query.execute()) {
+          const overview = await scores.overview(context.currentUser, classRow.id).catch(() => null);
+          for (const subject of overview?.subjects ?? []) {
+            for (const term of ['first_term', 'second_term'] as const) {
+              options.push({
+                id: `${classRow.id}:${subject.subject_id}:${term}`,
+                label: `Sổ điểm lớp ${classRow.name}, ${subject.subject_name}, ${TERM_LABELS[term]}, năm học ${context.year.name}`,
+              });
+            }
+          }
+        }
+        return options.slice(0, SEARCH_LIMIT);
+      },
+      async snapshot(context, id) {
+        const key = scoreKey(id);
+        if (!key) {
+          return null;
+        }
+        const overview = await scores.overview(context.currentUser, key.classId);
+        const subject = overview.subjects.find((row) => row.subject_id === key.subjectId);
+        if (!subject) {
+          return null;
+        }
+        const body = await scores.sheetFile(context.currentUser, key.classId, key.subjectId, key.term, 'print');
+        return {
+          label: `Sổ điểm lớp ${overview.class.name}, ${subject.subject_name}, ${TERM_LABELS[key.term]}, năm học ${context.year.name}`,
+          updated_at: await scoreChange(context, key),
+          file: { file_name: 'so-diem.pdf', content_type: 'application/pdf', body },
+        };
+      },
+      async updatedAt(context, id) {
+        const key = scoreKey(id);
+        return key ? scoreChange(context, key) : null;
+      },
+    };
+    const scoreChange = async (
+      context: SourceContext,
+      key: { classId: string; subjectId: string; term: 'first_term' | 'second_term' },
+    ) => {
+      const row = await context.year.database
+        .selectFrom('score_entries')
+        .select((eb) => eb.fn.max('updated_at').as('updated_at'))
+        .where('class_id', '=', key.classId)
+        .where('subject_id', '=', key.subjectId)
+        .where('term_type', '=', key.term)
+        .executeTakeFirst();
+      return row?.updated_at ? new Date(row.updated_at as unknown as string) : null;
+    };
+
+    // Điểm danh của một lớp trong một tháng: mã "<lớp>:<YYYY-MM>"
+    const attendanceKey = (id: string) => {
+      const [classId, month] = id.split(':');
+      return classId && isUuid(classId) && month && /^\d{4}-(0[1-9]|1[0-2])$/.test(month) ? { classId, month } : null;
+    };
+    const monthLabel = (month: string) => `tháng ${month.slice(5, 7)}/${month.slice(0, 4)}`;
+    const attendance: EvidenceSourceDefinition = {
+      permissions: [PERMISSION_CODES.attendanceReport],
+      personal_data: true,
+      per_school_year: true,
+      async search(context, pattern) {
+        let query = context.year.database.selectFrom('classes').select(['id', 'name']).orderBy('name').limit(10);
+        if (pattern) {
+          query = query.where('name', 'ilike', pattern);
+        }
+        const months = await context.year.database
+          .selectFrom('attendance_records')
+          .select(sql<string>`to_char(attendance_date::date, 'YYYY-MM')`.as('month'))
+          .distinct()
+          .orderBy('month', 'desc')
+          .limit(12)
+          .execute();
+        const options: Array<{ id: string; label: string }> = [];
+        for (const classRow of await query.execute()) {
+          for (const { month } of months) {
+            options.push({
+              id: `${classRow.id}:${month}`,
+              label: `Điểm danh lớp ${classRow.name}, ${monthLabel(month)}`,
+            });
+          }
+        }
+        return options.slice(0, SEARCH_LIMIT);
+      },
+      async snapshot(context, id) {
+        const key = attendanceKey(id);
+        if (!key) {
+          return null;
+        }
+        const matrix = await attendanceMeals.classMatrix(context.currentUser, {
+          period: 'month',
+          date: `${key.month}-01`,
+          orgUnitId: null,
+          classId: key.classId,
+        });
+        if (!matrix.class) {
+          return null;
+        }
+        const name = matrix.class.class_name;
+        return {
+          label: `Điểm danh lớp ${name}, ${monthLabel(key.month)}`,
+          updated_at: await attendanceChange(context, key),
+          file: await tablePdf(
+            'diem-danh-thang',
+            [
+              {
+                title: `Điểm danh lớp ${name}, ${monthLabel(key.month)}`,
+                heading: [`Từ ${formatVietnamDate(matrix.from)} đến ${formatVietnamDate(matrix.to)}`],
+                columns: [
+                  { key: 'full_name', label: 'Họ và tên', width: 34 },
+                  { key: 'expected', label: 'Ngày phải đi học', width: 14 },
+                  { key: 'present', label: 'Có mặt', width: 10 },
+                  { key: 'absent', label: 'Vắng', width: 10 },
+                  { key: 'absent_b', label: 'Vắng không phép', width: 14 },
+                  { key: 'rate', label: 'Tỉ lệ đi học (%)', width: 14 },
+                ],
+                numbered: true,
+                rows: matrix.children.map((row) => ({ ...row, rate: row.rate_percent ?? '' })),
+              },
+            ],
+            context.now,
+          ),
+        };
+      },
+      async updatedAt(context, id) {
+        const key = attendanceKey(id);
+        return key ? attendanceChange(context, key) : null;
+      },
+    };
+    const attendanceChange = async (context: SourceContext, key: { classId: string; month: string }) => {
+      const row = await context.year.database
+        .selectFrom('attendance_records')
+        .select((eb) => eb.fn.max('updated_at').as('updated_at'))
+        .where('class_id', '=', key.classId)
+        .where(sql<string>`to_char(attendance_date::date, 'YYYY-MM')`, '=', key.month)
+        .executeTakeFirst();
+      return row?.updated_at ? new Date(row.updated_at as unknown as string) : null;
+    };
+
+    // Biểu, báo cáo đã xuất tệp gửi cấp trên trong năm học đang dùng: mã là mã biểu; tệp là tệp đã lưu lúc xuất
+    const submission: EvidenceSourceDefinition = {
+      permissions: null,
+      personal_data: false,
+      per_school_year: true,
+      async search(context, pattern) {
+        const year = await context.system
+          .selectFrom('academic_years')
+          .select('id')
+          .where('name', '=', context.year.name)
+          .executeTakeFirst();
+        if (!year) {
+          return [];
+        }
+        let query = context.system
+          .selectFrom('upper_level_submissions')
+          .select(['form_code', 'file_name', 'status'])
+          .where('academic_year_id', '=', year.id)
+          .where('storage_key', 'is not', null)
+          .orderBy('form_code')
+          .limit(SEARCH_LIMIT);
+        if (pattern) {
+          query = query.where((eb) => eb.or([eb('form_code', 'ilike', pattern), eb('file_name', 'ilike', pattern)]));
+        }
+        return (await query.execute()).map((row) => ({
+          id: row.form_code,
+          label: `Biểu ${row.form_code} (${row.file_name ?? ''}), năm học ${context.year.name}`,
+        }));
+      },
+      async snapshot(context, id) {
+        const file = await submissions.file(context.currentUser, id);
+        return {
+          label: `Biểu ${id} đã gửi cấp trên (${file.fileName}), năm học ${context.year.name}`,
+          updated_at: await submissionChange(context, id),
+          file: {
+            file_name: file.fileName,
+            content_type: file.contentType ?? 'application/octet-stream',
+            body: file.buffer,
+          },
+        };
+      },
+      updatedAt: (context, id) => submissionChange(context, id),
+    };
+    const submissionChange = async (context: SourceContext, formCode: string) => {
+      const row = await context.system
+        .selectFrom('upper_level_submissions')
+        .innerJoin('academic_years', 'academic_years.id', 'upper_level_submissions.academic_year_id')
+        .select('upper_level_submissions.updated_at')
+        .where('academic_years.name', '=', context.year.name)
+        .where('upper_level_submissions.form_code', '=', formCode)
+        .executeTakeFirst();
+      return row?.updated_at ?? null;
+    };
+
     this.sources = {
       ...EVIDENCE_SOURCES_L1,
       education_plan: educationPlan,
@@ -603,6 +900,10 @@ export class EvidenceSources {
       staff_qualification: staffQualification,
       professional_evaluation: professionalEvaluation,
       facility_report: facility,
+      work_file: workFile,
+      score_book: scoreBook,
+      class_attendance: attendance,
+      upper_level_submission: submission,
     };
   }
 
