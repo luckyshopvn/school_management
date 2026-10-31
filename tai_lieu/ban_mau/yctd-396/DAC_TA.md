@@ -263,3 +263,22 @@ Các câu hỏi đã hỏi (giữ để tra):
   A (đề xuất): trường xuất gói ZIP theo hộp và danh mục (L5); chưa làm tài khoản cho đoàn.
   B: thêm tài khoản chỉ đọc có thời hạn cho thành viên đoàn (thêm vai trò, lát riêng).
 - **Q-396-10. Duyệt danh sách lát L1 đến L7 và thứ tự?**
+
+### 10.1 Đánh giá chuẩn nghề nghiệp, TEMIS (Eric nhắn ngày 2026-10-31, chờ trả lời)
+
+Eric: kho minh chứng liên quan tới đánh giá chuẩn nghề nghiệp (TEMIS: giáo viên tự đánh giá theo Thông tư 20/2018/TT-BGDĐT, cán bộ quản lý theo Thông tư 14/2018/TT-BGDĐT). Yêu cầu: bộ chuẩn giáo viên, chuẩn hiệu trưởng (L6) gắn vào quy trình tự đánh giá theo tiêu chí, mức Đạt, Khá, Tốt, có minh chứng, cấp trên đánh giá, xếp loại, tổng hợp theo trường; minh chứng của cá nhân (phiếu dự giờ, sáng kiến, chứng chỉ bồi dưỡng, kết quả học sinh) dùng lại cho cả kiểm định trường và chuẩn nghề nghiệp, không chép hai lần; cân nhắc xuất theo khuôn của TEMIS, không kết nối trực tiếp. Báo cáo khảo sát TEMIS của phiên REA đọc trước khi làm L6.
+
+Hiện trạng: phân hệ Nhân sự đã có đánh giá chuẩn nghề nghiệp (P07-05, YCTD-104: bảng `professional_standards`, `professional_criteria` ở cơ sở dữ liệu năm học, mức xếp loại, nhập mức từ Excel), chưa có minh chứng. Mô hình kho của L1 không phải làm lại: L6 thêm cột người được đánh giá và nới ràng buộc mã bằng một database migration mới.
+
+- **Q-396-11. Minh chứng của cá nhân thuộc ai?**
+  A (đề xuất): một kho của trường; mỗi minh chứng có thêm "chủ thể" là nhà trường hoặc một cán bộ. Minh chứng của cá nhân do người đó thêm và sở hữu; người đó, người đánh giá trực tiếp (tổ trưởng, Ban Giám hiệu) và người quản lý kho xem được; khi gắn vào bộ kiểm định của trường thì người xem kho của trường thấy. Một bản ghi, nhiều nơi dùng.
+  B: hai kho tách (kho của trường, hồ sơ minh chứng cá nhân), liên kết chéo khi dùng chung.
+- **Q-396-12. Mã minh chứng ở bộ chuẩn của cá nhân?**
+  A (đề xuất): mã duy nhất theo bộ và người được đánh giá; mỗi giáo viên có dãy mã riêng (ví dụ `[H1-1.1-01]` của từng người).
+  B: mã duy nhất theo bộ trên toàn trường.
+- **Q-396-13. Quy trình tự đánh giá, cấp trên đánh giá, xếp loại ở đâu?**
+  A (đề xuất): mở rộng đánh giá chuẩn nghề nghiệp đã có ở phân hệ Nhân sự (P07-05): thêm tự đánh giá theo tiêu chí, mức Đạt, Khá, Tốt, ô chọn minh chứng từ kho, đánh giá của cấp trên, tổng hợp theo trường; bộ tiêu chí lấy từ kho (L6).
+  B: làm quy trình đánh giá mới trong phân hệ "Minh chứng và kiểm định", phân hệ Nhân sự chỉ đọc kết quả.
+- **Q-396-14. Xuất cho TEMIS?**
+  A (đề xuất): nếu báo cáo khảo sát tìm được mẫu nhập của TEMIS thì xuất tệp đúng mẫu đó; nếu không, xuất phiếu tự đánh giá PDF kèm danh mục minh chứng để giáo viên nhập tay lên TEMIS.
+  B: chỉ xuất phiếu PDF, không theo mẫu TEMIS.
