@@ -3,7 +3,7 @@ import { AttendanceScreen } from './screens/AttendanceScreen.js';
 import { ActivityScreen } from './screens/ActivityScreen.js';
 import { CareScreen } from './screens/CareScreen.js';
 import { ChangePasswordScreen } from './screens/ChangePasswordScreen.js';
-import { ClassesScreen, type MyClass } from './screens/ClassesScreen.js';
+import { ClassesScreen, levelOrder, type MyClass } from './screens/ClassesScreen.js';
 import { GateCheckScreen } from './screens/GateCheckScreen.js';
 import { GateScanScreen } from './screens/GateScanScreen.js';
 import { JournalScreen } from './screens/JournalScreen.js';
@@ -38,6 +38,15 @@ import { toolboxLinkSearch, withToolboxSearch } from './tools/toolbox-link.js';
 import { AiTutorFlagsScreen } from './screens/AiTutorFlagsScreen.js';
 import { readRosters } from './tools/classroom-store.js';
 import { SessionProvider, useSession } from './session/session.js';
+import { CLASS_FEATURE_LABELS, GLOBAL_GROUPS, TeacherShell } from './shell/TeacherShell.js';
+import { gateUnitIds, sortClassesByLevel, type ClassFeature, type GlobalFeature } from './shell/teacher-features.js';
+import { useTeacherFeatures, type TeacherFeatureState } from './shell/use-teacher-features.js';
+
+// Tên màn ở thanh đầu khổ máy tính (YCTD-395)
+const GLOBAL_FEATURE_LABELS = Object.fromEntries(GLOBAL_GROUPS.flatMap(([, entries]) => entries)) as Record<
+  GlobalFeature,
+  string
+>;
 
 // Thông báo bảo trì của nhà vận hành nền tảng khi đã đăng nhập (DT-SaaS phần S4)
 const readPlatformNotices = () => requestJson<{ maintenance: MaintenanceNoticeItem[] }>('/api/v1/platform-notices');
@@ -132,31 +141,6 @@ function setToolboxLocation(open: boolean) {
 // Chọn màn hình theo trạng thái phiên: chưa đăng nhập về MH-47; bắt buộc đổi mật khẩu về MH-48 (BM-07)
 function Screens() {
   const session = useSession();
-  const [opened, setOpenedState] = useState<Opened | undefined>(initialOpened);
-  // Màn mở từ Hộp công cụ quay lại Hộp công cụ
-  const [returnTo, setReturnTo] = useState<Opened>();
-  const setOpened = (next: Opened | undefined) => {
-    setToolboxLocation(next?.screen === 'classroom-tools');
-    setOpenedState(next);
-  };
-  const back = () => {
-    setOpened(returnTo);
-    setReturnTo(undefined);
-  };
-  const openFromToolbox = (toolKey: string, myClass: MyClass) => {
-    const next: Opened | undefined =
-      toolKey === 'lesson-plans'
-        ? { screen: 'teaching', myClass }
-        : toolKey === 'class-log'
-          ? { screen: 'class-log' }
-          : toolKey === 'online-classes'
-            ? { screen: 'online-classes' }
-            : undefined;
-    if (next && opened?.screen === 'classroom-tools') {
-      setReturnTo({ ...opened, classId: myClass.id });
-      setOpened(next);
-    }
-  };
   // Quay về từ nhà cung cấp định danh bên ngoài (DT-25 bước 25b)
   if (isExternalCallbackLocation(import.meta.env.BASE_URL)) {
     return (
@@ -181,6 +165,115 @@ function Screens() {
   if (session.passwordChangeRequired) {
     return <ChangePasswordScreen />;
   }
+  return <SignedInScreens />;
+}
+
+// Màn của lớp mở từ trang chủ hoặc thanh bên (YCTD-395)
+function openClassFeature(feature: ClassFeature, myClass: MyClass): Opened {
+  return { screen: feature, myClass };
+}
+
+// Đã đăng nhập: màn đang mở nằm trong khung có thanh bên từ 1024 px (YCTD-395); dưới 1024 px như trước
+function SignedInScreens() {
+  const session = useSession();
+  const [opened, setOpenedState] = useState<Opened | undefined>(initialOpened);
+  // Màn mở từ Hộp công cụ quay lại Hộp công cụ
+  const [returnTo, setReturnTo] = useState<Opened>();
+  // Về trang chủ thì tải lại lớp, quyền, cờ Gia sư AI như khi trang chủ mở lại trước đây
+  const [version, setVersion] = useState(0);
+  const features = useTeacherFeatures(version);
+  // Lớp đang chọn ở thanh bên: lớp của màn vừa mở, hoặc lớp giáo viên bấm, mặc định lớp đầu
+  const [selectedClassId, setSelectedClassId] = useState<string>();
+  const sortedClasses = sortClassesByLevel(features.classes ?? [], levelOrder);
+  const selectedClass = sortedClasses.find((myClass) => myClass.id === selectedClassId) ?? sortedClasses[0];
+
+  const setOpened = (next: Opened | undefined) => {
+    setToolboxLocation(next?.screen === 'classroom-tools');
+    setOpenedState(next);
+    if (next === undefined) {
+      setVersion((current) => current + 1);
+    }
+    if (next && 'myClass' in next) {
+      setSelectedClassId(next.myClass.id);
+    }
+  };
+  const back = () => {
+    setOpened(returnTo);
+    setReturnTo(undefined);
+  };
+  // Mở từ thanh bên: bỏ đường quay lại Hộp công cụ
+  const go = (next: Opened | undefined) => {
+    setReturnTo(undefined);
+    setOpened(next);
+  };
+  const openFeature = (feature: GlobalFeature) => {
+    if (feature === 'gate') {
+      go({ screen: 'gate', orgUnitIds: gateUnitIds(features.user?.assignments ?? []) });
+    } else if (feature === 'classroom-tools' || feature === 'classroom-mode') {
+      go({ screen: feature, classes: sortedClasses });
+    } else {
+      go({ screen: feature });
+    }
+  };
+  const openFromToolbox = (toolKey: string, myClass: MyClass) => {
+    const next: Opened | undefined =
+      toolKey === 'lesson-plans'
+        ? { screen: 'teaching', myClass }
+        : toolKey === 'class-log'
+          ? { screen: 'class-log' }
+          : toolKey === 'online-classes'
+            ? { screen: 'online-classes' }
+            : undefined;
+    if (next && opened?.screen === 'classroom-tools') {
+      setReturnTo({ ...opened, classId: myClass.id });
+      setOpened(next);
+    }
+  };
+
+  const openedClass = opened && 'myClass' in opened ? opened.myClass : undefined;
+  const location = !opened
+    ? 'Trang chủ'
+    : openedClass
+      ? `${CLASS_FEATURE_LABELS[opened.screen as ClassFeature]} · ${openedClass.name}`
+      : (GLOBAL_FEATURE_LABELS[opened.screen as GlobalFeature] ?? '');
+
+  return (
+    <TeacherShell
+      features={features}
+      currentScreen={opened?.screen}
+      currentClassId={openedClass?.id}
+      selectedClass={selectedClass}
+      location={location}
+      onHome={() => go(undefined)}
+      onSelectClass={(myClass) => setSelectedClassId(myClass.id)}
+      onOpenClassFeature={(feature, myClass) => go(openClassFeature(feature, myClass))}
+      onOpenFeature={openFeature}
+      onLogout={() => void session.logout()}
+    >
+      <OpenedScreen
+        opened={opened}
+        features={features}
+        back={back}
+        setOpened={setOpened}
+        openFromToolbox={openFromToolbox}
+      />
+    </TeacherShell>
+  );
+}
+
+function OpenedScreen({
+  opened,
+  features,
+  back,
+  setOpened,
+  openFromToolbox,
+}: {
+  opened: Opened | undefined;
+  features: TeacherFeatureState;
+  back(): void;
+  setOpened(next: Opened | undefined): void;
+  openFromToolbox(toolKey: string, myClass: MyClass): void;
+}) {
   if (opened?.screen === 'attendance') {
     return <AttendanceScreen myClass={opened.myClass} onBack={back} />;
   }
@@ -271,6 +364,7 @@ function Screens() {
   }
   return (
     <ClassesScreen
+      features={features}
       onOpen={(myClass) => setOpened({ screen: 'attendance', myClass })}
       onOpenPickup={(myClass) => setOpened({ screen: 'pickup', myClass })}
       onOpenJournal={(myClass) => setOpened({ screen: 'journal', myClass })}

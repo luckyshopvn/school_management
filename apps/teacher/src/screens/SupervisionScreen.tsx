@@ -438,7 +438,7 @@ export function SupervisionScreen({ onBack }: { onBack(): void }) {
 
   return (
     <>
-      <ApplicationHeader title="Ứng dụng giáo viên" />
+      <ApplicationHeader title="Ứng dụng giáo viên" hideInShell />
       <main className="mx-auto flex max-w-md flex-col gap-4 px-4 py-6 md:max-w-3xl">
         <div className="flex items-center gap-2">
           <Button variant="text" onClick={mode === 'record' ? () => setMode('duty') : onBack}>
