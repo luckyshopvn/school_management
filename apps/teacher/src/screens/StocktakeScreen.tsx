@@ -131,7 +131,7 @@ export function StocktakeScreen({ onBack }: { onBack(): void }) {
   const inputClass = 'rounded-lg border border-border bg-card px-3 py-2 text-content font-normal';
   return (
     <div className="min-h-screen">
-      <ApplicationHeader title="Ứng dụng giáo viên" />
+      <ApplicationHeader title="Ứng dụng giáo viên" hideInShell />
       <main className="mx-auto flex max-w-md flex-col md:max-w-3xl gap-4 px-4 py-6">
         <div className="flex items-center gap-3">
           <Button variant="text" onClick={onBack}>
