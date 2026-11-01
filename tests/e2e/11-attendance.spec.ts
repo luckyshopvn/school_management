@@ -119,6 +119,9 @@ test('Phụ huynh báo vắng cho con trên ứng dụng phụ huynh và xem đi
     .execute();
 
   const page = await (await browser.newContext()).newPage();
+  // "Tháng này" của ứng dụng phụ huynh tính theo giờ Việt Nam trên máy người dùng: cố định đồng hồ trình duyệt vào ngày đã
+  // điểm danh để ca kiểm thử không phụ thuộc ngày chạy
+  await page.clock.setFixedTime(new Date(`${SCHOOL_DAY}T10:00:00+07:00`));
   await page.goto(`http://localhost:${E2E_PARENT_PORT}`);
   await page.getByLabel('Số điện thoại').fill(guardian.phone ?? '');
   await page.getByLabel('Mật khẩu', { exact: true }).fill(TEST_PASSWORD);
