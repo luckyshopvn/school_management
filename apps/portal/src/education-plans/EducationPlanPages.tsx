@@ -34,6 +34,7 @@ import { formatDateTime, Page, Tabs, useToast } from '../directives/directive-ui
 import { useGridSettings } from '../pages/grid-settings.js';
 import { useEnabledSchoolLevels } from '../school-levels/enabled-levels.js';
 import { listProfessionalFolders } from '../professional-records/professional-api.js';
+import { UseAsEvidence } from '../quality-assurance/UseAsEvidence.js';
 import {
   copyPreviousPlan,
   createPlan,
@@ -497,6 +498,7 @@ export function PlanPanel({ id, onChanged }: { id: string; onChanged(message: st
         <Button variant="secondary" onClick={() => download.mutate('pdf')}>
           Xuất PDF
         </Button>
+        <UseAsEvidence recordType="education_plan" recordId={plan.id} defaultTitle={plan.title} />
         {actions.work_plan ? (
           <Button variant="secondary" disabled={workPlan.isPending} onClick={() => workPlan.mutate()}>
             Tạo kế hoạch công việc

@@ -175,13 +175,29 @@ export class EvidenceStoreController {
       node_id: readUuid(body, 'node_id', errors, true) ?? '',
       box: readInteger(body, 'box', errors, { min: 1, max: 99 }),
       record_type: readRecordType(body?.record_type, 'record_type', errors),
-      record_id: readUuid(body, 'record_id', errors),
+      record_id: readText(body, 'record_id', errors, { maximum: 200 }),
     };
     if (input.record_type && !input.record_id) {
       errors.push({ field: 'record_id', message: 'Bắt buộc chọn dữ liệu nguồn' });
     }
     throwIfAny(errors);
     return this.store.create(user, input);
+  }
+
+  @Get('by-record')
+  byRecord(
+    @Query('record_type') recordType: string | undefined,
+    @Query('record_id') recordId: string | undefined,
+    @AuthenticatedUser() user: CurrentUser,
+  ) {
+    const errors: FieldError[] = [];
+    const type = readRecordType(recordType, 'record_type', errors);
+    const id = text(recordId);
+    throwIfAny(errors);
+    if (!type || !id) {
+      throw validationError([{ field: 'record_id', message: 'Bắt buộc có loại và mã dữ liệu nguồn' }]);
+    }
+    return this.store.byRecord(user, type, id);
   }
 
   @Get(':id')
@@ -233,7 +249,7 @@ export class EvidenceStoreController {
   ) {
     const errors: FieldError[] = [];
     const recordType = readRecordType(body?.record_type, 'record_type', errors);
-    const recordId = readUuid(body, 'record_id', errors);
+    const recordId = readText(body, 'record_id', errors, { maximum: 200 });
     const note = readText(body, 'note', errors, { maximum: 500 });
     throwIfAny(errors);
     if (recordType) {

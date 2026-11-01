@@ -251,6 +251,7 @@ import { ResourceSharingService } from './learning-resources/resource-sharing.js
 import { EmulationService } from './emulation/emulation.js';
 import { emulationTransitionStep } from './emulation/emulation-transition.js';
 import { EvidenceStoreController } from './quality-assurance/evidence-store.controller.js';
+import { EvidenceSources } from './quality-assurance/evidence-sources.js';
 import { EvidenceStoreService } from './quality-assurance/evidence-store.js';
 import { QualityAssuranceController } from './quality-assurance/quality-assurance.controller.js';
 import { QualityAssuranceService } from './quality-assurance/quality-assurance.js';
@@ -1204,6 +1205,7 @@ export class ApplicationModule {
         // Bảo đảm chất lượng, tự đánh giá (DT-18 phần 22f)
         QualityAssuranceService,
         EvidenceStoreService,
+        EvidenceSources,
         LibraryCore,
         LibraryCatalogService,
         LibraryCirculationService,

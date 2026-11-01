@@ -5,6 +5,7 @@ import { useUnitChoice } from '../catalogs/UnitSelect.js';
 import { messageOf } from '../imports/import-api.js';
 import { AppShell } from '../pages/AppShell.js';
 import { menuPageTitle } from '../pages/page-title.js';
+import { UseAsEvidence } from '../quality-assurance/UseAsEvidence.js';
 import {
   readStaffStatistics,
   type CatalogCount,
@@ -130,6 +131,13 @@ export function StaffStatisticsPage() {
             ))}
           </select>
         </label>
+        <div>
+          <UseAsEvidence
+            recordType="staff_qualification"
+            recordId={orgUnitId || 'toan-truong'}
+            defaultTitle="Thống kê đội ngũ theo trình độ đào tạo"
+          />
+        </div>
         {statistics.error ? <Alert tone="danger">{messageOf(statistics.error)}</Alert> : null}
         {data ? (
           <>
