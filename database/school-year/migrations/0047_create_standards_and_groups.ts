@@ -5,7 +5,7 @@ import type { Migration } from 'kysely/migration';
 // DT-14 phần 14c (YCTD-102): hoàn thành chương trình giáo dục mầm non của trẻ mẫu giáo 5-6 tuổi theo lớp, khóa danh sách
 // khi Ban Giám hiệu xác nhận; nhóm trẻ trong đơn vị (năng khiếu, chăm sóc đặc biệt); đánh giá chuẩn nghề nghiệp giáo viên
 // mầm non (Thông tư 26/2018/TT-BGDĐT) và chuẩn hiệu trưởng (Thông tư 25/2018/TT-BGDĐT) theo năm học. Danh mục tiêu chuẩn,
-// tiêu chí gieo sẵn chỉ gồm tên ngắn, cần đối chiếu văn bản; Hiệu trưởng sửa được khi văn bản thay đổi
+// tiêu chí gieo sẵn theo tên tiêu chí ở Điều 4 đến 8 của hai thông tư (YCTD-397); Hiệu trưởng sửa được khi văn bản thay đổi
 type StandardType = 'teacher' | 'principal';
 
 interface SeedStandard {
@@ -14,8 +14,12 @@ interface SeedStandard {
   criteria: string[];
 }
 
-// Tiêu chí của tiêu chuẩn 1 và 2 là tiêu chí trọng yếu khi xếp loại Khá, Tốt (cần đối chiếu văn bản)
-const KEY_STANDARD_CODES = ['TC1', 'TC2'];
+// Tiêu chí trọng yếu (phải đạt Khá khi xếp Khá, đạt Tốt khi xếp Tốt) theo số tiêu chí, Điều 10 khoản 2 của Thông tư
+// 26/2018 (giáo viên) và Thông tư 25/2018 (hiệu trưởng)
+const KEY_CRITERIA: Record<StandardType, number[]> = {
+  teacher: [1, 3, 4, 5, 6, 7, 8, 9],
+  principal: [1, 4, 5, 6, 7, 9, 11, 13, 14, 15],
+};
 
 export const TEACHER_STANDARDS: SeedStandard[] = [
   { code: 'TC1', name: 'Phẩm chất nhà giáo', criteria: ['Đạo đức nhà giáo', 'Phong cách làm việc'] },
@@ -24,7 +28,7 @@ export const TEACHER_STANDARDS: SeedStandard[] = [
     name: 'Phát triển chuyên môn, nghiệp vụ',
     criteria: [
       'Phát triển chuyên môn bản thân',
-      'Xây dựng kế hoạch nuôi dưỡng, chăm sóc, giáo dục trẻ em',
+      'Xây dựng kế hoạch nuôi dưỡng, chăm sóc, giáo dục theo hướng phát triển toàn diện trẻ em',
       'Nuôi dưỡng và chăm sóc sức khỏe trẻ em',
       'Giáo dục phát triển toàn diện trẻ em',
       'Quan sát và đánh giá sự phát triển của trẻ em',
@@ -43,15 +47,15 @@ export const TEACHER_STANDARDS: SeedStandard[] = [
     code: 'TC4',
     name: 'Phát triển mối quan hệ giữa nhà trường, gia đình và cộng đồng',
     criteria: [
-      'Tạo dựng mối quan hệ hợp tác với cha mẹ hoặc người giám hộ của trẻ em và cộng đồng',
-      'Phối hợp với cha mẹ hoặc người giám hộ của trẻ em và cộng đồng trong nuôi dưỡng, chăm sóc, giáo dục trẻ em',
+      'Phối hợp với cha, mẹ hoặc người giám hộ trẻ em và cộng đồng để nâng cao chất lượng nuôi dưỡng, chăm sóc, giáo dục trẻ em',
+      'Phối hợp với cha, mẹ hoặc người giám hộ trẻ em và cộng đồng để bảo vệ quyền trẻ em',
     ],
   },
   {
     code: 'TC5',
     name: 'Sử dụng ngoại ngữ hoặc tiếng dân tộc, ứng dụng công nghệ thông tin, thể hiện khả năng nghệ thuật',
     criteria: [
-      'Sử dụng ngoại ngữ hoặc tiếng dân tộc',
+      'Sử dụng ngoại ngữ (ưu tiên tiếng Anh) hoặc tiếng dân tộc của trẻ em',
       'Ứng dụng công nghệ thông tin',
       'Thể hiện khả năng nghệ thuật trong hoạt động nuôi dưỡng, chăm sóc, giáo dục trẻ em',
     ],
@@ -63,9 +67,9 @@ export const PRINCIPAL_STANDARDS: SeedStandard[] = [
     code: 'TC1',
     name: 'Phẩm chất nghề nghiệp',
     criteria: [
-      'Đạo đức nghề nghiệp',
-      'Tư tưởng đổi mới trong lãnh đạo, quản trị nhà trường',
-      'Năng lực phát triển chuyên môn, nghiệp vụ bản thân',
+      'Đạo đức nghề nghiệp, phong cách làm việc',
+      'Tư tưởng đổi mới trong quản trị nhà trường',
+      'Phát triển chuyên môn, nghiệp vụ bản thân',
     ],
   },
   {
@@ -73,12 +77,13 @@ export const PRINCIPAL_STANDARDS: SeedStandard[] = [
     name: 'Quản trị nhà trường',
     criteria: [
       'Tổ chức xây dựng kế hoạch phát triển nhà trường',
-      'Quản trị hoạt động nuôi dưỡng, chăm sóc, giáo dục trẻ em',
+      'Quản trị hoạt động nuôi dưỡng, chăm sóc sức khỏe của trẻ em',
+      'Quản trị hoạt động giáo dục trẻ em',
       'Quản trị nhân sự nhà trường',
       'Quản trị tổ chức, hành chính nhà trường',
       'Quản trị tài chính nhà trường',
-      'Quản trị cơ sở vật chất, thiết bị và công nghệ',
-      'Quản trị chất lượng nuôi dưỡng, chăm sóc, giáo dục trẻ em',
+      'Quản trị cơ sở vật chất, đồ dùng, đồ chơi, thiết bị dạy học của nhà trường',
+      'Quản trị chất lượng nuôi dưỡng, chăm sóc, giáo dục trẻ em trong nhà trường',
     ],
   },
   {
@@ -86,33 +91,51 @@ export const PRINCIPAL_STANDARDS: SeedStandard[] = [
     name: 'Xây dựng môi trường giáo dục',
     criteria: [
       'Xây dựng văn hóa nhà trường',
-      'Thực hiện dân chủ cơ sở trong nhà trường',
+      'Thực hiện dân chủ trong nhà trường',
       'Xây dựng trường học an toàn, phòng chống bạo lực học đường',
     ],
   },
   {
     code: 'TC4',
-    name: 'Phát triển mối quan hệ giữa nhà trường, gia đình và xã hội',
+    name: 'Phát triển mối quan hệ giữa nhà trường, gia đình, xã hội',
     criteria: [
-      'Phối hợp giữa nhà trường, gia đình và xã hội trong nuôi dưỡng, chăm sóc, giáo dục trẻ em',
-      'Phối hợp giữa nhà trường, gia đình và xã hội trong huy động và sử dụng nguồn lực phát triển nhà trường',
+      'Phối hợp giữa nhà trường, gia đình, địa phương trong hoạt động nuôi dưỡng, chăm sóc, giáo dục trẻ em',
+      'Phối hợp giữa nhà trường, gia đình, địa phương trong huy động và sử dụng nguồn lực để phát triển nhà trường',
     ],
   },
   {
     code: 'TC5',
-    name: 'Sử dụng ngoại ngữ, công nghệ thông tin và khả năng nghệ thuật',
-    criteria: ['Sử dụng ngoại ngữ hoặc tiếng dân tộc', 'Ứng dụng công nghệ thông tin', 'Thể hiện khả năng nghệ thuật'],
+    name: 'Sử dụng ngoại ngữ (hoặc tiếng dân tộc) và công nghệ thông tin',
+    criteria: ['Sử dụng ngoại ngữ', 'Ứng dụng công nghệ thông tin'],
   },
 ];
 
-// Gieo danh mục tiêu chuẩn, tiêu chí; tiêu chí đánh số liên tục trong cả chuẩn như văn bản (Tiêu chí 1, 2, ...)
+const SEED_STANDARDS: Record<StandardType, SeedStandard[]> = {
+  teacher: TEACHER_STANDARDS,
+  principal: PRINCIPAL_STANDARDS,
+};
+
+// Tiêu chí gieo sẵn của một chuẩn; tiêu chí đánh số liên tục trong cả chuẩn như văn bản (Tiêu chí 1, 2, ...)
+export function seedCriteria(standardType: StandardType) {
+  let criterionNumber = 0;
+  return SEED_STANDARDS[standardType].flatMap((standard) =>
+    standard.criteria.map((name) => {
+      criterionNumber += 1;
+      return {
+        standardCode: standard.code,
+        number: criterionNumber,
+        name,
+        isKey: KEY_CRITERIA[standardType].includes(criterionNumber),
+      };
+    }),
+  );
+}
+
+// Gieo danh mục tiêu chuẩn, tiêu chí
 export async function seedProfessionalStandards(database: Kysely<unknown>) {
-  for (const [standardType, standards] of [
-    ['teacher', TEACHER_STANDARDS],
-    ['principal', PRINCIPAL_STANDARDS],
-  ] as Array<[StandardType, SeedStandard[]]>) {
-    let criterionNumber = 0;
-    for (const [standardIndex, standard] of standards.entries()) {
+  for (const standardType of ['teacher', 'principal'] as StandardType[]) {
+    const criteria = seedCriteria(standardType);
+    for (const [standardIndex, standard] of SEED_STANDARDS[standardType].entries()) {
       const inserted = await sql<{
         id: string;
       }>`insert into professional_standards (standard_type, code, name, order_no)
@@ -120,11 +143,10 @@ export async function seedProfessionalStandards(database: Kysely<unknown>) {
         database,
       );
       const standardId = inserted.rows[0]!.id;
-      for (const criterion of standard.criteria) {
-        criterionNumber += 1;
+      for (const criterion of criteria.filter((row) => row.standardCode === standard.code)) {
         await sql`insert into professional_criteria (standard_id, standard_type, code, name, is_key, order_no)
-          values (${standardId}, ${standardType}, ${String(criterionNumber)}, ${criterion},
-            ${KEY_STANDARD_CODES.includes(standard.code)}, ${criterionNumber})`.execute(database);
+          values (${standardId}, ${standardType}, ${String(criterion.number)}, ${criterion.name},
+            ${criterion.isKey}, ${criterion.number})`.execute(database);
       }
     }
   }
