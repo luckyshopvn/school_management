@@ -18,11 +18,15 @@ import { OPERATIONS_SECTION_PROVIDERS, type OperationsSectionProvider } from './
 const vietnamToday = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Ho_Chi_Minh' }).format(new Date());
 const addDays = (date: string, days: number) =>
   new Date(Date.parse(`${date}T00:00:00Z`) + days * 86_400_000).toISOString().slice(0, 10);
-const currentMonth = vietnamToday.slice(0, 7);
+// Ngày dữ liệu: hôm nay, hoặc ngày cuối tháng trước khi hôm nay là ngày 1, 2 của tháng, để hai ngày điểm danh trước đó, phiếu
+// thu và hóa đơn cùng nằm trong một tháng báo cáo dù chạy vào ngày nào
+const dayOfMonth = Number(vietnamToday.slice(8));
+const dataDay = dayOfMonth >= 3 ? vietnamToday : addDays(vietnamToday, -dayOfMonth);
+const currentMonth = dataDay.slice(0, 7);
 const [year, month] = currentMonth.split('-').map(Number) as [number, number];
-const dayOne = addDays(vietnamToday, -2);
-const dayTwo = addDays(vietnamToday, -1);
-const range = `from=${addDays(vietnamToday, -10)}&to=${vietnamToday}`;
+const dayOne = addDays(dataDay, -2);
+const dayTwo = addDays(dataDay, -1);
+const range = `from=${addDays(dataDay, -10)}&to=${vietnamToday}`;
 
 interface Section {
   code: string;
@@ -334,7 +338,7 @@ describe('Báo cáo giai đoạn 2: hoạt động, hợp nhất, xuất dữ li
         method: 'cash',
         account_id: account.id,
         category_id: category.id,
-        receipt_date: vietnamToday,
+        receipt_date: dataDay,
         request_key: randomUUID(),
         created_by: users.accountant?.userId ?? '',
       })
