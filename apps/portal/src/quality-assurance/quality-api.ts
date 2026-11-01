@@ -1,5 +1,7 @@
 import type {
   EvidenceValidityCode,
+  QualityFrameworkKindCode,
+  QualityFrameworkSubjectCode,
   KpiSchoolLevelCode,
   QualityAssessmentStatusCode,
   QualityCouncilPositionCode,
@@ -53,6 +55,11 @@ export interface QualityFramework {
   max_level: number;
   sort_order: number;
   status: 'active' | 'inactive';
+  kind: QualityFrameworkKindCode;
+  subject: QualityFrameworkSubjectCode;
+  code_pattern: string;
+  cycle_years: number;
+  template_version: string | null;
   standard_count: number;
   criterion_count: number;
   indicator_count: number;
@@ -61,7 +68,17 @@ export interface QualityFramework {
 
 export type FrameworkInput = Pick<
   QualityFramework,
-  'code' | 'name' | 'school_level' | 'legal_basis' | 'max_level' | 'sort_order' | 'status'
+  | 'code'
+  | 'name'
+  | 'school_level'
+  | 'legal_basis'
+  | 'max_level'
+  | 'sort_order'
+  | 'status'
+  | 'kind'
+  | 'subject'
+  | 'code_pattern'
+  | 'cycle_years'
 >;
 
 export interface QualityIndicator {
@@ -347,3 +364,26 @@ export const updateReport = (id: string, input: ReportInput) =>
   requestJson<QualityReportDetail>(`${API}/reports/${id}`, json('PUT', input));
 export const reportAction = (id: string, action: 'submit' | 'approve' | 'return' | 'reopen', note?: string) =>
   requestJson<QualityReportDetail>(`${API}/reports/${id}/${action}`, json('POST', note ? { note } : {}));
+// Tệp mẫu và nhập chỉ báo từ Excel (YCTD-396 lát L3)
+export const downloadIndicatorTemplate = (id: string) =>
+  download(`${API}/frameworks/${id}/indicators/template`, 'chi-bao.xlsx');
+export async function importIndicators(
+  id: string,
+  file: File,
+): Promise<{
+  created: number;
+  updated: number;
+  errors: Array<{ row: number; column: string | null; message: string }>;
+}> {
+  const form = new FormData();
+  form.append('file', file);
+  const response = await fetchWithSession(`${API}/frameworks/${id}/indicators/import`, { method: 'POST', body: form });
+  if (!response.ok) {
+    throw await readError(response);
+  }
+  return (await response.json()) as {
+    created: number;
+    updated: number;
+    errors: Array<{ row: number; column: string | null; message: string }>;
+  };
+}

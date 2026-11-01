@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import { after, before, describe, it } from 'node:test';
 import { createDatabase, replaceDatabaseName, type SchoolYearDatabase } from '@school-management/database';
 import { bracketEvidenceCode, evidenceValidity } from '@school-management/shared';
+import ExcelJS from 'exceljs';
 import type { Kysely } from 'kysely';
 import { FileStorage } from '../files/file-storage.js';
 import {
@@ -12,7 +13,7 @@ import {
   type LoggedInUser,
 } from '../test-support.js';
 
-// Kho minh chứng dùng chung (YCTD-396 lát L1); kịch bản CT-2130 đến CT-2135 (trong mã kiểm thử là CT-396-1 đến CT-396-6), lát L2 thêm CT-396-8, CT-396-9, lát L2b thêm CT-396-11, CT-396-12.
+// Kho minh chứng dùng chung (YCTD-396 lát L1); kịch bản CT-2130 đến CT-2135 (trong mã kiểm thử là CT-396-1 đến CT-396-6), lát L2 thêm CT-396-8, CT-396-9, lát L2b thêm CT-396-11, CT-396-12, lát L3 thêm CT-396-14, CT-396-15.
 // Dữ liệu mẫu là dữ liệu giả
 const vietnamToday = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Ho_Chi_Minh' }).format(new Date());
 const addDays = (date: string, days: number) =>
@@ -431,5 +432,90 @@ describe('Kho minh chứng', () => {
       });
       assert.equal(response.status, 400, `${type} ${id}`);
     }
+  });
+
+  it('CT-396-14: bộ tiêu chí có loại, đối tượng, mẫu mã riêng; mẫu mã sai bị từ chối; mã minh chứng cấp theo mẫu của bộ (lát L3)', async () => {
+    const bad = await api('POST', '/quality/frameworks', 'principal', {
+      code: 'TD-SAI',
+      name: 'Mẫu mã sai',
+      code_pattern: 'TD-{tieu_chi}',
+    });
+    assert.equal(bad.status, 400);
+    const created = await api('POST', '/quality/frameworks', 'principal', {
+      code: 'TD-2026',
+      name: 'Thi đua năm học thử',
+      kind: 'emulation',
+      subject: 'school',
+      code_pattern: 'TĐ{tieu_chuan}.{tieu_chi}.{stt}',
+      cycle_years: 1,
+      max_level: 1,
+    });
+    assert.equal(created.status, 201, JSON.stringify(created.body));
+    assert.equal(created.body.kind, 'emulation');
+    const id = created.body.id as string;
+    const standard = (
+      await api('POST', `/quality/frameworks/${id}/standards`, 'principal', { code: '3', title: 'Chuẩn' })
+    ).body.id as string;
+    const node = (
+      await api('POST', `/quality/standards/${standard}/criteria`, 'principal', { code: '3.2', title: 'Tiêu chí thử' })
+    ).body.id as string;
+    const evidence = await api('POST', '/quality/evidences', 'teacher', {
+      framework_id: id,
+      node_id: node,
+      title: 'Minh chứng thi đua thử',
+    });
+    assert.equal(evidence.status, 201, JSON.stringify(evidence.body));
+    assert.equal(evidence.body.code, 'TĐ3.3.2.01');
+  });
+
+  it('CT-396-15: nạp bộ mẫu Tiểu học đủ chỉ báo; nhập chỉ báo từ Excel: dòng lỗi thì không ghi dòng nào, đúng thì thêm và sửa nội dung (lát L3)', async () => {
+    const loaded = await api('POST', '/quality/frameworks/defaults', 'principal', { school_level: 'TH' });
+    assert.equal(loaded.body.created, 1, JSON.stringify(loaded.body));
+    assert.ok((loaded.body.indicators_added as number) > 100);
+    const frameworks = (await api('GET', '/quality/frameworks', 'principal')).body as unknown as Array<{
+      id: string;
+      code: string;
+      criterion_count: number;
+    }>;
+    const th = frameworks.find((row) => row.code === 'TH-KDCL-2024');
+    assert.equal(th?.criterion_count, 24);
+    const template = await download(`/quality/frameworks/${th?.id}/indicators/template`, 'principal');
+    assert.equal(template.status, 200);
+    assert.equal(template.body.subarray(0, 2).toString(), 'PK');
+    const workbook = async (rows: Array<[string, number | string, string, string]>) => {
+      const book = new ExcelJS.Workbook();
+      const sheet = book.addWorksheet('Chỉ báo');
+      sheet.addRow(['Mã tiêu chí', 'Mức', 'Mã chỉ báo', 'Nội dung']);
+      for (const row of rows) {
+        sheet.addRow(row);
+      }
+      return Buffer.from(await book.xlsx.writeBuffer());
+    };
+    const wrong = await upload(
+      `/quality/frameworks/${th?.id}/indicators/import`,
+      'principal',
+      'chi-bao.xlsx',
+      await workbook([
+        ['1.1', 1, 'a', 'Nội dung sửa thử'],
+        ['9.9', 1, 'a', 'Tiêu chí không có'],
+      ]),
+    );
+    assert.equal(wrong.status, 200, JSON.stringify(wrong.body));
+    assert.equal((wrong.body.errors as unknown[]).length, 1);
+    assert.equal(wrong.body.created, 0);
+    const right = await upload(
+      `/quality/frameworks/${th?.id}/indicators/import`,
+      'principal',
+      'chi-bao.xlsx',
+      await workbook([
+        ['1.1', 1, 'a', 'Nội dung sửa thử'],
+        ['1.1', 2, 'z', 'Chỉ báo thêm thử'],
+      ]),
+    );
+    assert.deepEqual(right.body, { created: 1, updated: 1, errors: [] });
+    assert.equal(
+      (await upload(`/quality/frameworks/${th?.id}/indicators/import`, 'teacher', 'a.xlsx', PDF)).status,
+      403,
+    );
   });
 });

@@ -285,3 +285,9 @@ Eric trả lời ngày 2026-11-01: **A cả bốn câu Q-396-11 đến Q-396-14*
 - **Q-396-14. Xuất cho TEMIS?**
   A (đề xuất): nếu báo cáo khảo sát tìm được mẫu nhập của TEMIS thì xuất tệp đúng mẫu đó; nếu không, xuất phiếu tự đánh giá PDF kèm danh mục minh chứng để giáo viên nhập tay lên TEMIS.
   B: chỉ xuất phiếu PDF, không theo mẫu TEMIS.
+
+### 10.2 Nơi lưu bộ tiêu chí (Q-396-15, lát L3)
+
+- **Q-396-15. Bộ tiêu chí lưu ở đâu?** A (đề xuất): giữ ở cơ sở dữ liệu năm học như 22f (chép sang năm mới, giữ mã định danh), thêm cột loại bộ, đối tượng (nhà trường hoặc cá nhân), mẫu mã, chu kỳ. B: chuyển sang cơ sở dữ liệu hệ thống như mục 4.2.
+- Eric chọn **A** ngày 2026-11-01. Bảng `evidence_frameworks`, `evidence_framework_nodes` ở mục 4.2 không làm; bộ tiêu chí là `quality_frameworks`, `quality_standards`, `quality_criteria`, `quality_indicators` ở cơ sở dữ liệu năm học có thêm cột.
+
