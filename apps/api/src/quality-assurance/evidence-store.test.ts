@@ -12,7 +12,7 @@ import {
   type LoggedInUser,
 } from '../test-support.js';
 
-// Kho minh chứng dùng chung (YCTD-396 lát L1); kịch bản CT-2130 đến CT-2135 (trong mã kiểm thử là CT-396-1 đến CT-396-6), lát L2 thêm CT-396-8, CT-396-9.
+// Kho minh chứng dùng chung (YCTD-396 lát L1); kịch bản CT-2130 đến CT-2135 (trong mã kiểm thử là CT-396-1 đến CT-396-6), lát L2 thêm CT-396-8, CT-396-9, lát L2b thêm CT-396-11, CT-396-12.
 // Dữ liệu mẫu là dữ liệu giả
 const vietnamToday = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Ho_Chi_Minh' }).format(new Date());
 const addDays = (date: string, days: number) =>
@@ -374,5 +374,62 @@ describe('Kho minh chứng', () => {
     assert.equal(detail.body.can_download, false);
     assert.equal((await download(`/quality/evidences/${id}/file`, 'teacher')).status, 403);
     assert.equal((await download(`/quality/evidences/${id}/file`, 'principal')).status, 200);
+  });
+
+  it('CT-396-11: nguồn hồ sơ công việc (lát L2b): người lập tìm và gắn, bản chụp PDF có thành phần hồ sơ; người khác không thuộc hồ sơ không gắn được', async () => {
+    const file = await environment.system
+      .insertInto('work_files')
+      .values({
+        code: 'HS-THU-01',
+        title: 'Hồ sơ kiểm tra nội bộ thử',
+        year: Number(vietnamToday.slice(0, 4)),
+        owner_user_id: principal.userId,
+        owner_name: 'Hiệu Trưởng Giả',
+        opened_on: addDays(vietnamToday, -30),
+      })
+      .returning('id')
+      .executeTakeFirstOrThrow();
+    await environment.system
+      .insertInto('work_file_items')
+      .values({
+        file_id: file.id,
+        item_type: 'note',
+        title: 'Biên bản kiểm tra thử',
+        added_by: principal.userId,
+        added_by_name: 'Hiệu Trưởng Giả',
+      })
+      .execute();
+    const options = (await api('GET', '/quality/evidences/sources?record_type=work_file&q=kiểm tra', 'principal'))
+      .body as unknown as Array<{ id: string }>;
+    assert.ok(options.some((row) => row.id === file.id));
+    const base = {
+      framework_id: frameworkId,
+      node_id: criteria['1.6'],
+      title: 'Hồ sơ kiểm tra nội bộ thử',
+      record_type: 'work_file',
+      record_id: file.id,
+    };
+    assert.notEqual((await api('POST', '/quality/evidences', 'teacher', base)).status, 201);
+    const created = await api('POST', '/quality/evidences', 'principal', base);
+    assert.equal(created.status, 201, JSON.stringify(created.body));
+    const pdf = await download(`/quality/evidences/${created.body.id}/file`, 'principal');
+    assert.equal(pdf.body.subarray(0, 4).toString(), '%PDF');
+  });
+
+  it('CT-396-12: khóa ghép sai của sổ điểm, điểm danh, biểu đã gửi bị từ chối', async () => {
+    for (const [type, id] of [
+      ['score_book', 'khong-hop-le'],
+      ['score_book', `${unit}:${unit}:ca_nam`],
+      ['class_attendance', `${unit}:2026-13`],
+    ] as const) {
+      const response = await api('POST', '/quality/evidences', 'principal', {
+        framework_id: frameworkId,
+        node_id: criteria['1.6'],
+        title: 'Khóa sai',
+        record_type: type,
+        record_id: id,
+      });
+      assert.equal(response.status, 400, `${type} ${id}`);
+    }
   });
 });

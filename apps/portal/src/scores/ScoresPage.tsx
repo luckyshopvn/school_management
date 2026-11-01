@@ -16,6 +16,7 @@ import { listClasses } from '../classes/classes-api.js';
 import { AppShell } from '../pages/AppShell.js';
 import { menuPageTitle } from '../pages/page-title.js';
 import { useHasPermission } from '../session/permissions.js';
+import { UseAsEvidence } from '../quality-assurance/UseAsEvidence.js';
 import {
   lockScores,
   downloadScoreFile,
@@ -242,6 +243,11 @@ function EntryTab({ overview, term, onSaved }: { overview: ScoreOverview; term: 
             <Button onClick={() => fileAction(() => downloadScoreFile(classId, subjectId, term, 'print'))}>
               In sổ
             </Button>
+            <UseAsEvidence
+              recordType="score_book"
+              recordId={`${classId}:${subjectId}:${term}`}
+              defaultTitle={`Sổ điểm lớp ${overview.class.name}`}
+            />
           </div>
         ) : null}
         {data?.can_edit ? (
