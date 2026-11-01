@@ -3,10 +3,13 @@ import type { SchoolYearDatabase, SystemDatabase } from '@school-management/data
 import { ApplicationError, Clock, ruleViolationError, validationError } from '@school-management/server';
 import {
   bracketEvidenceCode,
+  coveragePercent,
   EVIDENCE_EVENT_LABELS,
+  EVIDENCE_EXPIRING_DAYS,
   EVIDENCE_RECORD_TYPE_LABELS,
   EVIDENCE_RULE_CODE,
   EVIDENCE_VALIDITY_LABELS,
+  evidenceCoverage,
   evidenceValidity,
   DEFAULT_EVIDENCE_CODE_PATTERN,
   formatEvidenceCode,
@@ -48,6 +51,8 @@ const CONTRIBUTE = PERMISSION_CODES.evidenceContribute;
 const MANAGE = PERMISSION_CODES.evidenceManage;
 export const EVIDENCE_PERMISSIONS = [VIEW, CONTRIBUTE, MANAGE];
 const MAXIMUM_LIST = 1000;
+const OVERVIEW_MISSING = 20;
+const OVERVIEW_EXPIRING = 50;
 
 export function evidenceRule(message: string): ApplicationError {
   return ruleViolationError(EVIDENCE_RULE_CODE, message);
@@ -81,6 +86,14 @@ export interface EvidenceCreateInput extends EvidenceItemInput {
   box: number | null;
   record_type: EvidenceRecordTypeCode | null;
   record_id: string | null;
+}
+
+export interface EvidenceAssignInput {
+  framework_id: string;
+  node_ids: string[];
+  user_id: string | null;
+  due_date: string | null;
+  note: string | null;
 }
 
 export interface EvidenceListFilter {
@@ -452,10 +465,405 @@ export class EvidenceStoreService {
     return updated !== null && updated.getTime() > version.record_updated_at.getTime();
   }
 
+  // ---- Phân công, độ phủ, tổng quan (lát L4) ----
+
+  // Các năm học của chu kỳ đánh giá: năm đang dùng và các năm liền trước, tổng cộng `cycle_years` năm (theo tên năm học)
+  private async cycleYearNames(context: StoreContext, cycleYears: number): Promise<string[]> {
+    const rows = await context.system
+      .selectFrom('academic_years')
+      .select('name')
+      .where('name', '<=', context.year.name)
+      .orderBy('name', 'desc')
+      .limit(Math.max(1, cycleYears))
+      .execute();
+    const names = rows.map((row) => row.name);
+    return names.includes(context.year.name) ? names : [context.year.name, ...names].slice(0, Math.max(1, cycleYears));
+  }
+
+  private async frameworkRow(context: StoreContext, frameworkId: string) {
+    const framework = await context.year.database
+      .selectFrom('quality_frameworks')
+      .select(['id', 'code', 'name', 'kind', 'cycle_years'])
+      .where('id', '=', frameworkId)
+      .executeTakeFirst();
+    if (!framework) {
+      throw notFoundError('Không tìm thấy bộ tiêu chí trong năm học đang dùng', 'quality_framework');
+    }
+    return framework;
+  }
+
+  // Độ phủ của từng tiêu chí trong một bộ: số minh chứng theo trạng thái, tiêu chí thiếu, người phụ trách năm học đang dùng và
+  // trưởng nhóm công tác của đợt tự đánh giá chưa hoàn thành (gợi ý phân công, MH-683)
+  private async coverageOf(context: StoreContext, frameworkId: string) {
+    const framework = await this.frameworkRow(context, frameworkId);
+    const cycleYearNames = await this.cycleYearNames(context, framework.cycle_years);
+    const criteria = await context.year.database
+      .selectFrom('quality_criteria as criteria')
+      .innerJoin('quality_standards as standards', 'standards.id', 'criteria.standard_id')
+      .select([
+        'criteria.id',
+        'criteria.code',
+        'criteria.title',
+        'criteria.evidence_hint',
+        'standards.id as standard_id',
+        'standards.code as standard_code',
+        'standards.title as standard_title',
+      ])
+      .where('criteria.framework_id', '=', frameworkId)
+      .orderBy('standards.sort_order')
+      .orderBy('standards.code')
+      .orderBy('criteria.sort_order')
+      .orderBy('criteria.code')
+      .execute();
+    const links = await context.system
+      .selectFrom('evidence_node_links as links')
+      .innerJoin('evidence_items as items', 'items.id', 'links.evidence_id')
+      .select(['links.node_id', 'items.status', 'items.valid_until', 'items.school_year_names'])
+      .where('links.framework_id', '=', frameworkId)
+      .execute();
+    const assignments = await context.system
+      .selectFrom('evidence_assignments')
+      .select(['node_id', 'user_id', 'user_name', 'due_date', 'note'])
+      .where('framework_id', '=', frameworkId)
+      .where('school_year_name', '=', context.year.name)
+      .execute();
+    const leaders = await this.groupLeaders(
+      context,
+      criteria.map((row) => row.id),
+    );
+    const rows = criteria.map((criterion) => {
+      const counts = evidenceCoverage(
+        links.filter((link) => link.node_id === criterion.id),
+        cycleYearNames,
+        context.today,
+      );
+      const assignment = assignments.find((row) => row.node_id === criterion.id) ?? null;
+      return {
+        ...criterion,
+        ...counts,
+        assignee: assignment,
+        group_leader: leaders.get(criterion.id) ?? null,
+      };
+    });
+    return { framework, cycleYearNames, rows };
+  }
+
+  // Trưởng nhóm công tác (có tài khoản) của tiêu chí ở đợt tự đánh giá chưa hoàn thành
+  private async groupLeaders(context: StoreContext, nodeIds: string[]) {
+    if (nodeIds.length === 0) {
+      return new Map<string, { user_id: string; user_name: string }>();
+    }
+    const rows = await context.year.database
+      .selectFrom('quality_criterion_reports as reports')
+      .innerJoin('quality_assessments as assessments', 'assessments.id', 'reports.assessment_id')
+      .innerJoin('quality_work_groups as groups', 'groups.id', 'reports.work_group_id')
+      .innerJoin('staff', 'staff.id', 'groups.leader_staff_id')
+      .select(['reports.criterion_id', 'staff.user_id', 'staff.full_name'])
+      .where('reports.criterion_id', 'in', nodeIds)
+      .where('assessments.status', '<>', 'completed')
+      .where('staff.user_id', 'is not', null)
+      .orderBy('assessments.created_at', 'desc')
+      .execute();
+    const leaders = new Map<string, { user_id: string; user_name: string }>();
+    for (const row of rows) {
+      if (row.user_id && !leaders.has(row.criterion_id)) {
+        leaders.set(row.criterion_id, { user_id: row.user_id, user_name: row.full_name });
+      }
+    }
+    return leaders;
+  }
+
+  // Bảng độ phủ theo tiêu chí (MH-682)
+  async coverage(currentUser: CurrentUser, frameworkId: string) {
+    const context = await this.context(currentUser);
+    const { framework, cycleYearNames, rows } = await this.coverageOf(context, frameworkId);
+    const covered = rows.filter((row) => row.covered).length;
+    return {
+      framework,
+      school_year_name: context.year.name,
+      cycle_year_names: cycleYearNames,
+      can_manage: context.manager,
+      criterion_count: rows.length,
+      covered_count: covered,
+      covered_percent: coveragePercent(covered, rows.length),
+      criteria: rows,
+    };
+  }
+
+  // Tổng quan (MH-678): tỉ lệ tiêu chí đủ minh chứng của từng bộ, từng tiêu chuẩn; tiêu chí thiếu; minh chứng sắp hết hoặc
+  // đã hết hiệu lực; tiêu chí được phân công cho người đang xem
+  async overview(currentUser: CurrentUser) {
+    const context = await this.context(currentUser);
+    const frameworks = await context.year.database
+      .selectFrom('quality_frameworks')
+      .select('id')
+      .orderBy('sort_order')
+      .orderBy('code')
+      .execute();
+    const summaries = [];
+    const mine = [];
+    for (const { id } of frameworks) {
+      const { framework, rows } = await this.coverageOf(context, id);
+      const standards = new Map<
+        string,
+        { code: string; title: string; criterion_count: number; covered_count: number }
+      >();
+      for (const row of rows) {
+        const standard = standards.get(row.standard_id) ?? {
+          code: row.standard_code,
+          title: row.standard_title,
+          criterion_count: 0,
+          covered_count: 0,
+        };
+        standard.criterion_count += 1;
+        standard.covered_count += row.covered ? 1 : 0;
+        standards.set(row.standard_id, standard);
+      }
+      const missing = rows.filter((row) => !row.covered);
+      summaries.push({
+        id: framework.id,
+        code: framework.code,
+        name: framework.name,
+        criterion_count: rows.length,
+        covered_count: rows.length - missing.length,
+        covered_percent: coveragePercent(rows.length - missing.length, rows.length),
+        standards: [...standards.values()].map((standard) => ({
+          ...standard,
+          covered_percent: coveragePercent(standard.covered_count, standard.criterion_count),
+        })),
+        missing: missing.slice(0, OVERVIEW_MISSING).map((row) => ({
+          id: row.id,
+          code: row.code,
+          title: row.title,
+          assignee_name: row.assignee?.user_name ?? null,
+          due_date: row.assignee?.due_date ?? null,
+        })),
+        missing_count: missing.length,
+      });
+      for (const row of rows) {
+        if (row.assignee?.user_id === currentUser.id) {
+          mine.push({
+            framework_id: framework.id,
+            framework_name: framework.name,
+            id: row.id,
+            code: row.code,
+            title: row.title,
+            due_date: row.assignee.due_date,
+            covered: row.covered,
+          });
+        }
+      }
+    }
+    return {
+      school_year_name: context.year.name,
+      can_manage: context.manager,
+      frameworks: summaries,
+      expiring: await this.expiringEvidences(context, null),
+      mine,
+    };
+  }
+
+  // Minh chứng còn dùng (chưa Cần cập nhật) sắp hết hoặc đã hết hiệu lực; `userId` lọc minh chứng người đó tạo hoặc phụ trách
+  private async expiringEvidences(context: StoreContext, userId: string | null) {
+    const limit = new Date(`${context.today}T00:00:00Z`);
+    limit.setUTCDate(limit.getUTCDate() + EVIDENCE_EXPIRING_DAYS);
+    let query = context.system
+      .selectFrom('evidence_items')
+      .select(['id', 'title', 'valid_until', 'status'])
+      .where('valid_until', 'is not', null)
+      .where('valid_until', '<=', limit.toISOString().slice(0, 10))
+      .where('status', '<>', 'needs_update')
+      .orderBy('valid_until')
+      .limit(OVERVIEW_EXPIRING);
+    if (userId) {
+      query = query.where((eb) => eb.or([eb('owner_user_id', '=', userId), eb('created_by', '=', userId)]));
+    }
+    const rows = await query.execute();
+    return rows.map((row) => {
+      const validity = evidenceValidity(row.valid_until, context.today);
+      return { ...row, validity, validity_label: EVIDENCE_VALIDITY_LABELS[validity] };
+    });
+  }
+
+  // Cán bộ có tài khoản của năm học đang dùng, để chọn người phụ trách
+  async assignees(currentUser: CurrentUser) {
+    const context = await this.context(currentUser);
+    this.assertManager(context);
+    return context.year.database
+      .selectFrom('staff')
+      .select(['user_id', 'full_name', 'code'])
+      .where('status', '=', 'active')
+      .where('user_id', 'is not', null)
+      .orderBy('full_name')
+      .execute();
+  }
+
+  private assertManager(context: StoreContext) {
+    if (!context.manager) {
+      throw forbidden('Chỉ người quản lý kho minh chứng toàn trường phân công phụ trách tiêu chí');
+    }
+  }
+
+  // Phân công (hoặc bỏ phân công khi `user_id` trống) cho nhiều tiêu chí của một bộ trong năm học đang dùng (MH-683)
+  async assign(currentUser: CurrentUser, input: EvidenceAssignInput) {
+    const context = await this.context(currentUser);
+    this.assertManager(context);
+    await this.frameworkRow(context, input.framework_id);
+    const nodes = await context.year.database
+      .selectFrom('quality_criteria')
+      .select('id')
+      .where('framework_id', '=', input.framework_id)
+      .where('id', 'in', input.node_ids)
+      .execute();
+    if (nodes.length !== input.node_ids.length) {
+      throw evidenceRule('Có tiêu chí không thuộc bộ đã chọn');
+    }
+    if (!input.user_id) {
+      const removed = await context.system
+        .deleteFrom('evidence_assignments')
+        .where('framework_id', '=', input.framework_id)
+        .where('school_year_name', '=', context.year.name)
+        .where('node_id', 'in', input.node_ids)
+        .executeTakeFirst();
+      return { assigned: 0, removed: Number(removed.numDeletedRows) };
+    }
+    const staff = await context.year.database
+      .selectFrom('staff')
+      .select(['user_id', 'full_name'])
+      .where('user_id', '=', input.user_id)
+      .where('status', '=', 'active')
+      .executeTakeFirst();
+    if (!staff) {
+      throw evidenceRule('Người phụ trách phải là cán bộ đang làm việc, có tài khoản trong năm học đang dùng');
+    }
+    await this.upsertAssignments(
+      context,
+      currentUser,
+      input.framework_id,
+      input.node_ids.map((nodeId) => ({
+        node_id: nodeId,
+        user_id: input.user_id as string,
+        user_name: staff.full_name,
+        due_date: input.due_date,
+        note: input.note,
+      })),
+    );
+    return { assigned: input.node_ids.length, removed: 0 };
+  }
+
+  // Tiêu chí chưa có người phụ trách nhận trưởng nhóm công tác của đợt tự đánh giá làm người phụ trách (sửa được sau)
+  async assignFromGroups(currentUser: CurrentUser, frameworkId: string) {
+    const context = await this.context(currentUser);
+    this.assertManager(context);
+    const { rows } = await this.coverageOf(context, frameworkId);
+    const values = rows
+      .filter((row) => !row.assignee && row.group_leader)
+      .map((row) => ({
+        node_id: row.id,
+        user_id: row.group_leader?.user_id as string,
+        user_name: row.group_leader?.user_name as string,
+        due_date: null,
+        note: null,
+      }));
+    await this.upsertAssignments(context, currentUser, frameworkId, values);
+    return { assigned: values.length };
+  }
+
+  private async upsertAssignments(
+    context: StoreContext,
+    currentUser: CurrentUser,
+    frameworkId: string,
+    values: Array<{
+      node_id: string;
+      user_id: string;
+      user_name: string;
+      due_date: string | null;
+      note: string | null;
+    }>,
+  ) {
+    if (values.length === 0) {
+      return;
+    }
+    await context.system
+      .insertInto('evidence_assignments')
+      .values(
+        values.map((value) => ({
+          ...value,
+          framework_id: frameworkId,
+          school_year_name: context.year.name,
+          assigned_by: currentUser.id,
+          assigned_by_name: currentUser.description.full_name,
+        })),
+      )
+      .onConflict((conflict) =>
+        conflict.columns(['framework_id', 'node_id', 'school_year_name']).doUpdateSet((eb) => ({
+          user_id: eb.ref('excluded.user_id'),
+          user_name: eb.ref('excluded.user_name'),
+          due_date: eb.ref('excluded.due_date'),
+          note: eb.ref('excluded.note'),
+          assigned_by: eb.ref('excluded.assigned_by'),
+          assigned_by_name: eb.ref('excluded.assigned_by_name'),
+          updated_at: new Date(),
+        })),
+      )
+      .execute();
+  }
+
+  // Việc của tôi (nguồn "Minh chứng"): tiêu chí được phân công còn thiếu minh chứng; minh chứng mình tạo hoặc phụ trách sắp
+  // hết hoặc đã hết hiệu lực
+  async pendingWork(currentUser: CurrentUser) {
+    // Chưa mở năm học thì chưa có bộ tiêu chí, không có việc
+    if (
+      !EVIDENCE_PERMISSIONS.some((code) => currentUser.hasPermission(code)) ||
+      !(await this.currentSchoolYear.find())
+    ) {
+      return { missing: [], expiring: [] };
+    }
+    const context = await this.context(currentUser);
+    const frameworkIds = [
+      ...new Set(
+        (
+          await context.system
+            .selectFrom('evidence_assignments')
+            .select('framework_id')
+            .where('user_id', '=', currentUser.id)
+            .where('school_year_name', '=', context.year.name)
+            .execute()
+        ).map((row) => row.framework_id),
+      ),
+    ];
+    const missing = [];
+    for (const frameworkId of frameworkIds) {
+      const exists = await context.year.database
+        .selectFrom('quality_frameworks')
+        .select('id')
+        .where('id', '=', frameworkId)
+        .executeTakeFirst();
+      if (!exists) {
+        continue;
+      }
+      const { framework, rows } = await this.coverageOf(context, frameworkId);
+      for (const row of rows) {
+        if (row.assignee?.user_id === currentUser.id && !row.covered) {
+          missing.push({
+            framework_id: framework.id,
+            framework_name: framework.name,
+            code: row.code,
+            title: row.title,
+            due_date: row.assignee.due_date,
+            assigned_at: null,
+          });
+        }
+      }
+    }
+    return { missing, expiring: await this.expiringEvidences(context, currentUser.id) };
+  }
+
   // ---- Quyền sửa ----
 
-  // Người quản lý kho sửa mọi minh chứng; người đóng góp sửa minh chứng mình tạo hoặc phụ trách, hoặc của tiêu chí được phân
-  // công cho nhóm công tác của mình ở đợt tự đánh giá chưa hoàn thành (giữ quy tắc của 22f đến khi có phân công ở lát L4)
+  // Người quản lý kho sửa mọi minh chứng; người đóng góp sửa minh chứng mình tạo hoặc phụ trách, của tiêu chí mình được phân
+  // công phụ trách trong năm học đang dùng (lát L4, BR-549), hoặc của tiêu chí giao cho nhóm công tác của mình ở đợt tự đánh
+  // giá chưa hoàn thành (quy tắc của 22f)
   private canEdit(
     context: StoreContext,
     currentUser: CurrentUser,
@@ -472,17 +880,33 @@ export class EvidenceStoreService {
     if (this.canEdit(context, currentUser, item)) {
       return item;
     }
-    if (context.contributor && context.staffId) {
+    if (context.contributor) {
       const nodeIds = (
         await context.system.selectFrom('evidence_node_links').select('node_id').where('evidence_id', '=', id).execute()
       ).map((row) => row.node_id);
-      if (nodeIds.length > 0 && (await this.assignedToGroup(context, nodeIds))) {
+      if (
+        nodeIds.length > 0 &&
+        ((await this.assignedToCriteria(context, currentUser, nodeIds)) ||
+          (await this.assignedToGroup(context, nodeIds)))
+      ) {
         return item;
       }
     }
     throw forbidden(
       'Chỉ người tạo, người phụ trách, nhóm công tác của tiêu chí hoặc người quản lý kho sửa minh chứng này',
     );
+  }
+
+  // Người được phân công phụ trách một tiêu chí của minh chứng trong năm học đang dùng (lát L4)
+  private async assignedToCriteria(context: StoreContext, currentUser: CurrentUser, nodeIds: string[]) {
+    const row = await context.system
+      .selectFrom('evidence_assignments')
+      .select('id')
+      .where('user_id', '=', currentUser.id)
+      .where('school_year_name', '=', context.year.name)
+      .where('node_id', 'in', nodeIds)
+      .executeTakeFirst();
+    return row !== undefined;
   }
 
   private async assignedToGroup(context: StoreContext, nodeIds: string[]): Promise<boolean> {

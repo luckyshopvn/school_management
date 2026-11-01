@@ -23,6 +23,7 @@ import { EmulationCouncilService } from '../emulation/emulation-council.js';
 import { ProfessionalRecordsService } from '../professional-records/professional-records.js';
 import { TrainingService } from '../training/training.js';
 import { LearningResourcesService } from '../learning-resources/learning-resources.js';
+import { EvidenceStoreService } from '../quality-assurance/evidence-store.js';
 import { LEADER_ROLE, MANAGER_ROLE, TeachingAccess } from '../teaching/teaching-access.js';
 
 // Nguồn việc của Việc của tôi (DT-18 phần 18e, YCTD-142). Mỗi phân hệ cung cấp một nguồn qua giao diện chung MyWorkSource:
@@ -1272,6 +1273,48 @@ export class LearningResourceWorkSource extends MyWorkSource {
   }
 }
 
+// Kho minh chứng (YCTD-396 lát L4): tiêu chí được phân công còn thiếu minh chứng, minh chứng mình tạo hoặc phụ trách sắp hết
+// hoặc đã hết hiệu lực
+@Injectable()
+export class EvidenceWorkSource extends MyWorkSource {
+  readonly code = 'evidence' as const;
+  constructor(
+    private readonly store: EvidenceStoreService,
+    private readonly clock: Clock,
+  ) {
+    super();
+  }
+
+  async collect(currentUser: CurrentUser): Promise<MyWorkItem[]> {
+    const now = this.clock.now();
+    const pending = await this.store.pendingWork(currentUser);
+    return [
+      ...pending.missing.map((row) =>
+        item(now, {
+          source: this.code,
+          kind: 'Tiêu chí thiếu minh chứng',
+          title: `Tiêu chí ${row.code}: ${row.title}`,
+          detail: row.framework_name,
+          link: `/quality/evidence-coverage?framework_id=${row.framework_id}`,
+          deadline: row.due_date,
+          received_at: row.assigned_at,
+        }),
+      ),
+      ...pending.expiring.map((row) =>
+        item(now, {
+          source: this.code,
+          kind: row.validity === 'expired' ? 'Minh chứng hết hiệu lực' : 'Minh chứng sắp hết hiệu lực',
+          title: row.title,
+          detail: null,
+          link: '/quality/evidences',
+          deadline: row.valid_until,
+          received_at: null,
+        }),
+      ),
+    ].slice(0, MAXIMUM_PER_SOURCE);
+  }
+}
+
 export const MY_WORK_SOURCE_TYPES = [
   IncomingWorkSource,
   OutgoingWorkSource,
@@ -1287,4 +1330,5 @@ export const MY_WORK_SOURCE_TYPES = [
   EmulationWorkSource,
   TrainingWorkSource,
   LearningResourceWorkSource,
+  EvidenceWorkSource,
 ];

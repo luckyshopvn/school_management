@@ -1,3 +1,5 @@
+import type { QualityEvidenceStatusCode } from './quality-assurance.js';
+
 // Kho minh chứng dùng chung của trường (YCTD-396). Một minh chứng dùng cho nhiều tiêu chí, nhiều năm học, nhiều bộ tiêu chí;
 // mỗi bộ cấp một mã dạng [Hn-a.b-c] (formatEvidenceCode). Nguồn của mỗi phiên bản là tệp tải lên hoặc bản ghi trong phần mềm
 // được chụp lúc gắn (Q-396-4). Bản chụp luôn đầy đủ (Q-396-5); tệp có dữ liệu cá nhân chỉ người có quyền xem nguồn tải được
@@ -125,3 +127,48 @@ export function isEvidenceCodePattern(pattern: string): boolean {
   const rest = pattern.replace(/\{(hop|tieu_chuan|tieu_chi|stt)\}/g, '');
   return !/[{}]/.test(rest);
 }
+
+// Độ phủ minh chứng của một tiêu chí (YCTD-396 lát L4, MH-682). Tiêu chí thiếu khi không có minh chứng ở trạng thái Đã đủ, còn
+// hiệu lực, dùng cho một năm học trong chu kỳ của bộ; minh chứng không ghi năm học dùng cho mọi năm (BR-548)
+export interface EvidenceCoverageInput {
+  status: QualityEvidenceStatusCode;
+  valid_until: string | null;
+  school_year_names: string[];
+}
+
+export interface EvidenceCoverageCounts {
+  sufficient: number;
+  collecting: number;
+  missing: number;
+  needs_update: number;
+  expired: number;
+  out_of_cycle: number;
+  covered: boolean;
+}
+
+export function evidenceCoverage(
+  evidences: EvidenceCoverageInput[],
+  cycleYearNames: string[],
+  today: string,
+): EvidenceCoverageCounts {
+  const counts = { sufficient: 0, collecting: 0, missing: 0, needs_update: 0, expired: 0, out_of_cycle: 0 };
+  for (const evidence of evidences) {
+    if (evidenceValidity(evidence.valid_until, today) === 'expired') {
+      counts.expired += 1;
+      continue;
+    }
+    const inCycle =
+      evidence.school_year_names.length === 0 ||
+      evidence.school_year_names.some((name) => cycleYearNames.includes(name));
+    if (!inCycle) {
+      counts.out_of_cycle += 1;
+      continue;
+    }
+    counts[evidence.status] += 1;
+  }
+  return { ...counts, covered: counts.sufficient > 0 };
+}
+
+// Tỉ lệ phần trăm làm tròn, không chia cho 0
+export const coveragePercent = (covered: number, total: number): number =>
+  total === 0 ? 0 : Math.round((covered * 100) / total);

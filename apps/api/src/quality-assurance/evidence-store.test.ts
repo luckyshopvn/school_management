@@ -13,7 +13,7 @@ import {
   type LoggedInUser,
 } from '../test-support.js';
 
-// Kho minh chứng dùng chung (YCTD-396 lát L1); kịch bản CT-2130 đến CT-2135 (trong mã kiểm thử là CT-396-1 đến CT-396-6), lát L2 thêm CT-396-8, CT-396-9, lát L2b thêm CT-396-11, CT-396-12, lát L3 thêm CT-396-14, CT-396-15.
+// Kho minh chứng dùng chung (YCTD-396 lát L1); kịch bản CT-2130 đến CT-2135 (trong mã kiểm thử là CT-396-1 đến CT-396-6), lát L2 thêm CT-396-8, CT-396-9, lát L2b thêm CT-396-11, CT-396-12, lát L3 thêm CT-396-14, CT-396-15, lát L4 thêm CT-396-17.
 // Dữ liệu mẫu là dữ liệu giả
 const vietnamToday = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Ho_Chi_Minh' }).format(new Date());
 const addDays = (date: string, days: number) =>
@@ -517,5 +517,118 @@ describe('Kho minh chứng', () => {
       (await upload(`/quality/frameworks/${th?.id}/indicators/import`, 'teacher', 'a.xlsx', PDF)).status,
       403,
     );
+  });
+
+  it('CT-396-17: phân công phụ trách, độ phủ, tổng quan, Việc của tôi (lát L4): tiêu chí chỉ đủ khi có minh chứng Đã đủ còn hiệu lực trong chu kỳ; người được phân công sửa được minh chứng của tiêu chí', async () => {
+    const id = (
+      await api('POST', '/quality/frameworks', 'principal', {
+        code: 'PC-THU',
+        name: 'Phân công thử',
+        school_level: 'MN',
+        max_level: 1,
+        cycle_years: 2,
+      })
+    ).body.id as string;
+    const standard = (
+      await api('POST', `/quality/frameworks/${id}/standards`, 'principal', { code: '5', title: 'Chuẩn' })
+    ).body.id as string;
+    const nodes: Record<string, string> = {};
+    for (const code of ['5.1', '5.2']) {
+      nodes[code] = (
+        await api('POST', `/quality/standards/${standard}/criteria`, 'principal', { code, title: `Tiêu chí ${code}` })
+      ).body.id as string;
+    }
+    await schoolYear
+      .insertInto('staff')
+      .values({
+        org_unit_id: unit,
+        code: 'GV-PC',
+        full_name: 'Giáo viên phụ trách thử',
+        start_date: '2025-08-01',
+        user_id: users.teacher2?.userId ?? null,
+      })
+      .execute();
+    const create = (nodeId: string, values: Record<string, unknown>) =>
+      api('POST', '/quality/evidences', 'teacher', { framework_id: id, node_id: nodeId, ...values });
+    const first = await create(nodes['5.1'] ?? '', { title: 'Biên bản phân công thử', status: 'collecting' });
+    assert.equal(first.status, 201, JSON.stringify(first.body));
+    // Đã đủ nhưng chỉ dùng cho năm học ngoài chu kỳ, và Đã đủ nhưng hết hiệu lực: tiêu chí 5.2 vẫn thiếu
+    await create(nodes['5.2'] ?? '', {
+      title: 'Minh chứng năm cũ',
+      status: 'sufficient',
+      school_year_names: ['2000-2001'],
+    });
+    await create(nodes['5.2'] ?? '', {
+      title: 'Minh chứng hết hạn',
+      status: 'sufficient',
+      valid_until: addDays(vietnamToday, -1),
+    });
+
+    const path = `/quality/evidences/${first.body.id as string}`;
+    const edit = { framework_id: id, title: 'Biên bản phân công thử', status: 'sufficient' };
+    assert.equal((await api('PUT', path, 'teacher2', edit)).status, 403);
+    const assignments = { framework_id: id, node_ids: [nodes['5.1'], nodes['5.2']], user_id: users.teacher2?.userId };
+    assert.equal((await api('PUT', '/quality/evidences/assignments', 'teacher', assignments)).status, 403);
+    const notStaff = await api('PUT', '/quality/evidences/assignments', 'principal', {
+      ...assignments,
+      user_id: users.parent?.userId,
+    });
+    assert.equal(notStaff.status, 422, JSON.stringify(notStaff.body));
+    const due = addDays(vietnamToday, 1);
+    const assigned = await api('PUT', '/quality/evidences/assignments', 'principal', { ...assignments, due_date: due });
+    assert.deepEqual(assigned.body, { assigned: 2, removed: 0 });
+    // Người được phân công sửa được minh chứng của tiêu chí mình phụ trách
+    assert.equal((await api('PUT', path, 'teacher2', edit)).status, 200);
+
+    const coverage = await api('GET', `/quality/evidences/coverage?framework_id=${id}`, 'teacher');
+    assert.equal(coverage.status, 200, JSON.stringify(coverage.body));
+    const rows = coverage.body.criteria as Array<{
+      code: string;
+      covered: boolean;
+      sufficient: number;
+      expired: number;
+      out_of_cycle: number;
+      assignee: { user_name: string; due_date: string } | null;
+    }>;
+    assert.deepEqual(
+      rows.map((row) => [row.code, row.covered, row.sufficient, row.expired, row.out_of_cycle]),
+      [
+        ['5.1', true, 1, 0, 0],
+        ['5.2', false, 0, 1, 1],
+      ],
+    );
+    assert.equal(rows[1]?.assignee?.user_name, 'Giáo viên phụ trách thử');
+    assert.equal(rows[1]?.assignee?.due_date, due);
+    assert.equal(coverage.body.covered_percent, 50);
+    assert.equal((coverage.body.cycle_year_names as string[]).length >= 1, true);
+
+    const overview = await api('GET', '/quality/evidences/overview', 'principal');
+    const summary = (
+      overview.body.frameworks as Array<{ code: string; covered_count: number; missing: Array<{ code: string }> }>
+    ).find((row) => row.code === 'PC-THU');
+    assert.equal(summary?.covered_count, 1);
+    assert.deepEqual(
+      summary?.missing.map((row) => row.code),
+      ['5.2'],
+    );
+    const mine = (await api('GET', '/quality/evidences/overview', 'teacher2')).body.mine as Array<{ code: string }>;
+    assert.deepEqual(
+      mine.map((row) => row.code),
+      ['5.1', '5.2'],
+    );
+
+    const work = await api('GET', '/my-work?source=evidence', 'teacher2');
+    assert.equal(work.status, 200, JSON.stringify(work.body));
+    const items = work.body.items as Array<{ kind: string; title: string; due_soon: boolean }>;
+    const missing = items.filter((row) => row.kind === 'Tiêu chí thiếu minh chứng');
+    assert.deepEqual(
+      missing.map((row) => row.title),
+      ['Tiêu chí 5.2: Tiêu chí 5.2'],
+    );
+    assert.equal(missing[0]?.due_soon, true);
+
+    const removed = await api('PUT', '/quality/evidences/assignments', 'principal', { ...assignments, user_id: null });
+    assert.deepEqual(removed.body, { assigned: 0, removed: 2 });
+    assert.equal((await api('PUT', path, 'teacher2', edit)).status, 403);
   });
 });

@@ -248,6 +248,11 @@ import {
   QualityReportsPage,
 } from './quality-assurance/QualityPages.js';
 import { QualityEvidencesPage } from './quality-assurance/EvidencePages.js';
+import {
+  EvidenceAssignmentsPage,
+  EvidenceCoveragePage,
+  EvidenceOverviewPage,
+} from './quality-assurance/EvidenceCoveragePages.js';
 import { LibraryCirculationPage } from './library/LibraryCirculationPage.js';
 import { LibraryReadersPage } from './library/LibraryReadersPage.js';
 import { LibraryReportsPage } from './library/LibraryReportsPage.js';
@@ -814,6 +819,13 @@ const routeTree = rootRoute.addChildren([
   createRoute({ getParentRoute: () => rootRoute, path: '/quality/assessments', component: QualityAssessmentsPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/quality/reports', component: QualityReportsPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/quality/evidences', component: QualityEvidencesPage }),
+  createRoute({ getParentRoute: () => rootRoute, path: '/quality/evidence-overview', component: EvidenceOverviewPage }),
+  createRoute({ getParentRoute: () => rootRoute, path: '/quality/evidence-coverage', component: EvidenceCoveragePage }),
+  createRoute({
+    getParentRoute: () => rootRoute,
+    path: '/quality/evidence-assignments',
+    component: EvidenceAssignmentsPage,
+  }),
   createRoute({ getParentRoute: () => rootRoute, path: '/quality/recognition', component: QualityRecognitionPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/quality/frameworks', component: QualityFrameworksPage }),
   // Thư viện trường học (DT-22 phần 22a)
