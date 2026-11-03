@@ -892,7 +892,7 @@ export function QualityEvidencesPage() {
         search={{ label: 'Tìm theo mã, tên, số minh chứng', value: search, onChange: setSearch }}
         toolbar={
           <span className="flex flex-wrap gap-2">
-            {frameworks.data?.can_contribute && framework ? (
+            {frameworks.data?.can_contribute && framework && (!person.subjectUserId || frameworks.data.can_manage) ? (
               <Button variant="primary" onClick={() => setPanel('create')}>
                 Thêm minh chứng
               </Button>

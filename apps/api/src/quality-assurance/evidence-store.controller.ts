@@ -229,6 +229,12 @@ export class EvidenceStoreController {
     return this.store.professionalEvidences(user, evaluationId);
   }
 
+  // Cán bộ trong phạm vi xem minh chứng cá nhân (lát L10)
+  @Get('people')
+  people(@AuthenticatedUser() user: CurrentUser) {
+    return this.store.people(user);
+  }
+
   // ---- Đoàn đánh giá ngoài (lát L8) ----
 
   @Get('reviewers')

@@ -305,6 +305,9 @@ export const readEvidenceCoverage = (frameworkId: string, subjectUserId: string 
   requestJson<EvidenceCoverage>(
     `${API}/coverage${query({ framework_id: frameworkId, subject_user_id: subjectUserId })}`,
   );
+// Cán bộ trong phạm vi xem minh chứng cá nhân của người đang xem (YCTD-396 lát L10)
+export const listEvidencePeople = () =>
+  requestJson<Array<{ user_id: string; full_name: string; code: string }>>(`${API}/people`);
 export const listEvidenceAssignees = () =>
   requestJson<Array<{ user_id: string; full_name: string; code: string }>>(`${API}/assignees`);
 export const assignEvidenceCriteria = (input: EvidenceAssignInput) =>

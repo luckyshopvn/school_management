@@ -15,7 +15,7 @@ import {
   type LoggedInUser,
 } from '../test-support.js';
 
-// Kho minh chứng dùng chung (YCTD-396 lát L1); kịch bản CT-2130 đến CT-2135 (trong mã kiểm thử là CT-396-1 đến CT-396-6), lát L2 thêm CT-396-8, CT-396-9, lát L2b thêm CT-396-11, CT-396-12, lát L3 thêm CT-396-14, CT-396-15, lát L4 thêm CT-396-17, lát L5 thêm CT-396-19, lát L6 thêm CT-396-21, lát L7 thêm CT-396-23, lát L8 thêm CT-396-25, lát L6b thêm CT-396-27, lát L9 thêm CT-396-29.
+// Kho minh chứng dùng chung (YCTD-396 lát L1); kịch bản CT-2130 đến CT-2135 (trong mã kiểm thử là CT-396-1 đến CT-396-6), lát L2 thêm CT-396-8, CT-396-9, lát L2b thêm CT-396-11, CT-396-12, lát L3 thêm CT-396-14, CT-396-15, lát L4 thêm CT-396-17, lát L5 thêm CT-396-19, lát L6 thêm CT-396-21, lát L7 thêm CT-396-23, lát L8 thêm CT-396-25, lát L6b thêm CT-396-27, lát L9 thêm CT-396-29, lát L10 thêm CT-396-31.
 // Dữ liệu mẫu là dữ liệu giả
 const vietnamToday = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Ho_Chi_Minh' }).format(new Date());
 const addDays = (date: string, days: number) =>
@@ -1141,5 +1141,92 @@ describe('Kho minh chứng', () => {
     const accepted = await submit();
     assert.equal(accepted.status, 200, JSON.stringify(accepted.body));
     assert.equal(accepted.body.status, 'self_submitted');
+  });
+
+  it('CT-396-31: người đánh giá chuẩn trong đơn vị (tổ trưởng) xem minh chứng cá nhân của giáo viên trong đơn vị, không xem người ngoài đơn vị, không thêm thay (lát L10)', async () => {
+    const branch = await api('POST', '/org-units', 'principal', {
+      code: 'PH-L10',
+      name: 'Tổ chuyên môn thử',
+      unit_type: 'phan_hieu',
+      parent_id: unit,
+    });
+    assert.equal(branch.status, 201, JSON.stringify(branch.body));
+    const branchId = branch.body.id as string;
+    users.leader = await environment.loginAs('VT-03', branchId);
+    users.member = await environment.loginAs('VT-07', branchId);
+    await schoolYear
+      .insertInto('staff')
+      .values({
+        org_unit_id: branchId,
+        code: 'NS-TO-1',
+        full_name: 'Giáo Viên Trong Tổ Thử',
+        start_date: addDays(vietnamToday, -300),
+        user_id: users.member.userId,
+      })
+      .execute();
+    const rank = (
+      (await api('GET', '/quality/evidences/frameworks', 'member')).body.frameworks as Array<{
+        id: string;
+        code: string;
+        standards: Array<{ criteria: Array<{ id: string; code: string }> }>;
+      }>
+    ).find((row) => row.code === 'GV-TH-H2-2026');
+    const award = rank?.standards.flatMap((standard) => standard.criteria).find((node) => node.code === '3.k');
+    const own = await api('POST', '/quality/evidences', 'member', {
+      framework_id: rank?.id,
+      node_id: award?.id,
+      title: 'Giấy khen của giáo viên trong tổ thử',
+      status: 'sufficient',
+    });
+    assert.equal(own.status, 201, JSON.stringify(own.body));
+
+    const people = (await api('GET', '/quality/evidences/people', 'leader')).body as unknown as Array<{
+      user_id: string;
+    }>;
+    assert.deepEqual(
+      people.map((row) => row.user_id),
+      [users.member.userId],
+    );
+    const list = await api(
+      'GET',
+      `/quality/evidences?framework_id=${rank?.id}&subject_user_id=${users.member.userId}`,
+      'leader',
+    );
+    assert.equal(list.status, 200, JSON.stringify(list.body));
+    assert.deepEqual(
+      (list.body as unknown as Array<{ title: string }>).map((row) => row.title),
+      ['Giấy khen của giáo viên trong tổ thử'],
+    );
+    assert.equal((await api('GET', `/quality/evidences/${own.body.id as string}`, 'leader')).status, 200);
+    const coverage = await api(
+      'GET',
+      `/quality/evidences/coverage?framework_id=${rank?.id}&subject_user_id=${users.member.userId}`,
+      'leader',
+    );
+    assert.equal(coverage.body.covered_count, 1, JSON.stringify(coverage.body));
+    // Ngoài đơn vị: giáo viên đã có minh chứng ở CT-396-21
+    assert.equal(
+      (
+        await api(
+          'GET',
+          `/quality/evidences?framework_id=${rank?.id}&subject_user_id=${users.teacher2?.userId}`,
+          'leader',
+        )
+      ).status,
+      403,
+    );
+    assert.equal(
+      (
+        await api('POST', '/quality/evidences', 'leader', {
+          framework_id: rank?.id,
+          node_id: award?.id,
+          title: 'Thêm thay thử',
+          subject_user_id: users.member.userId,
+        })
+      ).status,
+      403,
+    );
+    // Giáo viên cùng tổ không có quyền đánh giá: không xem được của nhau
+    assert.deepEqual((await api('GET', '/quality/evidences/people', 'member')).body, []);
   });
 });
