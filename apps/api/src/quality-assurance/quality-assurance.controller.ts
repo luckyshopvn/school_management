@@ -1,4 +1,19 @@
-import { Body, Controller, Delete, Get, HttpCode, Param, Post, Put, Query, Req, Res } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  HttpCode,
+  Param,
+  Post,
+  Put,
+  Query,
+  Req,
+  Res,
+  UploadedFile,
+  UseInterceptors,
+} from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
 import { validationError, type FieldError } from '@school-management/server';
 import { PERMISSION_CODES, QUALITY_MAXIMUM_LEVEL } from '@school-management/shared';
 import type { Request, Response } from 'express';
@@ -8,6 +23,7 @@ import { originOf } from '../common/audit-log.js';
 import { isUuid, type RequestBody } from '../common/request-fields.js';
 import { uuidParameter } from '../common/uuid-parameter.js';
 import { readTableFileFormat } from '../exports/table-file.js';
+import { MAXIMUM_IMPORT_BYTES } from '../imports/excel.js';
 import { readChoice, readInteger, readText, throwIfAny } from '../incoming-documents/incoming-fields.js';
 import { QUALITY_PERMISSIONS, QualityAssuranceService } from './quality-assurance.js';
 import {
@@ -93,6 +109,33 @@ export class QualityAssuranceController {
       return readChoice(body, 'school_level', LEVEL_LABELS, 'MN', errors);
     });
     return this.quality.loadDefaults(user, level, originOf(request, user));
+  }
+
+  // Tệp mẫu và nhập chỉ báo từ Excel (YCTD-396 lát L3)
+  @Get('frameworks/:id/indicators/template')
+  @RequirePermission(MANAGE)
+  async indicatorTemplate(
+    @Param('id', uuidParameter(FRAMEWORK)) id: string,
+    @AuthenticatedUser() user: CurrentUser,
+    @Res() response: Response,
+  ) {
+    sendBuffer(response, await this.quality.indicatorTemplate(user, id));
+  }
+
+  @Post('frameworks/:id/indicators/import')
+  @HttpCode(200)
+  @RequirePermission(MANAGE)
+  @UseInterceptors(FileInterceptor('file', { limits: { fileSize: MAXIMUM_IMPORT_BYTES, files: 1 } }))
+  importIndicators(
+    @Param('id', uuidParameter(FRAMEWORK)) id: string,
+    @UploadedFile() file: { size: number; buffer: Buffer } | undefined,
+    @Req() request: Request,
+    @AuthenticatedUser() user: CurrentUser,
+  ) {
+    if (!file || file.size === 0) {
+      throw validationError([{ field: 'file', message: 'Bắt buộc chọn tệp' }]);
+    }
+    return this.quality.importIndicators(user, id, file.buffer, originOf(request, user));
   }
 
   @Get('frameworks/:id')
