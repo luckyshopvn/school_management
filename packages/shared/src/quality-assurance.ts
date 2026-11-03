@@ -330,3 +330,22 @@ export const QUALITY_DEFAULT_FRAMEWORKS: Record<KpiSchoolLevelCode, QualityFrame
     ...TT30_2026_FRAMEWORKS.THPT,
   ],
 };
+
+// Bộ chuẩn của cá nhân cho Mầm non chép từ danh mục chuẩn nghề nghiệp của phân hệ Nhân sự (YCTD-396 lát L6b): nạp cùng bộ mẫu
+// cấp Mầm non; mã tiêu chí như phiếu đánh giá (P07-05) để minh chứng hiện đúng tiêu chí của phiếu
+export const PROFESSIONAL_EVIDENCE_FRAMEWORKS = [
+  {
+    code: 'GV-MN-TT26-2018',
+    standard_type: 'teacher',
+    kind: 'teacher_standard',
+    name: 'Chuẩn nghề nghiệp giáo viên mầm non (Thông tư 26/2018)',
+    legal_basis: 'Thông tư 26/2018/TT-BGDĐT; danh mục chuẩn nghề nghiệp của phân hệ Nhân sự (P07-05)',
+  },
+  {
+    code: 'HT-MN-TT25-2018',
+    standard_type: 'principal',
+    kind: 'principal_standard',
+    name: 'Chuẩn hiệu trưởng cơ sở giáo dục mầm non (Thông tư 25/2018)',
+    legal_basis: 'Thông tư 25/2018/TT-BGDĐT; danh mục chuẩn nghề nghiệp của phân hệ Nhân sự (P07-05)',
+  },
+] as const;

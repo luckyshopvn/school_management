@@ -343,3 +343,16 @@ export const saveReviewGrant = (input: {
   note: string | null;
 }) => requestJson<{ id: string }>(`${API}/reviewers`, json('PUT', input));
 export const revokeReviewGrant = (id: string): Promise<void> => requestJson(`${API}/reviewers/${id}`, json('DELETE'));
+
+// Minh chứng từ kho theo tiêu chí của phiếu đánh giá chuẩn nghề nghiệp (P07-05, YCTD-396 lát L6b)
+export interface EvaluationEvidences {
+  framework: { id: string; code: string; name: string } | null;
+  subject_user_id: string | null;
+  items: Array<{
+    criterion_code: string;
+    evidences: Array<{ id: string; display_code: string; title: string; status_label: string; validity_label: string }>;
+  }>;
+}
+
+export const readEvaluationEvidences = (evaluationId: string) =>
+  requestJson<EvaluationEvidences>(`${API}/professional/${evaluationId}`);

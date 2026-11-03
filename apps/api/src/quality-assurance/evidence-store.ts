@@ -16,6 +16,7 @@ import {
   formatEvidenceCode,
   formatEvidenceCodePattern,
   PERMISSION_CODES,
+  PROFESSIONAL_EVIDENCE_FRAMEWORKS,
   QUALITY_EVIDENCE_STATUS_LABELS,
   QUALITY_MAXIMUM_FILE_BYTES,
   type EvidenceEventActionCode,
@@ -33,6 +34,7 @@ import { Databases } from '../common/databases.js';
 import { notFoundError } from '../common/request-fields.js';
 import { storageKey } from '../common/resource-names.js';
 import { ExportJobs } from '../exports/export-jobs.js';
+import { ProfessionalStandardsService } from '../professional-standards/professional-standards.js';
 import { buildTableFile, CONTENT_TYPES, type TableFileFormat } from '../exports/table-file.js';
 import type { ExportedFile } from '../facilities/facilities-workbook.js';
 import { FileStorage } from '../files/file-storage.js';
@@ -163,6 +165,7 @@ export class EvidenceStoreService {
     private readonly clock: Clock,
     private readonly sourceRegistry: EvidenceSources,
     private readonly exportJobs: ExportJobs,
+    private readonly professionalStandards: ProfessionalStandardsService,
   ) {
     exportJobs.register(EVIDENCE_PACKAGE_REPORT_CODE, {
       title: 'Gói hồ sơ minh chứng',
@@ -1035,6 +1038,68 @@ export class EvidenceStoreService {
     if (!schoolCode) {
       throw forbidden('Minh chứng của cá nhân; chỉ người đó và người quản lý kho xem được');
     }
+  }
+
+  // ---- Phiếu đánh giá chuẩn nghề nghiệp (P07-05, lát L6b) ----
+
+  // Minh chứng của người được đánh giá ở bộ chuẩn của cá nhân chép từ danh mục P07-05, theo từng tiêu chí của phiếu. Người xem
+  // phiếu (chính người đó, người đánh giá trong phạm vi) xem được mã, tên, trạng thái; tệp vẫn theo quyền của kho (Q-396-11)
+  async professionalEvidences(currentUser: CurrentUser, evaluationId: string) {
+    const context = await this.context(currentUser);
+    this.assertStaff(context);
+    const evaluation = await this.professionalStandards.read(currentUser, evaluationId);
+    const code = PROFESSIONAL_EVIDENCE_FRAMEWORKS.find((item) => item.standard_type === evaluation.standard_type)?.code;
+    const framework = code
+      ? await context.year.database
+          .selectFrom('quality_frameworks')
+          .select(['id', 'code', 'name'])
+          .where('code', '=', code)
+          .executeTakeFirst()
+      : undefined;
+    const staff = await context.year.database
+      .selectFrom('staff')
+      .select('user_id')
+      .where('id', '=', evaluation.staff_id)
+      .executeTakeFirst();
+    if (!framework || !staff?.user_id) {
+      return { framework: framework ?? null, subject_user_id: staff?.user_id ?? null, items: [] };
+    }
+    const nodes = new Map(
+      (
+        await context.year.database
+          .selectFrom('quality_criteria')
+          .select(['id', 'code'])
+          .where('framework_id', '=', framework.id)
+          .execute()
+      ).map((row) => [row.id, row.code]),
+    );
+    const links = await this.byNodes(framework.id, null, staff.user_id);
+    const items = new Map<
+      string,
+      Array<{ id: string; display_code: string; title: string; status_label: string; validity_label: string }>
+    >();
+    for (const link of links) {
+      const criterionCode = nodes.get(link.node_id);
+      if (!criterionCode) {
+        continue;
+      }
+      const list = items.get(criterionCode) ?? [];
+      if (!list.some((row) => row.id === link.id)) {
+        list.push({
+          id: link.id,
+          display_code: link.display_code,
+          title: link.title,
+          status_label: link.status_label,
+          validity_label: link.validity_label,
+        });
+      }
+      items.set(criterionCode, list);
+    }
+    return {
+      framework,
+      subject_user_id: staff.user_id,
+      items: [...items.entries()].map(([criterion_code, evidences]) => ({ criterion_code, evidences })),
+    };
   }
 
   // ---- Đoàn đánh giá ngoài (lát L8) ----

@@ -10,6 +10,7 @@ import { useGridSettings } from '../pages/grid-settings.js';
 import { menuPageTitle } from '../pages/page-title.js';
 import { useHasPermission } from '../session/permissions.js';
 import { listStaff } from '../staff/staff-api.js';
+import { readEvaluationEvidences, type EvaluationEvidences } from '../quality-assurance/evidence-api.js';
 import { messageOf, selectClass } from '../work/work-api.js';
 import { UseAsEvidence } from '../quality-assurance/UseAsEvidence.js';
 import {
@@ -81,6 +82,27 @@ function LevelSelect({
 }
 
 // Bảng tiêu chí của phiếu: tự đánh giá (minh chứng) hoặc người đánh giá (nhận xét); chọn một mức cho mọi tiêu chí cho nhanh
+// Minh chứng của người được đánh giá ở kho theo tiêu chí (YCTD-396 lát L6b); bộ chưa nạp thì không hiện
+function CriterionEvidences({
+  evidences,
+  criterionCode,
+}: {
+  evidences: EvaluationEvidences | undefined;
+  criterionCode: string;
+}) {
+  if (!evidences?.framework) {
+    return null;
+  }
+  const rows = evidences.items.find((item) => item.criterion_code === criterionCode)?.evidences ?? [];
+  return (
+    <div className="text-label text-text-secondary">
+      {rows.length > 0
+        ? `Minh chứng ở kho: ${rows.map((row) => `${row.display_code} ${row.title} (${row.status_label})`).join('; ')}`
+        : 'Chưa có minh chứng ở kho'}
+    </div>
+  );
+}
+
 function EvaluationForm({
   evaluation,
   mode,
@@ -90,6 +112,12 @@ function EvaluationForm({
   mode: 'self' | 'assess';
   onSaved(evaluation: EvaluationDetail, message: string): void;
 }) {
+  // Lỗi (chưa có quyền kho minh chứng) thì không hiện minh chứng
+  const evidences = useQuery({
+    queryKey: ['evidence', 'professional', evaluation.id],
+    queryFn: () => readEvaluationEvidences(evaluation.id),
+    retry: false,
+  });
   const initial = useCallback(
     (): Ratings =>
       Object.fromEntries(
@@ -156,6 +184,11 @@ function EvaluationForm({
           />
         </div>
       ) : null}
+      {evidences.data?.framework && evaluation.is_self ? (
+        <a className="text-primary underline" href={`/quality/evidences?framework_id=${evidences.data.framework.id}`}>
+          Thêm minh chứng ở kho ({evidences.data.framework.name})
+        </a>
+      ) : null}
       <table
         className="w-full text-content"
         aria-label={mode === 'self' ? 'Tiêu chí tự đánh giá' : 'Tiêu chí đánh giá'}
@@ -177,6 +210,7 @@ function EvaluationForm({
                   <span className="text-text-secondary">{item.standard_code} · </span>
                   {item.criterion_code}. {item.criterion_name}
                   {item.is_key ? <span className="text-text-secondary"> (trọng yếu)</span> : null}
+                  <CriterionEvidences evidences={evidences.data} criterionCode={item.criterion_code} />
                 </td>
                 {mode === 'assess' ? (
                   <td>
