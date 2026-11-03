@@ -189,5 +189,5 @@ export function citedEvidenceCodes(text: string | null | undefined): string[] {
 // Tên tệp trong gói hồ sơ minh chứng: mã minh chứng, bỏ ký tự không dùng được trong tên tệp, giữ phần mở rộng của tệp gốc
 export function evidencePackageFileName(code: string, originalName: string | null): string {
   const extension = /\.([A-Za-z0-9]{1,8})$/.exec(originalName ?? '')?.[1]?.toLowerCase() ?? 'pdf';
-  return `${code.replace(/[\/:*?"<>|]/g, '_')}.${extension}`;
+  return `${code.replace(/[\\/:*?"<>|]/g, '_')}.${extension}`;
 }

@@ -2056,7 +2056,6 @@ export class QualityAssuranceService {
       .where('assessment_id', '=', id)
       .execute();
     const linked = await this.evidenceStore.byNodes(assessment.framework_id, null);
-    const evidences = linked.filter((row) => !row.shared);
     const council = await database
       .selectFrom('quality_council_members')
       .selectAll()
