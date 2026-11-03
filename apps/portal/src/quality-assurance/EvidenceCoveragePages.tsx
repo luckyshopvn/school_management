@@ -37,7 +37,9 @@ function useFrameworkChoice() {
   const [frameworkId, setFrameworkId] = useState(
     () => new URLSearchParams(window.location.search).get('framework_id') ?? '',
   );
-  const first = frameworks.data?.frameworks.find((row) => row.status === 'active')?.id;
+  // Như danh sách minh chứng: bộ đang dùng đầu tiên đã có tiêu chí
+  const active = (frameworks.data?.frameworks ?? []).filter((row) => row.status === 'active');
+  const first = (active.find((row) => row.standards.some((standard) => standard.criteria.length > 0)) ?? active[0])?.id;
   useEffect(() => {
     if (!frameworkId && first) {
       setFrameworkId(first);
