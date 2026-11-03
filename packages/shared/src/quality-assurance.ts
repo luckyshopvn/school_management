@@ -1,5 +1,6 @@
 import type { QualityFrameworkKindCode, QualityFrameworkSubjectCode } from './evidence-store.js';
 import type { KpiSchoolLevelCode } from './kpi.js';
+import { TT14_2018_PRINCIPAL } from './quality-templates/tt14-hieu-truong.js';
 import { TT20_2018_TEACHER } from './quality-templates/tt20-giao-vien.js';
 import { TT30_2026_FRAMEWORKS } from './quality-templates/tt30-giao-vien-hang.js';
 import { TH_KDCL_2024_SOURCE, TH_KDCL_2024_STANDARDS } from './quality-templates/tt17-tieu-hoc.js';
@@ -306,6 +307,7 @@ export const QUALITY_DEFAULT_FRAMEWORKS: Record<KpiSchoolLevelCode, QualityFrame
   TH: [
     KDCL_2024('TH-KDCL-2024', TH_KDCL_2024_SOURCE, TH_KDCL_2024_STANDARDS),
     TT20_2018_TEACHER,
+    TT14_2018_PRINCIPAL,
     ...TT30_2026_FRAMEWORKS.TH,
   ],
   THCS: [
@@ -315,6 +317,7 @@ export const QUALITY_DEFAULT_FRAMEWORKS: Record<KpiSchoolLevelCode, QualityFrame
       TRUNG_HOC_KDCL_2024_STANDARDS,
     ),
     TT20_2018_TEACHER,
+    TT14_2018_PRINCIPAL,
     ...TT30_2026_FRAMEWORKS.THCS,
   ],
   THPT: [
@@ -327,6 +330,7 @@ export const QUALITY_DEFAULT_FRAMEWORKS: Record<KpiSchoolLevelCode, QualityFrame
       TRUNG_HOC_KDCL_2024_STANDARDS,
     ),
     TT20_2018_TEACHER,
+    TT14_2018_PRINCIPAL,
     ...TT30_2026_FRAMEWORKS.THPT,
   ],
 };

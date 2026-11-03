@@ -472,8 +472,9 @@ describe('Kho minh chứng', () => {
 
   it('CT-396-15: nạp bộ mẫu Tiểu học đủ chỉ báo; nhập chỉ báo từ Excel: dòng lỗi thì không ghi dòng nào, đúng thì thêm và sửa nội dung (lát L3)', async () => {
     const loaded = await api('POST', '/quality/frameworks/defaults', 'principal', { school_level: 'TH' });
-    // Tiểu học: bộ kiểm định, chuẩn giáo viên Thông tư 20/2018 và ba bộ theo hạng của Thông tư 30/2026 (lát L6)
-    assert.equal(loaded.body.created, 5, JSON.stringify(loaded.body));
+    // Tiểu học: bộ kiểm định, chuẩn giáo viên Thông tư 20/2018, ba bộ theo hạng của Thông tư 30/2026 (lát L6) và chuẩn hiệu
+    // trưởng Thông tư 14/2018 (lát L11)
+    assert.equal(loaded.body.created, 6, JSON.stringify(loaded.body));
     assert.ok((loaded.body.indicators_added as number) > 100);
     const frameworks = (await api('GET', '/quality/frameworks', 'principal')).body as unknown as Array<{
       id: string;
@@ -482,6 +483,8 @@ describe('Kho minh chứng', () => {
     }>;
     const th = frameworks.find((row) => row.code === 'TH-KDCL-2024');
     assert.equal(th?.criterion_count, 24);
+    const principalSet = frameworks.find((row) => row.code === 'HT-PT-TT14-2018');
+    assert.equal(principalSet?.criterion_count, 18, 'Chuẩn hiệu trưởng phổ thông 18 tiêu chí (lát L11)');
     const template = await download(`/quality/frameworks/${th?.id}/indicators/template`, 'principal');
     assert.equal(template.status, 200);
     assert.equal(template.body.subarray(0, 2).toString(), 'PK');

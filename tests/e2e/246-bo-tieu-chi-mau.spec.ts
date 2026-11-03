@@ -27,6 +27,10 @@ test('CT-396-16: nạp bộ mẫu Tiểu học có chỉ báo, tải tệp mẫu
   await page.getByLabel('Cấp học').selectOption('TH');
   await page.getByRole('button', { name: 'Nạp bộ tiêu chuẩn mẫu' }).click();
   await expect(page.getByText(/Đã nạp \d+ bộ tiêu chuẩn/)).toBeVisible();
+  // Lát L11: bộ mẫu Tiểu học có chuẩn hiệu trưởng phổ thông (Thông tư 14/2018)
+  await expect(
+    page.getByRole('cell', { name: 'Chuẩn hiệu trưởng cơ sở giáo dục phổ thông (Thông tư 14/2018)', exact: true }),
+  ).toBeVisible();
   const name = 'Kiểm định chất lượng giáo dục trường tiểu học (Thông tư 17/2018, sửa đổi 2024)';
   await page.getByRole('cell', { name, exact: true }).click();
   const tree = page.getByLabel(`Cây ${name}`);
