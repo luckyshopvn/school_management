@@ -54,7 +54,8 @@ type YearExecutor = Kysely<SchoolYearDatabase> | Transaction<SchoolYearDatabase>
 const VIEW = PERMISSION_CODES.evidenceView;
 const CONTRIBUTE = PERMISSION_CODES.evidenceContribute;
 const MANAGE = PERMISSION_CODES.evidenceManage;
-export const EVIDENCE_PERMISSIONS = [VIEW, CONTRIBUTE, MANAGE];
+const REVIEW = PERMISSION_CODES.evidenceReview;
+export const EVIDENCE_PERMISSIONS = [VIEW, CONTRIBUTE, MANAGE, REVIEW];
 const MAXIMUM_LIST = 1000;
 const OVERVIEW_MISSING = 20;
 const OVERVIEW_EXPIRING = 50;
@@ -104,6 +105,14 @@ export interface EvidenceAssignInput {
   note: string | null;
 }
 
+export interface EvidenceReviewGrantInput {
+  user_id: string;
+  user_name: string;
+  framework_id: string;
+  valid_until: string;
+  note: string | null;
+}
+
 export interface EvidenceListFilter {
   framework_id: string;
   node_id: string | null;
@@ -120,6 +129,9 @@ interface StoreContext {
   manager: boolean;
   contributor: boolean;
   today: string;
+  // Đoàn đánh giá ngoài (lát L8): chỉ có quyền xem theo giao; bộ được giao còn hạn, null là không giới hạn
+  reviewer: boolean;
+  grantedFrameworkIds: string[] | null;
 }
 
 interface Snapshot {
@@ -197,13 +209,28 @@ export class EvidenceStoreService {
       currentUser.hasPermission(MANAGE) &&
       (await this.organizationScopes.resolveStaff(currentUser, MANAGE)).wholeSchool;
     await this.ensureImported();
+    const today = VIETNAM_DATE.format(this.clock.now());
+    const reviewer = ![VIEW, CONTRIBUTE, MANAGE].some((code) => currentUser.hasPermission(code));
+    const grantedFrameworkIds = reviewer
+      ? (
+          await this.databases.system
+            .selectFrom('evidence_review_grants')
+            .select('framework_id')
+            .where('user_id', '=', currentUser.id)
+            .where('school_year_name', '=', year.name)
+            .where('valid_until', '>=', today)
+            .execute()
+        ).map((row) => row.framework_id)
+      : null;
     return {
       system: this.databases.system,
       year: { database: current.database, name: year.name },
       staffId: staff?.id ?? null,
       manager,
       contributor: manager || currentUser.hasPermission(CONTRIBUTE),
-      today: VIETNAM_DATE.format(this.clock.now()),
+      today,
+      reviewer,
+      grantedFrameworkIds,
     };
   }
 
@@ -246,23 +273,27 @@ export class EvidenceStoreService {
       .orderBy('code')
       .execute();
     const criteria = await this.nodes(context.year.database, null);
+    const granted = context.grantedFrameworkIds;
     return {
+      reviewer: context.reviewer,
       can_contribute: context.contributor,
       can_manage: context.manager,
       school_year_name: context.year.name,
-      frameworks: frameworks.map((framework) => ({
-        ...framework,
-        standards: standards
-          .filter((standard) => standard.framework_id === framework.id)
-          .map((standard) => ({
-            ...standard,
-            criteria: criteria
-              .filter(
-                (criterion) => criterion.framework_id === framework.id && criterion.standard_code === standard.code,
-              )
-              .map((criterion) => ({ id: criterion.id, code: criterion.code, title: criterion.title })),
-          })),
-      })),
+      frameworks: frameworks
+        .filter((framework) => granted === null || granted.includes(framework.id))
+        .map((framework) => ({
+          ...framework,
+          standards: standards
+            .filter((standard) => standard.framework_id === framework.id)
+            .map((standard) => ({
+              ...standard,
+              criteria: criteria
+                .filter(
+                  (criterion) => criterion.framework_id === framework.id && criterion.standard_code === standard.code,
+                )
+                .map((criterion) => ({ id: criterion.id, code: criterion.code, title: criterion.title })),
+            })),
+        })),
     };
   }
 
@@ -270,6 +301,7 @@ export class EvidenceStoreService {
 
   async list(currentUser: CurrentUser, filter: EvidenceListFilter) {
     const context = await this.context(currentUser);
+    this.assertFramework(context, filter.framework_id);
     const nodes = await this.nodes(context.year.database, filter.framework_id);
     const nodeById = new Map(nodes.map((node) => [node.id, node]));
     let query = context.system
@@ -616,6 +648,7 @@ export class EvidenceStoreService {
   // Bảng độ phủ theo tiêu chí (MH-682)
   async coverage(currentUser: CurrentUser, frameworkId: string, subjectUserId: string | null = null) {
     const context = await this.context(currentUser);
+    this.assertStaff(context);
     const subject = await this.subjectOf(context, currentUser, frameworkId, subjectUserId);
     const { framework, cycleYearNames, rows } = await this.coverageOf(context, frameworkId, subject);
     const covered = rows.filter((row) => row.covered).length;
@@ -636,6 +669,7 @@ export class EvidenceStoreService {
   // đã hết hiệu lực; tiêu chí được phân công cho người đang xem
   async overview(currentUser: CurrentUser) {
     const context = await this.context(currentUser);
+    this.assertStaff(context);
     const frameworks = await context.year.database
       .selectFrom('quality_frameworks')
       .select(['id', 'subject'])
@@ -973,6 +1007,22 @@ export class EvidenceStoreService {
     currentUser: CurrentUser,
     item: { id: string; subject_user_id: string | null },
   ) {
+    if (context.grantedFrameworkIds) {
+      const granted = context.grantedFrameworkIds;
+      const code =
+        granted.length > 0
+          ? await context.system
+              .selectFrom('evidence_codes')
+              .select('evidence_id')
+              .where('evidence_id', '=', item.id)
+              .where('framework_id', 'in', granted)
+              .executeTakeFirst()
+          : undefined;
+      if (!code) {
+        throw forbidden('Minh chứng không thuộc bộ tiêu chí được giao cho đoàn đánh giá');
+      }
+      return;
+    }
     if (!item.subject_user_id || context.manager || item.subject_user_id === currentUser.id) {
       return;
     }
@@ -984,6 +1034,88 @@ export class EvidenceStoreService {
       .executeTakeFirst();
     if (!schoolCode) {
       throw forbidden('Minh chứng của cá nhân; chỉ người đó và người quản lý kho xem được');
+    }
+  }
+
+  // ---- Đoàn đánh giá ngoài (lát L8) ----
+
+  // Đoàn đánh giá chỉ xem bộ được giao còn hạn
+  private assertFramework(context: StoreContext, frameworkId: string) {
+    if (context.grantedFrameworkIds && !context.grantedFrameworkIds.includes(frameworkId)) {
+      throw forbidden('Bộ tiêu chí chưa được giao cho đoàn đánh giá hoặc đã hết hạn giao');
+    }
+  }
+
+  private assertStaff(context: StoreContext) {
+    if (context.reviewer) {
+      throw forbidden('Đoàn đánh giá ngoài chỉ xem danh sách, chi tiết, tệp và danh mục minh chứng của bộ được giao');
+    }
+  }
+
+  // Các lần giao của năm học đang dùng (người quản lý kho)
+  async reviewGrants(currentUser: CurrentUser) {
+    const context = await this.context(currentUser);
+    this.assertManager(context);
+    const grants = await context.system
+      .selectFrom('evidence_review_grants')
+      .select(['id', 'user_id', 'user_name', 'framework_id', 'valid_until', 'note', 'granted_by_name', 'updated_at'])
+      .where('school_year_name', '=', context.year.name)
+      .orderBy('user_name')
+      .execute();
+    const frameworks = new Map(
+      (await context.year.database.selectFrom('quality_frameworks').select(['id', 'code', 'name']).execute()).map(
+        (row) => [row.id, row],
+      ),
+    );
+    return grants.map((grant) => ({
+      ...grant,
+      framework_code: frameworks.get(grant.framework_id)?.code ?? '',
+      framework_name: frameworks.get(grant.framework_id)?.name ?? 'Bộ không còn ở năm học đang dùng',
+      expired: grant.valid_until < context.today,
+    }));
+  }
+
+  // Giao (hoặc gia hạn) một bộ cho một tài khoản đoàn đánh giá đến hết ngày giao (BR-555)
+  async grantReview(currentUser: CurrentUser, input: EvidenceReviewGrantInput) {
+    const context = await this.context(currentUser);
+    this.assertManager(context);
+    await this.frameworkRow(context, input.framework_id);
+    if (input.valid_until < context.today) {
+      throw evidenceRule('Ngày hết hạn giao phải từ hôm nay trở đi');
+    }
+    const row = await context.system
+      .insertInto('evidence_review_grants')
+      .values({
+        user_id: input.user_id,
+        user_name: input.user_name,
+        framework_id: input.framework_id,
+        school_year_name: context.year.name,
+        valid_until: input.valid_until,
+        note: input.note,
+        granted_by: currentUser.id,
+        granted_by_name: currentUser.description.full_name,
+      })
+      .onConflict((conflict) =>
+        conflict.columns(['user_id', 'framework_id', 'school_year_name']).doUpdateSet({
+          user_name: input.user_name,
+          valid_until: input.valid_until,
+          note: input.note,
+          granted_by: currentUser.id,
+          granted_by_name: currentUser.description.full_name,
+          updated_at: new Date(),
+        }),
+      )
+      .returning('id')
+      .executeTakeFirstOrThrow();
+    return { id: row.id };
+  }
+
+  async revokeReview(currentUser: CurrentUser, id: string) {
+    const context = await this.context(currentUser);
+    this.assertManager(context);
+    const removed = await context.system.deleteFrom('evidence_review_grants').where('id', '=', id).executeTakeFirst();
+    if (Number(removed.numDeletedRows) === 0) {
+      throw notFoundError('Không tìm thấy lần giao', 'evidence_review_grant');
     }
   }
 
@@ -1567,6 +1699,7 @@ export class EvidenceStoreService {
   // Ô chọn bản ghi: tìm theo tên, số, trích yếu trong phạm vi người dùng xem được ở phân hệ nguồn
   async sources(currentUser: CurrentUser, type: EvidenceRecordTypeCode, q: string | null) {
     const context = await this.context(currentUser);
+    this.assertStaff(context);
     this.assertRecordPermission(currentUser, type);
     return this.sourceRegistry.get(type).search(this.sourceContext(context, currentUser), likePattern(q));
   }
@@ -1574,6 +1707,7 @@ export class EvidenceStoreService {
   // Minh chứng đã dùng bản ghi này làm nguồn (nút "Dùng làm minh chứng" ở trang nguồn)
   async byRecord(currentUser: CurrentUser, type: EvidenceRecordTypeCode, recordId: string) {
     const context = await this.context(currentUser);
+    this.assertStaff(context);
     const rows = await context.system
       .selectFrom('evidence_versions as versions')
       .innerJoin('evidence_items as items', 'items.id', 'versions.evidence_id')
@@ -1705,6 +1839,7 @@ export class EvidenceStoreService {
     subjectUserId: string | null = null,
   ) {
     const context = await this.context(currentUser);
+    this.assertFramework(context, frameworkId);
     const subject = await this.subjectOf(context, currentUser, frameworkId, subjectUserId);
     const catalog = await this.catalogOf(
       context.year.database,

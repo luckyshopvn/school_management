@@ -38,6 +38,11 @@ import { OrganizationDirectory, type OrgUnitSummary } from './organization-direc
 import { generateTemporaryPassword } from './temporary-password.js';
 
 const PARENT_ROLE_CODE = 'VT-14';
+// Vai trò bắt buộc tài khoản có ngày hết hiệu lực: kiểm toán viên (BM-68), đoàn đánh giá ngoài (YCTD-396 lát L8)
+const EXPIRING_ROLE_MESSAGES: Record<string, string> = {
+  'VT-20': 'Tài khoản kiểm toán viên bắt buộc có ngày hết hiệu lực (BM-68)',
+  'VT-23': 'Tài khoản đoàn đánh giá ngoài bắt buộc có ngày hết hiệu lực (YCTD-396)',
+};
 
 // Quản lý tài khoản (P01-06) và gán vai trò (P01-07) theo PQ-03, PQ-05, PQ-08, PQ-13, BM-56, BM-68
 export interface RoleGrant {
@@ -529,9 +534,13 @@ export class AccountsService {
       throw validationError([{ field: 'phone', message: 'Tài khoản cần số điện thoại hoặc tên đăng nhập' }]);
     }
     const nextValidUntil = changes.valid_until !== undefined ? changes.valid_until : before.valid_until;
-    if (assignments.some((assignment) => assignment.role_code === 'VT-20') && !nextValidUntil) {
+    const expiring = assignments.find((assignment) => assignment.role_code in EXPIRING_ROLE_MESSAGES);
+    if (expiring && !nextValidUntil) {
       throw validationError([
-        { field: 'valid_until', message: 'Tài khoản kiểm toán viên bắt buộc có ngày hết hiệu lực' },
+        {
+          field: 'valid_until',
+          message: EXPIRING_ROLE_MESSAGES[expiring.role_code] ?? 'Bắt buộc có ngày hết hiệu lực',
+        },
       ]);
     }
     await this.assertUnique(
@@ -775,12 +784,12 @@ export class AccountsService {
         results.push({ user_id: userId, full_name: null, added: false, skipped_reason: 'Không tìm thấy tài khoản' });
         continue;
       }
-      if (grant.role_code === 'VT-20' && !user.valid_until) {
+      if (grant.role_code in EXPIRING_ROLE_MESSAGES && !user.valid_until) {
         results.push({
           user_id: userId,
           full_name: user.full_name,
           added: false,
-          skipped_reason: 'Tài khoản kiểm toán viên bắt buộc có ngày hết hiệu lực (BM-68)',
+          skipped_reason: EXPIRING_ROLE_MESSAGES[grant.role_code] ?? null,
         });
         continue;
       }
@@ -953,11 +962,8 @@ export class AccountsService {
           errors.push({ field: `${prefix}.org_unit_id`, message: 'Đơn vị không tồn tại hoặc đã ngừng sử dụng' });
         }
       }
-      if (grant.role_code === 'VT-20' && !validUntil) {
-        errors.push({
-          field: 'valid_until',
-          message: 'Tài khoản kiểm toán viên bắt buộc có ngày hết hiệu lực (BM-68)',
-        });
+      if (grant.role_code in EXPIRING_ROLE_MESSAGES && !validUntil) {
+        errors.push({ field: 'valid_until', message: EXPIRING_ROLE_MESSAGES[grant.role_code] ?? '' });
       }
     });
     if (errors.length > 0) {

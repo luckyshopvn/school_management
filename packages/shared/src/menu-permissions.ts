@@ -65,7 +65,14 @@ const EMULATION_MANAGE = anyOf('P09.emulation.manage', 'P09.emulation.decide');
 // Bảo đảm chất lượng, tự đánh giá (DT-18 phần 22f)
 const QUALITY_ANY = anyOf('P09.quality.use', 'P09.quality.manage');
 // Kho minh chứng dùng chung (YCTD-396)
-const EVIDENCE_ANY = anyOf('P09.evidence.view', 'P09.evidence.contribute', 'P09.evidence.manage');
+const EVIDENCE_STAFF = anyOf('P09.evidence.view', 'P09.evidence.contribute', 'P09.evidence.manage');
+// Đoàn đánh giá ngoài (YCTD-396 lát L8) chỉ vào danh sách minh chứng và xuất danh mục của bộ được giao
+const EVIDENCE_ANY = anyOf(
+  'P09.evidence.view',
+  'P09.evidence.contribute',
+  'P09.evidence.manage',
+  'P09.evidence.review',
+);
 // Thư viện trường học (DT-22 phần 22a): tra cứu cho mọi cán bộ, phần còn lại cho người quản lý thư viện
 const LIBRARY_ANY = anyOf('P02.library.view', 'P02.library.manage');
 const SCHEDULE_ANY = anyOf('P09.schedule.view', 'P09.schedule.manage', 'P09.meeting-room.manage');
@@ -375,10 +382,11 @@ export const MENU_PERMISSION_RULES: Partial<Record<PortalQuickLinkPath, MenuPerm
   '/quality/assessments': QUALITY_ANY,
   '/quality/reports': QUALITY_ANY,
   '/quality/evidences': EVIDENCE_ANY,
-  '/quality/evidence-overview': EVIDENCE_ANY,
-  '/quality/evidence-coverage': EVIDENCE_ANY,
+  '/quality/evidence-overview': EVIDENCE_STAFF,
+  '/quality/evidence-coverage': EVIDENCE_STAFF,
   '/quality/evidence-assignments': 'P09.evidence.manage',
   '/quality/evidence-exports': EVIDENCE_ANY,
+  '/quality/evidence-reviewers': 'P09.evidence.manage',
   '/quality/recognition': QUALITY_ANY,
   '/quality/frameworks': QUALITY_ANY,
   '/library/titles': LIBRARY_ANY,
