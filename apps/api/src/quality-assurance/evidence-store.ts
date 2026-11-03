@@ -978,14 +978,62 @@ export class EvidenceStoreService {
     currentUser: CurrentUser,
     frameworkId: string,
     requested: string | null,
+    write = false,
   ): Promise<string | null> {
     if ((await this.frameworkSubject(context.year.database, frameworkId)) !== 'person') {
       return null;
     }
     if (requested && requested !== currentUser.id && !context.manager) {
-      throw forbidden('Chỉ người quản lý kho xem, thêm minh chứng của cá nhân khác');
+      // Xem minh chứng của người khác: người đánh giá trực tiếp trong phạm vi (tổ trưởng, lát L10); thêm thì chỉ người quản lý kho
+      if (write || !(await this.canReadPerson(context, currentUser, requested))) {
+        throw forbidden(
+          write
+            ? 'Chỉ người quản lý kho thêm minh chứng cho cá nhân khác'
+            : 'Bạn chỉ xem được minh chứng của cán bộ trong phạm vi đánh giá chuẩn nghề nghiệp của mình',
+        );
+      }
     }
     return requested ?? currentUser.id;
+  }
+
+  // Người đánh giá trực tiếp (YCTD-396 lát L10, Q-396-11 A): người có quyền đánh giá hoặc quản lý chuẩn nghề nghiệp (P07-05) ở
+  // đơn vị của cán bộ, như phạm vi xem phiếu đánh giá chuẩn; tổ trưởng chuyên môn có quyền đánh giá ở tổ của mình
+  private async canReadPerson(context: StoreContext, currentUser: CurrentUser, userId: string): Promise<boolean> {
+    if (context.reviewer) {
+      return false;
+    }
+    const staff = await context.year.database
+      .selectFrom('staff')
+      .select('org_unit_id')
+      .where('user_id', '=', userId)
+      .where('status', '=', 'active')
+      .executeTakeFirst();
+    if (!staff) {
+      return false;
+    }
+    const scope = await this.professionalStandards.readerScope(currentUser);
+    return scope.wholeSchool || scope.orgUnitIds.includes(staff.org_unit_id);
+  }
+
+  // Cán bộ có tài khoản trong phạm vi xem minh chứng cá nhân của người đang xem (ô Người được đánh giá, lát L10)
+  async people(currentUser: CurrentUser) {
+    const context = await this.context(currentUser);
+    this.assertStaff(context);
+    const scope = context.manager
+      ? { wholeSchool: true, orgUnitIds: [] as string[] }
+      : await this.professionalStandards.readerScope(currentUser);
+    if (!scope.wholeSchool && scope.orgUnitIds.length === 0) {
+      return [];
+    }
+    return context.year.database
+      .selectFrom('staff')
+      .select(['user_id', 'full_name', 'code'])
+      .where('status', '=', 'active')
+      .where('user_id', 'is not', null)
+      .where('user_id', '<>', currentUser.id)
+      .$if(!scope.wholeSchool, (query) => query.where('org_unit_id', 'in', scope.orgUnitIds))
+      .orderBy('full_name')
+      .execute();
   }
 
   private async subjectName(context: StoreContext, currentUser: CurrentUser, userId: string) {
@@ -1029,6 +1077,9 @@ export class EvidenceStoreService {
     if (!item.subject_user_id || context.manager || item.subject_user_id === currentUser.id) {
       return;
     }
+    if (await this.canReadPerson(context, currentUser, item.subject_user_id)) {
+      return;
+    }
     const schoolCode = await context.system
       .selectFrom('evidence_codes')
       .select('evidence_id')
@@ -1036,7 +1087,7 @@ export class EvidenceStoreService {
       .where('subject_user_id', 'is', null)
       .executeTakeFirst();
     if (!schoolCode) {
-      throw forbidden('Minh chứng của cá nhân; chỉ người đó và người quản lý kho xem được');
+      throw forbidden('Minh chứng của cá nhân; chỉ người đó, người đánh giá trực tiếp và người quản lý kho xem được');
     }
   }
 
@@ -1351,7 +1402,7 @@ export class EvidenceStoreService {
       input.record_type && input.record_id
         ? await this.snapshot(context, currentUser, input.record_type, input.record_id)
         : null;
-    const subject = await this.subjectOf(context, currentUser, input.framework_id, input.subject_user_id);
+    const subject = await this.subjectOf(context, currentUser, input.framework_id, input.subject_user_id, true);
     const subjectName = subject ? await this.subjectName(context, currentUser, subject) : null;
     const stored = snapshot?.file ? await this.putFile(snapshot.file) : null;
     try {

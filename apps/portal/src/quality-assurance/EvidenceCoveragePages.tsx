@@ -16,6 +16,7 @@ import {
   assignEvidenceCriteria,
   assignEvidenceFromGroups,
   listEvidenceAssignees,
+  listEvidencePeople,
   readEvidenceCoverage,
   readEvidenceFrameworks,
   readEvidenceOverview,
@@ -36,13 +37,15 @@ function coverageText(covered: number, total: number, percent: number) {
 export function useSubjectChoice(framework: { subject: string } | undefined, canManage: boolean) {
   const [subjectUserId, setSubjectUserId] = useState('');
   const personal = framework?.subject === 'person';
+  // Người quản lý kho: mọi cán bộ; tổ trưởng, người đánh giá chuẩn: cán bộ trong phạm vi (lát L10)
   const people = useQuery({
-    queryKey: ['evidence', 'assignees'],
-    queryFn: listEvidenceAssignees,
-    enabled: personal && canManage,
+    queryKey: ['evidence', 'people'],
+    queryFn: listEvidencePeople,
+    enabled: personal,
+    retry: false,
   });
   const select =
-    personal && canManage ? (
+    personal && (canManage || (people.data ?? []).length > 0) ? (
       <label className="text-label font-medium text-text">
         Người được đánh giá
         <select
