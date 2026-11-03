@@ -206,7 +206,12 @@ Bộ cá nhân (A, B) thêm khái niệm "người được đánh giá": mỗi 
 | L5 | Xuất danh mục theo mẫu hướng dẫn, báo cáo tự đánh giá mẫu phổ thông, kiểm mã trích dẫn, gói ZIP theo hộp; MH-685 | Vừa | Tệp Word, Excel, ZIP |
 | L6 | Bộ tiêu chí ở Q-396-8 theo thứ tự B (chuẩn giáo viên, bộ cá nhân), C (thi đua), A (chuẩn hiệu trưởng), D (trường học an toàn), E (kế hoạch năm học); tách L6a đến L6e khi làm | Vừa đến Lớn | Theo bộ |
 | L7 | Nguồn còn lại (học sinh, khen thưởng, kiểm thực, kiểm kê) | Vừa | Gắn từ trang nguồn |
-| L8 | Vai trò VT-23 đoàn đánh giá ngoài: tài khoản chỉ đọc có ngày hết hạn, giao bộ và đợt, chỉ xem, tải trong phạm vi được giao, nhật ký truy cập, tự khóa khi hết hạn (Q-396-9) | Lớn | Đăng nhập bằng tài khoản đoàn, xem danh mục |
+| L8 | Vai trò VT-23 đoàn đánh giá ngoài: tài khoản chỉ đọc có ngày hết hạn, giao bộ (giao theo đợt chưa làm), chỉ xem, tải trong phạm vi được giao, nhật ký truy cập, tự khóa khi hết hạn (Q-396-9) | Lớn | Đăng nhập bằng tài khoản đoàn, xem danh mục |
+| L6b | Bộ chuẩn giáo viên, hiệu trưởng mầm non chép từ danh mục P07-05 (đã sửa ở YCTD-397); phiếu đánh giá chuẩn hiện minh chứng theo tiêu chí (Q-396-13 A) | Vừa | Phiếu tự đánh giá có dòng minh chứng dưới mỗi tiêu chí |
+| L9 | Gửi tự đánh giá chuẩn nghề nghiệp: tiêu chí chọn mức từ Đạt trở lên phải có minh chứng ở kho (Công văn 4529, 4530) | Nhỏ | Gửi tự đánh giá bị chặn, báo tiêu chí thiếu |
+| L10 | Tổ trưởng chuyên môn xem minh chứng của giáo viên trong tổ (Q-396-11 A: người đánh giá trực tiếp xem được) | Vừa | Tổ trưởng chọn giáo viên trong tổ ở danh sách, độ phủ |
+| L11 | Bộ chuẩn hiệu trưởng cơ sở giáo dục phổ thông (Thông tư 14/2018), đọc bản gốc trước; bộ của cá nhân | Vừa | Nạp bộ mẫu phổ thông có bộ hiệu trưởng |
+| L12 | Đối chiếu cột danh mục minh chứng và bố cục báo cáo tự đánh giá với bản gốc Công văn 5932/BGDĐT-QLCL (nguồn công khai đã xác minh) | Vừa | Danh mục, báo cáo theo đúng mẫu |
 
 Mỗi lát một PR đích `main`, có e2e (spec mới số tiếp theo, giữ spec 80). Lát Lớn chờ Eric nghiệm thu trước khi gộp; lát Vừa gộp khi đủ kiểm tra CI.
 

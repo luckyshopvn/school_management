@@ -185,6 +185,11 @@ function EvaluationForm({
         </div>
       ) : null}
       {evidences.data?.framework && evaluation.is_self ? (
+        <p className="text-label text-text-secondary">
+          Mức từ Đạt trở lên phải có minh chứng ở kho thì mới gửi tự đánh giá được.
+        </p>
+      ) : null}
+      {evidences.data?.framework && evaluation.is_self ? (
         <a className="text-primary underline" href={`/quality/evidences?framework_id=${evidences.data.framework.id}`}>
           Thêm minh chứng ở kho ({evidences.data.framework.name})
         </a>
