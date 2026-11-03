@@ -1,8 +1,9 @@
 import type { ProfessionalLevel } from '@school-management/database';
 
-// Xếp loại chung của phiếu chuẩn nghề nghiệp (YCTD-102) theo cách xếp loại của Thông tư 26/2018/TT-BGDĐT và Thông tư
-// 25/2018/TT-BGDĐT (cần đối chiếu văn bản): tiêu chí trọng yếu là tiêu chí đánh dấu is_key trên danh mục (mặc định tiêu
-// chí thuộc tiêu chuẩn 1 và 2), Hiệu trưởng sửa được.
+// Xếp loại chung của phiếu chuẩn nghề nghiệp (YCTD-102) theo Điều 10 khoản 2 của Thông tư 26/2018/TT-BGDĐT (giáo viên mầm
+// non) và Thông tư 25/2018/TT-BGDĐT (hiệu trưởng mầm non), hai chuẩn cùng một cách xếp loại (đã đối chiếu, YCTD-397):
+// tiêu chí trọng yếu là tiêu chí đánh dấu is_key trên danh mục (gieo sẵn theo số tiêu chí nêu ở khoản đó), Hiệu trưởng
+// sửa được. Chuẩn phổ thông (Thông tư 20/2018, 14/2018) có quy tắc khác, chưa dùng ở đây.
 // - Chưa đạt: có tiêu chí Chưa đạt (hoặc phiếu không có tiêu chí)
 // - Tốt: mọi tiêu chí từ Khá trở lên, ít nhất 2/3 số tiêu chí Tốt, mọi tiêu chí trọng yếu Tốt
 // - Khá: mọi tiêu chí từ Đạt trở lên, ít nhất 2/3 số tiêu chí từ Khá trở lên, mọi tiêu chí trọng yếu từ Khá trở lên

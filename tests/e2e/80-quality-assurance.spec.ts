@@ -131,6 +131,12 @@ test('CT-22f-9: nạp bộ tiêu chuẩn; lập đợt, hội đồng, nhóm cô
   await sheet.getByRole('button', { name: 'Nộp phiếu' }).click();
   await expect(staff.getByText('Đã nộp phiếu')).toBeVisible();
   await openMenu(staff, '/quality/evidences');
+  // Chọn đúng bộ Mầm non: spec 246 chạy trước có thêm bộ thi đua chưa có tiêu chí
+  await staff
+    .getByRole('combobox', { name: 'Bộ tiêu chí' })
+    .selectOption({
+      label: 'MN-KDCL-2024 · Kiểm định chất lượng giáo dục trường mầm non (Thông tư 19/2018, sửa đổi 2024)',
+    });
   await staff.getByRole('button', { name: 'Thêm minh chứng' }).click();
   const evidence = staff.getByRole('form', { name: 'Thêm minh chứng' });
   await evidence.getByLabel('Tiêu chí', { exact: true }).selectOption({ index: 1 });
