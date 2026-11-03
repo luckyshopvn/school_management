@@ -1,7 +1,12 @@
 import { useEffect, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import {
+  DEFAULT_EVIDENCE_CODE_PATTERN,
   KPI_SCHOOL_LEVELS,
+  QUALITY_FRAMEWORK_KIND_LABELS,
+  QUALITY_FRAMEWORK_SUBJECT_LABELS,
+  type QualityFrameworkKindCode,
+  type QualityFrameworkSubjectCode,
   QUALITY_COUNCIL_POSITION_LABELS,
   QUALITY_EVIDENCE_STATUS_LABELS,
   qualityLevelLabel,
@@ -34,6 +39,8 @@ import {
   deleteAssessment,
   deleteFramework,
   deleteTreeItem,
+  downloadIndicatorTemplate,
+  importIndicators,
   exportSelfReport,
   listAssessments,
   listFrameworks,
@@ -1333,6 +1340,10 @@ function FrameworkForm({
     max_level: initial?.max_level ?? 3,
     sort_order: initial?.sort_order ?? 0,
     status: initial?.status ?? 'active',
+    kind: initial?.kind ?? 'accreditation',
+    subject: initial?.subject ?? 'school',
+    code_pattern: initial?.code_pattern ?? DEFAULT_EVIDENCE_CODE_PATTERN,
+    cycle_years: initial?.cycle_years ?? 5,
   });
   const save = useMutation({ mutationFn: () => saveFramework(initial?.id ?? null, form), onSuccess: onSaved });
   const errors = fieldErrorsOf(save.error);
@@ -1385,6 +1396,49 @@ function FrameworkForm({
             className={FORM_CONTROL_CLASS}
             value={form.max_level}
             onChange={(event) => setForm({ ...form, max_level: Number(event.target.value) })}
+          />
+        </FormRow>
+        <FormRow label="Loại bộ" error={errors.kind}>
+          <select
+            className={FORM_CONTROL_CLASS}
+            value={form.kind}
+            onChange={(event) => setForm({ ...form, kind: event.target.value as QualityFrameworkKindCode })}
+          >
+            {Object.entries(QUALITY_FRAMEWORK_KIND_LABELS).map(([value, label]) => (
+              <option key={value} value={value}>
+                {label}
+              </option>
+            ))}
+          </select>
+        </FormRow>
+        <FormRow label="Đối tượng được đánh giá" error={errors.subject}>
+          <select
+            className={FORM_CONTROL_CLASS}
+            value={form.subject}
+            onChange={(event) => setForm({ ...form, subject: event.target.value as QualityFrameworkSubjectCode })}
+          >
+            {Object.entries(QUALITY_FRAMEWORK_SUBJECT_LABELS).map(([value, label]) => (
+              <option key={value} value={value}>
+                {label}
+              </option>
+            ))}
+          </select>
+        </FormRow>
+        <FormRow label="Mẫu mã minh chứng ({hop}, {tieu_chuan}, {tieu_chi}, {stt})" error={errors.code_pattern}>
+          <input
+            className={FORM_CONTROL_CLASS}
+            value={form.code_pattern}
+            onChange={(event) => setForm({ ...form, code_pattern: event.target.value })}
+          />
+        </FormRow>
+        <FormRow label="Chu kỳ đánh giá (năm học)" error={errors.cycle_years}>
+          <input
+            type="number"
+            min={1}
+            max={10}
+            className={FORM_CONTROL_CLASS}
+            value={form.cycle_years}
+            onChange={(event) => setForm({ ...form, cycle_years: Number(event.target.value) })}
           />
         </FormRow>
         <FormRow label="Căn cứ" error={errors.legal_basis}>
@@ -1515,6 +1569,13 @@ function FrameworkTreePanel({ id, canManage }: { id: string; canManage: boolean 
     setEditing(undefined);
     await queryClient.invalidateQueries({ queryKey: ['quality'] });
   };
+  const template = useMutation({ mutationFn: () => downloadIndicatorTemplate(id) });
+  const importFile = useMutation({
+    mutationFn: (file: File) => importIndicators(id, file),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ['quality'] });
+    },
+  });
   const data = tree.data;
   if (tree.error) {
     return <Alert tone="danger">{messageOf(tree.error)}</Alert>;
@@ -1536,6 +1597,47 @@ function FrameworkTreePanel({ id, canManage }: { id: string; canManage: boolean 
   return (
     <div className="flex flex-col gap-2 text-content" aria-label={`Cây ${data.name}`}>
       {remove.error ? <Alert tone="danger">{messageOf(remove.error)}</Alert> : null}
+      {canManage ? (
+        <div className="flex flex-wrap items-center gap-2">
+          <Button disabled={template.isPending} onClick={() => template.mutate()}>
+            Tải tệp mẫu chỉ báo
+          </Button>
+          <label className="inline-flex min-h-11 cursor-pointer items-center rounded-lg border border-border px-4 text-label font-medium text-primary">
+            Nhập chỉ báo từ Excel
+            <input
+              type="file"
+              accept=".xlsx"
+              aria-label="Tệp chỉ báo"
+              className="sr-only"
+              onChange={(event) => {
+                const file = event.target.files?.[0];
+                event.target.value = '';
+                if (file) {
+                  importFile.mutate(file);
+                }
+              }}
+            />
+          </label>
+        </div>
+      ) : null}
+      {(template.error ?? importFile.error) ? (
+        <Alert tone="danger">{messageOf(template.error ?? importFile.error)}</Alert>
+      ) : null}
+      {importFile.data ? (
+        importFile.data.errors.length > 0 ? (
+          <Alert tone="danger">
+            Chưa nhập dòng nào, tệp có {importFile.data.errors.length} dòng lỗi:{' '}
+            {importFile.data.errors
+              .slice(0, 10)
+              .map((error) => `dòng ${error.row} ${error.column ?? ''}: ${error.message}`)
+              .join('; ')}
+          </Alert>
+        ) : (
+          <Alert tone="success">
+            Đã nhập chỉ báo: thêm {importFile.data.created}, sửa nội dung {importFile.data.updated}
+          </Alert>
+        )
+      ) : null}
       {data.standards.map((standard) => (
         <section key={standard.id} className="flex flex-col gap-1 rounded-lg border border-border p-2">
           {editing === `s-${standard.id}` ? (

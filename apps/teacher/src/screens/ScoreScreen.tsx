@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { Alert, ApplicationHeader, Button } from '@school-management/ui';
 import { ApiError, requestJson } from '../session/api-client.js';
 import type { MyClass } from './ClassesScreen.js';
+import { useWideLayout } from '../shell/use-wide-layout.js';
 
 // Sổ điểm lớp THCS, THPT (DT-21 phần 21c, YCTD-170): chọn học kỳ và môn mình được phân công, nhập điểm đánh giá thường xuyên,
 // giữa kỳ, cuối kỳ (môn nhận xét: Đạt, Chưa đạt). Máy chủ kiểm tra phân công, hạn nhập, khoá điểm
@@ -48,6 +49,141 @@ const parse = (text: string): number | null | undefined => {
   return Number.isFinite(value) ? value : undefined;
 };
 
+const CELL_INPUT_CLASS =
+  'min-h-11 w-16 rounded-lg border border-border bg-card px-2 text-center disabled:bg-page aria-invalid:border-2 aria-invalid:border-danger';
+
+// Bảng nhập theo ô khổ máy tính (TD-29, YCTD-395 lát L4): cột họ tên và hàng tiêu đề dính khi cuộn, ô 44 px; tên đọc của ô như thẻ ở
+// điện thoại ("Điểm thường xuyên 1 của …"), Tab đi theo dòng
+function ScoreTable({
+  sheet,
+  drafts,
+  isScore,
+  onChange,
+}: {
+  sheet: Sheet;
+  drafts: Record<string, Draft>;
+  isScore: boolean;
+  onChange(childId: string, patch: Partial<Draft>): void;
+}) {
+  const regularCount = Math.max(0, ...Object.values(drafts).map((draft) => draft.regular.length));
+  const header = 'sticky top-0 z-10 border-b border-border bg-page px-2 py-2.5 text-label font-semibold text-text';
+  const invalid = (text: string) => (parse(text) === undefined ? true : undefined);
+  return (
+    <div className="relative max-h-[70vh] overflow-auto rounded-xl border border-border bg-card">
+      <table className="w-full border-separate border-spacing-0 text-content text-text">
+        <caption className="sr-only">Bảng điểm</caption>
+        <thead>
+          <tr>
+            <th scope="col" className={`${header} left-0 z-20 min-w-60 text-left`}>
+              Học sinh
+            </th>
+            {isScore ? (
+              <>
+                {Array.from({ length: regularCount }, (_unused, index) => (
+                  <th key={index} scope="col" className={header}>
+                    TX{index + 1}
+                  </th>
+                ))}
+                <th scope="col" className={header}>
+                  Giữa kỳ
+                </th>
+                <th scope="col" className={header}>
+                  Cuối kỳ
+                </th>
+                <th scope="col" className={header}>
+                  TB môn
+                </th>
+              </>
+            ) : (
+              <th scope="col" className={`${header} text-left`}>
+                Kết quả
+              </th>
+            )}
+          </tr>
+        </thead>
+        <tbody>
+          {sheet.rows.map((row) => {
+            const draft = drafts[row.child_id];
+            if (!draft) {
+              return null;
+            }
+            return (
+              <tr key={row.child_id}>
+                <th
+                  scope="row"
+                  className="sticky left-0 z-[1] border-b border-border bg-card px-4 py-1.5 text-left font-semibold"
+                >
+                  {row.full_name}
+                </th>
+                {isScore ? (
+                  <>
+                    {Array.from({ length: regularCount }, (_unused, index) => (
+                      <td key={index} className="border-b border-border px-1.5 py-1.5 text-center">
+                        {index < draft.regular.length ? (
+                          <input
+                            aria-label={`Điểm thường xuyên ${index + 1} của ${row.full_name}`}
+                            aria-invalid={invalid(draft.regular[index] ?? '')}
+                            inputMode="decimal"
+                            className={CELL_INPUT_CLASS}
+                            value={draft.regular[index]}
+                            disabled={!sheet.can_edit}
+                            onChange={(event) => {
+                              const next = [...draft.regular];
+                              next[index] = event.target.value;
+                              onChange(row.child_id, { regular: next });
+                            }}
+                          />
+                        ) : null}
+                      </td>
+                    ))}
+                    <td className="border-b border-border px-1.5 py-1.5 text-center">
+                      <input
+                        aria-label={`Giữa kỳ của ${row.full_name}`}
+                        aria-invalid={invalid(draft.mid)}
+                        inputMode="decimal"
+                        className={CELL_INPUT_CLASS}
+                        value={draft.mid}
+                        disabled={!sheet.can_edit}
+                        onChange={(event) => onChange(row.child_id, { mid: event.target.value })}
+                      />
+                    </td>
+                    <td className="border-b border-border px-1.5 py-1.5 text-center">
+                      <input
+                        aria-label={`Cuối kỳ của ${row.full_name}`}
+                        aria-invalid={invalid(draft.final)}
+                        inputMode="decimal"
+                        className={CELL_INPUT_CLASS}
+                        value={draft.final}
+                        disabled={!sheet.can_edit}
+                        onChange={(event) => onChange(row.child_id, { final: event.target.value })}
+                      />
+                    </td>
+                    <td className="border-b border-border px-3 py-1.5 text-center font-bold">{row.average ?? '—'}</td>
+                  </>
+                ) : (
+                  <td className="border-b border-border px-3 py-1.5">
+                    <select
+                      aria-label={`Kết quả của ${row.full_name}`}
+                      value={draft.result}
+                      disabled={!sheet.can_edit}
+                      onChange={(event) => onChange(row.child_id, { result: event.target.value })}
+                      className="min-h-11 rounded-lg border border-border bg-card px-2"
+                    >
+                      <option value="">Chưa nhập</option>
+                      <option value="pass">Đạt</option>
+                      <option value="fail">Chưa đạt</option>
+                    </select>
+                  </td>
+                )}
+              </tr>
+            );
+          })}
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
 export function ScoreScreen({ myClass, onBack }: { myClass: MyClass; onBack(): void }) {
   const [overview, setOverview] = useState<Overview>();
   const [term, setTerm] = useState('first_term');
@@ -56,6 +192,8 @@ export function ScoreScreen({ myClass, onBack }: { myClass: MyClass; onBack(): v
   const [drafts, setDrafts] = useState<Record<string, Draft>>({});
   const [message, setMessage] = useState<{ text: string; failed: boolean }>();
   const [busy, setBusy] = useState(false);
+  // Khổ máy tính (YCTD-395 lát L4): bảng nhập theo ô TD-29; điện thoại mỗi học sinh một thẻ như trước
+  const wide = useWideLayout();
 
   useEffect(() => {
     requestJson<Overview>(`/api/v1/scores/classes/${myClass.id}`)
@@ -136,7 +274,7 @@ export function ScoreScreen({ myClass, onBack }: { myClass: MyClass; onBack(): v
   return (
     <div className="min-h-screen bg-page text-text">
       <ApplicationHeader title={`Sổ điểm lớp ${myClass.name}`} />
-      <main className="mx-auto flex max-w-3xl flex-col gap-4 p-4">
+      <main className="mx-auto flex max-w-3xl flex-col gap-4 p-4 lg:max-w-[78rem] lg:px-7">
         <div>
           <Button variant="text" onClick={onBack}>
             Quay lại
@@ -174,7 +312,8 @@ export function ScoreScreen({ myClass, onBack }: { myClass: MyClass; onBack(): v
           </div>
         ) : null}
         {sheet?.locked ? <Alert tone="info">Học kỳ đã khoá điểm bởi {sheet.locked.locked_by_name}.</Alert> : null}
-        {sheet ? (
+        {sheet && wide ? <ScoreTable sheet={sheet} drafts={drafts} isScore={isScore} onChange={change} /> : null}
+        {sheet && !wide ? (
           <ul className="flex flex-col gap-3" aria-label="Bảng điểm">
             {sheet.rows.map((row) => {
               const draft = drafts[row.child_id];
@@ -243,7 +382,7 @@ export function ScoreScreen({ myClass, onBack }: { myClass: MyClass; onBack(): v
           </ul>
         ) : null}
         {sheet?.can_edit ? (
-          <Button variant="primary" disabled={busy || invalid} onClick={() => void save()}>
+          <Button variant="primary" className="lg:self-start" disabled={busy || invalid} onClick={() => void save()}>
             Lưu điểm
           </Button>
         ) : null}

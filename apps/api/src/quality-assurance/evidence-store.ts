@@ -8,7 +8,9 @@ import {
   EVIDENCE_RULE_CODE,
   EVIDENCE_VALIDITY_LABELS,
   evidenceValidity,
+  DEFAULT_EVIDENCE_CODE_PATTERN,
   formatEvidenceCode,
+  formatEvidenceCodePattern,
   PERMISSION_CODES,
   QUALITY_EVIDENCE_STATUS_LABELS,
   QUALITY_MAXIMUM_FILE_BYTES,
@@ -556,6 +558,21 @@ export class EvidenceStoreService {
     return sequence;
   }
 
+  // Mã theo mẫu của bộ (YCTD-396 lát L3); mặc định H{hop}-{tieu_chi}-{stt}
+  private async codeOf(database: YearExecutor, frameworkId: string, box: number, node: NodeInfo, sequence: number) {
+    const framework = await database
+      .selectFrom('quality_frameworks')
+      .select('code_pattern')
+      .where('id', '=', frameworkId)
+      .executeTakeFirst();
+    return formatEvidenceCodePattern(framework?.code_pattern ?? DEFAULT_EVIDENCE_CODE_PATTERN, {
+      box,
+      standardCode: node.standard_code,
+      criterionCode: node.code,
+      sequence,
+    }).slice(0, 50);
+  }
+
   private checkDates(input: EvidenceItemInput) {
     if (input.valid_until && input.issued_date && input.valid_until < input.issued_date) {
       throw validationError([{ field: 'valid_until', message: 'Ngày hiệu lực phải sau ngày ban hành' }]);
@@ -584,7 +601,7 @@ export class EvidenceStoreService {
       return await context.system.transaction().execute(async (transaction) => {
         const box = input.box ?? standardBox(node.standard_code);
         const sequence = await this.nextSequence(transaction, input.framework_id, node.id);
-        const code = formatEvidenceCode(box, node.code, sequence);
+        const code = await this.codeOf(context.year.database, input.framework_id, box, node, sequence);
         const taken = await transaction
           .selectFrom('evidence_codes')
           .select('evidence_id')
@@ -673,7 +690,7 @@ export class EvidenceStoreService {
       }
       const chosenBox = box ?? standardBox(node.standard_code);
       const sequence = await this.nextSequence(transaction, frameworkId, node.id);
-      const code = formatEvidenceCode(chosenBox, node.code, sequence);
+      const code = await this.codeOf(context.year.database, frameworkId, chosenBox, node, sequence);
       const taken = await transaction
         .selectFrom('evidence_codes')
         .select('evidence_id')

@@ -1,4 +1,7 @@
 import type { KpiSchoolLevelCode } from './kpi.js';
+import { TH_KDCL_2024_SOURCE, TH_KDCL_2024_STANDARDS } from './quality-templates/tt17-tieu-hoc.js';
+import { TRUNG_HOC_KDCL_2024_SOURCE, TRUNG_HOC_KDCL_2024_STANDARDS } from './quality-templates/tt18-trung-hoc.js';
+import { MN_KDCL_2024_SOURCE, MN_KDCL_2024_STANDARDS } from './quality-templates/tt19-mam-non.js';
 
 // Bảo đảm chất lượng, tự đánh giá (DT-18 phần 22f, YCTD-149) theo mô tả công khai của trang bảo đảm chất lượng đã khảo sát
 // (tài liệu 47 mục 9.4): bộ tiêu chuẩn kiểm định cấu hình được theo cấp học (tiêu chuẩn, tiêu chí, chỉ báo theo mức), đợt tự
@@ -147,10 +150,18 @@ export function recognitionValidUntil(recognitionDate: string | null, validUntil
   return `${year}${recognitionDate.slice(4)}`;
 }
 
+export interface QualityIndicatorSeed {
+  level: number;
+  code: string;
+  content: string;
+}
+
 export interface QualityCriterionSeed {
   code: string;
   title: string;
   evidence_hint?: string;
+  // Chỉ báo theo văn bản (YCTD-396 lát L3, Q-396-6)
+  indicators?: QualityIndicatorSeed[];
 }
 
 export interface QualityStandardSeed {
@@ -164,6 +175,8 @@ export interface QualityFrameworkSeed {
   name: string;
   legal_basis: string;
   max_level: number;
+  // Văn bản và phiên bản nội dung của bộ mẫu (YCTD-396 lát L3)
+  template_version?: string;
   standards: QualityStandardSeed[];
 }
 
@@ -249,9 +262,55 @@ const MN_FRAMEWORK: QualityFrameworkSeed = {
   ],
 };
 
+// Gợi ý minh chứng của bộ mẫu Mầm non cũ (YCTD-149) giữ cho tiêu chí cùng mã và cùng tên ở bộ theo văn bản sửa đổi
+function withHints(standards: QualityStandardSeed[], hints: QualityFrameworkSeed): QualityStandardSeed[] {
+  const known = new Map(
+    hints.standards
+      .flatMap((standard) => standard.criteria)
+      .map((item) => [`${item.code}|${item.title}`, item.evidence_hint]),
+  );
+  return standards.map((standard) => ({
+    ...standard,
+    criteria: standard.criteria.map((item) => {
+      const hint = known.get(`${item.code}|${item.title}`);
+      return hint ? { ...item, evidence_hint: hint } : item;
+    }),
+  }));
+}
+
+const KDCL_2024 = (
+  code: string,
+  source: { name: string; legal_basis: string; template_version: string },
+  standards: QualityStandardSeed[],
+): QualityFrameworkSeed => ({
+  code,
+  name: source.name,
+  legal_basis: source.legal_basis,
+  max_level: 3,
+  template_version: source.template_version,
+  standards,
+});
+
+// Bộ mẫu theo cấp học (YCTD-396 lát L3): kiểm định theo Thông tư 17, 18, 19/2018 đã sửa đổi bởi Thông tư 22/2024, đủ chỉ báo
+// Mức 1 đến Mức 3. Bộ Mầm non cũ "MN-KDCL" (YCTD-149) không nạp mới; trường đã nạp vẫn giữ và dùng được
 export const QUALITY_DEFAULT_FRAMEWORKS: Record<KpiSchoolLevelCode, QualityFrameworkSeed[]> = {
-  MN: [MN_FRAMEWORK],
-  TH: [],
-  THCS: [],
-  THPT: [],
+  MN: [KDCL_2024('MN-KDCL-2024', MN_KDCL_2024_SOURCE, withHints(MN_KDCL_2024_STANDARDS, MN_FRAMEWORK))],
+  TH: [KDCL_2024('TH-KDCL-2024', TH_KDCL_2024_SOURCE, TH_KDCL_2024_STANDARDS)],
+  THCS: [
+    KDCL_2024(
+      'THCS-KDCL-2024',
+      { ...TRUNG_HOC_KDCL_2024_SOURCE, name: TRUNG_HOC_KDCL_2024_SOURCE.name.replace('trung học', 'trung học cơ sở') },
+      TRUNG_HOC_KDCL_2024_STANDARDS,
+    ),
+  ],
+  THPT: [
+    KDCL_2024(
+      'THPT-KDCL-2024',
+      {
+        ...TRUNG_HOC_KDCL_2024_SOURCE,
+        name: TRUNG_HOC_KDCL_2024_SOURCE.name.replace('trung học', 'trung học phổ thông'),
+      },
+      TRUNG_HOC_KDCL_2024_STANDARDS,
+    ),
+  ],
 };

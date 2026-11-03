@@ -7,6 +7,12 @@ import {
   type KpiSchoolLevelCode,
   type QualityCouncilPositionCode,
   type QualityImprovementAction,
+  DEFAULT_EVIDENCE_CODE_PATTERN,
+  isEvidenceCodePattern,
+  QUALITY_FRAMEWORK_KIND_LABELS,
+  QUALITY_FRAMEWORK_SUBJECT_LABELS,
+  type QualityFrameworkKindCode,
+  type QualityFrameworkSubjectCode,
 } from '@school-management/shared';
 import { isUuid, type RequestBody } from '../common/request-fields.js';
 import {
@@ -34,6 +40,10 @@ export interface FrameworkInput {
   max_level: number;
   sort_order: number;
   status: 'active' | 'inactive';
+  kind: QualityFrameworkKindCode;
+  subject: QualityFrameworkSubjectCode;
+  code_pattern: string;
+  cycle_years: number;
 }
 
 export interface StandardInput {
@@ -119,7 +129,23 @@ export function readFramework(body: RequestBody, errors: FieldError[]): Framewor
     max_level: readInteger(body, 'max_level', errors, { min: 1, max: QUALITY_MAXIMUM_LEVEL }, 3) ?? 3,
     sort_order: sortOrder(body, errors),
     status: readChoice(body, 'status', STATUS_LABELS, 'active', errors),
+    // Loại bộ, đối tượng, mẫu mã, chu kỳ (YCTD-396 lát L3)
+    kind: readChoice(body, 'kind', QUALITY_FRAMEWORK_KIND_LABELS, 'accreditation', errors),
+    subject: readChoice(body, 'subject', QUALITY_FRAMEWORK_SUBJECT_LABELS, 'school', errors),
+    code_pattern: readCodePattern(body, errors),
+    cycle_years: readInteger(body, 'cycle_years', errors, { min: 1, max: 10 }, 5) ?? 5,
   };
+}
+
+function readCodePattern(body: RequestBody, errors: FieldError[]): string {
+  const value = readText(body, 'code_pattern', errors, { maximum: 40 }) ?? DEFAULT_EVIDENCE_CODE_PATTERN;
+  if (!isEvidenceCodePattern(value)) {
+    errors.push({
+      field: 'code_pattern',
+      message: 'Mẫu mã 5 đến 40 ký tự, có {stt}, chỉ dùng các ô {hop}, {tieu_chuan}, {tieu_chi}, {stt}',
+    });
+  }
+  return value;
 }
 
 export function readStandard(body: RequestBody, errors: FieldError[]): StandardInput {

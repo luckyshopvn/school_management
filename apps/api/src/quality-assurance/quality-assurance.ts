@@ -25,7 +25,8 @@ import { writeAuditLog, type ChangeOrigin } from '../common/audit-log.js';
 import { CurrentSchoolYearResolver } from '../common/current-school-year.js';
 import { Databases } from '../common/databases.js';
 import { notFoundError } from '../common/request-fields.js';
-import type { TableFileFormat } from '../exports/table-file.js';
+import { CONTENT_TYPES, type TableFileFormat } from '../exports/table-file.js';
+import { buildTemplate, readSheet, type ImportColumn, type RowError } from '../imports/excel.js';
 import { FileStorage } from '../files/file-storage.js';
 import { buildDocumentPdf, buildDocx, DOCX_TYPE, PDF_TYPE, type DocumentBlock } from '../kpi/kpi-documents.js';
 import { OrganizationScopes } from '../organization/organization-scopes.js';
@@ -59,6 +60,13 @@ const USE = PERMISSION_CODES.qualityUse;
 const MANAGE = PERMISSION_CODES.qualityManage;
 export const QUALITY_PERMISSIONS = [USE, MANAGE];
 const MAXIMUM_LIST = 1000;
+// Cột của tệp nhập chỉ báo (YCTD-396 lát L3)
+const INDICATOR_COLUMNS: ImportColumn[] = [
+  { key: 'criterion', header: 'Mã tiêu chí', note: 'Ví dụ 1.1, đúng mã tiêu chí của bộ' },
+  { key: 'level', header: 'Mức', note: 'Số từ 1 đến số mức của bộ' },
+  { key: 'code', header: 'Mã chỉ báo', note: 'Ví dụ a, b, c' },
+  { key: 'content', header: 'Nội dung', note: 'Nội dung chỉ báo, tối đa 2.000 ký tự' },
+];
 const MAXIMUM_WORK_ITEMS = 200;
 // Mã rỗng dùng trong điều kiện khi người dùng không có hồ sơ nhân sự
 const NO_ID = '00000000-0000-0000-0000-000000000000';
@@ -365,7 +373,9 @@ export class QualityAssuranceService {
     });
   }
 
-  // Nạp bộ mặc định theo cấp học; mã bộ đã có thì bỏ qua
+  // Nạp bộ mẫu theo cấp học (YCTD-149; YCTD-396 lát L3 nạp đủ chỉ báo theo văn bản đã sửa đổi). Bộ đã có cùng mã thì không
+  // tạo lại; tiêu chí của bộ đó chưa có chỉ báo nào thì được bổ sung chỉ báo của bộ mẫu, tiêu chí trường đã nhập chỉ báo giữ
+  // nguyên (BR-153, Q-396-6)
   async loadDefaults(currentUser: CurrentUser, level: KpiSchoolLevelCode, origin: ChangeOrigin) {
     const context = await this.context(currentUser);
     this.assertManager(context);
@@ -375,13 +385,19 @@ export class QualityAssuranceService {
     }
     let created = 0;
     let skipped = 0;
+    let indicatorsAdded = 0;
     await context.database.transaction().execute(async (transaction) => {
-      const existing = new Set(
-        (await transaction.selectFrom('quality_frameworks').select('code').execute()).map((row) => row.code),
+      const existing = new Map(
+        (await transaction.selectFrom('quality_frameworks').select(['id', 'code']).execute()).map((row) => [
+          row.code,
+          row.id,
+        ]),
       );
       for (const [index, seed] of seeds.entries()) {
-        if (existing.has(seed.code)) {
+        const existingId = existing.get(seed.code);
+        if (existingId) {
           skipped += 1;
+          indicatorsAdded += await this.fillSeedIndicators(transaction, existingId, seed);
           continue;
         }
         const framework = await transaction
@@ -394,6 +410,7 @@ export class QualityAssuranceService {
             max_level: seed.max_level,
             sort_order: (index + 1) * 10,
             created_by: currentUser.id,
+            template_version: seed.template_version ?? null,
           })
           .returning('id')
           .executeTakeFirstOrThrow();
@@ -422,6 +439,7 @@ export class QualityAssuranceService {
             )
             .execute();
         }
+        indicatorsAdded += await this.fillSeedIndicators(transaction, framework.id, seed);
         await this.audit(transaction, origin, 'quality_frameworks', framework.id, 'create', null, {
           code: seed.code,
           name: seed.name,
@@ -430,7 +448,55 @@ export class QualityAssuranceService {
         created += 1;
       }
     });
-    return { created, skipped };
+    return { created, skipped, indicators_added: indicatorsAdded };
+  }
+
+  // Chỉ báo của bộ mẫu cho các tiêu chí cùng mã chưa có chỉ báo nào
+  private async fillSeedIndicators(
+    transaction: Transaction<SchoolYearDatabase>,
+    frameworkId: string,
+    seed: (typeof QUALITY_DEFAULT_FRAMEWORKS)[KpiSchoolLevelCode][number],
+  ): Promise<number> {
+    const criteria = await transaction
+      .selectFrom('quality_criteria')
+      .select(['id', 'code'])
+      .where('framework_id', '=', frameworkId)
+      .where((eb) =>
+        eb.not(
+          eb.exists(
+            eb
+              .selectFrom('quality_indicators')
+              .select('quality_indicators.id')
+              .whereRef('quality_indicators.criterion_id', '=', 'quality_criteria.id'),
+          ),
+        ),
+      )
+      .execute();
+    const byCode = new Map(criteria.map((row) => [row.code, row.id]));
+    let added = 0;
+    for (const standard of seed.standards) {
+      for (const item of standard.criteria) {
+        const criterionId = byCode.get(item.code);
+        const indicators = item.indicators ?? [];
+        if (!criterionId || indicators.length === 0) {
+          continue;
+        }
+        await transaction
+          .insertInto('quality_indicators')
+          .values(
+            indicators.map((indicator, indicatorIndex) => ({
+              criterion_id: criterionId,
+              level: indicator.level,
+              code: indicator.code,
+              content: indicator.content,
+              sort_order: indicator.level * 100 + indicatorIndex,
+            })),
+          )
+          .execute();
+        added += indicators.length;
+      }
+    }
+    return added;
   }
 
   async createStandard(currentUser: CurrentUser, frameworkId: string, input: StandardInput, origin: ChangeOrigin) {
@@ -611,6 +677,123 @@ export class QualityAssuranceService {
   }
 
   // Mức của chỉ báo không vượt số mức của bộ; mã chỉ báo không trùng trong cùng tiêu chí và mức
+  // ---- Nhập chỉ báo từ Excel (YCTD-396 lát L3) ----
+
+  // Tệp mẫu: mỗi dòng một chỉ báo; điền sẵn chỉ báo đang có của bộ để trường sửa rồi nhập lại
+  async indicatorTemplate(currentUser: CurrentUser, frameworkId: string) {
+    const context = await this.context(currentUser);
+    this.assertManager(context);
+    const tree = await this.frameworkTree(context.database, frameworkId);
+    const rows: Array<Record<string, unknown>> = tree.standards.flatMap((standard) =>
+      standard.criteria.flatMap((criterion) =>
+        criterion.indicators.length > 0
+          ? criterion.indicators.map((indicator) => ({
+              criterion: criterion.code,
+              level: indicator.level,
+              code: indicator.code,
+              content: indicator.content,
+            }))
+          : [{ criterion: criterion.code, level: '', code: '', content: '' } as Record<string, unknown>],
+      ),
+    );
+    return {
+      fileName: `chi-bao-${tree.code}.xlsx`,
+      contentType: CONTENT_TYPES.xlsx,
+      buffer: await buildTemplate('Chỉ báo', INDICATOR_COLUMNS, { rows }),
+    };
+  }
+
+  // Nhập chỉ báo: dòng lỗi thì không ghi dòng nào; chỉ báo cùng tiêu chí, mức, mã thì sửa nội dung, chưa có thì thêm
+  async importIndicators(currentUser: CurrentUser, frameworkId: string, body: Buffer, origin: ChangeOrigin) {
+    const context = await this.context(currentUser);
+    this.assertManager(context);
+    const framework = await this.frameworkRow(context.database, frameworkId);
+    const rows = (await readSheet(body, INDICATOR_COLUMNS)).filter((row) =>
+      Object.values(row.values).some((value) => value.trim() !== ''),
+    );
+    if (rows.length === 0) {
+      throw validationError([{ field: 'file', message: 'Tệp không có dòng chỉ báo nào' }]);
+    }
+    const criteria = new Map(
+      (
+        await context.database
+          .selectFrom('quality_criteria')
+          .select(['id', 'code'])
+          .where('framework_id', '=', frameworkId)
+          .execute()
+      ).map((row) => [row.code, row.id]),
+    );
+    const errors: RowError[] = [];
+    const parsed: Array<{ criterion_id: string; level: number; code: string; content: string }> = [];
+    const seen = new Set<string>();
+    for (const row of rows) {
+      const criterionCode = row.values.criterion?.trim() ?? '';
+      const level = Number(row.values.level?.trim());
+      const code = row.values.code?.trim() ?? '';
+      const content = row.values.content?.trim() ?? '';
+      const criterionId = criteria.get(criterionCode);
+      if (!criterionId) {
+        errors.push({ row: row.row, column: 'Mã tiêu chí', message: `Bộ không có tiêu chí "${criterionCode}"` });
+        continue;
+      }
+      if (!Number.isInteger(level) || level < 1 || level > framework.max_level) {
+        errors.push({ row: row.row, column: 'Mức', message: `Mức từ 1 đến ${framework.max_level}` });
+        continue;
+      }
+      if (code.length < 1 || code.length > 10) {
+        errors.push({ row: row.row, column: 'Mã chỉ báo', message: 'Mã chỉ báo từ 1 đến 10 ký tự' });
+        continue;
+      }
+      if (content.length < 1 || content.length > 2000) {
+        errors.push({ row: row.row, column: 'Nội dung', message: 'Nội dung từ 1 đến 2.000 ký tự' });
+        continue;
+      }
+      const key = `${criterionId}|${level}|${code}`;
+      if (seen.has(key)) {
+        errors.push({ row: row.row, column: 'Mã chỉ báo', message: 'Chỉ báo trùng trong tệp' });
+        continue;
+      }
+      seen.add(key);
+      parsed.push({ criterion_id: criterionId, level, code, content });
+    }
+    if (errors.length > 0) {
+      return { created: 0, updated: 0, errors };
+    }
+    let created = 0;
+    let updated = 0;
+    await context.database.transaction().execute(async (transaction) => {
+      for (const item of parsed) {
+        const existing = await transaction
+          .selectFrom('quality_indicators')
+          .select(['id', 'content'])
+          .where('criterion_id', '=', item.criterion_id)
+          .where('level', '=', item.level)
+          .where('code', '=', item.code)
+          .executeTakeFirst();
+        if (existing) {
+          if (existing.content !== item.content) {
+            await transaction
+              .updateTable('quality_indicators')
+              .set({ content: item.content })
+              .where('id', '=', existing.id)
+              .execute();
+            updated += 1;
+          }
+          continue;
+        }
+        await transaction
+          .insertInto('quality_indicators')
+          .values({ ...item, sort_order: item.level * 100 + created })
+          .execute();
+        created += 1;
+      }
+      await this.audit(transaction, origin, 'quality_frameworks', frameworkId, 'update', null, {
+        indicators_imported: { created, updated },
+      });
+    });
+    return { created, updated, errors: [] as RowError[] };
+  }
+
   private async checkIndicator(
     transaction: Transaction<SchoolYearDatabase>,
     criterionId: string,
