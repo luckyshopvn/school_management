@@ -23,6 +23,7 @@ import {
 import { fieldErrorsOf, formatDate, messageOf, selectClass } from '../archives/archive-ui.js';
 import { formatDateTime, Page, useToast } from '../directives/directive-ui.js';
 import { useGridSettings } from '../pages/grid-settings.js';
+import { useSubjectChoice } from './EvidenceCoveragePages.js';
 import {
   addRecordVersion,
   addUploadVersion,
@@ -299,11 +300,13 @@ function SharedCriteria({
 function CreateForm({
   framework,
   schoolYear,
+  subjectUserId,
   onSaved,
   onCancel,
 }: {
   framework: EvidenceFramework;
   schoolYear: string;
+  subjectUserId: string | null;
   onSaved(result: { id: string; display_code: string }): void;
   onCancel(): void;
 }) {
@@ -323,6 +326,7 @@ function CreateForm({
         box: box ? Number(box) : null,
         record_type: kind === 'record' ? recordType : null,
         record_id: kind === 'record' && recordId ? recordId : null,
+        subject_user_id: subjectUserId,
       });
       if (kind === 'upload' && file) {
         await addUploadVersion(created.id, file);
@@ -771,9 +775,18 @@ export function QualityEvidencesPage() {
     }
   }, [frameworkId, first]);
   const framework = frameworks.data?.frameworks.find((row) => row.id === frameworkId);
+  const person = useSubjectChoice(framework, frameworks.data?.can_manage ?? false);
   const evidences = useQuery({
-    queryKey: ['evidence', 'list', frameworkId, nodeId, status, validity, search],
-    queryFn: () => listStoreEvidences({ framework_id: frameworkId, node_id: nodeId, status, validity, q: search }),
+    queryKey: ['evidence', 'list', frameworkId, nodeId, status, validity, search, person.subjectUserId],
+    queryFn: () =>
+      listStoreEvidences({
+        framework_id: frameworkId,
+        node_id: nodeId,
+        status,
+        validity,
+        q: search,
+        subject_user_id: person.subjectUserId ?? undefined,
+      }),
     enabled: frameworkId !== '',
   });
   const list = useMutation({ mutationFn: () => exportStoreEvidences(frameworkId) });
@@ -801,6 +814,7 @@ export function QualityEvidencesPage() {
             ))}
           </select>
         </label>
+        {person.select}
         <label className="text-label font-medium text-text">
           Tiêu chí
           <select className={selectClass} value={nodeId} onChange={(event) => setNodeId(event.target.value)}>
@@ -842,6 +856,7 @@ export function QualityEvidencesPage() {
             <CreateForm
               framework={framework}
               schoolYear={frameworks.data?.school_year_name ?? ''}
+              subjectUserId={person.subjectUserId}
               onCancel={() => setPanel(undefined)}
               onSaved={async (result) => {
                 setPanel(result.id);

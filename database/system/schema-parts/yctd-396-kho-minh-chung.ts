@@ -21,6 +21,9 @@ export interface EvidenceItemsTable {
   owner_user_id: string | null;
   owner_name: string | null;
   import_key: string | null;
+  // Chủ thể (lát L6, migration 0146_add_evidence_subject): trống là nhà trường
+  subject_user_id: Generated<string | null>;
+  subject_name: Generated<string | null>;
   created_by: string | null;
   created_by_name: string | null;
   created_at: ColumnType<Date, Date | undefined, never>;
@@ -55,6 +58,7 @@ export interface EvidenceCodesTable {
   box: number;
   sequence: number;
   code: string;
+  subject_user_id: Generated<string | null>;
 }
 
 export interface EvidenceNodeLinksTable {

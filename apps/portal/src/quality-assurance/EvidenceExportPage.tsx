@@ -3,7 +3,7 @@ import { useMutation, useQuery } from '@tanstack/react-query';
 import { Alert, Button } from '@school-management/ui';
 import { messageOf, selectClass } from '../archives/archive-ui.js';
 import { Page, useToast } from '../directives/directive-ui.js';
-import { useFrameworkChoice } from './EvidenceCoveragePages.js';
+import { useFrameworkChoice, useSubjectChoice } from './EvidenceCoveragePages.js';
 import {
   checkReportCitations,
   exportStoreEvidences,
@@ -19,13 +19,15 @@ type ReportFormat = 'docx' | 'pdf';
 export function EvidenceExportPage() {
   const { toast, setToast, close } = useToast();
   const choice = useFrameworkChoice();
+  const person = useSubjectChoice(choice.framework, choice.canManage);
   const store = useQuery({ queryKey: ['evidence', 'frameworks'], queryFn: readEvidenceFrameworks });
   // Người không có quyền tự đánh giá không xem được đợt: ẩn phần báo cáo
   const assessments = useQuery({ queryKey: ['quality', 'assessments'], queryFn: listAssessments, retry: false });
   const [assessmentId, setAssessmentId] = useState('');
   const [pending, setPending] = useState<ReportFormat | null>(null);
   const catalog = useMutation({
-    mutationFn: (format: 'xlsx' | 'docx' | 'pdf') => exportStoreEvidences(choice.frameworkId, format),
+    mutationFn: (format: 'xlsx' | 'docx' | 'pdf') =>
+      exportStoreEvidences(choice.frameworkId, format, person.subjectUserId),
   });
   const pack = useMutation({
     mutationFn: () => requestEvidencePackage(choice.frameworkId),
@@ -49,7 +51,10 @@ export function EvidenceExportPage() {
   const error = choice.error ?? catalog.error ?? pack.error ?? citations.error ?? report.error;
   return (
     <Page path="/quality/evidence-exports" toast={toast} onToastClose={close}>
-      <div className="flex flex-wrap items-end gap-3">{choice.select}</div>
+      <div className="flex flex-wrap items-end gap-3">
+        {choice.select}
+        {person.select}
+      </div>
       {error ? <Alert tone="danger">{messageOf(error)}</Alert> : null}
       <section
         aria-label="Danh mục minh chứng"
@@ -75,7 +80,7 @@ export function EvidenceExportPage() {
           ))}
         </span>
       </section>
-      {store.data?.can_manage ? (
+      {store.data?.can_manage && !person.personal ? (
         <section
           aria-label="Gói hồ sơ minh chứng"
           className="flex flex-col gap-2 rounded-xl border border-border bg-card p-4"

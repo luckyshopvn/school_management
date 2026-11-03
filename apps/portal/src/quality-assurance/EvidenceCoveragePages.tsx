@@ -32,6 +32,36 @@ function coverageText(covered: number, total: number, percent: number) {
 }
 
 // Ô chọn bộ tiêu chí dùng chung cho Độ phủ và Phân công; mở sẵn bộ ở đường dẫn (?framework_id=) hoặc bộ đang dùng đầu tiên
+// Bộ của cá nhân: người quản lý kho chọn người được đánh giá, trống là chính mình (lát L6); người khác chỉ xem của mình
+export function useSubjectChoice(framework: { subject: string } | undefined, canManage: boolean) {
+  const [subjectUserId, setSubjectUserId] = useState('');
+  const personal = framework?.subject === 'person';
+  const people = useQuery({
+    queryKey: ['evidence', 'assignees'],
+    queryFn: listEvidenceAssignees,
+    enabled: personal && canManage,
+  });
+  const select =
+    personal && canManage ? (
+      <label className="text-label font-medium text-text">
+        Người được đánh giá
+        <select
+          className={selectClass}
+          value={subjectUserId}
+          onChange={(event) => setSubjectUserId(event.target.value)}
+        >
+          <option value="">Của tôi</option>
+          {(people.data ?? []).map((row) => (
+            <option key={row.user_id} value={row.user_id}>
+              {row.full_name} ({row.code})
+            </option>
+          ))}
+        </select>
+      </label>
+    ) : null;
+  return { personal, subjectUserId: personal && subjectUserId ? subjectUserId : null, select };
+}
+
 export function useFrameworkChoice() {
   const frameworks = useQuery({ queryKey: ['evidence', 'frameworks'], queryFn: readEvidenceFrameworks });
   const [frameworkId, setFrameworkId] = useState(
@@ -58,7 +88,8 @@ export function useFrameworkChoice() {
       </select>
     </label>
   );
-  return { frameworkId, select, error: frameworks.error };
+  const framework = frameworks.data?.frameworks.find((row) => row.id === frameworkId);
+  return { frameworkId, framework, canManage: frameworks.data?.can_manage ?? false, select, error: frameworks.error };
 }
 
 const COVERAGE_COLUMNS: Array<DataGridColumn<EvidenceCoverageRow>> = [
@@ -130,6 +161,21 @@ export function EvidenceOverviewPage() {
           </ul>
         </section>
       ) : null}
+      {data && data.personal.length > 0 ? (
+        <section aria-label="Hồ sơ minh chứng của tôi" className="rounded-xl border border-border bg-card p-4">
+          <h2 className="text-title font-semibold">Hồ sơ minh chứng của tôi</h2>
+          <ul className="mt-2 flex flex-col gap-1">
+            {data.personal.map((row) => (
+              <li key={row.id} className="text-content">
+                <a className="text-primary underline" href={`/quality/evidence-coverage?framework_id=${row.id}`}>
+                  {row.name}
+                </a>
+                : {coverageText(row.covered_count, row.criterion_count, row.covered_percent)}
+              </li>
+            ))}
+          </ul>
+        </section>
+      ) : null}
       {data && data.frameworks.length === 0 ? <Alert tone="info">Năm học này chưa có bộ tiêu chí.</Alert> : null}
       {(data?.frameworks ?? []).map((framework) => (
         <section
@@ -191,11 +237,12 @@ export function EvidenceOverviewPage() {
 export function EvidenceCoveragePage() {
   const grid = useGridSettings('quality-evidence-coverage');
   const choice = useFrameworkChoice();
+  const person = useSubjectChoice(choice.framework, choice.canManage);
   const [onlyMissing, setOnlyMissing] = useState(false);
   const [search, setSearch] = useState('');
   const coverage = useQuery({
-    queryKey: ['evidence', 'coverage', choice.frameworkId],
-    queryFn: () => readEvidenceCoverage(choice.frameworkId),
+    queryKey: ['evidence', 'coverage', choice.frameworkId, person.subjectUserId],
+    queryFn: () => readEvidenceCoverage(choice.frameworkId, person.subjectUserId),
     enabled: choice.frameworkId !== '',
   });
   const data = coverage.data;
@@ -208,6 +255,7 @@ export function EvidenceCoveragePage() {
     <Page path="/quality/evidence-coverage">
       <div className="flex flex-wrap items-end gap-3">
         {choice.select}
+        {person.select}
         <label className="flex min-h-11 items-center gap-2 text-content">
           <input type="checkbox" checked={onlyMissing} onChange={(event) => setOnlyMissing(event.target.checked)} />
           Chỉ tiêu chí còn thiếu
