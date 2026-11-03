@@ -78,13 +78,17 @@ test('CT-22f-9: nạp bộ tiêu chuẩn; lập đợt, hội đồng, nhóm cô
   await head.getByLabel('Cấp học').selectOption('MN');
   await head.getByRole('button', { name: 'Nạp bộ tiêu chuẩn mẫu' }).click();
   await expect(head.getByText(/Đã nạp \d+ bộ tiêu chuẩn/)).toBeVisible();
-  await expect(head.getByRole('cell', { name: 'Kiểm định chất lượng giáo dục trường mầm non' })).toBeVisible();
+  await expect(
+    head.getByRole('cell', { name: 'Kiểm định chất lượng giáo dục trường mầm non (Thông tư 19/2018, sửa đổi 2024)' }),
+  ).toBeVisible();
 
   // 2.1 lập đợt, hội đồng, nhóm công tác phụ trách mọi tiêu chí, bắt đầu
   await openMenu(head, '/quality/assessments');
   await head.getByRole('button', { name: 'Lập đợt tự đánh giá' }).click();
   const form = head.getByRole('form', { name: 'Lập đợt tự đánh giá' });
-  await form.getByLabel('Bộ tiêu chuẩn').selectOption({ label: 'Kiểm định chất lượng giáo dục trường mầm non' });
+  await form
+    .getByLabel('Bộ tiêu chuẩn')
+    .selectOption({ label: 'Kiểm định chất lượng giáo dục trường mầm non (Thông tư 19/2018, sửa đổi 2024)' });
   await form.getByLabel('Tên đợt').fill(title);
   await form.getByRole('button', { name: 'Ghi' }).click();
   await expect(head.getByText('Đã lập đợt tự đánh giá; lập hội đồng, nhóm công tác rồi bắt đầu')).toBeVisible();
@@ -101,7 +105,7 @@ test('CT-22f-9: nạp bộ tiêu chuẩn; lập đợt, hội đồng, nhóm cô
     .selectFrom('quality_criteria')
     .innerJoin('quality_frameworks', 'quality_frameworks.id', 'quality_criteria.framework_id')
     .select('quality_criteria.code')
-    .where('quality_frameworks.code', '=', 'MN-KDCL')
+    .where('quality_frameworks.code', '=', 'MN-KDCL-2024')
     .execute();
   for (const criterion of criteria) {
     await panel.getByLabel(`Tiêu chí ${criterion.code} cho Nhóm 1`, { exact: true }).check();
@@ -127,6 +131,10 @@ test('CT-22f-9: nạp bộ tiêu chuẩn; lập đợt, hội đồng, nhóm cô
   await sheet.getByRole('button', { name: 'Nộp phiếu' }).click();
   await expect(staff.getByText('Đã nộp phiếu')).toBeVisible();
   await openMenu(staff, '/quality/evidences');
+  // Chọn đúng bộ Mầm non: spec 246 chạy trước có thêm bộ thi đua chưa có tiêu chí
+  await staff.getByRole('combobox', { name: 'Bộ tiêu chí' }).selectOption({
+    label: 'MN-KDCL-2024 · Kiểm định chất lượng giáo dục trường mầm non (Thông tư 19/2018, sửa đổi 2024)',
+  });
   await staff.getByRole('button', { name: 'Thêm minh chứng' }).click();
   const evidence = staff.getByRole('form', { name: 'Thêm minh chứng' });
   await evidence.getByLabel('Tiêu chí', { exact: true }).selectOption({ index: 1 });

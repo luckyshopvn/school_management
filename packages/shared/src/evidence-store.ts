@@ -75,3 +75,53 @@ export const EVIDENCE_EVENT_LABELS: Record<EvidenceEventActionCode, string> = {
 
 // Mã hiển thị trong ngoặc vuông như ở báo cáo tự đánh giá
 export const bracketEvidenceCode = (code: string): string => `[${code}]`;
+
+// Loại bộ tiêu chí và đối tượng được đánh giá (YCTD-396 lát L3, Q-396-15)
+export type QualityFrameworkKindCode =
+  | 'accreditation'
+  | 'teacher_standard'
+  | 'principal_standard'
+  | 'emulation'
+  | 'safe_school'
+  | 'school_year_plan'
+  | 'other';
+
+export const QUALITY_FRAMEWORK_KIND_LABELS: Record<QualityFrameworkKindCode, string> = {
+  accreditation: 'Kiểm định chất lượng, chuẩn quốc gia',
+  teacher_standard: 'Chuẩn nghề nghiệp giáo viên',
+  principal_standard: 'Chuẩn hiệu trưởng',
+  emulation: 'Thi đua, khen thưởng',
+  safe_school: 'Trường học an toàn',
+  school_year_plan: 'Kế hoạch năm học, kiểm tra nội bộ',
+  other: 'Khác',
+};
+
+export type QualityFrameworkSubjectCode = 'school' | 'person';
+
+export const QUALITY_FRAMEWORK_SUBJECT_LABELS: Record<QualityFrameworkSubjectCode, string> = {
+  school: 'Nhà trường',
+  person: 'Cá nhân',
+};
+
+export const DEFAULT_EVIDENCE_CODE_PATTERN = 'H{hop}-{tieu_chi}-{stt}';
+
+// Mã minh chứng theo mẫu của bộ: {hop} số hộp, {tieu_chuan} mã tiêu chuẩn, {tieu_chi} mã tiêu chí, {stt} số thứ tự hai chữ số
+export function formatEvidenceCodePattern(
+  pattern: string,
+  parts: { box: number; standardCode: string; criterionCode: string; sequence: number },
+): string {
+  return pattern
+    .replaceAll('{hop}', String(parts.box))
+    .replaceAll('{tieu_chuan}', parts.standardCode)
+    .replaceAll('{tieu_chi}', parts.criterionCode)
+    .replaceAll('{stt}', String(parts.sequence).padStart(2, '0'));
+}
+
+// Mẫu mã hợp lệ: 5 đến 40 ký tự, có {stt}, chỉ dùng các ô đã biết
+export function isEvidenceCodePattern(pattern: string): boolean {
+  if (pattern.length < 5 || pattern.length > 40 || !pattern.includes('{stt}')) {
+    return false;
+  }
+  const rest = pattern.replace(/\{(hop|tieu_chuan|tieu_chi|stt)\}/g, '');
+  return !/[{}]/.test(rest);
+}

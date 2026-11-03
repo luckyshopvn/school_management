@@ -449,7 +449,7 @@ Bảo đảm chất lượng, tự đánh giá (DT-18 phần 22f, YCTD-149). Cơ
 
 | Bảng | Mục đích | Trường chính |
 |---|---|---|
-| quality_frameworks | Bộ tiêu chuẩn (P09-40, BR-151) | id, code (duy nhất), name, school_level (`MN`, `TH`, `THCS`, `THPT`), legal_basis, max_level (1 đến 4), sort_order, status (`active`, `inactive`), created_by |
+| quality_frameworks | Bộ tiêu chuẩn (P09-40, BR-151) | id, code (duy nhất), name, school_level (`MN`, `TH`, `THCS`, `THPT`), legal_basis, max_level (1 đến 4), sort_order, status (`active`, `inactive`), created_by; từ YCTD-396 lát L3 (tệp năm học `0247_add_quality_framework_kind`): kind (`accreditation`, `teacher_standard`, `principal_standard`, `emulation`, `safe_school`, `school_year_plan`, `other`, mặc định `accreditation`), subject (`school`, `person`), code_pattern (mặc định `H{hop}-{tieu_chi}-{stt}`, BR-545), cycle_years (1 đến 10, mặc định 5), template_version |
 | quality_standards | Tiêu chuẩn (P09-40) | id, framework_id (xóa theo), code (duy nhất trong bộ), title, sort_order |
 | quality_criteria | Tiêu chí (P09-40) | id, framework_id, standard_id (xóa theo), code (duy nhất trong bộ), title, evidence_hint, sort_order |
 | quality_indicators | Chỉ báo theo mức (P09-40) | id, criterion_id (xóa theo), level (1 đến 4), code (duy nhất theo tiêu chí, mức), content, sort_order |

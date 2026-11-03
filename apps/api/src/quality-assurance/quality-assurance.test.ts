@@ -33,6 +33,10 @@ const addDays = (date: string, days: number) =>
 const errorOf = (body: Record<string, unknown>) =>
   (body.error ?? {}) as { code?: string; rule_code?: string; details?: Array<{ field: string }> };
 const MN_CRITERIA = QUALITY_DEFAULT_FRAMEWORKS.MN[0]?.standards.flatMap((standard) => standard.criteria).length ?? 0;
+const MN_INDICATORS =
+  QUALITY_DEFAULT_FRAMEWORKS.MN[0]?.standards
+    .flatMap((standard) => standard.criteria)
+    .reduce((sum, item) => sum + (item.indicators?.length ?? 0), 0) ?? 0;
 // Tệp PDF tối giản để kiểm thử tải tệp minh chứng
 const PDF = Buffer.from('%PDF-1.4\n1 0 obj<<>>endobj\ntrailer<<>>\n%%EOF\n');
 
@@ -167,22 +171,21 @@ describe('Bảo đảm chất lượng', () => {
     assert.equal((await api('POST', '/quality/frameworks/defaults', 'teacher', { school_level: 'MN' })).status, 403);
     // Phó Hiệu trưởng chỉ được gán một điểm trường: không có phạm vi toàn trường
     assert.equal((await api('POST', '/quality/frameworks/defaults', 'vice', { school_level: 'MN' })).status, 403);
-    const empty = await api('POST', '/quality/frameworks/defaults', 'principal', { school_level: 'TH' });
-    assert.equal(errorOf(empty.body).rule_code, 'YCTD-149');
+    // Bộ mẫu theo văn bản sửa đổi 2024 có đủ chỉ báo (YCTD-396 lát L3); nạp lại không tạo trùng, không thêm chỉ báo
     const loaded = await api('POST', '/quality/frameworks/defaults', 'principal', { school_level: 'MN' });
-    assert.deepEqual(loaded.body, { created: 1, skipped: 0 });
+    assert.deepEqual(loaded.body, { created: 1, skipped: 0, indicators_added: MN_INDICATORS });
     const again = await api('POST', '/quality/frameworks/defaults', 'principal', { school_level: 'MN' });
-    assert.deepEqual(again.body, { created: 0, skipped: 1 });
+    assert.deepEqual(again.body, { created: 0, skipped: 1, indicators_added: 0 });
     const list = (await api('GET', '/quality/frameworks', 'teacher')).body as unknown as Array<{
       id: string;
       code: string;
       standard_count: number;
       criterion_count: number;
     }>;
-    const framework = list.find((item) => item.code === 'MN-KDCL');
+    const framework = list.find((item) => item.code === 'MN-KDCL-2024');
     assert.equal(framework?.standard_count, 5);
     assert.equal(framework?.criterion_count, MN_CRITERIA);
-    assert.equal(MN_CRITERIA, 25);
+    assert.equal(MN_CRITERIA, 22);
     frameworkId = framework?.id ?? '';
     const tree = (await api('GET', `/quality/frameworks/${frameworkId}`, 'principal')).body as unknown as {
       standards: Array<{ id: string; code: string; criteria: Array<{ id: string; code: string }> }>;
@@ -192,6 +195,11 @@ describe('Bảo đảm chất lượng', () => {
         criteria[item.code] = item.id;
       }
     }
+    // Tiêu chí 1.1 dùng chỉ báo thử để kiểm mức gợi ý: bỏ chỉ báo của bộ mẫu ở tiêu chí này
+    await schoolYear
+      .deleteFrom('quality_indicators')
+      .where('criterion_id', '=', criteria['1.1'] ?? '')
+      .execute();
     for (const [level, code, content] of [
       [1, 'a', 'Chỉ báo mức 1 thử a'],
       [1, 'b', 'Chỉ báo mức 1 thử b'],
@@ -522,7 +530,10 @@ describe('Bảo đảm chất lượng', () => {
       const carried = await previous.selectFrom('quality_criteria').select('id').execute();
       assert.equal(carried.length, MN_CRITERIA);
       assert.ok(carried.some((row) => row.id === criteria['1.1']));
-      assert.equal((await previous.selectFrom('quality_indicators').select('id').execute()).length, 3);
+      assert.equal(
+        (await previous.selectFrom('quality_indicators').select('id').execute()).length,
+        (await schoolYear.selectFrom('quality_indicators').select('id').execute()).length,
+      );
       // Cơ sở dữ liệu vừa tạo đóng vai năm học trước: một đợt cùng bộ với hai minh chứng
       const old = await previous
         .insertInto('quality_assessments')

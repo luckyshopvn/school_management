@@ -762,7 +762,9 @@ export function QualityEvidencesPage() {
   const [search, setSearch] = useState('');
   const [panel, setPanel] = useState<'create' | string>();
   const frameworks = useQuery({ queryKey: ['evidence', 'frameworks'], queryFn: readEvidenceFrameworks });
-  const first = frameworks.data?.frameworks.find((row) => row.status === 'active')?.id;
+  // Mặc định bộ đang dùng đầu tiên đã có tiêu chí: bộ mới lập chưa có tiêu chí thì không thêm được minh chứng
+  const active = (frameworks.data?.frameworks ?? []).filter((row) => row.status === 'active');
+  const first = (active.find((row) => criteriaOf(row).length > 0) ?? active[0])?.id;
   useEffect(() => {
     if (!frameworkId && first) {
       setFrameworkId(first);
