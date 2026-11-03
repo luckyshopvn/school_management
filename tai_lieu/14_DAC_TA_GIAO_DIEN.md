@@ -856,7 +856,7 @@ Từ YCTD-122: MH-95 có cột Đơn vị, nhãn "Sắp đến hạn" cạnh th�
 
 | Mã | Màn hình | Vai trò chính |
 |---|---|---|
-| MG-01 | Lớp của tôi hôm nay | VT-07 |
+| MG-01 | Lớp của tôi hôm nay. Từ YCTD-395 lát L2, khổ từ 1024 điểm ảnh: dải chào, ô lối tắt, thẻ lớp có lưới chức năng theo cấp và nhãn Chủ nhiệm; từ 1280 điểm ảnh thông báo, chấm công ở cột phải (bản mẫu `tai_lieu/ban_mau/yctd-395`) | VT-07 |
 | MG-02 | Bảng điểm danh của lớp. Từ YCTD-350 có ở mọi cấp: Mầm non là "Điểm danh cả ngày"; Tiểu học, THCS, THPT là "Điểm danh đầu ngày", làm mặc định cho điểm danh theo tiết ở sổ đầu bài | VT-07 |
 | MG-03 | Nhật ký của bé theo ngày: ghi ăn, ngủ, vệ sinh, tâm trạng, hoạt động cho từng trẻ, công bố cả lớp (YCTD-65) | VT-07 chủ nhiệm |
 | MG-04 | Đón trả trẻ: chọn người đón, ảnh bàn giao tùy chọn, trạng thái chờ phụ huynh xác nhận (YCTD-48) | VT-07 |
@@ -913,7 +913,7 @@ Gia sư AI, bổ sung của YCTD-383 lát L5 cho các màn hình MH-596 đến M
 | Mã | Quy tắc |
 |---|---|
 | BC-01 | Cổng quản trị dùng menu ngang nhiều cấp đánh số dưới thanh đầu trang, mỗi phân hệ (chọn ở ô Phân hệ) một thanh menu theo cây ở mục 1.1; có thanh chọn đơn vị ở đầu trang. Thay điều hướng dọc ở cạnh trái và lựa chọn giữ thanh bên ở YCTD-99 (YCTD-107) |
-| BC-02 | Ứng dụng giáo viên và phụ huynh dùng điều hướng dưới cùng, tối đa năm mục chính. Từ YCTD-384: giáo viên, phụ huynh, học sinh có thanh dưới 4 đến 5 mục dưới 1024 điểm ảnh, thanh bên từ 1024 (`15_HE_THONG_THIET_KE.md` TD-21, KC-09); mục "Tất cả" chứa mọi chức năng không có trên thanh |
+| BC-02 | Ứng dụng giáo viên và phụ huynh dùng điều hướng dưới cùng, tối đa năm mục chính. Từ YCTD-384: giáo viên, phụ huynh, học sinh có thanh dưới 4 đến 5 mục dưới 1024 điểm ảnh, thanh bên từ 1024 (`15_HE_THONG_THIET_KE.md` TD-21, KC-09); mục "Tất cả" chứa mọi chức năng không có trên thanh. Từ YCTD-395 (lát L1 đến L5): ứng dụng giáo viên từ 1024 điểm ảnh có thanh bên trắng 240 điểm ảnh (Trang chủ; các lớp và chức năng của lớp đang chọn theo cấp; Giảng dạy, Rèn luyện, Cá nhân, Cổng trường; Đăng xuất), mục theo cùng điều kiện quyền và cấp lớp với trang chủ; trang chủ có dải chào, ô lối tắt, thẻ lớp; Ca trực, Sổ điểm, Đánh giá có bố cục bảng; dưới 1024 điểm ảnh giữ như trước, chưa có thanh dưới (phần điện thoại làm ở YCTD-384 lát L7) |
 | BC-03 | Mọi màn hình danh sách đều có ô tìm kiếm, bộ lọc, sắp xếp và phân trang |
 | BC-04 | Mọi màn hình chi tiết đều có đường dẫn quay lại danh sách và tiêu đề cố định khi cuộn |
 | BC-05 | Mọi thao tác thay đổi dữ liệu đều phải có bước xác nhận khi không hoàn tác được |
