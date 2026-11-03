@@ -33,6 +33,7 @@ import {
   type InspectionSheet,
 } from './food-safety-api.js';
 import { MEAL_LABELS, MEAL_TYPES, messageOf, vietnamToday, type MealType } from './kitchen-api.js';
+import { UseAsEvidence } from '../quality-assurance/UseAsEvidence.js';
 
 // 3.1 Kiểm thực ba bước (DT-18 phần 22b, YCTD-146; BR-144) theo Quyết định 1246/QĐ-BYT: mỗi ngày mỗi bước một phiếu. Lập
 // phiếu thì máy chủ gợi ý sẵn dòng (bước 1 các lô chờ kiểm tra, bước 2, 3 các món của thực đơn đã công bố và số suất);
@@ -844,6 +845,13 @@ export function FoodInspectionsPage() {
             value={date}
             onChange={(event) => setDate(event.target.value)}
           />
+          {orgUnitId && day.data?.steps.some((step) => step !== null) ? (
+            <UseAsEvidence
+              recordType="food_inspection"
+              recordId={`${orgUnitId}:${date}`}
+              defaultTitle={`Kiểm thực ba bước ngày ${date.split('-').reverse().join('/')}`}
+            />
+          ) : null}
         </div>
         <TabBar<StepKey>
           label="Bước kiểm thực"

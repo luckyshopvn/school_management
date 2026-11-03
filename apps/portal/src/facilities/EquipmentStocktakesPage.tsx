@@ -33,6 +33,7 @@ import {
 import { fieldErrorsOf, formatNumber, messageOf } from './facilities-api.js';
 import { SelectBox } from './facilities-ui.js';
 import { RecordForm, StocktakeScanPanel } from './StocktakeScanPanel.js';
+import { UseAsEvidence } from '../quality-assurance/UseAsEvidence.js';
 
 // 2.5 Kiểm kê thiết bị (DT-18 phần 18g, YCTD-143): lập đợt kiểm kê của đơn vị (cả đơn vị hoặc một nơi để), quét mã tem
 // trên điện thoại (ứng dụng giáo viên hoặc trang này trên web di động), đối chiếu với sổ, nộp, duyệt hoặc trả lại, chốt chênh
@@ -288,6 +289,13 @@ function StocktakeDetailView({
         <Button variant="secondary" disabled={minutes.isPending} onClick={() => minutes.mutate('xlsx')}>
           Biên bản Excel
         </Button>
+        {['submitted', 'approved', 'closed'].includes(data.status) ? (
+          <UseAsEvidence
+            recordType="equipment_stocktake"
+            recordId={data.id}
+            defaultTitle={`Biên bản kiểm kê thiết bị ${data.code} ${data.name}`}
+          />
+        ) : null}
       </div>
       {canManage && (data.status === 'submitted' || data.status === 'approved') ? (
         <div className="flex flex-wrap items-end gap-2">

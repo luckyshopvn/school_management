@@ -15,7 +15,7 @@ import {
   type LoggedInUser,
 } from '../test-support.js';
 
-// Kho minh chứng dùng chung (YCTD-396 lát L1); kịch bản CT-2130 đến CT-2135 (trong mã kiểm thử là CT-396-1 đến CT-396-6), lát L2 thêm CT-396-8, CT-396-9, lát L2b thêm CT-396-11, CT-396-12, lát L3 thêm CT-396-14, CT-396-15, lát L4 thêm CT-396-17, lát L5 thêm CT-396-19, lát L6 thêm CT-396-21.
+// Kho minh chứng dùng chung (YCTD-396 lát L1); kịch bản CT-2130 đến CT-2135 (trong mã kiểm thử là CT-396-1 đến CT-396-6), lát L2 thêm CT-396-8, CT-396-9, lát L2b thêm CT-396-11, CT-396-12, lát L3 thêm CT-396-14, CT-396-15, lát L4 thêm CT-396-17, lát L5 thêm CT-396-19, lát L6 thêm CT-396-21, lát L7 thêm CT-396-23.
 // Dữ liệu mẫu là dữ liệu giả
 const vietnamToday = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Ho_Chi_Minh' }).format(new Date());
 const addDays = (date: string, days: number) =>
@@ -824,5 +824,75 @@ describe('Kho minh chứng', () => {
       node_id: award?.id,
     });
     assert.equal(school.status, 422, JSON.stringify(school.body));
+  });
+
+  it('CT-396-23: nguồn kiểm thực ba bước và biên bản kiểm kê thiết bị (lát L7): tìm, gắn làm minh chứng có bản chụp PDF; người không có quyền phân hệ nguồn bị từ chối', async () => {
+    await schoolYear
+      .insertInto('food_inspections')
+      .values({
+        org_unit_id: unit,
+        inspection_date: vietnamToday,
+        step: 1,
+        inspector_name: 'Người kiểm thực thử',
+        status: 'confirmed',
+        created_by: principal.userId,
+      })
+      .execute();
+    const inspections = await api('GET', '/quality/evidences/sources?record_type=food_inspection', 'principal');
+    assert.equal(inspections.status, 200, JSON.stringify(inspections.body));
+    const day = (inspections.body as unknown as Array<{ id: string; label: string }>).find(
+      (row) => row.id === `${unit}:${vietnamToday}`,
+    );
+    assert.ok(day, JSON.stringify(inspections.body));
+    assert.match(day.label, /^Kiểm thực ba bước /);
+    assert.equal((await api('GET', '/quality/evidences/sources?record_type=food_inspection', 'teacher')).status, 403);
+    const fromKitchen = await api('POST', '/quality/evidences', 'principal', {
+      framework_id: frameworkId,
+      node_id: criteria['1.1'],
+      title: 'Sổ kiểm thực ba bước thử',
+      record_type: 'food_inspection',
+      record_id: day.id,
+    });
+    assert.equal(fromKitchen.status, 201, JSON.stringify(fromKitchen.body));
+    const kitchenFile = await download(`/quality/evidences/${fromKitchen.body.id as string}/file`, 'principal');
+    assert.equal(kitchenFile.body.subarray(0, 4).toString(), '%PDF');
+
+    const stocktake = await schoolYear
+      .insertInto('equipment_stocktakes')
+      .values({
+        code: 'KK-THU',
+        name: 'Kiểm kê cuối năm thử',
+        org_unit_id: unit,
+        started_on: vietnamToday,
+        status: 'closed',
+        created_by: principal.userId,
+      })
+      .returning('id')
+      .executeTakeFirstOrThrow();
+    const stocktakes = await api(
+      'GET',
+      '/quality/evidences/sources?record_type=equipment_stocktake&q=KK-THU',
+      'principal',
+    );
+    assert.deepEqual(stocktakes.body, [
+      { id: stocktake.id, label: 'Biên bản kiểm kê thiết bị KK-THU Kiểm kê cuối năm thử' },
+    ]);
+    const fromStocktake = await api('POST', '/quality/evidences', 'principal', {
+      framework_id: frameworkId,
+      node_id: criteria['1.1'],
+      title: 'Biên bản kiểm kê thử',
+      record_type: 'equipment_stocktake',
+      record_id: stocktake.id,
+    });
+    assert.equal(fromStocktake.status, 201, JSON.stringify(fromStocktake.body));
+    // Mã bản ghi sai
+    const wrong = await api('POST', '/quality/evidences', 'principal', {
+      framework_id: frameworkId,
+      node_id: criteria['1.1'],
+      title: 'Sai',
+      record_type: 'food_inspection',
+      record_id: 'khong-phai-ma',
+    });
+    assert.equal(wrong.status, 400, JSON.stringify(wrong.body));
   });
 });
