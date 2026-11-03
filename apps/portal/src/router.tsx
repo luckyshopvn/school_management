@@ -253,6 +253,7 @@ import {
   EvidenceCoveragePage,
   EvidenceOverviewPage,
 } from './quality-assurance/EvidenceCoveragePages.js';
+import { EvidenceExportPage } from './quality-assurance/EvidenceExportPage.js';
 import { LibraryCirculationPage } from './library/LibraryCirculationPage.js';
 import { LibraryReadersPage } from './library/LibraryReadersPage.js';
 import { LibraryReportsPage } from './library/LibraryReportsPage.js';
@@ -826,6 +827,7 @@ const routeTree = rootRoute.addChildren([
     path: '/quality/evidence-assignments',
     component: EvidenceAssignmentsPage,
   }),
+  createRoute({ getParentRoute: () => rootRoute, path: '/quality/evidence-exports', component: EvidenceExportPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/quality/recognition', component: QualityRecognitionPage }),
   createRoute({ getParentRoute: () => rootRoute, path: '/quality/frameworks', component: QualityFrameworksPage }),
   // Thư viện trường học (DT-22 phần 22a)

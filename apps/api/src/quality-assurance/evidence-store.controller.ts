@@ -8,6 +8,7 @@ import {
   Post,
   Put,
   Query,
+  Req,
   Res,
   UploadedFile,
   UseInterceptors,
@@ -23,7 +24,7 @@ import {
   type EvidenceValidityCode,
   type QualityEvidenceStatusCode,
 } from '@school-management/shared';
-import type { Response } from 'express';
+import type { Request, Response } from 'express';
 import { AuthenticatedUser, RequirePermission } from '../authentication/authentication.guard.js';
 import type { CurrentUser } from '../authentication/current-user.js';
 import { isUuid, type RequestBody } from '../common/request-fields.js';
@@ -143,7 +144,7 @@ export class EvidenceStoreController {
     const file = await this.store.listFile(
       user,
       requiredUuid(frameworkId, 'framework_id'),
-      readTableFileFormat(format) ?? 'xlsx',
+      format === 'docx' ? 'docx' : (readTableFileFormat(format) ?? 'xlsx'),
     );
     response.setHeader('content-type', file.contentType);
     response.setHeader('content-disposition', `attachment; filename*=UTF-8''${encodeURIComponent(file.fileName)}`);
@@ -198,6 +199,16 @@ export class EvidenceStoreController {
       throw validationError([{ field: 'record_id', message: 'Bắt buộc có loại và mã dữ liệu nguồn' }]);
     }
     return this.store.byRecord(user, type, id);
+  }
+
+  // Gói hồ sơ minh chứng theo hộp, tạo ở tác vụ nền (lát L5); trả 202 kèm tác vụ
+  @Post('package')
+  @HttpCode(202)
+  async requestPackage(@Body() body: RequestBody, @AuthenticatedUser() user: CurrentUser, @Req() request: Request) {
+    const errors: FieldError[] = [];
+    const frameworkId = readUuid(body, 'framework_id', errors, true) ?? '';
+    throwIfAny(errors);
+    return { job: await this.store.requestPackage(user, frameworkId, request.ip ?? null) };
   }
 
   // ---- Tổng quan, độ phủ, phân công (lát L4) ----

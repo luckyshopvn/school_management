@@ -172,3 +172,22 @@ export function evidenceCoverage(
 // Tỉ lệ phần trăm làm tròn, không chia cho 0
 export const coveragePercent = (covered: number, total: number): number =>
   total === 0 ? 0 : Math.round((covered * 100) / total);
+
+// Mã minh chứng trích dẫn trong văn bản báo cáo (YCTD-396 lát L5, BR-550): mọi chuỗi trong ngoặc vuông không có khoảng trắng,
+// 1 đến 50 ký tự, ví dụ [H1-1.1-01]; trả mã không kèm ngoặc, giữ thứ tự xuất hiện, bỏ trùng
+export function citedEvidenceCodes(text: string | null | undefined): string[] {
+  const codes: string[] = [];
+  for (const match of (text ?? '').matchAll(/\[([^[\]\s]{1,50})\]/g)) {
+    const code = match[1] as string;
+    if (!codes.includes(code)) {
+      codes.push(code);
+    }
+  }
+  return codes;
+}
+
+// Tên tệp trong gói hồ sơ minh chứng: mã minh chứng, bỏ ký tự không dùng được trong tên tệp, giữ phần mở rộng của tệp gốc
+export function evidencePackageFileName(code: string, originalName: string | null): string {
+  const extension = /\.([A-Za-z0-9]{1,8})$/.exec(originalName ?? '')?.[1]?.toLowerCase() ?? 'pdf';
+  return `${code.replace(/[\/:*?"<>|]/g, '_')}.${extension}`;
+}

@@ -674,6 +674,7 @@ export const PORTAL_QUICK_LINK_PATHS = [
   '/quality/evidence-overview',
   '/quality/evidence-coverage',
   '/quality/evidence-assignments',
+  '/quality/evidence-exports',
   '/quality/recognition',
   '/quality/frameworks',
   '/library/titles',

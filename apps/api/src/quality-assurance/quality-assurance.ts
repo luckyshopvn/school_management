@@ -17,6 +17,7 @@ import {
   type KpiSchoolLevelCode,
   type QualityEvidenceStatusCode,
   type QualityImprovementAction,
+  citedEvidenceCodes,
 } from '@school-management/shared';
 import { sql, type Kysely, type Selectable, type Transaction } from 'kysely';
 import { VIETNAM_DATE } from '../attendance/school-calendar.js';
@@ -31,7 +32,7 @@ import { FileStorage } from '../files/file-storage.js';
 import { buildDocumentPdf, buildDocx, DOCX_TYPE, PDF_TYPE, type DocumentBlock } from '../kpi/kpi-documents.js';
 import { OrganizationScopes } from '../organization/organization-scopes.js';
 import { PlansService, type PlanItemInput } from '../work/plans.js';
-import { EvidenceStoreService } from './evidence-store.js';
+import { catalogTableBlocks, EvidenceStoreService } from './evidence-store.js';
 import type {
   AssessmentInput,
   CouncilMemberInput,
@@ -2001,6 +2002,43 @@ export class QualityAssuranceService {
 
   // ---- Báo cáo tự đánh giá ----
 
+  // Kiểm mã minh chứng trích dẫn trong báo cáo tự đánh giá trước khi xuất (YCTD-396 lát L5, BR-550): mọi mã trong ngoặc vuông ở
+  // phần đặt vấn đề, kết luận chung và mô tả hiện trạng, điểm mạnh, điểm yếu của các phiếu; mã không có trong danh mục của bộ
+  // thì trả về kèm chỗ trích dẫn
+  async reportCitations(currentUser: CurrentUser, id: string) {
+    const context = await this.context(currentUser);
+    const { assessment } = await this.visibleAssessment(context, id);
+    const reports = await context.database
+      .selectFrom('quality_criterion_reports as reports')
+      .innerJoin('quality_criteria as criteria', 'criteria.id', 'reports.criterion_id')
+      .select(['criteria.code', 'reports.current_state', 'reports.strengths', 'reports.weaknesses'])
+      .where('reports.assessment_id', '=', id)
+      .orderBy('criteria.sort_order')
+      .orderBy('criteria.code')
+      .execute();
+    const known = new Set((await this.evidenceStore.byNodes(assessment.framework_id, null)).map((row) => row.code));
+    const places = [
+      { location: 'Đặt vấn đề', text: assessment.introduction },
+      ...reports.flatMap((report) => [
+        { location: `Tiêu chí ${report.code}, mô tả hiện trạng`, text: report.current_state },
+        { location: `Tiêu chí ${report.code}, điểm mạnh`, text: report.strengths },
+        { location: `Tiêu chí ${report.code}, điểm yếu`, text: report.weaknesses },
+      ]),
+      { location: 'Kết luận chung', text: assessment.conclusion },
+    ];
+    const cited = new Set<string>();
+    const unknown: Array<{ code: string; location: string }> = [];
+    for (const place of places) {
+      for (const code of citedEvidenceCodes(place.text)) {
+        cited.add(code);
+        if (!known.has(code)) {
+          unknown.push({ code, location: place.location });
+        }
+      }
+    }
+    return { cited_count: cited.size, unknown };
+  }
+
   async exportReport(currentUser: CurrentUser, id: string, format: 'pdf' | 'docx') {
     const context = await this.context(currentUser);
     const { assessment } = await this.visibleAssessment(context, id);
@@ -2123,6 +2161,7 @@ export class QualityAssuranceService {
     blocks.push({ kind: 'heading', text: 'Phần II. TỰ ĐÁNH GIÁ' });
     blocks.push({ kind: 'heading', text: 'A. ĐẶT VẤN ĐỀ' }, ...paragraphs(assessment.introduction));
     blocks.push({ kind: 'heading', text: 'B. TỰ ĐÁNH GIÁ' });
+    blocks.push({ kind: 'heading', text: 'I. TỰ ĐÁNH GIÁ TIÊU CHÍ MỨC 1, 2 VÀ 3' });
     const summaryRows: string[][] = [];
     for (const standard of tree.standards) {
       blocks.push({ kind: 'heading', text: `Tiêu chuẩn ${standard.code}: ${standard.title}` });
@@ -2182,6 +2221,13 @@ export class QualityAssuranceService {
         ]);
       }
     }
+    if (tree.kind === 'accreditation') {
+      // Mức 4 là danh sách yêu cầu riêng của trường, chưa có trong phần mềm (YCTD-396 lát L3): để mục trống cho trường ghi
+      blocks.push(
+        { kind: 'heading', text: 'II. TỰ ĐÁNH GIÁ TIÊU CHÍ MỨC 4' },
+        { kind: 'paragraph', text: 'Nhà trường ghi kết quả tự đánh giá các yêu cầu Mức 4 (nếu có).', italic: true },
+      );
+    }
     const summary = summarizeQualityLevels(reports.map((report) => report.self_level));
     blocks.push({ kind: 'heading', text: 'C. KẾT LUẬN CHUNG' }, ...paragraphs(assessment.conclusion));
     blocks.push({
@@ -2206,19 +2252,7 @@ export class QualityAssuranceService {
       widths: [2, 8, ...Array.from({ length: tree.max_level }, () => 2)],
     });
     blocks.push({ kind: 'paragraph', text: 'Danh mục mã minh chứng', bold: true });
-    blocks.push({
-      kind: 'table',
-      header: ['TT', 'Mã minh chứng', 'Tên minh chứng', 'Số, ngày ban hành', 'Nơi ban hành', 'Ghi chú'],
-      rows: evidences.map((row, index) => [
-        String(index + 1),
-        row.display_code,
-        row.title,
-        [row.document_number, row.issued_date].filter(Boolean).join(', '),
-        row.issuer ?? '',
-        QUALITY_EVIDENCE_STATUS_LABELS[row.status],
-      ]),
-      widths: [1, 3, 7, 3, 4, 2],
-    });
+    blocks.push(...catalogTableBlocks(await this.evidenceStore.catalogOf(database, assessment.framework_id)));
     const chair = council.find((member) => member.position === 'chair');
     blocks.push({
       kind: 'signatures',

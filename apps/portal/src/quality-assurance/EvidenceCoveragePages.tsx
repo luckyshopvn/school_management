@@ -32,7 +32,7 @@ function coverageText(covered: number, total: number, percent: number) {
 }
 
 // Ô chọn bộ tiêu chí dùng chung cho Độ phủ và Phân công; mở sẵn bộ ở đường dẫn (?framework_id=) hoặc bộ đang dùng đầu tiên
-function useFrameworkChoice() {
+export function useFrameworkChoice() {
   const frameworks = useQuery({ queryKey: ['evidence', 'frameworks'], queryFn: readEvidenceFrameworks });
   const [frameworkId, setFrameworkId] = useState(
     () => new URLSearchParams(window.location.search).get('framework_id') ?? '',
