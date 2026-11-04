@@ -99,13 +99,16 @@ test('@thiet-bi @thiet-bi-pr CT-26d-2: trang chủ và chế độ lớp học c
   const home = await deviceViolations(page);
   expect(home, describeViolations(home)).toEqual([]);
 
-  // Từ 1024 px: thông báo, chấm công ở khung trái; lớp của tôi ở khung phải
-  const left = await boxOf(page, 'main > div:first-child');
-  const right = await boxOf(page, 'main > div:nth-child(2)');
-  if (width >= 1024) {
-    expect(right.x).toBeGreaterThan(left.x + left.width - 1);
+  // Dưới 1024 px: thông báo, chấm công ở trên, lớp của tôi ở dưới. Từ 1024 px (YCTD-395 lát L2): lớp của tôi lên trước; từ 1280 px
+  // thông báo, chấm công thành cột phải
+  const panels = await boxOf(page, '[data-home="panels"]');
+  const classes = await boxOf(page, '[data-home="classes"]');
+  if (width >= 1280) {
+    expect(panels.x).toBeGreaterThan(classes.x + classes.width - 1);
+  } else if (width >= 1024) {
+    expect(panels.y).toBeGreaterThan(classes.y);
   } else {
-    expect(right.y).toBeGreaterThan(left.y);
+    expect(classes.y).toBeGreaterThan(panels.y);
   }
 
   // Chế độ lớp học: chọn sẵn lớp của tiết đang dạy, hai khung cạnh nhau từ 1024 px
