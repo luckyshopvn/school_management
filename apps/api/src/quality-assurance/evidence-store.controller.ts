@@ -200,6 +200,49 @@ export class EvidenceStoreController {
     return this.store.byRecord(user, type, id);
   }
 
+  // ---- Tổng quan, độ phủ, phân công (lát L4) ----
+
+  @Get('overview')
+  overview(@AuthenticatedUser() user: CurrentUser) {
+    return this.store.overview(user);
+  }
+
+  @Get('coverage')
+  coverage(@Query('framework_id') frameworkId: string | undefined, @AuthenticatedUser() user: CurrentUser) {
+    return this.store.coverage(user, requiredUuid(frameworkId, 'framework_id'));
+  }
+
+  @Get('assignees')
+  assignees(@AuthenticatedUser() user: CurrentUser) {
+    return this.store.assignees(user);
+  }
+
+  @Put('assignments')
+  assign(@Body() body: RequestBody, @AuthenticatedUser() user: CurrentUser) {
+    const errors: FieldError[] = [];
+    const input = {
+      framework_id: readUuid(body, 'framework_id', errors, true) ?? '',
+      node_ids: readUuidList(body, 'node_ids', errors, 500),
+      user_id: readUuid(body, 'user_id', errors),
+      due_date: readDate(body, 'due_date', errors),
+      note: readText(body, 'note', errors, { maximum: 500 }),
+    };
+    if (input.node_ids.length === 0) {
+      errors.push({ field: 'node_ids', message: 'Chọn ít nhất một tiêu chí' });
+    }
+    throwIfAny(errors);
+    return this.store.assign(user, input);
+  }
+
+  @Post('assignments/from-groups')
+  @HttpCode(200)
+  assignFromGroups(@Body() body: RequestBody, @AuthenticatedUser() user: CurrentUser) {
+    const errors: FieldError[] = [];
+    const frameworkId = readUuid(body, 'framework_id', errors, true) ?? '';
+    throwIfAny(errors);
+    return this.store.assignFromGroups(user, frameworkId);
+  }
+
   @Get(':id')
   detail(@Param('id', uuidParameter(EVIDENCE)) id: string, @AuthenticatedUser() user: CurrentUser) {
     return this.store.detail(user, id);

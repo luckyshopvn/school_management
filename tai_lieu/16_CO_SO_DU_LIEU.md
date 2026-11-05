@@ -1138,6 +1138,7 @@ Tệp hệ thống `0143_create_evidence_store`, quyền ở tệp định danh 
 | evidence_node_links (hệ thống) | Tiêu chí dùng minh chứng | evidence_id (xóa theo), framework_id, node_id, is_primary; khóa chính (evidence_id, node_id); chỉ mục (framework_id, node_id) |
 | evidence_events (hệ thống) | Lịch sử và nhật ký truy cập; giữ khi minh chứng bị xóa | id, evidence_id, action (`create`, `update`, `add_version`, `link`, `unlink`, `delete`, `import`, `view_file`, `download_file`), version_no, detail, actor_id, actor_name |
 | evidence_imports (hệ thống) | Cơ sở dữ liệu năm học đã chuyển minh chứng của 22f | school_year_database (khóa chính), evidence_count, imported_at |
+| evidence_assignments (hệ thống) | Phân công phụ trách tiêu chí theo năm học (YCTD-396 lát L4, tệp `0145_create_evidence_assignments`, kiểu ở `schema-parts/yctd-396-phan-cong.ts`; BR-549) | id, framework_id, node_id, school_year_name, user_id, user_name, due_date, note, assigned_by, assigned_by_name; duy nhất (framework_id, node_id, school_year_name); chỉ mục (user_id, school_year_name) |
 
 Chuyển minh chứng của 22f (mã ở `apps/api/src/quality-assurance/evidence-store.ts` hàm `ensureImported`): chạy lần đầu kho được mở ở mỗi trường, từng cơ sở dữ liệu năm học từ năm cũ đến năm mới, trong giao dịch có khóa cố vấn; minh chứng kế thừa gộp vào minh chứng cùng mã của bộ (thêm năm học, phiên bản nếu tệp khác); mã trùng không phải kế thừa thì cấp số kế tiếp.
 

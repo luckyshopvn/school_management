@@ -42,7 +42,7 @@ test('CT-396-7: thêm minh chứng có tệp vào kho, xem chi tiết, thêm phi
   await expect(page.getByText(/Đã nạp \d+ bộ tiêu chuẩn/)).toBeVisible();
 
   await openMenu(page, '/quality/evidences');
-  await expect(page.getByRole('heading', { name: '1.1. Danh sách minh chứng' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: '1.2. Danh sách minh chứng' })).toBeVisible();
   await page.getByRole('button', { name: 'Thêm minh chứng' }).click();
   const form = page.getByRole('form', { name: 'Thêm minh chứng' });
   await form.getByLabel('Tải tệp lên').check();

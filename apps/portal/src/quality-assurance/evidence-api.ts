@@ -194,3 +194,97 @@ export const listEvidenceByRecord = (recordType: EvidenceRecordTypeCode, recordI
   >(`${API}/by-record${query({ record_type: recordType, record_id: recordId })}`);
 export const listRecordSources = (recordType: EvidenceRecordTypeCode, q: string) =>
   requestJson<Array<{ id: string; label: string }>>(`${API}/sources${query({ record_type: recordType, q })}`);
+
+// Tổng quan, độ phủ, phân công phụ trách tiêu chí (YCTD-396 lát L4)
+export interface EvidenceAssignee {
+  user_id: string;
+  user_name: string;
+  due_date: string | null;
+  note: string | null;
+}
+
+export interface EvidenceCoverageRow {
+  id: string;
+  code: string;
+  title: string;
+  evidence_hint: string | null;
+  standard_id: string;
+  standard_code: string;
+  standard_title: string;
+  sufficient: number;
+  collecting: number;
+  missing: number;
+  needs_update: number;
+  expired: number;
+  out_of_cycle: number;
+  covered: boolean;
+  assignee: EvidenceAssignee | null;
+  group_leader: { user_id: string; user_name: string } | null;
+}
+
+export interface EvidenceCoverage {
+  framework: { id: string; code: string; name: string; kind: string; cycle_years: number };
+  school_year_name: string;
+  cycle_year_names: string[];
+  can_manage: boolean;
+  criterion_count: number;
+  covered_count: number;
+  covered_percent: number;
+  criteria: EvidenceCoverageRow[];
+}
+
+export interface EvidenceOverview {
+  school_year_name: string;
+  can_manage: boolean;
+  frameworks: Array<{
+    id: string;
+    code: string;
+    name: string;
+    criterion_count: number;
+    covered_count: number;
+    covered_percent: number;
+    missing_count: number;
+    standards: Array<{
+      code: string;
+      title: string;
+      criterion_count: number;
+      covered_count: number;
+      covered_percent: number;
+    }>;
+    missing: Array<{ id: string; code: string; title: string; assignee_name: string | null; due_date: string | null }>;
+  }>;
+  expiring: Array<{
+    id: string;
+    title: string;
+    valid_until: string;
+    validity: EvidenceValidityCode;
+    validity_label: string;
+  }>;
+  mine: Array<{
+    framework_id: string;
+    framework_name: string;
+    id: string;
+    code: string;
+    title: string;
+    due_date: string | null;
+    covered: boolean;
+  }>;
+}
+
+export interface EvidenceAssignInput {
+  framework_id: string;
+  node_ids: string[];
+  user_id: string | null;
+  due_date: string | null;
+  note: string | null;
+}
+
+export const readEvidenceOverview = () => requestJson<EvidenceOverview>(`${API}/overview`);
+export const readEvidenceCoverage = (frameworkId: string) =>
+  requestJson<EvidenceCoverage>(`${API}/coverage${query({ framework_id: frameworkId })}`);
+export const listEvidenceAssignees = () =>
+  requestJson<Array<{ user_id: string; full_name: string; code: string }>>(`${API}/assignees`);
+export const assignEvidenceCriteria = (input: EvidenceAssignInput) =>
+  requestJson<{ assigned: number; removed: number }>(`${API}/assignments`, json('PUT', input));
+export const assignEvidenceFromGroups = (frameworkId: string) =>
+  requestJson<{ assigned: number }>(`${API}/assignments/from-groups`, json('POST', { framework_id: frameworkId }));

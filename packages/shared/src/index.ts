@@ -671,6 +671,9 @@ export const PORTAL_QUICK_LINK_PATHS = [
   '/quality/assessments',
   '/quality/reports',
   '/quality/evidences',
+  '/quality/evidence-overview',
+  '/quality/evidence-coverage',
+  '/quality/evidence-assignments',
   '/quality/recognition',
   '/quality/frameworks',
   '/library/titles',
@@ -1021,6 +1024,8 @@ export const DATA_GRID_KEYS = [
   'quality-assessment-criteria',
   'quality-reports',
   'quality-evidences',
+  'quality-evidence-coverage',
+  'quality-evidence-assignments',
   'quality-recognitions',
   'quality-frameworks',
   // Chương trình theo cấp học (DT-19 phần 19b)
