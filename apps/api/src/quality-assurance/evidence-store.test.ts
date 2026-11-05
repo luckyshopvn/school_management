@@ -15,7 +15,7 @@ import {
   type LoggedInUser,
 } from '../test-support.js';
 
-// Kho minh chứng dùng chung (YCTD-396 lát L1); kịch bản CT-2130 đến CT-2135 (trong mã kiểm thử là CT-396-1 đến CT-396-6), lát L2 thêm CT-396-8, CT-396-9, lát L2b thêm CT-396-11, CT-396-12, lát L3 thêm CT-396-14, CT-396-15, lát L4 thêm CT-396-17, lát L5 thêm CT-396-19, lát L6 thêm CT-396-21, lát L7 thêm CT-396-23.
+// Kho minh chứng dùng chung (YCTD-396 lát L1); kịch bản CT-2130 đến CT-2135 (trong mã kiểm thử là CT-396-1 đến CT-396-6), lát L2 thêm CT-396-8, CT-396-9, lát L2b thêm CT-396-11, CT-396-12, lát L3 thêm CT-396-14, CT-396-15, lát L4 thêm CT-396-17, lát L5 thêm CT-396-19, lát L6 thêm CT-396-21, lát L7 thêm CT-396-23, lát L8 thêm CT-396-25.
 // Dữ liệu mẫu là dữ liệu giả
 const vietnamToday = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Ho_Chi_Minh' }).format(new Date());
 const addDays = (date: string, days: number) =>
@@ -894,5 +894,89 @@ describe('Kho minh chứng', () => {
       record_id: 'khong-phai-ma',
     });
     assert.equal(wrong.status, 400, JSON.stringify(wrong.body));
+  });
+
+  it('CT-396-25: đoàn đánh giá ngoài (VT-23) chỉ xem bộ được giao còn hạn; không sửa, không xem độ phủ, không tải tệp có dữ liệu cá nhân; hết hạn giao thì không xem được (lát L8)', async () => {
+    users.reviewer = await environment.loginAs('VT-23', null);
+    const frameworksOf = async () =>
+      ((await api('GET', '/quality/evidences/frameworks', 'reviewer')).body.frameworks as Array<{ id: string }>).map(
+        (row) => row.id,
+      );
+    assert.deepEqual(await frameworksOf(), []);
+    assert.equal((await api('GET', `/quality/evidences?framework_id=${frameworkId}`, 'reviewer')).status, 403);
+    assert.equal((await api('GET', `/quality/evidences/${evidences.guide}`, 'reviewer')).status, 403);
+
+    const grant = { user_id: users.reviewer.userId, user_name: 'Đoàn đánh giá thử', framework_id: frameworkId };
+    assert.equal(
+      (
+        await api('PUT', '/quality/evidences/reviewers', 'teacher', {
+          ...grant,
+          valid_until: addDays(vietnamToday, 10),
+        })
+      ).status,
+      403,
+    );
+    assert.equal(
+      (
+        await api('PUT', '/quality/evidences/reviewers', 'principal', {
+          ...grant,
+          valid_until: addDays(vietnamToday, -1),
+        })
+      ).status,
+      422,
+    );
+    const saved = await api('PUT', '/quality/evidences/reviewers', 'principal', {
+      ...grant,
+      valid_until: addDays(vietnamToday, 10),
+    });
+    assert.equal(saved.status, 200, JSON.stringify(saved.body));
+
+    assert.deepEqual(await frameworksOf(), [frameworkId]);
+    const list = await api('GET', `/quality/evidences?framework_id=${frameworkId}`, 'reviewer');
+    assert.equal(list.status, 200);
+    assert.ok((list.body as unknown as unknown[]).length > 0);
+    assert.equal((await api('GET', `/quality/evidences?framework_id=${otherFrameworkId}`, 'reviewer')).status, 403);
+    assert.equal((await api('GET', `/quality/evidences/${evidences.guide}`, 'reviewer')).status, 200);
+    // Tệp có dữ liệu cá nhân: đoàn không có quyền xem nguồn
+    assert.equal((await download(`/quality/evidences/${evidences.minutes}/file`, 'reviewer')).status, 403);
+    for (const path of [
+      `/quality/evidences/coverage?framework_id=${frameworkId}`,
+      '/quality/evidences/overview',
+      '/quality/evidences/sources?record_type=outgoing_document',
+    ]) {
+      assert.equal((await api('GET', path, 'reviewer')).status, 403, path);
+    }
+    assert.equal(
+      (
+        await api('POST', '/quality/evidences', 'reviewer', {
+          framework_id: frameworkId,
+          node_id: criteria['1.1'],
+          title: 'Thử',
+        })
+      ).status,
+      403,
+    );
+    assert.equal(
+      (await download(`/quality/evidences/export?framework_id=${frameworkId}&format=xlsx`, 'reviewer')).status,
+      200,
+    );
+
+    // Hết hạn giao
+    await environment.system
+      .updateTable('evidence_review_grants')
+      .set({ valid_until: addDays(vietnamToday, -1) })
+      .where('id', '=', saved.body.id as string)
+      .execute();
+    assert.deepEqual(await frameworksOf(), []);
+    assert.equal((await api('GET', `/quality/evidences/${evidences.guide}`, 'reviewer')).status, 403);
+    const grants = (await api('GET', '/quality/evidences/reviewers', 'principal')).body as unknown as Array<{
+      id: string;
+      expired: boolean;
+    }>;
+    assert.equal(grants.find((row) => row.id === saved.body.id)?.expired, true);
+    assert.equal(
+      (await api('DELETE', `/quality/evidences/reviewers/${saved.body.id as string}`, 'principal')).status,
+      204,
+    );
   });
 });

@@ -319,3 +319,27 @@ export const checkReportCitations = (assessmentId: string) =>
   requestJson<{ cited_count: number; unknown: Array<{ code: string; location: string }> }>(
     `/api/v1/quality/assessments/${assessmentId}/report/citations`,
   );
+
+// Đoàn đánh giá ngoài (YCTD-396 lát L8): giao bộ tiêu chí cho tài khoản vai trò VT-23 đến hết ngày giao
+export interface EvidenceReviewGrant {
+  id: string;
+  user_id: string;
+  user_name: string;
+  framework_id: string;
+  framework_code: string;
+  framework_name: string;
+  valid_until: string;
+  note: string | null;
+  granted_by_name: string | null;
+  expired: boolean;
+}
+
+export const listReviewGrants = () => requestJson<EvidenceReviewGrant[]>(`${API}/reviewers`);
+export const saveReviewGrant = (input: {
+  user_id: string;
+  user_name: string;
+  framework_id: string;
+  valid_until: string;
+  note: string | null;
+}) => requestJson<{ id: string }>(`${API}/reviewers`, json('PUT', input));
+export const revokeReviewGrant = (id: string): Promise<void> => requestJson(`${API}/reviewers/${id}`, json('DELETE'));

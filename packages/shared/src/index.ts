@@ -302,6 +302,8 @@ export const PERMISSION_CODES = {
   evidenceView: 'P09.evidence.view',
   evidenceContribute: 'P09.evidence.contribute',
   evidenceManage: 'P09.evidence.manage',
+  // Đoàn đánh giá ngoài: chỉ đọc bộ được giao, có thời hạn (YCTD-396 lát L8)
+  evidenceReview: 'P09.evidence.review',
   // Bán trú lớp ngoài Mầm non, nề nếp và thi đua lớp (DT-20 phần 20b)
   boardingManage: 'P04.boarding.manage',
   conductRecord: 'P02.conduct.record',
@@ -375,7 +377,7 @@ export const MODULE_NAMES: Record<string, string> = {
 };
 
 // Vai trò không gắn đơn vị, phạm vi toàn trường (PQ-03)
-export const WHOLE_SCHOOL_ROLE_CODES = ['VT-01', 'VT-02', 'VT-19', 'VT-20'] as const;
+export const WHOLE_SCHOOL_ROLE_CODES = ['VT-01', 'VT-02', 'VT-19', 'VT-20', 'VT-23'] as const;
 // Vai trò VT-03 không được cấp khi tạo tài khoản (PQ-13)
 export const ROLE_CODES_RESERVED_FOR_PRINCIPAL = ['VT-01', 'VT-02'] as const;
 
@@ -675,6 +677,7 @@ export const PORTAL_QUICK_LINK_PATHS = [
   '/quality/evidence-coverage',
   '/quality/evidence-assignments',
   '/quality/evidence-exports',
+  '/quality/evidence-reviewers',
   '/quality/recognition',
   '/quality/frameworks',
   '/library/titles',
@@ -1027,6 +1030,7 @@ export const DATA_GRID_KEYS = [
   'quality-evidences',
   'quality-evidence-coverage',
   'quality-evidence-assignments',
+  'quality-evidence-reviewers',
   'quality-recognitions',
   'quality-frameworks',
   // Chương trình theo cấp học (DT-19 phần 19b)

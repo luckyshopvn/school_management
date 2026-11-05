@@ -628,7 +628,7 @@ export const PORTAL_WORKSPACES: PortalWorkspace[] = [
     // Bảo đảm chất lượng, tự đánh giá (DT-18 phần 22f) theo mô tả công khai của trang bảo đảm chất lượng đã khảo sát; phân hệ
     // riêng nên đánh số liên tục, tên mục do Claude tự đặt theo ủy quyền của Eric ngày 2026-10-11. Mục 1.7 Rà soát thông tin
     // kiểm định CLGD vẫn ở phân hệ Quản lý giáo dục Mầm non như Sở; mục 3.2 ở đây đọc và ghi vào đó. YCTD-396 lát L1 đổi tên
-    // "Minh chứng và kiểm định" và thêm kho minh chứng dùng chung (Q-396-3); lát L4 thêm Tổng quan, Độ phủ, Phân công; lát L5 thêm Xuất danh mục và báo cáo
+    // "Minh chứng và kiểm định" và thêm kho minh chứng dùng chung (Q-396-3); lát L4 thêm Tổng quan, Độ phủ, Phân công; lát L5 thêm Xuất danh mục và báo cáo, lát L8 thêm Đoàn đánh giá ngoài
     key: 'quality-assurance',
     label: 'Minh chứng và kiểm định',
     menu: [
@@ -646,6 +646,7 @@ export const PORTAL_WORKSPACES: PortalWorkspace[] = [
         leaf('3.2.', 'Phân công phụ trách tiêu chí', '/quality/evidence-assignments'),
         leaf('3.3.', 'Theo dõi công nhận', '/quality/recognition'),
         leaf('3.4.', 'Xuất danh mục và báo cáo', '/quality/evidence-exports'),
+        leaf('3.5.', 'Đoàn đánh giá ngoài', '/quality/evidence-reviewers'),
       ]),
     ],
   },

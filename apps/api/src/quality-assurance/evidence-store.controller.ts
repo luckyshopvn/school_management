@@ -220,6 +220,39 @@ export class EvidenceStoreController {
     return { job: await this.store.requestPackage(user, frameworkId, request.ip ?? null) };
   }
 
+  // ---- Đoàn đánh giá ngoài (lát L8) ----
+
+  @Get('reviewers')
+  reviewers(@AuthenticatedUser() user: CurrentUser) {
+    return this.store.reviewGrants(user);
+  }
+
+  @Put('reviewers')
+  grantReview(@Body() body: RequestBody, @AuthenticatedUser() user: CurrentUser) {
+    const errors: FieldError[] = [];
+    const input = {
+      user_id: readUuid(body, 'user_id', errors, true) ?? '',
+      user_name: readText(body, 'user_name', errors, { required: true, maximum: 200 }) ?? '',
+      framework_id: readUuid(body, 'framework_id', errors, true) ?? '',
+      valid_until: readDate(body, 'valid_until', errors) ?? '',
+      note: readText(body, 'note', errors, { maximum: 500 }),
+    };
+    if (!input.valid_until && !errors.some((error) => error.field === 'valid_until')) {
+      errors.push({ field: 'valid_until', message: 'Bắt buộc có ngày hết hạn giao' });
+    }
+    throwIfAny(errors);
+    return this.store.grantReview(user, input);
+  }
+
+  @Delete('reviewers/:grantId')
+  @HttpCode(204)
+  async revokeReview(
+    @Param('grantId', uuidParameter('Mã lần giao không hợp lệ')) grantId: string,
+    @AuthenticatedUser() user: CurrentUser,
+  ) {
+    await this.store.revokeReview(user, grantId);
+  }
+
   // ---- Tổng quan, độ phủ, phân công (lát L4) ----
 
   @Get('overview')
