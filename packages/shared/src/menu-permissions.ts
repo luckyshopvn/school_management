@@ -378,6 +378,7 @@ export const MENU_PERMISSION_RULES: Partial<Record<PortalQuickLinkPath, MenuPerm
   '/quality/evidence-overview': EVIDENCE_ANY,
   '/quality/evidence-coverage': EVIDENCE_ANY,
   '/quality/evidence-assignments': 'P09.evidence.manage',
+  '/quality/evidence-exports': EVIDENCE_ANY,
   '/quality/recognition': QUALITY_ANY,
   '/quality/frameworks': QUALITY_ANY,
   '/library/titles': LIBRARY_ANY,

@@ -10,6 +10,7 @@ import {
   EVIDENCE_RULE_CODE,
   EVIDENCE_VALIDITY_LABELS,
   evidenceCoverage,
+  evidencePackageFileName,
   evidenceValidity,
   DEFAULT_EVIDENCE_CODE_PATTERN,
   formatEvidenceCode,
@@ -31,8 +32,12 @@ import { CurrentSchoolYearResolver } from '../common/current-school-year.js';
 import { Databases } from '../common/databases.js';
 import { notFoundError } from '../common/request-fields.js';
 import { storageKey } from '../common/resource-names.js';
+import { ExportJobs } from '../exports/export-jobs.js';
 import { buildTableFile, CONTENT_TYPES, type TableFileFormat } from '../exports/table-file.js';
+import type { ExportedFile } from '../facilities/facilities-workbook.js';
 import { FileStorage } from '../files/file-storage.js';
+import { buildDocx, DOCX_TYPE, type DocumentBlock } from '../kpi/kpi-documents.js';
+import { ZipWriter } from '../school-data-export/zip-writer.js';
 import { escapeLike } from '../incoming-documents/incoming-fields.js';
 import { OrganizationScopes } from '../organization/organization-scopes.js';
 import { EvidenceSources, likePattern, type SourceContext } from './evidence-sources.js';
@@ -53,6 +58,7 @@ export const EVIDENCE_PERMISSIONS = [VIEW, CONTRIBUTE, MANAGE];
 const MAXIMUM_LIST = 1000;
 const OVERVIEW_MISSING = 20;
 const OVERVIEW_EXPIRING = 50;
+export const EVIDENCE_PACKAGE_REPORT_CODE = 'quality-evidence-package';
 
 export function evidenceRule(message: string): ApplicationError {
   return ruleViolationError(EVIDENCE_RULE_CODE, message);
@@ -141,7 +147,29 @@ export class EvidenceStoreService {
     private readonly fileStorage: FileStorage,
     private readonly clock: Clock,
     private readonly sourceRegistry: EvidenceSources,
-  ) {}
+    private readonly exportJobs: ExportJobs,
+  ) {
+    exportJobs.register(EVIDENCE_PACKAGE_REPORT_CODE, {
+      title: 'Gói hồ sơ minh chứng',
+      run: (currentUser, parameters) => this.packageFile(currentUser, String(parameters.framework_id)),
+    });
+  }
+
+  // Tạo gói hồ sơ minh chứng ở tác vụ nền; tệp xem ở Tệp đã tạo (lát L5)
+  async requestPackage(currentUser: CurrentUser, frameworkId: string, ipAddress: string | null) {
+    const context = await this.context(currentUser);
+    if (!context.manager) {
+      throw forbidden('Chỉ người quản lý kho minh chứng toàn trường tạo gói hồ sơ minh chứng');
+    }
+    await this.catalogOf(context.year.database, frameworkId);
+    return this.exportJobs.queue(
+      currentUser,
+      EVIDENCE_PACKAGE_REPORT_CODE,
+      { framework_id: frameworkId },
+      'zip',
+      ipAddress,
+    );
+  }
 
   private async context(currentUser: CurrentUser): Promise<StoreContext> {
     if (!EVIDENCE_PERMISSIONS.some((code) => currentUser.hasPermission(code))) {
@@ -346,7 +374,7 @@ export class EvidenceStoreService {
   private async latestVersions(system: SystemExecutor, ids: string[]) {
     const rows = await system
       .selectFrom('evidence_versions')
-      .select(['evidence_id', 'version_no', 'source_kind', 'record_type', 'file_name'])
+      .select(['evidence_id', 'version_no', 'source_kind', 'record_type', 'file_name', 'storage_key'])
       .where('evidence_id', 'in', ids)
       .orderBy('version_no', 'desc')
       .execute();
@@ -1485,46 +1513,145 @@ export class EvidenceStoreService {
 
   // ---- Xuất danh mục ----
 
-  async listFile(currentUser: CurrentUser, frameworkId: string, format: TableFileFormat) {
-    const rows = await this.list(currentUser, {
-      framework_id: frameworkId,
-      node_id: null,
-      status: null,
-      validity: null,
-      q: null,
-    });
-    const columns = [
-      { key: 'code', label: 'Mã minh chứng', width: 16 },
-      { key: 'title', label: 'Tên minh chứng', width: 40 },
-      { key: 'issued', label: 'Số, ngày ban hành', width: 20 },
-      { key: 'issuer', label: 'Nơi ban hành', width: 24 },
-      { key: 'criteria', label: 'Tiêu chí', width: 14 },
-      { key: 'status_label', label: 'Trạng thái', width: 14 },
-      { key: 'validity_label', label: 'Hiệu lực', width: 16 },
-      { key: 'source', label: 'Nguồn', width: 24 },
-    ];
-    const buffer = await buildTableFile(
-      format,
-      [
-        {
-          title: 'Danh mục minh chứng',
-          columns,
-          numbered: true,
-          rows: rows.map((row) => ({
-            code: row.display_code,
-            title: row.title,
-            issued: [row.document_number, row.issued_date].filter(Boolean).join(', '),
-            issuer: row.issuer ?? '',
-            criteria: [row.primary_node.code, ...row.shared_nodes.map((node) => node.code)].join(', '),
-            status_label: row.status_label,
-            validity_label: row.validity_label,
-            source: row.source_label,
+  // Danh mục minh chứng theo mẫu của hướng dẫn tự đánh giá (lát L5, BR-551): nhóm theo tiêu chuẩn, tiêu chí; mỗi tiêu chí liệt
+  // kê minh chứng chính trước, minh chứng dùng chung ghi lại mã gốc. Không kiểm quyền: người gọi kiểm (kho, đợt tự đánh giá)
+  async catalogOf(database: YearExecutor, frameworkId: string) {
+    const framework = await database
+      .selectFrom('quality_frameworks')
+      .select(['id', 'code', 'name'])
+      .where('id', '=', frameworkId)
+      .executeTakeFirst();
+    if (!framework) {
+      throw notFoundError('Không tìm thấy bộ tiêu chí trong năm học đang dùng', 'quality_framework');
+    }
+    const standards = await database
+      .selectFrom('quality_standards')
+      .select(['id', 'code', 'title'])
+      .where('framework_id', '=', frameworkId)
+      .orderBy('sort_order')
+      .orderBy('code')
+      .execute();
+    const criteria = await database
+      .selectFrom('quality_criteria')
+      .select(['id', 'code', 'title', 'standard_id'])
+      .where('framework_id', '=', frameworkId)
+      .orderBy('sort_order')
+      .orderBy('code')
+      .execute();
+    const codeOfNode = new Map(criteria.map((row) => [row.id, row.code]));
+    const links = await this.byNodes(frameworkId, null);
+    return {
+      framework,
+      standards: standards.map((standard) => ({
+        code: standard.code,
+        title: standard.title,
+        criteria: criteria
+          .filter((criterion) => criterion.standard_id === standard.id)
+          .map((criterion) => ({
+            code: criterion.code,
+            title: criterion.title,
+            rows: links
+              .filter((link) => link.node_id === criterion.id)
+              .sort((a, b) => Number(a.shared) - Number(b.shared) || a.code.localeCompare(b.code))
+              .map((link) => ({
+                evidence_id: link.id,
+                code: link.code,
+                display_code: link.display_code,
+                box: link.box,
+                shared: link.shared,
+                title: link.title,
+                issued: [link.document_number, link.issued_date ? formatVietnamDate(link.issued_date) : null]
+                  .filter(Boolean)
+                  .join(', '),
+                issuer: link.issuer ?? '',
+                note: [
+                  link.shared ? `Dùng chung, mã gốc của tiêu chí ${codeOfNode.get(link.primary_node_id) ?? ''}` : null,
+                  link.status === 'sufficient' ? null : link.status_label,
+                  link.validity === 'expired' ? link.validity_label : null,
+                ]
+                  .filter(Boolean)
+                  .join('; '),
+              })),
           })),
-        },
-      ],
-      this.clock.now(),
-    );
-    return { fileName: `danh-muc-minh-chung.${format}`, contentType: CONTENT_TYPES[format], buffer };
+      })),
+    };
+  }
+
+  async listFile(currentUser: CurrentUser, frameworkId: string, format: TableFileFormat | 'docx') {
+    const context = await this.context(currentUser);
+    const catalog = await this.catalogOf(context.year.database, frameworkId);
+    const base = `danh-muc-minh-chung-${catalog.framework.code}`;
+    if (format === 'docx') {
+      return {
+        fileName: `${base}.docx`,
+        contentType: DOCX_TYPE,
+        buffer: buildDocx(catalogBlocks(catalog), { title: `Danh mục minh chứng – ${catalog.framework.name}` }),
+      };
+    }
+    const buffer = await buildTableFile(format, [catalogSheet(catalog)], this.clock.now());
+    return { fileName: `${base}.${format}`, contentType: CONTENT_TYPES[format], buffer };
+  }
+
+  // Gói hồ sơ minh chứng (lát L5, BR-551, tác vụ nền): thư mục theo hộp H1, H2…, mỗi minh chứng một tệp đặt tên theo mã (bản
+  // mới nhất có tệp), kèm danh mục; minh chứng có dữ liệu cá nhân mà người xuất không có quyền xem nguồn thì không đưa vào gói
+  // và ghi ở tệp kèm theo; mỗi tệp đưa vào gói ghi nhật ký truy cập
+  async packageFile(currentUser: CurrentUser, frameworkId: string): Promise<ExportedFile> {
+    const context = await this.context(currentUser);
+    if (!context.manager) {
+      throw forbidden('Chỉ người quản lý kho minh chứng toàn trường tạo gói hồ sơ minh chứng');
+    }
+    const catalog = await this.catalogOf(context.year.database, frameworkId);
+    const primaries = catalog.standards
+      .flatMap((standard) => standard.criteria)
+      .flatMap((criterion) => criterion.rows)
+      .filter((row) => !row.shared);
+    const ids = primaries.map((row) => row.evidence_id);
+    const items =
+      ids.length > 0
+        ? await context.system
+            .selectFrom('evidence_items')
+            .select(['id', 'has_personal_data', 'personal_data_permission'])
+            .where('id', 'in', ids)
+            .execute()
+        : [];
+    const versions = ids.length > 0 ? await this.latestVersions(context.system, ids) : new Map();
+    const zip = new ZipWriter(this.clock.now());
+    const skipped: string[] = [];
+    for (const row of primaries) {
+      const item = items.find((entry) => entry.id === row.evidence_id);
+      const version = versions.get(row.evidence_id);
+      if (!item || !version?.storage_key) {
+        skipped.push(`${row.display_code} ${row.title}: chưa có tệp`);
+        continue;
+      }
+      if (!this.canDownload(currentUser, item)) {
+        skipped.push(`${row.display_code} ${row.title}: có dữ liệu cá nhân, người xuất không có quyền xem nguồn`);
+        continue;
+      }
+      zip.add(
+        `H${row.box}/${evidencePackageFileName(row.code, version.file_name)}`,
+        await this.fileStorage.get(version.storage_key),
+      );
+      await this.event(
+        context.system,
+        row.evidence_id,
+        'download_file',
+        currentUser,
+        version.version_no,
+        `Gói hồ sơ minh chứng ${catalog.framework.code}`,
+      );
+    }
+    zip.add('danh-muc-minh-chung.xlsx', await buildTableFile('xlsx', [catalogSheet(catalog)], this.clock.now()));
+    if (skipped.length > 0) {
+      zip.add('khong-dua-vao-goi.txt', `Minh chứng không đưa vào gói:\r\n${skipped.join('\r\n')}\r\n`);
+    }
+    return {
+      fileName: `goi-minh-chung-${catalog.framework.code}.zip`,
+      contentType: 'application/zip',
+      buffer: zip.finish(),
+      logId: randomUUID(),
+      rowCount: primaries.length,
+    };
   }
 
   // ---- Dùng cho phân hệ tự đánh giá (22f) ----
@@ -1841,4 +1968,83 @@ export class EvidenceStoreService {
         .execute();
     });
   }
+}
+
+// Ngày dạng dd/mm/yyyy cho danh mục minh chứng
+const formatVietnamDate = (date: string) => date.split('-').reverse().join('/');
+
+type EvidenceCatalog = Awaited<ReturnType<EvidenceStoreService['catalogOf']>>;
+
+// Cột danh mục theo phụ lục của hướng dẫn tự đánh giá (lát L5)
+const CATALOG_COLUMNS = [
+  { key: 'no', label: 'TT', width: 6 },
+  { key: 'code', label: 'Mã minh chứng', width: 16 },
+  { key: 'title', label: 'Tên minh chứng', width: 44 },
+  {
+    key: 'issued',
+    label: 'Số, ngày ban hành, hoặc thời điểm khảo sát, điều tra, phỏng vấn, quan sát',
+    width: 26,
+  },
+  { key: 'issuer', label: 'Nơi ban hành hoặc nhóm, cá nhân thực hiện', width: 26 },
+  { key: 'note', label: 'Ghi chú', width: 30 },
+];
+
+// Bảng danh mục: dòng tiêu chuẩn, dòng tiêu chí, rồi minh chứng của tiêu chí; số thứ tự chỉ đánh cho dòng minh chứng
+function catalogSheet(catalog: EvidenceCatalog) {
+  const rows: Array<Record<string, unknown>> = [];
+  let number = 0;
+  for (const standard of catalog.standards) {
+    rows.push({ title: `Tiêu chuẩn ${standard.code}: ${standard.title}` });
+    for (const criterion of standard.criteria) {
+      rows.push({ title: `Tiêu chí ${criterion.code}: ${criterion.title}` });
+      for (const row of criterion.rows) {
+        number += 1;
+        rows.push({
+          no: number,
+          code: row.display_code,
+          title: row.title,
+          issued: row.issued,
+          issuer: row.issuer,
+          note: row.note,
+        });
+      }
+    }
+  }
+  return {
+    title: 'Danh mục minh chứng',
+    heading: ['DANH MỤC MÃ MINH CHỨNG', catalog.framework.name],
+    columns: CATALOG_COLUMNS,
+    rows,
+  };
+}
+
+function catalogBlocks(catalog: EvidenceCatalog): DocumentBlock[] {
+  return [
+    { kind: 'title', text: 'DANH MỤC MÃ MINH CHỨNG', subtitle: catalog.framework.name },
+    ...catalogTableBlocks(catalog),
+  ];
+}
+
+// Bảng danh mục theo tiêu chuẩn, dùng ở tệp danh mục và phụ lục của báo cáo tự đánh giá
+export function catalogTableBlocks(catalog: EvidenceCatalog): DocumentBlock[] {
+  let number = 0;
+  const blocks: DocumentBlock[] = [];
+  for (const standard of catalog.standards) {
+    blocks.push({ kind: 'heading', text: `Tiêu chuẩn ${standard.code}: ${standard.title}` });
+    const rows: string[][] = [];
+    for (const criterion of standard.criteria) {
+      rows.push(['', '', `Tiêu chí ${criterion.code}: ${criterion.title}`, '', '', '']);
+      for (const row of criterion.rows) {
+        number += 1;
+        rows.push([String(number), row.display_code, row.title, row.issued, row.issuer, row.note]);
+      }
+    }
+    blocks.push({
+      kind: 'table',
+      header: CATALOG_COLUMNS.map((column) => column.label),
+      rows,
+      widths: [1, 3, 7, 4, 4, 4],
+    });
+  }
+  return blocks;
 }

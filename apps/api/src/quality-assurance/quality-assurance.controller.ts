@@ -478,6 +478,12 @@ export class QualityAssuranceController {
     sendBuffer(response, await this.quality.exportReport(user, id, format ?? 'docx'));
   }
 
+  // Mã minh chứng trích dẫn chưa có trong danh mục, kiểm trước khi xuất báo cáo (YCTD-396 lát L5)
+  @Get('assessments/:id/report/citations')
+  citations(@Param('id', uuidParameter(ASSESSMENT)) id: string, @AuthenticatedUser() user: CurrentUser) {
+    return this.quality.reportCitations(user, id);
+  }
+
   @Get('assessments/:id/evidences/export')
   async evidenceList(
     @Param('id', uuidParameter(ASSESSMENT)) id: string,

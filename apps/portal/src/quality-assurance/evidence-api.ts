@@ -186,8 +186,8 @@ export const downloadEvidenceVersion = (id: string, versionNo: number | null) =>
     `${API}/${id}/file${query({ version: versionNo === null ? null : String(versionNo), download: 'true' })}`,
     'minh-chung',
   );
-export const exportStoreEvidences = (frameworkId: string) =>
-  download(`${API}/export${query({ framework_id: frameworkId, format: 'xlsx' })}`, 'danh-muc-minh-chung.xlsx');
+export const exportStoreEvidences = (frameworkId: string, format: 'xlsx' | 'docx' | 'pdf' = 'xlsx') =>
+  download(`${API}/export${query({ framework_id: frameworkId, format })}`, `danh-muc-minh-chung.${format}`);
 export const listEvidenceByRecord = (recordType: EvidenceRecordTypeCode, recordId: string) =>
   requestJson<
     Array<{ id: string; title: string; code: string | null; framework_id: string | null; display_code: string | null }>
@@ -288,3 +288,11 @@ export const assignEvidenceCriteria = (input: EvidenceAssignInput) =>
   requestJson<{ assigned: number; removed: number }>(`${API}/assignments`, json('PUT', input));
 export const assignEvidenceFromGroups = (frameworkId: string) =>
   requestJson<{ assigned: number }>(`${API}/assignments/from-groups`, json('POST', { framework_id: frameworkId }));
+
+// Xuất danh mục, gói hồ sơ minh chứng, kiểm mã trích dẫn của báo cáo tự đánh giá (YCTD-396 lát L5)
+export const requestEvidencePackage = (frameworkId: string) =>
+  requestJson<{ job: { id: string; title: string } }>(`${API}/package`, json('POST', { framework_id: frameworkId }));
+export const checkReportCitations = (assessmentId: string) =>
+  requestJson<{ cited_count: number; unknown: Array<{ code: string; location: string }> }>(
+    `/api/v1/quality/assessments/${assessmentId}/report/citations`,
+  );

@@ -4,7 +4,9 @@ import { createDatabase, replaceDatabaseName, type SchoolYearDatabase } from '@s
 import { bracketEvidenceCode, evidenceValidity } from '@school-management/shared';
 import ExcelJS from 'exceljs';
 import type { Kysely } from 'kysely';
+import { ExportJobs } from '../exports/export-jobs.js';
 import { FileStorage } from '../files/file-storage.js';
+import { readZipEntries } from '../school-data-export/zip-writer.js';
 import {
   openTestAcademicYear,
   sendJson,
@@ -13,7 +15,7 @@ import {
   type LoggedInUser,
 } from '../test-support.js';
 
-// Kho minh chứng dùng chung (YCTD-396 lát L1); kịch bản CT-2130 đến CT-2135 (trong mã kiểm thử là CT-396-1 đến CT-396-6), lát L2 thêm CT-396-8, CT-396-9, lát L2b thêm CT-396-11, CT-396-12, lát L3 thêm CT-396-14, CT-396-15, lát L4 thêm CT-396-17.
+// Kho minh chứng dùng chung (YCTD-396 lát L1); kịch bản CT-2130 đến CT-2135 (trong mã kiểm thử là CT-396-1 đến CT-396-6), lát L2 thêm CT-396-8, CT-396-9, lát L2b thêm CT-396-11, CT-396-12, lát L3 thêm CT-396-14, CT-396-15, lát L4 thêm CT-396-17, lát L5 thêm CT-396-19.
 // Dữ liệu mẫu là dữ liệu giả
 const vietnamToday = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Ho_Chi_Minh' }).format(new Date());
 const addDays = (date: string, days: number) =>
@@ -630,5 +632,112 @@ describe('Kho minh chứng', () => {
     const removed = await api('PUT', '/quality/evidences/assignments', 'principal', { ...assignments, user_id: null });
     assert.deepEqual(removed.body, { assigned: 0, removed: 2 });
     assert.equal((await api('PUT', path, 'teacher2', edit)).status, 403);
+  });
+
+  it('CT-396-19: danh mục theo mẫu hướng dẫn nhóm theo tiêu chuẩn, tiêu chí, ghi mã gốc của minh chứng dùng chung; gói hồ sơ theo hộp; kiểm mã trích dẫn của báo cáo (lát L5)', async () => {
+    const id = (
+      await api('POST', '/quality/frameworks', 'principal', {
+        code: 'XK-THU',
+        name: 'Xuất thử',
+        school_level: 'MN',
+        max_level: 1,
+      })
+    ).body.id as string;
+    const standard = (
+      await api('POST', `/quality/frameworks/${id}/standards`, 'principal', { code: '6', title: 'Chuẩn xuất' })
+    ).body.id as string;
+    const nodes: Record<string, string> = {};
+    for (const code of ['6.1', '6.2']) {
+      nodes[code] = (
+        await api('POST', `/quality/standards/${standard}/criteria`, 'principal', { code, title: `Tiêu chí ${code}` })
+      ).body.id as string;
+    }
+    const shared = await api('POST', '/quality/evidences', 'teacher', {
+      framework_id: id,
+      node_id: nodes['6.1'],
+      title: 'Quyết định thành lập thử',
+      document_number: '12/QĐ',
+      issued_date: '2026-09-05',
+      status: 'sufficient',
+      shared_node_ids: [nodes['6.2']],
+    });
+    assert.equal(shared.status, 201, JSON.stringify(shared.body));
+    assert.equal(shared.body.code, 'H6-6.1-01');
+    await upload(`/quality/evidences/${shared.body.id as string}/versions`, 'teacher', 'quyet-dinh.pdf', PDF);
+    await api('POST', '/quality/evidences', 'teacher', {
+      framework_id: id,
+      node_id: nodes['6.2'],
+      title: 'Biên bản chưa có tệp',
+    });
+
+    const file = await download(`/quality/evidences/export?framework_id=${id}&format=xlsx`, 'teacher');
+    assert.equal(file.status, 200);
+    const book = new ExcelJS.Workbook();
+    await book.xlsx.load(file.body as unknown as ArrayBuffer);
+    const lines: string[] = [];
+    book.worksheets[0]?.eachRow((row) => {
+      lines.push(
+        (row.values as unknown[])
+          .slice(1)
+          .map((cell) => (cell === undefined || cell === null ? '' : String(cell)))
+          .join('|'),
+      );
+    });
+    const at = (text: string) => lines.findIndex((line) => line.includes(text));
+    assert.ok(at('Tiêu chuẩn 6: Chuẩn xuất') >= 0, lines.join('\n'));
+    assert.ok(at('Tiêu chí 6.1') < at('[H6-6.1-01]|Quyết định thành lập thử|12/QĐ, 05/09/2026'), lines.join('\n'));
+    const sharedLine = lines.findIndex((line, index) => index > at('Tiêu chí 6.2') && line.includes('[H6-6.1-01]'));
+    assert.ok(lines[sharedLine]?.includes('Dùng chung, mã gốc của tiêu chí 6.1'), lines.join('\n'));
+    const word = await download(`/quality/evidences/export?framework_id=${id}&format=docx`, 'teacher');
+    assert.equal(word.body.subarray(0, 2).toString(), 'PK');
+
+    assert.equal((await api('POST', '/quality/evidences/package', 'teacher', { framework_id: id })).status, 403);
+    const queued = await api('POST', '/quality/evidences/package', 'principal', { framework_id: id });
+    assert.equal(queued.status, 202, JSON.stringify(queued.body));
+    await environment.api.get(ExportJobs).tick();
+    const job = (queued.body.job as { id: string }).id;
+    const zip = await download(`/export-jobs/${job}/file`, 'principal');
+    assert.equal(zip.status, 200);
+    const entries = await readZipEntries(zip.body);
+    assert.ok(entries.has('H6/H6-6.1-01.pdf'), [...entries.keys()].join(', '));
+    assert.ok(entries.has('danh-muc-minh-chung.xlsx'));
+    assert.match(
+      entries.get('khong-dua-vao-goi.txt')?.toString() ?? '',
+      /\[H6-6\.2-01\] Biên bản chưa có tệp: chưa có tệp/,
+    );
+    const detail = await api('GET', `/quality/evidences/${shared.body.id as string}`, 'principal');
+    assert.ok(
+      (detail.body.events as Array<{ action: string; detail: string | null }>).some(
+        (row) => row.action === 'download_file' && row.detail === 'Gói hồ sơ minh chứng XK-THU',
+      ),
+    );
+
+    // Báo cáo tự đánh giá: mã [H6-6.1-01] có trong danh mục, [H9-9.9-09] không có
+    const root = await schoolYear
+      .selectFrom('org_units')
+      .select('id')
+      .where('parent_id', 'is', null)
+      .executeTakeFirstOrThrow();
+    const assessment = await schoolYear
+      .insertInto('quality_assessments')
+      .values({ framework_id: id, org_unit_id: root.id, title: 'Đợt xuất thử', introduction: 'Căn cứ [H6-6.1-01].' })
+      .returning('id')
+      .executeTakeFirstOrThrow();
+    await schoolYear
+      .insertInto('quality_criterion_reports')
+      .values({
+        assessment_id: assessment.id,
+        criterion_id: nodes['6.2'] ?? '',
+        current_state: 'Có [H6-6.1-01] và [H9-9.9-09].',
+      })
+      .execute();
+    const check = await api('GET', `/quality/assessments/${assessment.id}/report/citations`, 'principal');
+    assert.equal(check.status, 200, JSON.stringify(check.body));
+    assert.deepEqual(check.body, {
+      cited_count: 2,
+      unknown: [{ code: 'H9-9.9-09', location: 'Tiêu chí 6.2, mô tả hiện trạng' }],
+    });
+    const report = await download(`/quality/assessments/${assessment.id}/report?format=docx`, 'principal');
+    assert.equal(report.status, 200);
   });
 });
