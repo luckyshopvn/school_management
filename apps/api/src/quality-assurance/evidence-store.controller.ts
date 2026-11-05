@@ -220,6 +220,15 @@ export class EvidenceStoreController {
     return { job: await this.store.requestPackage(user, frameworkId, request.ip ?? null) };
   }
 
+  // Minh chứng từ kho theo tiêu chí của phiếu đánh giá chuẩn nghề nghiệp (P07-05, lát L6b)
+  @Get('professional/:evaluationId')
+  professional(
+    @Param('evaluationId', uuidParameter('Mã phiếu đánh giá không hợp lệ')) evaluationId: string,
+    @AuthenticatedUser() user: CurrentUser,
+  ) {
+    return this.store.professionalEvidences(user, evaluationId);
+  }
+
   // ---- Đoàn đánh giá ngoài (lát L8) ----
 
   @Get('reviewers')

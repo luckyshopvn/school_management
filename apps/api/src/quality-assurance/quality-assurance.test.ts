@@ -173,7 +173,8 @@ describe('Bảo đảm chất lượng', () => {
     assert.equal((await api('POST', '/quality/frameworks/defaults', 'vice', { school_level: 'MN' })).status, 403);
     // Bộ mẫu theo văn bản sửa đổi 2024 có đủ chỉ báo (YCTD-396 lát L3); nạp lại không tạo trùng, không thêm chỉ báo
     const loaded = await api('POST', '/quality/frameworks/defaults', 'principal', { school_level: 'MN' });
-    assert.deepEqual(loaded.body, { created: 1, skipped: 0, indicators_added: MN_INDICATORS });
+    // Kèm hai bộ của cá nhân chép từ danh mục chuẩn nghề nghiệp P07-05 (YCTD-396 lát L6b)
+    assert.deepEqual(loaded.body, { created: 3, skipped: 0, indicators_added: MN_INDICATORS });
     const again = await api('POST', '/quality/frameworks/defaults', 'principal', { school_level: 'MN' });
     assert.deepEqual(again.body, { created: 0, skipped: 1, indicators_added: 0 });
     const list = (await api('GET', '/quality/frameworks', 'teacher')).body as unknown as Array<{
@@ -186,6 +187,8 @@ describe('Bảo đảm chất lượng', () => {
     assert.equal(framework?.standard_count, 5);
     assert.equal(framework?.criterion_count, MN_CRITERIA);
     assert.equal(MN_CRITERIA, 22);
+    assert.equal(list.find((item) => item.code === 'GV-MN-TT26-2018')?.criterion_count, 15);
+    assert.equal(list.find((item) => item.code === 'HT-MN-TT25-2018')?.criterion_count, 18);
     frameworkId = framework?.id ?? '';
     const tree = (await api('GET', `/quality/frameworks/${frameworkId}`, 'principal')).body as unknown as {
       standards: Array<{ id: string; code: string; criteria: Array<{ id: string; code: string }> }>;
@@ -527,7 +530,12 @@ describe('Bảo đảm chất lượng', () => {
         academicYear: { id: 'previous', startDate: vietnamToday },
         actorUserId: principal.userId,
       });
-      const carried = await previous.selectFrom('quality_criteria').select('id').execute();
+      const carried = await previous
+        .selectFrom('quality_criteria')
+        .innerJoin('quality_frameworks', 'quality_frameworks.id', 'quality_criteria.framework_id')
+        .select('quality_criteria.id')
+        .where('quality_frameworks.code', '=', 'MN-KDCL-2024')
+        .execute();
       assert.equal(carried.length, MN_CRITERIA);
       assert.ok(carried.some((row) => row.id === criteria['1.1']));
       assert.equal(

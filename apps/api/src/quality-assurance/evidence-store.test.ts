@@ -15,7 +15,7 @@ import {
   type LoggedInUser,
 } from '../test-support.js';
 
-// Kho minh chứng dùng chung (YCTD-396 lát L1); kịch bản CT-2130 đến CT-2135 (trong mã kiểm thử là CT-396-1 đến CT-396-6), lát L2 thêm CT-396-8, CT-396-9, lát L2b thêm CT-396-11, CT-396-12, lát L3 thêm CT-396-14, CT-396-15, lát L4 thêm CT-396-17, lát L5 thêm CT-396-19, lát L6 thêm CT-396-21, lát L7 thêm CT-396-23, lát L8 thêm CT-396-25.
+// Kho minh chứng dùng chung (YCTD-396 lát L1); kịch bản CT-2130 đến CT-2135 (trong mã kiểm thử là CT-396-1 đến CT-396-6), lát L2 thêm CT-396-8, CT-396-9, lát L2b thêm CT-396-11, CT-396-12, lát L3 thêm CT-396-14, CT-396-15, lát L4 thêm CT-396-17, lát L5 thêm CT-396-19, lát L6 thêm CT-396-21, lát L7 thêm CT-396-23, lát L8 thêm CT-396-25, lát L6b thêm CT-396-27.
 // Dữ liệu mẫu là dữ liệu giả
 const vietnamToday = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Ho_Chi_Minh' }).format(new Date());
 const addDays = (date: string, days: number) =>
@@ -978,5 +978,81 @@ describe('Kho minh chứng', () => {
       (await api('DELETE', `/quality/evidences/reviewers/${saved.body.id as string}`, 'principal')).status,
       204,
     );
+  });
+
+  it('CT-396-27: bộ giáo viên mầm non chép từ danh mục P07-05; phiếu đánh giá chuẩn hiện minh chứng của người được đánh giá theo tiêu chí (lát L6b)', async () => {
+    users.teacher3 = await environment.loginAs('VT-07', null);
+    const staff = await schoolYear
+      .insertInto('staff')
+      .values({
+        org_unit_id: unit,
+        code: 'NS-CN-3',
+        full_name: 'Giáo Viên Mầm Non Thử',
+        start_date: addDays(vietnamToday, -300),
+        user_id: users.teacher3.userId,
+      })
+      .returning('id')
+      .executeTakeFirstOrThrow();
+    const evaluation = await schoolYear
+      .insertInto('professional_evaluations')
+      .values({ staff_id: staff.id, org_unit_id: unit, standard_type: 'teacher', opened_by: principal.userId })
+      .returning('id')
+      .executeTakeFirstOrThrow();
+    const frameworks = (await api('GET', '/quality/evidences/frameworks', 'teacher3')).body.frameworks as Array<{
+      id: string;
+      code: string;
+      subject: string;
+      standards: Array<{ code: string; criteria: Array<{ id: string; code: string; title: string }> }>;
+    }>;
+    const teacherSet = frameworks.find((row) => row.code === 'GV-MN-TT26-2018');
+    assert.equal(teacherSet?.subject, 'person');
+    const catalog = await schoolYear
+      .selectFrom('professional_criteria')
+      .select(['code', 'name'])
+      .where('standard_type', '=', 'teacher')
+      .orderBy('order_no')
+      .execute();
+    assert.deepEqual(
+      teacherSet?.standards.flatMap((standard) => standard.criteria.map((node) => [node.code, node.title])),
+      catalog.map((row) => [row.code, row.name]),
+    );
+    const ethics = teacherSet?.standards[0]?.criteria[0];
+    const created = await api('POST', '/quality/evidences', 'teacher3', {
+      framework_id: teacherSet?.id,
+      node_id: ethics?.id,
+      title: 'Bản cam kết thực hiện quy tắc ứng xử thử',
+      status: 'sufficient',
+    });
+    assert.equal(created.status, 201, JSON.stringify(created.body));
+    assert.equal(created.body.code, 'H1-1-01');
+
+    const expected = {
+      framework: {
+        id: teacherSet?.id,
+        code: 'GV-MN-TT26-2018',
+        name: 'Chuẩn nghề nghiệp giáo viên mầm non (Thông tư 26/2018)',
+      },
+      subject_user_id: users.teacher3.userId,
+      items: [
+        {
+          criterion_code: '1',
+          evidences: [
+            {
+              id: created.body.id,
+              display_code: '[H1-1-01]',
+              title: 'Bản cam kết thực hiện quy tắc ứng xử thử',
+              status_label: 'Đã đủ',
+              validity_label: 'Không thời hạn',
+            },
+          ],
+        },
+      ],
+    };
+    for (const name of ['principal', 'teacher3']) {
+      const response = await api('GET', `/quality/evidences/professional/${evaluation.id}`, name);
+      assert.equal(response.status, 200, `${name} ${JSON.stringify(response.body)}`);
+      assert.deepEqual(response.body, expected);
+    }
+    assert.equal((await api('GET', `/quality/evidences/professional/${evaluation.id}`, 'teacher')).status, 403);
   });
 });

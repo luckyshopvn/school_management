@@ -759,7 +759,10 @@ export function QualityEvidencesPage() {
   const queryClient = useQueryClient();
   const grid = useGridSettings('quality-evidences');
   const { toast, setToast, close } = useToast();
-  const [frameworkId, setFrameworkId] = useState('');
+  // Mở sẵn bộ ở đường dẫn (?framework_id=), ví dụ từ phiếu đánh giá chuẩn nghề nghiệp (lát L6b)
+  const [frameworkId, setFrameworkId] = useState(
+    () => new URLSearchParams(window.location.search).get('framework_id') ?? '',
+  );
   const [nodeId, setNodeId] = useState('');
   const [status, setStatus] = useState('');
   const [validity, setValidity] = useState('');

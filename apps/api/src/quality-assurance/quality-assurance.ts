@@ -4,6 +4,7 @@ import { ApplicationError, Clock, ruleViolationError, validationError } from '@s
 import {
   QUALITY_ASSESSMENT_STATUS_LABELS,
   QUALITY_COUNCIL_POSITION_LABELS,
+  PROFESSIONAL_EVIDENCE_FRAMEWORKS,
   QUALITY_DEFAULT_FRAMEWORKS,
   QUALITY_EVIDENCE_STATUS_LABELS,
   QUALITY_LIMITS,
@@ -451,8 +452,90 @@ export class QualityAssuranceService {
         });
         created += 1;
       }
+      if (level === 'MN') {
+        created += await this.professionalFrameworks(transaction, currentUser, seeds.length);
+      }
     });
     return { created, skipped, indicators_added: indicatorsAdded };
+  }
+
+  // Bộ chuẩn của cá nhân cho Mầm non (YCTD-396 lát L6b): chép danh mục chuẩn nghề nghiệp của phân hệ Nhân sự (P07-05, đã sửa theo
+  // Thông tư 26/2018 và 25/2018 ở YCTD-397) để minh chứng của từng người gắn đúng tiêu chí của phiếu đánh giá; không nạp danh
+  // mục khác. Bộ đã có cùng mã thì không tạo lại
+  private async professionalFrameworks(
+    transaction: Transaction<SchoolYearDatabase>,
+    currentUser: CurrentUser,
+    offset: number,
+  ): Promise<number> {
+    let created = 0;
+    for (const [index, item] of PROFESSIONAL_EVIDENCE_FRAMEWORKS.entries()) {
+      const exists = await transaction
+        .selectFrom('quality_frameworks')
+        .select('id')
+        .where('code', '=', item.code)
+        .executeTakeFirst();
+      const standards = await transaction
+        .selectFrom('professional_standards')
+        .select(['id', 'code', 'name'])
+        .where('standard_type', '=', item.standard_type)
+        .orderBy('order_no')
+        .execute();
+      if (exists || standards.length === 0) {
+        continue;
+      }
+      const framework = await transaction
+        .insertInto('quality_frameworks')
+        .values({
+          code: item.code,
+          name: item.name,
+          school_level: 'MN',
+          legal_basis: item.legal_basis,
+          max_level: 3,
+          sort_order: (offset + index + 1) * 10,
+          created_by: currentUser.id,
+          template_version: 'P07-05',
+          kind: item.kind,
+          subject: 'person',
+          cycle_years: 1,
+        })
+        .returning('id')
+        .executeTakeFirstOrThrow();
+      const criteria = await transaction
+        .selectFrom('professional_criteria')
+        .select(['standard_id', 'code', 'name', 'order_no'])
+        .where('standard_type', '=', item.standard_type)
+        .orderBy('order_no')
+        .execute();
+      for (const [standardIndex, standard] of standards.entries()) {
+        const row = await transaction
+          .insertInto('quality_standards')
+          .values({
+            framework_id: framework.id,
+            code: standard.code.replace(/^TC/, ''),
+            title: standard.name,
+            sort_order: (standardIndex + 1) * 10,
+          })
+          .returning('id')
+          .executeTakeFirstOrThrow();
+        const own = criteria.filter((criterion) => criterion.standard_id === standard.id);
+        if (own.length > 0) {
+          await transaction
+            .insertInto('quality_criteria')
+            .values(
+              own.map((criterion) => ({
+                framework_id: framework.id,
+                standard_id: row.id,
+                code: criterion.code,
+                title: criterion.name,
+                sort_order: criterion.order_no * 10,
+              })),
+            )
+            .execute();
+        }
+      }
+      created += 1;
+    }
+    return created;
   }
 
   // Chỉ báo của bộ mẫu cho các tiêu chí cùng mã chưa có chỉ báo nào
