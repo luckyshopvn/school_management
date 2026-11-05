@@ -1,4 +1,7 @@
+import type { QualityFrameworkKindCode, QualityFrameworkSubjectCode } from './evidence-store.js';
 import type { KpiSchoolLevelCode } from './kpi.js';
+import { TT20_2018_TEACHER } from './quality-templates/tt20-giao-vien.js';
+import { TT30_2026_FRAMEWORKS } from './quality-templates/tt30-giao-vien-hang.js';
 import { TH_KDCL_2024_SOURCE, TH_KDCL_2024_STANDARDS } from './quality-templates/tt17-tieu-hoc.js';
 import { TRUNG_HOC_KDCL_2024_SOURCE, TRUNG_HOC_KDCL_2024_STANDARDS } from './quality-templates/tt18-trung-hoc.js';
 import { MN_KDCL_2024_SOURCE, MN_KDCL_2024_STANDARDS } from './quality-templates/tt19-mam-non.js';
@@ -177,6 +180,10 @@ export interface QualityFrameworkSeed {
   max_level: number;
   // Văn bản và phiên bản nội dung của bộ mẫu (YCTD-396 lát L3)
   template_version?: string;
+  // Loại bộ, đối tượng, chu kỳ (YCTD-396 lát L6); bỏ trống là bộ kiểm định của nhà trường, chu kỳ 5 năm
+  kind?: QualityFrameworkKindCode;
+  subject?: QualityFrameworkSubjectCode;
+  cycle_years?: number;
   standards: QualityStandardSeed[];
 }
 
@@ -295,13 +302,20 @@ const KDCL_2024 = (
 // Mức 1 đến Mức 3. Bộ Mầm non cũ "MN-KDCL" (YCTD-149) không nạp mới; trường đã nạp vẫn giữ và dùng được
 export const QUALITY_DEFAULT_FRAMEWORKS: Record<KpiSchoolLevelCode, QualityFrameworkSeed[]> = {
   MN: [KDCL_2024('MN-KDCL-2024', MN_KDCL_2024_SOURCE, withHints(MN_KDCL_2024_STANDARDS, MN_FRAMEWORK))],
-  TH: [KDCL_2024('TH-KDCL-2024', TH_KDCL_2024_SOURCE, TH_KDCL_2024_STANDARDS)],
+  // Phổ thông có thêm bộ chuẩn giáo viên của cá nhân: Thông tư 20/2018 (đến hết 2025-2026) và theo hạng (Thông tư 30/2026)
+  TH: [
+    KDCL_2024('TH-KDCL-2024', TH_KDCL_2024_SOURCE, TH_KDCL_2024_STANDARDS),
+    TT20_2018_TEACHER,
+    ...TT30_2026_FRAMEWORKS.TH,
+  ],
   THCS: [
     KDCL_2024(
       'THCS-KDCL-2024',
       { ...TRUNG_HOC_KDCL_2024_SOURCE, name: TRUNG_HOC_KDCL_2024_SOURCE.name.replace('trung học', 'trung học cơ sở') },
       TRUNG_HOC_KDCL_2024_STANDARDS,
     ),
+    TT20_2018_TEACHER,
+    ...TT30_2026_FRAMEWORKS.THCS,
   ],
   THPT: [
     KDCL_2024(
@@ -312,5 +326,7 @@ export const QUALITY_DEFAULT_FRAMEWORKS: Record<KpiSchoolLevelCode, QualityFrame
       },
       TRUNG_HOC_KDCL_2024_STANDARDS,
     ),
+    TT20_2018_TEACHER,
+    ...TT30_2026_FRAMEWORKS.THPT,
   ],
 };

@@ -92,6 +92,8 @@ export interface EvidenceCreateInput extends EvidenceItemInput {
   box: number | null;
   record_type: EvidenceRecordTypeCode | null;
   record_id: string | null;
+  // Bộ của cá nhân: người được đánh giá; trống là người đang thêm (người quản lý kho chọn được người khác), lát L6
+  subject_user_id: string | null;
 }
 
 export interface EvidenceAssignInput {
@@ -108,6 +110,7 @@ export interface EvidenceListFilter {
   status: QualityEvidenceStatusCode | null;
   validity: EvidenceValidityCode | null;
   q: string | null;
+  subject_user_id: string | null;
 }
 
 interface StoreContext {
@@ -162,6 +165,9 @@ export class EvidenceStoreService {
       throw forbidden('Chỉ người quản lý kho minh chứng toàn trường tạo gói hồ sơ minh chứng');
     }
     await this.catalogOf(context.year.database, frameworkId);
+    if ((await this.frameworkSubject(context.year.database, frameworkId)) === 'person') {
+      throw evidenceRule('Gói hồ sơ chỉ tạo cho bộ tiêu chí của nhà trường; bộ của cá nhân xuất danh mục');
+    }
     return this.exportJobs.queue(
       currentUser,
       EVIDENCE_PACKAGE_REPORT_CODE,
@@ -229,7 +235,7 @@ export class EvidenceStoreService {
     const context = await this.context(currentUser);
     const frameworks = await context.year.database
       .selectFrom('quality_frameworks')
-      .select(['id', 'code', 'name', 'school_level', 'status'])
+      .select(['id', 'code', 'name', 'school_level', 'status', 'kind', 'subject'])
       .orderBy('sort_order')
       .orderBy('code')
       .execute();
@@ -315,6 +321,10 @@ export class EvidenceStoreService {
         ]),
       );
     }
+    const subject = await this.subjectOf(context, currentUser, filter.framework_id, filter.subject_user_id);
+    if (subject) {
+      query = query.where('codes.subject_user_id', '=', subject);
+    }
     const rows = await query.execute();
     const ids = rows.map((row) => row.id);
     const links =
@@ -398,6 +408,7 @@ export class EvidenceStoreService {
   async detail(currentUser: CurrentUser, id: string) {
     const context = await this.context(currentUser);
     const item = await this.itemRow(context.system, id);
+    await this.assertVisible(context, currentUser, item);
     const nodes = await this.nodes(context.year.database, null);
     const nodeById = new Map(nodes.map((node) => [node.id, node]));
     const frameworks = await context.year.database
@@ -511,7 +522,7 @@ export class EvidenceStoreService {
   private async frameworkRow(context: StoreContext, frameworkId: string) {
     const framework = await context.year.database
       .selectFrom('quality_frameworks')
-      .select(['id', 'code', 'name', 'kind', 'cycle_years'])
+      .select(['id', 'code', 'name', 'kind', 'subject', 'cycle_years'])
       .where('id', '=', frameworkId)
       .executeTakeFirst();
     if (!framework) {
@@ -522,7 +533,7 @@ export class EvidenceStoreService {
 
   // Độ phủ của từng tiêu chí trong một bộ: số minh chứng theo trạng thái, tiêu chí thiếu, người phụ trách năm học đang dùng và
   // trưởng nhóm công tác của đợt tự đánh giá chưa hoàn thành (gợi ý phân công, MH-683)
-  private async coverageOf(context: StoreContext, frameworkId: string) {
+  private async coverageOf(context: StoreContext, frameworkId: string, subject: string | null = null) {
     const framework = await this.frameworkRow(context, frameworkId);
     const cycleYearNames = await this.cycleYearNames(context, framework.cycle_years);
     const criteria = await context.year.database
@@ -548,6 +559,7 @@ export class EvidenceStoreService {
       .innerJoin('evidence_items as items', 'items.id', 'links.evidence_id')
       .select(['links.node_id', 'items.status', 'items.valid_until', 'items.school_year_names'])
       .where('links.framework_id', '=', frameworkId)
+      .$if(subject !== null, (query) => query.where('items.subject_user_id', '=', subject))
       .execute();
     const assignments = await context.system
       .selectFrom('evidence_assignments')
@@ -602,12 +614,14 @@ export class EvidenceStoreService {
   }
 
   // Bảng độ phủ theo tiêu chí (MH-682)
-  async coverage(currentUser: CurrentUser, frameworkId: string) {
+  async coverage(currentUser: CurrentUser, frameworkId: string, subjectUserId: string | null = null) {
     const context = await this.context(currentUser);
-    const { framework, cycleYearNames, rows } = await this.coverageOf(context, frameworkId);
+    const subject = await this.subjectOf(context, currentUser, frameworkId, subjectUserId);
+    const { framework, cycleYearNames, rows } = await this.coverageOf(context, frameworkId, subject);
     const covered = rows.filter((row) => row.covered).length;
     return {
       framework,
+      subject_user_id: subject,
       school_year_name: context.year.name,
       cycle_year_names: cycleYearNames,
       can_manage: context.manager,
@@ -624,13 +638,35 @@ export class EvidenceStoreService {
     const context = await this.context(currentUser);
     const frameworks = await context.year.database
       .selectFrom('quality_frameworks')
-      .select('id')
+      .select(['id', 'subject'])
       .orderBy('sort_order')
       .orderBy('code')
       .execute();
     const summaries = [];
     const mine = [];
-    for (const { id } of frameworks) {
+    const personal = [];
+    for (const { id, subject } of frameworks) {
+      if (subject === 'person') {
+        const own = await context.system
+          .selectFrom('evidence_codes')
+          .select('evidence_id')
+          .where('framework_id', '=', id)
+          .where('subject_user_id', '=', currentUser.id)
+          .executeTakeFirst();
+        if (own) {
+          const { framework, rows } = await this.coverageOf(context, id, currentUser.id);
+          const covered = rows.filter((row) => row.covered).length;
+          personal.push({
+            id: framework.id,
+            code: framework.code,
+            name: framework.name,
+            criterion_count: rows.length,
+            covered_count: covered,
+            covered_percent: coveragePercent(covered, rows.length),
+          });
+        }
+        continue;
+      }
       const { framework, rows } = await this.coverageOf(context, id);
       const standards = new Map<
         string,
@@ -688,6 +724,7 @@ export class EvidenceStoreService {
       frameworks: summaries,
       expiring: await this.expiringEvidences(context, null),
       mine,
+      personal,
     };
   }
 
@@ -887,6 +924,69 @@ export class EvidenceStoreService {
     return { missing, expiring: await this.expiringEvidences(context, currentUser.id) };
   }
 
+  // ---- Chủ thể của minh chứng (lát L6) ----
+
+  private async frameworkSubject(database: YearExecutor, frameworkId: string) {
+    const row = await database
+      .selectFrom('quality_frameworks')
+      .select('subject')
+      .where('id', '=', frameworkId)
+      .executeTakeFirst();
+    return row?.subject ?? 'school';
+  }
+
+  // Người được đánh giá của bộ cá nhân: mặc định người đang xem; chỉ người quản lý kho chọn người khác. Bộ của nhà trường: trống
+  private async subjectOf(
+    context: StoreContext,
+    currentUser: CurrentUser,
+    frameworkId: string,
+    requested: string | null,
+  ): Promise<string | null> {
+    if ((await this.frameworkSubject(context.year.database, frameworkId)) !== 'person') {
+      return null;
+    }
+    if (requested && requested !== currentUser.id && !context.manager) {
+      throw forbidden('Chỉ người quản lý kho xem, thêm minh chứng của cá nhân khác');
+    }
+    return requested ?? currentUser.id;
+  }
+
+  private async subjectName(context: StoreContext, currentUser: CurrentUser, userId: string) {
+    if (userId === currentUser.id) {
+      return currentUser.description.full_name;
+    }
+    const staff = await context.year.database
+      .selectFrom('staff')
+      .select('full_name')
+      .where('user_id', '=', userId)
+      .where('status', '=', 'active')
+      .executeTakeFirst();
+    if (!staff) {
+      throw evidenceRule('Người được đánh giá phải là cán bộ đang làm việc, có tài khoản trong năm học đang dùng');
+    }
+    return staff.full_name;
+  }
+
+  // Minh chứng của cá nhân: người đó và người quản lý kho xem; đã gắn vào bộ của nhà trường thì người xem kho thấy (Q-396-11)
+  private async assertVisible(
+    context: StoreContext,
+    currentUser: CurrentUser,
+    item: { id: string; subject_user_id: string | null },
+  ) {
+    if (!item.subject_user_id || context.manager || item.subject_user_id === currentUser.id) {
+      return;
+    }
+    const schoolCode = await context.system
+      .selectFrom('evidence_codes')
+      .select('evidence_id')
+      .where('evidence_id', '=', item.id)
+      .where('subject_user_id', 'is', null)
+      .executeTakeFirst();
+    if (!schoolCode) {
+      throw forbidden('Minh chứng của cá nhân; chỉ người đó và người quản lý kho xem được');
+    }
+  }
+
   // ---- Quyền sửa ----
 
   // Người quản lý kho sửa mọi minh chứng; người đóng góp sửa minh chứng mình tạo hoặc phụ trách, của tiêu chí mình được phân
@@ -989,7 +1089,12 @@ export class EvidenceStoreService {
   }
 
   // Số thứ tự nhỏ nhất chưa dùng trong tiêu chí của bộ (BR-534)
-  private async nextSequence(system: SystemExecutor, frameworkId: string, nodeId: string): Promise<number> {
+  private async nextSequence(
+    system: SystemExecutor,
+    frameworkId: string,
+    nodeId: string,
+    subjectUserId: string | null,
+  ): Promise<number> {
     const used = new Set(
       (
         await system
@@ -997,6 +1102,7 @@ export class EvidenceStoreService {
           .select('sequence')
           .where('framework_id', '=', frameworkId)
           .where('primary_node_id', '=', nodeId)
+          .where('subject_user_id', subjectUserId ? '=' : 'is', subjectUserId)
           .execute()
       ).map((row) => row.sequence),
     );
@@ -1048,17 +1154,20 @@ export class EvidenceStoreService {
       input.record_type && input.record_id
         ? await this.snapshot(context, currentUser, input.record_type, input.record_id)
         : null;
+    const subject = await this.subjectOf(context, currentUser, input.framework_id, input.subject_user_id);
+    const subjectName = subject ? await this.subjectName(context, currentUser, subject) : null;
     const stored = snapshot?.file ? await this.putFile(snapshot.file) : null;
     try {
       return await context.system.transaction().execute(async (transaction) => {
         const box = input.box ?? standardBox(node.standard_code);
-        const sequence = await this.nextSequence(transaction, input.framework_id, node.id);
+        const sequence = await this.nextSequence(transaction, input.framework_id, node.id, subject);
         const code = await this.codeOf(context.year.database, input.framework_id, box, node, sequence);
         const taken = await transaction
           .selectFrom('evidence_codes')
           .select('evidence_id')
           .where('framework_id', '=', input.framework_id)
           .where('code', '=', code)
+          .where('subject_user_id', subject ? '=' : 'is', subject)
           .executeTakeFirst();
         if (taken) {
           throw evidenceRule(`Mã ${bracketEvidenceCode(code)} đã có trong bộ; chọn số hộp khác`);
@@ -1078,6 +1187,8 @@ export class EvidenceStoreService {
             owner_name: currentUser.description.full_name,
             created_by: currentUser.id,
             created_by_name: currentUser.description.full_name,
+            subject_user_id: subject,
+            subject_name: subjectName,
           })
           .returning(['id'])
           .executeTakeFirstOrThrow();
@@ -1090,6 +1201,7 @@ export class EvidenceStoreService {
             box,
             sequence,
             code,
+            subject_user_id: subject,
           })
           .execute();
         await transaction
@@ -1128,8 +1240,13 @@ export class EvidenceStoreService {
   // Gắn minh chứng đã có vào bộ tiêu chí khác: cấp mã riêng của bộ đó theo tiêu chí chính được chọn (BR-533)
   async attach(currentUser: CurrentUser, id: string, frameworkId: string, nodeId: string, box: number | null) {
     const context = await this.context(currentUser);
-    await this.assertEditor(context, currentUser, id);
+    const item = await this.assertEditor(context, currentUser, id);
     const node = await this.node(context.year.database, frameworkId, nodeId, 'node_id');
+    const personal = (await this.frameworkSubject(context.year.database, frameworkId)) === 'person';
+    if (personal && !item.subject_user_id) {
+      throw evidenceRule('Minh chứng của nhà trường không gắn vào bộ tiêu chí của cá nhân');
+    }
+    const subject = personal ? item.subject_user_id : null;
     const result = await context.system.transaction().execute(async (transaction) => {
       const existing = await transaction
         .selectFrom('evidence_codes')
@@ -1141,13 +1258,14 @@ export class EvidenceStoreService {
         throw evidenceRule(`Minh chứng đã có mã ${bracketEvidenceCode(existing.code)} ở bộ này`);
       }
       const chosenBox = box ?? standardBox(node.standard_code);
-      const sequence = await this.nextSequence(transaction, frameworkId, node.id);
+      const sequence = await this.nextSequence(transaction, frameworkId, node.id, subject);
       const code = await this.codeOf(context.year.database, frameworkId, chosenBox, node, sequence);
       const taken = await transaction
         .selectFrom('evidence_codes')
         .select('evidence_id')
         .where('framework_id', '=', frameworkId)
         .where('code', '=', code)
+        .where('subject_user_id', subject ? '=' : 'is', subject)
         .executeTakeFirst();
       if (taken) {
         throw evidenceRule(`Mã ${bracketEvidenceCode(code)} đã có trong bộ; chọn số hộp khác`);
@@ -1161,6 +1279,7 @@ export class EvidenceStoreService {
           box: chosenBox,
           sequence,
           code,
+          subject_user_id: subject,
         })
         .execute();
       await transaction
@@ -1395,6 +1514,7 @@ export class EvidenceStoreService {
   async file(currentUser: CurrentUser, id: string, versionNo: number | null, download: boolean) {
     const context = await this.context(currentUser);
     const item = await this.itemRow(context.system, id);
+    await this.assertVisible(context, currentUser, item);
     if (!this.canDownload(currentUser, item)) {
       throw forbidden('Minh chứng có dữ liệu cá nhân; chỉ người có quyền xem nguồn tải được tệp');
     }
@@ -1515,7 +1635,7 @@ export class EvidenceStoreService {
 
   // Danh mục minh chứng theo mẫu của hướng dẫn tự đánh giá (lát L5, BR-551): nhóm theo tiêu chuẩn, tiêu chí; mỗi tiêu chí liệt
   // kê minh chứng chính trước, minh chứng dùng chung ghi lại mã gốc. Không kiểm quyền: người gọi kiểm (kho, đợt tự đánh giá)
-  async catalogOf(database: YearExecutor, frameworkId: string) {
+  async catalogOf(database: YearExecutor, frameworkId: string, subject: { id: string; name: string } | null = null) {
     const framework = await database
       .selectFrom('quality_frameworks')
       .select(['id', 'code', 'name'])
@@ -1539,9 +1659,10 @@ export class EvidenceStoreService {
       .orderBy('code')
       .execute();
     const codeOfNode = new Map(criteria.map((row) => [row.id, row.code]));
-    const links = await this.byNodes(frameworkId, null);
+    const links = await this.byNodes(frameworkId, null, subject?.id ?? null);
     return {
       framework,
+      subject,
       standards: standards.map((standard) => ({
         code: standard.code,
         title: standard.title,
@@ -1577,9 +1698,19 @@ export class EvidenceStoreService {
     };
   }
 
-  async listFile(currentUser: CurrentUser, frameworkId: string, format: TableFileFormat | 'docx') {
+  async listFile(
+    currentUser: CurrentUser,
+    frameworkId: string,
+    format: TableFileFormat | 'docx',
+    subjectUserId: string | null = null,
+  ) {
     const context = await this.context(currentUser);
-    const catalog = await this.catalogOf(context.year.database, frameworkId);
+    const subject = await this.subjectOf(context, currentUser, frameworkId, subjectUserId);
+    const catalog = await this.catalogOf(
+      context.year.database,
+      frameworkId,
+      subject ? { id: subject, name: await this.subjectName(context, currentUser, subject) } : null,
+    );
     const base = `danh-muc-minh-chung-${catalog.framework.code}`;
     if (format === 'docx') {
       return {
@@ -1599,6 +1730,9 @@ export class EvidenceStoreService {
     const context = await this.context(currentUser);
     if (!context.manager) {
       throw forbidden('Chỉ người quản lý kho minh chứng toàn trường tạo gói hồ sơ minh chứng');
+    }
+    if ((await this.frameworkSubject(context.year.database, frameworkId)) === 'person') {
+      throw evidenceRule('Gói hồ sơ chỉ tạo cho bộ tiêu chí của nhà trường; bộ của cá nhân xuất danh mục');
     }
     const catalog = await this.catalogOf(context.year.database, frameworkId);
     const primaries = catalog.standards
@@ -1657,7 +1791,7 @@ export class EvidenceStoreService {
   // ---- Dùng cho phân hệ tự đánh giá (22f) ----
 
   // Minh chứng của các tiêu chí trong một bộ: mã, tên, trạng thái, hiệu lực, kèm tiêu chí dùng chung
-  async byNodes(frameworkId: string, nodeIds: string[] | null) {
+  async byNodes(frameworkId: string, nodeIds: string[] | null, subjectUserId: string | null = null) {
     await this.ensureImported();
     const today = VIETNAM_DATE.format(this.clock.now());
     let query = this.databases.system
@@ -1680,6 +1814,7 @@ export class EvidenceStoreService {
         'links.node_id',
       ])
       .where('links.framework_id', '=', frameworkId)
+      .$if(subjectUserId !== null, (rows) => rows.where('codes.subject_user_id', '=', subjectUserId))
       .orderBy('codes.box')
       .orderBy('codes.code');
     if (nodeIds) {
@@ -1852,9 +1987,10 @@ export class EvidenceStoreService {
             .select('evidence_id')
             .where('framework_id', '=', row.framework_id)
             .where('code', '=', code)
+            .where('subject_user_id', 'is', null)
             .executeTakeFirst();
           if (taken) {
-            sequence = await this.nextSequence(transaction, row.framework_id, row.criterion_id);
+            sequence = await this.nextSequence(transaction, row.framework_id, row.criterion_id, null);
             code = formatEvidenceCode(row.box, row.criterion_code, sequence);
           }
           const item = await transaction
@@ -2012,7 +2148,11 @@ function catalogSheet(catalog: EvidenceCatalog) {
   }
   return {
     title: 'Danh mục minh chứng',
-    heading: ['DANH MỤC MÃ MINH CHỨNG', catalog.framework.name],
+    heading: [
+      'DANH MỤC MÃ MINH CHỨNG',
+      catalog.framework.name,
+      ...(catalog.subject ? [`Người được đánh giá: ${catalog.subject.name}`] : []),
+    ],
     columns: CATALOG_COLUMNS,
     rows,
   };
@@ -2020,7 +2160,11 @@ function catalogSheet(catalog: EvidenceCatalog) {
 
 function catalogBlocks(catalog: EvidenceCatalog): DocumentBlock[] {
   return [
-    { kind: 'title', text: 'DANH MỤC MÃ MINH CHỨNG', subtitle: catalog.framework.name },
+    {
+      kind: 'title',
+      text: 'DANH MỤC MÃ MINH CHỨNG',
+      subtitle: catalog.subject ? `${catalog.framework.name} – ${catalog.subject.name}` : catalog.framework.name,
+    },
     ...catalogTableBlocks(catalog),
   ];
 }

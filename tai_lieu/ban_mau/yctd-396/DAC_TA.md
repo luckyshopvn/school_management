@@ -185,7 +185,7 @@ Mọi bộ dưới đây là cấu hình (bộ mẫu nạp sẵn), không viết
 | Mã đề xuất | Bộ | Đối tượng | Căn cứ (đối chiếu khi nạp) | Nối với phần đã có |
 |---|---|---|---|---|
 | A | Chuẩn hiệu trưởng cơ sở giáo dục phổ thông; chuẩn hiệu trưởng mầm non | Cá nhân | Thông tư 14/2018/TT-BGDĐT; Thông tư 25/2018/TT-BGDĐT | Hồ sơ cán bộ |
-| B | Chuẩn nghề nghiệp giáo viên phổ thông; giáo viên mầm non | Cá nhân | Thông tư 20/2018/TT-BGDĐT; Thông tư 26/2018/TT-BGDĐT | Đánh giá chuẩn nghề nghiệp (YCTD-104) đọc minh chứng từ kho |
+| B | Chuẩn nghề nghiệp giáo viên phổ thông theo hạng I, II, III (từ năm học 2026-2027); chuẩn giáo viên phổ thông 15 tiêu chí (đến hết năm học 2025-2026); giáo viên mầm non | Cá nhân | Thông tư 30/2026/TT-BGDĐT (bãi bỏ Thông tư 20/2018/TT-BGDĐT từ năm học 2026-2027); Thông tư 20/2018/TT-BGDĐT; Thông tư 26/2018/TT-BGDĐT | Đánh giá chuẩn nghề nghiệp (YCTD-104) đọc minh chứng từ kho. Lát L6 nạp bộ Thông tư 20/2018 và chín bộ theo hạng (ba cấp, ba hạng), chưa xếp loại theo hạng |
 | C | Thi đua, khen thưởng | Cá nhân, tập thể | Luật Thi đua, khen thưởng 2022 và văn bản hướng dẫn | Hồ sơ đề nghị của 22d chọn minh chứng từ kho thay vì chỉ từ 18e |
 | D | Trường học an toàn, phòng chống tai nạn thương tích | Nhà trường | Văn bản hiện hành theo cấp học | Kiểm thực, cơ sở vật chất, y tế |
 | E | Kế hoạch năm học, kiểm tra nội bộ | Nhà trường | Hướng dẫn nhiệm vụ năm học của Bộ, Sở | Kế hoạch giáo dục, kế hoạch công việc |

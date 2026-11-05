@@ -105,6 +105,11 @@ function readRecordType(value: unknown, field: string, errors: FieldError[]): Ev
   return value as EvidenceRecordTypeCode;
 }
 
+// Người được đánh giá của bộ cá nhân (lát L6); trống là người đang xem
+function optionalSubject(value: unknown): string | null {
+  return value === undefined || value === null || value === '' ? null : requiredUuid(value, 'subject_user_id');
+}
+
 function text(value: unknown): string | null {
   return typeof value === 'string' && value.trim() !== '' ? value.trim().slice(0, 200) : null;
 }
@@ -137,6 +142,7 @@ export class EvidenceStoreController {
   @Get('export')
   async export(
     @Query('framework_id') frameworkId: string | undefined,
+    @Query('subject_user_id') subjectUserId: string | undefined,
     @Query('format') format: string | undefined,
     @AuthenticatedUser() user: CurrentUser,
     @Res() response: Response,
@@ -145,6 +151,7 @@ export class EvidenceStoreController {
       user,
       requiredUuid(frameworkId, 'framework_id'),
       format === 'docx' ? 'docx' : (readTableFileFormat(format) ?? 'xlsx'),
+      optionalSubject(subjectUserId),
     );
     response.setHeader('content-type', file.contentType);
     response.setHeader('content-disposition', `attachment; filename*=UTF-8''${encodeURIComponent(file.fileName)}`);
@@ -164,6 +171,7 @@ export class EvidenceStoreController {
       status: status as QualityEvidenceStatusCode | null,
       validity: validity as EvidenceValidityCode | null,
       q: text(query.q),
+      subject_user_id: optionalSubject(query.subject_user_id),
     });
   }
 
@@ -177,6 +185,7 @@ export class EvidenceStoreController {
       box: readInteger(body, 'box', errors, { min: 1, max: 99 }),
       record_type: readRecordType(body?.record_type, 'record_type', errors),
       record_id: readText(body, 'record_id', errors, { maximum: 200 }),
+      subject_user_id: readUuid(body, 'subject_user_id', errors),
     };
     if (input.record_type && !input.record_id) {
       errors.push({ field: 'record_id', message: 'Bắt buộc chọn dữ liệu nguồn' });
@@ -219,8 +228,12 @@ export class EvidenceStoreController {
   }
 
   @Get('coverage')
-  coverage(@Query('framework_id') frameworkId: string | undefined, @AuthenticatedUser() user: CurrentUser) {
-    return this.store.coverage(user, requiredUuid(frameworkId, 'framework_id'));
+  coverage(
+    @Query('framework_id') frameworkId: string | undefined,
+    @Query('subject_user_id') subjectUserId: string | undefined,
+    @AuthenticatedUser() user: CurrentUser,
+  ) {
+    return this.store.coverage(user, requiredUuid(frameworkId, 'framework_id'), optionalSubject(subjectUserId));
   }
 
   @Get('assignees')

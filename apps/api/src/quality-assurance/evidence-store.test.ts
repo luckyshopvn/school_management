@@ -15,7 +15,7 @@ import {
   type LoggedInUser,
 } from '../test-support.js';
 
-// Kho minh chứng dùng chung (YCTD-396 lát L1); kịch bản CT-2130 đến CT-2135 (trong mã kiểm thử là CT-396-1 đến CT-396-6), lát L2 thêm CT-396-8, CT-396-9, lát L2b thêm CT-396-11, CT-396-12, lát L3 thêm CT-396-14, CT-396-15, lát L4 thêm CT-396-17, lát L5 thêm CT-396-19.
+// Kho minh chứng dùng chung (YCTD-396 lát L1); kịch bản CT-2130 đến CT-2135 (trong mã kiểm thử là CT-396-1 đến CT-396-6), lát L2 thêm CT-396-8, CT-396-9, lát L2b thêm CT-396-11, CT-396-12, lát L3 thêm CT-396-14, CT-396-15, lát L4 thêm CT-396-17, lát L5 thêm CT-396-19, lát L6 thêm CT-396-21.
 // Dữ liệu mẫu là dữ liệu giả
 const vietnamToday = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Ho_Chi_Minh' }).format(new Date());
 const addDays = (date: string, days: number) =>
@@ -472,7 +472,8 @@ describe('Kho minh chứng', () => {
 
   it('CT-396-15: nạp bộ mẫu Tiểu học đủ chỉ báo; nhập chỉ báo từ Excel: dòng lỗi thì không ghi dòng nào, đúng thì thêm và sửa nội dung (lát L3)', async () => {
     const loaded = await api('POST', '/quality/frameworks/defaults', 'principal', { school_level: 'TH' });
-    assert.equal(loaded.body.created, 1, JSON.stringify(loaded.body));
+    // Tiểu học: bộ kiểm định, chuẩn giáo viên Thông tư 20/2018 và ba bộ theo hạng của Thông tư 30/2026 (lát L6)
+    assert.equal(loaded.body.created, 5, JSON.stringify(loaded.body));
     assert.ok((loaded.body.indicators_added as number) > 100);
     const frameworks = (await api('GET', '/quality/frameworks', 'principal')).body as unknown as Array<{
       id: string;
@@ -739,5 +740,89 @@ describe('Kho minh chứng', () => {
     });
     const report = await download(`/quality/assessments/${assessment.id}/report?format=docx`, 'principal');
     assert.equal(report.status, 200);
+  });
+
+  it('CT-396-21: bộ chuẩn giáo viên của cá nhân (lát L6): mã riêng theo người, chỉ người đó và người quản lý xem, độ phủ theo người, danh mục ghi họ tên; gắn vào bộ của trường thì người khác xem được', async () => {
+    const frameworks = (await api('GET', '/quality/evidences/frameworks', 'teacher')).body.frameworks as Array<{
+      id: string;
+      code: string;
+      subject: string;
+      standards: Array<{ criteria: Array<{ id: string; code: string }> }>;
+    }>;
+    const rank = frameworks.find((row) => row.code === 'GV-TH-H2-2026');
+    assert.equal(rank?.subject, 'person');
+    const award = rank?.standards.flatMap((standard) => standard.criteria).find((node) => node.code === '3.k');
+    assert.ok(award, 'Hạng II tiểu học có yêu cầu 3.k về danh hiệu, khen thưởng');
+    assert.ok(frameworks.some((row) => row.code === 'GV-PT-TT20-2018'));
+    const body = { framework_id: rank?.id, node_id: award?.id, status: 'sufficient' };
+    const mine = await api('POST', '/quality/evidences', 'teacher', { ...body, title: 'Giấy khen cấp xã thử' });
+    assert.equal(mine.status, 201, JSON.stringify(mine.body));
+    assert.equal(mine.body.code, 'H3-3.k-01');
+    // Mỗi người một dãy mã
+    const other = await api('POST', '/quality/evidences', 'teacher2', { ...body, title: 'Chiến sĩ thi đua cơ sở thử' });
+    assert.equal(other.body.code, 'H3-3.k-01');
+    const forOther = await api('POST', '/quality/evidences', 'principal', {
+      ...body,
+      title: 'Giáo viên dạy giỏi cấp trường thử',
+      subject_user_id: users.teacher2?.userId,
+    });
+    assert.equal(forOther.body.code, 'H3-3.k-02', JSON.stringify(forOther.body));
+    assert.equal(
+      (
+        await api('POST', '/quality/evidences', 'teacher', {
+          ...body,
+          title: 'Thử',
+          subject_user_id: users.teacher2?.userId,
+        })
+      ).status,
+      403,
+    );
+
+    const list = (name: string, subject?: string) =>
+      api('GET', `/quality/evidences?framework_id=${rank?.id}${subject ? `&subject_user_id=${subject}` : ''}`, name);
+    assert.deepEqual(
+      ((await list('teacher')).body as unknown as Array<{ title: string }>).map((row) => row.title),
+      ['Giấy khen cấp xã thử'],
+    );
+    assert.equal((await list('teacher', users.teacher2?.userId)).status, 403);
+    assert.equal(((await list('principal', users.teacher2?.userId)).body as unknown as unknown[]).length, 2);
+    const detail = `/quality/evidences/${mine.body.id as string}`;
+    assert.equal((await api('GET', detail, 'teacher2')).status, 403);
+    assert.equal((await api('GET', detail, 'principal')).status, 200);
+
+    const coverage = await api('GET', `/quality/evidences/coverage?framework_id=${rank?.id}`, 'teacher');
+    assert.equal(coverage.body.covered_count, 1, JSON.stringify(coverage.body));
+    const overview = (await api('GET', '/quality/evidences/overview', 'teacher')).body;
+    assert.ok((overview.personal as Array<{ code: string }>).some((row) => row.code === 'GV-TH-H2-2026'));
+    assert.ok(!(overview.frameworks as Array<{ code: string }>).some((row) => row.code === 'GV-TH-H2-2026'));
+    const file = await download(
+      `/quality/evidences/export?framework_id=${rank?.id}&format=xlsx&subject_user_id=${users.teacher2?.userId}`,
+      'principal',
+    );
+    const book = new ExcelJS.Workbook();
+    await book.xlsx.load(file.body as unknown as ArrayBuffer);
+    const text: string[] = [];
+    book.worksheets[0]?.eachRow((row) => text.push((row.values as unknown[]).join('|')));
+    assert.ok(
+      text.some((line) => line.includes('Người được đánh giá: Giáo viên phụ trách thử')),
+      text.join('\n'),
+    );
+    assert.equal(
+      (await api('POST', '/quality/evidences/package', 'principal', { framework_id: rank?.id })).status,
+      422,
+    );
+
+    // Gắn vào bộ của trường: người xem kho của trường xem được; minh chứng của trường không gắn vào bộ cá nhân
+    const attached = await api('POST', `${detail}/codes`, 'teacher', {
+      framework_id: frameworkId,
+      node_id: criteria['1.1'],
+    });
+    assert.equal(attached.status, 201, JSON.stringify(attached.body));
+    assert.equal((await api('GET', detail, 'teacher2')).status, 200);
+    const school = await api('POST', `/quality/evidences/${evidences.minutes}/codes`, 'principal', {
+      framework_id: rank?.id,
+      node_id: award?.id,
+    });
+    assert.equal(school.status, 422, JSON.stringify(school.body));
   });
 });

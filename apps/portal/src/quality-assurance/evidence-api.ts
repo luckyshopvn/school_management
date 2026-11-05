@@ -46,6 +46,9 @@ export interface EvidenceFramework {
   name: string;
   school_level: string | null;
   status: string;
+  // Loại bộ, đối tượng (nhà trường hoặc cá nhân), lát L3, L6
+  kind: string;
+  subject: 'school' | 'person';
   standards: Array<{ id: string; code: string; title: string; criteria: EvidenceNode[] }>;
 }
 
@@ -148,6 +151,7 @@ export const listStoreEvidences = (filter: {
   status?: string;
   validity?: string;
   q?: string;
+  subject_user_id?: string;
 }) => requestJson<EvidenceRow[]>(`${API}${query(filter)}`);
 export const readEvidence = (id: string) => requestJson<EvidenceDetail>(`${API}/${id}`);
 export const createStoreEvidence = (
@@ -157,6 +161,7 @@ export const createStoreEvidence = (
     box: number | null;
     record_type: EvidenceRecordTypeCode | null;
     record_id: string | null;
+    subject_user_id?: string | null;
   },
 ) => requestJson<{ id: string; code: string; display_code: string }>(API, json('POST', input));
 export const updateStoreEvidence = (id: string, frameworkId: string, input: EvidenceInput) =>
@@ -186,8 +191,15 @@ export const downloadEvidenceVersion = (id: string, versionNo: number | null) =>
     `${API}/${id}/file${query({ version: versionNo === null ? null : String(versionNo), download: 'true' })}`,
     'minh-chung',
   );
-export const exportStoreEvidences = (frameworkId: string, format: 'xlsx' | 'docx' | 'pdf' = 'xlsx') =>
-  download(`${API}/export${query({ framework_id: frameworkId, format })}`, `danh-muc-minh-chung.${format}`);
+export const exportStoreEvidences = (
+  frameworkId: string,
+  format: 'xlsx' | 'docx' | 'pdf' = 'xlsx',
+  subjectUserId: string | null = null,
+) =>
+  download(
+    `${API}/export${query({ framework_id: frameworkId, format, subject_user_id: subjectUserId })}`,
+    `danh-muc-minh-chung.${format}`,
+  );
 export const listEvidenceByRecord = (recordType: EvidenceRecordTypeCode, recordId: string) =>
   requestJson<
     Array<{ id: string; title: string; code: string | null; framework_id: string | null; display_code: string | null }>
@@ -260,6 +272,15 @@ export interface EvidenceOverview {
     validity: EvidenceValidityCode;
     validity_label: string;
   }>;
+  // Bộ của cá nhân mà người xem đã có minh chứng (lát L6)
+  personal: Array<{
+    id: string;
+    code: string;
+    name: string;
+    criterion_count: number;
+    covered_count: number;
+    covered_percent: number;
+  }>;
   mine: Array<{
     framework_id: string;
     framework_name: string;
@@ -280,8 +301,10 @@ export interface EvidenceAssignInput {
 }
 
 export const readEvidenceOverview = () => requestJson<EvidenceOverview>(`${API}/overview`);
-export const readEvidenceCoverage = (frameworkId: string) =>
-  requestJson<EvidenceCoverage>(`${API}/coverage${query({ framework_id: frameworkId })}`);
+export const readEvidenceCoverage = (frameworkId: string, subjectUserId: string | null = null) =>
+  requestJson<EvidenceCoverage>(
+    `${API}/coverage${query({ framework_id: frameworkId, subject_user_id: subjectUserId })}`,
+  );
 export const listEvidenceAssignees = () =>
   requestJson<Array<{ user_id: string; full_name: string; code: string }>>(`${API}/assignees`);
 export const assignEvidenceCriteria = (input: EvidenceAssignInput) =>

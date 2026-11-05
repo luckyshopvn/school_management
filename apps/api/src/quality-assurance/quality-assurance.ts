@@ -412,6 +412,9 @@ export class QualityAssuranceService {
             sort_order: (index + 1) * 10,
             created_by: currentUser.id,
             template_version: seed.template_version ?? null,
+            ...(seed.kind ? { kind: seed.kind } : {}),
+            ...(seed.subject ? { subject: seed.subject } : {}),
+            ...(seed.cycle_years ? { cycle_years: seed.cycle_years } : {}),
           })
           .returning('id')
           .executeTakeFirstOrThrow();
