@@ -30,7 +30,7 @@ export function evidenceValidity(validUntil: string | null, today: string): Evid
   return validUntil <= limit.toISOString().slice(0, 10) ? 'expiring' : 'valid';
 }
 
-// Loại bản ghi làm nguồn minh chứng: ba loại đã dùng ở 22f (lát L1) và các loại của bộ đăng ký nguồn (lát L2, L2b)
+// Loại bản ghi làm nguồn minh chứng: ba loại đã dùng ở 22f (lát L1) và các loại của bộ đăng ký nguồn (lát L2, L2b, L7)
 export type EvidenceRecordTypeCode =
   | 'professional_document'
   | 'incoming_document'
@@ -43,7 +43,13 @@ export type EvidenceRecordTypeCode =
   | 'work_file'
   | 'score_book'
   | 'class_attendance'
-  | 'upper_level_submission';
+  | 'upper_level_submission'
+  | 'emulation_decision'
+  | 'emulation_minutes'
+  | 'food_inspection'
+  | 'equipment_stocktake'
+  | 'student_health'
+  | 'student_conduct';
 
 export const EVIDENCE_RECORD_TYPE_LABELS: Record<EvidenceRecordTypeCode, string> = {
   professional_document: 'Hồ sơ chuyên môn đã duyệt',
@@ -58,6 +64,12 @@ export const EVIDENCE_RECORD_TYPE_LABELS: Record<EvidenceRecordTypeCode, string>
   score_book: 'Sổ điểm một môn của lớp (một học kỳ)',
   class_attendance: 'Điểm danh của lớp (một tháng)',
   upper_level_submission: 'Biểu, báo cáo đã gửi cấp trên',
+  emulation_decision: 'Quyết định, tờ trình khen thưởng đã ban hành',
+  emulation_minutes: 'Biên bản họp hội đồng thi đua, khen thưởng',
+  food_inspection: 'Kiểm thực ba bước (một bếp, một ngày)',
+  equipment_stocktake: 'Biên bản kiểm kê thiết bị',
+  student_health: 'Cân đo, sức khỏe của lớp (một học kỳ)',
+  student_conduct: 'Ghi nhận rèn luyện của lớp (một học kỳ)',
 };
 
 export type EvidenceEventActionCode =

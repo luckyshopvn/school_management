@@ -21,6 +21,7 @@ import {
   saveStudentHealth,
   type StudentHealthRow,
 } from './student-health-api.js';
+import { UseAsEvidence } from '../quality-assurance/UseAsEvidence.js';
 
 // 4.6.1 Nhập thông tin sức khỏe học sinh (DT-16 phần 16h, theo mục 4.6 của Sở): chọn đơn vị, lớp, học kỳ; nhập cân nặng,
 // chiều cao, kết quả giáo dục thể chất, biết bơi, bệnh về mắt từng học sinh rồi "Ghi"; "Lấy dữ liệu từ 4.3" (chỉ khi làm việc ở
@@ -209,6 +210,13 @@ export function StudentHealthPage() {
               <Button type="button" variant="secondary" onClick={() => exportFile.mutate()}>
                 Xuất Excel
               </Button>
+              {grid.data ? (
+                <UseAsEvidence
+                  recordType="student_health"
+                  recordId={`${classId}:${term}`}
+                  defaultTitle={`Cân đo, sức khỏe lớp ${grid.data.class.name}`}
+                />
+              ) : null}
             </div>
             <div className="overflow-x-auto">
               <table className="w-full text-content">

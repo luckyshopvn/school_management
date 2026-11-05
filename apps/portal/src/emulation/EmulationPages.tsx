@@ -39,6 +39,7 @@ import {
 import { fieldErrorsOf, formatDate, messageOf, selectClass } from '../archives/archive-ui.js';
 import { formatDateTime, Page, Tabs, todayText, useToast } from '../directives/directive-ui.js';
 import { useGridSettings } from '../pages/grid-settings.js';
+import { UseAsEvidence } from '../quality-assurance/UseAsEvidence.js';
 import {
   addEvidence,
   addManualAward,
@@ -1485,6 +1486,13 @@ export function CouncilPage() {
                       Tải biên bản
                     </Button>
                   ) : null}
+                  {meeting.minutes_file_id ? (
+                    <UseAsEvidence
+                      recordType="emulation_minutes"
+                      recordId={meeting.id}
+                      defaultTitle={`Biên bản họp hội đồng thi đua ${data.campaign.name}`}
+                    />
+                  ) : null}
                 </li>
               ))}
             </ul>
@@ -1907,6 +1915,9 @@ function DecisionPanel({ id, onChanged }: { id: string; onChanged(message: strin
         <Button variant="secondary" onClick={() => file.mutate('pdf')}>
           Tải dự thảo (PDF)
         </Button>
+        {data.status === 'issued' ? (
+          <UseAsEvidence recordType="emulation_decision" recordId={data.id} defaultTitle={data.title} />
+        ) : null}
         {data.status === 'draft' && !data.outgoing && overview.data?.can_draft_outgoing ? (
           <Button variant="secondary" disabled={outgoing.isPending} onClick={() => outgoing.mutate()}>
             Tạo dự thảo văn bản đi
