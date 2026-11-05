@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { Alert, ApplicationHeader, Button } from '@school-management/ui';
 import { ApiError, requestJson } from '../session/api-client.js';
 import type { MyClass } from './ClassesScreen.js';
+import { useWideLayout } from '../shell/use-wide-layout.js';
 
 // Đánh giá học sinh của lớp Tiểu học (DT-20 phần 20c, YCTD-161): chọn kỳ và môn mình được phân công (giáo viên chủ nhiệm có
 // thêm phẩm chất, năng lực), nhập mức đạt, điểm bài kiểm tra định kỳ, nhận xét. Máy chủ kiểm tra phân công, hạn, khoá số liệu
@@ -38,6 +39,11 @@ interface CompetencySheet {
 
 const COMPETENCY = 'competency';
 
+// Bảng nhập theo ô khổ máy tính (TD-29, YCTD-395 lát L4): cột họ tên và hàng tiêu đề dính khi cuộn
+const TABLE_HEADER =
+  'sticky top-0 z-10 border-b border-border bg-page px-3 py-2.5 text-left text-label font-semibold text-text';
+const TABLE_NAME_CELL = 'sticky left-0 z-[1] border-b border-border bg-card px-4 py-1.5 text-left font-semibold';
+
 function messageOf(error: unknown): string {
   return error instanceof ApiError
     ? [error.message, ...error.details.map((detail) => detail.message)].join(': ')
@@ -55,6 +61,8 @@ export function AssessmentScreen({ myClass, onBack }: { myClass: MyClass; onBack
   const [marks, setMarks] = useState<Record<string, string>>({});
   const [message, setMessage] = useState<{ text: string; failed: boolean }>();
   const [busy, setBusy] = useState(false);
+  // Khổ máy tính (YCTD-395 lát L4): bảng nhập theo ô TD-29; điện thoại mỗi học sinh một thẻ như trước
+  const wide = useWideLayout();
 
   useEffect(() => {
     requestJson<Overview>(`/api/v1/assessment/classes/${myClass.id}`)
@@ -163,7 +171,7 @@ export function AssessmentScreen({ myClass, onBack }: { myClass: MyClass; onBack
   return (
     <div className="min-h-screen bg-page">
       <ApplicationHeader title={`Đánh giá lớp ${myClass.name}`} />
-      <main className="mx-auto flex max-w-xl flex-col md:max-w-3xl gap-4 p-4">
+      <main className="mx-auto flex max-w-xl flex-col gap-4 p-4 md:max-w-3xl lg:max-w-[78rem] lg:px-7">
         <div>
           <Button variant="text" onClick={onBack}>
             Quay lại
@@ -171,7 +179,7 @@ export function AssessmentScreen({ myClass, onBack }: { myClass: MyClass; onBack
         </div>
         {message ? <Alert tone={message.failed ? 'danger' : 'success'}>{message.text}</Alert> : null}
         {overview ? (
-          <div className="flex flex-col gap-2">
+          <div className="flex flex-col gap-2 lg:flex-row lg:flex-wrap lg:gap-3">
             <label className="flex flex-col gap-1 text-label font-medium text-text">
               Kỳ đánh giá
               <select
@@ -207,7 +215,80 @@ export function AssessmentScreen({ myClass, onBack }: { myClass: MyClass; onBack
         {overview && overview.periods.length === 0 ? (
           <Alert tone="info">Nhà trường chưa cấu hình kỳ đánh giá.</Alert>
         ) : null}
-        {target && target !== COMPETENCY ? (
+        {target && target !== COMPETENCY && wide ? (
+          <div className="relative max-h-[70vh] overflow-auto rounded-xl border border-border bg-card">
+            <table className="w-full border-separate border-spacing-0 text-content text-text">
+              <caption className="sr-only">Đánh giá học sinh</caption>
+              <thead>
+                <tr>
+                  <th scope="col" className={`${TABLE_HEADER} left-0 z-20 min-w-60`}>
+                    Học sinh
+                  </th>
+                  <th scope="col" className={TABLE_HEADER}>
+                    Mức đạt
+                  </th>
+                  {hasTest ? (
+                    <th scope="col" className={TABLE_HEADER}>
+                      Điểm
+                    </th>
+                  ) : null}
+                  <th scope="col" className={`${TABLE_HEADER} w-full`}>
+                    Nhận xét
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                {rows.map((row) => (
+                  <tr key={row.child_id}>
+                    <th scope="row" className={TABLE_NAME_CELL}>
+                      {row.full_name}
+                    </th>
+                    <td className="border-b border-border px-3 py-1.5">
+                      <select
+                        aria-label={`Mức đạt của ${row.full_name}`}
+                        value={row.level_code}
+                        disabled={!canEdit}
+                        onChange={(event) => update(row.child_id, 'level_code', event.target.value)}
+                        className="min-h-11 rounded-lg border border-border bg-card px-2"
+                      >
+                        <option value="">Chưa nhập</option>
+                        {levels.map((level) => (
+                          <option key={level.code} value={level.code}>
+                            {level.name}
+                          </option>
+                        ))}
+                      </select>
+                    </td>
+                    {hasTest ? (
+                      <td className="border-b border-border px-3 py-1.5">
+                        <input
+                          aria-label={`Điểm của ${row.full_name}`}
+                          inputMode="numeric"
+                          className="min-h-11 w-16 rounded-lg border border-border bg-card px-2 text-center"
+                          value={row.score}
+                          disabled={!canEdit}
+                          onChange={(event) =>
+                            update(row.child_id, 'score', event.target.value.replace(/\D/g, '').slice(0, 2))
+                          }
+                        />
+                      </td>
+                    ) : null}
+                    <td className="border-b border-border px-3 py-1.5">
+                      <input
+                        aria-label={`Nhận xét của ${row.full_name}`}
+                        className="min-h-11 w-full min-w-80 rounded-lg border border-border bg-card px-3"
+                        value={row.comment}
+                        disabled={!canEdit}
+                        onChange={(event) => update(row.child_id, 'comment', event.target.value)}
+                      />
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        ) : null}
+        {target && target !== COMPETENCY && !wide ? (
           <ul className="flex flex-col gap-3" aria-label="Đánh giá học sinh">
             {rows.map((row) => (
               <li key={row.child_id} className="flex flex-col gap-2 rounded-xl border border-border bg-card p-3">
@@ -253,7 +334,55 @@ export function AssessmentScreen({ myClass, onBack }: { myClass: MyClass; onBack
             ))}
           </ul>
         ) : null}
-        {target === COMPETENCY && competency ? (
+        {target === COMPETENCY && competency && wide ? (
+          <div className="relative max-h-[70vh] overflow-auto rounded-xl border border-border bg-card">
+            <table className="w-full border-separate border-spacing-0 text-content text-text">
+              <caption className="sr-only">Phẩm chất, năng lực</caption>
+              <thead>
+                <tr>
+                  <th scope="col" className={`${TABLE_HEADER} left-0 z-20 min-w-60`}>
+                    Học sinh
+                  </th>
+                  {competency.items.map((item) => (
+                    <th key={item.id} scope="col" className={TABLE_HEADER}>
+                      {item.name}
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {competency.rows.map((row) => (
+                  <tr key={row.child_id}>
+                    <th scope="row" className={TABLE_NAME_CELL}>
+                      {row.full_name}
+                    </th>
+                    {competency.items.map((item) => (
+                      <td key={item.id} className="border-b border-border px-3 py-1.5">
+                        <select
+                          aria-label={`${item.name} của ${row.full_name}`}
+                          value={marks[`${row.child_id}:${item.id}`] ?? ''}
+                          disabled={!canEdit}
+                          onChange={(event) =>
+                            setMarks({ ...marks, [`${row.child_id}:${item.id}`]: event.target.value })
+                          }
+                          className="min-h-11 rounded-lg border border-border bg-card px-2"
+                        >
+                          <option value="">-</option>
+                          {levels.map((level) => (
+                            <option key={level.code} value={level.code}>
+                              {level.name}
+                            </option>
+                          ))}
+                        </select>
+                      </td>
+                    ))}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        ) : null}
+        {target === COMPETENCY && competency && !wide ? (
           <ul className="flex flex-col gap-3" aria-label="Phẩm chất, năng lực">
             {competency.rows.map((row) => (
               <li key={row.child_id} className="flex flex-col gap-2 rounded-xl border border-border bg-card p-3">
@@ -282,7 +411,7 @@ export function AssessmentScreen({ myClass, onBack }: { myClass: MyClass; onBack
           </ul>
         ) : null}
         {canEdit ? (
-          <Button variant="primary" disabled={busy} onClick={() => void save()}>
+          <Button variant="primary" className="lg:self-start" disabled={busy} onClick={() => void save()}>
             Lưu đánh giá
           </Button>
         ) : null}
