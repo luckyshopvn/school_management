@@ -1,11 +1,20 @@
 import { hasLevelFeature, levelOf, SCHOOL_LEVELS, schoolLevelTerms } from '@school-management/shared';
-import { Alert, ApplicationHeader, Button } from '@school-management/ui';
+import { Alert, ApplicationHeader, Button, ShortcutTiles, type ShortcutTile } from '@school-management/ui';
 import { InstallPrompt, PushSettingsPanel } from '@school-management/pwa';
 import { requestJson } from '../session/api-client.js';
 import { useSession } from '../session/session.js';
 import { CheckInCard } from './CheckInCard.js';
 import { NotificationsPanel } from './NotificationsPanel.js';
-import { gateUnitIds, globalFeatures, sortClassesByLevel } from '../shell/teacher-features.js';
+import { Icon } from '../shell/icons.js';
+import { useWideLayout } from '../shell/use-wide-layout.js';
+import {
+  classFeatures,
+  gateUnitIds,
+  globalFeatures,
+  sortClassesByLevel,
+  type ClassFeature,
+  type GlobalFeature,
+} from '../shell/teacher-features.js';
 import type { TeacherFeatureState } from '../shell/use-teacher-features.js';
 
 // MG-01 Lớp của tôi hôm nay: các lớp đang được phân công (YCTD-44); bảo vệ mở xác nhận người đón tại cổng (MG-16)
@@ -40,6 +49,93 @@ function ClassSummary({ myClass, showLevel }: { myClass: MyClass; showLevel: boo
         {myClass.enrolled_count} {learner}
       </span>
     </>
+  );
+}
+
+// Nhãn ngắn trên thẻ lớp khổ máy tính; tên đọc giữ như nút ở điện thoại ("Sổ điểm lớp 6A")
+const CLASS_CARD_LABELS: Record<ClassFeature, [shortLabel: string, accessiblePrefix: string]> = {
+  attendance: ['Điểm danh', 'Điểm danh'],
+  pickup: ['Đón trả', 'Đón trả'],
+  journal: ['Nhật ký', 'Nhật ký'],
+  care: ['Chăm sóc', 'Chăm sóc'],
+  messages: ['Trao đổi', 'Trao đổi'],
+  activity: ['Hoạt động', 'Hoạt động'],
+  meal: ['Báo cơm', 'Báo cơm'],
+  scores: ['Sổ điểm', 'Sổ điểm'],
+  assessment: ['Đánh giá', 'Đánh giá'],
+  boarding: ['Bán trú', 'Bán trú'],
+  medication: ['Dặn thuốc', 'Dặn thuốc'],
+  teaching: ['Giảng dạy', 'Giảng dạy'],
+};
+
+// Ký hiệu lớp trên ô vuông màu nhấn: tên bỏ chữ "Lớp", lấy từ đầu, tối đa 4 ký tự
+function classBadge(name: string): string {
+  const word = name.replace(/^Lớp\s+/iu, '').split(/\s+/)[0] ?? name;
+  return [...word].slice(0, 4).join('');
+}
+
+// Thẻ lớp khổ máy tính (YCTD-395 lát L2): ô ký hiệu, tên, cấp, sĩ số, nhãn Chủ nhiệm; lưới chức năng của cấp lớp ba cột. Bấm đầu
+// thẻ mở điểm danh như nút lớp ở điện thoại
+function ClassCard({
+  myClass,
+  showLevel,
+  homeroom,
+  onOpen,
+}: {
+  myClass: MyClass;
+  showLevel: boolean;
+  homeroom: boolean;
+  onOpen(feature: ClassFeature): void;
+}) {
+  const head = (
+    <>
+      <span
+        aria-hidden="true"
+        className="grid size-13 shrink-0 place-items-center rounded-2xl bg-pc-nhan text-pc-co-noi-dung font-bold text-pc-chu-tren-nhan"
+      >
+        {classBadge(myClass.name)}
+      </span>
+      <span className="flex min-w-0 flex-1 flex-col">
+        <ClassSummary myClass={myClass} showLevel={showLevel} />
+      </span>
+      {homeroom ? (
+        <span className="shrink-0 rounded-full bg-pc-nhan-nhat px-2.5 py-0.5 text-pc-co-nhan font-semibold text-pc-nhan-dam">
+          Chủ nhiệm
+        </span>
+      ) : null}
+    </>
+  );
+  const features = classFeatures(myClass.school_level, hasLevelFeature);
+  return (
+    <div className="flex flex-col overflow-hidden rounded-pc-lon border border-pc-vien bg-pc-the shadow-pc">
+      {features.includes('attendance') ? (
+        <button
+          type="button"
+          onClick={() => onOpen('attendance')}
+          className="flex min-h-11 items-center gap-3.5 p-4 text-left hover:bg-pc-nen-trang"
+        >
+          {head}
+        </button>
+      ) : (
+        <div className="flex items-center gap-3.5 p-4">{head}</div>
+      )}
+      <div className="grid grid-cols-3 border-t border-pc-ke">
+        {features.map((feature) => (
+          <button
+            key={feature}
+            type="button"
+            aria-label={`${CLASS_CARD_LABELS[feature][1]} lớp ${myClass.name}`}
+            onClick={() => onOpen(feature)}
+            className="flex min-h-19 flex-col items-center justify-center gap-1 border-r border-b border-pc-ke text-pc-co-nhan font-medium text-pc-chu last:border-r-0 nth-[3n]:border-r-0 hover:bg-pc-nen-trang hover:text-pc-nhan-dam"
+          >
+            <span aria-hidden="true" className="text-pc-nhan">
+              <Icon name={feature} />
+            </span>
+            {CLASS_CARD_LABELS[feature][0]}
+          </button>
+        ))}
+      </div>
+    </div>
   );
 }
 
@@ -122,13 +218,144 @@ export function ClassesScreen({
   const multiLevel = new Set((classes ?? []).map((myClass) => levelOf(myClass.school_level))).size > 1;
   const sortedClasses = sortClassesByLevel(classes ?? [], levelOrder);
 
+  // Khổ máy tính (YCTD-395 lát L2, bản mẫu tai_lieu/ban_mau/yctd-395): nút chung thành ô lối tắt, mỗi lớp một thẻ có lưới chức năng.
+  // Tên đọc của ô, nút giữ như nút ở điện thoại để trình đọc màn hình và kiểm thử tìm cùng một tên
+  const openers: Record<ClassFeature, (myClass: MyClass) => void> = {
+    attendance: onOpen,
+    pickup: onOpenPickup,
+    journal: onOpenJournal,
+    care: onOpenCare,
+    messages: onOpenMessages,
+    activity: onOpenActivity,
+    meal: onOpenMealReport,
+    scores: onOpenScores,
+    assessment: onOpenAssessment,
+    boarding: onOpenBoarding,
+    medication: onOpenMedication,
+    teaching: onOpenTeaching,
+  };
+  const pendingFlags = aiTutorFlags?.pending_count ?? 0;
+  const tiles: Array<[GlobalFeature, ShortcutTile]> = [
+    [
+      'gate',
+      {
+        label: 'Người đón',
+        accessibleLabel: 'Xác nhận người đón tại cổng',
+        icon: <Icon name="gate" />,
+        onSelect: () => onOpenGate(gateUnits),
+      },
+    ],
+    [
+      'gate-scan',
+      {
+        label: 'Quét thẻ',
+        accessibleLabel: 'Quét thẻ vào, ra cổng',
+        icon: <Icon name="gate-scan" />,
+        onSelect: onOpenGateScan,
+      },
+    ],
+    ['supervision', { label: 'Ghi nhận rèn luyện', icon: <Icon name="supervision" />, onSelect: onOpenSupervision }],
+    [
+      'ai-tutor-flags',
+      {
+        label: 'Gia sư AI',
+        accessibleLabel: `Gia sư AI: cờ cần xử lý (${pendingFlags})`,
+        icon: <Icon name="ai-tutor-flags" />,
+        count: pendingFlags,
+        onSelect: onOpenAiTutorFlags,
+      },
+    ],
+    [
+      'timetable',
+      {
+        label: 'Lịch dạy',
+        accessibleLabel: 'Lịch dạy của tôi',
+        icon: <Icon name="timetable" />,
+        onSelect: onOpenTimetable,
+      },
+    ],
+    ['class-log', { label: 'Sổ đầu bài', icon: <Icon name="class-log" />, onSelect: onOpenClassLog }],
+    [
+      'classroom-tools',
+      {
+        label: 'Hộp công cụ',
+        accessibleLabel: 'Hộp công cụ giảng dạy',
+        icon: <Icon name="classroom-tools" />,
+        onSelect: () => onOpenClassroomTools(classes ?? []),
+      },
+    ],
+    [
+      'classroom-mode',
+      {
+        label: 'Chế độ lớp học',
+        icon: <Icon name="classroom-mode" />,
+        onSelect: () => onOpenClassroomMode(sortedClasses),
+      },
+    ],
+    [
+      'online-classes',
+      {
+        label: 'Lớp trực tuyến',
+        accessibleLabel: 'Lớp học trực tuyến',
+        icon: <Icon name="online-classes" />,
+        onSelect: onOpenOnlineClasses,
+      },
+    ],
+    [
+      'training',
+      {
+        label: 'Bồi dưỡng',
+        accessibleLabel: 'Bồi dưỡng của tôi',
+        icon: <Icon name="training" />,
+        onSelect: onOpenTraining,
+      },
+    ],
+    [
+      'stocktake',
+      {
+        label: 'Kiểm kê',
+        accessibleLabel: 'Kiểm kê thiết bị',
+        icon: <Icon name="stocktake" />,
+        onSelect: onOpenStocktake,
+      },
+    ],
+    [
+      'library',
+      {
+        label: 'Sách đang mượn',
+        accessibleLabel: 'Sách tôi đang mượn',
+        icon: <Icon name="library" />,
+        onSelect: onOpenLibrary,
+      },
+    ],
+  ];
+  const visibleTiles = tiles.filter(([feature]) => visible.has(feature)).map(([, tile]) => tile);
+  const myId = features.user?.id;
+  // Ô lối tắt, thẻ lớp chỉ vẽ ở khổ máy tính, nút cột chỉ vẽ ở điện thoại: mỗi chữ, mỗi nút một phần tử duy nhất (tên cấp, tên lớp
+  // không lặp ở phần tử ẩn)
+  const wide = useWideLayout();
+  const today = new Intl.DateTimeFormat('vi-VN', {
+    timeZone: 'Asia/Ho_Chi_Minh',
+    weekday: 'long',
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
+  }).format(new Date());
+
   return (
     <div className="min-h-screen">
       <ApplicationHeader title="Ứng dụng giáo viên" hideInShell />
-      {/* Máy tính bảng ngang, màn hình lớn (DT-26 phần 26d): hai khung, trái là thông báo và chấm công, phải là lớp của tôi; điện thoại
-          giữ một cột như trước */}
-      <main className="mx-auto flex max-w-md flex-col gap-4 px-4 py-6 md:max-w-3xl lg:grid lg:max-w-6xl lg:grid-cols-[minmax(0,22rem)_minmax(0,1fr)] lg:items-start">
-        <div className="flex flex-col gap-4">
+      {/* Điện thoại, máy tính bảng dọc: một cột như trước. Từ 1024 px (YCTD-395): dải chào, ô lối tắt, thẻ lớp; từ 1280 px thông báo, chấm
+          công ở cột phải 320 px. Một cây phần tử, chỉ đổi bố cục, để khung thông báo, chấm công không tải hai lần */}
+      <main className="mx-auto flex max-w-md flex-col gap-4 px-4 py-6 md:max-w-3xl lg:grid lg:max-w-[78rem] lg:gap-5 lg:px-7 lg:py-6 xl:grid-cols-[minmax(0,1fr)_20rem] xl:items-start">
+        <div className="relative hidden overflow-hidden rounded-3xl bg-pc-nhan px-6 py-5 text-pc-chu-tren-nhan lg:order-1 lg:block xl:col-span-2">
+          <p className="text-pc-co-nhan first-letter:uppercase">{today}</p>
+          <p className="text-[1.375rem] font-bold leading-snug">
+            {features.user ? `Chào ${features.user.full_name}` : 'Xin chào'}
+          </p>
+          {classes ? <p className="text-pc-co-nhan">Bạn đang dạy {classes.length} lớp</p> : null}
+        </div>
+        <div data-home="panels" className="flex flex-col gap-4 lg:order-3 xl:order-2 xl:col-start-2 xl:row-start-2">
           {/* Mời cài lên màn hình chính (DT-26 phần 26a) */}
           <InstallPrompt applicationName="ứng dụng giáo viên" />
           <NotificationsPanel />
@@ -136,43 +363,57 @@ export function ClassesScreen({
           <PushSettingsPanel application="teacher" base={import.meta.env.BASE_URL} request={requestJson} />
           <CheckInCard onOpenLeave={onOpenLeave} onOpenPayslips={onOpenPayslips} onOpenWork={onOpenWork} />
         </div>
-        <div className="flex flex-col gap-4">
+        <div
+          data-home="classes"
+          className="flex min-w-0 flex-col gap-4 lg:order-2 lg:gap-5 xl:col-start-1 xl:row-start-2"
+        >
+          {wide && visibleTiles.length > 0 ? (
+            <ShortcutTiles
+              items={visibleTiles}
+              label="Lối tắt"
+              columnsClassName="grid-cols-[repeat(auto-fill,minmax(6rem,1fr))]"
+            />
+          ) : null}
           <h1 className="text-page-title font-bold text-text">Lớp của tôi</h1>
           {errorMessage ? <Alert tone="danger">{errorMessage}</Alert> : null}
-          {visible.has('gate') ? (
-            <Button variant="primary" onClick={() => onOpenGate(gateUnits)}>
-              Xác nhận người đón tại cổng
-            </Button>
+          {!wide ? (
+            <div className="flex flex-col gap-4">
+              {visible.has('gate') ? (
+                <Button variant="primary" onClick={() => onOpenGate(gateUnits)}>
+                  Xác nhận người đón tại cổng
+                </Button>
+              ) : null}
+              {visible.has('gate-scan') ? (
+                <Button variant="primary" onClick={onOpenGateScan}>
+                  Quét thẻ vào, ra cổng
+                </Button>
+              ) : null}
+              {aiTutorFlags && visible.has('ai-tutor-flags') ? (
+                <Button variant={aiTutorFlags.pending_count > 0 ? 'primary' : 'secondary'} onClick={onOpenAiTutorFlags}>
+                  Gia sư AI: cờ cần xử lý ({aiTutorFlags.pending_count})
+                </Button>
+              ) : null}
+              {visible.has('stocktake') ? <Button onClick={onOpenStocktake}>Kiểm kê thiết bị</Button> : null}
+              {visible.has('training') ? <Button onClick={onOpenTraining}>Bồi dưỡng của tôi</Button> : null}
+              {visible.has('online-classes') ? <Button onClick={onOpenOnlineClasses}>Lớp học trực tuyến</Button> : null}
+              {/* Lịch dạy theo thời khoá biểu (DT-20 phần 22c1): giáo viên có lớp cấp phổ thông */}
+              {visible.has('timetable') ? <Button onClick={onOpenTimetable}>Lịch dạy của tôi</Button> : null}
+              {/* Hộp công cụ giảng dạy theo cấp của lớp (DT-29, YCTD-325; trước là Công cụ lớp học của DT-23 phần 23b) */}
+              {visible.has('classroom-tools') ? (
+                <Button onClick={() => onOpenClassroomTools(classes ?? [])}>Hộp công cụ giảng dạy</Button>
+              ) : null}
+              {/* Chế độ lớp học trên máy tính bảng, màn hình lớn: lớp theo tiết đang dạy, điểm danh, sổ đầu bài, công cụ (DT-26 phần 26d) */}
+              {visible.has('classroom-mode') ? (
+                <Button onClick={() => onOpenClassroomMode(sortedClasses)}>Chế độ lớp học</Button>
+              ) : null}
+              {/* Sách đang mượn ở thư viện trường (DT-22 phần 22a) */}
+              <Button onClick={onOpenLibrary}>Sách tôi đang mượn</Button>
+              {/* Ca trực, ghi nhận vi phạm, khen từng học sinh (YCTD-391) */}
+              {visible.has('supervision') ? <Button onClick={onOpenSupervision}>Ghi nhận rèn luyện</Button> : null}
+              {/* Sổ đầu bài, điểm danh theo tiết (DT-20 phần 20d) */}
+              {visible.has('class-log') ? <Button onClick={onOpenClassLog}>Sổ đầu bài</Button> : null}
+            </div>
           ) : null}
-          {visible.has('gate-scan') ? (
-            <Button variant="primary" onClick={onOpenGateScan}>
-              Quét thẻ vào, ra cổng
-            </Button>
-          ) : null}
-          {aiTutorFlags && visible.has('ai-tutor-flags') ? (
-            <Button variant={aiTutorFlags.pending_count > 0 ? 'primary' : 'secondary'} onClick={onOpenAiTutorFlags}>
-              Gia sư AI: cờ cần xử lý ({aiTutorFlags.pending_count})
-            </Button>
-          ) : null}
-          {visible.has('stocktake') ? <Button onClick={onOpenStocktake}>Kiểm kê thiết bị</Button> : null}
-          {visible.has('training') ? <Button onClick={onOpenTraining}>Bồi dưỡng của tôi</Button> : null}
-          {visible.has('online-classes') ? <Button onClick={onOpenOnlineClasses}>Lớp học trực tuyến</Button> : null}
-          {/* Lịch dạy theo thời khoá biểu (DT-20 phần 22c1): giáo viên có lớp cấp phổ thông */}
-          {visible.has('timetable') ? <Button onClick={onOpenTimetable}>Lịch dạy của tôi</Button> : null}
-          {/* Hộp công cụ giảng dạy theo cấp của lớp (DT-29, YCTD-325; trước là Công cụ lớp học của DT-23 phần 23b) */}
-          {visible.has('classroom-tools') ? (
-            <Button onClick={() => onOpenClassroomTools(classes ?? [])}>Hộp công cụ giảng dạy</Button>
-          ) : null}
-          {/* Chế độ lớp học trên máy tính bảng, màn hình lớn: lớp theo tiết đang dạy, điểm danh, sổ đầu bài, công cụ (DT-26 phần 26d) */}
-          {visible.has('classroom-mode') ? (
-            <Button onClick={() => onOpenClassroomMode(sortedClasses)}>Chế độ lớp học</Button>
-          ) : null}
-          {/* Sách đang mượn ở thư viện trường (DT-22 phần 22a) */}
-          <Button onClick={onOpenLibrary}>Sách tôi đang mượn</Button>
-          {/* Ca trực, ghi nhận vi phạm, khen từng học sinh (YCTD-391) */}
-          {visible.has('supervision') ? <Button onClick={onOpenSupervision}>Ghi nhận rèn luyện</Button> : null}
-          {/* Sổ đầu bài, điểm danh theo tiết (DT-20 phần 20d) */}
-          {visible.has('class-log') ? <Button onClick={onOpenClassLog}>Sổ đầu bài</Button> : null}
           {classes &&
           classes.length === 0 &&
           !visible.has('gate') &&
@@ -180,71 +421,84 @@ export function ClassesScreen({
           !visible.has('supervision') ? (
             <p className="text-content text-text-secondary">Bạn chưa được phân công lớp nào.</p>
           ) : null}
-          <ul className="flex flex-col gap-2 md:grid md:grid-cols-2 md:gap-4">
+          <ul className="flex flex-col gap-2 md:grid md:grid-cols-2 md:gap-4 lg:grid-cols-[repeat(auto-fill,minmax(18rem,1fr))]">
             {sortedClasses.map((myClass) => (
               <li key={myClass.id} className="flex flex-col gap-1">
-                {hasLevelFeature(myClass.school_level, 'daily_attendance') ? (
-                  <button
-                    type="button"
-                    onClick={() => onOpen(myClass)}
-                    className="flex w-full items-center justify-between rounded-xl border border-border bg-card p-4 text-left"
-                  >
-                    <ClassSummary myClass={myClass} showLevel={multiLevel} />
-                  </button>
+                {wide ? (
+                  <ClassCard
+                    myClass={myClass}
+                    showLevel={multiLevel}
+                    homeroom={myClass.staff.some(
+                      (staff) => staff.staff_user_id === myId && staff.assignment_role === 'homeroom',
+                    )}
+                    onOpen={(feature) => openers[feature](myClass)}
+                  />
                 ) : (
-                  <div className="flex w-full items-center justify-between rounded-xl border border-border bg-card p-4">
-                    <ClassSummary myClass={myClass} showLevel={multiLevel} />
+                  <div className="flex flex-col gap-1">
+                    {hasLevelFeature(myClass.school_level, 'daily_attendance') ? (
+                      <button
+                        type="button"
+                        onClick={() => onOpen(myClass)}
+                        className="flex w-full items-center justify-between rounded-xl border border-border bg-card p-4 text-left"
+                      >
+                        <ClassSummary myClass={myClass} showLevel={multiLevel} />
+                      </button>
+                    ) : (
+                      <div className="flex w-full items-center justify-between rounded-xl border border-border bg-card p-4">
+                        <ClassSummary myClass={myClass} showLevel={multiLevel} />
+                      </div>
+                    )}
+                    {hasLevelFeature(myClass.school_level, 'class_pickup') ? (
+                      <Button aria-label={`Đón trả lớp ${myClass.name}`} onClick={() => onOpenPickup(myClass)}>
+                        Đón trả
+                      </Button>
+                    ) : null}
+                    {hasLevelFeature(myClass.school_level, 'daily_journal') ? (
+                      <Button aria-label={`Nhật ký lớp ${myClass.name}`} onClick={() => onOpenJournal(myClass)}>
+                        Nhật ký
+                      </Button>
+                    ) : null}
+                    {hasLevelFeature(myClass.school_level, 'daily_care') ? (
+                      <Button aria-label={`Chăm sóc lớp ${myClass.name}`} onClick={() => onOpenCare(myClass)}>
+                        Chăm sóc và y tế
+                      </Button>
+                    ) : null}
+                    <Button aria-label={`Trao đổi lớp ${myClass.name}`} onClick={() => onOpenMessages(myClass)}>
+                      Trao đổi và đồ bị mất
+                    </Button>
+                    <Button aria-label={`Hoạt động lớp ${myClass.name}`} onClick={() => onOpenActivity(myClass)}>
+                      Hoạt động và hình ảnh
+                    </Button>
+                    {hasLevelFeature(myClass.school_level, 'meal_report') ? (
+                      <Button aria-label={`Báo cơm lớp ${myClass.name}`} onClick={() => onOpenMealReport(myClass)}>
+                        Báo cơm
+                      </Button>
+                    ) : null}
+                    {hasLevelFeature(myClass.school_level, 'student_scores') ? (
+                      <Button aria-label={`Sổ điểm lớp ${myClass.name}`} onClick={() => onOpenScores(myClass)}>
+                        Sổ điểm
+                      </Button>
+                    ) : null}
+                    {hasLevelFeature(myClass.school_level, 'student_assessment') ? (
+                      <Button aria-label={`Đánh giá lớp ${myClass.name}`} onClick={() => onOpenAssessment(myClass)}>
+                        Đánh giá học sinh
+                      </Button>
+                    ) : null}
+                    {hasLevelFeature(myClass.school_level, 'boarding_meal') ? (
+                      <Button aria-label={`Bán trú lớp ${myClass.name}`} onClick={() => onOpenBoarding(myClass)}>
+                        Bán trú
+                      </Button>
+                    ) : null}
+                    {hasLevelFeature(myClass.school_level, 'class_medication') ? (
+                      <Button aria-label={`Dặn thuốc lớp ${myClass.name}`} onClick={() => onOpenMedication(myClass)}>
+                        Dặn thuốc
+                      </Button>
+                    ) : null}
+                    <Button aria-label={`Giảng dạy lớp ${myClass.name}`} onClick={() => onOpenTeaching(myClass)}>
+                      Giảng dạy
+                    </Button>
                   </div>
                 )}
-                {hasLevelFeature(myClass.school_level, 'class_pickup') ? (
-                  <Button aria-label={`Đón trả lớp ${myClass.name}`} onClick={() => onOpenPickup(myClass)}>
-                    Đón trả
-                  </Button>
-                ) : null}
-                {hasLevelFeature(myClass.school_level, 'daily_journal') ? (
-                  <Button aria-label={`Nhật ký lớp ${myClass.name}`} onClick={() => onOpenJournal(myClass)}>
-                    Nhật ký
-                  </Button>
-                ) : null}
-                {hasLevelFeature(myClass.school_level, 'daily_care') ? (
-                  <Button aria-label={`Chăm sóc lớp ${myClass.name}`} onClick={() => onOpenCare(myClass)}>
-                    Chăm sóc và y tế
-                  </Button>
-                ) : null}
-                <Button aria-label={`Trao đổi lớp ${myClass.name}`} onClick={() => onOpenMessages(myClass)}>
-                  Trao đổi và đồ bị mất
-                </Button>
-                <Button aria-label={`Hoạt động lớp ${myClass.name}`} onClick={() => onOpenActivity(myClass)}>
-                  Hoạt động và hình ảnh
-                </Button>
-                {hasLevelFeature(myClass.school_level, 'meal_report') ? (
-                  <Button aria-label={`Báo cơm lớp ${myClass.name}`} onClick={() => onOpenMealReport(myClass)}>
-                    Báo cơm
-                  </Button>
-                ) : null}
-                {hasLevelFeature(myClass.school_level, 'student_scores') ? (
-                  <Button aria-label={`Sổ điểm lớp ${myClass.name}`} onClick={() => onOpenScores(myClass)}>
-                    Sổ điểm
-                  </Button>
-                ) : null}
-                {hasLevelFeature(myClass.school_level, 'student_assessment') ? (
-                  <Button aria-label={`Đánh giá lớp ${myClass.name}`} onClick={() => onOpenAssessment(myClass)}>
-                    Đánh giá học sinh
-                  </Button>
-                ) : null}
-                {hasLevelFeature(myClass.school_level, 'boarding_meal') ? (
-                  <Button aria-label={`Bán trú lớp ${myClass.name}`} onClick={() => onOpenBoarding(myClass)}>
-                    Bán trú
-                  </Button>
-                ) : null}
-                {hasLevelFeature(myClass.school_level, 'class_medication') ? (
-                  <Button aria-label={`Dặn thuốc lớp ${myClass.name}`} onClick={() => onOpenMedication(myClass)}>
-                    Dặn thuốc
-                  </Button>
-                ) : null}
-                <Button aria-label={`Giảng dạy lớp ${myClass.name}`} onClick={() => onOpenTeaching(myClass)}>
-                  Giảng dạy
-                </Button>
               </li>
             ))}
           </ul>
