@@ -10,7 +10,7 @@ import {
 } from './device-checks.js';
 import { expect, test } from './fixtures.js';
 
-// YCTD-395 lát L1 (spec 242, CT-2105, CT-2106): ứng dụng giáo viên có thanh bên từ 1024 px, dưới 1024 px giữ như trước. Danh sách lớp,
+// YCTD-395 lát L1, L2 (spec 242, CT-2105 đến CT-2108): ứng dụng giáo viên có thanh bên từ 1024 px, dưới 1024 px giữ như trước. Danh sách lớp,
 // cờ Gia sư AI, ca trực giả lập bằng page.route; quyền ghi nhận rèn luyện thêm vào phản hồi /auth/me thật. Dữ liệu giả
 const database = createDatabase<IdentityDatabase>(readConnectionString('identity'));
 const TEACHER_URL = `http://localhost:${E2E_TEACHER_PORT}`;
@@ -33,7 +33,14 @@ async function signInTeacher(page: Page) {
   const teacher = await createTestUser(database, { roles: [{ roleCode: 'VT-07', orgUnitId: null }] });
   await page.route(
     (url) => url.pathname === '/api/v1/classes' && url.searchParams.get('mine') === 'true',
-    fulfillJson(CLASSES),
+    // Giáo viên chủ nhiệm lớp THCS để thẻ lớp có nhãn Chủ nhiệm (lát L2)
+    fulfillJson(
+      CLASSES.map((item) =>
+        item.school_level === 'THCS'
+          ? { ...item, staff: [{ staff_user_id: teacher.id, assignment_role: 'homeroom' }] }
+          : item,
+      ),
+    ),
   );
   await page.route(
     (url) => url.pathname === '/api/v1/ai-tutor/safety-flags',
@@ -109,4 +116,42 @@ test('CT-2106: khổ 390 không có thanh bên, trang chủ như trước', asyn
   await expect(page.getByRole('heading', { name: 'Ca trực hôm nay' })).toBeVisible();
   const duty = [...(await horizontalOverflowViolations(page)), ...(await touchTargetViolations(page))];
   expect(duty, describeViolations(duty)).toEqual([]);
+});
+
+test('CT-2107: trang chủ khổ 1366 có dải chào, ô lối tắt, thẻ lớp, cột phải', async ({ page }) => {
+  await page.setViewportSize({ width: 1366, height: 900 });
+  await signInTeacher(page);
+  await expect(page.getByText(/^Chào /)).toBeVisible();
+  await expect(page.getByText('Bạn đang dạy 2 lớp')).toBeVisible();
+  const shortcuts = page.getByRole('navigation', { name: 'Lối tắt' });
+  await expect(shortcuts.getByRole('button', { name: 'Hộp công cụ giảng dạy' })).toBeVisible();
+  await expect(shortcuts.getByRole('button', { name: 'Gia sư AI: cờ cần xử lý (2)' })).toBeVisible();
+  // Thẻ lớp: chức năng theo cấp, tên đọc như nút ở điện thoại; nhãn Chủ nhiệm ở lớp mình chủ nhiệm
+  await expect(page.getByRole('button', { name: 'Sổ điểm lớp Lớp 6A1 thử' })).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Đón trả lớp Lá 1 thử' })).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Sổ điểm lớp Lá 1 thử' })).toHaveCount(0);
+  await expect(page.getByRole('button', { name: /^Lớp 6A1 thử.*Chủ nhiệm/ })).toBeVisible();
+  const panels = await page.locator('[data-home="panels"]').boundingBox();
+  const classes = await page.locator('[data-home="classes"]').boundingBox();
+  expect(panels && classes && panels.x > classes.x + classes.width - 1).toBe(true);
+  const home = await layoutViolations(page);
+  expect(home, describeViolations(home)).toEqual([]);
+  await shortcuts.getByRole('button', { name: 'Ghi nhận rèn luyện' }).click();
+  await expect(page.getByRole('heading', { name: 'Ca trực hôm nay' })).toBeVisible();
+});
+
+test('CT-2108: khổ 1024 thông báo xuống dưới lớp; khổ 390 không có ô lối tắt, thẻ lớp máy tính', async ({ page }) => {
+  await page.setViewportSize({ width: 1024, height: 800 });
+  await signInTeacher(page);
+  const panels = await page.locator('[data-home="panels"]').boundingBox();
+  const classes = await page.locator('[data-home="classes"]').boundingBox();
+  expect(panels && classes && panels.y > classes.y).toBe(true);
+  const tablet = await layoutViolations(page);
+  expect(tablet, describeViolations(tablet)).toEqual([]);
+  await page.setViewportSize({ width: 390, height: 844 });
+  await expect(page.getByRole('navigation', { name: 'Lối tắt' })).toBeHidden();
+  await expect(page.getByRole('button', { name: 'Hộp công cụ giảng dạy' })).toBeVisible();
+  await expect(page.getByText(/^Chào /)).toBeHidden();
+  const phone = [...(await horizontalOverflowViolations(page)), ...(await touchTargetViolations(page))];
+  expect(phone, describeViolations(phone)).toEqual([]);
 });
