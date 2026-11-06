@@ -30,6 +30,8 @@ import {
 } from '../common/request-fields.js';
 import { uuidParameter } from '../common/uuid-parameter.js';
 import { OrganizationScopes } from '../organization/organization-scopes.js';
+import { Databases } from '../common/databases.js';
+import { criteriaWithEvidence } from '../quality-assurance/personal-evidence.js';
 import { LEVEL_LABELS, overallLevel, PROFESSIONAL_LEVELS } from './standard-rating.js';
 
 // Đánh giá chuẩn nghề nghiệp (YCTD-102, theo mục 3.2 hệ thống của Sở GD&ĐT TP.HCM): mỗi năm học, người đánh giá mở phiếu
@@ -62,6 +64,7 @@ export class ProfessionalStandardsService {
     private readonly currentSchoolYear: CurrentSchoolYearResolver,
     private readonly organizationScopes: OrganizationScopes,
     private readonly clock: Clock,
+    private readonly databases: Databases,
   ) {}
 
   private manageScope(currentUser: CurrentUser) {
@@ -509,6 +512,7 @@ export class ProfessionalStandardsService {
     if (missing.length > 0) {
       throw ruleViolationError(STANDARD_RULE, `Còn ${missing.length} tiêu chí chưa tự đánh giá`);
     }
+    await this.assertSelfEvidence(database, found.evaluation, found.items);
     await database.transaction().execute(async (transaction) => {
       await transaction
         .updateTable('professional_evaluations')
@@ -526,6 +530,43 @@ export class ProfessionalStandardsService {
       });
     });
     return this.read(currentUser, evaluationId);
+  }
+
+  // Mức tự đánh giá từ Đạt trở lên phải có minh chứng ở kho (YCTD-396 lát L9, BR-557; Công văn 4529, 4530: mức đã chọn phải có
+  // minh chứng). Chỉ kiểm khi trường đã nạp bộ chuẩn của cá nhân tương ứng ở kho minh chứng
+  private async assertSelfEvidence(
+    database: Kysely<SchoolYearDatabase>,
+    evaluation: { staff_id: string; standard_type: string },
+    items: Array<{ criterion_code: string; self_rating: string | null }>,
+  ) {
+    const staff = await database
+      .selectFrom('staff')
+      .select('user_id')
+      .where('id', '=', evaluation.staff_id)
+      .executeTakeFirst();
+    if (!staff?.user_id) {
+      return;
+    }
+    const covered = await criteriaWithEvidence(
+      this.databases.system,
+      database,
+      evaluation.standard_type,
+      staff.user_id,
+    );
+    if (!covered) {
+      return;
+    }
+    const lacking = items
+      .filter(
+        (item) => item.self_rating !== null && item.self_rating !== 'not_met' && !covered.has(item.criterion_code),
+      )
+      .map((item) => item.criterion_code);
+    if (lacking.length > 0) {
+      throw ruleViolationError(
+        STANDARD_RULE,
+        `Tiêu chí ${lacking.join(', ')} đã chọn mức từ Đạt trở lên nhưng chưa có minh chứng ở kho; thêm minh chứng hoặc chọn Chưa đạt`,
+      );
+    }
   }
 
   // Người đánh giá ghi mức từng tiêu chí sau khi nhân sự đã gửi tự đánh giá; lưu nhiều lần trước khi chốt

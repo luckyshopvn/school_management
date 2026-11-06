@@ -13,7 +13,7 @@ import { openMenu } from './menu.js';
 
 // Kho minh chứng, lát L6b (YCTD-396), kịch bản CT-396-28: Hiệu trưởng nạp bộ mẫu Mầm non (có bộ giáo viên mầm non chép từ
 // danh mục P07-05), mở phiếu đánh giá chuẩn cho giáo viên; giáo viên thấy từng tiêu chí "Chưa có minh chứng ở kho" và liên
-// kết thêm minh chứng ở kho. Dữ liệu giả
+// kết thêm minh chứng ở kho; chọn Khá mà chưa có minh chứng thì không gửi được (CT-396-30, lát L9). Dữ liệu giả
 const identity = createDatabase<IdentityDatabase>(readConnectionString('identity'));
 let schoolYear: ReturnType<typeof createDatabase<SchoolYearDatabase>>;
 
@@ -78,4 +78,8 @@ test('CT-396-28: phiếu tự đánh giá chuẩn nghề nghiệp hiện minh ch
   await expect(
     own.getByRole('link', { name: 'Thêm minh chứng ở kho (Chuẩn nghề nghiệp giáo viên mầm non (Thông tư 26/2018))' }),
   ).toBeVisible();
+  // Lát L9 (CT-396-30): chọn mức Khá cho mọi tiêu chí khi chưa có minh chứng thì không gửi được
+  await own.getByLabel('Mức cho mọi tiêu chí').selectOption({ label: 'Khá' });
+  await own.getByRole('button', { name: 'Gửi tự đánh giá' }).click();
+  await expect(page.getByText(/đã chọn mức từ Đạt trở lên nhưng chưa có minh chứng ở kho/)).toBeVisible();
 });

@@ -15,7 +15,7 @@ import {
   type LoggedInUser,
 } from '../test-support.js';
 
-// Kho minh chứng dùng chung (YCTD-396 lát L1); kịch bản CT-2130 đến CT-2135 (trong mã kiểm thử là CT-396-1 đến CT-396-6), lát L2 thêm CT-396-8, CT-396-9, lát L2b thêm CT-396-11, CT-396-12, lát L3 thêm CT-396-14, CT-396-15, lát L4 thêm CT-396-17, lát L5 thêm CT-396-19, lát L6 thêm CT-396-21, lát L7 thêm CT-396-23, lát L8 thêm CT-396-25, lát L6b thêm CT-396-27.
+// Kho minh chứng dùng chung (YCTD-396 lát L1); kịch bản CT-2130 đến CT-2135 (trong mã kiểm thử là CT-396-1 đến CT-396-6), lát L2 thêm CT-396-8, CT-396-9, lát L2b thêm CT-396-11, CT-396-12, lát L3 thêm CT-396-14, CT-396-15, lát L4 thêm CT-396-17, lát L5 thêm CT-396-19, lát L6 thêm CT-396-21, lát L7 thêm CT-396-23, lát L8 thêm CT-396-25, lát L6b thêm CT-396-27, lát L9 thêm CT-396-29.
 // Dữ liệu mẫu là dữ liệu giả
 const vietnamToday = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Ho_Chi_Minh' }).format(new Date());
 const addDays = (date: string, days: number) =>
@@ -1054,5 +1054,92 @@ describe('Kho minh chứng', () => {
       assert.deepEqual(response.body, expected);
     }
     assert.equal((await api('GET', `/quality/evidences/professional/${evaluation.id}`, 'teacher')).status, 403);
+  });
+
+  it('CT-396-29: gửi tự đánh giá chuẩn nghề nghiệp: tiêu chí chọn mức từ Đạt trở lên phải có minh chứng ở kho (lát L9)', async () => {
+    users.teacher4 = await environment.loginAs('VT-07', null);
+    const staff = await schoolYear
+      .insertInto('staff')
+      .values({
+        org_unit_id: unit,
+        code: 'NS-CN-4',
+        full_name: 'Giáo Viên Tự Đánh Giá Thử',
+        start_date: addDays(vietnamToday, -300),
+        user_id: users.teacher4.userId,
+      })
+      .returning('id')
+      .executeTakeFirstOrThrow();
+    const evaluation = await schoolYear
+      .insertInto('professional_evaluations')
+      .values({ staff_id: staff.id, org_unit_id: unit, standard_type: 'teacher', opened_by: principal.userId })
+      .returning('id')
+      .executeTakeFirstOrThrow();
+    const catalog = await schoolYear
+      .selectFrom('professional_criteria')
+      .innerJoin('professional_standards', 'professional_standards.id', 'professional_criteria.standard_id')
+      .select([
+        'professional_criteria.id',
+        'professional_criteria.code',
+        'professional_criteria.name',
+        'professional_criteria.is_key',
+        'professional_criteria.order_no',
+        'professional_standards.code as standard_code',
+        'professional_standards.name as standard_name',
+      ])
+      .where('professional_criteria.standard_type', '=', 'teacher')
+      .orderBy('professional_criteria.order_no')
+      .limit(2)
+      .execute();
+    await schoolYear
+      .insertInto('professional_evaluation_items')
+      .values(
+        catalog.map((row, index) => ({
+          evaluation_id: evaluation.id,
+          criterion_id: row.id,
+          standard_code: row.standard_code,
+          standard_name: row.standard_name,
+          criterion_code: row.code,
+          criterion_name: row.name,
+          is_key: row.is_key,
+          order_no: row.order_no,
+          self_rating: index === 0 ? 'good' : 'met',
+        })),
+      )
+      .execute();
+    // Minh chứng cho tiêu chí đầu ở bộ giáo viên mầm non; tiêu chí thứ hai chưa có
+    const teacherSet = (
+      (await api('GET', '/quality/evidences/frameworks', 'teacher4')).body.frameworks as Array<{
+        id: string;
+        code: string;
+        standards: Array<{ criteria: Array<{ id: string; code: string }> }>;
+      }>
+    ).find((row) => row.code === 'GV-MN-TT26-2018');
+    const first = teacherSet?.standards
+      .flatMap((standard) => standard.criteria)
+      .find((node) => node.code === catalog[0]?.code);
+    const created = await api('POST', '/quality/evidences', 'teacher4', {
+      framework_id: teacherSet?.id,
+      node_id: first?.id,
+      title: 'Minh chứng tự đánh giá thử',
+      status: 'collecting',
+    });
+    assert.equal(created.status, 201, JSON.stringify(created.body));
+
+    const submit = () => api('POST', `/professional-evaluations/${evaluation.id}/submit-self`, 'teacher4', {});
+    const refused = await submit();
+    assert.equal(refused.status, 422, JSON.stringify(refused.body));
+    assert.match(
+      String((refused.body.error as { message?: string } | undefined)?.message ?? ''),
+      new RegExp(`Tiêu chí ${catalog[1]?.code} đã chọn mức từ Đạt trở lên nhưng chưa có minh chứng`),
+    );
+    await schoolYear
+      .updateTable('professional_evaluation_items')
+      .set({ self_rating: 'not_met' })
+      .where('evaluation_id', '=', evaluation.id)
+      .where('criterion_code', '=', catalog[1]?.code ?? '')
+      .execute();
+    const accepted = await submit();
+    assert.equal(accepted.status, 200, JSON.stringify(accepted.body));
+    assert.equal(accepted.body.status, 'self_submitted');
   });
 });

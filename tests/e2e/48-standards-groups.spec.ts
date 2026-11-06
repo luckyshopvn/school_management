@@ -166,7 +166,9 @@ test('Chuẩn nghề nghiệp: giáo viên tự đánh giá, quản lý đơn v�
   const teacherPage = await signIn(browser, teacher);
   await openMenu(teacherPage, '/professional-standards');
   const own = teacherPage.getByRole('region', { name: 'Phiếu tự đánh giá của tôi' });
-  await own.getByLabel('Mức cho mọi tiêu chí').selectOption({ label: 'Khá' });
+  // Chưa có minh chứng ở kho: mức từ Đạt trở lên bị chặn khi bộ chuẩn của cá nhân đã nạp (YCTD-396 lát L9, spec 243 trở đi
+  // nạp bộ Mầm non trước)
+  await own.getByLabel('Mức cho mọi tiêu chí').selectOption({ label: 'Chưa đạt' });
   await own.getByRole('button', { name: 'Gửi tự đánh giá' }).click();
   await expect(own).toContainText('Chờ đánh giá');
 
