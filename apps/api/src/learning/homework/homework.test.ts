@@ -72,6 +72,9 @@ describe('Điểm cuối bài về nhà', () => {
 
   before(async () => {
     environment = await startApiTestEnvironment();
+    // Ngày tiết và hạn trong kiểm thử là ngày cố định (2/11, 9/11), còn lịch khối lượng, danh sách bài của con tính từ hôm nay:
+    // cố định đồng hồ của máy chủ API ở 10:00 ngày 3/11 giờ Việt Nam để kết quả không đổi theo ngày chạy (YCTD-399)
+    environment.api.get(Clock).now = () => new Date('2026-11-03T03:00:00Z');
     principal = await environment.loginAs('VT-02', null);
     academicYearId = await openTestAcademicYear(environment, principal.accessToken, '2026-2027', {
       first_term: { start_date: '2026-09-05', end_date: '2027-01-15' },
