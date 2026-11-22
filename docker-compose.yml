@@ -19,6 +19,9 @@ services:
     image: redis:7-alpine
     ports:
       - '6379:6379'
+    # Volume có tên để tạo lại container không sinh volume ẩn danh mới (YCTD-398)
+    volumes:
+      - redis-data:/data
     healthcheck:
       test: ['CMD', 'redis-cli', 'ping']
       interval: 5s
@@ -33,4 +36,5 @@ services:
       - seaweedfs-data:/data
 volumes:
   postgres-data:
+  redis-data:
   seaweedfs-data:
